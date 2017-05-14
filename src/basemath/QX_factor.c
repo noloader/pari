@@ -1229,10 +1229,10 @@ BD(GEN f)
   { /* contains all Phi_n originally dividing f, n = 2 mod 4, n > 2;
      * and only those
      * In that case, Graeffe(Phi_n) = Phi_{n/2}, and Phi_n = Phi_{n/2}(-x) */
-    Gi = BD_odd(ZX_unscale(f, gen_m1));
+    Gi = BD_odd(ZX_z_unscale(f, -1));
     if (Gi)
     { /* N.B. Phi_2 does not divide f */
-      Gi = ZX_unscale(Gi, gen_m1);
+      Gi = ZX_z_unscale(Gi, -1);
       /* Gi is the product of all Phi_n | f, n = 2 mod 4 */
       G = myconcat(G, Gi);
     }
@@ -1327,7 +1327,7 @@ BD_iscyclo(GEN f)
   /* f = product of Phi_n, n odd */
   if (ZX_equal(f, f1)) { avma = av; return BD_odd_iscyclo(f); }
 
-  fn = ZX_unscale(f, gen_m1); /* f(-x) */
+  fn = ZX_z_unscale(f, -1); /* f(-x) */
   /* f = product of Phi_n, n = 2 mod 4 */
   if (ZX_equal(f1, fn)) return 2*BD_odd_iscyclo(fn);
 

@@ -2751,7 +2751,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     GEN Pcurm, unscaledres;
     long i, bm = (long)ceil(fb);
     if (bm < 0) bm = 0;
-    Pcurm = ZX_unscale2n(ZX_unscale(Pcur, gen_m1), bm);
+    Pcurm = ZX_unscale2n(ZX_z_unscale(Pcur, -1), bm);
     unscaledres = usp(Pcurm, deg, flag, bitprec);
     if (flag <= 1)
     {

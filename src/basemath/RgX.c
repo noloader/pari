@@ -242,9 +242,9 @@ RgX_unscale(GEN P, GEN h)
   }
   return Q;
 }
-/* P a ZX, h a t_INT. Return P(h * x), not memory clean; optimize for h = -1 */
+/* P a ZX, Return P(h * x), not memory clean; optimize for h = -1 */
 GEN
-ZX_unscale(GEN P, GEN h)
+ZX_z_unscale(GEN P, long h)
 {
   long i, l = lg(P);
   GEN Q = cgetg(l, t_POL);
@@ -252,8 +252,8 @@ ZX_unscale(GEN P, GEN h)
   if (l == 2) return Q;
   gel(Q,2) = gel(P,2);
   if (l == 3) return Q;
-  if (equalim1(h))
-    for (i=3; i<l; i++)
+  if (h == -1)
+    for (i = 3; i < l; i++)
     {
       gel(Q,i) = negi(gel(P,i));
       if (++i == l) break;
@@ -261,13 +261,35 @@ ZX_unscale(GEN P, GEN h)
     }
   else
   {
-    GEN hi = h;
-    gel(Q,3) = mulii(gel(P,3), hi);
-    for (i=4; i<l; i++)
+    GEN hi;
+    gel(Q,3) = mulis(gel(P,3), h);
+    hi = sqrs(h);
+    for (i = 4; i < l; i++)
     {
-      hi = mulii(hi,h);
       gel(Q,i) = mulii(gel(P,i), hi);
+      if (i != l-1) hi = mulis(hi,h);
     }
+  }
+  return Q;
+}
+/* P a ZX, h a t_INT. Return P(h * x), not memory clean; optimize for h = -1 */
+GEN
+ZX_unscale(GEN P, GEN h)
+{
+  long i, l;
+  GEN Q, hi;
+  i = itos_or_0(h); if (i) return ZX_z_unscale(P, i);
+  l = lg(P); Q = cgetg(l, t_POL);
+  Q[1] = P[1];
+  if (l == 2) return Q;
+  gel(Q,2) = gel(P,2);
+  if (l == 3) return Q;
+  hi = h;
+  gel(Q,3) = mulii(gel(P,3), hi);
+  for (i = 4; i < l; i++)
+  {
+    hi = mulii(hi,h);
+    gel(Q,i) = mulii(gel(P,i), hi);
   }
   return Q;
 }

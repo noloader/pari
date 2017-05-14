@@ -2061,7 +2061,7 @@ ZXirred_is_cyclo_translate(GEN T, long n_squarefree)
   T1 = ZX_graeffe(T);
   if (ZX_equal(T, T1)) /* T = Phi_n, n odd */
     return deg1pol_shallow(gen_m1, negi(c), varn(T));
-  else if (ZX_equal(T1, ZX_unscale(T, gen_m1))) /* T = Phi_{2n}, nodd */
+  else if (ZX_equal(T1, ZX_z_unscale(T, -1))) /* T = Phi_{2n}, nodd */
     return deg1pol_shallow(gen_1, c, varn(T));
   return NULL;
 }

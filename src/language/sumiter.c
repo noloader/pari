@@ -994,7 +994,7 @@ GEN
 polzag(long n, long m)
 {
   pari_sp av = avma;
-  GEN g = ZX_unscale(polzag1(n,m), gen_m1);
+  GEN g = ZX_z_unscale(polzag1(n,m), -1);
   return gerepileupto(av, RgX_Rg_div(g,gel(g,2)));
 }
 

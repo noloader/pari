@@ -8282,6 +8282,9 @@ integer. Returns $P(X + c)$ (optimized for $c = \pm 1$).
 \fun{GEN}{ZX_unscale}{GEN P, GEN h} given a \kbd{ZX} $P$ and a \typ{INT} $h$,
 returns $P(hx)$. Not memory clean.
 
+\fun{GEN}{ZX_z_unscale}{GEN P, long h} given a \kbd{ZX} $P$,
+returns $P(hx)$. Not memory clean.
+
 \fun{GEN}{ZX_unscale2n}{GEN P, long n} given a \kbd{ZX} $P$, returns
 $P(x<<n)$. Not memory clean.
 
