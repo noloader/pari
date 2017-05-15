@@ -364,6 +364,7 @@ GEN     FlxY_evalx(GEN Q, ulong x, ulong p);
 GEN     FlxY_evalx_powers_pre(GEN pol, GEN ypowers, ulong p, ulong pi);
 GEN     FlxYqq_pow(GEN x, GEN n, GEN S, GEN T, ulong p);
 GEN     Flxn_inv(GEN f, long e, ulong p);
+GEN     Flxn_mul(GEN a, GEN b, long n, ulong p);
 GEN     Flxq_autpow(GEN x, ulong n, GEN T, ulong p);
 GEN     Flxq_autsum(GEN x, ulong n, GEN T, ulong p);
 GEN     Flxq_auttrace(GEN x, ulong n, GEN T, ulong p);

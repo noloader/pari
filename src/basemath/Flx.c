@@ -3057,7 +3057,7 @@ Flxq_charpoly(GEN x, GEN TB, ulong p)
 /* cf Shoup 'Efficient Computation of Minimal Polynomials */
 /*          in Algebraic Extensions of Finite Fields'     */
 
-static GEN
+GEN
 Flxn_mul(GEN a, GEN b, long n, ulong p)
 {
   GEN c = Flx_mul(a, b, p);

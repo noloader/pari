@@ -200,6 +200,7 @@ BA   77- ellrootno for curves over number fields
      79- GP functions fordivfactored
 BA   80- [libpari] ZXQM_mul, ZXQM_sqr
      81- [libpari] ZX_z_unscale
+     82- [libpari] Flxn_mul
 
   Changed
       1- rewrite bnfnarrow
