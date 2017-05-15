@@ -1,0 +1,8 @@
+Function: galoischardet
+Section: number_fields
+C-Name: galoischardet
+Prototype: GGD1,L,
+Help: galoischardet(gal, ch, {,o}): return the determinant character of the character
+ ch.
+Doc: Let $\chi$ be the character of some representation $\rho$ of the group $G$.
+ Return the degree-$1$ character $\det\rho$.

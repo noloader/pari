@@ -1,0 +1,9 @@
+Function: galoischarpoly
+Section: number_fields
+C-Name: galoischarpoly
+Prototype: GGD1,L,
+Help: galoischarpoly(gal, ch, {,o}): return the list of characteristic
+ polynomials of the representation attached to the character ch.
+Doc: Let $\chi$ be the character of some representation $\rho$ of the group $G$.
+ Return the list of characteristic polynomial of $\rho{g}$ for $g$ a representative
+ of the conjugacy class.

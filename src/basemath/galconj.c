@@ -2523,6 +2523,19 @@ conjclasses_expand(GEN elts, GEN conj, long nb)
   return e;
 }
 
+static GEN
+conjclasses_repr(GEN elts, GEN conj, long nb)
+{
+  long i, l = lg(conj);
+  GEN e = const_vecsmall(nb, 0);
+  for(i=1; i<l; i++)
+  {
+    long ci = conj[i];
+    if (!e[ci]) e[ci] = i;
+  }
+  return e;
+}
+
 GEN
 galoisconjclasses(GEN gal)
 {
@@ -2648,4 +2661,79 @@ galoischartable(GEN gal)
 {
   GEN elts = checkgroupelts(gal);
   return groupelts_chartable(elts);
+}
+
+static void
+checkgaloischar(GEN ch, long nb)
+{
+  if (gvar(ch) == 0) pari_err_PRIORITY("galoischarpoly",ch,"=",0);
+  if (!is_vec_t(typ(ch))) pari_err_TYPE("galoischarpoly", ch);
+  if (nb != lg(ch)-1) pari_err_DIM("galoischarpoly");
+}
+
+static long
+galoischar_dim(GEN ch)
+{
+  pari_sp av = avma;
+  long d = gtos(simplify_shallow(lift_shallow(gel(ch,1))));
+  avma = av; return d;
+}
+
+static GEN
+galoischar_aut_charpoly(GEN conj, GEN ch, GEN p, long d)
+{
+  long i;
+  GEN q = p, V = cgetg(d+3, t_POL);
+  V[1] = evalsigne(1)|evalvarn(0);
+  gel(V,2) = gen_0;
+  for (i = 1; i <= d; i++)
+  {
+    gel(V,i+2) = gdivgs(gel(ch, conj[q[1]]),-i);
+    q = gmul(q, p);
+  }
+  return liftpol_shallow(RgXn_exp(V,d+1));
+}
+
+static GEN
+galoischar_charpoly(GEN elts, GEN ch, long o)
+{
+  long i, l, d, nb;
+  GEN conj, repr, mod, chm, V;
+  elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
+  conj = groupelts_conjclasses(elts, &nb);
+  checkgaloischar(ch, nb);
+  d = galoischar_dim(ch); l = lg(ch);
+  repr = conjclasses_repr(elts, conj, nb);
+  mod = polcyclo(o, gvar(ch));
+  chm = gmul(ch, mkpolmod(gen_1,  mod));
+  V = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+    gel(V, i) = galoischar_aut_charpoly(conj, chm, gel(elts,repr[i]), d);
+  return V;
+}
+
+GEN
+galoischarpoly(GEN gal, GEN ch, long o)
+{
+  pari_sp av = avma;
+  GEN elts = checkgroupelts(gal);
+  return gerepilecopy(av, galoischar_charpoly(elts, ch, o));
+}
+
+static GEN
+groupelts_char_det(GEN elts, GEN ch, long o)
+{
+  long i, l = lg(ch), d = galoischar_dim(ch);
+  GEN V = galoischar_charpoly(elts, ch, o);
+  for (i = 1; i < l; i++)
+    gel(V, i) = leading_coeff(gel(V, i));
+  return odd(d) ? gneg(V): V;
+}
+
+GEN
+galoischardet(GEN gal, GEN ch, long o)
+{
+  pari_sp av = avma;
+  GEN elts = checkgroupelts(gal);
+  return gerepilecopy(av, groupelts_char_det(elts, ch, o));
 }
