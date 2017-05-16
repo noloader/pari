@@ -1861,17 +1861,16 @@ static GEN
 artin_charpoly1(GEN ch, GEN p)
 {
   long d = char_dim(ch);
-  long i, v = fetch_var_higher();
+  long i;
   GEN q = p, V = cgetg(d+3, t_POL);
-  V[1] = evalsigne(1)|evalvarn(v);
+  V[1] = evalsigne(1)|evalvarn(0);
   gel(V,2) = gen_0;
   for (i = 1; i <= d; i++)
   {
     gel(V,i+2) = gdivgs(gel(ch, q[1]),-i);
     q = gmul(q, p);
   }
-  delete_var();
-  setvarn(V,0); return RgXn_exp(V,d+1);
+  return RgXn_exp(V,d+1);
 }
 
 static GEN
