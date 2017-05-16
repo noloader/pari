@@ -812,7 +812,8 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
   ulong nt,rorder;
   GEN pg, ppi, grp = gal_get_group(gal);
 
-  /* G_i = {s: v(s(pi) - pi) > i} trivial for i > bound */
+  /* G_i = {s: v(s(pi) - pi) > i} trivial for i > bound;
+   * v_pr(Diff) = sum_{i = 0}^{bound} (#G_i - 1) >= e-1 + bound*(p-1)*/
   bound = (idealval(nf, nf_get_diff(nf), pr) - (e-1)) / (itou(p)-1);
   (void) u_pvalrem(n,p,&nt);
   rorder = e*f*(n/nt);
@@ -850,7 +851,9 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
     piso = iso;
     S = get_aut(nf, gal, aut, iso);
     Spi = FpX_FpC_nfpoleval(nf, pi, FpC_red(S, ppi), ppi);
-    idx[ix] = idealval(nf, gsub(Spi,pibas), pr) - e*vDpi;
+    /* Computation made knowing that the valuation is <= bound + 1. Correct
+     * to maximal value if reduction mod ppi altered this */
+    idx[ix] = minss(bound+1, idealval(nf, gsub(Spi,pibas), pr) - e*vDpi);
     if (idx[ix] == 0) idx[ix] = -1;
     else if (g)
     {
