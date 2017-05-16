@@ -1554,16 +1554,17 @@ nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, long fl, nflift_t *L)
   Cltx_r = deg1pol_shallow(D.Clt? D.Clt: gen_1, NULL, varn(pol));
   for (m=1,i=1; i<lg(z); i++)
   {
-    GEN q, r = gel(z,i);
+    GEN r = gel(z,i);
+    int dvd;
     pari_sp av;
     /* lt*dn*topowden * r = Clt * r */
     r = nf_bestlift_to_pol(ltdn? gmul(ltdn,r): r, NULL, L);
     av = avma;
     gel(Cltx_r,2) = gneg(r); /* check P(r) == 0 */
-    q = RgXQX_divrem(D.C2ltpol, Cltx_r, nfpol, ONLY_DIVIDES); /* integral */
+    dvd = ZXQX_dvd(D.C2ltpol, Cltx_r, nfpol); /* integral */
     avma = av;
     /* don't go on with q, usually much larger that C2ltpol */
-    if (q) {
+    if (dvd) {
       if (D.Clt) r = gdiv(r, D.Clt);
       gel(z,m++) = r;
     }
