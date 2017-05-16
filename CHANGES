@@ -243,6 +243,7 @@ KB+HC89- new package 'mf' for modular forms; new GP functions
 JA   92- GP functions ecpp, ecppexport, ecppisvalid.
      93- [libpari] ncharvecexpo
      94- [libpari] rootsof1q_cx, rootsof1powinit, rootsof1pow
+BA   95- [libpari] RgX_digits
 
   Changed
       1- rewrite bnfnarrow
