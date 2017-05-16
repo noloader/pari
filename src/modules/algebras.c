@@ -569,6 +569,24 @@ alg_quotient(GEN al, GEN I, int maps)
   return gerepilecopy(av, alg_quotient0(al, S, Si, n-ni, p, maps));
 }
 
+static GEN
+image_keep_first(GEN m, GEN p) /* assume first column is nonzero or m==0 */
+{
+  GEN perm, m2;
+  long i=1, n = nbrows(m);
+  if (gequal0(gel(m,1))) return zeromat(n,0);
+  while (gequal0(gcoeff(m,i,1))) i++;
+  perm = identity_perm(n);
+  perm[i]=1;
+  perm[1]=i;
+  m2 = rowpermute(m,perm);
+  /* works correctly if indexrank is a pivot: put a nonzero coefficient on top
+   * of first column to ensure it is kept first */
+  if (signe(p)) perm = gel(FpM_indexrank(m2,p),2);
+  else          perm = gel(indexrank(m2),2);
+  return vecpermute(m,perm);
+}
+
 /* z[1],...z[nz] central elements such that z[1]A + z[2]A + ... + z[nz]A = A
  * is a direct sum. idempotents ==> first basis element is identity */
 GEN
@@ -585,8 +603,7 @@ alg_centralproj(GEN al, GEN z, int maps)
   for (i=1; i<lz; i++)
   {
     GEN mti = algleftmultable(al, gel(z,i));
-    if (signe(p)) gel(S,i) = FpM_image(mti,p);
-    else          gel(S,i) = image(mti);
+    gel(S,i) = image_keep_first(mti,p);
   }
   U = shallowconcat1(S); /*U = [Im(z_1)|Im(z_2)|...|Im(z_nz)], n x n*/
   if (lg(U)-1 < alg_get_absdim(al)) pari_err_TYPE("alcentralproj [z[i]'s not surjective]",z);
@@ -850,6 +867,7 @@ alg_subalg(GEN al, GEN basis)
   long i, j, n = lg(basis)-1;
   if (!signe(p)) p = NULL;
   basis = shallowmatconcat(mkvec2(col_ei(n,1),basis));
+  /* 1st column, being e1, is kept in 1st position when computing the image */
   if (p)    basis = FpM_image(basis,p);
   else      basis = QM_ImQ_hnf(basis);
   if (p) { /*TODO change after bugfix?*/
