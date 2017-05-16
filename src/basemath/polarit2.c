@@ -643,7 +643,7 @@ factor(GEN x)
           RgX_type_decode(tx, &t1, &t2);
           switch (t2)
           {
-            case t_INT: p1 = polfnf(x,pol); break;
+            case t_INT: p1 = nffactor(pol,x); break;
             case t_INTMOD:
               pol = RgX_to_FpX(pol, p);
               if (FpX_is_squarefree(pol,p) && FpX_nbfact(pol, p) == 1)

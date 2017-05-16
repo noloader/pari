@@ -100,6 +100,7 @@ BA   74- [pthread] do not use pthread when nbthreads=1
      76- Mod(0,1)^0 -> invalid t_INTMOD
      77- gamma and lngamma inaccurate near negative integers, e.g.
          gamma(-1+10^-16)
+BA   78- nfisisom, nfisincl and factor were still using factornf
 
   Added
       1- [libari] ZM_isidentity

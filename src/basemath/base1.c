@@ -1003,24 +1003,11 @@ nfiso0(GEN a, GEN b, long fliso)
   if (fliso && nfa && !nfb) { swap(a,b); nfb = nfa; nfa = NULL; }
   if (!tests_OK(a, nfa, b, nfb, fliso)) { avma = av; return gen_0; }
 
-  if (nfb) lb = gen_1; else b = ZX_Q_normalize(b,&lb);
-  if (nfa) la = gen_1; else a = ZX_Q_normalize(a,&la);
+  if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
+  if (nfa) la = gen_1; else nfa = a = ZX_Q_normalize(a,&la);
   vb = varn(b); newvar = (varncmp(vb,varn(a)) <= 0);
   if (newvar) { a = leafcopy(a); setvarn(a, fetch_var_higher()); }
-  if (nfb)
-    y = lift_shallow(nfroots(nfb,a));
-  else
-  {
-    y = gel(polfnf(a,b),1); lx = lg(y);
-    for (i=1; i<lx; i++)
-    {
-      GEN t = gel(y,i);
-      if (degpol(t) != 1) { setlg(y,i); break; }
-      gel(y,i) = gneg_i(lift_shallow(gel(t,2)));
-    }
-    settyp(y, t_VEC);
-    gen_sort_inplace(y, (void*)&cmp_RgX, &cmp_nodata, NULL);
-  }
+  y = lift_shallow(nfroots(nfb,a));
   if (newvar) (void)delete_var();
   lx = lg(y); if (lx==1) { avma=av; return gen_0; }
   for (i=1; i<lx; i++)
