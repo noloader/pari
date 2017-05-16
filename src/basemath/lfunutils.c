@@ -1794,14 +1794,15 @@ idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
   }
   return NULL; /* LCOV_EXCL_LINE */
 }
-/* p divides nf.index */
+/* true nf; p divides nf.index, pr/p unramified */
 static GEN
 idealfrobenius_hard(GEN nf, GEN gal, GEN aut, GEN pr)
 {
   long i, l = lg(aut), f = pr_get_f(pr);
-  GEN modpr, p, T, X, Xp, grp = gal_get_group(gal);
+  GEN modpr, p, T, X, Xp, pi, grp = gal_get_group(gal);
   pari_sp av = avma;
   if (f==1) return gel(grp,1);
+  pi = pr_get_gen(pr);
   modpr = zkmodprinit(nf, pr);
   p = modpr_get_p(modpr);
   T = modpr_get_T(modpr);
@@ -1813,8 +1814,10 @@ idealfrobenius_hard(GEN nf, GEN gal, GEN aut, GEN pr)
     if (perm_order(g)==f)
     {
       GEN S = gel(aut,g[1]);
-      GEN A = nf_to_Fq(nf, zk_galoisapplymod(nf, X, S, p), modpr);
-      if (ZX_equal(A, Xp)) { avma = av; return g; }
+      GEN A = nf_to_Fq(nf, zk_galoisapplymod(nf,X,S,p), modpr);
+      /* sigma(X) = X^p (mod pr) and sigma(pi) in pr */
+      if (ZX_equal(A, Xp) && (f == nf_get_degree(nf) ||
+          ZC_prdvd(zk_galoisapplymod(nf,pi,S,p),pr))) { avma=av; return g; }
     }
   }
   return NULL; /* LCOV_EXCL_LINE */

@@ -1,0 +1,19 @@
+\\ package: galpol
+testartin(P)=
+{
+  N = nfinit(P);
+  G = galoisinit(N);
+  [T, o] = galoischartable(G);
+  for(i=1,#T,
+    L = lfunartin(N,G,T[,i],o);
+    if(lfuncheckfeq(L)>-40,print(["error:",galoisidentify(G),i])));
+}
+checkartin(m)=
+{
+  for(n=1,m,
+    for(i=1,galoisgetpol(n),
+      testartin(galoisgetpol(n,i)[1])));
+}
+localbitprec(64);checkartin(15)
+
+
