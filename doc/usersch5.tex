@@ -5780,6 +5780,9 @@ particular, if $p$ is not prime or $T$ is not irreducible over $\F_p[X]$, the
 routine may still be used (but will fail if non-invertible leading terms
 occur).
 
+\fun{long}{FlxqX_is_squarefree}{GEN S, GEN T, ulong p}, as
+\kbd{FpX\_is\_squarefree}.
+
 \fun{GEN}{FlxqX_Frobenius}{GEN S, GEN T, ulong p}, as \kbd{FpXQX\_Frobenius}
 
 \fun{GEN}{FlxqXQ_halfFrobenius}{GEN A, GEN S, GEN T, ulong p}, as
@@ -5793,6 +5796,8 @@ $\F_p[X]/(T)$. Assumes \kbd{p} is prime and \kbd{T} irreducible in $\F_p[X]$.
 in $\F_p[X]$.
 
 \fun{long}{FlxqX_nbroots}{GEN S, GEN T, ulong p}, as \kbd{FpX\_nbroots}.
+
+\fun{long}{FlxqX_nbfact}{GEN S, GEN T, ulong p}, as \kbd{FpX\_nbfact}.
 
 \fun{GEN}{FlxqX_FlxqXQ_eval}{GEN Q, GEN x, GEN S, GEN T, ulong p} as
 \kbd{FpX\_FpXQ\_eval}.

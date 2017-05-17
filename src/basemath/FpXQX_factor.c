@@ -954,6 +954,14 @@ FpXQX_Berlekamp_ker(GEN S, GEN T, GEN p)
 }
 
 long
+FlxqX_nbfact(GEN u, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN vker = FlxqX_Berlekamp_ker(u, T, p);
+  avma = av; return lg(vker)-1;
+}
+
+long
 FpXQX_nbfact(GEN u, GEN T, GEN p)
 {
   pari_sp av = avma;
@@ -1992,6 +2000,15 @@ polrootsff(GEN f, GEN p, GEN T)
   }
   ffcheck(&av, &f, &T, p); z = FpXQX_roots_i(f, T, p);
   return to_FqC(z, T,p, av);
+}
+
+long
+FlxqX_is_squarefree(GEN P, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN z = FlxqX_gcd(P, FlxX_deriv(P, p), T, p);
+  avma = av;
+  return degpol(z)==0;
 }
 
 long

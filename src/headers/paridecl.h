@@ -678,6 +678,8 @@ GEN     Flx_ffisom(GEN P,GEN Q,ulong l);
 GEN     Flxq_ffisom_inv(GEN S,GEN Tp, ulong p);
 GEN     FlxqX_Frobenius(GEN S, GEN T, ulong p);
 GEN     FlxqX_factor(GEN x, GEN T, ulong p);
+long    FlxqX_is_squarefree(GEN P, GEN T, ulong p);
+long    FlxqX_nbfact(GEN z, GEN T, ulong p);
 long    FlxqX_nbroots(GEN f, GEN T, ulong p);
 GEN     FlxqX_roots(GEN S, GEN T, ulong p);
 GEN     FlxqXQ_halfFrobenius(GEN a, GEN S, GEN T, ulong p);

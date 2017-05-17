@@ -204,6 +204,7 @@ BA   78- ellrootno for curves over number fields
 BA   81- [libpari] ZXQM_mul, ZXQM_sqr
      82- [libpari] ZX_z_unscale
      83- [libpari] Flxn_mul
+BA   84- [libpari] FlxqX_is_squarefree/FlxqX_nbfact
 
   Changed
       1- rewrite bnfnarrow
