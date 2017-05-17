@@ -1516,7 +1516,8 @@ nfpolred(nfmaxord_t *S, GEN *pro)
 
   if (n == 1) {
     S->T = deg1pol_shallow(gen_1, gen_m1, v);
-    *pro = NULL; return pol_1(v);
+    *pro = NULL;
+    return scalarpol_shallow(negi(gel(x,2)), v);
   }
   polredbest_aux(S, pro, &x, &dx, &b);
   if (x == S->T) return NULL; /* no improvement */
