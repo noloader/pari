@@ -13,6 +13,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
+#define dbg_printf(lvl) if (DEBUGLEVEL >= (lvl) + 3) err_printf
+
 /********************************************************************/
 /**                                                                **/
 /**           ASSOCIATIVE ALGEBRAS, CENTRAL SIMPLE ALGEBRAS        **/
@@ -472,20 +474,26 @@ algradical(GEN al)
   P = alg_get_char(al);
   mt = alg_get_multable(al);
   n = alg_get_absdim(al);
+  dbg_printf(1)("algradical: char=%Ps, dim=%d\n", P, n);
   traces = algtracematrix(al);
   if (!signe(P))
   {
+    dbg_printf(2)(" char 0, computing kernel...\n");
     K = ker(traces);
+    dbg_printf(2)(" ...done.\n");
     ni = lg(K)-1; if (!ni) { avma = av; return gen_0; }
     return gerepileupto(av, K);
   }
+  dbg_printf(2)(" char>0, computing kernel...\n");
   K = FpM_ker(traces, P);
+  dbg_printf(2)(" ...done.\n");
   ni = lg(K)-1; if (!ni) { avma = av; return gen_0; }
   if (abscmpiu(P,n)>0) return gerepileupto(av, K);
 
   /* tough case, p <= n. Ronyai's algorithm */
   p = P[2]; l = 1;
   expo = p; modu = p*p;
+  dbg_printf(2)(" char>0, hard case.\n");
   while (modu<=(ulong)n) { l++; modu *= p; }
   MT = ZMV_to_FlmV(mt, modu);
   I = ZM_to_Flm(K,p); /* I_0 */
@@ -493,6 +501,7 @@ algradical(GEN al)
     long j, lig,col;
     GEN v = cgetg(ni+1, t_VECSMALL);
     GEN invI = Flm_invimage_init(I, p);
+    dbg_printf(2)(" computing I_%d:\n", i);
     traces = cgetg(ni+1,t_MAT);
     for (j = 1; j <= ni; j++)
     {
@@ -510,7 +519,9 @@ algradical(GEN al)
         uel(t,lig) = Flv_dotproduct(v, z, p);
       }
     }
+    dbg_printf(2)(" computing kernel...\n");
     K = Flm_ker(traces, p);
+    dbg_printf(2)(" ...done.\n");
     ni = lg(K)-1; if (!ni) { avma = av; return gen_0; }
     I = Flm_mul(I,K,p);
     expo *= p;
@@ -715,7 +726,7 @@ out_decompose(GEN t, GEN Z, GEN P, GEN p)
 }
 /* fa factorization of charpol(x) */
 static GEN
-alg_decompose0(GEN al, GEN x, GEN fa, GEN Z, int mini)
+alg_decompose_from_facto(GEN al, GEN x, GEN fa, GEN Z, int mini)
 {
   long k = lgcols(fa)-1, k2 = mini? 1: k/2;
   GEN v1 = rowslice(fa,1,k2);
@@ -760,15 +771,17 @@ try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini)
 {
   GEN z, dec0, dec1, cp = algcharpoly(Zal,zx,0), fa, p = alg_get_char(al);
   long nfa, e;
+  dbg_printf(3)("  try_fact: zx=%Ps\n", zx);
   if (signe(p)) fa = FpX_factor(cp,p);
   else          fa = factor(cp);
+  dbg_printf(3)("  charpoly=%Ps\n", fa);
   nfa = nbrows(fa);
   if (nfa == 1) {
     if (signe(p)) e = gel(fa,2)[1];
     else          e = itos(gcoeff(fa,1,2));
     return e==1 ? gen_0 : NULL;
   }
-  dec0 = alg_decompose0(al, x, fa, Z, mini);
+  dec0 = alg_decompose_from_facto(al, x, fa, Z, mini);
   if (!dec0) return NULL;
   if (!mini) return dec0;
   dec1 = alg_decompose(gel(dec0,1), gel(dec0,4), 1);
@@ -803,6 +816,7 @@ alg_decompose(GEN al, GEN Z, int mini)
 
   if (nz==1) return gen_0;
   p = alg_get_char(al);
+  dbg_printf(2)(" alg_decompose: char=%Ps, dim=%d, dim Z=%d\n", p, alg_get_absdim(al), nz);
   Zal = alg_subalg(al,Z);
   Z = gel(Zal,2);
   Zal = gel(Zal,1);
@@ -939,6 +953,7 @@ algsimpledec(GEN al, int maps)
   long n;
   checkalg(al);
   p = alg_get_char(al);
+  dbg_printf(1)("algsimpledec: char=%Ps, dim=%d\n", p, alg_get_absdim(al));
   if (signe(p)) Z = algprimesubalg(al);
   else          Z = algtablecenter(al);
 
@@ -4481,6 +4496,8 @@ alg_pmaximal_i(GEN al, GEN p)
   n = alg_get_absdim(al);
   id = matid(n);
   al2 = al;
+
+  dbg_printf(0)("Round 2 (non-commutative) at p=%Ps, dim=%d\n", p, n);
 
   pre = algcenter_precompute(al,p);
 
