@@ -1710,8 +1710,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: indexrank(x) ===> matindexrank(x)
 
-matindexrank(x): gives two extraction vectors (rows and columns) for the matrix 
-x such that the extracted matrix is square of maximal rank.
+matindexrank(M): gives two extraction vectors (rows and columns) for the matrix 
+M such that the extracted matrix is square of maximal rank.
 
 
   ***   at top-level: indsort()
@@ -4522,4 +4522,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 12
+Total time spent: 8
