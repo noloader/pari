@@ -529,10 +529,42 @@ algradical(GEN al)
   return Flm_to_ZM(I);
 }
 
+/* compute the multiplication table of the element x, where mt is a
+ * multiplication table in an arbitrary ring */
+static GEN
+Rgmultable(GEN mt, GEN x)
+{
+  long i, l = lg(x);
+  GEN z = NULL;
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(x,i);
+    if (!gequal0(c))
+    {
+      GEN M = RgM_Rg_mul(gel(mt,i),c);
+      z = z? RgM_add(z, M): M;
+    }
+  }
+  return z;
+}
+
+static GEN
+change_Rgmultable(GEN mt, GEN P, GEN Pi)
+{
+  GEN mt2;
+  long lmt = lg(mt), i;
+  mt2 = cgetg(lmt,t_VEC);
+  for(i=1;i<lmt;i++) {
+    GEN mti = Rgmultable(mt,gel(P,i));
+    gel(mt2,i) = RgM_mul(Pi, RgM_mul(mti,P));
+  }
+  return mt2;
+}
+
 static GEN
 alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
 {
-  GEN mt = cgetg(nq+1,t_VEC);
+  GEN mt = cgetg(nq+1,t_VEC), P, Pi, d;
   long i;
   dbg_printf(3)("  alg_quotient0: char=%Ps, dim=%d, dim I=%d\n", p, alg_get_absdim(al), lg(S)-1);
   for (i=1; i<=nq; i++) {
@@ -541,13 +573,14 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
     else          gel(mt,i) = RgM_mul(Si, RgM_mul(mti,S));
   }
   if(!signe(p) && !isint1(Q_denom(mt))) {
-    /* TODO compute image of the order instead of using generic code to compute
-     * an order: hnf on much smaller matrices */
     dbg_printf(3)("  bad case: denominator=%Ps\n", Q_denom(mt));
-    mt = algmakeintegral(mt,1);
-    S = RgM_mul(S,gel(mt,3));
-    Si = RgM_mul(gel(mt,2),Si);
-    mt = gel(mt,1);
+    P = Q_remove_denom(Si,&d);
+    P = ZM_hnf(P);
+    P = RgM_Rg_div(P,d);
+    Pi = RgM_inv(P);
+    mt = change_Rgmultable(mt,P,Pi);
+    Si = RgM_mul(P,Si);
+    S = RgM_mul(S,Pi);
   }
   al = algtableinit_i(mt,p);
   if (maps) al = mkvec3(al,Si,S); /*algebra, proj, lift*/
@@ -4626,25 +4659,6 @@ mat2col(GEN M, long m, long n)
   return C;
 }
 
-/* compute the multiplication table of the element x, where mt is a
- * multiplication table in an arbitrary ring */
-static GEN
-Rgmultable(GEN mt, GEN x)
-{
-  long i, l = lg(x);
-  GEN z = NULL;
-  for (i = 1; i < l; i++)
-  {
-    GEN c = gel(x,i);
-    if (!gequal0(c))
-    {
-      GEN M = RgM_Rg_mul(gel(mt,i),c);
-      z = z? RgM_add(z, M): M;
-    }
-  }
-  return z;
-}
-
 GEN
 algmakeintegral(GEN mt0, int maps)
 {
@@ -4668,11 +4682,7 @@ algmakeintegral(GEN mt0, int maps)
   P = shallowmatconcat(mkvec2(col_ei(n,1),P));
   P = hnf(P);
   Pi = RgM_inv(P);
-  mt2 = cgetg(n+1,t_VEC);
-  for(i=1;i<=n;i++) {
-    GEN mti = Rgmultable(mt,gel(P,i));
-    gel(mt2,i) = RgM_mul(Pi, RgM_mul(mti,P));
-  }
+  mt2 = change_Rgmultable(mt,P,Pi);
   if(maps) mt2 = mkvec3(mt2,Pi,P); /* mt2, mt->mt2, mt2->mt */
   return gerepilecopy(av,mt2);
 }

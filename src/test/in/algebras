@@ -2308,3 +2308,10 @@ testidem(al)={
   al = alggroupcenter(gal,193);
   testidem(al);
 );}*/
+
+\\Bill: random slow cases
+G=galoisinit(x^24-24*x^22+253*x^20-1540*x^18+5984*x^16-15488*x^14+27026*x^12-31448*x^10+23540*x^8-10528*x^6+2416*x^4-192*x^2+1);
+al = alggroup(G);
+setrand(8690); algsimpledec(al);
+setrand(1294); algsimpledec(al);
+
