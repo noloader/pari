@@ -570,21 +570,35 @@ alg_quotient(GEN al, GEN I, int maps)
 }
 
 static GEN
-image_keep_first(GEN m, GEN p) /* assume first column is nonzero or m==0 */
+image_keep_first(GEN m, GEN p) /* assume first column is nonzero or m==0, no GC */
 {
-  GEN perm, m2;
-  long i=1, n = nbrows(m);
-  if (gequal0(gel(m,1))) return zeromat(n,0);
-  while (gequal0(gcoeff(m,i,1))) i++;
-  perm = identity_perm(n);
-  perm[i]=1;
-  perm[1]=i;
-  m2 = rowpermute(m,perm);
-  /* works correctly if indexrank is a pivot: put a nonzero coefficient on top
-   * of first column to ensure it is kept first */
-  if (signe(p)) perm = gel(FpM_indexrank(m2,p),2);
-  else          perm = gel(indexrank(m2),2);
-  return vecpermute(m,perm);
+  GEN ir, icol, irow, M, c, x;
+  long i;
+  if (gequal0(gel(m,1))) return zeromat(nbrows(m),0);
+
+  if (signe(p)) ir = FpM_indexrank(m,p);
+  else          ir = indexrank(m);
+
+  icol = gel(ir,2);
+  if (icol[1]==1) return extract0(m,icol,NULL);
+
+  irow = gel(ir,1);
+  M = extract0(m, irow, icol);
+  c = extract0(gel(m,1), irow, NULL);
+  if (signe(p)) x = FpM_FpC_invimage(M,c,p);
+  else          x = inverseimage(M,c); /* TODO modulo a small prime */
+
+  for (i=1; i<lg(x); i++)
+  {
+    if (!gequal0(gel(x,i)))
+    {
+      icol[i] = 1;
+      vecsmall_sort(icol);
+      return extract0(m,icol,NULL);
+    }
+  }
+
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* z[1],...z[nz] central elements such that z[1]A + z[2]A + ... + z[nz]A = A
