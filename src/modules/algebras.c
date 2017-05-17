@@ -534,6 +534,7 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
 {
   GEN mt = cgetg(nq+1,t_VEC);
   long i;
+  dbg_printf(3)("  alg_quotient0: char=%Ps, dim=%d, dim I=%d\n", p, alg_get_absdim(al), lg(S)-1);
   for (i=1; i<=nq; i++) {
     GEN mti = algleftmultable(al,gel(S,i));
     if (signe(p)) gel(mt,i) = FpM_mul(Si, FpM_mul(mti,S,p), p);
@@ -542,6 +543,7 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
   if(!signe(p) && !isint1(Q_denom(mt))) {
     /* TODO compute image of the order instead of using generic code to compute
      * an order: hnf on much smaller matrices */
+    dbg_printf(3)("  bad case: denominator=%Ps\n", Q_denom(mt));
     mt = algmakeintegral(mt,1);
     S = RgM_mul(S,gel(mt,3));
     Si = RgM_mul(gel(mt,2),Si);
@@ -624,6 +626,7 @@ alg_centralproj(GEN al, GEN z, int maps)
   checkalg(al);
   if (typ(z) != t_VEC) pari_err_TYPE("alcentralproj",z);
   p = alg_get_char(al);
+  dbg_printf(3)("  alg_centralproj: char=%Ps, dim=%d, #z=%d\n", p, alg_get_absdim(al), lz-1);
   S = cgetg(lz,t_VEC); /*S[i] = Im(z_i)*/
   for (i=1; i<lz; i++)
   {
@@ -732,6 +735,7 @@ alg_decompose_from_facto(GEN al, GEN x, GEN fa, GEN Z, int mini)
   GEN v1 = rowslice(fa,1,k2);
   GEN v2 = rowslice(fa,k2+1,k);
   GEN alq, P,Q, mx, p = alg_get_char(al);
+  dbg_printf(3)("  alg_decompose_from_facto\n");
   if (signe(p)) {
     P = FpX_factorback(v1, p);
     Q = FpX_factorback(v2, p);
@@ -4654,10 +4658,13 @@ algmakeintegral(GEN mt0, int maps)
     if(maps) mt = mkvec3(mt,matid(n),matid(n));
     return gerepilecopy(av,mt);
   }
+  dbg_printf(2)(" algmakeintegral: dim=%d, denom=%Ps\n", n, Q_denom(mt0));
   m = cgetg(n+1,t_MAT);
   for(i=1;i<=n;i++)
     gel(m,i) = mat2col(gel(mt,i),n,n);
+  dbg_printf(2)(" computing order, dims m = %d x %d...\n", nbrows(m), lg(m)-1);
   P = QM_invimZ(m);
+  dbg_printf(2)(" ...done.\n");
   P = shallowmatconcat(mkvec2(col_ei(n,1),P));
   P = hnf(P);
   Pi = RgM_inv(P);
