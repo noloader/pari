@@ -1666,10 +1666,12 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
     }
     else
     {
-      if (ltp) red = FqX_normalize(red, aT,ap);
-      if (!FqX_is_squarefree(red,aT,ap)) { avma = av2; continue; }
-      anbf = fl == FACTORS? FqX_nbfact(red, aT, ap)
-                          : FqX_nbroots(red, aT, ap);
+      GEN Tp = ZX_to_Flx(aT, pp);
+      red = ZXX_to_FlxX(red, pp, Tp[1]);
+      if (ltp) red = FlxqX_normalize(red, Tp, pp);
+      if (!FlxqX_is_squarefree(red, Tp, pp)) { avma = av2; continue; }
+      anbf = fl == FACTORS? FlxqX_nbfact(red, Tp, pp)
+                          : FlxqX_nbroots(red, Tp, pp);
     }
     if (fl == ROOTS_SPLIT && anbf < dpol) return anbf;
     if (anbf <= 1)
