@@ -5349,7 +5349,7 @@ is a vector of \kbd{Flx}, returns $\sum_{i=0}^{n}{c_i\*B^i}$.
 \fun{GEN}{Flx_gcd}{GEN a, GEN b, ulong p} returns a (not necessarily monic)
 greatest common divisor of $x$  and $y$.
 
-\fun{GEN}{Flx_halfgcd}{GEN x, GEN y, GEN p} returns a two-by-two \kbd{FlxM}
+\fun{GEN}{Flx_halfgcd}{GEN x, GEN y, ulong p} returns a two-by-two \kbd{FlxM}
 $M$ with determinant $\pm 1$ such that the image $(a,b)$ of $(x,y)$ by $M$
 has the property that $\deg a \geq {\deg x \over 2} > \deg b$.
 
@@ -5462,7 +5462,7 @@ of the coefficients of $x$ and $y$.
 \fun{GEN}{Flx_deflate}{GEN P, long d} assuming $P$ is a polynomial of the
 form $Q(X^d)$, return $Q$.
 
-\fun{GEN}{Flx_splitting}{GEN p, long k}, as \tet{RgX_splitting}.
+\fun{GEN}{Flx_splitting}{GEN P, long k}, as \tet{RgX_splitting}.
 
 \fun{GEN}{Flx_inflate}{GEN P, long d} returns $P(X^d)$.
 
@@ -5570,7 +5570,7 @@ see \kbd{FpXQ\_matrix\_pow}.
 \fun{GEN}{Flxq_autpow}{GEN a, long n, GEN T, ulong p}
 see \kbd{FpXQ\_autpow}.
 
-\fun{GEN}{Flxq_autsum}{GEN a, long n, GEN T, GEN p}
+\fun{GEN}{Flxq_autsum}{GEN a, long n, GEN T, ulong p}
 see \kbd{FpXQ\_autsum}.
 
 \fun{GEN}{Flxq_auttrace}{GEN a, ulong n, GEN T, ulong p}
@@ -5780,9 +5780,9 @@ particular, if $p$ is not prime or $T$ is not irreducible over $\F_p[X]$, the
 routine may still be used (but will fail if non-invertible leading terms
 occur).
 
-\fun{GEN}{FlxqX_Frobenius}{GEN S, GEN T, GEN p}, as \kbd{FpXQX\_Frobenius}
+\fun{GEN}{FlxqX_Frobenius}{GEN S, GEN T, ulong p}, as \kbd{FpXQX\_Frobenius}
 
-\fun{GEN}{FlxqXQ_halfFrobenius}{GEN A, GEN S, GEN T, GEN p}, as
+\fun{GEN}{FlxqXQ_halfFrobenius}{GEN A, GEN S, GEN T, ulong p}, as
 \kbd{FpXQXQ\_halfFrobenius}
 
 \fun{GEN}{FlxqX_roots}{GEN f, GEN T, ulong p} return the roots of \kbd{f} in
@@ -5792,7 +5792,7 @@ $\F_p[X]/(T)$. Assumes \kbd{p} is prime and \kbd{T} irreducible in $\F_p[X]$.
 \kbd{f} over $\F_p[X]/(T)$. Assumes \kbd{p} is prime and \kbd{T} irreducible
 in $\F_p[X]$.
 
-\fun{long}{FlxqX_nbroots}{GEN S, GEN T, GEN p}, as \kbd{FpX\_nbroots}.
+\fun{long}{FlxqX_nbroots}{GEN S, GEN T, ulong p}, as \kbd{FpX\_nbroots}.
 
 \fun{GEN}{FlxqX_FlxqXQ_eval}{GEN Q, GEN x, GEN S, GEN T, ulong p} as
 \kbd{FpX\_FpXQ\_eval}.
@@ -5903,7 +5903,7 @@ degree of $0$ is defined as $-1$.
 
 \fun{void}{F2x_shift}{GEN x, long d} as \tet{RgX_shift}
 
-\fun{void}{F2x_even_odd}{GEN p, GEN *pe, GEN *po} as \tet{RgX_even_odd}
+\fun{void}{F2x_even_odd}{GEN P, GEN *pe, GEN *po} as \tet{RgX_even_odd}
 
 \fun{long}{F2x_valrem}{GEN x, GEN *Z}
 
@@ -5933,9 +5933,9 @@ square of a \kbd{F2x}.
 
 \subsec{\kbd{F2xq}} See \kbd{FpXQ} operations.
 
-\fun{GEN}{F2xq_mul}{GEN x, GEN y, GEN pol}
+\fun{GEN}{F2xq_mul}{GEN x, GEN y, GEN T}
 
-\fun{GEN}{F2xq_sqr}{GEN x,GEN pol}
+\fun{GEN}{F2xq_sqr}{GEN x, GEN T}
 
 \fun{GEN}{F2xq_div}{GEN x,GEN y,GEN T}
 
@@ -5943,9 +5943,9 @@ square of a \kbd{F2x}.
 
 \fun{GEN}{F2xq_invsafe}{GEN x, GEN T}
 
-\fun{GEN}{F2xq_pow}{GEN x, GEN n, GEN pol}
+\fun{GEN}{F2xq_pow}{GEN x, GEN n, GEN T}
 
-\fun{GEN}{F2xq_powu}{GEN x, ulong n, GEN pol}
+\fun{GEN}{F2xq_powu}{GEN x, ulong n, GEN T}
 
 \fun{ulong}{F2xq_trace}{GEN x, GEN T}
 
