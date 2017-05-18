@@ -6672,6 +6672,12 @@ a \typ{POL} to which \kbd{RgX\_to\_Flx} can be applied to, a \typ{POLMOD}
 whose modulus is divisible by $T$ (once mapped to a \kbd{Flx}), a suitable
 \typ{RFRAC}. Returns \kbd{z} as an \kbd{Flxq}, normalized.
 
+\fun{GEN}{RgX_to_FlxqX}{GEN z, GEN T, ulong p}, \kbd{z} a \kbd{GEN} which can be
+mapped to $\F_p[x]/(T)[X]$: anything \kbd{Rg\_to\_Flxq} can be applied to,
+a \typ{POL} to which \kbd{RgX\_to\_Flx} can be applied to, a \typ{POLMOD}
+whose modulus is divisible by $T$ (once mapped to a \kbd{Flx}), a suitable
+\typ{RFRAC}. Returns \kbd{z} as an \kbd{FlxqX}, normalized.
+
 \fun{GEN}{ZX_to_Flx}{GEN x, ulong p} reduce \kbd{ZX}~\kbd{x} modulo \kbd{p}
 (yielding an \kbd{Flx}). Faster than \kbd{RgX\_to\_Flx}.
 

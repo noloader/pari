@@ -4165,6 +4165,16 @@ long
 get_FlxqX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
 
 
+GEN
+RgX_to_FlxqX(GEN x, GEN T, ulong p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l, t_POL); z[1] = x[1];
+  for (i = 2; i < l; i++)
+    gel(z,i) = Rg_to_Flxq(gel(x,i), T, p);
+  return FlxX_renormalize(z, l);
+}
+
 /* FlxqX are t_POL with Flxq coefficients.
  * Normally the variable ordering should be respected.*/
 
