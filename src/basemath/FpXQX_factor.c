@@ -1347,17 +1347,6 @@ F2xqX_roots_i(GEN S, GEN T)
 }
 
 static GEN
-FlxX_to_Flx(GEN f)
-{
-  long i, l = lg(f);
-  GEN V = cgetg(l, t_VECSMALL);
-  V[1] = ((ulong)f[1])&VARNBITS;
-  for(i=2; i<l; i++)
-    V[i] = lgpol(gel(f,i)) ? mael(f,i,2): 0L;
-  return V;
-}
-
-static GEN
 FlxqX_easyroots(GEN f, GEN T, ulong p)
 {
   if (FlxY_degreex(f) <= 0) return Flx_rootsff_i(FlxX_to_Flx(f), T, p);

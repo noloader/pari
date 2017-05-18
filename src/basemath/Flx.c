@@ -3819,6 +3819,17 @@ FlxX_to_Flm(GEN v, long n)
 }
 
 GEN
+FlxX_to_Flx(GEN f)
+{
+  long i, l = lg(f);
+  GEN V = cgetg(l, t_VECSMALL);
+  V[1] = ((ulong)f[1])&VARNBITS;
+  for(i=2; i<l; i++)
+    V[i] = lgpol(gel(f,i)) ? mael(f,i,2): 0L;
+  return V;
+}
+
+GEN
 Flm_to_FlxX(GEN x, long v,long w)
 {
   long j, lx = lg(x);
