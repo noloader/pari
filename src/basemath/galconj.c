@@ -2453,9 +2453,9 @@ checkgroupelts(GEN gal)
       (lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VECSMALL))
   {
     GEN elts, G = checkgroup(gal, &elts);
-    if (lg(gel(G,1))==1) return mkvec(cgetg(1,t_VECSMALL));
-    if(!elts) elts = group_elts(G, group_domain(G));
-    return elts;
+    if (elts) return elts;
+    if (lg(gel(G,1))==1) return mkvec(mkvecsmall(1));
+    return group_elts(G, group_domain(G));
   }
   else
   {
