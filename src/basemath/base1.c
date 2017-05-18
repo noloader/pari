@@ -1515,7 +1515,7 @@ nfpolred(nfmaxord_t *S, GEN *pro)
   long n = degpol(x), v = varn(x);
 
   if (n == 1) {
-    S->T = deg1pol_shallow(gen_1, gen_m1, v);
+    S->T = pol_x(v);
     *pro = NULL;
     return scalarpol_shallow(negi(gel(x,2)), v);
   }
@@ -2043,8 +2043,8 @@ polred_aux(nfmaxord_t *S, GEN *pro, long flag)
   {
     if (!best)
     {
-      GEN ch = deg1pol_shallow(gen_1, gen_m1, v);
-      return orig? mkmat2(mkcol(ch),mkcol(gen_1)): mkvec(ch);
+      GEN X = pol_x(v);
+      return orig? mkmat2(mkcol(X),mkcol(gen_1)): mkvec(X);
     }
     else
       return orig? trivial_fact(): cgetg(1,t_VEC);
@@ -2063,11 +2063,7 @@ polred_aux(nfmaxord_t *S, GEN *pro, long flag)
   y = cgetg(n*n + 1, t_VEC);
   b = cgetg(n*n + 1, t_COL);
   k = 1;
-  if (!best)
-  {
-    GEN ch = deg1pol_shallow(gen_1, gen_m1, v);
-    gel(y,1) = ch; gel(b,1) = gen_1; k++;
-  }
+  if (!best) { gel(y,1) = pol_x(v); gel(b,1) = gen_0; k++; }
   for (i = 2; i <= n; i++)
   {
     GEN ch, ai;

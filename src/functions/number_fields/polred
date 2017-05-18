@@ -9,7 +9,7 @@ Help: polred(T,{flag=0}): deprecated, use polredbest. Reduction of the
 Doc: This function is \emph{deprecated}, use \tet{polredbest} instead.
  Finds polynomials with reasonably small coefficients defining subfields of
  the number field defined by $T$. One of the polynomials always defines $\Q$
- (hence is equal to $x-1$), and another always defines the same number field
+ (hence has degree $1$), and another always defines the same number field
  as $T$ if $T$ is irreducible.
 
  All $T$ accepted by \tet{nfinit} are also allowed here;
@@ -31,13 +31,15 @@ Doc: This function is \emph{deprecated}, use \tet{polredbest} instead.
  \bprog
  ? M = polred(x^4 + 8, 2)
  %1 =
- [1 x - 1]
+ [           1         x - 1]
 
- [1/2*x^2 x^2 + 2]
+ [ 1/2*x^2 + 1 x^2 - 2*x + 3]
 
- [1/4*x^3 x^4 + 2]
+ [-1/2*x^2 + 1 x^2 - 2*x + 3]
 
- [x x^4 + 8]
+ [     1/2*x^2       x^2 + 2]
+
+ [     1/4*x^3       x^4 + 2]
  ? minpoly(Mod(M[2,1], x^4+8))
  %2 = x^2 + 2
  @eprog

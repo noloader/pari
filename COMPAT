@@ -28,6 +28,9 @@ This file lists the incompatible changes between Version 2.x and older versions
     being inseparable, i.e. v_p( disc(T) ) is large compared to the input
     accuracy). OTOH, factorpadic with exact input is able to compute
     multiplicities reliably.
+  - change polred-type algorithm to return 'x' (no longer 'x-1') for
+    the field of rational numbers (make it consistent with polredabs). The
+    documentation now only guarantees a 'polynomial of degree 1'
 
 * Specific to the PARI library:
 ===============================
