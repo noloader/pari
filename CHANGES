@@ -205,6 +205,8 @@ BA   81- [libpari] ZXQM_mul, ZXQM_sqr
      82- [libpari] ZX_z_unscale
      83- [libpari] Flxn_mul
 BA   84- [libpari] FlxqX_is_squarefree/FlxqX_nbfact
+     85- [libpari] RgX_addmulXn, RgX_addmulXn_shallow, RgX_addspec,
+         RgX_addspec_shallow
 
   Changed
       1- rewrite bnfnarrow

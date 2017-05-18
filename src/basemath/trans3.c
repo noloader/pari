@@ -2724,13 +2724,13 @@ inteta_pol(GEN q, long v, long l)
     t = RgXn_red_shallow(t, k1);
     t = RgX_neg(t); /* t = (-1)^(n+1) q^(n(3n+1)/2 + 2n+1) */
     t = gerepileupto(av2, t);
-    y = addmulXn(t, y, vt);
+    y = RgX_addmulXn_shallow(t, y, vt);
     if (k2 <= 0) break;
 
     qn = RgX_mul(qn,q);
     ps = RgX_mul(t,qn);
     ps = RgXn_red_shallow(ps, k2);
-    y = addmulXn(ps, y, vps);
+    y = RgX_addmulXn_shallow(ps, y, vps);
 
     if (gc_needed(av,1))
     {

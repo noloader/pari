@@ -20,8 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define addshift(x,y) addshiftpol((x),(y),1)
-
 /* compute Newton sums S_1(P), ... , S_n(P). S_k(P) = sum a_j^k, a_j root of P
  * If N != NULL, assume p-adic roots and compute mod N [assume integer coeffs]
  * If T != NULL, compute mod (T,N) [assume integer coeffs if N != NULL]
@@ -2341,6 +2339,7 @@ reductum_lg(GEN x, long lx)
   return i+1;
 }
 
+#define addshift(x,y) RgX_addmulXn_shallow((x),(y),1)
 /* delta = deg(P) - deg(Q) > 0, deg(Q) > 0, P,Q,Z t_POL in the same variable,
  * s "scalar". Return prem(P, -Q) / s^delta lc(P) */
 static GEN
@@ -2391,6 +2390,7 @@ nextSousResultant(GEN P, GEN Q, GEN Z, GEN s)
     A = RgX_Rg_mul(addshift(H,A), q0);
   return RgX_Rg_divexact(A, s);
 }
+#undef addshift
 
 /* Ducos's subresultant */
 GEN

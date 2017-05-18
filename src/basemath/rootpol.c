@@ -173,29 +173,6 @@ CX_square_spec(GEN P, long lP)
   }
   return normalizepol_lg(s, nn+3);
 }
-/* not stack clean */
-static GEN
-RgX_addspec(GEN x, long nx, GEN y, long ny)
-{
-  GEN z, t;
-  long i;
-  if (nx == ny) {
-    z = cgetg(nx+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
-    for (i=0; i < nx; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
-    return normalizepol_lg(z, nx+2);
-  }
-  if (ny < nx) {
-    z = cgetg(nx+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
-    for (i=0; i < ny; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
-    for (   ; i < nx; i++) gel(t,i) = gel(x,i);
-    return normalizepol_lg(z, nx+2);
-  } else {
-    z = cgetg(ny+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
-    for (i=0; i < nx; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
-    for (   ; i < ny; i++) gel(t,i) = gel(y,i);
-    return normalizepol_lg(z, ny+2);
-  }
-}
 /* nx = lgpol(x) */
 static GEN
 RgX_s_mulspec(GEN x, long nx, long s)
@@ -232,7 +209,7 @@ karasquare(GEN P, long nP)
   n0 = (n>>1) + 1; n1 = nP - n0;
   s0 = karasquare(P, n0); Q = P + n0;
   s2 = karasquare(Q, n1);
-  s1 = RgX_addspec(P, n0, Q, n1);
+  s1 = RgX_addspec_shallow(P, Q, n0, n1);
   s1 = RgX_sub(karasquare(s1+2, lgpol(s1)), RgX_add(s0,s2));
   N = (n<<1) + 1;
   a = cgetg(N + 2, t_POL); a[1] = evalsigne(1)|evalvarn(0);
@@ -265,16 +242,16 @@ cook_square(GEN P, long nP)
 
   q = cgetg(8,t_VEC) + 4;
   Q = cook_square(p0, n0);
-  r = RgX_addspec(p0,n0, p2,n0);
-  t = RgX_addspec(p1,n0, p3,n3);
+  r = RgX_addspec_shallow(p0,p2, n0,n0);
+  t = RgX_addspec_shallow(p1,p3, n0,n3);
   gel(q,-1) = RgX_sub(r,t);
   gel(q,1)  = RgX_add(r,t);
-  r = RgX_addspec(p0,n0, RgX_shiftspec(p2,n0, 2)+2,n0);
-  t = gmul2n(RgX_addspec(p1,n0, RgX_shiftspec(p3,n3, 2)+2,n3), 1);
+  r = RgX_addspec_shallow(p0,RgX_shiftspec(p2,n0, 2)+2, n0,n0);
+  t = gmul2n(RgX_addspec_shallow(p1,RgX_shiftspec(p3,n3, 2)+2, n0,n3), 1);
   gel(q,-2) = RgX_sub(r,t);
   gel(q,2)  = RgX_add(r,t);
-  r = RgX_addspec(p0,n0, RgX_s_mulspec(p2,n0, 9)+2,n0);
-  t = gmulsg(3, RgX_addspec(p1,n0, RgX_s_mulspec(p3,n3, 9)+2,n3));
+  r = RgX_addspec_shallow(p0,RgX_s_mulspec(p2,n0, 9)+2, n0,n0);
+  t = gmulsg(3, RgX_addspec_shallow(p1,RgX_s_mulspec(p3,n3, 9)+2, n0,n3));
   gel(q,-3) = RgX_sub(r,t);
   gel(q,3)  = RgX_add(r,t);
 
@@ -1317,10 +1294,10 @@ conformal_pol(GEN p, GEN a)
   r = scalarpol(gel(p,2+n), 0);
   for (i=n-1; ; i--)
   {
-    r = addmulXn(r, gmul(ma,r), 1); /* r *= (X - a) */
+    r = RgX_addmulXn_shallow(r, gmul(ma,r), 1); /* r *= (X - a) */
     r = gadd(r, gmul(z, gel(p,2+i)));
     if (i == 0) return gerepileupto(av, r);
-    z = addmulXn(gmul(z,ca), gneg(z), 1); /* z *= conj(a)X - 1 */
+    z = RgX_addmulXn_shallow(gmul(z,ca), gneg(z), 1); /* z *= conj(a)X - 1 */
     if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"conformal_pol");

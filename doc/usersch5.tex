@@ -8205,12 +8205,12 @@ $n$ bits, using \tet{remi2n}.
 \kbd{a} and \kbd{b} are arrays of coefficients representing polynomials
 $\sum_{i = 0}^{\kbd{na-1}} \kbd{a}[i] X^i$ and
 $\sum_{i = 0}^{\kbd{nb-1}} \kbd{b}[i] X^i$. Returns their product (as a true
-\kbd{GEN}).
+\kbd{GEN}) in variable $0$.
 
 \fun{GEN}{ZX_sqrspec}{GEN a, long na}. Internal routine:
 \kbd{a} is an array of coefficients representing polynomial
 $\sum_{i = 0}^{\kbd{na-1}} \kbd{a}[i] X^i$. Return its square (as a true
-\kbd{GEN}).
+\kbd{GEN}) in variable $0$.
 
 \fun{GEN}{ZX_rem}{GEN x, GEN y} returns the remainder of the Euclidean
 division of $x$ mod $y$. Assume that $x$, $y$ are two \kbd{ZX} and that
@@ -8822,19 +8822,8 @@ variable) \kbd{x} and \kbd{y}. Uses Karatsuba algorithm.
 returns $(X^a + A)(X^b + B) - X^(a+b)$, where we assume that $\deg A < a$
 and $\deg B < b$ are polynomials in the same variable $X$.
 
-\fun{GEN}{RgX_mulspec}{GEN a, GEN b, long na, long nb}. Internal routine:
-\kbd{a} and \kbd{b} are arrays of coefficients representing polynomials
-$\sum_{i = 0}^{\kbd{na-1}} \kbd{a}[i] X^i$ and
-$\sum_{i = 0}^{\kbd{nb-1}} \kbd{b}[i] X^i$. Returns their product (as a true
-\kbd{GEN}).
-
 \fun{GEN}{RgX_sqr}{GEN x} squares the \typ{POL} \kbd{x}. Uses Karatsuba
 algorithm.
-
-\fun{GEN}{RgX_sqrspec}{GEN a, long na}. Internal routine:
-\kbd{a} is an array of coefficients representing polynomial
-$\sum_{i = 0}^{\kbd{na-1}} \kbd{a}[i] X^i$. Return its square (as a true
-\kbd{GEN}).
 
 \fun{GEN}{RgX_divrem}{GEN x, GEN y, GEN *r} by default, returns the Euclidean
 quotient and store the remainder in $r$. Three special values of $r$ change
@@ -8875,13 +8864,45 @@ a pseudo-quotient $q$ and pseudo-remainder $r$ such that
 $\kbd{lc}(y)^{\deg(x) - \deg(y) + 1}x = qy + r$ in $R[X]/(T)$. Return $q$ and
 set \kbd{*ptr} to $r$.
 
-\fun{GEN}{RgX_mulXn}{GEN x, long n} returns $\kbd{x} * t^n$. This may
-be a \typ{FRAC} if $n < 0$ and the valuation of \kbd{x} is not large
+\fun{GEN}{RgX_mulXn}{GEN a, long n} returns $a * X^n$. This may
+be a \typ{FRAC} if $n < 0$ and the valuation of $a$ is not large
 enough.
+
+\fun{GEN}{RgX_addmulXn}{GEN a, GEN b, long n} returns $a + b * X^n$, assuming
+that $n > 0$.
+
+\fun{GEN}{RgX_addmulXn_shallow}{GEN a, GEN b, long n} shallow
+variant of \tet{RgX_addmulXn}.
 
 \fun{GEN}{RgX_digits}{GEN x, GEN B} returns a vector of \kbd{RgX}
 $[c_0,\ldots,c_n]$ of degree less than the degree of $B$ and such that
 $x=\sum_{i=0}^{n}{c_i\*B^i}$.
+
+\subsubsec{Internal routines working on coefficient arrays}
+
+These routines operate on coefficient blocks which are invalid \kbd{GEN}s
+A \kbd{GEN} argument $a$ or $b$ in routines below is actually a coefficient
+arrays representing the polynomials
+ $\sum_{i = 0}^{\kbd{na-1}} a[i] X^i$ and
+ $\sum_{i = 0}^{\kbd{nb-1}} b[i] X^i$. Note that $a[0]$ and $b[0]$ contain
+coefficients and not the mandatory \kbd{GEN} codeword. This allows to implement
+divide-and-conquer methods directly, without needing to allocate wrappers
+around coefficient blocks.
+
+\fun{GEN}{RgX_mulspec}{GEN a, GEN b, long na, long nb}. Internal routine:
+given two coefficient arrays representing polynomials, return their product (as
+a true \kbd{GEN}) in variable $0$.
+
+\fun{GEN}{RgX_sqrspec}{GEN a, long na}. Internal routine:
+given a coefficient array representing a polynomial r eturn its square (as a
+true \kbd{GEN}) in variable $0$.
+
+\fun{GEN}{RgX_addspec}{GEN x, GEN y, long nx, long ny}
+given two coefficient arrays representing polynomials, return their sum (as a
+true \kbd{GEN}) in variable $0$.
+
+\fun{GEN}{RgX_addspec_shallow}{GEN x, GEN y, long nx, long ny} shallow
+variant of \tet{RgX_addspec}.
 
 \subsubsec{GCD, Resultant}
 

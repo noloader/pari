@@ -1122,31 +1122,49 @@ RgX_debug_spec(GEN x, long nx)
 #endif
 
 /* generic multiplication */
-
-static GEN
-addpol(GEN x, GEN y, long lx, long ly)
+GEN
+RgX_addspec_shallow(GEN x, GEN y, long nx, long ny)
 {
-  long i,lz;
-  GEN z;
-
-  if (ly>lx) swapspec(x,y, lx,ly);
-  lz = lx+2; z = cgetg(lz,t_POL) + 2;
-  for (i=0; i<ly; i++) gel(z,i) = gadd(gel(x,i),gel(y,i));
-  for (   ; i<lx; i++) gel(z,i) = gel(x,i);
-  z -= 2; z[1]=0; return normalizepol_lg(z, lz);
+  GEN z, t;
+  long i;
+  if (nx == ny) {
+    z = cgetg(nx+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
+    for (i=0; i < nx; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
+    return normalizepol_lg(z, nx+2);
+  }
+  if (ny < nx) {
+    z = cgetg(nx+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
+    for (i=0; i < ny; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
+    for (   ; i < nx; i++) gel(t,i) = gel(x,i);
+    return normalizepol_lg(z, nx+2);
+  } else {
+    z = cgetg(ny+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
+    for (i=0; i < nx; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
+    for (   ; i < ny; i++) gel(t,i) = gel(y,i);
+    return normalizepol_lg(z, ny+2);
+  }
 }
-
-static GEN
-addpolcopy(GEN x, GEN y, long lx, long ly)
+GEN
+RgX_addspec(GEN x, GEN y, long nx, long ny)
 {
-  long i,lz;
-  GEN z;
-
-  if (ly>lx) swapspec(x,y, lx,ly);
-  lz = lx+2; z = cgetg(lz,t_POL) + 2;
-  for (i=0; i<ly; i++) gel(z,i) = gadd(gel(x,i),gel(y,i));
-  for (   ; i<lx; i++) gel(z,i) = gcopy(gel(x,i));
-  z -= 2; z[1]=0; return normalizepol_lg(z, lz);
+  GEN z, t;
+  long i;
+  if (nx == ny) {
+    z = cgetg(nx+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
+    for (i=0; i < nx; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
+    return normalizepol_lg(z, nx+2);
+  }
+  if (ny < nx) {
+    z = cgetg(nx+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
+    for (i=0; i < ny; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
+    for (   ; i < nx; i++) gel(t,i) = gcopy(gel(x,i));
+    return normalizepol_lg(z, nx+2);
+  } else {
+    z = cgetg(ny+2,t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z+2;
+    for (i=0; i < nx; i++) gel(t,i) = gadd(gel(x,i),gel(y,i));
+    for (   ; i < ny; i++) gel(t,i) = gcopy(gel(y,i));
+    return normalizepol_lg(z, ny+2);
+  }
 }
 
 /* Return the vector of coefficients of x, where we replace rational 0s by NULL
@@ -1204,16 +1222,16 @@ RgX_mulspec_basecase(GEN x, GEN y, long nx, long ny, long v)
 
 /* return (x * X^d) + y. Assume d > 0 */
 GEN
-addmulXn(GEN x, GEN y, long d)
+RgX_addmulXn_shallow(GEN x0, GEN y0, long d)
 {
-  GEN xd, yd, zd;
+  GEN x, y, xd, yd, zd;
   long a, lz, nx, ny;
 
-  if (!signe(x)) return y;
-  ny = lgpol(y);
-  nx = lgpol(x);
+  if (!signe(x0)) return y0;
+  ny = lgpol(y0);
+  nx = lgpol(x0);
   zd = (GEN)avma;
-  x += 2; y += 2; a = ny-d;
+  x = x0 + 2; y = y0 + 2; a = ny-d;
   if (a <= 0)
   {
     lz = nx+d+2;
@@ -1225,35 +1243,25 @@ addmulXn(GEN x, GEN y, long d)
   else
   {
     xd = new_chunk(d); yd = y+d;
-    x = addpol(x,yd, nx,a);
+    x = RgX_addspec_shallow(x,yd, nx,a);
     lz = (a>nx)? ny+2: lg(x)+d;
     x += 2; while (xd > x) *--zd = *--xd;
   }
   while (yd > y) *--zd = *--yd;
-  *--zd = evalsigne(1);
+  *--zd = x0[1];
   *--zd = evaltyp(t_POL) | evallg(lz); return zd;
 }
-
 GEN
-addshiftpol(GEN x, GEN y, long d)
+RgX_addmulXn(GEN x0, GEN y0, long d)
 {
-  long v = varn(x);
-  x = addmulXn(x,y,d);
-  setvarn(x,v); return x;
-}
-
-/* as above, producing a clean malloc */
-static GEN
-addmulXncopy(GEN x, GEN y, long d)
-{
-  GEN xd, yd, zd;
+  GEN x, y, xd, yd, zd;
   long a, lz, nx, ny;
 
-  if (!signe(x)) return RgX_copy(y);
-  nx = lgpol(x);
-  ny = lgpol(y);
+  if (!signe(x0)) return RgX_copy(y0);
+  nx = lgpol(x0);
+  ny = lgpol(y0);
   zd = (GEN)avma;
-  x += 2; y += 2; a = ny-d;
+  x = x0 + 2; y = y0 + 2; a = ny-d;
   if (a <= 0)
   {
     lz = nx+d+2;
@@ -1265,12 +1273,12 @@ addmulXncopy(GEN x, GEN y, long d)
   else
   {
     xd = new_chunk(d); yd = y+d;
-    x = addpolcopy(x,yd, nx,a);
+    x = RgX_addspec(x,yd, nx,a);
     lz = (a>nx)? ny+2: lg(x)+d;
     x += 2; while (xd > x) *--zd = *--xd;
   }
   while (yd > y) gel(--zd,0) = gcopy(gel(--yd,0));
-  *--zd = evalsigne(1);
+  *--zd = x0[1];
   *--zd = evaltyp(t_POL) | evallg(lz); return zd;
 }
 
@@ -1319,8 +1327,8 @@ RgXn_mul(GEN f, GEN g, long n)
   /* deg(t^2 h(t^2)) <= 2n0 <= n, truncate to < n */
   if (2*degpol(h)+2 == n) h = normalizepol_lg(h, lg(h)-1);
   h = RgX_inflate(h,2);
-  h = addmulXncopy(addmulXn(h,m,1), l,1);
-  setvarn(h, varn(f)); return gerepileupto(av, h);
+  h = RgX_addmulXn(RgX_addmulXn_shallow(h,m,1), l,1);
+  return gerepileupto(av, h);
 }
 /* (f*g) \/ x^n */
 GEN
@@ -1366,19 +1374,19 @@ RgX_mulspec(GEN a, GEN b, long na, long nb)
     c = RgX_mulspec(a,b,n0a,n0b);
     c0 = RgX_mulspec(a0,b0, na,nb);
 
-    c2 = addpol(a0,a, na,n0a);
-    c1 = addpol(b0,b, nb,n0b);
+    c2 = RgX_addspec_shallow(a0,a, na,n0a);
+    c1 = RgX_addspec_shallow(b0,b, nb,n0b);
 
     c1 = RgX_mulspec(c1+2,c2+2, lgpol(c1),lgpol(c2));
     c2 = RgX_sub(c1, RgX_add(c0,c));
-    c0 = addmulXn(c0, c2, n0);
+    c0 = RgX_addmulXn_shallow(c0, c2, n0);
   }
   else
   {
     c = RgX_mulspec(a,b,n0a,nb);
     c0 = RgX_mulspec(a0,b,na,nb);
   }
-  c0 = addmulXncopy(c0,c,n0);
+  c0 = RgX_addmulXn(c0,c,n0);
   return RgX_shift_inplace(gerepileupto(av,c0), v);
 }
 
@@ -1463,8 +1471,8 @@ RgXn_sqr(GEN f, long n)
   /* deg(t^2 h(t^2)) <= 2n0 <= n, truncate to < n */
   if (2*degpol(h)+2 == n) h = normalizepol_lg(h, lg(h)-1);
   h = RgX_inflate(h,2);
-  h = addmulXncopy(addmulXn(h,m,1), l,1);
-  setvarn(h, varn(f)); return gerepileupto(av, h);
+  h = RgX_addmulXn(RgX_addmulXn_shallow(h,m,1), l,1);
+  return gerepileupto(av, h);
 }
 
 GEN
@@ -1484,8 +1492,8 @@ RgX_sqrspec(GEN a, long na)
   c = RgX_sqrspec(a,n0a);
   c0 = RgX_sqrspec(a0,na);
   c1 = gmul2n(RgX_mulspec(a0,a, na,n0a), 1);
-  c0 = addmulXn(c0,c1, n0);
-  c0 = addmulXncopy(c0,c,n0);
+  c0 = RgX_addmulXn_shallow(c0,c1, n0);
+  c0 = RgX_addmulXn(c0,c,n0);
   return RgX_shift_inplace(gerepileupto(av,c0), v);
 }
 
@@ -1495,12 +1503,12 @@ RgX_mul_normalized(GEN A, long a, GEN B, long b)
 {
   GEN z = RgX_mul(A, B);
   if (a < b)
-    z = addmulXn(addmulXn(A, B, b-a), z, a);
+    z = RgX_addmulXn_shallow(RgX_addmulXn_shallow(A, B, b-a), z, a);
   else if (a > b)
-    z = addmulXn(addmulXn(B, A, a-b), z, b);
+    z = RgX_addmulXn_shallow(RgX_addmulXn_shallow(B, A, a-b), z, b);
   else
-    z = addmulXn(RgX_add(A, B), z, a);
-  setvarn(z,varn(A)); return z;
+    z = RgX_addmulXn_shallow(RgX_add(A, B), z, a);
+  return z;
 }
 
 GEN

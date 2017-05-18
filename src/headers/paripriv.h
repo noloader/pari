@@ -493,8 +493,6 @@ ulong gcduodd(ulong x, ulong y);
 
 /* Polynomials */
 /* a) Arithmetic/conversions */
-GEN  addmulXn(GEN x, GEN y, long d);
-GEN  addshiftpol(GEN x, GEN y, long d);
 GEN  lift_if_rational(GEN x);
 GEN  monomial(GEN a, long degpol, long v);
 GEN  monomialcopy(GEN a, long degpol, long v);
