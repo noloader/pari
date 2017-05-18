@@ -1579,7 +1579,7 @@ static GEN
 get_good_factor(GEN T, ulong p, long maxf)
 {
   pari_sp av = avma;
-  GEN r, list = gel(Flx_factor(ZX_to_Flx(T,p),p), 1);
+  GEN r, list = gel(Flx_factor(T,p), 1);
   if (maxf == 1)
   { /* deg.1 factors are best */
     r = gel(list,1);
@@ -1620,58 +1620,52 @@ get_maxf(long nfdeg)
  *   Fa: factors found mod pr
  *   Tp: polynomial defining Fq/Fp */
 static long
-nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
-              GEN *lt, GEN *pr, GEN *Tp)
+nf_pick_prime(long ct, GEN nf, GEN pol, long fl,
+              GEN *lt, GEN *Tp, ulong *pp)
 {
   GEN nfpol = nf_get_pol(nf), bad = mulii(nf_get_disc(nf), nf_get_index(nf));
-  long maxf, nfdeg = degpol(nfpol), dpol = degpol(polbase), nbf = 0;
-  ulong pp;
+  long maxf, nfdeg = degpol(nfpol), dpol = degpol(pol), nbf = 0;
+  ulong p;
   forprime_t S;
   pari_timer ti_pr;
 
   if (DEBUGLEVEL>3) timer_start(&ti_pr);
-  *lt  = leading_coeff(polbase); /* t_INT */
+  *lt  = leading_coeff(pol); /* t_INT */
   if (gequal1(*lt)) *lt = NULL;
-  *pr = NULL;
+  *pp = 0;
   *Tp = NULL;
 
   maxf = get_maxf(nfdeg);
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   /* select pr such that pol has the smallest number of factors, ct attempts */
-  while ((pp = u_forprime_next(&S)))
+  while ((p = u_forprime_next(&S)))
   {
-    GEN aT, apr, ap, amodpr, red, r;
+    GEN T, red;
     long anbf;
     ulong ltp = 0;
     pari_sp av2 = avma;
 
     /* first step : select prime of high inertia degree */
-    if (! umodiu(bad,pp)) continue;
-    if (*lt) { ltp = umodiu(*lt, pp); if (!ltp) continue; }
-    r = get_good_factor(nfpol, pp, maxf);
-    if (!r) continue;
-
-    ap = utoipos(pp);
-    apr = idealprimedec_kummer(nf, Flx_to_ZX(r), 1, ap);
-    amodpr = zk_to_Fq_init(nf,&apr,&aT,&ap);
+    if (! umodiu(bad,p)) continue;
+    if (*lt) { ltp = umodiu(*lt, p); if (!ltp) continue; }
+    T = get_good_factor(ZX_to_Flx(nfpol, p), p, maxf);
+    if (!T) continue;
 
     /* second step : evaluate factorisation mod apr */
-    red = nfX_to_FqX(polbase, nf, amodpr);
-    if (!aT)
+    red = RgX_to_FlxqX(pol, T, p);
+    if (degpol(T)==1)
     { /* degree 1 */
-      red = ZX_to_Flx(red, pp);
-      if (ltp) red = Flx_normalize(red, pp);
-      if (!Flx_is_squarefree(red, pp)) { avma = av2; continue; }
-      anbf = fl == FACTORS? Flx_nbfact(red, pp): Flx_nbroots(red, pp);
+      red = FlxX_to_Flx(red);
+      if (ltp) red = Flx_normalize(red, p);
+      if (!Flx_is_squarefree(red, p)) { avma = av2; continue; }
+      anbf = fl == FACTORS? Flx_nbfact(red, p): Flx_nbroots(red, p);
     }
     else
     {
-      GEN Tp = ZX_to_Flx(aT, pp);
-      red = ZXX_to_FlxX(red, pp, Tp[1]);
-      if (ltp) red = FlxqX_normalize(red, Tp, pp);
-      if (!FlxqX_is_squarefree(red, Tp, pp)) { avma = av2; continue; }
-      anbf = fl == FACTORS? FlxqX_nbfact(red, Tp, pp)
-                          : FlxqX_nbroots(red, Tp, pp);
+      if (ltp) red = FlxqX_normalize(red, T, p);
+      if (!FlxqX_is_squarefree(red, T, p)) { avma = av2; continue; }
+      anbf = fl == FACTORS? FlxqX_nbfact(red, T, p)
+                          : FlxqX_nbroots(red, T, p);
     }
     if (fl == ROOTS_SPLIT && anbf < dpol) return anbf;
     if (anbf <= 1)
@@ -1680,15 +1674,15 @@ nf_pick_prime(long ct, GEN nf, GEN polbase, long fl,
       if (!anbf) return 0; /* no root */
     }
     if (DEBUGLEVEL>3)
-      err_printf("%3ld %s at prime\n  %Ps\nTime: %ld\n",
-                 anbf, fl == FACTORS?"factors": "roots", apr, timer_delay(&ti_pr));
+      err_printf("%3ld %s at prime\n Time: %ld\n",
+                 anbf, fl == FACTORS?"factors": "roots", timer_delay(&ti_pr));
 
     if (!nbf || anbf < nbf
-             || (anbf == nbf && pr_get_f(apr) > pr_get_f(*pr)))
+             || (anbf == nbf && degpol(T) > degpol(*Tp)))
     {
       nbf = anbf;
-      *pr = apr;
-      *Tp = aT;
+      *Tp = T;
+      *pp = p;
     }
     else avma = av2;
     if (--ct <= 0) break;
@@ -1779,6 +1773,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   long n, nbf, dpol = degpol(pol);
   GEN pr, C0, polbase;
   GEN N2, res, polred, lt, nfpol = typ(nf)==t_POL?nf:nf_get_pol(nf);
+  ulong pp;
   nfcmbf_t T;
   nflift_t L;
   pari_timer ti, ti_tot;
@@ -1812,7 +1807,13 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   }
 
   polbase = RgX_to_nfX(nf, pol);
-  nbf = nf_pick_prime(5, nf, polbase, fl, &lt, &pr, &L.Tp);
+  nbf = nf_pick_prime(5, nf, pol, fl, &lt, &L.Tp, &pp);
+  if (L.Tp)
+  {
+    L.Tp = Flx_to_ZX(L.Tp);
+    L.p = utoi(pp);
+  }
+
   if (fl == ROOTS_SPLIT && nbf < dpol) return cgetg(1,t_VEC);
   if (nbf <= 1)
   {
@@ -1822,7 +1823,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
 
   if (DEBUGLEVEL>2) {
     timer_printf(&ti, "choice of a prime ideal");
-    err_printf("Prime ideal chosen: %Ps\n", pr);
+    err_printf("Prime ideal chosen: (%lu,x^%ld+...)\n", pp, degpol(L.Tp));
   }
   L.tozk = nf_get_invzk(nf);
   L.topow= nf_get_zkprimpart(nf);
@@ -1848,7 +1849,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
     err_printf("  3) Final bound: %Ps\n", T.bound);
   }
 
-  L.p = pr_get_p(pr);
+  pr = idealprimedec_kummer(nf, L.Tp, 1, L.p);
   if (L.Tp && degpol(L.Tp) == 1) L.Tp = NULL;
   bestlift_init(0, nf, pr, T.bound, &L);
   if (DEBUGLEVEL>2) timer_start(&ti);
@@ -1926,7 +1927,7 @@ nf_pick_prime_for_units(GEN nf, prklift_t *P)
   while ( (pp = u_forprime_next(&S)) )
   {
     if (! umodiu(bad,pp)) continue;
-    r = get_good_factor(nfpol, pp, maxf);
+    r = get_good_factor(ZX_to_Flx(nfpol, pp), pp, maxf);
     if (r) break;
   }
   if (!r) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
