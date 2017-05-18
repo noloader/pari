@@ -1888,7 +1888,7 @@ static GEN
 char_expand(GEN conj, GEN ch)
 {
   long i, l = lg(conj);
-  GEN V = cgetg(l, t_VEC);
+  GEN V = cgetg(l, t_COL);
   for (i=1; i<l; i++)
   {
     long ci = conj[i];
@@ -1901,7 +1901,7 @@ static GEN
 rep_to_char(GEN R)
 {
   long i, l = lg(R);
-  GEN V = cgetg(l, t_VEC);
+  GEN V = cgetg(l, t_COL);
   for (i=1; i<l; i++)
     gel(V,i) = gtrace(gel(R,i));
   return V;
@@ -1920,7 +1920,7 @@ handle_zeta(long n, GEN ch, long *m)
     pari_err_DOMAIN("lfunartin","chi","is not a", strtoGENstr("character"), ch);
   if (t == 0) { *m = 0; return ch; }
   *m = t / n;
-  c = cgetg(l, t_VEC);
+  c = cgetg(l, t_COL);
   for (i=1; i<l; i++)
     gel(c,i) = gsubgs(gel(ch,i), *m);
   return c;
