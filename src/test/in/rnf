@@ -26,6 +26,10 @@ rnfdedekind(nf, P, pr3, 1)
 rnfdedekind(nf, P)
 rnfdedekind(nf, P, [pr2,pr3])
 
+nf=nfinit(y^2+9); \\ 3 divides index
+P=idealprimedec(nf,3)[1];
+rnfdedekind(nf, (x+y/3)^3+3*y, P)
+
 K = nfinit(x^2-x+2); M = [1, 0, x; 0, x, 0; 0,0,2+x]; N = [1, 1, 1];
 nfsnf(K, [M, N, N])
 rnfisabelian(y,x)

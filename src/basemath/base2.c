@@ -3119,6 +3119,75 @@ nfX_to_FqX(GEN A, GEN nf,GEN modpr)
 /*                       RELATIVE ROUND 2                          */
 /*                                                                 */
 /*******************************************************************/
+/* Shallow functions */
+/* FIXME: use a bb_field and export the nfX_* routines */
+static GEN
+nfX_sub(GEN nf, GEN x, GEN y)
+{
+  long i, lx = lg(x), ly = lg(y);
+  GEN z;
+  if (ly <= lx) {
+    z = cgetg(lx,t_POL); z[1] = x[1];
+    for (i=2; i < ly; i++) gel(z,i) = nfsub(nf,gel(x,i),gel(y,i));
+    for (   ; i < lx; i++) gel(z,i) = gel(x,i);
+    z = normalizepol_lg(z, lx);
+  } else {
+    z = cgetg(ly,t_POL); z[1] = y[1];
+    for (i=2; i < lx; i++) gel(z,i) = nfsub(nf,gel(x,i),gel(y,i));
+    for (   ; i < ly; i++) gel(z,i) = gneg(gel(y,i));
+    z = normalizepol_lg(z, ly);
+  }
+  return z;
+}
+/* FIXME: quadratic multiplication */
+static GEN
+nfX_mul(GEN nf, GEN a, GEN b)
+{
+  long da = degpol(a), db = degpol(b), dc, lc, k;
+  GEN c;
+  if (da < 0 || db < 0) return gen_0;
+  dc = da + db;
+  if (dc == 0) return nfmul(nf, gel(a,2),gel(b,2));
+  lc = dc+3;
+  c = cgetg(lc, t_POL); c[1] = a[1];
+  for (k = 0; k <= dc; k++)
+  {
+    long i, I = minss(k, da);
+    GEN d = NULL;
+    for (i = maxss(k-db, 0); i <= I; i++)
+    {
+      GEN e = nfmul(nf, gel(a, i+2), gel(b, k-i+2));
+      d = d? nfadd(nf, d, e): e;
+    }
+    gel(c, k+2) = d;
+  }
+  return normalizepol_lg(c, lc);
+}
+/* assume b monic */
+static GEN
+nfX_rem(GEN nf, GEN a, GEN b)
+{
+  long da = degpol(a), db = degpol(b);
+  if (da < 0) return gen_0;
+  a = leafcopy(a);
+  while (da >= db)
+  {
+    long i, k = da;
+    GEN A = gel(a, k+2);
+    for (i = db-1, k--; i >= 0; i--, k--)
+      gel(a,k+2) = nfsub(nf, gel(a,k+2), nfmul(nf, A, gel(b,i+2)));
+    a = normalizepol_lg(a, lg(a)-1);
+    da = degpol(a);
+  }
+  return a;
+}
+static GEN
+nfXQ_mul(GEN nf, GEN a, GEN b, GEN T)
+{
+  GEN c = nfX_mul(nf, a, b);
+  if (typ(c) != t_POL) return c;
+  return nfX_rem(nf, c, T);
+}
 
 static void
 fill(long l, GEN H, GEN Hx, GEN I, GEN Ix)
@@ -3273,20 +3342,12 @@ rnfdedekind_i(GEN nf, GEN P, GEN pr, long vdisc, long only_maximal)
   h = FqX_div(Ppr,g, T, p);
   gzk = FqX_to_nfX(g, modpr);
   hzk = FqX_to_nfX(h, modpr);
-
-  k = gsub(P, RgXQX_mul(gzk,hzk, nfT));
+  k = nfX_sub(nf, P, nfX_mul(nf, gzk,hzk));
   tau = pr_get_tau(pr);
   switch(typ(tau))
   {
     case t_INT: k = gdiv(k, p); break;
-    case t_MAT:
-      k = RgX_to_nfX(nf, k);
-      k = RgX_Rg_div(tablemulvec(NULL,tau, k), p);
-      break;
-    case t_COL:
-      tau = nf_to_scalar_or_alg(nf, tau);
-      k = RgX_Rg_div(RgXQX_RgXQ_mul(k, tau, nfT), p);
-      break;
+    case t_MAT: k = RgX_Rg_div(tablemulvec(NULL,tau, k), p); break;
   }
   k = nfX_to_FqX(k, nf, modpr);
   k = FqX_normalize(FqX_gcd(FqX_gcd(g,h,  T,p), k, T,p), T,p);
@@ -3398,55 +3459,6 @@ ideal_is1(GEN x) {
   return 0;
 }
 
-/* FIXME: quadratic multiplication */
-static GEN
-nfX_mul(GEN nf, GEN a, GEN b)
-{
-  long da = degpol(a), db = degpol(b), dc, lc, k;
-  GEN c;
-  if (da < 0 || db < 0) return gen_0;
-  dc = da + db;
-  if (dc == 0) return nfmul(nf, gel(a,2),gel(b,2));
-  lc = dc+3;
-  c = cgetg(lc, t_POL); c[1] = a[1];
-  for (k = 0; k <= dc; k++)
-  {
-    long i, I = minss(k, da);
-    GEN d = NULL;
-    for (i = maxss(k-db, 0); i <= I; i++)
-    {
-      GEN e = nfmul(nf, gel(a, i+2), gel(b, k-i+2));
-      d = d? nfadd(nf, d, e): e;
-    }
-    gel(c, k+2) = d;
-  }
-  return normalizepol_lg(c, lc);
-}
-/* assume b monic */
-static GEN
-nfX_rem(GEN nf, GEN a, GEN b)
-{
-  long da = degpol(a), db = degpol(b);
-  if (da < 0) return gen_0;
-  a = leafcopy(a);
-  while (da >= db)
-  {
-    long i, k = da;
-    GEN A = gel(a, k+2);
-    for (i = db-1, k--; i >= 0; i--, k--)
-      gel(a,k+2) = nfsub(nf, gel(a,k+2), nfmul(nf, A, gel(b,i+2)));
-    a = normalizepol_lg(a, lg(a)-1);
-    da = degpol(a);
-  }
-  return a;
-}
-static GEN
-nfXQ_mul(GEN nf, GEN a, GEN b, GEN T)
-{
-  GEN c = nfX_mul(nf, a, b);
-  if (typ(c) != t_POL) return c;
-  return nfX_rem(nf, c, T);
-}
 /* return a in ideal A such that v_pr(a) = v_pr(A) */
 static GEN
 minval(GEN nf, GEN A, GEN pr)

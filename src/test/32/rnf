@@ -51,6 +51,7 @@ all([1]), Mat(1/861), 861/2, Mat(861)]], [[0; 0; 1; 0], [-20; 1; 0; 0], [3;
   ***   at top-level: rnfdedekind(nf,P,[pr2,pr3])
   ***                 ^---------------------------
   *** rnfdedekind: sorry, Dedekind in the difficult case is not yet implemented.
+[0, [[1, 0, -1; 0, 1, [0, -1]~; 0, 0, 1], [1, 1, 1/3]], 5]
 [[8, 2; 0, 1], [2, 0; 0, 1], [1, 0; 0, 1]]
 1
 1
@@ -845,4 +846,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfislocalcyclo(rnfinit(K,x^6-y+1))
   ***                 ^-----------------------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
-Total time spent: 668
+Total time spent: 696
