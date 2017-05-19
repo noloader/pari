@@ -1961,14 +1961,17 @@ lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
 {
   pari_sp av = avma;
   GEN bc, V, aut, mod, Ldata = NULL;
-  long tmult;
+  long tmult, var;
   nf = checknf(nf);
   checkgal(gal);
+  var = gvar(ch);
+  if (var == 0) pari_err_PRIORITY("lfunartin",ch,"=",0);
+  if (var < 0) var = 1;
   if (!is_vec_t(typ(ch))) pari_err_TYPE("lfunartin", ch);
   if (lg(ch)>1 && typ(gel(ch,1))==t_MAT)
   {
     GEN M, R;
-    mod = polcyclo(o, gvar(ch));
+    mod = polcyclo(o, var);
     M = gmul(ch, mkpolmod(gen_1, mod));
     R = artin_repfromgens(gal, M);
     ch = rep_to_char(R);
@@ -1978,7 +1981,7 @@ lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
     long nbc;
     GEN conj = groupelts_conjclasses(galois_elts_sorted(gal), &nbc);
     if (nbc != lg(ch)-1) pari_err_DIM("lfunartin");
-    mod = polcyclo(o, gvar(ch));
+    mod = polcyclo(o, var);
     ch = gmul(ch, mkpolmod(gen_1, mod));
     ch = char_expand(conj, ch);
   }
