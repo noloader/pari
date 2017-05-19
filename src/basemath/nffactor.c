@@ -1262,7 +1262,7 @@ get_R(GEN M)
 static void
 init_proj(nflift_t *L, GEN nfT)
 {
-  if (L->Tp)
+  if (degpol(L->Tp)>1)
   {
     GEN coTp = FpX_div(FpX_red(nfT, L->p), L->Tp,  L->p); /* Tp's cofactor */
     GEN z, proj;
@@ -1308,15 +1308,20 @@ bestlift_init(long a, GEN nf, GEN pr, GEN C, nflift_t *L)
   const long d = nf_get_degree(nf);
   pari_sp av = avma, av2;
   GEN prk, PRK, B, GSmin, pk;
+  GEN T = L->Tp, p = L->p, q, Tq;
+  if (!T) pari_err_BUG("bestlift_init");
+  GEN normp = powiu(p, degpol(T));
   pari_timer ti;
 
   timer_start(&ti);
-  if (!a) a = (long)bestlift_bound(C, d, alpha, pr_norm(pr));
+  if (!a) a = (long)bestlift_bound(C, d, alpha, normp);
 
   for (;; avma = av, a += (a==1)? 1: (a>>1)) /* roughly a *= 1.5 */
   {
     if (DEBUGLEVEL>2) err_printf("exponent %ld\n",a);
-    prk = idealpows(nf, pr, a);
+    q = powiu(p, a);
+    Tq = FpXQ_powu(T, a, FpX_red(nf_get_pol(nf), q), q);
+    prk = idealhnf_two(nf, mkvec2(q, Tq));
     av2 = avma;
     pk = gcoeff(prk,1,1);
     PRK = ZM_lll_norms(prk, alpha, LLL_INPLACE, &B);
@@ -1850,8 +1855,8 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   }
 
   pr = idealprimedec_kummer(nf, L.Tp, 1, L.p);
-  if (L.Tp && degpol(L.Tp) == 1) L.Tp = NULL;
   bestlift_init(0, nf, pr, T.bound, &L);
+  if (L.Tp && degpol(L.Tp) == 1) L.Tp = NULL;
   if (DEBUGLEVEL>2) timer_start(&ti);
   polred = ZqX_normalize(polbase, lt, &L); /* monic */
 
@@ -1938,7 +1943,7 @@ nf_pick_prime_for_units(GEN nf, prklift_t *P)
   P->q = pr_norm(apr);
   P->modpr = amodpr;
   P->L->p = ap;
-  P->L->Tp = aT;
+  P->L->Tp = Flx_to_ZX(r);
   P->L->tozk = nf_get_invzk(nf);
   P->L->topow = nf_get_zkprimpart(nf);
   P->L->topowden = nf_get_zkden(nf);
