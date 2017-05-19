@@ -1858,33 +1858,6 @@ vecan_artin(GEN an, long L, long prec)
 }
 
 static GEN
-artin_charpoly1(GEN ch, GEN p)
-{
-  long d = char_dim(ch);
-  long i;
-  GEN q = p, V = cgetg(d+3, t_POL);
-  V[1] = evalsigne(1)|evalvarn(0);
-  gel(V,2) = gen_0;
-  for (i = 1; i <= d; i++)
-  {
-    gel(V,i+2) = gdivgs(gel(ch, q[1]),-i);
-    q = gmul(q, p);
-  }
-  return RgXn_exp(V,d+1);
-}
-
-static GEN
-artin_charpoly(GEN gal, GEN ch)
-{
-  GEN grp = gal_get_group(gal);
-  long i, l = lg(grp);
-  GEN V = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-    gel(V, mael(grp,i,1)) = artin_charpoly1(ch, gel(grp,i));
-  return V;
-}
-
-static GEN
 char_expand(GEN conj, GEN ch)
 {
   long i, l = lg(conj);
@@ -1960,41 +1933,40 @@ GEN
 lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
 {
   pari_sp av = avma;
-  GEN bc, V, aut, mod, Ldata = NULL;
-  long tmult, var;
+  GEN bc, V, aut, mod, Ldata = NULL, chx, elts, conj;
+  long tmult, var, nbc;
   nf = checknf(nf);
   checkgal(gal);
   var = gvar(ch);
   if (var == 0) pari_err_PRIORITY("lfunartin",ch,"=",0);
   if (var < 0) var = 1;
   if (!is_vec_t(typ(ch))) pari_err_TYPE("lfunartin", ch);
+  elts = galois_elts_sorted(gal);
+  conj = groupelts_conjclasses(elts, &nbc);
+  mod = mkpolmod(gen_1, polcyclo(o, var));
   if (lg(ch)>1 && typ(gel(ch,1))==t_MAT)
   {
-    GEN M, R;
-    mod = polcyclo(o, var);
-    M = gmul(ch, mkpolmod(gen_1, mod));
-    R = artin_repfromgens(gal, M);
-    ch = rep_to_char(R);
+    GEN repr = conjclasses_repr(elts, conj, nbc);
+    GEN M = gmul(ch, mod);
+    GEN R = artin_repfromgens(gal, M);
+    chx = rep_to_char(R);
+    ch = shallowextract(chx, repr);
   }
   else
   {
-    long nbc;
-    GEN conj = groupelts_conjclasses(galois_elts_sorted(gal), &nbc);
     if (nbc != lg(ch)-1) pari_err_DIM("lfunartin");
-    mod = polcyclo(o, var);
-    ch = gmul(ch, mkpolmod(gen_1, mod));
-    ch = char_expand(conj, ch);
+    chx = char_expand(conj, gmul(ch, mod));
   }
-  ch = handle_zeta(nf_get_degree(nf), ch, &tmult);
-  if (!gequal0(ch))
+  chx = handle_zeta(nf_get_degree(nf), chx, &tmult);
+  if (!gequal0(chx))
   {
-    GEN real = char_is_real(ch, mod)? gen_0: gen_1;
+    GEN real = char_is_real(chx, gel(mod,1))? gen_0: gen_1;
     aut = nfgaloispermtobasis(nf, gal);
-    V = artin_charpoly(gal, ch);
-    bc = artin_badprimes(nf, gal, aut, ch);
+    V = gmul(char_expand(conj, galoischarpoly(gal, ch, o)), mod);
+    bc = artin_badprimes(nf, gal, aut, chx);
     Ldata = mkvecn(6,
       tag(mkcoln(7, nf, gal, V, aut, gel(bc, 2), stoi(o), real), t_LFUN_ARTIN),
-      real, artin_gamma(nf, gal, ch), gen_1, gel(bc,1), gen_0);
+      real, artin_gamma(nf, gal, chx), gen_1, gel(bc,1), gen_0);
   }
   if (tmult==0 && Ldata==NULL) pari_err_TYPE("lfunartin",ch);
   if (tmult)
