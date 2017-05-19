@@ -1075,6 +1075,19 @@ groupelts_conjclasses(GEN elts, long *ptnbcl)
   return c;
 }
 
+GEN
+conjclasses_repr(GEN elts, GEN conj, long nb)
+{
+  long i, l = lg(conj);
+  GEN e = const_vecsmall(nb, 0);
+  for(i=1; i<l; i++)
+  {
+    long ci = conj[i];
+    if (!e[ci]) e[ci] = i;
+  }
+  return e;
+}
+
 /* S a list of generators */
 GEN
 groupelts_abelian_group(GEN S)

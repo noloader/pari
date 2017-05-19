@@ -2523,19 +2523,6 @@ conjclasses_expand(GEN elts, GEN conj, long nb)
   return e;
 }
 
-static GEN
-conjclasses_repr(GEN elts, GEN conj, long nb)
-{
-  long i, l = lg(conj);
-  GEN e = const_vecsmall(nb, 0);
-  for(i=1; i<l; i++)
-  {
-    long ci = conj[i];
-    if (!e[ci]) e[ci] = i;
-  }
-  return e;
-}
-
 GEN
 galoisconjclasses(GEN gal)
 {
