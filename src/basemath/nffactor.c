@@ -52,7 +52,6 @@ typedef struct
   GEN nf;
   GEN pol, polbase; /* leading coeff is a t_INT */
   GEN fact;
-  GEN pr;
   GEN Br, bound, ZC, BS_2;
 } nfcmbf_t;
 
@@ -1302,14 +1301,13 @@ max_radius(GEN PRK, GEN B)
 }
 
 static void
-bestlift_init(long a, GEN nf, GEN pr, GEN C, nflift_t *L)
+bestlift_init(long a, GEN nf, GEN C, nflift_t *L)
 {
   const double alpha = 0.99; /* LLL parameter */
   const long d = nf_get_degree(nf);
   pari_sp av = avma, av2;
   GEN prk, PRK, B, GSmin, pk;
   GEN T = L->Tp, p = L->p, q, Tq;
-  if (!T) pari_err_BUG("bestlift_init");
   GEN normp = powiu(p, degpol(T));
   pari_timer ti;
 
@@ -1415,7 +1413,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
     {
       GEN polred;
 
-      bestlift_init((L->k)<<1, T->nf, T->pr, Btra, L);
+      bestlift_init((L->k)<<1, T->nf, Btra, L);
       polred = ZqX_normalize(T->polbase, lP, L);
       famod = ZqX_liftfact(polred, famod, L->Tpk, L->pk, L->p, L->k);
       for (i=1; i<=n0; i++) TT[i] = 0;
@@ -1776,7 +1774,7 @@ static GEN
 nfsqff(GEN nf, GEN pol, long fl, GEN den)
 {
   long n, nbf, dpol = degpol(pol);
-  GEN pr, C0, polbase;
+  GEN C0, polbase;
   GEN N2, res, polred, lt, nfpol = typ(nf)==t_POL?nf:nf_get_pol(nf);
   ulong pp;
   nfcmbf_t T;
@@ -1854,8 +1852,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
     err_printf("  3) Final bound: %Ps\n", T.bound);
   }
 
-  pr = idealprimedec_kummer(nf, L.Tp, 1, L.p);
-  bestlift_init(0, nf, pr, T.bound, &L);
+  bestlift_init(0, nf, T.bound, &L);
   if (L.Tp && degpol(L.Tp) == 1) L.Tp = NULL;
   if (DEBUGLEVEL>2) timer_start(&ti);
   polred = ZqX_normalize(polbase, lt, &L); /* monic */
@@ -1867,8 +1864,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   }
 
   T.fact = gel(FqX_factor(polred, L.Tp, L.p), 1);
-  if (DEBUGLEVEL>2) timer_printf(&ti, "splitting mod %Ps", pr);
-  T.pr = pr;
+  if (DEBUGLEVEL>2) timer_printf(&ti, "splitting mod %Ps^%ld", L.p, degpol(L.Tp));
   T.L  = &L;
   T.polbase = polbase;
   T.pol   = pol;
@@ -1912,9 +1908,6 @@ nfroots_if_split(GEN *pnf, GEN pol)
  *           If there is it is a primitive root */
 
 typedef struct {
-  GEN q;
-  GEN modpr;
-  GEN pr;
   nflift_t *L;
 } prklift_t;
 
@@ -1923,7 +1916,7 @@ static void
 nf_pick_prime_for_units(GEN nf, prklift_t *P)
 {
   GEN nfpol = nf_get_pol(nf), bad = mulii(nf_get_disc(nf), nf_get_index(nf));
-  GEN aT, amodpr, apr, ap = NULL, r = NULL;
+  GEN ap = NULL, r = NULL;
   long nfdeg = degpol(nfpol), maxf = get_maxf(nfdeg);
   ulong pp;
   forprime_t S;
@@ -1937,11 +1930,6 @@ nf_pick_prime_for_units(GEN nf, prklift_t *P)
   }
   if (!r) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
   ap = utoipos(pp);
-  apr = idealprimedec_kummer(nf, Flx_to_ZX(r), 1, ap);
-  amodpr = zk_to_Fq_init(nf,&apr,&aT,&ap);
-  P->pr = apr;
-  P->q = pr_norm(apr);
-  P->modpr = amodpr;
   P->L->p = ap;
   P->L->Tp = Flx_to_ZX(r);
   P->L->tozk = nf_get_invzk(nf);
@@ -2083,7 +2071,7 @@ rootsof1(GEN nf)
 {
   prklift_t P;
   nflift_t L;
-  GEN fa, LP, LE, C0, z, prim_root, disc, nfpol;
+  GEN q, fa, LP, LE, C0, z, prim_root, disc, nfpol;
   pari_timer ti;
   long i, l, nbguessed, nbroots, nfdegree;
   pari_sp av;
@@ -2166,17 +2154,17 @@ rootsof1(GEN nf)
   C0 = gmulsg(nfdegree, L2_bound(nf, gen_1));
   /* lift and reduce pr^k */
   if (DEBUGLEVEL>2) err_printf("Lift pr^k; GSmin wanted: %Ps\n",C0);
-  bestlift_init((long)mybestlift_bound(C0), nf, P.pr, C0, P.L);
+  bestlift_init((long)mybestlift_bound(C0), nf, C0, P.L);
   P.L->dn = NULL;
   if (DEBUGLEVEL>2) timer_start(&ti);
 
   /* Step 4 : actual computation of roots */
   nbroots = 2; prim_root = gen_m1;
-  nfpol = nf_get_pol(nf);
+  nfpol = nf_get_pol(nf); q = powiu(L.p,degpol(L.Tp));
   for (i = 1; i < l; i++)
   { /* for all prime power factors of nbguessed, find a p^k-th root of unity */
     long k, p = LP[i];
-    for (k = minss(LE[i], Z_lval(subiu(P.q,1UL),p)); k > 0; k--)
+    for (k = minss(LE[i], Z_lval(subiu(q,1UL),p)); k > 0; k--)
     { /* find p^k-th roots */
       pari_sp av = avma;
       long pk = upowuu(p,k);
