@@ -107,6 +107,7 @@ GEN  intnumgauss0(GEN a, GEN b, GEN code, GEN tab, long prec);
 GEN  intnumromb0_bitprec(GEN a, GEN b, GEN code, long flag, long bit);
 GEN  limitnum0(GEN u, long muli, GEN alpha, long prec);
 GEN  matrice(GEN nlig, GEN ncol, GEN code);
+void pariplot(GEN a, GEN b, GEN code, GEN ysmlu, GEN ybigu, long prec);
 GEN  prodeuler0(GEN a, GEN b, GEN code, long prec);
 GEN  prodinf0(GEN a, GEN code, long flag, long prec);
 GEN  produit(GEN a, GEN b, GEN code, GEN x);
