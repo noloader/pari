@@ -1,6 +1,6 @@
 \\ package: galpol
 
-inn(len, c1, c2, f) = simplify(lift(sum(i=1,#len,len[i]*c1[i]*subst(c2[i],x,1/x))*Mod(1,f)));
+inn(len, c1, c2, f) = simplify(lift(sum(i=1,#len,len[i]*c1[i]*subst(c2[i],y,1/y))*Mod(1,f)));
 
 testchar(G)=
 {
@@ -10,7 +10,7 @@ testchar(G)=
   my([ct,e] = galoischartable(G));
   my(dim = simplify(ct[1,]));
   my(one = vector(#dim,k,1));
-  my(f = polcyclo(e,x));
+  my(f = polcyclo(e,y));
   if (#len!=#dim, error("dimension1"));
   if (sum(i=1,#dim,dim[i]^2)!=n,error("dimension2"));
   if (sum(i=1,#len,len[i])!=n,error("dimension3"));
@@ -32,5 +32,5 @@ testchar(G)=
 
 \\#1931
 G=galoisinit(x^24-24*x^22+253*x^20-1540*x^18+5984*x^16-15488*x^14+27026*x^12-31448*x^10+23540*x^8-10528*x^6+2416*x^4-192*x^2+1);
-setrand(211); galoischartable(G)
+setrand(211); testchar(G)
 

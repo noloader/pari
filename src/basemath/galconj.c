@@ -2577,6 +2577,7 @@ groupelts_chartable(GEN elts)
   GEN al, cc, conjclass, rep, ctp, ct0, dec, jg, f;
   long n, i, j, k, l, expo, nbcl;
   ulong p, pov2, ze;
+  const long var = 1;
   n = lg(elts)-1;
   /* exponent of G */
   expo = groupelts_exponent(elts);
@@ -2598,7 +2599,7 @@ groupelts_chartable(GEN elts)
   ze = Fl_inv(Fl_powu(pgener_Fl(p),(p-1)/expo, p), p);
 
   /* lift character table to Z[zeta_e] */
-  f = polcyclo(expo,0);
+  f = polcyclo(expo, var);
   pov2 = p>>1;
   jg = new_chunk(expo);
   ct0 = cgetg(nbcl+1, t_MAT);
@@ -2617,7 +2618,7 @@ groupelts_chartable(GEN elts)
     {
       GEN chip = gel(ctp,i);
       GEN cij = cgetg(expo+2, t_POL);
-      cij[1] = evalvarn(0) | evalsigne(1);
+      cij[1] = evalvarn(var) | evalsigne(1);
       /* chi(g) = sum_{k=0}^{e-1} a_k ze^k
        * a_k = 1/e sum_{l=0}^{e-1} chi(g^l) ze^{-k*l} */
       for (k=0; k<expo; k++)

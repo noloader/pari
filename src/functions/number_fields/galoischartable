@@ -14,8 +14,8 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
  \item \var{ct} is a square \typ{MAT} of size~$N$ giving the character table
  of~$G$, each line corresponding to a conjugacy class and each column
  corresponding to an irreducible character. The value of the character at the
- conjugacy class is represented by a polynomial whose variable should be
- interpreted as an $e$-th root of unity.
+ conjugacy class is represented by a polynomial in \kbd{y} whose variable
+ should be interpreted as an $e$-th root of unity.
 
  \item \var{e} is the exponent of the group~$G$, i.e. the LCM of the orders of
  the elements of~$G$.
@@ -53,9 +53,9 @@ Doc: Compute the character table of~$G$, where~$G$ is the underlying group of
 
  [1  1             1             1]
 
- [2  0 x^3 - x^2 - 1    -x^3 + x^2]
+ [2  0 y^3 - y^2 - 1    -y^3 + y^2]
 
- [2  0    -x^3 + x^2 x^3 - x^2 - 1]
+ [2  0    -y^3 + y^2 y^3 - y^2 - 1]
  ? e
  %8 = 10
  @eprog
