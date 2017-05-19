@@ -1907,13 +1907,9 @@ nfroots_if_split(GEN *pnf, GEN pol)
  *           Hensel lift to pr^k and find the representative in the ball
  *           If there is it is a primitive root */
 
-typedef struct {
-  nflift_t *L;
-} prklift_t;
-
 /* Choose prime ideal unramified with "large" inertia degree */
 static void
-nf_pick_prime_for_units(GEN nf, prklift_t *P)
+nf_pick_prime_for_units(GEN nf, nflift_t *L)
 {
   GEN nfpol = nf_get_pol(nf), bad = mulii(nf_get_disc(nf), nf_get_index(nf));
   GEN ap = NULL, r = NULL;
@@ -1930,11 +1926,11 @@ nf_pick_prime_for_units(GEN nf, prklift_t *P)
   }
   if (!r) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
   ap = utoipos(pp);
-  P->L->p = ap;
-  P->L->Tp = Flx_to_ZX(r);
-  P->L->tozk = nf_get_invzk(nf);
-  P->L->topow = nf_get_zkprimpart(nf);
-  P->L->topowden = nf_get_zkden(nf);
+  L->p = ap;
+  L->Tp = Flx_to_ZX(r);
+  L->tozk = nf_get_invzk(nf);
+  L->topow = nf_get_zkprimpart(nf);
+  L->topowden = nf_get_zkden(nf);
 }
 
 /* *Heuristic* exponent k such that the fundamental domain of pr^k
@@ -2069,7 +2065,6 @@ trivroots(void) { return mkvec2(gen_2, gen_m1); }
 GEN
 rootsof1(GEN nf)
 {
-  prklift_t P;
   nflift_t L;
   GEN q, fa, LP, LE, C0, z, prim_root, disc, nfpol;
   pari_timer ti;
@@ -2144,18 +2139,18 @@ rootsof1(GEN nf)
     timer_printf(&ti, "checking for cyclotomic polynomial [no]");
 
   /* Step 2 : choose a prime ideal for local lifting */
-  P.L = &L; nf_pick_prime_for_units(nf, &P);
+  nf_pick_prime_for_units(nf, &L);
   if (DEBUGLEVEL>2)
     timer_printf(&ti, "choosing prime %Ps, degree %ld",
-             P.L->p, P.L->Tp? degpol(P.L->Tp): 1);
+             L.p, L.Tp? degpol(L.Tp): 1);
 
   /* Step 3 : compute a reduced pr^k allowing lifting of local solutions */
   /* evaluate maximum L2 norm of a root of unity in nf */
   C0 = gmulsg(nfdegree, L2_bound(nf, gen_1));
   /* lift and reduce pr^k */
   if (DEBUGLEVEL>2) err_printf("Lift pr^k; GSmin wanted: %Ps\n",C0);
-  bestlift_init((long)mybestlift_bound(C0), nf, C0, P.L);
-  P.L->dn = NULL;
+  bestlift_init((long)mybestlift_bound(C0), nf, C0, &L);
+  L.dn = NULL;
   if (DEBUGLEVEL>2) timer_start(&ti);
 
   /* Step 4 : actual computation of roots */
@@ -2169,7 +2164,7 @@ rootsof1(GEN nf)
       pari_sp av = avma;
       long pk = upowuu(p,k);
       if (pk==2) continue; /* no need to test second roots ! */
-      z = nfcyclo_root(pk, nfpol, P.L);
+      z = nfcyclo_root(pk, nfpol, &L);
       if (DEBUGLEVEL>2) timer_printf(&ti, "for factoring Phi_%ld^%ld", p,k);
       if (z) {
         if (DEBUGLEVEL>2) err_printf("  %ld-th root of unity found.\n", pk);
