@@ -1677,8 +1677,8 @@ nf_pick_prime(long ct, GEN nf, GEN pol, long fl,
       if (!anbf) return 0; /* no root */
     }
     if (DEBUGLEVEL>3)
-      err_printf("%3ld %s at prime\n Time: %ld\n",
-                 anbf, fl == FACTORS?"factors": "roots", timer_delay(&ti_pr));
+      err_printf("%3ld %s at prime (%ld,x^%ld+...)\n Time: %ld\n",
+          anbf, fl == FACTORS?"factors": "roots", p,degpol(T), timer_delay(&ti_pr));
 
     if (!nbf || anbf < nbf
              || (anbf == nbf && degpol(T) > degpol(*Tp)))
