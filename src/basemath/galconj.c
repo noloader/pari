@@ -2460,12 +2460,14 @@ checkgroupelts(GEN gal)
   else
   {
     long i, n = lg(gal)-1;
+    if (n==0)
+      pari_err_DIM("checkgroupelts");
     for(i=1; i<=n; i++)
     {
       if(typ(gel(gal,i)) != t_VECSMALL)
-        pari_err_TYPE("checkgroup (element)", gel(gal,i));
+        pari_err_TYPE("checkgroupelts (element)", gel(gal,i));
       if(lg(gel(gal,i))!=lg(gel(gal,1)))
-        pari_err_DIM("checkgroup [length of permutations]");
+        pari_err_DIM("checkgroupelts [length of permutations]");
     }
     return gal;
   }
