@@ -13194,7 +13194,8 @@ In the example code below, \kbd{agm1} is set to the function
 at frame \kbd{s+1}, and returns the index of the topmost frame. This allow to
 compile expressions in the topmost lexical scope.
 
-\fun{void}{closure_err}{void} prints a backtrace of the last $20$ stack frames.
+\fun{void}{closure_err}{long level} prints a backtrace of the last $20$ stack
+frames, starting at frame \kbd{level}, the numbering starting at $0$.
 
 \subsec{Standard wrappers for iterators}
 Two families of standard wrappers are provided to interface iterators like
