@@ -1548,18 +1548,21 @@ static GEN
 nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, long fl, nflift_t *L)
 {
   GEN z, Cltx_r, ltdn;
-  long i, m;
+  long i, m, lz;
   div_data D;
 
   init_div_data(&D, pol, L);
   ltdn = mul_content(D.lt, L->dn);
   z = ZqX_roots(polred, L->Tpk, L->p, L->k);
   Cltx_r = deg1pol_shallow(D.Clt? D.Clt: gen_1, NULL, varn(pol));
-  for (m=1,i=1; i<lg(z); i++)
+  lz = lg(z);
+  if (DEBUGLEVEL > 3) err_printf("Checking %ld roots:",lz-1);
+  for (m=1,i=1; i<lz; i++)
   {
     GEN r = gel(z,i);
     int dvd;
     pari_sp av;
+    if (DEBUGLEVEL > 3) err_printf(" %ld",i);
     /* lt*dn*topowden * r = Clt * r */
     r = nf_bestlift_to_pol(ltdn? gmul(ltdn,r): r, NULL, L);
     av = avma;
@@ -1573,6 +1576,7 @@ nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, long fl, nflift_t *L)
     }
     else if (fl == ROOTS_SPLIT) return cgetg(1, t_VEC);
   }
+  if (DEBUGLEVEL > 3) err_printf(" done\n");
   z[0] = evaltyp(t_VEC) | evallg(m);
   return z;
 }
