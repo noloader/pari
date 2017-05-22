@@ -107,14 +107,15 @@ poldiscfactors_i(GEN T, GEN dT, long flag)
   GEN fa = absZ_factor_limit(dT, 0);
   GEN Tp, E, P = gel(fa,1);
   long i, l = lg(P);
-  if (l == 1 || BPSW_psp(gel(P,l-1))) return fa;
+  GEN p = gel(P,l-1);
+  if (l == 1 || ((flag || lgefint(p)==3) && BPSW_psp(p))) return fa;
   settyp(P, t_VEC);
   Tp = ZX_deriv(T);
   for (i = l-1; i < lg(P); i++)
   {
     GEN p = gel(P,i), r, L;
     if (Z_isanypower(p, &p)) gel(P,i) = p;
-    if (BPSW_psp(p)) continue;
+    if ((flag || lgefint(p)==3) && BPSW_psp(p)) continue;
     r = FpX_gcd_check(T, Tp, p);
     if (r) L = Z_cba(r, diviiexact(p,r));
     else
