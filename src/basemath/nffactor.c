@@ -1594,11 +1594,11 @@ get_good_factor(GEN T, ulong p, long maxf)
   }
   else
   { /* otherwise, pick factor of largish degree */
-    long i, dr;
+    long i, dr, dT = degpol(T);
     for (i = lg(list)-1; i > 0; i--)
     {
       r = gel(list,i); dr = degpol(r);
-      if (dr <= maxf) return r;
+      if (dr == dT || dr <= maxf) return r;
     }
   }
   avma = av; return NULL; /* failure */
@@ -1684,6 +1684,7 @@ nf_pick_prime(long ct, GEN nf, GEN pol, long fl,
       err_printf("%3ld %s at prime (%ld,x^%ld+...)\n Time: %ld\n",
           anbf, fl == FACTORS?"factors": "roots", p,degpol(T), timer_delay(&ti_pr));
 
+    if (fl == ROOTS && degpol(T)==nfdeg) { *Tp = T; *pp = p; return anbf; }
     if (!nbf || anbf < nbf
              || (anbf == nbf && degpol(T) > degpol(*Tp)))
     {
