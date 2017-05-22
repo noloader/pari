@@ -2156,19 +2156,21 @@ sqrt_Cipolla(GEN a, GEN p)
   return v;
 }
 
+/* Return NULL if p is found to be composite */
 static GEN
 Fp_2gener_all(long e, GEN p)
 {
   GEN y, m;
   long k;
   GEN q = shifti(subiu(p,1), -e); /* q = (p-1)/2^oo is odd */
+  if (e==0 && !equaliu(p,2)) return NULL;
   for (k=2; ; k++)
   {
     long i = krosi(k, p);
     if (i >= 0)
     {
       if (i) continue;
-      pari_err_PRIME("Fp_sqrt [modulus]",p);
+      return NULL;
     }
     y = m = Fp_pow(utoi(k), q, p);
     for (i=1; i<e; i++)
@@ -2178,6 +2180,7 @@ Fp_2gener_all(long e, GEN p)
   return y;
 }
 
+/* Return NULL if p is found to be composite */
 GEN
 Fp_2gener(GEN p)
 { return Fp_2gener_all(vali(subis(p,1)),p); }
@@ -2223,6 +2226,7 @@ Fp_sqrt_i(GEN a, GEN y, GEN p)
   q = shifti(p1,-e); /* q = (p-1)/2^oo is odd */
   if (e == 1) y = p1;
   else if (!y) y = Fp_2gener_all(e, p);
+  if (!y) pari_err_PRIME("Fp_sqrt [modulus]",p);
   p1 = Fp_pow(a, shifti(q,-1), p); /* a ^ [(q-1)/2] */
   if (!signe(p1)) { avma=av; return gen_0; }
   v = Fp_mul(a, p1, p);
