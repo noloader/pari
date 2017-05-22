@@ -1670,7 +1670,7 @@ Fp_sqr(GEN a, GEN m)
   GEN p; /*HACK: assume modii use <=lg(p)+(lg(m)<<1) space*/
   (void)new_chunk((lg(a)+lg(m))<<1);
   p = sqri(a);
-  avma = av; return modii(p,m);
+  avma = av; return remii(p,m); /*Use remii: p >= 0 */
 }
 INLINE GEN
 Fp_mulu(GEN a, ulong b, GEN m)

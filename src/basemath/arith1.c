@@ -2156,8 +2156,6 @@ sqrt_Cipolla(GEN a, GEN p)
   return v;
 }
 
-#define sqrmod(x,p) (remii(sqri(x),p))
-
 /* Tonelli-Shanks. Assume p is prime and return NULL if (a,p) = -1. */
 GEN
 Fp_sqrt(GEN a, GEN p)
@@ -2211,7 +2209,7 @@ Fp_sqrt(GEN a, GEN p)
       av1 = avma;
       y = m = Fp_pow(utoipos((ulong)k),q,p);
       for (i=1; i<e; i++)
-        if (gequal1(m = sqrmod(m,p))) break;
+        if (gequal1(m = Fp_sqr(m,p))) break;
       if (i == e) break; /* success */
       avma = av1;
     }
@@ -2223,13 +2221,13 @@ Fp_sqrt(GEN a, GEN p)
   while (!equali1(w))
   { /* a*w = v^2, y primitive 2^e-th root of 1
        a square --> w even power of y, hence w^(2^(e-1)) = 1 */
-    p1 = sqrmod(w,p);
-    for (k=1; !equali1(p1) && k < e; k++) p1 = sqrmod(p1,p);
+    p1 = Fp_sqr(w,p);
+    for (k=1; !equali1(p1) && k < e; k++) p1 = Fp_sqr(p1,p);
     if (k == e) { avma=av; return NULL; } /* p composite or (a/p) != 1 */
     /* w ^ (2^k) = 1 --> w = y ^ (u * 2^(e-k)), u odd */
     p1 = y;
-    for (i=1; i < e-k; i++) p1 = sqrmod(p1,p);
-    y = sqrmod(p1, p); e = k;
+    for (i=1; i < e-k; i++) p1 = Fp_sqr(p1,p);
+    y = Fp_sqr(p1, p); e = k;
     w = Fp_mul(y, w, p);
     v = Fp_mul(v, p1, p);
     if (gc_needed(av,1))
