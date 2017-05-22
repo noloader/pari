@@ -1946,7 +1946,7 @@ lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
   mod = mkpolmod(gen_1, polcyclo(o, var));
   if (lg(ch)>1 && typ(gel(ch,1))==t_MAT)
   {
-    GEN repr = conjclasses_repr(elts, conj, nbc);
+    GEN repr = conjclasses_repr(conj, nbc);
     GEN M = gmul(ch, mod);
     GEN R = artin_repfromgens(gal, M);
     chx = rep_to_char(R);

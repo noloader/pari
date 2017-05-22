@@ -1076,7 +1076,7 @@ groupelts_conjclasses(GEN elts, long *ptnbcl)
 }
 
 GEN
-conjclasses_repr(GEN elts, GEN conj, long nb)
+conjclasses_repr(GEN conj, long nb)
 {
   long i, l = lg(conj);
   GEN e = const_vecsmall(nb, 0);

@@ -2692,7 +2692,7 @@ galoischar_charpoly(GEN elts, GEN ch, long o)
   conj = groupelts_conjclasses(elts, &nb);
   checkgaloischar(ch, nb);
   d = galoischar_dim(ch); l = lg(ch);
-  repr = conjclasses_repr(elts, conj, nb);
+  repr = conjclasses_repr(conj, nb);
   mod = polcyclo(o, gvar(ch));
   chm = gmul(ch, mkpolmod(gen_1,  mod));
   V = cgetg(l, t_COL);

@@ -3945,7 +3945,7 @@ void forsubset_init(forsubset_t *T, GEN nk);
 /* perm.c */
 
 GEN     abelian_group(GEN G);
-GEN     conjclasses_repr(GEN elts, GEN conj, long nb);
+GEN     conjclasses_repr(GEN conj, long nb);
 GEN     cyclicgroup(GEN g, long s);
 GEN     cyc_pow(GEN cyc, long exp);
 GEN     cyc_pow_perm(GEN cyc, long exp);

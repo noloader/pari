@@ -11844,11 +11844,10 @@ class of \kbd{elts[i]} for some unspecified but deterministic ordering of the
 classes, where $n$ is the number of conjugacy classes. If \kbd{pt\_n} is non
 NULL, \kbd{*pt\_n} is set to $n$.
 
-\fun{GEN}{conjclasses_repr}{GEN elts, GEN conj, long nb},
-where \var{elts} is the list of elements of a small group, and \kbd{conj} and
-\kbd{nb} as returned by \kbd{groupelts\_conjclasses}, return \typ{VECSMALL}
-of length \kbd{nb} which gives the indices in \kbd{elts} of a representative
-of each conjugacy class.
+\fun{GEN}{conjclasses_repr}{GEN conj, long nb},
+where \kbd{conj} and \kbd{nb} as returned by \kbd{groupelts\_conjclasses(elts)},
+return \typ{VECSMALL} of length \kbd{nb} which gives the indices in \kbd{elts}
+of a representative of each conjugacy class.
 
 \fun{long}{group_order}{GEN grp} returns the order of the small group
 \var{grp} (which is the product of the relative orders).
