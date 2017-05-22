@@ -721,6 +721,12 @@ FpX_gcd_check(GEN x, GEN y, GEN p)
     GEN g = gcdii(p, leading_coeff(b));
     if (!equali1(g)) return gerepileuptoint(av,g);
     c = FpX_rem(a,b,p); a = b; b = c;
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1)
+        pari_warn(warnmem,"FpX_gcd_check (d = %ld)",degpol(b));
+      gerepileall(av,2,&a,&b);
+    }
   }
   avma = av; return NULL;
 }
