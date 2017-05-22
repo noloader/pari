@@ -731,9 +731,8 @@ basis of the kernel of $M$.
 assume that $M$ is invertible; return $N$ and sets the integer \kbd{den} such
 that $M N = \kbd{den} \cdot \Id$.
 
-\fun{GEN}{ZabM_pseudoinv}{GEN M, GEN P, long n, GEN *den}
-assume that $M$ has full column rank. Return a left-inverse of $M$
-analogously to \kbd{ZabM\_inv}.
+\fun{GEN}{ZabM_pseudoinv}{GEN M, GEN P, long n, GEN *pv, GEN *den} analog
+of \kbd{ZM\_pseudoinv}. Not gerepile-safe.
 
 \subsec{Elements in factored form}
 

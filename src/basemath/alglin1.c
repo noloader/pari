@@ -5103,35 +5103,20 @@ ZabM_gauss(GEN M, GEN P, long n, GEN *den)
 #endif
 
 GEN
-ZabM_pseudoinv(GEN M, GEN P, long n, GEN *den)
+ZabM_pseudoinv(GEN M, GEN P, long n, GEN *pv, GEN *den)
 {
-  pari_sp av = avma;
-  GEN v, S, W, z, v1;
-  long l, i;
-  v = ZabM_indexrank(M, P, n);
-  S = shallowmatextract(M,gel(v,1),gel(v,2));
-  W = ZabM_inv(S, P, n, den);
-  z = zeromatcopy(lg(M)-1,lgcols(M)-1);
-  v1 = gel(v,1); l = lg(v1);
-  for(i=1; i<l; i++) gel(z, v1[i]) = gel(W, i);
-  gerepileall(av,2,&z,den);
-  return z;
+  GEN v = ZabM_indexrank(M, P, n);
+  if (pv) *pv = v;
+  M = shallowmatextract(M,gel(v,1),gel(v,2));
+  return ZabM_inv(M, P, n, den);
 }
-
 GEN
-ZM_pseudoinv(GEN M, GEN *den)
+ZM_pseudoinv(GEN M, GEN *pv, GEN *den)
 {
-  pari_sp av = avma;
-  GEN v, S, W, z, v1;
-  long l, i;
-  v = ZM_indexrank(M);
-  S = shallowmatextract(M,gel(v,1),gel(v,2));
-  W = ZM_inv_ratlift(S, den);
-  z = zeromatcopy(lg(M)-1,lgcols(M)-1);
-  v1 = gel(v,1); l = lg(v1);
-  for(i=1; i<l; i++) gel(z, v1[i]) = gel(W, i);
-  gerepileall(av,2,&z,den);
-  return z;
+  GEN v = ZM_indexrank(M);
+  if (pv) *pv = v;
+  M = shallowmatextract(M,gel(v,1),gel(v,2));
+  return ZM_inv_ratlift(M, den);
 }
 
 /*******************************************************************/
