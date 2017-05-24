@@ -3115,6 +3115,7 @@ GEN     gsub(GEN x, GEN y);
 GEN     gsubsg(long x, GEN y);
 GEN     mulcxI(GEN x);
 GEN     mulcxmI(GEN x);
+GEN     mulcxpowIs(GEN x, long k);
 GEN     Qdivii(GEN x1, GEN x2);
 GEN     ser_normalize(GEN x);
 

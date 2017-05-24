@@ -10046,8 +10046,10 @@ general contains data pointing back to the original $x$. Use \kbd{gcopy} if
 this is a problem. But in most cases, the result is to be used immediately,
 before $x$ is subject to garbage collection.
 
-\fun{GEN}{mulcxmI}{GEN x}, as \tet{mulcxI}, but returns the \typ{COMPLEX}
-$-ix$.
+\fun{GEN}{mulcxmI}{GEN x}, as \tet{mulcxI}, but returns $-ix$.
+
+\fun{GEN}{mulcxpowIs}{GEN x, long k}, as \tet{mulcxI}, but returns
+$x \cdot i^k$.
 
 \fun{GEN}{mkquad}{GEN n, GEN x, GEN y} creates the \typ{QUAD} $x + yw$,
 where $w$ is a root of $n$, which is of the form \kbd{quadpoly(D)}.

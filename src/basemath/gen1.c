@@ -1814,6 +1814,18 @@ mulcxmI(GEN x)
       return gmul(mkcomplex(gen_0, gen_m1), x);
   }
 }
+/* x * I^k */
+GEN
+mulcxpowIs(GEN x, long k)
+{
+  switch (k & 3)
+  {
+    case 1: return mulcxI(x);
+    case 2: return gneg(x);
+    case 3: return mulcxmI(x);
+  }
+  return x;
+}
 
 /* fill in coefficients of t_SER z from coeffs of t_POL y */
 static GEN

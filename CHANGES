@@ -208,6 +208,7 @@ BA   84- [libpari] FlxqX_is_squarefree, FlxqX_nbfact, RgX_to_FlxqX
      85- [libpari] RgX_addmulXn, RgX_addmulXn_shallow, RgX_addspec,
          RgX_addspec_shallow
 BA   86- GP functions galoischardet, galoischarpoly
+     87- [libpari] mulcxpowIs
 
   Changed
       1- rewrite bnfnarrow
