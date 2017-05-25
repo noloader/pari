@@ -1371,6 +1371,16 @@ ZX_deflate_max(GEN x, long *m)
   return RgX_deflate(x, *m);
 }
 
+static int
+serequalXk(GEN x)
+{
+  long i, l = lg(x);
+  if (l == 2 || !isint1(gel(x,2))) return 0;
+  for (i = 3; i < l; i++)
+    if (!isintzero(gel(x,i))) return 0;
+  return 1;
+}
+
 GEN
 gsubst(GEN x, long v, GEN y)
 {
@@ -1465,6 +1475,22 @@ gsubst(GEN x, long v, GEN y)
         case t_SER:
           vy = varn(y); ey = valp(y);
           if (ey < 1 || lx == 2) return zeroser(vy, ey*(ex+lx-2));
+          if (ey == 1 && serequalXk(y)
+                      && (varncmp(vx,vy) >= 0 || varncmp(gvar2(x), vy) >= 0))
+          { /* y = t + O(t^N) */
+            if (lx > ly)
+            { /* correct number of significant terms */
+              l = ly;
+              if (!ex)
+                for (i = 3; i < lx; i++)
+                  if (++l >= lx || !gequal0(gel(x,i))) break;
+              lx = l;
+            }
+            z = cgetg(lx, t_SER); z[1] = x[1];
+            for (i = 2; i < lx; i++) gel(z,i) = gcopy(gel(x,i));
+            if (vx != vy) setvarn(z,vy);
+            return z;
+          }
           if (vy != vx)
           {
             av = avma; z = gel(x,lx-1);
