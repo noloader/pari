@@ -3603,22 +3603,22 @@ ellwpseries_aux(GEN c4, GEN c6, long v, long PRECDL)
 {
   long i, k, l;
   pari_sp av;
-  GEN t, res = cgetg(PRECDL+2,t_SER), *P = (GEN*)(res + 2);
+  GEN _1, t, res = cgetg(PRECDL+2,t_SER), *P = (GEN*)(res + 2);
 
   res[1] = evalsigne(1) | _evalvalp(-2) | evalvarn(v);
   if (!PRECDL) { setsigne(res,0); return res; }
 
   for (i=1; i<PRECDL; i+=2) P[i]= gen_0;
+  _1 = RgX_get_1(c4);
   switch(PRECDL)
   {
     default:P[6] = gdivgs(c6,6048);
     case 6:
     case 5: P[4] = gdivgs(c4, 240);
     case 4:
-    case 3: P[2] = gen_0;
+    case 3: P[2] = gmul(_1,gen_0);
     case 2:
-    case 1: P[0] = gen_1;
-    case 0: break;
+    case 1: P[0] = _1;
   }
   if (PRECDL <= 8) return res;
   av = avma;
@@ -3800,7 +3800,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
     P = ellwpseries_aux(c4,c6, vy, lg(y)-2);
     P = integser(gneg(P)); /* \zeta' = - \wp*/
     /* (log \sigma)' = \zeta; remove log-singularity first */
-    P = integser(gsub(P, pol_xnall(-1,vy)));
+    P = integser(serchop0(P));
     P = gexp(P, prec0);
     setvalp(P, valp(P)+1);
     Q = gsubst(P, varn(P), y);
