@@ -1869,7 +1869,8 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   }
 
   T.fact = gel(FqX_factor(polred, L.Tp, L.p), 1);
-  if (DEBUGLEVEL>2) timer_printf(&ti, "splitting mod %Ps^%ld", L.p, degpol(L.Tp));
+  if (DEBUGLEVEL>2)
+    timer_printf(&ti, "splitting mod %Ps^%ld", L.p, L.Tp? degpol(L.Tp): 1);
   T.L  = &L;
   T.polbase = polbase;
   T.pol   = pol;
