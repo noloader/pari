@@ -1342,6 +1342,17 @@ RgX_mulhigh_i(GEN f, GEN g, long n)
   return RgX_shift_shallow(h, d-1-degpol(h)); /* possibly (fg)(0) = 0 */
 }
 
+/* (f*g) \/ x^n */
+GEN
+RgX_sqrhigh_i(GEN f, long n)
+{
+  long d = 2*degpol(f)+ 1 - n;
+  GEN h;
+  if (d <= 2) return RgX_shift_shallow(RgX_sqr(f), -n);
+  h = RgX_recip_shallow(RgXn_sqr(RgX_recip_shallow(f), d));
+  return RgX_shift_shallow(h, d-1-degpol(h)); /* possibly (fg)(0) = 0 */
+}
+
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
  * Only c, c0, c1, c2 are genuine GEN.
@@ -2249,6 +2260,14 @@ RgXn_mulhigh(GEN f, GEN g, long n2, long n)
   return RgX_add(RgX_mulhigh_i(fl, g, n2), RgXn_mul(fh, g, n - n2));
 }
 
+/* (f^2 mod t^n) \ t^n2, assuming 2*n2 >= n */
+static GEN
+RgXn_sqrhigh(GEN f, long n2, long n)
+{
+  GEN F = RgX_blocks(f, n2, 2), fl = gel(F,1), fh = gel(F,2);
+  return RgX_add(RgX_mulhigh_i(fl, f, n2), RgXn_mul(fh, f, n - n2));
+}
+
 GEN
 RgXn_inv(GEN f, long e)
 {
@@ -2362,6 +2381,36 @@ RgXn_reverse(GEN f, long e)
     }
   }
   return gerepileupto(av, a);
+}
+
+GEN
+RgXn_sqrt(GEN h, long e)
+{
+  pari_sp av = avma, av2;
+  long v = varn(h), n = 1;
+  GEN f = scalarpol(gen_1, v), df = f;
+  ulong mask = quadratic_prec_mask(e);
+  if (degpol(h)<0 || !gequal1(gel(h,2)))
+    pari_err_SQRTN("RgXn_sqrt",h);
+  av2 = avma;
+  while(1)
+  {
+    long n2 = n, m;
+    GEN g;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    m = n-n2;
+    g = RgX_sub(RgXn_sqrhigh(f, n2, n), RgX_shift_shallow(RgXn_red_shallow(h, n),-n2));
+    f = RgX_sub(f, RgX_shift_shallow(RgXn_mul(gmul2n(df, -1), g, m), n2));
+    if (mask==1) return gerepileupto(av, f);
+    g = RgXn_mul(df, RgXn_mulhigh(df, f, n2, n), m);
+    df = RgX_sub(df, RgX_shift_shallow(g, n2));
+    if (gc_needed(av2,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_sqrt, e = %ld", n);
+      gerepileall(av2, 2, &f, &df);
+    }
+  }
 }
 
 /* x,T in Rg[X], n in N, compute lift(x^n mod T)) */
