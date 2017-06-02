@@ -1789,7 +1789,7 @@ cache_get(long id, ulong D)
     if (l <= d)
     {
       if (D > S->maxmiss) S->maxmiss = D;
-      if (DEBUGLEVEL)
+      if (DEBUGLEVEL >= 3)
         err_printf("miss in cache %s: %lu, max = %lu\n",
                    S->name, D, S->maxmiss);
       if (S->miss++ >= 5 && D < S->maxself)
@@ -1797,7 +1797,7 @@ cache_get(long id, ulong D)
         max = minuu(S->maxself, (long)(S->maxmiss * 1.2));
         if (max <= S->maxself)
         {
-          if (DEBUGLEVEL)
+          if (DEBUGLEVEL >= 3)
             err_printf("resetting cache %s to %lu\n", S->name, max);
           S->init(max); l = lg(S->cache);
         }

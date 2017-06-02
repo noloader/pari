@@ -2607,6 +2607,11 @@ GEN sd_ulong(const char *v, long flag, const char *s, ulong *ptn, ulong Min, ulo
 GEN setdefault(const char *s, const char *v, long flag);
 long setrealprecision(long n, long *prec);
 
+/* ecpp.c */
+GEN     ecpp(GEN N);
+GEN     ecppexport(GEN cert, long flag);
+long    ecppisvalid(GEN cert);
+
 /* gplib.c */
 GEN sd_breakloop(const char *v, long flag);
 GEN sd_echo(const char *v, long flag);

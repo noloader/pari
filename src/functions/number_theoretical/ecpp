@@ -1,0 +1,53 @@
+Function: ecpp
+Section: number_theoretical
+C-Name: ecpp
+Prototype: G
+Help: ecpp(N): If N is a prime, return a PARI ECPP Primality Certificate. Return 0 otherwise.
+Doc:
+ If N is a prime, return a PARI ECPP Primality Certificate for the prime $N$, as described below. Otherwise, return 0.
+
+ A PARI ECPP Primality Certificate for the prime $N$ is either a prime integer $N < 2^{64}$ or a vector \kbd{C} of length $\ell$ whose $i$th component \kbd{C[i]} is a vector of length $5$ containing $N_i$, $t_i$, $s_i$, $a_i$, $P_i$ (in that order) where $N_1 = N$. It is said to be valid if all of the following conditions are satisfied
+
+ \item For each $i = 1, 2, \ldots, \ell$:
+
+ \quad\item $N_i$ is a positive integer
+
+ \quad\item $t_i$ is an integer such that $t_i < 4N_i^2$
+
+ \quad\item $s_i$ is a positive integer which divides $m_i$ where $m_i = N_i + 1 - t_i$
+
+ \quad\item If we set $q_i = \dfrac{m_i}{s_i}$, then
+
+ \quad\quad\item $q_i > (N_i^{1/4}+1)^2$
+
+ \quad\quad\item $q_i = N_{i+1}$ if $1 \leq i < l$
+
+ \quad\quad\item $q_\ell \leq 2^{64}$ is prime
+
+ \quad\item $a_i$ is an integer
+
+ \quad\item \kbd{P[i]} is a vector of length $2$ representing the point $P_i = (x_i, y_i)$ on the elliptic curve $E: y^2 = x^3 + a_ix + b_i$ modulo $N_i$ where $b_i = y_i^2 - x_i^3 - a_ix_i$ satisfying the following:
+
+ \quad\quad\item $m_iP_i = \infty$
+
+ \quad\quad\item $s_iP_i \neq \infty$
+
+ \misctitle{Theorem} If $N$ is an integer and there exist positive integers $m, q$ and a point $P$ on the elliptic curve $E: y^2 = x^3 + ax + b$ defined modulo $N$ such that $q > (N^{1/4} + 1)^2$, $q$ is a prime divisor of $m$, $mP = \infty$ and $\dfrac{m}{q}P \neq \infty$, then $N$ is prime.
+
+ Using the above theorem, the data in the vector \kbd{C} can be used to certify the primality of $N$ assuming $q_\ell$ is prime.
+
+ \bprog
+ ? ecpp(10^35 + 69)
+ %1 = [[100000000000000000000000000000000069, 5468679110354
+ 52074, 2963504668391148, 0, [60737979324046450274283740674
+ 208692, 24368673584839493121227731392450025]], [3374383076
+ 4501150277, -11610830419, 734208843, 0, [26740412374402652
+ 72 4, 6367191119818901665]], [45959444779, 299597, 2331, 0
+ , [18022351516, 9326882 51]]]
+ ? ecpp(nextprime(2^32))
+ %2 = [[4294967311, -25963, 675, 0, [446887574, 1853945792]]]
+ ? ecpp(6)
+ %3 = 0
+ ? ecpp(41)
+ %4 = 41
+ @eprog
