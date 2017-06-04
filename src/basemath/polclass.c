@@ -287,34 +287,6 @@ next_generator(GEN DD, long D, ulong u, long filter, long *P)
   return gen;
 }
 
-
-/* These wrappers circumvent a restriction in the C89 standard which
- * requires that, for example, (S (*)(void *)) and (S (*)(T *)) are
- * incompatible function pointer types whenever T != void (which is at
- * least slightly surprising).  This prevents us from using explicit
- * casts (ulong (*)(void *)) hash_GEN and (int (*)(void *, void *))
- * gequal in the call to hash_create and obliges us to use these
- * wrapper functions to do the cast explicitly.
- *
- * Refs:
- * - Annex J.2
- * - Section 6.3.2.3, paragraph 8
- * - Section 6.7.5.1, paragraph 2
- * - Section 6.7.5.3, paragraph 15
- */
-static ulong
-hash_GEN_wrapper(void *x)
-{
-  return hash_GEN((GEN) x);
-}
-
-static int
-gequal_wrapper(void *x, void *y)
-{
-  return gequal((GEN) x, (GEN) y);
-}
-
-
 INLINE long *
 evec_ri_mutate(long r[], long i)
 {
@@ -872,7 +844,8 @@ classgp_make_pcp(
     k = 0;
     /* Hash table has a QFI as a key and the (boxed) index of that QFI
      * in T as its value */
-    tbl = hash_create(h, hash_GEN_wrapper, gequal_wrapper, 1);
+    tbl = hash_create(h, (ulong(*)(void*)) hash_GEN,
+                         (int(*)(void*,void*))&gequal, 1);
     ident = redimag(primeform_u(DD, 1));
     hash_insert(tbl, ident, gen_0);
 
