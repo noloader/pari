@@ -34,6 +34,7 @@ TEX   = tex
 PDFTEX= pdftex
 
 DESC          = pari.desc
+TMPSUF        = .tmp
 MACROS= paricfg.tex parimacro.tex
 USERS_TEX=\$(MACROS) appa.tex users.tex usersch1.tex usersch2.tex usersch3.tex
 PARI_TEX=\$(MACROS) libpari.tex appb.tex appd.tex usersch4.tex usersch5.tex usersch6.tex usersch7.tex usersch8.tex
@@ -171,6 +172,7 @@ $desc/\$(DESC): $src/funclist $desc/merge_822 $desc/PARI/822.pm
 	mv $desc/def\$(TMPSUF) \$@
 
 usersch3.tex: $desc/\$(DESC) ../src/desc/doc_make usersFUNCS.tex
-	cd ../src/desc && \$(PERL) doc_make > ../../doc/usersch3.tex
+	cd ../src/desc && \$(PERL) doc_make > ../../doc/usersch3\$(TMPSUF)
+	mv usersch3\$(TMPSUF) \$@
 EOT
 fi
