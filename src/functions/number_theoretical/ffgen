@@ -3,18 +3,19 @@ Section: number_theoretical
 C-Name: ffgen
 Prototype: GDn
 Help: ffgen(q,{v = 'x}): return a generator X mod P(X) for the finite field with
- q elements. If v is given, the variable name is used to display g, else the
- variable 'x' is used. Alternative syntax, q = P(X) an irreducible
- polynomial with t_INTMOD
- coefficients, return the generator X mod P(X) of the finite field defined
- by P. If v is given, the variable name is used to display g, else the
- variable of the polynomial P is used.
+ q elements (not necessarily a generator of its multiplicative group). If v is
+ given, the variable name is used to display g, else the variable 'x' is used.
+ Alternative syntax, q = P(X) an irreducible polynomial with t_INTMOD
+ coefficients, return the generator X mod P(X) of the finite field defined by P.
+ If v is given, the variable name is used to display g, else the variable of the
+ polynomial P is used.
 
 Doc: return a \typ{FFELT} generator for the finite field with $q$ elements;
  $q = p^f$ must be a prime power. This functions computes an irreducible
  monic polynomial $P\in\F_p[X]$ of degree~$f$ (via \tet{ffinit}) and
  returns $g = X \pmod{P(X)}$. If \kbd{v} is given, the variable name is used
- to display $g$, else the variable $x$ is used.
+ to display $g$, else the variable $x$ is used. The generator computed might not
+ be a generator of the multiplicative group of~$\F_q$ (see \tet{ffprimroot}).
  \bprog
  ? g = ffgen(8, 't);
  ? g.mod
