@@ -1623,7 +1623,7 @@ ZX_hyperellratpoints(GEN P, GEN h, long flag)
     {
       args.b_low         = 1;
       args.b_high        = itos(gel(h,2));
-    } else if (typ(h)==t_VEC && lg(h)==3)
+    } else if (typ(gel(h,2))==t_VEC && lg(gel(h,2))==3)
     {
       args.b_low         = gtos(gmael(h,2,1));
       args.b_high        = gtos(gmael(h,2,2));

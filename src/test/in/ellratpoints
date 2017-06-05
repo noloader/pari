@@ -39,3 +39,5 @@ P=82342800 *x^6 - 470135160 *x^5 + 52485681 *x^4 + 2396040466 *x^3 + 567207969 *
 hyperellratpoints(P,[10,1])
 checkhyp(P,0)
 checkhyp(-x^6+x^3+x+1,2*x^3)
+
+E=ellinit([0,0,1,-7,6]);ellratpoints(E,[10^5,[5]])
