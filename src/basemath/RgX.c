@@ -1647,17 +1647,16 @@ RgX_div_by_X_x(GEN a, GEN x, GEN *r)
   return z;
 }
 /* Polynomial division x / y:
- *   if z = ONLY_REM  return remainder, otherwise return quotient
- *   if z != NULL set *z to remainder
- *   *z is the last object on stack (and thus can be disposed of with cgiv
- *   instead of gerepile) */
+ *   if pr = ONLY_REM return remainder, otherwise return quotient
+ *   if pr = ONLY_DIVIDES return quotient if division is exact, else NULL
+ *   if pr != NULL set *pr to remainder, as the last object on stack */
 /* assume, typ(x) = typ(y) = t_POL, same variable */
 GEN
 RgX_divrem(GEN x, GEN y, GEN *pr)
 {
   pari_sp avy, av, av1;
   long dx,dy,dz,i,j,sx,lr;
-  GEN z,p1,p2,rem,y_lead,mod;
+  GEN z,p1,p2,rem,y_lead,mod,p;
   GEN (*f)(GEN,GEN);
 
   if (!signe(y)) pari_err_INV("RgX_divrem",y);
@@ -1693,6 +1692,18 @@ RgX_divrem(GEN x, GEN y, GEN *pr)
 
   /* x,y in R[X], y non constant */
   av = avma;
+  p = NULL;
+  if (RgX_is_FpX(x, &p) && RgX_is_FpX(y, &p) && p)
+  {
+    z = FpX_divrem(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p, pr);
+    if (!z) { avma = av; return NULL; }
+    z = FpX_to_mod(z, p);
+    if (!pr || pr == ONLY_REM || pr == ONLY_DIVIDES)
+      return gerepileupto(av, z);
+    *pr = FpX_to_mod(*pr, p);
+    gerepileall(av, 2, pr, &z);
+    return z;
+  }
   switch(typ(y_lead))
   {
     case t_REAL:
