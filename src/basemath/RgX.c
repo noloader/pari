@@ -1525,14 +1525,65 @@ RgX_mul_normalized(GEN A, long a, GEN B, long b)
 GEN
 RgX_mul(GEN x, GEN y)
 {
-  GEN z = RgX_mulspec(y+2, x+2, lgpol(y), lgpol(x));
+  GEN p, pol, xx, z;
+  pari_sp av;
+  if (RgX_is_ZX(x) && RgX_is_ZX(y)) return ZX_mul(x, y);
+  av = avma;
+  p = NULL;
+  if (RgX_is_FpX(x, &p) && RgX_is_FpX(y, &p))
+  {
+    if (lgefint(p) == 3)
+    {
+      ulong pp = uel(p, 2);
+      z = Flx_to_ZX_inplace(Flx_mul(RgX_to_Flx(x, pp),
+                                    RgX_to_Flx(y, pp), pp));
+    }
+    else
+      z = FpX_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+    return gerepileupto(av, FpX_to_mod(z, p));
+  }
+  p = NULL; pol = NULL; xx = x;
+  if (ff_poltype(&xx, &p, &pol) && ff_poltype(&y, &p, &pol))
+  {
+    z = ZX_mul(xx, y);
+    if (p) z = FpX_to_mod(z, p);
+    if (pol) z = Kronecker_to_mod(z, pol);
+    return gerepileupto(av, z);
+  }
+  avma = av;
+  z = RgX_mulspec(y+2, x+2, lgpol(y), lgpol(x));
   setvarn(z,varn(x)); return z;
 }
 
 GEN
 RgX_sqr(GEN x)
 {
-  GEN z = RgX_sqrspec(x+2, lgpol(x));
+  GEN p, pol, z;
+  pari_sp av;
+  if (RgX_is_ZX(x)) return ZX_sqr(x);
+  av = avma;
+  p = NULL;
+  if (RgX_is_FpX(x, &p))
+  {
+    if (lgefint(p) == 3)
+    {
+      ulong pp = uel(p, 2);
+      z = Flx_to_ZX_inplace(Flx_sqr(RgX_to_Flx(x, pp), pp));
+    }
+    else
+      z = FpX_sqr(RgX_to_FpX(x, p), p);
+    return gerepileupto(av, FpX_to_mod(z, p));
+  }
+  p = NULL; pol = NULL;
+  if (ff_poltype(&x, &p, &pol))
+  {
+    z = ZX_sqr(x);
+    if (p) z = FpX_to_mod(z, p);
+    if (pol) z = Kronecker_to_mod(z, pol);
+    return gerepileupto(av, z);
+  }
+  avma = av;
+  z = RgX_sqrspec(x+2, lgpol(x));
   setvarn(z,varn(x)); return z;
 }
 

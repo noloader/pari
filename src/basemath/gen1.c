@@ -1892,7 +1892,6 @@ gmul(GEN x, GEN y)
         if (varncmp(vx, vy) < 0) return RgX_Rg_mul(x, y);
         else                     return RgX_Rg_mul(y, x);
       }
-      if (RgX_is_ZX(x) && RgX_is_ZX(y)) return ZX_mul(x,y);
       return RgX_mul(x, y);
 
     case t_SER: {
@@ -2257,21 +2256,7 @@ gsqr(GEN x)
 
     case t_FFELT: return FF_sqr(x);
 
-    case t_POL:
-    {
-      GEN a = x, p = NULL, pol = NULL;
-      av = avma;
-      if (RgX_is_ZX(x)) return ZX_sqr(x);
-      if (ff_poltype(&x,&p,&pol))
-      {
-        z = ZX_sqr(x);
-        if (p) z = FpX_to_mod(z,p);
-        if (pol) z = Kronecker_to_mod(z,pol);
-        z = gerepileupto(av, z);
-      }
-      else { avma = av; z = RgX_sqr(a); }
-      return z;
-    }
+    case t_POL: return RgX_sqr(x);
 
     case t_SER:
       lx = lg(x);
