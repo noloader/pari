@@ -629,7 +629,7 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \section{Characters}
 Let \var{cyc} $=[d_1,\dots,d_k]$ represent an abelian group $G = \oplus
 (\ZZ/d_j\ZZ)\cdot g_j$ or any
-structure $G$ affording a \kbd{.cyc} method; e.g. \kbd{idealstar}$(,q)$
+structure $G$ affording a \kbd{.cyc} method; e.g. \kbd{znstar}$(q,1)$
 for Dirichlet characters. A character $\chi$ is coded by
 $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 \hfil\break
@@ -640,7 +640,7 @@ $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 \li{$\chi(x)$, $G$ a GP group structure}{chareval$(G, \chi, x, \{z\})$}
 
 \subsec{Dirichlet Characters}
-\li{initialize $G = (\ZZ/q\ZZ)^*$}{G = idealstar$(,q)$}
+\li{initialize $G = (\ZZ/q\ZZ)^*$}{G = znstar$(q,1)$}
 \li{convert datum $D$ to $[G,\chi]$}{znchar$(D)$}
 \li{is $\chi$ odd?}{zncharisodd$(G,\chi)$}
 \li{real $\chi \to $ Kronecker symbol $(D/.)$}{znchartokronecker$(G,\chi)$}
