@@ -1519,7 +1519,7 @@ ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
   long lambda = plambda? *plambda: 0, cnt = 0;
   ulong bound, dp;
   pari_sp av = avma, av2 = 0;
-  long i,n, lb, degA = degpol(A), dres = degA*degpol(B0);
+  long i,n, degA = degpol(A), degB, dres = degA*degpol(B0);
   long v = fetch_var_higher();
   long vX = varn(B0), vY = varn(A); /* assume vY has lower priority */
   long sX = evalvarn(vX);
@@ -1570,7 +1570,7 @@ INIT:
   }
 
   H = H0 = H1 = NULL;
-  lb = lg(B);
+  degB = degpol(B);
   bound = ZX_ZXY_ResBound(A, B, dB);
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
   dp = 1;
@@ -1585,7 +1585,7 @@ INIT:
     if (LERS)
     {
       GEN Hi;
-      if (degpol(a) < degA || lg(b) < lb) continue; /* p | lc(A)lc(B) */
+      if (degpol(a) < degA || degpol(b) < degB) continue; /* p | lc(A)lc(B) */
       if (checksqfree)
       { /* find degree list for generic Euclidean Remainder Sequence */
         long goal = minss(degpol(a), degpol(b)); /* longest possible */
@@ -1620,15 +1620,15 @@ INIT:
     }
     else
     {
-      long dropa = degA - degpol(a), dropb = lb - lg(b);
+      long dropa = degA - degpol(a), dropb = degB - degpol(b);
       Hp = Flx_FlxY_resultant_polint(a, b, p, (ulong)dres, sX);
       if (dropa && dropb)
         Hp = zero_Flx(sX);
       else {
         if (dropa)
         { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
-          GEN c = gel(b,lb-1); /* lc(B) */
-          if (!odd(lb)) c = Flx_neg(c, p); /* deg B = lb - 3 */
+          GEN c = gel(b,degB+2); /* lc(B) */
+          if (odd(degB)) c = Flx_neg(c, p);
           if (!Flx_equal1(c)) {
             c = Flx_powu(c, dropa, p);
             if (!Flx_equal1(c)) Hp = Flx_mul(Hp, c, p);
