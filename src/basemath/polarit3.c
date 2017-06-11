@@ -1708,12 +1708,6 @@ END:
   return gerepilecopy(av, H);
 }
 
-GEN
-ZX_ZXY_rnfequation(GEN A, GEN B, long *lambda)
-{
-  return ZX_ZXY_resultant_all(A, B, lambda, NULL);
-}
-
 /* If lambda = NULL, return caract(Mod(A, T)), T,A in Z[X].
  * Otherwise find a small lambda such that caract (Mod(A + lambda X, T)) is
  * squarefree */
@@ -2077,6 +2071,91 @@ QXQ_inv(GEN A, GEN B)
   cU = ZX_content(U);
   if (!is_pm1(cU)) { U = Q_div_to_int(U, cU); D = gdiv(D, cU); }
   return gerepileupto(av, RgX_Rg_div(U, D));
+}
+
+/************************************************************************
+ *                                                                      *
+ *                   ZX_ZXY_resultant                                   *
+ *                                                                      *
+ ************************************************************************/
+
+static GEN
+ZX_ZXY_resultant_prime(GEN a, GEN b, long degA, long degB, ulong dres, ulong p, long sX)
+{
+  long dropa = degA - degpol(a), dropb = degB - degpol(b);
+  GEN Hp = Flx_FlxY_resultant_polint(a, b, p, dres, sX);
+  if (dropa && dropb)
+    Hp = zero_Flx(sX);
+  else {
+    if (dropa)
+    { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
+      GEN c = gel(b,degB+2); /* lc(B) */
+      if (odd(degB)) c = Flx_neg(c, p);
+      if (!Flx_equal1(c)) {
+        c = Flx_powu(c, dropa, p);
+        if (!Flx_equal1(c)) Hp = Flx_mul(Hp, c, p);
+      }
+    }
+    else if (dropb)
+    { /* multiply by lc(A)^(deg B - deg b) */
+      ulong c = uel(a,degA+2); /* lc(A) */
+      c = Fl_powu(c, dropb, p);
+      if (c != 1) Hp = Flx_Fl_mul(Hp, c, p);
+    }
+  }
+  return Hp;
+}
+
+static GEN
+ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod, long sX, long vY)
+{
+  long degA = degpol(A), degB = degpol(B), dres = degA * degB;
+  long i, n = lg(P)-1;
+  GEN H, T, R;
+  T = ZV_producttree(P);
+  R = ZV_chinesetree(T, P);
+  A = ZX_nv_mod_tree(A, P, T);
+  B = ZXX_nv_mod_tree(B, P, T, vY);
+  H = cgetg(n+1, t_VECSMALL);
+  for(i=1; i <= n; i++)
+  {
+    GEN a = gel(A, i), b = gel(B, i);
+    gel(H,i) = ZX_ZXY_resultant_prime(a, b, degA, degB, dres, P[i], sX);
+    if (DEBUGLEVEL>5) err_printf("%ld%% ",100*i/n);
+  }
+  if (mod) *mod = gmael(T, lg(T)-1, 1);
+  return nxV_chinese_center_tree(H, P, T, R);
+}
+
+GEN
+ZX_ZXY_resultant(GEN A, GEN B)
+{
+  pari_sp av = avma;
+  ulong bound;
+  long n, v = fetch_var_higher();
+  long vX = varn(B), vY = varn(A); /* assume vY has lower priority */
+  long sX = evalvarn(vX);
+  GEN dB, H, P;
+  ulong p;
+  B = Q_remove_denom(B, &dB);
+  if (!dB) B = leafcopy(B);
+  A = leafcopy(A); setvarn(A,v);
+  B = swap_vars(B, vY); setvarn(B,v);
+  bound = ZX_ZXY_ResBound(A, B, dB);
+  n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
+  if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
+
+  P = primelist_disc(&p, n, dB);
+  H = ZX_ZXY_resultant_slice(A, B, dB, P, NULL, sX, vY);
+  setvarn(H, vX); (void)delete_var();
+  return gerepilecopy(av, H);
+}
+
+GEN
+ZX_ZXY_rnfequation(GEN A, GEN B, long *lambda)
+{
+  if (lambda) return ZX_ZXY_resultant_all(A, B, lambda, NULL);
+  return ZX_ZXY_resultant(A,B);
 }
 
 /************************************************************************

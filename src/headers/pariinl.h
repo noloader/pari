@@ -2080,8 +2080,6 @@ F2v_to_F2x(GEN x, long sv) {
   y[1] = sv; F2x_renormalize(y, lg(y)); return y;
 }
 
-INLINE GEN
-ZX_ZXY_resultant(GEN a, GEN b) { return ZX_ZXY_rnfequation(a,b,NULL); }
 INLINE long
 sturm(GEN x) { return sturmpart(x, NULL, NULL); }
 INLINE GEN
