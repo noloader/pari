@@ -2689,6 +2689,31 @@ ZX_nv_mod_tree(GEN B, GEN A, GEN T)
 }
 
 static GEN
+to_ZX(GEN a, long v) { return typ(a)==t_INT? scalarpol(a,v): a; }
+
+GEN
+ZXX_nv_mod_tree(GEN P, GEN xa, GEN T, long w)
+{
+  pari_sp av = avma;
+  long i, j, l = lg(P), n = lg(xa)-1, vP = varn(P);
+  GEN V = cgetg(n+1, t_VEC);
+  for (j=1; j <= n; j++)
+  {
+    gel(V, j) = cgetg(l, t_POL);
+    mael(V, j, 1) = vP;
+  }
+  for (i=2; i < l; i++)
+  {
+    GEN v = ZX_nv_mod_tree(to_ZX(gel(P, i), w), xa, T);
+    for (j=1; j <= n; j++)
+      gmael(V, j, i) = gel(v,j);
+  }
+  for (j=1; j <= n; j++)
+    (void) FlxX_renormalize(gel(V, j), l);
+  return gerepilecopy(av, V);
+}
+
+static GEN
 ZV_sqr(GEN z)
 {
   long i,l = lg(z);

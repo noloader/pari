@@ -1747,6 +1747,7 @@ GEN     ZV_chinesetree(GEN T, GEN P);
 GEN     ZV_chinese_tree(GEN A, GEN P, GEN T, GEN R);
 GEN     ZV_producttree(GEN xa);
 GEN     ZX_nv_mod_tree(GEN P, GEN xa, GEN T);
+GEN     ZXX_nv_mod_tree(GEN P, GEN xa, GEN T, long w);
 GEN     Zideallog(GEN bid, GEN x);
 long    Zp_issquare(GEN a, GEN p);
 GEN     bestappr(GEN x, GEN k);

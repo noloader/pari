@@ -6314,6 +6314,14 @@ pairwise coprime, return the vector of \kbd{Flx} polynomials
 $[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
 where $T$ is the tree \kbd{ZV\_producttree(P)}.
 
+\fun{GEN}{ZXX_nv_mod_tree}{GEN A, GEN P, GEN T, long v} $A$ being a \kbd{ZXX},
+and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return the vector of \kbd{FlxX}
+$[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
+where $T$ is assumed to be the tree created by \kbd{ZV\_producttree(P)}.
+
+\medskip
+
 \subsec{Fast Chinese remainder theorem over $\Z$}
 The routines in these section are asymptotically fast (quasi-linear time in
 the input size) and should be used whenever the moduli are known from
