@@ -2616,6 +2616,24 @@ ncV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
   return V;
 }
 
+static GEN
+nxV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
+{
+  long i, l = lg(gel(vA,1)), n = lg(P);
+  GEN mod = gmael(T, lg(T)-1, 1), V = cgetg(l, t_POL);
+  V[1] = evalsigne(1) | evalvarn(0);
+  for (i=2; i < l; i++)
+  {
+    pari_sp av = avma;
+    GEN c, A = cgetg(n, t_VECSMALL);
+    long j;
+    for (j=1; j < n; j++) A[j] = mael(vA,j,i);
+    c = Fp_center(ZV_chinese_tree(A, P, T, R), mod, m2);
+    gel(V,i) = gerepileuptoint(av, c);
+  }
+  return V;
+}
+
 GEN
 nmV_polint_center_tree_worker(GEN vA, GEN T, GEN R, GEN P, GEN m2)
 {
@@ -2788,6 +2806,26 @@ ZV_chinese(GEN A, GEN P, GEN *pt_mod)
   GEN T = ZV_producttree(P);
   GEN R = ZV_chinesetree(T, P);
   GEN a = ZV_chinese_tree(A, P, T, R);
+  return gc_chinese(av, T, a, pt_mod);
+}
+
+GEN
+nxV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R)
+{
+  pari_sp av = avma;
+  GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
+  GEN a = nxV_polint_center_tree(A, P, T, R, m2);
+  return gerepileupto(av, a);
+}
+
+GEN
+nxV_chinese_center(GEN A, GEN P, GEN *pt_mod)
+{
+  pari_sp av = avma;
+  GEN T = ZV_producttree(P);
+  GEN R = ZV_chinesetree(T, P);
+  GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
+  GEN a = nxV_polint_center_tree(A, P, T, R, m2);
   return gc_chinese(av, T, a, pt_mod);
 }
 

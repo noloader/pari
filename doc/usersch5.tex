@@ -6337,8 +6337,16 @@ integer in $[0, M[$ congruent to $A[i]$ mod $P[i]$ for all $1\leq i\leq n$.
 If \kbd{pM} is not \kbd{NULL}, set \kbd{*pM} to $M$. We also allow
 \typ{VECSMALL}s for $A$ and $P$ (seen as vectors of unsigned integers).
 
-The following two functions allow to solve many Chinese remainder problems
+The following functions allow to solve many Chinese remainder problems
 simultaneously, for a given set of moduli:
+
+\fun{GEN}{nxV_chinese_center}{GEN A, GEN P, GEN *pt_mod}
+where $A$ is a vector of \kbd{nx}
+and $P$ a \typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$
+being pairwise coprime, and $M$ being the product of the elements of $P$,
+returns the \typ{POL} whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
+mod $P[i]$ for all $1\leq i\leq n$.
+If \kbd{pt\_mod} is not \kbd{NULL}, set \kbd{*pt\_mod} to $M$.
 
 \fun{GEN}{ncV_chinese_center}{GEN A, GEN P, GEN *pM} where $A$ is a
 vector of \kbd{VECSMALL}s (seen as vectors of unsigned integers) and $P$ a
@@ -6366,6 +6374,10 @@ the solution of Chinese remainder problems modulo the $P[i]$.
 \fun{GEN}{ZV_chinese_tree}{GEN A, GEN P, GEN T, GEN R}
 return \kbd{ZV\_chinese}$(A,P,\kbd{NULL})$, where $T$ is created by
 \kbd{ZV\_producttree}$(P)$ and $R$ by \kbd{ZV\_chinesetree}$(T,P)$.
+
+\fun{GEN}{nxV_chinese_center_tree}{GEN A, GEN P, GEN T, GEN R}
+as \kbd{nxV\_chinese\_center} where $T$ is assumed to be the tree created by
+\kbd{ZV\_producttree(P)} and $R$ by \kbd{ZV\_chinesetree}$(T,P)$.
 
 \subsec{Rational reconstruction}
 
