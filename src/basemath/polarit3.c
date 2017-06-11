@@ -1254,12 +1254,25 @@ ZX_ZXY_ResBound(GEN A, GEN B, GEN dB)
   GEN a = gen_0, b = gen_0;
   long i , lA = lg(A), lB = lg(B);
   double loga, logb;
-  for (i=2; i<lA; i++) a = addii(a, sqri(gel(A,i)));
+  for (i=2; i<lA; i++)
+  {
+    a = addii(a, sqri(gel(A,i)));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZX_ZXY_ResBound i = %ld",i);
+      a = gerepileupto(av, a);
+    }
+  }
   for (i=2; i<lB; i++)
   {
     GEN t = gel(B,i);
     if (typ(t) == t_POL) t = ZX_norml1(t);
     b = addii(b, sqri(t));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZX_ZXY_ResBound i = %ld",i);
+      b = gerepileupto(av, b);
+    }
   }
   loga = dbllog2(a);
   logb = dbllog2(b); if (dB) logb -= 2 * dbllog2(dB);
