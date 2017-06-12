@@ -1303,7 +1303,7 @@ FpX_FpXY_eval_resultant(GEN a, GEN b, GEN n, GEN p, GEN la, long db, long vX)
 /* assume dres := deg(Res_X(a,b), Y) <= deg(a,X) * deg(b,Y) < p */
 /* Return a Fly */
 static GEN
-Flx_FlxY_resultant_polint(GEN a, GEN b, ulong p, ulong dres, long sx)
+Flx_FlxY_resultant_polint(GEN a, GEN b, ulong p, long dres, long sx)
 {
   ulong i, n, la = Flx_lead(a);
   GEN  x = cgetg(dres+2, t_VECSMALL);
@@ -2080,7 +2080,7 @@ QXQ_inv(GEN A, GEN B)
  ************************************************************************/
 
 static GEN
-ZX_ZXY_resultant_prime(GEN a, GEN b, long degA, long degB, ulong dres, ulong p, long sX)
+ZX_ZXY_resultant_prime(GEN a, GEN b, ulong p, long degA, long degB, long dres, long sX)
 {
   long dropa = degA - degpol(a), dropb = degB - degpol(b);
   GEN Hp = Flx_FlxY_resultant_polint(a, b, p, dres, sX);
@@ -2106,23 +2106,38 @@ ZX_ZXY_resultant_prime(GEN a, GEN b, long degA, long degB, ulong dres, ulong p, 
   return Hp;
 }
 
-static GEN
-ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod, long sX, long vY)
+GEN
+ZX_ZXY_resultant_worker(GEN a, GEN b, ulong p, GEN v)
 {
-  long degA = degpol(A), degB = degpol(B), dres = degA * degB;
-  long i, n = lg(P)-1;
+  return ZX_ZXY_resultant_prime(a, b, p, v[1], v[2], v[3], v[4]);
+}
+
+static GEN
+ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, long degA, long degB, GEN P, GEN *mod, long sX, long vY)
+{
+  long dres = degA * degB;
+  long i, n = lg(P)-1, di = 0, pending;
   GEN H, T, R;
+  GEN worker = strtoclosure("_ZX_ZXY_resultant_worker", 1, mkvecsmall4(degA, degB, dres, sX));
+  struct pari_mt pt;
   T = ZV_producttree(P);
   R = ZV_chinesetree(T, P);
   A = ZX_nv_mod_tree(A, P, T);
   B = ZXX_nv_mod_tree(B, P, T, vY);
-  H = cgetg(n+1, t_VECSMALL);
-  for(i=1; i <= n; i++)
+  H = cgetg(n+1, t_VEC);
+  mt_queue_start_lim(&pt, worker, n);
+  for (i=1; i<=n || pending; i++)
   {
-    GEN a = gel(A, i), b = gel(B, i);
-    gel(H,i) = ZX_ZXY_resultant_prime(a, b, degA, degB, dres, P[i], sX);
-    if (DEBUGLEVEL>5) err_printf("%ld%% ",100*i/n);
+    GEN done;
+    mt_queue_submit(&pt, i, i<=n ? mkvec3(gel(A,i), gel(B,i), utoi(uel(P,i))):NULL);
+    done = mt_queue_get(&pt, &di, &pending);
+    if(done)
+    {
+      gel(H,di) = done;
+      if (DEBUGLEVEL>5) err_printf("%ld%% ",100*di/n);
+    }
   }
+  mt_queue_end(&pt);
   if (mod) *mod = gmael(T, lg(T)-1, 1);
   return nxV_chinese_center_tree(H, P, T, R);
 }
@@ -2133,6 +2148,7 @@ ZX_ZXY_resultant(GEN A, GEN B)
   pari_sp av = avma;
   ulong bound;
   long n, v = fetch_var_higher();
+  long degA = degpol(A), degB = degpol(B);
   long vX = varn(B), vY = varn(A); /* assume vY has lower priority */
   long sX = evalvarn(vX);
   GEN dB, H, P;
@@ -2146,7 +2162,7 @@ ZX_ZXY_resultant(GEN A, GEN B)
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
 
   P = primelist_disc(&p, n, dB);
-  H = ZX_ZXY_resultant_slice(A, B, dB, P, NULL, sX, vY);
+  H = ZX_ZXY_resultant_slice(A, B, dB, degA, degB, P, NULL, sX, vY);
   setvarn(H, vX); (void)delete_var();
   return gerepilecopy(av, H);
 }
