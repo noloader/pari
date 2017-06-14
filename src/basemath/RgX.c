@@ -72,6 +72,11 @@ gen_bkeval_powers(GEN P, long d, GEN V, void *E, const struct bb_algebra *ff,
   if (d < 0) return ff->zero(E);
   if (d < l) return gerepileupto(av, gen_RgXQ_eval_powers(P,V,0,d,E,ff,cmul));
   if (l<2) pari_err_DOMAIN("gen_RgX_bkeval_powers", "#powers", "<",gen_2,V);
+  if (DEBUGLEVEL>=8)
+  {
+    long cnt = 1 + (d - l) / (l-1);
+    err_printf("RgX_RgXQV_eval(%ld/%ld): %ld RgXQ_mul\n", d, l-1, cnt);
+  }
   d -= l;
   z = gen_RgXQ_eval_powers(P,V,d+1,l-1,E,ff,cmul);
   while (d >= l-1)
@@ -84,11 +89,6 @@ gen_bkeval_powers(GEN P, long d, GEN V, void *E, const struct bb_algebra *ff,
   }
   u = gen_RgXQ_eval_powers(P,V,0,d,E,ff,cmul);
   z = ff->add(E,u, ff->mul(E,z,gel(V,d+2)));
-  if (DEBUGLEVEL>=8)
-  {
-    long cnt = 1 + (d - l) / (l-1);
-    err_printf("RgX_RgXQV_eval: %ld RgXQ_mul [%ld]\n", cnt, l-1);
-  }
   return gerepileupto(av, ff->red(E,z));
 }
 
