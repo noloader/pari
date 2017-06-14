@@ -740,7 +740,7 @@ ulong
 Flv_dotproduct(GEN x, GEN y, ulong p)
 {
   long lx = lg(x)-1;
-  if (lx == 1) return 0;
+  if (lx == 0) return 0;
   if (SMALL_ULONG(p))
     return Flv_dotproductspec_SMALL(x+1, y+1, p, lx);
   else
@@ -751,7 +751,7 @@ ulong
 Flv_dotproduct_pre(GEN x, GEN y, ulong p, ulong pi)
 {
   long lx = lg(x)-1;
-  if (lx == 1) return 0;
+  if (lx == 0) return 0;
   if (SMALL_ULONG(p))
     return Flv_dotproductspec_SMALL(x+1, y+1, p, lx);
   else
@@ -774,9 +774,9 @@ F2v_dotproduct(GEN x, GEN y)
 {
   long i, lx = lg(x);
   ulong c;
-  if (lx == 2) return 0;
-  c = uel(x,2) & uel(y,2);
-  for (i=3; i<lx; i++) c ^= uel(x,i) & uel(y,i);
+  if (lx == 1) return 0;
+  c = uel(x,1) & uel(y,1);
+  for (i=2; i<lx; i++) c ^= uel(x,i) & uel(y,i);
 #ifdef LONG_IS_64BIT
   c ^= c >> 32;
 #endif
