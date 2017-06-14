@@ -2110,6 +2110,11 @@ risk. The $j$-invariant is a good example: it would clearly not be a good
 idea to define \kbd{j(E) = E[13]}, because clashes with loop indices are
 likely.
 
+Beware that there is no guarantee that a built-in member function \emph{is}
+a simple accessor and it could involve a computation. Thus you should
+not use them on a constant object in tight loops: store them in a variable
+before the loop.
+
 \misctitle{Note} Typing \b{um} will output all user-defined member functions.
 
 \misctitle{Member function names} A valid name starts with a letter followed
