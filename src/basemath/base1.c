@@ -1489,8 +1489,19 @@ set_LLL_basis(nfmaxord_t *S, GEN *pro, double DELTA)
   S->basden = get_bas_den(B);
 }
 
+/* as abscmpii but ensure |x| is picked rather than -|x| when |x| = |y|
+ * (make output canonical) */
 static int
-cmp_abs_ZX(GEN x, GEN y) { return gen_cmp_RgX((void*)&abscmpii, x, y); }
+myabscmpii(GEN x, GEN y)
+{
+  long sx, i = abscmpii(x,y);
+  if (i) return i;
+  sx = signe(x);
+  if (!sx || signe(y) == sx) return 0;
+  return (sx > 0 ? -1: 1);
+}
+static int
+cmp_abs_ZX(GEN x, GEN y) { return gen_cmp_RgX((void*)&myabscmpii, x, y); }
 /* current best: ZX x of discriminant *dx, is ZX y better than x ?
  * (if so update *dx) */
 static int
