@@ -13,6 +13,7 @@ for f in \
   parallel\
   users\
   tutorial\
+  tutorial-mf\
   refcard\
   refcard-ell\
   refcard-nf\
@@ -31,7 +32,9 @@ cat > doc/Makefile << EOT
 SHELL = $make_sh
 PERL  = $perl
 TEX   = tex
+LATEX = latex
 PDFTEX= pdftex
+PDFLATEX= pdflatex
 
 DESC          = pari.desc
 TMPSUF        = .tmp
@@ -52,9 +55,13 @@ paricfg.tex: paricfg.tex.in
 
 %.pdf: %.tex \$(MACROS)
 	\$(PDFTEX) \$<
+tutorial-mf.pdf: tutorial-mf.tex
+	\$(PDFLATEX) \$<
 
 %.dvi: %.tex \$(MACROS)
 	\$(TEX) \$<
+tutorial-mf.dvi: tutorial-mf.tex
+	\$(LATEX) \$<
 
 libpari.pdf: \$(PARI_TEX) \$(MACROS)
 	-rm -f libpari.std
