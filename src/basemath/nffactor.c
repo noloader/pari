@@ -1858,7 +1858,6 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   }
 
   bestlift_init(0, nf, T.bound, &L);
-  if (L.Tp && degpol(L.Tp) == 1) L.Tp = NULL;
   if (DEBUGLEVEL>2) timer_start(&ti);
   polred = ZqX_normalize(polbase, lt, &L); /* monic */
 
@@ -1868,9 +1867,9 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
     return z;
   }
 
-  T.fact = gel(FqX_factor(polred, L.Tp, L.p), 1);
+  T.fact = gel(L.Tp ? FqX_factor(polred, L.Tp, L.p): FpX_factcantor(polred, L.p, 0), 1);
   if (DEBUGLEVEL>2)
-    timer_printf(&ti, "splitting mod %Ps^%ld", L.p, L.Tp? degpol(L.Tp): 1);
+    timer_printf(&ti, "splitting mod %Ps^%ld", L.p, degpol(L.Tp));
   T.L  = &L;
   T.polbase = polbase;
   T.pol   = pol;
