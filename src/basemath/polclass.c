@@ -1335,7 +1335,7 @@ adjust_signs(GEN js, ulong p, ulong pi, long inv, GEN T, long e)
   } else {
     ulong tp, t;
     tp = umodiu(T, p);
-    t = Fl_div(Flv_powsum_pre(js, e, p, pi), e % p, p);
+    t = Flv_powsum_pre(js, e, p, pi);
     if (t != tp) {
       if (Fl_neg(t, p) != tp)
         pari_err_BUG("adjust_signs: incorrect trace");
@@ -1591,7 +1591,7 @@ polclass_psum(
       roots_modp = gel(roots, i);
       p = uel(primes, i);
       pi = uel(pilist, i);
-      ps = Fl_div(Flv_powsum_pre(roots_modp, e, p, pi), e % p, p);
+      ps = Flv_powsum_pre(roots_modp, e, p, pi);
       ps = Fl_sqr_pre(ps, p, pi);
       stab = Z_incremental_CRT(&psum_sqr, ps, &P, p);
 
@@ -1604,7 +1604,7 @@ polclass_psum(
         gerepileall(av, 2, &psum_sqr, &P);
     }
     if (stabcnt < MIN_STAB_CNT && nprimes >= MIN_STAB_CNT)
-      pari_err_BUG("polclass_pum");
+      pari_err_BUG("polclass_psum");
   } while (gequal0(psum_sqr));
 
   if ( ! Z_issquareall(psum_sqr, psum)) pari_err_BUG("polclass_psum");
