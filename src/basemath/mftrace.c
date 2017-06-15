@@ -1585,6 +1585,8 @@ static GEN
 cache_get(long id, ulong D)
 {
   cache *S = &caches[id];
+  /* cache_H is compressed: D=0,1 mod 4 */
+  const ulong d = (id == cache_H)? D>>1: D;
   ulong max, l;
 
   if (!S->cache)
@@ -1596,7 +1598,7 @@ cache_get(long id, ulong D)
   else
   {
     l = lg(S->cache);
-    if (l <= D)
+    if (l <= d)
     {
       if (D > S->maxmiss) S->maxmiss = D;
       if (DEBUGLEVEL)
@@ -1614,19 +1616,20 @@ cache_get(long id, ulong D)
       }
     }
   }
-  return (l <= D)? NULL: gel(S->cache, D);
+  return (l <= d)? NULL: gel(S->cache, d);
 }
 static GEN
 cache_report(long id)
 {
   cache *S = &caches[id];
-  GEN v = zerocol(4);
+  GEN v = zerocol(5);
   gel(v,1) = strtoGENstr(S->name);
   if (S->cache)
   {
     gel(v,2) = utoi(lg(S->cache)-1);
     gel(v,3) = utoi(S->miss);
     gel(v,4) = utoi(S->maxmiss);
+    gel(v,5) = utoi(gsizebyte(S->cache));
   }
   return v;
 }
@@ -1852,7 +1855,7 @@ hclassno6u_2(ulong D, long D0, long F)
   if (F == 1) h = hclassno6u_count(D);
   else
   { /* second chance */
-    h = (ulong)cache_get(cache_H, (-D0) >> 1);
+    h = (ulong)cache_get(cache_H, -D0);
     if (!h) h = hclassno6u_count(-D0);
     h *= get_sh(F,D0);
   }
@@ -1863,7 +1866,7 @@ hclassno6u_2(ulong D, long D0, long F)
 ulong
 hclassno6u(ulong D)
 {
-  ulong z = (ulong)cache_get(cache_H, D >> 1);
+  ulong z = (ulong)cache_get(cache_H, D);
   long D0, F;
   if (z) return z;
   D0 = mycoredisc2u(D, &F);
@@ -1873,7 +1876,7 @@ hclassno6u(ulong D)
 static ulong
 hclassno6u_i(ulong D, long D0, long F)
 {
-  ulong z = (ulong)cache_get(cache_H, D >> 1);
+  ulong z = (ulong)cache_get(cache_H, D);
   if (z) return z;
   return hclassno6u_2(D,D0,F);
 }
@@ -1918,7 +1921,7 @@ hfromH(long D)
 static long
 myh(long D)
 {
-  ulong z = (ulong)cache_get(cache_H, (-D)>>1);
+  ulong z = (ulong)cache_get(cache_H, -D);
   if (z) return hfromH(-D); /* cache big enough */
   return itou(quadclassno(stoi(D)));
 }
