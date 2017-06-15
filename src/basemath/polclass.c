@@ -1288,10 +1288,10 @@ setup_norm_eqn(norm_eqn_t ne, long D, long u, GEN norm_eqn)
 INLINE ulong
 Flv_powsum_pre(GEN v, ulong n, ulong p, ulong pi)
 {
-  long i;
+  long i, l = lg(v);
   ulong psum = 0;
-  for (i = 1; i < lg(v); ++i)
-    psum += Fl_powu_pre(v[i], n, p, pi);
+  for (i = 1; i < l; ++i)
+    psum = Fl_add(psum, Fl_powu_pre(uel(v,i), n, p, pi), p);
   return psum;
 }
 
