@@ -1581,31 +1581,42 @@ polclass_psum(
   e = -1;
   do {
     e += 2;
-    psum_sqr = Z_init_CRT(0, 1);
-    P = gen_1;
-    for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i) {
+    for (i = 1; i <= nprimes; ++i) {
       GEN roots_modp;
       ulong ps, p, pi;
-      long stab;
 
       roots_modp = gel(roots, i);
       p = uel(primes, i);
       pi = uel(pilist, i);
       ps = Flv_powsum_pre(roots_modp, e, p, pi);
-      ps = Fl_sqr_pre(ps, p, pi);
-      stab = Z_incremental_CRT(&psum_sqr, ps, &P, p);
-
-      /* stabcnt = stab * (stabcnt + 1) */
-      if (stab)
-        ++stabcnt;
-      else
-        stabcnt = 0;
-      if (gc_needed(av, 2))
-        gerepileall(av, 2, &psum_sqr, &P);
+      if (ps == 0) break;
     }
-    if (stabcnt < MIN_STAB_CNT && nprimes >= MIN_STAB_CNT)
-      pari_err_BUG("polclass_psum");
-  } while (gequal0(psum_sqr));
+    if (i > nprimes) break;
+  } while (1);
+  psum_sqr = Z_init_CRT(0, 1);
+  P = gen_1;
+  for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i) {
+    GEN roots_modp;
+    ulong ps, p, pi;
+    long stab;
+
+    roots_modp = gel(roots, i);
+    p = uel(primes, i);
+    pi = uel(pilist, i);
+    ps = Flv_powsum_pre(roots_modp, e, p, pi);
+    ps = Fl_sqr_pre(ps, p, pi);
+    stab = Z_incremental_CRT(&psum_sqr, ps, &P, p);
+
+    /* stabcnt = stab * (stabcnt + 1) */
+    if (stab)
+      ++stabcnt;
+    else
+      stabcnt = 0;
+    if (gc_needed(av, 2))
+      gerepileall(av, 2, &psum_sqr, &P);
+  }
+  if (stabcnt < MIN_STAB_CNT && nprimes >= MIN_STAB_CNT)
+    pari_err_BUG("polclass_psum");
 
   if ( ! Z_issquareall(psum_sqr, psum)) pari_err_BUG("polclass_psum");
 
