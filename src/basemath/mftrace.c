@@ -2293,7 +2293,7 @@ mkgcd(long N)
 /* Table of \sum_{x^2-tx+n=0 mod Ng}chi(x) for all g dividing gcd(N,F),
  * F^2 largest such that (t^2-4n)/F^2=0 or 1 mod 4; t >= 0 */
 static GEN
-mutglistall(long t, long F, long N, long NF, long k, GEN VCHI, long n, GEN MUP, GEN li, long FC, GEN GCD)
+mutglistall(long t, long N, long NF, GEN VCHI, long n, GEN MUP, GEN li, long FC, GEN GCD)
 {
   pari_sp ltop = avma;
   long i, lx = lg(li);
@@ -2428,7 +2428,7 @@ TA2(long N, long k, GEN VCHI, long n, GEN SQRTS, GEN MUP, long FC, GEN GCD)
     else
     {
       sh = gen_0;
-      p2 = mutglistall(t, F, N, NF, k, VCHI, n, MUP, li, FC, GCD);
+      p2 = mutglistall(t, N, NF, VCHI, n, MUP, li, FC, GCD);
       DF = mydivisorsu(F); lDF = lg(DF);
       for (i = 1; i < lDF; ++i)
       {
@@ -2500,7 +2500,7 @@ mfchartovec(GEN CHI)
 /* contribution of hyperbolic matrices to trace formula, d * nd = n,
  * DN = divisorsu(N) */
 static GEN
-auxsum(long N, long k, GEN VCHI, long FC, GEN GCD, long d, long nd, GEN DN, GEN BEZ)
+auxsum(long N, GEN VCHI, long FC, GEN GCD, long d, long nd, GEN DN, GEN BEZ)
 {
   GEN S = gen_0;
   long ct, g = nd - d, lDN = lg(DN), lBEZ = lg(BEZ);
@@ -2543,7 +2543,7 @@ TA3(long N, long k, GEN VCHI, long FC, GEN GCD, long n, GEN BEZ)
     long d = D[i], nd = D[l-i]; /* = n/d */
     GEN t, u;
     if (d > nd) break;
-    t = auxsum(N, k, VCHI, FC, GCD, d, nd, DN, BEZ);
+    t = auxsum(N, VCHI, FC, GCD, d, nd, DN, BEZ);
     if (isintzero(t)) continue;
     u = powuu(d,k-1); if (d == nd) u = gmul2n(u,-1);
     S = gadd(S, gmul(u,t));
@@ -6365,7 +6365,7 @@ mfatkineigenvalues(GEN mf, long Q, long bit)
 
 /* assume mf a split newspace for a real character, RO = mfQeigenroots(mf) */
 static GEN
-mfQeigenembed(GEN mf, GEN RO, long prec)
+mfQeigenembed(GEN mf, GEN RO)
 {
   long i, ct = 0, dim = mf_get_dim(mf);
   GEN F = mf_get_newforms(mf), M = cgetg(dim+1, t_MAT);
@@ -6381,7 +6381,7 @@ mfQeigenembed(GEN mf, GEN RO, long prec)
 }
 /* assume mf a split newspace, general character, RO = mfQeigenroots(mf) */
 static GEN
-mfeigenembed(GEN mf, long vt, GEN vcyclo, GEN RO, long prec)
+mfeigenembed(GEN mf, long vt, GEN vcyclo, GEN RO)
 {
   long i, ct = 0, dim = mf_get_dim(mf);
   GEN F = mf_get_newforms(mf), M = cgetg(dim+1, t_MAT);
@@ -6426,7 +6426,7 @@ mftoeigenbasis(GEN mf, GEN F, long prec)
   if (o == 1)
   {
     RO = mfQeigenroots(mf,prec);
-    M = mfQeigenembed(mf, RO, prec);
+    M = mfQeigenembed(mf, RO);
     F = RgC_embed(F, RO);
   }
   else
@@ -6435,7 +6435,7 @@ mftoeigenbasis(GEN mf, GEN F, long prec)
     long i;
     GEN vcyclo = grootsof1(o, prec);
     RO = mfeigenroots(mf,vcyclo,prec);
-    M = mfeigenembed(mf, vt, vcyclo, RO, prec);
+    M = mfeigenembed(mf, vt, vcyclo, RO);
     i = RgC_study_fields(mf, F);
     if (i < 0) pari_err_IMPL("mftoeigenbasis in this case");
     if (i)
@@ -6473,7 +6473,7 @@ mfmatatkin_i(GEN mf, long Q, long *cM)
   RO = mfQeigenroots(mf, prec);
   D = mfatkineigenvalues_i(mf, Q, RO, bitprec);
   D = diagonal_shallow(shallowconcat1(D));
-  M = mfQeigenembed(mf, RO, prec);
+  M = mfQeigenembed(mf, RO);
   MF = gmul(M, gmul(D, ginv(M)));
   if (!odd(k) || Q != N || mfcharistrivial(mf_get_CHI(mf))) s = 1;
   else { MF = imag_i(MF); s = -1; }
@@ -8016,8 +8016,7 @@ cmpi(void *E, GEN a, GEN b)
  * n1 = n*g1*g2 */
 static GEN
 mfeisenchi1chi2coeff_i(GEN T1, GEN T2, long ord1, long ord2, GEN datacusp,
-                       long N1Csg, long N2Csg, long g1, long g2, long k,
-                       long n1)
+                       long N1Csg, long N2Csg, long k, long n1)
 {
   long i, l;
   GEN D, S = mkmat2(cgetg(1, t_COL), cgetg(1, t_COL));
@@ -8144,7 +8143,7 @@ mfeisenchi1chi2cusp(GEN CHI1, GEN CHI2, GEN cusp, long e, long k, long lim)
   for (n1 = 1; n1 <= lim; n1++)
   {
     GEN tmp = mfeisenchi1chi2coeff_i(T1, T2, ord1, ord2, datacusp,
-                                     N1Csg, N2Csg, g1, g2, k, n1);
+                                     N1Csg, N2Csg, k, n1);
     GEN P = gel(tmp, 1), E = gel(tmp, 2);
     long i, l = lg(P);
     for (i = 1; i < l; i++)
