@@ -1,8 +1,8 @@
-Function: mflfuncreate
+Function: mftolfun
 Section: modular_forms
-C-Name: mflfuncreate
+C-Name: mftolfun
 Prototype: GD0,L,b
-Help: mflfuncreate(mf,{flag=0}): If mf is an eigenform which is already
+Help: mftolfun(mf,{flag=0}): If mf is an eigenform which is already
  embedded in C, outputs the corresponding L-function. If
  mf is a space, output the L-functions corresponding to all
  eigenforms, and in that case mf must be a split new space. The binary
@@ -26,9 +26,9 @@ Doc: If \kbd{mf} is an eigenform which is already embedded in $\C$, outputs
  ? mf = mfsplit([35,2]); F = mfeigenbasis(mf)[2]; mffields(mf)
  %1 = [z, z^2 - z - 4]
  ? f = mfembed(F)[2];
- ? L = mflfuncreate(f);
+ ? L = mftolfun(f);
  ? lfun(L,1)
  %4 = 0.46007635204895314548435893464149369804
- ? [ lfun(L,1) | L <- mflfuncreate(mf) ]
+ ? [ lfun(L,1) | L <- mftolfun(mf) ]
  %5 = [0.70291..., 0.81018..., 0.46007...]
  @eprog

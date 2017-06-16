@@ -767,11 +767,11 @@ will be diagonal, as the next command shows.
 \medskip
 
 \begin{verbatim}
-? LE = mflfuncreate(mfEk(4), 1); lfun(LE, 2)/Pi^2
+? LE = mftolfun(mfEk(4), 1); lfun(LE, 2)/Pi^2
 % = -3.3333333333333333333333333333333333333
 ? lfun(LE, 0)
 % -1.0000000000000000000000000000000000000
-? D = mfDelta(); L = mflfuncreate(D, 3);
+? D = mfDelta(); L = mftolfun(D, 3);
 ? lfunlambda(L, 3)/lfunlambda(L, 5)
 % = 1.5555555555555555555555555555555555556
 ? lfunlambda(L, 1)/lfunlambda(L, 3)
@@ -780,7 +780,7 @@ will be diagonal, as the next command shows.
 % = 1620/691
 \end{verbatim}
 
-The command \kbd{mflfuncreate} creates the $L$-function associated to the
+The command \kbd{mftolfun} creates the $L$-function associated to the
 modular form which can be used with the $L$-function package.
 The flag $1$ in the first command indicates that the modular form $E_4$ is
 real. The $L$-function associated to it is equal to $240\z(s)\z(s-3)$,
@@ -789,7 +789,7 @@ $L$-function coefficients are $a(1)$, $a(2)$, etc..., so that we seem to have
 lost the constant term $a(0)$, it can be recovered with the formula
 $a(0)=-L(f,0)$, as the next command shows.
 
-The flag $3$ in the command \kbd{mflfuncreate(D, 3)} indicates that the
+The flag $3$ in the command \kbd{mftolfun(D, 3)} indicates that the
 modular form is both real and cuspidal. It can be omitted since this simply
 incurs a small efficiency loss. The other commands illustrate Manin's
 rationality theorem on periods of modular forms.
@@ -1098,7 +1098,7 @@ first \kbd{lim+1} Fourier coefficients equal ?
 
 \kbd{mfisselfdual(F)}: is $F|_kW_N$ a multiple of $F$ ?
 
-\kbd{mflfuncreate(F,\{flag=0\})}: $F$ being already embedded, creates the
+\kbd{mftolfun(F,\{flag=0\})}: $F$ being already embedded, creates the
 $L$-function associated to $F$, for use in the \kbd{lfun} package.
 \kbd{F} can also be a split new space, in which case the output are
 all $L$-functions associated to the eigenforms. \kbd{flag} can be used to
