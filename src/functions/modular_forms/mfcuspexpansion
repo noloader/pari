@@ -17,7 +17,7 @@ Doc: \kbd{mf} being a split space and \kbd{cusp} being an element of $P_1(Q)$
  stands for $\exp(2\pi i\tau/(N/c))$ (and not $\exp(2\pi i\tau)$), since the
  width of the cusp is $(N/c)/\gcd(c,N/c) = N/c$.
  \bprog
- ? mf = mfinit([35,2]); F = mfbasis(mf)[1];
+ ? mf = mfinit([35,2],0); F = mfbasis(mf)[1];
  ? mfcoefs(F, 6)
  %2 = [0, 3, -1, 0, 3, 1, -8]
  ? mfcuspexpansion(mf,F,1/5, 6);

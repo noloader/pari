@@ -1,21 +1,21 @@
 Function: mfdim
 Section: modular_forms
 C-Name: mfdim
-Prototype: GD0,L,
-Help: mfdim(NK,{space=0}): If NK=[N,k,CHI] as in
+Prototype: GD4,L,
+Help: mfdim(NK,{space=4}): If NK=[N,k,CHI] as in
  mfinit, gives the dimension of the corresponding subspace of
- M_k(G_0(N),chi). The parameter space is by default 0, coding the newspace,
- and can also be 1 for the cuspidal space, 2 for the oldspace, 3 for the full
- space M_k and 4 the space of Eisenstein series. NK can also be the output of
- mfinit, in which case space must be omitted.
+ M_k(G_0(N),chi). The subspace is described by a small integer 'space': 0 for
+ the newspace, 1 for the cuspidal space, 2 for the oldspace, 3 for the space
+ of Eisenstein series and 4 (default) for the full space M_k.
+ NK can also be the output of mfinit, in which case space must be omitted.
 Doc: If $NK=[N,k,\var{CHI}]$ as in \kbd{mfinit}, gives the dimension of the
  corresponding subspace of $M_k(\Gamma_0(N),\chi)$. $NK$ can also be the
  output of \kbd{mfinit}, in which case space must be omitted.
 
- The parameter \kbd{space} is as in \kbd{mfinit}: by default $0$, coding the
- newspace $S_k^{\text{new}}(\Gamma_0(N),\chi)$, and can also be $1$ for the
- cuspidal space $S_k$, $2$ for the oldspace $S_k^{\text{old}}$, $3$ for the
- full space $M_k$ and $4$ for the space of Eisenstein series $E_k$.
+ The subspace is described by the small integer \kbd{space}: $0$ for the
+ newspace $S_k^{\text{new}}(\Gamma_0(N),\chi)$, $1$ for the cuspidal
+ space $S_k$, $2$ for the oldspace $S_k^{\text{old}}$, $3$ for the space of
+ Eisenstein series $E_k$ and $4$ for the full space $M_k$.
 
  \misctitle{Wildcards}
  As in \kbd{mfinit}, \var{CHI} may be the wildcard 0
@@ -49,19 +49,19 @@ Doc: If $NK=[N,k,\var{CHI}]$ as in \kbd{mfinit}, gives the dimension of the
  the space is 0 (newspace), 1 (cusp space), or 2(old space).
 
  \bprog
- ? mfdim([23,2])
+ ? mfdim([23,2], 0) \\ new space
  %1 = 2
- ? mfdim([96,6])
+ ? mfdim([96,6], 0)
  %2 = 10
- ? mfdim([10^9,4], 4)  \\ Eisenstein space
+ ? mfdim([10^9,4], 3)  \\ Eisenstein space
  %1 = 40000
- ? mfdim([10^9+7,4], 4)
+ ? mfdim([10^9+7,4], 3)
  %2 = 2
- ? mfdim([68,1,-1])
+ ? mfdim([68,1,-1],0)
  %3 = 3
- ? mfdim([68,1,0])
- %4 = [[4, Mod(47, 68), 1, 1], [2, Mod(67, 68), 1, 1]]
- ? mfdim([124,1,0])
+ ? mfdim([68,1,0],0)
+ %4 = [[2, Mod(67, 68), 1, 1], [4, Mod(47, 68), 1, 1]]
+ ? mfdim([124,1,0],0)
  %5 = [[6, Mod(67, 124), 2, 0]]
  @eprog
  This last example shows that there exists a nondihedral form of weight 1

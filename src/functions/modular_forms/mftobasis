@@ -18,7 +18,7 @@ Doc: coefficients of the form $F$ on the basis given by
  error messages the output is an affine space of solutions if a $q$-expansion
  or vector of coefficients is given, or the empty column otherwise.
  \bprog
- ? mf = mfinit([26,2]); vtf = mfbasis(mf);
+ ? mf = mfinit([26,2],0); vtf = mfbasis(mf);
  ? #vtf \\ dimension 2
  %2 = 2
  ? F = mflinear(vtf,[a,b]); mftobasis(mf,F)
@@ -27,7 +27,7 @@ Doc: coefficients of the form $F$ on the basis given by
  A $q$-expansion or vector of coefficients can also be given instead of $F$.
  \bprog
  ? Th = 1 + 2*sum(n=1, 8, q^(n^2), O(q^80));
- ? mf = mfinit([4,5,Mod(3,4)], 3);
+ ? mf = mfinit([4,5,Mod(3,4)]);
  ? mftobasis(mf, Th^10)
  %3 = [64/5, 4/5, 32/5]~
  @eprog

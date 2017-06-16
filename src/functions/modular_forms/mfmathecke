@@ -10,7 +10,7 @@ Doc: if \kbd{vecn} is an integer, matrix of the Hecke operator $T(n)$ on the
  basis formed by \kbd{mfbasis(mf)}. If it is a vecsmall or vector, vector of
  such matrices (usually faster than calling each one individually).
  \bprog
- ? mf=mfinit([32,4]); mfmathecke(mf,3)
+ ? mf=mfinit([32,4],0); mfmathecke(mf,3)
  %1 =
  [0 44   0]
 

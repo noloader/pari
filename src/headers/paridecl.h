@@ -3817,7 +3817,7 @@ GEN     member_zk(GEN x);
 GEN     member_zkst(GEN bid);
 
 /* mftrace.c */
-enum { mf_NEW = 0, mf_CUSP, mf_OLD, mf_FULL, mf_EISEN };
+enum { mf_NEW = 0, mf_CUSP, mf_OLD, mf_EISEN, mf_FULL };
 
 GEN   getcache(void);
 GEN   mfparams(GEN F);

@@ -25,14 +25,14 @@ mfcoefs(mfeisen(2,C[1]),16)
 vec(mfeisen(3,C[1]))
 vec(mfeisen(2,C[4],C[5]))
 vec(mfeisen(3,C[4],C[5]))
-mfinit([12,2],4);
-mfdim([10^9,4], 4)
-mfdim([10^9,1,Mod(3,4)], 4)
+mfinit([12,2],3);
+mfdim([10^9,4], 3)
+mfdim([10^9,1,Mod(3,4)], 3)
 Th=1+2*sum(n=1,8,q^(n^2),O(q^80));
-mf=mfinit([4,2],3);mftobasis(mf,Th^4)
-mf=mfinit([4,3,C[8]],3);mftobasis(mf,Th^6)
-mf=mfinit([4,4],3);mftobasis(mf,Th^8)
-mf=mfinit([4,5,C[8]],3);mftobasis(mf,Th^10)
+mf=mfinit([4,2]);mftobasis(mf,Th^4)
+mf=mfinit([4,3,C[8]]);mftobasis(mf,Th^6)
+mf=mfinit([4,4]);mftobasis(mf,Th^8)
+mf=mfinit([4,5,C[8]]);mftobasis(mf,Th^10)
 D=q*eta(q)^24;
 mf=mfinit([4,12],1);
 mftobasis(mf,D+O(q^2),1)
@@ -41,23 +41,23 @@ mftobasis(mf,D+O(q^4),1)
 mftobasis(mf,D+O(q^5),1)
 
 apply(mfdim, mfinit([1,0,0], 1))
-apply(mfdim, mfinit([1,0,0], 3))
+apply(mfdim, mfinit([1,0,0]))
 mfdim(mfinit([1,0,1], 1))
-mfdim(mfinit([1,0,1], 3))
+mfdim(mfinit([1,0,1]))
 mfdim(mfinit([4,0,-4], 1))
-mfdim(mfinit([4,0,-4], 3))
+mfdim(mfinit([4,0,-4]))
 mfdim([1,0],1)
-mfdim([1,0],3)
+mfdim([1,0])
 mfdim([1,0,0],1)
-mfdim([1,0,0],3)
+mfdim([1,0,0])
 mfdim([1,0,1],1)
-mfdim([1,0,1],3)
+mfdim([1,0,1])
 mfdim([4,0,-4],1)
-mfdim([4,0,-4],3)
+mfdim([4,0,-4])
 mfdim([4,0,[1,-4,-4,1]],1)
-mfdim([4,0,[1,-4,-4,1]],3)
+mfdim([4,0,[1,-4,-4,1]])
 
-mf=mfinit([155,2]);
+mf=mfinit([155,2],0);
 mffields(mfsplit(mf, 1))
 mffields(mfsplit(mf, 2))
 mffields(mfsplit(mf, 3))
@@ -88,8 +88,8 @@ mfnumcusps(96)
 mfnumcusps(2^64)
 mfnumcusps(factor(6^64))
 mfsturm([96,6])
+mfdim([96,6],0)
 mfdim([96,6])
-mfdim([96,6],3)
 T=mftraceform([96,6],1);
 [mfcoef(T,2), mfcoef(T,3)]
 vec(mftraceform([96,6],1))
@@ -98,7 +98,7 @@ T=mftraceform([96,6]);
 vec(T)
 mf=mfinit([96,6],1);#mf[3]
 mf=mfinit([96,6],2);#mf[3]
-#mfinit([96,6],4)[2]+#mf[3]
+#mfinit([96,6],3)[2]+#mf[3]
 mf=mfsplit([96,6]);#mf[3]
 P=mffields(mf)
 vector(#P,j,poldegree(P[j]))
@@ -107,7 +107,7 @@ for(i=1,#LC,print(mfcoefs(LC[i],9)))
 mfsturm(mf)
 F=mflinear([mf[3][1],mf[3][2],mf[3][3]],[4,-7,11]);
 mftobasis(mf,F)
-mf1=mfinit([96,6]);mfsplit(mf1)[6..7]
+mfsplit([96,6])[6..7]
 mfmathecke(mf,2)
 mfmathecke(mf,3)
 mfmathecke(mf, [9,15,25])
@@ -147,7 +147,7 @@ mfwt1all(mf)=
   );res;
 }
 for(N=1,150,my(mf=mfinit([N,1,0],1));if(#mf,print(N,": ",mfwt1all(mf))));
-for(N=1,150,print1([N,mfdim([N,1,-1],1),mfdim([N,1,-1])]," "));
+for(N=1,150,print1([N,mfdim([N,1,-1],1),mfdim([N,1,-1],0)]," "));
 mfdim([23,1,0],0)
 mfdim([23,1,0],1)
 mfdim([23,1,0],2)
@@ -215,12 +215,12 @@ mfcoefs(mfetaquo([1,2;11,2]),10)
 mfdim(mfinit([24,4,Mod(23,24)],1),1)
 
 data = [63,2, Mod(46,63)];
-B=mfbasis(mfinit(data,4));
-MF = mfinit(data,3);
+B=mfbasis(mfinit(data,3));
+MF = mfinit(data,4);
 lift(mftobasis(MF,B[3]))
 mfsturm(MF)
 charpoly(mfmathecke(MF,2))
-mfsturm(mfinit([1,4],3))
+mfsturm(mfinit([1,4]))
 
 mfgaloistype([11,1,1])
 mfgaloistype([148,1,Mod(105,148)])
@@ -247,26 +247,26 @@ charpoly(mfmathecke(mfinit([106,2],1),2))
 
 G=znstar(164,1); L=[chi | chi <- znchargalois(G,164), zncharisodd(G,chi)];
 apply(chi->charorder(G,chi),L)
-mfdim([164, 1, apply(x->[G,x], L)])
-mfdim([667, 1, [Mod(45,667)]])
-mfdim([329, 1, [Mod(46,329)]])
-mfdim([484, 1, [Mod(3,484)]])
-mfdim([191, 1, [Mod(190,191)]])
-mfdim([195, 1, [Mod(194,195)]])
+mfdim([164, 1, apply(x->[G,x], L)],0)
+mfdim([667, 1, [Mod(45,667)]],0)
+mfdim([329, 1, [Mod(46,329)]],0)
+mfdim([484, 1, [Mod(3,484)]],0)
+mfdim([191, 1, [Mod(190,191)]],0)
+mfdim([195, 1, [Mod(194,195)]],0)
 
 /* regressions */
 mf=mfsplit([77,1, Mod(20,77)]);
 lift(mfcoefs(mf[3][1],10))
 mfgaloistype(mf)
-mf=mfinit([196,1,Mod(67,196)]);mfdim(mf)
+mf=mfinit([196,1,Mod(67,196)],0);mfdim(mf)
 mf=mfsplit([297,1, Mod(10,297)]);
 lift(mfcoefs(mf[3][1],10))
 mfgaloistype(mf)
 mf=mfinit([416,1, Mod(159,416)],1);mfdim(mf)
 \\ oo loop in Zab_indexrank
-mf=mfinit([72,2,Mod(11,72)]);mfdim(mf)
+mf=mfinit([72,2,Mod(11,72)],0);mfdim(mf)
 \\ division by 1 in mfmatheckewt1
-mfdim(mfinit([283,1,-283]))
+mfdim(mfinit([283,1,-283],0))
 
 /*
 install(mftsteisencusp, GGGLLL);
@@ -292,7 +292,7 @@ mfsk(-12, Q, k)
 
 \\ Tests mflfun
 E4=mfEk(4);E6=mfEk(6);D=mfDelta();
-mf4=mfinit([1,4],3);
+mf4=mfinit([1,4]);
 L4=mftolfun(E4,1);
 [lfun(L4,0),lfun(L4,1)*60*Pi^2/zeta(3),lfun(L4,4)/zeta(4)]
 L12=mftolfun(D,3);omp=lfunlambda(L12,3)
@@ -339,8 +339,8 @@ p(mfembed(F6)[1])
 p(mftwist(F4,5))
 p(mfhecke(F6,5))
 p(mfbd(F4,3))
-mf=mfinit([23,1,-23]); f=mfbasis(mf)[1]; mfparams(f) /* mfspace broken */
-mf=mfinit([96,2],3); L=mfbasis(mf); mf0=mfinit([96,2]);
+mf=mfinit([23,1,-23],0); f=mfbasis(mf)[1]; mfparams(f) /* mfspace broken */
+mf=mfinit([96,2]); L=mfbasis(mf); mf0=mfinit([96,2],0);
 mftobasis(mf0,L[1],1)
 
 F=mffromlfun(lfuncreate(x^2+1)); mfparams(F)
@@ -353,9 +353,9 @@ mftobasis(mf0,L[1])
 mfparams(mfadd(F2,F3))
 mfparams(mfadd(F4,F6))
 
-mfinit([23,1,Mod(22,45)]);
-mfinit([23,2,Mod(22,45)]);
+mfinit([23,1,Mod(22,45)],0);
+mfinit([23,2,Mod(22,45)],0);
 
+mfdim([23,1,0])
 mfdim([23,1,0],3)
-mfdim([23,1,0],4)
 mfgaloistype([11,1,Mod(2,11)], mfeisen(1,1,Mod(2,11)))

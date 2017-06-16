@@ -10,7 +10,7 @@ Doc: Computes the numerical value of the modular form $F$ at the complex
  upper-half plane. If $F$ has polmod coefficients, it must be embedded first
  using \kbd{mfembed}.
  \bprog
- ? mf = mfinit([11,2]); F = mfbasis(mf)[1];
+ ? mf = mfinit([11,2],0); F = mfbasis(mf)[1];
  ? mfeval(F,I/2)
  %2 = 0.039405471130100890402470386372028382117
  ? mf = mfsplit([35,2]); F = mfeigenbasis(mf)[2];

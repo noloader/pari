@@ -20,6 +20,6 @@ Doc: Gives the Sturm bound for modular forms on $\Gamma_0(N)$ and
  %1 = 97
  ? mf=mfinit(NK,1); mfsturm(mf)
  %2 = 76
- ? mfdim(NK)
+ ? mfdim(NK,0) \\ new space
  %3 = 72
  @eprog

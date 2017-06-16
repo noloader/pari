@@ -40,7 +40,7 @@ Doc:
  [       "H" 0 0 0 0]
 
  ["Dihedral" 0 0 0 0]
- ? mfdim([500,1,0]); \\ non-trivial computation
+ ? mfdim([500,1,0],0); \\ non-trivial computation
  time = 540 ms.
  ? getcache()
  %3 =

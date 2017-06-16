@@ -14,7 +14,7 @@ Doc: $F$ being a modular form, returns $T(n)F$, where $T(n)$ is the
  given by \kbd{mfparams(F)}, but if you want to specify the space in which
  $T(n)$ is taken, add the optional argument \kbd{NK=[N,k,CHI]}.
  \bprog
- ? mf = mfinit([26,2]); F = mfbasis(mf)[1]; mftobasis(mf,F)
+ ? mf = mfinit([26,2],0); F = mfbasis(mf)[1]; mftobasis(mf,F)
  %1 = [1, 0]~
  ? G2 = mfhecke(F,2); mftobasis(mf,G2)
  %2 = [0, 1]~

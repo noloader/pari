@@ -11,7 +11,7 @@ Doc: given a modular form space \kbd{mf} and a modular form $F$, returns
    M = mfmatatkin(mf, Q, &A);
  @eprog
  \bprog
- ? mf = mfinit([35,2]); vecF = mfbasis(mf); F = vecF[1];
+ ? mf = mfinit([35,2],0); vecF = mfbasis(mf); F = vecF[1];
  ? mfcoefs(F, 4)
  %2 = [0, 3, -1, 0, 3]
  ? wF = mfatkin(mf, 7, F);
