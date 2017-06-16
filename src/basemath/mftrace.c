@@ -8189,7 +8189,10 @@ mfperiodpolbasis(long k, long flag)
 {
   pari_sp av = avma;
   long i, j, km2 = k - 2;
-  GEN M = cgetg(k, t_MAT), C = matpascal(km2);
+  GEN M, C;
+  if (k <= 4) return cgetg(1,t_VEC);
+  M = cgetg(k, t_MAT);
+  C = matpascal(km2);
   if (!flag)
     for (j = 0; j <= km2; j++)
     {

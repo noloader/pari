@@ -308,6 +308,8 @@ PP/=cP;bestappr(PP)
 PM=mfperiodpol(D,1);cM=polcoeff(PM,0)
 PM/=cM;bestappr(PM)
 mfperiodpolbasis(12)
+mfperiodpolbasis(2)
+mfperiodpolbasis(-1)
 
 D=mfDelta();F=mfderiv(D);
 G=mfmul(D,mfEk(2));mfisequal(F,G)
