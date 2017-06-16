@@ -833,7 +833,7 @@ linear combination of the first and third basis vector.
 \medskip
 
 \begin{verbatim}
-? E4 = mfEk(4); F = mfmulRC(E4, E4, 2); mfcoefs(F, 6)/4800
+? E4 = mfEk(4); F = mfbracket(E4, E4, 2); mfcoefs(F, 6)/4800
 % = [0, 1, -24, 252, -1472, 4830, -6048]
 ? D = mfDelta(); mftaylor(D, 10)*1728
 % =  [1, 0, -1/12, 0, 1/96, 0, 1/288, 0, -11/2304, 0, 7/9216]
@@ -845,7 +845,7 @@ linear combination of the first and third basis vector.
 % = [0, 0, 0, 0, 0, 5546/4131, -1232/12393, -47/16524, 11/24786]~
 \end{verbatim}
 
-These show a few unrelated commands: \kbd{mfmulRC} gives the $m$-th
+These show a few unrelated commands: \kbd{mfbracket} gives the $m$-th
 Rankin--Cohen bracket, \kbd{mftaylor} gives the Taylor expansion of
 a modular form on the whole modular group at the point $i$ (for now,
 no other expansions are implemented), \kbd{mftwist} gives the twist
@@ -1120,7 +1120,7 @@ $\sqrt{A}$.
 
 \kbd{mfmul(F,G)}: product of the modular forms $F$ and $G$.
 
-\kbd{mfmulRC(F,G,\{m=0\})}: $m$th Rankin--Cohen bracket of $F$ and $G$.
+\kbd{mfbracket(F,G,\{m=0\})}: $m$th Rankin--Cohen bracket of $F$ and $G$.
 
 \kbd{mfnumcusps(N)}: number of cusps of $\G_0(N)$.
 

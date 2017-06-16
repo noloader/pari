@@ -868,9 +868,9 @@ c_mulRC(long n, long d, GEN F, GEN G, GEN gm)
   GEN VG = mfcoefs_i(G, nd, 1), tG = cgetg(nd+2, t_VEC);
   GEN C, mpow, res = NULL, P;
   ulong j, k, l, m = itos(gm);
-  P = mfparams_ii(F); if (!P) pari_err_IMPL("mfmulRC for this form");
+  P = mfparams_ii(F); if (!P) pari_err_IMPL("mfbracket for this form");
   k = itos(gel(P, 2));
-  P = mfparams_ii(G); if (!P) pari_err_IMPL("mfmulRC for this form");
+  P = mfparams_ii(G); if (!P) pari_err_IMPL("mfbracket for this form");
   l = itos(gel(P, 2));
   /* pow[i,j+1] = i^j */
   mpow = cgetg(m+2, t_MAT);
@@ -1415,7 +1415,7 @@ mfpow(GEN F, GEN n)
   return gerepilecopy(av, tag2(t_MF_POW, F, n));
 }
 GEN
-mfmulRC(GEN F, GEN G, long m)
+mfbracket(GEN F, GEN G, long m)
 {
   pari_sp av = avma;
   return gerepilecopy(av, tag3(t_MF_MULRC, F, G, stoi(m)));

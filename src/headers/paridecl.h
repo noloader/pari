@@ -3860,7 +3860,7 @@ GEN   mfhecke(GEN F, long n, GEN NK);
 GEN   mfinteg(GEN F, long m);
 GEN   mflinear(GEN vF, GEN vla);
 GEN   mfmul(GEN F, GEN G);
-GEN   mfmulRC(GEN F, GEN G, long m);
+GEN   mfbracket(GEN F, GEN G, long m);
 GEN   mfpow(GEN F, GEN n);
 GEN   mfshift(GEN F, long sh);
 GEN   mftocol(GEN F, long lim);

@@ -196,7 +196,7 @@ mfcoefs(mfderiv(E6),6)
 mfcoefs(mfderivE2(E6),6)
 Delta=mfcreate(ramanujantau);
 vec(Delta)
-mfcoefs(mfmulRC(E4,E6,1),10)/(-3456)
+mfcoefs(mfbracket(E4,E6,1),10)/(-3456)
 \\ regressions
 CHI=[Z7,6];mfsplit([7,3,CHI]);
 mf=mfsplit([5,4]);
@@ -328,7 +328,7 @@ F8=mffromell(ellinit([0,1,1,9,1]))[2]; p(F8)
 p(mfadd(F7,F8))
 p(mfpow(F2,3))
 p(mfmul(F2,F3))
-p(mfmulRC(F4,F4,2))
+p(mfbracket(F4,F4,2))
 p(mflinear([F7,F8],[1,-1]))
 p(mfdiv(F3,F2))
 p(mfshift(F6,1))
