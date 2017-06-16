@@ -1569,7 +1569,7 @@ polclass_psum(
    * the correct answer. */
   enum { MIN_STAB_CNT = 3 };
   pari_sp av = avma;
-  GEN psum_sqr, P;
+  GEN ps, psum_sqr, P;
   long i, e, stabcnt, nprimes = lg(primes) - 1;
 
   if ((h & 1) && modinv_units(inv)) {
@@ -1579,33 +1579,26 @@ polclass_psum(
   }
 
   e = -1;
+  ps = cgetg(nprimes+1, t_VECSMALL);
   do {
     e += 2;
-    for (i = 1; i <= nprimes; ++i) {
-      GEN roots_modp;
-      ulong ps, p, pi;
-
-      roots_modp = gel(roots, i);
-      p = uel(primes, i);
-      pi = uel(pilist, i);
-      ps = Flv_powsum_pre(roots_modp, e, p, pi);
-      if (ps == 0) break;
+    for (i = 1; i <= nprimes; ++i)
+    {
+      GEN roots_modp = gel(roots, i);
+      ulong p = uel(primes, i), pi = uel(pilist, i);
+      uel(ps, i) = Flv_powsum_pre(roots_modp, e, p, pi);
+      if (uel(ps, i) == 0) break;
     }
     if (i > nprimes) break;
   } while (1);
   psum_sqr = Z_init_CRT(0, 1);
   P = gen_1;
-  for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i) {
-    GEN roots_modp;
-    ulong ps, p, pi;
-    long stab;
-
-    roots_modp = gel(roots, i);
-    p = uel(primes, i);
-    pi = uel(pilist, i);
-    ps = Flv_powsum_pre(roots_modp, e, p, pi);
-    ps = Fl_sqr_pre(ps, p, pi);
-    stab = Z_incremental_CRT(&psum_sqr, ps, &P, p);
+  for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i)
+  {
+    GEN roots_modp = gel(roots, i);
+    ulong p = uel(primes, i), pi = uel(pilist, i);
+    ulong ps2 = Fl_sqr_pre(uel(ps, i), p, pi);
+    ulong stab = Z_incremental_CRT(&psum_sqr, ps2, &P, p);
 
     /* stabcnt = stab * (stabcnt + 1) */
     if (stab)
