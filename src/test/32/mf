@@ -798,6 +798,8 @@ x^9 - 25/4*x^7 + 21/2*x^5 - 25/4*x^3 + x
 -x^10 + 691/36*x^8 - 691/12*x^6 + 691/12*x^4 - 691/36*x^2 + 1
 [x^8 - 3*x^6 + 3*x^4 - x^2, 4*x^9 - 25*x^7 + 42*x^5 - 25*x^3 + 4*x, x^10 - 1
 ]
+[x^8 - 3*x^6 + 3*x^4 - x^2, x^10 - 1]
+[4*x^9 - 25*x^7 + 42*x^5 - 25*x^3 + 4*x]
 []
 []
 1
@@ -845,4 +847,4 @@ Vecsmall([-3, -39])
   ***                 ^-----------------
   *** mfdim: sorry, noncuspidal dimension of G_1(N) is not yet implemented.
 20
-Total time spent: 7901
+Total time spent: 7912
