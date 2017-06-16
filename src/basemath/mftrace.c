@@ -66,6 +66,7 @@ static GEN mfdihedralall(GEN LIM);
 static GEN mfeval0(long N, long k, GEN F, GEN vtau, long bitprec);
 static GEN mfparams_i(GEN F);
 static GEN mfwt1newinit(long N, GEN CHI, GEN TMP);
+static long mfwt1dim(long N, GEN CHI);
 
 GEN
 mf_get_CHI(GEN mf) { return gmael(mf,1,3); }

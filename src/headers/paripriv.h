@@ -742,6 +742,7 @@ GEN mfqk(long k, long N);
 GEN mfsk(GEN CHI, GEN Q, long k);
 GEN mfheckeU(GEN F, long d);
 GEN charLFwtk(long k, GEN CHI);
+GEN sertocol(GEN S);
 
 /* prime.c */
 

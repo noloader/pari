@@ -3914,15 +3914,9 @@ GEN   mftobasis(GEN mf, GEN F, long flag);
 GEN   mftoeigenbasis(GEN mf, GEN F, long prec);
 GEN   mftonew(GEN mf, GEN F);
 GEN   mftraceform(GEN NK, long coderat);
-GEN   mfvecan(GEN F, long n, long d);
-GEN   sertocol(GEN S);
 void  vecpermute_inplace(GEN v, GEN perm);
 GEN   mfperiodpol(GEN F, long flag, long der, long prec);
 GEN   mfperiodpolbasis(long k, long flag);
-
-/* mfwt1.c */
-
-long mfwt1dim(long N, GEN CHI);
 
 /* mp.c */
 
