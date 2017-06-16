@@ -1595,7 +1595,6 @@ polclass_psum(
   P = gen_1;
   for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i)
   {
-    GEN roots_modp = gel(roots, i);
     ulong p = uel(primes, i), pi = uel(pilist, i);
     ulong ps2 = Fl_sqr_pre(uel(ps, i), p, pi);
     ulong stab = Z_incremental_CRT(&psum_sqr, ps2, &P, p);
