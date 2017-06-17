@@ -47,7 +47,7 @@ case $which_graphic_lib in
 esac
 # TODO: Check whether Qt + pari_daemon() work on darwin [ probably not ]
 case $which_graphic_lib in
-  auto|Qt|qt)
+  Qt|qt)
     . ./get_Qt   # QTDIR, QTLIB
     if test -z "$QTDIR"; then
       case $which_graphic_lib in qt|Qt) which_graphic_lib=none;; esac
