@@ -115,6 +115,5 @@ Doc: high precision plot of the function $y=f(x)$ represented by the expression
  @eprog\noindent will draw respectively a circle and a circle cut by the line
  $y=x$.
 
- \synt{ploth}{void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long flags,
- long n, long prec},
+ \synt{ploth}{void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long flags, long n, long prec},
  where an omitted \var{tab} is coded as \kbd{NULL}.
