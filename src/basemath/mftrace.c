@@ -1378,7 +1378,7 @@ mftrivial(void) {
 GEN
 mfcreate(GEN x)
 {
-  pari_sp av = avma;;
+  pari_sp av = avma;
   long t = typ(x);
   if (typ(x) == t_CLOSURE)
   {
@@ -2403,7 +2403,7 @@ TA2(long N, long k, GEN VCHI, long n, GEN SQRTS, GEN MUP, long FC, GEN GCD)
 {
   pari_sp ltop = avma;
   GEN S, Q;
-  const long n4 = n << 2, N4 = N << 2, nu = k - 2;;
+  const long n4 = n << 2, N4 = N << 2, nu = k - 2;
   long limt, t;
   const long st = (!odd(N) && odd(n)) ? 2 : 1;
 
@@ -7600,7 +7600,7 @@ mfnumcusps_fact(GEN fa)
 GEN
 mfnumcusps(GEN n)
 {
-  pari_sp av = avma;;
+  pari_sp av = avma;
   GEN F = check_arith_pos(n,"mfnumcusps");
   if (!F)
   {
