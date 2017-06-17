@@ -8,7 +8,9 @@ Help: mfhecke(F,n,{NK}): F being a modular form returns T(n)F, where T(n) is
  is to consider F in the space given by mfparams(F), but if you want to specify
  the space in which T(n) is taken, add the optional argument NK=[N,k,CHI].
 Doc: $F$ being a modular form, returns $T(n)F$, where $T(n)$ is the
- $n$-th Hecke operator. \misctitle{Warning} If $F$ is of level $M<N$, $T(n)F$
+ $n$-th Hecke operator.
+
+ \misctitle{Warning} If $F$ is of level $M<N$, then $T(n)F$
  is in general not the same in $M_k(\Gamma_0(M),\chi)$ and in
  $M_k(\Gamma_0(N),\chi)$. Thus, the default is to consider $F$ in the space
  given by \kbd{mfparams(F)}, but if you want to specify the space in which
