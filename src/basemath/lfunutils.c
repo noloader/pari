@@ -1575,8 +1575,8 @@ vecan_qf(GEN Q, long L)
 long
 qf_iseven(GEN M)
 {
-  long i, n = lg(M) - 1;
-  for (i=1; i<=n; i++)
+  long i, l = lg(M);
+  for (i=1; i<l; i++)
     if (mpodd(gcoeff(M,i,i))) return 0;
   return 1;
 }

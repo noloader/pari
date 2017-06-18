@@ -131,11 +131,13 @@ vector(#L,i,lfun(L[i],1))
 vector(#L,i,lfun(L[i],0,1))
 vector(#L,i,lfun(L[i],-1,1))
 e=ellinit([0,0,0,-1,1]);
-[mf3,F,coe]=mffromell(e);coe
+[mf,F,coe]=mffromell(e);coe
 vec(F)
-[mf4,F,coe]=mffromqf(2*matid(10));coe
+[mf,F,coe]=mffromqf(2*matid(10));coe
 vec(F)
-[mf5,F,coe]=mffromqf(2*matid(2),x^4-6*x^2*y^2+y^4); vec(F)
+[mf,F,coe]=mffromqf(2*matid(2),x^4-6*x^2*y^2+y^4); vec(F)
+[mf,F,coe]=mffromqf(Mat); vec(F)
+
 mfser(F)=Ser(mfcoefs(F,31));
 mfwt1all(mf)=
 { my(res = []);
