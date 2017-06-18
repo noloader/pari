@@ -2484,7 +2484,7 @@ polredabs0(GEN x, long flag)
         GEN w = gel(vw,2);
         for (i = 1; i < l; i++)
           w = ZV_union_shallow(w, gel(Z_factor(gel(v,i)),1));
-        nfinit_basic(&S, mkvec2(x,w));
+        nfinit_basic(&S, mkvec2(S.T0,w));
       }
     }
     v = polredabs_aux(&S, &u);
