@@ -6521,6 +6521,7 @@ mfatkin(GEN mf, GEN F, GEN Q, long bitprec)
         Q = gel(Q,1); break;
       }
     default: pari_err_TYPE("mfatkin", Q);
+             return NULL; /*LCOV_EXCL_LINE*/
   }
   z = RgM_RgC_mul(Q, z);
   if (A != 1) z = gdiv(z, sqrtr(stor(A,prec)));
