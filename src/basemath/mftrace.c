@@ -7840,7 +7840,7 @@ mftaylor(GEN F, long n, long flreal, long prec)
 {
   pari_sp ltop = avma;
   GEN P, P0, Pm1 = gen_0, v;
-  GEN X2 = mkpoln(3, ghalf,gen_0,gneg(ghalf)); /* (x^2-1) / 2 */;
+  GEN X2 = mkpoln(3, ghalf,gen_0,gneg(ghalf)); /* (x^2-1) / 2 */
   long k, m;
   if (!isf(F)) pari_err_TYPE("mftaylor",F);
   P = mfparams_ii(F); if (!P) pari_err_IMPL("mftaylor for this form");
