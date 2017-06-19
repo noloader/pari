@@ -7619,7 +7619,7 @@ mfcusps(long N)
   GEN D, v;
   long i, c, l;
 
-  if (N <= 0) pari_err_DOMAIN("mfcusps", "N", "<", gen_0, stoi(N));
+  if (N <= 0) pari_err_DOMAIN("mfcusps", "N", "<=", gen_0, stoi(N));
   D = mydivisorsu(N); l = lg(D);
   c = mfnumcuspsu_fact(myfactoru(N));
   v = cgetg(c + 1, t_VEC);
