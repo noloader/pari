@@ -5313,10 +5313,10 @@ dihan(GEN bnr, GEN w, GEN Tinit, GEN k0j, ulong lim)
 {
   GEN nf = bnr_get_nf(bnr), f = bid_get_ideal(bnr_get_bid(bnr));
   GEN v = zerovec(lim+1), cycn = gel(w,1), Pn = gel(w,3);
-  long n, j, ordmax = cycn[1], k0 = k0j[1], jdeg = k0j[2];
+  long j, ordmax = cycn[1], k0 = k0j[1], jdeg = k0j[2];
   long D = itos(nf_get_disc(nf));
   int trace = 0;
-  ulong p;
+  ulong p, n;
   forprime_t T;
 
   gel(v,2) = gen_1;
@@ -5372,7 +5372,7 @@ dihan(GEN bnr, GEN w, GEN Tinit, GEN k0j, ulong lim)
     }
   }
   /* complete with non-prime powers */
-  for (n = 2; n <= lim; ++n)
+  for (n = 2; n <= lim; n++)
   {
     GEN S, fa = myfactoru(n), P = gel(fa, 1), E = gel(fa, 2);
     long q;
@@ -8418,7 +8418,7 @@ induce(GEN G, GEN CHI)
   }
   else
   {
-    if (mfcharmodulus(CHI) == itou(znstar_get_N(G))) return CHI;
+    if (mfcharmodulus(CHI) == itos(znstar_get_N(G))) return CHI;
     chi = zncharinduce(gel(CHI,1), gel(CHI,2), G);
     o = gel(CHI, 3);
   }
@@ -8626,7 +8626,7 @@ mfspace_i(GEN F)
   if (N != mf_get_N(mf)) return mf_OLD;
   l = lg(vF);
   for (i = 1; i < l; i++)
-    if (itou(gmael(vF,i,1)) != N) return mf_CUSP;
+    if (itos(gmael(vF,i,1)) != N) return mf_CUSP;
   return mf_NEW;
 }
 long
