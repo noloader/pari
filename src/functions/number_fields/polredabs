@@ -72,8 +72,8 @@ Doc: returns a canonical defining polynomial $P$ for the number field
  \item Let~$L_0$ be the list of characteristic polynomials of primitive elements
  of~$K$ that are in~$\Z_K$ and minimal for the~$T_2$ norm.
 
- \item Let~$L_1$ be the sublist of~$L_0$ of polynomials with minimal absolute
- value of the discriminant.
+ \item Let~$L_1$ be the sublist of~$L_0$ of polynomials whose discriminant has
+ minimal absolute value.
 
  \item Let~$L_2$ be the sublist of~$L_1$ defined as follows. In each
  pair~$\{P(x), (-1)^{\deg P}P(-x)\}$ of monic polynomials, choose the unique
