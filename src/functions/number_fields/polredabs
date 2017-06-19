@@ -67,6 +67,25 @@ Doc: returns a canonical defining polynomial $P$ for the number field
  %4 = [75, 67]
  @eprog
 
+ The precise definition of the output of \tet{polredabs} is as follows.
+
+ \item Let~$L_0$ be the list of characteristic polynomials of primitive elements
+ of~$K$ that are in~$\Z_K$ and minimal for the~$T_2$ norm.
+
+ \item Let~$L_1$ be the sublist of~$L_0$ of polynomials with minimal absolute
+ value of the discriminant.
+
+ \item Let~$L_2$ be the sublist of~$L_1$ defined as follows. In each
+ pair~$\{P(x), (-1)^{\deg P}P(-x)\}$ of monic polynomials, choose the unique
+ polynomial~$Q$ such that when written~$Q(x) = Q_1(x^2)+xQ_2(x^2)$, at most one
+ of~$Q_1,Q_2$ has positive leading coefficient.
+
+ \item Order the integers by absolute value first, breaking ties by
+ putting~$|x|$ before~$-|x|$. Order the polynomials in~$L_2$ by the
+ lexicographic order of the coefficient vectors (from the leading coefficient
+ to the constant coefficient) where integers are ordered as above. Then the
+ output of \tet{polredabs} is the smallest polynomial in~$L_2$ for that order.
+
 Variant: Instead of the above hardcoded numerical flags, one should use an
  or-ed combination of
 
