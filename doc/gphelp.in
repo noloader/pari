@@ -949,6 +949,7 @@ sub basic_subst {
   s/2\^\\text\{nd\}/2nd/g;
   s/\\text\{([a-zA-z0-9]*)\}/$1/g;
   s/\\(text|hbox|Big)//g;
+  s/([A-Za-z])--([A-Za-z])/$1-$2/g; # Rankin--Cohen
 
   s/^([ \t]+)\{ *\\(it|sl|bf|tt)\b/S<$1>{\\$2/gm;
   s/\{ *\\(it|sl) *(([^{}]+(?=[{}])|\{[^{}]*\})*)\}/$tr{startit}$2$tr{endit}/g;
