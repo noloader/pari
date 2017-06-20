@@ -108,6 +108,7 @@ BA   81- setrand(2);polclass(-5032,27) -> wrong result
      83- if 'a < 'b < 'c, charpoly(Mod(a, a^2 + Mod(b,b^2+1)), c) => 1
          [ now error: the result can't be repreѕented as a t_POL in 'c, only
          as a t_POLMOD modulo b^2 whose coefficients are t_POL in 'c ]
+     84- mathouseholder: missing sanity checks (SEGV, didn't accept t_COL)
 
   Added
       1- [libari] ZM_isidentity
