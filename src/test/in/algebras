@@ -2228,8 +2228,17 @@ a = [1,1,-1,1,0,-1,1,1]~;
 mt = algleftmultable(al,a);
 lat = alglathnf(al,mt);
 print(lat[2]==1);
+print(lat == alglathnf(al,a))
 lat = alglathnf(al,matid(8)*2);
 print(lat[2]==2);
+b = [1,0,-1,1,0,-1,2,1]~;
+mtb = algleftmultable(al,b);
+lat = alglathnf(al,matconcat([mt,mtb]));
+print(lat==[1,1]);
+print(lat == alglathnf(al,[mt,mtb]));
+lat = alglathnf(al,matconcat([7*mt/2,7*mtb/2]),21/2);
+print(lat==[1,7/2]);
+lat = alglathnf(al,matconcat([mt*0,mt*0]));
 
 \\make integral
 mt = [matid(2),[0,-1/4;1/2,0]];

@@ -4612,23 +4612,27 @@ alg_maximal(GEN al)
 */
 
 GEN
-alglathnf(GEN al, GEN m)
+alglathnf(GEN al, GEN m, GEN d)
 {
   pari_sp av = avma;
   long N,i,j;
-  GEN m2, d, c;
+  GEN m2, c;
   checkalg(al);
   N = alg_get_absdim(al);
+  if (typ(m) == t_VEC) m = matconcat(m);
+  if (typ(m) == t_COL) m = algleftmultable(al,m);
   if (typ(m) != t_MAT) pari_err_TYPE("alglathnf",m);
-  if (lg(m)-1 != N || lg(gel(m,1))-1 != N) pari_err_DIM("alglathnf");
+  if (typ(d) != t_FRAC && typ(d) != t_INT) pari_err_TYPE("alglathnf",d);
+  if (lg(m)-1 < N || lg(gel(m,1))-1 != N) pari_err_DIM("alglathnf");
   for (i=1; i<=N; i++)
     for (j=1; j<=N; j++)
       if (typ(gcoeff(m,i,j)) != t_FRAC && typ(gcoeff(m,i,j)) != t_INT)
         pari_err_TYPE("alglathnf", gcoeff(m,i,j));
   m2 = Q_primitive_part(m,&c);
   if (!c) c = gen_1;
-  d = detint(m2);
-  if (!signe(d)) pari_err_INV("alglathnf", m2);
+  if (!signe(d)) d = detint(m2);
+  else           d = gdiv(d,c); /* should be an integer */
+  if (!signe(d)) pari_err_INV("alglathnf [m does not have full rank]", m2);
   m2 = ZM_hnfmodid(m2,d);
   return gerepilecopy(av, mkvec2(m2,c));
 }
