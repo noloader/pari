@@ -232,6 +232,7 @@ KB+HC89- new package 'mf' for modular forms; new GP functions
      mfshift            mfspace            mfsplit            mfsturm
      mftaylor           mftobasis          mftonew            mftraceform
      mftwist            mfval
+     90- [libpari] ZV_cba, Z_cba_extend
 
   Changed
       1- rewrite bnfnarrow

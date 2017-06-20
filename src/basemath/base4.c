@@ -2287,6 +2287,31 @@ Z_cba(GEN a, GEN b)
   if (!is_pm1(t)) vectrunc_append(L, t);
   return L;
 }
+/* P = coprime base, extend it by b; TODO: quadratic for now */
+GEN
+ZV_cba_extend(GEN P, GEN b)
+{
+  long i, l = lg(P);
+  GEN w = cgetg(l+1, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    GEN v = Z_cba(gel(P,i), b);
+    long nv = lg(v)-1;
+    gel(w,i) = vecslice(v, 1, nv-1); /* those divide P[i] but not b */
+    b = gel(v,nv);
+  }
+  gel(w,l) = b; return shallowconcat1(w);
+}
+GEN
+ZV_cba(GEN v)
+{
+  long i, l = lg(v);
+  GEN P;
+  if (l <= 2) return v;
+  P = Z_cba(gel(v,1), gel(v,2));
+  for (i = 3; i < l; i++) P = ZV_cba_extend(P, gel(v,i));
+  return P;
+}
 
 /* write x = x1 x2, x2 maximal s.t. (x2,f) = 1, return x2 */
 GEN

@@ -7114,7 +7114,15 @@ $[\gcd(a,b), \text{ppi}(a,b), \text{ppo}(a,b)]$; shallow function.
 
 \fun{GEN}{Z_cba}{GEN a, GEN b} fast natural coprime base algorithm. Returns a
 vector of coprime divisors of $a$ and $b$ such that both $a$ and $b$ can
-be multiplicatively generated from this set.
+be multiplicatively generated from this set. Perfect powers are not removed,
+is \tet{Z_isanypower} if needed; shallow function.
+
+\fun{GEN}{ZV_cba_extend}{GEN P, GEN b} extend a coprime basis $P$ by the
+integer $b$, the result being a coprime basis for $P\cup \{b\}$.
+Perfect powers are not removed; shallow function.
+
+\fun{GEN}{ZV_cba}{GEN v} given a vector of non-zero integers $v$, return
+a coprime basis for $v$. Perfect powers are not removed; shallow function.
 
 \subsec{Checks attached to arithmetic functions}
 

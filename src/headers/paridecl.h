@@ -2101,6 +2101,8 @@ GEN     Z_cba(GEN a, GEN b);
 GEN     Z_ppgle(GEN a, GEN b);
 GEN     Z_ppio(GEN a, GEN b);
 GEN     Z_ppo(GEN x, GEN f);
+GEN     ZV_cba_extend(GEN P, GEN b);
+GEN     ZV_cba(GEN v);
 GEN     RM_round_maxrank(GEN G);
 GEN     ZM_famat_limit(GEN fa, GEN limit);
 GEN     famat_Z_gcd(GEN M, GEN n);
