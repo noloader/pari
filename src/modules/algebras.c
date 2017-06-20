@@ -4608,8 +4608,7 @@ alg_maximal(GEN al)
 /*
  Convention: lattice = [I,t], where
  - I integral hnf over the integral basis of the algebra, and
- - t element of the center, either an integer or rational, or a multiplication table,
- representing t*I.
+ - t element of the center, either an integer or rational, representing t*I.
 */
 
 GEN
@@ -4617,24 +4616,21 @@ alglathnf(GEN al, GEN m)
 {
   pari_sp av = avma;
   long N,i,j;
-  GEN m2, dm, d, c;
+  GEN m2, d, c;
   checkalg(al);
   N = alg_get_absdim(al);
-  if(typ(m) != t_MAT) pari_err_TYPE("alglathnf",m);
-  if(lg(m)-1 != N || lg(gel(m,1))-1 != N) pari_err_DIM("alglathnf");
-  for(i=1; i<=N; i++)
-    for(j=1; j<=N; j++)
-      if(typ(gcoeff(m,i,j)) != t_FRAC && typ(gcoeff(m,i,j)) != t_INT)
+  if (typ(m) != t_MAT) pari_err_TYPE("alglathnf",m);
+  if (lg(m)-1 != N || lg(gel(m,1))-1 != N) pari_err_DIM("alglathnf");
+  for (i=1; i<=N; i++)
+    for (j=1; j<=N; j++)
+      if (typ(gcoeff(m,i,j)) != t_FRAC && typ(gcoeff(m,i,j)) != t_INT)
         pari_err_TYPE("alglathnf", gcoeff(m,i,j));
-  m2 = Q_remove_denom(m,&dm);
-  c = content(m2);
-  m2 = ZM_Z_divexact(m2,c);
+  m2 = Q_primitive_part(m,&c);
+  if (!c) c = gen_1;
   d = detint(m2);
-  if(!signe(d)) pari_err_INV("alglathnf", m2);
+  if (!signe(d)) pari_err_INV("alglathnf", m2);
   m2 = ZM_hnfmodid(m2,d);
-  if(dm) dm = gdiv(c,dm);
-  else   dm = c;
-  return gerepilecopy(av, mkvec2(m2,dm));
+  return gerepilecopy(av, mkvec2(m2,c));
 }
 
 /* If m is injective, computes a Z-basis of the submodule of elements whose
