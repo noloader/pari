@@ -72,4 +72,7 @@ x - 1
 [1]
 
 [[1], Mat(1)]
-Total time spent: 4
+  ***   at top-level: charpoly(Mod('b,'b^2+Mod('a,'a^2+1)),'newvar)
+  ***                 ^---------------------------------------------
+  *** charpoly: incorrect priority in RgXQ_charpoly: variable newvar < a
+Total time spent: 6

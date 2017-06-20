@@ -2625,8 +2625,8 @@ RgXQ_charpoly(GEN x, GEN T, long v)
   if (varncmp(vx, vp) > 0) return caract_const(av, x, v, d);
   if (varncmp(vx, vp) < 0) pari_err_PRIORITY("RgXQ_charpoly", x, "<", vp);
   dx = degpol(x);
-  if (dx <= 0)
-    return dx? pol_xn(d, v): caract_const(av, gel(x,2), v, d);
+  if (dx >= degpol(T)) { x = RgX_rem(x, T); dx = degpol(x); }
+  if (dx <= 0) return dx? pol_xn(d, v): caract_const(av, gel(x,2), v, d);
 
   v0 = fetch_var_higher();
   x = RgX_neg(x);
@@ -2636,8 +2636,8 @@ RgXQ_charpoly(GEN x, GEN T, long v)
   ch = resultant_all(T, x, NULL);
   (void)delete_var();
   /* test for silly input: x mod (deg 0 polynomial) */
-  if (typ(ch) != t_POL) { avma = av; return pol_1(v); }
-
+  if (typ(ch) != t_POL)
+    pari_err_PRIORITY("RgXQ_charpoly", pol_x(v), "<", gvar(ch));
   L = leading_coeff(ch);
   if (!gequal1(L)) ch = RgX_Rg_div(ch, L);
   return gerepileupto(av, ch);
