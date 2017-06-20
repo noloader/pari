@@ -1345,6 +1345,8 @@ GEN     algleftordermodp(GEN al, GEN Ip, GEN p);
 GEN     algmakeintegral(GEN mt0, int maps);
 GEN     algmul(GEN al, GEN x, GEN y);
 GEN     algmultable(GEN al);
+GEN     alglat_get_primbasis(GEN lat);
+GEN     alglat_get_scalar(GEN lat);
 GEN     alglathnf(GEN al, GEN m, GEN d);
 GEN     algleftmultable(GEN al, GEN x);
 GEN     algneg(GEN al, GEN x);

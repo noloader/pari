@@ -261,6 +261,12 @@ algchar(GEN al) { checkalg(al); return alg_get_char(al); }
 GEN
 alg_get_tracebasis(GEN al) { return gel(al,11); }
 
+/* lattices */
+GEN
+alglat_get_primbasis(GEN lat) { return gel(lat,1); }
+GEN
+alglat_get_scalar(GEN lat) { return gel(lat,2); }
+
 /** ADDITIONAL **/
 
 /* FIXME: not rigorous */
@@ -4606,9 +4612,9 @@ alg_maximal(GEN al)
 /** LATTICES **/
 
 /*
- Convention: lattice = [I,t], where
+ Convention: lattice = [I,t] representing t*I, where
  - I integral hnf over the integral basis of the algebra, and
- - t element of the center, either an integer or rational, representing t*I.
+ - t either an integer or rational.
 */
 
 GEN
