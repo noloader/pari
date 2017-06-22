@@ -1158,6 +1158,43 @@ ellQ_goodl_l(GEN E, long l)
   return 1;
 }
 
+static long
+ellnf_goodl_l(GEN E, long l)
+{
+  forprime_t T;
+  long i;
+  GEN nf = ellnf_get_nf(E);
+  GEN disc = ell_get_disc(E);
+  pari_sp av = avma;
+  u_forprime_init(&T, 17UL,ULONG_MAX);
+  for(i=1; i<=20; i++)
+  {
+    ulong p = u_forprime_next(&T);
+    GEN pr = idealprimedec(nf, utoi(p));
+    long j, g = lg(pr)-1;
+    for (j=1; j<=g; j++)
+    {
+      GEN prj = gel(pr, j);
+      if (idealval(nf,disc,prj)>0) {i--; continue;}
+      else
+      {
+        long t = itos(ellap(E, prj));
+        if (l==2)
+        {
+          if (t%2==1) return 0;
+        }
+        else
+        {
+          GEN D = subii(sqrs(t),shifti(pr_norm(prj),2));
+          if (krois(D,l)==-1) return 0;
+        }
+      }
+    }
+    avma = av;
+  }
+  return 1;
+}
+
 static GEN
 ellQ_isomat(GEN E, long flag)
 {
@@ -1249,7 +1286,11 @@ ellisomat(GEN E, long p, long flag)
         pari_err_IMPL("ellisomat(E,0) for curve over number fields");
         return NULL; /* NOT REACHED */ }
       else
-        r = mkisomat(p, ellisograph_p(ellnf_get_nf(E), E, p, flag));
+      {
+        if (ellnf_goodl_l(E, p))
+          r = mkisomat(p, ellisograph_p(ellnf_get_nf(E), E, p, flag));
+        else r = mkvec2(mkvec(ellisograph_a4a6(E, flag)),matid(1));
+      }
   }
   return gerepilecopy(av, r);
 }

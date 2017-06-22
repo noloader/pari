@@ -31,3 +31,4 @@ ellisomat(ellinit([1,0,1,4,-6]),3)
 nf=nfinit(phi^2-phi-1);
 ellisomat(ellinit([0,1,phi,-47*phi+31,560*phi-803],nf),13,1)
 ellisomat(ellinit([phi+1,1,phi+1,6*phi-1,13*phi+2],nf),5,1)
+ellisomat(ellinit([phi+1,1,phi+1,6*phi-1,13*phi+2],nf),17,1)
