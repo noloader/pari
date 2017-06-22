@@ -165,7 +165,7 @@ GEN
 cyc2elts(GEN cyc)
 {
   long i, n;
-  GEN rep;
+  GEN z;
   GROUP_t G;
 
   G.cyc = typ(cyc)==t_VECSMALL? cyc: gtovecsmall(cyc);
@@ -173,14 +173,14 @@ cyc2elts(GEN cyc)
   G.r = lg(cyc)-1;
   G.j = zero_zv(G.r);
 
-  rep = cgetg(n+1, t_VEC);
-  gel(rep,n) = leafcopy(G.j); /* trivial elt comes last */
+  z = cgetg(n+1, t_VEC);
+  gel(z,n) = leafcopy(G.j); /* trivial elt comes last */
   for  (i = 1; i < n; i++)
   {
     (void)NextElt(&G);
-    gel(rep,i) = leafcopy(G.j);
+    gel(z,i) = leafcopy(G.j);
   }
-  return rep;
+  return z;
 }
 
 /* Let Qt as given by InitQuotient, compute a system of
