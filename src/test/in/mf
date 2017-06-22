@@ -117,6 +117,7 @@ mQ=mfmatatkin(mf,32,&A)
 mfmatatkin(mfsplit([12,11,-3]), 4)
 vec(mfatkin(mf,mf[3][1],32))
 vec(mfatkin(mf,mf[3][1],[mQ,A]))
+mfatkineigenvalues(mfsplit([3,7,-3]),3)
 mf2=mfinit([96,6],1);
 F=mflinear([mf2[3][1],mf2[3][2]],[4,7]);
 V=mftonew(mf2,F);

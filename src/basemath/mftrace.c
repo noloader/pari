@@ -6232,7 +6232,7 @@ mffrickeeigenvalues(GEN mf, GEN RO, long bitprec)
   {
     GEN z, ro = gel(RO,i), f = gel(F,i);
     long l = lg(ro);
-    if (l == 2) z = get_laq(f, NULL, v, coe);
+    if (l == 2) z = mkvec( get_laq(f, NULL, v, coe) );
     else
     {
       f = liftpol_shallow(f);
