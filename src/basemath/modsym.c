@@ -2941,15 +2941,16 @@ get_X(GEN W, GEN xpm, long D)
   }
   return t;
 }
+static long
+torsion_order(GEN E) { GEN T = elltors(E); return itos(gel(T,1)); }
 /* E of rank 0, minimal model; write L(E,1) = Q*w1(E) != 0 and return the
  * rational Q; tam = product of all Tamagawa (incl. c_oo(E)). */
 static GEN
 get_Q(GEN E, GEN tam)
 {
-  GEN L, T, sha, w1 = gel(ellR_omega(E,DEFAULTPREC), 1);
-  long ex, t, t2;
+  GEN L, sha, w1 = gel(ellR_omega(E,DEFAULTPREC), 1);
+  long ex, t = torsion_order(E), t2 = t*t;
 
-  T = elltors(E); t = itos(gel(T,1)); t2 = t*t;
   L = ellL1(E, 0, DEFAULTPREC);
   sha = divrr(mulru(L, t2), mulri(w1,tam)); /* integral = |Sha| by BSD */
   sha = sqri( grndtoi(sqrtr(sha), &ex) ); /* |Sha| is a square */
@@ -2962,18 +2963,17 @@ get_Q(GEN E, GEN tam)
  *   \prod_{p|D} (p-a_p(E)+eps_{E}(p)) / p,
  * where eps(p) = 0 if p | N_E and 1 otherwise */
 static GEN
-get_Euler(GEN E, long D)
+get_Euler(GEN E, GEN D)
 {
-  GEN t = gen_1, P = gel(factoru(labs(D)), 1);
-  GEN Delta = ell_get_disc(E); /* same prime divisors as N_E */
+  GEN a = gen_1, b = gen_1, P = gel(absZ_factor(D), 1);
   long i, l = lg(P);
-  for (i=1; i<l; i++)
+  for (i = 1; i < l; i++)
   {
-    long p = P[i];
-    long b = p - itos(ellap(E,utoipos(p))) + (dvdiu(Delta,p)?0L:1L);
-    t = gdivgs(gmulgs(t, b), p);
+    GEN p = gel(P,i);
+    a = mulii(a, ellcard(E, p));
+    b = mulii(b, p);
   }
-  return t;
+  return gdiv(a, b);
 }
 
 /* E given by a minimal model, xpm in the sign(D) part with the same
@@ -2985,13 +2985,19 @@ get_Euler(GEN E, long D)
 static GEN
 ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
 {
-  GEN cb, N, Q, tam, u, Ed, X = get_X(W, xpm, D);
+  GEN gD, cb, N, Q, tam, u, Ed, X = get_X(W, xpm, D);
 
   if (!signe(X)) return NULL;
   if (D == 1)
+  {
+    gD = NULL;
     Ed = E;
+  }
   else
-    Ed = ellinit(elltwist(E, stoi(D)), NULL, DEFAULTPREC);
+  {
+    gD = stoi(D);
+    Ed = ellinit(elltwist(E, gD), NULL, DEFAULTPREC);
+  }
   Ed = ellanal_globalred_all(Ed, &cb, &N, &tam);
   Q =  get_Q(Ed, tam);
   if (cb)
@@ -3001,7 +3007,7 @@ ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
     Q = gmul(Q,u);
   }
   /* L(E^D,1) = Q * w1(E^D_min) */
-  Q = gmul(Q, get_Euler(Ed, D));
+  if (gD) Q = gmul(Q, get_Euler(Ed, gD));
   if (D != 1) obj_free(Ed);
   /* L(E^D,1) / Omega(E^D) = Q. Divide by X to get A */
   return gdiv(Q, X);
@@ -4090,4 +4096,64 @@ ellpadicL(GEN E, GEN pp, long n, GEN s, long r, GEN DD)
   oms = mspadicmoments(Wp, xpm, D);
   L = mspadicL(oms, s, r);
   return gerepileupto(av, gdiv(L,den));
+}
+
+/* D coprime to p; Euler factor for the twisted L-function L(E,(D|.)),
+ * small difference with L(E_D) */
+static GEN
+ellpadicLeul(GEN E, GEN ED, GEN ND, GEN p, long n, GEN D, long r)
+{
+  GEN Z = ellpadicL(E, p, n, 0, r, D);
+  GEN F, U, apD = ellap(ED,p);
+  if (typ(Z) == t_COL)
+  { /* p | a_p(E_D), frobenius on E_D */
+    F = mkmat22(gen_0, negi(p), gen_1, apD);
+    U = RgM_RgC_mul(gpowgs(gsubsg(1, gdiv(F,p)), -2), Z);
+    settyp(U, t_VEC);
+  }
+  else
+  {
+    U = Z;
+    if (dvdii(ND,p)) /* assume a_p(E_D) = -1 */
+      U = gdivgs(U, 2);
+    else
+    {
+      GEN a = ms_unit_eigenvalue(apD, 2, p, n);
+      U = gmul(U, gpowgs(gsubsg(1, ginv(a)), -2));
+    }
+  }
+  return U;
+}
+
+GEN
+ellpadicbsd(GEN E, GEN p, long n, GEN D)
+{
+  pari_sp av = avma;
+  GEN ED, tam, Lstar, N, C;
+  long r, vN;
+  checkell(E);
+  if (ell_get_type(E) != t_ELL_Q) pari_err_TYPE("ellpadicbsd",E);
+  if (D) {
+    if (typ(D) != t_INT) pari_err_TYPE("ellpadicbsd",D);
+    if (equali1(D)) D = NULL;
+  }
+  if (typ(p) != t_INT) pari_err_TYPE("ellpadicbsd",D);
+  if (n <= 0) pari_err_DOMAIN("ellpadicbsd","precision","<=",gen_0,stoi(n));
+  ED = D? ellinit(elltwist(E,D), gen_1, 0): E;
+  ED = ellanal_globalred_all(ED, NULL, &N, &tam);
+  r = itos( gel(ellanalyticrank_bitprec(ED, NULL, 32), 1) );
+  /* additive reduction ? */
+  vN = Z_pval(N, p);
+  if (vN >= 2) pari_err_DOMAIN("ellpadicbsd","v_p(N)", ">", gen_1, stoi(vN));
+  if (vN == 1 && equali1(ellap(ED,p)))
+    pari_err_IMPL("ellpadicbsd in the multiplicative reduction case");
+  /* TODO: should be something like
+   *   Lstar = ellpadicLeul(E,p,n,r+1,D)/(r+1)!/Linvariant(ED,p,n);
+   */
+  Lstar = ellpadicLeul(E, ED, N, p, n, D, r);
+  C = mulii(tam,mpfact(r));
+  if (D) C = gmul(C, get_Euler(ED, D));
+  C = gdiv(sqru(torsion_order(ED)), C);
+  if (D) obj_free(ED);
+  return gerepileupto(av, gmul(Lstar, C));
 }

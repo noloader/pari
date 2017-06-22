@@ -4647,6 +4647,7 @@ GEN     RgX_act_Gl2Q(GEN g, long k);
 GEN     RgX_act_ZGl2Q(GEN z, long k);
 void    checkms(GEN W);
 void    checkmspadic(GEN W);
+GEN     ellpadicbsd(GEN E, GEN p, long n, GEN D);
 GEN     ellpadicL(GEN E, GEN p, long n, GEN s, long r, GEN D);
 GEN     msfromcusp(GEN W, GEN c);
 GEN     msfromell(GEN E, long signe);
