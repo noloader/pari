@@ -1281,6 +1281,20 @@ c_dihedral(long n, long d, GEN bnr, GEN w, GEN Tinit, GEN k0j)
   if (degpol(Pm) == 1 || RgX_is_QX(A)) return gerepilecopy(av, A);
   return gerepileupto(av, gmodulo(A, Pm));
 }
+static GEN
+c_reltoabs(long n, long d, GEN F, GEN S)
+{
+  pari_sp av = avma;
+  GEN T, V = mfcoefs_i(F, n, d);
+  if (typ(S) == t_VEC) /* nf_rnfeq */
+  {
+    long i, l = lg(V);
+    for (i = 1; i < l; i++) gel(V,i) = eltreltoabs(S,liftpol_shallow(gel(V,i)));
+    T = gel(S,1);
+    V = gerepileupto(av, gmodulo(V, T));
+  }
+  return V;
+}
 
 static GEN
 c_mfeisen(long n, long d, GEN F2, GEN F3)
@@ -1344,6 +1358,7 @@ mfcoefs_i(GEN F, long n, long d)
     case t_MF_NEWTRACE: return c_newtrace(n, d, gel(F,2), gel(F,3));
     case t_MF_CLOSURE: return c_closure(n, d, gel(F,2));
     case t_MF_DIHEDRAL: return c_dihedral(n,d,gel(F,2),gel(F,3),gel(F,4),gel(F,5));
+    case t_MF_RELTOABS: return c_reltoabs(n,d,gel(F,2),gel(F,3));
     case t_MF_EISENM1M2: return c_mfeisenm1m2(n, d, gel(F,2), gel(F,3));
     case t_MF_HECKEU: return c_heckeU(n, d, gel(F,2), gel(F,3));
     default: pari_err_TYPE("mfcoefs",F);
@@ -6849,7 +6864,7 @@ mfembed(GEN F, long prec)
   }
   avma = av; return mkveccopy(F);
 }
-/* polmods */
+/* polmods, set P for Q(chi), T for relative extension */
 static int
 RgV_polmods(GEN v, GEN *P, GEN *T)
 {
@@ -6873,7 +6888,7 @@ RgV_polmods(GEN v, GEN *P, GEN *T)
           return 0;
         }
         *T = gel(c,1);
-        if (!RgX_is_FpXQX(*T,&p,&Q) || p) return 0;
+        if (!RgX_is_FpXQX(*T,&Q,&p) || p) return 0;
         if (!Q) continue;
         vc = varn(Q);
       }
@@ -6892,11 +6907,8 @@ mfreltoabs(GEN F)
 {
   pari_sp av = avma;
   GEN S, P, T;
-  RgV_polmods(mfcoefs(F,20,1), &P, &T);
-  if (!P) /* Q(chi) = Q */
-    S = T;
-  else
-    S = rnfequation2(P, T);
+  if (!RgV_polmods(mfcoefs(F,10,1), &P, &T)) pari_err_TYPE("mfreltoabs",F);
+  S = (P&&T)? nf_rnfeq(P,T): gen_0;
   return gerepilecopy(av, tag2(t_MF_RELTOABS,F,S));
 }
 

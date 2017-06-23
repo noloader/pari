@@ -734,7 +734,6 @@ GEN     contfraceval_inv(GEN CF, GEN tinv, long nlim);
 /* mftrace.c */
 
 void pari_close_mf(void);
-GEN mfreltoabs(GEN F);
 GEN mfchartovec(GEN CHI);
 GEN sqrtmtnmodN(long N, long t, long n);
 GEN mfcharcxeval(GEN CHI, long m, long prec);

@@ -3826,6 +3826,7 @@ enum { mf_NEW = 0, mf_CUSP, mf_OLD, mf_EISEN, mf_FULL };
 
 GEN   getcache(void);
 GEN   mfparams(GEN F);
+GEN   mfreltoabs(GEN F);
 long  mfiscuspidal(GEN F);
 long  mfisselfdual(GEN F);
 GEN   mfisCM(GEN F);

@@ -204,6 +204,9 @@ F=mfeigenbasis(mf); #F
 liftpol(mfcoefs(mfeigenbasis(mf)[1], 9))
 mf=mfsplit([10,7,[Z5,2]]);
 mffields(mf)
+v = mfeigenbasis(mf);
+f=v[1]; F=mfreltoabs(f); [mfcoefs(f,5),mfcoefs(F,5)]
+f=v[2]; F=mfreltoabs(f); [mfcoefs(f,5),mfcoefs(F,5)]
 mfparams(mf)
 #mfbasis(mf)
 liftpol(mfcoefs(mfbasis(mf)[1], 9))
