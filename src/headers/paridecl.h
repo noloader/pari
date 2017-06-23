@@ -3899,7 +3899,7 @@ GEN   mfeigenbasis(GEN mf);
 long  mfchar(GEN mf);
 GEN   mfinit(GEN NK, long codespace);
 long  mfconductor(GEN mf, GEN F);
-GEN   mftolfun(GEN mf, long flag, long bitprec);
+GEN   lfunmf(GEN mf, long flag, long bitprec);
 GEN   mffromlfun(GEN L, long prec);
 GEN   mfmatatkin(GEN mf, long Q, GEN *cM);
 GEN   mfmathecke(GEN mf, GEN vecn);

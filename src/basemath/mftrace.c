@@ -6913,7 +6913,7 @@ mfreltoabs(GEN F)
 }
 
 static GEN
-mftolfun_i(GEN F, GEN sd, GEN N, GEN k, GEN r, long cuspidal, long bitprec)
+lfunmf_i(GEN F, GEN sd, GEN N, GEN k, GEN r, long cuspidal, long bitprec)
 {
   GEN LF = cuspidal? cgetg(7, t_VEC): cgetg(8, t_VEC);
   gel(LF,1) = lfuntag(t_LFUN_MFCLOS, F);
@@ -6937,7 +6937,7 @@ mftolfun_i(GEN F, GEN sd, GEN N, GEN k, GEN r, long cuspidal, long bitprec)
   return LF;
 }
 static GEN
-mftolfunall(GEN mf, long real, long bitprec)
+lfunmfall(GEN mf, long real, long bitprec)
 {
   GEN L, M, SD, F, A, RO, gN, gk;
   long l, i, N, k, prec = nbits2prec(bitprec);
@@ -6955,7 +6955,7 @@ mftolfunall(GEN mf, long real, long bitprec)
     GEN ro = gel(RO,i), f = gel(M,i);
     long n = lg(ro)-1;
     int sd = (typ(gel(ro,n)) == t_COMPLEX);
-    if (real && sd) pari_err_FLAG("mftolfun [not a real eigenform]");
+    if (real && sd) pari_err_FLAG("lfunmf [not a real eigenform]");
     gel(F,i) = allembed(f, ro);
     gel(SD,i) = const_vec(n, sd? gen_1: gen_0);
   }
@@ -6966,21 +6966,21 @@ mftolfunall(GEN mf, long real, long bitprec)
   for (i = 1; i < l; i++)
   {
     GEN r = mulcxpowIs(gel(A,i), k);
-    gel(L,i) = mftolfun_i(gel(F,i), gel(SD,i), gN, gk, r, 1, bitprec);
+    gel(L,i) = lfunmf_i(gel(F,i), gel(SD,i), gN, gk, r, 1, bitprec);
   }
   return L;
 }
 GEN
-mftolfun(GEN F, long flag, long bitprec)
+lfunmf(GEN F, long flag, long bitprec)
 {
   pari_sp av = avma;
   GEN z;
-  if (!isf(F)) z = mftolfunall(F, flag & 1, bitprec);
+  if (!isf(F)) z = lfunmfall(F, flag & 1, bitprec);
   else
   {
     GEN Nk, sd = flag & 1? gen_0: gen_1;
-    Nk = mfparams_ii(F); if (!Nk) pari_err_TYPE("mftolfun",F);
-    z = mftolfun_i(F, sd, gel(Nk,1), gel(Nk,2), gen_0, flag & 2, bitprec);
+    Nk = mfparams_ii(F); if (!Nk) pari_err_TYPE("lfunmf",F);
+    z = lfunmf_i(F, sd, gel(Nk,1), gel(Nk,2), gen_0, flag & 2, bitprec);
   }
   return gerepilecopy(av,z);
 }
@@ -7008,14 +7008,14 @@ mfeigeneval(GEN mf, GEN vtau, long bitprec)
     GEN P = mfparams_ii(mf);
     if (!P) pari_err_IMPL("mfeigeneval for this form");
     N = itos(gel(P, 1));
-    L = mftolfun(mf, 0, bitprec);
+    L = lfunmf(mf, 0, bitprec);
     mf = NULL;
   }
   else
   {
     checkmfsplit(mf);
     N = mf_get_N(mf);
-    L = mftolfunall(mf, 0, bitprec);
+    L = lfunmfall(mf, 0, bitprec);
   }
   prec = nbits2prec(bitprec);
   vtau = gmul(sqrtr_abs(utor(N, prec)), mulcxmI(vtau));
@@ -8289,7 +8289,7 @@ mfperiodpol(GEN F, long flag, long der, long bitprec)
   k = itos(gel(P, 2)); km2 = k-2;
   flagmf = gequal0(mfak_i(F, 0)) ? 3: 1;
   sdom = mkvec3(stoi(k/2), stoi(k/2), gen_1);
-  L = lfuninit(mftolfun(F, flagmf, bitprec), sdom, der, bitprec);
+  L = lfuninit(lfunmf(F, flagmf, bitprec), sdom, der, bitprec);
   V = zerovec(k-1);
   B = vecbinomial(km2);
   step = flag? 2: 1;

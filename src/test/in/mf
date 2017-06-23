@@ -123,7 +123,7 @@ mfconductor(mf2,F)
 cu=[1/96,1/32,0,1/3];
 v=mfbasis(mf);
 for(i=1,#v,for(j=1,4,print(mfcuspexpansion(mf,v[i],cu[j], 15))))
-L=[lfuninit(x,[3,4,0],1) | x<-mftolfun(mf)];
+L=[lfuninit(x,[3,4,0],1) | x<-lfunmf(mf)];
 vector(#L,i,lfun(L[i],2))
 vector(#L,i,lfun(L[i],1))
 vector(#L,i,lfun(L[i],0,1))
@@ -298,13 +298,13 @@ mfsk(-12, Q, k)
 \\ Tests mflfun
 E4=mfEk(4);E6=mfEk(6);D=mfDelta();
 mf4=mfinit([1,4]);
-L4=mftolfun(E4,1);
+L4=lfunmf(E4,1);
 [lfun(L4,0),lfun(L4,1)*60*Pi^2/zeta(3),lfun(L4,4)/zeta(4)]
-L12=mftolfun(D,3);omp=lfunlambda(L12,3)
+L12=lfunmf(D,3);omp=lfunlambda(L12,3)
 vector(6,i,bestappr(lfunlambda(L12,2*i-1)/omp))
 omm=lfunlambda(L12,2)
 vector(5,i,bestappr(lfunlambda(L12,2*i)/omm))
-L18=mftolfun(mfmul(D,E6),3);omp=lfunlambda(L18,3);
+L18=lfunmf(mfmul(D,E6),3);omp=lfunlambda(L18,3);
 vector(9,i,bestappr(lfunlambda(L18,2*i-1)/omp))
 omm=lfunlambda(L18,2)
 vector(8,i,bestappr(lfunlambda(L18,2*i)/omm))
