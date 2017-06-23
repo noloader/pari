@@ -156,11 +156,11 @@ for (i = 1, 48,
 }
 
 G = znstar(300,1);
-L = znchargalois(G,2)
+L = chargalois(G,2)
 G = znstar(96,1);
-znchargalois(G)
-znchargalois(G,4)
-znchargalois(G,[1,4])
+chargalois(G)
+chargalois(G,4)
+chargalois(G,[1,4])
 
 G = znstar(126000,1);
 zncharconductor(G,11)

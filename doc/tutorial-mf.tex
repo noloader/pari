@@ -453,11 +453,11 @@ that modular form spaces corresponding to Galois conjugate characters
 are isomorphic ($\chi$ is Galois conjugate to $\chi'$ if $\chi'=\chi^m$
 for some $m$ coprime to the order of $\chi$). Thus, it is sufficient
 to find a representative of each equivalence class, and this is given by
-the \kbd{GP} commands \kbd{G=znstar(N,1); znchargalois(G)}, where $N$ is the
+the \kbd{GP} commands \kbd{G=znstar(N,1); chargalois(G)}, where $N$ is the
 level of the desired character (note that $N$ will not necessarily be
 the conductor of the characters). This exactly outputs a list of representative
 of each equivalence class (do not for now try to understand the details of
-this command, nor the fact that \kbd{znchargalois} and \kbd{znstar} have
+this command, nor the fact that \kbd{chargalois} and \kbd{znstar} have
 optional parameters). However, this is not quite yet what we want.
 Although only for efficiency, we want characters with the same parity
 as the weight, otherwise the corresponding modular form spaces will be $0$.
@@ -469,7 +469,7 @@ Let us first do this for $N=23$: we write
 
 \begin{verbatim}
 ? G = znstar(23, 1);
-? L = [[G,chi] | chi<-znchargalois(G), zncharisodd(G,chi)]; #L
+? L = [[G,chi] | chi<-chargalois(G), zncharisodd(G,chi)]; #L
 % = 2
 ? apply(x->mfdim([23,1,x], 0), L)
 % = [0, 1]
@@ -480,7 +480,7 @@ Let us first do this for $N=23$: we write
 This tells us that (up to Galois conjugation) there are two possible odd
 characters, one, of order $22$, giving a $0$-dimensional space, the other
 being the quadratic character given above. Note two things: first, a character
-is always a \emph{pair} \kbd{[G,chi]}, and since \kbd{znchargalois} only
+is always a \emph{pair} \kbd{[G,chi]}, and since \kbd{chargalois} only
 returns the list of \kbd{chi}, we must write \kbd{[G,chi]} for the character.
 For the same reason, to obtain the order of a character we must write
 \kbd{charorder(chi[1], chi[2])} (or \kbd{charorder(G, chi[2])}).

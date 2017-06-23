@@ -83,7 +83,7 @@ char_normalize(GEN chi, GEN ncyc)
 static GEN
 get_cyc(GEN x, GEN chi, const char *s)
 {
-  if (nftyp(x) == typ_BIDZ && checkznstar_i(x))
+  if (nftyp(x) == typ_BIDZ)
   {
     if (!zncharcheck(x, chi)) pari_err_TYPE(s, chi);
     return NULL;
@@ -123,11 +123,13 @@ charorder(GEN cyc, GEN x)
   long i, l = lg(cyc);
   GEN f = gen_1;
   for (i = 1; i < l; i++)
-  {
-    GEN o = gel(cyc,i), c = gcdii(o, gel(x,i));
-    if (!is_pm1(c)) o = diviiexact(o,c);
-    f = lcmii(f, o);
-  }
+    if (signe(gel(x,i)))
+    {
+      GEN c, o = gel(cyc,i);
+      c = gcdii(o, gel(x,i));
+      if (!is_pm1(c)) o = diviiexact(o,c);
+      f = lcmii(f, o);
+    }
   return gerepileuptoint(av, f);
 }
 GEN
@@ -304,6 +306,159 @@ chareval(GEN G, GEN chi, GEN x, GEN z)
       return NULL;/* LCOV_EXCL_LINE */
   }
   return gerepileupto(av, chareval_i(nchi, L, z));
+}
+
+static ulong
+lcmuu(ulong a, ulong b) { return (a/ugcd(a,b)) * b; }
+static ulong
+zv_charorder(GEN cyc, GEN x)
+{
+  long i, l = lg(cyc);
+  ulong f = 1;
+  for (i = 1; i < l; i++)
+    if (x[i])
+    {
+      ulong o = cyc[i];
+      f = lcmuu(f, o / ugcd(o, x[i]));
+    }
+  return f;
+}
+
+/* N > 0 */
+static GEN
+get_coprime(long N)
+{
+  GEN v = cgetg(N+1, t_VECSMALL);
+  long i;
+  v[1] = 1; for (i = 2; i <= N; i++) v[i] = (ugcd(N,i)==1);
+  return v;
+}
+static GEN
+get_vcoprime(long N)
+{
+  GEN D = divisorsu(N), v = const_vec(N, NULL);
+  long i, l = lg(D);
+  for (i = 1; i < l; i++) { long d = D[i]; gel(v,d) = get_coprime(d); }
+  return v;
+}
+static GEN
+vecmoduu(GEN a, GEN b)
+{
+  long i, l;
+  GEN c = cgetg_copy(a, &l);
+  for (i = 1; i < l; i++) c[i] = a[i] % b[i];
+  return c;
+}
+#if 0
+/* lg(cyc) > 1, coprime from get_coprime */
+static long
+zv_char_minimize(GEN cyc, GEN *pv, GEN coprime)
+{
+  long k, o, bestk = 1, l = lg(coprime);
+  GEN v = *pv, best = v, vk = v;
+  if (l == 1) return 1;
+  o = cyc[1];
+  for (k = 2; k < l; k++)
+  {
+    vk = Flv_add(vk, v, o); if (!coprime[k]) continue;
+    vk = vecmoduu(vk, cyc);
+    if (vecsmall_lexcmp(vk, best) < 0) { best = vk; bestk = k; }
+  }
+  *pv = vk; return bestk;
+}
+#endif
+/* lg(cyc) > 1, coprime from get_coprime */
+static long
+zv_char_is_minimal(GEN cyc, GEN v, GEN coprime)
+{
+  long k, o, l = lg(coprime);
+  GEN vk = v;
+  if (l == 1) return 1;
+  o = cyc[1];
+  for (k = 2; k < l; k++)
+  {
+    vk = Flv_add(vk, v, o); if (!coprime[k]) continue;
+    vk = vecmoduu(vk, cyc); if (vecsmall_lexcmp(vk, v) < 0) return 0;
+  }
+  return 1;
+}
+
+/* enumerate all group elements, modulo (Z/cyc[1])^* */
+static GEN
+cyc2elts_normal(GEN cyc, long maxord, GEN ORD)
+{
+  long i, n, o, N, j = 1;
+  GEN z, vcoprime;
+
+  if (typ(cyc) != t_VECSMALL) cyc = gtovecsmall(cyc);
+  n = lg(cyc)-1;
+  if (n == 0) return cgetg(1, t_VEC);
+  N = zv_prod(cyc);
+  z = cgetg(N+1, t_VEC);
+  if (1 <= maxord && (!ORD|| zv_search(ORD,1)))
+    gel(z,j++) = zero_zv(n);
+  vcoprime = get_vcoprime(cyc[1]);
+  for (i = n; i > 0; i--)
+  {
+    GEN cyc0 = vecslice(cyc,i+1,n), pre = zero_zv(i);
+    GEN D = divisorsu(cyc[i]), C = cyc2elts(cyc0);
+    long s, t, lD = lg(D), nC = lg(C)-1; /* remove last element */
+    for (s = 1; s < lD-1; s++)
+    {
+      long o0 = D[lD-s]; /* cyc[i] / D[s] */
+      if (o0 > maxord) continue;
+      pre[i] = D[s];
+      if (!ORD || zv_search(ORD,o0))
+      {
+        GEN c = vecsmall_concat(pre, zero_zv(n-i));
+        gel(z,j++) = c;
+      }
+      for (t = 1; t < nC; t++)
+      {
+        GEN chi0 = gel(C,t);
+        o = lcmuu(o0, zv_charorder(cyc0,chi0));
+        if (o <= maxord && (!ORD || zv_search(ORD,o)))
+        {
+          GEN c = vecsmall_concat(pre, chi0);
+          if (zv_char_is_minimal(cyc, c, gel(vcoprime,o))) gel(z,j++) = c;
+        }
+      }
+    }
+  }
+  setlg(z,j); return z;
+}
+
+GEN
+chargalois(GEN G, GEN ORD)
+{
+  pari_sp av = avma;
+  long maxord, i, l;
+  GEN v, cyc = (typ(G) == t_VEC && RgV_is_ZV(G))? G: member_cyc(G);
+  if (lg(cyc) == 1) retmkvec(cgetg(1,t_COL));
+  maxord = itou(gel(cyc,1));
+  if (ORD && gequal0(ORD)) ORD = NULL;
+  if (ORD)
+    switch(typ(ORD))
+    {
+      long l;
+      case t_VEC:
+        ORD = ZV_to_zv(ORD);
+      case t_VECSMALL:
+        ORD = leafcopy(ORD);
+        vecsmall_sort(ORD);
+        l = lg(ORD);
+        if (l == 1) return cgetg(1, t_VECSMALL);
+        maxord = minss(maxord, ORD[l-1]);
+        break;
+      case t_INT:
+        maxord = minss(maxord, itos(ORD));
+        ORD = NULL;
+        break;
+      default: pari_err_TYPE("chargalois", ORD);
+    }
+  v = cyc2elts_normal(cyc, maxord, ORD); l = lg(v);
+  for(i = 1; i < l; i++) gel(v,i) = zv_to_ZV(gel(v,i));
+  return gerepileupto(av, v);
 }
 
 /*********************************************************************/

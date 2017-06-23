@@ -638,6 +638,7 @@ $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 \li{order of $\chi$}{charorder$(\var{cyc}, \chi)$}
 \li{kernel of $\chi$}{charker$(\var{cyc},\chi)$}
 \li{$\chi(x)$, $G$ a GP group structure}{chareval$(G, \chi, x, \{z\})$}
+\li{Galois orbits of characters}{chargalois$(G)$}
 
 \subsec{Dirichlet Characters}
 \li{initialize $G = (\ZZ/q\ZZ)^*$}{G = znstar$(q,1)$}
@@ -647,7 +648,6 @@ $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 \li{conductor of $\chi$}{zncharconductor$(G,\chi)$}
 \li{$[G_0,\chi_0]$ primitive attached to $\chi$}{znchartoprimitive$(G,\chi)$}
 \li{induce $\chi\in \hat{G}$ to $\ZZ/N\ZZ$}{zncharinduce$(G,\chi,N)$}
-\li{Galois orbits of Dirichlet characters}{znchargalois$(G)$}
 \li{$\chi_p$}{znchardecompose$(G,\chi, p)$}
 \li{$\prod_{p\mid (Q,N)} \chi_p$}{znchardecompose$(G,\chi, Q)$}
 \li{complex Gauss sum $G_a(\chi)$}{znchargauss$(G,\chi)$}

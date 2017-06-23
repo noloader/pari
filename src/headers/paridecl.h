@@ -2498,6 +2498,7 @@ GEN     charconj0(GEN cyc, GEN chi);
 GEN     chardiv(GEN x, GEN a, GEN b);
 GEN     chardiv0(GEN x, GEN a, GEN b);
 GEN     chareval(GEN G, GEN chi, GEN n, GEN z);
+GEN     chargalois(GEN G, GEN ORD);
 GEN     charker(GEN cyc, GEN chi);
 GEN     charker0(GEN cyc, GEN chi);
 GEN     charmul(GEN x, GEN a, GEN b);

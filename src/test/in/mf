@@ -16,9 +16,6 @@ Z8=znstar(8,1);
   Mod(12,13),
   [Z4,3]
 ];}
-G = znstar(300,1);
-L = znchargalois(G,2);
-vector(#L, i, charorder(G,L[i]))
 
 vec(f)=mfcoefs(f,15);
 mfcoefs(mfeisen(2,C[1]),16)
@@ -154,7 +151,7 @@ for(N=1,150,print1([N,mfdim([N,1,-1],1),mfdim([N,1,-1],0)]," "));
 mfdim([23,1,0],0)
 mfdim([23,1,0],1)
 mfdim([23,1,0],2)
-G=znstar(23,1); w=[[G,v] | v<-znchargalois(G)];
+G=znstar(23,1); w=[[G,v] | v<-chargalois(G)];
 mfdim([23,1,w],0)
 mfdim([23,1,w],1)
 mfdim([23,1,w],2)
@@ -168,7 +165,7 @@ mfdim([96,2,0],1)
 mfdim([96,2,0],2)
 mfdim([96,2,0],3)
 mfdim([96,2,0],4)
-G=znstar(96,1); w=[[G,v] | v<-znchargalois(G)];
+G=znstar(96,1); w=[[G,v] | v<-chargalois(G)];
 mfdim([96,2,w],0)
 mfdim([96,2,w],1)
 mfdim([96,2,w],2)
@@ -250,7 +247,7 @@ L=mfsearch([16,3],[[2,0]]); see(L)
 
 charpoly(mfmathecke(mfinit([106,2],1),2))
 
-G=znstar(164,1); L=[chi | chi <- znchargalois(G,164), zncharisodd(G,chi)];
+G=znstar(164,1); L=[chi | chi <- chargalois(G,164), zncharisodd(G,chi)];
 apply(chi->charorder(G,chi),L)
 mfdim([164, 1, apply(x->[G,x], L)],0)
 mfdim([667, 1, [Mod(45,667)]],0)
