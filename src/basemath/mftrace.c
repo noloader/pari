@@ -3785,6 +3785,42 @@ mfmatheckewt1(GEN mf, long n, GEN B)
   return gerepileupto(av, Minv_RgM_mul(Minv, Q));
 }
 
+/* mf_NEW, weight > 1, p prime. Use
+ * T(p) T(j) = T(j*p) + p^{k-1} \chi(p) 1_{p | j, p \nmid N} T(j/p) */
+static GEN
+mfnewmathecke_p(GEN mf, long p)
+{
+  pari_sp av = avma;
+  GEN tf, vj = mfnew_get_vj(mf), CHI = mf_get_CHI(mf);
+  GEN Mindex = mf_get_Mindex(mf), Minv = mf_get_Minv(mf);
+  long N = mf_get_N(mf), k = mf_get_k(mf);
+  long i, j, lvj = lg(vj), lim = vj[lvj-1] * p;
+  GEN perm, V, need = zero_zv(lim);
+  GEN M, C = gmul(mfchareval_i(CHI, p), powuu(p, k-1));
+  tf = mftraceform_new(N, k, CHI);
+  for (i = 1; i < lvj; i++)
+  {
+    j = vj[i]; need[j*p] = 1;
+    if (N % p && j % p == 0) need[j/p] = 1;
+  }
+  perm = zero_zv(lim);
+  V = cgetg(lim+1, t_VEC);
+  for (i = j = 1; i <= lim; i++)
+    if (need[i]) { gel(V,j) = mfhecke_i(N, k, CHI, tf, i); perm[i] = j; j++; }
+  setlg(V, j);
+  V = bhnmat_extend_nocache(NULL, mfsturm_mf(mf)-1, 1, V);
+  V = rowpermute(V, Mindex); /* V[perm[i]] = coeffs(T_i newtrace) */
+  M = cgetg(lvj, t_MAT);
+  for (i = 1; i < lvj; i++)
+  {
+    GEN t;
+    j = vj[i]; t = gel(V, perm[j*p]);
+    if (N % p && j % p == 0) t = RgC_add(t, RgC_Rg_mul(gel(V, perm[j/p]),C));
+    gel(M,i) = t;
+  }
+  return gerepileupto(av, Minv_RgM_mul(Minv, M));
+}
+
 /* Matrix of T(n), assume n > 0 */
 static GEN
 mfmathecke_i(GEN mf, long n)
@@ -3799,10 +3835,12 @@ mfmathecke_i(GEN mf, long n)
   k = mf_get_k(mf);
   if (k == 1 && f_type(gel(b,1)) == t_MF_DIV)
     return mfmatheckewt1(mf, n, wt1basiscols(mf, n));
+  if (mf_get_space(mf) == mf_NEW && uisprime(n))
+    return mfnewmathecke_p(mf, n);
   N = mf_get_N(mf);
   CHI = mf_get_CHI(mf);
+  sb = mfsturm_mf(mf)-1;
   Mindex = mf_get_Mindex(mf);
-  sb = Mindex[lg(Mindex) - 1];
   Minv = mf_get_Minv(mf);
   knN = hecke_data(N, k, n);
   v = cgetg(l, t_VEC);
