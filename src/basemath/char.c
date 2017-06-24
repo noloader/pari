@@ -434,7 +434,7 @@ chargalois(GEN G, GEN ORD)
   pari_sp av = avma;
   long maxord, i, l;
   GEN v, cyc = (typ(G) == t_VEC && RgV_is_ZVpos(G))? G: member_cyc(G);
-  if (lg(cyc) == 1) retmkvec(cgetg(1,t_COL));
+  if (lg(cyc) == 1) retmkvec(cgetg(1,t_VEC));
   maxord = itou(gel(cyc,1));
   if (ORD && gequal0(ORD)) ORD = NULL;
   if (ORD)
