@@ -2089,6 +2089,7 @@ GEN     tablemulvec(GEN M, GEN x, GEN v);
 GEN     tablesqr(GEN tab, GEN x);
 GEN     vec01_to_indices(GEN arch);
 GEN     vecmodii(GEN a, GEN b);
+GEN     vecmoduu(GEN a, GEN b);
 GEN     vecsmall01_to_indices(GEN v);
 GEN     zk_inv(GEN nf, GEN x);
 GEN     zk_multable(GEN nf, GEN x);
@@ -2494,6 +2495,7 @@ long    nf_hyperell_locally_soluble(GEN nf,GEN pol,GEN p);
 
 /* char.c */
 
+GEN     coprimes_zv(ulong N);
 int     char_check(GEN cyc, GEN chi);
 GEN     charconj(GEN cyc, GEN chi);
 GEN     charconj0(GEN cyc, GEN chi);
@@ -2541,6 +2543,8 @@ GEN     znconreyfromchar(GEN bid, GEN chi);
 GEN     znconreylog(GEN bid, GEN x);
 GEN     znconreylog_normalize(GEN G, GEN m);
 GEN     znlog0(GEN h, GEN g, GEN o);
+long    zv_cyc_minimal(GEN cyc, GEN g, GEN coprime);
+long    zv_cyc_minimize(GEN cyc, GEN g, GEN coprime);
 
 /* compile.c */
 

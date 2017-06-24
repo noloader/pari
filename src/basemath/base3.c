@@ -2809,6 +2809,14 @@ vecmodii(GEN a, GEN b)
   for (i = 1; i < l; i++) gel(c,i) = modii(gel(a,i), gel(b,i));
   return c;
 }
+GEN
+vecmoduu(GEN a, GEN b)
+{
+  long i, l;
+  GEN c = cgetg_copy(a, &l);
+  for (i = 1; i < l; i++) c[i] = a[i] % b[i];
+  return c;
+}
 
 static GEN
 ideallog_i(GEN nf, GEN x, GEN sgn, zlog_S *S)

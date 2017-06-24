@@ -325,64 +325,86 @@ zv_charorder(GEN cyc, GEN x)
 }
 
 /* N > 0 */
-static GEN
-get_coprime(long N)
+GEN
+coprimes_zv(ulong N)
 {
   GEN v = cgetg(N+1, t_VECSMALL);
-  long i;
+  ulong i;
   v[1] = 1; for (i = 2; i <= N; i++) v[i] = (ugcd(N,i)==1);
   return v;
 }
+/* cf zv_cyc_minimal: return k such that g*k is minimal (wrt lex) */
+long
+zv_cyc_minimize(GEN cyc, GEN g, GEN coprime)
+{
+  pari_sp av = avma;
+  long d, k, e, i, k0, bestk, l = lg(g), o = lg(coprime)-1;
+  GEN best, gk, gd;
+  ulong t;
+  if (!o) return 1;
+  for (i = 1; i < l; i++)
+    if (g[i]) break;
+  if (g[i] == 1) return 1;
+  k0 = Fl_invgen(g[i], cyc[i], &t);
+  d = cyc[i] / (long)t;
+  if (k0 > 1) g = Flv_Fl_mul(g, k0, o);
+  for (i++; i < l; i++)
+    if (g[i]) break;
+  if (i == l || d >= cyc[i]) return k0;
+  cyc = vecslice(cyc,i,l-1);
+  g   = vecslice(g,  i,l-1);
+  e = cyc[1];
+  gd = Flv_Fl_mul(g, d, e);
+  bestk = 1; best = g;
+  for (gk = g, k = d+1; k < e; k += d)
+  {
+    gk = Flv_add(gk, gd, e); if (!coprime[k]) continue;
+    gk = vecmoduu(gk, cyc);
+    if (vecsmall_lexcmp(gk, best) < 0) { best = gk; bestk = k; }
+  }
+  avma = av; return bestk == 1? k0: Fl_mul(k0, bestk, o);
+}
+/* g of order o in abelian group G attached to cyc. Is g a minimal generator
+ * [wrt lex order] of the cyclic subgroup it generates;
+ * coprime = coprimes_zv(o) */
+long
+zv_cyc_minimal(GEN cyc, GEN g, GEN coprime)
+{
+  pari_sp av = avma;
+  long d, k, e, l = lg(g), o = lg(coprime)-1; /* elt order */
+  GEN gd, gk;
+  if (!o) return 1;
+  for (k = 1; k < l; k++)
+    if (g[k]) break;
+  if (g[k] == 1) return 1;
+  if (cyc[k] % g[k]) return 0;
+  d = cyc[k] / g[k]; /* > 1 */
+  for (k++; k < l; k++) /* skip following 0s */
+    if (g[k]) break;
+  if (k == l || d >= cyc[k]) return 1;
+  cyc = vecslice(cyc,k,l-1);
+  g   = vecslice(g,  k,l-1);
+  e = cyc[1];
+  /* find k in (Z/e)^* such that g*k mod cyc is lexicographically minimal,
+   * k = 1 mod d to fix the first non-zero entry */
+  gd = Flv_Fl_mul(g, d, e);
+  for (gk = g, k = d+1; k < e; k += d)
+  {
+    gk = Flv_add(gk, gd, e); if (!coprime[k]) continue;
+    gk = vecmoduu(gk, cyc);
+    if (vecsmall_lexcmp(gk, g) < 0) { avma = av; return 0; }
+  }
+  avma = av; return 1;
+}
+
 static GEN
-get_vcoprime(long N)
+coprime_tables(long N)
 {
   GEN D = divisorsu(N), v = const_vec(N, NULL);
   long i, l = lg(D);
-  for (i = 1; i < l; i++) { long d = D[i]; gel(v,d) = get_coprime(d); }
+  for (i = 1; i < l; i++) gel(v, D[i]) = coprimes_zv(D[i]);
   return v;
 }
-static GEN
-vecmoduu(GEN a, GEN b)
-{
-  long i, l;
-  GEN c = cgetg_copy(a, &l);
-  for (i = 1; i < l; i++) c[i] = a[i] % b[i];
-  return c;
-}
-#if 0
-/* lg(cyc) > 1, coprime from get_coprime */
-static long
-zv_char_minimize(GEN cyc, GEN *pv, GEN coprime)
-{
-  long k, o, bestk = 1, l = lg(coprime);
-  GEN v = *pv, best = v, vk = v;
-  if (l == 1) return 1;
-  o = cyc[1];
-  for (k = 2; k < l; k++)
-  {
-    vk = Flv_add(vk, v, o); if (!coprime[k]) continue;
-    vk = vecmoduu(vk, cyc);
-    if (vecsmall_lexcmp(vk, best) < 0) { best = vk; bestk = k; }
-  }
-  *pv = vk; return bestk;
-}
-#endif
-/* lg(cyc) > 1, coprime from get_coprime */
-static long
-zv_char_is_minimal(GEN cyc, GEN v, GEN coprime)
-{
-  long k, o, l = lg(coprime);
-  GEN vk = v;
-  if (l == 1) return 1;
-  o = cyc[1];
-  for (k = 2; k < l; k++)
-  {
-    vk = Flv_add(vk, v, o); if (!coprime[k]) continue;
-    vk = vecmoduu(vk, cyc); if (vecsmall_lexcmp(vk, v) < 0) return 0;
-  }
-  return 1;
-}
-
 /* enumerate all group elements, modulo (Z/cyc[1])^* */
 static GEN
 cyc2elts_normal(GEN cyc, long maxord, GEN ORD)
@@ -397,7 +419,7 @@ cyc2elts_normal(GEN cyc, long maxord, GEN ORD)
   z = cgetg(N+1, t_VEC);
   if (1 <= maxord && (!ORD|| zv_search(ORD,1)))
     gel(z,j++) = zero_zv(n);
-  vcoprime = get_vcoprime(cyc[1]);
+  vcoprime = coprime_tables(cyc[1]);
   for (i = n; i > 0; i--)
   {
     GEN cyc0 = vecslice(cyc,i+1,n), pre = zero_zv(i);
@@ -420,7 +442,7 @@ cyc2elts_normal(GEN cyc, long maxord, GEN ORD)
         if (o <= maxord && (!ORD || zv_search(ORD,o)))
         {
           GEN c = vecsmall_concat(pre, chi0);
-          if (zv_char_is_minimal(cyc, c, gel(vcoprime,o))) gel(z,j++) = c;
+          if (zv_cyc_minimal(cyc, c, gel(vcoprime,o))) gel(z,j++) = c;
         }
       }
     }
