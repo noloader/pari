@@ -7375,6 +7375,14 @@ name of the caller).
 \fun{int}{RgV_is_ZV}{GEN x} Assuming \kbd{x} is a \typ{VEC}
 or \typ{COL} return $1$ if it is a \kbd{ZV}, and $0$ otherwise.
 
+\fun{int}{RgV_is_ZVpos}{GEN x} Assuming \kbd{x} is a \typ{VEC}
+or \typ{COL} return $1$ if it is a \kbd{ZV} with positive entries, and $0$
+otherwise.
+
+\fun{int}{RgV_is_ZVnon0}{GEN x} Assuming \kbd{x} is a \typ{VEC}
+or \typ{COL} return $1$ if it is a \kbd{ZV} with non-zero entries, and $0$
+otherwise.
+
 \fun{int}{RgV_is_QV}{GEN P} return 1 if the \kbd{RgV}~$P$ has only
 \typ{INT} and \typ{FRAC} coefficients, and 0 otherwise.
 

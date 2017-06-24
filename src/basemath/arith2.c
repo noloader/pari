@@ -181,7 +181,7 @@ factor_eulerphi(GEN n)
 /**         CHECK FACTORIZATION FOR ARITHMETIC FUNCTIONS              **/
 /**                                                                   **/
 /***********************************************************************/
-static int
+int
 RgV_is_ZVpos(GEN v)
 {
   long i, l = lg(v);
@@ -193,7 +193,7 @@ RgV_is_ZVpos(GEN v)
   return 1;
 }
 /* check whether v is a ZV with non-0 entries */
-static int
+int
 RgV_is_ZVnon0(GEN v)
 {
   long i, l = lg(v);

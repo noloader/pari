@@ -1830,6 +1830,8 @@ GEN     znstar0(GEN N, long flag);
 
 /* arith2.c */
 
+int     RgV_is_ZVpos(GEN v);
+int     RgV_is_ZVnon0(GEN v);
 GEN     Z_smoothen(GEN N, GEN L, GEN *pP, GEN *pe);
 GEN     boundfact(GEN n, ulong lim);
 GEN     check_arith_pos(GEN n, const char *f);
