@@ -1314,61 +1314,6 @@ znchardiv(GEN G, GEN a, GEN b)
   return chardiv(znstar_get_conreycyc(G), a, b);
 }
 
-GEN
-znchargalois(GEN G, GEN ORD)
-{
-  pari_sp ltop = avma;
-  GEN v, w, go, gN, cyc;
-  long N, n, ct, maxord;
-
-  if (!checkznstar_i(G)) pari_err_TYPE("znchargalois", G);
-  cyc = znstar_get_cyc(G);
-  if (lg(cyc) == 1)
-  {
-    w = cgetg(2, t_VEC); gel(w, 1) = cgetg(1, t_COL); return w;
-  }
-  gN = znstar_get_N(G);
-  N = itou(gN);
-  v = cgetg(N, t_VECSMALL);
-  for (n = 1; n < N; ++n) v[n] = (cgcd(N, n) == 1);
-  maxord = itou(gel(cyc, 1));
-  go = stoi(maxord);
-  go = mkvec2(go, Z_factor(go));
-  if (ORD && gequal0(ORD)) ORD = NULL;
-  if (ORD)
-    switch(typ(ORD))
-    {
-      long l;
-      case t_VEC:
-        ORD = ZV_to_zv(ORD);
-      case t_VECSMALL:
-        ORD = leafcopy(ORD);
-        vecsmall_sort(ORD);
-        l = lg(ORD);
-        if (l == 1) return cgetg(1, t_VECSMALL);
-        maxord = minss(maxord, ORD[l - 1]);
-        break;
-      case t_INT:
-        maxord = minss(maxord, itos(ORD));
-        ORD = NULL;
-        break;
-      default: pari_err_TYPE("znchargalois", ORD);
-    }
-  for (n = 1; n < N; ++n) if (v[n])
-  {
-    long j, o = itos(Fp_order(stoi(n), go, gN));
-    /* remove all but one elt in Galois orbit */
-    for (j = 2; j < o; ++j)
-      if (cgcd(j, o) == 1) v[Fl_powu(n, j, N)] = 0;
-    /* don't keep that remaining elt if not allowed by ORD */
-    if (o > maxord || (ORD && !zv_search(ORD, o))) v[n] = 0;
-  }
-  w = cgetg(N, t_VEC);
-  for (n = ct = 1; n < N; ++n)
-    if (v[n]) gel(w, ct++) = znconreylog(G, utoipos(n));
-  setlg(w, ct); return gerepilecopy(ltop, w);
-}
-
 /* CHI mod N = \prod_p p^e; let CHI = \prod CHI_p, CHI_p mod p^e
  * return \prod_{p | (Q,N)} CHI_p. E.g if Q = p, return chi_p */
 GEN
