@@ -347,7 +347,7 @@ zv_cyc_minimize(GEN cyc, GEN g, GEN coprime)
   if (g[i] == 1) return 1;
   k0 = Fl_invgen(g[i], cyc[i], &t);
   d = cyc[i] / (long)t;
-  if (k0 > 1) g = Flv_Fl_mul(g, k0, o);
+  if (k0 > 1) g = vecmoduu(Flv_Fl_mul(g, k0, cyc[i]), cyc);
   for (i++; i < l; i++)
     if (g[i]) break;
   if (i == l || d >= cyc[i]) return k0;
