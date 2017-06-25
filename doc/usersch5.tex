@@ -2013,7 +2013,7 @@ positive representative of $x^{-1}$ modulo $m$. If $x$ is not invertible
 mod~$m$, return $0$ (which is ambiguous if $m=1$).
 
 \fun{ulong}{Fl_invgen}{ulong x, ulong m, ulong *pg} set \kbd{*pg} to
-$g = \gcd(x,m)$ and return $u$ (invertible) such that $x u = g$ modulo $m$.
+$g = \gcd(x,m)$ and return $u$ in $(\Z/m\Z)^*$ such that $x u = g$ modulo $m$.
 We have $g = 1$ if and only if $x$ is invertible, and in this case $u$
 is its inverse.
 
