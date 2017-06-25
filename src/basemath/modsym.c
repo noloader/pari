@@ -254,21 +254,9 @@ gamma_equiv_matrix(GEN a, GEN b)
 /*************/
 /* P^1(Z/NZ) */
 /*************/
-/* result is known to be representable as an ulong */
+/* a != 0 in Z/NZ. Return v in (Z/NZ)^* such that av = gcd(a, N) (mod N)*/
 static ulong
-lcmuu(ulong a, ulong b) { ulong d = ugcd(a,b); return (a/d) * b; }
-/* a != 0 in Z/NZ. Return u in (Z/NZ)^* such that au = gcd(a, N) (mod N)*/
-static ulong
-Fl_inverse(ulong a, ulong N)
-{
-  ulong d, d0, e, u = Fl_invgen(a, N, &d);
-  if (d == 1) return u;
-  e = N / d;
-  d0 = u_ppo(d, e); /* d = d0 d1, d0 coprime to N/d, core(d1) | N/d */
-  if (d0 == 1) return u;
-  e = lcmuu(e, d / d0);
-  return u_chinese_coprime(u, 1, e, d0, e*d0);
-}
+Fl_inverse(ulong a, ulong N) { ulong g; return Fl_invgen(a,N,&g); }
 
 /* Input: N = integer
  * Output: creates P^1(Z/NZ) = [symbols, H, N]

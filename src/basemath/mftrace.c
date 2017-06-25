@@ -616,10 +616,13 @@ checkNK(GEN NK, long *aN, long *ak, GEN *aCHI, int joker)
 static GEN
 mfchargalois(long N, int odd, GEN flagorder)
 {
-  GEN G = znstar0(utoi(N), 1), L = znchargalois(G, flagorder);
+  GEN G = znstar0(utoi(N), 1), L = chargalois(G, flagorder);
   long l = lg(L), i, j;
   for (i = j = 1; i < l; i++)
-    if (zncharisodd(G,gel(L,i)) == odd) gel(L,j++) = mfcharGL(G,gel(L,i));
+  {
+    GEN chi = znconreyfromchar(G, gel(L,i));
+    if (zncharisodd(G,chi) == odd) gel(L,j++) = mfcharGL(G,chi);
+  }
   setlg(L, j); return L;
 }
 
@@ -4448,19 +4451,6 @@ mfmatsermul_Fl(GEN Ap, GEN Ep, ulong p)
   return M;
 }
 
-/* minimal Dirichlet character in a given Galois orbit */
-static long
-getminvnum(long N, long ordw, long *ptvnum)
-{
-  long vnum = *ptvnum, k0 = 1, vnum0 = vnum, vnummin = vnum, k;
-  for (k = 2; k < ordw; ++k)
-  {
-    vnum0 = (vnum*vnum0) % N;
-    if (cgcd(k, ordw) == 1 && vnum0 < vnummin) { k0 = k; vnummin = vnum0; }
-  }
-  *ptvnum = vnummin; return k0;
-}
-
 /* CHI mod F | N, return mfchar of modulus N.
  * FIXME: wasteful, G should be precomputed  */
 static GEN
@@ -4474,27 +4464,27 @@ mfcharinduce(GEN CHI, long N)
 }
 
 static GEN
-zncharno(GEN CHI) { return znconreyexp(gel(CHI,1), gel(CHI,2)); }
-static GEN
 gmfcharno(GEN CHI)
 {
   GEN G = gel(CHI,1), chi = gel(CHI,2);
   return mkintmod(znconreyexp(G, chi), znstar_get_N(G));
 }
 static long
-mfcharno(GEN CHI) { return itos(zncharno(CHI)); }
-
-/* compute mfcharacter with minimal conrey number in Galois orbit of CHI */
-static GEN
-mfconreyminimize(long N, GEN CHI, long *ptvnum, long *ptk)
+mfcharno(GEN CHI)
 {
-  long vnum;
-  GEN G;
-  CHI = mfcharinduce(CHI, N); /* if CHI not mod N, induce it */
-  vnum = mfcharno(CHI);
-  *ptk = getminvnum(N, mfcharorder(CHI), &vnum);
-  *ptvnum = vnum; G = gel(CHI,1);
-  return mfcharGL(G, znconreylog(G, utoipos(vnum)));
+  GEN n = znconreyexp(gel(CHI,1), gel(CHI,2));
+  return itou(n);
+}
+
+/* return k such that minimal mfcharacter in Galois orbit of CHI is CHI^k */
+static long
+mfconreyminimize(GEN CHI)
+{
+  long o = mfcharorder(CHI);
+  GEN G = gel(CHI,1), cyc, chi;
+  cyc = ZV_to_zv(znstar_get_cyc(G));
+  chi = ZV_to_zv(znconreychar(G, gel(CHI,2)));
+  return zv_cyc_minimize(cyc, chi, coprimes_zv(o));
 }
 
 /* M is the matrix of Fourier coeffs attached to (F, C); Minv is the
@@ -5570,7 +5560,7 @@ mklvchi(GEN bnr, GEN con, GEN cycn)
 static GEN
 mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN con)
 {
-  GEN bnr, bnrconreyN, cyc, cycn, Lvchi, res, g;
+  GEN bnr, bnrconreyN, cyc, cycn, cycN, Lvchi, res, g;
   long i, j, ordmax, l, lc, deghecke, degrel;
 
   bnr = dihan_bnr(bnf, id);
@@ -5583,6 +5573,7 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
     gel(bnrconreyN,i) = ZV_to_zv(isprincipalray(bnr,gel(g,i)));
 
   cycn = cyc_normalize_zv(cyc);
+  cycN = ZV_to_zv(znstar_get_cyc(znN));
   ordmax = cyc[1];
   deghecke = myeulerphiu(ordmax);
   Lvchi = mklvchi(bnr, con, cycn); l = lg(Lvchi);
@@ -5591,14 +5582,17 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
   for (j = 1; j < l; j++)
   {
     GEN T, Tinit, v, vchi = ZV_to_zv(gel(Lvchi,j));
-    GEN chin = char_normalize_zv(vchi, cycn);
+    GEN chi, chin = char_normalize_zv(vchi, cycn);
     long ordw, vnum, k0;
     v = bnrchartwist2conrey(chin, cycn, bnrconreyN, kroconreyN);
     ordw = itos(Q_denom(v));
     Tinit = Qab_trace_init(ord_canon(ordmax), ord_canon(ordw));
-    vnum = itos(znconreyexp(znN, conreydenormalize(znN, v)));
+    chi = conreydenormalize(znN, v);
+    vnum = itou(znconreyexp(znN, chi));
+    chi = ZV_to_zv(znconreychar(znN,chi));
     degrel = deghecke / myeulerphiu(ordw);
-    k0 = getminvnum(N, ordw, &vnum);
+    k0 = zv_cyc_minimize(cycN, chi, coprimes_zv(ordw));
+    vnum = Fl_powu(vnum, k0, N);
     /* encodes degrel forms: jdeg = 0..degrel-1 */
     T = mkvecsmalln(6, N, k0, vnum, D, ordmax, degrel);
     gel(res,j) = mkvec4(T, id, vchi, Tinit);
@@ -5743,23 +5737,6 @@ mfdihedral(long N)
   z = mfdihedralall(mkvecsmall(N)); return gel(z,1);
 }
 
-/* k0 defined and invertible mod ordw | ordmax; lift it to an invertible
- * mod ordmax */
-static long
-lift_k0(long k0, long ordw, long ordmax)
-{
-  while (cgcd(k0, ordmax) > 1) k0 += ordw;
-  return k0 % ordmax;
-}
-static long
-get_k0(long ordw, long k0, GEN T)
-{
-  long ordmax = T[5], k = T[2];
-  k0 = lift_k0(k0,ordw,ordmax);
-  k0 = (Fl_inv(k0,ordmax)* k) % ordmax;
-  return lift_k0(k0,ordw,ordmax);
-}
-
 /* return [vF, index], where vecpermute(vF,index) generates dihedral forms
  * for character CHI */
 static GEN
@@ -5770,7 +5747,8 @@ mfdihedralnew_i(long N, GEN CHI)
 
   ordw = mfcharorder(CHI);
   chinoorig = mfcharno(CHI);
-  CHI = mfconreyminimize(N, CHI, &chino, &k0);
+  k0 = mfconreyminimize(mfcharinduce(CHI,N));
+  chino = Fl_powu(chinoorig, k0, N);
   k1 = Fl_inv(k0 % ordw, ordw);
   lv = lg(SP); V = cgetg(lv, t_VEC);
   d = 0;
@@ -5796,8 +5774,7 @@ mfdihedralnew_i(long N, GEN CHI)
   { /* T = [N, k0, conreyno, D, ordmax, degrel] */
     GEN an, bnf, bnr, w, Vi = gel(V,i);
     GEN T = gel(Vi,1), id = gel(Vi,2), vchi = gel(Vi,3), Tinit = gel(Vi,4);
-    long k0i, jdeg, D = T[4], degrel = T[6];
-    k0i = get_k0(ordw, k0, T);
+    long jdeg, k0i = T[2], D = T[4], degrel = T[6];
     bnf = dihan_bnf(D);
     bnr = dihan_bnr(bnf, id);
     w = dihan_init(bnr, vchi);
@@ -7810,12 +7787,12 @@ mfeisenspaceinit(GEN NK)
     gel(M,i) = Q_primpart(gel(M,i));
   }
   G = gel(CHI,1);
-  lisC = znchargalois(G, NULL); llC = lg(lisC);
+  lisC = chargalois(G, NULL); llC = lg(lisC);
   if (mfcharorder(CHI) > 1)
     pari_err_IMPL("nontrivial CHI not yet implemented in mfeisenspace");
   for (j = 1; j < llC; ++j)
   {
-    GEN CHI1 = mfcharGL(G, gel(lisC, j));
+    GEN CHI1 = mfcharGL(G, znconreyfromchar(G, gel(lisC, j)));
     GEN P = polcyclo(ord_canon(mfcharorder(CHI1)), fetch_user_var("t"));
     GEN CHI2 = mfchardiv_i(CHI, CHI1);
     long l, linit = (mfcharparity(CHI1) == -1)? 1: 2;
@@ -8555,7 +8532,7 @@ mfparams_i(GEN F)
       gel(P, 1) = glcm(gel(P, 1), stoi(gel(F,2)[4]));
       return P;
     case t_MF_DIHEDRAL:
-      return mkvec3(gN, k, gen_0);
+      return mkvec3(gN, k, gel(F,6));
     case t_MF_CLOSURE: case t_MF_EISENM1M2:
       return NULL;
     default:
