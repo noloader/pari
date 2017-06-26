@@ -5069,56 +5069,44 @@ mfwt1newdim(long N)
 
 /* Guess Galois type of wt1 eigenforms. */
 /* NK can be mf or [N,1,CHI] */
-
-/* Prove (if it is the case) that a form is not dihedral. */
 static long
-notdih(long N, GEN van, long D)
+mfisdihedral(GEN F, GEN DIH)
 {
-  forprime_t iter;
-  long p, lim = lg(van) - 2;
-  if (D == 1) return 1;
-  u_forprime_init(&iter, 2, lim);
-  while((p = u_forprime_next(&iter)))
-  {
-    if (!(N%p)) continue;
-    if (kross(D, p) == -1 && !gequal0(gel(van, p+1))) return 1;
-  }
-  return 0;
-}
-
-/* return 1 if not dihedral */
-static long
-mfisnotdihedral(long N, GEN van)
-{
-  GEN P = gel(myfactoru(N), 1), D = mydivisorsu( zv_prod(P) );
-  long i, lD = lg(D);
-  for (i = 1; i < lD; i++)
-  {
-    long d = D[i], r = d&3L;
-    switch (r) /* != 0 since d squarefree */
+  GEN vg = gel(DIH,1), M = gel(DIH,2), v;
+  long i, l;
+  if (lg(M) == 1) return 0;
+  v = RgM_RgC_invimage(M, mftocol(F, nbrows(M)-1));
+  if (!v) return 0;
+  l = lg(v);
+  for (i = 1; i < l; i++)
+    if (!gequal0(gel(v,i)))
     {
-      case 3: d = -d; /* fall through */
-      case 1:
-        if (!notdih(N,van,d)) return 0;
-        if (!(N&1L) && !notdih(N,van,-4*d)) return 0;
-        break;
-      case 2:
-        if (!notdih(N,van,4*d) || !notdih(N,van,-4*d)) return 0;
-        break;
+      GEN g = gel(vg,i), bnr = gel(g,2), w = gel(g,3);
+      GEN gen, cyc = bnr_get_cyc(bnr), D = gel(cyc,1);
+      GEN f = bnr_get_mod(bnr), nf = bnr_get_nf(bnr);
+      GEN con = gel(galoisconj(nf,gen_1), 2);
+      GEN f0 = gel(f,1), f0b = galoisapply(nf, con, f0);
+      GEN xin = zv_to_ZV(gel(w,2)); /* xi(bnr.gen[i]) = e(xin[i] / D) */
+      long e, j, L, n;
+      if (!gequal(f0,f0b))
+      { /* finite part of conductor not ambiguous */
+        GEN a = idealmul(nf, f0, idealdivexact(nf, f0b, idealadd(nf, f0, f0b)));
+        GEN bnr0 = bnr;
+        bnr = bnrinit0(bnr_get_bnf(bnr), mkvec2(a, gel(f,2)), 1);
+        xin = RgV_RgM_mul(xin, bnrsurjection(bnr, bnr0));
+        /* still xi(gen[i]) = e(xin[i] / D), for the new generators */
+      }
+      gen = bnr_get_gen(bnr); L = lg(gen);
+      for (j = 1, e = itou(D); j < L; j++)
+      {
+        GEN t = idealdiv(nf, gel(gen,j), galoisapply(nf,con,gel(gen,j)));
+        GEN m = FpV_dotproduct(xin, isprincipalray(bnr,t), D);
+        e = ugcd(e, itou(m)); if (e == 1) break;
+      }
+      n = itou(D) / e;
+      return n == 1? 4: 2*n;
     }
-  }
-  return 1;
-}
-
-static long
-mfisdihedral(GEN van, GEN matdih)
-{
-  pari_sp av = avma;
-  GEN v, res;
-  if (lg(matdih) == 1) return 0;
-  v = vecslice(van, 1, nbrows(matdih)); settyp(v, t_COL);
-  res = inverseimage(matdih, v);
-  avma = av; return lg(res) != 1;
+  return 0;
 }
 
 static ulong
@@ -5214,70 +5202,52 @@ mffindrootof1(GEN u1)
   avma = av; return c;
 }
 
+/* we known that F is not dihedral */
 static long
-mfgaloistype_i(long N, GEN CHI, GEN van, GEN matdih)
+mfgaloistype_i(long N, GEN CHI, GEN van)
 {
   forprime_t iter;
-  GEN CT = const_vecsmall(100, 0);
-  ulong p, i, ct = 0, ordmax = 1, R = 1, lim, limct = 100;
-  lim = lg(van) - 2;
+  GEN CT = const_vecsmall(5, 0);
+  ulong p, lim = lg(van) - 2;
   u_forprime_init(&iter, 2, lim);
   while((p = u_forprime_next(&iter)))
   {
     GEN u;
-    ulong ro1;
     if (!(N%p)) continue;
     u = gdiv(gsqr(gel(van, p+1)), mfchareval(CHI, p));
-    ro1 = mffindrootof1(gsubgs(u,2));
-    if (ro1 >= 3) R = clcm(R, ro1);
-    while (ro1 > limct)
-    {
-      i = limct + 1; limct *= 2;
-      CT = vecsmall_lengthen(CT, limct);
-      for (; i <= limct; ++i) CT[i] = 0;
-    }
-    CT[ro1]++; ct++;
-    ordmax = maxss(ro1, ordmax);
+    CT[ mffindrootof1(gsubgs(u,2)) ]++;
   }
-  R = (R == 1)? 4: 2*R;
-  setlg(CT, maxss(6, ordmax + 1));
   if (DEBUGLEVEL) err_printf("CT = %Ps\n", CT);
-  if (ordmax >= 6) return R; /* Here F is PROVED to be dihedral. */
-  if (mfisnotdihedral(N,van))
-  { /* we have PROVED that F is NOT dihedral: A4, S4 or A5. */
-    if (CT[4]) return -24; /* S4 */
-    if (CT[5]) return -60; /* A5 */
-    if (!mfisnotS4(N, CHI, van)) return 0; /* failure, may be S4. */
-    /* we know it is not S4 */
-    if (mfisnotA5_simple(van)) return -12; /* A4. */
-    return 0; /* FAILURE */
-  }
-  else
-  { /* Here F is probably dihedral. Let's prove it. */
-    if (!mfisdihedral(van, matdih)) return 0; /* FAILURE */
-    return R;
-  }
+  if (CT[4]) return -24; /* S4 */
+  if (CT[5]) return -60; /* A5 */
+  if (!mfisnotS4(N, CHI, van)) return 0; /* failure, may be S4. */
+  /* we know it is not S4 */
+  if (mfisnotA5_simple(van)) return -12; /* A4. */
+  return 0; /* FAILURE */
 }
 
 static GEN
-mfgaloistype0(long N, GEN CHI, GEN F, GEN matdih, long lim)
+mfgaloistype0(long N, GEN CHI, GEN F, GEN DIH, long lim)
 {
   pari_sp av = avma;
+  long t = mfisdihedral(F, DIH);
+  avma = av;
+  if (t) return stoi(t);
   for(;;)
   {
-    long gt = mfgaloistype_i(N, CHI, mfcoefs_i(F,lim,1), matdih);
-    avma = av; if (gt) return stoi(gt);
+    t = mfgaloistype_i(N, CHI, mfcoefs_i(F,lim,1));
+    avma = av; if (t) return stoi(t);
     lim += lim >> 1;
   }
 }
 
 /* If f is NULL, give all the galoistypes, otherwise just for f */
 GEN
-mfgaloistype(GEN NK, GEN f, long lim)
+mfgaloistype(GEN NK, GEN f)
 {
   pari_sp av = avma;
-  GEN CHI, mf, T, F, matdih;
-  long N, k, lL, i, dim, SB;
+  GEN CHI, mf, T, F, DIH;
+  long N, k, lL, i, dim, lim, SB;
 
   if (checkmf_i(NK))
   {
@@ -5292,18 +5262,18 @@ mfgaloistype(GEN NK, GEN f, long lim)
     mf = f? NULL: mfinit_i(NK, mf_NEW);
   }
   if (k != 1) pari_err_DOMAIN("mfgaloistype", "k", "!=", gen_1, stoi(k));
-  if (!lim) lim = 200;
   SB = mfsturmNk(N,1) + 1;
-  lim = maxss(lim, 3*SB);
-  matdih = mfvectomat(mfdihedralnew(N,CHI), SB);
-  if (f) return gerepileuptoint(av, mfgaloistype0(N,CHI, f, matdih, lim));
+  lim = maxss(200, 3*SB);
+  DIH = mfdihedralnew(N,CHI);
+  DIH = mkvec2(DIH, mfvectomat(DIH,SB));
+  if (f) return gerepileuptoint(av, mfgaloistype0(N,CHI, f, DIH, lim));
 
   dim = lg(mf_get_vtf(mf)) - 1;
   if (!dim) { avma = av; return cgetg(1, t_VEC); }
   if (lg(mf) != 8) mf = mfsplit(mf, 0, 0);
   F = mfeigenbasis(mf); lL = lg(F);
   T = cgetg(lL, t_VEC);
-  for (i=1; i < lL; i++) gel(T,i) = mfgaloistype0(N,CHI, gel(F,i), matdih, lim);
+  for (i=1; i < lL; i++) gel(T,i) = mfgaloistype0(N,CHI, gel(F,i), DIH, lim);
   return gerepileupto(av, T);
 }
 

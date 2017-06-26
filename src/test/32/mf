@@ -853,5 +853,5 @@ Vecsmall([-3, -39])
   ***   at top-level: mfdim([23,1,0],3)
   ***                 ^-----------------
   *** mfdim: sorry, noncuspidal dimension of G_1(N) is not yet implemented.
-20
-Total time spent: 7909
+-60
+Total time spent: 7900

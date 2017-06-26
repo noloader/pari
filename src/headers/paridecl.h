@@ -3897,7 +3897,7 @@ GEN   mfetaquo(GEN eta);
 GEN   mffromell(GEN E);
 GEN   mffromqf(GEN Q, GEN P);
 long  mffulldim(long N, long k, GEN CHI);
-GEN   mfgaloistype(GEN NK, GEN F, long lim);
+GEN   mfgaloistype(GEN NK, GEN F);
 GEN   mffields(GEN mf);
 GEN   mfbasis(GEN mf);
 GEN   mfeigenbasis(GEN mf);
