@@ -5745,9 +5745,10 @@ mfdihedralnew_i(long N, GEN CHI)
   GEN Pm, vf, M, V, SP = mfdihedral(N);
   long d, ordw, i, SB, c, l, k0, k1, chino, chinoorig, lv;
 
+  CHI = mfcharinduce(CHI,N);
   ordw = mfcharorder(CHI);
   chinoorig = mfcharno(CHI);
-  k0 = mfconreyminimize(mfcharinduce(CHI,N));
+  k0 = mfconreyminimize(CHI);
   chino = Fl_powu(chinoorig, k0, N);
   k1 = Fl_inv(k0 % ordw, ordw);
   lv = lg(SP); V = cgetg(lv, t_VEC);
