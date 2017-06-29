@@ -7677,7 +7677,7 @@ cusp_canon(GEN cusp, long N, long *pA, long *pC)
   if (N % C)
   {
     ulong uC;
-    long u = Fl_invgen(C, N, &uC);
+    long u = Fl_invgen((C-1)%N + 1, N, &uC);
     A = Fl_mul(A, u, N);
     C = (long)uC;
   }
