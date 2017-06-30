@@ -1011,7 +1011,7 @@ pari_close_opts(ulong init_opts)
   pari_thread_close();
   pari_close_files();
   pari_close_homedir();
-  pari_kernel_close();
+  if (!(init_opts&INIT_noINTGMPm)) pari_kernel_close();
 
   free((void*)functions_hash);
   free((void*)defaults_hash);
