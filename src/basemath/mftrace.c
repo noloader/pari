@@ -5137,6 +5137,26 @@ mfunram(long N)
   }
   setlg(res, c); return res;
 }
+/* list of negative fundamental discriminants unramified outside N */
+static GEN
+mfunramneg(long N)
+{
+  long cN = radical_u(N >> vals(N)), l, c, i;
+  GEN D = divisorsu(cN), res;
+  l = lg(D);
+  res = cgetg(3*l - 2, t_VECSMALL);
+  for (i = c = 1; i < l; ++i)
+  {
+    long d = D[i], d4 = d & 3L; /* d odd, squarefree */
+    if (d4 == 3) res[c++] = -d;
+    if ((N&1L) == 0)
+    {
+      if (d4 == 2 || d4 == 1) res[c++] =-4*d;
+      if (d & 1) { res[c++] = 8*d; res[c++] = -8*d; }
+    }
+  }
+  setlg(res, c); return res;
+}
 
 /* Return 1 if F is definitely not S4 type; return 0 on failure. */
 static long
@@ -8564,41 +8584,44 @@ mfiscuspidal(GEN F)
   avma = av; return r;
 }
 
+/* remove entry at index i, in place */
+static void
+splice(GEN v, long i)
+{
+  long j, n = lg(v)-1;
+  for (j = i; j < n; j++) v[j] = v[j+1];
+  setlg(v,n);
+}
 GEN
 mfisCM(GEN F)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   forprime_t S;
-  GEN P, V, v, w;
-  long N, k, lV, ct, sb, p, i;
+  GEN P, D, v;
+  long N, k, lD, sb, p, i;
   if (!isf(F)) pari_err_TYPE("mfisCM", F);
   P = mfparams_i(F);
   if (!P) pari_err_IMPL("mfisCM for this F");
-  N = itos(gel(P, 1)); k = itos(gel(P, 2));
-  V = mfunram(N); lV = lg(V);
-  for (ct = 0, i = 1; i < lV; ++i)
-    if (V[i] < 0) ct++;
+  N = itos(gel(P,1));
+  k = itos(gel(P,2));
+  D = mfunramneg(N);
+  lD = lg(D);
   sb = maxss(mfsturmNk(N, k), 4*N);
   v = mfcoefs_i(F, sb, 1);
   u_forprime_init(&S, 2, sb);
   while ((p = u_forprime_next(&S)))
   {
-    GEN ap = gel(v, p + 1);
+    GEN ap = gel(v, p+1);
     if (!gequal0(ap))
     {
-      for (i = 1; i < lV; ++i)
-        if (V[i] < 0 && kross(V[i], p) == -1) { V[i] = 0; ct--; }
+      for (i = 1; i < lD; i++)
+        if (kross(D[i], p) == -1) { splice(D, i); lD = lg(D); }
     }
   }
-  if (!ct) { avma = ltop; return gen_0; }
-  if (ct == 1)
-    for (i = 1; i < lV; ++i)
-      if (V[i] < 0) return gerepileupto(ltop, stoi(V[i]));
+  if (lD == 1) { avma = av; return gen_0; }
+  if (lD == 2) { avma = av; return stoi(D[1]); }
   if (k > 1) pari_err_BUG("mfisCM");
-  w = cgetg(ct + 1, t_VECSMALL); ct = 0;
-  for (i = 1; i < lV; ++i)
-    if (V[i] < 0) { ct++; w[ct] = V[i]; }
-  return gerepileupto(ltop, w);
+  return gerepileupto(av, zv_to_ZV(D));
 }
 
 static long
