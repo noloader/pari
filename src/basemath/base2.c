@@ -4114,7 +4114,7 @@ nfsplitting(GEN T, GEN D)
     RgX_check_ZX(T,"nfsplitting");
   }
   d = degpol(T);
-  if (d<=1) return pol_x(0);
+  if (d<=1) return pol_x(varn(T));
   if (!K) {
     if (!isint1(leading_coeff(T))) K = T = polredbest(T,0);
     K = T;
