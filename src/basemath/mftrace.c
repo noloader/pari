@@ -8586,10 +8586,18 @@ mfiscuspidal(GEN F)
 
 /* remove entry at index i, in place */
 static void
-splice(GEN v, long i)
+vecsmallsplice_ip(GEN v, long i)
 {
   long j, n = lg(v)-1;
   for (j = i; j < n; j++) v[j] = v[j+1];
+  setlg(v,n);
+}
+/* remove entry at index i, in place */
+static void
+vecsplice_ip(GEN v, long i)
+{
+  long j, n = lg(v)-1;
+  for (j = i; j < n; j++) gel(v,j) = gel(v,j+1);
   setlg(v,n);
 }
 GEN
@@ -8615,7 +8623,7 @@ mfisCM(GEN F)
     if (!gequal0(ap))
     {
       for (i = 1; i < lD; i++)
-        if (kross(D[i], p) == -1) { splice(D, i); lD = lg(D); }
+        if (kross(D[i], p) == -1) { vecsmallsplice_ip(D, i); lD = lg(D); }
     }
   }
   if (lD == 1) { avma = av; return gen_0; }
@@ -8687,39 +8695,32 @@ mfisselfdual(GEN F)
 static GEN
 lfunfindchi(GEN ldata, long prec)
 {
-  long k = ldata_get_k(ldata), ct, i, nb, l;
-  long N = itou(ldata_get_conductor(ldata)), B = N+1;
-  GEN L = mfchargalois(N, odd(k), gen_2), V;
+  long k = ldata_get_k(ldata), N = itou(ldata_get_conductor(ldata));
+  GEN L = mfchargalois(N, odd(k), gen_2);
+  long i, l = lg(L), B0 = 1, B = N+1;
 
-  l = lg(L); nb = l-1; V = const_vecsmall(nb, 1);
-  ct = 0;
-  for(;;)
+  while (l > 2)
   {
-    GEN vecan = ldata_vecan(ldata_get_an(ldata), B, prec);
-    for (i = 1; i < l; ++i)
-      if (V[i])
+    GEN van = ldata_vecan(ldata_get_an(ldata), B, prec);
+    long n;
+    for (n = B0; n <= B; n++)
+      if (cgcd(n, N) != 1 || gequal0(gel(van,n))) gel(van,n) = NULL;
+    for (i = 1; i < l; i++)
+    {
+      GEN CHI = gel(L,i);
+      if (!CHI) continue;
+      for (n = B0; n <= B; n++)
       {
-        GEN CHI = gel(L,i);
-        long n;
-        for (n = 1; n <= B; ++n)
+        GEN an = gel(van, n);
+        if (an && !gequal(an, gmul(mfchareval(CHI, n), gconj(an))))
         {
-          GEN an;
-          if (cgcd(n, N) > 1) continue;
-          an = gel(vecan, n);
-          if (!gequal0(an) && !gequal(gmul(mfchareval(CHI, n), gconj(an)), an))
-          {
-            nb--; V[i] = 0;
-            break;
-          }
+          vecsplice_ip(L,i); l = lg(L); break;
         }
       }
-    if (nb == 1) break;
-    if (++ct >= 4) pari_err_BUG("lfunfindchi [too many iterations]");
-    B *= 2;
+    }
+    B0 = B+1; B *= 2;
   }
-  for (i = 1; i < l; ++i)
-    if (V[i]) { GEN CHI = gel(L,i); return mkvec2(gel(CHI,1), gel(CHI,2)); }
-  return gen_0; /*LCOV_EXCL_LINE*/
+  return gel(L,1);
 }
 
 GEN
@@ -8730,21 +8731,18 @@ mffromlfun(GEN L, long prec)
   GEN Vga = ldata_get_gammavec(ldata);
   GEN mf, V, vecan, a0, CHI;
   long k, N, sb, space;
-  if (!gequal(Vga, mkvec2(gen_0, gen_1)))
-    pari_err_TYPE("mffromlfun", L);
-  if (!ldata_isreal(ldata))
-    pari_err(e_MISC, "Only real L-functions in mffromlfun");
+  if (!gequal(Vga, mkvec2(gen_0, gen_1))) pari_err_TYPE("mffromlfun", L);
+  if (!ldata_isreal(ldata)) pari_err_IMPL("non-real L-functions");
   k = ldata_get_k(ldata);
   N = itos(ldata_get_conductor(ldata));
-  space = lg(ldata) == 7 ? mf_CUSP : mf_FULL;
+  space = (lg(ldata) == 7)? mf_CUSP: mf_FULL;
   CHI = lfunfindchi(ldata, prec);
+  setlg(CHI,3);
   mf = mfinit(mkvec3(stoi(N), stoi(k), CHI), space);
   sb = mfsturm(mf);
   vecan = ldata_vecan(ldata_get_an(ldata), sb + 2, prec);
-  if (space == mf_CUSP) a0 = gen_0;
-  else a0 = gneg(lfun(L, gen_0, prec2nbits(prec)));
+  a0 = (space == mf_CUSP)? gen_0: gneg(lfun(L, gen_0, prec2nbits(prec)));
   vecan = shallowconcat(a0, vecan);
-  V = mftobasis(mf, vecan, 1);
-  if (lg(V) == 1) pari_err_BUG("mffromlfun");
+  V = mftobasis(mf, vecan, 1); if (lg(V) == 1) pari_err_BUG("mffromlfun");
   return gerepilecopy(ltop, mflinear_i(mfbasis(mf), V));
 }
