@@ -7505,8 +7505,8 @@ mfisinspace_i(GEN mf, GEN F)
 static void
 err_space(GEN F)
 {
-  pari_err_DOMAIN("mftobasis", "form", "not in",
-                  strtoGENstr("this modular form space"), F);
+  pari_err_DOMAIN("mftobasis", "form", "does not belong to",
+                  strtoGENstr("space"), F);
 }
 /* when flag set, do not return error message */
 GEN

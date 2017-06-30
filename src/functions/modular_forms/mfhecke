@@ -25,5 +25,5 @@ Doc: $F$ being a modular form, returns $T(n)F$, where $T(n)$ is the
  ? G55 = mfhecke(F,5,[130,2]); mftobasis(mf,G55)
    ***   at top-level: mftobasis(mf,G55)
    ***                 ^-----------------
-   *** mftobasis: domain error in mftobasis: form not in this modular form space
+   *** mftobasis: domain error in mftobasis: form does not belong to space
  @eprog

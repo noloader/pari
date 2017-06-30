@@ -55,11 +55,11 @@ Doc: coefficients of the form $F$ on the basis given by
  ? mftobasis(mf, [0,1,-24,252,-1472,0])
   ***   at top-level: mftobasis(mf,[0,1,
   ***                 ^--------------------
-  *** mftobasis: form is not in this modular form space.
+  *** mftobasis: domain error in mftobasis: form does not belong to space
  ? mftobasis(mf, mfEk(10))
- ***   at top-level: mftobasis(mf,mfEk(
+  ***   at top-level: mftobasis(mf,mfEk(
   ***                 ^--------------------
-  *** mftobasis: form is not in this modular form space.
+  *** mftobasis: domain error in mftobasis: form does not belong to space
  ? mftobasis(mf, mfEk(10), 1)
  %7 = []~
  @eprog
