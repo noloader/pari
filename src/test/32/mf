@@ -853,5 +853,7 @@ Vecsmall([-3, -39])
   ***   at top-level: mfdim([23,1,0],3)
   ***                 ^-----------------
   *** mfdim: sorry, noncuspidal dimension of G_1(N) is not yet implemented.
--60
-Total time spent: 7900
+  ***   at top-level: mfgaloistype([11,1,Mod(2,11)],mfeisen(1,1,Mod(
+  ***                 ^----------------------------------------------
+  *** mfgaloistype: domain error in mfgaloistype: form not a cuspidal eigenform
+Total time spent: 8529

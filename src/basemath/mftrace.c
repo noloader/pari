@@ -5204,25 +5204,28 @@ mffindrootof1(GEN u1)
 
 /* we known that F is not dihedral */
 static long
-mfgaloistype_i(long N, GEN CHI, GEN van)
+mfgaloistype_i(long N, GEN CHI, GEN F, long lim)
 {
   forprime_t iter;
-  GEN CT = const_vecsmall(5, 0);
-  ulong p, lim = lg(van) - 2;
+  GEN v = mfcoefs_i(F,lim,1);
+  ulong p;
   u_forprime_init(&iter, 2, lim);
   while((p = u_forprime_next(&iter)))
   {
     GEN u;
+    long n;
     if (!(N%p)) continue;
-    u = gdiv(gsqr(gel(van, p+1)), mfchareval(CHI, p));
-    CT[ mffindrootof1(gsubgs(u,2)) ]++;
+    u = gdiv(gsqr(gel(v, p+1)), mfchareval(CHI, p));
+    n = mffindrootof1(gsubgs(u,2));
+    if (n == 4) return -24; /* S4 */
+    if (n == 5) return -60; /* A5 */
+    if (n > 5)
+      pari_err_DOMAIN("mfgaloistype", "form", "not a",
+                      strtoGENstr("cuspidal eigenform"), F);
   }
-  if (DEBUGLEVEL) err_printf("CT = %Ps\n", CT);
-  if (CT[4]) return -24; /* S4 */
-  if (CT[5]) return -60; /* A5 */
-  if (!mfisnotS4(N, CHI, van)) return 0; /* failure, may be S4. */
+  if (!mfisnotS4(N, CHI, v)) return 0; /* failure, may be S4. */
   /* we know it is not S4 */
-  if (mfisnotA5_simple(van)) return -12; /* A4. */
+  if (mfisnotA5_simple(v)) return -12; /* A4. */
   return 0; /* FAILURE */
 }
 
@@ -5235,7 +5238,7 @@ mfgaloistype0(long N, GEN CHI, GEN F, GEN DIH, long lim)
   if (t) return stoi(t);
   for(;;)
   {
-    t = mfgaloistype_i(N, CHI, mfcoefs_i(F,lim,1));
+    t = mfgaloistype_i(N, CHI, F, lim);
     avma = av; if (t) return stoi(t);
     lim += lim >> 1;
   }
