@@ -5138,29 +5138,25 @@ mfunram(long N)
   setlg(res, c); return res;
 }
 
+/* Return 1 if F is definitely not S4 type; return 0 on failure. */
 static long
-mfisnotS4(long N, GEN CHI, GEN van)
+mfisnotS4(long N, GEN CHI, GEN w)
 {
-  forprime_t iter;
-  GEN D = mfunram(N), res;
-  long i, lim = lg(van) - 2, lD = lg(D);
+  GEN D = mfunram(N);
+  long i, lD = lg(D), lw = lg(w);
   for (i = 1; i < lD; i++)
   {
     long p, d = D[i], ok = 0;
-    u_forprime_init(&iter, 2, lim);
-    while((p = u_forprime_next(&iter)))
-    {
-      if (!(N%p) || kross(d, p) != -1) continue;
-      res = gdiv(gsqr(gel(van, p+1)), mfchareval(CHI, p));
-      if (!gequal0(res) && !gequal(res, gen_2)) { ok = 1; break; }
-    }
+    for (p = 2; p < lw; p++)
+      if (w[p] && kross(d,p) == -1) { ok = 1; break; }
     if (!ok) return 0;
   }
   return 1;
 }
 
+/* Return 1 if F is definitely not A5 type; return 0 on failure. */
 static long
-mfisnotA5_simple(GEN van)
+mfisnotA5(GEN van)
 {
   long l = lg(van) - 2, i, vz = 1;
   GEN pol5 = gsubgs(gsqr(pol_x(vz)), 5);
@@ -5209,7 +5205,7 @@ static long
 mfgaloistype_i(long N, GEN CHI, GEN F, long lim)
 {
   forprime_t iter;
-  GEN v = mfcoefs_i(F,lim,1);
+  GEN v = mfcoefs_i(F,lim,1), w = zero_zv(lim);
   ulong p;
   u_forprime_init(&iter, 2, lim);
   while((p = u_forprime_next(&iter)))
@@ -5219,15 +5215,13 @@ mfgaloistype_i(long N, GEN CHI, GEN F, long lim)
     if (!(N%p)) continue;
     u = gdiv(gsqr(gel(v, p+1)), mfchareval(CHI, p));
     n = mffindrootof1(gsubgs(u,2));
+    if (n == 3) w[p] = 1;
     if (n == 4) return -24; /* S4 */
     if (n == 5) return -60; /* A5 */
-    if (n > 5)
-      pari_err_DOMAIN("mfgaloistype", "form", "not a",
-                      strtoGENstr("cuspidal eigenform"), F);
+    if (n > 5) pari_err_DOMAIN("mfgaloistype", "form", "not a",
+                               strtoGENstr("cuspidal eigenform"), F);
   }
-  if (!mfisnotS4(N, CHI, v)) return 0; /* failure, may be S4. */
-  /* we know it is not S4 */
-  if (mfisnotA5_simple(v)) return -12; /* A4. */
+  if (mfisnotS4(N,CHI,w) && mfisnotA5(v)) return -12; /* A4 */
   return 0; /* FAILURE */
 }
 

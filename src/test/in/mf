@@ -228,6 +228,7 @@ mfsturm(mfinit([1,4]))
 mfgaloistype([11,1,1])
 mfgaloistype([148,1,Mod(105,148)])
 mfgaloistype([71,1, -71])
+mfgaloistype([124,1, Mod(67,124)])
 \\ slow: ~ 10s, but needed to reproduce regression
 /*
 mf=mfsplit(mfinit([633,1,Mod(71,633)],1));
