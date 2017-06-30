@@ -4919,8 +4919,8 @@ mfwt1initall(long N, GEN vCHI, long space)
     GEN CHI = gel(w,i);
     switch (space)
     {
-      case mf_NEW: z = mfwt1newinit(N, gel(w,i), TMP); break;
-      case mf_CUSP: z = mfwt1init(N, gel(w,i), TMP); break;
+      case mf_NEW: z = mfwt1newinit(N, CHI, TMP); break;
+      case mf_CUSP: z = mfwt1init(N, CHI, TMP); break;
       default: pari_err_FLAG("mfwt1initall");
     }
     if (vCHI && !z) z = mfwt1EMPTY(N, CHI, space);
@@ -5860,12 +5860,13 @@ mfwt1newinit(long N, GEN CHI, GEN TMP)
   mf = mfwt1init(N, CHI, TMP);
   if (!mf) return NULL;
   mf = mfsplit(mf, 0, 0);
+  galpols = mf_get_fields(mf);
+  nbgal = lg(galpols) - 1;
+  if (!nbgal) return NULL;
   mf_set_space(mf, mf_NEW);
   vtf = mf_get_vtf(mf);
   dimcusp = lg(vtf) - 1;
-  galpols = mf_get_fields(mf);
   F = mf_get_newforms(mf);
-  nbgal = lg(galpols) - 1;
   dimnew = 0;
   for (i = 1; i <= nbgal; i++) dimnew += degpol(gel(galpols,i));
   vtfnew = cgetg(dimnew + 1, t_VEC); ct = 0;
