@@ -5072,7 +5072,7 @@ mfwt1newdim(long N)
 static long
 mfisdihedral(GEN F, GEN DIH)
 {
-  GEN vg = gel(DIH,1), M = gel(DIH,2), v;
+  GEN vG = gel(DIH,1), M = gel(DIH,2), v;
   long i, l;
   if (lg(M) == 1) return 0;
   v = RgM_RgC_invimage(M, mftocol(F, nbrows(M)-1));
@@ -5081,7 +5081,7 @@ mfisdihedral(GEN F, GEN DIH)
   for (i = 1; i < l; i++)
     if (!gequal0(gel(v,i)))
     {
-      GEN g = gel(vg,i), bnr = gel(g,2), w = gel(g,3);
+      GEN G = gel(vG,i), bnr = gel(G,2), w = gel(G,3);
       GEN gen, cyc = bnr_get_cyc(bnr), D = gel(cyc,1);
       GEN f = bnr_get_mod(bnr), nf = bnr_get_nf(bnr);
       GEN con = gel(galoisconj(nf,gen_1), 2);
@@ -5099,8 +5099,10 @@ mfisdihedral(GEN F, GEN DIH)
       gen = bnr_get_gen(bnr); L = lg(gen);
       for (j = 1, e = itou(D); j < L; j++)
       {
-        GEN t = idealdiv(nf, gel(gen,j), galoisapply(nf,con,gel(gen,j)));
-        GEN m = FpV_dotproduct(xin, isprincipalray(bnr,t), D);
+        GEN Ng = idealnorm(nf, gel(gen,j));
+        GEN a = shifti(gel(xin,j), 1); /* xi(g_j^2) = e(a/D) */
+        GEN b = FpV_dotproduct(xin, isprincipalray(bnr,Ng), D);
+        GEN m = Fp_sub(a, b, D); /* xi(g_j/\bar{g_j}) = e(m/D) */
         e = ugcd(e, itou(m)); if (e == 1) break;
       }
       n = itou(D) / e;
