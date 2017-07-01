@@ -216,6 +216,8 @@ F = mfeigenbasis(mf); #F
 liftpol(mfcoefs(F[1], 9))
 liftpol(mfcoefs(F[2], 9))
 mfcoefs(mfetaquo([1,2;11,2]),10)
+F = mfreltoabs(mfeigenbasis(mfsplit([15,3,[Z5,2]]))[1]);
+mfcoefs(F,4)
 
 mfdim(mfinit([24,4,Mod(23,24)],1),1)
 
@@ -239,12 +241,6 @@ mf=mfsplit(mfinit([675,1,Mod(161,675)],1));
 mfgaloistype(mf, mfeigenbasis(mf)[1])
 */
 
-/* TODO:Reintroduce later when mfreltoabs is exported
-mf=mfsplit([15,3,[Z5,2]]);F=mfeigenbasis(mf)[1];
-V=mfcoefs(F,4); T=V[1].mod; V=liftpol(V)
-t=polcoeff(T,0).mod; rnf=rnfinit(nfinit(t), T);
-apply(x->lift(rnfeltreltoabs(rnf,x)),V)
-*/
 see(L) = for(i=1,#L, my(f=L[i][2]); print([mfparams(f), mfcoefs(f,10)]));
 L=mfsearch([40,2],[[2,1],[3,-1]]); see(L)
 L=mfsearch([40,2],[[2,Mod(1,3)],[3,Mod(2,4)]]); see(L)
