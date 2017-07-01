@@ -5873,23 +5873,23 @@ mfwt1newinit(long N, GEN CHI, GEN TMP)
 {
   const long vy = 1;
   GEN mf, vtf, galpols, F, vtfnew, vnewforms, M, z, MZ, tmp;
-  long dimcusp, nbgal, dimnew, i, ct, sb, ord;
+  long dimcusp, lgal, dimnew, i, ct, sb, ord;
 
   mf = mfwt1init(N, CHI, TMP);
   if (!mf) return NULL;
   mf = mfsplit(mf, 0, 0);
   galpols = mf_get_fields(mf);
-  nbgal = lg(galpols) - 1;
-  if (!nbgal) return NULL;
+  lgal = lg(galpols);
+  if (lgal == 1) return NULL;
   mf_set_space(mf, mf_NEW);
   vtf = mf_get_vtf(mf);
   dimcusp = lg(vtf) - 1;
   F = mf_get_newforms(mf);
   dimnew = 0;
-  for (i = 1; i <= nbgal; i++) dimnew += degpol(gel(galpols,i));
+  for (i = 1; i < lgal; i++) dimnew += degpol(gel(galpols,i));
   vtfnew = cgetg(dimnew + 1, t_VEC); ct = 0;
-  vnewforms = cgetg(nbgal + 1, t_VEC);
-  for (i = 1; i <= nbgal; i++)
+  vnewforms = cgetg(lgal, t_VEC);
+  for (i = 1; i < lgal; i++)
   {
     GEN pol = gel(galpols, i), f = liftpol_shallow(gel(F,i));
     long d = degpol(pol), j;
@@ -6237,14 +6237,14 @@ static GEN
 mffrickeeigenvalues(GEN mf, GEN RO, long bitprec)
 {
   GEN vtf, F, tau, wtau, Z, v, sqN, coe;
-  long N, k, i, j, nbgal, dim, prec = nbits2prec(bitprec);
+  long N, k, i, j, lgal, dim, prec = nbits2prec(bitprec);
 
   N = mf_get_N(mf);
   vtf = mf_get_vtf(mf);
   dim = lg(vtf) - 1;
   F = mf_get_newforms(mf);
-  nbgal = lg(F) - 1;
-  Z = cgetg(nbgal+1, t_VEC);
+  lgal = lg(F);
+  Z = cgetg(lgal, t_VEC);
   k = mf_get_k(mf);
   sqN = sqrtr_abs(utor(N, prec));
   tau = mkcomplex(ginv(utoi(1000)), ginv(sqN));
@@ -6253,7 +6253,7 @@ mffrickeeigenvalues(GEN mf, GEN RO, long bitprec)
   v = cgetg(dim + 1, t_VEC);
   for (j = 1; j <= dim; ++j)
     gel(v,j) = mfeval0(N, k, gel(vtf,j), mkvec2(tau, wtau), bitprec);
-  for (i = 1; i <= nbgal; i++)
+  for (i = 1; i < lgal; i++)
   {
     GEN z, ro = gel(RO,i), f = gel(F,i);
     long l = lg(ro);
@@ -6283,7 +6283,7 @@ static GEN
 mfatkineigenvalues_i(GEN mf, long Q, GEN RO, long bitprec)
 {
   GEN laq2, CHI, vtf, F, tau, wtau, Z, veval, den, CHIP, coe, sqrtQ;
-  long FC, NQ, t, yq, i, j, nbgal, dim, muQ, prec = nbits2prec(bitprec);
+  long FC, NQ, t, yq, i, j, lgal, dim, muQ, prec = nbits2prec(bitprec);
   long N = mf_get_N(mf), k = mf_get_k(mf);
 
   NQ = atkin_check(N,Q);
@@ -6299,7 +6299,7 @@ mfatkineigenvalues_i(GEN mf, long Q, GEN RO, long bitprec)
   }
   /* Q coprime to FC */
   F = mf_get_newforms(mf);
-  nbgal = lg(F) - 1;
+  lgal = lg(F);
   if (Q == 1)
   {
     GEN dims = mfeigendims(mf);
@@ -6331,7 +6331,7 @@ mfatkineigenvalues_i(GEN mf, long Q, GEN RO, long bitprec)
     if (ok) return Z;
   }
   else
-    Z = zerovec(nbgal);
+    Z = zerovec(lgal-1);
   laq2 = mfchareval_i(CHIP, Q); /* 1 or -1 */
   (void)cbezout(Q, NQ, &t, &yq);
   sqrtQ = sqrtr_abs(utor(Q,prec));
@@ -6343,7 +6343,7 @@ mfatkineigenvalues_i(GEN mf, long Q, GEN RO, long bitprec)
   veval = cgetg(dim + 1, t_VEC);
   for (j = 1; j <= dim; j++)
     gel(veval,j) = mfeval0(N, k, gel(vtf,j), mkvec2(tau,wtau), bitprec);
-  for (i = 1; i <= nbgal; i++)
+  for (i = 1; i < lgal; i++)
   {
     GEN z, ro = gel(RO,i), f = gel(F,i);
     long l = lg(ro);
