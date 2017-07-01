@@ -65,7 +65,7 @@ static GEN mfdihedralnew(long N, GEN CHI);
 static GEN mfdihedralall(GEN LIM);
 static GEN mfeval0(long N, long k, GEN F, GEN vtau, long bitprec);
 static GEN mfparams_i(GEN F);
-static GEN mfwt1newinit(long N, GEN CHI, GEN TMP);
+static GEN mfwt1_cusptonew(GEN mf);
 static long mfwt1dim(long N, GEN CHI);
 
 GEN
@@ -4913,6 +4913,7 @@ mfwt1initall(long N, GEN vCHI, long space)
   GEN res, TMP, w, z = gen_0;
   long i, j, l;
 
+  if (space != mf_NEW && space != mf_CUSP) pari_err_FLAG("mfwt1initall");
   if (wt1empty(N)) return vCHI? mfwt1EMPTYall(N,vCHI,space): cgetg(1,t_VEC);
   w = vCHI? vCHI: mfwt1chars(N);
   l = lg(w); if (l == 1) return cgetg(1,t_VEC);
@@ -4921,12 +4922,8 @@ mfwt1initall(long N, GEN vCHI, long space)
   for (i = j = 1; i < l; ++i)
   {
     GEN CHI = gel(w,i);
-    switch (space)
-    {
-      case mf_NEW: z = mfwt1newinit(N, CHI, TMP); break;
-      case mf_CUSP: z = mfwt1init(N, CHI, TMP); break;
-      default: pari_err_FLAG("mfwt1initall");
-    }
+    z = mfwt1init(N, CHI, TMP);
+    if (space == mf_NEW) z = mfwt1_cusptonew(z);
     if (vCHI && !z) z = mfwt1EMPTY(N, CHI, space);
     if (z) gel(res, j++) = z;
   }
@@ -5861,26 +5858,20 @@ mfdihedraldim(long N, GEN CHI, long space)
 
 static void
 mf_set_space(GEN mf, long x) { gmael(mf,1,4) = utoi(x); }
-static void
-mf_set_vtf(GEN mf, GEN x) { gel(mf,3) = x; }
-static void
-mf_set_newforms(GEN mf, GEN x) { gel(mf,6) = x; }
-static void
-mf_set_Ms(GEN mf, GEN x) { gel(mf,5) = x; }
-
 static GEN
-mfwt1newinit(long N, GEN CHI, GEN TMP)
+mfwt1_cusptonew(GEN mf)
 {
   const long vy = 1;
-  GEN mf, vtf, galpols, F, vtfnew, vnewforms, M, z, MZ, tmp;
-  long dimcusp, lgal, dimnew, i, ct, sb, ord;
+  GEN CHI, vtf, galpols, F, vtfnew, vnewforms, M, z, P;
+  long N, dimcusp, lgal, dimnew, i, ct, sb, ord;
 
-  mf = mfwt1init(N, CHI, TMP);
   if (!mf) return NULL;
   mf = mfsplit(mf, 0, 0);
   galpols = mf_get_fields(mf);
   lgal = lg(galpols);
   if (lgal == 1) return NULL;
+  N = mf_get_N(mf);
+  CHI = mf_get_CHI(mf);
   mf_set_space(mf, mf_NEW);
   vtf = mf_get_vtf(mf);
   dimcusp = lg(vtf) - 1;
@@ -5891,7 +5882,7 @@ mfwt1newinit(long N, GEN CHI, GEN TMP)
   vnewforms = cgetg(lgal, t_VEC);
   for (i = 1; i < lgal; i++)
   {
-    GEN pol = gel(galpols, i), f = liftpol_shallow(gel(F,i));
+    GEN tmp, pol = gel(galpols, i), f = liftpol_shallow(gel(F,i));
     long d = degpol(pol), j;
     if (d == 1)
     {
@@ -5908,24 +5899,22 @@ mfwt1newinit(long N, GEN CHI, GEN TMP)
     if (dimnew - ct) tmp = concat(tmp, zerovec(dimnew - ct));
     gel(vnewforms, i) = tmp;
   }
-  mf_set_vtf(mf, vtfnew);
-  mf_set_newforms(mf, vnewforms);
+  gel(mf,3) = vtfnew;
+  gel(mf,6) = vnewforms;
   sb = mfsturmNk(N, 1);
   M = mfvectomat(vtfnew, sb);
-  ord = mfcharorder(CHI);
-  if (ord <= 2)
+  ord = ord_canon(mfcharorder(CHI));
+  if (ord == 1)
   {
-    MZ = vec_Q_primpart(M);
-    z = ZM_indexrank(MZ);
+    P = NULL;
+    z = ZM_indexrank(M);
   }
   else
   {
-    MZ = vec_Q_primpart(liftpol_shallow(M));
-    ord = ord_canon(ord);
-    z = ZabM_indexrank(MZ, polcyclo(ord, fetch_user_var("t")), ord);
+    P = polcyclo(ord,fetch_user_var("t"));
+    z = ZabM_indexrank(liftpol_shallow(M), P, ord);
   }
-  /* TODO Minv */
-  mf_set_Ms(mf, mkvec3(z, gen_0, M));
+  gel(mf,5) = mfclean2(M, gel(z,1), P, ord, NULL);
   return mf;
 }
 
@@ -6013,9 +6002,12 @@ mfinit_i(GEN NK, long space)
   {
     switch (space)
     {
-      case mf_NEW: mf = mfwt1newinit(N, CHI, NULL); break;
+      case mf_NEW:
       case mf_FULL:
-      case mf_CUSP: mf = mfwt1init(N, CHI, NULL); break;
+      case mf_CUSP:
+        mf = mfwt1init(N, CHI, NULL);
+        if (space == mf_NEW) mf = mfwt1_cusptonew(mf);
+        break;
       case mf_EISEN:mf = mfEMPTY(NULL); break;
       case mf_OLD: pari_err_IMPL("mfinit in weight 1 for old space");
       default: pari_err_FLAG("mfinit");
@@ -6025,8 +6017,21 @@ mfinit_i(GEN NK, long space)
   {
     switch(space)
     {
-      cachenew_t cache;
-      case mf_NEW:  mf = mfnewinit(N, k, CHI, &cache, 1); break;
+      case mf_NEW:
+      {
+        cachenew_t cache;
+        GEN dM, P, z, M;
+        long ord = ord_canon(mfcharorder(CHI));
+        mf = mfnewinit(N, k, CHI, &cache, 1);
+        if (mf)
+        {
+          P = (ord == 1)? NULL: polcyclo(ord, fetch_user_var("t"));
+          M = Q_remove_denom(mf_get_M(mf), &dM);
+          z = mf_get_Mindex(mf);
+          gel(mf,5) = mfclean2(M, gel(z,1), P, ord, dM);
+        }
+        break;
+      }
       case mf_EISEN:mf = mfEMPTY(NULL); break;
       case mf_CUSP:
       case mf_OLD:
@@ -6038,14 +6043,6 @@ mfinit_i(GEN NK, long space)
   else
   {
     gel(mf,1) = mf1;
-    if (space == mf_NEW)
-    { /* clean mf */
-      GEN dM, P, z = mf_get_Mindex(mf), M = mf_get_M(mf);
-      long ord = ord_canon(mfcharorder(CHI));
-      P = (ord == 1)? NULL: polcyclo(ord, fetch_user_var("t"));
-      M = Q_remove_denom(M, &dM);
-      gel(mf,5) = mfclean2(M, gel(z,1), P, ord, dM);
-    }
   }
   if (!space_is_cusp(space))
   {
