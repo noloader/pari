@@ -4232,24 +4232,28 @@ GEN
 mfsplit(GEN mf, long dimlim, long flag)
 {
   pari_sp av = avma;
-  if (lg(mf) == 1) return mf;
+  long lmf = lg(mf);
+  if (lmf == 1) return gcopy(mf);
   if (typ(mf) != t_VEC) pari_err_TYPE("mfsplit", mf);
-  if (typ(gel(mf, 1)) == t_VEC)
+  if (!checkmf_i(mf))
   {
-    long lv = lg(gel(mf, 1));
+    mf = mfinit_i(mf, mf_NEW);
+    lmf = lg(mf); if (lmf == 1) { avma = av; return mf; }
+  }
+
+  if (typ(gel(mf,1)) == t_VEC)
+  { /* vector of mf spaces */
+    long i, lv = lg(gel(mf,1));
     if (lv == 6 || lv == 8)
     {
-      long lmf = lg(mf), i;
       GEN V = cgetg(lmf, t_VEC);
-      for (i = 1; i < lmf; ++i)
-        gel(V, i) = mfsplit(gel(mf, i), dimlim, flag);
+      for (i = 1; i < lmf; i++) gel(V,i) = mfsplit(gel(mf,i), dimlim, flag);
       return V;
     }
     if (lv != 5) pari_err_TYPE("mfsplit", mf);
   }
-  if (!checkmf_i(mf)) mf = mfinit_i(mf, mf_NEW);
-  if (lg(mf) == 8)
-  {
+  if (lmf == 8)
+  { /* already split; apply dimlim filter */
     GEN pols, forms;
     long j, l;
     mf = gcopy(mf); if (!dimlim) return mf;
@@ -4912,8 +4916,8 @@ mfwt1initall(long N, GEN vCHI, long space)
   if (wt1empty(N)) return vCHI? mfwt1EMPTYall(N,vCHI,space): cgetg(1,t_VEC);
   w = vCHI? vCHI: mfwt1chars(N);
   l = lg(w); if (l == 1) return cgetg(1,t_VEC);
-  res = cgetg(l, t_VEC);
   TMP = mfwt1_pre(N);
+  res = cgetg(l, t_VEC);
   for (i = j = 1; i < l; ++i)
   {
     GEN CHI = gel(w,i);

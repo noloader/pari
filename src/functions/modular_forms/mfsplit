@@ -14,7 +14,8 @@ Help: mfsplit(mf,{dimlim=0},{flag=0}): mf being in the cuspidal space (either
 Doc: \kbd{mf} from \kbd{mfinit} being in the cuspidal space (either the
  newspace or the full cuspidal space), split the space into Galois orbits of
  eigenforms of the newspace. As a shortcut, one can input
- \kbd{mfsplit(NK,\dots)} instead of \kbd{mfsplit(mfinit(NK),\dots)}; note
+ \kbd{mfsplit(NK,\dots)} instead of \kbd{mfsplit(mfinit(NK),\dots)},
+ including the 'wildcard' notation for characters, \secref{se:mfinit}; note
  that this initializes and splits the newspace: if one requires the
  full cuspidal space one must explicitly use
  \kbd{mfsplit(mfinit(NK,1),\dots)}.
@@ -28,7 +29,6 @@ Doc: \kbd{mf} from \kbd{mfinit} being in the cuspidal space (either the
  $>d$, only the Galois polynomial is computed. If $flag=d>0$, when the
  dimension of the eigenspace is $>d$, the Galois polynomial and a
  nonnormalized eigenform is computed.
-
 
  The resulting structure is a valid modular form space with extra components:
  if now supports \kbd{mfeigenbasis} (list of all eigenforms) and
@@ -50,4 +50,10 @@ Doc: \kbd{mf} from \kbd{mfinit} being in the cuspidal space (either the
  %7 = 13
  ? mffields(mfsplit(mf))
  %8 = [y, y^2 - y - 1] \\ ... but newspace has dimension 3
+
+ ? L = mfsplit([23, 2, 0]); \\ wildcard notation
+ ? apply(mfparams, L)
+ %10 = [[23, 2, 1], [23, 2, Mod(2, 23)]]  \\ two non-trivial spaces
+ ? apply(mfdim, L)
+ %11 = [2, 1]
  @eprog

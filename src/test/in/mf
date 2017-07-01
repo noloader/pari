@@ -60,7 +60,9 @@ mffields(mfsplit(mf, 2))
 mffields(mfsplit(mf, 3))
 mffields(mfsplit(mf, 4))
 
-mf=mfsplit([35,2]);
+L=mfsplit([35,2,0]);
+#L
+mf=L[1];
 /*
 listF = mfeigenbasis(mf);
 F = mfembed(listF[2])[1];
@@ -97,6 +99,7 @@ mf=mfinit([96,6],1);#mf[3]
 mf=mfinit([96,6],2);#mf[3]
 #mfinit([96,6],3)[2]+#mf[3]
 mf=mfsplit([96,6]);#mf[3]
+mf[6..7]
 P=mffields(mf)
 vector(#P,j,poldegree(P[j]))
 LC=mfeigenbasis(mf);
@@ -104,7 +107,6 @@ for(i=1,#LC,print(mfcoefs(LC[i],9)))
 mfsturm(mf)
 F=mflinear([mf[3][1],mf[3][2],mf[3][3]],[4,-7,11]);
 mftobasis(mf,F)
-mfsplit([96,6])[6..7]
 mfmathecke(mf,2)
 mfmathecke(mf,3)
 mfmathecke(mf, [9,15,25])
