@@ -3542,14 +3542,8 @@ ZM_inv(GEN M, GEN dM)
     }
     else
       stable = ZM_incremental_CRT(&H, Hp, &q, p);
-    if (DEBUGLEVEL>5) timer_printf(&ti, "ZM_inv mod %lu (stable=%ld)", p,stable);
-    if (stable) {/* DONE ? */
-      if (dM != gen_1)
-      { if (ZM_isscalar(ZM_mul(M, H), dM)) break; }
-      else
-      { if (ZM_isidentity(ZM_mul(M, H))) break; }
-    }
-
+    if (DEBUGLEVEL>5) timer_printf(&ti, "ZM_inv mod %lu (stable=%ld)",p,stable);
+    if (stable && ZM_isscalar(ZM_mul(M, H), dM)) break;
     if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ZM_inv");
@@ -3597,10 +3591,7 @@ ZM_inv_ratlift(GEN M, GEN *pden)
     if (DEBUGLEVEL>5) err_printf("ZM_inv mod %lu (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, pden);
-      if (*pden)
-      { if (ZM_isscalar(ZM_mul(M, Hl), *pden)) { H = Hl; break; }}
-      else
-      { if (ZM_isidentity(ZM_mul(M, Hl))) { H = Hl; *pden = gen_1; break; } }
+      if (ZM_isscalar(ZM_mul(M, Hl), *pden)) { H = Hl; break; }
     }
 
     if (gc_needed(av,2))
@@ -3609,6 +3600,7 @@ ZM_inv_ratlift(GEN M, GEN *pden)
       gerepileall(av2, 2, &H, &q);
     }
   }
+  if (!*pden) *pden = gen_1;
   gerepileall(av, 2, &H, pden);
   return H;
 }

@@ -1220,8 +1220,9 @@ ZM_isscalar(GEN x, GEN s)
   long i, j, lx = lg(x);
 
   if (lx == 1) return 1;
-  if (lx != lgcols(x)) return 0;
   if (!s) s = gcoeff(x,1,1);
+  if (equali1(s)) return ZM_isidentity(x);
+  if (lx != lgcols(x)) return 0;
   for (j=1; j<lx; j++)
   {
     GEN c = gel(x,j);
