@@ -38,6 +38,7 @@ static GEN mfinit_i(GEN NK, long space);
 static GEN mfeisenbasis_i(long N, long k, GEN CHI);
 static GEN mfwt1trace_i(long N, GEN CHI, long space);
 static GEN myfactoru(long N);
+static GEN mydivisorsu(long N);
 static GEN mygmodulo_lift(long k, long ord, GEN C);
 static GEN mfcoefs_i(GEN F, long n, long d);
 static GEN c_deflate(long n, long d, GEN V);
@@ -48,7 +49,7 @@ static void dbg_cachenew(cachenew_t *C);
 static GEN c_integ(long n, long d, GEN F, GEN gk);
 static GEN hecke_i(long m, long l, GEN knN, GEN CHI, GEN F);
 static GEN c_Ek(long n, long d, long k, GEN C);
-static GEN mfcusptrace_i(long N, long k, long n, GEN TDATA);
+static GEN mfcusptrace_i(long N, long k, long n, GEN Dn, GEN TDATA);
 static GEN mfnewtracecache(long N, long k, long n, cachenew_t *cache);
 static GEN colnewtrace(long n0, long n, long d, long N, long k, cachenew_t *cache);
 static GEN dihan(GEN bnr, GEN w, GEN Tinit, GEN k0j, ulong n);
@@ -1235,7 +1236,8 @@ c_cusptrace(long n, long d, GEN Nk, GEN D)
   GEN res = cgetg(n+2, t_VEC);
   long i;
   gel(res, 1) = gen_0;
-  for (i = 1; i <= n; i++) gel(res, i+1) = mfcusptrace_i(Nk[1], Nk[2], i*d, D);
+  for (i = 1; i <= n; i++)
+    gel(res, i+1) = mfcusptrace_i(Nk[1], Nk[2], i*d, mydivisorsu(i*d), D);
   return res;
 }
 
@@ -2607,14 +2609,14 @@ auxsum(long N, GEN VCHI, long FC, GEN GCD, long d, long nd, GEN DN, GEN BEZ)
 }
 
 static GEN
-TA3(long N, long k, GEN VCHI, long FC, GEN GCD, long n, GEN BEZ)
+TA3(long N, long k, GEN VCHI, long FC, GEN GCD, long n, GEN Dn, GEN BEZ)
 {
   pari_sp av = avma;
-  GEN S = gen_0, D = mydivisorsu(n), DN = mydivisorsu(N);
-  long i, l = lg(D);
+  GEN S = gen_0, DN = mydivisorsu(N);
+  long i, l = lg(Dn);
   for (i = 1; i < l; ++i)
   {
-    long d = D[i], nd = D[l-i]; /* = n/d */
+    long d = Dn[i], nd = Dn[l-i]; /* = n/d */
     GEN t, u;
     if (d > nd) break;
     t = auxsum(N, VCHI, FC, GCD, d, nd, DN, BEZ);
@@ -2628,17 +2630,16 @@ TA3(long N, long k, GEN VCHI, long FC, GEN GCD, long n, GEN BEZ)
 /* special contribution in weight 2 in trace formula
  * Only depends on CHIP the primitive char attached to CHI */
 static GEN
-TA4(long N, long k, GEN CHI, long n, GEN GCD)
+TA4(long N, long k, GEN CHI, long n, GEN Dn, GEN GCD)
 {
   pari_sp ltop = avma;
-  GEN D;
   long i, l, S = 0;
   if (k != 2 || !mfcharistrivial(CHI)) return gen_0;
-  D = mydivisorsu(n); l = lg(D);
+  l = lg(Dn);
   for (i = 1; i < l; ++i)
   {
-    long d = D[i]; /* gcd(N,n/d) == 1? */
-    if (mycgcd(GCD, N, D[l-i]) == 1) S += d;
+    long d = Dn[i]; /* gcd(N,n/d) == 1? */
+    if (mycgcd(GCD, N, Dn[l-i]) == 1) S += d;
   }
   avma = ltop; return utoi(S);
 }
@@ -2919,7 +2920,7 @@ mfeisendim(long N, long k, GEN CHI)
 /* Trace of T(n) on space of cuspforms; only depends on CHIP the primitive char
  * attached to CHI */
 static GEN
-mfcusptrace_i(long N, long k, long n, GEN S)
+mfcusptrace_i(long N, long k, long n, GEN Dn, GEN S)
 {
   pari_sp ltop = avma;
   GEN tmp1, tmp2, CHIP, VCHIP, GCD;
@@ -2929,20 +2930,20 @@ mfcusptrace_i(long N, long k, long n, GEN S)
   VCHIP = gel(S,_VCHIP);
   GCD = gel(S,_GCD);
   FC = mfcharmodulus(CHIP);
-  tmp1 = gadd(TA1(N, k, VCHIP, FC, GCD, n), TA4(N, k, CHIP, n, GCD));
+  tmp1 = gadd(TA1(N, k, VCHIP, FC, GCD, n), TA4(N, k, CHIP, n, Dn, GCD));
   tmp2 = TA2(N, k, VCHIP, n, gel(S,_SQRTS), gel(S,_MUP), FC, GCD);
-  tmp2 = gadd(tmp2, TA3(N, k, VCHIP, FC, GCD, n, gel(S,_BEZ)));
+  tmp2 = gadd(tmp2, TA3(N, k, VCHIP, FC, GCD, n, Dn, gel(S,_BEZ)));
   tmp2 = gsub(tmp1, tmp2);
   return gerepileupto(ltop, tmp2);
 }
 
 static GEN
-mfcusptracecache(long N, long k, long n, GEN S, cachenew_t *cache)
+mfcusptracecache(long N, long k, long n, GEN Dn, GEN S, cachenew_t *cache)
 {
   GEN C = NULL, T = gel(cache->vfull,N);
   long lcache = lg(T);
   if (n < lcache) C = gel(T, n);
-  if (C) cache->cuspHIT++; else C = mfcusptrace_i(N, k, n, S);
+  if (C) cache->cuspHIT++; else C = mfcusptrace_i(N, k, n, Dn, S);
   cache->cuspTOTAL++;
   if (n < lcache) gel(T,n) = C;
   return C;
@@ -2982,11 +2983,25 @@ mfnewchkzero(GEN LZ, long n)
   return 0;
 }
 
+/* return the divisors of n among the elements of D */
+static GEN
+div_restrict(GEN D, ulong n)
+{
+  long i, j, l = lg(D);
+  GEN v = cgetg(l, t_VECSMALL);
+  for (i = j = 1; i < l; i++)
+  {
+    ulong d = D[i];
+    if (n % d == 0) v[j++] = d;
+  }
+  setlg(v,j); return v;
+}
+
 /* Trace formula on new space. */
 static GEN
 mfnewtrace_i(long N, long k, long n, cachenew_t *cache)
 {
-  GEN s, DN1, S = cache->DATA, SN = gel(S,N);
+  GEN s, Dn, DN1, S = cache->DATA, SN = gel(S,N);
   GEN CHIP = gel(SN, _CHIP), VCHIP = gel(SN, _VCHIP), LZ = gel(SN, _NEWLZ);
   long FC, N1, N2, N1N2, g, i, j, lDN1;
 
@@ -2999,20 +3014,22 @@ mfnewtrace_i(long N, long k, long n, cachenew_t *cache)
   N1N2 = N1/N2;
   DN1 = mydivisorsu(N1N2); lDN1 = lg(DN1);
   N2 *= FC;
-  s = gmulsg(mubeta2(N1N2,n), mfcusptracecache(N2, k, n, gel(S,N2), cache));
+  Dn = mydivisorsu(n); /* this one is probably out of cache */
+  s = gmulsg(mubeta2(N1N2,n), mfcusptracecache(N2, k, n, Dn, gel(S,N2), cache));
   for (i = 2; i < lDN1; ++i)
   { /* skip M1 = 1, done above */
     long M1 = DN1[i], N1M1 = DN1[lDN1-i];
     GEN Dg = mydivisorsu(cgcd(M1, g));
     M1 *= N2;
     s = gadd(s, gmulsg(mubeta2(N1M1,n),
-                       mfcusptracecache(M1, k, n, gel(S,M1), cache)));
+                       mfcusptracecache(M1, k, n, Dn, gel(S,M1), cache)));
     for (j = 2; j < lg(Dg); ++j) /* skip d = 1, done above */
     {
       long d = Dg[j], ndd = n/(d*d), M = M1/d;
       long mu = mubeta2(N1M1, ndd); /* != 0 */
       GEN z = mulsi(mu, powuu(d,k-1)), c = gel(VCHIP,indexu(d,FC)); /* != 0 */
-      s = gadd(s, gmul(gmul(z, c), mfcusptracecache(M, k, ndd, gel(S,M), cache)));
+      GEN Dndd = div_restrict(Dn, ndd);
+      s = gadd(s, gmul(gmul(z, c), mfcusptracecache(M, k, ndd, Dndd, gel(S,M), cache)));
     }
   }
   return s;
