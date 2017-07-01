@@ -5160,7 +5160,7 @@ mfunramneg(long N)
 
 /* Return 1 if F is definitely not S4 type; return 0 on failure. */
 static long
-mfisnotS4(long N, GEN CHI, GEN w)
+mfisnotS4(long N, GEN w)
 {
   GEN D = mfunram(N);
   long i, lD = lg(D), lw = lg(w);
@@ -5241,7 +5241,7 @@ mfgaloistype_i(long N, GEN CHI, GEN F, long lim)
     if (n > 5) pari_err_DOMAIN("mfgaloistype", "form", "not a",
                                strtoGENstr("cuspidal eigenform"), F);
   }
-  if (mfisnotS4(N,CHI,w) && mfisnotA5(v)) return -12; /* A4 */
+  if (mfisnotS4(N,w) && mfisnotA5(v)) return -12; /* A4 */
   return 0; /* FAILURE */
 }
 
