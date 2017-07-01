@@ -1236,7 +1236,6 @@ ZM_isscalar(GEN x, GEN s)
   return 1;
 }
 
-
 long
 ZC_is_ei(GEN x)
 {
