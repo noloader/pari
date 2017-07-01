@@ -4397,8 +4397,7 @@ mod_to_rfrac(GEN x, GEN N, long B)
     A = odd(d)? B : B-1;
   }
   if (varn(N) != varn(x)) x = scalarpol(x, varn(N));
-  if (! RgXQ_ratlift(x, N, A, B, &a,&b)) return NULL;
-  if (degpol(RgX_gcd(a,b)) > 0) return NULL;
+  if (!RgXQ_ratlift(x, N, A, B, &a,&b) || degpol(RgX_gcd(a,b)) > 0) return NULL;
   return gdiv(a,b);
 }
 
@@ -4570,12 +4569,22 @@ bestappr_Q(GEN x, GEN k)
 static GEN
 bestappr_ser(GEN x, long B)
 {
-  long v = valp(x), lx = lg(x);
-  GEN N, t;
+  long dN, v = valp(x), lx = lg(x);
+  GEN t;
   x = normalizepol(ser2pol_i(x, lx));
-  N = pol_xn(lx-2, varn(x));
-  t = mod_to_rfrac(x, N, B); if (!t) return NULL;
-  if (v)
+  dN = lx-2;
+  if (v > 0)
+  {
+    x = RgX_shift_shallow(x, v);
+    dN += v;
+  }
+  else if (v < 0)
+  {
+    if (B >= 0) B = maxss(B+v, 0);
+  }
+  t = mod_to_rfrac(x, pol_xn(dN, varn(x)), B);
+  if (!t) return NULL;
+  if (v < 0)
   {
     GEN a, b;
     long vx;
