@@ -2983,12 +2983,15 @@ mfnewchkzero(GEN LZ, long n)
   return 0;
 }
 
-/* return the divisors of n among the elements of D */
+/* return the divisors of n, known to be among the elements of D */
 static GEN
 div_restrict(GEN D, ulong n)
 {
-  long i, j, l = lg(D);
-  GEN v = cgetg(l, t_VECSMALL);
+  long i, j, l;
+  GEN v, VDIV = caches[cache_DIV].cache;
+  if (lg(VDIV) > n) return gel(VDIV,n);
+  l = lg(D);
+  v = cgetg(l, t_VECSMALL);
   for (i = j = 1; i < l; i++)
   {
     ulong d = D[i];
