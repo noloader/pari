@@ -1409,9 +1409,10 @@ gsubst(GEN x, long v, GEN y)
     }
     av=avma;
     p1=gsubst(gel(x,1),v,y); vx=varn(p1);
-    p2=gsubst(gel(x,2),v,y); vy=gvar(p2);
     if (typ(p1)!=t_POL) pari_err_TYPE2("substitution",x,y);
-    if (varncmp(vy, vx) >= 0) return gerepileupto(av, gmodulo(p2,p1));
+    p2=gsubst(gel(x,2),v,y);
+    if (typ(p2) != t_POL || varncmp(varn(y), vx) >= 0)
+      return gerepileupto(av, gmodulo(p2, p1));
     modp1 = mkpolmod(gen_1,p1);
     lx = lg(p2);
     z = cgetg(lx,t_POL); z[1] = p2[1];

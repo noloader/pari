@@ -34,3 +34,5 @@ substpol(1,x^2,x)
 
 \\#1727
 substvec(1+x+y+x*y+O(x^2), [x,y],[x,y])
+
+subst(Mod(1/z,y),z,x)

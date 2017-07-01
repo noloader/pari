@@ -40,4 +40,5 @@ x + O(x^2)
   *** substpol: domain error in gdeflate: valuation(x) % 2 != 0
 1
 (y + 1) + (y + 1)*x + O(x^2)
+Mod(1, y)/(Mod(1, y)*x)
 Total time spent: 0
