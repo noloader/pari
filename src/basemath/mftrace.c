@@ -338,7 +338,7 @@ mypsiu(ulong N)
 
 /* write -n = Df^2, D < 0 fundamental discriminant. Return D, set f. */
 static long
-mycoredisc2u(ulong n, long *pf)
+mycoredisc2u_i(ulong n, long *pf)
 {
   pari_sp av = avma;
   GEN fa = myfactoru(n), P = gel(fa,1), E = gel(fa,2);
@@ -352,7 +352,20 @@ mycoredisc2u(ulong n, long *pf)
   if ((m&3L) != 3) { m <<= 2; f >>= 1; }
   avma = av; *pf = f; return -m;
 }
-
+/* fa = factorization of -D > 0, return -D0 > 0 (where D0 is fundamental) */
+static long
+corediscs_fact(GEN fa)
+{
+  GEN P = gel(fa,1), E = gel(fa,2);
+  long i, l = lg(P), m = 1;
+  for (i = 1; i < l; i++)
+  {
+    long p = P[i], e = E[i];
+    if (e & 1) m *= p;
+  }
+  if ((m&3L) != 3) m <<= 2;
+  return m;
+}
 static long
 mubeta(long n)
 {
@@ -1564,7 +1577,7 @@ mftwist(GEN F, GEN D)
 /***************************************************************/
 /*                 Generic cache handling                      */
 /***************************************************************/
-enum { cache_FACT, cache_DIV, cache_H, cache_DIH };
+enum { cache_FACT, cache_DIV, cache_H, cache_D, cache_DIH };
 typedef struct {
   const char *name;
   GEN cache;
@@ -1578,10 +1591,12 @@ typedef struct {
 static void constdiv(long lim);
 static void consttabh(long lim);
 static void consttabdihedral(long lim);
+static void constcoredisc(long lim);
 static THREAD cache caches[] = {
 { "Factors",  NULL,  50000,    50000, &constdiv, 0, 0 },
 { "Divisors", NULL,  50000,    50000, &constdiv, 0, 0 },
 { "H",        NULL, 100000, 10000000, &consttabh, 0, 0 },
+{ "CorediscF",NULL, 100000, 10000000, &constcoredisc, 0, 0 },
 { "Dihedral", NULL,   1000,     3000, &consttabdihedral, 0, 0 },
 };
 
@@ -1656,11 +1671,12 @@ GEN
 getcache(void)
 {
   pari_sp av = avma;
-  GEN M = cgetg(5, t_MAT);
+  GEN M = cgetg(6, t_MAT);
   gel(M,1) = cache_report(cache_FACT);
   gel(M,2) = cache_report(cache_DIV);
   gel(M,3) = cache_report(cache_H);
-  gel(M,4) = cache_report(cache_DIH);
+  gel(M,4) = cache_report(cache_D);
+  gel(M,5) = cache_report(cache_DIH);
   return gerepilecopy(av, shallowtrans(M));
 }
 
@@ -1674,6 +1690,38 @@ pari_close_mf(void)
 }
 
 /*************************************************************************/
+static void
+constcoredisc(long lim)
+{
+  pari_sp av2, av = avma;
+  const long cachestep = 1000; /* don't increase this: RAM cache thrashing */
+  GEN D = caches[cache_D].cache, CACHE = NULL;
+  long cachea, cacheb, N, LIM = !D ? 4 : lg(D)-1;
+  if (lim <= 0) lim = 5;
+  if (lim <= LIM) return;
+  cache_reset(cache_D);
+  D = zero_zv(lim);
+  av2 = avma;
+  cachea = cacheb = 0;
+  for (N = 1; N <= lim; ++N)
+  {
+    GEN F;
+    if (N > cacheb)
+    { /* update local cache (recycle memory) */
+      cachea = N;
+      if (cachea + 2*cachestep > lim)
+        cacheb = lim; /* fuse last 2 chunks */
+      else
+        cacheb = cachea + cachestep;
+      avma = av2; /* FIXME: need only factor odd integers in the range */
+      CACHE = vecfactoru_i(cachea, cacheb);
+    }
+    F = gel(CACHE,N - cachea + 1); /* factoru(N) */
+    D[N] = corediscs_fact(F);
+  }
+  cache_set(cache_D, D);
+  avma = av;
+}
 
 static long
 indexu(long y, long N)
@@ -1807,6 +1855,13 @@ mydivisorsu(long N)
   GEN z = cache_get(cache_DIV, N);
   if (z) return leafcopy(z);
   return divisorsu(N);
+}
+static long
+mycoredisc2u(ulong n, long *pf)
+{
+  ulong D = (ulong)cache_get(cache_D, n);
+  if (D) { *pf = usqrt(n/D); return -(long)D; }
+  return mycoredisc2u_i(n, pf);
 }
 
 /* 1+p+...+p^e, e >= 1 */
