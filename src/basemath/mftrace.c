@@ -42,12 +42,11 @@ static GEN mydivisorsu(long N);
 static GEN mygmodulo_lift(long k, long ord, GEN C);
 static GEN mfcoefs_i(GEN F, long n, long d);
 static GEN c_deflate(long n, long d, GEN V);
-static GEN mfparams_ii(GEN F);
 static GEN bhnmat_extend(GEN M, long m,long l, GEN vtf, cachenew_t *cache);
 static GEN initnewtrace(long N, GEN CHI);
 static void dbg_cachenew(cachenew_t *C);
 static GEN c_integ(long n, long d, GEN F, GEN gk);
-static GEN hecke_i(long m, long l, GEN knN, GEN CHI, GEN F);
+static GEN hecke_i(long m, long l, GEN nN, GEN F);
 static GEN c_Ek(long n, long d, long k, GEN C);
 static GEN mfcusptrace_i(long N, long k, long n, GEN Dn, GEN TDATA);
 static GEN mfnewtracecache(long N, long k, long n, cachenew_t *cache);
@@ -65,10 +64,13 @@ static long mfdihedralcuspdim(long N, GEN CHI);
 static GEN mfdihedralnew(long N, GEN CHI);
 static GEN mfdihedralall(GEN LIM);
 static GEN mfeval0(long N, long k, GEN F, GEN vtau, long bitprec);
-static GEN mfparams_i(GEN F);
 static GEN mfwt1_cusptonew(GEN mf);
 static long mfwt1dim(long N, GEN CHI);
 
+static GEN
+mkgNK(GEN N, GEN k, GEN CHI) { return mkvec3(N, k, CHI); }
+static GEN
+mkNK(long N, long k, GEN CHI) { return mkgNK(stoi(N), stoi(k), CHI); }
 GEN
 mf_get_CHI(GEN mf) { return gmael(mf,1,3); }
 long
@@ -482,8 +484,10 @@ static long
 mfcharorder(GEN CHI) { return itou(gmfcharorder(CHI)); }
 static long
 mfcharistrivial(GEN CHI) { return !CHI || mfcharorder(CHI) == 1; }
+static GEN
+gmfcharmodulus(GEN CHI) { return gmael3(CHI, 1, 1, 1); }
 static long
-mfcharmodulus(GEN CHI) { return itos(gmael3(CHI, 1, 1, 1)); }
+mfcharmodulus(GEN CHI) { return itou(gmfcharmodulus(CHI)); }
 
 /* t^k mod polcyclo(ord) */
 static GEN
@@ -758,32 +762,38 @@ mfchardiv_i(GEN CHI1, GEN CHI2)
 
 /*                      Operations on mf closures                    */
 static GEN
-tagparams(long t) { return mkvec(mkvecsmall(t)); }
+tagparams(long t, GEN NK) { return mkvec2(mkvecsmall(t), NK); }
 static GEN
 lfuntag(long t, GEN x) { return mkvec2(mkvecsmall(t), x); }
 static GEN
-tag0(long t) { retmkvec(tagparams(t)); }
+tag0(long t, GEN NK) { retmkvec(tagparams(t,NK)); }
 static GEN
-tag(long t, GEN x) { retmkvec2(tagparams(t), x); }
+tag(long t, GEN NK, GEN x) { retmkvec2(tagparams(t,NK), x); }
 static GEN
-tag2(long t, GEN x, GEN y) { retmkvec3(tagparams(t), x,y); }
+tag2(long t, GEN NK, GEN x, GEN y) { retmkvec3(tagparams(t,NK), x,y); }
 static GEN
-tag3(long t, GEN x,GEN y,GEN z) { retmkvec4(tagparams(t), x,y,z); }
+tag3(long t, GEN NK, GEN x,GEN y,GEN z) { retmkvec4(tagparams(t,NK), x,y,z); }
+static GEN
+tag4(long t, GEN NK, GEN x, GEN y, GEN z, GEN a)
+{ retmkvec5(tagparams(t,NK), x,y,z,a); }
 #if 0
 static GEN
-tag4(long t, GEN x, GEN y, GEN z, GEN a) { retmkvec5(tagparams(t), x,y,z,a); }
+tag5(long t, GEN NK, GEN x, GEN y, GEN z, GEN a, GEN b)
+{ return mkvecn(6, tagparams(t,NK), x,y,z,a,b); }
 #endif
-static GEN
-tag5(long t, GEN x, GEN y, GEN z, GEN a, GEN b)
-{ return mkvecn(6, tagparams(t), x,y,z,a,b); }
 /* is F a "modular form" ? */
 static long
 isf(GEN F)
 { return (typ(F) == t_VEC
     && lg(F) > 1 && typ(gel(F,1)) == t_VEC
     && lg(gel(F,1)) > 1 && typ(gmael(F,1,1)) == t_VECSMALL); }
-static long
-f_type(GEN F) { return gmael(F,1,1)[1]; }
+static long f_type(GEN F) { return gmael(F,1,1)[1]; }
+static GEN f_gN(GEN F) { return gmael3(F,1,2,1); }
+static GEN f_gk(GEN F) { return gmael3(F,1,2,2); }
+static long f_N(GEN F) { return itos(f_gN(F)); }
+static long f_k(GEN F) { return itos(f_gk(F)); }
+static GEN f_CHI(GEN F) { return gmael3(F,1,2,3); }
+static GEN f_NK(GEN F) { return gmael(F,1,2); }
 
 /* UTILITY FUNCTIONS */
 /* given an mf closure, transform into vector or power series */
@@ -883,12 +893,10 @@ c_mulRC(long n, long d, GEN F, GEN G, GEN gm)
   long i, nd = n*d;
   GEN VF = mfcoefs_i(F, nd, 1), tF = cgetg(nd+2, t_VEC);
   GEN VG = mfcoefs_i(G, nd, 1), tG = cgetg(nd+2, t_VEC);
-  GEN C, mpow, res = NULL, P;
+  GEN C, mpow, res = NULL;
   ulong j, k, l, m = itos(gm);
-  P = mfparams_ii(F); if (!P) pari_err_IMPL("mfbracket for this form");
-  k = itos(gel(P, 2));
-  P = mfparams_ii(G); if (!P) pari_err_IMPL("mfbracket for this form");
-  l = itos(gel(P, 2));
+  k = f_k(F); if (k < 0) pari_err_IMPL("mfbracket for this form");
+  l = f_k(G); if (l < 0) pari_err_IMPL("mfbracket for this form");
   /* pow[i,j+1] = i^j */
   mpow = cgetg(m+2, t_MAT);
   gel(mpow,1) = const_col(nd, gen_1);
@@ -941,28 +949,25 @@ c_linear(long n, long d, GEN F, GEN L)
 
 /* t_MF_BD(t_MF_HECKE(t_MF_NEWTRACE)) or
  * t_MF_HECKE(t_MF_NEWTRACE)
- * or t_MF_NEWTRACE */
+ * or t_MF_NEWTRACE in level N */
 static void
-bhn_parse(GEN tf, long *d, long *j, long *N, long *k, GEN *DATA)
+bhn_parse(GEN f, long *N, long *d, long *j, GEN *DATA)
 {
-  GEN Nk;
-  long t = f_type(tf);
+  long t = f_type(f);
   *d = *j = 1;
   if (t == t_MF_BD)
   {
-    *d = itos(gel(tf,2));
-    tf = gel(tf,3);
-    t = f_type(tf);
+    *d = itos(gel(f,2));
+    f = gel(f,3);
+    t = f_type(f);
   }
   if (t == t_MF_HECKE)
   {
-    *j = gel(tf,2)[2];
-    tf = gel(tf,4);
+    *j = gel(f,2)[1];
+    f = gel(f,3);
   }
-  Nk = gel(tf,2);
-  *N = Nk[1];
-  *k = Nk[2];
-  *DATA = gel(tf,3);
+  *DATA = gel(f,2);
+  *N = f_N(f);
 }
 static int
 newtrace_stripped(GEN DATA)
@@ -970,17 +975,17 @@ newtrace_stripped(GEN DATA)
 static GEN
 newtrace_DATA(long N, GEN DATA)
 { return (newtrace_stripped(DATA))? initnewtrace(N, DATA): DATA; }
-/* F not empty, same hypotheses as bhnmat_extend */
+/* vF not empty, same hypotheses as bhnmat_extend */
 static GEN
-bhnmat_extend_nocache(GEN M, long n, long d, GEN F)
+bhnmat_extend_nocache(GEN M, long n, long d, GEN vF)
 {
-  long Bd, j, N, k;
+  GEN DATA, f = gel(vF, lg(vF)-1); /* vF[#vF-1] has largest level */
+  long Bd, j, N;
   cachenew_t cache;
-  GEN DATA; /* F[#F-1] has largest level */
-  bhn_parse(gel(F,lg(F)-1), &Bd,&j, &N,&k, &DATA);
+  bhn_parse(f, &N, &Bd,&j, &DATA);
   DATA = newtrace_DATA(N, DATA);
   init_cachenew(&cache, n*d, DATA);
-  M = bhnmat_extend(M, n, d, F, &cache);
+  M = bhnmat_extend(M, n, d, vF, &cache);
   dbg_cachenew(&cache);
   return M;
 }
@@ -1118,14 +1123,12 @@ static GEN
 c_derivE2(long n, long d, GEN F, GEN gm)
 {
   pari_sp av = avma;
-  GEN VF, VE, res, tmp, gk, P;
+  GEN VF, VE, res, tmp, gk;
   long i, m = itos(gm), nd;
   if (m == 0) return mfcoefs_i(F, n, d);
   nd = n*d;
   VF = mfcoefs_i(F, nd, 1); VE = mfcoefs_i(mfEk(2), nd, 1);
-  P = mfparams_ii(F);
-  if (!P) pari_err_IMPL("mfderivE2 for this form");
-  gk = gel(P, 2);
+  gk = f_gk(F); if (signe(gk) < 0) pari_err_IMPL("mfderivE2 for this form");
   if (m == 1)
   {
     res = cgetg(n+2, t_VEC);
@@ -1173,10 +1176,10 @@ c_twist(long n, long d, GEN F, GEN D)
 
 /* form F given by closure, compute T(n)(F) as closure */
 static GEN
-c_hecke(long m, long l, GEN knN, GEN CHI, GEN F)
+c_hecke(long m, long l, GEN nN, GEN F)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, hecke_i(m, l, knN, CHI, F));
+  return gerepilecopy(av, hecke_i(m, l, nN, F));
 }
 static GEN
 c_const(long n, long d, GEN C)
@@ -1231,26 +1234,25 @@ c_etaquo(long n, long d, GEN eta, GEN gs)
 }
 
 static GEN
-c_cusptrace(long n, long d, GEN Nk, GEN D)
+c_cusptrace(long n, long d, GEN F)
 {
-  GEN res = cgetg(n+2, t_VEC);
-  long i;
+  GEN D = gel(F,2), res = cgetg(n+2, t_VEC);
+  long i, N = f_N(F), k = f_k(F);
   gel(res, 1) = gen_0;
   for (i = 1; i <= n; i++)
-    gel(res, i+1) = mfcusptrace_i(Nk[1], Nk[2], i*d, mydivisorsu(i*d), D);
+    gel(res, i+1) = mfcusptrace_i(N, k, i*d, mydivisorsu(i*d), D);
   return res;
 }
 
 static GEN
-c_newtrace(long n, long d, GEN Nk, GEN D)
+c_newtrace(long n, long d, GEN F)
 {
   pari_sp av = avma;
   cachenew_t cache;
-  long N = Nk[1], k = Nk[2];
-  GEN v;
-  D = newtrace_DATA(N, D);
+  long N = f_N(F);
+  GEN v, D = newtrace_DATA(N, gel(F,2));
   init_cachenew(&cache, n*d, D);
-  v = colnewtrace(0, n, d, N, k, &cache);
+  v = colnewtrace(0, n, d, N, f_k(F), &cache);
   settyp(v, t_VEC); return gerepilecopy(av, v);
 }
 
@@ -1370,10 +1372,10 @@ mfcoefs_i(GEN F, long n, long d)
     case t_MF_INTEG: return c_integ(n, d, gel(F,2), gel(F,3));
     case t_MF_EMBED: return c_embed(n, d, gel(F,2), gel(F,3));
     case t_MF_TWIST: return c_twist(n, d, gel(F,2), gel(F,3));
-    case t_MF_HECKE: return c_hecke(n, d, gel(F,2), gel(F,3), gel(F,4));
+    case t_MF_HECKE: return c_hecke(n, d, gel(F,2), gel(F,3));
     case t_MF_BD: return c_Bd(n, d, gel(F,2), gel(F,3));
-    case t_MF_TRACE: return c_cusptrace(n, d, gel(F,2), gel(F,3));
-    case t_MF_NEWTRACE: return c_newtrace(n, d, gel(F,2), gel(F,3));
+    case t_MF_TRACE: return c_cusptrace(n, d, F);
+    case t_MF_NEWTRACE: return c_newtrace(n, d, F);
     case t_MF_CLOSURE: return c_closure(n, d, gel(F,2));
     case t_MF_DIHEDRAL: return c_dihedral(n,d,gel(F,2),gel(F,3),gel(F,4),gel(F,5));
     case t_MF_RELTOABS: return c_reltoabs(n,d,gel(F,2),gel(F,3));
@@ -1405,7 +1407,7 @@ mfcoef(GEN F, long n)
 static GEN
 mftrivial(void) {
   GEN f = cgetg(3, t_VEC);
-  gel(f,1) = tagparams(t_MF_CONST);
+  gel(f,1) = tagparams(t_MF_CONST, mkNK(-1,-1, gen_0));
   gel(f,2) = cgetg(1,t_VEC); return f;
 }
 GEN
@@ -1413,10 +1415,12 @@ mfcreate(GEN x)
 {
   pari_sp av = avma;
   long t = typ(x);
+  GEN NK;
   if (typ(x) == t_CLOSURE)
   {
     long a = closure_arity(x);
-    if (a == 1 || a == 2) return gerepilecopy(av, tag(t_MF_CLOSURE, x));
+    if (a == 1 || a == 2)
+      return gerepilecopy(av, tag(t_MF_CLOSURE, mkNK(-1,-1,gen_0), x));
   }
   if (gequal0(x)) return mftrivial();
   if (is_scalar_t(t)) x = mkvec(x);
@@ -1427,68 +1431,190 @@ mfcreate(GEN x)
     case t_SER: x = sertocol(x); break;
     default: pari_err_TYPE("mfcreate", x);
   }
-  return gerepilecopy(av, tag(t_MF_CONST, x));
+  NK = (lg(x) == 2)? mkNK(1,0,mfchartrivial(1)): mkNK(-1,-1,gen_0);
+  return gerepilecopy(av, tag(t_MF_CONST, NK, x));
+}
+
+static GEN
+induce(GEN G, GEN CHI)
+{
+  GEN o, chi;
+  if (typ(CHI) == t_INT) /* Kronecker */
+  {
+    chi = gel(znchar_quad(G, CHI), 2);
+    o = ZV_equal0(chi)? gen_1: gen_2;
+  }
+  else
+  {
+    if (mfcharmodulus(CHI) == itos(znstar_get_N(G))) return CHI;
+    chi = zncharinduce(gel(CHI,1), gel(CHI,2), G);
+    o = gel(CHI, 3);
+  }
+  return mkvec3(G, chi, o);
+}
+
+static void
+char2(GEN *pG, GEN *pCHI1, GEN *pCHI2)
+{
+  GEN G, G1, G2, N1, N2, CHI1 = *pCHI1, CHI2 = *pCHI2;
+  G1 = gel(CHI1,1); N1 = znstar_get_N(G1);
+  G2 = gel(CHI2,1); N2 = znstar_get_N(G2);
+  if (equalii(N1,N2)) G = G1;
+  else if (dvdii(N1,N2)) { G = G1; CHI2 = induce(G, CHI2); }
+  else if (dvdii(N2,N1)) { G = G2; CHI1 = induce(G, CHI1); }
+  else
+  {
+    G = znstar0(lcmii(N1,N2), 1);
+    CHI1 = induce(G, CHI1);
+    CHI2 = induce(G, CHI2);
+  }
+  *pG = G;
+  *pCHI1 = CHI1;
+  *pCHI2 = CHI2;
+}
+static GEN
+mfcharmul(GEN CHI1, GEN CHI2)
+{
+  GEN G, CHI3;
+  if (isintzero(CHI1) || isintzero(CHI2)) return gen_0;
+  char2(&G, &CHI1, &CHI2);
+  CHI3 = zncharmul(G, gel(CHI1,2), gel(CHI2,2));
+  return mkvec3(G, CHI3, zncharorder(G, CHI3));
+}
+static GEN
+mfcharpow(GEN CHI, GEN n)
+{
+  GEN G;
+  if (isintzero(CHI)) return gen_0;
+  G = gel(CHI,1);
+  CHI = zncharpow(G, gel(CHI,2), n);
+  return mkvec3(G, CHI, zncharorder(G, CHI));
+}
+static GEN
+mfchardiv(GEN CHI1, GEN CHI2)
+{
+  GEN G, CHI3;
+  if (isintzero(CHI1) || isintzero(CHI2)) return gen_0;
+  char2(&G, &CHI1, &CHI2);
+  CHI3 = znchardiv(G, gel(CHI1, 2), gel(CHI2, 2));
+  return mkvec3(G, CHI3, zncharorder(G, CHI3));
+}
+
+static GEN
+lcmN(GEN Nf, GEN Ng)
+{
+  if (signe(Nf) < 0 || signe(Ng) < 0) return gen_m1;
+  return lcmii(Nf, Ng);
+}
+static GEN
+opK(GEN kf, GEN kg, GEN (*op)(GEN,GEN))
+{
+  if (signe(kf) < 0 || signe(kg) < 0) return gen_m1;
+  return op(kf, kg);
 }
 
 GEN
-mfmul(GEN F, GEN G)
+mfmul(GEN f, GEN g)
 {
   pari_sp av = avma;
-  if (!isf(F)) pari_err_TYPE("mfmul",F);
-  if (!isf(G)) pari_err_TYPE("mfmul",G);
-  return gerepilecopy(av, tag2(t_MF_MUL, F, G));
+  GEN N, K, NK;
+  if (!isf(f)) pari_err_TYPE("mfmul",f);
+  if (!isf(g)) pari_err_TYPE("mfmul",g);
+  N = lcmN(f_gN(f), f_gN(g));
+  K = opK(f_gk(f), f_gk(g), &addii);
+  NK = mkgNK(N, K, mfcharmul(f_CHI(f), f_CHI(g)));
+  return gerepilecopy(av, tag2(t_MF_MUL, NK, f, g));
 }
 GEN
-mfpow(GEN F, GEN n)
+mfpow(GEN f, GEN n)
 {
   pari_sp av = avma;
-  if (!isf(F)) pari_err_TYPE("mfpow",F);
+  GEN kf, KK, NK;
+  if (!isf(f)) pari_err_TYPE("mfpow",f);
   if (typ(n) != t_INT) pari_err_TYPE("mfpow",n);
   if (!signe(n)) return mfcreate(gen_1);
-  return gerepilecopy(av, tag2(t_MF_POW, F, n));
+  kf = f_gk(f);
+  KK = signe(kf) < 0? kf: mulii(n,kf);
+  NK = mkgNK(f_gN(f), KK, mfcharpow(f_CHI(f), n));
+  return gerepilecopy(av, tag2(t_MF_POW, NK, f, n));
 }
 GEN
-mfbracket(GEN F, GEN G, long m)
+mfbracket(GEN f, GEN g, long m)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, tag3(t_MF_MULRC, F, G, stoi(m)));
+  GEN N, K, NK;
+  if (!isf(f)) pari_err_TYPE("mfbracket",f);
+  if (!isf(g)) pari_err_TYPE("mfbracket",g);
+  K = opK(f_gk(f), f_gk(g), &addii); if (signe(K) >= 0) K = addis(K, 2*m);
+  N = lcmN(f_gN(f), f_gN(g));
+  NK = mkgNK(N, K, mfcharmul(f_CHI(f), f_CHI(g)));
+  return gerepilecopy(av, tag3(t_MF_MULRC, NK, f, g, stoi(m)));
 }
 
 /* remove 0 entries in L */
-static GEN
-mflinear_strip(long t, GEN F, GEN L)
+static int
+mflinear_strip(GEN *pF, GEN *pL)
 {
   pari_sp av = avma;
+  GEN F = *pF, L = *pL;
   long i, j, l = lg(L);
   GEN F2 = cgetg(l, t_VEC), L2 = cgetg(l, t_VEC);
   for (i = j = 1; i < l; i++)
   {
     if (gequal0(gel(L,i))) continue;
     gel(F2,j) = gel(F,i);
-    gel(L2,j) = gel(L,i);
-    j++;
+    gel(L2,j) = gel(L,i); j++;
   }
   if (j == l) avma = av;
   else
   {
-    setlg(F2,j); F = F2;
-    setlg(L2,j); L = L2;
+    setlg(F2,j); *pF = F2;
+    setlg(L2,j); *pL = L2;
   }
-  return tag2(t, F, L);
+  return (j > 1);
 }
+/* assume F has homogeneous [N,K,CHI] */
 static GEN
-mflinear_i(GEN F, GEN L) { return mflinear_strip(t_MF_LINEAR, F,L); }
+mflinear_i(GEN F, GEN L)
+{
+  if (!mflinear_strip(&F,&L)) return mftrivial();
+  return tag2(t_MF_LINEAR, f_NK(gel(F,1)), F,L);
+}
+/* assume F has homogeneous [N,K,CHI] */
 static GEN
-mflinear_bhn(GEN F, GEN L) { return mflinear_strip(t_MF_LINEAR_BHN, F,L); }
+mflinear_bhn(GEN F, GEN L)
+{
+  if (!mflinear_strip(&F,&L)) return mftrivial();
+  return tag2(t_MF_LINEAR_BHN, f_NK(gel(F,1)), F,L);
+}
 GEN
 mflinear(GEN F, GEN L)
 {
   pari_sp av = avma;
-  long lv = lg(F);
+  GEN G, FL, NK, N = NULL, K = NULL, CHI = NULL;
+  long i, l = lg(F);
   if (typ(F) != t_VEC) pari_err_TYPE("mflinear",F);
   if (typ(L) != t_VEC) pari_err_TYPE("mflinear",L);
-  if (lg(L) != lv) pari_err_DIM("mflinear");
-  return gerepilecopy(av, mflinear_i(F,L));
+  if (lg(L) != l) pari_err_DIM("mflinear");
+  if (!mflinear_strip(&F,&L)) return mftrivial();
+  l = lg(F);
+  for (i = 1; i < l; i++)
+  {
+    GEN Ni = f_gN(gel(F,i)), Ki = f_gk(gel(F,i));
+    N = N? lcmN(N, Ni): Ni;
+    if (!K) K = Ki; else if (!equalii(K,Ki)) K = gen_m1;
+  }
+  G = znstar0(N,1);
+  for (i = 1; i < l; i++)
+  {
+    GEN CHI2 = f_CHI(gel(F,i));
+    if (isintzero(CHI2)) { CHI = gen_0; break; }
+    CHI2 = induce(G, CHI2);
+    if (!CHI) CHI = CHI2; else if (!gequal(CHI, CHI2)) { CHI = gen_0; break; }
+  }
+  NK = (signe(K) < 0 || isintzero(CHI))? mkNK(-1,-1,gen_0): mkgNK(N, K, CHI);
+  FL = tag2(t_MF_LINEAR, NK, F,L);
+  return gerepilecopy(av, FL);
 }
 
 /* Non empty linear combination of linear combinations of same, not checked */
@@ -1497,21 +1623,22 @@ static GEN
 mflinear_linear(GEN F, GEN L)
 {
   long l = lg(F), j;
-  GEN M = cgetg(l, t_MAT);
+  GEN vF, M = cgetg(l, t_MAT);
   for (j = 1; j < l; j++)
   {
     GEN f = gel(F,j), c = gel(f,3);
     if (typ(c) == t_VEC) c = shallowtrans(c);
     gel(M,j) = c;
   }
-  return tag2(t_MF_LINEAR, gmael(F,1,2), RgM_RgC_mul(M,L));
+  vF = gmael(F,1,2);
+  return tag2(t_MF_LINEAR, f_NK(gel(vF,1)), vF, RgM_RgC_mul(M,L));
 }
 
 GEN
 mfshift(GEN F, long sh)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, tag2(t_MF_SHIFT, F, stoi(sh)));
+  return gerepilecopy(av, tag2(t_MF_SHIFT, f_NK(F), F, stoi(sh)));
 }
 long
 mfval(GEN F)
@@ -1528,10 +1655,14 @@ mfval(GEN F)
   avma = ltop; return 100;
 }
 GEN
-mfdiv_val(GEN F, GEN G, long vG)
+mfdiv_val(GEN f, GEN g, long vg)
 {
-  if (vG) { F = mfshift(F,vG); G = mfshift(G,vG); }
-  return tag2(t_MF_DIV, F, G);
+  GEN N, K, NK;
+  if (vg) { f = mfshift(f,vg); g = mfshift(g,vg); }
+  N = lcmN(f_gN(f), f_gN(g));
+  K = opK(f_gk(f), f_gk(g), &subii);
+  NK = mkgNK(N, K, mfchardiv(f_CHI(f), f_CHI(g)));
+  return tag2(t_MF_DIV, NK, f, g);
 }
 GEN
 mfdiv(GEN F, GEN G)
@@ -1547,33 +1678,46 @@ GEN
 mfderiv(GEN F, long m)
 {
   pari_sp av = avma;
+  GEN NK;
+  long k;
   if (!isf(F)) pari_err_TYPE("mfderiv",F);
-  return gerepilecopy(av, tag2(t_MF_DERIV, F, stoi(m)));
+  k = f_k(F); if (k >= 0) k += 2*m;
+  NK = mkNK(f_N(F), k, f_CHI(F));
+  return gerepilecopy(av, tag2(t_MF_DERIV, NK, F, stoi(m)));
 }
 GEN
 mfderivE2(GEN F, long m)
 {
   pari_sp av = avma;
+  GEN NK;
+  long k;
   if (!isf(F)) pari_err_TYPE("mfderivE2",F);
   if (m < 0) pari_err_DOMAIN("mfderivE2","m","<",gen_0,stoi(m));
-  return gerepilecopy(av, tag2(t_MF_DERIVE2, F, stoi(m)));
+  k = f_k(F); if (k >= 0) k += 2*m;
+  NK = mkNK(f_N(F), k, f_CHI(F));
+  return gerepilecopy(av, tag2(t_MF_DERIVE2, NK, F, stoi(m)));
 }
 
 GEN
 mfinteg(GEN F, long m)
 {
   pari_sp av = avma;
-  GEN a;
+  GEN a, NK;
   if (!isf(F)) pari_err_TYPE("mfinteg",F);
   a = mfak_i(F, 0);
   if (!gequal0(a)) pari_err_DOMAIN("mfinteg", "F(0)", "!=", gen_0, a);
-  return gerepilecopy(av, tag2(t_MF_INTEG, F, stoi(m)));
+  NK = mkNK(f_N(F), f_k(F)-2*m, f_CHI(F));
+  return gerepilecopy(av, tag2(t_MF_INTEG, NK, F, stoi(m)));
 }
 GEN
 mftwist(GEN F, GEN D)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, tag2(t_MF_TWIST, F, D));
+  GEN NK;
+  if (!isf(F)) pari_err_TYPE("mftwist", F);
+  if (typ(D) != t_INT) pari_err_TYPE("mftwist", D);
+  NK = mkgNK(mulii(f_gN(F), sqri(D)), f_gk(F), f_CHI(F));
+  return gerepilecopy(av, tag2(t_MF_TWIST, NK, F, D));
 }
 
 /***************************************************************/
@@ -3079,11 +3223,16 @@ mfolddim(long N, long k, GEN CHI)
 
 /* trace form, given as closure */
 static GEN
-mftraceform_new(long N, long  k,  GEN CHI)
-{ return tag2(t_MF_NEWTRACE, mkvecsmall2(N,k), initnewtrace(N,CHI)); }
+mftraceform_new(long N, long k, GEN CHI)
+{
+  GEN NK = mkNK(N, k, CHI);
+  return tag(t_MF_NEWTRACE, NK, initnewtrace(N,CHI)); }
 static GEN
 mftraceform_cusp(long N, long k, GEN CHI)
-{ return tag2(t_MF_TRACE, mkvecsmall2(N,k), inittrace(N,CHI,NULL));}
+{
+  GEN NK = mkNK(N, k, CHI);
+  return tag(t_MF_TRACE, NK, inittrace(N,CHI,NULL));
+}
 
 static GEN
 mftraceform_i(GEN NK, long space)
@@ -3102,18 +3251,18 @@ mftraceform(GEN NK, long space)
 { pari_sp av = avma; return gerepilecopy(av, mftraceform_i(NK,space)); }
 
 static GEN
-hecke_data(long N, long k, long n)
-{ return mkvecsmall4(k, n, u_ppo(n, N), N); }
+hecke_data(long N, long n)
+{ return mkvecsmall3(n, u_ppo(n, N), N); }
 
 static GEN
 mfhecke_i(long N, long k, GEN CHI, GEN F, long n)
 {
+  GEN NK;
   if (n == 1) return F;
   if (!CHI) CHI = mfchartrivial(N);
-  return tag3(t_MF_HECKE, hecke_data(N,k,n), CHI, F);
+  NK = mkNK(N, k, CHI);
+  return tag2(t_MF_HECKE, NK, hecke_data(N,n), F);
 }
-
-int checkmf_i(GEN mf);
 
 GEN
 mfhecke(GEN F, long n, GEN NK)
@@ -3126,7 +3275,10 @@ mfhecke(GEN F, long n, GEN NK)
     GEN P = mfparams(F);
     N = itos(gel(P,1));
     k = itos(gel(P,2));
-    CHI = get_mfchar(gel(P,3));
+    CHI = gel(P,3);
+    if (N < 0 || k < 0 || isintzero(CHI))
+      pari_err_IMPL("mfhecke for this form");
+    CHI = get_mfchar(CHI);
   }
   else if (!checkmf_i(NK)) checkNK(NK, &N, &k, &CHI, 0);
   else
@@ -3136,19 +3288,22 @@ mfhecke(GEN F, long n, GEN NK)
     k = mf_get_k(mf);
     CHI = mf_get_CHI(mf);
   }
-  return gerepilecopy(av, mfhecke_i(N, k, CHI, F, n));
+  if (n == 1) return gcopy(F);
+  NK = mkgNK(lcmii(stoi(N), f_gN(F)), stoi(k), CHI);
+  return gerepilecopy(av, tag2(t_MF_HECKE, NK, hecke_data(N,n), F));
 }
 
 /* form F given by closure, compute B(d)(F) as closure (q -> q^d) */
 static GEN
 mfbd_i(GEN F, long d)
 {
-  GEN D;
+  GEN D, NK;
   if (d == 1) return F;
   if (d <= 0) pari_err_TYPE("mfbd [d <= 0]", stoi(d));
   if (f_type(F) != t_MF_BD) D = utoi(d);
   else { D = mului(d, gel(F,2)); F = gel(F,3); }
-  return tag2(t_MF_BD, D, F);
+  NK = mkgNK(muliu(f_gN(F), d), f_gk(F), f_CHI(F));
+  return tag2(t_MF_BD, NK, D, F);
 }
 GEN
 mfbd(GEN F, long d)
@@ -3166,7 +3321,7 @@ mfheckeU_i(GEN F, long d)
   if (d <= 0) pari_err_TYPE("mfheckeU [d <= 0]", stoi(d));
   if (f_type(F) != t_MF_HECKEU) D = utoi(d);
   else { D = mului(d, gel(F,2)); F = gel(F,3); }
-  return tag2(t_MF_HECKEU, D, F);
+  return tag2(t_MF_HECKEU, f_NK(F), D, F);
 }
 GEN
 mfheckeU(GEN F, long d)
@@ -3304,6 +3459,10 @@ heckenewtrace(long m0, long m, long l, long N, long NBIG, long k, long n, cachen
   return v;
 }
 
+/* tf a t_MF_NEWTRACE */
+static GEN
+tf_get_DATA(GEN tf) { return gel(tf,2); }
+
 /* Given v = an[i], return an[d*i] */
 static GEN
 anextract(GEN v, long n, long d)
@@ -3315,22 +3474,23 @@ anextract(GEN v, long n, long d)
 }
 /* T_n(F)(0, l, ..., l*m) */
 static GEN
-hecke_i(long m, long l, GEN knN, GEN CHI, GEN F)
+hecke_i(long m, long l, GEN DATA, GEN F)
 {
-  long k = knN[1], n = knN[2], nN = knN[3], NBIG = knN[4];
+  long k = f_k(F), n = DATA[1], nN = DATA[2], NBIG = DATA[3];
   long lD, M, a, t, nl = n*l;
-  GEN D, v, AN;
+  GEN D, v, AN, CHI;
   if (nN == 1) return mfcoefs_i(F,m,nl);
   if (f_type(F) == t_MF_NEWTRACE)
   { /* inline F to allow cache */
     cachenew_t cache;
-    GEN Nk = gel(F, 2), DATA = gel(F, 3);
-    long N = Nk[1];
-    init_cachenew(&cache, m*nl, newtrace_DATA(N, DATA));
+    long N = f_N(F);
+    GEN DATA = newtrace_DATA(N, tf_get_DATA(F));
+    init_cachenew(&cache, m*nl, DATA);
     v = heckenewtrace(0, m, l, N, NBIG, k, n, &cache);
     dbg_cachenew(&cache);
     settyp(v, t_VEC); return v;
   }
+  CHI = f_CHI(F);
   D = mydivisorsu(nN); lD = lg(D);
   M = m + 1;
   t = nN * cgcd(nN, l);
@@ -3345,14 +3505,6 @@ hecke_i(long m, long l, GEN knN, GEN CHI, GEN F)
       gel(v,idl) = gadd(gel(v,idl), gmul(C, gel(V,i)));
   }
   return v;
-}
-
-/* tf either a t_MF_NEWTRACE or a t_MF_HECKE of such */
-static GEN
-tf_get_DATA(GEN tf)
-{
-  if (f_type(tf) == t_MF_HECKE) tf = gel(tf,4);
-  return gel(tf,3);
 }
 
 static ulong
@@ -3422,7 +3574,7 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
   vtf = cgetg(dim + 1, t_VEC);
   /* FIXME (experiment) : remove newtrace data from vtf to save space.
    * I expect negligible slowdown */
-  gel(tf, 3) = CHI;
+  gel(tf, 2) = CHI;
   for (j = 1; j <= dim; ++j) gel(vtf, j) = mfhecke_i(N, k, CHIP, tf, vj[j]);
   dbg_cachenew(cache);
   mf1 = mkvec4(utoipos(N), utoipos(k), CHI, utoi(mf_NEW));
@@ -3453,9 +3605,9 @@ bhnmat_extend(GEN M, long m, long r, GEN vtf, cachenew_t *cache)
   m0 = M? nbrows(M): 0;
   for (i = 1; i < l; i++)
   {
-    long d, j, N, k, m0d;
-    GEN DATA, c;
-    bhn_parse(gel(vtf,i), &d, &j, &N, &k, &DATA);
+    GEN DATA, c, f = gel(vtf,i);
+    long d, j, m0d, N, k = f_k(f);
+    bhn_parse(f, &N, &d, &j, &DATA);
     m0d = ceildiv(m0,d);
     if (N!=Nold)
     { reset_cachenew(cache, newtrace_DATA(N,DATA)); Nold=N; jold=0; }
@@ -3560,19 +3712,19 @@ long
 mfisequal(GEN F, GEN G, long lim)
 {
   pari_sp av = avma;
-  GEN P;
   long t, sb;
   if (!isf(F)) pari_err_TYPE("mfisequal",F);
   if (!isf(G)) pari_err_TYPE("mfisequal",G);
   if (lim) sb = lim;
   else
   {
-    P = mfparams_ii(F);
-    if (!P) pari_err_IMPL("mfisequal for these forms");
-    sb = mfsturmNk(itos(gel(P,1)), itos(gel(P,2)));
-    P = mfparams_ii(G);
-    if (!P) pari_err_IMPL("mfisequal for these forms");
-    sb = maxss(sb, mfsturmNk(itos(gel(P,1)), itos(gel(P,2))));
+    long N, k;
+    N = f_N(F);
+    k = f_k(F); if (N < 0 || k < 0) pari_err_IMPL("mfisequal for these forms");
+    sb = mfsturmNk(N, k);
+    N = f_N(G);
+    k = f_k(G); if (N < 0 || k < 0) pari_err_IMPL("mfisequal for these forms");
+    sb = maxss(sb, mfsturmNk(N, k));
   }
   t = gequal(mfcoefs_i(F, sb+1, 1), mfcoefs_i(G, sb+1, 1));
   avma = av; return t;
@@ -3919,27 +4071,25 @@ static GEN
 mfmathecke_i(GEN mf, long n)
 {
   pari_sp av = avma;
-  GEN CHI, Minv, v, b, Mindex, knN;
-  long N, k, j, l, sb;
+  GEN Minv, v, b, Mindex, nN;
+  long N, j, l, sb;
 
   b = mf_get_basis(mf); l = lg(b);
   if (l == 1) return cgetg(1, t_MAT);
   if (n == 1) return matid(l-1);
-  k = mf_get_k(mf);
-  if (k == 1 && f_type(gel(b,1)) == t_MF_DIV)
+  if (mf_get_k(mf) == 1 && f_type(gel(b,1)) == t_MF_DIV)
     return mfmatheckewt1(mf, n, wt1basiscols(mf, n));
   if (mf_get_space(mf) == mf_NEW && uisprime(n))
     return mfnewmathecke_p(mf, n);
   N = mf_get_N(mf);
-  CHI = mf_get_CHI(mf);
   sb = mfsturm_mf(mf)-1;
   Mindex = mf_get_Mindex(mf);
   Minv = mf_get_Minv(mf);
-  knN = hecke_data(N, k, n);
+  nN = hecke_data(N, n);
   v = cgetg(l, t_VEC);
   for (j = 1; j < l; j++)
   {
-    GEN vj = hecke_i(sb, 1, knN, CHI, gel(b,j)); /* Tp f[j] */
+    GEN vj = hecke_i(sb, 1, nN, gel(b,j)); /* Tp f[j] */
     settyp(vj,t_COL); gel(v, j) = vecpermute(vj, Mindex);
   }
   return gerepileupto(av, Minv_RgM_mul(Minv,v));
@@ -4583,7 +4733,11 @@ vecmflinear(GEN F, GEN C)
 {
   long i, l = lg(C);
   GEN v = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(v,i) = tag2(t_MF_LINEAR, F, gel(C,i));
+  if (l > 1)
+  {
+    GEN NK = f_NK(gel(F,1));
+    for (i = 1; i < l; i++) gel(v,i) = tag2(t_MF_LINEAR, NK, F, gel(C,i));
+  }
   return v;
 }
 
@@ -5807,7 +5961,7 @@ mfdihedral(long N)
 static GEN
 mfdihedralnew_i(long N, GEN CHI)
 {
-  GEN Pm, vf, M, V, SP = mfdihedral(N);
+  GEN Pm, vf, M, V, NK, SP = mfdihedral(N);
   long d, ordw, i, SB, c, l, k0, k1, chino, chinoorig, lv;
 
   CHI = mfcharinduce(CHI,N);
@@ -5836,6 +5990,7 @@ mfdihedralnew_i(long N, GEN CHI)
   SB = myeulerphiu(ordw) * mfsturmNk(N,1) + 1;
   M = cgetg(d+1, t_MAT);
   vf = cgetg(d+1, t_VEC);
+  NK = mkNK(N, 1, CHI);
   for (i = c = 1; i < l; i++)
   { /* T = [N, k0, conreyno, D, ordmax, degrel] */
     GEN an, bnf, bnr, w, Vi = gel(V,i);
@@ -5849,7 +6004,7 @@ mfdihedralnew_i(long N, GEN CHI)
       GEN k0j = mkvecsmall2(k0i, jdeg);
       an = dihan(bnr, w, Tinit, k0j, SB);
       settyp(an, t_COL); gel(M,c) = Q_primpart(an);
-      gel(vf,c) = tag5(t_MF_DIHEDRAL, bnr, w, Tinit, k0j, CHI);
+      gel(vf,c) = tag4(t_MF_DIHEDRAL, NK, bnr, w, Tinit, k0j);
     }
   }
   Pm = gmael3(V,1,4,1);
@@ -6114,11 +6269,7 @@ mfinit_i(GEN NK, long space)
       default: pari_err_FLAG("mfinit");
     }
   }
-  if (!mf) mf = mfEMPTY(mf1);
-  else
-  {
-    gel(mf,1) = mf1;
-  }
+  if (!mf) mf = mfEMPTY(mf1); else gel(mf,1) = mf1;
   if (!space_is_cusp(space))
   {
     long sb = mfsturmNk(N,k);
@@ -6220,11 +6371,10 @@ mfeval0(long N, long k, GEN F, GEN vtau, long bitprec)
 GEN
 mfeval(GEN F, GEN vtau, long bitprec)
 {
-  GEN P;
   long N, k;
   if (!isf(F)) pari_err_TYPE("mfeval", F);
-  P = mfparams_ii(F); if (!P) pari_err_IMPL("mfeval for this form");
-  N = itos(gel(P, 1)); k = itos(gel(P, 2));
+  N = f_N(F);
+  k = f_k(F); if (N < 0 || k < 0) pari_err_IMPL("mfeval for this form");
   return mfeval0(N, k, F, vtau, bitprec);
 }
 
@@ -6888,7 +7038,11 @@ allembed(GEN F, GEN z)
 {
   long l = lg(z), j;
   GEN r = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(r,j) = tag2(t_MF_EMBED, F, gel(z,j));
+  if (l > 1)
+  {
+    GEN NK = f_NK(F);
+    for (j = 1; j < l; j++) gel(r,j) = tag2(t_MF_EMBED, NK, F, gel(z,j));
+  }
   return r;
 }
 GEN
@@ -6953,7 +7107,7 @@ mfreltoabs(GEN F)
   GEN S, P, T;
   if (!RgV_polmods(mfcoefs(F,10,1), &P, &T)) pari_err_TYPE("mfreltoabs",F);
   S = (P&&T)? nf_rnfeq(P,T): gen_0;
-  return gerepilecopy(av, tag2(t_MF_RELTOABS,F,S));
+  return gerepilecopy(av, tag2(t_MF_RELTOABS, f_NK(F), F, S));
 }
 
 static GEN
@@ -7022,9 +7176,11 @@ lfunmf(GEN F, long flag, long bitprec)
   if (!isf(F)) z = lfunmfall(F, flag & 1, bitprec);
   else
   {
-    GEN Nk, sd = flag & 1? gen_0: gen_1;
-    Nk = mfparams_ii(F); if (!Nk) pari_err_TYPE("lfunmf",F);
-    z = lfunmf_i(F, sd, gel(Nk,1), gel(Nk,2), gen_0, flag & 2, bitprec);
+    GEN gN, gk, sd = flag & 1? gen_0: gen_1;
+    gN = f_gN(F);
+    gk = f_gk(F);
+    if (signe(gN) < 0 || signe(gk) < 0) pari_err_TYPE("lfunmf",F);
+    z = lfunmf_i(F, sd, gN, gk, gen_0, flag & 2, bitprec);
   }
   return gerepilecopy(av,z);
 }
@@ -7049,9 +7205,7 @@ mfeigeneval(GEN mf, GEN vtau, long bitprec)
 
   if (isf(mf))
   {
-    GEN P = mfparams_ii(mf);
-    if (!P) pari_err_IMPL("mfeigeneval for this form");
-    N = itos(gel(P, 1));
+    N = f_N(mf); if (N < 0) pari_err_IMPL("mfeigeneval for this form");
     L = lfunmf(mf, 0, bitprec);
     mf = NULL;
   }
@@ -7086,7 +7240,7 @@ mffromell(GEN E)
   if (ell_get_type(E) != t_ELL_Q) pari_err_TYPE("mfffromell [E not over Q]", E);
   N = itos(gel(ellglobalred(E), 1));
   mf = mfsplit(mfinit(mkvec2(utoi(N), gen_2), mf_NEW), 1, 0);
-  F = tag(t_MF_ELL, E);
+  F = tag(t_MF_ELL, mkNK(N,2,mfchartrivial(1)), E);
   z = mftobasis_i(mf, F);
   S = mf_get_newforms(mf); l = lg(S);
   for(i = 1; i < l; i++)
@@ -7206,7 +7360,7 @@ mffromqf(GEN Q, GEN P)
   mf = mfinit(mkvec3(N, utoi(k + d), znchar_quad(N,D)), space);
   if (odd(d))
   {
-    F = tag(t_MF_CONST, mkvec(gen_0));
+    F = mfcreate(gen_0);
     res = zerocol(mf_get_dim(mf));
   }
   else
@@ -7370,10 +7524,16 @@ mfeisen_2_0(long k, GEN CHI1, GEN CHI2, long *ord)
   return mkvec4(E0,CHI1,CHI2,cgetg(1,t_VEC));
 }
 static GEN
+NK_eisen2(long k, GEN CHI1, GEN CHI2)
+{
+  long N = mfcharmodulus(CHI1)*mfcharmodulus(CHI2);
+  return mkNK(N, k, mfcharmul(CHI1,CHI2));
+}
+static GEN
 mfeisen_i(long k, GEN CHI1, GEN CHI2)
 {
   long s = 1, ord;
-  GEN vchi, CHI;
+  GEN NK, vchi, CHI;
   if (CHI2) { CHI2 = get_mfchar(CHI2); if (mfcharparity(CHI2) < 0) s = -s; }
   if (CHI1) { CHI1 = get_mfchar(CHI1); if (mfcharparity(CHI1) < 0) s = -s; }
   if (s != m1pk(k)) return mftrivial();
@@ -7384,15 +7544,21 @@ mfeisen_i(long k, GEN CHI1, GEN CHI2)
   else
     CHI = NULL;
   /* E_k(chi) */
-  if (CHI) return tag2(t_MF_EISEN, mkvecsmall(k), mfeisen_1_0(k,CHI));
+  if (CHI)
+  {
+    NK = mkNK(mfcharmodulus(CHI), k, CHI);
+    return tag2(t_MF_EISEN, NK, mkvecsmall(k), mfeisen_1_0(k,CHI));
+  }
   /* E_k(chi1,chi2) */
+  NK = NK_eisen2(k, CHI1, CHI2);
   vchi = mfeisen_2_0(k, CHI1, CHI2, &ord);
-  return tag2(t_MF_EISEN, mkvecsmall3(k,ord,0), vchi);
+  return tag2(t_MF_EISEN, NK, mkvecsmall3(k,ord,0), vchi);
 }
 GEN
 mfeisen(long k, GEN CHI1, GEN CHI2)
 {
   pari_sp av = avma;
+  if (k < 1) pari_err_DOMAIN("mfeisen", "k", "<", gen_1, stoi(k));
   return gerepilecopy(av, mfeisen_i(k, CHI1, CHI2));
 }
 
@@ -7400,13 +7566,14 @@ static GEN
 mfeisen2closvec(long k, GEN CHI1, GEN CHI2, long ordchi)
 {
   long ord, j, d;
-  GEN E, vchi = mfeisen_2_0(k, CHI1, CHI2, &ord);
+  GEN NK, E, vchi = mfeisen_2_0(k, CHI1, CHI2, &ord);
   GEN T = Qab_trace_init(ord_canon(ord), ord_canon(ordchi));
+  NK = NK_eisen2(k, CHI1, CHI2);
   gel(vchi,4) = T;
   d = (lg(T)==4)? itou(gmael(T,3,1)): 1;
   E = cgetg(d+1, t_VEC);
   for (j = 1; j <= d; j++)
-    gel(E,j) = tag2(t_MF_EISEN, mkvecsmall3(k,ord,j-1), vchi);
+    gel(E,j) = tag2(t_MF_EISEN, NK, mkvecsmall3(k,ord,j-1), vchi);
   return E;
 }
 
@@ -7576,22 +7743,21 @@ mfeisenbasis_i(long N, long k, GEN CHI)
 static long
 mfisinspace_i(GEN mf, GEN F)
 {
-  GEN P, CHI1, CHI2;
+  GEN CHI1, CHI2;
   long Nmf, N, k, space = mf_get_space(mf);
 
-  P = mfparams_i(F);
-  if (!P) pari_err_IMPL("mfisinspace for this F");
+  N = f_N(F);
   Nmf = mf_get_N(mf);
-  N = itou(gel(P,1));
   if (space == mf_NEW)
   { if (N != Nmf) return 0; }
   else
   { if (Nmf % N) return 0; }
-  k = itou(gel(P,2));
+  k = f_k(F);
   if (mf_get_k(mf) != k) return 0;
+  if (isintzero(f_CHI(F))) pari_err_IMPL("mfisinspace for this F");
   CHI1 = mf_get_CHI(mf); CHI1 = mfchar2char(CHI1);
   CHI1 = znchartoprimitive(gel(CHI1,1), gel(CHI1,2));
-  CHI2 = mfchar2char(gel(P,3));
+  CHI2 = mfchar2char(f_CHI(F));
   CHI2 = znchartoprimitive(gel(CHI2,1), gel(CHI2,2));
   return gequal(CHI1,CHI2);
 }
@@ -7781,14 +7947,43 @@ GEN
 mfEk(long k)
 {
   pari_sp av = avma;
-  GEN E0;
+  GEN E0, NK;
   if (k <= 0 || (k & 1L)) pari_err_TYPE("mfEk [incorrect k]", stoi(k));
   E0 = gdivsg(-2*k, bernfrac(k));
-  return gerepilecopy(av, tag2(t_MF_Ek, mkvecsmall(k), E0));
+  NK = mkNK(1,k,mfchartrivial(1));
+  return gerepilecopy(av, tag2(t_MF_Ek, NK, mkvecsmall(k), E0));
 }
 
 GEN
-mfDelta(void) { return tag0(t_MF_DELTA); }
+mfDelta(void)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, tag0(t_MF_DELTA,mkNK(1,12,mfchartrivial(1))));
+}
+
+/* FIXME: unify with lfunetaquotype */
+static GEN
+NK_eta(GEN M, GEN R)
+{
+  long N, k, i, lD, lM = lg(M);
+  GEN gN, S, P, D;
+  N = 1; for(i = 1; i < lM; i++) N = clcm(N, M[i]);
+  D = divisorsu(N); lD = lg(D);
+  S = gen_0; P = gen_1; k = 0;
+  for (i = 1; i < lD; ++i)
+  {
+    long m = D[i], r = 0, j;
+    for (j = 1; j < lM; ++j)
+      if (m == M[j]) r += R[j];
+    S = gadd(S, gdivgs(utoi(r), 24*m));
+    if (odd(r)) P = mulis(P, m);
+    k += r;
+  }
+  k >>= 1;
+  gN = lcmii(stoi(N), Q_denom(S));
+  D = odd(k)? negi(P): P;
+  return mkvec3(gN, utoi(k), coredisc(D));
+}
 GEN
 mfetaquo(GEN eta)
 {
@@ -7802,7 +7997,7 @@ mfetaquo(GEN eta)
   E = ZV_to_zv(gel(eta,2)); s = 0;
   for (i = 1; i < lg(B); i++) s += B[i]*E[i];
   s = maxss(0, s/24);
-  return gerepilecopy(av, tag2(t_MF_ETAQUO, mkvec2(B,E), stoi(s)));
+  return gerepilecopy(av, tag2(t_MF_ETAQUO, NK_eta(B,E), mkvec2(B,E), stoi(s)));
 }
 
 /* Tr_{Q(zeta_n)/Q} (zeta_n^j * x), j = 0 .. phi(n) */
@@ -7934,12 +8129,13 @@ GEN
 mftaylor(GEN F, long n, long flreal, long prec)
 {
   pari_sp ltop = avma;
-  GEN P, P0, Pm1 = gen_0, v;
+  GEN P0, Pm1 = gen_0, v;
   GEN X2 = mkpoln(3, ghalf,gen_0,gneg(ghalf)); /* (x^2-1) / 2 */
   long k, m;
   if (!isf(F)) pari_err_TYPE("mftaylor",F);
-  P = mfparams_ii(F); if (!P) pari_err_IMPL("mftaylor for this form");
-  k = itos(gel(P, 2)); P0 = mfcanfindp0(F, k);
+  k = f_k(F);
+  if (f_N(F) != 1 || k < 0) pari_err_IMPL("mftaylor for this form");
+  P0 = mfcanfindp0(F, k);
   v = cgetg(n+2, t_VEC); gel(v, 1) = RgX_coeff(P0,0);
   for (m = 0; m < n; m++)
   {
@@ -8324,13 +8520,12 @@ GEN
 mfperiodpol(GEN F, long flag, long der, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN sdom, L, V, B, P;
+  GEN sdom, L, V, B;
   long k, km2, n, step, flagmf, n0;
   if (!isf(F)) pari_err_TYPE("mfperiodpol", F);
-  P = mfparams_ii(F);
-  if (!P) pari_err_IMPL("mfperiodpol for this form");
-  if (!gequal1(gel(P,1))) pari_err_IMPL("mfperiodpol in level > 1");
-  k = itos(gel(P, 2)); km2 = k-2;
+  if (f_N(F) != 1) pari_err_IMPL("mfperiodpol in level > 1");
+  k = f_k(F); if (k < 0) pari_err_IMPL("mfperiodpol for this form");
+  km2 = k-2;
   flagmf = gequal0(mfak_i(F, 0)) ? 3: 1;
   sdom = mkvec3(stoi(k/2), stoi(k/2), gen_1);
   L = lfuninit(lfunmf(F, flagmf, bitprec), sdom, der, bitprec);
@@ -8346,267 +8541,6 @@ mfperiodpol(GEN F, long flag, long der, long bitprec)
   return gerepileupto(ltop, gtopoly(V, 0));
 }
 
-/*************************************************************/
-/* Implementation of mfparams: give level, weight, character */
-
-/* mfparams: function called by the user; mfparams_i: inner function with
-   character calculation; mfparams_ii: inner function without character,
-   returns [N,k,code]. */
-
-/* codes:
-[CHI]: take as such, [1, CHI1, CHI2]: charmul,
-[0, [CHI1,...]: must have all induced CHI1 equal, [2, CHI1, CHI2]: chardiv,
-[3, CHI]: charinv.
-*/
-
-static GEN
-params_linear(GEN F, GEN L)
-{
-  long lF, i, c;
-  GEN N = gen_1, k = NULL, v = cgetg_copy(L,&lF);
-  for (i = c = 1; i < lF; ++i)
-  {
-    GEN Q;
-    if (gequal0(gel(L, i))) continue;
-    Q = mfparams_ii(gel(F,i));
-    if (k && !gequal(k, gel(Q,2))) return NULL;
-    N = lcmii(N, gel(Q,1));
-    k = gel(Q,2);
-    gel(v, c++) = gel(F,i);
-  }
-  if (!k) return NULL;
-  setlg(v, c); return mkvec3(N, k, v);
-}
-
-/* FIXME: unify with lfunetaquotype */
-static GEN
-params_eta(GEN eta)
-{
-  GEN M = gel(eta,1), R = gel(eta,2), gN, S, P, D;
-  long N, k, i, lD, lM = lg(M);
-  N = 1; for(i = 1; i < lM; i++) N = clcm(N, M[i]);
-  D = divisorsu(N); lD = lg(D);
-  S = gen_0; P = gen_1; k = 0;
-  for (i = 1; i < lD; ++i)
-  {
-    long m = D[i], r = 0, j;
-    for (j = 1; j < lM; ++j)
-      if (m == M[j]) r += R[j];
-    S = gadd(S, gdivgs(utoi(r), 24*m));
-    if (odd(r)) P = mulis(P, m);
-    k += r;
-  }
-  k >>= 1;
-  gN = lcmii(stoi(N), Q_denom(S));
-  D = odd(k)? negi(P): P;
-  return mkvec3(gN, utoi(k), coredisc(D));
-}
-
-/* char operations not done but encoded */
-static GEN
-mfparams_ii(GEN F)
-{
-  GEN gN, C, CHI, D, P, P1, P2, gm, F2, F3;
-  long N, k, n;
-  switch(f_type(F))
-  {
-    case t_MF_CONST:
-      C = gel(F,2);
-      return (lg(C) != 2) ? NULL : mkvec3(gen_1, gen_0, gen_1);
-    case t_MF_EISEN:
-      F2 = gel(F,2); k = F2[1];
-      F3 = gel(F,3); CHI = gel(F3,2);
-      N = mfcharmodulus(CHI);
-      if (lg(F3) == 3) CHI = mkvec(CHI);
-      else
-      {
-        GEN CHI2 = gel(F3,3);
-        N = clcm(N, mfcharmodulus(CHI2));
-        CHI = mkvec2(CHI, CHI2);
-      }
-      return mkvec3(stoi(N), stoi(k), CHI);
-    case t_MF_Ek:
-      k = gel(F,2)[1];
-      return mkvec3(gen_1, stoi(k), gen_1);
-    case t_MF_DELTA:
-      return mkvec3(gen_1, utoi(12), gen_1);
-    case t_MF_ETAQUO:
-      return params_eta(gel(F,2));
-    case t_MF_ELL:
-      gN = ellQ_get_N(gel(F,2));
-      return mkvec3(gN, gen_2, gen_1);
-    case t_MF_MUL:
-      P1 = mfparams_ii(gel(F,2)); if (!P1) return NULL;
-      P2 = mfparams_ii(gel(F,3)); if (!P2) return NULL;
-      gN = lcmii(gel(P1,1), gel(P2,1));
-      return mkvec3(gN, gadd(gel(P1,2), gel(P2,2)), gen_0);
-    case t_MF_POW:
-      P = mfparams_ii(gel(F,2)); if (!P) return NULL;
-      n = itos(gel(F,3));
-      return mkvec3(gel(P,1), gmulsg(n,gel(P,2)), gen_0);
-    case t_MF_MULRC:
-      P1 = mfparams_ii(gel(F,2)); if (!P1) return NULL;
-      P2 = mfparams_ii(gel(F,3)); if (!P2) return NULL;
-      gN = lcmii(gel(P1,1), gel(P2,1));
-      return mkvec3(gN, gaddgs(gadd(gel(P1,2),gel(P2,2)),2*itos(gel(F,4))), gen_0);
-    case t_MF_LINEAR: case t_MF_LINEAR_BHN:
-      return params_linear(gel(F,2), gel(F,3));
-    case t_MF_DIV:
-      P1 = mfparams_ii(gel(F,2)); if (!P1) return NULL;
-      P2 = mfparams_ii(gel(F,3)); if (!P2) return NULL;
-      gN = lcmii(gel(P1,1), gel(P2,1));
-      CHI = mkvec3(gen_2, gel(P1,3), gel(P2,3));
-      return mkvec3(gN, gsub(gel(P1,2), gel(P2,2)), CHI);
-    case t_MF_SHIFT: return mfparams_ii(gel(F,2));
-    case t_MF_DERIV: case t_MF_DERIVE2:
-      P = mfparams_ii(gel(F,2)); if (!P) return NULL;
-      gm = gel(F,3);
-      return mkvec3(gel(P,1), gadd(gel(P,2), shifti(gm,1)), gel(P,3));
-    case t_MF_INTEG:
-      P = mfparams_ii(gel(F,2)); if (!P) return NULL;
-      gm = gel(F,3);
-      return mkvec3(gel(P,1), gsub(gel(P,2), shifti(gm,1)), gel(P,3));
-    case t_MF_TWIST:
-      P = mfparams_ii(gel(F,2)); if (!P) return NULL;
-      D = gel(F,3);
-      return mkvec3(mulii(gel(P,1), sqri(D)), gel(P,2), gel(P,3));
-    case t_MF_HECKE:
-      P = mfparams_ii(gel(F,4));
-      gel(P, 1) = glcm(gel(P, 1), stoi(gel(F,2)[4]));
-      return P;
-    case t_MF_BD:
-      P = mfparams_ii(gel(F,3)); if (!P) return NULL;
-      D = gel(F,2);
-      return mkvec3(mulii(gel(P,1), D), gel(P,2), gel(P,3));
-    case t_MF_TRACE:
-      return mkvec3(stoi(gel(F,2)[1]), stoi(gel(F,2)[2]), gel(gel(F,3),_CHIP));
-    case t_MF_RELTOABS:
-      return mfparams_ii(gel(F,2));
-    case t_MF_NEWTRACE:
-    {
-      GEN NK = gel(F,2), DATA = gel(F,3), CHI;
-      CHI = newtrace_stripped(DATA)? DATA: gel(gel(DATA,1),_CHIP);
-      return mkvec3(stoi(NK[1]), stoi(NK[2]), CHI);
-    }
-    case t_MF_DIHEDRAL:
-    {
-      GEN CHI = gel(F,6), G = gel(CHI,1);
-      return mkvec3(znstar_get_N(G), gen_1, CHI);
-    }
-    case t_MF_CLOSURE: case t_MF_EISENM1M2:
-      return NULL;
-    case t_MF_EMBED: case t_MF_HECKEU:
-      return mfparams_ii(gel(F,2));
-    default: pari_err_TYPE("mfparams", F);
-    return NULL;/* not reached */
-  }
-}
-
-static GEN
-induce(GEN G, GEN CHI)
-{
-  GEN o, chi;
-  if (typ(CHI) == t_INT) /* Kronecker */
-  {
-    chi = gel(znchar_quad(G, CHI), 2);
-    o = ZV_equal0(chi)? gen_1: gen_2;
-  }
-  else
-  {
-    if (mfcharmodulus(CHI) == itos(znstar_get_N(G))) return CHI;
-    chi = zncharinduce(gel(CHI,1), gel(CHI,2), G);
-    o = gel(CHI, 3);
-  }
-  return mkvec3(G, chi, o);
-}
-
-static GEN
-mfcharmul(GEN G, GEN CHI1, GEN CHI2)
-{
-  GEN CHI3;
-  CHI1 = induce(G, CHI1);
-  CHI2 = induce(G, CHI2);
-  CHI3 = zncharmul(G, gel(CHI1,2), gel(CHI2,2));
-  return mkvec3(G, CHI3, zncharorder(G, CHI3));
-}
-
-static GEN
-mfcharpow(GEN G, GEN CHI, long n)
-{
-  GEN CHI1 = induce(G, CHI), CHI3;
-  CHI3 = zncharpow(G, gel(CHI1,2), stoi(n));
-  return mkvec3(G, CHI3, zncharorder(G, CHI3));
-}
-
-static GEN
-mfchardiv(GEN G, GEN CHI1, GEN CHI2)
-{
-  GEN CHI3;
-  CHI1 = induce(G, CHI1);
-  CHI2 = induce(G, CHI2);
-  CHI3 = znchardiv(G, gel(CHI1, 2), gel(CHI2, 2));
-  return mkvec3(G, CHI3, zncharorder(G, CHI3));
-}
-
-static GEN
-mfparams_chi(GEN F) { return gel(mfparams_i(F),3); }
-
-static GEN
-mfparams_i(GEN F)
-{
-  GEN gN, P, CHIcode, k, CHI, CHI1, CHI2, G;
-  long i, n;
-  P = mfparams_ii(F); if (!P) return NULL;
-  gN = gel(P,1);
-  k  = gel(P,2);
-  CHIcode = gel(P,3);
-  G = znstar0(gN,1);
-  switch(f_type(F))
-  {
-    case t_MF_EISEN:
-      CHI = gel(CHIcode,1);
-      if (lg(CHIcode) != 2) CHI = mfcharmul(G, CHI, gel(CHIcode,2));
-      return mkvec3(gN, k, CHI);
-    case t_MF_MUL: case t_MF_MULRC:
-      CHI1 = mfparams_chi(gel(F,2));
-      CHI2 = mfparams_chi(gel(F,3));
-      return mkvec3(gN, k, mfcharmul(G, CHI1, CHI2));
-    case t_MF_POW:
-      CHI = mfparams_chi(gel(F,2));
-      n = itos(gel(F,3));
-      return mkvec3(gN, k, mfcharpow(G, CHI, n));
-    case t_MF_LINEAR: case t_MF_LINEAR_BHN:
-      CHI = induce(G, mfparams_chi(gel(CHIcode,1)));
-      for (i = 2; i < lg(CHIcode); i++)
-      {
-        CHI1 = induce(G, mfparams_chi(gel(CHIcode,i)));
-        if (!gequal(CHI,CHI1)) return NULL;
-      }
-      return mkvec3(gN, k, CHI);
-    case t_MF_DIV:
-      CHI1 = mfparams_chi(gel(F,2));
-      CHI2 = mfparams_chi(gel(F,3));
-      return mkvec3(gN, k, mfchardiv(G, CHI1, CHI2));
-    case t_MF_DERIV: case t_MF_DERIVE2: case t_MF_INTEG:
-    case t_MF_TWIST: case t_MF_RELTOABS:
-      return mkvec3(gN, k, mfparams_chi(gel(F,2)));
-    case t_MF_BD:
-      return mkvec3(gN, k, mfparams_chi(gel(F,3)));
-    case t_MF_EMBED: case t_MF_HECKEU: case t_MF_SHIFT:
-      return mfparams_i(gel(F,2));
-    case t_MF_HECKE:
-      P = mfparams_i(gel(F,4));
-      gel(P, 1) = glcm(gel(P, 1), stoi(gel(F,2)[4]));
-      return P;
-    case t_MF_DIHEDRAL:
-      return mkvec3(gN, k, gel(F,6));
-    case t_MF_CLOSURE: case t_MF_EISENM1M2:
-      return NULL;
-    default:
-      return P;
-  }
-}
-
 GEN
 mfparams(GEN F)
 {
@@ -8620,8 +8554,7 @@ mfparams(GEN F)
   else
   {
     if (!isf(F)) pari_err_TYPE("mfparams", F);
-    z = mfparams_i(F);
-    if (!z) { avma = av; return mkvec3(gen_0, gen_0, gen_0); }
+    z = shallowcopy( f_NK(F) );
   }
   CHI = gel(z,3);
   if (typ(CHI) != t_INT)
@@ -8644,8 +8577,9 @@ mfiscuspidal_i(GEN F)
   GEN P, mf, V;
   long lv;
   if (!isf(F)) pari_err_TYPE("mfiscuspidal", F);
-  P = mfparams_i(F);
-  if (!P) pari_err_IMPL("mfiscuspidal for this F");
+  P = f_NK(F);
+  if (signe(gel(P,1)) < 0 || signe(gel(P,2)) < 0 || isintzero(gel(P,3)))
+    pari_err_IMPL("mfiscuspidal for this F");
   mf = mfinit(P, mf_CUSP);
   V = mftobasis(mf, F, 1); lv = lg(V) - 1;
   return lv ? mkvec2(mf, V) : NULL;
@@ -8684,10 +8618,9 @@ mfisCM(GEN F)
   GEN P, D, v;
   long N, k, lD, sb, p, i;
   if (!isf(F)) pari_err_TYPE("mfisCM", F);
-  P = mfparams_i(F);
-  if (!P) pari_err_IMPL("mfisCM for this F");
+  P = f_NK(F);
   N = itos(gel(P,1));
-  k = itos(gel(P,2));
+  k = itos(gel(P,2)); if (N < 0 || k < 0) pari_err_IMPL("mfisCM for this F");
   D = mfunramneg(N);
   lD = lg(D);
   sb = maxss(mfsturmNk(N, k), 4*N);
@@ -8715,7 +8648,9 @@ mfspace_i(GEN F)
   long leis, l, i, N;
 
   if (!isf(F)) { checkmf(F); return mf_get_space(F); }
-  P = mfparams_i(F); if (!P) pari_err_IMPL("mfspace for this F");
+  P = f_NK(F);
+  if (signe(gel(P,1)) < 0 || signe(gel(P,2)) < 0 || isintzero(gel(P,3)))
+    pari_err_IMPL("mfspace for this F");
   gel(P,3) = mfchar2char(gel(P,3));
   mf = mfinit(P, mf_FULL);
   vF = mftobasis_i(mf, F); /* rigorous */
@@ -8756,8 +8691,9 @@ mfisselfdual(GEN F)
   if (!isf(F)) pari_err_TYPE("mfisselfdual", F);
   cof = mfak_i(F, 1);
   if (gequal0(cof)) { avma = av; return 0; }
-  P = mfparams_i(F); gN = gel(P,1);
-  if (!signe(gN)) pari_err_IMPL("mfisselfdual for this F");
+  P = f_NK(F); gN = gel(P,1);
+  if (signe(gN) < 0 || signe(gel(P,2)) < 0 || isintzero(gel(P,3)))
+    pari_err_IMPL("mfisselfdual for this F");
   if (is_pm1(gN)) { avma = av; return 1; }
   mf = mfsplit(mfinit(P, mf_NEW), 0, 0); /* FIXME: could guess dimlim ? */
   V = mftobasis(mf, F, 1);

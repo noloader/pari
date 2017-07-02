@@ -839,8 +839,8 @@ x^9 - 25/4*x^7 + 21/2*x^5 - 25/4*x^3 + x
   ***   at top-level: mftobasis(mf0,L[1])
   ***                 ^-------------------
   *** mftobasis: domain error in mftobasis: form does not belong to space
-[0, 0, 0]
-[0, 0, 0]
+[-1, -1, 0]
+[-1, -1, 0]
   ***   at top-level: mfinit([23,1,Mod(22,45)],0)
   ***                 ^---------------------------
   *** mfinit: incorrect type in checkNF [chi] (t_VEC).
@@ -856,4 +856,4 @@ x^9 - 25/4*x^7 + 21/2*x^5 - 25/4*x^3 + x
   ***   at top-level: mfgaloistype([11,1,Mod(2,11)],mfeisen(1,1,Mod(
   ***                 ^----------------------------------------------
   *** mfgaloistype: domain error in mfgaloistype: form not a cuspidal eigenform
-Total time spent: 4844
+Total time spent: 7840
