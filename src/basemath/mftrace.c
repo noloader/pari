@@ -2609,7 +2609,7 @@ auxsum(long N, GEN VCHI, long FC, GEN GCD, long d, long nd, GEN DN, GEN BEZ)
 }
 
 static GEN
-TA3(long N, long k, GEN VCHI, long FC, GEN GCD, long n, GEN Dn, GEN BEZ)
+TA3(long N, long k, GEN VCHI, long FC, GEN GCD, GEN Dn, GEN BEZ)
 {
   pari_sp av = avma;
   GEN S = gen_0, DN = mydivisorsu(N);
@@ -2630,7 +2630,7 @@ TA3(long N, long k, GEN VCHI, long FC, GEN GCD, long n, GEN Dn, GEN BEZ)
 /* special contribution in weight 2 in trace formula
  * Only depends on CHIP the primitive char attached to CHI */
 static GEN
-TA4(long N, long k, GEN CHI, long n, GEN Dn, GEN GCD)
+TA4(long N, long k, GEN CHI, GEN Dn, GEN GCD)
 {
   pari_sp ltop = avma;
   long i, l, S = 0;
@@ -2930,9 +2930,9 @@ mfcusptrace_i(long N, long k, long n, GEN Dn, GEN S)
   VCHIP = gel(S,_VCHIP);
   GCD = gel(S,_GCD);
   FC = mfcharmodulus(CHIP);
-  tmp1 = gadd(TA1(N, k, VCHIP, FC, GCD, n), TA4(N, k, CHIP, n, Dn, GCD));
+  tmp1 = gadd(TA1(N, k, VCHIP, FC, GCD, n), TA4(N, k, CHIP, Dn, GCD));
   tmp2 = TA2(N, k, VCHIP, n, gel(S,_SQRTS), gel(S,_MUP), FC, GCD);
-  tmp2 = gadd(tmp2, TA3(N, k, VCHIP, FC, GCD, n, Dn, gel(S,_BEZ)));
+  tmp2 = gadd(tmp2, TA3(N, k, VCHIP, FC, GCD, Dn, gel(S,_BEZ)));
   tmp2 = gsub(tmp1, tmp2);
   return gerepileupto(ltop, tmp2);
 }
