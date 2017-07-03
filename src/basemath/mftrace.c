@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 enum {
   t_MF_CONST, t_MF_EISEN, t_MF_Ek, t_MF_DELTA, t_MF_ETAQUO, t_MF_ELL,
-  t_MF_MUL, t_MF_MULRC, t_MF_DIV, t_MF_LINEAR, t_MF_LINEAR_BHN,
+  t_MF_MUL, t_MF_BRACKET, t_MF_DIV, t_MF_LINEAR, t_MF_LINEAR_BHN,
   t_MF_SHIFT, t_MF_HECKEU, t_MF_DERIV, t_MF_DERIVE2, t_MF_INTEG,
   t_MF_TWIST, t_MF_EMBED, t_MF_HECKE, t_MF_BD, t_MF_TRACE, t_MF_NEWTRACE,
   t_MF_CLOSURE, t_MF_DIHEDRAL, t_MF_EISENM1M2, t_MF_POW, t_MF_RELTOABS
@@ -887,16 +887,14 @@ c_pow(long n, long d, GEN F, GEN a)
 }
 
 static GEN
-c_mulRC(long n, long d, GEN F, GEN G, GEN gm)
+c_bracket(long n, long d, GEN F, GEN G, GEN gm)
 {
   pari_sp av = avma;
   long i, nd = n*d;
   GEN VF = mfcoefs_i(F, nd, 1), tF = cgetg(nd+2, t_VEC);
   GEN VG = mfcoefs_i(G, nd, 1), tG = cgetg(nd+2, t_VEC);
   GEN C, mpow, res = NULL;
-  ulong j, k, l, m = itos(gm);
-  k = f_k(F); if (k < 0) pari_err_IMPL("mfbracket for this form");
-  l = f_k(G); if (l < 0) pari_err_IMPL("mfbracket for this form");
+  ulong j, k = f_k(F), l = f_k(G), m = itos(gm);
   /* pow[i,j+1] = i^j */
   mpow = cgetg(m+2, t_MAT);
   gel(mpow,1) = const_col(nd, gen_1);
@@ -1362,7 +1360,7 @@ mfcoefs_i(GEN F, long n, long d)
     case t_MF_ELL: return c_deflate(n, d, concat(gen_0, anell(gel(F,2), n*d)));
     case t_MF_MUL: return c_mul(n, d, gel(F,2), gel(F,3));
     case t_MF_POW: return c_pow(n, d, gel(F,2), gel(F,3));
-    case t_MF_MULRC: return c_mulRC(n, d, gel(F,2), gel(F,3), gel(F,4));
+    case t_MF_BRACKET: return c_bracket(n, d, gel(F,2), gel(F,3), gel(F,4));
     case t_MF_LINEAR: return c_linear(n, d, gel(F,2), gel(F,3));
     case t_MF_LINEAR_BHN: return c_linear_bhn(n, d, gel(F,2), gel(F,3));
     case t_MF_DIV: return c_div(n, d, gel(F,2), gel(F,3));
@@ -1545,10 +1543,11 @@ mfbracket(GEN f, GEN g, long m)
   GEN N, K, NK;
   if (!isf(f)) pari_err_TYPE("mfbracket",f);
   if (!isf(g)) pari_err_TYPE("mfbracket",g);
-  K = opK(f_gk(f), f_gk(g), &addii); if (signe(K) >= 0) K = addis(K, 2*m);
+  K = opK(f_gk(f), f_gk(g), &addii);
+  if (signe(K) < 0) pari_err_IMPL("mfbracket for this form");
   N = lcmN(f_gN(f), f_gN(g));
-  NK = mkgNK(N, K, mfcharmul(f_CHI(f), f_CHI(g)));
-  return gerepilecopy(av, tag3(t_MF_MULRC, NK, f, g, stoi(m)));
+  NK = mkgNK(N, addis(K,2*m), mfcharmul(f_CHI(f), f_CHI(g)));
+  return gerepilecopy(av, tag3(t_MF_BRACKET, NK, f, g, stoi(m)));
 }
 
 /* remove 0 entries in L */
