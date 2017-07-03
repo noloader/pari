@@ -110,6 +110,7 @@ BA   81- setrand(2);polclass(-5032,27) -> wrong result
          as a t_POLMOD modulo b^2 whose coefficients are t_POL in 'c ]
      84- mathouseholder: missing sanity checks (SEGV, didn't accept t_COL)
      85- bestapprPade did not handle positive valuation correctly [#1945]
+PB   86- subst(Mod(1/z, y), z, x) -> wrong answer [#1949]
 
   Added
       1- [libari] ZM_isidentity
