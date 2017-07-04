@@ -776,17 +776,14 @@ tag3(long t, GEN NK, GEN x,GEN y,GEN z) { retmkvec4(tagparams(t,NK), x,y,z); }
 static GEN
 tag4(long t, GEN NK, GEN x, GEN y, GEN z, GEN a)
 { retmkvec5(tagparams(t,NK), x,y,z,a); }
-#if 0
-static GEN
-tag5(long t, GEN NK, GEN x, GEN y, GEN z, GEN a, GEN b)
-{ return mkvecn(6, tagparams(t,NK), x,y,z,a,b); }
-#endif
 /* is F a "modular form" ? */
 static long
 isf(GEN F)
-{ return (typ(F) == t_VEC
+{ return typ(F) == t_VEC
     && lg(F) > 1 && typ(gel(F,1)) == t_VEC
-    && lg(gel(F,1)) > 1 && typ(gmael(F,1,1)) == t_VECSMALL); }
+    && lg(gel(F,1)) == 3
+    && typ(gmael(F,1,1)) == t_VECSMALL
+    && typ(gmael(F,1,2)) == t_VEC; }
 static long f_type(GEN F) { return gmael(F,1,1)[1]; }
 static GEN f_gN(GEN F) { return gmael3(F,1,2,1); }
 static GEN f_gk(GEN F) { return gmael3(F,1,2,2); }
