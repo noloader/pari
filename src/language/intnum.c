@@ -21,6 +21,9 @@ static const long EXTRAPREC =
   2;
 #endif
 
+static GEN
+intlin(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec);
+
 /********************************************************************/
 /**                NUMERICAL INTEGRATION (Romberg)                 **/
 /********************************************************************/
@@ -596,17 +599,19 @@ initnumsine(long m, long prec)
 
 /* The numbers below can be changed, but NOT the ordering */
 enum {
-  f_REG    = 0, /* regular function */
-  f_SING   = 1, /* algebraic singularity */
-  f_YSLOW  = 2, /* +\infty, slowly decreasing, at least x^(-2)  */
-  f_YVSLO  = 3, /* +\infty, very slowly decreasing, worse than x^(-2) */
-  f_YFAST  = 4, /* +\infty, exponentially decreasing */
-  f_YOSCS  = 5, /* +\infty, sine oscillating */
-  f_YOSCC  = 6  /* +\infty, cosine oscillating */
+  f_REG     = 0, /* regular function */
+  f_SER     = 1, /* power series */
+  f_SINGSER = 2, /* algebraic singularity, power series endpoint */
+  f_SING    = 3, /* algebraic singularity */
+  f_YSLOW   = 4, /* +\infty, slowly decreasing, at least x^(-2)  */
+  f_YVSLO   = 5, /* +\infty, very slowly decreasing, worse than x^(-2) */
+  f_YFAST   = 6, /* +\infty, exponentially decreasing */
+  f_YOSCS   = 7, /* +\infty, sine oscillating */
+  f_YOSCC   = 8  /* +\infty, cosine oscillating */
 };
 /* is finite ? */
 static int
-is_fin_f(long c) { return c == f_REG || c == f_SING; }
+is_fin_f(long c) { return c == f_REG || c == f_SER || c == f_SING; }
 /* is oscillatory ? */
 static int
 is_osc(long c) { long a = labs(c); return a == f_YOSCC|| a == f_YOSCS; }
@@ -834,6 +839,8 @@ transcode(GEN a, const char *name)
     case t_VEC: break;
     case t_INFINITY:
       return inf_get_sign(a) == 1 ? f_YSLOW: -f_YSLOW;
+    case t_SER: case t_POL: case t_RFRAC:
+      return f_SER;
     default: if (!isinC(a)) err_code(a,name);
       return f_REG;
   }
@@ -852,6 +859,11 @@ transcode(GEN a, const char *name)
       return gsigne(gel(a1,1)) * code_aux(a, name);
     case t_INFINITY:
       return inf_get_sign(a1) * code_aux(a, name);
+    case t_SER: case t_POL: case t_RFRAC:
+      if (!isinR(a2)) err_code(a,name);
+      if (gcmpgs(a2, -1) <= 0)
+        pari_err_IMPL("intnum with diverging non constant limit");
+      return gsigne(a2) < 0 ? f_SINGSER : f_SER;
     default:
       if (!isinC(a1) || !isinR(a2) || gcmpgs(a2, -1) <= 0) err_code(a,name);
       return gsigne(a2) < 0 ? f_SING : f_REG;
@@ -943,8 +955,10 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
   if (m > 30) pari_err_OVERFLOW("intnuminit [m]");
   if (m < 0) pari_err_DOMAIN("intnuminit", "m", "<", gen_0, stoi(m));
   l = prec+EXTRAPREC;
-  codea = transcode(a, "a");
-  codeb = transcode(b, "b");
+  codea = transcode(a, "a"); if (codea == f_SER) codea = f_REG;
+  codeb = transcode(b, "b"); if (codeb == f_SER) codeb = f_REG;
+  if (codea == f_SINGSER || codeb == f_SINGSER)
+    pari_err_IMPL("intnuminit with singularity at non constant limit");
   if (labs(codea) > labs(codeb)) { swap(a, b); lswap(codea, codeb); }
   if (codea == f_REG)
   {
@@ -1083,6 +1097,7 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   if (codea == f_REG && typ(a) == t_VEC) a = gel(a,1);
   if (codeb == f_REG && typ(b) == t_VEC) b = gel(b,1);
   if (codea == f_REG && codeb == f_REG) return intn(E, eval, a, b, tab);
+  if (codea == f_SER || codeb == f_SER) return intlin(E, eval, a, b, tab, prec);
   if (labs(codea) > labs(codeb)) { swap(a,b); lswap(codea,codeb); sgns = -1; }
   /* now labs(codea) <= labs(codeb) */
   if (codeb == f_SING)
@@ -1179,15 +1194,41 @@ intnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
   pari_sp ltop = avma;
   long l = prec+EXTRAPREC;
-  GEN S;
+  GEN na = NULL, nb = NULL, S;
 
+  if (transcode(a,"a") == f_SINGSER) {
+    long v = gvar(gel(a,1));
+    if (v != NO_VARIABLE) {
+      na = cgetg(3,t_VEC);
+      gel(na,1) = polcoeff0(gel(a,1),0,v);
+      gel(na,2) = gel(a,2);
+    }
+    a = gel(a,1);
+  }
+  if (transcode(b,"b") == f_SINGSER) {
+    long v = gvar(gel(b,1));
+    if (v != NO_VARIABLE) {
+      nb = cgetg(3,t_VEC);
+      gel(nb,1) = polcoeff0(gel(b,1),0,v);
+      gel(nb,2) = gel(b,2);
+    }
+    b = gel(b,1);
+  }
+  if (na || nb) {
+    if (tab && typ(tab) != t_INT)
+      pari_err_IMPL("non integer tab argument");
+    S = intnum(E, eval, na ? na : a, nb ? nb : b, tab, prec);
+    if (na) S = gsub(S, intnum(E, eval, na, a, tab, prec));
+    if (nb) S = gsub(S, intnum(E, eval, b, nb, tab, prec));
+    return gerepilecopy(ltop, S);
+  }
   tab = intnuminit0(a, b, tab, prec);
   S = intnum_i(E, eval, gprec_w(a, l), gprec_w(b, l), tab, prec);
   return gerepilecopy(ltop, gprec_wtrunc(S, prec));
 }
 
 typedef struct auxint_s {
-  GEN a, R, pi;
+  GEN a, R, mult;
   GEN (*f)(void*, GEN);
   GEN (*w)(GEN, long);
   long prec;
@@ -1199,7 +1240,7 @@ auxcirc(void *E, GEN t)
 {
   auxint_t *D = (auxint_t*) E;
   GEN s, c, z;
-  mpsincos(mulrr(t, D->pi), &s, &c); z = mkcomplex(c,s);
+  mpsincos(mulrr(t, D->mult), &s, &c); z = mkcomplex(c,s);
   return gmul(z, D->f(D->E, gadd(D->a, gmul(D->R, z))));
 }
 
@@ -1211,11 +1252,36 @@ intcirc(void *E, GEN (*eval)(void*, GEN), GEN a, GEN R, GEN tab, long prec)
 
   D.a = a;
   D.R = R;
-  D.pi = mppi(prec);
+  D.mult = mppi(prec);
   D.f = eval;
   D.E = E;
   z = intnum(&D, &auxcirc, real_m1(prec), real_1(prec), tab, prec);
   return gmul2n(gmul(R, z), -1);
+}
+
+static GEN
+auxlin(void *E, GEN t)
+{
+  auxint_t *D = (auxint_t*) E;
+  return D->f(D->E, gadd(D->a, gmul(D->mult, t)));
+}
+
+static GEN
+intlin(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
+{
+  auxint_t D;
+  GEN z;
+
+  if (typ(a) == t_VEC) a = gel(a,1);
+  if (typ(b) == t_VEC) b = gel(b,1);
+  z = toser_i(a); if (z) a = z;
+  z = toser_i(b); if (z) b = z;
+  D.a = a;
+  D.mult = gsub(b,a);
+  D.f = eval;
+  D.E = E;
+  z = intnum(&D, &auxlin, real_0(prec), real_1(prec), tab, prec);
+  return gmul(D.mult, z);
 }
 
 GEN

@@ -119,6 +119,27 @@
 -41
 ? check(intnumgauss(t=1,2,t,1),3/2)
 -oo
+? checkps(a,b)=my(t=norml2(Vec(b-a)));if(t,ceil(log(t)/log(10)),-oo);
+? checkps(intnum(t=0,x,exp(t)),exp(x)-1)
+-oo
+? checkps(intnum(t=-x,0,exp(t)),1-exp(-x))
+-oo
+? checkps(intnum(t=-x,x,exp(t)),exp(x)-exp(-x))
+-oo
+? tab=intnuminit(1-x,1+y);
+? norml2(apply(Vec,Vec(intnum(t=-x,y,exp(t),tab)-(exp(y)-exp(-x)))))
+0.E-192
+? checkps(intnum(t=[0,-1/2],x^2,1/sqrt(t)),2*x)
+-115
+? checkps(intnum(t=1-x^2,[1,-1/2],1/sqrt(1-t)),2*x)
+-115
+? checkps(intnum(t=[x^2,-1/2],1,1/sqrt(t)),2-2*x)
+-115
+? checkps(intnum(t=0,[1-x^2,-1/2],1/sqrt(1-t)),2-2*x)
+-115
+? f(t)=(t^2*(1-t))^(1/3);
+? checkps(intnum(t=[x^3,-1/3],[1-x^3,-2/3],(2/3*t-t^2)/(t^2*(1-t))^(2/3)),f(1-x^3)-f(x^3))
+-77
 ? \pb20
    realbitprecision = 20 significant bits (6 decimal digits displayed)
 ? intnumromb(x=0,1,sin(x))
@@ -138,10 +159,14 @@
 ? intnumromb(x=2,1,x,1)
 -1.50000
 ? intnuminit(-oo,oo,1);
-? intnuminit(x,y)
-  ***   at top-level: intnuminit(x,y)
-  ***                 ^---------------
-  *** intnuminit: incorrect type in intnum [incorrect a] (t_POL).
+? intnuminit([x,-1/2],x)
+  ***   at top-level: intnuminit([x,-1/2],x)
+  ***                 ^----------------------
+  *** intnuminit: sorry, intnuminit with singularity at non constant limit is not yet implemented.
+? intnum(t=[x^2,-1/2],1,1/sqrt(t),intnuminit([0,-1/2],1))
+  ***   at top-level: intnum(t=[x^2,-1/2],1,1/sqrt(t),intnuminit([0,
+  ***                                       ^------------------------
+  ***   sorry, non integer tab argument is not yet implemented.
 ? intnumgauss(t=1,2,1,"")
   ***   at top-level: intnumgauss(t=1,2,1,"")
   ***                                   ^-----
@@ -173,4 +198,4 @@
   ***                                             ^--
   ***   sorry, intfuncinit with hard endpoint behavior is not yet implemented.
 ? print("Total time spent: ",gettime);
-Total time spent: 984
+Total time spent: 1188

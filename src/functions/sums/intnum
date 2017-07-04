@@ -138,9 +138,8 @@ Doc: numerical integration
  thumb is that
  if the oscillations are weaker than the exponential decrease, choose
  $[\pm\kbd{oo},\alpha]$, otherwise choose $[\pm\kbd{oo},k*I]$, although the
- latter can
- reasonably be used in all cases, while the former cannot. To take a specific
- example, in the inverse Mellin transform, the integrand is almost always a
+ latter can reasonably be used in all cases, while the former cannot. To take
+ a specific example, in most inverse Mellin transforms, the integrand is a
  product of an exponentially decreasing and an oscillating factor. If we
  choose the oscillating type of integral we perhaps obtain the best results,
  at the expense of having to recompute our functions for a different value of
@@ -148,6 +147,40 @@ Doc: numerical integration
  as \kbd{intfuncinit}. On the other hand using the exponential type of
  integral, we obtain less accurate results, but we skip expensive
  recomputations. See \kbd{intfuncinit} for more explanations.
+
+ \misctitle{Power series limits}
+ The limits $a$ and $b$ can be power series of non-negative valuation,
+ giving a power series expansion for the integral -- provided it exists.
+ \bprog
+ ? intnum(t=0,X + O(X^3), exp(t))
+ %4 = 1.000...*X - 0.5000...*X^2 + O(X^3)
+ ? bestappr( intnum(t=0,X + O(X^17), exp(t)) )- exp(X) + 1
+ %5 = O(X^17)
+ @eprog\noindent The valuation of the limit cannot be negative
+ since $\int_0^{1/X}(1+t^2)^{-1}\, dt = \pi/2 - \kbd{sign}(X)+O(X^2)$.
+
+ Polynomials and rational functions are also allowed and
+ converted to power series using current \kbd{seriesprecision}:
+ \bprog
+ ? bestappr( intnum(t=1,1+X, 1/t) )
+ %6 = X - 1/2*X^2 + 1/3*X^3 - 1/4*X^4 + [...] + 1/15*X^15 + O(X^16)
+ @eprog\noindent
+ The function does not work if the integral is singular with the constant
+ coefficient of the series as limit:
+ \bprog
+ ? intnum(t=X^2+O(X^4),1, 1/sqrt(t))
+ %8 = 2.000... - 6.236608109630992528 E28*X^2 + O(X^4)
+ @eprog\noindent
+ however you can use
+ \bprog
+ ? intnum(t=[X^2+O(X^4),-1/2],1, 1/sqrt(t))
+ %10 = 2.000000000000000000000000000-2.000000000000000000000000000*X^2+O(X^4)
+ @eprog\noindent whis is translated internally to
+ \bprog
+ ? intnum(t=[0,-1/2],1, 1/sqrt(t))-intnum(t=[0,-1/2],X^2+O(X^4), 1/sqrt(t))
+ @eprog\noindent
+ For this form the argument \var{tab} can be used only as an integer, not a
+ table precomputed by \kbd{intnuminit}.
 
  \smallskip
 
