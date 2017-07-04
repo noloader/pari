@@ -1637,6 +1637,7 @@ GEN
 mfshift(GEN F, long sh)
 {
   pari_sp av = avma;
+  if (!isf(F)) pari_err_TYPE("mfshift",F);
   return gerepilecopy(av, tag2(t_MF_SHIFT, f_NK(F), F, stoi(sh)));
 }
 long
