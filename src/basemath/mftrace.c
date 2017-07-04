@@ -5072,12 +5072,11 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pvtf, long *ptdimdih, GEN Vvtf)
 static GEN
 mfwt1basisdiv(GEN D, GEN CHIP)
 {
-  long FC = mfcharmodulus(CHIP), lD, i;
+  long i, FC = mfcharmodulus(CHIP), nD = lg(D) - 1;
   GEN Vvtf;
 
-  lD = lg(D) - 1;
-  Vvtf = zerovec(lD - 1);
-  for (i = 1; i < lD; i++) /* skip N/FC */
+  Vvtf = zerovec(nD - 1);
+  for (i = 1; i < nD; i++) /* skip N/FC */
   {
     GEN z, vtf, Vvtfs;
     long d = D[i], M = d*FC, j, ct;
