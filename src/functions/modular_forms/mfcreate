@@ -1,8 +1,8 @@
 Function: mfcreate
 Section: modular_forms
-C-Name: mfcreate
-Prototype: G
-Help: mfcreate(F): create a modular form from data F
+C-Name: mfcreate0
+Prototype: GDG
+Help: mfcreate(F,{params}): create a modular form from data F
 Doc: Create a modular form from data $F$. Three types of input are accepted
  for $F$:
 
@@ -32,8 +32,21 @@ Doc: Create a modular form from data $F$. Three types of input are accepted
  time = 337 ms.
  ? mfcoefs(mfDelta(), N);
  time = 186 ms.
+ @eprog\noindent The \var{params} optional argument is of the form
+ $[N,k,\chi]$ and allows to specify the space the form belongs to. An unknown
+ parameter can be left unspecified by giving it the sentinel value
+ $-1$ for the level and weight, and $0$ for the character:
+ \bprog
+ ? mfparams(f)
+ %7 = [-1, -1, 0]  \\ unknown parameters
+ ? F = mfcreate(ramanujantau, [1,12,1]); \\ specify space
+ ? mfparams(F)
+ %7 = [1, 12, 1]
  @eprog
 
+ The variant using finitely many coefficients is not as powerful
+ but allows to define a pseudo-modular form when no recipe for the $a(n)$
+ is known or when many expensive coefficients have been precomputed:
  \bprog
  ? mfcoefs(mfcreate(2),10)
  %1 = [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -41,5 +54,4 @@ Doc: Create a modular form from data $F$. Three types of input are accepted
  %2 = [0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0]
  ? mfcoefs(mfcreate([1,2,3,4]),10)
  %3 = [1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0]
- @eprog\noindent This variant allows to define a pseudo-modular form when
- only finitely many coefficients are known.
+ @eprog\noindent

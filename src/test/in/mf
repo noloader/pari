@@ -326,6 +326,8 @@ G=mfmul(D,mfEk(2));mfisequal(F,G)
 
 p(f) = concat(mfparams(f), mfspace(f));
 p(mfcreate(3))
+mfparams(mfcreate(ramanujantau))  \\ mfspace -> error
+p(mfcreate(ramanujantau,[1,12,1]))
 F2=mfeisen(7,-3); p(F2)
 F3=mfeisen(7,-3,5); p(F3)
 F4=mfEk(4); p(F4)
@@ -367,3 +369,5 @@ mfinit([23,2,Mod(22,45)],0);
 mfdim([23,1,0])
 mfdim([23,1,0],3)
 mfgaloistype([11,1,Mod(2,11)], mfeisen(1,1,Mod(2,11)))
+
+mfspace(mfcreate(ramanujantau))

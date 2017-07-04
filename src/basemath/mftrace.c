@@ -1403,22 +1403,31 @@ mfcoef(GEN F, long n)
 }
 
 static GEN
+unknownNK(void) { return mkNK(-1,-1, gen_0); }
+static GEN
 mftrivial(void) {
   GEN f = cgetg(3, t_VEC);
-  gel(f,1) = tagparams(t_MF_CONST, mkNK(-1,-1, gen_0));
+  gel(f,1) = tagparams(t_MF_CONST, unknownNK());
   gel(f,2) = cgetg(1,t_VEC); return f;
 }
 GEN
-mfcreate(GEN x)
+mfcreate0(GEN x, GEN NK)
 {
   pari_sp av = avma;
   long t = typ(x);
-  GEN NK;
+  if (NK)
+  {
+     long N, k;
+     GEN CHI;
+     checkNK(NK, &N, &k, &CHI, 0);
+     NK = mkNK(N, k, CHI);
+  }
   if (typ(x) == t_CLOSURE)
   {
     long a = closure_arity(x);
+    if (!NK) NK = unknownNK();
     if (a == 1 || a == 2)
-      return gerepilecopy(av, tag(t_MF_CLOSURE, mkNK(-1,-1,gen_0), x));
+      return gerepilecopy(av, tag(t_MF_CLOSURE, NK, x));
   }
   if (gequal0(x)) return mftrivial();
   if (is_scalar_t(t)) x = mkvec(x);
@@ -1429,9 +1438,11 @@ mfcreate(GEN x)
     case t_SER: x = sertocol(x); break;
     default: pari_err_TYPE("mfcreate", x);
   }
-  NK = (lg(x) == 2)? mkNK(1,0,mfchartrivial(1)): mkNK(-1,-1,gen_0);
+  if (!NK) NK = (lg(x) == 2)? mkNK(1,0,mfchartrivial(1)): unknownNK();
   return gerepilecopy(av, tag(t_MF_CONST, NK, x));
 }
+GEN
+mfcreate(GEN x) { return mfcreate0(x, NULL); }
 
 static GEN
 induce(GEN G, GEN CHI)
@@ -1611,7 +1622,7 @@ mflinear(GEN F, GEN L)
     CHI2 = induce(G, CHI2);
     if (!CHI) CHI = CHI2; else if (!gequal(CHI, CHI2)) { CHI = gen_0; break; }
   }
-  NK = (signe(K) < 0 || isintzero(CHI))? mkNK(-1,-1,gen_0): mkgNK(N, K, CHI);
+  NK = (signe(K) < 0 || isintzero(CHI))? unknownNK(): mkgNK(N, K, CHI);
   FL = tag2(t_MF_LINEAR, NK, F,L);
   return gerepilecopy(av, FL);
 }

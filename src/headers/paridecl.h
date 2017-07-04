@@ -3880,6 +3880,7 @@ GEN   mftwist(GEN F, GEN D);
 long  mfval(GEN F);
 GEN   mfvectomat(GEN vF, long lim);
 GEN   mfcreate(GEN x);
+GEN   mfcreate0(GEN x, GEN NK);
 long  mfcuspdim(long N, long k, GEN CHI);
 GEN   mfcuspexpansion(GEN mf, GEN F, GEN cusp, long n);
 long  mfcuspisregular(GEN NK, GEN cusp);
