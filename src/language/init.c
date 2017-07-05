@@ -1801,6 +1801,7 @@ gcopy_avma(GEN x, pari_sp *AVMA)
   switch(typ(x))
   { /* non recursive types */
     case t_INT:
+      if (lgefint(x) == 2) return gen_0;
       *AVMA = (pari_sp)icopy_avma(x, *AVMA);
       return (GEN)*AVMA;
     case t_REAL: case t_STR: case t_VECSMALL:
@@ -1947,15 +1948,13 @@ taille0(GEN x)
   return n;
 }
 
-/* How many words do we need to allocate to copy x ? t_LIST is a special case
- * since list_data() is malloc'ed later, in list_internal_copy() */
 static long
-words_to_allocate(GEN x)
+gsizeclone_i(GEN x)
 {
   long i,n,lx, tx = typ(x);
   switch(tx)
   { /* non recursive types */
-    case t_INT: return lgefint(x);
+    case t_INT: lx = lgefint(x); return lx == 2? 0: lx;;
     case t_REAL:
     case t_STR:
     case t_VECSMALL: return lg(x);
@@ -1963,19 +1962,24 @@ words_to_allocate(GEN x)
     case t_LIST: return 3;
     default:
       n = lx = lg(x);
-      for (i=lontyp[tx]; i<lx; i++) n += words_to_allocate(gel(x,i));
+      for (i=lontyp[tx]; i<lx; i++) n += gsizeclone_i(gel(x,i));
       return n;
   }
 }
+
+/* #words needed to clone x; t_LIST is a special case since list_data() is
+ * malloc'ed later, in list_internal_copy() */
+static long
+gsizeclone(GEN x) { return (typ(x) == t_INT)? lgefint(x): gsizeclone_i(x); }
 
 long
 gsizeword(GEN x)
 {
   GEN L;
-  if (typ(x) != t_LIST) return words_to_allocate(x);
-  /* For t_LIST, return the actual list size, words_to_allocate() is always 3 */
+  if (typ(x) != t_LIST) return gsizeclone(x);
+  /* For t_LIST, return the actual list size, gsizeclone() is always 3 */
   L = list_data(x);
-  return L? 3 + words_to_allocate(L): 3;
+  return L? 3 + gsizeclone(L): 3;
 }
 long
 gsizebyte(GEN x) { return gsizeword(x) * sizeof(long); }
@@ -2009,7 +2013,7 @@ copy_bin_canon(GEN x)
 GEN
 gclone(GEN x)
 {
-  long i,lx,tx = typ(x), t = words_to_allocate(x);
+  long i,lx,tx = typ(x), t = gsizeclone(x);
   GEN y = newblock(t);
   switch(tx)
   { /* non recursive types */
