@@ -237,6 +237,7 @@ KB+HC89- new package 'mf' for modular forms; new GP functions
      mftwist            mfval
      90- [libpari] ZV_cba, Z_cba_extend
      91- [libpari] RgV_is_ZVpos, RgV_is_ZVnon0
+JA   92- GP functions ecpp, ecppexport, ecppisvalid.
 
   Changed
       1- rewrite bnfnarrow
