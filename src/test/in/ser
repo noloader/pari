@@ -74,6 +74,8 @@ subst(x^2+O(x^3),x,O(3)*x)
 subst(1+x+O(x^2),x,0*x)
 subst(1+x+O(x^2),x,Mod(0,3)*x)
 subst(1+x+O(x^2),x,O(3)*x)
+subst(1+x^2+O(x^3),x,z)
+subst(1+x^2+y^2+O(x^3),x,z)
 
 \\ Errors. Keep at end of file
 subst(x^-1+O(x),x,Mod(0,3))

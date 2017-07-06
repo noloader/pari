@@ -1566,7 +1566,7 @@ gsubst(GEN x, long v, GEN y)
           x = ser2pol_i(x, lx);
           x = primitive_part(x, &cx);
           if (varncmp(vy,vx) > 0)
-            z = poleval(x, y);
+            z = gadd(poleval(x, y), zeroser(vy,n));
           else
           {
             z = RgXn_eval(x, ser2rfrac_i(y), n);
