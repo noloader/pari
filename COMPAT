@@ -32,6 +32,12 @@ This file lists the incompatible changes between Version 2.x and older versions
     the field of rational numbers (make it consistent with polredabs). The
     documentation now only guarantees a 'polynomial of degree 1'
   - ellisomat: ellisomat(E,flag) is now ellisomat(E,,flag)
+  - changed the definition used in polred / polredbest / polredabs to decide
+    what is the "best" polynomial to return. This had never been specified in
+    the documentation; while making explicit the de facto choices made in the
+    code, it was decided to make it mathematically more appealing. There is
+    no efficiency tradeoff involved: we are just replacing an arbitrary
+    definition by another less arbitrary one, with the same implied costs.
 
 * Specific to the PARI library:
 ===============================

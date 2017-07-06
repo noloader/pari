@@ -69,22 +69,19 @@ Doc: returns a canonical defining polynomial $P$ for the number field
 
  The precise definition of the output of \tet{polredabs} is as follows.
 
- \item Let~$L_0$ be the list of characteristic polynomials of primitive elements
- of~$K$ that are in~$\Z_K$ and minimal for the~$T_2$ norm.
-
- \item Let~$L_1$ be the sublist of~$L_0$ of polynomials whose discriminant has
- minimal absolute value.
-
- \item Let~$L_2$ be the sublist of~$L_1$ defined as follows. In each
- pair~$\{P(x), (-1)^{\deg P}P(-x)\}$ of monic polynomials, choose the unique
- polynomial~$Q$ such that when written~$Q(x) = Q_1(x^2)+xQ_2(x^2)$, at most one
- of~$Q_1,Q_2$ has positive leading coefficient.
+ \item Consider the finite list of characteristic polynomials of primitive
+ elements of~$K$ that are in~$\Z_K$ and minimal for the~$T_2$ norm;
+ now remove from the list the polynomials whose discriminant do not have
+ minimal absolute value. Note that this condition is restricted to the
+ original list of polynomials with minimal $T_2$ norm and does not imply that
+ the defining polynomial for the field with smallest discriminant belongs to
+ the list !
 
  \item To a polynomial $P(x) = a_0 x^n + \dots + a_n \in \R[x]$ we attach
- the sequence $S(P)$ given by $|a_0|, a_0, |a_1|, a_1, \dots, |a_n|, a_n$.
- Order the polynomials $P$ in~$L_2$ by the lexicographic order on the
- coefficient vectors $S(P)$. Then the output of \tet{polredabs} is the smallest
- polynomial in~$L_2$ for that order.
+ the sequence $S(P)$ given by $|a_0|, -a_0, |a_1|, -a_1, \dots, |a_n|, -a_n$.
+ Order the polynomials $P$ by the lexicographic order on the coefficient
+ vectors $S(P)$. Then the output of \tet{polredabs} is the smallest polynomial
+ in the above list for that order.
 
 Variant: Instead of the above hardcoded numerical flags, one should use an
  or-ed combination of

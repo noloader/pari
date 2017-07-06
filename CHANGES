@@ -303,6 +303,8 @@ BA   36- Fl_addmul_pre: change arguments order to follow Fp_addmul convention
      38- change polred-type algorithm to return 'x' (no longer 'x-1') for
          the field of rational numbers (make it consistent with polredabs)
 BA   39- ellisomat(E,{fl}) is now ellisomat(E,{p},{fl}) (p degree of isogenies)
+     40- the definition used in polred / polredbest / polredabs to decide
+         what is the "best" polynomial to return
 
   Removed
       1- file 'MACHINES' (no longer maintained)

@@ -1489,19 +1489,20 @@ set_LLL_basis(nfmaxord_t *S, GEN *pro, double DELTA)
   S->basden = get_bas_den(B);
 }
 
-/* as abscmpii but ensure |x| is picked rather than -|x| when |x| = |y|
- * (make output canonical) */
 static int
-myabscmpii(GEN x, GEN y)
+cmpii_polred(GEN a, GEN b)
 {
-  long sx, i = abscmpii(x,y);
-  if (i) return i;
-  sx = signe(x);
-  if (!sx || signe(y) == sx) return 0;
-  return (sx > 0 ? -1: 1);
+  int fl = abscmpii(a, b);
+  long sa, sb;
+  if (fl) return fl;
+  sa = signe(a);
+  sb = signe(b);
+  if (sa == sb) return 0;
+  return sa == 1? 1: -1;
 }
 static int
-cmp_abs_ZX(GEN x, GEN y) { return gen_cmp_RgX((void*)&myabscmpii, x, y); }
+ZX_cmp(GEN x, GEN y)
+{  return gen_cmp_RgX((void*)cmpii_polred, x, y); }
 /* current best: ZX x of discriminant *dx, is ZX y better than x ?
  * (if so update *dx) */
 static int
@@ -1512,8 +1513,7 @@ ZX_is_better(GEN y, GEN x, GEN *dx)
   if (!*dx) *dx = ZX_disc(x);
   cmp = abscmpii(d, *dx);
   if (cmp < 0) { *dx = d; return 1; }
-  if (cmp == 0) return cmp_abs_ZX(y, x) < 0;
-  return 0;
+  return cmp? 0: (ZX_cmp(y, x) < 0);
 }
 
 static void polredbest_aux(nfmaxord_t *S, GEN *pro, GEN *px, GEN *pdx, GEN *pa);
@@ -1870,22 +1870,19 @@ static GEN
 get_polchar(CG_data *d, GEN x)
 { return get_pol(d, RgM_RgC_mul(d->ZKembed,x)); }
 
-/* Choose a canonical polynomial in the pair { z(X), (+/-)z(-X) }.
- * z a ZX with lc(z) > 0. We want to keep that property, while
- * ensuring that the leading coeff of the odd (resp. even) part of z is < 0
- * if deg z is even (resp. odd).
- * Either leave z alone (return 1) or set z <-- (-1)^deg(z) z(-X). In place. */
+/* Choose a canonical polynomial in the pair { Pmin_a, Pmin_{-a} }, i.e.
+ * { z(X), (-1)^(deg z) z(-Z) } and keeping the smallest wrt ZX_cmp
+ * Either leave z alone (return 1) or set z <- (-1)^n z(-X). In place. */
 static int
 ZX_canon_neg(GEN z)
 {
-  long i,s;
-
+  long i, s;
   for (i = lg(z)-2; i >= 2; i -= 2)
   { /* examine the odd (resp. even) part of z if deg(z) even (resp. odd). */
     s = signe(gel(z,i));
     if (!s) continue;
     /* non trivial */
-    if (s < 0) break; /* the condition is already satisfied */
+    if (s > 0) break; /* z(X) < (-1)^n z(-X) */
 
     for (; i>=2; i-=2) gel(z,i) = negi(gel(z,i));
     return 1;
@@ -1944,15 +1941,15 @@ static long
 chk_gen_prec(long N, long bit)
 { return nbits2prec(10 + (long)log2((double)N) + bit); }
 
-/* Remove duplicate polynomials in P, updating A (same indices), in place.
- * Among elements having the same characteristic pol, choose the smallest
- * according to ZV_abscmp */
+/* v = [P,A] two vectors (of ZX and ZV resp.) of same length; remove duplicate
+ * polynomials in P, updating A, in place. Among elements having the same
+ * characteristic pol, choose the smallest according to ZV_abscmp */
 static void
-remove_duplicates(GEN P, GEN A)
+remove_duplicates(GEN v)
 {
+  GEN x, a, P = gel(v,1), A = gel(v,2);
   long k, i, l = lg(P);
   pari_sp av = avma;
-  GEN x, a;
 
   if (l < 2) return;
   (void)sort_factor_pol(mkmat2(P, A), cmpii);
@@ -2024,8 +2021,8 @@ filter(GEN y, GEN b, long n)
     if (degpol(yi) == n)
     {
       pari_sp av = avma;
-      if (dx && !ZX_is_better(yi,x,&dx)) { avma = av; continue; }
       if (!dx) dx = ZX_disc(yi);
+      else if (!ZX_is_better(yi,x,&dx)) { avma = av; continue; }
       x = yi; a = ai; continue;
     }
     gel(y,k) = yi;
@@ -2488,14 +2485,10 @@ polredabs0(GEN x, long flag)
       }
     }
     v = polredabs_aux(&S, &u);
+    remove_duplicates(v);
     y = gel(v,1);
     a = gel(v,2); l = lg(a);
-    for (i=1; i<l; i++)
-      if (ZX_canon_neg(gel(y,i))) gel(a,i) = ZC_neg(gel(a,i));
-    remove_duplicates(y,a);
-    l = lg(a);
-    if (l == 1)
-      pari_err_BUG("polredabs (missing vector)");
+    if (l == 1) pari_err_BUG("polredabs (missing vector)");
   }
   if (DEBUGLEVEL) err_printf("Found %ld minimal polynomials.\n",l-1);
   if (flag & nf_ALL) {
