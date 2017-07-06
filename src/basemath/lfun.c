@@ -1749,6 +1749,8 @@ lfunhardy(GEN lmisc, GEN t, long bitprec)
     h = mulreal(h, w2);
   else
     h = gmul(h, w2);
+  if (typ(h) == t_COMPLEX && gexpo(imag_i(h)) < -(bitprec >> 1))
+    h = real_i(h);
   return gerepileupto(ltop, gmul(h, gexp(a, prec)));
 }
 

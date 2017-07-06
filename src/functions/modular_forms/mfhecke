@@ -1,24 +1,22 @@
 Function: mfhecke
 Section: modular_forms
 C-Name: mfhecke
-Prototype: GLDG
-Help: mfhecke(F,n,{NK}): F being a modular form returns T(n)F, where T(n) is
- the n-th Hecke operator. Warning: if F is of level M<N, T(n)F is in general
- not the same in M_k(G_0(M),CHI) and in M_k(G_0(N),CHI). Thus, the default
- is to consider F in the space given by mfparams(F), but if you want to specify
- the space in which T(n) is taken, add the optional argument NK=[N,k,CHI].
-Doc: $F$ being a modular form, returns $T(n)F$, where $T(n)$ is the
- $n$-th Hecke operator.
+Prototype: GGL
+Help: mfhecke(mf,F,n}): F being a modular form in space mf, returns T(n)F,
+ where T(n) is the n-th Hecke operator. Warning: if F is of level M<N,
+ T(n)F is in general not the same in M_k(G_0(M),CHI) and in M_k(G_0(N),CHI).
+ We take T(n) at the same level as the one used in mf.
+Doc: $F$ being a modular form in modular form space \var{mf}, returns
+ $T(n)F$, where $T(n)$ is the $n$-th Hecke operator.
 
  \misctitle{Warning} If $F$ is of level $M<N$, then $T(n)F$
  is in general not the same in $M_k(\Gamma_0(M),\chi)$ and in
- $M_k(\Gamma_0(N),\chi)$. Thus, the default is to consider $F$ in the space
- given by \kbd{mfparams(F)}, but if you want to specify the space in which
- $T(n)$ is taken, add the optional argument \kbd{NK=[N,k,CHI]}.
+ $M_k(\Gamma_0(N),\chi)$. We take $T(n)$ at the same level as the one used in
+ \kbd{mf}.
  \bprog
  ? mf = mfinit([26,2],0); F = mfbasis(mf)[1]; mftobasis(mf,F)
  %1 = [1, 0]~
- ? G2 = mfhecke(F,2); mftobasis(mf,G2)
+ ? G2 = mfhecke(mf,F,2); mftobasis(mf,G2)
  %2 = [0, 1]~
  ? G5 = mfhecke(F,5); mftobasis(mf,G5)
  %3 = [-2, 1]~
@@ -26,4 +24,11 @@ Doc: $F$ being a modular form, returns $T(n)F$, where $T(n)$ is the
    ***   at top-level: mftobasis(mf,G55)
    ***                 ^-----------------
    *** mftobasis: domain error in mftobasis: form does not belong to space
- @eprog
+ @eprog\noindent Modular forms of half-integral weight are supported, in
+ which case $n$ must be a perfect square, else $T_n$ will act as $0$:
+ \bprog
+ ? F = mfpow(mfTheta(),3);
+ ? mfisequal(mfhecke(F,9), mflinear([F],[4]))
+ %2 = 1
+ @eprog ($F$ is an eigenvector of all $T_{p^2}$, with eigenvalue $p+1$ for
+ odd $p$.)

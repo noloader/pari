@@ -264,4 +264,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: ...t(x^2+1);G=galoisinit(N);lfunartin(N,G,[1,1,1]
   ***                                             ^---------------------
   *** lfunartin: inconsistent dimensions in lfunartin.
-Total time spent: 4972
+Total time spent: 6002

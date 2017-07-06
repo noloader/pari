@@ -2,13 +2,12 @@ Function: mfeigenbasis
 Section: modular_forms
 C-Name: mfeigenbasis
 Prototype: G
-Help: mfeigenbasis(mf): vector of the eigenforms for the space
- mf if split, otherwise error.
-Doc: vector of the eigenforms for the space \kbd{mf} if split, otherwise error.
+Help: mfeigenbasis(mf): vector of the eigenforms for the space mf.
+Doc: vector of the eigenforms for the space \kbd{mf}.
  The initial basis of forms computed by \kbd{mfinit} before splitting
  is also available via \kbd{mfbasis}.
  \bprog
- ? mf = mfsplit([26,2]);
+ ? mf = mfinit([26,2],0);
  ? see(L) = for(i=1,#L,print(mfcoefs(L[i],6)));
  ? see( mfeigenbasis(mf) )
  [0, 1, -1, 1, 1, -3, -1]

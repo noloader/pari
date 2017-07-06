@@ -1,0 +1,31 @@
+Function: mfsymbol
+Section: modular_forms
+C-Name: mfsymbol
+Prototype: GGGGb
+Help: mfsymbol(mf,F,s1,s2): Modular symbol corresponding to
+ the modular form F and the cusps s1 and s2. F can be a cusp form or
+ the output of mfsymbolinit, and it is strongly advised to use only this
+ second syntax. The result is the polynomial equal to the integral between s1
+ and s2 of (X-tau)^{k-2}F(tau).
+Doc:  Modular symbol corresponding to the modular form $F$ and the cusps $s1$
+ and $s2$. $F$ can be a cusp form or the output of \kbd{mfsymbolinit},
+ and it is strongly advised to use only this second syntax since in the
+ former case \kbd{mfsymbolinit} is called anyway. The result is the polynomial
+ equal to $\int_{s1}^{s2}(X-\tau)^{k-2}F(\tau)\,d\tau$, the integral being as
+ usual computed along a geodesic joining $s1$ and $s2$. If the field of
+ definition $\Q(F)$ is larger than $\Q(\chi)$ then $F$ may be embedded into
+ $\C$ in $d=[\Q(F):\Q(\chi)]$ ways, in which case a vector of the $d$ results
+ is returned.
+ \bprog
+ ? mf=mfinit([35,2],1);F=mfbasis(mf)[1];
+ ? mfsymbol(mf,F,0,oo)
+ time = 3,700 ms.
+ %1 = -3.850416174017535263 E-57 + 0.31404011074188471664161704390256378537*I
+ ? P=mfsymbolinit(mf,F);
+ time = 3,700 ms.
+ ? mfsymbol(mf,P,0,oo)
+ %3 = -3.850416174017535263 E-57 + 0.31404011074188471664161704390256378537*I
+ ? mfsymbol(mf,P,1/2,3/5)
+ %4 = -0.1429696291... - 0.2619975641...*I
+ @eprog
+ These last two commands are now instantaneous.

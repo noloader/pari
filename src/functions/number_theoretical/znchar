@@ -15,7 +15,10 @@ Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
 
  \item a \typ{INTMOD} \kbd{Mod(m, N)}, return the Conrey character
  modulo $N$ of index $m$ (see \kbd{znconreylog}).
- and let \kbd{chi} be a Dirichlet character on $(\Z/N\Z)^*$, given by
+
+ \item a modular form space as per \kbd{mfinit}$([N,k,\chi])$, return
+ the underlying Dirichlet character $\chi$ (which may be defined modulo a
+ divisor of $N$ but need not be primitive).
 
  In the remaining cases, \kbd{G} is initialized by \kbd{znstar(N, 1)}.
 

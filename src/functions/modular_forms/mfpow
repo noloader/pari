@@ -1,7 +1,7 @@
 Function: mfpow
 Section: modular_forms
 C-Name: mfpow
-Prototype: GG
+Prototype: GL
 Help: mfpow(F,n): compute F^n
 Doc: Compute $F^n$, where $n$ is an integer:
  \bprog

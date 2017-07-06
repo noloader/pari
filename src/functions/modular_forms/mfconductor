@@ -5,7 +5,7 @@ Prototype: lGG
 Help: mfconductor(mf,F): mf being output by mfinit for the cuspidal space and
  F a modular form, gives the smallest level on which F is defined.
 Doc: \kbd{mf} being output by \kbd{mfinit} for the cuspidal space and
- $F$ an modular form, gives the smallest level on which $F$ is defined.
+ $F$ a modular form, gives the smallest level on which $F$ is defined.
  \bprog
  ? mf=mfinit([96,6],1); vF = mfbasis(mf); mfdim(mf)
  %1 = 72

@@ -750,17 +750,7 @@ GEN     contfraceval_inv(GEN CF, GEN tinv, long nlim);
 /* mftrace.c */
 
 void pari_close_mf(void);
-GEN mfchartovec(GEN CHI);
-GEN sqrtmtnmodN(long N, long t, long n);
-GEN mfcharcxeval(GEN CHI, long m, long prec);
-GEN doublecharsum(GEN CHI1, GEN CHI2, GEN cusp, long e, long a1, long a2);
-GEN mftsteisencusp(GEN CHI1, GEN CHI2, GEN cusp, long e, long k, long lim);
-GEN mfeisenchi1chi2cusp(GEN CHI1, GEN CHI2, GEN cusp, long e, long k, long lim);
 long polishomogeneous(GEN P);
-GEN mfqk(long k, long N);
-GEN mfsk(GEN CHI, GEN Q, long k);
-GEN mfheckeU(GEN F, long d);
-GEN charLFwtk(long k, GEN CHI);
 GEN sertocol(GEN S);
 
 /* prime.c */

@@ -2,19 +2,26 @@ Function: mfparams
 Section: modular_forms
 C-Name: mfparams
 Prototype: G
-Help: mfparams(F): Returns [N,k,CHI], level, weight, and character:
- F is either a modular form space or a modular form; in the latter case
- the level N may be a multiple of the level of F.
-Doc: Returns \kbd{[N,k,CHI]}, level, weight, and character:
- $F$ is either a modular form space  or a modular form; in the latter case
- the level $N$ may be a multiple of the level of $F$. If you want the true
- level of $F$ from this result, use \kbd{mfconductor(mfinit([N,k,CHI]),F)}.
+Help: mfparams(F): If F is a modular form space, returns [N,k,CHI,space]:
+ level, weight, character, and space code. If F is a modular form,
+ returns [N,k,CHI,P], where P is the (polynomial giving the) field of
+ definition of F: in that case the level N may be a multiple of the level of F
+ and the polynomial P may define a larger field than Q(F).
+Doc: If $F$ is a modular form space, returns \kbd{[N,k,CHI,space]}, level,
+ weight, character, and space code. If $F$ is a modular form, returns
+ \kbd{[N,k,CHI,P]}, where $P$ is the (polynomial giving the) field of
+ definition of $F$: in that case the level $N$ may be a multiple of the
+ level of $F$ and the polynomial $P$ may define a larger field than $\Q(F)$.
+ If you want the true level of $F$ from this result, use
+ \kbd{mfconductor(mfinit(F),F)}. The polynomial $P$ defines an extension of
+ $\Q(\chi) = \Q[t]/(\Phi(t))$ for the cyclotomic polynomial of order
+ $f(\chi)$; it has coefficients in that number field (polmods in $t$).
  \bprog
  ? E1 = mfeisen(4,-3,-4); E2 = mfeisen(3,5,-7); E3 = mfmul(E1,E2);
- ? E4 = mfderivE2(E3,3);
- ? apply(params, [E1,E2,E3,E4])
- %1 = [[12, 4, 12], [35, 3, -35], [420, 7, -420], [420, 13, -420]]
- @eprog In the case of a modular form $F$ which was created via a recipe
- for its coefficients (\kbd{mfcreate}), if the level, weight or character
- cannot be determined, they are set to the impossible values
- $-1$, $-1$ or $0$ respectively.
+ ? apply(mfparams, [E1,E2,E3])
+ %2 = [[12, 4, 12, y], [35, 3, -35, y], [420, 7, -420, y]]
+ ? mf = mfinit([23,2],0); mfparams(mf)
+ %3 = [23, 2, 1, 0]
+ ? B=mfeigenbasis(mf); apply(mfparams, B)
+ %4 = [[23, 2, 1, y^2 - y - 1]]
+ @eprog

@@ -1,0 +1,39 @@
+Function: mfatkininit
+Section: modular_forms
+C-Name: mfatkininit
+Prototype: GLp
+Help: mfatkininit(mf,Q): initializes data necessary for working
+ with Atkin--Lehner operators W_Q, for now only the function mfatkin.
+ Although technical, it is essential to know what this function returns:
+ the result is a 4-component vector mfatk, as follows: mfatk[1] is either
+ 0 or the possibly different modular form space to which F|W_Q will belong
+ (this does not depend on F); mfatk[2] is $C$ times the matrix of $W_Q$
+ on the basis of mf; mfatk[3] is the complex constant C, and mfatk[4]=mf.
+Doc: initializes data necessary for working with Atkin--Lehner operators
+ $W_Q$, for now only the function \kbd{mfatkin}. Although technical, it is
+ essential to know what this function returns: the result is a 4-component
+ vector \kbd{mfatk}, as follows: \kbd{mfatk[1]} is either
+ $0$ or the possibly different modular form space to which $F|W_Q$ will
+ belong (this does not depend on $F$); \kbd{mfatk[2]} is $C$ times the
+ matrix of $W_Q$ on the basis of \kbd{mf}; \kbd{mfatk[3]} is the complex
+ constant $C$, and \kbd{mfatk[4]=mf}. The matrix \kbd{mfatk[2]} has polmod
+ coefficients in $\Q(\chi)$.
+ \bprog
+ ? mf=mfinit([32,4],0); [mfB,M,C]=mfatkininit(mf,32); M
+ %1 =
+ [5/16 11/2  55/8]
+
+ [ 1/8    0  -5/4]
+
+ [1/32 -1/4 11/16]
+
+ ? C
+ %2 = 1
+ ? mf=mfinit([32,4,8],0); [mfB,M,C]=mfatkininit(mf,32); M
+ %3 =
+ [  1/8 -7/4]
+
+ [-1/16 -1/8]
+ ? C
+ %4 = 0.35355339059327376220042218105242451964
+ @eprog

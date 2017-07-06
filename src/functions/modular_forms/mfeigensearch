@@ -1,0 +1,42 @@
+Function: mfeigensearch
+Section: modular_forms
+C-Name: mfeigensearch
+Prototype: GDG
+Help: mfeigensearch(NK,{AP}): search for a normalized rational eigen cuspform with
+ quadratic characters given a few initial coefficients. The meaning of
+ the parameters is as follows:
+ NK is of the form [N0,k]: search for N <= N0, given k, and quadratic
+ character; note that the character is uniquely determined by (N,k).
+
+ AP is the search criterion, which can be omitted: a list of pairs
+ [...,[p,a_p],...], where a_p is either a t_INT (exact match) or a t_INTMOD
+ (match modulo the given integer).
+
+ The result is a vector of 2-component vectors [N,f], where N is the level and
+ f is a form matching the search criteria.
+Doc:  search for a normalized rational eigen cuspform with quadratic
+ character given restrictions on a few initial coefficients. The meaning of
+ the parameters is as follows:
+
+ \item \kbd{NK} governs the limits of the search: it is of the form
+ $[N_0,k]$: search for all $N\leq N_0$, given $k$, and quadratic
+ character; note that the character is uniquely determined by $(N,k)$.
+
+ \item \kbd{AP} is the search criterion, which can be omitted: a list of
+ pairs $[\ldots, [p,a_p], \ldots]$, where $p$ is a prime number and $a_p$ is
+ either a \typ{INT} (the $p$-th Fourier coefficient must match $a_p$ exactly)
+ or a \typ{INTMOD} \kbd{Mod}$(a,b)$ (the $p$-th coefficient must be congruent
+ to $a$ modulo $b$).
+
+ The result is a vector of 2-component vectors $[N,f]$, where $N$ is the
+ level and $f$ is a form matching the search criteria.
+ \bprog
+ ? #mfeigensearch([80,2],[[2,2],[3,-1]])
+ %1 = 1
+ ? #mfeigensearch([80,2],[[2,2],[5,2]])
+ %2 = 1
+ ? v = mfeigensearch([20,2],[[3,Mod(2,3)],[7,Mod(5,7)]]); #v
+ %3 = 1
+ ? [N,F]=v[1]; [N,mfcoefs(F,15)]
+ %4 = [11, [0, 1, -2, -1, 2, 1, 2, -2, 0, -2, -2, 1, -2, 4, 4, -1]]
+ @eprog

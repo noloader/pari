@@ -1,0 +1,47 @@
+Function: mfpetersson
+Section: modular_forms
+C-Name: mfpetersson
+Prototype: GGGb
+Help: mfpetersson(mf,F,G): Petersson scalar product of the modular forms F and
+ G belonging to the modular form space mf, one of them at least being a cusp
+ form. For now only for integral weight >= 2. The scalar product is normalized
+ by the factor 1/[G:G_0(N)]. F and G can either be forms or (preferably for
+ efficiency) the output of mfsymbolinit.
+Doc: Petersson scalar product of the modular forms $F$ and $G$ belonging to
+ the modular form space \kbd{mf}, one of them at least being a cusp
+ form. For now only for integral weight $k\ge2$. The scalar product is
+ normalized by the factor $1/[\Gamma:\Gamma_0(N)]$. $F$ and $G$ can either
+ be forms, or (preferably for efficiency) the output of \kbd{mfsymbolinit}.
+ If the fields of definition $\Q(F)$ and of $\Q(G)$ are equal to $\Q(\chi)$
+ the result is a scalar. If $[\Q(F):\Q(\chi)]=d>1$ and
+ $[\Q(G):\Q(\chi)]=e>1$ the result is a $d\times e$ matrix corresponding
+ to all the embeddings of $F$ and $G$. In the intermediate cases $d=1$ or
+ $e=1$ the result is a row or column vector.
+ \bprog
+ ? D = mfDelta(); mf = mfinit(D); mfpetersson(mf, D, D)
+ %1 = 1.0353620568043209223478168122251645932 E-6
+ ? mf=mfinit([11,6],0);B=mfeigenbasis(mf);F=concat([B[1]],mfembed(B[2]));
+ for(i=1,4,for(j=1,i,print([i,j],": ",mfpetersson(mf,F[i],F[j]))))
+ [1, 1]: 1.6190120685220988139111708455305245466 E-5
+ [2, 1]: 1.1160563769200320849 E-42 + 3.1887325054858059569 E-43*I
+ [2, 2]: 2.7576133733995881925283986295896859057 E-5
+ [3, 1]: -1.5943662527429029785 E-42 + 2.3915493791143544678 E-43*I
+ [3, 2]: 3.029295880211515659 E-42 - 1.5943662527429029785 E-43*I
+ [3, 3]: 6.7783703007062783977757301745921691845 E-5
+ [4, 1]: -1.2754930021943223828 E-42 - 1.5943662527429029785 E-43*I
+ [4, 2]: -6.377465010971611914 E-43 + 0.E-42*I
+ [4, 3]: 2.7104226296629350634 E-42 - 1.5943662527429029785 E-43*I
+ [4, 4]: 2.2726895806959297161803047062902237253 E-5
+ time = 3,340 ms.
+ ? FS=apply(x->mfsymbolinit(mf,x),F);
+ time = 873 ms.
+ ? for(i=1,4,for(j=1,i,mfpetersson(mf,FS[i],FS[j])));
+ time = 12 ms.
+ ? mf=mfinit([23,2],0); F=mfeigenbasis(mf)[1];
+ ? mfpetersson(mf,F,F)
+ %5 =
+ [0.0039488965740025031688548076498662860143 1.2789721111175127425 E-40]
+
+ [1.2630501762985554269 E-40 0.0056442542987647835101583821368582485396]
+
+ @eprog

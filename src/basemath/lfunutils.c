@@ -892,7 +892,7 @@ lfunmfspec(GEN lmisc, long bitprec)
   else
     linit = lfuninit(ldataf, dom, 0, bitprec);
   Vga = ldata_get_gammavec(ldataf);
-  if (!ldata_isreal(ldataf) || !gequal(Vga, mkvec2(gen_0,gen_1)))
+  if (!gequal(Vga, mkvec2(gen_0,gen_1)))
     pari_err_TYPE("lfunmfspec", lmisc);
   if (odd(k)) pari_err_IMPL("odd weight in lfunmfspec");
   k2 = k/2;
@@ -911,6 +911,8 @@ lfunmfspec(GEN lmisc, long bitprec)
     om = gen_1;
     op = gel(vodd,1);
   }
+  if (maxss(gexpo(gimag(om)), gexpo(gimag(op))) > -bitprec/2)
+    pari_err_TYPE("lfunmfspec", lmisc);
   vodd = gdiv(vodd, op);
   eps = int2n(bitprec/4);
   veven= bestappr(veven, eps);
@@ -2052,8 +2054,15 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_CONJ: an = vecan_conj(an, L, prec); break;
     case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
     case t_LFUN_GENUS2: an = vecan_genus2(an, L); break;
-    case t_LFUN_MFCLOS: an = mfcoefs(an,L,1) + 1; /* skip a_0 */
-                        an[0] = evaltyp(t_VEC)|evallg(L+1); break;
+    case t_LFUN_MFCLOS:
+    {
+      GEN F = gel(an,1), E = gel(an,2), c = gel(an,3);
+      an = mfcoefs(F,L,1) + 1; /* skip a_0 */
+      an[0] = evaltyp(t_VEC)|evallg(L+1);
+      an = mfvecembed(an, E);
+      if (!isint1(c)) an = RgV_Rg_mul(an,c);
+      break;
+    }
     default: pari_err_TYPE("ldata_vecan", van);
   }
   if (DEBUGLEVEL >= 2) timer_printf(&ti, "ldata_vecan");

@@ -1,21 +1,23 @@
 Function: mfspace
 Section: modular_forms
 C-Name: mfspace
-Prototype: lG
-Help: mfspace(mf): identify the modular space mf, or the modular form.
- Returns 0 (newspace), 1 (cuspidal space), 2 (old space), 3 (full space) or 4
- (Eisenstein space). Return -1 when the form is not actually modular.
-Doc: identify the modular space mf, as the flag given to \kbd{mfinit}, or
- the modular form mf. Returns 0 (newspace), 1 (cuspidal space), 2 (old space),
+Prototype: lGDG
+Help: mfspace(mf,{f}): identify the modular space mf, resp. the modular form f
+ in mf. Returns 0 (newspace), 1 (cuspidal space), 2 (old space),
+ 3 (full space) or 4 (Eisenstein space). Return -1 when the form does not
+ belong to the space.
+Doc: identify the modular space \var{mf}, resp.~the modular form $f$ in
+ \var{mf} if present, as the flag given to \kbd{mfinit}.
+ Returns 0 (newspace), 1 (cuspidal space), 2 (old space),
  3 (full space) or 4 (Eisenstein space).
  \bprog
- ? mf=mfinit([24,4],1);mfspace(mf)
+ ? mf = mfinit([1,12],1); mfspace(mf)
  %1 = 1
- ? mfspace(mfDelta())
+ ? mfspace(mf, mfDelta())
  %2 = 0 \\ new space
- @eprog\noindent This function returns $-1$ when it turns out that the
- function is not actually modular:
+ @eprog\noindent This function returns $-1$ when the form does not belong to
+ the space.
  \bprog
- ? mfspace(mfEk(2))
+ ? mf = mfinit([1,2]; mfspace(mf, mfEk(2))
  %3 = -1
  @eprog

@@ -13,7 +13,9 @@ Doc: Create the space of modular forms corresponding to the data contained in
  \kbd{NK} and \kbd{space}. \kbd{NK} is a vector which can be
  either $[N,k]$ ($N$ level, $k$ weight) corresponding to a subspace of
  $M_k(\Gamma_0(N))$, or $[N,k,\var{CHI}]$ (\var{CHI} a character)
- corresponding to a subspace of $M_k(\Gamma_0(N),\chi)$.
+ corresponding to a subspace of $M_k(\Gamma_0(N),\chi)$. Alternatively,
+ it can be a modular form $F$ or modular form space, in which case we use
+ \kbd{mfparams} to define the space parameters.
 
  The subspace is described by the small integer \kbd{space}: $0$ for the
  newspace $S_k^{\text{new}}(\Gamma_0(N),\chi)$, $1$ for the cuspidal
@@ -28,7 +30,7 @@ Doc: Create the space of modular forms corresponding to the data contained in
  (see \kbd{znchargalois}). One may also set \var{CHI} to a vector of
  characters and we return a vector of all mfinits of subspaces of
  $M_k(G_0(N),\chi)$ for $\chi$ in the list, in the same order. In weight $1$,
- only $S_1^{\text{new}}$ and $S_1$ support wildcards.
+ only $S_1^{\text{new}}$, $S_1$ and $E_1$ support wildcards.
 
  The output is a technical structure $S$, or a vector of structures if
  \var{CHI} was a wildcard, which contains the following information:
@@ -40,7 +42,7 @@ Doc: Create the space of modular forms corresponding to the data contained in
  ? mfdim(S)
  %2 = 1
  ? mfparams
- %3 = [36, 2, 1]  \\ trivial character
+ %3 = [36, 2, 1, y]  \\ trivial character
  ? f = mfbasis(S)[1]; mfcoefs(f,10)
  %4 = [0, 1, 0, 0, 0, 0, 0, -4, 0, 0, 0]
 

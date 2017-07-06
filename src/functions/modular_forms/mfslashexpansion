@@ -1,0 +1,52 @@
+Function: mfslashexpansion
+Section: modular_forms
+C-Name: mfslashexpansion
+Prototype: GGGLD1,L,D&p
+Help: mfslashexpansion(mf,F,g,n,{flrat=1},{&params}): g being in M_2^+(Q),
+ computes the Fourier expansion of F|_k g to n terms. F must belong to
+ the space mf. If params is given, it is set to the parameters [alpha,w].
+ If flrat is set (default), the program tries to rationalize the expression,
+ however note that this may result in an error if the program cannot perform
+ it.
+Doc: let \var{mf} be a modular form space in leven $N$ and let
+ $\kbd{g} = [a,b;c,d]$ be in $M_2^+(Q)$. This function computes the Fourier
+ expansion of $F|_k g$ to $n$ terms. The result is a vector $v$ of complex
+ numbers such that
+ $$F|_k g(\tau) = q^\alpha \sum_{m\ge0}v[m+1]q^{m/w},$$
+ where $w$ is the width of the cusp $g(i\infty)$
+ (namely $(N/(c^2,N)$ if $g$ is integral) and $\alpha$ is a rational number.
+ $F$ must belong to the space \kbd{mf}. If \kbd{params} is given, it is set
+ to the parameters $[\alpha,w]$. If \kbd{flrat} is set (default), the program
+ tries to rationalize the expression, i.e., to express the coefficients as
+ rational numbers or polmods. Note that this rationalization step may result
+ in an error if the program cannot perform it.
+ \bprog
+ ? mf = mfinit([32,4],0); F = mfbasis(mf)[1];
+ ? mfcoefs(F, 10)
+ %2 = [0, 3, 0, 0, 0, 2, 0, 0, 0, 47, 0]
+ ? mfslashexpansion(mf,F,[0,-1;1,0],10,1,&params)
+ %3 = [0, 1/1024, 0, 1/64, 0, 11/512, 0, 1/32, 0, -27/1024, 0]
+ ? mfatk=mfatkininit(mf,32);mfcoefs(mfatkin(mfatk,F),10)/1024
+ %4 = [0, 1/1024, 0, 1/64, 0, 11/512, 0, 1/32, 0, -27/1024, 0]
+ ? params
+ %5 = [0, 32]
+ ? mf = mfinit([12,8],0); F = mfbasis(mf)[1];
+ ? mfslashexpansion(mf,F,[1,0;2,1],7,0)
+ %7 = [0, 0, 0, 0.6666666... + 0.E-38*I, 0, -3.999999... + 6.92820...*I, 0,\
+       -11.99999999... - 20.78460969...*I]
+ ? mfslashexpansion(mf,F,[1,0;2,1],7)
+ %8 = [0, 0, 0, 2/3, 0, Mod(8*t, t^2 + t + 1), 0, Mod(24*t, t^2 + t + 1)]
+ @eprog
+ If $[\Q(F):\Q(\chi)]>1$, the coefficients may be polynomials in $y$,
+ where $y$ is any root of the polynomial giving the field of definition of
+ $F$ (\kbd{mfparams(F)[4]}).
+ \bprog
+ ? mf=mfinit([23,2],0);F=mfeigenbasis(mf)[1];
+ ? mfcoefs(F,5)
+ %1 = [Mod(0, y^2 - y - 1), Mod(1, y^2 - y - 1), Mod(-y, y^2 - y - 1),\
+   Mod(2*y - 1, y^2 - y - 1), Mod(y - 1, y^2 - y - 1), Mod(-2*y, y^2 - y - 1)]
+ ? mfslashexpansion(mf,F,[1,0;0,1],5)
+ %2 = [0, 1, -y, 2*y - 1, y - 1, -2*y]
+ ? mfslashexpansion(mf,F,[0,-1;1,0],5)
+ %3 = [0, -1/23, 1/23*y, -2/23*y + 1/23, -1/23*y + 1/23, 2/23*y]
+ @eprog

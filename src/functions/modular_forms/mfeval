@@ -1,26 +1,28 @@
 Function: mfeval
 Section: modular_forms
 C-Name: mfeval
-Prototype: GGb
-Help: mfeval(F,vtau): Computes the numerical value of the modular form F
+Prototype: GGGb
+Help: mfeval(mf,F,vtau): computes the numerical value of the modular form F
  at the point vtau or the vector vtau of points in the upper-half plane.
- If $F$ has polmod coefficients, it must be embedded first using mfembed.
-Doc: Computes the numerical value of the modular form $F$ at the complex
- number \kbd{vtau} or the vector \kbd{vtau} of complex numbers in the
- upper-half plane. If $F$ has polmod coefficients, it must be embedded first
- using \kbd{mfembed}.
+Doc: Computes the numerical value of the modular form $F$, belonging
+ to \var{mf}, at the complex number \kbd{vtau} or the vector \kbd{vtau}
+ of complex numbers in the upper-half plane. If the field of definition
+ $\Q(F)$ is larger than $\Q(\chi)$ then $F$ may be embedded into $\C$ in
+ $d=[\Q(F):\Q(\chi)]$ ways, in which case a vector of the $d$ results is
+ returned.
  \bprog
- ? mf = mfinit([11,2],0); F = mfbasis(mf)[1];
- ? mfeval(F,I/2)
+ ? mf = mfinit([11,2],0); F = mfbasis(mf)[1]; mfparams(F)
+ %1 = [11, 2, 1, y]  \\ Q(F) = Q(chi) = Q
+ ? mfeval(mf,F,I/2)
  %2 = 0.039405471130100890402470386372028382117
- ? mf = mfsplit([35,2]); F = mfeigenbasis(mf)[2];
- ? mfcoefs(F,2)
- %5 = [Mod(0, y^2 - y - 4), Mod(1, y^2 - y - 4), Mod(-y, y^2 - y - 4)]
- ? mfeval(F,I)  \\ non rational and not embedded !
-  ***   at top-level: mfeval(mf,F,I)
-  ***                 ^--------------
-  *** mfeval: incorrect type in mfeval [use mfembed first] (t_VEC).
- ? F1 = mfembed(F)[1]; \\ one embedding
- ? mfeval(F1,I)
- %7 = 0.0018728717244406706154258944738677007976
- @eprog
+ ? mf = mfinit([35,2],0); F = mfeigenbasis(mf)[2]; mfparams(F)
+ %3 = [35, 2, 1, y^2 - y - 4] \\ [Q(F) : Q(chi)] = 2
+ ? mfeval(mf,F,I/2)
+ %4 = [0.045..., 0.0385...] \\ sigma_1(F) and sigma_2(F) at I/2
+ ? mf = mfinit([12,4],1); F = mfbasis(mf)[1];
+ ? mfeval(mf, F, 0.318+10^(-7)*I)
+ %6 = 3.379... E-21 + 6.531... E-21*I \\ instantaneous !
+ @eprog\noindent In order to maximize the imaginary part of the argument,
+ the function computes $(f \mid_k \gamma)(\gamma^{-1}\cdot\tau)$ for a
+ suitable $\gamma$ not necessarily in $\Gamma_0(N)$ (in which case $f \mid
+ \gamma$ is evaluated using \kbd{mfslashexpansion}).

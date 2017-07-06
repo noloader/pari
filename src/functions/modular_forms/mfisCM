@@ -15,7 +15,7 @@ Doc: Tests whether the eigenform $F$ is a CM form. The answer
  \bprog
  ? F = mffromell(ellinit([0,1]))[2]; mfisCM(F)
  %1 = -3
- ? mf = mfsplit([39,1,-39]); F=mfeigenbasis(mf)[1]; mfisCM(F)
+ ? mf = mfinit([39,1,-39],0); F=mfeigenbasis(mf)[1]; mfisCM(F)
  %2 = Vecsmall([-3, -39])
  ? mfgaloistype(mf)
  %3 = [4]

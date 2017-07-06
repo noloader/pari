@@ -37,7 +37,8 @@ Doc: If $NK=[N,k,\var{CHI}]$ as in \kbd{mfinit}, gives the dimension of the
  The spaces are sorted by increasing order of the character; the characters are
  taken up to Galois conjugation and the Conrey number is the minimal one among
  Galois conjugates. In weight $1$, this is only implemented when
- the space is 0 (newspace), 1 (cusp space) or 2(old space).
+ the space is 0 (newspace), 1 (cusp space), 2(old space) or 3(Eisenstein
+ series).
 
  \misctitle{Wildcards for sets of characters} \var{CHI} may be a set
  of characters, and we return the set of $[\var{dim},\var{dimdih}]$.

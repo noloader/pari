@@ -1,42 +1,30 @@
 Function: mfsearch
 Section: modular_forms
 C-Name: mfsearch
-Prototype: GDG
-Help: mfsearch(NK,{AP}): search for a normalized rational eigen cuspform with
- quadratic characters given a few initial coefficients. The meaning of
- the parameters is as follows:
- NK is of the form [N0,k]: search for N <= N0, given k, and quadratic
- character; note that the character is uniquely determined by (N,k).
-
- AP is the search criterion, which can be omitted: a list of pairs
- [...,[p,a_p],...], where a_p is either a t_INT (exact match) or a t_INTMOD
- (match modulo the given integer).
-
- The result is a vector of 2-component vectors [N,f], where N is the level and
- f is a form matching the search criteria.
-Doc:  search for a normalized rational eigen cuspform with quadratic
- character given restrictions on a few initial coefficients. The meaning of
- the parameters is as follows:
-
- \item \kbd{NK} governs the limits of the search: it is of the form
- $[N_0,k]$: search for all $N\leq N_0$, given $k$, and quadratic
- character; note that the character is uniquely determined by $(N,k)$.
-
- \item \kbd{AP} is the search criterion, which can be omitted: a list of
- pairs $[\ldots, [p,a_p], \ldots]$, where $p$ is a prime number and $a_p$ is
- either a \typ{INT} (the $p$-th Fourier coefficient must match $a_p$ exactly)
- or a \typ{INTMOD} \kbd{Mod}$(a,b)$ (the $p$-th coefficient must be congruent
- to $a$ modulo $b$).
-
- The result is a vector of 2-component vectors $[N,f]$, where $N$ is the
- level and $f$ is a form matching the search criteria.
+Prototype: GGD4,L,
+Help: mfsearch(NK,V,{space}): NK being of the form [N,k] with k possibly
+ half-integral, search for a modular form with rational coefficients, of weight
+ k and level less than or equal to N, whose initial coefficients
+ a(0),... are equal to V. The output is a list of possible [N,k,D], where
+ D is a (positive or negative) fundamental discriminant dividing N.
+ If a form is found at level N, any multiple of N with the same D is not
+ considered. space specfies the modular form spaces in which to search. Note
+ that this is very different from mfeigensearch, whose syntax is different,
+ and which only searches for rational eigenforms.
+Doc: \kbd{NK} being of the form \kbd{[N,k]} with $k$ possibly half-integral,
+ search for a modular form with rational coefficients, of weight
+ $k$ and level less than or equal to $N$, whose initial coefficients
+ $a(0)$,... are equal to $V$. The output is a list of possible \kbd{[N,k,D]},
+ where $D$ is a (positive or negative) fundamental discriminant dividing $N$.
+ If a form is found at level $N$, any multiple of $N$ with the same $D$ is not
+ considered. \kbd{space} specfies the modular form spaces in which to search.
+ Note that this is very different from \kbd{mfeigensearch}, whose syntax is
+ different, and which only searches for rational eigenforms.
  \bprog
- ? #mfsearch([80,2],[[2,2],[3,-1]])
- %1 = 1
- ? #mfsearch([80,2],[[2,2],[5,2]])
- %2 = 1
- ? v = mfsearch([20,2],[[3,Mod(2,3)],[7,Mod(5,7)]]); #v
- %3 = 1
- ? [N,F]=v[1]; [N,mfcoefs(F,15)]
- %4 = [11, [0, 1, -2, -1, 2, 1, 2, -2, 0, -2, -2, 1, -2, 4, 4, -1]]
+ ? mfsearch([40,2],[0,1,2,3,4],1)
+ %1 = [[38, 2, 1], [40, 2, 8], [40, 2, 40]]
+ ? mf=mfinit([38,2],1); M=mfcoefs(mf,4); C=matinverseimage(M,[0,1,2,3,4]~)
+ %2 = [-1, 3, 1, -1/2]~
+ ? mfcoefs(mflinear(mf,C),10)
+ %3 = [0, 1, 2, 3, 4, -5, -8, 1, -7, -5, 7]
  @eprog

@@ -3,15 +3,15 @@ Section: modular_forms
 C-Name: mffromell
 Prototype: G
 Help: mffromell(E): E being an elliptic curve defined over Q given by an
- integral model in ellinit format, computes a 3-component vector [mf,F,coeffs],
- where F is the newform corresponding to E by modularity, mf is the split
- newspace to which F belongs, and coeffs are the coefficients of F on
+ integral model in ellinit format, computes a 3-component vector [mf,F,v],
+ where F is the newform corresponding to E by modularity, mf is the
+ newspace to which F belongs, and v gives the coefficients of F on
  mfbasis(mf).
 Doc: $E$ being an elliptic curve defined over $Q$ given by an
  integral model in \kbd{ellinit} format, computes a 3-component vector
- \kbd{[mf,F,coeffs]}, where $F$ is the newform corresponding to $E$ by
- modularity, \kbd{mf} is the split newspace to which $F$ belongs, and
- \kbd{coeffs} are the coefficients of $F$ on \kbd{mfbasis(mf)}.
+ \kbd{[mf,F,v]}, where $F$ is the newform corresponding to $E$ by
+ modularity, \kbd{mf} is the newspace to which $F$ belongs, and
+ \kbd{v} gives the coefficients of $F$ on \kbd{mfbasis(mf)}.
  \bprog
  ? E = ellinit("26a1");
  ? [mf,F,co] = mffromell(E);

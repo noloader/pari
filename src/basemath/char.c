@@ -1235,6 +1235,7 @@ znchar(GEN D)
       chi = znconreylog(G, gel(D,2));
       break;
     case t_VEC:
+      if (checkmf_i(D)) { D = mf_get_CHI(D); G=gel(D,1); chi=gel(D,2); break; }
       if (lg(D) != 3) pari_err_TYPE("znchar", D);
       G = gel(D,1);
       if (!checkznstar_i(G)) pari_err_TYPE("znchar", D);

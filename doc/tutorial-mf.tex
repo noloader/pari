@@ -6,11 +6,17 @@
 
 \DeclareMathOperator{\Tr}{Tr}
 \DeclareMathOperator{\PSL}{PSL}
+\DeclareMathOperator{\SL}{SL}
 \newcommand{\Q}{{\mathbb Q}}
 \newcommand{\Z}{{\mathbb Z}}
 \newcommand{\R}{{\mathbb R}}
 \newcommand{\C}{{\mathbb C}}
 \newcommand{\z}{\zeta}
+\newcommand{\al}{\alpha}
+\newcommand{\be}{\beta}
+\newcommand{\ga}{\gamma}
+\renewcommand{\z}{\zeta}
+\renewcommand{\th}{\theta}
 \newcommand{\G}{\Gamma}
 \newcommand{\new}{\text{new}}
 
@@ -42,12 +48,12 @@ compute $p$-adic $L$-functions attached to modular forms. The name of most
 functions in this package begins with \kbd{ms}, such as \kbd{msinit}.
 
 The third package is the modular forms package, whose aim is to compute in
-the standard spaces $M_k(\G_0(N),\chi)$ with $k$ integral, both with modular
-form \emph{spaces} and individual modular forms. The name of most functions in
-this package begins with \kbd{mf}, such as \kbd{mfinit}. The goal of the
-present manual is to describe this package in view of a new user's guide, so
-will be more a tutorial than an actual reference guide, although we do include
-such a guide at the end.
+the standard spaces $M_k(\G_0(N),\chi)$ with $k$ integral or half-integral,
+both with modular form \emph{spaces} and individual modular \emph{forms}. The
+name of most functions in this package begins with \kbd{mf}, such as
+\kbd{mfinit}. The goal of the present manual is to describe this package in
+view of a new user's guide, so will be more a tutorial than an actual
+reference guide, although we do include such a guide at the end.
 
 \medskip
 
@@ -60,7 +66,10 @@ series ${\cal E}_k(\G_0(N),\chi)$ (flag = 3), and finally the full space
 including the Eisenstein part $M_k(\G_0(N),\chi)$ (flag = 4, which can be
 omitted since it is the default). Note that although it can be defined, we have
 not included the space $M_k^{\new}$, nor the ``certain space'' of
-Zagier--Skoruppa.
+Zagier--Skoruppa. Also, in the half-integral weight case, we have included
+only the full cuspidal space and the full space (flags $1$ and $4$), although
+in the future we may also include Kohnen's $+$-space and the corresponding
+newspace when $N$ is squarefree.
 
 Note in particular that the package includes the computation of modular
 forms of weight $k=1$.
@@ -69,11 +78,13 @@ forms of weight $k=1$.
 
 The modular forms themselves are represented in a special internal format
 which the user need not worry about and which basically is a recipe to
-compute successive Fourier coefficients at infinity : if $F$ is a GP modular
+compute successive Fourier coefficients at infinity: if $F$ is a GP modular
 form, \kbd{mfcoefs}$(F, 10)$ will give you the Fourier coefficients at infinity
-from $a(0)$ to $a(10)$ of the modular form corresponding to $F$. Many
-operations are available on such objects (see below), but the most important
-thing the user needs to know is that the number of Fourier coefficients need
+from $a(0)$ to $a(10)$ of the modular form corresponding to $F$ as a row
+\emph{vector} (if you want a power series expansion, use the GP function
+\kbd{Ser}, see below). Many operations are available on such objects, but the
+most important thing the user needs to know is that the number of Fourier
+coefficients need
 not be specified in advance: the command \kbd{mfcoefs}$(F,n)$ is valid for
 any integer $n$. We will of course explain the details of this below.
 
@@ -86,21 +97,19 @@ In \kbd{Pari/GP} modular forms can be created in three different ways:
   that we have implemented them so that the user has them at his disposal.
   Examples: \kbd{mfDelta} (Ramanujan's delta), \kbd{mfEk}
   (Eisenstein series of weight $k$ on the full modular group; of course
-  we also have completely general Eisenstein series), \kbd{mfetaquo}
+  we also have more general Eisenstein series), \kbd{mffrometaquo}
   (eta quotients), \kbd{mffromell} (modular form attached to an elliptic
-  curve over $\Q$), more generally \kbd{mfcreate} (the user gives the
-  recipe for the Fourier coefficients), \kbd{mffromqf} (modular form attached
+  curve over $\Q$), \kbd{mffromqf} (modular form attached
   to a lattice).
 \item From existing forms by applying \emph{operations}.
   Examples: multiplication/division, linear combination,
   derivation and integration, Serre derivative, RC-brackets, Hecke and
   Atkin--Lehner operations, expansion and diamond operators, etc...
 \item Through the creation of the modular form \emph{spaces}:
-  typically, if only \kbd{mf=mfinit} is applied, then a (essentially random)
-  basis of forms is obtained by the command \kbd{mfbasis(mf)}. If
-  \kbd{mf=mfsplit(mfinit)} (or simply \kbd{mf=mfsplit}) has been applied,
-  then \kbd{mfeigenbasis(mf)} produces the canonical basis of eigenforms
-  (in some order).\end{itemize}
+  typically, if only \kbd{mf=mfinit} is applied, then a
+  basis of forms is obtained by the command \kbd{mfbasis(mf)}. On the other
+  hand the command \kbd{mfeigenbasis(mf)} produces the canonical basis of
+  eigenforms (in some order).\end{itemize}
 
 \section{A First Session: working with Leaves}
 
@@ -111,20 +120,22 @@ This is now a tutorial session. We will see sample commands as we go along.
 % = [0, 1, -24, 252, -1472, 4830, -6048, -16744, 84480]
 \end{verbatim}
 
-\kbd{V=mfcoefs(D,n)} simply gives the vector of Fourier coefficients (at
-infinity) $[a(0),a(1),....,a(n)]$ (note that there are $n+1$). This is the
-compact way of looking, but if you really want power series you can
-use \kbd{Ser(V,q)} (convert a vector into a power series).
+The command \kbd{mfcoefs(D,n)} gives the vector of Fourier coefficients (at
+infinity) $[a(0),a(1),....,a(n)]$ (note that there are $n+1$ coefficients).
+This is a compact representation, but if you prefer power series you
+can use \kbd{Ser(V,q)} (convert a vector into a power series).
 
 \begin{verbatim}
 % = q - 24*q^2 + 252*q^3 - 1472*q^4 + 4830*q^5 - 6048*q^6\
       - 16744*q^7 + 84480*q^8 + O(q^9)
 \end{verbatim}
-
+(This simple-minded recipe only works when the form has rational
+coefficients. Make sure to use \kbd{q = varhigher("q")} first if the form has
+non-rational algebraic coefficients to avoid problems with variable priorities.)
 Similarly
 
 \begin{verbatim}
-? E4 = mfEk(4); E6 = mfEk(6); apply(x->mfcoefs(x,3),[E4,E6])
+? E4 = mfEk(4); E6 = mfEk(6); apply(f->mfcoefs(f,3),[E4,E6])
 % = [[1, 240, 2160, 6720], [1, -504, -16632, -122976]]
 ? E43 = mfpow(E4, 3); E62 = mfpow(E6, 2);
 ? DP = mflinear([E43, E62], [1, -1]/1728);
@@ -135,25 +146,22 @@ Similarly
 \end{verbatim}
 
 Self-explanatory. Note that there is a command \kbd{mfcoef(F, n)} (without
-the final ``s'') which simply outputs the coefficient $a(n)$, which may be
-useful in certain circumstances. A final example of the same type:
+the final ``s'') which simply outputs the coefficient $a(n)$.
+A final example of the same type:
 
 \begin{verbatim}
-? F = mfetaquo([1,2;11,2]); mfcoefs(F,10)
+? F = mffrometaquo([1,2; 11,2]); mfcoefs(F,10)
 % = [0, 1, -2, -1, 2, 1, 2, -2, 0, -2, -2]
 ? G = mffromell(ellinit("11a1"))[2];
 ? mfisequal(F, G)
 % = 1
 \end{verbatim}
 
-This requires a little explanation: \kbd{mfetaquo} takes as argument
-a matrix representing an \emph{eta quotient}, here
-$\eta(1\tau)^2\eta(11\tau)^2$. Since there is no way to represent fractional
-powers in \kbd{Pari/GP}, we have chosen to give only the integer part
-of the correct exponent when it is nonnegative. In the present case it
-is an integer, so the result is correct, but in other cases it could be
-fractional. Note that the second component of the \kbd{mffromell} output is
-the modular form associated to the elliptic curve by modularity.
+  Here, \kbd{mffrometaquo} takes as argument a matrix representing an
+  \emph{eta quotient}, here $\eta(1\times\tau)^2\eta(11\times\tau)^2$.
+
+  The second component of the \kbd{mffromell} output is
+  the modular form associated to the elliptic curve by modularity.
 
 \section{A Second Session: Modular Form Spaces}
 
@@ -180,6 +188,18 @@ not surprising. We can see it better by writing:
 % = [691/65520, 1, 2049, 177148, 4196353, 48828126, 362976252]
 ? mfcoefs(L[2],6)
 % = [0, 1, -24, 252, -1472, 4830, -6048]
+\end{verbatim}
+or simply
+\begin{verbatim}
+? mfcoefs(mf,6)    \\ apply mfcoefs to mfbasis elements
+% =
+[691/65520     0]
+[        1     1]
+[     2049   -24]
+[   177148   252]
+[  4196353 -1472]
+[ 48828126  4830]
+[362976252 -6048]
 \end{verbatim}
 
 Note two things: first, the Eisenstein series are given before the cusp forms
@@ -212,13 +232,15 @@ this is the same as the cuspidal space:
 \end{verbatim}
 
 These are essentially random cusp forms. Usually, you want the eigenforms:
-this is obtained by the function \kbd{mfsplit} (note in passing that
-\kbd{mfsplit(mf)} simply adds some components to \kbd{mf}, so one can
-give it the same name without losing any information). Note that even if
-you asked for a larger space, \kbd{mfsplit} only acts on the new space.
+this is obtained by the function \kbd{mfeigenbasis} (note in passing that
+\kbd{B=mfeigenbasis(mf)} adds components to \kbd{mf}, so that the next
+call is instantaneous). You can ask for the defining number fields with the
+command \kbd{mffields}. Note that these commands act only on the new space,
+but the package also accepts the cuspidal space (but not the others),
+although the result is only about the new space.
 
 \begin{verbatim}
-? mf = mfsplit(mf); mffields(mf)
+? mffields(mf)
 % = [y, y^2 - y - 4]
 ? L = mfeigenbasis(mf); #L
 % = 2
@@ -243,27 +265,19 @@ preferable to \emph{lift} them, giving the last command, where in the output
 we must of course remember that $y$ stands for \emph{one} of the two roots
 of $y^2-y-4=0$, i.e., $(1\pm\sqrt{17})/2$.
 
-In fact, for quite a number of numerical computations, we really need the
+In fact, for some numerical computations, we really need the
 coefficients of the eigenform embedded in $\C$, and not just as abstract
 algebraic numbers (in our case of trivial character, they will be in $\R$).
-This is done with the function \kbd{mfembed}:
+This is why a few functions (most notably \kbd{mfeval} and \kbd{lfunmf})
+will return a \emph{vector} of results and not a scalar when called on such
+a form.
+
+The first eigenform found above is \emph{rational}, hence by the modularity
+theorem there exists up to isogeny a unique elliptic curve to which it
+corresponds. We check this by writing
 
 \begin{verbatim}
-? F=mfembed(L[2]);for(i=1,2,print(mfcoefs(F[i],5)))
-[0, 1, 1.5615528128088302749107049279870385126,\
-      -2.5615528128088302749107049279870385126,\
-       0.43844718719116972508929507201296148743, 1]
-[0, 1, -2.5615528128088302749107049279870385126,\
-        1.5615528128088302749107049279870385126,\
-        4.5615528128088302749107049279870385126, 1]
-\end{verbatim}
-
-The first eigenform is \emph{rational}, hence by the modularity theorem there
-exists up to isogeny a unique elliptic curve to which it corresponds.
-We check this by writing
-
-\begin{verbatim}
-? [mf,F,co] = mffromell(ellinit("35a1")); mfcoefs(F, 10)
+? [mf,F] = mffromell(ellinit("35a1")); mfcoefs(F, 10)
 % = [0, 1, 0, 1, -2, -1, 0, 1, 0, -2, 0]
 ? mfisequal(F, L[1])
 % = 1
@@ -272,7 +286,7 @@ We check this by writing
 For a more typical example (still with no character):
 
 \begin{verbatim}
-? apply(x->mfdim([96, 2], x), [0..4])
+? [ mfdim([96, 2], flag) | flag <- [0..4] ]
 % = [2, 9, 7, 15, 24]
 \end{verbatim}
 
@@ -316,7 +330,7 @@ compact output of $G$. The last commands show that $G$ is equal to
 $24$ times the fifth Eisenstein series \kbd{L[5]}.
 
 \begin{verbatim}
-? mf=mfsplit([96,2]); mffields(mf)
+? mf=mfinit([96,2],0); mffields(mf)
 % = [y, y]
 ? L = mfeigenbasis(mf); for(i=1, 2, print(mfcoefs(L[i], 16)))
 [0, 1, 0, 1, 0, 2, 0, -4, 0, 1, 0, 4, 0, -2, 0, 2, 0]
@@ -326,17 +340,15 @@ $24$ times the fifth Eisenstein series \kbd{L[5]}.
 ? Fb = mffromell(ellinit("96b1"))[2]; mfcoefs(Fb, 16)
 % = [0, 1, 0, -1, 0, 2, 0, 4, 0, 1, 0, -4, 0, -2, 0, -2, 0]
 \end{verbatim}
-Note that \kbd{mfsplit([96,2])} is a shorthand for
-\kbd{mfsplit(mfinit([96,2], 0))}, since we only split the new space.
 
 The \kbd{mffromell} function returns a triple \kbd{[mf,F,C]},
 where \kbd{mf} is the modular form cuspidal space to which \kbd{F} belongs,
 \kbd{F} is the rational eigenform corresponding to the elliptic curve by
 modularity, and \kbd{C} is the vector of coefficients of \kbd{F} on the
-basis in \kbd{mf}, which we recall is not always a basis of eigenforms
+basis in \kbd{mf}, which we recall is usually not a basis of eigenforms
 (otherwise \kbd{F} would belong to this basis).
 
-Note also that clearly \kbd{Fa} and \kbd{Fb} are twists of one another:
+Note also that \kbd{Fa} and \kbd{Fb} are twists of one another:
 
 \begin{verbatim}
 ? mfisequal(mftwist(Fa, -4), Fb)
@@ -358,7 +370,9 @@ the integer $D$. For instance $1$ is the trivial character.
 and its character group, via \emph{Conrey labels}. So \kbd{Mod}$(a,N)$
 represents a character whenever $a$ is coprime to $N$. This makes it easy
 to loop on all characters without worrying too much about which is which.
-In this labelling, \kbd{Mod(1,N)} is the trivial character.
+In this labeling, \kbd{Mod(1,N)} is the trivial character, and characters
+are multiplied/divided by performing the corresponding operation on their
+Conrey labels.
 
 \item The finite abelian group $G = (\Z/N\Z)^*$ is written
 $$G = \bigoplus_{i\leq n}\; (\Z/d_i\Z) \cdot g_i,$$
@@ -399,16 +413,17 @@ than characters on $(\Z/N\Z)^\times$, whence the prefix \kbd{char} instead of
 \section{A Third Session: Nontrivial Characters}
 
 Recall that a nontrivial character can be represented either by a discriminant
-$D$ not necessarily fundamental, the character being the Legendre--Kronecker
-symbol $(D/n)$, or by its \emph{Conrey label} in $(\Z/N\Z)^\times$, such as
-\kbd{Mod(161,633)}.
+$D$ (not necessarily fundamental), the character being the Legendre--Kronecker
+symbol $(D/n)$, or by its \emph{Conrey label} in $(\Z/N\Z)^\times$, for
+instance \kbd{Mod(161,633)} (which has order 42, as \kbd{znorder} tells us).
 
 Defining modular form spaces with character is as simple as without:
-instead of, say, \kbd{mf=mfinit([35,2])}, one can write
-\kbd{mf=mfinit([35,2,5], 0)}. Thus:
+we replace the parameters $[N,k]$ by $[N,k,\chi]$.
+Instead of, say, \kbd{mf=mfinit([35,2])}, one can write
+\kbd{mf=mfinit([35,2,5], 0)}, where 5 is the quadratic character $(5/.)$. Thus:
 
 \begin{verbatim}
-? mf = mfsplit([35,2,5]); mffields(mf)
+? mf = mfinit([35,2,5],0); mffields(mf)
 % = [y^2 + 1]
 ? F = mfeigenbasis(mf)[1]; lift(mfcoefs(F, 10))
 % = [0, 1, 2*y, -y, -2, -y - 2, 2, -y, 0, 2, -4*y + 2]
@@ -462,232 +477,190 @@ optional parameters). However, this is not quite yet what we want.
 Although only for efficiency, we want characters with the same parity
 as the weight, otherwise the corresponding modular form spaces will be $0$.
 This is achieved by the \kbd{GP} command \kbd{zncharisodd(G,chi)} which
-does what you think it does. Note that a \kbd{Pari/GP} character is always
-a \emph{pair} \kbd{[G,chi]} as above.
-
-Let us first do this for $N=23$: we write
-
+does what you think it does. Let us first do this for $N=23$: we write
 \begin{verbatim}
 ? G = znstar(23, 1);
-? L = [[G,chi] | chi<-chargalois(G), zncharisodd(G,chi)]; #L
+? L = [chi | chi<-chargalois(G), zncharisodd(G,chi)]; #L
 % = 2
-? apply(x->mfdim([23,1,x], 0), L)
+? [mfdim([23,1,[G,chi]], 0) | chi <- L ]
 % = [0, 1]
-? apply(x->charorder(x[1],x[2]), L)
+? [charorder(G,chi) | chi <- L]
 % = [22, 2]
 \end{verbatim}
 
 This tells us that (up to Galois conjugation) there are two possible odd
 characters, one, of order $22$, giving a $0$-dimensional space, the other
-being the quadratic character given above. Note two things: first, a character
-is always a \emph{pair} \kbd{[G,chi]}, and since \kbd{chargalois} only
-returns the list of \kbd{chi}, we must write \kbd{[G,chi]} for the character.
-For the same reason, to obtain the order of a character we must write
-\kbd{charorder(chi[1], chi[2])} (or \kbd{charorder(G, chi[2])}).
+being the quadratic character given above. Note that \kbd{chargalois}
+returns (orbits of) characters attached to an arbitrary abelian finite group
+$G$ while \kbd{mfinit} expects a \emph{pair} \kbd{[G,chi]} for some
+\kbd{znstar} $G$, as written above.
 
 When doing long explorations with all characters of a certain level, it
 is preferable to use \emph{wildcards}. For instance, instead of the above
 one can write:
 
 \begin{verbatim}
-? mfa = mfinit([23,1,0], 0); #mfa
+? mfall = mfinit([23,1,0], 0); #mfall
 % = 1
-? mf = mfa[1]; mfdim(mf)
+? mf = mfall[1]; mfdim(mf)
 % = 1
 ? mfparams(mf)
-% = [23, 1, -23]
+% = [23, 1, -23, 0]
 \end{verbatim}
 
 This does not exactly give us the same information: the third parameter $0$
 in the first command asks for \emph{all} nonempty spaces of level $23$ and
 weight $1$, and the program tells us that there is only one, of dimension $1$.
-The last command outputs \kbd{[N,k,CHI]}, so here tells us that the
-corresponding character is the Kronecker--Legendre symbol $(-23/n)$.
+The last command \kbd{mfparams} outputs \kbd{[N,k,CHI,space]}, so here tells
+us that the corresponding character is the Kronecker--Legendre symbol $(-23/n)$.
 
 Using wildcards, let us explore levels in certain ranges: we write
-
 \begin{verbatim}
 wt1exp(lim1,lim2)=
-{
-  my(mfall,mf,chi,chiz,ord,M,res,V);
-  for(N=lim1,lim2,
-    mfall=mfinit([N,1,0], 0); /* Use wildcard, more efficient */
-    for(i=1,#mfall,
-      mf=mfsplit(mfall[i]);
-      chi=mfparams(mf)[3]; /* nice format: D or Mod(a,N) */
-      chiz=znchar(chi); /* necessary to use charorder */
-      ord=charorder(chiz[1],chiz[2]);
-      M=mfeigenbasis(mf);
-      for(k=1,#M,
-        res=mfgaloistype(mf,M[k]);
-        if(res<0,print([N,chi,k,ord,-res]))
-      )
+{ my(mfall,mf,chi,v);
+  for (N = lim1, lim2,
+    mfall = mfinit([N,1,0], 0); /* use wildcard, more efficient */
+    for (i=1, #mfall,
+      mf = mfall[i];
+      chi = mfparams(mf)[3]; /* nice format: D or Mod(a,N) */
+      [ print([N,chi,-t]) | t<-mfgaloistype(mf), t < 0 ]
     )
   );
 }
 \end{verbatim}
 
-For instance, \kbd{wt1exp(1,230)} outputs in 8 seconds
+For instance, \kbd{wt1exp(1,230)} outputs in 4 seconds
 
 \begin{verbatim}
-[124, Mod(67, 124), 1, 6, 12]
-[133, Mod(83, 133), 1, 6, 12]
-[148, Mod(105, 148), 1, 4, 24]
-[171, Mod(94, 171), 1, 6, 12]
-[201, Mod(29, 201), 1, 6, 12]
-[209, Mod(87, 209), 1, 6, 12]
-[219, Mod(8, 219), 2, 6, 12]
-[224, Mod(95, 224), 1, 6, 12]
-[229, Mod(107, 229), 1, 4, 24]
-[229, Mod(107, 229), 2, 4, 24]
+[124, Mod(87, 124), 12]
+[133, Mod(83, 133), 12]
+[148, Mod(105, 148), 24]
+[171, Mod(94, 171), 12]
+[201, Mod(104, 201), 12]
+[209, Mod(197, 209), 12]
+[219, Mod(8, 219), 12]
+[224, Mod(95, 224), 12]
+[229, Mod(122, 229), 24]
+[229, Mod(122, 229), 24]
 \end{verbatim}
 
-Thus, the smallest exotic $A_4$ form is in level $124$ with a character
-of order $6$, and the smallest $S_4$ form is in level $148$ with a character
-of order $4$ (note that these are not the only possible orders). Note that
-in level $229$, for a certain character of order $4$ we have two (non Galois
+Thus, the smallest exotic $A_4$ form is in level $124$ and the smallest $S_4$
+form is in level $148$. Note that in level $229$, we have two (non Galois
 conjugate) eigenforms of type $S_4$.
 
-If we type \kbd{wt1exp(633,633)}, in 11 seconds we obtain
-\kbd{[633, Mod(71, 633), 2, 10, 60]}, and this level is indeed the lowest
-level for which there exists a type $A_5$ form, here with a character of order
-$10$.
-
-\section{A Fourth Session: Miscellaneous Commands}
-
-This is not yet the reference manual. In approximate alphabetical order:
-
+If we type \kbd{wt1exp(633,633)}, in 11 seconds we obtain \kbd{[633, Mod(107,
+633), 60]}, and this level is indeed the lowest level for which there exists
+a type $A_5$ form. The character orders are obtained either as
+\kbd{znorder(chi)} (since all the \kbd{chi} are \kbd{intmods}), or
+using the general construction
 \begin{verbatim}
-? mf=mfsplit([96,6]); mffields(mf)
-% = [y, y, y, y, y, y, y^2 - 31, y^2 - 31]
-? mfatkineigenvalues(mf,3)
-% = [[-1], [-1], [-1], [1], [1], [1], [-1, -1], [1, 1]]
-? mf=mfsplit([96,3,-3]); mffields(mf)
-% = [y^4 + 8*y^2 + 9, y^4 + 4*y^2 + 1]
-? mfatkineigenvalues(mf,3)
-  ***   at top-level: mfatkineigenvalues(mf,3)
-  ***                 ^-------------------------
-  *** mfatkineigenvalues: sorry, pseudo eigenvalues
-      for W_Q is not yet implemented.
-? mfatkineigenvalues(mf,32)
-% = [[I, -I, -I, I], [-I, I, I, -I]]
+  [G,v] = znstar(chi);
+  ord = charorder(G,v)
 \end{verbatim}
+where we first convert \kbd{chi} to a general abelian character in
+$[G,\chi]$ format.
 
-Three things to note: first, the eigenvalues in any Galois orbit are \emph{not}
-necessarily the same: in the first example they are, but in the second not:
-for instance the four eigenforms corresponding to the four embeddings of
-\kbd{mfeigenbasis(mf)[1]} do not have the same Atkin eigenvalue. Second, in
-the present implementation it is necessary that the character be defined
-modulo $N/Q$, where $N$ is the level and $Q$ the Atkin divisor; thus, for
-$N=96$ and $Q=3$ we have $N/Q=32$ and since the character $(-3/n)$ is not
-defined modulo $32$ we have an error message. This may change in the future.
-On the other hand, for $N=96$ and $Q=32$ there is no problem.
+\section{Leaf Functions}
 
-\medskip
+Although we have already seen most of these functions in the first session,
+we repeat some of examples here.
 
-\begin{verbatim}
-? mf = mfinit([96,2], 1); L = mfbasis(mf);
-? apply(x->mfconductor(mf,x), L)
-% = [24, 48, 96, 32, 96, 48, 96, 96, 96]
-\end{verbatim}
+\subsection{Functions Created from Scratch}
 
-Here we compute the full cuspidal space $S_2(\G_0(96))$, of dimension $9$,
-and we ask which is the lowest level on which each form in the basis
-is defined. This list shows that there is one form $F_1$ in level $24$
-which, by applying $B(d)$ with $d=2$ and $d=4$ gives a form of level $48$
-and one of level $96$. Then a form $F_2$ in level $32$, by applying $B(3)$
-gives a form of level $96$, a form $F_3$ in level $48$, by applying $B(2)$
-gives a form of level $96$, and finally two genuine forms of level $96$
-(so that the dimension of the newspace is equal to $2$, which we can check
-by typing \kbd{mfdim([96,2])}).
-
-\medskip
+We now start a slightly more systematic exploration of the available functions.
+We begin by \emph{leaf functions}, i.e., functions created from scratch or
+from a given mathematical object.
 
 \begin{verbatim}
-? mf = mfsplit([35,2]); L=mfbasis(mf);
-? for (i=1,#L,print(mfcoefs(L[i],15)))
-[0, 3, -1, 0, 3, 1, -8, -1, -9, 1, -1, -2, 4, 10, 1, -2]
-[0, -1, 9, -8, -11, -1, 4, 1, 13, 7, 9, 8, -20, 6, -9, -8]
-[0, 0, -8, 10, 4, -2, 4, 2, -4, -12, -8, -12, 12, -6, 8, 8]
-? for (i=1,#L,print(mfcuspexpansion(mf,L[i],1/5,15)));
-[0, 1, -1, -2, 7, 3, -8, -3, -9, 5, -1, 4, 8, 0, 1, 0]
-[0, -1, 9, -8, -11, -1, 4, 1, 13, 7, 9, 8, -20, 6, -9, -8]
-[0, -2, -8, 8, 8, 0, 4, 0, -4, -8, -8, -6, 16, -16, 8, 10]
-\end{verbatim}
-
-The function \kbd{mfcuspexpansion(mf,F,cusp,n)} returns the first $n+1$
-Fourier coefficients of $F$ at the given cusp (recall that such coefficients
-are only defined up to an equivalence relation). The cusp must be
-in the form $A/C$ with $C\mid N$, or $\infty$. This is a very preliminary
-mplementation: the primary restriction is that it works only in squarefree
-levels. Less importantly, for now the space \kbd{mf} must be the new space
-$S_k^{\new}$ (and in addition must be split). This will be improved in the
-future.
-
-Note in passing the following function on cusps: \kbd{mfcusps(N)} gives
-the list of all (equivalence classes of) cusps of $\G_0(N)$,
-\kbd{mfcuspwidth(N,cusp)} gives the width of the cusp, and
-\kbd{mfcuspisregular([N,k,CHI],cusp)} determines if the cusp is regular or
-not (do not worry if you do not know these notions):
-
-\begin{verbatim}
-? C = mfcusps(108)
-% = [0, 1/2, 1/3, 2/3, 1/4, 1/6, 5/6, 1/9, 2/9, 1/12,\
-       5/12, 1/18, 5/18, 1/27, 1/36, 5/36, 1/54, 1/108]
-? apply(x->mfcuspwidth(108,x), C)
-% = [108, 27, 12, 12, 27, 3, 3, 4, 4, 3, 3, 1, 1, 4, 1, 1, 1, 1]
-? NK = [108,3,-4];
-? apply(x->mfcuspisregular(NK,x), C)
-% = [1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1]
-? [c | c<-C, !mfcuspisregular(NK,c)]
-% = [1/2, 1/6, 5/6, 1/18, 5/18, 1/54]
-\end{verbatim}
-
-The first command list the $18$ cusps of $\G_0(108)$ (\kbd{mfnumcusps(108)}
-gives this directly, useful if there are thousands of cusps and you do not
-want them explicitly), the second command prints their widths, and the last
-commands show that the cusps $1/2$, $1/6$, $5/6$, $1/18$, $5/18$, and $1/54$
-are irregular in the space $M_3(\G_0(108),\chi_{-4})$, and the others are
-regular.
-
-\medskip
-
-\begin{verbatim}
-? E4 = mfEk(4); G = mfderivE2(E4); mfcoefs(G, 6)
-% = [-1/3, 168, 5544, 40992, 177576, 525168, 1352736]
-? mfcoefs(mfEk(6), 6)/(-3)
-% = [-1/3, 168, 5544, 40992, 177576, 525168, 1352736]
-? F = mfderivE2(E4, 3); (-9)*mfcoefs(F, 5)
-% = [1, -264, -135432, -5196576, -69341448, -515625264]
-? mfisequal(mfEk(10), mflinear([F],[-9]))
+? D = mfDelta(); mfcoefs(D, 5)
+% = [0, 1, -24, 252, -1472, 4830]
+? E4 = mfEk(4); mfcoefs(E4, 5)
+% = [1, 240, 2160, 6720, 17520, 30240]
+? E6 = mfEk(6);
+? D2 = mflinear([mfpow(E4, 3), mfpow(E6, 2)], [1, -1]/1728);
+? mfisequal(D, D2)
 % = 1
 \end{verbatim}
 
-This tells us that the Serre derivative of $E_4$ is equal to $-E_6/3$,
-and its third Serre derivative is equal to $-E_{10}/9$. Note that there
-exists the simpler function \kbd{mfderiv}, but recall that (apart in weight
-$0$) the derivative of a modular form is only quasi-modular.
-
-\medskip
+  Self-explanatory. More complicated Eisenstein series:
 
 \begin{verbatim}
-? E4 = mfEk(4); mfeval(E4,I)
-% = 1.4557628922687093224624220035988692874
-? 3*gamma(1/4)^8/(2*Pi)^6
-% = 1.4557628922687093224624220035988692874
+? E3 = mfeisen(1, 1, -3]); mfcoefs(E3, 10)
+% = [1/6, 1, 0, 1, 1, 0, 0, 2, 0, 1, 0]
+? E4 = mfeisen(5, -4, 1); mfcoefs(E4, 10)
+% = [5/4, 1, 1, -80, 1, 626, -80, -2400, 1, 6481, 626]
+? H2 = mfEH(5/2); mfcoefs(H2,10)
+% = [1/120, -1/12, 0, 0, -7/12, -2/5, 0, 0, -1, -25/12, 0]
 \end{verbatim}
 
-We can usually evaluate a modular form on the upper half-plane. When
-evaluating at a CM point such as $i$, if the form has algebraic
-Fourier coefficients the result is an algebraic number times the power
-of a \emph{period}, such as in the above example.
+The \kbd{mfeisen(k,c1,c2)} command generates the Eisenstein series of weight
+$k$ and characters \kbd{c1} and \kbd{c2}. The \kbd{mfEH(k)} command is specific
+to half-integral weight $k$ and generates the Cohen--Eisenstein series of
+weight $k$.
 
-\medskip
+\begin{verbatim}
+? T = mfTheta(); mfcoefs(T,16)
+% = [1, 2, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2]
+? mf = mfinit([4, 5, -4]); mftobasis(mf, mfpow(T, 10))
+% = [64/5, 4/5, 32/5]
+? B = mfbasis(mf); apply(mfdescribe, B)
+% = ["F_5(1, -4)", "F_5(-4, 1)", "TR^new([4, 5, -4, y])"]
+? mfisCM(B[3])
+% = -4
+\end{verbatim}
+
+  Here, we compute the coefficients of $\th^{10}$ on the basis of \kbd{mf}
+  (we know of course the level, weight, and character). We then apply
+  the \kbd{mfdescribe} function, which tells us that the first two forms in
+  the basis are Eisenstein series, and the third one is some trace form
+  on the cuspidal new space. However, the last command says that this third
+  basis element is a \emph{CM form}, so that its coefficients can be computed
+  just as fast as those of Eisenstein series, so that there does exist
+  an explicit formula for the number of representations as a sum of ten
+  squares.
+
+  Keeping the above sessions, we can also write:
+
+\begin{verbatim}
+? mftobasis(mf, mfpow(H2, 2))
+% = [1/18000, 1/18000, -3/2000]~
+\end{verbatim}
+
+\subsection{Functions Created from Mathematical Objects}
+
+\begin{verbatim}
+? [mf,F,co] = mffromell(ellinit("26b1")); co
+% = [1/2, 1/2]\~
+? mfcoefs(F,10)
+% = [0, 1, 1, -3, 1, -1, -3, 1, 1, 6, -1]
+\end{verbatim}
+
+This creates the modular form attached by modularity to the second isogeny
+class of elliptic curves over $\Q$ for conductor $26$. The result is a
+3-component vector: \kbd{mf} is the modular form space, $F$ the modular form,
+and \kbd{co} are the coefficients of $F$ on the basis of \kbd{mf}.
+
+Similarly, there are functions \kbd{mffromqf} (from quadratic forms),
+\kbd{mffromlfun} (from $L$-functions attached to eigenforms), and
+\kbd{mffrometaquo}:
+
+\begin{verbatim}
+? F = mffrometaquo([1, 2; 11, 2]); mfcoefs(F, 10)
+% = [0, 1, -2, -1, 2, 1, 2, -2, 0, -2, -2]
+? F = mffrometaquo([1, 2; 2, -1]); mfparams(F)
+% = [16, 1/2, 1, y]
+? mfcoefs(F, 10)
+% = [1, -2, 0, 0, 2, 0, 0, 0, 0, -2, 0]
+\end{verbatim}
+
+The \kbd{mfparams} command tells us that $F\in M_{1/2}(\G_0(16))$.
+
+\section{Atkin, Hecke and Expanding Operators}
 
 \begin{verbatim}
 ? mf = mfinit([96,4], 0); mfdim(mf)
 % = 6
-? M = mfmathecke(mf, 7)
+? M = mfheckemat(mf, 7)
 % =
 [0    0   0    372    696   0]
 
@@ -728,7 +701,7 @@ fact in $\Z$: this immediately shows that the splitting will be entirely
 rational and the eigenforms with integer coefficients. Let's check:
 
 \begin{verbatim}
-? mf = mfsplit(mf); mffields(mf)
+? mffields(mf)
 % = [y, y, y, y, y, y]
 ? L = mfeigenbasis(mf); for(i=1,6,print(mfcoefs(L[i],16)))
 [0, 1, 0, 3, 0, 10, 0, 4, 0, 9, 0, -20, 0, 70, 0, 30, 0]
@@ -739,68 +712,497 @@ rational and the eigenforms with integer coefficients. Let's check:
 [0, 1, 0, -3, 0, -14, 0, 36, 0, 9, 0, 36, 0, 54, 0, 42, 0]
 \end{verbatim}
 
-We again see this \emph{twisting} phenomenon: there are three eigenforms,
-plus three more which are twists.
+We see that of the six eigenforms, the last three are twists of the first
+three.
+
+There also exists the command \kbd{G=mfhecke(mf,F,n)}, which given a modular
+form $F$ in \kbd{mf}, outputs the modular form $T(n)F$.
 
 \begin{verbatim}
-? mfmatatkin(mf,3)
+? mf=mfinit([96,6],0); mffields(mf)
+% = [y, y, y, y, y, y, y^2 - 31, y^2 - 31]
+? mfatk = mfatkininit(mf,3);
+% factor(charpoly(mfatk[2]/mfatk[3]))
 % =
-[   0 -3    0    0  -24   0]
+[x - 1 5]
 
-[-1/3  0 -4/3    0    0 -12]
-
-[   0  0    0 -9/5 -6/5   0]
-
-[   0  0 -2/3    0    0  -1]
-
-[   0  0  1/6    0    0 3/2]
-
-[   0  0    0  1/5  4/5   0]
-
-? matdet(%)
-% = -1
-? mfatkineigenvalues(mf,3)
-% = [[-1], [-1], [-1], [1], [1], [1]]
+[x + 1 5]
 \end{verbatim}
 
-This gives the matrix of the Atkin--Lehner operator $W_3$ on the given
-basis of \kbd{mf}. Of course, the corresponding matrix on the \emph{eigenbasis}
-will be diagonal, as the next command shows.
+This requires a little explanation: the command \kbd{mfatkininit(mf,3)}
+computes a number of quantities necessary to work with the Atkin--Lehner
+operator $W_3$ in the space \kbd{mf}. The main part of the result is
+the second component, which is essentially the matrix of $W_3$ on the
+basis of \kbd{mf}, and which is guaranteed to have exact coefficients
+(here rational). However in the general case, the matrix of $W_3$
+is equal to \kbd{mfatk[2]/mfatk[3]}, where \kbd{mfatk[3]} may be an
+inexact complex number. For now you need not worry about the first component.
+
+Thus, the eigenvalues (or possibly the pseudo-eigenvalues) must be of modulus
+$1$, and in the case of a quadratic character defined modulo $N/Q$, they
+are equal to $\pm1$ in even weight, to $\pm I$ in odd weight. Here,
+$1$ and $-1$ both occur $5$ times. However, this does not tell us which
+eigenvalues correspond to each eigenspace. For this, we do the following:
+
+\begin{verbatim}
+? mfatkineigenvalues(mf,3)
+% = [[-1], [-1], [-1], [1], [1], [1], [-1, -1], [1, 1]]
+? mf=minit([96,3,-3],0); mffields(mf)
+% = [y^4 + 8*y^2 + 9, y^4 + 4*y^2 + 1]
+? mfatkineigenvalues(mf,32)
+% = [[I, -I, -I, I], [-I, I, I, -I]]
+? mfatkineigenvalues(mf,3)
+% = [[a, -conj(a), -a, conj(a)], [b, -conj(b), conj(b), -b]]
+\end{verbatim}
+
+  The first command tells us that in the six rational eigenspaces, the first
+  three have eigenvalue $-1$, the other three $+1$, and in the eigenspaces
+  of dimension $2$, the first eigenspace has both eigenvalues $-1$, the
+  second both $+1$. As is seen from the next lines, it is of course not
+  necessary for the eigenvalues of $W_Q$ in the same eigenspace to be equal.
+
+  In the next two commands, we are now in a case where the character is
+  non trivial and the weight odd. The eigenvalues are now $\pm i$, and not
+  equal in the same eigenspace.
+
+  Finally, the last command is a case where the character is not defined modulo
+  $N/Q=96/3=32$, so we only have pseudoeigenvalues, which are simply of
+  absolute value $1$ by Atkin--Lehner theory. Here, $a$ and $b$ are
+  complicated complex numbers and \kbd{conj} denotes the complex conjugate
+  (using the \kbd{algdep} command, one can check that $a$ is a root of
+  $9x^4+10x^2+9=0$ and $b$ is a root of $3x^4-2x^2+3=0$.
+
+Note that when the character is (trivial or) quadratic and defined modulo
+$N/Q$ the output is always rounded, but otherwise, the eigenvalues are given
+as approximate complex numbers.
+
+As for the Hecke operators, there exists an \kbd{mfatkin} command, whose
+syntax is \kbd{mfatkin(mfatk, F)}, where \kbd{mfatk} is the output of
+an \kbd{mfatkininit} command and $F$ is in the space \kbd{mfatk}, and which
+outputs the modular form $F|_kW_Q$, where $Q$ is implicit in \kbd{mfatk}.
+
+Finally note the \kbd{mfbd} expanding command which computes $B(d)F$:
+
+\begin{verbatim}
+? E4 = mfEk(4); mfcoefs(E4,6)
+% = [1, 240, 2160, 6720, 17520, 30240, 60480]
+? F = mfbd(E4,2); mfcoefs(F,6)
+% = [1, 0, 240, 0, 2160, 0, 6720]
+\end{verbatim}
+
+\section{Algebraic Functions on Modular Forms}
+
+Here we give examples of functions on modular forms which do not involve
+any approximate numerical computation. We have already mentioned the most
+important ones: \kbd{mfhecke}, \kbd{mfatkin}, and \kbd{mfbd}.
+
+\begin{verbatim}
+? E4 = mfEk(4); F = mfderivE2(E4); mfcoefs(F,5)
+% = [-1/3, 168, 5544, 40992, 177576, 525168]
+? E6 = mfEk(6); mfisequal(F, mflinear([E6], [-1/3]))
+% = 1
+? G = mfbracket(E4, E6, 1); mfcoefs(G,5)
+% = [0, -3456, 82944, -870912, 5087232, -16692480]
+? mfisequal(G, mflinear([mfDelta()], [-3456]))
+% = 1
+\end{verbatim}
+
+\medskip
+
+In the first commands, we compute the Serre derivative of $E_4$, and
+check that it is equal to $-E_6/3$. The name \kbd{mfderivE2} of course
+comes from the fact that the Serre derivative involves the quasi-modular
+Eisenstein series $E_2$. Note that there do exist functions \kbd{mfderiv}
+(including to negative order, corresponding to integration), which are
+provided for the user's convenience for certain computations, but whose
+output is outside the range of modular forms.
+
+The second computation checks that the first Rankin--Cohen bracket of
+$E_4$ and $E_6$ is a multiple of $\Delta$.
+
+You may complain that it is heavy to write an \kbd{mflinear} command as above
+simply to compute a scalar multiple of a form. But nothing prevents you of
+defining in a script that you read at the beginning of your session:
+
+\begin{verbatim}
+mfscalmul(F,s)=mflinear([F],[s]);
+mfadd(F,G)=mflinear([F,G],[1,1]);
+mfsub(F,G)=mflinear([F,G],[1,-1]);
+\end{verbatim}
+
+There also exist the natural operations on modular forms \kbd{mfmul},
+\kbd{mfdiv} (which may result in modular functions, i.e., with poles),
+and \kbd{mfpow}. There is also a function \kbd{mfshift} (multiply or divide
+by a power of $q$), but which again takes us outside the range of modular
+forms.
+
+\begin{verbatim}
+? E4 = mfEk(4); F = mftwist(E4, -3); mfcoefs(F, 6)
+% = [0, 240, -2160, 0, 17520, -30240, 0, 82560]
+? mfparams(F)
+% = [9, 4, 1, y]
+? mf = mfinit([4, 5, -4], 1); F = mfbasis(mf)[1]; mfcoefs(F, 10)
+% = [0, 1, -4, 0, 16, -14, 0, 0, -64, 81, 56]
+? mfisCM(F)
+% = -4
+? G = mftwist(F, -4); mfcoefs(G, 10)
+% = [0, 1, 0, 0, 0, -14, 0, 0, 0, 81, 0]
+? mfparams(G)
+% = [16, 5, -4, y]
+? mfconductor(mfinit(G, 1), G)
+% = 8
+\end{verbatim}
+
+  This session illustrates a number of important issues concerning
+  \emph{twisting}. In the first commands, we twist $E_4$ by the quadratic
+  character $-3$ (in the present implementation, only twisting by quadratic
+  characters is allowed), and we see that the resulting form has level
+  $9=(-3)^2$. Fine. In the next command, we compute the unique form
+  in $S_4(\G_0(5),\chi_{-4})$, and see that it has CM by $\Q(\sqrt{-4})$.
+
+  However, note that the form is not equal to the form twisted by the
+  character $\chi_{-4}$ (only the coefficients of $q^n$ with $n$ prime to $4$
+  are equal, the others vanish). The \kbd{mfparams} command tells us that
+  the twisted form has level $16=(-4)^2$. However, the final command tells
+  us that in fact it has level $8$: \kbd{mfconductor} gives the smallest
+  level on which the form is defined.
+
+\begin{verbatim}
+? mf = mfinit([96,2], 1); L = mfbasis(mf);
+? apply(x->mfconductor(mf,x), L)
+% = [24, 48, 96, 32, 96, 48, 96, 96, 96]
+? apply(x->mftonew(mf,x)[1][1..2], L)
+% = [[24, 1], [24, 2], [24, 4], [32, 1], [32, 3],\
+ [48, 1], [48, 2], [96, 1], [96, 1]]
+\end{verbatim}
+
+Here we compute the full cuspidal space $S_2(\G_0(96))$, of dimension $9$,
+and we ask which is the lowest level on which each form in the basis
+is defined. This list shows that there is one form $F_1$ in level $24$
+which, by applying $B(d)$ with $d=2$ and $d=4$ gives a form of level $48$
+and one of level $96$. Then a form $F_2$ in level $32$, by applying $B(3)$
+gives a form of level $96$, a form $F_3$ in level $48$, by applying $B(2)$
+gives a form of level $96$, and finally two genuine forms of level $96$
+(so that the dimension of the newspace is equal to $2$, which we can check
+by typing \kbd{mfdim([96,2])}).
+
+The last command \kbd{mftonew} checks all this; look at the precise description
+of the command.
+
+\section{Cusps and Cosets}
+
+Recall that in the present version of the package, the only congruence
+subgroup that is considered is $\G_0(N)$, so when we consider cusps in
+the geometrical sense, they are cusps of $\G_0(N)$, and cosets are
+right cosets of $\G_0(N)$ in $\G$, so that $\G=\bigsqcup_j\G_0(N)\ga_j$.
+
+The function \kbd{mfcusps(N)} gives the list of all (equivalence classes of)
+cusps of $\G_0(N)$, \kbd{mfcuspwidth(N,cusp)} gives the width of the cusp;
+these are linked to the \emph{geometry}. On the other hand, the notion
+of \emph{regularity} of a cusp is linked to the specific modular form space,
+and the function \kbd{mfcuspisregular([N,k,CHI],cusp)} determines if the cusp
+is regular or not:
+
+\begin{verbatim}
+? C = mfcusps(108)
+% = [0, 1/2, 1/3, 2/3, 1/4, 1/6, 5/6, 1/9, 2/9, 1/12,\
+       5/12, 1/18, 5/18, 1/27, 1/36, 5/36, 1/54, 1/108]
+? apply(x->mfcuspwidth(108,x), C)
+% = [108, 27, 12, 12, 27, 3, 3, 4, 4, 3, 3, 1, 1, 4, 1, 1, 1, 1]
+? NK = [108,3,-4];
+? apply(x->mfcuspisregular(NK,x), C)
+% = [1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1]
+? [c | c<-C, !mfcuspisregular(NK,c)]
+% = [1/2, 1/6, 5/6, 1/18, 5/18, 1/54]
+\end{verbatim}
+
+The first command list the $18$ cusps of $\G_0(108)$ (\kbd{mfnumcusps(108)}
+gives this directly, useful if there are thousands of cusps and you do not
+want them explicitly), the second command prints their widths, and the last
+commands show that the cusps $1/2$, $1/6$, $5/6$, $1/18$, $5/18$, and $1/54$
+are irregular in the space $M_3(\G_0(108),\chi_{-4})$, and the others are
+regular.
+
+There is another command \kbd{mfcuspval} having to do with cusps, but this
+will be mentioned later.
 
 \medskip
 
 \begin{verbatim}
-? LE = lfunmf(mfEk(4), 1); lfun(LE, 2)/Pi^2
+? C = mfcosets(4)
+% = [[0, -1; 1, 0], [1, 0; 1, 1], [0, -1; 1, 2], [0, -1; 1, 3], [1, 0; 2, 1],\
+ [1, 0; 4, 1]]
+? mftocoset(4, [1, 1; 2, 3], C)
+% = [[-1, 1; -4, 3], 5]
+\end{verbatim}
+
+   The \kbd{mfcosets(N)} command lists all right cosets of $\G_0(N)$ in $\G$.
+   Note that in the present implementation the trivial coset is always the
+   last one, and is represented by the matrix $[1,0;N,1]$, but since this
+   may change one must be careful.
+
+   The \kbd{mftocoset(N,M,C)} command gives a two-component
+   vector $[\ga,i]$, where $\ga\in\G_0(N)$ is such that $M=\ga\cdot C[i]$.
+
+\section{The mfslashexpansion command}
+
+We now give examples of the use of advanced features of the package,
+which use inexact complex arithmetic. However in many cases the results
+are known algebraic numbers, and the program tries to give them exactly
+if possible.
+
+\begin{verbatim}
+? mf=mfinit([4,6]);B=mfbasis(mf);
+? for(i=1,#B,R=mfslashexpansion(mf,B[i],[1,0;2,1],6,,&A);print([A,R]))
+[[0, 1], [-1/504, 1, 33, 244, 1057, 3126, 8052]]
+[[0, 1], [-1/504, 0, 1, 0, 33, 0, 244]]
+[[0, 1], [-1/32256, -1/64, 33/64, -61/16, 1057/64, -1563/32, 2013/16]]
+[[0, 1], [0, -1, 0, 12, 0, -54, 0]]
+? R = mfslashexpansion(mf,B[1],[0,-1;4,0],6,,&A); [A,R]
+% = [[0, 1], [-8/63, 0, 0, 0, 64, 0, 0]]
+? R = mfslashexpansion(mf,B[1],[0,-1;1,0],6,,&A); [A,R]
+% = [[0, 4], [-1/504, 0, 0, 0, 1, 0, 0, 0]]
+? mf=mfinit([4,7,-4]); B=mfbasis(mf);
+? for(i=1,#B,R=mfslashexpansion(mf,B[i],[1,0;2,1],6,,&A);print([A,R]))
+[[1/2, 1], [1/64, 91/8, 7813/32, 7353/4, 530713/64, 221445/8, 2413405/32]]
+[[1/2, 1], [1, -728, 15626, -117648, 530713, -1771560, 4826810]]
+[[1/2, 1], [1/16, -15/2, 5/8, 75, -231/16, -465/2, 733/8]]
+[[1/2, 1], [2, 0, 20, 0, -462, 0, 2932]]
+? mfslashexpansion(mf,B[1],[0,-1;4,0],6)
+  ***   at top-level: mfslashexpansion(mf,B[1],[0,-1;4,0],10)
+  ***                 ^---------------------------------------
+  *** mfslashexpansion: cannot rationalize coeff in bestapprnf.
+? R=mfslashexpansion(mf,B[1],[0,-1;4,0],6,0,&A)
+% = [0.23828125000000000000000000000000000000*I, -0.015625000000000000000000000000000000000*I, -0.015625000000000000000000000000000000000*I, 11.375000000000000000000000000000000000*I, -0.015625000000000000000000000000000000000*I, -244.15625000000000000000000000000000000*I, 11.375000000000000000000000000000000000*I]
+? A
+% = [0, 1]
+? bestappr(R)
+% = [61/256*I, -1/64*I, -1/64*I, 91/8*I, -1/64*I, -7813/32*I, 91/8*I]
+\end{verbatim}
+
+  Here are some detailed explanations. The first space is $M_6(\G_0(4))$,
+  of dimension $4$. We ask for $1+6$ terms of the Fourier expansion of
+  $F|_6\ga$ for all $F$ in the given basis, and $\ga=[1,0;2,1]$, which is one
+  of the possible Fourier expansions at the cusp $1/2$. The last two parameters
+  (one omitted, the second $A$) are important, but for now let us ignore them.
+  We obtain the 4 desired expansions. In the next commands, we do the same
+  for the first basis element and $\ga=[0,-1;4,0]$, which is the
+  \emph{Fricke involution}, and corresponds to the cusp $0$. The next
+  command, which does essentially the same computation, uses $\ga=[0,-1;1,0]$,
+  and now $A=[0,4]$ which tells us that the expansion is in powers of
+  $q^{1/4}$.
+
+  The next example is the space $M_7(\G_0(4),\chi_{-4})$, also of
+  dimension $4$, and we ask the same thing. Here $A=[1/2,1]$ is essential:
+  in the general case, $A=[\al,w]$ means that the expansion given
+  by \kbd{mfslashexpansion} is in powers of $q^{1/w}=e^{2\pi i\tau/w}$,
+  and must be multiplied by $q^{\al}$. Thus, in the present case, we have
+  for instance
+  $$B[1]|_7\ga=(1/64)q^{1/2}+(91/8)q^{3/2}+\cdots$$
+
+  In the next command, we try to expand $B[1]|_7\ga$ with $\ga$ equal to
+  the Fricke involution, and the command fails because the program tries
+  to ``rationalize'' the output in a very simple-minded way, and does not
+  succeed (this will hopefully change in the future). This is where the
+  one-to-last parameter enters: in the next command we set it to $0$ to
+  obtain the expansion as raw complex numbers. We recognize them immediately
+  using the \kbd{bestappr} command.
+
+  Note that in the special case (like here) where $\ga$ is a Fricke (or more
+  generally an Atkin--Lehner) involution, we can proceed otherwise to obtain
+  the expansion, and it is then guaranteed that the output will be
+  ``rationalized'':
+
+\begin{verbatim}
+? mfatk = mfatkininit(mf,4); C = mfatk[3]
+% = -1.000000000000000000000000000*I
+? F = mfatkin(mfatk, B[1]); mfcoefs(F, 6)
+% = [61/256, -1/64, -1/64, 91/8, -1/64, -7813/32, 91/8]
+\end{verbatim}
+
+  This tells us that the true expansion of $F|_7W_4$ is the expansion that
+  is output divided by the constant $C$, so we recover the previous
+  expansion.
+
+\section{Analytic Commands}
+
+The existence of the \kbd{mfslashexpansion} command allows us to do many
+useful things. In fact, already the \kbd{mfatkininit} and \kbd{mfatkin}
+commands would not be possible without it. An immediate application is the
+\kbd{mfcuspval} command which computes the valuation at cusps:
+
+\begin{verbatim}
+? T = mfTheta(); mf=mfinit(T);C=mfcusps(4)
+% = [0, 1/2, 1/4]
+? apply(x->mfcuspval(mf,T,x),C)
+% = [0, 1/4, 0]
+\end{verbatim}
+
+  More sophisticated is the computation of numerical periods, and more
+  generally of \emph{symbols}
+  $$\int_{s_1}^{s_2}(X-\tau)^{k-2}F|_k\ga(\tau)\,d\tau\;,$$
+  where $s_1$ and $s_2$ are two cusps (e.g., $s_1=0$, $s_2=\infty$):
+
+\begin{verbatim}
+? mf = mfinit([96,4],0); B = mfbasis(mf); F1 = B[1];
+? FS1 = mfsymbolinit(mf,F1);
+time = 35,592 ms
+? mfsymbol(mf,FS1,0,oo)
+% = 2.0968669678226579060336519703627002478*I*x^2\
+ + 0.36368580656317635568444277442842940073*x\
+ - 0.049315736834713109138297211986510643780*I
+? mfsymbol(mf,FS1,1,5/2)
+% = (7.346839692639296925 E-39 + 4.1937339356453158120673039407254004956*I)*x^2\
+ + (0.72737161312635271136888554885685880147 - 14.678068774758605342235563792538901735*I)*x\
+ + (-1.2729003229711172448955497104995029026 + 15.103654043044843600467382361156555509*I)
+\end{verbatim}
+
+The general strategy for computing these quantities is first to do a
+precomputation which only involves \kbd{mf} and the form $F$ using
+\kbd{mfsymbolinit}. As can be seen on this example, this can take some time,
+but afterwards all the computations are instantaneous.
+
+Note two things: it is allowed to write directly \kbd{mfsymbol(mf,F,s1,s2)}
+without using mfsymbolinit, but since it will be called anyway, each call
+will be long. Second, if you only want the period polynomial from $0$ to
+$\infty$ use \kbd{mfperiodpol(mf,F)} which gives the same answer as before
+but in only $20$ ms.
+
+\begin{verbatim}
+? mfpetersson(mf, FS1, FS1)
+% = 0.00061471684149817788924091516302517391826
+? F2 = B[2]; FS2 = mfsymbolinit(mf, F2);
+? mfpetersson(mf, FS2, FS2)
+% = 0.0055324515734836010031682364672265652647
+? mfpetersson(mf, FS1, FS2)
+% = 1.5879887877319313665 E-40 + 7.652958013165934297 E-42*I
+\end{verbatim}
+
+  Same remark: you can use directly a form (e.g., replace \kbd{FS2} by
+  \kbd{mfbasis(mf)[2]}), but this will take some time. It is much better to
+  initialize once and for all \kbd{FS2}, and then all the Petersson product
+  computations are essentially immediate.
+
+  Note that since neither \kbd{F1} nor \kbd{F2} are eigenforms, there is
+  no reason for their Petersson product to vanish. To prove this rigorously
+  we do as follows:
+
+\begin{verbatim}
+? BE = mfeigenbasis(mf);
+? M = Mat([mftobasis(mf,f) | f<-BE]); M^(-1)
+% =
+[1  3  10   4 -20  70]
+
+[1  3   2  12  60 -42]
+
+[1  3 -14 -36 -36  54]
+
+[1 -3  10  -4  20  70]
+
+[1 -3   2 -12 -60 -42]
+
+[1 -3 -14  36  36  54]
+\end{verbatim}
+
+On the other hand, it is immediate to see that \kbd{BE[i+3]} is a twist
+of \kbd{BE[i]} and that as a consequence their Petersson square are equal.
+
+It follows from the shape of the above matrix that the Petersson scalar
+product of $B[i]$ with $B[j]$ will vanish when the corresponding scalar
+product of the corresponding columns vanish, hence for $(i,j)=(1,2)$,
+$(1,4)$, $(1,5)$, $(2,3)$, $(2,6)$, $(3,4)$, $(3,5)$, $(4,6)$, and $(5,6)$.
+
+\medskip
+
+There are two more important numerical functions: evaluating a modular form
+at a point in the upper half plane, and evaluating the corresponding
+$L$-function. We begin by a trivial example:
+
+\begin{verbatim}
+? E4 = mfEk(4); mfeval(E4,I)
+% = 1.4557628922687093224624220035988692874
+? 3*gamma(1/4)^8/(2*Pi)^6
+% = 1.4557628922687093224624220035988692874
+\end{verbatim}
+
+  This is of course a trivial computation, simply sum the $q$-expansion.
+  The fact that the value of a modular form with rational coefficients such
+  as $E_4$ at a \emph{CM point} such as $i$ has an explicit expression
+  is a consequence of complex multiplication.
+
+\begin{verbatim}
+? mf = mfinit([12,4],1); F = mfbasis(mf)[1];
+? mfeval(mf, F, 1/Pi + 10^(-6)*I)
+% = -89811.049350396250531782882568405506024 - 58409.940965200894541585402642924371696*I
+? mfeval(mf, F, 1/Pi + 10^(-7)*I)
+% = 4.8212468504661113183253396691813292261 E-52 + 6.7885262281520647908871247541561415340 E-52*I
+\end{verbatim}
+
+  Several remarks are in order.
+
+\begin{enumerate}
+\item We are evaluating a modular form very near the
+  real axis. If the form was in level $1$ such as $E_4$ above, we could use a
+  modular transformation to reduce to the evaluation in the fundamental domain
+  of $\G$, which would be very fast. Here we do something similar but much
+  more sophisticated.
+\item The result at height $10^{-7}$ is not a numerical approximation of
+  $0$, the exact value is indeed as printed to the given accuracy.
+\item It is amusing to see the large oscillations of the value: at height
+  $10^{-6}$ the value is still in the $10^5$ range, and at $10^{-7}$ it is
+  in the $10^{-52}$ range. Of course it must eventually tend to $0$ since
+  $F$ is a cusp form (for $E_4$ it would tend to infinity).
+\end{enumerate}
+
+Note that when dealing with \emph{eigenforms}, which may have several
+embeddings into $\C$, the result will have several components, one for each
+embedding:
+
+\begin{verbatim}
+? mf = mfinit([23,2],0); F=mfeigenbasis(mf)[1];
+? mfeval(mf,F,I)
+% = [0.0018695834459685012330841605500720163964, 0.0018618146628840767703527958851699552194]
+\end{verbatim}
+
+  The other important evaluation function is that of the $L$-function
+  attached to a modular form. In fact, the modular form package only
+  creates (in a clever way) the $L$-function, all the rest of the work
+  is done by the $L$-function package. Note the important fact that
+  the modular form need not be an eigenform or even stable under the
+  Fricke involution.
+
+\begin{verbatim}
+? E4=mfEk(4); mf=mfinit(E4); LE = lfunmf(mf,E4); lfun(LE, 2)/Pi^2
 % = -3.3333333333333333333333333333333333333
 ? lfun(LE, 0)
-% -1.0000000000000000000000000000000000000
-? D = mfDelta(); L = lfunmf(D, 3);
-? lfunlambda(L, 3)/lfunlambda(L, 5)
+% -1
+? D = mfDelta(); mf=mfinit(D); LD = lfunmf(mf,D);
+? lfunlambda(LD, 3)/lfunlambda(LD, 5)
 % = 1.5555555555555555555555555555555555556
-? lfunlambda(L, 1)/lfunlambda(L, 3)
+? lfunlambda(LD, 1)/lfunlambda(LD, 3)
 % = 2.3444283646888567293777134587554269175
 ? bestappr(%)
 % = 1620/691
+? mf = mfinit([23,2],0); F = mfbasis(mf)[1]; L = lfunmf(mf,F);
+? lfun(L, 2)
+% = 1.5959983753450272580976413437480171832
+? G = mfeigenbasis(mf)[1]; M = lfunmf(mf,G);
+? apply(x->lfun(x,I),M)
+% = [-0.15856033373254740657327844579672155664 + 0.79671369922504818377602680344686311969*I, -0.10230278816509023908993775663030712037 + 0.65954223983092583287784522268295299513*I]
 \end{verbatim}
 
-The command \kbd{lfunmf} creates the $L$-function associated to the
-modular form which can be used with the $L$-function package.
-The flag $1$ in the first command indicates that the modular form $E_4$ is
-real. The $L$-function associated to it is equal to $240\z(s)\z(s-3)$,
-whence the value of {\tt lfun(LE,2)/Pi\^{}2}. Note that although the
-$L$-function coefficients are $a(1)$, $a(2)$, etc..., so that we seem to have
-lost the constant term $a(0)$, it can be recovered with the formula
-$a(0)=-L(f,0)$, as the next command shows.
+  Note that the constant term $a(0)$ is ignored by the $L$-function, but
+  can be recovered thanks to the formula $a(0)=-L(F,0)$.
 
-The flag $3$ in the command \kbd{lfunmf(D, 3)} indicates that the
-modular form is both real and cuspidal. It can be omitted since this simply
-incurs a small efficiency loss. The other commands illustrate Manin's
-rationality theorem on periods of modular forms.
+  The last commands illustrate first the fact that the $L$-functions can be
+  computed for non-eigenforms ($F$ is not an eigenform), and second that
+  if there are several embeddings, the \kbd{lfunmf} function returns a
+  vector of \kbd{lfunmf}, one for each embedding.
 
 Another illustration of the $L$-function package:
 
 \begin{verbatim}
-? LIN = lfuninit(L, [6, 6, 50]);
+? LIN = lfuninit(LD, [6, 6, 50]);
 ? ploth(t = 0, 50, lfunhardy(LIN, t))
 \end{verbatim}
 
@@ -808,88 +1210,16 @@ Another illustration of the $L$-function package:
 
 \medskip
 
-Intimately linked to Manin's rationality theorem are \emph{period polynomials}.
+\section{The mfeigensearch and mfsearch commands}
 
-\begin{verbatim}
-? PP = mfperiodpol(mfDelta(),-1); PP /= polcoeff(PP,1);
-? bestappr(PP)
-% = x^9 - 25/4*x^7 + 21/2*x^5 - 25/4*x^3 + x
-? PM = mfperiodpol(mfDelta(),1); PM /= polcoeff(PM,0);
-? bestappr(PP)
-% = -x^10 + 691/36*x^8 - 691/12*x^6 + 691/12*x^4 - 691/36*x^2 + 1
-? mfperiodpolbasis(12)
-% = [x^8 - 3*x^6 + 3*x^4 - x^2,\
-     4*x^9 - 25*x^7 + 42*x^5 - 25*x^3 + 4*x, x^10 - 1]
-\end{verbatim}
+The last commands that we want to illustrate are \emph{searching} commands,
+i.e., you know some Fourier coefficients and you would like to know which
+modular forms match these coefficients in a given range. The
+\kbd{mfsearch} command does this very naively, and may in fact disappear
+since the user may easily write a taylor-made script for his needs.
 
-The flags $-1$ and $1$ ask for the \emph{odd} and \emph{even} period
-polynomials respectively. We divide by one of the coefficients of the
-period polynomial to see the rationality. Note that the above commands
-are essentially equivalent to the \kbd{lfunmfspec} function of the
-\kbd{lfun} package.
-
-The last command gives us a basis of period polynomials of weight $12$, and
-we see that the odd period polynomial of \kbd{mfDelta} is indeed proportional
-to the second basis vector, and the even period polynomial is a trivial
-linear combination of the first and third basis vector.
-
-\medskip
-
-\begin{verbatim}
-? E4 = mfEk(4); F = mfbracket(E4, E4, 2); mfcoefs(F, 6)/4800
-% = [0, 1, -24, 252, -1472, 4830, -6048]
-? D = mfDelta(); mftaylor(D, 10)*1728
-% =  [1, 0, -1/12, 0, 1/96, 0, 1/288, 0, -11/2304, 0, 7/9216]
-? D3 = mftwist(D, -3); mfcoefs(D3, 10)
-% = [0, 1, 24, 0, -1472, -4830, 0, -16744, -84480, 0, -115920]
-? P = mfparams(D3)
-% = [9, 12, 1]
-? mf = mfinit(P, 1); mftobasis(mf, D3)
-% = [0, 0, 0, 0, 0, 5546/4131, -1232/12393, -47/16524, 11/24786]~
-\end{verbatim}
-
-These show a few unrelated commands: \kbd{mfbracket} gives the $m$-th
-Rankin--Cohen bracket, \kbd{mftaylor} gives the Taylor expansion of
-a modular form on the whole modular group at the point $i$ (for now,
-no other expansions are implemented), \kbd{mftwist} gives the twist
-by a quadratic character.
-
-\kbd{mfparams} outputs the $[N,k,\chi]$ corresponding to the modular form,
-where $N$ may be a multiple of the minimal level on which the form is defined
-(note that in rare cases, \kbd{mfparams} may fail to find these quantities,
-in which case it outputs $[0,0,0]$). The output of \kbd{mfparams} can be
-fed directly to \kbd{mfinit}, as in the next line.
-
-Finally, \kbd{mftobasis} gives the decomposition of the modular form
-on the modular form space.
-
-\medskip
-
-\begin{verbatim}
-? F = mffromell(ellinit("49a1"))[2]; mfisCM(F)
-% = -7
-? mfisequal(F, mftwist(F, -7))
-% = 1
-? mf = mfsplit([23,1,-23], 1);
-? F = mfeigenbasis(mf)[1]; mfisCM(F)
-% = -23
-? mfisequal(F, mftwist(F, -23))
-% = 0
-\end{verbatim}
-
-Here we have chosen an elliptic curve with complex multiplication by
-the quadratic order of discriminant $-7$, and the \kbd{mfisCM} command
-confirms this at the level of modular forms associated to the elliptic curve
-by modularity. We can also check that $F$ is equal to its quadratic twist
-by $(-7/n)$, which shows that $F$ is CM. However, beware, the next command
-shows that this is not necessary: the theta series of discriminant $-23$
-obtained by the \kbd{mfeigenbasis} command has CM by $-23$, but is \emph{not}
-equal to its quadratic twist by $(-23/n)$.
-
-\medskip
-
-The last command that we want to illustrate is \kbd{mfsearch}: the idea
-of this command is simple: you believe that you have have a modular form,
+The \kbd{mfeigensearch} command is more interesting: the idea
+of this command is simple: you believe that you have a modular form,
 but you do not know its level, weight, character, or field of definition
 of its coefficients, but only a number of its Fourier coefficients, perhaps
 only modulo $p$, and you would like to find forms which ``match'' your
@@ -905,10 +1235,10 @@ so that its Fourier coefficients are integers, and its character is
 (trivial or) quadratic. An example is as follows:
 
 \begin{verbatim}
-? L = mfsearch([30,4], [[2,2],[3,-1]]); #L
+? L = mfeigensearch([30,4], [[2,2],[3,-1]]); #L
 % = 1
 ? [N, F] = L[1]; mfparams(F)
-% = [26, 4, 1]
+% = [26, 4, 1, y]
 ? mfcoefs(F, 10)
 % = [0, 1, 2, -1, 4, 17, -2, -35, 8, -26, 34]
 \end{verbatim}
@@ -919,8 +1249,8 @@ single such form, given in format $[N,F]$, where $F$ is the form
 and $N$ is its level, here $N = 26$. We compute its Fourier coefficients up
 to $10$ and we see that indeed $a(2)=2$ and $a(3)=-1$.
 
-The way to specify levels and weights will certainly change, for now we
-stick to the above format, a two-component vector $[N_0,k,0]$,
+Note that the way to specify levels and weights may change, for now we
+stick to the above format, a two-component vector $[N_0,k]$,
 where we look in weight $k$ at levels up to $N_0$, with trivial
 or quadratic characters.
 
@@ -929,10 +1259,10 @@ simplest, as above, is to give the list of pairs of integers $[p,a(p)]$.
 For instance:
 
 \begin{verbatim}
-? L = mfsearch([80,2], [[2,2], [7,-3]]); #L
+? L = mfeigensearch([80,2], [[2,2], [7,-3]]); #L
 % = 1
 ? [N, F] = L[1]; mfparams(F)
-% = [75, 2, 1]
+% = [75, 2, 1, y]
 ? mfcoefs(F, 12)
 % = [0, 1, 2, -1, 2, 0, -2, -3, 0, 1, 0, 2, -2]
 \end{verbatim}
@@ -941,7 +1271,7 @@ The coefficient $a(p)$ may also be given as an \kbd{intmod} \kbd{Mod}$(a,m)$
 then one looks for a match for $a(p)$ modulo $m$. For instance, we come
 back to our first example:
 \begin{verbatim}
-? L=mfsearch([30,4], [[2,Mod(2,5)], [3,Mod(-1,5)]]); #L
+? L=mfeigensearch([30,4], [[2,Mod(2,5)], [3,Mod(-1,5)]]); #L
 % = 2
 ? apply(x->x[1], L)
 % = [26, 26]
@@ -968,7 +1298,7 @@ using \kbd{mfsturm([N,k])}, not \kbd{mfsturm(mf)}) is also valid modulo
 $p$. Here the bound is equal to $15$, so the fact that the coefficients
 are congruent up to $n=16$ shows that they are congruent for all $n$.
 
-\section{Reference Manual for the MF Package}
+\section{Reference Manual for the Modular Forms Package}
 
 We give a brief description in alphabetical order of all the functions
 specific to the package. To use the package, it is sometimes necessary to
@@ -977,18 +1307,35 @@ those will not be described here.
 
 \smallskip
 
-\kbd{mfatkin(mf, F, Q)}: computes $F|_k W_Q$, where $Q\Vert N$, where $F$
-belongs to the split space \kbd{mf} (not checked).
+\kbd{getcache()}: returns technical information about auto-growing caches.
 
-\kbd{mfatkineigenvalues(mf, Q)}: \kbd{mf} being a split space with trivial
-or quadratic character defined modulo $N/Q$, gives the vector of Atkin--Lehner
-eigenvalues for each Galois eigenspace.
+\kbd{lfunmf(mf,\{F\})}: creates the $L$-function associated to $F$, for use
+in the \kbd{lfun} package, where $F$ need not be an eigenform. If $F$ is
+omitted, output all $L$-functions associated to the eigenforms. If
+$F$ (or the eigenforms) have several embeddings in $\C$, output the vector
+of the corresponding \kbd{lfunmf}.
 
-\kbd{mfbasis(mf)}: whether \kbd{mf} is split or not, gives the basis of
-modular forms obtained by the initial \kbd{mfinit} (use \kbd{mfeigenbasis}
-for the eigenforms).
+\kbd{mfatkin(mfatk, F)}: computes $F|_k W_Q$, where $Q\Vert N$, where
+\kbd{mfatk} must have been initialized by \kbd{mfatk=mfatkininit(mf,Q)}.
+
+\kbd{mfatkineigenvalues(mf, Q)}: \kbd{mf} being a cuspidal or new space
+and $Q$ a primitive divisor of $N$, output the vector of Atkin--Lehner
+eigenvalues or pseudo-eigenvalues for each Galois eigenspace.
+
+\kbd{mfatkininit(mf,Q)}: necessary initialization function for the
+\kbd{mfatkin} function. The output is \kbd{[mfb,M,C,mf]}, where $C$ is a
+complex constant, $M/C$ is the matrix of the Atkin--Lehner operator
+$W_Q$ from the space \kbd{mf} to the space \kbd{mfb} (set equal to $0$ if
+equal to \kbd{mf}). The matrix $M$ is guaranteed to be with exact coefficients
+(rational or \kbd{polmods}).
+
+\kbd{mfbasis(mf,\{space=4\})}: gives a basis of the space of modular forms
+\kbd{mf}, either output by an \kbd{mfinit} command, in which case \kbd{space}
+is ignored, or \kbd{mf=[N,k,CHI]} (use \kbd{mfeigenbasis} for the eigenforms).
 
 \kbd{mfbd(F,d)}: gives $B(d)(F)$, $B(d)$ expanding operator.
+
+\kbd{mfbracket(F,G,\{m=0\})}: $m$th Rankin--Cohen bracket of $F$ and $G$.
 
 \kbd{mfcoef(F,n)}: $n$th Fourier coefficient $a(n)$ of $F$.
 
@@ -998,25 +1345,33 @@ of $F$ up to $n$.
 \kbd{mfconductor(F)}: smallest $M$ such that $F$ belongs to
 $M_k(\G_0(M),\chi)$.
 
-\kbd{mfcreate(F)}: create a modular form from some data F.
-
-\kbd{mfcuspexpansion(mf,F,cusp,n)}: \kbd{F} being a form in a split space
-\kbd{mf}, compute the Fourier coefficients $[a(0),...,a(n)]$ at the given cusp,
-given in the form $a/c$ with $c\mid N$.
+\kbd{mfcosets(N)}: list of right cosets of $\G$ modulo $\G_0(N)$. In the
+present implementation, the trivial coset is the last and represented by
+the matrix $[1,0;N,1]$.
 
 \kbd{mfcuspisregular(NK,cusp)}: \kbd{NK} being $[N,k,\chi]$ or an \kbd{mf},
 determine if the cusp is regular or not.
 
 \kbd{mfcusps(N)}: list of cusps of $\G_0(N)$.
 
+\kbd{mfcuspval(mf,F,cusp)}: valuation of modular form $F$ at \kbd{cusp}, which
+can be a rational number or \kbd{oo}.
+
 \kbd{mfcuspwidth(N,cusp)}: width of \kbd{cusp} in $\G_0(N)$.
 
 \kbd{mfDelta()}: Ramanujan's Delta function of weight $12$.
 
-\kbd{mfderiv(F,\{m=1\})}: $m$th derivative $q.d/dq$ of $F$. The result is
+\kbd{mfderiv(F,\{m=1\})}: $m$th derivative $q.d/dq$ of $F$, where
+$m$ can be negative, corresponding to integration (the constant term
+is then set to $0$ by convention). The result is
 only quasi-modular.
 
 \kbd{mfderivE2(F,\{m=1\})}: $m$th Serre derivative $q.d/dq F-kE_2F/12$.
+
+\kbd{mfdescribe(F,\&G)}: $F$ being a modular form or a modular form space,
+gives a human-readable description of $F$. If the address of $G$ is given,
+put in it the vector of parameters of the outmost operator defining $F$
+(empty vector if $F$ is a leaf or a modular form space).
 
 \kbd{mfdim(mf,\{space=4\})}: dimension of the space \kbd{mf}, where \kbd{mf}
 can also be of the form $[N,k,\chi]$ in which case \kbd{space} is taken into
@@ -1032,8 +1387,18 @@ forms.
 
 \kbd{mfdiv(F,G)}: division of \kbd{F} by \kbd{G}.
 
-\kbd{mfeigenbasis(mf)}: \kbd{mf} being a split new space, gives (in some order)
-the basis of normalized eigenforms.
+\kbd{mfEH(k)}: $k$ being half-integral, gives the Cohen--Eisenstein series
+of weight $k$ on $\G_0(4)$.
+
+\kbd{mfeigenbasis(mf)}: \kbd{mf} being a new or cuspidal space, gives
+(in some order) the basis of normalized eigenforms.
+
+\kbd{mfeigensearch(NK,AP)}: search for normalized eigenforms with
+integer coefficients in spaces specified by \kbd{NK}, satisfying conditions
+satisfied by \kbd{AP}. \kbd{NK} is a pair $[N_0,k]$, the search being in
+weight $k$ up to level $N_0$ with trivial or quadratic character.
+\kbd{AP} is a list of pairs $[[p_1,a(p_1)],...,[p_n,a(p_n)]]$, where $a(p)$
+is either an integer or an \kbd{intmod} (match modulo $a(p)\kbd{.mod}$).
 
 \kbd{mfeisen(k,\{CHI1\},\{CHI2\})}: Eisenstein series $E_k(\chi_1)$ or
 $E_k(\chi_1,\chi_2)$, normalized so that $a(1)=1$ (so \kbd{mfeisen(k)} without
@@ -1042,16 +1407,11 @@ any character argument is equal to \kbd{mfEk(k)} multiplied by $-B_k/(2k)$).
 \kbd{mfEk(k)}: Eisenstein series $E_k$ for the full modular group normalized
 so that $a(0)=1$, including for $k=2$.
 
-\kbd{mfembed(F)}: vector of all embeddings of $F$ into $\C$.
+\kbd{mfeval(mf,F,vtau)}: evaluation of $F$ at the point \kbd{vtau} (or a
+vector of points) in the upper half-plane. If $F$ is an eigenform with several
+embeddings in $\C$, evaluate at each embedding.
 
-\kbd{mfetaquo(eta)}: \kbd{eta} being a matrix representing an eta quotient,
-gives the corresponding modular form, possibly with a fractional or negative
-power of $q$ removed.
-
-\kbd{mfeval(F,vtau)}: evaluation of $F$ at the point \kbd{vtau} (or a
-vector of points) in the upper half-plane.
-
-\kbd{mffields(mf)}: \kbd{mf} being a split new space, gives the list of
+\kbd{mffields(mf)}: \kbd{mf} being a new or cuspidal space, gives the list of
 relative polynomials defining the number field extensions for all the Galois
 orbits of the eigenforms.
 
@@ -1060,116 +1420,143 @@ orbits of the eigenforms.
 corresponding to \kbd{e} by modularity, \kbd{mf} the corresponding new space,
 and \kbd{coe} the coefficients of \kbd{F} on the basis of \kbd{mf}.
 
+\kbd{mffrometaquo(eta,\{flag=0\})}: \kbd{eta} being a matrix representing an
+eta quotient, gives the corresponding modular form or function. If the
+result is not a modular form or function, return an error if \kbd{flag=0}, or
+$0$ otherwise. If the result has negative valuation, normalize to valuation
+$0$.
+
+\kbd{mffromlfun(L)}: \kbd{L} being the $L$-function of a self-dual
+modular form with rational coefficients, for instance a rational eigenform,
+retun \kbd{[mf,F,coe]}, where \kbd{F} is the form, \kbd{mf} the corresponding
+space and \kbd{coe} the coefficients of \kbd{F} on the basis of \kbd{mf}.
+More generally when \kbd{L} is the $L$-function of a modular form with
+inexact complex coefficients, only return \kbd{mf}, a modular form space
+which \emph{possibly} contains the form we are looking for.
+
 \kbd{mffromqf(Q,\{P\})}: \kbd{Q} being an even integral quadratic form of even
 dimension and \kbd{P} an optional homogeneous spherical polynomial with
 respect to \kbd{Q}, gives \kbd{[mf,F,coe]}, where \kbd{F} is the theta
 function associated to \kbd{Q} and \kbd{P}, \kbd{mf} the corresponding space,
 and \kbd{coe} the coefficients of \kbd{F} on the basis of \kbd{mf}.
 
-\kbd{mffromlfun(L)}: \kbd{L} being the $L$-function of a real eigenform,
-create the corresponding modular form.
-
-\kbd{mfgaloistype(mf,\{F\},\{lim=200\})}: \kbd{mf} being either $[N,1,\chi]$ or
-a new space of weight $1$ forms, outputs the type of the projective
+\kbd{mfgaloistype(mf,\{F\})}: \kbd{mf} being either $[N,1,\chi]$ or
+a new or cuspidal space of weight $1$ forms, outputs the type of the projective
 representations attached to all the eigenforms in \kbd{mf}, or only that of
 \kbd{F} if it is given. The output is $n$ for $D_n$, or $-12$, $-24$, $-60$ for
-$A_4$, $S_4$, $A_5$. \kbd{lim} controls the correctness of $n$ in the $D_n$
-case.
+$A_4$, $S_4$, $A_5$.
 
-\kbd{mfhecke(F,n,\{mf\})}: Computes $T(n)(f)$, where $T(n)$ is the $n$th Hecke
-operator. If \kbd{mf} (or \kbd{[N,k,CHI]}) is specified, where $N$ is a
-multiple of the level of $F$, use $T_N(n)$, the $n$th Hecke operator
-in level $N$.
+\kbd{mfhecke(mf,F,n)}: Computes $T(n)(f)$, where $T(n)$ is the $n$th Hecke
+operator. Note that the level which is used is that of the modular form space
+\kbd{mf}, not that of $F$ if it is different.
+
+\kbd{mfheckemat(mf,n)}: matrix of $T(n)$ on the space \kbd{mf}.
 
 \kbd{mfinit(NK,\{space=4\})}: create the space of modular forms associated to
-$NK=[N,k,\chi]$ or $NK=[N,k]$. Codes for \kbd{space} is $0$, new space
-(default), $1$ cuspidal space, $2$ old space, $3$ space of Eisenstein series,
-$4$ full space $M_k$. $NK$ can also be of the form $NK=[N,k,0]$,
-where $0$ is a wildcard, in which case it gives the vector of \kbd{mfinit}
-for each character $\chi$, including the ones corresponding to zero spaces.
+$NK=[N,k,\chi]$ or $NK=[N,k]$. Codes for \kbd{space} is $0$, new space,
+$1$ cuspidal space, $2$ old space, $3$ space of Eisenstein series,
+$4$ full space $M_k$ (default). $NK$ can also be of the form $NK=[N,k,0]$,
+where $0$ is a wildcard, in which case it gives the vector of all nonzero
+\kbd{mfinit} for each Galois orbit of characters $\chi$.
 
-\kbd{mfinteg(F,\{m=1\})}: $m$th formal integration of \kbd{F} with respect
-to $q.d/dq$; we must have $a(0)=0$.
-
-\kbd{mfisCM(F)}: returns $0$ if $F$ is not a CM form, otherwise the
-discriminant(s) of the CM multiplication fields.
-
-\kbd{mfiscuspidal(F)}: is $F$ a cusp form ?
+\kbd{mfisCM(F)}: returns $0$ if $F$ does not have complex multiplication,
+and the CM discriminant(s) if it does. Note that in weight $1$ $F$ may have
+two CM discriminants.
 
 \kbd{mfisequal(F,G,\{lim=0\})}: Are $F$ and $G$ equal, or at least are their
 first \kbd{lim+1} Fourier coefficients equal ?
 
-\kbd{mfisselfdual(F)}: is $F|_kW_N$ a multiple of $F$ ?
-
-\kbd{lfunmf(F,\{flag=0\})}: $F$ being already embedded, creates the
-$L$-function associated to $F$, for use in the \kbd{lfun} package.
-\kbd{F} can also be a split new space, in which case the output are
-all $L$-functions associated to the eigenforms. \kbd{flag} can be used to
-slightly speed up the computations: $1$ if real, $2$ if a cusp form,
-$3$ if both.
-
 \kbd{mflinear(vecF,vecL)}: linear combination of the forms in \kbd{vecF}
 with coefficients in \kbd{vecL}. Forms must have the same weight and
-character, but not necessarily the same level.
-
-\kbd{mfmatatkin(mf,Q,\{\&A\})}: gives the matrix of the Atkin--Lehner operator
-$W_Q$ on the space \kbd{mf}. For now, there are a number of restrictions:
-\kbd{mf} must be a split new space, $Q\Vert N$, and $\chi$ must be a quadratic
-(or trivial) character defined modulo $N/Q$. The output is a matrix with
-rational coefficients, but the true result is that matrix divided by
-$\sqrt{A}$.
-
-\kbd{mfmathecke(mf,n)}: matrix of $T(n)$ on the space \kbd{mf}.
+character, but not necessarily the same level. This function must be used
+for simpler operations such as scalar multiplication (\kbd{mflinear([F],[s])}),
+addition (\kbd{mflinear([F,G],[1,1])}), and subtraction
+(\kbd{mflinear([F,G],[1,-1])}).
 
 \kbd{mfmul(F,G)}: product of the modular forms $F$ and $G$.
 
-\kbd{mfbracket(F,G,\{m=0\})}: $m$th Rankin--Cohen bracket of $F$ and $G$.
-
 \kbd{mfnumcusps(N)}: number of cusps of $\G_0(N)$.
 
-\kbd{mfparams(F)}: returns parameters $[N,k,\chi]$ of the modular form $F$.
-In rare cases this may fail, in which case it returns $[0,0,0]$.
+\kbd{mfparams(F)}: returns parameters $[N,k,\chi,P]$ of the modular form $F$,
+where $K$ is the polynomial defining the number field containing the
+coefficients of $F$ (e.g., $y$ if $F$ is rational), or $[-1,-1,-1,0]$ if
+it is not defined. If $F$ is a modular form space, returns $[N,k,\chi,space]$.
 
-\kbd{mfperiodpol(F,\{flag=0\},\{der=0\})}: period polynomial of the eigenform
-$F$, even/odd period polynomial if \kbd{flag} is $1$ or $-1$. If \kbd{der}
-is $>0$, use the \kbd{der}th derivative of $\Lambda$ instead of $\Lambda$.
+\kbd{mfperiodpol(mf,F,\{parity=0\})}: period polynomial of the form $F$,
+even/odd period polynomial if \kbd{parity} is $1$ or $-1$.
 
-\kbd{mfperiodpolbasis(k,\{flag=0\})}: basis of period polynomials of weight
-$k$, even/odd ones if \kbd{flag} is $1$ or $-1$.
+\kbd{mfperiodpolbasis(k,\{parity=0\})}: basis of period polynomials of weight
+$k$ for the full modular group, even/odd ones if \kbd{parity} is $1$ or $-1$.
+
+\kbd{mfpetersson(mf,F,G)}: Petersson scalar product of $F$ and $G$ belonging
+to \kbd{mf} with the usual normalization $1/[\G:\G_0(N)]$. If several such
+products must be computed for a given $F$ (or $G$), it is strongly
+advised to replace $F$ by the output of \kbd{mfsymbolinit(mf,F)}.
 
 \kbd{mfpow(F, n)}: Modular form $F$ to the power $n$.
 
-\kbd{mfsearch(NK,AP)}: search for normalized eigenforms with
-integer coefficients in spaces specified by \kbd{NK}, satisfying conditions
-satisfied by \kbd{AP}. \kbd{NK} is a pair $[N_0,k]$, the search being in
-weight $k$ up to level $N_0$ with trivial or quadratic character.
-\kbd{AP} is a list of pairs $[[p_1,a(p_1)],...,[p_n,a(p_n)]]$, where $a(p)$
-is either an integer or an \kbd{intmod} (match modulo $a(p)\kbd{.mod}$).
+\kbd{mfsearch([N0,k],V,\{space=4\})}: search for rational modular forms
+of weight $k$ and level $N\le N0$ in the specified modular form spaces
+whose Fourier expansion up to the length of $V$ exactly matches $V$.
+The output is a list of $[N,k,D]$, where $D$ is a fundamental discriminant
+dividing $N$.
 
 \kbd{mfshift(F,m)}: \kbd{F} divided by $q^m$, omitting the remainder if there
-is one, where $m$ can be positive or negative.
+is one, where $m$ can be positive or negative. The result is usually not
+a modular form.
 
-\kbd{mfspace(mf)}: type of modular space \kbd{mf}, or of a modular form;
-$0$ for new, $1$ for cuspidal, $2$ for old, $3$ for full, $4$ for Eisenstein.
+\kbd{mfShimura(F,D)}: $F$ being a modular form of half-integral weight $k$
+and $D$ a fundamental discriminant, return the corresponding Shimura lift of
+integral weight $2k-1$.
+
+\kbd{mfslashexpansion(mf,F,g,n,\{flrat=1\},\{\&A\})}: compute the Fourier
+expansion of $F|_kg$ to order $n$, where $F$ is a form in \kbd{mf} and
+$g\in M_2^+(\Q)$. If \kbd{flrat} is set (default), try to ``rationalize''
+(error if unsuccessful). Optional $A$ contains parameters $[\al,w]$ such that
+the output $[a(0),...,a(n)]$ corresponds to the expansion
+$q^{\al}\sum_{0\le j\le n}a(j)q^{j/w}$, with $q=\exp(2\pi i\tau)$.
+
+\kbd{mfspace(mf,\{F\})}: type of modular space \kbd{mf} if $F$ is omitted,
+or of a modular form $F$ in \kbd{mf}: result is $0$ for new, $1$ for cuspidal,
+$2$ for old, $3$ for full, $4$ for Eisenstein, and $-1$ if form is not in
+the space.
 
 \kbd{mfsplit(mf,\{dimlim=0\},\{flag=0\})}: compute the eigenforms in \kbd{mf},
 and limit the dimension of each Galois orbit to \kbd{dimlim} if set.
-\kbd{flag} is used to avoid some long computations (see doc). Note that
-\kbd{mf} can also be \kbd{[N,k,CHI]}, in which case this is equivalent to
-\kbd{mfsplit(mfinit([N,k,CHI]))}.
+\kbd{flag} is used to avoid some long computations (see doc). The space
+\kbd{mf} \emph{must} be a new space. Note that the result is only a
+two-component vector \kbd{vF,vK}, where \kbd{vF} is a vector of eigenforms
+and \kbd{vK} the corresponding number fields, but is \emph{not} similar to
+the output of an \kbd{mfinit} command.
 
 \kbd{mfsturm(mf)}: If \kbd{mf} is a space, true Sturm bound of \kbd{mf}, i.e.,
 largest valuation at infinity of a nonzero form. If \kbd{mf} is $[N,k,\chi]$,
 only an upper bound.
+
+\kbd{mfsymbol(mf,F,s1,s2)}: $s1$ and $s2$ being two cusps and $F$ being
+a cuspidal form, modular symbol associated to $F$, i.e., the polynomial
+$\int_{s1}^{s2}(X-\tau)^{k-2}F(\tau)d\tau$. $F$ can be a raw modular form,
+but it is strongly advised to replace it by the output of \kbd{mfsymbolinit}.
+
+\kbd{mfsymbolinit(mf,F)}: initialize data for working with integrals related
+to $F$ such as \kbd{mfsymbol} and \kbd{mfpetersson}.
 
 \kbd{mftaylor(F,n,\{fl=0\})}: for now, only for $F\in M_k(\G)$ and at the
 point $i$. Compute the first $n$ Taylor coefficients of $F$ around $i$;
 if \kbd{fl} is set compute in fact $p_n$ such that
 $$f(\tau)=(2i/(\tau+i))^k\sum_{n>=0}p_n((\tau-i)/(\tau+i))^n\;.$$
 
+\kbd{mfTheta(\{CHI\})}: unary theta series corresponding to the primitive
+Dirichlet character \kbd{CHI}, thus in weight $1/2$ (resp., $3/2$)
+if \kbd{CHI} is even (resp., odd).
+
 \kbd{mftobasis(mf,F,\{flag=0\})}: coefficients of form $F$ on the basis in
 \kbd{mf}. If \kbd{flag} is set, do not return an error if $F$ does not
 belong to \kbd{mf} or not enough coefficients.
+
+\kbd{mftocoset(N,M,L)}: $L$ being the list of cosets output by
+\kbd{L=mfcosets(N)} and $M$ being in $\SL_2(\Z)$, output a pair
+$[\ga,i]$ such that $M=\ga L[i]$, where $\ga\in \G_0(N)$.
 
 \kbd{mftonew(mf,F)}: Decompose $F$ is the cuspidal space \kbd{mf} as
 a sum of $B(d)G_M$ where $G_M\in S_k^{\new}(\G_0(M),\chi)$ and $dM\mid N$,
@@ -1180,7 +1567,5 @@ $NK=[N,k,\chi]$ and \kbd{space}.
 
 \kbd{mftwist(F,D)}: twist of the form $F$ by the quadratic character
 $(D/n)$.
-
-\kbd{mfval(F)}: valuation at infinity of $F$.
 
 \end{document}

@@ -40,24 +40,23 @@ means trivial $\chi$:\hfil\break
 \li{initialize $S_k^{\text{old}}(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],2)$}
 \li{initialize $E_k(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],3)$}
 \li{initialize $M_k(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],4)$}
-\li{split $S_k^{\text{new}}$ into eigenspaces}{mfsplit$(M)$}
+\li{find eigenforms}{mfsplit$(M)$}
 \li{statistics on self-growing caches}{getcache$()$}
 \smallskip
 
-We let $M$ = \kbd{mfinit}$(\dots)$ denote a modular space and let $T$ =
-\kbd{mfsplit}$(M)$ be its splitting. All functions accepting $M$ also
-allow $T$.
+We let $M$ = \kbd{mfinit}$(\dots)$ denote a modular space.
 \hfil\break
+\li{describe the space $M$}{mfdescribe$(M)$}
 \li{recover $(N,k,\chi)$}{mfparams$(M)$}
 \li{\dots the space identifіer (0 to 4)}{mfspace$(M)$}
 \li{\dots the dimension of $M$ over $\CC$}{mfdim$(M)$}
 \li{\dots a $\CC$-basis $(f_i)$ of $M$}{mfbasis$(M)$}
-\li{\dots a basis $(F_j)$ of eigenforms}{mfeigenbasis$(T)$}
-\li{\dots polynomials defining $\QQ(\chi)(F_j)/\QQ(\chi)$}{mffields$(T)$}
+\li{\dots a basis $(F_j)$ of eigenforms}{mfeigenbasis$(M)$}
+\li{\dots polynomials defining $\QQ(\chi)(F_j)/\QQ(\chi)$}{mffields$(M)$}
 \smallskip
-\li{matrix of Hecke operator $T_n$ on $(f_i)$}{mfmathecke$(M,n)$}
-\li{\dots of Atkin--Lehner $w_Q$ on $(f_i)$}{mfmatatkin$(T,Q)$}
-\li{eigenvalues of $w_Q$}{mfatkineigenvalues$(T,Q)$}
+\li{matrix of Hecke operator $T_n$ on $(f_i)$}{mfheckemat$(M,n)$}
+\li{\dots of Atkin--Lehner $w_Q$ on $(f_i)$}{mfatkinmat$(M,Q)$}
+\li{eigenvalues of $w_Q$}{mfatkineigenvalues$(M,Q)$}
 \li{period polynomial of eigenform $F$}{mfperiodpol$(F)$}
 \li{basis of period poynomials for weight $k$}{mfperiodpolbasis$(k)$}
 \smallskip
@@ -79,17 +78,19 @@ modular space:
    {mfcuspisregular$([N,k,\chi], c)$}
 
 \subsec{Create an individual modular form} Besides \kbd{mfbasis} and
-\kbd{mfeigenbasis}, an individual modular form can be created by a recipe to
-compute its coefficients.\hfil\break
-\li{modular form from coefficients}{mfcreate($n$->$a(n)$)}
+\kbd{mfeigenbasis}, an individual modular form can be identified by a few
+coefficients.\hfil\break
+\li{modular form from coefficients}{mftobasis(mf,\var{vec})}
 \smallskip
 
 There are also many predefined ones:\hfil\break
 \li{Eisenstein series $E_k$ on $Sl_2(\ZZ)$}{mfEk$(k)$}
+\li{Eisenstein-Hurwitz series on $\Gamma_0(4)$}{mfEH$(k)$}
+\li{unary $\theta$ function (for character $\psi$)}{mfTheta$(\{\psi\})$}
 \li{Ramanujan's $\Delta$}{mfDelta$()$}
 \li{$E_k(\chi)$}{mfeisen$(k,\chi)$}
 \li{$E_k(\chi_1,\chi_2)$}{mfeisen$(k,\chi_1,\chi_2)$}
-\li{eta quotient $\prod_i \eta(a_{i,1} \cdot z)^{a_{i,2}}$}{mfetaquo$(a)$}
+\li{eta quotient $\prod_i \eta(a_{i,1} \cdot z)^{a_{i,2}}$}{mffrometaquo$(a)$}
 \li{newform attached to ell. curve $E/\QQ$}{mffromell$(E)$}
 \li{identify an $L$-function as a eigenform}{mffromlfun$(L)$}
 \li{$\theta$ function attached to $Q > 0$}{mffromqf$(Q)$}
@@ -108,26 +109,27 @@ the $F[i]$ are modular forms\hfil\break
    {mflinear$(F,L)$}
 \li{$f = g$?}{mfisequal(f,g)}
 \li{expanding operator $B_d(f)$}{mfbd$(f,d)$}
-\li{Hecke operator $T_n f$}{mfhecke$(f,n)$}
-\li{Atkin--Lehner operator $w_Q f$}{mfatkin$(T,f,Q)$}
+\li{Hecke operator $T_n f$}{mfhecke$(mf,f,n)$}
+\li{initialize Atkin--Lehner operator $w_Q$}{mfatkininit$(mf,Q)$}
+\li{\dots apply $w_Q$ to $f$}{mfatkin$(w_Q,f)$}
 \li{twist by the quadratic char $(D/\cdot)$}{mftwist$(f,D)$}
 \li{derivative wrt. $q \cdot d/dq$}{mfderiv$(f)$}
-\li{integration wrt. $q \cdot d/dq$}{mfinteg$(f)$}
-\li{Serre derivative $(q \cdot d/dq)f - k E_2 f/12$}{mfderivE2$(f)$}
+\li{see $f$ over an absolute field}{mfreltoabs$(f)$}
+\li{Serre derivative $\big(q \cdot {d\over dq} - {k\over 12} E_2\big) f$}
+   {mfderivE2$(f)$}
 \li{Rankin-Cohen bracket $[f,g]_n$}{mfbracket$(f,g,n)$}
+\li{Shimura lift of $f$ for discriminant $D$}{mfShimura$(f,D)$}
 \li{complex embeddings of $f$}{mfembed$(f)$}
 
 \subsec{Properties of modular forms} In this section, $f = \sum_n f_n q^n$
 is a modular form
-in some space $M$ with parameters $N,k,\chi$; an argument $T$ is
-\kbd{mfsplit}$(M)$\hfil\break
+in some space $M$ with parameters $N,k,\chi$.\hfil\break
+\li{describe the form $f$}{mfdescribe$(f)$}
 \li{$(N,k,\chi)$ for form $f$}{mfparams$(f)$}
-\li{the space identifіer (0 to 4) for $f$}{mfspace$(f)$}
+\li{the space identifіer (0 to 4) for $f$}{mfspace$(mf,f)$}
 \li{$f_0,\dots,f_n$}{mfcoefs$(f, n)$}
 \li{$f_n$}{mfcoef$(f,n)$}
-\li{$v_\infty(f)$}{mfval$(f)$}
-\li{is $f$ cuspidal?}{mfiscuspidal$(f)$}
-\li{is $f$ an eigenform of Fricke's $w_N$?}{mfisselfdual$(f)$}
+\li{is $f$ a CM form?}{mfisCM$(f)$}
 \li{Galois rep. attached to $(1,\chi)$-eigenform}
    {mfgaloistype$(M,F)$}
 \li{Galois rep. attached to all $(1,\chi)$ eigenforms}
@@ -137,17 +139,17 @@ in some space $M$ with parameters $N,k,\chi$; an argument $T$ is
 \li{smallest level on which $f$ is defined}{mfconductor$(M,f)$}
 \li{decompose $f$ on $\oplus S_k^{\text{new}}(\Gamma_0(d))$, $d\mid N$}
    {mftonew$(M,f)$}
-\li{Fourier expansion of $f$ at cusp $c$}{mfcuspexpansion$(T, f, c, n)$}
+\li{expansion at $\infty$ of $f \mid_k \gamma$}{mfslashexpansion$(M,f,\gamma,n)$}
 \li{$n$-Taylor expansion of $f$ at $i$}{mftaylor$(f,n)$}
 \li{all rational eigenforms matching criteria}{mfsearch}
 \subsec{Forms embedded into $\CC$} In this section $F=\sigma(f)$ is the
 complex embedding of some modular form $f$ for some
 $\sigma\colon \Q(f)\to \CC$ obtained via \kbd{mfembed}.\hfill\break
 \li{evaluate $F$ at $\tau\in{\cal H}$}{mfeval$(F,\tau)$}
-\li{$L$-function attached to $F$}{lfunmf$(F)$}
-\li{\dots eigenforms of split new space $T$}{lfunmf$(T)$}
+\li{$L$-function attached to $F$}{lfunmf$(mf,F)$}
+\li{\dots eigenforms of new space $M$}{lfunmf$(M)$}
 
-\bigskip
+\newcolumn
 
 \section{Modular Symbols}
 Let $G = \Gamma_0(N)$, $V_k = \QQ[X,Y]_{k-2}$. We let

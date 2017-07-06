@@ -2153,6 +2153,72 @@ QXQ_inv(GEN A, GEN B)
   return gerepileupto(av, RgX_Rg_div(U, D));
 }
 
+/* lift(C / Mod(A,B)). B monic ZX, A and C scalar or QX. Use when result is
+ * small */
+GEN
+QXQ_div_ratlift(GEN C, GEN A, GEN B)
+{
+  GEN dA, dC, q, U;
+  ulong p, ct, delay;
+  pari_sp av2, av = avma;
+  forprime_t S;
+  pari_timer ti;
+  if (is_scalar_t(typ(A)))
+  {
+    A = gdiv(C,A);
+    if (typ(A) != t_POL) A = scalarpol(A, varn(B));
+    return A;
+  }
+  /* A a QX, B a ZX */
+  A = Q_remove_denom(A, &dA);
+  C = Q_remove_denom(C, &dC);
+  if (typ(C) != t_POL) C = scalarpol_shallow(C, varn(B));
+  if (dA) C = ZX_Z_mul(C,dA);
+  /* A, B, C in Z[X] */
+  init_modular_small(&S);
+  if (DEBUGLEVEL>5) timer_start(&ti);
+  av2 = avma; U = NULL; ct = 0; delay = 1;
+  while ((p = u_forprime_next(&S)))
+  {
+    GEN a, b, Up, Ur;
+    a = ZX_to_Flx(A, p);
+    b = ZX_to_Flx(B, p);
+    /* if p | Res(A/G, B/G), discard */
+    Up = Flxq_invsafe(a,b,p); if (!Up) continue;
+    Up = Flxq_mul(Up, ZX_to_Flx(C,p), b, p);
+
+    if (!U)
+    { /* First time */
+      U = ZX_init_CRT(Up,p,varn(A));
+      q = utoipos(p);
+    }
+    else
+    {
+      GEN qp = muliu(q,p);
+      (void)ZX_incremental_CRT_raw(&U, Up, q,qp, p);
+      q = qp;
+    }
+    if (DEBUGLEVEL>5) timer_printf(&ti,"QXQ_div: mod %ld (bound 2^%ld)", p,expi(q));
+    b = sqrti(shifti(q,-1));
+    Ur = FpX_ratlift(U,q,b,b,NULL);
+    if (Ur && ++ct == delay)
+    { /* check divisibility */
+      GEN d, V = Q_remove_denom(Ur,&d), W = d? ZX_Z_mul(C,d): C;
+      if (!signe(ZX_rem(ZX_sub(ZX_mul(A,V), W), B))) { U = Ur; break; }
+      delay <<= 1;
+      if (DEBUGLEVEL) err_printf("QXQ_div: check failed, delay = %ld",delay);
+    }
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"QXQ_div");
+      gerepileall(av2, 2, &q,&U);
+    }
+  }
+  if (!p) pari_err_OVERFLOW("QXQ_div [ran out of primes]");
+  if (!dC) return gerepilecopy(av, U);
+  return gerepileupto(av, RgX_Rg_div(U, dC));
+}
+
 /************************************************************************
  *                                                                      *
  *                   ZX_ZXY_resultant                                   *

@@ -1,20 +1,31 @@
 Function: mfatkineigenvalues
 Section: modular_forms
 C-Name: mfatkineigenvalues
-Prototype: GLb
-Help: mfatkineigenvalues(mf,Q): Only applies to mf output by mfsplit corresponding to
- a split space, and for (trivial or) quadratic characters defined modulo N/Q.
- Outputs the Atkin-Lehner eigenvalues of the eigenforms for the primitive
- divisor Q of the level. The result is +-1 in even weight and +-i in odd weight.
-Doc: Let $Q$ be a primitive divisor of the level $N$, and let \kbd{mf} be a
- split space for (trivial or) quadratic characters defined modulo $N/Q$.
- Outputs the Atkin-Lehner eigenvalues of the eigenforms for the primitive
- divisor $Q$ of the level. The result is always $\pm1$ in even weight, and
- also $\pm i$ in odd weight.
+Prototype: GLp
+Help: mfatkineigenvalues(mf,Q): given a modular form space mf which must
+ be new or cuspidal, and a primitive divisor Q of the level of mf, outputs the
+ corresponding Atkin-Lehner eigenvalues.
+Doc: Given a modular form space \kbd{mf} which must be new or cuspidal, and a
+ primitive divisor $Q$ of the level $N$ of \kbd{mf}, outputs the Atkin--Lehner
+ eigenvalues of $w_Q$ on the new space, grouped by orbit.
+ If \kbd{mf} is the new space and $\chi$ is a
+ (trivial or) quadratic character defined modulo $N/Q$, the result is rounded
+ and the eigenvalues are $\pm1$ in even weight, and $\pm i$ in odd weight.
  \bprog
- ? mf = mfsplit([35,2]); mfatkineigenvalues(mf,5)
- %1 = [[1], [-1, -1]]
- ? CHI = Mod(3,4); mf = mfsplit([12,7,CHI]);
+ ? mf = mfinit([35,2],0); mffields(mf)
+ %1 = [y, y^2 - y - 4] \\ two orbits, dimension 1 and 2
+ ? mfatkineigenvalues(mf,5)
+ %2 = [[1], [-1, -1]]
+ ? mf = mfinit([12,7,Mod(3,4)],0);
  ? mfatkineigenvalues(mf,3)
- %3 = [[-I, I, -I, I, -I, I]]
+ %4 = [[I, -I, -I, I, I, -I]]  \\ one orbit
  @eprog
+ Note that if you want the eigenvalues on a larger space than the new space,
+ e.g. the full space, you can directly call \kbd{[mfB,M,C]=mfatkininit} and
+ compute the eigenvalues as the roots of the characteristic polynomial of
+ $M/C$, i.e. by dividing the roots of \kbd{charpoly(M)} by $C$. Note that the
+ characteristic polynomial is computed exactly since $M$ has coefficients in
+ $\Q(\chi)$, whereas $C$ may be given by a complex number. If the coefficients
+ of the characteristic polynomial are polmods modulo $T$ they must be embedded
+ to $\C$ first using \kbd{subst(lift(), t, exp(2*I*Pi/n))}, when $n$ is
+ \kbd{poliscyclo(T)}.

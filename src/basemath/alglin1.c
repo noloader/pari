@@ -2616,7 +2616,7 @@ init_gauss(GEN a, GEN *b, long *aco, long *li, int *iscol)
 
 static GEN Flm_inv_sp(GEN a, ulong *detp, ulong p);
 
-static GEN ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den);
+GEN ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den);
 
 static GEN
 RgM_inv_QM(GEN M)
@@ -3606,7 +3606,7 @@ ZM_inv_worker(GEN P, GEN A)
   return V;
 }
 
-static GEN
+GEN
 ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
 {
   pari_sp av = avma;
