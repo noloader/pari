@@ -1239,7 +1239,6 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   }
 
   /* We're sticking with this D. */
-  // dbg_mode() err_printf(ANSI_COLOR_BRIGHT_YELLOW "  %ld" ANSI_COLOR_RESET, umael(Dinfo, 1, 1));
   dbg_mode() err_printf(ANSI_COLOR_BRIGHT_YELLOW "D" ANSI_COLOR_RESET);
 
   dbg_mode() timer_start(&ti);
@@ -1557,9 +1556,6 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     dbg_mode() timer_start(&F);
     Dmqlist = Dmbatch_factor_Dmqvec(N, X0, Dmbatch, param);
 
-    /* Display time. */
-    // dbg_mode() err_printf("  %ld", timer_delay(&F));
-
     /* If none left, move to the next discriminant. */
     if(Dmqlist == NULL) continue;
 
@@ -1583,9 +1579,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
           dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  x" ANSI_COLOR_RESET);
           continue;
         }
-        // dbg_mode() err_printf(ANSI_COLOR_BRIGHT_BLUE "  %ld" ANSI_COLOR_RESET, Dmq_get_cnum(Dmq));
         dbg_mode() err_printf(ANSI_COLOR_WHITE "." ANSI_COLOR_RESET);
-        // dbg_mode() err_printf(ANSI_COLOR_BLUE "%ld" ANSI_COLOR_RESET, expiN - expi(q));
         a = Dmq_isgoodq(Dmq, X0);
         if( !a ) continue;
 
@@ -1619,7 +1613,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   }
 
   /* FAILED: Out of discriminants. */
-  if(X0) umael(*X0, 3, 1)++; // FAILS++
+  if(X0) umael(*X0, 3, 1)++; /* FAILS++ */
   (*depth)--;
   dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  X" ANSI_COLOR_RESET);
   return NULL;
