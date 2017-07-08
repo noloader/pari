@@ -12,6 +12,7 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #include "pari.h"
+#include "paripriv.h"
 
 /* Return 1 if the point Q is a Weierstrass (2-torsion) point of the
  * curve E, return 0 otherwise */
@@ -843,17 +844,24 @@ ellisograph_dummy(GEN E, long n, GEN jt, GEN jtt, GEN s0, long flag)
 }
 
 static GEN
+isograph_p(GEN nf, GEN e, ulong p, GEN P, long flag)
+{
+  pari_sp av = avma;
+  GEN iso;
+  if (P)
+    iso = ellisograph_r(nf, e, p, P, NULL, flag);
+  else
+    iso = ellisograph_Kohel_r(nf, e, p, NULL, flag);
+  return gerepilecopy(av, iso);
+}
+
+static GEN
 ellisograph_p(GEN nf, GEN E, ulong p, long flag)
 {
   pari_sp av = avma;
-  GEN iso, e = ellisograph_a4a6(E, flag);
-  if (p > 3)
-  {
-    GEN P = polmodular_ZXX(p, 0, 0, 1);
-    iso = ellisograph_r(nf, e, p, P, NULL, flag);
-  }
-  else
-    iso = ellisograph_Kohel_r(nf, e, p, NULL, flag);
+  GEN e = ellisograph_a4a6(E, flag);
+  GEN P = p < 5 ? NULL: polmodular_ZXX(p, 0, 0, 1);
+  GEN iso = isograph_p(nf, e, p, P, flag);
   return gerepilecopy(av, iso);
 }
 
@@ -1085,6 +1093,15 @@ mkisomat(ulong p, GEN T)
 }
 
 static GEN
+mkisomatraw(ulong p, GEN T)
+{
+  pari_sp av = avma;
+  GEN L = etree_list(T);
+  GEN M = distmat_pow(etree_distmat(T), p);
+  return gerepilecopy(av, mkvec2(L, M));
+}
+
+static GEN
 mkisomatdbl(ulong p, GEN T, ulong p2, GEN T2, long flag)
 {
   GEN L = etree_list(T);
@@ -1158,41 +1175,127 @@ ellQ_goodl_l(GEN E, long l)
   return 1;
 }
 
-static long
-ellnf_goodl_l(GEN E, long l)
+static ulong
+ellnf_goodl_l(GEN E, GEN v)
 {
   forprime_t T;
   long i;
   GEN nf = ellnf_get_nf(E);
   GEN disc = ell_get_disc(E);
+  long lv = lg(v);
+  ulong w = 0UL;
   pari_sp av = avma;
   u_forprime_init(&T, 17UL,ULONG_MAX);
   for(i=1; i<=20; i++)
   {
     ulong p = u_forprime_next(&T);
     GEN pr = idealprimedec(nf, utoi(p));
-    long j, g = lg(pr)-1;
+    long j, k, lv = lg(v), g = lg(pr)-1;
     for (j=1; j<=g; j++)
     {
       GEN prj = gel(pr, j);
-      if (idealval(nf,disc,prj)>0) {i--; continue;}
+      if (idealval(nf,disc,prj) > 0) {i--; continue;}
       else
       {
         long t = itos(ellap(E, prj));
-        if (l==2)
+        for(k = 1; k < lv; k++)
         {
-          if (t%2==1) return 0;
-        }
-        else
-        {
-          GEN D = subii(sqrs(t),shifti(pr_norm(prj),2));
-          if (krois(D,l)==-1) return 0;
+          long l = v[k];
+          if (l==2)
+          {
+            if (t%2==1) w |= 1<<(k-1);
+          }
+          else
+          {
+            GEN D = subii(sqrs(t),shifti(pr_norm(prj),2));
+            if (krois(D,l)==-1) w |= 1<<(k-1);
+          }
         }
       }
     }
     avma = av;
   }
-  return 1;
+  return w^((1UL<<(lv-1))-1);
+}
+
+static GEN
+ellnf_charpoly(GEN E, GEN pr)
+{
+  return deg2pol_shallow(gen_1, negi(ellap(E,pr)), pr_norm(pr), 0);
+}
+
+static GEN
+RgX_homogenize(GEN P, long v)
+{
+  GEN Q = leafcopy(P);
+  long i, l = lg(P), d = degpol(P);
+  for (i = 2; i < l; i++) gel(Q,i) = monomial(gel(Q,i), d--, v);
+  return Q;
+}
+
+static GEN
+starlaw(GEN p, GEN q)
+{
+  GEN Q = RgX_homogenize(RgX_recip(q), 1);
+  return ZX_ZXY_resultant(p, Q);
+}
+
+static GEN
+startor(GEN p, long r)
+{
+  GEN xr = monomial(gen_1, r, 0);
+  GEN psir = gsub(xr, gen_1);
+  return gsubstpol(starlaw(p, psir),xr,pol_x(0));
+}
+
+static GEN
+ellnf_get_degree(GEN E, GEN p)
+{
+  GEN nf = ellnf_get_nf(E);
+  long d = nf_get_degree(nf);
+  GEN dec = idealprimedec(nf, p);
+  long i, l = lg(dec), k;
+  GEN R, starl = deg1pol_shallow(gen_1, gen_m1, 0);
+  for(i=1; i < l; i++)
+  {
+    GEN pr = gel(dec,i);
+    GEN q = ellnf_charpoly(E, pr);
+    starl = starlaw(starl, startor(q, 12*pr_get_e(pr)));
+  }
+  R = p;
+  for(k=0; 2*k<=d; k++)
+    R = mulii(R, poleval(starl,powiu(p,12*k)));
+  return R;
+}
+
+/*
+Based on a GP script by Nicolas Billerey itself
+based on Th\'eor\`emes 2.4 and 2.8 of the following article:
+N. Billerey, Crit\`eres d'irr\'eductibilit\'e pour les
+repr\'esentations des courbes elliptiques,
+Int. J. Number Theory 7 (2011), no. 4, 1001-1032.
+*/
+
+static GEN
+ellnf_prime_degree(GEN E)
+{
+  forprime_t T;
+  long i;
+  GEN nf = ellnf_get_nf(E);
+  GEN disc = ell_get_disc(E);
+  GEN P, B = gen_0, rB;
+  GEN bad = mulii(nfnorm(nf, disc),nf_get_disc(nf));
+  u_forprime_init(&T, 5UL,ULONG_MAX);
+  for(i=1; i<=20; i++)
+  {
+    ulong p = u_forprime_next(&T);
+    if (dvdiu(bad, p)) {i--; continue;}
+    B = gcdii(B, ellnf_get_degree(E, utoi(p)));
+    if (Z_issquareall(B,&rB)) B=rB;
+  }
+  if (signe(B)==0) pari_err_IMPL("ellisomat, CM case");
+  P = vec_to_vecsmall(gel(Z_factor(B),1));
+  return shallowextract(P, utoi(ellnf_goodl_l(E, P)));
 }
 
 static GEN
@@ -1259,6 +1362,137 @@ ellQ_isomat(GEN E, long flag)
     retmkvec2(list_to_crv(mkvec(mkvec5(c4, c6, j, isogeny_a4a6(E), invisogeny_a4a6(E)))), matid(1));
 }
 
+static GEN
+ellnf_isocrv(GEN nf, GEN E, GEN v, GEN PE, long flag)
+{
+  long i, j, l, lv = lg(v);
+  GEN L, M;
+  GEN e = ellisograph_a4a6(E, flag);
+  GEN LE = cgetg(lv, t_VEC);
+  long n = 1, k = 2;
+  for (i = 1; i < lv; i++)
+  {
+    ulong p = uel(v,i);
+    GEN P = gel(PE, i);
+    GEN T = isograph_p(nf, e, p, P, flag);
+    GEN LM = mkisomatraw(p, T);
+    gel(LE, i) = LM;
+    n *= lg(gel(LM,1)) - 1;
+  }
+  L = cgetg(n+1,t_VEC);
+  M = cgetg(n+1,t_COL);
+  gel(L,1) = e;
+  gel(M,1) = gen_1;
+  for (i = 1; i < lv; i++)
+  {
+    ulong p = uel(v, i);
+    GEN P = gel(PE, i);
+    GEN Li = gmael(LE, i, 1);
+    GEN Mi = gmael(LE, i, 2);
+    long kk = k;
+    long m = lg(Li);
+    for (j = 2; j < m; j++)
+    {
+      gel(L, k) = gel(Li, j);
+      gel(M, k) = gmael(Mi,1,j);
+      k++;
+    }
+    for (l = 2; l < kk; l++)
+    {
+      GEN e = gel(L, l);
+      GEN T = isograph_p(nf, e, p, P, flag);
+      GEN LMe = mkisomatraw(p, T);
+      GEN Le = gel(LMe, 1);
+      GEN Me = gel(LMe, 2);
+      long m = lg(Le);
+      for (j = 2; j < m; j++)
+      {
+        gel(L,k) = gel(Le, j);
+        gel(M,k) = gmul(gmael(Me,1,j),gel(M,l));
+        k++;
+      }
+    }
+  }
+  return mkvec2(L, M);
+}
+
+static long
+nfispower(GEN nf, long d, GEN a, GEN b)
+{
+  GEN N;
+  if (gequal(a,b)) return 1;
+  N = nfroots(nf, gsub(monomial(b, d, 0), monomial(a,0,0)));
+  return lg(N) > 1;
+}
+
+static long
+isomat_eq(GEN nf, GEN e1, GEN e2)
+{
+  if (gequal(e1,e2)) return 1;
+  if (!gequal(gel(e1,3), gel(e2,3))) return 0;
+  if (gequal0(gel(e1,3)))
+    return nfispower(nf,6,gel(e1,2),gel(e2,2));
+  if (gequalgs(gel(e1,3),1728))
+    return nfispower(nf,4,gel(e1,1),gel(e2,1));
+  return nfispower(nf,2,gmul(gel(e1,1),gel(e2,2)),gmul(gel(e1,2),gel(e2,1)));
+}
+
+static long
+isomat_find(GEN nf, GEN e, GEN L)
+{
+  long i, l = lg(L);
+  for (i=1; i<l; i++)
+    if (isomat_eq(nf, e, gel(L,i))) return i;
+  pari_err_BUG("isomat_find"); return 0; /* LCOV_EXCL_LINE */
+}
+
+static GEN
+isomat_perm(GEN nf, GEN E, GEN L)
+{
+  long i, l = lg(E);
+  GEN v = cgetg(l, t_VECSMALL);
+  for (i=1; i<l; i++)
+    uel(v, i) = isomat_find(nf, gel(E,i), L);
+  return v;
+}
+
+static GEN
+ellnf_modpoly(GEN v)
+{
+  long i, l = lg(v);
+  GEN P = cgetg(l, t_VEC);
+  for(i = 1; i < l; i++)
+  {
+    ulong p = uel(v, i);
+    gel(P, i) = p<5 ? NULL: polmodular_ZXX(p, 0, 0, 1);
+  }
+  return P;
+}
+
+static GEN
+ellnf_isomat(GEN E, long flag)
+{
+  GEN nf = ellnf_get_nf(E);
+  GEN v = ellnf_prime_degree(E);
+  GEN P = ellnf_modpoly(v);
+  GEN LM = ellnf_isocrv(nf, E, v, P, flag);
+  GEN L = gel(LM,1), M = gel(LM, 2);
+  long i, l = lg(L);
+  GEN R;
+  R = cgetg(l, t_MAT);
+  gel(R, 1) = M;
+  for(i = 2; i < l; i++)
+  {
+    GEN Li = gel(L, i);
+    GEN e = mkvec2(gdivgs(gel(Li,1), -48), gdivgs(gel(Li,2), -864));
+    GEN LMi = ellnf_isocrv(nf, ellinit(e, nf, DEFAULTPREC), v, P, 1);
+    GEN LLi = gel(LMi, 1), Mi = gel(LMi, 2);
+    GEN r = isomat_perm(nf, L, LLi);
+    gel(R, i) = vecpermute(Mi, r);
+  }
+  return mkvec2(list_to_crv(L), R);
+}
+
 GEN
 ellisomat(GEN E, long p, long flag)
 {
@@ -1282,14 +1516,14 @@ ellisomat(GEN E, long p, long flag)
       }
       break;
     case t_ELL_NF:
-      if (!p) {
-        pari_err_IMPL("ellisomat(E,0) for curve over number fields");
-        return NULL; /* NOT REACHED */ }
+      if (!p)
+        r = ellnf_isomat(E, flag);
       else
       {
-        if (ellnf_goodl_l(E, p))
+        if (ellnf_goodl_l(E, mkvecsmall(p)))
           r = mkisomat(p, ellisograph_p(ellnf_get_nf(E), E, p, flag));
-        else r = mkvec2(mkvec(ellisograph_a4a6(E, flag)),matid(1));
+        else
+          r = mkvec2(mkvec(ellisograph_a4a6(E, flag)),matid(1));
       }
   }
   return gerepilecopy(av, r);

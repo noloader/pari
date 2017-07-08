@@ -10,8 +10,7 @@ Help: ellisomat(E, {p=0}, {fl=0}): E being an elliptic curve over a number field
  isogenies are not computed, which saves time.
  If p is set it must be a prime number, in which case only isogenies of degree
  a power of p are considered.
- Currently the function has some limitation over a number field: p must be set
- and the curve must not have CM.
+ Currently  CM curves over a number field are not fully supported.
 Doc:
  Given an elliptic curve $E$ defined over a number field, compute representatives of the
  isomorphism classes of elliptic curves $\Q$-isogenous to $E$. The function
@@ -24,8 +23,9 @@ Doc:
  which saves time, and $L$ is the list of the curves $E_i$.
  If $p$ is set it must be a prime number, in which case only isogenies of degree
  a power of $p$ are considered.
- Currently the function has some limitation over a number field: $p$ must be set
- and the curve must not have CM.
+ Over a number field, The possible isogeny degrees are determined by
+ Billerey algorithm. As a consequence, CM curves over a number field are not
+ fully supported.
  \bprog
  ? E = ellinit("14a1");
  ? [L,M] = ellisomat(E);
