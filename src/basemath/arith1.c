@@ -3527,6 +3527,18 @@ static GEN
 _Fp_one(void *E) { (void) E; return gen_1; }
 
 GEN
+Fp_pow_init(GEN x, GEN n, long k, GEN p)
+{
+  return gen_pow_init(x, n, k, (void*)p, &_Fp_sqr, &_Fp_mul);
+}
+
+GEN
+Fp_pow_table(GEN x, GEN n, GEN R, GEN p)
+{
+  return gen_pow_table(x, n, R, (void*)p, &_Fp_one, &_Fp_mul);
+}
+
+GEN
 Fp_powers(GEN x, long n, GEN p)
 {
   if (lgefint(p) == 3)
@@ -3893,9 +3905,11 @@ check_kernel(long nbg, long N, long prmax, GEN C, GEN M, GEN p, GEN m)
 {
   pari_sp av = avma;
   long lM = lg(M)-1, nbcol = lM;
+  long tbs = maxss(1, expu(nbg/expi(m)));
   for (;;)
   {
     GEN K = FpMs_leftkernel_elt_col(M, nbcol, N, m);
+    GEN tab;
     long i, f=0;
     long l = lg(K), lm = lgefint(m);
     GEN idx = diviiexact(subiu(p,1),m), g;
@@ -3905,18 +3919,18 @@ check_kernel(long nbg, long N, long prmax, GEN C, GEN M, GEN p, GEN m)
       if (signe(gel(K,i)))
         break;
     g = Fp_pow(utoi(i), idx, p);
+    tab = Fp_pow_init(g, p, tbs, p);
     K = FpC_Fp_mul(K, Fp_inv(gel(K,i), m), m);
     for(i=1; i<l; i++)
     {
       GEN k = gel(K,i);
       GEN j = i<=prmax ? utoi(i): addis(C,i-(prmax+1));
-      if (signe(k)==0 || !equalii(Fp_pow(g, k, p),
-            Fp_pow(j, idx, p)))
+      if (signe(k)==0 || !equalii(Fp_pow_table(g, k, tab, p), Fp_pow(j, idx, p)))
         gel(K,i) = cgetineg(lm);
       else
         f++;
     }
-    if (DEBUGLEVEL) timer_printf(&ti,"found %ld logs", f);
+    if (DEBUGLEVEL) timer_printf(&ti,"found %ld/%ld logs", f, nbg);
     if(f > (nbg>>1)) return gerepileupto(av, K);
     for(i=1; i<=nbcol; i++)
     {

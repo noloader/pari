@@ -939,6 +939,18 @@ F2xq_powu(GEN x, ulong n, GEN pol)
   return gerepileupto(av, y);
 }
 
+GEN
+F2xq_pow_init(GEN x, GEN n, long k,  GEN T)
+{
+  return gen_pow_init(x, n, k, (void*)T, &_F2xq_sqr, &_F2xq_mul);
+}
+
+GEN
+F2xq_pow_table(GEN x, GEN n, GEN R, GEN T)
+{
+  return gen_pow_table(x, n, R, (void*)T, &_F2xq_one, &_F2xq_mul);
+}
+
 /* generates the list of powers of x of degree 0,1,2,...,l*/
 GEN
 F2xq_powers(GEN x, long l, GEN T)
@@ -1364,17 +1376,20 @@ check_kernel(long N, GEN M, long nbi, GEN T, GEN m)
 {
   pari_sp av = avma;
   GEN K = FpMs_leftkernel_elt(M, N, m);
-  long i, f=0;
+  long i, f=0, tbs;
   long l = lg(K), lm = lgefint(m);
   GEN idx = diviiexact(int2um1(F2x_degree(T)),m);
   GEN g = F2xq_pow(polx_F2x(T[1]), idx, T);
+  GEN tab;
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
   K = FpC_Fp_mul(K, Fp_inv(gel(K,2), m), m);
+  tbs = maxss(1, expu(nbi/expi(m)));
+  tab = F2xq_pow_init(g, int2n(F2x_degree(T)), tbs, T);
   for(i=1; i<l; i++)
   {
     GEN k = gel(K,i);
-    if (signe(k)==0 || !F2x_equal(F2xq_pow(g, k, T),
+    if (signe(k)==0 || !F2x_equal(F2xq_pow_table(g, k, tab, T),
                                   F2xq_pow(mkF2(i,T[1]), idx, T)))
       gel(K,i) = cgetineg(lm);
     else

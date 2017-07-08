@@ -2587,6 +2587,22 @@ Flxq_pow(GEN x, GEN n, GEN T, ulong p)
   return gerepileuptoleaf(av, y);
 }
 
+GEN
+Flxq_pow_init(GEN x, GEN n, long k,  GEN T, ulong p)
+{
+  struct _Flxq D;
+  D.T = Flx_get_red(T, p); D.p = p;
+  return gen_pow_init(x, n, k, (void*)&D, &_Flxq_sqr, &_Flxq_mul);
+}
+
+GEN
+Flxq_pow_table(GEN x, GEN n, GEN R, GEN T, ulong p)
+{
+  struct _Flxq D;
+  D.T = Flx_get_red(T, p); D.p = p;
+  return gen_pow_table(x, n, R, (void*)&D, &_Flxq_one, &_Flxq_mul);
+}
+
 /* Inverse of x in Z/lZ[X]/(T) or NULL if inverse doesn't exist
  * not stack clean.
  */

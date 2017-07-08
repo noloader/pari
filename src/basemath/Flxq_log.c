@@ -332,22 +332,25 @@ check_kernel(long r, GEN M, long nbi, long nbrow, GEN T, ulong p, GEN m)
   pari_sp av = avma;
   long N = 3*upowuu(p, r);
   GEN K = FpMs_leftkernel_elt(M, nbrow, m);
-  long i, f=0;
+  long i, f=0, tbs;
   long lm = lgefint(m), u=1;
-  GEN g;
-  GEN idx = diviiexact(subiu(powuu(p,degpol(T)),1),m);
+  GEN tab, g;
+  GEN q = powuu(p,degpol(T));
+  GEN idx = diviiexact(subiu(q,1),m);
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
   while (signe(gel(K,u))==0)
     u++;
   K = FpC_Fp_mul(K, Fp_inv(gel(K, u), m), m);
   g = Flxq_pow(cindex_Flx(u, r, p, T[1]), idx, T, p);
+  tbs = maxss(1, expu(nbi/expi(m)));
+  tab = Flxq_pow_init(g, q, tbs, T, p);
   setlg(K, N);
   for (i=1; i<N; i++)
   {
     GEN k = gel(K,i);
     pari_sp av = avma;
-    long t = signe(k) && Flx_equal(Flxq_pow(g, k, T, p),
+    long t = signe(k) && Flx_equal(Flxq_pow_table(g, k, tab, T, p),
                                    Flxq_pow(cindex_Flx(i,r,p,T[1]), idx, T, p));
     avma = av;
     if (!t)

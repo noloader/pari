@@ -3418,6 +3418,15 @@ allowed Not memory-clean, but suitable for \kbd{gerepileupto}.
 \fun{GEN}{Fp_pow}{GEN x, GEN n, GEN m} returns $\kbd{x}^\kbd{n}$
 modulo \kbd{m} (smallest non-negative residue).
 
+\fun{GEN}{Fp_pow_init}{GEN x, GEN n, long k, GEN p}
+Return a table \kbd{R} that can be used with
+\kbd{Fp\_pow\_table} to compute the powers of $x$ up to $n$.
+The table is of size $2^k\*\log_2(n)$.
+
+\fun{GEN}{Fp_pow_table}{GEN x, GEN n, GEN R, GEN p}
+Return $x^n$, where $R$ is as given by \kbd{Fp\_pow\_init(x,m,k,p)}
+for some integer $m\geq n$.
+
 \fun{GEN}{Fp_powers}{GEN x, long n, GEN m} returns
 $[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ modulo \kbd{m} as a \typ{VEC}
  (smallest non-negative residue).
@@ -5900,6 +5909,10 @@ this function applies \kbd{FlxC\_eval\_powers\_pre} to all entries of \kbd{M}.
 
 \fun{GEN}{Flxq_powu}{GEN x, ulong n, GEN T, ulong p}
 
+\fun{GEN}{Flxq_pow_init}{GEN x, GEN n, long k, GEN T, ulong p}
+
+\fun{GEN}{Flxq_pow_table}{GEN x, GEN n, GEN R, GEN T, ulong p}
+
 \fun{GEN}{Flxq_powers}{GEN x, long n, GEN T, ulong p}
 
 \fun{GEN}{Flxq_matrix_pow}{GEN x, long m, long n, GEN T, ulong p},
@@ -6335,6 +6348,10 @@ square of a \kbd{F2x}.
 \fun{GEN}{F2xq_pow}{GEN x, GEN n, GEN T}
 
 \fun{GEN}{F2xq_powu}{GEN x, ulong n, GEN T}
+
+\fun{GEN}{F2xq_pow_init}{GEN x, GEN n, long k, GEN T}
+
+\fun{GEN}{F2xq_pow_table}{GEN x, GEN n, GEN R, GEN T}
 
 \fun{ulong}{F2xq_trace}{GEN x, GEN T}
 
@@ -11668,6 +11685,18 @@ internal variant of the function \tet{gen_pow_fold}, not memory-clean.
 
 \fun{GEN}{gen_powu_fold_i}{GEN x, ulong n, void *E, F1 sqr, F1 msqr}
 see \tet{gen_pow_fold_i}.
+
+\fun{GEN}{gen_pow_init}{GEN x, GEN n, long k, void *E, GEN (*sqr)(void*,GEN),
+                        GEN (*mul)(void*,GEN,GEN)}
+Return a table \kbd{R} that can be used with
+\kbd{gen\_pow\_table} to compute the powers of $x$ up to $n$.
+The table is of size $2^k\*\log_2(n)$.
+
+\fun{GEN}{gen_pow_table}{GEN x, GEN n, GEN R, void *E, GEN (*one)(void*),
+                        GEN (*mul)(void*,GEN,GEN)}
+
+Return $x^n$, where $R$ is as given by \kbd{gen\_pow\_init(x,m,k,E,sqr,mul)}
+for some integer $m\geq n$.
 
 \fun{GEN}{gen_powers}{GEN x, long n, long usesqr, void *D, F1 sqr, F2 mul, F0 one}
 returns $[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ as a \typ{VEC}; \kbd{mul(D,

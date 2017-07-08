@@ -274,6 +274,44 @@ gen_pow_fold(GEN x, GEN n, void *E, GEN (*sqr)(void*,GEN),
 }
 
 GEN
+gen_pow_init(GEN x, GEN n, long k, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN))
+{
+  long i, j, l = expi(n);
+  long m = 1UL<<(k-1);
+  GEN x2 = sqr(E, x), y = gcopy(x);
+  GEN R = cgetg(m+1, t_VEC);
+  for(i = 1; i <= m; i++)
+  {
+    GEN C = cgetg(l+1, t_VEC);
+    gel(C,1) = y;
+    for(j = 2; j <= l; j++)
+      gel(C,j) = sqr(E, gel(C,j-1));
+    gel(R,i) = C;
+    y = mul(E, y, x2);
+  }
+  return R;
+}
+
+GEN
+gen_pow_table(GEN x, GEN n, GEN R, void *E, GEN (*one)(void*), GEN (*mul)(void*,GEN,GEN))
+{
+  long e = expu(lg(R)-1) + 1;
+  long l = expi(n);
+  long i, w;
+  GEN z = one(E), tw;
+  for(i=0; i<=l; )
+  {
+    if (int_bit(n, i)==0) { i++; continue; }
+    if (i+e-1>l) e = l+1-i;
+    w = int_block(n,i+e-1,e);
+    tw = gmael(R, 1+(w>>1), i+1);
+    z = mul(E, z, tw);
+    i += e;
+  }
+  return z;
+}
+
+GEN
 gen_powers(GEN x, long l, int use_sqr, void *E, GEN (*sqr)(void*,GEN),
                                       GEN (*mul)(void*,GEN,GEN), GEN (*one)(void*))
 {
