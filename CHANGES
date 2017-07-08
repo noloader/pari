@@ -2,6 +2,9 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
 Done for version 2.10.1 (released ??/??/2018):
   Fixed
+      1- t_LIST corrupted on writebin / read [#2040]
+BA    2- nfisincl() result uses wrong variable [#2041]
+
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
          to scalars, polynomials, series and rational functions; no longer to

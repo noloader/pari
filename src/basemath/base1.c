@@ -1091,12 +1091,11 @@ nfisisom(GEN a, GEN b)
 }
 
 static GEN
-partmap_reverse(GEN a, GEN b, GEN F)
+partmap_reverse(GEN a, GEN b, GEN F, long v)
 {
   pari_sp av = avma;
   long i, j, k;
   long da = degpol(a), d = degpol(F);
-  long v = varn(b);
   GEN M1, M2,  W, U, V;
   M1 = cgetg(1+da-d, t_MAT);
   M2 = cgetg(1+da-d, t_MAT);
@@ -1138,7 +1137,7 @@ GEN
 nfisincl(GEN fa, GEN fb)
 {
   pari_sp av = avma;
-  long i, k, va, lx;
+  long i, k, vb, lx;
   long da, db, d;
   GEN a, b, nfa, nfb, x, y, la, lb;
   int newvar;
@@ -1153,7 +1152,7 @@ nfisincl(GEN fa, GEN fb)
 
   if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
   if (nfa) la = gen_1; else nfa = a = ZX_Q_normalize(a,&la);
-  va = varn(a); newvar = (varncmp(va,varn(b)) <= 0);
+  vb = varn(b); newvar = (varncmp(varn(a),vb) <= 0);
   if (newvar) { b = leafcopy(b); setvarn(b, fetch_var_higher()); }
   y = lift_shallow(gel(nffactor(nfa,b),1));
   lx = lg(y);
@@ -1163,7 +1162,7 @@ nfisincl(GEN fa, GEN fb)
   {
     GEN t = gel(y,i);
     if (degpol(t)!=d) continue;
-    gel(x, k++) = partmap_reverse(b, a, t);
+    gel(x, k++) = partmap_reverse(b, a, t, vb);
   }
   if (newvar) (void)delete_var();
   if (k==1) { avma = av; return gen_0; }
