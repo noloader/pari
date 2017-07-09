@@ -46,12 +46,12 @@ zv_binsearch0(void *E, long (*f)(void* E, GEN x), GEN x)
 {
   long lo = 1;
   long hi = lg(x)-1;
-  while(lo < hi){
+  while (lo < hi) {
     long mi = lo + (hi - lo)/2 + 1;
-    if( f(E,gel(x,mi)) ) lo = mi;
+    if (f(E,gel(x,mi))) lo = mi;
     else hi = mi - 1;
   }
-  if( f(E,gel(x,lo)) ) return lo;
+  if (f(E,gel(x,lo))) return lo;
   return 0;
 }
 
@@ -59,10 +59,10 @@ INLINE long
 timer_record(GEN* X0, const char* Xx, pari_timer* ti, long c)
 {
   long t = 0;
-  dbg_mode(){
+  dbg_mode() {
     long i, j;
     t = timer_delay(ti);
-    if(!X0) return t;
+    if (!X0) return t;
     i = Xx[0]-'A'+1;
     j = Xx[1]-'1'+1;
     umael3(*X0, 1, i, j) += t;
@@ -161,8 +161,8 @@ allhclassno2(long lim)
 INLINE long
 D_get_wD(long D)
 {
-  if(D == -4) return 4;
-  if(D == -3) return 6;
+  if (D == -4) return 4;
+  if (D == -3) return 6;
   return 2;
 }
 
@@ -240,11 +240,11 @@ ecpp_primelist_init( long maxsqrt)
   primelist[j] =  8; j++;
   primelist[j] = -4; j++;
   primelist[j] = -8; j++;
-  while(1){
+  while (1) {
     long p = u_forprime_next(&T);
-    if(p > maxsqrt) break;
-    if(p == 0) break;
-    if( p%4 == 3 ) p = -p;
+    if (p > maxsqrt) break;
+    if (p == 0) break;
+    if (p%4 == 3) p = -p;
     primelist[j] = p;
     j++;
   }
@@ -257,37 +257,39 @@ ecpp_primelist_init( long maxsqrt)
            notice the special case when p is even
 */
 INLINE ulong
-p_to_index(long p, GEN indexlist){
-  if(p%2 == 0){
-    if(p ==  8) return 1;
-    if(p == -4) return 2;
-    if(p == -8) return 3;
+p_to_index(long p, GEN indexlist)
+{
+  if (p%2 == 0)
+  {
+    if (p ==  8) return 1;
+    if (p == -4) return 2;
+    if (p == -8) return 3;
   }
-  return uel(indexlist, (labs(p))/2 );
+  return uel(indexlist, (labs(p))/2);
 }
 
 /*  Input: i, primelist
    Output: returns the ith element of primelist
 */
 INLINE long
-index_to_p(long i, GEN primelist){
-  return primelist[i];
-}
+index_to_p(long i, GEN primelist) { return primelist[i]; }
 
 /*  Input: primelist
    Output: returns a vecsmall indicating at what index
            of primelist each odd prime occurs
 */
 INLINE GEN
-primelist_to_indexlist(GEN primelist){
+primelist_to_indexlist(GEN primelist)
+{
   long i;
   long lgprimelist = lg(primelist);
   long maxprime = labs(primelist[lgprimelist-1]);
   GEN indexlist;
 
-  if(maxprime < 8) maxprime = 8;
+  if (maxprime < 8) maxprime = 8;
   indexlist = zero_zv(maxprime/2);
-  for(i = 4; i < lgprimelist; i++){
+  for (i = 4; i < lgprimelist; i++)
+  {
     long p = labs(primelist[i]);
     uel(indexlist, p/2) = i;
   }
@@ -322,13 +324,16 @@ ecpp_param_get_primorial_vec(GEN param)
    Output: product of v[1] to v[i]
 */
 static GEN
-producttree_find_partialprod(GEN tree, GEN v, ulong a){
+producttree_find_partialprod(GEN tree, GEN v, ulong a)
+{
   GEN b = gen_1;
   long i;
   long lgtree = lg(tree);
-  for(i = 0; i < lgtree; i++){
-    if(a%2 != 0){
-      if(i==0) b = muliu(b, uel(v, a));
+  for (i = 0; i < lgtree; i++)
+  {
+    if (a%2 != 0)
+    {
+      if (i==0) b = muliu(b, uel(v, a));
       else b = mulii(b, gmael(tree, i, a));
     }
     a/=2;
@@ -350,7 +355,7 @@ primorial_vec(ulong x)
   GEN ind = mkvecsmall5(295947, 564163, 1077871, 2063689, 3957809);
   long y = x-21;
   GEN ret = cgetg(y+1, t_VEC);
-  for(i = 1; i <= y; i++) gel(ret, i) = producttree_find_partialprod(tree, v, uel(ind, i));
+  for (i = 1; i <= y; i++) gel(ret, i) = producttree_find_partialprod(tree, v, uel(ind, i));
   return gerepilecopy(av, ret);
 }
 
@@ -424,9 +429,10 @@ NDinfomqg_get_g(GEN x)
 /* COMPARATOR FUNCTIONS */
 
 static int
-sort_disclist(void *data, GEN x, GEN y){
+sort_disclist(void *data, GEN x, GEN y)
+{
   long d1, h1, bi1, pd1, hf1, wD1, d2, h2, bi2, pd2, hf2, wD2;
-  if(data != NULL) return itos(closure_callgen2( (GEN)data, x, y) );
+  if (data != NULL) return itos(closure_callgen2( (GEN)data, x, y) );
 
   d1 = Dinfo_get_D(x); /* discriminant */
   h1 = Dinfo_get_h(x); /* class number */
@@ -442,15 +448,15 @@ sort_disclist(void *data, GEN x, GEN y){
   wD2 = D_get_wD(d2);
 
   /* higher number of units means more elliptic curves to try */
-  if(wD1 != wD2) return wD2 > wD1 ? 1 : -1;
+  if (wD1 != wD2) return wD2 > wD1 ? 1 : -1;
   /* lower polclass degree is better because of faster computation of roots modulo N */
-  if(pd1 != pd2) return pd1 > pd2 ? 1 : -1;
+  if (pd1 != pd2) return pd1 > pd2 ? 1 : -1;
   /* lower class number is better because of higher probability of passing cornacchia step */
-  if(h1 != h2) return h1 > h2 ? 1 : -1;
+  if (h1 != h2) return h1 > h2 ? 1 : -1;
   /* higher height factor is better because polclass would have lower coefficients */
-  if(hf1 != hf2) return hf2 > hf1 ? 1 : -1;
+  if (hf1 != hf2) return hf2 > hf1 ? 1 : -1;
   /* "higher" discriminant is better since its absolute value is lower */
-  if(d1 != d2) return d2 > d1 ? 1 : -1;
+  if (d1 != d2) return d2 > d1 ? 1 : -1;
 
   return 0;
 }
@@ -476,7 +482,7 @@ sort_Dmq_by_cnum(void *data, GEN x, GEN y)
 {
   ulong h1 = umael3(x, 1, 1, 2);
   ulong h2 = umael3(y, 1, 1, 2);
-  if(h1 != h2) return h1 > h2 ? 1 : -1;
+  if (h1 != h2) return h1 > h2 ? 1 : -1;
   else return sort_Dmq_by_q(data, x, y);
 }
 
@@ -526,12 +532,14 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
 
   /* od[i] holds Dinfo of -(4*i-1)
      ev[i] holds Dinfo of -(4*i)   */
-  for(i = 1; i <= lenv; i++){
+  for (i = 1; i <= lenv; i++)
+  {
     long h;
     long x = 1;
     h = Harr[2*i-1]/6; /* class number of -(4*i-1) */
     gel(od, i) = mkvec2( mkvecsmall4(1, h, 0, h), vecsmalltrunc_init(N) );
-    switch(i&7){
+    switch(i&7)
+    {
       case 0:
       case 4: {x = 0;} break;
       case 2: {x = -8;} break;
@@ -552,29 +560,32 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
     long q = 1; /* p^star */
     long tod = 0; /* starting t for od */
     long tev = 0; /* starting t for ev */
-    switch(p&3){
+    switch(p&3)
+    {
       case 1: {q = p; s = 3; tod = (s*p+1)/4; tev = p;} break;
       case 3: {q = -p; s = 1; tod = (s*p+1)/4; tev = p;} break;
     }
-    for(t = tod; t <= lenv; t += p){
-      if(s%p != 0 && umael3(od, t, 1, 1) != 0){
+    for (t = tod; t <= lenv; t += p)
+    {
+      if (s%p != 0 && umael3(od, t, 1, 1) != 0)
+      {
         u++;
         umael3(od, t, 1, 1) *= q;
         vecsmalltrunc_append( gmael(od, t, 2), p_to_index(q, indexlist) );
-      }else{
+      } else
         umael3(od, t, 1, 1) = 0;
-      }
       s += 4;
     }
     s = 4;
-    for(t = tev; t <= lenv; t += p){
-      if(s%p != 0 && umael3(ev, t, 1, 1) != 0){
+    for (t = tev; t <= lenv; t += p)
+    {
+      if (s%p != 0 && umael3(ev, t, 1, 1) != 0)
+      {
         u++;
         umael3(ev, t, 1, 1) *= q;
         vecsmalltrunc_append( gmael(ev, t, 2), p_to_index(q, indexlist) );
-      }else{
+      } else
         umael3(ev, t, 1, 1) = 0;
-      }
       s += 4;
     }
   }
@@ -582,41 +593,47 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
   /* merging the two arrays */
   merge = cgetg(u+1, t_VEC);
   lgmerge = 0;
-  while(1){
+  while (1)
+  {
     long o3, o4;
-    if(u3 > lenv && u4 > lenv) break;
+    if (u3 > lenv && u4 > lenv) break;
     o3 = -1;
     o4 = -1;
-    if(u3 <= lenv){
+    if (u3 <= lenv)
+    {
       o3 = umael3(od, u3, 1, 1);
-      if(o3 != -4*u3+1) {u3++; continue;}
+      if (o3 != -4*u3+1) {u3++; continue;}
     }
-    if(u4 <= lenv){
+    if (u4 <= lenv)
+    {
       o4 = umael3(ev, u4, 1, 1);
-      if(o4 != -4*u4) {u4++; continue;}
+      if (o4 != -4*u4) {u4++; continue;}
     }
-    if(o3 == -1) {
+    if (o3 == -1)
+    {
       gel(merge, ++lgmerge) = gel(ev, u4++);
       continue;
     }
-    if(o4 == -1) {
+    if (o4 == -1)
+    {
       gel(merge, ++lgmerge) = gel(od, u3++);
       continue;
     }
-    if(o3 > o4){
+    if (o3 > o4)
       gel(merge, ++lgmerge) = gel(od, u3++);
-    }else{
+    else
       gel(merge, ++lgmerge) = gel(ev, u4++);
-    }
   }
   setlg(merge, lgmerge);
   /* filling in bestinv [1][3] and poldegree [1][4] */
-  for(i = 1; i < lgmerge; i++){
+  for (i = 1; i < lgmerge; i++)
+  {
     long D = umael3(merge, i, 1, 1);
     long h = umael3(merge, i, 1, 2);
     long modinv = umael3(merge, i, 1, 3) = disc_best_modinv(D);
     long p1 = 1, p2 = 1;
-    if( modinv_degree(&p1, &p2, modinv) && (-D)%p1 == 0 && (-D)%p2 == 0 ) umael3(merge, i, 1, 4) = h/2;
+    if (modinv_degree(&p1, &p2, modinv) && (-D)%p1 == 0 && (-D)%p2 == 0)
+      umael3(merge, i, 1, 4) = h/2;
   }
   merge = gen_sort(merge, NULL, &sort_disclist);
   return gerepilecopy(av, merge);
@@ -641,17 +658,17 @@ ecpp_param_set(GEN tune)
   GEN param3 = tune;
   GEN param = mkvec3(param1, param2, param3);
   GEN x = gel(tune, lgtune-1);
-
-   long maxsqrt = typ(x) == t_VECSMALL ? uel(x, 1) : itos(gel(x, 1));
+  long  maxsqrt = typ(x) == t_VECSMALL ? uel(x, 1) : itos(gel(x, 1));
   ulong maxpcdg = typ(x) == t_VECSMALL ? uel(x, 2) : itos(gel(x, 2));
   ulong tdivexp = typ(x) == t_VECSMALL ? uel(x, 3) : itos(gel(x, 3));
 
-  if(tune != NULL){
-      ecpp_param_set_maxsqrt(param, maxsqrt);
-      ecpp_param_set_maxdisc(param, maxsqrt*maxsqrt);
-      ecpp_param_set_maxpcdg(param, maxpcdg);
-      ecpp_param_set_disclist(param);
-      ecpp_param_set_tdivexp(param, tdivexp);
+  if (tune != NULL)
+  {
+    ecpp_param_set_maxsqrt(param, maxsqrt);
+    ecpp_param_set_maxdisc(param, maxsqrt*maxsqrt);
+    ecpp_param_set_maxpcdg(param, maxpcdg);
+    ecpp_param_set_disclist(param);
+    ecpp_param_set_tdivexp(param, tdivexp);
   }
   return gerepilecopy(av, param);
 }
@@ -775,8 +792,8 @@ Fp_ellfromj(GEN j, GEN N)
 {
   GEN k, kk, jk, a, b;
   j = Fp_red(j, N);
-  if( isintzero(j) ) return mkvec2(gen_0, gen_1);
-  if( equalii(Fp_red(stoi(1728), N), j) ) return mkvec2(gen_1, gen_0);
+  if (isintzero(j)) return mkvec2(gen_0, gen_1);
+  if (equalii(Fp_red(stoi(1728), N), j)) return mkvec2(gen_1, gen_0);
   k = Fp_sub(stoi(1728), j, N);
   kk = Fp_sqr(k, N);
   jk = Fp_mul(j, k, N);
@@ -830,9 +847,8 @@ polmodular_db_init_allinv(void)
   GEN ret2 = cgetg(39+1, t_VEC);
   enum { DEFAULT_MODPOL_DB_LEN = 32 };
   long i;
-  for(i = 1; i < lg(ret2); i++){
+  for (i = 1; i < lg(ret2); i++)
     gel(ret2, i) = zerovec_block(DEFAULT_MODPOL_DB_LEN);
-  }
   ret1 = zerovec_block(DEFAULT_MODPOL_DB_LEN);
   return mkvec2(ret1, ret2);
 }
@@ -846,10 +862,10 @@ D_polclass(GEN D, GEN *db)
   GEN HD;
   long inv = disc_best_modinv(itos(D));
   GEN tmp_db = mkvec2(gel(*db, 1), gmael(*db, 2, inv));
-  if(inv == 0) tmp_db = mkvec2(gel(*db, 1), gen_0);
+  if (inv == 0) tmp_db = mkvec2(gel(*db, 1), gen_0);
   HD = polclass0( itos(D), inv, 0, &tmp_db);
   gel(*db, 1) = gel(tmp_db, 1);
-  if(inv != 0) gmael(*db, 2, inv) = gel(tmp_db, 2);
+  if (inv != 0) gmael(*db, 2, inv) = gel(tmp_db, 2);
   return HD;
 }
 
@@ -869,9 +885,9 @@ NmqEP_check(GEN N, GEN q, GEN E, GEN P, GEN s)
   GEN a = gel(E, 1);
   GEN mP, sP;
   sP = FpJ_mul(P, s, a, N);
-  if( FpJ_is_inf(sP) ) return 0;
+  if (FpJ_is_inf(sP)) return 0;
   mP = FpJ_mul(sP, q, a, N);
-  if( FpJ_is_inf(mP) ) return 1;
+  if (FpJ_is_inf(mP)) return 1;
   return 0;
 }
 
@@ -886,16 +902,18 @@ NmqEP_check(GEN N, GEN q, GEN E, GEN P, GEN s)
 static GEN
 j0_find_g(GEN N)
 {
-  while(1){
+  while (1)
+  {
     GEN g = randomi(N);
-    if( kronecker(g, N) != -1) continue;
-    if( isint1(Fp_pow(g, diviuexact(subiu(N, 1), 3), N)) ) continue;
+    if (kronecker(g, N) != -1) continue;
+    if (isint1(Fp_pow(g, diviuexact(subiu(N, 1), 3), N))) continue;
     return g;
   }
 }
 
 static GEN
-random_FpJ(GEN A, GEN B, GEN N){
+random_FpJ(GEN A, GEN B, GEN N)
+{
   GEN P = random_FpE(A, B, N);
   return FpE_to_FpJ(P);
 }
@@ -910,36 +928,39 @@ NDinfomqgJ_find_EP(GEN N, GEN Dinfo, GEN m, GEN q, GEN g, GEN J, GEN s)
   GEN A = gel(E, 1);
   GEN B = gel(E, 2);
   GEN P = random_FpJ(A, B, N);
-  if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
-  switch( D_get_wD(D) ){
+  if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
+  switch (D_get_wD(D))
+  {
     case 2:
       gg = Fp_sqr(g, N);
       A = Fp_mul(A, gg, N); /* Ag^2 */
       B = Fp_mul(Fp_mul(B, gg, N), g, N); /* Bg^3 */
       E = mkvec2(A, B);
       P = random_FpJ(A, B, N);
-      if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
+      if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
       else return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
     case 4:
-      for(i = 1; i < 4; i++){
+      for (i = 1; i < 4; i++)
+      {
         A = Fp_mul(A, g, N); /* Ag */
         E = mkvec2(A, B);
         P = random_FpJ(A, B, N);
-        if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
+        if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
       }
       return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
     case 6:
       B = Fp_mul(B, g, N); /* Bg */
       E = mkvec2(A, B);
       P = random_FpJ(A, B, N);
-      if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
+      if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
       g = j0_find_g(N);
-      for(i = 1; i < 6; i++){
+      for (i = 1; i < 6; i++)
+      {
         B = Fp_mul(B, g, N); /* Bg */
-        if(i % 3 == 0) continue;
+        if (i % 3 == 0) continue;
         E = mkvec2(A, B);
         P = random_FpJ(A, B, N);
-        if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
+        if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
       }
       return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
   }
@@ -963,7 +984,8 @@ ecpp_step2(GEN step1, GEN *X0)
   GEN Dprev = gen_0;
   GEN db = polmodular_db_init_allinv();
 
-  for(j = 1; j < lg(step2); j++){
+  for (j = 1; j < lg(step2); j++)
+  {
 
     long i = uel(perm, j), tt = 0;
     GEN NDinfomqg_i = gel(step1, i);
@@ -979,12 +1001,12 @@ ecpp_step2(GEN step1, GEN *X0)
 
     /* C1: Find the appropriate class polynomial modulo N. */
     dbg_mode() timer_start(&ti);
-    if(!equalii(D, Dprev)) HD = D_polclass(D, &db);
+    if (!equalii(D, Dprev)) HD = D_polclass(D, &db);
     dbg_mode() tt = timer_record(X0, "C1", &ti, 1);
     dbg_mode() err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
     dbg_mode() err_printf(ANSI_COLOR_GREEN "      D = %8Ps  poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
-    dbg_mode() if(equalii(D, Dprev)) err_printf("  %8ld", tt);
-    dbg_mode() if(!equalii(D, Dprev)) err_printf(ANSI_COLOR_BRIGHT_WHITE "  %8ld" ANSI_COLOR_RESET, tt);
+    dbg_mode() if (equalii(D, Dprev)) err_printf("  %8ld", tt);
+    dbg_mode() if (!equalii(D, Dprev)) err_printf(ANSI_COLOR_BRIGHT_WHITE "  %8ld" ANSI_COLOR_RESET, tt);
 
     /* C2: Find a root modulo N of the polynomial obtained in the previous step. */
     dbg_mode() timer_start(&ti);
@@ -1048,7 +1070,7 @@ Dmvec_to_mvec(GEN Dmvec)
   long lgmvec = lg(Dmvec);
   GEN mvec = cgetg(lgmvec, t_VEC);
   long i;
-  for(i = 1; i < lgmvec; i++) gel(mvec, i) = gmael(Dmvec, i, 2);
+  for (i = 1; i < lgmvec; i++) gel(mvec, i) = gmael(Dmvec, i, 2);
   return mvec;
 }
 
@@ -1061,7 +1083,8 @@ Dmvec_qvec_to_Dmqvec(GEN Dmvec, GEN qvec)
   long lgDmqvec = lg(Dmvec);
   GEN Dmqvec = cgetg(lgDmqvec, t_VEC);
   long i;
-  for(i = 1; i < lgDmqvec; i++){
+  for (i = 1; i < lgDmqvec; i++)
+  {
     GEN D = gmael(Dmvec, i, 1);
     GEN m = gmael(Dmvec, i, 2);
     GEN q = gel(qvec, i);
@@ -1079,9 +1102,7 @@ Dmqvec_to_qvec(GEN Dmqvec)
   long lgqvec = lg(Dmqvec);
   GEN qvec = cgetg(lgqvec, t_VEC);
   long i;
-  for(i = 1; i < lgqvec; i++){
-    gel(qvec, i) = gmael(Dmqvec, i, 3);
-  }
+  for (i = 1; i < lgqvec; i++) gel(qvec, i) = gmael(Dmqvec, i, 3);
   return qvec;
 }
 
@@ -1109,13 +1130,13 @@ p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
 {
   pari_timer ti;
   long p = uel(primelist, i);
-  if( isintzero(gmael(sqrtlist,1,i)) ){
+  if (isintzero(gmael(sqrtlist,1,i)))
+  {
     dbg_mode() err_printf(ANSI_COLOR_MAGENTA "S" ANSI_COLOR_RESET);
     /* A4: Get the square root of a prime factor of D. */
     dbg_mode() timer_start(&ti);
     gmael(sqrtlist, 1, i) = Fp_sqrt_i(stoi(p), g, N); /* NULL if invalid. */
-  dbg_mode()   timer_record(X0, "A4", &ti, 1);
-
+    dbg_mode() timer_record(X0, "A4", &ti, 1);
   }
   return gmael(sqrtlist, 1, i);
 }
@@ -1132,9 +1153,10 @@ D_find_discsqrt(GEN N, GEN param, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
   long lgDfac = lg(Dfac);
   long i;
   GEN primelist = ecpp_param_get_primelist(param);
-  for(i = 1; i < lgDfac; i++){
+  for (i = 1; i < lgDfac; i++)
+  {
     GEN sqrtfi = p_find_primesqrt(N, X0, primelist, sqrtlist, uel(Dfac, i), g);
-    if(sqrtfi == NULL) return NULL; /* Only happens when N is composite. */
+    if (sqrtfi == NULL) return NULL; /* Only happens when N is composite. */
     discsqrt = Fp_mul(discsqrt, sqrtfi, N);
   }
   return discsqrt;
@@ -1148,24 +1170,23 @@ D_find_discsqrt(GEN N, GEN param, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
 static GEN
 NUV_find_mvec(GEN N, GEN U, GEN V, long wD)
 {
-  pari_sp av = avma;
   GEN Nplus1 = addiu(N, 1);
   GEN m;
   GEN u = U;
   GEN mvec = cgetg(wD + 1, t_VEC);
   long i;
-  for(i = 0; i < wD; i++){
-    if(i%2 == 0){
-      if(wD == 4 && i==2) u = shifti(V, 1);
-      if(wD == 6 && i==2) u = shifti(submuliu(U, V, 3), -1);
-      if(wD == 6 && i==4) u = shifti(addmuliu(U, V, 3), -1);
+  for (i = 0; i < wD; i++)
+  {
+    if (i%2 == 0)
+    {
+      if (wD == 4 && i==2) u = shifti(V, 1);
+      if (wD == 6 && i==2) u = shifti(submuliu(U, V, 3), -1);
+      if (wD == 6 && i==4) u = shifti(addmuliu(U, V, 3), -1);
       m = addii(Nplus1, u);
-    }else{
+    } else
       m = subii(Nplus1, u);
-    }
     gel(mvec, i + 1) = m;
   }
-  gerepileall(av, 1, &mvec);
   return mvec;
 }
 
@@ -1215,9 +1236,10 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   dbg_mode() timer_start(&ti);
   Dfac = Dinfo_get_Dfac(Dinfo);
   lgDfac = lg(Dfac);
-  for(i = 1; i < lgDfac; i++){
+  for (i = 1; i < lgDfac; i++)
+  {
     long p = index_to_p(uel(Dfac, i), primelist);
-    if(krosi(p, N) != 1) return 0;
+    if (krosi(p, N) != 1) return 0;
   }
   dbg_mode() timer_record(X0, "A2", &ti, 1);
 
@@ -1225,15 +1247,15 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   /* If sqrtofDmodN is NULL, then N is composite. */
   dbg_mode() timer_start(&ti);
   sqrtofDmodN = D_find_discsqrt(N, param, X0, Dinfo, sqrtlist, g);
-  if(sqrtofDmodN == NULL) pari_err_BUG("D_find_discsqrt");
-  dbg_mode() if( !equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ ) pari_err_BUG("D_find_discsqrt");
+  if (sqrtofDmodN == NULL) pari_err_BUG("D_find_discsqrt");
+  dbg_mode() if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ ) pari_err_BUG("D_find_discsqrt");
   dbg_mode() timer_record(X0, "A3", &ti, 1);
 
   /* A5: Use the square root to use cornacchia to find the solution to U^2 + |D|V^2 = 4N. */
   dbg_mode() timer_start(&ti);
   corn_succ = cornacchia2_sqrt( absi(stoi(D)), N, sqrtofDmodN, &U, &V);
   dbg_mode() timer_record(X0, "A5", &ti, 1);
-  if( !corn_succ ) {
+  if (!corn_succ) {
     dbg_mode() err_printf(ANSI_COLOR_YELLOW "c" ANSI_COLOR_RESET);
     return 0;
   }
@@ -1245,7 +1267,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   /* A6: Collect the w(D) possible cardinalities of elliptic curves over F_N whose discriminant is D. */
   wD = D_get_wD(D);
   mvec = NUV_find_mvec(N, U, V, wD);
-  for(j = 1; j < lg(mvec); j++) vectrunc_append(Dmbatch, mkvec2(Dinfo, gel(mvec, j)) );
+  for (j = 1; j < lg(mvec); j++) vectrunc_append(Dmbatch, mkvec2(Dinfo, gel(mvec, j)) );
   dbg_mode() timer_record(X0, "A6", &ti, 1);
 
   return wD;
@@ -1272,8 +1294,7 @@ static long
 lessthan_qlo(void* E, GEN q)
 {
   GEN qlo = *((GEN*)E);
-  if( cmpii(q, qlo) < 0) return 1;
-  else return 0;
+  return (cmpii(q, qlo) < 0);
 }
 
 /* E is &goal, use for zv_binsearch */
@@ -1281,8 +1302,7 @@ static long
 gained_bits(void* E, GEN q)
 {
   long goal = *((long*)E);
-  if( expi(q) <= goal ) return 1;
-  else return 0;
+  return (expi(q) <= goal);
 }
 
 /*  Input: Dmqvec
@@ -1303,12 +1323,12 @@ Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
 
   qlo = ecpp_qlo(N);
   lo_ind = zv_binsearch0(&qlo, &lessthan_qlo, qvec); lo_ind++;
-  if(lo_ind >= lg(qvec)){ avma = av; return NULL; }
+  if (lo_ind >= lg(qvec)) { avma = av; return NULL; }
 
   bitgain = 1;
   goal = expi(N)-bitgain;
   hi_ind = zv_binsearch0(&goal, &gained_bits, qvec);
-  if(hi_ind == 0){ avma = av; return NULL; }
+  if (hi_ind == 0) { avma = av; return NULL; }
 
   Dmqvec = vecslice(Dmqvec, lo_ind, hi_ind);
   gerepileall(av, 1, &Dmqvec);
@@ -1327,9 +1347,11 @@ mvec_batchfactor_qvec(GEN mvec, GEN primorial)
   GEN leaf = Z_ZV_mod_tree(primorial, mvec, ZV_producttree(mvec));
 
   /* Go through each leaf and remove small factors. */
-  for(i = 1; i < lg(mvec); i++){
+  for (i = 1; i < lg(mvec); i++)
+  {
     GEN m = gel(mvec, i);
-    while( !isint1(gel(leaf, i)) ){
+    while (!isint1(gel(leaf, i)) )
+    {
       gel(leaf, i) = gcdii( m, gel(leaf,i) );
       m = diviiexact( m, gel(leaf,i) );
     }
@@ -1360,11 +1382,12 @@ Dmvec_batchfactor_Dmqvec(GEN Dmvec, GEN primorial)
 static GEN
 tunevec(GEN N, GEN param)
 {
-  if(expi(N) <= 1500) return( gmael(param, 3, 1) );
-  else if(expi(N) <= 2500) return( gmael(param, 3, 2) );
-  else if(expi(N) <= 3500) return( gmael(param, 3, 3) );
-  else if (expi(N) <= 4500)  return( gmael(param, 3, 4) );
-  else  return( gmael(param, 3, 4) );;
+  long e = expi(N);
+  GEN T = gel(param,3);
+  if      (e <= 1500) return gel(T,1);
+  else if (e <= 2500) return gel(T,2);
+  else if (e <= 3500) return gel(T,3);
+  return gel(T,4);
 }
 static long
 tunevec_tdivbd(GEN N, GEN param)
@@ -1400,7 +1423,7 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
   dbg_mode() timer_record(X0, "B2", &ti, lg(Dmqvec)-1);
 
   /* If nothing is left after B2, return NULL */
-  if(Dmqvec == NULL) return NULL;
+  if (Dmqvec == NULL) return NULL;
 
   return Dmqvec;
 }
@@ -1471,7 +1494,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   dbg_mode() timer_start(&T);
 
   /* Unpack trustbits. */
-  if(expiN < 64) return gerepilecopy(ave, mkvec(N));
+  if (expiN < 64) return gerepilecopy(ave, mkvec(N));
 
   /* This means we're going down the tree. */
   *depth += 1;
@@ -1490,17 +1513,17 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   /* Precomputation for batch size t. */
   /* Tuning! */
   t = expiN >> tunevec_batchsize(N, param);
-  if( t < 1 ) t = 1;
+  if (t < 1) t = 1;
 
   /* Precomputation for taking square roots.
        g will be needed for Fp_sqrt_i
   */
   g = Fp_2gener(N);
-  if(g == NULL) return gen_0; /* Composite if this happens. */
+  if (g == NULL) return gen_0; /* Composite if this happens. */
 
   /* Print the start of this iteration. */
-  dbg_mode() if(!persevere) err_printf(ANSI_COLOR_BRIGHT_CYAN "\n[ %3d | %4ld bits] " ANSI_COLOR_RESET, *depth, expiN, persevere);
-  dbg_mode() if(persevere) err_printf(ANSI_COLOR_BRIGHT_CYAN "\n< %3d | %4ld bits> " ANSI_COLOR_RESET, *depth, expiN, persevere);
+  dbg_mode() if (!persevere) err_printf(ANSI_COLOR_BRIGHT_CYAN "\n[ %3d | %4ld bits] " ANSI_COLOR_RESET, *depth, expiN, persevere);
+  dbg_mode() if (persevere) err_printf(ANSI_COLOR_BRIGHT_CYAN "\n< %3d | %4ld bits> " ANSI_COLOR_RESET, *depth, expiN, persevere);
 
   /* Initialize Dmbatch
        It will be populated with candidate cardinalities on Phase I (until its length reaches at least t).
@@ -1516,8 +1539,8 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   /* i determines which discriminant we are considering. */
   i = 1;
 
-  while(!FAIL){
-
+  while (!FAIL)
+  {
     pari_timer F;
     long last_i = i, failflag;
     GEN Dmqlist;
@@ -1533,19 +1556,20 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     */
 
     failflag = 0;
-    while( i < lgdisclist ){
+    while (i < lgdisclist )
+    {
       GEN Dinfo;
-      if( !persevere && earlyabort_pcdg(param, maxpcdg, i) ) { FAIL = 1; break; }
+      if (!persevere && earlyabort_pcdg(param, maxpcdg, i)) { FAIL = 1; break; }
       Dinfo = gel(disclist, i);
       numcard += D_collectcards(N, param, X0, Dinfo, sqrtlist, g, Dmbatch, &failflag);
-      if(failflag) return gen_0;
+      if (failflag) return gen_0;
       last_i = i++;
-      if(numcard >= t) break;
+      if (numcard >= t) break;
     }
 
     /* If we have exhausted disclist and there are no cardinalities to be factored. */
-    if(FAIL && numcard <= 0) break;
-    if(i >= lgdisclist && numcard <= 0) break;
+    if (FAIL && numcard <= 0) break;
+    if (i >= lgdisclist && numcard <= 0) break;
 
     /* PHASE II:
        Find the corresponding q's for the m's found.
@@ -1557,55 +1581,56 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     Dmqlist = Dmbatch_factor_Dmqvec(N, X0, Dmbatch, param);
 
     /* If none left, move to the next discriminant. */
-    if(Dmqlist == NULL) continue;
+    if (Dmqlist == NULL) continue;
 
     lgDmqlist = lg(Dmqlist);
 
     /* If we are cheating by adding class numbers, sort by class number instead. */
-    if( Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg ){
+    if (Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg)
       Dmqlist = gen_sort(Dmqlist, NULL, &sort_Dmq_by_cnum);
-    }
 
     /* Check pseudoprimality before going down. */
-    for(j = 1; j < lgDmqlist; j++){
-        GEN NDinfomq;
-        GEN Dmq = gel(Dmqlist, j);
-        GEN Dinfo = Dmq_get_Dinfo(Dmq);
-        GEN m = Dmq_get_m(Dmq);
-        GEN q = Dmq_get_q(Dmq);
-        GEN ret;
-        long a;
-        if(expiN - expi(q) < 1){
-          dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  x" ANSI_COLOR_RESET);
-          continue;
-        }
-        dbg_mode() err_printf(ANSI_COLOR_WHITE "." ANSI_COLOR_RESET);
-        a = Dmq_isgoodq(Dmq, X0);
-        if( !a ) continue;
+    for (j = 1; j < lgDmqlist; j++)
+    {
+      GEN NDinfomq;
+      GEN Dmq = gel(Dmqlist, j);
+      GEN Dinfo = Dmq_get_Dinfo(Dmq);
+      GEN m = Dmq_get_m(Dmq);
+      GEN q = Dmq_get_q(Dmq);
+      GEN ret;
+      long a;
+      if (expiN - expi(q) < 1)
+      {
+        dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  x" ANSI_COLOR_RESET);
+        continue;
+      }
+      dbg_mode() err_printf(ANSI_COLOR_WHITE "." ANSI_COLOR_RESET);
+      a = Dmq_isgoodq(Dmq, X0);
+      if (!a) continue;
 
-        dbg_mode() err_printf(ANSI_COLOR_BRIGHT_BLUE "  %ld" ANSI_COLOR_RESET, Dmq_get_cnum(Dmq));
-        dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "\n       %5ld bits " ANSI_COLOR_RESET, expi(q)-expiN);
+      dbg_mode() err_printf(ANSI_COLOR_BRIGHT_BLUE "  %ld" ANSI_COLOR_RESET, Dmq_get_cnum(Dmq));
+      dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "\n       %5ld bits " ANSI_COLOR_RESET, expi(q)-expiN);
 
-        /* Cardinality is pseudoprime. Call the next downrun! */
-        ret = N_downrun_NDinfomq(q, param, X0, depth, persevere_next);
+      /* Cardinality is pseudoprime. Call the next downrun! */
+      ret = N_downrun_NDinfomq(q, param, X0, depth, persevere_next);
 
-        /* That downrun failed. */
-        if(ret == NULL) {
-          dbg_mode() if(!persevere) err_printf(ANSI_COLOR_CYAN "\n[ %3d | %4ld bits] " ANSI_COLOR_RESET, *depth, expiN, persevere);
-          dbg_mode() if(persevere) err_printf(ANSI_COLOR_CYAN "\n< %3d | %4ld bits> " ANSI_COLOR_RESET, *depth, expiN, persevere);
-          continue;
-        }
+      /* That downrun failed. */
+      if (ret == NULL) {
+        dbg_mode() if (!persevere) err_printf(ANSI_COLOR_CYAN "\n[ %3d | %4ld bits] " ANSI_COLOR_RESET, *depth, expiN, persevere);
+        dbg_mode() if (persevere) err_printf(ANSI_COLOR_CYAN "\n< %3d | %4ld bits> " ANSI_COLOR_RESET, *depth, expiN, persevere);
+        continue;
+      }
 
-        /* That downrun succeeded. */
-        NDinfomq = mkvec5(N, Dinfo, m, q, g);
-        return gerepilecopy(ave, mkvec2(NDinfomq, ret));
-
+      /* That downrun succeeded. */
+      NDinfomq = mkvec5(N, Dinfo, m, q, g);
+      return gerepilecopy(ave, mkvec2(NDinfomq, ret));
     }
 
     /* We have exhausted all the discriminants. */
-    if(i >= lgdisclist) FAIL = 1;
+    if (i >= lgdisclist) FAIL = 1;
 
-    if( Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg ){
+    if (Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg)
+    {
       dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  !" ANSI_COLOR_RESET);
       persevere_next = 1;
     }
@@ -1613,7 +1638,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   }
 
   /* FAILED: Out of discriminants. */
-  if(X0) umael(*X0, 3, 1)++; /* FAILS++ */
+  if (X0) umael(*X0, 3, 1)++; /* FAILS++ */
   (*depth)--;
   dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  X" ANSI_COLOR_RESET);
   return NULL;
@@ -1623,16 +1648,13 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
    Output: a vector whose components are [N, D, m, q, g]
 */
 static GEN
-ecpp_flattencert(GEN notflat, long depth){
-  long i;
-  long lgret = depth+1;
+ecpp_flattencert(GEN notflat, long depth)
+{
+  long i, lgret = depth+1;
   GEN ret = cgetg(lgret, t_VEC);
   GEN x = notflat;
-  if( typ(x) != t_VEC ) return gen_0;
-  for(i = 1; i < lgret; i++){
-    gel(ret, i) = gel(x, 1);
-    x = gel(x, 2);
-  }
+  if (typ(x) != t_VEC) return gen_0;
+  for (i = 1; i < lgret; i++) { gel(ret, i) = gel(x, 1); x = gel(x, 2); }
   return ret;
 }
 
@@ -1648,7 +1670,7 @@ ecpp_step1(GEN N, GEN param, GEN* X0)
 {
   long depth = 0;
   GEN downrun = N_downrun_NDinfomq(N, param, X0, &depth, 1);
-  if(downrun == NULL) return NULL;
+  if (downrun == NULL) return NULL;
   return ecpp_flattencert(downrun, depth);
 }
 
@@ -1666,27 +1688,29 @@ ecpp0(GEN N, GEN param, GEN* X0)
   GEN Tv, Cv;
 
   /* Check if N is pseudoprime to begin with. */
-  if(X0 != NULL && !ispseudoprime(N, 0) ) return gen_0;
+  if (X0 != NULL && !ispseudoprime(N, 0)) return gen_0;
 
   /* Check if we should even prove it. */
-  if(X0 != NULL && expi(N) < 64) return N;
+  if (X0 != NULL && expi(N) < 64) return N;
 
   /* Timers and Counters */
   Tv = mkvec4(zero_zv(6), zero_zv(3), zero_zv(3), zero_zv(2));
   Cv = mkvec4(zero_zv(6), zero_zv(3), zero_zv(3), zero_zv(2));
-  if(X0) *X0 = mkvec3(Tv, Cv, zero_zv(1));
+  if (X0) *X0 = mkvec3(Tv, Cv, zero_zv(1));
 
   step1 = ecpp_step1(N, param, X0);
-  if(step1 == NULL) return NULL;
-  if( typ(step1) != t_VEC ) return gen_0;
+  if (step1 == NULL) return NULL;
+  if (typ(step1) != t_VEC) return gen_0;
 
   answer = ecpp_step2(step1, X0);
-  if(answer == NULL) pari_err(e_BUG, "ecpp");
+  if (answer == NULL) pari_err(e_BUG, "ecpp");
 
-  for(i = 1; i < lg(Tv); i++){
+  for (i = 1; i < lg(Tv); i++)
+  {
     GEN v = gel(Tv, i);
     long lgv = lg(v);
-    for(j = 1; j < lgv; j++){
+    for (j = 1; j < lgv; j++)
+    {
       dbg_mode() pari_printf("\n   %c%ld: %16ld %16ld %16f", 'A'+i-1, j, umael3(*X0, 1, i, j), umael3(*X0, 2, i, j), (double)(umael3(*X0, 1, i, j))/(double)(umael3(*X0, 2, i, j)));
     }
   dbg_mode() pari_printf("\n");
@@ -1695,7 +1719,7 @@ ecpp0(GEN N, GEN param, GEN* X0)
   dbg_mode() pari_printf("\n");
   dbg_mode() pari_printf("\n");
 
-  if(X0) *X0 = gcopy(mkvec3(Tv, Cv, stoi(umael(*X0, 3, 1))));
+  if (X0) *X0 = gcopy(mkvec3(Tv, Cv, stoi(umael(*X0, 3, 1))));
 
   gerepileall(av, 1, &answer);
   return answer;
@@ -1706,12 +1730,12 @@ ecpp(GEN N)
 {
   long expiN, tunelen;
   GEN param, answer, garbage, tune;
-  if(typ(N) != t_INT) pari_err_TYPE("ecpp", N);
+  if (typ(N) != t_INT) pari_err_TYPE("ecpp", N);
 
   /* Check if N is pseudoprime to begin with. */
-  if( !ispseudoprime(N, 0) ) return gen_0;
+  if (!ispseudoprime(N, 0)) return gen_0;
   /* Check if we should even prove it. */
-  if(expi(N) < 64) return N;
+  if (expi(N) < 64) return N;
 
   expiN = expi(N);
   param = NULL;
@@ -1720,30 +1744,30 @@ ecpp(GEN N)
 
   /* tuning for 1500, 2500, 3500, 4500 bits */
   /* ecpp is supposed to be faster than isprime on average if N is more than 1500 bits */
-  if(expiN <= 1500) tunelen = 1;
-  else if(expiN <= 2500) tunelen = 2;
-  else if(expiN <= 3500) tunelen = 3;
-  else if(expiN <= 4500) tunelen = 4;
+  if (expiN <= 1500) tunelen = 1;
+  else if (expiN <= 2500) tunelen = 2;
+  else if (expiN <= 3500) tunelen = 3;
   else tunelen = 4;
 
   tune = cgetg(tunelen+1, t_VEC);
-  if(tunelen >= 1) gel(tune, 1) = mkvecsmall3( 500, 24, 22);
-  if(tunelen >= 2) gel(tune, 2) = mkvecsmall3(1500, 32, 23);
-  if(tunelen >= 3) gel(tune, 3) = mkvecsmall3(1500, 32, 24);
-  if(tunelen >= 4) gel(tune, 4) = mkvecsmall3(3000, 40, 24);
+  if (tunelen >= 1) gel(tune, 1) = mkvecsmall3( 500, 24, 22);
+  if (tunelen >= 2) gel(tune, 2) = mkvecsmall3(1500, 32, 23);
+  if (tunelen >= 3) gel(tune, 3) = mkvecsmall3(1500, 32, 24);
+  if (tunelen >= 4) gel(tune, 4) = mkvecsmall3(3000, 40, 24);
 
-  while(answer == NULL){
+  while (answer == NULL)
+  {
     pari_timer T;
     dbg_mode() timer_start(&T);
     param = ecpp_param_set( tune );
     dbg_mode() err_printf(ANSI_COLOR_BRIGHT_WHITE "\n%Ps" ANSI_COLOR_RESET, gel(tune, tunelen));
     dbg_mode() err_printf(ANSI_COLOR_WHITE "  %8ld" ANSI_COLOR_RESET, timer_delay(&T));
     answer = ecpp0(N, param, &garbage);
-    if(answer != NULL) break;
+    if (answer != NULL) break;
     umael(tune, tunelen, 1) *= 2;
     umael(tune, tunelen, 2) *= 2;
     umael(tune, tunelen, 3)++;
-    if(umael(tune, tunelen, 3) > 26) umael(tune, tunelen, 3) = 26;
+    if (umael(tune, tunelen, 3) > 26) umael(tune, tunelen, 3) = 26;
   }
   return answer;
 }
@@ -1758,11 +1782,13 @@ cert_out(GEN x)
   long lgx = lg(x);
   pari_str str;
   str_init(&str, 1);
-  if(typ(x) == t_INT){
+  if (typ(x) == t_INT)
+  {
     str_printf(&str, "%Ps is prime.\nIndeed, ispseudoprime(%Ps) = 1 and %Ps < 2^64.\n", x, x, x);
     return strtoGENstr(str.string);
   }
-  for(i = 1; i < lgx; i++){
+  for (i = 1; i < lgx; i++)
+  {
     GEN xi = gel(x, i);
     str_printf(&str, "\n[%ld]\n", i);
     str_printf(&str, " N = %Ps\n", cert_get_N(xi));
@@ -1803,12 +1829,14 @@ magma_out(GEN x)
   long size = lg(x);
   pari_str ret;
   str_init(&ret, 1);
-  if(typ(x) == t_INT){
+  if (typ(x) == t_INT)
+  {
     str_printf(&ret, "Operation not supported.");
     return strtoGENstr(ret.string);
   }
   str_printf(&ret, "[* ");
-  for(i = 1; i<size; i++){
+  for (i = 1; i<size; i++)
+  {
     GEN xi = gel(x, i);
     GEN E = cert_get_E(xi);
     GEN P = cert_get_P(xi);
@@ -1821,7 +1849,7 @@ magma_out(GEN x)
     str_printf(&ret, "[* %Ps, %Ps, 1 *], ", gel(P, 1), gel(P, 2));
     str_printf(&ret, "[* [* %Ps, 1 *] *]", cert_get_q(xi));
     str_printf(&ret, " *]");
-    if(i != size-1) str_printf(&ret, ", ");
+    if (i != size-1) str_printf(&ret, ", ");
   }
   str_printf(&ret, " *]");
   return strtoGENstr(ret.string);
@@ -1836,7 +1864,7 @@ static void
 primo_printval(pari_str *ret, const char* label, GEN value)
 {
   str_printf(ret, label);
-  if(signe(value) >= 0) str_printf(ret, "=0x%P0X\n", value);
+  if (signe(value) >= 0) str_printf(ret, "=0x%P0X\n", value);
   else str_printf(ret, "=-0x%P0X\n", negi(value));
 }
 
@@ -1884,15 +1912,16 @@ primo_out(GEN x)
   str_printf(&ret, "http://pari.math.u-bordeaux.fr/\n");
   str_printf(&ret, "\n");
   str_printf(&ret, "[Candidate]\n");
-  if(typ(x) == t_INT){
+  if (typ(x) == t_INT)
+  {
     str_printf(&ret, "N=0x%P0X\n", x);
     return strtoGENstr(ret.string);
-  }else{
+  } else
     str_printf(&ret, "N=0x%P0X\n", cert_get_N(gel(x, 1)));
-  }
   str_printf(&ret, "\n");
 
-  for(i = 1; i<size; i++){
+  for (i = 1; i<size; i++)
+  {
     GEN xi, N, Nover2;
     long Ais0, Bis0;
     str_printf(&ret, "[%ld]\n", i);
@@ -1903,10 +1932,10 @@ primo_out(GEN x)
     primo_printval(&ret, "W", cert_get_t(xi));
     Ais0 = isintzero(cert_get_a4(xi));
     Bis0 = isintzero(cert_get_a6(xi));
-    if( !Ais0 && !Bis0 ){ /* J != 0, 1728 */
+    if (!Ais0 && !Bis0) { /* J != 0, 1728 */
       primo_printval_center(&ret, "J", cert_get_J(xi), N, Nover2);
       primo_printval(&ret, "T", cert_get_T(xi));
-    }else if( Ais0 ){ /* J == 0 */
+    } else if (Ais0) { /* J == 0 */
       primo_printval(&ret, "A", gen_0);
       primo_printval_center(&ret, "B", cert_get_a6(xi), N, Nover2);
       primo_printval(&ret, "T", cert_get_x(xi));
@@ -1926,11 +1955,12 @@ primo_out(GEN x)
 static long
 Nq_isvalid(GEN N, GEN q)
 {
-  GEN qm1 = subii(q, gen_1);
-  GEN qm1sqr = sqri(qm1);
-  if( cmpii(qm1sqr,N) > 0 ){ /* (q-1)^2 > N */
-    /* (q-1)^4 + N^2 > 16Nq + 2N(q-1)^2 */
-    return (cmpii( addii(sqri(qm1sqr),sqri(N)), addii( shifti(mulii(N, q), 4 ), mulii(shifti(N, 1), qm1sqr) )) > 0);
+  GEN qm1sqr = sqri(subiu(q, 1));
+  if (cmpii(qm1sqr,N) > 0) /* (q-1)^2 > N */
+  { /* (q-1)^4 + N^2 > 16Nq + 2N(q-1)^2 */
+    GEN a = addii(sqri(qm1sqr), sqri(N));
+    GEN b = addii(shifti(mulii(N, q), 4 ), mulii(shifti(N, 1), qm1sqr));
+    return (cmpii(a, b) > 0);
   }
   return 0;
 }
@@ -1950,83 +1980,83 @@ ecppisvalid0(GEN cert, long trustbits)
   GEN mP, sP;
   GEN r;
 
-  if(typ(cert) == t_INT){
-    if(expi(cert) > trustbits) return 0;
-    if(cmpii(cert, shifti(gen_1, 64)) > 0) return 0;
+  if (typ(cert) == t_INT)
+  {
+    if (expi(cert) > trustbits) return 0;
+    if (cmpii(cert, shifti(gen_1, 64)) > 0) return 0;
     return ispseudoprime(cert, 0);
   }
 
-  if(typ(cert) != t_VEC) pari_err_TYPE("ecppisvalid", cert);
+  if (typ(cert) != t_VEC) pari_err_TYPE("ecppisvalid", cert);
 
-  if(lgcert <= 1) return 0;
-  if(lg(gel(cert, lgcert-1))-1 != 5) return 0;
+  if (lgcert <= 1) return 0;
+  if (lg(gel(cert, lgcert-1))-1 != 5) return 0;
   ql = cert_get_q(gel(cert, lgcert-1));
-  if(expi(ql) > trustbits) return 0;
-  if(!ispseudoprime(ql, 0)) return 0;
+  if (expi(ql) > trustbits) return 0;
+  if (!ispseudoprime(ql, 0)) return 0;
 
-  for(i = 1; i < lgcert; i++){
+  for (i = 1; i < lgcert; i++)
+  {
     GEN certi = gel(cert, i);
-    if(lg(certi)-1 != 5) return 0;
+    if (lg(certi)-1 != 5) return 0;
 
     N = cert_get_N(certi);
-    if( typ(N) != t_INT ) return 0;
+    if (typ(N) != t_INT) return 0;
     /* Check if N > 1 */
-    if( signe(N) != 1 ) return 0;
+    if (signe(N) != 1) return 0;
     /* Check if N is not divisible by 2 or 3 */
-    if( !isint1( gcdii(N, stoi(6)) ) ) return 0;
+    if (!isint1(gcdii(N, stoi(6)))) return 0;
     /* Check if N matches the q from the previous entry. */
-    if(i > 1 && !equalii(N, q)) return 0;
+    if (i > 1 && !equalii(N, q)) return 0;
 
     W = cert_get_t(certi);
-    if( typ(W) != t_INT ) return 0;
+    if (typ(W) != t_INT) return 0;
     /* Check if W^2 < 4N (Hasse interval) */
-    if( !(cmpii(sqri(W), shifti(N,2)) < 0) ) return 0;
+    if (!(cmpii(sqri(W), shifti(N,2)) < 0)) return 0;
 
     s = cert_get_s(certi);
-    if( typ(s) != t_INT ) return 0;
-    if( signe(s) < 1 ) return 0;
+    if (typ(s) != t_INT) return 0;
+    if (signe(s) < 1) return 0;
 
     m = cert_get_m(certi);
     q = dvmdii(m, s, &r);
 
     /* Check m%s == 0 */
-    if(!isintzero(r)) return 0;
+    if (!isintzero(r)) return 0;
 
     /* Check q > (N^(1/4) + 1)^2 */
-    if(Nq_isvalid(N, q));
+    if (!Nq_isvalid(N, q)) return 0;
 
     a = cert_get_a4(certi);
-    if( typ(a) != t_INT ) return 0;
+    if (typ(a) != t_INT) return 0;
 
     P = cert_get_P(certi);
-    if( typ(P) != t_VEC ) return 0;
-    if( lg(P)-1 != 2 ) return 0;
+    if (typ(P) != t_VEC) return 0;
+    if (lg(P)-1 != 2) return 0;
     P = FpE_to_FpJ(P);
 
     /* Check mP == 0 */
     mP = FpJ_mul(P, m, a, N);
-    if(!FpJ_is_inf(mP)) return 0;
+    if (!FpJ_is_inf(mP)) return 0;
 
     /* Check sP != 0 and third component is coprime to N */
     sP = FpJ_mul(P, s, a, N);
-    if(!isint1(gcdii(gel(sP, 3), N))) return 0;
-
+    if (!isint1(gcdii(gel(sP, 3), N))) return 0;
   }
-  avma = av;
-  return 1;
+  avma = av; return 1;
 }
 
 long
 ecppisvalid(GEN cert)
-{
-  return ecppisvalid0(cert, 64);
-}
+{ return ecppisvalid0(cert, 64); }
 
 GEN
 ecppexport(GEN cert, long flag)
 {
-  if(!ecppisvalid(cert)) pari_err_TYPE("ecppexport - certificate not valid", cert);
-  switch(flag){
+  if (!ecppisvalid(cert))
+    pari_err_TYPE("ecppexport - certificate not valid", cert);
+  switch(flag)
+  {
     case 1: return magma_out(cert);
     case 2: return primo_out(cert);
     default: return cert_out(cert);
