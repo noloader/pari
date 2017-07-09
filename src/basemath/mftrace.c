@@ -1607,7 +1607,10 @@ mflinear(GEN F, GEN L)
   l = lg(F);
   for (i = 1; i < l; i++)
   {
-    GEN Ni = f_gN(gel(F,i)), Ki = f_gk(gel(F,i));
+    GEN f = gel(F,i), Ni, Ki;
+    if (!isf(f)) pari_err_TYPE("mflinear", f);
+    Ni = f_gN(f);
+    Ki = f_gk(f);
     N = N? lcmN(N, Ni): Ni;
     if (!K) K = Ki; else if (!equalii(K,Ki)) K = gen_m1;
   }
