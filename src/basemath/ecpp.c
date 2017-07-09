@@ -460,7 +460,7 @@ sort_NDmq_by_D(void *data, GEN x, GEN y)
 {
   long d1 = NDinfomqg_get_longD(x);
   long d2 = NDinfomqg_get_longD(y);
-  return d2 > d1 ? 1 : -1;
+  (void)data; return d2 > d1 ? 1 : -1;
 }
 
 static int
@@ -468,7 +468,7 @@ sort_Dmq_by_q(void *data, GEN x, GEN y)
 {
   GEN q1 = gel(x, 3);
   GEN q2 = gel(y, 3);
-  return cmpii(q1, q2);
+  (void)data; return cmpii(q1, q2);
 }
 
 static int
@@ -864,7 +864,7 @@ NDinfor_find_J(GEN N, GEN Dinfo, GEN rt)
 }
 
 INLINE long
-NmqEP_check(GEN N, GEN m, GEN q, GEN E, GEN P, GEN s)
+NmqEP_check(GEN N, GEN q, GEN E, GEN P, GEN s)
 {
   GEN a = gel(E, 1);
   GEN mP, sP;
@@ -910,7 +910,7 @@ NDinfomqgJ_find_EP(GEN N, GEN Dinfo, GEN m, GEN q, GEN g, GEN J, GEN s)
   GEN A = gel(E, 1);
   GEN B = gel(E, 2);
   GEN P = random_FpJ(A, B, N);
-  if( NmqEP_check(N, m, q, E, P, s) ) return mkvec2(E, P);
+  if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
   switch( D_get_wD(D) ){
     case 2:
       gg = Fp_sqr(g, N);
@@ -918,28 +918,28 @@ NDinfomqgJ_find_EP(GEN N, GEN Dinfo, GEN m, GEN q, GEN g, GEN J, GEN s)
       B = Fp_mul(Fp_mul(B, gg, N), g, N); /* Bg^3 */
       E = mkvec2(A, B);
       P = random_FpJ(A, B, N);
-      if( NmqEP_check(N, m, q, E, P, s) ) return mkvec2(E, P);
+      if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
       else return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
     case 4:
       for(i = 1; i < 4; i++){
         A = Fp_mul(A, g, N); /* Ag */
         E = mkvec2(A, B);
         P = random_FpJ(A, B, N);
-        if( NmqEP_check(N, m, q, E, P, s) ) return mkvec2(E, P);
+        if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
       }
       return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
     case 6:
       B = Fp_mul(B, g, N); /* Bg */
       E = mkvec2(A, B);
       P = random_FpJ(A, B, N);
-      if( NmqEP_check(N, m, q, E, P, s) ) return mkvec2(E, P);
+      if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
       g = j0_find_g(N);
       for(i = 1; i < 6; i++){
         B = Fp_mul(B, g, N); /* Bg */
         if(i % 3 == 0) continue;
         E = mkvec2(A, B);
         P = random_FpJ(A, B, N);
-        if( NmqEP_check(N, m, q, E, P, s) ) return mkvec2(E, P);
+        if( NmqEP_check(N, q, E, P, s) ) return mkvec2(E, P);
       }
       return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
   }
@@ -1031,7 +1031,7 @@ ecpp_step2(GEN step1, GEN *X0)
      of the discriminant in Dinfo[i] is larger than the param maxpcdg.
 */
 INLINE long
-earlyabort_pcdg(GEN param, ulong maxpcdg, long* depth, long i)
+earlyabort_pcdg(GEN param, ulong maxpcdg, long i)
 {
   GEN x = ecpp_param_get_disclist(param);
   GEN Dinfo = gel(x, i);
@@ -1290,7 +1290,7 @@ gained_bits(void* E, GEN q)
      (N^1/4 + 1)^2 < q < N/2
 */
 static GEN
-Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec, GEN param)
+Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
 {
   pari_sp av = avma;
   GEN qlo;
@@ -1396,7 +1396,7 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
          remove cardinalities lower than (N^(1/4)+1)^2
          and cardinalities in which we didn't win enough bits. */
   dbg_mode() timer_start(&ti);
-  Dmqvec = Dmqvec_slice_Dmqvec(N, Dmqvec, param);
+  Dmqvec = Dmqvec_slice_Dmqvec(N, Dmqvec);
   dbg_mode() timer_record(X0, "B2", &ti, lg(Dmqvec)-1);
 
   /* If nothing is left after B2, return NULL */
@@ -1535,7 +1535,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     failflag = 0;
     while( i < lgdisclist ){
       GEN Dinfo;
-      if( !persevere && earlyabort_pcdg(param, maxpcdg, depth, i) ) { FAIL = 1; break; }
+      if( !persevere && earlyabort_pcdg(param, maxpcdg, i) ) { FAIL = 1; break; }
       Dinfo = gel(disclist, i);
       numcard += D_collectcards(N, param, X0, Dinfo, sqrtlist, g, Dmbatch, &failflag);
       if(failflag) return gen_0;
