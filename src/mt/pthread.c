@@ -22,6 +22,7 @@ struct mt_queue
 {
   long no;
   pari_sp avma;
+  struct pari_mainstack *mainstack;
   GEN input, output;
   GEN worker;
   long workid;
@@ -131,6 +132,7 @@ mt_queue_run(void *arg)
   pthread_cleanup_push(mt_queue_cleanup,NULL);
   LOCK(mq->pmut)
   {
+    mq->mainstack = pari_mainstack;
     mq->avma = av;
     pthread_cond_signal(mq->pcond);
   } UNLOCK(mq->pmut);
@@ -142,6 +144,7 @@ mt_queue_run(void *arg)
       while(!mq->input)
         pthread_cond_wait(&mq->cond, &mq->mut);
     } UNLOCK(&mq->mut);
+    pari_mainstack = mq->mainstack;
     avma = mq->avma;
     work = mq->input;
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
@@ -149,6 +152,7 @@ mt_queue_run(void *arg)
     pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
     LOCK(mq->pmut)
     {
+      mq->mainstack = pari_mainstack;
       mq->avma = av;
       mq->input = NULL;
       mq->output = done;
@@ -239,7 +243,19 @@ mtpthread_queue_submit(struct mt_state *junk, long workid, GEN work)
   {
     mq->output = NULL;
     mq->workid = workid;
-    mq->input = gcopy_avma(work, &mq->avma);
+    BLOCK_SIGINT_START
+    {
+      pari_sp av = avma;
+      struct pari_mainstack *st = pari_mainstack;
+      pari_mainstack = mq->mainstack;
+      avma = mq->avma;
+      mq->input = gcopy(work);
+      mq->avma = avma;
+      mq->mainstack = pari_mainstack;
+      pari_mainstack = st;
+      avma = av;
+    }
+    BLOCK_SIGINT_END
     pthread_cond_signal(&mq->cond);
   } UNLOCK(&mq->mut);
   mt->pending++;
@@ -301,6 +317,7 @@ mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
       struct mt_queue *mq = mt->mq+i;
       mq->no     = i;
       mq->avma   = 0;
+      mq->mainstack = NULL;
       mq->worker = worker;
       mq->input  = NULL;
       mq->output = NULL;

@@ -112,6 +112,7 @@ BA   81- setrand(2);polclass(-5032,27) -> wrong result
      85- bestapprPade did not handle positive valuation correctly [#1945]
 PB   86- subst(Mod(1/z, y), z, x) -> wrong answer [#1949]
      87- subst(1+x^2+O(x^3),x,y) -> 1 + y^2 + O(y^4) [#1950]
+BA   88- [pthread] thread stacks could silently overflow
 
 
   Added
