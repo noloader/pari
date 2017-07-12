@@ -1710,14 +1710,9 @@ ecpp0(GEN N, GEN param, GEN* X0)
     GEN v = gel(Tv, i);
     long lgv = lg(v);
     for (j = 1; j < lgv; j++)
-    {
-      dbg_mode() pari_printf("\n   %c%ld: %16ld %16ld %16f", 'A'+i-1, j, umael3(*X0, 1, i, j), umael3(*X0, 2, i, j), (double)(umael3(*X0, 1, i, j))/(double)(umael3(*X0, 2, i, j)));
-    }
-  dbg_mode() pari_printf("\n");
+      dbg_mode() err_printf("\n   %c%ld: %16ld %16ld %16f", 'A'+i-1, j, umael3(*X0, 1, i, j), umael3(*X0, 2, i, j), (double)(umael3(*X0, 1, i, j))/(double)(umael3(*X0, 2, i, j)));
   }
-  dbg_mode() pari_printf(ANSI_COLOR_BRIGHT_RED "\nFAILS: %16ld" ANSI_COLOR_RESET, umael(*X0, 3, 1));
-  dbg_mode() pari_printf("\n");
-  dbg_mode() pari_printf("\n");
+  dbg_mode() err_printf("\n" ANSI_COLOR_BRIGHT_RED "\nFAILS: %16ld" ANSI_COLOR_RESET "\n", umael(*X0, 3, 1));
 
   if (X0) *X0 = gcopy(mkvec3(Tv, Cv, stoi(umael(*X0, 3, 1))));
 
