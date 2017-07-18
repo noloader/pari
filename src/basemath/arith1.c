@@ -3441,10 +3441,10 @@ h = -c+C*(x+a)+a*x
 */
 
 GEN
-Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz)
+Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pi, GEN sz)
 {
   pari_sp ltop = avma;
-  long th = expi(C), n = lg(pr)-1;
+  long th = expi(mulis(C,a)), n = lg(pi)-1;
   long i, j;
   GEN sieve = zero_zv(a+2)+1;
   GEN L = cgetg(1+a+2, t_VEC);
@@ -3459,7 +3459,7 @@ Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GE
   }
   for(i=1; i<=n; i++)
   {
-    ulong li = pr[i], s = sz[i], al = a % li;
+    ulong li = pi[i], s = sz[i], al = a % li;
     ulong u, iv = Fl_invsafe(Fl_add(Ci[i],al,li),li);
     if (!iv) continue;
     u = Fl_mul(Fl_sub(ci[i],Fl_mul(Ci[i],al,li),li), iv ,li);
@@ -3492,12 +3492,12 @@ Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GE
 }
 
 static long
-Fp_log_sieve(struct Fp_log_rel *r, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz)
+Fp_log_sieve(struct Fp_log_rel *r, GEN C, GEN c, GEN Ci, GEN ci, GEN pi, GEN sz)
 {
   struct pari_mt pt;
   long i;
   GEN worker = snm_closure(is_entry("_Fp_log_sieve_worker"),
-               mkvecn(7, utoi(r->prmax), C, c, Ci, ci, pr, sz));
+               mkvecn(7, utoi(r->prmax), C, c, Ci, ci, pi, sz));
   long running, pending = 0;
   mt_queue_start(&pt, worker);
   for (i = 0; (running = (r->nbrel < r->nbmax)) || pending; i++)
@@ -3607,8 +3607,8 @@ static GEN
 Fp_log_index(GEN a, GEN b, GEN m, GEN p)
 {
   pari_sp av = avma, av2;
-  long i, nbi, nbrow, nbg;
-  GEN C, c, Ci, ci, pr, sz, l, Ao, Bo, K, d, p_1;
+  long i, j, nbi, nbr = 0, nbrow, nbg;
+  GEN C, c, Ci, ci, pi, pr, sz, l, Ao, Bo, K, d, p_1;
   pari_timer ti;
   struct Fp_log_rel r;
   ulong bnds = itou(roundr_safe(opt_param(sqrti(p),DEFAULTPREC)));
@@ -3627,21 +3627,37 @@ Fp_log_index(GEN a, GEN b, GEN m, GEN p)
   }
   C = sqrtremi(p, &c);
   av2 = avma;
-  Ci = cgetg(nbi+1,t_VECSMALL);
-  ci = cgetg(nbi+1,t_VECSMALL);
-  sz = cgetg(nbi+1,t_VECSMALL);
   for (i = 1; i <= nbi; ++i)
   {
     ulong lp = pr[i];
-    Ci[i] = umodiu(C, lp);
-    ci[i] = umodiu(c, lp);
-    sz[i] = expu(lp);
+    while (lp <= bnd)
+    {
+      nbr++;
+      lp *= pr[i];
+    }
+  }
+  pi = cgetg(nbr+1,t_VECSMALL);
+  Ci = cgetg(nbr+1,t_VECSMALL);
+  ci = cgetg(nbr+1,t_VECSMALL);
+  sz = cgetg(nbr+1,t_VECSMALL);
+  for (i = 1, j = 1; i <= nbi; ++i)
+  {
+    ulong lp = pr[i], sp = expu(2*lp-1);
+    while (lp <= bnd)
+    {
+      pi[j] = lp;
+      Ci[j] = umodiu(C, lp);
+      ci[j] = umodiu(c, lp);
+      sz[j] = sp;
+      lp *= pr[i];
+      j++;
+    }
   }
   r.nbrel = 0;
   r.nbmax = 8*nbi;
   r.rel = cgetg(r.nbmax+1,t_VEC);
   r.prmax = pr[nbi];
-  nbg = Fp_log_sieve(&r, C, c, Ci, ci, pr, sz);
+  nbg = Fp_log_sieve(&r, C, c, Ci, ci, pi, sz);
   nbrow = r.prmax + nbg;
   if (DEBUGLEVEL)
   {
