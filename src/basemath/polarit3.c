@@ -1831,10 +1831,11 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod)
   for(i=1; i <= n; i++)
   {
     ulong p = P[i];
-    GEN a = gel(A, i), b = B ? gel(B, i): NULL;
+    GEN a = gel(A,i), b = B? gel(B,i): NULL;
     H[i] = ZX_resultant_prime(a, b, dB, degA, degB, p);
   }
-  H = ZV_chinese_tree(H, P, T, mod);
+  H = ZV_chinese_tree(H, P, T, ZV_chinesetree(T,P));
+  *mod = gmael(T, lg(T)-1, 1);
   gerepileall(av, 2, &H, mod);
   return H;
 }

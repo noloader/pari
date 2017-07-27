@@ -2498,14 +2498,15 @@ ZV_producttree(GEN xa)
   return T;
 }
 
+/* return [A mod P[i], i=1..#P], T = ZV_producttree(P) */
 GEN
-Z_ZV_mod_tree(GEN P, GEN xa, GEN T)
+Z_ZV_mod_tree(GEN A, GEN P, GEN T)
 {
   long i,j,k;
-  long m = lg(T)-1, n = lg(xa)-1;
+  long m = lg(T)-1, n = lg(P)-1;
   GEN t;
   GEN Tp = cgetg(m+1, t_VEC);
-  gel(Tp, m) = mkvec(P);
+  gel(Tp, m) = mkvec(A);
   for (i=m-1; i>=1; i--)
   {
     GEN u = gel(T, i);
@@ -2524,14 +2525,14 @@ Z_ZV_mod_tree(GEN P, GEN xa, GEN T)
     GEN u = gel(T, i+1);
     GEN v = gel(Tp, i+1);
     long l = lg(u)-1;
-    if (typ(xa)==t_VECSMALL)
+    if (typ(P)==t_VECSMALL)
     {
       GEN R = cgetg(n+1, t_VECSMALL);
       for (j=1, k=1; j<=l; j++, k+=2)
       {
-        uel(R,k) = umodiu(gel(v, j), xa[k]);
+        uel(R,k) = umodiu(gel(v, j), P[k]);
         if (k < n)
-          uel(R,k+1) = umodiu(gel(v, j), xa[k+1]);
+          uel(R,k+1) = umodiu(gel(v, j), P[k+1]);
       }
       return R;
     }
@@ -2540,43 +2541,44 @@ Z_ZV_mod_tree(GEN P, GEN xa, GEN T)
       GEN R = cgetg(n+1, t_VEC);
       for (j=1, k=1; j<=l; j++, k+=2)
       {
-        gel(R,k) = modii(gel(v, j), gel(xa,k));
+        gel(R,k) = modii(gel(v, j), gel(P,k));
         if (k < n)
-          gel(R,k+1) = modii(gel(v, j), gel(xa,k+1));
+          gel(R,k+1) = modii(gel(v, j), gel(P,k+1));
       }
       return R;
     }
   }
 }
 
-static GEN
-ZV_polint_tree(GEN T, GEN R, GEN xa, GEN ya)
+/* T = ZV_producttree(P), R = ZV_chinesetree(T,P) */
+GEN
+ZV_chinese_tree(GEN A, GEN P, GEN T, GEN R)
 {
-  long m = lg(T)-1, n = lg(ya)-1;
+  long m = lg(T)-1, n = lg(A)-1;
   long i,j,k;
   GEN Tp = cgetg(m+1, t_VEC);
   GEN M = gel(T, 1);
   GEN t = cgetg(lg(M), t_VEC);
-  if (typ(xa)==t_VECSMALL)
+  if (typ(P)==t_VECSMALL)
   {
     for (j=1, k=1; k<n; j++, k+=2)
     {
       pari_sp av = avma;
-      GEN a = mului(ya[k], gel(R,k)), b = mului(ya[k+1], gel(R,k+1));
-      GEN tj = modii(addii(mului(xa[k],b), mului(xa[k+1],a)), gel(M,j));
+      GEN a = mului(A[k], gel(R,k)), b = mului(A[k+1], gel(R,k+1));
+      GEN tj = modii(addii(mului(P[k],b), mului(P[k+1],a)), gel(M,j));
       gel(t, j) = gerepileuptoint(av, tj);
     }
-    if (k==n) gel(t, j) = modii(mului(ya[k], gel(R,k)), gel(M, j));
+    if (k==n) gel(t, j) = modii(mului(A[k], gel(R,k)), gel(M, j));
   } else
   {
     for (j=1, k=1; k<n; j++, k+=2)
     {
       pari_sp av = avma;
-      GEN a = mulii(gel(ya,k), gel(R,k)), b = mulii(gel(ya,k+1), gel(R,k+1));
-      GEN tj = modii(addii(mulii(gel(xa,k),b), mulii(gel(xa,k+1),a)), gel(M,j));
+      GEN a = mulii(gel(A,k), gel(R,k)), b = mulii(gel(A,k+1), gel(R,k+1));
+      GEN tj = modii(addii(mulii(gel(P,k),b), mulii(gel(P,k+1),a)), gel(M,j));
       gel(t, j) = gerepileuptoint(av, tj);
     }
-    if (k==n) gel(t, j) = modii(mulii(gel(ya,k), gel(R,k)), gel(M, j));
+    if (k==n) gel(t, j) = modii(mulii(gel(A,k), gel(R,k)), gel(M, j));
   }
   gel(Tp, 1) = t;
   for (i=2; i<=m; i++)
@@ -2598,53 +2600,45 @@ ZV_polint_tree(GEN T, GEN R, GEN xa, GEN ya)
 }
 
 static GEN
-ZV_polint_center_tree(GEN T, GEN R, GEN xa, GEN ya, GEN m2)
+ncV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
 {
-  GEN mod = gmael(T, lg(T)-1, 1);
-  GEN a = ZV_polint_tree(T, R, xa, ya);
-  return Fp_center(a, mod, m2);
-}
-
-static GEN
-ncV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Va, GEN m2)
-{
-  long i, j, l = lg(gel(Va,1)), n = lg(xa);
-  GEN V = cgetg(l, t_COL);
-  for(i=1; i < l; i++)
+  long i, l = lg(gel(vA,1)), n = lg(P);
+  GEN mod = gmael(T, lg(T)-1, 1), V = cgetg(l, t_COL);
+  for (i=1; i < l; i++)
   {
     pari_sp av = avma;
-    GEN ya = cgetg(n, t_VECSMALL);
-    for(j=1; j < n; j++)
-      ya[j] = mael(Va,j,i);
-    gel(V,i) = gerepilecopy(av, ZV_polint_center_tree(T, R, xa, ya, m2));
+    GEN c, A = cgetg(n, t_VECSMALL);
+    long j;
+    for (j=1; j < n; j++) A[j] = mael(vA,j,i);
+    c = Fp_center(ZV_chinese_tree(A, P, T, R), mod, m2);
+    gel(V,i) = gerepileuptoint(av, c);
   }
   return V;
 }
 
 GEN
-nmV_polint_center_tree_worker(GEN Va, GEN T, GEN R, GEN xa, GEN m2)
+nmV_polint_center_tree_worker(GEN vA, GEN T, GEN R, GEN P, GEN m2)
 {
-  return ncV_polint_center_tree(T, R, xa, Va, m2);
+  return ncV_polint_center_tree(vA, P, T, R, m2);
 }
 
 static GEN
-nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma, GEN m2)
+nmV_polint_center_tree(GEN mA, GEN P, GEN T, GEN R, GEN m2)
 {
-  long i, j, l = lg(gel(Ma,1)), n = lg(xa);
+  long i, j, l = lg(gel(mA,1)), n = lg(P);
   long pending = 0, workid, cnt = 0;
   struct pari_mt pt;
   GEN worker, done, va, M;
-  GEN ya = cgetg(n, t_VEC);
-  worker = snm_closure(is_entry("_polint_worker"), mkvec4(T, R, xa, m2));
+  GEN A = cgetg(n, t_VEC);
+  worker = snm_closure(is_entry("_polint_worker"), mkvec4(T, R, P, m2));
   va = mkvec(gen_0);
   M = cgetg(l, t_MAT);
   if (DEBUGLEVEL>2) err_printf("Start parallel Chinese remainder: ");
   mt_queue_start_lim(&pt, worker, l-1);
   for (i=1; i<l || pending; i++)
   {
-    for(j=1; j < n; j++)
-      gel(ya,j) = gmael(Ma,j,i);
-    gel(va, 1) = ya;
+    for(j=1; j < n; j++) gel(A,j) = gmael(mA,j,i);
+    gel(va, 1) = A;
     mt_queue_submit(&pt, i, i<l? va: NULL);
     done = mt_queue_get(&pt, &workid, &pending);
     if (done)
@@ -2658,35 +2652,34 @@ nmV_polint_center_tree(GEN T, GEN R, GEN xa, GEN Ma, GEN m2)
   return M;
 }
 
+/* return [A mod P[i], i=1..#P] */
 GEN
-Z_ZV_mod(GEN P, GEN xa)
+Z_ZV_mod(GEN A, GEN P)
 {
   pari_sp av = avma;
-  GEN T = ZV_producttree(xa);
-  return gerepilecopy(av, Z_ZV_mod_tree(P, xa, T));
+  return gerepilecopy(av, Z_ZV_mod_tree(A, P, ZV_producttree(P)));
 }
-
+/* P a t_VECSMALL */
 GEN
-Z_nv_mod(GEN P, GEN xa)
+Z_nv_mod(GEN A, GEN P)
 {
   pari_sp av = avma;
-  GEN T = ZV_producttree(xa);
-  return gerepileuptoleaf(av, Z_ZV_mod_tree(P, xa, T));
+  return gerepileuptoleaf(av, Z_ZV_mod_tree(A, P, ZV_producttree(P)));
 }
-
+/* B a ZX, T = ZV_producttree(P) */
 GEN
-ZX_nv_mod_tree(GEN P, GEN xa, GEN T)
+ZX_nv_mod_tree(GEN B, GEN A, GEN T)
 {
-  long i, j, l = lg(P), n = lg(xa)-1;
+  long i, j, l = lg(B), n = lg(A)-1;
   GEN V = cgetg(n+1, t_VEC);
   for (j=1; j <= n; j++)
   {
     gel(V, j) = cgetg(l, t_VECSMALL);
-    mael(V, j, 1) = P[1]&VARNBITS;
+    mael(V, j, 1) = B[1]&VARNBITS;
   }
   for (i=2; i < l; i++)
   {
-    GEN v = Z_ZV_mod_tree(gel(P, i), xa, T);
+    GEN v = Z_ZV_mod_tree(gel(B, i), A, T);
     for (j=1; j <= n; j++)
       mael(V, j, i) = v[j];
   }
@@ -2732,7 +2725,7 @@ ZV_invdivexact(GEN y, GEN x)
       pari_sp av = avma;
       ulong a = Fl_inv(umodiu(diviuexact(gel(y,i),x[i]), x[i]), x[i]);
       avma = av;
-      gel(z,i) = utoi(a);
+      gel(z,i) = utoipos(a);
     }
   else
     for (i=1; i<l; i++)
@@ -2740,12 +2733,13 @@ ZV_invdivexact(GEN y, GEN x)
   return z;
 }
 
-static GEN
-ZV_chinesetree(GEN T, GEN xa)
+/* P t_VECSMALL or t_VEC of t_INT  */
+GEN
+ZV_chinesetree(GEN T, GEN P)
 {
-  GEN T2 = ZT_sqr(T), xa2 = ZV_sqr(xa);
+  GEN T2 = ZT_sqr(T), P2 = ZV_sqr(P);
   GEN mod = gmael(T,lg(T)-1,1);
-  return ZV_invdivexact(Z_ZV_mod_tree(mod, xa2, T2), xa);
+  return ZV_invdivexact(Z_ZV_mod_tree(mod, P2, T2), P);
 }
 
 static GEN
@@ -2763,21 +2757,12 @@ gc_chinese(pari_sp av, GEN T, GEN a, GEN *pt_mod)
 }
 
 GEN
-ZV_chinese_tree(GEN A, GEN P, GEN T, GEN *pt_mod)
-{
-  pari_sp av = avma;
-  GEN R = ZV_chinesetree(T, P);
-  GEN a = ZV_polint_tree(T, R, P, A);
-  return gc_chinese(av, T, a, pt_mod);
-}
-
-GEN
 ZV_chinese(GEN A, GEN P, GEN *pt_mod)
 {
   pari_sp av = avma;
   GEN T = ZV_producttree(P);
   GEN R = ZV_chinesetree(T, P);
-  GEN a = ZV_polint_tree(T, R, P, A);
+  GEN a = ZV_chinese_tree(A, P, T, R);
   return gc_chinese(av, T, a, pt_mod);
 }
 
@@ -2788,7 +2773,7 @@ ncV_chinese_center(GEN A, GEN P, GEN *pt_mod)
   GEN T = ZV_producttree(P);
   GEN R = ZV_chinesetree(T, P);
   GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
-  GEN a = ncV_polint_center_tree(T, R, P, A, m2);
+  GEN a = ncV_polint_center_tree(A, P, T, R, m2);
   return gc_chinese(av, T, a, pt_mod);
 }
 
@@ -2799,7 +2784,7 @@ nmV_chinese_center(GEN A, GEN P, GEN *pt_mod)
   GEN T = ZV_producttree(P);
   GEN R = ZV_chinesetree(T, P);
   GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
-  GEN a = nmV_polint_center_tree(T, R, P, A, m2);
+  GEN a = nmV_polint_center_tree(A, P, T, R, m2);
   return gc_chinese(av, T, a, pt_mod);
 }
 

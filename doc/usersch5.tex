@@ -6189,7 +6189,10 @@ from the modular kernel, then \kbd{*\_to\_mod}:
 
 \fun{GEN}{simplefactmod}{GEN f, GEN p} applies \kbd{FpX\_degfact}.
 
-\subsec{Chinese remainder theorem over $\Z$}
+\subsec{Slow Chinese remainder theorem over $\Z$}
+The routines in this section have quadratic time complexity with respect to
+the input size; see the routines in the next two sections for quasi-linear
+time variants.
 
 \fun{GEN}{Z_chinese}{GEN a, GEN b, GEN A, GEN B} returns the integer
 in $[0, \lcm(A,B)[$ congruent to $a$ mod $A$ and $b$ mod $B$, assuming it
@@ -6216,65 +6219,6 @@ the solution to the chinese remainder problem $x$ congruent
 to $a$ mod $A$ and $b$ mod $B$, where $C, U, d$ were set in
 \kbd{Z\_chinese\_pre}. If $d$ is \kbd{NULL}, assume the problem has a
 solution. Otherwise, return \kbd{NULL} if it has no solution.
-
-\medskip
-
-\fun{GEN}{ZV_producttree}{GEN x} where $x$ are vectors of integer (or
-\typ{VECSMALL}s) of length $n\ge 1$, return the vector of \typ{VEC}s
-$[f(x),f^2(x),\ldots,f^k(x)]$ where $f$ is the transformation
-$[a_1,a_2,\ldots,a_m] \mapsto [a_1\*a_2,a_3\*a_4,\ldots,a_{m-1}\*a_m]$ if $m$
-is even and $[a_1\*a_2,a_3\*a4,\ldots,a_{m-2}\*a_{m-1},a_m]$ if $m$ is odd,
-and $k$ is chosen so that $f^k(x)$ is of length $1$ (This is the vector
-$[a_1\*a_2\*ldots\*a_m]$).
-
-\fun{GEN}{ZV_chinese}{GEN A, GEN P, GEN *pt_mod}
-where $A$ and $P$ are vectors of integer (or \typ{VECSMALL}s) of the same
-length $n\ge 1$, the elements of $P$ being pairwise coprime, and $M$ being the
-product of the elements of $P$, returns the integer in $[0, M[$ congruent to
-$A[i]$ mod $P[i]$ for all $1\leq i\leq n$.  If \kbd{pt\_mod} is not \kbd{NULL},
-set \kbd{*pt\_mod} to $M$
-
-\fun{GEN}{ZV_chinese_tree}{GEN A, GEN P, GEN T, GEN *pt_mod}
-as \kbd{ZV\_chinese}, where $T$ is assumed to be the tree created by
-\kbd{ZV\_producttree(P)}.
-
-\fun{GEN}{ncV_chinese_center}{GEN A, GEN P, GEN *pt_mod}
-where $A$ is a vector of \kbd{VECSMALL}s (seen as vectors of unsigned integers)
-and $P$ a \typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$
-being pairwise coprime, and $M$ being the product of the elements of $P$,
-returns the \typ{COL} whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
-mod $P[i]$ for all $1\leq i\leq n$.
-If \kbd{pt\_mod} is not \kbd{NULL}, set \kbd{*pt\_mod} to $M$.
-
-\fun{GEN}{nmV_chinese_center}{GEN A, GEN P, GEN *pt_mod}
-where $A$ is a vector of \kbd{MATSMALL}s (seen as matrices of unsigned integers)
- and $P$ a \typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$
-being pairwise coprime, and $M$ being the product of the elements of $P$,
-returns the matrix whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
-mod $P[i]$ for all $1\leq i\leq n$.
-If \kbd{pt\_mod} is not \kbd{NULL}, set \kbd{*pt\_mod} to $M$.
-NB: this function uses the parallel GP interface.
-
-\fun{GEN}{Z_ZV_mod}{GEN A, GEN P}
-$P$ being a vector of integers of length $n\ge 1$, the elements of $P$ being
-pairwise coprime, return a vector $B$ of the same length such that
-$B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
-
-\fun{GEN}{Z_ZV_mod_tree}{GEN A, GEN P, GEN T}
-as \kbd{Z\_ZV\_mod} where $T$ is assumed to be the tree created by
-\kbd{ZV\_producttree(P)}.
-
-\fun{GEN}{Z_nv_mod}{GEN A, GEN P}
-$P$ being a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
-pairwise coprime, return a \typ{VECSMALL} $B$ of the same length such that
-$B[i]=A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for all $1\leq i\leq n$.
-The entries of $P$ and $B$ are treated as \kbd{ulong}s.
-
-\fun{GEN}{ZX_nv_mod_tree}{GEN A, GEN P, GEN T} $A$ being a \kbd{ZX}
-and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
-pairwise coprime, return the vector of \kbd{Flx}
-$[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
-where $T$ is assumed to be the tree created by \kbd{ZV\_producttree(P)}.
 
 \medskip
 
@@ -6313,7 +6257,6 @@ This is a streamlined version of
 \fun{GEN}{chinese1}{GEN v}, which solves a general chinese remainder problem
 (not necessarily over $\Z$, moduli not assumed coprime).
 
-
 As above, for $H$ a \kbd{ZM}: we assume that $H$ and all \kbd{Hp} have
 dimension $> 0$. The original \kbd{*H} is destroyed.
 
@@ -6334,6 +6277,87 @@ The original \kbd{*H} is destroyed.
 \fun{GEN}{ZX_init_CRT}{GEN Hp, ulong p, long v}
 
 \fun{int}{ZX_incremental_CRT}{GEN *H, GEN Hp, GEN *q, ulong p}
+
+\subsec{Fast remainders}
+
+The routines in these section are asymptotically fast (quasi-linear time in
+the input size).
+
+\fun{GEN}{Z_ZV_mod}{GEN A, GEN P} given a \typ{INT} $A$ and a vector $P$ of
+positive pairwise coprime integers of length $n\ge 1$, return a vector $B$ of
+the same length such that $B[i] = A\pmod{P[i]}$ and $0\leq B[i] < P[i]$ for
+all $1\leq i\leq n$. The vector $P$ may be a \typ{VEC} or a \typ{VECSMALL}
+(treated as \kbd{ulong}s) and $B$ has the same type as $P$.
+
+\fun{GEN}{Z_nv_mod}{GEN A, GEN P} given a \typ{INT} $A$ and a \typ{VECSMALL}
+$P$ of positive pairwise coprime integers of length $n\ge 1$, return a
+\typ{VECSMALL} $B$ of the same length such that $B[i]=A\pmod{P[i]}$ and
+$0\leq B[i] < P[i]$ for all $1\leq i\leq n$. The entries of $P$ and $B$ are
+treated as \kbd{ulong}s.
+
+The following low level functions allow precomputations:
+
+\fun{GEN}{ZV_producttree}{GEN P} where $P$ is a vector of integers (or
+\typ{VECSMALL}) of length $n\ge 1$, return the vector of \typ{VEC}s
+$[f(P),f^2(P),\ldots,f^k(P)]$ where $f$ is the transformation
+$[p_1,p_2,\ldots,p_m] \mapsto [p_1\*p_2,p_3\*p_4,\ldots,p_{m-1}\*p_m]$ if $m$
+is even and $[p_1\*p_2,p_3\*p_4,\ldots,p_{m-2}\*p_{m-1},p_m]$ if $m$ is odd,
+and $k = O(\log m)$ is minimal so that $f^k(P)$ has length $1$; in other
+words, $f^k(P) = [p_1\*p_2\*\ldots\*p_m]$.
+
+\fun{GEN}{Z_ZV_mod_tree}{GEN A, GEN P, GEN T}
+as \kbd{Z\_ZV\_mod} where $T$ is the tree \kbd{ZV\_producttree(P)}.
+
+\fun{GEN}{ZX_nv_mod_tree}{GEN A, GEN P, GEN T} $A$ being a \kbd{ZX}
+and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return the vector of \kbd{Flx} polynomials
+$[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
+where $T$ is the tree \kbd{ZV\_producttree(P)}.
+
+\subsec{Fast Chinese remainder theorem over $\Z$}
+The routines in these section are asymptotically fast (quasi-linear time in
+the input size) and should be used whenever the moduli are known from
+the start.
+
+The simplest function is
+
+\fun{GEN}{ZV_chinese}{GEN A, GEN P, GEN *pM}
+let $P$ be a vector of positive pairwise coprime integers, let $A$ be a
+vector of integers of the same length $n\ge 1$ such that $0 \leq A[i] < P[i]$
+for all $i$, and let $M$ be the product of the elements of $P$. Returns the
+integer in $[0, M[$ congruent to $A[i]$ mod $P[i]$ for all $1\leq i\leq n$.
+If \kbd{pM} is not \kbd{NULL}, set \kbd{*pM} to $M$. We also allow
+\typ{VECSMALL}s for $A$ and $P$ (seen as vectors of unsigned integers).
+
+The following two functions allow to solve many Chinese remainder problems
+simultaneously, for a given set of moduli:
+
+\fun{GEN}{ncV_chinese_center}{GEN A, GEN P, GEN *pM} where $A$ is a
+vector of \kbd{VECSMALL}s (seen as vectors of unsigned integers) and $P$ a
+\typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$ being
+pairwise coprime, and $M$ being the product of the elements of $P$, returns
+the \typ{COL} whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
+mod $P[i]$ for all $1\leq i\leq n$. If \kbd{pM} is not \kbd{NULL}, set
+\kbd{*pt\_mod} to $M$.
+
+\fun{GEN}{nmV_chinese_center}{GEN A, GEN P, GEN *pM} where $A$ is a
+vector of \kbd{MATSMALL}s (seen as matrices of unsigned integers) and $P$ a
+\typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$ being
+pairwise coprime, and $M$ being the product of the elements of $P$, returns
+the matrix whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
+mod $P[i]$ for all $1\leq i\leq n$. If \kbd{pM} is not \kbd{NULL}, set
+\kbd{*pM} to $M$. N.B.: this function uses the parallel GP interface.
+
+The other routines allow for various precomputations :
+
+\fun{GEN}{ZV_chinesetree}{GEN T, GEN P} given $P$ a vector of integers
+(or \typ{VECSMALL}) and a product tree $T$ from \tet{ZV_producttree}$(P)$
+for the same $P$, return a ``chinese remainder tree'' $R$, preconditionning
+the solution of Chinese remainder problems modulo the $P[i]$.
+
+\fun{GEN}{ZV_chinese_tree}{GEN A, GEN P, GEN T, GEN R}
+return \kbd{ZV\_chinese}$(A,P,\kbd{NULL})$, where $T$ is created by
+\kbd{ZV\_producttree}$(P)$ and $R$ by \kbd{ZV\_chinesetree}$(T,P)$.
 
 \subsec{Rational reconstruction}
 
