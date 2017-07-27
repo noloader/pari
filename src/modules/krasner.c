@@ -42,13 +42,14 @@ typedef struct {
 /* Structure containing the field data (constructed with FieldData) */
 typedef struct {
   GEN p;
-  GEN top;  /* absolute polynomial with root zq + pi (mod pr) */
-  GEN topr; /* absolute polynomial with root zq + pi (mod p) */
-  GEN eis;  /* relative polynomial with root pi (mod pr) (y=zq) */
-  GEN zq;   /* (q-1)-th root of unity (root of upl) (mod pr) (y=zq+pi) */
-  GEN pi;   /* prime element (mod p) (y=zq+pi)*/
-  GEN ipi;  /* p/pi (mod pr) (y=zq+pi) (used to divide by pi) */
-  GEN pik;  /* [1, pi, ..., pi^(e-1), pi^e / p] (mod pr). Note the last one ! */
+  GEN top;  /* absolute polynomial of a = z + pi (mod pr) */
+  GEN topr; /* top mod p */
+  GEN z;    /* root of T in terms of a (mod pr) */
+  GEN eis;  /* relative polynomial of pi in terms of z (mod pr)  */
+  GEN pi;   /* prime element in terms of a */
+  GEN ipi;  /* p/pi in terms of a (mod pr) (used to divide by pi) */
+  GEN pik;  /* [1, pi, ..., pi^(e-1), pi^e/p] in terms of a (mod pr).
+               Note the last one is different! */
   long cj;  /* number of conjugate fields */
 } FAD_t;
 
@@ -144,7 +145,7 @@ VerifyOre(GEN p, long e, long j)
 /* Given [K:Q_p] = m and disc(K/Q_p) = p^d, return all decompositions K/K^ur/Q_p
  * as [e, f, j] with
  *   K^ur/Q_p unramified of degree f,
- *   K/K^ur totally ramified of degree e, and discriminant p^(e+j-1);
+ *   K/K^ur totally ramified of degree e and discriminant p^(e+j-1);
  * thus d = f*(e+j-1) and j > 0 iff ramification is wild */
 static GEN
 possible_efj_by_d(GEN p, long m, long d)
@@ -203,13 +204,14 @@ get_topx(KRASNER_t *data, GEN eis)
   GEN p1, p2, rpl, c;
   pari_sp av;
   long j;
-  /* top poly. is the minimal polynomial of root(pol) + root(T) */
+  /* top poly. is the minimal polynomial of root(T) + root(eis) */
   if (data->f == 1) return eis;
   c = FpX_neg(pol_x(data->v),data->pr);
   rpl = FqX_translate(eis, c, data->T, data->pr);
   p1 = p2 = rpl; av = avma;
   for (j = 1; j < data->f; j++)
   {
+    /* compute conjugate polynomials using the Frobenius */
     p1 = FqX_FpXQ_eval(p1, data->frob, data->T, data->pr);
     p2 = FqX_mul(p2, p1, data->T, data->pr);
     if (gc_needed(av,2)) gerepileall(av, 2, &p1,&p2);
@@ -217,31 +219,39 @@ get_topx(KRASNER_t *data, GEN eis)
   return simplify_shallow(p2); /* ZX */
 }
 
-/* eis (ZXY): Eisenstein polynomial  over the field defined by upl.
- * topx (ZX): corresponding absolute equation.
+/* eis (ZXY): Eisenstein polynomial over the field defined by T.
+ * topx (ZX): absolute equation of root(T) + root(eis).
  * Return the struct FAD corresponding to the field it defines (GENs created
  * as clones). Assume e > 1. */
 static void
 FieldData(KRASNER_t *data, FAD_t *fdata, GEN eis, GEN topx)
 {
-  GEN p1, zq, ipi, cipi, dipi, t, Q;
+  GEN p1, p2, p3, z, ipi, cipi, dipi, t, Q;
 
   fdata->p = data->p;
   t = leafcopy(topx); setvarn(t, data->v);
   fdata->top  = t;
   fdata->topr = FpX_red(t, data->pr);
 
-  zq  = pol_x(data->v);
-
-  for(;;)
-  {
-    GEN zq2 = zq;
-    zq = Fq_pow(zq, data->q, fdata->top, data->pr);
-    if (gequal(zq, zq2)) break;
+  if (data->f == 1) z = gen_0;
+  else
+  { /* Compute a root of T in K(top) using Hensel's lift */
+    z = pol_x(data->v);
+    p1 = FpX_deriv(data->T, data->p);
+    /* First lift to a root mod p */
+    for (;;) {
+      p2 = FpX_FpXQ_eval(data->T, z, fdata->top, data->p);
+      if (gcmp0(p2)) break;
+      p3 = FpX_FpXQ_eval(p1, z, fdata->top, data->p);
+      z  = FpX_sub(z, FpXQ_div(p2, p3, fdata->top, data->p), data->p);
+    }
+    /* Then a root mod p^r */
+    z = ZpX_ZpXQ_liftroot(data->T, z, fdata->top, data->p, data->r);
   }
-  fdata->zq  = zq;
+
+  fdata->z  = z;
   fdata->eis = eis;
-  fdata->pi  = Fq_sub(pol_x(data->v), fdata->zq,
+  fdata->pi  = Fq_sub(pol_x(data->v), fdata->z,
                       FpX_red(fdata->top, data->p), data->p);
   ipi = RgXQ_inv(fdata->pi, fdata->top);
   ipi = Q_remove_denom(ipi, &dipi);
@@ -249,8 +259,9 @@ FieldData(KRASNER_t *data, FAD_t *fdata, GEN eis, GEN topx)
   cipi = Fp_inv(diviiexact(dipi, data->p), Q);
   fdata->ipi = FpX_Fp_mul(ipi, cipi, Q); /* p/pi mod p^(pr+1) */
 
-  /* Last one is in fact pi^e/p */
-  p1 = FpXQ_powers(fdata->pi, data->e, fdata->topr, data->pr);
+  /* Last one is set to pi^e/p (so we compute pi^e with one extra precision) */
+  p2 = mulii(data->pr, data->p);
+  p1 = FpXQ_powers(fdata->pi, data->e, fdata->topr, p2);
   gel(p1, data->e+1) = ZX_Z_divexact(gel(p1, data->e+1), data->p);
   fdata->pik  = p1;
 }
@@ -365,7 +376,7 @@ RootCongruents(KRASNER_t *data, FAD_t *fdata, GEN pol, GEN alpha, GEN pp, GEN pp
   long s, i;
 
   if (alpha)
-  { /* FIXME: the data used in GetSharp is not reduced */
+  {
     long l;
     pol = GetSharp(fdata, pp, ppp, pol, alpha, &l);
     if (l <= 1) return l;
@@ -389,7 +400,7 @@ RootCongruents(KRASNER_t *data, FAD_t *fdata, GEN pol, GEN alpha, GEN pp, GEN pp
 }
 
 /* pol is a ZXY defining a polynomial over the field defined by fdata
-   If flag != 0, return 1 as soon as a root is found. Precision are done with
+   If flag != 0, return 1 as soon as a root is found. Computations are done with
    a precision of pr. */
 static long
 RootCountingAlgorithm(KRASNER_t *data, FAD_t *fdata, GEN pol, long flag)
@@ -425,7 +436,7 @@ IsIsomorphic(KRASNER_t *data, FAD_t *fdata, GEN pol)
 
   for (j = 1; j <= data->f; j++)
   {
-    GEN p1 = FqX_FpXQ_eval(pol, fdata->zq, fdata->top, data->pr);
+    GEN p1 = FqX_FpXQ_eval(pol, fdata->z, fdata->top, data->pr);
     nb = RootCountingAlgorithm(data, fdata, p1, 1);
     if (nb) { avma = av; return nb; }
     if (j < data->f)
@@ -449,10 +460,11 @@ NbConjugateFields(KRASNER_t *data, FAD_t *fdata)
 
   nb = 0;
   for (j = 1; j <= data->f; j++)
-  {
-    GEN p1 = FqX_FpXQ_eval(pol, fdata->zq, fdata->top, data->pr);
+  { /* Transform to pol. in z to pol. in a */
+    GEN p1 = FqX_FpXQ_eval(pol, fdata->z, fdata->top, data->pr);
     nb += RootCountingAlgorithm(data, fdata, p1, 0);
-    if (j < data->f) /* FIXME */
+    /* Look at the roots of conjugates polynomials */
+    if (j < data->f)
       pol = FqX_FpXQ_eval(pol, data->frob, data->T, data->pr);
   }
   avma = av;
@@ -478,7 +490,7 @@ TamelyRamifiedCase(KRASNER_t *data)
     ulong pmodg = umodiu(data->p, g);
     long r = 1, ct = 1;
     GEN sv = InitSieve(g-1);
-    /* we compute the action of the Frobenius to get a minimal set of polynomials over Q_p */
+    /* let Frobenius act to get a minimal set of polynomials over Q_p */
     while (r)
     {
       long gr;
@@ -584,7 +596,7 @@ CloneFieldData(FAD_t *fdata)
 {
  fdata->top = gclone(fdata->top);
  fdata->topr= gclone(fdata->topr);
- fdata->zq  = gclone(fdata->zq);
+ fdata->z   = gclone(fdata->z);
  fdata->eis = gclone(fdata->eis);
  fdata->pi  = gclone(fdata->pi);
  fdata->ipi = gclone(fdata->ipi);
@@ -595,7 +607,7 @@ FreeFieldData(FAD_t *fdata)
 {
   gunclone(fdata->top);
   gunclone(fdata->topr);
-  gunclone(fdata->zq);
+  gunclone(fdata->z);
   gunclone(fdata->eis);
   gunclone(fdata->pi);
   gunclone(fdata->ipi);
@@ -669,17 +681,17 @@ WildlyRamifiedCase(KRASNER_t *data)
   return gerepileupto(av, rep);
 }
 
-/* return the minimal polynomial of a generator of K^ur and the expression (mod pr)
- * in terms of this generator of a root of unity nu such that nu is l-maximal
- * for all primes l dividing g = (e,q-1). */
+/* return the minimal polynomial T of a generator of K^ur and the expression (mod pr)
+ * in terms of T of a root of unity u such that u is l-maximal for all primes l
+ * dividing g = (e,q-1). */
 static void
 setUnramData(KRASNER_t *d)
 {
   if (d->f == 1)
   {
-    d->T = NULL;
+    d->T = pol_x(d->v);
     d->u = pgener_Fp(d->p);
-    d->frob = NULL;
+    d->frob = pol_x(d->v);
   }
   else
   {
