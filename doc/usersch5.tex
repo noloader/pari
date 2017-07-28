@@ -11678,6 +11678,17 @@ when $x$ is real and $y$ pure imaginary.
 \fun{GEN}{rootsof1u_cx}{ulong d, long prec} return $e(1/d)$ at
 precision \kbd{prec}.
 
+\fun{GEN}{rootsof1q_cx}{long a, long b, long prec} return $e(a/b)$ at
+precision \kbd{prec}.
+
+\fun{GEN}{rootsof1powinit}{long a, long b, long prec} precompute $b$-th
+roots of $1$ for \kbd{rootsof1pow}, i.e. to later compute $e(ac/b)$ for
+varying $c$.
+
+\fun{GEN}{rootsof1pow}{GEN T, long c} given
+$T = \kbd{rootsof1powinit}(a,b,\kbd{prec})$, return $e(ac/b)$.
+
+
 \noindent A generalization of \tet{affrr_fixlg}
 
 \fun{GEN}{affc_fixlg}{GEN x, GEN res} assume \kbd{res} was allocated using

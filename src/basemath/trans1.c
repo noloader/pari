@@ -1894,6 +1894,40 @@ rootsof1u_cx(ulong n, long prec)
   }
   return sqrtnof1(n, prec);
 }
+/* e(a/b) */
+GEN
+rootsof1q_cx(long a, long b, long prec)
+{
+  long g = cgcd(a,b);
+  GEN z;
+  if (g != 1) { a /= g; b /= g; }
+  if (b < 0) { b = -b; a = -a; }
+  z = rootsof1u_cx(b, prec);
+  if (a < 0) { z = gconj(z); a = -a; }
+  return gpowgs(z, a);
+}
+
+/* initializes powers of e(a/b) */
+GEN
+rootsof1powinit(long a, long b, long prec)
+{
+  long g = cgcd(a,b);
+  if (g != 1) { a /= g; b /= g; }
+  if (b < 0) { b = -b; a = -a; }
+  a %= b; if (a < 0) a += b;
+  return mkvec2(grootsof1(b,prec), mkvecsmall2(a,b));
+}
+/* T = rootsof1powinit(a,b); return  e(a/b)^c */
+GEN
+rootsof1pow(GEN T, long c)
+{
+  GEN vz = gel(T,1), ab = gel(T,2);
+  long a = ab[1], b = ab[2]; /* a >= 0, b > 0 */
+  c %= b; if (c < 0) c += b;
+  a = Fl_mul(a, c, b);
+  return gel(vz, a + 1);
+}
+
 /* exp(2iPi/d), assume d a t_INT */
 GEN
 rootsof1_cx(GEN d, long prec)
