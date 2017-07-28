@@ -2722,6 +2722,14 @@ character \kbd{chi}.
 expressed on \kbd{G.gen}, i.e. the ordinary discrete logarithm
 from \kbd{ideallog}.
 
+\fun{GEN}{ncharvecexpo}{GEN G, GEN nchi}
+given \kbd{nchi} $= [d,n]$ a quasi-normalized character ($d$
+may be a multiple of the character order), i.e. $\chi(g_i) = e(n[i]/d)$
+for all Conrey or SNF generators $g_i$ (as usual, we use SNF generators
+if $n$ is a \typ{VEC} and the Conrey generators otherwise).
+Return a \typ{VECSMALL} $v$ such that $v[i] = -1$ if $(i,N) > 1$ else
+$\chi(i) = e(v[i]/d)$, $1 \leq i \leq N$.
+
 \section{Central simple algebras}
 
 \subsec{Initialization}

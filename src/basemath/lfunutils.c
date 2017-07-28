@@ -381,31 +381,37 @@ static GEN
 vecan_chiZ(GEN an, long n, long prec)
 {
   forprime_t iter;
-  GEN bid = gel(an,1);
+  GEN G = gel(an,1);
   GEN nchi = gel(an,2), gord = gel(nchi,1), z;
   GEN gp = cgetipos(3), v = vec_ei(n, 1);
-  GEN N = bid_get_ideal(bid);
+  GEN N = znstar_get_N(G);
   long ord = itos_or_0(gord);
   ulong Nu = itou_or_0(N);
   long i, id, d = Nu ? minuu(Nu, n): n;
   ulong p;
 
   if (ord && n > (ord>>4))
-    z = grootsof1(ord, prec);
-  else
-    z = rootsof1_cx(gord, prec);
-
-  u_forprime_init(&iter, 2, d);
-  while ((p = u_forprime_next(&iter)))
   {
-    GEN ch;
-    ulong k;
-    if (!umodiu(N,p)) continue;
-    gp[2] = p;
-    ch = chigeneval(znconreylog(bid, gp), nchi, z, prec);
-    gel(v, p)  = ch;
-    for (k = 2*p; k <= (ulong)d; k += p)
-      gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/p));
+    GEN w = ncharvecexpo(G, nchi);
+    z = grootsof1(ord, prec);
+    for (i = 1; i <= d; i++)
+      if (w[i] >= 0) gel(v, i) = gel(z, w[i]+1);
+  }
+  else
+  {
+    z = rootsof1_cx(gord, prec);
+    u_forprime_init(&iter, 2, d);
+    while ((p = u_forprime_next(&iter)))
+    {
+      GEN ch;
+      ulong k;
+      if (!umodiu(N,p)) continue;
+      gp[2] = p;
+      ch = chigeneval(znconreylog(G, gp), nchi, z, prec);
+      gel(v, p)  = ch;
+      for (k = 2*p; k <= (ulong)d; k += p)
+        gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/p));
+    }
   }
   for (id = i = d+1; i <= n; i++,id++) /* periodic mod d */
   {

@@ -308,6 +308,43 @@ chareval(GEN G, GEN chi, GEN x, GEN z)
   return gerepileupto(av, chareval_i(nchi, L, z));
 }
 
+/* nchi = [ord,D] a quasi-normalized character (ord may be a multiple of
+ * the character order); return v such that v[n] = -1 if (n,N) > 1 else
+ * chi(n) = e(v[n]/ord), 1 <= n <= N */
+GEN
+ncharvecexpo(GEN G, GEN nchi)
+{
+  long N = itou(znstar_get_N(G)), ord = itou(gel(nchi,1)), i, j, l;
+  GEN cyc, gen, d, t, t1, t2, t3, e, u, u1, u2, u3;
+  GEN D = gel(nchi,2), v = const_vecsmall(N,-1);
+  pari_sp av = avma;
+  if (typ(D) == t_COL) {
+    cyc = znstar_get_conreycyc(G);
+    gen = znstar_get_conreygen(G);
+  } else {
+    cyc = znstar_get_cyc(G);
+    gen = znstar_get_gen(G);
+  }
+  l = lg(cyc);
+  e = u = cgetg(N+1,t_VECSMALL);
+  d = t = cgetg(N+1,t_VECSMALL);
+  *++d = 1;
+  *++e = 0; v[*d] = *e;
+  for (i = 1; i < l; i++)
+  {
+    ulong g = itou(gel(gen,i)), c = itou(gel(cyc,i)), x = itou(gel(D,i));
+    for (t1=t,u1=u,j=c-1; j; j--,t1=t2,u1=u2)
+      for (t2=d,u2=e, t3=t1,u3=u1; t3<t2; )
+      {
+        *++d = Fl_mul(*++t3, g, N);
+        *++e = Fl_add(*++u3, x, ord); v[*d] = *e;
+      }
+  }
+  avma = av; return v;
+}
+
+/*****************************************************************************/
+
 static ulong
 lcmuu(ulong a, ulong b) { return (a/ugcd(a,b)) * b; }
 static ulong
