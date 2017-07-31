@@ -1,8 +1,8 @@
 Function: matpermanent
 Section: linear_algebra
 C-Name: matpermanent
-Prototype: GD0,L,
-Help: matpermanent(x,{flag=0}): permanent of the matrix x.
+Prototype: G
+Help: matpermanent(x): permanent of the matrix x.
 Doc: permanent of the square matrix $x$ using Ryser's formula in Gray code
  order.
  \bprog

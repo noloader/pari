@@ -1,7 +1,7 @@
 Function: mfreltoabs
 Section: modular_forms
 C-Name: mfreltoabs
-Prototype: Gp
+Prototype: G
 Help: mfreltoabs(F): F being a modular form (usually, but not necessarily, an
  eigenform), return the same form where coefficients are now given modulo an
  absolute polynomial over Q, instead of a relative polynomial over Q(chi)
