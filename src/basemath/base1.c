@@ -1498,7 +1498,7 @@ cmpii_polred(GEN a, GEN b)
   sa = signe(a);
   sb = signe(b);
   if (sa == sb) return 0;
-  return sa == 1? 1: -1;
+  return sa == 1? -1: 1;
 }
 static int
 ZX_cmp(GEN x, GEN y)
