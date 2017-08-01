@@ -50,6 +50,31 @@ void
 checkalg(GEN al)
 { if (!checkalg_i(al)) pari_err_TYPE("checkalg [please apply alginit()]",al); }
 
+static int
+checklat_i(GEN al, GEN lat)
+{
+  long N,i,j;
+  GEN m,t,c;
+  if (typ(lat)!=t_VEC || lg(lat) != 3) return 0;
+  t = gel(lat,2);
+  if (typ(t) != t_INT && typ(t) != t_FRAC) return 0;
+  if (gsigne(t)<=0) return 0;
+  m = gel(lat,1);
+  if (typ(m) != t_MAT) return 0;
+  N = algabsdim(al);
+  if (lg(m)-1 != N || lg(gel(m,1))-1 != N) return 0;
+  for (i=1; i<=N; i++)
+    for (j=1; j<=N; j++) {
+      c = gcoeff(m,i,j);
+      if (typ(c) != t_INT) return 0;
+      if (j<i && signe(gcoeff(m,i,j))) return 0;
+    }
+  return 1;
+}
+void checklat(GEN al, GEN lat)
+{ if(!checklat_i(al,lat)) pari_err_TYPE("checklat [please apply alglathnf()]", lat); }
+
+
 /**  ACCESSORS  **/
 long
 alg_type(GEN al)
@@ -4614,8 +4639,19 @@ alg_maximal(GEN al)
 /*
  Convention: lattice = [I,t] representing t*I, where
  - I integral hnf over the integral basis of the algebra, and
- - t either an integer or rational.
+ - t>0 either an integer or a rational number.
 */
+
+static GEN
+primlat(GEN lat)
+{
+  GEN m, t, c;
+  m = alglat_get_primbasis(lat);
+  t = alglat_get_scalar(lat);
+  m = Q_primitive_part(m,&c);
+  if (c) return mkvec2(m,gmul(t,c));
+  return lat;
+}
 
 GEN
 alglathnf(GEN al, GEN m, GEN d)
@@ -4631,7 +4667,7 @@ alglathnf(GEN al, GEN m, GEN d)
   if (typ(d) != t_FRAC && typ(d) != t_INT) pari_err_TYPE("alglathnf",d);
   if (lg(m)-1 < N || lg(gel(m,1))-1 != N) pari_err_DIM("alglathnf");
   for (i=1; i<=N; i++)
-    for (j=1; j<=N; j++)
+    for (j=1; j<lg(m); j++)
       if (typ(gcoeff(m,i,j)) != t_FRAC && typ(gcoeff(m,i,j)) != t_INT)
         pari_err_TYPE("alglathnf", gcoeff(m,i,j));
   m2 = Q_primitive_part(m,&c);
@@ -4641,6 +4677,92 @@ alglathnf(GEN al, GEN m, GEN d)
   if (!signe(d)) pari_err_INV("alglathnf [m does not have full rank]", m2);
   m2 = ZM_hnfmodid(m2,d);
   return gerepilecopy(av, mkvec2(m2,c));
+}
+
+static GEN
+prepare_multipliers(GEN *a, GEN *b)
+{
+  GEN na, nb, da, db, d;
+  na = numer(*a);
+  da = denom(*a);
+  nb = numer(*b);
+  db = denom(*b);
+  na = mulii(na,db);
+  nb = mulii(nb,da);
+  d = gcdii(na,nb);
+  *a = diviiexact(na,d);
+  *b = diviiexact(nb,d);
+  return gdiv(d, mulii(da,db));
+}
+
+static GEN
+prepare_lat(GEN m1, GEN t1, GEN m2, GEN t2)
+{
+  GEN d;
+  d = prepare_multipliers(&t1, &t2);
+  m1 = ZM_Z_mul(m1,t1);
+  m2 = ZM_Z_mul(m2,t2);
+  return mkvec3(m1,m2,d);
+}
+
+static GEN
+alglataddinter(GEN al, GEN lat1, GEN lat2, GEN *sum, GEN *inter)
+{
+  GEN d, m1, m2, t1, t2, M, U, H, prep;
+  checkalg(al);
+  checklat(al,lat1);
+  checklat(al,lat2);
+
+  m1 = alglat_get_primbasis(lat1);
+  t1 = alglat_get_scalar(lat1);
+  m2 = alglat_get_primbasis(lat2);
+  t2 = alglat_get_scalar(lat2);
+  prep = prepare_lat(m1, t1, m2, t2);
+  m1 = gel(prep,1);
+  m2 = gel(prep,2);
+  d = gel(prep,3);
+  M = matconcat(mkvec2(m1,m2));
+  if (!inter) U = NULL;
+  H = ZM_hnfall(M,&U,1);
+  if (sum) *sum = H;
+  if (inter)
+  {
+    U = vecslice(U,1,lg(M)-lg(H));
+    *inter = ZM_hnf(ZM_mul(m1,U));
+  }
+  return d;
+}
+
+GEN
+alglatinter(GEN al, GEN lat1, GEN lat2, GEN* ptsum)
+{
+  pari_sp av = avma;
+  GEN inter, d;
+  d = alglataddinter(al, lat1, lat2, ptsum, &inter);
+  inter = primlat(mkvec2(inter, d));
+  if (ptsum)
+  {
+    *ptsum = primlat(mkvec2(*ptsum,d));
+    gerepileall(av, 2, &inter, ptsum);
+  }
+  else inter = gerepilecopy(av, inter);
+  return inter;
+}
+
+GEN
+alglatadd(GEN al, GEN lat1, GEN lat2, GEN* ptinter)
+{
+  pari_sp av = avma;
+  GEN sum, d;
+  d = alglataddinter(al, lat1, lat2, &sum, ptinter);
+  sum = primlat(mkvec2(sum, d));
+  if (ptinter)
+  {
+    *ptinter = primlat(mkvec2(*ptinter,d));
+    gerepileall(av, 2, &sum, ptinter);
+  }
+  else sum = gerepilecopy(av, sum);
+  return sum;
 }
 
 /* If m is injective, computes a Z-basis of the submodule of elements whose
