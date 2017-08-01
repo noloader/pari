@@ -114,7 +114,6 @@ PB   86- subst(Mod(1/z, y), z, x) -> wrong answer [#1949]
      87- subst(1+x^2+O(x^3),x,y) -> 1 + y^2 + O(y^4) [#1950]
 BA   88- [pthread] thread stacks could silently overflow
 
-
   Added
       1- [libari] ZM_isidentity
       2- [libpari] rename buchnarrow -> bnfnarrow
@@ -312,6 +311,7 @@ BA   36- Fl_addmul_pre: change arguments order to follow Fp_addmul convention
 BA   39- ellisomat(E,{fl}) is now ellisomat(E,{p},{fl}) (p degree of isogenies)
      40- the definition used in polred / polredbest / polredabs to decide
          what is the "best" polynomial to return
+     41- removed resultant_all, use RgX_resultant_all
 
   Removed
       1- file 'MACHINES' (no longer maintained)

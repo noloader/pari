@@ -2082,8 +2082,6 @@ F2v_to_F2x(GEN x, long sv) {
 
 INLINE long
 sturm(GEN x) { return sturmpart(x, NULL, NULL); }
-INLINE GEN
-resultant(GEN x, GEN y) { return resultant_all(x,y,NULL); }
 
 INLINE long
 gval(GEN x, long v) {

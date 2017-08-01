@@ -49,7 +49,8 @@ This file lists the incompatible changes between Version 2.x and older versions
   - rename vecbinome -> vecbinomial
   - rename padic_lindep -> lindep_padic, Xadic_lindep -> lindep_Xadic
   - keri and ZM_ker_ratlift replaced by ZM_ker
- - Fl_addmul_pre: change arguments order to follow Fp_addmul convention
+  - Fl_addmul_pre: change arguments order to follow Fp_addmul convention
+  - removed resultant_all, use RgX_resultant_all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.8 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

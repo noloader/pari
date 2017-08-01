@@ -2603,12 +2603,11 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
  * are in Q[X], and Ducos/Lazard optimization of the subresultant algorithm
  * in the "generic" case. */
 GEN
-resultant_all(GEN P, GEN Q, GEN *sol)
+resultant(GEN P, GEN Q)
 {
   long TP, TQ;
   GEN s;
 
-  if (sol) *sol = gen_0;
   if ((s = init_resultant(P,Q))) return s;
   if ((TP = RgX_simpletype(P)) == t_REAL || (TQ = RgX_simpletype(Q)) == t_REAL)
     return resultant2(P,Q); /* inexact */
@@ -2617,7 +2616,7 @@ resultant_all(GEN P, GEN Q, GEN *sol)
     if (TP == t_INT && TQ == t_INT) return ZX_resultant(P,Q);
     return QX_resultant(P,Q);
   }
-  return RgX_resultant_all(P, Q, sol);
+  return RgX_resultant_all(P, Q, NULL);
 }
 
 /*******************************************************************/
@@ -2719,7 +2718,7 @@ polresultant0(GEN x, GEN y, long v, long flag)
   switch(flag)
   {
     case 2:
-    case 0: x=resultant_all(x,y,NULL); break;
+    case 0: x=resultant(x,y); break;
     case 1: x=resultant2(x,y); break;
     default: pari_err_FLAG("polresultant");
   }
@@ -2784,7 +2783,7 @@ RgXQ_charpoly(GEN x, GEN T, long v)
   gel(x,2) = gadd(gel(x,2), pol_x(v));
   setvarn(x, v0);
   T = leafcopy(T); setvarn(T, v0);
-  ch = resultant_all(T, x, NULL);
+  ch = resultant(T, x);
   (void)delete_var();
   /* test for silly input: x mod (deg 0 polynomial) */
   if (typ(ch) != t_POL)

@@ -1401,7 +1401,7 @@ FlxX_resultant(GEN u, GEN v, ulong p, long sx)
     if (dr==3) break;
     if (gc_needed(av2,1))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"resultant_all, dr = %ld",dr);
+      if(DEBUGMEM>1) pari_warn(warnmem,"FlxX_resultant, dr = %ld",dr);
       gerepileall(av2,4, &u, &v, &g, &h);
     }
   }
@@ -1569,7 +1569,7 @@ INIT:
   { /* sub-resultant faster for small degrees */
     if (LERS)
     { /* implies checksqfree */
-      H = resultant_all(A,B,&q);
+      H = RgX_resultant_all(A,B,&q);
       if (typ(q) != t_POL || degpol(q)!=1) goto INIT;
       H0 = gel(q,2);
       if (typ(H0) == t_POL) setvarn(H0,vX); else H0 = scalarpol(H0,vX);

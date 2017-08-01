@@ -9014,9 +9014,7 @@ with respect to its main variable.
 \fun{GEN}{RgX_resultant_all}{GEN x, GEN y, GEN *sol} returns
 \kbd{resultant(x,y)}. If \kbd{sol} is not \kbd{NULL}, sets it to the last
 non-constant remainder in the polynomial remainder sequence if it exists and to
-\kbd{gen\_0} otherwise (e.g. one polynomial has degree 0). Compared to
-\kbd{resultant\_all}, this function always uses the generic subresultant
-algorithm, hence always computes \kbd{sol}.
+\kbd{gen\_0} otherwise (e.g. one polynomial has degree 0).
 
 \subsubsec{Other operations}
 
@@ -11273,20 +11271,14 @@ as well as primes $p$ arising from \typ{PADIC}s or \typ{FFELT}s. The function
 raises an exception if incompatible primes arise from \typ{FFELT} and
 \typ{PADIC} components. Shallow function.
 
-\fun{GEN}{resultant}{GEN x,GEN y} resultant of \kbd{x} and \kbd{y}, with respect
-to the main variable of highest priority. Uses either
-the subresultant algorithm (generic case), a modular algorithm (inputs in
+\fun{GEN}{resultant}{GEN x,GEN y} resultant of \kbd{x} and \kbd{y}, with
+respect to the main variable of highest priority. Uses either the
+subresultant algorithm (generic case), a modular algorithm (inputs in
 $\Q[X]$) or Sylvester's matrix (inexact inputs).
 
 \fun{GEN}{resultant2}{GEN x, GEN y} resultant of \kbd{x} and \kbd{y}, with
 respect to the main variable of highest priority. Computes the determinant
 of Sylvester's matrix.
-
-\fun{GEN}{resultant_all}{GEN u, GEN v, GEN *sol} returns
-\kbd{resultant(x,y)}. If \kbd{sol} is not \kbd{NULL}, sets it to the last
-non-constant remainder in the polynomial remainder sequence if such a sequence
-was computed, and to \kbd{gen\_0} otherwise (e.g. polynomials of degree 0,
-$u,v$ in $\Q[X]$).
 
 \fun{GEN}{cleanroots}{GEN x, long prec} returns the complex roots of
 the complex polynomial $x$ (with coefficients \typ{INT}, \typ{FRAC},
