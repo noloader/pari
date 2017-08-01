@@ -28,7 +28,7 @@ iferrpari(GEN a, GEN b, GEN c)
     if (c)
     {
       push_lex(E,c);
-      res = closure_evalgen(c);
+      res = closure_evalnobrk(c);
       pop_lex(1);
       if (gequal0(res))
         pari_err(0, E);
