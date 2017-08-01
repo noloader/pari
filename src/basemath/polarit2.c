@@ -2597,8 +2597,7 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
   if (sol) { *sol = P; gerepileall(av, 2, &s, sol); return s; }
   return gerepilecopy(av, s);
 }
-/* Return resultant(P,Q). If sol != NULL: set *sol to the last non-constant
- * polynomial in the prs IF the sequence was computed, and gen_0 otherwise.
+/* Return resultant(P,Q).
  * Uses Sylvester's matrix if P or Q inexact, a modular algorithm if they
  * are in Q[X], and Ducos/Lazard optimization of the subresultant algorithm
  * in the "generic" case. */
@@ -2606,7 +2605,7 @@ GEN
 resultant(GEN P, GEN Q)
 {
   long TP, TQ;
-  GEN s;
+  GEN s, p = NULL;
 
   if ((s = init_resultant(P,Q))) return s;
   if ((TP = RgX_simpletype(P)) == t_REAL || (TQ = RgX_simpletype(Q)) == t_REAL)
@@ -2615,6 +2614,12 @@ resultant(GEN P, GEN Q)
   {
     if (TP == t_INT && TQ == t_INT) return ZX_resultant(P,Q);
     return QX_resultant(P,Q);
+  }
+  if (RgX_is_FpX(P, &p) && RgX_is_FpX(Q, &p) && p)
+  {
+    pari_sp av = avma;
+    GEN r = FpX_resultant(RgX_to_FpX(P, p), RgX_to_FpX(Q, p), p);
+    return gerepileupto(av, Fp_to_mod(r, p));
   }
   return RgX_resultant_all(P, Q, NULL);
 }
