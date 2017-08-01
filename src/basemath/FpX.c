@@ -934,7 +934,7 @@ FpX_resultant(GEN a, GEN b, GEN p)
     lb = gel(b,db+2);
     c = FpX_rem(a,b, p);
     a = b; b = c; dc = degpol(c);
-    if (dc < 0) { avma = av; return NULL; }
+    if (dc < 0) { avma = av; return gen_0; }
 
     if (both_odd(da,db)) res = subii(p, res);
     if (!equali1(lb)) res = Fp_mul(res, Fp_powu(lb, da - dc, p), p);
@@ -957,7 +957,7 @@ FpX_disc(GEN P, GEN p)
   pari_sp av = avma;
   GEN L, dP = FpX_deriv(P,p), D = FpX_resultant(P, dP, p);
   long dd;
-  if (!D || !signe(D)) return gen_0;
+  if (!signe(D)) return gen_0;
   dd = degpol(P) - 2 - degpol(dP); /* >= -1; > -1 iff p | deg(P) */
   L = leading_coeff(P);
   if (dd && !equali1(L))
