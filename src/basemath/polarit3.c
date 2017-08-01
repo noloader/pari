@@ -1841,7 +1841,7 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod)
     GEN a = gel(A,i), b = B? gel(B,i): NULL;
     H[i] = ZX_resultant_prime(a, b, dB, degA, degB, p);
   }
-  H = ZV_chinese_tree(H, P, T, ZV_chinesetree(T,P));
+  H = ZV_chinese_tree(H, P, T, ZV_chinesetree(P,T));
   *mod = gmael(T, lg(T)-1, 1);
   gerepileall(av, 2, &H, mod);
   return H;
@@ -2121,7 +2121,7 @@ ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, long degA, long degB, GEN P, GEN *m
   GEN worker = strtoclosure("_ZX_ZXY_resultant_worker", 1, mkvecsmall4(degA, degB, dres, sX));
   struct pari_mt pt;
   T = ZV_producttree(P);
-  R = ZV_chinesetree(T, P);
+  R = ZV_chinesetree(P, T);
   A = ZX_nv_mod_tree(A, P, T);
   B = ZXX_nv_mod_tree(B, P, T, vY);
   H = cgetg(n+1, t_VEC);

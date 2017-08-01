@@ -2550,7 +2550,7 @@ Z_ZV_mod_tree(GEN A, GEN P, GEN T)
   }
 }
 
-/* T = ZV_producttree(P), R = ZV_chinesetree(T,P) */
+/* T = ZV_producttree(P), R = ZV_chinesetree(P,T) */
 GEN
 ZV_chinese_tree(GEN A, GEN P, GEN T, GEN R)
 {
@@ -2778,7 +2778,7 @@ ZV_invdivexact(GEN y, GEN x)
 
 /* P t_VECSMALL or t_VEC of t_INT  */
 GEN
-ZV_chinesetree(GEN T, GEN P)
+ZV_chinesetree(GEN P, GEN T)
 {
   GEN T2 = ZT_sqr(T), P2 = ZV_sqr(P);
   GEN mod = gmael(T,lg(T)-1,1);
@@ -2804,7 +2804,7 @@ ZV_chinese(GEN A, GEN P, GEN *pt_mod)
 {
   pari_sp av = avma;
   GEN T = ZV_producttree(P);
-  GEN R = ZV_chinesetree(T, P);
+  GEN R = ZV_chinesetree(P, T);
   GEN a = ZV_chinese_tree(A, P, T, R);
   return gc_chinese(av, T, a, pt_mod);
 }
@@ -2823,7 +2823,7 @@ nxV_chinese_center(GEN A, GEN P, GEN *pt_mod)
 {
   pari_sp av = avma;
   GEN T = ZV_producttree(P);
-  GEN R = ZV_chinesetree(T, P);
+  GEN R = ZV_chinesetree(P, T);
   GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
   GEN a = nxV_polint_center_tree(A, P, T, R, m2);
   return gc_chinese(av, T, a, pt_mod);
@@ -2834,7 +2834,7 @@ ncV_chinese_center(GEN A, GEN P, GEN *pt_mod)
 {
   pari_sp av = avma;
   GEN T = ZV_producttree(P);
-  GEN R = ZV_chinesetree(T, P);
+  GEN R = ZV_chinesetree(P, T);
   GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
   GEN a = ncV_polint_center_tree(A, P, T, R, m2);
   return gc_chinese(av, T, a, pt_mod);
@@ -2845,7 +2845,7 @@ nmV_chinese_center(GEN A, GEN P, GEN *pt_mod)
 {
   pari_sp av = avma;
   GEN T = ZV_producttree(P);
-  GEN R = ZV_chinesetree(T, P);
+  GEN R = ZV_chinesetree(P, T);
   GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
   GEN a = nmV_polint_center_tree(A, P, T, R, m2);
   return gc_chinese(av, T, a, pt_mod);

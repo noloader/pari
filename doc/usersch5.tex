@@ -6366,18 +6366,18 @@ mod $P[i]$ for all $1\leq i\leq n$. If \kbd{pM} is not \kbd{NULL}, set
 
 The other routines allow for various precomputations :
 
-\fun{GEN}{ZV_chinesetree}{GEN T, GEN P} given $P$ a vector of integers
+\fun{GEN}{ZV_chinesetree}{GEN P, GEN T} given $P$ a vector of integers
 (or \typ{VECSMALL}) and a product tree $T$ from \tet{ZV_producttree}$(P)$
 for the same $P$, return a ``chinese remainder tree'' $R$, preconditionning
 the solution of Chinese remainder problems modulo the $P[i]$.
 
 \fun{GEN}{ZV_chinese_tree}{GEN A, GEN P, GEN T, GEN R}
 return \kbd{ZV\_chinese}$(A,P,\kbd{NULL})$, where $T$ is created by
-\kbd{ZV\_producttree}$(P)$ and $R$ by \kbd{ZV\_chinesetree}$(T,P)$.
+\kbd{ZV\_producttree}$(P)$ and $R$ by \kbd{ZV\_chinesetree}$(P,T)$.
 
 \fun{GEN}{nxV_chinese_center_tree}{GEN A, GEN P, GEN T, GEN R}
 as \kbd{nxV\_chinese\_center} where $T$ is assumed to be the tree created by
-\kbd{ZV\_producttree(P)} and $R$ by \kbd{ZV\_chinesetree}$(T,P)$.
+\kbd{ZV\_producttree(P)} and $R$ by \kbd{ZV\_chinesetree}$(P,T)$.
 
 \subsec{Rational reconstruction}
 
