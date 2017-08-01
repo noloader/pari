@@ -242,8 +242,8 @@ RgXY_factor_squarefree(GEN f)
   GEN Lfac, Lmod;
   GEN F, BLOC;
   long vy = gvar2(f);
-  long i, n = RgXY_degreex(f);
-  ulong c = itou_or_0(residual_characteristic(f));
+  long n = RgXY_degreex(f);
+  ulong i, c = itou_or_0(residual_characteristic(f));
   long val = RgX_valrem(f, &f);
   while(1)
   {
@@ -276,7 +276,7 @@ FE_matconcat(GEN F, GEN E, long l)
   setlg(F,l); F = shallowconcat1(F); return mkmat2(F,E);
 }
 
-GEN
+static GEN
 RgXY_factor(GEN f)
 {
   pari_sp av = avma;
