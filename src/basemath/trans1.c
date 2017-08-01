@@ -2160,9 +2160,9 @@ gexpm1(GEN x, long prec)
 static GEN
 modlog2(GEN x, long *sh)
 {
-  double d = rtodbl(x);
-  long q = (long) ((fabs(d) + (LOG2/2))/LOG2);
-  if (d > LOG2 * LONG_MAX)
+  double d = rtodbl(x), da = fabs(d);
+  long q = (long) ((da + (LOG2/2))/LOG2);
+  if (da > LOG2 * LONG_MAX)
     pari_err_OVERFLOW("expo()"); /* avoid overflow in  q */
   if (d < 0) q = -q;
   *sh = q;

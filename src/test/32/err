@@ -138,6 +138,12 @@
   ***   non-existent component: index > 1
   ***   variable name expected: subst(x,1,0)
   ***                                   ^----
+  ***   at top-level: exp(1e40)
+  ***                 ^---------
+  *** exp: overflow in expo().
+  ***   at top-level: exp(-1e40)
+  ***                 ^----------
+  *** exp: overflow in expo().
   ***   at top-level: exp(1/x)
   ***                 ^--------
   *** exp: domain error in exp: valuation < 0
@@ -610,4 +616,4 @@ INFINITY
   ***   at top-level: Mod(0,n)^(-1)
   ***                         ^-----
   *** _^_: impossible inverse in Fp_inv: (...).
-Total time spent: 15
+Total time spent: 4
