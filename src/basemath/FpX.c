@@ -920,6 +920,15 @@ FpX_resultant(GEN a, GEN b, GEN p)
   GEN c,lb, res = gen_1;
 
   if (!signe(a) || !signe(b)) return gen_0;
+  if (lgefint(p) == 3)
+  {
+    pari_sp av = avma;
+    ulong pp = to_Flx(&a, &b, p);
+    long r = Flx_resultant(a, b, pp);
+    avma = av;
+    return utoi(r);
+  }
+
   da = degpol(a);
   db = degpol(b);
   if (db > da)
