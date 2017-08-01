@@ -273,18 +273,16 @@ islocalcycloQ(GEN L, GEN ell)
 }
 #endif
 
-/* true nf */
+/* true nf, pr a prid */
 static long
 nfislocalpower_i(GEN nf, GEN pr, GEN a, GEN n)
 {
   long v, e, t;
-  GEN p, G;
+  GEN p, G, L;
   a = nf_to_scalar_or_basis(nf,a);
-  checkprid(pr);
   if (!signe(n)) return isint1(a);
-  v = nfvalrem(nf, a, pr, &a);
+  v = nfvalrem(nf, a, pr, &a); if (!dvdsi(v, n)) return 0;
   p = pr_get_p(pr);
-  if (!dvdsi(v, n)) return 0;
   v = Z_pvalrem(n, p, &n);
   if (!equali1(n))
   {
@@ -299,7 +297,8 @@ nfislocalpower_i(GEN nf, GEN pr, GEN a, GEN n)
   else /* straight Hensel */
     t = 2 * e * v + 1;
   G = Idealstarprk(nf, pr, t, nf_INIT);
-  return (ZV_pval(ideallog(nf, a, G), p) >= v);
+  L = ideallog(nf, a, G);
+  return (ZV_equal0(L) || ZV_pval(L, p) >= v);
 }
 long
 nfislocalpower(GEN nf, GEN pr, GEN a, GEN n)
@@ -308,6 +307,7 @@ nfislocalpower(GEN nf, GEN pr, GEN a, GEN n)
   long r;
   if (typ(n) != t_INT) pari_err_TYPE("nfislocalpower",n);
   nf = checknf(nf);
+  checkprid(pr);
   r = nfislocalpower_i(nf, pr, a, n);
   avma = av; return r;
 }
