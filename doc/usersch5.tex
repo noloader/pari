@@ -9413,9 +9413,9 @@ T, ulong p} idem for small $p$.
 \fun{const struct bb_group *}{get_F2xqE_group}{void **pE, GEN a2, GEN a6, GEN T}
 idem for $p=2$.
 
-\section{Black box finite fields}
+\section{Black box fields}
 
-A black box finite field is defined by a \tet{bb_field} struct, describing methods
+A black box field is defined by a \tet{bb_field} struct, describing methods
 available to handle field elements:
 \bprog
   struct bb_field
@@ -9430,6 +9430,9 @@ available to handle field elements:
   };
 @eprog\noindent In contrast of black box group, elements can have
 non canonical forms, and only \kbd{red} is required to return a canonical form.
+For instance a black box implementation of finite fields, all methods
+except \kbd{red} may return arbitrary representatives in $\Z[X]$ of the
+correct congruence class modulo $(p,T(X))$.
 
 \kbd{red(E,x)} returns the canonical form of $x$.
 
@@ -9441,13 +9444,14 @@ non canonical forms, and only \kbd{red} is required to return a canonical form.
 
 \kbd{inv(E,x)} returns the inverse of $x$.
 
-\kbd{equal0(x)} $x$ being in canonical form, returns one if $x=0$ and zero otherwise.
+\kbd{equal0(x)} $x$ being in canonical form, returns one if $x=0$ and zero
+otherwise.
 
 \kbd{s(n)} $n$ being a small signed integer, returns $n$ times the unit element.
 
-\noindent A finite field is thus described by a \kbd{struct bb\_field} as
-above and auxiliary data typecast to \kbd{void*}. The following functions
-operate on black box fields:
+\noindent A field is thus described by a \kbd{struct bb\_field} as above and
+auxiliary data typecast to \kbd{void*}. The following functions operate on
+black box fields:
 
 \fun{GEN}{gen_Gauss}{GEN a, GEN b, void *E, const struct bb_field *ff}
 
