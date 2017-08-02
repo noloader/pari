@@ -1369,6 +1369,7 @@ GEN     bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN     bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl);
 void    checkalg(GEN x);
 void    checkhasse(GEN nf, GEN hi, GEN hf, long n);
+void    checklat(GEN al, GEN lat);
 long    cyclicrelfrob(GEN rnf, GEN auts, GEN pr);
 GEN     galoischardet(GEN gal, GEN ch, long o);
 GEN     galoischarpoly(GEN gal, GEN ch, long o);

@@ -4823,10 +4823,8 @@ algmakeintegral(GEN mt0, int maps)
 TODO :
 
 lattice :
-inter
-add
 mul
-(A:B)
+(A:B) (transporter)
 index (ideal from base field)
 subset
 mul by an ideal from base field
