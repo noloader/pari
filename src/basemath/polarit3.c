@@ -2115,9 +2115,9 @@ ZX_ZXY_resultant_worker(GEN a, GEN b, ulong p, GEN v)
 }
 
 static GEN
-ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, long degA, long degB, GEN P, GEN *mod, long sX, long vY)
+ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, long degA, long degB, long dres,
+                       GEN P, GEN *mod, long sX, long vY)
 {
-  long dres = degA * degB;
   long i, n = lg(P)-1, di = 0, pending;
   GEN H, T, R;
   GEN worker = strtoclosure("_ZX_ZXY_resultant_worker", 1, mkvecsmall4(degA, degB, dres, sX));
@@ -2150,7 +2150,7 @@ ZX_ZXY_resultant(GEN A, GEN B)
   pari_sp av = avma;
   ulong bound;
   long n, v = fetch_var_higher();
-  long degA = degpol(A), degB = degpol(B);
+  long degA = degpol(A), degB, dres = degA * degpol(B);
   long vX = varn(B), vY = varn(A); /* assume vY has lower priority */
   long sX = evalvarn(vX);
   GEN dB, H, P;
@@ -2158,13 +2158,13 @@ ZX_ZXY_resultant(GEN A, GEN B)
   B = Q_remove_denom(B, &dB);
   if (!dB) B = leafcopy(B);
   A = leafcopy(A); setvarn(A,v);
-  B = swap_vars(B, vY); setvarn(B,v);
+  B = swap_vars(B, vY); setvarn(B,v); degB = degpol(B);
   bound = ZX_ZXY_ResBound(A, B, dB);
   n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
 
   P = primelist_disc(&p, n, dB);
-  H = ZX_ZXY_resultant_slice(A, B, dB, degA, degB, P, NULL, sX, vY);
+  H = ZX_ZXY_resultant_slice(A, B, dB, degA, degB, dres, P, NULL, sX, vY);
   setvarn(H, vX); (void)delete_var();
   return gerepilecopy(av, H);
 }
