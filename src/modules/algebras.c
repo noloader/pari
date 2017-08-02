@@ -4765,6 +4765,50 @@ alglatadd(GEN al, GEN lat1, GEN lat2, GEN* ptinter)
   return sum;
 }
 
+int
+alglatsubset(GEN al, GEN lat1, GEN lat2, GEN* ptindex)
+{
+  /*TODO version that returns the quotient as abelian group?*/
+  pari_sp av = avma;
+  int res;
+  GEN m1, m2, m2i, m, t;
+  checkalg(al);
+  checklat(al,lat1);
+  checklat(al,lat2);
+  m1 = alglat_get_primbasis(lat1);
+  m2 = alglat_get_primbasis(lat2);
+  m2i = RgM_inv_upper(m2);
+  t = gdiv(alglat_get_scalar(lat1), alglat_get_scalar(lat2));
+  m = RgM_Rg_mul(RgM_mul(m2i,m1), t);
+  res = RgM_is_ZM(m);
+  if(res && ptindex)
+  {
+    *ptindex = mpabs(ZM_det_triangular(m));
+    gerepileall(av,1,ptindex);
+  }
+  else avma = av;
+  return res;
+}
+
+GEN
+alglatindex(GEN al, GEN lat1, GEN lat2)
+{
+  pari_sp av = avma;
+  long N;
+  GEN res;
+  checkalg(al);
+  checklat(al,lat1);
+  checklat(al,lat2);
+  N = alg_get_absdim(al);
+  res = alglat_get_scalar(lat1);
+  res = gdiv(res, alglat_get_scalar(lat2));
+  res = gpowgs(res, N);
+  res = gmul(res,RgM_det_triangular(alglat_get_primbasis(lat1)));
+  res = gdiv(res, RgM_det_triangular(alglat_get_primbasis(lat2)));
+  res = gabs(res,0);
+  return gerepilecopy(av, res);
+}
+
 /* If m is injective, computes a Z-basis of the submodule of elements whose
  * image under m is integral */
 static GEN

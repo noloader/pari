@@ -1349,7 +1349,6 @@ pr = idealprimedec(nf,13)[1];
 pol = nfgrunwaldwang(nf, [pr], [2], [0,-1], 'x)
 
 
-
 A = alginit(nfinit(y), [-1,-1]);
 alginvbasis(A)
 algbasis(A)
@@ -1421,7 +1420,11 @@ matdet(latinter[1])
 latinter = alglatinter(al,lat1,lat2,&latsum);
 matdet(latsum[1])
 matdet(latinter[1])
-
+alglatsubset(al,lat1,lat2)
+alglatsubset(al,lat1,latsum,&index)
+index
+alglatindex(al,lat1,lat2)
+lat1==lat2
 
 
 
@@ -2266,17 +2269,32 @@ print(inter1==inter2);
 print(sum1==sum2);
 print(sum1[2]==1/6);
 print(inter1[2]==1);
+print(alglatindex(al,lat1,lat2));
 testlataddinter()=
 {
-  my(lat=[0,0,0],int12,int23);
+  my(lat=[0,0,0],int12,int23,sum12,index);
   for(i=1,3,lat[i]=alglathnf(al,algrandom(al,2)/random([1,8])));
+  sum12 = alglatadd(al,lat[1],lat[2],&int12);
   if(alglatadd(al,lat[1],alglatadd(al,lat[2],lat[3],&int23))
-    != alglatadd(al,alglatadd(al,lat[1],lat[2],&int12),lat[3]),
+    != alglatadd(al,sum12,lat[3]),
     print("error (add)",lat);
     return(0)
   );
   if(alglatinter(al,lat[1],int23) != alglatinter(al,int12,lat[3]),
     print("error (inter)",lat);
+    return(0)
+  );
+  if(!alglatsubset(al,lat[1],sum12,&index) ||
+      (index!=alglatindex(al,lat[1],sum12)),
+    print("error (subset/index)",lat);
+    return(0)
+  );
+  if(alglatsubset(al,lat[1],lat[2]) != (lat[2]==sum12),
+    print("error (subset)",lat);
+    return(0)
+  );
+  if(alglatindex(al,lat[2],lat[3])*alglatindex(al,lat[3],lat[2])!=1,
+    print("error (index)", lat);
     return(0)
   );
   1

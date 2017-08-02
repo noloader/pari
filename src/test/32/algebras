@@ -1189,6 +1189,11 @@ x^3 - 21*x + 7
 64
 4
 64
+0
+1
+4
+1
+0
 matrices over algebras
 
 [ [1, 1, 2, 0, -2, 2, 1, 2]~  [2, 2, -2, -2, 0, -2, 2, -1]~]
@@ -2656,6 +2661,7 @@ D74
 1
 1
 1
+4897369/8503056
 should fail:
   ***   at top-level: algmakeintegral(mt)
   ***                 ^-------------------
@@ -2706,4 +2712,4 @@ should fail:
 1
 1
 1
-Total time spent: 8064
+Total time spent: 8132
