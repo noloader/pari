@@ -4642,6 +4642,9 @@ alg_maximal(GEN al)
  - t>0 either an integer or a rational number.
 */
 
+/* TODO use hnfmodid whenever possible using a*O <= I <= O
+ * for instance a = ZM_det_triangular(I) */
+
 static GEN
 primlat(GEN lat)
 {
@@ -4653,6 +4656,7 @@ primlat(GEN lat)
   return lat;
 }
 
+/* assumes the lattice contains d * integral basis, d=0 allowed */
 GEN
 alglathnf(GEN al, GEN m, GEN d)
 {
@@ -4661,6 +4665,7 @@ alglathnf(GEN al, GEN m, GEN d)
   GEN m2, c;
   checkalg(al);
   N = alg_get_absdim(al);
+  if (!d) d = gen_0;
   if (typ(m) == t_VEC) m = matconcat(m);
   if (typ(m) == t_COL) m = algleftmultable(al,m);
   if (typ(m) != t_MAT) pari_err_TYPE("alglathnf",m);
@@ -4781,7 +4786,7 @@ alglatsubset(GEN al, GEN lat1, GEN lat2, GEN* ptindex)
   t = gdiv(alglat_get_scalar(lat1), alglat_get_scalar(lat2));
   m = RgM_Rg_mul(RgM_mul(m2i,m1), t);
   res = RgM_is_ZM(m);
-  if(res && ptindex)
+  if (res && ptindex)
   {
     *ptindex = mpabs(ZM_det_triangular(m));
     gerepileall(av,1,ptindex);
@@ -4807,6 +4812,35 @@ alglatindex(GEN al, GEN lat1, GEN lat2)
   res = gdiv(res, RgM_det_triangular(alglat_get_primbasis(lat2)));
   res = gabs(res,0);
   return gerepilecopy(av, res);
+}
+
+GEN
+alglatmul(GEN al, GEN lat1, GEN lat2)
+{
+  pari_sp av = avma;
+  long N,i;
+  GEN m1, m2, m, V, lat, t;
+  checkalg(al);
+  /* TODO optimise case of multiplication by an element */
+  if (typ(lat1)==t_COL) lat1 = alglathnf(al,lat1,0);
+  if (typ(lat2)==t_COL) lat2 = alglathnf(al,lat2,0);
+  checklat(al,lat1);
+  checklat(al,lat2);
+  N = algabsdim(al);
+  m1 = alglat_get_primbasis(lat1);
+  m2 = alglat_get_primbasis(lat2);
+  V = cgetg(N+1,t_VEC);
+  for (i=1; i<=N; i++) {
+    gel(V,i) = algbasismultable(al,gel(m1,i));
+    gel(V,i) = ZM_mul(gel(V,i),m2);
+  }
+  m = matconcat(V);
+  /* TODO optimise by computing d such that d*O <= I1*I2 */
+  lat = alglathnf(al,m,0);
+  t = gmul(alglat_get_scalar(lat1), alglat_get_scalar(lat2));
+  gel(lat,2) = gmul(alglat_get_scalar(lat), t);
+  lat = primlat(lat);
+  return gerepilecopy(av, lat);
 }
 
 /* If m is injective, computes a Z-basis of the submodule of elements whose
@@ -4868,9 +4902,8 @@ TODO :
 
 lattice :
 mul
-(A:B) (transporter)
-index (ideal from base field)
-subset
+transporter
+relative index (ideal from base field)
 mul by an ideal from base field
 
 full lattice / ideal ?
