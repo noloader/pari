@@ -2082,7 +2082,7 @@ QXQ_inv(GEN A, GEN B)
  ************************************************************************/
 
 static GEN
-ZX_ZXY_resultant_prime(GEN a, GEN b, ulong p, long degA, long degB, long dres, long sX)
+ZX_ZXY_resultant_prime(GEN a, GEN b, ulong dp, ulong p, long degA, long degB, long dres, long sX)
 {
   long dropa = degA - degpol(a), dropb = degB - degpol(b);
   GEN Hp = Flx_FlxY_resultant_polint(a, b, p, dres, sX);
@@ -2100,18 +2100,19 @@ ZX_ZXY_resultant_prime(GEN a, GEN b, ulong p, long degA, long degB, long dres, l
     }
     else if (dropb)
     { /* multiply by lc(A)^(deg B - deg b) */
-      ulong c = uel(a,degA+2); /* lc(A) */
+      ulong c = uel(a, degA+2); /* lc(A) */
       c = Fl_powu(c, dropb, p);
       if (c != 1) Hp = Flx_Fl_mul(Hp, c, p);
     }
   }
+  if (dp != 1) Hp = Flx_Fl_mul(Hp, Fl_powu(Fl_inv(dp,p), degA, p), p);
   return Hp;
 }
 
 GEN
-ZX_ZXY_resultant_worker(GEN a, GEN b, ulong p, GEN v)
+ZX_ZXY_resultant_worker(GEN a, GEN b, ulong dp, ulong p, GEN v)
 {
-  return ZX_ZXY_resultant_prime(a, b, p, v[1], v[2], v[3], v[4]);
+  return ZX_ZXY_resultant_prime(a, b, dp, p, v[1], v[2], v[3], v[4]);
 }
 
 static GEN
@@ -2119,19 +2120,22 @@ ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, long degA, long degB, long dres,
                        GEN P, GEN *mod, long sX, long vY)
 {
   long i, n = lg(P)-1, di = 0, pending;
-  GEN H, T, R;
+  GEN H, T, R, D;
   GEN worker = strtoclosure("_ZX_ZXY_resultant_worker", 1, mkvecsmall4(degA, degB, dres, sX));
   struct pari_mt pt;
   T = ZV_producttree(P);
   R = ZV_chinesetree(P, T);
   A = ZX_nv_mod_tree(A, P, T);
   B = ZXX_nv_mod_tree(B, P, T, vY);
+  D = dB ? Z_ZV_mod_tree(dB, P, T): NULL;
   H = cgetg(n+1, t_VEC);
   mt_queue_start_lim(&pt, worker, n);
   for (i=1; i<=n || pending; i++)
   {
     GEN done;
-    mt_queue_submit(&pt, i, i<=n ? mkvec3(gel(A,i), gel(B,i), utoi(uel(P,i))):NULL);
+    mt_queue_submit(&pt, i,
+      i<=n ? mkvec4(gel(A,i), gel(B,i), D ? utoi(uel(D, i)): gen_1, utoi(uel(P,i)))
+           : NULL);
     done = mt_queue_get(&pt, &di, &pending);
     if(done)
     {
