@@ -2756,6 +2756,9 @@ matrix algebra.
 \fun{void}{checkalg}{GEN a} raise an exception if $a$ was not initialized
 by \tet{alginit}.
 
+\fun{void}{checklat}{GEN al, GEN lat} raise an exception if \kbd{lat} is not a
+valid full lattice in the algebra~\kbd{al}.
+
 \fun{long}{alg_type}{GEN al} internal function called by \tet{algtype}: assume
 \kbd{al} was created by \tet{alginit} (thereby saving a call to \kbd{checkalg}).
 Return values are symbolic rather than numeric:
