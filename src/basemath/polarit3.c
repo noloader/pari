@@ -1580,6 +1580,7 @@ INIT:
     else
       H = resultant(A,B);
     if (checksqfree && !ZX_is_squarefree(H)) goto INIT;
+    if (dB) H = ZX_Z_divexact(H, powiu(dB, degA));
     goto END;
   }
 
