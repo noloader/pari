@@ -1526,8 +1526,8 @@ FpX_compositum(GEN a, GEN b, GEN p)
  *
  * If LERS is non-NULL, set it to the Last non-constant polynomial in the
  * Euclidean Remainder Sequence */
-GEN
-ZX_ZXY_resultant_all(GEN A, GEN B0, long *plambda, GEN *LERS)
+static GEN
+ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
 {
   int checksqfree = plambda? 1: 0, stable;
   long lambda = plambda? *plambda: 0, cnt = 0;
@@ -1708,6 +1708,14 @@ END:
     return H;
   }
   return gerepilecopy(av, H);
+}
+
+GEN
+ZX_ZXY_resultant_all(GEN A, GEN B, long *plambda, GEN *LERS)
+{
+  if (LERS)
+    return ZX_ZXY_resultant_LERS(A, B, plambda, LERS);
+  return ZX_ZXY_rnfequation(A, B, plambda);
 }
 
 /* If lambda = NULL, return caract(Mod(A, T)), T,A in Z[X].
@@ -2173,10 +2181,56 @@ ZX_ZXY_resultant(GEN A, GEN B)
   return gerepilecopy(av, H);
 }
 
+static long
+ZX_ZXY_rnfequation_lambda(GEN A, GEN B0, long lambda)
+{
+  pari_sp av = avma;
+  long degA = degpol(A), degB, dres = degA*degpol(B0);
+  long v = fetch_var_higher();
+  long vX = varn(B0), vY = varn(A); /* assume vY has lower priority */
+  long sX = evalvarn(vX);
+  GEN dB, B, a, b, Hp;
+  forprime_t S;
+
+  B0 = Q_remove_denom(B0, &dB);
+  if (!dB) B0 = leafcopy(B0);
+  A = leafcopy(A);
+  B = B0;
+  setvarn(A,v);
+INIT:
+  if (lambda) B = RgX_translate(B0, monomial(stoi(lambda), 1, vY));
+  B = swap_vars(B, vY); setvarn(B,v);
+  /* B0(lambda v + x, v) */
+  if (DEBUGLEVEL>4) err_printf("Trying lambda = %ld\n", lambda);
+
+  degB = degpol(B);
+  init_modular_big(&S);
+  while (1)
+  {
+    ulong p = u_forprime_next(&S);
+    ulong dp = dB ? umodiu(dB, p): 1;
+    if (!dp) continue;
+    a = ZX_to_Flx(A, p);
+    b = ZXX_to_FlxX(B, p, v);
+    Hp = ZX_ZXY_resultant_prime(a, b, dp, p, degA, degB, dres, sX);
+    if (degpol(Hp) != dres) continue;
+    if (dp != 1) Hp = Flx_Fl_mul(Hp, Fl_powu(Fl_inv(dp,p), degA, p), p);
+    if (!Flx_is_squarefree(Hp, p)) { lambda = next_lambda(lambda); goto INIT; }
+    if (DEBUGLEVEL>4) err_printf("Final lambda = %ld\n", lambda);
+    avma = av; return lambda;
+  }
+}
+
 GEN
 ZX_ZXY_rnfequation(GEN A, GEN B, long *lambda)
 {
-  if (lambda) return ZX_ZXY_resultant_all(A, B, lambda, NULL);
+  if (lambda)
+  {
+    GEN Bl;
+    *lambda = ZX_ZXY_rnfequation_lambda(A, B, *lambda);
+    Bl = RgX_translate(B, monomial(stoi(*lambda), 1, varn(A)));
+    return ZX_ZXY_resultant(A, Bl);
+  }
   return ZX_ZXY_resultant(A,B);
 }
 
