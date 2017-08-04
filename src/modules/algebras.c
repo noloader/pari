@@ -4984,7 +4984,6 @@ algmakeintegral(GEN mt0, int maps)
 TODO :
 
 lattice :
-transporter
 relative index (ideal from base field)
 mul by an ideal from base field
 test if an element is in the lattice and write it in terms of the basis
