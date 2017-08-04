@@ -2295,6 +2295,8 @@ print(alglatmul(al,b,lat1));
 print(alglatmul(al,lat2,b));
 print(alglatlefttransporter(al,lat1,lat2));
 print(alglatrighttransporter(al,lat1,lat2));
+aa = algrandom(al,10);
+print(alglathnf(al,aa/10,matdet(algleftmultable(al,aa))/10)==alglathnf(al,aa/10));
 testlataddinter()=
 {
   my(lat=[0,0,0],int12,int23,sum12,index,elt1=algrandom(al,5)/random([1,8]),
