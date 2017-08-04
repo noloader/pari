@@ -1352,6 +1352,8 @@ GEN     alglathnf(GEN al, GEN m, GEN d);
 GEN     alglatindex(GEN al, GEN lat1, GEN lat2);
 GEN     alglatinter(GEN al, GEN lat1, GEN lat2, GEN* ptsum);
 GEN     alglatmul(GEN al, GEN lat1, GEN lat2);
+GEN     alglatlefttransporter(GEN al, GEN lat1, GEN lat2);
+GEN     alglatrighttransporter(GEN al, GEN lat1, GEN lat2);
 int     alglatsubset(GEN al, GEN lat1, GEN lat2, GEN* ptindex);
 GEN     algleftmultable(GEN al, GEN x);
 GEN     algneg(GEN al, GEN x);

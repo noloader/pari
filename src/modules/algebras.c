@@ -4882,11 +4882,70 @@ mat2col(GEN M, long m, long n)
   long i,j,k,p;
   GEN C;
   p = m*n;
-  C = cgetg(p+1,t_VEC);
+  C = cgetg(p+1,t_COL);
   for(i=1,k=1;i<=m;i++)
     for(j=1;j<=n;j++,k++)
       gel(C,k) = gcoeff(M,i,j);
   return C;
+}
+
+static GEN
+alglattransporter_i(GEN al, GEN lat1, GEN lat2, int right)
+{
+  GEN m1, m2, m2i, M, MT, mt, t1, t2, T, d;
+  long N, i;
+  N = alg_get_absdim(al);
+  m1 = alglat_get_primbasis(lat1);
+  m2 = alglat_get_primbasis(lat2);
+  m2i = RgM_inv(m2);
+  t1 = alglat_get_scalar(lat1);
+  m1 = RgM_Rg_mul(m1,t1);
+  t2 = alglat_get_scalar(lat2);
+  m2i = RgM_Rg_div(m2i,t2);
+
+  if (!right) MT = alg_get_multable(al);
+
+  M = cgetg(N+1, t_MAT);
+  for (i=1; i<=N; i++) {
+    if (right) mt = algbasisrightmultable(al, vec_ei(N,i));
+    else       mt = gel(MT,i);
+    mt = RgM_mul(m2i,mt);
+    mt = RgM_mul(mt,m1);
+    gel(M,i) = mat2col(mt, N, N);
+  }
+
+  T = QM_invimZ(M);
+  T = Q_remove_denom(T,&d);
+  T = hnf(T);
+  T = primlat(mkvec2(T,gen_1));
+  if (d) gel(T,2) = gdiv(gel(T,2),d);
+  return T;
+}
+
+/*
+   { x in al | x*lat1 subset lat2}
+*/
+GEN
+alglatlefttransporter(GEN al, GEN lat1, GEN lat2)
+{
+  pari_sp av = avma;
+  checkalg(al);
+  checklat(al,lat1);
+  checklat(al,lat2);
+  return gerepilecopy(av, alglattransporter_i(al,lat1,lat2,0));
+}
+
+/*
+   { x in al | lat1*x subset lat2}
+*/
+GEN
+alglatrighttransporter(GEN al, GEN lat1, GEN lat2)
+{
+  pari_sp av = avma;
+  checkalg(al);
+  checklat(al,lat1);
+  checklat(al,lat2);
+  return gerepilecopy(av, alglattransporter_i(al,lat1,lat2,1));
 }
 
 GEN
@@ -4925,10 +4984,10 @@ algmakeintegral(GEN mt0, int maps)
 TODO :
 
 lattice :
-mul
 transporter
 relative index (ideal from base field)
 mul by an ideal from base field
+test if an element is in the lattice and write it in terms of the basis
 
 full lattice / ideal ?
 leftorder/right
