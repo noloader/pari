@@ -1936,6 +1936,7 @@ algZmultable(GEN al, GEN x) {
   return gerepileupto(av,res);
 }
 
+/* x integral */
 static GEN
 algbasisrightmultable(GEN al, GEN x)
 {
@@ -4819,25 +4820,48 @@ alglatmul(GEN al, GEN lat1, GEN lat2)
 {
   pari_sp av = avma;
   long N,i;
-  GEN m1, m2, m, V, lat, t;
+  GEN m1, m2, m, V, lat, t, d;
   checkalg(al);
-  /* TODO optimise case of multiplication by an element */
-  if (typ(lat1)==t_COL) lat1 = alglathnf(al,lat1,0);
-  if (typ(lat2)==t_COL) lat2 = alglathnf(al,lat2,0);
-  checklat(al,lat1);
-  checklat(al,lat2);
-  N = algabsdim(al);
-  m1 = alglat_get_primbasis(lat1);
-  m2 = alglat_get_primbasis(lat2);
-  V = cgetg(N+1,t_VEC);
-  for (i=1; i<=N; i++) {
-    gel(V,i) = algbasismultable(al,gel(m1,i));
-    gel(V,i) = ZM_mul(gel(V,i),m2);
+  if (typ(lat1)==t_COL)
+  {
+    if (typ(lat2)==t_COL)
+      pari_err_TYPE("alglatmul [one of lat1, lat2 has to be a lattice]", mkvec2(lat1, lat2));
+    checklat(al,lat2);
+    m = algbasismultable(al,lat1);
+    m2 = alglat_get_primbasis(lat2);
+    m = RgM_mul(m,m2);
+    t = alglat_get_scalar(lat2);
   }
-  m = matconcat(V);
+  else //typ(lat1)!=t_COL
+  {
+    checklat(al,lat1);
+    if (typ(lat2)==t_COL)
+    {
+      lat2 = Q_remove_denom(lat2,&d);
+      m = algbasisrightmultable(al,lat2);
+      m1 = alglat_get_primbasis(lat1);
+      m = ZM_mul(m,m1);
+      t = alglat_get_scalar(lat1);
+      if (d) t = gdiv(t,d);
+    }
+    else
+    {
+      checklat(al,lat2);
+      N = algabsdim(al);
+      m1 = alglat_get_primbasis(lat1);
+      m2 = alglat_get_primbasis(lat2);
+      V = cgetg(N+1,t_VEC);
+      for (i=1; i<=N; i++) {
+        gel(V,i) = algbasismultable(al,gel(m1,i));
+        gel(V,i) = ZM_mul(gel(V,i),m2);
+      }
+      m = matconcat(V);
+      t = gmul(alglat_get_scalar(lat1), alglat_get_scalar(lat2));
+    }
+  }
+
   /* TODO optimise by computing d such that d*O <= I1*I2 */
   lat = alglathnf(al,m,0);
-  t = gmul(alglat_get_scalar(lat1), alglat_get_scalar(lat2));
   gel(lat,2) = gmul(alglat_get_scalar(lat), t);
   lat = primlat(lat);
   return gerepilecopy(av, lat);

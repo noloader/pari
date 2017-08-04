@@ -1432,6 +1432,8 @@ lat2 = alglathnf(al,a2);
 lat3 = alglatmul(al,lat1,lat2);
 matdet(lat3[1])
 lat3 == alglathnf(al, algmul(al,a1,a2))
+lat3 == alglatmul(al, lat1, a2)
+lat3 == alglatmul(al, a1, lat2)
 
 
 
@@ -2278,9 +2280,12 @@ print(sum1[2]==1/6);
 print(inter1[2]==1);
 print(alglatindex(al,lat1,lat2));
 print(alglatmul(al,lat1,lat2));
+print(alglatmul(al,b,lat1));
+print(alglatmul(al,lat2,b));
 testlataddinter()=
 {
-  my(lat=[0,0,0],int12,int23,sum12,index,elt=algrandom(al,5));
+  my(lat=[0,0,0],int12,int23,sum12,index,elt1=algrandom(al,5)/random([1,8]),
+  elt2=algrandom(al,5)/random([1,8]));
   for(i=1,3,lat[i]=alglathnf(al,algrandom(al,2)/random([1,8])));
   sum12 = alglatadd(al,lat[1],lat[2],&int12);
   if(alglatadd(al,lat[1],alglatadd(al,lat[2],lat[3],&int23))
@@ -2310,9 +2315,11 @@ testlataddinter()=
     print("error (latmul)", lat);
     return(0)
   );
-  if((alglatmul(al,elt,lat[1])!=alglatmul(al,alglathnf(al,elt),lat[1])) ||
-     (alglatmul(al,lat[2],elt)!=alglatmul(al,lat[2],alglathnf(al,elt))),
-    print("error (latmul elt)", lat, elt);
+  if((alglatmul(al,elt1,alglatmul(al,elt2,lat1)) !=
+      alglatmul(al,algmul(al,elt1,elt2),lat1)) ||
+     (alglatmul(al,alglatmul(al,lat2,elt1),elt2) !=
+      alglatmul(al,lat2,algmul(al,elt1,elt2))),
+    print("error (latmul elt)", lat, elt1, elt2);
     return(0)
   );
   1
