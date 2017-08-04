@@ -1194,6 +1194,10 @@ x^3 - 21*x + 7
 4
 1
 0
+1
+[-1, -2, -1, 1, 2, 0, 1, 1]~
+1
+1
 29584
 0
 0
@@ -2691,6 +2695,11 @@ D74
 0, 0, 0, 1, 0, 0, 0, 0; 0, 0, 0, 0, 22, 0, 7, 0; 0, 0, 0, 0, 0, 22, 0, 7; 0,
  0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 1], 9]
 1
+1
+[23804, 219387, -5/6, 1/6, 23/3, 2/3, 0, 1/6]~
+  ***   at top-level: print(alglatelement(al,lat1,col~))
+  ***                       ^----------------------------
+  *** alglatelement: incorrect type in alglatelement (t_VEC).
 should fail:
   ***   at top-level: algmakeintegral(mt)
   ***                 ^-------------------
@@ -2741,4 +2750,4 @@ should fail:
 1
 1
 1
-Total time spent: 13292
+Total time spent: 13428

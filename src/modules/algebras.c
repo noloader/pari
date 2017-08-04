@@ -306,6 +306,15 @@ rnfrealdec(GEN rnf, long k)
   r = sturm(pol); avma = av; return r;
 }
 
+static int
+RgC_is_ZC(GEN x)
+{
+  int i;
+  for (i=lg(x)-1; i>0; i--)
+    if (typ(gel(x,i)) != t_INT) return 0;
+  return 1;
+}
+
 /* no garbage collection */
 static GEN
 backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GEN,GEN,GEN), GEN* fa, GEN N, GEN I)
@@ -4867,6 +4876,41 @@ alglatmul(GEN al, GEN lat1, GEN lat2)
   return gerepilecopy(av, lat);
 }
 
+int
+alglatcontains(GEN al, GEN lat, GEN x, GEN *ptc)
+{
+  pari_sp av = avma;
+  GEN m, t, sol;
+  checkalg(al);
+  checklat(al,lat);
+  m = alglat_get_primbasis(lat);
+  t = alglat_get_scalar(lat);
+  x = RgC_Rg_div(x,t);
+  if (!RgC_is_ZC(x)) { avma = av; return 0; }
+  sol = hnf_solve(m,x);
+  if (!sol) { avma = av; return 0; }
+  if (ptc) 
+  {
+    *ptc = sol;
+    gerepileall(av,1,ptc);
+  }
+  else avma = av;
+  return 1;
+}
+
+GEN
+alglatelement(GEN al, GEN lat, GEN c)
+{
+  pari_sp av = avma;
+  GEN res;
+  checkalg(al);
+  checklat(al,lat);
+  if (typ(c)!=t_COL) pari_err_TYPE("alglatelement", c);
+  res = ZM_ZC_mul(alglat_get_primbasis(lat),c);
+  res = RgC_Rg_mul(res, alglat_get_scalar(lat));
+  return gerepilecopy(av,res);
+}
+
 /* If m is injective, computes a Z-basis of the submodule of elements whose
  * image under m is integral */
 static GEN
@@ -4983,10 +5027,15 @@ algmakeintegral(GEN mt0, int maps)
 /*
 TODO :
 
+skolem-noether algnoetherskolem(al,f,sub=al)
+  -> returns b invertible s.t. f and conj by b agree on sub
+  (assumption: sub is a simple subalgebra and f is an algebra hom)
+
 lattice :
 relative index (ideal from base field)
 mul by an ideal from base field
 test if an element is in the lattice and write it in terms of the basis
+element: from coordinates on the basis to an element of the algebra
 
 full lattice / ideal ?
 leftorder/right
@@ -5010,4 +5059,5 @@ disc (different ?) (rnfdisc)
 pmaximal
 connecting ideal
 loc splitting
+conjugate
 */

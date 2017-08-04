@@ -1428,6 +1428,12 @@ lat1==lat2
 a1 = [1,-1,0,1,2,0,1,2]~;
 a2 = [0,1,2,-1,0,0,3,1]~;
 lat1 = alglathnf(al,a1);
+alglatcontains(al,lat1,a1,&c)
+c
+c = [1..8]~;
+elt = alglatelement(al,lat1,c);
+alglatcontains(al,lat1,elt,&c2)
+c==c2
 lat2 = alglathnf(al,a2);
 lat3 = alglatmul(al,lat1,lat2);
 matdet(lat3[1])
@@ -2297,10 +2303,14 @@ print(alglatlefttransporter(al,lat1,lat2));
 print(alglatrighttransporter(al,lat1,lat2));
 aa = algrandom(al,10);
 print(alglathnf(al,aa/10,matdet(algleftmultable(al,aa))/10)==alglathnf(al,aa/10));
+print(alglatcontains(al,lat1,a));
+col = [3,6,-5,1,23,2,0,1]~;
+print(alglatelement(al,lat1,col));
+print(alglatelement(al,lat1,col~));
 testlataddinter()=
 {
   my(lat=[0,0,0],int12,int23,sum12,index,elt1=algrandom(al,5)/random([1,8]),
-  elt2=algrandom(al,5)/random([1,8]),tr12L,tr23R);
+  elt2=algrandom(al,5)/random([1,8]),tr12L,tr23R,col1,col2);
   my(lat=[0,0,0],int12,int23,sum12,index,elt=algrandom(al,5),tr12L,tr23R);
   for(i=1,3,lat[i]=alglathnf(al,algrandom(al,2)/random([1,8])));
   sum12 = alglatadd(al,lat[1],lat[2],&int12);
@@ -2351,6 +2361,17 @@ testlataddinter()=
   for(i=1,8,
     if(!alglatsubset(al,alglatmul(al,lat[2],tr23R[,i]),lat[3]),
       print("error (right transporter)", lat, i);
+      return(0)
+    )
+  );
+  for(i=1,5,
+    col1 = [random([-10,10]) | j <- [1..8]]~;
+    if(!alglatcontains(al,lat1,alglatelement(al,lat1,col1),&col2) || col1!=col2,
+      print("error (latelement)", lat, col1);
+      return(0)
+    );
+    if(alglatcontains(al,lat1,col1,&col2) && col1!=alglatelement(al,lat1,col2),
+      print("error (latcontains)", lat, col1);
       return(0)
     )
   );

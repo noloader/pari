@@ -1348,6 +1348,8 @@ GEN     algmultable(GEN al);
 GEN     alglat_get_primbasis(GEN lat);
 GEN     alglat_get_scalar(GEN lat);
 GEN     alglatadd(GEN al, GEN lat1, GEN lat2, GEN* ptinter);
+int     alglatcontains(GEN al, GEN lat, GEN x, GEN* ptc);
+GEN     alglatelement(GEN al, GEN lat, GEN c);
 GEN     alglathnf(GEN al, GEN m, GEN d);
 GEN     alglatindex(GEN al, GEN lat1, GEN lat2);
 GEN     alglatinter(GEN al, GEN lat1, GEN lat2, GEN* ptsum);
