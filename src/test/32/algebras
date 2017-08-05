@@ -1717,9 +1717,15 @@ x - 12
   ***   at top-level: algtableinit(mt,y)
   ***                 ^------------------
   *** algtableinit: incorrect type in algtableinit (t_POL).
-  ***   at top-level: alginit(nfinit(x^2+1),-3)
+  ***   at top-level: alginit(nfinit(y^2+1),-3)
   ***                 ^-------------------------
   *** alginit: domain error in alg_matrix: n <= 0
+  ***   at top-level: alginit(nfinit(x^2+1),3)
+  ***                 ^------------------------
+  *** alginit: incorrect priority in alginit: variable x >= x
+  ***   at top-level: alginit(nfinit(highvar^2+1),3)
+  ***                 ^------------------------------
+  *** alginit: incorrect priority in alginit: variable x >= highvar
   ***   at top-level: ...t(nfinit(y^2-2),[-1,-1]);algrandom(al,-10)
   ***                                             ^-----------------
   *** algrandom: domain error in algrandom: b < 0
@@ -1957,6 +1963,9 @@ x - 12
   ***   at top-level: alginit(nf,[2,[[p2,p3],[1/2,1/2]],[1/3]])
   ***                 ^-----------------------------------------
   *** alginit: domain error in hasseconvert [degree should be a denominator of the invariant]: denom(h) ndiv 2
+  ***   at top-level: algcharpoly(al,a,'z)
+  ***                 ^--------------------
+  *** algcharpoly: incorrect priority in algredcharpoly: variable z >= y
 1/2
 0
 3/4
@@ -2750,4 +2759,4 @@ should fail:
 1
 1
 1
-Total time spent: 13428
+Total time spent: 13416

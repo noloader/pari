@@ -1,3 +1,4 @@
+al = alginit(nfinit(y), [Mat(1)]); \\reported by Bill
 J = varhigher("J",y);
 default(realprecision,38);
 default(parisize,100M);
@@ -359,7 +360,8 @@ alfromhasse() = gusuite("algebra from Hasse invariants", ()->{
 });
 
 moreoperations() = gusuite("more operations", ()->{
-  my(x='x, y='y, nf, p1, p2, iinv, finv, al, u, t, b, w, un, pol1, pol2, cp, mul, rnf, aut, ww, tt, ord, invord);
+  my(x='x, y='y, nf, p1, p2, iinv, finv, al, u, t, b, w, un, pol1, pol2, cp,
+    mul, rnf, aut, ww, tt, ord, invord, Y = varhigher("Y",y));
 
   pol1 = y;
   nf = nfinit(pol1);
@@ -390,7 +392,7 @@ moreoperations() = gusuite("more operations", ()->{
   do("w^-1 R", ()->algmul(al,alginv(al,w),w)==un);
   do("w^-1*u", ()->algmul(al,w,algdivl(al,w,u)));
   do("u*w^-1", ()->algmul(al,algdivr(al,u,w),w));
-  cp = algcharpoly(al,w,'Y);
+  cp = algcharpoly(al,w,Y);
   do("charpol(w)", ()->cp);
   do("eval charpol", ()->algadd(al,algadd(al,algpow(al,w,3),algmul(al,[polcoeff(cp,2),0,0]~*mul,algsqr(al,w))),algadd(al,algmul(al,[polcoeff(cp,1),0,0]~*mul,w),[polcoeff(cp,0),0,0]~*mul))==0);
   do("trace(w)", ()->algtrace(al,w)==-polcoeff(cp,2));
@@ -1770,7 +1772,10 @@ alginit(y,[2,[[],[]],[1]])
 alginit(nfinit(y), y)
 alginit(nfinit(y), [1,2,3,4])
 algtableinit(mt,y);
-alginit(nfinit(x^2+1),-3);
+alginit(nfinit(y^2+1),-3);
+alginit(nfinit(x^2+1),3);
+highvar = varhigher("highvar");
+alginit(nfinit(highvar^2+1),3);
 al = alginit(nfinit(y^2-2),[-1,-1]); algrandom(al,-10)
 al = alginit(nfinit(y^2-2),[-1,-1]);
 algrelmultable(al);
@@ -1860,6 +1865,10 @@ alginit(nf, [2, [0,[1/2,1/2]], [0]]);
 alginit(nf, [2, [[p2,p3],0], [0]]);
 alginit(nf, [2, [[p2,p3],[1/2,1/2,0]], [0]]);
 alginit(nf, [2, [[p2,p3],[1/2,1/2]], [1/3]]);
+
+al = alginit(nfinit(y),[-1,-1]);
+a = algrandom(al,2);
+algcharpoly(al,a,'z);
 
 \\better accessors for hasse invariants
 setrand(1);

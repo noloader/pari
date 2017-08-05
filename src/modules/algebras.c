@@ -2279,6 +2279,8 @@ static GEN
 algredcharpoly(GEN al, GEN x, long v)
 {
   pari_sp av = avma;
+  long w = gvar(rnf_get_pol(alg_get_center(al)));
+  if (varncmp(v,w)>=0) pari_err_PRIORITY("algredcharpoly",pol_x(v),">=",w);
   switch(alg_type(al))
   {
     case al_CYCLIC:
@@ -3775,6 +3777,9 @@ alginit(GEN A, GEN B, long v, long flag)
   switch(nftyp(A))
   {
     case typ_NF:
+      if (v<0) v=0;
+      long w = gvar(nf_get_pol(A));
+      if (varncmp(v,w)>=0) pari_err_PRIORITY("alginit", pol_x(v), ">=", w);
       switch(typ(B))
       {
         long nB;
@@ -4841,7 +4846,7 @@ alglatmul(GEN al, GEN lat1, GEN lat2)
     m = RgM_mul(m,m2);
     t = alglat_get_scalar(lat2);
   }
-  else //typ(lat1)!=t_COL
+  else /* typ(lat1)!=t_COL */
   {
     checklat(al,lat1);
     if (typ(lat2)==t_COL)
@@ -4889,7 +4894,7 @@ alglatcontains(GEN al, GEN lat, GEN x, GEN *ptc)
   if (!RgC_is_ZC(x)) { avma = av; return 0; }
   sol = hnf_solve(m,x);
   if (!sol) { avma = av; return 0; }
-  if (ptc) 
+  if (ptc)
   {
     *ptc = sol;
     gerepileall(av,1,ptc);
