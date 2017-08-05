@@ -710,7 +710,7 @@ alg_centralproj(GEN al, GEN z, int maps)
   if (lg(U)-1 < alg_get_absdim(al)) pari_err_TYPE("alcentralproj [z[i]'s not surjective]",z);
   if (signe(p)) Ui = FpM_inv(U,p);
   else          Ui = RgM_inv(U);
-  if (!Ui) pari_err_BUG("alcentralproj");
+  if (!Ui) pari_err_BUG("alcentralproj"); /*LCOV_EXCL_LINE*/
 
   alq = cgetg(lz,t_VEC);
   for (iu=0,i=1; i<lz; i++)
@@ -2840,7 +2840,7 @@ bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var)
       }
     }
   }
-  pari_err_BUG("bnfgwgeneric (no suitable p)");
+  pari_err_BUG("bnfgwgeneric (no suitable p)"); /*LCOV_EXCL_LINE*/
   return NULL;/*LCOV_EXCL_LINE*/
 }
 
@@ -2963,7 +2963,7 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
   }
   else {
     pari_err_IMPL("nfgrunwaldwang for non-prime degree");
-    avma = av; return gen_0;
+    avma = av; return gen_0; /*LCOV_EXCL_LINE*/
   }
 }
 
@@ -3732,8 +3732,8 @@ subcycloindep(GEN nf, long n, long v, GEN L, GEN *pr)
     if (lgcols(fa) == 2 && linindep(pol,L)) { *pr = utoipos(r); return pol; }
     avma = av;
   }
-  pari_err_BUG("subcycloindep (no suitable prime = 1(mod n))");
-  *pr = NULL; return NULL;
+  pari_err_BUG("subcycloindep (no suitable prime = 1(mod n))"); /*LCOV_EXCL_LINE*/
+  *pr = NULL; return NULL; /*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -4507,7 +4507,7 @@ algfromcenter(GEN al, GEN x)
       n = alg_get_dim(al);
       break;
     default:
-      return NULL;
+      return NULL; /*LCOV_EXCL_LINE*/
   }
   return algalgtobasis(al, scalarcol(basistoalg(nf, x), n));
 }
@@ -4839,7 +4839,7 @@ alglatmul(GEN al, GEN lat1, GEN lat2)
   if (typ(lat1)==t_COL)
   {
     if (typ(lat2)==t_COL)
-      pari_err_TYPE("alglatmul [one of lat1, lat2 has to be a lattice]", mkvec2(lat1, lat2));
+      pari_err_TYPE("alglatmul [one of lat1, lat2 has to be a lattice]", lat2);
     checklat(al,lat2);
     m = algbasismultable(al,lat1);
     m2 = alglat_get_primbasis(lat2);
@@ -5039,8 +5039,6 @@ skolem-noether algnoetherskolem(al,f,sub=al)
 lattice :
 relative index (ideal from base field)
 mul by an ideal from base field
-test if an element is in the lattice and write it in terms of the basis
-element: from coordinates on the basis to an element of the algebra
 
 full lattice / ideal ?
 leftorder/right

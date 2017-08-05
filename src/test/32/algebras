@@ -1867,6 +1867,9 @@ x - 12
   ***   at top-level: nfgrunwaldwang(nfinit(y),0,[],[],'x)
   ***                 ^------------------------------------
   *** nfgrunwaldwang: incorrect type in nfgrunwaldwang (t_INT).
+  ***   at top-level: nfgrunwaldwang(nfinit(y),[2],'x-'x,[1])
+  ***                 ^---------------------------------------
+  *** nfgrunwaldwang: incorrect type in nfgrunwaldwang (t_POL).
   ***   at top-level: alginit(rnfinit(nfinit(y),x),0)
   ***                 ^-------------------------------
   *** alginit: incorrect type in alginit (t_INT).
@@ -1966,6 +1969,9 @@ x - 12
   ***   at top-level: algcharpoly(al,a,'z)
   ***                 ^--------------------
   *** algcharpoly: incorrect priority in algredcharpoly: variable z >= y
+  ***   at top-level: algcharpoly(al,[1,2,3]~)
+  ***                 ^------------------------
+  *** algcharpoly: incorrect type in alg_model (t_COL).
 1/2
 0
 3/4
@@ -2709,6 +2715,9 @@ D74
   ***   at top-level: print(alglatelement(al,lat1,col~))
   ***                       ^----------------------------
   *** alglatelement: incorrect type in alglatelement (t_VEC).
+  ***   at top-level: alglatmul(al,a,b)
+  ***                 ^-----------------
+  *** alglatmul: incorrect type in alglatmul [one of lat1, lat2 has to be a lattice] (t_COL).
 should fail:
   ***   at top-level: algmakeintegral(mt)
   ***                 ^-------------------
@@ -2759,4 +2768,4 @@ should fail:
 1
 1
 1
-Total time spent: 13416
+Total time spent: 13452
