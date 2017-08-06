@@ -3774,11 +3774,12 @@ alg_hilbert(GEN nf, GEN a, GEN b, long v, long flag)
 GEN
 alginit(GEN A, GEN B, long v, long flag)
 {
+  long w;
   switch(nftyp(A))
   {
     case typ_NF:
       if (v<0) v=0;
-      long w = gvar(nf_get_pol(A));
+      w = gvar(nf_get_pol(A));
       if (varncmp(v,w)>=0) pari_err_PRIORITY("alginit", pol_x(v), ">=", w);
       switch(typ(B))
       {
