@@ -1159,10 +1159,10 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   if (typ(dm) == t_INT)
   {
     if (flag == hnf_MODID && BPSW_psp(dm)) return ZM_hnfmodprime(x, dm);
+    LDM= const_vecsmall(li-1, lgefint(dm));
     dm2 = shifti(dm, -1);
     dm = const_vec(li-1,dm);
     dm2= const_vec(li-1,dm2);
-    LDM= const_vecsmall(li-1, lgefint(dm));
   }
   else
   {

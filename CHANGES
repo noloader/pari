@@ -114,6 +114,7 @@ PB   86- subst(Mod(1/z, y), z, x) -> wrong answer [#1949]
      87- subst(1+x^2+O(x^3),x,y) -> 1 + y^2 + O(y^4) [#1950]
 BA   88- [pthread] thread stacks could silently overflow
 BA   89- iferr(1/0,E,1,break()) -> SEGV
+     90- missing reduction in mathnfmodid(M, t_INT)
 
   Added
       1- [libari] ZM_isidentity
