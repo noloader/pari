@@ -422,31 +422,6 @@ al:
 If al is given by a multiplication table, only the * fields are present.
 */
 
-/*
-TODO:
-- add a T2 norm : non canonical... just choose one !
-- LLL-reduce the integral basis
-- more general rnfkummer --> prime powers ?
-- alg_hasse : try to descent to Q in non-kummer case
-- alg_hasse : call polsubcyclo instead of rnfkummer when possible
-- alg_hasse : do a rnfpolredbest at every step
-- assisted factorization when possible : factorint(famat)
-- optimize b by reducing mod n-powers (when creating alg_hasse/can be called independently alred)
-- in all transformations (tensor, optimize...), also return the isomorphism (flag:maps)
-- allow more general elements in operations : integers, rationals, nf (F), nf
-(K), rnf (K).
-- effective GW : check whether condition descends to Q as well
-- opposite algebra and involution
-- optimize basismul using the property that the first element is the identity
-- use famat input for bnrinit etc : useful ? only small primes in the conductor, so factorization is fast anyways.
-- algdisc: reduced disc for al_CYCLIC and al_CSA
-- in algpow, use charpol when better.
-
-Karim :
-- test p-maximality before launching general algorithm
-- easy maximal order when pr unramified in L/K
-*/
-
 /* assumes same center and same variable */
 /* currently only works for coprime degrees */
 GEN
@@ -5030,38 +5005,3 @@ algmakeintegral(GEN mt0, int maps)
 
 /** IDEALS **/
 
-/*
-TODO :
-
-skolem-noether algnoetherskolem(al,f,sub=al)
-  -> returns b invertible s.t. f and conj by b agree on sub
-  (assumption: sub is a simple subalgebra and f is an algebra hom)
-
-lattice :
-relative index (ideal from base field)
-mul by an ideal from base field
-
-full lattice / ideal ?
-leftorder/right
-norm (reduced)
-norm abs
-test (isfulllattice, isideal)
-2elt rep
-mul with 2elt repr
-+ with hnfmod ?
-invert
-2sidedpart/primitivepart
-idealprimedec for two-sided above a prime
-factorization : two-sided part + intersection of p-power-norm ideals,
-for which we give a loc HNF
-
-approx
-
-orders :
-test (isorder)
-disc (different ?) (rnfdisc)
-pmaximal
-connecting ideal
-loc splitting
-conjugate
-*/
