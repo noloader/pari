@@ -1489,6 +1489,7 @@ set_LLL_basis(nfmaxord_t *S, GEN *pro, double DELTA)
   S->basden = get_bas_den(B);
 }
 
+/* = 1 iff |a| > |b| or equality and a > 0 */
 static int
 cmpii_polred(GEN a, GEN b)
 {
@@ -1498,13 +1499,13 @@ cmpii_polred(GEN a, GEN b)
   sa = signe(a);
   sb = signe(b);
   if (sa == sb) return 0;
-  return sa == 1? -1: 1;
+  return sa == 1? 1: -1;
 }
 static int
 ZX_cmp(GEN x, GEN y)
 {  return gen_cmp_RgX((void*)cmpii_polred, x, y); }
 /* current best: ZX x of discriminant *dx, is ZX y better than x ?
- * (if so update *dx) */
+ * (if so update *dx); both x and y are monic */
 static int
 ZX_is_better(GEN y, GEN x, GEN *dx)
 {
@@ -1871,7 +1872,7 @@ get_polchar(CG_data *d, GEN x)
 { return get_pol(d, RgM_RgC_mul(d->ZKembed,x)); }
 
 /* Choose a canonical polynomial in the pair { Pmin_a, Pmin_{-a} }, i.e.
- * { z(X), (-1)^(deg z) z(-Z) } and keeping the smallest wrt ZX_cmp
+ * { z(X), (-1)^(deg z) z(-Z) } and keeping the smallest wrt cmpii_polred
  * Either leave z alone (return 1) or set z <- (-1)^n z(-X). In place. */
 static int
 ZX_canon_neg(GEN z)
@@ -1882,7 +1883,7 @@ ZX_canon_neg(GEN z)
     s = signe(gel(z,i));
     if (!s) continue;
     /* non trivial */
-    if (s > 0) break; /* z(X) < (-1)^n z(-X) */
+    if (s < 0) break; /* z(X) < (-1)^n z(-X) */
 
     for (; i>=2; i-=2) gel(z,i) = negi(gel(z,i));
     return 1;
@@ -2485,6 +2486,18 @@ polredabs0(GEN x, long flag)
       }
     }
     v = polredabs_aux(&S, &u);
+    y = gel(v,1);
+    a = gel(v,2); l = lg(a);
+    /* normalize wrt u -> -u */
+    for (i = 1; i < l; i++)
+    {
+      if (flag & nf_ORIG)
+      {
+        if (ZX_canon_neg(gel(y,i))) gel(a,i) = ZX_neg(gel(a,i));
+      }
+      else
+        (void)ZX_canon_neg(gel(y,i));
+    }
     remove_duplicates(v);
     y = gel(v,1);
     a = gel(v,2); l = lg(a);

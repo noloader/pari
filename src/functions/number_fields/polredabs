@@ -77,11 +77,14 @@ Doc: returns a canonical defining polynomial $P$ for the number field
  the defining polynomial for the field with smallest discriminant belongs to
  the list !
 
- \item To a polynomial $P(x) = a_0 x^n + \dots + a_n \in \R[x]$ we attach
- the sequence $S(P)$ given by $|a_0|, -a_0, |a_1|, -a_1, \dots, |a_n|, -a_n$.
+ \item To a polynomial $P(x) = x^n + \dots + a_n \in \R[x]$ we attach
+ the sequence $S(P)$ given by $|a_1|, a_1, \dots, |a_n|, a_n$.
  Order the polynomials $P$ by the lexicographic order on the coefficient
- vectors $S(P)$. Then the output of \tet{polredabs} is the smallest polynomial
- in the above list for that order.
+ vectors $S(P)$. Then the output of \tet{polredabs} is the smallest
+ polynomial in the above list for that order. In other words, the monic
+ polynomial which is lexicographically smallest with respect to the absolute
+ values of coefficients, favouring negative coefficients to break ties, i.e.
+ choosing $x^3-2$ rather than $x^3+2$.
 
 Variant: Instead of the above hardcoded numerical flags, one should use an
  or-ed combination of
