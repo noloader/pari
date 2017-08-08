@@ -958,7 +958,7 @@ distmat_pow(GEN E, ulong p)
   GEN M = cgetg(n+1, t_MAT);
   for(i = 1; i <= n; i++)
   {
-    gel(M,i) = cgetg(n+1, t_VEC);
+    gel(M,i) = cgetg(n+1, t_COL);
     for(j = 1; j <= n; j++)
       gmael(M,i,j) = powuu(p,mael(E,i,j));
   }
