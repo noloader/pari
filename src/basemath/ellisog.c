@@ -66,6 +66,26 @@ RgX_homogenous_evalpow(GEN P, GEN A, GEN B)
   return mkvec2(s, gel(B,d+1));
 }
 
+static GEN
+RgXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T)
+{
+  pari_sp av = avma;
+  long i, d = degpol(P), v = varn(A);
+  if (signe(P)==0) return mkvec2(pol_0(v), pol_1(v));
+  GEN s = scalarpol_shallow(gel(P, d+2), v);
+  for (i = d-1; i >= 0; i--)
+  {
+    s = RgX_add(RgXQX_mul(s, A, T), RgXQX_RgXQ_mul(gel(B,d+1-i), gel(P,i+2), T));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_homogenous_eval(%ld)",i);
+      s = gerepileupto(av, s);
+    }
+  }
+  s = gerepileupto(av, s);
+  return mkvec2(s, gel(B,d+1));
+}
+
 /* Given isogenies F:E' -> E and G:E'' -> E', return the composite
  * isogeny F o G:E'' -> E */
 static GEN
@@ -99,6 +119,92 @@ ellcompisog(GEN F, GEN G)
   num = gadd(gmul(gel(g0,1),den), gmul(gmul(gel(G,2),gel(g1,1)),gel(g0,2)));
   g = gdiv(gmul(gmul(K3,num),gel(h3,2)),gmul(gmul(gel(g0,2),den), gel(h3,1)));
   return gerepilecopy(av, mkvec3(f,g,K));
+}
+
+static GEN
+to_RgX(GEN P, long vx)
+{
+  return typ(P) == t_POL ? lift(P): scalarpol_shallow(lift(P), vx);
+}
+
+static GEN
+divy(GEN P0, GEN P1, GEN Q, GEN T, long vy)
+{
+  GEN DP0, P0r = Q_remove_denom(P0, &DP0), P0D;
+  GEN DP1, P1r = Q_remove_denom(P1, &DP1), P1D;
+  GEN DQ, Qr = Q_remove_denom(Q, &DQ), P2;
+  P0D = RgXQX_div(P0r, Qr, T);
+  if (DP0) P0D = gdiv(P0D, DP0);
+  P1D = RgXQX_div(P1r, Qr, T);
+  if (DP1) P1D = gdiv(P1D, DP1);
+  P2 = gadd(gmul(P1D, pol_x(vy)), P0D);
+  if (DQ) P2 = gmul(P2, DQ);
+  return P2;
+}
+
+static GEN
+ellnfcompisog(GEN nf, GEN F, GEN G)
+{
+  pari_sp av = avma;
+  GEN Fv, Gh, Gh2, Gh3, f, g, gd, h, h21, h22, h31, h32, den;
+  GEN K, K2, K3, F0, F1, G0, G1, g0, g1, Gp;
+  GEN num0, num1, gn0, gn1;
+  GEN g0d, g01, k3h32;
+  GEN T, res;
+  pari_timer ti;
+  long v, vx, vy, d;
+  if (!nf) return ellcompisog(F, G);
+  T = nf_get_pol(nf);
+  timer_start(&ti);
+  checkellisog(F);
+  checkellisog(G);
+  get_isog_vars(F, &vx, &vy);
+  v = fetch_var_higher();
+  Fv = shallowcopy(gel(F,3)); setvarn(Fv, v);
+  Gh = lift(gel(G,3)); Gh2 = RgXQX_sqr(Gh, T); Gh3 = RgXQX_mul(Gh, Gh2, T);
+  res = to_RgX(polresultant0(Fv, deg1pol(gmul(gneg(Gh2),gmodulo(gen_1,T)),gel(G,1), v), v, 0),vx);
+  delete_var();
+  K = Q_remove_denom(RgXQX_mul(res, Gh, T), NULL);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: resultant");
+  K = RgXQX_div(K, nfgcd(K, deriv(K,0), T, NULL), T);
+  K = RgX_normalize(K);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: nfgcd");
+  K2 = RgXQX_sqr(K, T); K3 = RgXQX_mul(K, K2, T);
+  F0 = to_RgX(polcoeff0(gel(F,2), 0, vy), vx);
+  F1 = to_RgX(polcoeff0(gel(F,2), 1, vy), vx);
+  G0 = to_RgX(polcoeff0(gel(G,2), 0, vy), vx);
+  G1 = to_RgX(polcoeff0(gel(G,2), 1, vy), vx);
+  d = maxss(maxss(degpol(gel(F,1)),degpol(gel(F,3))),maxss(degpol(F0),degpol(F1)));
+  Gp = RgXQX_powers(Gh2, d, T);
+  f  = RgXQX_homogenous_evalpow(to_RgX(gel(F,1),vx), gel(G,1), Gp, T);
+  g0 = RgXQX_homogenous_evalpow(F0, to_RgX(gel(G,1),vx), Gp, T);
+  g1 = RgXQX_homogenous_evalpow(F1, to_RgX(gel(G,1),vx), Gp, T);
+  h  = RgXQX_homogenous_evalpow(to_RgX(gel(F,3),vx), gel(G,1), Gp, T);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: evalpow");
+  h21 = RgXQX_sqr(gel(h,1),T);
+  h22 = RgXQX_sqr(gel(h,2),T);
+  h31 = RgXQX_mul(gel(h,1), h21,T);
+  h32 = RgXQX_mul(gel(h,2), h22,T);
+  if (DEBUGLEVEL) timer_printf(&ti,"h");
+  f  = RgXQX_div(RgXQX_mul(RgXQX_mul(K2, gel(f,1), T), h22, T),
+                           RgXQX_mul(gel(f,2), h21, T), T);
+  if (DEBUGLEVEL) timer_printf(&ti,"f");
+  den = RgXQX_mul(Gh3, gel(g1,2), T);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: den");
+  g0d = RgXQX_mul(gel(g0,1),den, T);
+  g01 = RgXQX_mul(gel(g1,1),gel(g0,2),T);
+  num0 = RgX_add(g0d, RgXQX_mul(G0,g01, T));
+  num1 = RgXQX_mul(G1,g01, T);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: num");
+  k3h32 = RgXQX_mul(K3,h32,T);
+  gn0 = RgXQX_mul(num0, k3h32, T);
+  gn1 = RgXQX_mul(num1, k3h32, T);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: gn");
+  gd = RgXQX_mul(RgXQX_mul(gel(g0,2), den, T), h31, T);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: gd");
+  g = divy(gn0, gn1, gd, T, vy);
+  if (DEBUGLEVEL) timer_printf(&ti,"ellnfcompisog: divy");
+  return gerepilecopy(av, gmul(mkvec3(f,g,K),gmodulo(gen_1,T)));
 }
 
 /* Given an isogeny phi from ellisogeny() and a point P in the domain of phi,
@@ -876,15 +982,15 @@ etree_nbnodes(GEN T)
 }
 
 static long
-etree_listr(GEN T, GEN V, long n, GEN u, GEN ut)
+etree_listr(GEN nf, GEN T, GEN V, long n, GEN u, GEN ut)
 {
   GEN E = gel(T, 1), F = gel(T,2);
   long i, l = lg(F);
   GEN iso, isot = NULL;
   if (lg(E) == 6)
   {
-    iso  = ellisogenyapply(gel(E,4), u);
-    isot = ellisogenyapply(ut, gel(E,5));
+    iso  = ellnfcompisog(nf,gel(E,4), u);
+    isot = ellnfcompisog(nf,ut, gel(E,5));
     gel(V, n) = mkvec5(gel(E,1), gel(E,2), gel(E,3), iso, isot);
   } else
   {
@@ -892,16 +998,16 @@ etree_listr(GEN T, GEN V, long n, GEN u, GEN ut)
     iso = u;
   }
   for (i = 1; i < l; i++)
-    n = etree_listr(gel(F, i), V, n + 1, iso, isot);
+    n = etree_listr(nf, gel(F, i), V, n + 1, iso, isot);
   return n;
 }
 
 static GEN
-etree_list(GEN T)
+etree_list(GEN nf, GEN T)
 {
   long n = etree_nbnodes(T);
   GEN V = cgetg(n+1, t_VEC);
-  (void) etree_listr(T, V, 1, trivial_isogeny(), trivial_isogeny());
+  (void) etree_listr(nf, T, V, 1, trivial_isogeny(), trivial_isogeny());
   return V;
 }
 
@@ -1003,8 +1109,8 @@ isomatdbl(GEN nf, GEN L, GEN M, ulong p, GEN T2, long flag)
       gel(V, i+n) = mkvec3(gel(E,1), gel(E,2), gel(E,3));
     else
     {
-      GEN iso = ellisogenyapply(gel(E,4), gel(e, 4));
-      GEN isot = ellisogenyapply(gel(e,5), gel(E, 5));
+      GEN iso = ellcompisog(gel(E,4), gel(e, 4));
+      GEN isot = ellcompisog(gel(e,5), gel(E, 5));
       gel(V, i+n) = mkvec5(gel(E,1), gel(E,2), gel(E,3), iso, isot);
     }
   }
@@ -1084,16 +1190,16 @@ static GEN
 mkisomat(ulong p, GEN T)
 {
   pari_sp av = avma;
-  GEN L = list_to_crv(etree_list(T));
+  GEN L = list_to_crv(etree_list(NULL, T));
   GEN M = distmat_pow(etree_distmat(T), p);
   return gerepilecopy(av, mkvec2(L, M));
 }
 
 static GEN
-mkisomatraw(ulong p, GEN T)
+mkisomatraw(GEN nf, ulong p, GEN T)
 {
   pari_sp av = avma;
-  GEN L = etree_list(T);
+  GEN L = etree_list(nf, T);
   GEN M = distmat_pow(etree_distmat(T), p);
   return gerepilecopy(av, mkvec2(L, M));
 }
@@ -1101,7 +1207,7 @@ mkisomatraw(ulong p, GEN T)
 static GEN
 mkisomatdbl(ulong p, GEN T, ulong p2, GEN T2, long flag)
 {
-  GEN L = etree_list(T);
+  GEN L = etree_list(NULL, T);
   GEN M = distmat_pow(etree_distmat(T), p);
   return isomatdbl(NULL, L, M, p2, T2, flag);
 }
@@ -1372,7 +1478,7 @@ ellnf_isocrv(GEN nf, GEN E, GEN v, GEN PE, long flag)
     ulong p = uel(v,i);
     GEN P = gel(PE, i);
     GEN T = isograph_p(nf, e, p, P, flag);
-    GEN LM = mkisomatraw(p, T);
+    GEN LM = mkisomatraw(nf, p, T);
     gel(LE, i) = LM;
     n *= lg(gel(LM,1)) - 1;
   }
@@ -1398,7 +1504,7 @@ ellnf_isocrv(GEN nf, GEN E, GEN v, GEN PE, long flag)
     {
       GEN e = gel(L, l);
       GEN T = isograph_p(nf, e, p, P, flag);
-      GEN LMe = mkisomatraw(p, T);
+      GEN LMe = mkisomatraw(nf, p, T);
       GEN Le = gel(LMe, 1);
       GEN Me = gel(LMe, 2);
       long m = lg(Le);
