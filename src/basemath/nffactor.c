@@ -772,16 +772,14 @@ nf_root_bounds(GEN P, GEN T)
   return V;
 }
 
-/* return B such that if x in O_K, K = Z[X]/(T), then the L2-norm of the
- * coordinates of the numerator of x [on the power, resp. integral, basis if T
- * is a polynomial, resp. an nf] is  <= B T_2(x)
- * den = multiplicative bound for denom(x) */
+/* return B such that, if x = sum x_i K.zk[i] in O_K, then ||x||_2^2 <= B T_2(x)
+ * den = multiplicative bound for denom(x) [usually NULL, for 1, but when we
+ * use nf_PARTIALFACT K.zk may not generate O_K] */
 static GEN
 L2_bound(GEN nf, GEN den)
 {
   GEN M, L, prep, T = nf_get_pol(nf), tozk = nf_get_invzk(nf);
-  long bit = bit_accuracy(ZX_max_lg(T)) + bit_accuracy(ZM_max_lg(tozk));
-  long prec = nbits2prec(bit + degpol(T));
+  long prec = ZM_max_lg(tozk) + ZX_max_lg(T) + nbits2prec(degpol(T));
   (void)initgaloisborne(nf, den? den: gen_1, prec, &L, &prep, NULL);
   M = vandermondeinverse(L, RgX_gtofp(T,prec), den, prep);
   return RgM_fpnorml2(RgM_mul(tozk,M), DEFAULTPREC);
