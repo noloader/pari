@@ -4212,6 +4212,7 @@ GEN     rootpadic(GEN f, GEN p, long r);
 
 GEN     FpV_factorback(GEN L, GEN e, GEN p);
 GEN     Q_content(GEN x);
+GEN     Q_content_safe(GEN x);
 GEN     Q_denom(GEN x);
 GEN     Q_div_to_int(GEN x, GEN c);
 GEN     Q_gcd(GEN x, GEN y);

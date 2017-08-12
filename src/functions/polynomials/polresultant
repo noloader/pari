@@ -23,6 +23,20 @@ Doc: resultant of the two
  If $\fl=1$, uses the determinant of Sylvester's matrix instead; this should
  always be slower than the default.
 
+ If $x$ or $y$ are multivariate with a huge \emph{polynomial} content, it
+ is advisable to remove it before calling this function. Compare:
+ \bprog
+ ? a = polcyclo(7) * ((t+1)/(t+2))^100;
+ ? b = polcyclo(11)* ((t+2)/(t+3))^100);
+ ? polresultant(a,b);
+ time = 3,833 ms.
+ ? ca = content(a); cb = content(b); \
+   polresultant(a/ca,b/cb)*ca^poldegree(b)*cb*poldegree(a); \\ instantaneous
+ @eprog\noindent The function only removes rational denominators and does
+ not compute automatically the content because it is generically small and
+ potentially \emph{very} expensive (e.g. in multivariate contexts).
+ The choice is yours, depending on your application.
+
 Function: _ZX_resultant_worker
 C-Name: ZX_resultant_worker
 Prototype: GGGG

@@ -10850,7 +10850,11 @@ denominators to $\Z$. For instance the $\Q$-content of $(1/2)xy$ is $(1/2)$,
 and its $\Q$-denominator is $2$, whereas \kbd{content} would return $y/2$ and
 \kbd{denom}~1.
 
-\fun{GEN}{Q_content}{GEN x} the $\Q$-content of $x$
+\fun{GEN}{Q_content}{GEN x} the $\Q$-content of $x$.
+
+\fun{GEN}{Q_content_safe}{GEN x} as \kbd{Q\_content}, returning
+\kbd{NULL} when the $\Q$-content is not defined (e.g. for a \typ{REAL}
+or \typ{INTMOD} component).
 
 \fun{GEN}{Q_denom}{GEN x} the $\Q$-denominator of $x$. Shallow function.
 

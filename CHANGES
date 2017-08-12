@@ -246,6 +246,7 @@ JA   92- GP functions ecpp, ecppexport, ecppisvalid.
      93- [libpari] ncharvecexpo
      94- [libpari] rootsof1q_cx, rootsof1powinit, rootsof1pow
 BA   95- [libpari] RgX_digits
+     96- [libpari] Q_content_safe
 
   Changed
       1- rewrite bnfnarrow
@@ -315,6 +316,8 @@ BA   39- ellisomat(E,{fl}) is now ellisomat(E,{p},{fl}) (p degree of isogenies)
      40- the definition used in polred / polredbest / polredabs to decide
          what is the "best" polynomial to return
      41- removed resultant_all, use RgX_resultant_all
+     42- polresultant: no longer compute the content of arguments
+         (potentially very expensive for a generically small gain)
 
   Removed
       1- file 'MACHINES' (no longer maintained)

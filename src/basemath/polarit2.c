@@ -1740,10 +1740,10 @@ primpart(GEN x) { return primitive_part(x, NULL); }
 /* As content(), but over Q. Treats polynomial as elts of Q[x1,...xn], instead
  * of Q(x2,...,xn)[x1] */
 GEN
-Q_content(GEN x)
+Q_content_safe(GEN x)
 {
   long i, l;
-  GEN d;
+  GEN c, d;
   pari_sp av;
 
   switch(typ(x))
@@ -1753,24 +1753,38 @@ Q_content(GEN x)
 
     case t_VEC: case t_COL: case t_MAT:
       l = lg(x); if (l == 1) return gen_1;
-      av = avma; d = Q_content(gel(x,1));
+      av = avma; d = Q_content_safe(gel(x,1)); if (!d) return NULL;
       for (i=2; i<l; i++)
       {
-        d = Q_gcd(d, Q_content(gel(x,i)));
+        c = Q_content_safe(gel(x,i)); if (!c) return NULL;
+        d = Q_gcd(d, c);
         if ((i & 255) == 0) d = gerepileupto(av, d);
       }
       return gerepileupto(av, d);
 
     case t_POL:
       l = lg(x); if (l == 2) return gen_0;
-      av = avma; d = Q_content(gel(x,2));
-      for (i=3; i<l; i++) d = Q_gcd(d, Q_content(gel(x,i)));
+      av = avma; d = Q_content_safe(gel(x,2)); if (!d) return NULL;
+      for (i=3; i<l; i++)
+      {
+        c = Q_content_safe(gel(x,i)); if (!c) return NULL;
+        d = Q_gcd(d, c);
+      }
       return gerepileupto(av, d);
-    case t_POLMOD: return Q_content(gel(x,2));
-    case t_COMPLEX: return Q_gcd(Q_content(gel(x,1)), Q_content(gel(x,2)));
+    case t_POLMOD: return Q_content_safe(gel(x,2));
+    case t_COMPLEX:
+      c = Q_content_safe(gel(x,1)); if (!c) return NULL;
+      d = Q_content_safe(gel(x,2)); if (!d) return NULL;
+      return Q_gcd(c,d);
   }
-  pari_err_TYPE("Q_content",x);
   return NULL; /* LCOV_EXCL_LINE */
+}
+GEN
+Q_content(GEN x)
+{
+  GEN c = Q_content_safe(x);
+  if (!c) pari_err_TYPE("Q_content",x);
+  return c;
 }
 
 GEN
@@ -2054,13 +2068,16 @@ GEN
 Q_primitive_part(GEN x, GEN *ptc)
 {
   pari_sp av = avma;
-  GEN c = Q_content(x);
-  if (typ(c) == t_INT)
+  GEN c = Q_content_safe(x);
+  if (c)
   {
-    if (is_pm1(c)) { avma = av; c = NULL; }
-    else if (signe(c)) x = Q_divi_to_int(x, c);
+    if (typ(c) == t_INT)
+    {
+      if (is_pm1(c)) { avma = av; c = NULL; }
+      else if (signe(c)) x = Q_divi_to_int(x, c);
+    }
+    else x = Q_divq_to_int(x, c);
   }
-  else x = Q_divq_to_int(x, c);
   if (ptc) *ptc = c;
   return x;
 }
