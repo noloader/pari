@@ -2567,8 +2567,10 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
     if (sig == -1) s = gerepileupto(av, gneg(s));
     return s;
   }
-  P = primitive_part(P, &cP);
-  Q = primitive_part(Q, &cQ);
+  /* primitive_part is also possible here, but possibly very costly,
+   * and hardly ever worth it */
+  P = Q_primitive_part(P, &cP);
+  Q = Q_primitive_part(Q, &cQ);
   av2 = avma;
   s = gpowgs(leading_coeff(Q),delta);
   if (both_odd(dP, dQ)) sig = -sig;
