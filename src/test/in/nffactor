@@ -120,3 +120,7 @@ nfroots (K, P)
 nfroots (K, P / pollead(P))
 nfroots (K, P / (pollead(P)*y))
 
+\\ #1956, #1957
+nfroots(a^2-a+3,x^2+Mod(84*a-248/3,a^2-a+3)*x+Mod(-1440*a-73760/9,a^2-a+3))
+nfroots(a^2-a+3,a*(x^2-4))
+

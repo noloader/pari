@@ -742,23 +742,22 @@ nf_factor_bound(GEN nf, GEN polbase)
   return gerepileupto(av, gmin(a, b));
 }
 
-/* return Bs: if r a root of sigma_i(P), |r| < Bs[i] */
+/* True nf; return Bs: if r a root of sigma_i(P), |r| < Bs[i] */
 static GEN
-nf_root_bounds(GEN P, GEN T)
+nf_root_bounds(GEN nf, GEN P)
 {
-  long lR, i, j, l, prec;
-  GEN Ps, R, V, nf;
+  long lR, i, j, l, prec, r1;
+  GEN Ps, R, V;
 
   if (RgX_is_rational(P)) return polrootsbound(P);
-  T = get_nfpol(T, &nf);
-
+  r1 = nf_get_r1(nf);
   P = Q_primpart(P);
   prec = ZXX_max_lg(P) + 1;
   l = lg(P);
-  if (nf && nf_get_prec(nf) >= prec)
+  if (nf_get_prec(nf) >= prec)
     R = nf_get_roots(nf);
   else
-    R = QX_complex_roots(T, prec);
+    R = QX_complex_roots(nf_get_pol(nf), prec);
   lR = lg(R);
   V = cgetg(lR, t_VEC);
   Ps = cgetg(l, t_POL); /* sigma (P) */
@@ -769,7 +768,7 @@ nf_root_bounds(GEN P, GEN T)
     for (i=2; i<l; i++) gel(Ps,i) = poleval(gel(P,i), r);
     gel(V,j) = polrootsbound(Ps);
   }
-  return V;
+  return mkvec2(vecslice(V,1,r1), vecslice(V,r1+1,lg(V)-1));
 }
 
 /* return B such that, if x = sum x_i K.zk[i] in O_K, then ||x||_2^2 <= B T_2(x)
@@ -785,20 +784,24 @@ L2_bound(GEN nf, GEN den)
   return RgM_fpnorml2(RgM_mul(tozk,M), DEFAULTPREC);
 }
 
-/* || L ||_p^p in dimension n (L may be a scalar) */
+/* sum_i L[i]^p */
 static GEN
-normlp(GEN L, long p, long n)
+normlp(GEN L, long p)
 {
-  long i,l, t = typ(L);
+  long i, l = lg(L);
   GEN z;
-
-  if (!is_vec_t(t)) return gmulsg(n, gpowgs(L, p));
-
-  l = lg(L); z = gen_0;
-  /* assert(n == l-1); */
-  for (i=1; i<l; i++)
-    z = gadd(z, gpowgs(gel(L,i), p));
+  if (l == 1) return gen_0;
+  z = gpowgs(gel(L,1), p);
+  for (i=2; i<l; i++) z = gadd(z, gpowgs(gel(L,i), p));
   return z;
+}
+/* \sum_i deg(sigma_i) L[i]^p in dimension n (L may be a scalar
+ * or [L1,L2], where Ld corresponds to the archimedean places of degree d) */
+static GEN
+normTp(GEN L, long p, long n)
+{
+  if (typ(L) != t_VEC) return gmulsg(n, gpowgs(L, p));
+  return gadd(normlp(gel(L,1),p), gmul2n(normlp(gel(L,2),p), 1));
 }
 
 /* S = S0 + tS1, P = P0 + tP1 (Euclidean div. by t integer). For a true
@@ -1381,7 +1384,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
  /* Lattice: (S PRK), small vector (vS vP). To find k bound for the image,
   * write S = S1 q + S0, P = P1 q + P0
   * |S1 vS + P1 vP|^2 <= Bhigh for all (vS,vP) assoc. to true factors */
-  Btra = mulrr(ZC, mulur(dP*dP, normlp(Br, 2, dnf)));
+  Btra = mulrr(ZC, mulur(dP*dP, normTp(Br, 2, dnf)));
   Bhigh = get_Bhigh(n0, dnf);
   C = (long)ceil(sqrt(Bhigh/n0)) + 1; /* C^2 n0 ~ Bhigh */
   Bnorm = dbltor( n0 * C * C + Bhigh );
@@ -1400,7 +1403,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
     int first = 1;
 
     /* bound for f . S_k(genuine factor) = ZC * bound for T_2(S_tnew) */
-    Btra = mulrr(ZC, mulur(dP*dP, normlp(Br, 2*tnew, dnf)));
+    Btra = mulrr(ZC, mulur(dP*dP, normTp(Br, 2*tnew, dnf)));
     bmin = logint(ceil_safe(sqrtr(Btra)), gen_2) + 1;
     if (DEBUGLEVEL>2)
       err_printf("\nLLL_cmbf: %ld potential factors (tmax = %ld, bmin = %ld)\n",
@@ -1837,14 +1840,14 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   if (is_pm1(den)) den = NULL;
   L.dn = den;
   T.ZC = L2_bound(nf, den);
-  T.Br = nf_root_bounds(pol, nf); if (lt) T.Br = gmul(T.Br, lt);
+  T.Br = nf_root_bounds(nf, pol); if (lt) T.Br = gmul(T.Br, lt);
 
   /* C0 = bound for T_2(Q_i), Q | P */
-  if (fl != FACTORS) C0 = normlp(T.Br, 2, n);
+  if (fl != FACTORS) C0 = normTp(T.Br, 2, n);
   else               C0 = nf_factor_bound(nf, polbase);
   T.bound = mulrr(T.ZC, C0); /* bound for |Q_i|^2 in Z^n on chosen Z-basis */
 
-  N2 = mulur(dpol*dpol, normlp(T.Br, 4, n)); /* bound for T_2(lt * S_2) */
+  N2 = mulur(dpol*dpol, normTp(T.Br, 4, n)); /* bound for T_2(lt * S_2) */
   T.BS_2 = mulrr(T.ZC, N2); /* bound for |S_2|^2 on chosen Z-basis */
 
   if (DEBUGLEVEL>2) {
