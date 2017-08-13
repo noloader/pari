@@ -210,28 +210,28 @@ RgXY_squff(GEN f)
   setlg(u,i+1); return u;
 }
 
+/* Lmod contains modular factors of *F (NULL codes an empty slot: used factor)
+ * Lfac accumulates irreducible factors as they are found.
+ * p is a product of modular factors in Lmod[1..i-1] (NULL for p = 1), not
+ * a rational factor of *F
+ * Find an irreducible factor of *F divisible by p (by including
+ * exhaustively further factors from Lmod[i..]); return 0 on failure, else 1.
+ * Update Lmod, Lfac and *F */
 static int
 RgX_cmbf(GEN p, long i, GEN BLOC, GEN Lmod, GEN Lfac, GEN *F)
 {
   GEN q;
   if (i == lg(Lmod)) return 0;
-  if (RgX_cmbf(p, i+1, BLOC, Lmod, Lfac, F) && degpol(p) > 0)
-    return 1;
+  if (RgX_cmbf(p, i+1, BLOC, Lmod, Lfac, F) && p) return 1;
   if (!gel(Lmod,i)) return 0;
-  p = RgX_mul(p, gel(Lmod,i));
+  p = p? RgX_mul(p, gel(Lmod,i)): gel(Lmod,i);
   q = RgV_to_RgX(RgX_digits(p, BLOC), varn(*F));
   if (degpol(q))
   {
     GEN R, Q = RgX_divrem(*F, q, &R);
-    if (signe(R)==0)
-    {
-      vectrunc_append(Lfac, q);
-      *F = Q;
-      return 1;
-    }
+    if (signe(R)==0) { vectrunc_append(Lfac, q); *F = Q; return 1; }
   }
-  if (RgX_cmbf(p, i+1, BLOC, Lmod, Lfac, F))
-  { gel(Lmod,i) = NULL; return 1; }
+  if (RgX_cmbf(p, i+1, BLOC, Lmod, Lfac, F)) { gel(Lmod,i) = NULL; return 1; }
   return 0;
 }
 
@@ -239,13 +239,11 @@ static GEN
 RgXY_factor_squarefree(GEN f)
 {
   pari_sp av = avma;
-  GEN Lfac, Lmod;
-  GEN F, BLOC;
-  long vy = gvar2(f);
-  long n = RgXY_degreex(f);
+  GEN Lfac, Lmod, F, BLOC;
+  long vy = gvar2(f), n = RgXY_degreex(f);
   ulong i, c = itou_or_0(residual_characteristic(f));
   long val = RgX_valrem(f, &f);
-  while(1)
+  for(;;)
   {
     for (i = 0; !c || i < c; i++)
     {
@@ -263,7 +261,7 @@ RgXY_factor_squarefree(GEN f)
     err_printf("bifactor: %ld local factors\n",lg(Lmod)-1);
   Lfac = vectrunc_init(lg(Lmod)+1);
   settyp(Lfac, t_COL);
-  if (RgX_cmbf(pol_1(vy), 1, BLOC, Lmod, Lfac, &f));
+  (void)RgX_cmbf(NULL, 1, BLOC, Lmod, Lfac, &f);
   if (degpol(f)) vectrunc_append(Lfac, f);
   if (val) vectrunc_append(Lfac, pol_x(varn(f)));
   return gerepilecopy(av, Lfac);
