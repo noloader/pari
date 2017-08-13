@@ -455,6 +455,16 @@ choosetype(long *t, long t2, GEN ff, GEN *pol)
   if (t[7]) return t_PADIC;
   return t_INT;
 }
+
+static long
+RgX_settype(GEN x, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
+{
+  long i, lx = lg(x);
+  for (i=2; i<lx; i++)
+    if (!settype(gel(x,i),t,p,pol,pa,ff,t2)) return 0;
+  return 1;
+}
+
 long
 RgX_type(GEN x, GEN *p, GEN *pol, long *pa)
 {
@@ -479,11 +489,19 @@ RgX_type(GEN x, GEN *p, GEN *pol, long *pa)
     }
   }
   else /* t_POL, t_SER */
-  {
-    long i, lx = lg(x);
-    for (i=2; i<lx; i++)
-      if (!settype(gel(x,i),t,p,pol,pa,&ff,&t2)) return 0;
-  }
+    if (!RgX_settype(x,t,p,pol,pa,&ff,&t2)) return 0;
+  return choosetype(t,t2,ff,pol);
+}
+
+long
+RgX_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa)
+{
+  long t[] = {0,0,0,0,0,0,0,0,0,0,0,0};
+  long t2 = 0;
+  GEN ff = NULL;
+  *p = *pol = NULL; *pa = LONG_MAX;
+  if (!RgX_settype(x,t,p,pol,pa,&ff,&t2)) return 0;
+  if (!RgX_settype(y,t,p,pol,pa,&ff,&t2)) return 0;
   return choosetype(t,t2,ff,pol);
 }
 
