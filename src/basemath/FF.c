@@ -1551,6 +1551,62 @@ raw_to_FFX_fact(GEN F, GEN ff)
   return y;
 }
 
+static GEN
+FFX_zero(GEN ff, long v)
+{
+  GEN r = cgetg(3,t_POL);
+  r[1] = evalvarn(v);
+  gel(r,2) = FF_zero(ff);
+  return r;
+}
+
+GEN
+FFX_mul(GEN Pf, GEN Qf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  GEN Q = FFX_to_raw(Qf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_mul(P, Q, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_mul(P, Q, T);
+    break;
+  default:
+    r = FlxqX_mul(P, Q, T, pp);
+  }
+  if (!lgpol(r)) { avma = av; return FFX_zero(ff, varn(Pf)); }
+  return gerepilecopy(av, raw_to_FFX(r, ff));
+}
+
+GEN
+FFX_sqr(GEN Pf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_sqr(P, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_sqr(P, T);
+    break;
+  default:
+    r = FlxqX_sqr(P, T, pp);
+  }
+  if (!lgpol(r)) { avma = av; return FFX_zero(ff, varn(Pf)); }
+  return gerepilecopy(av, raw_to_FFX(r, ff));
+}
+
 GEN
 FFX_factor(GEN Pf, GEN ff)
 {
