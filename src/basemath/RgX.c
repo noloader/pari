@@ -1523,6 +1523,13 @@ RgX_mul_normalized(GEN A, long a, GEN B, long b)
 }
 
 GEN
+RgX_mul_i(GEN x, GEN y)
+{
+  GEN z = RgX_mulspec(x+2, y+2, lgpol(x), lgpol(y));
+  setvarn(z, varn(x)); return z;
+}
+
+GEN
 RgX_mul(GEN x, GEN y)
 {
   GEN p, pol, xx, z;
@@ -1550,8 +1557,13 @@ RgX_mul(GEN x, GEN y)
     if (pol) z = Kronecker_to_mod(z, pol);
     return gerepileupto(av, z);
   }
-  avma = av;
-  z = RgX_mulspec(y+2, x+2, lgpol(y), lgpol(x));
+  avma = av; return RgX_mul_i(x,y);
+}
+
+GEN
+RgX_sqr_i(GEN x)
+{
+  GEN z = RgX_sqrspec(x+2, lgpol(x));
   setvarn(z,varn(x)); return z;
 }
 
@@ -1582,9 +1594,7 @@ RgX_sqr(GEN x)
     if (pol) z = Kronecker_to_mod(z, pol);
     return gerepileupto(av, z);
   }
-  avma = av;
-  z = RgX_sqrspec(x+2, lgpol(x));
-  setvarn(z,varn(x)); return z;
+  avma = av; return RgX_sqr_i(x);
 }
 
 /*******************************************************************/

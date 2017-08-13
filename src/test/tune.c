@@ -447,9 +447,9 @@ static double speed_FpXQX_gcd(speed_param *s)
 
 /* small coeffs: earlier thresholds for more complicated rings */
 static double speed_RgX_sqr(speed_param *s)
-{ TIME_FUN(RgX_sqr(s->x)); }
+{ TIME_FUN(RgX_sqr_i(s->x)); }
 static double speed_RgX_mul(speed_param *s)
-{ TIME_FUN(RgX_mul(s->x, s->y)); }
+{ TIME_FUN(RgX_mul_i(s->x, s->y)); }
 
 enum { PARI = 1, GMP = 2 };
 #ifdef PARI_KERNEL_GMP

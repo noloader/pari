@@ -8907,14 +8907,22 @@ copy. Leading coefficients equal to $0$ are stripped, e.g.
 @eprog\noindent is normalized to $t$.
 
 \fun{GEN}{RgX_mul}{GEN x, GEN y} multiplies the two \typ{POL} (in the same
-variable) \kbd{x} and \kbd{y}. Uses Karatsuba algorithm.
+variable) \kbd{x} and \kbd{y}. Detect the coefficient ring and use an
+appropriate algorithm.
+
+\fun{GEN}{RgX_mul_i}{GEN x, GEN y} multiplies the two \typ{POL} (in the same
+variable) \kbd{x} and \kbd{y}. Do not detect the coefficient ring.
+Use a generic Karatsuba algorithm.
 
 \fun{GEN}{RgX_mul_normalized}{GEN A, long a, GEN B, long b}
 returns $(X^a + A)(X^b + B) - X^(a+b)$, where we assume that $\deg A < a$
 and $\deg B < b$ are polynomials in the same variable $X$.
 
-\fun{GEN}{RgX_sqr}{GEN x} squares the \typ{POL} \kbd{x}. Uses Karatsuba
-algorithm.
+\fun{GEN}{RgX_sqr}{GEN x} squares the \typ{POL} \kbd{x}. Detect the coefficient
+ring and use an appropriate algorithm.
+
+\fun{GEN}{RgX_sqr_i}{GEN x} squares the \typ{POL} \kbd{x}. Do not detect the
+coefficient ring.  Use a generic Karatsuba algorithm.
 
 \fun{GEN}{RgX_divrem}{GEN x, GEN y, GEN *r} by default, returns the Euclidean
 quotient and store the remainder in $r$. Three special values of $r$ change
