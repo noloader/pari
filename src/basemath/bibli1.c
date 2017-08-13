@@ -1002,14 +1002,12 @@ GEN
 galoisdep(GEN x, GEN T, GEN roT, long prec)
 {
   pari_sp av = avma;
-  long tx = typ(x), dT, bit;
+  long tx = typ(x), dT = 1, bit;
   GEN V;
 
-  if (!T) dT = 1;
-  else if (typ(T) == t_POL)
+  if (T)
   {
-    GEN lT = leading_coeff(T);
-    if (!RgX_is_ZX(T) || !equali1(lT)) pari_err_TYPE("galoisdep", T);
+    if (typ(T) != t_POL || !RgX_is_ZX(T)) pari_err_TYPE("galoisdep", T);
     dT = degpol(T);
   }
   if (is_rational_t(tx)) return gcopy(x);

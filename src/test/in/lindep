@@ -27,6 +27,7 @@ galoisdep(x*zT+sqrt(5), T, zT)
 galoisdep([exp(2*I*Pi/5)+2], T, zT)
 z=sqrt(2);
 galoisdep(z+1, x^2-2)
+galoisdep(z+1, 4*x^2-2)
 T=x^3-2; vT=polroots(T); z=3*2^(1/3)+1;
 galoisdep(z, T, vT[1])
 type(galoisdep(z, T, vT[2]))

@@ -2,16 +2,16 @@ Function: galoisdep
 Section: linear_algebra
 C-Name: galoisdep
 Prototype: GGDGp
-Help: galoisdep(V,T,{rootT}): T being a monic integral polynomial
+Help: galoisdep(V,T,{rootT}): T being an integral polynomial
  and V being a scalar, vector, or matrix, returns a reasonable
  approximation of V with polmods modulo T. The rootT argument,
  if present, must be an element of polroots(T), i.e. a root of T fixing a
  complex embedding of Q[x]/(T).
-Doc: $T$ being a monic integral polynomial, Galois over $\Q$, and $V$
- being a scalar, vector, or matrix, returns a reasonable
- approximation of $V$ with polmods modulo $T$. The \var{rootT} argument,
- if present, if present, must be an element of \kbd{polroots(T)}, i.e.~a
- root of $T$ fixing a complex embedding of $\Q[x]/(T)$.
+Doc: $T$ being an integral polynomial and $V$ being a scalar, vector, or
+ matrix, returns a reasonable approximation of $V$ with polmods modulo $T$.
+ The \var{rootT} argument, if present, if present, must be an element of
+ \kbd{polroots(T)}, i.e.~a root of $T$ fixing a complex embedding of
+ $\Q[x]/(T)$.
  \bprog
  ? galoisdep(sqrt(5), polcyclo(5))
  %1 = Mod(-2*x^3 - 2*x^2 - 1, x^4 + x^3 + x^2 + x + 1)
