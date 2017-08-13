@@ -1815,6 +1815,7 @@ Q_denom(GEN x)
   {
     case t_INT: return gen_1;
     case t_FRAC: return gel(x,2);
+    case t_COMPLEX: return lcmii(Q_denom(gel(x,1)), Q_denom(gel(x,2)));
 
     case t_VEC: case t_COL: case t_MAT:
       l = lg(x); if (l == 1) return gen_1;
@@ -1871,6 +1872,11 @@ Q_muli_to_int(GEN x, GEN d)
       xd = gel(x,2); av = avma;
       y = mulii(xn, diviiexact(d, xd));
       return gerepileuptoint(av, y);
+    case t_COMPLEX:
+      y = cgetg(3,t_COMPLEX);
+      gel(y,1) = Q_muli_to_int(gel(x,1),d);
+      gel(y,2) = Q_muli_to_int(gel(x,2),d);
+      return y;
 
     case t_VEC: case t_COL: case t_MAT:
       y = cgetg_copy(x, &l);

@@ -321,6 +321,7 @@ BA   39- ellisomat(E,{fl}) is now ellisomat(E,{p},{fl}) (p degree of isogenies)
      41- removed resultant_all, use RgX_resultant_all
      42- polresultant: no longer compute the content of arguments
          (potentially very expensive for a generically small gain)
+     43- support Q(i) in Q_denom / Q_remove_denom
 
   Removed
       1- file 'MACHINES' (no longer maintained)
