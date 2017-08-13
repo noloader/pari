@@ -984,3 +984,28 @@ ZXX_to_Kronecker(GEN P, long n)
   GEN z = ZXX_to_Kronecker_spec(P+2, lgpol(P), n);
   setvarn(z,varn(P)); return z;
 }
+
+GEN
+QX_mul(GEN x, GEN y)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN dy, ny = Q_primitive_part(y, &dy);
+  GEN z = ZX_mul(nx, ny);
+  if (dx || dy)
+  {
+    GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
+    return RgX_Rg_mul(z, d);
+  } else
+    return z;
+}
+
+GEN
+QX_sqr(GEN x)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN z = ZX_sqr(nx);
+  if (dx)
+    return RgX_Rg_mul(z, gsqr(dx));
+  else
+    return z;
+}

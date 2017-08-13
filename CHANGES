@@ -250,6 +250,7 @@ BA   95- [libpari] RgX_digits
 BA   97- ellisomat: support for curve over finite field without CM
      98- GP function: bestapprnf
      99- [libpari] vec_prepend, lindepfull_bit
+BA  100- [libpari] QX_mul/QX_sqr
 
   Changed
       1- rewrite bnfnarrow
