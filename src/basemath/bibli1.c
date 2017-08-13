@@ -710,36 +710,42 @@ real_indep(GEN re, GEN im, long bit)
 }
 
 GEN
-lindep_bit(GEN x, long bit)
+lindepfull_bit(GEN x, long bit)
 {
   long lx = lg(x), ly, i, j;
-  pari_sp av = avma;
   GEN re, im, M;
 
   if (! is_vec_t(typ(x))) pari_err_TYPE("lindep2",x);
   if (lx <= 2)
   {
-    if (lx == 2 && gequal0(x)) return mkcol(gen_1);
-    return cgetg(1,t_COL);
+    if (lx == 2 && gequal0(x)) return matid(1);
+    return NULL;
   }
   re = real_i(x);
   im = imag_i(x);
   /* independent over R ? */
-  if (lx == 3 && real_indep(re,im,bit)) { avma = av; return cgetg(1, t_COL); }
+  if (lx == 3 && real_indep(re,im,bit)) return NULL;
   if (gequal0(im)) im = NULL;
   ly = im? lx+2: lx+1;
   M = cgetg(lx,t_MAT);
   for (i=1; i<lx; i++)
   {
     GEN c = cgetg(ly,t_COL); gel(M,i) = c;
-    for (j=1; j<lx; j++) gel(c,j) = (i==j)? gen_1: gen_0;
+    for (j=1; j<lx; j++) gel(c,j) = gen_0;
+    gel(c,i) = gen_1;
     gel(c,lx)           = gtrunc2n(gel(re,i), bit);
     if (im) gel(c,lx+1) = gtrunc2n(gel(im,i), bit);
   }
-  M = ZM_lll(M, 0.99, LLL_INPLACE);
-  M = gel(M,1);
-  M[0] = evaltyp(t_COL) | evallg(lx);
-  return gerepilecopy(av, M);
+  return ZM_lll(M, 0.99, LLL_INPLACE);
+}
+GEN
+lindep_bit(GEN x, long bit)
+{
+  pari_sp av = avma;
+  GEN v, M = lindepfull_bit(x,bit);
+  if (!M) { avma = av; return cgetg(1, t_COL); }
+  v = gel(M,1); setlg(v, lg(M));
+  return gerepilecopy(av, v);
 }
 /* deprecated */
 GEN
@@ -942,6 +948,101 @@ seralgdep(GEN s, long p, long r)
   for (n = 0; n < p; n++)
     gel(v, n+1) = RgV_to_RgX(vecslice(D, r*n+1, r*n+r), vy);
   return gerepilecopy(av, RgV_to_RgX(v, 0));
+}
+
+/* FIXME: could precompute ZM_lll attached to V[2..] */
+static GEN
+lindepcx(GEN V, long bit)
+{
+  GEN Vr = real_i(V), Vi = imag_i(V);
+  if (gexpo(Vr) < -bit) V = Vi;
+  else if (gexpo(Vi) < -bit) V = Vr;
+  return lindepfull_bit(V, bit);
+}
+/* c floating point t_REAL or t_COMPLEX, T ZX, recognize in Q[x]/(T).
+ * V helper vector (containing complex roots of T), MODIFIED */
+static GEN
+cx_galoisdep(GEN c, GEN T, GEN V, long bit)
+{
+  GEN M, a, v;
+  long i, l;
+  gel(V,1) = gneg(c); M = lindepcx(V, bit);
+  if (!M) pari_err(e_MISC, "cannot rationalize coeff in galoisdep");
+  l = lg(M); a = NULL;
+  for (i = 1; i < l; i ++) { v = gel(M,i); a = gel(v,1); if (signe(a)) break; }
+  v = RgC_Rg_div(vecslice(v, 2, lg(M)-1), a);
+  if (!T) return gel(v,1);
+  v = RgV_to_RgX(v, varn(T)); l = lg(v);
+  if (l == 2) return gen_0;
+  if (l == 3) return gel(v,2);
+  return mkpolmod(v, T);
+}
+static GEN
+galoisdep_i(GEN x, GEN T, GEN V, long bit)
+{
+  long i, l, tx = typ(x);
+  GEN z;
+  switch (tx)
+  {
+    case t_INT: case t_FRAC: return x;
+    case t_REAL: case t_COMPLEX: return cx_galoisdep(x, T, V, bit);
+    case t_POLMOD: if (RgX_equal(gel(x,1),T)) return x;
+                   break;
+    case t_POL: case t_SER: case t_VEC: case t_COL: case t_MAT:
+      l = lg(x); z = cgetg(l, tx);
+      for (i = 1; i < lontyp[tx]; i++) z[i] = x[i];
+      for (; i < l; i++) gel(z,i) = galoisdep_i(gel(x,i), T, V, bit);
+      return z;
+  }
+  pari_err_TYPE("mfcxtoQ", x);
+  return NULL;/*LCOV_EXCL_LINE*/
+}
+
+GEN
+galoisdep(GEN x, GEN T, GEN roT, long prec)
+{
+  pari_sp av = avma;
+  long tx = typ(x), dT, bit;
+  GEN V;
+
+  if (typ(T) == t_POL)
+  {
+    GEN lT = leading_coeff(T);
+    if (!RgX_is_ZX(T) || !equali1(lT)) pari_err_TYPE("galoisdep", T);
+    dT = degpol(T);
+  }
+  else
+  {
+    if (!isint1(T)) pari_err_TYPE("galoisdep", T);
+    T = NULL; dT = 0;
+  }
+  if (is_rational_t(tx)) return gcopy(x);
+  if (tx == t_POLMOD)
+  {
+    if (!T || !RgX_equal(T, gel(x,1))) pari_err_TYPE("galoisdep",x);
+    return gcopy(x);
+  }
+
+  if (roT)
+  {
+    long l = gprecision(roT);
+    switch(typ(roT))
+    {
+      case t_INT: case t_FRAC: case t_REAL: case t_COMPLEX: break;
+      default: pari_err_TYPE("galoisdep", roT);
+    }
+    if (prec < l) prec = l;
+  }
+  else if (!T)
+    roT = mkvec(gen_1);
+  else
+  {
+    long n = poliscyclo(T); /* cyclotomic is an important special case */
+    roT = n? rootsof1u_cx(n,prec): gel(QX_complex_roots(T,prec), 1);
+  }
+  V = vec_prepend(gpowers(roT, dT-1), NULL);
+  bit = prec2nbits_mul(prec, 0.8);
+  return gerepilecopy(av, galoisdep_i(x, T, V, bit));
 }
 
 /********************************************************************/

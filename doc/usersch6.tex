@@ -2541,6 +2541,15 @@ above: multiply the input by $2^b$ and round to nearest integer before
 looking for a linear dependency. Truncating dubious bits allows to find
 better relations.
 
+\fun{GEN}{lindepfull_bit}{GEN v, long b} as \kbd{lindep\_bit} but return a
+matrix $M$ with $n = \#v$ columns and $r$ rows, with $r = n+1$ (if $v$ is
+real) or $n+2$ (general case) which is an LLL-reduced basis of the lattice
+formed by concatenating vertically an identity matrix and the floor of $2^b
+\kbd{real}(v)$ and $2^b \kbd{imag}(v)$ if $r = n+2$. The first $n$ rows of
+$M$ potentially correspond to relations: whenever the last $r-n$ entries of a
+column are small. The function \kbd{lindep\_bit} essentially returns the
+first column of $M$ truncated to $n$ components.
+
 \fun{GEN}{lindep_padic}{GEN v} $p$-adic entries.
 
 \fun{GEN}{lindep_Xadic}{GEN v} polynomial entries.

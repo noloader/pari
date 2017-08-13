@@ -1,0 +1,31 @@
+Function: galoisdep
+Section: linear_algebra
+C-Name: galoisdep
+Prototype: GGDGp
+Help: galoisdep(V,T,{rootT}): T being a monic integral polynomial
+ and V being a scalar, vector, or matrix, returns a reasonable
+ approximation of V with polmods modulo T. The rootT argument,
+ if present, must be an element of polroots(T), i.e. a root of T fixing a
+ complex embedding of Q[x]/(T).
+Doc: $T$ being a monic integral polynomial, Galois over $\Q$, and $V$
+ being a scalar, vector, or matrix, returns a reasonable
+ approximation of $V$ with polmods modulo $T$. The \var{rootT} argument,
+ if present, if present, must be an element of \kbd{polroots(T)}, i.e.~a
+ root of $T$ fixing a complex embedding of $\Q[x]/(T)$.
+ \bprog
+ ? galoisdep(sqrt(5), polcyclo(5))
+ %1 = Mod(-2*x^3 - 2*x^2 - 1, x^4 + x^3 + x^2 + x + 1)
+ ? galoisdep(sqrt(5), polcyclo(5), exp(4*I*Pi/5))
+ %2 = Mod(2*x^3 + 2*x^2 + 1, x^4 + x^3 + x^2 + x + 1)
+ @eprog\noindent When the output has huge rational coefficients, try to
+ increase the working \kbd{realbitprecision}: if the answer does not
+ stabilize, consider that the reconstruction failed.
+ Beware that if $T$ is not Galois over $\Q$, some embeddings
+ may not allow to reconstruct $V$:
+ \bprog
+ ? T = x^3-2; vT = polroots(T); z = 3*2^(1/3)+1;
+ ? galoisdep(z, T, vT[1])
+ %2 = Mod(3*x + 1, x^3 - 2)
+ ? galoisdep(z, T, vT[2])
+ %3 = 4213714286230872/186454048314072  \\ close to 2^(1/3) + 1
+ @eprog

@@ -534,6 +534,16 @@ vec_append(GEN V, GEN s)
 }
 /* shallow*/
 INLINE GEN
+vec_prepend(GEN v, GEN s)
+{
+  long i, l = lg(v);
+  GEN w = cgetg(l+1, typ(v));
+  gel(w,1) = s;
+  for (i = 2; i <= l; ++i) gel(w,i) = gel(v,i-1);
+  return w;
+}
+/* shallow*/
+INLINE GEN
 vec_setconst(GEN v, GEN x)
 {
   long i, l = lg(v);
