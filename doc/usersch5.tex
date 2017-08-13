@@ -8681,7 +8681,9 @@ polynomial by a \typ{FFELT} equal to $1$ first.
 
 \item 0: none of the others (presumably multivariate, possibly inconsistent).
 
-\item \typ{INT}: defined over $\Q$ (not necessarily $\Z$).
+\item \typ{INT}: defined over $\Z$.
+
+\item \typ{FRAC}: defined over $\Q$.
 
 \item \typ{INTMOD}: defined over $\Z/p\Z$, where \kbd{*ptp} is set to $p$.
 It is not checked whether $p$ is prime.
@@ -8700,6 +8702,8 @@ to the minimal accuracy (as per \kbd{precision}) of inexact components.
 \item \typ{FFELT}: defined over a finite field $\F_{p^k}$, where \kbd{*ptp}
 is set to the field characteristic $p$ and \kbd{*ptpol} is set to a
 \typ{FFELT} belonging to the field.
+
+\item \typ{POL}: defined over a polynomial ring.
 
 \item other values are composite corresponding to quotients $R[X]/(T)$, with
 one primary type \kbd{t1}, describing the form of the quotient,

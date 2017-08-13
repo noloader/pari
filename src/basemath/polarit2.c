@@ -326,7 +326,10 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
   long j;
   switch(typ(c))
   {
-    case t_INT: case t_FRAC:
+    case t_INT:
+      break;
+    case t_FRAC:
+      t[1]=1; break;
       break;
     case t_REAL:
       update_prec(precision(c), pa);
@@ -398,7 +401,7 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
         long pabis;
         switch(RgX_type(gel(c,j),&pbis,&polbis,&pabis))
         {
-          case t_INT: t[9]=1; break;
+          case t_INT: case t_FRAC: t[9]=1; break;
           case t_INTMOD: t[3]=1; *t2 = t_POLMOD; break;
           case t_PADIC: t[7]=1; *t2 = t_POLMOD; update_prec(pabis,pa); break;
           default: return 0;
@@ -412,7 +415,8 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
   }
   return 1;
 }
-/* t[0..1] unused. Other values, if set, indicate a coefficient of type
+/* t[0] unused. Other values, if set, indicate a coefficient of type
+ * t[1] : t_FRAC
  * t[2] : t_REAL
  * t[3] : t_INTMOD
  * t[4] : t_COMPLEX of rationals (t_INT/t_FRAC)
@@ -453,6 +457,7 @@ choosetype(long *t, long t2, GEN ff, GEN *pol)
   if (t[4]) return code(t_COMPLEX,t_INT);
   if (t[3]) return t_INTMOD;
   if (t[7]) return t_PADIC;
+  if (t[1]) return t_FRAC;
   return t_INT;
 }
 
@@ -754,7 +759,8 @@ factor(GEN x)
       {
         case 0: pari_err_IMPL("factor for general polynomials");
         case t_POL: return RgXY_factor(x);
-        case t_INT: return QX_factor(x);
+        case t_INT: return ZX_factor(x);
+        case t_FRAC: return QX_factor(x);
         case t_INTMOD: return factmod(x,p);
 
         case t_COMPLEX: y=cgetg(3,t_MAT); lx=lg(x)-2;
@@ -808,7 +814,7 @@ factor(GEN x)
           RgX_type_decode(tx, &t1, &t2);
           switch (t2)
           {
-            case t_INT: p1 = nffactor(pol,x); break;
+            case t_INT: case t_FRAC: p1 = nffactor(pol,x); break;
             case t_INTMOD:
               pol = RgX_to_FpX(pol, p);
               if (FpX_is_squarefree(pol,p) && FpX_nbfact(pol, p) == 1)
