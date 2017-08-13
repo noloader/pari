@@ -1005,16 +1005,12 @@ galoisdep(GEN x, GEN T, GEN roT, long prec)
   long tx = typ(x), dT, bit;
   GEN V;
 
-  if (typ(T) == t_POL)
+  if (!T) dT = 1;
+  else if (typ(T) == t_POL)
   {
     GEN lT = leading_coeff(T);
     if (!RgX_is_ZX(T) || !equali1(lT)) pari_err_TYPE("galoisdep", T);
     dT = degpol(T);
-  }
-  else
-  {
-    if (!isint1(T)) pari_err_TYPE("galoisdep", T);
-    T = NULL; dT = 0;
   }
   if (is_rational_t(tx)) return gcopy(x);
   if (tx == t_POLMOD)
@@ -1034,7 +1030,7 @@ galoisdep(GEN x, GEN T, GEN roT, long prec)
     if (prec < l) prec = l;
   }
   else if (!T)
-    roT = mkvec(gen_1);
+    roT = gen_1;
   else
   {
     long n = poliscyclo(T); /* cyclotomic is an important special case */
