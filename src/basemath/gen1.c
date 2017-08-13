@@ -2141,20 +2141,6 @@ gmul(GEN x, GEN y)
   return NULL; /* LCOV_EXCL_LINE */
 }
 
-int
-ff_poltype(GEN *x, GEN *p, GEN *pol)
-{
-  GEN Q, P = *x;
-  if (!signe(P)) return 0;
-  if (!RgX_is_FpXQX(P,pol,p) || !*p || !*pol || typ(*pol)!=t_POL)
-    return 0;
-  Q = RgX_to_FpX(*pol, *p);
-  P = RgX_to_FpXQX(P, Q, *p);
-  *x = ZXX_to_Kronecker(P, degpol(Q));
-  *pol = Q;
-  return 1;
-}
-
 /* return a non-normalized result */
 GEN
 sqr_ser_part(GEN x, long l1, long l2)
