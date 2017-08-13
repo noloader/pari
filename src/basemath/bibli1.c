@@ -964,7 +964,7 @@ lindepcx(GEN V, long bit)
 static GEN
 cx_galoisdep(GEN c, GEN T, GEN V, long bit)
 {
-  GEN M, a, v;
+  GEN M, a, v = NULL;
   long i, l;
   gel(V,1) = gneg(c); M = lindepcx(V, bit);
   if (!M) pari_err(e_MISC, "cannot rationalize coeff in galoisdep");
