@@ -1529,35 +1529,46 @@ RgX_mul_i(GEN x, GEN y)
   setvarn(z, varn(x)); return z;
 }
 
-GEN
-RgX_mul(GEN x, GEN y)
+static GEN
+zero_FpX_mod(GEN p, long v)
 {
-  GEN p, pol, xx, z;
-  pari_sp av;
-  if (RgX_is_ZX(x) && RgX_is_ZX(y)) return ZX_mul(x, y);
-  av = avma;
-  p = NULL;
-  if (RgX_is_FpX(x, &p) && RgX_is_FpX(y, &p))
-  {
-    if (lgefint(p) == 3)
-    {
-      ulong pp = uel(p, 2);
-      z = Flx_to_ZX_inplace(Flx_mul(RgX_to_Flx(x, pp),
-                                    RgX_to_Flx(y, pp), pp));
-    }
-    else
-      z = FpX_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
-    return gerepileupto(av, FpX_to_mod(z, p));
-  }
-  p = NULL; pol = NULL; xx = x;
-  if (ff_poltype(&xx, &p, &pol) && ff_poltype(&y, &p, &pol))
-  {
-    z = ZX_mul(xx, y);
-    if (p) z = FpX_to_mod(z, p);
-    if (pol) z = Kronecker_to_mod(z, pol);
-    return gerepileupto(av, z);
-  }
-  avma = av; return RgX_mul_i(x,y);
+  GEN r = cgetg(3,t_POL);
+  r[1] = evalvarn(v);
+  gel(r,2) = mkintmod(gen_0, icopy(p));
+  return r;
+}
+
+static GEN
+RgX_mul_FpX(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r = FpX_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpX_mod(p, varn(x)); }
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+zero_FpXQX_mod(GEN pol, GEN p, long v)
+{
+  GEN r = cgetg(3,t_POL);
+  r[1] = evalvarn(v);
+  gel(r,2) = mkpolmod(mkintmod(gen_0, icopy(p)), gcopy(pol));
+  return r;
+}
+
+static GEN
+RgX_mul_FpXQX(GEN x, GEN y, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  long dT = degpol(T);
+  GEN kx = ZXX_to_Kronecker(RgX_to_FpXQX(x, T, p), dT);
+  GEN ky = ZXX_to_Kronecker(RgX_to_FpXQX(y, T, p), dT);
+  GEN r = FpX_mul(kx, ky, p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpXQX_mod(pol, p, varn(x)); }
+  return gerepileupto(av, Kronecker_to_mod(FpX_to_mod(r, p), pol));
 }
 
 GEN
@@ -1567,35 +1578,68 @@ RgX_sqr_i(GEN x)
   setvarn(z,varn(x)); return z;
 }
 
+static GEN
+RgX_sqr_FpX(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  GEN r = FpX_sqr(RgX_to_FpX(x, p), p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpX_mod(p, varn(x)); }
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgX_sqr_FpXQX(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  long dT = degpol(T);
+  GEN kx = ZXX_to_Kronecker(RgX_to_FpXQX(x, T, p), dT);
+  GEN r = FpX_sqr(kx, p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpXQX_mod(pol, p, varn(x)); }
+  return gerepileupto(av, Kronecker_to_mod(FpX_to_mod(r, p), pol));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+
+GEN
+RgX_mul(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type2(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZX_mul(x,y);
+    case t_FRAC:   return QX_mul(x,y);
+    case t_FFELT:  return FFX_mul(x, y, pol);
+    case t_INTMOD: return RgX_mul_FpX(x, y, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_mul_FpXQX(x, y, pol, p);
+    default:       return RgX_mul_i(x,y);
+  }
+}
+
 GEN
 RgX_sqr(GEN x)
 {
-  GEN p, pol, z;
-  pari_sp av;
-  if (RgX_is_ZX(x)) return ZX_sqr(x);
-  av = avma;
-  p = NULL;
-  if (RgX_is_FpX(x, &p))
+  GEN p, pol;
+  long pa;
+  long t = RgX_type(x,&p,&pol,&pa);
+  switch(t)
   {
-    if (lgefint(p) == 3)
-    {
-      ulong pp = uel(p, 2);
-      z = Flx_to_ZX_inplace(Flx_sqr(RgX_to_Flx(x, pp), pp));
-    }
-    else
-      z = FpX_sqr(RgX_to_FpX(x, p), p);
-    return gerepileupto(av, FpX_to_mod(z, p));
+    case t_INT:    return ZX_sqr(x);
+    case t_FRAC:   return QX_sqr(x);
+    case t_FFELT:  return FFX_sqr(x, pol);
+    case t_INTMOD: return RgX_sqr_FpX(x, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_sqr_FpXQX(x, pol, p);
+    default:       return RgX_sqr_i(x);
   }
-  p = NULL; pol = NULL;
-  if (ff_poltype(&x, &p, &pol))
-  {
-    z = ZX_sqr(x);
-    if (p) z = FpX_to_mod(z, p);
-    if (pol) z = Kronecker_to_mod(z, pol);
-    return gerepileupto(av, z);
-  }
-  avma = av; return RgX_sqr_i(x);
 }
+
+#undef code
 
 /*******************************************************************/
 /*                                                                 */
