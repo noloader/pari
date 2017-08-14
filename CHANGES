@@ -248,7 +248,7 @@ JA   92- GP functions ecpp, ecppexport, ecppisvalid.
 BA   95- [libpari] RgX_digits
      96- [libpari] Q_content_safe
 BA   97- ellisomat: support for curve over finite field without CM
-     98- GP function: galoisdep
+     98- GP function: bestapprnf
      99- [libpari] vec_prepend, lindepfull_bit
 
   Changed

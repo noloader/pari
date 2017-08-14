@@ -962,12 +962,12 @@ lindepcx(GEN V, long bit)
 /* c floating point t_REAL or t_COMPLEX, T ZX, recognize in Q[x]/(T).
  * V helper vector (containing complex roots of T), MODIFIED */
 static GEN
-cx_galoisdep(GEN c, GEN T, GEN V, long bit)
+cx_bestapprnf(GEN c, GEN T, GEN V, long bit)
 {
   GEN M, a, v = NULL;
   long i, l;
   gel(V,1) = gneg(c); M = lindepcx(V, bit);
-  if (!M) pari_err(e_MISC, "cannot rationalize coeff in galoisdep");
+  if (!M) pari_err(e_MISC, "cannot rationalize coeff in bestapprnf");
   l = lg(M); a = NULL;
   for (i = 1; i < l; i ++) { v = gel(M,i); a = gel(v,1); if (signe(a)) break; }
   v = RgC_Rg_div(vecslice(v, 2, lg(M)-1), a);
@@ -978,20 +978,20 @@ cx_galoisdep(GEN c, GEN T, GEN V, long bit)
   return mkpolmod(v, T);
 }
 static GEN
-galoisdep_i(GEN x, GEN T, GEN V, long bit)
+bestapprnf_i(GEN x, GEN T, GEN V, long bit)
 {
   long i, l, tx = typ(x);
   GEN z;
   switch (tx)
   {
     case t_INT: case t_FRAC: return x;
-    case t_REAL: case t_COMPLEX: return cx_galoisdep(x, T, V, bit);
+    case t_REAL: case t_COMPLEX: return cx_bestapprnf(x, T, V, bit);
     case t_POLMOD: if (RgX_equal(gel(x,1),T)) return x;
                    break;
     case t_POL: case t_SER: case t_VEC: case t_COL: case t_MAT:
       l = lg(x); z = cgetg(l, tx);
       for (i = 1; i < lontyp[tx]; i++) z[i] = x[i];
-      for (; i < l; i++) gel(z,i) = galoisdep_i(gel(x,i), T, V, bit);
+      for (; i < l; i++) gel(z,i) = bestapprnf_i(gel(x,i), T, V, bit);
       return z;
   }
   pari_err_TYPE("mfcxtoQ", x);
@@ -999,7 +999,7 @@ galoisdep_i(GEN x, GEN T, GEN V, long bit)
 }
 
 GEN
-galoisdep(GEN x, GEN T, GEN roT, long prec)
+bestapprnf(GEN x, GEN T, GEN roT, long prec)
 {
   pari_sp av = avma;
   long tx = typ(x), dT = 1, bit;
@@ -1007,13 +1007,14 @@ galoisdep(GEN x, GEN T, GEN roT, long prec)
 
   if (T)
   {
-    if (typ(T) != t_POL || !RgX_is_ZX(T)) pari_err_TYPE("galoisdep", T);
+    if (typ(T) != t_POL) T = nf_get_pol(checknf(T));
+    else if (!RgX_is_ZX(T)) pari_err_TYPE("bestapprnf", T);
     dT = degpol(T);
   }
   if (is_rational_t(tx)) return gcopy(x);
   if (tx == t_POLMOD)
   {
-    if (!T || !RgX_equal(T, gel(x,1))) pari_err_TYPE("galoisdep",x);
+    if (!T || !RgX_equal(T, gel(x,1))) pari_err_TYPE("bestapprnf",x);
     return gcopy(x);
   }
 
@@ -1023,7 +1024,7 @@ galoisdep(GEN x, GEN T, GEN roT, long prec)
     switch(typ(roT))
     {
       case t_INT: case t_FRAC: case t_REAL: case t_COMPLEX: break;
-      default: pari_err_TYPE("galoisdep", roT);
+      default: pari_err_TYPE("bestapprnf", roT);
     }
     if (prec < l) prec = l;
   }
@@ -1036,7 +1037,7 @@ galoisdep(GEN x, GEN T, GEN roT, long prec)
   }
   V = vec_prepend(gpowers(roT, dT-1), NULL);
   bit = prec2nbits_mul(prec, 0.8);
-  return gerepilecopy(av, galoisdep_i(x, T, V, bit));
+  return gerepilecopy(av, bestapprnf_i(x, T, V, bit));
 }
 
 /********************************************************************/
