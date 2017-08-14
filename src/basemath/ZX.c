@@ -986,6 +986,26 @@ ZXX_to_Kronecker(GEN P, long n)
 }
 
 GEN
+ZXQX_sqr(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  long n = degpol(T);
+  GEN z = ZXX_sqr_Kronecker(x, n);
+  z = Kronecker_to_ZXX(z, n, varn(T));
+  return gerepileupto(av, z);
+}
+
+GEN
+ZXQX_mul(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  long n = degpol(T);
+  GEN z = ZXX_mul_Kronecker(x, y, n);
+  z = Kronecker_to_ZXX(z, n, varn(T));
+  return gerepileupto(av, z);
+}
+
+GEN
 QX_mul(GEN x, GEN y)
 {
   GEN dx, nx = Q_primitive_part(x, &dx);

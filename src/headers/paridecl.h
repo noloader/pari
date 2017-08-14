@@ -1250,6 +1250,8 @@ long    ZX_val(GEN x);
 long    ZX_valrem(GEN x, GEN *Z);
 GEN     ZXQM_mul(GEN x, GEN y, GEN T);
 GEN     ZXQM_sqr(GEN x, GEN T);
+GEN     ZXQX_sqr(GEN x, GEN T);
+GEN     ZXQX_mul(GEN x, GEN y, GEN T);
 GEN     ZXT_remi2n(GEN z, long n);
 GEN     ZXV_Z_mul(GEN y, GEN x);
 GEN     ZXV_dotproduct(GEN V, GEN W);
