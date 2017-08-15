@@ -401,7 +401,8 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
         long pabis;
         switch(RgX_type(gel(c,j),&pbis,&polbis,&pabis))
         {
-          case t_INT: case t_FRAC: t[9]=1; break;
+          case t_INT:  *t2 = t_POLMOD; break;
+          case t_FRAC: t[1]=1; *t2 = t_POLMOD; break;
           case t_INTMOD: t[3]=1; *t2 = t_POLMOD; break;
           case t_PADIC: t[7]=1; *t2 = t_POLMOD; update_prec(pabis,pa); break;
           default: return 0;
@@ -424,7 +425,7 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
  * t[6] : t_COMPLEX of t_REAL
  * t[7] : t_PADIC
  * t[8] : t_QUAD of rationals (t_INT/t_FRAC)
- * t[9]: t_POLMOD of rationals (t_INT/t_FRAC)
+ * t[9]:  Unused
  * t[10]: t_POL (recursive factorisation) */
 /* if t2 != 0: t_POLMOD/t_QUAD/t_COMPLEX of modular (t_INTMOD/t_PADIC,
  * given by t) */
@@ -451,8 +452,9 @@ choosetype(long *t, long t2, GEN ff, GEN *pol)
   {
     if (t[3]) return code(t2,t_INTMOD);
     if (t[7]) return code(t2,t_PADIC);
+    if (t[1]) return code(t2,t_FRAC);
+    return code(t2,t_INT);
   }
-  if (t[9]) return code(t_POLMOD,t_INT);
   if (t[8]) return code(t_QUAD,t_INT);
   if (t[4]) return code(t_COMPLEX,t_INT);
   if (t[3]) return t_INTMOD;
