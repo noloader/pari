@@ -960,7 +960,7 @@ ZXX_to_Kronecker_spec(GEN P, long lP, long n)
   {
     long j;
     GEN c = gel(P,i);
-    if (typ(c)==t_INT)
+    if (typ(c)!=t_POL)
     {
       gel(y,k++) = c;
       j = 3;

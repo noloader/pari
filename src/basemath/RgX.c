@@ -1580,6 +1580,16 @@ RgX_mul_ZXQX(GEN x, GEN y, GEN T)
   return gerepileupto(av, Kronecker_to_mod(r, T));
 }
 
+static GEN
+RgX_mul_QXQX(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  long dT = degpol(T);
+  GEN r = QX_mul(ZXX_to_Kronecker(liftpol_shallow(x), dT),
+                 ZXX_to_Kronecker(liftpol_shallow(y), dT));
+  return gerepileupto(av, Kronecker_to_mod(r, T));
+}
+
 GEN
 RgX_sqr_i(GEN x)
 {
@@ -1619,6 +1629,15 @@ RgX_sqr_ZXQX(GEN x, GEN T)
   return gerepileupto(av, Kronecker_to_mod(r, T));
 }
 
+static GEN
+RgX_sqr_QXQX(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  long dT = degpol(T);
+  GEN r = QX_sqr(ZXX_to_Kronecker(liftpol_shallow(x), dT));
+  return gerepileupto(av, Kronecker_to_mod(r, T));
+}
+
 #define code(t1,t2) ((t1 << 6) | t2)
 
 GEN
@@ -1635,6 +1654,8 @@ RgX_mul(GEN x, GEN y)
     case t_INTMOD: return RgX_mul_FpX(x, y, p);
     case code(t_POLMOD, t_INT):
                    return RgX_mul_ZXQX(x, y, pol);
+    case code(t_POLMOD, t_FRAC):
+                   return RgX_mul_QXQX(x, y, pol);
     case code(t_POLMOD, t_INTMOD):
                    return RgX_mul_FpXQX(x, y, pol, p);
     default:       return RgX_mul_i(x,y);
@@ -1655,6 +1676,8 @@ RgX_sqr(GEN x)
     case t_INTMOD: return RgX_sqr_FpX(x, p);
     case code(t_POLMOD, t_INT):
                    return RgX_sqr_ZXQX(x, pol);
+    case code(t_POLMOD, t_FRAC):
+                   return RgX_sqr_QXQX(x, pol);
     case code(t_POLMOD, t_INTMOD):
                    return RgX_sqr_FpXQX(x, pol, p);
     default:       return RgX_sqr_i(x);
