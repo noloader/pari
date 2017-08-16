@@ -23,15 +23,6 @@ get_FpX_red(GEN T, GEN *B)
   *B = gel(T,1); return gel(T,2);
 }
 
-GEN
-get_FpX_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
-
-long
-get_FpX_var(GEN T) { return typ(T)==t_VEC? varn(gel(T,2)): varn(T); }
-
-long
-get_FpX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
-
 /***********************************************************************/
 /**                                                                   **/
 /**                              FpX                                  **/

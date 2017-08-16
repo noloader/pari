@@ -1748,6 +1748,42 @@ Fp_div(GEN a, GEN b, GEN m)
 INLINE GEN
 Flx_mulu(GEN x, ulong a, ulong p) { return Flx_Fl_mul(x,a%p,p); }
 
+INLINE GEN
+get_Flx_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
+
+INLINE long
+get_Flx_var(GEN T) { return typ(T)==t_VEC? mael(T,2,1): T[1]; }
+
+INLINE long
+get_Flx_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
+
+INLINE GEN
+get_FlxqX_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
+
+INLINE long
+get_FlxqX_var(GEN T) { return typ(T)==t_VEC? varn(gel(T,2)): varn(T); }
+
+INLINE long
+get_FlxqX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
+
+INLINE GEN
+get_FpX_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
+
+INLINE long
+get_FpX_var(GEN T) { return typ(T)==t_VEC? varn(gel(T,2)): varn(T); }
+
+INLINE long
+get_FpX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
+
+INLINE GEN
+get_FpXQX_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
+
+INLINE long
+get_FpXQX_var(GEN T) { return typ(T)==t_VEC? varn(gel(T,2)): varn(T); }
+
+INLINE long
+get_FpXQX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
+
 /*******************************************************************/
 /*                                                                 */
 /*                        ADDMULII / SUBMULII                      */

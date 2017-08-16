@@ -183,15 +183,6 @@ get_FpXQX_red(GEN T, GEN *B)
 }
 
 GEN
-get_FpXQX_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
-
-long
-get_FpXQX_var(GEN T) { return typ(T)==t_VEC? varn(gel(T,2)): varn(T); }
-
-long
-get_FpXQX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
-
-GEN
 random_FpXQX(long d1, long v, GEN T, GEN p)
 {
   long dT = get_FpX_degree(T), vT = get_FpX_var(T);

@@ -23,15 +23,6 @@ get_Flx_red(GEN T, GEN *B)
   *B = gel(T,1); return gel(T,2);
 }
 
-GEN
-get_Flx_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
-
-long
-get_Flx_var(GEN T) { return typ(T)==t_VEC? mael(T,2,1): T[1]; }
-
-long
-get_Flx_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
-
 /***********************************************************************/
 /**                                                                   **/
 /**               Flx                                                 **/
@@ -4165,16 +4156,6 @@ get_FlxqX_red(GEN T, GEN *B)
   if (typ(T)!=t_VEC) { *B=NULL; return T; }
   *B = gel(T,1); return gel(T,2);
 }
-
-GEN
-get_FlxqX_mod(GEN T) { return typ(T)==t_VEC? gel(T,2): T; }
-
-long
-get_FlxqX_var(GEN T) { return typ(T)==t_VEC? varn(gel(T,2)): varn(T); }
-
-long
-get_FlxqX_degree(GEN T) { return typ(T)==t_VEC? degpol(gel(T,2)): degpol(T); }
-
 
 GEN
 RgX_to_FlxqX(GEN x, GEN T, ulong p)
