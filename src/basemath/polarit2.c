@@ -239,7 +239,7 @@ static GEN
 RgXY_factor_squarefree(GEN f)
 {
   pari_sp av = avma;
-  GEN Lfac, Lmod, F, BLOC;
+  GEN Lfac, Lmod, F = NULL, BLOC = NULL;
   long vy = gvar2(f), n = RgXY_degreex(f);
   ulong i, c = itou_or_0(residual_characteristic(f));
   long val = RgX_valrem(f, &f);
