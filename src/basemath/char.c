@@ -378,7 +378,7 @@ zv_cyc_minimize(GEN cyc, GEN g, GEN coprime)
   long d, k, e, i, k0, bestk, l = lg(g), o = lg(coprime)-1;
   GEN best, gk, gd;
   ulong t;
-  if (!o) return 1;
+  if (o == 1) return 1;
   for (i = 1; i < l; i++)
     if (g[i]) break;
   if (g[i] == 1) return 1;
@@ -395,7 +395,8 @@ zv_cyc_minimize(GEN cyc, GEN g, GEN coprime)
   bestk = 1; best = g;
   for (gk = g, k = d+1; k < e; k += d)
   {
-    gk = Flv_add(gk, gd, e); if (!coprime[k]) continue;
+    long ko = k % o;
+    gk = Flv_add(gk, gd, e); if (!ko || !coprime[ko]) continue;
     gk = vecmoduu(gk, cyc);
     if (vecsmall_lexcmp(gk, best) < 0) { best = gk; bestk = k; }
   }
@@ -410,7 +411,7 @@ zv_cyc_minimal(GEN cyc, GEN g, GEN coprime)
   pari_sp av = avma;
   long d, k, e, l = lg(g), o = lg(coprime)-1; /* elt order */
   GEN gd, gk;
-  if (!o) return 1;
+  if (o == 1) return 1;
   for (k = 1; k < l; k++)
     if (g[k]) break;
   if (g[k] == 1) return 1;
@@ -427,7 +428,8 @@ zv_cyc_minimal(GEN cyc, GEN g, GEN coprime)
   gd = Flv_Fl_mul(g, d, e);
   for (gk = g, k = d+1; k < e; k += d)
   {
-    gk = Flv_add(gk, gd, e); if (!coprime[k]) continue;
+    long ko = k % o;
+    gk = Flv_add(gk, gd, e); if (!ko || !coprime[ko]) continue;
     gk = vecmoduu(gk, cyc);
     if (vecsmall_lexcmp(gk, g) < 0) { avma = av; return 0; }
   }
