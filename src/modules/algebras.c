@@ -4928,8 +4928,7 @@ alglattransporter_i(GEN al, GEN lat1, GEN lat2, int right)
   t2 = alglat_get_scalar(lat2);
   m2i = RgM_Rg_div(m2i,t2);
 
-  if (!right) MT = alg_get_multable(al);
-
+  MT = right? NULL: alg_get_multable(al);
   M = cgetg(N+1, t_MAT);
   for (i=1; i<=N; i++) {
     if (right) mt = algbasisrightmultable(al, vec_ei(N,i));
