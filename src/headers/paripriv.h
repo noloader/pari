@@ -766,11 +766,12 @@ GEN     group_export_MAGMA(GEN G);
 GEN     perm_generate(GEN S, GEN H, long o);
 long    perm_relorder(GEN p, GEN S);
 
-/* polarit1.c */
+/* FpX_factcantor.c */
 
 GEN     F2x_factcantor(GEN f, long flag);
 GEN     Flx_factcantor(GEN f, ulong p, long flag);
 GEN     FpX_factcantor(GEN f, GEN pp, long flag);
+GEN     ddf_to_simplefact(GEN D, long n);
 GEN     factcantor0(GEN f, GEN pp, long flag);
 
 /* polarit2.c */

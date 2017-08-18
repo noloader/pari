@@ -1000,19 +1000,11 @@ FpX_factor_Shoup(GEN T, GEN p)
   return V;
 }
 
-static GEN
-FpX_simplefact_Shoup(GEN T, GEN p)
+GEN
+ddf_to_simplefact(GEN D, long n)
 {
-  long i, n, s = 0, j = 1, k;
-  GEN XP, D, V;
-  pari_timer ti;
-  n = get_FpX_degree(T);
-  T = FpX_get_red(T, p);
-  if (DEBUGLEVEL>=6) timer_start(&ti);
-  XP = FpX_Frobenius(T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_Frobenius");
-  D = FpX_ddf(T, XP, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf");
+  GEN V;
+  long i, s = 0, j = 1, k;
   for (i = 1; i <= n; i++)
     s += degpol(gel(D,i))/i;
   V = cgetg(s+1, t_VECSMALL);
@@ -1024,6 +1016,21 @@ FpX_simplefact_Shoup(GEN T, GEN p)
       uel(V, j++) = i;
   }
   return V;
+}
+
+static GEN
+FpX_simplefact_Shoup(GEN T, GEN p)
+{
+  GEN XP, D;
+  long n = get_FpX_degree(T);
+  pari_timer ti;
+  T = FpX_get_red(T, p);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
+  XP = FpX_Frobenius(T, p);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_Frobenius");
+  D = FpX_ddf(T, XP, p);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf");
+  return ddf_to_simplefact(D, n);
 }
 
 /* Yun algorithm: Assume p > degpol(T) */
@@ -2007,27 +2014,16 @@ Flx_factor_Shoup(GEN T, ulong p)
 static GEN
 Flx_simplefact_Shoup(GEN T, ulong p)
 {
-  long i, n, s = 0, j = 1, k;
-  GEN XP, D, V;
+  GEN XP, D;
   pari_timer ti;
-  n = get_Flx_degree(T);
+  long n = get_Flx_degree(T);
   T = Flx_get_red(T, p);
   if (DEBUGLEVEL>=6) timer_start(&ti);
   XP = Flx_Frobenius(T, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_Frobenius");
   D = Flx_ddf(T, XP, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_ddf");
-  for (i = 1; i <= n; i++)
-    s += degpol(gel(D,i))/i;
-  V = cgetg(s+1, t_VECSMALL);
-  for (i = 1; i <= n; i++)
-  {
-    long ni = degpol(gel(D,i)), ri = ni/i;
-    if (ni == 0) continue;
-    for (k = 1; k <= ri; k++)
-      V[j++] = i;
-  }
-  return V;
+  return ddf_to_simplefact(D, n);
 }
 
 static GEN
