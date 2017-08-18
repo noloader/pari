@@ -856,16 +856,6 @@ F2xqXQ_Frobenius(GEN xp, GEN Xp, GEN f, GEN T)
 }
 
 static GEN
-F2xqX_Frobenius_powers(GEN S, GEN T)
-{
-  GEN xp = F2x_Frobenius(T);
-  GEN X  = pol_x(varn(S));
-  GEN Xp = F2xqXQ_sqr(X, S, T);
-  GEN Xq = F2xqXQ_Frobenius(xp, Xp, S, T);
-  return F2xqXQ_powers(Xq, degpol(S)-1, S, T);
-}
-
-static GEN
 FlxqX_split_part(GEN f, GEN T, ulong p)
 {
   long n = degpol(f);
@@ -1092,43 +1082,6 @@ FpXQX_split_Berlekamp(GEN *t, GEN T, GEN p)
     }
   }
   return d;
-}
-
-static void
-F2xqX_split(GEN *t, long d, GEN S, GEN T)
-{
-  GEN u = *t;
-  long l, v, cnt, dt = degpol(u), dT = F2x_degree(T);
-  pari_sp av;
-  pari_timer ti;
-  GEN w,w0;
-
-  if (dt == d) return;
-  v = varn(*t);
-  if (DEBUGLEVEL > 6) timer_start(&ti);
-  av = avma;
-  for(cnt = 1;;cnt++, avma = av)
-  { /* splits *t with probability ~ 1 - 2^(1-r) */
-    w = w0 = random_F2xqX(dt,v, T);
-    if (degpol(w) <= 0) continue;
-    for (l=1; l<d; l++) /* sum_{0<i<d} w^(q^i), result in (F_q)^r */
-      w = F2xX_add(w0, F2xqX_F2xqXQV_eval(w, S, u, T));
-    w0 = w;
-    for (l=1; l<dT; l++) /* sum_{0<i<k} w^(2^i), result in (F_2)^r */
-    {
-      w = F2xqX_rem(F2xqX_sqr(w,T), *t, T);
-      w = F2xX_add(w0,w);
-    }
-    w = F2xqX_gcd(*t,w, T); l = degpol(w);
-    if (l && l != dt) break;
-  }
-  w = gerepileupto(av,F2xqX_normalize(w,T));
-  if (DEBUGLEVEL > 6)
-    err_printf("[F2xqX_split] splitting time: %ld (%ld trials)\n",
-        timer_delay(&ti),cnt);
-  l /= d; t[l] = F2xqX_div(*t,w, T); *t = w;
-  F2xqX_split(t+l,d,S,T);
-  F2xqX_split(t  ,d,S,T);
 }
 
 static GEN
@@ -1656,33 +1609,11 @@ FpXQX_roots(GEN x, GEN T, GEN p)
   return gerepilecopy(av, FpXQX_roots_i(x, T, p));
 }
 
-static long
-F2xqX_sqf_split(GEN *t0, GEN T)
+static GEN
+FE_concat(GEN F, GEN E, long l)
 {
-  GEN *t = t0, u = *t, v, S, g, X;
-  long d, dg, N = degpol(u);
-  if (N == 1) return 1;
-  v = X = pol_x(varn(u));
-  S = F2xqX_Frobenius_powers(u, T);
-  for (d=1; d <= N>>1; d++)
-  {
-    v = F2xqX_F2xqXQV_eval(v, S, u, T);
-    g = F2xqX_normalize(F2xqX_gcd(F2xX_add(v, X), u, T), T);
-    dg = degpol(g); if (dg <= 0) continue;
-
-    /* all factors of g have degree d */
-    *t = g;
-    F2xqX_split(t, d, S, T);
-    t += dg / d;
-    N -= dg;
-    if (N)
-    {
-      u = F2xqX_div(u,g, T);
-      v = F2xqX_rem(v,u, T);
-    }
-  }
-  if (N) *t++ = u;
-  return t - t0;
+  setlg(E,l); E = shallowconcat1(E);
+  setlg(F,l); F = shallowconcat1(F); return mkvec2(F,E);
 }
 
 static GEN
@@ -1754,36 +1685,173 @@ FpXQX_factor_2(GEN f, GEN T, GEN p)
 }
 
 static GEN
-F2xqX_factcantor_i(GEN f, GEN T)
+F2xqX_ddf(GEN S, GEN Xq, GEN T)
 {
-  long lfact, d = degpol(f), j, k, lV;
-  GEN E, t, V;
-
-  switch(d)
+  pari_sp av = avma;
+  GEN b, g, h, F, f, Sr, xq;
+  long i, j, n, v, vT, dT, bo, ro;
+  long B, l, m;
+  pari_timer ti;
+  n = get_F2xqX_degree(S); v = get_F2xqX_var(S);
+  vT = get_F2x_var(T); dT = get_F2x_degree(T);
+  if (n == 0) return cgetg(1, t_VEC);
+  if (n == 1) return mkvec(get_F2xqX_mod(S));
+  B = n/2;
+  l = usqrt(B);
+  m = (B+l-1)/l;
+  S = F2xqX_get_red(S, T);
+  b = cgetg(l+2, t_VEC);
+  gel(b, 1) = polx_F2xX(v, vT);
+  gel(b, 2) = Xq;
+  bo = brent_kung_optpow(n, l-1, 1);
+  ro = l<=1 ? 0: (bo-1)/(l-1) + ((n-1)/bo);
+  if (DEBUGLEVEL>=7) timer_start(&ti);
+  if (dT <= ro)
+    for (i = 3; i <= l+1; i++)
+      gel(b, i) = F2xqXQ_pow(gel(b, i-1), int2n(dT), S, T);
+  else
   {
-    case -1: retmkmat2(mkcolcopy(f), mkvecsmall(1));
-    case 0: return trivial_fact();
+    xq = F2xqXQ_powers(gel(b, 2), bo, S, T);
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: xq baby");
+    for (i = 3; i <= l+1; i++)
+      gel(b, i) = F2xqX_F2xqXQV_eval(gel(b, i-1), xq, S, T);
+  }
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: baby");
+  xq = F2xqXQ_powers(gel(b, l+1), brent_kung_optpow(n, m-1, 1), S, T);
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: xq giant");
+  g = cgetg(m+1, t_VEC);
+  gel(g, 1) = gel(xq, 2);
+  for(i = 2; i <= m; i++)
+    gel(g, i) = F2xqX_F2xqXQV_eval(gel(g, i-1), xq, S, T);
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: giant");
+  h = cgetg(m+1, t_VEC);
+  for (j = 1; j <= m; j++)
+  {
+    pari_sp av = avma;
+    GEN gj = gel(g, j);
+    GEN e = F2xX_add(gj, gel(b, 1));
+    for (i = 2; i <= l; i++)
+      e = F2xqXQ_mul(e, F2xX_add(gj, gel(b, i)), S, T);
+    gel(h, j) = gerepileupto(av, e);
+  }
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: diff");
+  Sr = get_F2xqX_mod(S);
+  F = cgetg(m+1, t_VEC);
+  for (j = 1; j <= m; j++)
+  {
+    gel(F, j) = F2xqX_gcd(Sr, gel(h, j), T);
+    Sr = F2xqX_div(Sr, gel(F,j), T);
+  }
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: F");
+  f = const_vec(n, pol1_F2xX(v, vT));
+  for (j = 1; j <= m; j++)
+  {
+    GEN e = gel(F, j);
+    for (i=l-1; i >= 0; i--)
+    {
+      GEN u = F2xqX_gcd(e, F2xX_add(gel(g, j), gel(b, i+1)), T);
+      if (degpol(u))
+      {
+        gel(f, l*j-i) = u;
+        e = F2xqX_div(e, u, T);
+      }
+      if (!degpol(e)) break;
+    }
+  }
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: f");
+  if (degpol(Sr)) gel(f, degpol(Sr)) = Sr;
+  return gerepilecopy(av, f);
+}
+
+static void
+F2xqX_edf_simple(GEN Sp, GEN xp, GEN Xp, GEN Sq, long d, GEN T, GEN V, long idx)
+{
+  long v = varn(Sp), n = degpol(Sp), r = n/d;
+  GEN S, f, ff;
+  long dT = get_F2x_degree(T);
+  if (r==1) { gel(V, idx) = Sp; return; }
+  S = F2xqX_get_red(Sp, T);
+  Xp = F2xqX_rem(Xp, S, T);
+  Sq = F2xqXQV_red(Sq, S, T);
+  while (1)
+  {
+    pari_sp btop = avma;
+    long l;
+    GEN w0 = random_F2xqX(n, v, T), g = w0;
+    for (l=1; l<d; l++) /* sum_{0<i<d} w^(q^i), result in (F_q)^r */
+      g = F2xX_add(w0, F2xqX_F2xqXQV_eval(g, Sq, S, T));
+    w0 = g;
+    for (l=1; l<dT; l++) /* sum_{0<i<k} w^(2^i), result in (F_2)^r */
+      g = F2xX_add(w0, F2xqXQ_sqr(g,S,T));
+    f = F2xqX_gcd(g, Sp, T);
+    if (degpol(f) > 0 && degpol(f) < n) break;
+    avma = btop;
   }
   f = F2xqX_normalize(f, T);
-  if (F2xY_degreex(f) <= 0) return F2x_factorff_i(F2xX_to_F2x(f), T);
-  if (degpol(f)==2) return F2xqX_factor_2(f, T);
-  V = F2xqX_factor_squarefree(f, T); lV = lg(V);
+  ff = F2xqX_div(Sp, f , T);
+  F2xqX_edf_simple(f, xp, Xp, Sq, d, T, V, idx);
+  F2xqX_edf_simple(ff, xp, Xp, Sq, d, T, V, idx+degpol(f)/d);
+}
 
-  /* to hold factors and exponents */
-  t = cgetg(d+1,t_VEC);
-  E = cgetg(d+1, t_VECSMALL);
-  lfact = 1;
-  for (k=1; k<lV ; k++)
+static GEN
+F2xqX_factor_Shoup(GEN S, GEN xp, GEN T)
+{
+  long i, n, s = 0;
+  GEN X, Xp, Xq, Sq, D, V;
+  long vT = get_F2x_var(T);
+  pari_timer ti;
+  n = get_F2xqX_degree(S);
+  S = F2xqX_get_red(S, T);
+  if (DEBUGLEVEL>=6) timer_start(&ti);
+  X  = polx_F2xX(get_F2xqX_var(S), vT);
+  Xp = F2xqXQ_sqr(X, S, T);
+  Xq = F2xqXQ_Frobenius(xp, Xp, S, T);
+  Sq = F2xqXQ_powers(Xq, n-1, S, T);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2xqX_Frobenius");
+  D = F2xqX_ddf(S, Xq, T);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2xqX_ddf");
+  for (i = 1; i <= n; i++)
+    s += degpol(gel(D,i))/i;
+  V = cgetg(s+1, t_COL);
+  for (i = 1, s = 1; i <= n; i++)
   {
-    if (degpol(gel(V,k))==0) continue;
-    gel(t,lfact) = F2xqX_normalize(gel(V, k), T);
-    d = F2xqX_sqf_split(&gel(t,lfact), T);
-    for (j = 0; j < d; j++) E[lfact+j] = k;
-    lfact += d;
+    GEN Di = gel(D,i);
+    long ni = degpol(Di), ri = ni/i;
+    if (ni == 0) continue;
+    Di = F2xqX_normalize(Di, T);
+    if (ni == i) { gel(V, s++) = Di; continue; }
+    F2xqX_edf_simple(Di, xp, Xp, Sq, i, T, V, s);
+    if (DEBUGLEVEL>=6) timer_printf(&ti,"F2xqX_edf(%ld)",i);
+    s += ri;
   }
-  setlg(t, lfact);
-  setlg(E, lfact);
-  return sort_factor_pol(mkvec2(t, E), cmp_Flx);
+  return V;
+}
+
+static GEN
+F2xqX_factor_Cantor(GEN S, GEN T)
+{
+  switch(get_F2xqX_degree(S))
+  {
+    case -1: retmkmat2(mkcolcopy(S), mkvecsmall(1));
+    case 0: return trivial_fact();
+  }
+  GEN f = get_F2xqX_mod(S);
+  if (F2xY_degreex(f) <= 0) return F2x_factorff_i(F2xX_to_F2x(S), T);
+  if (degpol(f)==2) return F2xqX_factor_2(f, T);
+  GEN xp = F2x_Frobenius(T);
+  GEN E, F, V = F2xqX_factor_squarefree(S, get_F2x_mod(T));
+  long i, j, l = lg(V);
+  F = cgetg(l, t_VEC);
+  E = cgetg(l, t_VEC);
+  for (i=1, j=1; i < l; i++)
+    if (degpol(gel(V,i)))
+    {
+      GEN Fj = F2xqX_factor_Shoup(gel(V,i), xp, T);
+      gel(F, j) = Fj;
+      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
+      j++;
+    }
+  return sort_factor_pol(FE_concat(F,E,j), cmp_Flx);
 }
 
 static GEN
@@ -1864,7 +1932,7 @@ GEN
 F2xqX_factor(GEN x, GEN T)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, F2xqX_factcantor_i(x, T));
+  return gerepilecopy(av, F2xqX_factor_Cantor(x, T));
 }
 
 static GEN
@@ -1877,7 +1945,7 @@ FpXQX_factor_i(GEN f, GEN T, GEN p)
     long vT = get_FpX_var(T);
     if (pp==2)
     {
-      M = F2xqX_factcantor_i(ZXX_to_F2xX(f, vT),  ZX_to_F2x(get_FpX_mod(T)));
+      M = F2xqX_factor_Cantor(ZXX_to_F2xX(f, vT),  ZX_to_F2x(get_FpX_mod(T)));
       return mkvec2(F2xXC_to_ZXXC(gel(M,1)), gel(M,2));
     }
     M = FlxqX_Berlekamp_i(ZXX_to_FlxX(f, pp, vT),  ZXT_to_FlxT(T, pp), pp);
