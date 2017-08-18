@@ -1015,13 +1015,13 @@ FpX_simplefact_Shoup(GEN T, GEN p)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf");
   for (i = 1; i <= n; i++)
     s += degpol(gel(D,i))/i;
-  V = cgetg(s+1, t_VEC);
+  V = cgetg(s+1, t_VECSMALL);
   for (i = 1; i <= n; i++)
   {
     long ni = degpol(gel(D,i)), ri = ni/i;
     if (ni == 0) continue;
     for (k = 1; k <= ri; k++)
-      gel(V, j++) = utoi(i);
+      uel(V, j++) = i;
   }
   return V;
 }
