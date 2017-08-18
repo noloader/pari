@@ -1085,7 +1085,7 @@ FpXQX_split_Berlekamp(GEN *t, GEN T, GEN p)
 }
 
 static void
-F2xqX_split(GEN *t, long d, GEN q, GEN S, GEN T)
+F2xqX_split(GEN *t, long d, GEN S, GEN T)
 {
   GEN u = *t;
   long l, v, cnt, dt = degpol(u), dT = F2x_degree(T);
@@ -1117,8 +1117,8 @@ F2xqX_split(GEN *t, long d, GEN q, GEN S, GEN T)
     err_printf("[F2xqX_split] splitting time: %ld (%ld trials)\n",
         timer_delay(&ti),cnt);
   l /= d; t[l] = F2xqX_div(*t,w, T); *t = w;
-  F2xqX_split(t+l,d,q,S,T);
-  F2xqX_split(t  ,d,q,S,T);
+  F2xqX_split(t+l,d,S,T);
+  F2xqX_split(t  ,d,S,T);
 }
 
 static GEN
@@ -1646,7 +1646,7 @@ FpXQX_roots(GEN x, GEN T, GEN p)
 }
 
 static long
-F2xqX_sqf_split(GEN *t0, GEN q, GEN T)
+F2xqX_sqf_split(GEN *t0, GEN T)
 {
   GEN *t = t0, u = *t, v, S, g, X;
   long d, dg, N = degpol(u);
@@ -1661,7 +1661,7 @@ F2xqX_sqf_split(GEN *t0, GEN q, GEN T)
 
     /* all factors of g have degree d */
     *t = g;
-    F2xqX_split(t, d, q, S, T);
+    F2xqX_split(t, d, S, T);
     t += dg / d;
     N -= dg;
     if (N)
@@ -1746,7 +1746,7 @@ static GEN
 F2xqX_factcantor_i(GEN f, GEN T)
 {
   long lfact, d = degpol(f), j, k, lV;
-  GEN E, t, V, q;
+  GEN E, t, V;
 
   switch(d)
   {
@@ -1761,13 +1761,12 @@ F2xqX_factcantor_i(GEN f, GEN T)
   /* to hold factors and exponents */
   t = cgetg(d+1,t_VEC);
   E = cgetg(d+1, t_VECSMALL);
-  q = int2n(degpol(T));
   lfact = 1;
   for (k=1; k<lV ; k++)
   {
     if (degpol(gel(V,k))==0) continue;
     gel(t,lfact) = F2xqX_normalize(gel(V, k), T);
-    d = F2xqX_sqf_split(&gel(t,lfact), q, T);
+    d = F2xqX_sqf_split(&gel(t,lfact), T);
     for (j = 0; j < d; j++) E[lfact+j] = k;
     lfact += d;
   }
