@@ -1818,7 +1818,7 @@ Flx_ddf(GEN T, GEN XP, ulong p)
   gel(b, 1) = polx_Flx(v);
   gel(b, 2) = XP;
   bo = brent_kung_optpow(n, l-1, 1);
-  ro = (bo-1) + (l-1)*((n-1)/bo);
+  ro = l<=1 ? 0:(bo-1)/(l-1) + ((n-1)/bo);
   if (DEBUGLEVEL>=7) timer_start(&ti);
   if (expu(p) <= ro)
     for (i = 3; i <= l+1; i++)
