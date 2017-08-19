@@ -5357,7 +5357,7 @@ FlxqXQ_autpow_mul(void * E, GEN x, GEN y)
 }
 
 GEN
-FlxqXQV_autpow(GEN aut, long n, GEN S, GEN T, ulong p)
+FlxqXQ_autpow(GEN aut, long n, GEN S, GEN T, ulong p)
 {
   struct _FlxqXQ D;
   T = Flx_get_red(T, p);
@@ -5392,7 +5392,7 @@ FlxqXQ_autsum_sqr(void * T, GEN x)
 { return FlxqXQ_autsum_mul(T, x, x); }
 
 GEN
-FlxqXQV_autsum(GEN aut, long n, GEN S, GEN T, ulong p)
+FlxqXQ_autsum(GEN aut, long n, GEN S, GEN T, ulong p)
 {
   struct _FlxqXQ D;
   T = Flx_get_red(T, p);
@@ -5422,7 +5422,7 @@ FlxqXQ_auttrace_sqr(void *E, GEN x)
 { return FlxqXQ_auttrace_mul(E, x, x); }
 
 GEN
-FlxqXQV_auttrace(GEN x, ulong n, GEN S, GEN T, ulong p)
+FlxqXQ_auttrace(GEN x, ulong n, GEN S, GEN T, ulong p)
 {
   struct _FlxqXQ D;
   T = Flx_get_red(T, p);

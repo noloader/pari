@@ -2339,7 +2339,7 @@ F2xqXQ_autpow_mul(void * E, GEN x, GEN y)
 }
 
 GEN
-F2xqXQV_autpow(GEN aut, long n, GEN S, GEN T)
+F2xqXQ_autpow(GEN aut, long n, GEN S, GEN T)
 {
   struct _F2xqXQ D;
   D.S = S; D.T = T;
@@ -2371,7 +2371,7 @@ F2xqXQ_auttrace_sqr(void *E, GEN x)
 { return F2xqXQ_auttrace_mul(E, x, x); }
 
 GEN
-F2xqXQV_auttrace(GEN aut, long n, GEN S, GEN T)
+F2xqXQ_auttrace(GEN aut, long n, GEN S, GEN T)
 {
   struct _F2xqXQ D;
   D.S = S; D.T = T;

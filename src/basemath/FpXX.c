@@ -1402,7 +1402,7 @@ FpXQXQ_autpow_mul(void * E, GEN x, GEN y)
 }
 
 GEN
-FpXQXQV_autpow(GEN aut, long n, GEN S, GEN T, GEN p)
+FpXQXQ_autpow(GEN aut, long n, GEN S, GEN T, GEN p)
 {
   struct _FpXQXQ D;
   T = FpX_get_red(T, p);
@@ -1432,7 +1432,7 @@ FpXQXQ_auttrace_sqr(void *E, GEN x)
 { return FpXQXQ_auttrace_mul(E, x, x); }
 
 GEN
-FpXQXQV_auttrace(GEN aut, long n, GEN S, GEN T, GEN p)
+FpXQXQ_auttrace(GEN aut, long n, GEN S, GEN T, GEN p)
 {
   struct _FpXQXQ D;
   T = FpX_get_red(T, p);
@@ -1466,7 +1466,7 @@ FpXQXQ_autsum_sqr(void * T, GEN x)
 { return FpXQXQ_autsum_mul(T,x,x); }
 
 GEN
-FpXQXQV_autsum(GEN aut, long n, GEN S, GEN T, GEN p)
+FpXQXQ_autsum(GEN aut, long n, GEN S, GEN T, GEN p)
 {
   struct _FpXQXQ D;
   T = FpX_get_red(T, p);

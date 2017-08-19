@@ -763,7 +763,7 @@ static GEN
 FlxqXQ_halfFrobenius_i(GEN a, GEN xp, GEN Xp, GEN S, GEN T, ulong p)
 {
   GEN ap2 = FlxqXQ_powu(a, p>>1, S, T, p);
-  GEN V = FlxqXQV_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p);
+  GEN V = FlxqXQ_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p);
   return gel(V,3);
 }
 
@@ -783,7 +783,7 @@ static GEN
 FpXQXQ_halfFrobenius_i(GEN a, GEN xp, GEN Xp, GEN S, GEN T, GEN p)
 {
   GEN ap2 = FpXQXQ_pow(a, shifti(p,-1), S, T, p);
-  GEN V = FpXQXQV_autsum(mkvec3(xp, Xp, ap2), get_FpX_degree(T), S, T, p);
+  GEN V = FpXQXQ_autsum(mkvec3(xp, Xp, ap2), get_FpX_degree(T), S, T, p);
   return gel(V, 3);
 }
 
@@ -819,7 +819,7 @@ FlxqX_Frobenius(GEN S, GEN T, ulong p)
   GEN X  = polx_FlxX(get_FlxqX_var(S), vT);
   GEN xp = Flx_Frobenius(T, p);
   GEN Xp = FlxqXQ_powu(X, p, S, T, p);
-  GEN Xq = gel(FlxqXQV_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
+  GEN Xq = gel(FlxqXQ_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
   return gerepilecopy(av, Xq);
 }
 
@@ -831,7 +831,7 @@ FpXQX_Frobenius(GEN S, GEN T, GEN p)
   GEN X  = pol_x(get_FpXQX_var(S));
   GEN xp = FpX_Frobenius(T, p);
   GEN Xp = FpXQXQ_pow(X, p, S, T, p);
-  GEN Xq = gel(FpXQXQV_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
+  GEN Xq = gel(FpXQXQ_autpow(mkvec2(xp,Xp), n, S, T, p), 2);
   return gerepilecopy(av, Xq);
 }
 
@@ -840,7 +840,7 @@ F2xqXQ_Frobenius(GEN xp, GEN Xp, GEN f, GEN T)
 {
   ulong dT = F2x_degree(T), df = degpol(f);
   if (dT >= expu(dT)*usqrt(df))
-    return gel(F2xqXQV_autpow(mkvec2(xp, Xp), dT, f, T), 2);
+    return gel(F2xqXQ_autpow(mkvec2(xp, Xp), dT, f, T), 2);
   else
     return F2xqXQ_pow(pol_x(varn(f)), int2n(dT), f, T);
 }
@@ -990,7 +990,7 @@ FlxqX_split_Berlekamp(GEN *t, GEN xp, GEN T, ulong p)
   S = FlxqX_get_red(u, T, p);
   X  = polx_FlxX(get_FlxqX_var(S),get_Flx_var(T));
   Xp = FlxqXQ_powu(X, p, S, T, p);
-  Xq = gel(FlxqXQV_autpow(mkvec2(xp, Xp), dT, S, T, p), 2);
+  Xq = gel(FlxqXQ_autpow(mkvec2(xp, Xp), dT, S, T, p), 2);
   vker = FlxqX_Berlekamp_ker_i(Xq, S, T, p);
   vker = Flm_to_FlxV(vker,u[1]);
   d = lg(vker)-1;
@@ -1044,7 +1044,7 @@ FpXQX_split_Berlekamp(GEN *t, GEN T, GEN p)
   S = FpXQX_get_red(u, T, p);
   X  = pol_x(get_FpXQX_var(S));
   Xp = FpXQXQ_pow(X, p, S, T, p);
-  Xq = gel(FpXQXQV_autpow(mkvec2(xp, Xp), dT, S, T, p), 2);
+  Xq = gel(FpXQXQ_autpow(mkvec2(xp, Xp), dT, S, T, p), 2);
   vker = FpXQX_Berlekamp_ker_i(Xq, S, T, p);
   vker = RgM_to_RgXV(vker,vu);
   d = lg(vker)-1;
@@ -1294,7 +1294,7 @@ F2xqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN V, long idx)
   while (1)
   {
     GEN a = random_F2xqX(degpol(Sp), varn(Sp), T);
-    GEN R = gel(F2xqXQV_auttrace(mkvec3(xp, Xp, a), F2x_degree(T), S, T), 3);
+    GEN R = gel(F2xqXQ_auttrace(mkvec3(xp, Xp, a), F2x_degree(T), S, T), 3);
     f = F2xqX_gcd(R, Sp, T);
     if (degpol(f) > 0 && degpol(f) < n) break;
     avma = btop;
@@ -1441,7 +1441,7 @@ FlxqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, ulong p, GEN V, long idx)
   {
     GEN a = deg1pol(pol1_Flx(vT), random_Flx(dT, vT, p), varn(Sp));
     GEN ap2 = FlxqXQ_powu(a, p>>1, S, T, p);
-    GEN R = gel(FlxqXQV_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p), 3);
+    GEN R = gel(FlxqXQ_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p), 3);
     f = FlxqX_gcd(FlxX_Flx_add(R, Flx_neg(pol1_Flx(vT), p), p), Sp, T, p);
     if (degpol(f) > 0 && degpol(f) < n) break;
     avma = btop;
@@ -1461,7 +1461,7 @@ FlxqX_roots_ddf(GEN f, GEN xp, GEN T, ulong p)
   if (R) return R;
   X  = pol_x(varn(f));
   Xp = FlxqXQ_powu(X, p, f, T, p);
-  Xq = gel(FlxqXQV_autpow(mkvec2(xp, Xp), dT, f, T, p), 2);
+  Xq = gel(FlxqXQ_autpow(mkvec2(xp, Xp), dT, f, T, p), 2);
   g = FlxqX_gcd(FlxX_sub(Xq, X, p), f, T, p);
   n = degpol(g);
   if (n==0) return cgetg(1, t_COL);
@@ -1550,7 +1550,7 @@ FpXQX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN p, GEN V, long idx)
   {
     GEN a = deg1pol(pol_1(vT), random_FpX(dT, vT, p), varn(Sp));
     GEN ap2 = FpXQXQ_pow(a, shifti(p,-1), S, T, p);
-    GEN R = gel(FpXQXQV_autsum(mkvec3(xp, Xp, ap2), get_FpX_degree(T), S, T, p), 3);
+    GEN R = gel(FpXQXQ_autsum(mkvec3(xp, Xp, ap2), get_FpX_degree(T), S, T, p), 3);
     f = FpXQX_gcd(FqX_Fq_add(R, FpX_neg(pol_1(vT), p), T, p), Sp, T, p);
     if (degpol(f) > 0 && degpol(f) < n) break;
     avma = btop;
@@ -1570,7 +1570,7 @@ FpXQX_roots_ddf(GEN f, GEN xp, GEN T, GEN p)
   if (R) return R;
   X  = pol_x(varn(f));
   Xp = FpXQXQ_pow(X, p, f, T, p);
-  Xq = gel(FpXQXQV_autpow(mkvec2(xp, Xp), dT, f, T, p), 2);
+  Xq = gel(FpXQXQ_autpow(mkvec2(xp, Xp), dT, f, T, p), 2);
   g = FpXQX_gcd(FpXX_sub(Xq, X, p), f, T, p);
   n = degpol(g);
   if (n==0) return cgetg(1, t_COL);

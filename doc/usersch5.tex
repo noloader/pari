@@ -5114,17 +5114,17 @@ returning \kbd{NULL} if \kbd{x} is not invertible.
 returns the same powers of \kbd{x} as \kbd{FpXQXQ\_powers}$(x, n-1,S, T, p)$,
 but as an $m\times n$ matrix.
 
-\fun{GEN}{FpXQXQV_autpow}{GEN a, long n, GEN S, GEN T, GEN p}
+\fun{GEN}{FpXQXQ_autpow}{GEN a, long n, GEN S, GEN T, GEN p}
 $\sigma$ being the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$,
 $\sigma(Y)=a[2]\pmod{S(X,Y),T(X)}$, returns $[\sigma^n(X),\sigma^n(Y)]$.
 
-\fun{GEN}{FpXQXQV_autsum}{GEN a, long n, GEN S, GEN T, GEN p}
+\fun{GEN}{FpXQXQ_autsum}{GEN a, long n, GEN S, GEN T, GEN p}
 $\sigma$ being the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$,
 $\sigma(Y)=a[2]\pmod{S(X,Y),T(X)}$, returns the vector
 $[\sigma^n(X),\sigma^n(Y),b\sigma(b)\ldots\sigma^{n-1}(b)]$
 where $b=a[3]$.
 
-\fun{GEN}{FpXQXQV_auttrace}{GEN a, long n, GEN S, GEN T, GEN p}
+\fun{GEN}{FpXQXQ_auttrace}{GEN a, long n, GEN S, GEN T, GEN p}
 $\sigma$ being the automorphism defined by $\sigma(X)=X\pmod{T(X)}$,
 $\sigma(Y)=a[1]\pmod{S(X,Y),T(X)}$, returns the vector
 $[\sigma^n(X),\sigma^n(Y),b+\sigma(b)+\ldots+\sigma^{n-1}(b)]$
@@ -5840,14 +5840,14 @@ in $\F_p[X]$.
 
 \fun{GEN}{FlxqXQ_matrix_pow}{GEN x, long n, long m, GEN S, GEN T, ulong p}
 
-\fun{GEN}{FlxqXQV_autpow}{GEN a, long n, GEN S, GEN T, ulong p}
-as \kbd{FpXQXQV\_autpow}
+\fun{GEN}{FlxqXQ_autpow}{GEN a, long n, GEN S, GEN T, ulong p}
+as \kbd{FpXQXQ\_autpow}
 
-\fun{GEN}{FlxqXQV_autsum}{GEN a, long n, GEN S, GEN T, ulong p}
-as \kbd{FpXQXQV\_autsum}
+\fun{GEN}{FlxqXQ_autsum}{GEN a, long n, GEN S, GEN T, ulong p}
+as \kbd{FpXQXQ\_autsum}
 
-\fun{GEN}{FlxqXQV_auttrace}{GEN a, long n, GEN S, GEN T, ulong p}
-as \kbd{FpXQXQV\_auttrace}
+\fun{GEN}{FlxqXQ_auttrace}{GEN a, long n, GEN S, GEN T, ulong p}
+as \kbd{FpXQXQ\_auttrace}
 
 \subsec{\kbd{F2x}} An \kbd{F2x}~\kbd{z} is a \typ{VECSMALL}
 representing a polynomial over $\F_2[X]$. Specifically
@@ -6119,10 +6119,10 @@ $\F_2[X]/(T)$. Assumes \kbd{T} irreducible in $\F_2[X]$.
 
 \fun{GEN}{F2xqXQ_powers}{GEN x, long n, GEN S, GEN T}
 
-\fun{GEN}{F2xqXQV_autpow}{GEN a, long n, GEN S, GEN T}
-as \kbd{FpXQXQV\_autpow}
+\fun{GEN}{F2xqXQ_autpow}{GEN a, long n, GEN S, GEN T}
+as \kbd{FpXQXQ\_autpow}
 
-\fun{GEN}{F2xqXQV_auttrace}{GEN a, long n, GEN S, GEN T}. Let
+\fun{GEN}{F2xqXQ_auttrace}{GEN a, long n, GEN S, GEN T}. Let
 $\sigma$ be the automorphism defined by $\sigma(X)=a[1]\pmod{T(X)}$ and
 $\sigma(Y)=a[2]\pmod{S(X,Y),T(X)}$; returns the vector
 $[\sigma^n(X),\sigma^n(Y),b+\sigma(b)+\ldots+\sigma^{n-1}(b)]$
