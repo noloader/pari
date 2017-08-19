@@ -5401,6 +5401,36 @@ FlxqXQV_autsum(GEN aut, long n, GEN S, GEN T, ulong p)
   return gen_powu(aut,n,&D,FlxqXQ_autsum_sqr,FlxqXQ_autsum_mul);
 }
 
+static GEN
+FlxqXQ_auttrace_mul(void *E, GEN x, GEN y)
+{
+  struct _FlxqXQ *D = (struct _FlxqXQ *)E;
+  GEN S = D->S, T = D->T;
+  ulong p = D->p;
+  GEN S1 = gel(x,1), a1 = gel(x,2);
+  GEN S2 = gel(y,1), a2 = gel(y,2);
+  long n = brent_kung_optpow(maxss(degpol(S1),degpol(a1)),2,1);
+  GEN V = FlxqXQ_powers(S2, n, S, T, p);
+  GEN S3 = FlxqX_FlxqXQV_eval(S1, V, S, T, p);
+  GEN aS = FlxqX_FlxqXQV_eval(a1, V, S, T, p);
+  GEN a3 = FlxX_add(aS, a2, p);
+  return mkvec2(S3, a3);
+}
+
+static GEN
+FlxqXQ_auttrace_sqr(void *E, GEN x)
+{ return FlxqXQ_auttrace_mul(E, x, x); }
+
+GEN
+FlxqXQV_auttrace(GEN x, ulong n, GEN S, GEN T, ulong p)
+{
+  struct _FlxqXQ D;
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
+  D.S=S; D.T=T; D.p=p;
+  return gen_powu(x,n,(void*)&D,FlxqXQ_auttrace_sqr,FlxqXQ_auttrace_mul);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                      FlxYqQ                                     */

@@ -423,6 +423,7 @@ GEN     FlxqXQ_powers(GEN x, long n, GEN S, GEN T, ulong p);
 GEN     FlxqXQ_sqr(GEN x, GEN S, GEN T, ulong p);
 GEN     FlxqXQV_autpow(GEN x, long n, GEN S, GEN T, ulong p);
 GEN     FlxqXQV_autsum(GEN aut, long n, GEN S, GEN T, ulong p);
+GEN     FlxqXQV_auttrace(GEN x, ulong n, GEN S, GEN T, ulong p);
 GEN     FlxqXV_prod(GEN V, GEN T, ulong p);
 GEN     Kronecker_to_FlxqX(GEN z, GEN T, ulong p);
 ulong   Rg_to_F2(GEN x);
