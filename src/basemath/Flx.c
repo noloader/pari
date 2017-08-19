@@ -2709,13 +2709,15 @@ static GEN
 Flxq_autsum_mul(void *E, GEN x, GEN y)
 {
   struct _Flxq *D = (struct _Flxq*)E;
+  GEN T = D->T;
+  ulong p = D->p;
   GEN phi1 = gel(x,1), a1 = gel(x,2);
   GEN phi2 = gel(y,1), a2 = gel(y,2);
   ulong d = brent_kung_optpow(maxss(degpol(phi1),degpol(a1)),2,1);
-  GEN V2 = Flxq_powers(phi2,d,D->T,D->p);
-  GEN phi3 = Flx_FlxqV_eval(phi1,V2,D->T,D->p);
-  GEN aphi = Flx_FlxqV_eval(a1,V2,D->T,D->p);
-  GEN a3 = Flxq_mul(aphi,a2,D->T,D->p);
+  GEN V2 = Flxq_powers(phi2, d, T, p);
+  GEN phi3 = Flx_FlxqV_eval(phi1, V2, T, p);
+  GEN aphi = Flx_FlxqV_eval(a1, V2, T, p);
+  GEN a3 = Flxq_mul(aphi, a2, T, p);
   return mkvec2(phi3, a3);
 }
 static GEN
@@ -5327,14 +5329,14 @@ static GEN
 FlxqXQ_autpow_sqr(void * E, GEN x)
 {
   struct _FlxqXQ *D = (struct _FlxqXQ *)E;
-  GEN T = D->T;
+  GEN S = D->S, T = D->T;
   ulong p = D->p;
-  GEN phi = gel(x,1), S = gel(x,2);
-  long n = brent_kung_optpow(get_Flx_degree(T)-1,lgpol(S)+1,1);
+  GEN phi = gel(x,1), S1 = gel(x,2);
+  long n = brent_kung_optpow(get_Flx_degree(T)-1,lgpol(S1)+1,1);
   GEN V = Flxq_powers(phi, n, T, p);
   GEN phi2 = Flx_FlxqV_eval(phi, V, T, p);
-  GEN Sphi = FlxY_FlxqV_evalx(S, V, T, p);
-  GEN S2 = FlxqX_FlxqXQ_eval(Sphi, S, D->S, T, p);
+  GEN Sphi = FlxY_FlxqV_evalx(S1, V, T, p);
+  GEN S2 = FlxqX_FlxqXQ_eval(Sphi, S1, S, T, p);
   return mkvec2(phi2, S2);
 }
 
@@ -5342,15 +5344,15 @@ static GEN
 FlxqXQ_autpow_mul(void * E, GEN x, GEN y)
 {
   struct _FlxqXQ *D = (struct _FlxqXQ *)E;
-  GEN T = D->T;
+  GEN S = D->S, T = D->T;
   ulong p = D->p;
   GEN phi1 = gel(x,1), S1 = gel(x,2);
   GEN phi2 = gel(y,1), S2 = gel(y,2);
   long n = brent_kung_optpow(get_Flx_degree(T)-1,lgpol(S1)+1,1);
   GEN V = Flxq_powers(phi2, n, T, p);
-  GEN phi3 = Flx_FlxqV_eval(phi1,V,T,p);
-  GEN Sphi = FlxY_FlxqV_evalx(S1,V,T,p);
-  GEN S3 = FlxqX_FlxqXQ_eval(Sphi, S2, D->S, T, p);
+  GEN phi3 = Flx_FlxqV_eval(phi1, V, T, p);
+  GEN Sphi = FlxY_FlxqV_evalx(S1, V, T, p);
+  GEN S3 = FlxqX_FlxqXQ_eval(Sphi, S2, S, T, p);
   return mkvec2(phi3, S3);
 }
 
@@ -5368,7 +5370,7 @@ static GEN
 FlxqXQ_autsum_mul(void *E, GEN x, GEN y)
 {
   struct _FlxqXQ *D = (struct _FlxqXQ *)E;
-  GEN T = D->T;
+  GEN S = D->S, T = D->T;
   ulong p = D->p;
   GEN phi1 = gel(x,1), S1 = gel(x,2), a1 = gel(x,3);
   GEN phi2 = gel(y,1), S2 = gel(y,2), a2 = gel(y,3);
@@ -5378,17 +5380,16 @@ FlxqXQ_autsum_mul(void *E, GEN x, GEN y)
   GEN Sphi = FlxY_FlxqV_evalx(S1, V2, T, p);
   GEN aphi = FlxY_FlxqV_evalx(a1, V2, T, p);
   long n = brent_kung_optpow(maxss(degpol(Sphi),degpol(aphi)),2,1);
-  GEN V = FlxqXQ_powers(S2, n, D->S, T, p);
-  GEN S3 = FlxqX_FlxqXQV_eval(Sphi, V, D->S, T, p);
-  GEN aS = FlxqX_FlxqXQV_eval(aphi, V, D->S, T, p);
-  GEN a3 = FlxqXQ_mul(aS, a2, D->S, T, p);
+  GEN V = FlxqXQ_powers(S2, n, S, T, p);
+  GEN S3 = FlxqX_FlxqXQV_eval(Sphi, V, S, T, p);
+  GEN aS = FlxqX_FlxqXQV_eval(aphi, V, S, T, p);
+  GEN a3 = FlxqXQ_mul(aS, a2, S, T, p);
   return mkvec3(phi3, S3, a3);
 }
 
 static GEN
 FlxqXQ_autsum_sqr(void * T, GEN x)
-{ return FlxqXQ_autsum_mul(T,x,x); }
-
+{ return FlxqXQ_autsum_mul(T, x, x); }
 
 GEN
 FlxqXQV_autsum(GEN aut, long n, GEN S, GEN T, ulong p)
