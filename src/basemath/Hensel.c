@@ -270,6 +270,7 @@ MultiLift(GEN f, GEN a, GEN T, GEN p, long e0, long flag)
   eold = 1;
   penew = NULL;
   Tnew = NULL;
+  if (DEBUGLEVEL > 3) err_printf("lifting to prec %ld\n", e0);
   while (mask > 1)
   {
     long enew = eold << 1;
@@ -294,7 +295,7 @@ MultiLift(GEN f, GEN a, GEN T, GEN p, long e0, long flag)
       else
         ZpX_RecTreeLift(link, v, w, pd, peold, penew, f, lg(v)-2,
                         (flag == 0 && mask == 1));
-      if (DEBUGLEVEL > 3) timer_printf(&Ti, "lifting to prec %ld", enew);
+      if (DEBUGLEVEL > 3) timer_printf(&Ti, "reaching prec %ld", enew);
     }
     eold = enew;
   }
@@ -931,13 +932,15 @@ ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
   W = FpXQ_inv(FpX_FpXQ_eval(FpX_deriv(P,q2), S, Tq2, q2), Tq2, q2);
   Q  = ZX_Z_divexact(FpX_FpXQ_eval(Pq, S, Tq, q), q2);
   r = brent_kung_optpow(degpol(P), 4, 3);
+  if (DEBUGLEVEL > 3)
+    err_printf("ZpX_ZpXQ_liftroot: lifting to prec %ld\n",N);
   for (;;)
   {
     GEN H, Sq, Wq, Spow, dP, qq, Pqq, Tqq;
     H  = FpXQ_mul(W, Q, Tq2, q2);
     Sq = FpX_sub(S, ZX_Z_mul(H, q2), q);
     if (DEBUGLEVEL > 3)
-      timer_printf(&ti,"ZpX_ZpXQ_liftroot: lift to prec %ld",N);
+      timer_printf(&ti,"ZpX_ZpXQ_liftroot: reaching prec %ld",N);
     if (mask==1 || (early && early(E, Sq, q)))
       return gerepileupto(ltop, Sq);
     qq = sqri(q); N <<= 1;
