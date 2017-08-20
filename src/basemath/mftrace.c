@@ -7825,62 +7825,6 @@ mftobasis(GEN mf, GEN F, long flag)
   return gerepileupto(av, y);
 }
 
-/* FIXME: remove static variant in modsym.c */
-ulong
-mfnumcuspsu_fact(GEN fa)
-{
-  GEN P = gel(fa,1), E = gel(fa,2);
-  long i, l = lg(P);
-  ulong T = 1;
-  for (i = 1; i < l; i++)
-  {
-    long e = E[i], e2 = e >> 1; /* floor(E[i] / 2) */
-    ulong p = P[i];
-    if (odd(e))
-      T *= 2 * upowuu(p, e2);
-    else
-      T *= (p+1) * upowuu(p, e2-1);
-  }
-  return T;
-}
-ulong
-mfnumcuspsu(ulong n)
-{
-  pari_sp av = avma;
-  ulong t = mfnumcuspsu_fact( factoru(n) );
-  avma = av; return t;
-}
-/* \sum_{d | N} \phi(gcd(d, N/d)), using multiplicativity. fa = factor(N) */
-GEN
-mfnumcusps_fact(GEN fa)
-{
-  GEN P = gel(fa,1), E = gel(fa,2), T = gen_1;
-  long i, l = lg(P);
-  for (i = 1; i < l; i++)
-  {
-    GEN p = gel(P,i), c;
-    long e = itos(gel(E,i)), e2 = e >> 1; /* floor(E[i] / 2) */
-    if (odd(e))
-      c = shifti(powiu(p, e2), 1);
-    else
-      c = mulii(addiu(p,1), powiu(p, e2-1));
-    T = T? mulii(T, c): c;
-  }
-  return T? T: gen_1;
-}
-GEN
-mfnumcusps(GEN n)
-{
-  pari_sp av = avma;
-  GEN F = check_arith_pos(n,"mfnumcusps");
-  if (!F)
-  {
-    if (lgefint(n) == 3) return utoi( mfnumcuspsu(n[2]) );
-    F = absZ_factor(n);
-  }
-  return gerepileuptoint(av, mfnumcusps_fact(F));
-}
-
 /* List of cusps of Gamma_0(N) */
 GEN
 mfcusps(long N)

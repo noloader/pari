@@ -323,23 +323,61 @@ p1_index(long x, long y, GEN p1N)
 /* Cusps for \Gamma_0(N) */
 
 /* \sum_{d | N} \phi(gcd(d, N/d)), using multiplicativity. fa = factor(N) */
-static ulong
-nbcusp(GEN fa)
+ulong
+mfnumcuspsu_fact(GEN fa)
 {
   GEN P = gel(fa,1), E = gel(fa,2);
   long i, l = lg(P);
   ulong T = 1;
   for (i = 1; i < l; i++)
   {
-    long e = E[i] >> 1; /* floor(E[i] / 2) */
+    long e = E[i], e2 = e >> 1; /* floor(E[i] / 2) */
     ulong p = P[i];
-    if (odd(E[i]))
-      T *= 2 * upowuu(p, e);
+    if (odd(e))
+      T *= 2 * upowuu(p, e2);
     else
-      T *= (p+1) * upowuu(p, e - 1);
+      T *= (p+1) * upowuu(p, e2-1);
   }
   return T;
 }
+ulong
+mfnumcuspsu(ulong n)
+{
+  pari_sp av = avma;
+  ulong t = mfnumcuspsu_fact( factoru(n) );
+  avma = av; return t;
+}
+/* \sum_{d | N} \phi(gcd(d, N/d)), using multiplicativity. fa = factor(N) */
+GEN
+mfnumcusps_fact(GEN fa)
+{
+  GEN P = gel(fa,1), E = gel(fa,2), T = gen_1;
+  long i, l = lg(P);
+  for (i = 1; i < l; i++)
+  {
+    GEN p = gel(P,i), c;
+    long e = itos(gel(E,i)), e2 = e >> 1; /* floor(E[i] / 2) */
+    if (odd(e))
+      c = shifti(powiu(p, e2), 1);
+    else
+      c = mulii(addiu(p,1), powiu(p, e2-1));
+    T = T? mulii(T, c): c;
+  }
+  return T? T: gen_1;
+}
+GEN
+mfnumcusps(GEN n)
+{
+  pari_sp av = avma;
+  GEN F = check_arith_pos(n,"mfnumcusps");
+  if (!F)
+  {
+    if (lgefint(n) == 3) return utoi( mfnumcuspsu(n[2]) );
+    F = absZ_factor(n);
+  }
+  return gerepileuptoint(av, mfnumcusps_fact(F));
+}
+
 
 /* to each cusp in \Gamma_0(N) P1(Q), represented by p/q, we associate a
  * unique index. Canonical representative: (1:0) or (p:q) with q | N, q < N,
@@ -350,7 +388,7 @@ inithashcusps(GEN p1N)
 {
   ulong N = p1N_get_N(p1N);
   GEN div = p1N_get_div(p1N), H = zerovec(N+1);
-  long k, ind, l = lg(div), ncusp = nbcusp(p1N_get_fa(p1N));
+  long k, ind, l = lg(div), ncusp = mfnumcuspsu_fact(p1N_get_fa(p1N));
   GEN cusps = cgetg(ncusp+1, t_VEC);
 
   gel(H,1) = mkvecsmall2(0/*empty*/, 1/* first cusp: (1:0) */);
