@@ -67,8 +67,8 @@
 \\ psfile = "~/tmp/pari.ps"
 
 \\ secure = 1
-\\ Disable commands system() and extern(). These commands allow scripts to
-\\ execute arbitrary Unix commands
+\\ Disable commands system() and extern() which allow scripts to execute
+\\ arbitrary Unix commands
 
 \\********************** FORMAT OF THIS FILE :    ***************************
 \\  Lines starting with '\\' and between '/*' '*/' pairs are comments
