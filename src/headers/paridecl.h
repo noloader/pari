@@ -5175,6 +5175,12 @@ INLINE GEN    FqXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p);
 INLINE GEN    FqXQ_sqr(GEN x, GEN S, GEN T, GEN p);
 INLINE GEN    FqXQ_sub(GEN x, GEN y, GEN S, GEN T, GEN p);
 
+INLINE long   get_F2x_degree(GEN T);
+INLINE GEN    get_F2x_mod(GEN T);
+INLINE long   get_F2x_var(GEN T);
+INLINE long   get_F2xqX_degree(GEN T);
+INLINE GEN    get_F2xqX_mod(GEN T);
+INLINE long   get_F2xqX_var(GEN T);
 INLINE long   get_Flx_degree(GEN T);
 INLINE GEN    get_Flx_mod(GEN T);
 INLINE long   get_Flx_var(GEN T);
