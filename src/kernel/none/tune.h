@@ -3,6 +3,10 @@
 #define __DIVRR_GMP_LIMIT                -1
 #define __EXPNEWTON_LIMIT                66
 #define __F2x_MUL_KARATSUBA_LIMIT        15
+#define __F2xqX_BARRETT_LIMIT            17
+#define __F2xqX_DIVREM_BARRETT_LIMIT     46
+#define __F2xqX_INVBARRETT_LIMIT         22
+#define __F2xqX_REM_BARRETT_LIMIT        48
 #define __Flx_BARRETT_HALFMULII_LIMIT    29
 #define __Flx_BARRETT_KARATSUBA_LIMIT    2561
 #define __Flx_BARRETT_MULII2_LIMIT       30
@@ -71,6 +75,10 @@
 #define __DIVRR_GMP_LIMIT                -1
 #define __EXPNEWTON_LIMIT                66
 #define __F2x_MUL_KARATSUBA_LIMIT        23
+#define __F2xqX_BARRETT_LIMIT            17
+#define __F2xqX_DIVREM_BARRETT_LIMIT     46
+#define __F2xqX_INVBARRETT_LIMIT         22
+#define __F2xqX_REM_BARRETT_LIMIT        48
 #define __Flx_BARRETT_HALFMULII_LIMIT    244
 #define __Flx_BARRETT_KARATSUBA_LIMIT    905
 #define __Flx_BARRETT_MULII2_LIMIT       1004

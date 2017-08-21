@@ -115,6 +115,14 @@ rand_Flx(long n, ulong l)
 }
 
 static GEN
+rand_F2xqX(long n, GEN T)
+{
+  GEN x;
+  do x = random_F2xqX(n+1, 0, T); while (degpol(x) < n);
+  return x;
+}
+
+static GEN
 rand_FlxqX(long n, GEN T, ulong l)
 {
   GEN x;
@@ -148,6 +156,14 @@ rand_NFlx(long n, ulong l)
 }
 
 static GEN
+rand_NF2xqX(long n, GEN T)
+{
+  pari_sp av = avma;
+  GEN x = F2xX_add(monomial(pol1_F2x(0),n,0), random_F2xqX(n, 0, T));
+  return gerepileupto(av, x);
+}
+
+static GEN
 rand_NFlxqX(long n, GEN T, long l)
 {
   pari_sp av = avma;
@@ -176,10 +192,12 @@ rand_NFpXQX(long n, GEN T)
 #define t_NFl2x   214
 #define t_FpX     300
 #define t_NFpX    310
-#define t_FlxqX   400
-#define t_NFlxqX  410
-#define t_FpXQX   500
-#define t_NFpXQX  510
+#define t_F2xqX   400
+#define t_NF2xqX  410
+#define t_FlxqX   500
+#define t_NFlxqX  510
+#define t_FpXQX   600
+#define t_NFpXQX  610
 
 static GEN
 rand_g(speed_param *s)
@@ -201,6 +219,8 @@ rand_g(speed_param *s)
     case t_NFl2x: return rand_NFlx(n,DFLT_mod2);
     case t_FpX:    return rand_FpX(n);
     case t_NFpX:   return rand_NFpX(n);
+    case t_F2xqX:  return rand_F2xqX(n, s->T);
+    case t_NF2xqX: return rand_NF2xqX(n, s->T);
     case t_FlxqX:  return rand_FlxqX(n, s->T, s->l);
     case t_NFlxqX: return rand_NFlxqX(n, s->T, s->l);
     case t_FpXQX:  return rand_FpXQX(n, s->T);
@@ -244,6 +264,8 @@ dftmod(speed_param *s)
     case t_NFl2x: s->l=DFLT_mod2;  return;
     case t_FpX:  s->p=LARGE_mod; return;
     case t_NFpX: s->p=LARGE_mod; return;
+    case t_F2xqX:  s->l=2;  dft_Flxq(s); return;
+    case t_NF2xqX: s->l=2;  dft_Flxq(s); return;
     case t_FlxqX:  s->l=DFLT_mod;  dft_Flxq(s); return;
     case t_NFlxqX: s->l=DFLT_mod;  dft_Flxq(s); return;
     case t_FpXQX:  s->p=LARGE_mod; dft_FpXQ(s); return;
@@ -384,6 +406,27 @@ static double speed_FpX_gcd(speed_param *s)
 static double speed_FpX_extgcd(speed_param *s)
 { GEN u,v; TIME_FUN(FpX_extgcd(s->x, s->y, s->p, &u, &v)); }
 
+static double speed_F2xqX_inv(speed_param *s)
+{ TIME_FUN(F2xqX_invBarrett(s->x, s->T)); }
+
+static double speed_F2xqX_divrem(speed_param *s)
+{
+  GEN r, x = rand_NF2xqX((degpol(s->x)-1)*2, s->T);
+  TIME_FUN(F2xqX_divrem(x, s->x, s->T, &r));
+}
+
+static double speed_F2xqX_rem(speed_param *s)
+{
+  GEN x = rand_NF2xqX((degpol(s->x)-1)*2, s->T);
+  TIME_FUN(F2xqX_rem(x, s->x, s->T));
+}
+
+static double speed_F2xqXQ_red(speed_param *s) {
+  GEN x = rand_NF2xqX((degpol(s->x)-1)*2, s->T);
+  GEN q = F2xqX_get_red(s->x, s->T);
+  TIME_FUN(F2xqX_rem(x, q, s->T));
+}
+
 static double speed_FlxqX_inv(speed_param *s)
 { TIME_FUN(FlxqX_invBarrett(s->x, s->T, s->l)); }
 
@@ -521,6 +564,10 @@ static tune_param param[] = {
             speed_Flx_halfgcd,0,0,NULL,&Flx_MUL_MULII2_LIMIT},
 {0,  var(Flx_GCD_LIMIT),           t_Flx,10,0, speed_Flx_gcd,0.1},
 {0,  var(Flx_EXTGCD_LIMIT),        t_Flx,10,0, speed_Flx_extgcd},
+{0,  var(F2xqX_INVBARRETT_LIMIT),t_NF2xqX,10,0, speed_F2xqX_inv,0.05},
+{0,  var(F2xqX_BARRETT_LIMIT),   t_NF2xqX,10,0, speed_F2xqXQ_red,0.05},
+{0,  var(F2xqX_DIVREM_BARRETT_LIMIT), t_NF2xqX,10,0, speed_F2xqX_divrem,0.05},
+{0,  var(F2xqX_REM_BARRETT_LIMIT), t_NF2xqX,10,0, speed_F2xqX_rem,0.05},
 {0,  var(FlxqX_INVBARRETT_LIMIT),t_NFlxqX,10,0, speed_FlxqX_inv,0.05},
 {0,  var(FlxqX_BARRETT_LIMIT),   t_NFlxqX,10,0, speed_FlxqXQ_red,0.05},
 {0,  var(FlxqX_DIVREM_BARRETT_LIMIT), t_NFlxqX,10,0, speed_FlxqX_divrem,0.05},
