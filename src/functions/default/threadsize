@@ -4,11 +4,19 @@ Section: default
 C-Name: sd_threadsize
 Prototype:
 Help:
-Doc: In parallel mode, each thread needs its own private \tev{stack} in which
- to do its computations, see \kbd{parisize}. This value determines the size
- in bytes of the stacks of each thread, so the total memory allocated will be
+Doc: This default is specific to the \emph{parallel} version of PARI and gp
+ (built via \kbd{Configure --mt=prthread} or \kbd{mpi}) and is ignored
+ otherwise. In parallel mode,
+ each thread allocates its own private \tev{stack} for its
+ computations, see \kbd{parisize}. This value determines the size in bytes of
+ the stacks of each thread, so the total memory allocated will be
  $\kbd{parisize}+\kbd{nbthreads}\times\kbd{threadsize}$.
 
- If set to $0$, the value used is the same as \kbd{parisize}.
+ If set to $0$, the value used is the same as \kbd{parisize}. It is not
+ easy to estimate reliably a sufficient value for this parameter because PARI
+ itself will parallelize computations and we recommend to not set this value
+ explicitly unless it solves a specific problem for you. On the other hand we
+ strongly recommend to set \kbd{parisizemax} and \kbd{threadsizemax} to a
+ non-zero value.
 
  The default value is $0$.
