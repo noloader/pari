@@ -1282,6 +1282,7 @@ RgX_addmulXn(GEN x0, GEN y0, long d)
   *--zd = evaltyp(t_POL) | evallg(lz); return zd;
 }
 
+#if 0
 /* return x * y mod t^n */
 static GEN
 RgXn_mul_basecase(GEN x, GEN y, long n)
@@ -1352,6 +1353,26 @@ RgX_sqrhigh_i(GEN f, long n)
   h = RgX_recip_shallow(RgXn_sqr(RgX_recip_shallow(f), d));
   return RgX_shift_shallow(h, d-1-degpol(h)); /* possibly (fg)(0) = 0 */
 }
+#else
+/* f*g mod t^n (faster than Mulders-Hanrot-Zimmermann) */
+GEN
+RgXn_mul(GEN f, GEN g, long n)
+{
+  pari_sp av = avma;
+  GEN h = RgX_mul(f,g);
+  if (degpol(h) < n) return h;
+  return gerepilecopy(av, RgXn_red_shallow(h, n));
+}
+/* (f*g) \/ x^n */
+GEN
+RgX_mulhigh_i(GEN f, GEN g, long n)
+{ return RgX_shift_shallow(RgX_mul(f,g), -n); }
+
+/* (f*g) \/ x^n */
+GEN
+RgX_sqrhigh_i(GEN f, long n)
+{ return RgX_shift_shallow(RgX_sqr(f), -n); }
+#endif
 
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
