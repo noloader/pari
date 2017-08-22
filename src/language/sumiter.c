@@ -117,13 +117,13 @@ forfactoredpos(ulong a, ulong b, GEN code)
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, lv, x2 = (b >= 2*step && b - 2*step >= x1)? x1-1 + step: b;
     GEN v = vecfactoru(x1, x2);
-    pari_sp av2 = avma;
     lv = lg(v);
-    for (j = 1; j < lv; j++, avma = av2)
+    for (j = 1; j < lv; j++)
     {
       ulong n = x1-1 + j;
+      pari_sp av2;
       set_lex(-1, mkvec2(utoipos(n), Flm_to_ZM(gel(v,j))));
-      closure_evalvoid(code);
+      av2 = avma; closure_evalvoid(code); avma = av2;
       if (loop_break()) return 1;
     }
     if (x2 == b) break;
