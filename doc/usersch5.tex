@@ -5854,6 +5854,23 @@ representing a polynomial over $\F_2[X]$. Specifically
 variable $v$ and the coefficients are given by the bits of remaining
 words by increasing degree.
 
+\subsubsec{Preconditioned reduction}
+
+For faster reduction, the modulus \kbd{T} can be replaced by an extended
+modulus (\kbd{FlxT}) in all \kbd{Flxq}-classes functions, and in
+\kbd{Flx\_divrem}.
+
+\fun{GEN}{F2x_get_red}{GEN T} returns the extended modulus \kbd{eT}.
+
+To write code that works both with plain and extended moduli, the following
+accessors are defined:
+
+\fun{GEN}{get_F2x_mod}{GEN eT} returns the underlying modulus \kbd{T}.
+
+\fun{GEN}{get_F2x_var}{GEN eT} returns the variable number of the modulus.
+
+\fun{GEN}{get_F2x_degree}{GEN eT} returns the degree of the modulus.
+
 \subsubsec{Basic operations}
 
 \fun{ulong}{F2x_coeff}{GEN x, long i} returns the coefficient $i\ge 0$ of $x$.
@@ -6074,6 +6091,26 @@ the main variable.
 \fun{GEN}{F2xXC_to_ZXXC}{GEN B}
 
 \subsec{\kbd{F2xqX}}. See \kbd{FlxqX} operations.
+
+\subsubsec{Preconditioned reduction}
+
+For faster reduction, the modulus \kbd{S} can be replaced by an extended
+modulus, which is an \kbd{F2xqXT}, in all \kbd{F2xqXQ}-classes
+functions, and in \kbd{F2xqX\_rem} and \kbd{F2xqX\_divrem}.
+
+\fun{GEN}{F2xqX_get_red}{GEN S, GEN T} returns the extended modulus
+\kbd{eS}.
+
+To write code that works both with plain and extended moduli, the following
+accessors are defined:
+
+\fun{GEN}{get_F2xqX_mod}{GEN eS} returns the underlying modulus \kbd{S}.
+
+\fun{GEN}{get_F2xqX_var}{GEN eS} returns the variable number of the modulus.
+
+\fun{GEN}{get_F2xqX_degree}{GEN eS} returns the degree of the modulus.
+
+\subsubsec{basic functions}
 
 \fun{GEN}{random_F2xqX}{long d, long v, GEN T, ulong p} returns a random
 \kbd{F2xqX} in variable \kbd{v}, of degree less than~\kbd{d}.
