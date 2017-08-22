@@ -1464,6 +1464,7 @@ RgX_sqrspec_basecase(GEN x, long nx, long v)
   for (  ; i<nz; i++) gel(z,i) = RgX_sqrspec_basecase_limb(x, i-nx+1, i);
   z -= v+2; z[1] = 0; return normalizepol_lg(z, lz);
 }
+#if 0
 /* return x^2 mod t^n */
 static GEN
 RgXn_sqr_basecase(GEN x, long n)
@@ -1506,6 +1507,16 @@ RgXn_sqr(GEN f, long n)
   h = RgX_addmulXn(RgX_addmulXn_shallow(h,m,1), l,1);
   return gerepileupto(av, h);
 }
+#else
+GEN
+RgXn_sqr(GEN f, long n)
+{
+  pari_sp av = avma;
+  GEN g = RgX_sqr(f);
+  if (degpol(g) < n) return g;
+  return gerepilecopy(av, RgXn_red_shallow(g, n));
+}
+#endif
 
 GEN
 RgX_sqrspec(GEN a, long na)
