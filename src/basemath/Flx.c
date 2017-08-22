@@ -4522,8 +4522,9 @@ FlxqX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, ulong p, GEN *pr)
     return FlxqX_divrem_basecase(x,S,T,p,pr);
   if (pr != ONLY_REM && l>lm)
   {
+    long vT = get_Flx_var(T);
     q = cgetg(l-lt+2, t_POL);
-    for (i=0;i<l-lt;i++) gel(q+2,i) = gen_0;
+    for (i=0;i<l-lt;i++) gel(q+2,i) = pol0_Flx(vT);
   }
   r = l>lm ? shallowcopy(x): x;
   while (l>lm)
