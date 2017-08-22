@@ -600,6 +600,12 @@ F2x_shift(GEN y, long d)
   return d<0 ? F2x_shiftneg(y,-d): F2x_shiftpos(y,d);
 }
 
+GEN
+F2x_get_red(GEN T)
+{
+  return T;
+}
+
 /* separate from F2x_divrem for maximal speed. */
 GEN
 F2x_rem(GEN x, GEN y)

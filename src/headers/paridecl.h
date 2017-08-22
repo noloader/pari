@@ -104,6 +104,7 @@ ulong   F2x_eval(GEN P, ulong x);
 void    F2x_even_odd(GEN p, GEN *pe, GEN *po);
 GEN     F2x_extgcd(GEN a, GEN b, GEN *ptu, GEN *ptv);
 GEN     F2x_gcd(GEN a, GEN b);
+GEN     F2x_get_red(GEN T);
 GEN     F2x_halfgcd(GEN a, GEN b);
 int     F2x_issquare(GEN a);
 GEN     F2x_matFrobenius(GEN T);
