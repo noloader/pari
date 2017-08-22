@@ -3067,8 +3067,9 @@ mfeisendim(long N, long k, GEN CHI)
   pari_sp av = avma;
   long s, FC = CHI? mfcharconductor(CHI): 1;
   if (k <= 0) return (k == 0 && FC == 1)? 1: 0;
-  s = itos( A3(N, FC) );
-  if (k > 1) s = 2*s - A4(k, FC);
+  s = itos(gmul2n(A3(N, FC), 1));
+  if (k > 1) s -= A4(k, FC);
+  else s >>= 1;
   avma = av; return s;
 }
 

@@ -9,6 +9,7 @@
 [0, 1, 0, 8, 0, -26, 0, -48, 0, 73, 0, 120, 0, -170, 0, -208]
 40000
 20000
+0
 [0, 8]~
 [16, -4]~
 [16, -32, 256]~
@@ -861,4 +862,4 @@ x^9 - 25/4*x^7 + 21/2*x^5 - 25/4*x^3 + x
   ***   at top-level: mfspace(mfcreate(ramanujantau))
   ***                 ^-------------------------------
   *** mfspace: sorry, mfspace for this F is not yet implemented.
-Total time spent: 8700
+Total time spent: 4816

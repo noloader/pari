@@ -25,6 +25,7 @@ vec(mfeisen(3,C[4],C[5]))
 mfinit([12,2],3);
 mfdim([10^9,4], 3)
 mfdim([10^9,1,Mod(3,4)], 3)
+mfdim([1,2],3)
 Th=1+2*sum(n=1,8,q^(n^2),O(q^80));
 mf=mfinit([4,2]);mftobasis(mf,Th^4)
 mf=mfinit([4,3,C[8]]);mftobasis(mf,Th^6)
