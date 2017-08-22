@@ -1890,6 +1890,20 @@ F2xX_add(GEN x, GEN y)
 }
 
 GEN
+F2xX_F2x_add(GEN x, GEN y)
+{
+  long i, lz = lg(y);
+  GEN z;
+  if (signe(y) == 0) return scalarpol(x, varn(y));
+  z = cgetg(lz,t_POL); z[1] = y[1];
+  gel(z,2) = F2x_add(gel(y,2), x);
+  if (lz == 3) z = F2xX_renormalize(z,lz);
+  else
+    for(i=3;i<lz;i++) gel(z,i) = F2x_copy(gel(y,i));
+  return z;
+}
+
+GEN
 F2xX_F2x_mul(GEN P, GEN U)
 {
   long i, lP = lg(P);

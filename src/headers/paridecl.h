@@ -119,6 +119,7 @@ long    F2x_valrem(GEN x, GEN *Z);
 GEN     F2xC_to_FlxC(GEN v);
 GEN     F2xC_to_ZXC(GEN x);
 GEN     F2xV_to_F2m(GEN v, long n);
+GEN     F2xX_F2x_add(GEN x, GEN y);
 GEN     F2xX_F2x_mul(GEN P, GEN U);
 GEN     F2xX_add(GEN x, GEN y);
 GEN     F2xX_deriv(GEN z);
