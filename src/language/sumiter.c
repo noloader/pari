@@ -121,9 +121,8 @@ forfactoredpos(ulong a, ulong b, GEN code)
     for (j = 1; j < lv; j++)
     {
       ulong n = x1-1 + j;
-      pari_sp av2;
       set_lex(-1, mkvec2(utoipos(n), Flm_to_ZM(gel(v,j))));
-      av2 = avma; closure_evalvoid(code); avma = av2;
+      closure_evalvoid(code);
       if (loop_break()) return 1;
     }
     if (x2 == b) break;
