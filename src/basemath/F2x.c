@@ -2568,12 +2568,12 @@ _F2xqXQ_sqr(void *data, GEN x) {
 static GEN
 _F2xqXQ_zero(void *data) {
   struct _F2xqXQ *d = (struct _F2xqXQ*) data;
-  return pol_0(varn(d->S));
+  return pol_0(get_F2xqX_var(d->S));
 }
 static GEN
 _F2xqXQ_one(void *data) {
   struct _F2xqXQ *d = (struct _F2xqXQ*) data;
-  return pol1_F2xX(varn(d->S),d->T[1]);
+  return pol1_F2xX(get_F2xqX_var(d->S),get_F2x_var(d->T));
 }
 
 static struct bb_algebra F2xqXQ_algebra = { _F2xqXQ_red,
@@ -2584,10 +2584,10 @@ F2xqXQ_pow(GEN x, GEN n, GEN S, GEN T)
 {
   struct _F2xqXQ D;
   long s = signe(n);
-  if (!s) return pol1_F2xX(varn(S), T[1]);
+  if (!s) return pol1_F2xX(get_F2xqX_var(S), get_F2x_var(T));
   if (s < 0) pari_err_IMPL("F2xqXQ_inv");
   if (is_pm1(n)) return s < 0 ? x : gcopy(x);
-  if (degpol(x)>=degpol(S)) x = F2xqX_rem(x,S,T);
+  if (degpol(x) >= get_F2xqX_degree(S)) x = F2xqX_rem(x,S,T);
   D.S = S; D.T = T;
   return gen_pow(x, n, (void*)&D, &_F2xqXQ_sqr, &_F2xqXQ_mul);
 }
@@ -2596,7 +2596,7 @@ GEN
 F2xqXQ_powers(GEN x, long l, GEN S, GEN T)
 {
   struct _F2xqXQ D;
-  int use_sqr = 2*degpol(x) >= degpol(S);
+  int use_sqr = 2*degpol(x) >= get_F2xqX_degree(S);
   D.S = S; D.T = T;
   return gen_powers(x, l, use_sqr, (void*)&D, &_F2xqXQ_sqr, &_F2xqXQ_mul,&_F2xqXQ_one);
 }
@@ -2614,7 +2614,7 @@ GEN
 F2xqX_F2xqXQ_eval(GEN Q, GEN x, GEN S, GEN T)
 {
   struct _F2xqXQ D;
-  int use_sqr = 2*degpol(x) >= degpol(S);
+  int use_sqr = 2*degpol(x) >= get_F2xqX_degree(S);
   D.S = S; D.T = T;
   return gen_bkeval(Q, degpol(Q), x, use_sqr, (void*)&D, &F2xqXQ_algebra,
                                                     _F2xqXQ_cmul);
