@@ -408,6 +408,8 @@ dbllog2(GEN z)
     default: /*t_COMPLEX*/
       x = dbllog2mp(gel(z,1));
       y = dbllog2mp(gel(z,2));
+      if (x == -pariINFINITY) return y;
+      if (y == -pariINFINITY) return x;
       if (fabs(x-y) > 10) return maxdd(x,y);
       return x + 0.5*log2(1 + exp2(2*(y-x)));
   }
@@ -1543,19 +1545,29 @@ where the maximum modulus of the roots of p is < 0.5 */
 static int
 split_0_2(GEN p, long bit, GEN *F, GEN *G)
 {
-  GEN q, b, FF, GG;
+  GEN q, b;
   long n = degpol(p), k, bit2, eq;
-  double aux = dbllog2(gel(p,n+1)) - dbllog2(gel(p,n+2));
+  double aux0 = dbllog2(gel(p,n+2)); /* != -oo */
+  double aux1 = dbllog2(gel(p,n+1)), aux;
 
-  /* beware double overflow */
-  if (aux >= 0 && (aux > 1e4 || exp2(aux) > 2.5*n)) return 0;
-
-  aux = (aux < -300)? 0.: n*log2(1 + exp2(aux)/(double)n);
+  if (aux1 == -pariINFINITY) /* p1 = 0 */
+    aux = 0;
+  else
+  {
+    aux = aux1 - aux0; /* log2(p1/p0) */
+    /* beware double overflow */
+    if (aux >= 0 && (aux > 1e4 || exp2(aux) > 2.5*n)) return 0;
+    aux = (aux < -300)? 0.: n*log2(1 + exp2(aux)/(double)n);
+  }
   bit2 = bit+1 + (long)(log2((double)n) + aux);
-
   q = mygprec(p,bit2);
-  b = gdivgs(gdiv(gel(q,n+1),gel(q,n+2)),-n);
-  q = RgX_translate(q,b); gel(q,n+1) = gen_0; eq = gexpo(q);
+  if (aux1 == -pariINFINITY) b = NULL;
+  else
+  {
+    b = gdivgs(gdiv(gel(q,n+1),gel(q,n+2)),-n);
+    q = RgX_translate(q,b);
+  }
+  gel(q,n+1) = gen_0; eq = gexpo(q);
   k = 0;
   while (k <= n/2 && (- gexpo(gel(q,k+2)) > bit2 + 2*(n-k) + eq
                       || gequal0(gel(q,k+2)))) k++;
@@ -1563,18 +1575,23 @@ split_0_2(GEN p, long bit, GEN *F, GEN *G)
   {
     if (k > n/2) k = n/2;
     bit2 += k<<1;
-    FF = pol_xn(k, 0);
-    GG = RgX_shift_shallow(q, -k);
+    *F = pol_xn(k, 0);
+    *G = RgX_shift_shallow(q, -k);
   }
   else
   {
-    split_1(q,bit2,&FF,&GG);
-    bit2 = bit + gexpo(FF) + gexpo(GG) - gexpo(p) + (long)aux+1;
-    FF = mygprec(FF,bit2);
+    split_1(q,bit2,F,G);
+    bit2 = bit + gexpo(*F) + gexpo(*G) - gexpo(p) + (long)aux+1;
+    *F = mygprec(*F,bit2);
   }
-  GG = mygprec(GG,bit2); b = mygprec(gneg(b),bit2);
-  *F = RgX_translate(FF, b);
-  *G = RgX_translate(GG, b); return 1;
+  *G = mygprec(*G,bit2);
+  if (b)
+  {
+    GEN mb = mygprec(gneg(b), bit2);
+    *F = RgX_translate(*F, mb);
+    *G = RgX_translate(*G, mb);
+  }
+  return 1;
 }
 
 /* put in F and G two polynomials such that |P-FG|<2^(-bit)|P|.
