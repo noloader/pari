@@ -279,7 +279,7 @@ Flx_ffisom(GEN P,GEN Q,ulong l)
 {
   pari_sp av = avma;
   GEN SP, SQ, R;
-  Flx_ffintersect(P,Q,degpol(P),l,&SP,&SQ,NULL,NULL);
+  Flx_ffintersect(P,Q,get_Flx_degree(P),l,&SP,&SQ,NULL,NULL);
   R = Flxq_ffisom_inv(SP,P,l);
   return gerepileupto(av, Flx_Flxq_eval(R,SQ,Q,l));
 }
@@ -412,7 +412,7 @@ FpX_ffisom(GEN P, GEN Q, GEN p)
     GEN R = Flx_ffisom(ZX_to_Flx(P,pp), ZX_to_Flx(Q,pp), pp);
     return gerepileupto(av, Flx_to_ZX(R));
   }
-  FpX_ffintersect(P,Q,degpol(P),p,&SP,&SQ,NULL,NULL);
+  FpX_ffintersect(P,Q,get_FpX_degree(P),p,&SP,&SQ,NULL,NULL);
   R = FpXQ_ffisom_inv(SP,P,p);
   return gerepileupto(av, FpX_FpXQ_eval(R,SQ,Q,p));
 }
@@ -451,7 +451,7 @@ Flx_factorgalois(GEN P, ulong l, long d, long w, GEN MP)
 {
   pari_sp ltop = avma;
   GEN R, V, Tl, z, M;
-  long k, n = degpol(P), m = n/d;
+  long k, n = get_Flx_degree(P), m = n/d;
   long v = get_Flx_var(P);
 
   if (m == 1) {
@@ -516,7 +516,7 @@ FpX_factorff_irred(GEN P, GEN Q, GEN p)
 {
   pari_sp ltop = avma, av;
   GEN res;
-  long np = degpol(P), nq = degpol(Q), d = cgcd(np,nq);
+  long np = get_FpX_degree(P), nq = get_FpX_degree(Q), d = cgcd(np,nq);
   if (d==1) return mkcolcopy(P);
 
   if (lgefint(p)==3)
