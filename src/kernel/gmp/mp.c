@@ -437,7 +437,7 @@ truncr(GEN x)
   long s, e, d, m, i;
   GEN y;
   if ((s=signe(x)) == 0 || (e=expo(x)) < 0) return gen_0;
-  d = nbits2prec(e+1); m = remsBIL(e);
+  d = nbits2lg(e+1); m = remsBIL(e);
   if (d > lg(x)) pari_err_PREC( "truncr (precision loss in truncation)");
 
   y=cgeti(d); y[1] = evalsigne(s) | evallgefint(d);
@@ -461,7 +461,7 @@ floorr(GEN x)
   GEN y;
   if (signe(x) >= 0) return truncr(x);
   if ((e=expo(x)) < 0) return gen_m1;
-  d = nbits2prec(e+1); m = remsBIL(e);
+  d = nbits2lg(e+1); m = remsBIL(e);
   lx=lg(x); if (d>lx) pari_err_PREC( "floorr (precision loss in truncation)");
   y = cgeti(d+1);
   if (++m == BITS_IN_LONG)
