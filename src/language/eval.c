@@ -679,6 +679,11 @@ closure_castlong(long z, long mode)
   case Gsmall:
     st[sp++]=z;
     break;
+  case Gusmall:
+    if (z < 0)
+      pari_err_TYPE("stou [integer >=0 expected]", stoi(z));
+    st[sp++]=(ulong) z;
+    break;
   case Ggen:
     gel(st,sp++)=stoi(z);
     break;

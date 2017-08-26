@@ -118,6 +118,7 @@ BA   89- iferr(1/0,E,1,break()) -> SEGV
      91- missing roots in nfroots (when r2>0) [#1956,#1957]
 BA   92- factormod(...,p,1) was incorrect for large p
 BA   93- foo = vectorsmall(1);for(i=1,1, foo[1]); -> error [#1958]
+BA   94- v=Vecsmall([2]); Fl_neg(v[1],3) when Fl_neg is installed [#1958]
 
   Added
       1- [libari] ZM_isidentity
