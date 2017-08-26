@@ -684,6 +684,8 @@ closure_castlong(long z, long mode)
     break;
   case Gvar:
     err_var(stoi(z));
+  case Gvoid:
+    break;
   default:
     pari_err_BUG("closure_castlong, type unknown");
   }
