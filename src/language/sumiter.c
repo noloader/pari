@@ -161,8 +161,7 @@ forfactoredneg(ulong a, ulong b, GEN code)
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, x1 = (x2 >= 2*step && x2-2*step >= a)? x2+1 - step: a;
     GEN v = vecfactoru(x1, x2);
-    pari_sp av2 = avma;
-    for (j = lg(v)-1; j; j--, avma = av2)
+    for (j = lg(v)-1; j; j--)
     { /* run backward: from factor(x1..x2) to factor(-x2..-x1) */
       ulong n = x1-1 + j;
       Flm2negfact(gel(v,j), M);
