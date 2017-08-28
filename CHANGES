@@ -261,7 +261,7 @@ BA  103- [libpari] FlxqXQ_auttrace
 BA  104- [libpari] F2xX_F2x_add, FlxX_Flx_sub
 BA  105- [libpari] F2x_get_red, get_F2x_mod, get_F2x_var, get_F2x_degree,
          F2xqX_get_red, get_F2xqX_mod, get_F2xqX_var, get_F2xqX_degree
-    106- [libpari] vecmoduu
+    106- [libpari] vecmoduu, quadclassno
 
   Changed
       1- rewrite bnfnarrow
