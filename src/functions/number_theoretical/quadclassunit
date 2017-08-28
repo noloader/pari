@@ -54,7 +54,7 @@ Doc: \idx{Buchmann-McCurley}'s sub-exponential algorithm for computing the
 Variant: If you really need to experiment with the \var{tech} parameter, it is
  usually more convenient to use
  \fun{GEN}{Buchquad}{GEN D, double c1, double c2, long prec}. If only the
- class number is needed, \fun{GEN}}{quadclassno}{GEN D} will be faster (still
+ class number is needed, \fun{GEN}{quadclassno}{GEN D} will be faster (still
  assuming the GRH), but will not provide the group structure. For negative
  $D$, $|D| < 10^{20}$, \tet{qfbclassno} should be faster but may return a
  wrong result.
