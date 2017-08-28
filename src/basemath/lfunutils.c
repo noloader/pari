@@ -2079,7 +2079,8 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_CONJ: an = vecan_conj(an, L, prec); break;
     case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
     case t_LFUN_GENUS2: an = vecan_genus2(an, L); break;
-    case t_LFUN_MFCLOS: an = mftovecslice(an, 1, L); break;
+    case t_LFUN_MFCLOS: an = mfcoefs(an,L,1) + 1; /* skip a_0 */
+                        an[0] = evaltyp(t_VEC)|evallg(L+1); break;
     default: pari_err_TYPE("ldata_vecan", van);
   }
   if (DEBUGLEVEL >= 2) timer_printf(&ti, "ldata_vecan");

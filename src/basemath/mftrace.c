@@ -793,18 +793,6 @@ static GEN f_CHI(GEN F) { return gmael3(F,1,2,3); }
 static GEN f_NK(GEN F) { return gmael(F,1,2); }
 
 /* UTILITY FUNCTIONS */
-/* given an mf closure, transform into vector or power series */
-GEN
-mftovecslice(GEN F, long a, long b)
-{
-  GEN V = mfcoefs(F, b, 1), v;
-  long m, i;
-  if (!a) return V;
-  v = cgetg(b - a + 2, t_VEC);
-  for (m = a, i = 1; m <= b; m++) gel(v, i++) = gel(V, m + 1);
-  return v;
-}
-
 GEN
 mftocol(GEN F, long lim)
 { GEN c = mfcoefs_i(F, lim, 1); settyp(c,t_COL); return c; }

@@ -3899,7 +3899,6 @@ GEN   mfbracket(GEN F, GEN G, long m);
 GEN   mfpow(GEN F, GEN n);
 GEN   mfshift(GEN F, long sh);
 GEN   mftocol(GEN F, long lim);
-GEN   mftovecslice(GEN F, long a, long b);
 GEN   mftwist(GEN F, GEN D);
 long  mfval(GEN F);
 GEN   mfvectomat(GEN vF, long lim);
