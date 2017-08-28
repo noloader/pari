@@ -1019,9 +1019,6 @@ isomatdbl(GEN nf, GEN L, GEN M, ulong p, GEN T2, long flag)
   return mkvec2(list_to_crv(V), N);
 }
 
-INLINE GEN
-mkfracss(long x, long y) { retmkfrac(stoi(x),stoi(y)); }
-
 static ulong
 ellQ_exceptional_iso(GEN j, GEN *jt, GEN *jtp, GEN *s0)
 {

@@ -10106,6 +10106,16 @@ the identity.
 \smallskip
 See also next section for analogs of the following functions:
 
+\fun{GEN}{mkfracss}{long x, long y} creates the \typ{FRAC} $x/y$. Assumes that
+$y > 1$ and $(x,y) = 1$.
+
+\fun{GEN}{sstoQ}{long x, long y} returns the \typ{INT} or \typ{FRAC} $x/y$;
+no assumptions.
+
+\fun{void}{Qtoss}{GEN q, long *n, long *d} given a \typ{INT} or \typ{FRAC} $q$,
+set $n$ and $d$ such that $q = n/d$ with $d \geq 1$ and $(n,d)$ = 1. Overflow
+error if numerator or denominator do not fit into a long integer.
+
 \fun{GEN}{mkfraccopy}{GEN x, GEN y} creates the \typ{FRAC} $x/y$. Assumes that
 $y > 1$ and $(x,y) = 1$.
 

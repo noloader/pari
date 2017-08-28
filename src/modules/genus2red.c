@@ -201,10 +201,6 @@ gmin3(GEN a, GEN b, GEN c)
   return m;
 }
 
-/* a/b */
-static GEN
-frac2s(long a, long b) { return b == 1? stoi(a): gdivgs(stoi(a), b); }
-
 /* Vector of p-adic factors (over Q_p) to accuracy r of pol. */
 static GEN
 padicfactors(GEN pol, GEN p, long r) { return gel(factorpadic(pol,p,r),1); }
@@ -283,7 +279,7 @@ theta_j(GEN B, GEN p, long j)
   v[5] = myval(b5,p);
   v[6] = myval(b6,p);
   theta = stoi(v[1+j]);
-  for(i = 2+j; i <= 6; i++) theta = gmin(theta, frac2s(v[i], i-j));
+  for(i = 2+j; i <= 6; i++) theta = gmin(theta, sstoQ(v[i], i-j));
   return theta;
 }
 /* compute theta_3 for B in Z[i][X], p = 3 */
@@ -293,7 +289,7 @@ theta_3_zi(GEN B)
   long v2 = myval_zi(RgX_coeff(B,2));
   long v1 = myval_zi(RgX_coeff(B,1));
   long v0 = myval_zi(RgX_coeff(B,0));
-  return frac2s(min3(6*v2, 3*v1, 2*v0), 6);
+  return sstoQ(min3(6*v2, 3*v1, 2*v0), 6);
 }
 /* compute theta_3 for B in (Z[i,Y]/(Y^2-3))[X], p = 3 */
 static GEN
@@ -302,7 +298,7 @@ theta_3_zi2(GEN B)
   long v2 = myval_zi2(RgX_coeff(B,2));
   long v1 = myval_zi2(RgX_coeff(B,1));
   long v0 = myval_zi2(RgX_coeff(B,0));
-  return frac2s(min3(6*v2, 3*v1, 2*v0), 6);
+  return sstoQ(min3(6*v2, 3*v1, 2*v0), 6);
 }
 
 /* Set maxord to the maximal multiplicity of a factor. If there is at least
@@ -555,7 +551,7 @@ stable_reduction(struct igusa *I, struct igusa_p *Ip)
   long r1, r2, r3, r4, i, eps, eps2;
 
   v = cgetg(8,t_COL);
-  for(i = 1; i <= 7; i++) gel(v,i) = frac2s(val[i], deg[i]);
+  for(i = 1; i <= 7; i++) gel(v,i) = sstoQ(val[i], deg[i]);
   s = gel(v,1);
   for(i = 2; i <= 7; i++)
     if (gcmp(gel(v,i),s) < 0) s = gel(v,i);
@@ -748,13 +744,13 @@ tame_1(struct igusa *I, struct igusa_p *Ip)
   va5 = myval(I->A5,p);
   if (!gequal0(I->A5) && 20*va0+val[6] > 6*va5)
   {
-    pro1 = frac2s(val[6]-2*va5, 20);
-    pro2 = frac2s(5*val[6]-6*va5, 40);
+    pro1 = sstoQ(val[6]-2*va5, 20);
+    pro2 = sstoQ(5*val[6]-6*va5, 40);
   }
   else
   {
-    pro1 = frac2s(10*va0-val[6], 30);
-    pro2 = frac2s(5*va0-val[6], 10);
+    pro1 = sstoQ(10*va0-val[6], 30);
+    pro2 = sstoQ(5*va0-val[6], 10);
   }
   n = lcmii(denom(pro1),denom(pro2));
   r = modii(gmul(n,pro1), n);
@@ -798,8 +794,8 @@ tame_234_init(struct igusa *I, struct igusa_p *Ip, long v12,
   vb2 = myval(I->B2,p);
   if (9*vb2 >= 6*va0+v12 && 36*va5 >= 120*va0+5*v12)
   {
-    pro1 = frac2s(12*va0-v12, 36);
-    pro2 = frac2s(6*va0-v12, 12);
+    pro1 = sstoQ(12*va0-v12, 36);
+    pro2 = sstoQ(6*va0-v12, 12);
     n = lcmii(denom(pro1),denom(pro2));
     r = gmul(n,pro1);
     q = gmul(n,pro2);
@@ -807,7 +803,7 @@ tame_234_init(struct igusa *I, struct igusa_p *Ip, long v12,
   }
   else if (120*va0+5*v12 > 36*va5 && 60*vb2 >= 12*va5+5*v12)
   {
-    pro1 = frac2s(36*va5-25*v12, 240);
+    pro1 = sstoQ(36*va5-25*v12, 240);
     n = denom(pro1);
     q = gmul(n,pro1);
     r = gmulsg(-2,q);
@@ -815,8 +811,8 @@ tame_234_init(struct igusa *I, struct igusa_p *Ip, long v12,
   }
   else if (6*va0+v12 > 9*vb2 && 12*va5+5*v12 > 60*vb2)
   {
-    pro1 = frac2s(v12-6*vb2, 12);
-    pro2 = frac2s(v12-9*vb2, 12);
+    pro1 = sstoQ(v12-6*vb2, 12);
+    pro2 = sstoQ(v12-9*vb2, 12);
     n = lcmii(denom(pro1),denom(pro2));
     r = gmul(n,pro1);
     q = gmul(n,pro2);
@@ -1073,10 +1069,10 @@ tame_567_init(struct igusa *I, struct igusa_p *Ip, GEN dk,
   va5 = myval(I->A5,p);
   vb2 = myval(I->B2,p);
   v5 = myval(subii(mulii(I->A2,I->A3),mulsi(3,I->A5)),p);
-  rk = gadd(frac2s(va0, 2),
+  rk = gadd(sstoQ(va0, 2),
             gmin3(gmul2n(dk,-1),
-                  frac2s(2*va3-3*va2, 8),
-                  frac2s(2*v5 - 5*va2, 12)));
+                  sstoQ(2*va3-3*va2, 8),
+                  sstoQ(2*v5 - 5*va2, 12)));
   v1 = 2*va3-4*va0-val[1];
   v2 = 6*va5-20*va0-5*val[1];
   /* the definition of n differs according to the parity of val[1] */
@@ -1085,13 +1081,13 @@ tame_567_init(struct igusa *I, struct igusa_p *Ip, GEN dk,
     if (3*vb2 >= 2*va0+2*val[1] && v1 >= 0 && v2 >= 0
                                 && (v1 == 0 || v2 == 0))
     { /* Prop 4.3.1 (a) */
-      pro1 = frac2s(va0+val[1], 6);
+      pro1 = sstoQ(va0+val[1], 6);
       n = lcmii(denom(dk),denom(pro1));
       r = gmul(n,pro1);
     }
     else if (20*va0+5*val[1] > 6*va5 && 10*vb2 >= 2*va5+5*val[1])
     { /* Prop 4.3.1 (b) */
-      pro1 = frac2s(2*va5+val[1], 8);
+      pro1 = sstoQ(2*va5+val[1], 8);
       n = lcmii(denom(dk),denom(pro1));
       r = gmul(n,pro1);
     }
@@ -1423,7 +1419,7 @@ tame_6(struct igusa *I, struct igusa_p *Ip, GEN dk,
   GEN val = Ip->val, d1k;
 
   tame_567_init(I, Ip, dk, &d, &n, &dm, &r);
-  d1k = frac2s(Ip->eps*(val[6]-val[7])+val[Ip->eps2], Ip->eps);
+  d1k = sstoQ(Ip->eps*(val[6]-val[7])+val[Ip->eps2], Ip->eps);
   d1 = itos(gmulsg(n,d1k));
   switch(n)
   {
@@ -1532,7 +1528,7 @@ tame_7(struct igusa *I, struct igusa_p *Ip, GEN dk,
   GEN val = Ip->val, d1k, d2k, pro1;
 
   tame_567_init(I, Ip, dk, &d, &n, &dm, &r);
-  pro1 = frac2s(Ip->eps*val[6]+val[Ip->eps2]-3*Ip->eps*val[3], Ip->eps);
+  pro1 = sstoQ(Ip->eps*val[6]+val[Ip->eps2]-3*Ip->eps*val[3], Ip->eps);
   d1k = gmin(stoi(val[7]-3*val[3]),gmul2n(pro1,-1));
   d2k = gsub(pro1,d1k);
 
@@ -1585,13 +1581,13 @@ tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p
     case 3: return tame_3(I, Ip, 3*myval(I->i4, Ip->p));
     case 4: return tame_4(I, Ip, 6*myval(I->j2, Ip->p));
     case 5:
-      dk = frac2s(Ip->eps*val[6]-5*val[Ip->eps2], 12*Ip->eps);
+      dk = sstoQ(Ip->eps*val[6]-5*val[Ip->eps2], 12*Ip->eps);
       return tame_5(I, Ip, dk);
     case 6:
-      dk = frac2s(Ip->eps*val[7]-6*val[Ip->eps2], 12*Ip->eps);
+      dk = sstoQ(Ip->eps*val[7]-6*val[Ip->eps2], 12*Ip->eps);
       return tame_6(I, Ip, dk, polh, theta, alpha, Dmin);
     case 7:
-      dk = frac2s(Ip->eps*val[3]-2*val[Ip->eps2], 4*Ip->eps);
+      dk = sstoQ(Ip->eps*val[3]-2*val[Ip->eps2], 4*Ip->eps);
       return tame_7(I, Ip, dk, polh, theta, alpha, Dmin);
   }
   return -1; /*LCOV_EXCL_LINE*/

@@ -149,6 +149,28 @@ mkpolmod(GEN x, GEN y) { retmkpolmod(x,y); }
 INLINE GEN
 mkfrac(GEN x, GEN y) { retmkfrac(x,y); }
 INLINE GEN
+mkfracss(long x, long y) { retmkfrac(stoi(x),stoi(y)); }
+/* q = n/d a t_FRAC or t_INT; recover (n,d) */
+INLINE void
+Qtoss(GEN q, long *n, long *d)
+{
+  if (typ(q) == t_INT) { *n = itos(q); *d = 1; }
+  else { *n = itos(gel(q,1)); *d = itou(gel(q,2)); }
+}
+INLINE GEN
+sstoQ(long n, long d)
+{
+  long g, r, q;
+  if (d == 1) return stoi(n);
+  q = sdivss_rem(n,d,&r);
+  if (!r) return stoi(q);
+  g = cgcd(d,r); /* gcd(n,d) */
+  if (g != 1) { n /= g; d /= g; }
+  if (d < 0) { d = -d; n = -n; }
+  retmkfrac(stoi(n), utoi(d));
+}
+
+INLINE GEN
 mkfraccopy(GEN x, GEN y) { retmkfrac(icopy(x), icopy(y)); }
 INLINE GEN
 mkrfrac(GEN x, GEN y) { GEN v = cgetg(3, t_RFRAC);
