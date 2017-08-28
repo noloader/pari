@@ -1,4 +1,4 @@
-OVERFLOW_EXPONENT=if(precision(1.)==38, 2^50, 2^20);
+OVERFLOW_EXPONENT=if(sizebyte(0)==16, 2^50, 2^20);
 default(realprecision,38);
 default(parisize,20*10^6);
 exp(quadgen(5))

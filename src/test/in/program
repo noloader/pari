@@ -1,5 +1,5 @@
-HEAP=[48, if(precision(1.)==38,1913,3345)];
-STACK=if(precision(1.)==38, 232, 128);
+HEAP=[48, if(sizebyte(0)==16,1913,3345)];
+STACK=if(sizebyte(0)==16, 232, 128);
 STACK == getstack
 default(realprecision,38);
 \e
