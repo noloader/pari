@@ -13080,6 +13080,10 @@ the vector whose $i$-th component is $a[i]^n$.
 of the same length, returns the vector whose $i$-th component
 is \kbd{modii}$(a[i], b[i])$.
 
+\fun{GEN}{vecmoduu}{GEN a, GEN b}. Assuming $a$ and $b$ are two \typ{VECSMALL}
+of the same length, returns the vector whose $i$-th component
+is $a[i]~\kbd{\%}~b[i]$.
+
 Note that \kbd{vecadd} or \kbd{vecsub} do not exist since \kbd{gadd}
 and \kbd{gsub} have the expected behavior. On the other hand,
 \kbd{ginv} does not accept vector types, hence \kbd{vecinv}.
