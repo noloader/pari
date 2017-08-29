@@ -1574,7 +1574,15 @@ static GEN
 RgX_mul_FpX(GEN x, GEN y, GEN p)
 {
   pari_sp av = avma;
-  GEN r = FpX_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flx_mul(RgX_to_Flx(x, pp),
+                                  RgX_to_Flx(y, pp), pp));
+  }
+  else
+    r = FpX_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
   if (signe(r)==0)
   { avma = av; return zero_FpX_mod(p, varn(x)); }
   return gerepileupto(av, FpX_to_mod(r, p));
@@ -1633,7 +1641,14 @@ static GEN
 RgX_sqr_FpX(GEN x, GEN p)
 {
   pari_sp av = avma;
-  GEN r = FpX_sqr(RgX_to_FpX(x, p), p);
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flx_sqr(RgX_to_Flx(x, pp), pp));
+  }
+  else
+    r = FpX_sqr(RgX_to_FpX(x, p), p);
   if (signe(r)==0)
   { avma = av; return zero_FpX_mod(p, varn(x)); }
   return gerepileupto(av, FpX_to_mod(r, p));
