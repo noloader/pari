@@ -3924,7 +3924,6 @@ GEN   mfgaloistype(GEN NK, GEN F);
 GEN   mffields(GEN mf);
 GEN   mfbasis(GEN mf);
 GEN   mfeigenbasis(GEN mf);
-long  mfchar(GEN mf);
 GEN   mfinit(GEN NK, long codespace);
 long  mfconductor(GEN mf, GEN F);
 GEN   lfunmf(GEN mf, long flag, long bitprec);
