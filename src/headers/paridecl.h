@@ -2534,7 +2534,7 @@ int     checkznstar_i(GEN G);
 GEN     cyc_normalize(GEN c);
 GEN     ncharvecexpo(GEN G, GEN nchi);
 GEN     znchar(GEN D);
-GEN     znchar_quad(GEN N, GEN D);
+GEN     znchar_quad(GEN G, GEN D);
 int     zncharcheck(GEN G, GEN chi);
 GEN     zncharconductor(GEN G, GEN chi);
 GEN     zncharconj(GEN G, GEN chi);

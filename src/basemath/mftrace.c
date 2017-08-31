@@ -1435,7 +1435,7 @@ induce(GEN G, GEN CHI)
   GEN o, chi;
   if (typ(CHI) == t_INT) /* Kronecker */
   {
-    chi = gel(znchar_quad(G, CHI), 2);
+    chi = znchar_quad(G, CHI);
     o = ZV_equal0(chi)? gen_1: gen_2;
   }
   else
@@ -7335,7 +7335,7 @@ GEN
 mffromqf(GEN Q, GEN P)
 {
   pari_sp av = avma;
-  GEN Qi, F, D, N, mf, res;
+  GEN G, Qi, F, D, N, mf, v;
   long m, k, d, space;
   if (typ(Q) != t_MAT) pari_err_TYPE("mffromqf", Q);
   if (!RgM_is_ZM(Q) || !qf_iseven(Q))
@@ -7356,19 +7356,20 @@ mffromqf(GEN Q, GEN P)
   }
   D = ZM_det(Q); if (k&1L) D = negi(D);
   space = d > 0 ? mf_CUSP : mf_FULL;
-  mf = mfinit(mkvec3(N, utoi(k + d), znchar_quad(N,D)), space);
+  G = znstar0(N,1);
+  mf = mfinit(mkvec3(N, utoi(k+d), mkvec2(G,znchar_quad(G,D))), space);
   if (odd(d))
   {
     F = mfcreate(gen_0);
-    res = zerocol(mf_get_dim(mf));
+    v = zerocol(mf_get_dim(mf));
   }
   else
   {
     F = c_QF(mfsturm(mf), Q, P);
-    res = mftobasis_i(mf, F);
-    F = mflinear_i(mf_get_basis(mf), res);
+    v = mftobasis_i(mf, F);
+    F = mflinear_i(mf_get_basis(mf), v);
   }
-  return gerepilecopy(av, mkvec3(mf, F, res));
+  return gerepilecopy(av, mkvec3(mf, F, v));
 }
 
 /***********************************************************************/

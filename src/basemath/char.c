@@ -1202,11 +1202,10 @@ znchartokronecker(GEN G, GEN chi, long flag)
   return gerepileuptoint(av, F);
 }
 
-/* (D/.) as a character mod N */
+/* (D/.) as a character mod N; assume |D| divides N and D = 0,1 mod 4*/
 GEN
-znchar_quad(GEN N, GEN D)
+znchar_quad(GEN G, GEN D)
 {
-  GEN G = (typ(N) == t_INT)? znstar0(N, 1): N;
   GEN cyc = znstar_get_conreycyc(G);
   GEN gen = znstar_get_conreygen(G);
   long i, l = lg(cyc);
@@ -1216,7 +1215,7 @@ znchar_quad(GEN N, GEN D)
     long k = kronecker(D, gel(gen,i));
     gel(chi,i) = (k==1)? gen_0: shifti(gel(cyc,i), -1);
   }
-  return mkvec2(G, chi);
+  return chi;
 }
 
 GEN
@@ -1228,7 +1227,9 @@ znchar(GEN D)
   {
     case t_INT:
       if (!signe(D) || Mod4(D) > 1) pari_err_TYPE("znchar", D);
-      return gerepilecopy(av, znchar_quad(D, D));
+      G = znstar0(D,1);
+      chi = znchar_quad(G,D);
+      break;
     case t_INTMOD:
       G = znstar0(gel(D,1), 1);
       chi = znconreylog(G, gel(D,2));

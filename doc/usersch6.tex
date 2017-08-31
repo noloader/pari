@@ -2727,6 +2727,10 @@ character \kbd{chi}.
 (\typ{COL}), return the attached normalized Conrey character, as in
 \kbd{char\_normalize} but on Conrey generators.
 
+\fun{GEN}{znchar_quad}{GEN G, GEN D} given a non-zero \typ{INT} $D$ congruent
+to $0,1$ mod $4$, return $(D/.)$ as a character modulo $N$, given by a Conrey
+logarithm (\typ{COL}). Assume that $|D|$ divides $N$.
+
 \fun{GEN}{Zideallog}{GEN G, GEN x} return the \kbd{znconreylog} of $x$
 expressed on \kbd{G.gen}, i.e. the ordinary discrete logarithm
 from \kbd{ideallog}.
