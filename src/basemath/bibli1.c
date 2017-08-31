@@ -1797,12 +1797,11 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
     gel(S,s) = leafcopy(x);
     if (s != stockmax) continue; /* still room, get next vector */
 
-    /* overflow, eliminate vectors failing "check" */
     if (check)
-    {
+    { /* overflow, eliminate vectors failing "check" */
       pari_sp av2 = avma;
       long imin, imax;
-      GEN per = indexsort(norms);
+      GEN per = indexsort(norms), S2 = cgetg(stockmax+1, t_VEC);
       if (DEBUGLEVEL>2) err_printf("sorting... [%ld elts]\n",s);
       /* let N be the minimal norm so far for x satisfying 'check'. Keep
        * all elements of norm N */
@@ -1815,13 +1814,10 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
       for (; i <= s; i++)
         if (mpgreaterthan(gel(norms,per[i]), borne1)) break;
       imax = i;
-      for (i=imin, s=0; i < imax; i++) gel(S,++s) = gel(S,per[i]);
+      for (i=imin, s=0; i < imax; i++) gel(S2,++s) = gel(S,per[i]);
+      for (i = 1; i <= s; i++) gel(S,i) = gel(S2,i);
       avma = av2;
-      if (s)
-      {
-        borne2 = mulrr(borne1, alpha);
-        checkcnt = 0;
-      }
+      if (s) { borne2 = mulrr(borne1, alpha); checkcnt = 0; }
       if (!stockall) continue;
       if (s > stockmax/2) stockmax <<= 1;
       norms = cgetg(stockmax+1, t_VEC);
@@ -1835,9 +1831,7 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
     }
 
     {
-      GEN Snew = cgetg(stockmax + 1, t_VEC);
-      for (i = 1; i <= s; i++) gel(Snew,i) = gel(S,i);
-      Snew = clonefill(Snew, s, stockmax);
+      GEN Snew = clonefill(vec_lengthen(S,stockmax), s, stockmax);
       if (isclone(S)) gunclone(S);
       S = Snew;
     }
