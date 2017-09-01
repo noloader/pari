@@ -3594,7 +3594,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
       if (T.some_z_is_real) yp = real_i(yp);
       else if (T.some_z_is_pure_imag) yp = mkcomplex(gen_0, imag_i(yp));
     }
-    y = mkvec2(y, gmul2n(yp,-1));
+    y = mkvec2(y, yp);
   }
   return gerepilecopy(av, y);
 }
@@ -3885,7 +3885,7 @@ pointell(GEN e, GEN z, long prec)
   v = ellwpnum_all(e,z,1,prec);
   if (!v) { avma = av; return ellinf(); }
   gel(v,1) = gsub(gel(v,1), gdivgs(ell_get_b2(e),12));
-  gel(v,2) = gsub(gel(v,2), gmul2n(ec_h_evalx(e,gel(v,1)),-1));
+  gel(v,2) = gmul2n(gsub(gel(v,2), ec_h_evalx(e,gel(v,1))),-1);
   return gerepilecopy(av, v);
 }
 

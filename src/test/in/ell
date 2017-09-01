@@ -200,6 +200,7 @@ e = ellinit([0,-1,1,-10,-20]);
 ellwp(e,x+O(x^12))
 \\#1683
 ellztopoint(e,3*e.omega[1]/5)
+ellwp(e, 0.1 + 0.2*I, 1)
 
 \\#1683
 e = ellinit([1,1,0,-1740,22184]);
