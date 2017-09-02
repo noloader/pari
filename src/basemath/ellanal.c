@@ -379,8 +379,8 @@ ellgammafactor(GEN N, GEN s, long prec)
 static GEN
 ellL1_eval(GEN e, GEN vec, struct lcritical *C, GEN t, long prec)
 {
-  GEN gam = ellgammafactor(ellQ_get_N(e), gaddgs(gmul(gen_I(),t), 1), prec);
-  return gdiv(Llambda(vec, C, t, prec), gam);
+  GEN g = ellgammafactor(ellQ_get_N(e), gaddgs(gmul(gen_I(),t), 1), prec);
+  return gdiv(Llambda(vec, C, t, prec), g);
 }
 
 static GEN
@@ -388,7 +388,7 @@ ellL1_der(GEN e, GEN vec, struct lcritical *C, GEN t, long der, long prec)
 {
   GEN r = polcoeff0(ellL1_eval(e, vec, C, t, prec), der, 0);
   r = gmul(r,powIs(C->real == 1 ? -der: 1-der));
-  return gmul(r, mpfact(der));
+  return gmul(real_i(r), mpfact(der));
 }
 
 GEN
