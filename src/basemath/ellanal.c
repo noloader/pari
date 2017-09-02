@@ -372,9 +372,8 @@ Llambda(GEN vec, struct lcritical *C, GEN t, long prec)
 static GEN
 ellgammafactor(GEN N, GEN s, long prec)
 {
-  GEN Ns2 = gpow(N, gdivgs(s, 2), prec);
-  Ns2 = gmul(Ns2, gmulsg(2, gpow(shiftr(mppi(prec), 1), gneg(s), prec)));
-  return gmul(Ns2, ggamma(s, prec));
+  GEN c = gpow(divrr(gsqrt(N,prec), Pi2n(1,prec)), s, prec);
+  return gmul(gmul2n(c,1), ggamma(s, prec));
 }
 
 static GEN
@@ -388,7 +387,7 @@ static GEN
 ellL1_der(GEN e, GEN vec, struct lcritical *C, GEN t, long der, long prec)
 {
   GEN r = polcoeff0(ellL1_eval(e, vec, C, t, prec), der, 0);
-  r = gdiv(r,gpowgs(gen_I(), C->real == 1 ? der: der-1));
+  r = gmul(r,powIs(C->real == 1 ? -der: 1-der));
   return gmul(r, mpfact(der));
 }
 
