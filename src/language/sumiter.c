@@ -126,6 +126,7 @@ forfactoredpos(ulong a, ulong b, GEN code)
       if (loop_break()) return 1;
     }
     if (x2 == b) break;
+    set_lex(-1, gen_0);
   }
   return 0;
 }
@@ -170,6 +171,7 @@ forfactoredneg(ulong a, ulong b, GEN code)
       if (loop_break()) return 1;
     }
     if (x1 == a) break;
+    set_lex(-1, gen_0);
   }
   return 0;
 }
