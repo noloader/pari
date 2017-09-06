@@ -838,11 +838,11 @@ FpXQX_Frobenius(GEN S, GEN T, GEN p)
 static GEN
 F2xqXQ_Frobenius(GEN xp, GEN Xp, GEN f, GEN T)
 {
-  ulong dT = F2x_degree(T), df = degpol(f);
+  ulong dT = get_F2x_degree(T), df = get_F2xqX_degree(f);
   if (dT >= expu(dT)*usqrt(df))
     return gel(F2xqXQ_autpow(mkvec2(xp, Xp), dT, f, T), 2);
   else
-    return F2xqXQ_pow(pol_x(varn(f)), int2n(dT), f, T);
+    return F2xqXQ_pow(pol_x(get_F2xqX_var(f)), int2n(dT), f, T);
 }
 
 static GEN
@@ -1244,7 +1244,7 @@ F2xqX_factor_squarefree(GEN f, GEN T)
   pari_sp av = avma;
   GEN r, t, v, tv;
   long q, n = degpol(f);
-  GEN u = const_vec(n+1, pol1_F2xX(varn(f),T[1]));
+  GEN u = const_vec(n+1, pol1_F2xX(varn(f), get_F2x_var(T)));
   for(q = 1;;q *= 2)
   {
     r = F2xqX_gcd(f, F2xX_deriv(f), T);
@@ -1280,6 +1280,7 @@ F2xqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN V, long idx)
   pari_sp btop;
   long n = degpol(Sp);
   GEN S, f, ff;
+  long dT = get_F2x_degree(T);
   GEN R = F2xqX_easyroots(Sp, T);
   if (R)
   {
@@ -1288,13 +1289,13 @@ F2xqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN V, long idx)
       gel(V, idx+i) = gel(R,1+i);
     return;
   }
-  S = Sp;
+  S = F2xqX_get_red(Sp, T);
   Xp = F2xqX_rem(Xp, S, T);
   btop = avma;
   while (1)
   {
     GEN a = random_F2xqX(degpol(Sp), varn(Sp), T);
-    GEN R = gel(F2xqXQ_auttrace(mkvec3(xp, Xp, a), F2x_degree(T), S, T), 3);
+    GEN R = gel(F2xqXQ_auttrace(mkvec3(xp, Xp, a), dT, S, T), 3);
     f = F2xqX_gcd(R, Sp, T);
     if (degpol(f) > 0 && degpol(f) < n) break;
     avma = btop;
@@ -1677,7 +1678,7 @@ F2xqX_sqf_split(GEN *t0, GEN T)
 static GEN
 F2xqX_factor_2(GEN f, GEN T)
 {
-  long v = varn(f), vT = T[1];
+  long v = varn(f), vT = get_F2x_var(T);
   GEN r = F2xqX_quad_roots(f,T);
   switch(lg(r)-1)
   {
