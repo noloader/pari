@@ -2688,3 +2688,12 @@ F2xqXQ_auttrace(GEN aut, long n, GEN S, GEN T)
   D.S = S; D.T = T;
   return gen_powu(aut,n,&D,F2xqXQ_auttrace_sqr,F2xqXQ_auttrace_mul);
 }
+
+GEN
+F2xqXQV_red(GEN z, GEN S, GEN T)
+{
+  long i,l = lg(z);
+  GEN x = cgetg(l, t_VEC);
+  for (i=1; i<l; i++) gel(x,i) = F2xqX_rem(gel(z,i), S, T);
+  return x;
+}

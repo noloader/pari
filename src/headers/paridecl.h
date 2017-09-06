@@ -168,6 +168,7 @@ GEN     F2xqXQ_pow(GEN x, GEN n, GEN S, GEN T);
 GEN     F2xqXQ_powers(GEN x, long l, GEN S, GEN T);
 GEN     F2xqXQ_autpow(GEN aut, long n, GEN S, GEN T);
 GEN     F2xqXQ_auttrace(GEN aut, long n, GEN S, GEN T);
+GEN     F2xqXQV_red(GEN z, GEN S, GEN T);
 GEN     Flm_to_F2m(GEN x);
 GEN     Flv_to_F2v(GEN x);
 GEN     Flx_to_F2x(GEN x);
