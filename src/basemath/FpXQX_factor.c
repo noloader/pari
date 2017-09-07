@@ -654,6 +654,24 @@ Flx_factorff_i(GEN P, GEN T, ulong p)
   setlg(E,lfact); return sort_factor_pol(mkvec2(V,E), cmp_Flx);
 }
 
+static long
+simpleff_to_nbfact(GEN F, long dT)
+{
+  long i, n = lg(F), k = 0;
+  for (i = 1; i < n; i++)
+    k += cgcd(uel(F,i), dT);
+  return k;
+}
+
+static long
+Flx_nbfactff(GEN P, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN F = gel(Flx_factcantor(P, p, 1), 1);
+  long s = simpleff_to_nbfact(F, get_Flx_degree(T));
+  avma = av; return s;
+}
+
 /* dummy implementation */
 static GEN
 F2x_factorff_i(GEN P, GEN T)
@@ -684,6 +702,16 @@ FpX_factorff_i(GEN P, GEN T, GEN p)
   setlg(V,lfact);
   setlg(E,lfact); return sort_factor_pol(mkvec2(V,E), cmp_RgX);
 }
+
+static long
+FpX_nbfactff(GEN P, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN F = gel(FpX_factcantor(P, p, 1), 1);
+  long s = simpleff_to_nbfact(F, get_FpX_degree(T));
+  avma = av; return s;
+}
+
 GEN
 FpX_factorff(GEN P, GEN T, GEN p)
 {
@@ -958,15 +986,38 @@ long
 FlxqX_nbfact(GEN u, GEN T, ulong p)
 {
   pari_sp av = avma;
-  GEN vker = FlxqX_Berlekamp_ker(u, T, p);
+  GEN vker;
+  if (FlxY_degreex(u) <= 0) return Flx_nbfactff(FlxX_to_Flx(u), T, p);
+  vker = FlxqX_Berlekamp_ker(u, T, p);
   avma = av; return lg(vker)-1;
+}
+
+static long
+isabsolutepol(GEN f)
+{
+  long i, l = lg(f);
+  for(i=2; i<l; i++)
+  {
+    GEN c = gel(f,i);
+    if (typ(c) == t_POL && degpol(c) > 0) return 0;
+  }
+  return 1;
 }
 
 long
 FpXQX_nbfact(GEN u, GEN T, GEN p)
 {
   pari_sp av = avma;
-  GEN vker = FpXQX_Berlekamp_ker(u, T, p);
+  GEN vker;
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    long vT = get_FpX_var(T);
+    long s = FlxqX_nbfact(ZXX_to_FlxX(u,pp,vT), ZXT_to_FlxT(T,pp), pp);
+    avma = av; return s;
+  }
+  if (isabsolutepol(u)) return FpX_nbfactff(simplify_shallow(u), T, p);
+  vker = FpXQX_Berlekamp_ker(u, T, p);
   avma = av; return lg(vker)-1;
 }
 
@@ -1098,18 +1149,6 @@ FqX_frobinv_inplace(GEN F, GEN T, GEN p)
 static GEN
 FqX_frob_deflate(GEN f, GEN T, GEN p)
 { return FqX_frobinv_inplace(RgX_deflate(f, itos(p)), T, p); }
-
-static long
-isabsolutepol(GEN f)
-{
-  long i, l = lg(f);
-  for(i=2; i<l; i++)
-  {
-    GEN c = gel(f,i);
-    if (typ(c) == t_POL && degpol(c) > 0) return 0;
-  }
-  return 1;
-}
 
 static GEN
 F2xqX_quad_roots(GEN P, GEN T)
