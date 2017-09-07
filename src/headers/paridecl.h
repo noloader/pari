@@ -1058,6 +1058,7 @@ GEN     RgXQV_red(GEN P, GEN T);
 GEN     RgXQX_RgXQ_mul(GEN x, GEN y, GEN T);
 GEN     RgXQX_divrem(GEN x,GEN y,GEN T,GEN *r);
 GEN     RgXQX_mul(GEN x,GEN y,GEN T);
+GEN     RgXQX_powers(GEN P, long n, GEN T);
 GEN     RgXQX_pseudodivrem(GEN x, GEN y, GEN T, GEN *ptr);
 GEN     RgXQX_pseudorem(GEN x, GEN y, GEN T);
 GEN     RgXQX_red(GEN P, GEN T);

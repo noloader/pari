@@ -2339,6 +2339,18 @@ RgXQX_sqr(GEN x, GEN T)
   return RgXQX_red(RgX_sqr(x), T);
 }
 
+GEN
+RgXQX_powers(GEN P, long n, GEN T)
+{
+  GEN v = cgetg(n+2, t_VEC);
+  long i;
+  gel(v, 1) = pol_1(varn(T));
+  if (n==0) return v;
+  gel(v, 2) = gcopy(P);
+  for (i = 2; i <= n; i++) gel(v,i+1) = RgXQX_mul(P, gel(v,i), T);
+  return v;
+}
+
 static GEN
 _add(void *data, GEN x, GEN y) { (void)data; return RgX_add(x, y); }
 static GEN
