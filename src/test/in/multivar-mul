@@ -24,3 +24,5 @@ f(N,M,v,w)= iferr(pol(N,v)*pol(M,w); 0, E, 1);
 }
 
 doit(9,9);
+
+A=Mod(-6,y^2-2)*x+Mod(48*z+60,y^2-2);B=Mod(1,y^2-2)*x+Mod(10,y^2-2); A*B

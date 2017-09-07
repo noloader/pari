@@ -395,6 +395,8 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2)
       break;
     case t_POLMOD:
       assign_or_fail(gel(c,1),pol);
+      if (typ(gel(c,2))==t_POL && varn(gel(c,2))!=varn(gel(c,1)))
+        return 0;
       for (j=1; j<=2; j++)
       {
         GEN pbis = NULL, polbis = NULL;
