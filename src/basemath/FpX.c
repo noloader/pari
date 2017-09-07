@@ -45,7 +45,8 @@ to_Flx(GEN *P, GEN *Q, GEN p)
 {
   ulong pp = uel(p,2);
   *P = ZX_to_Flx(*P, pp);
-  *Q = ZX_to_Flx(*Q, pp); return pp;
+  if(Q) *Q = ZX_to_Flx(*Q, pp);
+  return pp;
 }
 
 static ulong
@@ -267,14 +268,30 @@ Fp_FpX_sub(GEN x, GEN y, GEN p)
 }
 
 GEN
-FpX_mul(GEN x,GEN y,GEN p) { return FpX_red(ZX_mul(x, y), p); }
+FpX_mul(GEN x,GEN y,GEN p)
+{
+  if (lgefint(p) == 3)
+  {
+    ulong pp = to_Flx(&x, &y, p);
+    return Flx_to_ZX(Flx_mul(x, y, pp));
+  }
+  return FpX_red(ZX_mul(x, y), p);
+}
 
 GEN
 FpX_mulspec(GEN a, GEN b, GEN p, long na, long nb)
 { return FpX_red(ZX_mulspec(a, b, na, nb), p); }
 
 GEN
-FpX_sqr(GEN x,GEN p) { return FpX_red(ZX_sqr(x), p); }
+FpX_sqr(GEN x,GEN p)
+{
+  if (lgefint(p) == 3)
+  {
+    ulong pp = to_Flx(&x, NULL, p);
+    return Flx_to_ZX(Flx_sqr(x, pp));
+  }
+  return FpX_red(ZX_sqr(x), p);
+}
 
 GEN
 FpX_mulu(GEN y, ulong x,GEN p)
