@@ -772,6 +772,7 @@ long    perm_relorder(GEN p, GEN S);
 GEN     F2x_factcantor(GEN f, long flag);
 GEN     Flx_factcantor(GEN f, ulong p, long flag);
 GEN     FpX_factcantor(GEN f, GEN pp, long flag);
+long    ddf_to_nbfact(GEN D);
 GEN     ddf_to_simplefact(GEN D, long n);
 GEN     factcantor0(GEN f, GEN pp, long flag);
 

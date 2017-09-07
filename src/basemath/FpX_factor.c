@@ -1160,13 +1160,19 @@ FpX_factcantor_i(GEN f, GEN pp, long flag)
 }
 
 long
+ddf_to_nbfact(GEN D)
+{
+  long l = lg(D), i, s = 0;
+  for(i = 1; i < l; i++)
+    s += degpol(gel(D,i))/i;
+  return s;
+}
+
+long
 FpX_nbfact_Frobenius(GEN T, GEN XP, GEN p)
 {
   pari_sp av = avma;
-  GEN ddf = FpX_ddf(T, XP, p);
-  long l = lg(ddf), i, s=0;
-  for(i = 1; i < l; i++)
-    s += degpol(gel(ddf,i))/i;
+  long s = ddf_to_nbfact(FpX_ddf(T, XP, p));
   avma = av; return s;
 }
 
@@ -2147,10 +2153,7 @@ long
 Flx_nbfact_Frobenius(GEN T, GEN XP, ulong p)
 {
   pari_sp av = avma;
-  GEN ddf = Flx_ddf(T, XP, p);
-  long l = lg(ddf), i, s=0;
-  for(i = 1; i < l; i++)
-    s += degpol(gel(ddf,i))/i;
+  long s = ddf_to_nbfact(Flx_ddf(T, XP, p));
   avma = av; return s;
 }
 
