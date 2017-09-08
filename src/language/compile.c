@@ -417,11 +417,11 @@ localvars_find(GEN pack, entree *ep)
 enum FLflag {FLreturn=1, FLsurvive=2, FLnocopy=4, FLnocopylex=8};
 
 static void
-copyifclone(long n, long mode, long flag, long mask)
+addcopy(long n, long mode, long flag, long mask)
 {
   if (mode==Ggen && !(flag&mask))
   {
-    op_push(OCcopyifclone,0,n);
+    op_push(OCcopy,0,n);
     if (!(flag&FLsurvive) && DEBUGLEVEL)
       pari_warn(warner,"compiler generates copy for `%.*s'",
                        tree[n].len,tree[n].str);
@@ -2054,7 +2054,7 @@ compilenode(long n, int mode, long flag)
       if (vn)
       {
         op_push(OCpushlex,(long)vn,n);
-        copyifclone(n,mode,flag,FLnocopy|FLnocopylex);
+        addcopy(n,mode,flag,FLnocopy|FLnocopylex);
         compilecast(n,Ggen,mode);
       }
       else if (ep->valence==EpVAR || ep->valence==EpNEW)
@@ -2062,7 +2062,7 @@ compilenode(long n, int mode, long flag)
         if (DEBUGLEVEL && mode==Gvoid)
           pari_warn(warner,"statement with no effect: `%s'",ep->name);
         op_push(OCpushdyn,(long)ep,n);
-        copyifclone(n,mode,flag,FLnocopy);
+        addcopy(n,mode,flag,FLnocopy);
         compilecast(n,Ggen,mode);
       }
       else
