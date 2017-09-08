@@ -1282,7 +1282,6 @@ RgX_addmulXn(GEN x0, GEN y0, long d)
   *--zd = evaltyp(t_POL) | evallg(lz); return zd;
 }
 
-#if 0
 /* return x * y mod t^n */
 static GEN
 RgXn_mul_basecase(GEN x, GEN y, long n)
@@ -1305,8 +1304,8 @@ RgXn_mul_basecase(GEN x, GEN y, long n)
   return normalizepol_lg(z - 2, lz);
 }
 /* Mulders / Karatsuba product f*g mod t^n (Hanrot-Zimmermann variant) */
-GEN
-RgXn_mul(GEN f, GEN g, long n)
+static GEN
+RgXn_mul2(GEN f, GEN g, long n)
 {
   pari_sp av = avma;
   GEN fe,fo, ge,go, l,h,m;
@@ -1332,8 +1331,8 @@ RgXn_mul(GEN f, GEN g, long n)
   return gerepileupto(av, h);
 }
 /* (f*g) \/ x^n */
-GEN
-RgX_mulhigh_i(GEN f, GEN g, long n)
+static GEN
+RgX_mulhigh_i2(GEN f, GEN g, long n)
 {
   long d = degpol(f)+degpol(g) + 1 - n;
   GEN h;
@@ -1344,8 +1343,8 @@ RgX_mulhigh_i(GEN f, GEN g, long n)
 }
 
 /* (f*g) \/ x^n */
-GEN
-RgX_sqrhigh_i(GEN f, long n)
+static GEN
+RgX_sqrhigh_i2(GEN f, long n)
 {
   long d = 2*degpol(f)+ 1 - n;
   GEN h;
@@ -1353,26 +1352,35 @@ RgX_sqrhigh_i(GEN f, long n)
   h = RgX_recip_shallow(RgXn_sqr(RgX_recip_shallow(f), d));
   return RgX_shift_shallow(h, d-1-degpol(h)); /* possibly (fg)(0) = 0 */
 }
-#else
+
+static GEN RgX_mul_fast(GEN x, GEN y);
+static GEN RgX_sqr_fast(GEN x);
+
 /* f*g mod t^n (faster than Mulders-Hanrot-Zimmermann) */
 GEN
 RgXn_mul(GEN f, GEN g, long n)
 {
   pari_sp av = avma;
-  GEN h = RgX_mul(f,g);
+  GEN h = RgX_mul_fast(f,g);
+  if (!h) return RgXn_mul2(f,g,n);
   if (degpol(h) < n) return h;
   return gerepilecopy(av, RgXn_red_shallow(h, n));
 }
 /* (f*g) \/ x^n */
 GEN
 RgX_mulhigh_i(GEN f, GEN g, long n)
-{ return RgX_shift_shallow(RgX_mul(f,g), -n); }
+{
+  GEN h = RgX_mul_fast(f,g);
+  return h? RgX_shift_shallow(h, -n): RgX_mulhigh_i2(f,g,n);
+}
 
 /* (f*g) \/ x^n */
 GEN
 RgX_sqrhigh_i(GEN f, long n)
-{ return RgX_shift_shallow(RgX_sqr(f), -n); }
-#endif
+{
+  GEN h = RgX_sqr_fast(f);
+  return h? RgX_shift_shallow(h, -n): RgX_sqrhigh_i2(f,n);
+}
 
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
@@ -1686,9 +1694,8 @@ RgX_sqr_QXQX(GEN x, GEN T)
 }
 
 #define code(t1,t2) ((t1 << 6) | t2)
-
-GEN
-RgX_mul(GEN x, GEN y)
+static GEN
+RgX_mul_fast(GEN x, GEN y)
 {
   GEN p, pol;
   long pa;
@@ -1705,12 +1712,11 @@ RgX_mul(GEN x, GEN y)
                    return RgX_mul_QXQX(x, y, pol);
     case code(t_POLMOD, t_INTMOD):
                    return RgX_mul_FpXQX(x, y, pol, p);
-    default:       return RgX_mul_i(x,y);
+    default:       return NULL;
   }
 }
-
-GEN
-RgX_sqr(GEN x)
+static GEN
+RgX_sqr_fast(GEN x)
 {
   GEN p, pol;
   long pa;
@@ -1727,11 +1733,24 @@ RgX_sqr(GEN x)
                    return RgX_sqr_QXQX(x, pol);
     case code(t_POLMOD, t_INTMOD):
                    return RgX_sqr_FpXQX(x, pol, p);
-    default:       return RgX_sqr_i(x);
+    default:       return NULL;
   }
 }
-
 #undef code
+GEN
+RgX_mul(GEN x, GEN y)
+{
+  GEN z = RgX_mul_fast(x,y);
+  if (!z) z = RgX_mul_i(x,y);
+  return z;
+}
+GEN
+RgX_sqr(GEN x)
+{
+  GEN z = RgX_sqr_fast(x);
+  if (!z) z = RgX_sqr_i(x);
+  return z;
+}
 
 /*******************************************************************/
 /*                                                                 */
