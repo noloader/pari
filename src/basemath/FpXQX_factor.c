@@ -844,7 +844,7 @@ FlxqXQ_Frobenius(GEN xp, GEN Xp, GEN f, GEN T, ulong p)
 {
   ulong dT = get_Flx_degree(T), df = get_FlxqX_degree(f);
   GEN q = powuu(p,dT);
-  if (expi(q) >= expu(dT)*usqrt(df))
+  if (expi(q) >= expu(dT)*(long)usqrt(df))
     return gel(FlxqXQ_autpow(mkvec2(xp, Xp), dT, f, T, p), 2);
   else
     return FlxqXQ_pow(pol_x(get_FlxqX_var(f)), q, f, T, p);
