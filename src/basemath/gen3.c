@@ -1431,13 +1431,15 @@ gsubst(GEN x, long v, GEN y)
   switch(tx)
   {
     case t_POL:
+      vx = varn(x);
       if (lx==2)
       {
-        GEN z = RgX_get_0(y);
+        GEN z;
+        if (vx != v) return gcopy(x);
+        z = RgX_get_0(y);
         return ty == t_MAT? scalarmat(z,ly-1): z;
       }
 
-      vx = varn(x);
       if (varncmp(vx, v) > 0)
         return ty == t_MAT? scalarmat(x,ly-1): RgX_copy(x);
       if (varncmp(vx, v) < 0)
