@@ -1865,11 +1865,10 @@ F2xqX_factor_Shoup(GEN S, GEN xp, GEN T)
 }
 
 static GEN
-F2xqX_factor_Cantor(GEN S, GEN T)
+F2xqX_factor_Cantor(GEN f, GEN T)
 {
   GEN xp, E, F, V;
   long i, j, l;
-  GEN f = get_F2xqX_mod(S);
   switch(degpol(f))
   {
     case -1: retmkmat2(mkcolcopy(f), mkvecsmall(1));
@@ -1877,7 +1876,8 @@ F2xqX_factor_Cantor(GEN S, GEN T)
     case 1: retmkmat2(mkcol(F2xqX_normalize(f,T)), mkvecsmall(1));
     case 2: return F2xqX_factor_2(f, T);
   }
-  if (F2xY_degreex(f) <= 0) return F2x_factorff_i(F2xX_to_F2x(S), T);
+  if (F2xY_degreex(f) <= 0) return F2x_factorff_i(F2xX_to_F2x(f), T);
+  T = F2x_get_red(T);
   xp = F2x_Frobenius(T);
   V = F2xqX_factor_squarefree(f, T);
   l = lg(V);
