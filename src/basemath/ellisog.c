@@ -71,8 +71,9 @@ RgXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T)
 {
   pari_sp av = avma;
   long i, d = degpol(P), v = varn(A);
+  GEN s;
   if (signe(P)==0) return mkvec2(pol_0(v), pol_1(v));
-  GEN s = scalarpol_shallow(gel(P, d+2), v);
+  s = scalarpol_shallow(gel(P, d+2), v);
   for (i = d-1; i >= 0; i--)
   {
     s = RgX_add(RgXQX_mul(s, A, T), RgXQX_RgXQ_mul(gel(B,d+1-i), gel(P,i+2), T));
