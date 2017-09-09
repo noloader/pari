@@ -695,6 +695,10 @@ long    zx_is_pcyc(GEN T);
 
 GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
+/* FpXQX_factor.c */
+
+GEN FpXQX_factor_Berlekamp(GEN x, GEN T, GEN p);
+
 /* forprime.c*/
 
 void    init_modular(forprime_t *S);

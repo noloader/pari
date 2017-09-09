@@ -2225,6 +2225,32 @@ F2xqX_factor(GEN x, GEN T)
 }
 
 static GEN
+FpXQX_factor_Berlekamp_i(GEN f, GEN T, GEN p)
+{
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    GEN M;
+    long vT = get_FpX_var(T);
+    if (pp==2)
+    {
+      M = F2xqX_factor_Cantor(ZXX_to_F2xX(f, vT),  ZX_to_F2x(get_FpX_mod(T)));
+      return mkvec2(F2xXC_to_ZXXC(gel(M,1)), gel(M,2));
+    }
+    M = FlxqX_Berlekamp_i(ZXX_to_FlxX(f, pp, vT),  ZXT_to_FlxT(T, pp), pp);
+    return mkvec2(FlxXC_to_ZXXC(gel(M,1)), gel(M,2));
+  }
+  return FpXQX_Berlekamp_i(f, T, p);
+}
+
+GEN
+FpXQX_factor_Berlekamp(GEN x, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, FpXQX_factor_Berlekamp_i(x, T, p));
+}
+
+static GEN
 FpXQX_factor_i(GEN f, GEN T, GEN p)
 {
   if (lgefint(p)==3)
