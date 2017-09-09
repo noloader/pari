@@ -1004,29 +1004,6 @@ isabsolutepol(GEN f)
   return 1;
 }
 
-long
-FpXQX_nbfact(GEN u, GEN T, GEN p)
-{
-  pari_sp av = avma;
-  GEN vker;
-  if (lgefint(p)==3)
-  {
-    ulong pp = p[2];
-    long vT = get_FpX_var(T);
-    long s = FlxqX_nbfact(ZXX_to_FlxX(u,pp,vT), ZXT_to_FlxT(T,pp), pp);
-    avma = av; return s;
-  }
-  if (isabsolutepol(u)) return FpX_nbfactff(simplify_shallow(u), T, p);
-  vker = FpXQX_Berlekamp_ker(u, T, p);
-  avma = av; return lg(vker)-1;
-}
-
-long
-FqX_nbfact(GEN u, GEN T, GEN p)
-{
-  return T ? FpXQX_nbfact(u, T, p): FpX_nbfact(u, p);
-}
-
 #define set_irred(i) { if ((i)>ir) swap(t[i],t[ir]); ir++;}
 
 static long
@@ -2464,6 +2441,32 @@ FpXQX_factor_Cantor(GEN f, GEN T, GEN p)
     }
   return sort_factor_pol(FE_concat(F,E,j), cmp_RgX);
 }
+
+long
+FpXQX_nbfact(GEN S, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN u = get_FpXQX_mod(S);
+  long s;
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    long vT = get_FpX_var(T);
+    s = FlxqX_nbfact(ZXXT_to_FlxXT(S,pp,vT), ZXT_to_FlxT(T,pp), pp);
+  }
+  else if (isabsolutepol(u))
+    s = FpX_nbfactff(simplify_shallow(u), T, p);
+  else
+    s = ddf_to_nbfact(FpXQX_ddf(S, FpXQX_Frobenius(S, T, p), T, p));
+  avma = av; return s;
+}
+
+long
+FqX_nbfact(GEN u, GEN T, GEN p)
+{
+  return T ? FpXQX_nbfact(u, T, p): FpX_nbfact(u, p);
+}
+
 
 static GEN
 FpXQX_factor_Berlekamp_i(GEN f, GEN T, GEN p)
