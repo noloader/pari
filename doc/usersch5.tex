@@ -5808,9 +5808,6 @@ product of the coefficients of $x$ and $y$.
 
 \fun{GEN}{FlxqX_Frobenius}{GEN S, GEN T, ulong p}, as \kbd{FpXQX\_Frobenius}
 
-\fun{GEN}{FlxqXQ_halfFrobenius}{GEN A, GEN S, GEN T, ulong p}, as
-\kbd{FpXQXQ\_halfFrobenius}
-
 \fun{GEN}{FlxqX_roots}{GEN f, GEN T, ulong p} return the roots of \kbd{f} in
 $\F_p[X]/(T)$. Assumes \kbd{p} is prime and \kbd{T} irreducible in $\F_p[X]$.
 
@@ -5856,6 +5853,12 @@ as \kbd{FpXQXQ\_autsum}
 
 \fun{GEN}{FlxqXQ_auttrace}{GEN a, long n, GEN S, GEN T, ulong p}
 as \kbd{FpXQXQ\_auttrace}
+
+\fun{GEN}{FlxqXQ_halfFrobenius}{GEN A, GEN S, GEN T, ulong p}, as
+\kbd{FpXQXQ\_halfFrobenius}
+
+\fun{GEN}{FlxqXQ_minpoly}{GEN x, GEN S, GEN T, ulong p}, as
+\kbd{FpXQ\_minpoly}
 
 \subsec{\kbd{F2x}} An \kbd{F2x}~\kbd{z} is a \typ{VECSMALL}
 representing a polynomial over $\F_2[X]$. Specifically
