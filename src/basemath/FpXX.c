@@ -693,6 +693,18 @@ FpXQX_extgcd(GEN x, GEN y, GEN T, GEN p, GEN *ptu, GEN *ptv)
   return d;
 }
 
+GEN
+FpXQX_dotproduct(GEN x, GEN y, GEN T, GEN p)
+{
+  long i, l = minss(lg(x), lg(y));
+  pari_sp av;
+  GEN c;
+  if (l == 2) return gen_0;
+  av = avma; c = gmul(gel(x,2),gel(y,2));
+  for (i=3; i<l; i++) c = gadd(c, gmul(gel(x,i),gel(y,i)));
+  return gerepileupto(av, Fq_red(c,T,p));
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                       Barrett reduction                           **/
