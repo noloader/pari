@@ -392,6 +392,328 @@ static GEN
 factoredextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* fa)
 { return factoredextchinesetest(nf,x,y,pl,fa,NULL,NULL); }
 
+/** black box Hermite rings **/
+
+struct bb_hermite
+{
+  GEN (*add)(void *data, GEN, GEN);
+  GEN (*neg)(void *data, GEN);
+  GEN (*mul)(void *data, GEN, GEN);
+  GEN (*extgcd)(void *data, GEN, GEN);
+  GEN (*rann)(void *data, GEN);
+  GEN (*lquo)(void *data, GEN, GEN);
+  GEN (*unit)(void *data, GEN);
+  int (*equal0)(GEN);
+  int (*equal1)(GEN);
+  GEN (*s)(void *data, long);
+};
+
+static GEN
+_Fp_add(void *data, GEN x, GEN y) { return Fp_add(x,y,(GEN)data); }
+
+static GEN
+_Fp_neg(void *data, GEN x) { return Fp_neg(x,(GEN)data); }
+
+static GEN
+_Fp_mul(void *data, GEN x, GEN y) { return Fp_mul(x,y,(GEN)data); }
+
+static GEN
+_Fp_rann(void *data, GEN x)
+{
+  GEN d, N = (GEN)data;
+  if (!signe(x)) return gen_1;
+  d = gcdii(x,N);
+  return diviiexact(N,d);
+}
+
+static GEN
+_Fp_lquo(void *data, GEN x, GEN y) { (void) data; return truedivii(x,y); }
+
+/* D=MN, p|M => !p|a, p|N => p|a, return M */
+static GEN
+Z_split(GEN D, GEN a)
+{
+  long i, n = expu(expi(D)+1)+1;
+  GEN g;
+  for (i=1;i<=n;i++)
+    a = Fp_sqr(a,D);
+  g = gcdii(a,D);
+  return diviiexact(D,g);
+}
+
+/* c s.t. gcd(a+cb,N) = gcd(a,b,N) without factoring */
+static GEN
+Z_stab(GEN a, GEN b, GEN N)
+{
+  GEN g, a2, N2;
+  g = gcdii(a,b);
+  g = gcdii(g,N);
+  N2 = diviiexact(N,g);
+  a2 = diviiexact(a,g);
+  return Z_split(N2,a2);
+}
+
+static GEN
+_Fp_unit(void *data, GEN x)
+{
+  GEN g,s,v,d,N=(GEN)data,N2;
+  if (!signe(x)) return NULL;
+  g = bezout(x,N,&s,&v);
+  if (equali1(g)) return s;
+  N2 = diviiexact(N,g);
+  d = Z_stab(s,N2,N);
+  d = Fp_mul(d,N2,N);
+  v = Fp_add(s,d,N);
+  if (equali1(v)) return NULL;
+  return v;
+}
+
+static GEN
+_Fp_extgcd(void *data, GEN x, GEN y)
+{
+  GEN d,u,v,m,w;
+  if (equali1(y))
+    return mkvec2(y,mkmat2(
+          mkcol2(gen_1,Fp_neg(x,(GEN)data)),
+          mkcol2(gen_0,gen_1)));
+  d = bezout(x,y,&u,&v);
+  if (!signe(d)) return mkvec2(d,matid(2));
+  m = cgetg(3,t_MAT);
+  m = mkmat2(
+    mkcol2(diviiexact(y,d),negi(diviiexact(x,d))),
+    mkcol2(u,v));
+  w = _Fp_unit(data,d);
+  if (w) gel(m,2) = ZC_Z_mul(gel(m,2),w);
+  return mkvec2(d,FpM_red(m,(GEN)data));
+}
+
+static int
+_Fp_equal0(GEN x) { return !signe(x); }
+
+static int
+_Fp_equal1(GEN x) { return equali1(x); }
+
+static GEN
+_Fp_s(void *data, long x) { return modsi(x,(GEN)data); }
+
+/* p not necessarily prime */
+static const struct bb_hermite Fp_hermite=
+  {_Fp_add,_Fp_neg,_Fp_mul,_Fp_extgcd,_Fp_rann,_Fp_lquo,_Fp_unit,_Fp_equal0,_Fp_equal1,_Fp_s};
+
+const struct bb_hermite *get_Fp_hermite(void **data, GEN p)
+{
+  *data = (void*)p; return &Fp_hermite;
+}
+
+static GEN
+/* return NULL if a==0 */
+/* assume C*a is zero after lim */
+gen_rightmulcol(GEN C, GEN a, long lim, int fillzeros, void* data, const struct bb_hermite *R)
+{
+  GEN Ca,zero;
+  long i;
+  if (R->equal1(a)) return C;
+  if (R->equal0(a)) return NULL;
+  Ca = cgetg(lg(C),t_COL);
+  for(i=1; i<=lim; i++)
+    gel(Ca,i) = R->mul(data, gel(C,i), a);
+  if (fillzeros && lim+1 < lg(C))
+  {
+    zero = R->s(data,0);
+    for(i=lim+1; i<lg(C); i++)
+      gel(Ca,i) = zero;
+  }
+  return Ca;
+}
+
+static void
+/* C1 <- C1 + C2 */
+/* assume C2[i]==0 for i>lim */
+gen_addcol(GEN C1, GEN C2, long lim, void* data, const struct bb_hermite *R)
+{
+  long i;
+  for(i=1; i<=lim; i++)
+    gel(C1,i) = R->add(data, gel(C1,i), gel(C2,i));
+}
+
+static void
+/* H[,i] <- H[,i] + C*a */
+/* assume C is zero after lim */
+gen_addrightmul(GEN H, GEN C, GEN a, long i, long lim, void* data, const struct bb_hermite *R)
+{
+  GEN Ca;
+  if (R->equal0(a)) return;
+  Ca = gen_rightmulcol(C, a, lim, 0, data, R);
+  gen_addcol(gel(H,i), Ca, lim, data, R);
+}
+
+static GEN
+gen_zerocol(long n, void* data, const struct bb_hermite *R)
+{
+  GEN C = cgetg(n+1,t_COL), zero = R->s(data, 0);
+  long i;
+  for(i=1; i<=n; i++) gel(C,i) = zero;
+  return C;
+}
+
+static void
+/* U = [u1,u2]~, C <- A*u1 + B*u2 */
+/* assume both A, B and C are zero after lim */
+gen_rightlincomb(GEN A, GEN B, GEN U, GEN *C, long lim, void* data, const struct bb_hermite *R)
+{
+  GEN Au1, Bu2;
+  Au1 = gen_rightmulcol(A, gel(U,1), lim, 1, data, R);
+  Bu2 = gen_rightmulcol(B, gel(U,2), lim, 1, data, R);
+  if (!Au1 && !Bu2) { *C = gen_zerocol(lg(A)-1, data, R); return; }
+  if (!Au1) { *C = Bu2; return; }
+  if (!Bu2) { *C = Au1; return; }
+  gen_addcol(Au1, Bu2, lim, data, R);
+  *C = Au1;
+}
+
+static void
+/* (H[,i] | H[,j]) <- (H[,i] | H[,j]) * U */
+/* assume both columns are zero after lim */
+gen_elem(GEN H, GEN U, long i, long j, long lim, void* data, const struct bb_hermite *R)
+{
+  GEN Hi, Hj;
+  Hi = shallowcopy(gel(H,i));
+  Hj = shallowcopy(gel(H,j));
+  gen_rightlincomb(Hi, Hj, gel(U,1), &gel(H,i), lim, data, R);
+  gen_rightlincomb(Hi, Hj, gel(U,2), &gel(H,j), lim, data, R);
+}
+
+static int
+gen_is_zerocol(GEN C, void* data, const struct bb_hermite *R)
+{
+  long i;
+  (void) data;
+  for(i=1; i<lg(C); i++)
+    if (!R->equal0(gel(C,i))) return 0;
+  return 1;
+}
+
+static GEN
+gen_colneg(GEN C, void* data, const struct bb_hermite *R)
+{
+  GEN mC = cgetg(lg(C), t_COL);
+  long i;
+  for(i=1;i<lg(C);i++)
+    gel(mC,i) = R->neg(data,gel(C,i));
+  return mC;
+}
+
+static GEN
+gen_howell_i(GEN A, void *data, const struct bb_hermite *R)
+{
+  pari_sp av = avma;
+  GEN H,U,piv,u,q,a,perm,iszero,C,tmp;
+  long m,n,i,j,s,si,i2,si2;
+
+  RgM_dimensions(A,&m,&n);
+  if (n<m+1)    H = shallowmatconcat(mkvec2(zeromat(m,m+1-n),A));
+  else          H = RgM_shallowcopy(A);
+  RgM_dimensions(H,&m,&n);
+  s = n-m; /* shift */
+
+  /* put in triangular form */
+  for(i=m,si=s+m; i>0; i--,si--) /* si = s+i */
+  {
+    /* bottom-right diagonal */
+    for(j = 1; j < si; j++)
+      if (!R->equal0(gcoeff(H,i,j)))
+      {
+        U = R->extgcd(data, gcoeff(H,i,j), gcoeff(H,i,si));
+        U = gel(U,2);
+        gen_elem(H, U, j, si, i, data, R);
+      }
+
+    if (gc_needed(av,2)) gerepileall(av,1,&H);
+  }
+
+  /* put in reduced Howell form */
+  for(i=m,si=s+m; i>0; i--,si--) /* si = s+i */
+  {
+    /* normalize diagonal coefficient */
+    u = R->unit(data,gcoeff(H,i,si));
+    if (u) gel(H,si) = gen_rightmulcol(gel(H,si), u, i, 1, data, R);
+    piv = gcoeff(H,i,si);
+
+    /* reduce above diagonal */
+    if (!R->equal0(piv))
+    {
+      C = gel(H,si);
+      C = gen_colneg(C, data, R);
+      for(j=si+1; j<=n; j++)
+      {
+        q = R->lquo(data, gcoeff(H,i,j), piv);
+        gen_addrightmul(H, C, q, j, i, data, R);
+      }
+    }
+
+    /* ensure Howell property */
+    a = R->rann(data, piv);
+    if (!R->equal0(a))
+    {
+      gel(H,1) = gen_rightmulcol(gel(H,si), a, i-1, 1, data, R);
+      for(i2=i-1,si2=s+i2; i2>0; i2--,si2--)
+        if (!R->equal0(gcoeff(H,i2,1)))
+        {
+          if (R->equal0(gcoeff(H,i2,si2)))
+          {
+            tmp = gel(H,si2);
+            gel(H,si2) = shallowcopy(gel(H,1));
+            gel(H,1) = tmp;
+          }
+          else
+          {
+            U = R->extgcd(data, gcoeff(H,i2,1), gcoeff(H,i2,si2));
+            U = gel(U,2);
+            gen_elem(H, U, 1, si2, i2, data, R);
+          }
+        }
+    }
+
+    if (gc_needed(av,2)) gerepileall(av,2,&H,&piv);
+  }
+
+  /* put zero columns first */
+  iszero = cgetg(n+1,t_VECSMALL);
+  perm = cgetg(n+1, t_VECSMALL);
+
+  for(i=1; i<=n; i++) iszero[i] = gen_is_zerocol(gel(H,i), data, R);
+
+  j = 1;
+  for(i=1; i<=n; i++)
+    if (iszero[i])
+    {
+      perm[j] = i;
+      j++;
+    }
+  for(i=1; i<=n; i++)
+    if (!iszero[i])
+    {
+      perm[j] = i;
+      j++;
+    }
+
+  return vecpermute(H, perm);
+}
+
+static GEN
+gen_howell(GEN A, void *data, const struct bb_hermite *R)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, gen_howell_i(A, data, R));
+}
+
+GEN
+matimagemod(GEN A, GEN d)
+{
+  void* data;
+  return gen_howell(A, data, get_Fp_hermite(&data, d));
+}
+
 /** OPERATIONS ON ASSOCIATIVE ALGEBRAS algebras.c **/
 
 /*

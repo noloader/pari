@@ -1277,6 +1277,9 @@ GEN     scalar_ZX_shallow(GEN x, long v);
 GEN     zx_to_ZX(GEN z);
 
 /* algebras.c */
+
+GEN     matimagemod(GEN A, GEN d);
+
 GEN     alg_centralproj(GEN al, GEN z, int maps);
 GEN     alg_change_overorder_shallow(GEN al, GEN ord);
 GEN     alg_complete(GEN rnf, GEN aut, GEN hi, GEN hf, long maxord);
