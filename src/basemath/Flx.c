@@ -3535,6 +3535,18 @@ FlxqV_dotproduct(GEN x, GEN y, GEN T, ulong p)
 }
 
 GEN
+FlxqX_dotproduct(GEN x, GEN y, GEN T, ulong p)
+{
+  long i, l = minss(lg(x), lg(y));
+  pari_sp av;
+  GEN c;
+  if (l == 2) return gen_0;
+  av = avma; c = Flx_mul(gel(x,2),gel(y,2), p);
+  for (i=3; i<l; i++) c = Flx_add(c, Flx_mul(gel(x,i),gel(y,i), p), p);
+  return gerepileuptoleaf(av, Flx_rem(c,T,p));
+}
+
+GEN
 FlxC_eval_powers_pre(GEN z, GEN x, ulong p, ulong pi)
 {
   long i, l = lg(z);

@@ -406,6 +406,7 @@ GEN     FlxqX_FlxqXQV_eval(GEN P, GEN V, GEN S, GEN T, ulong p);
 GEN     FlxqX_Flxq_mul(GEN P, GEN U, GEN T, ulong p);
 GEN     FlxqX_Flxq_mul_to_monic(GEN P, GEN U, GEN T, ulong p);
 GEN     FlxqX_divrem(GEN x, GEN y, GEN T, ulong p, GEN *pr);
+GEN     FlxqX_dotproduct(GEN x, GEN y, GEN T, ulong p);
 GEN     FlxqX_extgcd(GEN a, GEN b, GEN T, ulong p, GEN *ptu, GEN *ptv);
 GEN     FlxqX_gcd(GEN P, GEN Q, GEN T, ulong p);
 GEN     FlxqX_get_red(GEN S, GEN T, ulong p);
