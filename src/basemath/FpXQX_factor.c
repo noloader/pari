@@ -1552,7 +1552,7 @@ FpXQX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN p, GEN V, long idx)
   {
     GEN a = deg1pol(pol_1(vT), random_FpX(dT, vT, p), varn(Sp));
     GEN R = FpXQXQ_halfFrobenius_i(a, xp, Xp, S, T, p);
-    f = FpXQX_gcd(FqX_Fq_add(R, FpX_neg(pol_1(vT), p), T, p), Sp, T, p);
+    f = FpXQX_gcd(FqX_Fq_sub(R, pol_1(vT), T, p), Sp, T, p);
     if (degpol(f) > 0 && degpol(f) < n) break;
     avma = btop;
   }

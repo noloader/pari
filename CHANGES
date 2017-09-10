@@ -263,7 +263,7 @@ BA  100- [libpari] QX_mul/QX_sqr, FFX_mul/FFX_sqr, RgX_mul_i/RgX_sqr_i,
 BA  101- [libpari] RgX_type2
 BA  102- RgX_mul/RgX_sqr: support for coefficient ring detection
 BA  103- [libpari] FlxqXQ_auttrace
-BA  104- [libpari] F2xX_F2x_add, FlxX_Flx_sub
+BA  104- [libpari] F2xX_F2x_add, FlxX_Flx_sub, FqX_Fq_sub
 BA  105- [libpari] F2x_get_red, get_F2x_mod, get_F2x_var, get_F2x_degree,
          F2xqX_get_red, get_F2xqX_mod, get_F2xqX_var, get_F2xqX_degree
     106- [libpari] vecmoduu, quadclassno, mkfracss, sstoQ, Qtoss

@@ -4318,6 +4318,7 @@ GEN     FqV_red(GEN z, GEN T, GEN p);
 GEN     FqV_to_FlxV(GEN v, GEN T, GEN pp);
 GEN     FqX_Fq_add(GEN y, GEN x, GEN T, GEN p);
 GEN     FqX_Fq_mul_to_monic(GEN P, GEN U, GEN T, GEN p);
+GEN     FqX_Fq_sub(GEN y, GEN x, GEN T, GEN p);
 GEN     FqX_eval(GEN x, GEN y, GEN T, GEN p);
 GEN     FqX_translate(GEN P, GEN c, GEN T, GEN p);
 GEN     FqXQ_powers(GEN x, long l, GEN S, GEN T, GEN p);

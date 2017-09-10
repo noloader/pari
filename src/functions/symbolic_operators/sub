@@ -24,4 +24,5 @@ Description:
  (FpX, Fp):FpX                   FpX_Fp_sub($1, $2, p)
  (FpX, FpX):FpX                  FpX_sub($1, $2, p)
  (Fq, Fq):Fq                     Fq_sub($1, $2, T, p)
+ (FqX, Fq):FqX                   FqX_Fq_sub($1, $2, T, p)
  (FqX, FqX):FqX                  FqX_sub($1, $2, T, p)
