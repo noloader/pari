@@ -1162,6 +1162,7 @@ gpow(GEN x, GEN n, long prec)
       }
       if (is_real_t(tx) && gsigne(x) > 0)
       {
+        prec += nbits2extraprec(expi(a));
         if (tx != t_REAL) x = gtofp(x, prec);
         z = sqrtnr(x, D);
         if (!equali1(a)) z = powgi(z, a);
@@ -1765,7 +1766,7 @@ sqrtnr_abs(GEN a, long n)
 {
   pari_sp av;
   GEN x, b;
-  long eold, n1, n2, prec, B, v;
+  long eextra, eold, n1, n2, prec, B, v;
   ulong mask;
 
   if (n == 1) return mpabs(a);
@@ -1773,25 +1774,26 @@ sqrtnr_abs(GEN a, long n)
 
   prec = realprec(a);
   B = prec2nbits(prec);
+  eextra = expu(n)-1;
   n1 = n+1;
   n2 = 2*n; av = avma;
   v = expo(a) / n;
   if (v) a = shiftr(a, -n*v);
 
-  b = rtor(a, LOWDEFAULTPREC);
+  b = rtor(a, DEFAULTPREC);
   x = mpexp(divru(logr_abs(b), n));
-  if (prec == LOWDEFAULTPREC)
+  if (prec == DEFAULTPREC)
   {
     if (v) shiftr_inplace(x, v);
     return gerepileuptoleaf(av, x);
   }
-  mask = cubic_prec_mask(B + BITS_IN_LONG-1);
+  mask = cubic_prec_mask(B + 63);
   eold = 1;
   for(;;)
-  { /* reach BITS_IN_LONG */
+  { /* reach 64 */
     long enew = eold * 3;
     enew -= mask % 3;
-    if (enew > BITS_IN_LONG) break; /* back up one step */
+    if (enew > 64) break; /* back up one step */
     mask /= 3;
     eold = enew;
   }
@@ -1801,7 +1803,7 @@ sqrtnr_abs(GEN a, long n)
     GEN y, z;
     enew -= mask % 3;
     mask /= 3;
-    pr = nbits2prec(enew);
+    pr = nbits2prec(enew + eextra);
     b = rtor(a, pr); setsigne(b,1);
     x = rtor(x, pr);
     y = subrr(powru(x, n), b);
