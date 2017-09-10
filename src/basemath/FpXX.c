@@ -727,7 +727,7 @@ FpXQX_invBarrett_basecase(GEN S, GEN T, GEN p)
 }
 
 INLINE GEN
-FpXQX_recipspec(GEN x, long l, long n)
+FpXX_recipspec(GEN x, long l, long n)
 {
   return RgX_recipspec_shallow(x, l, n);
 }
@@ -831,9 +831,9 @@ FpXQX_divrem_Barrettspec(GEN x, long l, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
   lm = minss(ld, lgpol(mg));
   lT  = ZXX_lgrenormalizespec(S+2,lt);
   lmg = ZXX_lgrenormalizespec(mg+2,lm);
-  q = FpXQX_recipspec(x+lt,ld,ld);                 /* q = rec(x)     lq<=ld*/
+  q = FpXX_recipspec(x+lt,ld,ld);                 /* q = rec(x)     lq<=ld*/
   q = FpXQX_mulspec(q+2,mg+2,T,p,lgpol(q),lmg);    /* q = rec(x) * mg lq<=ld+lm*/
-  q = FpXQX_recipspec(q+2,minss(ld,lgpol(q)),ld);  /* q = rec (rec(x) * mg) lq<=ld*/
+  q = FpXX_recipspec(q+2,minss(ld,lgpol(q)),ld);  /* q = rec (rec(x) * mg) lq<=ld*/
   if (!pr) return q;
   r = FpXQX_mulspec(q+2,S+2,T,p,lgpol(q),lT);      /* r = q*pol        lr<=ld+lt*/
   r = FpXX_subspec(x,r+2,p,lt,minss(lt,lgpol(r))); /* r = x - r   lr<=lt */
