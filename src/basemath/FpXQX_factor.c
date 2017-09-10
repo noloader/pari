@@ -2187,6 +2187,19 @@ FlxqX_factor_Cantor(GEN f, GEN T, ulong p)
 }
 
 long
+FlxqX_nbfact_Frobenius(GEN S, GEN Xq, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN u = get_FlxqX_mod(S);
+  long s;
+  if (FlxY_degreex(u) <= 0)
+    s = Flx_nbfactff(FlxX_to_Flx(u), T, p);
+  else
+    s = ddf_to_nbfact(FlxqX_ddf(S, Xq, T, p));
+  avma = av; return s;
+}
+
+long
 FlxqX_nbfact(GEN S, GEN T, ulong p)
 {
   pari_sp av = avma;

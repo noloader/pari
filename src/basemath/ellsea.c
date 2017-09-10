@@ -1146,9 +1146,7 @@ Flxq_study_eqn(long ell, GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
   *pt_dG = degpol(G);
   if (!*pt_dG)
   {
-    GEN L = FlxqXQ_matrix_pow(Xq, ell+1, ell+1, mpoly, T, p);
-    long vT = get_Flx_var(T);
-    long s = ell + 1 - FlxqM_rank(FlxM_Flx_add_shallow(L, Fl_to_Flx(p-1, vT), p), T, p);
+    long s = FlxqX_nbfact_Frobenius(mpoly, Xq, T, p);
     *pt_r = (ell + 1)/s;
     return NULL;
   }
