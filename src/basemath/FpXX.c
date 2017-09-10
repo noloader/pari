@@ -1355,6 +1355,112 @@ FpXQXQ_powers(GEN x, long l, GEN S, GEN T, GEN p)
   return gen_powers(x, l, use_sqr, (void*)&D, &_FpXQXQ_sqr, &_FpXQXQ_mul,&_FpXQXQ_one);
 }
 
+static GEN
+FpXQXn_mul(GEN a, GEN b, long n, GEN T, GEN p)
+{
+  return RgXn_red_shallow(FpXQX_mul(a, b, T, p), n);
+}
+
+/* Let v a linear form, return the linear form z->v(tau*z)
+   that is, v*(M_tau) */
+
+INLINE GEN
+FpXQX_recipspec(GEN x, long l, long n)
+{
+  return RgX_recipspec_shallow(x, l, n);
+}
+
+static GEN
+FpXQXQ_transmul_init(GEN tau, GEN S, GEN T, GEN p)
+{
+  GEN bht;
+  GEN h, Sp = get_FpXQX_red(S, &h);
+  long n = degpol(Sp), vT = varn(Sp);
+  GEN ft = FpXQX_recipspec(Sp+2, n+1, n+1);
+  GEN bt = FpXQX_recipspec(tau+2, lgpol(tau), n);
+  setvarn(ft, vT); setvarn(bt, vT);
+  if (h)
+    bht = FpXQXn_mul(bt, h, n-1, T, p);
+  else
+  {
+    GEN bh = FpXQX_div(RgX_shift_shallow(tau, n-1), S, T, p);
+    bht = FpXQX_recipspec(bh+2, lgpol(bh), n-1);
+    setvarn(bht, vT);
+  }
+  return mkvec3(bt, bht, ft);
+}
+
+static GEN
+FpXQXQ_transmul(GEN tau, GEN a, long n, GEN T, GEN p)
+{
+  pari_sp ltop = avma;
+  GEN t1, t2, t3, vec;
+  GEN bt = gel(tau, 1), bht = gel(tau, 2), ft = gel(tau, 3);
+  if (signe(a)==0) return pol_0(varn(a));
+  t2 = RgX_shift_shallow(FpXQX_mul(bt, a, T, p),1-n);
+  if (signe(bht)==0) return gerepilecopy(ltop, t2);
+  t1 = RgX_shift_shallow(FpXQX_mul(ft, a, T, p),-n);
+  t3 = FpXQXn_mul(t1, bht, n-1, T, p);
+  vec = FpXX_sub(t2, RgX_shift_shallow(t3, 1), p);
+  return gerepileupto(ltop, vec);
+}
+
+static GEN
+polxn_FpXX(long n, long v, long vT)
+{
+  long i, a = n+2;
+  GEN p = cgetg(a+1, t_POL);
+  p[1] = evalsigne(1)|evalvarn(v);
+  for (i = 2; i < a; i++) gel(p,i) = pol_0(vT);
+  gel(p,a) = pol_1(vT); return p;
+}
+
+GEN
+FpXQXQ_minpoly(GEN x, GEN S, GEN T, GEN p)
+{
+  pari_sp ltop = avma;
+  long vS, vT, n;
+  GEN v_x, g, tau;
+  vS = get_FpXQX_var(S);
+  vT = get_FpX_var(T);
+  n = get_FpXQX_degree(S);
+  g = pol_1(vS);
+  tau = pol_1(vS);
+  S = FpXQX_get_red(S, T, p);
+  v_x = FpXQXQ_powers(x, usqrt(2*n), S, T, p);
+  while(signe(tau) != 0)
+  {
+    long i, j, m, k1;
+    GEN M, v, tr;
+    GEN g_prime, c;
+    if (degpol(g) == n) { tau = pol_1(vS); g = pol_1(vS); }
+    v = random_FpXQX(n, vS, T, p);
+    tr = FpXQXQ_transmul_init(tau, S, T, p);
+    v = FpXQXQ_transmul(tr, v, n, T, p);
+    m = 2*(n-degpol(g));
+    k1 = usqrt(m);
+    tr = FpXQXQ_transmul_init(gel(v_x,k1+1), S, T, p);
+    c = cgetg(m+2,t_POL);
+    c[1] = evalsigne(1)|evalvarn(vS);
+    for (i=0; i<m; i+=k1)
+    {
+      long mj = minss(m-i, k1);
+      for (j=0; j<mj; j++)
+        gel(c,m+1-(i+j)) = FpXQX_dotproduct(v, gel(v_x,j+1), T, p);
+      v = FpXQXQ_transmul(tr, v, n, T, p);
+    }
+    c = FpXX_renormalize(c, m+2);
+    /* now c contains <v,x^i> , i = 0..m-1  */
+    M = FpXQX_halfgcd(polxn_FpXX(m, vS, vT), c, T, p);
+    g_prime = gmael(M, 2, 2);
+    if (degpol(g_prime) < 1) continue;
+    g = FpXQX_mul(g, g_prime, T, p);
+    tau = FpXQXQ_mul(tau, FpXQX_FpXQXQV_eval(g_prime, v_x, S, T, p), S, T, p);
+  }
+  g = FpXQX_normalize(g,T, p);
+  return gerepilecopy(ltop,g);
+}
+
 GEN
 FpXQXQ_matrix_pow(GEN y, long n, long m, GEN S, GEN T, GEN p)
 {

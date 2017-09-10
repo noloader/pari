@@ -733,6 +733,7 @@ GEN     FpXQXQ_div(GEN x,GEN y,GEN S, GEN T,GEN p);
 GEN     FpXQXQ_inv(GEN x, GEN S, GEN T,GEN p);
 GEN     FpXQXQ_invsafe(GEN x, GEN S, GEN T, GEN p);
 GEN     FpXQXQ_matrix_pow(GEN y, long n, long m, GEN S, GEN T, GEN p);
+GEN     FpXQXQ_minpoly(GEN x, GEN S, GEN T, GEN p);
 GEN     FpXQXQ_mul(GEN x, GEN y, GEN S, GEN T, GEN p);
 GEN     FpXQXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p);
 GEN     FpXQXQ_powers(GEN x, long n, GEN S, GEN T, GEN p);
