@@ -957,13 +957,6 @@ FlxqX_Berlekamp_ker_i(GEN Xq, GEN S, GEN T, ulong p)
 }
 
 static GEN
-FlxqX_Berlekamp_ker(GEN S, GEN T, ulong p)
-{
-  GEN Xq = FlxqX_Frobenius(S, T, p);
-  return FlxqX_Berlekamp_ker_i(Xq, S, T, p);
-}
-
-static GEN
 FpXQX_Berlekamp_ker_i(GEN Xq, GEN S, GEN T, GEN p)
 {
   long j,N = get_FpXQX_degree(S);
@@ -971,25 +964,6 @@ FpXQX_Berlekamp_ker_i(GEN Xq, GEN S, GEN T, GEN p)
   for (j=1; j<=N; j++)
     gcoeff(Q,j,j) = Fq_sub(gcoeff(Q,j,j), gen_1, T, p);
   return FqM_ker(Q,T,p);
-}
-
-static GEN
-FpXQX_Berlekamp_ker(GEN S, GEN T, GEN p)
-{
-  pari_sp ltop=avma;
-  GEN K;
-  if (lgefint(p)==3)
-  {
-    ulong pp=p[2];
-    long v = get_FpX_var(T);
-    GEN Tp = ZXT_to_FlxT(T,pp), Sp = ZXX_to_FlxX(S,pp,v);
-    K = FlxM_to_ZXM(FlxqX_Berlekamp_ker(Sp, Tp, pp));
-  } else
-  {
-    GEN Xq = FpXQX_Frobenius(S, T, p);
-    K = FpXQX_Berlekamp_ker_i(Xq, S, T, p);
-  }
-  return gerepileupto(ltop, K);
 }
 
 static long
@@ -2453,6 +2427,26 @@ FpXQX_factor_Cantor(GEN f, GEN T, GEN p)
       j++;
     }
   return sort_factor_pol(FE_concat(F,E,j), cmp_RgX);
+}
+
+long
+FpXQX_nbfact_Frobenius(GEN S, GEN Xq, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN u = get_FpXQX_mod(S);
+  long s;
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    long vT = get_FpX_var(T);
+    GEN Sp = ZXXT_to_FlxXT(S,pp,vT), Xqp = ZXX_to_FlxX(Xq,pp,vT);
+    s = FlxqX_nbfact_Frobenius(Sp, Xqp, ZXT_to_FlxT(T,pp), pp);
+  }
+  else if (isabsolutepol(u))
+    s = FpX_nbfactff(simplify_shallow(u), T, p);
+  else
+    s = ddf_to_nbfact(FpXQX_ddf(S, Xq, T, p));
+  avma = av; return s;
 }
 
 long

@@ -1188,8 +1188,7 @@ FpXQ_study_eqn(long ell, GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
     *pt_dG = degpol(G);
     if (!*pt_dG)
     {
-      GEN L = FpXQXQ_matrix_pow(Xq, ell+1, ell+1, mpoly, T, p);
-      long s = ell + 1 - FqM_rank(RgM_Rg_add(L, gen_m1), T, p);
+      long s = FpXQX_nbfact_Frobenius(mpoly, Xq, T, p);
       *pt_r = (ell + 1)/s;
       return NULL;
     }

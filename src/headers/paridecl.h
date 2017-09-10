@@ -700,6 +700,7 @@ GEN     FpXQ_ffisom_inv(GEN S,GEN Tp, GEN p);
 GEN     FpXQX_Frobenius(GEN S, GEN T, GEN p);
 GEN     FpXQX_factor(GEN x, GEN T, GEN p);
 long    FpXQX_nbfact(GEN u, GEN T, GEN p);
+long    FpXQX_nbfact_Frobenius(GEN S, GEN Xq, GEN T, GEN p);
 long    FpXQX_nbroots(GEN f, GEN T, GEN p);
 GEN     FpXQX_roots(GEN f, GEN T, GEN p);
 GEN     FpXQX_split_part(GEN f, GEN T, GEN p);
