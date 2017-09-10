@@ -1443,8 +1443,7 @@ FlxqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, ulong p, GEN V, long idx)
   while (1)
   {
     GEN a = deg1pol(pol1_Flx(vT), random_Flx(dT, vT, p), varn(Sp));
-    GEN ap2 = FlxqXQ_powu(a, p>>1, S, T, p);
-    GEN R = gel(FlxqXQ_autsum(mkvec3(xp, Xp, ap2), get_Flx_degree(T), S, T, p), 3);
+    GEN R = FlxqXQ_halfFrobenius_i(a, xp, Xp, S, T, p);
     f = FlxqX_gcd(FlxX_Flx_add(R, Flx_neg(pol1_Flx(vT), p), p), Sp, T, p);
     if (degpol(f) > 0 && degpol(f) < n) break;
     avma = btop;
@@ -1552,8 +1551,7 @@ FpXQX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN p, GEN V, long idx)
   while (1)
   {
     GEN a = deg1pol(pol_1(vT), random_FpX(dT, vT, p), varn(Sp));
-    GEN ap2 = FpXQXQ_pow(a, shifti(p,-1), S, T, p);
-    GEN R = gel(FpXQXQ_autsum(mkvec3(xp, Xp, ap2), get_FpX_degree(T), S, T, p), 3);
+    GEN R = FpXQXQ_halfFrobenius_i(a, xp, Xp, S, T, p);
     f = FpXQX_gcd(FqX_Fq_add(R, FpX_neg(pol_1(vT), p), T, p), Sp, T, p);
     if (degpol(f) > 0 && degpol(f) < n) break;
     avma = btop;
