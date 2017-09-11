@@ -1078,7 +1078,6 @@ static int
 is_interactive(void)
 { return cb_pari_is_interactive? cb_pari_is_interactive(): 0; }
 
-static const char esc = (0x1f & '['); /* C-[ = escape */
 static char *
 strip_prompt(const char *s)
 {
@@ -1089,7 +1088,7 @@ strip_prompt(const char *s)
   {
     /* RL_PROMPT_START_IGNORE / RL_PROMPT_END_IGNORE */
     if (*s == 1 || *s == 2) continue;
-    if (*s == esc) /* skip ANSI color escape sequence */
+    if (*s == '\x1b') /* skip ANSI color escape sequence */
     {
       while (*++s != 'm')
         if (!*s) goto end;

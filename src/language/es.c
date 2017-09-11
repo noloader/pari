@@ -39,8 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "../systems/emscripten/emscripten.h"
 #endif
 
-static const char esc = (0x1f & '['); /* C-[ = escape */
-
 typedef void (*OUT_FUN)(GEN, pariout_t *, pari_str *);
 
 static void bruti_sign(GEN g, pariout_t *T, pari_str *S, int addsign);
@@ -519,7 +517,7 @@ _puts_log(const char *s)
   const char *p;
   if (!f) return;
   if (logstyle != logstyle_color)
-    while ( (p = strchr(s, esc)) )
+    while ( (p = strchr(s, '\x1b')) )
     { /* skip ANSI color escape sequence */
       if ( p!=s ) fwrite(s, 1, p-s, f);
       s = strchr(p, 'm');
@@ -1506,17 +1504,17 @@ term_get_color(char *s, long n)
 
   if (disable_color) { *s = 0; return s; }
   if (n == c_NONE || (a = gp_colors[n]) == c_NONE)
-    sprintf(s, "%c[0m", esc); /* reset */
+    strcpy(s, "\x1b[0m"); /* reset */
   else
   {
     decode_color(a,c);
     if (c[1]<8) c[1] += 30; else c[1] += 82;
     if (a & (1L<<12)) /* transparent background */
-      sprintf(s, "%c[%ld;%ldm", esc, c[0], c[1]);
+      sprintf(s, "\x1b[%ld;%ldm", c[0], c[1]);
     else
     {
       if (c[2]<8) c[2] += 40; else c[2] += 92;
-      sprintf(s, "%c[%ld;%ld;%ldm", esc, c[0], c[1], c[2]);
+      sprintf(s, "\x1b[%ld;%ld;%ldm", c[0], c[1], c[2]);
     }
   }
   return s;
@@ -1529,7 +1527,7 @@ strlen_real(const char *s)
   long len = 0;
   while (*t)
   {
-    if (t[0] == esc && t[1] == '[')
+    if (t[0] == '\x1b' && t[1] == '[')
     { /* skip ANSI escape sequence */
       t += 2;
       while (*t && *t++ != 'm') /* empty */;
