@@ -104,13 +104,12 @@ setrand(GEN x)
   ulong useed;
   long i;
   GEN xp;
-  if (typ(x)!=t_INT)
-    pari_err_TYPE("setrand",x);
-  if (signe(x) <= 0) return;
+  if (typ(x)!=t_INT) pari_err_TYPE("setrand",x);
+  if (signe(x) <= 0) pari_err_DOMAIN("setrand","n", "<=", gen_0, x);
   useed = itou_or_0(x);
   if (useed > 0) { init_xor4096i(useed); return; }
   if (lgefint(x)!=2+r2+2+(r2==128))
-    pari_err_TYPE("setrand",x);
+    pari_err_DOMAIN("setrand", "n", "!=", strtoGENstr("getrand()"), x);
   xp = int_LSW(x);
   for (i = 0; i < r2; i++) { state[i] = *xp; xp = int_nextW(xp); }
 #ifdef LONG_IS_64BIT

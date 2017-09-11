@@ -28,3 +28,5 @@ setrand(s);
 w=vector(10,i,random());
 if(v != w,error("setrand"));
 random("")
+setrand(2^65)
+setrand(-1)

@@ -27,4 +27,10 @@ Mod(5, 7)*x^3 + Mod(2, 7)*x^2 + Mod(1, 7)*x + Mod(6, 7)
   ***   at top-level: random("")
   ***                 ^----------
   *** random: incorrect type in genrand (t_STR).
+  ***   at top-level: setrand(2^65)
+  ***                 ^-------------
+  *** setrand: domain error in setrand: n != getrand()
+  ***   at top-level: setrand(-1)
+  ***                 ^-----------
+  *** setrand: domain error in setrand: n <= 0
 Total time spent: 0
