@@ -2417,8 +2417,130 @@ F2xqX_rem(GEN x, GEN S, GEN T)
   }
 }
 
+static GEN
+F2xqX_halfgcd_basecase(GEN a, GEN b, GEN T)
+{
+  pari_sp av=avma;
+  GEN u,u1,v,v1;
+  long vx = varn(a);
+  long n = lgpol(a)>>1;
+  u1 = v = pol_0(vx);
+  u = v1 = pol1_F2xX(vx, get_F2x_var(T));
+  while (lgpol(b)>n)
+  {
+    GEN r, q = F2xqX_divrem(a,b, T, &r);
+    a = b; b = r; swap(u,u1); swap(v,v1);
+    u1 = F2xX_add(u1, F2xqX_mul(u, q, T));
+    v1 = F2xX_add(v1, F2xqX_mul(v, q ,T));
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"F2xqX_halfgcd (d = %ld)",degpol(b));
+      gerepileall(av,6, &a,&b,&u1,&v1,&u,&v);
+    }
+  }
+  return gerepilecopy(av, mkmat2(mkcol2(u,u1), mkcol2(v,v1)));
+}
+static GEN
+F2xqX_addmulmul(GEN u, GEN v, GEN x, GEN y, GEN T)
+{
+  return F2xX_add(F2xqX_mul(u, x, T),F2xqX_mul(v, y, T));
+}
+
+static GEN
+F2xqXM_F2xqX_mul2(GEN M, GEN x, GEN y, GEN T)
+{
+  GEN res = cgetg(3, t_COL);
+  gel(res, 1) = F2xqX_addmulmul(gcoeff(M,1,1), gcoeff(M,1,2), x, y, T);
+  gel(res, 2) = F2xqX_addmulmul(gcoeff(M,2,1), gcoeff(M,2,2), x, y, T);
+  return res;
+}
+
+static GEN
+F2xqXM_mul2(GEN A, GEN B, GEN T)
+{
+  GEN A11=gcoeff(A,1,1),A12=gcoeff(A,1,2), B11=gcoeff(B,1,1),B12=gcoeff(B,1,2);
+  GEN A21=gcoeff(A,2,1),A22=gcoeff(A,2,2), B21=gcoeff(B,2,1),B22=gcoeff(B,2,2);
+  GEN M1 = F2xqX_mul(F2xX_add(A11,A22), F2xX_add(B11,B22), T);
+  GEN M2 = F2xqX_mul(F2xX_add(A21,A22), B11, T);
+  GEN M3 = F2xqX_mul(A11, F2xX_add(B12,B22), T);
+  GEN M4 = F2xqX_mul(A22, F2xX_add(B21,B11), T);
+  GEN M5 = F2xqX_mul(F2xX_add(A11,A12), B22, T);
+  GEN M6 = F2xqX_mul(F2xX_add(A21,A11), F2xX_add(B11,B12), T);
+  GEN M7 = F2xqX_mul(F2xX_add(A12,A22), F2xX_add(B21,B22), T);
+  GEN T1 = F2xX_add(M1,M4), T2 = F2xX_add(M7,M5);
+  GEN T3 = F2xX_add(M1,M2), T4 = F2xX_add(M3,M6);
+  retmkmat2(mkcol2(F2xX_add(T1,T2), F2xX_add(M2,M4)),
+            mkcol2(F2xX_add(M3,M5), F2xX_add(T3,T4)));
+}
+
+/* Return [0,1;1,-q]*M */
+static GEN
+F2xqX_F2xqXM_qmul(GEN q, GEN M, GEN T)
+{
+  GEN u, v, res = cgetg(3, t_MAT);
+  u = F2xX_add(gcoeff(M,1,1), F2xqX_mul(gcoeff(M,2,1), q, T));
+  gel(res,1) = mkcol2(gcoeff(M,2,1), u);
+  v = F2xX_add(gcoeff(M,1,2), F2xqX_mul(gcoeff(M,2,2), q, T));
+  gel(res,2) = mkcol2(gcoeff(M,2,2), v);
+  return res;
+}
+
+static GEN
+matid2_F2xXM(long v, long sv)
+{
+  retmkmat2(mkcol2(pol1_F2xX(v, sv),pol_0(v)),
+            mkcol2(pol_0(v),pol1_F2xX(v, sv)));
+}
+
+static GEN
+F2xqX_halfgcd_split(GEN x, GEN y, GEN T)
+{
+  pari_sp av=avma;
+  GEN R, S, V;
+  GEN y1, r, q;
+  long l = lgpol(x), n = l>>1, k;
+  if (lgpol(y)<=n) return matid2_F2xXM(varn(x),get_F2x_var(T));
+  R = F2xqX_halfgcd(RgX_shift_shallow(x,-n),RgX_shift_shallow(y,-n), T);
+  V = F2xqXM_F2xqX_mul2(R,x,y, T); y1 = gel(V,2);
+  if (lgpol(y1)<=n) return gerepilecopy(av, R);
+  q = F2xqX_divrem(gel(V,1), y1, T, &r);
+  k = 2*n-degpol(y1);
+  S = F2xqX_halfgcd(RgX_shift_shallow(y1,-k), RgX_shift_shallow(r,-k), T);
+  return gerepileupto(av, F2xqXM_mul2(S,F2xqX_F2xqXM_qmul(q,R, T), T));
+}
+
+/* Return M in GL_2(Fp[X]) such that:
+if [a',b']~=M*[a,b]~ then degpol(a')>= (lgpol(a)>>1) >degpol(b')
+*/
+
+static GEN
+F2xqX_halfgcd_i(GEN x, GEN y, GEN T)
+{
+  if (lg(x)<=F2xqX_HALFGCD_LIMIT) return F2xqX_halfgcd_basecase(x, y, T);
+  return F2xqX_halfgcd_split(x, y, T);
+}
+
 GEN
-F2xqX_gcd(GEN a, GEN b, GEN T)
+F2xqX_halfgcd(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  GEN M,q,r;
+  if (!signe(x))
+  {
+    long v = varn(x), vT = get_F2x_var(T);
+    retmkmat2(mkcol2(pol_0(v),pol1_F2xX(v,vT)),
+        mkcol2(pol1_F2xX(v,vT),pol_0(v)));
+  }
+  if (degpol(y)<degpol(x)) return F2xqX_halfgcd_i(x, y, T);
+  q = F2xqX_divrem(y, x, T, &r);
+  M = F2xqX_halfgcd_i(x, r, T);
+  gcoeff(M,1,1) = F2xX_add(gcoeff(M,1,1), F2xqX_mul(q, gcoeff(M,1,2), T));
+  gcoeff(M,2,1) = F2xX_add(gcoeff(M,2,1), F2xqX_mul(q, gcoeff(M,2,2), T));
+  return gerepilecopy(av, M);
+}
+
+static GEN
+F2xqX_gcd_basecase(GEN a, GEN b, GEN T)
 {
   pari_sp av = avma, av0=avma;
   while (signe(b))
@@ -2435,7 +2557,29 @@ F2xqX_gcd(GEN a, GEN b, GEN T)
 }
 
 GEN
-F2xqX_extgcd(GEN a, GEN b, GEN T,  GEN *ptu, GEN *ptv)
+F2xqX_gcd(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  x = F2xqX_red(x, T);
+  y = F2xqX_red(y, T);
+  if (!signe(x)) return gerepileupto(av, y);
+  while (lg(y)>F2xqX_GCD_LIMIT)
+  {
+    GEN c;
+    if (lgpol(y)<=(lgpol(x)>>1))
+    {
+      GEN r = F2xqX_rem(x, y, T);
+      x = y; y = r;
+    }
+    c = F2xqXM_F2xqX_mul2(F2xqX_halfgcd(x,y, T), x, y, T);
+    x = gel(c,1); y = gel(c,2);
+    gerepileall(av,2,&x,&y);
+  }
+  return gerepileupto(av, F2xqX_gcd_basecase(x, y, T));
+}
+
+static GEN
+F2xqX_extgcd_basecase(GEN a, GEN b, GEN T,  GEN *ptu, GEN *ptv)
 {
   pari_sp av=avma;
   GEN u,v,d,d1,v1;
@@ -2457,6 +2601,50 @@ F2xqX_extgcd(GEN a, GEN b, GEN T,  GEN *ptu, GEN *ptv)
   if (ptu) *ptu = F2xqX_div(F2xX_add(d,F2xqX_mul(b,v, T)), a, T);
   *ptv = v; return d;
 }
+
+static GEN
+F2xqX_extgcd_halfgcd(GEN x, GEN y, GEN T,  GEN *ptu, GEN *ptv)
+{
+  pari_sp av=avma;
+  GEN u,v,R = matid2_F2xXM(varn(x), get_F2x_var(T));
+  while (lg(y)>F2xqX_EXTGCD_LIMIT)
+  {
+    GEN M, c;
+    if (lgpol(y)<=(lgpol(x)>>1))
+    {
+      GEN r, q = F2xqX_divrem(x, y, T, &r);
+      x = y; y = r;
+      R = F2xqX_F2xqXM_qmul(q, R, T);
+    }
+    M = F2xqX_halfgcd(x,y, T);
+    c = F2xqXM_F2xqX_mul2(M, x,y, T);
+    R = F2xqXM_mul2(M, R, T);
+    x = gel(c,1); y = gel(c,2);
+    gerepileall(av,3,&x,&y,&R);
+  }
+  y = F2xqX_extgcd_basecase(x,y, T, &u,&v);
+  if (ptu) *ptu = F2xqX_addmulmul(u,v,gcoeff(R,1,1),gcoeff(R,2,1), T);
+  *ptv = F2xqX_addmulmul(u,v,gcoeff(R,1,2),gcoeff(R,2,2), T);
+  return y;
+}
+
+/* x and y in Z[Y][X], return lift(gcd(x mod T,p, y mod T,p)). Set u and v st
+ * ux + vy = gcd (mod T,p) */
+GEN
+F2xqX_extgcd(GEN x, GEN y, GEN T,  GEN *ptu, GEN *ptv)
+{
+  GEN d;
+  pari_sp ltop=avma;
+  x = F2xqX_red(x, T);
+  y = F2xqX_red(y, T);
+  if (lg(y)>F2xqX_EXTGCD_LIMIT)
+    d = F2xqX_extgcd_halfgcd(x, y, T, ptu, ptv);
+  else
+    d = F2xqX_extgcd_basecase(x, y, T, ptu, ptv);
+  gerepileall(ltop,ptu?3:2,&d,ptv,ptu);
+  return d;
+}
+
 
 static GEN
 _F2xqX_mul(void *data,GEN a,GEN b)
