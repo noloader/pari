@@ -1,4 +1,4 @@
-.TH GP 1 "25 September 2013"
+.TH GP 1 "11 September 2017"
 .SH NAME
 gp \- The PARI calculator
 .SH SYNOPSIS
@@ -24,8 +24,9 @@ Invokes the PARI-GP calculator
 \&\fBgp\fR; gp is an advanced programmable calculator, specializing in number
 theory, which computes symbolically as long as possible, numerically where
 needed, and contains a wealth of arithmetic functions: factorizations,
-elliptic curves, Galois theory, class field theory... Commands, written in
-the GP scripting language, are input interactively or loaded from files.
+elliptic curves, Galois theory, class field theory, modular forms, etc.
+Commands, written in the GP scripting language, are input interactively or
+loaded from files.
 
 If present at the end of the command line, files 'file1', 'file2', ...
 are loaded on startup; they must be written in the GP language.
@@ -67,7 +68,8 @@ on startup, overriding values from the
 .B gprc
 preferences file. 'val' must be a constant value and is not allowed to
 involve any computation (e.g. 1+1 is forbidden). Any number of such
-default-setting statements may appear on the command line.
+default-setting statements may appear on the command line. A key may be set
+multiple times, the last setting taking precedence
 
 .TP
 .B \-s limit
@@ -95,7 +97,7 @@ shell (see GP User's manual for details). This flag is then required for
 smooth interaction with the 
 .I PariEmacs
 package (pari.el). It is set automatically by the pari.el package, and will
-produce nice display oddities if you set it outside of an
+produce display oddities if you set it outside of an
 .I Emacs
 session.
 .TP
@@ -149,7 +151,11 @@ for editing and viewing the input history.
 
 .SH MANUALS
 The following material is included in the standard distribution (originally
-in TeX format):
+in TeX format) and can also be downloaded at
+.RS
+.I http://pari.math.u-bordeaux.fr/doc.html
+.RE
+
 .TP
 .I The User's Guide to PARI/GP
 (users.dvi)
@@ -163,8 +169,8 @@ in TeX format):
 .I PARI/GP, a tutorial
 (tutorial.dvi)
 .TP
-.I PARI/GP reference card
-(refcard.ps): 4 pages, based on an earlier version by Joseph H. Silverman.
+.I PARI/GP reference cards
+(refcard*.dvi)
 
 .SH FILES
 .TP
@@ -180,14 +186,27 @@ shell. A default gprc
 is provided with the distribution. If this file cannot be found,
 .I /etc/gprc
 is checked instead.
+
 .TP
-.I pari.log
-default logfile (can be changed in the gprc file or interactively using
-.B default()
-)
+.I <logfile>
+a file used to log in all commands and results; default: 
+.B pari.log
+(you need to set the
+.B log
+default in your gprc or interactively)
+
 .TP
-.I pari.ps
-default psfile used for postscript output (as above)
+.I <psfile>
+a file used to dump PostScript drawings; default:
+.B pari.ps
+
+.TP
+.I <histfile>
+a file where gp will keep a history of all input commands (you need to set
+the 
+.B histfile
+default in the gprc file)
+
 .TP
 .I gphelp
 default external help program (as above)
