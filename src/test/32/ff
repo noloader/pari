@@ -254,5 +254,7 @@ t^4 + t^2
 1
 ? test(nextprime(2^63)^5)
 1
+? my(a=ffgen([2,100]));(0*a*x)*x
+0
 ? print("Total time spent: ",gettime);
-Total time spent: 1116
+Total time spent: 924

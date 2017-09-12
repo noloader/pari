@@ -99,3 +99,5 @@ test(nextprime(2^7)^5)
 test(nextprime(2^15)^5)
 test(nextprime(2^31)^5)
 test(nextprime(2^63)^5)
+
+my(a=ffgen([2,100]));(0*a*x)*x

@@ -1955,10 +1955,12 @@ F2xY_F2xq_evalx(GEN P, GEN x, GEN T)
 static GEN
 F2xX_to_Kronecker_spec(GEN P, long n, long d)
 {
-  long i, k, N = 2*d + 1;
+  long i, k, l, N = 2*d + 1;
   long dP = n+1;
-  long l = nbits2nlong(N*dP+d+1);
-  GEN x = zero_zv(l+1);
+  GEN x;
+  if (n == 0) return pol0_Flx(P[1]&VARNBITS);
+  l = nbits2nlong(N*dP+d+1);
+  x = zero_zv(l+1);
   for (k=i=0; i<n; i++, k+=N)
   {
     GEN c = gel(P,i);
@@ -1970,10 +1972,12 @@ F2xX_to_Kronecker_spec(GEN P, long n, long d)
 GEN
 F2xX_to_Kronecker(GEN P, long d)
 {
-  long i, k, N = 2*d + 1;
+  long i, k, l, N = 2*d + 1;
   long dP = degpol(P);
-  long l = nbits2nlong(N*dP+d+1);
-  GEN x = zero_zv(l+1);
+  GEN x;
+  if (dP < 0) return pol0_Flx(P[1]&VARNBITS);
+  l = nbits2nlong(N*dP+d+1);
+  x = zero_zv(l+1);
   for (k=i=0; i<=dP; i++, k+=N)
   {
     GEN c = gel(P,i+2);
