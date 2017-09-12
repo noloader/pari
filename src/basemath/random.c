@@ -62,11 +62,11 @@ block(void)
   return w;
 }
 
+/* v > 0 */
 static void
-init_xor4096i(ulong seed)
+init_xor4096i(u64 v)
 {
   const int r = 64;
-  u64 v = seed; /* v must be nonzero */
   int k;
 
   for (k = r; k > 0; k--) {/* avoid correlations for close seeds */
@@ -82,7 +82,7 @@ init_xor4096i(ulong seed)
   for (xorgen_i = r-1, k = 4*r; k > 0; k--) (void)block();
 }
 
-void pari_init_rand(void) { init_xor4096i(1); }
+void pari_init_rand(void) { init_xor4096i(1UL); }
 
 static u64
 rand64(void)
@@ -101,14 +101,21 @@ void
 setrand(GEN x)
 {
   const int r2 = numberof(state);
-  ulong useed;
-  long i;
+  long i, lx;
   GEN xp;
   if (typ(x)!=t_INT) pari_err_TYPE("setrand",x);
   if (signe(x) <= 0) pari_err_DOMAIN("setrand","n", "<=", gen_0, x);
-  useed = itou_or_0(x);
-  if (useed > 0) { init_xor4096i(useed); return; }
-  if (lgefint(x)!=2+r2+2+(r2==128))
+  lx = lgefint(x);
+#ifdef LONG_IS_64BIT
+  if (lx == 3) { init_xor4096i(x[2]); return; }
+#else
+  if (lx == 4)
+  {
+    u64 v = _32to64(int_W(x,1),int_W(x,0));
+    init_xor4096i(v); return;
+  }
+#endif
+  if (lx != 2 + r2+2+(r2==128))
     pari_err_DOMAIN("setrand", "n", "!=", strtoGENstr("getrand()"), x);
   xp = int_LSW(x);
   for (i = 0; i < r2; i++) { state[i] = *xp; xp = int_nextW(xp); }
@@ -127,7 +134,7 @@ getrand(void)
   GEN x;
   ulong *xp;
   long i;
-  if (xorgen_i < 0) init_xor4096i(1);
+  if (xorgen_i < 0) init_xor4096i(1UL);
 
   x = cgetipos(2+r2+2+(r2==128)); xp = (ulong *) int_LSW(x);
   for (i = 0; i < r2; i++) { *xp = state[i]; xp = int_nextW(xp); }
