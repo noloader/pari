@@ -102,16 +102,16 @@ setrand(GEN x)
 {
   const int r2 = numberof(state);
   long i, lx;
+  u64 v;
   GEN xp;
   if (typ(x)!=t_INT) pari_err_TYPE("setrand",x);
   if (signe(x) <= 0) pari_err_DOMAIN("setrand","n", "<=", gen_0, x);
   lx = lgefint(x);
-#ifdef LONG_IS_64BIT
-  if (lx == 3) { init_xor4096i(x[2]); return; }
-#else
+  if (lx == 3) { v = x[2]; init_xor4096i(v); return; }
+#ifndef LONG_IS_64BIT
   if (lx == 4)
   {
-    u64 v = _32to64(int_W(x,1),int_W(x,0));
+    v = _32to64(*int_W(x,1),*int_W(x,0));
     init_xor4096i(v); return;
   }
 #endif

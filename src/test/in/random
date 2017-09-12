@@ -6,6 +6,8 @@ doell(a)= {
 }
 doff(p,f)=my(a = ff(p,f)); print(random(a)); doell(a);
 
+setrand(2^33 + 3)
+random()
 setrand(1);
 random(Mod(1,3))
 doff(2,3)
