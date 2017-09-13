@@ -1626,7 +1626,7 @@ static GEN
 F2xqX_factor_2(GEN f, GEN T)
 {
   long v = varn(f), vT = get_F2x_var(T);
-  GEN r = F2xqX_quad_roots(f,T);
+  GEN r = F2xqX_quad_roots(f, T);
   switch(lg(r)-1)
   {
   case 0:
@@ -1671,7 +1671,7 @@ static GEN
 FpXQX_factor_2(GEN f, GEN T, GEN p)
 {
   long v = varn(f);
-  GEN r = FpXQX_quad_roots(f,T,p);
+  GEN r = FpXQX_quad_roots(f, T, p);
   switch(lg(r)-1)
   {
   case 0:
@@ -1838,15 +1838,16 @@ F2xqX_factor_Cantor(GEN f, GEN T)
 {
   GEN xp, E, F, V;
   long i, j, l;
+  T = F2x_get_red(T);
+  f = F2xqX_normalize(f, T);
   switch(degpol(f))
   {
-    case -1: retmkmat2(mkcolcopy(f), mkvecsmall(1));
+    case -1: retmkmat2(mkcol(f), mkvecsmall(1));
     case 0: return trivial_fact();
-    case 1: retmkmat2(mkcol(F2xqX_normalize(f,T)), mkvecsmall(1));
+    case 1: retmkmat2(mkcol(f), mkvecsmall(1));
     case 2: return F2xqX_factor_2(f, T);
   }
   if (F2xY_degreex(f) <= 0) return F2x_factorff_i(F2xX_to_F2x(f), T);
-  T = F2x_get_red(T);
   xp = F2x_Frobenius(T);
   V = F2xqX_factor_squarefree(f, T);
   l = lg(V);
@@ -2135,15 +2136,16 @@ FlxqX_factor_Cantor(GEN f, GEN T, ulong p)
 {
   GEN xp, E, F, V;
   long i, j, l;
+  T = Flx_get_red(T, p);
+  f = FlxqX_normalize(f, T, p);
   switch(degpol(f))
   {
-    case -1: retmkmat2(mkcolcopy(f), mkvecsmall(1));
+    case -1: retmkmat2(mkcol(f), mkvecsmall(1));
     case 0: return trivial_fact();
-    case 1: retmkmat2(mkcol(FlxqX_normalize(f,T,p)), mkvecsmall(1));
+    case 1: retmkmat2(mkcol(f), mkvecsmall(1));
     case 2: return FlxqX_factor_2(f, T, p);
   }
   if (FlxY_degreex(f) <= 0) return Flx_factorff_i(FlxX_to_Flx(f), T, p);
-  T = Flx_get_red(T, p);
   xp = Flx_Frobenius(T, p);
   V = FlxqX_factor_squarefree(f, xp, get_Flx_mod(T), p);
   l = lg(V);
@@ -2404,15 +2406,16 @@ FpXQX_factor_Cantor(GEN f, GEN T, GEN p)
 {
   GEN xp, E, F, V;
   long i, j, l;
+  T = FpX_get_red(T, p);
+  f = FpXQX_normalize(f, T, p);
   switch(degpol(f))
   {
-    case -1: retmkmat2(mkcolcopy(f), mkvecsmall(1));
+    case -1: retmkmat2(mkcol(f), mkvecsmall(1));
     case 0: return trivial_fact();
-    case 1: retmkmat2(mkcol(FpXQX_normalize(f, T, p)), mkvecsmall(1));
+    case 1: retmkmat2(mkcol(f), mkvecsmall(1));
     case 2: return FpXQX_factor_2(f, T, p);
   }
   if (isabsolutepol(f)) return FpX_factorff_i(simplify_shallow(f), T, p);
-  T = FpX_get_red(T, p);
   xp = FpX_Frobenius(T, p);
   V = FpXQX_factor_Yun(f, T, p);
   l = lg(V);

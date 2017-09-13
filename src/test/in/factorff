@@ -15,7 +15,7 @@ check(p)=
 {
   print("check ",p);
   a = ffgen([p,3],'a);
-  V = [0*x*'a,'a*x^0,x*'a-1,x^2-'a^2,x^2+x+a];
+  V = [0*x*'a,'a*x^0,x*'a-1,x^2-'a^2,x^2+x+'a,'a*x^2+1,'a*x^3+x+1];
   for(i=1,#V,
     print(factorff(subst(V[i],'a,a)*a^0*x^0));
     print(liftall(factorff(V[i],a.p,a.mod))));
