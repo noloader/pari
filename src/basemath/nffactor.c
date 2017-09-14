@@ -1145,15 +1145,8 @@ END:
     gel(fa,cnt++) = q;
   }
   if (DEBUGLEVEL>6) err_printf("\n");
-  if (cnt == 2) {
-    avma = av0;
-    return mkvec(T->pol);
-  }
-  else
-  {
-    setlg(fa, cnt);
-    return gerepilecopy(av0, fa);
-  }
+  setlg(fa, cnt);
+  return gerepilecopy(av0, fa);
 }
 
 static GEN
