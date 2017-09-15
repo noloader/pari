@@ -1126,10 +1126,6 @@ mt = [matid(4), m_i, m_j, m_k];
 print(algisassociative(mt));
 al = alginit(nf, mt, 'x);
 print(al != 0);
-print("should fail:");
-alfail = alginit(nf, [0,0], 'x);
-algb(al);
-algaut(al);
 print("algebra:");
 print("csa getcenter: ", algcenter(al) == nf);
 print("csa getsplitting: ", algsplittingfield(al) != 0);
@@ -1148,9 +1144,9 @@ print(al[3][3]*algmul(al, al[3][2][,1], algpow(al,al[3][1],i)) == [Mod(x^i,polab
 print(al[3][3]*algmul(al, al[3][2][,2], algpow(al,al[3][1],i)) == [0,Mod(x,polabs)^i]~)\
 );
 print("hasse invariants:");
-print(alghassei(al) == 0);
-print(alghassef(al) == 0);
-print(alghasse(al,1) == 0);
+do("hassei csa", () -> alghassei(al) == 0);
+do("hassef cas", () -> alghassef(al) == 0);
+do("hasse csa", () -> alghasse(al,1) == 0);
 print("csa splitting pol: ", poldegree(al[1][12][1].pol) == 6);
 print("csa basis: ", matsize(algbasis(al)) == [12,12]);
 print("csa invbasis: ", matsize(alginvbasis(al)) == [12,12]);
@@ -1325,7 +1321,6 @@ alghasse(A, 1)
 alghasse(A, 2)
 alghasse(A, idealprimedec(nf,2)[1])
 alghasse(A, idealprimedec(nf,5)[1])
-algindex(1, 1)
 algindex(A, 1)
 algindex(A, 2)
 algindex(A, idealprimedec(nf,2)[1])
@@ -1653,7 +1648,6 @@ print("trivial CSA over Q");
 al = alginit(nfinit(y), [Mat(1)]);
 algsqr(al,[Mod(3,y)]~)
 algsqr(al,[2]~)
-algsqr(al,[Mod(1,y),Mod(2,y)]~) \\should fail
 print("nontrivial CSA over Q");
 {m_i = [0,-1,0, 0;
        1, 0,0, 0;
@@ -1671,7 +1665,6 @@ mt = [matid(4), m_i, m_j, m_k];}
 al = alginit(nfinit(y), mt);
 algsqr(al,[Mod(3,y),Mod(2,y),Mod(1,y),Mod(2,y)]~)
 algsqr(al,[2,3,4,5]~)
-algsqr(al,[Mod(1,y),Mod(2,y)]~) \\should fail
 
 print("empty matrices");
 al = alginit(nfinit(y), [-1,-1]);
@@ -1715,169 +1708,6 @@ algissemisimple(almt0)
 algissimple(almt0)
 algisdivision(almt0)
 
-m_i = [0,-1,0, 0;\
-       1, 0,0, 0;\
-       0, 0,0,-1;\
-       0, 0,1, 0];
-m_j = [0, 0,-1,0;\
-       0, 0, 0,1;\
-       1, 0, 0,0;\
-       0,-1, 0,0];
-m_k = [0, 0, 0, -1;\
-       0, 0,-1, 0;\
-       0, 1, 0, 0;\
-       1, 0, 0, 0];
-mt = [matid(4), m_i, m_j, m_k];
-\\ bad inputs
-almt = algtableinit(mt,0);
-algsplittingfield(almt);
-algdegree(almt);
-alghassei(almt);
-alghassef(almt);
-algrandom(1,1)
-algrandom(1,I)
-algtype(1)
-algdim([1,[1],0,0,0,0,0,0,0,0])
-algabsdim([1,[1],0,0,0,0,0,0,0,0])
-algtensor(al,al2)
-algtensor(al2,al)
-algtensor(1,z,1)
-algisassociative([1],0)
-algisassociative([[1,0;0,2],[0,0;0,0]])
-algmul(almt,a,b)
-algleftmultable(almt,a)
-alginv(almt,a)
-algsplittingmatrix(almt,[0,0,0,0]~)
-algalgtobasis(almt,a)
-algbasistoalg(almt,[0,0,0,0]~)
-algpoleval(almt,1,a)
-zero = [0,0,0,0]~; m = Mat([1,1]); m[1,1]=zero; m[1,2]=zero;
-algadd(almt, [zero;zero], m)
-algadd(almt, [zero;zero;zero], [zero;zero]);
-algsub(almt, [zero;zero], m)
-algsub(almt, [zero;zero;zero], [zero;zero]);
-algmul(almt, m, [zero;zero;zero]);
-algsqr(almt, [zero;zero]);
-algdivl(almt, m, zero);
-algdivl(almt, m, [zero,zero;zero,zero]);
-algdivl(almt, m, m);
-alginv(almt, m);
-algleftmultable(almt, m);
-algpow(almt, m, 3);
-algtrace(almt, m);
-algcharpoly(almt, m);
-algcharpoly(alginit(nfinit(y),[-1,-1]), m);
-algnorm(almt, m);
-algnorm(alginit(nfinit(y),[-1,-1]), m);
-alginit(nfinit(y),[2,[[],[]],[x]])
-alginit(nfinit(y),[2,[],[1,1]])
-alginit(nfinit(y),[2,[[],[]],Vecsmall([1])])
-alginit(y,[2,[[],[]],[1]])
-alginit(nfinit(y), y)
-alginit(nfinit(y), [1,2,3,4])
-algtableinit(mt,y);
-alginit(nfinit(y^2+1),-3);
-alginit(nfinit(x^2+1),3);
-highvar = varhigher("highvar");
-alginit(nfinit(highvar^2+1),3);
-al = alginit(nfinit(y^2-2),[-1,-1]); algrandom(al,-10)
-al = alginit(nfinit(y^2-2),[-1,-1]);
-algrelmultable(al);
-algsplittingdata(al);
-alghasse(almt, 1);
-algindex(almt, 1);
-algisdivision(almt);
-algissplit(almt);
-algisramified(almt);
-algramifiedplaces(almt);
-alghasse(al, -1);
-alghasse(al, 3);
-alghasse(al, 2^100);
-alghasse(al, []);
-alghasse(al, 1/3);
-algtableinit([matid(2), [0,1/2;1,0]]);
-Q = nfinit(y);
-alginit(Q, [matid(2), [0,1/2;1,0]]);
-alginit(Q, [-1/2, -1]);
-alginit(Q, [-1, -1/2]);
-alginit(rnfinit(Q, x^2+1), [-x,-1/2]);
-algsqr([0,0,0,0,0,0,0,0,0,0,0],[]~);
-algsqr([0,0,0,0,0,0,0,0,[],0,0],[]~);
-algsqr([0,0,0,0,0,0,0,0,[0],0,0],[]~);
-algsqr([0,0,0,0,0,0,0,0,[[;]],0,0],[]~);
-algsqr([[],0,0,0,0,0,0,0,[[;]],0,0],[]~);
-algsqr([[],[0],0,0,0,0,0,0,[[;]],0,0],[]~);
-algdim([[],[0],0,0,0,0,0,0,[[;]],0,0]);
-algdegree([[],[0],0,0,0,0,0,0,[[;]],0,0]);
-algdegree([rnfinit(nfinit(y),x),[[]],0,0,0,0,0,0,[[;]],0,0]);
-algcenter([rnfinit(nfinit(y),x),[[]],0,0,0,0,0,0,[[;]],0,0]);
-algcentralproj(almt,0);
-algcentralproj(almt,[zero,zero]);
-algsubalg(almt,0);
-algisassociative([]);
-algisassociative([matid(2),Mat([1,1])]);
-algisassociative([[1,2;3,4],matid(2)]);
-algisassociative([matid(1)],[]);
-algsqr(algtableinit([matid(1)]),[1,2]~);
-algsqr(al,vector(691)~);
-algsqr(al,[1,2,3,4,5,6,7,f^2]~);
-algsqr(al,[f^3,[]]~);
-algmul(al,[;],[1,2]~);
-algdivl(al,[;],matid(1));
-algdivl(al,matid(1),matrix(1,2));
-alginv(al,[0,0]~);
-al0mt = algtableinit([matid(1)]);
-algalgtobasis(al0mt,[1]~);
-algbasistoalg(al0mt,[1]~);
-nfgrunwaldwang(nfinit(y),0,[],[],'x);
-nfgrunwaldwang(nfinit(y),[2],'x-'x,[1]);
-alginit(rnfinit(nfinit(y),x),0);
-alginit(rnfinit(nfinit(y),x),[1,2,3,4]);
-alginit(nfinit(y), [matid(2),matid(2)]);
-alginit(nfinit(y), [matid(2),[0,1;1,0]]);
-
-nfgrunwaldwang(nfinit(y), 0, [], [0]);
-nfgrunwaldwang(nfinit(y), [2], [], [0]);
-nfgrunwaldwang(nfinit(y), [2], [2], []);
-nfgrunwaldwang(nfinit(y), [2], [6], [0]);
-nfgrunwaldwang(nfinit(y), [2,3], [2,3], [0]);
-nfgrunwaldwang(nfinit(y), [2], [3], [-1]);
-nfgrunwaldwang(nfinit(y), [[]~], [3], [-1]);
-nfgrunwaldwang(nfinit(y), [2], [9], [0]);
-
-mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
-A=algtableinit(mt,2);
-algdegree(A)
-algsub(A,1,1)
-algadd(A,1,1)
-algneg(A,1)
-algmul(A,1,1)
-algsqr(A,1)
-algdivl(A,1,1)
-algdivr(A,1,1)
-alginv(A,1)
-a='a;
-K=nfinit(a);PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]],[-1]]);
-K=nfinit(a);P2=idealprimedec(K,2);P3=idealprimedec(K,3);A=alginit(K,[3,[concat(P2,P3),[1/3,-2/3]],[1/3]]);
-algtensor(alginit(nfinit(y),2),alginit(nfinit(y^2+1),3));
-algtensor(alginit(nfinit(y),2),alginit(nfinit(y),2));
-nf = nfinit(y); p2 = idealprimedec(nf,2)[1]; p3 = idealprimedec(nf,3)[1];
-\\alginit(nf, [2, [[p2,p3],[1/2,1/2]], [0]]);
-alginit(nf, [2, [[p2,p2],[1/2,1/2]], [0]]);
-alginit(nf, [2, [[p2,p3],[1/2,1/2]], [0,0]]);
-alginit(nf, [2, [[p2,p3],[1/2,1/2],0], [0]]);
-alginit(nf, [2, [0,[1/2,1/2]], [0]]);
-alginit(nf, [2, [[p2,p3],0], [0]]);
-alginit(nf, [2, [[p2,p3],[1/2,1/2,0]], [0]]);
-alginit(nf, [2, [[p2,p3],[1/2,1/2]], [1/3]]);
-
-al = alginit(nfinit(y),[-1,-1]);
-setrand(23);
-a = algrandom(al,2);
-algcharpoly(al,a,'z);
-
-al = alginit(nfinit(y^2+7), [-1,-1]);
-algcharpoly(al,[1,2,3]~);
 
 \\better accessors for hasse invariants
 setrand(1);
@@ -2091,10 +1921,6 @@ algisassociative(mt)
 print("csa without maximal order");
 alginit(nfinit(y), [matid(1)], 'x, 0);
 
-print("nfgrunwaldwang SEGV #1669");
-nfgrunwaldwang(nfinit(y),[2,3],[1,2],Vecsmall(1))
-nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(1))
-
 print("simplify bug #1671");
 test(str,al)={
  my(sal = simplify(al), x, y);
@@ -2205,11 +2031,6 @@ al = alggroup(gal)
 algissemisimple(al)
 alggroup([Vecsmall([2,1]),Vecsmall([1,2])]);
 alggroup([Vecsmall([1,2])]);
-alggroup("a");
-alggroup(["a"]);
-alggroup(["a", "b", "c"]);
-alggroup([Vecsmall([1]), Vecsmall([1,2]), Vecsmall([1,2,3])]);
-alggroup([Vecsmall([1]), Vecsmall([2,3]), Vecsmall([1,2,3])]);
 alggroup([Vecsmall([1,2,3]), Vecsmall([1,3,2])])
 gal = galoisinit(nfsplitting(x^4+7));
 alggroup(gal);
@@ -2255,22 +2076,10 @@ firstprime1mod(n) =
   print(algdim(al) == conjD2n(p));
   print(algdim(al) > #algsimpledec(al));
 );}
-alggroupcenter(['x,'y]);
-alggroupcenter('x,1); \\Bill's bug
 alggroupcenter(Sn(3),0);
 
 \\tests for lattices
 al = alginit(nfinit(y^2+7), [-1,-1]);
-alglathnf(al,0);
-alglathnf(al,Mat([0,0,0,0,0,0,0,0]));
-alglathnf(al,[0;0;0;0;0;0;0;0]);
-fakemat = matid(8);
-fakemat[5,6] = []
-alglathnf(al,fakemat);
-alglathnf(al,matid(8)*0);
-fakemat = matid(8);
-fakemat[1,1] = 0;
-alglathnf(al,fakemat);
 a = [1,1,-1/2,1,1/3,-1,1,1]~;
 mt = algleftmultable(al,a);
 lat = alglathnf(al,mt);
@@ -2294,7 +2103,6 @@ print(lat==[1,1]);
 print(lat == alglathnf(al,[mt,mtb]));
 lat = alglathnf(al,matconcat([7*mt/2,7*mtb/2]),21/2);
 print(lat==[1,7/2]);
-lat = alglathnf(al,matconcat([mt*0,mt*0]));
 lat1 = alglathnf(al,a);
 lat2 = alglathnf(al,c);
 N = algabsdim(al);
@@ -2326,8 +2134,6 @@ print(alglathnf(al,aa/10,matdet(algleftmultable(al,aa))/10)==alglathnf(al,aa/10)
 print(alglatcontains(al,lat1,a));
 col = [3,6,-5,1,23,2,0,1]~;
 print(alglatelement(al,lat1,col));
-print(alglatelement(al,lat1,col~));
-alglatmul(al,a,b);
 testlataddinter()=
 {
   my(lat=[0,0,0],int12,int23,sum12,index,elt1,
@@ -2405,12 +2211,6 @@ setrand(1);
 for(i=1,500,if(!testlataddinter(),print(i);break()));
 
 \\make integral
-mt = [matid(2),[0,-1/4;1/2,0]];
-print("should fail:");
-algmakeintegral(mt);
-mt = [[1,0;-1,1],[0,-1/4;1,0]];
-print("should fail:");
-algmakeintegral(mt);
 mt = [matid(2),[0,-1/4;1,0]];
 mt2 = algmakeintegral(mt);
 algisassociative(mt2)
@@ -2425,7 +2225,6 @@ al = algtableinit(mt2);
 algissimple(al)
 mt = algmultable(alginit(nfinit(y),[-3,7]));
 mt == algmakeintegral(mt)
-algmakeintegral('x,1);
 
 \\integral subalg
 m = matcompanion(x^4+1);
@@ -2487,4 +2286,240 @@ G=galoisinit(x^24-24*x^22+253*x^20-1540*x^18+5984*x^16-15488*x^14+27026*x^12-314
 al = alggroup(G);
 setrand(8690); algsimpledec(al);
 setrand(1294); algsimpledec(al);
+
+
+
+
+
+\\ bad inputs
+m_i = [0,-1,0, 0;\
+       1, 0,0, 0;\
+       0, 0,0,-1;\
+       0, 0,1, 0];
+m_j = [0, 0,-1,0;\
+       0, 0, 0,1;\
+       1, 0, 0,0;\
+       0,-1, 0,0];
+m_k = [0, 0, 0, -1;\
+       0, 0,-1, 0;\
+       0, 1, 0, 0;\
+       1, 0, 0, 0];
+mt = [matid(4), m_i, m_j, m_k];
+almt = algtableinit(mt,0);
+algsplittingfield(almt);
+algdegree(almt);
+alghassei(almt);
+alghassef(almt);
+algrandom(1,1)
+algrandom(1,I)
+algtype(1)
+algdim([1,[1],0,0,0,0,0,0,0,0])
+algabsdim([1,[1],0,0,0,0,0,0,0,0])
+algtensor(al,al2)
+algtensor(al2,al)
+algtensor(1,z,1)
+algisassociative([1],0)
+algisassociative([[1,0;0,2],[0,0;0,0]])
+algmul(almt,a,b)
+algleftmultable(almt,a)
+alginv(almt,a)
+algsplittingmatrix(almt,[0,0,0,0]~)
+algalgtobasis(almt,a)
+algbasistoalg(almt,[0,0,0,0]~)
+algpoleval(almt,1,a)
+zero = [0,0,0,0]~; m = Mat([1,1]); m[1,1]=zero; m[1,2]=zero;
+algadd(almt, [zero;zero], m)
+algadd(almt, [zero;zero;zero], [zero;zero]);
+algsub(almt, [zero;zero], m)
+algsub(almt, [zero;zero;zero], [zero;zero]);
+algmul(almt, m, [zero;zero;zero]);
+algsqr(almt, [zero;zero]);
+algdivl(almt, m, zero);
+algdivl(almt, m, [zero,zero;zero,zero]);
+algdivl(almt, m, m);
+alginv(almt, m);
+algleftmultable(almt, m);
+algpow(almt, m, 3);
+algtrace(almt, m);
+algcharpoly(almt, m);
+algcharpoly(alginit(nfinit(y),[-1,-1]), m);
+algnorm(almt, m);
+algnorm(alginit(nfinit(y),[-1,-1]), m);
+alginit(nfinit(y),[2,[[],[]],[x]])
+alginit(nfinit(y),[2,[],[1,1]])
+alginit(nfinit(y),[2,[[],[]],Vecsmall([1])])
+alginit(y,[2,[[],[]],[1]])
+alginit(nfinit(y), y)
+alginit(nfinit(y), [1,2,3,4])
+algtableinit(mt,y);
+alginit(nfinit(y^2+1),-3);
+alginit(nfinit(x^2+1),3);
+highvar = varhigher("highvar");
+alginit(nfinit(highvar^2+1),3);
+al = alginit(nfinit(y^2-2),[-1,-1]); algrandom(al,-10)
+al = alginit(nfinit(y^2-2),[-1,-1]);
+algrelmultable(al);
+algsplittingdata(al);
+alghasse(almt, 1);
+algindex(almt, 1);
+algisdivision(almt);
+algissplit(almt);
+algisramified(almt);
+algramifiedplaces(almt);
+alghasse(al, -1);
+alghasse(al, 3);
+alghasse(al, 2^100);
+alghasse(al, []);
+alghasse(al, 1/3);
+algtableinit([matid(2), [0,1/2;1,0]]);
+Q = nfinit(y);
+alginit(Q, [matid(2), [0,1/2;1,0]]);
+alginit(Q, [-1/2, -1]);
+alginit(Q, [-1, -1/2]);
+alginit(rnfinit(Q, x^2+1), [-x,-1/2]);
+algsqr([0,0,0,0,0,0,0,0,0,0,0],[]~);
+algsqr([0,0,0,0,0,0,0,0,[],0,0],[]~);
+algsqr([0,0,0,0,0,0,0,0,[0],0,0],[]~);
+algsqr([0,0,0,0,0,0,0,0,[[;]],0,0],[]~);
+algsqr([[],0,0,0,0,0,0,0,[[;]],0,0],[]~);
+algsqr([[],[0],0,0,0,0,0,0,[[;]],0,0],[]~);
+algdim([[],[0],0,0,0,0,0,0,[[;]],0,0]);
+algdegree([[],[0],0,0,0,0,0,0,[[;]],0,0]);
+algdegree([rnfinit(nfinit(y),x),[[]],0,0,0,0,0,0,[[;]],0,0]);
+algcenter([rnfinit(nfinit(y),x),[[]],0,0,0,0,0,0,[[;]],0,0]);
+algcentralproj(almt,0);
+algcentralproj(almt,[zero,zero]);
+algsubalg(almt,0);
+algisassociative([]);
+algisassociative([matid(2),Mat([1,1])]);
+algisassociative([[1,2;3,4],matid(2)]);
+algisassociative([matid(1)],[]);
+algsqr(algtableinit([matid(1)]),[1,2]~);
+algsqr(al,vector(691)~);
+algsqr(al,[1,2,3,4,5,6,7,f^2]~);
+algsqr(al,[f^3,[]]~);
+algmul(al,[;],[1,2]~);
+algdivl(al,[;],matid(1));
+algdivl(al,matid(1),matrix(1,2));
+alginv(al,[0,0]~);
+al0mt = algtableinit([matid(1)]);
+algalgtobasis(al0mt,[1]~);
+algbasistoalg(al0mt,[1]~);
+nfgrunwaldwang(nfinit(y),0,[],[],'x);
+nfgrunwaldwang(nfinit(y),[2],'x-'x,[1]);
+alginit(rnfinit(nfinit(y),x),0);
+alginit(rnfinit(nfinit(y),x),[1,2,3,4]);
+alginit(nfinit(y), [matid(2),matid(2)]);
+alginit(nfinit(y), [matid(2),[0,1;1,0]]);
+
+nfgrunwaldwang(nfinit(y), 0, [], [0]);
+nfgrunwaldwang(nfinit(y), [2], [], [0]);
+nfgrunwaldwang(nfinit(y), [2], [2], []);
+nfgrunwaldwang(nfinit(y), [2], [6], [0]);
+nfgrunwaldwang(nfinit(y), [2,3], [2,3], [0]);
+nfgrunwaldwang(nfinit(y), [2], [3], [-1]);
+nfgrunwaldwang(nfinit(y), [[]~], [3], [-1]);
+nfgrunwaldwang(nfinit(y), [2], [9], [0]);
+
+mt=[matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
+A=algtableinit(mt,2);
+algdegree(A)
+algsub(A,1,1)
+algadd(A,1,1)
+algneg(A,1)
+algmul(A,1,1)
+algsqr(A,1)
+algdivl(A,1,1)
+algdivr(A,1,1)
+alginv(A,1)
+a='a;
+K=nfinit(a);PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[1]],[-1]]);
+K=nfinit(a);P2=idealprimedec(K,2);P3=idealprimedec(K,3);A=alginit(K,[3,[concat(P2,P3),[1/3,-2/3]],[1/3]]);
+algtensor(alginit(nfinit(y),2),alginit(nfinit(y^2+1),3));
+algtensor(alginit(nfinit(y),2),alginit(nfinit(y),2));
+nf = nfinit(y); p2 = idealprimedec(nf,2)[1]; p3 = idealprimedec(nf,3)[1];
+\\alginit(nf, [2, [[p2,p3],[1/2,1/2]], [0]]);
+alginit(nf, [2, [[p2,p2],[1/2,1/2]], [0]]);
+alginit(nf, [2, [[p2,p3],[1/2,1/2]], [0,0]]);
+alginit(nf, [2, [[p2,p3],[1/2,1/2],0], [0]]);
+alginit(nf, [2, [0,[1/2,1/2]], [0]]);
+alginit(nf, [2, [[p2,p3],0], [0]]);
+alginit(nf, [2, [[p2,p3],[1/2,1/2,0]], [0]]);
+alginit(nf, [2, [[p2,p3],[1/2,1/2]], [1/3]]);
+
+al = alginit(nfinit(y),[-1,-1]);
+setrand(23);
+a = algrandom(al,2);
+algcharpoly(al,a,'z);
+
+al = alginit(nfinit(y^2+7), [-1,-1]);
+algcharpoly(al,[1,2,3]~);
+
+al = alginit(nfinit(y^2+7), [-1,-1]);
+alglathnf(al,0);
+alglathnf(al,Mat([0,0,0,0,0,0,0,0]));
+alglathnf(al,[0;0;0;0;0;0;0;0]);
+fakemat = matid(8);
+fakemat[5,6] = []
+alglathnf(al,fakemat);
+alglathnf(al,matid(8)*0);
+fakemat = matid(8);
+fakemat[1,1] = 0;
+alglathnf(al,fakemat);
+lat = alglathnf(al,matconcat([mt*0,mt*0]));
+lat1 = alglathnf(al,a);
+lat2 = alglathnf(al,c);
+col = [3,6,-5,1,23,2,0,1]~;
+print(alglatelement(al,lat1,col~));
+a = [1,1,-1/2,1,1/3,-1,1,1]~;
+b = [1,0,-1,1,0,-1,2,1]~;
+alglatmul(al,a,b);
+
+mt = [matid(2),[0,-1/4;1/2,0]];
+print("should fail:");
+algmakeintegral(mt);
+mt = [[1,0;-1,1],[0,-1/4;1,0]];
+print("should fail:");
+algmakeintegral(mt);
+algmakeintegral('x,1);
+
+alggroupcenter(['x,'y]);
+alggroupcenter('x,1); \\Bill's bug
+
+algindex(1, 1)
+
+al = alginit(nfinit(y), [Mat(1)]);
+algsqr(al,[Mod(1,y),Mod(2,y)]~)
+{m_i = [0,-1,0, 0;
+       1, 0,0, 0;
+       0, 0,0,-1;
+       0, 0,1, 0];
+m_j = [0, 0,-1,0;
+       0, 0, 0,1;
+       1, 0, 0,0;
+       0,-1, 0,0];
+m_k = [0, 0, 0, -1;
+       0, 0,-1, 0;
+       0, 1, 0, 0;
+       1, 0, 0, 0];
+mt = [matid(4), m_i, m_j, m_k];}
+al = alginit(nfinit(y), mt);
+algsqr(al,[Mod(1,y),Mod(2,y)]~)
+
+alggroup("a");
+alggroup(["a"]);
+alggroup(["a", "b", "c"]);
+alggroup([Vecsmall([1]), Vecsmall([1,2]), Vecsmall([1,2,3])]);
+alggroup([Vecsmall([1]), Vecsmall([2,3]), Vecsmall([1,2,3])]);
+
+alfail = alginit(nf, [0,0], 'x);
+algb(al);
+algaut(al);
+\\end bad inputs
+
+print("nfgrunwaldwang SEGV #1669");
+nfgrunwaldwang(nfinit(y),[2,3],[1,2],Vecsmall(1))
+nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(1))
+
+
 
