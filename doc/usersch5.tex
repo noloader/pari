@@ -12005,8 +12005,11 @@ small group or a Galois group. Returns the underlying small
 group and set \var{elts} to the list of elements or to \kbd{NULL} if it is not
 known.
 
-\fun{GEN}{checkgroupelts}{GEN gal} as \kbd{checkgroup} but always
-return the list of elements.
+\fun{GEN}{checkgroupelts}{GEN gal}
+check whether \var{gal} is a small group or a Galois group, or a vector of
+permutations (as \typ{VECSMALL} or \typ{VEC} of integers) listing the group
+elements. Returns the list of group elements as permutations
+(\typ{VECSMALL}).
 
 \fun{GEN}{galois_group}{GEN gal} return the underlying small group of the
 Galois group \var{gal}.
