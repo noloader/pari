@@ -1075,10 +1075,12 @@ print("spl(b*k): ", algsplittingmatrix(al,b*kk)==b*[0,-5*x;-x,0]);
 
 ord = algbasis(al);
 invord = alginvbasis(al);
+setrand(1);
 x1 = algrandom(al,1);
 ax1 = algbasistoalg(al,x1);
 nx1 = algalgtobasis(al0,ax1);
 print("nattomax 1: ", nx1==ord*x1);
+setrand(2);
 x2 = algrandom(al,1);
 ax2 = algbasistoalg(al,x2);
 nx2 = algalgtobasis(al0,ax2);
@@ -1465,6 +1467,7 @@ scal8(a) = vector(8,i,if(i==1,a,0))~;
 setrand(1);
 nf = nfinit(y^2-5);
 al = alginit(nf, [-1,-7]);
+setrand(1);
 M1 = [algrandom(al,2),algrandom(al,2);algrandom(al,2),algrandom(al,2)]
 M2 = [algrandom(al,2),algrandom(al,2);algrandom(al,2),algrandom(al,2)]
 print("mul alM: ", algmul(al,M1,M2));
@@ -1533,6 +1536,7 @@ m_j=[0,0,-1,0;0,0,0,1;1,0,0,0;0,-1,0,0];
 m_k=[0,0,0,-1;0,0,-1,0;0,1,0,0;1,0,0,0];
 mt = [matid(4), m_i, m_j, m_k];
 al = algtableinit(mt);
+setrand(10);
 M1 = [algrandom(al,2),algrandom(al,2);algrandom(al,2),algrandom(al,2)]
 M2 = [algrandom(al,2),algrandom(al,2);algrandom(al,2),algrandom(al,2)]
 print("mul alM t: ", algmul(al,M1,M2));
@@ -1594,7 +1598,7 @@ print("trivial algebra over a quadratic field");
 al = alginit(rnfinit(nfinit(y^2+1),x),[y,1])
 a = [y]~
 b = [1-2*y]~
-c = algrandom(al,3)
+c = [-3,1]~
 algadd(al,a,b)
 algsub(al,c,a)
 algmul(al,a,b)
@@ -1622,7 +1626,7 @@ print("trivial algebra over Q");
 al = alginit(rnfinit(nfinit(y),x),[y,1])
 a = [-2]~
 b = [1/3]~
-c = algrandom(al,3)
+c = [4/5]~
 algadd(al,a,b)
 algsub(al,c,a)
 algmul(al,a,b)
@@ -1868,6 +1872,7 @@ alginit(nf, [2, [[p2,p3],[1/2,1/2,0]], [0]]);
 alginit(nf, [2, [[p2,p3],[1/2,1/2]], [1/3]]);
 
 al = alginit(nfinit(y),[-1,-1]);
+setrand(23);
 a = algrandom(al,2);
 algcharpoly(al,a,'z);
 
@@ -2097,6 +2102,7 @@ test(str,al)={
  print("testing simplify: ", str);
  print(algtype(al) == algtype(sal));
  print(algdim(al) == algdim(sal));
+ setrand(11);
  x = algrandom(al,3);
  y = algrandom(al,10);
  print(algsqr(al,x) == algsqr(sal,x));
@@ -2314,6 +2320,7 @@ print(alglatmul(al,b,lat1));
 print(alglatmul(al,lat2,b));
 print(alglatlefttransporter(al,lat1,lat2));
 print(alglatrighttransporter(al,lat1,lat2));
+setrand(88);
 aa = algrandom(al,10);
 print(alglathnf(al,aa/10,matdet(algleftmultable(al,aa))/10)==alglathnf(al,aa/10));
 print(alglatcontains(al,lat1,a));
@@ -2323,9 +2330,12 @@ print(alglatelement(al,lat1,col~));
 alglatmul(al,a,b);
 testlataddinter()=
 {
-  my(lat=[0,0,0],int12,int23,sum12,index,elt1=algrandom(al,5)/random([1,8]),
-  elt2=algrandom(al,5)/random([1,8]),tr12L,tr23R,col1,col2);
-  my(lat=[0,0,0],int12,int23,sum12,index,elt=algrandom(al,5),tr12L,tr23R);
+  my(lat=[0,0,0],int12,int23,sum12,index,elt1,
+  elt2,tr12L,tr23R,col1,col2);
+  my(lat=[0,0,0],int12,int23,sum12,index,elt,tr12L,tr23R);
+  elt1=algrandom(al,5)/random([1,8]);
+  elt2=algrandom(al,5)/random([1,8]);
+  elt=algrandom(al,5);
   for(i=1,3,lat[i]=alglathnf(al,algrandom(al,2)/random([1,8])));
   sum12 = alglatadd(al,lat[1],lat[2],&int12);
   if(alglatadd(al,lat[1],alglatadd(al,lat[2],lat[3],&int23))
@@ -2391,6 +2401,7 @@ testlataddinter()=
   );
   1
 };
+setrand(1);
 for(i=1,500,if(!testlataddinter(),print(i);break()));
 
 \\make integral
