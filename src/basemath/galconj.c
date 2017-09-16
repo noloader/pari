@@ -2577,15 +2577,14 @@ galoisidentify(GEN gal)
   avma = av; return mkvec2s(card, idx);
 }
 
-static GEN
-groupelts_chartable(GEN elts)
+GEN
+galoischartable(GEN gal)
 {
   pari_sp av = avma;
-  GEN al, cc, conjclass, rep, ctp, ct0, dec, jg, f;
-  long n, i, j, k, l, expo, nbcl;
+  GEN al, cc, conjclass, rep, ctp, ct0, dec, jg, f, elts = checkgroupelts(gal);
+  long i, j, k, l, expo, nbcl, n = lg(elts)-1;
   ulong p, pov2, ze;
   const long var = 1;
-  n = lg(elts)-1;
   /* exponent of G */
   expo = groupelts_exponent(elts);
   p = unextprime(2*n+1);
@@ -2648,13 +2647,6 @@ groupelts_chartable(GEN elts)
   for(i=1; !vec_isconst(gel(ct0, i)); i++) continue;
   if (i>1) swap(gel(ct0,1),gel(ct0,i));
   return gerepilecopy(av, mkvec2(ct0,stoi(expo)));
-}
-
-GEN
-galoischartable(GEN gal)
-{
-  GEN elts = checkgroupelts(gal);
-  return groupelts_chartable(elts);
 }
 
 static void
