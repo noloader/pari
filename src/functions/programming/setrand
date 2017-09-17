@@ -11,6 +11,11 @@ Doc: reseeds the random number generator using the seed $n$. No value is
  running a randomized computation starting by \kbd{setrand}($n$)
  twice with the same $n$ will generate the exact same output.
 
+ In the other direction, including a call to \kbd{setrand(getwalltime())}
+ from your gprc will cause GP to produce different streams of random numbers
+ in each session. (Unix users may want to use \kbd{/dev/urandom} instead
+ of \kbd{getwalltime}.)
+
  For debugging purposes, one can also record a particular random state
  using \kbd{getrand} (the value is encoded as a huge integer) and feed it to
  \kbd{setrand}:
