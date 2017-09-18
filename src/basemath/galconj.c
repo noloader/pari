@@ -2600,7 +2600,7 @@ galoischartable(GEN gal)
   for(i=1; i<=nbcl; i++)
   {
     GEN e = ZV_to_Flv(gmael3(dec,i,3,1), p); /*(1/n)[(dim chi)chi(g): g in G]*/
-    ulong d = Fl_sqrt(Fl_mul(e[1], n, p), p); /*chi(1)*/
+    ulong d = usqrt(Fl_mul(e[1], n, p)); /* = chi(1) <= sqrt(n) < sqrt(p) */
     gel(ctp,i) = Flv_Fl_mul(e,Fl_div(n,d,p), p);
   }
   ze = Fl_inv(Fl_powu(pgener_Fl(p),(p-1)/expo, p), p);
