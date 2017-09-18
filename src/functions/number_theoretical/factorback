@@ -6,7 +6,7 @@ Description:
  (gen):gen      factorback($1)
  (gen,):gen     factorback($1)
  (gen,gen):gen  factorback2($1, $2)
-Help: factorback(f,{e}): given a factorisation f, gives the factored
+Help: factorback(f,{e}): given a factorization f, gives the factored
  object back. If e is present, f has to be a vector of the same length, and
  we return the product of the f[i]^e[i].
 Doc: gives back the factored object corresponding to a factorization. The

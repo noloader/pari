@@ -45,7 +45,7 @@ Doc: returns the \kbd{Ldata} structure attached to the
  ? lfun([bnr,[1]], s) - lfun(L2, s)
  %10 ~ 0
  @eprog
- The first identity is the factorisation of the regular representation of
- $D_{10}$, the second the factorisation of the natural representation of
+ The first identity is the factorization of the regular representation of
+ $D_{10}$, the second the factorization of the natural representation of
  $D_{10}\subset S_5$, the next two are the expressions of the degree $2$
  representations as induced from degree $1$ representations.

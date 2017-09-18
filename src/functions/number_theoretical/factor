@@ -83,7 +83,7 @@ Doc: general factorization function, where $x$ is a
 
  [340282366920938463463374607431768211457 1]
 
- ? factor(F)   \\ complete factorisation
+ ? factor(F)   \\ complete factorization
  time = 112 ms.
  %8 =
  [1009 1]

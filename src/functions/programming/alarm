@@ -28,7 +28,7 @@ Doc: if \var{code} is omitted, trigger an \var{e\_ALARM} exception after $s$
    [100000000000000000000000067 1]
  @eprog\noindent Here is a more involved example: the function
  \kbd{timefact(N,sec)} below tries to factor $N$ and gives up after \var{sec}
- seconds, returning a partial factorisation.
+ seconds, returning a partial factorization.
  \bprog
  \\ Time-bounded partial factorization
  default(factor_add_primes,1);

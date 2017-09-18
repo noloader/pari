@@ -3420,7 +3420,7 @@ all $m$ solutions in $\F_p$ of the equation $x^n = a$.
 
 \fun{GEN}{Zn_sqrt}{GEN x, GEN n} returns one of the square roots of \kbd{x}
 modulo \kbd{n} (possibly not prime), where \kbd{x} is a \typ{INT} and \kbd{n}
-is either a \typ{INT} or is given by its factorisation matrix.  Return
+is either a \typ{INT} or is given by its factorization matrix.  Return
 \kbd{NULL} if no such square root exist.
 
 \fun{long}{kross}{long x, long y} returns the \idx{Kronecker symbol} $(x|y)$,
@@ -3457,11 +3457,11 @@ a $p$-adic square, $0$ otherwise.
 
 \fun{long}{Zn_issquare}{GEN x, GEN n} returns 1 if \typ{INT} $x$ is
 a square modulo \kbd{n} (possibly not prime), where $n$ is either a \typ{INT}
-or is given by its factorisation matrix. Return $0$ otherwise.
+or is given by its factorization matrix. Return $0$ otherwise.
 
 \fun{long}{Zn_ispower}{GEN x, GEN n, GEN K, GEN *py} returns 1 if \typ{INT}
 $x$ is a $K$-th power modulo \kbd{n} (possibly not prime), where $n$ is
-either a \typ{INT} or is given by its factorisation matrix. Return $0$
+either a \typ{INT} or is given by its factorization matrix. Return $0$
 otherwise. If \kbd{py} is not \kbd{NULL}, set it to $y$ such that $y^K = x$
 modulo $n$.
 
@@ -6165,7 +6165,7 @@ accessors are defined:
 \fun{GEN}{F2xqX_roots}{GEN f, GEN T} return the roots of \kbd{f} in
 $\F_2[X]/(T)$. Assumes \kbd{T} irreducible in $\F_2[X]$.
 
-\fun{GEN}{F2xqX_factor}{GEN f, GEN T} return the factorisation of \kbd{f} over
+\fun{GEN}{F2xqX_factor}{GEN f, GEN T} return the factorization of \kbd{f} over
 $\F_2[X]/(T)$. Assumes \kbd{T} irreducible in $\F_2[X]$.
 
 \subsec{\kbd{F2xqXQ}}. See \kbd{FlxqXQ} operations.
@@ -9466,7 +9466,7 @@ Theses functions handle groups of rank at most $2$ equipped with a family of
 bilinear pairings which behave like the Weil pairing on elliptic curves over
 finite field. In the descriptions below, the function \kbd{pairorder(E, P, Q,
 m, F)} must return the order of the $m$-pairing of $P$ and $Q$, both of order
-dividing $m$, where $F$ is the factorisation matrix of a multiple of $m$.
+dividing $m$, where $F$ is the factorization matrix of a multiple of $m$.
 
 \fun{GEN}{gen_ellgroup}{GEN o, GEN d, GEN *pt_m, void *E, const struct bb_group *grp,
              GEN pairorder(void *E, GEN P, GEN Q, GEN m, GEN F)}

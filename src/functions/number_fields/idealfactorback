@@ -2,7 +2,7 @@ Function: idealfactorback
 Section: number_fields
 C-Name: idealfactorback
 Prototype: GGDGD0,L,
-Help: idealfactorback(nf,f,{e},{flag = 0}): given a factorisation f, gives the
+Help: idealfactorback(nf,f,{e},{flag = 0}): given a factorization f, gives the
  ideal product back. If e is present, f has to be a
  vector of the same length, and we return the product of the f[i]^e[i]. If
  flag is non-zero, perform idealred along the way.

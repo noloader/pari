@@ -45,7 +45,7 @@ Doc: true (1) if $x$ is a prime
  exceedingly unlikely and well worth a bug report. Note that if you monitor
  \kbd{isprime} at a high enough debug level, you may see warnings about
  untested integers being declared primes. This is normal: we ask for partial
- factorisations (sufficient to prove primality if the unfactored part is not
+ factorizations (sufficient to prove primality if the unfactored part is not
  too large), and \kbd{factor} warns us that the cofactor hasn't been tested.
  It may or may not be tested later, and may or may not be prime. This does
  not affect the validity of the whole \kbd{isprime} procedure.
