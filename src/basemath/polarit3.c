@@ -2232,7 +2232,7 @@ INIT:
     if (dp != 1) Hp = Flx_Fl_mul(Hp, Fl_powu(Fl_inv(dp,p), degA, p), p);
     if (!Flx_is_squarefree(Hp, p)) { lambda = next_lambda(lambda); goto INIT; }
     if (DEBUGLEVEL>4) err_printf("Final lambda = %ld\n", lambda);
-    avma = av; return lambda;
+    avma = av; (void)delete_var(); return lambda;
   }
 }
 
