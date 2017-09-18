@@ -172,6 +172,6 @@
 ? intfuncinit(t=[-oo,I],[oo,I],s);
   ***   at top-level: ...uncinit(t=[-oo,I],[oo,I],s)
   ***                                             ^--
-  ***   sorry, intfuncinit with hard endpoint behaviour is not yet implemented.
+  ***   sorry, intfuncinit with hard endpoint behavior is not yet implemented.
 ? print("Total time spent: ",gettime);
-Total time spent: 1572
+Total time spent: 992
