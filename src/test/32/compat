@@ -647,7 +647,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: decodefactor(fa) ===> factorback(fa)
 
-factorback(f,{e}): given a factorisation f, gives the factored object back. If 
+factorback(f,{e}): given a factorization f, gives the factored object back. If 
 e is present, f has to be a vector of the same length, and we return the 
 product of the f[i]^e[i].
 
@@ -4522,4 +4522,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 4
+Total time spent: 8
