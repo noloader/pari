@@ -31,7 +31,7 @@ Doc:
 
  If $E/\Q_p$ has multiplicative reduction, then $E/\bar{\Q_p}$ is analytically
  isomorphic to $\bar{\Q}_p^*/q^\Z$ (Tate curve) for some $p$-adic integer $q$.
- The behaviour is then as follows:
+ The behavior is then as follows:
 
  \item If the reduction is split ($E.\kbd{tate[2]}$ is a \typ{PADIC}), we have
  an isomorphism $\phi: E(\Q_p) \simeq \Q_p^*/q^\Z$ and the function returns

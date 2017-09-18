@@ -9,7 +9,7 @@ Doc: the number of significant bits used to convert exact inputs given to
  absolute floating point constants (input as \kbd{1.0} or \kbd{Pi} for
  instance). Unless you tamper with the \tet{format} default, this is also
  the number of significant bits used to print a \typ{REAL} number;
- \kbd{format} will override this latter behaviour, and allow you to have a
+ \kbd{format} will override this latter behavior, and allow you to have a
  large internal precision while outputting few digits for instance.
 
  Note that most PARI's functions currently handle precision on a word basis (by

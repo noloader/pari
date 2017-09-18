@@ -14,7 +14,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  have positive values and is a $C^\infty$ function; \kbd{a} must be an integer
  and \kbd{tab}, if given, is the output of \kbd{sumnuminit}. The latter
  precomputes abscissas and weights, speeding up the computation; it also allows
- to specify the behaviour at infinity via \kbd{sumnuminit([+oo, asymp])}.
+ to specify the behavior at infinity via \kbd{sumnuminit([+oo, asymp])}.
  \bprog
  ? \p500
  ? z3 = zeta(3);

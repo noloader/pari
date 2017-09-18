@@ -4,7 +4,7 @@ C-Name: nfgrunwaldwang
 Prototype: GGGGDn
 Help: nfgrunwaldwang(nf,Lpr,Ld,pl,{v='x}): a polynomial in the variable v
  defining a cyclic extension of nf (given in nf or bnf form) with local
- behaviour prescribed by Lpr, Ld and pl: the extension has local degree a
+ behavior prescribed by Lpr, Ld and pl: the extension has local degree a
  multiple of Ld[i] at the prime Lpr[i], and the extension is complex at the
  i-th real place of nf if pl[i]=-1 (no condition if pl[i]=0). The extension
  has degree the LCM of the local degrees.
@@ -26,7 +26,7 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  construction because of the \kbd{rnfkummer} restrictions.
 
  When \var{nf} is $\Q$, prime integers are accepted instead of \kbd{prid}
- structures. However, their primality is not checked and the behaviour is
+ structures. However, their primality is not checked and the behavior is
  undefined if you provide a composite number.
 
  \misctitle{Warning} If the number field \var{nf} does not contain the $n$-th

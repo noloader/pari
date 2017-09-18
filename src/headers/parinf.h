@@ -100,7 +100,7 @@ enum {
   LLL_GRAM       = 0x100,
   LLL_KEEP_FIRST = 0x200,
   LLL_INPLACE    = 0x400,
-  LLL_COMPATIBLE = 0x800 /* attempt same behaviour on 32/64bit kernels */
+  LLL_COMPATIBLE = 0x800 /* attempt same behavior on 32/64bit kernels */
 };
 
 /* HNF */

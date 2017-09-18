@@ -312,7 +312,7 @@ If not \kbd{NULL}, this routine is called with a \typ{ERROR} argument
 from \kbd{pari\_err}. If it returns a non-zero value, the error returns, in
 effect further ignoring the error, otherwise it raises a fatal error.
 
-The default behaviour is to print a descriptive error
+The default behavior is to print a descriptive error
 message (display the error), then return 0, thereby raising a fatal error.
 This differs from \tet{cb_pari_handle_exception} in that the
 function is not called on \kbd{SIGINT} (which do not generate a \typ{ERROR}),

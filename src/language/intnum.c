@@ -1068,7 +1068,7 @@ intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long prec)
   GEN tab = intnuminit_i(a, b, m, prec);
 
   if (lg(tab) == 3)
-    pari_err_IMPL("intfuncinit with hard endpoint behaviour");
+    pari_err_IMPL("intfuncinit with hard endpoint behavior");
   if (is_fin_f(transcode(a,"intfuncinit")) ||
       is_fin_f(transcode(b,"intfuncinit")))
     pari_err_IMPL("intfuncinit with finite endpoints");

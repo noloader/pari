@@ -456,7 +456,7 @@ current.
 
 \fun{GEN}{localvars_read_str}{const char *s, GEN pack} evaluate the string $s$
 in the lexical context given by \kbd{pack}.  Used by \tet{geval_gp} in GP
-to implement the behaviour below:
+to implement the behavior below:
 \bprog
 ? my(z=3);eval("z=z^2");z
 %1 = 9
@@ -531,7 +531,7 @@ instance on a 32-bit machine.
 \item If different output is expected on 32-bit and 64-bit machines, run the
 test on a 64-bit machine and patch again, thereby
 producing \kbd{src/test/64/fun}. If, on the contrary, the output must be the
-same (preferred behaviour!), make sure the output template land in the
+same (preferred behavior!), make sure the output template land in the
 \kbd{src/test/32/} directory which provides a default template when the
 64-bit output file is missing; in particular move the file from
 \kbd{src/test/64/} to \kbd{src/test/32/} if the test was run on a 64-bit

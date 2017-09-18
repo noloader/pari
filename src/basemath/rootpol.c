@@ -560,7 +560,7 @@ eval_rel_pol(GEN p, long bit)
 {
   long i;
   for (i = 2; i < lg(p); i++)
-    if (gequal0(gel(p,i))) gel(p,i) = gen_0; /* bad behaviour of gexpo */
+    if (gequal0(gel(p,i))) gel(p,i) = gen_0; /* bad behavior of gexpo */
   return pol_to_gaussint(p, bit-gexpo(p)+1);
 }
 

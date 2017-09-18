@@ -14,7 +14,7 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Abel-Plana,
  holomorphic in the right half-place $\Re(z) > a$; \kbd{a} must be an integer
  and \kbd{tab}, if given, is the output of \kbd{sumnumapinit}. The latter
  precomputes abscissas and weights, speeding up the computation; it also allows
- to specify the behaviour at infinity via \kbd{sumnumapinit([+oo, asymp])}.
+ to specify the behavior at infinity via \kbd{sumnumapinit([+oo, asymp])}.
  \bprog
  ? \p500
  ? z3 = zeta(3);

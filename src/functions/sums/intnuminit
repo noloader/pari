@@ -45,12 +45,12 @@ Doc: initialize tables for integration from
  \item \var{wm} contains the $\phi'(nh)$, $0 < -n < N$, or is empty.
 
  The arrays \var{xm} and \var{wm} are left empty when $\phi$ is an odd
- function. In complicated situations when non-default behaviour is specified at
+ function. In complicated situations when non-default behavior is specified at
  end points, \kbd{intnuminit} may return up to $3$ such arrays, corresponding
  to a splitting of up to $3$ integrals of basic type.
 
  If the functions to be integrated later are of the form $F = f(t) k(t,z)$
  for some kernel $k$ (e.g. Fourier, Laplace, Mellin, \dots), it is
  useful to also precompute the values of $f(\phi(nh))$, which is accomplished
- by \tet{intfuncinit}. The hard part is to determine the behaviour
+ by \tet{intfuncinit}. The hard part is to determine the behavior
  of $F$ at endpoints, depending on $z$.

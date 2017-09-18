@@ -42,7 +42,7 @@ Doc: return a \typ{FFELT} generator for the finite field with $q$ elements;
  inferring $p$ from the coefficients of $P$. If \kbd{v} is given, the
  variable name is used to display $g$, else the variable of the polynomial
  $P$ is used. If $P$ is not irreducible, we create an invalid object and
- behaviour of functions dealing with the resulting \typ{FFELT}
+ behavior of functions dealing with the resulting \typ{FFELT}
  is undefined; in fact, it is much more costly to test $P$ for
  irreducibility than it would be to produce it via \kbd{ffinit}.
 Variant:

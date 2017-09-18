@@ -9,7 +9,7 @@ Help: setsearch(S,x,{flag=0}): determines whether x belongs to the set (or
  otherwise the index j where it should be inserted.
 Doc: determines whether $x$ belongs to the set $S$ (see \kbd{setisset}).
 
- We first describe the default behaviour, when $\fl$ is zero or omitted. If $x$
+ We first describe the default behavior, when $\fl$ is zero or omitted. If $x$
  belongs to the set $S$, returns the index $j$ such that $S[j]=x$, otherwise
  returns 0.
  \bprog
