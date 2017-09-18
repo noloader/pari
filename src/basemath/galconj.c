@@ -2597,10 +2597,11 @@ galoischartable(GEN gal)
   nbcl = lg(rep)-1;
   dec = algsimpledec(al,1);
   ctp = cgetg(nbcl+1,t_VEC);
-  for(i=1;i<=nbcl;i++)
+  for(i=1; i<=nbcl; i++)
   {
-    GEN e = Flv_Fl_mul(ZV_to_Flv(gmael3(dec,i,3,1), p),n%p,p);
-    gel(ctp,i) = Flv_Fl_div(e, usqrt(e[1]), p);
+    GEN e = ZV_to_Flv(gmael3(dec,i,3,1), p); /*(1/n)[(dim chi)chi(g): g in G]*/
+    ulong d = Fl_sqrt(Fl_mul(e[1], n, p), p); /*chi(1)*/
+    gel(ctp,i) = Flv_Fl_mul(e,Fl_div(n,d,p), p);
   }
   ze = Fl_inv(Fl_powu(pgener_Fl(p),(p-1)/expo, p), p);
 
