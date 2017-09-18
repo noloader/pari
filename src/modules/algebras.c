@@ -4765,6 +4765,7 @@ int
 alglatsubset(GEN al, GEN lat1, GEN lat2, GEN* ptindex)
 {
   /*TODO version that returns the quotient as abelian group?*/
+  /* return matrices to convert coordinates from one to other? */
   pari_sp av = avma;
   int res;
   GEN m1, m2, m2i, m, t;
