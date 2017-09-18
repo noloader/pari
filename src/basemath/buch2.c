@@ -409,18 +409,16 @@ init_famat(GEN x) { return mkvec2(x, cgetg(1,t_MAT)); }
 static GEN
 red(GEN nf, GEN I, GEN G0, GEN *pm)
 {
-  GEN m, y, norm, norm2;
-  norm = typ(I) == t_MAT ? ZM_det_triangular(I) : idealnorm(nf, I);
-  y = idealred0(nf, init_famat(I), G0);
-  m = gel(y,2);
-  y = gel(y,1); *pm = lg(m)==1? gen_1: Q_primpart(gmael(m, 1, 1));
-  norm2 = typ(y) == t_MAT ? ZM_det_triangular(y) : idealnorm(nf, y);
-  if (gcmp(norm, norm2) < 0 || is_pm1(gcoeff(y,1,1)))
+  GEN NJ, NI = ZM_det_triangular(I);
+  GEN y = idealred0(nf, init_famat(I), G0), J = gel(y,1);
+  NJ = ZM_det_triangular(J);
+  if (cmpii(NI, NJ) < 0 || is_pm1(gcoeff(J,1,1))) { *pm = gen_1; J = I; }
+  else
   {
-    *pm = gen_1;
-    y = I;
+    GEN m = gel(y,2);
+    *pm = lg(m)==1? gen_1: Q_primpart(gmael(m,1,1));
   }
-  return idealtwoelt(nf,y);
+  return J;
 }
 
 /* make sure enough room to store n more relations */
@@ -2718,7 +2716,6 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
   rr.ex = cgetg(lgsub, t_VECSMALL);
   baseideal = get_random_ideal(F, nf, rr.ex);
   baseideal = red(nf, baseideal, F->G0, &rr.m1);
-  baseideal = idealhnf_two(nf, baseideal);
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   for (av = avma, jlist = 1; jlist < l_jid; jlist++, avma = av)
   {
