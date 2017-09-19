@@ -319,6 +319,13 @@ function is not called on \kbd{SIGINT} (which do not generate a \typ{ERROR}),
 only from \kbd{pari\_err}. Use \tet{cb_pari_sigint} if you need to handle
 \kbd{SIGINT} as well.
 
+The following function can be used by \kbd{cb\_pari\_err\_handle} to display
+the error message.
+
+\fun{const char*}{closure_func_err}{} return a statically allocated string
+holding the name of the function that triggered the error. Return NULL if the
+error was not caused by a function.
+
 \doc{cb_pari_break_loop}{int (*cb_pari_break_loop)(int)}
 initialized to \kbd{NULL}.
 
@@ -331,7 +338,7 @@ Function called when we receive \kbd{SIGINT}. By default, raises
 
 \fun{void}{gp_sigint_fun}{void}
 
-\doc{cb_pari_pre_recover}{void (*cb_pari_err_recover)(long)}
+\doc{cb_pari_pre_recover}{void (*cb_pari_pre_recover)(long)}
 initialized to \kbd{NULL}. If not \kbd{NULL}, this routine is called just
 before PARI cleans up from an error. It is not required to return.  The error
 number is passed as argument, unless the PARI stack has been destroyed

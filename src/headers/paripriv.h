@@ -61,7 +61,6 @@ GEN setloop(GEN a);
 #define EXPR_ARGPREC __E, &gp_evalprec
 #define EXPR_ARGUPTO __E, &gp_evalupto
 #define EXPR_ARGBOOL __E, &gp_evalbool
-const char * closure_func_err(void);
 
 GEN  iferrpari(GEN a, GEN b, GEN c);
 void forfactored(GEN a, GEN b, GEN code);

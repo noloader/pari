@@ -2973,6 +2973,7 @@ GEN     closure_evalgen(GEN C);
 GEN     closure_evalnobrk(GEN C);
 GEN     closure_evalres(GEN C);
 void    closure_evalvoid(GEN C);
+const char * closure_func_err(void);
 GEN     closure_trapgen(GEN C, long numerr);
 GEN     copybin_unlink(GEN C);
 GEN     get_lex(long vn);
