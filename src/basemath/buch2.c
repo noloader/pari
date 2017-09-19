@@ -409,10 +409,10 @@ init_famat(GEN x) { return mkvec2(x, cgetg(1,t_MAT)); }
 static GEN
 red(GEN nf, GEN I, GEN G0, GEN *pm)
 {
-  GEN NJ, NI = ZM_det_triangular(I);
   GEN y = idealred0(nf, init_famat(I), G0), J = gel(y,1);
-  NJ = ZM_det_triangular(J);
-  if (cmpii(NI, NJ) < 0 || is_pm1(gcoeff(J,1,1))) { *pm = gen_1; J = I; }
+  if (is_pm1(gcoeff(J,1,1)) ||
+      cmpii(ZM_det_triangular(I),
+            ZM_det_triangular(J)) < 0) { *pm = gen_1; J = I; }
   else
   {
     GEN m = gel(y,2);
