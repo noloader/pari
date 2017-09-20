@@ -836,13 +836,13 @@ closure_eval(GEN C)
   const char *code=closure_codestr(C);
   GEN oper=closure_get_oper(C);
   GEN data=closure_get_data(C);
-  GEN stackelt;
   long loper=lg(oper);
   long saved_sp=sp-closure_arity(C);
   long saved_rp=rp, saved_prec=s_prec.n;
   long j, nbmvar=0, nblvar=0;
   long pc, t;
 #ifdef STACK_CHECK
+  GEN stackelt;
   if (PARI_stack_limit && (void*) &stackelt <= PARI_stack_limit)
     pari_err(e_MISC, "deep recursion");
 #endif
