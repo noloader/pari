@@ -11636,15 +11636,22 @@ multiplicative group of the definition field of the \typ{FFELT} \kbd{a}.
 If \kbd{o} is not \kbd{NULL}, set it to the factorization of the order
 of the primitive root (to speed up \tet{FF_log}).
 
-\fun{GEN}{FFX_mul}{GEN P, GEN Q, GEN a} returns the product of the polynomials
-\kbd{P} and \kbd{Q} defined over the definition field of the \typ{FFELT}
-\kbd{a}. The coefficients of \kbd{P} and \kbd{Q} must be of type \typ{INT},
+\subsec{FFX}
+
+The functions in this sections take polynomial arguments and a \typ{FFELT}
+$a$. The coefficients of the polynomials must be of type \typ{INT},
 \typ{INTMOD} or \typ{FFELT} and compatible with \kbd{a}.
 
+\fun{GEN}{FFX_mul}{GEN P, GEN Q, GEN a} returns the product of the polynomials
+\kbd{P} and \kbd{Q} defined over the definition field of the \typ{FFELT}
+\kbd{a}.
+
 \fun{GEN}{FFX_sqr}{GEN P, GEN a} returns the square of the polynomial
-\kbd{P} defined over the definition field of the \typ{FFELT}
-\kbd{a}. The coefficients of \kbd{P} must be of type \typ{INT},
-\typ{INTMOD} or \typ{FFELT} and compatible with \kbd{a}.
+\kbd{P} defined over the definition field of the \typ{FFELT} \kbd{a}.
+
+\fun{GEN}{FFX_rem}{GEN P, GEN Q, GEN a} returns the remainder
+of the polynomial \kbd{P} modulo the polynomial \kbd{Q}, where \kbd{P} and
+\kbd{Q} are defined over the definition field of the \typ{FFELT} \kbd{a}.
 
 \fun{GEN}{FFX_factor}{GEN f, GEN a} returns the factorization of the univariate
 polynomial \kbd{f} over the definition field of the \typ{FFELT} \kbd{a}. The
