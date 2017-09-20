@@ -2519,18 +2519,26 @@ ffinvmap(GEN m)
 }
 
 static GEN
+ffpartmapimage(const char *s, GEN r)
+{
+   GEN a = NULL, p = NULL;
+   if (typ(r)==t_POL && degpol(r) >= 1
+      && RgX_is_FpXQX(r,&a,&p) && a && typ(a)==t_FFELT)
+     return a;
+   pari_err_TYPE(s, r);
+   return NULL; /* LCOV_EXCL_LINE */
+}
+
+static GEN
 ffeltmap_i(GEN m, GEN x)
 {
-   GEN r = gel(m,2), a = NULL, p = NULL;
+   GEN r = gel(m,2);
    if (!FF_samefield(x, gel(m,1)))
      pari_err_DOMAIN("ffmap","m","domain do not contain", x, r);
    if (typ(r)==t_FFELT)
      return FF_map(r, x);
-   else if (typ(r)==t_POL && degpol(r) >= 1
-            && RgX_is_FpXQX(r,&a,&p) && a && typ(a)==t_FFELT)
-     return FFX_preimage(x, r, a);
-   else pari_err_TYPE("ffmap", m);
-   return NULL; /* LCOV_EXCL_LINE */
+   else
+    return FFX_preimage(x, r, ffpartmapimage("ffmap", r));
 }
 
 static GEN
@@ -2566,4 +2574,65 @@ ffmap(GEN m, GEN x)
   y = ffmap_i(m, x);
   if (y) return y;
   avma = ltop; return cgetg(1,t_VEC);
+}
+
+static void
+err_compo(GEN m, GEN n)
+{
+  pari_err_DOMAIN("ffcompomap","m","domain do not contain codomain of",n,m);
+}
+
+GEN
+ffcompomap(GEN m, GEN n)
+{
+  pari_sp av = avma;
+  GEN g = gel(n,1), r, m2, n2;
+  checkmap(m, "ffcompomap");
+  checkmap(n, "ffcompomap");
+  m2 = gel(m,2); n2 = gel(n,2);
+  switch((typ(m2)==t_POL)|((typ(n2)==t_POL)<<1))
+  {
+    case 0:
+      if (!FF_samefield(gel(m,1),n2)) err_compo(m,n);
+      r = FF_map(gel(m,2), n2);
+      break;
+    case 2:
+      r = ffmap_i(m, n2);
+      if (lg(r) == 1) err_compo(m,n);
+      break;
+    case 1:
+      r = ffeltmap_i(m, n2);
+      if (!r)
+      {
+        GEN A, R, M;
+        long dm, dn;
+        A = FF_to_FpXQ_i(FF_neg(n2));
+        setvarn(A, 1);
+        R = deg1pol(gen_1, A, 0);
+        setvarn(R, 0);
+        M = gcopy(m2);
+        setvarn(M, 1);
+        r = polresultant0(R, M, 1, 0);
+        dm = FF_f(gel(m,1)); dn = FF_f(gel(n,1));
+        if (dm % dn || !ispower(r, utoi(dm/dn), &r)) err_compo(m,n);
+        setvarn(r, varn(FF_mod(g)));
+      }
+      break;
+    case 3:
+    {
+      GEN M, R, T, p, a;
+      a = ffpartmapimage("ffcompomap",n2);
+      if (!FF_samefield(a, gel(m,1))) err_compo(m,n);
+      p = FF_p_i(gel(n,1));
+      T = FF_mod(gel(n,1));
+      setvarn(T, 1);
+      R = RgX_to_FpXQX(n2,T,p);
+      setvarn(R, 0);
+      M = gcopy(m2);
+      setvarn(M, 1);
+      r = polresultant0(R, M, 1, 0);
+      setvarn(r, varn(n2));
+    }
+  }
+  return gerepilecopy(av, mkvec2(g,r));
 }

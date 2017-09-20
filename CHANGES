@@ -277,7 +277,7 @@ VD  108- [libpari] closure_func_err
 BA  109- [libpari] F2xqX_extgcd, F2xqXQ_inv, F2xqXQ_invsafe, FFXQ_inv
 BA  110- [libpari] ZV_nv_mod_tree, ZM_nv_mod_tree
 BA  111- [libpari] FF_gen, FF_map, FFX_preimage
-BA  112- New GP functions ffembed, ffmap, ffinvmap
+BA  112- New GP functions ffembed, ffmap, ffinvmap, ffcompomap
     113- [libpari] cx_approx_equal
 
   Changed

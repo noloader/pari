@@ -109,27 +109,38 @@ test(nextprime(2^63)^5)
 my(a=ffgen([2,100]));(0*a*x)*x
 
 default(echo,0);
-test(p=3,n=10,d=2)=
+test(p=3,n=10,d=2,e=2)=
 {
-  q = p^n;
-  a = ffgen([p,n],'a);
-  b = ffgen([p,d*n],'b);
-  m = ffembed(a,b); r = ffinvmap(m);
+  my(Pa,Pb);
+  my(q = p^n);
+  my(a = ffgen([p,n],'a), b = ffgen([p,d*n],'b), c = ffgen([p,e*d*n],'c));
+  my(m = ffembed(a, b),   n = ffembed(b, c),     k = ffembed(a, c));
+  my(rm = ffinvmap(m), rn = ffinvmap(n), rk = ffinvmap(k));
+  my(nm = ffcompomap(n,m), rmrn =ffcompomap(rm,rn));
+  my(rnk = ffcompomap(rn,k), rkn = ffcompomap(rk,n));
+  my(rmm = ffcompomap(rm,m), mrm = ffcompomap(m,rm));
   if (minpoly(ffmap(m,a),'a) != a.mod,error("minpoly"));
   Pa = a^2+a+3;
   Pb = ffmap(m,Pa);
-  Pc = ffmap(r,Pb);
-  if (Pc!=Pa, error("ffmap"));
-  if (ffmap(r,b)!=[],error("ffmap"));
-  Qa = [Pa,x^2+x*Pa+1];
-  Qb = ffmap(m,Qa);
-  Qc = ffmap(r,Qb);
-  if (Qc!=Qa, error("ffmap"));
+  if (ffmap(rm,Pb)!=Pa, error("ffmap"));
+  if (ffmap(rm,b)!=[],error("ffmap"));
+  my(Qa = [Pa,x^2+x*Pa+1], Qb = ffmap(m,Qa), Qc = ffmap(n,Qb));
+  if (ffmap(rm,Qb)!=Qa,error("ffmap: rm"));
+  if (ffmap(nm,Qa)!=Qc,error("ffmap: n o m"));
+  if (ffmap(rmm,Qa)!=Qa,error("ffmap: rm o m"));
+  if (ffmap(mrm,Qb)!=Qb,error("ffmap: m o m"));
+  if (ffmap(rmrn,Qc)!=Qa,error("ffmap: rm o rn"));
+  if (ffmap(rnk,Qa)!=ffmap(rn,ffmap(k,Qa)),error("ffmap: rn o k"));
+  if (ffmap(rkn,Qb)!=ffmap(rk,ffmap(n,Qb)),error("ffmap: rk o n"));
+  iferr(ffcompomap(m,n),E,print(E));
+  iferr(ffcompomap(rn,rm),E,print(E));
+  iferr(ffcompomap(m,rn),E,print(E));
+  iferr(ffcompomap(rm,n),E,print(E));
 }
 default(echo,1);
-test(2,10,3)
-test(3,10,2)
-test(nextprime(2^100),3,3)
+test(2,5,5,3)
+test(3,10,2,3)
+test(nextprime(2^100),3,3,2)
 
 /* error */
 ffgen(x^2+x+Mod(1,3))
