@@ -2467,3 +2467,103 @@ ffnbirred0(GEN p, long n, long flag)
   }
   return NULL; /* LCOV_EXCL_LINE */
 }
+
+static void
+checkmap(GEN m, const char *s)
+{
+  if (typ(m)!=t_VEC || lg(m)!=3 || typ(gel(m,1))!=t_FFELT)
+    pari_err_TYPE(s,m);
+}
+
+GEN
+ffembed(GEN a, GEN b)
+{
+  pari_sp av = avma;
+  GEN p, Ta, Tb, g, r = NULL;
+  if (typ(a)!=t_FFELT)
+    pari_err_TYPE("ffembed",a);
+  if (typ(b)!=t_FFELT)
+    pari_err_TYPE("ffembed",b);
+  p = FF_p_i(a); g = FF_gen(a);
+  if (!equalii(p, FF_p_i(b)))
+    pari_err_MODULUS("ffembed",a,b);
+  Ta = FF_mod(a);
+  Tb = FF_mod(b);
+  if (degpol(Tb)%degpol(Ta)!=0)
+    pari_err_DOMAIN("ffembed","a","in a subfield of",b,a);
+  r = gel(FFX_roots(Ta, b), 1);
+  return gerepilecopy(av, mkvec2(g,r));
+}
+
+GEN
+ffinvmap(GEN m)
+{
+  pari_sp av = avma;
+  long i, l;
+  GEN T, F, a, g, r, f = NULL;
+  checkmap(m, "ffinvmap");
+  a = gel(m,1); r = gel(m,2);
+  g = FF_gen(a);
+  T = FF_mod(r);
+  F = gel(FFX_factor(T, a), 1);
+  l = lg(F);
+  for(i=1; i<l; i++)
+  {
+    GEN s = FFX_rem(FF_to_FpXQ_i(r), gel(F, i), a);
+    if (degpol(s)==0 && gequal(constant_term(s),g))
+      { f = gel(F, i); break; }
+  }
+  if (f==NULL) pari_err_TYPE("ffinvmap", m);
+  if (degpol(f)==1) f = FF_neg_i(gel(f,2));
+  return gerepilecopy(av, mkvec2(FF_gen(r),f));
+}
+
+static GEN
+ffeltmap_i(GEN m, GEN x)
+{
+   GEN r = gel(m,2), a = NULL, p = NULL;
+   if (!FF_samefield(x, gel(m,1)))
+     pari_err_DOMAIN("ffmap","m","domain do not contain", x, r);
+   if (typ(r)==t_FFELT)
+     return FF_map(r, x);
+   else if (typ(r)==t_POL && degpol(r) >= 1
+            && RgX_is_FpXQX(r,&a,&p) && a && typ(a)==t_FFELT)
+     return FFX_preimage(x, r, a);
+   else pari_err_TYPE("ffmap", m);
+   return NULL; /* LCOV_EXCL_LINE */
+}
+
+static GEN
+ffmap_i(GEN m, GEN x)
+{
+  GEN y;
+  long i, lx, tx = typ(x);
+  switch(tx)
+  {
+    case t_FFELT:
+      return ffeltmap_i(m, x);
+    case t_POL: case t_RFRAC: case t_SER:
+    case t_VEC: case t_COL: case t_MAT:
+      y = cgetg_copy(x, &lx);
+      for (i=1; i<lontyp[tx]; i++) y[i] = x[1];
+      for (i=lontyp[tx]; i<lx; i++)
+      {
+        GEN yi = ffmap_i(m, gel(x,i));
+        if (!yi) return NULL;
+        gel(y,i) = yi;
+      }
+      return y;
+  }
+  return gcopy(x);
+}
+
+GEN
+ffmap(GEN m, GEN x)
+{
+  pari_sp ltop = avma;
+  GEN y;
+  checkmap(m, "ffmap");
+  y = ffmap_i(m, x);
+  if (y) return y;
+  avma = ltop; return cgetg(1,t_VEC);
+}

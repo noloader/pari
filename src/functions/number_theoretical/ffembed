@@ -1,0 +1,16 @@
+Function: ffembed
+Section: number_theoretical
+C-Name: ffembed
+Prototype: GG
+Help: ffembed(a, b): return a map that define an embedding from the definition
+ field of a to the definition field of b.
+Doc: return a map that define an embedding from the definition field of $a$ to
+ the definition field of $b$.
+ \bprog
+ ? a = ffgen([3,5],'a);
+ ? b = ffgen([3,10],'b);
+ ? m = ffembed(a, b);
+ ? A = ffmap(m, a);
+ ? minpoly(A) == minpoly(a)
+ %5 = 1
+ \eprog
