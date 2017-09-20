@@ -136,6 +136,11 @@ test(p=3,n=10,d=2,e=2)=
   iferr(ffcompomap(rn,rm),E,print(E));
   iferr(ffcompomap(m,rn),E,print(E));
   iferr(ffcompomap(rm,n),E,print(E));
+  R=factor(b.mod*a^0)[1,1];
+  [d,l]=ffextend(a,R);
+  if(subst(ffmap(l,R),'b,d),error("ffextend"));
+  if(minpoly(ffmap(l,a))!=minpoly(a),error("ffextend"));
+  iferr(ffextend(a,x^2+b*x+1),E,print(E));
 }
 default(echo,1);
 test(2,5,5,3)

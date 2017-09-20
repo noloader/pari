@@ -2496,6 +2496,26 @@ ffembed(GEN a, GEN b)
 }
 
 GEN
+ffextend(GEN a, GEN P, long v)
+{
+  pari_sp av = avma;
+  long n;
+  GEN p, T, R, g, m;
+  if (typ(a)!=t_FFELT)
+    pari_err_TYPE("ffextend",a);
+  T = FF_1(a); p = FF_p_i(a);
+  if (typ(P)!=t_POL || !RgX_is_FpXQX(P,&T,&p))
+    pari_err_TYPE("ffextend", P);
+  if (!FF_samefield(a, T))
+    pari_err_MODULUS("ffextend",a,T);
+  if (v < 0) v = varn(P);
+  n = FF_f(T) * degpol(P); R = ffinit(p, n, v); g = ffgen(R, v);
+  m = ffembed(a, g);
+  R = FFX_roots(ffmap(m, P),g);
+  return gerepilecopy(av, mkvec2(gel(R,1), m));
+}
+
+GEN
 ffinvmap(GEN m)
 {
   pari_sp av = avma;
