@@ -913,4 +913,10 @@ x
   ***   at top-level: [1]/0
   ***                    ^--
   *** _/_: impossible inverse in gdiv: 0.
+Mod(Mod(2, 3)*a + Mod(1, 3), Mod(1, 3)*a^3 + Mod(1, 3)*a^2 + Mod(1, 3)*a + M
+od(2, 3))*x^4 + Mod(Mod(2, 3)*a^2 + Mod(2, 3), Mod(1, 3)*a^3 + Mod(1, 3)*a^2
+ + Mod(1, 3)*a + Mod(2, 3))*x^3 + Mod(Mod(2, 3)*a, Mod(1, 3)*a^3 + Mod(1, 3)
+*a^2 + Mod(1, 3)*a + Mod(2, 3))*x^2 + Mod(Mod(1, 3)*a^2 + Mod(2, 3), Mod(1, 
+3)*a^3 + Mod(1, 3)*a^2 + Mod(1, 3)*a + Mod(2, 3))*x + Mod(Mod(1, 3)*a, Mod(1
+, 3)*a^3 + Mod(1, 3)*a^2 + Mod(1, 3)*a + Mod(2, 3))
 Total time spent: 4

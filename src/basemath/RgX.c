@@ -1599,8 +1599,8 @@ RgX_div_by_X_x(GEN a, GEN x, GEN *r)
  *   if pr = ONLY_DIVIDES return quotient if division is exact, else NULL
  *   if pr != NULL set *pr to remainder, as the last object on stack */
 /* assume, typ(x) = typ(y) = t_POL, same variable */
-GEN
-RgX_divrem(GEN x, GEN y, GEN *pr)
+static GEN
+RgX_divrem_i(GEN x, GEN y, GEN *pr)
 {
   pari_sp avy, av, av1;
   long dx,dy,dz,i,j,sx,lr;
@@ -1784,6 +1784,13 @@ RgX_divrem(GEN x, GEN y, GEN *pr)
     GEN *gptr[2]; gptr[0]=&z; gptr[1]=&rem;
     gerepilemanysp(av,avy,gptr,2); *pr = rem; return z;
   }
+}
+
+GEN
+RgX_divrem(GEN x, GEN y, GEN *pr)
+{
+  if (pr == ONLY_REM) return RgX_rem(x, y);
+  return RgX_divrem_i(x, y, pr);
 }
 
 /* x and y in (R[Y]/T)[X]  (lifted), T in R[Y]. y preferably monic */
@@ -2766,6 +2773,52 @@ RgX_sqr_QXQX(GEN x, GEN T)
   return gerepileupto(av, Kronecker_to_mod(r, T));
 }
 
+static GEN
+RgX_rem_FpX(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flx_rem(RgX_to_Flx(x, pp),
+                                  RgX_to_Flx(y, pp), pp));
+  }
+  else
+    r = FpX_rem(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpX_mod(p, varn(x)); }
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgX_rem_QXQX(GEN x, GEN y, GEN pol)
+{
+  pari_sp av = avma;
+  GEN r;
+  r = RgXQX_rem(liftpol_shallow(x), liftpol_shallow(y), pol);
+  return gerepilecopy(av, QXQX_to_mod_shallow(r, pol));
+}
+static GEN
+RgX_rem_FpXQX(GEN x, GEN y, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  GEN T = RgX_to_FpX(pol, p);
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    GEN Tp = ZX_to_Flx(T, pp);
+    r = FlxX_to_ZXX(FlxqX_rem(RgX_to_FlxqX(x, Tp, pp),
+                              RgX_to_FlxqX(y, Tp, pp), Tp, pp));
+  }
+  else
+    r = FpXQX_rem(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p), T, p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpXQX_mod(p, pol, varn(x)); }
+  return gerepileupto(av, FpXQX_to_mod(r, T, p));
+}
+
 #define code(t1,t2) ((t1 << 6) | t2)
 static GEN
 RgX_mul_fast(GEN x, GEN y)
@@ -2809,6 +2862,28 @@ RgX_sqr_fast(GEN x)
     default:       return NULL;
   }
 }
+
+static GEN
+RgX_rem_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type2(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return equali1(leading_term(y)) ? ZX_rem(x,y): NULL;
+    case t_FRAC:   return RgX_is_ZX(y) && equali1(leading_term(y)) ? QX_ZX_rem(x,y): NULL;
+    case t_FFELT:  return FFX_rem(x, y, pol);
+    case t_INTMOD: return RgX_rem_FpX(x, y, p);
+    case code(t_POLMOD, t_INT):
+    case code(t_POLMOD, t_FRAC):
+                   return RgX_rem_QXQX(x, y, pol);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_rem_FpXQX(x, y, pol, p);
+    default:       return NULL;
+  }
+}
+
 #undef code
 
 GEN
@@ -2824,6 +2899,14 @@ RgX_sqr(GEN x)
 {
   GEN z = RgX_sqr_fast(x);
   if (!z) z = RgX_sqr_i(x);
+  return z;
+}
+
+GEN
+RgX_rem(GEN x, GEN y)
+{
+  GEN z = RgX_rem_fast(x, y);
+  if (!z) z = RgX_divrem_i(x, y, ONLY_REM);
   return z;
 }
 

@@ -263,7 +263,7 @@ error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 16:
 [1, Mod(y, y^3 - 21)]~
-Mod(Mod(y, y^3 - 21)*x + Mod(-20, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+Mod(Mod(y, y^3 - 21)*x - 20, x^2 + Mod(-y, y^3 - 21))
 error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
 error("incorrect type in rnfeltreltoabs (t_COL).")
 error("incorrect type in nf_to_scalar_or_basis (t_COL).")
@@ -846,4 +846,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfislocalcyclo(rnfinit(K,x^6-y+1))
   ***                 ^-----------------------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
-Total time spent: 576
+Total time spent: 568

@@ -2096,8 +2096,6 @@ RgX_renormalize(GEN x) { return RgX_renormalize_lg(x, lg(x)); }
 INLINE GEN
 RgX_div(GEN x, GEN y) { return RgX_divrem(x,y,NULL); }
 INLINE GEN
-RgX_rem(GEN x, GEN y) { return RgX_divrem(x,y,ONLY_REM); }
-INLINE GEN
 RgXQX_div(GEN x, GEN y, GEN T) { return RgXQX_divrem(x,y,T,NULL); }
 INLINE GEN
 RgXQX_rem(GEN x, GEN y, GEN T) { return RgXQX_divrem(x,y,T,ONLY_REM); }

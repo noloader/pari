@@ -1138,9 +1138,9 @@ x^2 + Mod(-y + 13, y^2 - 5)
 
 [-1, -1, 0, 0]~
 
-[Mod(x + 1, x^2 + 1) Mod(Mod(1, y)*x + Mod(-1, y), x^2 + 1)]
+[Mod(x + 1, x^2 + 1)  Mod(x - 1, x^2 + 1)]
 
-[Mod(x + 1, x^2 + 1)                   Mod(-x + 1, x^2 + 1)]
+[Mod(x + 1, x^2 + 1) Mod(-x + 1, x^2 + 1)]
 
 [8, -8, 0, 0]~
 [0, 1, -1, 0]~
@@ -2766,4 +2766,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
   ***                 ^----------------------------------------------
   *** nfgrunwaldwang: incorrect priority in nfgrunwaldwang: variable x >= x
-Total time spent: 12640
+Total time spent: 14400

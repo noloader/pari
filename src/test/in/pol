@@ -40,8 +40,9 @@ test()=
    subst(P,x,x+y)*Mod(Mod(1,11),Q*Mod(1,11))
   ];
   for(i=1,#V,
-    my(R=V[i],R2=R^2,R3=R*(R+1)-R);
-    if(R2!=R3,error(R));
+    my(R=V[i],R2=R^2);
+    if(R2!=R*(R+1)-R,error(R));
+    if((R+1)^2%R!=1,error(R));
     print(i,":" R2));
   print("done");
 }
