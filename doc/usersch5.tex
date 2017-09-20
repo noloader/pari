@@ -5015,6 +5015,10 @@ returns the \kbd{FqX} $Q(x,Y)$, where $Y$ is the main variable of $Q$.
 \fun{GEN}{FpXQX_red}{GEN z, GEN T, GEN p} \kbd{z} a \typ{POL} whose
 coefficients are \kbd{ZX}s or \typ{INT}s, reduce them to \kbd{FpXQ}s.
 
+\fun{GEN}{FpXQX_to_mod}{GEN P, GEN T, GEN p}
+$P$ being a \kbd{FpXQX}, converts each coefficient to a \typ{POLMOD} with
+\typ{INTMOD} coefficients.
+
 \fun{GEN}{FpXQX_mul}{GEN x, GEN y, GEN T, GEN p}
 
 \fun{GEN}{Kronecker_to_FpXQX}{GEN z, GEN T, GEN p}. Let $n = \deg T$ and let

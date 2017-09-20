@@ -258,6 +258,23 @@ FpXQX_red(GEN z, GEN T, GEN p)
   return FpXQX_renormalize(res,l);
 }
 
+/* z in Z[X], return z * Mod(1,p), normalized*/
+GEN
+FpXQX_to_mod(GEN z, GEN T, GEN p)
+{
+  long i,l = lg(z);
+  GEN x = cgetg(l, t_POL);
+  x[1] = z[1];
+  if (l == 2) return x;
+  T = FpX_to_mod(T, p);
+  for (i=2; i<l; i++)
+  {
+    GEN zi = gel(z,i);
+    gel(x,i) = typ(zi) == t_POL? mkpolmod(FpX_to_mod(zi, p), T): icopy(zi);
+  }
+  return normalizepol_lg(x,l);
+}
+
 static int
 ZXX_is_ZX_spec(GEN a,long na)
 {
