@@ -2524,6 +2524,30 @@ F2xqX_gcd(GEN a, GEN b, GEN T)
   avma = av; return a;
 }
 
+GEN
+F2xqX_extgcd(GEN a, GEN b, GEN T,  GEN *ptu, GEN *ptv)
+{
+  pari_sp av=avma;
+  GEN u,v,d,d1,v1;
+  long vx = varn(a);
+  d = a; d1 = b;
+  v = pol_0(vx); v1 = pol1_F2xX(vx, get_F2x_var(T));
+  while (signe(d1))
+  {
+    GEN r, q = F2xqX_divrem(d, d1, T, &r);
+    v = F2xX_add(v,F2xqX_mul(q,v1,T));
+    u=v; v=v1; v1=u;
+    u=r; d=d1; d1=u;
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"F2xqX_extgcd (d = %ld)",degpol(d));
+      gerepileall(av,5, &d,&d1,&u,&v,&v1);
+    }
+  }
+  if (ptu) *ptu = F2xqX_div(F2xX_add(d,F2xqX_mul(b,v, T)), a, T);
+  *ptv = v; return d;
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                             F2xqXQ                                **/

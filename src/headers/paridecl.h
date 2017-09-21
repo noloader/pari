@@ -155,6 +155,7 @@ GEN     F2xqX_F2xqXQ_eval(GEN Q, GEN x, GEN S, GEN T);
 GEN     F2xqX_F2xqXQV_eval(GEN P, GEN V, GEN S, GEN T);
 GEN     F2xqX_divrem(GEN x, GEN y, GEN T, GEN *pr);
 GEN     F2xqX_gcd(GEN a, GEN b, GEN T);
+GEN     F2xqX_extgcd(GEN a, GEN b, GEN T,  GEN *ptu, GEN *ptv);
 GEN     F2xqX_get_red(GEN S, GEN T);
 GEN     F2xqX_invBarrett(GEN T, GEN Q);
 GEN     F2xqX_mul(GEN x, GEN y, GEN T);
