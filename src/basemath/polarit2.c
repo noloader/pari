@@ -3213,8 +3213,8 @@ RgX_sturmpart(GEN x, GEN ab)
 /**                                                                   **/
 /***********************************************************************/
 /* assume typ(x) = typ(y) = t_POL */
-GEN
-RgXQ_inv(GEN x, GEN y)
+static GEN
+RgXQ_inv_i(GEN x, GEN y)
 {
   long vx=varn(x), vy=varn(y);
   pari_sp av;
@@ -3351,4 +3351,66 @@ newtonpoly(GEN x, GEN p)
     while (ind<=b) { affsi(u1,num); gel(y,ind++) = gdivgs(num,u2); }
   }
   pari_free(vval); return y;
+}
+
+static GEN
+RgXQ_inv_FpXQ(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flxq_inv(RgX_to_Flx(x, pp),
+                                   RgX_to_Flx(y, pp), pp));
+  }
+  else
+    r = FpXQ_inv(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgXQ_inv_FpXQXQ(GEN x, GEN y, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  GEN T = RgX_to_FpX(pol, p);
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    GEN Tp = ZX_to_Flx(T, pp);
+    r = FlxX_to_ZXX(FlxqXQ_inv(RgX_to_FlxqX(x, Tp, pp),
+                               RgX_to_FlxqX(y, Tp, pp), Tp, pp));
+  }
+  else
+    r = FpXQXQ_inv(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p), T, p);
+  return gerepileupto(av, FpXQX_to_mod(r, T, p));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgXQ_inv_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type2(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return QXQ_inv(x,y);
+    case t_FRAC:   return RgX_is_ZX(y)? QXQ_inv(x,y): NULL;
+    case t_FFELT:  return FFXQ_inv(x, y, pol);
+    case t_INTMOD: return RgXQ_inv_FpXQ(x, y, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgXQ_inv_FpXQXQ(x, y, pol, p);
+    default:       return NULL;
+  }
+}
+#undef code
+
+GEN
+RgXQ_inv(GEN x, GEN y)
+{
+  GEN z = RgXQ_inv_fast(x, y);
+  if (!z) z = RgXQ_inv_i(x, y);
+  return z;
 }

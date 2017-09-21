@@ -2049,7 +2049,6 @@ QXQ_inv(GEN A, GEN B)
   pari_timer ti;
   if (is_scalar_t(typ(A))) return scalarpol(ginv(A), varn(B));
   /* A a QX, B a ZX */
-  if (degpol(A) < 15) return RgXQ_inv(A,B);
   A = Q_primitive_part(A, &D);
   /* A, B in Z[X] */
   init_modular_small(&S);

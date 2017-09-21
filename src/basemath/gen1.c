@@ -3173,32 +3173,7 @@ inv_polmod(GEN T, GEN x)
     if (lg(T) == 5) /* quadratic fields */
       a = RgX_Rg_div(quad_polmod_conj(x,T), quad_polmod_norm(x,T));
     else
-    {
-      GEN p = NULL;
-      if (RgX_is_FpX(T, &p) && RgX_is_FpX(x, &p) && p)
-      {
-        T = RgX_to_FpX(T, p); x = RgX_to_FpX(x, p);
-        if (lgefint(p) == 3)
-        {
-          ulong pp = p[2];
-          a = Flxq_inv(ZX_to_Flx(x, pp), ZX_to_Flx(T, pp), pp);
-          a = Flx_to_ZX(a);
-        }
-        else
-          a = FpXQ_inv(x, T, p);
-        a = FpX_to_mod(a, p);
-        a = gerepileupto(av, a);
-      }
-      else if (RgX_is_ZX(T) && RgX_is_QX(x))
-      {
-        avma = av;
-        a = QXQ_inv(x, T);
-      }
-      else {
-        avma = av;
-        a = RgXQ_inv(x, T);
-      }
-    }
+      a = RgXQ_inv(x, T);
   }
   gel(z,2) = a; return z;
 }
