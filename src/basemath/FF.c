@@ -1560,8 +1560,9 @@ FFX_zero(GEN ff, long v)
   return r;
 }
 
-GEN
-FFX_mul(GEN Pf, GEN Qf, GEN ff)
+static GEN
+FFX_wrap2(GEN Pf, GEN Qf, GEN ff, GEN FpXQX(GEN, GEN, GEN, GEN),
+          GEN F2xqX(GEN, GEN, GEN), GEN FlxqX(GEN, GEN, GEN, ulong))
 {
   pari_sp av = avma;
   GEN r,T,p;
@@ -1572,17 +1573,21 @@ FFX_mul(GEN Pf, GEN Qf, GEN ff)
   switch(ff[1])
   {
   case t_FF_FpXQ:
-    r = FpXQX_mul(P, Q, T, p);
+    r = FpXQX(P, Q, T, p);
     break;
   case t_FF_F2xq:
-    r = F2xqX_mul(P, Q, T);
+    r = F2xqX(P, Q, T);
     break;
   default:
-    r = FlxqX_mul(P, Q, T, pp);
+    r = FlxqX(P, Q, T, pp);
   }
   if (!lgpol(r)) { avma = av; return FFX_zero(ff, varn(Pf)); }
   return gerepilecopy(av, raw_to_FFX(r, ff));
 }
+
+GEN
+FFX_mul(GEN Pf, GEN Qf, GEN ff)
+{ return FFX_wrap2(Pf, Qf, ff, FpXQX_mul, F2xqX_mul, FlxqX_mul); }
 
 GEN
 FFX_sqr(GEN Pf, GEN ff)
@@ -1609,27 +1614,7 @@ FFX_sqr(GEN Pf, GEN ff)
 
 GEN
 FFX_rem(GEN Pf, GEN Qf, GEN ff)
-{
-  pari_sp av = avma;
-  GEN r,T,p;
-  ulong pp;
-  GEN P = FFX_to_raw(Pf, ff);
-  GEN Q = FFX_to_raw(Qf, ff);
-  _getFF(ff,&T,&p,&pp);
-  switch(ff[1])
-  {
-  case t_FF_FpXQ:
-    r = FpXQX_rem(P, Q, T, p);
-    break;
-  case t_FF_F2xq:
-    r = F2xqX_rem(P, Q, T);
-    break;
-  default:
-    r = FlxqX_rem(P, Q, T, pp);
-  }
-  if (!lgpol(r)) { avma = av; return FFX_zero(ff, varn(Pf)); }
-  return gerepilecopy(av, raw_to_FFX(r, ff));
-}
+{ return FFX_wrap2(Pf, Qf, ff, FpXQX_rem, F2xqX_rem, FlxqX_rem); }
 
 GEN
 FFX_factor(GEN Pf, GEN ff)
