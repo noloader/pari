@@ -24,6 +24,31 @@ matcompanion(2*x^2+1)
 serlaplace(1+x+x^2)
 serlaplace(x^2+x^3)
 
+test()=
+{
+  my(P,a,V);
+  P=x^4+7*x^3+12*x+5;Q=7*y^3-y-1;Q1=y^3-y-1;
+  a=ffgen([11,5],'a);
+  V=[P,
+   x^4+7/2*x^3+12/7*x+5/4,
+   P*Mod(1,11),
+   subst(P,x,x+a),
+   subst(P,x,x+y)*Mod(1,Q1),
+   subst(P,x,x+y)*Mod(1,Q),
+   subst(P,x,x+y/3)*Mod(1,Q1),
+   subst(P,x,x+y/3)*Mod(1,Q),
+   subst(P,x,x+y)*Mod(Mod(1,11),Q*Mod(1,11))
+  ];
+  for(i=1,#V,
+    my(R=V[i],R2=R^2,R3=R*(R+1)-R);
+    if(R2!=R3,error(R));
+    print(i,":" R2));
+  print("done");
+}
+test()
+
+A=Mod(-6,y^2-2)*x+Mod(48*z+60,y^2-2);B=Mod(1,y^2-2)*x+Mod(10,y^2-2); A*B
+
 \\#1651
 f1=(x-1)/(x*x-x);
 type(subst(1/f1,x,1))
