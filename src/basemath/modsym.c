@@ -756,6 +756,16 @@ Qevproj_apply0(GEN T, GEN pro)
   GEN iM = gel(pro,2), perm = gel(pro,4);
   return vec_Q_primpart(ZM_mul(iM, rowpermute(T,perm)));
 }
+/* T a ZC or ZM */
+GEN
+Qevproj_down(GEN T, GEN pro)
+{
+  GEN iM = gel(pro,2), ciM = gel(pro,3), perm = gel(pro,4);
+  if (typ(T) == t_COL)
+    return RgC_Rg_div(ZM_ZC_mul(iM, vecpermute(T,perm)), ciM);
+  else
+    return RgM_Rg_div(ZM_mul(iM, rowpermute(T,perm)), ciM);
+}
 
 static GEN
 Qevproj_star(GEN W, GEN H)

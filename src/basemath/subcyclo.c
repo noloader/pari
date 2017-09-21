@@ -162,29 +162,30 @@ long
 znstar_conductor_bits(GEN bits)
 {
   pari_sp av = avma;
-  long i, cnd = bits[1];
-  GEN F = factoru(cnd), P = gel(F,1), E = gel(F,2);
+  long i, f = 1, cnd0 = bits[1];
+  GEN F = factoru(cnd0), P = gel(F,1), E = gel(F,2);
   for (i = lg(P)-1; i > 0; i--)
   {
-    long p = P[i], e = E[i];
+    long p = P[i], e = E[i], cnd = cnd0;
     for (  ; e >= 2; e--)
     {
       long q = cnd / p;
-      if (!F2v_coeff(bits, 1+q)) break;
+      if (!F2v_coeff(bits, 1 + q)) break;
       cnd = q;
     }
     if (e == 1)
     {
-      if (p == 2) cnd >>= 1;
+      if (p == 2) e = 0;
       else
       {
         long h, g = pgener_Fl(p), q = cnd / p;
         h = Fl_mul(g-1, Fl_inv(q % p, p), p); /* 1+h*q = g (mod p) */
-        if (F2v_coeff(bits, 1+h*q)) cnd = q;
+        if (F2v_coeff(bits, 1 + h*q)) e = 0;
       }
     }
+    if (e) f *= upowuu(p, e);
   }
-  avma = av; return cnd;
+  avma = av; return f;
 }
 long
 znstar_conductor(GEN H) { return znstar_conductor_bits(gel(H,3)); }

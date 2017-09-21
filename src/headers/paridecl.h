@@ -4692,6 +4692,7 @@ GEN     zetahurwitz(GEN s, GEN x, long prec);
 /* modsym.c */
 GEN     Qevproj_apply(GEN T, GEN pro);
 GEN     Qevproj_apply_vecei(GEN T, GEN pro, long k);
+GEN     Qevproj_down(GEN T, GEN pro);
 GEN     Qevproj_init(GEN M);
 GEN     RgX_act_Gl2Q(GEN g, long k);
 GEN     RgX_act_ZGl2Q(GEN z, long k);

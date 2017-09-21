@@ -7790,6 +7790,10 @@ on the basis given by the columns of $M$.
 \tet{Qevproj_apply}, return only the image of the $k$-th basis vector $M[k]$
 (still on the basis given by the columns of $M$).
 
+\fun{GEN}{Qevproj_down}{GEN T, GEN pro} given a \kbd{ZC} (resp.~a \kbd{ZM})
+$T$ representing an element (resp.~a vector of elements) in the subspace $V$
+return a \kbd{QC} (resp.~a \kbd{QM}) $U$ such that $T = MU$.
+
 \subsec{\kbd{zv}, \kbd{zm}}
 
 \fun{GEN}{zv_neg}{GEN x} return $-x$. No check for overflow is done, which

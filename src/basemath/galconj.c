@@ -2504,22 +2504,20 @@ conjclasses_count(GEN conj, long nb)
 {
   long i, l = lg(conj);
   GEN c = zero_zv(nb);
-  for(i=1; i<l; i++)
-    c[conj[i]]++;
+  for(i = 1; i < l; i++) c[conj[i]]++;
   return c;
 }
+/* expand conjugacy classes */
 static GEN
 conjclasses_expand(GEN elts, GEN conj, long nb)
 {
-  GEN c = conjclasses_count(conj, nb);
+  GEN c = conjclasses_count(conj, nb), e = cgetg(nb+1, t_VEC);
   long i, l = lg(conj);
-  GEN e = cgetg(nb+1, t_VEC);
-  for(i=1; i<=nb; i++)
-    gel(e,i) = cgetg(c[i]+1, t_VEC);
-  for(i=1; i<l; i++)
+  for(i = 1; i <= nb; i++) gel(e,i) = cgetg(c[i]+1, t_VEC);
+  for(i = 1; i < l; i++)
   {
     long ci = conj[i];
-    gmael2(e, ci, c[ci]) = gel(elts, i);
+    gmael(e, ci, c[ci]) = gel(elts, i);
     c[ci]--;
   }
   return e;
@@ -2572,85 +2570,173 @@ galoisidentify(GEN gal)
   avma = av; return mkvec2s(card, idx);
 }
 
+/* convert {0,1}-t_VECSMALL to bitfield */
 static GEN
-groupelts_chartable(GEN elts)
+zv_to_bits(GEN H)
 {
-  pari_sp av = avma;
-  GEN al, cc, conjclass, rep, ctp, ct0, dec, jg, f;
-  long n, i, j, k, l, expo, nbcl;
-  ulong p, pov2, ze;
-  const long var = 1;
-  n = lg(elts)-1;
-  /* exponent of G */
-  expo = groupelts_exponent(elts);
-  p = unextprime(2*n+1);
-  if(expo>1) while (p%expo!=1) p = unextprime(p+1);
-  /* compute character table modulo p: idempotents of Z(KG) */
-  al = alggroupcenter(elts,utoi(p),&cc);
-  elts = gel(cc,1);
+  long i, l = lg(H);
+  GEN B = zero_F2v(l-1);
+  for (i = 1; i < l; i++)
+    if (H[i]) F2v_set(B,i);
+  return B;
+}
+static GEN
+Qevproj_RgX(GEN c, long d, GEN pro)
+{ return RgV_to_RgX(Qevproj_down(RgX_to_RgC(c,d), pro), varn(c)); }
+
+static GEN
+cc_chartable(GEN cc)
+{
+  GEN al, elts, conjclass, rep, ctp, ct, dec, id, vjg, H, vord, operm;
+  long i, j, k, f, l, expo, lcl, n;
+  ulong p, pov2;
+
+  elts = gel(cc,1); n = lg(elts)-1;
+  if (n == 1) return mkvec2(mkmat(mkcol(gen_1)), gen_1);
   conjclass = gel(cc,2);
   rep = gel(cc,3);
-  nbcl = lg(rep)-1;
+  lcl = lg(rep);
+  vjg = cgetg(lcl, t_VEC);
+  vord = cgetg(lcl,t_VECSMALL);
+  id = identity_perm(lg(gel(elts,1))-1);
+  expo = 1;
+  for(j=1;j<lcl;j++)
+  {
+    GEN jg, h = id, g = gel(elts,rep[j]);
+    long o;
+    vord[j] = o = perm_order(g);
+    expo = clcm(expo, o);
+    gel(vjg,j) = jg = cgetg(o+1,t_VECSMALL);
+    for (l=0; l<o; l++)
+    { /*jg[l+1] = index of conjugacy class of g^l */
+      jg[l+1] = conjclass[vecvecsmall_search(elts,h,0)];
+      h = perm_mul(h, g);
+    }
+  }
+  /* would sort conjugacy classes by inc. order */
+  operm = vecsmall_indexsort(vord);
+
+  /* expo > 1, exponent of G */
+  p = unextprime(2*n+1);
+  while (p%expo != 1) p = unextprime(p+1);
+  /* compute character table modulo p: idempotents of Z(KG) */
+  al = conjclasses_algcenter(cc, utoipos(p));
   dec = algsimpledec(al,1);
-  ctp = cgetg(nbcl+1,t_VEC);
-  for(i=1; i<=nbcl; i++)
+  ctp = cgetg(lcl,t_VEC);
+  for(i=1; i<lcl; i++)
   {
     GEN e = ZV_to_Flv(gmael3(dec,i,3,1), p); /*(1/n)[(dim chi)chi(g): g in G]*/
     ulong d = usqrt(Fl_mul(e[1], n, p)); /* = chi(1) <= sqrt(n) < sqrt(p) */
-    gel(ctp,i) = Flv_Fl_mul(e,Fl_div(n,d,p), p);
+    gel(ctp,i) = Flv_Fl_mul(e,Fl_div(n,d,p), p); /*[chi(g): g in G]*/
   }
-  ze = Fl_inv(Fl_powu(pgener_Fl(p),(p-1)/expo, p), p);
-
-  /* lift character table to Z[zeta_e] */
-  f = polcyclo(expo, var);
-  pov2 = p>>1;
-  jg = new_chunk(expo);
-  ct0 = cgetg(nbcl+1, t_MAT);
-  for(j=1;j<=nbcl;j++)
+  /* Find minimal f such that table is defined over Q(zeta(f)): the conductor
+   * of the class field Q(\zeta_e)^H defined by subgroup
+   * H = { k in (Z/e)^*: g^k ~ g, for all g } */
+  H = coprimes_zv(expo);
+  for (k = 2; k < expo; k++)
   {
-    ulong zek = 1;
-    GEN g = gel(elts,rep[j]);
-    GEN h = identity_perm(lg(g)-1);
-    for (l=0; l<expo; l++)
+    if (!H[k]) continue;
+    for (j = 2; j < lcl; j++) /* skip g ~ 1 */
+      if (umael(vjg,j,(k % vord[j])+1) != umael(vjg,j,2)) { H[k] = 0; break; }
+  }
+  f = znstar_conductor_bits(zv_to_bits(H));
+  /* lift character table to Z[zeta_f] */
+  pov2 = p>>1;
+  ct = cgetg(lcl, t_MAT);
+  for (j=1; j<lcl; j++) gel(ct,j) = cgetg(lcl,t_COL);
+  if (f == 1)
+  { /* rational representation */
+    for(j=1; j<lcl; j++)
     {
-      jg[l] = conjclass[vecsearch(elts,h,NULL)];
-      h = perm_mul(h, g);
-    }
-    gel(ct0, j) = cgetg(nbcl+1, t_COL);
-    for(i=1;i<=nbcl;i++)
-    {
-      GEN chip = gel(ctp,i);
-      GEN cij = cgetg(expo+2, t_POL);
-      cij[1] = evalvarn(var) | evalsigne(1);
-      /* chi(g) = sum_{k=0}^{e-1} a_k ze^k
-       * a_k = 1/e sum_{l=0}^{e-1} chi(g^l) ze^{-k*l} */
-      for (k=0; k<expo; k++)
+      GEN jg = gel(vjg,j); /* jg[l+1] = class of g^l */
+      long t = lg(jg) > 2? jg[2]: jg[1];
+      for(i=1; i<lcl; i++)
       {
-        ulong a = 0, z = 1;
-        for (l=0; l<expo; l++)
-        {
-          a = Fl_add(a, Fl_mul(uel(chip,jg[l]), z, p), p);
-          z = Fl_mul(z, zek, p);
-        }
-        a = Fl_div(a, expo, p);
-        gel(cij,k+2) = stoi(Fl_center(a, p, pov2));
-        zek = Fl_mul(zek, ze, p);
+        GEN cp = gel(ctp,i); /* cp[i] = chi(g_i) mod \P */
+        gcoeff(ct,j,i) = stoi(Fl_center(cp[t], p, pov2));
       }
-      (void) ZX_renormalize(cij, expo+2);
-      gcoeff(ct0,i,j) = ZX_rem(cij, f);
     }
   }
-  ct0 = gen_sort(shallowtrans(ct0),(void*)cmp_universal,cmp_nodata);
-  for(i=1; !vec_isconst(gel(ct0, i)); i++) continue;
-  if (i>1) swap(gel(ct0,1),gel(ct0,i));
-  return gerepilecopy(av, mkvec2(ct0,stoi(expo)));
-}
+  else
+  {
+    hashtable *H = hash_create_ulong(p, 1);
+    const long var = 1;
+    ulong ze = Fl_powu(pgener_Fl(p),(p-1)/expo, p); /* seen as zeta_e^(-1) */
+    GEN vze = Fl_powers(ze, expo-1, p); /* vze[i] = ze^(i-1)/f */
+    GEN T = polcyclo(expo, var), pro = NULL;
+    long phie = degpol(T);
+    if (f != expo)
+    {
+      ulong phif = eulerphiu(f);
+      GEN zf = ZX_rem(pol_xn(expo/f,var), T), zfj = zf;
+      GEN M = cgetg(phif+1, t_MAT);
+      gel(M,1) = col_ei(phie,1);
+      for (j = 2; j <= phif; j++)
+      {
+        gel(M,j) = RgX_to_RgC(zfj, phie);
+        if (j < phif) zfj = ZX_rem(ZX_mul(zfj, zf), T);
+      }
+      pro = Qevproj_init(M);
+    }
+    for (j=lcl-1; j; j--)
+    { /* loop over conjugacy classes, decreasing order */
+      long jperm = operm[j];
+      GEN jg = gel(vjg,jperm); /* jg[l+1] = class of g^l */
+      long o = vord[jperm], oinv = Fl_inv(o,p), e = expo/o;
+      GEN To = e == 1? T: polcyclo(o, var);
+      for(i=1; i<lcl; i++)
+      { /* loop over characters */
+        GEN cp = gel(ctp,i), cj, cj0; /* cp[i] = chi(g_i) mod \P */
+        void *vj = (void*)uel(cp, jg[o == 1? 1: 2]); /* chi(g) */
+        ulong h = H->hash(vj);
+        hashentry *E = hash_search2(H, vj, h);
+        if (E) { gcoeff(ct,jperm,i) = (GEN)E->val; continue; }
 
+       /* chi(g^l) = sum_{k=0}^{o-1} a_k zeta_o^{l*k} for all l;
+        * => a_k = 1/o sum_{l=0}^{o-1} chi(g^l) zeta_o^{-k*l} */
+        cj = cgetg(o+2, t_POL);
+        cj[1] = evalvarn(var) | evalsigne(1);
+        for (k=0; k<o; k++)
+        {
+          ulong a = 0;
+          for (l=0; l<o; l++)
+          {
+            ulong z = vze[Fl_mul(k,l,o)*e + 1];/* zeta_o^{-k*l} */
+            a = Fl_add(a, Fl_mul(uel(cp,jg[l+1]), z, p), p);
+          }
+          gel(cj,k+2) = stoi(Fl_center(Fl_mul(a,oinv,p), p, pov2)); /* a_k */
+        }
+        cj0 = cj = ZX_renormalize(cj,o+2);
+        cj = ZX_rem(cj, To);
+        if (e != 1) cj = ZX_rem(RgX_inflate(cj,e), T);
+        if (pro) cj = Qevproj_RgX(cj, phie, pro);
+        gcoeff(ct,jperm,i) = cj;
+        hash_insert2(H, vj, cj, h);
+        for (k = 2; k < o; k++)
+        {
+          void *vk = (void*)uel(cp, jg[k+1]); /* chi(g^k) */
+          ulong hk = H->hash(vk);
+          GEN ck;
+          if (hash_search2(H, vk, hk)) continue;
+          ck = ZX_rem(RgX_inflate(cj0, k), To);
+          if (e != 1) ck = ZX_rem(RgX_inflate(ck,e), T);
+          if (pro) ck = Qevproj_RgX(ck, phie, pro);
+          hash_insert2(H, vk, ck, hk);
+        }
+      }
+    }
+  }
+  ct = gen_sort(ct,(void*)cmp_universal,cmp_nodata);
+  i = 1; while (!vec_isconst(gel(ct,i))) i++;
+  if (i > 1) swap(gel(ct,1), gel(ct,i));
+  return mkvec2(ct, utoipos(f));
+}
 GEN
 galoischartable(GEN gal)
 {
-  GEN elts = checkgroupelts(gal);
-  return groupelts_chartable(elts);
+  pari_sp av = avma;
+  GEN cc = groupelts_to_conjclasses(checkgroupelts(gal));
+  return gerepilecopy(av, cc_chartable(cc));
 }
 
 static void
@@ -2672,33 +2758,29 @@ galoischar_dim(GEN ch)
 static GEN
 galoischar_aut_charpoly(GEN conj, GEN ch, GEN p, long d)
 {
-  long i;
   GEN q = p, V = cgetg(d+3, t_POL);
-  V[1] = evalsigne(1)|evalvarn(0);
-  gel(V,2) = gen_0;
+  long i;
+  V[1] = evalsigne(1)|evalvarn(0); gel(V,2) = gen_0;
   for (i = 1; i <= d; i++)
   {
     gel(V,i+2) = gdivgs(gel(ch, conj[q[1]]),-i);
-    q = gmul(q, p);
+    q = perm_mul(q, p);
   }
   return liftpol_shallow(RgXn_exp(V,d+1));
 }
 
 static GEN
-galoischar_charpoly(GEN elts, GEN ch, long o)
+galoischar_charpoly(GEN cc, GEN ch, long o)
 {
-  long i, l, d, nb;
-  GEN conj, repr, mod, chm, V;
-  elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
-  conj = groupelts_conjclasses(elts, &nb);
-  checkgaloischar(ch, nb);
-  d = galoischar_dim(ch); l = lg(ch);
-  repr = conjclasses_repr(conj, nb);
+  GEN mod, chm, V, elts = gel(cc,1), conj = gel(cc,2), repr = gel(cc,3);
+  long i, d, l = lg(ch);
+  checkgaloischar(ch, lg(repr)-1);
+  d = galoischar_dim(ch);
   mod = polcyclo(o, gvar(ch));
   chm = gmul(ch, mkpolmod(gen_1,  mod));
   V = cgetg(l, t_COL);
   for (i = 1; i < l; i++)
-    gel(V, i) = galoischar_aut_charpoly(conj, chm, gel(elts,repr[i]), d);
+    gel(V,i) = galoischar_aut_charpoly(conj, chm, gel(elts,repr[i]), d);
   return V;
 }
 
@@ -2706,24 +2788,23 @@ GEN
 galoischarpoly(GEN gal, GEN ch, long o)
 {
   pari_sp av = avma;
-  GEN elts = checkgroupelts(gal);
-  return gerepilecopy(av, galoischar_charpoly(elts, ch, o));
+  GEN cc = groupelts_to_conjclasses(checkgroupelts(gal));
+  return gerepilecopy(av, galoischar_charpoly(cc, ch, o));
 }
 
 static GEN
-groupelts_char_det(GEN elts, GEN ch, long o)
+cc_char_det(GEN cc, GEN ch, long o)
 {
   long i, l = lg(ch), d = galoischar_dim(ch);
-  GEN V = galoischar_charpoly(elts, ch, o);
-  for (i = 1; i < l; i++)
-    gel(V, i) = leading_coeff(gel(V, i));
-  return odd(d) ? gneg(V): V;
+  GEN V = galoischar_charpoly(cc, ch, o);
+  for (i = 1; i < l; i++) gel(V,i) = leading_coeff(gel(V,i));
+  return odd(d)? gneg(V): V;
 }
 
 GEN
 galoischardet(GEN gal, GEN ch, long o)
 {
   pari_sp av = avma;
-  GEN elts = checkgroupelts(gal);
-  return gerepilecopy(av, groupelts_char_det(elts, ch, o));
+  GEN cc = groupelts_to_conjclasses(checkgroupelts(gal));
+  return gerepilecopy(av, cc_char_det(cc, ch, o));
 }
