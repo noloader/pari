@@ -2564,6 +2564,25 @@ F2xqXQ_sqr(GEN x, GEN S, GEN T) {
   return F2xqX_rem(F2xqX_sqr(x,T),S,T);
 }
 
+GEN
+F2xqXQ_invsafe(GEN x, GEN S, GEN T)
+{
+  GEN V, z = F2xqX_extgcd(get_F2xqX_mod(S), x, T, NULL, &V);
+  if (degpol(z)) return NULL;
+  z = F2xq_invsafe(gel(z,2),T);
+  if (!z) return NULL;
+  return F2xqX_F2xq_mul(V, z, T);
+}
+
+GEN
+F2xqXQ_inv(GEN x, GEN S, GEN T)
+{
+  pari_sp av = avma;
+  GEN U = F2xqXQ_invsafe(x, S, T);
+  if (!U) pari_err_INV("F2xqXQ_inv",x);
+  return gerepileupto(av, U);
+}
+
 struct _F2xqXQ {
   GEN T, S;
 };
@@ -2613,7 +2632,7 @@ F2xqXQ_pow(GEN x, GEN n, GEN S, GEN T)
   struct _F2xqXQ D;
   long s = signe(n);
   if (!s) return pol1_F2xX(get_F2xqX_var(S), get_F2x_var(T));
-  if (s < 0) pari_err_IMPL("F2xqXQ_inv");
+  if (s < 0) x = F2xqXQ_inv(x,S,T);
   if (is_pm1(n)) return s < 0 ? x : gcopy(x);
   if (degpol(x) >= get_F2xqX_degree(S)) x = F2xqX_rem(x,S,T);
   D.S = S; D.T = T;

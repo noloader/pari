@@ -163,6 +163,8 @@ GEN     F2xqX_normalize(GEN z, GEN T);
 GEN     F2xqX_red(GEN z, GEN T);
 GEN     F2xqX_rem(GEN x, GEN S, GEN T);
 GEN     F2xqX_sqr(GEN x, GEN T);
+GEN     F2xqXQ_inv(GEN x, GEN S, GEN T);
+GEN     F2xqXQ_invsafe(GEN x, GEN S, GEN T);
 GEN     F2xqXQ_mul(GEN x, GEN y, GEN S, GEN T);
 GEN     F2xqXQ_sqr(GEN x, GEN S, GEN T);
 GEN     F2xqXQ_pow(GEN x, GEN n, GEN S, GEN T);
