@@ -1895,7 +1895,6 @@ gmul(GEN x, GEN y)
       return RgX_mul(x, y);
 
     case t_SER: {
-      GEN p = NULL;
       vx = varn(x);
       vy = varn(y);
       if (vx != vy) {
@@ -2245,7 +2244,7 @@ gsqr(GEN x)
       else
       {
         pari_sp av = avma;
-        GEN z = cgetg(lx,t_SER), p = NULL;
+        GEN z = cgetg(lx,t_SER);
         z[1] = evalvalp(2*valp(x)) | evalvarn(varn(x)) | evalsigne(1);
         x = ser2pol_i(x,lx);
         x = RgXn_sqr(x, lx-2);
