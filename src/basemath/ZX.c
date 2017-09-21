@@ -1029,3 +1029,13 @@ QX_sqr(GEN x)
   else
     return z;
 }
+
+GEN
+QX_ZX_rem(GEN x, GEN y)
+{
+  pari_sp av = avma;
+  GEN d, nx = Q_primitive_part(x, &d);
+  GEN r = ZX_rem(nx, y);
+  if (d) r = RgX_Rg_mul(r, d);
+  return gerepileupto(av, r);
+}

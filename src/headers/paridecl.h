@@ -1217,6 +1217,7 @@ int     zvV_equal(GEN V, GEN W);
 
 /* ZX.c */
 
+GEN     QX_ZX_rem(GEN x, GEN y);
 GEN     QX_mul(GEN x, GEN y);
 GEN     QX_sqr(GEN x);
 void    RgX_check_QX(GEN x, const char *s);
