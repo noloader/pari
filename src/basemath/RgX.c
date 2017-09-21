@@ -1353,35 +1353,6 @@ RgX_sqrhigh_i2(GEN f, long n)
   return RgX_shift_shallow(h, d-1-degpol(h)); /* possibly (fg)(0) = 0 */
 }
 
-static GEN RgX_mul_fast(GEN x, GEN y);
-static GEN RgX_sqr_fast(GEN x);
-
-/* f*g mod t^n (faster than Mulders-Hanrot-Zimmermann) */
-GEN
-RgXn_mul(GEN f, GEN g, long n)
-{
-  pari_sp av = avma;
-  GEN h = RgX_mul_fast(f,g);
-  if (!h) return RgXn_mul2(f,g,n);
-  if (degpol(h) < n) return h;
-  return gerepilecopy(av, RgXn_red_shallow(h, n));
-}
-/* (f*g) \/ x^n */
-GEN
-RgX_mulhigh_i(GEN f, GEN g, long n)
-{
-  GEN h = RgX_mul_fast(f,g);
-  return h? RgX_shift_shallow(h, -n): RgX_mulhigh_i2(f,g,n);
-}
-
-/* (f*g) \/ x^n */
-GEN
-RgX_sqrhigh_i(GEN f, long n)
-{
-  GEN h = RgX_sqr_fast(f);
-  return h? RgX_shift_shallow(h, -n): RgX_sqrhigh_i2(f,n);
-}
-
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
  * Only c, c0, c1, c2 are genuine GEN.
@@ -1515,16 +1486,6 @@ RgXn_sqr2(GEN f, long n)
   return gerepileupto(av, h);
 }
 GEN
-RgXn_sqr(GEN f, long n)
-{
-  pari_sp av = avma;
-  GEN g = RgX_sqr_fast(f);
-  if (!g) return RgXn_sqr2(f,n);
-  if (degpol(g) < n) return g;
-  return gerepilecopy(av, RgXn_red_shallow(g, n));
-}
-
-GEN
 RgX_sqrspec(GEN a, long na)
 {
   GEN a0, c, c0, c1;
@@ -1567,187 +1528,11 @@ RgX_mul_i(GEN x, GEN y)
   setvarn(z, varn(x)); return z;
 }
 
-static GEN
-zero_FpX_mod(GEN p, long v)
-{
-  GEN r = cgetg(3,t_POL);
-  r[1] = evalvarn(v);
-  gel(r,2) = mkintmod(gen_0, icopy(p));
-  return r;
-}
-
-static GEN
-RgX_mul_FpX(GEN x, GEN y, GEN p)
-{
-  pari_sp av = avma;
-  GEN r;
-  if (lgefint(p) == 3)
-  {
-    ulong pp = uel(p, 2);
-    r = Flx_to_ZX_inplace(Flx_mul(RgX_to_Flx(x, pp),
-                                  RgX_to_Flx(y, pp), pp));
-  }
-  else
-    r = FpX_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
-  if (signe(r)==0)
-  { avma = av; return zero_FpX_mod(p, varn(x)); }
-  return gerepileupto(av, FpX_to_mod(r, p));
-}
-
-static GEN
-zero_FpXQX_mod(GEN pol, GEN p, long v)
-{
-  GEN r = cgetg(3,t_POL);
-  r[1] = evalvarn(v);
-  gel(r,2) = mkpolmod(mkintmod(gen_0, icopy(p)), gcopy(pol));
-  return r;
-}
-
-static GEN
-RgX_mul_FpXQX(GEN x, GEN y, GEN pol, GEN p)
-{
-  pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  long dT = degpol(T);
-  GEN kx = ZXX_to_Kronecker(RgX_to_FpXQX(x, T, p), dT);
-  GEN ky = ZXX_to_Kronecker(RgX_to_FpXQX(y, T, p), dT);
-  GEN r = FpX_mul(kx, ky, p);
-  if (signe(r)==0)
-  { avma = av; return zero_FpXQX_mod(pol, p, varn(x)); }
-  return gerepileupto(av, Kronecker_to_mod(FpX_to_mod(r, p), pol));
-}
-
-static GEN
-RgX_mul_ZXQX(GEN x, GEN y, GEN T)
-{
-  pari_sp av = avma;
-  long dT = degpol(T);
-  GEN r = ZXX_mul_Kronecker(liftpol_shallow(x), liftpol_shallow(y), dT);
-  return gerepileupto(av, Kronecker_to_mod(r, T));
-}
-
-static GEN
-RgX_mul_QXQX(GEN x, GEN y, GEN T)
-{
-  pari_sp av = avma;
-  long dT = degpol(T);
-  GEN r = QX_mul(ZXX_to_Kronecker(liftpol_shallow(x), dT),
-                 ZXX_to_Kronecker(liftpol_shallow(y), dT));
-  return gerepileupto(av, Kronecker_to_mod(r, T));
-}
-
 GEN
 RgX_sqr_i(GEN x)
 {
   GEN z = RgX_sqrspec(x+2, lgpol(x));
   setvarn(z,varn(x)); return z;
-}
-
-static GEN
-RgX_sqr_FpX(GEN x, GEN p)
-{
-  pari_sp av = avma;
-  GEN r;
-  if (lgefint(p) == 3)
-  {
-    ulong pp = uel(p, 2);
-    r = Flx_to_ZX_inplace(Flx_sqr(RgX_to_Flx(x, pp), pp));
-  }
-  else
-    r = FpX_sqr(RgX_to_FpX(x, p), p);
-  if (signe(r)==0)
-  { avma = av; return zero_FpX_mod(p, varn(x)); }
-  return gerepileupto(av, FpX_to_mod(r, p));
-}
-
-static GEN
-RgX_sqr_FpXQX(GEN x, GEN pol, GEN p)
-{
-  pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  long dT = degpol(T);
-  GEN kx = ZXX_to_Kronecker(RgX_to_FpXQX(x, T, p), dT);
-  GEN r = FpX_sqr(kx, p);
-  if (signe(r)==0)
-  { avma = av; return zero_FpXQX_mod(pol, p, varn(x)); }
-  return gerepileupto(av, Kronecker_to_mod(FpX_to_mod(r, p), pol));
-}
-
-static GEN
-RgX_sqr_ZXQX(GEN x, GEN T)
-{
-  pari_sp av = avma;
-  long dT = degpol(T);
-  GEN r = ZXX_sqr_Kronecker(liftpol_shallow(x), dT);
-  return gerepileupto(av, Kronecker_to_mod(r, T));
-}
-
-static GEN
-RgX_sqr_QXQX(GEN x, GEN T)
-{
-  pari_sp av = avma;
-  long dT = degpol(T);
-  GEN r = QX_sqr(ZXX_to_Kronecker(liftpol_shallow(x), dT));
-  return gerepileupto(av, Kronecker_to_mod(r, T));
-}
-
-#define code(t1,t2) ((t1 << 6) | t2)
-static GEN
-RgX_mul_fast(GEN x, GEN y)
-{
-  GEN p, pol;
-  long pa;
-  long t = RgX_type2(x,y, &p,&pol,&pa);
-  switch(t)
-  {
-    case t_INT:    return ZX_mul(x,y);
-    case t_FRAC:   return QX_mul(x,y);
-    case t_FFELT:  return FFX_mul(x, y, pol);
-    case t_INTMOD: return RgX_mul_FpX(x, y, p);
-    case code(t_POLMOD, t_INT):
-                   return RgX_mul_ZXQX(x, y, pol);
-    case code(t_POLMOD, t_FRAC):
-                   return RgX_mul_QXQX(x, y, pol);
-    case code(t_POLMOD, t_INTMOD):
-                   return RgX_mul_FpXQX(x, y, pol, p);
-    default:       return NULL;
-  }
-}
-static GEN
-RgX_sqr_fast(GEN x)
-{
-  GEN p, pol;
-  long pa;
-  long t = RgX_type(x,&p,&pol,&pa);
-  switch(t)
-  {
-    case t_INT:    return ZX_sqr(x);
-    case t_FRAC:   return QX_sqr(x);
-    case t_FFELT:  return FFX_sqr(x, pol);
-    case t_INTMOD: return RgX_sqr_FpX(x, p);
-    case code(t_POLMOD, t_INT):
-                   return RgX_sqr_ZXQX(x, pol);
-    case code(t_POLMOD, t_FRAC):
-                   return RgX_sqr_QXQX(x, pol);
-    case code(t_POLMOD, t_INTMOD):
-                   return RgX_sqr_FpXQX(x, pol, p);
-    default:       return NULL;
-  }
-}
-#undef code
-GEN
-RgX_mul(GEN x, GEN y)
-{
-  GEN z = RgX_mul_fast(x,y);
-  if (!z) z = RgX_mul_i(x,y);
-  return z;
-}
-GEN
-RgX_sqr(GEN x)
-{
-  GEN z = RgX_sqr_fast(x);
-  if (!z) z = RgX_sqr_i(x);
-  return z;
 }
 
 /*******************************************************************/
@@ -2856,4 +2641,224 @@ Kronecker_to_mod(GEN z, GEN T)
   for (j=2; j<N; j++) t[j] = z[j];
   gel(x,i) = mkpolmod(RgX_rem(normalizepol_lg(t,N), T), T);
   return normalizepol_lg(x, i+1);
+}
+
+/*******************************************************************/
+/*                                                                 */
+/*                        Domain detection                         */
+/*                                                                 */
+/*******************************************************************/
+
+static GEN
+zero_FpX_mod(GEN p, long v)
+{
+  GEN r = cgetg(3,t_POL);
+  r[1] = evalvarn(v);
+  gel(r,2) = mkintmod(gen_0, icopy(p));
+  return r;
+}
+
+static GEN
+RgX_mul_FpX(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flx_mul(RgX_to_Flx(x, pp),
+                                  RgX_to_Flx(y, pp), pp));
+  }
+  else
+    r = FpX_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpX_mod(p, varn(x)); }
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+zero_FpXQX_mod(GEN pol, GEN p, long v)
+{
+  GEN r = cgetg(3,t_POL);
+  r[1] = evalvarn(v);
+  gel(r,2) = mkpolmod(mkintmod(gen_0, icopy(p)), gcopy(pol));
+  return r;
+}
+
+static GEN
+RgX_mul_FpXQX(GEN x, GEN y, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  long dT = degpol(T);
+  GEN kx = ZXX_to_Kronecker(RgX_to_FpXQX(x, T, p), dT);
+  GEN ky = ZXX_to_Kronecker(RgX_to_FpXQX(y, T, p), dT);
+  GEN r = FpX_mul(kx, ky, p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpXQX_mod(pol, p, varn(x)); }
+  return gerepileupto(av, Kronecker_to_mod(FpX_to_mod(r, p), pol));
+}
+
+static GEN
+RgX_mul_ZXQX(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  long dT = degpol(T);
+  GEN r = ZXX_mul_Kronecker(liftpol_shallow(x), liftpol_shallow(y), dT);
+  return gerepileupto(av, Kronecker_to_mod(r, T));
+}
+
+static GEN
+RgX_mul_QXQX(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  long dT = degpol(T);
+  GEN r = QX_mul(ZXX_to_Kronecker(liftpol_shallow(x), dT),
+                 ZXX_to_Kronecker(liftpol_shallow(y), dT));
+  return gerepileupto(av, Kronecker_to_mod(r, T));
+}
+
+static GEN
+RgX_sqr_FpX(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flx_sqr(RgX_to_Flx(x, pp), pp));
+  }
+  else
+    r = FpX_sqr(RgX_to_FpX(x, p), p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpX_mod(p, varn(x)); }
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgX_sqr_FpXQX(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  long dT = degpol(T);
+  GEN kx = ZXX_to_Kronecker(RgX_to_FpXQX(x, T, p), dT);
+  GEN r = FpX_sqr(kx, p);
+  if (signe(r)==0)
+  { avma = av; return zero_FpXQX_mod(pol, p, varn(x)); }
+  return gerepileupto(av, Kronecker_to_mod(FpX_to_mod(r, p), pol));
+}
+
+static GEN
+RgX_sqr_ZXQX(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  long dT = degpol(T);
+  GEN r = ZXX_sqr_Kronecker(liftpol_shallow(x), dT);
+  return gerepileupto(av, Kronecker_to_mod(r, T));
+}
+
+static GEN
+RgX_sqr_QXQX(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  long dT = degpol(T);
+  GEN r = QX_sqr(ZXX_to_Kronecker(liftpol_shallow(x), dT));
+  return gerepileupto(av, Kronecker_to_mod(r, T));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgX_mul_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type2(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZX_mul(x,y);
+    case t_FRAC:   return QX_mul(x,y);
+    case t_FFELT:  return FFX_mul(x, y, pol);
+    case t_INTMOD: return RgX_mul_FpX(x, y, p);
+    case code(t_POLMOD, t_INT):
+                   return RgX_mul_ZXQX(x, y, pol);
+    case code(t_POLMOD, t_FRAC):
+                   return RgX_mul_QXQX(x, y, pol);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_mul_FpXQX(x, y, pol, p);
+    default:       return NULL;
+  }
+}
+static GEN
+RgX_sqr_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type(x,&p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZX_sqr(x);
+    case t_FRAC:   return QX_sqr(x);
+    case t_FFELT:  return FFX_sqr(x, pol);
+    case t_INTMOD: return RgX_sqr_FpX(x, p);
+    case code(t_POLMOD, t_INT):
+                   return RgX_sqr_ZXQX(x, pol);
+    case code(t_POLMOD, t_FRAC):
+                   return RgX_sqr_QXQX(x, pol);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_sqr_FpXQX(x, pol, p);
+    default:       return NULL;
+  }
+}
+#undef code
+
+GEN
+RgX_mul(GEN x, GEN y)
+{
+  GEN z = RgX_mul_fast(x,y);
+  if (!z) z = RgX_mul_i(x,y);
+  return z;
+}
+
+GEN
+RgX_sqr(GEN x)
+{
+  GEN z = RgX_sqr_fast(x);
+  if (!z) z = RgX_sqr_i(x);
+  return z;
+}
+
+GEN
+RgXn_mul(GEN f, GEN g, long n)
+{
+  pari_sp av = avma;
+  GEN h = RgX_mul_fast(f,g);
+  if (!h) return RgXn_mul2(f,g,n);
+  if (degpol(h) < n) return h;
+  return gerepilecopy(av, RgXn_red_shallow(h, n));
+}
+
+GEN
+RgXn_sqr(GEN f, long n)
+{
+  pari_sp av = avma;
+  GEN g = RgX_sqr_fast(f);
+  if (!g) return RgXn_sqr2(f,n);
+  if (degpol(g) < n) return g;
+  return gerepilecopy(av, RgXn_red_shallow(g, n));
+}
+
+/* (f*g) \/ x^n */
+GEN
+RgX_mulhigh_i(GEN f, GEN g, long n)
+{
+  GEN h = RgX_mul_fast(f,g);
+  return h? RgX_shift_shallow(h, -n): RgX_mulhigh_i2(f,g,n);
+}
+
+/* (f*g) \/ x^n */
+GEN
+RgX_sqrhigh_i(GEN f, long n)
+{
+  GEN h = RgX_sqr_fast(f);
+  return h? RgX_shift_shallow(h, -n): RgX_sqrhigh_i2(f,n);
 }
