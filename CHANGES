@@ -259,8 +259,8 @@ BA   95- [libpari] RgX_digits
 BA   97- ellisomat: support for curve over finite field without CM
      98- GP function: bestapprnf
      99- [libpari] vec_prepend, lindepfull_bit
-BA  100- [libpari] QX_mul/QX_sqr, FFX_mul/FFX_sqr/FFX_rem, RgX_mul_i/RgX_sqr_i,
-         ZXQX_mul/ZXQX_sqr
+BA  100- [libpari] QX_mul/QX_sqr/QX_ZX_rem, FFX_mul/FFX_sqr/FFX_rem,
+         RgX_mul_i/RgX_sqr_i, ZXQX_mul/ZXQX_sqr
 BA  101- [libpari] RgX_type2
 BA  102- RgX_mul/RgX_sqr: support for coefficient ring detection
 BA  103- [libpari] FlxqXQ_auttrace
