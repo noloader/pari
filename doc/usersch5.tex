@@ -11665,6 +11665,10 @@ $a$. The coefficients of the polynomials must be of type \typ{INT},
 of the polynomial \kbd{P} modulo the polynomial \kbd{Q}, where \kbd{P} and
 \kbd{Q} are defined over the definition field of the \typ{FFELT} \kbd{a}.
 
+\fun{GEN}{FFXQ_inv}{GEN P, GEN Q, GEN a} returns the inverse
+of the polynomial \kbd{P} modulo the polynomial \kbd{Q}, where \kbd{P} and
+\kbd{Q} are defined over the definition field of the \typ{FFELT} \kbd{a}.
+
 \fun{GEN}{FFX_factor}{GEN f, GEN a} returns the factorization of the univariate
 polynomial \kbd{f} over the definition field of the \typ{FFELT} \kbd{a}. The
 coefficients of \kbd{f} must be of type \typ{INT}, \typ{INTMOD} or \typ{FFELT}

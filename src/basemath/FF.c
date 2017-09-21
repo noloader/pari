@@ -1617,6 +1617,10 @@ FFX_rem(GEN Pf, GEN Qf, GEN ff)
 { return FFX_wrap2(Pf, Qf, ff, FpXQX_rem, F2xqX_rem, FlxqX_rem); }
 
 GEN
+FFXQ_inv(GEN Pf, GEN Qf, GEN ff)
+{ return FFX_wrap2(Pf, Qf, ff, FpXQXQ_inv, F2xqXQ_inv, FlxqXQ_inv); }
+
+GEN
 FFX_factor(GEN Pf, GEN ff)
 {
   pari_sp av = avma;
