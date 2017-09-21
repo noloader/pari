@@ -1909,18 +1909,7 @@ gmul(GEN x, GEN y)
       z[1] = evalvalp(valp(x)+valp(y)) | evalvarn(vx) | evalsigne(1);
       x = ser2pol_i(x, lx);
       y = ser2pol_i(y, lx);
-      if (RgX_is_FpX(x,&p) && RgX_is_FpX(y,&p))
-      {
-        if (!p) y = ZX_mul(x,y);
-        else
-        {
-          x = RgX_to_FpX(x, p);
-          y = RgX_to_FpX(y, p);
-          y = FpX_to_mod(ZX_mul(x,y), p);
-        }
-      }
-      else
-        y = RgXn_mul(x, y, lx-2);
+      y = RgXn_mul(x, y, lx-2);
       z = fill_ser(z, y);
       return gerepilecopy((pari_sp)(z + lx), z);
     }
@@ -2259,17 +2248,7 @@ gsqr(GEN x)
         GEN z = cgetg(lx,t_SER), p = NULL;
         z[1] = evalvalp(2*valp(x)) | evalvarn(varn(x)) | evalsigne(1);
         x = ser2pol_i(x,lx);
-        if (RgX_is_FpX(x,&p))
-        {
-          if (!p) x = ZX_sqr(x);
-          else
-          {
-            x = RgX_to_FpX(x, p);
-            x = FpX_to_mod(ZX_sqr(x), p);
-          }
-        }
-        else
-          x = RgXn_sqr(x, lx-2);
+        x = RgXn_sqr(x, lx-2);
         z = fill_ser(z, x);
         return gerepilecopy(av, z);
       }
