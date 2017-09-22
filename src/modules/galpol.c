@@ -62,3 +62,27 @@ galoisgetpol(long a, long b, long sig)
   pari_fclose(F); return V;
 }
 
+GEN
+galoisgetgroup(long a, long b)
+{
+  pariFILE *F;
+  GEN V;
+  char *s;
+  if (a<=0) pari_err_DOMAIN("galoisgetgroup", "degree", "<=", gen_0, stoi(a));
+  if (b<0) pari_err_DOMAIN("galoisgetgroup", "index", "<", gen_0, stoi(b));
+  if (!b) return galoisnbpol(a);
+  s = pari_sprintf("%s/galpol/%ld/%ld/group", pari_datadir, a,b);
+  F = pari_fopengz(s);
+  if (!F)
+  {
+    long n = itos(galoisnbpol(a));
+    if (b > n)
+      pari_err_DOMAIN("galoisgetgroup", "group index", ">", stoi(n), stoi(b));
+    else pari_err_FILE("galpol file", s);
+  }
+  pari_free(s);
+  V = gp_read_stream(F->file);
+  if (!V || typ(V)!=t_VEC) pari_err_FILE("galpol file", F->name);
+  pari_fclose(F); return V;
+}
+
