@@ -3169,7 +3169,6 @@ inv_polmod(GEN T, GEN x)
     a = ginv(x);
   else
   {
-    pari_sp av = avma;
     if (lg(T) == 5) /* quadratic fields */
       a = RgX_Rg_div(quad_polmod_conj(x,T), quad_polmod_norm(x,T));
     else
