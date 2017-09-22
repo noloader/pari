@@ -2640,8 +2640,6 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
 
     if (DEBUGLEVEL>1)
       err_printf("\n*** Ideal no %ld: %Ps\n", L_jid[noideal], vecslice(ideal,1,4));
-    else if (DEBUGLEVEL)
-      err_printf("(%ld) ", L_jid[noideal]);
     if (p0)
       ideal = idealmul(nf, p0, ideal);
     else
@@ -2728,8 +2726,6 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
     ideal = gel(F->LP,rr.jid);
     if (DEBUGLEVEL>1)
       err_printf("\n*** Ideal no %ld: %Ps\n", rr.jid, vecslice(ideal,1,4));
-    else if (DEBUGLEVEL)
-      err_printf("(%ld) ", rr.jid);
     ideal = idealHNF_mul(nf, baseideal, ideal);
     rr.Nideal = ZM_det_triangular(ideal);
     if (Fincke_Pohst_ideal(cache, F, nf, M, G, ideal, fact,
