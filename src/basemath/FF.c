@@ -571,22 +571,20 @@ FF_mul(GEN x, GEN y)
 {
   ulong pp;
   GEN r, T, p, z=_initFF(x,&T,&p,&pp);
+  pari_sp av=avma;
   _checkFF(x,y,"*");
   switch(x[1])
   {
   case t_FF_FpXQ:
-    {
-      pari_sp av=avma;
-      r=gerepileupto(av,FpXQ_mul(gel(x,2),gel(y,2),T,p));
-      break;
-    }
+    r=FpXQ_mul(gel(x,2),gel(y,2),T,p);
+    break;
   case t_FF_F2xq:
     r=F2xq_mul(gel(x,2),gel(y,2),T);
     break;
   default:
     r=Flxq_mul(gel(x,2),gel(y,2),T,pp);
   }
-  return _mkFF(x,z,r);
+  return _mkFF(x,z,gerepileupto(av, r));
 }
 
 GEN
