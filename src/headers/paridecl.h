@@ -3074,6 +3074,7 @@ long    FF_issquare(GEN x);
 long    FF_issquareall(GEN x, GEN *pt);
 long    FF_ispower(GEN x, GEN K, GEN *pt);
 GEN     FF_log(GEN a, GEN b, GEN o);
+GEN     FF_map(GEN m, GEN x);
 GEN     FF_minpoly(GEN x);
 GEN     FF_mod(GEN x);
 GEN     FF_mul(GEN a, GEN b);

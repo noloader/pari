@@ -11670,6 +11670,9 @@ multiplicative group of the definition field of the \typ{FFELT} \kbd{a}.
 If \kbd{o} is not \kbd{NULL}, set it to the factorization of the order
 of the primitive root (to speed up \tet{FF_log}).
 
+\fun{GEN}{FF_map}{GEN m, GEN a} returns $A(m)$ where \kbd{A=a.pol} assuming
+$a$ and $m$ belongs to fields having the same characteristic.
+
 \subsec{FFX}
 
 The functions in this sections take polynomial arguments and a \typ{FFELT}

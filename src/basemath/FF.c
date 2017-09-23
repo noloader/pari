@@ -213,11 +213,17 @@ Fq_to_FF(GEN x, GEN ff)
 /*************************************************************************/
 
 /* Return true if x and y are defined in the same field */
+
+static int
+FF_samechar(GEN x, GEN y)
+{
+  return x[1] == y[1] && equalii(gel(x,4),gel(y,4));
+}
+
 int
 FF_samefield(GEN x, GEN y)
 {
-  return x[1] == y[1] && equalii(gel(x,4),gel(y,4))
-                      && gidentical(gel(x,3),gel(y,3));
+  return FF_samechar(x, y) && gidentical(gel(x,3),gel(y,3));
 }
 
 int
@@ -582,6 +588,25 @@ FF_neg_i(GEN x)
     r=Flx_neg(gel(x,2),pp);
   }
   return _mkFF_i(x,z,r);
+}
+
+GEN
+FF_map(GEN m, GEN x)
+{
+  ulong pp;
+  GEN r, T, p, z=_initFF(m,&T,&p,&pp);
+  switch(m[1])
+  {
+  case t_FF_FpXQ:
+    r=FpX_FpXQ_eval(gel(x,2),gel(m,2),T,p);
+    break;
+  case t_FF_F2xq:
+    r=F2x_F2xq_eval(gel(x,2),gel(m,2),T);
+    break;
+  default:
+    r=Flx_Flxq_eval(gel(x,2),gel(m,2),T,pp);
+  }
+  return _mkFF(m,z,r);
 }
 
 GEN
