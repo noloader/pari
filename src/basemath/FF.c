@@ -305,6 +305,24 @@ FF_1(GEN x)
 }
 
 GEN
+FF_gen(GEN x)
+{
+  ulong pp;
+  GEN r, T, p, z=_initFF(x,&T,&p,&pp);
+  switch(x[1])
+  {
+  case t_FF_FpXQ:
+    r=pol_x(varn(T));
+    break;
+  case t_FF_F2xq:
+    r=polx_F2x(T[1]);
+    break;
+  default:
+    r=polx_Flx(T[1]);
+  }
+  return _mkFF(x,z,r);
+}
+GEN
 FF_q(GEN x)
 {
   ulong pp;

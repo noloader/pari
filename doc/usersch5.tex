@@ -11496,6 +11496,10 @@ its prime field; the cardinality of the dimension field is thus $p^f$.
 \fun{GEN}{FF_mod}{GEN a} returns the polynomial (with reduced \typ{INT}
 coefficients) defining the finite field, in the variable used to display $a$.
 
+\fun{GEN}{FF_gen}{GEN a} returns the standard generator of the definition field
+of the \typ{FFELT} element \kbd{a}, see \kbd{ffgen}, that is $x\pmod{T}$ where
+$T$ is the polynomial over the prime field that define the finite field.
+
 \fun{GEN}{FF_to_FpXQ}{GEN a} converts the \typ{FFELT} \kbd{a} to a polynomial
 $P$ with reduced \typ{INT} coefficients such that $a=P(g)$ where $g$ is the
 generator of the finite field returned by \kbd{ffgen}, in the variable used to

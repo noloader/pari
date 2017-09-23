@@ -3068,6 +3068,7 @@ int     FF_equal0(GEN x);
 int     FF_equal1(GEN x);
 int     FF_equalm1(GEN x);
 long    FF_f(GEN x);
+GEN     FF_gen(GEN x);
 GEN     FF_inv(GEN a);
 long    FF_issquare(GEN x);
 long    FF_issquareall(GEN x, GEN *pt);
