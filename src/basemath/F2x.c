@@ -83,6 +83,16 @@ F2x_to_Flx(GEN x)
 }
 
 GEN
+F2x_to_F2xX(GEN z, long sv)
+{
+  long i, d = F2x_degree(z);
+  GEN x = cgetg(d+3,t_POL);
+  for (i=0; i<=d; i++)
+    gel(x,i+2) = F2x_coeff(z,i) ? pol1_F2x(sv): pol0_F2x(sv);
+  x[1] = evalsigne(d+1!=0)| z[1]; return x;
+}
+
+GEN
 Z_to_F2x(GEN x, long v)
 {
   long sv = evalvarn(v);

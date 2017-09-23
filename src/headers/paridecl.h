@@ -114,6 +114,7 @@ GEN     F2x_shift(GEN y, long d);
 GEN     F2x_sqr(GEN x);
 GEN     F2x_sqrt(GEN x);
 GEN     F2x_to_F2v(GEN x, long n);
+GEN     F2x_to_F2xX(GEN z, long sv);
 GEN     F2x_to_Flx(GEN x);
 GEN     F2x_to_ZX(GEN x);
 long    F2x_valrem(GEN x, GEN *Z);
