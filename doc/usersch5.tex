@@ -11704,6 +11704,13 @@ of the univariate polynomial \kbd{f} over the definition field of the
 \typ{FFELT} \kbd{a}. The coefficients of \kbd{f} must be of type \typ{INT},
 \typ{INTMOD} or \typ{FFELT} and compatible with \kbd{a}.
 
+\fun{GEN}{FFX_preimage}{GEN F, GEN x, GEN a} returns $P\%F$
+where \kbd{P=x.pol} assuming $a$ and $x$ belongs to fields having the same
+characteristic, and that the coefficients of $F$ belong to the definition
+field of $a$.
+
+\subsec{FFM}
+
 \fun{GEN}{FFM_FFC_gauss}{GEN M, GEN C, GEN ff} given a matrix \kbd{M}
 (\typ{MAT}) and a column vector \kbd{C} (\typ{COL}) over the finite
 field given by \kbd{ff} (\typ{FFELT}) such that $M$ is invertible,

@@ -610,6 +610,30 @@ FF_map(GEN m, GEN x)
 }
 
 GEN
+FFX_preimage(GEN x, GEN F, GEN y)
+{
+  GEN r, T, p, z;
+  ulong pp;
+  if (FF_equal0(x)) return FF_zero(y);
+  z=_initFF(y,&T,&p,&pp);
+  F = FFX_to_raw(F, y);
+  switch(y[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_rem(gel(x,2), F, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_rem(F2x_to_F2xX(gel(x,2),T[1]), F, T);
+    break;
+  default:
+    r = FlxqX_rem(Flx_to_FlxX(gel(x,2),T[1]), F, T, pp);
+  }
+  if (degpol(r) > 0) return NULL;
+  r = (y[1] == t_FF_FpXQ)? Fq_to_FpXQ(gel(r,2),T, p): gel(r,2);
+  return _mkFF(y,z,r);
+}
+
+GEN
 FF_mul(GEN x, GEN y)
 {
   ulong pp;
