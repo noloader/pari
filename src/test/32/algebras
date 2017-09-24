@@ -2292,6 +2292,7 @@ D74
 1
 1
 1
+bb hermite Z/NZ
   ***   at top-level: algsplittingfield(almt)
   ***                 ^-----------------------
   *** algsplittingfield: incorrect type in alg_get_splittingfield [use alginit] (t_VEC).

@@ -2288,6 +2288,34 @@ setrand(8690); algsimpledec(al);
 setrand(1294); algsimpledec(al);
 
 
+/* bb_hermite */
+install("mathnfmodid2","GG");
+install("matimagemod","GG");
+rmzerocol(A) =
+{
+  my(L=[]);
+  for(i=1,#A,
+    if(A[,i]!=0, L = concat(L,[A[,i]]))
+  );
+  matconcat(L);
+}
+print("bb hermite Z/NZ");
+N=1800;
+setrand(1);
+{for(m=1,4,
+  for(n=1,4,
+    for(count=1,1000,
+      A = matrix(m,n,i,j,random([0,N-1]));
+      h1 = mathnfmodid(A,N);
+      h2 = mathnfmodid2(A,N);
+      if(h1!=h2, print("fail: ", A));
+      h3 = matimagemod(A,N);
+      if(rmzerocol(h2%N)!=h3, print("fail2: ", A));
+    );
+  );
+);}
+/* end bb_hermite */
+
 
 
 

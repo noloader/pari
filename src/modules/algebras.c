@@ -604,11 +604,12 @@ gen_colneg(GEN C, void* data, const struct bb_hermite *R)
 }
 
 static GEN
-gen_howell_i(GEN A, void *data, const struct bb_hermite *R)
+/* remove_zerocols: 0 none, 1 until square, 2 all */
+gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
   GEN H,U,piv,u,q,a,perm,iszero,C,tmp;
-  long m,n,i,j,s,si,i2,si2;
+  long m,n,i,j,s,si,i2,si2,nbz;
 
   RgM_dimensions(A,&m,&n);
   if (n<m+1)    H = shallowmatconcat(mkvec2(zeromat(m,m+1-n),A));
@@ -679,17 +680,26 @@ gen_howell_i(GEN A, void *data, const struct bb_hermite *R)
 
   /* put zero columns first */
   iszero = cgetg(n+1,t_VECSMALL);
-  perm = cgetg(n+1, t_VECSMALL);
 
-  for (i=1; i<=n; i++) iszero[i] = gen_is_zerocol(gel(H,i), data, R);
+  nbz = 0;
+  for (i=1; i<=n; i++)
+  {
+    iszero[i] = gen_is_zerocol(gel(H,i), data, R);
+    if (iszero[i]) nbz++;
+  }
 
   j = 1;
-  for (i=1; i<=n; i++)
-    if (iszero[i])
-    {
-      perm[j] = i;
-      j++;
-    }
+  if (permute_zerocols)
+  {
+    perm = cgetg(n+1, t_VECSMALL);
+    for (i=1; i<=n; i++)
+      if (iszero[i])
+      {
+        perm[j] = i;
+        j++;
+      }
+  }
+  else perm = cgetg(n-nbz+1, t_VECSMALL);
   for (i=1; i<=n; i++)
     if (!iszero[i])
     {
@@ -697,21 +707,38 @@ gen_howell_i(GEN A, void *data, const struct bb_hermite *R)
       j++;
     }
 
-  return vecpermute(H, perm);
+  if (permute_zerocols || remove_zerocols==2) H = vecpermute(H, perm);
+  if (permute_zerocols && remove_zerocols==2) H = vecslice(H, nbz+1, n);
+  if (remove_zerocols==1) H = vecslice(H, s+1, n);
+
+  return H;
 }
 
 static GEN
-gen_howell(GEN A, void *data, const struct bb_hermite *R)
+gen_howell(GEN A, long remove_zerocols, long permute_zerocols, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, gen_howell_i(A, data, R));
+  return gerepilecopy(av, gen_howell_i(A, remove_zerocols, permute_zerocols, data, R));
 }
 
 GEN
 matimagemod(GEN A, GEN d)
 {
   void* data;
-  return gen_howell(A, data, get_Fp_hermite(&data, d));
+  return gen_howell(A, 2, 0, data, get_Fp_hermite(&data, d));
+}
+
+GEN
+mathnfmodid2(GEN A, GEN d)
+{
+  pari_sp av = avma;
+  void* data;
+  long i;
+  GEN H;
+  H = gen_howell_i(A, 1, 0, data, get_Fp_hermite(&data, d));
+  for (i=1; i<lg(H); i++)
+    if (!signe(gcoeff(H,i,i))) gcoeff(H,i,i) = d;
+  return gerepilecopy(av,H);
 }
 
 /** OPERATIONS ON ASSOCIATIVE ALGEBRAS algebras.c **/
