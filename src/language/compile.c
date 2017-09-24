@@ -2286,10 +2286,13 @@ optimizefunc(entree *ep, long n)
   Gtype t;
   PPproto mod;
   long fl=COsafelex|COsafedyn;
-  const char *p=ep->code;
+  const char *p;
   char c;
   GEN arg = listtogen(y,Flistarg);
   long nb=lg(arg)-1, ret_flag;
+  if (is_func_named(ep,"if") && nb>=4)
+    ep=is_entry("_multi_if");
+  p = ep->code;
   if (!p)
     fl=0;
   else
@@ -2405,6 +2408,8 @@ optimizefunc(entree *ep, long n)
         pari_err_BUG("optimizefun [unknown PPproto]");
       }
     }
+    if (j<=nb)
+      compile_err("too many arguments",tree[arg[j]].str);
   }
   else (void)vec_optimize(arg);
   avma=av; tree[n].flags=fl;
