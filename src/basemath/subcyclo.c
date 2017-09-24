@@ -157,38 +157,37 @@ znstar_reduce_modulus(GEN H, long n)
   return gerepileupto(ltop, znstar_generate(n,gen));
 }
 
-/* Compute conductor of H */
+/* Compute conductor of H, bits = H[3] */
 long
-znstar_conductor(long n, GEN H)
+znstar_conductor_bits(GEN bits)
 {
   pari_sp av = avma;
-  long i, j, cnd = n;
-  GEN F = factoru(n), P = gel(F,1), E = gel(F,2);
+  long i, cnd = bits[1];
+  GEN F = factoru(cnd), P = gel(F,1), E = gel(F,2);
   for (i = lg(P)-1; i > 0; i--)
   {
-    long p = P[i], e = E[i], q = n;
-    if (DEBUGLEVEL>=4) err_printf("SubCyclo: testing %ld^%ld\n",p,e);
-    for (  ; e >= 1; e--)
+    long p = P[i], e = E[i];
+    for (  ; e >= 2; e--)
     {
-      long z = 1;
-      q /= p;
-      for (j = 1; j < p; j++)
+      long q = cnd / p;
+      if (!F2v_coeff(bits, 1+q)) break;
+      cnd = q;
+    }
+    if (e == 1)
+    {
+      if (p == 2) cnd >>= 1;
+      else
       {
-        z += q;
-        if (!F2v_coeff(gel(H,3),z) && ugcd(z,n)==1) break;
+        long h, g = pgener_Fl(p), q = cnd / p;
+        h = Fl_mul(g-1, Fl_inv(q % p, p), p); /* 1+h*q = g (mod p) */
+        if (F2v_coeff(bits, 1+h*q)) cnd = q;
       }
-      if (j < p)
-      {
-        if (DEBUGLEVEL>=4) err_printf("SubCyclo: %ld not found\n",z);
-        break;
-      }
-      cnd /= p;
-      if (DEBUGLEVEL>=4) err_printf("SubCyclo: new conductor:%ld\n",cnd);
     }
   }
-  if (DEBUGLEVEL>=6) err_printf("SubCyclo: conductor:%ld\n",cnd);
   avma = av; return cnd;
 }
+long
+znstar_conductor(GEN H) { return znstar_conductor_bits(gel(H,3)); }
 
 /* Compute the orbits of a subgroups of Z/nZ given by a generator
  * or a set of generators given as a vector.
@@ -631,7 +630,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
   complex = !F2v_coeff(gel(H,3),n-1);
   if (DEBUGLEVEL >= 6) err_printf("Subcyclo: complex=%ld\n",complex);
   if (DEBUGLEVEL >= 1) timer_start(&ti);
-  cnd = znstar_conductor(n,H);
+  cnd = znstar_conductor(H);
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "znstar_conductor");
   if (flag == 1)  { avma=ltop; return stoi(cnd); }
   if (cnd == 1)
