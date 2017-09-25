@@ -1675,6 +1675,9 @@ ffgen(GEN T, long v)
   long d;
   switch(typ(T))
   {
+    case t_FFELT:
+      p = FF_p_i(T); T = FF_mod(T); d = degpol(T);
+      break;
     case t_POL:
       d = degpol(T); p = NULL;
       if (d < 1 || !RgX_is_FpX(T, &p) || !p) pari_err_TYPE("ffgen",T);

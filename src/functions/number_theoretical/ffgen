@@ -2,49 +2,51 @@ Function: ffgen
 Section: number_theoretical
 C-Name: ffgen
 Prototype: GDn
-Help: ffgen(q,{v = 'x}): return a generator X mod P(X) for the finite field with
- q elements (not necessarily a generator of its multiplicative group). If v is
- given, the variable name is used to display g, else the variable 'x' is used.
- Alternative syntax, q = P(X) an irreducible polynomial with t_INTMOD
- coefficients, return the generator X mod P(X) of the finite field defined by P.
- If v is given, the variable name is used to display g, else the variable of the
- polynomial P is used.
+Help: ffgen(k,{v = 'x}): return a generator of the finite field k
+ (not necessarily a generator of its multiplicative group) as a t_FFELT.
+ k can be given by its order q, the pair [p,f] with q=p^f, by an irreducible
+ polynomial with t_INTMOD coefficients, or by a finite field element.
+ If v is given, the variable name is used to display g, else the variable of
+ the polynomial or finite field element, or x if only the order was given.
 
-Doc: return a \typ{FFELT} generator for the finite field with $q$ elements;
- $q = p^f$ must be a prime power. This functions computes an irreducible
- monic polynomial $P\in\F_p[X]$ of degree~$f$ (via \tet{ffinit}) and
- returns $g = X \pmod{P(X)}$. If \kbd{v} is given, the variable name is used
- to display $g$, else the variable $x$ is used. The generator computed might not
- be a generator of the multiplicative group of~$\F_q$ (see \tet{ffprimroot}).
+Doc: return a generator for the finite field $k$ as a \typ{FFELT}.
+ The field $k$ can be given by
+
+ \item its order $q$
+
+ \item the pair $[p,f]$ where $q=p^f$
+
+ \item a monic irreducible polynomial with \typ{INTMOD} coefficients modulo a
+       prime.
+
+ \item a \typ{FFELT} belonging to $k$.
+
+ If \kbd{v} is given, the variable name is used to display $g$, else the
+ variable of the polynomial or the \typ{FFELT} is used , else $x$ is used.
+
+ When only the order is specified, the function uses the polynomial generated
+ by \kbd{ffinit} and is deterministic: two calls to the function with the
+ same parameters will always give the same generator.
+
+ For efficiency, the characteristic is not checked to be prime, nor
+ If a polynomial is given it is not checked whether it is irreducible.
+
+ To obtain a multiplicative generator, call \kbd{ffprimroot} on the result.
+
  \bprog
- ? g = ffgen(8, 't);
- ? g.mod
- %2 = t^3 + t^2 + 1
- ? g.p
+ ? g = ffgen(16, 't);
+ ? g.mod \\ recover the underlying polynomial.
+ %2 = t^4+t^3+t^2+t+1
+ ? g.p \\ recover the characteristic
  %3 = 2
- ? g.f
- %4 = 3
- ? ffgen(6)
-  ***   at top-level: ffgen(6)
-  ***                 ^--------
-  *** ffgen: not a prime number in ffgen: 6.
- @eprog\noindent Alternative syntax: instead of a prime power $q=p^f$, one may
- input the pair $[p,f]$:
- \bprog
- ? g = ffgen([2,4], 't);
- ? g.p
- %2 = 2
- ? g.mod
- %3 = t^4 + t^3 + t^2 + t + 1
- @eprog\noindent Finally, one may input
- directly the polynomial $P$ (monic, irreducible, with \typ{INTMOD}
- coefficients), and the function returns the generator $g = X \pmod{P(X)}$,
- inferring $p$ from the coefficients of $P$. If \kbd{v} is given, the
- variable name is used to display $g$, else the variable of the polynomial
- $P$ is used. If $P$ is not irreducible, we create an invalid object and
- behavior of functions dealing with the resulting \typ{FFELT}
- is undefined; in fact, it is much more costly to test $P$ for
- irreducibility than it would be to produce it via \kbd{ffinit}.
+ ? fforder(g) \\ g is not a multiplicative generator
+ %4 = 5
+ ? a = ffprimroot(g) \\ recover a multiplicative generator
+ %5 = t^3+t^2+t
+ ? fforder(a)
+ %6 = 15
+ @eprog
+
 Variant:
  To create a generator for a prime finite field, the function
- \fun{GEN}{p_to_GEN}{GEN p, long v} returns \kbd{1+ffgen(x*Mod(1,p),v)}.
+ \fun{GEN}{p_to_GEN}{GEN p, long v} returns \kbd{ffgen(p,v)\^{}0}.
