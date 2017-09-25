@@ -1055,24 +1055,26 @@ groupelts_center(GEN S)
 }
 
 GEN
-groupelts_conjclasses(GEN elts, long *ptnbcl)
+groupelts_conjclasses(GEN elts, long *pnbcl)
 {
   long i, j, cl = 0, n = lg(elts)-1;
   GEN c = const_vecsmall(n,0);
+  pari_sp av = avma;
   for (i=1; i<=n; i++)
   {
     GEN g = gel(elts,i);
     if (c[i]) continue;
     c[i] = ++cl;
     for(j=1; j<=n; j++)
-    {
-      GEN h = perm_conj(gel(elts,j), g);
-      long i2 = vecsearch(elts,h,NULL);
-      c[i2] = cl;
-    }
+      if (j != i)
+      {
+        GEN h = perm_conj(gel(elts,j), g);
+        long i2 = gen_search(elts,h,0,(void*)&vecsmall_lexcmp,&cmp_nodata);
+        c[i2] = cl;
+      }
   }
-  if (ptnbcl) *ptnbcl = cl;
-  return c;
+  if (pnbcl) *pnbcl = cl;
+  avma = av; return c;
 }
 
 GEN
