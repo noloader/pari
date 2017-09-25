@@ -1088,6 +1088,19 @@ conjclasses_repr(GEN conj, long nb)
   return e;
 }
 
+GEN
+groupelts_to_conjclasses(GEN elts)
+{
+  GEN rep, conjclass;
+  long nbcl;
+  elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
+  /* compute conjugacy classes */
+  conjclass = groupelts_conjclasses(elts,&nbcl);
+  rep = conjclasses_repr(conjclass,nbcl);
+  /* TODO sort conjugacy classes using a reasonable cmp */
+  return mkvec3(elts,conjclass,rep);
+}
+
 /* S a list of generators */
 GEN
 groupelts_abelian_group(GEN S)

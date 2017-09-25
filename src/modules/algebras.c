@@ -4145,59 +4145,42 @@ matrix_perm(GEN perm, long n)
   return m;
 }
 
-static GEN
-groupelts_algcenter(GEN elts, GEN p, GEN* ptr_conjclasses)
+GEN
+conjclasses_algcenter(GEN cc, GEN p)
 {
-  pari_sp av = avma;
-  long nbcl, i, n, k, j, ci, cj, ck;
-  GEN conjclass, mt, xi, xj, xixj, repclass, al;
-  if(p && !signe(p)) p = NULL;
-  n = lg(elts)-1;
-  elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
-  /* compute conjugacy classes */
-  conjclass = groupelts_conjclasses(elts,&nbcl);
-  repclass = const_vecsmall(nbcl,0);
-  for(i=1;i<=n;i++)
-    if(!repclass[conjclass[i]]) repclass[conjclass[i]] = i;
+  GEN mt, elts = gel(cc,1), conjclass = gel(cc,2), rep = gel(cc,3);
+  long i, nbcl = lg(rep)-1, n = lg(elts)-1;
 
-  /* TODO sort conjugacy classes using a reasonable cmp */
-
-  /* compute multiplication table of the center of the group algebra
-   * (class functions). */
+  /* multiplication table of the center of the Z[G] (class functions) */
   mt = cgetg(nbcl+1,t_VEC);
-  for(i=1;i<=nbcl;i++)
-    gel(mt,i) = zeromatcopy(nbcl,nbcl);
-  for(i=1;i<=n;i++) {
-    xi = gel(elts,i);
-    ci = conjclass[i];
-    for(j=1;j<=n;j++) {
-      xj = gel(elts,j);
-      cj = conjclass[j];
-      xixj = perm_mul(xi,xj);
-      k = vecsearch(elts,xixj,NULL);
-      ck = conjclass[k];
-      if(repclass[ck]==k)
-        gcoeff(gel(mt,ci),ck,cj) = addiu(gcoeff(gel(mt,ci),ck,cj), 1);
+  for (i=1;i<=nbcl;i++) gel(mt,i) = zero_Flm_copy(nbcl,nbcl);
+  for (i=1;i<=n;i++)
+  {
+    GEN xi = gel(elts,i);
+    long j, ci = conjclass[i];
+    for (j=1;j<=n;j++)
+    {
+      GEN xj = gel(elts,j);
+      long k = vecsearch(elts, perm_mul(xi,xj), NULL), ck = conjclass[k];
+      if (rep[ck]==k) ucoeff(gel(mt,ci),ck,conjclass[j])++;
     }
   }
-  if(p)
-    for(i=1; i<=nbcl; i++)
-      gel(mt,i) = FpM_red(gel(mt,i),p);
-
-  al = algtableinit_i(mt,p);
-  if(ptr_conjclasses) {
-    *ptr_conjclasses = mkvec3(elts,conjclass,repclass);
-    gerepileall(av,2,&al,ptr_conjclasses);
-  }
-  else al = gerepilecopy(av,al);
-  return al;
+  for (i=1;i<=nbcl;i++) gel(mt,i) = Flm_to_ZM(gel(mt,i));
+  return algtableinit_i(mt,p);
 }
 
 GEN
-alggroupcenter(GEN gal, GEN p, GEN* ptr_conjclasses)
+alggroupcenter(GEN gal, GEN p, GEN *pcc)
 {
-  GEN elts = checkgroupelts(gal);
-  return groupelts_algcenter(elts, p, ptr_conjclasses);
+  pari_sp av = avma;
+  GEN cc = groupelts_to_conjclasses(checkgroupelts(gal));
+  GEN al = conjclasses_algcenter(cc, p);
+  if (!pcc) al = gerepilecopy(av,al);
+  else
+  {
+    *pcc = cc; gerepileall(av,2,&al,pcc);
+  }
+  return al;
 }
 
 static GEN

@@ -1277,7 +1277,6 @@ GEN     scalar_ZX_shallow(GEN x, long v);
 GEN     zx_to_ZX(GEN z);
 
 /* algebras.c */
-
 GEN     alg_centralproj(GEN al, GEN z, int maps);
 GEN     alg_change_overorder_shallow(GEN al, GEN ord);
 GEN     alg_complete(GEN rnf, GEN aut, GEN hi, GEN hf, long maxord);
@@ -1391,6 +1390,7 @@ GEN     bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl);
 void    checkalg(GEN x);
 void    checkhasse(GEN nf, GEN hi, GEN hf, long n);
 void    checklat(GEN al, GEN lat);
+GEN     conjclasses_algcenter(GEN cc, GEN p);
 long    cyclicrelfrob(GEN rnf, GEN auts, GEN pr);
 GEN     galoischardet(GEN gal, GEN ch, long o);
 GEN     galoischarpoly(GEN gal, GEN ch, long o);
@@ -4126,6 +4126,7 @@ GEN     group_subgroups(GEN G);
 GEN     groupelts_abelian_group(GEN S);
 GEN     groupelts_center(GEN S);
 GEN     groupelts_conjclasses(GEN elts, long *nbcl);
+GEN     groupelts_to_conjclasses(GEN elts);
 long    groupelts_exponent(GEN G);
 GEN     groupelts_set(GEN G, long n);
 int     perm_commute(GEN p, GEN q);
