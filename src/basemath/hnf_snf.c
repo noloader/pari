@@ -1356,11 +1356,11 @@ FpM_echelon(GEN x, GEN *pP, GEN p)
 
       ZC_lincomb1_inplace(xj, gel(x,def), negi(u));
       for (k = 1; k < i; k++) gel(xj,k) = modii(gel(xj,k), p);
-      if (gc_needed(av,1))
-      {
-        if (DEBUGMEM>1) pari_warn(warnmem,"FpM_echelon. i=%ld",i);
-        x = gerepilecopy(av, x);
-      }
+    }
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpM_echelon. i=%ld",i);
+      x = gerepilecopy(av, x);
     }
     def--;
   }
