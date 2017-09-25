@@ -2460,18 +2460,13 @@ checkgroupelts(GEN gal)
   else
   {
     long i, n = lg(gal)-1;
-    if (n==0) pari_err_DIM("checkgroupelts");
-    gal = shallowcopy(gal);
+    if (n==0)
+      pari_err_DIM("checkgroupelts");
     for(i=1; i<=n; i++)
     {
-      GEN g = gel(gal,i);
-      long tg = typ(g);
-      if (tg != t_VECSMALL)
-      {
-        if (tg != t_VEC) pari_err_TYPE("checkgroupelts (element)", gel(gal,i));
-        gel(gal,i) = ZV_to_zv(g);
-      }
-      if (lg(g) != lg(gel(gal,1)))
+      if(typ(gel(gal,i)) != t_VECSMALL)
+        pari_err_TYPE("checkgroupelts (element)", gel(gal,i));
+      if(lg(gel(gal,i))!=lg(gel(gal,1)))
         pari_err_DIM("checkgroupelts [length of permutations]");
     }
     return gal;
