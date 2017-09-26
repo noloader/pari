@@ -2291,6 +2291,29 @@ setrand(1294); algsimpledec(al);
 /* bb_hermite */
 install("mathnfmodid2","GG");
 install("matimagemod","GG");
+randdistinct(n) =
+{
+  my(i=0,j=0);
+  while(i==j,
+    i = random([1,n]);
+    j = random([1,n]);
+  );
+  [i,j];
+}
+randSLn(n,nb,B,A = matid(n)) =
+{
+  my(i,j,a,tmp);
+  for(count=1,nb,
+    [i,j] = randdistinct(n);
+    a = random([-B,B]);
+    A[,i] = A[,i] + a*A[,j];
+    [i,j] = randdistinct(n);
+    tmp = A[,i];
+    A[,i] = A[,j];
+    A[,j] = tmp;
+  );
+  A;
+}
 rmzerocol(A) =
 {
   my(L=[]);
@@ -2312,6 +2335,27 @@ setrand(1);
       h3 = matimagemod(A,N);
       if(rmzerocol(h2%N)!=h3, print("fail2: ", A));
     );
+  );
+);}
+{M = matdiagonal([900,4,9,25,10]);M[1,]=[900,2*65,9*13,25*11,5*17];}
+H = matimagemod(M,N)
+{for(count=1,300,
+  A = randSLn(5,50,N,M);
+  if(H != matimagemod(A,N),
+    print("fail3: ", A);
+  );
+);}
+{M = [11,28,-1;
+      2,1,89;
+      5,78,15;
+      0,8,3;
+      0,0,3
+];}
+H = matimagemod(M,N)
+{for(count=1,300,
+  A = randSLn(3,50,N,M);
+  if(H != matimagemod(A,N),
+    print("fail4: ", A);
   );
 );}
 /* end bb_hermite */
