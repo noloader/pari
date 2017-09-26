@@ -4150,20 +4150,23 @@ conjclasses_algcenter(GEN cc, GEN p)
 {
   GEN mt, elts = gel(cc,1), conjclass = gel(cc,2), rep = gel(cc,3);
   long i, nbcl = lg(rep)-1, n = lg(elts)-1;
+  pari_sp av;
 
-  /* multiplication table of the center of the Z[G] (class functions) */
+  /* multiplication table of the center of Z[G] (class functions) */
   mt = cgetg(nbcl+1,t_VEC);
   for (i=1;i<=nbcl;i++) gel(mt,i) = zero_Flm_copy(nbcl,nbcl);
+  av = avma;
   for (i=1;i<=n;i++)
   {
     GEN xi = gel(elts,i);
-    long j, ci = conjclass[i];
+    long j, mi = gel(mt,conjclass[i]);
     for (j=1;j<=n;j++)
     {
       GEN xj = gel(elts,j);
       long k = vecsearch(elts, perm_mul(xi,xj), NULL), ck = conjclass[k];
-      if (rep[ck]==k) ucoeff(gel(mt,ci),ck,conjclass[j])++;
+      if (rep[ck]==k) ucoeff(mi, ck, conjclass[j])++;
     }
+    avma = av;
   }
   for (i=1;i<=nbcl;i++) gel(mt,i) = Flm_to_ZM(gel(mt,i));
   return algtableinit_i(mt,p);
