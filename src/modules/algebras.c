@@ -494,7 +494,12 @@ static int
 _Fp_equal1(GEN x) { return equali1(x); }
 
 static GEN
-_Fp_s(void *data, long x) { return modsi(x,(GEN)data); }
+_Fp_s(void *data, long x)
+{
+  if (!x) return gen_0;
+  if (x==1) return gen_1;
+  return modsi(x,(GEN)data);
+}
 
 /* p not necessarily prime */
 static const struct bb_hermite Fp_hermite=
