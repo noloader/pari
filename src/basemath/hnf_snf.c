@@ -1158,7 +1158,12 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   li = lgcols(x); if (li == 1) return cgetg(1,t_MAT);
   if (typ(dm) == t_INT)
   {
-    if (flag == hnf_MODID && BPSW_psp(dm)) return ZM_hnfmodprime(x, dm);
+    if (flag == hnf_MODID)
+    { /* if log p >> n^3, ispsp dominates hnf ! */
+      ulong C = itou_or_0(muliu(sqru(co-1), 2*(li-1)));
+      if ((lgefint(dm) == 3 || !C || expi(dm) < C) && BPSW_psp(dm))
+        return ZM_hnfmodprime(x, dm);
+    }
     LDM= const_vecsmall(li-1, lgefint(dm));
     dm2 = shifti(dm, -1);
     dm = const_vec(li-1,dm);
