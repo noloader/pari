@@ -396,26 +396,27 @@ factoredextchinese(GEN nf, GEN x, GEN y, GEN pl, GEN* fa)
 
 struct bb_hermite
 {
-  GEN (*add)(void *data, GEN, GEN);
-  GEN (*neg)(void *data, GEN);
-  GEN (*mul)(void *data, GEN, GEN);
-  GEN (*extgcd)(void *data, GEN, GEN);
-  GEN (*rann)(void *data, GEN);
-  GEN (*lquo)(void *data, GEN, GEN);
-  GEN (*unit)(void *data, GEN);
+  GEN (*add)(void*, GEN, GEN);
+  GEN (*neg)(void*, GEN);
+  GEN (*mul)(void*, GEN, GEN);
+  GEN (*extgcd)(void*, GEN, GEN);
+  GEN (*rann)(void*, GEN);
+  GEN (*lquo)(void*, GEN, GEN);
+  GEN (*unit)(void*, GEN);
   int (*equal0)(GEN);
   int (*equal1)(GEN);
-  GEN (*s)(void *data, long);
+  GEN (*s)(void*, long);
+  GEN (*red)(void*, GEN);
 };
 
 static GEN
-_Fp_add(void *data, GEN x, GEN y) { return Fp_add(x,y,(GEN)data); }
+_Fp_add(void *data, GEN x, GEN y) { (void) data; return addii(x,y); }
 
 static GEN
-_Fp_neg(void *data, GEN x) { return Fp_neg(x,(GEN)data); }
+_Fp_neg(void *data, GEN x) { (void) data; return negi(x); }
 
 static GEN
-_Fp_mul(void *data, GEN x, GEN y) { return Fp_mul(x,y,(GEN)data); }
+_Fp_mul(void *data, GEN x, GEN y) { (void) data; return mulii(x,y); }
 
 static GEN
 _Fp_rann(void *data, GEN x)
@@ -501,13 +502,24 @@ _Fp_s(void *data, long x)
   return modsi(x,(GEN)data);
 }
 
+static GEN
+_Fp_red(void *data, GEN x) { return Fp_red(x, (GEN)data); }
+
 /* p not necessarily prime */
 static const struct bb_hermite Fp_hermite=
-  {_Fp_add,_Fp_neg,_Fp_mul,_Fp_extgcd,_Fp_rann,_Fp_lquo,_Fp_unit,_Fp_equal0,_Fp_equal1,_Fp_s};
+  {_Fp_add,_Fp_neg,_Fp_mul,_Fp_extgcd,_Fp_rann,_Fp_lquo,_Fp_unit,_Fp_equal0,_Fp_equal1,_Fp_s,_Fp_red};
 
 const struct bb_hermite *get_Fp_hermite(void **data, GEN p)
 {
   *data = (void*)p; return &Fp_hermite;
+}
+
+static void
+gen_redcol(GEN *C, long lim, void* data, const struct bb_hermite *R)
+{
+  long i;
+  for (i=1; i<=lim; i++)
+    gel(*C,i) = R->red(data, gel(*C,i));
 }
 
 static GEN
@@ -550,6 +562,7 @@ gen_addrightmul(GEN H, GEN C, GEN a, long i, long lim, void* data, const struct 
   if (R->equal0(a)) return;
   Ca = gen_rightmulcol(C, a, lim, 0, data, R);
   gen_addcol(gel(H,i), Ca, lim, data, R);
+  if (R->red) gen_redcol(&gel(H,i), lim, data, R);
 }
 
 static GEN
@@ -586,6 +599,11 @@ gen_elem(GEN H, GEN U, long i, long j, long lim, void* data, const struct bb_her
   Hj = shallowcopy(gel(H,j));
   gen_rightlincomb(Hi, Hj, gel(U,1), &gel(H,i), lim, data, R);
   gen_rightlincomb(Hi, Hj, gel(U,2), &gel(H,j), lim, data, R);
+  if (R->red)
+  {
+    gen_redcol(&gel(H,i), lim, data, R);
+    gen_redcol(&gel(H,j), lim, data, R);
+  }
 }
 
 static int
@@ -642,7 +660,10 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
   {
     /* normalize diagonal coefficient */
     u = R->unit(data,gcoeff(H,i,si));
-    if (u) gel(H,si) = gen_rightmulcol(gel(H,si), u, i, 1, data, R);
+    if (u) {
+      gel(H,si) = gen_rightmulcol(gel(H,si), u, i, 1, data, R);
+      if (R->red) gen_redcol(&gel(H,si), i, data, R);
+    }
     piv = gcoeff(H,i,si);
 
     /* reduce above diagonal */
@@ -662,6 +683,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
     if (!R->equal0(a))
     {
       gel(H,1) = gen_rightmulcol(gel(H,si), a, i-1, 1, data, R);
+      if (R->red) gen_redcol(&gel(H,1), i-1, data, R);
       for (i2=i-1,si2=s+i2; i2>0; i2--,si2--)
         if (!R->equal0(gcoeff(H,i2,1)))
         {
