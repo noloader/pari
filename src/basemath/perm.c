@@ -1071,10 +1071,11 @@ groupelts_conjclasses(GEN elts, long *pnbcl)
         GEN h = perm_conj(gel(elts,j), g);
         long i2 = gen_search(elts,h,0,(void*)&vecsmall_lexcmp,&cmp_nodata);
         c[i2] = cl;
+        avma = av;
       }
   }
   if (pnbcl) *pnbcl = cl;
-  avma = av; return c;
+  return c;
 }
 
 GEN
