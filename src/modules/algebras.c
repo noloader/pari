@@ -424,7 +424,7 @@ _Fp_rann(void *data, GEN x)
   GEN d, N = (GEN)data;
   if (!signe(x)) return gen_1;
   d = gcdii(x,N);
-  return diviiexact(N,d);
+  return modii(diviiexact(N,d),N);
 }
 
 static GEN
@@ -607,11 +607,12 @@ gen_elem(GEN H, GEN U, long i, long j, long lim, void* data, const struct bb_her
 }
 
 static int
-gen_is_zerocol(GEN C, void* data, const struct bb_hermite *R)
+/* assume C is zero after lim */
+gen_is_zerocol(GEN C, long lim, void* data, const struct bb_hermite *R)
 {
   long i;
   (void) data;
-  for (i=1; i<lg(C); i++)
+  for (i=1; i<=lim; i++)
     if (!R->equal0(gel(C,i))) return 0;
   return 1;
 }
@@ -652,7 +653,11 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
         gen_elem(H, U, j, si, i, data, R);
       }
 
-    if (gc_needed(av,2)) gerepileall(av,1,&H);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"gen_howell[1]. i=%ld",i);
+      gerepileall(av,1,&H);
+    }
   }
 
   /* put in reduced Howell form */
@@ -680,7 +685,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
 
     /* ensure Howell property */
     a = R->rann(data, piv);
-    if (!R->equal0(a))
+    if (!R->equal0(a) && !gen_is_zerocol(gel(H,si),i-1,data,R))
     {
       gel(H,1) = gen_rightmulcol(gel(H,si), a, i-1, 1, data, R);
       if (R->red) gen_redcol(&gel(H,1), i-1, data, R);
@@ -702,7 +707,11 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
         }
     }
 
-    if (gc_needed(av,2)) gerepileall(av,2,&H,&piv);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"gen_howell[2]. i=%ld",i);
+      gerepileall(av,2,&H,&piv);
+    }
   }
 
   /* put zero columns first */
@@ -711,7 +720,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
   nbz = 0;
   for (i=1; i<=n; i++)
   {
-    iszero[i] = gen_is_zerocol(gel(H,i), data, R);
+    iszero[i] = gen_is_zerocol(gel(H,i), maxss(0,m-n+i), data, R);
     if (iszero[i]) nbz++;
   }
 
