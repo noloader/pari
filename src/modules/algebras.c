@@ -515,22 +515,25 @@ const struct bb_hermite *get_Fp_hermite(void **data, GEN p)
 }
 
 static void
-gen_redcol(GEN *C, long lim, void* data, const struct bb_hermite *R)
+gen_redcol(GEN C, long lim, void* data, const struct bb_hermite *R)
 {
   long i;
   for (i=1; i<=lim; i++)
-    gel(*C,i) = R->red(data, gel(*C,i));
+    if (!R->equal0(gel(C,i)))
+      gel(C,i) = R->red(data, gel(C,i));
 }
 
 static GEN
 /* return NULL if a==0 */
 /* assume C*a is zero after lim */
-gen_rightmulcol(GEN C, GEN a, long lim, int fillzeros, void* data, const struct bb_hermite *R)
+gen_rightmulcol(GEN C, GEN a, long lim, int fillzeros, int *truemul, void* data, const struct bb_hermite *R)
 {
   GEN Ca,zero;
   long i;
+  if (truemul) *truemul = 0;
   if (R->equal1(a)) return C;
   if (R->equal0(a)) return NULL;
+  if (truemul) *truemul = 1;
   Ca = cgetg(lg(C),t_COL);
   for (i=1; i<=lim; i++)
     gel(Ca,i) = R->mul(data, gel(C,i), a);
@@ -560,9 +563,9 @@ gen_addrightmul(GEN H, GEN C, GEN a, long i, long lim, void* data, const struct 
 {
   GEN Ca;
   if (R->equal0(a)) return;
-  Ca = gen_rightmulcol(C, a, lim, 0, data, R);
+  Ca = gen_rightmulcol(C, a, lim, 0, NULL, data, R);
   gen_addcol(gel(H,i), Ca, lim, data, R);
-  if (R->red) gen_redcol(&gel(H,i), lim, data, R);
+  if (R->red) gen_redcol(gel(H,i), lim, data, R);
 }
 
 static GEN
@@ -580,12 +583,26 @@ static void
 gen_rightlincomb(GEN A, GEN B, GEN U, GEN *C, long lim, void* data, const struct bb_hermite *R)
 {
   GEN Au1, Bu2;
-  Au1 = gen_rightmulcol(A, gel(U,1), lim, 1, data, R);
-  Bu2 = gen_rightmulcol(B, gel(U,2), lim, 1, data, R);
+  int truemul1, truemul2;
+  Au1 = gen_rightmulcol(A, gel(U,1), lim, 1, &truemul1, data, R);
+  Bu2 = gen_rightmulcol(B, gel(U,2), lim, 1, &truemul2, data, R);
   if (!Au1 && !Bu2) { *C = gen_zerocol(lg(A)-1, data, R); return; }
-  if (!Au1) { *C = Bu2; return; }
-  if (!Bu2) { *C = Au1; return; }
+  if (!Au1)
+  {
+    if (R->red && truemul2)
+      gen_redcol(Bu2, lim, data, R);
+    *C = Bu2;
+    return;
+  }
+  if (!Bu2)
+  {
+    if (R->red && truemul1)
+      gen_redcol(Au1, lim, data, R);
+    *C = Au1;
+    return;
+  }
   gen_addcol(Au1, Bu2, lim, data, R);
+  if (R->red) gen_redcol(Au1, lim, data, R);
   *C = Au1;
 }
 
@@ -599,11 +616,6 @@ gen_elem(GEN H, GEN U, long i, long j, long lim, void* data, const struct bb_her
   Hj = shallowcopy(gel(H,j));
   gen_rightlincomb(Hi, Hj, gel(U,1), &gel(H,i), lim, data, R);
   gen_rightlincomb(Hi, Hj, gel(U,2), &gel(H,j), lim, data, R);
-  if (R->red)
-  {
-    gen_redcol(&gel(H,i), lim, data, R);
-    gen_redcol(&gel(H,j), lim, data, R);
-  }
 }
 
 static int
@@ -634,6 +646,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
   pari_sp av = avma;
   GEN H,U,piv,u,q,a,perm,iszero,C,tmp;
   long m,n,i,j,s,si,i2,si2,nbz;
+  int truemul;
 
   RgM_dimensions(A,&m,&n);
   if (n<m+1)    H = shallowmatconcat(mkvec2(zeromat(m,m+1-n),A));
@@ -666,8 +679,8 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
     /* normalize diagonal coefficient */
     u = R->unit(data,gcoeff(H,i,si));
     if (u) {
-      gel(H,si) = gen_rightmulcol(gel(H,si), u, i, 1, data, R);
-      if (R->red) gen_redcol(&gel(H,si), i, data, R);
+      gel(H,si) = gen_rightmulcol(gel(H,si), u, i, 1, &truemul, data, R);
+      if (R->red && truemul) gen_redcol(gel(H,si), i, data, R);
     }
     piv = gcoeff(H,i,si);
 
@@ -678,7 +691,8 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
       C = gen_colneg(C, data, R);
       for (j=si+1; j<=n; j++)
       {
-        q = R->lquo(data, gcoeff(H,i,j), piv);
+        if (R->equal1(piv)) q = gcoeff(H,i,j);
+        else                q = R->lquo(data, gcoeff(H,i,j), piv);
         gen_addrightmul(H, C, q, j, i, data, R);
       }
     }
@@ -687,8 +701,8 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
     a = R->rann(data, piv);
     if (!R->equal0(a) && !gen_is_zerocol(gel(H,si),i-1,data,R))
     {
-      gel(H,1) = gen_rightmulcol(gel(H,si), a, i-1, 1, data, R);
-      if (R->red) gen_redcol(&gel(H,1), i-1, data, R);
+      gel(H,1) = gen_rightmulcol(gel(H,si), a, i-1, 1, &truemul, data, R);
+      if (R->red && truemul) gen_redcol(gel(H,1), i-1, data, R);
       for (i2=i-1,si2=s+i2; i2>0; i2--,si2--)
         if (!R->equal0(gcoeff(H,i2,1)))
         {
