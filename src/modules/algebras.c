@@ -4158,8 +4158,8 @@ conjclasses_algcenter(GEN cc, GEN p)
   av = avma;
   for (i=1;i<=n;i++)
   {
-    GEN xi = gel(elts,i);
-    long j, mi = gel(mt,conjclass[i]);
+    GEN xi = gel(elts,i), mi = gel(mt,conjclass[i]);
+    long j;
     for (j=1;j<=n;j++)
     {
       GEN xj = gel(elts,j);
