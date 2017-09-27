@@ -666,7 +666,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
         gen_elem(H, U, j, si, i, data, R);
       }
 
-    if (gc_needed(av,2))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"gen_howell[1]. i=%ld",i);
       gerepileall(av,1,&H);
@@ -721,7 +721,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
         }
     }
 
-    if (gc_needed(av,2))
+    if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"gen_howell[2]. i=%ld",i);
       gerepileall(av,2,&H,&piv);
