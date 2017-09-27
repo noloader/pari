@@ -399,7 +399,7 @@ struct bb_hermite
   GEN (*add)(void*, GEN, GEN);
   GEN (*neg)(void*, GEN);
   GEN (*mul)(void*, GEN, GEN);
-  GEN (*extgcd)(void*, GEN, GEN);
+  GEN (*extgcd)(void*, GEN, GEN, int*);
   GEN (*rann)(void*, GEN);
   GEN (*lquo)(void*, GEN, GEN);
   GEN (*unit)(void*, GEN);
@@ -470,13 +470,17 @@ _Fp_unit(void *data, GEN x)
 }
 
 static GEN
-_Fp_extgcd(void *data, GEN x, GEN y)
+_Fp_extgcd(void *data, GEN x, GEN y, int* smallop)
 {
   GEN d,u,v,m,w;
   if (equali1(y))
+  {
+    *smallop = 1;
     return mkvec2(y,mkmat2(
           mkcol2(gen_1,Fp_neg(x,(GEN)data)),
           mkcol2(gen_0,gen_1)));
+  }
+  *smallop = 0;
   d = bezout(x,y,&u,&v);
   if (!signe(d)) return mkvec2(d,matid(2));
   m = cgetg(3,t_MAT);
@@ -526,14 +530,12 @@ gen_redcol(GEN C, long lim, void* data, const struct bb_hermite *R)
 static GEN
 /* return NULL if a==0 */
 /* assume C*a is zero after lim */
-gen_rightmulcol(GEN C, GEN a, long lim, int fillzeros, int *truemul, void* data, const struct bb_hermite *R)
+gen_rightmulcol(GEN C, GEN a, long lim, int fillzeros, void* data, const struct bb_hermite *R)
 {
   GEN Ca,zero;
   long i;
-  if (truemul) *truemul = 0;
   if (R->equal1(a)) return C;
   if (R->equal0(a)) return NULL;
-  if (truemul) *truemul = 1;
   Ca = cgetg(lg(C),t_COL);
   for (i=1; i<=lim; i++)
     gel(Ca,i) = R->mul(data, gel(C,i), a);
@@ -563,9 +565,8 @@ gen_addrightmul(GEN H, GEN C, GEN a, long i, long lim, void* data, const struct 
 {
   GEN Ca;
   if (R->equal0(a)) return;
-  Ca = gen_rightmulcol(C, a, lim, 0, NULL, data, R);
+  Ca = gen_rightmulcol(C, a, lim, 0, data, R);
   gen_addcol(gel(H,i), Ca, lim, data, R);
-  if (R->red) gen_redcol(gel(H,i), lim, data, R);
 }
 
 static GEN
@@ -583,26 +584,12 @@ static void
 gen_rightlincomb(GEN A, GEN B, GEN U, GEN *C, long lim, void* data, const struct bb_hermite *R)
 {
   GEN Au1, Bu2;
-  int truemul1, truemul2;
-  Au1 = gen_rightmulcol(A, gel(U,1), lim, 1, &truemul1, data, R);
-  Bu2 = gen_rightmulcol(B, gel(U,2), lim, 1, &truemul2, data, R);
+  Au1 = gen_rightmulcol(A, gel(U,1), lim, 1, data, R);
+  Bu2 = gen_rightmulcol(B, gel(U,2), lim, 1, data, R);
   if (!Au1 && !Bu2) { *C = gen_zerocol(lg(A)-1, data, R); return; }
-  if (!Au1)
-  {
-    if (R->red && truemul2)
-      gen_redcol(Bu2, lim, data, R);
-    *C = Bu2;
-    return;
-  }
-  if (!Bu2)
-  {
-    if (R->red && truemul1)
-      gen_redcol(Au1, lim, data, R);
-    *C = Au1;
-    return;
-  }
+  if (!Au1) { *C = Bu2; return; }
+  if (!Bu2) { *C = Au1; return; }
   gen_addcol(Au1, Bu2, lim, data, R);
-  if (R->red) gen_redcol(Au1, lim, data, R);
   *C = Au1;
 }
 
@@ -644,9 +631,9 @@ static GEN
 gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
-  GEN H,U,piv,u,q,a,perm,iszero,C,tmp;
-  long m,n,i,j,s,si,i2,si2,nbz;
-  int truemul;
+  GEN H,U,piv,u,q,a,perm,iszero,C,tmp,zero=R->s(data,0);
+  long m,n,i,j,s,si,i2,si2,nbz,lim;
+  int smallop;
 
   RgM_dimensions(A,&m,&n);
   if (n<m+1)    H = shallowmatconcat(mkvec2(zeromat(m,m+1-n),A));
@@ -659,12 +646,24 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
   {
     /* bottom-right diagonal */
     for (j = 1; j < si; j++)
+    {
+      if (R->red)
+      {
+        gcoeff(H,i,j) = R->red(data, gcoeff(H,i,j));
+        gcoeff(H,i,si) = R->red(data, gcoeff(H,i,si));
+      }
       if (!R->equal0(gcoeff(H,i,j)))
       {
-        U = R->extgcd(data, gcoeff(H,i,j), gcoeff(H,i,si));
+        U = R->extgcd(data, gcoeff(H,i,j), gcoeff(H,i,si), &smallop);
         U = gel(U,2);
         gen_elem(H, U, j, si, i, data, R);
+        if (R->red && !smallop)
+        {
+          gen_redcol(gel(H,si), i, data, R);
+          gen_redcol(gel(H,j), i, data, R);
+        }
       }
+    }
 
     if (gc_needed(av,1))
     {
@@ -678,10 +677,12 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
   {
     /* normalize diagonal coefficient */
     u = R->unit(data,gcoeff(H,i,si));
-    if (u) {
-      gel(H,si) = gen_rightmulcol(gel(H,si), u, i, 1, &truemul, data, R);
-      if (R->red && truemul) gen_redcol(gel(H,si), i, data, R);
+    if (u)
+    {
+      gel(H,si) = gen_rightmulcol(gel(H,si), u, i, 1, data, R);
+      if (R->red) gen_redcol(gel(H,si), i, data, R);
     }
+    else if (R->red) gcoeff(H,i,si) = R->red(data, gcoeff(H,i,si));
     piv = gcoeff(H,i,si);
 
     /* reduce above diagonal */
@@ -691,6 +692,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
       C = gen_colneg(C, data, R);
       for (j=si+1; j<=n; j++)
       {
+        gcoeff(H,i,j) = R->red(data, gcoeff(H,i,j));
         if (R->equal1(piv)) q = gcoeff(H,i,j);
         else                q = R->lquo(data, gcoeff(H,i,j), piv);
         gen_addrightmul(H, C, q, j, i, data, R);
@@ -699,13 +701,15 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
 
     /* ensure Howell property */
     a = R->rann(data, piv);
-    if (!R->equal0(a) && !gen_is_zerocol(gel(H,si),i-1,data,R))
+    if (!R->equal0(a))
     {
-      gel(H,1) = gen_rightmulcol(gel(H,si), a, i-1, 1, &truemul, data, R);
-      if (R->red && truemul) gen_redcol(gel(H,1), i-1, data, R);
+      gel(H,1) = gen_rightmulcol(gel(H,si), a, i-1, 1, data, R);
       for (i2=i-1,si2=s+i2; i2>0; i2--,si2--)
+      {
+        if (R->red) gcoeff(H,i2,1) = R->red(data, gcoeff(H,i2,1));
         if (!R->equal0(gcoeff(H,i2,1)))
         {
+          if (R->red) gcoeff(H,i2,si2) = R->red(data, gcoeff(H,i2,si2));
           if (R->equal0(gcoeff(H,i2,si2)))
           {
             tmp = gel(H,si2);
@@ -714,11 +718,17 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
           }
           else
           {
-            U = R->extgcd(data, gcoeff(H,i2,1), gcoeff(H,i2,si2));
+            U = R->extgcd(data, gcoeff(H,i2,1), gcoeff(H,i2,si2), &smallop);
             U = gel(U,2);
             gen_elem(H, U, 1, si2, i2, data, R);
+            if (R->red && !smallop)
+            {
+              gen_redcol(gel(H,si2), i2, data, R);
+              gen_redcol(gel(H,1), i2, data, R);
+            }
           }
         }
+      }
     }
 
     if (gc_needed(av,1))
@@ -727,6 +737,14 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
       gerepileall(av,2,&H,&piv);
     }
   }
+
+  if (R->red)
+    for (j=1; j<=n; j++)
+    {
+      lim = maxss(0,m-n+j);
+      gen_redcol(gel(H,j), lim, data, R);
+      for (i=lim+1; i<=m; i++) gcoeff(H,i,j) = zero;
+    }
 
   /* put zero columns first */
   iszero = cgetg(n+1,t_VECSMALL);
