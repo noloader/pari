@@ -434,12 +434,14 @@ _Fp_lquo(void *data, GEN x, GEN y) { (void) data; return truedivii(x,y); }
 static GEN
 Z_split(GEN D, GEN a)
 {
-  long i, n = expu(expi(D)+1)+1;
-  GEN g;
+  long i, n;
+  GEN N;
+  n = expi(D);
+  n = n<2 ? 1 : expu(n)+1;
   for (i=1;i<=n;i++)
     a = Fp_sqr(a,D);
-  g = gcdii(a,D);
-  return diviiexact(D,g);
+  N = gcdii(a,D);
+  return diviiexact(D,N);
 }
 
 /* c s.t. gcd(a+cb,N) = gcd(a,b,N) without factoring */
@@ -458,10 +460,16 @@ static GEN
 _Fp_unit(void *data, GEN x)
 {
   GEN g,s,v,d,N=(GEN)data,N2;
+  long i;
   if (!signe(x)) return NULL;
   g = bezout(x,N,&s,&v);
-  if (equali1(g)) return s;
+  if (equali1(g) || equali1(gcdii(s,N))) return s;
   N2 = diviiexact(N,g);
+  for (i=0; i<5; i++)
+  {
+    s = addii(s,N2);
+    if (equali1(gcdii(s,N))) return s;
+  }
   d = Z_stab(s,N2,N);
   d = mulii(d,N2);
   v = Fp_add(s,d,N);
