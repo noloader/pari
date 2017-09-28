@@ -401,7 +401,7 @@ struct bb_hermite
   GEN (*mul)(void*, GEN, GEN);
   GEN (*extgcd)(void*, GEN, GEN, int*);
   GEN (*rann)(void*, GEN);
-  GEN (*lquo)(void*, GEN, GEN);
+  GEN (*lquo)(void*, GEN, GEN, GEN*);
   GEN (*unit)(void*, GEN);
   int (*equal0)(GEN);
   int (*equal1)(GEN);
@@ -428,7 +428,7 @@ _Fp_rann(void *data, GEN x)
 }
 
 static GEN
-_Fp_lquo(void *data, GEN x, GEN y) { (void) data; return truedivii(x,y); }
+_Fp_lquo(void *data, GEN x, GEN y, GEN* r) { (void) data; return truedvmdii(x,y,r); }
 
 /* D=MN, p|M => !p|a, p|N => p|a, return M */
 static GEN
@@ -627,7 +627,7 @@ static GEN
 gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
-  GEN H,U,piv,u,q,a,perm,iszero,C,tmp,zero=R->s(data,0),d,g;
+  GEN H,U,piv,u,q,a,perm,iszero,C,tmp,zero=R->s(data,0),d,g,r;
   long m,n,i,j,s,si,i2,si2,nbz,lim,extra;
   int smallop;
 
@@ -710,10 +710,11 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, void *data, con
       for (j=si+1; j<=n; j++)
       {
         gcoeff(H,i,j) = R->red(data, gcoeff(H,i,j));
-        if (R->equal1(piv)) q = gcoeff(H,i,j);
-        else                q = R->lquo(data, gcoeff(H,i,j), piv);
+        if (R->equal1(piv)) { q = gcoeff(H,i,j); r = zero; }
+        else                q = R->lquo(data, gcoeff(H,i,j), piv, &r);
         q = R->neg(data,q);
-        gen_addrightmul(H, C, q, j, i, data, R);
+        gen_addrightmul(H, C, q, j, i-1, data, R);
+        gcoeff(H,i,j) = r;
       }
     }
 
