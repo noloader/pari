@@ -726,7 +726,7 @@ static GEN
 gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
-  GEN H,U,piv,u,q,a,perm,iszero,C,tmp,zero=R->s(data,0),d,g,r;
+  GEN H,U,piv,u,q,a,perm,iszero,C,zero=R->s(data,0),d,g,r;
   long m,n,i,j,s,si,i2,si2,nbz,lim,extra,maxop=0,nbop=0;
   int smallop;
 
@@ -833,6 +833,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void 
       if (!R->equal0(a))
       {
         gel(H,1) = gen_rightmulcol(gel(H,si), a, i-1, 1, data, R);
+        if (gel(H,1) == gel(H,si)) gel(H,1) = shallowcopy(gel(H,1)); /* in case rightmulcol cheated */
         if (ops) { nbop++; gel(*ops,nbop) = mkoptransv(1,si,a); }
         for (i2=i-1,si2=s+i2; i2>0; i2--,si2--)
         {
@@ -841,9 +842,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void 
           if (R->red) gcoeff(H,i2,si2) = R->red(data, gcoeff(H,i2,si2));
           if (R->equal0(gcoeff(H,i2,si2)))
           {
-            tmp = gel(H,si2);
-            gel(H,si2) = shallowcopy(gel(H,1));
-            gel(H,1) = tmp;
+            swap(gel(H,1), gel(H,si2));
             if (ops) { nbop++; gel(*ops,nbop) = mkopswap(1,si2); }
             continue;
           }
@@ -934,9 +933,7 @@ gen_opexpand(long n, long n2, long k, GEN ops, void* data, const struct bb_hermi
   long i;
   if (!k) return cgetg(1,t_MAT);
   for (i=1; i<lg(ops); i++)
-  {
     gen_rightapply(U, gel(ops,i), data, R);
-  }
   if (k<n2) U = vecslice(U, n2-k+1, n2);
   return U;
 }
@@ -946,6 +943,7 @@ matimagemod(GEN A, GEN d, GEN* U)
 {
   void* data;
   GEN ops, H;
+  /* TODO type checks */
   const struct bb_hermite *R = get_Fp_hermite(&data, d);
   if (U)
   {
@@ -967,6 +965,7 @@ mathnfmodid2(GEN A, GEN d)
   void* data;
   long i;
   GEN H;
+  /* TODO type checks */
   H = gen_howell_i(A, 1, 0, NULL, data, get_Fp_hermite(&data, d));
   for (i=1; i<lg(H); i++)
     if (!signe(gcoeff(H,i,i))) gcoeff(H,i,i) = d;
