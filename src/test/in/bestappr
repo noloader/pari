@@ -6,6 +6,7 @@ bestappr(Mod(-1/7,100), 7)
 bestappr(-1/7 + O(5^10))
 bestappr(-1/7 + O(5^10), 6)
 type( bestappr(1+0.*I) )
+bestappr(Mod(10,307), 40)
 
 bestapprPade((x^3+1)/(x^10+2))
 bestapprPade((x^3+1)/(x^10+2), 4)
