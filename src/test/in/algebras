@@ -2290,7 +2290,7 @@ setrand(1294); algsimpledec(al);
 
 /* bb_hermite */
 install("mathnfmodid2","GG");
-install("matimagemod","GG");
+install("matimagemod","GGD&");
 randdistinct(n) =
 {
   my(i=0,j=0);
@@ -2332,8 +2332,9 @@ setrand(1);
       h1 = mathnfmodid(A,N);
       h2 = mathnfmodid2(A,N);
       if(h1!=h2, print("fail: ", A));
-      h3 = matimagemod(A,N);
+      h3 = matimagemod(A,N,&U);
       if(rmzerocol(h2%N)!=h3, print("fail2: ", A));
+      if(A*(U*Mod(1,N))!=h3, print("fail2b: ", A, "\n", h3, "\n", U));
     );
   );
 );}
