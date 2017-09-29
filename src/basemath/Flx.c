@@ -1949,7 +1949,7 @@ Flx_is_smooth_squarefree(GEN f, long r, ulong p)
   for(i=1;;i++)
   {
     if (degpol(f)<=r) {avma = av; return 1;}
-    a = Flxq_pow(Flx_rem(a,f,p),utoi(p),f,p);
+    a = Flxq_powu(Flx_rem(a,f,p), p, f, p);
     if (Flx_equal(a, sx)) {avma = av; return 1;}
     if (i==r) {avma = av; return 0;}
     f = Flx_div(f, Flx_gcd(Flx_sub(a,sx,p),f,p),p);
