@@ -926,36 +926,33 @@ gen_howell(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void *d
 }
 
 static GEN
-/* start with ( 0 | I_n ) with n2 columns, keep only last k columns at the end */
-gen_opexpand(long n, long n2, long k, GEN ops, void* data, const struct bb_hermite *R)
+gen_matimage(GEN A, GEN* U, void *data, const struct bb_hermite *R)
 {
-  GEN U = shallowmatconcat(mkvec2(gen_zeromat(n, n2-n, data, R), gen_matid_hermite(n, data, R)));
-  long i;
-  if (!k) return cgetg(1,t_MAT);
-  for (i=1; i<lg(ops); i++)
-    gen_rightapply(U, gel(ops,i), data, R);
-  if (k<n2) U = vecslice(U, n2-k+1, n2);
-  return U;
+  GEN ops, H;
+  if (U)
+  {
+    pari_sp av = avma;
+    long m, n, i, r, n2;
+    RgM_dimensions(A,&m,&n);
+    H = gen_howell_i(A, 2, 1, &ops, data, R);
+    r = lg(H)-1;
+    *U = shallowmatconcat(mkvec2(gen_zeromat(n, maxss(0,m-n+1), data, R), gen_matid_hermite(n, data, R)));
+    n2 = lg(*U)-1;
+    for (i=1; i<lg(ops); i++)
+      gen_rightapply(*U, gel(ops,i), data, R);
+    if (r<n2) *U = vecslice(*U, n2-r+1, n2);
+    gerepileall(av, 2, &H, U);
+    return H;
+  }
+  else return gen_howell(A, 2, 0, NULL, data, R);
 }
 
 GEN
 matimagemod(GEN A, GEN d, GEN* U)
 {
   void* data;
-  GEN ops, H;
   /* TODO type checks */
-  const struct bb_hermite *R = get_Fp_hermite(&data, d);
-  if (U)
-  {
-    pari_sp av = avma;
-    long m, n;
-    RgM_dimensions(A,&m,&n);
-    H = gen_howell(A, 2, 1, &ops, data, R);
-    *U = gen_opexpand(n, maxss(n,m+1), lg(H)-1, ops, data, R);
-    gerepileall(av, 2, &H, U);
-    return H;
-  }
-  else return gen_howell(A, 2, 0, NULL, data, R);
+  return gen_matimage(A, U, data, get_Fp_hermite(&data, d));
 }
 
 GEN
