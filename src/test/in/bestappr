@@ -17,3 +17,4 @@ bestapprPade(Mod(x^3+x^2+x+1, x^5-2))
 bestapprPade(x^2+x^3+x^4+O(x^5))
 bestapprPade(x^-4+x^-3+x^-2+O(x^-1))
 bestapprPade(x^10/(1-x)^11+O(x^22)) \\#1945
+bestapprPade(Mod((x^5+x+2)/(1-x)^11,x^20),12) \\#1946

@@ -125,6 +125,7 @@ BA   94- v=Vecsmall([2]); Fl_neg(v[1],3) when Fl_neg is installed [#1958]
      96- ellwp(,,1) returned \wp'/2 instead of \wp'
      97- inaccuracy in ellL1 / ellanalyticrank (usually last digit)
      98- nffactor factors could be non-monic [#1967]
+     99- bestapprPade(,explicit B): wrong result [#1946]
 
   Added
       1- [libari] ZM_isidentity

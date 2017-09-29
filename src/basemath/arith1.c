@@ -4470,13 +4470,8 @@ static GEN
 mod_to_frac(GEN x, GEN N, GEN B)
 {
   GEN a, b, A;
-  if (B)
-  {
-    A = divii(shifti(N, -1), B);
-    /* denominator bound useless, don't use it */
-    if (cmpii(A, B) < 0) B = NULL;
-  }
-  if (!B)
+  if (B) A = divii(shifti(N, -1), B);
+  else
   {
     A = sqrti(shifti(N, -1));
     B = A;
@@ -4490,13 +4485,8 @@ mod_to_rfrac(GEN x, GEN N, long B)
 {
   GEN a, b;
   long A, d = degpol(N);
-  if (B >= 0)
-  {
-    A = d-1 - B;
-    /* denominator bound useless, don't use it */
-    if (A < B) B = -1;
-  }
-  if (B < 0)
+  if (B >= 0) A = d-1 - B;
+  else
   {
     B = d >> 1;
     A = odd(d)? B : B-1;

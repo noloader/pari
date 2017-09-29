@@ -10,33 +10,34 @@ Doc: using variants of the extended Euclidean algorithm, returns a rational
  by $B$, if present. If $B$ is omitted, return the best approximation
  affordable given the input accuracy; if you are looking for true rational
  functions, presumably approximated to sufficient accuracy, you should first
- try that option. Otherwise, $B$ must be a non-negative real (impose
- $0 \leq \text{degree}(b) \leq B$).
+ try that option. Otherwise, $B$ must be a non-negative real
+ (impose $0 \leq \text{degree}(b) \leq B$).
 
- \item If $x$ is a \typ{RFRAC} or \typ{SER}, this function uses continued
- fractions.
+ \item If $x$ is a \typ{POLMOD} modulo $N$ this function performs rational
+ modular reconstruction modulo $N$. The routine then returns the unique
+ rational function $a/b$ in coprime polynomials, with $\text{degree}(b)\leq B$
+ and $\text{degree}(a)$ minimal, which is congruent to $x$ modulo $N$.
+ Omitting $B$ amounts to choosing it equal to the floor of
+ $\text{degree}(N) / 2$. If rational reconstruction is not possible (no
+ suitable $a/b$ exists), returns $[]$.
  \bprog
- ? bestapprPade((1-x^11)/(1-x)+O(x^11))
- %1 = 1/(-x + 1)
- ? bestapprPade([1/(1+x+O(x^10)), (x^3-2)/(x^3+1)], 1)
- %2 =  [1/(x + 1), -2]
+ ? T = Mod(x^3 + x^2 + x + 3, x^4 - 2);
+ ? bestapprPade(T)
+ %2 = (2*x - 1)/(x - 1)
+ ? U = Mod(1 + x + x^2 + x^3 + x^5, x^9);
+ ? bestapprPade(U)  \\ internally chooses B = 4
+ %3 = []
+ ? bestapprPade(U, 5) \\ with B = 5, a solution exists
+ %4 = (2*x^4 + x^3 - x - 1)/(-x^5 + x^3 + x^2 - 1)
  @eprog
 
- \item If $x$ is a \typ{POLMOD} modulo $N$ or a \typ{SER} of precision $N =
- t^k$, this function performs rational modular reconstruction modulo $N$. The
- routine then returns the unique rational function $a/b$ in coprime
- polynomials, with $\text{degree}(b)\leq B$ which is congruent to $x$ modulo
- $N$. Omitting $B$ amounts to choosing it of the order of $N/2$. If rational
- reconstruction is not possible (no suitable $a/b$ exists), returns $[]$.
+ \item If $x$ is a \typ{RFRAC} or \typ{SER}, this function implicitly
+ converts the input to \typ{POLMOD} modulo $N = t^k$
+ fractions.
  \bprog
- ? bestapprPade(Mod(1+x+x^2+x^3+x^4, x^4-2))
- %1 = (2*x - 1)/(x - 1)
- ? % * Mod(1,x^4-2)
- %2 = Mod(x^3 + x^2 + x + 3, x^4 - 2)
- ? bestapprPade(Mod(1+x+x^2+x^3+x^5, x^9))
- %2 = []
- ? bestapprPade(Mod(1+x+x^2+x^3+x^5, x^10))
- %3 = (2*x^4 + x^3 - x - 1)/(-x^5 + x^3 + x^2 - 1)
+ ? T = 1 + x + x^2 + x^3 + x^4 + x^5 + x^6 + O(x^7);
+ ? bestapprPade(T)
+ %1 = 1/(-x + 1)
  @eprog\noindent
  The function applies recursively to components of complex objects
  (polynomials, vectors, \dots). If rational reconstruction fails for even a
