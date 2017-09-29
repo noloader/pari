@@ -613,6 +613,33 @@ gen_matid_hermite(long n, void* data, const struct bb_hermite *R)
   return M;
 }
 
+static GEN
+gen_matmul_hermite(GEN A, GEN B, void* data, const struct bb_hermite *R)
+{
+  GEN M,sum,prod,zero = R->s(data,0);
+  long a,b,c,c2,i,j,k;
+  RgM_dimensions(A,&a,&c);
+  RgM_dimensions(B,&c2,&b);
+  if (c!=c2) pari_err_DIM("gen_matmul_hermite");
+  M = cgetg(b+1,t_MAT);
+  for (j=1; j<=b; j++)
+  {
+    gel(M,j) = cgetg(a+1,t_COL);
+    for (i=1; i<=a; i++)
+    {
+      sum = zero;
+      for (k=1; k<=c; k++)
+      {
+        prod = R->mul(data, gcoeff(A,i,k), gcoeff(B,k,j));
+        sum = R->add(data, sum, prod);
+      }
+      gcoeff(M,i,j) = sum;
+    }
+    gen_redcol(gel(M,j), a, data, R);
+  }
+  return M;
+}
+
 static void
 /* U = [u1,u2]~, C <- A*u1 + B*u2 */
 /* assume both A, B and C are zero after lim */
@@ -715,6 +742,49 @@ gen_rightapply(GEN M, GEN op, void* data, const struct bb_hermite *R)
               gen_elem(M, X, i, j, m, data, R);
               gen_redcol(gel(M,i), m, data, R);
               gen_redcol(gel(M,j), m, data, R);
+              return;
+          }
+      }
+  }
+}
+
+static void
+gen_leftapply(GEN C, GEN op, void* data, const struct bb_hermite *R)
+{
+  GEN C2, ind, X;
+  long i, j;
+  switch (typ(op))
+  {
+    case t_VECSMALL:
+      C2 = vecpermute(C,perm_inv(op));
+      for (i=1; i<lg(C); i++) gel(C,i) = gel(C2,i);
+      return;
+    case t_VEC:
+      ind = gel(op,1);
+      switch (lg(op))
+      {
+        case 2:
+          swap(gel(C,ind[1]),gel(C,ind[2]));
+          return;
+        case 3:
+          X = gel(op,2);
+          i = ind[1];
+          switch (lg(ind))
+          {
+            case 2:
+              gel(C,i) = R->mul(data, X, gel(C,i));
+              gel(C,i) = R->red(data, gel(C,i));
+              return;
+            case 3:
+              j = ind[2];
+              gel(C,j) = R->add(data, gel(C,j), R->mul(data, X, gel(C,i)));
+              gel(C,j) = R->red(data, gel(C,j));
+              return;
+            case 4:
+              j = ind[2];
+              C2 = gen_matmul_hermite(X, mkmat(mkcol2(gel(C,i),gel(C,j))), data, R);
+              gel(C,i) = gcoeff(C2,1,1);
+              gel(C,j) = gcoeff(C2,2,1);
               return;
           }
       }
@@ -921,7 +991,7 @@ gen_howell(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void *d
 {
   pari_sp av = avma;
   GEN H = gen_howell_i(A, remove_zerocols, permute_zerocols, ops, data, R);
-  gerepileall(av,ops?2:1, &H, ops);
+  gerepileall(av, ops?2:1, &H, ops);
   return H;
 }
 
@@ -947,6 +1017,75 @@ gen_matimage(GEN A, GEN* U, void *data, const struct bb_hermite *R)
   else return gen_howell(A, 2, 0, NULL, data, R);
 }
 
+static GEN
+/* H in true Howell form: no zero columns */
+gen_kernel_howell(GEN H, void *data, const struct bb_hermite *R)
+{
+  GEN K, piv, FK;
+  long m, n, j, j2, i;
+  RgM_dimensions(H,&m,&n);
+  K = gen_zeromat(n, n, data, R);
+  for (j=n,i=m; j>0; j--)
+  {
+    while (R->equal0(gcoeff(H,i,j))) i--;
+    piv = gcoeff(H,i,j);
+    if (R->equal0(piv)) continue;
+    gcoeff(K,j,j) = R->rann(data, piv);
+    if (j<n)
+    {
+      FK = gen_matmul_hermite(matslice(H,i,i,j+1,n), matslice(K, j+1, n, j+1, n), data, R);
+      for (j2=j+1; j2<=n; j2++)
+        gcoeff(K,j,j2) = R->neg(data, R->lquo(data, gcoeff(FK,1,j2-j), piv, NULL));
+        /* remainder has to be zero */
+    }
+  }
+  return K;
+}
+
+static GEN
+/* (H,ops) Howell form of A, n = number of columns of A, return a kernel of A */
+gen_kernel_from_howell(GEN H, GEN ops, long n, void *data, const struct bb_hermite *R)
+{
+  GEN K, KH, zC;
+  long m, r, n2, nbz, i, o, extra, j;
+  RgM_dimensions(H,&m,&r);
+  if (!r) return gen_matid_hermite(n, data, R);
+  n2 = maxss(n,m+1);
+  extra = n2-n;
+  nbz = n2-r;
+  /* compute kernel of augmented matrix */
+  KH = gen_kernel_howell(H, data, R);
+  zC = gen_zerocol(nbz, data, R);
+  K = cgetg(nbz+r+1, t_MAT);
+  for (i=1; i<=nbz; i++)
+    gel(K,i) = gen_colei(nbz+r, i, data, R);
+  for (i=1; i<=r; i++)
+    gel(K,nbz+i) = shallowconcat(zC, gel(KH,i));
+  for (o=lg(ops)-1; o>0; o--)
+    for (i=1; i<lg(K); i++)
+      gen_leftapply(gel(K,i), gel(ops,o), data, R);
+  /* compute submodule that have first coefficients zero */
+  K = rowpermute(K, cyclic_perm(n2,extra));
+  K = gen_howell_i(K, 2, 0, NULL, data, R);
+  for (j=lg(K)-1, i=n2; j>0; j--)
+  {
+    while (R->equal0(gcoeff(K,i,j))) i--;
+    if (i<=n) return matslice(K, 1, n, 1, j);
+  }
+  return cgetg(1,t_MAT);
+}
+
+static GEN
+gen_kernel(GEN A, void *data, const struct bb_hermite *R)
+{
+  pari_sp av = avma;
+  long n = lg(A)-1;
+  GEN H, ops, K;
+  H = gen_howell_i(A, 2, 1, &ops, data, R);
+  K = gen_kernel_from_howell(H, ops, n, data, R);
+  return gerepilecopy(av, K);
+}
+
 GEN
 matimagemod(GEN A, GEN d, GEN* U)
 {
@@ -967,6 +1106,14 @@ mathnfmodid2(GEN A, GEN d)
   for (i=1; i<lg(H); i++)
     if (!signe(gcoeff(H,i,i))) gcoeff(H,i,i) = d;
   return gerepilecopy(av,H);
+}
+
+GEN
+matkermod(GEN A, GEN d)
+{
+  void* data;
+  /* TODO type checks */
+  return gen_kernel(A, data, get_Fp_hermite(&data, d));
 }
 
 /** OPERATIONS ON ASSOCIATIVE ALGEBRAS algebras.c **/
