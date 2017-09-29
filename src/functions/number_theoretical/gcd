@@ -10,7 +10,7 @@ Description:
  (gen, gen):gen         ggcd($1, $2)
 Doc: creates the greatest common divisor of $x$ and $y$.
  If you also need the $u$ and $v$ such that $x*u + y*v = \gcd(x,y)$,
- use the \tet{bezout} function. $x$ and $y$ can have rather quite general
+ use the \tet{gcdext} function. $x$ and $y$ can have rather quite general
  types, for instance both rational numbers. If $y$ is omitted and $x$ is a
  vector, returns the $\text{gcd}$ of all components of $x$, i.e.~this is
  equivalent to \kbd{content(x)}.
