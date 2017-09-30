@@ -11,6 +11,14 @@
 
 ? mathnf([0,x],1)
 [Mat(x), [1, 0; 0, 1]]
+? mathnf([x;1])
+
+[x]
+
+[1]
+
+? mathnf([x;1],1)
+[[x; 1], Mat(1)]
 ? mathnf([x,x^2+1;x^3+x+1,x+2]*Mod(1,5))
 
 [Mod(1, 5)*x^5 + Mod(2, 5)*x^3 + Mod(4, 5)*x + Mod(1, 5) Mod(4, 5)*x^4 + Mod

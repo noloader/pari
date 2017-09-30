@@ -828,31 +828,28 @@ ZM_reduce(GEN A, GEN U, long i, long j0)
   }
 }
 
+/* normalize T as if it were a t_POL in variable v */
 static GEN
-RgX_normalize_all(GEN T, GEN *pd)
+normalize_as_RgX(GEN T, long v, GEN *pd)
 {
-  GEN d = leading_coeff(T);
-  while (gequal0(d) || ( typ(d) == t_REAL && lg(d) == 3
-                       && gexpo(T) - expo(d) > (long)BITS_IN_LONG)) {
-     T = normalizepol_lg(T, lg(T)-1);
-     if (!signe(T)) { *pd = gen_1; return T; }
-     d = leading_coeff(T);
+  GEN d;
+  if (!is_RgX(T,v)) { *pd = T; return gen_1; }
+  d = leading_coeff(T);
+  while (gequal0(d) || (typ(d) == t_REAL && lg(d) == 3
+                        && gexpo(T) - expo(d) > (long)BITS_IN_LONG)) {
+    T = normalizepol_lg(T, lg(T)-1);
+    if (!signe(T)) { *pd = gen_1; return T; }
+    d = leading_coeff(T);
   }
-  *pd = d;
-  return RgX_Rg_div(T, d);
+  if (degpol(T)) T = RgX_Rg_div(T,d); else { d = gel(T,2); T = gen_1; }
+  *pd = d; return T;
 }
 /* reduce A[i,j] mod A[i,j0] for j=j0+1... via column operations */
 static void
 RgM_reduce(GEN A, GEN U, long i, long j0, long vx)
 {
   long j, lA = lg(A);
-  GEN d, T = gcoeff(A,i,j0);
-  if (is_RgX(T,vx)) {
-    T = RgX_normalize_all(T, &d);
-    if (degpol(T) == 0) { d = gel(T,2); T = gen_1; }
-  } else {
-    d = T; T = gen_1;
-  }
+  GEN d, T = normalize_as_RgX(gcoeff(A,i,j0), vx, &d);
   if (U && !gequal1(d)) gel(U,j0) = RgC_Rg_div(gel(U,j0), d);
   gcoeff(A,i,j0) = T;
 
@@ -2593,7 +2590,7 @@ RgM_hnfall(GEN A, GEN *pB, long remove)
   def = n; ldef = (m>n)? m-n: 0;
   for (li=m; li>ldef; li--)
   {
-    GEN T;
+    GEN d, T;
     for (j=def-1; j; j--)
     {
       GEN a = gcoeff(A,li,j);
@@ -2602,13 +2599,12 @@ RgM_hnfall(GEN A, GEN *pB, long remove)
       k = (j==1)? def: j-1;
       RgC_elem(a,gcoeff(A,li,k), A,B, j,k, li, vx);
     }
-    T = gcoeff(A,li,def);
+    T = normalize_as_RgX(gcoeff(A,li,def), vx, &d);
     if (gequal0(T))
     { if (ldef) ldef--; }
     else
     {
-      GEN d;
-      gcoeff(A,li,def) = RgX_normalize_all(T, &d);
+      gcoeff(A,li,def) = T;
       if (B && !gequal1(d)) gel(B, def) = RgC_Rg_div(gel(B, def), d);
       RgM_reduce(A, B, li, def, vx);
       def--;
@@ -2696,9 +2692,8 @@ gsmithall_i(GEN x,long all)
   }
   for (k=1; k<=n; k++)
   {
-    GEN d, T = gcoeff(x,k,k);
-    if (!signe(T)) continue;
-    if (is_RgX(T,vx)) T = RgX_normalize_all(T, &d); else { d = T; T = gen_1; }
+    GEN d, T = normalize_as_RgX(gcoeff(x,k,k), vx, &d);
+    if (gequal0(T)) continue;
     if (all && !gequal1(d)) gel(V,k) = RgC_Rg_div(gel(V,k), d);
     gcoeff(x,k,k) = T;
   }
