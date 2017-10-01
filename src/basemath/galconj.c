@@ -2501,34 +2501,26 @@ conjclasses_count(GEN conj, long nb)
 {
   long i, l = lg(conj);
   GEN c = zero_zv(nb);
-  for(i = 1; i < l; i++) c[conj[i]]++;
+  for (i = 1; i < l; i++) c[conj[i]]++;
   return c;
 }
-/* expand conjugacy classes */
-static GEN
-conjclasses_expand(GEN elts, GEN conj, long nb)
+GEN
+galoisconjclasses(GEN G)
 {
-  GEN c = conjclasses_count(conj, nb), e = cgetg(nb+1, t_VEC);
-  long i, l = lg(conj);
-  for(i = 1; i <= nb; i++) gel(e,i) = cgetg(c[i]+1, t_VEC);
-  for(i = 1; i < l; i++)
+  pari_sp av = avma;
+  GEN c, e, cc = group_to_cc(G);
+  GEN elts = gel(cc,1), conj = gel(cc,2), repr = gel(cc,3);
+  long i, l = lg(conj), lc = lg(repr);
+  c = conjclasses_count(conj, lc-1);
+  e = cgetg(lc, t_VEC);
+  for (i = 1; i < lc; i++) gel(e,i) = cgetg(c[i]+1, t_VEC);
+  for (i = 1; i < l; i++)
   {
     long ci = conj[i];
     gmael(e, ci, c[ci]) = gel(elts, i);
     c[ci]--;
   }
-  return e;
-}
-
-GEN
-galoisconjclasses(GEN gal)
-{
-  pari_sp av = avma;
-  GEN conj, elts = checkgroupelts(gal);
-  long nb;
-  elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
-  conj = groupelts_conjclasses(elts, &nb);
-  return gerepilecopy(av, conjclasses_expand(elts, conj, nb));
+  return gerepilecopy(av, e);
 }
 
 GEN
