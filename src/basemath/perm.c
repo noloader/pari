@@ -1104,15 +1104,21 @@ galois_elts_sorted(GEN gal)
 GEN
 group_to_cc(GEN G)
 {
-  GEN elts = checkgroupelts(G), z = cgetg(4,t_VEC);
-  long n;
+  GEN elts = checkgroupelts(G), z = cgetg(5,t_VEC);
+  long n, flag = 1;
   if (typ(gel(G,1)) == t_POL)
     elts = galois_elts_sorted(G); /* galoisinit */
   else
+  {
+    long i, l = lg(elts);
     elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata); /* general case */
+    for (i = 1; i < l; i++)
+      if (gel(elts,i)[1] != i) { flag = 0; break; }
+  }
   gel(z,1) = elts;
-  gel(z,2) = groupelts_conjclasses(gel(z,1),&n);
-  gel(z,3) = conjclasses_repr(gel(z,2),n); return z;
+  gel(z,2) = groupelts_conjclasses(elts,&n);
+  gel(z,3) = conjclasses_repr(gel(z,2),n);
+  gel(z,4) = utoi(flag); return z;
 }
 
 /* S a list of generators */

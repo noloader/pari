@@ -12089,10 +12089,12 @@ return \typ{VECSMALL} of length \kbd{nb} which gives the indices in \kbd{elts}
 of a representative of each conjugacy class.
 
 \fun{GEN}{group_to_cc}{GEN G}, where $G$ is a small group or a Galois group,
-returns a \kbd{cc} (conjclasses) structure \kbd{[elts,conj,rep]}, as obtained
-by \kbd{alggroupcenter}, where \kbd{conj} is
+returns a \kbd{cc} (conjclasses) structure \kbd{[elts,conj,rep,flag]},
+ as obtained by \kbd{alggroupcenter}, where \kbd{conj} is
 \kbd{groupelts\_conjclasses}$(\kbd{elts})$ and \kbd{rep} is the attached
-\kbd{conjclasses\_repr}.
+\kbd{conjclasses\_repr}. \kbd{flag} is 1 if the permutation representation
+is transitive (in which case an element $g$ of $G$ is characterized by $g[1]$),
+and 0 otherwise. Shallow function.
 
 \fun{long}{group_order}{GEN grp} returns the order of the small group
 \var{grp} (which is the product of the relative orders).

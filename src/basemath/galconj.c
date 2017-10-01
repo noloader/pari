@@ -2573,16 +2573,24 @@ static GEN
 Qevproj_RgX(GEN c, long d, GEN pro)
 { return RgV_to_RgX(Qevproj_down(RgX_to_RgC(c,d), pro), varn(c)); }
 
+/* index of conjugacy class containing g */
+static long
+cc_id(GEN cc, GEN g)
+{
+  GEN conj = gel(cc,2);
+  long k = signe(gel(cc,4))? g[1]: vecvecsmall_search(gel(cc,1),g,0);
+  return conj[k];
+}
+
 static GEN
 cc_chartable(GEN cc)
 {
-  GEN al, elts, conjclass, rep, ctp, ct, dec, id, vjg, H, vord, operm;
+  GEN al, elts, rep, ctp, ct, dec, id, vjg, H, vord, operm;
   long i, j, k, f, l, expo, lcl, n;
   ulong p, pov2;
 
   elts = gel(cc,1); n = lg(elts)-1;
   if (n == 1) return mkvec2(mkmat(mkcol(gen_1)), gen_1);
-  conjclass = gel(cc,2);
   rep = gel(cc,3);
   lcl = lg(rep);
   vjg = cgetg(lcl, t_VEC);
@@ -2596,10 +2604,10 @@ cc_chartable(GEN cc)
     vord[j] = o = perm_order(g);
     expo = clcm(expo, o);
     gel(vjg,j) = jg = cgetg(o+1,t_VECSMALL);
-    for (l=0; l<o; l++)
-    { /*jg[l+1] = index of conjugacy class of g^l */
-      jg[l+1] = conjclass[vecvecsmall_search(elts,h,0)];
-      h = perm_mul(h, g);
+    for (l=1; l<=o; l++)
+    {
+      jg[l] = cc_id(cc, h); /* index of conjugacy class of g^(l-1) */
+      if (l < o) h = perm_mul(h, g);
     }
   }
   /* would sort conjugacy classes by inc. order */
@@ -2729,11 +2737,11 @@ galoischartable(GEN gal)
 }
 
 static void
-checkgaloischar(GEN ch, long nb)
+checkgaloischar(GEN ch, GEN repr)
 {
   if (gvar(ch) == 0) pari_err_PRIORITY("galoischarpoly",ch,"=",0);
   if (!is_vec_t(typ(ch))) pari_err_TYPE("galoischarpoly", ch);
-  if (nb != lg(ch)-1) pari_err_DIM("galoischarpoly");
+  if (lg(repr) != lg(ch)) pari_err_DIM("galoischarpoly");
 }
 
 static long
@@ -2745,15 +2753,16 @@ galoischar_dim(GEN ch)
 }
 
 static GEN
-galoischar_aut_charpoly(GEN conj, GEN ch, GEN p, long d)
+galoischar_aut_charpoly(GEN cc, GEN ch, GEN p, long d)
 {
   GEN q = p, V = cgetg(d+3, t_POL);
   long i;
-  V[1] = evalsigne(1)|evalvarn(0); gel(V,2) = gen_0;
+  V[1] = evalsigne(1)|evalvarn(0);
+  gel(V,2) = gen_0;
   for (i = 1; i <= d; i++)
   {
-    gel(V,i+2) = gdivgs(gel(ch, conj[q[1]]),-i);
-    q = perm_mul(q, p);
+    gel(V,i+2) = gdivgs(gel(ch, cc_id(cc,q)), -i);
+    if (i < d) q = perm_mul(q, p);
   }
   return liftpol_shallow(RgXn_exp(V,d+1));
 }
@@ -2761,15 +2770,13 @@ galoischar_aut_charpoly(GEN conj, GEN ch, GEN p, long d)
 static GEN
 galoischar_charpoly(GEN cc, GEN ch, long o)
 {
-  GEN mod, chm, V, elts = gel(cc,1), conj = gel(cc,2), repr = gel(cc,3);
+  GEN chm, V, elts = gel(cc,1), repr = gel(cc,3);
   long i, d, l = lg(ch);
-  checkgaloischar(ch, lg(repr)-1);
-  d = galoischar_dim(ch);
-  mod = polcyclo(o, gvar(ch));
-  chm = gmul(ch, mkpolmod(gen_1,  mod));
-  V = cgetg(l, t_COL);
+  checkgaloischar(ch, repr);
+  chm = gmodulo(ch, polcyclo(o, gvar(ch)));
+  V = cgetg(l, t_COL); d = galoischar_dim(ch);
   for (i = 1; i < l; i++)
-    gel(V,i) = galoischar_aut_charpoly(conj, chm, gel(elts,repr[i]), d);
+    gel(V,i) = galoischar_aut_charpoly(cc, chm, gel(elts,repr[i]), d);
   return V;
 }
 

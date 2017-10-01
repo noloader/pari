@@ -8,17 +8,20 @@ Doc: initialise the center~$Z(K[G])$ of the group algebra~$K[G]$ over~$K=\Q$
  ($p$ omitted) or~$\F_p$ where~$G$ is the underlying group of the
  \kbd{galoisinit} structure~\var{gal}. The input~\var{gal} is also allowed to
  be a \typ{VEC} of permutations that is closed under products.
- Set~\var{cc} to a \typ{VEC}~$[\var{elts},\var{conjclass},\var{rep}]$
+ Set~\var{cc} to a
+\typ{VEC}~$[\var{elts},\var{conjclass},\var{rep},\var{flag}]$
  where~\var{elts} is a sorted \typ{VEC} containing the list of elements
  of~$G$, \var{conjclass} is a \typ{VECSMALL} of the same length as~\var{elts}
  containing the index of the conjugacy class of the corresponding element (an
  integer between $1$ and the number of conjugacy classes), and~\var{rep} is a
  \typ{VECSMALL} of length the number of conjugacy classes giving for each
  conjugacy class the index in~\var{elts} of a representative of this conjugacy
- class. The basis of~$Z(K[G])$ as output consists of the indicator functions of
- the conjugacy classes in the ordering given by~\var{cc}.
-
- Example:
+ class. Finally \var{flag} is $1$ if and only if the permutation
+ representation of $G$ is transitive, in which case the $i$-th element
+ of \var{elts} is characterized by $g[1] = i$; this is always the case
+ when \var{gal} is a \kbd{galoisinit} structure. The basis of~$Z(K[G])$ as
+ output consists of the indicator functions of the conjugacy classes in the
+ ordering given by~\var{cc}. Example:
  \bprog
  ? K = nfsplitting(x^4+x+1);
  ? gal = galoisinit(K); \\ S4
