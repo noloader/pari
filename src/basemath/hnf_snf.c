@@ -1375,7 +1375,7 @@ FpM_echelon(GEN x, GEN *pP, GEN p)
 /* given x square of maximal rank with 1 or p on diagonal from hnfmodid
  * (=> a column containing p has its other entries at 0 ), return the HNF */
 static GEN
-FpM_hnfend(GEN x, GEN p)
+FpM_hnfend(pari_sp av, GEN x, GEN p)
 {
   long i, l = lgcols(x);
   for (i = l-1; i > 0; i--)
@@ -1394,6 +1394,11 @@ FpM_hnfend(GEN x, GEN p)
       }
     else
       for (j = i+1; j < l; j++) gcoeff(x,i,j) = modii(gcoeff(x,i,j), p);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpM_hnfend. i=%ld",i);
+      x = gerepilecopy(av, x);
+    }
   }
   return x;
 }
@@ -1410,7 +1415,7 @@ ZM_hnfmodprime(GEN x, GEN p)
   if (lP == l) { avma = av; return matid(l-1); }
   y = scalarmat_shallow(p, l-1);
   for (i = 1; i < lP; i++) gel(y,P[i]) = gel(x,i);
-  return gerepilecopy(av, FpM_hnfend(y,p));
+  return gerepilecopy(av, FpM_hnfend(av,y,p));
 }
 
 static GEN
