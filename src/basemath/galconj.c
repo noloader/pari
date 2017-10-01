@@ -2446,31 +2446,28 @@ checkgroup(GEN g, GEN *S)
 }
 
 GEN
-checkgroupelts(GEN gal)
+checkgroupelts(GEN G)
 {
-  if (typ(gal)!=t_VEC) pari_err_TYPE("checkgroup", gal);
-  if ((lg(gal)==9 && typ(gel(gal,1))==t_POL) ||
-      (lg(gal)==3 && typ(gel(gal,1))==t_VEC && typ(gel(gal,2))==t_VECSMALL))
-  {
-    GEN elts, G = checkgroup(gal, &elts);
-    if (elts) return elts;
+  long i, n;
+  if (typ(G)!=t_VEC) pari_err_TYPE("checkgroupelts", G);
+  if (is_group(G))
+  { /* subgroup of S_n */
     if (lg(gel(G,1))==1) return mkvec(mkvecsmall(1));
     return group_elts(G, group_domain(G));
   }
-  else
+  if (lg(G)==9 && typ(gel(G,1))==t_POL)
+    return gal_get_group(G); /* galoisinit */
+  /* vector of permutations ? */
+  n = lg(G)-1;
+  if (n==0) pari_err_DIM("checkgroupelts");
+  for (i = 1; i <= n; i++)
   {
-    long i, n = lg(gal)-1;
-    if (n==0)
-      pari_err_DIM("checkgroupelts");
-    for(i=1; i<=n; i++)
-    {
-      if(typ(gel(gal,i)) != t_VECSMALL)
-        pari_err_TYPE("checkgroupelts (element)", gel(gal,i));
-      if(lg(gel(gal,i))!=lg(gel(gal,1)))
-        pari_err_DIM("checkgroupelts [length of permutations]");
-    }
-    return gal;
+    if (typ(gel(G,i)) != t_VECSMALL)
+      pari_err_TYPE("checkgroupelts (element)", gel(G,i));
+    if (lg(gel(G,i)) != lg(gel(G,1)))
+      pari_err_DIM("checkgroupelts [length of permutations]");
   }
+  return G;
 }
 
 GEN
@@ -2735,7 +2732,7 @@ GEN
 galoischartable(GEN gal)
 {
   pari_sp av = avma;
-  GEN cc = groupelts_to_conjclasses(checkgroupelts(gal));
+  GEN cc = group_to_cc(gal);
   return gerepilecopy(av, cc_chartable(cc));
 }
 
@@ -2788,7 +2785,7 @@ GEN
 galoischarpoly(GEN gal, GEN ch, long o)
 {
   pari_sp av = avma;
-  GEN cc = groupelts_to_conjclasses(checkgroupelts(gal));
+  GEN cc = group_to_cc(gal);
   return gerepilecopy(av, galoischar_charpoly(cc, ch, o));
 }
 
@@ -2805,6 +2802,6 @@ GEN
 galoischardet(GEN gal, GEN ch, long o)
 {
   pari_sp av = avma;
-  GEN cc = groupelts_to_conjclasses(checkgroupelts(gal));
+  GEN cc = group_to_cc(gal);
   return gerepilecopy(av, cc_char_det(cc, ch, o));
 }

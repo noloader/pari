@@ -4126,7 +4126,7 @@ GEN     group_subgroups(GEN G);
 GEN     groupelts_abelian_group(GEN S);
 GEN     groupelts_center(GEN S);
 GEN     groupelts_conjclasses(GEN elts, long *nbcl);
-GEN     groupelts_to_conjclasses(GEN elts);
+GEN     group_to_cc(GEN G);
 long    groupelts_exponent(GEN G);
 GEN     groupelts_set(GEN G, long n);
 int     perm_commute(GEN p, GEN q);

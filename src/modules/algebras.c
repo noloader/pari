@@ -4173,16 +4173,13 @@ conjclasses_algcenter(GEN cc, GEN p)
 }
 
 GEN
-alggroupcenter(GEN gal, GEN p, GEN *pcc)
+alggroupcenter(GEN G, GEN p, GEN *pcc)
 {
   pari_sp av = avma;
-  GEN cc = groupelts_to_conjclasses(checkgroupelts(gal));
-  GEN al = conjclasses_algcenter(cc, p);
+  GEN cc = group_to_cc(G), al = conjclasses_algcenter(cc, p);
   if (!pcc) al = gerepilecopy(av,al);
   else
-  {
-    *pcc = cc; gerepileall(av,2,&al,pcc);
-  }
+  { *pcc = cc; gerepileall(av,2,&al,pcc); }
   return al;
 }
 

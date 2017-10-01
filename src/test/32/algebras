@@ -2727,7 +2727,7 @@ should fail:
   *** alggroupcenter: incorrect type in checkgroupelts (element) (t_POL).
   ***   at top-level: alggroupcenter('x,1)
   ***                 ^--------------------
-  *** alggroupcenter: incorrect type in checkgroup (t_POL).
+  *** alggroupcenter: incorrect type in checkgroupelts (t_POL).
   ***   at top-level: algindex(1,1)
   ***                 ^-------------
   *** algindex: incorrect type in checkalg [please apply alginit()] (t_INT).
@@ -2739,7 +2739,7 @@ should fail:
   *** algsqr: incorrect type in alg_model (t_COL).
   ***   at top-level: alggroup("a")
   ***                 ^-------------
-  *** alggroup: incorrect type in checkgroup (t_STR).
+  *** alggroup: incorrect type in checkgroupelts (t_STR).
   ***   at top-level: alggroup(["a"])
   ***                 ^---------------
   *** alggroup: incorrect type in checkgroupelts (element) (t_STR).
@@ -2766,4 +2766,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
   ***                 ^----------------------------------------------
   *** nfgrunwaldwang: incorrect priority in nfgrunwaldwang: variable x >= x
-Total time spent: 14400
+Total time spent: 19049

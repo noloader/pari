@@ -1633,7 +1633,7 @@ lfunqf(GEN M, long prec)
 /********************************************************************/
 
 static GEN
-artin_repfromgens(GEN G, GEN M)
+artin_charfromgens(GEN G, GEN M)
 {
   GEN R, V, ord = gal_get_orders(G), grp = gal_get_group(G);
   long i, j, k, n = lg(ord)-1, m = lg(grp)-1;
@@ -1645,10 +1645,10 @@ artin_repfromgens(GEN G, GEN M)
   {
     long c = k*(ord[i] - 1);
     gel(R, ++k) = gel(M, i);
-    for (j = 2; j <= c; ++j) gel(R, ++k) = gmul(gel(R, j), gel(M, i));
+    for (j = 2; j <= c; ++j) gel(R, ++k) = gmul(gel(R,j), gel(M,i));
   }
   V = cgetg(m+1, t_VEC);
-  for (i = 1; i <= m; i++) gel(V, gel(grp, i)[1]) = gel(R, i);
+  for (i = 1; i <= m; i++) gel(V, gel(grp,i)[1]) = gtrace(gel(R,i));
   return V;
 }
 
@@ -1868,21 +1868,7 @@ char_expand(GEN conj, GEN ch)
 {
   long i, l = lg(conj);
   GEN V = cgetg(l, t_COL);
-  for (i=1; i<l; i++)
-  {
-    long ci = conj[i];
-    gel(V,i) = gel(ch, ci);
-  }
-  return V;
-}
-
-static GEN
-rep_to_char(GEN R)
-{
-  long i, l = lg(R);
-  GEN V = cgetg(l, t_COL);
-  for (i=1; i<l; i++)
-    gel(V,i) = gtrace(gel(R,i));
+  for (i=1; i<l; i++) gel(V,i) = gel(ch, conj[i]);
   return V;
 }
 
@@ -1924,44 +1910,31 @@ char_is_real(GEN ch, GEN mod)
   return 1;
 }
 
-static GEN
-galois_elts_sorted(GEN gal)
-{
-  GEN elts = gal_get_group(gal);
-  long i, l = lg(elts);
-  GEN v = cgetg(l, t_VEC);
-  for(i=1; i<l; i++)
-    gel(v, mael(elts,i,1)) = gel(elts,i);
-  return v;
-}
-
 GEN
 lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
 {
   pari_sp av = avma;
-  GEN bc, V, aut, mod, Ldata = NULL, chx, elts, conj;
-  long tmult, var, nbc;
+  GEN bc, V, aut, mod, Ldata = NULL, chx, cc, conj, repr;
+  long tmult, var;
   nf = checknf(nf);
   checkgal(gal);
   var = gvar(ch);
   if (var == 0) pari_err_PRIORITY("lfunartin",ch,"=",0);
   if (var < 0) var = 1;
   if (!is_vec_t(typ(ch))) pari_err_TYPE("lfunartin", ch);
-  elts = galois_elts_sorted(gal);
-  conj = groupelts_conjclasses(elts, &nbc);
+  cc = group_to_cc(gal);
+  conj = gel(cc,2);
+  repr = gel(cc,3);
   mod = mkpolmod(gen_1, polcyclo(o, var));
   if (lg(ch)>1 && typ(gel(ch,1))==t_MAT)
   {
-    GEN repr = conjclasses_repr(conj, nbc);
-    GEN M = gmul(ch, mod);
-    GEN R = artin_repfromgens(gal, M);
-    chx = rep_to_char(R);
+    chx = artin_charfromgens(gal, gmul(ch,mod));
     ch = shallowextract(chx, repr);
   }
   else
   {
-    if (nbc != lg(ch)-1) pari_err_DIM("lfunartin");
-    chx = char_expand(conj, gmul(ch, mod));
+    if (lg(repr) != lg(ch)) pari_err_DIM("lfunartin");
+    chx = char_expand(conj, gmul(ch,mod));
   }
   chx = handle_zeta(nf_get_degree(nf), chx, &tmult);
   if (!gequal0(chx))

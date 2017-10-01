@@ -1091,12 +1091,26 @@ conjclasses_repr(GEN conj, long nb)
   return e;
 }
 
-GEN
-groupelts_to_conjclasses(GEN elts)
+/* elts of G sorted wrt vecsmall_lexcmp order: g in G is determined by g[1]
+ * so sort by increasing g[1] */
+static GEN
+galois_elts_sorted(GEN gal)
 {
-  GEN z = cgetg(4,t_VEC);
+  long i, l;
+  GEN elts = gal_get_group(gal), v = cgetg_copy(elts, &l);
+  for (i = 1; i < l; i++) { GEN g = gel(elts,i); gel(v, g[1]) = g; }
+  return v;
+}
+GEN
+group_to_cc(GEN G)
+{
+  GEN elts = checkgroupelts(G), z = cgetg(4,t_VEC);
   long n;
-  gel(z,1) = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
+  if (typ(gel(G,1)) == t_POL)
+    elts = galois_elts_sorted(G); /* galoisinit */
+  else
+    elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata); /* general case */
+  gel(z,1) = elts;
   gel(z,2) = groupelts_conjclasses(gel(z,1),&n);
   gel(z,3) = conjclasses_repr(gel(z,2),n); return z;
 }

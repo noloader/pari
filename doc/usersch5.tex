@@ -12088,10 +12088,11 @@ where \kbd{conj} and \kbd{nb} as returned by \kbd{groupelts\_conjclasses(elts)},
 return \typ{VECSMALL} of length \kbd{nb} which gives the indices in \kbd{elts}
 of a representative of each conjugacy class.
 
-\fun{GEN}{groupelts_to_conjclasses}{GEN elts}, where \var{elts} is the list
-of elements of a small group, return \kbd{[elts,conj,rep]}, where
-\kbd{conj} is \kbd{groupelts\_conjclasses}$(\kbd{elts})$ and
-\kbd{rep} is the attached \kbd{conjclasses\_repr}.
+\fun{GEN}{group_to_cc}{GEN G}, where $G$ is a small group
+returns a \kbd{cc} (conjclasses) structure \kbd{[elts,conj,rep]}, as obtained
+by \kbd{alggroupcenter}, where \kbd{conj} is
+\kbd{groupelts\_conjclasses}$(\kbd{elts})$ and \kbd{rep} is the attached
+\kbd{conjclasses\_repr}.
 
 \fun{long}{group_order}{GEN grp} returns the order of the small group
 \var{grp} (which is the product of the relative orders).
