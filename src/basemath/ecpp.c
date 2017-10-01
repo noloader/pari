@@ -503,17 +503,15 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
   u_forprime_init(&T, 3, maxsqrt);
   while ( (p = u_forprime_next(&T)) )
   {
-    long s = 0; /* sp = number we're looking at, detects nonsquarefree numbers */
-    long t = 0; /* points to which number we're looking at */
-    long q = 1; /* p^star */
-    long tod = 0; /* starting t for od */
-    long tev = 0; /* starting t for ev */
+    long s; /* sp = number we're looking at, detects nonsquarefree numbers */
+    long t; /* points to which number we're looking at */
+    long q; /* p^star */
     switch(p&3)
     {
-      case 1: {q = p; s = 3; tod = (s*p+1)/4; tev = p;} break;
-      case 3: {q = -p; s = 1; tod = (s*p+1)/4; tev = p;} break;
+      case 1: q =  p; s = 3; break;
+      default:q = -p; s = 1; break; /* case 3 */
     }
-    for (t = tod; t <= lenv; t += p)
+    for (t = (s*p+1)>>2; t <= lenv; t += p)
     {
       if (s%p != 0 && umael3(od, t, 1, 1) != 0)
       {
@@ -525,7 +523,7 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
       s += 4;
     }
     s = 4;
-    for (t = tev; t <= lenv; t += p)
+    for (t = p; t <= lenv; t += p)
     {
       if (s%p != 0 && umael3(ev, t, 1, 1) != 0)
       {
@@ -584,7 +582,7 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
       umael3(merge, i, 1, 4) = h/2;
   }
   merge = gen_sort(merge, NULL, &sort_disclist);
-  return gerepilecopy(av, merge);
+  return gerepileupto(av, merge);
 }
 
 /*  Input: a vector tune whose components are vectors of length 3
