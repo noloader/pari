@@ -11960,7 +11960,7 @@ computed. In the latter case, the cached Bernoulli table may be updated.
 
 \section{Permutations }
 
-\noindent Permutation are represented in two different ways
+\noindent Permutations are represented in two different ways
 
 \item (\kbd{perm}) a \typ{VECSMALL} $p$ representing the bijection $i\mapsto
 p[i]$; unless mentioned otherwise, this is the form used in the functions
@@ -12075,18 +12075,19 @@ elements of a small group of domain \var{n}, returns a \var{F2v} $b$ such that
 $b[i]$ is set if and only if the small group contains a permutation sending $1$
 to $i$.
 
-\fun{GEN}{groupelts_conjclasses}{GEN elts, long *pt_n}, where \var{elts} is
+\fun{GEN}{groupelts_conjclasses}{GEN elts, long *pn}, where \var{elts} is
 the list of elements of a small group (sorted with respect to
 \kbd{vecsmall\_lexcmp}), return a \typ{VECSMALL} \kbd{conj} of
 the same length such that \kbd{conj[i]} is the index in $\{1,\cdots,n\}$  of
 the conjugacy class of \kbd{elts[i]} for some unspecified but deterministic
 ordering of the classes, where $n$ is the number of conjugacy classes. If
-\kbd{pt\_n} is non NULL, \kbd{*pt\_n} is set to $n$.
+\kbd{pn} is non \kbd{NULL}, \kbd{*pn} is set to $n$.
 
 \fun{GEN}{conjclasses_repr}{GEN conj, long nb},
-where \kbd{conj} and \kbd{nb} as returned by \kbd{groupelts\_conjclasses(elts)},
-return \typ{VECSMALL} of length \kbd{nb} which gives the indices in \kbd{elts}
-of a representative of each conjugacy class.
+where \kbd{conj} and \kbd{nb} are as returned by the call
+\kbd{groupelts\_conjclasses(elts)}, return \typ{VECSMALL} of length \kbd{nb}
+which gives the indices in \kbd{elts} of a representative of each conjugacy
+class.
 
 \fun{GEN}{group_to_cc}{GEN G}, where $G$ is a small group or a Galois group,
 returns a \kbd{cc} (conjclasses) structure \kbd{[elts,conj,rep,flag]},
