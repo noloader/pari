@@ -77,83 +77,6 @@ FpJ_is_inf(GEN P)
   return signe(gel(P, 3)) == 0;
 }
 
-/* n > 1, D = divisors(n); sets L = 2*lambda(n), S = sigma(n) */
-static void
-lamsig(GEN D, long *pL, long *pS)
-{
-  pari_sp av = avma;
-  long i, l = lg(D), L = 1, S = D[l-1]+1;
-  for (i = 2; i < l; ++i) /* skip d = 1 */
-  {
-    long d = D[i], nd = D[l-i]; /* nd = n/d */
-    if (d < nd) { L += d; S += d + nd; }
-    else
-    {
-      L <<= 1; if (d == nd) { L += d; S += d; }
-      break;
-    }
-  }
-  avma = av; *pL = L; *pS = S;
-}
-
-static GEN
-allhclassno2(long lim)
-{
-  pari_sp av = avma;
-  GEN VHDH, CACHE = NULL;
-  const long cachestep = 1000; /* don't increase this: RAM cache thrashing */
-  long r, N, cachea, cacheb, lim0 = 2, LIM = lim0 << 1;
-
-  if (lim <= 0) lim = 5;
-  r = lim&3L; if (r) lim += 4-r;
-  VHDH = cgetg_block(lim/2 + 1, t_VECSMALL);
-  VHDH[1] = 2;
-  VHDH[2] = 3;
-  for (N = 3; N <= lim0; N++) VHDH[N] = VHDH[N];
-  cachea = cacheb = 0;
-  for (N = LIM + 3; N <= lim; N += 4)
-  {
-    long s = 0, limt = usqrt(N>>2), flsq = 0, ind, t, L, S;
-    GEN DN, DN2;
-    {
-      GEN F;
-      if (N + 2 > cacheb)
-      { /* update local cache (recycle memory) */
-        cachea = N;
-        if (cachea + 2*cachestep > lim)
-          cacheb = lim+2; /* fuse last 2 chunks */
-        else
-          cacheb = cachea + cachestep;
-        avma = av; /* FIXME: need only factor odd integers in the range */
-        CACHE = vecfactoru_i(cachea, cacheb);
-      }
-      /* use local cache */
-      F = gel(CACHE,N - cachea + 1); /* factoru(N) */
-      DN = divisorsu_fact(gel(F,1), gel(F,2));
-      F = gel(CACHE,N - cachea + 3); /* factoru(N+2) */
-      DN2 = divisorsu_fact(gel(F,1), gel(F,2));
-    }
-    ind = N >> 1;
-    for (t = 1; t <= limt; ++t)
-    {
-      ind -= (t<<2)-2; /* N/2 - 2t^2 */
-      if (ind) s += VHDH[ind]; else flsq = 1;
-    }
-    lamsig(DN, &L,&S);
-    VHDH[N >> 1] = 2*S - 3*L - 2*s + flsq;
-    s = 0; flsq = 0; limt = (usqrt(N+2) - 1) >> 1;
-    ind = (N+1) >> 1;
-    for (t = 1; t <= limt; ++t)
-    {
-      ind -= t<<2; /* (N+1)/2 - 2t(t+1) */
-      if (ind) s += VHDH[ind]; else flsq = 1;
-    }
-    lamsig(DN2, &L,&S);
-    VHDH[(N+1) >> 1] = S - 3*(L >> 1) - s - flsq;
-  }
-  return VHDH;
-}
-
 /*****************************************************************/
 
 /* Assuming D < 0,
@@ -493,13 +416,42 @@ ecpp_param_set_maxsqrt(GEN param, long x)
   gmael3(param, 1, 2, 1) = ecpp_primelist_init(x);
 }
 
+/* return H s.t if -maxD <= D < 0 is fundamental then H[(-D)>>1] is the
+ * ordinary class number of Q(sqrt(D)); junk at other entries. */
+static GEN
+allh(ulong maxD)
+{
+  ulong a, A = usqrt(maxD/3), maxD2 = maxD >> 1;
+  GEN H = zero_zv(maxD2);
+  for (a = 1; a <= A; a++)
+  {
+    ulong a2 = a << 1, aa = a*a, aa4 = aa << 2, b, c;
+    { /* b = 0 */
+      ulong D = aa << 1;
+      for (c = a; D <= maxD2; c++) { H[D]++; D += a2; }
+    }
+    for (b = 1; b < a; b++)
+    {
+      ulong B = b*b, D = (aa4 - B) >> 1;
+      if (D > maxD2) break;
+      H[D]++; D += a2; /* c = a */
+      for (c = a+1; D <= maxD2; c++) { H[D] += 2; D += a2; }
+    }
+    { /* b = a */
+      ulong D = (aa4 - aa) >> 1;
+      for (c = a; D <= maxD2; c++) { H[D]++; D += a2; }
+    }
+  }
+  return H;
+}
+
 static GEN
 ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
 {
   pari_sp av = avma;
   long i, p;
   forprime_t T;
-  GEN Harr = allhclassno2(maxdisc); /* table of class numbers*/
+  GEN Harr = allh(maxdisc); /* table of class numbers*/
   GEN ev, od; /* ev: D = 0 mod 4; od: D = 1 mod 4 */
   GEN indexlist = primelist_to_indexlist(primelist); /* for making Dfac */
   GEN merge; /* return this */
@@ -523,9 +475,6 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
     else N = 9;
   #endif
 
-  /* class number computations */
-  Harr[1] = Harr[2] = 6;
-
   /* initialization */
   od = cgetg(lenv + 1, t_VEC);
   ev = cgetg(lenv + 1, t_VEC);
@@ -534,19 +483,18 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
      ev[i] holds Dinfo of -(4*i)   */
   for (i = 1; i <= lenv; i++)
   {
-    long h;
-    long x = 1;
-    h = Harr[2*i-1]/6; /* class number of -(4*i-1) */
+    long h, x;
+    h = Harr[2*i-1]; /* class number of -(4*i-1) */
     gel(od, i) = mkvec2( mkvecsmall4(1, h, 0, h), vecsmalltrunc_init(N) );
     switch(i&7)
     {
       case 0:
-      case 4: {x = 0;} break;
-      case 2: {x = -8;} break;
-      case 6: {x = 8;} break;
-      default: {x = -4;} break;
+      case 4: x = 0; break;
+      case 2: x = -8; break;
+      case 6: x = 8; break;
+      default:x = -4; break;
     }
-    h = Harr[2*i]/6; /* class number of -(4*i) */
+    h = Harr[2*i]; /* class number of -(4*i) */
     gel(ev, i) = mkvec2( mkvecsmall4(x, h, 0, h), vecsmalltrunc_init(N) );
     vecsmalltrunc_append(gmael(ev, i, 2), p_to_index(x, indexlist));
   }
