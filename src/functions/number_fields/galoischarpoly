@@ -6,8 +6,8 @@ Help: galoischarpoly(gal, chi, {o=1}): return the list of characteristic
  polynomials of the representation attached to the character chi.
 Doc: Let $\chi$ be the character of some representation $\rho$ of the group
  $G$, where a polynomial variable is to be interpreted as an $o$-th root of
- 1, e.g. if \kbd{[ct,o] = galoischartable(gal)}, $\chi$ is a column of
- \kbd{ct}.
+ 1, e.g. if \kbd{[T,o] = galoischartable(gal)} and $\chi$ is a column of
+ \kbd{T}.
  Return the list of characteristic polynomials $\det(1 - \rho{g}T)$,
  where $g$ runs through representatives of the conjugacy classes
  in \kbd{galoisconjclasses(gal)}, with the same ordering.
@@ -17,10 +17,14 @@ Doc: Let $\chi$ be the character of some representation $\rho$ of the group
  %2 = [10, 1, 1, "D(5) = 5:2"]
  ? K = nfsplitting(T);
  ? gal = galoisinit(K);  \\ dihedral of order 10
- ? [ct,o] = galoischartable(gal);
- ? galoischarpoly(gal, ct[,1], o)  \\ ct[,1] is the trivial character
+ ? [T,o] = galoischartable(gal);
+ ? o
+ %5 = 5
+ ? galoischarpoly(gal, T[,1], o)  \\ T[,1] is the trivial character
  %6 = [-x + 1, -x + 1, -x + 1, -x + 1]~
- ? galoischarpoly(gal, ct[,3], o)
- %7 = [x^2 - 2*x + 1, x^2 + (-y^3 + y^2 + 1)*x + 1,
-       -x^2 + 1, x^2 + (y^3 - y^2)*x + 1]~
+ ? galoischarpoly(gal, T[,3], o)
+ %7 = [x^2 - 2*x + 1,
+       x^2 + (y^3 + y^2 + 1)*x + 1,
+       -x^2 + 1,
+       x^2 + (-y^3 - y^2)*x + 1]~
  @eprog
