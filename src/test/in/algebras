@@ -2333,7 +2333,7 @@ print("imagemod");
       A = matrix(m,n,i,j,random([0,N-1]));
       h1 = mathnfmodid(A,N);
       h2 = mathnfmodid2(A,N);
-      if(h1!=h2, print("fail: ", A));
+      if(h1!=h2, print("fail: ", A, h1, h2));
       h3 = matimagemod(A,N,&U);
       if(rmzerocol(h2%N)!=h3, print("fail2: ", A));
       if(A*(U*Mod(1,N))!=h3, print("fail2b: ", A, "\n", h3, "\n", U));
