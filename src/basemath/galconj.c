@@ -2664,7 +2664,7 @@ cc_chartable(GEN cc)
     long phie = degpol(T);
     if (f != expo)
     {
-      ulong phif = eulerphiu(f);
+      long phif = eulerphiu(f);
       GEN zf = ZX_rem(pol_xn(expo/f,var), T), zfj = zf;
       GEN M = cgetg(phif+1, t_MAT);
       gel(M,1) = col_ei(phie,1);
