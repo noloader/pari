@@ -2373,7 +2373,7 @@ setrand(1);
       if((M*K)%d!=0, print("fail:", M));
       K2 = matsolvemod(M,d,0,1)[2];
       K3 = matimagemod(K2,d);
-      if(K!=K3, print("fail2:", M));
+      if(K!=K3, print("fail2:", M, K, K3));
     );
   );
 );}
