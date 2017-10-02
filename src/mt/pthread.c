@@ -211,11 +211,16 @@ mtpthread_queue_get(struct mt_state *junk, long *workid, long *pending)
   } UNLOCK(&mt->pmut);
   BLOCK_SIGINT_END
   mq = mt->mq+last;
-  if (mq->output==err_e_STACK) pari_err(e_STACKTHREAD);
   done = gcopy(mq->output);
   mq->output = NULL;
   if (workid) *workid = mq->workid;
-  if (typ(done)==t_ERROR) pari_err(0,done);
+  if (typ(done) == t_ERROR)
+  {
+    if (err_get_num(done)==e_STACK)
+      pari_err(e_STACKTHREAD);
+    else
+      pari_err(0,done);
+  }
   mt->last = last;
   mt->pending--;
   *pending = mt->pending;
