@@ -2399,6 +2399,33 @@ kermod
 
 [1]
 
+  ***   at top-level: matimagemod([],1)
+  ***                 ^-----------------
+  *** matimagemod: incorrect type in matimagemod (t_VEC).
+  ***   at top-level: matimagemod([;],'x)
+  ***                 ^-------------------
+  *** matimagemod: incorrect type in matimagemod (t_POL).
+  ***   at top-level: matimagemod([0,'x;1,0],1)
+  ***                 ^-------------------------
+  *** matimagemod: incorrect type in matimagemod (t_POL).
+  ***   at top-level: mathnfmodid2([],1)
+  ***                 ^------------------
+  *** mathnfmodid2: incorrect type in mathnfmodid2 (t_VEC).
+  ***   at top-level: mathnfmodid2([;],'x)
+  ***                 ^--------------------
+  *** mathnfmodid2: incorrect type in mathnfmodid2 (t_POL).
+  ***   at top-level: mathnfmodid2([0,'x;1,0],1)
+  ***                 ^--------------------------
+  *** mathnfmodid2: incorrect type in mathnfmodid2 (t_POL).
+  ***   at top-level: matkermod([],1)
+  ***                 ^---------------
+  *** matkermod: incorrect type in matkermod (t_VEC).
+  ***   at top-level: matkermod([;],'x)
+  ***                 ^-----------------
+  *** matkermod: incorrect type in matkermod (t_POL).
+  ***   at top-level: matkermod([0,'x;1,0],1)
+  ***                 ^-----------------------
+  *** matkermod: incorrect type in matkermod (t_POL).
   ***   at top-level: algsplittingfield(almt)
   ***                 ^-----------------------
   *** algsplittingfield: incorrect type in alg_get_splittingfield [use alginit] (t_VEC).
@@ -2873,4 +2900,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
   ***                 ^----------------------------------------------
   *** nfgrunwaldwang: incorrect priority in nfgrunwaldwang: variable x >= x
-Total time spent: 13196
+Total time spent: 14204

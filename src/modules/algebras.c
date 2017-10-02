@@ -1106,7 +1106,7 @@ gen_kernel_from_howell(GEN H, GEN ops, long n, void *data, const struct bb_hermi
   GEN K, KH, zC;
   long m, r, n2, nbz, i, o, extra, j;
   RgM_dimensions(H,&m,&r);
-  if (!r) return gen_matid_hermite(n, data, R);
+  if (!r) return gen_matid_hermite(n, data, R); /* zerology: what if 0==1 in R? */
   n2 = maxss(n,m+1);
   extra = n2-n;
   nbz = n2-r;
@@ -1153,7 +1153,12 @@ GEN
 matimagemod(GEN A, GEN d, GEN* U)
 {
   void* data;
-  /* TODO type checks */
+  long i,j;
+  if (typ(A)!=t_MAT) pari_err_TYPE("matimagemod", A);
+  if (typ(d)!=t_INT) pari_err_TYPE("matimagemod", d);
+  for (j=1; j<lg(A); j++)
+    for (i=1; i<lg(gel(A,j)); i++)
+      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("matimagemod", gcoeff(A,i,j));
   return gen_matimage(A, U, data, get_Fp_hermite(&data, d));
 }
 
@@ -1162,9 +1167,13 @@ mathnfmodid2(GEN A, GEN d)
 {
   pari_sp av = avma;
   void* data;
-  long i;
+  long i, j;
   GEN H;
-  /* TODO type checks */
+  if (typ(A)!=t_MAT) pari_err_TYPE("mathnfmodid2", A);
+  if (typ(d)!=t_INT) pari_err_TYPE("mathnfmodid2", d);
+  for (j=1; j<lg(A); j++)
+    for (i=1; i<lg(gel(A,j)); i++)
+      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("mathnfmodid2", gcoeff(A,i,j));
   H = gen_howell_i(A, 1, 0, NULL, data, get_Fp_hermite(&data, d));
   for (i=1; i<lg(H); i++)
     if (!signe(gcoeff(H,i,i))) gcoeff(H,i,i) = d;
@@ -1175,7 +1184,12 @@ GEN
 matkermod(GEN A, GEN d)
 {
   void* data;
-  /* TODO type checks */
+  long i,j;
+  if (typ(A)!=t_MAT) pari_err_TYPE("matkermod", A);
+  if (typ(d)!=t_INT) pari_err_TYPE("matkermod", d);
+  for (j=1; j<lg(A); j++)
+    for (i=1; i<lg(gel(A,j)); i++)
+      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("matkermod", gcoeff(A,i,j));
   return gen_kernel(A, data, get_Fp_hermite(&data, d));
 }
 

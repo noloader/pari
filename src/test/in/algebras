@@ -2402,6 +2402,16 @@ matkermod([1,1;0,1],d)
 matkermod([2,1;0,3],d)
 matkermod([4,2;4,2],d)
 matkermod([2,2;3,0],d)
+
+matimagemod([],1);
+matimagemod([;],'x);
+matimagemod([0,'x;1,0],1);
+mathnfmodid2([],1);
+mathnfmodid2([;],'x);
+mathnfmodid2([0,'x;1,0],1);
+matkermod([],1);
+matkermod([;],'x);
+matkermod([0,'x;1,0],1);
 /* end bb_hermite */
 
 
