@@ -1,6 +1,3 @@
-install("ZM_hnfmodid2","GG","mathnfmodid2");
-install("matimagemod","GGD&");
-install("matkermod", "GGD&");
 randdistinct(n) =
 {
   my(i=0,j=0);
@@ -39,11 +36,9 @@ print("imagemod");
     for(count=1,nb,
       A = matrix(m,n,i,j,random([0,N-1]));
       h1 = mathnfmodid(A,N);
-      h2 = mathnfmodid2(A,N);
-      if(h1!=h2, print("fail: ", A, h1, h2));
-      h3 = matimagemod(A,N,&U);
-      if(rmzerocol(h2%N)!=h3, print("fail2: ", A));
-      if(A*(U*Mod(1,N))!=h3, print("fail2b: ", A, "\n", h3, "\n", U));
+      h2 = matimagemod(A,N,&U);
+      if(rmzerocol(h1%N)!=h2, print("fail: ", A));
+      if(A*(U*Mod(1,N))!=h2, print("fail2: ", A, "\n", h2, "\n", U));
     );
   );
 );}
@@ -113,13 +108,20 @@ matkermod([2,1;0,3],d)
 matkermod([4,2;4,2],d)
 matkermod([2,2;3,0],d)
 
+\\examples from docu
+A = [2,1;0,2];
+matimagemod(A,6,&U)
+U
+(A*U)%6
+A = [1,2,3;5,1,4]
+K = matkermod(A,6)
+(A*K)%6
+\\end examples
+
 \\bad inputs
 matimagemod([],1);
 matimagemod([;],'x);
 matimagemod([0,'x;1,0],1);
-mathnfmodid2([],1);
-mathnfmodid2([;],'x);
-mathnfmodid2([0,'x;1,0],1);
 matkermod([],1);
 matkermod([;],'x);
 matkermod([0,'x;1,0],1);

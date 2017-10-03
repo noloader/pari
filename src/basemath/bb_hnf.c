@@ -792,6 +792,8 @@ matimagemod(GEN A, GEN d, GEN* U)
   return gen_matimage(A, U, data, get_Fp_hermite(&data, d));
 }
 
+/* for testing purpose */
+/*
 GEN
 ZM_hnfmodid2(GEN A, GEN d)
 {
@@ -809,6 +811,7 @@ ZM_hnfmodid2(GEN A, GEN d)
     if (!signe(gcoeff(H,i,i))) gcoeff(H,i,i) = d;
   return gerepilecopy(av,H);
 }
+*/
 
 GEN
 matkermod(GEN A, GEN d, GEN* im)

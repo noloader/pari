@@ -1,0 +1,30 @@
+Function: matimagemod
+Section: linear_algebra
+C-Name: matimagemod
+Prototype: GGD&
+Help: matimagemod(x,d,&U): basis of the image of the matrix x modulo d.
+Doc: gives a Howell basis (unique representation for submodules of~$(\Z/d\Z)^n$)
+ for the image of the matrix $x$ modulo $d$ as columns of a matrix $H$. The
+ matrix $x$ must have \typ{INT} entries, and $d$ can be an arbitrary positive
+ integer. If $U$ is present, set it to a matrix such that~$AU = H$.
+
+ \bprog
+ ? A = [2,1;0,2];
+ ? matimagemod(A,6,&U)
+ %2 =
+ [1 0]
+
+ [0 2]
+
+ ? U
+ %3 =
+ [5 1]
+
+ [3 4]
+
+ ? (A*U)%6
+ %4 =
+ [1 0]
+
+ [0 2]
+ @eprog
