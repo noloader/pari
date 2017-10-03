@@ -63,6 +63,8 @@ print(alglatindex(al,lat1,lat2));
 print(alglatmul(al,lat1,lat2));
 print(alglatmul(al,b,lat1));
 print(alglatmul(al,lat2,b));
+print(alglatmul(al,b/10,lat1));
+print(alglatmul(al,lat2,b/10));
 print(alglatlefttransporter(al,lat1,lat2));
 print(alglatrighttransporter(al,lat1,lat2));
 setrand(88);

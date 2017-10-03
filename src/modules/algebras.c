@@ -4687,7 +4687,7 @@ prepare_lat(GEN m1, GEN t1, GEN m2, GEN t2)
 static GEN
 alglataddinter(GEN al, GEN lat1, GEN lat2, GEN *sum, GEN *inter)
 {
-  GEN d, m1, m2, t1, t2, M, U, H, prep;
+  GEN d, m1, m2, t1, t2, M, prep, d1, d2, ds, di, K;
   checkalg(al);
   checklat(al,lat1);
   checklat(al,lat2);
@@ -4701,14 +4701,18 @@ alglataddinter(GEN al, GEN lat1, GEN lat2, GEN *sum, GEN *inter)
   m2 = gel(prep,2);
   d = gel(prep,3);
   M = matconcat(mkvec2(m1,m2));
-  if (!inter) U = NULL;
-  H = ZM_hnfall(M,&U,1);
-  if (sum) *sum = H;
+  d1 = ZM_det_triangular(m1);
+  d2 = ZM_det_triangular(m2);
+  ds = gcdii(d1,d2);
   if (inter)
   {
-    U = vecslice(U,1,lg(M)-lg(H));
-    *inter = ZM_hnf(ZM_mul(m1,U));
+    di = diviiexact(mulii(d1,d2),ds);
+    K = matkermod(M,di,sum);
+    K = rowslice(K,1,lg(m1));
+    *inter = hnfmodid(FpM_mul(m1,K,di),di);
+    if (sum) *sum = hnfmodid(*sum,ds);
   }
+  else *sum = hnfmodid(M,ds);
   return d;
 }
 
@@ -4794,17 +4798,20 @@ alglatmul(GEN al, GEN lat1, GEN lat2)
 {
   pari_sp av = avma;
   long N,i;
-  GEN m1, m2, m, V, lat, t, d;
+  GEN m1, m2, m, V, lat, t, d, dp;
   checkalg(al);
   if (typ(lat1)==t_COL)
   {
     if (typ(lat2)==t_COL)
       pari_err_TYPE("alglatmul [one of lat1, lat2 has to be a lattice]", lat2);
     checklat(al,lat2);
+    lat1 = Q_remove_denom(lat1,&d);
     m = algbasismultable(al,lat1);
     m2 = alglat_get_primbasis(lat2);
-    m = RgM_mul(m,m2);
+    dp = mulii(detint(m),ZM_det_triangular(m2));
+    m = ZM_mul(m,m2);
     t = alglat_get_scalar(lat2);
+    if (d) t = gdiv(t,d);
   }
   else /* typ(lat1)!=t_COL */
   {
@@ -4814,16 +4821,18 @@ alglatmul(GEN al, GEN lat1, GEN lat2)
       lat2 = Q_remove_denom(lat2,&d);
       m = algbasisrightmultable(al,lat2);
       m1 = alglat_get_primbasis(lat1);
+      dp = mulii(detint(m),ZM_det_triangular(m1));
       m = ZM_mul(m,m1);
       t = alglat_get_scalar(lat1);
       if (d) t = gdiv(t,d);
     }
-    else
+    else /* typ(lat2)!=t_COL */
     {
       checklat(al,lat2);
       N = algabsdim(al);
       m1 = alglat_get_primbasis(lat1);
       m2 = alglat_get_primbasis(lat2);
+      dp = mulii(ZM_det_triangular(m1), ZM_det_triangular(m2));
       V = cgetg(N+1,t_VEC);
       for (i=1; i<=N; i++) {
         gel(V,i) = algbasismultable(al,gel(m1,i));
@@ -4834,8 +4843,7 @@ alglatmul(GEN al, GEN lat1, GEN lat2)
     }
   }
 
-  /* TODO optimise by computing d such that d*O <= I1*I2 */
-  lat = alglathnf(al,m,0);
+  lat = alglathnf(al,m,dp);
   gel(lat,2) = gmul(alglat_get_scalar(lat), t);
   lat = primlat(lat);
   return gerepilecopy(av, lat);
@@ -4876,6 +4884,20 @@ alglatelement(GEN al, GEN lat, GEN c)
   return gerepilecopy(av,res);
 }
 
+/* idem QM_invimZ, knowing result is contained in 1/c*Z^n */
+static GEN
+QM_invimZ_mod(GEN m, GEN c)
+{
+  GEN d, m0, K;
+  m0 = Q_remove_denom(m, &d);
+  if (d)    d = mulii(d,c);
+  else      d = c;
+  K = matkermod(m0, d, NULL);
+  if (lg(K)==1) K = scalarmat(d, lg(m)-1);
+  else          K = hnfmodid(K, d);
+  return RgM_Rg_div(K,c);
+}
+
 /* If m is injective, computes a Z-basis of the submodule of elements whose
  * image under m is integral */
 static GEN
@@ -4901,12 +4923,13 @@ mat2col(GEN M, long m, long n)
 static GEN
 alglattransporter_i(GEN al, GEN lat1, GEN lat2, int right)
 {
-  GEN m1, m2, m2i, M, MT, mt, t1, t2, T, d;
+  GEN m1, m2, m2i, M, MT, mt, t1, t2, T, c;
   long N, i;
   N = alg_get_absdim(al);
   m1 = alglat_get_primbasis(lat1);
   m2 = alglat_get_primbasis(lat2);
-  m2i = RgM_inv(m2);
+  m2i = RgM_inv_upper(m2);
+  c = detint(m1);
   t1 = alglat_get_scalar(lat1);
   m1 = RgM_Rg_mul(m1,t1);
   t2 = alglat_get_scalar(lat2);
@@ -4922,11 +4945,10 @@ alglattransporter_i(GEN al, GEN lat1, GEN lat2, int right)
     gel(M,i) = mat2col(mt, N, N);
   }
 
-  T = QM_invimZ(M);
-  T = Q_remove_denom(T,&d);
-  T = hnf(T);
+  c = gdiv(t2,gmul(c,t1));
+  c = denom(c);
+  T = QM_invimZ_mod(M,c);
   T = primlat(mkvec2(T,gen_1));
-  if (d) gel(T,2) = gdiv(gel(T,2),d);
   return T;
 }
 
