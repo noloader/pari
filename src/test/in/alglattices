@@ -145,7 +145,8 @@ testlataddinter()=
   1
 };
 setrand(1);
-for(i=1,500,if(!testlataddinter(),print(i);break()));
+nb = 250;
+for(i=1,nb,if(!testlataddinter(),print(i);break()));
 
 \\make integral
 mt = [matid(2),[0,-1/4;1,0]];

@@ -130,11 +130,12 @@ all() = gusuite("all", ()->{
 all();
 
 \\better accessors for hasse invariants
+print("better accessors");
 setrand(1);
 x='x;
 nf = nfinit(y^3-y+1);
 rnf = rnfinit(nf, polcyclo(5,x));
-al = alginit(rnf, [x^2,-2]);
+al = alginit(rnf, [x^2,-2],, 0);
 alghasse(al,1)
 alghasse(al,2)
 alghasse(al,idealprimedec(nf,2)[1])
@@ -173,7 +174,7 @@ algramifiedplaces(al)
 
 print(" ");
 al = 0;
-al = alginit(rnf, [x^2,-1]);
+al = alginit(rnf, [x^2,-1],, 0);
 alghasse(al,1)
 alghasse(al,2)
 alghasse(al,idealprimedec(nf,2)[1])
@@ -207,7 +208,7 @@ algramifiedplaces(al)
 
 print(" ");
 al = 0;
-al = alginit(rnf, [x^2, 1]);
+al = alginit(rnf, [x^2, 1],, 0);
 alghasse(al,1)
 alghasse(al,2)
 alghasse(al,idealprimedec(nf,2)[1])
@@ -236,7 +237,7 @@ algramifiedplaces(al)
 
 print("Hasse inv 0 bug");
 setrand(1); a='a;
-K=nfinit(a);PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[0]],[0]]);
+K=nfinit(a);PR=idealprimedec(K,2);A=alginit(K,[3,[PR,[0]],[0]],,0);
 algdegree(A)
 algdim(A)
 algindex(A)

@@ -44,13 +44,13 @@ setrand(1);
   print(algisassociative(al));
   testordering(al);
 );}
-{for(n=4,22,
+{for(n=4,16,
   print("D",2*n);
   al = alggroup(D2n(n),691);
   if(n<10,print(algisassociative(al)));
   testordering(al);
 );}
-{for(n=4,18,
+{for(n=4,12,
   print("D",2*n);
   al = alggroup(D2n(n));
   if(n<10,print(algisassociative(al)));
@@ -95,7 +95,7 @@ firstprime1mod(n) =
   while(p%n!=1, p=nextprime(p+1));
   p;
 }
-{for(n=3,30,
+{for(n=3,20,
   print("D",2*n);
   p = firstprime1mod(2*n);
   al = alggroupcenter(D2n(n),p);
@@ -104,7 +104,7 @@ firstprime1mod(n) =
   print(algiscommutative(al));
   print(algdim(al) == #algsimpledec(al));
 );}
-{forprime(p=5,40,
+{forprime(p=5,30,
   print("D",2*p);
   al = alggroupcenter(D2n(p));
   print(algdim(al) == conjD2n(p));
