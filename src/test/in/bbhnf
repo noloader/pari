@@ -1,0 +1,125 @@
+install("mathnfmodid2","GG");
+install("matimagemod","GGD&");
+install(matkermod, GG);
+randdistinct(n) =
+{
+  my(i=0,j=0);
+  while(i==j,
+    i = random([1,n]);
+    j = random([1,n]);
+  );
+  [i,j];
+}
+randSLn(n,nb,B,A = matid(n)) =
+{
+  my(i,j,a,tmp);
+  for(count=1,nb,
+    [i,j] = randdistinct(n);
+    a = random([-B,B]);
+    A[,i] = A[,i] + a*A[,j];
+    [i,j] = randdistinct(n);
+    tmp = A[,i];
+    A[,i] = A[,j];
+    A[,j] = tmp;
+  );
+  A;
+}
+rmzerocol(A) =
+{
+  my(L=[]);
+  for(i=1,#A,
+    if(A[,i]!=0, L = concat(L,[A[,i]]))
+  );
+  matconcat(L);
+}
+print("bb hermite Z/NZ");
+N=1800;
+setrand(1);
+print("imagemod");
+{for(m=1,4,
+  for(n=1,4,
+    for(count=1,1000,
+      A = matrix(m,n,i,j,random([0,N-1]));
+      h1 = mathnfmodid(A,N);
+      h2 = mathnfmodid2(A,N);
+      if(h1!=h2, print("fail: ", A, h1, h2));
+      h3 = matimagemod(A,N,&U);
+      if(rmzerocol(h2%N)!=h3, print("fail2: ", A));
+      if(A*(U*Mod(1,N))!=h3, print("fail2b: ", A, "\n", h3, "\n", U));
+    );
+  );
+);}
+{M = matdiagonal([900,4,9,25,10]);M[1,]=[900,2*65,9*13,25*11,5*17];}
+H = matimagemod(M,N)
+{for(count=1,300,
+  A = randSLn(5,50,N,M);
+  if(H != matimagemod(A,N),
+    print("fail3: ", A);
+  );
+);}
+{M = [11,28,-1;
+      2,1,89;
+      5,78,15;
+      0,8,3;
+      0,0,3
+];}
+H = matimagemod(M,N)
+{for(count=1,300,
+  A = randSLn(3,50,N,M);
+  if(H != matimagemod(A,N),
+    print("fail4: ", A);
+  );
+);}
+print("kermod");
+d=1800;
+nb=1000;
+setrand(1);
+{for(m=1,5,
+  for(n=1,5,
+    for(count=1,nb,
+      M = matrix(m,n,i,j,random([0,d-1]));
+      K = matkermod(M,d);
+      if((M*K)%d!=0, print("fail:", M));
+      K2 = matsolvemod(M,d,0,1)[2];
+      K3 = matimagemod(K2,d);
+      if(K!=K3, print("fail2:", M, K, K3));
+    );
+  );
+);}
+d = 6;
+matkermod(Mat([0]),d)
+matkermod(Mat([1]),d)
+matkermod(Mat([2]),d)
+matkermod([1;0],d)
+matkermod([2;0],d)
+matkermod([0;0],d)
+matkermod([3;0],d)
+matkermod([0;1],d)
+matkermod([0;2],d)
+matkermod([1;3],d)
+matkermod([2;3],d)
+matkermod([2;4],d)
+matkermod(Mat([1,0]),d)
+matkermod(Mat([0,1]),d)
+matkermod(Mat([2,0]),d)
+matkermod(Mat([1,3]),d)
+matkermod(Mat([0,3]),d)
+matkermod(Mat([2,3]),d)
+matkermod([1,0;0,0],d)
+matkermod([2,0;0,3],d)
+matkermod([1,1;0,1],d)
+matkermod([2,1;0,3],d)
+matkermod([4,2;4,2],d)
+matkermod([2,2;3,0],d)
+
+\\bad inputs
+matimagemod([],1);
+matimagemod([;],'x);
+matimagemod([0,'x;1,0],1);
+mathnfmodid2([],1);
+mathnfmodid2([;],'x);
+mathnfmodid2([0,'x;1,0],1);
+matkermod([],1);
+matkermod([;],'x);
+matkermod([0,'x;1,0],1);
+
