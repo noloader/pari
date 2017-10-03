@@ -1280,7 +1280,7 @@ GEN     zx_to_ZX(GEN z);
 
 GEN     mathnfmodid2(GEN A, GEN d);
 GEN     matimagemod(GEN A, GEN d, GEN* U);
-GEN     matkermod(GEN A, GEN d);
+GEN     matkermod(GEN A, GEN d, GEN* im);
 
 GEN     alg_centralproj(GEN al, GEN z, int maps);
 GEN     alg_change_overorder_shallow(GEN al, GEN ord);

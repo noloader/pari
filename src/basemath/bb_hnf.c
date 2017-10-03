@@ -766,7 +766,7 @@ gen_kernel_from_howell(GEN H, GEN ops, long n, void *data, const struct bb_hermi
 }
 
 static GEN
-gen_kernel(GEN A, void *data, const struct bb_hermite *R)
+gen_kernel(GEN A, GEN* im, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
   long n = lg(A)-1;
@@ -774,7 +774,9 @@ gen_kernel(GEN A, void *data, const struct bb_hermite *R)
   H = gen_howell_i(A, 2, 1, &ops, data, R);
   gerepileall(av,2,&H,&ops);
   K = gen_kernel_from_howell(H, ops, n, data, R);
-  return gerepilecopy(av, K);
+  if (im) *im = H;
+  gerepileall(av,im?2:1,&K,im);
+  return K;
 }
 
 GEN
@@ -809,7 +811,7 @@ mathnfmodid2(GEN A, GEN d)
 }
 
 GEN
-matkermod(GEN A, GEN d)
+matkermod(GEN A, GEN d, GEN* im)
 {
   void* data;
   long i,j;
@@ -818,6 +820,6 @@ matkermod(GEN A, GEN d)
   for (j=1; j<lg(A); j++)
     for (i=1; i<lg(gel(A,j)); i++)
       if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("matkermod", gcoeff(A,i,j));
-  return gen_kernel(A, data, get_Fp_hermite(&data, d));
+  return gen_kernel(A, im, data, get_Fp_hermite(&data, d));
 }
 

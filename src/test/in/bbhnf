@@ -1,6 +1,6 @@
 install("mathnfmodid2","GG");
 install("matimagemod","GGD&");
-install(matkermod, GG);
+install("matkermod", "GGD&");
 randdistinct(n) =
 {
   my(i=0,j=0);
@@ -77,11 +77,13 @@ setrand(1);
   for(n=1,5,
     for(count=1,nb,
       M = matrix(m,n,i,j,random([0,d-1]));
-      K = matkermod(M,d);
+      K = matkermod(M,d,&im);
       if((M*K)%d!=0, print("fail:", M));
       K2 = matsolvemod(M,d,0,1)[2];
       K3 = matimagemod(K2,d);
       if(K!=K3, print("fail2:", M, K, K3));
+      im2 = matimagemod(M,d);
+      if(im!=im2, print("fail3:", M, im, im2));
     );
   );
 );}
