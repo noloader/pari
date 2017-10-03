@@ -793,17 +793,17 @@ matimagemod(GEN A, GEN d, GEN* U)
 }
 
 GEN
-mathnfmodid2(GEN A, GEN d)
+ZM_hnfmodid2(GEN A, GEN d)
 {
   pari_sp av = avma;
   void* data;
   long i, j;
   GEN H;
-  if (typ(A)!=t_MAT) pari_err_TYPE("mathnfmodid2", A);
-  if (typ(d)!=t_INT) pari_err_TYPE("mathnfmodid2", d);
+  if (typ(A)!=t_MAT) pari_err_TYPE("ZM_hnfmodid2", A);
+  if (typ(d)!=t_INT) pari_err_TYPE("ZM_hnfmodid2", d);
   for (j=1; j<lg(A); j++)
     for (i=1; i<lg(gel(A,j)); i++)
-      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("mathnfmodid2", gcoeff(A,i,j));
+      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("ZM_hnfmodid2", gcoeff(A,i,j));
   H = gen_howell_i(A, 1, 0, NULL, data, get_Fp_hermite(&data, d));
   for (i=1; i<lg(H); i++)
     if (!signe(gcoeff(H,i,i))) gcoeff(H,i,i) = d;

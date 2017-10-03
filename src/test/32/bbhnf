@@ -116,13 +116,13 @@ kermod
   *** matimagemod: incorrect type in matimagemod (t_POL).
   ***   at top-level: mathnfmodid2([],1)
   ***                 ^------------------
-  *** mathnfmodid2: incorrect type in mathnfmodid2 (t_VEC).
+  *** mathnfmodid2: incorrect type in ZM_hnfmodid2 (t_VEC).
   ***   at top-level: mathnfmodid2([;],'x)
   ***                 ^--------------------
-  *** mathnfmodid2: incorrect type in mathnfmodid2 (t_POL).
+  *** mathnfmodid2: incorrect type in ZM_hnfmodid2 (t_POL).
   ***   at top-level: mathnfmodid2([0,'x;1,0],1)
   ***                 ^--------------------------
-  *** mathnfmodid2: incorrect type in mathnfmodid2 (t_POL).
+  *** mathnfmodid2: incorrect type in ZM_hnfmodid2 (t_POL).
   ***   at top-level: matkermod([],1)
   ***                 ^---------------
   *** matkermod: incorrect type in matkermod (t_VEC).
@@ -132,4 +132,4 @@ kermod
   ***   at top-level: matkermod([0,'x;1,0],1)
   ***                 ^-----------------------
   *** matkermod: incorrect type in matkermod (t_POL).
-Total time spent: 1464
+Total time spent: 804

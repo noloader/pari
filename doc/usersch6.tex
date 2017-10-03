@@ -2207,6 +2207,9 @@ memory) if the dimension is large, $> 50$ say.
 \fun{GEN}{ZM_hnfmodid}{GEN x, GEN d} returns the HNF of the matrix $(x \mid d
 \text{Id})$ (removing $0$ columns), for a \kbd{ZM} $x$ and a \typ{INT} $d$.
 
+\fun{GEN}{ZM_hnfmodid2}{GEN x, GEN d} is a different implementation of
+\tet{ZM_hnfmodid}.
+
 \fun{GEN}{ZM_hnfmodprime}{GEN x, GEN p} returns the HNF of the matrix $(x \mid p
 \text{Id})$ (removing $0$ columns), for a \kbd{ZM} $x$ and a prime number $p$.
 The algorithm involves only $\F_p$-linear algebra and is is faster than
@@ -2742,6 +2745,20 @@ for all Conrey or SNF generators $g_i$ (as usual, we use SNF generators
 if $n$ is a \typ{VEC} and the Conrey generators otherwise).
 Return a \typ{VECSMALL} $v$ such that $v[i] = -1$ if $(i,N) > 1$ else
 $\chi(i) = e(v[i]/d)$, $1 \leq i \leq N$.
+
+\section{Linear algebra over~$\Z/d\Z$}
+
+In this section, \kbd{d} is an arbitrary \typ{INT} (not necessarily prime), the
+input and output of functions are matrices of~\typ{INT} interpreted as matrices
+over~$\Z/d\Z$.
+
+\fun{GEN}{matimagemod}{GEN A, GEN d, GEN* U} return the matrix~\kbd{H} of the
+Howell basis of the image of~\kbd{A}, and set~\kbd{*U} to an invertible matrix
+such that~$(0\mid A)U = (0\mid H)$, for suitable numbers of zero columns on both
+sides.
+
+\fun{GEN}{matkermod}{GEN A, GEN d, GEN* im} return the matrix of the Howell
+basis of the kernel of~\kbd{A}, and set~\kbd{im} to the image of~\kbd{A}.
 
 \section{Central simple algebras}
 

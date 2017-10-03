@@ -1,4 +1,4 @@
-install("mathnfmodid2","GG");
+install("ZM_hnfmodid2","GG","mathnfmodid2");
 install("matimagemod","GGD&");
 install("matkermod", "GGD&");
 randdistinct(n) =
