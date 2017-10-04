@@ -154,20 +154,29 @@ invmod
 
   ***   at top-level: matimagemod([],1)
   ***                 ^-----------------
-  *** matimagemod: incorrect type in matimagemod (t_VEC).
+  *** matimagemod: incorrect type in matimagemod[1] (t_VEC).
   ***   at top-level: matimagemod([;],'x)
   ***                 ^-------------------
-  *** matimagemod: incorrect type in matimagemod (t_POL).
+  *** matimagemod: incorrect type in matimagemod[2] (t_POL).
   ***   at top-level: matimagemod([0,'x;1,0],1)
   ***                 ^-------------------------
-  *** matimagemod: incorrect type in matimagemod (t_POL).
+  *** matimagemod: incorrect type in matimagemod[3] (t_POL).
   ***   at top-level: matkermod([],1)
   ***                 ^---------------
-  *** matkermod: incorrect type in matkermod (t_VEC).
+  *** matkermod: incorrect type in matkermod[1] (t_VEC).
   ***   at top-level: matkermod([;],'x)
   ***                 ^-----------------
-  *** matkermod: incorrect type in matkermod (t_POL).
+  *** matkermod: incorrect type in matkermod[2] (t_POL).
   ***   at top-level: matkermod([0,'x;1,0],1)
   ***                 ^-----------------------
-  *** matkermod: incorrect type in matkermod (t_POL).
-Total time spent: 848
+  *** matkermod: incorrect type in matkermod[3] (t_POL).
+  ***   at top-level: matinvmod([],1)
+  ***                 ^---------------
+  *** matinvmod: incorrect type in matinvmod[1] (t_VEC).
+  ***   at top-level: matinvmod([;],'x)
+  ***                 ^-----------------
+  *** matinvmod: incorrect type in matinvmod[2] (t_POL).
+  ***   at top-level: matinvmod([0,'x;1,0],1)
+  ***                 ^-----------------------
+  *** matinvmod: incorrect type in matinvmod[3] (t_POL).
+Total time spent: 508

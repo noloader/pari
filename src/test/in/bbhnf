@@ -159,4 +159,7 @@ matimagemod([0,'x;1,0],1);
 matkermod([],1);
 matkermod([;],'x);
 matkermod([0,'x;1,0],1);
+matinvmod([],1);
+matinvmod([;],'x);
+matinvmod([0,'x;1,0],1);
 
