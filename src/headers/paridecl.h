@@ -1278,10 +1278,6 @@ GEN     zx_to_ZX(GEN z);
 
 /* algebras.c */
 
-GEN     mathnfmodid2(GEN A, GEN d);
-GEN     matimagemod(GEN A, GEN d, GEN* U);
-GEN     matkermod(GEN A, GEN d, GEN* im);
-
 GEN     alg_centralproj(GEN al, GEN z, int maps);
 GEN     alg_change_overorder_shallow(GEN al, GEN ord);
 GEN     alg_complete(GEN rnf, GEN aut, GEN hi, GEN hf, long maxord);
@@ -2299,6 +2295,12 @@ GEN gen_powu_i(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,
 GEN gen_powu_fold(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
 GEN gen_powu_fold_i(GEN x, ulong n, void *E, GEN  (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
 GEN gen_product(GEN x, void *data, GEN (*mul)(void*,GEN,GEN));
+
+/* gen_hnf.c */
+
+GEN     matimagemod(GEN A, GEN d, GEN* U);
+GEN     matinvmod(GEN A, GEN d);
+GEN     matkermod(GEN A, GEN d, GEN* im);
 
 /* bibli1.c */
 

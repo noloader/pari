@@ -444,7 +444,9 @@ gen_last_inv_diago(GEN A, void* data, const struct bb_hermite *R)
 
 static GEN
 /* remove_zerocols: 0 none, 1 until square, 2 all */
-gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void *data, const struct bb_hermite *R)
+/* early abort: if not right-invertible, abort, return NULL, and set ops to the
+ * non-invertible pivot */
+gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, long early_abort, GEN* ops, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
   GEN H,U,piv,u,q,a,perm,iszero,C,zero=R->s(data,0),d,g,r,op,one=R->s(data,1);
@@ -452,6 +454,11 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void 
   int smallop;
 
   RgM_dimensions(A,&m,&n);
+  if (early_abort && n<m)
+  {
+    if (ops) *ops = zero;
+    return NULL;
+  }
   if (n<m+1)
   {
     extra = m+1-n;
@@ -508,6 +515,19 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void 
       {
         gen_redcol(gel(H,si), i-1, data, R);
         gen_redcol(gel(H,j), i-1, data, R);
+      }
+    }
+
+
+    if (early_abort)
+    {
+      d = gcoeff(H,i,si);
+      u = R->unit(data, d);
+      if (u) d = gel(u,1);
+      if (!R->equal1(d))
+      {
+        if (ops) *ops = d;
+        return NULL;
       }
     }
 
@@ -671,10 +691,10 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void 
 }
 
 static GEN
-gen_howell(GEN A, long remove_zerocols, long permute_zerocols, GEN* ops, void *data, const struct bb_hermite *R)
+gen_howell(GEN A, long remove_zerocols, long permute_zerocols, long early_abort, GEN* ops, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
-  GEN H = gen_howell_i(A, remove_zerocols, permute_zerocols, ops, data, R);
+  GEN H = gen_howell_i(A, remove_zerocols, permute_zerocols, early_abort, ops, data, R);
   gerepileall(av, ops?2:1, &H, ops);
   return H;
 }
@@ -688,7 +708,7 @@ gen_matimage(GEN A, GEN* U, void *data, const struct bb_hermite *R)
     pari_sp av = avma;
     long m, n, i, r, n2;
     RgM_dimensions(A,&m,&n);
-    H = gen_howell_i(A, 2, 1, &ops, data, R);
+    H = gen_howell_i(A, 2, 1, 0, &ops, data, R);
     r = lg(H)-1;
     *U = shallowmatconcat(mkvec2(gen_zeromat(n, maxss(0,m-n+1), data, R), gen_matid_hermite(n, data, R)));
     n2 = lg(*U)-1;
@@ -698,7 +718,7 @@ gen_matimage(GEN A, GEN* U, void *data, const struct bb_hermite *R)
     gerepileall(av, 2, &H, U);
     return H;
   }
-  else return gen_howell(A, 2, 0, NULL, data, R);
+  else return gen_howell(A, 2, 0, 0, NULL, data, R);
 }
 
 static GEN
@@ -756,7 +776,7 @@ gen_kernel_from_howell(GEN H, GEN ops, long n, void *data, const struct bb_hermi
   }
   /* deduce kernel of original matrix */
   K = rowpermute(K, cyclic_perm(n2,extra));
-  K = gen_howell_i(K, 2, 0, NULL, data, R);
+  K = gen_howell_i(K, 2, 0, 0, NULL, data, R);
   for (j=lg(K)-1, i=n2; j>0; j--)
   {
     while (R->equal0(gcoeff(K,i,j))) i--;
@@ -771,12 +791,40 @@ gen_kernel(GEN A, GEN* im, void *data, const struct bb_hermite *R)
   pari_sp av = avma;
   long n = lg(A)-1;
   GEN H, ops, K;
-  H = gen_howell_i(A, 2, 1, &ops, data, R);
+  H = gen_howell_i(A, 2, 1, 0, &ops, data, R);
   gerepileall(av,2,&H,&ops);
   K = gen_kernel_from_howell(H, ops, n, data, R);
   if (im) *im = H;
   gerepileall(av,im?2:1,&K,im);
   return K;
+}
+
+/* right inverse */
+static GEN
+gen_inv(GEN A, void* data, const struct bb_hermite *R)
+{
+  pari_sp av0 = avma, av;
+  GEN ops, H, U, un=R->s(data,1);
+  long m,n,j,o,n2;
+  RgM_dimensions(A,&m,&n);
+  av = avma;
+  H = gen_howell_i(A, 0, 0, 1, &ops, data, R);
+  if (!H) pari_err_INV("gen_inv", ops);
+  n2 = lg(H)-1;
+  ops = gerepilecopy(av,ops); /* get rid of H */
+  U = gen_zeromat(n2, m, data, R);
+  for (j=1; j<=m; j++)
+    gcoeff(U,j+n2-m,j) = un;
+  for (j=1; j<=m; j++)
+  {
+    av = avma;
+    for (o=lg(ops)-1; o>0; o--)
+      gen_leftapply(gel(U,j), gel(ops,o), data, R);
+    gen_redcol(gel(U,j), n2, data, R);
+    gerepileall(av, 1, &gel(U,j));
+  }
+  if (n2>n) U = rowslice(U, n2-n+1, n2);
+  return gerepilecopy(av0,U);
 }
 
 GEN
@@ -806,7 +854,7 @@ ZM_hnfmodid2(GEN A, GEN d)
   for (j=1; j<lg(A); j++)
     for (i=1; i<lg(gel(A,j)); i++)
       if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("ZM_hnfmodid2", gcoeff(A,i,j));
-  H = gen_howell_i(A, 1, 0, NULL, data, get_Fp_hermite(&data, d));
+  H = gen_howell_i(A, 1, 0, 0, NULL, data, get_Fp_hermite(&data, d));
   for (i=1; i<lg(H); i++)
     if (!signe(gcoeff(H,i,i))) gcoeff(H,i,i) = d;
   return gerepilecopy(av,H);
@@ -824,5 +872,18 @@ matkermod(GEN A, GEN d, GEN* im)
     for (i=1; i<lg(gel(A,j)); i++)
       if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("matkermod", gcoeff(A,i,j));
   return gen_kernel(A, im, data, get_Fp_hermite(&data, d));
+}
+
+/* left inverse */
+GEN
+matinvmod(GEN A, GEN d)
+{
+  pari_sp av = avma;
+  void* data;
+  GEN B, U;
+  B = shallowtrans(A);
+  U = gen_inv(B, data, get_Fp_hermite(&data, d));
+  U = shallowtrans(U);
+  return gerepilecopy(av,U);
 }
 
