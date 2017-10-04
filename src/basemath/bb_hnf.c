@@ -147,7 +147,8 @@ _Fp_red(void *data, GEN x) { return Fp_red(x, (GEN)data); }
 static const struct bb_hermite Fp_hermite=
   {_Fp_add,_Fp_neg,_Fp_mul,_Fp_extgcd,_Fp_rann,_Fp_lquo,_Fp_unit,_Fp_equal0,_Fp_equal1,_Fp_s,_Fp_red};
 
-const struct bb_hermite *get_Fp_hermite(void **data, GEN p)
+static const struct bb_hermite*
+get_Fp_hermite(void **data, GEN p)
 {
   *data = (void*)p; return &Fp_hermite;
 }
