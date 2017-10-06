@@ -933,19 +933,24 @@ FqM_to_FlxM(GEN x, GEN T, GEN pp)
 /*                          MODULAR GCD                            */
 /*                                                                 */
 /*******************************************************************/
-/* return z = a mod q, b mod p (p,q) = 1. qinv = 1/q mod p */
+/* return z = a mod q, b mod p (p,q) = 1; qinv = 1/q mod p; a in ]-q,q] */
 static GEN
-Fl_chinese_coprime(GEN a, ulong b, GEN q, ulong p, ulong qinv, GEN pq)
+Fl_chinese_coprime(GEN a, ulong b, GEN q, ulong p, ulong qinv, GEN pq, GEN pq2)
 {
   ulong d, amod = umodiu(a, p);
   pari_sp av = avma;
   GEN ax;
 
   if (b == amod) return NULL;
-  d = (b > amod)? b - amod: p - (amod - b); /* (b - a) mod p */
-  (void)new_chunk(lgefint(pq)<<1); /* HACK */
-  ax = mului(Fl_mul(d,qinv,p), q); /* d mod p, 0 mod q */
-  avma = av; return addii(a, ax); /* in ]-q, pq[ assuming a in -]-q,q[ */
+  d = Fl_mul(Fl_sub(b, amod, p), qinv, p); /* != 0 */
+  if (d >= 1 + (p>>1))
+    ax = subii(a, mului(p-d, q));
+  else
+  {
+    ax = addii(a, mului(d, q)); /* in ]0, pq[ assuming a in ]-q,q[ */
+    if (cmpii(ax,pq2) > 0) ax = subii(ax,pq);
+  }
+  return gerepileuptoint(av, ax);
 }
 GEN
 Z_init_CRT(ulong Hp, ulong p) { return stoi(Fl_center(Hp, p, p>>1)); }
@@ -980,22 +985,18 @@ ZM_init_CRT(GEN Hp, ulong p)
 int
 Z_incremental_CRT(GEN *H, ulong Hp, GEN *ptq, ulong p)
 {
-  GEN h, q = *ptq, qp = muliu(q,p), lim = shifti(qp,-1);
+  GEN h, q = *ptq, qp = muliu(q,p);
   ulong qinv = Fl_inv(umodiu(q,p), p);
   int stable = 1;
-  h = Fl_chinese_coprime(*H,Hp,q,p,qinv,qp);
-  if (h)
-  {
-    if (cmpii(h,lim) > 0) h = subii(h,qp);
-    *H = h; stable = 0;
-  }
+  h = Fl_chinese_coprime(*H,Hp,q,p,qinv,qp,shifti(qp,-1));
+  if (h) { *H = h; stable = 0; }
   *ptq = qp; return stable;
 }
 
 static int
 ZX_incremental_CRT_raw(GEN *ptH, GEN Hp, GEN q, GEN qp, ulong p)
 {
-  GEN H = *ptH, h, lim = shifti(qp,-1);
+  GEN H = *ptH, h, qp2 = shifti(qp,-1);
   ulong qinv = Fl_inv(umodiu(q,p), p);
   long i, l = lg(H), lp = lg(Hp);
   int stable = 1;
@@ -1016,12 +1017,8 @@ ZX_incremental_CRT_raw(GEN *ptH, GEN Hp, GEN q, GEN qp, ulong p)
   }
   for (i=2; i<lp; i++)
   {
-    h = Fl_chinese_coprime(gel(H,i),Hp[i],q,p,qinv,qp);
-    if (h)
-    {
-      if (cmpii(h,lim) > 0) h = subii(h,qp);
-      gel(H,i) = h; stable = 0;
-    }
+    h = Fl_chinese_coprime(gel(H,i),Hp[i],q,p,qinv,qp,qp2);
+    if (h) { gel(H,i) = h; stable = 0; }
   }
   return stable;
 }
@@ -1037,19 +1034,15 @@ ZX_incremental_CRT(GEN *ptH, GEN Hp, GEN *ptq, ulong p)
 int
 ZM_incremental_CRT(GEN *pH, GEN Hp, GEN *ptq, ulong p)
 {
-  GEN h, H = *pH, q = *ptq, qp = muliu(q, p), lim = shifti(qp,-1);
+  GEN h, H = *pH, q = *ptq, qp = muliu(q, p), qp2 = shifti(qp,-1);
   ulong qinv = Fl_inv(umodiu(q,p), p);
   long i,j, l = lg(H), m = lgcols(H);
   int stable = 1;
   for (j=1; j<l; j++)
     for (i=1; i<m; i++)
     {
-      h = Fl_chinese_coprime(gcoeff(H,i,j), coeff(Hp,i,j),q,p,qinv,qp);
-      if (h)
-      {
-        if (cmpii(h,lim) > 0) h = subii(h,qp);
-        gcoeff(H,i,j) = h; stable = 0;
-      }
+      h = Fl_chinese_coprime(gcoeff(H,i,j), coeff(Hp,i,j),q,p,qinv,qp,qp2);
+      if (h) { gcoeff(H,i,j) = h; stable = 0; }
     }
   *ptq = qp; return stable;
 }
@@ -1084,7 +1077,7 @@ ZVM_init_CRT(GEN Hp, ulong p)
 int
 ZVM_incremental_CRT(GEN *pH, GEN Hp, GEN *ptq, ulong p)
 {
-  GEN h, H = *pH, q = *ptq, qp = muliu(q, p), lim = shifti(qp,-1);
+  GEN h, H = *pH, q = *ptq, qp = muliu(q, p), qp2 = shifti(qp,-1);
   ulong qinv = Fl_inv(umodiu(q,p), p);
   long i,j,k, l = lg(H), m = lgcols(H), n = lg(gmael(H,1,1));
   int stable = 1;
@@ -1092,12 +1085,8 @@ ZVM_incremental_CRT(GEN *pH, GEN Hp, GEN *ptq, ulong p)
     for (i=1; i<m; i++)
       for (k=1; k<n; k++)
       {
-        h = Fl_chinese_coprime(gmael3(H,j,i,k), mael3(Hp,j,i,k),q,p,qinv,qp);
-        if (h)
-        {
-          if (cmpii(h,lim) > 0) h = subii(h,qp);
-          gmael3(H,j,i,k) = h; stable = 0;
-        }
+        h = Fl_chinese_coprime(gmael3(H,j,i,k),mael3(Hp,j,i,k),q,p,qinv,qp,qp2);
+        if (h) { gmael3(H,j,i,k) = h; stable = 0; }
       }
   *ptq = qp; return stable;
 }
