@@ -6391,6 +6391,18 @@ words, $f^k(P) = [p_1\*p_2\*\ldots\*p_m]$.
 \fun{GEN}{Z_ZV_mod_tree}{GEN A, GEN P, GEN T}
 as \kbd{Z\_ZV\_mod} where $T$ is the tree \kbd{ZV\_producttree(P)}.
 
+\fun{GEN}{ZV_nv_mod_tree}{GEN A, GEN P, GEN T} $A$ being a \kbd{ZV}
+and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return the vector of \kbd{Flv}
+$[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
+where $T$ is the tree \kbd{ZV\_producttree(P)}.
+
+\fun{GEN}{ZM_nv_mod_tree}{GEN A, GEN P, GEN T} $A$ being a \kbd{ZM}
+and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return the vector of \kbd{Flm}
+$[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
+where $T$ is the tree \kbd{ZV\_producttree(P)}.
+
 \fun{GEN}{ZX_nv_mod_tree}{GEN A, GEN P, GEN T} $A$ being a \kbd{ZX}
 and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
 pairwise coprime, return the vector of \kbd{Flx} polynomials

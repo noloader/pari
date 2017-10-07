@@ -274,6 +274,7 @@ BA  105- [libpari] F2x_get_red, get_F2x_mod, get_F2x_var, get_F2x_degree,
     107- [libpari] znchar_quad
 VD  108- [libpari] closure_func_err
 BA  109- [libpari] F2xqX_extgcd, F2xqXQ_inv, F2xqXQ_invsafe, FFXQ_inv
+BA  110- [libpari] ZV_nv_mod_tree, ZM_nv_mod_tree
 
   Changed
       1- rewrite bnfnarrow

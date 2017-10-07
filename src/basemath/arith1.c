@@ -2734,6 +2734,43 @@ ZXX_nv_mod_tree(GEN P, GEN xa, GEN T, long w)
   return gerepilecopy(av, V);
 }
 
+/* B a ZX, T = ZV_producttree(P) */
+GEN
+ZV_nv_mod_tree(GEN B, GEN A, GEN T)
+{
+  pari_sp av;
+  long i, j, l = lg(B), n = lg(A)-1;
+  GEN V = cgetg(n+1, t_VEC);
+  for (j=1; j <= n; j++)
+    gel(V, j) = cgetg(l, t_VECSMALL);
+  av = avma;
+  for (i=1; i < l; i++)
+  {
+    GEN v = Z_ZV_mod_tree(gel(B, i), A, T);
+    for (j=1; j <= n; j++)
+      mael(V, j, i) = v[j];
+    avma = av;
+  }
+  return V;
+}
+
+GEN
+ZM_nv_mod_tree(GEN M, GEN xa, GEN T)
+{
+  pari_sp av = avma;
+  long i, j, l = lg(M), n = lg(xa)-1;
+  GEN V = cgetg(n+1, t_VEC);
+  for (j=1; j <= n; j++)
+    gel(V, j) = cgetg(l, t_MAT);
+  for (i=1; i < l; i++)
+  {
+    GEN v = ZV_nv_mod_tree(gel(M, i), xa, T);
+    for (j=1; j <= n; j++)
+      gmael(V, j, i) = gel(v,j);
+  }
+  return gerepilecopy(av, V);
+}
+
 static GEN
 ZV_sqr(GEN z)
 {
