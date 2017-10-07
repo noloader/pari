@@ -2702,7 +2702,7 @@ ZX_nv_mod_tree(GEN B, GEN A, GEN T)
     GEN v = Z_ZV_mod_tree(gel(B, i), A, T);
     for (j=1; j <= n; j++)
       mael(V, j, i) = v[j];
-      avma = av;
+    avma = av;
   }
   for (j=1; j <= n; j++)
     (void) Flx_renormalize(gel(V, j), l);
