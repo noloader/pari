@@ -3050,6 +3050,7 @@ int     u_forprime_arith_init(forprime_t *T, ulong a, ulong b, ulong c, ulong q)
 /* FF.c */
 
 GEN     FF_1(GEN a);
+GEN     FF_Frobenius(GEN x, long e);
 GEN     FF_Z_Z_muldiv(GEN x, GEN y, GEN z);
 GEN     FF_Q_add(GEN x, GEN y);
 GEN     FF_Z_add(GEN a, GEN b);

@@ -11636,6 +11636,10 @@ performed in the definition field of \kbd{a}.
 \fun{GEN}{FF_pow}{GEN a, GEN n} returns $a^n$ where \kbd{a} is a \typ{FFELT}
 and \kbd{n} is a \typ{INT}.
 
+\fun{GEN}{FF_Frobenius}{GEN a, GEN n} returns $a^{p^n}$ where \kbd{a} is a
+\typ{FFELT} \kbd{n} is a \typ{INT}, and $p$ is the characteristic of the
+definition field of $a$.
+
 \fun{GEN}{FF_Z_Z_muldiv}{GEN a, GEN x, GEN y} returns $a\*y/z$, where \kbd{a}
 is a \typ{FFELT}, and \kbd{x} and \kbd{y} are \typ{INT}, the computation being
 performed in the definition field of \kbd{a}.
