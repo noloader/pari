@@ -5696,6 +5696,60 @@ RgM_Hadamard(GEN a)
   return gerepileuptoint(av, ceil_safe(B));
 }
 
+/* If B=NULL, assume B=A' */
+static GEN
+ZM_det_slice(GEN A, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1;
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong Hp, p = uel(P,1);
+    GEN a = ZM_to_Flm(A, p);
+    Hp = Flm_det_sp(a, p);
+    avma = av;
+    *mod = utoi(p); return utoi(Hp);
+  }
+  T = ZV_producttree(P);
+  A = ZM_nv_mod_tree(A, P, T);
+  H = cgetg(n+1, t_VECSMALL);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i);
+    H[i] = Flm_det_sp(a, p);
+  }
+  H = ZV_chinese_tree(H, P, T, ZV_chinesetree(P,T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZM_det_worker(GEN P, GEN A)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZM_det_slice(A, P, &gel(V,2));
+  return V;
+}
+
+static GEN
+ZM_det_bnd(GEN A, ulong bound, GEN D)
+{
+  pari_sp av = avma;
+  long m;
+  GEN  H, mod, worker;
+  if (!bound) bound = expi(RgM_Hadamard(A))+1;
+  m = lg(A)-1;
+  worker = strtoclosure("_ZM_det_worker", 1, A);
+  H = gen_crt_Z("ZM_det", worker, D, bound, m, &mod);
+  if (D) H = Fp_div(H, D, mod);
+  H = Fp_center(H, mod, shifti(mod,-1));
+  if (D) H = mulii(H, D);
+  return gerepileuptoint(av, H);
+}
+
 /* assume dim(a) = n > 0 */
 static GEN
 ZM_det_i(GEN M, long n)
@@ -5703,9 +5757,9 @@ ZM_det_i(GEN M, long n)
   const long DIXON_THRESHOLD = 40;
   pari_sp av = avma, av2;
   long i;
-  ulong p, compp, Dp = 1;
+  ulong p, Dp = 1;
   forprime_t S;
-  GEN D, h, q, v, comp;
+  GEN D, h, q, v;
   if (n == 1) return icopy(gcoeff(M,1,1));
   if (n == 2) return ZM_det2(M);
   if (n == 3) return ZM_det3(M);
@@ -5741,23 +5795,9 @@ ZM_det_i(GEN M, long n)
     if (q != gen_1) D = lcmii(D, q);
   }
   /* determinant is a multiple of D */
-  h = shifti(divii(h, D), 1);
-
-  compp = Fl_div(Dp, umodiu(D,p), p);
-  comp = Z_init_CRT(compp, p);
-  q = utoipos(p);
-  while (cmpii(q, h) <= 0)
-  {
-    p = u_forprime_next(&S);
-    if (!p) pari_err_OVERFLOW("ZM_det [ran out of primes]");
-    Dp = umodiu(D, p);
-    if (!Dp) continue;
-    av2 = avma;
-    compp = Fl_div(Flm_det_sp(ZM_to_Flm(M, p), p), Dp, p);
-    avma = av2;
-    (void) Z_incremental_CRT(&comp, compp, &q, p);
-  }
-  return gerepileuptoint(av, mulii(comp, D));
+  h = divii(h, D);
+  h = ZM_det_bnd(M, expi(h)+1, D);
+  return gerepileuptoint(av, h);
 }
 
 static long

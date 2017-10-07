@@ -1884,37 +1884,28 @@ primelist_disc(ulong *p, long n, GEN dB)
   return P;
 }
 
-/* Res(A, B/dB), assuming the A,B in Z[X] and result is integer */
-/* if B=NULL, take B = A' */
 GEN
-ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
+gen_crt_Z(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod)
 {
   ulong p;
-  pari_sp av = avma;
   long n, m;
   GEN  H, P, mod;
-  int is_disc = !B;
-  if (is_disc) B = ZX_deriv(A);
-
-  if ((H = trivial_case(A,B)) || (H = trivial_case(B,A))) return H;
-  if (!bound) bound = ZX_ZXY_ResBound(A, B, dB);
   n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
-  if (is_disc)
-    B = NULL;
-  m = minss(degpol(A)+(B ? degpol(B): 0), n);
+  m = minss(mmin, n);
   if (m == 1)
   {
     GEN P = primelist_disc(&p, n, dB);
-    H = ZX_resultant_slice(A, B, dB, P, &mod);
+    GEN done = closure_callgen1(worker, P);
+    H = gel(done,1);
+    mod = gel(done,2);
   }
   else
   {
     long i, s = n/m, r = n - m*s, di = 0;
-    GEN worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
     struct pari_mt pt;
     long pending;
     if (DEBUGLEVEL > 4)
-      err_printf("ZX_resultant: bound 2^%ld, nb primes: %ld\n",bound, n);
+      err_printf("%s: bound 2^%ld, nb primes: %ld\n",str, bound, n);
     H = cgetg(m+1+!!r, t_VEC); P = cgetg(m+1+!!r, t_VEC);
     mt_queue_start_lim(&pt, worker, m);
     for (i=1; i<=m || pending; i++)
@@ -1934,13 +1925,35 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
     if (r)
     {
       GEN Pr = primelist_disc(&p, r, dB);
-      gel(H, m+1) = ZX_resultant_slice(A, B, dB, Pr, &gel(P, m+1));
+      GEN done = closure_callgen1(worker, Pr);
+      gel(H, m+1) = gel(done,1);
+      gel(P, m+1) = gel(done,2);
     }
     H = ZV_chinese(H, P, &mod);
     if (DEBUGLEVEL>5) err_printf("done\n");
   }
-  H = Fp_center(H, mod, shifti(mod,-1));
-  return gerepileuptoint(av, H);
+  *pt_mod = mod;
+  return H;
+}
+
+/* Res(A, B/dB), assuming the A,B in Z[X] and result is integer */
+/* if B=NULL, take B = A' */
+GEN
+ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
+{
+  pari_sp av = avma;
+  long m;
+  GEN  H, mod, worker;
+  int is_disc = !B;
+  if (is_disc) B = ZX_deriv(A);
+  if ((H = trivial_case(A,B)) || (H = trivial_case(B,A))) return H;
+  if (!bound) bound = ZX_ZXY_ResBound(A, B, dB);
+  if (is_disc)
+    B = NULL;
+  worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
+  m = degpol(A)+(B ? degpol(B): 0);
+  H = gen_crt_Z("ZX_resultant_all", worker, dB, bound, m, &mod);
+  return gerepileuptoint(av, Fp_center(H, mod, shifti(mod,-1)));
 }
 
 /* A0 and B0 in Q[X] */

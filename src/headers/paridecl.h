@@ -4395,6 +4395,7 @@ GEN     ffinit(GEN p, long n, long v);
 GEN     ffnbirred(GEN p, long n);
 GEN     ffnbirred0(GEN p, long n, long flag);
 GEN     ffsumnbirred(GEN p, long n);
+GEN     gen_crt_Z(const char *s, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod);
 const struct bb_field *get_Fq_field(void **E, GEN T, GEN p);
 GEN     init_Fq(GEN p, long n, long v);
 GEN     pol_x_powers(long N, long v);

@@ -31,3 +31,9 @@ Doc: determinant of the square matrix $x$.
 Variant: Also available are \fun{GEN}{det}{GEN x} ($\fl=0$),
  \fun{GEN}{det2}{GEN x} ($\fl=1$) and \fun{GEN}{ZM_det}{GEN x} for integer
  entries.
+
+Function: _ZM_det_worker
+C-Name: ZM_det_worker
+Prototype: GG
+Section: programming/internals
+Help: worker for ZM_det
