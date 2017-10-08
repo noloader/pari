@@ -942,7 +942,7 @@ get_nbprimes(ulong bound, ulong *pt_start)
 #else
   ulong pstart = 1073741827UL;
 #endif
-  *pt_start = pstart;
+  if (pt_start) *pt_start = pstart;
   return (bound/expu(pstart))+1;
 }
 
@@ -960,33 +960,41 @@ primelist_disc(ulong *p, long n, GEN dB)
 }
 
 GEN
-gen_crt_Z(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod)
+gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod,
+        GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN))
 {
+  pari_sp av = avma;
   ulong p;
   long n, m;
   GEN  H, P, mod;
-  n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
+  pari_timer ti;
+  bound++; /* +1 to account for sign */
+  n = get_nbprimes(bound, &p);
   m = minss(mmin, n);
+  if (DEBUGLEVEL > 4) timer_start(&ti);
   if (m == 1)
   {
     GEN P = primelist_disc(&p, n, dB);
     GEN done = closure_callgen1(worker, P);
     H = gel(done,1);
     mod = gel(done,2);
+    if (center) H = center(H, mod, shifti(mod,-1));
+    if (DEBUGLEVEL>4) timer_printf(&ti,"%s: modular", str);
   }
   else
   {
-    long i, s = n/m, r = n - m*s, di = 0;
+    long i, s = (n+m-1)/m, r = m - (m*s-n), di = 0;
     struct pari_mt pt;
     long pending;
     if (DEBUGLEVEL > 4)
       err_printf("%s: bound 2^%ld, nb primes: %ld\n",str, bound, n);
-    H = cgetg(m+1+!!r, t_VEC); P = cgetg(m+1+!!r, t_VEC);
+    H = cgetg(m+1, t_VEC); P = cgetg(m+1, t_VEC);
     mt_queue_start_lim(&pt, worker, m);
     for (i=1; i<=m || pending; i++)
     {
       GEN done;
-      mt_queue_submit(&pt, i, i<=m ? mkvec(primelist_disc(&p, s, dB)): NULL);
+      GEN pr = i <= m ? mkvec(primelist_disc(&p, i<=r ? s: s-1, dB)): NULL;
+      mt_queue_submit(&pt, i, pr);
       done = mt_queue_get(&pt, NULL, &pending);
       if (done)
       {
@@ -997,17 +1005,23 @@ gen_crt_Z(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_m
       }
     }
     mt_queue_end(&pt);
-    if (r)
-    {
-      GEN Pr = primelist_disc(&p, r, dB);
-      GEN done = closure_callgen1(worker, Pr);
-      gel(H, m+1) = gel(done,1);
-      gel(P, m+1) = gel(done,2);
-    }
-    H = ZV_chinese(H, P, &mod);
-    if (DEBUGLEVEL>5) err_printf("done\n");
+    if (DEBUGLEVEL>4) timer_printf(&ti,"%s: modular", str);
+    H = crt(H, P, &mod);
+    if (DEBUGLEVEL>4) timer_printf(&ti,"%s: chinese", str);
   }
-  *pt_mod = mod;
+  while (expi(mod) < bound)
+  {
+    long s = get_nbprimes(bound-expi(mod), NULL);
+    GEN P, done, Hi, modi;
+    if (DEBUGLEVEL > 4) err_printf("%s: need %ld extra primes\n",str, s);
+    P = primelist_disc(&p, s, dB);
+    done = closure_callgen1(worker, P);
+    Hi = gel(done,1); modi = gel(done,2);
+    H = crt(mkvec2(H, Hi), mkvec2(mod, modi), &mod);
+    if (DEBUGLEVEL>4) timer_printf(&ti,"%s: extra primes", str);
+  }
+  if (pt_mod) *pt_mod = mod;
+  gerepileall(av, pt_mod? 2: 1, &H, pt_mod);
   return H;
 }
 
@@ -1951,7 +1965,7 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
 {
   pari_sp av = avma;
   long m;
-  GEN  H, mod, worker;
+  GEN  H, worker;
   int is_disc = !B;
   if (is_disc) B = ZX_deriv(A);
   if ((H = trivial_case(A,B)) || (H = trivial_case(B,A))) return H;
@@ -1960,8 +1974,9 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
     B = NULL;
   worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
   m = degpol(A)+(B ? degpol(B): 0);
-  H = gen_crt_Z("ZX_resultant_all", worker, dB, bound, m, &mod);
-  return gerepileuptoint(av, Fp_center(H, mod, shifti(mod,-1)));
+  H = gen_crt("ZX_resultant_all", worker, dB, bound, m, NULL,
+               ZV_chinese_center, Fp_center);
+  return gerepileuptoint(av, H);
 }
 
 /* A0 and B0 in Q[X] */

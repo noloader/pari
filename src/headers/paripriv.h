@@ -162,7 +162,8 @@ GEN  ZX_ZXY_resultant_worker(GEN A, GEN B, ulong dp, ulong p, GEN dB);
 GEN  ZM_det_worker(GEN P, GEN A);
 GEN  aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v);
 GEN  aprcl_step6_worker(GEN r, long t, GEN N, GEN N1, GEN et);
-GEN  gen_crt_Z(const char *s, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod);
+GEN  gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod,
+             GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN));
 
 /* Relative number fields */
 enum { rnf_NFABS = 1, rnf_MAPS };

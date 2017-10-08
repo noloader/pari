@@ -5787,7 +5787,7 @@ ZM_det_i(GEN M, long n)
     timer_printf(&ti,"ZM_det: Dixon %ld/%ld bits",expi(D),expi(h));
   h = divii(h, D);
   worker = strtoclosure("_ZM_det_worker", 1, M);
-  H = gen_crt_Z("ZM_det", worker, D, expi(h)+1, lg(M)-1, &mod);
+  H = gen_crt("ZM_det", worker, D, expi(h)+1, lg(M)-1, &mod, ZV_chinese, NULL);
   if (D) H = Fp_div(H, D, mod);
   H = Fp_center(H, mod, shifti(mod,-1));
   if (D) H = mulii(H, D);
