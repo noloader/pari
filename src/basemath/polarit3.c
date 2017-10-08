@@ -930,6 +930,89 @@ FqM_to_FlxM(GEN x, GEN T, GEN pp)
 
 /*******************************************************************/
 /*                                                                 */
+/*                          GENERIC CRT                            */
+/*                                                                 */
+/*******************************************************************/
+
+static long
+get_nbprimes(ulong bound, ulong *pt_start)
+{
+#ifdef LONG_IS_64BIT
+  ulong pstart = 4611686018427388039UL;
+#else
+  ulong pstart = 1073741827UL;
+#endif
+  *pt_start = pstart;
+  return (bound/expu(pstart))+1;
+}
+
+static GEN
+primelist_disc(ulong *p, long n, GEN dB)
+{
+  GEN P = cgetg(n+1, t_VECSMALL);
+  long i;
+  for (i=1; i <= n; i++, *p = unextprime(*p+1))
+  {
+    if (dB && umodiu(dB, *p)==0) { i--; continue; }
+    P[i] = *p;
+  }
+  return P;
+}
+
+GEN
+gen_crt_Z(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod)
+{
+  ulong p;
+  long n, m;
+  GEN  H, P, mod;
+  n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
+  m = minss(mmin, n);
+  if (m == 1)
+  {
+    GEN P = primelist_disc(&p, n, dB);
+    GEN done = closure_callgen1(worker, P);
+    H = gel(done,1);
+    mod = gel(done,2);
+  }
+  else
+  {
+    long i, s = n/m, r = n - m*s, di = 0;
+    struct pari_mt pt;
+    long pending;
+    if (DEBUGLEVEL > 4)
+      err_printf("%s: bound 2^%ld, nb primes: %ld\n",str, bound, n);
+    H = cgetg(m+1+!!r, t_VEC); P = cgetg(m+1+!!r, t_VEC);
+    mt_queue_start_lim(&pt, worker, m);
+    for (i=1; i<=m || pending; i++)
+    {
+      GEN done;
+      mt_queue_submit(&pt, i, i<=m ? mkvec(primelist_disc(&p, s, dB)): NULL);
+      done = mt_queue_get(&pt, NULL, &pending);
+      if (done)
+      {
+        di++;
+        gel(H, di) = gel(done,1);
+        gel(P, di) = gel(done,2);
+        if (DEBUGLEVEL>5) err_printf("%ld%% ",100*di/m);
+      }
+    }
+    mt_queue_end(&pt);
+    if (r)
+    {
+      GEN Pr = primelist_disc(&p, r, dB);
+      GEN done = closure_callgen1(worker, Pr);
+      gel(H, m+1) = gel(done,1);
+      gel(P, m+1) = gel(done,2);
+    }
+    H = ZV_chinese(H, P, &mod);
+    if (DEBUGLEVEL>5) err_printf("done\n");
+  }
+  *pt_mod = mod;
+  return H;
+}
+
+/*******************************************************************/
+/*                                                                 */
 /*                          MODULAR GCD                            */
 /*                                                                 */
 /*******************************************************************/
@@ -1784,18 +1867,6 @@ trivial_case(GEN A, GEN B)
   return NULL;
 }
 
-static long
-get_nbprimes(ulong bound, ulong *pt_start)
-{
-#ifdef LONG_IS_64BIT
-  ulong pstart = 4611686018427388039UL;
-#else
-  ulong pstart = 1073741827UL;
-#endif
-  *pt_start = pstart;
-  return (bound/expu(pstart))+1;
-}
-
 static ulong
 ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
 {
@@ -1869,71 +1940,6 @@ ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB)
   if (isintzero(dB)) dB = NULL;
   gel(V,1) = ZX_resultant_slice(A,B,dB,P,&gel(V,2));
   return V;
-}
-
-static GEN
-primelist_disc(ulong *p, long n, GEN dB)
-{
-  GEN P = cgetg(n+1, t_VECSMALL);
-  long i;
-  for (i=1; i <= n; i++, *p = unextprime(*p+1))
-  {
-    if (dB && umodiu(dB, *p)==0) { i--; continue; }
-    P[i] = *p;
-  }
-  return P;
-}
-
-GEN
-gen_crt_Z(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod)
-{
-  ulong p;
-  long n, m;
-  GEN  H, P, mod;
-  n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
-  m = minss(mmin, n);
-  if (m == 1)
-  {
-    GEN P = primelist_disc(&p, n, dB);
-    GEN done = closure_callgen1(worker, P);
-    H = gel(done,1);
-    mod = gel(done,2);
-  }
-  else
-  {
-    long i, s = n/m, r = n - m*s, di = 0;
-    struct pari_mt pt;
-    long pending;
-    if (DEBUGLEVEL > 4)
-      err_printf("%s: bound 2^%ld, nb primes: %ld\n",str, bound, n);
-    H = cgetg(m+1+!!r, t_VEC); P = cgetg(m+1+!!r, t_VEC);
-    mt_queue_start_lim(&pt, worker, m);
-    for (i=1; i<=m || pending; i++)
-    {
-      GEN done;
-      mt_queue_submit(&pt, i, i<=m ? mkvec(primelist_disc(&p, s, dB)): NULL);
-      done = mt_queue_get(&pt, NULL, &pending);
-      if (done)
-      {
-        di++;
-        gel(H, di) = gel(done,1);
-        gel(P, di) = gel(done,2);
-        if (DEBUGLEVEL>5) err_printf("%ld%% ",100*di/m);
-      }
-    }
-    mt_queue_end(&pt);
-    if (r)
-    {
-      GEN Pr = primelist_disc(&p, r, dB);
-      GEN done = closure_callgen1(worker, Pr);
-      gel(H, m+1) = gel(done,1);
-      gel(P, m+1) = gel(done,2);
-    }
-    H = ZV_chinese(H, P, &mod);
-    if (DEBUGLEVEL>5) err_printf("done\n");
-  }
-  *pt_mod = mod;
-  return H;
 }
 
 /* Res(A, B/dB), assuming the A,B in Z[X] and result is integer */
