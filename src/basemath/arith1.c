@@ -2636,6 +2636,20 @@ nxV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
   return V;
 }
 
+static GEN
+nmV_polint_center_tree_seq(GEN vA, GEN P, GEN T, GEN R, GEN m2)
+{
+  long i, j, l = lg(gel(vA,1)), n = lg(P);
+  GEN A = cgetg(n, t_VEC);
+  GEN V = cgetg(l, t_COL);
+  for (i=1; i < l; i++)
+  {
+    for (j=1; j < n; j++) gel(A,j) = gmael(vA,j,i);
+    gel(V,i) = ncV_polint_center_tree(A, P, T, R, m2);
+  }
+  return V;
+}
+
 GEN
 nmV_polint_center_tree_worker(GEN vA, GEN T, GEN R, GEN P, GEN m2)
 {
@@ -2900,6 +2914,15 @@ nmV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R)
   pari_sp av = avma;
   GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
   GEN a = nmV_polint_center_tree(A, P, T, R, m2);
+  return gerepileupto(av, a);
+}
+
+GEN
+nmV_chinese_center_tree_seq(GEN A, GEN P, GEN T, GEN R)
+{
+  pari_sp av = avma;
+  GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
+  GEN a = nmV_polint_center_tree_seq(A, P, T, R, m2);
   return gerepileupto(av, a);
 }
 
