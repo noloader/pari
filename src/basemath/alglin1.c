@@ -3541,74 +3541,90 @@ ZM_gauss(GEN a, GEN b0)
   return gerepileupto(av, res);
 }
 
+static GEN
+ZM_inv_slice(GEN A, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1, discard=0;
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1), d;
+    GEN Hp, a = ZM_to_Flm(A, p);
+    Hp = Flm_inv_sp(a, &d, p);
+    if (!Hp) { p = 1; Hp = zero_Flm(nbrows(a), nbrows(a)); }
+    else if (d!=1) Hp = Flm_Fl_mul(Hp, d, p);
+    Hp = gerepileupto(av, Flm_to_ZM(Hp));
+    *mod = utoi(p); return Hp;
+  }
+  T = ZV_producttree(P);
+  A = ZM_nv_mod_tree(A, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i], d;
+    GEN Hp, a = gel(A,i);
+    Hp = Flm_inv_sp(a, &d, p);
+    if (!Hp) { discard=1; P[i] = 1; Hp = zero_Flm(nbrows(a), nbrows(a)); }
+    else if (d!=1) Hp = Flm_Fl_mul(Hp, d, p);
+    gel(H,i) = Hp;
+  }
+  if (discard) T = ZV_producttree(P);
+  H = nmV_chinese_center_tree_seq(H, P, T, ZV_chinesetree(P,T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZM_inv_worker(GEN P, GEN A)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZM_inv_slice(A, P, &gel(V,2));
+  return V;
+}
+
+static GEN
+ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
+{
+  pari_sp av = avma;
+  long m = lg(A)-1;
+  GEN bnd, d, H, D, mod, worker;
+  if (m == 0)
+  {
+    if (pt_den) *pt_den = gen_1;
+    return cgetg(1, t_MAT);
+  }
+  bnd = mulii(mpfact(m-1), gpowgs(gsupnorm(A, DEFAULTPREC),m-1));
+  worker = strtoclosure("_ZM_inv_worker", 1, A);
+  H = gen_crt("ZM_inv", worker, dA, expi(bnd), m, &mod, nmV_chinese_center, FpM_center);
+  D = ZMrow_ZC_mul(A, gel(H,1), 1);
+  d = gcdii(Q_content_safe(H), D);
+  if (signe(D) < 0) d = negi(d);
+  if (!equali1(d))
+  {
+    H = ZM_Z_divexact(H, d);
+    D = diviiexact(D, d);
+  }
+  if (dA && !equalii(D, dA))
+  {
+    if (!dvdii(dA,D))
+      pari_err_BUG("ZM_inv_bnd (invalid denom)");
+    H = ZM_Z_mul(H, diviiexact(dA, D));
+    D = gcopy(dA);
+  }
+  if (pt_den)
+  {
+    gerepileall(av, 2, &H, &D);
+    *pt_den = D; return H;
+  }
+  return gerepileupto(av, H);
+}
+
 /* M integral, dM such that M' = dM M^-1 is integral [e.g det(M)]. Return M' */
 GEN
 ZM_inv(GEN M, GEN dM)
-{
-  pari_sp av2, av = avma;
-  GEN Hp,q,H;
-  ulong p;
-  long lM = lg(M), stable = 0;
-  int negate = 0;
-  forprime_t S;
-  pari_timer ti;
-
-  if (lM == 1) return cgetg(1,t_MAT);
-
-  /* HACK: include dM = -1 ! */
-  if (dM && is_pm1(dM))
-  {
-    /* modular algorithm computes M^{-1}, NOT multiplied by det(M) = -1.
-     * We will correct (negate) at the end. */
-    if (signe(dM) < 0) negate = 1;
-    dM = gen_1;
-  }
-  init_modular_big(&S);
-  av2 = avma;
-  H = NULL;
-  if (DEBUGLEVEL>5) timer_start(&ti);
-  while ((p = u_forprime_next(&S)))
-  {
-    ulong dMp;
-    GEN Mp;
-    Mp = ZM_to_Flm(M,p);
-    if (dM == gen_1)
-      Hp = Flm_inv_sp(Mp, NULL, p);
-    else
-    {
-      if (dM) {
-        dMp = umodiu(dM,p); if (!dMp) continue;
-        Hp = Flm_inv_sp(Mp, NULL, p);
-        if (!Hp) pari_err_INV("ZM_inv", Mp);
-      } else {
-        Hp = Flm_inv_sp(Mp, &dMp, p);
-        if (!Hp) continue;
-      }
-      if (dMp != 1) Flm_Fl_mul_inplace(Hp, dMp, p);
-    }
-
-    if (!H)
-    {
-      H = ZM_init_CRT(Hp, p);
-      q = utoipos(p);
-    }
-    else
-      stable = ZM_incremental_CRT(&H, Hp, &q, p);
-    if (DEBUGLEVEL>5) timer_printf(&ti, "ZM_inv mod %lu (stable=%ld)",p,stable);
-    if (stable && ZM_isscalar(ZM_mul(M, H), dM)) break;
-    if (gc_needed(av,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ZM_inv");
-      gerepileall(av2, 2, &H, &q);
-    }
-  }
-  if (!p) pari_err_OVERFLOW("ZM_inv [ran out of primes]");
-  if (DEBUGLEVEL>5) err_printf("ZM_inv done\n");
-  if (negate)
-    return gerepileupto(av, ZM_neg(H));
-  else
-    return gerepilecopy(av, H);
-}
+{ return ZM_inv_bnd(M, dM, NULL); }
 
 /* to be used when denom(M^(-1)) << det(M) and a sharp multiple is
  * not available. Return H primitive such that M*H = den*Id */
