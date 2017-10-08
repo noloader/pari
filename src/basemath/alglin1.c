@@ -5759,10 +5759,12 @@ ZM_det_i(GEN M, long n)
   long i;
   ulong p, Dp = 1;
   forprime_t S;
+  pari_timer ti;
   GEN D, h, q, v;
   if (n == 1) return icopy(gcoeff(M,1,1));
   if (n == 2) return ZM_det2(M);
   if (n == 3) return ZM_det3(M);
+  if (DEBUGLEVEL >=4) timer_start(&ti);
   h = RgM_Hadamard(M);
   if (!signe(h)) { avma = av; return gen_0; }
   h = sqrti(h); q = gen_1;
@@ -5795,8 +5797,12 @@ ZM_det_i(GEN M, long n)
     if (q != gen_1) D = lcmii(D, q);
   }
   /* determinant is a multiple of D */
+  if (DEBUGLEVEL >=4)
+    timer_printf(&ti,"ZM_det: Dixon %ld/%ld bits",expi(D),expi(h));
   h = divii(h, D);
   h = ZM_det_bnd(M, expi(h)+1, D);
+  if (DEBUGLEVEL >=4)
+    timer_printf(&ti,"ZM_det: CRT");
   return gerepileuptoint(av, h);
 }
 
