@@ -5736,22 +5736,6 @@ ZM_det_worker(GEN P, GEN A)
   return V;
 }
 
-static GEN
-ZM_det_bnd(GEN A, ulong bound, GEN D)
-{
-  pari_sp av = avma;
-  long m;
-  GEN  H, mod, worker;
-  if (!bound) bound = expi(RgM_Hadamard(A))+1;
-  m = lg(A)-1;
-  worker = strtoclosure("_ZM_det_worker", 1, A);
-  H = gen_crt_Z("ZM_det", worker, D, bound, m, &mod);
-  if (D) H = Fp_div(H, D, mod);
-  H = Fp_center(H, mod, shifti(mod,-1));
-  if (D) H = mulii(H, D);
-  return gerepileuptoint(av, H);
-}
-
 /* assume dim(a) = n > 0 */
 static GEN
 ZM_det_i(GEN M, long n)
@@ -5762,7 +5746,7 @@ ZM_det_i(GEN M, long n)
   ulong p, Dp = 1;
   forprime_t S;
   pari_timer ti;
-  GEN D, h, q, v;
+  GEN H, D, mod, h, q, v, worker;
   if (n == 1) return icopy(gcoeff(M,1,1));
   if (n == 2) return ZM_det2(M);
   if (n == 3) return ZM_det3(M);
@@ -5802,10 +5786,12 @@ ZM_det_i(GEN M, long n)
   if (DEBUGLEVEL >=4)
     timer_printf(&ti,"ZM_det: Dixon %ld/%ld bits",expi(D),expi(h));
   h = divii(h, D);
-  h = ZM_det_bnd(M, expi(h)+1, D);
-  if (DEBUGLEVEL >=4)
-    timer_printf(&ti,"ZM_det: CRT");
-  return gerepileuptoint(av, h);
+  worker = strtoclosure("_ZM_det_worker", 1, M);
+  H = gen_crt_Z("ZM_det", worker, D, expi(h)+1, lg(M)-1, &mod);
+  if (D) H = Fp_div(H, D, mod);
+  H = Fp_center(H, mod, shifti(mod,-1));
+  if (D) H = mulii(H, D);
+  return gerepileuptoint(av, H);
 }
 
 static long
