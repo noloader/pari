@@ -3620,8 +3620,9 @@ ZM_inv_ratlift(GEN M, GEN *pden)
   ulong p;
   long lM = lg(M);
   forprime_t S;
+  pari_timer ti;
   if (lM == 1) { *pden = gen_1; return cgetg(1,t_MAT); }
-
+  if (DEBUGLEVEL>5) timer_start(&ti);
   init_modular_big(&S);
   av2 = avma;
   H = NULL;
@@ -3640,7 +3641,8 @@ ZM_inv_ratlift(GEN M, GEN *pden)
       ZM_incremental_CRT(&H, Hp, &q, p);
     B = sqrti(shifti(q,-1));
     Hr = FpM_ratlift(H,q,B,B,NULL);
-    if (DEBUGLEVEL>5) err_printf("ZM_inv mod %lu (ratlift=%ld)\n", p,!!Hr);
+    if (DEBUGLEVEL>5)
+      timer_printf(&ti,"ZM_inv mod %lu (ratlift=%ld)", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, pden);
       if (ZM_isscalar(ZM_mul(M, Hl), *pden)) { H = Hl; break; }
