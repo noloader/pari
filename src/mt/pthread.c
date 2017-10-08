@@ -279,7 +279,7 @@ mt_queue_reset(void)
     pthread_join(mt->th[i],NULL);
   pari_mt = NULL;
   BLOCK_SIGINT_END
-  if (DEBUGLEVEL) pari_warn(warner,"stop threads");
+  if (DEBUGLEVEL) pari_warn(warner,"stopping %ld threads", mt->n);
   for (i=0;i<mt->n;i++)
   {
     struct mt_queue *mq = mt->mq+i;
@@ -335,7 +335,7 @@ mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
       else
         pari_thread_alloc(&mt->pth[i],mtparisize,(GEN)mq);
     }
-    if (DEBUGLEVEL) pari_warn(warner,"start threads");
+    if (DEBUGLEVEL) pari_warn(warner,"starting %ld threads", lim);
     BLOCK_SIGINT_START
     for (i=0;i<lim;i++)
       pthread_create(&mt->th[i],NULL, &mt_queue_run, (void*)&mt->pth[i]);
