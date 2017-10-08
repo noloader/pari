@@ -1307,7 +1307,7 @@ ZlM_gauss(GEN a, GEN b, ulong p, long e, GEN C)
     b = ZM_Z_divexact(ZM_sub(b, ZM_nm_mul(a, xi)), P);
     if (gc_needed(av,2))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"ZlM_gauss. i=%ld",i);
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZlM_gauss. i=%ld/%ld",i,e);
       gerepileall(av2,3, &pi,&b,&xb);
     }
     xi = Flm_mul(C, ZM_to_Flm(b, p), p);
