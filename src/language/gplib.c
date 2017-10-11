@@ -1163,7 +1163,7 @@ get_line_from_file(const char *prompt, filtre_t *F, FILE *file)
   }
   s = F->buf->buf;
   /* don't log if from gprc or empty input */
-  if (*s && prompt) gp_echo_and_log(prompt, s);
+  if (*s && prompt && GP_DATA->echo != 2) gp_echo_and_log(prompt, s);
   return 1;
 }
 
@@ -1619,7 +1619,12 @@ sd_breakloop(const char *v, long flag)
 { return sd_toggle(v,flag,"breakloop", &(GP_DATA->breakloop)); }
 GEN
 sd_echo(const char *v, long flag)
-{ return sd_toggle(v,flag,"echo", &(GP_DATA->echo)); }
+{
+  ulong echo = GP_DATA->echo;
+  GEN ret = sd_ulong(v,flag,"echo", &echo, 0,2,NULL);
+  GP_DATA->echo = echo;
+  return ret;
+}
 GEN
 sd_timer(const char *v, long flag)
 { return sd_toggle(v,flag,"timer", &(GP_DATA->chrono)); }

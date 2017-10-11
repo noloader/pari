@@ -1,5 +1,5 @@
    realprecision = 19 significant digits
-   echo = 1 (on)
+   echo = 1
 ? intnum(x=0,Pi,sin(x))
 2.000000000000000000
 ? intnum(x=0,4,exp(-x^2))
@@ -40,4 +40,4 @@
 0.99999999999999999999999999999999999999
 ? if(getheap()!=HEAP,getheap())
 ? print("Total time spent: ",gettime);
-Total time spent: 16
+Total time spent: 8

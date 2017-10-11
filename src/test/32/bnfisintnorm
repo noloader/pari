@@ -1,4 +1,4 @@
-   echo = 1 (on)
+   echo = 1
 ? setrand(1);bnf=bnfinit(x^2+105);
 ? for(i=1,1000,do(i))
 1:1
@@ -768,4 +768,4 @@
 ? bnfisintnorm(bnfinit('y^2+93),54647)
 []
 ? print("Total time spent: ",gettime);
-Total time spent: 512
+Total time spent: 588

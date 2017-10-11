@@ -58,6 +58,17 @@ pari_ask_confirm(const char *s)
   cb_pari_ask_confirm(s);
 }
 
+static char *
+strip_last_nl(char *s)
+{
+  ulong l = strlen(s);
+  char *t;
+  if (l && s[l-1] != '\n') return s;
+  if (l>1 && s[l-2] == '\r') l--;
+  t = stack_malloc(l); memcpy(t, s, l-1); t[l-1] = 0;
+  return t;
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                        INPUT FILTER                            **/
@@ -480,6 +491,7 @@ input_loop(filtre_t *F, input_method *IM)
   F->wait_for_brace = 0;
   for(;;)
   {
+    if (GP_DATA->echo == 2) gp_echo_and_log("", strip_last_nl(to_read));
     F->s = to_read;
     F->t = s;
     (void)filtre0(F); /* pre-processing of line, read by previous call to IM->getline */

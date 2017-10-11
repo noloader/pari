@@ -1,4 +1,4 @@
-   echo = 1 (on)
+   echo = 1
 ? mathnf([0,2])
 
 [2]
@@ -64,4 +64,4 @@
 ? matsolvemod([1,2;3,4],1,2,1)
 [[0, 0]~, [-1, 0; 0, 1]]
 ? print("Total time spent: ",gettime);
-Total time spent: 0
+Total time spent: 1
