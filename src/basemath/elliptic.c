@@ -1812,22 +1812,18 @@ slope_samex(GEN e, GEN x, GEN y1, GEN y2)
             gmul(x,gadd(gmul2n(ell_get_a2(e),1),gmulsg(3,x))));
   return gdiv(dy,dx);
 }
-static GEN
-get_slope(GEN e, GEN x1, GEN x2, GEN y1, GEN y2)
+/* a and b are t_INT, t_FRAC, t_REAL or t_COMPLEX of those. Check whether
+ * a-b is invertible */
+int
+cx_approx_equal(GEN a, GEN b)
 {
-  GEN dy,dx;
-  if (x1 == x2 || gequal(x1,x2))
-    return slope_samex(e, x1, y1, y2);
-  dx = gsub(x2,x1);
-  if (typ(dx) == t_COMPLEX) /* its Norm may be 0 */
-  {
-    GEN N = gnorm(dx);
-    if (gequal0(N)) return slope_samex(e,x1,y1,y2);
-    dy = gsub(y2,y1);
-    return gdiv(gmul(dy,gconj(dx)),N); /* dy/dx */
-  }
-  dy = gsub(y2,y1);
-  return gdiv(dy,dx);
+  pari_sp av = avma;
+  GEN d;
+  int r;
+  if (a == b) return 1;
+  d = gsub(a,b);
+  r = (gequal0(d) || (typ(d) == t_COMPLEX && gequal0(cxnorm(d))));
+  avma = av; return r;
 }
 
 GEN
@@ -1850,8 +1846,13 @@ elladd(GEN e, GEN z1, GEN z2)
     y1 = nftoalg(nf, y1);
     y2 = nftoalg(nf, y2);
   }
-  s = get_slope(e,x1,x2,y1,y2);
-  if (!s) { avma = av; return ellinf(); }
+  if (cx_approx_equal(x1,x2))
+  {
+    s = slope_samex(e, x1, y1, y2);
+    if (!s) { avma = av; return ellinf(); }
+  }
+  else
+    s = gdiv(gsub(y2,y1), gsub(x2,x1));
   x = gsub(gmul(s,gadd(s,ell_get_a1(e))), gadd(gadd(x1,x2),ell_get_a2(e)));
   y = gadd(gadd(y1, ec_h_evalx(e,x)), gmul(s,gsub(x,x1)));
   z = cgetg(3,t_VEC);
