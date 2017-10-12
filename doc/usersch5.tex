@@ -5826,6 +5826,10 @@ product of the coefficients of $x$ and $y$.
 \fun{long}{FlxqX_is_squarefree}{GEN S, GEN T, ulong p}, as
 \kbd{FpX\_is\_squarefree}.
 
+\fun{long}{FlxqX_ispower}{GEN f, ulong k, GEN T, ulong p, GEN *pt}
+return $1$ if the \kbd{FlxqX} $f$ is a $k$-th power, $0$ otherwise.
+If \kbd{py} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
+
 \fun{GEN}{FlxqX_Frobenius}{GEN S, GEN T, ulong p}, as \kbd{FpXQX\_Frobenius}
 
 \fun{GEN}{FlxqX_roots}{GEN f, GEN T, ulong p} return the roots of \kbd{f} in

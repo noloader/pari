@@ -1367,10 +1367,37 @@ FlxqX_factor_squarefree(GEN f, GEN xp, GEN T, ulong p)
       }
       if (degpol(r) == 0) break;
     }
+    if (!xp)   xp = Flx_Frobenius(T, p);
     if (!ixp) ixp = FlxqX_invFrobenius(xp, T, p);
     f = FlxqX_Frobenius_deflate(r, ixp, T, p);
   }
   return gerepilecopy(av, u);
+}
+
+long
+FlxqX_ispower(GEN f, ulong k, GEN T, ulong p, GEN *pt_r)
+{
+  pari_sp av = avma;
+  GEN lc, F;
+  long i, n = degpol(f);
+  if (n % k) return 0;
+  lc = Flxq_sqrtn(leading_coeff(f), stoi(k), T, p, NULL);
+  if (!lc) { av = avma; return 0; }
+  F = FlxqX_factor_squarefree(f, NULL, T, p);
+  for(i=1; i<=n; i++)
+    if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
+  if (pt_r)
+  {
+    GEN r = scalarpol_shallow(lc, varn(f)), s = r;
+    for(i=n; i>=1; i--)
+    {
+      if (i%k) continue;
+      s = FlxqX_mul(s, gel(F,i), T, p);
+      r = FlxqX_mul(r, s, T, p);
+    }
+    *pt_r = gerepileupto(av, r);
+  } else av = avma;
+  return 1;
 }
 
 static GEN
