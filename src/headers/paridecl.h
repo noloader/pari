@@ -656,6 +656,7 @@ int     F2x_is_irred(GEN f);
 void    F2xV_to_FlxV_inplace(GEN v);
 void    F2xV_to_ZXV_inplace(GEN v);
 int     Flx_is_irred(GEN f, ulong p);
+long    Flx_ispower(GEN f, ulong k, ulong p, GEN *pt_r);
 GEN     Flx_degfact(GEN f, ulong p);
 GEN     Flx_factor(GEN f, ulong p);
 GEN     Flx_roots_naive(GEN f, ulong p);

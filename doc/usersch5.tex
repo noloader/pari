@@ -5523,6 +5523,10 @@ assume $f$ is totally split.
 of $f$ as a \typ{VECSMALL} (multiple roots are not repeated), found
 by an exhaustive search. Efficient for very small $p$ !
 
+\fun{long}{Flx_ispower}{GEN f, ulong k, ulong p, GEN *pt}
+return $1$ if the \kbd{Flx} $f$ is a $k$-th power, $0$ otherwise.
+If \kbd{pt} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
+
 \fun{GEN}{Flx_factor}{GEN f, ulong p}
 
 \fun{GEN}{Flx_factor_squarefree}{GEN f, ulong p} returns the squarefree

@@ -1824,11 +1824,38 @@ Flx_factor_squarefree(GEN f, ulong p)
       }
       if (degpol(r) == 0) break;
     }
-    f = Flx_deflate(r, p);
+    f = Flx_normalize(Flx_deflate(r, p), p);
   }
   for (i = n; i; i--)
     if (degpol(gel(u,i))) break;
   setlg(u,i+1); return u;
+}
+
+long
+Flx_ispower(GEN f, ulong k, ulong p, GEN *pt_r)
+{
+  pari_sp av = avma;
+  ulong lc;
+  GEN F;
+  long i, n = degpol(f), v = f[1], l;
+  if (n % k) return 0;
+  lc = Fl_sqrtn(Flx_lead(f), k, p, NULL);
+  if (lc == ULONG_MAX) { av = avma; return 0; }
+  F = Flx_factor_squarefree(f, p); l = lg(F)-1;
+  for (i = 1; i <= l; i++)
+    if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
+  if (pt_r)
+  {
+    GEN r = Fl_to_Flx(lc, v), s = pol1_Flx(v);
+    for(i = l; i >= 1; i--)
+    {
+      if (i%k) continue;
+      s = Flx_mul(s, gel(F,i), p);
+      r = Flx_mul(r, s, p);
+    }
+    *pt_r = gerepileuptoleaf(av, r);
+  } else av = avma;
+  return 1;
 }
 
 /* See <http://www.shoup.net/papers/factorimpl.pdf> */
