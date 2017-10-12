@@ -2563,7 +2563,7 @@ FqX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt)
     F = f;
   else
   {
-    ulong pow = upowuu(pp,w);
+    ulong pow = (pp && w) ? upowuu(pp,w): 1;
     F = pt? pol_1(varn(f)): NULL;
     while (degpol(f) > 0)
     {
