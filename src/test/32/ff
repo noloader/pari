@@ -76,7 +76,7 @@ x^2 + Mod(4294967309, 4294967311)*x + Mod(4294967310, 4294967311), [a, a^2 +
 304316255), 1; x + (4026574568*a^2 + 1835576706*a + 2990651057), 1], [268392
 743*a^2 + 2459390605*a + 1304316254, 4026574568*a^2 + 1835576706*a + 2990651
 056]~]
-? ftest(p,n,r)=my(a=ffgen(ffinit(p,n),'a)^r);if(sqrtn(a,r)^r!=a,error([p,n,r]));
+? default(echo,0);
 ? ftest(2,1005,7);
 ? ffgen(ffinit(2^32-5,101),'a)^10000
 2904925334*a^100 + 700105542*a^99 + 1727200511*a^98 + 1173808205*a^97 + 9542
@@ -183,7 +183,7 @@ Mod(6687681666819568403, 18446744073944432641)
 ? conjvec(Mod(x,x^2+Mod(1,3)))
 [Mod(Mod(1, 3)*x, Mod(1, 3)*x^2 + Mod(1, 3)), Mod(Mod(2, 3)*x, Mod(1, 3)*x^2
  + Mod(1, 3))]~
-? test(q)=my(t=ffgen(q,'t),m=[t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matker(m));print(matimage(m));print(matrank(m));my(M=[t,2*t^0,3*t^0;t,t^2,1+t^3;1+t,1+t^2,1+t^3]);print(matdet(M));print(M^(-1)*M);my(v=[t^0,t^1,t^2]~);print(M*v);print(M*matsolve(M,v)==v);print(M*matinverseimage(M,v)==v);print(matsolve(M,matid(3)*t^0)==M^(-1));print(matinverseimage(M,matid(3)*t^0)==M^(-1));my(N=t*[0,1;0,0]);iferr(N^-1,e,,errname(e)=="e_INV");iferr(matsolve(N,t*[0,1]~),e,,errname(e)=="e_INV");print(matinverseimage(N,t*[1,0]~));print(matinverseimage(N,t*[0,1]~));print(matinverseimage(N,N^0));print(matindexrank(N));print(matsupplement(t*[0;1]));print(lindep(t*[1;1]));print(lindep(t*[0,0;1,1]));
+? default(echo,0);
 ? test(2^5)
 [t^4 + t^3; t^4 + t^3; 1]
 [t, t^2; t + 1, t^2 + 1]
@@ -241,7 +241,7 @@ t^4 + t^2
 [0, 1; t, 0]
 []~
 [18446744073709551628, 1]~
-? test(q)=my(t=ffgen(q,'t),M=matrix(10,10,i,j,random(t)));subst(charpoly(M),'x,M)==0;
+? default(echo,0);
 ? test(nextprime(2^7)^5)
 1
 ? test(nextprime(2^15)^5)
@@ -252,7 +252,7 @@ t^4 + t^2
 1
 ? my(a=ffgen([2,100]));(0*a*x)*x
 0
-? test(p=3,n=10,d=2)=q=p^n;a=ffgen([p,n],'a);b=ffgen([p,d*n],'b);m=ffembed(a,b);r=ffinvmap(m);if(minpoly(ffmap(m,a),'a)!=a.mod,error("minpoly"));Pa=a^2+a+3;Pb=ffmap(m,Pa);Pc=ffmap(r,Pb);if(Pc!=Pa,error("ffmap"));if(ffmap(r,b)!=[],error("ffmap"));Qa=[Pa,x^2+x*Pa+1];Qb=ffmap(m,Qa);Qc=ffmap(r,Qb);if(Qc!=Qa,error("ffmap"));
+? default(echo,0);
 ? test(2,10,3)
 ? test(3,10,2)
 ? test(nextprime(2^100),3,3)
@@ -261,4 +261,4 @@ t^4 + t^2
   ***                 ^---------------------
   *** ffgen: not an irreducible polynomial in ffgen: x^2 + x + 1.
 ? print("Total time spent: ",gettime);
-Total time spent: 928
+Total time spent: 940
