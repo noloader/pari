@@ -2559,16 +2559,6 @@ galoisidentify(GEN gal)
   avma = av; return mkvec2s(card, idx);
 }
 
-/* convert {0,1}-t_VECSMALL to bitfield */
-static GEN
-zv_to_bits(GEN H)
-{
-  long i, l = lg(H);
-  GEN B = zero_F2v(l-1);
-  for (i = 1; i < l; i++)
-    if (H[i]) F2v_set(B,i);
-  return B;
-}
 static GEN
 Qevproj_RgX(GEN c, long d, GEN pro)
 { return RgV_to_RgX(Qevproj_down(RgX_to_RgC(c,d), pro), varn(c)); }
@@ -2636,7 +2626,7 @@ cc_chartable(GEN cc)
     for (j = 2; j < lcl; j++) /* skip g ~ 1 */
       if (umael(vjg,j,(k % vord[j])+1) != umael(vjg,j,2)) { H[k] = 0; break; }
   }
-  f = znstar_conductor_bits(zv_to_bits(H));
+  f = znstar_conductor_bits(Flv_to_F2v(H));
   /* lift character table to Z[zeta_f] */
   pov2 = p>>1;
   ct = cgetg(lcl, t_MAT);
