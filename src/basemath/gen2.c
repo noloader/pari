@@ -1169,6 +1169,20 @@ gequalsg(long s, GEN x)
   int f = gequal(stoi(s), x);
   avma = av; return f;
 }
+
+/* a and b are t_INT, t_FRAC, t_REAL or t_COMPLEX of those. Check whether
+ * a-b is invertible */
+int
+cx_approx_equal(GEN a, GEN b)
+{
+  pari_sp av = avma;
+  GEN d;
+  int r;
+  if (a == b) return 1;
+  d = gsub(a,b);
+  r = (gequal0(d) || (typ(d) == t_COMPLEX && gequal0(cxnorm(d))));
+  avma = av; return r;
+}
 /*******************************************************************/
 /*                                                                 */
 /*                          VALUATION                              */

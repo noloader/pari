@@ -1812,19 +1812,6 @@ slope_samex(GEN e, GEN x, GEN y1, GEN y2)
             gmul(x,gadd(gmul2n(ell_get_a2(e),1),gmulsg(3,x))));
   return gdiv(dy,dx);
 }
-/* a and b are t_INT, t_FRAC, t_REAL or t_COMPLEX of those. Check whether
- * a-b is invertible */
-int
-cx_approx_equal(GEN a, GEN b)
-{
-  pari_sp av = avma;
-  GEN d;
-  int r;
-  if (a == b) return 1;
-  d = gsub(a,b);
-  r = (gequal0(d) || (typ(d) == t_COMPLEX && gequal0(cxnorm(d))));
-  avma = av; return r;
-}
 
 GEN
 elladd(GEN e, GEN z1, GEN z2)
