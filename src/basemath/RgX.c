@@ -2815,7 +2815,7 @@ RgX_rem_FpXQX(GEN x, GEN y, GEN pol, GEN p)
   else
     r = FpXQX_rem(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p), T, p);
   if (signe(r)==0)
-  { avma = av; return zero_FpXQX_mod(p, pol, varn(x)); }
+  { avma = av; return zero_FpXQX_mod(pol, p, varn(x)); }
   return gerepileupto(av, FpXQX_to_mod(r, T, p));
 }
 
