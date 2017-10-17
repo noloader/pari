@@ -11707,6 +11707,11 @@ $a$. The coefficients of the polynomials must be of type \typ{INT},
 of the polynomial \kbd{P} modulo the polynomial \kbd{Q}, where \kbd{P} and
 \kbd{Q} are defined over the definition field of the \typ{FFELT} \kbd{a}.
 
+\fun{GEN}{FFX_ispower}{GEN P, ulong k, GEN a, GEN *py}
+return $1$ if the \kbd{FFX} $P$ is a $k$-th power, $0$ otherwise,
+where \kbd{P} is defined over the definition field of the \typ{FFELT} \kbd{a}.
+If \kbd{py} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
+
 \fun{GEN}{FFXQ_inv}{GEN P, GEN Q, GEN a} returns the inverse
 of the polynomial \kbd{P} modulo the polynomial \kbd{Q}, where \kbd{P} and
 \kbd{Q} are defined over the definition field of the \typ{FFELT} \kbd{a}.

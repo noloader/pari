@@ -279,6 +279,7 @@ BA  110- [libpari] ZV_nv_mod_tree, ZM_nv_mod_tree
 BA  111- [libpari] FF_gen, FF_map, FFX_preimage
 BA  112- New GP functions ffembed, ffmap, ffinvmap, ffcompomap, ffextend
     113- [libpari] cx_approx_equal
+BA  114- [libpari] F2xqX_ispower, FlxqX_ispower, FpXQX_ispower, FFX_ispower
 
   Changed
       1- rewrite bnfnarrow

@@ -1685,6 +1685,34 @@ GEN
 FFXQ_inv(GEN Pf, GEN Qf, GEN ff)
 { return FFX_wrap2(Pf, Qf, ff, FpXQXQ_inv, F2xqXQ_inv, FlxqXQ_inv); }
 
+long
+FFX_ispower(GEN Pf, long k, GEN ff, GEN *pt_r)
+{
+  pari_sp av = avma;
+  GEN P,T,p;
+  ulong pp;
+  long s;
+  if (degpol(Pf) % k) return 0;
+  P = FFX_to_raw(Pf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    s = FpXQX_ispower(P, k, T, p, pt_r);
+    break;
+  case t_FF_F2xq:
+    s = F2xqX_ispower(P, k, T, pt_r);
+    break;
+  default:
+    s = FlxqX_ispower(P, k, T, pp, pt_r);
+  }
+  if (s==0) { avma = av; return 0; }
+  if (pt_r)
+    *pt_r = gerepilecopy(av, raw_to_FFX(*pt_r, ff));
+  else avma = av;
+  return 1;
+}
+
 GEN
 FFX_factor(GEN Pf, GEN ff)
 {
