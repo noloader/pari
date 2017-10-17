@@ -2558,7 +2558,7 @@ ffeltmap_i(GEN m, GEN x)
    if (typ(r)==t_FFELT)
      return FF_map(r, x);
    else
-    return FFX_preimage(x, r, ffpartmapimage("ffmap", r));
+     return FFX_preimage(x, r, ffpartmapimage("ffmap", r));
 }
 
 static GEN
@@ -2624,8 +2624,9 @@ ffcompomap(GEN m, GEN n)
       r = ffeltmap_i(m, n2);
       if (!r)
       {
-        GEN A, R, M;
+        GEN a, A, R, M;
         long dm, dn;
+        a = ffpartmapimage("ffcompomap",m2);
         A = FF_to_FpXQ_i(FF_neg(n2));
         setvarn(A, 1);
         R = deg1pol(gen_1, A, 0);
@@ -2634,7 +2635,7 @@ ffcompomap(GEN m, GEN n)
         setvarn(M, 1);
         r = polresultant0(R, M, 1, 0);
         dm = FF_f(gel(m,1)); dn = FF_f(gel(n,1));
-        if (dm % dn || !ispower(r, utoi(dm/dn), &r)) err_compo(m,n);
+        if (dm % dn || !FFX_ispower(r, dm/dn, a, &r)) err_compo(m,n);
         setvarn(r, varn(FF_mod(g)));
       }
       break;

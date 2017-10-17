@@ -999,21 +999,23 @@ polispower(GEN x, GEN K, GEN *pt)
     x = RgX_normalize(x);
     if (signe(p))
     {
-      GEN T0, T = NULL;
+      GEN T = NULL;
       if (!BPSW_isprime(p))
         pari_err_IMPL("ispower in non-prime characteristic");
       if (RgX_is_FpXQX(x,&T,&p))
       { /* over Fq */
-        T0 = T;
-        if (T && typ(T) == t_FFELT) T = FF_mod(T);
+        if (T && typ(T) == t_FFELT)
+        {
+          if (!FFX_ispower(x, k, T, pt)) { avma = av; return 0; }
+          if (pt) y = *pt;
+          goto END;
+        }
         x = RgX_to_FqX(x,T,p);
         if (!FqX_ispower(x, k, T,p, pt)) { avma = av; return 0; }
         if (pt)
         {
           y = *pt;
           if (!T) y = FpX_to_mod(y, p);
-          else if (typ(T0) == t_FFELT)
-            y = FqX_to_FFX(y, T0);
           else
           {
             T = FpX_to_mod(T, p);
