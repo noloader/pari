@@ -1490,6 +1490,42 @@ FpXQX_factor_Yun(GEN f, GEN T, GEN p)
   setlg(u, j+1); return gerepilecopy(av, u);
 }
 
+long
+FpXQX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt_r)
+{
+  pari_sp av = avma;
+  GEN lc, F;
+  long i, l, n = degpol(f);
+  if (n % k) return 0;
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    GEN fp = ZXX_to_FlxX(f, pp, varn(T));
+    if (!FlxqX_ispower(fp, k, ZX_to_Flx(T, pp), pp, pt_r))
+    { avma = av; return 0; }
+    if (pt_r) *pt_r = gerepileupto(av, FlxX_to_ZXX(*pt_r));
+    else avma = av;
+    return 1;
+  }
+  lc = FpXQ_sqrtn(leading_coeff(f), stoi(k), T, p, NULL);
+  if (!lc) { av = avma; return 0; }
+  F = FpXQX_factor_Yun(f, T, p); l = lg(F)-1;
+  for(i=1; i <= l; i++)
+    if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
+  if (pt_r)
+  {
+    GEN r = scalarpol_shallow(lc, varn(f)), s = r;
+    for(i=l; i>=1; i--)
+    {
+      if(i%k) continue;
+      s = FpXQX_mul(s, gel(F,i), T, p);
+      r = FpXQX_mul(r, s, T, p);
+    }
+    *pt_r = gerepileupto(av, r);
+  } else av = avma;
+  return 1;
+}
+
 static GEN
 FpXQX_roots_split(GEN Sp, GEN xp, GEN Xp, GEN S, GEN T, GEN p)
 {
