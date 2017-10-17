@@ -1227,6 +1227,32 @@ F2xqX_factor_squarefree(GEN f, GEN T)
   return gerepilecopy(av, u);
 }
 
+long
+F2xqX_ispower(GEN f, long k, GEN T, GEN *pt_r)
+{
+  pari_sp av = avma;
+  GEN lc, F;
+  long i, n = degpol(f);
+  if (n % k) return 0;
+  lc = F2xq_sqrtn(leading_coeff(f), stoi(k), T, NULL);
+  if (!lc) { av = avma; return 0; }
+  F = F2xqX_factor_squarefree(f, T);
+  for(i=1; i<=n; i++)
+    if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
+  if (pt_r)
+  {
+    GEN r = scalarpol_shallow(lc, varn(f)), s = r;
+    for(i=n; i>=1; i--)
+    {
+      if (i%k) continue;
+      s = F2xqX_mul(s, gel(F,i), T);
+      r = F2xqX_mul(r, s, T);
+    }
+    *pt_r = gerepileupto(av, r);
+  } else av = avma;
+  return 1;
+}
+
 static void
 F2xqX_roots_edf(GEN Sp, GEN xp, GEN Xp, GEN T, GEN V, long idx)
 {

@@ -159,6 +159,7 @@ GEN     F2xqX_gcd(GEN a, GEN b, GEN T);
 GEN     F2xqX_extgcd(GEN a, GEN b, GEN T,  GEN *ptu, GEN *ptv);
 GEN     F2xqX_get_red(GEN S, GEN T);
 GEN     F2xqX_invBarrett(GEN T, GEN Q);
+long    F2xqX_ispower(GEN f, long k, GEN T, GEN *pt_r);
 GEN     F2xqX_mul(GEN x, GEN y, GEN T);
 GEN     F2xqX_normalize(GEN z, GEN T);
 GEN     F2xqX_powu(GEN x, ulong n, GEN T);
