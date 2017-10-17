@@ -2558,6 +2558,20 @@ F2xqX_extgcd(GEN a, GEN b, GEN T,  GEN *ptu, GEN *ptv)
   *ptv = v; return d;
 }
 
+static GEN
+_F2xqX_mul(void *data,GEN a,GEN b)
+{ return F2xqX_mul(a,b, (GEN) data); }
+
+static GEN
+_F2xqX_sqr(void *data,GEN a)
+{ return F2xqX_sqr(a, (GEN) data); }
+
+GEN
+F2xqX_powu(GEN x, ulong n, GEN T)
+{
+  return gen_powu(x, n, (void*)T, &_F2xqX_sqr, &_F2xqX_mul);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                             F2xqXQ                                **/

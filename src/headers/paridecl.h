@@ -161,6 +161,7 @@ GEN     F2xqX_get_red(GEN S, GEN T);
 GEN     F2xqX_invBarrett(GEN T, GEN Q);
 GEN     F2xqX_mul(GEN x, GEN y, GEN T);
 GEN     F2xqX_normalize(GEN z, GEN T);
+GEN     F2xqX_powu(GEN x, ulong n, GEN T);
 GEN     F2xqX_red(GEN z, GEN T);
 GEN     F2xqX_rem(GEN x, GEN S, GEN T);
 GEN     F2xqX_sqr(GEN x, GEN T);
