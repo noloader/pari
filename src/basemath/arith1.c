@@ -2842,6 +2842,18 @@ gc_chinese(pari_sp av, GEN T, GEN a, GEN *pt_mod)
 }
 
 GEN
+ZV_chinese_center(GEN A, GEN P, GEN *pt_mod)
+{
+  pari_sp av = avma;
+  GEN T = ZV_producttree(P);
+  GEN R = ZV_chinesetree(P, T);
+  GEN a = ZV_chinese_tree(A, P, T, R);
+  GEN mod = gmael(T, lg(T)-1, 1);
+  GEN ca = Fp_center(a, mod, shifti(mod,-1));
+  return gc_chinese(av, T, ca, pt_mod);
+}
+
+GEN
 ZV_chinese(GEN A, GEN P, GEN *pt_mod)
 {
   pari_sp av = avma;

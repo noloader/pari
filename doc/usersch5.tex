@@ -6443,6 +6443,9 @@ integer in $[0, M[$ congruent to $A[i]$ mod $P[i]$ for all $1\leq i\leq n$.
 If \kbd{pM} is not \kbd{NULL}, set \kbd{*pM} to $M$. We also allow
 \typ{VECSMALL}s for $A$ and $P$ (seen as vectors of unsigned integers).
 
+\fun{GEN}{ZV_chinese_center}{GEN A, GEN P, GEN *pM}
+As \kbd{ZV\_chinese} but return integers in $[-M/2, M/2[$ instead.
+
 The following functions allow to solve many Chinese remainder problems
 simultaneously, for a given set of moduli:
 

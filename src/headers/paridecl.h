@@ -1829,6 +1829,7 @@ GEN     ncV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     nmV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     nxV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     nxV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R);
+GEN     ZV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     odd_prime_divisors(GEN q);
 GEN     order(GEN x);
 ulong   pgener_Fl(ulong p);
