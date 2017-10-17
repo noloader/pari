@@ -165,10 +165,10 @@ Rg_is_FpXQ(GEN x, GEN *pT, GEN *pp)
   case t_POL:
     return RgX_is_FpX(x, pp);
   case t_FFELT:
-    mod = FF_1(x); p = FF_p_i(x);
+    mod = x; p = FF_p_i(x);
     if (!*pp) *pp = p;
     if (!*pT) *pT = mod;
-    if ((p != *pp && !equalii(p, *pp)) || (mod != *pT && !gequal(mod, *pT)))
+    else if (typ(*pT)!=t_FFELT || !FF_samefield(*pT,mod))
     {
       if (DEBUGLEVEL) pari_warn(warner,"different moduli in Rg_is_FpXQ");
       return 0;
@@ -2503,7 +2503,7 @@ ffextend(GEN a, GEN P, long v)
   GEN p, T, R, g, m;
   if (typ(a)!=t_FFELT)
     pari_err_TYPE("ffextend",a);
-  T = FF_1(a); p = FF_p_i(a);
+  T = a; p = FF_p_i(a);
   if (typ(P)!=t_POL || !RgX_is_FpXQX(P,&T,&p))
     pari_err_TYPE("ffextend", P);
   if (!FF_samefield(a, T))
