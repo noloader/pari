@@ -1337,7 +1337,7 @@ ZX_norml1(GEN x)
 ulong
 ZX_ZXY_ResBound(GEN A, GEN B, GEN dB)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   GEN a = gen_0, b = gen_0;
   long i , lA = lg(A), lB = lg(B);
   double loga, logb;
@@ -1350,15 +1350,17 @@ ZX_ZXY_ResBound(GEN A, GEN B, GEN dB)
       a = gerepileupto(av, a);
     }
   }
+  a = gerepileuptoint(av, a);
+  av2 = avma;
   for (i=2; i<lB; i++)
   {
     GEN t = gel(B,i);
     if (typ(t) == t_POL) t = ZX_norml1(t);
     b = addii(b, sqri(t));
-    if (gc_needed(av,1))
+    if (gc_needed(av2,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZX_ZXY_ResBound i = %ld",i);
-      b = gerepileupto(av, b);
+      b = gerepileupto(av2, b);
     }
   }
   loga = dbllog2(a);
