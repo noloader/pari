@@ -1074,9 +1074,19 @@ FpX_ispower(GEN f, ulong k, GEN p, GEN *pt_r)
   GEN lc, F;
   long i, l, n = degpol(f), v = varn(f);
   if (n % k) return 0;
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    GEN fp = ZX_to_Flx(f, pp);
+    if (!Flx_ispower(fp, k, pp, pt_r))
+    { avma = av; return 0; }
+    if (pt_r) *pt_r = gerepileupto(av, Flx_to_ZX(*pt_r));
+    else avma = av;
+    return 1;
+  }
   lc = Fp_sqrtn(leading_coeff(f), stoi(k), p, NULL);
   if (!lc) { av = avma; return 0; }
-  F = FpX_factor_squarefree(f, p); l = lg(F)-1;
+  F = FpX_factor_Yun(f, p); l = lg(F)-1;
   for(i=1; i <= l; i++)
     if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
   if (pt_r)
