@@ -3881,6 +3881,49 @@ Fp_log(GEN a, GEN g, GEN ord, GEN p)
   return gen_PH_log(a,g,v,(void*)p,&Fp_star);
 }
 
+static ulong
+Fl_log_naive(ulong a, ulong g, ulong ord, ulong p)
+{
+  ulong i, h=1;
+  for(i=0; i<ord; i++, h = Fl_mul(h, g, p))
+    if(a==h) return i;
+  return ~0UL;
+}
+
+static ulong
+Fl_log_naive_pre(ulong a, ulong g, ulong ord, ulong p, ulong pi)
+{
+  ulong i, h=1;
+  for(i=0; i<ord; i++, h = Fl_mul_pre(h, g, p, pi))
+    if(a==h) return i;
+  return ~0UL;
+}
+
+static ulong
+Fl_log_Fp(ulong a, ulong g, ulong ord, ulong p)
+{
+  pari_sp av = avma;
+  GEN r = Fp_log(utoi(a),utoi(g),utoi(ord),utoi(p));
+  ulong z = typ(r)==t_INT ? itou(r): ~0L;
+  avma = av; return z;
+}
+
+ulong
+Fl_log_pre(ulong a, ulong g, ulong ord, ulong p, ulong pi)
+{
+  if (ord <= 200) return Fl_log_naive_pre(a, g, ord, p, pi);
+  return Fl_log_Fp(a, g, ord, p);
+}
+
+ulong
+Fl_log(ulong a, ulong g, ulong ord, ulong p)
+{
+  if (ord <= 200)
+  return (p&HIGHMASK) ? Fl_log_naive_pre(a, g, ord, p, get_Fl_red(p))
+                      : Fl_log_naive(a, g, ord, p);
+  return Fl_log_Fp(a, g, ord, p);
+}
+
 /* find x such that h = g^x mod N > 1, N = prod_{i <= l} P[i]^E[i], P[i] prime.
  * PHI[l] = eulerphi(N / P[l]^E[l]).   Destroys P/E */
 static GEN

@@ -2043,6 +2043,10 @@ prime, and \kbd{x} to be a square modulo \kbd{p}.
 modulo \kbd{p}. Assumes \kbd{p} to be prime and $p \equiv 1 \pmod{l}$, and
 \kbd{x} to be a $l$-th power modulo \kbd{p}.
 
+\fun{ulong}{Fl_log}{ulong a, ulong g, ulong ord, ulong p} Let $g$ such that
+$g^{ord} \equiv 1 \pmod{p}$. Return an integer $e$ such that
+$a^e \equiv g \pmod{p}$. If $e$ does not exist, the result is undefined.
+
 \fun{ulong}{Fl_order}{ulong a, ulong o, ulong p} returns the order of the
 \kbd{Fp} \kbd{a}. It is assumed that \kbd{o} is a multiple of the order of
 \kbd{a}, $0$ being allowed (no non-trivial information).
@@ -2098,6 +2102,9 @@ $x^n$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.
 \fun{GEN}{Fl_powers_pre}{ulong x, long n, ulong p, ulong pi} returns
 the vector (\typ{VECSMALL}) $(x^0, \dots, x^n)$, assuming $pi$ is
 the pseudo inverse of $p$.
+
+\fun{ulong}{Fl_log_pre}{ulong a, ulong g, ulong ord, ulong p, ulong pi}
+as \kbd{Fl\_log}, assuming $pi$ is the pseudo inverse of $p$.
 
 \fun{ulong}{Fl_sqrt_pre}{ulong x, ulong p, ulong pi} returns a square root
 of $x$ modulo $p$, assuming $pi$ is the pseudo inverse of $p$.

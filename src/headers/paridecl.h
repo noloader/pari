@@ -1743,6 +1743,8 @@ GEN     rhorealnod(GEN x, GEN isqrtD);
 /* arith1.c */
 
 ulong   Fl_2gener_pre(ulong p, ulong pi);
+ulong   Fl_log(ulong a, ulong g, ulong ord, ulong p);
+ulong   Fl_log_pre(ulong a, ulong g, ulong ord, ulong p, ulong pi);
 ulong   Fl_order(ulong a, ulong o, ulong p);
 GEN     Fl_powers(ulong x, long n, ulong p);
 GEN     Fl_powers_pre(ulong x, long n, ulong p, ulong pi);
