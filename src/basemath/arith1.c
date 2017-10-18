@@ -2609,7 +2609,7 @@ ncV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
   for (i=1; i < l; i++)
   {
     pari_sp av = avma;
-    GEN c, A = cgetg(n, t_VECSMALL);
+    GEN c, A = cgetg(n, typ(P));
     long j;
     for (j=1; j < n; j++) A[j] = mael(vA,j,i);
     c = Fp_center(ZV_chinese_tree(A, P, T, R), mod, m2);
@@ -2627,7 +2627,7 @@ nxV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
   for (i=2; i < l; i++)
   {
     pari_sp av = avma;
-    GEN c, A = cgetg(n, t_VECSMALL);
+    GEN c, A = cgetg(n, typ(P));
     long j;
     for (j=1; j < n; j++) A[j] = mael(vA,j,i);
     c = Fp_center(ZV_chinese_tree(A, P, T, R), mod, m2);
