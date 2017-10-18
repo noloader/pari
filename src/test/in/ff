@@ -109,16 +109,19 @@ test(nextprime(2^63)^5)
 my(a=ffgen([2,100]));(0*a*x)*x
 
 default(echo,0);
-test(p=3,n=10,d=2,e=2)=
+test(p=3,f=10,d=2,e=2)=
 {
   my(Pa,Pb);
-  my(q = p^n);
-  my(a = ffgen([p,n],'a), b = ffgen([p,d*n],'b), c = ffgen([p,e*d*n],'c));
+  my(q = p^f);
+  my(a = ffgen([p,f],'a), b = ffgen([p,d*f],'b), c = ffgen([p,e*d*f],'c));
   my(m = ffembed(a, b),   n = ffembed(b, c),     k = ffembed(a, c));
   my(rm = ffinvmap(m), rn = ffinvmap(n), rk = ffinvmap(k));
   my(nm = ffcompomap(n,m), rmrn =ffcompomap(rm,rn));
   my(rnk = ffcompomap(rn,k), rkn = ffcompomap(rk,n));
   my(rmm = ffcompomap(rm,m), mrm = ffcompomap(m,rm));
+  my(fr=fffrobenius(b,f));
+  my(z = b); for(i=1,d-1,z = b + ffmap(fr,z));
+  if (ffmap(m,ffmap(rm,z))!=z,error("fffrobenius"));
   if (minpoly(ffmap(m,a),'a) != a.mod,error("minpoly"));
   Pa = a^2+a+3;
   Pb = ffmap(m,Pa);

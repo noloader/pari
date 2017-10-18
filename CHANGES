@@ -276,8 +276,9 @@ BA  105- [libpari] F2x_get_red, get_F2x_mod, get_F2x_var, get_F2x_degree,
 VD  108- [libpari] closure_func_err
 BA  109- [libpari] F2xqX_extgcd, F2xqXQ_inv, F2xqXQ_invsafe, FFXQ_inv
 BA  110- [libpari] ZV_nv_mod_tree, ZM_nv_mod_tree
-BA  111- [libpari] FF_gen, FF_map, FFX_preimage
-BA  112- New GP functions ffembed, ffmap, ffinvmap, ffcompomap, ffextend
+BA  111- [libpari] FF_gen, FF_map, FFX_preimage, FF_Frobenius
+BA  112- New GP functions ffembed, ffmap, ffinvmap, ffcompomap, ffextend,
+                fffrobenius
     113- [libpari] cx_approx_equal
 BA  114- [libpari] F2xqX_ispower, FlxqX_ispower, FpXQX_ispower, FFX_ispower
 

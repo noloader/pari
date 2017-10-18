@@ -2533,6 +2533,14 @@ ffextend(GEN a, GEN P, long v)
 }
 
 GEN
+fffrobenius(GEN a, long n)
+{
+  GEN g;
+  if (typ(a)!=t_FFELT) pari_err_TYPE("fffrobenius",a);
+  retmkvec2(g=FF_gen(a), FF_Frobenius(g, n));
+}
+
+GEN
 ffinvmap(GEN m)
 {
   pari_sp av = avma;

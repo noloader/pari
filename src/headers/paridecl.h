@@ -3135,6 +3135,7 @@ GEN     Fq_to_FF(GEN x, GEN ff);
 GEN     Z_FF_div(GEN a, GEN b);
 GEN     ffembed(GEN a, GEN b);
 GEN     ffextend(GEN a, GEN P, long v);
+GEN     fffrobenius(GEN m, long n);
 GEN     ffgen(GEN T, long v);
 GEN     ffinvmap(GEN m);
 GEN     fflog(GEN x, GEN g, GEN o);
