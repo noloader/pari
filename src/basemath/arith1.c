@@ -976,63 +976,47 @@ polispower(GEN x, GEN K, GEN *pt)
   pari_sp av;
   long v, d, k = itos(K);
   GEN y, a, b;
+  GEN T = NULL, p = NULL;
 
   if (!signe(x))
   {
     if (pt) *pt = gcopy(x);
     return 1;
   }
-  if (degpol(x) % k) return 0; /* degree not multiple of k */
+  d = degpol(x);
+  if (d % k) return 0; /* degree not multiple of k */
   av = avma;
-  y = NULL; /*-Wall*/
+  if (RgX_is_FpXQX(x, &T, &p) && p)
+  { /* over Fq */
+    if (T && typ(T) == t_FFELT)
+    {
+      if (!FFX_ispower(x, k, T, pt)) { avma = av; return 0; }
+      return 1;
+    }
+    x = RgX_to_FqX(x,T,p);
+    if (!FqX_ispower(x, k, T,p, pt)) { avma = av; return 0; }
+    if (pt)
+      *pt = gerepileupto(av, FqX_to_mod(*pt, T, p));
+    return 1;
+  }
   v = RgX_valrem(x, &x);
   if (v % k) return 0;
   v /= k;
   a = gel(x,2); b = NULL;
   if (!ispower(a, K, &b)) { avma = av; return 0; }
-  d = degpol(x);
   if (d)
   {
     GEN p = characteristic(x);
     a = leading_coeff(x);
     if (!ispower(a, K, &b)) { avma = av; return 0; }
     x = RgX_normalize(x);
-    if (signe(p))
-    {
-      GEN T = NULL;
-      if (!BPSW_isprime(p))
-        pari_err_IMPL("ispower in non-prime characteristic");
-      if (RgX_is_FpXQX(x,&T,&p))
-      { /* over Fq */
-        if (T && typ(T) == t_FFELT)
-        {
-          if (!FFX_ispower(x, k, T, pt)) { avma = av; return 0; }
-          if (pt) y = *pt;
-          goto END;
-        }
-        x = RgX_to_FqX(x,T,p);
-        if (!FqX_ispower(x, k, T,p, pt)) { avma = av; return 0; }
-        if (pt)
-        {
-          y = *pt;
-          if (!T) y = FpX_to_mod(y, p);
-          else
-          {
-            T = FpX_to_mod(T, p);
-            y = gmul(y, gmodulsg(1,T));
-          }
-        }
-        goto END;
-      }
-      if (cmpii(p,K) <= 0)
-        pari_err_IMPL("ispower(general t_POL) in small characteristic");
-    }
+    if (signe(p) && cmpii(p,K) <= 0)
+      pari_err_IMPL("ispower(general t_POL) in small characteristic");
     y = gtrunc(gsqrtn(RgX_to_ser(x,lg(x)), K, NULL, 0));
     if (!RgX_equal(powgi(y, K), x)) { avma = av; return 0; }
   }
   else
     y = pol_1(varn(x));
-END:
   if (pt)
   {
     if (!gequal1(a))
