@@ -1217,7 +1217,7 @@ F2xqX_ispower(GEN f, long k, GEN T, GEN *pt_r)
 {
   pari_sp av = avma;
   GEN lc, F;
-  long i, n = degpol(f);
+  long i, n = degpol(f), v = varn(f);
   if (n % k) return 0;
   lc = F2xq_sqrtn(leading_coeff(f), stoi(k), T, NULL);
   if (!lc) { av = avma; return 0; }
@@ -1226,7 +1226,7 @@ F2xqX_ispower(GEN f, long k, GEN T, GEN *pt_r)
     if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
   if (pt_r)
   {
-    GEN r = scalarpol_shallow(lc, varn(f)), s = r;
+    GEN r = scalarpol(lc, v), s = pol1_F2xX(v, T[1]);
     for(i=n; i>=1; i--)
     {
       if (i%k) continue;
@@ -1390,7 +1390,7 @@ FlxqX_ispower(GEN f, ulong k, GEN T, ulong p, GEN *pt_r)
 {
   pari_sp av = avma;
   GEN lc, F;
-  long i, n = degpol(f);
+  long i, n = degpol(f), v = varn(f);
   if (n % k) return 0;
   lc = Flxq_sqrtn(leading_coeff(f), stoi(k), T, p, NULL);
   if (!lc) { av = avma; return 0; }
@@ -1399,7 +1399,7 @@ FlxqX_ispower(GEN f, ulong k, GEN T, ulong p, GEN *pt_r)
     if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
   if (pt_r)
   {
-    GEN r = scalarpol_shallow(lc, varn(f)), s = r;
+    GEN r = scalarpol(lc, v), s = pol1_FlxX(v, T[1]);
     for(i=n; i>=1; i--)
     {
       if (i%k) continue;
@@ -1533,7 +1533,7 @@ FpXQX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt_r)
 {
   pari_sp av = avma;
   GEN lc, F;
-  long i, l, n = degpol(f);
+  long i, l, n = degpol(f), v = varn(f);
   if (n % k) return 0;
   if (lgefint(p)==3)
   {
@@ -1552,10 +1552,10 @@ FpXQX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt_r)
     if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
   if (pt_r)
   {
-    GEN r = scalarpol_shallow(lc, varn(f)), s = r;
+    GEN r = scalarpol(lc, v), s = pol_1(v);
     for(i=l; i>=1; i--)
     {
-      if(i%k) continue;
+      if (i%k) continue;
       s = FpXQX_mul(s, gel(F,i), T, p);
       r = FpXQX_mul(r, s, T, p);
     }
