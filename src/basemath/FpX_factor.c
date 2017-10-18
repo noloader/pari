@@ -1067,6 +1067,32 @@ FpX_factor_squarefree(GEN T, GEN p)
   return FpX_factor_Yun(T, p);
 }
 
+long
+FpX_ispower(GEN f, ulong k, GEN p, GEN *pt_r)
+{
+  pari_sp av = avma;
+  GEN lc, F;
+  long i, l, n = degpol(f), v = varn(f);
+  if (n % k) return 0;
+  lc = Fp_sqrtn(leading_coeff(f), stoi(k), p, NULL);
+  if (!lc) { av = avma; return 0; }
+  F = FpX_factor_squarefree(f, p); l = lg(F)-1;
+  for(i=1; i <= l; i++)
+    if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
+  if (pt_r)
+  {
+    GEN r = scalarpol(lc, v), s = pol_1(v);
+    for (i=l; i>=1; i--)
+    {
+      if (i%k) continue;
+      s = FpX_mul(s, gel(F,i), p);
+      r = FpX_mul(r, s, p);
+    }
+    *pt_r = gerepileupto(av, r);
+  } else av = avma;
+  return 1;
+}
+
 /* F / E  a vector of factors / exponents of virtual length l
  * (their real lg may be larger). Set their lg to j and return [F,E] */
 static GEN
@@ -1790,7 +1816,8 @@ Flx_factor_squarefree(GEN f, ulong p)
       {
         v = Flx_gcd(r, t, p);
         tv = Flx_div(t, v, p);
-        if (degpol(tv) > 0) gel(u, j*q) = tv;
+        if (degpol(tv) > 0)
+          gel(u, j*q) = Flx_normalize(tv, p);
         if (degpol(v) <= 0) break;
         r = Flx_div(r, v, p);
         t = v;

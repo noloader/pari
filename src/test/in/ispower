@@ -142,6 +142,9 @@ test(t) =
   [do(T,3), do(T^6,3), do(T^9,3), do(T^18,3), do(T^18,9), do(T^18,18)];
 }
 test(Mod(1,2))
+test(Mod(1,3))
+test(Mod(1,17))
+test(Mod(1,nextprime(2^100)))
 test(ffgen(2^3,'t))
 test(ffgen(3^3,'t))
 test(ffgen([nextprime(2^100),3],'t))

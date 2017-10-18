@@ -4542,6 +4542,10 @@ few factors, \kbd{FpX\_nbfact(f,p) == 1} is much faster.
 \kbd{FpX}~\kbd{f} splits into a product of distinct linear factors, $0$
 otherwise. Assumes that \kbd{p} is prime.
 
+\fun{long}{FpX_ispower}{GEN f, ulong k, GEN p, GEN *pt}
+return $1$ if the \kbd{FpX} $f$ is a $k$-th power, $0$ otherwise.
+If \kbd{pt} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
+
 \fun{GEN}{FpX_factor}{GEN f, GEN p}, factors the \kbd{FpX}~\kbd{f}. Assumes
 that \kbd{p} is prime. The returned value \kbd{v} is a \typ{VEC} with two
 components: \kbd{v[1]} is a vector of distinct irreducible (\kbd{FpX})
@@ -5212,7 +5216,7 @@ split squarefree factor of $f$.
 
 \fun{long}{FpXQX_ispower}{GEN f, ulong k, GEN T, GEN p, GEN *pt}
 return $1$ if the \kbd{FpXQX} $f$ is a $k$-th power, $0$ otherwise.
-If \kbd{py} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
+If \kbd{pt} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
 
 \fun{long}{FqX_ispower}{GEN f, ulong k, GEN T, GEN p, GEN *pt}
 same but allow $\kbd{T} = \kbd{NULL}$.
@@ -5828,7 +5832,7 @@ product of the coefficients of $x$ and $y$.
 
 \fun{long}{FlxqX_ispower}{GEN f, ulong k, GEN T, ulong p, GEN *pt}
 return $1$ if the \kbd{FlxqX} $f$ is a $k$-th power, $0$ otherwise.
-If \kbd{py} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
+If \kbd{pt} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
 
 \fun{GEN}{FlxqX_Frobenius}{GEN S, GEN T, ulong p}, as \kbd{FpXQX\_Frobenius}
 
