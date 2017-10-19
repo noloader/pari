@@ -5178,7 +5178,7 @@ ZM_pseudoinv(GEN M, GEN *pv, GEN *den)
   GEN v = ZM_indexrank(M);
   if (pv) *pv = v;
   M = shallowmatextract(M,gel(v,1),gel(v,2));
-  return ZM_inv_ratlift(M, den);
+  return ZM_inv_bnd(M, NULL, den);
 }
 
 /*******************************************************************/
