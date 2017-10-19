@@ -158,7 +158,7 @@ GEN  F2xq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN  Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN  Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz);
 GEN  ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB);
-GEN  ZX_ZXY_resultant_worker(GEN A, GEN B, ulong dp, ulong p, GEN dB);
+GEN  ZX_ZXY_resultant_worker(GEN P, GEN A, GEN B, GEN dB, GEN v);
 GEN  ZM_det_worker(GEN P, GEN A);
 GEN  ZM_inv_worker(GEN P, GEN A);
 GEN  aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v);

@@ -2129,7 +2129,8 @@ QXQ_inv(GEN A, GEN B)
  ************************************************************************/
 
 static GEN
-ZX_ZXY_resultant_prime(GEN a, GEN b, ulong dp, ulong p, long degA, long degB, long dres, long sX)
+ZX_ZXY_resultant_prime(GEN a, GEN b, ulong dp, ulong p,
+                       long degA, long degB, long dres, long sX)
 {
   long dropa = degA - degpol(a), dropb = degB - degpol(b);
   GEN Hp = Flx_FlxY_resultant_polint(a, b, p, dres, sX);
@@ -2156,43 +2157,49 @@ ZX_ZXY_resultant_prime(GEN a, GEN b, ulong dp, ulong p, long degA, long degB, lo
   return Hp;
 }
 
-GEN
-ZX_ZXY_resultant_worker(GEN a, GEN b, ulong dp, ulong p, GEN v)
-{
-  return ZX_ZXY_resultant_prime(a, b, dp, p, v[1], v[2], v[3], v[4]);
-}
-
 static GEN
 ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, long degA, long degB, long dres,
                        GEN P, GEN *mod, long sX, long vY)
 {
-  long i, n = lg(P)-1, di = 0, pending;
-  GEN H, T, R, D;
-  GEN worker = strtoclosure("_ZX_ZXY_resultant_worker", 1, mkvecsmall4(degA, degB, dres, sX));
-  struct pari_mt pt;
+  pari_sp av = avma;
+  long i, n = lg(P)-1;
+  GEN H, T, D;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    ulong dp = dB ? umodiu(dB, p): 1;
+    GEN a = ZX_to_Flx(A, p), b = ZXX_to_FlxX(B, p, vY);
+    GEN Hp = ZX_ZXY_resultant_prime(a, b, dp, p, degA, degB, dres, sX);
+    H = Flx_to_ZX(Hp);
+    *mod = utoi(p);
+    gerepileall(av, 2, &H, mod);
+    return H;
+  }
   T = ZV_producttree(P);
-  R = ZV_chinesetree(P, T);
   A = ZX_nv_mod_tree(A, P, T);
   B = ZXX_nv_mod_tree(B, P, T, vY);
   D = dB ? Z_ZV_mod_tree(dB, P, T): NULL;
   H = cgetg(n+1, t_VEC);
-  mt_queue_start_lim(&pt, worker, n);
-  for (i=1; i<=n || pending; i++)
+  for(i=1; i <= n; i++)
   {
-    GEN done;
-    mt_queue_submit(&pt, i,
-      i<=n ? mkvec4(gel(A,i), gel(B,i), D ? utoi(uel(D, i)): gen_1, utoi(uel(P,i)))
-           : NULL);
-    done = mt_queue_get(&pt, &di, &pending);
-    if(done)
-    {
-      gel(H,di) = done;
-      if (DEBUGLEVEL>5) err_printf("%ld%% ",100*di/n);
-    }
+    ulong p = P[i];
+    GEN a = gel(A,i), b = gel(B,i);
+    ulong dp = D ? uel(D, i): 1;
+    gel(H,i) = ZX_ZXY_resultant_prime(a, b, dp, p, degA, degB, dres, sX);
   }
-  mt_queue_end(&pt);
-  if (mod) *mod = gmael(T, lg(T)-1, 1);
-  return nxV_chinese_center_tree(H, P, T, R);
+  H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZX_ZXY_resultant_worker(GEN P, GEN A, GEN B, GEN dB, GEN v)
+{
+  if (isintzero(dB)) dB = NULL;
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZX_ZXY_resultant_slice(A, B, dB, v[1], v[2], v[3], P, &gel(V,2), v[4], v[5]);
+  return V;
 }
 
 GEN
@@ -2200,22 +2207,21 @@ ZX_ZXY_resultant(GEN A, GEN B)
 {
   pari_sp av = avma;
   ulong bound;
-  long n, v = fetch_var_higher();
+  long v = fetch_var_higher();
   long degA = degpol(A), degB, dres = degA * degpol(B);
   long vX = varn(B), vY = varn(A); /* assume vY has lower priority */
   long sX = evalvarn(vX);
-  GEN dB, H, P;
-  ulong p;
+  GEN worker, H, dB;
   B = Q_remove_denom(B, &dB);
   if (!dB) B = leafcopy(B);
   A = leafcopy(A); setvarn(A,v);
   B = swap_vars(B, vY); setvarn(B,v); degB = degpol(B);
   bound = ZX_ZXY_ResBound(A, B, dB);
-  n = get_nbprimes(bound+1, &p);/* +1 to account for sign */
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
-
-  P = primelist_disc(&p, n, dB);
-  H = ZX_ZXY_resultant_slice(A, B, dB, degA, degB, dres, P, NULL, sX, vY);
+  worker = strtoclosure("_ZX_ZXY_resultant_worker", 4, A, B, dB?dB:gen_0,
+                        mkvecsmall5(degA, degB,dres, vY, sX));
+  H = gen_crt("ZX_ZXY_resultant_all", worker, dB, bound, degpol(A)+degpol(B), NULL,
+               nxV_chinese_center, FpX_center);
   setvarn(H, vX); (void)delete_var();
   return gerepilecopy(av, H);
 }
