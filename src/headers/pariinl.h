@@ -2341,6 +2341,8 @@ INLINE GEN
 FqX_factor(GEN f, GEN T, GEN p) { return T?FpXQX_factor(f, T, p): FpX_factor(f, p); }
 INLINE GEN
 FqX_roots(GEN f, GEN T, GEN p) { return T?FpXQX_roots(f, T, p): FpX_roots(f, p); }
+INLINE GEN
+FqX_to_mod(GEN f, GEN T, GEN p) { return T?FpXQX_to_mod(f, T, p): FpX_to_mod(f, p); }
 
 /*FqXQ*/
 INLINE GEN
