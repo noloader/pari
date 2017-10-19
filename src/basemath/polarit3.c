@@ -1009,7 +1009,7 @@ gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod
     H = crt(H, P, &mod);
     if (DEBUGLEVEL>4) timer_printf(&ti,"%s: chinese", str);
   }
-  while (expi(mod) < bound)
+  while ((ulong)expi(mod) < bound)
   {
     long s = get_nbprimes(bound-expi(mod), NULL);
     GEN P, done, Hi, modi;
