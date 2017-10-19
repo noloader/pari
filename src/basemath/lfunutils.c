@@ -133,6 +133,21 @@ lfuncombdual(GEN fun(GEN, GEN), GEN ldata1, GEN ldata2)
 }
 
 static GEN
+vecan_twist(GEN an, long n, long prec)
+{
+  GEN p1 = ldata_vecan(gel(an,1), n, prec);
+  GEN p2 = ldata_vecan(gel(an,2), n, prec);
+  long i;
+  GEN V;
+  if (typ(p1) == t_VECSMALL) p1 = vecsmall_to_vec(p1);
+  if (typ(p2) == t_VECSMALL) p2 = vecsmall_to_vec(p2);
+  V = cgetg(n+1, t_VEC);
+  for(i = 1; i <= n ; i++)
+    gel(V, i) = gmul(gel(p1, i), gel(p2, i));
+  return V;
+}
+
+static GEN
 lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
   long k = ldata_get_k(ldata1), l, j;
@@ -250,6 +265,78 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
   LD = mkvecn(7, a1a2, b1b2, v, stoi(k), N, eno, r);
   if (!r) setlg(LD,7);
   return gerepilecopy(ltop, LD);
+}
+
+static GEN
+gamma_imagchi(GEN gam, long w)
+{
+  long i, j, k=1, l;
+  GEN g = cgetg_copy(gam, &l);
+  gam = shallowcopy(gam);
+  for (i = l-1; i>=1; i--)
+  {
+    GEN al = gel(gam, i);
+    if (al)
+    {
+      GEN N = gaddsg(w,gmul2n(greal(al),1));
+      if (gcmpgs(N,2) > 0)
+      {
+        GEN bl = gsubgs(al, 1);
+        for (j=1; j < i; j++)
+          if (gel(gam,j) && gequal(gel(gam,j), bl))
+          { gel(gam,j) = NULL; break; }
+        if (j==i) return NULL;
+        gel(g, k++) = al;
+        gel(g, k++) = bl;
+      } else if (gequal0(N))
+        gel(g, k++) = gaddgs(al, 1);
+      else if (gequal1(N))
+        gel(g, k++) = gsubgs(al, 1);
+      else return NULL;
+    }
+  }
+  return sort(g);
+}
+
+GEN
+lfuntwist(GEN ldata1, GEN chi)
+{
+  pari_sp ltop = avma;
+  GEN L, N, N1, N2, a, a1, a2, b, b1, b2, gam, gam1, gam2;
+  GEN ldata2;
+  long d1, k, t;
+  ldata1 = lfunmisc_to_ldata_shallow(ldata1);
+  ldata2 = lfunmisc_to_ldata_shallow(chi);
+  t = ldata_get_type(ldata2);
+  if (t == t_LFUN_ZETA)
+    return gerepilecopy(ltop, ldata1);
+  if (t != t_LFUN_CHIZ && t != t_LFUN_KRONECKER)
+    pari_err_TYPE("lfuntwist", chi);
+  N1 = ldata_get_conductor(ldata1);
+  N2 = ldata_get_conductor(ldata2);
+  if (!gequal1(gcdii(N1, N2)))
+    pari_err_IMPL("lfuntwist (conductors not coprime)");
+  k = ldata_get_k(ldata1);
+  d1 = ldata_get_degree(ldata1);
+  N = gmul(N1, gpowgs(N2, d1));
+  gam1 = ldata_get_gammavec(ldata1);
+  gam2 = ldata_get_gammavec(ldata2);
+  if (gequal0(gel(gam2, 1)))
+    gam = gam1;
+  else
+    gam = gamma_imagchi(ldata_get_gammavec(ldata1), k-1);
+  if (!gam) pari_err_IMPL("lfuntwist (gammafactors)");
+  a1 = ldata_get_an(ldata1);
+  a2 = ldata_get_an(ldata2);
+  b1 = ldata_get_dual(ldata1);
+  b2 = ldata_get_dual(ldata2);
+  a = tag(mkvec2(a1, a2), t_LFUN_TWIST);
+  if (typ(b1)==t_INT)
+    b = signe(b1) && signe(b2) ? gen_0: gen_1;
+  else
+    b = tag(mkvec2(b1,lfunconj(a2)), t_LFUN_TWIST);
+  L = mkvecn(6, a, b, gam, stoi(k), N, gen_0);
+  return gerepilecopy(ltop, L);
 }
 
 /*****************************************************************/
@@ -2053,6 +2140,7 @@ ldata_vecan(GEN van, long L, long prec)
       if (!isint1(c)) an = RgV_Rg_mul(an,c);
       break;
     }
+    case t_LFUN_TWIST: an = vecan_twist(an, L, prec); break;
     default: pari_err_TYPE("ldata_vecan", van);
   }
   if (DEBUGLEVEL >= 2) timer_printf(&ti, "ldata_vecan");
