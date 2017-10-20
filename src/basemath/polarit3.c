@@ -2196,8 +2196,8 @@ ZX_ZXY_resultant_slice(GEN A, GEN B, GEN dB, long degA, long degB, long dres,
 GEN
 ZX_ZXY_resultant_worker(GEN P, GEN A, GEN B, GEN dB, GEN v)
 {
-  if (isintzero(dB)) dB = NULL;
   GEN V = cgetg(3, t_VEC);
+  if (isintzero(dB)) dB = NULL;
   gel(V,1) = ZX_ZXY_resultant_slice(A, B, dB, v[1], v[2], v[3], P, &gel(V,2), v[4], v[5]);
   return V;
 }
