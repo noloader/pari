@@ -6,6 +6,8 @@ factorpadic(y^2+3^5,3,5)
 factor(x^2*(1+O(5^2)))
 factorpadic(x^2*(x+1)^3*(x+2)*(1+O(5^2)), 5, 2)
 factorpadic(x^2, 5, 2)
+factorpadic(3*x + O(2^5),2,5)
+
 p=2^64+13; liftint(padicappr((x-1)^30+p^30, 1+O(p^40)))
 
 test(p, e = 1)=
