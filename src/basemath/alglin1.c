@@ -5105,8 +5105,118 @@ FlkM_inv(GEN M, GEN P, ulong p)
   return FlmV_recover_pre(V, W, p, pi, P[1]);
 }
 
+static GEN
+FlkM_adjoint(GEN M, GEN P, ulong p)
+{
+  ulong pi = get_Fl_red(p);
+  GEN R = Flx_roots(P, p);
+  long l = lg(R), i;
+  GEN W = Flv_invVandermonde(R, 1UL, p);
+  GEN V = cgetg(l, t_VEC);
+  for(i=1; i<l; i++)
+  {
+    GEN pows = Fl_powers_pre(uel(R,i), degpol(P), p, pi);
+    gel(V, i) = Flm_adjoint(FlxM_eval_powers_pre(M, pows, p, pi), p);
+  }
+  return FlmV_recover_pre(V, W, p, pi, P[1]);
+}
+
+
+static GEN
+ZabM_inv_slice(GEN A, GEN Q, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1, w = varn(Q);
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN Ap = FqM_to_FlxM(A, Q, utoi(p));
+    GEN Qp = ZX_to_Flx(Q, p);
+    GEN Hp = FlkM_adjoint(Ap, Qp, p);
+    Hp = gerepileupto(av, FlxM_to_ZXM(Hp));
+    *mod = utoi(p); return Hp;
+  }
+  T = ZV_producttree(P);
+  A = ZXM_nv_mod_tree(A, P, T, w);
+  Q = ZX_nv_mod_tree(Q, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), q = gel(Q, i);
+    gel(H,i) = FlkM_adjoint(a, q, p);
+  }
+  H = nxMV_chinese_center_tree_seq(H, P, T, ZV_chinesetree(P,T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
 GEN
-ZabM_inv(GEN M, GEN P, long n, GEN *pden)
+ZabM_inv_worker(GEN P, GEN A, GEN Q)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZabM_inv_slice(A, Q, P, &gel(V,2));
+  return V;
+}
+
+static GEN
+vecnorml1(GEN a)
+{
+  long i, l;
+  GEN g = cgetg_copy(a, &l);
+  for (i=1; i<l; i++)
+    gel(g, i) = gnorml1_fake(gel(a,i));
+  return g;
+}
+
+static GEN
+ZabM_true_Hadamard(GEN a)
+{
+  pari_sp av = avma;
+  long n = lg(a)-1, i;
+  GEN B;
+  if (n == 0) return gen_1;
+  if (n == 1) return gnorml1_fake(gcoeff(a,1,1));
+  B = gen_1;
+  for (i = 1; i <= n; i++) B = gmul(B, gnorml2(RgC_gtofp(vecnorml1(gel(a,i)),DEFAULTPREC)));
+  return gerepileuptoint(av, ceil_safe(sqrtr_abs(B)));
+}
+
+GEN
+ZabM_inv(GEN A, GEN Q, long n, GEN *pt_den)
+{
+  pari_sp av = avma;
+  long m = lg(A)-1;
+  GEN bnd, H, D, d, mod, worker;
+  if (m == 0)
+  {
+    if (pt_den) *pt_den = gen_1;
+    return cgetg(1, t_MAT);
+  }
+  bnd = ZabM_true_Hadamard(A);
+  worker = strtoclosure("_ZabM_inv_worker", 2, A, Q);
+  H = gen_crt("ZabM_inv", worker, mkvecsmall(n), expi(bnd), m, &mod,
+              nxMV_chinese_center, FpXM_center);
+  D = RgMrow_RgC_mul(A, gel(H,1), 1);
+  D = ZX_rem(D, Q);
+  d = Q_content(mkvec2(H, D));
+  if (d)
+  {
+    D = ZX_Z_divexact(D, d);
+    H = Q_div_to_int(H, d);
+  }
+  if (pt_den)
+  {
+    gerepileall(av, 2, &H, &D);
+    *pt_den = D; return H;
+  }
+  return gerepileupto(av, H);
+}
+
+GEN
+ZabM_inv_ratlift(GEN M, GEN P, long n, GEN *pden)
 {
   pari_sp av2, av = avma;
   GEN q, H;

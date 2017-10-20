@@ -854,6 +854,7 @@ GEN     FpX_to_mod(GEN z, GEN p);
 GEN     ZabM_ker(GEN M, GEN P, long n);
 GEN     ZabM_indexrank(GEN M, GEN P, long n);
 GEN     ZabM_inv(GEN M, GEN P, long n, GEN *pden);
+GEN     ZabM_inv_ratlift(GEN M, GEN P, long n, GEN *pden);
 GEN     ZabM_pseudoinv(GEN M, GEN P, long n, GEN *pv, GEN *den);
 GEN     ZV_zMs_mul(GEN B, GEN M);
 GEN     ZpMs_ZpCs_solve(GEN M, GEN B, long nbrow, GEN p, long e);
