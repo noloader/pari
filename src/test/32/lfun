@@ -167,6 +167,10 @@ Elliptic curves over number fields
 Grossencharacter
 -126
 1.0000000000000000000000000000000000000
+tensor product
+   realbitprecision = 64 significant bits (19 decimal digits displayed)
+-59
+1.774264741132682166
 check all formats
 -191
 -191
@@ -260,4 +264,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: ...t(x^2+1);G=galoisinit(N);lfunartin(N,G,[1,1,1]
   ***                                             ^---------------------
   *** lfunartin: inconsistent dimensions in lfunartin.
-Total time spent: 5888
+Total time spent: 4972

@@ -207,6 +207,14 @@ L=lfuncreate([(p,d)->F(p,d),0,[-1,0,0,1],4,625,0]);
 lfuncheckfeq(L)
 lfun(L,2)/(Pi/5^(15/4)*gamma(1/5)^(7/2)*gamma(3/5)^(1/2)/(gamma(4/5)^(7/2)*gamma(2/5)^(1/2)))
 
+print("tensor product")
+E=ellinit("11a1");
+F=ellinit("14a1");
+L=lfuncreate([[(p,e)->my(ta=ellap(E,p),tb=ellap(F,p));1/(p^4*x^4-tb*ta*p^2*x^3+(-2*p^2+(ta^2+tb^2)*p)*x^2-tb*ta*x+1),[[2,1/(2*x^2-2*x+1)],[7,1/(7*x^2+2*x+1)],[11,1/(11*x^2+1)]]],1,[-1,0,0,1],3,23716,0]);
+\pb64
+lfuncheckfeq(L)
+lfun(L,3/2)
+
 print("check all formats");
 default("realprecision",54)
 e = ellinit([0, 0, 1, -1, 0]);
