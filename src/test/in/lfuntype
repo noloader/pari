@@ -40,7 +40,9 @@ lfunartin(N,G,[['a,0;0,'a^4],[0,1;1,0]],5),
 lfuncreate([n->lfunan(E1,n)+lfunan(E2,n),n->-lfunan(E1,n)+lfunan(E2,n),[0,1],2,37,1])),
 lfunqf(matdiagonal([1,2,3,4])),
   if(1,my(K3=nfinit(a^2-a-9));
-ellinit([0,2,1,-19-8*a,28+11*a],K3))
+ellinit([0,2,1,-19-8*a,28+11*a],K3)),
+  if(1,my(E=ellinit([0,-1,1,-10,-20])); \\11a1
+lfuncreate([n->my(V=ellan(E,n));vector(n,i,V[i]/sqrt(i)),0,[1/2,3/2],1,11,1]))
 ];
 }
 
