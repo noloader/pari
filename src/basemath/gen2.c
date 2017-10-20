@@ -2093,26 +2093,22 @@ vecindexmin(GEN x)
   return 0;
 }
 
-
 GEN
 vecmax0(GEN x, GEN *pi)
 {
-  long i0, j0, i, j;
-  GEN s;
+  long i, lx = lg(x), tx = typ(x);
+  if (!is_matvec_t(tx) && tx != t_VECSMALL) return gcopy(x);
+  if (lx==1) pari_err_DOMAIN("vecmax", "empty argument", "=", x,x);
   switch(typ(x))
   {
     case t_VEC: case t_COL:
-      i = vecindexmax(x);
-      if (pi) *pi = utoipos(i);
-      return gcopy(gel(x, i));
+      i = vecindexmax(x); if (pi) *pi = utoipos(i);
+      return gcopy(gel(x,i));
     case t_MAT: {
-      long lx2, lx = lg(x);
-      if (lx==1 || (lx2 = lgcols(x)) == 1)
-      {
-        pari_err_DOMAIN("vecmax", "empty argument", "=", x,x);
-        return NULL;/*LCOV_EXCL_LINE*/
-      }
-      s = gcoeff(x,i0=1,j0=1); i = 2;
+      long j, i0 = 1, j0 = 1, lx2 = lgcols(x);
+      GEN s;
+      if (lx2 == 1) pari_err_DOMAIN("vecmin", "empty argument", "=", x,x);
+      s = gcoeff(x,i0,j0); i = 2;
       for (j=1; j<lx; j++,i=1)
       {
         GEN c = gel(x,j);
@@ -2123,32 +2119,26 @@ vecmax0(GEN x, GEN *pi)
       return gcopy(s);
     }
     case t_VECSMALL:
-      i = vecsmall_indexmax(x);
-      if (pi) *pi = utoipos(i);
+      i = vecsmall_indexmax(x); if (pi) *pi = utoipos(i);
       return stoi(x[i]);
-    default:
-      return gcopy(x);
   }
 }
 GEN
 vecmin0(GEN x, GEN *pi)
 {
-  long i0, j0, i, j;
-  GEN s;
+  long i, lx = lg(x), tx = typ(x);
+  if (!is_matvec_t(tx) && tx != t_VECSMALL) return gcopy(x);
+  if (lx==1) pari_err_DOMAIN("vecmin", "empty argument", "=", x,x);
   switch(typ(x))
   {
     case t_VEC: case t_COL:
-      i = vecindexmin(x);
-      if (pi) *pi = utoipos(i);
-      return gcopy(gel(x, i));
+      i = vecindexmin(x); if (pi) *pi = utoipos(i);
+      return gcopy(gel(x,i));
     case t_MAT: {
-      long lx2, lx = lg(x);
-      if (lx==1 || (lx2 = lgcols(x)) == 1)
-      {
-        pari_err_DOMAIN("vecmin", "empty argument", "=", x,x);
-        return NULL;/*LCOV_EXCL_LINE*/
-      }
-      s = gcoeff(x,i0=1,j0=1); i = 2;
+      long j, i0 = 1, j0 = 1, lx2 = lgcols(x);
+      GEN s;
+      if (lx2 == 1) pari_err_DOMAIN("vecmin", "empty argument", "=", x,x);
+      s = gcoeff(x,i0,j0); i = 2;
       for (j=1; j<lx; j++,i=1)
       {
         GEN c = gel(x,j);
@@ -2159,11 +2149,8 @@ vecmin0(GEN x, GEN *pi)
       return gcopy(s);
     }
     case t_VECSMALL:
-      i = vecsmall_indexmin(x);
-      if (pi) *pi = utoipos(i);
+      i = vecsmall_indexmin(x); if (pi) *pi = utoipos(i);
       return stoi(x[i]);
-    default:
-      return gcopy(x);
   }
 }
 
