@@ -2122,6 +2122,7 @@ vecmax0(GEN x, GEN *pi)
       i = vecsmall_indexmax(x); if (pi) *pi = utoipos(i);
       return stoi(x[i]);
   }
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 GEN
 vecmin0(GEN x, GEN *pi)
@@ -2152,6 +2153,7 @@ vecmin0(GEN x, GEN *pi)
       i = vecsmall_indexmin(x); if (pi) *pi = utoipos(i);
       return stoi(x[i]);
   }
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN
