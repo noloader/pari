@@ -409,7 +409,7 @@ long
 zv_cyc_minimal(GEN cyc, GEN g, GEN coprime)
 {
   pari_sp av = avma;
-  long d, k, e, l = lg(g), o = lg(coprime)-1; /* elt order */
+  long i, d, k, e, l = lg(g), o = lg(coprime)-1; /* elt order */
   GEN gd, gk;
   if (o == 1) return 1;
   for (k = 1; k < l; k++)
@@ -419,17 +419,17 @@ zv_cyc_minimal(GEN cyc, GEN g, GEN coprime)
   d = cyc[k] / g[k]; /* > 1 */
   for (k++; k < l; k++) /* skip following 0s */
     if (g[k]) break;
-  if (k == l || d >= cyc[k]) return 1;
+  if (k == l) return 1;
   cyc = vecslice(cyc,k,l-1);
   g   = vecslice(g,  k,l-1);
   e = cyc[1];
   /* find k in (Z/e)^* such that g*k mod cyc is lexicographically minimal,
    * k = 1 mod d to fix the first non-zero entry */
   gd = Flv_Fl_mul(g, d, e);
-  for (gk = g, k = d+1; k < e; k += d)
+  for (gk = g, k = d+1, i = 1; i < e; i++, k += d)
   {
     long ko = k % o;
-    gk = Flv_add(gk, gd, e); if (!ko || !coprime[ko]) continue;
+    gk = Flv_add(gk, gd, e); if (!coprime[ko]) continue;
     gk = vecmoduu(gk, cyc);
     if (vecsmall_lexcmp(gk, g) < 0) { avma = av; return 0; }
   }
