@@ -1005,6 +1005,7 @@ gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod
       }
     }
     mt_queue_end(&pt);
+    if (DEBUGLEVEL>5) err_printf("\n");
     if (DEBUGLEVEL>4) timer_printf(&ti,"%s: modular", str);
     H = crt(H, P, &mod);
     if (DEBUGLEVEL>4) timer_printf(&ti,"%s: chinese", str);
