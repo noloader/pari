@@ -131,6 +131,7 @@ BA   94- v=Vecsmall([2]); Fl_neg(v[1],3) when Fl_neg is installed [#1958]
 BA  102- ispower((x^3+ffgen([2^127-1,3])*x+1)^2,2,&r);r was wrong [#1976]
     103- factorpadic(3*x+O(2^5),2,5) -> division by 0 [#1982]
     104- vecmax(Vecsmall()) -> some random value [#1983]
+    105- SEGV in install() when bad prototype supplied [#1977]
 
   Added
       1- [libari] ZM_isidentity

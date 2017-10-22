@@ -5027,21 +5027,23 @@ gpinstall(const char *s, const char *code, const char *gpname, const char *lib)
     pari_ask_confirm(msg);
     pari_free(msg);
   }
-  ep = is_entry(gp);
-  if (ep && ep->valence == EpINSTALL
-      && strcmp(ep->code, code)
-      && !strcmp(ep->help, dft_help(gp,s,ep->code)))
-  { /* help is the default AND prototype changes: delete help */
-    pari_free((void*)ep->help); ep->help = NULL;
-  }
   f = install0(s, *lib ?lib :pari_library_path);
   if (!f)
   {
     if (*lib) pari_err(e_MISC,"can't find symbol '%s' in library '%s'",s,lib);
     pari_err(e_MISC,"can't find symbol '%s' in dynamic symbol table of process",s);
   }
+  ep = is_entry(gp);
+  if (ep && ep->valence == EpINSTALL && ep->help
+      && strcmp(ep->code, code)
+      && !strcmp(ep->help, dft_help(gp,s,ep->code)))
+  { /* Delete help if 1) help is the default (don't delete user addhelp)
+     * and 2) default help changes */
+    void *f = (void*)ep->help;
+    ep->help = NULL; pari_free(f);
+  }
   ep = install(f,gp,code);
-  if (ep && !ep->help) addhelp(gp, dft_help(gp,s,code));
+  if (!ep->help) addhelp(gp, dft_help(gp,s,code));
   mt_broadcast(strtoclosure("install",4,strtoGENstr(s),strtoGENstr(code),
                                        strtoGENstr(gp),strtoGENstr(lib)));
   avma = av;
