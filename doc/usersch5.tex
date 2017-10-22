@@ -7044,11 +7044,17 @@ the coefficients to be non-negative.
 \fun{GEN}{Flc_to_ZC}{GEN z}, converts to \kbd{ZC} (\typ{COL} of non-negative
 \typ{INT}s in this case)
 
+\fun{GEN}{Flc_to_ZC_inplace}{GEN z}, same as \kbd{Flc\_to\_ZC}, in place
+(\kbd{z} is destroyed).
+
 \fun{GEN}{Flv_to_ZV}{GEN z}, converts to \kbd{ZV} (\typ{VEC} of non-negative
 \typ{INT}s in this case)
 
 \fun{GEN}{Flm_to_ZM}{GEN z}, converts to \kbd{ZM} (\typ{MAT} with
 non-negative \typ{INT}s coefficients in this case)
+
+\fun{GEN}{Flm_to_ZM_inplace}{GEN z}, same as \kbd{Flm\_to\_ZM}, in place
+(\kbd{z} is destroyed).
 
 \fun{GEN}{zc_to_ZC}{GEN z} as \kbd{Flc\_to\_ZC}, without assuming
 coefficients are non-negative.
