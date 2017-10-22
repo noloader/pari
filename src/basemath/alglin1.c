@@ -2694,31 +2694,86 @@ init_gauss(GEN a, GEN *b, long *aco, long *li, int *iscol)
 
 static GEN Flm_inv_sp(GEN a, ulong *detp, ulong p);
 
+static GEN ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den);
+
+static GEN
+RgM_inv_QM(GEN M)
+{
+  pari_sp av = avma;
+  GEN den, cM, pM = Q_primitive_part(M, &cM);
+  GEN b = ZM_inv_bnd(pM, NULL, &den);
+  if (cM) den = gmul(den, cM);
+  if (!equali1(den)) b = RgM_Rg_div(b, den);
+  return gerepileupto(av, b);
+}
+
+static GEN
+RgM_inv_FpM(GEN a, GEN p)
+{
+  ulong pp;
+  a = RgM_Fp_init(a, p, &pp);
+  switch(pp)
+  {
+  case 0:
+    a = FpM_inv(a,p);
+    if (a) a = FpM_to_mod(a, p);
+    break;
+  case 2:
+    a = F2m_inv(a);
+    if (a) a = F2m_to_mod(a);
+    break;
+  default:
+    a = Flm_inv_sp(a, NULL, pp);
+    if (a) a = Flm_to_mod(a, pp);
+  }
+  return a;
+}
+
+static GEN
+RgM_inv_FqM(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  GEN b = FqM_inv(RgM_to_FqM(x, T, p), T, p);
+  if (!b) { avma = av; return NULL; }
+  return gerepileupto(av, FqM_to_mod(b, T, p));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgM_inv_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    /* Fall back */
+    case t_FRAC:   return RgM_inv_QM(x);
+    case t_FFELT:  return FFM_inv(x, pol);
+    case t_INTMOD: return RgM_inv_FpM(x, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_inv_FqM(x, pol, p);
+    default:       return gen_0;
+  }
+}
+#undef code
+
+GEN
+RgM_inv(GEN a)
+{
+  GEN b = RgM_inv_fast(a);
+  return b==gen_0? RgM_solve(a, NULL): b;
+}
+
 static int
 is_modular_solve(GEN a, GEN b, GEN *u)
 {
   GEN p = NULL;
   ulong pp;
   if (!RgM_is_FpM(a, &p) || !p) return 0;
-  if (!b)
-  {
-    a = RgM_Fp_init(a, p, &pp);
-    switch(pp)
-    {
-    case 0:
-      a = FpM_inv(a,p);
-      if (a) a = FpM_to_mod(a, p);
-      break;
-    case 2:
-      a = F2m_inv(a);
-      if (a) a = F2m_to_mod(a);
-      break;
-    default:
-      a = Flm_inv_sp(a, NULL, pp);
-      if (a) a = Flm_to_mod(a, pp);
-    }
-  }
-  else switch(typ(b))
+  if (!b) { *u = RgM_inv_FpM(a, p); return 1; }
+  switch(typ(b))
   {
     case t_COL:
       if (!RgV_is_FpV(b, &p)) return 0;
