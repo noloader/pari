@@ -487,4 +487,5 @@ Vecsmall([2, 2, 0, -4, -10])
 [;]
 [;]
 [;]
-Total time spent: 124
+  ***   Warning: new stack size = 8000000 (7.629 Mbytes).
+Total time spent: 352

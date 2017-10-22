@@ -187,4 +187,7 @@ test(x) =
    iferr(matsolve(N, M), e,, errname(e) == "e_INV");
 }
 test(Mod(1, 8161));
-test(ffgen(2017^3));
+test(Mod(1, nextprime(2^65)));
+test(ffgen([2017,3]));
+default(parisize,8*10^6);
+test(ffgen([nextprime(2^65),2]));
