@@ -4267,6 +4267,8 @@ GEN     Q_primpart(GEN x);
 GEN     Q_remove_denom(GEN x, GEN *ptd);
 long    Rg_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa);
 GEN     RgM_rescale_to_int(GEN x);
+long    RgM_type(GEN x, GEN *p, GEN *pol, long *pa);
+long    RgM_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa);
 GEN     RgX_rescale_to_int(GEN x);
 GEN     RgXQ_charpoly(GEN x, GEN T, long v);
 GEN     RgXQ_inv(GEN x, GEN y);
