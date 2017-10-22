@@ -411,7 +411,7 @@ Z_mod2BIL_ZX(GEN x, long bs, long d, long vx)
   long i, offset, lm = lgefint(x)-2, l = d+vx+3, sx = signe(x);
   GEN s1 = int2n(bs*BITS_IN_LONG), pol = cgetg(l, t_POL);
   int carry = 0;
-
+  pol[1] = evalsigne(1);
   for (i=0; i<vx; i++) gel(pol,i+2) = gen_0;
   for (offset=0; i <= d+vx; i++, offset += bs)
   {
