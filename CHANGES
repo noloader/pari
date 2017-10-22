@@ -269,7 +269,7 @@ BA   97- ellisomat: support for curve over finite field without CM
      99- [libpari] vec_prepend, lindepfull_bit
 BA  100- [libpari] QX_mul/QX_sqr/QX_ZX_rem, FFX_mul/FFX_sqr/FFX_rem,
          RgX_mul_i/RgX_sqr_i, ZXQX_mul/ZXQX_sqr
-BA  101- [libpari] RgX_type2
+BA  101- [libpari] Rg_type, RgX_type2
 BA  102- RgX_mul/RgX_sqr: support for coefficient ring detection
 BA  103- [libpari] FlxqXQ_auttrace
 BA  104- [libpari] F2xX_F2x_add, FlxX_Flx_sub, FqX_Fq_sub
@@ -361,6 +361,7 @@ BA   39- ellisomat(E,{fl}) is now ellisomat(E,{p},{fl}) (p degree of isogenies)
 BA   44-[libpari] rename {FpXQXQ,FlxqXQ,F2xqXQ}V_aut{sum,trace,pow} to
                          {FpXQXQ,FlxqXQ,F2xqXQ}_aut{sum,trace,pow}
 BA   45-[libpari] FpXQXQ_auttrace now identical to FpXQ_auttrace
+BA   46-[libpari] RgX_type now only handles polynomials.
 
   Removed
       1- file 'MACHINES' (no longer maintained)

@@ -200,7 +200,7 @@ GEN
 RgX_get_1(GEN x)
 {
   GEN p, T;
-  long i, lx, tx = RgX_type(x, &p, &T, &lx);
+  long i, lx, tx = Rg_type(x, &p, &T, &lx);
   if (RgX_type_is_composite(tx))
     RgX_type_decode(tx, &i /*junk*/, &tx);
   switch(tx)
@@ -217,7 +217,7 @@ GEN
 RgX_get_0(GEN x)
 {
   GEN p, T;
-  long i, lx, tx = RgX_type(x, &p, &T, &lx);
+  long i, lx, tx = Rg_type(x, &p, &T, &lx);
   if (RgX_type_is_composite(tx))
     RgX_type_decode(tx, &i /*junk*/, &tx);
   switch(tx)

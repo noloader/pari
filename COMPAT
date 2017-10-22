@@ -53,6 +53,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - removed resultant_all, use RgX_resultant_all
   - rename {FpXQXQ,FlxqXQ,F2xqXQ}V_aut{sum,trace,pow}
            -> {FpXQXQ,FlxqXQ,F2xqXQ}_aut{sum,trace,pow}
+  - RgX_type now only handles t_POL. Use RgX_type for other objects.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.8 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
