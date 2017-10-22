@@ -1114,6 +1114,40 @@ FpXQC_to_mod(GEN z, GEN T, GEN p)
   return x;
 }
 
+static GEN
+Fq_to_mod_raw(GEN x, GEN T, GEN p)
+{
+  GEN z = typ(x)==t_INT ? Fp_to_mod(x, p): FpX_to_mod(x, p);
+  return mkpolmod(z, T);
+}
+
+/* z in Z^n, return z * Mod(1,p), normalized*/
+static GEN
+FqC_to_mod_raw(GEN z, GEN T, GEN p)
+{
+  long i,l = lg(z);
+  GEN x = cgetg(l, t_COL);
+  if (l == 1) return x;
+  for (i=1; i<l; i++)
+    gel(x,i) = Fq_to_mod_raw(gel(z,i), T, p);
+  return x;
+}
+
+/* z in Z^n, return z * Mod(1,p), normalized*/
+GEN
+FqM_to_mod(GEN z, GEN T, GEN p)
+{
+  GEN x;
+  long i,l = lg(z);
+  if (!T) return FpM_to_mod(z, p);
+  x = cgetg(l, t_MAT);
+  if (l == 1) return x;
+  T = FpX_to_mod(T, p);
+  for (i=1; i<l; i++)
+    gel(x,i) = FqC_to_mod_raw(gel(z, i), T, p);
+  return x;
+}
+
 /********************************************************************/
 /*                                                                  */
 /*                     Blackbox linear algebra                      */

@@ -285,7 +285,7 @@ BA  112- New GP functions ffembed, ffmap, ffinvmap, ffcompomap, ffextend,
                 fffrobenius
     113- [libpari] cx_approx_equal
 BA  114- [libpari] F2xqX_ispower, FlxqX_ispower, FpXQX_ispower, FFX_ispower,
-                   FpX_ispower, FqX_to_mod
+                   FpX_ispower, FqX_to_mod, FqM_to_mod
 
   Changed
       1- rewrite bnfnarrow
