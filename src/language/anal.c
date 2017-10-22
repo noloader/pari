@@ -418,8 +418,9 @@ void
 addhelp(const char *e, char *s)
 {
   entree *ep = fetch_entry(e);
-  if (ep->help && !EpSTATIC(ep)) pari_free((void*)ep->help);
+  void *f = ep->help;
   ep->help = pari_strdup(s);
+  if (f && !EpSTATIC(ep)) pari_free(f);
 }
 
 GEN
