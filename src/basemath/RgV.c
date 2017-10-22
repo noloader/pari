@@ -521,73 +521,101 @@ RgV_RgM_mul(GEN x, GEN y)
   return z;
 }
 
-static int
-is_modular_mul(GEN a, GEN b, GEN *z)
+static GEN
+RgM_mul_FpM(GEN x, GEN y, GEN p)
 {
-  GEN p1 = NULL, p2 = NULL, p;
-  ulong pp;
-  if (!RgM_is_FpM(a, &p1) || !p1) return 0;
-  if (!RgM_is_FpM(b, &p2) || !p2) return 0;
-  p = gcdii(p1, p2);
-  a = RgM_Fp_init(a, p, &pp);
-  switch(pp)
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
   {
-  case 0:
-    b = RgM_to_FpM(b,p);
-    b = FpM_mul(a,b,p);
-    *z = FpM_to_mod(b,p);
-    break;
-  case 2:
-    b = RgM_to_F2m(b);
-    b = F2m_mul(a,b);
-    *z = F2m_to_mod(b);
-    break;
-  default:
-    b = RgM_to_Flm(b,pp);
-    b = Flm_mul(a,b,pp);
-    *z = Flm_to_mod(b,pp);
+    ulong pp = uel(p, 2);
+    r = Flm_to_ZM_inplace(Flm_mul(RgM_to_Flm(x, pp),
+                                  RgM_to_Flm(y, pp), pp));
   }
-  return 1;
+  else
+    r = FpM_mul(RgM_to_FpM(x, p), RgM_to_FpM(y, p), p);
+  return gerepileupto(av, FpM_to_mod(r, p));
 }
-static int
-is_modular_sqr(GEN a, GEN *z)
+
+static GEN
+RgM_mul_FqM(GEN x, GEN y, GEN pol, GEN p)
 {
-  GEN p = NULL;
-  ulong pp;
-  if (!RgM_is_FpM(a, &p) || !p) return 0;
-  a = RgM_Fp_init(a, p, &pp);
-  switch(pp)
-  {
-    case 0: *z = FpM_to_mod(FpM_mul(a,a, p), p); break;
-    case 2: *z = F2m_to_mod(F2m_mul(a,a)); break;
-    default:*z = Flm_to_mod(Flm_mul(a,a, pp), pp); break;
-  }
-  return 1;
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  GEN b = FqM_mul(RgM_to_FqM(x, T, p), RgM_to_FqM(y, T, p), T, p);
+  return gerepileupto(av, FqM_to_mod(b, T, p));
 }
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgM_mul_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type2(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZM_mul(x,y);
+    case t_FRAC:   return QM_mul(x,y);
+    case t_FFELT:  return FFM_mul(x, y, pol);
+    case t_INTMOD: return RgM_mul_FpM(x, y, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_mul_FqM(x, y, pol, p);
+    default:       return NULL;
+  }
+}
+
+static GEN
+RgM_sqr_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZM_sqr(x);
+    case t_FRAC:   return QM_mul(x, x);
+    case t_FFELT:  return FFM_mul(x, x, pol);
+    case t_INTMOD: return RgM_mul_FpM(x, x, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_mul_FqM(x, x, pol, p);
+    default:       return NULL;
+  }
+}
+
+#undef code
 
 GEN
 RgM_mul(GEN x, GEN y)
 {
-  pari_sp av = avma;
   long j, l, lx, ly = lg(y);
-  GEN z, ffx = NULL, ffy = NULL;
+  GEN z;
   if (ly == 1) return cgetg(1,t_MAT);
   lx = lg(x);
   if (lx != lgcols(y)) pari_err_OP("operation 'RgM_mul'", x,y);
   if (lx == 1) return zeromat(0,ly-1);
-  if (RgM_is_ZM(x) && RgM_is_ZM(y))
-    return ZM_mul(x, y);
-  if (is_modular_mul(x,y,&z)) return gerepileupto(av, z);
-  if (RgM_is_FFM(x, &ffx) && RgM_is_FFM(y, &ffy)) {
-    if (!FF_samefield(ffx, ffy))
-      pari_err_OP("*", ffx, ffy);
-    return FFM_mul(x, y, ffx);
-  }
+  z = RgM_mul_fast(x, y);
+  if (z) return z;
   z = cgetg(ly, t_MAT);
   l = lgcols(x);
   for (j=1; j<ly; j++) gel(z,j) = RgM_RgC_mul_i(x, gel(y,j), lx, l);
   return z;
 }
+
+GEN
+RgM_sqr(GEN x)
+{
+  long j, lx = lg(x);
+  GEN z;
+  if (lx == 1) return cgetg(1, t_MAT);
+  if (lx != lgcols(x)) pari_err_OP("operation 'RgM_mul'", x,x);
+  z = RgM_sqr_fast(x);
+  if (z) return z;
+  z = cgetg(lx, t_MAT);
+  for (j=1; j<lx; j++) gel(z,j) = RgM_RgC_mul_i(x, gel(x,j), lx, lx);
+  return z;
+}
+
 /* assume result is symmetric */
 GEN
 RgM_multosym(GEN x, GEN y)
@@ -669,22 +697,6 @@ gram_matrix(GEN x)
     gel(c,i) = RgV_dotsquare(xi);
   }
   return M;
-}
-
-GEN
-RgM_sqr(GEN x)
-{
-  pari_sp av = avma;
-  long j, lx = lg(x);
-  GEN z, ffx = NULL;
-  if (lx == 1) return cgetg(1, t_MAT);
-  if (lx != lgcols(x)) pari_err_OP("operation 'RgM_mul'", x,x);
-  if (RgM_is_ZM(x))         return ZM_sqr(x);
-  if (is_modular_sqr(x,&z)) return gerepileupto(av, z);
-  if (RgM_is_FFM(x, &ffx))  return FFM_mul(x, x, ffx);
-  z = cgetg(lx, t_MAT);
-  for (j=1; j<lx; j++) gel(z,j) = RgM_RgC_mul_i(x, gel(x,j), lx, lx);
-  return z;
 }
 
 static GEN
