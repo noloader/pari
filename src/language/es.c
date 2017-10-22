@@ -5019,6 +5019,7 @@ gpinstall(const char *s, const char *code, const char *gpname, const char *lib)
 {
   pari_sp av = avma;
   const char *gp = *gpname? gpname: s;
+  int update_help;
   void *f;
   entree *ep;
   if (GP_DATA->secure)
@@ -5034,16 +5035,13 @@ gpinstall(const char *s, const char *code, const char *gpname, const char *lib)
     pari_err(e_MISC,"can't find symbol '%s' in dynamic symbol table of process",s);
   }
   ep = is_entry(gp);
-  if (ep && ep->valence == EpINSTALL && ep->help
+  /* Delete help if 1) help is the default (don't delete user addhelp)
+   * and 2) default help changes */
+  update_help = (ep && ep->valence == EpINSTALL && ep->help
       && strcmp(ep->code, code)
-      && !strcmp(ep->help, dft_help(gp,s,ep->code)))
-  { /* Delete help if 1) help is the default (don't delete user addhelp)
-     * and 2) default help changes */
-    void *f = (void*)ep->help;
-    ep->help = NULL; pari_free(f);
-  }
+      && !strcmp(ep->help, dft_help(gp,s,ep->code)));
   ep = install(f,gp,code);
-  if (!ep->help) addhelp(gp, dft_help(gp,s,code));
+  if (update_help || !ep->help) addhelp(gp, dft_help(gp,s,code));
   mt_broadcast(strtoclosure("install",4,strtoGENstr(s),strtoGENstr(code),
                                        strtoGENstr(gp),strtoGENstr(lib)));
   avma = av;
