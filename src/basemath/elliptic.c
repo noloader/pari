@@ -3702,9 +3702,8 @@ ellzeta(GEN w, GEN z, long prec0)
 {
   long prec;
   pari_sp av = avma;
-  GEN pi2, q, u, v, y, et = NULL;
+  GEN pi2, q, y, et = NULL;
   ellred_t T;
-  int simple_case;
 
   if (!z) z = pol_x(0);
   y = toser_i(z);
@@ -3727,23 +3726,23 @@ ellzeta(GEN w, GEN z, long prec0)
 
   pi2 = Pi2n(1, prec);
   q = expIxy(pi2, T.Tau, prec);
-  u = expIxy(pi2, T.Z, prec);
-  simple_case = T.abs_u_is_1 && T.q_is_real;
 
   y = mulcxI(gmul(trueE2(T.Tau,prec), gmul(T.Z,divrs(pi2,-12))));
-  v = gadd(ghalf, ginv(gsubgs(u, 1)));
-  if (T.abs_u_is_1) gel(v,1) = gen_0; /*v = (u+1)/2(u-1), pure imaginary*/
-  y = gadd(y, v);
-
-  if (!simple_case)/* otherwise |u|=1 and all terms in sum are 0 */
-  {
+  if (!T.abs_u_is_1 || (!gequal(T.Z,ghalf) && !gequal(T.Z,gneg(ghalf))))
+  { /* else u = -1 and this vanishes */
     long toadd = (long)ceil(get_toadd(T.Z));
-    pari_sp av1 = avma;
-    GEN qn;
+    GEN qn, u, v, S = gen_0;
+    pari_sp av1;
+    u = expIxy(pi2, T.Z, prec);
+    v = gadd(ghalf, ginv(gsubgs(u, 1)));
+    if (T.abs_u_is_1) gel(v,1) = gen_0; /*v = (u+1)/2(u-1), pure imaginary*/
+    y = gadd(y, v);
+    /* add sum_n q^n ( u/(u*q^n - 1) + 1/(u - q^n) )
+     *     = (u^2 - 1) sum_n q^n / (uq^n - 1)(u - q^n) */
+    av1 = avma;
     for (qn = q;;)
-    { /* y += sum q^n ( u/(u*q^n - 1) + 1/(u - q^n) ) */
-      GEN p1 = gadd(gdiv(u,gsubgs(gmul(qn,u),1)), ginv(gsub(u,qn)));
-      y = gadd(y, gmul(qn,p1));
+    {
+      S = gadd(S, gdiv(qn, gmul(gsubgs(gmul(qn,u),1), gsub(u,qn))));
       qn = gmul(q,qn);
       if (gexpo(qn) <= - prec2nbits(prec) - 5 - toadd) break;
       if (gc_needed(av1,1))
@@ -3752,6 +3751,7 @@ ellzeta(GEN w, GEN z, long prec0)
         gerepileall(av1,2, &y,&qn);
       }
     }
+    y = gadd(y, gmul(gsubgs(gsqr(u),1), S));
   }
   y = mulcxI(gmul(gdiv(pi2,T.W2), y));
   if (et) y = gadd(y,et);
