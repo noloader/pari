@@ -346,6 +346,30 @@ RgX_to_FqX(GEN x, GEN T, GEN p)
   return FpXQX_renormalize(z, l);
 }
 
+GEN
+RgC_to_FqC(GEN x, GEN T, GEN p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l, t_COL);
+  if (T)
+    for (i = 1; i < l; i++)
+      gel(z,i) = simplify_shallow(Rg_to_FpXQ(gel(x,i), T, p));
+  else
+    for (i = 1; i < l; i++)
+      gel(z,i) = Rg_to_Fp(gel(x,i), p);
+  return z;
+}
+
+GEN
+RgM_to_FqM(GEN x, GEN T, GEN p)
+{
+  long i, l = lg(x);
+  GEN z = cgetg(l, t_MAT);
+  for (i = 1; i < l; i++)
+    gel(z,i) = RgC_to_FqC(gel(x, i), T, p);
+  return z;
+}
+
 /* lg(V) > 1 */
 GEN
 FpXV_FpC_mul(GEN V, GEN W, GEN p)
