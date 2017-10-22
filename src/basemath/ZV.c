@@ -420,6 +420,21 @@ ZM_mul(GEN x, GEN y)
   if (lx==1) return zeromat(0, ly-1);
   return ZM_mul_i(x, y, lgcols(x), lx, ly);
 }
+
+GEN
+QM_mul(GEN x, GEN y)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN dy, ny = Q_primitive_part(y, &dy);
+  GEN z = ZM_mul(nx, ny);
+  if (dx || dy)
+  {
+    GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
+    return RgM_Rg_mul(z, d);
+  } else
+    return z;
+}
+
 /* assume result is symmetric */
 GEN
 ZM_multosym(GEN x, GEN y)
