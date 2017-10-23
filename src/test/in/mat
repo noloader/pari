@@ -156,12 +156,12 @@ q = nextprime(p + 1);
                   p^v[5]*q^v[6], p^v[7]*q^v[8]], 1));
 }
 
-test(x) =
+test(x,u=1) =
 {
    n = 22; r = 12;
-   M = matrix(n, n, i, j, random(x));
-   P = matrix(n, r, i, j, if(2*i >= 3*j + 8, random(x), 0*x));
-   N = P*matrix(r, n, i, j, random(x));
+   M = matrix(n, n, i, j, random(x)*u);
+   P = matrix(n, r, i, j, if(2*i >= 3*j + 8, random(x)*u, 0*x));
+   N = P*matrix(r, n, i, j, random(x)*u);
    Q = N[,1..r];
    R = mattranspose(P);
    X = matsolve(M, N);
@@ -186,8 +186,11 @@ test(x) =
    iferr(N^-1, e,, errname(e) == "e_INV");
    iferr(matsolve(N, M), e,, errname(e) == "e_INV");
 }
+p=nextprime(2^65);
 test(Mod(1, 8161));
-test(Mod(1, nextprime(2^65)));
+test(Mod(1, p));
 test(ffgen([2017,3]));
 default(parisize,8*10^6);
-test(ffgen([nextprime(2^65),2]));
+test(ffgen([p,2]));
+test(x^3*Mod(1,17),Mod(1,ffinit(17,4)));
+test(x^2*Mod(1,p),Mod(1,ffinit(p,3)));
