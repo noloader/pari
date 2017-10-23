@@ -577,29 +577,228 @@ FpM_mul(GEN x, GEN y, GEN p)
   for (j=1; j<ly; j++) gel(z,j) = FpM_FpC_mul_i(x, gel(y,j), lx, l, p);
   return z;
 }
+
+static GEN
+Flm_mul_classical(GEN x, GEN y, long l, long lx, long ly, ulong p, ulong pi)
+{
+  long j;
+  GEN z = cgetg(ly, t_MAT);
+  if (SMALL_ULONG(p))
+    for (j=1; j<ly; j++)
+      gel(z,j) = Flm_Flc_mul_i_SMALL(x, gel(y,j), lx, l, p);
+  else
+    for (j=1; j<ly; j++)
+      gel(z,j) = Flm_Flc_mul_i(x, gel(y,j), lx, l, p, pi);
+  return z;
+}
+
+/*
+  Return A[ma+1..ma+da, na+1..na+ea] - B[mb+1..mb+db, nb+1..nb+eb]
+  as an (m x n)-matrix, padding the input with zeroes as necessary.
+*/
+static void
+add_slices_ip(long m, long n,
+           GEN A, long ma, long da, long na, long ea,
+           GEN B, long mb, long db, long nb, long eb,
+           GEN M, long dy, long dx, ulong p)
+{
+  long min_d = minss(da, db), min_e = minss(ea, eb), i, j;
+  GEN C;
+
+  for (j = 1; j <= min_e; j++) {
+    C = gel(M, j + dx) + dy;
+    for (i = 1; i <= min_d; i++)
+      uel(C, i) = Fl_add(ucoeff(A, ma + i, na + j),
+                        ucoeff(B, mb + i, nb + j), p);
+    for (; i <= da; i++)
+      uel(C, i) = ucoeff(A, ma + i, na + j);
+    for (; i <= db; i++)
+      uel(C, i) = ucoeff(B, mb + i, nb + j);
+    for (; i <= m; i++)
+      uel(C, i) = 0;
+  }
+  for (; j <= ea; j++) {
+    C = gel(M, j + dx) + dy;
+    for (i = 1; i <= da; i++)
+      uel(C, i) = ucoeff(A, ma + i, na + j);
+    for (; i <= m; i++)
+      uel(C, i) = 0;
+  }
+  for (; j <= eb; j++) {
+    C = gel(M, j + dx) + dy;
+    for (i = 1; i <= db; i++)
+      uel(C, i) = ucoeff(B, mb + i, nb + j);
+    for (; i <= m; i++)
+      uel(C, i) = 0;
+  }
+  for (; j <= n; j++) {
+    C = gel(M, j + dx) + dy;
+    for (i = 1; i <= m; i++)
+      uel(C, i) = 0;
+  }
+}
+
+static GEN
+add_slices(long m, long n,
+           GEN A, long ma, long da, long na, long ea,
+           GEN B, long mb, long db, long nb, long eb, ulong p)
+{
+  GEN M;
+  long j;
+  M = cgetg(n + 1, t_MAT);
+  for (j = 1; j <= n; j++)
+    gel(M, j) = cgetg(m + 1, t_VECSMALL);
+  add_slices_ip(m, n, A, ma, da, na, ea, B, mb, db, nb, eb, M, 0, 0, p);
+  return M;
+}
+
+/*
+  Return A[ma+1..ma+da, na+1..na+ea] - B[mb+1..mb+db, nb+1..nb+eb]
+  as an (m x n)-matrix, padding the input with zeroes as necessary.
+*/
+static GEN
+subtract_slices(long m, long n,
+                GEN A, long ma, long da, long na, long ea,
+                GEN B, long mb, long db, long nb, long eb, ulong p)
+{
+  long min_d = minss(da, db), min_e = minss(ea, eb), i, j;
+  GEN M = cgetg(n + 1, t_MAT), C;
+
+  for (j = 1; j <= min_e; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_VECSMALL);
+    for (i = 1; i <= min_d; i++)
+      uel(C, i) = Fl_sub(ucoeff(A, ma + i, na + j),
+                        ucoeff(B, mb + i, nb + j), p);
+    for (; i <= da; i++)
+      uel(C, i) = ucoeff(A, ma + i, na + j);
+    for (; i <= db; i++)
+      uel(C, i) = Fl_neg(ucoeff(B, mb + i, nb + j), p);
+    for (; i <= m; i++)
+      uel(C, i) = 0;
+  }
+  for (; j <= ea; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_VECSMALL);
+    for (i = 1; i <= da; i++)
+      uel(C, i) = ucoeff(A, ma + i, na + j);
+    for (; i <= m; i++)
+      uel(C, i) = 0;
+  }
+  for (; j <= eb; j++) {
+    gel(M, j) = C = cgetg(m + 1, t_VECSMALL);
+    for (i = 1; i <= db; i++)
+      uel(C, i) = Fl_neg(ucoeff(B, mb + i, nb + j), p);
+    for (; i <= m; i++)
+      uel(C, i) = 0;
+  }
+  for (; j <= n; j++)
+    gel(M, j) = zero_Flv(m);
+  return M;
+}
+
+static GEN Flm_mul_i(GEN x, GEN y, long l, long lx, long ly, ulong p, ulong pi);
+
+/* Strassen-Winograd matrix product A (m x n) * B (n x p) */
+static GEN
+Flm_mul_sw(GEN A, GEN B, long m, long n, long p, ulong l, ulong li)
+{
+  pari_sp av;
+  long m1 = (m + 1)/2, m2 = m/2,
+    n1 = (n + 1)/2, n2 = n/2,
+    p1 = (p + 1)/2, p2 = p/2;
+  GEN A11, A12, A22, B11, B21, B22,
+    S1, S2, S3, S4, T1, T2, T3, T4,
+    M1, M2, M3, M4, M5, M6, M7,
+    V1, V2, V3, C;
+  long j;
+  C = cgetg(p + 1, t_MAT);
+  for (j = 1; j <= p; j++)
+    gel(C, j) = cgetg(m + 1, t_VECSMALL);
+  av = avma;
+  T2 = subtract_slices(n1, p2, B, 0, n1, p1, p2, B, n1, n2, p1, p2, l);
+  S1 = subtract_slices(m2, n1, A, m1, m2, 0, n1, A, 0, m2, 0, n1, l);
+  M2 = Flm_mul_i(S1, T2, m2 + 1, n1 + 1, p2 + 1, l, li);
+  if (gc_needed(av, 1))
+    gerepileall(av, 2, &T2, &M2);  /* destroy S1 */
+  T3 = subtract_slices(n1, p1, T2, 0, n1, 0, p2, B, 0, n1, 0, p1, l);
+  if (gc_needed(av, 1))
+    gerepileall(av, 2, &M2, &T3);  /* destroy T2 */
+  S2 = add_slices(m2, n1, A, m1, m2, 0, n1, A, m1, m2, n1, n2, l);
+  T1 = subtract_slices(n1, p1, B, 0, n1, p1, p2, B, 0, n1, 0, p2, l);
+  M3 = Flm_mul_i(S2, T1, m2 + 1, n1 + 1, p2 + 1, l, li);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &M2, &T3, &S2, &M3);  /* destroy T1 */
+  S3 = subtract_slices(m1, n1, S2, 0, m2, 0, n1, A, 0, m1, 0, n1, l);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &M2, &T3, &M3, &S3);  /* destroy S2 */
+  A11 = matslice(A, 1, m1, 1, n1);
+  B11 = matslice(B, 1, n1, 1, p1);
+  M1 = Flm_mul_i(A11, B11, m1 + 1, n1 + 1, p1 + 1, l, li);
+  if (gc_needed(av, 1))
+    gerepileall(av, 5, &M2, &T3, &M3, &S3, &M1);  /* destroy A11, B11 */
+  A12 = matslice(A, 1, m1, n1 + 1, n);
+  B21 = matslice(B, n1 + 1, n, 1, p1);
+  M4 = Flm_mul_i(A12, B21, m1 + 1, n2 + 1, p1 + 1, l, li);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &T3, &M3, &S3, &M1, &M4);  /* destroy A12, B21 */
+  add_slices_ip(m1, p1, M1, 0, m1, 0, p1, M4, 0, m1, 0, p1, C, 0, 0, l);
+  if (gc_needed(av, 1))
+    gerepileall(av, 5, &M2, &T3, &M3, &S3, &M1);  /* destroy M4 */
+  M5 = Flm_mul_i(S3, T3, m1 + 1, n1 + 1, p1 + 1, l, li);
+  S4 = subtract_slices(m1, n2, A, 0, m1, n1, n2, S3, 0, m1, 0, n2, l);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &T3, &M3, &M1, &M5, &S4);  /* destroy S3 */
+  T4 = add_slices(n2, p1, B, n1, n2, 0, p1, T3, 0, n2, 0, p1, l);
+  if (gc_needed(av, 1))
+    gerepileall(av, 6, &M2, &M3, &M1, &M5, &S4, &T4);  /* destroy T3 */
+  V1 = subtract_slices(m1, p1, M1, 0, m1, 0, p1, M5, 0, m1, 0, p1, l);
+  if (gc_needed(av, 1))
+    gerepileall(av, 5, &M2, &M3, &S4, &T4, &V1);  /* destroy M1, M5 */
+  B22 = matslice(B, n1 + 1, n, p1 + 1, p);
+  M6 = Flm_mul_i(S4, B22, m1 + 1, n2 + 1, p2 + 1, l, li);
+  if (gc_needed(av, 1))
+    gerepileall(av, 5, &M2, &M3, &T4, &V1, &M6);  /* destroy S4, B22 */
+  A22 = matslice(A, m1 + 1, m, n1 + 1, n);
+  M7 = Flm_mul_i(A22, T4, m2 + 1, n2 + 1, p1 + 1, l, li);
+  if (gc_needed(av, 1))
+    gerepileall(av, 5, &M2, &M3, &V1, &M6, &M7);  /* destroy A22, T4 */
+  V3 = add_slices(m1, p2, V1, 0, m1, 0, p2, M3, 0, m2, 0, p2, l);
+  add_slices_ip(m1, p2, V3, 0, m1, 0, p2, M6, 0, m1, 0, p2, C, 0, p1, l);
+  if (gc_needed(av, 1))
+    gerepileall(av, 4, &M2, &M3, &V1, &M7);  /* destroy V3, M6 */
+  V2 = add_slices(m2, p1, V1, 0, m2, 0, p1, M2, 0, m2, 0, p2, l);
+  if (gc_needed(av, 1))
+    gerepileall(av, 3, &M3, &M7, &V2);  /* destroy V1, M2 */
+  add_slices_ip(m2, p1, V2, 0, m2, 0, p1, M7, 0, m2, 0, p1, C, m1, 0, l);
+  add_slices_ip(m2, p2, V2, 0, m2, 0, p2, M3, 0, m2, 0, p2, C, m1, p1, l);
+  avma = av; return C;
+}
+
+/* Strassen-Winograd used for dim >= ZM_sw_bound */
+static GEN
+Flm_mul_i(GEN x, GEN y, long l, long lx, long ly, ulong p, ulong pi)
+{
+  ulong e = expu(p);
+#ifdef LONG_IS_64BIT
+  long ZM_sw_bound = e <= 29 ? 140: e <=62 ? 40: 70;
+#else
+  long ZM_sw_bound = e <= 12 ? 230: e <=14 ? 170 : e <=17 ? 110: 120;
+#endif
+  if (l <= ZM_sw_bound || lx <= ZM_sw_bound || ly <= ZM_sw_bound)
+    return Flm_mul_classical(x, y, l, lx, ly, p, pi);
+  else
+    return Flm_mul_sw(x, y, l - 1, lx - 1, ly - 1, p, pi);
+}
+
 GEN
 Flm_mul(GEN x, GEN y, ulong p)
 {
-  long i,j,l,lx=lg(x), ly=lg(y);
-  GEN z;
+  long lx=lg(x), ly=lg(y);
   if (ly==1) return cgetg(1,t_MAT);
-  z = cgetg(ly,t_MAT);
-  if (lx==1)
-  {
-    for (i=1; i<ly; i++) gel(z,i) = cgetg(1,t_VECSMALL);
-    return z;
-  }
-  l = lgcols(x);
-  if (SMALL_ULONG(p)) {
-    for (j=1; j<ly; j++)
-      gel(z,j) = Flm_Flc_mul_i_SMALL(x, gel(y,j), lx, l, p);
-  } else {
-    ulong pi = get_Fl_red(p);
-    for (j=1; j<ly; j++)
-      gel(z,j) = Flm_Flc_mul_i(x, gel(y,j), lx, l, p, pi);
-  }
-  return z;
+  if (lx==1) return zero_Flm(0, ly-1);
+  ulong pi = get_Fl_red(p);
+  return Flm_mul_i(x, y, lgcols(x), lx, ly, p, pi);
 }
+
 GEN
 F2m_mul(GEN x, GEN y)
 {
