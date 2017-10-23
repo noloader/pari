@@ -2703,7 +2703,7 @@ RgM_inv_QM(GEN M)
   GEN den, cM, pM = Q_primitive_part(M, &cM);
   GEN b = ZM_inv_bnd(pM, NULL, &den);
   if (cM) den = gmul(den, cM);
-  if (!gequal1(den)) b = RgM_Rg_div(b, den);
+  if (!gequal1(den)) b = ZM_Q_mul(b, ginv(den));
   return gerepileupto(av, b);
 }
 

@@ -89,11 +89,6 @@ pr_hnf(GEN nf, GEN pr)
   return ZM_hnfmodprime(m, p);
 }
 
-static GEN
-ZM_Q_mul(GEN x, GEN y)
-{ return typ(y) == t_INT? ZM_Z_mul(x,y): RgM_Rg_mul(x,y); }
-
-
 GEN
 idealhnf_principal(GEN nf, GEN x)
 {

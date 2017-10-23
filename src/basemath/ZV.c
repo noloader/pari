@@ -430,7 +430,7 @@ QM_mul(GEN x, GEN y)
   if (dx || dy)
   {
     GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
-    if (!gequal1(d)) z = RgM_Rg_mul(z, d);
+    if (!gequal1(d)) z = ZM_Q_mul(z, d);
   }
   return z;
 }
@@ -583,6 +583,47 @@ ZM_Z_div(GEN X, GEN c)
   GEN A = cgetg(l, t_MAT);
   for (j = 1; j < l; j++) gel(A,j) = ZC_Z_div(gel(X,j), c);
   return A;
+}
+
+GEN
+ZC_Q_mul(GEN A, GEN z)
+{
+  pari_sp av = avma;
+  long i, l = lg(A);
+  GEN d, n, Ad, B, u;
+  if (typ(z)==t_INT) return ZC_Z_mul(A,z);
+  n = gel(z, 1); d = gel(z, 2);
+  Ad = FpC_red(A, d);
+  u = gcdii(d, FpV_factorback(Ad, NULL, d));
+  B = cgetg(l, t_COL);
+  if (equali1(u))
+  {
+    for(i=1; i<l; i++)
+      gel(B, i) = mkfrac(mulii(n, gel(A,i)), d);
+  } else
+  {
+    for(i=1; i<l; i++)
+    {
+      GEN di = gcdii(gel(Ad, i), u), ni = mulii(n, diviiexact(gel(A,i), di));
+      if (equalii(d, di))
+        gel(B, i) = ni;
+      else
+        gel(B, i) = mkfrac(ni, diviiexact(d, di));
+    }
+  }
+  return gerepilecopy(av, B);
+}
+
+GEN
+ZM_Q_mul(GEN A, GEN z)
+{
+  long i, l = lg(A);
+  GEN B;
+  if (typ(z)==t_INT) return ZM_Z_mul(A,z);
+  B = cgetg(l, t_MAT);
+  for(i=1; i<l; i++)
+    gel(B, i) = ZC_Q_mul(gel(A, i), z);
+  return B;
 }
 
 long
