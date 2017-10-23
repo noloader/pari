@@ -430,9 +430,9 @@ QM_mul(GEN x, GEN y)
   if (dx || dy)
   {
     GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
-    return RgM_Rg_mul(z, d);
-  } else
-    return z;
+    if (!gequal1(d)) z = RgM_Rg_mul(z, d);
+  }
+  return z;
 }
 
 /* assume result is symmetric */
