@@ -418,7 +418,7 @@ void
 addhelp(const char *e, char *s)
 {
   entree *ep = fetch_entry(e);
-  void *f = ep->help;
+  void *f = (void *) ep->help;
   ep->help = pari_strdup(s);
   if (f && !EpSTATIC(ep)) pari_free(f);
 }
