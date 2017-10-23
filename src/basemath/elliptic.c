@@ -3597,7 +3597,7 @@ ellwpseries_aux(GEN c4, GEN c6, long v, long PRECDL)
   if (!PRECDL) { setsigne(res,0); return res; }
 
   for (i=1; i<PRECDL; i+=2) P[i]= gen_0;
-  _1 = RgX_get_1(c4);
+  _1 = Rg_get_1(c4);
   switch(PRECDL)
   {
     default:P[6] = gdivgs(c6,6048);

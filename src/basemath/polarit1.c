@@ -50,7 +50,7 @@ rem_pol_scal(GEN x, GEN y)
 {
   pari_sp av = avma;
   if (gequal0(y)) pari_err_INV("grem",y);
-  return gerepileupto(av, simplify(gmul(RgX_get_0(x),y)));
+  return gerepileupto(av, simplify(gmul(Rg_get_0(x),y)));
 }
 /* x "scalar", y pol, return x % y with type info */
 static GEN
@@ -59,7 +59,7 @@ rem_scal_pol(GEN x, GEN y)
   if (degpol(y))
   {
     if (!signe(y)) pari_err_INV("grem",y);
-    return gmul(x, RgX_get_1(y));
+    return gmul(x, Rg_get_1(y));
   }
   y = gel(y,2); return rem_scal_scal(x,y);
 }
@@ -93,10 +93,10 @@ poldivrem(GEN x, GEN y, GEN *pr)
       *pr = z; return gdiv(x,y);
     }
     if (!signe(y)) pari_err_INV("poldivrem",y);
-    if (!pr || pr == ONLY_DIVIDES) return gequal0(x)? RgX_get_0(y): NULL;
-    z = gmul(x, RgX_get_1(y));
+    if (!pr || pr == ONLY_DIVIDES) return gequal0(x)? Rg_get_0(y): NULL;
+    z = gmul(x, Rg_get_1(y));
     if (pr == ONLY_REM) return z;
-    *pr = z; return RgX_get_0(y);
+    *pr = z; return Rg_get_0(y);
   }
   return RgX_divrem(x,y,pr);
 }
@@ -112,7 +112,7 @@ gdeuc(GEN x, GEN y)
   { /* x "scalar" */
     if (!signe(y)) pari_err_INV("gdeuc",y);
     if (!degpol(y)) return gdiv(x, gel(y,2)); /* constant */
-    return RgX_get_0(y);
+    return Rg_get_0(y);
   }
   return RgX_div(x,y);
 }

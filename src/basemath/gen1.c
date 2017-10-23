@@ -762,7 +762,7 @@ ser_add(GEN x, GEN y)
   /* valp(x) <= valp(y) */
   lx = _serprec(x);
   if (lx == 2) /* don't lose type information */
-    return scalarser(gadd(RgX_get_0(x), RgX_get_0(y)), varn(x), valp(x));
+    return scalarser(gadd(Rg_get_0(x), Rg_get_0(y)), varn(x), valp(x));
   ly = _serprec(y) + n; if (lx < ly) ly = lx;
   if (n)
   {
@@ -1334,7 +1334,7 @@ static GEN
 mul_ser_scal(GEN y, GEN x) {
   long ly, i;
   GEN z;
-  if (isexactzero(x)) return gmul(RgX_get_0(y), x);
+  if (isexactzero(x)) return gmul(Rg_get_0(y), x);
   if (ser_isexactzero(y))
   {
     if (lg(y) == 2) return gcopy(y);
@@ -2381,7 +2381,7 @@ div_ser(GEN x, GEN y, long vx)
   if (ser_isexactzero(x))
   {
     if (lx == 2) return zeroser(vx, l);
-    return scalarser(gmul(gel(x,2),RgX_get_0(y)), varn(x), l);
+    return scalarser(gmul(gel(x,2),Rg_get_0(y)), varn(x), l);
   }
   y_lead = gel(y,2);
   if (gequal0(y_lead)) /* normalize denominator if leading term is 0 */
@@ -2952,14 +2952,14 @@ gmulsg(long s, GEN y)
 
     case t_POL:
       if (!signe(y)) return RgX_copy(y);
-      if (!s) return scalarpol(RgX_get_0(y), varn(y));
+      if (!s) return scalarpol(Rg_get_0(y), varn(y));
       z = cgetg_copy(y, &ly); z[1]=y[1];
       for (i=2; i<ly; i++) gel(z,i) = gmulsg(s,gel(y,i));
       return normalizepol_lg(z, ly);
 
     case t_SER:
       if (ser_isexactzero(y)) return gcopy(y);
-      if (!s) return RgX_get_0(y);
+      if (!s) return Rg_get_0(y);
       z = cgetg_copy(y, &ly); z[1]=y[1];
       for (i=2; i<ly; i++) gel(z,i) = gmulsg(s,gel(y,i));
       return normalize(z);

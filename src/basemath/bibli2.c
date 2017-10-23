@@ -642,7 +642,7 @@ convol(GEN x, GEN y)
   ex = valp(x);
   ey = valp(y);
   if (ser_isexactzero(x))
-    return scalarser(gadd(RgX_get_0(x), RgX_get_0(y)), varn(x), maxss(ex,ey));
+    return scalarser(gadd(Rg_get_0(x), Rg_get_0(y)), varn(x), maxss(ex,ey));
   lx = lg(x) + ex; x -= ex;
   ly = lg(y) + ey; y -= ey;
   /* inputs shifted: x[i] and y[i] now correspond to monomials of same degree */
@@ -1088,7 +1088,7 @@ polint_i(GEN X, GEN Y, GEN x, long n, GEN *ptdy)
   if (n == 1)
   {
     if (ptdy) *ptdy = gen_0;
-    return gmul(gel(Y,0), RgX_get_1(x));
+    return gmul(gel(Y,0), Rg_get_1(x));
   }
   if (!X)
   {
@@ -1183,7 +1183,7 @@ polint(GEN X, GEN Y, GEN t, GEN *ptdy)
     return gerepileupto(av, P);
   }
   /* numerical interpolation */
-  if (lx == 1) return RgX_get_0(t);
+  if (lx == 1) return Rg_get_0(t);
   return polint_i(X? X+1: NULL,Y+1,t,lx-1,ptdy);
 }
 

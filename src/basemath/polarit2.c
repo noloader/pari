@@ -2222,7 +2222,7 @@ init_resultant(GEN x, GEN y)
   }
   if (tx!=t_POL) pari_err_TYPE("resultant_all",x);
   if (ty!=t_POL) pari_err_TYPE("resultant_all",y);
-  if (!signe(x) || !signe(y)) return gmul(RgX_get_0(x),RgX_get_0(y)); /*type*/
+  if (!signe(x) || !signe(y)) return gmul(Rg_get_0(x),Rg_get_0(y)); /*type*/
   vx = varn(x);
   vy = varn(y); if (vx == vy) return NULL;
   return (varncmp(vx,vy) < 0)? gpowgs(y,degpol(x)): gpowgs(x,degpol(y));
@@ -2651,7 +2651,7 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
   av = avma;
   if (dQ <= 0)
   {
-    if (dQ < 0) return RgX_get_0(P);
+    if (dQ < 0) return Rg_get_0(P);
     s = gpowgs(gel(Q,2), dP);
     if (sig == -1) s = gerepileupto(av, gneg(s));
     return s;
@@ -2680,7 +2680,7 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
     }
     s = leading_coeff(P);
   }
-  if (!signe(Q)) { avma = av; return RgX_get_0(Q); }
+  if (!signe(Q)) { avma = av; return Rg_get_0(Q); }
   s = Lazard(leading_coeff(Q), s, degpol(P));
   if (sig == -1) s = gneg(s);
   if (cP) s = gmul(s, gpowgs(cP,dQ));
@@ -3071,8 +3071,8 @@ RgX_disc_aux(GEN P)
 {
   long n = degpol(P), TP, dd;
   GEN D, L, y, p;
-  if (!signe(P) || !n) return RgX_get_0(P);
-  if (n == 1) return RgX_get_1(P);
+  if (!signe(P) || !n) return Rg_get_0(P);
+  if (n == 1) return Rg_get_1(P);
   if (n == 2) {
     GEN a = gel(P,4), b = gel(P,3), c = gel(P,2);
     return gsub(gsqr(b), gmul2n(gmul(a,c),2));
@@ -3085,14 +3085,14 @@ RgX_disc_aux(GEN P)
     return Fp_to_mod(FpX_disc(RgX_to_FpX(P,p), p), p);
 
   y = RgX_deriv(P);
-  if (!signe(y)) return RgX_get_0(y);
+  if (!signe(y)) return Rg_get_0(y);
   dd = degpol(P)-2 - degpol(y);
   if (TP == t_REAL)
     D = resultant2(P,y);
   else
   {
     D = RgX_resultant_all(P, y, NULL);
-    if (D == gen_0) return RgX_get_0(y);
+    if (D == gen_0) return Rg_get_0(y);
   }
   L = leading_coeff(P);
   if (dd && !gequal1(L)) D = (dd == -1)? gdiv(D, L): gmul(D, gpowgs(L, dd));

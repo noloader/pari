@@ -805,7 +805,7 @@ gmodgs(GEN x, long y)
       gel(z,3) = gmodgs(gel(x,3),y); return z;
 
     case t_PADIC: return padic_to_Fp(x, stoi(y));
-    case t_POL: return scalarpol(RgX_get_0(x), varn(x));
+    case t_POL: return scalarpol(Rg_get_0(x), varn(x));
     case t_POLMOD: return gmul(gen_0,x);
   }
   pari_err_TYPE2("%",x,stoi(y));
@@ -821,7 +821,7 @@ gmodsg(long x, GEN y)
     case t_FRAC: return modsf(x,y);
     case t_POL:
       if (!signe(y)) pari_err_INV("gmodsg",y);
-      return degpol(y)? gmulsg(x, RgX_get_1(y)): RgX_get_0(y);
+      return degpol(y)? gmulsg(x, Rg_get_1(y)): Rg_get_0(y);
   }
   pari_err_TYPE2("%",stoi(x),y);
   return NULL; /* LCOV_EXCL_LINE */
@@ -947,7 +947,7 @@ gdiventsg(long x, GEN y)
     case t_FRAC: return quotsf(x,y);
     case t_POL:
       if (!signe(y)) pari_err_INV("gdiventsg",y);
-      return degpol(y)? RgX_get_0(y): gdivsg(x,gel(y,2));
+      return degpol(y)? Rg_get_0(y): gdivsg(x,gel(y,2));
   }
   pari_err_TYPE2("\\",stoi(x),y);
   return NULL; /* LCOV_EXCL_LINE */
@@ -1436,7 +1436,7 @@ gsubst(GEN x, long v, GEN y)
       {
         GEN z;
         if (vx != v) return gcopy(x);
-        z = RgX_get_0(y);
+        z = Rg_get_0(y);
         return ty == t_MAT? scalarmat(z,ly-1): z;
       }
 
@@ -1555,8 +1555,8 @@ gsubst(GEN x, long v, GEN y)
           { /* y = 0 */
             if (ex < 0) pari_err_INV("gsubst",y);
             if (!n) return gcopy(x);
-            if (ex > 0) return RgX_get_0(ty == t_RFRAC? gel(y,2): y);
-            y = RgX_get_1(ty == t_RFRAC? gel(y,2): y);
+            if (ex > 0) return Rg_get_0(ty == t_RFRAC? gel(y,2): y);
+            y = Rg_get_1(ty == t_RFRAC? gel(y,2): y);
             return gmul(y, gel(x,2));
           }
           if (ey < 1 || n == 0) return zeroser(vy, ey*(ex+n));
@@ -1777,13 +1777,13 @@ deriv(GEN x, long v)
     case t_POLMOD:
     {
       GEN a = gel(x,2), b = gel(x,1);
-      if (v == varn(b)) return RgX_get_0(b);
+      if (v == varn(b)) return Rg_get_0(b);
       retmkpolmod(deriv(a,v), RgX_copy(b));
     }
     case t_POL:
       switch(varncmp(varn(x), v))
       {
-        case 1: return RgX_get_0(x);
+        case 1: return Rg_get_0(x);
         case 0: return RgX_deriv(x);
       }
       y = cgetg_copy(x, &lx); y[1] = x[1];
@@ -1793,7 +1793,7 @@ deriv(GEN x, long v)
     case t_SER:
       switch(varncmp(varn(x), v))
       {
-        case 1: return RgX_get_0(x);
+        case 1: return Rg_get_0(x);
         case 0: return derivser(x);
       }
       if (ser_isexactzero(x)) return gcopy(x);
@@ -4220,7 +4220,7 @@ poleval(GEN x, GEN y)
       return NULL; /* LCOV_EXCL_LINE */
   }
   if (i<=imin)
-    return (i==imin)? gmul(gel(x,imin),RgX_get_1(y)): RgX_get_0(y);
+    return (i==imin)? gmul(gel(x,imin),Rg_get_1(y)): Rg_get_0(y);
 
   p1 = gel(x,i); i--;
   if (typ(y)!=t_COMPLEX)

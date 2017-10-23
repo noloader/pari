@@ -197,7 +197,7 @@ RgX_equal(GEN x, GEN y)
 /* Returns 1 in the base ring over which x is defined */
 /* HACK: this also works for t_SER */
 GEN
-RgX_get_1(GEN x)
+Rg_get_1(GEN x)
 {
   GEN p, T;
   long i, lx, tx = Rg_type(x, &p, &T, &lx);
@@ -214,7 +214,7 @@ RgX_get_1(GEN x)
 /* Returns 0 in the base ring over which x is defined */
 /* HACK: this also works for t_SER */
 GEN
-RgX_get_0(GEN x)
+Rg_get_0(GEN x)
 {
   GEN p, T;
   long i, lx, tx = Rg_type(x, &p, &T, &lx);

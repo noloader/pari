@@ -3792,11 +3792,11 @@ as above.
 \fun{int}{RgX_type_is_composite}{long t} $t$ as returned by \kbd{RgX\_type},
 return 1 if $t$ is a composite type, and 0 otherwise.
 
-\fun{GEN}{RgX_get_0}{GEN x} returns $0$ in the base ring over which $x$
+\fun{GEN}{Rg_get_0}{GEN x} returns $0$ in the base ring over which $x$
 is defined, to the proper accuracy (e.g. \kbd{0}, \kbd{Mod(0,3)},
 \kbd{O(5\pow 10)}).
 
-\fun{GEN}{RgX_get_1}{GEN x} returns $1$ in the base ring over which $x$
+\fun{GEN}{Rg_get_1}{GEN x} returns $1$ in the base ring over which $x$
 is defined, to the proper accuracy (e.g. \kbd{0}, \kbd{Mod(0,3)},
 
 \fun{long}{RgX_type}{GEN x, GEN y, GEN *ptp, GEN *ptpol, long *ptprec} returns
@@ -11140,13 +11140,11 @@ $N$ (the gcd of the moduli that appear).
 
 \item \kbd{FF\_1}$(x)$ for a \typ{FFELT}.
 
-\item \kbd{RgX\_get\_1}$(x)$ for a \typ{POL}.
-
 \item \kbd{qfi\_1}$(x)$ and \kbd{qfr\_1}$(x)$ for \typ{QFI} and \typ{QFR}.
 
 \item the identity permutation for \typ{VECSMALL}.
 
-\item etc.
+\item \kbd{Rg\_get\_1}$(x)$ otherwise
 
 Of course, the only practical use of this routine for $n = 0$ is
 to obtain the multiplicative neutral element in the base ring (or to treat
