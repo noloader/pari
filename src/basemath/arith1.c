@@ -4026,7 +4026,7 @@ Fp_sqrtn(GEN a, GEN n, GEN p, GEN *zeta)
   if (absequaliu(n,2))
   {
     if (zeta) *zeta = subiu(p,1);
-    return Fp_sqrt(a,p);
+    return signe(n) > 0 ? Fp_sqrt(a,p): Fp_sqrt(Fp_inv(a, p),p);
   }
   return gen_Shanks_sqrtn(a,n,subiu(p,1),zeta,(void*)p,&Fp_star);
 }

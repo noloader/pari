@@ -133,6 +133,7 @@ BA  102- ispower((x^3+ffgen([2^127-1,3])*x+1)^2,2,&r);r was wrong [#1976]
     104- vecmax(Vecsmall()) -> some random value [#1983]
     105- SEGV in install() when bad prototype supplied [#1977]
     106- ellzeta(., real number) possibly wrong result [#1981]
+BA  107- sqrtn(Mod(9, 101), -2) -> wrong result
 
   Added
       1- [libari] ZM_isidentity

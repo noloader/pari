@@ -52,3 +52,14 @@ iferr(sqrtn(Mod(2,21),3),E,E)
 iferr(sqrtn(Mod(6,35),6),E,E)
 [sqrtn(Mod(64,101),6,&z),z]
 sqrtn(0,3)
+check(a)=
+{
+  for(d=-5,5,if(d,
+    my(u=sqrtn(a^d,d,&z));
+    if(u^d!=a^d,error("sqrtn ",[a,d]));
+    if (z^d!=1,error("sqrtn(&z)",[a,d]))));
+}
+check(Mod(3,101));
+check(Mod(nextprime(2^65),nextprime(2^100)));
+check(ffgen([3,7]));
+check(ffgen([nextprime(2^100),3]));
