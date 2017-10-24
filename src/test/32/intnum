@@ -137,11 +137,11 @@
 1
 ? intnumromb(x=2,1,x,1)
 -1.50000
-? intnuminit(x=-oo,oo,1);
+? intnuminit(-oo,oo,1);
 ? intnuminit(x,y)
   ***   at top-level: intnuminit(x,y)
   ***                 ^---------------
-  *** intnuminit: incorrect type in intnum [incorrect b] (t_POL).
+  *** intnuminit: incorrect type in intnum [incorrect a] (t_POL).
 ? intnumgauss(t=1,2,1,"")
   ***   at top-level: intnumgauss(t=1,2,1,"")
   ***                                   ^-----
@@ -174,4 +174,4 @@
   ***                                             ^--
   ***   sorry, intfuncinit with hard endpoint behavior is not yet implemented.
 ? print("Total time spent: ",gettime);
-Total time spent: 992
+Total time spent: 1083
