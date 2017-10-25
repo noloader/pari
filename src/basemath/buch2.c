@@ -3987,7 +3987,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
     PRECREG = maxss(prec, MEDDEFAULTPREC);
     nfinit_basic(&nfT, P);
     D = nfT.dK;
-    if (!equali1(leading_coeff(nfT.T0)))
+    if (!ZX_is_monic(nfT.T0))
     {
       pari_warn(warner,"non-monic polynomial in bnfinit, using polredbest");
       flag_nfinit = nf_RED;

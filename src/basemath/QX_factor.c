@@ -1360,7 +1360,7 @@ poliscycloprod(GEN f)
   long i, d = degpol(f);
   if (typ(f) != t_POL) pari_err_TYPE("poliscycloprod",f);
   if (!RgX_is_ZX(f)) return 0;
-  if (!equali1(leading_coeff(f)) || !is_pm1(constant_coeff(f))) return 0;
+  if (!ZX_is_monic(f) || !is_pm1(constant_coeff(f))) return 0;
   if (d < 2) return (d == 1);
   if ( degpol(ZX_gcd_all(f, ZX_deriv(f), &f)) )
   {

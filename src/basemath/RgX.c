@@ -2871,8 +2871,8 @@ RgX_rem_fast(GEN x, GEN y)
   long t = RgX_type2(x,y, &p,&pol,&pa);
   switch(t)
   {
-    case t_INT:    return equali1(leading_term(y)) ? ZX_rem(x,y): NULL;
-    case t_FRAC:   return RgX_is_ZX(y) && equali1(leading_term(y)) ? QX_ZX_rem(x,y): NULL;
+    case t_INT:    return ZX_is_monic(y) ? ZX_rem(x,y): NULL;
+    case t_FRAC:   return RgX_is_ZX(y) && ZX_is_monic(y) ? QX_ZX_rem(x,y): NULL;
     case t_FFELT:  return FFX_rem(x, y, pol);
     case t_INTMOD: return RgX_rem_FpX(x, y, p);
     case code(t_POLMOD, t_INT):

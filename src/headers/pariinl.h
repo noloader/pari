@@ -2147,6 +2147,8 @@ INLINE int
 Flx_equal1(GEN x) { return degpol(x)==0 && x[2] == 1; }
 INLINE int
 ZX_equal1(GEN x) { return degpol(x)==0 && equali1(gel(x,2)); }
+INLINE int
+ZX_is_monic(GEN x) { return equali1(leading_coeff(x)); }
 
 INLINE GEN
 ZX_renormalize(GEN x, long lx)    { return ZXX_renormalize(x,lx); }

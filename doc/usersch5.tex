@@ -8505,8 +8505,11 @@ $\kbd{l} = \kbd{lg(x)}$, in place.
 the same \kbd{degpol} and their coefficients are equal. Variable numbers are
 not checked.
 
-\fun{int}{ZX_equal1}{GEN x} returns $1$ if the \kbd{ZX} is equal to $1$
+\fun{int}{ZX_equal1}{GEN x} returns $1$ if the \kbd{ZX} $x$ is equal to $1$
 and $0$ otherwise.
+
+\fun{int}{ZX_is_monic}{GEN x} returns $1$ if the \kbd{ZX} $x$ is monic and $0$
+otherwise.  The zero polynomial considered not monic.
 
 \fun{GEN}{ZX_add}{GEN x,GEN y} adds \kbd{x} and \kbd{y}.
 

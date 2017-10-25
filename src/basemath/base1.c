@@ -1647,7 +1647,7 @@ nfinit_complete(nfmaxord_t *S, long flag, long prec)
   GEN nf, unscale;
 
   if (!ZX_is_irred(S->T)) pari_err_IRREDPOL("nfinit",S->T);
-  if (!(flag & nf_RED) && !equali1(leading_coeff(S->T0)))
+  if (!(flag & nf_RED) && !ZX_is_monic(S->T0))
   {
     pari_warn(warner,"non-monic polynomial. Result of the form [nf,c]");
     flag |= nf_RED | nf_ORIG;
