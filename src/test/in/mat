@@ -194,3 +194,11 @@ default(parisize,8*10^6);
 test(ffgen([p,2]));
 test(x^3*Mod(1,17),Mod(1,ffinit(17,4)));
 test(x^2*Mod(1,p),Mod(1,ffinit(p,3)));
+
+test(x,u=1) =
+{
+  my(R = matrix(5, 5, i, j, random(x)*u));
+  if(R^2+R!=R*(R+1),error([x,u]));
+}
+test(10*x^3,Mod(1,x^4+7*x^3+12*x+5));
+test(10*x^3,Mod(1,5*x^4+7*x^3+12*x+5));
