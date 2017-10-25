@@ -615,6 +615,25 @@ QXQV_to_mod(GEN V, GEN T)
   return z;
 }
 
+/* Apply QXQ_to_mod_copy to all entries. Memory-clean ! */
+GEN
+QXQC_to_mod_shallow(GEN V, GEN T)
+{
+  long i, l = lg(V);
+  GEN z = cgetg(l, t_COL);
+  for (i=1;i<l; i++) gel(z,i) = QXQ_to_mod(gel(V,i), T);
+  return z;
+}
+
+GEN
+QXQM_to_mod_shallow(GEN V, GEN T)
+{
+  long i, l = lg(V);
+  GEN z = cgetg(l, t_MAT);
+  for (i=1; i<l; i++) gel(z,i) = QXQC_to_mod_shallow(gel(V,i), T);
+  return z;
+}
+
 GEN
 RgX_renormalize_lg(GEN x, long lx)
 {

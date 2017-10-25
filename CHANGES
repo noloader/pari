@@ -286,7 +286,8 @@ BA  112- New GP functions ffembed, ffmap, ffinvmap, ffcompomap, ffextend,
                 fffrobenius
     113- [libpari] cx_approx_equal
 BA  114- [libpari] F2xqX_ispower, FlxqX_ispower, FpXQX_ispower, FFX_ispower,
-                   FpX_ispower, FqX_to_mod, FqM_to_mod, RgC_to_FqC, RgM_to_FqM
+                   FpX_ispower, FqX_to_mod, FqM_to_mod, RgC_to_FqC, RgM_to_FqM,
+                   QXQC_to_mod_shallow, QXQM_to_mod_shallow
 BA  115- [libpari] ZC_Q_mul, ZM_Q_MUL
 BA  116- [libpari] Fl_log, Fl_log_pre, Fl_sqrtn, Fl_sqrtn_pre
 
