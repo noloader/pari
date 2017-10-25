@@ -562,6 +562,26 @@ RgM_sqr_ZXQM(GEN x, GEN T)
   return gerepilecopy(av, QXQM_to_mod_shallow(b,T));
 }
 
+static GEN
+RgM_mul_QXQM(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  GEN b = QXQM_mul(liftpol_shallow(x), liftpol_shallow(y), T);
+  return gerepilecopy(av, QXQM_to_mod_shallow(b,T));
+}
+
+static GEN
+RgM_sqr_QXQM(GEN x, GEN T)
+{
+  pari_sp av = avma;
+  GEN b = QXQM_sqr(liftpol_shallow(x), T);
+  return gerepilecopy(av, QXQM_to_mod_shallow(b,T));
+}
+
+INLINE int
+RgX_is_monic_ZX(GEN pol)
+{ return RgX_is_ZX(pol) && ZX_is_monic(pol); }
+
 #define code(t1,t2) ((t1 << 6) | t2)
 static GEN
 RgM_mul_fast(GEN x, GEN y)
@@ -577,6 +597,8 @@ RgM_mul_fast(GEN x, GEN y)
     case t_INTMOD: return RgM_mul_FpM(x, y, p);
     case code(t_POLMOD, t_INT):
                    return ZX_is_monic(pol)? RgM_mul_ZXQM(x, y, pol): NULL;
+    case code(t_POLMOD, t_FRAC):
+                   return RgX_is_monic_ZX(pol)? RgM_mul_QXQM(x, y, pol): NULL;
     case code(t_POLMOD, t_INTMOD):
                    return RgM_mul_FqM(x, y, pol, p);
     default:       return NULL;
@@ -597,6 +619,8 @@ RgM_sqr_fast(GEN x)
     case t_INTMOD: return RgM_mul_FpM(x, x, p);
     case code(t_POLMOD, t_INT):
                    return ZX_is_monic(pol)? RgM_sqr_ZXQM(x, pol): NULL;
+    case code(t_POLMOD, t_FRAC):
+                   return RgX_is_monic_ZX(pol)? RgM_sqr_QXQM(x, pol): NULL;
     case code(t_POLMOD, t_INTMOD):
                    return RgM_mul_FqM(x, x, pol, p);
     default:       return NULL;
