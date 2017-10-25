@@ -233,7 +233,7 @@ BA   75- ellheight for curves over number fields
 BA   78- ellrootno for curves over number fields
      79- optional flag to 'divisors' (add factorization)
      80- GP functions fordivfactored
-BA   81- [libpari] ZXQM_mul, ZXQM_sqr
+BA   81- [libpari] ZXQM_mul, ZXQM_sqr, QXQM_mul, QXQM_sqr
      82- [libpari] ZX_z_unscale
      83- [libpari] Flxn_mul
 BA   84- [libpari] FlxqX_is_squarefree, FlxqX_nbfact, RgX_to_FlxqX

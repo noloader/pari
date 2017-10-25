@@ -8922,6 +8922,16 @@ multiple of $P/d$. If $P$ and $Q$ are both monic, then $d$ is monic and
 \kbd{*Pnew} is exactly $P/d$. Not memory clean if the gcd is $1$
 (in that case \kbd{*Pnew} is set to $P$).
 
+\subsec{\kbd{QXQM}}
+
+\kbd{QXQM} are matrices of \kbd{QXQ}. All entries must be \typ{INT}, \typ{FRAC} or
+polynomials of degree strictly less than the degree of $T$, which must be a monic
+\kbd{ZX}.
+
+\fun{GEN}{QXQM_mul}{GEN x,GEN y,GEN T} returns $x*y$ mod $T$.
+
+\fun{GEN}{QXQM_sqr}{GEN x,GEN T} returns $x^2$ mod $T$.
+
 \subsec{\kbd{zx}}
 
 \fun{GEN}{zero_zx}{long sv} returns a zero \kbd{zx} in variable $v$.

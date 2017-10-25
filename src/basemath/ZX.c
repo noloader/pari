@@ -822,6 +822,29 @@ ZXQM_sqr(GEN x, GEN T)
   return gerepileupto(av, ZM_mod2BIL_ZXQM(z, N, T));
 }
 
+GEN
+QXQM_mul(GEN x, GEN y, GEN T)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN dy, ny = Q_primitive_part(y, &dy);
+  GEN z = ZXQM_mul(nx, ny, T);
+  if (dx || dy)
+  {
+    GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
+    if (!gequal1(d)) z = RgM_Rg_mul(z, d);
+  }
+  return z;
+}
+
+GEN
+QXQM_sqr(GEN x, GEN T)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN z = ZXQM_sqr(nx, T);
+  if (dx) z = RgM_Rg_mul(z, gsqr(dx));
+  return z;
+}
+
 static GEN
 Z_mod2BIL_Fq(GEN x, long bs, GEN T, GEN p)
 {
