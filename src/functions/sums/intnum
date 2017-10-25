@@ -57,7 +57,7 @@ Doc: numerical integration
  for a given accuracy): we skip a precomputation of $O(D\log D)$
  elementary functions in accuracy $D$, whose running time has the same order
  of magnitude as the evaluation of the integrand. This is in particular
- usefule for multivariate integrals.
+ useful for multivariate integrals.
 
  \misctitle{Specifying the behavior at endpoints}
  This is done as follows. An endpoint $a$ is either given as such (a scalar,
