@@ -987,7 +987,7 @@ varstate_restore(struct pari_varstate *s)
     varentries_unset(i);
     varpriority[i] = -i;
   }
-  for (i = max_avail; i < s->max_avail; i++)
+  for (i = max_avail+1; i <= s->max_avail; i++)
   {
     varentries_unset(i);
     varpriority[i] = -i;
