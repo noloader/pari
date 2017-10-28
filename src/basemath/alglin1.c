@@ -3756,6 +3756,98 @@ ZM_inv_ratlift(GEN M, GEN *pden)
   return H;
 }
 
+static GEN
+ZM_adj_ratlift(GEN A, GEN H, GEN mod)
+{
+  GEN B;
+  GEN D = ZMrow_ZC_mul(H, gel(A,1), 1);
+  GEN g = gcdii(D, mod);
+  if (!equali1(g))
+  {
+    mod = diviiexact(mod, g);
+    H = FpM_red(H, mod);
+  }
+  D = Fp_inv(Fp_red(D, mod), mod);
+  H = FpM_Fp_mul(H, D, mod);
+  B = sqrti(shifti(mod,-1));
+  return FpM_ratlift(H, mod, B, B, NULL);
+}
+
+GEN
+ZM_inv_mix(GEN A, GEN *pden)
+{
+  pari_sp av = avma;
+  long m = lg(A)-1, n, k1 = 1, k2;
+  GEN H = NULL, D, H1 = NULL, mod1 = NULL, worker;
+  ulong bnd, mask, p = 0;
+  pari_timer ti;
+
+  if (m == 0) return ZM_inv0(A,pden);
+  if (pden) *pden = gen_1;
+  if (nbrows(A) < m) return NULL;
+  if (m == 1 && nbrows(A)==1) return ZM_inv1(A,pden);
+  if (m == 2 && nbrows(A)==2) return ZM_inv2(A,pden);
+
+  if (DEBUGLEVEL>=5) timer_start(&ti);
+  bnd = expi(RgM_true_Hadamard(A));
+  worker = strtoclosure("_ZM_inv_worker", 1, A);
+  gen_inccrt("ZM_inv_r", worker, NULL, k1, m, &p, &H1, &mod1, nmV_chinese_center, FpM_center);
+  n = (bnd+1)/expu(p)+1;
+  if (DEBUGLEVEL>=5) timer_printf(&ti,"inv (%ld/%ld primes)", k1, n);
+  mask = quadratic_prec_mask(n);
+  for (k2 = 0;;)
+  {
+    GEN Hr;
+    if (k2 > 0)
+    {
+      gen_inccrt("ZM_inv_r", worker, NULL, k2, m, &p, &H1, &mod1,nmV_chinese_center,FpM_center);
+      k1 += k2;
+      if (DEBUGLEVEL>=5) timer_printf(&ti,"CRT (%ld/%ld primes)", k1, n);
+    }
+    if (mask == 1) break;
+    k2 = (mask&1UL) ? k1-1: k1;
+    mask >>= 1;
+
+    Hr = ZM_adj_ratlift(A, H1, mod1);
+    if (DEBUGLEVEL>=5) timer_printf(&ti,"ratlift (%ld/%ld primes)", k1, n);
+    if (Hr) {/* DONE ? */
+      GEN den;
+      GEN Hl = Q_remove_denom(Hr, &den);
+      GEN R = ZM_mul(Hl, A);
+      if (DEBUGLEVEL>=5) timer_printf(&ti,"mult (%ld/%ld primes)", k1, n);
+      den = den ? den: gen_1;
+      if (den)
+      {
+        if (ZM_isscalar(R, den))
+        {
+          H = Hl;
+          if (pden) *pden = den;
+          break;
+        }
+      }
+      else
+        if (ZM_isidentity(R)) { H=Hl; break; }
+    }
+  }
+  if (!H)
+  {
+    GEN d;
+    H = H1;
+    D = ZMrow_ZC_mul(H, gel(A,1), 1);
+    if (signe(D)==0) pari_err_INV("ZM_inv", A);
+    d = gcdii(Q_content_safe(H), D);
+    if (signe(D) < 0) d = negi(d);
+    if (!equali1(d))
+    {
+      H = ZM_Z_divexact(H, d);
+      D = diviiexact(D, d);
+    }
+    if (pden) *pden = D;
+  }
+  gerepileall(av, pden? 2: 1, &H, pden);
+  return H;
+}
+
 /* same as above, M rational */
 GEN
 QM_inv(GEN M)

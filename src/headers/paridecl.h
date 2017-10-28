@@ -1544,6 +1544,7 @@ GEN     ZM_imagecompl(GEN x);
 GEN     ZM_indeximage(GEN x);
 GEN     ZM_indexrank(GEN x);
 GEN     ZM_inv(GEN M, GEN *den);
+GEN     ZM_inv_mix(GEN M, GEN *den);
 GEN     ZM_inv_ratlift(GEN M, GEN *pden);
 GEN     ZM_pseudoinv(GEN M, GEN *pv, GEN *den);
 long    ZM_rank(GEN x);
