@@ -5865,6 +5865,51 @@ ZM_det_i(GEN M, long n)
   return gerepileuptoint(av, H);
 }
 
+static GEN
+RgM_det_FpM(GEN a, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp, d;
+  a = RgM_Fp_init(a,p,&pp);
+  switch(pp)
+  {
+  case 0: return gerepileupto(av, Fp_to_mod(FpM_det(a,p),p)); break;
+  case 2: d = F2m_det(a); break;
+  default:d = Flm_det_sp(a, pp); break;
+  }
+  avma = av; return mkintmodu(d, pp);
+}
+
+static GEN
+RgM_det_FqM(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  GEN b = FqM_det(RgM_to_FqM(x, T, p), T, p);
+  if (!b) { avma = av; return NULL; }
+  return gerepilecopy(av, mkpolmod(FpX_to_mod(b, p), FpX_to_mod(T, p)));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgM_det_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZM_det(x);
+    case t_FRAC:   return QM_det(x);
+    case t_FFELT:  return FFM_det(x, pol);
+    case t_INTMOD: return RgM_det_FpM(x, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_det_FqM(x, pol, p);
+    default:       return NULL;
+  }
+}
+#undef code
+
 static long
 det_init_max(long n)
 {
@@ -5879,7 +5924,7 @@ det(GEN a)
 {
   long n = lg(a)-1;
   double B;
-  GEN data, ff = NULL, p = NULL;
+  GEN data, b;
   pivot_fun pivot;
 
   if (typ(a)!=t_MAT) pari_err_TYPE("det",a);
@@ -5887,22 +5932,8 @@ det(GEN a)
   if (n != nbrows(a)) pari_err_DIM("det");
   if (n == 1) return gcopy(gcoeff(a,1,1));
   if (n == 2) return RgM_det2(a);
-  if (RgM_is_FpM(a, &p))
-  {
-    pari_sp av = avma;
-    ulong pp, d;
-    if (!p) return ZM_det_i(a, n); /* ZM */
-    /* FpM */
-    a = RgM_Fp_init(a,p,&pp);
-    switch(pp)
-    {
-    case 0: return gerepileupto(av, Fp_to_mod(FpM_det(a,p),p)); break;
-    case 2: d = F2m_det(a); break;
-    default:d = Flm_det_sp(a, pp); break;
-    }
-    avma = av; return mkintmodu(d, pp);
-  }
-  if (RgM_is_FFM(a, &ff)) return FFM_det(a, ff);
+  b = RgM_det_fast(a);
+  if (b) return b;
   pivot = get_pivot_fun(a, a, &data);
   if (pivot != gauss_get_pivot_NZ) return det_simple_gauss(a, data, pivot);
   B = (double)n;
