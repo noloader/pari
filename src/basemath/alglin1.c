@@ -5917,6 +5917,15 @@ ZM_det(GEN a)
   return ZM_det_i(a, n);
 }
 
+GEN
+QM_det(GEN M)
+{
+  pari_sp av = avma;
+  GEN cM, pM = Q_primitive_part(M, &cM);
+  GEN b = ZM_det(pM);
+  if (cM) b = gmul(b, gpowgs(cM, lg(M)-1));
+  return gerepileupto(av, b);
+}
 /* return a solution of congruence system sum M_{ i,j } X_j = Y_i mod D_i
  * If ptu1 != NULL, put in *ptu1 a Z-basis of the homogeneous system */
 static GEN

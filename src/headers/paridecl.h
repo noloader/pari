@@ -1138,6 +1138,7 @@ GEN     ZG_sub(GEN x, GEN y);
 
 void    Flc_lincomb1_inplace(GEN X, GEN Y, ulong v, ulong q);
 GEN     vecsmall_prod(GEN v);
+GEN     QM_det(GEN x);
 GEN     QM_mul(GEN x, GEN y);
 void    RgM_check_ZM(GEN A, const char *s);
 void    RgV_check_ZV(GEN A, const char *s);
