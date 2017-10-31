@@ -132,22 +132,22 @@ FFX_to_raw(GEN x, GEN ff)
 }
 
 static GEN
-FFC_to_raw(GEN x)
+FFC_to_raw(GEN x, GEN ff)
 {
   long i, lx;
   GEN y = cgetg_copy(x,&lx);
   for(i=1; i<lx; i++)
-    gel(y, i) = gel(gel(x, i), 2);
+    gel(y, i) = Rg_to_raw(gel(x, i), ff);
   return y;
 }
 
 static GEN
-FFM_to_raw(GEN x)
+FFM_to_raw(GEN x, GEN ff)
 {
   long i, lx;
   GEN y = cgetg_copy(x,&lx);
   for(i=1; i<lx; i++)
-    gel(y, i) = FFC_to_raw(gel(x, i));
+    gel(y, i) = FFC_to_raw(gel(x, i), ff);
   return y;
 }
 
@@ -2015,7 +2015,7 @@ FFM_wrap(GEN M, GEN ff, GEN (*Fq)(GEN,GEN,GEN),
   pari_sp av = avma;
   ulong pp;
   GEN T, p;
-  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M);
+  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M, ff);
   switch(ff[1])
   {
   case t_FF_FpXQ: M = Fq(M,T,p); if (M) M = FqM_to_FpXQM(M,T,p);
@@ -2039,8 +2039,8 @@ FFM_FFM_wrap(GEN M, GEN N, GEN ff,
   GEN T, p;
   int is_sqr = M==N;
   _getFF(ff, &T, &p, &pp);
-  M = FFM_to_raw(M);
-  N = is_sqr? M: FFM_to_raw(N);
+  M = FFM_to_raw(M, ff);
+  N = is_sqr? M: FFM_to_raw(N, ff);
   switch(ff[1])
   {
   case t_FF_FpXQ: M = Fq(M, N, T, p); if (M) M = FqM_to_FpXQM(M, T, p);
@@ -2063,8 +2063,8 @@ FFM_FFC_wrap(GEN M, GEN C, GEN ff,
   ulong pp;
   GEN T, p;
   _getFF(ff, &T, &p, &pp);
-  M = FFM_to_raw(M);
-  C = FFC_to_raw(C);
+  M = FFM_to_raw(M, ff);
+  C = FFC_to_raw(C, ff);
   switch(ff[1])
   {
   case t_FF_FpXQ: C = Fq(M, C, T, p); if (C) C = FqC_to_FpXQC(C, T, p);
@@ -2095,7 +2095,7 @@ FFM_deplin(GEN M, GEN ff)
   pari_sp av = avma;
   ulong pp;
   GEN C, T, p;
-  _getFF(ff, &T, &p, &pp); M = FFM_to_raw(M);
+  _getFF(ff, &T, &p, &pp); M = FFM_to_raw(M, ff);
   switch(ff[1]) {
   case t_FF_FpXQ: C = FqM_deplin(M, T, p);
     if (C) C = FqC_to_FpXQC(C, T, p); break;
@@ -2112,7 +2112,7 @@ FFM_indexrank(GEN M, GEN ff)
   pari_sp av = avma;
   ulong pp;
   GEN R, T, p;
-  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M);
+  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M, ff);
   switch(ff[1]) {
   case t_FF_FpXQ: R = FqM_indexrank(M,T,p); break;
   case t_FF_F2xq: R = F2xqM_indexrank(M,T); break;
@@ -2128,7 +2128,7 @@ FFM_rank(GEN M, GEN ff)
   long r;
   ulong pp;
   GEN T, p;
-  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M);
+  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M, ff);
   switch(ff[1])
   {
   case t_FF_FpXQ: r = FqM_rank(M,T,p); break;
@@ -2143,7 +2143,7 @@ FFM_det(GEN M, GEN ff)
   pari_sp av = avma;
   ulong pp;
   GEN d, T, p;
-  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M);
+  _getFF(ff,&T,&p,&pp); M = FFM_to_raw(M, ff);
   switch(ff[1])
   {
   case t_FF_FpXQ: d = FqM_det(M,T,p); break;
