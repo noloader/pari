@@ -97,6 +97,7 @@ Ap=Mod(A,p);
 #matker(Ap)
 #matimage(Ap)
 #matker(A)
+matker([3,0,2,2;1,3,3,3])
 vecsum([])
 vecsum([2])
 vecsum(primes(4))

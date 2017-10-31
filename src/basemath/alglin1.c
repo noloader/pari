@@ -4220,26 +4220,59 @@ ker_aux(GEN x, GEN x0)
   }
   return gerepileupto(av,y);
 }
-GEN
-ker(GEN x)
+
+static GEN
+RgM_ker_FpM(GEN x, GEN p)
 {
   pari_sp av = avma;
-  GEN p = NULL, ff = NULL;
-  if (RgM_is_FpM(x, &p) && p)
+  ulong pp;
+  x = RgM_Fp_init(x, p, &pp);
+  switch(pp)
   {
-    ulong pp;
-    x = RgM_Fp_init(x, p, &pp);
-    switch(pp)
-    {
     case 0: x = FpM_to_mod(FpM_ker_gen(x,p,0),p); break;
     case 2: x = F2m_to_mod(F2m_ker_sp(x,0)); break;
     default:x = Flm_to_mod(Flm_ker_sp(x,pp,0), pp); break;
-    }
-    return gerepileupto(av, x);
   }
-  if (RgM_is_FFM(x, &ff)) return FFM_ker(x, ff);
+  return gerepileupto(av, x);
+}
+
+static GEN
+RgM_ker_FqM(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  GEN b = FqM_ker(RgM_to_FqM(x, T, p), T, p);
+  return gerepileupto(av, FqM_to_mod(b, T, p));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgM_ker_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    /* fall through */
+    case t_FRAC:   return QM_ker(x);
+    case t_FFELT:  return FFM_ker(x, pol);
+    case t_INTMOD: return RgM_ker_FpM(x, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_ker_FqM(x, pol, p);
+    default:       return NULL;
+  }
+}
+#undef code
+
+GEN
+ker(GEN x)
+{
+  GEN b = RgM_ker_fast(x);
+  if (b) return b;
   return ker_aux(x,x);
 }
+
 GEN
 matker0(GEN x,long flag)
 {
