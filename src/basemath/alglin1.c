@@ -3631,6 +3631,19 @@ ZM_inv_slice(GEN A, GEN P, GEN *mod)
   return H;
 }
 
+static GEN
+RgM_true_Hadamard(GEN a)
+{
+  pari_sp av = avma;
+  long n = lg(a)-1, i;
+  GEN B;
+  if (n == 0) return gen_1;
+  if (n == 1) return gcoeff(a,1,1);
+  B = gen_1; a = RgM_gtofp(a, LOWDEFAULTPREC);
+  for (i = 1; i <= n; i++) B = gmul(B, gnorml2(gel(a,i)));
+  return gerepileuptoint(av, ceil_safe(sqrtr_abs(B)));
+}
+
 GEN
 ZM_inv_worker(GEN P, GEN A)
 {
@@ -3643,16 +3656,16 @@ static GEN
 ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
 {
   pari_sp av = avma;
-  long m = lg(A)-1;
-  GEN bnd, d, H, D, mod, worker;
+  long B, m = lg(A)-1;
+  GEN d, H, D, mod, worker;
   if (m == 0)
   {
     if (pt_den) *pt_den = gen_1;
     return cgetg(1, t_MAT);
   }
-  bnd = mulii(mpfact(m-1), gpowgs(gsupnorm(A, DEFAULTPREC),m-1));
+  B = expi(RgM_true_Hadamard(A));
   worker = strtoclosure("_ZM_inv_worker", 1, A);
-  H = gen_crt("ZM_inv", worker, dA, expi(bnd), m, &mod, nmV_chinese_center, FpM_center);
+  H = gen_crt("ZM_inv", worker, dA, B, m, &mod, nmV_chinese_center, FpM_center);
   D = ZMrow_ZC_mul(A, gel(H,1), 1);
   d = gcdii(Q_content_safe(H), D);
   if (signe(D) < 0) d = negi(d);
