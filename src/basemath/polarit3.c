@@ -983,26 +983,25 @@ primelist_disc(ulong *p, long n, GEN dB)
   return P;
 }
 
-GEN
-gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod,
-        GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN))
+void
+gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
+           ulong *p, GEN *pt_H, GEN *pt_mod, GEN crt(GEN, GEN, GEN*),
+           GEN center(GEN, GEN, GEN))
 {
   pari_sp av = avma;
-  ulong p;
-  long n, m;
+  long m;
   GEN  H, P, mod;
   pari_timer ti;
-  bound++; /* +1 to account for sign */
-  n = get_nbprimes(bound, &p);
+  if (!*p) (void) get_nbprimes(1, p);
   m = minss(mmin, n);
   if (DEBUGLEVEL > 4) timer_start(&ti);
   if (m == 1)
   {
-    GEN P = primelist_disc(&p, n, dB);
+    GEN P = primelist_disc(p, n, dB);
     GEN done = closure_callgen1(worker, P);
     H = gel(done,1);
     mod = gel(done,2);
-    if (center) H = center(H, mod, shifti(mod,-1));
+    if (!*pt_H && center) H = center(H, mod, shifti(mod,-1));
     if (DEBUGLEVEL>4) timer_printf(&ti,"%s: modular", str);
   }
   else
@@ -1011,13 +1010,13 @@ gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod
     struct pari_mt pt;
     long pending;
     if (DEBUGLEVEL > 4)
-      err_printf("%s: bound 2^%ld, nb primes: %ld\n",str, bound, n);
+      err_printf("%s: nb primes: %ld\n",str, n);
     H = cgetg(m+1, t_VEC); P = cgetg(m+1, t_VEC);
     mt_queue_start_lim(&pt, worker, m);
     for (i=1; i<=m || pending; i++)
     {
       GEN done;
-      GEN pr = i <= m ? mkvec(primelist_disc(&p, i<=r ? s: s-1, dB)): NULL;
+      GEN pr = i <= m ? mkvec(primelist_disc(p, i<=r ? s: s-1, dB)): NULL;
       mt_queue_submit(&pt, i, pr);
       done = mt_queue_get(&pt, NULL, &pending);
       if (done)
@@ -1034,19 +1033,26 @@ gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod
     H = crt(H, P, &mod);
     if (DEBUGLEVEL>4) timer_printf(&ti,"%s: chinese", str);
   }
+  if (*pt_H)
+    H = crt(mkvec2(*pt_H, H), mkvec2(*pt_mod, mod), &mod);
+  *pt_H = H;
+  *pt_mod = mod;
+  gerepileall(av, 2, pt_H, pt_mod);
+}
+
+GEN
+gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod,
+        GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN))
+{
+  ulong p = 0;
+  GEN mod = gen_1, H = NULL;
+  bound++;
   while ((ulong)expi(mod) < bound)
   {
-    long s = get_nbprimes(bound-expi(mod), NULL);
-    GEN P, done, Hi, modi;
-    if (DEBUGLEVEL > 4) err_printf("%s: need %ld extra primes\n",str, s);
-    P = primelist_disc(&p, s, dB);
-    done = closure_callgen1(worker, P);
-    Hi = gel(done,1); modi = gel(done,2);
-    H = crt(mkvec2(H, Hi), mkvec2(mod, modi), &mod);
-    if (DEBUGLEVEL>4) timer_printf(&ti,"%s: extra primes", str);
+    long n = get_nbprimes(bound-expi(mod), NULL);
+    gen_inccrt(str, worker, dB, n, mmin, &p, &H, &mod, crt, center);
   }
   if (pt_mod) *pt_mod = mod;
-  gerepileall(av, pt_mod? 2: 1, &H, pt_mod);
   return H;
 }
 
