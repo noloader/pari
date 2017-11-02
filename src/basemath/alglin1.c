@@ -3167,44 +3167,107 @@ QM_inv(GEN M)
 }
 
 static GEN
-ZM_ker_i(GEN M, long fl)
+ZM_ker_filter(GEN A, GEN P)
 {
-  pari_sp av2, av = avma;
-  GEN q, H, D;
-  forprime_t S;
-  av2 = avma;
-  H = NULL; D = NULL;
-  if (lg(M)==1) return cgetg(1, t_MAT);
-  init_modular_big(&S);
-  for(;;)
+  long i, j, l = lg(A), n = 1, d = lg(gmael(A,1,1));
+  GEN B, Q, D = gmael(A,1,2);
+  for (i=2; i<l; i++)
   {
-    GEN Kp, Hp, Dp, Mp, Hr, B;
-    ulong p = u_forprime_next(&S);
-    Mp = ZM_to_Flm(M, p);
-    Kp = Flm_ker_sp(Mp, p, 2);
-    Hp = gel(Kp,1); Dp = gel(Kp,2);
-    if (H && (lg(Hp)>lg(H) || (lg(Hp)==lg(H) && vecsmall_lexcmp(Dp,D)>0))) continue;
-    if (!H || (lg(Hp)<lg(H) || vecsmall_lexcmp(Dp,D)<0))
+    GEN Di = gmael(A,i,2);
+    long di = lg(gmael(A,i,1));
+    int c = vecsmall_lexcmp(D, Di);
+    if (di==d && c==0) n++;
+    else if (d > di || (di==d && c>0))
+    { n=1; d = di; D = Di; }
+  }
+  B = cgetg(n+1, t_VEC);
+  Q = cgetg(n+1, typ(P));
+  for (i=1, j=1; i<l; i++)
+  {
+    if (lg(gmael(A,i,1))==d &&  vecsmall_lexcmp(D, gmael(A,i,2))==0)
     {
-      H = ZM_init_CRT(Hp, p); D = Dp;
-      q = utoipos(p);
+      gel(B,j) = gmael(A,i,1);
+      Q[j] = P[i];
+      j++;
     }
-    else
-      ZM_incremental_CRT(&H, Hp, &q, p);
-    B = sqrti(shifti(q,-1));
-    Hr = FpM_ratlift(H, q, B, B, NULL);
-    if (DEBUGLEVEL>5) err_printf("ZM_ker mod %lu (ratlift=%ld)\n", p,!!Hr);
+  }
+  return mkvec3(B,Q,D);
+}
+
+static GEN
+ZM_ker_chinese(GEN A, GEN P, GEN *mod)
+{
+  GEN BQD = ZM_ker_filter(A, P);
+  return mkvec2(nmV_chinese_center(gel(BQD,1), gel(BQD,2), mod), gel(BQD,3));
+}
+
+static GEN
+ZM_ker_slice(GEN A, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1;
+  GEN BQD, D, H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN K = Flm_ker_sp(ZM_to_Flm(A, p), p, 2);
+    *mod = utoi(p);
+    return mkvec2(Flm_to_ZM(gel(K,1)), gel(K,2));
+  }
+  T = ZV_producttree(P);
+  A = ZM_nv_mod_tree(A, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1 ; i <= n; i++)
+    gel(H,i) = Flm_ker_sp(gel(A, i), P[i], 2);
+  BQD = ZM_ker_filter(H, P);
+  H = nmV_chinese_center_tree_seq(gel(BQD,1), gel(BQD,2), T, ZV_chinesetree(P,T));
+  *mod = gmael(T, lg(T)-1, 1);
+  D = gel(BQD, 3);
+  gerepileall(av, 3, &H, &D, mod);
+  return mkvec2(H,D);
+}
+
+GEN
+ZM_ker_worker(GEN P, GEN A)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZM_ker_slice(A, P, &gel(V,2));
+  return V;
+}
+
+static GEN
+ZM_ker_i(GEN A, long fl)
+{
+  pari_sp av = avma, av2;
+  long k, m = lg(A)-1;
+  GEN HD = NULL, mod = gen_1, worker;
+  forprime_t S;
+  if (m==0) return cgetg(1, t_MAT);
+  init_modular_big(&S);
+  worker = strtoclosure("_ZM_ker_worker", 1, A);
+  av2 = avma;
+  for (k = 1; ;k *= 2)
+  {
+    pari_timer ti;
+    GEN H, B, Hr;
+    gen_inccrt("ZM_ker", worker, NULL, (k+1)>>1 , m, &S, &HD, &mod, ZM_ker_chinese, NULL);
+    H = gel(HD, 1);
+    B = sqrti(shifti(mod,-1));
+    if (DEBUGLEVEL >= 4) timer_start(&ti);
+    Hr = FpM_ratlift(H, mod, B, B, NULL);
+    if (DEBUGLEVEL >= 4) timer_printf(&ti,"ZM_ker: ratlift (%ld)",!!Hr);
     if (Hr) {/* DONE ? */
-      GEN MH = QM_mul(M, Hr);
-      if (gequal0(MH)) { H = fl ? vec_Q_primpart(Hr): Hr;  break; }
+      GEN MH = QM_mul(A, Hr);
+      if (DEBUGLEVEL >= 4) timer_printf(&ti,"ZM_ker: QM_mul");
+      if (gequal0(MH))
+        return gerepilecopy(av, fl ? vec_Q_primpart(Hr): Hr);
     }
     if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ZM_ker");
-      gerepileall(av2, 3, &H, &D, &q);
+      gerepileall(av2, 2, &HD, &mod);
     }
   }
-  return gerepilecopy(av, H);
 }
 
 GEN
