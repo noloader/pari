@@ -2875,9 +2875,11 @@ polint_chinese(GEN worker, GEN mA, GEN P)
   struct pari_mt pt;
   GEN done, va, M;
   GEN A = cgetg(n, t_VEC);
+  pari_timer ti;
   va = mkvec(gen_0);
   M = cgetg(l, t_MAT);
-  if (DEBUGLEVEL>2) err_printf("Start parallel Chinese remainder: ");
+  if (DEBUGLEVEL>4) timer_start(&ti);
+  if (DEBUGLEVEL>5) err_printf("Start parallel Chinese remainder: ");
   mt_queue_start_lim(&pt, worker, l-1);
   for (i=1; i<l || pending; i++)
   {
@@ -2888,10 +2890,11 @@ polint_chinese(GEN worker, GEN mA, GEN P)
     if (done)
     {
       gel(M,workid) = done;
-      if (DEBUGLEVEL>2) err_printf("%ld%% ",(++cnt)*100/(l-1));
+      if (DEBUGLEVEL>5) err_printf("%ld%% ",(++cnt)*100/(l-1));
     }
   }
-  if (DEBUGLEVEL>2) err_printf("\n");
+  if (DEBUGLEVEL>5) err_printf("\n");
+  if (DEBUGLEVEL>4) timer_printf(&ti, "nmV_chinese_center");
   mt_queue_end(&pt);
   return M;
 }
