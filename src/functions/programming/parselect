@@ -9,3 +9,9 @@ Doc: selects elements of $A$ according to the selection function $f$, done in
  parallel.  If \fl is $1$, return the indices of those elements (indirect
  selection) The function \kbd{f} must not access global variables or
  variables declared with local(), and must be free of side effects.
+
+Function: _parselect_worker
+Section: programming/internals
+C-Name: parselect_worker
+Prototype: GG
+Help: _parselect_worker(d,C): evaluate the boolean closure C on d.

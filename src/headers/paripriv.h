@@ -145,6 +145,7 @@ void mt_init_stack(size_t s);
 int  mt_is_thread(void);
 GEN  parapply_worker(GEN d, GEN code);
 GEN  pareval_worker(GEN code);
+GEN  parselect_worker(GEN d, GEN code);
 void parfor0(GEN a, GEN b, GEN code, GEN code2);
 GEN  parfor_worker(GEN i, GEN C);
 void parforprime0(GEN a, GEN b, GEN code, GEN code2);
