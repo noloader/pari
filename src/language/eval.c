@@ -1617,24 +1617,14 @@ GEN
 pareval(GEN C)
 {
   pari_sp av = avma;
-  long l = lg(C), i, pending = 0, workid;
-  struct pari_mt pt;
-  GEN worker, V, done;
+  long l = lg(C), i;
+  GEN worker;
   if (!is_vec_t(typ(C))) pari_err_TYPE("pareval",C);
   for (i=1; i<l; i++)
     if (typ(gel(C,i))!=t_CLOSURE)
       pari_err_TYPE("pareval",gel(C,i));
   worker = snm_closure(is_entry("_pareval_worker"), NULL);
-  V = cgetg(l, t_VEC);
-  mt_queue_start_lim(&pt, worker, l-1);
-  for (i=1; i<l || pending; i++)
-  {
-    mt_queue_submit(&pt, i, i<l? mkvec(gel(C,i)): NULL);
-    done = mt_queue_get(&pt, &workid, &pending);
-    if (done) gel(V,workid) = done;
-  }
-  mt_queue_end(&pt);
-  return gerepilecopy(av, V);
+  return gerepileupto(av, gen_parapply(worker, C));
 }
 
 GEN

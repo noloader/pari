@@ -764,25 +764,34 @@ parapply_worker(GEN d, GEN C)
 }
 
 GEN
-parapply(GEN C, GEN D)
+gen_parapply(GEN worker, GEN D)
 {
-  pari_sp av = avma;
-  long l = lg(D), i, pending = 0, workid;
-  GEN V, worker, done;
+  long l, i, pending = 0, workid;
+  GEN V, W, done;
   struct pari_mt pt;
-  check_callgen1(C, "parapply");
-  if (!is_vec_t(typ(D))) pari_err_TYPE("parapply",D);
-  worker = strtoclosure("_parapply_worker", 1, C);
-  V = cgetg(l, typ(D));
+  W = cgetg(2, t_VEC);
+  V = cgetg_copy(D, &l);
   mt_queue_start_lim(&pt, worker, l-1);
   for (i=1; i<l || pending; i++)
   {
-    mt_queue_submit(&pt, i, i<l? mkvec(gel(D,i)): NULL);
+    if (i<l) gel(W,1) = gel(D,i);
+    mt_queue_submit(&pt, i, i<l? W: NULL);
     done = mt_queue_get(&pt, &workid, &pending);
     if (done) gel(V,workid) = done;
   }
   mt_queue_end(&pt);
-  return gerepilecopy(av, V);
+  return V;
+}
+
+GEN
+parapply(GEN C, GEN D)
+{
+  pari_sp av = avma;
+  GEN worker;
+  check_callgen1(C, "parapply");
+  if (!is_vec_t(typ(D))) pari_err_TYPE("parapply",D);
+  worker = strtoclosure("_parapply_worker", 1, C);
+  return gerepileupto(av, gen_parapply(worker, D));
 }
 
 GEN
