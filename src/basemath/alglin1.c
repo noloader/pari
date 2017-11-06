@@ -581,7 +581,7 @@ static GEN
 Flm_rsolve_upper(GEN U, GEN B, ulong p)
 {
   long n = lg(U) - 1, n1;
-  GEN U1, U2, U11, U12, U22, B1, B2, X1, X2, X;
+  GEN U2, U11, U12, U22, B1, B2, X1, X2, X;
   pari_sp av = avma;
 
   if (n == 0) return B;
