@@ -113,27 +113,28 @@ BA   81- setrand(2);polclass(-5032,27) -> wrong result
 PB   86- subst(Mod(1/z, y), z, x) -> wrong answer [#1949]
      87- subst(1+x^2+O(x^3),x,y) -> 1 + y^2 + O(y^4) [#1950]
 BA   88- [pthread] thread stacks could silently overflow
-BA   89- iferr(1/0,E,1,break()) -> SEGV
-     90- missing reduction in mathnfmodid(M, t_INT)
-     91- missing roots in nfroots (when r2>0) [#1956,#1957]
-BA   92- factormod(...,p,1) was incorrect for large p
-BA   93- foo = vectorsmall(1);for(i=1,1, foo[1]); -> error [#1958]
-BA   94- v=Vecsmall([2]); Fl_neg(v[1],3) when Fl_neg is installed [#1958]
-     95- fincke_pohst with stockmax = -1 and non-zero CHECK (infinite
+XR   89- padicfields(3,6) -> FPE [#1947]
+BA   90- iferr(1/0,E,1,break()) -> SEGV
+     91- missing reduction in mathnfmodid(M, t_INT)
+     92- missing roots in nfroots (when r2>0) [#1956,#1957]
+BA   93- factormod(...,p,1) was incorrect for large p
+BA   94- foo = vectorsmall(1);for(i=1,1, foo[1]); -> error [#1958]
+BA   95- v=Vecsmall([2]); Fl_neg(v[1],3) when Fl_neg is installed [#1958]
+     96- fincke_pohst with stockmax = -1 and non-zero CHECK (infinite
          capacity + selection criterion) could lose some vectors
          Affected polredabs [#1963]
-     96- ellwp(,,1) returned \wp'/2 instead of \wp'
-     97- inaccuracy in ellL1 / ellanalyticrank (usually last digit)
-     98- nffactor factors could be non-monic [#1967]
-     99- bestapprPade(,explicit B): wrong result [#1946]
-    100- bestappr(Mod(10,307), 40) -> 10 (instead of 3/31)
-    101- mathnf([x;1]) -> SEGV [#1971]
-BA  102- ispower((x^3+ffgen([2^127-1,3])*x+1)^2,2,&r);r was wrong [#1976]
-    103- factorpadic(3*x+O(2^5),2,5) -> division by 0 [#1982]
-    104- vecmax(Vecsmall()) -> some random value [#1983]
-    105- SEGV in install() when bad prototype supplied [#1977]
-    106- ellzeta(., real number) possibly wrong result [#1981]
-BA  107- sqrtn(Mod(9, 101), -2) -> wrong result
+     97- ellwp(,,1) returned \wp'/2 instead of \wp'
+     98- inaccuracy in ellL1 / ellanalyticrank (usually last digit)
+     99- nffactor factors could be non-monic [#1967]
+    100- bestapprPade(,explicit B): wrong result [#1946]
+    101- bestappr(Mod(10,307), 40) -> 10 (instead of 3/31)
+    102- mathnf([x;1]) -> SEGV [#1971]
+BA  103- ispower((x^3+ffgen([2^127-1,3])*x+1)^2,2,&r);r was wrong [#1976]
+    104- factorpadic(3*x+O(2^5),2,5) -> division by 0 [#1982]
+    105- vecmax(Vecsmall()) -> some random value [#1983]
+    106- SEGV in install() when bad prototype supplied [#1977]
+    107- ellzeta(., real number) possibly wrong result [#1981]
+BA  108- sqrtn(Mod(9, 101), -2) -> wrong result
 
   Added
       1- [libari] ZM_isidentity
