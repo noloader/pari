@@ -2493,7 +2493,7 @@ polredabs0(GEN x, long flag)
     {
       if (flag & nf_ORIG)
       {
-        if (ZX_canon_neg(gel(y,i))) gel(a,i) = ZX_neg(gel(a,i));
+        if (ZX_canon_neg(gel(y,i))) gel(a,i) = ZC_neg(gel(a,i));
       }
       else
         (void)ZX_canon_neg(gel(y,i));
