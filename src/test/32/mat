@@ -497,4 +497,12 @@ Vecsmall([2, 2, 0, -4, -10])
 [;]
 [;]
   ***   Warning: new stack size = 8000000 (7.629 Mbytes).
-Total time spent: 352
+
+[ -2    1 0]
+
+[3/2 -1/2 0]
+
+  ***   at top-level: [1,2,3;4,5,6]^-1
+  ***                              ^---
+  *** _^_: impossible inverse in ginv: [1, 2, 3; 4, 5, 6].
+Total time spent: 884

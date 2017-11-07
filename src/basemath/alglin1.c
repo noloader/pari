@@ -2624,6 +2624,7 @@ RgM_inv_QM(GEN M)
   pari_sp av = avma;
   GEN den, cM, pM = Q_primitive_part(M, &cM);
   GEN b = ZM_inv_bnd(pM, NULL, &den);
+  if (!b) { avma = av; return NULL; }
   if (cM) den = gmul(den, cM);
   if (!gequal1(den)) b = ZM_Q_mul(b, ginv(den));
   return gerepileupto(av, b);
@@ -3563,14 +3564,14 @@ static GEN
 ZM_inv_slice(GEN A, GEN P, GEN *mod)
 {
   pari_sp av = avma;
-  long i, n = lg(P)-1, discard=0;
+  long i, n = lg(P)-1, discard=0, m = lg(A)-1;
   GEN H, T;
   if (n == 1)
   {
     ulong p = uel(P,1), d;
     GEN Hp, a = ZM_to_Flm(A, p);
     Hp = Flm_inv_sp(a, &d, p);
-    if (!Hp) { p = 1; Hp = zero_Flm(nbrows(a), nbrows(a)); }
+    if (!Hp) { p = 1; Hp = zero_Flm(m, m); }
     else if (d!=1) Hp = Flm_Fl_mul(Hp, d, p);
     Hp = gerepileupto(av, Flm_to_ZM(Hp));
     *mod = utoi(p); return Hp;
@@ -3583,7 +3584,7 @@ ZM_inv_slice(GEN A, GEN P, GEN *mod)
     ulong p = P[i], d;
     GEN Hp, a = gel(A,i);
     Hp = Flm_inv_sp(a, &d, p);
-    if (!Hp) { discard=1; P[i] = 1; Hp = zero_Flm(nbrows(a), nbrows(a)); }
+    if (!Hp) { discard=1; P[i] = 1; Hp = zero_Flm(m, m); }
     else if (d!=1) Hp = Flm_Fl_mul(Hp, d, p);
     gel(H,i) = Hp;
   }
@@ -3626,6 +3627,7 @@ ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
     if (pt_den) *pt_den = gen_1;
     return cgetg(1, t_MAT);
   }
+  if (nbrows(A) < m) return NULL;
   B = expi(RgM_true_Hadamard(A));
   worker = strtoclosure("_ZM_inv_worker", 1, A);
   H = gen_crt("ZM_inv", worker, dA, B, m, &mod, nmV_chinese_center, FpM_center);
@@ -3649,7 +3651,7 @@ ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
     gerepileall(av, 2, &H, &D);
     *pt_den = D; return H;
   }
-  return gerepileupto(av, H);
+  return gerepilecopy(av, H);
 }
 
 /* M integral, dM such that M' = dM M^-1 is integral [e.g det(M)]. Return M' */
@@ -3711,9 +3713,11 @@ GEN
 QM_inv(GEN M, GEN dM)
 {
   pari_sp av = avma;
-  GEN cM, pM = Q_primitive_part(M, &cM);
+  GEN cM, pM = Q_primitive_part(M, &cM), K;
   if (!cM) return ZM_inv(pM,dM);
-  return gerepileupto(av, ZM_inv(pM, gdiv(dM,cM)));
+  K = ZM_inv(pM, gdiv(dM,cM));
+  if (!K) { avma = av; return NULL; }
+  return gerepileupto(av, K);
 }
 
 static GEN
