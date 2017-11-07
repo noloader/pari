@@ -392,7 +392,7 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   GEN Vga = ldata_get_gammavec(ldata);
   long d = lg(Vga)-1;
   long k1 = ldata_get_k1(ldata);
-  double c = d/2., a, A, B, logC, al, rho;
+  double c = d/2., a, A, B, logC, al, rho, T;
   double N = gtodouble(ldata_get_conductor(ldata));
 
   if (!N) pari_err_TYPE("lfunthetaneed [missing conductor]", ldata);
@@ -411,15 +411,15 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   B = LOG2*bitprec+logC+m*log(2*M_PI) + 1 + (k1+1)*log(N)/2 - (k1+m+1)*log(rho);
   if (al)
   { /* t = rho e^(i*al), T^(1/c) = Re(t^(1/c)) > 0, T = rho cos^c(al/c) */
-    double z = cos(al/c), T = rho*pow(z,c);
+    double z = cos(al/c);
+    T = rho*pow(z,c);
     if (z <= 0)
       pari_err_DOMAIN("lfunthetaneed", "arg t", ">", dbltor(c*M_PI/2), tdom);
     B -= log(z) * (c * (k1+A+1) + m);
-    B = dbllemma526(a, M_PI*d*z, c, B) / T;
   }
   else
-    B = dblcoro526(a,c,B) / rho;
-  return ceil(B * sqrt(N));
+    T = rho;
+  return ceil(dblcoro526(a,c,B) / T * sqrt(N));
 }
 long
 lfunthetacost0(GEN L, GEN tdom, long m, long bitprec)
