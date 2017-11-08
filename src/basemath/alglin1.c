@@ -3209,22 +3209,28 @@ Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
 }
 
 static GEN
-Flm_gauss_CUP(GEN a, GEN b, ulong *detp, ulong p) {
-  GEN R, C, U, P, X, Y;
-  long i, n = lg(a) - 1, r;
-  if (nbrows(a) < n || (r = Flm_CUP(a, &R, &C, &U, &P, p)) < n)
-    return NULL;
-  Y = Flm_rsolve_lower_unit(rowpermute(C, R),
-                            rowpermute(b, R), p);
-  X = rowpermute(Flm_rsolve_upper(U, Y, p),
-                 perm_inv(P));
-  if (detp) {
+Flm_gauss_from_CUP(GEN b, GEN R, GEN C, GEN U, GEN P, ulong p, ulong *detp)
+{
+  GEN Y = Flm_rsolve_lower_unit(rowpermute(C, R), rowpermute(b, R), p);
+  GEN X = rowpermute(Flm_rsolve_upper(U, Y, p), perm_inv(P));
+  if (detp)
+  {
     ulong d = perm_sign(P) == 1? 1: p-1;
-    for (i = 1; i <= r; i++)
+    long i, r = lg(R);
+    for (i = 1; i < r; i++)
       d = Fl_mul(d, ucoeff(U, i, i), p);
     *detp = d;
   }
   return X;
+}
+
+static GEN
+Flm_gauss_CUP(GEN a, GEN b, ulong *detp, ulong p) {
+  GEN R, C, U, P;
+  long n = lg(a) - 1, r;
+  if (nbrows(a) < n || (r = Flm_CUP(a, &R, &C, &U, &P, p)) < n)
+    return NULL;
+  return Flm_gauss_from_CUP(b, R, C, U, P, p, detp);
 }
 
 GEN
@@ -3277,6 +3283,41 @@ Flm_Flc_gauss(GEN a, GEN b, ulong p) {
   if (!z) { avma = av; return NULL; }
   if (lg(z) == 1) { avma = av; return cgetg(1,t_VECSMALL); }
   return gerepileuptoleaf(av, gel(z,1));
+}
+
+GEN
+Flm_adjoint(GEN A, ulong p)
+{
+  pari_sp av = avma;
+  GEN R, C, U, P, C1, U1, v, c, d;
+  long i, q, n = lg(A)-1, m;
+  ulong r, D;
+  if (n == 0) return cgetg(1, t_MAT);
+  r = Flm_CUP(A, &R, &C, &U, &P, p);
+  m = nbrows(A);
+  if (r == n)
+  {
+    GEN X = Flm_gauss_from_CUP(matid_Flm(m), R, C, U, P, p, &D);
+    return gerepileupto(av, Flm_Fl_mul(X, D, p));
+  }
+  if (r < n-1) return zeromat(m, m);
+  for (q = m, i = 1; i < m; i++)
+   if (R[i] != i) { q = i; break; }
+  C1 = matslice(C, 1, q-1, 1, q-1);
+  c = vecslice(Flm_row(C, q), 1, q-1);
+  c = Flm_lsolve_lower_unit(C1, Flm_transpose(mkmat(c)), p);
+  d = cgetg(n+1, t_VECSMALL);
+  for (i=1; i<q; i++)    uel(d,i) = ucoeff(c,1,i);
+  uel(d,q) = p-1;
+  for (i=q+1; i<=n; i++) uel(d,i) = 0;
+  U1 = vecslice(U, 1, n-1);
+  v = gel(Flm_rsolve_upper(U1, mkmat(gel(U,n)), p),1);
+  v = vecsmall_append(v, p-1);
+  D = perm_sign(P) != (odd(q+n)?-1:1) ? p-1 : 1;
+  for (i = 1; i <= n-1; i++)
+    D = Fl_mul(D, ucoeff(U1, i, i), p);
+  d = Flv_Fl_mul(d, D, p);
+  return rowpermute(Flc_Flv_mul(v, d, p),perm_inv(P));
 }
 
 static GEN

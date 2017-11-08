@@ -1455,6 +1455,7 @@ long    F2xqM_rank(GEN x, GEN T);
 GEN     F2xqM_suppl(GEN x, GEN T);
 GEN     Flm_Flc_gauss(GEN a, GEN b, ulong p);
 GEN     Flm_Flc_invimage(GEN mat, GEN y, ulong p);
+GEN     Flm_adjoint(GEN A, ulong p);
 GEN     Flm_deplin(GEN x, ulong p);
 ulong   Flm_det(GEN x, ulong p);
 ulong   Flm_det_sp(GEN x, ulong p);
