@@ -367,6 +367,8 @@ BA   44-[libpari] rename {FpXQXQ,FlxqXQ,F2xqXQ}V_aut{sum,trace,pow} to
                          {FpXQXQ,FlxqXQ,F2xqXQ}_aut{sum,trace,pow}
 BA   45-[libpari] FpXQXQ_auttrace now identical to FpXQ_auttrace
 BA   46-[libpari] RgX_type now only handles polynomials.
+     47-log: change threshold between Taylor / AGM when x close to a power
+        of 2 [#1934]
 
   Removed
       1- file 'MACHINES' (no longer maintained)

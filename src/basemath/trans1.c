@@ -2684,15 +2684,15 @@ constlog2(long prec)
 GEN
 mplog2(long prec) { return rtor(constlog2(prec), prec); }
 
+/* dont check that q != 2^expo(q), done in logr_abs */
 static GEN
 logagmr_abs(GEN q)
 {
-  long prec = realprec(q), lim, e = expo(q);
-  GEN z, y, Q, _4ovQ;
-  pari_sp av;
+  long prec = realprec(q), e = expo(q), lim;
+  GEN z = cgetr(prec), y, Q, _4ovQ;
+  pari_sp av = avma;
 
-  if (absrnz_equal2n(q)) return e? mulsr(e, mplog2(prec)): real_0(prec);
-  z = cgetr(prec); av = avma; incrprec(prec);
+  incrprec(prec);
   lim = prec2nbits(prec) >> 1;
   Q = rtor(q,prec);
   shiftr_inplace(Q,lim-e); setsigne(Q,1);
@@ -2713,8 +2713,6 @@ logr_abs(GEN X)
   ulong u;
   double d;
 
-  if (l > LOGAGM_LIMIT) return logagmr_abs(X);
-
  /* Assuming 1 < x < 2, we want delta = x-1, 1-x/2, 1-1/x, or 2/x-1 small.
   * We have 2/x-1 > 1-x/2, 1-1/x < x-1. So one should be choosing between
   * 1-1/x and 1-x/2 ( crossover sqrt(2), worse ~ 0.29 ). To avoid an inverse,
@@ -2730,9 +2728,14 @@ logr_abs(GEN X)
     while (!u && ++k < l) u = uel(X,k);
   }
   if (k == l) return EX? mulsr(EX, mplog2(l)): real_0(l);
+  a = prec2nbits(k) + bfffo(u); /* ~ -log2 |1-x| */
+  L = l+1;
+  b = prec2nbits(L - (k-2)); /* take loss of accuracy into account */
+  if (b > 24*a*log2(L) &&
+      prec2nbits(l) > prec2nbits(LOGAGM_LIMIT)) return logagmr_abs(X);
+
   z = cgetr(EX? l: l - (k-2)); ltop = avma;
 
-  a = prec2nbits(k) + bfffo(u); /* ~ -log2 |1-x| */
  /* Multiplication is quadratic in this range (l is small, otherwise we
   * use AGM). Set Y = x^(1/2^m), y = (Y - 1) / (Y + 1) and compute truncated
   * series sum y^(2k+1)/(2k+1): the costs is less than
@@ -2744,11 +2747,9 @@ logr_abs(GEN X)
   * or b/6e + BITS_IN_LONG/2e + BITS_IN_LONG/2be ~ m
   *    B := (b / 6 + BITS_IN_LONG/2 + BITS_IN_LONG^2 / 2b) ~ m(m+a)
   *     m = min( -a/2 + sqrt(a^2/4 + B),  b - a )
-  * NB: e ~ (b/6)^(1/2) as b -> oo */
-  L = l+1;
-  b = prec2nbits(L - (k-2)); /* take loss of accuracy into account */
-  /* instead of the above pessimistic estimate for the cost of the sum, use
-   * optimistic estimate (BITS_IN_LONG -> 0) */
+  * NB: e ~ (b/6)^(1/2) as b -> oo
+  * Instead of the above pessimistic estimate for the cost of the sum, use
+  * optimistic estimate (BITS_IN_LONG -> 0) */
   d = -a/2.; m = (long)(d + sqrt(d*d + b/6)); /* >= 0 */
 
   if (m > b-a) m = b-a;
