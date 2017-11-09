@@ -4190,6 +4190,10 @@ assuming $pi$ is the pseudo inverse of $p$.
 \fun{void}{Flv_inv_pre_inplace}{GEN x, ulong p, ulong pi} in place variant of
 \kbd{Flv\_inv}.
 
+\fun{GEN}{Flc_FpV_mul}{GEN x, GEN y, GEN p} multiplies $x$
+(seen as a column vector) by $y$ (seen as a row vector,
+assumed to have compatible dimensions) to obtain an \kbd{Flm}.
+
 \fun{GEN}{zero_Flm}{long m, long n} creates a \kbd{Flm} with \kbd{m} x \kbd{n}
 components set to $0$. Note that the result allocates a
 \emph{single} column, so modifying an entry in one column modifies it in

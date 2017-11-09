@@ -291,6 +291,7 @@ BA  114- [libpari] F2xqX_ispower, FlxqX_ispower, FpXQX_ispower, FFX_ispower,
                    QXQC_to_mod_shallow, QXQM_to_mod_shallow
 BA  115- [libpari] ZC_Q_mul, ZM_Q_mul, QM_mul, QM_det, QM_ker
 BA  116- [libpari] Fl_log, Fl_log_pre, Fl_sqrtn, Fl_sqrtn_pre
+BA  117- [libpari] Flc_Flv_mul
 
   Changed
       1- rewrite bnfnarrow

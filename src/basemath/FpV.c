@@ -868,6 +868,24 @@ FpM_powu(GEN x, ulong n, GEN p)
 
 /*Multiple a column vector by a line vector to make a matrix*/
 GEN
+Flc_Flv_mul(GEN x, GEN y, ulong p)
+{
+  long i,j, lx=lg(x), ly=lg(y);
+  GEN z;
+  if (ly==1) return cgetg(1,t_MAT);
+  z = cgetg(ly, t_MAT);
+  for (j=1; j < ly; j++)
+  {
+    GEN zj = cgetg(lx,t_VECSMALL);
+    for (i=1; i<lx; i++)
+      uel(zj,i) = Fl_mul(uel(x,i), uel(y,j), p);
+    gel(z,j) = zj;
+  }
+  return z;
+}
+
+/*Multiple a column vector by a line vector to make a matrix*/
+GEN
 FpC_FpV_mul(GEN x, GEN y, GEN p)
 {
   long i,j, lx=lg(x), ly=lg(y);

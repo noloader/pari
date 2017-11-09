@@ -786,6 +786,7 @@ GEN     random_FpXQX(long d1, long v, GEN T, GEN p);
 GEN     F2m_F2c_mul(GEN x, GEN y);
 GEN     F2m_mul(GEN x, GEN y);
 GEN     F2m_powu(GEN x, ulong n);
+GEN     Flc_Flv_mul(GEN x, GEN y, ulong p);
 GEN     Flc_to_mod(GEN z, ulong pp);
 GEN     Flm_Fl_add(GEN x, ulong y, ulong p);
 GEN     Flm_Fl_mul(GEN y, ulong x, ulong p);
