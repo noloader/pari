@@ -61,6 +61,38 @@ extern const long CATCH_ALL;
 #define pari_CATCH_reset() pari_CATCH2_reset(__iferr_old)
 #define pari_ENDCATCH pari_ENDCATCH2(__iferr_old)
 
+#define pari_APPLY_same(EXPR)\
+  { \
+    long i, _l; \
+    GEN _y = cgetg_copy(x, &_l);\
+    for (i=1; i<_l; i++) gel(_y,i) = EXPR;\
+    return _y;\
+  }
+
+#define pari_APPLY_type(TYPE, EXPR)\
+  { \
+    long i, _l = lg(x); \
+    GEN _y = cgetg(_l, TYPE);\
+    for (i=1; i<_l; i++) gel(_y,i) = EXPR;\
+    return _y;\
+  }
+
+#define pari_APPLY_long(EXPR)\
+  { \
+    long i, _l = lg(x); \
+    GEN _y = cgetg(_l, t_VECSMALL);\
+    for (i=1; i<_l; i++) _y[i] = EXPR;\
+    return _y;\
+  }
+
+#define pari_APPLY_ulong(EXPR)\
+  { \
+    long i, _l = lg(x); \
+    GEN _y = cgetg(_l, t_VECSMALL);\
+    for (i=1; i<_l; i++) ((ulong*)_y)[i] = EXPR;\
+    return _y;\
+  }
+
 extern const double LOG2, LOG10_2, LOG2_10;
 #ifndef  M_PI
 #  define M_PI 3.14159265358979323846
