@@ -754,12 +754,6 @@ veccatselapply(void *Epred, long (*pred)(void* E, GEN x), void *Efun,
 }
 
 GEN
-parapply_worker(GEN d, GEN C)
-{
-  return closure_callgen1(C, d);
-}
-
-GEN
 gen_parapply(GEN worker, GEN D)
 {
   long l, i, pending = 0, workid;
@@ -783,11 +777,9 @@ GEN
 parapply(GEN C, GEN D)
 {
   pari_sp av = avma;
-  GEN worker;
   check_callgen1(C, "parapply");
   if (!is_vec_t(typ(D))) pari_err_TYPE("parapply",D);
-  worker = strtoclosure("_parapply_worker", 1, C);
-  return gerepileupto(av, gen_parapply(worker, D));
+  return gerepileupto(av, gen_parapply(C, D));
 }
 
 GEN
