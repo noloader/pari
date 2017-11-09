@@ -3291,8 +3291,8 @@ Flm_adjoint(GEN A, ulong p)
 {
   pari_sp av = avma;
   GEN R, C, U, P, C1, U1, v, c, d;
-  long i, q, n = lg(A)-1, m;
-  ulong r, D;
+  long r, i, q, n = lg(A)-1, m;
+  ulong D;
   if (n == 0) return cgetg(1, t_MAT);
   r = Flm_CUP(A, &R, &C, &U, &P, p);
   m = nbrows(A);
