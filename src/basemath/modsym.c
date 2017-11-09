@@ -199,20 +199,34 @@ SL2_inv(GEN M)
   GEN a=gcoeff(M,1,1), b=gcoeff(M,1,2), c=gcoeff(M,2,1), d=gcoeff(M,2,2);
   return mkmat22(d,negi(b), negi(c),a);
 }
-/* M a 2x2 zm in SL2(Z) */
+/* M a 2x2 mat2 in SL2(Z) */
 static GEN
 sl2_inv(GEN M)
 {
   long a=coeff(M,1,1), b=coeff(M,1,2), c=coeff(M,2,1), d=coeff(M,2,2);
   return mkvec2(mkvecsmall2(d, -c), mkvecsmall2(-b, a));
 }
-/* Return the zm [a,b; c,d] */
+/* Return the mat2 [a,b; c,d], not a zm to avoid GP problems */
 static GEN
 mat2(long a, long b, long c, long d)
 { return mkvec2(mkvecsmall2(a,c), mkvecsmall2(b,d)); }
+static GEN
+mat2_to_ZM(GEN M)
+{
+  GEN A = gel(M,1), B = gel(M,2);
+  retmkmat2(mkcol2s(A[1],A[2]), mkcol2s(B[1],B[2]));
+}
 
 /* Input: a = 2-vector = path = {r/s,x/y}
  * Output: either [r,x;s,y] or [-r,x;-s,y], whichever has determinant > 0 */
+static GEN
+path_to_ZM(GEN a)
+{
+  GEN v = gel(a,1), w = gel(a,2);
+  long r = v[1], s = v[2], x = w[1], y = w[2];
+  if (cmpii(mulss(r,y), mulss(x,s)) < 0) { r = -r; s = -s; }
+  return mkmat22(stoi(r),stoi(x),stoi(s),stoi(y));
+}
 static GEN
 path_to_zm(GEN a)
 {
@@ -246,8 +260,8 @@ gamma_equiv(GEN a, GEN b, ulong N)
 static GEN
 gamma_equiv_matrix(GEN a, GEN b)
 {
-  GEN m = zm_to_ZM( path_to_zm(a) );
-  GEN n = zm_to_ZM( path_to_zm(b) );
+  GEN m = path_to_ZM(a);
+  GEN n = path_to_ZM(b);
   return ZM_mul(m, SL2_inv(n));
 }
 
@@ -1063,7 +1077,7 @@ path_Gamma0N_decompose(GEN W, GEN path)
   GEN M = path_to_zm(path);
   long p1index = p1_index(cc(M), dd(M), p1N);
   long ind = p1index_to_ind[p1index];
-  GEN M0 = ZM_zm_mul(zm_to_ZM(M), sl2_inv(gel(section,p1index)));
+  GEN M0 = ZM_zm_mul(mat2_to_ZM(M), sl2_inv(gel(section,p1index)));
   return mkvec2(mkvecsmall(ind), M0);
 }
 
@@ -1494,7 +1508,7 @@ msinit_N(ulong N)
   vecT31 = hash_to_vec(T31);
   for (r = 1; r <= T31->nb; r++)
   {
-    GEN M = zm_to_ZM( path_to_zm( vecreverse(gel(vecT31,r)) ) );
+    GEN M = path_to_ZM( vecreverse(gel(vecT31,r)) );
     GEN gamma = ZM_mul(ZM_mul(M, TAU), SL2_inv(M));
     gel(annT31, r) = mkmat2(mkcol3(gen_1,gamma,ZM_sqr(gamma)),
                             mkcol3(gen_1,gen_1,gen_1));
@@ -1561,12 +1575,12 @@ RgX_powers(GEN T, long n)
   return v;
 }
 
-/* g = [a,b;c,d]. Return (X^{k-2} | g)(X,Y)[X = 1]. */
+/* g = [a,b;c,d] a mat2. Return (X^{k-2} | g)(X,Y)[X = 1]. */
 static GEN
 voo_act_Gl2Q(GEN g, long k)
 {
-  GEN c = gcoeff(g,2,1), d = gcoeff(g,2,2);
-  return RgX_to_RgC(gpowgs(deg1pol_shallow(gneg(c), d, 0), k-2), k-1);
+  GEN mc = stoi(-coeff(g,2,1)), d = stoi(coeff(g,2,2));
+  return RgX_to_RgC(gpowgs(deg1pol_shallow(mc, d, 0), k-2), k-1);
 }
 
 struct m_act {
@@ -2046,7 +2060,7 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
     for (k = 1; k < lv; k++)
     {
       GEN ind, L, F, tk, f = gel(v,k);
-      if (typ(gel(f,1)) == t_VECSMALL) F = zm_to_ZM(f);
+      if (typ(gel(f,1)) == t_VECSMALL) F = mat2_to_ZM(f);
       else { F = f; f = ZM_to_zm(F); }
       /* f zm = F ZM */
       L = M2_log(W1, Gl2Q_act_path(f,w)); /* L[i] = lambda_{i,j} */
@@ -2426,7 +2440,7 @@ get_Ec_r(GEN c, long k)
   GEN gr;
   (void)cbezout(p, q, &u, &v);
   gr = mat2(p, -v, q, u); /* g . (1:0) = (p:q) */
-  return voo_act_Gl2Q(zm_to_ZM(sl2_inv(gr)), k);
+  return voo_act_Gl2Q(sl2_inv(gr), k);
 }
 /* returns the modular symbol attached to the cusp c := p/q via the rule
  * E_c(path from a to b in Delta_0) := E_c(b) - E_c(a), where
