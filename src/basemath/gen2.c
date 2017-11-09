@@ -2610,6 +2610,12 @@ gexpo(GEN x)
   pari_err_TYPE("gexpo",x);
   return 0; /* LCOV_EXCL_LINE */
 }
+GEN
+gpexponent(GEN x)
+{
+  long e = gexpo(x);
+  return e == -(long)HIGHEXPOBIT? mkmoo(): stoi(e);
+}
 
 long
 sizedigit(GEN x)

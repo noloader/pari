@@ -35,3 +35,13 @@ if (sizebyte(0)==16,
 0e-1>1.
 0e-1>=1
 0e-1>=1.
+
+exponent(0)
+exponent(-1)
+exponent(1/2)
+exponent(2.0)
+exponent([-10,5,11])
+exponent([-10,5;11,16.0])
+exponent(2.*x - 1.)
+exponent(2.*x - 1. + O(x^2))
+exponent(quadgen(-15))
