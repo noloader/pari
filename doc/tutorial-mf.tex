@@ -1028,14 +1028,18 @@ if possible.
 
 The existence of the \kbd{mfslashexpansion} command allows us to do many
 useful things. In fact, already the \kbd{mfatkininit} and \kbd{mfatkin}
-commands would not be possible without it. An immediate application is the
-\kbd{mfcuspval} command which computes the valuation at cusps:
+commands would not be possible without it. Immediate applications are the
+\kbd{mfcuspval} command which computes the valuation at cusps, and the
+\kbd{mfeval} command, which in addition to computing values in the upper-half
+plane (see below), also computes values at the cusps:
 
 \begin{verbatim}
 ? T = mfTheta(); mf=mfinit(T);C=mfcusps(4)
 % = [0, 1/2, 1/4]
 ? apply(x->mfcuspval(mf,T,x),C)
 % = [0, 1/4, 0]
+? mfeval(mf,T,C) // Or apply(x->mfeval(mf,T,x),C)
+% = [1/2 - 1/2*I, 0, 1]
 \end{verbatim}
 
   More sophisticated is the computation of numerical periods, and more
@@ -1152,6 +1156,10 @@ $L$-function. We begin by a trivial example:
   $10^{-6}$ the value is still in the $10^5$ range, and at $10^{-7}$ it is
   in the $10^{-52}$ range. Of course it must eventually tend to $0$ since
   $F$ is a cusp form (for $E_4$ it would tend to infinity).
+\item When applying \kbd{mfeval} at a \emph{cusp} (as above), the result is
+  the value at the cusp, but is in general \emph{not} equal
+  to the limit of the value of the modular form when the argument tends to
+  the cusp, since this limit is often infinite for a non-cusp form.
 \end{enumerate}
 
 Note that when dealing with \emph{eigenforms}, which may have several
@@ -1163,6 +1171,27 @@ embedding:
 ? mfeval(mf,F,I)
 % = [0.0018695834459685012330841605500720163964, 0.0018618146628840767703527958851699552194]
 \end{verbatim}
+
+  More generally, this embedding problem affects all numerical functions.
+  Continuing the above example:
+
+\begin{verbatim}
+? mfparams(F)
+% = [23, 2, 1, y^2 - y - 1]
+? mfslashexpansion(mf,F,[0,-1;1,0],5)
+% = [0, -1/23, 1/23*y, -2/23*y + 1/23, -1/23*y + 1/23, 2/23*y]
+? mfpetersson(mf,F,F)
+% =
+[0.0039488965740025031688548076498662860143 1.2789721111175127425 E-40]
+
+[1.2630501762985554269 E-40 0.0056442542987647835101583821368582485396]
+\end{verbatim}
+
+  The $y$ in the second result is thus understood to be \emph{one} of
+  the roots of the polynomial $y^2-y-1$, and the result of \kbd{mfpetersson}
+  is a $2\times 2$ \emph{diagonal} matrix because of the two embeddings of $F$.
+
+  \smallskip
 
   The other important evaluation function is that of the $L$-function
   attached to a modular form. In fact, the modular form package only
@@ -1408,8 +1437,8 @@ any character argument is equal to \kbd{mfEk(k)} multiplied by $-B_k/(2k)$).
 so that $a(0)=1$, including for $k=2$.
 
 \kbd{mfeval(mf,F,vtau)}: evaluation of $F$ at the point \kbd{vtau} (or a
-vector of points) in the upper half-plane. If $F$ is an eigenform with several
-embeddings in $\C$, evaluate at each embedding.
+vector of points) in the completed upper half-plane. If $F$ is an eigenform
+with several embeddings in $\C$, evaluate at each embedding.
 
 \kbd{mffields(mf)}: \kbd{mf} being a new or cuspidal space, gives the list of
 relative polynomials defining the number field extensions for all the Galois
