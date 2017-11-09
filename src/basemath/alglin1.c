@@ -5052,8 +5052,8 @@ FlmV_recover(GEN a, GEN M, ulong p)
     GEN yi = cgetg(n, t_COL);
     for (j=1; j<n; j++)
     {
-      GEN v = cgetg(lM, t_COL);
-      for (k=1; k<lM; k++) gel(v,k) = gmael(gel(a,k),i,j);
+      GEN v = cgetg(lM, t_VECSMALL);
+      for (k=1; k<lM; k++) uel(v,k) = umael(gel(a,k),i,j);
       gel(yi, j) = Flm_Flc_mul(M, v, p);
     }
     gel(y,i) = yi;
@@ -5071,10 +5071,12 @@ FlkM_inv(GEN M, GEN P, ulong p)
   GEN V = cgetg(l, t_VEC);
   for(i=1; i<l; i++)
   {
-    gel(V, i) = Flm_inv_sp(FlxM_eval_powers_pre(M, Fl_powers_pre(uel(R,i), degpol(P), p, pi), p, pi), NULL, p);
-    if (!gel(V, i)) return NULL;
+    GEN pows = Fl_powers_pre(uel(R,i), degpol(P), p, pi);
+    GEN H = Flm_inv_sp(FlxM_eval_powers_pre(M, pows, p, pi), NULL, p);
+    if (!H) return NULL;
+    gel(V, i) = H;
   }
-  return FlmV_recover(V,W,p);
+  return FlmV_recover(V, W, p);
 }
 
 GEN
