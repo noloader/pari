@@ -134,7 +134,7 @@ CL_prime(GEN K, GEN ell, GEN Sell)
   D = ZM_snfall(R0, &U,NULL);
   D = RgM_diagonal_shallow(D);
   lD = lg(D);
-  u = ZM_inv(U, gen_1); settyp(u, t_VEC);
+  u = ZM_inv(U, NULL); settyp(u, t_VEC);
   for (i = 1; i < lD; i++) gel(u,i) = idealfactorback(K,g,gel(u,i),1);
   setlg(U0, l);
   U0 = rowslice(U0,1,lS-1); /* restrict to 'S' part */

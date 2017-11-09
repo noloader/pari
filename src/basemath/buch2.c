@@ -3258,7 +3258,7 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
 
   if (DEBUGLEVEL) timer_start(&T);
   D = ZM_snfall(W,&U,&V); /* UWV=D, D diagonal, G = g Ui (G=new gens, g=old) */
-  Ui = ZM_inv(U,gen_1);
+  Ui = ZM_inv(U, NULL);
   lo0 = lo = lg(D);
  /* we could set lo = lg(cyc) and truncate all matrices below
   *   setlg_col(D && U && Y, lo) + setlg(D && V && X && Ui, lo)

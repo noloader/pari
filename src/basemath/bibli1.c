@@ -1928,7 +1928,7 @@ fincke_pohst(GEN a, GEN B0, long stockmax, long PREC, FP_chk_fun *CHECK)
   if (lg(v) != lg(rinvtrans)) return NULL;
 
   rinvtrans = RgM_mul(rinvtrans, v);
-  v = ZM_inv(shallowtrans(v),gen_1);
+  v = ZM_inv(shallowtrans(v),NULL);
   r = RgM_mul(r,v);
   u = u? ZM_mul(u,v): v;
 

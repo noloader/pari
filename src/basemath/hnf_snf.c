@@ -2744,7 +2744,7 @@ snf_group(GEN H, GEN D, GEN *newU, GEN *newUi)
   }
   if (newUi && l > 1)
   { /* UHV=D -> U^-1 = (HV)D^-1 -> U^-1 = H(VD^-1 mod 1) mod H */
-    /* Ui = ZM_inv(U, gen_1); setlg(Ui, l); */
+    /* Ui = ZM_inv(U, NULL); setlg(Ui, l); */
     GEN V = *newUi, Ui;
     int Hvec = (typ(H) == t_VEC);
     for (i = 1; i < l; i++) gel(V,i) = FpC_red(gel(V,i), gel(D,i));

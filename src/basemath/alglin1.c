@@ -2615,15 +2615,12 @@ init_gauss(GEN a, GEN *b, long *aco, long *li, int *iscol)
 }
 
 static GEN Flm_inv_sp(GEN a, ulong *detp, ulong p);
-
-GEN ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den);
-
 static GEN
 RgM_inv_QM(GEN M)
 {
   pari_sp av = avma;
   GEN den, cM, pM = Q_primitive_part(M, &cM);
-  GEN b = ZM_inv_bnd(pM, NULL, &den);
+  GEN b = ZM_inv(pM, &den);
   if (!b) { avma = av; return NULL; }
   if (cM) den = gmul(den, cM);
   if (!gequal1(den)) b = ZM_Q_mul(b, ginv(den));
@@ -3607,7 +3604,7 @@ ZM_inv_worker(GEN P, GEN A)
 }
 
 GEN
-ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
+ZM_inv(GEN A, GEN *pt_den)
 {
   pari_sp av = avma;
   long B, m = lg(A)-1;
@@ -3620,8 +3617,8 @@ ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
   if (nbrows(A) < m) return NULL;
   B = expi(RgM_true_Hadamard(A));
   worker = strtoclosure("_ZM_inv_worker", 1, A);
-  H = gen_crt("ZM_inv", worker, dA, B, m, &mod, nmV_chinese_center, FpM_center);
-  D = ZMrow_ZC_mul(A, gel(H,1), 1);
+  H = gen_crt("ZM_inv", worker, NULL, B, m, &mod, nmV_chinese_center, FpM_center);
+  D = ZMrow_ZC_mul(A, gel(H,1), 1); /* det(A) */
   if (signe(D)==0) pari_err_INV("ZM_inv", A);
   d = gcdii(Q_content_safe(H), D);
   if (signe(D) < 0) d = negi(d);
@@ -3630,13 +3627,6 @@ ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
     H = ZM_Z_divexact(H, d);
     D = diviiexact(D, d);
   }
-  if (dA && !equalii(D, dA))
-  {
-    if (!dvdii(dA,D))
-      pari_err_BUG("ZM_inv_bnd (invalid denom)");
-    H = ZM_Z_mul(H, diviiexact(dA, D));
-    D = gcopy(dA);
-  }
   if (pt_den)
   {
     gerepileall(av, 2, &H, &D);
@@ -3644,11 +3634,6 @@ ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
   }
   return gerepilecopy(av, H);
 }
-
-/* M integral, dM such that M' = dM M^-1 is integral [e.g det(M)]. Return M' */
-GEN
-ZM_inv(GEN M, GEN dM)
-{ return ZM_inv_bnd(M, dM, NULL); }
 
 /* to be used when denom(M^(-1)) << det(M) and a sharp multiple is
  * not available. Return H primitive such that M*H = den*Id */
@@ -3701,13 +3686,15 @@ ZM_inv_ratlift(GEN M, GEN *pden)
 
 /* same as above, M rational */
 GEN
-QM_inv(GEN M, GEN dM)
+QM_inv(GEN M)
 {
   pari_sp av = avma;
-  GEN cM, pM = Q_primitive_part(M, &cM), K;
-  if (!cM) return ZM_inv(pM,dM);
-  K = ZM_inv(pM, gdiv(dM,cM));
+  GEN den, cM, K;
+  M = Q_primitive_part(M, &cM);
+  K = ZM_inv(M, &den);
   if (!K) { avma = av; return NULL; }
+  cM = inv_content(mul_content(cM, den));
+  if (cM) K = RgM_Rg_div(K, cM);
   return gerepileupto(av, K);
 }
 
@@ -5253,7 +5240,7 @@ ZM_pseudoinv(GEN M, GEN *pv, GEN *den)
   GEN v = ZM_indexrank(M);
   if (pv) *pv = v;
   M = shallowmatextract(M,gel(v,1),gel(v,2));
-  return ZM_inv_bnd(M, NULL, den);
+  return ZM_inv(M, den);
 }
 
 /*******************************************************************/

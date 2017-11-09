@@ -4227,7 +4227,7 @@ algleftordermodp(GEN al, GEN Ip, GEN p)
   p2 = sqri(p);
 
   I = ZM_hnfmodid(Ip, p);
-  Ii = ZM_inv(I,p);
+  Ii = ZM_inv(I,NULL);
 
   M = cgetg(n+1, t_MAT);
   for (i=1; i<=n; i++) {
@@ -4391,7 +4391,7 @@ alg_change_overorder_shallow(GEN al, GEN ord)
   long i, n;
   n = alg_get_absdim(al);
 
-  iord = QM_inv(ord,gen_1);
+  iord = QM_inv(ord);
   al2 = shallowcopy(al);
   ord = Q_remove_denom(ord,&den);
 

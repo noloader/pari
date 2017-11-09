@@ -1327,7 +1327,7 @@ bestlift_init(long a, GEN nf, GEN C, nflift_t *L)
   L->k = a;
   L->den = L->pk = pk;
   L->prk = PRK;
-  L->iprk = ZM_inv(PRK, pk);
+  L->iprk = ZM_inv(PRK, NULL);
   L->GSmin= GSmin;
   L->prkHNF = prk;
   init_proj(L, nf_get_pol(nf));

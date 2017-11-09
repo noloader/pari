@@ -1475,7 +1475,7 @@ qfisom_bestmat(GEN A, long *pt_max)
   max2 = zm_maxdiag(A2);
   if (max2 < max)
   {
-    *pt_max = max2; return mkvec2(ZM_to_zm(U),ZM_to_zm(ZM_inv(U, gen_1)));
+    *pt_max = max2; return mkvec2(ZM_to_zm(U),ZM_to_zm(ZM_inv(U,NULL)));
   } else
   {
     *pt_max = max; return NULL;

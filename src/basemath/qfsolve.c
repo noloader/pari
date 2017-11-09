@@ -46,7 +46,7 @@ completebasis(GEN Mv, long redflag)
   m = nbrows(Mv); /* m x n */
   if (m == n) return Mv;
   (void)ZM_hnfall_i(shallowtrans(Mv), &U, 0);
-  U = ZM_inv(shallowtrans(U), gen_1);
+  U = ZM_inv(shallowtrans(U),NULL);
   if (m==1 || !redflag) return U;
   /* LLL-reduce the m-n first columns */
   return shallowconcat(ZM_lll(vecslice(U,1,m-n), 0.99, LLL_INPLACE),

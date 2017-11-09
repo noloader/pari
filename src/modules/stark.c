@@ -194,7 +194,7 @@ ComputeLift(GEN Qt)
   e = EltsOfGroup(h, gel(Qt,2));
   if (!RgM_isidentity(U))
   {
-    GEN Ui = ZM_inv(U, gen_1);
+    GEN Ui = ZM_inv(U,NULL);
     for (i = 1; i <= h; i++) gel(e,i) = ZM_ZC_mul(Ui, gel(e,i));
   }
   return e;

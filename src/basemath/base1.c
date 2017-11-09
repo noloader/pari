@@ -1356,7 +1356,7 @@ GEN
 nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
 {
   GEN nf = cgetg(10,t_VEC);
-  GEN T = S->T, absdK, Tr, D, w, dw, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
+  GEN T = S->T, Tr, D, w, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
   long n = degpol(T);
   nffp_t F;
   nfmaxord_complete(S);
@@ -1370,20 +1370,16 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   gel(nf,4) = S->index;
   gel(nf,5) = mat;
   gel(nf,6) = F.ro;
-  w = S->basis; dw = gen_1;
-  if (!is_pm1(S->index)) w = Q_remove_denom(w, &dw);
+  w = S->basis;
+  if (!is_pm1(S->index)) w = Q_remove_denom(w, NULL);
   gel(nf,7) = w;
-  gel(nf,8) = ZM_inv(RgV_to_RgM(w,n), dw);
+  gel(nf,8) = ZM_inv(RgV_to_RgM(w,n), NULL);
   gel(nf,9) = nf_multable(S, nf_get_invzk(nf));
   gel(mat,1) = F.M;
   gel(mat,2) = F.G;
 
   Tr = get_Tr(gel(nf,9), T, S->basden);
-  absdK = S->dK; if (signe(absdK) < 0) absdK = negi(absdK);
-  TI = ZM_inv(Tr, absdK); /* dK T^-1 */
-  A = Q_primitive_part(TI, &dA);
-  gel(mat,6) = A; /* primitive part of codifferent, dA its content */
-  dA = dA? diviiexact(absdK, dA): absdK;
+  gel(mat,6) = A = ZM_inv(Tr, &dA); /* dA T^-1, primitive */
   A = ZM_hnfmodid(A, dA);
   /* CAVEAT: nf is not complete yet, but the fields needed for
    * idealtwoelt, zk_scalar_or_multable and idealinv are present ! */
@@ -1393,7 +1389,7 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   if (is_pm1(S->index)) /* principal ideal (T'), whose norm is |dK| */
   {
     D = zk_scalar_or_multable(nf, ZX_deriv(T));
-    if (typ(D) == t_MAT) D = ZM_hnfmod(D, absdK);
+    if (typ(D) == t_MAT) D = ZM_hnfmod(D, absi(S->dK));
   }
   else
     D = RgM_Rg_mul(idealinv(nf, A), dA);

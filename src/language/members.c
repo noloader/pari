@@ -259,12 +259,12 @@ member_diff(GEN x) /* different */
 GEN
 member_codiff(GEN x) /* codifferent */
 {
-  long t; GEN T, D, DinvT, nf = get_nf(x,&t), y = nfmats(nf);
+  long t;
+  GEN T, d, Di, nf = get_nf(x,&t), y = nfmats(nf);
   if (!y) member_err("codiff",x);
   T = gel(y,4);
-  D = absi(nf_get_disc(nf));
-  DinvT = ZM_inv(T,D);
-  return gdiv(ZM_hnfmodid(DinvT, D), D);
+  Di = ZM_inv(T, &d); if (!d) return matid(lg(Di)-1);
+  return RgM_Rg_div(ZM_hnfmodid(Di, d), d);
 }
 
 GEN

@@ -1284,7 +1284,7 @@ bnrchar_i(GEN bnr, GEN g, GEN v)
   U2 = ZM_diag_mul(cycD, U);
   if (v)
   {
-    GEN Ui = ZM_inv(U,gen_1); /* U^(-1) */
+    GEN Ui = ZM_inv(U, NULL);
     GEN Z = hnf_solve(H, ZM_mul_diag(Ui, D));
     v = ZV_ZM_mul(ZV_ZM_mul(v, Z), U2);
     dchi = mulii(dchi, dv);

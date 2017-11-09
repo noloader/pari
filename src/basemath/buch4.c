@@ -501,7 +501,7 @@ bnfsunit0(GEN bnf, GEN S, long flag, long prec)
     long l;
     ZV_snf_trunc(D); l = lg(D);
     card = ZV_prod(D);
-    A = cgetg(l, t_VEC); pow = ZM_inv(u,gen_1);
+    A = cgetg(l, t_VEC); pow = ZM_inv(u, NULL);
     for(i = 1; i < l; i++) gel(A,i) = idealfactorback(nf, gen, gel(pow,i), 1);
     gel(res,5) = mkvec3(card, D, A);
   }
@@ -540,7 +540,7 @@ bnfsunit0(GEN bnf, GEN S, long flag, long prec)
       v = gel(v,2); if (flag == nf_GEN) v = nf_to_scalar_or_alg(nf, v);
       gel(sunit,i) = v;
    }
-    den = ZM_det_triangular(H); H = ZM_inv(H,den);
+    H = ZM_inv(H,&den);
     A = shallowconcat(H, ZM_neg(ZM_mul(H,B))); /* top part of inverse * den */
     /* HNF in split form perm + (H B) [0 Id missing] */
     gel(res,1) = sunit;

@@ -179,16 +179,13 @@ QabX_to_Flx(GEN A, ulong r, ulong p)
 }
 
 /* FIXME: remove */
-GEN ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den);
-static GEN
-ZM_inv_i(GEN M, GEN *pM) { return ZM_inv_bnd(M, NULL, pM); }
 static GEN
 ZM_pseudoinv_i(GEN M, GEN *pv, GEN *den)
 {
   GEN v = ZM_indexrank(M);
   if (pv) *pv = v;
   M = shallowmatextract(M,gel(v,1),gel(v,2));
-  return ZM_inv_i(M, den);
+  return ZM_inv(M, den);
 }
 
 /* M matrix with coeff in Q(\chi)), where Q(\chi) = Q(X)/(P) for
@@ -3657,7 +3654,7 @@ QabM_Minv(GEN M, GEN P, long n)
 {
   GEN dW, W, dM;
   M = Q_remove_denom(M, &dM);
-  W = P? ZabM_inv(liftpol_shallow(M), P, n, &dW): ZM_inv_i(M, &dW);
+  W = P? ZabM_inv(liftpol_shallow(M), P, n, &dW): ZM_inv(M, &dW);
   return mkMinv(W, dM, dW, n);
 }
 /* Simplified form of mfclean, after a QabM_indexrank: M a ZabM with full
@@ -3666,7 +3663,7 @@ static GEN
 mfclean2(GEN M, GEN z, GEN P, long n)
 {
   GEN d, Minv, y = gel(z,1), W = rowpermute(M, y);
-  W = P? ZabM_inv(liftpol_shallow(W), P, n, &d): ZM_inv_i(W, &d);
+  W = P? ZabM_inv(liftpol_shallow(W), P, n, &d): ZM_inv(W, &d);
   M = rowslice(M, 1, y[lg(y)-1]);
   Minv = mkMinv(W, NULL, d, n);
   return mkvec3(y, Minv, M);
@@ -4544,7 +4541,7 @@ mfspclean(GEN mf, GEN NF, long ord, GEN simplesp, long flag)
         for (j = 2; j <= d; j++) gel(M,j) = RgM_RgC_mul(T, gel(M,j-1));
         M = Q_primpart(M);
         K = NF? ZabM_inv(liftpol_shallow(M), nf_get_pol(NF), ord, &den)
-              : ZM_inv_i(M,&den);
+              : ZM_inv(M,&den);
         K = shallowtrans(K);
         v = gequalX(a)? pol_x_powers(d, vz): RgXQ_powers(a, d-1, P);
         v = gmodulo(RgM_RgC_mul(A, RgM_RgC_mul(K,v)), P);
@@ -8207,7 +8204,7 @@ mffromqf(GEN Q, GEN P, long prec)
     pari_err_TYPE("mffromqf [not integral or even]", Q);
   m = lg(Q)-1;
   gk = sstoQ(m, 2);
-  Qi = ZM_inv_i(Q, &N);
+  Qi = ZM_inv(Q, &N);
   if (!qf_iseven(Qi)) N = shifti(N, 1);
   if (!P || gequal1(P)) { d = 0; P = NULL; }
   else

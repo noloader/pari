@@ -1594,30 +1594,19 @@ lfunqf(GEN M, long prec)
 {
   pari_sp ltop = avma;
   long n, k;
-  GEN D, d, Mi, cMi, detM, Ldata, poles, res0, res2, eno, dual;
+  GEN D, d, Mi, Ldata, poles, res0, res2, eno, dual;
 
   if (typ(M) != t_MAT) pari_err_TYPE("lfunqf", M);
   if (!RgM_is_ZM(M))   pari_err_TYPE("lfunqf [not integral]", M);
   n = lg(M)-1;
   if (odd(n)) pari_err_TYPE("lfunqf [odd dimension]", M);
   k = n >> 1;
-  M = Q_primpart(M); detM = ZM_det(M);
-  Mi = ZM_inv(M, detM); /* det(M) M^(-1) */
-  if (is_pm1(detM)) cMi = NULL; else Mi = Q_primitive_part(Mi, &cMi);
-  d = cMi? diviiexact(detM, cMi): detM; /* denom(M^(-1)) */
-  if (!qf_iseven(M))
-  {
-    M = gmul2n(M, 1);
-    d = shifti(d, 1);
-    detM = shifti(detM,n);
-  }
-  if (!qf_iseven(Mi))
-  {
-    Mi = gmul2n(Mi, 1);
-    d = shifti(d,1);
-  }
+  M = Q_primpart(M);
+  Mi = ZM_inv(M, &d); /* d M^(-1) */
+  if (!qf_iseven(M)) { M = gmul2n(M, 1); d = shifti(d,1); }
+  if (!qf_iseven(Mi)){ Mi= gmul2n(Mi,1); d = shifti(d,1); }
   /* det(Mi) = d^n/det(M), D^2 = det(Mi)/det(M) */
-  D = gdiv(powiu(d,k), detM);
+  D = gdiv(powiu(d,k), ZM_det(M));
   if (!issquareall(D, &eno)) eno = gsqrt(D, prec);
   dual = gequal1(D) ? gen_0: tag(Mi, t_LFUN_QF);
   res0 = RgX_to_ser(deg1pol_shallow(gen_m2, gen_0, 0), 3);

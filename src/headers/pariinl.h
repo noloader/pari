@@ -2040,6 +2040,8 @@ mul_content(GEN cx, GEN cy)
   return gmul(cx,cy);
 }
 INLINE GEN
+inv_content(GEN c) { return c? ginv(c): NULL; }
+INLINE GEN
 mul_denom(GEN dx, GEN dy)
 {
   if (!dx) return dy;
