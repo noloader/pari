@@ -21,31 +21,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /********************************************************************/
 /* z in Z^n, return lift(Col(z) * Mod(1,p)) */
 GEN
-FpC_red(GEN z, GEN p)
-{
-  long i,l = lg(z);
-  GEN x = cgetg(l, t_COL);
-  for (i=1; i<l; i++) gel(x,i) = modii(gel(z,i),p);
-  return x;
-}
+FpC_red(GEN x, GEN p)
+{ pari_APPLY_type(t_COL, modii(gel(x,i), p)) }
 
 /* z in Z^n, return lift(Vec(z) * Mod(1,p)) */
 GEN
-FpV_red(GEN z, GEN p)
-{
-  long i,l = lg(z);
-  GEN x = cgetg(l, t_VEC);
-  for (i=1; i<l; i++) gel(x,i) = modii(gel(z,i),p);
-  return x;
-}
+FpV_red(GEN x, GEN p)
+{ pari_APPLY_type(t_VEC, modii(gel(x,i), p)) }
+
 GEN
-FpC_center(GEN z, GEN p, GEN pov2)
-{
-  long i,l = lg(z);
-  GEN x = cgetg(l, t_COL);
-  for (i=1; i<l; i++) gel(x,i) = Fp_center(gel(z,i),p, pov2);
-  return x;
-}
+FpC_center(GEN x, GEN p, GEN pov2)
+{ pari_APPLY_type(t_COL, Fp_center(gel(x,i), p, pov2)) }
 
 /* assume 0 <= u < p and ps2 = p>>1 */
 INLINE void
@@ -61,31 +47,17 @@ FpC_center_inplace(GEN z, GEN p, GEN ps2)
 }
 
 GEN
-Flv_center(GEN z, ulong p, ulong ps2)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_VECSMALL);
-  for (i=1; i<l; i++) x[i] = Fl_center(z[i],p,ps2);
-  return x;
-}
+Flv_center(GEN x, ulong p, ulong ps2)
+{ pari_APPLY_ulong(Fl_center(uel(x,i),p,ps2)) }
 
 /* z in Mat m,n(Z), return lift(z * Mod(1,p)) */
 GEN
-FpM_red(GEN z, GEN p)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_MAT);
-  for (i=1; i<l; i++) gel(x,i) = FpC_red(gel(z,i), p);
-  return x;
-}
+FpM_red(GEN x, GEN p)
+{ pari_APPLY_same(FpC_red(gel(x,i), p)) }
+
 GEN
-FpM_center(GEN z, GEN p, GEN pov2)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_MAT);
-  for (i=1; i<l; i++) gel(x,i) = FpC_center(gel(z,i), p, pov2);
-  return x;
-}
+FpM_center(GEN x, GEN p, GEN pov2)
+{ pari_APPLY_same(FpC_center(gel(x,i), p,pov2)) }
 
 void
 FpM_center_inplace(GEN z, GEN p, GEN pov2)
@@ -94,13 +66,8 @@ FpM_center_inplace(GEN z, GEN p, GEN pov2)
   for (i=1; i<l; i++) FpC_center_inplace(gel(z,i), p, pov2);
 }
 GEN
-Flm_center(GEN z, ulong p, ulong ps2)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_MAT);
-  for (i=1; i<l; i++) gel(x,i) = Flv_center(gel(z,i),p,ps2);
-  return x;
-}
+Flm_center(GEN x, ulong p, ulong ps2)
+{ pari_APPLY_same(Flv_center(gel(x,i), p,ps2)) }
 
 GEN
 random_FpV(long d, GEN p)
@@ -136,41 +103,23 @@ random_Flv(long n, ulong p)
 /********************************************************************/
 GEN
 FpC_add(GEN x, GEN y, GEN p)
-{
-  long i, lx = lg(x);
-  GEN z = cgetg(lx, t_COL);
-  for (i = 1; i < lx; i++) gel(z, i) = Fp_add(gel(x, i), gel(y, i), p);
-  return z;
-}
+{ pari_APPLY_type(t_COL, Fp_add(gel(x,i), gel(y,i), p)) }
+
 GEN
 FpV_add(GEN x, GEN y, GEN p)
-{
-  long i, lx = lg(x);
-  GEN z = cgetg(lx, t_VEC);
-  for (i = 1; i < lx; i++) gel(z, i) = Fp_add(gel(x, i), gel(y, i), p);
-  return z;
-}
+{ pari_APPLY_type(t_VEC, Fp_add(gel(x,i), gel(y,i), p)) }
+
 GEN
 FpM_add(GEN x, GEN y, GEN p)
-{
-  long lx = lg(x), j;
-  GEN z;
-  if (lx == 1) return cgetg(1, t_MAT);
-  z = cgetg(lx, t_MAT);
-  for (j = 1; j < lx; j++) gel(z,j) = FpC_add(gel(x,j), gel(y,j), p);
-  return z;
-}
+{ pari_APPLY_same(FpC_add(gel(x,i), gel(y,i), p)) }
 
 GEN
 Flv_add(GEN x, GEN y, ulong p)
 {
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_VECSMALL);
   if (p==2)
-    for (i = 1; i < l; i++) z[i] = x[i]^y[i];
+    pari_APPLY_ulong(x[i]^y[i])
   else
-    for (i = 1; i < l; i++) z[i] = Fl_add(x[i], y[i], p);
-  return z;
+    pari_APPLY_ulong(Fl_add(x[i], y[i], p))
 }
 
 void
@@ -197,38 +146,19 @@ Flv_sum(GEN x, ulong p)
 
 GEN
 FpC_sub(GEN x, GEN y, GEN p)
-{
-  long i, lx = lg(x);
-  GEN z = cgetg(lx, t_COL);
-  for (i = 1; i < lx; i++) gel(z, i) = Fp_sub(gel(x, i), gel(y, i), p);
-  return z;
-}
+{ pari_APPLY_type(t_COL, Fp_sub(gel(x,i), gel(y,i), p)) }
+
 GEN
 FpV_sub(GEN x, GEN y, GEN p)
-{
-  long i, lx = lg(x);
-  GEN z = cgetg(lx, t_VEC);
-  for (i = 1; i < lx; i++) gel(z, i) = Fp_sub(gel(x, i), gel(y, i), p);
-  return z;
-}
+{ pari_APPLY_type(t_VEC, Fp_sub(gel(x,i), gel(y,i), p)) }
 
 GEN
 FpM_sub(GEN x, GEN y, GEN p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_MAT);
-  for (i = 1; i < l; i++) gel(z, i) = FpC_sub(gel(x, i), gel(y, i), p);
-  return z;
-}
+{ pari_APPLY_same(FpC_sub(gel(x,i), gel(y,i), p)) }
 
 GEN
 Flv_sub(GEN x, GEN y, ulong p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_VECSMALL);
-  for (i = 1; i < l; i++) z[i] = Fl_sub(x[i], y[i], p);
-  return z;
-}
+{ pari_APPLY_ulong(Fl_sub(uel(x,i), uel(y,i), p)) }
 
 void
 Flv_sub_inplace(GEN x, GEN y, ulong p)
@@ -257,21 +187,11 @@ Flm_Fl_add(GEN x, ulong y, ulong p)
 
 GEN
 Flm_add(GEN x, GEN y, ulong p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l,t_MAT);
-  for (i = 1; i < l; i++) gel(z,i) = Flv_add(gel(x,i),gel(y,i),p);
-  return z;
-}
+{ pari_APPLY_same(Flv_add(gel(x,i), gel(y,i), p)) }
 
 GEN
 Flm_sub(GEN x, GEN y, ulong p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_MAT);
-  for (i = 1; i < l; i++) gel(z, i) = Flv_sub(gel(x, i), gel(y, i), p);
-  return z;
-}
+{ pari_APPLY_same(Flv_sub(gel(x,i), gel(y,i), p)) }
 
 /********************************************************************/
 /**                                                                **/
@@ -280,20 +200,12 @@ Flm_sub(GEN x, GEN y, ulong p)
 /********************************************************************/
 GEN
 FpC_Fp_mul(GEN x, GEN y, GEN p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_COL);
-  for (i=1;i<l;i++) gel(z,i) = Fp_mul(gel(x,i),y,p);
-  return z;
-}
+{ pari_APPLY_type(t_COL, Fp_mul(gel(x,i), y, p)) }
+
 GEN
 Flv_Fl_mul(GEN x, ulong y, ulong p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_VECSMALL);
-  for (i=1;i<l;i++) z[i] = Fl_mul(x[i], y, p);
-  return z;
-}
+{ pari_APPLY_ulong(Fl_mul(x[i], y, p)) }
+
 GEN
 Flv_Fl_div(GEN x, ulong y, ulong p)
 {
@@ -367,13 +279,8 @@ Flm_Fl_mul(GEN y, ulong x, ulong p)
 }
 
 GEN
-Flv_neg(GEN v, ulong p)
-{
-  long i, m = lg(v);
-  GEN c = cgetg(m, t_VECSMALL);
-  for(i=1; i<m; i++) uel(c,i) = Fl_neg(uel(v,i), p);
-  return c;
-}
+Flv_neg(GEN x, ulong p)
+{ pari_APPLY_ulong(Fl_neg(uel(x,i), p)) }
 
 void
 Flv_neg_inplace(GEN v, ulong p)
@@ -384,14 +291,8 @@ Flv_neg_inplace(GEN v, ulong p)
 }
 
 GEN
-Flm_neg(GEN y, ulong p)
-{
-  long j, l = lg(y);
-  GEN z = cgetg(l, t_MAT);
-  for(j=1; j<l; j++)
-    gel(z,j) = Flv_neg(gel(y,j), p);
-  return z;
-}
+Flm_neg(GEN x, ulong p)
+{ pari_APPLY_same(Flv_neg(gel(x,i), p)) }
 
 /* x[i,]*y. Assume lx > 1 and 0 < i < lgcols(x) */
 static GEN
@@ -1188,29 +1089,15 @@ scalar_Flm(long s, long n)
 /********************************************************************/
 GEN
 ZV_to_Flv(GEN x, ulong p)
-{
-  long i, n = lg(x);
-  GEN y = cgetg(n,t_VECSMALL);
-  for (i=1; i<n; i++) y[i] = umodiu(gel(x,i), p);
-  return y;
-}
+{ pari_APPLY_ulong(umodiu(gel(x,i), p)) }
+
 GEN
 ZM_to_Flm(GEN x, ulong p)
-{
-  long j,n = lg(x);
-  GEN y = cgetg(n,t_MAT);
-  if (n == 1) return y;
-  for (j=1; j<n; j++) gel(y,j) = ZV_to_Flv(gel(x,j), p);
-  return y;
-}
+{ pari_APPLY_same(ZV_to_Flv(gel(x,i), p)) }
+
 GEN
-ZMV_to_FlmV(GEN z, ulong m)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_VEC);
-  for (i=1; i<l; i++) gel(x,i) = ZM_to_Flm(gel(z,i), m);
-  return x;
-}
+ZMV_to_FlmV(GEN x, ulong m)
+{ pari_APPLY_type(t_VEC,ZM_to_Flm(gel(x,i), m)) }
 
 /*                          TO INTMOD                        */
 static GEN
@@ -1340,15 +1227,8 @@ Fq_to_mod_raw(GEN x, GEN T, GEN p)
 
 /* z in Z^n, return z * Mod(1,p), normalized*/
 static GEN
-FqC_to_mod_raw(GEN z, GEN T, GEN p)
-{
-  long i,l = lg(z);
-  GEN x = cgetg(l, t_COL);
-  if (l == 1) return x;
-  for (i=1; i<l; i++)
-    gel(x,i) = Fq_to_mod_raw(gel(z,i), T, p);
-  return x;
-}
+FqC_to_mod_raw(GEN x, GEN T, GEN p)
+{ pari_APPLY_type(t_COL, Fq_to_mod_raw(gel(x,i), T, p)) }
 
 /* z in Z^n, return z * Mod(1,p), normalized*/
 GEN
@@ -1397,13 +1277,8 @@ zCs_to_ZC(GEN R, long nbrow)
 }
 
 GEN
-zMs_to_ZM(GEN M, long nbrow)
-{
-  long i, l = lg(M);
-  GEN m = cgetg(l, t_MAT);
-  for (i = 1; i < l; ++i) gel(m,i) = zCs_to_ZC(gel(M,i), nbrow);
-  return m;
-}
+zMs_to_ZM(GEN x, long nbrow)
+{ pari_APPLY_same(zCs_to_ZC(gel(x, i), nbrow)) }
 
 /* Solve equation f(X) = B (mod p) where B is a FpV, and f is an endomorphism.
  * Return either a solution as a t_COL, or a kernel vector as a t_VEC. */

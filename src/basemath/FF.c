@@ -133,23 +133,11 @@ FFX_to_raw(GEN x, GEN ff)
 
 static GEN
 FFC_to_raw(GEN x, GEN ff)
-{
-  long i, lx;
-  GEN y = cgetg_copy(x,&lx);
-  for(i=1; i<lx; i++)
-    gel(y, i) = Rg_to_raw(gel(x, i), ff);
-  return y;
-}
+{ pari_APPLY_same(Rg_to_raw(gel(x, i), ff)) }
 
 static GEN
 FFM_to_raw(GEN x, GEN ff)
-{
-  long i, lx;
-  GEN y = cgetg_copy(x,&lx);
-  for(i=1; i<lx; i++)
-    gel(y, i) = FFC_to_raw(gel(x, i), ff);
-  return y;
-}
+{ pari_APPLY_same(FFC_to_raw(gel(x, i), ff)) }
 
 /* in place */
 static GEN

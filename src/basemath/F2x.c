@@ -1708,33 +1708,15 @@ Flv_to_F2v(GEN x)
 
 GEN
 ZM_to_F2m(GEN x)
-{
-  long j, l = lg(x);
-  GEN y = cgetg(l,t_MAT);
-  if (l == 1) return y;
-  for (j=1; j<l; j++) gel(y,j) = ZV_to_F2v(gel(x,j));
-  return y;
-}
+{ pari_APPLY_same(ZV_to_F2v(gel(x,i))) }
 
 GEN
 RgM_to_F2m(GEN x)
-{
-  long j, l = lg(x);
-  GEN y = cgetg(l,t_MAT);
-  if (l == 1) return y;
-  for (j=1; j<l; j++) gel(y,j) = RgV_to_F2v(gel(x,j));
-  return y;
-}
+{ pari_APPLY_same(RgV_to_F2v(gel(x,i))) }
 
 GEN
 Flm_to_F2m(GEN x)
-{
-  long j, l = lg(x);
-  GEN y = cgetg(l,t_MAT);
-  if (l == 1) return y;
-  for (j=1; j<l; j++) gel(y,j) = Flv_to_F2v(gel(x,j));
-  return y;
-}
+{ pari_APPLY_same(Flv_to_F2v(gel(x,i))) }
 
 GEN
 const_F2v(long m)
@@ -1775,39 +1757,19 @@ F2v_add_inplace(GEN x, GEN y)
 
 GEN
 FlxC_to_F2xC(GEN x)
-{
-  long i, l=lg(x);
-  GEN z = cgetg(l,t_COL);
-  for (i=1; i<l ; i++) gel(z,i) = Flx_to_F2x(gel(x,i));
-  return z;
-}
+{ pari_APPLY_type(t_COL, Flx_to_F2x(gel(x,i))) }
 
 GEN
 F2xC_to_FlxC(GEN x)
-{
-  long i, l=lg(x);
-  GEN z = cgetg(l,t_COL);
-  for (i=1; i<l ; i++) gel(z,i) = F2x_to_Flx(gel(x,i));
-  return z;
-}
+{ pari_APPLY_type(t_COL, F2x_to_Flx(gel(x,i))) }
 
 GEN
-F2xC_to_ZXC(GEN v)
-{
-  long j, N = lg(v);
-  GEN y = cgetg(N, t_COL);
-  for (j=1; j<N; j++) gel(y,j) = F2x_to_ZX(gel(v,j));
-  return y;
-}
+F2xC_to_ZXC(GEN x)
+{ pari_APPLY_type(t_COL, F2x_to_ZX(gel(x,i))) }
 
 GEN
-F2xV_to_F2m(GEN v, long n)
-{
-  long j, N = lg(v);
-  GEN y = cgetg(N, t_MAT);
-  for (j=1; j<N; j++) gel(y,j) = F2x_to_F2v(gel(v,j), n);
-  return y;
-}
+F2xV_to_F2m(GEN x, long n)
+{ pari_APPLY_type(t_MAT, F2x_to_F2v(gel(x,i), n)) }
 
 /***********************************************************************/
 /**                                                                   **/

@@ -3039,13 +3039,8 @@ Fq_to_nf(GEN A, GEN modpr)
   return ZM_ZX_mul(gel(modpr,mpr_NFP), A);
 }
 GEN
-FqV_to_nfV(GEN A, GEN modpr)
-{
-  long i,l = lg(A);
-  GEN B = cgetg(l,typ(A));
-  for (i=1; i<l; i++) gel(B,i) = Fq_to_nf(gel(A,i), modpr);
-  return B;
-}
+FqV_to_nfV(GEN x, GEN modpr)
+{ pari_APPLY_same(Fq_to_nf(gel(x,i), modpr)) }
 GEN
 FqM_to_nfM(GEN A, GEN modpr)
 {

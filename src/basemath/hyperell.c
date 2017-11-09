@@ -269,24 +269,12 @@ ZX_to_padic(GEN P, GEN q)
 }
 
 static GEN
-ZXC_to_padic(GEN C, GEN q)
-{
-  long i, l = lg(C);
-  GEN V = cgetg(l,t_COL);
-  for(i = 1; i < l; i++)
-    gel(V, i) = ZX_to_padic(gel(C, i), q);
-  return V;
-}
+ZXC_to_padic(GEN x, GEN q)
+{ pari_APPLY_type(t_COL, ZX_to_padic(gel(x, i), q)) }
 
 static GEN
-ZXM_to_padic(GEN M, GEN q)
-{
-  long i, l = lg(M);
-  GEN V = cgetg(l,t_MAT);
-  for(i = 1; i < l; i++)
-    gel(V, i) = ZXC_to_padic(gel(M, i), q);
-  return V;
-}
+ZXM_to_padic(GEN x, GEN q)
+{ pari_APPLY_same(ZXC_to_padic(gel(x, i), q)) }
 
 static GEN
 ZlX_hyperellpadicfrobenius(GEN H, ulong p, long n)

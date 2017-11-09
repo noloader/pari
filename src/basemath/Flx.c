@@ -62,31 +62,16 @@ Flx_to_FlxX(GEN z, long sv)
 }
 
 GEN
-Flv_to_ZV(GEN z)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l, t_VEC);
-  for (i=1; i<l; i++) gel(x,i) = utoi(z[i]);
-  return x;
-}
+Flv_to_ZV(GEN x)
+{ pari_APPLY_type(t_VEC, utoi(x[i])) }
 
 GEN
-Flc_to_ZC(GEN z)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_COL);
-  for (i=1; i<l; i++) gel(x,i) = utoi(z[i]);
-  return x;
-}
+Flc_to_ZC(GEN x)
+{ pari_APPLY_type(t_COL, utoi(x[i])) }
 
 GEN
-Flm_to_ZM(GEN z)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_MAT);
-  for (i=1; i<l; i++) gel(x,i) = Flc_to_ZC(gel(z,i));
-  return x;
-}
+Flm_to_ZM(GEN x)
+{ pari_APPLY_type(t_MAT, Flc_to_ZC(gel(x,i))) }
 
 GEN
 Flc_to_ZC_inplace(GEN z)
@@ -141,42 +126,22 @@ Flv_to_Flx(GEN x, long sv)
 /*Flm_to_FlxV=zm_to_zxV*/
 GEN
 Flm_to_FlxV(GEN x, long sv)
-{
-  long j, lx = lg(x);
-  GEN y = cgetg(lx, t_VEC);
-  for (j=1; j<lx; j++) gel(y,j) = Flv_to_Flx(gel(x,j), sv);
-  return y;
-}
+{ pari_APPLY_type(t_VEC, Flv_to_Flx(gel(x,i), sv)) }
 
 /*FlxC_to_ZXC=zxC_to_ZXC*/
 GEN
 FlxC_to_ZXC(GEN x)
-{
-  long i, l=lg(x);
-  GEN z = cgetg(l,t_COL);
-  for (i=1; i<l ; i++) gel(z,i) = Flx_to_ZX(gel(x,i));
-  return z;
-}
+{ pari_APPLY_type(t_COL, Flx_to_ZX(gel(x,i))) }
 
 /*FlxC_to_ZXC=zxV_to_ZXV*/
 GEN
 FlxV_to_ZXV(GEN x)
-{
-  long i, l=lg(x);
-  GEN z = cgetg(l,t_VEC);
-  for (i=1; i<l ; i++) gel(z,i) = Flx_to_ZX(gel(x,i));
-  return z;
-}
+{ pari_APPLY_type(t_VEC, Flx_to_ZX(gel(x,i))) }
 
 /*FlxM_to_ZXM=zxM_to_ZXM*/
 GEN
-FlxM_to_ZXM(GEN z)
-{
-  long i, l;
-  GEN x = cgetg_copy(z, &l);
-  for (i=1; i<l; i++) gel(x,i) = FlxC_to_ZXC(gel(z,i));
-  return x;
-}
+FlxM_to_ZXM(GEN x)
+{ pari_APPLY_same(FlxC_to_ZXC(gel(x,i))) }
 
 GEN
 FlxM_Flx_add_shallow(GEN x, GEN y, ulong p)
@@ -3484,59 +3449,33 @@ FlxV_Flc_mul(GEN V, GEN W, ulong p)
 }
 
 GEN
-ZXV_to_FlxV(GEN v, ulong p)
-{
-  long j, N = lg(v);
-  GEN y = cgetg(N, t_VEC);
-  for (j=1; j<N; j++) gel(y,j) = ZX_to_Flx(gel(v,j), p);
-  return y;
-}
+ZXV_to_FlxV(GEN x, ulong p)
+{ pari_APPLY_type(t_VEC, ZX_to_Flx(gel(x,i), p)) }
 
 GEN
-ZXT_to_FlxT(GEN z, ulong p)
+ZXT_to_FlxT(GEN x, ulong p)
 {
-  if (typ(z) == t_POL)
-    return ZX_to_Flx(z, p);
+  if (typ(x) == t_POL)
+    return ZX_to_Flx(x, p);
   else
-  {
-    long i,l = lg(z);
-    GEN x = cgetg(l, t_VEC);
-    for (i=1; i<l; i++) gel(x,i) = ZXT_to_FlxT(gel(z,i), p);
-    return x;
-  }
+    pari_APPLY_type(t_VEC, ZXT_to_FlxT(gel(x,i), p))
 }
 
 GEN
-FlxV_to_Flm(GEN v, long n)
-{
-  long j, N = lg(v);
-  GEN y = cgetg(N, t_MAT);
-  for (j=1; j<N; j++) gel(y,j) = Flx_to_Flv(gel(v,j), n);
-  return y;
-}
+FlxV_to_Flm(GEN x, long n)
+{ pari_APPLY_type(t_MAT, Flx_to_Flv(gel(x,i), n)) }
 
 GEN
-FlxV_red(GEN z, ulong p)
-{
-  GEN res;
-  long i, l = lg(z);
-  res = cgetg(l,t_VEC);
-  for(i=1;i<l;i++) gel(res,i) = Flx_red(gel(z,i),p);
-  return res;
-}
+FlxV_red(GEN x, ulong p)
+{ pari_APPLY_type(t_VEC, Flx_red(gel(x,i), p)) }
 
 GEN
-FlxT_red(GEN z, ulong p)
+FlxT_red(GEN x, ulong p)
 {
-  if (typ(z) == t_VECSMALL)
-    return Flx_red(z, p);
+  if (typ(x) == t_VECSMALL)
+    return Flx_red(x, p);
   else
-  {
-    long i,l = lg(z);
-    GEN x = cgetg(l, t_VEC);
-    for (i=1; i<l; i++) gel(x,i) = FlxT_red(gel(z,i), p);
-    return x;
-  }
+    pari_APPLY_type(t_VEC, FlxT_red(gel(x,i), p))
 }
 
 GEN
@@ -3602,23 +3541,11 @@ zero_FlxC(long n, long sv)
 
 GEN
 FlxC_neg(GEN x, ulong p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_COL);
-  for (i = 1; i < l; i++)
-    gel(z, i) = Flx_neg(gel(x, i), p);
-  return z;
-}
+{ pari_APPLY_type(t_COL, Flx_neg(gel(x, i), p)) }
 
 GEN
 FlxC_sub(GEN x, GEN y, ulong p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_COL);
-  for (i = 1; i < l; i++)
-    gel(z, i) = Flx_sub(gel(x, i), gel(y, i), p);
-  return z;
-}
+{ pari_APPLY_type(t_COL, Flx_sub(gel(x, i), gel(y, i), p)) }
 
 GEN
 zero_FlxM(long r, long c, long sv)
@@ -3633,23 +3560,11 @@ zero_FlxM(long r, long c, long sv)
 
 GEN
 FlxM_neg(GEN x, ulong p)
-{
-  long j, l = lg(x);
-  GEN z = cgetg(l, t_MAT);
-  for (j = 1; j < l; j++)
-    gel(z, j) = FlxC_neg(gel(x, j), p);
-  return z;
-}
+{ pari_APPLY_same(FlxC_neg(gel(x, i), p)) }
 
 GEN
 FlxM_sub(GEN x, GEN y, ulong p)
-{
-  long j, l = lg(x);
-  GEN z = cgetg(l, t_MAT);
-  for (j = 1; j < l; j++)
-    gel(z, j) = FlxC_sub(gel(x, j), gel(y, j), p);
-  return z;
-}
+{ pari_APPLY_same(FlxC_sub(gel(x, i), gel(y,i), p)) }
 
 /***********************************************************************/
 /**                                                                   **/
@@ -3742,24 +3657,12 @@ FlxX_to_ZXX(GEN B)
 }
 
 GEN
-FlxXC_to_ZXXC(GEN B)
-{
-  long i, l = lg(B);
-  GEN z = cgetg(l, t_COL);
-  for (i=1; i<l; i++)
-    gel(z,i) = FlxX_to_ZXX(gel(B,i));
-  return z;
-}
+FlxXC_to_ZXXC(GEN x)
+{ pari_APPLY_type(t_COL, FlxX_to_ZXX(gel(x,i))) }
 
 GEN
-FlxXM_to_ZXXM(GEN B)
-{
-  long i, l = lg(B);
-  GEN z = cgetg(l, t_MAT);
-  for (i=1; i<l; i++)
-    gel(z,i) = FlxXC_to_ZXXC(gel(B,i));
-  return z;
-}
+FlxXM_to_ZXXM(GEN x)
+{ pari_APPLY_same(FlxXC_to_ZXXC(gel(x,i))) }
 
 /* Note: v is used _only_ for the t_INT. It must match
  * the variable of any t_POL coefficients. */
@@ -3784,26 +3687,16 @@ ZXX_to_FlxX(GEN B, ulong p, long v)
 }
 
 GEN
-ZXXV_to_FlxXV(GEN V, ulong p, long v)
-{
-  long j, N = lg(V);
-  GEN y = cgetg(N, t_VEC);
-  for (j=1; j<N; j++) gel(y,j) = ZXX_to_FlxX(gel(V,j), p, v);
-  return y;
-}
+ZXXV_to_FlxXV(GEN x, ulong p, long v)
+{ pari_APPLY_type(t_VEC, ZXX_to_FlxX(gel(x,i), p, v)) }
 
 GEN
-ZXXT_to_FlxXT(GEN z, ulong p, long v)
+ZXXT_to_FlxXT(GEN x, ulong p, long v)
 {
-  if (typ(z) == t_POL)
-    return ZXX_to_FlxX(z, p, v);
+  if (typ(x) == t_POL)
+    return ZXX_to_FlxX(x, p, v);
   else
-  {
-    long i,l = lg(z);
-    GEN x = cgetg(l, t_VEC);
-    for (i=1; i<l; i++) gel(x,i) = ZXXT_to_FlxXT(gel(z,i), p, v);
-    return x;
-  }
+    pari_APPLY_type(t_VEC, ZXXT_to_FlxXT(gel(x,i), p, v))
 }
 
 GEN

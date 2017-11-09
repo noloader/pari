@@ -590,21 +590,11 @@ vecsmall_lengthen(GEN v, long n)
 }
 
 INLINE GEN
-vec_to_vecsmall(GEN z)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l, t_VECSMALL);
-  for (i=1; i<l; i++) x[i] = itos(gel(z,i));
-  return x;
-}
+vec_to_vecsmall(GEN x)
+{ pari_APPLY_long(itos(gel(x,i))) }
 INLINE GEN
-vecsmall_to_vec(GEN z)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_VEC);
-  for (i=1; i<l; i++) gel(x,i) = stoi(z[i]);
-  return x;
-}
+vecsmall_to_vec(GEN x)
+{ pari_APPLY_type(t_VEC, stoi(x[i])) }
 INLINE GEN
 vecsmall_to_vec_inplace(GEN z)
 {
@@ -613,13 +603,8 @@ vecsmall_to_vec_inplace(GEN z)
   settyp(z, t_VEC); return z;
 }
 INLINE GEN
-vecsmall_to_col(GEN z)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l,t_COL);
-  for (i=1; i<l; i++) gel(x,i) = stoi(z[i]);
-  return x;
-}
+vecsmall_to_col(GEN x)
+{ pari_APPLY_type(t_COL, stoi(x[i])) }
 
 INLINE int
 vecsmall_lexcmp(GEN x, GEN y)
@@ -896,37 +881,22 @@ vecslicepermute(GEN A, GEN p, long y1, long y2)
 }
 /* rowslice(rowpermute(A,p), x1, x2) */
 INLINE GEN
-rowslicepermute(GEN A, GEN p, long x1, long x2)
-{
-  long i, lB = lg(A);
-  GEN B = cgetg(lB, typ(A));
-  for (i=1; i<lB; i++) gel(B,i) = vecslicepermute(gel(A,i),p,x1,x2);
-  return B;
-}
+rowslicepermute(GEN x, GEN p, long j1, long j2)
+{ pari_APPLY_same(vecslicepermute(gel(x,i),p,j1,j2)) }
+
 INLINE GEN
-rowslice(GEN A, long x1, long x2)
-{
-  long i, lB = lg(A);
-  GEN B = cgetg(lB, typ(A));
-  for (i=1; i<lB; i++) gel(B,i) = vecslice(gel(A,i),x1,x2);
-  return B;
-}
+rowslice(GEN x, long j1, long j2)
+{ pari_APPLY_same(vecslice(gel(x,i), j1, j2)) }
 
 INLINE GEN
 matslice(GEN A, long x1, long x2, long y1, long y2)
-{
-  return rowslice(vecslice(A, y1, y2), x1, x2);
-}
+{ return rowslice(vecslice(A, y1, y2), x1, x2); }
 
 /* shallow, remove coeff of index j */
 INLINE GEN
-rowsplice(GEN a, long j)
-{
-  long i, l;
-  GEN b = cgetg_copy(a,&l);
-  for (i = 1; i < l; i++) gel(b,i) = vecsplice(gel(a,i), j);
-  return b;
-}
+rowsplice(GEN x, long j)
+{ pari_APPLY_same(vecsplice(gel(x,i), j)) }
+
 /* shallow, remove coeff of index j */
 INLINE GEN
 vecsplice(GEN a, long j)
@@ -951,30 +921,15 @@ RgM_minor(GEN a, long i, long j)
 
 /* A[x0,] */
 INLINE GEN
-row(GEN A, long x0)
-{
-  long i, lB = lg(A);
-  GEN B  = cgetg(lB, t_VEC);
-  for (i=1; i<lB; i++) gel(B, i) = gcoeff(A, x0, i);
-  return B;
-}
+row(GEN x, long j)
+{ pari_APPLY_type(t_VEC, gcoeff(x, j, i)) }
 INLINE GEN
-Flm_row(GEN A, long x0)
-{
-  long i, lB = lg(A);
-  GEN B  = cgetg(lB, t_VECSMALL);
-  for (i=1; i<lB; i++) B[i] = coeff(A, x0, i);
-  return B;
-}
+Flm_row(GEN x, long j)
+{ pari_APPLY_ulong((ulong)coeff(x, j, i)) }
 /* A[x0,] */
 INLINE GEN
-rowcopy(GEN A, long x0)
-{
-  long i, lB = lg(A);
-  GEN B  = cgetg(lB, t_VEC);
-  for (i=1; i<lB; i++) gel(B, i) = gcopy(gcoeff(A, x0, i));
-  return B;
-}
+rowcopy(GEN x, long j)
+{ pari_APPLY_type(t_VEC, gcopy(gcoeff(x, j, i))) }
 /* A[x0, x1..x2] */
 INLINE GEN
 row_i(GEN A, long x0, long x1, long x2)
@@ -1019,22 +974,13 @@ INLINE GEN
 vecsmallpermute(GEN A, GEN p) { return perm_mul(A, p); }
 
 INLINE GEN
-vecpermute(GEN A, GEN p)
-{
-  long i,lB = lg(p);
-  GEN B = cgetg(lB, typ(A));
-  for (i=1; i<lB; i++) gel(B, i) = gel(A, p[i]);
-  return B;
-}
+vecpermute(GEN A, GEN x)
+{ pari_APPLY_type(typ(A), gel(A, x[i])) }
+
 INLINE GEN
-rowpermute(GEN A, GEN p)
-{
-  long i, lB = lg(A);
-  GEN B = cgetg(lB, typ(A));
-  for (i=1; i<lB; i++)
-    gel(B, i) = typ(gel(A,i)) == t_VECSMALL ? vecsmallpermute(gel(A, i), p):
-                                                    vecpermute(gel(A, i), p);
-  return B;
+rowpermute(GEN x, GEN p)
+{ pari_APPLY_same(typ(gel(x,i)) == t_VECSMALL ? vecsmallpermute(gel(x, i), p)
+                                              : vecpermute(gel(x, i), p))
 }
 /*******************************************************************/
 /*                                                                 */
@@ -1064,14 +1010,9 @@ cyclic_perm(long n, long d)
 
 /* Multiply (compose) two permutations */
 INLINE GEN
-perm_mul(GEN s, GEN t)
-{
-  GEN u;
-  long i, l = lg(t);
-  u = cgetg(l, t_VECSMALL);
-  for (i = 1; i < l; i++) u[i] = s[ t[i] ];
-  return u;
-}
+perm_mul(GEN s, GEN x)
+{ pari_APPLY_long(s[x[i]]) }
+
 /* Compute the inverse (reciprocal) of a permutation. */
 INLINE GEN
 perm_inv(GEN x)
@@ -1445,44 +1386,23 @@ RgX_gtofp(GEN x, long prec)
 }
 INLINE GEN
 RgC_gtofp(GEN x, long prec)
-{
-  long l = lg(x);
-  GEN y = cgetg(l, t_COL);
-  while (--l > 0) gel(y,l) = gtofp(gel(x,l), prec);
-  return y;
-}
+{ pari_APPLY_type(t_COL, gtofp(gel(x,i), prec)) }
+
 INLINE GEN
 RgV_gtofp(GEN x, long prec)
-{
-  long l = lg(x);
-  GEN y = cgetg(l, t_VEC);
-  while (--l > 0) gel(y,l) = gtofp(gel(x,l), prec);
-  return y;
-}
+{ pari_APPLY_type(t_VEC, gtofp(gel(x,i), prec)) }
+
 INLINE GEN
 RgM_gtofp(GEN x, long prec)
-{
-  long l;
-  GEN y = cgetg_copy(x, &l);
-  while (--l > 0) gel(y,l) = RgC_gtofp(gel(x,l), prec);
-  return y;
-}
+{ pari_APPLY_same(RgC_gtofp(gel(x,i), prec)) }
+
 INLINE GEN
 RgC_gtomp(GEN x, long prec)
-{
-  long l = lg(x);
-  GEN y = cgetg(l, t_COL);
-  while (--l > 0) gel(y,l) = gtomp(gel(x,l), prec);
-  return y;
-}
+{ pari_APPLY_type(t_COL, gtomp(gel(x,i), prec)) }
+
 INLINE GEN
 RgM_gtomp(GEN x, long prec)
-{
-  long l;
-  GEN y = cgetg_copy(x, &l);
-  while (--l > 0) gel(y,l) = RgC_gtomp(gel(x,l), prec);
-  return y;
-}
+{ pari_APPLY_same(RgC_gtomp(gel(x,i), prec)) }
 
 INLINE GEN
 RgX_fpnorml2(GEN x, long prec)

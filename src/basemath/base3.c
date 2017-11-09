@@ -1148,13 +1148,8 @@ RgM_to_nfM(GEN nf,GEN x)
   return z;
 }
 GEN
-RgC_to_nfC(GEN nf,GEN x)
-{
-  long i, lx = lg(x);
-  GEN z = cgetg(lx, t_COL);
-  for (i=1; i<lx; i++) gel(z,i) = nf_to_scalar_or_basis(nf, gel(x,i));
-  return z;
-}
+RgC_to_nfC(GEN nf, GEN x)
+{ pari_APPLY_type(t_COL, nf_to_scalar_or_basis(nf, gel(x,i))) }
 
 /* x a t_POLMOD, supposedly in rnf = K[z]/(T), K = Q[y]/(Tnf) */
 GEN
@@ -2802,21 +2797,12 @@ check_nfelt(GEN x, GEN *den)
 }
 
 GEN
-vecmodii(GEN a, GEN b)
-{
-  long i, l;
-  GEN c = cgetg_copy(a, &l);
-  for (i = 1; i < l; i++) gel(c,i) = modii(gel(a,i), gel(b,i));
-  return c;
-}
+vecmodii(GEN x, GEN y)
+{ pari_APPLY_same(modii(gel(x,i), gel(y,i))) }
+
 GEN
-vecmoduu(GEN a, GEN b)
-{
-  long i, l;
-  GEN c = cgetg_copy(a, &l);
-  for (i = 1; i < l; i++) c[i] = a[i] % b[i];
-  return c;
-}
+vecmoduu(GEN x, GEN y)
+{ pari_APPLY_ulong(uel(x,i) % uel(y,i)) }
 
 static GEN
 ideallog_i(GEN nf, GEN x, GEN sgn, zlog_S *S)

@@ -219,18 +219,15 @@ znstar_cosets(long n, long phi_n, GEN H)
 /**                     znstar/HNF interface                            **/
 /**                                                                     **/
 /*************************************************************************/
+
+static long
+mod_to_small(GEN x)
+{ return itos(typ(x) == t_INTMOD ? gel(x,2): x); }
+
 static GEN
-vecmod_to_vecsmall(GEN z)
-{
-  long i, l = lg(z);
-  GEN x = cgetg(l, t_VECSMALL);
-  for (i=1; i<l; i++) {
-    GEN c = gel(z,i);
-    if (typ(c) == t_INTMOD) c = gel(c,2);
-    x[i] = itos(c);
-  }
-  return x;
-}
+vecmod_to_vecsmall(GEN x)
+{ pari_APPLY_long(mod_to_small(gel(x,i))) }
+
 /* Convert a true znstar output by znstar to a `small znstar' */
 GEN
 znstar_small(GEN zn)

@@ -2157,13 +2157,8 @@ GEN
 Q_primpart(GEN x) { return Q_primitive_part(x, NULL); }
 
 GEN
-vec_Q_primpart(GEN M)
-{
-  long i, l;
-  GEN N = cgetg_copy(M, &l);
-  for (i = 1; i < l; i++) gel(N,i) = Q_primpart(gel(M,i));
-  return N;
-}
+vec_Q_primpart(GEN x)
+{ pari_APPLY_same(Q_primpart(gel(x,i))) }
 
 /*******************************************************************/
 /*                                                                 */

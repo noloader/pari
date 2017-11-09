@@ -362,12 +362,7 @@ GEN
 RgC_add(GEN x, GEN y) { return RgC_add_i(x, y, lg(x)); }
 GEN
 RgV_add(GEN x, GEN y)
-{
-  long i, lx = lg(x);
-  GEN A = cgetg(lx, t_VEC);
-  for (i=1; i<lx; i++) gel(A,i) = gadd(gel(x,i), gel(y,i));
-  return A;
-}
+{ pari_APPLY_type(t_VEC, gadd(gel(x,i), gel(y,i))) }
 
 static GEN
 RgC_sub_i(GEN x, GEN y, long lx)
@@ -381,12 +376,7 @@ GEN
 RgC_sub(GEN x, GEN y) { return RgC_sub_i(x, y, lg(x)); }
 GEN
 RgV_sub(GEN x, GEN y)
-{
-  long i, lx = lg(x);
-  GEN A = cgetg(lx, t_VEC);
-  for (i=1; i<lx; i++) gel(A,i) = gsub(gel(x,i), gel(y,i));
-  return A;
-}
+{ pari_APPLY_type(t_VEC, gsub(gel(x,i), gel(y,i))) }
 
 GEN
 RgM_add(GEN x, GEN y)
@@ -421,12 +411,7 @@ GEN
 RgC_neg(GEN x) { return RgC_neg_i(x, lg(x)); }
 GEN
 RgV_neg(GEN x)
-{
-  long i, lx = lg(x);
-  GEN y = cgetg(lx, t_VEC);
-  for (i=1; i<lx; i++) gel(y,i) = gneg(gel(x,i));
-  return y;
-}
+{ pari_APPLY_type(t_VEC, gneg(gel(x,i))) }
 GEN
 RgM_neg(GEN x)
 {
@@ -793,26 +778,17 @@ RgX_RgM_eval(GEN Q, GEN x)
 }
 
 GEN
-RgC_Rg_div(GEN x, GEN y) {
-  long i, lx = lg(x);
-  GEN z = cgetg(lx, t_COL);
-  for (i=1; i<lx; i++) gel(z,i) = gdiv(gel(x,i),y);
-  return z;
-}
+RgC_Rg_div(GEN x, GEN y)
+{ pari_APPLY_type(t_COL, gdiv(gel(x,i),y)) }
+
 GEN
-RgC_Rg_mul(GEN x, GEN y) {
-  long i, lx = lg(x);
-  GEN z = cgetg(lx, t_COL);
-  for (i=1; i<lx; i++) gel(z,i) = gmul(gel(x,i),y);
-  return z;
-}
+RgC_Rg_mul(GEN x, GEN y)
+{ pari_APPLY_type(t_COL, gmul(gel(x,i),y)) }
+
 GEN
-RgV_Rg_mul(GEN x, GEN y) {
-  long i, lx = lg(x);
-  GEN z = cgetg(lx, t_VEC);
-  for (i=1; i<lx; i++) gel(z,i) = gmul(gel(x,i),y);
-  return z;
-}
+RgV_Rg_mul(GEN x, GEN y)
+{ pari_APPLY_type(t_VEC, gmul(gel(x,i),y)) }
+
 GEN
 RgM_Rg_div(GEN X, GEN c) {
   long i, j, h, l = lg(X);

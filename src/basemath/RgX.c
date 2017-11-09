@@ -697,31 +697,17 @@ Rg_to_RgC(GEN x, long N)
 /* vector of polynomials (in v) whose coeffs are given by the columns of x */
 GEN
 RgM_to_RgXV(GEN x, long v)
-{
-  long j, lx = lg(x);
-  GEN y = cgetg(lx, t_VEC);
-  for (j=1; j<lx; j++) gel(y,j) = RgV_to_RgX(gel(x,j), v);
-  return y;
-}
+{ pari_APPLY_type(t_VEC, RgV_to_RgX(gel(x,i), v)) }
 
 /* matrix whose entries are given by the coeffs of the polynomials in
  * vector v (considered as degree n-1 polynomials) */
 GEN
-RgV_to_RgM(GEN v, long n)
-{
-  long j, N = lg(v);
-  GEN y = cgetg(N, t_MAT);
-  for (j=1; j<N; j++) gel(y,j) = Rg_to_RgC(gel(v,j), n);
-  return y;
-}
+RgV_to_RgM(GEN x, long n)
+{ pari_APPLY_type(t_MAT, Rg_to_RgC(gel(x,i), n)) }
+
 GEN
-RgXV_to_RgM(GEN v, long n)
-{
-  long j, N = lg(v);
-  GEN y = cgetg(N, t_MAT);
-  for (j=1; j<N; j++) gel(y,j) = RgX_to_RgC(gel(v,j), n);
-  return y;
-}
+RgXV_to_RgM(GEN x, long n)
+{ pari_APPLY_type(t_MAT, RgX_to_RgC(gel(x,i), n)) }
 
 /* polynomial (in v) of polynomials (in w) whose coeffs are given by the columns of x */
 GEN
@@ -806,13 +792,8 @@ RgXn_red_shallow(GEN a, long n)
 }
 
 GEN
-RgXnV_red_shallow(GEN P, long n)
-{
-  long i, l = lg(P);
-  GEN Q = cgetg(l, t_VEC);
-  for (i=1; i<l; i++) gel(Q,i) = RgXn_red_shallow(gel(P,i), n);
-  return Q;
-}
+RgXnV_red_shallow(GEN x, long n)
+{ pari_APPLY_type(t_VEC, RgXn_red_shallow(gel(x,i), n)) }
 
 /* return (x * X^n). Shallow */
 GEN
@@ -925,31 +906,16 @@ RgX_valrem_inexact(GEN x, GEN *Z)
 }
 
 GEN
-RgXQC_red(GEN P, GEN T)
-{
-  long i, l = lg(P);
-  GEN Q = cgetg(l, t_COL);
-  for (i=1; i<l; i++) gel(Q,i) = grem(gel(P,i), T);
-  return Q;
-}
+RgXQC_red(GEN x, GEN T)
+{ pari_APPLY_type(t_COL, grem(gel(x,i), T)) }
 
 GEN
-RgXQV_red(GEN P, GEN T)
-{
-  long i, l = lg(P);
-  GEN Q = cgetg(l, t_VEC);
-  for (i=1; i<l; i++) gel(Q,i) = grem(gel(P,i), T);
-  return Q;
-}
+RgXQV_red(GEN x, GEN T)
+{ pari_APPLY_type(t_VEC, grem(gel(x,i), T)) }
 
 GEN
-RgXQM_red(GEN P, GEN T)
-{
-  long i, l = lg(P);
-  GEN Q = cgetg(l, t_MAT);
-  for (i=1; i<l; i++) gel(Q,i) = RgXQC_red(gel(P,i), T);
-  return Q;
-}
+RgXQM_red(GEN x, GEN T)
+{ pari_APPLY_same(RgXQC_red(gel(x,i), T)) }
 
 GEN
 RgXQM_mul(GEN P, GEN Q, GEN T)

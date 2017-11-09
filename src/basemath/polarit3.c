@@ -283,46 +283,23 @@ RgX_to_FpX(GEN x, GEN p)
 
 GEN
 RgV_to_FpV(GEN x, GEN p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(z,i) = Rg_to_Fp(gel(x,i), p);
-  return z;
-}
+{ pari_APPLY_type(t_VEC, Rg_to_Fp(gel(x,i), p)) }
 
 GEN
 RgC_to_FpC(GEN x, GEN p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_COL);
-  for (i = 1; i < l; i++) gel(z,i) = Rg_to_Fp(gel(x,i), p);
-  return z;
-}
+{ pari_APPLY_type(t_COL, Rg_to_Fp(gel(x,i), p)) }
 
 GEN
 RgM_to_FpM(GEN x, GEN p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_MAT);
-  for (i = 1; i < l; i++) gel(z,i) = RgC_to_FpC(gel(x,i), p);
-  return z;
-}
+{ pari_APPLY_same(RgC_to_FpC(gel(x,i), p)) }
+
 GEN
 RgV_to_Flv(GEN x, ulong p)
-{
-  long l = lg(x), i;
-  GEN a = cgetg(l, t_VECSMALL);
-  for (i=1; i<l; i++) a[i] = Rg_to_Fl(gel(x,i), p);
-  return a;
-}
+{ pari_APPLY_ulong(Rg_to_Fl(gel(x,i), p)) }
+
 GEN
 RgM_to_Flm(GEN x, ulong p)
-{
-  long l, i;
-  GEN a = cgetg_copy(x, &l);
-  for (i=1; i<l; i++) gel(a,i) = RgV_to_Flv(gel(x,i), p);
-  return a;
-}
+{ pari_APPLY_same(RgV_to_Flv(gel(x,i), p)) }
 
 GEN
 RgX_to_FpXQX(GEN x, GEN T, GEN p)
@@ -362,13 +339,7 @@ RgC_to_FqC(GEN x, GEN T, GEN p)
 
 GEN
 RgM_to_FqM(GEN x, GEN T, GEN p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_MAT);
-  for (i = 1; i < l; i++)
-    gel(z,i) = RgC_to_FqC(gel(x, i), T, p);
-  return z;
-}
+{ pari_APPLY_same(RgC_to_FqC(gel(x, i), T, p)) }
 
 /* lg(V) > 1 */
 GEN
@@ -874,101 +845,59 @@ FqV_roots_to_pol(GEN V, GEN T, GEN p, long v)
 }
 
 GEN
-FqV_red(GEN z, GEN T, GEN p)
-{
-  long i, l = lg(z);
-  GEN res = cgetg(l, typ(z));
-  for(i=1;i<l;i++) gel(res,i) = Fq_red(gel(z,i),T,p);
-  return res;
-}
+FqV_red(GEN x, GEN T, GEN p)
+{ pari_APPLY_same(Fq_red(gel(x,i), T, p)) }
 
 GEN
 FqC_add(GEN x, GEN y, GEN T, GEN p)
 {
-  long i, lx = lg(x);
-  GEN z;
   if (!T) return FpC_add(x, y, p);
-  z = cgetg(lx, t_COL);
-  for (i = 1; i < lx; i++) gel(z, i) = Fq_add(gel(x, i), gel(y, i), T, p);
-  return z;
+  pari_APPLY_type(t_COL, Fq_add(gel(x,i), gel(y,i), T, p))
 }
 
 GEN
 FqC_sub(GEN x, GEN y, GEN T, GEN p)
 {
-  long i, lx = lg(x);
-  GEN z;
   if (!T) return FpC_sub(x, y, p);
-  z = cgetg(lx, t_COL);
-  for (i = 1; i < lx; i++) gel(z, i) = Fq_sub(gel(x, i), gel(y, i), T, p);
-  return z;
+  pari_APPLY_type(t_COL, Fq_sub(gel(x,i), gel(y,i), T, p))
 }
 
 GEN
 FqC_Fq_mul(GEN x, GEN y, GEN T, GEN p)
 {
-  long i, l = lg(x);
-  GEN z;
   if (!T) return FpC_Fp_mul(x, y, p);
-  z = cgetg(l, t_COL);
-  for (i=1;i<l;i++) gel(z,i) = Fq_mul(gel(x,i),y,T,p);
-  return z;
+  pari_APPLY_type(t_COL, Fq_mul(gel(x,i),y,T,p))
 }
 
 GEN
-FqV_to_FlxV(GEN v, GEN T, GEN pp)
+FqV_to_FlxV(GEN x, GEN T, GEN pp)
 {
-  long j, N = lg(v);
   long vT = evalvarn(get_FpX_var(T));
   ulong p = pp[2];
-  GEN y = cgetg(N, t_VEC);
-  for (j=1; j<N; j++)
-    gel(y,j) = (typ(gel(v,j))==t_INT?  Z_to_Flx(gel(v,j), p, vT)
-                                    : ZX_to_Flx(gel(v,j), p));
-  return y;
+  pari_APPLY_type(t_VEC, typ(gel(x,i))==t_INT?  Z_to_Flx(gel(x,i), p, vT)
+                                             : ZX_to_Flx(gel(x,i), p))
 }
 
 GEN
-FqC_to_FlxC(GEN v, GEN T, GEN pp)
+FqC_to_FlxC(GEN x, GEN T, GEN pp)
 {
-  long j, N = lg(v);
   long vT = evalvarn(get_FpX_var(T));
   ulong p = pp[2];
-  GEN y = cgetg(N, t_COL);
-  for (j=1; j<N; j++)
-    gel(y,j) = (typ(gel(v,j))==t_INT?  Z_to_Flx(gel(v,j), p, vT)
-                                    : ZX_to_Flx(gel(v,j), p));
-  return y;
+  pari_APPLY_type(t_COL, typ(gel(x,i))==t_INT?  Z_to_Flx(gel(x,i), p, vT)
+                                             : ZX_to_Flx(gel(x,i), p))
 }
 
 GEN
-FqM_to_FlxM(GEN x, GEN T, GEN pp)
-{
-  long j, n = lg(x);
-  GEN y = cgetg(n,t_MAT);
-  if (n == 1) return y;
-  for (j=1; j<n; j++)
-    gel(y,j) = FqC_to_FlxC(gel(x,j), T, pp);
-  return y;
-}
+FqM_to_FlxM(GEN x, GEN T, GEN p)
+{ pari_APPLY_same(FqC_to_FlxC(gel(x,i), T, p)) }
 
 GEN
-FpXC_center(GEN C, GEN p, GEN pov2)
-{
-  long i, l;
-  GEN P = cgetg_copy(C, &l);
-  for(i=1; i<l; i++) gel(P,i) = FpX_center(gel(C,i), p, pov2);
-  return P;
-}
+FpXC_center(GEN x, GEN p, GEN pov2)
+{ pari_APPLY_type(t_COL, FpX_center(gel(x,i), p, pov2)) }
 
 GEN
-FpXM_center(GEN M, GEN p, GEN pov2)
-{
-  long i, l;
-  GEN P = cgetg_copy(M, &l);
-  for(i=1; i<l; i++) gel(P,i) = FpXC_center(gel(M,i), p, pov2);
-  return P;
-}
+FpXM_center(GEN x, GEN p, GEN pov2)
+{ pari_APPLY_same(FpXC_center(gel(x,i), p, pov2)) }
 
 /*******************************************************************/
 /*                                                                 */

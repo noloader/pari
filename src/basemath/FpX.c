@@ -77,27 +77,18 @@ FpX_red(GEN z, GEN p)
   for (i=2; i<l; i++) gel(x,i) = modii(gel(z,i),p);
   x[1] = z[1]; return FpX_renormalize(x,l);
 }
-GEN
-FpXV_red(GEN z, GEN p)
-{
-  long i,l = lg(z);
-  GEN x = cgetg(l, t_VEC);
-  for (i=1; i<l; i++) gel(x,i) = FpX_red(gel(z,i), p);
-  return x;
-}
 
 GEN
-FpXT_red(GEN z, GEN p)
+FpXV_red(GEN x, GEN p)
+{ pari_APPLY_type(t_VEC, FpX_red(gel(x,i), p)) }
+
+GEN
+FpXT_red(GEN x, GEN p)
 {
-  if (typ(z) == t_POL)
-    return FpX_red(z, p);
+  if (typ(x) == t_POL)
+    return FpX_red(x, p);
   else
-  {
-    long i,l = lg(z);
-    GEN x = cgetg(l, t_VEC);
-    for (i=1; i<l; i++) gel(x,i) = FpXT_red(gel(z,i), p);
-    return x;
-  }
+    pari_APPLY_type(t_VEC, FpXT_red(gel(x,i), p))
 }
 
 GEN

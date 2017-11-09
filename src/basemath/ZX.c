@@ -675,22 +675,13 @@ ZXV_equal(GEN V, GEN W)
 }
 
 GEN
-ZXV_Z_mul(GEN y, GEN x)
-{
-  long i, l;
-  GEN z = cgetg_copy(y, &l);
-  for(i=1; i<l; i++) gel(z,i) = ZX_Z_mul(gel(y,i), x);
-  return z;
-}
+ZXV_Z_mul(GEN x, GEN y)
+{ pari_APPLY_same(ZX_Z_mul(gel(x,i), y)) }
 
 GEN
-ZXV_remi2n(GEN y, long N)
-{
-  long i, l;
-  GEN z = cgetg_copy(y, &l);
-  for(i=1; i<l; i++) gel(z,i) = ZX_remi2n(gel(y,i), N);
-  return z;
-}
+ZXV_remi2n(GEN x, long N)
+{ pari_APPLY_same(ZX_remi2n(gel(x,i), N)) }
+
 GEN
 ZXV_dotproduct(GEN x, GEN y)
 {
