@@ -876,8 +876,9 @@ FpC_FpV_mul(GEN x, GEN y, GEN p)
   z = cgetg(ly,t_MAT);
   for (j=1; j < ly; j++)
   {
-    gel(z,j) = cgetg(lx,t_COL);
-    for (i=1; i<lx; i++) gcoeff(z,i,j) = Fp_mul(gel(x,i),gel(y,j), p);
+    GEN zj = cgetg(lx,t_COL);
+    for (i=1; i<lx; i++) gel(zj,i) = Fp_mul(gel(x,i),gel(y,j), p);
+    gel(z, j) = zj;
   }
   return z;
 }
