@@ -3564,15 +3564,13 @@ static GEN
 ZM_inv_slice(GEN A, GEN P, GEN *mod)
 {
   pari_sp av = avma;
-  long i, n = lg(P)-1, discard=0, m = lg(A)-1;
+  long i, n = lg(P)-1;
   GEN H, T;
   if (n == 1)
   {
-    ulong p = uel(P,1), d;
+    ulong p = uel(P,1);
     GEN Hp, a = ZM_to_Flm(A, p);
-    Hp = Flm_inv_sp(a, &d, p);
-    if (!Hp) { p = 1; Hp = zero_Flm(m, m); }
-    else if (d!=1) Hp = Flm_Fl_mul(Hp, d, p);
+    Hp = Flm_adjoint(a, p);
     Hp = gerepileupto(av, Flm_to_ZM(Hp));
     *mod = utoi(p); return Hp;
   }
@@ -3580,15 +3578,7 @@ ZM_inv_slice(GEN A, GEN P, GEN *mod)
   A = ZM_nv_mod_tree(A, P, T);
   H = cgetg(n+1, t_VEC);
   for(i=1; i <= n; i++)
-  {
-    ulong p = P[i], d;
-    GEN Hp, a = gel(A,i);
-    Hp = Flm_inv_sp(a, &d, p);
-    if (!Hp) { discard=1; P[i] = 1; Hp = zero_Flm(m, m); }
-    else if (d!=1) Hp = Flm_Fl_mul(Hp, d, p);
-    gel(H,i) = Hp;
-  }
-  if (discard) T = ZV_producttree(P);
+    gel(H,i) = Flm_adjoint(gel(A, i), uel(P,i));
   H = nmV_chinese_center_tree_seq(H, P, T, ZV_chinesetree(P,T));
   *mod = gmael(T, lg(T)-1, 1);
   gerepileall(av, 2, &H, mod);
@@ -3632,6 +3622,7 @@ ZM_inv_bnd(GEN A, GEN dA, GEN *pt_den)
   worker = strtoclosure("_ZM_inv_worker", 1, A);
   H = gen_crt("ZM_inv", worker, dA, B, m, &mod, nmV_chinese_center, FpM_center);
   D = ZMrow_ZC_mul(A, gel(H,1), 1);
+  if (signe(D)==0) pari_err_INV("ZM_inv", A);
   d = gcdii(Q_content_safe(H), D);
   if (signe(D) < 0) d = negi(d);
   if (!equali1(d))
