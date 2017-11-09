@@ -254,8 +254,8 @@ mfdim([240,1,-1],1)
 mfdim(mfinit([154,1,0],1)[1])
 mfinit([248,1,0],1);
 mfdim([455,1,Mod(94,455)],0)
-
-vec(mfTheta())
+T=mfTheta();vec(T)
+mfeval(mfinit(T),T,[0,1/2,1,oo])
 T=mfTheta(Mod(2,7)); vec(T)
 mfparams(T)
 T=mfTheta(Mod(2,5)); vec(T)
@@ -578,7 +578,7 @@ mfgaloistype([11,1,Mod(2,11)], mfeisen(1,1,Mod(2,11)))
 
 D=mfDelta();
 mfdiv(D,mfpow(D,2))
-mfeval(mfD,D,1)
+mfeval(mfD,D,-I)
 mftonew(mfD,1)
 T=mftraceform([96,6],4);
 mfshimura(T5,4)

@@ -6702,6 +6702,10 @@ van_embedall(GEN van, GEN vE, GEN gN, GEN gk)
   }
   return vL;
 }
+
+static GEN
+mkmat22(long a, long b, long c, long d) {retmkmat2(mkcol2s(a,c),mkcol2s(b,d));}
+
 /* Evaluate an mf closure numerically, i.e., in the usual sense, either for a
  * single tau or a vector of tau; for each, return a vector of results
  * corresponding to all complex embeddings of F. If flag is non-zero, allow
@@ -6728,8 +6732,25 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   N0 = 0;
   for (i = 1; i < lv; i++)
   {
-    GEN tau, t = gel(vtau,i), imt = imag_i(t), U;
-    long w = 0, n;
+    GEN tau, t = gel(vtau,i), imt, U;
+    long w = 0, n, tc = typ(t);
+    if (tc == t_INFINITY || tc == t_INT || tc == t_FRAC)
+    {
+      GEN ga, R;
+      long A, C, B, D;
+      gel(vga, i) = gen_0;
+      if (tc == t_INFINITY)
+        gel(vTAU, i) = gel(mfcoefs_i(F, 0, 1), 1);
+      else
+      {
+        A = itos(numer(t)); C = itos(denom(t));
+        cbezout(A, C, &D, &B); ga = mkmat22(A, -B, C, D);
+        R = mfgaexpansion(mf, F, ga, 0, prec);
+        gel(vTAU, i) = gequal0(gel(R, 1)) ? gmael(R, 3, 1) : gen_0;
+      }
+      continue;
+    }
+    imt = imag_i(t);
     if (gsigne(imt) <= 0) pari_err_DOMAIN("mfeval","imag(tau)","<=",gen_0,t);
     tau = cxredga0N(N,t,&U, flag);
     if (flag)
@@ -6759,11 +6780,16 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   vs = cgetg(lv, ta);
   for (i = 1; i < lv; i++)
   {
-    GEN z = gel(vtau,i), g = gel(vga,i), c = gcoeff(g,2,1), d = gcoeff(g,2,2);
-    GEN T = gpow(gadd(gmul(c,z), d), gneg(gk), prec);
-
-    if (flag && gel(vb,i)) T = gmul(T, gel(vb,i));
-    gel(vs,i) = lfunthetaall(T, gel(vL,i), gel(vTAU,i), bitprec);
+    GEN z = gel(vtau,i), g = gel(vga,i), c, d;
+    GEN T;
+    if (gequal0(g)) gel(vs,i) = gel(vTAU,i);
+    else
+    {
+      c = gcoeff(g,2,1); d = gcoeff(g,2,2);
+      T = gpow(gadd(gmul(c,z), d), gneg(gk), prec);
+      if (flag && gel(vb,i)) T = gmul(T, gel(vb,i));
+      gel(vs,i) = lfunthetaall(T, gel(vL,i), gel(vTAU,i), bitprec);
+    }
   }
   return flscal? gel(vs,1): vs;
 }
@@ -6821,10 +6847,26 @@ mfcheapeisen(GEN mf)
 }
 
 static GEN
+myimag_i(GEN tau)
+{
+  long tc = typ(tau);
+  if (tc == t_INFINITY || tc == t_INT || tc == t_FRAC)
+    return gen_1;
+  if (tc == t_VEC)
+  {
+    long ltau, i;
+    GEN z = cgetg_copy(tau, &ltau);
+    for (i=1; i<ltau; i++) gel(z,i) = myimag_i(gel(tau,i));
+    return z;
+  }
+  return imag_i(tau);
+}
+
+static GEN
 mintau(GEN vtau)
 {
-  if (!is_vec_t(typ(vtau))) return imag_i(vtau);
-  return (lg(vtau) == 1)? gen_1: vecmin(imag_i(vtau));
+  if (!is_vec_t(typ(vtau))) return myimag_i(vtau);
+  return (lg(vtau) == 1)? gen_1: vecmin(myimag_i(vtau));
 }
 
 /* initialization for mfgaexpansion: what does not depend on cusp */
@@ -6853,9 +6895,6 @@ mfeval(GEN mf, GEN F, GEN vtau, long bitprec)
   if (flnew && gcmpgs(gmulsg(2*mf_get_N(mf), mintau(vtau)), 1) >= 0) flnew = 0;
   return gerepilecopy(av, mfeval_i(mf, F, vtau, flnew, bitprec));
 }
-
-static GEN
-mkmat22(long a, long b, long c, long d) {retmkmat2(mkcol2s(a,c),mkcol2s(b,d));}
 
 static void
 cusp_canon(GEN cusp, long N, long *pA, long *pC)

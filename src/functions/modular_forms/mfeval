@@ -3,13 +3,14 @@ Section: modular_forms
 C-Name: mfeval
 Prototype: GGGb
 Help: mfeval(mf,F,vtau): computes the numerical value of the modular form F
- at the point vtau or the vector vtau of points in the upper-half plane.
+ at the point vtau or the vector vtau of points in the completed
+ upper-half plane.
 Doc: Computes the numerical value of the modular form $F$, belonging
  to \var{mf}, at the complex number \kbd{vtau} or the vector \kbd{vtau}
- of complex numbers in the upper-half plane. If the field of definition
- $\Q(F)$ is larger than $\Q(\chi)$ then $F$ may be embedded into $\C$ in
- $d=[\Q(F):\Q(\chi)]$ ways, in which case a vector of the $d$ results is
- returned.
+ of complex numbers in the completed upper-half plane. If the field of
+ definition $\Q(F)$ is larger than $\Q(\chi)$ then $F$ may be embedded into
+ $\C$ in $d=[\Q(F):\Q(\chi)]$ ways, in which case a vector of the $d$ results
+ is returned.
  \bprog
  ? mf = mfinit([11,2],0); F = mfbasis(mf)[1]; mfparams(F)
  %1 = [11, 2, 1, y]  \\ Q(F) = Q(chi) = Q
@@ -26,3 +27,7 @@ Doc: Computes the numerical value of the modular form $F$, belonging
  the function computes $(f \mid_k \gamma)(\gamma^{-1}\cdot\tau)$ for a
  suitable $\gamma$ not necessarily in $\Gamma_0(N)$ (in which case $f \mid
  \gamma$ is evaluated using \kbd{mfslashexpansion}).
+ \bprog
+ ? T = mfTheta(); mf = mfinit(T); mfeval(mf,T,[0,1/2,1,oo])
+ %1 = [1/2 - 1/2*I, 0, 1/2 - 1/2*I, 1]
+ @eprog

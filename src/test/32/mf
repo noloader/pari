@@ -676,6 +676,7 @@ Mod(37, 96), 4, 0], [8, Mod(59, 96), 4, 0]]
 2
 0
 [1, 2, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]
+[1/2 - 1/2*I, 0, 1/2 - 1/2*I, 1]
 [0, 2, 0, 0, Mod(-2*t - 2, t^2 + t + 1), 0, 0, 0, 0, Mod(2*t, t^2 + t + 1), 
 0, 0, 0, 0, 0, 0]
 [196, 1/2, Mod(2, 7), y]
@@ -1131,8 +1132,8 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mfdiv(D,mfpow(D,2))
   ***                 ^-------------------
   *** mfdiv: domain error in mfdiv: ord(G) > ord(F)
-  ***   at top-level: mfeval(mfD,D,1)
-  ***                 ^---------------
+  ***   at top-level: mfeval(mfD,D,-I)
+  ***                 ^----------------
   *** mfeval: domain error in mfeval: imag(tau) <= 0
   ***   at top-level: mftonew(mfD,1)
   ***                 ^--------------
@@ -1155,4 +1156,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mfcosets(1.)
   ***                 ^------------
   *** mfcosets: incorrect type in mfcosets (t_REAL).
-Total time spent: 5764
+Total time spent: 5476
