@@ -284,18 +284,20 @@ mfcoefs(mfderivE2(E6),6)
 mfcoefs(mfbracket(E4,E6,1),10)/(-3456)
 mf = mfinit([7,3,Mod(6,7)], 0); mfeigenbasis(mf);
 mf=mfinit([10,7,[Z5,2]], 0); mffields(mf)
-[f1,f2]=mfeigenbasis(mf); f1=mfsymbolinit(mf,f1); f2=mfsymbolinit(mf,f2);
+[f1,f2]=mfeigenbasis(mf); f1=mfsymbol(mf,f1); f2=mfsymbol(mf,f2);
 mfperiodpol(mf,f1)
 mfperiodpol(mf,f2)
-mfsymbol(mf,f1,0,oo)
-mfsymbol(mf,f1,1/3,1/2)
-mfsymbol(mf,f2,1/3,1/2)
-mfpetersson(mf,f1,f1)
-m=mfpetersson(mf,f2,f2);
+mfsymboleval(f1,[0,oo])
+mfsymboleval(f1,[1/3,1/2])
+mfsymboleval(f2,[1/3,1/2])
+mfpetersson(f1)
+m=mfpetersson(f2,f2);
 if (abs(m[2,1]) < 1e-38, m[2,1]=0);
 if (abs(m[1,2]) < 1e-38, m[1,2]=0); m
-normlp(mfpetersson(mf,f1,f2)) < 1e-38
-normlp(mfpetersson(mf,f2,f1)) < 1e-38
+normlp(mfpetersson(f1,f2)) < 1e-38
+normlp(mfpetersson(f2,f1)) < 1e-38
+L=mfmanin(f2)[1];
+liftpol(L[1])
 
 mfatkineigenvalues(mf,1)
 mfatkineigenvalues(mf,2)
@@ -399,26 +401,36 @@ PP=mfperiodpol(mf,D,-1);cP=polcoeff(PP,1)
 PP/=cP;bestappr(PP)
 PM=mfperiodpol(mf,D,1);cM=polcoeff(PM,0)
 PM/=cM;bestappr(PM)
-mfpetersson(mf,D,D)
-mf=mfinit([11,2],1); f=mfbasis(mf)[1]; mfpetersson(mf,f,f)
-mf=mfinit([11,4],1); f=mfbasis(mf)[1]; mfpetersson(mf,f,f)
-mfpetersson(mf,f,mfbasis(mf)[2])
-mf=mfinit([12,3,-4],1); f=mfbasis(mf)[1];
-F=mfsymbolinit(mf,f); real(subst(F[3][24],x,x/I))
-mfpetersson(mf,F,F)
-mfsymbol(mf,F,2/5,3/4)
-mf=mfinit([12,6,12],1); f=mfbasis(mf)[5];
-F=mfsymbolinit(mf,f); real(subst(F[3][14],x,x/I))
-mfpetersson(mf,F,F)
-mfsymbol(mf,F,2/5,3/4)
+Ds = mfsymbol(mf,D); DS=mfpetersson(Ds)
+B = 10^8;
+[pols,oms]=mfmanin(Ds); pols
+bestappr(DS/(oms[1]*oms[2]/I), B)
+mf=mfinit([11,2],1); fs=mfsymbol(mf,mfbasis(mf)[1]); DS=mfpetersson(fs)
+[pols,oms]=mfmanin(fs); pols
+bestappr(DS/(oms[1]*oms[2]/I), B)
+mf=mfinit([11,4],1); fs=mfsymbol(mf,mfbasis(mf)[1]); mfpetersson(fs)
+mfpetersson(fs, mfsymbol(mf,mfbasis(mf)[2]))
+mf=mfinit([12,3,-4],1); fs=mfsymbol(mf,mfbasis(mf)[1]);
+real(subst(fs[3][24],x,x/I))
+mfpetersson(fs)
+mfsymboleval(fs,[2/5,3/4])
+mf=mfinit([12,6,12],1); fs=mfsymbol(mf,mfbasis(mf)[5]);
+real(subst(fs[3][14],x,x/I))
+mfpetersson(fs)
+mfsymboleval(fs,[2,3;5,4])
+mfsymboleval(fs,[0,0])
 mfperiodpolbasis(12)
 mfperiodpolbasis(12,1)
 mfperiodpolbasis(12,-1)
 mfperiodpolbasis(2)
 mfperiodpolbasis(-1)
 
-mf=mfinit([23,4],0); f=mfeigenbasis(mf)[1];
-mfpetersson(mf,f,f)
+mf=mfinit([23,4],0); f=mfsymbol(mf, mfeigenbasis(mf)[1]);
+mfpetersson(f)
+mf=mfinit([23,2],0); f=mfsymbol(mf, mfeigenbasis(mf)[1]);
+liftpol(mfmanin(f))
+mf=mfinit([7,4,Mod(2,7)], 0); f=mfsymbol(mf, mfeigenbasis(mf)[1]);
+L=mfmanin(f)
 
 T=mfTheta();mf=mfinit([12,1/2]);CU12=mfcusps(12)
 apply(x->mfcuspisregular(mf,x), CU12)

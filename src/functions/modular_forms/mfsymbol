@@ -1,31 +1,29 @@
 Function: mfsymbol
 Section: modular_forms
 C-Name: mfsymbol
-Prototype: GGGGb
-Help: mfsymbol(mf,F,s1,s2): Modular symbol corresponding to
- the modular form F and the cusps s1 and s2. F can be a cusp form or
- the output of mfsymbolinit, and it is strongly advised to use only this
- second syntax. The result is the polynomial equal to the integral between s1
- and s2 of (X-tau)^{k-2}F(tau).
-Doc:  Modular symbol corresponding to the modular form $F$ and the cusps $s1$
- and $s2$. $F$ can be a cusp form or the output of \kbd{mfsymbolinit},
- and it is strongly advised to use only this second syntax since in the
- former case \kbd{mfsymbolinit} is called anyway. The result is the polynomial
- equal to $\int_{s1}^{s2}(X-\tau)^{k-2}F(\tau)\,d\tau$, the integral being as
- usual computed along a geodesic joining $s1$ and $s2$. If the field of
- definition $\Q(F)$ is larger than $\Q(\chi)$ then $F$ may be embedded into
- $\C$ in $d=[\Q(F):\Q(\chi)]$ ways, in which case a vector of the $d$ results
- is returned.
+Prototype: GGb
+Help: mfsymbol(mf,f): Initialize data for working with all period
+ polynomials of the modular form f: this is essential for efficiency
+ for functions such as mfsymboleval, mfmanin, and mfpetersson.
+Doc: Initialize data for working with all period
+ polynomials of the modular form $f$, more precisely by the cuspidal part
+ of $f$: this is essential for efficiency for functions such as
+ \kbd{mfsymboleval}, \kbd{mfmanin}, and \kbd{mfpetersson}.
+ The (technical) output is a 6-component vector
+ \kbd{[mf,coefs,pols,cosets,bitprec,embed]}, where \kbd{coefs} are the
+ coefficients of $f$ on the Eisenstein and cuspidal part, \kbd{cosets} is the
+ output of \kbd{mfcosets(mf)}, \kbd{pols} the period polynomials corresponding
+ to each coset, \kbd{bitprec} is the current bitprecision, and \kbd{embed}
+ is a vector describing all the embeddings of $f$ into $\C$.
  \bprog
- ? mf=mfinit([35,2],1);F=mfbasis(mf)[1];
- ? mfsymbol(mf,F,0,oo)
- time = 3,700 ms.
- %1 = -3.850416174017535263 E-57 + 0.31404011074188471664161704390256378537*I
- ? P=mfsymbolinit(mf,F);
- time = 3,700 ms.
- ? mfsymbol(mf,P,0,oo)
- %3 = -3.850416174017535263 E-57 + 0.31404011074188471664161704390256378537*I
- ? mfsymbol(mf,P,1/2,3/5)
- %4 = -0.1429696291... - 0.2619975641...*I
+ ? mf=mfinit([23,2],0);F=mfeigenbasis(mf)[1];
+ ? FS=mfsymbol(mf,F);
+ ? mfsymboleval(FS,[0,oo])
+ %3 = [8.762565143790690142 E-39 + 0.0877907874...*I,
+      -5.617375463602574564 E-39 + 0.0716801031...*I]
+ ? mfpetersson(FS,FS)
+ %4 =
+ [0.0039488965740025031688548076498662860143 1.2789721111175127425 E-40]
+
+ [1.2630501762985554269 E-40 0.0056442542987647835101583821368582485396]
  @eprog
- These last two commands are now instantaneous.

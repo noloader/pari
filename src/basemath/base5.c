@@ -830,7 +830,9 @@ GEN
 nf_rnfeqsimple(GEN nf, GEN relpol)
 {
   long sa;
-  GEN junk, pol = rnfequationall(nf, relpol, &sa, NULL);
+  GEN junk, pol;
+  relpol = liftpol_shallow(relpol);
+  pol = rnfequationall(nf, relpol, &sa, NULL);
   return mkvec5(pol,gen_0/*dummy*/,stoi(sa),get_nfpol(nf, &junk),relpol);
 }
 

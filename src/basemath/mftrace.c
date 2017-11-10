@@ -80,8 +80,10 @@ static GEN
 mkNK(long N, long k, GEN CHI) { return mkgNK(stoi(N), stoi(k), CHI, pol_x(1)); }
 GEN
 MF_get_CHI(GEN mf) { return gmael(mf,1,3); }
+GEN
+MF_get_gN(GEN mf) { return gmael(mf,1,1); }
 long
-MF_get_N(GEN mf) { return itou(gmael(mf,1,1)); }
+MF_get_N(GEN mf) { return itou(MF_get_gN(mf)); }
 GEN
 MF_get_gk(GEN mf) { return gmael(mf,1,2); }
 long
@@ -1064,11 +1066,12 @@ RgX_embed2(GEN P, long vt, GEN vT, GEN vU)
   for (i = 2; i < l; i++) gel(Q,i) = Rg_embed2(gel(P,i), vt, vT, vU);
   Q[1] = P[1]; return normalizepol_lg(Q,l);
 }
-/* embed polynomial, E from getembed */
+/* embed polynomial f in variable vx [ may be a scalar ], E from getembed */
 static GEN
-polembed(GEN f, GEN E)
+polembed(GEN f, long vx, GEN E)
 {
   GEN vT;
+  if (typ(f) != t_POL || varn(f) != vx) return mfembed(f, E);
   if (lg(E) == 1) return f;
   vT = gel(E,2);
   if (lg(E) == 3)
@@ -1090,6 +1093,18 @@ mfvecembed(GEN f, GEN E)
     f = RgC_embed2(f, varn(gel(E,1)), vT, gel(E,3));
   return f;
 }
+/* embed vector of polynomials in var vx */
+static GEN
+vecpolembed(GEN f, long vx, GEN E)
+{
+  long i, l;
+  GEN v;
+  if (lg(E) == 1) return f;
+  v = cgetg_copy(f, &l);
+  for (i = 1; i < l; i++) gel(v,i) = polembed(gel(f,i), vx, E);
+  return v;
+}
+
 /* embed scalar */
 GEN
 mfembed(GEN f, GEN E)
@@ -1105,11 +1120,11 @@ mfembed(GEN f, GEN E)
 }
 /* vector of the sigma(f), sigma in vE */
 static GEN
-polembedall(GEN f, GEN vE)
+polembedall(GEN f, long vx, GEN vE)
 {
   long i, l = lg(vE);
   GEN v = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(v,i) = polembed(f, gel(vE,i));
+  for (i = 1; i < l; i++) gel(v,i) = polembed(f, vx, gel(vE,i));
   return l == 2? gel(v,1): v;
 }
 /* matrix whose colums are the sigma(v), sigma in vE */
@@ -4047,7 +4062,11 @@ mfisequal(GEN F, GEN G, long lim)
 }
 
 GEN
-mffields(GEN mf) { checkMF(mf); return gcopy(MF_get_fields(mf)); }
+mffields(GEN mf)
+{
+  if (checkmf_i(mf)) return gcopy(mf_get_field(mf));
+  checkMF(mf); return gcopy(MF_get_fields(mf));
+}
 
 /* F non-empty vector of forms of the form mfdiv(mflinear(B,v), E) where E
  * does not vanish at oo, or mflinear(B,v). Apply mflinear(F, L) */
@@ -6985,7 +7004,7 @@ mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec)
 static GEN
 mffrickeeigen_i(GEN mf, GEN vE, long prec)
 {
-  GEN M, F, Z, L0, gN = utoi(MF_get_N(mf)), gk = MF_get_gk(mf);
+  GEN M, F, Z, L0, gN = MF_get_gN(mf), gk = MF_get_gk(mf);
   long N0, i, lM, bit = prec2nbits(prec), k = itou(gk);
   long LIM = 5; /* Sturm bound is enough */
 
@@ -10740,96 +10759,32 @@ mftobasisES(GEN mf, GEN F)
   return mkvec2(vecslice(v,1,nE), vecslice(v,nE+1,lg(v)-1));
 }
 
-/* Y * \sum_{j <= k} X^j * Y^(k-j) / j! */
 static GEN
-expsum(long k, long vy)
-{
-  GEN S = cgetg(k + 3, t_POL), a = gen_1;
-  long j;
-  S[1] = evalsigne(1)|evalvarn(0);
-  gel(S,2) = monomial(a, k+1, vy);
-  for(j = 1; j <= k; j++)
-  {
-    a = gdivgs(a,j);
-    gel(S,j+2) = monomial(a, k+1-j, vy);
-  }
-  return S;
-}
+fs_get_MF(GEN fs) { return gel(fs,1); }
 static GEN
-mfgetTCO(long k, long vz, long prec)
-{
-  GEN T;
-  if (k <= 1) pari_err_DOMAIN("mfperiodpol", "k","<",gen_2,stoi(k));
-  T = RgX_unscale(expsum(k-2, vz), gen_I());
-  T = gsubst(T, vz, gdiv(pol_x(vz), Pi2n(1,prec)));
-  if (varn(T) != 0) T = scalarpol_shallow(T,0);
-  return mkvec2(T, mulcxpowIs(mpfact(k-2), 3*k-1));
-}
-
+fs_get_vES(GEN fs) { return gel(fs,2); }
 static GEN
-mfs_get_mf(GEN mfs) { return gel(mfs,1); }
+fs_get_pols(GEN fs) { return gel(fs,3); }
 static GEN
-mfs_get_vES(GEN mfs) { return gel(mfs,2); }
-static GEN
-mfs_get_pols(GEN mfs) { return gel(mfs,3); }
-static GEN
-mfs_get_cosets(GEN mfs) { return gel(mfs,4); }
+fs_get_cosets(GEN fs) { return gel(fs,4); }
 static long
-mfs_get_bitprec(GEN mfs) { return itou(gel(mfs,5)); }
+fs_get_bitprec(GEN fs) { return itou(gel(fs,5)); }
 static GEN
-mfs_get_vE(GEN mfs) { return gel(mfs,6); }
+fs_get_vE(GEN fs) { return gel(fs,6); }
+static GEN
+fs_get_EF(GEN fs) { return gel(fs,7); }
 static int
-mfs_checkmf(GEN mfs, GEN mf)
-{ GEN mfF = mfs_get_mf(mfs); return gequal(gel(mfF,1), gel(mf,1)); }
+mfs_checkmf(GEN fs, GEN mf)
+{ GEN mfF = fs_get_MF(fs); return gequal(gel(mfF,1), gel(mf,1)); }
 static long
-checkmfsym_i(GEN v)
-{ return typ(v) == t_VEC && lg(v) == 7 && checkMF_i(mfs_get_mf(v))
-    && typ(mfs_get_vES(v)) == t_VEC
-    && typ(mfs_get_pols(v)) == t_VEC
-    && typ(mfs_get_cosets(v)) == t_VEC
-    && typ(mfs_get_vE(v)) == t_VEC
-    && lg(mfs_get_pols(v)) == lg(mfs_get_cosets(v))
+checkfs_i(GEN v)
+{ return typ(v) == t_VEC && lg(v) == 8 && checkMF_i(fs_get_MF(v))
+    && typ(fs_get_vES(v)) == t_VEC
+    && typ(fs_get_pols(v)) == t_VEC
+    && typ(fs_get_cosets(v)) == t_VEC
+    && typ(fs_get_vE(v)) == t_VEC
+    && lg(fs_get_pols(v)) == lg(fs_get_cosets(v))
     && typ(gel(v,5)) == t_INT; }
-
-static GEN
-RgX_by_parity(GEN P, long odd)
-{
- long i, l = lg(P);
- GEN Q;
- if (l < 4) return odd ? pol_x(0): P;
- Q = cgetg(l, t_POL); Q[1] = P[1];
- for (i = odd? 2: 3; i < l; i += 2) gel(Q,i) = gen_0;
- for (i = odd? 3: 2; i < l; i += 2) gel(Q,i) = gel(P,i);
- return normalizepol_lg(Q, l);
-}
-
-/* flag 0: period polynomial of F, >0 or <0 with corresponding parity */
-GEN
-mfperiodpol(GEN mf, GEN F, long flag, long bitprec)
-{
-  pari_sp ltop = avma;
-  GEN pol, vE, TCO = NULL;
-  long prec = nbits2prec(bitprec);
-  if (!checkMF_i(mf)) pari_err_TYPE("mfperiodpol",mf);
-  if (checkmfsym_i(F))
-  {
-    GEN mfpols = mfs_get_pols(F);
-    if (!mfs_checkmf(F, mf)) pari_err_TYPE("mfperiodpol [different mf]",F);
-    pol = gel(mfpols, lg(mfpols)-1); /* trivial coset is last */
-    vE = mfs_get_vE(F);
-  }
-  else
-  {
-    GEN ES = mftobasisES(mf,F), FE = mkcol2(F, mf_eisendec(mf,F,prec));
-    if (!gequal0(gel(ES,1))) pari_err_TYPE("mfperiodpol [noncuspidal]",F);
-    vE = mfgetembed(F, prec);
-    TCO = mfgetTCO(mf_get_k(F), fetch_var(), prec);
-    pol = mfperiodslash(mf, FE, matid(2), TCO, bitprec);
-  }
-  if (TCO) delete_var();
-  if (flag) pol = RgX_by_parity(pol, flag < 0);
-  return gerepilecopy(ltop, polembedall(pol, vE));
-}
 
 /* c * Nc = N, find coset whose image in P1(Z/NZ) ~ (c, d + k(N/c)) */
 static GEN
@@ -10907,61 +10862,127 @@ mftocoset(ulong N, GEN M, GEN cosets)
   retmkvec2(gdiv(M,gel(cosets,i)), utoipos(i));
 }
 
+/* Y * \sum_{j <= k} X^j * Y^(k-j) / j! */
+static GEN
+expsum(long k, long vy)
+{
+  GEN S = cgetg(k + 3, t_POL), a = gen_1;
+  long j;
+  S[1] = evalsigne(1)|evalvarn(0);
+  gel(S,2) = monomial(a, k+1, vy);
+  for(j = 1; j <= k; j++)
+  {
+    a = gdivgs(a,j);
+    gel(S,j+2) = monomial(a, k+1-j, vy);
+  }
+  return S;
+}
 /* Let F_S be the cuspidal part of F. Compute all period pols of F_S|_k\ga_j,
  * vF = mftobasis(F_S) */
 static GEN
-mfperiodpols_i(GEN mf, GEN vF, GEN cosets, GEN *pvE, long bit)
+mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN vE, long bit)
 {
-  GEN F, TCO, S, CHI, vP, ok, vtf, FE;
-  long N, k, i, prec = nbits2prec(bit), lco = lg(cosets);
-  if (gequal0(vF))
-  {
-    *pvE = mkvec(cgetg(1,t_VEC));
-    return const_vec(lco-1, pol_0(0));
-  }
-  S = mkmat22(0, -1, 1, 0);
+  long N, k, i, prec = nbits2prec(bit), vz = fetch_var();
+  GEN vP, TCO, CHI, T;
   N = MF_get_N(mf);
   k = MF_get_k(mf);
   CHI = MF_get_CHI(mf);
-  TCO = mfgetTCO(k, fetch_var(), prec);
-  ok = const_vecsmall(lco - 1, 1);
-  vP = cgetg(lco, t_VEC);
-  vtf = MF_get_vtf(mf);
-  F = k > 1? mflinear_bhn(vtf,vF): mflinear(vtf,vF);
-  *pvE = mfgetembed(F, prec);
-  FE = mkcol2(F, mf_eisendec(mf,F,prec));
-  for (i = 1; i < lco; i++)
+
+  T = RgX_unscale(expsum(k-2, vz), gen_I());
+  T = gsubst(T, vz, gdiv(pol_x(vz), Pi2n(1,prec)));
+  if (varn(T) != 0) T = scalarpol_shallow(T,0);
+  TCO = mkvec2(T, mulcxpowIs(mpfact(k-2), 3*k-1));
+
+  if (!cosets)
+    vP = mfperiodslash(mf, FE, matid(2), TCO, bit);
+  else
   {
-    GEN P, t, ga = gel(cosets, i);
-    long iS, D;
-    if (!ok[i]) continue;
-    ok[i] = 0; gel(vP,i) = P = mfperiodslash(mf, FE, ga, TCO, bit);
-    iS = mftocoset_iD(N, ZM_mul(ga,S), cosets, &D);
-    if (iS == i) continue;
-    t = gmul(gconj(mfcharcxeval(CHI, D, prec+EXTRAPRECWORD)), RgX_act_S(P,k));
-    ok[iS] = 0; gel(vP,iS) = odd(k)? t: gneg(t);
+    long lco = lg(cosets);
+    GEN S = mkmat22(0, -1, 1, 0);
+    GEN ok = const_vecsmall(lco-1, 1);
+    vP = cgetg(lco, t_VEC);
+    for (i = 1; i < lco; i++)
+    {
+      GEN P, t, ga = gel(cosets, i);
+      long iS, D;
+      if (!ok[i]) continue;
+      ok[i] = 0; gel(vP,i) = P = mfperiodslash(mf, FE, ga, TCO, bit);
+      iS = mftocoset_iD(N, ZM_mul(ga,S), cosets, &D);
+      if (iS == i) continue;
+      t = gmul(gconj(mfcharcxeval(CHI, D, prec+EXTRAPRECWORD)), RgX_act_S(P,k));
+      ok[iS] = 0; gel(vP,iS) = odd(k)? t: gneg(t);
+    }
   }
   delete_var(); return vP;
 }
-static int
-mfs_iscusp(GEN mfs) { return gequal0(gmael(mfs,2,1)); }
+/* when cosets = NULL, return a "fake" symbol containing only fs(oo->o) */
 static GEN
-mfsymbolinit_ES(GEN mf, GEN vES, long bit)
+mfsymbol_i(GEN mf, GEN F, GEN cosets, long bit)
 {
-  GEN cosets = mfcosets(utoi(MF_get_N(mf)));
-  GEN vE, V = mfperiodpols_i(mf, gel(vES,2), cosets, &vE, bit);
-  return mkvecn(6, mf, vES, V, cosets, utoi(bit), vE);
+  GEN FE, vP, vE, vES = mftobasisES(mf,F), vS = gel(vES,2);
+  long k = MF_get_k(mf), prec = nbits2prec(bit);
+  if (k <= 1) pari_err_IMPL("mfsymbol when k <= 1");
+  if (gequal0(vS))
+  {
+    if (!cosets) return pol_0(0);
+    F = mftrivial();
+    FE = mkcol2(F, mfeisendec(mf,F));
+    vE = mkvec(cgetg(1,t_VEC));
+    vP = const_vec(lg(cosets)-1, pol_0(0));
+  }
+  else
+  {
+    F = mflinear_bhn(MF_get_vtf(mf), vS); /* assume k > 1 */
+    vE = mfgetembed(F, prec);
+    FE = mkcol2(F, mf_eisendec(mf,F,prec));
+    vP = mfperiodpols_i(mf, FE, cosets, vE, bit);
+  }
+  return mkvecn(7, mf, vES, vP, cosets, utoi(bit), vE, FE);
 }
-static GEN
-mfsymbolinit_i(GEN mf, GEN F, long bit)
-{ return mfsymbolinit_ES(mf, mftobasisES(mf,F), bit); }
 GEN
-mfsymbolinit(GEN mf, GEN F, long bit)
+mfsymbol(GEN mf, GEN F, long bit)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, mfsymbolinit_i(mf, F, bit));
+  GEN cosets;
+  checkMF(mf); cosets = mfcosets(MF_get_gN(mf));
+  return gerepilecopy(av, mfsymbol_i(mf, F, cosets, bit));
 }
 
+static GEN
+RgX_by_parity(GEN P, long odd)
+{
+  long i, l = lg(P);
+  GEN Q;
+  if (l < 4) return odd ? pol_x(0): P;
+  Q = cgetg(l, t_POL); Q[1] = P[1];
+  for (i = odd? 2: 3; i < l; i += 2) gel(Q,i) = gen_0;
+  for (i = odd? 3: 2; i < l; i += 2) gel(Q,i) = gel(P,i);
+  return normalizepol_lg(Q, l);
+}
+/* flag 0: period polynomial of F, >0 or <0 with corresponding parity */
+GEN
+mfperiodpol(GEN mf, GEN F, long flag, long bit)
+{
+  pari_sp av = avma;
+  GEN pol;
+  if (!checkMF_i(mf)) pari_err_TYPE("mfperiodpol",mf);
+  if (checkfs_i(F))
+  {
+    GEN mfpols = fs_get_pols(F);
+    if (!mfs_checkmf(F, mf)) pari_err_TYPE("mfperiodpol [different mf]",F);
+    pol = gel(mfpols, lg(mfpols)-1); /* trivial coset is last */
+  }
+  else
+  {
+    F = mfsymbol_i(mf, F, NULL, bit);
+    pol = fs_get_pols(F);
+  }
+  if (flag) pol = RgX_by_parity(pol, flag < 0);
+  return gerepilecopy(av, polembedall(pol, 0, fs_get_vE(F)));
+}
+
+static int
+mfs_iscusp(GEN mfs) { return gequal0(gmael(mfs,2,1)); }
 static void
 cusp_ac(GEN cusp, long *A, long *C)
 {
@@ -10970,31 +10991,43 @@ cusp_ac(GEN cusp, long *A, long *C)
     case t_INFINITY: *A = 1; *C = 0; break;
     case t_INT:  *A = itos(cusp); *C = 1; break;
     case t_FRAC: *A = itos(gel(cusp, 1)); *C = itos(gel(cusp, 2)); break;
-    default: pari_err_TYPE("mfsymbol", cusp);
+    default: pari_err_TYPE("mfsymboleval", cusp);
              *A = 0; *C = 0; /*LCOV_EXCL_LINE*/
   }
 }
 /* given cusps s1 and s2 (rationals or oo)
  * compute $\int_{s1}^{s2}(X-\tau)^{k-1}F(\tau)\,d\tau$ */
 GEN
-mfsymbol(GEN mf, GEN F, GEN s1, GEN s2, long bitprec)
+mfsymboleval(GEN fs, GEN path, long bitprec)
 {
   pari_sp av = avma;
-  GEN ga, V, LM, S, CHI, mfpols, cosets;
+  GEN ga, V, LM, S, CHI, mfpols, cosets, s1, s2, mf;
   long D, B, m, u, v, a, b, c, d, j, k, N, prec;
-  checkMF(mf);
-  if (!checkmfsym_i(F))
+  if (!checkfs_i(fs)) pari_err_TYPE("mfsymboleval",fs);
+  if (!mfs_iscusp(fs)) pari_err_TYPE("mfsymboleval [noncuspidal]",fs);
+  mf = fs_get_MF(fs);
+  if (lg(path) != 3) pari_err_TYPE("mfsymboleval",path);
+  switch(typ(path))
   {
-    F = mfsymbolinit_i(mf, F, bitprec);
-    if (!mfs_iscusp(F)) pari_err_TYPE("msymbol [noncuspidal]",F);
+    case t_VEC:
+      s1 = gel(path,1); cusp_ac(s1, &a, &c);
+      s2 = gel(path,2); cusp_ac(s2, &b, &d);
+      break;
+    case t_MAT:
+      if (RgM_is_ZM(path))
+      {
+        a = itos(gcoeff(path,1,1)); b = itos(gcoeff(path,1,2));
+        c = itos(gcoeff(path,2,1)); d = itos(gcoeff(path,2,2));
+        break;
+      } /* fall through */
+    default: pari_err_TYPE("mfsymboleval",path);
+             return NULL; /*LCOV_EXCL_LINE*/
   }
-  else if (!mfs_checkmf(F, mf)) pari_err_TYPE("mfsymbol [different mf]",F);
-  mfpols = mfs_get_pols(F);
-  cosets = mfs_get_cosets(F);
-  prec = prec2nbits(mfs_get_bitprec(F));
+  D = a*d-b*c; if (!D) { avma = av; return gen_0; }
+  mfpols = fs_get_pols(fs);
+  cosets = fs_get_cosets(fs);
+  prec = prec2nbits(fs_get_bitprec(fs));
   CHI = MF_get_CHI(mf); k = MF_get_k(mf); N = MF_get_N(mf);
-  cusp_ac(s1, &a, &c);
-  cusp_ac(s2, &b, &d); D = a*d-b*c; if (!D) { avma = av; return gen_0; }
   cbezout(a, c, &u, &v); ga = mkmat22(a, -v, c, u); B = u*b + v*d;
   V = gcf(sstoQ(B, D));
   LM = shallowconcat(mkcol2(gen_1, gen_0), contfracpnqn(V, lg(V)));
@@ -11010,47 +11043,110 @@ mfsymbol(GEN mf, GEN F, GEN s1, GEN s2, long bitprec)
     P = RgX_Rg_mul(gel(mfpols,iN), mfcharcxeval(CHI,D,prec));
     S = gadd(S, RgX_act_gen(P, ginv(M), k));
   }
-  return gerepilecopy(av, polembedall(S, mfs_get_vE(F)));
+  return gerepilecopy(av, polembedall(S, 0, fs_get_vE(fs)));
 }
 
-#if 0
+/* v a scalar or t_POL; set *pw = a if expo(a) > E for some coefficient;
+ * take the 'a' with largest exponent */
+static void
+improve(GEN v, GEN *pw, long *E)
+{
+  if (typ(v) != t_POL)
+  {
+    long e = gexpo(v);
+    if (e > *E) { *E = e; *pw = v; }
+  }
+  else
+  {
+    long j, l = lg(v);
+    for (j = 2; j < l; j++) improve(gel(v,j), pw, E);
+  }
+}
+static GEN
+polabstorel(GEN rnfeq, GEN T)
+{
+  long i, l;
+  GEN U;
+  if (typ(T) != t_POL) return T;
+  U = cgetg_copy(T, &l); U[1] = T[1];
+  for (i = 2; i < l; i++) gel(U,i) = eltabstorel(rnfeq, gel(T,i));
+  return U;
+}
+/* v vector of polynomials polynomial in C[X] (possibly scalar).
+ * Set *w = coeff with largest exponent and return T / *w, rationalized */
+static GEN
+normal(GEN v, GEN polabs, GEN roabs, GEN rnfeq, GEN *w, long prec)
+{
+  long i, l = lg(v), E = -(long)HIGHEXPOBIT;
+  GEN dv;
+  for (i = 1; i < l; i++) improve(gel(v,i), w, &E);
+  v = gmul(v, ginv(*w));
+  for (i = 1; i < l; i++)
+  {
+    GEN T = bestapprnf(gel(v,i), polabs, roabs, prec);
+    if (rnfeq) T = polabstorel(rnfeq, liftpol_shallow(T));
+    gel(v,i) = T;
+  }
+  v = Q_primitive_part(v,&dv);
+  if (dv) *w = gmul(*w,dv);
+  return v;
+}
 GEN
-mfmanin(GEN mf, GEN F, long bitprec)
+mfmanin(GEN FS, long bitprec)
 {
   pari_sp av = avma;
-  GEN vp, vm, cosets, CHI, vE;
-  long N, k, lco, j, prec;
-  checkMF(mf);
-  if (!checkmfsym_i(F))
-  {
-    F = mfsymbolinit_i(mf, F, bitprec);
-    if (!mfs_iscusp(F)) pari_err_TYPE("mfmanin [noncuspidal]",F);
-  }
-  else if (!mfs_checkmf(F, mf)) pari_err_TYPE("mfmanin [different mf]",F);
-  vp = mfs_get_pols(F);
-  cosets = mfs_get_cosets(F);
-  bitprec = mfs_get_bitprec(F);
+  GEN mf, M, vp, vm, cosets, CHI, vpp, vmm, f, T, P, vE, polabs, roabs, rnfeq;
+  long N, k, lco, i, prec, lvE;
+
+  if (!checkfs_i(FS)) pari_err_TYPE("mfmanin",FS);
+  if (!mfs_iscusp(FS)) pari_err_TYPE("mfmanin [noncuspidal]",FS);
+  mf = fs_get_MF(FS);
+  vp = fs_get_pols(FS);
+  cosets = fs_get_cosets(FS);
+  bitprec = fs_get_bitprec(FS);
   N = MF_get_N(mf); k = MF_get_k(mf); CHI = MF_get_CHI(mf);
-  lco = lg(cosets);
-  vm = cgetg(lco, t_VEC);
+  lco = lg(cosets); vm = cgetg(lco, t_VEC);
   prec = nbits2prec(bitprec);
-  for (j = 1; j < lco; j++)
+  for (i = 1; i < lco; i++)
   {
-    GEN ga = gel(cosets, j), pol, c;
-    long A = itos(gcoeff(ga, 1, 1)), B = itos(gcoeff(ga, 1, 2));
-    long C = itos(gcoeff(ga, 2, 1)), D = itos(gcoeff(ga, 2, 2));
+    GEN g = gel(cosets, i), c;
+    long A = itos(gcoeff(g,1,1)), B = itos(gcoeff(g,1,2));
+    long C = itos(gcoeff(g,2,1)), D = itos(gcoeff(g,2,2));
     long Dbar, ibar = mftocoset_iD(N, mkmat22(-B,-A,D,C), cosets, &Dbar);
 
     c = mfcharcxeval(CHI, Dbar, prec); if (odd(k)) c = gneg(c);
-    pol = RgX_Rg_mul(gel(vp, ibar), c);
-    gel(vm, j) = RgX_unscale(pol, gen_m1);
+    T = RgX_Rg_mul(gel(vp,ibar), c);
+    if (typ(T) == t_POL && varn(T) == 0) T = RgX_recip(T);
+    gel(vm,i) = T;
   }
-  vE = mfs_get_vE(F);
-  vp = polembedall(vp, vE);
-  vm = polembedall(vm, vE);
-  return gerepilecopy(av, mkvec2(gadd(vp,vm), gsub(vp, vm)));
+  vpp = gadd(vp,vm);
+  vmm = gsub(vp,vm);
+
+  vE = fs_get_vE(FS); lvE = lg(vE);
+  f = gel(fs_get_EF(FS), 1);
+  P = mf_get_field(f); if (degpol(P) == 1) P = NULL;
+  T = mfcharpol(CHI);  if (degpol(T) == 1) T = NULL;
+  if (T && P)
+  {
+    rnfeq = nf_rnfeqsimple(T, P);
+    polabs = gel(rnfeq,1);
+    roabs = gel(QX_complex_roots(polabs,prec), 1);
+  }
+  else
+  {
+    rnfeq = roabs = NULL;
+    polabs = P? P: T;
+  }
+  M = cgetg(lvE, t_VEC);
+  for (i = 1; i < lvE; i++)
+  {
+    GEN p, m, wp, wm, E = gel(vE,i);
+    p = normal(vecpolembed(vpp,0,E), polabs, roabs, rnfeq, &wp, prec);
+    m = normal(vecpolembed(vmm,0,E), polabs, roabs, rnfeq, &wm, prec);
+    gel(M,i) = mkvec2(mkvec2(p,m), mkvec2(wp,wm));
+  }
+  return gerepilecopy(av, lvE == 2? gel(M,1): M);
 }
-#endif
 
 /* flag = 0: full, flag = +1 or -1, odd/even */
 /* Basis of period polynomials in level 1. */
@@ -11090,37 +11186,44 @@ mfperiodpolbasis(long k, long flag)
   return gerepilecopy(av, RgM_to_RgXV(ZM_ker(M), 0));
 }
 
-/* Petersson product of cuspidal parts of F and G */
+/* Petersson product of cuspidal parts of F and G, given by mfsymbol's */
 GEN
-mfpetersson(GEN mf, GEN F, GEN G, long bitprec)
+mfpetersson(GEN FS, GEN GS, long bitprec)
 {
   pari_sp av = avma;
   GEN T1 = mkmat22(1,1,0,1), TM1 = mkmat22(1,-1,0,1);
-  GEN mF, mG, ESF, ESG, PF, PG, S, CHI, cosets, vC, vEF, vEG;
+  GEN mf, ESF, ESG, PF, PG, S, CHI, cosets, vC, vEF, vEG;
   long k, n, r, j, N, prec;
-  mF = checkmfsym_i(F)? F: NULL;
-  mG = checkmfsym_i(G)? G: NULL;
-  ESF = mF? mfs_get_vES(mF): mftobasisES(mf,F);
-  ESG = mG? mfs_get_vES(mF): mftobasisES(mf,G);
-  if (!gequal0(gel(ESF,1)) && gequal0(gel(ESG,1)))
+  if (!checkfs_i(FS)) pari_err_TYPE("mfpetersson",FS);
+  mf = fs_get_MF(FS);
+  ESF = fs_get_vES(FS);
+  if (GS)
+  {
+    if (!checkfs_i(GS)) pari_err_TYPE("mfpetersson",GS);
+    if (!mfs_checkmf(GS, mf))
+      pari_err_TYPE("mfpetersson [different mf]", mkvec2(FS,GS));
+    ESG = fs_get_vES(GS);
+    if (gequal(gel(ESF,2), gel(ESG,2))) GS = FS;
+  }
+  else
+  {
+    ESG = ESF;
+    GS = FS;
+  }
+  if (!gequal0(gel(ESF,1)) && !gequal0(gel(ESG,1)))
     pari_err_IMPL("Petersson product of two noncuspidal forms");
   if (gequal0(gel(ESF,2)) || gequal0(gel(ESG,2))) { avma = av; return gen_0; }
-  if (gequal(gel(ESF,2), gel(ESG,2))) G = F;
-  if (!mF) mF = mfsymbolinit_ES(mf, ESF, bitprec);
-  else if (!mfs_checkmf(mF, mf)) pari_err_TYPE("mfpetersson [different mf]",F);
-  if (!mG) mG = (G == F)? mF: mfsymbolinit_ES(mf, ESG, bitprec);
-  else if (!mfs_checkmf(mG, mf)) pari_err_TYPE("mfpetersson [different mf]",G);
   N = MF_get_N(mf);
   k = MF_get_k(mf);
   CHI = MF_get_CHI(mf);
-  PF = mfs_get_pols(mF);
-  PG = mfs_get_pols(mG);
-  cosets = mfs_get_cosets(mF);
-  bitprec = minuu(mfs_get_bitprec(mF), mfs_get_bitprec(mG));
+  PF = fs_get_pols(FS);
+  PG = fs_get_pols(GS);
+  cosets = fs_get_cosets(FS);
+  bitprec = minuu(fs_get_bitprec(FS), fs_get_bitprec(GS));
   prec = nbits2prec(bitprec);
 
-  vEF = mfs_get_vE(mF);
-  vEG = mfs_get_vE(mG);
+  vEF = fs_get_vE(FS);
+  vEG = fs_get_vE(GS);
   vC = vecbinomial(k-2); /* vC[n+1] = (-1)^n binom(k-2,n) */
   for (n = 2; n < k; n+=2) gel(vC,n) = negi(gel(vC,n));
   S = gen_0; r = lg(PG)-1;
@@ -11147,6 +11250,6 @@ mfpetersson(GEN mf, GEN F, GEN G, long bitprec)
   }
   if (odd(k)) S = gneg(S);
   S = gdiv(S, gpowgs(gmul2n(gen_I(), 1), k-1));
-  if (G == F) S = greal(S);
+  if (ESF == ESG) S = greal(S);
   return gerepileupto(av, gdivgs(S, 6*r));
 }

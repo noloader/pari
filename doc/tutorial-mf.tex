@@ -1049,13 +1049,13 @@ plane (see below), also computes values at the cusps:
 
 \begin{verbatim}
 ? mf = mfinit([96,4],0); B = mfbasis(mf); F1 = B[1];
-? FS1 = mfsymbolinit(mf,F1);
+? FS1 = mfsymbol(mf,F1);
 time = 35,592 ms
-? mfsymbol(mf,FS1,0,oo)
+? mfsymboleval(FS1,[0,oo])
 % = 2.0968669678226579060336519703627002478*I*x^2\
  + 0.36368580656317635568444277442842940073*x\
  - 0.049315736834713109138297211986510643780*I
-? mfsymbol(mf,FS1,1,5/2)
+? mfsymboleval(FS1,[1,5/2])
 % = (7.346839692639296925 E-39 + 4.1937339356453158120673039407254004956*I)*x^2\
  + (0.72737161312635271136888554885685880147 - 14.678068774758605342235563792538901735*I)*x\
  + (-1.2729003229711172448955497104995029026 + 15.103654043044843600467382361156555509*I)
@@ -1063,29 +1063,25 @@ time = 35,592 ms
 
 The general strategy for computing these quantities is first to do a
 precomputation which only involves \kbd{mf} and the form $F$ using
-\kbd{mfsymbolinit}. As can be seen on this example, this can take some time,
+\kbd{mfsymbol}. As can be seen on this example, this can take some time,
 but afterwards all the computations are instantaneous.
 
-Note two things: it is allowed to write directly \kbd{mfsymbol(mf,F,s1,s2)}
-without using mfsymbolinit, but since it will be called anyway, each call
-will be long. Second, if you only want the period polynomial from $0$ to
-$\infty$ use \kbd{mfperiodpol(mf,F)} which gives the same answer as before
+Note that if you only want the period polynomial from $0$ to
+$\infty$ use \kbd{mfperiodpol(mf,F1)} which gives the same answer as before
 but in only $20$ ms.
 
 \begin{verbatim}
-? mfpetersson(mf, FS1, FS1)
+? mfpetersson(FS1, FS1)
 % = 0.00061471684149817788924091516302517391826
-? F2 = B[2]; FS2 = mfsymbolinit(mf, F2);
-? mfpetersson(mf, FS2, FS2)
+? F2 = B[2]; FS2 = mfsymbol(mf, F2);
+? mfpetersson(FS2, FS2)
 % = 0.0055324515734836010031682364672265652647
-? mfpetersson(mf, FS1, FS2)
+? mfpetersson(FS1, FS2)
 % = 1.5879887877319313665 E-40 + 7.652958013165934297 E-42*I
 \end{verbatim}
 
-  Same remark: you can use directly a form (e.g., replace \kbd{FS2} by
-  \kbd{mfbasis(mf)[2]}), but this will take some time. It is much better to
-  initialize once and for all \kbd{FS2}, and then all the Petersson product
-  computations are essentially immediate.
+  Same remark: once the \kbd{mfsymbol} \kbd{FS2} initialized, all the
+  Petersson product computations (as well as others) are essentially immediate.
 
   Note that since neither \kbd{F1} nor \kbd{F2} are eigenforms, there is
   no reason for their Petersson product to vanish. To prove this rigorously
@@ -1334,6 +1330,12 @@ specific to the package. To use the package, it is sometimes necessary to
 use functions on characters or functions of the \kbd{lfun} package, but
 those will not be described here.
 
+Note that when a modular form $F$ can be embedded in $\C$ in several ways
+(typically for eigenforms), some functions give a vector (or even a matrix
+for bilinear operations) of results, one for each embedding: this occurs
+specifically for \kbd{mfeval}, \kbd{mfmanin}, \kbd{mfpetersson},
+\kbd{mfsymboleval}. This will not always be specified.
+
 \smallskip
 
 \kbd{getcache()}: returns technical information about auto-growing caches.
@@ -1502,6 +1504,11 @@ for simpler operations such as scalar multiplication (\kbd{mflinear([F],[s])}),
 addition (\kbd{mflinear([F,G],[1,1])}), and subtraction
 (\kbd{mflinear([F,G],[1,-1])}).
 
+\kbd{mfmanin(FS)}: $FS$ being a modular symbol associated to an eigenform,
+returns $[[P^+,P^-],[\omega^+,\omega^-]]$ where the $P^{\pm}$ are the
+even/odd polynomials of special values, and the $\omega^{\pm}$ the
+corresponding periods.
+
 \kbd{mfmul(F,G)}: product of the modular forms $F$ and $G$.
 
 \kbd{mfnumcusps(N)}: number of cusps of $\G_0(N)$.
@@ -1517,10 +1524,9 @@ even/odd period polynomial if \kbd{parity} is $1$ or $-1$.
 \kbd{mfperiodpolbasis(k,\{parity=0\})}: basis of period polynomials of weight
 $k$ for the full modular group, even/odd ones if \kbd{parity} is $1$ or $-1$.
 
-\kbd{mfpetersson(mf,F,G)}: Petersson scalar product of $F$ and $G$ belonging
-to \kbd{mf} with the usual normalization $1/[\G:\G_0(N)]$. If several such
-products must be computed for a given $F$ (or $G$), it is strongly
-advised to replace $F$ by the output of \kbd{mfsymbolinit(mf,F)}.
+\kbd{mfpetersson(FS,GS)}: $FS$ and $GS$ being the modular symbols associated
+to $F$ and $G$ with \kbd{mfsymbol}, computes the Petersson product of $F$ and
+$G$ with the usual normalization $1/[\G:\G_0(N)]$.
 
 \kbd{mfpow(F, n)}: Modular form $F$ to the power $n$.
 
@@ -1562,13 +1568,13 @@ the output of an \kbd{mfinit} command.
 largest valuation at infinity of a nonzero form. If \kbd{mf} is $[N,k,\chi]$,
 only an upper bound.
 
-\kbd{mfsymbol(mf,F,s1,s2)}: $s1$ and $s2$ being two cusps and $F$ being
-a cuspidal form, modular symbol associated to $F$, i.e., the polynomial
-$\int_{s1}^{s2}(X-\tau)^{k-2}F(\tau)d\tau$. $F$ can be a raw modular form,
-but it is strongly advised to replace it by the output of \kbd{mfsymbolinit}.
+\kbd{mfsymboleval(FS,path)}: $FS$ being the modular symbol assocated to
+some form $F$ and \kbd{path} being $[s1,s2]$ where $s1$ and $s2$ are cusps,
+evaluate the symbol on the path, i.e., compute the polynomial
+$\int_{s1}^{s2}(X-\tau)^{k-2}F(\tau)\,d\tau$.
 
-\kbd{mfsymbolinit(mf,F)}: initialize data for working with integrals related
-to $F$ such as \kbd{mfsymbol} and \kbd{mfpetersson}.
+\kbd{mfsymbol(mf,F)}: initialize data for working with integrals related
+to $F$ such as \kbd{mfsymboleval}, \kbd{mfpetersson}, and \kbd{mfmanin}.
 
 \kbd{mftaylor(F,n,\{fl=0\})}: for now, only for $F\in M_k(\G)$ and at the
 point $i$. Compute the first $n$ Taylor coefficients of $F$ around $i$;
