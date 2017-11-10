@@ -1175,7 +1175,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       nl = lg(t)-1;
       nc = nl/2;
       if (odd(nl))
-        pari_err_TYPE("ploth [parametric ploc with odd # of components]",t);
+        pari_err_TYPE("ploth [parametric plot with odd # of components]",t);
     }
   }
   else
