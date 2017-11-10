@@ -564,6 +564,8 @@ mfeisen(2,[0,0])
 mfinit([1,1.0])
 L=mfeigenbasis(mfinit([14,6,Mod(9,14)],0)); mfmul(L[1],L[2])
 
+mfcuspwidth(0,0)
+
 mfparams(mfadd(F2,F3))
 mfparams(mfadd(F4,F6))
 

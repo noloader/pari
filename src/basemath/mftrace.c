@@ -6525,6 +6525,7 @@ cusp_canon(GEN cusp, long N, long *pA, long *pC)
 {
   pari_sp av = avma;
   long A, C, tc, cg;
+  if (N <= 0) pari_err_DOMAIN("mfcuspwidth","N","<=",gen_0,stoi(N));
   if (!cusp || (tc = typ(cusp)) == t_INFINITY) { *pA = 1; *pC = N; return; }
   if (tc != t_INT && tc != t_FRAC ) pari_err_TYPE("checkcusp", cusp);
   Qtoss(cusp, &A,&C);

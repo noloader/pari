@@ -1098,6 +1098,9 @@ t, -6*t - 4, t + 2]
   ***   at top-level: ...nit([14,6,Mod(9,14)],0));mfmul(L[1],L[2])
   ***                                             ^----------------
   *** mfmul: incorrect type in mfsamefield [different fields] (t_VEC).
+  ***   at top-level: mfcuspwidth(0,0)
+  ***                 ^----------------
+  *** mfcuspwidth: domain error in mfcuspwidth: N <= 0
   ***   at top-level: mfparams(mfadd(F2,F3))
   ***                          ^-------------
   ***   in function mfadd: mflinear([F,G],[1,1])
@@ -1156,4 +1159,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mfcosets(1.)
   ***                 ^------------
   *** mfcosets: incorrect type in mfcosets (t_REAL).
-Total time spent: 5476
+Total time spent: 4652
