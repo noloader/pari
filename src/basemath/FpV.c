@@ -1052,7 +1052,7 @@ Flm_Flc_mul_pre_Flx(GEN x, GEN y, ulong p, ulong pi, long sv)
     __Flm_Flc_mul_i_SMALL(z + 1, x, y, lx, l, p);
   else
     __Flm_Flc_mul_i(z + 1, x, y, lx, l, p, pi);
-  return Flx_normalize(z, l + 1);
+  return Flx_renormalize(z, l + 1);
 }
 
 GEN
