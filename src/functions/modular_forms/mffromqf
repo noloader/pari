@@ -1,7 +1,7 @@
 Function: mffromqf
 Section: modular_forms
 C-Name: mffromqf
-Prototype: GDGp
+Prototype: GDG
 Help: mffromqf(Q,{P}): Q being an even positive definite quadratic form
  and P a homogeneous spherical polynomial for Q, computes a 3-component vector
  [mf,F,coeffs], where F is the theta function corresponding to (Q, P), mf is

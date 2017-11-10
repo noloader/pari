@@ -1,7 +1,7 @@
 Function: mfatkin
 Section: modular_forms
 C-Name: mfatkin
-Prototype: GGp
+Prototype: GG
 Help: mfatkin(mfatk,F): Given an mfatk output by mfatk = mfatkininit(mf,Q)
  and a modular form F belonging to the space mf, returns the modular form
  C*F|W_Q, which has polmod coefficients in Q(F), and where mfatk[3]=C,

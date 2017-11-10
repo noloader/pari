@@ -2953,7 +2953,7 @@ mkbez(long N, long FC)
 /* contribution of hyperbolic matrices to trace formula, d * nd = n,
  * DN = divisorsu(N) */
 static GEN
-auxsum(long N, GEN VCHI, GEN GCD, long d, long nd, GEN DN, GEN BEZ)
+auxsum(GEN VCHI, GEN GCD, long d, long nd, GEN DN, GEN BEZ)
 {
   GEN S = gen_0;
   long ct, g = nd - d, lDN = lg(DN), lBEZ = lg(BEZ);
@@ -2990,7 +2990,7 @@ TA3(long N, long k, GEN VCHI, GEN GCD, GEN Dn, GEN BEZ)
     long d = Dn[i], nd = Dn[l-i]; /* = n/d */
     GEN t, u;
     if (d > nd) break;
-    t = auxsum(N, VCHI, GCD, d, nd, DN, BEZ);
+    t = auxsum(VCHI, GCD, d, nd, DN, BEZ);
     if (isintzero(t)) continue;
     u = powuu(d,k-1); if (d == nd) u = gmul2n(u,-1);
     S = gadd(S, gmul(u,t));
@@ -7283,7 +7283,7 @@ checkmfa(GEN z)
 
 /* Apply atkin Q to closure F */
 GEN
-mfatkin(GEN mfa, GEN F, long prec)
+mfatkin(GEN mfa, GEN F)
 {
   pari_sp av = avma;
   GEN z, mfB, MQ, mf;
@@ -8000,7 +8000,7 @@ simple_pole(GEN r)
 
 /* F form, E embedding; mfa = mfatkininit or root number (eigenform case) */
 static GEN
-mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk, long prec)
+mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk)
 {
   GEN LF = cgetg(8,t_VEC), polar = cgetg(1,t_COL), eps;
   long k = itou(gk);
@@ -8017,7 +8017,7 @@ mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk, long prec)
     else
     { /* not self-dual */
       eps = NULL;
-      G = mfatkin(mfa, F, prec);
+      G = mfatkin(mfa, F);
       gel(LF,2) = lfuntag(t_LFUN_MFCLOS, mkvec3(G,E,ginv(gel(mfa,3))));
       gel(LF,6) = powIs(k);
     }
@@ -8047,12 +8047,12 @@ mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk, long prec)
   return LF;
 }
 static GEN
-mflfuncreateall(long sd, GEN mfa, GEN F, GEN vE, GEN gN, GEN gk, long prec)
+mflfuncreateall(long sd, GEN mfa, GEN F, GEN vE, GEN gN, GEN gk)
 {
   long i, l = lg(vE);
   GEN L = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
-    gel(L,i) = mflfuncreate(sd? gel(mfa,i): mfa, F, gel(vE,i), gN, gk, prec);
+    gel(L,i) = mflfuncreate(sd? gel(mfa,i): mfa, F, gel(vE,i), gN, gk);
   return L;
 }
 static GEN
@@ -8067,12 +8067,12 @@ lfunmf_i(GEN mf, GEN F, long bitprec)
     GEN v = mffrickeeigen(mf, vE, prec);
     l = lg(vE); L = cgetg(l, t_VEC);
     for (i = 1; i < l; i++)
-      gel(L,i) = mflfuncreateall(1,gel(v,i), gel(M,i), gel(vE,i), gN, gk, prec);
+      gel(L,i) = mflfuncreateall(1,gel(v,i), gel(M,i), gel(vE,i), gN, gk);
   }
   else
   {
     GEN mfa = mfatkininit_i(mf, N, 1, prec);
-    L = mflfuncreateall(0,mfa, F, mfgetembed(F,prec), gN, gk, prec);
+    L = mflfuncreateall(0,mfa, F, mfgetembed(F,prec), gN, gk);
     if (lg(L) == 2) L = gel(L,1);
   }
   return L;
@@ -8194,7 +8194,7 @@ c_QF_i(long n, GEN Q, GEN P)
 }
 
 GEN
-mffromqf(GEN Q, GEN P, long prec)
+mffromqf(GEN Q, GEN P)
 {
   pari_sp av = avma;
   GEN G, Qi, F, D, N, mf, v, gk, gwt, chi;
@@ -9099,7 +9099,7 @@ getcols(GEN *pM, GEN *pv, long k, long nCHI, GEN allN, GEN vz, ulong p,
 }
 
 static void
-update_Mj(GEN *M, GEN *vecj, GEN *pz, ulong r, ulong p)
+update_Mj(GEN *M, GEN *vecj, GEN *pz, ulong p)
 {
   GEN perm;
   *pz = Flm_indexrank(*M, p); perm = gel(*pz,2);
@@ -9108,12 +9108,12 @@ update_Mj(GEN *M, GEN *vecj, GEN *pz, ulong r, ulong p)
 }
 static int
 getcolsgen(long dim, GEN *pM, GEN *pvj, GEN *pz, long k, long ell, long nCHI,
-           GEN allN, GEN vz, ulong r, ulong p, long lim)
+           GEN allN, GEN vz, ulong p, long lim)
 {
   GEN vCHI = gel(allN,1), bymod = gel(allN,2), gell = utoi(ell);
   long i1, N = lg(vCHI)-1;
   long L = lim+1;
-  if (lg(*pvj)-1 >= dim) update_Mj(pM, pvj, pz, r, p);
+  if (lg(*pvj)-1 >= dim) update_Mj(pM, pvj, pz, p);
   if (lg(*pvj)-1 == dim) return 1;
   for (i1 = 1; i1 <= N; i1++)
   {
@@ -9154,13 +9154,13 @@ getcolsgen(long dim, GEN *pM, GEN *pvj, GEN *pz, long k, long ell, long nCHI,
       }
       *pM = shallowconcat(*pM, M);
       *pvj = shallowconcat(*pvj, vj);
-      if (lg(*pvj)-1 >= dim) update_Mj(pM, pvj, pz, r, p);
+      if (lg(*pvj)-1 >= dim) update_Mj(pM, pvj, pz, p);
       if (lg(*pvj)-1 == dim) return 1;
     }
   }
   if (ell == 1)
   {
-    update_Mj(pM, pvj, pz, r, p);
+    update_Mj(pM, pvj, pz, p);
     return (lg(*pvj)-1 == dim);
   }
   return 0;
@@ -9252,8 +9252,8 @@ mfeisenspaceinit_i(long N, long k, GEN CHI)
   vz = Fl_powers(r, pn, p);
   getcols(&M, &vj, k, nCHI, allN, vz, p, lim);
   for (ell = k>>1; ell >= 1; ell--)
-    if (getcolsgen(dim, &M, &vj, &z, k, ell, nCHI, allN, vz, r, p, lim)) break;
-  if (!z) update_Mj(&M, &vj, &z, r, p);
+    if (getcolsgen(dim, &M, &vj, &z, k, ell, nCHI, allN, vz, p, lim)) break;
+  if (!z) update_Mj(&M, &vj, &z, p);
   if (lg(vj) - 1 < dim) return NULL;
   M = mkM(vj, pn, P, lim);
   Minv = QabM_Minv(rowpermute(M, gel(z,1)), P, ord);
