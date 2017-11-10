@@ -6520,6 +6520,38 @@ mfinit(GEN NK, long space)
 }
 
 /* UTILITY FUNCTIONS */
+static void
+cusp_canon(GEN cusp, long N, long *pA, long *pC)
+{
+  pari_sp av = avma;
+  long A, C, tc, cg;
+  if (!cusp || (tc = typ(cusp)) == t_INFINITY) { *pA = 1; *pC = N; return; }
+  if (tc != t_INT && tc != t_FRAC ) pari_err_TYPE("checkcusp", cusp);
+  Qtoss(cusp, &A,&C);
+  if (N % C)
+  {
+    ulong uC;
+    long u = Fl_invgen((C-1)%N + 1, N, &uC);
+    A = Fl_mul(A, u, N);
+    C = (long)uC;
+  }
+  cg = ugcd(C, N/C);
+  while (ugcd(A, N) > 1) A += cg;
+  *pA = A % N; *pC = C; avma = av;
+}
+static long
+mfcuspcanon_width(long N, long C)
+{
+  if (C == N) return 1;
+  return N/cgcd(N, C*C);
+}
+long
+mfcuspwidth(long N, GEN cusp)
+{
+  long A, C;
+  cusp_canon(cusp, N, &A, &C);
+  return mfcuspcanon_width(N, C);
+}
 
 /* Q a t_INT */
 static GEN
@@ -6750,19 +6782,19 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   N0 = 0;
   for (i = 1; i < lv; i++)
   {
-    GEN tau, t = gel(vtau,i), imt, U;
-    long w = 0, n;
+    GEN t = gel(vtau,i), tau, U;
+    long w, n;
 
     gel(vs,i) = evalcusp(mf, F, t, prec);
     if (gel(vs,i)) continue;
-
-    imt = imag_i(t);
-    if (gsigne(imt) <= 0) pari_err_DOMAIN("mfeval","imag(tau)","<=",gen_0,t);
-    tau = cxredga0N(N,t,&U, flag);
-    if (flag)
+    if (gsigne(imag_i(t)) <= 0)
+      pari_err_DOMAIN("mfeval","imag(tau)","<=",gen_0,t);
+    tau = cxredga0N(N, t, &U, flag);
+    if (!flag) w = 0;
+    else
     {
-      long C = itos(gcoeff(U, 2, 1));
-      w = N/cgcd(N, C*C); tau = gdivgs(tau, w);
+      w = mfcuspcanon_width(N, itos(gcoeff(U,2,1)));
+      tau = gdivgs(tau, w);
     }
     tau = mulcxmI(gmul(tau, sqN));
     n = lfunthetacost(L0, real_i(tau), 0, bitprec);
@@ -6896,39 +6928,6 @@ mfeval(GEN mf, GEN F, GEN vtau, long bitprec)
   if (!obj_check(mf, MF_EISENSPACE)) flnew = mfcheapeisen(mf);
   if (flnew && gcmpgs(gmulsg(2*mf_get_N(mf), mintau(vtau)), 1) >= 0) flnew = 0;
   return gerepilecopy(av, mfeval_i(mf, F, vtau, flnew, bitprec));
-}
-
-static void
-cusp_canon(GEN cusp, long N, long *pA, long *pC)
-{
-  pari_sp av = avma;
-  long A, C, tc, cg;
-  if (!cusp || (tc = typ(cusp)) == t_INFINITY) { *pA = 1; *pC = N; return; }
-  if (tc != t_INT && tc != t_FRAC ) pari_err_TYPE("checkcusp", cusp);
-  Qtoss(cusp, &A,&C);
-  if (N % C)
-  {
-    ulong uC;
-    long u = Fl_invgen((C-1)%N + 1, N, &uC);
-    A = Fl_mul(A, u, N);
-    C = (long)uC;
-  }
-  cg = ugcd(C, N/C);
-  while (ugcd(A, N) > 1) A += cg;
-  *pA = A % N; *pC = C; avma = av;
-}
-static long
-mfcuspcanon_width(long N, long C)
-{
-  if (C == N) return 1;
-  return N/cgcd(N, C*C);
-}
-long
-mfcuspwidth(long N, GEN cusp)
-{
-  long A, C;
-  cusp_canon(cusp, N, &A, &C);
-  return mfcuspcanon_width(N, C);
 }
 
 /* mfinit(F * Theta) */
@@ -10662,8 +10661,8 @@ mfperiodslash(GEN mf, GEN FE, GEN ga, GEN PCO, long bitprec)
   GEN S1, S2, coe, P1, P2, aw1, aw2, al1, al2, alw1, alw2;
   long prec = nbits2prec(bitprec), N, k, C, D, w1, w2, nlim, n;
   N = mf_get_N(mf); k = mf_get_k(mf);
-  C = itos(gcoeff(ga, 2, 1)); w1 = N/cgcd(N, C*C);
-  D = itos(gcoeff(ga, 2, 2)); w2 = N/cgcd(N, D*D);
+  C = itos(gcoeff(ga, 2, 1)); w1 = mfcuspcanon_width(N,C);
+  D = itos(gcoeff(ga, 2, 2)); w2 = mfcuspcanon_width(N,D);
   sqNinv = invr(sqrtr_abs(utor(w1*w2, prec+1)));
   nlim = mfperiod_prelim(sqNinv, k, bitprec + 32);
   P1 = RgX_translate(P, mkcomplex(gen_0, mulsr(-w1, sqNinv)));
