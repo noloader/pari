@@ -10607,12 +10607,13 @@ mfwt1basisalt(long N, GEN CHI, long space)
 /*                         Integration                             */
 /*******************************************************************/
 static GEN
-vanembed(GEN F, GEN van, long prec)
+vanembed(GEN F, GEN v, long prec)
 {
-  GEN CHI = f_CHI(F), P = mfcharpol(CHI);
+  GEN CHI = f_CHI(F);
   long o = mfcharorder_canon(CHI);
-  if (o > 1) van = gsubst(liftpol_shallow(van), varn(P), rootsof1u_cx(o, prec));
-  return van;
+  if (o > 1 || degpol(f_field(F)) > 1) v = liftpol_shallow(v);
+  if (o > 1) v = gsubst(v, varn(mfcharpol(CHI)), rootsof1u_cx(o, prec));
+  return v;
 }
 
 static long
@@ -10898,10 +10899,10 @@ mftocoset(ulong N, GEN M, GEN cosets)
 /* Let F_S be the cuspidal part of F. Compute all period pols of F_S|_k\ga_j,
  * vF = mftobasis(F_S) */
 static GEN
-mfperiodpols_i(GEN mf, GEN vF, GEN cosets, GEN *pvE, long bitprec)
+mfperiodpols_i(GEN mf, GEN vF, GEN cosets, GEN *pvE, long bit)
 {
   GEN F, TCO, S, CHI, vP, ok, vtf, FE;
-  long N, k, i, prec = nbits2prec(bitprec), lco = lg(cosets);
+  long N, k, i, prec = nbits2prec(bit), lco = lg(cosets);
   if (gequal0(vF))
   {
     *pvE = mkvec(cgetg(1,t_VEC));
@@ -10920,37 +10921,34 @@ mfperiodpols_i(GEN mf, GEN vF, GEN cosets, GEN *pvE, long bitprec)
   FE = mkcol2(F, f_eisendec(mf,F,prec));
   for (i = 1; i < lco; i++)
   {
-    GEN P, ga = gel(cosets, i);
+    GEN P, t, ga = gel(cosets, i);
     long iS, D;
     if (!ok[i]) continue;
-    ok[i] = 0; gel(vP,i) = P = mfperiodslash(mf, FE, ga, TCO, bitprec);
+    ok[i] = 0; gel(vP,i) = P = mfperiodslash(mf, FE, ga, TCO, bit);
     iS = mftocoset_iD(N, ZM_mul(ga,S), cosets, &D);
-    if (iS != i)
-    {
-      GEN t = gmul(gconj(mfcharcxeval(CHI, D, prec+EXTRAPRECWORD)), RgX_act_S(P,k));
-      ok[iS] = 0; gel(vP,iS) = odd(k)? t: gneg(t);
-    }
+    if (iS == i) continue;
+    t = gmul(gconj(mfcharcxeval(CHI, D, prec+EXTRAPRECWORD)), RgX_act_S(P,k));
+    ok[iS] = 0; gel(vP,iS) = odd(k)? t: gneg(t);
   }
   delete_var(); return vP;
 }
 static int
 mfs_iscusp(GEN mfs) { return gequal0(gmael(mfs,2,1)); }
 static GEN
-mfsymbolinit_ES(GEN mf, GEN vES, long bitprec)
+mfsymbolinit_ES(GEN mf, GEN vES, long bit)
 {
   GEN cosets = mfcosets(utoi(mf_get_N(mf)));
-  GEN vE, V = mfperiodpols_i(mf, gel(vES,2), cosets, &vE, bitprec);
-  return mkvecn(6, mf, vES, V, cosets, utoi(bitprec), vE);
+  GEN vE, V = mfperiodpols_i(mf, gel(vES,2), cosets, &vE, bit);
+  return mkvecn(6, mf, vES, V, cosets, utoi(bit), vE);
 }
-
 static GEN
-mfsymbolinit_i(GEN mf, GEN F, long bitprec)
-{ return mfsymbolinit_ES(mf, mftobasisES(mf,F), bitprec); }
+mfsymbolinit_i(GEN mf, GEN F, long bit)
+{ return mfsymbolinit_ES(mf, mftobasisES(mf,F), bit); }
 GEN
-mfsymbolinit(GEN mf, GEN F, long bitprec)
+mfsymbolinit(GEN mf, GEN F, long bit)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, mfsymbolinit_i(mf, F, bitprec));
+  return gerepilecopy(av, mfsymbolinit_i(mf, F, bit));
 }
 
 static void
