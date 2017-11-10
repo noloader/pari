@@ -1356,7 +1356,7 @@ GEN
 nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
 {
   GEN nf = cgetg(10,t_VEC);
-  GEN T = S->T, Tr, D, w, TI, A, dA, MDI, mat = cgetg(9,t_VEC);
+  GEN T = S->T, Tr, D, w, A, dA, MDI, mat = cgetg(9,t_VEC);
   long n = degpol(T);
   nffp_t F;
   nfmaxord_complete(S);
