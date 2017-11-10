@@ -2669,19 +2669,25 @@ ncV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
 static GEN
 nxV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
 {
-  long i, l = lg(gel(vA,1)), n = lg(P);
-  GEN mod = gmael(T, lg(T)-1, 1), V = cgetg(l, t_POL);
-  V[1] = evalsigne(1) | evalvarn(0);
+  long i, j, l, n = lg(P);
+  GEN mod = gmael(T, lg(T)-1, 1), V, w;
+  w = cgetg(n, t_VECSMALL);
+  for(j=1; j<n; j++) w[j] = lg(gel(vA,j));
+  l = vecsmall_max(w);
+  V = cgetg(l, t_POL);
+  V[1] = mael(vA,1,1);
   for (i=2; i < l; i++)
   {
     pari_sp av = avma;
     GEN c, A = cgetg(n, typ(P));
-    long j;
-    for (j=1; j < n; j++) A[j] = mael(vA,j,i);
+    if (typ(P)==t_VECSMALL)
+      for (j=1; j < n; j++) A[j] = i < w[j] ? mael(vA,j,i): 0;
+    else
+      for (j=1; j < n; j++) gel(A,j) = i < w[j] ? gmael(vA,j,i): gen_0;
     c = Fp_center(ZV_chinese_tree(A, P, T, R), mod, m2);
     gel(V,i) = gerepileuptoint(av, c);
   }
-  return V;
+  return ZX_renormalize(V, l);
 }
 
 static GEN
