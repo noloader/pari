@@ -82,6 +82,7 @@ x^-1 + O(x)
 [0, 1, 1]
 [0, 1, 1]
 [0, 1, 1]
+Mod(0, 9)*x + O(x^2)
 0.E-38*x^-1 + O(x^0)
 O(x^0)
 Mod(0, 2)*x^-1 + O(x^0)
@@ -115,4 +116,4 @@ y^2 + (1 + z^2 + O(z^3))
   ***   at top-level: subst(O(x^-1),x,0*x)
   ***                 ^--------------------
   *** subst: impossible inverse in gsubst: 0.
-Total time spent: 53
+Total time spent: 9

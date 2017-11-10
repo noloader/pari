@@ -135,6 +135,8 @@ BA  103- ispower((x^3+ffgen([2^127-1,3])*x+1)^2,2,&r);r was wrong [#1976]
     106- SEGV in install() when bad prototype supplied [#1977]
     107- ellzeta(., real number) possibly wrong result [#1981]
 BA  108- sqrtn(Mod(9, 101), -2) -> wrong result
+    109- multiplying t_SER with t_INTMOD entries (mod a composite) whose
+         leading term cancels -> SEGV [#1986]
 
   Added
       1- [libari] ZM_isidentity

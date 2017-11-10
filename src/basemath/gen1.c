@@ -1904,13 +1904,12 @@ gmul(GEN x, GEN y)
       lx = lg(x);
       ly = lg(y); if (lx > ly) { lx = ly; swap(x, y); }
       if (lx == 2) return zeroser(vx, valp(x)+valp(y));
-      z = cgetg(lx,t_SER);
+      av = avma; z = cgetg(lx,t_SER);
       z[1] = evalvalp(valp(x)+valp(y)) | evalvarn(vx) | evalsigne(1);
       x = ser2pol_i(x, lx);
       y = ser2pol_i(y, lx);
       y = RgXn_mul(x, y, lx-2);
-      z = fill_ser(z, y);
-      return gerepilecopy((pari_sp)(z + lx), z);
+      return gerepilecopy(av, fill_ser(z,y));
     }
     case t_QFI: return qficomp(x,y);
     case t_QFR: return qfrcomp(x,y);
@@ -2248,8 +2247,7 @@ gsqr(GEN x)
         z[1] = evalvalp(2*valp(x)) | evalvarn(varn(x)) | evalsigne(1);
         x = ser2pol_i(x,lx);
         x = RgXn_sqr(x, lx-2);
-        z = fill_ser(z, x);
-        return gerepilecopy(av, z);
+        return gerepilecopy(av, fill_ser(z,x));
       }
 
     case t_RFRAC: z = cgetg(3,t_RFRAC);
