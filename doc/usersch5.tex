@@ -6564,6 +6564,18 @@ pairwise coprime, return the vector of \kbd{Flx} polynomials
 $[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
 where $T$ is the tree \kbd{ZV\_producttree(P)}.
 
+\fun{GEN}{ZXC_nv_mod_tree}{GEN A, GEN P, GEN T} $A$ being a \kbd{ZXC}
+and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return the vector of \kbd{FlxC}
+$[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
+where $T$ is the tree \kbd{ZV\_producttree(P)}.
+
+\fun{GEN}{ZXM_nv_mod_tree}{GEN A, GEN P, GEN T} $A$ being a \kbd{ZXM}
+and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
+pairwise coprime, return the vector of \kbd{FlxM}
+$[A \pmod{P[1]},\ldots,A \pmod{P[n]}]$,
+where $T$ is the tree \kbd{ZV\_producttree(P)}.
+
 \fun{GEN}{ZXX_nv_mod_tree}{GEN A, GEN P, GEN T, long v} $A$ being a \kbd{ZXX},
 and $P$ a \typ{VECSMALL} of length $n\ge 1$, the elements of $P$ being
 pairwise coprime, return the vector of \kbd{FlxX}

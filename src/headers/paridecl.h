@@ -1800,6 +1800,8 @@ GEN     ZV_chinesetree(GEN P, GEN T);
 GEN     ZV_nv_mod_tree(GEN V, GEN xa, GEN T);
 GEN     ZV_producttree(GEN xa);
 GEN     ZX_nv_mod_tree(GEN P, GEN xa, GEN T);
+GEN     ZXC_nv_mod_tree(GEN P, GEN xa, GEN T, long w);
+GEN     ZXM_nv_mod_tree(GEN M, GEN xa, GEN T, long w);
 GEN     ZXX_nv_mod_tree(GEN P, GEN xa, GEN T, long w);
 GEN     Zideallog(GEN bid, GEN x);
 long    Zp_issquare(GEN a, GEN p);
