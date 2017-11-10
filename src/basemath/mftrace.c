@@ -1545,16 +1545,19 @@ mfcoefs(GEN F, long n, long d)
   return mfcoefs_i(F, n, d);
 }
 
+/* assume k >= 0 */
 static GEN
-mfak_i(GEN F, long k) { return gel(mfcoefs_i(F, 1, k), 2); }
+mfak_i(GEN F, long k)
+{
+  if (!k) return gel(mfcoefs_i(F,0,1), 1);
+  return gel(mfcoefs_i(F,1,k), 2);
+}
 GEN
 mfcoef(GEN F, long n)
 {
   pari_sp av = avma;
   if (!isf(F)) pari_err_TYPE("mfcoef",F);
-  if (n < 0) return gen_0;
-  if (n == 0) return gerepilecopy(av, gel(mfcoefs_i(F, 0, 1), 1));
-  return gerepilecopy(av, mfak_i(F, n));
+  return n < 0? gen_0: gerepilecopy(av, mfak_i(F, n));
 }
 
 static GEN
@@ -6703,6 +6706,23 @@ van_embedall(GEN van, GEN vE, GEN gN, GEN gk)
 static GEN
 mkmat22(long a, long b, long c, long d) {retmkmat2(mkcol2s(a,c),mkcol2s(b,d));}
 
+/* if t is a cusp, return F(t), else NULL */
+static GEN
+evalcusp(GEN mf, GEN F, GEN t, long prec)
+{
+  long A, B, C, D;
+  GEN ga, R;
+  switch(typ(t))
+  {
+    default: return NULL;
+    case t_INFINITY: return mfak_i(F,0);
+    case t_INT: A = itos(t); C = 1; break;
+    case t_FRAC: A = itos(gel(t,1)); C = itou(gel(t,2)); break;
+  }
+  cbezout(A, C, &D, &B); ga = mkmat22(A, -B, C, D);
+  R = mfgaexpansion(mf, F, ga, 0, prec);
+  return gequal0(gel(R,1))? gmael(R,3,1): gen_0;
+}
 /* Evaluate an mf closure numerically, i.e., in the usual sense, either for a
  * single tau or a vector of tau; for each, return a vector of results
  * corresponding to all complex embeddings of F. If flag is non-zero, allow
@@ -6720,8 +6740,9 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   if (!is_vec_t(ta)) { flscal = 1; vtau = mkvec(vtau); ta = t_VEC; }
   lv = lg(vtau);
   sqN = sqrtr_abs(utor(N, prec));
-  vL = cgetg(lv, t_VEC);
+  vs = const_vec(lv-1, NULL);
   vb = const_vec(lv-1, NULL);
+  vL = cgetg(lv, t_VEC);
   vTAU = cgetg(lv, t_VEC);
   vga = cgetg(lv, t_VEC);
   L0 = mfthetaancreate(NULL, gN, gk); /* only for thetacost */
@@ -6730,23 +6751,11 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   for (i = 1; i < lv; i++)
   {
     GEN tau, t = gel(vtau,i), imt, U;
-    long w = 0, n, tc = typ(t);
-    if (tc == t_INFINITY || tc == t_INT || tc == t_FRAC)
-    {
-      GEN ga, R;
-      long A, C, B, D;
-      gel(vga, i) = gen_0;
-      if (tc == t_INFINITY)
-        gel(vTAU, i) = gel(mfcoefs_i(F, 0, 1), 1);
-      else
-      {
-        A = itos(numer(t)); C = itos(denom(t));
-        cbezout(A, C, &D, &B); ga = mkmat22(A, -B, C, D);
-        R = mfgaexpansion(mf, F, ga, 0, prec);
-        gel(vTAU, i) = gequal0(gel(R, 1)) ? gmael(R, 3, 1) : gen_0;
-      }
-      continue;
-    }
+    long w = 0, n;
+
+    gel(vs,i) = evalcusp(mf, F, t, prec);
+    if (gel(vs,i)) continue;
+
     imt = imag_i(t);
     if (gsigne(imt) <= 0) pari_err_DOMAIN("mfeval","imag(tau)","<=",gen_0,t);
     tau = cxredga0N(N,t,&U, flag);
@@ -6774,19 +6783,15 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
     van = mfcoefs_i(F, N0, 1);
     vL = const_vec(lv-1, van_embedall(van, vE, gN, gk));
   }
-  vs = cgetg(lv, ta);
   for (i = 1; i < lv; i++)
   {
-    GEN z = gel(vtau,i), g = gel(vga,i), c, d;
-    GEN T;
-    if (gequal0(g)) gel(vs,i) = gel(vTAU,i);
-    else
-    {
-      c = gcoeff(g,2,1); d = gcoeff(g,2,2);
-      T = gpow(gadd(gmul(c,z), d), gneg(gk), prec);
-      if (flag && gel(vb,i)) T = gmul(T, gel(vb,i));
-      gel(vs,i) = lfunthetaall(T, gel(vL,i), gel(vTAU,i), bitprec);
-    }
+    GEN z, g, c, d, T;
+    if (gel(vs,i)) continue;
+    z = gel(vtau,i); g = gel(vga,i);
+    c = gcoeff(g,2,1); d = gcoeff(g,2,2);
+    T = gpow(gadd(gmul(c,z), d), gneg(gk), prec);
+    if (flag && gel(vb,i)) T = gmul(T, gel(vb,i));
+    gel(vs,i) = lfunthetaall(T, gel(vL,i), gel(vTAU,i), bitprec);
   }
   return flscal? gel(vs,1): vs;
 }
