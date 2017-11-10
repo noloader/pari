@@ -1176,46 +1176,59 @@ ZM_incremental_CRT(GEN *pH, GEN Hp, GEN *ptq, ulong p)
 }
 
 GEN
-ZVM_init_CRT(GEN Hp, ulong p)
+ZXM_init_CRT(GEN Hp, long deg, ulong p)
 {
   long i, j, k;
-  GEN c, cp, d, dp, H;
+  GEN H;
   long m, l = lg(Hp), lim = (long)(p>>1), n;
   H = cgetg(l, t_MAT);
   if (l==1) return H;
   m = lgcols(Hp);
-  n = lg(gmael(Hp,1,1));
+  n = deg + 3;
   for (j=1; j<l; j++)
   {
-    cp = gel(Hp,j);
-    c = cgetg(m, t_COL);
+    GEN cp = gel(Hp,j);
+    GEN c = cgetg(m, t_COL);
     gel(H,j) = c;
     for (i=1; i<m; i++)
     {
-      dp = gel(cp, i);
-      d = cgetg(n, t_VEC);
+      GEN dp = gel(cp, i);
+      long l = lg(dp);
+      GEN d = cgetg(n, t_POL);
       gel(c, i) = d;
-      for (k=1; k<n; k++)
+      d[1] = dp[1];
+      for (k=2; k<l; k++)
         gel(d,k) = stoi(Fl_center(dp[k], p, lim));
+      for (   ; k<n; k++)
+        gel(d,k) = gen_0;
     }
   }
   return H;
 }
 
 int
-ZVM_incremental_CRT(GEN *pH, GEN Hp, GEN *ptq, ulong p)
+ZXM_incremental_CRT(GEN *pH, GEN Hp, GEN *ptq, ulong p)
 {
-  GEN h, H = *pH, q = *ptq, qp = muliu(q, p), qp2 = shifti(qp,-1);
+  GEN v, H = *pH, q = *ptq, qp = muliu(q, p), qp2 = shifti(qp,-1);
   ulong qinv = Fl_inv(umodiu(q,p), p);
   long i,j,k, l = lg(H), m = lgcols(H), n = lg(gmael(H,1,1));
   int stable = 1;
   for (j=1; j<l; j++)
     for (i=1; i<m; i++)
-      for (k=1; k<n; k++)
+    {
+      GEN h = gmael(H,j,i), hp = gmael(Hp,j,i);
+      long lh = lg(hp);
+      for (k=2; k<lh; k++)
       {
-        h = Fl_chinese_coprime(gmael3(H,j,i,k),mael3(Hp,j,i,k),q,p,qinv,qp,qp2);
-        if (h) { gmael3(H,j,i,k) = h; stable = 0; }
+        v = Fl_chinese_coprime(gel(h,k),uel(hp,k),q,p,qinv,qp,qp2);
+        if (v) { gel(h,k) = v; stable = 0; }
       }
+      for (; k<n; k++)
+      {
+        v = Fl_chinese_coprime(gel(h,k),0,q,p,qinv,qp,qp2);
+        if (v) { gel(h,k) = v; stable = 0; }
+      }
+    }
   *ptq = qp; return stable;
 }
 

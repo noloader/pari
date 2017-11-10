@@ -6491,19 +6491,22 @@ dimension $> 0$. The original \kbd{*H} is destroyed.
 
 \fun{int}{ZM_incremental_CRT}{GEN *H, GEN Hp, GEN *q, ulong p}
 
-As above, for $H$ a matrix whose coefficient are \kbd{ZV}.
-The original \kbd{*H} is destroyed.
-
-\fun{GEN}{ZVM_init_CRT}{GEN Hp, ulong p}
-
-\fun{int}{ZVM_incremental_CRT}{GEN *H, GEN Hp, GEN *q, ulong p}
-
 As above for $H$ a \kbd{ZX}: note that the degree may increase or decrease.
 The original \kbd{*H} is destroyed.
 
 \fun{GEN}{ZX_init_CRT}{GEN Hp, ulong p, long v}
 
 \fun{int}{ZX_incremental_CRT}{GEN *H, GEN Hp, GEN *q, ulong p}
+
+As above, for $H$ a matrix whose coefficient are \kbd{ZX}.
+The original \kbd{*H} is destroyed.
+The entries of $H$ are not normalized, use \kbd{ZX\_renormalize}
+for this.
+
+\fun{GEN}{ZXM_init_CRT}{GEN Hp, long deg, ulong p} where \kbd{deg}
+is the maximal degree of all the \kbd{Hp}
+
+\fun{int}{ZXM_incremental_CRT}{GEN *H, GEN Hp, GEN *q, ulong p}
 
 \subsec{Fast remainders}
 

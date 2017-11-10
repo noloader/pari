@@ -296,6 +296,7 @@ BA  115- [libpari] ZC_Q_mul, ZM_Q_mul, QM_mul, QM_det, QM_ker
 BA  116- [libpari] Fl_log, Fl_log_pre, Fl_sqrtn, Fl_sqrtn_pre
 BA  117- [libpari] Flc_Flv_mul, Flm_adjoint
     118- New GP function exponent()
+BA  119- [libpari] ZXM_init_CRT, ZXM_incremental_CRT
 
   Changed
       1- rewrite bnfnarrow

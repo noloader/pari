@@ -5004,7 +5004,7 @@ ZM_indexrank(GEN x) {
 /*******************************************************************/
 
 static GEN
-FpVM_ratlift(GEN a, GEN q, long vs)
+FpXM_ratlift(GEN a, GEN q)
 {
   GEN B, y;
   long i, j, l = lg(a), n;
@@ -5017,9 +5017,9 @@ FpVM_ratlift(GEN a, GEN q, long vs)
     GEN yi = cgetg(n, t_COL);
     for (j=1; j<n; j++)
     {
-      GEN v = FpC_ratlift(gmael(a,i,j), q, B, B, NULL);
+      GEN v = FpX_ratlift(gmael(a,i,j), q, B, B, NULL);
       if (!v) return NULL;
-      gel(yi, j) = RgV_to_RgX(v, vs);
+      gel(yi, j) = RgX_renormalize(v);
     }
     gel(y,i) = yi;
   }
@@ -5027,10 +5027,11 @@ FpVM_ratlift(GEN a, GEN q, long vs)
 }
 
 static GEN
-FlmV_recover(GEN a, GEN M, ulong p)
+FlmV_recover_pre(GEN a, GEN M, ulong p, ulong pi, long sv)
 {
   GEN a1 = gel(a,1);
   long i, j, k, l = lg(a1), n, lM = lg(M);
+  GEN v = cgetg(lM, t_VECSMALL);
   GEN y = cgetg(l, t_MAT);
   if (l==1) return y;
   n = lgcols(a1);
@@ -5039,9 +5040,8 @@ FlmV_recover(GEN a, GEN M, ulong p)
     GEN yi = cgetg(n, t_COL);
     for (j=1; j<n; j++)
     {
-      GEN v = cgetg(lM, t_VECSMALL);
       for (k=1; k<lM; k++) uel(v,k) = umael(gel(a,k),i,j);
-      gel(yi, j) = Flm_Flc_mul(M, v, p);
+      gel(yi, j) = Flm_Flc_mul_pre_Flx(M, v, p, pi, sv);
     }
     gel(y,i) = yi;
   }
@@ -5063,7 +5063,7 @@ FlkM_inv(GEN M, GEN P, ulong p)
     if (!H) return NULL;
     gel(V, i) = H;
   }
-  return FlmV_recover(V, W, p);
+  return FlmV_recover_pre(V, W, p, pi, P[1]);
 }
 
 GEN
@@ -5088,12 +5088,12 @@ ZabM_inv(GEN M, GEN P, long n, GEN *pden)
     if (!Hp) continue;
     if (!H)
     {
-      H = ZVM_init_CRT(Hp, p);
+      H = ZXM_init_CRT(Hp, degpol(P)-1, p);
       q = utoipos(p);
     }
     else
-      ZVM_incremental_CRT(&H, Hp, &q, p);
-    Hr = FpVM_ratlift(H, q, varn(P));
+      ZXM_incremental_CRT(&H, Hp, &q, p);
+    Hr = FpXM_ratlift(H, q);
     if (DEBUGLEVEL>5) err_printf("ZabM_inv mod %ld (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, pden);
@@ -5134,7 +5134,7 @@ FlkM_ker(GEN M, GEN P, ulong p)
     if (lg(gel(K,1)) != r || !zv_equal(D, gel(K,2))) return NULL;
     gel(V, i) = gel(K,1);
   }
-  return mkvec2(FlmV_recover(V,W,p), D);
+  return mkvec2(FlmV_recover_pre(V, W, p, pi, P[1]), D);
 }
 
 GEN
@@ -5158,12 +5158,12 @@ ZabM_ker(GEN M, GEN P, long n)
     if (H && (lg(Hp)>lg(H) || (lg(Hp)==lg(H) && vecsmall_lexcmp(Dp,D)>0))) continue;
     if (!H || (lg(Hp)<lg(H) || vecsmall_lexcmp(Dp,D)<0))
     {
-      H = ZVM_init_CRT(Hp, p); D = Dp;
+      H = ZXM_init_CRT(Hp, degpol(P)-1, p); D = Dp;
       q = utoipos(p);
     }
     else
-      ZVM_incremental_CRT(&H, Hp, &q, p);
-    Hr = FpVM_ratlift(H, q, varn(P));
+      ZXM_incremental_CRT(&H, Hp, &q, p);
+    Hr = FpXM_ratlift(H, q);
     if (DEBUGLEVEL>5) err_printf("ZabM_ker mod %ld (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, NULL);
