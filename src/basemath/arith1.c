@@ -2691,7 +2691,7 @@ nxV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
 }
 
 static GEN
-nmV_polint_center_tree_seq(GEN vA, GEN P, GEN T, GEN R, GEN m2)
+nxCV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
 {
   long i, j, l = lg(gel(vA,1)), n = lg(P);
   GEN A = cgetg(n, t_VEC);
@@ -2699,26 +2699,19 @@ nmV_polint_center_tree_seq(GEN vA, GEN P, GEN T, GEN R, GEN m2)
   for (i=1; i < l; i++)
   {
     for (j=1; j < n; j++) gel(A,j) = gmael(vA,j,i);
-    gel(V,i) = ncV_polint_center_tree(A, P, T, R, m2);
+    gel(V,i) = nxV_polint_center_tree(A, P, T, R, m2);
   }
   return V;
 }
 
-GEN
-nmV_polint_center_tree_worker(GEN vA, GEN T, GEN R, GEN P, GEN m2)
-{
-  return ncV_polint_center_tree(vA, P, T, R, m2);
-}
-
 static GEN
-nmV_polint_center_tree(GEN mA, GEN P, GEN T, GEN R, GEN m2)
+polint_chinese(GEN worker, GEN mA, GEN P)
 {
   long i, j, l = lg(gel(mA,1)), n = lg(P);
   long pending = 0, workid, cnt = 0;
   struct pari_mt pt;
-  GEN worker, done, va, M;
+  GEN done, va, M;
   GEN A = cgetg(n, t_VEC);
-  worker = snm_closure(is_entry("_polint_worker"), mkvec4(T, R, P, m2));
   va = mkvec(gen_0);
   M = cgetg(l, t_MAT);
   if (DEBUGLEVEL>2) err_printf("Start parallel Chinese remainder: ");
@@ -2738,6 +2731,60 @@ nmV_polint_center_tree(GEN mA, GEN P, GEN T, GEN R, GEN m2)
   if (DEBUGLEVEL>2) err_printf("\n");
   mt_queue_end(&pt);
   return M;
+}
+
+GEN
+nxMV_polint_center_tree_worker(GEN vA, GEN T, GEN R, GEN P, GEN m2)
+{
+  return nxCV_polint_center_tree(vA, P, T, R, m2);
+}
+
+static GEN
+nxMV_polint_center_tree_seq(GEN vA, GEN P, GEN T, GEN R, GEN m2)
+{
+  long i, j, l = lg(gel(vA,1)), n = lg(P);
+  GEN A = cgetg(n, t_VEC);
+  GEN V = cgetg(l, t_MAT);
+  for (i=1; i < l; i++)
+  {
+    for (j=1; j < n; j++) gel(A,j) = gmael(vA,j,i);
+    gel(V,i) = nxCV_polint_center_tree(A, P, T, R, m2);
+  }
+  return V;
+}
+
+static GEN
+nxMV_polint_center_tree(GEN mA, GEN P, GEN T, GEN R, GEN m2)
+{
+  GEN worker = snm_closure(is_entry("_nxMV_polint_worker"), mkvec4(T, R, P, m2));
+  return polint_chinese(worker, mA, P);
+}
+
+static GEN
+nmV_polint_center_tree_seq(GEN vA, GEN P, GEN T, GEN R, GEN m2)
+{
+  long i, j, l = lg(gel(vA,1)), n = lg(P);
+  GEN A = cgetg(n, t_VEC);
+  GEN V = cgetg(l, t_MAT);
+  for (i=1; i < l; i++)
+  {
+    for (j=1; j < n; j++) gel(A,j) = gmael(vA,j,i);
+    gel(V,i) = ncV_polint_center_tree(A, P, T, R, m2);
+  }
+  return V;
+}
+
+GEN
+nmV_polint_center_tree_worker(GEN vA, GEN T, GEN R, GEN P, GEN m2)
+{
+  return ncV_polint_center_tree(vA, P, T, R, m2);
+}
+
+static GEN
+nmV_polint_center_tree(GEN mA, GEN P, GEN T, GEN R, GEN m2)
+{
+  GEN worker = snm_closure(is_entry("_polint_worker"), mkvec4(T, R, P, m2));
+  return polint_chinese(worker, mA, P);
 }
 
 /* return [A mod P[i], i=1..#P] */
@@ -3022,6 +3069,26 @@ nmV_chinese_center(GEN A, GEN P, GEN *pt_mod)
   GEN R = ZV_chinesetree(P, T);
   GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
   GEN a = nmV_polint_center_tree(A, P, T, R, m2);
+  return gc_chinese(av, T, a, pt_mod);
+}
+
+GEN
+nxMV_chinese_center_tree_seq(GEN A, GEN P, GEN T, GEN R)
+{
+  pari_sp av = avma;
+  GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
+  GEN a = nxMV_polint_center_tree_seq(A, P, T, R, m2);
+  return gerepileupto(av, a);
+}
+
+GEN
+nxMV_chinese_center(GEN A, GEN P, GEN *pt_mod)
+{
+  pari_sp av = avma;
+  GEN T = ZV_producttree(P);
+  GEN R = ZV_chinesetree(P, T);
+  GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
+  GEN a = nxMV_polint_center_tree(A, P, T, R, m2);
   return gc_chinese(av, T, a, pt_mod);
 }
 

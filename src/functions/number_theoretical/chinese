@@ -53,3 +53,10 @@ C-Name: nmV_polint_center_tree_worker
 Prototype: GGGGG
 Help: used for parallel chinese
 Doc: used for parallel chinese
+
+Function: _nxMV_polint_worker
+Section: programming/internals
+C-Name: nxMV_polint_center_tree_worker
+Prototype: GGGGG
+Help: used for parallel chinese
+Doc: used for parallel chinese

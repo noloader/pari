@@ -6635,6 +6635,22 @@ the matrix whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
 mod $P[i]$ for all $1\leq i\leq n$. If \kbd{pM} is not \kbd{NULL}, set
 \kbd{*pM} to $M$. N.B.: this function uses the parallel GP interface.
 
+\fun{GEN}{nxCV_chinese_center}{GEN A, GEN P, GEN *pM} where $A$ is a
+vector of \kbd{nxC}s and $P$ a
+\typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$ being
+pairwise coprime, and $M$ being the product of the elements of $P$, returns
+the \typ{COL} whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
+mod $P[i]$ for all $1\leq i\leq n$. If \kbd{pM} is not \kbd{NULL}, set
+\kbd{*pt\_mod} to $M$.
+
+\fun{GEN}{nxMV_chinese_center}{GEN A, GEN P, GEN *pM} where $A$ is a
+vector of \kbd{nxM}s and $P$ a
+\typ{VECSMALL} of the same length $n\ge 1$, the elements of $P$ being
+pairwise coprime, and $M$ being the product of the elements of $P$, returns
+the matrix whose entries are integers in $[-M/2, M/2[$ congruent to $A[i]$
+mod $P[i]$ for all $1\leq i\leq n$. If \kbd{pM} is not \kbd{NULL}, set
+\kbd{*pM} to $M$. N.B.: this function uses the parallel GP interface.
+
 The other routines allow for various precomputations :
 
 \fun{GEN}{ZV_chinesetree}{GEN P, GEN T} given $P$ a vector of integers

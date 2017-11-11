@@ -154,6 +154,8 @@ GEN  polmodular_worker(ulong p, ulong t, ulong L, GEN hilb, GEN factu,
        GEN vne, GEN vinfo, long compute_derivs, GEN j_powers, GEN fdb);
 GEN  nmV_polint_center_tree_worker(GEN Va, GEN T, GEN R, GEN xa, GEN m2);
 GEN  nmV_chinese_center_tree_seq(GEN A, GEN P, GEN T, GEN R);
+GEN  nxMV_polint_center_tree_worker(GEN Va, GEN T, GEN R, GEN xa, GEN m2);
+GEN  nxMV_chinese_center_tree_seq(GEN A, GEN P, GEN T, GEN R);
 GEN  F2xq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN  Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN  Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz);
