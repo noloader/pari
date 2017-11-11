@@ -52,7 +52,13 @@ test()=
 }
 test()
 
+check(A)=if(A^2+A!=A*(A+1),error(A));
+
 A=Mod(-6,y^2-2)*x+Mod(48*z+60,y^2-2);B=Mod(1,y^2-2)*x+Mod(10,y^2-2); A*B
+A=Mod(1,z^2-z-1)*y+(Mod(1/2*z+1/2,z^2-z-1)*x+Mod(1/2*z+1/2,z^2-z-1)); check(A)
+A=x^2+y*z*x+Mod(1,y^2+3); check(A)
+A=x^4+x*y^5+Mod(1,y^2+1); check(A)
+A=x^4+x*y^5+Mod(1,5*y^2+y+1); check(A)
 
 \\#1651
 f1=(x-1)/(x*x-x);

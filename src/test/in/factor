@@ -28,6 +28,7 @@ factor(q,2)
 factor(q,500100)
 factor((x-2.)*(x^2+1))
 factor((x+1)^2/(x^2-4))
+factor(x^2+a^3*x-Mod(6,a^2-2))
 
 factor((x^3+y^3)^2*(x^4+y^4))
 factor(x^3+y^3)
