@@ -997,7 +997,11 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
   pari_timer ti;
   if (!*p) (void) get_nbprimes(1, p);
   m = minss(mmin, n);
-  if (DEBUGLEVEL > 4) timer_start(&ti);
+  if (DEBUGLEVEL > 4)
+  {
+      timer_start(&ti);
+      err_printf("%s: nb primes: %ld\n",str, n);
+  }
   if (m == 1)
   {
     GEN P = primelist_disc(p, n, dB);
@@ -1012,8 +1016,6 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
     long i, s = (n+m-1)/m, r = m - (m*s-n), di = 0;
     struct pari_mt pt;
     long pending;
-    if (DEBUGLEVEL > 4)
-      err_printf("%s: nb primes: %ld\n",str, n);
     H = cgetg(m+1, t_VEC); P = cgetg(m+1, t_VEC);
     mt_queue_start_lim(&pt, worker, m);
     for (i=1; i<=m || pending; i++)
