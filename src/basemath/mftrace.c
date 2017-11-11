@@ -347,6 +347,16 @@ myeulerphiu(ulong n)
   avma = av; return eulerphiu_fact(fa);
 }
 
+static long
+mynumdivu(long N)
+{
+  pari_sp av;
+  GEN fa;
+  if (N == 1) return 1;
+  av = avma; fa = myfactoru(N);
+  avma = av; return numdivu_fact(fa);
+}
+
 /* N\prod_{p|N} (1+1/p) */
 static long
 mypsiu(ulong N)
@@ -470,23 +480,6 @@ newd_params2(long N)
     if (e >= 2) N2 *= upowuu(p, e);
   }
   return N2;
-}
-
-/* TODO: export, together with numdivu */
-static long
-numdivu_fact(GEN E)
-{
-  long S = 1, i, l = lg(E);
-  for (i = 1; i < l; i++) S *= E[i] + 1;
-  return S;
-}
-static long
-mynumdivu(long N)
-{
-  pari_sp av = avma;
-  GEN E = gel(myfactoru(N), 2);
-  long S = numdivu_fact(E);
-  avma = av; return S;
 }
 
 /*              Operations on Dirichlet characters                       */
@@ -2148,11 +2141,7 @@ constdiv(long lim)
   cache_reset(cache_DIV);
   VFACT0 = vecfactoru_i(1, lim);
   VDIV0  = cgetg(lim+1, t_VEC);
-  for (N = 1; N <= lim; ++N)
-  {
-    GEN fa = gel(VFACT0,N);
-    gel(VDIV0, N) = divisorsu_fact(gel(fa,1), gel(fa,2));
-  }
+  for (N = 1; N <= lim; ++N) gel(VDIV0, N) = divisorsu_fact(gel(VFACT0,N));
   cache_set(cache_FACT, VFACT0);
   cache_set(cache_DIV, VDIV0); avma = av;
 }
@@ -2215,9 +2204,9 @@ consttabh(long lim)
       }
       /* use local cache */
       F = gel(CACHE,N - cachea + 1); /* factoru(N) */
-      DN = divisorsu_fact(gel(F,1), gel(F,2));
+      DN = divisorsu_fact(F);
       F = gel(CACHE,N - cachea + 3); /* factoru(N+2) */
-      DN2 = divisorsu_fact(gel(F,1), gel(F,2));
+      DN2 = divisorsu_fact(F);
     }
     else
     { /* use global cache */
@@ -3020,8 +3009,7 @@ TA4(long k, GEN VCHIP, GEN Dn, GEN GCD)
 static GEN
 mkmup(long N)
 {
-  GEN fa = myfactoru(N), P = gel(fa,1), E = gel(fa,2);
-  GEN D = divisorsu_fact(P,E);
+  GEN fa = myfactoru(N), P = gel(fa,1), D = divisorsu_fact(fa);
   long i, lP = lg(P), lD = lg(D);
   GEN MUP = const_vecsmall(N, 0);
   MUP[1] = 1;
@@ -8297,7 +8285,7 @@ sigchi2(long k, GEN CHI1, GEN CHI2, long n, long ord)
   GEN S = gen_0, D;
   long i, l, n1, n2, vt, N1 = mfcharmodulus(CHI1), N2 = mfcharmodulus(CHI2);
   D = sigchi2_dec(n, N1, N2, &n1, &n2); if (!D) { avma = av; return S; }
-  D = divisorsu_fact(gel(D,1),gel(D,2)); l = lg(D);
+  D = divisorsu_fact(D); l = lg(D);
   vt = varn(mfcharpol(CHI1));
   for (i = 1; i < l; i++)
   { /* S += d^(k-1)*chi1(d)*chi2(n/d) */
@@ -8368,7 +8356,7 @@ sigchi2_Fl(long k, GEN CHI1vec, GEN CHI2vec, long n, GEN vz, ulong p)
   ulong S = 0;
   GEN D = sigchi2_dec(n, CHIvec_N(CHI1vec), CHIvec_N(CHI2vec), &n1, &n2);
   if (!D) { avma = av; return S; }
-  D = divisorsu_fact(gel(D,1), gel(D,2));
+  D = divisorsu_fact(D);
   l = lg(D);
   for (i = 1; i < l; i++)
   { /* S += d^(k-1)*chi1(d)*chi2(n/d) */

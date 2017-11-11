@@ -282,7 +282,7 @@ Fl_inverse(ulong a, ulong N) { ulong g; return Fl_invgen(a,N,&g); }
 static GEN
 create_p1mod(ulong N)
 {
-  GEN fa = factoru(N), div = divisorsu_fact(gel(fa,1), gel(fa,2));
+  GEN fa = factoru(N), div = divisorsu_fact(fa);
   ulong i, nsym = count_Manin_symbols(N, gel(fa,1));
   GEN symbols = generatemsymbols(N, nsym, div);
   GEN H = inithashmsymbols(N,symbols);

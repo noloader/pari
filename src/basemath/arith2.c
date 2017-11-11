@@ -476,13 +476,11 @@ divisors0(GEN N, long flag)
 }
 
 GEN
-divisorsu_fact(GEN P, GEN E)
+divisorsu_fact(GEN fa)
 {
+  GEN d, t, t1, t2, t3, P = gel(fa,1), E = gel(fa,2);
   long i, j, l = lg(P);
-  ulong nbdiv = 1;
-  GEN d, t, t1, t2, t3;
-  for (i=1; i<l; i++) nbdiv *= 1+E[i];
-  d = t = cgetg(nbdiv+1,t_VECSMALL);
+  d = t = cgetg(numdivu_fact(fa) + 1,t_VECSMALL);
   *++d = 1;
   for (i=1; i<l; i++)
     for (t1=t,j=E[i]; j; j--,t1=t2)
@@ -493,8 +491,7 @@ GEN
 divisorsu(ulong N)
 {
   pari_sp av = avma;
-  GEN fa = factoru(N);
-  return gerepileupto(av, divisorsu_fact(gel(fa,1), gel(fa,2)));
+  return gerepileupto(av, divisorsu_fact(factoru(N)));
 }
 
 static GEN
@@ -722,6 +719,23 @@ eulerphi(GEN n)
   return gerepileuptoint(av, ZV_prod(Q));
 }
 
+long
+numdivu_fact(GEN fa)
+{
+  GEN E = gel(fa,2);
+  long n = 1, i, l = lg(E);
+  for (i = 1; i < l; i++) n *= E[i]+1;
+  return n;
+}
+long
+numdivu(long N)
+{
+  pari_sp av;
+  GEN fa;
+  if (N == 1) return 1;
+  av = avma; fa = factoru(N);
+  avma = av; return numdivu_fact(fa);
+}
 static GEN
 numdiv_aux(GEN F)
 {
@@ -736,19 +750,13 @@ numdiv(GEN n)
 {
   pari_sp av = avma;
   GEN F, E;
-  long i, l;
   if ((F = check_arith_non0(n,"numdiv")))
   {
     F = clean_Z_factor(F);
     E = numdiv_aux(F);
   }
   else if (lgefint(n) == 3)
-  {
-    if (n[2] == 1) return gen_1;
-    F = factoru(n[2]);
-    E = gel(F,2); l = lg(E);
-    for (i=1; i<l; i++) E[i]++;
-  }
+    return utoipos(numdivu(n[2]));
   else
     E = numdiv_aux(absZ_factor(n));
   return gerepileuptoint(av, zv_prod_Z(E));
