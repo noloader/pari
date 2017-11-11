@@ -1994,12 +1994,13 @@ typedef struct {
   ulong maxmiss;
 } cache;
 
+static void constfact(long lim);
 static void constdiv(long lim);
 static void consttabh(long lim);
 static void consttabdihedral(long lim);
 static void constcoredisc(long lim);
 static THREAD cache caches[] = {
-{ "Factors",  NULL,  50000,    50000, &constdiv, 0, 0 },
+{ "Factors",  NULL,  50000,    50000, &constfact, 0, 0 },
 { "Divisors", NULL,  50000,    50000, &constdiv, 0, 0 },
 { "H",        NULL, 100000, 10000000, &consttabh, 0, 0 },
 { "CorediscF",NULL, 100000, 10000000, &constcoredisc, 0, 0 },
@@ -2130,20 +2131,30 @@ constcoredisc(long lim)
 }
 
 static void
-constdiv(long lim)
+constfact(long lim)
 {
-  pari_sp av = avma;
-  GEN VFACT0, VDIV0, VFACT = caches[cache_FACT].cache;
-  long N, LIM = !VFACT ? 4 : lg(VFACT)-1;
+  pari_sp av;
+  GEN VFACT = caches[cache_FACT].cache;
+  long LIM = VFACT? lg(VFACT)-1: 4;
   if (lim <= 0) lim = 5;
   if (lim <= LIM) return;
-  cache_reset(cache_FACT);
-  cache_reset(cache_DIV);
-  VFACT0 = vecfactoru_i(1, lim);
-  VDIV0  = cgetg(lim+1, t_VEC);
-  for (N = 1; N <= lim; ++N) gel(VDIV0, N) = divisorsu_fact(gel(VFACT0,N));
-  cache_set(cache_FACT, VFACT0);
-  cache_set(cache_DIV, VDIV0); avma = av;
+  cache_reset(cache_FACT); av = avma;
+  cache_set(cache_FACT, vecfactoru_i(1,lim)); avma = av;
+}
+static void
+constdiv(long lim)
+{
+  pari_sp av;
+  GEN VFACT, VDIV = caches[cache_DIV].cache;
+  long N, LIM = VDIV? lg(VDIV)-1: 4;
+  if (lim <= 0) lim = 5;
+  if (lim <= LIM) return;
+  constfact(lim);
+  VFACT = caches[cache_FACT].cache;
+  cache_reset(cache_DIV); av = avma;
+  VDIV  = cgetg(lim+1, t_VEC);
+  for (N = 1; N <= lim; N++) gel(VDIV,N) = divisorsu_fact(gel(VFACT,N));
+  cache_set(cache_DIV, VDIV); avma = av;
 }
 
 /* n > 1, D = divisors(n); sets L = 2*lambda(n), S = sigma(n) */
