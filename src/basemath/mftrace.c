@@ -3632,23 +3632,22 @@ mfshimura(GEN F, long t)
   return gerepilecopy(av, mkvec3(mf, G, res));
 }
 
-/* W ZabM (ZM if n = 1), a,b t_INT or NULL. Write (a/b) * W
- * as M/d, when d t_INT and M ZabM; return [M,d] */
+/* W ZabM (ZM if n = 1), a t_INT or NULL, b t_INT, ZXQ mod P or NULL.
+ * Write a/b = A/d with d t_INT and A Zab return [W,d,A,P] */
 static GEN
-mkMinv(GEN W, GEN a, GEN b, long n)
+mkMinv(GEN W, GEN a, GEN b, GEN P)
 {
-  if (a)
+  GEN A = (b && typ(b) == t_POL)? Q_remove_denom(QXQ_inv(b,P), &b): NULL;
+  if (a && b)
   {
-    if (b)
-    {
-      a = Qdivii(a,b);
-      if (typ(a) == t_INT) b = gen_1; else { b = gel(a,2); a = gel(a,1); }
-      if (is_pm1(a)) a = NULL;
-    }
-    if (a) W = (n == 1)? ZM_Z_mul(W,a): RgM_Rg_mul(W,a);
+    a = Qdivii(a,b);
+    if (typ(a) == t_INT) b = gen_1; else { b = gel(a,2); a = gel(a,1); }
+    if (is_pm1(a)) a = NULL;
   }
+  if (a) A = A? ZX_Z_mul(A,a): a; else A = gen_1;
   if (!b) b = gen_1;
-  return mkvec2(W,b);
+  if (!P) P = gen_0;
+  return mkvec4(W,b,A,P);
 }
 /* M square invertible QabM, return [M',d], M*M' = d*Id */
 static GEN
@@ -3657,7 +3656,7 @@ QabM_Minv(GEN M, GEN P, long n)
   GEN dW, W, dM;
   M = Q_remove_denom(M, &dM);
   W = P? ZabM_inv(liftpol_shallow(M), P, n, &dW): ZM_inv(M, &dW);
-  return mkMinv(W, dM, dW, n);
+  return mkMinv(W, dM, dW, P);
 }
 /* Simplified form of mfclean, after a QabM_indexrank: M a ZabM with full
  * column rank and z = indexrank(M) is known */
@@ -3667,7 +3666,7 @@ mfclean2(GEN M, GEN z, GEN P, long n)
   GEN d, Minv, y = gel(z,1), W = rowpermute(M, y);
   W = P? ZabM_inv(liftpol_shallow(W), P, n, &d): ZM_inv(W, &d);
   M = rowslice(M, 1, y[lg(y)-1]);
-  Minv = mkMinv(W, NULL, d, n);
+  Minv = mkMinv(W, NULL, d, P);
   return mkvec3(y, Minv, M);
 }
 /* M QabM, lg(M)>1 and [y,z] its rank profile. Let Minv be the inverse of the
@@ -3685,7 +3684,7 @@ mfclean(GEN M, GEN P, long n)
   z = gel(v,2);
   if (lg(z) != lg(MdM)) M = vecpermute(M,z);
   M = rowslice(M, 1, y[lg(y)-1]);
-  Minv = mkMinv(W, dM, d, n);
+  Minv = mkMinv(W, dM, d, P);
   return mkvec3(y, Minv, M);
 }
 /* call mfclean using only CHI */
@@ -4095,12 +4094,13 @@ mfeigenbasis(GEN mf)
   return gerepilecopy(ltop, res);
 }
 
-/* Minv = [primitive part, denominator], v a t_COL; return Minv*v */
+/* Minv = [M, d, A, P], v a t_COL, A,P a Zab, d a t_INT; return (A/d) * M*v */
 static GEN
 Minv_RgC_mul(GEN Minv, GEN v)
 {
-  GEN A = gel(Minv,1), d = gel(Minv,2);
-  v = RgM_RgC_mul(A, v);
+  GEN M = gel(Minv,1), d = gel(Minv,2), A = gel(Minv,3);
+  v = RgM_RgC_mul(M, v);
+  if (!equali1(A)) v = RgC_Rg_mul(v, A);
   if (!equali1(d)) v = RgC_Rg_div(v, d);
   return v;
 }
@@ -4108,9 +4108,15 @@ Minv_RgC_mul(GEN Minv, GEN v)
 static GEN
 Minv_embed(GEN Minv, GEN vz)
 {
-  GEN A = gel(Minv,1), d = gel(Minv,2);
-  A = RgM_embed(A, vz); if (!equali1(d)) A = RgM_Rg_div(A, d);
-  return mkvec2(A,gen_1);
+  GEN M = gel(Minv,1), d = gel(Minv,2), A = gel(Minv,3);
+  M = RgM_embed(M, vz);
+  if (!equali1(A))
+  {
+    A = Rg_embed(A, vz);
+    M = RgM_Rg_mul(M, gdiv(A,d));
+  }
+  else if (!equali1(d)) M = RgM_Rg_div(M, d);
+  return mkvec2(M,gen_1);
 }
 static GEN
 Minv_RgM_mul(GEN Minv, GEN B)
@@ -4124,9 +4130,15 @@ Minv_RgM_mul(GEN Minv, GEN B)
 static GEN
 RgM_Minv_mul(GEN B, GEN Minv)
 {
-  GEN A = gel(Minv,1), d = gel(Minv,2);
-  A = RgM_mul(B, A); if (!equali1(d)) A = RgM_Rg_div(A,d);
-  return A;
+  GEN M = gel(Minv,1), d = gel(Minv,2), A = gel(Minv,3), P = gel(Minv,4);
+  M = RgM_mul(B, M);
+  if (!equali1(A))
+  {
+    M = RgM_Rg_mul(M, A);
+    if (typ(A) != t_INT) M = RgXQM_red(M,P);
+  }
+  if (!equali1(d)) M = RgM_Rg_div(M,d);
+  return M;
 }
 
 /* perm vector of strictly increasing indices, v a vector or arbitrary length;
@@ -5407,7 +5419,7 @@ mfwt1init(long N, GEN CHI, GEN TMP, long space, long flraw)
 static GEN
 mfEMPTY(GEN mf1)
 {
-  GEN Minv = mkvec2(cgetg(1,t_MAT), gen_1);
+  GEN Minv = mkMinv(cgetg(1,t_MAT), NULL,NULL,NULL);
   GEN M = mkvec3(cgetg(1,t_VECSMALL), Minv, cgetg(1,t_MAT));
   return mkmf(mf1, cgetg(1,t_VEC), cgetg(1,t_VEC), cgetg(1,t_VEC), M);
 }
@@ -10029,7 +10041,7 @@ mf2init_Nkchi(long N, long r, GEN CHI, long space)
   Minvmat = RgM_Rg_div(gel(Minv,1), gel(Minv,2));
   B = vecmflineardiv_linear(B, Minvmat);
   gel(M,3) = RgM_Minv_mul(gel(M,3), Minv);
-  gel(M,2) = mkvec2(matid(lg(B)-1), gen_1);
+  gel(M,2) = mkMinv(matid(lg(B)-1), NULL,NULL,NULL);
   return mkmf(mf1, cgetg(1,t_VEC), B, gen_0, M);
 }
 
