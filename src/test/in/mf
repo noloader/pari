@@ -140,12 +140,13 @@ for(i=1,#b,print(mfeval(mf,b[i],I/2)))
 D=mfDelta(); mfD = mfinit(D,1);
 mfeval(mfD,D,I/10)
 mfeval(mfD,D,1+2*I)
-mf23=mfinit([23,2],0);F=mfeigenbasis(mf23)[1];mfeval(mf23,F,I)
+mf23=mfinit([23,2],0);F=mfeigenbasis(mf23)[1];
 mfcuspval(mf23,F,oo)
 mfcuspval(mf23,F,0)
 mfcuspval(mf23,F,1/2)
 \\ to make it identical in 32/64 bits
-round(mfslashexpansion(mf23,F,[1,0;1,1],2,0) * 1e28)
+round(mfeval(mf23,F,I/50) * 1e35)
+round(mfslashexpansion(mf23,F,[1,0;1,1],2,0) * 1e35)
 vec(mfdiv(mfpow(D,3),mfpow(D,2)))
 
 mfa = mfatkininit(mf,32);
