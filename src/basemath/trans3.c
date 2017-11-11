@@ -3566,16 +3566,12 @@ mplambertW(GEN y)
 static GEN
 serexp0(long v, long n)
 {
-  long i, l = n+3;
-  GEN y = cgetg(l, t_SER), t;
+  GEN y = cgetg(n+3, t_SER), t;
+  long i;
   y[1] = evalsigne(1) | evalvarn(v) | evalvalp(0);
-  gel(y,2) = gen_1; t = gen_1;
-  for (i = 3; i < l; i++)
-  {
-    t = muliu(t, i-2);
-    gel(y,i) = mkfrac(gen_1, t);
-  }
-  return y;
+  gel(y,2) = gel(y,3) = gen_1; t = gen_2;
+  for (i = 2; i < n; i++, t = muliu(t,i)) gel(y,i+2) = mkfrac(gen_1,t);
+  gel(y,i+2) = mkfrac(gen_1,t); return y;
 }
 
 static GEN
