@@ -300,6 +300,7 @@ BA  117- [libpari] Flc_Flv_mul, Flm_adjoint
     118- New GP function exponent()
 BA  119- [libpari] ZXM_init_CRT, ZXM_incremental_CRT
     120- [libpari] numdivu, numdivu_fact, gexpo_safe
+BA  121- [libpari] FpXC_center, FpXM_center
 
   Changed
       1- rewrite bnfnarrow

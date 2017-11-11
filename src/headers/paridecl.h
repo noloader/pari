@@ -4392,6 +4392,8 @@ GEN     FpX_translate(GEN P, GEN c, GEN p);
 GEN     FpXQX_normalize(GEN z, GEN T, GEN p);
 GEN     FpXV_FpC_mul(GEN V, GEN W, GEN p);
 GEN     FpXY_Fq_evaly(GEN Q, GEN y, GEN T, GEN p, long vx);
+GEN     FpXC_center(GEN C, GEN p, GEN pov2);
+GEN     FpXM_center(GEN M, GEN p, GEN pov2);
 GEN     Fq_Fp_mul(GEN x, GEN y, GEN T, GEN p);
 GEN     Fq_add(GEN x, GEN y, GEN T/*unused*/, GEN p);
 GEN     Fq_div(GEN x, GEN y, GEN T, GEN p);

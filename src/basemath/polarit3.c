@@ -952,6 +952,24 @@ FqM_to_FlxM(GEN x, GEN T, GEN pp)
   return y;
 }
 
+GEN
+FpXC_center(GEN C, GEN p, GEN pov2)
+{
+  long i, l;
+  GEN P = cgetg_copy(C, &l);
+  for(i=1; i<l; i++) gel(P,i) = FpX_center(gel(C,i), p, pov2);
+  return P;
+}
+
+GEN
+FpXM_center(GEN M, GEN p, GEN pov2)
+{
+  long i, l;
+  GEN P = cgetg_copy(M, &l);
+  for(i=1; i<l; i++) gel(P,i) = FpXC_center(gel(M,i), p, pov2);
+  return P;
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                          GENERIC CRT                            */
