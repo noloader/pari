@@ -3603,18 +3603,53 @@ ZM_inv_worker(GEN P, GEN A)
   return V;
 }
 
+static GEN
+ZM_inv0(GEN A, GEN *pden)
+{
+  if (pden) *pden = gen_1;
+  (void)A; return cgetg(1, t_MAT);
+}
+static GEN
+ZM_inv1(GEN A, GEN *pden)
+{
+  GEN a = gcoeff(A,1,1);
+  long s = signe(a);
+  if (!s) return NULL;
+  if (pden) *pden = absi(a);
+  retmkmat(mkcol(s == 1? gen_1: gen_m1));
+}
+static GEN
+ZM_inv2(GEN A, GEN *pden)
+{
+  GEN a, b, c, d, D, cA;
+  long s;
+  A = Q_primitive_part(A, &cA);
+  a = gcoeff(A,1,1); b = gcoeff(A,1,2);
+  c = gcoeff(A,2,1); d = gcoeff(A,2,2);
+  D = subii(mulii(a,d), mulii(b,c)); /* left on stack */
+  s = signe(D);
+  if (!s) return NULL;
+  if (s < 0) D = negi(D);
+  if (pden) *pden = mul_denom(D, cA);
+  if (s > 0)
+    retmkmat2(mkcol2(icopy(d), negi(c)), mkcol2(negi(b), icopy(a)));
+  else
+    retmkmat2(mkcol2(negi(d), icopy(c)), mkcol2(icopy(b), negi(a)));
+}
+
 GEN
-ZM_inv(GEN A, GEN *pt_den)
+ZM_inv(GEN A, GEN *pden)
 {
   pari_sp av = avma;
   long B, m = lg(A)-1;
   GEN d, H, D, mod, worker;
-  if (m == 0)
-  {
-    if (pt_den) *pt_den = gen_1;
-    return cgetg(1, t_MAT);
-  }
+
+  if (m == 0) return ZM_inv0(A,pden);
+  if (pden) *pden = gen_1;
   if (nbrows(A) < m) return NULL;
+  if (m == 1) return ZM_inv1(A,pden);
+  if (m == 2) return ZM_inv2(A,pden);
+
   B = expi(RgM_true_Hadamard(A));
   worker = strtoclosure("_ZM_inv_worker", 1, A);
   H = gen_crt("ZM_inv", worker, NULL, B, m, &mod, nmV_chinese_center, FpM_center);
@@ -3627,10 +3662,10 @@ ZM_inv(GEN A, GEN *pt_den)
     H = ZM_Z_divexact(H, d);
     D = diviiexact(D, d);
   }
-  if (pt_den)
+  if (pden)
   {
     gerepileall(av, 2, &H, &D);
-    *pt_den = D; return H;
+    *pden = D; return H;
   }
   return gerepilecopy(av, H);
 }
@@ -3643,10 +3678,14 @@ ZM_inv_ratlift(GEN M, GEN *pden)
   pari_sp av2, av = avma;
   GEN Hp, q, H;
   ulong p;
-  long lM = lg(M);
+  long m = lg(M)-1;
   forprime_t S;
   pari_timer ti;
-  if (lM == 1) { *pden = gen_1; return cgetg(1,t_MAT); }
+
+  if (m == 0) return ZM_inv0(M,pden);
+  if (m == 1) return ZM_inv1(M,pden);
+  if (m == 2) return ZM_inv2(M,pden);
+
   if (DEBUGLEVEL>5) timer_start(&ti);
   init_modular_big(&S);
   av2 = avma;
