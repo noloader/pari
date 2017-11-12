@@ -3644,7 +3644,7 @@ mkMinv(GEN W, GEN a, GEN b, GEN P)
     if (typ(a) == t_INT) b = gen_1; else { b = gel(a,2); a = gel(a,1); }
     if (is_pm1(a)) a = NULL;
   }
-  if (a) A = A? ZX_Z_mul(A,a): a; else A = gen_1;
+  if (a) A = A? ZX_Z_mul(A,a): a; else if (!A) A = gen_1;
   if (!b) b = gen_1;
   if (!P) P = gen_0;
   return mkvec4(W,b,A,P);
@@ -4126,12 +4126,12 @@ Minv_RgM_mul(GEN Minv, GEN B)
   for (j = 1; j < l; j++) gel(M,j) = Minv_RgC_mul(Minv, gel(B,j));
   return M;
 }
-/* B * Minv */
+/* B * Minv; allow B = NULL for Id */
 static GEN
 RgM_Minv_mul(GEN B, GEN Minv)
 {
   GEN M = gel(Minv,1), d = gel(Minv,2), A = gel(Minv,3), P = gel(Minv,4);
-  M = RgM_mul(B, M);
+  if (B) M = RgM_mul(B, M);
   if (!equali1(A))
   {
     M = RgM_Rg_mul(M, A);
@@ -10038,7 +10038,7 @@ mf2init_Nkchi(long N, long r, GEN CHI, long space)
   M = mflineardivtomat(B,L);
   M = mfcleanCHI(M, CHI);
   Minv = gel(M,2);
-  Minvmat = RgM_Rg_div(gel(Minv,1), gel(Minv,2));
+  Minvmat = RgM_Minv_mul(NULL, Minv);
   B = vecmflineardiv_linear(B, Minvmat);
   gel(M,3) = RgM_Minv_mul(gel(M,3), Minv);
   gel(M,2) = mkMinv(matid(lg(B)-1), NULL,NULL,NULL);
