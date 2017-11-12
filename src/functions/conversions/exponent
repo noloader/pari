@@ -21,8 +21,13 @@ Doc: When $x$ is a \typ{REAL}, the result is the binary exponent $e$ of $x$.
  and the exponent of an exact $0$ is $-\kbd{oo}$ by convention.
 
  For convenience, we \emph{define} the exponent of a \typ{FRAC} $a/b$ as
- the difference of \kbd{exponent}$(a)$ and \kbd{exponent}$(b)$; note that
- this may differ by $1$ from the exponent of  \kbd{$a/b$ * 1.0}.
+ the difference of \kbd{exponent}$(a)$ and \kbd{exponent}$(b)$; note that,
+ if $e'$ denotes the exponent of \kbd{$a/b$ * 1.0}, then the exponent
+ we return is either $e'$ or $e'+1$.
+ \bprog
+ ? [ exponent(9), exponent(10), exponent(9/10), exponent(9/10*1.) ]
+ %5 = [3, 3, 0, -1]
+ @eprog
 
  For a PARI object of type \typ{COMPLEX}, \typ{POL}, \typ{SER}, \typ{VEC},
  \typ{COL}, \typ{MAT} this returns the largest exponent found among the
