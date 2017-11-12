@@ -1387,7 +1387,7 @@ gsubst(GEN x, long v, GEN y)
   long tx = typ(x), ty = typ(y), lx = lg(x), ly = lg(y);
   long l, vx, vy, ex, ey, i, j, k, jb;
   pari_sp av, av2;
-  GEN X, t, p1, p2, modp1, z;
+  GEN X, t, p1, p2, z;
 
   switch(ty)
   {
@@ -1402,16 +1402,15 @@ gsubst(GEN x, long v, GEN y)
 
   if (is_scalar_t(tx))
   {
-    if (tx!=t_POLMOD || varncmp(v, varn(gel(x,1))) <= 0)
-    {
-      if (ty==t_MAT) return scalarmat(x,ly-1);
-      return gcopy(x);
-    }
-    av=avma;
-    p1=gsubst(gel(x,1),v,y); vx=varn(p1);
-    if (typ(p1)!=t_POL) pari_err_TYPE2("substitution",x,y);
-    p2=gsubst(gel(x,2),v,y);
-    if (typ(p2) != t_POL || varncmp(varn(y), vx) >= 0)
+    GEN modp1;
+    if (tx != t_POLMOD || varncmp(v, varn(gel(x,1))) <= 0)
+      return ty==t_MAT? scalarmat(x,ly-1): gcopy(x);
+    av = avma;
+    p1 = gsubst(gel(x,1),v,y);
+    if (typ(p1) != t_POL) pari_err_TYPE2("substitution",x,y);
+    p2 = gsubst(gel(x,2),v,y);
+    vx = varn(p1);
+    if (typ(p2) != t_POL || varncmp(varn(p2), vx) >= 0)
       return gerepileupto(av, gmodulo(p2, p1));
     modp1 = mkpolmod(gen_1,p1);
     lx = lg(p2);
@@ -1419,7 +1418,7 @@ gsubst(GEN x, long v, GEN y)
     for (i=2; i<lx; i++)
     {
       GEN c = gel(p2,i);
-      if (varncmp(vx, gvar(c)) <= 0)
+      if (typ(c) != t_POL || varncmp(varn(c), vx) >= 0)
         c = gmodulo(c,p1);
       else
         c = gmul(c, modp1);
