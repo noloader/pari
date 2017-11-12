@@ -3647,8 +3647,8 @@ ZM_inv(GEN A, GEN *pden)
   if (m == 0) return ZM_inv0(A,pden);
   if (pden) *pden = gen_1;
   if (nbrows(A) < m) return NULL;
-  if (m == 1) return ZM_inv1(A,pden);
-  if (m == 2) return ZM_inv2(A,pden);
+  if (m == 1 && nbrows(A)==1) return ZM_inv1(A,pden);
+  if (m == 2 && nbrows(A)==2) return ZM_inv2(A,pden);
 
   B = expi(RgM_true_Hadamard(A));
   worker = strtoclosure("_ZM_inv_worker", 1, A);
@@ -3683,8 +3683,8 @@ ZM_inv_ratlift(GEN M, GEN *pden)
   pari_timer ti;
 
   if (m == 0) return ZM_inv0(M,pden);
-  if (m == 1) return ZM_inv1(M,pden);
-  if (m == 2) return ZM_inv2(M,pden);
+  if (m == 1 && nbrows(M)==1) return ZM_inv1(M,pden);
+  if (m == 2 && nbrows(M)==2) return ZM_inv2(M,pden);
 
   if (DEBUGLEVEL>5) timer_start(&ti);
   init_modular_big(&S);
