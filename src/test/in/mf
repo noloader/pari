@@ -162,6 +162,7 @@ vector(#L,i,lfun(L[i],1))
 vector(#L,i,lfun(L[i],0,1))
 vector(#L,i,lfun(L[i],-1,1))
 
+mf=mfinit([163,4],3); f=mfbasis(mf)[2]; mfeval(mf,f,I/400)
 mf=mfinit([5,4],0); vF=mfeigenbasis(mf); #vF
 F=vF[1]; liftpol(mfcoefs(F, 9))
 R=mfslashexpansion(mf,F,[1,0;1,1],10,0,&params);

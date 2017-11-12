@@ -6571,11 +6571,12 @@ findq(GEN al, GEN Q)
   return contfracpnqn(gboundcf(al,n), n);
 }
 static GEN
-findqga(long N, GEN x, GEN y)
+findqga(long N, GEN z)
 {
-  GEN Q, LDC, CK = NULL, DK = NULL, ma;
+  GEN Q, LDC, CK = NULL, DK = NULL, ma, x, y = imag_i(z);
   long j, l;
   if (gcmpgs(gmulsg(2*N, y), 1) >= 0) return NULL;
+  x = real_i(z);
   Q = ground(ginv(gsqrt(gmulsg(N, y), LOWDEFAULTPREC)));
   LDC = findq(gmulsg(-N,x), Q);
   ma = gen_1; l = lg(LDC);
@@ -6595,12 +6596,12 @@ findqga(long N, GEN x, GEN y)
 }
 
 static GEN
-findqganew(long N, GEN x, GEN y)
+findqganew(long N, GEN z)
 {
-  GEN MI, D;
-  long i, ckeep = 0, dkeep = 1, lim, sqrtlim, n;
+  GEN MI, D, x, y = imag_i(z);
+  long i, ck = 0, dk = 1, lim, sqrtlim, n;
   if (gcmpgs(gmulsg(4*N, gsqr(y)), 1) >= 0) return NULL;
-  MI = gen_1;
+  x = real_i(z); MI = NULL;
   lim = ceil(1./gtodouble(y)); if (lim < 2*N) lim = 2*N;
   sqrtlim = usqrt(lim)+1;
   n = 1 + (long)ceil(1.0391*log(lim));
@@ -6611,26 +6612,25 @@ findqganew(long N, GEN x, GEN y)
     GEN PQ = contfracpnqn(gboundcf(gmulsg(-sw,x), n1), n1);
     for (j = 1; j < lg(PQ); j++)
     {
-      GEN dc = gel(PQ,j), c1 = gel(dc,2), tmp;
+      GEN dc = gel(PQ,j), c1 = gel(dc,2), m;
       long c, d, g;
       if (cmpiu(c1, sqrtlim) > 0) break;
       c = itou(c1)*sw; d = itou(gel(dc,1));
       g = cgcd(c,d); if (g > 1) { c /= g; d /= g; }
-      tmp = gadd(gsqr(gaddgs(gmulsg(c, x), d)), gsqr(gmulsg(c, y)));
-      tmp = gmulsg(N/cgcd(N, c*c), tmp);
-      if (gcmp(tmp, MI) < 0) { MI = tmp; ckeep = c; dkeep = d; }
+      m = gadd(gsqr(gaddgs(gmulsg(c,x), d)), gsqr(gmulsg(c,y)));
+      m = gmulgs(m, mfcuspcanon_width(N,c));
+      if (!MI || gcmp(m,MI) < 0) { MI = m; ck = c; dk = d; }
     }
   }
-  return gequal1(MI)? NULL: mkvec2s(ckeep, dkeep);
+  return MI? mkvec2s(ck, dk): NULL;
 }
 
 static GEN
 cxredga0N(long N, GEN z, GEN *pU, long flag)
 {
-  GEN v = NULL, A, B, C, D, g, s, t;
+  GEN v = NULL, A, B, C, D, g;
   if (N == 1) return cxredsl2(z, pU);
-  s = real_i(z); t = imag_i(z);
-  v = flag? findqganew(N,s,t): findqga(N,s,t);
+  v = flag? findqganew(N,z): findqga(N,z);
   if (!v) { *pU = matid(2); return z; }
   C = gel(v,1);
   D = gel(v,2); g = bezout(C, D, &B, &A);
