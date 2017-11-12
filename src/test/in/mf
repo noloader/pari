@@ -96,6 +96,7 @@ mfnumcusps(factor(6^64))
 mfsturm([96,6])
 mfdim([96,6],0)
 mfdim([96,6])
+vec(mftraceform([1,0]))
 T=mftraceform([96,6],1);
 mfdescribe(T)
 mfdescribe(mflinear([T],[0]))
@@ -589,5 +590,7 @@ mf=mfinit([1,4],3);
 mftonew(mf,E4)
 mfconductor(mf,E4)
 mffields(mf)
+
+mfdiv(D,mftraceform([1,3]))
 
 mfcosets(1.)

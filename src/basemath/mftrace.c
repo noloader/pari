@@ -64,7 +64,8 @@ static long mfdihedralcuspdim(long N, GEN CHI);
 static GEN mfdihedralnew(long N, GEN CHI);
 static GEN mfdihedralall(GEN LIM);
 static long mfwt1cuspdim(long N, GEN CHI);
-static long mf2dim_NKchi(long N, long k, GEN CHI, ulong space);
+static long mf2dim_Nkchi(long N, long k, GEN CHI, ulong space);
+static long mfdim_Nkchi(long N, long k, GEN CHI, long space);
 static GEN charLFwtk(long k, GEN CHI, long ord);
 static GEN mfeisengacx(GEN E,long w,GEN ga,long n,long prec);
 static GEN mfgaexpansion(GEN mf, GEN F, GEN gamma, long n, long prec);
@@ -3492,6 +3493,7 @@ mftraceform_i(GEN NK, long space)
   GEN CHI;
   long N, k;
   checkNK(NK, &N, &k, &CHI, 0);
+  if (!mfdim_Nkchi(N, k, CHI, space)) return mftrivial();
   switch(space)
   {
     case mf_NEW: return mftraceform_new(N, k, CHI);
@@ -7853,7 +7855,7 @@ mfnewtracecache(long N, long k, long n, cachenew_t *cache)
 }
 
 static long
-mfdim_NKchi(long N, long k, GEN CHI, long space)
+mfdim_Nkchi(long N, long k, GEN CHI, long space)
 {
   if (k < 0 || badchar(N,k,CHI)) return 0;
   if (k == 0)
@@ -7881,14 +7883,17 @@ mfwt1dimsum(long N, long space)
   pari_err_FLAG("mfdim");
   return 0; /*LCOV_EXCL_LINE*/
 }
+/* mfdim for k = nk/dk */
+static long
+mfdim_Nndkchi(long N, long nk, long dk, GEN CHI, long space)
+{ return (dk == 2)? mf2dim_Nkchi(N, nk >> 1, CHI, space)
+                  : mfdim_Nkchi(N, nk, CHI, space); }
 static long
 mfwtkdimsum(long N, long k, long dk, long space)
 {
   GEN w = mfchars(N, k, dk, NULL);
   long i, j, d = 0, l = lg(w);
-  for (i = j = 1; i < l; i++)
-    d += dk == 2? mf2dim_NKchi(N, k>>1, gel(w,i), space)
-                : mfdim_NKchi(N, k, gel(w,i), space);
+  for (i = j = 1; i < l; i++) d += mfdim_Nndkchi(N,k,dk,gel(w,i),space);
   return d;
 }
 static GEN
@@ -7913,8 +7918,7 @@ mfwtkdims(long N, long k, long dk, GEN vCHI, long space)
   for (i = j = 1; i < l; i++)
   {
     GEN CHI = gel(w,i);
-    long d = (dk == 2)? mf2dim_NKchi(N,k>>1,CHI,space)
-                      : mfdim_NKchi(N,k,CHI,space);
+    long d = mfdim_Nndkchi(N,k,dk,CHI,space);
     if (vCHI)
       gel(D, j++) = mkvec2s(d, 0);
     else if (d)
@@ -7986,8 +7990,7 @@ mfdim(GEN NK, long space)
     if (!CHI) return gerepileupto(av, vecsort(D, mkvecsmall(1)));
     return gerepilecopy(av, D);
   }
-  if (dk == 2) return utoi(mf2dim_NKchi(N, k >> 1, CHI, space));
-  return utoi(mfdim_NKchi(N, k, CHI, space));
+  return utoi( mfdim_Nndkchi(N, k, dk, CHI, space) );
 }
 
 GEN
@@ -10006,7 +10009,7 @@ checkmf2(long N, long r, GEN CHI, long F, long space)
 
 /* weight k = r + 1/2 */
 static long
-mf2dim_NKchi(long N, long r, GEN CHI, ulong space)
+mf2dim_Nkchi(long N, long r, GEN CHI, ulong space)
 {
   long D, D2, F = mfcharconductor(CHI);
   if (!checkmf2(N, r, CHI, F, space)) return 0;
