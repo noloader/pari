@@ -2573,7 +2573,7 @@ gcvtop(GEN x, GEN p, long r)
 }
 
 long
-gexpo(GEN x)
+gexpo_safe(GEN x)
 {
   long tx = typ(x), lx, e, f, i;
 
@@ -2607,8 +2607,14 @@ gexpo(GEN x)
       for (i=1; i<lx; i++) { e=gexpo(gel(x,i)); if (e>f) f=e; }
       return f;
   }
-  pari_err_TYPE("gexpo",x);
-  return 0; /* LCOV_EXCL_LINE */
+  return -1-(long)HIGHEXPOBIT;
+}
+long
+gexpo(GEN x)
+{
+  long e = gexpo_safe(x);
+  if (e < -(long)HIGHEXPOBIT) pari_err_TYPE("gexpo",x);
+  return e;
 }
 GEN
 gpexponent(GEN x)

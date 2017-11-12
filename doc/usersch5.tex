@@ -637,6 +637,10 @@ is not a \typ{REAL} (returns the largest exponent found among the components
 of \kbd{x}). When \kbd{x} is an exact~0, this returns
 \hbox{\kbd{-HIGHEXPOBIT}}, which is lower than any valid exponent.
 
+\fun{long}{gexpo_safe}{GEN x} same as \kbd{gexpo}, but returns a value
+strictly less than \hbox{\kbd{-HIGHEXPOBIT}} when the exponent is not defined
+(e.g. for a \typ{PADIC} or \typ{INTMOD} component).
+
 \fun{long}{valp}{GEN x} returns the $p$-adic valuation (for
 a \typ{PADIC}) or $X$-adic valuation (for a \typ{SER}, taken with respect to
 the main variable) of~\kbd{x}.

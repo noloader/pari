@@ -1173,10 +1173,10 @@ gpow(GEN x, GEN n, long prec)
   i = precision(n);
   if (i) prec = i;
   prec0 = prec;
-  if (!gprecision(x) && typ(n) != t_PADIC)
+  if (!gprecision(x))
   {
-    long e = gexpo(n);
-    if (e > 2) prec += nbits2extraprec(e); /* branch avoided if n = 0 */
+    long e = gexpo_safe(n); /* avoided if n = 0 or gexpo not defined */
+    if (e > 2) prec += nbits2extraprec(e);
   }
   y = gmul(n, glog(x,prec));
   y = gexp(y,prec);

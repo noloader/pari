@@ -3267,6 +3267,7 @@ GEN     gcvtop(GEN x, GEN p, long r);
 int     gequal(GEN x, GEN y);
 int     gequalsg(long s, GEN x);
 long    gexpo(GEN x);
+long    gexpo_safe(GEN x);
 GEN     gpexponent(GEN x);
 GEN     gpvaluation(GEN x, GEN p);
 long    gvaluation(GEN x, GEN p);

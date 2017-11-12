@@ -298,7 +298,7 @@ BA  116- [libpari] Fl_log, Fl_log_pre, Fl_sqrtn, Fl_sqrtn_pre
 BA  117- [libpari] Flc_Flv_mul, Flm_adjoint
     118- New GP function exponent()
 BA  119- [libpari] ZXM_init_CRT, ZXM_incremental_CRT
-    120- [libpari] numdivu, numdivu_fact
+    120- [libpari] numdivu, numdivu_fact, gexpo_safe
 
   Changed
       1- rewrite bnfnarrow
