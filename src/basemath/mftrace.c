@@ -6354,13 +6354,6 @@ mfdihedralcusp(long N, GEN CHI)
   return gerepilecopy(av, shallowconcat1(z));
 }
 
-long
-mfdihedraldim(long N, GEN CHI, long space)
-{
-  CHI = get_mfchar(CHI);
-  return space==mf_NEW? mfdihedralnewdim(N, CHI): mfdihedralcuspdim(N, CHI);
-}
-
 /* CHI an mfchar */
 static int
 cmp_ord(void *E, GEN a, GEN b)

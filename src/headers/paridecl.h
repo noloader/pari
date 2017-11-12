@@ -4020,7 +4020,6 @@ long  mfconductor(GEN mf, GEN F);
 long  mfcuspdim(long N, long k, GEN CHI);
 long  mfcuspisregular(GEN NK, GEN cusp);
 long  mfcuspwidth(long N, GEN cusp);
-long  mfdihedraldim(long N, GEN CHI, long space);
 long  mfeisendim(long N, long k, GEN CHI);
 long  mffulldim(long N, long k, GEN CHI);
 long  mfisequal(GEN F, GEN G, long lim);
