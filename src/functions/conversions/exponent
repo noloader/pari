@@ -31,8 +31,8 @@ Doc: When $x$ is a \typ{REAL}, the result is the binary exponent $e$ of $x$.
 
  For a PARI object of type \typ{COMPLEX}, \typ{POL}, \typ{SER}, \typ{VEC},
  \typ{COL}, \typ{MAT} this returns the largest exponent found among the
- components of $x$. Hence $2^{e+1}$ can be used as a quick upper bound for
- the sup norm of matrices or polynomials.
+ components of $x$. Hence $2^{e+1}$ is a quick upper bound for the sup norm
+ of real matrices or polynomials; and $2^{e+(3/2)}$ for complex ones.
 
  \bprog
  ? exponent(3*x^2 + 15*x - 100)
