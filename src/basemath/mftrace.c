@@ -4481,6 +4481,7 @@ mf_normalize(GEN mf, GEN v)
   v = Q_primpart(v);
   c = RgMrow_RgC_mul(M, v, 2); /* a_1(f) */
   if (gequal1(c)) return v;
+  if (typ(c) == t_POL) c = gmodulo(c, mfcharpol(mf_get_CHI(mf)));
   if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1 && degpol(gel(c,1)) >= 40
                          && Mindex[1] == 2
                          && mfcharorder(mf_get_CHI(mf)) <= 2)
