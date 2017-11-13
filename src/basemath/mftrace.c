@@ -939,43 +939,41 @@ c_linear(long n, long d, GEN F, GEN L, GEN dL)
   return gerepileupto(av, S);
 }
 
-/* t_MF_BD(t_MF_HECKE(t_MF_NEWTRACE)) or
+/* B_d(T_j Trace^new) as t_MF_BD(t_MF_HECKE(t_MF_NEWTRACE)) or
  * t_MF_HECKE(t_MF_NEWTRACE)
- * or t_MF_NEWTRACE in level N */
-static void
-bhn_parse(GEN f, long *N, long *d, long *j, GEN *DATA)
+ * or t_MF_NEWTRACE in level N. Set d and j, return t_MF_NEWTRACE component*/
+static GEN
+bhn_parse(GEN f, long *d, long *j)
 {
   long t = f_type(f);
   *d = *j = 1;
-  if (t == t_MF_BD)
-  {
-    *d = itos(gel(f,3));
-    f = gel(f,2);
-    t = f_type(f);
-  }
-  if (t == t_MF_HECKE)
-  {
-    *j = gel(f,2)[1];
-    f = gel(f,3);
-  }
-  *DATA = gel(f,2);
-  *N = f_N(f);
+  if (t == t_MF_BD) { *d = itos(gel(f,3)); f = gel(f,2); t = f_type(f); }
+  if (t == t_MF_HECKE) { *j = gel(f,2)[1]; f = gel(f,3); }
+  return f;
+}
+/* f as above, return the t_MF_NEWTRACE component */
+static GEN
+bhn_newtrace(GEN f)
+{
+  long t = f_type(f);
+  if (t == t_MF_BD) { f = gel(f,2); t = f_type(f); }
+  if (t == t_MF_HECKE) f = gel(f,3);
+  return f;
 }
 static int
 newtrace_stripped(GEN DATA)
 { return lg(DATA) == 5 && typ(gel(DATA,3)) == t_INT; }
 static GEN
 newtrace_DATA(long N, GEN DATA)
-{ return (newtrace_stripped(DATA))? initnewtrace(N, DATA): DATA; }
+{ return newtrace_stripped(DATA)? initnewtrace(N, DATA): DATA; }
 /* vF not empty, same hypotheses as bhnmat_extend */
 static GEN
 bhnmat_extend_nocache(GEN M, long n, long d, GEN vF)
 {
-  GEN DATA, f = gel(vF, lg(vF)-1); /* vF[#vF-1] has largest level */
-  long Bd, j, N;
+  GEN DATA, f, F = gel(vF, lg(vF)-1); /* vF[#vF-1] has largest level */
   cachenew_t cache;
-  bhn_parse(f, &N, &Bd,&j, &DATA);
-  DATA = newtrace_DATA(f_N(f), DATA);
+  f = bhn_newtrace(F);
+  DATA = newtrace_DATA(f_N(F), gel(f,2)); /* N.B. f_N(f) divides f_N(F) */
   init_cachenew(&cache, n*d, DATA);
   M = bhnmat_extend(M, n, d, vF, &cache);
   dbg_cachenew(&cache);
@@ -3948,14 +3946,14 @@ bhnmat_extend(GEN M, long m, long r, GEN vtf, cachenew_t *cache)
   m0 = M? nbrows(M): 0;
   for (i = 1; i < l; i++)
   {
-    GEN DATA, c, f = gel(vtf,i);
-    long d, j, m0d, N, k = f_k(f);
-    bhn_parse(f, &N, &d, &j, &DATA);
+    long d, j, m0d, N;
+    GEN DATA, c, f = bhn_parse(gel(vtf,i), &d,&j); /* t_MF_NEWTRACE */
+    N = f_N(f); DATA = gel(f,2);
     m0d = ceildiv(m0,d);
     if (N!=Nold)
     { reset_cachenew(cache, newtrace_DATA(N,DATA)); Nold=N; jold=0; }
     if (j!=jold || m0)
-    { v = heckenewtrace(m0d, m/d, r, N, N, k, j,cache); jold=j; }
+    { v = heckenewtrace(m0d, m/d, r, N, N, f_k(f), j,cache); jold=j; }
     c = RgC_Bd_expand(m0, m, v, d, m0d);
     if (M) c = shallowconcat(gel(M,i), c);
     gel(MAT,i) = c;
