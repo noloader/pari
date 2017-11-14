@@ -79,49 +79,49 @@ mkgNK(GEN N, GEN k, GEN CHI, GEN P) { return mkvec4(N, k, CHI, P); }
 static GEN
 mkNK(long N, long k, GEN CHI) { return mkgNK(stoi(N), stoi(k), CHI, pol_x(1)); }
 GEN
-mf_get_CHI(GEN mf) { return gmael(mf,1,3); }
+MF_get_CHI(GEN mf) { return gmael(mf,1,3); }
 long
-mf_get_N(GEN mf) { return itou(gmael(mf,1,1)); }
+MF_get_N(GEN mf) { return itou(gmael(mf,1,1)); }
 GEN
-mf_get_gk(GEN mf) { return gmael(mf,1,2); }
+MF_get_gk(GEN mf) { return gmael(mf,1,2); }
 long
-mf_get_k(GEN mf)
+MF_get_k(GEN mf)
 {
-  GEN gk = mf_get_gk(mf);
+  GEN gk = MF_get_gk(mf);
   if (typ(gk)!=t_INT) pari_err_IMPL("half-integral weight");
   return itou(gk);
 }
 long
-mf_get_space(GEN mf) { return itos(gmael(mf,1,4)); }
+MF_get_space(GEN mf) { return itos(gmael(mf,1,4)); }
 GEN
-mf_get_eisen(GEN mf) { return gel(mf,2); }
+MF_get_eisen(GEN mf) { return gel(mf,2); }
 GEN
-mf_get_vtf(GEN mf) { return gel(mf,3); }
+MF_get_vtf(GEN mf) { return gel(mf,3); }
 GEN
-mf_get_basis(GEN mf) { return shallowconcat(gel(mf,2), gel(mf,3)); }
+MF_get_basis(GEN mf) { return shallowconcat(gel(mf,2), gel(mf,3)); }
 long
-mf_get_dim(GEN mf)
+MF_get_dim(GEN mf)
 {
-  switch(mf_get_space(mf))
+  switch(MF_get_space(mf))
   {
     case mf_FULL:
-      return lg(mf_get_vtf(mf)) - 1 + lg(mf_get_eisen(mf))-1;
+      return lg(MF_get_vtf(mf)) - 1 + lg(MF_get_eisen(mf))-1;
     case mf_EISEN:
-      return lg(mf_get_eisen(mf))-1;
+      return lg(MF_get_eisen(mf))-1;
     default: /* mf_NEW, mf_CUSP, mf_OLD */
-      return lg(mf_get_vtf(mf)) - 1;
+      return lg(MF_get_vtf(mf)) - 1;
   }
 }
 GEN
-mfnew_get_vj(GEN mf) { return gel(mf,4); }
+MFnew_get_vj(GEN mf) { return gel(mf,4); }
 GEN
-mfcusp_get_vMjd(GEN mf) { return gel(mf,4); }
+MFcusp_get_vMjd(GEN mf) { return gel(mf,4); }
 GEN
-mf_get_M(GEN mf) { return gmael(mf,5,3); }
+MF_get_M(GEN mf) { return gmael(mf,5,3); }
 GEN
-mf_get_Minv(GEN mf) { return gmael(mf,5,2); }
+MF_get_Minv(GEN mf) { return gmael(mf,5,2); }
 GEN
-mf_get_Mindex(GEN mf) { return gmael(mf,5,1); }
+MF_get_Mindex(GEN mf) { return gmael(mf,5,1); }
 
 /* ordinary gtocol forgets about initial 0s */
 GEN
@@ -744,30 +744,30 @@ tag2(long t, GEN NK, GEN x, GEN y) { retmkvec3(tagparams(t,NK), x,y); }
 static GEN
 tag3(long t, GEN NK, GEN x,GEN y,GEN z) { retmkvec4(tagparams(t,NK), x,y,z); }
 /* is F a "modular form" ? */
-static long
-isf(GEN F)
+int
+checkmf_i(GEN F)
 { return typ(F) == t_VEC
     && lg(F) > 1 && typ(gel(F,1)) == t_VEC
     && lg(gel(F,1)) == 3
     && typ(gmael(F,1,1)) == t_VECSMALL
     && typ(gmael(F,1,2)) == t_VEC; }
-static long f_type(GEN F) { return gmael(F,1,1)[1]; }
-static GEN f_gN(GEN F) { return gmael3(F,1,2,1); }
-static GEN f_gk(GEN F) { return gmael3(F,1,2,2); }
+long mf_get_type(GEN F) { return gmael(F,1,1)[1]; }
+GEN mf_get_gN(GEN F) { return gmael3(F,1,2,1); }
+GEN mf_get_gk(GEN F) { return gmael3(F,1,2,2); }
 /* k - 1/2, assume k in 1/2 + Z */
-static long f_r(GEN F) { return itou(gel(f_gk(F),1)) >> 1; }
-static long f_N(GEN F) { return itou(f_gN(F)); }
-static long f_k(GEN F)
+long mf_get_r(GEN F) { return itou(gel(mf_get_gk(F),1)) >> 1; }
+long mf_get_N(GEN F) { return itou(mf_get_gN(F)); }
+long mf_get_k(GEN F)
 {
-  GEN gk = f_gk(F);
+  GEN gk = mf_get_gk(F);
   if (typ(gk)!=t_INT) pari_err_IMPL("half-integral weight");
   return itou(gk);
 }
-static GEN f_CHI(GEN F) { return gmael3(F,1,2,3); }
-static GEN f_field(GEN F) { return gmael3(F,1,2,4); }
-static GEN f_NK(GEN F) { return gmael(F,1,2); }
+GEN mf_get_CHI(GEN F) { return gmael3(F,1,2,3); }
+GEN mf_get_field(GEN F) { return gmael3(F,1,2,4); }
+GEN mf_get_NK(GEN F) { return gmael(F,1,2); }
 static void
-f_setfield(GEN f, GEN P)
+mf_setfield(GEN f, GEN P)
 {
   gel(f,1) = leafcopy(gel(f,1));
   gmael(f,1,2) = leafcopy(gmael(f,1,2));
@@ -875,8 +875,8 @@ c_pow(long n, long d, GEN F, GEN a)
 static GEN
 mfmultheta(GEN F)
 {
-  if (typ(f_gk(F)) == t_FRAC && f_type(F) == t_MF_DIV
-      && f_type(gel(F,3)) == t_MF_THETA) return gel(F,2);
+  if (typ(mf_get_gk(F)) == t_FRAC && mf_get_type(F) == t_MF_DIV
+      && mf_get_type(gel(F,3)) == t_MF_THETA) return gel(F,2);
   return mfmul(F, mfTheta(NULL));
 }
 
@@ -887,7 +887,7 @@ c_bracket(long n, long d, GEN F, GEN G, GEN gm)
   long i, nd = n*d;
   GEN VF = mfcoefs_i(F, nd, 1), tF = cgetg(nd+2, t_VEC);
   GEN VG = mfcoefs_i(G, nd, 1), tG = cgetg(nd+2, t_VEC);
-  GEN C, mpow, res = NULL, gk = f_gk(F), gl = f_gk(G);
+  GEN C, mpow, res = NULL, gk = mf_get_gk(F), gl = mf_get_gk(G);
   ulong j, m = itou(gm);
   /* pow[i,j+1] = i^j */
   mpow = cgetg(m+2, t_MAT);
@@ -945,9 +945,9 @@ c_linear(long n, long d, GEN F, GEN L, GEN dL)
 static GEN
 bhn_parse(GEN f, long *d, long *j)
 {
-  long t = f_type(f);
+  long t = mf_get_type(f);
   *d = *j = 1;
-  if (t == t_MF_BD) { *d = itos(gel(f,3)); f = gel(f,2); t = f_type(f); }
+  if (t == t_MF_BD) { *d = itos(gel(f,3)); f = gel(f,2); t = mf_get_type(f); }
   if (t == t_MF_HECKE) { *j = gel(f,2)[1]; f = gel(f,3); }
   return f;
 }
@@ -955,8 +955,8 @@ bhn_parse(GEN f, long *d, long *j)
 static GEN
 bhn_newtrace(GEN f)
 {
-  long t = f_type(f);
-  if (t == t_MF_BD) { f = gel(f,2); t = f_type(f); }
+  long t = mf_get_type(f);
+  if (t == t_MF_BD) { f = gel(f,2); t = mf_get_type(f); }
   if (t == t_MF_HECKE) f = gel(f,3);
   return f;
 }
@@ -971,10 +971,10 @@ static GEN
 bhnmat_extend_nocache(GEN M, long n, long d, GEN vF)
 {
   GEN DATA, f, F = gel(vF, lg(vF)-1); /* vF[#vF-1] has largest level */
-  long N = f_N(F);
+  long N = mf_get_N(F);
   cachenew_t cache;
   f = bhn_newtrace(F);
-  DATA = newtrace_DATA(N, gel(f,2)); /* N.B. f_N(f) divides N */
+  DATA = newtrace_DATA(N, gel(f,2)); /* N.B. mf_get_N(f) divides N */
   init_cachenew(&cache, n*d, N, DATA);
   M = bhnmat_extend(M, n, d, vF, &cache);
   dbg_cachenew(&cache);
@@ -1193,7 +1193,7 @@ c_derivE2(long n, long d, GEN F, GEN gm)
   if (m == 0) return mfcoefs_i(F, n, d);
   nd = n*d;
   VF = mfcoefs_i(F, nd, 1); VE = mfcoefs_i(mfEk(2), nd, 1);
-  gk = f_gk(F);
+  gk = mf_get_gk(F);
   if (m == 1)
   {
     res = cgetg(n+2, t_VEC);
@@ -1325,7 +1325,7 @@ static GEN
 c_cusptrace(long n, long d, GEN F)
 {
   GEN D = gel(F,2), res = cgetg(n+2, t_VEC);
-  long i, N = f_N(F), k = f_k(F);
+  long i, N = mf_get_N(F), k = mf_get_k(F);
   gel(res, 1) = gen_0;
   for (i = 1; i <= n; i++)
     gel(res, i+1) = mfcusptrace_i(N, k, i*d, mydivisorsu(i*d), D);
@@ -1337,10 +1337,10 @@ c_newtrace(long n, long d, GEN F)
 {
   pari_sp av = avma;
   cachenew_t cache;
-  long N = f_N(F);
+  long N = mf_get_N(F);
   GEN v;
   init_cachenew(&cache, n*d, N, newtrace_DATA(N, gel(F,2)));
-  v = colnewtrace(0, n, d, N, f_k(F), &cache);
+  v = colnewtrace(0, n, d, N, mf_get_k(F), &cache);
   settyp(v, t_VEC); return gerepilecopy(av, v);
 }
 
@@ -1370,7 +1370,7 @@ c_dihedral(long n, long d, GEN bnr, GEN w, GEN k0j)
 static GEN
 c_mfEH(long n, long d, GEN F)
 {
-  long i, r = f_r(F);
+  long i, r = mf_get_r(F);
   GEN v, M, A;
   if (n == 1) return mkvec2(mfEHcoef(r,0),mfEHcoef(r,d)); /* speedup mfcoef */
   if (r == 1)
@@ -1398,7 +1398,7 @@ c_mfEH(long n, long d, GEN F)
 static GEN
 c_mfeisen(long n, long d, GEN F)
 {
-  GEN v, vchi, E0, P, T, CHI, gk = f_gk(F);
+  GEN v, vchi, E0, P, T, CHI, gk = mf_get_gk(F);
   long i, k;
   if (typ(gk) != t_INT) return c_mfEH(n, d, F);
   k = itou(gk);
@@ -1454,7 +1454,7 @@ static GEN
 mfcoefs_i(GEN F, long n, long d)
 {
   if (n < 0) return gen_0;
-  switch(f_type(F))
+  switch(mf_get_type(F))
   {
     case t_MF_CONST: return c_const(n, d, gel(F,2));
     case t_MF_EISEN: return c_mfeisen(n, d, F);
@@ -1498,17 +1498,17 @@ space_is_cusp(long space) { return space != mf_FULL && space != mf_EISEN; }
 static GEN
 mfcoefs_mf(GEN mf, long n, long d)
 {
-  GEN MS, ME, E = mf_get_eisen(mf), S = mf_get_vtf(mf);
+  GEN MS, ME, E = MF_get_eisen(mf), S = MF_get_vtf(mf);
   long lE = lg(E), lS = lg(S), l = lE+lS-1;
 
   if (l == 1) return cgetg(1, t_MAT);
-  if (n*d < mfsturm_mf(mf)) return matdeflate(n, d, mf_get_M(mf)); /*cached*/
+  if (n*d < mfsturm_mf(mf)) return matdeflate(n, d, MF_get_M(mf)); /*cached*/
   ME = (lE == 1)? cgetg(1, t_MAT): mfvectomat(E, n, d);
   if (lS == 1)
     MS = cgetg(1, t_MAT);
-  else if (f_type(gel(S,1)) == t_MF_DIV) /* k 1/2-integer or k=1 (exotic) */
+  else if (mf_get_type(gel(S,1)) == t_MF_DIV) /* k 1/2-integer or k=1 (exotic) */
     MS = matdeflate(n,d, mflineardivtomat(S, n*d));
-  else if (mf_get_k(mf) == 1) /* k = 1 (dihedral) */
+  else if (MF_get_k(mf) == 1) /* k = 1 (dihedral) */
   {
     GEN M = mfvectomat(gmael(S,1,2), n, d);
     long i;
@@ -1527,10 +1527,10 @@ mfcoefs_mf(GEN mf, long n, long d)
 GEN
 mfcoefs(GEN F, long n, long d)
 {
-  if (!isf(F))
+  if (!checkmf_i(F))
   {
     pari_sp av = avma;
-    if (!checkmf_i(F)) pari_err_TYPE("mfcoefs", F);
+    if (!checkMF_i(F)) pari_err_TYPE("mfcoefs", F);
     return gerepilecopy(av, mfcoefs_mf(F,n,d));
   }
   if (d <= 0) pari_err_DOMAIN("mfcoefs", "d", "<=", gen_0, stoi(d));
@@ -1549,7 +1549,7 @@ GEN
 mfcoef(GEN F, long n)
 {
   pari_sp av = avma;
-  if (!isf(F)) pari_err_TYPE("mfcoef",F);
+  if (!checkmf_i(F)) pari_err_TYPE("mfcoef",F);
   return n < 0? gen_0: gerepilecopy(av, mfak_i(F, n));
 }
 
@@ -1685,13 +1685,13 @@ mfmul(GEN f, GEN g)
 {
   pari_sp av = avma;
   GEN N, K, NK, CHI;
-  if (!isf(f)) pari_err_TYPE("mfmul",f);
-  if (!isf(g)) pari_err_TYPE("mfmul",g);
-  N = lcmii(f_gN(f), f_gN(g));
-  K = gadd(f_gk(f), f_gk(g));
-  CHI = mfcharmul(f_CHI(f), f_CHI(g));
+  if (!checkmf_i(f)) pari_err_TYPE("mfmul",f);
+  if (!checkmf_i(g)) pari_err_TYPE("mfmul",g);
+  N = lcmii(mf_get_gN(f), mf_get_gN(g));
+  K = gadd(mf_get_gk(f), mf_get_gk(g));
+  CHI = mfcharmul(mf_get_CHI(f), mf_get_CHI(g));
   CHI = mfchiadjust(CHI, K, itos(N));
-  NK = mkgNK(N, K, CHI, mfsamefield(f_field(f), f_field(g)));
+  NK = mkgNK(N, K, CHI, mfsamefield(mf_get_field(f), mf_get_field(g)));
   return gerepilecopy(av, tag2(t_MF_MUL, NK, f, g));
 }
 GEN
@@ -1699,14 +1699,14 @@ mfpow(GEN f, long n)
 {
   pari_sp av = avma;
   GEN KK, NK, gn, CHI;
-  if (!isf(f)) pari_err_TYPE("mfpow",f);
+  if (!checkmf_i(f)) pari_err_TYPE("mfpow",f);
   if (!n) return mf1();
   if (n == 1) return gcopy(f);
-  KK = gmulsg(n,f_gk(f));
+  KK = gmulsg(n,mf_get_gk(f));
   gn = stoi(n);
-  CHI = mfcharpow(f_CHI(f), gn);
-  CHI = mfchiadjust(CHI, KK, f_N(f));
-  NK = mkgNK(f_gN(f), KK, CHI, f_field(f));
+  CHI = mfcharpow(mf_get_CHI(f), gn);
+  CHI = mfchiadjust(CHI, KK, mf_get_N(f));
+  NK = mkgNK(mf_get_gN(f), KK, CHI, mf_get_field(f));
   return gerepilecopy(av, tag2(t_MF_POW, NK, f, gn));
 }
 GEN
@@ -1714,15 +1714,15 @@ mfbracket(GEN f, GEN g, long m)
 {
   pari_sp av = avma;
   GEN N, K, NK, CHI;
-  if (!isf(f)) pari_err_TYPE("mfbracket",f);
-  if (!isf(g)) pari_err_TYPE("mfbracket",g);
+  if (!checkmf_i(f)) pari_err_TYPE("mfbracket",f);
+  if (!checkmf_i(g)) pari_err_TYPE("mfbracket",g);
   if (m < 0) pari_err_TYPE("mfbracket [m<0]",stoi(m));
-  K = gaddgs(gadd(f_gk(f), f_gk(g)), 2*m);
+  K = gaddgs(gadd(mf_get_gk(f), mf_get_gk(g)), 2*m);
   if (signe(K) < 0) pari_err_IMPL("mfbracket for this form");
-  N = lcmii(f_gN(f), f_gN(g));
-  CHI = mfcharmul(f_CHI(f), f_CHI(g));
+  N = lcmii(mf_get_gN(f), mf_get_gN(g));
+  CHI = mfcharmul(mf_get_CHI(f), mf_get_CHI(g));
   CHI = mfchiadjust(CHI, K, itou(N));
-  NK = mkgNK(N, K, CHI, mfsamefield(f_field(f), f_field(g)));
+  NK = mkgNK(N, K, CHI, mfsamefield(mf_get_field(f), mf_get_field(g)));
   return gerepilecopy(av, tag3(t_MF_BRACKET, NK, f, g, utoi(m)));
 }
 
@@ -1771,20 +1771,20 @@ mflinear_bhn(GEN F, GEN L)
   long i, l;
   GEN P, f;
   if (!mflinear_strip(&F,&L)) return mftrivial();
-  f = gel(F,1); l = lg(L); P = f_field(f);
+  f = gel(F,1); l = lg(L); P = mf_get_field(f);
   for (i = 1; i < l; i++)
   {
     GEN c = gel(L,i);
     if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1) P = mfsamefield(P,gel(c,1));
   }
-  f = taglinear_i(t_MF_LINEAR_BHN, f_NK(f), F,L);
-  if (degpol(P) > 1) f_setfield(f, P);
+  f = taglinear_i(t_MF_LINEAR_BHN, mf_get_NK(f), F,L);
+  if (degpol(P) > 1) mf_setfield(f, P);
   return f;
 }
 static GEN
 tobasis(GEN mf, GEN F, GEN L)
 {
-  if (isf(L) && mf) return mftobasis(mf, L, 0);
+  if (checkmf_i(L) && mf) return mftobasis(mf, L, 0);
   if (typ(F) != t_VEC) pari_err_TYPE("mflinear",F);
   if (!is_vec_t(typ(L))) pari_err_TYPE("mflinear",L);
   if (lg(L) != lg(F)) pari_err_DIM("mflinear");
@@ -1796,12 +1796,12 @@ mflinear(GEN F, GEN L)
   pari_sp av = avma;
   GEN G, NK, P, mf = NULL, N = NULL, K = NULL, CHI = NULL;
   long i, l;
-  if (checkmf_i(F))
+  if (checkMF_i(F))
   {
-    mf = F; F = mf_get_basis(F);
-    if (space_is_cusp(mf_get_space(mf)))
+    mf = F; F = MF_get_basis(F);
+    if (space_is_cusp(MF_get_space(mf)))
     {
-      GEN gk = mf_get_gk(mf);
+      GEN gk = MF_get_gk(mf);
       if (typ(gk) == t_INT && itou(gk) > 1)
       {
         L = tobasis(mf, F, L);
@@ -1818,19 +1818,19 @@ mflinear(GEN F, GEN L)
   for (i = 1; i < l; i++)
   {
     GEN f = gel(F,i), c = gel(L,i), Ni, Ki;
-    if (!isf(f)) pari_err_TYPE("mflinear", f);
-    Ni = f_gN(f); N = N? lcmii(N, Ni): Ni;
-    Ki = f_gk(f);
+    if (!checkmf_i(f)) pari_err_TYPE("mflinear", f);
+    Ni = mf_get_gN(f); N = N? lcmii(N, Ni): Ni;
+    Ki = mf_get_gk(f);
     if (!K) K = Ki;
     else if (!gequal(K, Ki))
       pari_err_TYPE("mflinear [different weights]", mkvec2(K,Ki));
-    P = mfsamefield(P, f_field(f));
+    P = mfsamefield(P, mf_get_field(f));
     if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1) P = mfsamefield(P, gel(c,1));
   }
   G = znstar0(N,1);
   for (i = 1; i < l; i++)
   {
-    GEN CHI2 = f_CHI(gel(F,i));
+    GEN CHI2 = mf_get_CHI(gel(F,i));
     CHI2 = induce(G, CHI2);
     if (!CHI) CHI = CHI2;
     else if (!gequal(CHI, CHI2))
@@ -1847,9 +1847,9 @@ vecmfNK(GEN F)
   long i, l = lg(F);
   GEN N, f;
   if (l == 1) return mkNK(1, 0, mfchartrivial());
-  f = gel(F,1); N = f_gN(f);
-  for (i = 2; i < l; i++) N = lcmii(N, f_gN(gel(F,i)));
-  return mkgNK(N, f_gk(f), f_CHI(f), f_field(f));
+  f = gel(F,1); N = mf_get_gN(f);
+  for (i = 2; i < l; i++) N = lcmii(N, mf_get_gN(gel(F,i)));
+  return mkgNK(N, mf_get_gk(f), mf_get_CHI(f), mf_get_field(f));
 }
 /* do not use mflinear: mflineardivtomat rely on F being constant across the
  * basis where mflinear strips the ones matched by 0 coeffs. Assume k and CHI
@@ -1896,8 +1896,8 @@ GEN
 mfshift(GEN F, long sh)
 {
   pari_sp av = avma;
-  if (!isf(F)) pari_err_TYPE("mfshift",F);
-  return gerepilecopy(av, tag2(t_MF_SHIFT, f_NK(F), F, stoi(sh)));
+  if (!checkmf_i(F)) pari_err_TYPE("mfshift",F);
+  return gerepilecopy(av, tag2(t_MF_SHIFT, mf_get_NK(F), F, stoi(sh)));
 }
 static long
 mfval(GEN F)
@@ -1905,9 +1905,9 @@ mfval(GEN F)
   pari_sp av = avma;
   long i = 0, n, sb;
   GEN gk, gN;
-  if (!isf(F)) pari_err_TYPE("mfval", F);
-  gN = f_gN(F);
-  gk = f_gk(F);
+  if (!checkmf_i(F)) pari_err_TYPE("mfval", F);
+  gN = mf_get_gN(F);
+  gk = mf_get_gk(F);
   sb = mfsturmNgk(itou(gN), gk);
   for (n = 1; n <= sb;)
   {
@@ -1926,11 +1926,11 @@ mfdiv_val(GEN f, GEN g, long vg)
 {
   GEN N, K, NK, CHI;
   if (vg) { f = mfshift(f,vg); g = mfshift(g,vg); }
-  N = lcmii(f_gN(f), f_gN(g));
-  K = gsub(f_gk(f), f_gk(g));
-  CHI = mfchardiv(f_CHI(f), f_CHI(g));
+  N = lcmii(mf_get_gN(f), mf_get_gN(g));
+  K = gsub(mf_get_gk(f), mf_get_gk(g));
+  CHI = mfchardiv(mf_get_CHI(f), mf_get_CHI(g));
   CHI = mfchiadjust(CHI, K, itos(N));
-  NK = mkgNK(N, K, CHI, mfsamefield(f_field(f), f_field(g)));
+  NK = mkgNK(N, K, CHI, mfsamefield(mf_get_field(f), mf_get_field(g)));
   return tag2(t_MF_DIV, NK, f, g);
 }
 GEN
@@ -1948,9 +1948,9 @@ mfderiv(GEN F, long m)
 {
   pari_sp av = avma;
   GEN NK, gk;
-  if (!isf(F)) pari_err_TYPE("mfderiv",F);
-  gk = gaddgs(f_gk(F), 2*m);
-  NK = mkgNK(f_gN(F), gk, f_CHI(F), f_field(F));
+  if (!checkmf_i(F)) pari_err_TYPE("mfderiv",F);
+  gk = gaddgs(mf_get_gk(F), 2*m);
+  NK = mkgNK(mf_get_gN(F), gk, mf_get_CHI(F), mf_get_field(F));
   return gerepilecopy(av, tag2(t_MF_DERIV, NK, F, stoi(m)));
 }
 GEN
@@ -1958,10 +1958,10 @@ mfderivE2(GEN F, long m)
 {
   pari_sp av = avma;
   GEN NK, gk;
-  if (!isf(F)) pari_err_TYPE("mfderivE2",F);
+  if (!checkmf_i(F)) pari_err_TYPE("mfderivE2",F);
   if (m < 0) pari_err_DOMAIN("mfderivE2","m","<",gen_0,stoi(m));
-  gk = gaddgs(f_gk(F), 2*m);
-  NK = mkgNK(f_gN(F), gk, f_CHI(F), f_field(F));
+  gk = gaddgs(mf_get_gk(F), 2*m);
+  NK = mkgNK(mf_get_gN(F), gk, mf_get_CHI(F), mf_get_field(F));
   return gerepilecopy(av, tag2(t_MF_DERIVE2, NK, F, stoi(m)));
 }
 
@@ -1971,12 +1971,12 @@ mftwist(GEN F, GEN D)
   pari_sp av = avma;
   GEN NK, CHI, NT, Da;
   long q;
-  if (!isf(F)) pari_err_TYPE("mftwist", F);
+  if (!checkmf_i(F)) pari_err_TYPE("mftwist", F);
   if (typ(D) != t_INT) pari_err_TYPE("mftwist", D);
   Da = mpabs_shallow(D);
-  CHI = f_CHI(F); q = mfcharconductor(CHI);
-  NT = glcm(glcm(f_gN(F), mulsi(q, Da)), sqri(Da));
-  NK = mkgNK(NT, f_gk(F), CHI, f_field(F));
+  CHI = mf_get_CHI(F); q = mfcharconductor(CHI);
+  NT = glcm(glcm(mf_get_gN(F), mulsi(q, Da)), sqri(Da));
+  NK = mkgNK(NT, mf_get_gk(F), CHI, mf_get_field(F));
   return gerepilecopy(av, tag2(t_MF_TWIST, NK, F, D));
 }
 
@@ -3203,7 +3203,7 @@ initnewtrace(long N, GEN CHI)
   return NZ? initnewtrace_i(N, CHIP, NZ): NULL;
 }
 int
-checkmf_i(GEN mf)
+checkMF_i(GEN mf)
 {
   GEN v;
   if (typ(mf) != t_VEC || lg(mf) != 7) return 0;
@@ -3215,8 +3215,8 @@ checkmf_i(GEN mf)
          && typ(gel(v,4)) == t_INT;
 }
 void
-checkmf(GEN mf)
-{ if (!checkmf_i(mf)) pari_err_TYPE("checkmf [please use mfinit]", mf); }
+checkMF(GEN mf)
+{ if (!checkMF_i(mf)) pari_err_TYPE("checkMF [please use mfinit]", mf); }
 
 /* Given an ordered Vecsmall vecn, return the vector of mfheckemat
    of its entries. */
@@ -3227,14 +3227,14 @@ mfheckemat(GEN mf, GEN vecn)
   long lv, lvP, i, N, dim, k;
   GEN CHI, vtf, res, vT, FA, B, vP;
 
-  checkmf(mf);
+  checkMF(mf);
   if (typ(vecn) == t_INT)
   {
     long n = itos(vecn); if (!n) pari_err_TYPE("mfheckemat", vecn);
     return mfheckemat_i(mf, labs(n));
   }
-  N = mf_get_N(mf); dim = mf_get_dim(mf); k = mf_get_k(mf);
-  CHI = mf_get_CHI(mf); vtf = mf_get_vtf(mf);
+  N = MF_get_N(mf); dim = MF_get_dim(mf); k = MF_get_k(mf);
+  CHI = MF_get_CHI(mf); vtf = MF_get_vtf(mf);
   if (typ(vecn) != t_VECSMALL) vecn = gtovecsmall(vecn);
   lv = lg(vecn);
   res = cgetg(lv, t_VEC);
@@ -3252,8 +3252,8 @@ mfheckemat(GEN mf, GEN vecn)
   vP = shallowconcat1(vP); vecsmall_sort(vP);
   vP = vecsmall_uniq_sorted(vP); /* all primes occurring in vecn */
   lvP = lg(vP);
-  if (lvP != 1 && k == 1 && f_type(gel(vtf,1)) == t_MF_DIV)
-    B = mflineardivtomat(mf_get_vtf(mf), vP[lvP-1] * mfsturm_mf(mf));
+  if (lvP != 1 && k == 1 && mf_get_type(gel(vtf,1)) == t_MF_DIV)
+    B = mflineardivtomat(MF_get_vtf(mf), vP[lvP-1] * mfsturm_mf(mf));
   else
     B = NULL;
   for (i = 1; i < lvP; i++)
@@ -3525,7 +3525,7 @@ mfhecke_i(long N, long k, GEN CHI, GEN F, long n)
   GEN NK;
   if (n == 1) return F;
   if (!CHI) CHI = mfchartrivial();
-  NK = mkgNK(utoi(N), utoi(k), CHI, f_field(F));
+  NK = mkgNK(utoi(N), utoi(k), CHI, mf_get_field(F));
   return tag2(t_MF_HECKE, NK, hecke_data(N,n), F);
 }
 
@@ -3535,14 +3535,14 @@ mfhecke(GEN mf, GEN F, long n)
   pari_sp av = avma;
   GEN NK, CHI, gk, DATA;
   long N, nk, dk;
-  checkmf(mf);
-  if (!isf(F)) pari_err_TYPE("mfhecke",F);
+  checkMF(mf);
+  if (!checkmf_i(F)) pari_err_TYPE("mfhecke",F);
   if (n <= 0) pari_err_TYPE("mfhecke [n <= 0]", stoi(n));
   if (n == 1) return gcopy(F);
-  gk = f_gk(F);
+  gk = mf_get_gk(F);
   Qtoss(gk,&nk,&dk);
-  CHI = f_CHI(F);
-  N = mf_get_N(mf);
+  CHI = mf_get_CHI(F);
+  N = MF_get_N(mf);
   if (dk == 2)
   {
     DATA = heckef2_data(N,n);
@@ -3550,7 +3550,7 @@ mfhecke(GEN mf, GEN F, long n)
   }
   else
     DATA = hecke_data(N,n);
-  NK = mkgNK(lcmii(stoi(N), f_gN(F)), gk, CHI, f_field(F));
+  NK = mkgNK(lcmii(stoi(N), mf_get_gN(F)), gk, CHI, mf_get_field(F));
   return gerepilecopy(av, tag2(t_MF_HECKE, NK, DATA, F));
 }
 
@@ -3561,27 +3561,27 @@ mfbd_i(GEN F, long d)
   GEN D, NK, gk, CHI;
   if (d == 1) return F;
   if (d <= 0) pari_err_TYPE("mfbd [d <= 0]", stoi(d));
-  if (f_type(F) != t_MF_BD) D = utoi(d);
+  if (mf_get_type(F) != t_MF_BD) D = utoi(d);
   else { D = mului(d, gel(F,3)); F = gel(F,2); }
-  gk = f_gk(F); CHI = f_CHI(F);
+  gk = mf_get_gk(F); CHI = mf_get_CHI(F);
   if (typ(gk) != t_INT) CHI = mfcharmul(CHI, get_mfchar(utoi(d << 2)));
-  NK = mkgNK(muliu(f_gN(F), d), gk, CHI, f_field(F));
+  NK = mkgNK(muliu(mf_get_gN(F), d), gk, CHI, mf_get_field(F));
   return tag2(t_MF_BD, NK, F, D);
 }
 GEN
 mfbd(GEN F, long d)
 {
   pari_sp av = avma;
-  if (!isf(F)) pari_err_TYPE("mfbd",F);
+  if (!checkmf_i(F)) pari_err_TYPE("mfbd",F);
   return gerepilecopy(av, mfbd_i(F, d));
 }
 
 static GEN
 c_shimura(long n, GEN F, long t)
 {
-  GEN Pn, V, R, a0, CHI = f_CHI(F);
+  GEN Pn, V, R, a0, CHI = mf_get_CHI(F);
   long m, ND, D, Da, vt, ord = mfcharorder(CHI);
-  long N = f_N(F), r = f_r(F), D4;
+  long N = mf_get_N(F), r = mf_get_r(F), D4;
   D = odd(r) ? -t : t; if ((D & 3L) != 1) D <<= 2;
   Da = labs(D); ND = N*Da; D4 = D << 2;
   V = mfcoefs_i(F, n*n, t); a0 = gel(V, 1);
@@ -3620,15 +3620,15 @@ mfshimura(GEN F, long t)
   pari_sp av = avma;
   GEN gk, CHI, G, res, mf;
   long r;
-  if (!isf(F)) pari_err_TYPE("mfshimura",F);
-  gk = f_gk(F);
+  if (!checkmf_i(F)) pari_err_TYPE("mfshimura",F);
+  gk = mf_get_gk(F);
   if (typ(gk) != t_FRAC) pari_err_TYPE("mfshimura [integral weight]", F);
-  r = f_r(F);
+  r = mf_get_r(F);
   if (r <= 0) pari_err_DOMAIN("mfshimura", "weight", "<=", ghalf, gk);
   if (t <= 0 || !uissquarefree(t))
     pari_err_TYPE("shimura [t not positive squarefree]", stoi(t));
-  CHI = f_CHI(F);
-  mf = mfinit_Nkchi(f_N(F) >> 1, r << 1, mfcharpow(CHI, gen_2), mf_FULL, 0);
+  CHI = mf_get_CHI(F);
+  mf = mfinit_Nkchi(mf_get_N(F) >> 1, r << 1, mfcharpow(CHI, gen_2), mf_FULL, 0);
   G = c_shimura(mfsturm(mf), F, t);
   res = mftobasis_i(mf, G);
   G = mflinear(mf, res);
@@ -3804,22 +3804,22 @@ hecke_i(long m, long l, GEN F, GEN DATA)
   long k, n, nN, NBIG, lD, M, a, t, nl;
   GEN D, v, AN, CHI;
   if (typ(DATA) == t_VEC) return c_mfheckef2(m, l, F, DATA);/* 1/2-integral k */
-  k = f_k(F);
+  k = mf_get_k(F);
   n = DATA[1]; nl = n*l;
   nN = DATA[2];
   NBIG = DATA[3];
   if (nN == 1) return mfcoefs_i(F,m,nl);
-  if (f_type(F) == t_MF_NEWTRACE)
+  if (mf_get_type(F) == t_MF_NEWTRACE)
   { /* inline F to allow cache */
     cachenew_t cache;
-    long N = f_N(F);
+    long N = mf_get_N(F);
     GEN DATA = newtrace_DATA(N, tf_get_DATA(F)); /* != NULL */
     init_cachenew(&cache, m*nl, N, DATA);
     v = heckenewtrace(0, m, l, N, NBIG, k, n, &cache);
     dbg_cachenew(&cache);
     settyp(v, t_VEC); return v;
   }
-  CHI = f_CHI(F);
+  CHI = mf_get_CHI(F);
   D = mydivisorsu(nN); lD = lg(D);
   M = m + 1;
   t = nN * cgcd(nN, l);
@@ -3952,13 +3952,13 @@ bhnmat_extend(GEN M, long m, long r, GEN vtf, cachenew_t *cache)
   {
     long d, j, m0d, N;
     GEN DATA, c, f = bhn_parse(gel(vtf,i), &d,&j); /* t_MF_NEWTRACE */
-    N = f_N(f); DATA = gel(f,2);
+    N = mf_get_N(f); DATA = gel(f,2);
     m0d = ceildiv(m0,d);
     if (N!=Nold)
     { reset_cachenew(cache, N, newtrace_DATA(N,DATA)); Nold=N; jold=0; }
     if (!cache->DATA) { gel(MAT,i) = zerocol(m+1); continue; }
     if (j!=jold || m0)
-    { v = heckenewtrace(m0d, m/d, r, N, N, f_k(f), j,cache); jold=j; }
+    { v = heckenewtrace(m0d, m/d, r, N, N, mf_get_k(f), j,cache); jold=j; }
     c = RgC_Bd_expand(m0, m, v, d, m0d);
     if (M) c = shallowconcat(gel(M,i), c);
     gel(MAT,i) = c;
@@ -3990,8 +3990,8 @@ mfinitcusp(long N, long k, GEN CHI, cachenew_t *cache, long space)
   vMjd = vectrunc_init(L);
   for (i = 1; i < l; i++)
   {
-    GEN DNM, mf = gel(vmf,i), vtf = mf_get_vtf(mf), vj = mfnew_get_vj(mf);
-    long a, lDNM, lvtf = lg(vtf), M = mf_get_N(mf);
+    GEN DNM, mf = gel(vmf,i), vtf = MF_get_vtf(mf), vj = MFnew_get_vj(mf);
+    long a, lDNM, lvtf = lg(vtf), M = MF_get_N(mf);
     DNM = mydivisorsu(N / M); lDNM = lg(DNM);
     for (a = 1; a < lvtf; a++)
     {
@@ -4011,7 +4011,7 @@ mfinitcusp(long N, long k, GEN CHI, cachenew_t *cache, long space)
 long
 mfsturm_mf(GEN mf)
 {
-  GEN Mindex = mf_get_Mindex(mf);
+  GEN Mindex = MF_get_Mindex(mf);
   long n = lg(Mindex)-1;
   return n? Mindex[n]: 0;
 }
@@ -4021,7 +4021,7 @@ mfsturm(GEN mf)
 {
   long N, nk, dk;
   GEN CHI;
-  if (checkmf_i(mf)) return mfsturm_mf(mf);
+  if (checkMF_i(mf)) return mfsturm_mf(mf);
   checkNK2(mf, &N, &nk, &dk, &CHI, 0);
   return dk == 1 ? mfsturmNk(N, nk) : mfsturmNk(N, (nk + 1) >> 1);
 }
@@ -4031,15 +4031,15 @@ mfisequal(GEN F, GEN G, long lim)
 {
   pari_sp av = avma;
   long t, sb;
-  if (!isf(F)) pari_err_TYPE("mfisequal",F);
-  if (!isf(G)) pari_err_TYPE("mfisequal",G);
+  if (!checkmf_i(F)) pari_err_TYPE("mfisequal",F);
+  if (!checkmf_i(G)) pari_err_TYPE("mfisequal",G);
   if (lim) sb = lim;
   else
   {
     GEN gN, gk;
-    gN = f_gN(F); gk = f_gk(F);
+    gN = mf_get_gN(F); gk = mf_get_gk(F);
     sb = mfsturmNgk(itou(gN), gk);
-    gN = f_gN(G); gk = f_gk(G);
+    gN = mf_get_gN(G); gk = mf_get_gk(G);
     sb = maxss(sb, mfsturmNgk(itou(gN), gk));
   }
   t = gequal(mfcoefs_i(F, sb+1, 1), mfcoefs_i(G, sb+1, 1));
@@ -4047,7 +4047,7 @@ mfisequal(GEN F, GEN G, long lim)
 }
 
 GEN
-mffields(GEN mf) { checkmf(mf); return gcopy(mf_get_fields(mf)); }
+mffields(GEN mf) { checkMF(mf); return gcopy(MF_get_fields(mf)); }
 
 /* F non-empty vector of forms of the form mfdiv(mflinear(B,v), E) where E
  * does not vanish at oo, or mflinear(B,v). Apply mflinear(F, L) */
@@ -4058,7 +4058,7 @@ mflineardiv_linear(GEN F, GEN L)
   GEN v, E, f;
   if (lg(L) != l) pari_err_DIM("mflineardiv_linear");
   f = gel(F,1); /* l > 1 */
-  if (f_type(f) != t_MF_DIV) return mflinear_linear(F, L);
+  if (mf_get_type(f) != t_MF_DIV) return mflinear_linear(F, L);
   E = gel(f,3);
   v = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) { GEN f = gel(F,j); gel(v,j) = gel(f,2); }
@@ -4079,11 +4079,11 @@ mfeigenbasis(GEN mf)
   GEN mfsplit, vtf, res, vP;
   long i, l, k;
 
-  checkmf(mf);
-  k = mf_get_k(mf);
-  vtf = mf_get_vtf(mf); if (lg(vtf) == 1) return cgetg(1, t_VEC);
-  mfsplit = mf_get_newforms(mf);
-  vP = mf_get_fields(mf);
+  checkMF(mf);
+  k = MF_get_k(mf);
+  vtf = MF_get_vtf(mf); if (lg(vtf) == 1) return cgetg(1, t_VEC);
+  mfsplit = MF_get_newforms(mf);
+  vP = MF_get_fields(mf);
   if (k == 1)
   {
     res = vecmflineardiv_linear(vtf, mfsplit);
@@ -4095,7 +4095,7 @@ mfeigenbasis(GEN mf)
     for (i = 1; i < l; i++)
       gel(res,i) = mflinear_bhn(vtf, gel(mfsplit,i));
   }
-  for (i = 1; i < l; i++) f_setfield(gel(res,i), gel(vP,i));
+  for (i = 1; i < l; i++) mf_setfield(gel(res,i), gel(vP,i));
   return gerepilecopy(ltop, res);
 }
 
@@ -4169,10 +4169,10 @@ static GEN
 mftobasis_i(GEN mf, GEN F)
 {
   GEN v, Mindex, Minv;
-  if (!mf_get_dim(mf)) return cgetg(1, t_COL);
-  Mindex = mf_get_Mindex(mf);
-  Minv = mf_get_Minv(mf);
-  if (isf(F))
+  if (!MF_get_dim(mf)) return cgetg(1, t_COL);
+  Mindex = MF_get_Mindex(mf);
+  Minv = MF_get_Minv(mf);
+  if (checkmf_i(F))
   {
     long n = Mindex[lg(Mindex)-1];
     v = vecpermute(mfcoefs_i(F, n, 1), Mindex);
@@ -4213,12 +4213,12 @@ static GEN
 mftonew_i(GEN mf, GEN L, long *plevel)
 {
   GEN vtf, listMjd, CHI, res, Aclos, Acoef, D, perm;
-  long N1, LC, lD, i, l, t, level, N = mf_get_N(mf);
+  long N1, LC, lD, i, l, t, level, N = MF_get_N(mf);
 
-  if (mf_get_k(mf) == 1) pari_err_IMPL("mftonew in weight 1");
-  listMjd = mfcusp_get_vMjd(mf);
-  CHI = mf_get_CHI(mf); LC = mfcharconductor(CHI);
-  vtf = mf_get_vtf(mf);
+  if (MF_get_k(mf) == 1) pari_err_IMPL("mftonew in weight 1");
+  listMjd = MFcusp_get_vMjd(mf);
+  CHI = MF_get_CHI(mf); LC = mfcharconductor(CHI);
+  vtf = MF_get_vtf(mf);
 
   N1 = N/LC;
   D = mydivisorsu(N1); lD = lg(D);
@@ -4248,7 +4248,7 @@ mftonew_i(GEN mf, GEN L, long *plevel)
       GEN f = gcoeff(Aclos,i,j), C, NK;
       long d;
       if (lg(f) == 1) continue;
-      NK = f_NK(gel(f,1));
+      NK = mf_get_NK(gel(f,1));
       d = D[j];
       C = gcoeff(Acoef,i,j);
       level = clcm(level, M*d);
@@ -4262,8 +4262,8 @@ GEN
 mftonew(GEN mf, GEN F)
 {
   pari_sp av = avma;
-  checkmf(mf);
-  if (mf_get_space(mf) != mf_CUSP)
+  checkMF(mf);
+  if (MF_get_space(mf) != mf_CUSP)
     pari_err_TYPE("mftonew [not a cuspidal space]", mf);
   F = mftobasis_i(mf, F);
   return gerepilecopy(av, mftonew_i(mf,F, NULL));
@@ -4273,8 +4273,8 @@ mfconductor(GEN mf, GEN F)
 {
   pari_sp av = avma;
   long N;
-  checkmf(mf);
-  if (mf_get_space(mf) != mf_CUSP)
+  checkMF(mf);
+  if (MF_get_space(mf) != mf_CUSP)
     pari_err_TYPE("mfconductor [not a cuspidal space]", mf);
   F = mftobasis_i(mf, F);
   (void)mftonew_i(mf, F, &N);
@@ -4346,7 +4346,7 @@ mflineardivtomat(GEN vF, long n)
 static GEN
 Mindex_as_coef(GEN mf)
 {
-  GEN v, Mindex = mf_get_Mindex(mf);
+  GEN v, Mindex = MF_get_Mindex(mf);
   long i, l = lg(Mindex);
   v = cgetg(l, t_VECSMALL);
   for (i = 1; i < l; i++) v[i] = Mindex[i]-1;
@@ -4361,12 +4361,12 @@ mfheckematwt1(GEN mf, long n, GEN B)
   long lm, l, lD, k, N, nN, i, j;
 
   l = lg(B);
-  k = mf_get_k(mf);
-  N = mf_get_N(mf);
+  k = MF_get_k(mf);
+  N = MF_get_N(mf);
   nN = u_ppo(n, N); /* largest divisor of n coprime to N */
-  CHI = mf_get_CHI(mf);
+  CHI = MF_get_CHI(mf);
   vm = Mindex_as_coef(mf); lm = lg(vm);
-  Minv = mf_get_Minv(mf);
+  Minv = MF_get_Minv(mf);
   Q = cgetg(l, t_MAT);
   for (j = 1; j < l; j++) gel(Q,j) = cgetg(lm, t_COL);
   D = mydivisorsu(nN); lD = lg(D);
@@ -4402,9 +4402,9 @@ static GEN
 mfnewmathecke_p(GEN mf, long p)
 {
   pari_sp av = avma;
-  GEN tf, vj = mfnew_get_vj(mf), CHI = mf_get_CHI(mf);
-  GEN Mindex = mf_get_Mindex(mf), Minv = mf_get_Minv(mf);
-  long N = mf_get_N(mf), k = mf_get_k(mf);
+  GEN tf, vj = MFnew_get_vj(mf), CHI = MF_get_CHI(mf);
+  GEN Mindex = MF_get_Mindex(mf), Minv = MF_get_Minv(mf);
+  long N = MF_get_N(mf), k = MF_get_k(mf);
   long i, j, lvj = lg(vj), lim = vj[lvj-1] * p;
   GEN perm, V, need = zero_zv(lim);
   GEN M, C = gmul(mfchareval(CHI, p), powuu(p, k-1));
@@ -4440,19 +4440,19 @@ mfheckemat_i(GEN mf, long n)
   GEN Minv, v, b, Mindex, DATA, gk;
   long j, l, sb, N;
 
-  b = mf_get_basis(mf); l = lg(b);
+  b = MF_get_basis(mf); l = lg(b);
   if (l == 1) return cgetg(1, t_MAT);
   if (n == 1) return matid(l-1);
-  gk = mf_get_gk(mf);
-  N = mf_get_N(mf);
+  gk = MF_get_gk(mf);
+  N = MF_get_N(mf);
   if (typ(gk) == t_INT)
   {
-    if (itou(gk) == 1 && f_type(gel(b,1)) == t_MF_DIV)
+    if (itou(gk) == 1 && mf_get_type(gel(b,1)) == t_MF_DIV)
     {
-      GEN M = mflineardivtomat(mf_get_vtf(mf), n * mfsturm_mf(mf));
+      GEN M = mflineardivtomat(MF_get_vtf(mf), n * mfsturm_mf(mf));
       return mfheckematwt1(mf, n, M);
     }
-    if (mf_get_space(mf) == mf_NEW && uisprime(n))
+    if (MF_get_space(mf) == mf_NEW && uisprime(n))
       return mfnewmathecke_p(mf, n);
     DATA = hecke_data(N, n);
   }
@@ -4462,8 +4462,8 @@ mfheckemat_i(GEN mf, long n)
     if (!DATA) return zeromat(l-1,l-1);
   }
   sb = mfsturm_mf(mf)-1;
-  Mindex = mf_get_Mindex(mf);
-  Minv = mf_get_Minv(mf);
+  Mindex = MF_get_Mindex(mf);
+  Minv = MF_get_Minv(mf);
   v = cgetg(l, t_VEC);
   for (j = 1; j < l; j++)
   {
@@ -4477,14 +4477,14 @@ mfheckemat_i(GEN mf, long n)
 static GEN
 mf_normalize(GEN mf, GEN v)
 {
-  GEN c, dc = NULL, M = mf_get_M(mf), Mindex = mf_get_Mindex(mf);
+  GEN c, dc = NULL, M = MF_get_M(mf), Mindex = MF_get_Mindex(mf);
   v = Q_primpart(v);
   c = RgMrow_RgC_mul(M, v, 2); /* a_1(f) */
   if (gequal1(c)) return v;
-  if (typ(c) == t_POL) c = gmodulo(c, mfcharpol(mf_get_CHI(mf)));
+  if (typ(c) == t_POL) c = gmodulo(c, mfcharpol(MF_get_CHI(mf)));
   if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1 && degpol(gel(c,1)) >= 40
                          && Mindex[1] == 2
-                         && mfcharorder(mf_get_CHI(mf)) <= 2)
+                         && mfcharorder(MF_get_CHI(mf)) <= 2)
   { /* normalize using expansion at infinity (small coefficients) */
     GEN w, P = gel(c,1), a1 = gel(c,2);
     long i, l = lg(Mindex);
@@ -4496,7 +4496,7 @@ mf_normalize(GEN mf, GEN v)
       gel(w,i) = QXQ_div_ratlift(c, a1, P);
     }
     /* w = expansion at oo of normalized form */
-    v = Minv_RgC_mul(mf_get_Minv(mf), Q_remove_denom(w, &dc));
+    v = Minv_RgC_mul(MF_get_Minv(mf), Q_remove_denom(w, &dc));
     v = gmodulo(v, P); /* back to mfbasis coefficients */
   }
   else
@@ -4733,24 +4733,24 @@ mfsplit_i(GEN mf, long dimlim, long flag)
 {
   forprime_t iter;
   GEN NF, POLCYC, CHI, todosp, Tpbigvec, simplesp, empty = cgetg(1, t_VEC);
-  long N, k, ord, FC, newdim, dim = mf_get_dim(mf), dimsimple = 0;
+  long N, k, ord, FC, newdim, dim = MF_get_dim(mf), dimsimple = 0;
   const long NBH = 5, vz = 1;
   ulong p;
 
   newdim = dim;
-  switch(mf_get_space(mf))
+  switch(MF_get_space(mf))
   {
     case mf_NEW: break;
     case mf_CUSP: /* in wt1 much faster to compute mfolddim */
       if (dimlim) pari_err_FLAG("mfsplit [cusp space]");
-      newdim -= mfolddim(mf_get_N(mf), mf_get_k(mf), mf_get_CHI(mf));
+      newdim -= mfolddim(MF_get_N(mf), MF_get_k(mf), MF_get_CHI(mf));
       break;
     default: pari_err_TYPE("mfsplit [cannot split old/fullspace]", mf);
   }
   if (!newdim) return mkvec2(empty, empty);
-  N = mf_get_N(mf);
-  k = mf_get_k(mf);
-  CHI = mf_get_CHI(mf);
+  N = MF_get_N(mf);
+  k = MF_get_k(mf);
+  CHI = MF_get_CHI(mf);
   FC = mfcharconductor(CHI);
   ord = mfcharorder_canon(CHI);
   if (ord > 1)
@@ -4845,10 +4845,10 @@ mfsplit(GEN mf, long dimlim, long flag)
 {
   pari_sp av = avma;
   GEN v;
-  if (!checkmf_i(mf)) pari_err_TYPE("mfsplit", mf);
+  if (!checkMF_i(mf)) pari_err_TYPE("mfsplit", mf);
   if (obj_check(mf, MF_SPLIT))
   { /* already split; apply dimlim filter */
-    GEN pols = mf_get_fields(mf), forms = mf_get_newforms(mf);
+    GEN pols = MF_get_fields(mf), forms = MF_get_newforms(mf);
     if (dimlim)
     {
       long j, l = lg(pols);
@@ -4872,9 +4872,9 @@ mfsplit(GEN mf, long dimlim, long flag)
 static GEN
 split(GEN mf) { return mfsplit_i(mf,0,0); }
 GEN
-mf_get_newforms(GEN mf) { return gel(obj_checkbuild(mf,MF_SPLIT,&split),1); }
+MF_get_newforms(GEN mf) { return gel(obj_checkbuild(mf,MF_SPLIT,&split),1); }
 GEN
-mf_get_fields(GEN mf) { return gel(obj_checkbuild(mf,MF_SPLIT,&split),2); }
+MF_get_fields(GEN mf) { return gel(obj_checkbuild(mf,MF_SPLIT,&split),2); }
 
 /*************************************************************************/
 /*                     Modular forms of Weight 1                         */
@@ -4928,27 +4928,27 @@ wt1empty(long N)
 static GEN
 initwt1trace(GEN mf)
 {
-  GEN vtf = mf_get_vtf(mf), v, H;
+  GEN vtf = MF_get_vtf(mf), v, H;
   long l, i;
   if (lg(vtf) == 1) return mftrivial();
   H = mfheckemat(mf, Mindex_as_coef(mf));
   l = lg(H); v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(v, i) = gtrace(gel(H,i));
-  return mflineardiv_linear(vtf, Minv_RgC_mul(mf_get_Minv(mf),v));
+  return mflineardiv_linear(vtf, Minv_RgC_mul(MF_get_Minv(mf),v));
 }
 static GEN
 initwt1newtrace(GEN mf)
 {
-  GEN D, vtf, Mindex, res, CHI = mf_get_CHI(mf);
-  long FC, lD, i, sb, N1, N2, lM, N = mf_get_N(mf);
+  GEN D, vtf, Mindex, res, CHI = MF_get_CHI(mf);
+  long FC, lD, i, sb, N1, N2, lM, N = MF_get_N(mf);
   CHI = mfchartoprimitive(CHI, &FC);
   if (N % FC || mfcharparity(CHI) == 1) return mftrivial();
   D = mydivisorsu(N/FC); lD = lg(D);
-  vtf = mf_get_vtf(mf);
+  vtf = MF_get_vtf(mf);
   if (lg(vtf) == 1) return mftrivial();
   N2 = newd_params2(N);
   N1 = N / N2;
-  Mindex = mf_get_Mindex(mf);
+  Mindex = MF_get_Mindex(mf);
   lM = lg(Mindex);
   sb = Mindex[lM-1];
   res = zerovec(sb+1);
@@ -4957,7 +4957,7 @@ initwt1newtrace(GEN mf)
     long M = FC*D[i], j;
     GEN tf = initwt1trace(M == N? mf: mfinit_Nkchi(M, 1, CHI, mf_CUSP, 0));
     GEN listd, v;
-    if (f_type(tf) == t_MF_CONST) continue;
+    if (mf_get_type(tf) == t_MF_CONST) continue;
     v = mfcoefs_i(tf, sb, 1);
     if (M == N) { res = gadd(res, v); continue; }
     listd = mydivisorsu(u_ppo(cgcd(N/M, N1), FC));
@@ -4980,7 +4980,7 @@ initwt1newtrace(GEN mf)
   }
   if (gequal0(gel(res,2))) return mftrivial();
   res = vecpermute(res,Mindex);
-  return mflineardiv_linear(vtf, Minv_RgC_mul(mf_get_Minv(mf), res));
+  return mflineardiv_linear(vtf, Minv_RgC_mul(MF_get_Minv(mf), res));
 }
 
 /* Matrix of T(p), p \nmid N */
@@ -5017,7 +5017,7 @@ mfwt1_pre(long N)
     lim = mfsturm_mf(mf) + 1;
   }
   /* p = smalllest prime not dividing N */
-  M = bhnmat_extend_nocache(mf_get_M(mf), p*lim-1, 1, mf_get_vtf(mf));
+  M = bhnmat_extend_nocache(MF_get_M(mf), p*lim-1, 1, MF_get_vtf(mf));
   return mkvec3(mkvecsmall2(lim, p), mf, M);
 }
 
@@ -5296,7 +5296,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pvtf, long *ptdimdih)
   tmp1= gel(TMP,1); lim = tmp1[1]; p = tmp1[2]; plim = p*lim;
   mf  = gel(TMP,2);
   A   = gel(TMP,3); /* p*lim x dim matrix */
-  vtf = mf_get_vtf(mf);
+  vtf = MF_get_vtf(mf);
   ESA = mfeisenbasis(N, 1, mfcharinv_i(CHI));
   ES = RgM_to_RgXV(mfvectomat(ESA, plim+1, 1), 0);
   ES1 = gel(ES,1); /* does not vanish at oo */
@@ -5376,7 +5376,7 @@ mfwt1_cusptonew(GEN mf)
   vP= gel(v,2); lP = lg(vP);
   if (lP == 1) { obj_insert(mf, MF_SPLIT, v); return NULL; }
   mf_set_space(mf, mf_NEW);
-  vtf = mf_get_vtf(mf);
+  vtf = MF_get_vtf(mf);
   dSnew = 0;
   for (i = 1; i < lP; i++) dSnew += degpol(gel(vP,i));
   vtfnew = cgetg(dSnew + 1, t_VEC); ct = 0;
@@ -5777,12 +5777,12 @@ mfgaloistype(GEN NK, GEN f)
   GEN CHI, mf, T, F, DIH;
   long N, k, lL, i, dim, lim, SB;
 
-  if (checkmf_i(NK))
+  if (checkMF_i(NK))
   {
     mf = NK;
-    N = mf_get_N(mf);
-    k = mf_get_k(mf);
-    CHI = mf_get_CHI(mf);
+    N = MF_get_N(mf);
+    k = MF_get_k(mf);
+    CHI = MF_get_CHI(mf);
   }
   else
   {
@@ -5796,7 +5796,7 @@ mfgaloistype(GEN NK, GEN f)
   DIH = mkvec2(DIH, mfvectomat(DIH,SB,1));
   if (f) return gerepileuptoint(av, mfgaloistype0(N,CHI, f, DIH, lim));
 
-  dim = lg(mf_get_vtf(mf)) - 1;
+  dim = lg(MF_get_vtf(mf)) - 1;
   if (!dim) { avma = av; return cgetg(1, t_VEC); }
   F = mfeigenbasis(mf); lL = lg(F);
   T = cgetg(lL, t_VEC);
@@ -6362,7 +6362,7 @@ mfdihedralcusp(long N, GEN CHI)
 static int
 cmp_ord(void *E, GEN a, GEN b)
 {
-  GEN chia = mf_get_CHI(a), chib = mf_get_CHI(b);
+  GEN chia = MF_get_CHI(a), chib = MF_get_CHI(b);
   (void)E; return cmpii(gmfcharorder(chia), gmfcharorder(chib));
 }
 /* mfinit structure.
@@ -6409,7 +6409,7 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
         break;
       case mf_NEW:
         mf = mfnewinit(N, k, CHI, &cache, 1);
-        if (mf && !flraw) { M = mf_get_M(mf); z = mf_get_Mindex(mf); }
+        if (mf && !flraw) { M = MF_get_M(mf); z = MF_get_Mindex(mf); }
         break;
       case mf_OLD:
       case mf_CUSP:
@@ -6417,7 +6417,7 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
         mf = mfinitcusp(N, k, CHI, &cache, space);
         if (mf && !flraw)
         {
-          GEN vtf = mf_get_vtf(mf);
+          GEN vtf = MF_get_vtf(mf);
           if (space != mf_FULL)
           { /* try to clean with heuristic bound < Sturm bound */
             M = bhnmat_extend(M, ceilA1(N,k), 1, vtf, &cache);
@@ -6468,18 +6468,18 @@ mfinit_i(GEN NK, long space)
 {
   GEN CHI;
   long N, k, dk, joker;
-  if (isf(NK))
+  if (checkmf_i(NK))
   {
-    N = f_N(NK);
-    Qtoss(f_gk(NK), &k, &dk);
-    CHI = f_CHI(NK);
-  }
-  else if (checkmf_i(NK))
-  {
-    if (mf_get_space(NK) == space) return NK;
     N = mf_get_N(NK);
     Qtoss(mf_get_gk(NK), &k, &dk);
     CHI = mf_get_CHI(NK);
+  }
+  else if (checkMF_i(NK))
+  {
+    if (MF_get_space(NK) == space) return NK;
+    N = MF_get_N(NK);
+    Qtoss(MF_get_gk(NK), &k, &dk);
+    CHI = MF_get_CHI(NK);
   }
   else
     checkNK2(NK, &N, &k, &dk, &CHI, 1);
@@ -6513,7 +6513,7 @@ mfinit_i(GEN NK, long space)
       for (i = j = 1; i < l; i++)
       {
         GEN v = mfinit_Nndkchi(N, k, dk, gel(vCHI,i), space);
-        if (mf_get_dim(v) || CHI) gel(mf, j++) = v;
+        if (MF_get_dim(v) || CHI) gel(mf, j++) = v;
       }
     }
     setlg(mf,j);
@@ -6705,14 +6705,14 @@ getembed(GEN P, GEN T, GEN zcyclo, long prec)
 static GEN
 mfgetembed(GEN F, long prec)
 {
-  GEN T = f_field(F), CHI = f_CHI(F), P = mfcharpol(CHI);
+  GEN T = mf_get_field(F), CHI = mf_get_CHI(F), P = mfcharpol(CHI);
   long o = mfcharorder_canon(CHI);
   return getembed(P, T, grootsof1(o,prec), prec);
 }
 static GEN
 mfeigenembed(GEN mf, long prec)
 {
-  GEN CHI = mf_get_CHI(mf), P = mfcharpol(CHI), vP = mf_get_fields(mf);
+  GEN CHI = MF_get_CHI(mf), P = mfcharpol(CHI), vP = MF_get_fields(mf);
   long i, l, o = mfcharorder_canon(CHI);
   GEN vE, zcyclo = grootsof1(o, prec);
   l = lg(vP); vE = cgetg(l, t_VEC);
@@ -6775,8 +6775,8 @@ static GEN
 mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
 {
   GEN L0, vL, vb, sqN, vga, vTAU, vs, van, vE;
-  long N = f_N(F), N0, ta, lv, i, prec = nbits2prec(bitprec);
-  GEN gN = utoipos(N), gk = f_gk(F);
+  long N = mf_get_N(F), N0, ta, lv, i, prec = nbits2prec(bitprec);
+  GEN gN = utoipos(N), gk = mf_get_gk(F);
   long flscal = 0;
 
   ta = typ(vtau);
@@ -6844,18 +6844,18 @@ static long
 mfisinspace_i(GEN mf, GEN F)
 {
   GEN CHI1, CHI2, chi1, chi2, F1, F2, gk;
-  long Nmf, N, space = mf_get_space(mf);
+  long Nmf, N, space = MF_get_space(mf);
 
-  N = f_N(F);
-  Nmf = mf_get_N(mf);
+  N = mf_get_N(F);
+  Nmf = MF_get_N(mf);
   if (space == mf_NEW)
   { if (N != Nmf) return 0; }
   else
   { if (Nmf % N) return 0; }
-  gk = f_gk(F);
-  if (!gequal(mf_get_gk(mf), gk)) return 0;
-  CHI2 = f_CHI(F);
-  CHI1 = mf_get_CHI(mf);
+  gk = mf_get_gk(F);
+  if (!gequal(MF_get_gk(mf), gk)) return 0;
+  CHI2 = mf_get_CHI(F);
+  CHI1 = MF_get_CHI(mf);
   /* are the primitive chars attached to CHI1 and CHI2 equal ? */
   F1 = znconreyconductor(gel(CHI1,1), gel(CHI1,2), &chi1);
   if (typ(F1) == t_VEC) F1 = gel(F1,1);
@@ -6873,10 +6873,10 @@ err_space(GEN F)
 static long
 mfcheapeisen(GEN mf)
 {
-  long k, L, N = mf_get_N(mf);
+  long k, L, N = MF_get_N(mf);
   GEN P;
   if (N <= 70) return 1;
-  k = itos(gceil(mf_get_gk(mf)));
+  k = itos(gceil(MF_get_gk(mf)));
   if (odd(k)) k--;
   switch (k)
   {
@@ -6916,7 +6916,7 @@ mintau(GEN vtau)
 
 /* initialization for mfgaexpansion: what does not depend on cusp */
 static GEN
-f_eisendec(GEN mf, GEN F, long prec)
+mf_eisendec(GEN mf, GEN F, long prec)
 {
   GEN B = liftpol_shallow(mfeisendec(mf, F)), v = variables_vecsmall(B);
   GEN Mvecj = obj_check(mf, MF_EISENSPACE);
@@ -6933,11 +6933,11 @@ mfeval(GEN mf, GEN F, GEN vtau, long bitprec)
 {
   pari_sp av = avma;
   long flnew = 1;
-  if (!checkmf_i(mf)) pari_err_TYPE("mfeval", mf);
-  if (!isf(F)) pari_err_TYPE("mfeval", F);
+  if (!checkMF_i(mf)) pari_err_TYPE("mfeval", mf);
+  if (!checkmf_i(F)) pari_err_TYPE("mfeval", F);
   if (!mfisinspace_i(mf, F)) err_space(F);
   if (!obj_check(mf, MF_EISENSPACE)) flnew = mfcheapeisen(mf);
-  if (flnew && gcmpgs(gmulsg(2*mf_get_N(mf), mintau(vtau)), 1) >= 0) flnew = 0;
+  if (flnew && gcmpgs(gmulsg(2*MF_get_N(mf), mintau(vtau)), 1) >= 0) flnew = 0;
   return gerepilecopy(av, mfeval_i(mf, F, vtau, flnew, bitprec));
 }
 
@@ -6945,8 +6945,8 @@ mfeval(GEN mf, GEN F, GEN vtau, long bitprec)
 static GEN
 mf2init(GEN mf)
 {
-  GEN CHI = mf_get_CHI(mf), gk = gadd(mf_get_gk(mf), ghalf);
-  long N = mf_get_N(mf);
+  GEN CHI = MF_get_CHI(mf), gk = gadd(MF_get_gk(mf), ghalf);
+  long N = MF_get_N(mf);
   return mfinit_Nkchi(N, itou(gk), mfchiadjust(CHI, gk, N), mf_FULL, 0);
 }
 GEN
@@ -6955,11 +6955,11 @@ mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec)
   pari_sp av = avma;
   long w, N, sb, n, A, B, C, D, prec = nbits2prec(bitprec);
   GEN ga, gk;
-  checkmf(mf);
-  if (!isf(F)) pari_err_TYPE("mfcuspval",F);
-  N = mf_get_N(mf);
+  checkMF(mf);
+  if (!checkmf_i(F)) pari_err_TYPE("mfcuspval",F);
+  N = MF_get_N(mf);
   cusp_canon(cusp, N, &A, &C);
-  gk = f_gk(F);
+  gk = mf_get_gk(F);
   if (typ(gk) != t_INT)
   {
     GEN FT = mfmultheta(F), mf2 = obj_checkbuild(mf, MF_MF2INIT, &mf2init);
@@ -6985,11 +6985,11 @@ mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec)
 static GEN
 mffrickeeigen_i(GEN mf, GEN vE, long prec)
 {
-  GEN M, F, Z, L0, gN = utoi(mf_get_N(mf)), gk = mf_get_gk(mf);
+  GEN M, F, Z, L0, gN = utoi(MF_get_N(mf)), gk = MF_get_gk(mf);
   long N0, i, lM, bit = prec2nbits(prec), k = itou(gk);
   long LIM = 5; /* Sturm bound is enough */
 
-  F = mf_get_newforms(mf);
+  F = MF_get_newforms(mf);
   L0 = mfthetaancreate(NULL, gN, gk); /* only for thetacost */
 START:
   N0 = lfunthetacost(L0, gen_1, LIM, bit);
@@ -7034,16 +7034,16 @@ static GEN
 mfatkineigenquad(GEN mf, GEN CHIP, long Q, GEN MF, long bitprec)
 {
   GEN L0, la2, vtf, F, vP, tau, wtau, Z, va, vb, den, coe, sqrtQ, sqrtN;
-  GEN M, gN, gk = mf_get_gk(mf);
+  GEN M, gN, gk = MF_get_gk(mf);
   long N0, t, yq, i, j, lF, dim, muQ, prec = nbits2prec(bitprec);
-  long N = mf_get_N(mf), k = itos(gk), NQ = N / Q;
+  long N = MF_get_N(mf), k = itos(gk), NQ = N / Q;
 
   /* Q coprime to FC */
-  F = mf_get_newforms(mf);
-  vP = mf_get_fields(mf);
+  F = MF_get_newforms(mf);
+  vP = MF_get_fields(mf);
   lF = lg(F);
   Z = cgetg(lF, t_VEC);
-  vtf = mf_get_vtf(mf); dim = lg(vtf) - 1;
+  vtf = MF_get_vtf(mf); dim = lg(vtf) - 1;
   muQ = moebiusu(Q);
   if (muQ)
   {
@@ -7123,11 +7123,11 @@ myusqrt(ulong a, long prec)
 static GEN
 mfatkinmatnewquad(GEN mf, GEN CHIP, long Q, long flag, long PREC)
 {
-  GEN cM, M, D, MF, den, vE, F = mf_get_newforms(mf);
-  long i, c, e, prec, bitprec, lF = lg(F), N = mf_get_N(mf), k = mf_get_k(mf);
+  GEN cM, M, D, MF, den, vE, F = MF_get_newforms(mf);
+  long i, c, e, prec, bitprec, lF = lg(F), N = MF_get_N(mf), k = MF_get_k(mf);
 
-  if (Q == 1) return mkvec4(gen_0, matid(mf_get_dim(mf)), gen_1, mf);
-  den = gel(mf_get_Minv(mf), 2);
+  if (Q == 1) return mkvec4(gen_0, matid(MF_get_dim(mf)), gen_1, mf);
+  den = gel(MF_get_Minv(mf), 2);
   bitprec = expi(den) + 64;
   if (!flag) bitprec = maxss(bitprec, prec2nbits(PREC));
 
@@ -7205,17 +7205,17 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
 {
   GEN M, B, C, CHI, CHIAL, G, chi, P, z, g, mfB;
   GEN Mindex, Minv;
-  long j, l, lim, ord, FC, NQ, cQ, nk, dk, N = mf_get_N(mf);
+  long j, l, lim, ord, FC, NQ, cQ, nk, dk, N = MF_get_N(mf);
 
-  B = mf_get_basis(mf); l = lg(B);
+  B = MF_get_basis(mf); l = lg(B);
   M = cgetg(l, t_MAT); if (l == 1) return mkvec4(gen_0,M,gen_1,mf);
-  Qtoss(mf_get_gk(mf), &nk,&dk);
+  Qtoss(MF_get_gk(mf), &nk,&dk);
   Q = labs(Q);
   NQ = atkin_get_NQ(N, Q, "mfatkininit");
-  CHI = mf_get_CHI(mf);
+  CHI = MF_get_CHI(mf);
   CHI = mfchartoprimitive(CHI, &FC);
   ord = mfcharorder_canon(CHI);
-  if (mf_get_space(mf) == mf_NEW && ord == 1 && NQ % FC == 0 && dk == 1)
+  if (MF_get_space(mf) == mf_NEW && ord == 1 && NQ % FC == 0 && dk == 1)
     return mfatkinmatnewquad(mf, CHI, Q, flag, prec);
   G   = gel(CHI,1);
   chi = gel(CHI,2);
@@ -7254,9 +7254,9 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   if (dk == 2)
     CHIAL = mfcharmul(CHIAL, induce(gel(CHIAL,1), utoipos(odd(Q) ? Q<<2 : Q)));
   CHIAL = mfchartoprimitive(CHIAL,NULL);
-  mfB = gequal(CHIAL, CHI)? mf: mfinit_Nndkchi(N,nk,dk,CHIAL,mf_get_space(mf));
-  Mindex = mf_get_Mindex(mfB);
-  Minv = mf_get_Minv(mfB);
+  mfB = gequal(CHIAL, CHI)? mf: mfinit_Nndkchi(N,nk,dk,CHIAL,MF_get_space(mf));
+  Mindex = MF_get_Mindex(mfB);
+  Minv = MF_get_Minv(mfB);
   P = z = NULL;
   if (ord != 1)
   {
@@ -7285,14 +7285,14 @@ GEN
 mfatkininit(GEN mf, long Q, long prec)
 {
   pari_sp av = avma;
-  checkmf(mf); return gerepilecopy(av, mfatkininit_i(mf, Q, 1, prec));
+  checkMF(mf); return gerepilecopy(av, mfatkininit_i(mf, Q, 1, prec));
 }
 static void
 checkmfa(GEN z)
 {
   if (typ(z) != t_VEC || lg(z) != 5 || typ(gel(z,2)) != t_MAT
-      || !checkmf_i(gel(z,4))
-      || (!isintzero(gel(z,1)) && !checkmf_i(gel(z,1))))
+      || !checkMF_i(gel(z,4))
+      || (!isintzero(gel(z,1)) && !checkMF_i(gel(z,1))))
     pari_err_TYPE("mfatkin [please apply mfatkininit()]",z);
 }
 
@@ -7318,13 +7318,13 @@ mfatkineigenvalues(GEN mf, long Q, long prec)
   GEN vF, L, CHI, M, mfatk, C, MQ, vE, mfB;
   long N, NQ, l, i;
 
-  checkmf(mf); N = mf_get_N(mf); CHI = mf_get_CHI(mf);
-  vF = mf_get_newforms(mf); l = lg(vF);
+  checkMF(mf); N = MF_get_N(mf); CHI = MF_get_CHI(mf);
+  vF = MF_get_newforms(mf); l = lg(vF);
   if (l == 1) { avma = av; return cgetg(1, t_VEC); }
   L = cgetg(l, t_VEC);
   if (Q == 1)
   {
-    GEN vP = mf_get_fields(mf);
+    GEN vP = MF_get_fields(mf);
     for (i = 1; i < l; i++) gel(L,i) = const_vec(degpol(gel(vP,i)), gen_1);
     return L;
   }
@@ -7343,9 +7343,9 @@ mfatkineigenvalues(GEN mf, long Q, long prec)
     gel(L,i) = mfembedall(c, gel(vE,i));
   }
   if (!gequal1(C)) L = gdiv(L, C);
-  if (mf_get_space(mf) == mf_NEW && mfcharorder(CHI) <= 2
+  if (MF_get_space(mf) == mf_NEW && mfcharorder(CHI) <= 2
       && (NQ==1 || NQ % mfcharconductor(CHI) == 0)
-      && typ(mf_get_gk(mf)) == t_INT) L = ground(L);
+      && typ(MF_get_gk(mf)) == t_INT) L = ground(L);
   return gerepilecopy(av, L);
 }
 
@@ -7467,12 +7467,12 @@ static GEN
 mfgaexpansion_init(GEN mf, GEN ga, long n, long prec)
 {
   GEN M, Mvecj, vecj, almin, Valpha;
-  long i, w, l, N = mf_get_N(mf), c = itos(gcoeff(ga,2,1));
+  long i, w, l, N = MF_get_N(mf), c = itos(gcoeff(ga,2,1));
   hashtable *H;
 
   if (c % N == 0)
   { /* ga in G_0(N), trivial case; w = 1 */
-    GEN chid = mfcharcxeval(mf_get_CHI(mf), itos(gcoeff(ga,2,2)), prec);
+    GEN chid = mfcharcxeval(MF_get_CHI(mf), itos(gcoeff(ga,2,2)), prec);
     return mkvec2(chid, utoi(n));
   }
 
@@ -7520,7 +7520,7 @@ static GEN
 mfgaexpansion_i(GEN mf, GEN B0, GEN ga, long n, long prec)
 {
   GEN M, Mvecj, vecj, almin, Valpha, B, E = NULL;
-  long i, j, w, l, N = mf_get_N(mf), bit = prec2nbits(prec) / 2;
+  long i, j, w, l, N = MF_get_N(mf), bit = prec2nbits(prec) / 2;
   hashtable *H;
 
   Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisenspaceinit);
@@ -7604,7 +7604,7 @@ mf2gaexpansion(GEN mf2, GEN F, GEN ga, long n, long prec)
 {
   GEN FT = mfmultheta(F), mf = obj_checkbuild(mf2, MF_MF2INIT, &mf2init);
   GEN res, V1, Tres, V2, al, V, gsh;
-  long w2, C = itos(gcoeff(ga,2,1)), w = mfcuspcanon_width(f_N(FT), C);
+  long w2, C = itos(gcoeff(ga,2,1)), w = mfcuspcanon_width(mf_get_N(FT), C);
   long ext = ((C & 3L) != 2)? 0: (w+3) >> 2;
 
   res = mfgaexpansion(mf, FT, ga, n + ext, prec);
@@ -7642,8 +7642,8 @@ static GEN
 mfgaexpansionatkin(GEN mf, GEN F, long C, long D, long Q, long n, long prec)
 {
   GEN mfa = mfatkininit_i(mf, Q, 0, prec), MQ = gel(mfa,2);
-  long i, t, v, FC, k = mf_get_k(mf);
-  GEN V, z, s, CHI = mfchartoprimitive(mf_get_CHI(mf), &FC);
+  long i, t, v, FC, k = MF_get_k(mf);
+  GEN V, z, s, CHI = mfchartoprimitive(MF_get_CHI(mf), &FC);
 
   /* V = mfcoefs(F | w_Q, n), can't use mfatkin because MQ non-rational */
   V = RgM_RgC_mul(mfcoefs_mf(mf,n,1), RgM_RgC_mul(MQ, mftobasis_i(mf,F)));
@@ -7656,7 +7656,7 @@ mfgaexpansionatkin(GEN mf, GEN F, long C, long D, long Q, long n, long prec)
   return mkvec3(gen_0, utoipos(Q), V);
 }
 
-/* allow F of the form [F, f_eisendec(F)]~ */
+/* allow F of the form [F, mf_eisendec(F)]~ */
 static GEN
 mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
 {
@@ -7665,28 +7665,28 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
 
   if (n < 0) pari_err_DOMAIN("mfgaexpansion", "n", "<", gen_0, stoi(n));
   if (typ(F) == t_COL && lg(F) == 3) { EF = gel(F,2); F = gel(F,1); }
-  if (!isf(F)) pari_err_TYPE("mfgaexpansion", F);
+  if (!checkmf_i(F)) pari_err_TYPE("mfgaexpansion", F);
   check_SL2Z(ga);
-  if (typ(f_gk(F)) != t_INT) return mf2gaexpansion(mf, F, ga, n, prec);
+  if (typ(mf_get_gk(F)) != t_INT) return mf2gaexpansion(mf, F, ga, n, prec);
   c = itos(gcoeff(ga,2,1));
   d = itos(gcoeff(ga,2,2));
-  if (c % f_N(F) == 0)
+  if (c % mf_get_N(F) == 0)
   { /* trivial case: ga in Gamma_0(N) */
-    long N = mf_get_N(mf), w = mfcuspcanon_width(N,c);
-    GEN chid = mfcharcxeval(f_CHI(F), d, prec);
+    long N = MF_get_N(mf), w = mfcuspcanon_width(N,c);
+    GEN chid = mfcharcxeval(mf_get_CHI(F), d, prec);
     v = bdexpandall(mfcoefs_i(F, n/w, 1), w);
     return mkvec3(gen_0, stoi(w), RgV_Rg_mul(v,chid));
   }
-  if (mf_get_space(mf) == mf_NEW)
+  if (MF_get_space(mf) == mf_NEW)
   {
-    long N = mf_get_N(mf), g = cgcd(c,N), Q = N/g;
-    GEN CHI = mf_get_CHI(mf);
+    long N = MF_get_N(mf), g = cgcd(c,N), Q = N/g;
+    GEN CHI = MF_get_CHI(mf);
     if (cgcd(c, Q)==1 && mfcharorder(CHI) <= 2
                       && g % mfcharconductor(CHI) == 0
-                      && degpol(f_field(F)) == 1)
+                      && degpol(mf_get_field(F)) == 1)
       return mfgaexpansionatkin(mf, F, c, d, Q, n, prec);
   }
-  if (!EF) EF = f_eisendec(mf,F,prec);
+  if (!EF) EF = mf_eisendec(mf,F,prec);
   return mfgaexpansion_i(mf, EF, ga, n, prec);
 }
 
@@ -7753,15 +7753,15 @@ static GEN
 search_from_split(GEN mf, GEN vap, GEN vlp)
 {
   pari_sp av = avma;
-  long lvlp = lg(vlp), N = mf_get_N(mf), j, jv, lS;
+  long lvlp = lg(vlp), N = MF_get_N(mf), j, jv, lS;
   GEN v, NK, S, vtf, M = NULL;
 
   S = gel(mfsplit(mf, 1, 0), 1);
   lS = lg(S);
   if (lS == 1) { avma = av; return NULL; }
   v = cgetg(lS, t_VEC);
-  vtf = mf_get_vtf(mf);
-  NK = f_NK(gel(vtf,1));
+  vtf = MF_get_vtf(mf);
+  NK = mf_get_NK(gel(vtf,1));
   if (lvlp > 1) M = rowpermute(mfcoefs_mf(mf, vlp[lvlp-1], 1), vlp);
   for (j = jv = 1; j < lS; j++)
   {
@@ -7929,7 +7929,7 @@ mfdim(GEN NK, long space)
   pari_sp av = avma;
   long N, k, dk, joker;
   GEN CHI;
-  if (checkmf_i(NK)) return utoi(mf_get_dim(NK));
+  if (checkMF_i(NK)) return utoi(MF_get_dim(NK));
   checkNK2(NK, &N, &k, &dk, &CHI, 2);
   if (!CHI) joker = 1;
   else
@@ -7996,11 +7996,11 @@ mfbasis(GEN mf, long space)
   pari_sp av = avma;
   long N, k, dk;
   GEN CHI;
-  if (checkmf_i(mf)) return concat(gel(mf, 2), gel(mf, 3));
+  if (checkMF_i(mf)) return concat(gel(mf, 2), gel(mf, 3));
   checkNK2(mf, &N, &k, &dk, &CHI, 0);
   if (dk == 2) return gerepilecopy(av, mf2basis(N, k>>1, CHI, space));
   mf = mfinit_Nkchi(N, k, CHI, space, 1);
-  return gerepilecopy(av, mf_get_basis(mf));
+  return gerepilecopy(av, MF_get_basis(mf));
 }
 
 static GEN
@@ -8053,7 +8053,7 @@ mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk)
   }
   if (eps) /* self-dual */
   {
-    gel(LF,2) = mfcharorder(f_CHI(F)) <= 2? gen_0: gen_1;
+    gel(LF,2) = mfcharorder(mf_get_CHI(F)) <= 2? gen_0: gen_1;
     gel(LF,6) = mulcxpowIs(eps,k);
   }
   gel(LF,3) = mkvec2(gen_0, gen_1);
@@ -8074,8 +8074,8 @@ mflfuncreateall(long sd, GEN mfa, GEN F, GEN vE, GEN gN, GEN gk)
 static GEN
 lfunmf_i(GEN mf, GEN F, long bitprec)
 {
-  long i, l, N = mf_get_N(mf), prec = nbits2prec(bitprec);
-  GEN L, gk = mf_get_gk(mf), gN = utoipos(N);
+  long i, l, N = MF_get_N(mf), prec = nbits2prec(bitprec);
+  GEN L, gk = MF_get_gk(mf), gN = utoipos(N);
 
   if (!F)
   {
@@ -8097,10 +8097,10 @@ GEN
 lfunmf(GEN mf, GEN F, long bitprec)
 {
   pari_sp av = avma;
-  checkmf(mf);
+  checkMF(mf);
   if (F)
   {
-    if (!isf(F)) pari_err_TYPE("lfunmf", F);
+    if (!checkmf_i(F)) pari_err_TYPE("lfunmf", F);
     if (!mfisinspace_i(mf, F)) err_space(F);
   }
   return gerepilecopy(av, lfunmf_i(mf, F, bitprec));
@@ -8241,7 +8241,7 @@ mffromqf(GEN Q, GEN P)
   if (odd(d))
   {
     F = mftrivial();
-    v = zerocol(mf_get_dim(mf));
+    v = zerocol(MF_get_dim(mf));
   }
   else
   {
@@ -8542,7 +8542,7 @@ mfeisen2all(long N0, GEN NK, long k, GEN CHI1, GEN CHI2, GEN T, long o)
   long j, d = (lg(T)==4)? itou(gmael(T,3,1)): 1;
   E = cgetg(d+1, t_VEC);
   for (j=1; j<=d; j++) gel(E,j) = tag2(t_MF_EISEN, NK,vchi,mkvecsmall2(o,j-1));
-  return mfbdall(E, N0 / f_N(gel(E,1)));
+  return mfbdall(E, N0 / mf_get_N(gel(E,1)));
 }
 
 static GEN
@@ -8691,15 +8691,15 @@ mftobasis(GEN mf, GEN F, long flag)
   GEN G, v, y;
   long B;
 
-  checkmf(mf);
-  if (isf(F) && !mfisinspace_i(mf, F))
+  checkMF(mf);
+  if (checkmf_i(F) && !mfisinspace_i(mf, F))
   {
     if (flag) return cgetg(1, t_COL);
     err_space(F);
   }
   /* at least the parameters are right */
-  B = mfsturmNgk(mf_get_N(mf), mf_get_gk(mf)) + 1;
-  if (isf(F)) v = mfcoefs_i(F,B,1);
+  B = mfsturmNgk(MF_get_N(mf), MF_get_gk(mf)) + 1;
+  if (checkmf_i(F)) v = mfcoefs_i(F,B,1);
   else
   {
     switch(typ(F))
@@ -8719,7 +8719,7 @@ mftobasis(GEN mf, GEN F, long flag)
     pari_err(e_MISC, "not enough coefficients in mftobasis");
   }
   av2 = avma;
-  if (mf_get_space(mf) == mf_FULL || mfsturm(mf)+1 == B) return y;
+  if (MF_get_space(mf) == mf_FULL || mfsturm(mf)+1 == B) return y;
   G = mflinear(mf, y);
   if (!gequal(v, mfcoefs_i(G, lg(v)-2,1))) y = NULL;
   avma = av2;
@@ -8740,7 +8740,7 @@ mfcusps(GEN gN)
   long i, c, l, N = 0;
 
   if (typ(gN) == t_INT) N = itos(gN);
-  else if (checkmf_i(gN)) N = mf_get_N(gN);
+  else if (checkMF_i(gN)) N = MF_get_N(gN);
   else pari_err_TYPE("mfcusps", gN);
   if (N <= 0) pari_err_DOMAIN("mfcusps", "N", "<=", gen_0, stoi(N));
   if (N == 1) return mkvec(gen_0);
@@ -8765,11 +8765,11 @@ mfcuspisregular(GEN NK, GEN cusp)
 {
   long v, N, dk, nk, t, o;
   GEN CHI, go, A, C, g, c, d;
-  if (checkmf_i(NK))
+  if (checkMF_i(NK))
   {
-    GEN gk = mf_get_gk(NK);
-    N = mf_get_N(NK);
-    CHI = mf_get_CHI(NK);
+    GEN gk = MF_get_gk(NK);
+    N = MF_get_N(NK);
+    CHI = MF_get_CHI(NK);
     Qtoss(gk, &nk, &dk);
   }
   else
@@ -8812,7 +8812,7 @@ static GEN
 c_Ek(long n, long d, GEN F)
 {
   GEN E = cgetg(n + 2, t_VEC), C = gel(F,2);
-  long i, k = f_k(F);
+  long i, k = mf_get_k(F);
   gel (E, 1) = gen_1;
   for (i = 1; i <= n; i++)
   {
@@ -9281,7 +9281,7 @@ mfeisenspaceinit(GEN NK)
   pari_sp av = avma;
   GEN z, CHI;
   long N, k;
-  if (checkmf_i(NK)) { N=mf_get_N(NK); k=mf_get_k(NK); CHI=mf_get_CHI(NK); }
+  if (checkMF_i(NK)) { N=MF_get_N(NK); k=MF_get_k(NK); CHI=MF_get_CHI(NK); }
   else
     checkNK(NK, &N, &k, &CHI, 0);
   if (!CHI) CHI = mfchartrivial();
@@ -9324,7 +9324,7 @@ mfeisendec(GEN mf, GEN F)
   Mindex = gel(Mvecj, 1);
   ord = itou(gel(Mvecj,4));
   V = mfcoefs(F, Mindex[lg(Mindex)-1]-1, 1); settyp(V, t_COL);
-  CHI = f_CHI(F);
+  CHI = mf_get_CHI(F);
   o = mfcharorder_canon(CHI);
   if (o > 1 && o != ord)
   { /* convert Mod(.,polcyclo(o)) to Mod(., polcyclo(N)) for o | N,
@@ -9383,9 +9383,9 @@ mftaylor(GEN F, long n, long flreal, long prec)
   GEN P0, Pm1 = gen_0, v;
   GEN X2 = mkpoln(3, ghalf,gen_0,gneg(ghalf)); /* (x^2-1) / 2 */
   long k, m;
-  if (!isf(F)) pari_err_TYPE("mftaylor",F);
-  k = f_k(F);
-  if (f_N(F) != 1 || k < 0) pari_err_IMPL("mftaylor for this form");
+  if (!checkmf_i(F)) pari_err_TYPE("mftaylor",F);
+  k = mf_get_k(F);
+  if (mf_get_N(F) != 1 || k < 0) pari_err_IMPL("mftaylor for this form");
   P0 = mfcanfindp0(F, k);
   v = cgetg(n+2, t_VEC); gel(v, 1) = RgX_coeff(P0,0);
   for (m = 0; m < n; m++)
@@ -9718,16 +9718,16 @@ mfparams(GEN F)
 {
   pari_sp av = avma;
   GEN z;
-  if (checkmf_i(F))
+  if (checkMF_i(F))
   {
-    long N = mf_get_N(F);
-    GEN gk = mf_get_gk(F);
-    z = mkvec4(utoi(N), gk, mf_get_CHI(F), utoi(mf_get_space(F)));
+    long N = MF_get_N(F);
+    GEN gk = MF_get_gk(F);
+    z = mkvec4(utoi(N), gk, MF_get_CHI(F), utoi(MF_get_space(F)));
   }
   else
   {
-    if (!isf(F)) pari_err_TYPE("mfparams", F);
-    z = shallowcopy( f_NK(F) );
+    if (!checkmf_i(F)) pari_err_TYPE("mfparams", F);
+    z = shallowcopy( mf_get_NK(F) );
   }
   gel(z,3) = mfchisimpl(gel(z,3));
   return gerepilecopy(av, z);
@@ -9740,9 +9740,9 @@ mfisCM(GEN F)
   forprime_t S;
   GEN D, v;
   long N, k, lD, sb, p, i;
-  if (!isf(F)) pari_err_TYPE("mfisCM", F);
-  N = f_N(F);
-  k = f_k(F); if (N < 0 || k < 0) pari_err_IMPL("mfisCM for this F");
+  if (!checkmf_i(F)) pari_err_TYPE("mfisCM", F);
+  N = mf_get_N(F);
+  k = mf_get_k(F); if (N < 0 || k < 0) pari_err_IMPL("mfisCM for this F");
   D = mfunramneg(N);
   lD = lg(D);
   sb = maxss(mfsturmNk(N, k), 4*N);
@@ -9767,25 +9767,25 @@ mfspace_i(GEN mf, GEN F)
   GEN v, vF, gk;
   long n, nE, i, l, s, N;
 
-  checkmf(mf); s = mf_get_space(mf);
+  checkMF(mf); s = MF_get_space(mf);
   if (!F) return s;
-  if (!isf(F)) pari_err_TYPE("mfspace",F);
+  if (!checkmf_i(F)) pari_err_TYPE("mfspace",F);
   v = mftobasis(mf, F, 1);
   n = lg(v)-1; if (!n) return -1;
-  nE = lg(mf_get_eisen(mf))-1;
+  nE = lg(MF_get_eisen(mf))-1;
   switch(s)
   {
     case mf_NEW: case mf_OLD: case mf_EISEN: return s;
     case mf_FULL:
-      if (f_type(F) == t_MF_THETA) return mf_EISEN;
+      if (mf_get_type(F) == t_MF_THETA) return mf_EISEN;
       if (!gequal0(vecslice(v,1,nE)))
         return gequal0(vecslice(v,nE+1,n))? mf_EISEN: mf_FULL;
   }
   /* mf_CUSP */
-  gk = f_gk(F);
+  gk = mf_get_gk(F);
   if (typ(gk) == t_FRAC || equali1(gk)) return mf_CUSP;
   vF = mftonew_i(mf, vecslice(v, nE+1, n), &N);
-  if (N != mf_get_N(mf)) return mf_OLD;
+  if (N != MF_get_N(mf)) return mf_OLD;
   l = lg(vF);
   for (i = 1; i < l; i++)
     if (itos(gmael(vF,i,1)) != N) return mf_CUSP;
@@ -9856,7 +9856,7 @@ mffromlfun(GEN L, long prec)
   mf = mfinit_Nkchi(N, k, CHI, space, 0);
   if (!RgV_is_QV(van)) return gerepilecopy(av, mf);
   a0 = (space == mf_CUSP)? gen_0: gneg(lfun(L, gen_0, prec2nbits(prec)));
-  setlg(van, mf_get_dim(mf));
+  setlg(van, MF_get_dim(mf));
   V = mftobasis_i(mf, shallowconcat(a0, van));
   if (typ(V) == t_VEC) pari_err_BUG("mffromlfun");
   return gerepilecopy(av, mkvec3(mf, mflinear(mf,V), V));
@@ -10055,8 +10055,8 @@ mfkohnenbasis(GEN mf)
   pari_sp ltop = avma;
   GEN gk, CHI, M, ME, K, RES;
   long N, N4, r, eps, sb, c, lk, i;
-  checkmf(mf);
-  N = mf_get_N(mf); gk = mf_get_gk(mf); CHI = mf_get_CHI(mf);
+  checkMF(mf);
+  N = MF_get_N(mf); gk = MF_get_gk(mf); CHI = MF_get_CHI(mf);
   if (typ(gk) == t_INT) pari_err_TYPE("mfkohnenbasis", gk);
   N4 = N >> 2;
   r = itos(gsub(gk, ghalf));
@@ -10081,7 +10081,7 @@ static GEN desc(GEN F);
 static GEN
 desc_mfeisen(GEN F)
 {
-  GEN R, gk = f_gk(F);
+  GEN R, gk = mf_get_gk(F);
   if (typ(gk) == t_FRAC)
     R = gsprintf("H_{%Ps}", gk);
   else
@@ -10141,11 +10141,11 @@ unpack23(GEN F, GEN *U)
 static GEN
 desc_i(GEN F, GEN *U)
 {
-  switch(f_type(F))
+  switch(mf_get_type(F))
   {
     case t_MF_CONST: unpack0(U); return gsprintf("CONST(%Ps)", gel(F,2));
     case t_MF_EISEN: unpack0(U); return desc_mfeisen(F);
-    case t_MF_Ek: unpack0(U); return gsprintf("E_%ld", f_k(F));
+    case t_MF_Ek: unpack0(U); return gsprintf("E_%ld", mf_get_k(F));
     case t_MF_DELTA: unpack0(U); return gsprintf("DELTA");
     case t_MF_THETA: unpack0(U);
       return gsprintf("THETA(%Ps)", mfchisimpl(gel(F,2)));
@@ -10192,10 +10192,10 @@ GEN
 mfdescribe(GEN F, GEN *U)
 {
   pari_sp av = avma;
-  if (checkmf_i(F))
+  if (checkMF_i(F))
   {
     const char *f = NULL;
-    switch (mf_get_space(F))
+    switch (MF_get_space(F))
     {
       case mf_NEW:  f = "S_%Ps^new(G_0(%ld, %Ps))"; break;
       case mf_CUSP: f = "S_%Ps(G_0(%ld, %Ps))"; break;
@@ -10204,9 +10204,9 @@ mfdescribe(GEN F, GEN *U)
       case mf_FULL: f = "M_%Ps(G_0(%ld, %Ps))"; break;
     }
     if (U) *U = cgetg(1, t_VEC);
-    return gsprintf(f, mf_get_gk(F), mf_get_N(F), mfchisimpl(mf_get_CHI(F)));
+    return gsprintf(f, MF_get_gk(F), MF_get_N(F), mfchisimpl(MF_get_CHI(F)));
   }
-  if (!isf(F)) pari_err_TYPE("mfdescribe", F);
+  if (!checkmf_i(F)) pari_err_TYPE("mfdescribe", F);
   F = desc_i(F, U);
   gerepileall(av, U ? 2: 1, &F, U);
   return F;
@@ -10433,9 +10433,9 @@ tp2eapply(GEN V, long p, long p2, long e, GEN q, GEN c1, GEN c2)
 static GEN
 c_mfheckef2(long n, long d, GEN F, GEN DATA)
 {
-  GEN CHI = f_CHI(F), fa = gel(DATA,1), S = gel(DATA,2);
+  GEN CHI = mf_get_CHI(F), fa = gel(DATA,1), S = gel(DATA,2);
   GEN P = gel(fa,1), E = gel(fa,2), VF = mfcoefs_i(F, n*d*S[3], S[4]);
-  long i, l = lg(P), r = f_r(F), s4 = odd(r)? -4: 4, k2m3 = (r<<1)-2;
+  long i, l = lg(P), r = mf_get_r(F), s4 = odd(r)? -4: 4, k2m3 = (r<<1)-2;
   for (i = 1; i < l; i++)
   { /* p does not divide N */
     long p = P[i], e = E[i], p2 = p*p;
@@ -10489,7 +10489,7 @@ bestapprnf2(GEN V, long m, long prec)
   return gmodulo(gdivgs(Vl, degpol(P)/degpol(Pf)), Pf);
 }
 
-/* F | gamma expansion; [F, f_eisendec(F)]~ allowed */
+/* F | gamma expansion; [F, mf_eisendec(F)]~ allowed */
 GEN
 mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long prec)
 {
@@ -10497,7 +10497,7 @@ mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long
   GEN res, al, V, M, gw;
   long i, a, b, d;
 
-  checkmf(mf);
+  checkMF(mf);
   M = GL2toSL2(gamma, &a,&b,&d);
   res = mfgaexpansion(mf, F, M, n, prec);
   al = gel(res,1);
@@ -10512,7 +10512,7 @@ mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long
     W = cgetg(n+2, t_VEC);
     for (i = 1; i <= n+1; i++) gel(W, i) = gmul(gel(V,i), rootsof1pow(z, i-1));
     t = gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
-    t = gmul(t, gpow(ad, gmul2n(mf_get_gk(mf), -1), prec));
+    t = gmul(t, gpow(ad, gmul2n(MF_get_gk(mf), -1), prec));
     W = RgV_Rg_mul(W, t);
     Qtoss(gdivgs(ad, w), &nums, &w);
     adal = gmul(ad, al); sh = gfloor(adal); al = gsub(adal, sh);
@@ -10521,9 +10521,9 @@ mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long
   }
   if (flrat)
   {
-    GEN CV, gk = mf_get_gk(mf);
-    long C = itos(gcoeff(M, 2, 1)), N = mf_get_N(mf), g, w = itos(gw);
-    long ord = mfcharorder_canon(mf_get_CHI(mf)), k;
+    GEN CV, gk = MF_get_gk(mf);
+    long C = itos(gcoeff(M, 2, 1)), N = MF_get_N(mf), g, w = itos(gw);
+    long ord = mfcharorder_canon(MF_get_CHI(mf)), k;
     if (typ(gk) != t_INT)
       pari_err_IMPL("rationalization of half-integral weight slash");
     k = itos(gk);
@@ -10556,10 +10556,10 @@ mf2basis(long N, long r, GEN CHI, long space)
     CHI2 = mfcharmul(CHI, get_mfchar(utoi(8)));
   }
   mf1 = mfinit_Nkchi(N, k1, CHI1, space, 1);
-  B1 = mf_get_basis(mf1); if (lg(B1) == 1) return cgetg(1,t_VEC);
+  B1 = MF_get_basis(mf1); if (lg(B1) == 1) return cgetg(1,t_VEC);
   N2 = clcm(8, N);
   mf2 = mfinit_Nkchi(N2, k1, CHI2, space, 1);
-  B2 = mf_get_basis(mf2); if (lg(B2) == 1) return cgetg(1,t_VEC);
+  B2 = MF_get_basis(mf2); if (lg(B2) == 1) return cgetg(1,t_VEC);
   sb = mfsturmNgk(N2, gaddsg(k1, ghalf));
   M1 = mfcoefs_mf(mf1, sb, 1);
   M2 = mfcoefs_mf(mf2, sb, 1);
@@ -10590,11 +10590,11 @@ mfwt1basisalt(long N, GEN CHI, long space)
   CHI1 = mfcharmul(CHI, get_mfchar(stoi(-4)));
   N1 = clcm(4, N);
   mf1 = mfinit_Nkchi(N1, 2, CHI1, space, 1);
-  B1 = mf_get_basis(mf1);
+  B1 = MF_get_basis(mf1);
   if (lg(B1) == 1) { avma = ltop; return cgetg(1,t_VEC); }
   N2 = clcm(8, N);
   mf2 = mfinit_Nkchi(N2, 2, CHI1, space, 1);
-  B2 = mf_get_basis(mf2);
+  B2 = MF_get_basis(mf2);
   if (lg(B2) == 1) { avma = ltop; return cgetg(1,t_VEC); }
   sb = mfsturmNk(N2, 3);
   M1 = mfcoefs_mf(mf1, sb, 1);
@@ -10620,9 +10620,9 @@ mfwt1basisalt(long N, GEN CHI, long space)
 static GEN
 vanembed(GEN F, GEN v, long prec)
 {
-  GEN CHI = f_CHI(F);
+  GEN CHI = mf_get_CHI(F);
   long o = mfcharorder_canon(CHI);
-  if (o > 1 || degpol(f_field(F)) > 1) v = liftpol_shallow(v);
+  if (o > 1 || degpol(mf_get_field(F)) > 1) v = liftpol_shallow(v);
   if (o > 1) v = gsubst(v, varn(mfcharpol(CHI)), rootsof1u_cx(o, prec));
   return v;
 }
@@ -10664,7 +10664,7 @@ RgX_act_gen(GEN P, GEN M, long k)
   return S;
 }
 
-/* period pol of F|_k ga, FE = [F, f_eisendec(F)] */
+/* period pol of F|_k ga, FE = [F, mf_eisendec(F)] */
 static GEN
 mfperiodslash(GEN mf, GEN FE, GEN ga, GEN PCO, long bitprec)
 {
@@ -10673,7 +10673,7 @@ mfperiodslash(GEN mf, GEN FE, GEN ga, GEN PCO, long bitprec)
   GEN matS = mkmat22(0, -1, 1, 0), sqNinv, van, vbn = gen_0, pi2, q;
   GEN S1, S2, coe, P1, P2, aw1, aw2, al1, al2, alw1, alw2;
   long prec = nbits2prec(bitprec), N, k, C, D, w1, w2, nlim, n;
-  N = mf_get_N(mf); k = mf_get_k(mf);
+  N = MF_get_N(mf); k = MF_get_k(mf);
   C = itos(gcoeff(ga, 2, 1)); w1 = mfcuspcanon_width(N,C);
   D = itos(gcoeff(ga, 2, 2)); w2 = mfcuspcanon_width(N,D);
   sqNinv = invr(sqrtr_abs(utor(w1*w2, prec+1)));
@@ -10686,7 +10686,7 @@ mfperiodslash(GEN mf, GEN FE, GEN ga, GEN PCO, long bitprec)
   if ((C*C + D*D) % N == 0)
   { /* special case: ga*matS is in the same coset as ga */
     long A = itos(gcoeff(ga, 1, 1)), B = itos(gcoeff(ga, 1, 2));
-    coe = mfcharcxeval(mf_get_CHI(mf), -(A*C + B*D), prec+1);
+    coe = mfcharcxeval(MF_get_CHI(mf), -(A*C + B*D), prec+1);
     P2 = NULL;
   }
   else
@@ -10736,7 +10736,7 @@ GEN
 mftobasisES(GEN mf, GEN F)
 {
   GEN v = mftobasis(mf, F, 0);
-  long nE = lg(mf_get_eisen(mf))-1;
+  long nE = lg(MF_get_eisen(mf))-1;
   return mkvec2(vecslice(v,1,nE), vecslice(v,nE+1,lg(v)-1));
 }
 
@@ -10783,7 +10783,7 @@ mfs_checkmf(GEN mfs, GEN mf)
 { GEN mfF = mfs_get_mf(mfs); return gequal(gel(mfF,1), gel(mf,1)); }
 static long
 checkmfsym_i(GEN v)
-{ return typ(v) == t_VEC && lg(v) == 7 && checkmf_i(mfs_get_mf(v))
+{ return typ(v) == t_VEC && lg(v) == 7 && checkMF_i(mfs_get_mf(v))
     && typ(mfs_get_vES(v)) == t_VEC
     && typ(mfs_get_pols(v)) == t_VEC
     && typ(mfs_get_cosets(v)) == t_VEC
@@ -10810,7 +10810,7 @@ mfperiodpol(GEN mf, GEN F, long flag, long bitprec)
   pari_sp ltop = avma;
   GEN pol, vE, TCO = NULL;
   long prec = nbits2prec(bitprec);
-  if (!checkmf_i(mf)) pari_err_TYPE("mfperiodpol",mf);
+  if (!checkMF_i(mf)) pari_err_TYPE("mfperiodpol",mf);
   if (checkmfsym_i(F))
   {
     GEN mfpols = mfs_get_pols(F);
@@ -10820,10 +10820,10 @@ mfperiodpol(GEN mf, GEN F, long flag, long bitprec)
   }
   else
   {
-    GEN ES = mftobasisES(mf,F), FE = mkcol2(F, f_eisendec(mf,F,prec));
+    GEN ES = mftobasisES(mf,F), FE = mkcol2(F, mf_eisendec(mf,F,prec));
     if (!gequal0(gel(ES,1))) pari_err_TYPE("mfperiodpol [noncuspidal]",F);
     vE = mfgetembed(F, prec);
-    TCO = mfgetTCO(f_k(F), fetch_var(), prec);
+    TCO = mfgetTCO(mf_get_k(F), fetch_var(), prec);
     pol = mfperiodslash(mf, FE, matid(2), TCO, bitprec);
   }
   if (TCO) delete_var();
@@ -10849,7 +10849,7 @@ mfcosets(GEN gN)
   GEN V, D;
   long l, i, ct, N = 0;
   if (typ(gN) == t_INT) N = itos(gN);
-  else if (checkmf_i(gN)) N = mf_get_N(gN);
+  else if (checkMF_i(gN)) N = MF_get_N(gN);
   else pari_err_TYPE("mfcosets", gN);
   if (N <= 0) pari_err_DOMAIN("mfcosets", "N", "<=", gen_0, stoi(N));
   V = cgetg(mypsiu(N) + 1, t_VEC);
@@ -10920,16 +10920,16 @@ mfperiodpols_i(GEN mf, GEN vF, GEN cosets, GEN *pvE, long bit)
     return const_vec(lco-1, pol_0(0));
   }
   S = mkmat22(0, -1, 1, 0);
-  N = mf_get_N(mf);
-  k = mf_get_k(mf);
-  CHI = mf_get_CHI(mf);
+  N = MF_get_N(mf);
+  k = MF_get_k(mf);
+  CHI = MF_get_CHI(mf);
   TCO = mfgetTCO(k, fetch_var(), prec);
   ok = const_vecsmall(lco - 1, 1);
   vP = cgetg(lco, t_VEC);
-  vtf = mf_get_vtf(mf);
+  vtf = MF_get_vtf(mf);
   F = k > 1? mflinear_bhn(vtf,vF): mflinear(vtf,vF);
   *pvE = mfgetembed(F, prec);
-  FE = mkcol2(F, f_eisendec(mf,F,prec));
+  FE = mkcol2(F, mf_eisendec(mf,F,prec));
   for (i = 1; i < lco; i++)
   {
     GEN P, t, ga = gel(cosets, i);
@@ -10948,7 +10948,7 @@ mfs_iscusp(GEN mfs) { return gequal0(gmael(mfs,2,1)); }
 static GEN
 mfsymbolinit_ES(GEN mf, GEN vES, long bit)
 {
-  GEN cosets = mfcosets(utoi(mf_get_N(mf)));
+  GEN cosets = mfcosets(utoi(MF_get_N(mf)));
   GEN vE, V = mfperiodpols_i(mf, gel(vES,2), cosets, &vE, bit);
   return mkvecn(6, mf, vES, V, cosets, utoi(bit), vE);
 }
@@ -10982,7 +10982,7 @@ mfsymbol(GEN mf, GEN F, GEN s1, GEN s2, long bitprec)
   pari_sp av = avma;
   GEN ga, V, LM, S, CHI, mfpols, cosets;
   long D, B, m, u, v, a, b, c, d, j, k, N, prec;
-  checkmf(mf);
+  checkMF(mf);
   if (!checkmfsym_i(F))
   {
     F = mfsymbolinit_i(mf, F, bitprec);
@@ -10992,7 +10992,7 @@ mfsymbol(GEN mf, GEN F, GEN s1, GEN s2, long bitprec)
   mfpols = mfs_get_pols(F);
   cosets = mfs_get_cosets(F);
   prec = prec2nbits(mfs_get_bitprec(F));
-  CHI = mf_get_CHI(mf); k = mf_get_k(mf); N = mf_get_N(mf);
+  CHI = MF_get_CHI(mf); k = MF_get_k(mf); N = MF_get_N(mf);
   cusp_ac(s1, &a, &c);
   cusp_ac(s2, &b, &d); D = a*d-b*c; if (!D) { avma = av; return gen_0; }
   cbezout(a, c, &u, &v); ga = mkmat22(a, -v, c, u); B = u*b + v*d;
@@ -11020,7 +11020,7 @@ mfmanin(GEN mf, GEN F, long bitprec)
   pari_sp av = avma;
   GEN vp, vm, cosets, CHI, vE;
   long N, k, lco, j, prec;
-  checkmf(mf);
+  checkMF(mf);
   if (!checkmfsym_i(F))
   {
     F = mfsymbolinit_i(mf, F, bitprec);
@@ -11030,7 +11030,7 @@ mfmanin(GEN mf, GEN F, long bitprec)
   vp = mfs_get_pols(F);
   cosets = mfs_get_cosets(F);
   bitprec = mfs_get_bitprec(F);
-  N = mf_get_N(mf); k = mf_get_k(mf); CHI = mf_get_CHI(mf);
+  N = MF_get_N(mf); k = MF_get_k(mf); CHI = MF_get_CHI(mf);
   lco = lg(cosets);
   vm = cgetg(lco, t_VEC);
   prec = nbits2prec(bitprec);
@@ -11110,9 +11110,9 @@ mfpetersson(GEN mf, GEN F, GEN G, long bitprec)
   else if (!mfs_checkmf(mF, mf)) pari_err_TYPE("mfpetersson [different mf]",F);
   if (!mG) mG = (G == F)? mF: mfsymbolinit_ES(mf, ESG, bitprec);
   else if (!mfs_checkmf(mG, mf)) pari_err_TYPE("mfpetersson [different mf]",G);
-  N = mf_get_N(mf);
-  k = mf_get_k(mf);
-  CHI = mf_get_CHI(mf);
+  N = MF_get_N(mf);
+  k = MF_get_k(mf);
+  CHI = MF_get_CHI(mf);
   PF = mfs_get_pols(mF);
   PG = mfs_get_pols(mG);
   cosets = mfs_get_cosets(mF);
