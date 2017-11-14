@@ -139,6 +139,14 @@ setrand(1);
   );
 );}
 
+\\zero ring
+matimagemod([1,2;3,4],1)
+matdetmod(Mat(3),1)
+matdetmod([;],1)
+matkermod([1,2;3,4],1)
+matinvmod([1,2;3,4],1)
+matinvmod([1,2;3,4;5,6],1)
+
 \\examples from docu
 A = [2,1;0,2];
 matimagemod(A,6,&U)
@@ -170,3 +178,8 @@ matinvmod([0,'x;1,0],1);
 matdetmod([],1);
 matdetmod(Mat([1,2]),1);
 matdetmod(Mat(1/2),3);
+matimagemod(Mat(1),-1);
+matdetmod(Mat(1),0);
+matkermod(Mat(1),0);
+matinvmod(Mat(1),0);
+matinvmod([1,2,3;4,5,6],1);

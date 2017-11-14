@@ -879,9 +879,12 @@ GEN
 matimagemod(GEN A, GEN d, GEN* U)
 {
   void *data;
-  const struct bb_hermite* R = get_Fp_hermite(&data, d);
+  const struct bb_hermite* R;
   if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matimagemod", A);
   if (typ(d)!=t_INT) pari_err_TYPE("matimagemod", d);
+  if (signe(d)<=0) pari_err_DOMAIN("matimagemod", "d", "<=", gen_0, d);
+  if (equali1(d)) return cgetg(1,t_MAT);
+  R = get_Fp_hermite(&data, d);
   return gen_matimage(A, U, data, R);
 }
 
@@ -909,13 +912,16 @@ matdetmod(GEN A, GEN d)
 {
   pari_sp av = avma;
   void *data;
-  const struct bb_hermite* R = get_Fp_hermite(&data, d);
+  const struct bb_hermite* R;
   long n = lg(A)-1, i;
   GEN D, H, ops;
   if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matdetmod", A);
   if (typ(d)!=t_INT) pari_err_TYPE("matdetmod", d);
-  if (!n) return gen_1;
+  if (signe(d)<=0) pari_err_DOMAIN("matdetmod", "d", "<=", gen_0, d);
+  if (!n) return equali1(d) ? gen_0 : gen_1;
   if (n != nbrows(A)) pari_err_DIM("matdetmod");
+  if (equali1(d)) return gen_0;
+  R = get_Fp_hermite(&data, d);
   H = gen_howell_i(A, 1, 0, 0, &ops, data, R);
   D = gen_detops(ops, data, R);
   for (i = 1; i <= n; i++) D = Fp_mul(D, gcoeff(H,i,i), d);
@@ -926,9 +932,12 @@ GEN
 matkermod(GEN A, GEN d, GEN* im)
 {
   void *data;
-  const struct bb_hermite* R = get_Fp_hermite(&data, d);
+  const struct bb_hermite* R;
   if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matkermod", A);
   if (typ(d)!=t_INT) pari_err_TYPE("matkermod", d);
+  if (signe(d)<=0) pari_err_DOMAIN("makermod", "d", "<=", gen_0, d);
+  if (equali1(d)) return cgetg(1,t_MAT);
+  R = get_Fp_hermite(&data, d);
   return gen_kernel(A, im, data, R);
 }
 
@@ -938,10 +947,18 @@ matinvmod(GEN A, GEN d)
 {
   pari_sp av = avma;
   void *data;
-  const struct bb_hermite* R = get_Fp_hermite(&data, d);
+  const struct bb_hermite* R;
   GEN U;
   if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matinvmod", A);
   if (typ(d)!=t_INT) pari_err_TYPE("matinvmod", d);
+  if (signe(d)<=0) pari_err_DOMAIN("matinvmod", "d", "<=", gen_0, d);
+  if (equali1(d)) {
+    long m,n;
+    RgM_dimensions(A,&m,&n);
+    if (m<n) pari_err_INV("matinvmod",A);
+    return zeromatcopy(n,m);
+  }
+  R = get_Fp_hermite(&data, d);
   U = gen_inv(shallowtrans(A), data, R);
   return gerepilecopy(av, shallowtrans(U));
 }

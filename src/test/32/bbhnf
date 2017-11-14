@@ -106,6 +106,20 @@ kermod
 [1]
 
 invmod
+[;]
+0
+0
+[;]
+
+[0 0]
+
+[0 0]
+
+
+[0 0 0]
+
+[0 0 0]
+
 
 [1 0]
 
@@ -192,4 +206,19 @@ invmod
   ***   at top-level: matdetmod(Mat(1/2),3)
   ***                 ^---------------------
   *** matdetmod: incorrect type in matdetmod (t_MAT).
-Total time spent: 420
+  ***   at top-level: matimagemod(Mat(1),-1)
+  ***                 ^----------------------
+  *** matimagemod: domain error in matimagemod: d <= 0
+  ***   at top-level: matdetmod(Mat(1),0)
+  ***                 ^-------------------
+  *** matdetmod: domain error in matdetmod: d <= 0
+  ***   at top-level: matkermod(Mat(1),0)
+  ***                 ^-------------------
+  *** matkermod: domain error in makermod: d <= 0
+  ***   at top-level: matinvmod(Mat(1),0)
+  ***                 ^-------------------
+  *** matinvmod: domain error in matinvmod: d <= 0
+  ***   at top-level: matinvmod([1,2,3;4,5,6],1)
+  ***                 ^--------------------------
+  *** matinvmod: impossible inverse in matinvmod: [1, 2, 3; 4, 5, 6].
+Total time spent: 528
