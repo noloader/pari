@@ -1831,5 +1831,5 @@ intersect(GEN x, GEN y)
 
   av = avma; z = ker(shallowconcat(x,y));
   for (j=lg(z)-1; j; j--) setlg(z[j], lx);
-  return gerepileupto(av, RgM_mul(x,z));
+  return gerepileupto(av, image(RgM_mul(x,z)));
 }

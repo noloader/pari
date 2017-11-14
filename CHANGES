@@ -138,6 +138,7 @@ BA  108- sqrtn(Mod(9, 101), -2) -> wrong result
     109- multiplying t_SER with t_INTMOD entries (mod a composite) whose
          leading term cancels -> SEGV [#1986]
     110- lambertw(t_SER) could create invalid t_FRACs
+    111- matintersect did not always return a basis
 
   Added
       1- [libari] ZM_isidentity
