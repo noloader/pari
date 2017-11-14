@@ -302,6 +302,7 @@ BA  119- [libpari] ZXM_init_CRT, ZXM_incremental_CRT
     120- [libpari] numdivu, numdivu_fact, gexpo_safe
 BA  121- [libpari] FpXC_center, FpXM_center
 BA  122- [libpari] nxV_chinese_center, nxCV_chinese_center, nxMV_chinese_center
+AP  123- New GP functions matdetmod, matimagemod, matinvmod, matkermod
 
   Changed
       1- rewrite bnfnarrow

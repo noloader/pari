@@ -2331,8 +2331,9 @@ GEN gen_powu_fold(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*msqr)(vo
 GEN gen_powu_fold_i(GEN x, ulong n, void *E, GEN  (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
 GEN gen_product(GEN x, void *data, GEN (*mul)(void*,GEN,GEN));
 
-/* gen_hnf.c */
+/* bb_hnf.c */
 
+GEN     matdetmod(GEN A, GEN d);
 GEN     matimagemod(GEN A, GEN d, GEN* U);
 GEN     matinvmod(GEN A, GEN d);
 GEN     matkermod(GEN A, GEN d, GEN* im);

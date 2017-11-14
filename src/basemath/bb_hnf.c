@@ -425,6 +425,53 @@ gen_leftapply(GEN C, GEN op, void* data, const struct bb_hermite *R)
   }
 }
 
+/* \prod_i det ops[i] */
+static GEN
+gen_detops(GEN ops, void* data, const struct bb_hermite *R)
+{
+  GEN d = R->s(data,1);
+  long i, j, l = lg(ops);
+  for (i = 1; i < l; i++)
+  {
+    GEN X, op = gel(ops,i);
+    switch (typ(op))
+    {
+      case t_VECSMALL:
+        if (perm_sign(op) < 0) d = R->neg(data,d);
+        break;
+      case t_VEC:
+        switch (lg(op))
+        {
+          case 2:
+            d = R->neg(data,d);
+            break;
+          case 3:
+            X = gel(op,2);
+            switch (lg(gel(op,1)))
+            {
+              case 2:
+                 d = R->mul(data, d, X);
+                 d = R->red(data, d);
+                 break;
+              case 4:
+               {
+                 GEN A = gcoeff(X,1,1), B = gcoeff(X,1,2);
+                 GEN C = gcoeff(X,2,1), D = gcoeff(X,2,2);
+                 GEN AD = R->mul(data,A,D);
+                 GEN BC = R->mul(data,B,C);
+                 d = R->mul(data, d, R->add(data, AD, R->neg(data,BC)));
+                 d = R->red(data, d);
+                 break;
+               }
+            }
+            break;
+        }
+        break;
+    }
+  }
+  return d;
+}
+
 static int
 gen_is_inv(GEN x, void* data, const struct bb_hermite *R)
 {
@@ -831,15 +878,10 @@ gen_inv(GEN A, void* data, const struct bb_hermite *R)
 GEN
 matimagemod(GEN A, GEN d, GEN* U)
 {
-  void* data;
-  long i,j;
-  const struct bb_hermite* R;
-  if (typ(A)!=t_MAT) pari_err_TYPE("matimagemod[1]", A);
-  if (typ(d)!=t_INT) pari_err_TYPE("matimagemod[2]", d);
-  for (j=1; j<lg(A); j++)
-    for (i=1; i<lg(gel(A,j)); i++)
-      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("matimagemod[3]", gcoeff(A,i,j));
-  R = get_Fp_hermite(&data, d);
+  void *data;
+  const struct bb_hermite* R = get_Fp_hermite(&data, d);
+  if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matimagemod", A);
+  if (typ(d)!=t_INT) pari_err_TYPE("matimagemod", d);
   return gen_matimage(A, U, data, R);
 }
 
@@ -849,15 +891,13 @@ GEN
 ZM_hnfmodid2(GEN A, GEN d)
 {
   pari_sp av = avma;
-  void* data;
-  long i, j;
+  void *data;
+  long i;
+  const struct bb_hermite* R = get_Fp_hermite(&data, d);
   GEN H;
-  if (typ(A)!=t_MAT) pari_err_TYPE("ZM_hnfmodid2", A);
+  if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("ZM_hnfmodid2", A);
   if (typ(d)!=t_INT) pari_err_TYPE("ZM_hnfmodid2", d);
-  for (j=1; j<lg(A); j++)
-    for (i=1; i<lg(gel(A,j)); i++)
-      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("ZM_hnfmodid2", gcoeff(A,i,j));
-  H = gen_howell_i(A, 1, 0, 0, NULL, data, get_Fp_hermite(&data, d));
+  H = gen_howell_i(A, 1, 0, 0, NULL, data, R);
   for (i=1; i<lg(H); i++)
     if (!signe(gcoeff(H,i,i))) gcoeff(H,i,i) = d;
   return gerepilecopy(av,H);
@@ -865,17 +905,30 @@ ZM_hnfmodid2(GEN A, GEN d)
 */
 
 GEN
+matdetmod(GEN A, GEN d)
+{
+  pari_sp av = avma;
+  void *data;
+  const struct bb_hermite* R = get_Fp_hermite(&data, d);
+  long n = lg(A)-1, i;
+  GEN D, H, ops;
+  if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matdetmod", A);
+  if (typ(d)!=t_INT) pari_err_TYPE("matdetmod", d);
+  if (!n) return gen_1;
+  if (n != nbrows(A)) pari_err_DIM("matdetmod");
+  H = gen_howell_i(A, 1, 0, 0, &ops, data, R);
+  D = gen_detops(ops, data, R);
+  for (i = 1; i <= n; i++) D = Fp_mul(D, gcoeff(H,i,i), d);
+  return gerepileuptoint(av, D);
+}
+
+GEN
 matkermod(GEN A, GEN d, GEN* im)
 {
-  void* data;
-  long i,j;
-  const struct bb_hermite* R;
-  if (typ(A)!=t_MAT) pari_err_TYPE("matkermod[1]", A);
-  if (typ(d)!=t_INT) pari_err_TYPE("matkermod[2]", d);
-  for (j=1; j<lg(A); j++)
-    for (i=1; i<lg(gel(A,j)); i++)
-      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("matkermod[3]", gcoeff(A,i,j));
-  R = get_Fp_hermite(&data, d);
+  void *data;
+  const struct bb_hermite* R = get_Fp_hermite(&data, d);
+  if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matkermod", A);
+  if (typ(d)!=t_INT) pari_err_TYPE("matkermod", d);
   return gen_kernel(A, im, data, R);
 }
 
@@ -884,19 +937,12 @@ GEN
 matinvmod(GEN A, GEN d)
 {
   pari_sp av = avma;
-  void* data;
-  long i,j;
-  const struct bb_hermite* R;
-  GEN B, U;
-  if (typ(A)!=t_MAT) pari_err_TYPE("matinvmod[1]", A);
-  if (typ(d)!=t_INT) pari_err_TYPE("matinvmod[2]", d);
-  for (j=1; j<lg(A); j++)
-    for (i=1; i<lg(gel(A,j)); i++)
-      if (typ(gcoeff(A,i,j))!=t_INT) pari_err_TYPE("matinvmod[3]", gcoeff(A,i,j));
-  B = shallowtrans(A);
-  R = get_Fp_hermite(&data, d);
-  U = gen_inv(B, data, R);
-  U = shallowtrans(U);
-  return gerepilecopy(av,U);
+  void *data;
+  const struct bb_hermite* R = get_Fp_hermite(&data, d);
+  GEN U;
+  if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matinvmod", A);
+  if (typ(d)!=t_INT) pari_err_TYPE("matinvmod", d);
+  U = gen_inv(shallowtrans(A), data, R);
+  return gerepilecopy(av, shallowtrans(U));
 }
 
