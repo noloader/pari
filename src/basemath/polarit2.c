@@ -1843,7 +1843,7 @@ Q_content_safe(GEN x)
       d = Q_content_safe(gel(x,2)); if (!d) return NULL;
       return Q_gcd(c,d);
   }
-  return NULL; /* LCOV_EXCL_LINE */
+  return NULL;
 }
 GEN
 Q_content(GEN x)
@@ -1867,6 +1867,51 @@ ZX_content(GEN x)
   for (i=3; !is_pm1(d) && i<l; i++) d = gcdii(d, gel(x,i));
   if (signe(d) < 0) d = absi(d);
   return gerepileuptoint(av, d);
+}
+
+GEN
+Z_content(GEN x)
+{
+  long i, l;
+  GEN c, d;
+  pari_sp av;
+
+  switch(typ(x))
+  {
+    case t_INT:
+      if (is_pm1(x)) return NULL;
+      return absi(x);
+
+    case t_VEC: case t_COL: case t_MAT:
+      l = lg(x); if (l == 1) return gen_1;
+      av = avma; d = Z_content(gel(x,1)); if (!d) return NULL;
+      for (i=2; i<l; i++)
+      {
+        c = Z_content(gel(x,i)); if (!c) return NULL;
+        d = gcdii(d, c); if (is_pm1(d)) return NULL;
+        if ((i & 255) == 0) d = gerepileupto(av, d);
+      }
+      return gerepileupto(av, d);
+
+    case t_POL:
+      l = lg(x); if (l == 2) return gen_0;
+      av = avma; d = Z_content(gel(x,2)); if (!d) return NULL;
+      for (i=3; i<l; i++)
+      {
+        c = Z_content(gel(x,i)); if (!c) return NULL;
+        d = gcdii(d, c); if (is_pm1(d)) return NULL;
+      }
+      return gerepileupto(av, d);
+    case t_POLMOD: return Z_content(gel(x,2));
+    case t_COMPLEX:
+      av = avma;
+      c = Z_content(gel(x,1)); if (!c) return NULL;
+      d = Z_content(gel(x,2)); if (!d) return NULL;
+      d = gcdii(d, c); if (is_pm1(x)) return NULL;
+      return gerepileupto(av, d);
+  }
+  pari_err_TYPE("Z_content", x);
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /* NOT MEMORY CLEAN (because of t_FRAC).

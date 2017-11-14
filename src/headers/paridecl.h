@@ -4339,6 +4339,7 @@ long    RgX_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa);
 long    RgX_type2(GEN x, GEN y, GEN *ptp, GEN *ptpol, long *ptpa);
 void    RgX_type_decode(long x, long *t1, long *t2);
 int     RgX_type_is_composite(long t);
+GEN     Z_content(GEN x);
 GEN     ZX_content(GEN x);
 GEN     centermod(GEN x, GEN p);
 GEN     centermod_i(GEN x, GEN p, GEN ps2);

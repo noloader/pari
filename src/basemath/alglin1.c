@@ -3655,7 +3655,8 @@ ZM_inv(GEN A, GEN *pden)
   H = gen_crt("ZM_inv", worker, NULL, B, m, &mod, nmV_chinese_center, FpM_center);
   D = ZMrow_ZC_mul(A, gel(H,1), 1); /* det(A) */
   if (signe(D)==0) pari_err_INV("ZM_inv", A);
-  d = gcdii(Q_content_safe(H), D);
+  d = Z_content(mkvec2(H, D));
+  if (!d) d = gen_1;
   if (signe(D) < 0) d = negi(d);
   if (!equali1(d))
   {
@@ -5201,7 +5202,7 @@ ZabM_inv(GEN A, GEN Q, long n, GEN *pt_den)
               nxMV_chinese_center, FpXM_center);
   D = RgMrow_RgC_mul(A, gel(H,1), 1);
   D = ZX_rem(D, Q);
-  d = Q_content(mkvec2(H, D));
+  d = Z_content(mkvec2(H, D));
   if (d)
   {
     D = ZX_Z_divexact(D, d);

@@ -11143,6 +11143,10 @@ and its $\Q$-denominator is $2$, whereas \kbd{content} would return $y/2$ and
 
 \fun{GEN}{Q_content}{GEN x} the $\Q$-content of $x$.
 
+\fun{GEN}{Z_content}{GEN x} as \kbd{Q\_content} but assume that all rationals
+are in fact \typ{INT} and return \kbd{NULL} when the content is $1$. This
+function return as soon as the content is found to equal to $1$.
+
 \fun{GEN}{Q_content_safe}{GEN x} as \kbd{Q\_content}, returning
 \kbd{NULL} when the $\Q$-content is not defined (e.g. for a \typ{REAL}
 or \typ{INTMOD} component).
