@@ -430,7 +430,7 @@ static GEN
 gen_detops(GEN ops, void* data, const struct bb_hermite *R)
 {
   GEN d = R->s(data,1);
-  long i, j, l = lg(ops);
+  long i, l = lg(ops);
   for (i = 1; i < l; i++)
   {
     GEN X, op = gel(ops,i);
