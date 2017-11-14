@@ -4012,7 +4012,6 @@ GEN   mfgaloistype(GEN NK, GEN F);
 GEN   mfhecke(GEN mf, GEN F, long n);
 GEN   mfheckemat(GEN mf, GEN vecn);
 GEN   mfinit(GEN NK, long space);
-GEN   mfinteg(GEN F, long m);
 GEN   mfisCM(GEN F);
 long  mfisequal(GEN F, GEN G, long lim);
 GEN   mflinear(GEN vF, GEN vla);
