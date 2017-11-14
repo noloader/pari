@@ -22,6 +22,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                                                                **/
 /********************************************************************/
 
+/*
+  bb_hermite R:
+    - add(a,b): a+b
+    - neg(a): -a
+    - mul(a,b): a*b
+    - extgcd(a,b,&small): [d,U] with d in R and U in GL_2(R) such that [0;d] = [a;b]*U.
+      set small==1 to assert that U is a 'small' operation (no red needed).
+    - rann(a): b in R such that b*R = {x in R | a*x==0}
+    - lquo(a,b,&r): q in R such that r=a-b*q is a canonical representative
+      of the image of a in R/b*R. The canonical lift of 0 must be 0.
+    - unit(a): u unit in R^* such that a*u is a canonical generator of the ideal a*R
+    - equal0(a): a==0?
+    - equal1(a): a==1?
+    - s(n): image of the small integer n in R
+    - red(a): unique representative of a as an element of R
+
+  op encoding of elementary operations:
+    - t_VECSMALL: the corresponding permutation (vecpermute)
+    - [Vecsmall([i,j])]: the transposition Ci <-> Cj
+    - [Vecsmall([i]),u], u in R^*: Ci <- Ci*u
+    - [Vecsmall([i,j]),a], a in R: Ci <- Ci + Cj*a
+    - [Vecsmall([i,j,0]),U], U in GL_2(R): (Ci|Cj) <- (Ci|Cj)*U
+*/
+
 struct bb_hermite
 {
   GEN (*add)(void*, GEN, GEN);
@@ -307,6 +331,8 @@ gen_is_zerocol(GEN C, long lim, void* data, const struct bb_hermite *R)
   return 1;
 }
 
+/* The mkop* functions return NULL if the corresponding operation is the identity */
+
 static GEN
 /* Ci <- Ci + Cj*a */
 mkoptransv(long i, long j, GEN a, void* data, const struct bb_hermite *R)
@@ -340,6 +366,7 @@ mkopswap(long i, long j)
   return mkvec(mkvecsmall2(i,j));
 }
 
+/* M: t_MAT. Apply the operation op to M by right multiplication. */
 static void
 gen_rightapply(GEN M, GEN op, void* data, const struct bb_hermite *R)
 {
@@ -382,6 +409,7 @@ gen_rightapply(GEN M, GEN op, void* data, const struct bb_hermite *R)
   }
 }
 
+/* C: t_COL. Apply the operation op to C by left multiplication. */
 static void
 gen_leftapply(GEN C, GEN op, void* data, const struct bb_hermite *R)
 {
@@ -425,7 +453,7 @@ gen_leftapply(GEN C, GEN op, void* data, const struct bb_hermite *R)
   }
 }
 
-/* \prod_i det ops[i] */
+/* \prod_i det ops[i]. Only makes sense if R is commutative. */
 static GEN
 gen_detops(GEN ops, void* data, const struct bb_hermite *R)
 {
