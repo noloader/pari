@@ -1883,7 +1883,7 @@ Z_content(GEN x)
       return absi(x);
 
     case t_VEC: case t_COL: case t_MAT:
-      l = lg(x); if (l == 1) return gen_1;
+      l = lg(x); if (l == 1) return NULL;
       av = avma; d = Z_content(gel(x,1)); if (!d) return NULL;
       for (i=2; i<l; i++)
       {
@@ -1907,7 +1907,7 @@ Z_content(GEN x)
       av = avma;
       c = Z_content(gel(x,1)); if (!c) return NULL;
       d = Z_content(gel(x,2)); if (!d) return NULL;
-      d = gcdii(d, c); if (is_pm1(x)) return NULL;
+      d = gcdii(d, c); if (is_pm1(d)) return NULL;
       return gerepileupto(av, d);
   }
   pari_err_TYPE("Z_content", x);
