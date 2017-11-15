@@ -167,17 +167,27 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
   S->dT = dT = set_disc(S);
   if (fa)
   {
+    const long MIN = 100; /* include at least all p < 101 */
+    long tf;
     if (!isint1(L)) fa = update_fact(dT, fa);
-    switch(typ(fa))
+    tf = typ(fa);
+    switch(tf)
     {
+      case t_MAT:
+        if (!is_Z_factornon0(fa)) pari_err_TYPE("nfmaxord",fa);
+        fa = gel(fa,1); tf = t_COL; /* fall through */
       case t_VEC: case t_COL:
+        P = gel(absZ_factor_limit(dT, MIN), 1); l = lg(P);
+        if (l > 1 && cmpiu(gel(P,1), MIN) <= 0)
+        {
+          if (cmpiu(gel(P,l-1), MIN) > 0) setlg(P,l-1);
+          settyp(P,tf); fa = ZV_sort_uniq(shallowconcat(fa,P));
+        }
         fa = fact_from_factors(dT, fa, 0);
         break;
       case t_INT:
-        fa = absZ_factor_limit(dT, (signe(fa) <= 0)? 1: itou(fa));
+        fa = absZ_factor_limit(dT, (signe(fa) <= 0)? 1: maxuu(itou(fa), MIN));
         break;
-      case t_MAT:
-        if (is_Z_factornon0(fa)) break;
         /*fall through*/
       default:
         pari_err_TYPE("nfmaxord",fa);

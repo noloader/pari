@@ -76,6 +76,8 @@ K.index
 K=nfinit([x^5+9*x^4+851*x^3+18890*x^2+252376*x+529348, 39820]);
 nfcertify(K)
 
+nf=nfinit( [ x^7 + 2539107, [43] ] ); \\ #1973
+
 nfnewprec(x)
 nfnewprec(quadgen(5))
 nfnewprec(vector(5))

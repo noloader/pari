@@ -141,7 +141,11 @@ Doc: \var{pol} being a non-constant,
  @eprog\noindent A priori, \kbd{nf.zk} defines an order which is only known
  to be maximal at all primes $\leq 10^3$ (no prime $\leq 10^3$ divides
  \kbd{nf.index}). The certification step proves the correctness of the
- computation.
+ computation. Had it failed, that particular \kbd{nf} structure could
+ not have been trusted and may have caused routines using it to fail randomly.
+ One particular functions that remains trustworthy in all cases is
+ \kbd{idealprimedec} when applied to a prime included in the above list
+ of primes.
  \medskip
 
  If $\fl=2$: \var{pol} is changed into another polynomial $P$ defining the same

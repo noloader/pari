@@ -139,6 +139,8 @@ BA  108- sqrtn(Mod(9, 101), -2) -> wrong result
          leading term cancels -> SEGV [#1986]
     110- lambertw(t_SER) could create invalid t_FRACs
     111- matintersect did not always return a basis
+    112- nfinit([T, listP]) could error out when a small prime
+         outside listP divided the index [#1993]
 
   Added
       1- [libari] ZM_isidentity
