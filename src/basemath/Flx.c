@@ -4821,14 +4821,18 @@ FlxqXV_prod(GEN V, GEN T, ulong p)
   return gen_product(V, (void*)&d, &_FlxqX_mul);
 }
 
+static GEN
+FlxqV_roots_to_deg1(GEN x, GEN T, ulong p, long v)
+{
+  long sv = get_Flx_var(T);
+  pari_APPLY_same(deg1pol_shallow(pol1_Flx(sv),Flx_neg(gel(x,i),p),v))
+}
+
 GEN
 FlxqV_roots_to_pol(GEN V, GEN T, ulong p, long v)
 {
   pari_sp ltop = avma;
-  long k, sv = get_Flx_var(T);
-  GEN W = cgetg(lg(V),t_VEC);
-  for(k=1; k < lg(V); k++)
-    gel(W,k) = deg1pol_shallow(pol1_Flx(sv),Flx_neg(gel(V,k),p),v);
+  GEN W = FlxqV_roots_to_deg1(V, T, p, v);
   return gerepileupto(ltop, FlxqXV_prod(W, T, p));
 }
 
@@ -4836,23 +4840,11 @@ FlxqV_roots_to_pol(GEN V, GEN T, ulong p, long v)
 
 GEN
 FlxqC_Flxq_mul(GEN x, GEN y, GEN T, ulong p)
-{
-  long i, l = lg(x);
-  GEN z = cgetg(l, t_COL);
-  for (i = 1; i < l; i++)
-    gel(z, i) = Flxq_mul(gel(x, i), y, T, p);
-  return z;
-}
+{ pari_APPLY_type(t_COL, Flxq_mul(gel(x, i), y, T, p)) }
 
 GEN
 FlxqM_Flxq_mul(GEN x, GEN y, GEN T, ulong p)
-{
-  long j, l = lg(x);
-  GEN z = cgetg(l, t_MAT);
-  for (j = 1; j < l; j++)
-    gel(z, j) = FlxqC_Flxq_mul(gel(x, j), y, T, p);
-  return z;
-}
+{ pari_APPLY_same(FlxqC_Flxq_mul(gel(x, i), y, T, p)) }
 
 static GEN
 kron_pack_Flx_spec_half(GEN x, long l) {

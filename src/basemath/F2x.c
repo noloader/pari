@@ -2723,10 +2723,5 @@ F2xqXQ_auttrace(GEN aut, long n, GEN S, GEN T)
 }
 
 GEN
-F2xqXQV_red(GEN z, GEN S, GEN T)
-{
-  long i,l = lg(z);
-  GEN x = cgetg(l, t_VEC);
-  for (i=1; i<l; i++) gel(x,i) = F2xqX_rem(gel(z,i), S, T);
-  return x;
-}
+F2xqXQV_red(GEN x, GEN S, GEN T)
+{ pari_APPLY_type(t_VEC, F2xqX_rem(gel(x,i), S, T)) }
