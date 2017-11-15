@@ -921,9 +921,9 @@ static GEN
 primelist_disc(ulong *p, long n, GEN dB)
 {
   ulong u = 0;
-  if (dB && typ(dB)==t_VECSMALL) { u = uel(dB,1); dB = NULL; }
   GEN P = cgetg(n+1, t_VECSMALL);
   long i;
+  if (dB && typ(dB)==t_VECSMALL) { u = uel(dB,1); dB = NULL; }
   for (i=1; i <= n; i++, *p = unextprime(*p+1))
   {
     if (dB && umodiu(dB, *p)==0) { i--; continue; }
