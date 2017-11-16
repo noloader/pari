@@ -298,6 +298,7 @@ normlp(mfpetersson(f1,f2)) < 1e-38
 normlp(mfpetersson(f2,f1)) < 1e-38
 L=mfmanin(f2)[1];
 liftpol(L[1])
+L[2][3]
 
 mfatkineigenvalues(mf,1)
 mfatkineigenvalues(mf,2)
@@ -402,12 +403,12 @@ PP/=cP;bestappr(PP)
 PM=mfperiodpol(mf,D,1);cM=polcoeff(PM,0)
 PM/=cM;bestappr(PM)
 Ds = mfsymbol(mf,D); DS=mfpetersson(Ds)
-B = 10^8;
 [pols,oms]=mfmanin(Ds); pols
-bestappr(DS/(oms[1]*oms[2]/I), B)
+oms[3]
+bestappr(DS/(oms[1]*oms[2]/I), 10^8)
 mf=mfinit([11,2],1); fs=mfsymbol(mf,mfbasis(mf)[1]); DS=mfpetersson(fs)
 [pols,oms]=mfmanin(fs); pols
-bestappr(DS/(oms[1]*oms[2]/I), B)
+oms[3]
 mf=mfinit([11,4],1); fs=mfsymbol(mf,mfbasis(mf)[1]); mfpetersson(fs)
 real(mfpetersson(fs, mfsymbol(mf,mfbasis(mf)[2])))
 mf=mfinit([12,3,-4],1); fs=mfsymbol(mf,mfbasis(mf)[1]);
@@ -429,6 +430,7 @@ mf=mfinit([23,4],0); f=mfsymbol(mf, mfeigenbasis(mf)[1]);
 mfpetersson(f)
 mf=mfinit([23,2],0); f=mfsymbol(mf, mfeigenbasis(mf)[1]);
 L=liftpol(mfmanin(f)); [v[1] | v<-L]
+[v[2][3] | v<-L]
 mf=mfinit([7,4,Mod(2,7)], 0); f=mfsymbol(mf, mfeigenbasis(mf)[1]);
 L=mfmanin(f)
 

@@ -39,7 +39,7 @@ Doc: Petersson scalar product of the modular forms $f$ and $g$ belonging to
  [ 2.86985925493723 E-41 -1.45087328999604 E-41   2.27268958069593 E-5]
 
  ? mf=mfinit([23,2],0); F=mfeigenbasis(mf)[1]; FS=mfsymbol(mf,F);
- ? mfpetersson(FS,FS)
+ ? mfpetersson(FS)
  %5 =
  [0.0039488965740025031688548076498662860143 1.2789721111175127425 E-40]
 

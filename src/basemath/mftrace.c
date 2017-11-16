@@ -11073,6 +11073,13 @@ polabstorel(GEN rnfeq, GEN T)
   for (i = 2; i < l; i++) gel(U,i) = eltabstorel(rnfeq, gel(T,i));
   return U;
 }
+static GEN
+bestapprnfrel(GEN x, GEN polabs, GEN roabs, GEN rnfeq, long prec)
+{
+  x = bestapprnf(x, polabs, roabs, prec);
+  if (rnfeq) x = polabstorel(rnfeq, liftpol_shallow(x));
+  return x;
+}
 /* v vector of polynomials polynomial in C[X] (possibly scalar).
  * Set *w = coeff with largest exponent and return T / *w, rationalized */
 static GEN
@@ -11081,13 +11088,9 @@ normal(GEN v, GEN polabs, GEN roabs, GEN rnfeq, GEN *w, long prec)
   long i, l = lg(v), E = -(long)HIGHEXPOBIT;
   GEN dv;
   for (i = 1; i < l; i++) improve(gel(v,i), w, &E);
-  v = gmul(v, ginv(*w));
+  v = RgV_Rg_mul(v, ginv(*w));
   for (i = 1; i < l; i++)
-  {
-    GEN T = bestapprnf(gel(v,i), polabs, roabs, prec);
-    if (rnfeq) T = polabstorel(rnfeq, liftpol_shallow(T));
-    gel(v,i) = T;
-  }
+    gel(v,i) = bestapprnfrel(gel(v,i), polabs,roabs,rnfeq,prec);
   v = Q_primitive_part(v,&dv);
   if (dv) *w = gmul(*w,dv);
   return v;
@@ -11097,6 +11100,7 @@ mfmanin(GEN FS, long bitprec)
 {
   pari_sp av = avma;
   GEN mf, M, vp, vm, cosets, CHI, vpp, vmm, f, T, P, vE, polabs, roabs, rnfeq;
+  GEN pet;
   long N, k, lco, i, prec, lvE;
 
   if (!checkfs_i(FS)) pari_err_TYPE("mfmanin",FS);
@@ -11138,13 +11142,17 @@ mfmanin(GEN FS, long bitprec)
     rnfeq = roabs = NULL;
     polabs = P? P: T;
   }
+  pet = mfpetersson(FS, NULL, bitprec);
   M = cgetg(lvE, t_VEC);
   for (i = 1; i < lvE; i++)
   {
-    GEN p, m, wp, wm, E = gel(vE,i);
+    GEN p, m, wp, wm, petdiag, r, E = gel(vE,i);
     p = normal(vecpolembed(vpp,0,E), polabs, roabs, rnfeq, &wp, prec);
     m = normal(vecpolembed(vmm,0,E), polabs, roabs, rnfeq, &wm, prec);
-    gel(M,i) = mkvec2(mkvec2(p,m), mkvec2(wp,wm));
+    petdiag = typ(pet)==t_MAT? gcoeff(pet,i,i): pet;
+    r = gdiv(imag_i(gmul(wp, gconj(wm))), petdiag);
+    r = bestapprnfrel(r, polabs, roabs, rnfeq, prec);
+    gel(M,i) = mkvec2(mkvec2(p,m), mkvec3(wp,wm,r));
   }
   return gerepilecopy(av, lvE == 2? gel(M,1): M);
 }
