@@ -3953,6 +3953,8 @@ long  MF_get_k(GEN mf);
 GEN   MF_get_newforms(GEN mf);
 long  MF_get_space(GEN mf);
 GEN   MF_get_vtf(GEN mf);
+GEN   MFcusp_get_vMjd(GEN mf);
+GEN   MFnew_get_vj(GEN mf);
 GEN   QabV_tracerel(GEN v, long t, GEN x);
 GEN   Qab_trace_init(GEN Pn, long n, long m);
 void  checkMF(GEN mf);

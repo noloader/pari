@@ -153,19 +153,31 @@ Variants of \kbd{mfnumcusps} :
 
 \section{Implementation of public data structures}
 
+\fun{void}{checkMF}{GEN mf} raise an exception if the argument is not a
+modular form space.
+
+\fun{int}{checkMF_i}{GEN mf} return $1$ if the argument is a modular form
+space and $0$ otherwise.
+
+\fun{int}{checkmf_i}{GEN mf} return $1$ if the argument is a modular form
+and $0$ otherwise.
+
 \subsec{Accessors for modular form spaces}
 
-\fun{GEN}{MF_get_CHI}{GEN mf}
+\fun{GEN}{MF_get_gN}{GEN mf} return the level $N$ as a \typ{INT}.
 
-\fun{GEN}{MF_get_M}{GEN mf}
+\fun{long}{MF_get_N}{GEN mf} return the level $N$ as a \kbd{long}.
 
-\fun{GEN}{MF_get_Mindex}{GEN mf}
+\fun{GEN}{MF_get_gk}{GEN mf} return the level $k$ as a \typ{INT}.
 
-\fun{GEN}{MF_get_Minv}{GEN mf}
+\fun{long}{MF_get_k}{GEN mf} return the level $k$ as a \kbd{long}.
 
-\fun{long}{MF_get_N}{GEN mf}
+\fun{GEN}{MF_get_CHI}{GEN mf} return the nebentypus, which is a special form
+ of character structure attached to Dirichlet characters (see next section).
+Its values are given as algebraic numbers: either $\pm1$ or \typ{POLMOD}
+in $t$.
 
-\fun{GEN}{MF_get_basis}{GEN mf}
+\fun{GEN}{MF_get_basis}{GEN mf} return the $\Q$-basis of the space.
 
 \fun{long}{MF_get_dim}{GEN mf}
 
@@ -173,15 +185,21 @@ Variants of \kbd{mfnumcusps} :
 
 \fun{GEN}{MF_get_fields}{GEN mf}
 
-\fun{GEN}{MF_get_gk}{GEN mf}
-
-\fun{long}{MF_get_k}{GEN mf}
-
 \fun{GEN}{MF_get_newforms}{GEN mf}
 
 \fun{long}{MF_get_space}{GEN mf}
 
 \fun{GEN}{MF_get_vtf}{GEN mf}
+
+\fun{GEN}{MF_get_M}{GEN mf}
+
+\fun{GEN}{MF_get_Mindex}{GEN mf}
+
+\fun{GEN}{MF_get_Minv}{GEN mf}
+
+\fun{GEN}{MFcusp_get_vMjd}{GEN mf}
+
+\fun{GEN}{MFnew_get_vj}{GEN mf}
 
 \subsec{Accessors for individual modular forms}
 
@@ -201,7 +219,7 @@ weight $k = (2r+1)/2$, return $r = k - (1/2)$.
 
 \fun{GEN}{mf_get_CHI}{GEN F} return the nebentypus, which is a special form of
 character structure attached to Dirichlet characters (see next section). Its
-values will be given as algebraic numbers: either $\pm1$ or \typ{POLMOD}
+values are given as algebraic numbers: either $\pm1$ or \typ{POLMOD}
 in $t$.
 
 \fun{GEN}{mf_get_field}{GEN F} return the polynomial (in variable $y$)
