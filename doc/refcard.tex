@@ -345,14 +345,20 @@ header.
 \subsec{Gaussian elimination}
 \li{kernel of matrix $x$}{matker$(x,\{\fl\})$}
 \li{intersection of column spaces of $x$ and $y$}{matintersect$(x,y)$}
-\li{solve $M*X = B$ ($M$ invertible)}{matsolve$(M,B)$}
-\li{as solve, modulo $D$ (col. vector)}{matsolvemod$(M,D,B)$}
+\li{solve $MX = B$ ($M$ invertible)}{matsolve$(M,B)$}
 \li{one sol of $M*X = B$}{matinverseimage$(M,B)$}
 \li{basis for image of matrix $x$}{matimage$(x)$}
 \li{columns of $x$ \emph{not} in \kbd{matimage}}{matimagecompl$(x)$}
 \li{supplement columns of $x$ to get basis}{matsupplement$(x)$}
 \li{rows, cols to extract invertible matrix}{matindexrank$(x)$}
 \li{rank of the matrix $x$}{matrank$(x)$}
+
+\li{solve $MX = B$ mod $D$}{matsolvemod$(M,D,B)$}
+\li{image mod $D$}{matimagemod$(M,D)$}
+\li{kernel mod $D$}{matkermod$(M,D)$}
+\li{inverse mod $D$}{matinvmod$(M,D)$}
+\li{determinant mod $D$}{matdetmod$(M,D)$}
+\newcolumn
 
 \section{Lattices \& Quadratic Forms}
 \subsec{Quadratic forms}
@@ -361,7 +367,6 @@ header.
 \li{signature of quad form $^ty*x*y$}{qfsign$(x)$}
 \li{decomp into squares of $^ty*x*y$}{qfgaussred$(x)$}
 \li{eigenvalues/vectors for real symmetric $x$}{qfjacobi$(x)$}
-\newcolumn
 
 \subsec{HNF and SNF}
 \li{upper triangular Hermite Normal Form}{mathnf$(x)$}
@@ -418,6 +423,8 @@ header.
 \li{is $f$ a product of cyclotomic polynomials?}{poliscycloprod$(f)$}
 \li{Zagier's polynomial of index $(n,m)$}{polzagier$(n,m)$}
 
+\copyrightnotice
+
 \subsec{Resultant, elimination}
 \li{discriminant of polynomial $f$}{poldisc$(f)$}
 \li{find factors of \kbd{poldisc}$(f)$}{poldiscfactors$(f)$}
@@ -425,13 +432,6 @@ header.
 \li{$[u,v,R]$, $xu + yv = \text{Res}_v(f,g)$}{polresultantext$(x,y,\{v\})$}
 \li{solve Thue equation $f(x,y)=a$}{thue$(t,a,\{sol\})$}
 \li{initialize $t$ for Thue equation solver}{thueinit$(f)$}
-\copyrightnotice
-
-\newcolumn
-\title{\TITLE}
-
-\centerline{(PARI-GP version \PARIversion)}
-\bigskip
 
 \subsec{Roots and Factorization}
 \li{complex roots of $f$}{polroots$(f)$}
@@ -455,6 +455,17 @@ header.
    {polhensellift$(A,B,p,e)$}
 \li{extensions of $\QQ_p$ of degree $N$}{padicfields$(p,N)$}
 
+\section{Finite Fields}
+A finite field is encoded by any element (\typ{FFELT}).\hfil\break
+\li{Create $t$ in $\F_q\simeq\F_p[t]/(T)$}{t = ffgen$(T,\text{'t})$}
+\li{\dots indirectly, with implicit $T$}{t = ffgen$(q,\text{'t})$; T = t.mod}
+\li{map $m$ from $\F_q\ni a$ to $\F_{q^k} \ni b$}{m = ffembed$(a,b)$}
+\li{build $K=\F_q[x]/(P)$ extending $\F_q\ni a$, }{ffextend$(a, P)$}
+\li{evaluate map $m$ on $x$}{ffmap$(m,x)$}
+\li{inverse map of $m$}{ffinvmap$(m)$}
+\li{compose maps $m \circ n$}{ffcompomap$(m,n)$}
+\li{$F^n$ over $\F_q\ni a$}{fffrobenius$(a,n)$}
+
 \section{Formal \& p-adic Series}
 \li{truncate power series or $p$-adic number}{truncate$(x)$}
 \li{valuation of $x$ at $p$}{valuation$(x,p)$}
@@ -465,6 +476,14 @@ header.
 \li{reverse power series $F$ so $F(f(x))=x$}{serreverse$(f)$}
 \li{Dirichlet series multiplication / division}{dirmul{\rm,} dirdiv$(x,y)$}
 \li{Dirichlet Euler product ($b$ terms)}{direuler$(p=a,b,\expr)$}
+
+\shortcopyrightnotice
+\newcolumn
+
+\title{\TITLE}
+
+\centerline{(PARI-GP version \PARIversion)}
+\bigskip
 
 \section{Transcendental and $p$-adic Functions}
 \li{real, imaginary part of $x$}{real$(x)$, imag$(x)$}
@@ -490,7 +509,6 @@ header.
    {eint1, erfc}
 \li{dilogarithm of $x$}{dilog$(x)$}
 \li{$m$-th polylogarithm of $x$}{polylog$(m,x,\{\fl\})$}
-\newcolumn
 \li{$U$-confluent hypergeometric function}{hyperu$(a,b,u)$}
 \li{Bessel $J_n(x)$, $J_{n+1/2}(x)$}{besselj$(n,x)$, besseljh$(n,x)$}
 \li{Bessel $I_\nu$, $K_\nu$, $H^1_\nu$, $H^2_\nu$, $N_\nu$}
