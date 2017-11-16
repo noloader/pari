@@ -17,7 +17,7 @@ Doc: If $F$ is a modular form space, returns \kbd{[N,k,CHI,space]}, level,
  $\Q(\chi) = \Q[t]/(\Phi(t))$ for the cyclotomic polynomial of order
  $f(\chi)$; it has coefficients in that number field (polmods in $t$).
  \bprog
- ? E1 = mfeisen(4,-3,-4); E2 = mfeisen(3,5,-7); E3 = mfmul(E1,E2);
+ ? E1 = mfeisenstein(4,-3,-4); E2 = mfeisenstein(3,5,-7); E3 = mfmul(E1,E2);
  ? apply(mfparams, [E1,E2,E3])
  %2 = [[12, 4, 12, y], [35, 3, -35, y], [420, 7, -420, y]]
  ? mf = mfinit([23,2],0); mfparams(mf)

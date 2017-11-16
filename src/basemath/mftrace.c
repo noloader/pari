@@ -36,8 +36,8 @@ static GEN mfinit_i(GEN NK, long space);
 static GEN mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw);
 static GEN mf2init_Nkchi(long N, long k, GEN CHI, long space);
 static GEN mf2basis(long N, long r, GEN CHI, long space);
-static GEN mfeisenbasis(long N, long k, GEN CHI);
-static GEN mfeisendec(GEN mf, GEN F);
+static GEN mfeisensteinbasis(long N, long k, GEN CHI);
+static GEN mfeisensteindec(GEN mf, GEN F);
 static GEN initwt1newtrace(GEN mf);
 static GEN initwt1trace(GEN mf);
 static GEN myfactoru(long N);
@@ -67,7 +67,7 @@ static long mfwt1cuspdim(long N, GEN CHI);
 static long mf2dim_Nkchi(long N, long k, GEN CHI, ulong space);
 static long mfdim_Nkchi(long N, long k, GEN CHI, long space);
 static GEN charLFwtk(long k, GEN CHI, long ord);
-static GEN mfeisengacx(GEN E,long w,GEN ga,long n,long prec);
+static GEN mfeisensteingacx(GEN E,long w,GEN ga,long n,long prec);
 static GEN mfgaexpansion(GEN mf, GEN F, GEN gamma, long n, long prec);
 static GEN mfEHmat(long n, long r);
 static GEN mfEHcoef(long r, long N);
@@ -3349,7 +3349,7 @@ mffulldim(long N, long k, GEN CHI)
 
 /* Dimension of the space of Eisenstein series */
 long
-mfeisendim(long N, long k, GEN CHI)
+mfeisensteindim(long N, long k, GEN CHI)
 {
   pari_sp av = avma;
   long s, FC = CHI? mfcharconductor(CHI): 1;
@@ -5316,7 +5316,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pvtf, long *ptdimdih)
   mf  = gel(TMP,2);
   A   = gel(TMP,3); /* p*lim x dim matrix */
   vtf = MF_get_vtf(mf);
-  ESA = mfeisenbasis(N, 1, mfcharinv_i(CHI));
+  ESA = mfeisensteinbasis(N, 1, mfcharinv_i(CHI));
   ES = RgM_to_RgXV(mfvectomat(ESA, plim+1, 1), 0);
   ES1 = gel(ES,1); /* does not vanish at oo */
   Tp = Tpmat(p, lim, CHI);
@@ -6463,7 +6463,7 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
   }
   if (!space_is_cusp(space))
   {
-    GEN E = mfeisenbasis(N, k, CHI);
+    GEN E = mfeisensteinbasis(N, k, CHI);
     gel(mf,2) = E;
     if (!flraw)
     {
@@ -6937,7 +6937,7 @@ mintau(GEN vtau)
 static GEN
 mf_eisendec(GEN mf, GEN F, long prec)
 {
-  GEN B = liftpol_shallow(mfeisendec(mf, F)), v = variables_vecsmall(B);
+  GEN B = liftpol_shallow(mfeisensteindec(mf, F)), v = variables_vecsmall(B);
   GEN Mvecj = obj_check(mf, MF_EISENSPACE);
   long l = lg(v), i, ord;
   if (lg(Mvecj) < 5) Mvecj = gel(Mvecj,1);
@@ -7448,7 +7448,7 @@ hash_eisengacx(hashtable *H, void *E, long w, GEN ga, long n, long prec)
   if (e) v = (GEN)e->val;
   else
   {
-    v = mfeisengacx((GEN)E, w, ga, n, prec);
+    v = mfeisensteingacx((GEN)E, w, ga, n, prec);
     hash_insert2(H, E, (void*)v, h);
   }
   return v;
@@ -7495,7 +7495,7 @@ mfgaexpansion_init(GEN mf, GEN ga, long n, long prec)
     return mkvec2(chid, utoi(n));
   }
 
-  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisenspaceinit);
+  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
   if (lg(Mvecj) < 5) pari_err_IMPL("mfgaexpansion_init in this case");
   w = mfcuspcanon_width(N, c);
   vecj = gel(Mvecj, 3);
@@ -7534,7 +7534,7 @@ mfgaexpansion_with_init(GEN Minit, GEN vF)
 }
 #endif
 
-/* B = mfeisendec(F) already embedded, ga in M_2^+(Z)), n >= 0 */
+/* B = mfeisensteindec(F) already embedded, ga in M_2^+(Z)), n >= 0 */
 static GEN
 mfgaexpansion_i(GEN mf, GEN B0, GEN ga, long n, long prec)
 {
@@ -7542,7 +7542,7 @@ mfgaexpansion_i(GEN mf, GEN B0, GEN ga, long n, long prec)
   long i, j, w, l, N = MF_get_N(mf), bit = prec2nbits(prec) / 2;
   hashtable *H;
 
-  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisenspaceinit);
+  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
   if (lg(Mvecj) < 5) { E = gel(Mvecj, 2); Mvecj = gel(Mvecj, 1); }
   vecj = gel(Mvecj, 3);
   l = lg(vecj);
@@ -7882,7 +7882,7 @@ mfdim_Nkchi(long N, long k, GEN CHI, long space)
     case mf_CUSP:return mfcuspdim(N,k,CHI);
     case mf_OLD: return mfolddim(N,k,CHI);
     case mf_FULL:return mffulldim(N,k,CHI);
-    case mf_EISEN: return mfeisendim(N,k,CHI);
+    case mf_EISEN: return mfeisensteindim(N,k,CHI);
     default: pari_err_FLAG("mfdim");
   }
   return 0;/*LCOV_EXCL_LINE*/
@@ -8491,7 +8491,7 @@ charLFwtk_Fl(long k, GEN CHIvec, GEN vz, ulong p)
 }
 
 static GEN
-mfeisen2_0(long k, GEN CHI1, GEN CHI2, long ord)
+mfeisenstein2_0(long k, GEN CHI1, GEN CHI2, long ord)
 {
   if (k == 1 && mfcharistrivial(CHI1))
     return charLFwt1(CHI2, ord);
@@ -8500,7 +8500,7 @@ mfeisen2_0(long k, GEN CHI1, GEN CHI2, long ord)
   else return gen_0;
 }
 static ulong
-mfeisen2_0_Fl(long k, GEN CHI1vec, GEN CHI2vec, GEN vz, ulong p)
+mfeisenstein2_0_Fl(long k, GEN CHI1vec, GEN CHI2vec, GEN vz, ulong p)
 {
   if (k == 1 && CHIvec_ord(CHI1vec) == 1)
     return charLFwtk_Fl(k, CHI2vec, vz, p);
@@ -8515,7 +8515,7 @@ NK_eisen2(long k, GEN CHI1, GEN CHI2)
   return mkNK(N, k, mfcharmul(CHI1,CHI2));
 }
 static GEN
-mfeisen_i(long k, GEN CHI1, GEN CHI2)
+mfeisenstein_i(long k, GEN CHI1, GEN CHI2)
 {
   long s = 1, ord, vt;
   GEN E0, NK, vchi, CHI, T;
@@ -8541,23 +8541,23 @@ mfeisen_i(long k, GEN CHI1, GEN CHI2)
   vt = varn(mfcharpol(CHI1));
   NK = NK_eisen2(k, CHI1, CHI2);
   ord = clcm(mfcharorder(CHI1), mfcharorder(CHI2));
-  E0 = mfeisen2_0(k, CHI1, CHI2, ord);
+  E0 = mfeisenstein2_0(k, CHI1, CHI2, ord);
   T = mkvec(polcyclo(ord_canon(ord), vt));
   vchi = mkvec4(E0, T, CHI1, CHI2);
   return tag2(t_MF_EISEN, NK, vchi, mkvecsmall2(ord,0));
 }
 GEN
-mfeisen(long k, GEN CHI1, GEN CHI2)
+mfeisenstein(long k, GEN CHI1, GEN CHI2)
 {
   pari_sp av = avma;
-  if (k < 1) pari_err_DOMAIN("mfeisen", "k", "<", gen_1, stoi(k));
-  return gerepilecopy(av, mfeisen_i(k, CHI1, CHI2));
+  if (k < 1) pari_err_DOMAIN("mfeisenstein", "k", "<", gen_1, stoi(k));
+  return gerepilecopy(av, mfeisenstein_i(k, CHI1, CHI2));
 }
 
 static GEN
-mfeisen2all(long N0, GEN NK, long k, GEN CHI1, GEN CHI2, GEN T, long o)
+mfeisenstein2all(long N0, GEN NK, long k, GEN CHI1, GEN CHI2, GEN T, long o)
 {
-  GEN E, E0 = mfeisen2_0(k, CHI1, CHI2, o), vchi = mkvec4(E0, T, CHI1, CHI2);
+  GEN E, E0 = mfeisenstein2_0(k, CHI1, CHI2, o), vchi = mkvec4(E0, T, CHI1, CHI2);
   long j, d = (lg(T)==4)? itou(gmael(T,3,1)): 1;
   E = cgetg(d+1, t_VEC);
   for (j=1; j<=d; j++) gel(E,j) = tag2(t_MF_EISEN, NK,vchi,mkvecsmall2(o,j-1));
@@ -8588,7 +8588,7 @@ zncharsG(GEN G)
  * such that f(CHI1)*f(CHI2) | N and CHI1 * CHI2 = CHI;
  * if k = 1, CHI1 is even; if k = 2, omit (1,1) if CHI = 1 */
 static GEN
-mfeisenbasis_i(long N0, long k, GEN CHI)
+mfeisensteinbasis_i(long N0, long k, GEN CHI)
 {
   GEN G = gel(CHI,1), chi = gel(CHI,2), vT = const_vec(myeulerphiu(N0), NULL);
   GEN CHI0, GN, chiN, Lchi, LG, V, RES, NK, T;
@@ -8601,9 +8601,9 @@ mfeisenbasis_i(long N0, long k, GEN CHI)
   if (F != 1 || k != 2)
   { /* N1 = 1 */
     NK = mkNK(F, k, CHI);
-    gel(RES, j++) = mfeisen2all(N0, NK, k, CHI0, CHI, T, ord);
+    gel(RES, j++) = mfeisenstein2all(N0, NK, k, CHI0, CHI, T, ord);
     if (F != 1 && k != 1)
-      gel(RES, j++) = mfeisen2all(N0, NK, k, CHI, CHI0, T, ord);
+      gel(RES, j++) = mfeisenstein2all(N0, NK, k, CHI, CHI0, T, ord);
   }
   if (N0 == 1) { setlg(RES,j); return RES; }
   GN = G; chiN = chi;
@@ -8658,7 +8658,7 @@ mfeisenbasis_i(long N0, long k, GEN CHI)
     oc = ord_canon(o12); T = gel(vT,oc);
     if (!T) T = gel(vT,oc) = Qab_trace_init(polcyclo(oc,vt), oc, OC);
     NK = mkNK(N12, k, CHI);
-    gel(RES, j++) = mfeisen2all(N0, NK, k, CHI1, CHI2, T, o12);
+    gel(RES, j++) = mfeisenstein2all(N0, NK, k, CHI1, CHI2, T, o12);
   }
   setlg(RES,j); return RES;
 }
@@ -8684,17 +8684,17 @@ mfbd_E2(GEN E2, long d, GEN CHI)
  * d|N, d > 1.
  * (k=1): In weight k=1, same as k >= 3 except that we restrict to CHI1 even */
 static GEN
-mfeisenbasis(long N, long k, GEN CHI)
+mfeisensteinbasis(long N, long k, GEN CHI)
 {
   long i, F;
   GEN L;
   if (badchar(N, k, CHI)) return cgetg(1, t_VEC);
   if (k == 0) return mfcharistrivial(CHI)? mkvec(mf1()): cgetg(1, t_VEC);
   CHI = mfchartoprimitive(CHI, &F);
-  L = mfeisenbasis_i(N, k, CHI);
+  L = mfeisensteinbasis_i(N, k, CHI);
   if (F == 1 && k == 2)
   {
-    GEN v, E2 = mfeisen(2, NULL, NULL), D = mydivisorsu(N);
+    GEN v, E2 = mfeisenstein(2, NULL, NULL), D = mydivisorsu(N);
     long nD = lg(D)-1;
     v = cgetg(nD, t_VEC); L = vec_append(L,v);
     for (i = 1; i < nD; i++) gel(v,i) = mfbd_E2(E2, D[i+1], CHI);
@@ -9026,11 +9026,11 @@ charsmodN(long N)
 }
 
 static GEN
-mfeisen2pure(long k, GEN CHI1, GEN CHI2, long ord, GEN P, long lim)
+mfeisenstein2pure(long k, GEN CHI1, GEN CHI2, long ord, GEN P, long lim)
 {
   GEN c, V = cgetg(lim+2, t_COL);
   long n;
-  c = mfeisen2_0(k, CHI1, CHI2, ord);
+  c = mfeisenstein2_0(k, CHI1, CHI2, ord);
   if (P) c = grem(c, P);
   gel(V,1) = c;
   for (n=1; n <= lim; n++)
@@ -9042,11 +9042,11 @@ mfeisen2pure(long k, GEN CHI1, GEN CHI2, long ord, GEN P, long lim)
   return V;
 }
 static GEN
-mfeisen2pure_Fl(long k, GEN CHI1vec, GEN CHI2vec, GEN vz, ulong p, long lim)
+mfeisenstein2pure_Fl(long k, GEN CHI1vec, GEN CHI2vec, GEN vz, ulong p, long lim)
 {
   GEN V = cgetg(lim+2, t_VECSMALL);
   long n;
-  V[1] = mfeisen2_0_Fl(k, CHI1vec, CHI2vec, vz, p);
+  V[1] = mfeisenstein2_0_Fl(k, CHI1vec, CHI2vec, vz, p);
   for (n=1; n <= lim; n++) V[n+1] = sigchi2_Fl(k, CHI1vec, CHI2vec, n, vz, p);
   return V;
 }
@@ -9092,7 +9092,7 @@ getcols_i(GEN *pM, GEN *pvj, GEN gk, GEN CHI1vec, GEN CHI2vec, long NN1, GEN vz,
   long N2 = CHIvec_N(CHI2vec);
   GEN vj, M, D = mydivisorsu(NN1/N2);
   long i, l = lg(D), k = gk[2];
-  GEN V = mfeisen2pure_Fl(k, CHI1vec, CHI2vec, vz, p, lim);
+  GEN V = mfeisenstein2pure_Fl(k, CHI1vec, CHI2vec, vz, p, lim);
   M = cgetg(l, t_MAT);
   for (i = 1; i < l; i++) gel(M,i) = expandbd_Fl(V, D[i]);
   if (k == 2 && N2 == 1 && CHIvec_N(CHI1vec) == 1)
@@ -9220,7 +9220,7 @@ mkeisen(GEN E, long ord, GEN P, long lim)
     return gsub(mkF2bd(1,lim), gmulgs(mkF2bd(e,lim), e));
   else
   {
-    GEN V = mfeisen2pure(k, CHI1, CHI2, ord, P, lim);
+    GEN V = mfeisenstein2pure(k, CHI1, CHI2, ord, P, lim);
     return expandbd(V, e);
   }
 }
@@ -9266,7 +9266,7 @@ mffindeisen1(long N)
 }
 
 static GEN
-mfeisenspaceinit_i(long N, long k, GEN CHI)
+mfeisensteinspaceinit_i(long N, long k, GEN CHI)
 {
   GEN M, Minv, vj, vG, GN, allN, P, vz, z = NULL;
   long nCHI, lim, ell, ord, pn, dim = mffulldim(N, k, CHI);
@@ -9295,7 +9295,7 @@ mfeisenspaceinit_i(long N, long k, GEN CHI)
   return mkvec4(gel(z,1), Minv, vj, utoi(ord));
 }
 GEN
-mfeisenspaceinit(GEN NK)
+mfeisensteinspaceinit(GEN NK)
 {
   pari_sp av = avma;
   GEN z, CHI;
@@ -9304,15 +9304,15 @@ mfeisenspaceinit(GEN NK)
   else
     checkNK(NK, &N, &k, &CHI, 0);
   if (!CHI) CHI = mfchartrivial();
-  z = mfeisenspaceinit_i(N, k, CHI);
+  z = mfeisensteinspaceinit_i(N, k, CHI);
   if (!z)
   {
     GEN E, CHIN = mffindeisen1(N), CHI0 = mfchartrivial();
-    z = mfeisenspaceinit_i(N, k+1, mfcharmul(CHI, CHIN));
+    z = mfeisensteinspaceinit_i(N, k+1, mfcharmul(CHI, CHIN));
     if (z) E = mkvec4(gen_1, CHI0, CHIN, gen_1);
     else
     {
-      z = mfeisenspaceinit_i(N, k+2, CHI);
+      z = mfeisensteinspaceinit_i(N, k+2, CHI);
       E = mkvec4(gen_2, CHI0, CHI0, utoipos(N));
     }
     z = mkvec2(z, E);
@@ -9322,19 +9322,19 @@ mfeisenspaceinit(GEN NK)
 
 /* decomposition of modular form on eisenspace */
 static GEN
-mfeisendec(GEN mf, GEN F)
+mfeisensteindec(GEN mf, GEN F)
 {
   pari_sp av = avma;
   GEN M, Mindex, Mvecj, V, B, CHI;
   long o, ord;
 
-  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisenspaceinit);
+  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
   if (lg(Mvecj) < 5)
   {
     GEN E, e = gel(Mvecj,2), gkE = gel(e,1);
     long dE = itou(gel(e,4));
     Mvecj = gel(Mvecj,1);
-    E = mfeisen(itou(gkE), NULL, gel(e,3));
+    E = mfeisenstein(itou(gkE), NULL, gel(e,3));
     if (dE != 1) E = mfbd_E2(E, dE, gel(e,2)); /* here k = 2 */
     F = mfmul(F, E);
   }
@@ -9350,7 +9350,7 @@ mfeisendec(GEN mf, GEN F)
      * o and N both != 2 (mod 4) */
     GEN z, P = mfcharpol(CHI);
     long vt = varn(P);
-    if (ord % o) pari_err_TYPE("mfeisendec", V);
+    if (ord % o) pari_err_TYPE("mfeisensteindec", V);
     z = gmodulo(pol_xn(ord/o, vt), polcyclo(ord, vt));
     V = gsubst(liftpol_shallow(V), vt, z);
   }
@@ -9655,7 +9655,7 @@ mybezout(long a, long b, long *pu)
  * CHI1(-1)*CHI2(-1) = (-1)^k; expansion of (B_e (E_k(CHI1,CHI2))) | ga.
  * w is the width for the space of the calling function. */
 static GEN
-mfeisengacx(GEN E, long w, GEN ga, long lim, long prec)
+mfeisensteingacx(GEN E, long w, GEN ga, long lim, long prec)
 {
   GEN CHI1vec, CHI2vec, CHI1 = gel(E,2), CHI2 = gel(E,3), v, S, ALPHA;
   GEN G1, G2, z1, z2, data;
@@ -9669,7 +9669,7 @@ mfeisengacx(GEN E, long w, GEN ga, long lim, long prec)
   CHI1vec = mfcharcxinit(CHI1, prec);
   CHI2vec = mfcharcxinit(CHI2, prec);
   NsurC = N/C; cg  = cgcd(C, NsurC); wN = NsurC / cg;
-  if (w%wN) pari_err_BUG("mfeisengacx [wN does not divide w]");
+  if (w%wN) pari_err_BUG("mfeisensteingacx [wN does not divide w]");
   alchi = mfalchi2(CHI1vec, CHI2vec, A*N, cg);
   ALPHA = sstoQ(alchi, NsurC);
 
@@ -10926,7 +10926,7 @@ mfsymbol_i(GEN mf, GEN F, GEN cosets, long bit)
   {
     if (!cosets) return pol_0(0);
     F = mftrivial();
-    FE = mkcol2(F, mfeisendec(mf,F));
+    FE = mkcol2(F, mfeisensteindec(mf,F));
     vE = mkvec(cgetg(1,t_VEC));
     vP = const_vec(lg(cosets)-1, pol_0(0));
   }

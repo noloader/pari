@@ -256,7 +256,7 @@ KB+HC89- new package 'mf' for modular forms; new GP functions
          mfcoef           mfcoefs        mfconductor      mfcosets
          mfcuspisregular  mfcusps        mfcuspval        mfcuspwidth
          mfderiv          mfderivE2      mfdescribe       mfdim
-         mfdiv            mfeigenbasis   mfeigensearch    mfeisen
+         mfdiv            mfeigenbasis   mfeigensearch    mfeisenstein
          mfeval           mffields       mffromell        mffrometaquo
          mffromlfun       mffromqf       mfgaloistype     mfhecke
          mfheckemat       mfinit         mfisCM           mfisequal

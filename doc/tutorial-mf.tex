@@ -585,15 +585,15 @@ from a given mathematical object.
   Self-explanatory. More complicated Eisenstein series:
 
 \begin{verbatim}
-? E3 = mfeisen(1, 1, -3]); mfcoefs(E3, 10)
+? E3 = mfeisenstein(1, 1, -3]); mfcoefs(E3, 10)
 % = [1/6, 1, 0, 1, 1, 0, 0, 2, 0, 1, 0]
-? E4 = mfeisen(5, -4, 1); mfcoefs(E4, 10)
+? E4 = mfeisenstein(5, -4, 1); mfcoefs(E4, 10)
 % = [5/4, 1, 1, -80, 1, 626, -80, -2400, 1, 6481, 626]
 ? H2 = mfEH(5/2); mfcoefs(H2,10)
 % = [1/120, -1/12, 0, 0, -7/12, -2/5, 0, 0, -1, -25/12, 0]
 \end{verbatim}
 
-The \kbd{mfeisen(k,c1,c2)} command generates the Eisenstein series of weight
+The \kbd{mfeisenstein(k,c1,c2)} command generates the Eisenstein series of weight
 $k$ and characters \kbd{c1} and \kbd{c2}. The \kbd{mfEH(k)} command is specific
 to half-integral weight $k$ and generates the Cohen--Eisenstein series of
 weight $k$.
@@ -1431,8 +1431,8 @@ weight $k$ up to level $N_0$ with trivial or quadratic character.
 \kbd{AP} is a list of pairs $[[p_1,a(p_1)],...,[p_n,a(p_n)]]$, where $a(p)$
 is either an integer or an \kbd{intmod} (match modulo $a(p)\kbd{.mod}$).
 
-\kbd{mfeisen(k,\{CHI1\},\{CHI2\})}: Eisenstein series $E_k(\chi_1)$ or
-$E_k(\chi_1,\chi_2)$, normalized so that $a(1)=1$ (so \kbd{mfeisen(k)} without
+\kbd{mfeisenstein(k,\{CHI1\},\{CHI2\})}: Eisenstein series $E_k(\chi_1)$ or
+$E_k(\chi_1,\chi_2)$, normalized so that $a(1)=1$ (so \kbd{mfeisenstein(k)} without
 any character argument is equal to \kbd{mfEk(k)} multiplied by $-B_k/(2k)$).
 
 \kbd{mfEk(k)}: Eisenstein series $E_k$ for the full modular group normalized

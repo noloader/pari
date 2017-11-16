@@ -1,23 +1,23 @@
-Function: mfeisen
+Function: mfeisenstein
 Section: modular_forms
-C-Name: mfeisen
+C-Name: mfeisenstein
 Prototype: LDGDG
-Help: mfeisen(k,{CHI1},{CHI2}): create the Eisenstein
+Help: mfeisenstein(k,{CHI1},{CHI2}): create the Eisenstein
  series E_k(CHI1) (trivial character if omitted) or E_k(CHI1,CHI2).
 Doc: create the Eisenstein series $E_k(\chi)$ (trivial
  character if omitted) or $E_k(\chi_1,\chi_2)$, where $k \geq 1$ and $\chi_i$
  are Dirichlet characters.
  \bprog
  ? CHI = Mod(3,4);
- ? E = mfeisen(3, CHI);
+ ? E = mfeisenstein(3, CHI);
  ? mfcoefs(E, 6)
  %2 = [-1/4, 1, 1, -8, 1, 26, -8]
  ? CHI2 = Mod(4,5);
- ? mfcoefs(mfeisen(3,CHI,CHI2), 6)
+ ? mfcoefs(mfeisenstein(3,CHI,CHI2), 6)
  %3 = [0, 1, -1, -10, 1, 25, 10]
- ? mfcoefs(mfeisen(4,CHI,CHI), 6)
+ ? mfcoefs(mfeisenstein(4,CHI,CHI), 6)
  %4 = [0, 1, 0, -28, 0, 126, 0]
- ? mfcoefs(mfeisen(4), 6)
+ ? mfcoefs(mfeisenstein(4), 6)
  %5 = [1/240, 1, 9, 28, 73, 126, 252]
  @eprog\noindent Note that \kbd{meisen}$(k)$ is 0 for $k$ odd and
  $-B_{k}/(2k) \cdot E_k$ for $k$ even, where
