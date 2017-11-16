@@ -124,8 +124,9 @@ $x$\%$y${\rm,} divrem$(x,y)$}
 \li{boolean operators (or, and, not)}{||{\rm, } \&\&{\rm ,} !}
 \li{bit operations}
    {bitand{\rm, }bitneg{\rm, }bitor{\rm, }bitxor{\rm, }bitnegimply}
-\li{sign of $x=-1,0,1$}{sign$(x)$}
 \li{maximum/minimum of $x$ and $y$}{max{\rm,} min$(x,y)$}
+\li{sign of $x=-1,0,1$}{sign$(x)$}
+\li{binary exponent of $x$}{exponent$(x)$}
 \li{derivative of $f$}{$f$'}
 \li{differential operator}{diffop$(f,v,d,\{n=1\})$}
 \li{quote operator (formal variable)}{'x}
@@ -438,6 +439,7 @@ header.
 \li{bound complex roots of $f$}{polrootsbound$(f)$}
 \li{number of real roots of $f$ (in $[a,b]$)}{polsturm$(f,\{[a,b]\})$}
 \li{real roots of $f$ (in $[a,b]$)}{polrootsreal$(f,\{[a,b]\})$}
+\li{complex embeddings of \typ{POLMOD} $z$}{conjvec$(z)$}
 \li{symmetric powers of roots of $f$ up to $n$}{polsym$(f,n)$}
 \li{Graeffe transform of $f$, $g(x^2)=f(x)f(-x)$}{polgraeffe$(f)$}
 \li{factor $f$}{factor$(f)$}
