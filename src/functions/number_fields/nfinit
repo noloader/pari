@@ -143,9 +143,10 @@ Doc: \var{pol} being a non-constant,
  \kbd{nf.index}). The certification step proves the correctness of the
  computation. Had it failed, that particular \kbd{nf} structure could
  not have been trusted and may have caused routines using it to fail randomly.
- One particular functions that remains trustworthy in all cases is
+ One particular function that remains trustworthy in all cases is
  \kbd{idealprimedec} when applied to a prime included in the above list
- of primes.
+ of primes or, more generally, a prime not dividing any entry in
+ \kbd{nfcertify} output.
  \medskip
 
  If $\fl=2$: \var{pol} is changed into another polynomial $P$ defining the same
