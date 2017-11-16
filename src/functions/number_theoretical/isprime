@@ -53,13 +53,13 @@ Doc: true (1) if $x$ is a prime
  If $\fl=2$, use APRCL.
 
 Function: _aprcl_step4_worker
-Section: number_theoretical
+Section: programming/internals
 C-Name: aprcl_step4_worker
 Prototype: UGGG
 Help: worker for isprime (APRCL step 4)
 
 Function: _aprcl_step6_worker
-Section: number_theoretical
+Section: programming/internals
 C-Name: aprcl_step6_worker
 Prototype: GLGGG
 Help: worker for isprime (APRCL step 6)
