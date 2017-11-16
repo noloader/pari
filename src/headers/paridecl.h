@@ -4036,7 +4036,7 @@ long  mfsturm(GEN A);
 long  mfsturmNgk(long N, GEN k);
 long  mfsturmNk(long N, long k);
 long  mfsturm_mf(GEN mf);
-GEN   mfsymboleval(GEN F, GEN path, long bitprec);
+GEN   mfsymboleval(GEN F, GEN path);
 GEN   mfsymbol(GEN mf, GEN F, long bitprec);
 GEN   mftaylor(GEN F, long n, long flreal, long prec);
 GEN   mftobasis(GEN mf, GEN F, long flag);

@@ -1,7 +1,7 @@
 Function: mfsymboleval
 Section: modular_forms
 C-Name: mfsymboleval
-Prototype: GGb
+Prototype: GG
 Help: mfsymboleval(fs,path): evaluation of the modular symbol fs output by
  mfsymbol on the given path, where path is either a vector [s1,s2] or
  an integral matrix [a,b;c,d] representing the path [a/c,b/d].
@@ -12,8 +12,8 @@ Doc: evaluation of the modular symbol $fs$ (corresponding to the modular
  given path \kbd{path}, where \kbd{path} is either a vector $[s1,s2]$ or
  an integral matrix $[a,b;c,d]$ representing the path $[a/c,b/d]$.
  The result is the polynomial equal to
- $\int_{s1}^{s2}(X-\tau)^{k-2}f(\tau)\,d\tau$, the integral being as
- usual computed along a geodesic joining $s1$ and $s2$. If the field of
+ $\int_{s1}^{s2}(X-\tau)^{k-2}f(\tau)\,d\tau$, the integral being
+ computed along a geodesic joining $s1$ and $s2$. If the field of
  definition $\Q(f)$ is larger than $\Q(\chi)$ then $f$ can be embedded into
  $\C$ in $d=[\Q(f):\Q(\chi)]$ ways, in which case a vector of the $d$ results
  is returned.

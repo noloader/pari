@@ -10880,14 +10880,18 @@ expsum(long k, long vy)
 /* Let F_S be the cuspidal part of F. Compute all period pols of F_S|_k\ga_j,
  * vF = mftobasis(F_S) */
 static GEN
-mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN vE, long bit)
+mfperiodpols_i(GEN mf, GEN FE, GEN cosets, long bit)
 {
-  long N, k, i, prec = nbits2prec(bit), vz = fetch_var();
+  long vz, N, k, i, prec = nbits2prec(bit);
   GEN vP, TCO, CHI, T;
-  N = MF_get_N(mf);
+
   k = MF_get_k(mf);
+  if (k == 0 && gequal0(gel(FE,2)))
+    return cosets? const_vec(lg(cosets)-1, pol_0(0)): pol_0(0);
+  N = MF_get_N(mf);
   CHI = MF_get_CHI(mf);
 
+  vz = fetch_var();
   T = RgX_unscale(expsum(k-2, vz), gen_I());
   T = gsubst(T, vz, gdiv(pol_x(vz), Pi2n(1,prec)));
   if (varn(T) != 0) T = scalarpol_shallow(T,0);
@@ -10924,19 +10928,16 @@ mfsymbol_i(GEN mf, GEN F, GEN cosets, long bit)
   if (k <= 1) pari_err_IMPL("mfsymbol when k <= 1");
   if (gequal0(vS))
   {
-    if (!cosets) return pol_0(0);
     F = mftrivial();
-    FE = mkcol2(F, mfeisensteindec(mf,F));
     vE = mkvec(cgetg(1,t_VEC));
-    vP = const_vec(lg(cosets)-1, pol_0(0));
   }
   else
   {
     F = mflinear_bhn(MF_get_vtf(mf), vS); /* assume k > 1 */
     vE = mfgetembed(F, prec);
-    FE = mkcol2(F, mf_eisendec(mf,F,prec));
-    vP = mfperiodpols_i(mf, FE, cosets, vE, bit);
   }
+  FE = mkcol2(F, mf_eisendec(mf,F,prec));
+  vP = mfperiodpols_i(mf, FE, cosets, bit);
   return mkvecn(7, mf, vES, vP, cosets, utoi(bit), vE, FE);
 }
 GEN
@@ -10998,7 +10999,7 @@ cusp_ac(GEN cusp, long *A, long *C)
 /* given cusps s1 and s2 (rationals or oo)
  * compute $\int_{s1}^{s2}(X-\tau)^{k-1}F(\tau)\,d\tau$ */
 GEN
-mfsymboleval(GEN fs, GEN path, long bitprec)
+mfsymboleval(GEN fs, GEN path)
 {
   pari_sp av = avma;
   GEN ga, V, LM, S, CHI, mfpols, cosets, s1, s2, mf;

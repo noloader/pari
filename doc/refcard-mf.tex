@@ -34,7 +34,7 @@ e(c_j/d_j)$.
 \subsec{Spaces of modular forms}
 Arguments of the form $[N,k,\chi]$
 give the level weight and nebentypus $\chi$; $\chi$ can be omitted: $[N,k]$
-means trivial $\chi$:\hfil\break
+means trivial $\chi$.\hfil\break
 \li{initialize $S_k^{\text{new}}(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi])$}
 \li{initialize $S_k(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],1)$}
 \li{initialize $S_k^{\text{old}}(\Gamma_0(N),\chi)$}{mfinit$([N,k,\chi],2)$}
@@ -57,7 +57,6 @@ We let $M$ = \kbd{mfinit}$(\dots)$ denote a modular space.
 \li{matrix of Hecke operator $T_n$ on $(f_i)$}{mfheckemat$(M,n)$}
 \li{\dots of Atkin--Lehner $w_Q$ on $(f_i)$}{mfatkinmat$(M,Q)$}
 \li{eigenvalues of $w_Q$}{mfatkineigenvalues$(M,Q)$}
-\li{period polynomial of eigenform $F$}{mfperiodpol$(F)$}
 \li{basis of period poynomials for weight $k$}{mfperiodpolbasis$(k)$}
 \smallskip
 Useful data can also be obtained a priori, without computing a complete
@@ -69,6 +68,11 @@ modular space:
 \li{dimension of $M_k(\Gamma_0(N),\chi)$}{mfdim$([N,k,\chi],3)$}
 \li{dimension of $E_k(\Gamma_0(N),\chi)$}{mfdim$([N,k,\chi],4)$}
 \li{Sturm's bound for $M_k(\Gamma_0(N),\chi)$}{mfsturm$(N,k)$}
+
+\subsec{$\Gamma_0(N)$ cosets}
+
+\li{list of right $\Gamma_0(N)$ cosets}{mfcosets$(N)$}
+\li{identify coset a matrix belongs to}{mftocoset}
 
 \subsec{Cusps} a cusp is given by a rational number or \kbd{oo}.\hfil\break
 \li{lists of cusps of $\Gamma_0(N)$}{mfcusps$(N)$}
@@ -118,7 +122,7 @@ the $F[i]$ are modular forms\hfil\break
 \li{Serre derivative $\big(q \cdot {d\over dq} - {k\over 12} E_2\big) f$}
    {mfderivE2$(f)$}
 \li{Rankin-Cohen bracket $[f,g]_n$}{mfbracket$(f,g,n)$}
-\li{Shimura lift of $f$ for discriminant $D$}{mfShimura$(f,D)$}
+\li{Shimura lift of $f$ for discriminant $D$}{mfshimura$(f,D)$}
 \li{complex embeddings of $f$}{mfembed$(f)$}
 
 \subsec{Properties of modular forms} In this section, $f = \sum_n f_n q^n$
@@ -139,15 +143,23 @@ in some space $M$ with parameters $N,k,\chi$.\hfil\break
 \li{smallest level on which $f$ is defined}{mfconductor$(M,f)$}
 \li{decompose $f$ on $\oplus S_k^{\text{new}}(\Gamma_0(d))$, $d\mid N$}
    {mftonew$(M,f)$}
+\li{valuation of $f$ at cusp $c$}{mfcuspval$(M,f,c)$}
 \li{expansion at $\infty$ of $f \mid_k \gamma$}{mfslashexpansion$(M,f,\gamma,n)$}
 \li{$n$-Taylor expansion of $f$ at $i$}{mftaylor$(f,n)$}
-\li{all rational eigenforms matching criteria}{mfsearch}
+\li{all rational eigenforms matching criteria}{mfeigensearch}
+\li{\dots  forms matching criteria}{mfsearch}
 \subsec{Forms embedded into $\CC$} In this section $F=\sigma(f)$ is the
 complex embedding of some modular form $f$ for some
 $\sigma\colon \Q(f)\to \CC$ obtained via \kbd{mfembed}.\hfill\break
 \li{evaluate $F$ at $\tau\in{\cal H}$}{mfeval$(F,\tau)$}
 \li{$L$-function attached to $F$}{lfunmf$(mf,F)$}
 \li{\dots eigenforms of new space $M$}{lfunmf$(M)$}
+
+\subsec{Periods and symbols}
+\li{initialize symbol $fs$ attached to $f$}{mfsymbol$(M,f)$}
+\li{evaluate symbol $fs$ on path $p$}{mfsymboleval$(fs,p)$}
+\li{Petersson product of $f$ and $g$}{mfpetersson$(fs,gs)$}
+\li{period polynomial of form $f$}{mfperiodpol$(M,fs)$}
 
 \newcolumn
 
