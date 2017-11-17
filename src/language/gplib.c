@@ -270,22 +270,22 @@ menu_commands(void)
   ulong i;
   const char *s[] = {
   "user-defined functions (aliases, installed and user functions)",
+  "PROGRAMMING under GP",
   "Standard monadic or dyadic OPERATORS",
   "CONVERSIONS and similar elementary functions",
   "functions related to COMBINATORICS",
-  "TRANSCENDENTAL functions",
   "NUMBER THEORETICAL functions",
+  "POLYNOMIALS and power series",
+  "Vectors, matrices, LINEAR ALGEBRA and sets",
+  "TRANSCENDENTAL functions",
+  "SUMS, products, integrals and similar functions",
+  "General NUMBER FIELDS",
+  "Associative and central simple ALGEBRAS",
   "ELLIPTIC CURVES",
   "L-FUNCTIONS",
   "MODULAR FORMS",
   "MODULAR SYMBOLS",
-  "General NUMBER FIELDS",
-  "Associative and central simple ALGEBRAS",
-  "POLYNOMIALS and power series",
-  "Vectors, matrices, LINEAR ALGEBRA and sets",
-  "SUMS, products, integrals and similar functions",
   "GRAPHIC functions",
-  "PROGRAMMING under GP",
   "The PARI community"
   };
   pari_puts("Help topics: for a list of relevant subtopics, type ?n for n in\n");
