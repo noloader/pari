@@ -1,5 +1,6 @@
 Function: _[_,_]
-Class: symbolic_operators
+Section: symbolic_operators
+Help: x[i{,j}]: i coefficient of a vector, i,j coefficient of a matrix
 Description:
  (mp,small):gen                 $"Scalar has no components"
  (mp,small,small):gen           $"Scalar has no components"
@@ -12,7 +13,7 @@ Description:
  (gen,small,small):gen:copy     gcoeff($1, $2, $3)
 
 Function: _safecoeff
-Class: symbolic_operators
+Section: symbolic_operators
 Help: safe version of x[a], x[,a] and x[a,b]. Must be lvalues.
 Description:
  (vecsmall,small):small         *safeel($1, $2)
@@ -21,7 +22,7 @@ Description:
  (gen,small,small):gen:copy     *safegcoeff($1, $2, $3)
 
 Function: _[_,]
-Class: symbolic_operators
+Section: symbolic_operators
 Help: x[y,]: y-th row of x.
 Description:
  (mp,small):gen                 $"Scalar has no rows"
