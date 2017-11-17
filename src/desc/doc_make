@@ -4,10 +4,30 @@ use warnings FATAL => 'all';
 use strict;
 use PARI::822;
 
-my (%funcs, %Fun_by_sec, %sec_header);
+my (%funcs, %Fun_by_sec, %sec_header, @SECTIONS);
 PARI::822::read(\%funcs, "pari.desc");
+@SECTIONS = qw(
+  programming/control
+  programming/specific
+  programming/parallel
+  default
+  operators
+  conversions
+  combinatorics
+  number_theoretical
+  polynomials
+  linear_algebra
+  transcendental
+  sums
+  number_fields
+  algebras
+  elliptic_curves
+  l_functions
+  modular_forms
+  modular_symbols
+  graphic
+);
 
-open (FILE, "../../doc/usersFUNCS.tex") || die;
 for (keys %funcs)
 { 
   my ($s) = $funcs{$_}->{Section};
@@ -18,56 +38,53 @@ for (keys %funcs)
   else
   { push(@{$Fun_by_sec{$s}}, $_); }
 }
-while (<FILE>)
+for (@SECTIONS)
 {
-  if (/^% *SECTION *: *(.*) */)
-  {
-    my ($sec) = $1;
-    my ($head) = $sec_header{$sec};
-    print "$head\n" if defined($head);
-    next if (!$Fun_by_sec{$sec});
-    for ( sort @{$Fun_by_sec{$sec}} ) {
-      my ($fun) = $funcs{$_};
-      my ($doc) = $fun->{Doc};
-      next if (!defined($doc));
+  my ($sec) = $_;
+  my ($head) = $sec_header{$sec};
+  print "$head\n" if defined($head);
+  next if (!$Fun_by_sec{$sec});
+  for ( sort @{$Fun_by_sec{$sec}} ) {
+    my ($fun) = $funcs{$_};
+    my ($doc) = $fun->{Doc};
+    next if (!defined($doc));
 
-      my ($args)  = $fun->{Help};
-      my ($v);
-      $doc =~ s/^[\n\t ]*(.)/uc($1)/e;
-      $args =~ s/ *:.*//s;
-      # sanity checks
-      if ($args =~ /([_a-zA-Z0-9]*)\(/ && $fun->{Function} ne $1)
-      { die "fix $fun->{Function} Help" }
-      die "double parenthesis in $fun->{Function} proto" if ($args =~ /\)\)/);
-      # ok
-      if (!$args || $args =~ /^\w+=\w+\(\)/) { $args = $v = ''; }
-      else
-      {
-        $args =~ s/^[^(]*\((.*)\)/$1/; # args proper
-        $v = $args;
-        $v =~ s/([{}&])/\\$1/g;
-        $v =~ s/\^(\d+)/^{$1}/g;
-        $v =~ s/\[\]/[\\,]/g;
-        $v =~ s/(\w\w+)/\\var{$1}/g;
-        $v =~ s/\^([a-z])/\\hbox{\\kbd{\\pow}}$1/g;
-        $v =~ s/\\var\{flag\}/\\fl/g;
-        $v =~ s/\\var\{(\d+)\}/{$1}/g;
-        $v =~ s/_/\\_/g; # don't merge with first subst: \var{} rule kills it
+    my ($args)  = $fun->{Help};
+    my ($v);
+    $doc =~ s/^[\n\t ]*(.)/uc($1)/e;
+    $args =~ s/ *:.*//s;
+    # sanity checks
+    if ($args =~ /([_a-zA-Z0-9]*)\(/ && $fun->{Function} ne $1)
+    { die "fix $fun->{Function} Help" }
+    die "double parenthesis in $fun->{Function} proto" if ($args =~ /\)\)/);
+    # ok
+    if (!$args || $args =~ /^\w+=\w+\(\)/) { $args = $v = ''; }
+    else
+    {
+      $args =~ s/^[^(]*\((.*)\)/$1/; # args proper
+      $v = $args;
+      $v =~ s/([{}&])/\\$1/g;
+      $v =~ s/\^(\d+)/^{$1}/g;
+      $v =~ s/\[\]/[\\,]/g;
+      $v =~ s/(\w\w+)/\\var{$1}/g;
+      $v =~ s/\^([a-z])/\\hbox{\\kbd{\\pow}}$1/g;
+      $v =~ s/\\var\{flag\}/\\fl/g;
+      $v =~ s/\\var\{(\d+)\}/{$1}/g;
+      $v =~ s/_/\\_/g; # don't merge with first subst: \var{} rule kills it
 
-        $v = "\$($v)\$";
-      }
-      if ($doc !~ /\\syn\w*\{/ && $sec !~ /programming\/control/) {
-        $doc .= library_syntax($fun, $args);
-      }
-      s/_def_//;
-      my ($secname) = $_;
-      my ($l) = ($fun->{Section} =~ 'default')? "def,$_": $_;
-      my ($idx) = ($secname =~ s/_/\\_/g)? $l: $secname;
-      print "\n\\subsec{$secname$v}\\kbdsidx{$idx}\\label{se:$l}\n$doc\n";
+      $v = "\$($v)\$";
     }
+    if ($doc !~ /\\syn\w*\{/ && $sec !~ /programming\/control/) {
+      $doc .= library_syntax($fun, $args);
+    }
+    s/_def_//;
+    my ($secname) = $_;
+    my ($l) = ($fun->{Section} =~ 'default')? "def,$_": $_;
+    my ($idx) = ($secname =~ s/_/\\_/g)? $l: $secname;
+    print "\n\\subsec{$secname$v}\\kbdsidx{$idx}\\label{se:$l}\n$doc\n";
   }
-  print;
 }
+print '\vfill\eject';
 
 sub library_syntax { my ($fun, $args) = @_;
   return '' if ($fun->{Class} =~ /^(gp|default|gp_default)$/);

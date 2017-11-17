@@ -179,7 +179,8 @@ $desc/\$(DESC): $src/funclist $desc/merge_822 $desc/PARI/822.pm
 	mv $desc/def\$(TMPSUF) \$@
 
 usersch3.tex: $desc/\$(DESC) ../src/desc/doc_make usersFUNCS.tex
-	cd ../src/desc && \$(PERL) doc_make > ../../doc/usersch3\$(TMPSUF)
+	cat usersFUNCS.tex > usersch3\$(TMPSUF)
+	cd ../src/desc && \$(PERL) doc_make >> ../../doc/usersch3\$(TMPSUF)
 	mv usersch3\$(TMPSUF) \$@
 EOT
 fi
