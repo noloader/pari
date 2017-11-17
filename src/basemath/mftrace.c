@@ -44,7 +44,7 @@ static GEN myfactoru(long N);
 static GEN mydivisorsu(long N);
 static GEN mygmodulo_lift(long k, long ord, GEN C, long vt);
 static GEN mfcoefs_i(GEN F, long n, long d);
-static GEN bhnmat_extend(GEN M, long m,long l, GEN vtf, cachenew_t *cache);
+static GEN bhnmat_extend(GEN M, long m,long l, GEN S, cachenew_t *cache);
 static GEN initnewtrace(long N, GEN CHI);
 static void dbg_cachenew(cachenew_t *C);
 static GEN hecke_i(long m, long l, GEN F, GEN DATA);
@@ -3240,7 +3240,7 @@ mfheckemat(GEN mf, GEN vecn)
 {
   pari_sp ltop = avma;
   long lv, lvP, i, N, dim, k;
-  GEN CHI, vtf, res, vT, FA, B, vP;
+  GEN CHI, S, res, vT, FA, B, vP;
 
   checkMF(mf);
   if (typ(vecn) == t_INT)
@@ -3249,7 +3249,7 @@ mfheckemat(GEN mf, GEN vecn)
     return mfheckemat_i(mf, labs(n));
   }
   N = MF_get_N(mf); dim = MF_get_dim(mf); k = MF_get_k(mf);
-  CHI = MF_get_CHI(mf); vtf = MF_get_S(mf);
+  CHI = MF_get_CHI(mf); S = MF_get_S(mf);
   if (typ(vecn) != t_VECSMALL) vecn = gtovecsmall(vecn);
   lv = lg(vecn);
   res = cgetg(lv, t_VEC);
@@ -3267,8 +3267,8 @@ mfheckemat(GEN mf, GEN vecn)
   vP = shallowconcat1(vP); vecsmall_sort(vP);
   vP = vecsmall_uniq_sorted(vP); /* all primes occurring in vecn */
   lvP = lg(vP);
-  if (lvP != 1 && k == 1 && mf_get_type(gel(vtf,1)) == t_MF_DIV)
-    B = mflineardivtomat(vtf, vP[lvP-1] * mfsturm_mf(mf));
+  if (lvP != 1 && k == 1 && mf_get_type(gel(S,1)) == t_MF_DIV)
+    B = mflineardivtomat(S, vP[lvP-1] * mfsturm_mf(mf));
   else
     B = NULL;
   for (i = 1; i < lvP; i++)
@@ -3879,7 +3879,7 @@ get_badj(long N, long FC)
 static GEN
 mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
 {
-  GEN vtf, vj, M, CHIP, mf1, listj, DATA, P;
+  GEN S, vj, M, CHIP, mf1, listj, DATA, P;
   long j, ct, ctlj, dim, jin, SB, sb, two, ord, FC, badj;
 
   dim = mfnewdim(N, k, CHI);
@@ -3930,15 +3930,15 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
     }
     jin = jlim + 1; SB = sb;
   }
-  vtf = cgetg(dim + 1, t_VEC);
+  S = cgetg(dim + 1, t_VEC);
   if (dim)
-  { /* remove newtrace data from vtf to save space: negligible slowdown */
+  { /* remove newtrace data from S to save space: negligible slowdown */
     GEN tf = tag(t_MF_NEWTRACE, mkNK(N,k,CHI), CHI);
-    for (j = 1; j <= dim; j++) gel(vtf, j) = mfhecke_i(N, k, CHIP, tf, vj[j]);
+    for (j = 1; j <= dim; j++) gel(S, j) = mfhecke_i(N, k, CHIP, tf, vj[j]);
   }
   dbg_cachenew(cache);
   mf1 = mkvec4(utoipos(N), utoipos(k), CHI, utoi(mf_NEW));
-  return mkmf(mf1, cgetg(1, t_VEC), vtf, vj, M);
+  return mkmf(mf1, cgetg(1, t_VEC), S, vj, M);
 }
 
 /* Bd(f)[m0..m], v = f[ceil(m0/d)..floor(m/d)], m0d = ceil(m0/d) */
@@ -3953,20 +3953,20 @@ RgC_Bd_expand(long m0, long m, GEN v, long d, long m0d)
   for (; j <= m; i++, j += d) gel(w,j-m0+1) = gel(v,i+1);
   return w;
 }
-/* vtf a non-empty vector of t_MF_BD(t_MF_HECKE(t_MF_NEWTRACE)); M the matrix
+/* S a non-empty vector of t_MF_BD(t_MF_HECKE(t_MF_NEWTRACE)); M the matrix
  * of their coefficients up to m0 (~ mfvectomat) or NULL (empty),
- * extend it to coeffs up to m > m0. The forms B_d(T_j(tf_N))in vtf should be
+ * extend it to coeffs up to m > m0. The forms B_d(T_j(tf_N))in S should be
  * sorted by level N, then j, then increasing d. No reordering here. */
 static GEN
-bhnmat_extend(GEN M, long m, long r, GEN vtf, cachenew_t *cache)
+bhnmat_extend(GEN M, long m, long r, GEN S, cachenew_t *cache)
 {
-  long i, m0, Nold = 0, jold = 0, l = lg(vtf);
+  long i, m0, Nold = 0, jold = 0, l = lg(S);
   GEN MAT = cgetg(l, t_MAT), v = NULL;
   m0 = M? nbrows(M): 0;
   for (i = 1; i < l; i++)
   {
     long d, j, m0d, N;
-    GEN DATA, c, f = bhn_parse(gel(vtf,i), &d,&j); /* t_MF_NEWTRACE */
+    GEN DATA, c, f = bhn_parse(gel(S,i), &d,&j); /* t_MF_NEWTRACE */
     N = mf_get_N(f); DATA = gel(f,2);
     m0d = ceildiv(m0,d);
     if (N!=Nold)
@@ -3985,7 +3985,7 @@ static GEN
 mfinitcusp(long N, long k, GEN CHI, cachenew_t *cache, long space)
 {
   long L, l, lDN1, FC, N1, d1, i, init;
-  GEN vvtf, vMjd, DN1, vmf, CHIP = mfchartoprimitive(CHI, &FC);
+  GEN vS, vMjd, DN1, vmf, CHIP = mfchartoprimitive(CHI, &FC);
 
   d1 = (space == mf_OLD)? mfolddim_i(N, k, CHIP): mfcuspdim(N, k, CHIP);
   if (!d1) return NULL;
@@ -4001,26 +4001,26 @@ mfinitcusp(long N, long k, GEN CHI, cachenew_t *cache, long space)
   setlg(vmf,l); vmf = vecreverse(vmf); /* reorder by increasing level */
 
   L = mfsturmNk(N, k)+1;
-  vvtf = vectrunc_init(L);
+  vS = vectrunc_init(L);
   vMjd = vectrunc_init(L);
   for (i = 1; i < l; i++)
   {
-    GEN DNM, mf = gel(vmf,i), vtf = MF_get_S(mf), vj = MFnew_get_vj(mf);
-    long a, lDNM, lvtf = lg(vtf), M = MF_get_N(mf);
+    GEN DNM, mf = gel(vmf,i), S = MF_get_S(mf), vj = MFnew_get_vj(mf);
+    long a, lDNM, lS = lg(S), M = MF_get_N(mf);
     DNM = mydivisorsu(N / M); lDNM = lg(DNM);
-    for (a = 1; a < lvtf; a++)
+    for (a = 1; a < lS; a++)
     {
-      GEN tf = gel(vtf,a);
+      GEN tf = gel(S,a);
       long b, j = vj[a];
       for (b = 1; b < lDNM; b++)
       {
         long d = DNM[b];
-        vectrunc_append(vvtf, mfbd_i(tf, d));
+        vectrunc_append(vS, mfbd_i(tf, d));
         vectrunc_append(vMjd, mkvecsmall3(M, j, d));
       }
     }
   }
-  return mkmf(NULL, cgetg(1, t_VEC), vvtf, vMjd, NULL);
+  return mkmf(NULL, cgetg(1, t_VEC), vS, vMjd, NULL);
 }
 
 long
@@ -4095,24 +4095,24 @@ GEN
 mfeigenbasis(GEN mf)
 {
   pari_sp ltop = avma;
-  GEN mfsplit, vtf, res, vP;
+  GEN mfsplit, S, res, vP;
   long i, l, k;
 
   checkMF(mf);
   k = MF_get_k(mf);
-  vtf = MF_get_S(mf); if (lg(vtf) == 1) return cgetg(1, t_VEC);
+  S = MF_get_S(mf); if (lg(S) == 1) return cgetg(1, t_VEC);
   mfsplit = MF_get_newforms(mf);
   vP = MF_get_fields(mf);
   if (k == 1)
   {
-    res = vecmflineardiv_linear(vtf, mfsplit);
+    res = vecmflineardiv_linear(S, mfsplit);
     l = lg(res);
   }
   else
   {
     res = cgetg_copy(mfsplit, &l);
     for (i = 1; i < l; i++)
-      gel(res,i) = mflinear_bhn(vtf, gel(mfsplit,i));
+      gel(res,i) = mflinear_bhn(S, gel(mfsplit,i));
   }
   for (i = 1; i < l; i++) mf_setfield(gel(res,i), gel(vP,i));
   return gerepilecopy(ltop, res);
@@ -4231,13 +4231,13 @@ const_mat(long n, GEN x)
 static GEN
 mftonew_i(GEN mf, GEN L, long *plevel)
 {
-  GEN vtf, listMjd, CHI, res, Aclos, Acoef, D, perm;
+  GEN S, listMjd, CHI, res, Aclos, Acoef, D, perm;
   long N1, LC, lD, i, l, t, level, N = MF_get_N(mf);
 
   if (MF_get_k(mf) == 1) pari_err_IMPL("mftonew in weight 1");
   listMjd = MFcusp_get_vMjd(mf);
   CHI = MF_get_CHI(mf); LC = mfcharconductor(CHI);
-  vtf = MF_get_S(mf);
+  S = MF_get_S(mf);
 
   N1 = N/LC;
   D = mydivisorsu(N1); lD = lg(D);
@@ -4254,7 +4254,7 @@ mftonew_i(GEN mf, GEN L, long *plevel)
     v = gel(listMjd, i);
     M = perm[ v[1]/LC ];
     d = perm[ v[3] ];
-    gcoeff(Aclos,M,d) = vec_append(gcoeff(Aclos,M,d), gel(vtf,i));
+    gcoeff(Aclos,M,d) = vec_append(gcoeff(Aclos,M,d), gel(S,i));
     gcoeff(Acoef,M,d) = shallowconcat(gcoeff(Acoef,M,d), gel(L,i));
   }
   res = cgetg(l, t_VEC); level = 1;
@@ -4947,24 +4947,24 @@ wt1empty(long N)
 static GEN
 initwt1trace(GEN mf)
 {
-  GEN vtf = MF_get_S(mf), v, H;
+  GEN S = MF_get_S(mf), v, H;
   long l, i;
-  if (lg(vtf) == 1) return mftrivial();
+  if (lg(S) == 1) return mftrivial();
   H = mfheckemat(mf, Mindex_as_coef(mf));
   l = lg(H); v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(v, i) = gtrace(gel(H,i));
-  return mflineardiv_linear(vtf, Minv_RgC_mul(MF_get_Minv(mf),v));
+  return mflineardiv_linear(S, Minv_RgC_mul(MF_get_Minv(mf),v));
 }
 static GEN
 initwt1newtrace(GEN mf)
 {
-  GEN D, vtf, Mindex, res, CHI = MF_get_CHI(mf);
+  GEN D, S, Mindex, res, CHI = MF_get_CHI(mf);
   long FC, lD, i, sb, N1, N2, lM, N = MF_get_N(mf);
   CHI = mfchartoprimitive(CHI, &FC);
   if (N % FC || mfcharparity(CHI) == 1) return mftrivial();
   D = mydivisorsu(N/FC); lD = lg(D);
-  vtf = MF_get_S(mf);
-  if (lg(vtf) == 1) return mftrivial();
+  S = MF_get_S(mf);
+  if (lg(S) == 1) return mftrivial();
   N2 = newd_params2(N);
   N1 = N / N2;
   Mindex = MF_get_Mindex(mf);
@@ -4999,7 +4999,7 @@ initwt1newtrace(GEN mf)
   }
   if (gequal0(gel(res,2))) return mftrivial();
   res = vecpermute(res,Mindex);
-  return mflineardiv_linear(vtf, Minv_RgC_mul(MF_get_Minv(mf), res));
+  return mflineardiv_linear(S, Minv_RgC_mul(MF_get_Minv(mf), res));
 }
 
 /* Matrix of T(p), p \nmid N */
@@ -5125,12 +5125,12 @@ RgV_normalize(GEN v, GEN *pc)
 }
 /* ordchi != 2 mod 4 */
 static GEN
-mftreatdihedral(GEN DIH, GEN POLCYC, long ordchi, long biglim, GEN *pvtf)
+mftreatdihedral(GEN DIH, GEN POLCYC, long ordchi, long biglim, GEN *pS)
 {
   GEN M, Minv, C;
   long l, i;
   l = lg(DIH); if (l == 1) return NULL;
-  if (!pvtf) return DIH;
+  if (!pS) return DIH;
   C = cgetg(l, t_VEC);
   M = cgetg(l, t_MAT);
   for (i = 1; i < l; i++)
@@ -5142,7 +5142,7 @@ mftreatdihedral(GEN DIH, GEN POLCYC, long ordchi, long biglim, GEN *pvtf)
   Minv = gel(mfclean(M,POLCYC,ordchi),2);
   M = RgM_Minv_mul(M, Minv);
   C = RgM_Minv_mul(C, Minv);
-  *pvtf = vecmflinear(DIH, C);
+  *pS = vecmflinear(DIH, C);
   return M;
 }
 
@@ -5247,25 +5247,25 @@ mfwt1dimmodp(GEN A, GEN ES, GEN M, long ordchi, long dih, long lim)
   return mfstabitermodp(Mp, Ap, p, lim);
 }
 
-/* Compute the full S_1(\G_0(N),\chi). If pvtf is NULL, only the dimension
+/* Compute the full S_1(\G_0(N),\chi). If pS is NULL, only the dimension
  * dim, in the form of a vector having dim components. Otherwise output
  * a basis: ptvf contains a pointer to the vector of forms, and the
  * program returns the corresponding matrix of Fourier expansions.
  * ptdimdih gives the dimension of the subspace generated by dihedral forms;
  * TMP is from mfwt1_pre or NULL. */
 static GEN
-mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pvtf, long *ptdimdih)
+mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
 {
   GEN ES, mf, A, M, Tp, tmp1, tmp2, den;
-  GEN vtf, ESA, VC, C, Ash, POLCYC, ES1, ES1INV, DIH, a0, a0i;
+  GEN S, ESA, VC, C, Ash, POLCYC, ES1, ES1INV, DIH, a0, a0i;
   long plim, lim, biglim, i, p, dA, dimp, ordchi, dih, lim2;
 
   if (ptdimdih) *ptdimdih = 0;
-  if (pvtf) *pvtf = NULL;
+  if (pS) *pS = NULL;
   if (wt1empty(N) || mfcharparity(CHI) != -1) return NULL;
   ordchi = mfcharorder_canon(CHI);
   if (uisprime(N) && ordchi > 4) return NULL;
-  if (!pvtf)
+  if (!pS)
   {
     dih = mfdihedralcuspdim(N, CHI);
     DIH = zerovec(dih);
@@ -5295,7 +5295,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pvtf, long *ptdimdih)
     case 448: case 451: case 453: case 458: case 496: case 497: case 513:
     case 522: case 527: case 532: case 576: case 579:
       /* no chi with both exotic and dihedral; one chi with exotic forms */
-      if (dih) return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pvtf);
+      if (dih) return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS);
       m = mfcharno(CHI);
       if (N == 124 && (m != 67 && m != 87)) return NULL;
       if (N == 133 && (m != 83 && m !=125)) return NULL;
@@ -5315,7 +5315,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pvtf, long *ptdimdih)
   tmp1= gel(TMP,1); lim = tmp1[1]; p = tmp1[2]; plim = p*lim;
   mf  = gel(TMP,2);
   A   = gel(TMP,3); /* p*lim x dim matrix */
-  vtf = MF_get_S(mf);
+  S = MF_get_S(mf);
   ESA = mfeisensteinbasis(N, 1, mfcharinv_i(CHI));
   ES = RgM_to_RgXV(mfvectomat(ESA, plim+1, 1), 0);
   ES1 = gel(ES,1); /* does not vanish at oo */
@@ -5324,7 +5324,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pvtf, long *ptdimdih)
   if (!dimp)
     return NULL;
   if (dimp == dih)
-    return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pvtf);
+    return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS);
   VC = matid(lg(A) - 1);
   lim2 = (3*lim)/2 + 1;
   Ash = rowslice(A, 1, lim2);
@@ -5371,12 +5371,12 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pvtf, long *ptdimdih)
     gel(M,i) = RgV_normalize(v, &c);
     gel(C,i) = RgC_Rg_mul(gel(VC,i), c);
   }
-  if (pvtf)
+  if (pS)
   {
     GEN Minv = gel(mfclean(M, POLCYC, ordchi), 2);
     M = RgM_Minv_mul(M, Minv);
     C = RgM_Minv_mul(C, Minv);
-    *pvtf = vecmflineardiv0(vtf, C, gel(ESA,1));
+    *pS = vecmflineardiv0(S, C, gel(ESA,1));
   }
   return M;
 }
@@ -5387,7 +5387,7 @@ static GEN
 mfwt1_cusptonew(GEN mf)
 {
   const long vy = 1;
-  GEN v, vtf, vP, F, vtfnew, vF;
+  GEN v, vP, F, S, Snew, vF;
   long i, lP, dSnew, ct;
 
   v = mfsplit_i(mf, 0, 0);
@@ -5395,10 +5395,10 @@ mfwt1_cusptonew(GEN mf)
   vP= gel(v,2); lP = lg(vP);
   if (lP == 1) { obj_insert(mf, MF_SPLIT, v); return NULL; }
   mf_set_space(mf, mf_NEW);
-  vtf = MF_get_S(mf);
+  S = MF_get_S(mf);
   dSnew = 0;
   for (i = 1; i < lP; i++) dSnew += degpol(gel(vP,i));
-  vtfnew = cgetg(dSnew + 1, t_VEC); ct = 0;
+  Snew = cgetg(dSnew + 1, t_VEC); ct = 0;
   vF = cgetg(lP, t_VEC);
   for (i = 1; i < lP; i++)
   {
@@ -5407,7 +5407,7 @@ mfwt1_cusptonew(GEN mf)
     gel(vF,i) = V = zerovec(dSnew);
     if (d == 1)
     {
-      gel(vtfnew, ct+1) = mflineardiv_linear(vtf, f);
+      gel(Snew, ct+1) = mflineardiv_linear(S, f);
       gel(V, ct+1) = gen_1;
     }
     else
@@ -5415,22 +5415,22 @@ mfwt1_cusptonew(GEN mf)
       f = RgXV_to_RgM(f,d);
       for (j = 1; j <= d; j++)
       {
-        gel(vtfnew, ct+j) = mflineardiv_linear(vtf, row(f,j));
+        gel(Snew, ct+j) = mflineardiv_linear(S, row(f,j));
         gel(V, ct+j) = mkpolmod(pol_xn(j-1,vy), P);
       }
     }
     ct += d;
   }
   obj_insert(mf, MF_SPLIT, mkvec2(vF, vP));
-  gel(mf,3) = vtfnew; return mf;
+  gel(mf,3) = Snew; return mf;
 }
 static GEN
 mfwt1init(long N, GEN CHI, GEN TMP, long space, long flraw)
 {
-  GEN mf, mf1, vtf, M = mfwt1basis(N, CHI, TMP, &vtf, NULL);
+  GEN mf, mf1, S, M = mfwt1basis(N, CHI, TMP, &S, NULL);
   if (!M) return NULL;
   mf1 = mkvec4(stoi(N), gen_1, CHI, utoi(mf_CUSP));
-  mf = mkmf(mf1, cgetg(1,t_VEC), vtf, gen_0, NULL);
+  mf = mkmf(mf1, cgetg(1,t_VEC), S, gen_0, NULL);
   if (space == mf_NEW)
   {
     gel(mf,5) = mfcleanCHI(M,CHI);
@@ -6436,16 +6436,16 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
         mf = mfinitcusp(N, k, CHI, &cache, space);
         if (mf && !flraw)
         {
-          GEN vtf = MF_get_S(mf);
+          GEN S = MF_get_S(mf);
           if (space != mf_FULL)
           { /* try to clean with heuristic bound < Sturm bound */
-            M = bhnmat_extend(M, ceilA1(N,k), 1, vtf, &cache);
+            M = bhnmat_extend(M, ceilA1(N,k), 1, S, &cache);
             z = QabM_indexrank(M, P, ord);
             if (lg(gel(z,2)) != lg(M)) z = NULL; /* fail */
           }
           if (!z)
           {
-            M = bhnmat_extend(M, sb+1, 1, vtf, &cache);
+            M = bhnmat_extend(M, sb+1, 1, S, &cache);
             if (space == mf_CUSP) gel(mf,5) = mfcleanCHI(M, CHI);
           }
         }
@@ -7052,7 +7052,7 @@ mffrickeeigen(GEN mf, GEN vE, long prec)
 static GEN
 mfatkineigenquad(GEN mf, GEN CHIP, long Q, GEN MF, long bitprec)
 {
-  GEN L0, la2, vtf, F, vP, tau, wtau, Z, va, vb, den, coe, sqrtQ, sqrtN;
+  GEN L0, la2, S, F, vP, tau, wtau, Z, va, vb, den, coe, sqrtQ, sqrtN;
   GEN M, gN, gk = MF_get_gk(mf);
   long N0, t, yq, i, j, lF, dim, muQ, prec = nbits2prec(bitprec);
   long N = MF_get_N(mf), k = itos(gk), NQ = N / Q;
@@ -7062,17 +7062,16 @@ mfatkineigenquad(GEN mf, GEN CHIP, long Q, GEN MF, long bitprec)
   vP = MF_get_fields(mf);
   lF = lg(F);
   Z = cgetg(lF, t_VEC);
-  vtf = MF_get_S(mf); dim = lg(vtf) - 1;
+  S = MF_get_S(mf); dim = lg(S) - 1;
   muQ = moebiusu(Q);
   if (muQ)
   {
-    GEN vtfQ = cgetg(dim+1,t_VEC);
-    GEN Qk = gpow(stoi(Q), sstoQ(k - 2, 2), prec);
+    GEN SQ = cgetg(dim+1,t_VEC), Qk = gpow(stoi(Q), sstoQ(k-2, 2), prec);
     long i, bit2 = bitprec >> 1;
-    for (j = 1; j <= dim; j++) gel(vtfQ,j) = mfak_i(gel(vtf,j), Q);
+    for (j = 1; j <= dim; j++) gel(SQ,j) = mfak_i(gel(S,j), Q);
     for (i = 1; i < lF; i++)
     {
-      GEN S = RgV_dotproduct(gel(F,i), vtfQ), T = gel(vP,i);
+      GEN S = RgV_dotproduct(gel(F,i), SQ), T = gel(vP,i);
       long e;
       if (degpol(T) > 1 && typ(S) != t_POLMOD) S = gmodulo(S, T);
       S = grndtoi(gdiv(conjvec(S, prec), Qk), &e);
@@ -7767,24 +7766,23 @@ mfsearch(GEN NK, GEN V, long space)
   return gerepilecopy(ltop, RES);
 }
 
-/* S = newforms */
 static GEN
 search_from_split(GEN mf, GEN vap, GEN vlp)
 {
   pari_sp av = avma;
-  long lvlp = lg(vlp), N = MF_get_N(mf), j, jv, lS;
-  GEN v, NK, S, vtf, M = NULL;
+  long lvlp = lg(vlp), N = MF_get_N(mf), j, jv, l1;
+  GEN v, NK, S1, S, M = NULL;
 
-  S = gel(mfsplit(mf, 1, 0), 1);
-  lS = lg(S);
-  if (lS == 1) { avma = av; return NULL; }
-  v = cgetg(lS, t_VEC);
-  vtf = MF_get_S(mf);
-  NK = mf_get_NK(gel(vtf,1));
+  S1 = gel(mfsplit(mf, 1, 0), 1); /* rational newforms */
+  l1 = lg(S1);
+  if (l1 == 1) { avma = av; return NULL; }
+  v = cgetg(l1, t_VEC);
+  S = MF_get_S(mf);
+  NK = mf_get_NK(gel(S,1));
   if (lvlp > 1) M = rowpermute(mfcoefs_mf(mf, vlp[lvlp-1], 1), vlp);
-  for (j = jv = 1; j < lS; j++)
+  for (j = jv = 1; j < l1; j++)
   {
-    GEN vF = gel(S,j);
+    GEN vF = gel(S1,j);
     long t;
     for (t = lvlp-1; t > 0; t--)
     { /* lhs = vlp[j]-th coefficient of eigenform */
@@ -7792,7 +7790,7 @@ search_from_split(GEN mf, GEN vap, GEN vlp)
       if (!gequal(lhs, rhs)) break;
     }
     if (t) continue;
-    gel(v,jv++) = mkvec2(utoi(N), mflinear_i(NK,vtf,vF));
+    gel(v,jv++) = mkvec2(utoi(N), mflinear_i(NK,S,vF));
   }
   if (jv == 1) { avma = av; return NULL; }
   setlg(v,jv); return v;
