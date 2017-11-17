@@ -164,6 +164,9 @@ and $0$ otherwise.
 
 \subsec{Accessors for modular form spaces}
 
+Shallow functions; assume that their argument is a modular form space
+is created by \kbd{mfinit} and checked using \kbd{checkMF}.
+
 \fun{GEN}{MF_get_gN}{GEN mf} return the level $N$ as a \typ{INT}.
 
 \fun{long}{MF_get_N}{GEN mf} return the level $N$ as a \kbd{long}.
@@ -172,22 +175,43 @@ and $0$ otherwise.
 
 \fun{long}{MF_get_k}{GEN mf} return the level $k$ as a \kbd{long}.
 
-\fun{GEN}{MF_get_CHI}{GEN mf} return the nebentypus, which is a special form
- of character structure attached to Dirichlet characters (see next section).
-Its values are given as algebraic numbers: either $\pm1$ or \typ{POLMOD}
-in $t$.
+\fun{GEN}{MF_get_CHI}{GEN mf} return the nebentypus $\chi$, which is a
+ special form of character structure attached to Dirichlet characters (see
+ next section). Its values are given as algebraic numbers: either $\pm1$ or
+ \typ{POLMOD} in $t$.
 
-\fun{GEN}{MF_get_basis}{GEN mf} return the $\Q$-basis of the space.
+\fun{long}{MF_get_space}{GEN mf} returns the space type, corresponding
+to \kbd{mfinit}'s \kbd{space} flag. The current list is
 
-\fun{long}{MF_get_dim}{GEN mf}
+\bprog
+mf_NEW, mf_CUSP, mf_OLD, mf_EISEN, mf_FULL
+@eprog
 
-\fun{GEN}{MF_get_eisen}{GEN mf}
+\fun{GEN}{MF_get_basis}{GEN mf} return the $\Q$-basis of the space; the forms
+have coefficients in $\Q(\chi)$. Low-level version of \kbd{mfbasis}.
 
-\fun{GEN}{MF_get_fields}{GEN mf}
+\fun{long}{MF_get_dim}{GEN mf} returns the dimension of the space. It
+is the cardinality of \tet{MF_get_basis}.
 
-\fun{GEN}{MF_get_newforms}{GEN mf}
+\fun{GEN}{MF_get_eisenstein}{GEN mf} returns a $\Q$-basis for the subspace
+spanned by Eisenstein series in the space; the forms have coefficients in
+$\Q(\chi)$.
 
-\fun{long}{MF_get_space}{GEN mf}
+\fun{GEN}{MF_get_fields}{GEN mf} returns the vector of polynomials defining
+each Galois orbit of newforms over $\Q(\chi)$. Uses memoization: a first call
+splits the space and may be costly; subsequent calls return the cached
+result.
+
+\fun{GEN}{MF_get_newforms}{GEN mf} returns a vector \kbd{vF} containing the
+coordinates of the eigenforms on \tet{MF_get_basis} (\kbd{mftobasis} form).
+Low-level version of
+\kbd{mfeigenbasis}, whose elements are recovered as \kbd{mflinear(mf,
+gel(vF,i))}. Uses memoization, sharing the same data as
+\kbd{MF\_get\_fields}. Note that it is much more efficient to use
+\kbd{mfcoefs(mf,)} then multiply by this vector than to compute the
+coefficients of eigenforms from \kbd{mfeigenbasis} individually.
+
+The following accessors are technical,
 
 \fun{GEN}{MF_get_vtf}{GEN mf}
 
@@ -229,10 +253,66 @@ in $t$.
 \kbd{gN}, \kbd{gk}, \kbd{CHI}, \kbd{field}. Never use its component directly,
 use individual accessors as above.
 
-\fun{long}{mf_get_type}{GEN F}
+\fun{long}{mf_get_type}{GEN F} returns a symbolic name for the constructur
+used to create the form, e.g. \kbd{t\_MF\_EISEN} for a general Eisenstein
+series. A form has a recursive structure represented by a tree: its
+definition may involve other forms, e.g. the tree attached to $T_n f$
+contains $f$ as a subtree. Such trees have \emph{leaves}, forms
+which do not contain a strict subtree, e.g. \kbd{t\_MF\_DELTA} is a leaf,
+attached to Ramanujan's $\Delta$.
+
+Here is the current list of types; since the names are liable to change,
+they are not documented at this point. Use \kbd{mfdescribe} to visualize
+their mathematical structure.
+\bprog
+/*leaves*/
+  t_MF_CONST, t_MF_EISEN, t_MF_Ek, t_MF_DELTA, t_MF_ETAQUO, t_MF_ELL,
+  t_MF_DIHEDRAL, t_MF_THETA, t_MF_TRACE, t_MF_NEWTRACE,
+/*recursive*/
+  t_MF_MUL, t_MF_POW, t_MF_DIV, t_MF_BRACKET, t_MF_LINEAR, t_MF_LINEAR_BHN,
+  t_MF_SHIFT, t_MF_DERIV, t_MF_DERIVE2, t_MF_TWIST, t_MF_HECKE,
+  t_MF_BD,
+@eprog
 
 \subsec{Nebentypus} The characters stored in modular forms and modular form
 spaces have a special structure.
+
+\subsec{Miscellaneous functions}
+
+\fun{long}{mfcuspdim}{long N, long k, GEN CHI}
+
+\fun{long}{mffulldim}{long N, long k, GEN CHI}
+
+\fun{long}{mfnewdim}{long N, long k, GEN CHI}
+
+\fun{long}{mfolddim}{long N, long k, GEN CHI}
+
+\fun{long}{mfeisensteindim}{long N, long k, GEN CHI}
+
+
+\fun{GEN}{mfeisensteinspaceinit}{GEN NK}
+
+
+\fun{GEN}{mfdiv_val}{GEN F, GEN G, long vG}
+
+\fun{GEN}{mfembed}{GEN f, GEN E}
+
+
+\fun{long}{mfsturmNgk}{long N, GEN k}
+
+\fun{long}{mfsturmNk}{long N, long k}
+
+\fun{long}{mfsturm_mf}{GEN mf}
+
+
+\fun{GEN}{mftobasisES}{GEN mf, GEN F}
+
+\fun{GEN}{mftocol}{GEN F, long lim, long d}
+
+\fun{GEN}{mfvecembed}{GEN f, GEN vz}
+
+\fun{GEN}{mfvectomat}{GEN vF, long lim, long d}
+
 
 
 \newpage

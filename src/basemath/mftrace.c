@@ -96,7 +96,7 @@ MF_get_k(GEN mf)
 long
 MF_get_space(GEN mf) { return itos(gmael(mf,1,4)); }
 GEN
-MF_get_eisen(GEN mf) { return gel(mf,2); }
+MF_get_eisenstein(GEN mf) { return gel(mf,2); }
 GEN
 MF_get_vtf(GEN mf) { return gel(mf,3); }
 GEN
@@ -107,9 +107,9 @@ MF_get_dim(GEN mf)
   switch(MF_get_space(mf))
   {
     case mf_FULL:
-      return lg(MF_get_vtf(mf)) - 1 + lg(MF_get_eisen(mf))-1;
+      return lg(MF_get_vtf(mf)) - 1 + lg(MF_get_eisenstein(mf))-1;
     case mf_EISEN:
-      return lg(MF_get_eisen(mf))-1;
+      return lg(MF_get_eisenstein(mf))-1;
     default: /* mf_NEW, mf_CUSP, mf_OLD */
       return lg(MF_get_vtf(mf)) - 1;
   }
@@ -1513,7 +1513,7 @@ space_is_cusp(long space) { return space != mf_FULL && space != mf_EISEN; }
 static GEN
 mfcoefs_mf(GEN mf, long n, long d)
 {
-  GEN MS, ME, E = MF_get_eisen(mf), S = MF_get_vtf(mf);
+  GEN MS, ME, E = MF_get_eisenstein(mf), S = MF_get_vtf(mf);
   long lE = lg(E), lS = lg(S), l = lE+lS-1;
 
   if (l == 1) return cgetg(1, t_MAT);
@@ -9791,7 +9791,7 @@ mfspace_i(GEN mf, GEN F)
   if (!checkmf_i(F)) pari_err_TYPE("mfspace",F);
   v = mftobasis(mf, F, 1);
   n = lg(v)-1; if (!n) return -1;
-  nE = lg(MF_get_eisen(mf))-1;
+  nE = lg(MF_get_eisenstein(mf))-1;
   switch(s)
   {
     case mf_NEW: case mf_OLD: case mf_EISEN: return s;
@@ -10755,7 +10755,7 @@ GEN
 mftobasisES(GEN mf, GEN F)
 {
   GEN v = mftobasis(mf, F, 0);
-  long nE = lg(MF_get_eisen(mf))-1;
+  long nE = lg(MF_get_eisenstein(mf))-1;
   return mkvec2(vecslice(v,1,nE), vecslice(v,nE+1,lg(v)-1));
 }
 
