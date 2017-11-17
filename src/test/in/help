@@ -22,7 +22,7 @@ addhelp(addii,"test6")
 ?
 ?.
 ?\
-?1
+?2
 ?addii
 \t
 g()=0;

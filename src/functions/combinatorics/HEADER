@@ -1,0 +1,6 @@
+Function: _header_combinatorics
+Class: header
+Section: combinatorics
+Doc:
+ \section{Combinatorics}\label{se:combinat}
+

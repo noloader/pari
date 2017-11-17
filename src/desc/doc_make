@@ -4,7 +4,7 @@ use warnings FATAL => 'all';
 use strict;
 use PARI::822;
 
-my (%funcs, %Fun_by_sec);
+my (%funcs, %Fun_by_sec, %sec_header);
 PARI::822::read(\%funcs, "pari.desc");
 
 open (FILE, "../../doc/usersFUNCS.tex") || die;
@@ -12,13 +12,19 @@ for (keys %funcs)
 { 
   my ($s) = $funcs{$_}->{Section};
   next if (!$s);
-  push(@{$Fun_by_sec{$s}}, $_);
+  my ($c) = $funcs{$_}->{Class};
+  if ($c eq 'header')
+  { $sec_header{$s} = $funcs{$_}->{Doc} }
+  else
+  { push(@{$Fun_by_sec{$s}}, $_); }
 }
 while (<FILE>)
 {
   if (/^% *SECTION *: *(.*) */)
   {
     my ($sec) = $1;
+    my ($head) = $sec_header{$sec};
+    print "$head\n" if defined($head);
     next if (!$Fun_by_sec{$sec});
     for ( sort @{$Fun_by_sec{$sec}} ) {
       my ($fun) = $funcs{$_};
