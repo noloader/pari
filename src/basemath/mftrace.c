@@ -6768,21 +6768,32 @@ van_embedall(GEN van, GEN vE, GEN gN, GEN gk)
 static GEN
 mkmat22(long a, long b, long c, long d) {retmkmat2(mkcol2s(a,c),mkcol2s(b,d));}
 
+static int
+cusp_AC(GEN cusp, long *A, long *C)
+{
+  switch(typ(cusp))
+  {
+    case t_INFINITY: *A = 1; *C = 0; break;
+    case t_INT:  *A = itos(cusp); *C = 1; break;
+    case t_FRAC: *A = itos(gel(cusp, 1)); *C = itos(gel(cusp, 2)); break;
+    default: *A = 0; *C = 0; return 0;
+  }
+  return 1;
+}
+static GEN
+cusp2mat(long A, long C)
+{ long B, D;
+  cbezout(A, C, &D, &B);
+  return mkmat22(A, -B, C, D);
+}
 /* if t is a cusp, return F(t), else NULL */
 static GEN
 evalcusp(GEN mf, GEN F, GEN t, long prec)
 {
-  long A, B, C, D;
-  GEN ga, R;
-  switch(typ(t))
-  {
-    default: return NULL;
-    case t_INFINITY: return mfak_i(F,0);
-    case t_INT: A = itos(t); C = 1; break;
-    case t_FRAC: A = itos(gel(t,1)); C = itou(gel(t,2)); break;
-  }
-  cbezout(A, C, &D, &B); ga = mkmat22(A, -B, C, D);
-  R = mfgaexpansion(mf, F, ga, 0, prec);
+  long A, C;
+  GEN R;
+  if (!cusp_AC(t, &A,&C)) return NULL;
+  R = mfgaexpansion(mf, F, cusp2mat(A,C), 0, prec);
   return gequal0(gel(R,1))? gmael(R,3,1): gen_0;
 }
 /* Evaluate an mf closure numerically, i.e., in the usual sense, either for a
@@ -6972,7 +6983,7 @@ GEN
 mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec)
 {
   pari_sp av = avma;
-  long w, N, sb, n, A, B, C, D, prec = nbits2prec(bitprec);
+  long w, N, sb, n, A, C, prec = nbits2prec(bitprec);
   GEN ga, gk;
   checkMF(mf);
   if (!checkmf_i(F)) pari_err_TYPE("mfcuspval",F);
@@ -6988,8 +6999,7 @@ mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec)
   }
   w = mfcuspcanon_width(N, C);
   sb = w * mfsturmNk(N, itos(gk));
-  cbezout(A, C, &D, &B);
-  ga = mkmat22(A, -B, C, D);
+  ga = cusp2mat(A,C);
   for (n = 8;; n = minss(sb, n << 1))
   {
     GEN R = mfgaexpansion(mf, F, ga, n, prec), res = liftpol_shallow(gel(R,3));
@@ -10982,25 +10992,13 @@ mfperiodpol(GEN mf, GEN F, long flag, long bit)
 
 static int
 mfs_iscusp(GEN mfs) { return gequal0(gmael(mfs,2,1)); }
-static void
-cusp_ac(GEN cusp, long *A, long *C)
-{
-  switch(typ(cusp))
-  {
-    case t_INFINITY: *A = 1; *C = 0; break;
-    case t_INT:  *A = itos(cusp); *C = 1; break;
-    case t_FRAC: *A = itos(gel(cusp, 1)); *C = itos(gel(cusp, 2)); break;
-    default: pari_err_TYPE("mfsymboleval", cusp);
-             *A = 0; *C = 0; /*LCOV_EXCL_LINE*/
-  }
-}
 /* given cusps s1 and s2 (rationals or oo)
  * compute $\int_{s1}^{s2}(X-\tau)^{k-1}F(\tau)\,d\tau$ */
 GEN
 mfsymboleval(GEN fs, GEN path)
 {
   pari_sp av = avma;
-  GEN ga, V, LM, S, CHI, mfpols, cosets, s1, s2, mf;
+  GEN ga, V, LM, S, CHI, mfpols, cosets, mf;
   long D, B, m, u, v, a, b, c, d, j, k, N, prec;
   if (!checkfs_i(fs)) pari_err_TYPE("mfsymboleval",fs);
   if (!mfs_iscusp(fs)) pari_err_TYPE("mfsymboleval [noncuspidal]",fs);
@@ -11009,8 +11007,8 @@ mfsymboleval(GEN fs, GEN path)
   switch(typ(path))
   {
     case t_VEC:
-      s1 = gel(path,1); cusp_ac(s1, &a, &c);
-      s2 = gel(path,2); cusp_ac(s2, &b, &d);
+      if (!cusp_AC(gel(path,1), &a,&c)) pari_err_TYPE("mfsymboleval", path);
+      if (!cusp_AC(gel(path,2), &b,&d)) pari_err_TYPE("mfsymboleval", path);
       break;
     case t_MAT:
       if (RgM_is_ZM(path))
