@@ -187,15 +187,19 @@ to \kbd{mfinit}'s \kbd{space} flag. The current list is
 mf_NEW, mf_CUSP, mf_OLD, mf_EISEN, mf_FULL
 @eprog
 
-\fun{GEN}{MF_get_basis}{GEN mf} return the $\Q$-basis of the space; the forms
+\fun{GEN}{MF_get_basis}{GEN mf} return the $\Q$-basis of the space,
+concatenation of \tet{MF_get_E} and \tet{MF_get_S}, in this order; the forms
 have coefficients in $\Q(\chi)$. Low-level version of \kbd{mfbasis}.
 
-\fun{long}{MF_get_dim}{GEN mf} returns the dimension of the space. It
+\fun{long}{MF_get_dim}{GEN mf} returns the dimension $d$ of the space. It
 is the cardinality of \tet{MF_get_basis}.
 
-\fun{GEN}{MF_get_eisenstein}{GEN mf} returns a $\Q$-basis for the subspace
+\fun{GEN}{MF_get_E}{GEN mf} returns a $\Q$-basis for the subspace
 spanned by Eisenstein series in the space; the forms have coefficients in
 $\Q(\chi)$.
+
+\fun{GEN}{MF_get_S}{GEN mf} returns a $\Q$-basis for the cuspidal subspace
+in the space; the forms have coefficients in $\Q(\chi)$.
 
 \fun{GEN}{MF_get_fields}{GEN mf} returns the vector of polynomials defining
 each Galois orbit of newforms over $\Q(\chi)$. Uses memoization: a first call
@@ -213,17 +217,25 @@ coefficients of eigenforms from \kbd{mfeigenbasis} individually.
 
 The following accessors are technical,
 
-\fun{GEN}{MF_get_vtf}{GEN mf}
+\fun{GEN}{MF_get_M}{GEN mf} the $(1+m) \times d$ matrix whose $j$-th column
+contain the coefficients of the $j$-th entry in \tet{MF_get_basis}, $m$
+is the optimal ``Sturm bound'' for the space: the maximum of the $v_\infty(f)$
+over non-zero forms. It has entries in $\Q(\chi)$.
 
-\fun{GEN}{MF_get_M}{GEN mf}
+\fun{GEN}{MF_get_Mindex}{GEN mf} is a \typ{VECSMALL} containing $d$ row
+indices, the corresponding rows of $M$ form an invertible matrix $M_0$.
 
-\fun{GEN}{MF_get_Mindex}{GEN mf}
+\fun{GEN}{MF_get_Minv}{GEN mf} the inverse of $M_0$ in a form suitable for fast
+multiplication.
 
-\fun{GEN}{MF_get_Minv}{GEN mf}
+\fun{GEN}{MFcusp_get_vMjd}{GEN mf} valid only for a full
+\emph{cuspidal} space. Then the functions in \tet{MF_get_S} are
+of the form $B_d T_j Tr^{new}_M$. This returns the vector of triples
+(\typ{VECSMALL}) $[M,j,d]$, in the same order.
 
-\fun{GEN}{MFcusp_get_vMjd}{GEN mf}
-
-\fun{GEN}{MFnew_get_vj}{GEN mf}
+\fun{GEN}{MFnew_get_vj}{GEN mf} valid only for a \emph{new} space. Then
+the functions in \tet{MF_get_S} are of the form $T_j Tr^{new}_N$. This
+returns a \typ{VECSMALL} of the Hecke indices $j$, in the same order.
 
 \subsec{Accessors for individual modular forms}
 
@@ -279,16 +291,15 @@ spaces have a special structure.
 
 \subsec{Miscellaneous functions}
 
-\fun{long}{mfcuspdim}{long N, long k, GEN CHI}
-
-\fun{long}{mffulldim}{long N, long k, GEN CHI}
-
 \fun{long}{mfnewdim}{long N, long k, GEN CHI}
+
+\fun{long}{mfcuspdim}{long N, long k, GEN CHI}
 
 \fun{long}{mfolddim}{long N, long k, GEN CHI}
 
 \fun{long}{mfeisensteindim}{long N, long k, GEN CHI}
 
+\fun{long}{mffulldim}{long N, long k, GEN CHI}
 
 \fun{GEN}{mfeisensteinspaceinit}{GEN NK}
 
