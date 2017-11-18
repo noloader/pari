@@ -6618,34 +6618,41 @@ findqga(long N, GEN z)
   return DK? mkvec2(CK, DK): NULL;
 }
 
+static long
+valNC2(GEN P, GEN E, long e)
+{
+  long i, d = 1, l = lg(P);
+  for (i = 1; i < l; i++)
+  {
+    ulong v = u_lval(e, P[i]) << 1;
+    if (v == E[i] + 1) v--;
+    d *= upowuu(P[i], v);
+  }
+  return d;
+}
+
 static GEN
 findqganew(long N, GEN z)
 {
-  GEN MI, D, x, y = imag_i(z);
-  long i, ck = 0, dk = 1, lim, sqrtlim, n;
-  if (gcmpgs(gmulsg(4*N, gsqr(y)), 1) >= 0) return NULL;
-  x = real_i(z); MI = NULL;
-  lim = ceil(1./gtodouble(y)); if (lim < 2*N) lim = 2*N;
-  sqrtlim = usqrt(lim)+1;
-  n = 1 + (long)ceil(1.0391*log(lim));
-  D = mydivisorsu(mysqrtu(N));
-  for (i = 1; i < lg(D); i++)
+  GEN MI, DI, x = real_i(z), y = imag_i(z), fa, P, E;
+  long i, Ck = 0, Dk = 1;
+  MI = ginv(utoi(N));
+  DI = mydivisorsu(mysqrtu(N));
+  fa = myfactoru(N); P = gel(fa,1); E = gel(fa,2);
+  for (i = 1; i < lg(DI); i++)
   {
-    long j, sw = D[i], n1 = n + (long)ceil(1.0391*log((double)sw));
-    GEN PQ = contfracpnqn(gboundcf(gmulsg(-sw,x), n1), n1);
-    for (j = 1; j < lg(PQ); j++)
-    {
-      GEN dc = gel(PQ,j), c1 = gel(dc,2), m;
-      long c, d, g;
-      if (cmpiu(c1, sqrtlim) > 0) break;
-      c = itou(c1)*sw; d = itou(gel(dc,1));
-      g = cgcd(c,d); if (g > 1) { c /= g; d /= g; }
-      m = gadd(gsqr(gaddgs(gmulsg(c,x), d)), gsqr(gmulsg(c,y)));
-      m = gmulgs(m, mfcuspcanon_width(N,c));
-      if (!MI || gcmp(m,MI) < 0) { MI = m; ck = c; dk = d; }
-    }
+    long e = DI[i], C, D, g;
+    GEN U, m;
+    (void)cxredsl2(gmulsg(e, z), &U);
+    C = itos(gcoeff(U,2,1)); if (!C) continue;
+    D = itos(gcoeff(U,2,2));
+    C *= e;
+    g = cgcd(e, D); if (g > 1) { C /= g; D /= g; }
+    m = gadd(gsqr(gaddgs(gmulsg(C, x), D)), gsqr(gmulsg(C, y)));
+    m = gdivgs(m, valNC2(P, E, e));
+    if (gcmp(m, MI) < 0) { MI = m; Ck = C; Dk = D; }
   }
-  return MI? mkvec2s(ck, dk): NULL;
+  return Ck? mkvec2s(Ck, Dk): NULL;
 }
 
 static GEN
@@ -6657,8 +6664,8 @@ cxredga0N(long N, GEN z, GEN *pU, long flag)
   if (!v) { *pU = matid(2); return z; }
   C = gel(v,1);
   D = gel(v,2); g = bezout(C, D, &B, &A);
-  B = negi(B);
   if (!equali1(g)) pari_err_BUG("cxredga0N [gcd > 1]");
+  B = negi(B);
   *pU = mkmat2(mkcol2(A,C), mkcol2(B,D));
   return gdiv(gadd(gmul(A,z), B), gadd(gmul(C,z), D));
 }

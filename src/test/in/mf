@@ -426,7 +426,8 @@ mfperiodpolbasis(12,-1)
 mfperiodpolbasis(2)
 mfperiodpolbasis(-1)
 
-mf=mfinit([23,4],0); f=mfsymbol(mf, mfeigenbasis(mf)[1]);
+mf=mfinit([23,4],0); [f1,f2]=mfeigenbasis(mf); f=mfsymbol(mf,f1);
+mfeval(mf,f2,0.9995346163+0.02156773223*I) \\ regression
 mfpetersson(f)
 mf=mfinit([23,2],0); f=mfsymbol(mf, mfeigenbasis(mf)[1]);
 L=liftpol(mfmanin(f)); [v[1] | v<-L]
