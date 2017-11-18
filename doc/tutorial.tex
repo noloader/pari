@@ -1583,45 +1583,37 @@ be more systematic. Typing
   elltors(e)
 @eprog\noindent
 shows that the torsion subgroup is trivial, so we don't have to worry about
-torsion points. Next, the member \kbd{e.roots} gives us the 3 roots of the
-minimal equation over $\C$, i.e.~$Y^2=X^3-7X+25/4$ (set $(X,Y)=(x,y+1/2)$) so
-if $(x,y)$ is a real point on the curve, $x$ must be at least equal to the
-smallest root, i.e.~$x\ge-3$. Finally, if $(x,y)$ is on the curve, its
-opposite is clearly $(x,-y-1)$. Type
+torsion points. Next, the function \kbd{ellratpoints} allows us to find
+rational points of small height
 \bprog
-  {
-    v = List();
-    for (x = -3, 1000,
-      s = ellordinate(e,x);
-      if (#s, listput(v, [x,s[1]]))  \\@com or \kbd{if (\#s != 0,}
-    ); v
-  }
+  v = ellratpoints(e,1000)
+@eprog\noindent The vector $v$ contains all 130 rational points $(x,y)$ on the
+curve whose $x$-coordinate is $n/d$ with $|n|$ and $|d|$ both less than $1000$.
+Note that \kbd{ellratpoints(e,10\pow6)} takes less than 1 second, and
+produces 344 points. Of course, these are grouped by pairs:
+if $(x,y)$ is on the curve, its opposite is $(x,-y-1)$ as
+\bprog
+  ellneg(e, ['x,'y])
+@eprog\noindent shows. Note that there is no problem with manipulating points
+with formal coordinates. This is large for a curve having such a small
+conductor. So we suspect (if we do not know already, since this curve is
+quite famous!) that the rank of this curve must be large. Let's try and put
+some order into this. First, we eliminate one element in each pair
+of opposite points:
+\bprog
+  v = vecsort(v, 1, 8)
 @eprog\noindent
-(If cardinality of \kbd{s} is non-zero, insert the first point with given
-\kbd{x}.) We thus get a large number (18) of integral points. Together with
-their opposites and the point at infinity, this makes a total of 37 integral
-points, which is large for a curve having such a small conductor. So we
-suspect (if we do not know already, since this curve is quite famous!) that
-the rank of this curve must be large. Let's try and put some order into this.
-Note that we work only with the integral points, but in general rational
-points should also be considered. Type
+The argument $1$ specifies a comparison function: we sort the points by first
+coordinate only, in particular two points with the same $x$-coordinate
+compare as equal; the $8$ flag eliminates ``duplicates''. The same effect
+could be obtained in a more verbose way using an inline anonymous function
 \bprog
-  v = Vec(v);  \\@com convert to a vector
-  hv = ellheight(e, v)
-@eprog\noindent (We convert the list to a vector because \typ{LIST}s are not
-accepted as input by most mathematical functions. They must be converted to a
-standard vector type first.) This gives the vector of canonical heights. Let
-us order the points according to their height. For this, type
+  v = vecsort(v, (P,Q) -> sign(P[1]-Q[1]), 8)
+@eprog\noindent We now order the points according to their canonical height:
 \bprog
-  perm = vecsort(vector(#v,i,i), (a,b) -> hv[a]>hv[b]);
-  v = vecextract(v, perm)
+  hv = [ ellheight(e,P) | P <- v ];
+  v = vecextract(v, vecsort(hv,,1)) \\ indirect sort wrt h, then permute
 @eprog\noindent
-Note how we input a non-obvious comparison function to \kbd{vecsort}, using
-an inline anonymous function: we sort the integers between $1$ and the number
-of points we have declaring that $a > b$ if and only if the height of the
-$a$-th point is larger than the height of the $b$-th. The result is a
-permutation which we apply to \kbd{v} using \kbd{vecextract}.
-
 It seems reasonable to take the numbers with smallest height as
 possible generators of the Mordell-Weil group. Let's try the first
 four: type
@@ -1635,44 +1627,56 @@ type \kbd{matker(m)}: we indeed get a non-trivial kernel, and the
 coefficients are close to integers. Typing \kbd{elladd(e, v[1],v[3])} does
 indeed show that it is equal to \kbd{v[4]}.
 
-Taking any other four points, we would in fact always find a
-dependency.  Let's find all dependencies. Type
+Taking any other four points, we seem to always find a dependency.
+Let's find all dependencies. Type
 \bprog
-  vp = [v[1],v[2],v[3]]~;
+  vp = v[1..3];
   m = ellheightmatrix(e,vp);
   matdet(m)
 @eprog\noindent This is now clearly non-zero so the first 3 points are
 linearly independent, showing that the rank of the curve is at least equal to
-3. (It is in fact equal to 3, and \kbd{e} is the curve of smallest conductor
-having rank 3.) We would like to see whether the other points are dependent.
-For this, we use the function \kbd{ellbil}. Indeed, if \kbd{Q} is some point
-which is dependent on \kbd{v[1],v[2]} and \kbd{v[3]}, then \kbd{matsolve(m,
-ellbil(e, vp,Q))} will by definition give the coefficients of the dependence
-relation. If these coefficients are close to integers, then there is a
-dependency, otherwise not.  This is much safer than using the \kbd{matker}
-function. Thus, type
+3. (In fact, \kbd{e} is the curve of smallest conductor having rank 3.)
+We would like to see whether the other points are dependent:
+if \kbd{Q} is some point which is dependent on \kbd{v[1],v[2]} and \kbd{v[3]}
+and
 \bprog
-  w = vector(#v, k, matsolve(m, ellbil(e, vp,v[k])))
-  wr = round(w, &err)
+  c = [ellheight(e, P, Q) | P <- vp]~
+@eprog\noindent then \kbd{m\pow(-1) * c} will give the coefficients of the
+dependence relation. If these coefficients are not close to integers,
+then there is no dependency, otherwise we can round and check rigourously
+using a function such as the following:
+\bprog
+  ellcomb(e, P, L) =
+  { my (Q = [0]);
+    for (i = 1, #P, Q = elladd(e, Q, ellmul(e, P[i], L[i])));
+    return (Q);
+  }
+@eprog\noindent This is safer than using the \kbd{matker} function. Thus, type
+\bprog
+  mi = m^(-1);
+  w = vector(#v, k, mi * [ellheight(e, P, v[k]) | P <- vp]~)
+  wr = round(w, &e)
 @eprog\noindent
 We ``see'' that the coefficients are all very close to integers, and we
 quantified it with the last instruction: \kbd{wr} is the vector expressing
-all the components of \kbd{v} on its first 3, and \kbd{err} gives an upper
-bound on the maximum distance to an integer. We are thus led to strongly
-believe that the curve has rank exactly 3, with generators \kbd{v[1]},
-\kbd{v[2]} and \kbd{v[3]}, and this can be proved to be the case.
+all the components of \kbd{v} on its first 3, and $2^{-e}$ gives an upper
+bound on the maximum distance to an integer. The rigorous check is positive:
+\bprog
+  for (i=1, #w, if (v[i] != ellcomb(e,vp,wr[i]), error(i)));
+@eprog No error! We are thus led to strongly believe that the curve has rank
+exactly 3, with generators \kbd{v[1]}, \kbd{v[2]} and \kbd{v[3]}, and this
+can be proved to be the case.
 
-Two remarks: (1) Using the height pairing to find dependence relations
-as we have done only in fact finds relations modulo torsion; but in
-this example, the curve has trivial torsion, as we checked
-earlier. (2) In the above calculation we were lucky that all the
-\kbd{v[j]} were $\Z$-linear combinations of \kbd{v[1]}, \kbd{v[2]} and
-\kbd{v[3]} and not just $\Q$-linear combinations;  in general the
-result of \kbd{matsolve(m, ellbil(e, vp,Q))} might have given a vector
-of rationals: if $k\ge2$ is minimal such that $kQ$ is in the subgroup
-generated by \kbd{v[1]}, \kbd{v[2]} and \kbd{v[3]}, then the entries of
-\kbd{matsolve(m, ellbil(e, vp,Q))} will be rationals with common
-denominator~$k$.
+Two remarks: (1) Using the height pairing to find dependence relations as we
+have done only finds relations modulo torsion; but in this example, the curve
+has trivial torsion, as we checked earlier. (2) In the above calculation we
+were lucky that all the \kbd{v[j]} were $\Z$-linear combinations of
+\kbd{v[1]}, \kbd{v[2]} and \kbd{v[3]} and not just $\Q$-linear combinations;
+in general the results in $w$ might have given a vector of rationals: if
+$k\ge2$ is minimal such that $kQ$ is in the subgroup generated by \kbd{v[1]},
+\kbd{v[2]} and \kbd{v[3]}, then the entries of \kbd{matsolve(m, ellbil(e,
+vp,Q))} will be rationals with common denominator~$k$. This can be detected
+by using \kbd{bestappr} instead of \kbd{round} in the above.
 
 \smallskip
 
