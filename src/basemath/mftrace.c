@@ -6677,9 +6677,19 @@ lfunthetaall(GEN b, GEN vL, GEN t, long bitprec)
   GEN v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
-    GEN L = gel(vL,i), a0 = gel(L,1), ldata = gel(L,2);
-    GEN T = gmul2n(lfuntheta(ldata, t, 0, bitprec), -1);
-    gel(v,i) = gmul(b, gadd(a0, T));
+    GEN T, L = gel(vL,i), a0 = gel(L,1), ldata = gel(L,2);
+    GEN van = gel(ldata_get_an(ldata),2);
+    if (lg(van) == 1)
+    {
+      T = gmul(b, a0);
+      if (isexactzero(T)) { GEN z = real_0_bit(-bitprec); T = mkcomplex(z,z); }
+    }
+    else
+    {
+      T = gmul2n(lfuntheta(ldata, t, 0, bitprec), -1);
+      T = gmul(b, gadd(a0, T));
+    }
+    gel(v,i) = T;
   }
   return l == 2? gel(v,1): v;
 }

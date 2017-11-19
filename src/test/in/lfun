@@ -60,6 +60,7 @@ ltau=lfunetaquo(Mat([1,24]));
 lfunmfspec(ltau)
 
 /* other functions */
+lfuntheta(1,1e50)
 t = 4+I/5;
 t^2*lfuntheta(L121,t)
 lfuntheta(L121,1/t)

@@ -412,14 +412,14 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   if (al)
   { /* t = rho e^(i*al), T^(1/c) = Re(t^(1/c)) > 0, T = rho cos^c(al/c) */
     double z = cos(al/c);
-    T = rho*pow(z,c);
+    T = (d == 2 && typ(tdom) != t_VEC)? gtodouble(real_i(tdom)): rho*pow(z,c);
     if (z <= 0)
       pari_err_DOMAIN("lfunthetaneed", "arg t", ">", dbltor(c*M_PI/2), tdom);
     B -= log(z) * (c * (k1+A+1) + m);
   }
   else
     T = rho;
-  return ceil(dblcoro526(a,c,B) / T * sqrt(N));
+  return B <= 0? 0: floor(0.9 + dblcoro526(a,c,B) / T * sqrt(N));
 }
 long
 lfunthetacost0(GEN L, GEN tdom, long m, long bitprec)
@@ -846,6 +846,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
   limt = lg(vecan)-1;
   if (theta == data)
     limt = minss(limt, lfunthetacost(ldata, t, m, bitprec));
+  if (!limt) return real_0_bit(-bitprec);
   t = gdiv(t, sqN);
   Vga = ldata_get_gammavec(ldata);
   d = lg(Vga) - 1;

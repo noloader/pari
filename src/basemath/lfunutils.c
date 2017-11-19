@@ -267,6 +267,7 @@ vecan_closure(GEN a, long L, long prec)
   long ta = typ(a);
   GEN gL, Sbad = NULL;
 
+  if (!L) return cgetg(1,t_VEC);
   if (ta == t_VEC)
   {
     long l = lg(a);
