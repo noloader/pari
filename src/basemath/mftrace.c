@@ -10697,7 +10697,7 @@ mfperiodslash(GEN mf, GEN FE, GEN ga, GEN PCO, long bitprec)
 {
   GEN F = gel(FE,1), P = gel(PCO,1), CO = gel(PCO,2);
   long vz = varn(gel(P,2));
-  GEN matS = mkmat22(0, -1, 1, 0), sqNinv, van, vbn = gen_0, pi2, q;
+  GEN matS = mkmat22(0, -1, 1, 0), sqNinv, van, vbn, pi2, q;
   GEN S1, S2, coe, P1, P2, aw1, aw2, al1, al2, alw1, alw2;
   long prec = nbits2prec(bitprec), N, k, C, D, w1, w2, nlim, n;
   N = MF_get_N(mf); k = MF_get_k(mf);
@@ -10714,7 +10714,8 @@ mfperiodslash(GEN mf, GEN FE, GEN ga, GEN PCO, long bitprec)
   { /* special case: ga*matS is in the same coset as ga */
     long A = itos(gcoeff(ga, 1, 1)), B = itos(gcoeff(ga, 1, 2));
     coe = mfcharcxeval(MF_get_CHI(mf), -(A*C + B*D), prec+1);
-    P2 = NULL;
+    vbn = P2 = NULL;
+    alw2 = 0;
   }
   else
   {
