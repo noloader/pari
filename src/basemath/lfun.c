@@ -846,7 +846,13 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
   limt = lg(vecan)-1;
   if (theta == data)
     limt = minss(limt, lfunthetacost(ldata, t, m, bitprec));
-  if (!limt) return real_0_bit(-bitprec);
+  if (!limt)
+  {
+    avma = ltop; S = real_0_bit(-bitprec);
+    if (!is_real_t(typ(t)) || !ldata_isreal(ldata))
+      S = gerepilecopy(ltop, mkcomplex(S,S));
+    return S;
+  }
   t = gdiv(t, sqN);
   Vga = ldata_get_gammavec(ldata);
   d = lg(Vga) - 1;
