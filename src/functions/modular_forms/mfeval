@@ -7,10 +7,12 @@ Help: mfeval(mf,F,vtau): computes the numerical value of the modular form F
  upper-half plane.
 Doc: Computes the numerical value of the modular form $F$, belonging
  to \var{mf}, at the complex number \kbd{vtau} or the vector \kbd{vtau}
- of complex numbers in the completed upper-half plane. If the field of
- definition $\Q(F)$ is larger than $\Q(\chi)$ then $F$ may be embedded into
- $\C$ in $d=[\Q(F):\Q(\chi)]$ ways, in which case a vector of the $d$ results
- is returned.
+ of complex numbers in the completed upper-half plane. The result is given
+ with absolute error less than $2^{-B}$, where $B = \text{realbitprecision}$.
+
+ If the field of definition $\Q(F)$ is larger than $\Q(\chi)$ then $F$ may be
+ embedded into $\C$ in $d=[\Q(F):\Q(\chi)]$ ways, in which case a vector of
+ the $d$ results is returned.
  \bprog
  ? mf = mfinit([11,2],0); F = mfbasis(mf)[1]; mfparams(F)
  %1 = [11, 2, 1, y]  \\ Q(F) = Q(chi) = Q

@@ -6624,7 +6624,7 @@ valNC2(GEN P, GEN E, long e)
   long i, d = 1, l = lg(P);
   for (i = 1; i < l; i++)
   {
-    ulong v = u_lval(e, P[i]) << 1;
+    long v = u_lval(e, P[i]) << 1;
     if (v == E[i] + 1) v--;
     d *= upowuu(P[i], v);
   }
