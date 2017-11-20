@@ -303,8 +303,8 @@ sub treat {
   if ($pat =~ /[a-zA-Z0-9]$/) { $pat .= '\b'; } else { $pat .= '}'; }
   while (<DOC>)
   {
-    if (/\\(subsubsec[a-z]*|subsec[a-z]*|section|chapter|label)\{$pat/)
-      { $first = $_; last; }
+    if (/\\(subsubsec[a-z]*|subsec[a-z]*|section|chapter|label)\{$pat/
+        && (!/\\label\{se:def,/ || $pat =~ /se:def/)) { $first = $_; last; }
   }
   if (eof(DOC))
   {
