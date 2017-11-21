@@ -142,6 +142,7 @@ BA  108- sqrtn(Mod(9, 101), -2) -> wrong result
     112- nfinit([T, listP]) could error out when a small prime
          outside listP divided the index [#1993]
     113- lfuntheta(1,1e50) -> overflow
+    114- nfrootsof1 could return a t_POL (always return \pm 1 or a t_COL)
 
   Added
       1- [libari] ZM_isidentity
@@ -388,6 +389,7 @@ BA   46-[libpari] RgX_type now only handles polynomials.
      47-log: change threshold between Taylor / AGM when x close to a power
         of 2 [#1934]
      48-[libpari] ZM_inv and QM_inv interface
+     49- K.tu[2]: make it a t_INT if possible, else a t_POLMOD
 
   Removed
       1- file 'MACHINES' (no longer maintained)

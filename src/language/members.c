@@ -358,7 +358,7 @@ member_fu(GEN x) /* fundamental units */
 }
 
 /* torsion units. return [w,e] where w is the number of roots of 1, and e a
- * polymod generator */
+ * polmod (or integer) generator */
 GEN
 member_tu(GEN x)
 {
@@ -375,9 +375,11 @@ member_tu(GEN x)
   }
   else
   {
+    GEN z = bnf_get_tuU(bnf);
     if (t == typ_BNR) pari_err_IMPL("ray torsion units");
     gel(res,1) = utoipos( bnf_get_tuN(bnf) );
-    gel(res,2) = basistoalg(bnf, bnf_get_tuU(bnf));
+    if (typ(z) != t_INT) z = basistoalg(bnf, z);
+    gel(res,2) = z;
   }
   return res;
 }

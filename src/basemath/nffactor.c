@@ -2065,7 +2065,7 @@ GEN
 rootsof1(GEN nf)
 {
   nflift_t L;
-  GEN q, fa, LP, LE, C0, z, prim_root, disc, nfpol;
+  GEN T, q, fa, LP, LE, C0, z, disc;
   pari_timer ti;
   long i, l, nbguessed, nbroots, nfdegree;
   pari_sp av;
@@ -2122,20 +2122,18 @@ rootsof1(GEN nf)
   av = avma;
 
   /* Step 1.5 : test if nf.pol == subst(polcyclo(nbguessed), x, \pm x+c) */
+  T = nf_get_pol(nf);
   if (eulerphiu_fact(fa) == (ulong)nfdegree)
   {
-    GEN elt = ZXirred_is_cyclo_translate(nf_get_pol(nf),
-                                         uissquarefree_fact(fa));
-    if (elt)
+    z = ZXirred_is_cyclo_translate(T, uissquarefree_fact(fa));
+    if (DEBUGLEVEL>2) timer_printf(&ti, "checking for cyclotomic polynomial");
+    if (z)
     {
-      if (DEBUGLEVEL>2)
-        timer_printf(&ti, "checking for cyclotomic polynomial [yes]");
-      return gerepilecopy(av, mkvec2(utoipos(nbguessed), elt));
+      z = nf_to_scalar_or_basis(nf,z);
+      return gerepilecopy(av, mkvec2(utoipos(nbguessed), z));
     }
     avma = av;
   }
-  if (DEBUGLEVEL>2)
-    timer_printf(&ti, "checking for cyclotomic polynomial [no]");
 
   /* Step 2 : choose a prime ideal for local lifting */
   nf_pick_prime_for_units(nf, &L);
@@ -2153,8 +2151,8 @@ rootsof1(GEN nf)
   if (DEBUGLEVEL>2) timer_start(&ti);
 
   /* Step 4 : actual computation of roots */
-  nbroots = 2; prim_root = gen_m1;
-  nfpol = nf_get_pol(nf); q = powiu(L.p,degpol(L.Tp));
+  nbroots = 2; z = gen_m1;
+  q = powiu(L.p,degpol(L.Tp));
   for (i = 1; i < l; i++)
   { /* for all prime power factors of nbguessed, find a p^k-th root of unity */
     long k, p = LP[i];
@@ -2162,20 +2160,21 @@ rootsof1(GEN nf)
     { /* find p^k-th roots */
       pari_sp av = avma;
       long pk = upowuu(p,k);
+      GEN r;
       if (pk==2) continue; /* no need to test second roots ! */
-      z = nfcyclo_root(pk, nfpol, &L);
+      r = nfcyclo_root(pk, T, &L);
       if (DEBUGLEVEL>2) timer_printf(&ti, "for factoring Phi_%ld^%ld", p,k);
-      if (z) {
+      if (r) {
         if (DEBUGLEVEL>2) err_printf("  %ld-th root of unity found.\n", pk);
-        if (p==2) { nbroots = pk; prim_root = z; }
-        else     { nbroots *= pk; prim_root = nfmul(nf, prim_root,z); }
+        if (p==2) { nbroots = pk; z = r; }
+        else     { nbroots *= pk; z = nfmul(nf, z,r); }
         break;
       }
       avma = av;
       if (DEBUGLEVEL) pari_warn(warner,"rootsof1: wrong guess");
     }
   }
-  return gerepilecopy(av, mkvec2(utoi(nbroots), prim_root));
+  return gerepilecopy(av, mkvec2(utoi(nbroots), z));
 }
 
 static long
