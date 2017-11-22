@@ -96,20 +96,21 @@ lemma526_i(double ac, double c, double t, double B)
     return pow(-t * D, c);
   }
 }
-/* b > 0, c > 0, B > 0; solve x^a exp(-b x^(1/c)) < e^(-B) */
+/* b > 0, c > 0; solve x^a exp(-b x^(1/c)) < e^(-B) for x >= 0 */
 double
 dbllemma526(double a, double b, double c, double B)
 {
   double ac;
-  if (!a) return pow(B/b, c);
-  ac = a*c;
+  if (!a) return B <= 0? 0: pow(B/b, c);
+  ac = a*c; if (B < 0) B = 1e-9;
   return lemma526_i(ac, c, ac/b, B);
 }
 /* Same, special case b/c = 2Pi, the only one needed: for c = d/2 */
 double
 dblcoro526(double a, double c, double B)
 {
-  if (!a) return pow(B/(2*M_PI*c), c);
+  if (!a) return B <= 0? 0: pow(B/(2*M_PI*c), c);
+  if (B < 0) B = 1e-9;
   return lemma526_i(a*c, c, a/(2*M_PI), B);
 }
 

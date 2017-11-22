@@ -953,16 +953,15 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   B1 = S->hd * (S->MAXs - S->k1);
   Lestimate = dblcoro526(a + S->MAXs - 2./d, d/2.,
     S->E - S->sub + S->logC - log(2*M_PI*S->hd) + S->MAXs*S->logN2);
-  Mestimate = (log(Lestimate) + S->logN2) / S->hd;
+  Mestimate = ((Lestimate > 0? log(Lestimate): 0) + S->logN2) / S->hd;
   nmax = 0;
   flag = 0;
   for (m = 0;; m++)
   {
     double x, H = S->logN2 - m*S->hd, B = B0 + m*B1;
     long n;
-    if (B < 0) B = 0;
     x = dblcoro526(a, d/2., B);
-    n = floor(x*exp(H)); /* 0.5: fudge factor */
+    n = floor(x*exp(H));
     if (n > nmax) nmax = n;
     if (m > M) { M *= 2; L = vecsmall_lengthen(L,M+2); }
     L[m+1] = n;
