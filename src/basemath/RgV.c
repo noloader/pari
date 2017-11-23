@@ -266,7 +266,7 @@ RgM_Rg_sub(GEN x, GEN y)
     GEN zi = cgetg(l,t_COL), xi = gel(x,i);
     gel(z,i) = zi;
     for (j=1; j<l; j++)
-      gel(zi,j) = i==j? gsub(y,gel(xi,j)): gcopy(gel(xi,j));
+      gel(zi,j) = i==j? gsub(gel(xi,j), y): gcopy(gel(xi,j));
   }
   return z;
 }
