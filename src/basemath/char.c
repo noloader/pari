@@ -365,10 +365,16 @@ zv_charorder(GEN cyc, GEN x)
 GEN
 coprimes_zv(ulong N)
 {
-  GEN v = cgetg(N+1, t_VECSMALL);
-  ulong i;
-  v[1] = 1; for (i = 2; i <= N; i++) v[i] = (ugcd(N,i)==1);
-  return v;
+  GEN v = const_vecsmall(N,1);
+  pari_sp av = avma;
+  GEN P = gel(factoru(N),1);
+  long i, l = lg(P);
+  for (i = 1; i < l; i++)
+  {
+    ulong p = P[i], j;
+    for (j = p; j <= N; j += p) v[j] = 0;
+  }
+  avma = av; return v;
 }
 /* cf zv_cyc_minimal: return k such that g*k is minimal (wrt lex) */
 long

@@ -3273,6 +3273,9 @@ memory clean.
 
 \fun{ulong}{ugcd}{ulong x, ulong y} returns the GCD of \kbd{x} and \kbd{y}.
 
+\fun{GEN}{coprimes_zv}{ulong N} return a \typ{VECSMALL} $T$ with $N$ entries
+such that $T[i] = 1$ iff $(i,N) = 1$ and $0$ otherwise.
+
 \fun{long}{clcm}{long x, long y} returns the LCM of \kbd{x} and \kbd{y},
 provided it fits into a \kbd{long}. Silently overflows otherwise.
 
