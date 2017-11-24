@@ -4129,6 +4129,10 @@ the $n \times n$ identity matrix.
 and \kbd{y} (assumed to have compatible dimensions), assuming $pi$ is the
 pseudo inverse of $p$.
 
+\fun{GEN}{Flc_Flv_mul}{GEN x, GEN y, ulong p} multipiles the row vector $x$
+by the column vector $y$ (assumed to have compatible dimension). The
+result is a square matrix.
+
 \fun{GEN}{Flm_Flc_mul_pre_Flx}{GEN x, GEN y, ulong p, ulong pi, long sv}
 return \kbd{Flv\_to\_Flx(Flm\_Flc\_mul\_pre(x, y, p, pi), sv)}.
 
@@ -6314,6 +6318,12 @@ accessors are defined:
 \fun{GEN}{F2xqX_div}{GEN x, GEN y, GEN T}
 
 \fun{GEN}{F2xqX_divrem}{GEN x, GEN y, GEN T, GEN *pr}
+
+\fun{GEN}{F2xqXQ_inv}{GEN x, GEN S, GEN T}
+
+\fun{GEN}{F2xqXQ_invsafe}{GEN x, GEN S, GEN T}
+
+\fun{GEN}{F2xqX_invBarrett}{GEN T, GEN Q}
 
 \fun{GEN}{F2xqX_extgcd}{GEN x, GEN y, GEN T, GEN *ptu, GEN *ptv}
 

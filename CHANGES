@@ -310,6 +310,7 @@ BA  122- [libpari] nxV_chinese_center, nxCV_chinese_center, nxMV_chinese_center
 AP  123- New GP functions matdetmod, matimagemod, matinvmod, matkermod
 BA  124- [libpari] Z_content
     125- [libpari] checkMF, checkMF_i, checkmf_i, inv_content
+    126- [libpari] F2xqXQ_inv, F2xqXQ_invsafe, F2xqX_invBarrett, Flc_Flv_mul
 
   Changed
       1- rewrite bnfnarrow
