@@ -244,7 +244,8 @@ Flxq_elldivpol34(long n, GEN a4, GEN a6, GEN S, GEN T, ulong p)
     }
     break;
     default:
-      pari_err_BUG("Flxq_elldivpol34"); return NULL;
+      pari_err_BUG("Flxq_elldivpol34");
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   setvarn(res, get_FlxqX_var(S));
   return FlxqX_rem(res, S, T, p);
@@ -272,7 +273,8 @@ Fq_elldivpol34(long n, GEN a4, GEN a6, GEN S, GEN T, GEN p)
     }
     break;
     default:
-      pari_err_BUG("Fq_elldivpol34"); return NULL;
+      pari_err_BUG("Fq_elldivpol34");
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   if (S)
   {
@@ -807,7 +809,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
     }
   }
   pari_err_BUG("find_isogenous_from_Atkin, kernel not found");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /* Finds E' ell-isogenous to E and the trace term p1 from canonical modular

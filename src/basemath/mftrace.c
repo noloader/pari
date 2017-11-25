@@ -1494,7 +1494,7 @@ mfcoefs_i(GEN F, long n, long d)
     case t_MF_NEWTRACE: return c_newtrace(n, d, F);
     case t_MF_DIHEDRAL: return c_dihedral(n, d, gel(F,2), gel(F,3), gel(F,4));
     default: pari_err_TYPE("mfcoefs",F);
-    return NULL;/* not reached */
+    return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 
@@ -10227,7 +10227,7 @@ desc_i(GEN F, GEN *U)
       if (U) *U = mkvec2(mkvec(gel(F,3)), mkvec(stoi(gel(F,2)[1])));
       return desc_hecke(F);
     default: pari_err_TYPE("mfdescribe",F);
-    return NULL;/* not reached */
+    return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 static GEN

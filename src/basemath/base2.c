@@ -75,7 +75,7 @@ update_fact(GEN d, GEN f)
     /*fall through*/
     default:
       pari_err_TYPE("nfbasis [factorization expected]",f);
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   return fact_from_factors(d, P, 1);
 }
@@ -663,7 +663,7 @@ get_maxord(nfmaxord_t *S, GEN T0, long flag)
           break;
         }
         default: pari_err(0, err);
-          return NULL;
+          return NULL;/*LCOV_EXCL_LINE*/
       }
       l = lg(u);
       gel(P,i) = gel(u,1);
@@ -2964,7 +2964,7 @@ Rg_to_ff(GEN nf, GEN x0, GEN modpr)
       /* content(x) and den are coprime */
       if (lg(x)-1 == nf_get_degree(nf)) break;
     default: pari_err_TYPE("Rg_to_ff",x);
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   if (den)
   {

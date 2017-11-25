@@ -1609,7 +1609,7 @@ ellisomat(GEN E, long p, long flag)
   switch(ell_get_type(E))
   {
     default: pari_err_TYPE("ellisomat",E);
-      return NULL; /* NOT REACHED */
+      return NULL; /*LCOV_EXCL_LINE*/
     case t_ELL_Q:
       if (!p) r = ellQ_isomat(E, flag);
       else
