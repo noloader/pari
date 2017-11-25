@@ -25,9 +25,12 @@ K=nfinit(y^3-9);
 P = nfmodprinit(K,idealprimedec(K,3)[1]); test(P);
 P = nfmodprinit(K,idealprimedec(K,2)[2]); test(P);
 K=nfinit(y^2-1105);
+P7=nfmodprinit(K,idealprimedec(K,7)[1]);
+nfmodprlift(K,nfmodpr(K,y,P7),P7)
 P = nfmodprinit(K,idealprimedec(K,2)[1]);
 nfeltreducemodpr(K,(-y+1)/2,P)
 nffactormod(K, x^3+y*x^2+y*x+1, P)
+nfmodprlift(K,1,P)
 
 PU(x)=apply(t->nfmodpr(K,t,P),x);
 LI(x)=nfmodprlift(K,x,P);

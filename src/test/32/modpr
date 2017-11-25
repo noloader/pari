@@ -142,10 +142,12 @@ error("inconsistent variables in poltobasis, z != y.")
 error("incorrect type in Rg_to_ff (t_COL).")
 *6:
 [0, 0, 0]~
+y
 [1, 0]~
 
 [x + 1 3]
 
+1
 [1, 1]~
 [;]
 [0, 1]~
@@ -167,4 +169,4 @@ error("incorrect type in Rg_to_ff (t_COL).")
   *** matsolve: impossible inverse in gauss: [1, 1; 1, 1].
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 0, 0, 0, 0, 0, 0, 0]~
-Total time spent: 136
+Total time spent: 145
