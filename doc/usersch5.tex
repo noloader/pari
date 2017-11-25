@@ -4132,9 +4132,8 @@ the $n \times n$ identity matrix.
 and \kbd{y} (assumed to have compatible dimensions), assuming $pi$ is the
 pseudo inverse of $p$.
 
-\fun{GEN}{Flc_Flv_mul}{GEN x, GEN y, ulong p} multipiles the row vector $x$
-by the column vector $y$ (assumed to have compatible dimension). The
-result is a square matrix.
+\fun{GEN}{Flc_Flv_mul}{GEN x, GEN y, ulong p} multipiles the column vector $x$
+by the row vector $y$. The result is a matrix.
 
 \fun{GEN}{Flm_Flc_mul_pre_Flx}{GEN x, GEN y, ulong p, ulong pi, long sv}
 return \kbd{Flv\_to\_Flx(Flm\_Flc\_mul\_pre(x, y, p, pi), sv)}.
@@ -8201,7 +8200,7 @@ to have compatible dimensions). Assumes that $x$ is non-empty and $0 < i <
 
 \fun{GEN}{RgM_sqr}{GEN x} returns $x^2$.
 
-\fun{GEN}{RgC_RgV_mul}{GEN x, GEN y} returns $x\times y$ (the square matrix
+\fun{GEN}{RgC_RgV_mul}{GEN x, GEN y} returns $x\times y$ (the matrix
 $(x_iy_j)$).
 
 The following two functions are not well defined in general and only provided
