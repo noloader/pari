@@ -549,7 +549,7 @@ Fq_add(GEN x, GEN y, GEN T/*unused*/, GEN p)
     case 2: return FpX_Fp_add(y,x,p);
     case 3: return FpX_add(x,y,p);
   }
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -563,7 +563,7 @@ Fq_sub(GEN x, GEN y, GEN T/*unused*/, GEN p)
     case 2: return Fp_FpX_sub(x,y,p);
     case 3: return FpX_sub(x,y,p);
   }
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -592,7 +592,7 @@ Fq_mul(GEN x, GEN y, GEN T, GEN p)
     case 3: if (T) return FpXQ_mul(x,y,T,p);
             else return FpX_mul(x,y,p);
   }
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /* If T==NULL do not reduce*/
@@ -655,7 +655,7 @@ Fq_div(GEN x, GEN y, GEN pol, GEN p)
     case 2: return FpX_Fp_mul(FpXQ_inv(y,pol,p),x,p);
     case 3: return FpXQ_div(x,y,pol,p);
   }
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN
