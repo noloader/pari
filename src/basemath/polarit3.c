@@ -1621,10 +1621,8 @@ FpX_compositum(GEN a, GEN b, GEN p)
  * If lambda = NULL, return Res_Y(A,B).
  * Otherwise, find a small lambda (start from *lambda, use the sequence above)
  * such that R(X) = Res_Y(A(Y), B(X + lambda Y)) is squarefree, reset *lambda
- * to the chosen value and return R
- *
- * If LERS is non-NULL, set it to the Last non-constant polynomial in the
- * Euclidean Remainder Sequence */
+ * to the chosen value and return R. Set LERS to the Last non-constant
+ * polynomial in the Euclidean Remainder Sequence */
 static GEN
 ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
 {
@@ -1635,19 +1633,15 @@ ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
   long i,n, degA = degpol(A), degB, dres = degA*degpol(B0);
   long v = fetch_var_higher();
   long vX = varn(B0), vY = varn(A); /* assume vY has lower priority */
-  long sX = evalvarn(vX);
   GEN x, y, dglist, dB, B, q, a, b, ev, H, H0, H1, Hp, H0p, H1p, C0, C1;
   forprime_t S;
 
   dglist = Hp = H0p = H1p = C0 = C1 = NULL; /* gcc -Wall */
-  if (LERS)
-  {
-    if (!checksqfree)
-      pari_err_BUG("ZX_ZXY_resultant_all [LERS != NULL needs lambda]");
-    C0 = cgetg(dres+2, t_VECSMALL);
-    C1 = cgetg(dres+2, t_VECSMALL);
-    dglist = cgetg(dres+1, t_VECSMALL);
-  }
+  if (!checksqfree)
+    pari_err_BUG("ZX_ZXY_resultant_all [LERS != NULL needs lambda]");
+  C0 = cgetg(dres+2, t_VECSMALL);
+  C1 = cgetg(dres+2, t_VECSMALL);
+  dglist = cgetg(dres+1, t_VECSMALL);
   x = cgetg(dres+2, t_VECSMALL);
   y = cgetg(dres+2, t_VECSMALL);
   B0 = Q_remove_denom(B0, &dB);
@@ -1667,17 +1661,12 @@ INIT:
 
   if (degA <= 3)
   { /* sub-resultant faster for small degrees */
-    if (LERS)
-    { /* implies checksqfree */
-      H = RgX_resultant_all(A,B,&q);
-      if (typ(q) != t_POL || degpol(q)!=1) goto INIT;
-      H0 = gel(q,2);
-      if (typ(H0) == t_POL) setvarn(H0,vX); else H0 = scalarpol(H0,vX);
-      H1 = gel(q,3);
-      if (typ(H1) == t_POL) setvarn(H1,vX); else H1 = scalarpol(H1,vX);
-    }
-    else
-      H = resultant(A,B);
+    H = RgX_resultant_all(A,B,&q);
+    if (typ(q) != t_POL || degpol(q)!=1) goto INIT;
+    H0 = gel(q,2);
+    if (typ(H0) == t_POL) setvarn(H0,vX); else H0 = scalarpol(H0,vX);
+    H1 = gel(q,3);
+    if (typ(H1) == t_POL) setvarn(H1,vX); else H1 = scalarpol(H1,vX);
     if (checksqfree && !ZX_is_squarefree(H)) goto INIT;
     if (dB) H = ZX_Z_divexact(H, powiu(dB, degA));
     goto END;
@@ -1689,73 +1678,46 @@ INIT:
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
   dp = 1;
   init_modular_big(&S);
-  while (1)
+  for(;;)
   {
     ulong p = u_forprime_next(&S);
+    GEN Hi;
     if (dB) { dp = umodiu(dB, p); if (!dp) continue; }
 
     a = ZX_to_Flx(A, p);
     b = ZXX_to_FlxX(B, p, varn(A));
-    if (LERS)
-    {
-      GEN Hi;
-      if (degpol(a) < degA || degpol(b) < degB) continue; /* p | lc(A)lc(B) */
-      if (checksqfree)
-      { /* find degree list for generic Euclidean Remainder Sequence */
-        long goal = minss(degpol(a), degpol(b)); /* longest possible */
-        for (n=1; n <= goal; n++) dglist[n] = 0;
-        setlg(dglist, 1);
-        for (n=0; n <= dres; n++)
-        {
-          ev = FlxY_evalx_drop(b, n, p);
-          Flx_resultant_set_dglist(a, ev, dglist, p);
-          if (lg(dglist)-1 == goal) break;
-        }
-        /* last pol in ERS has degree > 1 ? */
-        goal = lg(dglist)-1;
-        if (degpol(B) == 1) { if (!goal) goto INIT; }
-        else
-        {
-          if (goal <= 1) goto INIT;
-          if (dglist[goal] != 0 || dglist[goal-1] != 1) goto INIT;
-        }
-        if (DEBUGLEVEL>4)
-          err_printf("Degree list for ERS (trials: %ld) = %Ps\n",n+1,dglist);
-      }
-
-      for (i=0,n = 0; i <= dres; n++)
+    if (degpol(a) < degA || degpol(b) < degB) continue; /* p | lc(A)lc(B) */
+    if (checksqfree)
+    { /* find degree list for generic Euclidean Remainder Sequence */
+      long goal = minss(degpol(a), degpol(b)); /* longest possible */
+      for (n=1; n <= goal; n++) dglist[n] = 0;
+      setlg(dglist, 1);
+      for (n=0; n <= dres; n++)
       {
         ev = FlxY_evalx_drop(b, n, p);
-        x[++i] = n; y[i] = Flx_resultant_all(a, ev, C0+i, C1+i, dglist, p);
-        if (!C1[i]) i--; /* C1(i) = 0. No way to recover C0(i) */
+        Flx_resultant_set_dglist(a, ev, dglist, p);
+        if (lg(dglist)-1 == goal) break;
       }
-      Hi = Flv_Flm_polint(x, mkvec3(y,C0,C1), p, 0);
-      Hp = gel(Hi,1); H0p = gel(Hi,2); H1p = gel(Hi,3);
+      /* last pol in ERS has degree > 1 ? */
+      goal = lg(dglist)-1;
+      if (degpol(B) == 1) { if (!goal) goto INIT; }
+      else
+      {
+        if (goal <= 1) goto INIT;
+        if (dglist[goal] != 0 || dglist[goal-1] != 1) goto INIT;
+      }
+      if (DEBUGLEVEL>4)
+        err_printf("Degree list for ERS (trials: %ld) = %Ps\n",n+1,dglist);
     }
-    else
+
+    for (i=0,n = 0; i <= dres; n++)
     {
-      long dropa = degA - degpol(a), dropb = degB - degpol(b);
-      Hp = Flx_FlxY_resultant_polint(a, b, p, (ulong)dres, sX);
-      if (dropa && dropb)
-        Hp = zero_Flx(sX);
-      else {
-        if (dropa)
-        { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
-          GEN c = gel(b,degB+2); /* lc(B) */
-          if (odd(degB)) c = Flx_neg(c, p);
-          if (!Flx_equal1(c)) {
-            c = Flx_powu(c, dropa, p);
-            if (!Flx_equal1(c)) Hp = Flx_mul(Hp, c, p);
-          }
-        }
-        else if (dropb)
-        { /* multiply by lc(A)^(deg B - deg b) */
-          ulong c = a[degA+2]; /* lc(A) */
-          c = Fl_powu(c, dropb, p);
-          if (c != 1) Hp = Flx_Fl_mul(Hp, c, p);
-        }
-      }
+      ev = FlxY_evalx_drop(b, n, p);
+      x[++i] = n; y[i] = Flx_resultant_all(a, ev, C0+i, C1+i, dglist, p);
+      if (!C1[i]) i--; /* C1(i) = 0. No way to recover C0(i) */
     }
+    Hi = Flv_Flm_polint(x, mkvec3(y,C0,C1), p, 0);
+    Hp = gel(Hi,1); H0p = gel(Hi,2); H1p = gel(Hi,3);
     if (!H && degpol(Hp) != dres) continue;
     if (dp != 1) Hp = Flx_Fl_mul(Hp, Fl_powu(Fl_inv(dp,p), degA, p), p);
     if (checksqfree) {
@@ -1768,22 +1730,16 @@ INIT:
     { /* initialize */
       q = utoipos(p); stable = 0;
       H = ZX_init_CRT(Hp, p,vX);
-      if (LERS) {
-        H0= ZX_init_CRT(H0p, p,vX);
-        H1= ZX_init_CRT(H1p, p,vX);
-      }
+      H0= ZX_init_CRT(H0p, p,vX);
+      H1= ZX_init_CRT(H1p, p,vX);
     }
     else
     {
-      if (LERS) {
-        GEN qp = muliu(q,p);
-        stable  = ZX_incremental_CRT_raw(&H, Hp, q,qp, p)
-                & ZX_incremental_CRT_raw(&H0,H0p, q,qp, p)
-                & ZX_incremental_CRT_raw(&H1,H1p, q,qp, p);
-        q = qp;
-      }
-      else
-        stable = ZX_incremental_CRT(&H, Hp, &q, p);
+      GEN qp = muliu(q,p);
+      stable  = ZX_incremental_CRT_raw(&H, Hp, q,qp, p)
+              & ZX_incremental_CRT_raw(&H0,H0p, q,qp, p)
+              & ZX_incremental_CRT_raw(&H1,H1p, q,qp, p);
+      q = qp;
     }
     /* could make it probabilistic for H ? [e.g if stable twice, etc]
      * Probabilistic anyway for H0, H1 */
@@ -1793,27 +1749,22 @@ INIT:
     if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ZX_ZXY_rnfequation");
-      gerepileall(av2, LERS? 4: 2, &H, &q, &H0, &H1);
+      gerepileall(av2, 4, &H, &q, &H0, &H1);
     }
   }
 END:
   if (DEBUGLEVEL>5) err_printf(" done\n");
   setvarn(H, vX); (void)delete_var();
   if (plambda) *plambda = lambda;
-  if (LERS)
-  {
-    *LERS = mkvec2(H0,H1);
-    gerepileall(av, 2, &H, LERS);
-    return H;
-  }
-  return gerepilecopy(av, H);
+  *LERS = mkvec2(H0,H1);
+  gerepileall(av, 2, &H, LERS);
+  return H;
 }
 
 GEN
 ZX_ZXY_resultant_all(GEN A, GEN B, long *plambda, GEN *LERS)
 {
-  if (LERS)
-    return ZX_ZXY_resultant_LERS(A, B, plambda, LERS);
+  if (LERS) return ZX_ZXY_resultant_LERS(A, B, plambda, LERS);
   return ZX_ZXY_rnfequation(A, B, plambda);
 }
 
