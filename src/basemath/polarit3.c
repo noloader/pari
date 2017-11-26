@@ -2494,13 +2494,10 @@ ffnbirred0(GEN p, long n, long flag)
   if (n <= 0) pari_err_DOMAIN("ffnbirred", "degree", "<=", gen_0, stoi(n));
   switch(flag)
   {
-    case 0:
-      return ffnbirred(p, n);
-    case 1:
-      return ffsumnbirred(p, n);
-    default:
-      pari_err_FLAG("ffnbirred");
+    case 0: return ffnbirred(p, n);
+    case 1: return ffsumnbirred(p, n);
   }
+  pari_err_FLAG("ffnbirred");
   return NULL; /* LCOV_EXCL_LINE */
 }
 
@@ -2516,13 +2513,10 @@ ffembed(GEN a, GEN b)
 {
   pari_sp av = avma;
   GEN p, Ta, Tb, g, r = NULL;
-  if (typ(a)!=t_FFELT)
-    pari_err_TYPE("ffembed",a);
-  if (typ(b)!=t_FFELT)
-    pari_err_TYPE("ffembed",b);
+  if (typ(a)!=t_FFELT) pari_err_TYPE("ffembed",a);
+  if (typ(b)!=t_FFELT) pari_err_TYPE("ffembed",b);
   p = FF_p_i(a); g = FF_gen(a);
-  if (!equalii(p, FF_p_i(b)))
-    pari_err_MODULUS("ffembed",a,b);
+  if (!equalii(p, FF_p_i(b))) pari_err_MODULUS("ffembed",a,b);
   Ta = FF_mod(a);
   Tb = FF_mod(b);
   if (degpol(Tb)%degpol(Ta)!=0)
@@ -2537,13 +2531,10 @@ ffextend(GEN a, GEN P, long v)
   pari_sp av = avma;
   long n;
   GEN p, T, R, g, m;
-  if (typ(a)!=t_FFELT)
-    pari_err_TYPE("ffextend",a);
+  if (typ(a)!=t_FFELT) pari_err_TYPE("ffextend",a);
   T = a; p = FF_p_i(a);
-  if (typ(P)!=t_POL || !RgX_is_FpXQX(P,&T,&p))
-    pari_err_TYPE("ffextend", P);
-  if (!FF_samefield(a, T))
-    pari_err_MODULUS("ffextend",a,T);
+  if (typ(P)!=t_POL || !RgX_is_FpXQX(P,&T,&p)) pari_err_TYPE("ffextend", P);
+  if (!FF_samefield(a, T)) pari_err_MODULUS("ffextend",a,T);
   if (v < 0) v = varn(P);
   n = FF_f(T) * degpol(P); R = ffinit(p, n, v); g = ffgen(R, v);
   m = ffembed(a, g);
@@ -2574,8 +2565,7 @@ ffinvmap(GEN m)
   for(i=1; i<l; i++)
   {
     GEN s = FFX_rem(FF_to_FpXQ_i(r), gel(F, i), a);
-    if (degpol(s)==0 && gequal(constant_term(s),g))
-      { f = gel(F, i); break; }
+    if (degpol(s)==0 && gequal(constant_term(s),g)) { f = gel(F, i); break; }
   }
   if (f==NULL) pari_err_TYPE("ffinvmap", m);
   if (degpol(f)==1) f = FF_neg_i(gel(f,2));
@@ -2587,8 +2577,7 @@ ffpartmapimage(const char *s, GEN r)
 {
    GEN a = NULL, p = NULL;
    if (typ(r)==t_POL && degpol(r) >= 1
-      && RgX_is_FpXQX(r,&a,&p) && a && typ(a)==t_FFELT)
-     return a;
+      && RgX_is_FpXQX(r,&a,&p) && a && typ(a)==t_FFELT) return a;
    pari_err_TYPE(s, r);
    return NULL; /* LCOV_EXCL_LINE */
 }
@@ -2642,9 +2631,7 @@ ffmap(GEN m, GEN x)
 
 static void
 err_compo(GEN m, GEN n)
-{
-  pari_err_DOMAIN("ffcompomap","m","domain do not contain codomain of",n,m);
-}
+{ pari_err_DOMAIN("ffcompomap","m","domain do not contain codomain of",n,m); }
 
 GEN
 ffcompomap(GEN m, GEN n)
