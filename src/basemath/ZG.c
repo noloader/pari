@@ -136,25 +136,10 @@ ZGC_G_mul_inplace(GEN v, GEN x)
 }
 GEN
 ZGC_G_mul(GEN v, GEN x)
-{
-  long i, l;
-  GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w,i) = ZG_G_mul(gel(v,i), x);
-  return w;
-}
+{ pari_APPLY_same(ZG_G_mul(gel(v,i), x)); }
 GEN
 G_ZGC_mul(GEN x, GEN v)
-{
-  long i, l;
-  GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w,i) = G_ZG_mul(gel(v,i), x);
-  return w;
-}
+{ pari_APPLY_same(G_ZG_mul(gel(v,i), x)); }
 GEN
 ZGC_Z_mul(GEN v, GEN x)
-{
-  long i, l;
-  GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < l; i++) gel(w,i) = ZG_Z_mul(gel(v,i), x);
-  return w;
-}
+{ pari_APPLY_same(ZG_Z_mul(gel(v,i), x)); }
