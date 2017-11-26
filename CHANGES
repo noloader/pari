@@ -392,6 +392,7 @@ BA   46-[libpari] RgX_type now only handles polynomials.
         of 2 [#1934]
      48-[libpari] ZM_inv and QM_inv interface
      49- K.tu[2]: make it a t_INT if possible, else a t_POLMOD
+     50- removed warning "Mod(a,b)^n with n >> b : wasteful"
 
   Removed
       1- file 'MACHINES' (no longer maintained)

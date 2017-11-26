@@ -3438,34 +3438,12 @@ Fp_pow(GEN A, GEN K, GEN N)
     t = signe(remii(A,N)); avma = av;
     return t? gen_1: gen_0;
   }
-  if (lN == 3)
+  if (lN == 3 && lgefint(K) == 3)
   {
-    ulong k, n = N[2], a = umodiu(A, n);
+    ulong n = N[2], a = umodiu(A, n);
     if (s < 0) a = Fl_inv(a, n);
     if (a <= 1) return utoi(a); /* 0 or 1 */
-    if (lgefint(K) > 3)
-    { /* silly case : huge exponent, small modulus */
-      pari_warn(warner, "Mod(a,b)^n with n >> b : wasteful");
-      if (s > 0)
-      {
-        ulong d = ugcd(a, n);
-        if (d != 1)
-        { /* write n = n1 n2, with n2 maximal such that (n1,a) = 1 */
-          ulong n1 = u_ppo(n, d), n2 = n/n1;
-
-          k = umodiu(K, eulerphiu(n1));
-          /* CRT: = a^K (mod n1), = 0 (mod n2)*/
-          return utoi( Fl_mul(Fl_powu(a, k, n1), n2 * Fl_inv(n2,n1), n) );
-        }
-        /* gcd(a,n) = 1 */
-        k = umodiu(K, eulerphiu(n));
-      }
-      else
-        k = umodiu(negi(K), eulerphiu(n));
-    }
-    else
-      k = uel(K,2);
-    return utoi(Fl_powu(a, k, n));
+    return utoi(Fl_powu(a, uel(K,2), n));
   }
 
   if (s < 0) y = Fp_inv(A,N);
