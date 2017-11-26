@@ -1067,11 +1067,12 @@ find_isogenous(GEN a4,GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T,GEN p)
     GEN meqnj = meqn_j(MEQN, Zq_ellj(a4, a6, T, pe, p, e), ell, T, pe);
     g = ZqX_liftroot(meqnj, g, T, p, e);
   }
-  return (MEQN->type == 'C')
-    ? find_isogenous_from_canonical(a4, a6, ell, MEQN, g, T, p, e)
-    : (MEQN->type == 'A')
-    ? find_isogenous_from_Atkin(a4, a6, ell, MEQN, g, T, p, e)
-    : find_isogenous_from_J(a4, a6, ell, MEQN, g, T, p, e);
+  switch(MEQN->type)
+  {
+    case 'C': return find_isogenous_from_canonical(a4,a6,ell, MEQN, g, T,p,e);
+    case 'A': return find_isogenous_from_Atkin(a4,a6,ell, MEQN, g, T,p,e);
+    default:  return find_isogenous_from_J(a4,a6,ell, MEQN, g, T,p,e);
+  }
 }
 
 static GEN
