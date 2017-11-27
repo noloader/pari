@@ -3240,7 +3240,7 @@ msfromell_scale(GEN E, GEN W, long sign, GEN x)
 GEN
 msfromell(GEN E0, long sign)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   GEN E, cond, W, x = NULL, K = NULL, star, q, vT, xl, xr;
   long lE, single;
   ulong p, l, N;
@@ -3255,7 +3255,8 @@ msfromell(GEN E0, long sign)
   E = ellminimalmodel(E, NULL);
   cond = ellQ_get_N(E);
   N = itou(cond);
-  W = mskinit(N, 2, 0);
+  av2 = avma;
+  W = gerepilecopy(av2, mskinit(N,2,0));
   star = msk_get_star(W);
   init_modular_small(&Sl);
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
@@ -3266,7 +3267,9 @@ msfromell(GEN E0, long sign)
   {
     GEN M;
     if (N % p == 0) continue;
+    av2 = avma;
     M = RgM_Rg_sub_shallow(mshecke_i(W, p), ellap(E, utoipos(p)));
+    M = gerepilecopy(av2, M);
     vT = shallowconcat(vT, mkvec(M)); /* for certification at the end */
     K = msfromell_ker(K, M, l);
     if (lg(K) == 3) break;
