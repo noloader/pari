@@ -3653,7 +3653,7 @@ ZM_inv(GEN A, GEN *pden)
   B = expi(RgM_true_Hadamard(A));
   worker = strtoclosure("_ZM_inv_worker", 1, A);
   H = gen_crt("ZM_inv", worker, NULL, B, m, &mod, nmV_chinese_center, FpM_center);
-  D = ZMrow_ZC_mul(A, gel(H,1), 1); /* det(A) */
+  D = ZMrow_ZC_mul(H, gel(A,1), 1); /* det(A) */
   if (signe(D)==0) pari_err_INV("ZM_inv", A);
   d = Z_content(mkvec2(H, D));
   if (!d) d = gen_1;
@@ -3710,7 +3710,7 @@ ZM_inv_ratlift(GEN M, GEN *pden)
       timer_printf(&ti,"ZM_inv mod %lu (ratlift=%ld)", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, pden);
-      if (ZM_isscalar(ZM_mul(M, Hl), *pden)) { H = Hl; break; }
+      if (ZM_isscalar(ZM_mul(Hl, M), *pden)) { H = Hl; break; }
     }
 
     if (gc_needed(av,2))
@@ -5200,7 +5200,7 @@ ZabM_inv(GEN A, GEN Q, long n, GEN *pt_den)
   worker = strtoclosure("_ZabM_inv_worker", 2, A, Q);
   H = gen_crt("ZabM_inv", worker, mkvecsmall(n), expi(bnd), m, &mod,
               nxMV_chinese_center, FpXM_center);
-  D = RgMrow_RgC_mul(A, gel(H,1), 1);
+  D = RgMrow_RgC_mul(H, gel(A,1), 1);
   D = ZX_rem(D, Q);
   d = Z_content(mkvec2(H, D));
   if (d)
@@ -5247,7 +5247,7 @@ ZabM_inv_ratlift(GEN M, GEN P, long n, GEN *pden)
     if (DEBUGLEVEL>5) err_printf("ZabM_inv mod %ld (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_remove_denom(Hr, pden);
-      GEN MH = ZXQM_mul(M, Hl,P);
+      GEN MH = ZXQM_mul(Hl, M, P);
       if (*pden)
       { if (RgM_isscalar(MH, *pden)) { H = Hl; break; }}
       else
