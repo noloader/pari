@@ -4746,10 +4746,10 @@ ellweilcurve(GEN E)
   vL = cgetg(l, t_VEC);
   for (i=1; i < l; i++)
   {
-    GEN c, Ce, e = gel(vE,i), Le = gmael(XPM,i,3);
-    Ce = Q_primitive_part(gmul(Cf, Le), &c);
+    GEN c, Ce, Le = gmael(XPM,i,3);
+    Ce = Q_primitive_part(RgM_mul(Cf, Le), &c);
     Ce = ZM_snf(Ce);
-    if (c) Ce = gmul(Ce,c);
+    if (c) Ce = RgM_Rg_mul(Ce,c);
     gel(vL,i) = Ce;
   }
   return gerepilecopy(av, mkvec2(vE, vL));
