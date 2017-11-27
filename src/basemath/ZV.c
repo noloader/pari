@@ -570,20 +570,11 @@ ZM_ZC_mul(GEN x, GEN y)
 
 GEN
 ZC_Z_div(GEN x, GEN c)
-{
-  long i, l;
-  GEN a = cgetg_copy(x, &l);
-  for (i = 1; i < l; i++) gel(a,i) = Qdivii(gel(x,i), c);
-  return a;
-}
+{ pari_APPLY_type(t_COL, Qdivii(gel(x,i), c)) }
+
 GEN
-ZM_Z_div(GEN X, GEN c)
-{
-  long j, l = lg(X);
-  GEN A = cgetg(l, t_MAT);
-  for (j = 1; j < l; j++) gel(A,j) = ZC_Z_div(gel(X,j), c);
-  return A;
-}
+ZM_Z_div(GEN x, GEN c)
+{ pari_APPLY_same(ZC_Z_div(gel(x, i), c)) }
 
 GEN
 ZC_Q_mul(GEN A, GEN z)
@@ -615,15 +606,10 @@ ZC_Q_mul(GEN A, GEN z)
 }
 
 GEN
-ZM_Q_mul(GEN A, GEN z)
+ZM_Q_mul(GEN x, GEN z)
 {
-  long i, l = lg(A);
-  GEN B;
-  if (typ(z)==t_INT) return ZM_Z_mul(A,z);
-  B = cgetg(l, t_MAT);
-  for(i=1; i<l; i++)
-    gel(B, i) = ZC_Q_mul(gel(A, i), z);
-  return B;
+  if (typ(z)==t_INT) return ZM_Z_mul(x,z);
+  pari_APPLY_same(ZC_Q_mul(gel(x, i), z));
 }
 
 long
