@@ -163,6 +163,10 @@ charpoly(mshecke(M,5,S))
 [M,xpm] = msfromell(ellinit([0,-1,1,-10,-20]));
 mspetersson(M, xpm[1],xpm[2])
 
+[M,xpm] = msfromell(ellinit([1,1,0,-9825,-412250])); \\1225e1, #1906
+content(xpm[1])
+content(xpm[2])
+
 M = msinit(11,4); n = msdim(M); A = matid(n);
 T=matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
 mspetersson(M, A, A) == T

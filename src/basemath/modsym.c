@@ -2995,6 +2995,7 @@ mseval(GEN W, GEN s, GEN p)
   return gerepilecopy(av, s);
 }
 
+#if 0
 /* sum_{a <= |D|} (D/a)*xpm(E,a/|D|) */
 static GEN
 get_X(GEN W, GEN xpm, long D)
@@ -3015,8 +3016,6 @@ get_X(GEN W, GEN xpm, long D)
   }
   return t;
 }
-static long
-torsion_order(GEN E) { GEN T = elltors(E); return itos(gel(T,1)); }
 /* E of rank 0, minimal model; write L(E,1) = Q*w1(E) != 0 and return the
  * rational Q; tam = product of all Tamagawa (incl. c_oo(E)). */
 static GEN
@@ -3031,6 +3030,9 @@ get_Q(GEN E, GEN tam)
   if (ex > -5) pari_err_BUG("msfromell (can't compute analytic |Sha|)");
   return gdivgs(mulii(tam,sha), t2);
 }
+#endif
+static long
+torsion_order(GEN E) { GEN T = elltors(E); return itos(gel(T,1)); }
 
 /* E given by a minimal model; D != 0. Compare Euler factor of L(E,(D/.),1)
  * with L(E^D,1). Return
@@ -3050,41 +3052,46 @@ get_Euler(GEN E, GEN D)
   return gdiv(a, b);
 }
 
-/* E given by a minimal model, xpm in the sign(D) part with the same
- * eigenvalues as E (unique up to multiplication with a rational).
- * Let X(D) = \sum_{a <= |D|} (D/a) * xpm(E, a/|D|)
- * Return the rational correction factor A such that
- *   A * X(D) = L(E, (D/.), 1) / \Omega(E^D)
- * for fundamental D (such that E^D has rank 0 otherwise both sides vanish). */
 static GEN
-ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
+allxpm(GEN W, GEN xpm, long f)
 {
-  GEN gD, cb, N, Q, tam, u, Ed, X = get_X(W, xpm, D);
+  GEN v, L = coprimes_zv(f);
+  long a, nonzero = 0;
+  v = const_vec(f, NULL);
+  for (a = 1; a <= f; a++)
+  {
+    GEN c;
+    if (!L[a]) continue;
+    c = Q_xpm(W, xpm, sstoQ(a, f));
+    if (!gequal0(c)) { gel(v,a) = c; nonzero = 1; }
+  }
+  return nonzero? v: NULL;
+}
+/* \sum_{a mod f} chi(a) x(a/f) */
+static GEN
+seval(GEN G, GEN chi, GEN vx)
+{
+  GEN vZ, T, s = gen_0, go = zncharorder(G,chi);
+  long i, l = lg(vx), o = itou(go);
+  T = polcyclo(o,0);
+  vZ = mkvec2(RgXQ_powers(RgX_rem(pol_x(0), T), o-1, T), go);
+  for (i = 1; i < l; i++)
+  {
+    GEN x = gel(vx,i);
+    if (x) s = gadd(s, gmul(x, znchareval(G, chi, utoi(i), vZ)));
+  }
+  return gequal0(s)? NULL: poleval(s, rootsof1u_cx(o, DEFAULTPREC));
+}
 
-  if (!signe(X)) return NULL;
-  if (D == 1)
-  {
-    gD = NULL;
-    Ed = E;
-  }
-  else
-  {
-    gD = stoi(D);
-    Ed = ellinit(elltwist(E, gD), NULL, DEFAULTPREC);
-  }
-  Ed = ellanal_globalred_all(Ed, &cb, &N, &tam);
-  Q =  get_Q(Ed, tam);
-  if (cb)
-  { /* \tilde{u} in Pal's "Periods of quadratic twists of elliptic curves" */
-    u = gel(cb,1); /* Omega(E^D_min) = u * Omega(E^D) */
-    if (abscmpiu(Q_denom(u), 2) > 0) pari_err_BUG("msfromell [ell_get_scale]");
-    Q = gmul(Q,u);
-  }
-  /* L(E^D,1) = Q * w1(E^D_min) */
-  if (gD) Q = gmul(Q, get_Euler(Ed, gD));
-  if (D != 1) obj_free(Ed);
-  /* L(E^D,1) / Omega(E^D) = Q. Divide by X to get A */
-  return gdiv(Q, X);
+static long
+nb_components(GEN E) { return signe(ell_get_disc(E)) > 0? 2: 1; }
+static GEN
+ellperiod(GEN E, long s)
+{
+  GEN w = ellR_omega(E,DEFAULTPREC);
+  if (s == 1) return gel(w,1);
+  if (nb_components(E) == 2) return gneg(gel(w,2));
+  return mkcomplex(gen_0, gneg(gmul2n(imag_i(gel(w,2)), 1)));
 }
 
 /* Let W = msinit(conductor(E), 2), xpm an integral modular symbol with the same
@@ -3095,16 +3102,38 @@ ell_get_scale_d(GEN E, GEN W, GEN xpm, long D)
 static GEN
 ell_get_scale(GEN E, GEN W, GEN xpm, long s)
 {
-  long d;
-  /* find D = s*d such that twist by D has rank 0 */
-  for (d = 1; d < LONG_MAX; d++)
+  GEN LE = lfuncreate(E), w = ellperiod(E, s);
+  long f, NE = ms_get_N(W);
+
+  /* find chi s.t. chi(-1) = s such that L(f,chi,1) != 0 */
+  for (f = 1; f < LONG_MAX; f++)
   {
+    const long bit = 64;
     pari_sp av = avma;
-    GEN C;
-    long D = s > 0? d: -d;
-    if (!sisfundamental(D)) continue;
-    C = ell_get_scale_d(E, W, xpm, D);
-    if (C) return RgC_Rg_mul(xpm, C);
+    GEN vchi, vx, G;
+    long l, i;
+    if ((f & 3) == 2 || cgcd(NE,f) != 1) continue;
+    vx = allxpm(W, xpm, f);
+    if (!vx) continue;
+    G = znstar0(utoipos(f),1);
+    vchi = chargalois(G,NULL); l = lg(vchi);
+    for (i = 1; i < l; i++)
+    {
+      pari_sp av2 = avma;
+      GEN C, tau, z, S, L, chi = gel(vchi,i);
+      long o = zncharisodd(G,chi);
+      if ((s == 1 && o) || (s == -1 && !o)
+          || itos(zncharconductor(G, chi)) != f) continue;
+      S = seval(G, chi, vx);
+      if (!S) { avma = av2; continue; }
+
+      L = lfuntwist(LE, mkvec2(G, zncharconj(G,chi)));
+      z = lfun(L, gen_1, bit);
+      tau = znchargauss(G, chi, gen_1, bit);
+      C = gdiv(gmul(z, tau), gmul(S,w));
+      C = bestappr(C, int2n(bit >> 1));
+      return RgC_Rg_mul(xpm, C);
+    }
     avma = av;
   }
   pari_err_BUG("msfromell (no suitable twist)");
@@ -4694,9 +4723,6 @@ mslattice(GEN M, GEN F)
   if (d) F = RgM_Rg_div(F, d);
   return gerepileupto(av, F);
 }
-
-static long
-nb_components(GEN E) { return signe(ell_get_disc(E)) > 0? 2: 1; }
 
 GEN
 ellweilcurve(GEN E)

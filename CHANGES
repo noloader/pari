@@ -143,6 +143,7 @@ BA  108- sqrtn(Mod(9, 101), -2) -> wrong result
          outside listP divided the index [#1993]
     113- lfuntheta(1,1e50) -> overflow
     114- nfrootsof1 could return a t_POL (always return \pm 1 or a t_COL)
+    115- oo-loop in msfromell [#1906]
 
   Added
       1- [libari] ZM_isidentity
