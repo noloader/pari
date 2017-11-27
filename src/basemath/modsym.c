@@ -4729,7 +4729,7 @@ ellweilcurve(GEN E)
 {
   pari_sp av = avma;
   GEN LM = ellisomat(E,0,1), vE = gel(LM,1);
-  GEN vL, Wx, W, XPM, xpm, xp, xm, Lf, Cf;
+  GEN vL, Wx, W, XPM, Lf, Cf;
   long i, l = lg(vE);
 
   for (i = 1; i < l; i++)
@@ -4737,21 +4737,13 @@ ellweilcurve(GEN E)
   Wx = msfromell(vE, 0);
   W = gel(Wx,1);
   XPM = gel(Wx,2);
-
   /* lattice attached to the Weil curve in the isogeny class */
-  xpm = gel(XPM,1); xp = gel(xpm,1); xm = gel(xpm,2);
-  Lf = mslattice(W, mkmat2(xp,xm));
-  Cf = ginv(Lf);
+  Lf = mslattice(W, gmael(XPM,1,3));
+  Cf = ginv(Lf); /* left-inverse */
   vL = cgetg(l, t_VEC);
   for (i=1; i < l; i++)
   {
-    GEN c, Ce, Le, e = gel(vE,i);
-    xpm = gel(XPM,i); xp = gel(xpm,1); xm = gel(xpm,2);
-    /* lattice attached to e */
-    if (nb_components(e) == 2)
-      Le = mkmat2(xp, xm);
-    else
-      Le = mkmat2(gsub(xp, xm), gmul2n(xm,1));
+    GEN c, Ce, e = gel(vE,i), Le = gmael(XPM,i,3);
     Ce = Q_primitive_part(gmul(Cf, Le), &c);
     Ce = ZM_snf(Ce);
     if (c) Ce = gmul(Ce,c);
