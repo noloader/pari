@@ -14,7 +14,7 @@ Doc: cyclotomic $p$-adic height of the rational point $P$ on the elliptic curve
  spanned by $\omega$
  (invariant differential $dx/(2y+a_1x+a3)$ related to the given model) and
  $\eta = x \omega$. Then the cyclotomic $p$-adic height associates to
- $P\in E(\Q)$ an element $f \omega + g\eta$ in $D_{dR}$.
+ $P\in E(\Q)$ an element $f \omega + g \eta$ in $D_{dR}$.
  This routine returns the vector $[f, g]$ to $n$ $p$-adic digits.
 
  If $P\in E(\Q)$ is in the kernel of reduction mod $p$ and if its reduction
