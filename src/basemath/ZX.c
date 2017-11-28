@@ -1028,7 +1028,7 @@ QX_mul(GEN x, GEN y)
   if (dx || dy)
   {
     GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
-    return RgX_Rg_mul(z, d);
+    return ZX_Q_mul(z, d);
   } else
     return z;
 }
@@ -1039,7 +1039,7 @@ QX_sqr(GEN x)
   GEN dx, nx = Q_primitive_part(x, &dx);
   GEN z = ZX_sqr(nx);
   if (dx)
-    return RgX_Rg_mul(z, gsqr(dx));
+    return ZX_Q_mul(z, gsqr(dx));
   else
     return z;
 }
@@ -1050,6 +1050,6 @@ QX_ZX_rem(GEN x, GEN y)
   pari_sp av = avma;
   GEN d, nx = Q_primitive_part(x, &d);
   GEN r = ZX_rem(nx, y);
-  if (d) r = RgX_Rg_mul(r, d);
+  if (d) r = ZX_Q_mul(r, d);
   return gerepileupto(av, r);
 }

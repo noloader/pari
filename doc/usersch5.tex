@@ -8682,6 +8682,9 @@ well-defined if $q$ is a monomial, in that case, set $L=1$ and $Q = q$. If
 where $L > 0$ is allowed to be rational, the monic $Q\in \Z[X]$ has possibly
 smaller coefficients.
 
+\fun{GEN}{ZX_Q_mul}{GEN x, GEN y} returns $x*y$, where $y$ is a rational number
+and the resulting \typ{POL} has rational entries.
+
 \fun{long}{ZX_deflate_order}{GEN P} given a non-constant \kbd{ZX}
 $P$, returns the largest exponent $d$ such that $P$ is of the form $P(x^d)$.
 

@@ -411,6 +411,38 @@ ZX_Q_normalize(GEN pol, GEN *pL)
   if (pL) *pL = gdiv(lc, *pL);
   return POL;
 }
+
+GEN
+ZX_Q_mul(GEN A, GEN z)
+{
+  pari_sp av = avma;
+  long i, l = lg(A);
+  GEN d, n, Ad, B, u;
+  if (typ(z)==t_INT) return ZX_Z_mul(A,z);
+  n = gel(z, 1); d = gel(z, 2);
+  Ad = RgX_to_RgC(FpX_red(A, d), l-2);
+  u = gcdii(d, FpV_factorback(Ad, NULL, d));
+  B = cgetg(l, t_POL);
+  B[1] = A[1];
+  if (equali1(u))
+  {
+    for(i=2; i<l; i++)
+      gel(B, i) = mkfrac(mulii(n, gel(A,i)), d);
+  } else
+  {
+    for(i=2; i<l; i++)
+    {
+      GEN di = gcdii(gel(Ad, i-1), u);
+      GEN ni = mulii(n, diviiexact(gel(A,i), di));
+      if (equalii(d, di))
+        gel(B, i) = ni;
+      else
+        gel(B, i) = mkfrac(ni, diviiexact(d, di));
+    }
+  }
+  return gerepilecopy(av, B);
+}
+
 /* pol != 0 in Z[x], returns a monic polynomial POL in Z[x] generating the
  * same field: there exist C in Q, L in Z such that POL(x) = C pol(x/L).
  * Set *L = NULL if L = 1, and to L otherwise. No garbage collecting. */
