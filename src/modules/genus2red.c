@@ -2202,7 +2202,7 @@ genus2red(GEN PQ, GEN p)
     GEN l = gel(factp,i), pm;
     if (i == 1 && absequaliu(l, 2)) { gel(vecmini,1) = gen_0; continue; }
     gel(vecmini,i) = pm = polymini(polr, l);
-    polr = RgX_Rg_mul(gel(pm,1), powii(l, gel(pm,4)));
+    polr = ZX_Q_mul(gel(pm,1), powii(l, gel(pm,4)));
   }
   RgX_to_6(polr, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
   I.j10 = !signe(a0)? mulii(sqri(a1), ZX_disc(polr)): ZX_disc(polr);

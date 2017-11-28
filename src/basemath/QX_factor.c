@@ -1134,7 +1134,7 @@ QX_gcd(GEN A0, GEN B0)
 
   D = ZX_gcd(Q_primitive_part(A0, &a), Q_primitive_part(B0, &b));
   av2 = avma; a = _gcd(a,b);
-  if (isint1(a)) avma = av2; else D = RgX_Rg_mul(D, a);
+  if (isint1(a)) avma = av2; else D = ZX_Q_mul(D, a);
   return gerepileupto(av, D);
 }
 
