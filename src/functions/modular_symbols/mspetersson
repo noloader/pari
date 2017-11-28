@@ -14,13 +14,13 @@ Doc: $M$ being a full modular symbol space for $\Gamma = \Gamma_0(N)$,
  Suppose that $f_1$ and $f_2$ are two parabolic forms. Let $F_1$
  and $F_2$ be the attached modular symbols
  $$ F_i(\delta)= \int_{\delta} f_i(z) \cdot (z X + Y)^{k-2} \,dz$$
- and let $F^{(\R)}_1$, $F^{(\R)}_2$ be the attached real modular symbols
- $$ F^{(\R)}_i(\delta)= \int_{\delta} \
-    Re\big(f_i(z) \cdot (z X + Y)^{k-2} \,dz\big) $$
+ and let $F^{\R}_1$, $F^{\R}_2$ be the attached real modular symbols
+ $$ F^{\R}_i(\delta)= \int_{\delta}
+    \Re\big(f_i(z) \cdot (z X + Y)^{k-2} \,dz\big) $$
  Then we have
  $$
- \{ F^{(\R)}_1, F^{(\R)}_2 \} = -2 (2i)^{k-2} \cdot
- \Im(<f_1,f_2>_{\var{Petersson}}) $$
+ \{ F^{\R}_1, F^{\R}_2 \} = -2 (2i)^{k-2} \cdot
+    \Im(<f_1,f_2>_{\var{Petersson}}) $$
  and
  $$\{ F_1, \bar{F_2} \} = (2i)^{k-2} <f_1,f_2>_{\var{Petersson}}$$
  In weight 2, the intersection product $\{F, G\}$ has integer values on the
