@@ -1425,7 +1425,7 @@ idealmul_aux(GEN nf, GEN x, GEN y, long tx, long ty)
       else
         y = Q_primitive_part(y, &cy);
       y = idealHNF_mul_two(nf,y,x);
-      return cy? RgM_Rg_mul(y,cy): y;
+      return cy? ZM_Q_mul(y,cy): y;
 
     default: /* id_MAT */
     {
@@ -1507,7 +1507,7 @@ idealsqr_aux(GEN nf, GEN x, long tx)
       {
         x = ZM_hnfmodid(m, gcdii(sqri(a), zkmultable_capZ(m)));
         if (cx) cx = gsqr(cx);
-        if (cx) x = RgM_Rg_mul(x, cx);
+        if (cx) x = ZM_Q_mul(x, cx);
       }
       return x;
   }
@@ -1764,7 +1764,7 @@ idealmulpowprime(GEN nf, GEN x, GEN pr, GEN n)
     x = idealHNF_mul_two(nf,x,y);
   else
     x = idealhnf_two(nf,y);
-  if (cx) x = RgM_Rg_mul(x,cx);
+  if (cx) x = ZM_Q_mul(x,cx);
   return x;
 }
 GEN
@@ -1788,7 +1788,7 @@ idealpow_aux(GEN nf, GEN x, long tx, GEN n)
       if (pr_is_inert(x)) return scalarmat(powii(gel(x,1), n), N);
       x = idealpowprime(nf, x, n, &cx);
       x = idealhnf_two(nf,x);
-      return cx? RgM_Rg_mul(x, cx): x;
+      return cx? ZM_Q_mul(x, cx): x;
     default:
       if (is_pm1(n)) return (s < 0)? idealinv(nf, x): gcopy(x);
       n1 = (s < 0)? negi(n): n;
@@ -1812,7 +1812,7 @@ idealpow_aux(GEN nf, GEN x, long tx, GEN n)
           cx = cx ? gdiv(cx, xZ): ginv(xZ);
           x = idealHNF_inv_Z(nf,x);
         }
-        if (cx) x = RgM_Rg_mul(x, cx);
+        if (cx) x = ZM_Q_mul(x, cx);
       }
       return x;
   }

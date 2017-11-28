@@ -4749,7 +4749,7 @@ ellweilcurve(GEN E)
     GEN c, Ce, Le = gmael(XPM,i,3);
     Ce = Q_primitive_part(RgM_mul(Cf, Le), &c);
     Ce = ZM_snf(Ce);
-    if (c) Ce = RgM_Rg_mul(Ce,c);
+    if (c) Ce = ZM_Q_mul(Ce,c);
     gel(vL,i) = Ce;
   }
   return gerepilecopy(av, mkvec2(vE, vL));

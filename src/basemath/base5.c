@@ -944,7 +944,7 @@ findmin(GEN nf, GEN x, GEN muf)
   m = grndtoi(m, &e);
   if (e >= 0) return NULL; /* precision problem */
   m = ZM_ZC_mul(x, m);
-  if (cx) m = RgC_Rg_mul(m, cx);
+  if (cx) m = ZC_Q_mul(m, cx);
   return gerepileupto(av, m);
 }
 
@@ -1277,7 +1277,7 @@ element_mulvecrow(GEN nf, GEN x, GEN m, long i, long lim)
         if (typ(t) == t_COL)
           t = RgM_RgC_mul(x, t);
         else
-          t = RgC_Rg_mul(gel(x,1), t);
+          t = ZC_Q_mul(gel(x,1), t);
         if (dx) t = gdiv(t, dx);
         t = nf_to_scalar_or_basis(nf,t);
       }

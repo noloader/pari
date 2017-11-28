@@ -1386,13 +1386,17 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   MDI = idealtwoelt(nf, A);
   gel(MDI,2) = zk_scalar_or_multable(nf, gel(MDI,2));
   gel(mat,7) = MDI;
-  if (is_pm1(S->index)) /* principal ideal (T'), whose norm is |dK| */
-  {
+  if (is_pm1(S->index))
+  { /* principal ideal (T'), whose norm is |dK| */
     D = zk_scalar_or_multable(nf, ZX_deriv(T));
     if (typ(D) == t_MAT) D = ZM_hnfmod(D, absi(S->dK));
   }
   else
-    D = RgM_Rg_mul(idealinv(nf, A), dA);
+  {
+    GEN c = diviiexact(dA, gcoeff(A,1,1));
+    D = idealHNF_inv_Z(nf, A); /* (A\cap Z) / A */
+    if (!is_pm1(c)) D = ZM_Z_mul(D, c);
+  }
   gel(mat,3) = RM_round_maxrank(F.G);
   gel(mat,4) = Tr;
   gel(mat,5) = D;
