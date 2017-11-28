@@ -4634,7 +4634,13 @@ mspolygon(GEN M, long flag)
   struct siegel S;
   long i, l;
   GEN G, msN;
-  if (typ(M) == t_INT) msN = msinit_N(itos(M));
+  if (typ(M) == t_INT)
+  {
+    long N = itos(M);
+    if (N <= 0) pari_err_DOMAIN("msinit","N", "<=", gen_0,M);
+    if (N == 1) pari_err_IMPL("msinit [ N = 1 ]");
+    msN = msinit_N(N);
+  }
   else { checkms(M); msN = get_msN(M); }
   if (flag < 0 || flag > 1) pari_err_FLAG("mspolygon");
   siegel_init(&S, msN);

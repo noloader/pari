@@ -26,6 +26,7 @@ do(247)
 M = msinit(12,2);
 mspolygon(M,1)
 mspolygon(M)
+mspolygon(1)
 
 testlattice(N, k) = mslattice(msinit(N,k));
 testlattice(11,2)
