@@ -10381,6 +10381,10 @@ containing \kbd{stoi(x)}.
 \fun{GEN}{mkvec2s}{long x, long y} creates a 2-dimensional \typ{VEC}
 containing \kbd{[stoi(x), stoi(y)]}.
 
+\fun{GEN}{mkmat22s}{long a, long b, long c, long d} creates the $2$ by $2$
+\typ{MAT} with successive rows \kbd{[stoi(a), stoi(b)]} and
+\kbd{[stoi(c), stoi(d)]}.
+
 \fun{GEN}{mkvec3s}{long x, long y, long z} creates a 3-dimensional \typ{VEC}
 containing \kbd{[stoi(x), stoi(y), stoi(z)]}.
 
@@ -10467,6 +10471,9 @@ the \typ{POL} $y$. $x$ may be a scalar.
 
 \fun{GEN}{mkmat2}{GEN x, GEN y} creates a 2-column \typ{MAT} with columns
 $x$, $y$ (\typ{COL}s of the same length).
+
+\fun{GEN}{mkmat22}{GEN a, GEN b, GEN c, GEN d} creates the $2$ by $2$
+\typ{MAT} with successive rows $[a,b]$ and $[c,d]$.
 
 \fun{GEN}{mkmat3}{GEN x, GEN y, GEN z} creates a 3-column \typ{MAT} with columns
 $x$, $y$, $z$ (\typ{COL}s of the same length).
@@ -12113,6 +12120,24 @@ Return \kbd{NULL} if $x$ is not a square.
 
 \fun{GEN}{Qp_sqrtn}{GEN x, GEN n, GEN *z} shortcut for \kbd{gsqrtn(x, n, z,
 /*ignored*/prec)}. Return \kbd{NULL} if $x$ is not an $n$-th power.
+
+\fun{GEN}{Qp_agm2_sequence}{GEN a1, GEN b1} assume $a_1/b_1 = 1$ mod $p$
+if $p$ odd and mod $2^4$ if $p = 2$. Let $A_1 = a_1/p^v$ and $B_1 = b_1/p^v$
+with $v = v_p(a_1) = v_p(b_1)$; let further
+$A_{n+1} = (A_n + B_n + 2 B_{n+1}) / 4$,
+$B_{n+1} = B_n \sqrt{A_n / B_n}$ (the square root of $A_n B_n$ congruent to
+$B_n$ mod $p$) and $R_n = p^v(A_n - B_n)$. We stop when $R_n$ is $0$
+at the given $p$-adic accuracy. This function returns in a triplet \typ{VEC}
+the three sequences $(A_n)$, $(B_n)$ and $(R_n)$, corresponding to a sequence
+of $2$-isogenies on the Tate curve $y^2 = x(x-a_1)(x+a_1-b_1)$. The
+common limit of $A_n$ and $B_n$ is the $M_2(a_1,b_1)$, the square
+of the $p$-adic AGM of $\sqrt(a_1)$ and $\sqrt(b_1)$. This is given
+by \tet{ellQp_Ei} and is used by corresponding ascending and descending
+$p$-adic Landen transforms:
+
+\fun{void}{Qp_ascending_Landen}{GEN ABR, GEN *ptx, GEN *pty}
+
+\fun{void}{Qp_descending_Landen}{GEN ABR, GEN *ptx, GEN *pty}
 
 \subsec{Cached constants}
 

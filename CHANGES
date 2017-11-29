@@ -314,8 +314,10 @@ BA  124- [libpari] Z_content
 BA  126- [libpari] F2xqXQ_inv, F2xqXQ_invsafe, F2xqX_invBarrett, Flc_Flv_mul
                    coprimes_zv
     127- New GP functions msdim, mslattice, mspetersson, mspolygon,
-         ellweilcurve
+         ellweilcurve, ellpadicbsd, ellpadicregulator
 BA  128- New GP function lfuntwist
+    129- [libpari] mkmat22, mkmat22s, Qp_agm2_sequence, Qp_ascending_Landen,
+         Qp_descending_Landen
 
   Changed
       1- rewrite bnfnarrow
@@ -401,6 +403,7 @@ BA   46-[libpari] RgX_type now only handles polynomials.
          whose entries are pairs of values)
      52- ellpadicheight and ellpadicmatrix no longer accept [p,[a,b]]
          arguments; use * [a,b]~
+     53- ellpadics2: allow curves with multiplicative reduction
 
   Removed
       1- file 'MACHINES' (no longer maintained)

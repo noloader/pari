@@ -217,9 +217,6 @@ inithashmsymbols(ulong N, GEN symbols)
 }
 
 /** Helper functions for Sl2(Z) / Gamma_0(N) **/
-/* [a,b;c,d] */
-static GEN
-mkmat22(GEN a, GEN b, GEN c, GEN d) { retmkmat2(mkcol2(a,c),mkcol2(b,d)); }
 /* M a 2x2 ZM in SL2(Z) */
 static GEN
 SL2_inv(GEN M)
@@ -2995,63 +2992,6 @@ mseval(GEN W, GEN s, GEN p)
   return gerepilecopy(av, s);
 }
 
-#if 0
-/* sum_{a <= |D|} (D/a)*xpm(E,a/|D|) */
-static GEN
-get_X(GEN W, GEN xpm, long D)
-{
-  ulong a, d = (ulong)labs(D);
-  GEN t = gen_0;
-  GEN nc, c;
-  if (d == 1) return Q_xpm(W, xpm, gen_0);
-  nc = icopy(gen_1);
-  c = mkfrac(nc, utoipos(d));
-  for (a=1; a < d; a++)
-  {
-    long s = kross(D,a);
-    GEN x;
-    if (!s) continue;
-    nc[2] = a; x = Q_xpm(W, xpm, c);
-    t = (s > 0)? addii(t, x): subii(t, x);
-  }
-  return t;
-}
-/* E of rank 0, minimal model; write L(E,1) = Q*w1(E) != 0 and return the
- * rational Q; tam = product of all Tamagawa (incl. c_oo(E)). */
-static GEN
-get_Q(GEN E, GEN tam)
-{
-  GEN L, sha, w1 = gel(ellR_omega(E,DEFAULTPREC), 1);
-  long ex, t = torsion_order(E), t2 = t*t;
-
-  L = ellL1(E, 0, DEFAULTPREC);
-  sha = divrr(mulru(L, t2), mulri(w1,tam)); /* integral = |Sha| by BSD */
-  sha = sqri( grndtoi(sqrtr(sha), &ex) ); /* |Sha| is a square */
-  if (ex > -5) pari_err_BUG("msfromell (can't compute analytic |Sha|)");
-  return gdivgs(mulii(tam,sha), t2);
-}
-#endif
-static long
-torsion_order(GEN E) { GEN T = elltors(E); return itos(gel(T,1)); }
-
-/* E given by a minimal model; D != 0. Compare Euler factor of L(E,(D/.),1)
- * with L(E^D,1). Return
- *   \prod_{p|D} (p-a_p(E)+eps_{E}(p)) / p,
- * where eps(p) = 0 if p | N_E and 1 otherwise */
-static GEN
-get_Euler(GEN E, GEN D)
-{
-  GEN a = gen_1, b = gen_1, P = gel(absZ_factor(D), 1);
-  long i, l = lg(P);
-  for (i = 1; i < l; i++)
-  {
-    GEN p = gel(P,i);
-    a = mulii(a, ellcard(E, p));
-    b = mulii(b, p);
-  }
-  return gdiv(a, b);
-}
-
 static GEN
 allxpm(GEN W, GEN xpm, long f)
 {
@@ -3716,8 +3656,8 @@ eigenvalue(GEN T, GEN x)
 }
 
 /* p coprime to ap, return unit root of x^2 - ap*x + p^(k-1), accuracy p^n */
-static GEN
-ms_unit_eigenvalue(GEN ap, long k, GEN p, long n)
+GEN
+mspadic_unit_eigenvalue(GEN ap, long k, GEN p, long n)
 {
   GEN sqrtD, D = subii(sqri(ap), shifti(powiu(p,k-1),2));
   if (absequaliu(p,2))
@@ -3798,7 +3738,7 @@ mstooms(GEN W, GEN phi)
     /* all polynomials multiplied by c p^vden */
     if (umodiu(ap, p))
     {
-      alpha = ms_unit_eigenvalue(ap, k, utoipos(p), mspadic_get_n(W));
+      alpha = mspadic_unit_eigenvalue(ap, k, utoipos(p), mspadic_get_n(W));
       alpha = ginv(alpha);
       phi0 = gsub(phi1, gmul(lift_shallow(alpha),phi2));
       phi = oms_dim1(W, phi0, alpha, 0);
@@ -4127,8 +4067,8 @@ mspadicseries(GEN oms, long teichi)
   if (kross(oms_get_D(oms), p) >= 0) return gerepilecopy(av, s);
   return gerepileupto(av, gneg(s));
 }
-static void
-parse_chi(GEN s, GEN *s1, GEN *s2)
+void
+mspadic_parse_chi(GEN s, GEN *s1, GEN *s2)
 {
   if (!s) *s1 = *s2 = gen_0;
   else switch(typ(s))
@@ -4159,7 +4099,7 @@ mspadicL(GEN oms, GEN s, long r)
   checkoms(oms);
   p = oms_get_p(oms);
   n = oms_get_n(oms);
-  parse_chi(s, &s1,&s2);
+  mspadic_parse_chi(s, &s1,&s2);
   teich = umodiu(subii(s2,s1), p==2? 2: p-1);
   S = xlog1x(n, itos(s1), r, &teich);
   z = mspadicint(oms, teich, S);
@@ -4168,106 +4108,8 @@ mspadicL(GEN oms, GEN s, long r)
   return gerepilecopy(av, z);
 }
 
-GEN
-ellpadicL(GEN E, GEN pp, long n, GEN s, long r, GEN DD)
-{
-  pari_sp av = avma;
-  GEN L, W, Wp, xpm, NE, s1,s2, oms, den;
-  long sign, D;
-  ulong p;
-
-  if (DD && !Z_isfundamental(DD))
-    pari_err_DOMAIN("ellpadicL", "isfundamental(D)", "=", gen_0, DD);
-  if (typ(pp) != t_INT) pari_err_TYPE("ellpadicL",pp);
-  if (cmpis(pp,2) < 0) pari_err_PRIME("ellpadicL",pp);
-  if (n <= 0) pari_err_DOMAIN("ellpadicL","precision","<=",gen_0,stoi(n));
-  if (r < 0) pari_err_DOMAIN("ellpadicL","r","<",gen_0,stoi(r));
-  parse_chi(s, &s1,&s2);
-  if (!DD) { sign = 1; D = 1; }
-  else
-  {
-    sign = signe(DD); D = itos(DD);
-    if (!sign) pari_err_DOMAIN("ellpadicL", "D", "=", gen_0, DD);
-  }
-  if (mpodd(s2)) sign = -sign;
-  W = msfromell(E, sign);
-  xpm = gel(W,2);
-  W = gel(W,1);
-
-  p = itou(pp);
-  NE = ellQ_get_N(E);
-  if (dvdii(NE, sqri(pp))) pari_err_IMPL("additive reduction in ellpadicL");
-
-  xpm = Q_remove_denom(xpm,&den);
-  if (!den) den = gen_1;
-  n += Z_lval(den, p);
-
-  Wp = mspadicinit(W, p, n, umodiu(ellap(E,pp),p)? 0: 1);
-  oms = mspadicmoments(Wp, xpm, D);
-  L = mspadicL(oms, s, r);
-  return gerepileupto(av, gdiv(L,den));
-}
-
-/* D coprime to p; Euler factor for the twisted L-function L(E,(D|.)),
- * small difference with L(E_D) */
-static GEN
-ellpadicLeul(GEN E, GEN ED, GEN ND, GEN p, long n, GEN D, long r)
-{
-  GEN Z = ellpadicL(E, p, n, 0, r, D);
-  GEN F, U, apD = ellap(ED,p);
-  if (typ(Z) == t_COL)
-  { /* p | a_p(E_D), frobenius on E_D */
-    F = mkmat22(gen_0, negi(p), gen_1, apD);
-    U = RgM_RgC_mul(gpowgs(gsubsg(1, gdiv(F,p)), -2), Z);
-    settyp(U, t_VEC);
-  }
-  else
-  {
-    U = Z;
-    if (dvdii(ND,p)) /* assume a_p(E_D) = -1 */
-      U = gdivgs(U, 2);
-    else
-    {
-      GEN a = ms_unit_eigenvalue(apD, 2, p, n);
-      U = gmul(U, gpowgs(gsubsg(1, ginv(a)), -2));
-    }
-  }
-  return U;
-}
-
-GEN
-ellpadicbsd(GEN E, GEN p, long n, GEN D)
-{
-  pari_sp av = avma;
-  GEN ED, tam, Lstar, N, C;
-  long r, vN;
-  checkell(E);
-  if (ell_get_type(E) != t_ELL_Q) pari_err_TYPE("ellpadicbsd",E);
-  if (D) {
-    if (typ(D) != t_INT) pari_err_TYPE("ellpadicbsd",D);
-    if (equali1(D)) D = NULL;
-  }
-  if (typ(p) != t_INT) pari_err_TYPE("ellpadicbsd",D);
-  if (n <= 0) pari_err_DOMAIN("ellpadicbsd","precision","<=",gen_0,stoi(n));
-  ED = D? ellinit(elltwist(E,D), gen_1, 0): E;
-  ED = ellanal_globalred_all(ED, NULL, &N, &tam);
-  r = itos( gel(ellanalyticrank_bitprec(ED, NULL, 32), 1) );
-  /* additive reduction ? */
-  vN = Z_pval(N, p);
-  if (vN >= 2) pari_err_DOMAIN("ellpadicbsd","v_p(N)", ">", gen_1, stoi(vN));
-  if (vN == 1 && equali1(ellap(ED,p)))
-    pari_err_IMPL("ellpadicbsd in the multiplicative reduction case");
-  /* TODO: should be something like
-   *   Lstar = ellpadicLeul(E,p,n,r+1,D)/(r+1)!/Linvariant(ED,p,n);
-   */
-  Lstar = ellpadicLeul(E, ED, N, p, n, D, r);
-  C = mulii(tam,mpfact(r));
-  if (D) C = gmul(C, get_Euler(ED, D));
-  C = gdiv(sqru(torsion_order(ED)), C);
-  if (D) obj_free(ED);
-  return gerepileupto(av, gmul(Lstar, C));
-}
 /****************************************************************************/
+
 struct siegel
 {
   GEN V, Ast;

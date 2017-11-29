@@ -32,7 +32,7 @@ Doc: Returns the value (or $r$-th derivative) on a character $\chi^s$ of
  More precisely:
 
  \item When $E$ has good supersingular reduction, $L_p$ takes its
- values in $\Q_p \otimes H^1_{dR}(E/\Q)$ and satisfies
+ values in $D := H^1_{dR}(E/\Q)\otimes_\Q \Q_p$ and satisfies
  $$(1-p^{-1} F)^{-2} L_p(E, \chi^0)= (L(E,1) / \Omega) \cdot \omega$$
  where $F$ is the Frobenius, $L(E,1)$ is the value of the complex $L$
  function at $1$, $\omega$ is the N\'eron differential
@@ -40,7 +40,7 @@ Doc: Returns the value (or $r$-th derivative) on a character $\chi^s$ of
  the trivial character.
 
  The function returns the components of $L_p^{(r)}(E,\chi^s)$ in
- the basis $(\omega, F(\omega))$.
+ the basis $(\omega, F \omega)$.
 
  \item When $E$ has ordinary good reduction, this method only defines
  the projection of $L_p(E,\chi^s)$ on the $\alpha$-eigenspace,

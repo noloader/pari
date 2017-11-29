@@ -273,6 +273,11 @@ INLINE GEN
 mkmoo(void) { GEN v = cgetg(2, t_INFINITY); gel(v,1) = gen_m1; return v; }
 INLINE long
 inf_get_sign(GEN x) { return signe(gel(x,1)); }
+INLINE GEN
+mkmat22s(long a, long b, long c, long d) {retmkmat2(mkcol2s(a,c),mkcol2s(b,d));}
+INLINE GEN
+mkmat22(GEN a, GEN b, GEN c, GEN d) { retmkmat2(mkcol2(a,c),mkcol2(b,d)); }
+
 /* pol */
 INLINE GEN
 pol_x(long v) {

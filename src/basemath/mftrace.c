@@ -6782,9 +6782,6 @@ van_embedall(GEN van, GEN vE, GEN gN, GEN gk)
   return vL;
 }
 
-static GEN
-mkmat22(long a, long b, long c, long d) {retmkmat2(mkcol2s(a,c),mkcol2s(b,d));}
-
 static int
 cusp_AC(GEN cusp, long *A, long *C)
 {
@@ -6801,7 +6798,7 @@ static GEN
 cusp2mat(long A, long C)
 { long B, D;
   cbezout(A, C, &D, &B);
-  return mkmat22(A, -B, C, D);
+  return mkmat22s(A, -B, C, D);
 }
 /* if t is a cusp, return F(t), else NULL */
 static GEN
@@ -7264,7 +7261,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
     return mfatkinmatnewquad(mf, CHI, Q, flag, prec);
   G   = gel(CHI,1);
   chi = gel(CHI,2);
-  if (Q == N) { g = mkmat22(0, -1, N, 0); cQ = NQ; } /* Fricke */
+  if (Q == N) { g = mkmat22s(0, -1, N, 0); cQ = NQ; } /* Fricke */
   else
   {
     GEN F, gQP = utoi(cgcd(Q, FC));
@@ -7273,7 +7270,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
     F = znconreyconductor(G, chi, &chi);
     G = znstar0(F,1);
     (void)cbezout(Q, NQ, &t, &v);
-    g = mkmat22(Q, 1, -N*v, Q*t);
+    g = mkmat22s(Q, 1, -N*v, Q*t);
     cQ = -NQ*v;
   }
   C = gen_1;
@@ -10507,7 +10504,7 @@ GL2toSL2(GEN ga, long *pa, long *pb, long *pd)
   *pa = a = cbezout(A, C, &u, &v);
   if (a > 1) { A /= a; C /= a; }
   *pd = d = A*D - B*C; if (d <= 0) pari_err_TYPE("GL2toSL2",ga);
-  *pb = u*B + v*D; return mkmat22(A, -v, C, u);
+  *pb = u*B + v*D; return mkmat22s(A, -v, C, u);
 }
 
 /* m != 2 (mod 4) */
@@ -10714,7 +10711,7 @@ mfperiodslash(GEN mf, GEN FE, GEN ga, GEN PCO, long bitprec)
 {
   GEN F = gel(FE,1), P = gel(PCO,1), CO = gel(PCO,2);
   long vz = varn(gel(P,2));
-  GEN matS = mkmat22(0, -1, 1, 0), sqNinv, van, vbn, pi2, q;
+  GEN matS = mkmat22s(0, -1, 1, 0), sqNinv, van, vbn, pi2, q;
   GEN S1, S2, coe, P1, P2, aw1, aw2, al1, al2, alw1, alw2;
   long prec = nbits2prec(bitprec), N, k, C, D, w1, w2, nlim, n;
   N = MF_get_N(mf); k = MF_get_k(mf);
@@ -10819,7 +10816,7 @@ coset_complete(long c, long d, long Nc)
   long a, b;
   while (cgcd(c, d) > 1) d += Nc;
   (void)cbezout(c, d, &b, &a);
-  return mkmat22(a, -b, c, d);
+  return mkmat22s(a, -b, c, d);
 }
 /* right cosets of $\G_0(N)$: $\G=\bigsqcup_j \G_0(N)\ga_j$. */
 /* We choose them with c\mid N and d mod N/c, not the reverse */
@@ -10928,7 +10925,7 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, long bit)
   else
   {
     long lco = lg(cosets);
-    GEN S = mkmat22(0, -1, 1, 0);
+    GEN S = mkmat22s(0, -1, 1, 0);
     GEN ok = const_vecsmall(lco-1, 1);
     vP = cgetg(lco, t_VEC);
     for (i = 1; i < lco; i++)
@@ -11043,7 +11040,7 @@ mfsymboleval(GEN fs, GEN path)
   cosets = fs_get_cosets(fs);
   prec = prec2nbits(fs_get_bitprec(fs));
   CHI = MF_get_CHI(mf); k = MF_get_k(mf); N = MF_get_N(mf);
-  cbezout(a, c, &u, &v); ga = mkmat22(a, -v, c, u); B = u*b + v*d;
+  cbezout(a, c, &u, &v); ga = mkmat22s(a, -v, c, u); B = u*b + v*d;
   V = gcf(sstoQ(B, D));
   LM = shallowconcat(mkcol2(gen_1, gen_0), contfracpnqn(V, lg(V)));
   S = gen_0; m = lg(LM) - 2;
@@ -11131,7 +11128,7 @@ mfmanin(GEN FS, long bitprec)
     GEN g = gel(cosets, i), c;
     long A = itos(gcoeff(g,1,1)), B = itos(gcoeff(g,1,2));
     long C = itos(gcoeff(g,2,1)), D = itos(gcoeff(g,2,2));
-    long Dbar, ibar = mftocoset_iD(N, mkmat22(-B,-A,D,C), cosets, &Dbar);
+    long Dbar, ibar = mftocoset_iD(N, mkmat22s(-B,-A,D,C), cosets, &Dbar);
 
     c = mfcharcxeval(CHI, Dbar, prec); if (odd(k)) c = gneg(c);
     T = RgX_Rg_mul(gel(vp,ibar), c);
@@ -11214,7 +11211,7 @@ GEN
 mfpetersson(GEN FS, GEN GS, long bitprec)
 {
   pari_sp av = avma;
-  GEN T1 = mkmat22(1,1,0,1), TM1 = mkmat22(1,-1,0,1);
+  GEN T1 = mkmat22s(1,1,0,1), TM1 = mkmat22s(1,-1,0,1);
   GEN mf, ESF, ESG, PF, PG, S, CHI, cosets, vC, vEF, vEG;
   long k, n, r, j, N, prec;
   if (!checkfs_i(FS)) pari_err_TYPE("mfpetersson",FS);
