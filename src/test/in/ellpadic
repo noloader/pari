@@ -29,10 +29,10 @@ R=[0,2];
 ellpadicheight(E,2,5, P,Q2)
 ellpadicheight(E,2,5, P2,Q)
 ellpadicheightmatrix(E,5,5, [P,Q,R])
-ellpadicheight(E,[3,[1,2]],5, P)
-ellpadicheight(E,[3,[1,2]],5, P,Q)
-M=ellpadicheightmatrix(E,[5,[1,0]],5, [P,Q,R])
-N=ellpadicheightmatrix(E,[5,[0,1]],5, [P,Q,R])
+ellpadicheight(E,3,5, P)*[1,2]~
+ellpadicheight(E,3,5, P,Q)*[1,2]~
+M=ellpadicheightmatrix(E,5,5, [P,Q,R])*[1,0]~
+N=ellpadicheightmatrix(E,5,5, [P,Q,R])*[0,1]~
 matdet(M)
 matdet(N)
 

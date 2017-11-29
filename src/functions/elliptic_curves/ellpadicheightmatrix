@@ -2,21 +2,32 @@ Function: ellpadicheightmatrix
 Section: elliptic_curves
 C-Name: ellpadicheightmatrix
 Prototype: GGLG
-Help: ellpadicheightmatrix(E,p,n,v): gives the height-pairing matrix for vector
- of points v on elliptic curve E.
-Doc: $v$ being a vector of points, this function outputs the Gram matrix of
- $v$ with respect to the cyclotomic $p$-adic height, given to $n$ $p$-adic
- digits; in other words, the $(i,j)$ component of the matrix is equal to
- \kbd{ellpadicheight}$(E,p,n, v[i],v[j]) = [f,g]$.
-
- See \tet{ellpadicheight}; in particular one can replace the parameter $p$
- prime by a vector $[p,[a,b]]$, in which case the routine returns the matrix
- containing the $p$-adic numbers $af + bg$.
+Help: ellpadicheightmatrix(E,p,n,Q): gives the height-pairing matrix for vector
+ of points Q on elliptic curve E.
+Doc: $Q$ being a vector of points, this function outputs the two Gram
+ matrices $[F,G]$ of $Q$ with respect to the cyclotomic $p$-adic height,
+ given to $n$ $p$-adic digits; in other words, if
+ \kbd{ellpadicheight}$(E,p,n, Q[i],Q[j]) = [f,g]$, then $F[i,j] = f$ and
+ $G[i,j] = g$.
  \bprog
- ? E = ellinit([0,0,1,-7,6]);
- ? ellpadicheightmatrix(E,5,1,[[-2,3],[-1,3]])
- %31 =
- [[4 + O(5), 4*5^2 + O(5^3)]     [O(5), 4*5^2 + O(5^3)]]
+ ? E = ellinit([0,0,1,-7,6]); Q = [[-2,3],[-1,3]]; p = 5; n = 5;
+ ? [F,G] = ellpadicheightmatrix(E,p,n,Q);
+ ? lift(F)  \\ p-adic entries, integral approximation for readability
+ %3 =
+ [2364 3100]
 
- [    [O(5), 4*5^2 + O(5^3)] [4 + O(5), 4*5^2 + O(5^3)]]
+ [3100 3119]
+
+ ? G
+ %4 =
+ [25225 46975]
+
+ [46975 61850]
+
+ ? [F,G] * [1,-ellpadics2(E,p,n)]~
+ %5 =
+ [4 + 2*5 + 4*5^2 + 3*5^3 + O(5^5)           4*5^2 + 4*5^3 + 5^4 + O(5^5)]
+
+ [    4*5^2 + 4*5^3 + 5^4 + O(5^5) 4 + 3*5 + 4*5^2 + 4*5^3 + 5^4 + O(5^5)]
+
  @eprog

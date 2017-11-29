@@ -397,6 +397,10 @@ BA   46-[libpari] RgX_type now only handles polynomials.
      48-[libpari] ZM_inv and QM_inv interface
      49- K.tu[2]: make it a t_INT if possible, else a t_POLMOD
      50- removed warning "Mod(a,b)^n with n >> b : wasteful"
+     51- ellpadicmatrix now returns a pair of matrices (instead of a matrix
+         whose entries are pairs of values)
+     52- ellpadicheight and ellpadicmatrix no longer accept [p,[a,b]]
+         arguments; use * [a,b]~
 
   Removed
       1- file 'MACHINES' (no longer maintained)

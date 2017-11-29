@@ -2977,23 +2977,6 @@ log_prec(GEN p, long v, long t)
 }
 
 static GEN
-parse_p(GEN p, GEN *ab)
-{
-  *ab = NULL;
-  switch(typ(p))
-  {
-    case t_INT: break;
-    case t_VEC:
-      if (lg(p) != 3) pari_err_TYPE("ellpadicheight",p);
-      *ab = gel(p,2);
-      if (typ(*ab) != t_VEC || lg(*ab) != 3) pari_err_TYPE("ellpadicheight",p);
-      p = gel(p,1);
-  }
-  if (cmpis(p,2) < 0) pari_err_PRIME("ellpadicheight",p);
-  return p;
-}
-
-static GEN
 precp_fix(GEN h, long v)
 { return (precp(h) > v)? cvtop(h,gel(h,2),v): h; }
 
@@ -3001,14 +2984,15 @@ GEN
 ellpadicheight(GEN e, GEN p, long v0, GEN P)
 {
   pari_sp av = avma;
-  GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b, ab;
+  GEN N, H, h, t, ch, g, E, x, n, d, D, ls, lt, S, a,b;
   long v, vd;
   int is2;
   checkellpt(P);
   if (v0<=0) pari_err_DOMAIN("ellpadicheight","precision","<=",gen_0,stoi(v0));
   checkell_Q(e);
-  p = parse_p(p, &ab);
-  if (ellorder_Q(e,P)) return ab? gen_0: mkvec2(gen_0,gen_0);
+  if (typ(p) != t_INT) pari_err_TYPE("ellpadicheight",p);
+  if (cmpiu(p,2) < 0) pari_err_PRIME("ellpadicheight",p);
+  if (ellorder_Q(e,P)) return mkvec2(gen_0,gen_0);
   E = ellanal_globalred(e, &ch);
   if (E != e) P = ellchangepoint(P, ch);
   S = ellnonsingularmultiple(E, P);
@@ -3072,16 +3056,8 @@ ellpadicheight(GEN e, GEN p, long v0, GEN P)
     b = gmul(u,b);
   }
   H = mkvec2(a,b);
-  if (ab)
-  {
-    H = RgV_dotproduct(H, ab);
-    H = precp_fix(H,v0);
-  }
-  else
-  {
-    gel(H,1) = precp_fix(gel(H,1),v0);
-    gel(H,2) = precp_fix(gel(H,2),v0);
-  }
+  gel(H,1) = precp_fix(gel(H,1),v0);
+  gel(H,2) = precp_fix(gel(H,2),v0);
   return gerepilecopy(av, H);
 }
 
@@ -3112,6 +3088,21 @@ ellpadics2(GEN E, GEN p, long n)
   if (typ(p) != t_INT) pari_err_TYPE("ellpadics2",p);
   if (cmpis(p,2) < 0) pari_err_PRIME("ellpadics2",p);
   pp = itou_or_0(p);
+  if (Q_pval(ell_get_j(E), p) < 0)
+  { /* Tate curve */
+    GEN Ep = ellinit(E, zeropadic(p,n), 0);
+    GEN u2 = ellQp_u2(Ep, n);
+    GEN q = ellQp_q(Ep, n), qm = q, s = gen_0, b2 = ell_get_b2(E);
+    long m;
+    for (m = 1; m <= n; m++)
+    {
+      s = gadd(s, gdiv(qm, gsqr(gsubsg(1,qm))));
+      if (m < n) qm = gmul(qm,q);
+    }
+    s = gsubsg(1, gmulgs(s,24));
+    s = gdivgs(gsub(b2, gdiv(s,u2)), 12);
+    obj_free(Ep); return gerepileupto(av, precp_fix(s,n));
+  }
   F = ellpadicfrobenius(E, itou(p), n);
   a = gcoeff(F,1,1);
   b = gcoeff(F,1,2);
@@ -6861,29 +6852,44 @@ ellheight(GEN e, GEN a, long prec)
 GEN
 ellpadicheightmatrix(GEN e, GEN p, long n, GEN x)
 {
-  GEN y, D;
+  GEN y, D, A, B;
   long lx = lg(x), i, j;
   pari_sp av = avma;
 
   if (!is_vec_t(typ(x))) pari_err_TYPE("ellheightmatrix",x);
   D = cgetg(lx,t_VEC);
-  y = cgetg(lx,t_MAT);
+  A = cgetg(lx,t_MAT);
+  B = cgetg(lx,t_MAT);
   for (i=1; i<lx; i++)
   {
     gel(D,i) = _hell(e,p,n, gel(x,i));
-    gel(y,i) = cgetg(lx,t_COL);
+    gel(A,i) = cgetg(lx,t_COL);
+    gel(B,i) = cgetg(lx,t_COL); /*unused if p = NULL */
   }
   for (i=1; i<lx; i++)
   {
-    gcoeff(y,i,i) = gel(D,i);
+    GEN h = gel(D,i);
+    if (p)
+    {
+      gcoeff(A,i,i) = gel(h,1);
+      gcoeff(B,i,i) = gel(h,2);
+    }
+    else
+      gcoeff(A,i,i) = h;
     for (j=i+1; j<lx; j++)
     {
-      GEN h = _hell(e,p,n, elladd(e,gel(x,i),gel(x,j)));
-      h = gsub(h, gadd(gel(D,i),gel(D,j)));
-      gcoeff(y,j,i) = gcoeff(y,i,j) = gmul2n(h, -1);
+      h = _hell(e,p,n, elladd(e,gel(x,i),gel(x,j)));
+      h = gmul2n(gsub(h, gadd(gel(D,i),gel(D,j))), -1);
+      if (p)
+      {
+        gcoeff(A,j,i) = gcoeff(A,i,j) = gel(h,1);
+        gcoeff(B,j,i) = gcoeff(B,i,j) = gel(h,2);
+      }
+      else
+        gcoeff(A,j,i) = gcoeff(A,i,j) = h;
     }
   }
-  return gerepilecopy(av,y);
+  return gerepilecopy(av, p? mkvec2(A,B): A);
 }
 GEN
 ellheightmatrix(GEN E, GEN x, long n)
