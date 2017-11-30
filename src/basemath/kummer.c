@@ -192,7 +192,7 @@ tauofalg(GEN x, tau_s *tau) {
 }
 
 /* compute Gal(K(\zeta_l)/K) */
-static tau_s *
+static void
 get_tau(tau_s *tau, GEN nf, compo_s *C, long g)
 {
   GEN U;
@@ -204,7 +204,6 @@ get_tau(tau_s *tau, GEN nf, compo_s *C, long g)
   tau->x  = U;
   tau->R  = C->R;
   tau->zk = nfgaloismatrix(nf, U);
-  return tau;
 }
 
 static GEN tauoffamat(GEN x, tau_s *tau);
@@ -1214,7 +1213,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   GEN matP, Sp, listprSp, Tc, Tv, P;
   primlist L;
   toK_s T;
-  tau_s _tau, *tau;
+  tau_s tau;
   compo_s COMPO;
   pari_timer t;
   long rk=0, ncyc=0;
@@ -1272,7 +1271,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] Selmer group");
   ru = (degKz>>1)-1;
   rv = rc+ru+1;
-  tau = get_tau(&_tau, nfz, &COMPO, g);
+  get_tau(&tau, nfz, &COMPO, g);
 
   /* step 4 */
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
@@ -1280,7 +1279,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   Tc=cgetg(rc+1,t_MAT);
   for (j=1; j<=rc; j++)
   {
-    p1 = tauofideal(gel(gen,j), tau);
+    p1 = tauofideal(gel(gen,j), &tau);
     p1 = isprincipalell(bnfz, p1, cycgen,u,gell,rc);
     gel(Tc,j)  = gel(p1,1);
     gel(vecB,j)= gel(p1,2);
@@ -1297,7 +1296,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
     for (j=1; j<=m-1; j++)
     {
       GEN z = FpM_red(gmulsg((j*d)%ell,gel(p1,m-j)), gell);
-      p2 = tauofvec(p2, tau);
+      p2 = tauofvec(p2, &tau);
       for (i=1; i<=rc; i++)
         gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
                                         famat_factorback(p2,gel(z,i)));
@@ -1309,7 +1308,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   Tv = cgetg(rv+1,t_MAT);
   for (j=1; j<=rv; j++)
   {
-    p1 = tauofelt(gel(vselmer,j), tau);
+    p1 = tauofelt(gel(vselmer,j), &tau);
     if (typ(p1) == t_MAT) /* famat */
       p1 = nffactorback(nfz, gel(p1,1), FpC_red(gel(p1,2),gell));
     gel(Tv,j) = isvirtualunit(bnfz, p1, cycgen,cyc,gell,rc);
@@ -1325,7 +1324,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   p1 = RgXQ_matrix_pow(COMPO.p, degKz, degK, COMPO.R);
   T.invexpoteta1 = RgM_inv(p1); /* left inverse */
   T.polnf = polnf;
-  T.tau = tau;
+  T.tau = &tau;
   T.m = m;
   T.powg = Fl_powers_FpV(g, m, ell);
 
@@ -1339,7 +1338,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   }
   /* step 9, 10, 11 */
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
-  i = build_list_Hecke(&L, nfz, NULL, gothf, gell, tau);
+  i = build_list_Hecke(&L, nfz, NULL, gothf, gell, &tau);
   if (i) return no_sol(all,i);
 
   lSml2 = lg(L.Sml2);
