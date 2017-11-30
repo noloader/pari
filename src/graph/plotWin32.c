@@ -22,9 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static void SetForeground(void *data, long col)
 {
   int r,g,b;
+  HPEN hOldPen;
   color_to_rgb(gel(GP_DATA->colormap,col+1), &r, &g, &b);
 
-  HPEN hOldPen = SelectObject((HDC)data, CreatePen(PS_SOLID, 2, RGB(r,g,b)));
+  hOldPen = SelectObject((HDC)data, CreatePen(PS_SOLID, 1, RGB(r,g,b)));
   if( hOldPen ) DeleteObject(hOldPen);
 }
 
@@ -41,10 +42,10 @@ static void DrawLine(void *data, long x1, long y1, long x2, long y2)
 
 static void DrawRectangle(void *data, long x, long y, long w, long h)
 {
-  RECT rc;
-  rc.left = x; rc.right  = x+w;
-  rc.top  = y; rc.bottom = y+h;
-  FrameRect((HDC)data, &rc, GetStockObject(HOLLOW_BRUSH));
+  DrawLine(data, x,y,x+w,y);
+  DrawLine(data, x,y,x,y+h);
+  DrawLine(data, x+w,y,x+w,y+h);
+  DrawLine(data, x,y+h,x+w,y+h);
 }
 
 static void DrawPoints(void *data, long nb, struct plot_points *p)
@@ -107,8 +108,8 @@ gp_get_plot(PARI_plot *T)
   HDC hdc;
   TEXTMETRIC tm;
 
-  T->width   = GetSystemMetrics(SM_CXSCREEN)/2;
-  T->height  = GetSystemMetrics(SM_CYSCREEN)/2;
+  T->width   = GetSystemMetrics(SM_CXSCREEN)*4/5;
+  T->height  = GetSystemMetrics(SM_CYSCREEN)*4/5;
   T->hunit   = T->width/100;
   T->vunit   = T->height/100;
 
