@@ -1214,7 +1214,7 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
   {
     GEN p1 = tauofideal(gel(gen,j), tau);
     p1 = isprincipalell(bnfz, p1, cycgen,u,gell,rc);
-    gel(Tc,j)  = gel(p1,1);
+    gel(Tc,j)  = ZV_to_Flv(gel(p1,1), ell);
     gel(vecB,j)= gel(p1,2);
   }
 
@@ -1223,22 +1223,20 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
   {
     GEN p1, p2;
     for (j=1; j<=rc; j++) gel(vecC,j) = cgetg(1, t_MAT);
-    p1 = cgetg(m,t_VEC);
-    gel(p1,1) = matid(rc);
-    for (j=2; j<=m-1; j++) gel(p1,j) = gmul(gel(p1,j-1),Tc);
+    p1 = Flm_powers(Tc, m-2, ell);
     p2 = vecB;
     for (j=1; j<=m-1; j++)
     {
-      GEN z = FpM_red(gmulsg((j*d)%ell,gel(p1,m-j)), gell);
+      GEN z = Flm_Fl_mul(gel(p1,m-j), Fl_mul(j,d,ell), ell);
       p2 = tauofvec(p2, tau);
       for (i=1; i<=rc; i++)
         gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
-                                        famat_factorback(p2,gel(z,i)));
+                                        famat_factorback(p2, Flc_to_ZC(gel(z,i))));
     }
     for (i=1; i<=rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   }
-  Q = FpM_ker(RgM_Rg_add_shallow(shallowtrans(Tc), stoi(-g)), gell);
-  return mkvec2(vecC, Q);
+  Q = Flm_ker(Flm_Fl_add(Flm_transpose(Tc), Fl_neg(g, ell), ell), ell);
+  return mkvec2(vecC, Flm_to_ZM(Q));
 }
 
 static GEN
