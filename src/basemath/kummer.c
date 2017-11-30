@@ -1241,6 +1241,28 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
 }
 
 static GEN
+_rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
+                 long rv, long g, tau_s *tau)
+{
+  GEN Tv, P, vecW;
+  long j, lW;
+  GEN cyc = bnf_get_cyc(bnfz);
+  Tv = cgetg(rv+1,t_MAT);
+  for (j=1; j<=rv; j++)
+  {
+    GEN p1 = tauofelt(gel(vselmer,j), tau);
+    if (typ(p1) == t_MAT) /* famat */
+      p1 = nffactorback(bnfz, gel(p1,1), FpC_red(gel(p1,2),gell));
+    gel(Tv,j) = isvirtualunit(bnfz, p1, cycgen,cyc,gell,rc);
+  }
+  P = FpM_ker(RgM_Rg_add_shallow(Tv, stoi(-g)), gell);
+  lW = lg(P);
+  vecW = cgetg(lW,t_VEC);
+  for (j=1; j<lW; j++) gel(vecW,j) = famat_factorback(vselmer, gel(P,j));
+  return vecW;
+}
+
+static GEN
 _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 {
   long ell, i, j, m, d, dK, dc, rc, ru, rv, g, mginv, degK, degKz, vnf;
@@ -1249,7 +1271,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   GEN cyc, gen, step4;
   GEN Q,idealz,gothf;
   GEN res=NULL,u,M,K,y,vecMsup,vecW,vecWA,vecWB,vecC,vecAp,vecBp;
-  GEN matP, Sp, listprSp, Tc, Tv, P;
+  GEN matP, Sp, listprSp, Tc;
   primlist L;
   toK_s T;
   tau_s tau;
@@ -1319,17 +1341,8 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   Tc   = gel(step4,2);
   /* step 5 */
   if (DEBUGLEVEL>2) err_printf("Step 5\n");
-  Tv = cgetg(rv+1,t_MAT);
-  for (j=1; j<=rv; j++)
-  {
-    p1 = tauofelt(gel(vselmer,j), &tau);
-    if (typ(p1) == t_MAT) /* famat */
-      p1 = nffactorback(nfz, gel(p1,1), FpC_red(gel(p1,2),gell));
-    gel(Tv,j) = isvirtualunit(bnfz, p1, cycgen,cyc,gell,rc);
-  }
-  P = FpM_ker(RgM_Rg_add_shallow(Tv, stoi(-g)), gell);
-  lW = lg(P); vecW = cgetg(lW,t_VEC);
-  for (j=1; j<lW; j++) gel(vecW,j) = famat_factorback(vselmer, gel(P,j));
+  vecW = _rnfkummer_step5(bnfz, vselmer, cycgen, gell, rc, rv, g, &tau);
+  lW = lg(vecW);
   /* step 6 */
   if (DEBUGLEVEL>2) err_printf("Step 6\n");
   Q = FpM_ker(RgM_Rg_add_shallow(shallowtrans(Tc), stoi(-g)), gell);
