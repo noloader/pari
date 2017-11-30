@@ -938,6 +938,7 @@ get_Euler(GEN E, GEN D)
 GEN
 ellpadicbsd(GEN E, GEN p, long n, GEN D)
 {
+  const long MAXR = 30;
   pari_sp av = avma;
   GEN ED, tam, ND, C, v, U, apD;
   long r, vN;
@@ -948,7 +949,6 @@ ellpadicbsd(GEN E, GEN p, long n, GEN D)
     if (equali1(D)) D = NULL;
   }
   if (typ(p) != t_INT) pari_err_TYPE("ellpadicbsd",D);
-  if (n <= 0) pari_err_DOMAIN("ellpadicbsd","precision","<=",gen_0,stoi(n));
   ED = D? ellinit(elltwist(E,D), gen_1, 0): E;
   ED = ellanal_globalred_all(ED, NULL, &ND, &tam);
   /* additive reduction ? */
@@ -956,13 +956,15 @@ ellpadicbsd(GEN E, GEN p, long n, GEN D)
   if (vN >= 2)
     pari_err_DOMAIN("ellpadicbsd","v_p(N(E_D))", ">", gen_1, stoi(vN));
   apD = ellap(ED, p);
-
+  if (n < 5) n = 5;
+START:
   v = ellpadicL_init(E, p, n, gen_0, D);
-  for (r = 0;; r++)
+  for (r = 0; r < MAXR; r++)
   {
     U = ellpadic_i(v, gen_0, r);
     if (!gequal0(U)) break;
   }
+  if (r == MAXR) { n <<= 1; goto START; }
   if (typ(U) == t_COL)
   { /* p | a_p(E_D), frobenius on E_D */
     GEN F = mkmat22(gen_0, negi(p), gen_1, apD);
