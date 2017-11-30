@@ -83,6 +83,16 @@ Doc: Returns the value (or $r$-th derivative) on a character $\chi^s$ of
  ? ellpadicL(e, p, 4, [0,1], 2, -7)
  %2 = 2*5^2 + 5^3 + O(5^4)
  @eprog
+ We give an example of non split multiplicative reduction (see
+ \tet{ellpadicbsd} for much more tests).
+ \bprog
+ ? e=ellinit("15a1"); p=3; n=5;
+ ? L = ellpadicL(e,p,n)
+ %2 = 2 + 3 + 3^2 + 3^3 + 3^4 + O(3^5)
+ ? (1 - ellap(e,p))^(-1) * L / cxL(e)
+ %3 = 1 + O(3^5)
+
+ @eprog
 
  This function is a special case of \tet{mspadicL}, and it also appears
  as the first term of \tet{mspadicseries}:

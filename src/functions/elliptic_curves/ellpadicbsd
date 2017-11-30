@@ -29,8 +29,8 @@ Doc: Given an elliptic curve $E$ over $\Q$, its quadratic twist $E_D$
  (in the basis $(\omega, F \omega)$) and $S$ is the cardinal of the
  Tate-Shafarevich group for the quadratic twist $E_D$.
 
- We use the $p$-adic BSD conjecture (Mazur, Tate, Teitelbaum, Bernardi,
- Perrin-Riou) which predicts an explicit link between $R_p S$ and
+ Recall that the $p$-adic BSD conjecture (Mazur, Tate, Teitelbaum, Bernardi,
+ Perrin-Riou) predicts an explicit link between $R_p S$ and
  $$(1-p^{-1}  F)^{-2} \cdot L_p^{(r)}(E_D, \chi^0) / r! $$
  where $r$ is the analytic rank of the $p$-adic $L$-function attached to
  $E_D$ and $F$ is the Frobenius on $H^1_{dR}$; see \tet{ellpadicL}
@@ -41,15 +41,15 @@ Doc: Given an elliptic curve $E$ over $\Q$, its quadratic twist $E_D$
  %2 = [0, 1 + O(7^5)]
 
  ? E = ellinit("91a1"); p = 7; n = 5; \\ non split multiplicative
- ? [r,L] = ellpadicbsd(E, p, n)
+ ? [r,Lp] = ellpadicbsd(E, p, n)
  %5 = [1, 2*7 + 6*7^2 + 3*7^3 + 7^4 + O(7^5)]
  ? R = ellpadicregulator(E, p, n, E.gen)
  %6 = 2*7 + 6*7^2 + 3*7^3 + 7^4 + 5*7^5 + O(7^6)
- ? sha = L/R
+ ? sha = Lp/R
  %7 = 1 + O(7^4)
 
  ? E = ellinit("91b1"); p = 7; n = 5; \\ split multiplicative
- ? [r,L] = ellpadicbsd(E, p, n)
+ ? [r,Lp] = ellpadicbsd(E, p, n)
  %9 = [2, 2*7 + 7^2 + 5*7^3 + O(7^4)]
  ? ellpadicregulator(E, p, n, E.gen)
  %10 = 2*7 + 7^2 + 5*7^3 + 6*7^4 + 2*7^5 + O(7^6)

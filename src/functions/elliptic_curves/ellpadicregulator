@@ -23,9 +23,10 @@ Doc: Let $E/\Q$ be an elliptic curve. Return the determinant of the Gram matrix
  (see \tet{ellpadicheight}) and a canonical alternating bilinear form
  $[.,.]_D$ such that $[\omega, \eta] = 1$.
 
- For any $\nu \in D$, we can define a height $h_\nu := [\nu, h_E]_D$
+ For any $\nu \in D$, we can define a height $h_\nu := [ h_E, \nu ]_D$
  from $E(\Q)$ to $\Q_p$ and $\langle \cdot, \cdot \rangle_\nu$ the attached
- bilinear form. Then, $R$ is the unique element of $D$ such that
+ bilinear form. Notice that $h_E= h_\eta \omega - h_\omega \eta$
+  Then, $R$ is the unique element of $D$ such that
  $$[\omega,\nu]_D^{r-1} [R, \nu]_D = \det(\langle Q_i, Q_j \rangle_{\nu})$$
  for all $\nu \in D$ not in $\Q_p \omega$. The \kbd{ellpadicregulator}
  function returns $R$ in the basis $(\omega, F\omega)$, which was chosen
