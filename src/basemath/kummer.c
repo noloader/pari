@@ -1203,10 +1203,10 @@ Fl_powers_FpV(ulong g, long m, ulong ell)
 
 static GEN
 _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
-                 long d, long m, tau_s *tau)
+                 long d, long m, long g, tau_s *tau)
 {
   long i, j;
-  GEN vecB, vecC, Tc;
+  GEN vecB, vecC, Tc, Q;
   ulong ell = itou(gell);
   vecB=cgetg(rc+1,t_VEC);
   Tc=cgetg(rc+1,t_MAT);
@@ -1237,7 +1237,8 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
     }
     for (i=1; i<=rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   }
-  return mkvec2(vecC, Tc);
+  Q = FpM_ker(RgM_Rg_add_shallow(shallowtrans(Tc), stoi(-g)), gell);
+  return mkvec2(vecC, Q);
 }
 
 static GEN
@@ -1272,7 +1273,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   GEN cyc, gen, step4;
   GEN Q,idealz,gothf;
   GEN res=NULL,u,M,K,y,vecMsup,vecW,vecWA,vecWB,vecC,vecAp,vecBp;
-  GEN matP, Sp, listprSp, Tc;
+  GEN matP, Sp, listprSp;
   primlist L;
   toK_s T;
   tau_s tau;
@@ -1337,16 +1338,13 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 
   /* step 4 */
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
-  step4 = _rnfkummer_step4(bnfz, gen, cycgen, u, gell, rc, d, m, &tau);
+  step4 = _rnfkummer_step4(bnfz, gen, cycgen, u, gell, rc, d, m, g, &tau);
   vecC = gel(step4,1);
-  Tc   = gel(step4,2);
+  Q    = gel(step4,2);
   /* step 5 */
   if (DEBUGLEVEL>2) err_printf("Step 5\n");
   vecW = _rnfkummer_step5(bnfz, vselmer, cycgen, gell, rc, rv, g, &tau);
   lW = lg(vecW);
-  /* step 6 */
-  if (DEBUGLEVEL>2) err_printf("Step 6\n");
-  Q = FpM_ker(RgM_Rg_add_shallow(shallowtrans(Tc), stoi(-g)), gell);
   /* step 8 */
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
   p1 = RgXQ_matrix_pow(COMPO.p, degKz, degK, COMPO.R);
