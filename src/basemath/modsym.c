@@ -867,11 +867,15 @@ msnew(GEN W)
   pari_sp av = avma;
   GEN S = mscuspidal(W, 0);
   ulong N = ms_get_N(W);
-  long s = msk_get_sign(W);
-  if (!uisprime(N))
+  long s = msk_get_sign(W), k = msk_get_weight(W);
+  if (uisprime(N))
+  { if (k == 12 || k > 14)
+      pari_err_IMPL("msnew in prime level and large weight");
+  }
+  else
   {
     GEN p1N = ms_get_p1N(W), P = gel(p1N_get_fa(p1N), 1);
-    long i, nP = lg(P)-1, k = msk_get_weight(W);
+    long i, nP = lg(P)-1;
     GEN v = cgetg(2*nP + 1, t_COL);
     S = gel(S,1); /* Q basis */
     for (i = 1; i <= nP; i++)
