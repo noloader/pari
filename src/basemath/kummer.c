@@ -404,23 +404,23 @@ logall(GEN nf, GEN vec, long lW, long mginv, long ell, GEN pr, long ex)
 
 /* compute the u_j (see remark 5.2.15.) */
 static GEN
-get_u(GEN cyc, long rc, GEN gell)
+get_u(GEN cyc, long rc, ulong ell)
 {
   long i, l = lg(cyc);
-  GEN u = cgetg(l,t_VEC);
-  for (i=1; i<=rc; i++) gel(u,i) = gen_0;
-  for (   ; i<  l; i++) gel(u,i) = Fp_inv(gel(cyc,i), gell);
+  GEN u = cgetg(l,t_VECSMALL);
+  for (i=1; i<=rc; i++) uel(u,i) = 0;
+  for (   ; i<  l; i++) uel(u,i) = Fl_inv(uel(cyc,i), ell);
   return u;
 }
 
 /* alg. 5.2.15. with remark */
 static GEN
-isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, GEN gell, long rc)
+isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, ulong ell, long rc)
 {
   long i, l = lg(cycgen);
   GEN v, b, db, y = bnfisprincipal0(bnfz, id, nf_FORCE|nf_GENMAT);
 
-  v = FpC_red(gel(y,1), gell);
+  v = ZV_to_Flv(gel(y,1), ell);
   b = gel(y,2);
   if (typ(b) == t_COL)
   {
@@ -429,8 +429,8 @@ isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, GEN gell, long rc)
   }
   for (i=rc+1; i<l; i++)
   {
-    GEN e = Fp_mul(gel(v,i), gel(u,i), gell);
-    b = famat_mulpow_shallow(b, gel(cycgen,i), e);
+    ulong e = Fl_mul( uel(v,i), uel(u,i), ell);
+    b = famat_mulpow_shallow(b, gel(cycgen,i), utoi(e));
   }
   setlg(v,rc+1); return mkvec2(v, b);
 }
@@ -754,14 +754,14 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
 
   vecW = get_Selmer(bnf, cycgen, rc);
-  u = get_u(cyc, rc, gell);
+  u = get_u(ZV_to_Flv(cyc,ell), rc, ell);
 
   vecBp = cgetg(lSp, t_VEC);
   matP  = cgetg(lSp, t_MAT);
   for (j = 1; j < lSp; j++)
   {
-    GEN L = isprincipalell(bnf,gel(Sp,j), cycgen,u,gell,rc);
-    gel( matP,j) = ZV_to_Flv(gel(L,1), ell);
+    GEN L = isprincipalell(bnf,gel(Sp,j), cycgen,u,ell,rc);
+    gel( matP,j) = gel(L,1);
     gel(vecBp,j) = gel(L,2);
   }
   vecWB = shallowconcat(vecW, vecBp);
@@ -1202,8 +1202,8 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
   for (j=1; j<=rc; j++)
   {
     GEN p1 = tauofideal(gel(gen,j), tau);
-    p1 = isprincipalell(bnfz, p1, cycgen,u,gell,rc);
-    gel(Tc,j)  = ZV_to_Flv(gel(p1,1), ell);
+    p1 = isprincipalell(bnfz, p1, cycgen,u,ell,rc);
+    gel(Tc,j)  = gel(p1,1);
     gel(vecB,j)= gel(p1,2);
   }
 
@@ -1316,7 +1316,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   nfz = bnf_get_nf(bnfz);
   cyc = bnf_get_cyc(bnfz); rc = prank(cyc,ell);
   gen = bnf_get_gen(bnfz);
-  u = get_u(cyc, rc, gell);
+  u = get_u(ZV_to_Flv(cyc, ell), rc, ell);
 
   vselmer = get_Selmer(bnfz, cycgen, rc);
   if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] Selmer group");
@@ -1368,10 +1368,10 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   for (j = 1; j < lSp; j++)
   {
     GEN e, a;
-    p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,gell,rc);
-    e = gel(p1,1); gel(matP,j) = ZV_to_Flv(e, ell);
+    p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,ell,rc);
+    e = gel(p1,1); gel(matP,j) = gel(p1, 1);
     a = gel(p1,2);
-    gel(vecBp,j) = famat_mul_shallow(famat_factorback(vecC, gneg(e)), a);
+    gel(vecBp,j) = famat_mul_shallow(famat_factorback(vecC, gneg(Flc_to_ZC(e))), a);
   }
   vecAp = lambdaofvec(vecBp, &T);
   /* step 13 */
