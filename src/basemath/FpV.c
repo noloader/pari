@@ -716,19 +716,41 @@ F2m_mul(GEN x, GEN y)
   return z;
 }
 
+struct _Flm
+{
+  ulong p;
+  long n;
+};
+
 static GEN
-_Flm_mul(void *p , GEN x, GEN y)
-{ return Flm_mul(x,y,*(ulong*)p); }
+_Flm_mul(void *E , GEN x, GEN y)
+{ return Flm_mul(x,y,((struct _Flm*)E)->p); }
 static GEN
-_Flm_sqr(void *p, GEN x)
-{ return Flm_mul(x,x,*(ulong*)p); }
+_Flm_sqr(void *E, GEN x)
+{ return Flm_mul(x,x,((struct _Flm*)E)->p); }
+static GEN
+_Flm_one(void *E)
+{ return matid_Flm(((struct _Flm*)E)->n); }
 GEN
 Flm_powu(GEN x, ulong n, ulong p)
 {
   pari_sp av = avma;
+  struct _Flm d;
   if (!n) return matid(lg(x)-1);
-  return gerepileupto(av, gen_powu(x, n, (void*)&p, &_Flm_sqr, &_Flm_mul));
+  d.p = p;
+  return gerepileupto(av, gen_powu(x, n, (void*)&d, &_Flm_sqr, &_Flm_mul));
 }
+GEN
+Flm_powers(GEN x, ulong n, ulong p)
+{
+  pari_sp av = avma;
+  struct _Flm d;
+  d.p = p;
+  d.n = lg(x)-1;
+  return gerepileupto(av, gen_powers(x, n, 1, (void*)&d,
+                          &_Flm_sqr, &_Flm_mul, &_Flm_one));
+}
+
 static GEN
 _F2m_mul(void *data, GEN x, GEN y)
 { (void) data; return F2m_mul(x,y); }

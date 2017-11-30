@@ -798,6 +798,7 @@ GEN     Flm_add(GEN x, GEN y, ulong p);
 GEN     Flm_center(GEN z, ulong p, ulong ps2);
 GEN     Flm_mul(GEN x, GEN y, ulong p);
 GEN     Flm_neg(GEN y, ulong p);
+GEN     Flm_powers(GEN x, ulong n, ulong p);
 GEN     Flm_powu(GEN x, ulong n, ulong p);
 GEN     Flm_sub(GEN x, GEN y, ulong p);
 GEN     Flm_to_mod(GEN z, ulong pp);
