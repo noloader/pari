@@ -193,7 +193,7 @@ tauofalg(GEN x, tau_s *tau) {
 
 /* compute Gal(K(\zeta_l)/K) */
 static void
-get_tau(tau_s *tau, GEN nf, compo_s *C, long g)
+get_tau(tau_s *tau, GEN nf, compo_s *C, ulong g)
 {
   GEN U;
 
@@ -1254,8 +1254,9 @@ _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
 static GEN
 _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 {
-  long ell, i, j, m, d, dK, dc, rc, ru, rv, g, mginv, degK, degKz, vnf;
+  long i, j, m, d, dK, dc, rc, ru, rv, mginv, degK, degKz, vnf;
   long lSp, lSml2, lSl2, lW;
+  ulong g, ell;
   GEN polnf,bnf,nf,bnfz,nfz,bid,ideal,cycgen,gell,p1,vselmer;
   GEN cyc, gen, step4;
   GEN Q,idealz,gothf;
@@ -1282,7 +1283,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   bnr      = gel(p1,2);
   subgroup = gel(p1,3);
   gell = get_gell(bnr,subgroup,all);
-  ell = itos(gell);
+  ell = itou(gell);
   if (ell == 1) return pol_x(0);
   if (!uisprime(ell)) pari_err_IMPL("kummer for composite relative degree");
   if (all && all != -1 && umodiu(bnr_get_no(bnr), ell))
@@ -1303,8 +1304,8 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   degKz = degpol(COMPO.R);
   m = degKz / degK;
   d = (ell-1) / m;
-  g = (long)Fl_powu(pgener_Fl(ell), d, ell);
-  if (Fl_powu((ulong)g, m, ell*ell) == 1) g += ell;
+  g = Fl_powu(pgener_Fl(ell), d, ell);
+  if (Fl_powu(g, m, ell*ell) == 1) g += ell;
   /* ord(g) = m in all (Z/ell^k)^* */
   /* step 3 */
   if (DEBUGLEVEL>2) err_printf("Step 3\n");
