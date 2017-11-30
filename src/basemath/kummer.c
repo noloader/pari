@@ -245,7 +245,7 @@ lambdaofelt(GEN x, toK_s *T)
   GEN y = cgetg(1, t_MAT), powg = T->powg; /* powg[i] = g^i */
   for (i=1; i<m; i++)
   {
-    y = famat_mulpow_shallow(y, x, gel(powg,m-i));
+    y = famat_mulpow_shallow(y, x, utoi(uel(powg,m-i+1)));
     x = tauofelt(x, tau);
   }
   return famat_mul_shallow(y, x);
@@ -1190,17 +1190,6 @@ nfX_Z_normalize(GEN nf, GEN P)
   }
 }
 
-/* v[i] = g^i mod ell, 1 <= i < m */
-static GEN
-Fl_powers_FpV(ulong g, long m, ulong ell)
-{
-  GEN v = cgetg(m, t_VEC);
-  ulong gi = g % ell;
-  long i;
-  for (i=1; i<m; i++) { gel(v,i) = utoi(gi); gi = (gi*g) % ell; }
-  return v;
-}
-
 static GEN
 _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
                  long d, long m, long g, tau_s *tau)
@@ -1350,7 +1339,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   T.polnf = polnf;
   T.tau = &tau;
   T.m = m;
-  T.powg = Fl_powers_FpV(g, m, ell);
+  T.powg = Fl_powers(g, m, ell);
 
   idealz = ideallifttoKz(nfz, nf, ideal, &COMPO);
   if (umodiu(gcoeff(ideal,1,1), ell)) gothf = idealz;
