@@ -1246,6 +1246,7 @@ _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
 {
   GEN Tv, P, vecW;
   long j, lW;
+  ulong ell = itou(gell);
   GEN cyc = bnf_get_cyc(bnfz);
   Tv = cgetg(rv+1,t_MAT);
   for (j=1; j<=rv; j++)
@@ -1253,12 +1254,12 @@ _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
     GEN p1 = tauofelt(gel(vselmer,j), tau);
     if (typ(p1) == t_MAT) /* famat */
       p1 = nffactorback(bnfz, gel(p1,1), FpC_red(gel(p1,2),gell));
-    gel(Tv,j) = isvirtualunit(bnfz, p1, cycgen,cyc,gell,rc);
+    gel(Tv,j) = ZV_to_Flv(isvirtualunit(bnfz, p1, cycgen,cyc,gell,rc), ell);
   }
-  P = FpM_ker(RgM_Rg_add_shallow(Tv, stoi(-g)), gell);
+  P = Flm_ker(Flm_Fl_add(Tv, Fl_neg(g, ell), ell), ell);
   lW = lg(P);
   vecW = cgetg(lW,t_VEC);
-  for (j=1; j<lW; j++) gel(vecW,j) = famat_factorback(vselmer, gel(P,j));
+  for (j=1; j<lW; j++) gel(vecW,j) = famat_factorback(vselmer, Flc_to_ZC(gel(P,j)));
   return vecW;
 }
 
