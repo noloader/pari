@@ -1648,7 +1648,7 @@ act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN), hashtable *H)
   GEN S = NULL, G, E;
   pari_sp av;
   long l, j;
-  /* paranoia: should'n t occur */
+  /* paranoia: should not occur */
   if (typ(z) == t_INT) return scalarmat_shallow(z, T->dim);
   G = gel(z,1); l = lg(G);
   E = gel(z,2);
@@ -3514,8 +3514,7 @@ omseval_int(struct m_act *S, GEN PHI, GEN L, hashtable *H)
   for (a = 1; a < lphi; a++)
   {
     GEN T = dense_act_col(L, gel(PHI,a));
-    if (T) T = FpC_red(T,S->q); else T = zerocol(S->dim);
-    gel(v,a) = T;
+    gel(v,a) = T? FpC_red(T,S->q): zerocol(S->dim);
   }
   return v;
 }
@@ -3890,7 +3889,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
           gel(vca, c) = gel(vca,c)? ZC_add(gel(vca,c), z): z;
         }
       }
-      if (Dk) for(c = 1; c < lphi; c++)
+      if (Dk) for (c = 1; c < lphi; c++)
         gel(vca,c) = FpC_Fp_mul(gel(vca,c), Dk, pn);
     }
     else
