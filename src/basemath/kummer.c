@@ -761,7 +761,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   for (j = 1; j < lSp; j++)
   {
     GEN L = isprincipalell(bnf,gel(Sp,j), cycgen,u,gell,rc);
-    gel( matP,j) = gel(L,1);
+    gel( matP,j) = ZV_to_Flv(gel(L,1), ell);
     gel(vecBp,j) = gel(L,2);
   }
   vecWB = shallowconcat(vecW, vecBp);
@@ -787,7 +787,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
     M = vconcat(M, logall(nf, vecWB, 0,0, ell, pr,z));
   }
   lW = lg(vecW);
-  M = vconcat(M, shallowconcat(zero_Flm(rc,lW-1), ZM_to_Flm(matP, ell)));
+  M = vconcat(M, shallowconcat(zero_Flm(rc,lW-1), matP));
   if (!all)
   { /* primes landing in subgroup must be totally split */
     GEN Lpr = get_prlist(bnr, subgroup, ell, NULL);
@@ -1225,7 +1225,7 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
     for (i=1; i<=rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   }
   Q = Flm_ker(Flm_Fl_add(Flm_transpose(Tc), Fl_neg(g, ell), ell), ell);
-  return mkvec2(vecC, Flm_to_ZM(Q));
+  return mkvec2(vecC, Q);
 }
 
 static GEN
@@ -1369,7 +1369,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   {
     GEN e, a;
     p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,gell,rc);
-    e = gel(p1,1); gel(matP,j) = e;
+    e = gel(p1,1); gel(matP,j) = ZV_to_Flv(e, ell);
     a = gel(p1,2);
     gel(vecBp,j) = famat_mul_shallow(famat_factorback(vecC, gneg(e)), a);
   }
@@ -1399,8 +1399,8 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   dc = lg(Q)-1;
   if (dc)
   {
-    GEN QtP = gmul(shallowtrans(Q), matP);
-    M = vconcat(M, shallowconcat(zero_Flm(dc,lW-1), ZM_to_Flm(QtP,ell)));
+    GEN QtP = Flm_mul(Flm_transpose(Q), matP, ell);
+    M = vconcat(M, shallowconcat(zero_Flm(dc,lW-1), QtP));
   }
   if (!M) M = zero_Flm(1, lSp-1 + lW-1);
 
