@@ -253,6 +253,15 @@ t^4 + t^2
 ? my(a=ffgen([2,100]));(0*a*x)*x
 0
 ? default(echo,0);
+? test(2,1,5,3)
+error("domain error in ffcompomap: m domain do not contain codomain of [b, c
+^12 + c^10 + c^9 + c^5 + c^3 + c^2]")
+error("domain error in ffcompomap: m domain do not contain codomain of [b, b
+^5 + b^4 + b^2 + b + 1]")
+error("domain error in ffmap: m domain do not contain b^4 + b^3 + 1")
+error("domain error in ffmap: m domain do not contain c^12 + c^10 + c^9 + c^
+5 + c^3 + c^2")
+error("incorrect type in ffextend (t_POL).")
 ? test(2,5,5,3)
 error("domain error in ffcompomap: m domain do not contain codomain of [b, c
 ^70 + c^69 + c^67 + c^66 + c^64 + c^60 + c^58 + c^57 + c^56 + c^54 + c^51 + 
@@ -269,6 +278,14 @@ error("domain error in ffmap: m domain do not contain c^70 + c^69 + c^67 + c
 c^45 + c^44 + c^42 + c^40 + c^39 + c^37 + c^34 + c^32 + c^31 + c^30 + c^29 +
  c^28 + c^24 + c^20 + c^18 + c^15 + c^13 + c^9 + c^8 + c^7 + c^4 + c^3 + c^2
  + c + 1")
+error("incorrect type in ffextend (t_POL).")
+? test(3,1,2,3)
+error("domain error in ffcompomap: m domain do not contain codomain of [b, c
+^4 + c^2 + c]")
+error("domain error in ffcompomap: m domain do not contain codomain of [b, b
+^2 + b + 2]")
+error("domain error in ffmap: m domain do not contain 2")
+error("domain error in ffmap: m domain do not contain c^4 + c^2 + c")
 error("incorrect type in ffextend (t_POL).")
 ? test(3,10,2,3)
 error("domain error in ffcompomap: m domain do not contain codomain of [b, c
@@ -287,6 +304,20 @@ error("domain error in ffmap: m domain do not contain c^57 + 2*c^56 + 2*c^55
 37 + 2*c^36 + c^35 + c^34 + c^32 + 2*c^31 + 2*c^30 + 2*c^28 + c^25 + c^24 + 
 c^21 + c^20 + 2*c^19 + 2*c^18 + 2*c^17 + c^16 + 2*c^15 + c^14 + c^13 + 2*c^1
 2 + 2*c^9 + 2*c^8 + 2*c^6 + c^5 + c^4 + c^3 + c^2 + 2*c + 1")
+error("incorrect type in ffextend (t_POL).")
+? test(nextprime(2^100),1,3,2)
+error("domain error in ffcompomap: m domain do not contain codomain of [b, 2
+80046610722778533735130804237*c^5 + 527624049187843614283579776099*c^4 + 219
+166912739565809010102368534*c^3 + 43292229676951270915575776500*c^2 + 353102
+248302633803405164927080*c + 757614019346647241022576088757]")
+error("domain error in ffcompomap: m domain do not contain codomain of [b, b
+^3 + b^2 + 1267650600228229401496703205649*b + 1]")
+error("domain error in ffmap: m domain do not contain 1267650600228229401496
+703205652*b^2 + 1267650600228229401496703205651*b + 6")
+error("domain error in ffmap: m domain do not contain 2800466107227785337351
+30804237*c^5 + 527624049187843614283579776099*c^4 + 219166912739565809010102
+368534*c^3 + 43292229676951270915575776500*c^2 + 353102248302633803405164927
+080*c + 757614019346647241022576088757")
 error("incorrect type in ffextend (t_POL).")
 ? test(nextprime(2^100),3,3,2)
 error("domain error in ffcompomap: m domain do not contain codomain of [b, 1
@@ -322,4 +353,4 @@ error("incorrect type in ffextend (t_POL).")
   ***                 ^---------------------
   *** ffgen: not an irreducible polynomial in ffgen: x^2 + x + 1.
 ? print("Total time spent: ",gettime);
-Total time spent: 1104
+Total time spent: 1028

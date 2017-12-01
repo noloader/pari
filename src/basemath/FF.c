@@ -306,13 +306,16 @@ FF_gen(GEN x)
   switch(x[1])
   {
   case t_FF_FpXQ:
-    r=pol_x(varn(T));
+    r = pol_x(varn(T));
+    if (degpol(T)==1) r = FpX_rem(r, T, p);
     break;
   case t_FF_F2xq:
-    r=polx_F2x(T[1]);
+    r = polx_F2x(T[1]);
+    if (F2x_degree(T)==1) r = F2x_rem(r, T);
     break;
   default:
-    r=polx_Flx(T[1]);
+    r = polx_Flx(T[1]);
+    if (degpol(T)==1) r = Flx_rem(r, T, pp);
   }
   return _mkFF(x,z,r);
 }
