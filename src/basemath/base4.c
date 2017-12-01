@@ -923,6 +923,13 @@ famat_mulpow_shallow(GEN f, GEN g, GEN e)
 }
 
 GEN
+famat_mulpows_shallow(GEN f, GEN g, long e)
+{
+  if (e==0) return f;
+  return famat_mul_shallow(f, famat_pows_shallow(g, e));
+}
+
+GEN
 to_famat(GEN x, GEN y) { retmkmat2(mkcolcopy(x), mkcolcopy(y)); }
 GEN
 to_famat_shallow(GEN x, GEN y) { return mkmat2(mkcol(x), mkcol(y)); }
@@ -1013,6 +1020,16 @@ famat_pow_shallow(GEN f, GEN n)
   if (lg(f) == 1) return f;
   if (typ(f) != t_MAT) return to_famat_shallow(f,n);
   return mkmat2(gel(f,1), ZC_Z_mul(gel(f,2),n));
+}
+
+GEN
+famat_pows_shallow(GEN f, long n)
+{
+  if (n==1) return f;
+  if (n==-1) return famat_inv_shallow(f);
+  if (lg(f) == 1) return f;
+  if (typ(f) != t_MAT) return to_famat_shallow(f, stoi(n));
+  return mkmat2(gel(f,1), ZC_z_mul(gel(f,2),n));
 }
 
 GEN

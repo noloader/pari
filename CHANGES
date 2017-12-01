@@ -318,6 +318,7 @@ BA  126- [libpari] F2xqXQ_inv, F2xqXQ_invsafe, F2xqX_invBarrett, Flc_Flv_mul
 BA  128- New GP function lfuntwist
     129- [libpari] mkmat22, mkmat22s, Qp_agm2_sequence, Qp_ascending_Landen,
          Qp_descending_Landen
+BA  130- [libpari] famat_pows_shallow, famat_mulpows_shallow
 
   Changed
       1- rewrite bnfnarrow

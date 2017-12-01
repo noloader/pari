@@ -775,8 +775,15 @@ by $n$). Otherwise, understand it as an element and returns the $1$-line
 
 \fun{GEN}{famat_pow_shallow}{GEN f, GEN n} shallow version of \tet{famat_pow}.
 
+\fun{GEN}{famat_pows_shallow}{GEN f, long n} shallow version of \tet{famat_pow}
+where $n$ is a small integer.
+
 \fun{GEN}{famat_mulpow_shallow}{GEN f, GEN g, GEN e} \kbd{famat}
 corresponding to $f \cdot g^e$. Shallow function.
+
+\fun{GEN}{famat_mulpows_shallow}{GEN f, GEN g, long e} \kbd{famat}
+shallow version of \tet{famat_mulpow} where $e$ is a small integer.
+
 
 \fun{GEN}{famat_sqr}{GEN f} returns $f^2$.
 
