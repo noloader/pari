@@ -1261,24 +1261,84 @@ _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
 }
 
 static GEN
+_rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN K,
+     GEN vecWB, GEN vecMsup, ulong g, GEN gell, long rk, long lW, long lM, long all)
+{
+  GEN y, res = NULL, mat = NULL;
+  long i, dK, ncyc = 0;
+  ulong ell = itou(gell);
+  GEN bnf = bnr_get_bnf(bnr);
+  GEN nf  = bnf_get_nf(bnf);
+  GEN polnf = nf_get_pol(nf);
+  GEN nfz = bnf_get_nf(bnfz);
+  long firstpass = all<0;
+  dK = lg(K)-1;
+  y = cgetg(dK+1,t_VECSMALL);
+  if (all) res = cgetg(1, t_VEC);
+  if (all < 0) { ncyc = dK; rk = 0; mat = zero_Flm(lM-1, ncyc); }
+
+  do {
+    dK = lg(K)-1;
+    while (dK)
+    {
+      for (i=1; i<dK; i++) y[i] = 0;
+      y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at dK'th position */
+      do
+      { /* cf. algo 5.3.18 */
+        GEN H, be, P, X = Flm_Flc_mul(K, y, ell);
+        if (ok_congruence(X, ell, lW, vecMsup))
+        {
+          pari_sp av = avma;
+          if (all < 0)
+          {
+            gel(mat, rk+1) = X;
+            if (Flm_rank(mat,ell) <= rk) continue;
+            rk++;
+          }
+          be = compute_beta(X, vecWB, gell, bnfz);
+          P = compute_polrel(nfz, T, be, g, ell);
+          nfX_Z_normalize(nf, P);
+          if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
+          if (!all) {
+            H = rnfnormgroup(bnr, P);
+            if (ZM_equal(subgroup, H)) return P; /* DONE */
+            avma = av; continue;
+          } else {
+            GEN P0 = Q_primpart(lift_shallow(P));
+            GEN g = nfgcd(P0, RgX_deriv(P0), polnf, nf_get_index(nf));
+            if (degpol(g)) continue;
+            H = rnfnormgroup(bnr, P);
+            if (!ZM_equal(subgroup,H) && !bnrisconductor(bnr,H)) continue;
+          }
+          P = gerepilecopy(av, P);
+          res = shallowconcat(res, P);
+          if (all < 0 && rk == ncyc) return res;
+          if (firstpass) break;
+        }
+      } while (increment(y, dK, ell));
+      y[dK--] = 0;
+    }
+  } while (firstpass--);
+  return res;
+}
+
+static GEN
 _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 {
-  long i, j, m, d, dK, dc, rc, ru, rv, mginv, degK, degKz, vnf;
+  long i, j, m, d, dc, rc, ru, rv, mginv, degK, degKz, vnf;
   long lSp, lSml2, lSl2, lW;
   ulong g, ell;
   GEN polnf,bnf,nf,bnfz,nfz,bid,ideal,cycgen,gell,p1,vselmer;
   GEN cyc, gen, step4;
   GEN Q,idealz,gothf;
-  GEN res=NULL,u,M,K,y,vecMsup,vecW,vecWA,vecWB,vecC,vecAp,vecBp;
+  GEN res=NULL,u,M,K,vecMsup,vecW,vecWA,vecWB,vecC,vecAp,vecBp;
   GEN matP, Sp, listprSp;
   primlist L;
   toK_s T;
   tau_s tau;
   compo_s COMPO;
   pari_timer t;
-  long rk=0, ncyc=0;
-  GEN mat = NULL;
-  long firstpass = all<0;
+  long rk=0;
 
   if (DEBUGLEVEL) timer_start(&t);
   checkbnr(bnr);
@@ -1427,57 +1487,10 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   if (all < 0)
     K = fix_kernel(K, M, vecMsup, lW, ell);
   /* step 18 & ff */
-  if (DEBUGLEVEL>2) err_printf("Step 18\n");
-  dK = lg(K)-1;
-  y = cgetg(dK+1,t_VECSMALL);
-  if (all) res = cgetg(1, t_VEC);
   if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] candidate list");
-  if (all < 0) { ncyc = dK; rk = 0; mat = zero_Flm(lg(M)-1, ncyc); }
-
-  do {
-    dK = lg(K)-1;
-    while (dK)
-    {
-      for (i=1; i<dK; i++) y[i] = 0;
-      y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at dK'th position */
-      do
-      { /* cf. algo 5.3.18 */
-        GEN H, be, P, X = Flm_Flc_mul(K, y, ell);
-        if (ok_congruence(X, ell, lW, vecMsup))
-        {
-          pari_sp av = avma;
-          if (all < 0)
-          {
-            gel(mat, rk+1) = X;
-            if (Flm_rank(mat,ell) <= rk) continue;
-            rk++;
-          }
-          be = compute_beta(X, vecWB, gell, bnfz);
-          P = compute_polrel(nfz, &T, be, g, ell);
-          nfX_Z_normalize(nf, P);
-          if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
-          if (!all) {
-            H = rnfnormgroup(bnr, P);
-            if (ZM_equal(subgroup, H)) return P; /* DONE */
-            avma = av; continue;
-          } else {
-            GEN P0 = Q_primpart(lift_shallow(P));
-            GEN g = nfgcd(P0, RgX_deriv(P0), polnf, nf_get_index(nf));
-            if (degpol(g)) continue;
-            H = rnfnormgroup(bnr, P);
-            if (!ZM_equal(subgroup,H) && !bnrisconductor(bnr,H)) continue;
-          }
-          P = gerepilecopy(av, P);
-          res = shallowconcat(res, P);
-          if (all < 0 && rk == ncyc) return res;
-          if (firstpass) break;
-        }
-      } while (increment(y, dK, ell));
-      y[dK--] = 0;
-    }
-  } while (firstpass--);
-  if (all) return res;
-  return gen_0; /* FAIL */
+  if (DEBUGLEVEL>2) err_printf("Step 18\n");
+  res = _rnfkummer_step18(&T,bnr,subgroup,bnfz, K, vecWB, vecMsup, g, gell, rk, lW, lg(M), all);
+  return res? res: gen_0;
 }
 
 GEN
