@@ -245,7 +245,7 @@ lambdaofelt(GEN x, toK_s *T)
   GEN y = cgetg(1, t_MAT), powg = T->powg; /* powg[i] = g^i */
   for (i=1; i<m; i++)
   {
-    y = famat_mulpow_shallow(y, x, utoi(uel(powg,m-i+1)));
+    y = famat_mulpows_shallow(y, x, uel(powg,m-i+1));
     x = tauofelt(x, tau);
   }
   return famat_mul_shallow(y, x);
@@ -425,12 +425,12 @@ isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, ulong ell, long rc)
   if (typ(b) == t_COL)
   {
     b = Q_remove_denom(gel(y,2), &db);
-    if (db) b = famat_mulpow_shallow(b, db, gen_m1);
+    if (db) b = famat_mulpows_shallow(b, db, -1);
   }
   for (i=rc+1; i<l; i++)
   {
     ulong e = Fl_mul( uel(v,i), uel(u,i), ell);
-    b = famat_mulpow_shallow(b, gel(cycgen,i), utoi(e));
+    b = famat_mulpows_shallow(b, gel(cycgen,i), e);
   }
   setlg(v,rc+1); return mkvec2(v, b);
 }
@@ -445,10 +445,19 @@ famat_factorback(GEN v, GEN e)
 }
 
 static GEN
+famat_factorbacks(GEN v, GEN e)
+{
+  long i, l = lg(e);
+  GEN V = cgetg(1, t_MAT);
+  for (i=1; i<l; i++) V = famat_mulpows_shallow(V, gel(v,i), uel(e,i));
+  return V;
+}
+
+static GEN
 compute_beta(GEN X, GEN vecWB, GEN ell, GEN bnfz)
 {
   GEN BE, be;
-  BE = famat_reduce(famat_factorback(vecWB, zv_to_ZV(X)));
+  BE = famat_reduce(famat_factorbacks(vecWB, X));
   gel(BE,2) = centermod(gel(BE,2), ell);
   be = nffactorback(bnfz, BE, NULL);
   be = reducebeta(bnfz, be, ell);
@@ -1220,7 +1229,7 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
       p2 = tauofvec(p2, tau);
       for (i=1; i<=rc; i++)
         gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
-                                        famat_factorback(p2, Flc_to_ZC(gel(z,i))));
+                                        famat_factorbacks(p2, gel(z,i)));
     }
     for (i=1; i<=rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   }
@@ -1247,7 +1256,7 @@ _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
   P = Flm_ker(Flm_Fl_add(Tv, Fl_neg(g, ell), ell), ell);
   lW = lg(P);
   vecW = cgetg(lW,t_VEC);
-  for (j=1; j<lW; j++) gel(vecW,j) = famat_factorback(vselmer, Flc_to_ZC(gel(P,j)));
+  for (j=1; j<lW; j++) gel(vecW,j) = famat_factorbacks(vselmer, gel(P,j));
   return vecW;
 }
 
@@ -1371,7 +1380,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
     p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,ell,rc);
     e = gel(p1,1); gel(matP,j) = gel(p1, 1);
     a = gel(p1,2);
-    gel(vecBp,j) = famat_mul_shallow(famat_factorback(vecC, gneg(Flc_to_ZC(e))), a);
+    gel(vecBp,j) = famat_mul_shallow(famat_factorbacks(vecC, zv_neg(e)), a);
   }
   vecAp = lambdaofvec(vecBp, &T);
   /* step 13 */
