@@ -2097,7 +2097,7 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
     }
     gel(T,j) = gerepilecopy(av, t);
   }
-  for(j = 1; j <= dim; j++) ZGl2QC_to_act(S, act, gel(T,j), H);
+  for (j = 1; j <= dim; j++) ZGl2QC_to_act(S, act, gel(T,j), H);
   return T;
 }
 
@@ -4449,7 +4449,7 @@ mssiegel(struct siegel *S)
     }
     if (k != nv) { siegel_perm0(S, rotate_perm(nv+1, k+1)); S->n += nv-k; }
 
-    for(k = S->n+1; k <= nv; k++)
+    for (k = S->n+1; k <= nv; k++)
       if (S->Ast[k] <= k) { t = S->Ast[k]; break; }
     S->k1 = t;
     S->k2 = t+1;
@@ -4551,18 +4551,18 @@ mslattice(GEN M, GEN F)
     if (k == 2)
     {
       B = cgetg(lF, t_VEC);
-      for(j = 1; j < lF; j++) gel(B,j) = gel(vb,j);
+      for (j = 1; j < lF; j++) gel(B,j) = gel(vb,j);
     }
     else
     {
       long lB;
       B = cgetg(lF, t_MAT);
-      for(j = 1; j < lF; j++) gel(B,j) = RgX_to_RgC(gel(vb,j), k-1);
+      for (j = 1; j < lF; j++) gel(B,j) = RgX_to_RgC(gel(vb,j), k-1);
       /* add coboundaries */
       B = shallowconcat(B, RgM_Rg_sub(RgX_act_Gl2Q(g, k), gen_1));
       /* beware: the basis for RgX_act_Gl2Q is (X^(k-2),...,Y^(k-2)) */
       lB = lg(B);
-      for(j = 1; j < lB; j++) gel(B,j) = vecreverse(gel(B,j));
+      for (j = 1; j < lB; j++) gel(B,j) = vecreverse(gel(B,j));
     }
     gel(vB, ivB++) = B;
   }
