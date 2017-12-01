@@ -6,9 +6,10 @@ Help: ellap(E,{p}): computes the trace of Frobenius a_p for the elliptic
  curve E, defined over Q or a finite field.
 Doc:
  Let $E$ be an \kbd{ell} structure as output by \kbd{ellinit}, defined over
- a number field or a finite field $\F_q$. The argument $p$ is best left
- omitted if the curve is defined over a finite field, and must be a prime
- number or a maximal ideal otherwise. This function computes the trace of
+ a number field, $\Q_p$ or a finite field $\F_q$. The argument $p$ is best left
+ omitted if the curve is defined over a finite field or over $\Q_p$,
+ and must be a prime number or a maximal ideal otherwise. This function
+ computes the trace of
  Frobenius $t$ for the elliptic curve $E$, defined by the equation $\#E(\F_q)
  = q+1 - t$ (for primes of good reduction).
 
@@ -21,6 +22,9 @@ Doc:
  $L(E,s) = \sum_n a_n n^{-s}$, whence the function name. The equation must be
  integral at $p$ but need not be minimal at $p$; of course, a minimal model
  will be more efficient.
+
+ If the curve is defined over $\Q_p$, the function computes the cardinality
+ of the reduction over the residue field $\F_p$, as over $\Q$.
  \bprog
  ? E = ellinit([0,1]);  \\ y^2 = x^3 + 0.x + 1, defined over Q
  ? ellap(E, 7) \\ 7 necessary here
@@ -39,7 +43,6 @@ Doc:
     *** ellap: inconsistent moduli in Rg_to_Fp:
       11
       13
-
  ? Fq = ffgen(ffinit(11,3), 'a); \\ defines F_q := F_{11^3}
  ? E = ellinit([a+1,a], Fq);  \\ y^2 = x^3 + (a+1)x + a, defined over F_q
  ? ellap(E)
@@ -48,9 +51,7 @@ Doc:
 
  If the curve is defined over a more general number field than $\Q$,
  the maximal ideal $p$ must be explicitly given in \kbd{idealprimedec}
- format. If $p$ is above $2$ or $3$, the function currently assumes (without
- checking) that the given model is locally minimal at $p$. There is no
- restriction at other primes.
+ format. There is no assumption of local minimality at $p$.
  \bprog
  ? K = nfinit(a^2+1); E = ellinit([1+a,0,1,0,0], K);
  ? fa = idealfactor(K, E.disc)

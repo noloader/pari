@@ -6275,7 +6275,7 @@ elltatepairing(GEN E, GEN P, GEN Q, GEN m)
   }
 }
 
-/* E/Q, return cardinality including the (possible) ramified point */
+/* E/Q or Qp, return cardinality including the (possible) ramified point */
 static GEN
 ellcard_ram(GEN E, GEN p, int *good_red)
 {
@@ -6344,6 +6344,7 @@ ellap(GEN E, GEN p)
   case t_ELL_Fq:
     q = FF_q(ellff_get_field(E)); card = ellff_get_card(E);
     break;
+  case t_ELL_Qp:
   case t_ELL_Q:
     q = p; card = ellcard_ram(E, p, &goodred);
     break;
@@ -6394,6 +6395,7 @@ ellcard(GEN E, GEN p)
   {
   case t_ELL_Fp: case t_ELL_Fq:
     return icopy(ellff_get_card(E));
+  case t_ELL_Qp:
   case t_ELL_Q:
     {
       pari_sp av = avma;
@@ -6555,7 +6557,7 @@ ellgroup0(GEN E, GEN p, long flag)
   if (flag!=1) pari_err_FLAG("ellgroup");
   p = checkellp(E, p, "ellgroup");
   if (!ell_over_Fq(E))
-  { /* t_ELL_Q */
+  { /* t_ELL_Q / t_ELL_Qp */
     GEN Gm = ellgroup_m(E, p), G = gel(Gm,1), m = gel(Gm,2);
     GEN F = FpVV_to_mod(ellgen(E,G,m,p), p);
     return gerepilecopy(av, mkvec3(ZV_prod(G),G,F));
@@ -6662,6 +6664,7 @@ ellissupersingular(GEN E, GEN p)
   case t_ELL_Fp:
   case t_ELL_Fq:
     return elljissupersingular(j);
+  case t_ELL_Qp:
   case t_ELL_Q:
     if (typ(j)==t_FRAC && dvdii(gel(j,2), p)) return 0;
     av = avma;

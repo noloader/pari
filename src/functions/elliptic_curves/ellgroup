@@ -5,8 +5,9 @@ Prototype: GDGD0,L,
 Help: ellgroup(E,{p},{flag}): computes the structure of the group E(Fp)
  If flag is 1, return also generators.
 Doc: Let $E$ be an \kbd{ell} structure as output by \kbd{ellinit}, defined over
- $\Q$ or a finite field $\F_q$. The argument $p$ is best left omitted if the
- curve is defined over a finite field, and must be a prime number otherwise.
+ $\Q$, $\Q_p$ or a finite field $\F_q$. The argument $p$ is best left omitted
+ if the curve is defined over a finite field or $\Q_p$, and must be a prime
+ number otherwise.
  This function computes the structure of the group $E(\F_q) \sim \Z/d_1\Z
  \times \Z/d_2\Z$, with $d_2\mid d_1$.
 
@@ -15,6 +16,9 @@ Doc: Let $E$ be an \kbd{ell} structure as output by \kbd{ellinit}, defined over
  equation need not be minimal at $p$, but a minimal model will be more
  efficient. The reduction is allowed to be singular, and we return the
  structure of the (cyclic) group of non-singular points in this case.
+
+ If the curve is defined over $\Q_p$, the function computes the structure of
+ the reduction over the residue field $\F_p$, as over $\Q$.
 
  If the flag is $0$ (default), return $[d_1]$ or $[d_1, d_2]$, if $d_2>1$.
  If the flag is $1$, return a triple $[h,\var{cyc},\var{gen}]$, where

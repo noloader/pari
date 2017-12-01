@@ -18,6 +18,15 @@ E=ellinit([0,-1,1,-10,-20]);P=[5,5];
 ellpadicheight(E,19,6, P)
 ellpadicheight(E,19,0, P)
 
+Ep=ellinit([0,-1,1,-10,-20], O(11^5));
+[ellap(Ep), ellap(Ep,11)]
+[ellcard(Ep), ellcard(Ep,11)]
+[ellgroup(Ep), ellgroup(Ep,11)]
+[ellissupersingular(Ep), ellissupersingular(Ep,11)]
+ellpadics2(Ep,11,5)
+E=ellinit([1,0,1,-6,4],O(5^5)); ellissupersingular(E)
+lift(ellpadicfrobenius(E,5,5))
+
 E=ellinit([0,0,1,-4,2]);P=[-2,1];
 ellpadicheight(E,3,5, P)
 P2 = ellmul(E,P,2);
@@ -53,3 +62,11 @@ E=ellinit([1, -1, 1, 0, 0]);
 ellpadicfrobenius(E,5,7)
 E=ellinit([0,0,1,-4,2]);
 ellpadicfrobenius(E,3,5)
+
+\\ ERRORS keep at end of file
+ellap(Ep,2)
+ellpadics2(Ep,2,5)
+ellcard(Ep,2)
+ellgroup(Ep,2)
+ellissupersingular(Ep,2)
+

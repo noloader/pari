@@ -2546,10 +2546,12 @@ padic_to_Q(GEN x)
 GEN
 padic_to_Q_shallow(GEN x)
 {
-  GEN u = gel(x,4), p;
+  GEN u = gel(x,4), p, q, q2;
   long v;
   if (!signe(u)) return gen_0;
+  q = gel(x,3); q2 = shifti(q,-1);
   v = valp(x);
+  u = Fp_center(u, q, q2);
   if (!v) return u;
   p = gel(x,2);
   if (v>0) return mulii(powiu(p,v), u);

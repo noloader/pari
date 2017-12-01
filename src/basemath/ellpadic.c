@@ -788,7 +788,14 @@ ellpadics2_tate(GEN Ep, long n)
 GEN
 ellpadicfrobenius(GEN E, ulong p, long n)
 {
-  checkell_Q(E);
+  checkell(E);
+  if (p < 2) pari_err_DOMAIN("ellpadicfrobenius","p", "<", gen_2, utoi(p));
+  switch(ell_get_type(E))
+  {
+    case t_ELL_Q: break;
+    case t_ELL_Qp: if (equaliu(ellQp_get_p(E), p)) break;
+    default: pari_err_TYPE("ellpadicfrobenius",utoi(p));
+  }
   return hyperellpadicfrobenius(ec_bmodel(E), p, n);
 }
 
@@ -801,11 +808,15 @@ ellpadics2(GEN E, GEN p, long n)
   ulong pp;
   if (typ(p) != t_INT) pari_err_TYPE("ellpadics2",p);
   if (cmpis(p,2) < 0) pari_err_PRIME("ellpadics2",p);
+  checkell(E);
   if (Q_pval(ell_get_j(E), p) < 0)
   {
-    GEN Ep = ellinit(E, zeropadic(p,n), 0);
+    GEN Ep;
+    if (ell_get_type(E) == t_ELL_Qp) Ep = E;
+    else Ep = ellinit(E, zeropadic(p,n), 0);
     l = ellpadics2_tate(Ep, n);
-    obj_free(Ep); return gerepilecopy(av, l);
+    if (Ep != E) obj_free(Ep);
+    return gerepilecopy(av, l);
   }
   pp = itou(p);
   F = ellpadicfrobenius(E, pp, n);
@@ -824,7 +835,6 @@ ellpadics2(GEN E, GEN p, long n)
   l = mspadic_unit_eigenvalue(ap, 2, p, n);
   return gerepileupto(av, gdiv(b, gsub(l, a))); /* slope of eigenvector */
 }
-
 
 #if 0
 /* sum_{a <= |D|} (D/a)*xpm(E,a/|D|) */

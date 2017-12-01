@@ -6,6 +6,17 @@
   ***   at top-level: ellpadicheight(E,19,0,P)
   ***                 ^------------------------
   *** ellpadicheight: domain error in ellpadicheight: precision <= 0
+[1, 1]
+[10, 10]
+[[10], [10]]
+[0, 0]
+6 + 9*11 + 6*11^3 + 11^4 + O(11^5)
+1
+
+[1930 1588]
+
+[  65 1195]
+
 [2*3^2 + 2*3^3 + 3^4 + 3^5 + 3^6 + O(3^7), 2*3^2 + 3^4 + 2*3^5 + 3^6 + O(3^7
 )]
   ***   at top-level: ellpadiclog(E,3,5,P)
@@ -41,4 +52,19 @@ O(5^7)
 
 [2*3 + 3^3 + 3^4 + O(3^5)                       3^4 + O(3^5)]
 
+  ***   at top-level: ellap(Ep,2)
+  ***                 ^-----------
+  *** ellap: incorrect type in ellap (t_INT).
+  ***   at top-level: ellpadics2(Ep,2,5)
+  ***                 ^------------------
+  *** ellpadics2: incorrect type in ellpadicfrobenius (t_INT).
+  ***   at top-level: ellcard(Ep,2)
+  ***                 ^-------------
+  *** ellcard: incorrect type in ellcard (t_INT).
+  ***   at top-level: ellgroup(Ep,2)
+  ***                 ^--------------
+  *** ellgroup: incorrect type in ellgroup (t_INT).
+  ***   at top-level: ellissupersingular(Ep,2)
+  ***                 ^------------------------
+  *** ellissupersingular: incorrect type in ellissupersingular (t_INT).
 Total time spent: 200
