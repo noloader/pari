@@ -242,5 +242,10 @@ Wp = mspadicinit(M,5,10);
 oms = mspadicmoments(Wp, xpm, 1);
 vector(6,j,mspadicL(oms,j-1))
 
-ellweilcurve(ellinit([1,-1,1,-2,0]))[2]
-ellweilcurve(ellinit([1,-1,1,-96608,-11533373]))[2]
+testweil(e)=
+{ my([e,s]=ellweilcurve(ellinit(e)));
+  for(i=1,#e, print(e[i][1..5], ": ",s[i]));
+}
+testweil([1,-1,1,-2,0])
+testweil([1,-1,1,-96608,-11533373])
+testweil([1,0,1,4,-6])
