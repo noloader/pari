@@ -1200,12 +1200,11 @@ nfX_Z_normalize(GEN nf, GEN P)
 }
 
 static GEN
-_rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, GEN gell, long rc,
+_rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, ulong ell, long rc,
                  long d, long m, long g, tau_s *tau)
 {
   long i, j;
   GEN vecB, vecC, Tc, Q;
-  ulong ell = itou(gell);
   vecB=cgetg(rc+1,t_VEC);
   Tc=cgetg(rc+1,t_MAT);
   for (j=1; j<=rc; j++)
@@ -1399,7 +1398,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 
   /* step 4 */
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
-  step4 = _rnfkummer_step4(bnfz, gen, cycgen, u, gell, rc, d, m, g, &tau);
+  step4 = _rnfkummer_step4(bnfz, gen, cycgen, u, ell, rc, d, m, g, &tau);
   vecC = gel(step4,1);
   Q    = gel(step4,2);
   /* step 5 */
