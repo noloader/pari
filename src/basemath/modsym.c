@@ -1646,8 +1646,7 @@ act_ZGl2Q(GEN z, struct m_act *T, hashtable *H)
   /* paranoia: should not occur */
   if (typ(z) == t_INT) return scalarmat_shallow(z, T->dim);
   G = gel(z,1); l = lg(G);
-  E = gel(z,2);
-  av = avma;
+  E = gel(z,2); av = avma;
   for (j = 1; j < l; j++)
   {
     GEN M, g = gel(G,j), n = gel(E,j);
@@ -1704,6 +1703,13 @@ hash_vecpreload(GEN z, struct m_act *S, hashtable *H)
   long i, l = lg(G);
   for (i = 1; i < l; i++) hash_preload(gel(G,i), S, H);
 }
+static void
+ZGl2QC_preload(struct m_act *S, GEN v, hashtable *H)
+{
+  GEN val = gel(v,2);
+  long i, l = lg(val);
+  for (i = 1; i < l; i++) hash_vecpreload(gel(val,i), S, H);
+}
 /* Given a sparse vector of elements in Z[G], convert it to a (sparse) vector
  * of operators on V (given by t_MAT) */
 static void
@@ -1711,7 +1717,6 @@ ZGl2QC_to_act(struct m_act *S, GEN v, hashtable *H)
 {
   GEN val = gel(v,2);
   long i, l = lg(val);
-  if (H) for (i = 1; i < l; i++) hash_vecpreload(gel(val,i), S, H);
   for (i = 1; i < l; i++) gel(val,i) = act_ZGl2Q(gel(val,i), S, H);
 }
 
@@ -2098,7 +2103,6 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S)
   long j, lv = lg(v), dim = S->dim == 1? ms_get_nbE1(W2): lg(gen)-1;
   GEN T = cgetg(dim+1, t_VEC);
   hashtable *H = Gl2act_cache(dim);
-
   for (j = 1; j <= dim; j++)
   {
     pari_sp av = avma;
@@ -2115,7 +2119,11 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S)
     }
     gel(T,j) = gerepilecopy(av, t);
   }
-  for (j = 1; j <= dim; j++) ZGl2QC_to_act(S, gel(T,j), H);
+  for (j = 1; j <= dim; j++)
+  {
+    ZGl2QC_preload(S, gel(T,j), H);
+    ZGl2QC_to_act(S, gel(T,j), H);
+  }
   return T;
 }
 
@@ -3345,9 +3353,8 @@ checkmspadic(GEN W)
  * such that, if v = \int x^i d mu, i < D, is a vector of D moments of mu,
  * then M * v is the vector of moments of mu | f  mod p^D */
 static GEN
-moments_act(struct m_act *S, GEN f)
+moments_act_i(struct m_act *S, GEN f)
 {
-  pari_sp av = avma;
   long j, k = S->k, D = S->dim;
   GEN a = gcoeff(f,1,1), b = gcoeff(f,1,2);
   GEN c = gcoeff(f,2,1), d = gcoeff(f,2,2);
@@ -3373,9 +3380,11 @@ moments_act(struct m_act *S, GEN f)
     gel(mat,j) = RgX_to_RgC(z, D); /* (a+cx)^(k-2) * ((b+dx)/(a+cx))^(j-1) */
     if (j != D) z = FpX_red(RgXn_mul(z, u, D), q);
   }
-  return gerepilecopy(av, shallowtrans(mat));
+  return shallowtrans(mat);
 }
-
+static GEN
+moments_act(struct m_act *S, GEN f)
+{ pari_sp av = avma; return gerepilecopy(av, moments_act_i(S,f)); }
 static GEN
 init_moments_act(GEN W, long p, long n, GEN q, GEN v)
 {
@@ -3801,7 +3810,7 @@ FpVV_dotproduct(GEN v, GEN w, GEN p)
 
 /* \int (-4z)^j given \int z^j */
 static GEN
-twistmoment_minus(GEN v)
+twistmoment_m4(GEN v)
 {
   long i, l;
   GEN w = cgetg_copy(v, &l);
@@ -3815,7 +3824,7 @@ twistmoment_minus(GEN v)
 }
 /* \int (4z)^j given \int z^j */
 static GEN
-twistmoment_plus(GEN v)
+twistmoment_4(GEN v)
 {
   long i, l;
   GEN w = cgetg_copy(v, &l);
@@ -3832,8 +3841,8 @@ GEN
 mspadicmoments(GEN W, GEN PHI, long D)
 {
   pari_sp av = avma;
-  long la, ia, b, lphi, aD = labs(D), pp, p, k, n, vden;
-  GEN Wp, Dact, Dk, v, C, gp, pn, phi;
+  long na, ia, b, lphi, aD = labs(D), pp, p, k, n, vden;
+  GEN Wp, Dact, vL, v, C, pn, phi;
   struct m_act S;
   hashtable *H;
 
@@ -3846,88 +3855,98 @@ mspadicmoments(GEN W, GEN PHI, long D)
   if (typ(PHI) != t_COL || lg(PHI) != 4 || typ(gel(PHI,1)) != t_VEC)
     PHI = mstooms(W, PHI);
   vden = itos( gel(PHI,2) );
-  phi = gel(PHI,1);
-  if (p == 2)
-  { la = 3; pp = 4; }
-  else
-  { la = p; pp = p; }
-  v = cgetg_copy(phi, &lphi);
-  for (b = 1; b < lphi; b++) gel(v,b) = cgetg(la, t_VEC);
+  phi = gel(PHI,1); lphi = lg(phi);
+  if (p == 2) { na = 2; pp = 4; }
+  else        { na = p-1; pp = p; }
   pn = powuu(p, n + vden);
-  gp = utoipos(p);
 
   S.p = p;
   S.k = k;
   S.q = pn;
   S.dim = n+k-1;
   S.act = &moments_act;
-  Dact = NULL;
-  Dk = NULL;
-  if (D != 1)
+  H = Gl2act_cache(ms_get_nbgen(Wp));
+  if (D == 1) Dact = NULL;
+  else
   {
-    GEN gaD = utoi(aD);
+    GEN gaD = utoi(aD), Dk = Fp_pows(stoi(D), 2-k, pn);
     if (!sisfundamental(D)) pari_err_TYPE("mspadicmoments", stoi(D));
-    if (D % p == 0) pari_err_DOMAIN("mspadicmoments", "p","|", stoi(D), gp);
+    if (D % p == 0) pari_err_DOMAIN("mspadicmoments","p","|", stoi(D), utoi(p));
     Dact = cgetg(aD, t_VEC);
     for (b = 1; b < aD; b++)
     {
       GEN z = NULL;
-      if (ugcd(b,aD) == 1)
-        z = moments_act(&S, mkmat22(gaD,utoipos(b), gen_0,gaD));
+      long s = kross(D, b);
+      if (s)
+      {
+        pari_sp av2 = avma;
+        GEN d;
+        z = moments_act_i(&S, mkmat22(gaD,utoipos(b), gen_0,gaD));
+        d = s > 0? Dk: Fp_neg(Dk, pn);
+        z = equali1(d)? gerepilecopy(av2, z)
+                      : gerepileupto(av2, FpM_Fp_mul(z, d, pn));
+      }
       gel(Dact,b) = z;
     }
-    if (k != 2) Dk = Fp_pows(stoi(D), 2-k, pn);
   }
-
-  H = Gl2act_cache(ms_get_nbgen(Wp));
-
-  for (ia = 1; ia < la; ia++)
+  vL = cgetg(na+1,t_VEC);
+  /* first pass to precompute log(paths), preload matrices and allow GC later */
+  for (ia = 1; ia <= na; ia++)
   {
-    GEN path, vca;
-    long i, a = ia;
-    if (p == 2 && a == 2) a = -1;
-    if (Dact) /* twist by D */
-    {
-      long c;
-      vca = const_vec(lphi-1,NULL);
+    GEN path, La;
+    long a = (p == 2 && ia == 2)? -1: ia;
+    if (Dact)
+    { /* twist by D */
+      La = cgetg(aD, t_VEC);
       for (b = 1; b < aD; b++)
       {
-        long s = kross(D, b);
-        GEN z, T;
-        if (!s) continue;
-        z = addii(mulss(a, aD), muluu(pp, b));
-        /* oo -> a/pp + pp/|D|*/
-        path = mkmat22(gen_1,z, gen_0,muluu(pp, aD));
-        T = omseval_int(&S, phi, M2_logf(Wp,path,NULL), H);
-        for (c = 1; c < lphi; c++)
-        {
-          z = FpM_FpC_mul(gel(Dact,b), gel(T,c), pn);
-          if (s < 0) ZV_neg_inplace(z);
-          gel(vca, c) = gel(vca,c)? ZC_add(gel(vca,c), z): z;
-        }
+        GEN Actb = gel(Dact,b);
+        if (!Actb) continue;
+        /* oo -> a/pp + b/|D|*/
+        path = mkmat22(gen_1, addii(mulss(a, aD), muluu(pp, b)),
+                       gen_0, muluu(pp, aD));
+        gel(La,b) = M2_logf(Wp,path,NULL);
+        ZGl2QC_preload(&S, gel(La,b), H);
       }
-      if (Dk) for (c = 1; c < lphi; c++)
-        gel(vca,c) = FpC_Fp_mul(gel(vca,c), Dk, pn);
     }
     else
     {
       path = mkmat22(gen_1,stoi(a), gen_0, utoipos(pp));
-      vca = omseval_int(&S, phi, M2_logf(Wp,path,NULL), H);
+      La = M2_logf(Wp,path,NULL);
+      ZGl2QC_preload(&S, La, H);
+    }
+    gel(vL,ia) = La;
+  }
+  v = cgetg(na+1,t_VEC);
+  /* second pass, with GC */
+  for (ia = 1; ia <= na; ia++)
+  {
+    pari_sp av2 = avma;
+    GEN vca, Ca = gel(C,ia), La = gel(vL,ia), va = cgetg(lphi, t_VEC);
+    long i;
+    if (!Dact) vca = omseval_int(&S, phi, La, H);
+    else
+    { /* twist by D */
+      vca = const_vec(lphi-1,NULL);
+      for (b = 1; b < aD; b++)
+      {
+        GEN z, T, Actb = gel(Dact,b);
+        if (!Actb) continue;
+        T = omseval_int(&S, phi, gel(La,b), H);
+        for (i = 1; i < lphi; i++)
+        {
+          z = FpM_FpC_mul(Actb, gel(T,i), pn);
+          gel(vca,i) = gel(vca,i)? ZC_add(gel(vca,i), z): z;
+        }
+      }
     }
     if (p != 2)
-    {
-      GEN Ca = gel(C,a);
-      for (i = 1; i < lphi; i++)
-        gmael(v,i,a) = FpVV_dotproduct(Ca, gel(vca,i), pn);
-    }
-    else
-    {
-      if (ia == 1) /* \tilde{a} = 1 */
-      { for (i = 1; i < lphi; i++) gel(vca,i) = twistmoment_plus(gel(vca,i)); }
-      else /* \tilde{a} = -1 */
-      { for (i = 1; i < lphi; i++) gel(vca,i) = twistmoment_minus(gel(vca,i)); }
-      for (i = 1; i < lphi; i++) gmael(v,i,ia) = gel(vca,i);
-    }
+    { for (i=1; i<lphi; i++) gel(va,i) = FpVV_dotproduct(Ca,gel(vca,i),pn); }
+    else if (ia == 1) /* \tilde{a} = 1 */
+    { for (i=1; i<lphi; i++) gel(va,i) = twistmoment_4(gel(vca,i)); }
+    else /* \tilde{a} = -1 */
+    { for (i=1; i<lphi; i++) gel(va,i) = twistmoment_m4(gel(vca,i)); }
+    gel(v,ia) = gerepilecopy(av2, va);
   }
   return gerepilecopy(av, mkvec3(v, gel(PHI,3), mkvecsmall4(p,n+vden,n,D)));
 }
@@ -3947,7 +3966,7 @@ oms_get_n0(GEN oms) { return gel(oms,3)[3]; }
 static long
 oms_get_D(GEN oms) { return gel(oms,3)[4]; }
 static int
-oms_is_supersingular(GEN oms) { GEN v = gel(oms,1); return lg(v) == 3; }
+oms_is_supersingular(GEN oms) { GEN v = gel(oms,1); return lg(gel(v,1)) == 3; }
 
 /* sum(j = 1, n, (-1)^(j+1)/j * x^j) */
 static GEN
@@ -3985,7 +4004,7 @@ mspadicint(GEN oms, long teichi, GEN S)
   GEN vT = gel(oms,1), alpha = gel(oms,2), gp = utoipos(p);
   long loss = S? Z_lval(Q_denom(S), p): 0;
   long nfinal = minss(n-loss, n0);
-  long i, la, l = lg(vT);
+  long i, la, l = lg(gel(vT,1));
   GEN res = cgetg(l, t_COL), teich = NULL;
 
   if (S) S = RgX_to_RgC(S,lg(gmael(vT,1,1))-1);
@@ -4003,11 +4022,11 @@ mspadicint(GEN oms, long teichi, GEN S)
   for (i=1; i<l; i++)
   {
     pari_sp av2 = avma;
-    GEN s = gen_0, T = gel(vT,i);
+    GEN s = gen_0;
     long ia;
     for (ia = 1; ia < la; ia++)
     { /* Ta[j+1] correct mod p^n */
-      GEN Ta = gel(T,ia), v = S? RgV_dotproduct(Ta, S): gel(Ta,1);
+      GEN Ta = gmael(vT,ia,i), v = S? RgV_dotproduct(Ta, S): gel(Ta,1);
       if (teichi && ia != 1)
       {
         if (p != 2)

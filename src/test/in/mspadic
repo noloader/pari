@@ -1,4 +1,4 @@
-default(parisize, "60M");
+default(parisize, "50M");
 
 {
 elldata= Map([
