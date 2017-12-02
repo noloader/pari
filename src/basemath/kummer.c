@@ -1261,10 +1261,10 @@ _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
 }
 
 static GEN
-_rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN K,
-     GEN vecWB, GEN vecMsup, ulong g, GEN gell, long rk, long lW, long lM, long all)
+_rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
+     GEN vecWB, GEN vecMsup, ulong g, GEN gell, long rk, long lW, long all)
 {
-  GEN y, res = NULL, mat = NULL;
+  GEN K, y, res = NULL, mat = NULL;
   long i, dK, ncyc = 0;
   ulong ell = itou(gell);
   GEN bnf = bnr_get_bnf(bnr);
@@ -1272,10 +1272,14 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN K,
   GEN polnf = nf_get_pol(nf);
   GEN nfz = bnf_get_nf(bnfz);
   long firstpass = all<0;
+  K = Flm_ker(M, ell);
+  if (all < 0)
+    K = fix_kernel(K, M, vecMsup, lW, ell);
+  if (DEBUGLEVEL>2) err_printf("Step 18\n");
   dK = lg(K)-1;
   y = cgetg(dK+1,t_VECSMALL);
   if (all) res = cgetg(1, t_VEC);
-  if (all < 0) { ncyc = dK; rk = 0; mat = zero_Flm(lM-1, ncyc); }
+  if (all < 0) { ncyc = dK; rk = 0; mat = zero_Flm(lg(M)-1, ncyc); }
 
   do {
     dK = lg(K)-1;
@@ -1331,7 +1335,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   GEN polnf,bnf,nf,bnfz,nfz,bid,ideal,cycgen,gell,p1,vselmer;
   GEN cyc, gen, step4;
   GEN Q,idealz,gothf;
-  GEN res=NULL,u,M,K,vecMsup,vecW,vecWA,vecWB,vecC,vecAp,vecBp;
+  GEN res=NULL,u,M,vecMsup,vecW,vecWA,vecWB,vecC,vecAp,vecBp;
   GEN matP, Sp, listprSp;
   primlist L;
   toK_s T;
@@ -1481,15 +1485,9 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
     GEN M2 = subgroup_info(bnfz, Lprz, ell, lambdaWB);
     M = vconcat(M, M2);
   }
-  /* step 16 */
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
-  K = Flm_ker(M, ell);
-  if (all < 0)
-    K = fix_kernel(K, M, vecMsup, lW, ell);
-  /* step 18 & ff */
-  if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] candidate list");
-  if (DEBUGLEVEL>2) err_printf("Step 18\n");
-  res = _rnfkummer_step18(&T,bnr,subgroup,bnfz, K, vecWB, vecMsup, g, gell, rk, lW, lg(M), all);
+  /* step 16 && 18 & ff */
+  res = _rnfkummer_step18(&T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, gell, rk, lW, all);
   return res? res: gen_0;
 }
 
