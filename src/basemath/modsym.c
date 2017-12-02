@@ -3927,16 +3927,16 @@ mspadicmoments(GEN W, GEN PHI, long D)
     if (!Dact) vca = omseval_int(&S, phi, La, H);
     else
     { /* twist by D */
-      vca = const_vec(lphi-1,NULL);
+      vca = cgetg(lphi,t_VEC);
       for (b = 1; b < aD; b++)
       {
-        GEN z, T, Actb = gel(Dact,b);
+        GEN T, Actb = gel(Dact,b);
         if (!Actb) continue;
         T = omseval_int(&S, phi, gel(La,b), H);
         for (i = 1; i < lphi; i++)
         {
-          z = FpM_FpC_mul(Actb, gel(T,i), pn);
-          gel(vca,i) = gel(vca,i)? ZC_add(gel(vca,i), z): z;
+          GEN z = FpM_FpC_mul(Actb, gel(T,i), pn);
+          gel(vca,i) = b==1? z: ZC_add(gel(vca,i), z);
         }
       }
     }
