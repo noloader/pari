@@ -336,8 +336,9 @@ static void
 rectticks(PARI_plot *WW, long ne, double dx1, double dy1, double dx2,
           double dy2, double l1, double l2, long flags)
 {
-  long ddx, ddy, dx, dy, dxy, dxy1, x1, y1, x2, y2, nticks, n, n1, dn;
+  long dx, dy, dxy, dxy1, x1, y1, x2, y2, nticks, n, n1, dn;
   double minstep, maxstep, step, l_min, l_max, minl, maxl, dl, dtx, dty, x, y;
+  double ddx, ddy;
   const double mult[3] = { 2./1., 5./2., 10./5. };
   PariRect *e = check_rect_init(ne);
   int do_double = !(flags & TICKS_NODOUBLE);
