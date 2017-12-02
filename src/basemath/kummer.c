@@ -1261,7 +1261,7 @@ _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
 
 static GEN
 _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
-     GEN vecWB, GEN vecMsup, ulong g, GEN gell, long rk, long lW, long all)
+     GEN vecWB, GEN vecMsup, ulong g, GEN gell, long lW, long all)
 {
   GEN K, y, res = NULL, mat = NULL;
   long i, dK, ncyc = 0;
@@ -1271,6 +1271,7 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
   GEN polnf = nf_get_pol(nf);
   GEN nfz = bnf_get_nf(bnfz);
   long firstpass = all<0;
+  long rk=0;
   K = Flm_ker(M, ell);
   if (all < 0)
     K = fix_kernel(K, M, vecMsup, lW, ell);
@@ -1341,7 +1342,6 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   tau_s tau;
   compo_s COMPO;
   pari_timer t;
-  long rk=0;
 
   if (DEBUGLEVEL) timer_start(&t);
   checkbnr(bnr);
@@ -1486,7 +1486,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   }
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
   /* step 16 && 18 & ff */
-  res = _rnfkummer_step18(&T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, gell, rk, lW, all);
+  res = _rnfkummer_step18(&T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, gell, lW, all);
   return res? res: gen_0;
 }
 
