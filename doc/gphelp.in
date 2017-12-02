@@ -304,7 +304,7 @@ sub treat {
   while (<DOC>)
   {
     if (/\\(subsubsec[a-z]*|subsec[a-z]*|section|chapter|label)\{$pat/
-        && (!/\\label\{se:def,/ || $pat =~ /se:def/)) { $first = $_; last; }
+        && (!/\\label\{se:def,/ || $pat =~ /se\\:def/)) { $first = $_; last; }
   }
   if (eof(DOC))
   {
