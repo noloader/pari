@@ -1610,6 +1610,7 @@ voo_act_Gl2Q(GEN g, long k)
 struct m_act {
   long dim, k, p;
   GEN q;
+  GEN(*act)(struct m_act *,GEN);
 };
 
 /* g = [a,b;c,d]. Return (P | g)(X,Y)[X = 1] = P(dX - cY, -b X + aY)[X = 1],
@@ -1637,7 +1638,7 @@ RgX_act_Gl2Q(GEN g, long k)
 }
 /* z in Z[Gl2(Q)], return the matrix of z acting on V */
 static GEN
-act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN), hashtable *H)
+act_ZGl2Q(GEN z, struct m_act *T, hashtable *H)
 {
   GEN S = NULL, G, E;
   pari_sp av;
@@ -1646,20 +1647,6 @@ act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN), hashtable *H)
   if (typ(z) == t_INT) return scalarmat_shallow(z, T->dim);
   G = gel(z,1); l = lg(G);
   E = gel(z,2);
-  if (H)
-  { /* First pass, identify matrices in Sl_2 to convert to operators;
-     * insert operators in hashtable. This allows GC in 2nd pass */
-    for (j = 1; j < l; j++)
-    {
-      GEN g = gel(G,j);
-      if (typ(g) != t_INT)
-      {
-        ulong hash = H->hash(g);
-        hashentry *e = hash_search2(H,g,hash);
-        if (!e) hash_insert2(H,g,act(T,g),hash);
-      }
-    }
-  }
   av = avma;
   for (j = 1; j < l; j++)
   {
@@ -1667,11 +1654,8 @@ act_ZGl2Q(GEN z, struct m_act *T, GEN(*act)(struct m_act*,GEN), hashtable *H)
     if (typ(g) == t_INT) /* = 1 */
       M = n; /* n*Id_dim */
     else
-    {
-      if (H)
-        M = (GEN)hash_search(H,g)->val; /*search succeeds because of 1st pass*/
-      else
-        M = act(T,g);
+    { /*search in H succeeds because of preload*/
+      M = H? (GEN)hash_search(H,g)->val: T->act(T,g);
       if (is_pm1(n))
       { if (signe(n) < 0) M = RgM_neg(M); }
       else
@@ -1696,17 +1680,39 @@ RgX_act_ZGl2Q(GEN z, long k)
   struct m_act T;
   T.k = k;
   T.dim = k-1;
-  return act_ZGl2Q(z, &T, _RgX_act_Gl2Q, NULL);
+  T.act=&_RgX_act_Gl2Q;
+  return act_ZGl2Q(z, &T, NULL);
 }
 
+/* First pass, identify matrices in Sl_2 to convert to operators;
+ * insert operators in hashtable. This allows GC in act_ZGl2Q */
+static void
+hash_preload(GEN M, struct m_act *S, hashtable *H)
+{
+  if (typ(M) != t_INT)
+  {
+    ulong h = H->hash(M);
+    hashentry *e = hash_search2(H, M, h);
+    if (!e) hash_insert2(H, M, S->act(S,M), h);
+  }
+}
+/* z a sparse operator */
+static void
+hash_vecpreload(GEN z, struct m_act *S, hashtable *H)
+{
+  GEN G = gel(z,1);
+  long i, l = lg(G);
+  for (i = 1; i < l; i++) hash_preload(gel(G,i), S, H);
+}
 /* Given a sparse vector of elements in Z[G], convert it to a (sparse) vector
  * of operators on V (given by t_MAT) */
 static void
-ZGl2QC_to_act(struct m_act *S, GEN(*act)(struct m_act*,GEN), GEN v, hashtable *H)
+ZGl2QC_to_act(struct m_act *S, GEN v, hashtable *H)
 {
   GEN val = gel(v,2);
   long i, l = lg(val);
-  for (i = 1; i < l; i++) gel(val,i) = act_ZGl2Q(gel(val,i), S, act, H);
+  if (H) for (i = 1; i < l; i++) hash_vecpreload(gel(val,i), S, H);
+  for (i = 1; i < l; i++) gel(val,i) = act_ZGl2Q(gel(val,i), S, H);
 }
 
 /* For all V[i] in Z[\Gamma], find the P such that  P . V[i]^* = 0;
@@ -2051,7 +2057,7 @@ mat2_isidentity(GEN M)
 }
 /* path a mat22/mat22s, return log(f.path)^* . f in sparse form */
 static GEN
-M2_logstar(GEN Wp, GEN path, GEN f)
+M2_logf(GEN Wp, GEN path, GEN f)
 {
   pari_sp av = avma;
   GEN ind, L;
@@ -2083,8 +2089,7 @@ Gl2act_cache(long dim) { return set_init(dim*10); }
  * with \Mu_{i,j} = \sum_k \mu{i,j}(v_k)
  * Return the \Mu_{i,j} matrix as vector of sparse columns of operators on V */
 static GEN
-init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
-              GEN(*act)(struct m_act *,GEN))
+init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S)
 {
   GEN section = ms_get_section(W2), gen = ms_get_genindex(W2);
   /* HACK: the actions we consider in dimension 1 are trivial and in
@@ -2105,12 +2110,12 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
       GEN tk, f = gel(v,k);
       if (typ(gel(f,1)) != t_VECSMALL) f = ZM_to_zm(f);
       if (mat2_isidentity(f)) f = NULL;
-      tk = M2_logstar(W1, w, f); /* mu_{.,j}(v[k]) as sparse vector */
+      tk = M2_logf(W1, w, f); /* mu_{.,j}(v[k]) as sparse vector */
       t = t? ZGCs_add(t, tk): tk;
     }
     gel(T,j) = gerepilecopy(av, t);
   }
-  for (j = 1; j <= dim; j++) ZGl2QC_to_act(S, act, gel(T,j), H);
+  for (j = 1; j <= dim; j++) ZGl2QC_to_act(S, gel(T,j), H);
   return T;
 }
 
@@ -2370,7 +2375,8 @@ getMorphism(GEN W1, GEN W2, GEN v)
   if (k == 2) return getMorphism_trivial(W1,W2,v);
   S.k = k;
   S.dim = k-1;
-  act = init_dual_act(v,W1,W2,&S, _RgX_act_Gl2Q);
+  S.act = &_RgX_act_Gl2Q;
+  act = init_dual_act(v,W1,W2,&S);
   B1 = msk_get_basis(W1);
   l = lg(B1); M = cgetg(l, t_MAT);
   for (a = 1; a < l; a++)
@@ -3379,7 +3385,7 @@ init_moments_act(GEN W, long p, long n, GEN q, GEN v)
   S.k = k;
   S.q = q;
   S.dim = n+k-1;
-  return init_dual_act(v,W,W,&S, moments_act);
+  S.act = &moments_act; return init_dual_act(v,W,W,&S);
 }
 
 static void
@@ -3519,7 +3525,7 @@ omseval_int(struct m_act *S, GEN PHI, GEN L, hashtable *H)
 {
   long i, l;
   GEN v = cgetg_copy(PHI, &l);
-  ZGl2QC_to_act(S, moments_act, L, H); /* as operators on V */
+  ZGl2QC_to_act(S, L, H); /* as operators on V */
   for (i = 1; i < l; i++)
   {
     GEN T = dense_act_col(L, gel(PHI,i));
@@ -3545,8 +3551,9 @@ msomseval(GEN W, GEN phi, GEN path)
   S.p = mspadic_get_p(W);
   S.q = powuu(S.p, n+vden);
   S.dim = n + S.k - 1;
+  S.act = &moments_act;
   path = path_to_M2(path);
-  v = omseval_int(&S, phi, M2_logstar(Wp,path,NULL), NULL);
+  v = omseval_int(&S, phi, M2_logf(Wp,path,NULL), NULL);
   return gerepilecopy(av, v);
 }
 /* W = msinit(N,k,...); if flag < 0 or flag >= k-1, allow all symbols;
@@ -3853,7 +3860,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
   S.k = k;
   S.q = pn;
   S.dim = n+k-1;
-
+  S.act = &moments_act;
   Dact = NULL;
   Dk = NULL;
   if (D != 1)
@@ -3891,7 +3898,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
         z = addii(mulss(a, aD), muluu(pp, b));
         /* oo -> a/pp + pp/|D|*/
         path = mkmat22(gen_1,z, gen_0,muluu(pp, aD));
-        T = omseval_int(&S, phi, M2_logstar(Wp,path,NULL), H);
+        T = omseval_int(&S, phi, M2_logf(Wp,path,NULL), H);
         for (c = 1; c < lphi; c++)
         {
           z = FpM_FpC_mul(gel(Dact,b), gel(T,c), pn);
@@ -3905,7 +3912,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
     else
     {
       path = mkmat22(gen_1,stoi(a), gen_0, utoipos(pp));
-      vca = omseval_int(&S, phi, M2_logstar(Wp,path,NULL), H);
+      vca = omseval_int(&S, phi, M2_logf(Wp,path,NULL), H);
     }
     if (p != 2)
     {
