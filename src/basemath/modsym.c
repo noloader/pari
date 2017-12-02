@@ -1308,12 +1308,6 @@ ZSl2_star(GEN v)
   }
   return ZG_normalize(mkmat2(w, gel(v,2)));
 }
-static void
-ZSl2C_star_inplace(GEN v)
-{
-  long i, l = lg(v);
-  for (i = 1; i < l; i++) gel(v,i) = ZSl2_star(gel(v,i));
-}
 
 /* Input: h = set of unimodular paths, p1N = P^1(Z/NZ) = Gamma_0(N)\PSL2(Z)
  * Output: Each path is converted to a matrix and then an element of P^1(Z/NZ)
@@ -2049,6 +2043,30 @@ RgV_sparse(GEN v, GEN *pind)
   *pind = ind; return w;
 }
 
+static int
+mat2_isidentity(GEN M)
+{
+  GEN A = gel(M,1), B = gel(M,2);
+  return A[1] == 1 && A[2] == 0 && B[1] == 0 && B[2] == 1;
+}
+/* path a mat22/mat22s, return log(f.path)^* . f in sparse form */
+static GEN
+M2_logstar(GEN Wp, GEN path, GEN f)
+{
+  pari_sp av = avma;
+  GEN ind, L;
+  long i, l;
+  if (f)
+    path = Gl2Q_act_path(f, path);
+  else if (typ(gel(path,1)) == t_VECSMALL)
+    path = path2_to_M2(path);
+  L = M2_log(Wp, path);
+  L = RgV_sparse(L,&ind); l = lg(L);
+  for (i = 1; i < l; i++) gel(L,i) = ZSl2_star(gel(L,i));
+  if (f) ZGC_G_mul_inplace(L, mat2_to_ZM(f));
+  return gerepilecopy(av, mkvec2(ind,L));
+}
+
 static hashtable *
 Gl2act_cache(long dim) { return set_init(dim*10); }
 
@@ -2084,15 +2102,10 @@ init_dual_act(GEN v, GEN W1, GEN W2, struct m_act *S,
     long k;
     for (k = 1; k < lv; k++)
     {
-      GEN ind, L, F, tk, f = gel(v,k);
-      if (typ(gel(f,1)) == t_VECSMALL) F = mat2_to_ZM(f);
-      else { F = f; f = ZM_to_zm(F); }
-      /* f zm = F ZM */
-      L = M2_log(W1, Gl2Q_act_path(f,w)); /* L[i] = lambda_{i,j} */
-      L = RgV_sparse(L,&ind);
-      ZSl2C_star_inplace(L); /* L[i] = lambda_{i,j}^* */
-      if (!ZM_isidentity(F)) ZGC_G_mul_inplace(L, F);
-      tk = mkvec2(ind,L); /* L[i] = mu_{i,j}(v[k]) */
+      GEN tk, f = gel(v,k);
+      if (typ(gel(f,1)) != t_VECSMALL) f = ZM_to_zm(f);
+      if (mat2_isidentity(f)) f = NULL;
+      tk = M2_logstar(W1, w, f); /* mu_{.,j}(v[k]) as sparse vector */
       t = t? ZGCs_add(t, tk): tk;
     }
     gel(T,j) = gerepilecopy(av, t);
@@ -3500,21 +3513,17 @@ RgXC_to_moments(GEN v, GEN bin)
 }
 
 /* W an mspadic, assume O[2] is integral, den is the cancelled denominator
- * or NULL, L = log(path) */
+ * or NULL, L = log(path)^* in sparse form */
 static GEN
 omseval_int(struct m_act *S, GEN PHI, GEN L, hashtable *H)
 {
-  long a, lphi;
-  GEN ind, v = cgetg_copy(PHI, &lphi);
-
-  L = RgV_sparse(L,&ind);
-  ZSl2C_star_inplace(L); /* lambda_{i,j}^* */
-  L = mkvec2(ind,L);
+  long i, l;
+  GEN v = cgetg_copy(PHI, &l);
   ZGl2QC_to_act(S, moments_act, L, H); /* as operators on V */
-  for (a = 1; a < lphi; a++)
+  for (i = 1; i < l; i++)
   {
-    GEN T = dense_act_col(L, gel(PHI,a));
-    gel(v,a) = T? FpC_red(T,S->q): zerocol(S->dim);
+    GEN T = dense_act_col(L, gel(PHI,i));
+    gel(v,i) = T? FpC_red(T,S->q): zerocol(S->dim);
   }
   return v;
 }
@@ -3536,7 +3545,8 @@ msomseval(GEN W, GEN phi, GEN path)
   S.p = mspadic_get_p(W);
   S.q = powuu(S.p, n+vden);
   S.dim = n + S.k - 1;
-  v = omseval_int(&S, phi, mspathlog(Wp,path), NULL);
+  path = path_to_M2(path);
+  v = omseval_int(&S, phi, M2_logstar(Wp,path,NULL), NULL);
   return gerepilecopy(av, v);
 }
 /* W = msinit(N,k,...); if flag < 0 or flag >= k-1, allow all symbols;
@@ -3881,7 +3891,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
         z = addii(mulss(a, aD), muluu(pp, b));
         /* oo -> a/pp + pp/|D|*/
         path = mkmat22(gen_1,z, gen_0,muluu(pp, aD));
-        T = omseval_int(&S, phi, M2_log(Wp,path), H);
+        T = omseval_int(&S, phi, M2_logstar(Wp,path,NULL), H);
         for (c = 1; c < lphi; c++)
         {
           z = FpM_FpC_mul(gel(Dact,b), gel(T,c), pn);
@@ -3895,7 +3905,7 @@ mspadicmoments(GEN W, GEN PHI, long D)
     else
     {
       path = mkmat22(gen_1,stoi(a), gen_0, utoipos(pp));
-      vca = omseval_int(&S, phi, M2_log(Wp,path), H);
+      vca = omseval_int(&S, phi, M2_logstar(Wp,path,NULL), H);
     }
     if (p != 2)
     {
