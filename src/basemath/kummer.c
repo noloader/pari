@@ -1314,54 +1314,42 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
   return res;
 }
 
-static GEN
-_rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
+struct rnfkummer
 {
-  long i, j, m, d, dc, rc, ru, rv, mginv, degK, degKz, vnf;
-  long lSp, lSml2, lSl2, lW;
+  GEN bnfz, u, vecC, Q, vecW;
   ulong g, ell;
-  GEN polnf,bnf,nf,bnfz,nfz,bid,ideal,cycgen,gell,p1,vselmer;
-  GEN cyc, gen, step4;
-  GEN Q,idealz,gothf;
-  GEN res=NULL,u,M,vecMsup,vecW,vecWA,vecWB,vecC,vecAp,vecBp;
-  GEN matP, Sp, listprSp;
-  primlist L;
-  toK_s T;
-  tau_s tau;
+  long rc;
   compo_s COMPO;
-  pari_timer t;
+  tau_s tau;
+  toK_s T;
+};
 
-  if (DEBUGLEVEL) timer_start(&t);
-  checkbnr(bnr);
-  bnf = bnr_get_bnf(bnr);
-  nf  = bnf_get_nf(bnf);
-  polnf = nf_get_pol(nf); vnf = varn(polnf);
-  if (!vnf) pari_err_PRIORITY("rnfkummer", polnf, "=", 0);
-  /* step 7 */
-  p1 = bnrconductor_i(bnr, subgroup, 2);
-  if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] conductor");
-  bnr      = gel(p1,2);
-  subgroup = gel(p1,3);
-  gell = get_gell(bnr,subgroup,all);
-  ell = itou(gell);
-  if (ell == 1) return pol_x(0);
-  if (!uisprime(ell)) pari_err_IMPL("kummer for composite relative degree");
-  if (all && all != -1 && umodiu(bnr_get_no(bnr), ell))
-    return cgetg(1, t_VEC);
-  if (bnf_get_tuN(bnf) % ell == 0)
-    return rnfkummersimple(bnr, subgroup, gell, all);
-
-  if (all == -1) all = 0;
-  bid = bnr_get_bid(bnr);
-  ideal = bid_get_ideal(bid);
+static void
+rnfkummer_init(struct rnfkummer *kum, GEN bnr, ulong ell, long prec)
+{
+  compo_s *COMPO = &kum->COMPO;
+  tau_s *tau = &kum->tau;
+  toK_s *T = &kum->T;
+  GEN bnf = bnr_get_bnf(bnr);
+  GEN nf  = bnf_get_nf(bnf);
+  GEN polnf = nf_get_pol(nf);
+  long vnf = varn(polnf);
+  long degK, degKz, m, d;
+  ulong g;
+  GEN gell = utoi(ell);
+  GEN bnfz, nfz, cyc, gen, cycgen;
+  long rc, ru, rv;
+  GEN step4, u, vecC, vecW, Q;
+  pari_timer ti;
+  GEN vselmer, p1;
   /* step 1 of alg 5.3.5. */
   if (DEBUGLEVEL>2) err_printf("Step 1\n");
-  compositum_red(&COMPO, polnf, polcyclo(ell,vnf));
+  compositum_red(COMPO, polnf, polcyclo(ell,vnf));
   /* step 2 */
   if (DEBUGLEVEL>2) err_printf("Step 2\n");
-  if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] compositum");
+  if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] compositum");
   degK  = degpol(polnf);
-  degKz = degpol(COMPO.R);
+  degKz = degpol(COMPO->R);
   m = degKz / degK;
   d = (ell-1) / m;
   g = Fl_powu(pgener_Fl(ell), d, ell);
@@ -1370,8 +1358,8 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   /* step 3 */
   if (DEBUGLEVEL>2) err_printf("Step 3\n");
   /* could factor disc(R) using th. 2.1.6. */
-  bnfz = Buchall(COMPO.R, nf_FORCE, maxss(prec,BIGDEFAULTPREC));
-  if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] bnfinit(Kz)");
+  bnfz = Buchall(COMPO->R, nf_FORCE, maxss(prec,BIGDEFAULTPREC));
+  if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] bnfinit(Kz)");
   cycgen = bnf_build_cycgen(bnfz);
   nfz = bnf_get_nf(bnfz);
   cyc = bnf_get_cyc(bnfz); rc = prank(cyc,ell);
@@ -1379,40 +1367,67 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   u = get_u(ZV_to_Flv(cyc, ell), rc, ell);
 
   vselmer = get_Selmer(bnfz, cycgen, rc);
-  if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] Selmer group");
+  if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] Selmer group");
   ru = (degKz>>1)-1;
   rv = rc+ru+1;
-  get_tau(&tau, nfz, &COMPO, g);
+  get_tau(tau, nfz, COMPO, g);
 
   /* step 4 */
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
-  step4 = _rnfkummer_step4(bnfz, gen, cycgen, u, ell, rc, d, m, g, &tau);
+  step4 = _rnfkummer_step4(bnfz, gen, cycgen, u, ell, rc, d, m, g, tau);
   vecC = gel(step4,1);
   Q    = gel(step4,2);
   /* step 5 */
   if (DEBUGLEVEL>2) err_printf("Step 5\n");
-  vecW = _rnfkummer_step5(bnfz, vselmer, cycgen, gell, rc, rv, g, &tau);
-  lW = lg(vecW);
+  vecW = _rnfkummer_step5(bnfz, vselmer, cycgen, gell, rc, rv, g, tau);
   /* step 8 */
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
-  p1 = RgXQ_matrix_pow(COMPO.p, degKz, degK, COMPO.R);
-  T.invexpoteta1 = RgM_inv(p1); /* left inverse */
-  T.polnf = polnf;
-  T.tau = &tau;
-  T.m = m;
-  T.powg = Fl_powers(g, m, ell);
+  p1 = RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R);
+  T->invexpoteta1 = RgM_inv(p1); /* left inverse */
+  T->polnf = polnf;
+  T->tau = tau;
+  T->m = m;
+  T->powg = Fl_powers(g, m, ell);
+  kum->bnfz = bnfz;
+  kum->ell = ell;
+  kum->u = u;
+  kum->vecC = vecC;
+  kum->Q = Q;
+  kum->vecW = vecW;
+  kum->g = g;
+  kum->rc = rc;
+}
 
-  idealz = ideallifttoKz(nfz, nf, ideal, &COMPO);
+static GEN
+rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
+{
+  ulong ell = kum->ell, mginv;
+  GEN gell = utoi(ell);
+  GEN bnfz = kum->bnfz;
+  GEN nfz = bnf_get_nf(bnfz);
+  GEN nf = bnr_get_nf(bnr);
+  GEN bid = bnr_get_bid(bnr);
+  GEN ideal = bid_get_ideal(bid);
+  GEN cycgen = bnf_build_cycgen(bnfz);
+  GEN vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q =kum->Q;
+  long lW = lg(vecW), rc = kum->rc;
+  toK_s *T = &kum->T;
+  ulong g = kum->g;
+  long i, j, lSml2, lSp, lSl2, dc;
+  primlist L;
+  GEN gothf, idealz, Sp, listprSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup;
+  GEN M;
+  idealz = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
   if (umodiu(gcoeff(ideal,1,1), ell)) gothf = idealz;
   else
   { /* ell | N(ideal) */
     GEN bnrz = Buchray(bnfz, idealz, nf_INIT|nf_GEN);
-    GEN subgroupz = invimsubgroup(bnrz, bnr, subgroup, &T);
+    GEN subgroupz = invimsubgroup(bnrz, bnr, subgroup, T);
     gothf = bnrconductor_i(bnrz,subgroupz,0);
   }
   /* step 9, 10, 11 */
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
-  i = build_list_Hecke(&L, nfz, NULL, gothf, gell, &tau);
+  i = build_list_Hecke(&L, nfz, NULL, gothf, gell, T->tau);
   if (i) return no_sol(all,i);
 
   lSml2 = lg(L.Sml2);
@@ -1428,12 +1443,12 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   for (j = 1; j < lSp; j++)
   {
     GEN e, a;
-    p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,ell,rc);
+    GEN p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,ell,rc);
     e = gel(p1,1); gel(matP,j) = gel(p1, 1);
     a = gel(p1,2);
     gel(vecBp,j) = famat_mul_shallow(famat_factorbacks(vecC, zv_neg(e)), a);
   }
-  vecAp = lambdaofvec(vecBp, &T);
+  vecAp = lambdaofvec(vecBp, T);
   /* step 13 */
   if (DEBUGLEVEL>2) err_printf("Step 13\n");
   vecWA = shallowconcat(vecW, vecAp);
@@ -1441,7 +1456,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 
   /* step 14, 15, and 17 */
   if (DEBUGLEVEL>2) err_printf("Step 14, 15 and 17\n");
-  mginv = Fl_div(m, g, ell);
+  mginv = Fl_div(T->m, g, ell);
   vecMsup = cgetg(lSml2,t_VEC);
   M = NULL;
   for (i = 1; i < lSl2; i++)
@@ -1466,15 +1481,50 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 
   if (!all)
   { /* primes landing in subgroup must be totally split */
-    GEN lambdaWB = shallowconcat(lambdaofvec(vecW, &T), vecAp);/*vecWB^lambda*/
+    GEN lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
     GEN Lpr = get_prlist(bnr, subgroup, ell, bnfz);
-    GEN Lprz= get_przlist(Lpr, nfz, nf, &COMPO);
+    GEN Lprz= get_przlist(Lpr, nfz, nf, &kum->COMPO);
     GEN M2 = subgroup_info(bnfz, Lprz, ell, lambdaWB);
     M = vconcat(M, M2);
   }
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
   /* step 16 && 18 & ff */
-  res = _rnfkummer_step18(&T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, gell, lW, all);
+  return _rnfkummer_step18(T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, gell, lW, all);
+}
+
+static GEN
+_rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
+{
+  long vnf;
+  ulong ell;
+  GEN polnf,bnf,nf,gell,p1;
+  GEN res;
+  struct rnfkummer kum;
+  pari_timer t;
+
+  if (DEBUGLEVEL) timer_start(&t);
+  checkbnr(bnr);
+  bnf = bnr_get_bnf(bnr);
+  nf  = bnf_get_nf(bnf);
+  polnf = nf_get_pol(nf); vnf = varn(polnf);
+  if (!vnf) pari_err_PRIORITY("rnfkummer", polnf, "=", 0);
+  /* step 7 */
+  p1 = bnrconductor_i(bnr, subgroup, 2);
+  if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] conductor");
+  bnr      = gel(p1,2);
+  subgroup = gel(p1,3);
+  gell = get_gell(bnr,subgroup,all);
+  ell = itou(gell);
+  if (ell == 1) return pol_x(0);
+  if (!uisprime(ell)) pari_err_IMPL("kummer for composite relative degree");
+  if (all && all != -1 && umodiu(bnr_get_no(bnr), ell))
+    return cgetg(1, t_VEC);
+  if (bnf_get_tuN(bnf) % ell == 0)
+    return rnfkummersimple(bnr, subgroup, gell, all);
+
+  if (all == -1) all = 0;
+  rnfkummer_init(&kum, bnr, ell, prec);
+  res = rnfkummer_ell(&kum, bnr, subgroup, all);
   return res? res: gen_0;
 }
 
