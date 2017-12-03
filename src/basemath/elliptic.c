@@ -4066,10 +4066,14 @@ GEN
 ellintegralmodel(GEN e, GEN *pv)
 {
   pari_sp av = avma;
-  long t;
   checkell(e);
-  t = ell_get_type(e);
-  if (t != t_ELL_Q && t != t_ELL_NF) pari_err_TYPE("ellintegralmodel",e);
+  switch(ell_get_type(e))
+  {
+    case t_ELL_Q:
+    case t_ELL_Qp:
+    case t_ELL_NF: break;
+    default: pari_err_TYPE("ellintegralmodel",e);
+  }
   e = ellintegralmodel_i(e, pv);
   if (!pv || !*pv)
   {

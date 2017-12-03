@@ -8,6 +8,8 @@ P=[1,-1/4;0,1];
   B=ellpadicfrobenius(E,p,10);
   if(P*B!=A*P,error(p)));
 }
+Ep=ellinit(E,O(3^5));
+[ellintegralmodel(Ep,&v)[1..5],v]
 
 E=ellinit([1,-1,1,0,0]);P=[0,0];
 ellpadicheight(E,2,4, P)

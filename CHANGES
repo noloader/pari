@@ -407,7 +407,7 @@ BA   46-[libpari] RgX_type now only handles polynomials.
          arguments; use * [a,b]~
      53- ellpadics2: allow curves with multiplicative reduction
      54- E/Qp now allowed in ellcard, ellap, ellgroup, ellissupersingular,
-         ellpadicfrobenius, ellpadics2
+         ellpadicfrobenius, ellpadics2, ellintegralmodel
      55- E/Qp convert coefficient to exact form using centered residues
 
   Removed
