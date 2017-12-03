@@ -2308,7 +2308,7 @@ checksymbol(GEN W, GEN s)
   }
   return 1;
 }
-long
+GEN
 msissymbol(GEN W, GEN s)
 {
   long k, nbgen;
@@ -2318,27 +2318,34 @@ msissymbol(GEN W, GEN s)
   switch(typ(s))
   {
     case t_VEC: /* values s(g_i) */
-      if (lg(s)-1 != nbgen) return 0;
+      if (lg(s)-1 != nbgen) return gen_0;
       break;
     case t_COL:
       if (msk_get_sign(W))
       {
         GEN star = gel(msk_get_starproj(W), 1);
-        if (lg(star) == lg(s)) return 1;
+        if (lg(star) == lg(s)) return gen_1;
       }
       if (k == 2) /* on the dual basis of (g_i) */
       {
-        if (lg(s)-1 != nbgen) return 0;
+        if (lg(s)-1 != nbgen) return gen_0;
       }
       else
       {
         GEN basis = msk_get_basis(W);
-        return (lg(s) == lg(basis));
+        return (lg(s) == lg(basis))? gen_1: gen_0;
       }
       break;
-    default: return 0;
+    case t_MAT:
+    {
+      long i, l = lg(s);
+      GEN v = cgetg(l, t_VEC);
+      for (i = 1; i < l; i++) gel(v,i) = msissymbol(W,gel(s,i))? gen_1: gen_0;
+      return v;
+    }
+    default: return gen_0;
   }
-  return checksymbol(W,s);
+  return checksymbol(W,s)? gen_1: gen_0;
 }
 #if DEBUG
 /* phi is a sparse symbol from msk_get_basis, return phi(G_j) */

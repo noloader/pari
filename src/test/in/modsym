@@ -117,6 +117,7 @@ msstar(W)
 N = msnew(W)[1];
 s = N[,1];
 msissymbol(W,s)
+msissymbol(W,N)
 S = mseval(W,s);
 msissymbol(W,S)
 T=S; T[3]++;

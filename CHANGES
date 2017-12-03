@@ -410,6 +410,8 @@ BA   46-[libpari] RgX_type now only handles polynomials.
      54- E/Qp now allowed in ellcard, ellap, ellgroup, ellissupersingular,
          ellpadicfrobenius, ellpadics2, ellintegralmodel
      55- E/Qp convert coefficient to exact form using centered residues
+     56- msissymbol now returns a GEN (gen_0/gen_1) instead of a long, allow
+         t_MAT arguments and return a vector of 0/1 in this case.
 
   Removed
       1- file 'MACHINES' (no longer maintained)

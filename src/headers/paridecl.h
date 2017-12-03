@@ -4827,7 +4827,7 @@ GEN     mseisenstein(GEN W);
 GEN     mseval(GEN W, GEN s, GEN p);
 GEN     mshecke(GEN W, long p, GEN H);
 GEN     msinit(GEN N, GEN k, long sign);
-long    msissymbol(GEN W, GEN s);
+GEN     msissymbol(GEN W, GEN s);
 GEN     mslattice(GEN M, GEN F);
 GEN     msomseval(GEN W, GEN phi, GEN path);
 void    mspadic_parse_chi(GEN s, GEN *s1, GEN *s2);
