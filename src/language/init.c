@@ -2193,8 +2193,8 @@ obj_free(GEN S)
   for (i = 1; i < lg(v); i++)
   {
     GEN o = gel(v,i);
-    if (isclone(o)) gunclone(o);
     gel(v,i) = gen_0;
+    gunclone_deep(o);
   }
 }
 

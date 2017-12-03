@@ -3059,10 +3059,16 @@ nb_components(GEN E) { return signe(ell_get_disc(E)) > 0? 2: 1; }
 static GEN
 ellperiod(GEN E, long s)
 {
-  GEN w = ellR_omega(E,DEFAULTPREC);
-  if (s == 1) return gel(w,1);
-  if (nb_components(E) == 2) return gneg(gel(w,2));
-  return mkcomplex(gen_0, gneg(gmul2n(imag_i(gel(w,2)), 1)));
+  GEN E0, u, v, w = ellR_omega(E,DEFAULTPREC);
+  if (s == 1)
+    w = gel(w,1);
+  else if (nb_components(E) == 2)
+    w = gneg(gel(w,2));
+  else
+    w = mkcomplex(gen_0, gneg(gmul2n(imag_i(gel(w,2)), 1)));
+  E0 = ellminimalmodel(E,&v);
+  u = gel(v,1); if (!is_pm1(u)) w = gdiv(w,u);
+  obj_free(E0); return w;
 }
 
 /* Let W = msinit(conductor(E), 2), xpm an integral modular symbol with the same
@@ -3071,21 +3077,20 @@ ellperiod(GEN E, long s)
  * sign(D) = s, and such that E_D has rank 0. Return the normalized symbol
  * C * xpm */
 static GEN
-ell_get_scale(GEN E, GEN W, GEN xpm, long s)
+ell_get_scale(GEN LE, GEN E, GEN W, GEN xpm, long s)
 {
-  GEN LE = lfuncreate(E), w = ellperiod(E, s);
+  GEN w = ellperiod(E, s);
   long f, NE = ms_get_N(W);
+  const long bit = 64;
 
-  /* find chi s.t. chi(-1) = s such that L(f,chi,1) != 0 */
-  for (f = 1; f < LONG_MAX; f++)
-  {
-    const long bit = 64;
+  for (f = 1;; f++)
+  { /* look for chi with conductor f coprime to N(E) and parity s
+     * such that L(E,chi,1) != 0 */
     pari_sp av = avma;
     GEN vchi, vx, G;
     long l, i;
     if ((f & 3) == 2 || cgcd(NE,f) != 1) continue;
-    vx = allxpm(W, xpm, f);
-    if (!vx) continue;
+    vx = allxpm(W, xpm, f); if (!vx) continue;
     G = znstar0(utoipos(f),1);
     vchi = chargalois(G,NULL); l = lg(vchi);
     for (i = 1; i < l; i++)
@@ -3107,8 +3112,6 @@ ell_get_scale(GEN E, GEN W, GEN xpm, long s)
     }
     avma = av;
   }
-  pari_err_BUG("msfromell (no suitable twist)");
-  return NULL;
 }
 
 /* v != 0 */
@@ -3192,14 +3195,14 @@ msfromell_check(GEN x, GEN vT, GEN star, long sign)
     return ZV_equal(gel(sx,1),gel(x,1)) && ZV_equal(gel(sx,2),ZC_neg(gel(x,2)));
 }
 static GEN
-msfromell_scale(GEN E, GEN W, long sign, GEN x)
+msfromell_scale(GEN LE, GEN E, GEN W, long sign, GEN x)
 {
   if (sign)
-    x = ell_get_scale(E, W, gel(x,1), sign);
+    x = ell_get_scale(LE, E, W, gel(x,1), sign);
   else
   {
-    GEN p = ell_get_scale(E, W, gel(x,1), 1);
-    GEN m = ell_get_scale(E, W, gel(x,2),-1), L;
+    GEN p = ell_get_scale(LE, E, W, gel(x,1), 1);
+    GEN m = ell_get_scale(LE, E, W, gel(x,2),-1), L;
     if (signe(ell_get_disc(E)) > 0)
       L = mkmat2(p,m); /* E(R) has 2 connected components */
     else
@@ -3212,7 +3215,7 @@ GEN
 msfromell(GEN E0, long sign)
 {
   pari_sp av = avma, av2;
-  GEN E, cond, W, x = NULL, K = NULL, star, q, vT, xl, xr;
+  GEN T, LE, E, cond, W, x = NULL, K = NULL, star, q, vT, xl, xr;
   long lE, single;
   ulong p, l, N;
   forprime_t S, Sl;
@@ -3222,11 +3225,10 @@ msfromell(GEN E0, long sign)
   if (lE == 1) return cgetg(1,t_VEC);
   single = (typ(gel(E0,1)) != t_VEC);
   E = single ? E0: gel(E0,1);
-
-  E = ellminimalmodel(E, NULL);
   cond = ellQ_get_N(E);
-  N = itou(cond);
-  av2 = avma;
+  /* must make it integral for ellap; we have minimal model at hand */
+  T = obj_check(E, Q_MINIMALMODEL); if (lg(T) != 2) E = gel(T,3);
+  N = itou(cond); av2 = avma;
   W = gerepilecopy(av2, mskinit(N,2,0));
   star = msk_get_star(W);
   init_modular_small(&Sl);
@@ -3268,14 +3270,14 @@ msfromell(GEN E0, long sign)
     xr = msfromell_ratlift(x, q);
   }
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) if sign != 0 */
-
+  LE = lfuncreate(E);
   if (single)
-    x = msfromell_scale(E, W, sign, xr);
+    x = msfromell_scale(LE, E, W, sign, xr);
   else
   {
     GEN v = cgetg(lE, t_VEC);
     long i;
-    for (i=1; i < lE; i++) gel(v,i) = msfromell_scale(gel(E0,i), W, sign, xr);
+    for (i=1; i<lE; i++) gel(v,i) = msfromell_scale(LE, gel(E0,i), W, sign, xr);
     x = v;
   }
   return gerepilecopy(av, mkvec2(W, x));

@@ -1641,12 +1641,7 @@ ellweilcurve(GEN E)
   GEN vL, Wx, W, XPM, Lf, Cf;
   long i, l = lg(vE);
 
-  for (i = 1; i < l; i++)
-  {
-    GEN Ei = ellinit(gel(vE,i), gen_1, 0);
-    gel(vE,i) = ellminimalmodel(Ei, NULL);
-    obj_free(Ei);
-  }
+  for (i = 1; i < l; i++) gel(vE,i) = ellinit(gel(vE,i), gen_1, 0);
   Wx = msfromell(vE, 0);
   W = gel(Wx,1);
   XPM = gel(Wx,2);
