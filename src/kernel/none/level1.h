@@ -153,7 +153,7 @@ INLINE GEN
 cgetg_block(long x, long y)
 {
   GEN z = newblock((size_t)x);
-  z[0] = evaltyp(y) | evallg(x);
+  z[0] = CLONEBIT | evaltyp(y) | evallg(x);
   return z;
 }
 INLINE GEN
@@ -188,7 +188,7 @@ INLINE GEN
 cgetr_block(long x)
 {
   GEN z = newblock((size_t)x);
-  z[0] = evaltyp(t_REAL) | evallg(x);
+  z[0] = CLONEBIT | evaltyp(t_REAL) | evallg(x);
   return z;
 }
 INLINE GEN
