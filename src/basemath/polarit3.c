@@ -1600,6 +1600,7 @@ FpX_direct_compositum(GEN a, GEN b, GEN p)
 {
   long v = varn(a), w = fetch_var_higher();
   GEN x = deg1pol_shallow(gen_1, deg1pol_shallow(gen_m1, gen_0, v), w); /* Y-X */
+  if (degpol(a) < degpol(b)) swap(a,b);
   x = FpX_FpXY_resultant(a, poleval(b,x),p);
   setvarn(x, v);
   (void)delete_var(); return x;
