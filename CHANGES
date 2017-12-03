@@ -145,6 +145,7 @@ BA  108- sqrtn(Mod(9, 101), -2) -> wrong result
     114- nfrootsof1 could return a t_POL (always return \pm 1 or a t_COL)
     115- oo-loop in msfromell [#1906]
     116- memory leak due to cgetg_block / gunclone_deep usage
+    117- memory leak in ellminimalmodel when e memoized periods/roots components
 
   Added
       1- [libari] ZM_isidentity

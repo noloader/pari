@@ -1158,15 +1158,15 @@ ch_R(GEN E, GEN e, GEN w)
 {
   GEN S, u = gel(w,1), r = gel(w,2);
   if ((S = obj_check(e, R_PERIODS)))
-    obj_insert(E, R_PERIODS, gmul(S, u));
+    obj_insert_shallow(E, R_PERIODS, gmul(S, u));
   if ((S = obj_check(e, R_ETA)))
-    obj_insert(E, R_ETA, gmul(S, u));
+    obj_insert_shallow(E, R_ETA, gmul(S, u));
   if ((S = obj_check(e, R_ROOTS)))
   {
     GEN ro = cgetg(4, t_VEC), u2 = gsqr(u);
     long i;
     for (i = 1; i <= 3; i++) gel(ro,i) = gdiv(gsub(gel(S,i), r), u2);
-    obj_insert(E, R_ROOTS, ro);
+    obj_insert_shallow(E, R_ROOTS, ro);
   }
   return E;
 }
