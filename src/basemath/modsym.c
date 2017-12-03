@@ -4614,34 +4614,6 @@ mslattice(GEN M, GEN F)
   return gerepileupto(av, F);
 }
 
-GEN
-ellweilcurve(GEN E)
-{
-  pari_sp av = avma;
-  GEN LM = ellisomat(E,0,1), vE = gel(LM,1);
-  GEN vL, Wx, W, XPM, Lf, Cf;
-  long i, l = lg(vE);
-
-  for (i = 1; i < l; i++)
-    gel(vE,i) = ellminimalmodel(ellinit(gel(vE,i), gen_1, 0), NULL);
-  Wx = msfromell(vE, 0);
-  W = gel(Wx,1);
-  XPM = gel(Wx,2);
-  /* lattice attached to the Weil curve in the isogeny class */
-  Lf = mslattice(W, gmael(XPM,1,3));
-  Cf = ginv(Lf); /* left-inverse */
-  vL = cgetg(l, t_VEC);
-  for (i=1; i < l; i++)
-  {
-    GEN c, Ce, Le = gmael(XPM,i,3);
-    Ce = Q_primitive_part(RgM_mul(Cf, Le), &c);
-    Ce = ZM_snf(Ce);
-    if (c) { Ce = ZC_Q_mul(Ce,c); settyp(Ce,t_VEC); }
-    gel(vL,i) = Ce;
-  }
-  return gerepilecopy(av, mkvec2(vE, vL));
-}
-
 /**** Petersson scalar product ****/
 
 /* oo -> g^(-1) oo */

@@ -2894,11 +2894,12 @@ GEN     ellpadics2(GEN E, GEN p, long n);
 /* elltors.c */
 long    ellisdivisible(GEN E, GEN P, GEN n, GEN *Q);
 
-/* ellisogeny.c */
+/* ellisog.c */
 
 GEN     ellisogenyapply(GEN f, GEN P);
 GEN     ellisogeny(GEN e, GEN G, long only_image, long vx, long vy);
 GEN     ellisomat(GEN E, long p, long flag);
+GEN     ellweilcurve(GEN E);
 
 /* ellsea.c */
 
@@ -4809,7 +4810,6 @@ GEN     RgX_act_Gl2Q(GEN g, long k);
 GEN     RgX_act_ZGl2Q(GEN z, long k);
 void    checkms(GEN W);
 void    checkmspadic(GEN W);
-GEN     ellweilcurve(GEN E);
 GEN     mfnumcusps(GEN n);
 GEN     mfnumcusps_fact(GEN fa);
 ulong   mfnumcuspsu_fact(GEN fa);
