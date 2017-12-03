@@ -29,8 +29,8 @@ Doc: Let $\Delta:=\text{Div}^0(\P^1 (\Q))$.
  We assume that $s$ is a proper symbol, i.e.~that the $v_i$ satisfy
  the \kbd{mspathgens} relations.
 
- If $p$ is omitted, convert the single symbol $s$ (a \typ{MAT} is not allowed
- here) to the second form: a vector of the $s(g_i)$.
+ If $p$ is omitted, convert a single symbol $s$  to the second form: a vector
+ of the $s(g_i)$. A \typ{MAT} is converted to a vector of such.
 
  \bprog
  ? M = msinit(2,8,1); \\ M_8(Gamma_0(2))^+

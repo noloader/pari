@@ -127,6 +127,7 @@ M = msinit(7,8, 1);
 N = msnew(M)[1];
 s = N[,1];
 S = mseval(M,s);
+mseval(M,N)
 msissymbol(M, S)
 
 W=msinit(17,2);

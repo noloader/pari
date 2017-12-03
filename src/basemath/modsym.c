@@ -2997,8 +2997,13 @@ mseval(GEN W, GEN s, GEN p)
         s = symtophi(W,s);
       break;
     case t_MAT:
-      if (!p) pari_err_TYPE("mseval",s);
       l = lg(s);
+      if (!p)
+      {
+        GEN v = cgetg(l, t_VEC);
+        for (i = 1; i < l; i++) gel(v,i) = mseval(W, gel(s,i), NULL);
+        return v;
+      }
       if (l == 1) return cgetg(1, t_VEC);
       if (msk_get_sign(W))
       {
