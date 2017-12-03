@@ -1347,7 +1347,7 @@ starlaw(GEN p, GEN q)
 static GEN
 startor(GEN p, long r)
 {
-  GEN xr = monomial(gen_1, r, 0);
+  GEN xr = pol_xn(r, 0);
   GEN psir = gsub(xr, gen_1);
   return gsubstpol(starlaw(p, psir),xr,pol_x(0));
 }

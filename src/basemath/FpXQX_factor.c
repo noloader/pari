@@ -136,7 +136,7 @@ FpX_intersect_ker(GEN P, GEN MA, GEN U, GEN l)
   GEN V, A, R, ib0;
   pari_timer T;
   if (DEBUGLEVEL>=4) timer_start(&T);
-  V = FpX_div(FpX_Fp_sub(monomial(gen_1, get_FpX_degree(P), vu), gen_1, l), U, l);
+  V = FpX_div(FpX_Fp_sub(pol_xn(get_FpX_degree(P), vu), gen_1, l), U, l);
   do
   {
     A = FpX_FpM_FpC_eval(V, MA, random_FpC(lg(MA)-1, l), l);
