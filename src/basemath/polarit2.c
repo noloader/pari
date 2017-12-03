@@ -1241,16 +1241,12 @@ zero_gcd(GEN x)
     case t_POL:
       if (!isinexact(x)) break;
       av = avma;
-      return gerepileupto(av,
-        monomialcopy(content(x), RgX_val(x), varn(x))
-      );
+      return gerepileupto(av, monomialcopy(content(x), RgX_val(x), varn(x)));
 
     case t_RFRAC:
       if (!isinexact(x)) break;
       av = avma;
-      return gerepileupto(av,
-        gdiv(zero_gcd(gel(x,1)), gel(x,2))
-      );
+      return gerepileupto(av, gdiv(zero_gcd(gel(x,1)), gel(x,2)));
   }
   return gcopy(x);
 }
