@@ -950,7 +950,7 @@ ellpadicbsd(GEN E, GEN p, long n, GEN D)
 {
   const long MAXR = 30;
   pari_sp av = avma;
-  GEN ED, tam, ND, C, v, U, apD;
+  GEN ED, tam, ND, C, v, apD, U = NULL;/*-Wall*/
   long r, vN;
   checkell(E);
   if (ell_get_type(E) != t_ELL_Q) pari_err_TYPE("ellpadicbsd",E);
