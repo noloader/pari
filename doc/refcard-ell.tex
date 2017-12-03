@@ -115,6 +115,7 @@ $\bullet$ All domains:
 \li{cyclotomic $p$-adic height of $P\in E(\QQ)$}{ellpadicheight$(E,p,n,P)$}
 \li{\dots bilinear form at $P,Q\in E(\QQ)$}{ellpadicheight$(E,p,n,P,Q)$}
 \li{\dots matrix at vector for pts in $L$}{ellpadicheightmatrix$(E,p,n,L)$}
+\li{\dots regulator for canonical height}{ellpadicregulator$(E,p,n, Q)$}
 \li{Frobenius on $\QQ_p \otimes H^1_{dR}(E/\QQ)$}{ellpadicfrobenius$(E,p,n)$}
 \li{slope of unit eigenvector of Frobenius}{ellpadics2$(E,p,n)$}
 
@@ -133,8 +134,12 @@ $\bullet$ All domains:
 \li{root number for $L(E,.)$ at $p$}{ellrootno$(E,\{p\})$}
 \li{modular parametrization of $E$}{elltaniyama$(E)$}
 \li{degree of modular parametrization}{ellmoddegree$(E)$}
+\li{$H_1(X_0(N),\ZZ) \to H_1(E',\ZZ)$ for all $E'\to E$}
+    {ellweilcurve$(E)$}
 \li{$p$-adic $L$ function $L_p^{(r)}(E,d,\chi^s)$}
    {ellpadicL$(E,p,n,\{s\},\{r\},\{d\})$}
+\li{BSD conjecture for $L_p^{(r)}(E_D,\chi^0)$}
+   {ellpadicbsd$(E,p,n,\{D=1\})$}
 
 \subsec{Elldata package, Cremona's database:}
 \li{db code \kbd{"11a1"} $\leftrightarrow$ $[\var{conductor}, \var{class}, \var{index}]$}{ellconvertname$(s)$}

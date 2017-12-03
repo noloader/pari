@@ -184,6 +184,7 @@ set of $\ZZ[G]$-generators $(g_i)$ of $\Delta$.\hfil\break
 \li{the level $M$}{msgetlevel$(M)$}
 \li{the weight $k$}{msgetweight$(M)$}
 \li{the sign $\varepsilon$}{msgetsign$(M)$}
+\li{Farey symbol attached to $\Gamma_0(N)$}{mspolygon$(M)$}
 \smallskip
 
 \li{$\ZZ[G]$-generators $(g_i)$ and relations for $\Delta$}{mspathgens$(M)$}
@@ -195,10 +196,12 @@ set of $\ZZ[G]$-generators $(g_i)$ of $\Delta$.\hfil\break
 \li{cuspidal symbol attached to $E/\QQ$}{msfromell$(E)$}
 \li{symbol having given Hecke eigenvalues}{msfromhecke$(M,v,\{H\})$}
 \li{is $s$ a symbol ?}{msissymbol$(M,s)$}
+\subsec{Operations on symbols}
 \li{the list of all $s(g_i)$}{mseval$(M,s)$}
 \li{evaluate symbol $s$ on path $p=[a,b]$}{mseval$(M,s,p)$}
+\li{Petersson product of $s$ and $t$}{mspetersson$(M,s,t)$}
 
-\subsec{Operators}
+\subsec{Operators on subspaces}
 An operator is given by a matrix of a fixed $\QQ$-basis. $H$, if given, is a
 stable $\QQ$-subspace of $\MM_k(G)$: operator is restricted to $H$.\hfil\break
 \li{matrix of Hecke operator $T_p$ or $U_p$}{mshecke$(M,p,\{H\})$}
@@ -217,8 +220,11 @@ $\sum_n a_n q^n$.
 \li{Eisenstein subspace $E_k(G)^\varepsilon$}{mseisenstein$(M)$}
 \li{new part of $S_k(G)^\varepsilon$}{msnew$(M)$}
 \li{split $H$ into simple subspaces (of dim $\leq d$)}{mssplit$(M,H,\{d\})$}
+\li{dimension of a subspace}{msdim$(M)$}
 \li{$(a_1,\dots, a_B)$ for attached newform}
    {msqexpansion$(M, H, \{B\})$}
+\li{$\ZZ$-structure from $H^1(\Gamma_0(N),\ZZ[x,y]_{k-2})$}
+    {mslattice$(M)$}
 
 \medskip
 \subsec{Overconvergent symbols and $p$-adic $L$ functions}
