@@ -1598,8 +1598,10 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
 GEN
 FpX_direct_compositum(GEN a, GEN b, GEN p)
 {
-  GEN x = deg1pol_shallow(gen_1, pol_x(varn(a)), fetch_var_higher()); /* x+y */
+  long v = varn(a), w = fetch_var_higher();
+  GEN x = deg1pol_shallow(gen_1, pol_x(v), w); /* x+y */
   x = FpX_FpXY_resultant(a, poleval(b,x),p);
+  setvarn(x, v);
   (void)delete_var(); return x;
 }
 
