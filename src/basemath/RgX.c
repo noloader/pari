@@ -957,6 +957,14 @@ RgX_recipspec_shallow(GEN x, long l, long n)
   return normalizepol_lg(z-2,n+2);
 }
 
+GEN
+RgXn_recip_shallow(GEN P, long n)
+{
+  GEN Q = RgX_recipspec_shallow(P+2, lgpol(P), n);
+  setvarn(Q, varn(P));
+  return Q;
+}
+
 /* return coefficients s.t x = x_0 X^n + ... + x_n */
 GEN
 RgX_recip(GEN x)

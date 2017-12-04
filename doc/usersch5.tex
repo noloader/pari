@@ -9382,6 +9382,8 @@ $P\mapsto z\cdot P$ in the basis $(X^{k-2},\dots,Y^{k-2})$.
 \fun{GEN}{RgXn_red_shallow}{GEN x, long n} return $\kbd{x \% } t^n$,
 where $n\geq 0$. Shallow function.
 
+\fun{GEN}{RgXn_recip_shallow}{GEN P} returns $X^n\*P(1/X)$. Shallow function.
+
 \fun{GEN}{RgXn_mul}{GEN a, GEN b, long n} returns $a b$ modulo $X^n$,
 where $a,b$ are two \typ{POL} in the same variable $X$ and $n \geq 0$. Uses
 Karatsuba algorithm (Mulders, Hanrot-Zimmermann variant).

@@ -1104,6 +1104,7 @@ GEN     RgXn_exp(GEN f, long e);
 GEN     RgXn_inv(GEN f, long e);
 GEN     RgXn_mul(GEN f, GEN g, long n);
 GEN     RgXn_powers(GEN f, long m, long n);
+GEN     RgXn_recip_shallow(GEN P, long n);
 GEN     RgXn_red_shallow(GEN a, long n);
 GEN     RgXn_reverse(GEN f, long e);
 GEN     RgXn_sqr(GEN f, long n);
