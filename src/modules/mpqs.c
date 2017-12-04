@@ -120,7 +120,6 @@ mpqs_set_parameters(mpqs_handle_t *h)
 {
   long i;
   const mpqs_parameterset_t *P;
-  double mb;
 
   h->digit_size_kN = decimal_len(h->kN);
   if (h->digit_size_kN <= 9)
@@ -166,15 +165,11 @@ mpqs_set_parameters(mpqs_handle_t *h)
   h->first_sort_point = 10 * P->first_sort_point;
   h->sort_pt_interval = 10 * P->sort_pt_interval;
 
-  mb = (h->size_of_FB + 1)/(8.*1048576.) * h->target_no_rels;
-  if (mb > 128.)
+  if (DEBUGMEM)
   {
-    pari_warn(warner,
-        "MPQS: Gauss elimination will require more than\n\t128MBy of memory");
-    if (DEBUGLEVEL >= 1)
-      err_printf("\t(estimated memory needed: %4.1fMBy)\n", mb);
+    double mb = (h->size_of_FB + 1)/(8.*1048576.) * h->target_no_rels;
+    err_printf("\t(estimated memory needed: %4.1fMBy)\n", mb);
   }
-
   return 1;
 }
 
