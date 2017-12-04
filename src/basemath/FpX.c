@@ -2156,12 +2156,6 @@ FpXQ_charpoly(GEN x, GEN T, GEN p)
 /* cf Shoup 'Efficient Computation of Minimal Polynomials */
 /*          in Algebraic Extensions of Finite Fields'     */
 
-static GEN
-FpXn_mul(GEN a, GEN b, long n, GEN p)
-{
-  return FpX_red(RgXn_red_shallow(ZX_mul(a, b), n), p);
-}
-
 /* Let v a linear form, return the linear form z->v(tau*z)
    that is, v*(M_tau) */
 
@@ -2380,4 +2374,22 @@ gener_FpXQ_local(GEN T, GEN p, GEN L)
   setlg(Lp, ip);
   setlg(Lq, iq);
   return gener_FpXQ_i(T, p, p_1, Lp, Lq);
+}
+
+/***********************************************************************/
+/**                                                                   **/
+/**                              FpXn                                 **/
+/**                                                                   **/
+/***********************************************************************/
+
+GEN
+FpXn_mul(GEN a, GEN b, long n, GEN p)
+{
+  return FpX_red(RgXn_red_shallow(ZX_mul(a, b), n), p);
+}
+
+GEN
+FpXn_sqr(GEN a, long n, GEN p)
+{
+  return FpX_red(RgXn_red_shallow(ZX_sqr(a), n), p);
 }

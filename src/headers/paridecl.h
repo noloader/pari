@@ -635,6 +635,8 @@ GEN     FpXT_red(GEN z, GEN p);
 GEN     FpXV_FpX_fromdigits(GEN x, GEN T, GEN p);
 GEN     FpXV_prod(GEN V, GEN p);
 GEN     FpXV_red(GEN z, GEN p);
+GEN     FpXn_mul(GEN a, GEN b, long n, GEN p);
+GEN     FpXn_sqr(GEN a, long n, GEN p);
 int     Fq_issquare(GEN x, GEN T, GEN p);
 long    Fq_ispower(GEN x, GEN K, GEN T, GEN p);
 GEN     Fq_log(GEN a, GEN g, GEN ord, GEN T, GEN p);

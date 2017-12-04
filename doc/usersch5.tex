@@ -5001,6 +5001,16 @@ and returns a \typ{COL}.
 \fun{GEN}{FpXM_FpXQV_eval}{GEN M, GEN V,GEN T,GEN p} applies
 \kbd{FpX\_FpXQV\_eval} to all elements of the matrix $M$.
 
+\subsec{\kbd{FpXn}} Let \kbd{p} a \typ{INT} and \kbd{T} an
+\kbd{FpX} for \kbd{p}, both to be given in the function arguments; an \kbd{FpXn}
+object is an \kbd{FpX} whose degree is strictly less than \kbd{n}.
+They represent a class in $(\Z/\kbd{p}\Z)[X] / (X^n)$, in which all operations
+below take place. They can be seen as truncated power series.
+
+\fun{GEN}{FpXn_mul}{GEN x, GEN y, GEN p} return $x\*y$.
+
+\fun{GEN}{FpXn_sqr}{GEN x, GEN p} return $x^2$.
+
 \subsec{\kbd{FpXC}, \kbd{FpXM}}
 
 \fun{GEN}{FpXC_center}{GEN C, GEN p, GEN pov2}
