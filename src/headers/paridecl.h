@@ -573,6 +573,7 @@ GEN     FpX_Frobenius(GEN T, GEN p);
 GEN     FpX_add(GEN x, GEN y, GEN p);
 GEN     FpX_center(GEN x, GEN p, GEN pov2);
 GEN     FpX_chinese_coprime(GEN x,GEN y,GEN Tx,GEN Ty,GEN Tz,GEN p);
+GEN     FpX_convol(GEN x, GEN y, GEN p);
 GEN     FpX_deriv(GEN x, GEN p);
 GEN     FpX_digits(GEN x, GEN y, GEN p);
 GEN     FpX_disc(GEN x, GEN p);
