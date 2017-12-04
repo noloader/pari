@@ -181,12 +181,8 @@ newblock(size_t n)
 #ifdef DEBUG
   err_printf("+ %ld\n", ++NUM);
 #endif
-  if (DEBUGMEM)
-  {
-    if (!n) pari_warn(warner,"mallocing NULL object in newblock");
-    if (DEBUGMEM > 2)
-      err_printf("new block, size %6lu (no %ld): %08lx\n", n, next_block-1, x);
-  }
+  if (DEBUGMEM > 2)
+    err_printf("new block, size %6lu (no %ld): %08lx\n", n, next_block-1, x);
   return cur_block = x;
 }
 

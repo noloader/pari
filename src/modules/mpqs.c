@@ -165,7 +165,7 @@ mpqs_set_parameters(mpqs_handle_t *h)
   h->first_sort_point = 10 * P->first_sort_point;
   h->sort_pt_interval = 10 * P->sort_pt_interval;
 
-  if (DEBUGMEM)
+  if (DEBUGLEVEL >= 5)
   {
     double mb = (h->size_of_FB + 1)/(8.*1048576.) * h->target_no_rels;
     err_printf("\t(estimated memory needed: %4.1fMBy)\n", mb);

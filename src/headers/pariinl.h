@@ -1082,7 +1082,6 @@ pari_malloc(size_t size)
     if (!tmp) pari_err(e_MEM);
     return tmp;
   }
-  if (DEBUGMEM) pari_warn(warner,"mallocing NULL object");
   return NULL;
 }
 INLINE void*
