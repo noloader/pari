@@ -586,6 +586,7 @@ GEN     FpX_gcd_check(GEN x, GEN y, GEN p);
 GEN     FpX_get_red(GEN T, GEN p);
 GEN     FpX_halve(GEN y, GEN p);
 GEN     FpX_halfgcd(GEN x, GEN y, GEN p);
+GEN     FpX_integ(GEN x, GEN p);
 GEN     FpX_invBarrett(GEN T, GEN p);
 int     FpX_is_squarefree(GEN f, GEN p);
 long    FpX_ispower(GEN f, ulong k, GEN p, GEN *pt_r);

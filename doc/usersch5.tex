@@ -4539,6 +4539,9 @@ of~\kbd{x}.
 This function is not memory-clean, but nevertheless suitable for
 \kbd{gerepileupto}.
 
+\fun{GEN}{FpX_integ}{GEN x, GEN p} returns the primitive of \kbd{x} whose
+constant term is $0$.
+
 \fun{GEN}{FpX_digits}{GEN x, GEN B, GEN p} returns a vector of \kbd{FpX}
 $[c_0,\ldots,c_n]$ of degree less than the degree of $B$ and such that
 $x=\sum_{i=0}^{n}{c_i\*B^i}$.

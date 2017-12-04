@@ -826,6 +826,19 @@ FpX_rescale(GEN P, GEN h, GEN p)
 GEN
 FpX_deriv(GEN x, GEN p) { return FpX_red(ZX_deriv(x), p); }
 
+GEN
+FpX_integ(GEN x, GEN p)
+{
+  long i, lx = lg(x);
+  GEN y;
+  if (lx == 2) return ZX_copy(x);
+  y = cgetg(lx+1, t_POL); y[1] = x[1];
+  gel(y,2) = gen_0;
+  for (i=3; i<=lx; i++)
+    gel(y,i) = Fp_div(gel(x,i-1), utoipos(i-2), p);
+  return ZX_renormalize(y, lx+1);;
+}
+
 int
 FpX_is_squarefree(GEN f, GEN p)
 {
