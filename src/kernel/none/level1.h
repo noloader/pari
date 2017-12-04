@@ -107,7 +107,7 @@ new_chunk(size_t x) /* x is a number of longs */
     new_chunk_resize(x);
   avma = (pari_sp)z;
 #ifdef MEMSTEP
-  if (DEBUGMEM && pari_mainstack->memused != DISABLE_MEMUSED) {
+  if (DEBUGMEM>1 && pari_mainstack->memused != DISABLE_MEMUSED) {
     long d = (long)pari_mainstack->memused - (long)z;
     if (labs(d) > 4*MEMSTEP)
     {

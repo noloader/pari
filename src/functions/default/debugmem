@@ -4,13 +4,17 @@ Section: default
 C-Name: sd_debugmem
 Prototype:
 Help:
-Doc: memory debugging level. If it is non-zero, \kbd{gp} will regularly print
- information on memory usage. If it's greater than 2, it will indicate any
- important garbage collecting and the function it is taking place in
- (see~\b{gm}).
+Doc: memory debugging level. If it is non-zero, \kbd{gp} will notify when
+ \kbd{parisize} changes (within the boundaries set by \kbd{parisizemax})
+ If it is greater than 2, indicate any important garbage collecting and the
+ function it is taking place in (see~\b{gm}). If greater than 3, it will
+ indicate the creation/destruction of ``blocks'' (or clones).
 
- \noindent {\bf Important Note:} As it noticeably slows down the performance,
- the first functionality (memory usage) is disabled if you're not running a
- version compiled for debugging (see Appendix~A).
+ \noindent {\bf Important Note:}
+ if you are running a version compiled for debugging (see Appendix~A),
+ \kbd{gp} will regularly print information on memory usage if \kbd{debugmem}
+ is $\geq 2$. This functionality is disabled on non-debugging builds as it
+ noticeably slows down the performance.
 
- The default value is \kbd{0} (no debugging messages).
+ The default value is \kbd{1} (no debugging messages except \kbd{parisize}
+ changes).

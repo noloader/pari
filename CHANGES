@@ -413,6 +413,8 @@ BA   46-[libpari] RgX_type now only handles polynomials.
      56- msissymbol now returns a GEN (gen_0/gen_1) instead of a long, allow
          t_MAT arguments and return a vector of 0/1 in this case.
      57- allow mseval(M, t_MAT)
+     58- change 'debugmem' default value to 1, no memory-related message at
+         (non-recommended) value 0.
 
   Removed
       1- file 'MACHINES' (no longer maintained)

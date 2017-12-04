@@ -535,7 +535,8 @@ pari_init_defaults(void)
 #endif
 
   precdl = 16;
-  DEBUGFILES = DEBUGLEVEL = DEBUGMEM = 0;
+  DEBUGFILES = DEBUGLEVEL = 0;
+  DEBUGMEM = 1;
   disable_color = 1;
   logstyle = logstyle_none;
 
@@ -784,7 +785,9 @@ parivstack_resize(ulong newsize)
   evalstate_reset();
   paristack_setsize(pari_mainstack->rsize, newsize);
   s = pari_mainstack->vsize ? pari_mainstack->vsize : pari_mainstack->rsize;
-  pari_warn(warner,"new maximum stack size = %lu (%.3f Mbytes)", s, s/1048576.);
+  if (DEBUGMEM)
+    pari_warn(warner,"new maximum stack size = %lu (%.3f Mbytes)",
+              s, s/1048576.);
   pari_init_errcatch();
   cb_pari_err_recover(-1);
 }
@@ -798,7 +801,8 @@ paristack_newrsize(ulong newsize)
     pari_mainstack_resize(pari_mainstack, newsize, vsize);
   evalstate_reset();
   s = pari_mainstack->rsize;
-  pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
+  if (DEBUGMEM)
+    pari_warn(warner,"new stack size = %lu (%.3f Mbytes)", s, s/1048576.);
   pari_init_errcatch();
   cb_pari_err_recover(-1);
 }
@@ -812,7 +816,10 @@ paristack_resize(ulong newsize)
   newsize = minuu(newsize, pari_mainstack->vsize);
   if (newsize <= pari_mainstack->size) return;
   if (pari_mainstack_setsize(pari_mainstack, newsize))
-    pari_warn(warner, "increasing stack size to %lu", pari_mainstack->size);
+  {
+    if (DEBUGMEM)
+      pari_warn(warner, "increasing stack size to %lu", pari_mainstack->size);
+  }
   else
   {
     pari_mainstack_setsize(pari_mainstack, size);
