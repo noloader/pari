@@ -5017,6 +5017,10 @@ below take place. They can be seen as truncated power series.
 
 \fun{GEN}{FpXn_sqr}{GEN x, GEN p} return $x^2$.
 
+\fun{GEN}{FpXn_exp}{GEN x, long n, GEN p} return $\exp(x)$
+as a composition of formal power series.
+It is required that the valuation of $x$ is positive and that $p>n$.
+
 \subsec{\kbd{FpXC}, \kbd{FpXM}}
 
 \fun{GEN}{FpXC_center}{GEN C, GEN p, GEN pov2}

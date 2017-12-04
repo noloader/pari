@@ -322,7 +322,7 @@ BA  128- New GP function lfuntwist
          Qp_descending_Landen
 BA  130- [libpari] famat_pows_shallow, famat_mulpows_shallow
     131- [libpari] QXQ_div_ratlift, ZM_equal0, QM_ImZ_hnfall, QM_ImQ_hnfall
-BA  132- [libpari] FpXn_mul, FpXn_sqr, RgXn_recip_shallow
+BA  132- [libpari] FpXn_mul, FpXn_sqr, RgXn_recip_shallow, FpXn_exp
 BA  133- [libpari] FpX_integ, FpX_convol
 
   Changed

@@ -2409,14 +2409,47 @@ gener_FpXQ_local(GEN T, GEN p, GEN L)
 /**                                                                   **/
 /***********************************************************************/
 
+INLINE GEN
+FpXn_red(GEN a, long n)
+{ return RgXn_red_shallow(a, n); }
+
 GEN
 FpXn_mul(GEN a, GEN b, long n, GEN p)
 {
-  return FpX_red(RgXn_red_shallow(ZX_mul(a, b), n), p);
+  return FpX_red(FpXn_red(ZX_mul(a, b), n), p);
 }
 
 GEN
 FpXn_sqr(GEN a, long n, GEN p)
 {
-  return FpX_red(RgXn_red_shallow(ZX_sqr(a), n), p);
+  return FpX_red(FpXn_red(ZX_sqr(a), n), p);
+}
+
+GEN
+FpXn_exp(GEN h, long e, GEN p)
+{
+  pari_sp av = avma, av2;
+  long v = varn(h), n=1;
+  GEN f = pol_1(v), g = pol_1(v);
+  ulong mask = quadratic_prec_mask(e);
+  av2 = avma;
+  if (signe(h)==0 || degpol(h)<1 || !gequal0(gel(h,2)))
+    pari_err_DOMAIN("FpXn_exp","valuation", "<", gen_1, h);
+  for (;mask>1;)
+  {
+    GEN q, w;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    g = FpX_sub(FpX_mulu(g,2,p), FpXn_mul(f, FpXn_sqr(g, n2, p), n2, p), p);
+    q = FpX_deriv(FpXn_red(h,n2), p);
+    w = FpX_add(q, FpXn_mul(g, FpX_sub(FpX_deriv(f, p), FpXn_mul(f,q,n-1, p), p),n-1, p), p);
+    f = FpX_add(f, FpXn_mul(f, FpX_sub(FpXn_red(h, n), FpX_integ(w,p), p), n, p), p);
+    if (gc_needed(av2,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpXn_exp, e = %ld", n);
+      gerepileall(av2, 2, &f, &g);
+    }
+  }
+  return gerepileupto(av, f);
 }
