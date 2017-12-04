@@ -1595,15 +1595,41 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
   return FpV_polint(x,y, p, vY);
 }
 
+static GEN
+FpX_diamondsum(GEN P, GEN Q, GEN p)
+{
+  long n = 1+ degpol(P)*degpol(Q);
+  GEN Pl = FpX_invLaplace(FpX_Newton(P,n,p), p);
+  GEN Ql = FpX_invLaplace(FpX_Newton(Q,n,p), p);
+  GEN L = FpX_Laplace(FpXn_mul(Pl, Ql, n, p), p);
+  return FpX_fromNewton(L, p);
+}
+
+#if 0
+GEN
+FpX_diamondprod(GEN P, GEN Q, GEN p)
+{
+  long n = 1+ degpol(P)*degpol(Q);
+  GEN L=FpX_convol(FpX_Newton(P,n,p), FpX_Newton(Q,n,p), p);
+  return FpX_fromNewton(L, p);
+}
+#endif
+
 GEN
 FpX_direct_compositum(GEN a, GEN b, GEN p)
 {
-  long v = varn(a), w = fetch_var_higher();
-  GEN x = deg1pol_shallow(gen_1, deg1pol_shallow(gen_m1, gen_0, v), w); /* Y-X */
-  if (degpol(a) < degpol(b)) swap(a,b);
-  x = FpX_FpXY_resultant(a, poleval(b,x),p);
-  setvarn(x, v);
-  (void)delete_var(); return x;
+  long da = degpol(a), db = degpol(b);
+  if (cmpis(p, da*db) > 0)
+    return FpX_diamondsum(a, b, p);
+  else
+  {
+    long v = varn(a), w = fetch_var_higher();
+    GEN x = deg1pol_shallow(gen_1, deg1pol_shallow(gen_m1, gen_0, v), w); /* Y-X */
+    if (degpol(a) < degpol(b)) swap(a,b);
+    x = FpX_FpXY_resultant(a, poleval(b,x),p);
+    setvarn(x, v);
+    (void)delete_var(); return x;
+  }
 }
 
 /* 0, 1, -1, 2, -2, ... */
