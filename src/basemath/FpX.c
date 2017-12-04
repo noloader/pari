@@ -853,6 +853,29 @@ FpX_integ(GEN x, GEN p)
   return ZX_renormalize(y, lx+1);;
 }
 
+INLINE GEN
+FpXn_recip(GEN P, long n)
+{ return RgXn_recip_shallow(P, n); }
+
+GEN
+FpX_Newton(GEN P, long n, GEN p)
+{
+  pari_sp av = avma;
+  GEN dP = FpX_deriv(P, p);
+  GEN Q = FpXn_recip(FpX_div(RgX_shift(dP,n), P, p), n);
+  return gerepilecopy(av, Q);
+}
+
+GEN
+FpX_fromNewton(GEN P, GEN p)
+{
+  pari_sp av = avma;
+  long n = itos(modii(constant_coeff(P), p))+1;
+  GEN z = FpX_neg(FpX_integ(RgX_shift(P,-1),p),p);
+  GEN Q = FpXn_recip(FpXn_exp(z, n, p), n);
+  return gerepilecopy(av, Q);
+}
+
 int
 FpX_is_squarefree(GEN f, GEN p)
 {

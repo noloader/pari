@@ -4735,6 +4735,15 @@ whose coefficients are either \typ{POL}s in $\Z[Y]$ or \typ{INT}s.
 Returns $\text{Res}_X(a, b)$ in $\F_p[Y]$ as an \kbd{FpY}. The function
 assumes that $X$ has lower priority than $Y$.
 
+\fun{GEN}{FpX_Newton}{GEN x, long n, GEN p} return
+$\sum{i=0}^{n-1} \pi_i\*X^i$ where $\pi_i$ is the sum of the $i$th-power
+of the roots of $x$ in an algebraic closure.
+
+\fun{GEN}{FpX_fromNewton}{GEN x, GEN p} recover a polynomial from it
+s Newton sums given by the coefficients of $x$.
+This function assumes that $p$ and the accuracy of $x$ as a \kbd{FpXn} is
+larger than the degree of the solution.
+
 \subsec{\kbd{FpXQ}, \kbd{Fq}} Let \kbd{p} a \typ{INT} and \kbd{T} an
 \kbd{FpX} for \kbd{p}, both to be given in the function arguments; an \kbd{FpXQ}
 object is an \kbd{FpX} whose degree is strictly less than the degree of
