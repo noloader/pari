@@ -165,13 +165,13 @@ $\sigma\colon \Q(f)\to \CC$ obtained via \kbd{mfembed}.\hfill\break
 \newcolumn
 
 \section{Modular Symbols}
-Let $G = \Gamma_0(N)$, $V_k = \QQ[X,Y]_{k-2}$. We let
+Let $G = \Gamma_0(N)$, $V_k = \QQ[X,Y]_{k-2}$, $L_k = \ZZ[X,Y]_{k-2}$. We let
 $\Delta = \text{Div}^0(\PP^1(\QQ))$; an element of $\Delta$ is a \emph{path}
 between cusps of $X_0(N)$ via the identification $[b]-[a] \to $ the path from
 $a$ to $b$. A path is coded by the pair $[a,b]$, where $a,b$ are rationals
 or \kbd{oo}, denoting the point at infinity $(1:0)$.\hfil\break
 
-Let $\MM_k(G) = \Hom_G(\Delta, V_k) \simeq H^1_c(X_0(G),V_k)$;
+Let $\MM_k(G) = \Hom_G(\Delta, V_k) \simeq H^1_c(X_0(N),V_k)$;
 an element of $\MM_k(G)$ is a $V_k$-valued \emph{modular symbol}.
 There is a natural decomposition $\MM_k(G) = \MM_k(G)^+ \oplus \MM_k(G)^-$
 under the action of the $*$ involution, induced by complex conjugation.
@@ -223,7 +223,7 @@ $\sum_n a_n q^n$.
 \li{dimension of a subspace}{msdim$(M)$}
 \li{$(a_1,\dots, a_B)$ for attached newform}
    {msqexpansion$(M, H, \{B\})$}
-\li{$\ZZ$-structure from $H^1(G,V_k)$ on subspace $A$ }{mslattice$(M,A)$}
+\li{$\ZZ$-structure from $H^1(G,L_k)$ on subspace $A$ }{mslattice$(M,A)$}
 
 \medskip
 \subsec{Overconvergent symbols and $p$-adic $L$ functions}
