@@ -2231,11 +2231,13 @@ gdivexact(GEN x, GEN y)
       if (!signe(x)) return gen_0;
       break;
     case t_INTMOD:
+    case t_FFELT:
     case t_POLMOD: return gmul(x,ginv(y));
     case t_POL:
       switch(typ(y))
       {
         case t_INTMOD:
+        case t_FFELT:
         case t_POLMOD: return gmul(x,ginv(y));
         case t_POL: { /* not stack-clean */
           long v;
