@@ -2335,7 +2335,7 @@ isin_G_H(buildroot *BR, long n1, long n2)
   avma = av; return 0;
 }
 
-GEN
+static GEN
 polgaloisnamesbig(long n, long k)
 {
   pari_sp av = avma;
@@ -2345,12 +2345,7 @@ polgaloisnamesbig(long n, long k)
 
   (void)sprintf(s, "%s/galdata/NAM%ld", pari_datadir, n);
   f = pari_fopengz(s);
-  if (!f)
-  {
-    pari_warn(warner,"Galois names files not available, please upgrade galdata\n[missing %s]",s);
-    avma = av; return strtoGENstr("");
-  }
-  V = gp_read_stream(f->file);
+  V = f? gp_read_stream(f->file): NULL;
   if (!V || typ(V)!=t_VEC || k>=lg(V)) pari_err_FILE("galois file %s",s);
   pari_fclose(f);
   return gerepilecopy(av, gel(V,k));

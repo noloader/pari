@@ -721,10 +721,6 @@ void    init_modular_small(forprime_t *S);
 GEN     galoiscosets(GEN O, GEN perm);
 GEN     matrixnorm(GEN M, long prec);
 
-/* galois.c */
-
-GEN     polgaloisnamesbig(long n, long k);
-
 /* gen1.c */
 
 GEN     gred_rfrac_simple(GEN n, GEN d);
