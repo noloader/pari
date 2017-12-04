@@ -816,8 +816,7 @@ code_aux(GEN a, const char *name)
   s = gsigne(im);
   if (s)
   {
-    if(!gequal0(re))
-      pari_warn(warner,"real(z)*imag(z)!=0 in endpoint code, real(z) ignored");
+    if (!gequal0(re)) err_code(a, name);
     return s > 0 ? f_YOSCC : f_YOSCS;
   }
   if (gequal0(re) || gcmpgs(re, -2)<=0) return f_YSLOW;
