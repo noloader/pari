@@ -7864,6 +7864,9 @@ so that all inexact entries are correctly rounded to 1 ulp.
 \fun{int}{ZM_equal}{GEN A, GEN B} returns $1$ if the two \kbd{ZM} are equal
 and $0$ otherwise.
 
+\fun{int}{ZM_equal0}{GEN A} returns $1$ if the \kbd{ZM} $A$ is identically
+equal to $0$.
+
 \fun{GEN}{ZM_add}{GEN x, GEN y} returns $\kbd{x} + \kbd{y}$ (assumed to have
 compatible dimensions).
 
@@ -8951,6 +8954,11 @@ a \kbd{QX} $B$, just use
 @eprog\noindent But in all cases where modular arithmetic modulo $B$ is
 desired, it is much more efficient to replace $B$ by \kbd{Q\_primpart$(B)$}
 once and for all.
+
+\fun{GEN}{QXQ_div_ratlift}{GEN C, GEN A, GEN B} returns $C/A$ modulo $B$
+where $A$ and $C$ are \kbd{QX} and $B$ is a \kbd{ZX}. Use this function
+when the result is known to be ``small'' compared to $A^{-1}$ mod $B$,
+it will be faster than \tet{QXQ_inv} in this case.
 
 \fun{GEN}{QXQ_charpoly}{GEN A, GEN T, long v} where \kbd{A} is a \kbd{QX} and
 \kbd{T} is a \kbd{ZX}, returns the characteristic polynomial of \kbd{Mod(A, T)}.
