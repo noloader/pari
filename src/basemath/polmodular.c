@@ -47,8 +47,7 @@ modinv_level(long inv)
     case INV_W5W7:  return 35;
     case INV_W3W13: return 39;
   }
-  pari_err_BUG("modinv_level");
-  return 0;/*LCOV_EXCL_LINE*/
+  pari_err_BUG("modinv_level"); return 0;/*LCOV_EXCL_LINE*/
 }
 
 /* Where applicable, returns N=p1*p2 (possibly p2=1) s.t. two j's
@@ -116,9 +115,8 @@ modinv_height_factor(long inv)
     case INV_W3W3E2:return 18;
     case INV_W5W7:  return 24;
     case INV_W3W13: return 28;
-    default: pari_err_BUG("modinv_height_factor");
+    default: pari_err_BUG("modinv_height_factor"); return 0;/*LCOV_EXCL_LINE*/
   }
-  return 0;/*LCOV_EXCL_LINE*/
 }
 
 long
@@ -622,30 +620,23 @@ double_eta_raw_to_Fp(GEN f, GEN p)
   return mkvec3(u, v, gel(f,3));
 }
 
-/* Given a root x of polclass(D, inv) modulo N,
-   returns a root of polclass(D, 0) modulo N
-   by plugging x to a modular polynomial.
-   For double-eta quotients,
-     this is done by plugging x into the
-     modular polynomial Phi(w, j) where
-     w = INV_WpWq.
-   More information on
-     Enge, Morain 2013: Generalised Weber Functions. */
+/* Given a root x of polclass(D, inv) modulo N, returns a root of polclass(D,0)
+ * modulo N by plugging x to a modular polynomial. For double-eta quotients,
+ * this is done by plugging x into the modular polynomial Phi(INV_WpWq, j)
+ * Enge, Morain 2013: Generalised Weber Functions. */
 GEN
 Fp_modinv_to_j(GEN x, long inv, GEN p)
 {
   switch(inv)
   {
-  case INV_J:
-    return Fp_red(x, p);
-  case INV_G2:
-    return Fp_powu(x, 3, p);
-  case INV_F: case INV_F2: case INV_F3: case INV_F4: case INV_F8:
+    case INV_J: return Fp_red(x, p);
+    case INV_G2: return Fp_powu(x, 3, p);
+    case INV_F: case INV_F2: case INV_F3: case INV_F4: case INV_F8:
     {
       GEN xe = Fp_powu(x, weber_exponent(inv), p);
       return Fp_div(Fp_powu(subiu(xe, 16), 3, p), xe, p);
     }
-  default:
+    default:
     if (modinv_is_double_eta(inv))
     {
       GEN xe = Fp_powu(x, double_eta_exponent(inv), p);
@@ -656,7 +647,7 @@ Fp_modinv_to_j(GEN x, long inv, GEN p)
       GEN phi = mkvec3(J0, J1, J2);
       return FpX_oneroot(RgX_to_FpX(RgV_to_RgX(phi,1), p),p);
     }
-    pari_err_BUG("Fp_modinv_to_j"); return NULL; /* LCOV_EXCL_LINE */
+    pari_err_BUG("Fp_modinv_to_j"); return NULL;/* LCOV_EXCL_LINE */
   }
 }
 
@@ -708,8 +699,7 @@ double_eta_root(long inv, ulong *r, ulong w, ulong p, ulong pi, ulong s2)
   case 2: return krouu(w, p) != -1 && !!(*r = Fl_sqrt_pre_i(w, s2, p, pi));
   case 1: *r = w; return 1;
   }
-  pari_err_BUG("double_eta_root");
-  return 0;/*LCOV_EXCL_LINE*/
+  pari_err_BUG("double_eta_root"); return 0;/*LCOV_EXCL_LINE*/
 }
 
 /* F = double_eta_Fl(inv, p) */
@@ -856,8 +846,7 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
     ulong f = modinv_double_eta_from_j(double_eta_Fl(inv,p), inv, j, p, pi, s2);
     avma = av; return f;
   }
-  pari_err_BUG("modfn_root");
-  return ULONG_MAX;/*LCOV_EXCL_LINE*/
+  pari_err_BUG("modfn_root"); return ULONG_MAX;/*LCOV_EXCL_LINE*/
 }
 
 INLINE ulong
@@ -907,8 +896,7 @@ modfn_preimage(ulong x, norm_eqn_t ne, long inv)
   }
   /* NB: This function should never be called if modinv_double_eta(inv) is
    * true */
-  pari_err_BUG("modfn_preimage");
-  return ULONG_MAX;/*LCOV_EXCL_LINE*/
+  pari_err_BUG("modfn_preimage"); return ULONG_MAX;/*LCOV_EXCL_LINE*/
 }
 
 /**
@@ -2030,8 +2018,7 @@ modinv_max_internal_level(long inv)
     case INV_W5W7:
     case INV_W3W13: return 2;
   }
-  pari_err_BUG("modinv_max_internal_level");
-  return LONG_MAX;/*LCOV_EXCL_LINE*/
+  pari_err_BUG("modinv_max_internal_level"); return LONG_MAX;/*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -2497,9 +2484,8 @@ modinv_parent(long inv)
     case INV_W2W5E2: return INV_W2W5;
     case INV_W2W7E2: return INV_W2W7;
     case INV_W3W3E2: return INV_W3W3;
-    default: pari_err_BUG("modinv_parent");
+    default: pari_err_BUG("modinv_parent"); return -1;/*LCOV_EXCL_LINE*/
   }
-  return -1;/*LCOV_EXCL_LINE*/
 }
 
 /* TODO: Think of a better name than "parent power"; sheesh. */
@@ -2514,9 +2500,8 @@ modinv_parent_power(long inv)
     case INV_W2W5E2:
     case INV_W2W7E2:
     case INV_W3W3E2: return 2;
-    default: pari_err_BUG("modinv_parent_power");
+    default: pari_err_BUG("modinv_parent_power"); return -1;/*LCOV_EXCL_LINE*/
   }
-  return -1;/*LCOV_EXCL_LINE*/
 }
 
 static GEN
@@ -3358,9 +3343,8 @@ double_eta_raw(long inv)
     case INV_W2W13:  return phi_w2w13_j();
     case INV_W3W13:  return phi_w3w13_j();
     case INV_W5W7:   return phi_w5w7_j();
-    default: pari_err_BUG("double_eta_raw");
+    default: pari_err_BUG("double_eta_raw"); return NULL;/*LCOV_EXCL_LINE*/
   }
-  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /**
@@ -4207,8 +4191,7 @@ modpoly_pickD(
       long dl;
       if ( ! primeform_discrete_log(&dl, L0, L, Ds[i].n1, Ds[i].D1))
       {
-        pari_err_BUG("modpoly_pickD");
-        return -1; /* LCOV_EXCL_LINE */
+        pari_err_BUG("modpoly_pickD"); return -1; /*LCOV_EXCL_LINE*/
       }
       Ds[i].dl1 = dl;
     }
