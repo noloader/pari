@@ -26,42 +26,29 @@ long
 modinv_level(long inv)
 {
   switch (inv) {
-  case INV_J:
-    return 1;
-  case INV_G2:
-  case INV_W3W3E2:
-    return 3;
-  case INV_F:
-  case INV_F2:
-  case INV_F4:
-  case INV_F8:
-    return 6;
-  case INV_F3:
-    return 2;
-  case INV_W3W3:
-    return 6;
-  case INV_W2W7E2:
-  case INV_W2W7:
-    return 14;
-  case INV_W3W5:
-    return 15;
-  case INV_W2W3E2:
-  case INV_W2W3:
-    return 6;
-  case INV_W2W5E2:
-  case INV_W2W5:
-    return 30;
-  case INV_W2W13:
-    return 26;
-  case INV_W3W7:
-    return 42;
-  case INV_W5W7:
-    return 35;
-  case INV_W3W13:
-    return 39;
+    case INV_J:     return 1;
+    case INV_G2:
+    case INV_W3W3E2:return 3;
+    case INV_F:
+    case INV_F2:
+    case INV_F4:
+    case INV_F8:    return 6;
+    case INV_F3:    return 2;
+    case INV_W3W3:  return 6;
+    case INV_W2W7E2:
+    case INV_W2W7:  return 14;
+    case INV_W3W5:  return 15;
+    case INV_W2W3E2:
+    case INV_W2W3:  return 6;
+    case INV_W2W5E2:
+    case INV_W2W5:  return 30;
+    case INV_W2W13: return 26;
+    case INV_W3W7:  return 42;
+    case INV_W5W7:  return 35;
+    case INV_W3W13: return 39;
   }
   pari_err_BUG("modinv_level");
-  return 0;
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 /* Where applicable, returns N=p1*p2 (possibly p2=1) s.t. two j's
@@ -71,38 +58,24 @@ long
 modinv_degree(long *P1, long *P2, long inv)
 {
   long *p1, *p2, ignored;
-
-  p1 = P1 ? P1 : &ignored;
-  p2 = P2 ? P2 : &ignored;
-  *p1 = 1;
-  *p2 = 1;
-
+  p1 = P1? P1: &ignored;
+  p2 = P2? P2: &ignored;
   switch (inv) {
-  case INV_W3W5:
-    return (*p1 = 3) * (*p2 = 5);
-  case INV_W2W3E2:
-  case INV_W2W3:
-    return (*p1 = 2) * (*p2 = 3);
-  case INV_W2W5E2:
-  case INV_W2W5:
-    return (*p1 = 2) * (*p2 = 5);
-  case INV_W2W7E2:
-  case INV_W2W7:
-    return (*p1 = 2) * (*p2 = 7);
-  case INV_W2W13:
-    return (*p1 = 2) * (*p2 = 13);
-  case INV_W3W7:
-    return (*p1 = 3) * (*p2 = 7);
-  case INV_W3W3E2:
-  case INV_W3W3:
-    return (*p1 = 3) * (*p2 = 3);
-  case INV_W5W7:
-    return (*p1 = 5) * (*p2 = 7);
-  case INV_W3W13:
-    return (*p1 = 3) * (*p2 = 13);
+    case INV_W3W5:  return (*p1 = 3) * (*p2 = 5);
+    case INV_W2W3E2:
+    case INV_W2W3:  return (*p1 = 2) * (*p2 = 3);
+    case INV_W2W5E2:
+    case INV_W2W5:  return (*p1 = 2) * (*p2 = 5);
+    case INV_W2W7E2:
+    case INV_W2W7:  return (*p1 = 2) * (*p2 = 7);
+    case INV_W2W13: return (*p1 = 2) * (*p2 = 13);
+    case INV_W3W7:  return (*p1 = 3) * (*p2 = 7);
+    case INV_W3W3E2:
+    case INV_W3W3:  return (*p1 = 3) * (*p2 = 3);
+    case INV_W5W7:  return (*p1 = 5) * (*p2 = 7);
+    case INV_W3W13: return (*p1 = 3) * (*p2 = 13);
   }
-
-  return 0;
+  *p1 = *p2 = 1; return 0;
 }
 
 /* Certain invariants require that D not have 2 in it's conductor, but
@@ -112,10 +85,9 @@ INLINE int
 modinv_odd_conductor(long inv)
 {
   switch (inv) {
-  case INV_F:
-  case INV_W3W3:
-  case INV_W3W7:
-    return 1;
+    case INV_F:
+    case INV_W3W3:
+    case INV_W3W7: return 1;
   }
   return 0;
 }
@@ -124,72 +96,51 @@ long
 modinv_height_factor(long inv)
 {
   switch (inv) {
-  case INV_J:
-    return 1;
-  case INV_G2:
-    return 3;
-  case INV_F:
-    return 72;
-  case INV_F2:
-    return 36;
-  case INV_F3:
-    return 24;
-  case INV_F4:
-    return 18;
-  case INV_F8:
-    return 9;
-  case INV_W2W3:
-    return 72;
-  case INV_W3W3:
-    return 36;
-  case INV_W2W5:
-    return 54;
-  case INV_W2W7:
-    return 48;
-  case INV_W3W5:
-    return 36;
-  case INV_W2W13:
-    return 42;
-  case INV_W3W7:
-    return 32;
-  case INV_W2W3E2:
-    return 36;
-  case INV_W2W5E2:
-    return 27;
-  case INV_W2W7E2:
-    return 24;
-  case INV_W3W3E2:
-    return 18;
-  case INV_W5W7:
-    return 24;
-  case INV_W3W13:
-    return 28;
-  default:
-    pari_err_BUG("modinv_height_factor");
+    case INV_J:     return 1;
+    case INV_G2:    return 3;
+    case INV_F:     return 72;
+    case INV_F2:    return 36;
+    case INV_F3:    return 24;
+    case INV_F4:    return 18;
+    case INV_F8:    return 9;
+    case INV_W2W3:  return 72;
+    case INV_W3W3:  return 36;
+    case INV_W2W5:  return 54;
+    case INV_W2W7:  return 48;
+    case INV_W3W5:  return 36;
+    case INV_W2W13: return 42;
+    case INV_W3W7:  return 32;
+    case INV_W2W3E2:return 36;
+    case INV_W2W5E2:return 27;
+    case INV_W2W7E2:return 24;
+    case INV_W3W3E2:return 18;
+    case INV_W5W7:  return 24;
+    case INV_W3W13: return 28;
+    default: pari_err_BUG("modinv_height_factor");
   }
-  return 0;
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 long
 disc_best_modinv(long D)
 {
   long ret;
-  ret = INV_F;     if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W2W3;  if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W2W5;  if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W2W7;  if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W2W13; if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W3W3;  if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W2W3E2;if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W3W5;  if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W3W7;  if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W3W13; if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W2W5E2;if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_F3;    if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W2W7E2;if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W5W7;  if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_W3W3E2;if(modinv_good_disc(ret, D)) return ret;
-  ret = INV_G2;    if(modinv_good_disc(ret, D)) return ret;
+  ret = INV_F;     if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W3;  if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W5;  if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W7;  if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W13; if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W3;  if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W3E2;if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W5;  if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W7;  if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W13; if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W5E2;if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_F3;    if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W2W7E2;if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W5W7;  if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_W3W3E2;if (modinv_good_disc(ret, D)) return ret;
+  ret = INV_G2;    if (modinv_good_disc(ret, D)) return ret;
   return INV_J;
 }
 
@@ -502,11 +453,9 @@ modinv_good_disc(long inv, long D)
     return ((-D % 208) != 52) && modinv_double_eta_good_disc(D, inv);
   case INV_W3W7:
     return (D & 1) && (-D % 21) && modinv_double_eta_good_disc(D, inv);
-  case INV_W5W7:
-    /* NB: This is a guess; avs doesn't have an entry */
+  case INV_W5W7: /* NB: This is a guess; avs doesn't have an entry */
     return (D % 3) && modinv_double_eta_good_disc(D, inv);
-  case INV_W3W13:
-    /* NB: This is a guess; avs doesn't have an entry */
+  case INV_W3W13: /* NB: This is a guess; avs doesn't have an entry */
     return (D & 1) && (D % 3) && modinv_double_eta_good_disc(D, inv);
   default:
     pari_err_BUG("modinv_good_discriminant");
@@ -697,7 +646,7 @@ Fp_modinv_to_j(GEN x, long inv, GEN p)
       return Fp_div(Fp_powu(subiu(xe, 16), 3, p), xe, p);
     }
   default:
-    if(modinv_is_double_eta(inv))
+    if (modinv_is_double_eta(inv))
     {
       GEN xe = Fp_powu(x, double_eta_exponent(inv), p);
       GEN uvk = double_eta_raw_to_Fp(double_eta_raw(inv), p);
@@ -707,7 +656,7 @@ Fp_modinv_to_j(GEN x, long inv, GEN p)
       GEN phi = mkvec3(J0, J1, J2);
       return FpX_oneroot(RgX_to_FpX(RgV_to_RgX(phi,1), p),p);
     }
-    pari_err_BUG("Fp_modinv_to_j"); return NULL; /* LCOV_EXCL_LIpE */
+    pari_err_BUG("Fp_modinv_to_j"); return NULL; /* LCOV_EXCL_LINE */
   }
 }
 
@@ -760,7 +709,7 @@ double_eta_root(long inv, ulong *r, ulong w, ulong p, ulong pi, ulong s2)
   case 1: *r = w; return 1;
   }
   pari_err_BUG("double_eta_root");
-  return 0;
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 /* F = double_eta_Fl(inv, p) */
@@ -809,12 +758,10 @@ double_eta_raw_to_Fl(GEN f, ulong p)
 /* double_eta_raw(inv) mod p */
 static GEN
 double_eta_Fl(long inv, ulong p)
-{
-  return double_eta_raw_to_Fl(double_eta_raw(inv), p);
-}
+{ return double_eta_raw_to_Fl(double_eta_raw(inv), p); }
 
-/* Go through the roots of Psi(X,j) until one has an
- * double_eta_exponent(inv)-th root, and return that root. F = double_eta_Fl(inv,p) */
+/* Go through roots of Psi(X,j) until one has an double_eta_exponent(inv)-th
+ * root, and return that root. F = double_eta_Fl(inv,p) */
 INLINE ulong
 modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi, ulong s2)
 {
@@ -823,14 +770,10 @@ modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi, ulong s2)
   ulong f = ULONG_MAX;
   GEN a = Flx_double_eta_xpoly(F, j, p, pi);
   a = Flx_roots(a, p);
-  for (i = 1; i < lg(a); ++i) {
-    if (double_eta_root(inv, &f, uel(a, i), p, pi, s2))
-      break;
-  }
-  if (i == lg(a))
-    pari_err_BUG("modinv_double_eta_from_j");
-  avma = av;
-  return f;
+  for (i = 1; i < lg(a); ++i)
+    if (double_eta_root(inv, &f, uel(a, i), p, pi, s2)) break;
+  if (i == lg(a)) pari_err_BUG("modinv_double_eta_from_j");
+  avma = av; return f;
 }
 
 /* TODO: Check whether I can use this to refactor something */
@@ -840,8 +783,7 @@ modinv_double_eta_from_2j(
 {
   pari_sp av = avma;
   GEN f, g, d, F = double_eta_Fl(inv, p);
-  if (j2 == j1)
-    pari_err_BUG("modinv_double_eta_from_2j");
+  if (j2 == j1) pari_err_BUG("modinv_double_eta_from_2j");
 
   f = Flx_double_eta_xpoly(F, j1, p, pi);
   g = Flx_double_eta_xpoly(F, j2, p, pi);
@@ -860,11 +802,8 @@ modinv_double_eta_from_2j(
 #endif
   if (degpol(d) > 2
       || (*r = Flx_oneroot(d, p)) == p
-      || ! double_eta_root(inv, r, *r, p, pi, s2)) {
-    return 0;
-  }
-  avma = av;
-  return 1;
+      || ! double_eta_root(inv, r, *r, p, pi, s2)) return 0;
+  avma = av; return 1;
 }
 
 long
@@ -899,22 +838,17 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
 {
   ulong f, p = ne->p, pi = ne->pi, s2 = ne->s2;
   switch (inv) {
-  case INV_J:
-    return j;
-  case INV_G2:
-    return Fl_sqrtl_pre(j, 3, p, pi);
-  case INV_F:
-    return modinv_f_from_j(j, p, pi, s2, 0);
-  case INV_F2:
-    f = modinv_f_from_j(j, p, pi, s2, 0);
-    return Fl_sqr_pre(f, p, pi);
-  case INV_F3:
-    return modinv_f3_from_j(j, p, pi, s2);
-  case INV_F4:
-    f = modinv_f_from_j(j, p, pi, s2, 0);
-    return Fl_sqr_pre(Fl_sqr_pre(f, p, pi), p, pi);
-  case INV_F8:
-    return modinv_f_from_j(j, p, pi, s2, 1);
+    case INV_J:  return j;
+    case INV_G2: return Fl_sqrtl_pre(j, 3, p, pi);
+    case INV_F:  return modinv_f_from_j(j, p, pi, s2, 0);
+    case INV_F2:
+      f = modinv_f_from_j(j, p, pi, s2, 0);
+      return Fl_sqr_pre(f, p, pi);
+    case INV_F3: return modinv_f3_from_j(j, p, pi, s2);
+    case INV_F4:
+      f = modinv_f_from_j(j, p, pi, s2, 0);
+      return Fl_sqr_pre(Fl_sqr_pre(f, p, pi), p, pi);
+    case INV_F8: return modinv_f_from_j(j, p, pi, s2, 1);
   }
   if (modinv_is_double_eta(inv))
   {
@@ -923,13 +857,12 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
     avma = av; return f;
   }
   pari_err_BUG("modfn_root");
-  return ULONG_MAX;
+  return ULONG_MAX;/*LCOV_EXCL_LINE*/
 }
 
 INLINE ulong
 modinv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
-{
-  /* If x satisfies (X^24 - 16)^3 - X^24 * j = 0
+{ /* If x satisfies (X^24 - 16)^3 - X^24 * j = 0
    * then j = (x^24 - 16)^3 / x^24 */
   ulong x24 = Fl_powu_pre(x, 24 / n, p, pi);
   return Fl_div(Fl_powu_pre(Fl_sub(x24, 16 % p, p), 3, p, pi), x24, p);
@@ -953,8 +886,7 @@ modinv_j_from_2double_eta(
     pari_err_BUG("modinv_j_from_2double_eta");
   else if (degpol(d) < 1)
     return 0;
-  if (j)
-    *j = Flx_deg1_root(d, p);
+  if (j) *j = Flx_deg1_root(d, p);
   return 1;
 }
 
@@ -963,33 +895,21 @@ modfn_preimage(ulong x, norm_eqn_t ne, long inv)
 {
   ulong p = ne->p, pi = ne->pi;
   switch (inv) {
-  case INV_J:
-    return x;
-  case INV_G2:
-    return Fl_powu_pre(x, 3, p, pi);
-  case INV_F:
-    /* NB: We could replace these with a single call
-     *
-     *   modinv_j_from_f(x, inv, p, pi),
-     *
-     * but it's probably better to avoid the dependence on the actual
-     * value of inv and assume it could change. */
-    return modinv_j_from_f(x, 1, p, pi);
-  case INV_F2:
-    return modinv_j_from_f(x, 2, p, pi);
-  case INV_F3:
-    return modinv_j_from_f(x, 3, p, pi);
-  case INV_F4:
-    return modinv_j_from_f(x, 4, p, pi);
-  case INV_F8:
-    return modinv_j_from_f(x, 8, p, pi);
+    case INV_J:  return x;
+    case INV_G2: return Fl_powu_pre(x, 3, p, pi);
+    /* NB: could replace these with a single call modinv_j_from_f(x,inv,p,pi)
+     * but avoid the dependence on the actual value of inv */
+    case INV_F:  return modinv_j_from_f(x, 1, p, pi);
+    case INV_F2: return modinv_j_from_f(x, 2, p, pi);
+    case INV_F3: return modinv_j_from_f(x, 3, p, pi);
+    case INV_F4: return modinv_j_from_f(x, 4, p, pi);
+    case INV_F8: return modinv_j_from_f(x, 8, p, pi);
   }
   /* NB: This function should never be called if modinv_double_eta(inv) is
    * true */
   pari_err_BUG("modfn_preimage");
-  return ULONG_MAX;
+  return ULONG_MAX;/*LCOV_EXCL_LINE*/
 }
-
 
 /**
  * SECTION: class group bb_group.
@@ -1015,7 +935,6 @@ Fl_addmul2(
   return Fl_addmulmul_pre(x0,y1,y0,x1,p,pi);
 }
 
-
 /* Computes x0y2 + x1y1 + x2y0 (mod p); assumes p < 2^62. */
 INLINE ulong
 Fl_addmul3(
@@ -1032,7 +951,6 @@ Fl_addmul3(
   l1 = addll(l0, l1); h1 = addllx(h0, h1);
   return remll_pre(h1, l1, p, pi);
 }
-
 
 /* Computes x0y3 + x1y2 + x2y1 + x3y0 (mod p); assumes p < 2^62. */
 INLINE ulong
@@ -1076,12 +994,9 @@ Fl_addmul5(
   return remll_pre(h1, l1, p, pi);
 }
 
-/*
- * A polmodular database for a given class invariant consists of a
- * t_VEC whose L-th entry is 0 or a GEN pointing to Phi_L.  This
- * function produces a pair of databases corresponding to the
- * j-invariant and inv.
- */
+/* A polmodular database for a given class invariant consists of a t_VEC whose
+ * L-th entry is 0 or a GEN pointing to Phi_L.  This function produces a pair
+ * of databases corresponding to the j-invariant and inv */
 GEN
 polmodular_db_init(long inv)
 {
@@ -1110,8 +1025,7 @@ polmodular_db_add_level(GEN *DB, long L, long inv)
     db = gel(*DB, 1);
   } else {
     db = gel(*DB, 2);
-    if ( isintzero(db))
-      pari_err_BUG("polmodular_db_add_level");
+    if ( isintzero(db)) pari_err_BUG("polmodular_db_add_level");
   }
 
   max_L = lg(db) - 1;
@@ -1120,10 +1034,8 @@ polmodular_db_add_level(GEN *DB, long L, long inv)
     long i, newlen = 2 * L;
 
     newdb = cgetg_block(newlen + 1, t_VEC);
-    for (i = 1; i <= max_L; ++i)
-      gel(newdb, i) = gel(db, i);
-    for (i = max_L + 1; i <= newlen; ++i)
-      gel(newdb, i) = gen_0;
+    for (i = 1; i <= max_L; ++i) gel(newdb, i) = gel(db, i);
+    for (     ; i <= newlen; ++i) gel(newdb, i) = gen_0;
     killblock(db);
     /* NB: Uses the fact that INV_J == 0 */
     gel(*DB, 2 - !inv) = db = newdb;
@@ -1135,22 +1047,16 @@ polmodular_db_add_level(GEN *DB, long L, long inv)
   }
 }
 
-
 void
 polmodular_db_add_levels(GEN *db, long *levels, long k, long inv)
 {
   long i;
-  for (i = 0; i < k; ++i)
-    polmodular_db_add_level(db, levels[i], inv);
+  for (i = 0; i < k; ++i) polmodular_db_add_level(db, levels[i], inv);
 }
 
 GEN
 polmodular_db_for_inv(GEN db, long inv)
-{
-  if (inv == INV_J)
-    return gel(db, 1);
-  return gel(db, 2);
-}
+{ return (inv == INV_J)? gel(db,1): gel(db,2); }
 
 /* TODO: Also cache modpoly mod p for most recent p (avoid repeated
  * reductions in, for example, polclass.c:oneroot_of_classpoly(). */
@@ -1158,11 +1064,9 @@ GEN
 polmodular_db_getp(GEN db, long L, ulong p)
 {
   GEN f = gel(db, L);
-  if (isintzero(f))
-    pari_err_BUG("polmodular_db_getp");
+  if (isintzero(f)) pari_err_BUG("polmodular_db_getp");
   return ZM_to_Flm(f, p);
 }
-
 
 /**
  * SECTION: Table of discriminants to use.
@@ -1186,7 +1090,6 @@ typedef struct {
   long inv;
 } modpoly_disc_info;
 
-
 static void
 modpoly_disc_info_clear(modpoly_disc_info *dinfo)
 {
@@ -1195,7 +1098,6 @@ modpoly_disc_info_clear(modpoly_disc_info *dinfo)
 }
 
 #define MODPOLY_MAX_DCNT    64
-
 
 /* Flag for last parameter of discriminant_with_classno_at_least.
  * Warning: ignoring the sparse factor makes everything slower by
@@ -1208,17 +1110,14 @@ discriminant_with_classno_at_least(
   modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
   long ignore_sparse);
 
-
 /**
  * SECTION: Hard-coded evaluation functions for modular polynomials of
  * small level.
  */
 
-/*
- * Based on phi2_eval_ff() in Sutherland's classpoly programme.
+/* Based on phi2_eval_ff() in Sutherland's classpoly programme.
  * Calculates Phi_2(X, j) (mod p) with 6M+7A (4 reductions, not
- * counting those for Phi_2).
- */
+ * counting those for Phi_2) */
 INLINE GEN
 Flm_Fl_phi2_evalx(GEN phi2, ulong j, ulong p, ulong pi)
 {
@@ -1243,12 +1142,9 @@ Flm_Fl_phi2_evalx(GEN phi2, ulong j, ulong p, ulong pi)
   return res;
 }
 
-
-/*
- * Based on phi3_eval_ff() in Sutherland's classpoly programme.
+/* Based on phi3_eval_ff() in Sutherland's classpoly programme.
  * Calculates Phi_3(X, j) (mod p) with 13M+13A (6 reductions, not
- * counting those for Phi_3).
- */
+ * counting those for Phi_3) */
 INLINE GEN
 Flm_Fl_phi3_evalx(GEN phi3, ulong j, ulong p, ulong pi)
 {
@@ -1277,16 +1173,12 @@ Flm_Fl_phi3_evalx(GEN phi3, ulong j, ulong p, ulong pi)
   res[5] = Fl_sub(t1, j3, p);
 
   res[6] = 1;
-
   return res;
 }
 
-
-/*
- * Based on phi5_eval_ff() in Sutherland's classpoly programme.
+/* Based on phi5_eval_ff() in Sutherland's classpoly programme.
  * Calculates Phi_5(X, j) (mod p) with 33M+31A (10 reductions, not
- * counting those for Phi_5).
- */
+ * counting those for Phi_5) */
 INLINE GEN
 Flm_Fl_phi5_evalx(GEN phi5, ulong j, ulong p, ulong pi)
 {
@@ -1339,7 +1231,6 @@ Flm_Fl_phi5_evalx(GEN phi5, ulong j, ulong p, ulong pi)
   res[7] = Fl_sub(t1, j5, p);
 
   res[8] = 1;
-
   return res;
 }
 
@@ -1364,38 +1255,26 @@ Flm_Fl_polmodular_evalx(GEN phi, long L, ulong j, ulong p, ulong pi)
 
 INLINE ulong
 Fl_mul4(ulong x, ulong p)
-{
-  return Fl_double(Fl_double(x, p), p);
-}
+{ return Fl_double(Fl_double(x, p), p); }
 
 INLINE ulong
 Fl_mul5(ulong x, ulong p)
-{
-  return Fl_add(x, Fl_mul4(x, p), p);
-}
+{ return Fl_add(x, Fl_mul4(x, p), p); }
 
 INLINE ulong
 Fl_mul8(ulong x, ulong p)
-{
-  return Fl_double(Fl_mul4(x, p), p);
-}
+{ return Fl_double(Fl_mul4(x, p), p); }
 
 INLINE ulong
 Fl_mul6(ulong x, ulong p)
-{
-  return Fl_sub(Fl_mul8(x, p), Fl_double(x, p), p);
-}
+{ return Fl_sub(Fl_mul8(x, p), Fl_double(x, p), p); }
 
 INLINE ulong
 Fl_mul7(ulong x, ulong p)
-{
-  return Fl_sub(Fl_mul8(x, p), x, p);
-}
+{ return Fl_sub(Fl_mul8(x, p), x, p); }
 
-/*
- * Given an elliptic curve E = [a4, a6] over F_p and a non-zero point
- * pt on E, return the quotient E' = E/<P> = [a4_img, a6_img].
- */
+/* Given an elliptic curve E = [a4, a6] over F_p and a non-zero point
+ * pt on E, return the quotient E' = E/<P> = [a4_img, a6_img] */
 static void
 Fle_quotient_from_kernel_generator(
   ulong *a4_img, ulong *a6_img, ulong a4, ulong a6, GEN pt, ulong p, ulong pi)
@@ -1426,22 +1305,18 @@ Fle_quotient_from_kernel_generator(
   avma = av;
   /* a4_img = a4 - 5 * t */
   *a4_img = Fl_sub(a4, Fl_mul5(t, p), p);
-  /* a6_img = a6 - b2 * t - 7 * w = a6 - 7 * w
-   * (since a1 = a2 = 0 ==> b2 = 0) */
+  /* a6_img = a6 - b2 * t - 7 * w = a6 - 7 * w (since a1 = a2 = 0 ==> b2 = 0) */
   *a6_img = Fl_sub(a6, Fl_mul7(w, p), p);
 }
-
 
 /**
  * SECTION: Calculation of modular polynomials.
  */
 
-/*
- * Given an elliptic curve [a4, a6] over FF_p, try to find a
+/* Given an elliptic curve [a4, a6] over FF_p, try to find a
  * non-trivial L-torsion point on the curve by considering n times a
  * random point; val controls the maximum L-valuation expected of n
- * times a random point.
- */
+ * times a random point */
 static GEN
 find_L_tors_point(
   ulong *ival,
@@ -1458,15 +1333,12 @@ find_L_tors_point(
 
   for (i = 0; i < val; ++i) {
     Q = Flj_mulu_pre(P, L, a4, p, pi);
-    if (Q[3] == 0)
-      break;
+    if (Q[3] == 0) break;
     P = Q;
   }
-  if (ival)
-    *ival = i;
+  if (ival) *ival = i;
   return gerepilecopy(av, P);
 }
-
 
 static GEN
 select_curve_with_L_tors_point(
@@ -1499,24 +1371,17 @@ select_curve_with_L_tors_point(
     lswap(A4, A4t);
     lswap(A6, A6t);
   }
-
   *a4 = A4;
-  *a6 = A6;
-  return gerepilecopy(av, P);
+  *a6 = A6; return gerepilecopy(av, P);
 }
 
-
-/*
- * Return 1 if the L-Sylow subgroup of the curve [a4, a6] (mod p) is
+/* Return 1 if the L-Sylow subgroup of the curve [a4, a6] (mod p) is
  * cyclic, return 0 if it is not cyclic with "high" probability (I
  * guess around 1/L^3 chance it is still cyclic when we return 0).
  *
- * This code is based on Sutherland's
- * velu.c:velu_verify_Sylow_cyclic() in classpoly-1.0.1.
- */
+ * Based on Sutherland's velu.c:velu_verify_Sylow_cyclic() in classpoly-1.0.1 */
 INLINE long
-verify_L_sylow_is_cyclic(
-  long e, ulong a4, ulong a6, ulong p, ulong pi)
+verify_L_sylow_is_cyclic(long e, ulong a4, ulong a6, ulong p, ulong pi)
 {
   /* Number of times to try to find a point with maximal order in the
    * L-Sylow subgroup. */
@@ -1527,15 +1392,10 @@ verify_L_sylow_is_cyclic(
   for (i = 0; i < N_RETRIES; ++i) {
     P = random_Flj_pre(a4, a6, p, pi);
     P = Flj_mulu_pre(P, e, a4, p, pi);
-    if (P[3] != 0) {
-      res = 1;
-      break;
-    }
+    if (P[3] != 0) { res = 1; break; }
   }
-  avma = av;
-  return res;
+  avma = av; return res;
 }
-
 
 static ulong
 find_noniso_L_isogenous_curve(
@@ -1566,16 +1426,12 @@ find_noniso_L_isogenous_curve(
     avma = av;
     pt = find_L_tors_point(NULL, a4, a6, p, pi, n, L, val);
   }
-
-  avma = ltop;
-  return j_res;
+  avma = ltop; return j_res;
 }
 
-/*
- * Given a prime L and a j-invariant j (mod p), return the j-invariant
+/* Given a prime L and a j-invariant j (mod p), return the j-invariant
  * of a curve which has a different endomorphism ring to j and is
- * L-isogenous to j.
- */
+ * L-isogenous to j */
 INLINE ulong
 compute_L_isogenous_curve(
   ulong L, ulong n, norm_eqn_t ne,
@@ -1600,15 +1456,12 @@ get_Lsqr_cycle(const modpoly_disc_info *dinfo)
   long i, n1 = dinfo->n1, L = dinfo->L;
   GEN cyc = cgetg(L, t_VECSMALL);
   cyc[1] = 0;
-  for (i = 2; i <= L / 2; ++i)
-    cyc[i] = cyc[i - 1] + n1;
+  for (i = 2; i <= L / 2; ++i) cyc[i] = cyc[i - 1] + n1;
   if ( ! dinfo->L1) {
-    for ( ; i < L; ++i)
-      cyc[i] = cyc[i - 1] + n1;
+    for ( ; i < L; ++i) cyc[i] = cyc[i - 1] + n1;
   } else {
     cyc[L - 1] = 2 * dinfo->n2 - n1 / 2;
-    for (i = L - 2; i > L / 2; --i)
-      cyc[i] = cyc[i + 1] - n1;
+    for (i = L - 2; i > L / 2; --i) cyc[i] = cyc[i + 1] - n1;
   }
   return cyc;
 }
@@ -1617,15 +1470,12 @@ INLINE void
 update_Lsqr_cycle(GEN cyc, const modpoly_disc_info *dinfo)
 {
   long i, L = dinfo->L;
-  for (i = 1; i < L; ++i)
-    ++cyc[i];
+  for (i = 1; i < L; ++i) ++cyc[i];
   if (dinfo->L1 && cyc[L - 1] == 2 * dinfo->n2) {
     long n1 = dinfo->n1;
-    for (i = L / 2 + 1; i < L; ++i)
-      cyc[i] -= n1;
+    for (i = L / 2 + 1; i < L; ++i) cyc[i] -= n1;
   }
 }
-
 
 static ulong
 oneroot_of_classpoly(
@@ -1650,8 +1500,7 @@ oneroot_of_classpoly(
     j0 = descend_volcano(phi, j0, p, pi, 0, L, val, val);
     avma = av;
   }
-  avma = av;
-  return j0;
+  avma = av; return j0;
 }
 
 /* TODO: Precompute the classgp_pcp_t structs and link them to dinfo */
@@ -1707,7 +1556,6 @@ enum_volcano_surface(
   return gerepileupto(av, enum_roots(j0, ne, fdb, G));
 }
 
-
 INLINE GEN
 enum_volcano_floor(
   long L, norm_eqn_t ne, ulong j0_pr, GEN fdb,
@@ -1734,8 +1582,7 @@ carray_reverse_inplace(long *arr, long n)
 {
   long lim = n>>1, i;
   --n;
-  for (i = 0; i < lim; i++)
-    lswap(arr[i], arr[n - i]);
+  for (i = 0; i < lim; i++) lswap(arr[i], arr[n - i]);
 }
 
 INLINE void
@@ -1757,13 +1604,11 @@ roots_to_coeffs(GEN rts, ulong p, long L)
   for (i = 1; i < lrts; ++i) {
     pari_sp av = avma;
     GEN modpol = Flv_roots_to_pol(gel(rts, i), p, 0);
-    for (k = 1; k <= L + 2; ++k)
-      mael(M, k, i) = modpol[k + 1];
+    for (k = 1; k <= L + 2; ++k) mael(M, k, i) = modpol[k + 1];
     avma = av;
   }
   return M;
 }
-
 
 /* NB: Assumes indices are offset at 0, not at 1 like in GENs;
  * i.e. indices[i] will pick out v[indices[i] + 1] from v. */
@@ -1771,14 +1616,11 @@ INLINE void
 vecsmall_pick(GEN res, GEN v, GEN indices)
 {
   long i;
-  for (i = 1; i < lg(indices); ++i)
-    res[i] = v[indices[i] + 1];
+  for (i = 1; i < lg(indices); ++i) res[i] = v[indices[i] + 1];
 }
 
-
-/* The first element of surface_js must lie above the first element of
- * floor_js.  Will reverse surface_js if it is not oriented in the
- * same direction as floor_js. */
+/* First element of surface_js must lie above the first element of floor_js.
+ * Reverse surface_js if it is not oriented in the same direction as floor_js */
 INLINE GEN
 root_matrix(
   long L, const modpoly_disc_info *dinfo,
@@ -1836,10 +1678,8 @@ root_matrix(
     vecsmall_pick(rts, floor_js, cyc);
     append_neighbours(rts, surface_js, njs, L, m, i);
   }
-  avma = av;
-  return rt_mat;
+  avma = av; return rt_mat;
 }
-
 
 INLINE void
 interpolate_coeffs(GEN phi_modp, ulong p, GEN j_invs, GEN coeff_mat)
@@ -1850,31 +1690,24 @@ interpolate_coeffs(GEN phi_modp, ulong p, GEN j_invs, GEN coeff_mat)
   for (i = 1; i < lg(pols); ++i) {
     GEN pol = gel(pols, i);
     long k, maxk = lg(pol);
-    for (k = 2; k < maxk; ++k)
-      coeff(phi_modp, k - 1, i) = pol[k];
+    for (k = 2; k < maxk; ++k) coeff(phi_modp, k - 1, i) = pol[k];
   }
   avma = av;
 }
-
 
 INLINE long
 Flv_lastnonzero(GEN v)
 {
   long i;
   for (i = lg(v) - 1; i > 0; --i)
-    if (v[i])
-      break;
+    if (v[i]) break;
   return i;
 }
 
-
-/*
- * Assuming the matrix of coefficients in phi corresponds to
- * polynomials phi_k^* satisfying Y^c phi_k^*(Y^s) for c in {0, 1,
- * ..., s} satisfying c + Lk = L + 1 (mod s), change phi so that the
- * coefficients are for the polynomials Y^c phi_k^*(Y^s) (s is the
- * sparsity factor).
- */
+/* Assuming the matrix of coefficients in phi corresponds to polynomials
+ * phi_k^* satisfying Y^c phi_k^*(Y^s) for c in {0, 1, ..., s} satisfying
+ * c + Lk = L + 1 (mod s), change phi so that the coefficients are for the
+ * polynomials Y^c phi_k^*(Y^s) (s is the sparsity factor) */
 INLINE void
 inflate_polys(GEN phi, long L, long s)
 {
@@ -1883,16 +1716,12 @@ inflate_polys(GEN phi, long L, long s)
   maxr = nbrows(phi);
   for (k = 0; k <= deg; ) {
     long i, c = smodss(L * (1 - k) + 1, s);
-    /* TODO: We actually know that the last non-zero element of
-     * gel(phi, k) can't be later than index n + 1, where n is about
-     * (L + 1)/s. */
+    /* TODO: We actually know that the last non-zero element of gel(phi, k)
+     * can't be later than index n+1, where n is about (L + 1)/s. */
     ++k;
     for (i = Flv_lastnonzero(gel(phi, k)); i > 0; --i) {
       long r = c + (i - 1) * s + 1;
-      if (r > maxr) {
-        coeff(phi, i, k) = 0;
-        continue;
-      }
+      if (r > maxr) { coeff(phi, i, k) = 0; continue; }
       if (r != i) {
         coeff(phi, r, k) = coeff(phi, i, k);
         coeff(phi, i, k) = 0;
@@ -1905,8 +1734,7 @@ INLINE void
 Flv_powu_inplace_pre(GEN v, ulong n, ulong p, ulong pi)
 {
   long i;
-  for (i = 1; i < lg(v); ++i)
-    v[i] = Fl_powu_pre(v[i], n, p, pi);
+  for (i = 1; i < lg(v); ++i) v[i] = Fl_powu_pre(v[i], n, p, pi);
 }
 
 INLINE void
@@ -1916,9 +1744,9 @@ normalise_coeffs(GEN coeffs, GEN js, long L, long s, ulong p, ulong pi)
   long k;
   GEN pows, modinv_js;
 
-  /* NB: In fact it would be correct to return the coefficients "as
-   * is" when s = 1, but we make that an error anyway since this
-   * function should never be called with s = 1. */
+  /* NB: In fact it would be correct to return the coefficients "as is" when
+   * s = 1, but we make that an error anyway since this function should never
+   * be called with s = 1. */
   if (s <= 1) pari_err_BUG("normalise_coeffs");
 
   /* pows[i + 1] contains 1 / js[i + 1]^i for i = 0, ..., s - 1. */
@@ -1974,9 +1802,7 @@ double_eta_initial_js(
     pari_err_BUG("double_eta_initial_js");
 }
 
-/*
- * This is Sutherland 2012, Algorithm 2.1, p16.
- */
+/* This is Sutherland 2012, Algorithm 2.1, p16. */
 static GEN
 polmodular_split_p_Flm(
   ulong L, GEN hilb, GEN factu, norm_eqn_t ne, GEN db,
@@ -2025,15 +1851,13 @@ polmodular_split_p_Flm(
     }
     phi_modp = zero_Flm_copy(L + 2, L + 2);
     interpolate_coeffs(phi_modp, p, surf, coeffs);
-    if (s > 1)
-      inflate_polys(phi_modp, L, s);
+    if (s > 1) inflate_polys(phi_modp, L, s);
 
-    /* TODO: Calculate just this coefficient of X^L Y^L, so we can do
-     * this test, then calculate the other coefficients; at the moment
-     * we are sometimes doing all the roots-to-coeffs, normalisation
-     * and interpolation work twice. */
-    if (ucoeff(phi_modp, L + 1, L + 1) == p - 1)
-      break;
+    /* TODO: Calculate just this coefficient of X^L Y^L, so we can do this
+     * test, then calculate the other coefficients; at the moment we are
+     * sometimes doing all the roots-to-coeffs, normalisation and interpolation
+     * work twice. */
+    if (ucoeff(phi_modp, L + 1, L + 1) == p - 1) break;
 
     if (switched_signs) pari_err_BUG("polmodular_split_p_Flm");
 
@@ -2050,7 +1874,6 @@ polmodular_split_p_Flm(
   return gerepileupto(ltop, phi_modp);
 }
 
-
 INLINE void
 norm_eqn_init(norm_eqn_t ne, long D, long u)
 {
@@ -2058,7 +1881,6 @@ norm_eqn_init(norm_eqn_t ne, long D, long u)
   ne->D = D;
   ne->u = u;
 }
-
 
 INLINE void
 norm_eqn_update(norm_eqn_t ne, ulong t, ulong p, long L)
@@ -2085,8 +1907,7 @@ INLINE void
 Flv_deriv_pre_inplace(GEN v, long deg, ulong p, ulong pi)
 {
   long i, ln = lg(v), d = deg % p;
-  for (i = ln - 1; i > 1; --i, --d)
-    v[i] = Fl_mul_pre(v[i - 1], d, p, pi);
+  for (i = ln - 1; i > 1; --i, --d) v[i] = Fl_mul_pre(v[i - 1], d, p, pi);
   v[1] = 0;
 }
 
@@ -2122,10 +1943,7 @@ vne_to_ne(norm_eqn_t ne, GEN vne)
 }
 
 static GEN
-ne_to_vne(norm_eqn_t ne)
-{
-  return mkvecsmall2(ne->D, ne->u);
-}
+ne_to_vne(norm_eqn_t ne) { return mkvecsmall2(ne->D, ne->u); }
 
 static void
 vinfo_to_dinfo(modpoly_disc_info *dinfo, GEN vinfo)
@@ -2178,52 +1996,42 @@ sympol_to_ZM(GEN phi, long L)
   pari_sp av = avma;
   GEN res = zeromatcopy(L + 2, L + 2);
   long i, j, c = 1;
-  for (i = 1; i <= L + 1; ++i) {
+  for (i = 1; i <= L + 1; ++i)
     for (j = 1; j <= i; ++j, ++c)
       gcoeff(res, i, j) = gcoeff(res, j, i) = gel(phi, c);
-  }
   gcoeff(res, L + 2, 1) = gcoeff(res, 1, L + 2) = gen_1;
   return gerepilecopy(av, res);
 }
 
-static GEN
-polmodular_small_ZM(long L, long inv, GEN *db);
+static GEN polmodular_small_ZM(long L, long inv, GEN *db);
 
 INLINE long
 modinv_max_internal_level(long inv)
 {
   switch (inv) {
-  case INV_J:
-    return 5;
-  case INV_G2:
-    return 2;
-  case INV_F:
-  case INV_F2:
-  case INV_F4:
-  case INV_F8:
-    return 5;
-  case INV_W2W5:
-  case INV_W2W5E2:
-    return 7;
-  case INV_W2W3:
-  case INV_W2W3E2:
-  case INV_W3W3:
-  case INV_W3W7:
-    return 5;
-  case INV_W3W3E2:
-    return 2;
-  case INV_F3:
-  case INV_W2W7:
-  case INV_W2W7E2:
-  case INV_W2W13:
-    return 3;
-  case INV_W3W5:
-  case INV_W5W7:
-  case INV_W3W13:
-    return 2;
+    case INV_J: return 5;
+    case INV_G2: return 2;
+    case INV_F:
+    case INV_F2:
+    case INV_F4:
+    case INV_F8: return 5;
+    case INV_W2W5:
+    case INV_W2W5E2: return 7;
+    case INV_W2W3:
+    case INV_W2W3E2:
+    case INV_W3W3:
+    case INV_W3W7:  return 5;
+    case INV_W3W3E2:return 2;
+    case INV_F3:
+    case INV_W2W7:
+    case INV_W2W7E2:
+    case INV_W2W13: return 3;
+    case INV_W3W5:
+    case INV_W5W7:
+    case INV_W3W13: return 2;
   }
   pari_err_BUG("modinv_max_internal_level");
-  return LONG_MAX;
+  return LONG_MAX;/*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -2236,10 +2044,9 @@ polmodular0_ZM(
   modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
 
   long lvl = modinv_level(inv);
-  if (cgcd(L, lvl) != 1) {
+  if (cgcd(L, lvl) != 1)
     pari_err_DOMAIN("polmodular0_ZM", "invariant",
                     "incompatible with", stoi(L), stoi(lvl));
-  }
 
   dbg_printf(1)("Calculating modular polynomial of level %lu for invariant %d\n", L, inv);
   if (L <= modinv_max_internal_level(inv))
@@ -2313,11 +2120,9 @@ polmodular0_ZM(
     modpoly_disc_info_clear(dinfo);
   }
   modpoly = nmV_chinese_center(modpoly, plist, NULL);
-  if (J)
-    return gerepileupto(ltop, FpM_red(modpoly, Q));
+  if (J) modpoly = FpM_red(modpoly, Q);
   return gerepileupto(ltop, modpoly);
 }
-
 
 GEN
 polmodular_ZM(long L, long inv)
@@ -2340,7 +2145,6 @@ polmodular_ZM(long L, long inv)
   return Phi;
 }
 
-
 GEN
 polmodular_ZXX(long L, long inv, long vx, long vy)
 {
@@ -2351,7 +2155,6 @@ polmodular_ZXX(long L, long inv, long vx, long vy)
   if (vy < 0) vy = 1;
   if (varncmp(vx, vy) >= 0)
     pari_err_PRIORITY("polmodular_ZXX", pol_x(vx), "<=", vy);
-
   return gerepilecopy(av, RgM_to_RgXX(phi, vx, vy));
 }
 
@@ -2385,9 +2188,8 @@ Fp_polmodular_evalx(
       gel(tmp, 2) = RgV_to_RgX(FpM_FpC_mul(phi, j_powers, P), v);
       j_powers = FpV_deriv(j_powers, L + 1, P);
       gel(tmp, 3) = RgV_to_RgX(FpM_FpC_mul(phi, j_powers, P), v);
-    } else {
+    } else
       tmp = modpol;
-    }
     return gerepilecopy(av, tmp);
   }
 
@@ -2408,10 +2210,8 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
   check_modinv(inv);
   if ( ! x || gequalX(x)) {
     long xv = 0;
-    if (x)
-      xv = varn(x);
-    if (compute_derivs)
-      pari_err_FLAG("polmodular");
+    if (x) xv = varn(x);
+    if (compute_derivs) pari_err_FLAG("polmodular");
     return polmodular_ZXX(L, inv, xv, v);
   }
 
@@ -2441,18 +2241,15 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
  * SECTION: Modular polynomials of level <= MAX_INTERNAL_MODPOLY_LEVEL.
  */
 
-/*
- * These functions return a vector of unique coefficients of classical
+/* These functions return a vector of unique coefficients of classical
  * modular polynomials \Phi_L(X, Y) of small level L.  The number of
  * such coefficients is (L + 1)(L + 2)/2 since \Phi is symmetric.
- * (Note that we omit the (common) coefficient of X^{L + 1} and Y^{L +
- * 1} since it is always 1.)  See sympol_to_ZM() for how to interpret
- * the coefficients, and use that function to get the corresponding
- * full (desymmetrised) matrix of coefficients.
- */
+ * (Note that we omit the common coefficient of X^{L + 1} and Y^{L + 1} since
+ * it is always 1.)  See sympol_to_ZM() for how to interpret the coefficients,
+ * and use that function to get the corresponding full (desymmetrised) matrix
+ * of coefficients. */
 
-/*
- *  Phi2, the modular polynomial of level 2:
+/*  Phi2, the modular polynomial of level 2:
  *
  *  X^3
  *  + X^2 * (-Y^2 + 1488*Y - 162000)
@@ -2465,9 +2262,7 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
  *   [2, 0, -162000],
  *   [1, 1, 40773375],
  *   [1, 0, 8748000000],
- *   [0, 0, -157464000000000]],
- */
-
+ *   [0, 0, -157464000000000]], */
 static GEN
 phi2_ZV(void)
 {
@@ -2482,9 +2277,7 @@ phi2_ZV(void)
   return phi2;
 }
 
-
-/*
- * L = 3
+/* L = 3
  *
  * [4, 0, 1],
  * [3, 3, -1],
@@ -2504,8 +2297,7 @@ phi2_ZV(void)
  * + X (-1069956*Y^3 + 8900222976000*Y^2 - 770845966336000000*Y + 1855425871872000000000)
  * + Y^4 + 36864000*Y^3 + 452984832000000*Y^2 + 1855425871872000000000*Y
  *
- * 1855425871872000000000 == 2^32 * (100 * 2^32 + 2503270400)
- */
+ * 1855425871872000000000 == 2^32 * (100 * 2^32 + 2503270400) */
 static GEN
 phi3_ZV(void)
 {
@@ -2524,7 +2316,6 @@ phi3_ZV(void)
   gel(phi3, 10) = gen_m1;
   return phi3;
 }
-
 
 static GEN
 phi5_ZV(void)
@@ -2699,22 +2490,16 @@ INLINE long
 modinv_parent(long inv)
 {
   switch (inv) {
-  case INV_F2:
-  case INV_F4:
-  case INV_F8:
-    return INV_F;
-  case INV_W2W3E2:
-    return INV_W2W3;
-  case INV_W2W5E2:
-    return INV_W2W5;
-  case INV_W2W7E2:
-    return INV_W2W7;
-  case INV_W3W3E2:
-    return INV_W3W3;
-  default:
-    pari_err_BUG("modinv_parent");
+    case INV_F2:
+    case INV_F4:
+    case INV_F8:     return INV_F;
+    case INV_W2W3E2: return INV_W2W3;
+    case INV_W2W5E2: return INV_W2W5;
+    case INV_W2W7E2: return INV_W2W7;
+    case INV_W3W3E2: return INV_W3W3;
+    default: pari_err_BUG("modinv_parent");
   }
-  return -1;
+  return -1;/*LCOV_EXCL_LINE*/
 }
 
 /* TODO: Think of a better name than "parent power"; sheesh. */
@@ -2722,20 +2507,16 @@ INLINE long
 modinv_parent_power(long inv)
 {
   switch (inv) {
-  case INV_F4:
-    return 4;
-  case INV_F8:
-    return 8;
-  case INV_F2:
-  case INV_W2W3E2:
-  case INV_W2W5E2:
-  case INV_W2W7E2:
-  case INV_W3W3E2:
-    return 2;
-  default:
-    pari_err_BUG("modinv_parent_power");
+    case INV_F4: return 4;
+    case INV_F8: return 8;
+    case INV_F2:
+    case INV_W2W3E2:
+    case INV_W2W5E2:
+    case INV_W2W7E2:
+    case INV_W3W3E2: return 2;
+    default: pari_err_BUG("modinv_parent_power");
   }
-  return -1;
+  return -1;/*LCOV_EXCL_LINE*/
 }
 
 static GEN
@@ -2801,17 +2582,15 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
     avma = av1;
 
     (void) ZM_incremental_CRT(&pol, phi_modp, &P, p);
-    if (gc_needed(av, 2))
-      gerepileall(av, 2, &pol, &P);
+    if (gc_needed(av, 2)) gerepileall(av, 2, &pol, &P);
   }
-
   return gerepileupto(ltop, pol);
 }
 
-/* Returns the modular polynomial with the smallest level for the
- * given invariant, except if inv is INV_J, in which case return the
- * modular polynomial of level L in {2,3,5}.  NULL is returned if the
- * modular polynomial can be calculated using polmodular0_powerup_ZM. */
+/* Returns the modular polynomial with the smallest level for the given
+ * invariant, except if inv is INV_J, in which case return the modular
+ * polynomial of level L in {2,3,5}.  NULL is returned if the modular
+ * polynomial can be calculated using polmodular0_powerup_ZM. */
 INLINE GEN
 internal_db(long L, long inv)
 {
@@ -2857,7 +2636,6 @@ polmodular_small_ZM(long L, long inv, GEN *db)
     return polmodular0_powerup_ZM(L, inv, db);
   return sympol_to_ZM(f, L);
 }
-
 
 /* Each function phi_w?w?_j() returns a vector V containing two
  * vectors u and v, and a scalar k, which together represent the
@@ -3567,32 +3345,22 @@ GEN
 double_eta_raw(long inv)
 {
   switch (inv) {
-  case INV_W2W3:
-  case INV_W2W3E2:
-    return phi_w2w3_j();
-  case INV_W3W3:
-  case INV_W3W3E2:
-    return phi_w3w3_j();
-  case INV_W2W5:
-  case INV_W2W5E2:
-    return phi_w2w5_j();
-  case INV_W2W7:
-  case INV_W2W7E2:
-    return phi_w2w7_j();
-  case INV_W3W5:
-    return phi_w3w5_j();
-  case INV_W3W7:
-    return phi_w3w7_j();
-  case INV_W2W13:
-    return phi_w2w13_j();
-  case INV_W3W13:
-    return phi_w3w13_j();
-  case INV_W5W7:
-    return phi_w5w7_j();
-  default:
-    pari_err_BUG("double_eta_raw");
+    case INV_W2W3:
+    case INV_W2W3E2: return phi_w2w3_j();
+    case INV_W3W3:
+    case INV_W3W3E2: return phi_w3w3_j();
+    case INV_W2W5:
+    case INV_W2W5E2: return phi_w2w5_j();
+    case INV_W2W7:
+    case INV_W2W7E2: return phi_w2w7_j();
+    case INV_W3W5:   return phi_w3w5_j();
+    case INV_W3W7:   return phi_w3w7_j();
+    case INV_W2W13:  return phi_w2w13_j();
+    case INV_W3W13:  return phi_w3w13_j();
+    case INV_W5W7:   return phi_w5w7_j();
+    default: pari_err_BUG("double_eta_raw");
   }
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /**
@@ -3623,19 +3391,16 @@ modpoly_height_bound(long L, long inv)
   if ( nbits2 < nbits ) nbits = nbits2;
   hf = modinv_height_factor(inv);
   if (hf > 1) {
-    /*
-   *** Important *** when dividing by the height factor, we only want to reduce terms related
-   to the bound on j (the roots of Phi_l(X,y)), not terms arising from binomial coefficients.
-   These arise in lemmas 2 and 3 of the height bound paper, terms of (log 2)*L and 2.085*(L+1)
-   which we convert here to binary logs.
-    */
-    /* this is a massive overestimate, if you care about speed,
-     * determine a good height bound empirically as done for INV_F
-     * below */
+   /* IMPORTANT: when dividing by the height factor, we only want to reduce
+   terms related to the bound on j (the roots of Phi_l(X,y)), not terms arising
+   from binomial coefficients. These arise in lemmas 2 and 3 of the height
+   bound paper, terms of (log 2)*L and 2.085*(L+1) which we convert here to
+   binary logs */
+    /* Massive overestimate: if you care about speed, determine a good height
+     * bound empirically as done for INV_F below */
     nbits2 = nbits - 4.01*L -3.0;
     nbits = nbits2/hf + 4.01*L + 3.0;
   }
-
   if (inv == INV_F) {
     if (L < 30) c = 45;
     else if (L < 100) c = 36;
@@ -3646,14 +3411,11 @@ modpoly_height_bound(long L, long inv)
     else c = 20;
     nbits = (6.0*L*log2(L) + c*L)/hf;
   }
-
   return nbits;
 }
 
-/* small enough so we can write the factorization of a smooth in a BIL
- * bit integer */
+/* small enough to write the factorization of a smooth in a BIL bit integer */
 #define SMOOTH_PRIMES  ((BITS_IN_LONG >> 1) - 1)
-
 
 #define MAX_ATKIN 255
 
@@ -3695,15 +3457,13 @@ qform_primeform2(long p, long D)
     a = p * p;
     b = k * p;
     Q = redimag(mkqfis(a, b, c));
-    /* TODO: How do we know that Q has order dividing p - 1? If we
-     * don't, then the call to gen_order should be replaced with a
-     * call to something with fastorder semantics (i.e. return 0 if
-     * ord(Q) \ndiv M). */
+    /* TODO: How do we know that Q has order dividing p - 1? If we don't, then
+     * the call to gen_order should be replaced with a call to something with
+     * fastorder semantics (i.e. return 0 if ord(Q) \ndiv M). */
     ord = itos(qfi_order(Q, M));
     if (ord == p - 1) {
-      /* TODO: This check that gen_order returned the correct result
-       * should be removed when gen_order is replaced with something
-       * with fastorder semantics. */
+      /* TODO: This check that gen_order returned the correct result should be
+       * removed when gen_order is replaced with fastorder semantics. */
       GEN tst = gpowgs(Q, p - 1);
       if (qfb_equal1(tst)) { avma = ltop; return mkqfis(a, b, c); }
         break;
@@ -3718,16 +3478,10 @@ qform_primeform2(long p, long D)
 /* This gets around the fact that gen_PH_log returns garbage if g
  * doesn't have order n. */
 INLINE GEN
-discrete_log(GEN a, GEN g, long n)
-{
-  return qfi_Shanks(a, g, n);
-}
+discrete_log(GEN a, GEN g, long n) { return qfi_Shanks(a, g, n); }
 
-
-/*
- * Output x such that [L0]^x = [L] in cl(D) where n = #cl(D).  Return
- * value indicates whether x was found or not.
- */
+/* Output x such that [L0]^x = [L] in cl(D) where n = #cl(D).  Return
+ * value indicates whether x was found or not */
 INLINE long
 primeform_discrete_log(long *x, long L0, long L, long n, long D)
 {
@@ -3739,21 +3493,14 @@ primeform_discrete_log(long *x, long L0, long L, long n, long D)
   Q = redimag(primeform_u(DD, L0));
   R = redimag(primeform_u(DD, L));
   X = discrete_log(R, Q, n);
-  if (X) {
-    *x = itos(X);
-    res = 1;
-  }
-  avma = av;
-  return res;
+  if (X) { *x = itos(X); res = 1; }
+  avma = av; return res;
 }
 
-
-/*
- * Return the norm of a class group generator appropriate for a
+/* Return the norm of a class group generator appropriate for a
  * discriminant that will be used to calculate the modular polynomial
  * of level L and invariant inv.  Don't consider norms less than
- * initial_L0.
- */
+ * initial_L0 */
 static long
 select_L0(long L, long inv, long initial_L0)
 {
@@ -3761,8 +3508,7 @@ select_L0(long L, long inv, long initial_L0)
   long L0;
 
   modinv_N = modinv_level(inv);
-  if (divides(L, modinv_N))
-    pari_err_BUG("select_L0");
+  if (divides(L, modinv_N)) pari_err_BUG("select_L0");
 
   /* TODO: Clean up these anomolous L0 choices */
 
@@ -3770,40 +3516,30 @@ select_L0(long L, long inv, long initial_L0)
    * when L=19 and L=29, nor why L0=7 and L0=11 don't work for L=19
    * either, nor why this happens for the otherwise unrelated
    * invariants Weber-f and (2,3) double-eta. */
-  if (inv == INV_W3W3E2 && L == 5)
-    return 2;
+  if (inv == INV_W3W3E2 && L == 5) return 2;
 
   if (inv == INV_F || inv == INV_F2 || inv == INV_F4 || inv == INV_F8
       || inv == INV_W2W3 || inv == INV_W2W3E2
       || inv == INV_W3W3 /* || inv == INV_W3W3E2 */) {
-    if (L == 19)
-      return 13;
-    else if (L == 29 || L == 5)
-      return 7;
+    if (L == 19) return 13;
+    else if (L == 29 || L == 5) return 7;
     return 5;
   }
   if ((inv == INV_W2W5 || inv == INV_W2W5E2)
-      && (L == 7 || L == 19))
-    return 13;
+      && (L == 7 || L == 19)) return 13;
   if ((inv == INV_W2W7 || inv == INV_W2W7E2)
-      && L == 11)
-    return 13;
+      && L == 11) return 13;
   if (inv == INV_W3W5) {
-    if (L == 7)
-      return 13;
-    else if (L == 17)
-      return 7;
+    if (L == 7) return 13;
+    else if (L == 17) return 7;
   }
   if (inv == INV_W3W7) {
-    if (L == 29 || L == 101)
-      return 11;
-    if (L == 11 || L == 19)
-      return 13;
+    if (L == 29 || L == 101) return 11;
+    if (L == 11 || L == 19) return 13;
   }
-  if (inv == INV_W5W7 && L == 17)
-    return 3;
+  if (inv == INV_W5W7 && L == 17) return 3;
 
-  /* L0 is the smallest small prime different from L that doesn't divide modinv_N. */
+  /* L0 = smallest small prime different from L that doesn't divide modinv_N */
   for (L0 = unextprime(initial_L0 + 1);
        L0 == L || divides(L0, modinv_N);
        L0 = unextprime(L0 + 1))
@@ -3811,18 +3547,14 @@ select_L0(long L, long inv, long initial_L0)
   return L0;
 }
 
-
-/*
- * Return the order of [L]^n in cl(D), where #cl(D) = ord.
- */
+/* Return the order of [L]^n in cl(D), where #cl(D) = ord. */
 INLINE long
 primeform_exp_order(long L, long n, long D, long ord)
 {
   pari_sp av = avma;
   GEN Q = gpowgs(primeform_u(stoi(D), L), n);
   long m = itos(qfi_order(Q, Z_factor(stoi(ord))));
-  avma = av;
-  return m;
+  avma = av; return m;
 }
 
 INLINE long
@@ -3831,10 +3563,10 @@ eql_elt(GEN P, GEN Q, long i)
   return gequal(gel(P, i), gel(Q, i));
 }
 
-/* If an ideal of norm modinv_deg is equivalent to an ideal of
- * norm L0, we have an orientation ambiguity that we need to
- * avoid. Note that we need to check all the possibilities (up
- * to 8), but we can cheaply check inverses (so at most 2) */
+/* If an ideal of norm modinv_deg is equivalent to an ideal of norm L0, we
+ * have an orientation ambiguity that we need to avoid. Note that we need to
+ * check all the possibilities (up to 8), but we can cheaply check inverses
+ * (so at most 2) */
 static long
 orientation_ambiguity(long D1, long L0, long modinv_p1, long modinv_p2, long modinv_N)
 {
@@ -3898,7 +3630,7 @@ check_generators(
   }
   if (n1 < subgrp_sz && ! (n1 & 1)) {
     int res;
-    /* check whether L1 is generated by L0, using the fact that it has order 2 */
+    /* check whether L1 is generated by L0, use the fact that it has order 2 */
     pari_sp av = avma;
     GEN D1 = stoi(D);
     GEN Q = gpowgs(primeform_u(D1, L0), n1 / 2);
@@ -3913,11 +3645,8 @@ check_generators(
   return 1;
 }
 
-/*
- * Calculate solutions (p, t) to the norm equation
- *
+/* Calculate solutions (p, t) to the norm equation
  *   4 p = t^2 - v^2 L^2 D   (*)
- *
  * corresponding to the descriminant described by Dinfo.
  *
  * INPUT:
@@ -3925,8 +3654,7 @@ check_generators(
  * - xprimes: p to exclude from primes (if they arise)
  * - xcnt: length of xprimes
  * - minbits: sum of log2(p) must be larger than this
- * - Dinfo: discriminant, invariant and L for which we seek solutions
- *   to (*)
+ * - Dinfo: discriminant, invariant and L for which we seek solutions to (*)
  *
  * OUTPUT:
  * - primes: array of p in (*)
@@ -3939,8 +3667,7 @@ check_generators(
  * NOTE: Any of primes, traces and totbits can be zero, in which case
  * these values are discarded after calculation (however it is not
  * permitted for traces to be zero if primes is non-zero).  xprimes
- * can be zero, in which case it is treated as empty.
- */
+ * can be zero, in which case it is treated as empty. */
 static long
 modpoly_pickD_primes(
   ulong *primes, ulong *traces, long max, ulong *xprimes, long xcnt,
@@ -4137,12 +3864,10 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
                   totbits, minbits, Dcnt);
     Dcnt = 0;
   }
-  avma = av;
-  return Dcnt;
+  avma = av; return Dcnt;
 }
 
-/*
- * Select discriminant(s) to use when calculating the modular
+/* Select discriminant(s) to use when calculating the modular
  * polynomial of level L and invariant inv.
  *
  * INPUT:
@@ -4165,8 +3890,7 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
  * - MODPOLY_USE_L1: force use of second class group generator
  * - MODPOLY_NO_AUX_L: don't use auxillary class group elements
  * - MODPOLY_IGNORE_SPARSE_FACTOR: obtain D for which h(D) > L + 1
- *   rather than h(D) > (L + 1)/s
- */
+ *   rather than h(D) > (L + 1)/s */
 static long
 modpoly_pickD(
   modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv, long L0, long max_L1, long minbits, long flags,
@@ -4519,20 +4243,15 @@ _qsort_cmp(const void *a, const void *b)
   u = x->h * (!!(x->m & 2) + 1);
   v = y->h * (!!(y->m & 2) + 1);
   /* Sort by class number */
-  if (u < v)
-    return -1;
-  if (u > v)
-    return 1;
+  if (u < v) return -1;
+  if (u > v) return 1;
   /* Sort by discriminant (which is < 0, hence the sign reversal) */
-  if (x->D > y->D)
-    return -1;
-  if (x->D < y->D)
-    return 1;
+  if (x->D > y->D) return -1;
+  if (x->D < y->D) return 1;
   return 0;
 }
 
-/*
- * Build a table containing fundamental discriminants less than maxd
+/* Build a table containing fundamental discriminants less than maxd
  * whose class groups
  * - are cyclic generated by an element of norm L0
  * - have class number at most maxh
@@ -4549,8 +4268,7 @@ _qsort_cmp(const void *a, const void *b)
  *
  * RETURN:
  * - array of {discriminant D, h(D), kronecker symbols for small p} where D
- *   satisfies the properties above
- */
+ *   satisfies the properties above */
 static D_entry *
 scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
 {
@@ -4559,8 +4277,7 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
   long *q, *e;
   D_entry *tab;
   ulong m, x;
-  long h, d, D, n;
-  long L1, cnt, i, j, k;
+  long h, d, D, n, L1, cnt, i, j, k;
 
   if (maxD < 0)
     maxD = -maxD;
@@ -4656,17 +4373,12 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
 
   /* Sort the table */
   qsort(tab, cnt, sizeof(*tab), _qsort_cmp);
-  *tablelen = cnt;
-  *minD = d;
-  return tab;
+  *tablelen = cnt; *minD = d; return tab;
 }
 
-
-/*
- * Populate Ds with discriminants (and attached data) that can be
+/* Populate Ds with discriminants (and attached data) that can be
  * used to calculate the modular polynomial of level L and invariant
- * inv.  Return the number of discriminants found.
- */
+ * inv.  Return the number of discriminants found. */
 static long
 discriminant_with_classno_at_least(
   modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv, long ignore_sparse)
