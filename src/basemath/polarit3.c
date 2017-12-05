@@ -1632,6 +1632,16 @@ FpX_direct_compositum(GEN a, GEN b, GEN p)
   }
 }
 
+static GEN
+_FpX_direct_compositum(void *E, GEN a, GEN b)
+{ return FpX_direct_compositum(a,b, (GEN)E); }
+
+GEN
+FpXV_direct_compositum(GEN V, GEN p)
+{
+  return gen_product(V, (void *)p, &_FpX_direct_compositum);
+}
+
 /* 0, 1, -1, 2, -2, ... */
 #define next_lambda(a) (a>0 ? -a : 1-a)
 GEN
@@ -2407,14 +2417,15 @@ static GEN
 ffinit_fact(GEN p, long n)
 {
   GEN P, F = gel(factoru_pow(n),3);
-  long i;
+  long i, l = lg(F);
+  P= cgetg(l, t_VEC);
   if (!odd(n) && absequaliu(p, 2))
-    P = f2init(vals(n)); /* if n is even, F[1] = 2^vals(n)*/
+    gel(P,1) = f2init(vals(n)); /* if n is even, F[1] = 2^vals(n)*/
   else
-    P = fpinit(p, F[1]);
-  for (i = 2; i < lg(F); ++i)
-    P = FpX_direct_compositum(fpinit(p, F[i]), P, p);
-  return P;
+    gel(P,1) = fpinit(p, F[1]);
+  for (i = 2; i < l; ++i)
+    gel(P,i) = fpinit(p, F[i]);
+  return FpXV_direct_compositum(P, p);
 }
 
 static GEN
