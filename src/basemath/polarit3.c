@@ -2418,30 +2418,6 @@ ffinit_fact(GEN p, long n)
 }
 
 static GEN
-ffinit_nofact(GEN p, long n)
-{
-  GEN P, Q = NULL;
-  if (lgefint(p)==3)
-  {
-    ulong pp = p[2], q;
-    long v = u_lvalrem(n,pp,&q);
-    if (v>0)
-    {
-      Q = (pp == 2)? f2init(v): fpinit(p,n/q);
-      n = q;
-    }
-  }
-  /* n coprime to p */
-  if (n==1) P = Q;
-  else
-  {
-    P = fpinit(p, n);
-    if (Q) P = FpX_direct_compositum(P, Q, p);
-  }
-  return P;
-}
-
-static GEN
 init_Fq_i(GEN p, long n, long v)
 {
   GEN P;
@@ -2451,10 +2427,7 @@ init_Fq_i(GEN p, long n, long v)
   if (v < 0) v = 0;
   if (n == 1) return pol_x(v);
   if (fpinit_check(p, n+1, n)) return polcyclo(n+1, v);
-  if (lgefint(p)-2 <= expu(n))
-    P = ffinit_fact(p,n);
-  else
-    P = ffinit_nofact(p,n);
+  P = ffinit_fact(p,n);
   setvarn(P, v); return P;
 }
 GEN
