@@ -561,6 +561,7 @@ main(int argc, char **argv)
   cb_pari_break_loop = break_loop;
   cb_pari_is_interactive = is_interactive;
 
+  DEBUGMEM = 1;
   read_opt(&s_A, argc,argv);
   pari_init_primes(GP_DATA->primelimit);
 #ifdef SIGALRM

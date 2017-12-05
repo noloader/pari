@@ -4,17 +4,24 @@ Section: default
 C-Name: sd_debugmem
 Prototype:
 Help:
-Doc: memory debugging level. If it is non-zero, \kbd{gp} will notify when
- \kbd{parisize} changes (within the boundaries set by \kbd{parisizemax})
- If it is greater than 2, indicate any important garbage collecting and the
- function it is taking place in (see~\b{gm}). If greater than 3, it will
- indicate the creation/destruction of ``blocks'' (or clones).
+Doc: memory debugging level (see \b{gm}). If this is non-zero, \kbd{gp} will
+ print increasingly precise notifications about memory use:
+
+ \item $\kbd{debugmem} > 0$, notify when \kbd{parisize} changes (within the
+ boundaries set by \kbd{parisizemax});
+
+ \item $\kbd{debugmem} > 1$, indicate any important garbage collection and the
+ function it is taking place in;
+
+ \item $\kbd{debugmem} > 2$, indicate the creation/destruction of
+ ``blocks'' (or clones); expect lots of messages.
 
  \noindent {\bf Important Note:}
- if you are running a version compiled for debugging (see Appendix~A),
- \kbd{gp} will regularly print information on memory usage if \kbd{debugmem}
- is $\geq 2$. This functionality is disabled on non-debugging builds as it
- noticeably slows down the performance.
+ if you are running a version compiled for debugging (see Appendix~A) and
+ $\kbd{debugmem} > 1$, \kbd{gp} will further regularly print information on
+ memory usage, notifying whenever stack usage goes up or down by 1 MByte.
+ This functionality is disabled on non-debugging builds as it noticeably
+ slows down the performance.
 
- The default value is \kbd{1} (no debugging messages except \kbd{parisize}
- changes).
+ The default value is \kbd{1} under \kbd{gp} (no messages except
+ \kbd{parisize} changes) and \kbd{0} in library mode (no messages).
