@@ -681,7 +681,6 @@ void ellprint(GEN e);
 
 /* ecpp.c */
 GEN     ecpp0(GEN N, GEN param, GEN* X0);
-long    ecpp_isvalid0(GEN cert, ulong trustbits);
 
 /* es.c */
 
