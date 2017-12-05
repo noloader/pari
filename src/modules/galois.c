@@ -415,8 +415,8 @@ gpolynomial(GEN r, resolv *R)
     }
   }
   setlg(IM, k);
-  RE = vecpermute(RE, gen_indexsort(RE, (void*)&abscmprr, cmp_nodata));
-  IM = vecpermute(IM, gen_indexsort(IM, (void*)&abscmprr, cmp_nodata));
+  gen_sort_inplace(RE, (void*)&abscmprr, cmp_nodata, NULL);
+  gen_sort_inplace(IM, (void*)&abscmprr, cmp_nodata, NULL);
   re = gel(RE,1);
   for (i = 2; i <= R->nm; i++) re = addrr(re, gel(RE,i));
   if (k == 1) return re;
