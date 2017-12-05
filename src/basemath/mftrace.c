@@ -3714,18 +3714,6 @@ mfcleanCHI(GEN M, GEN CHI)
   return mfclean(M, P, n);
 }
 
-/* in place, so that lg(v) is unaffected even if < lg(perm) */
-void
-vecpermute_inplace(GEN v, GEN perm)
-{
-  pari_sp av = avma;
-  long i, l = lg(perm);
-  GEN w = cgetg(l,t_VEC);
-  for (i = 1; i < l; i++) gel(w,i) = gel(v,perm[i]);
-  for (i = 1; i < l; i++) gel(v,i) = gel(w,i);
-  avma = av;
-}
-
 /* reset cachenew for new level incorporating new DATA
  * (+ possibly initialize 'full' for new allowed levels) */
 static void
@@ -3871,6 +3859,13 @@ get_badj(long N, long FC)
   for (i = 1; i < l; i++)
     if (E[i] > 1 && u_lval(FC, P[i]) < E[i]) b *= P[i];
   return b;
+}
+/* in place, assume perm strictly increasing */
+static void
+vecpermute_inplace(GEN v, GEN perm)
+{
+  long i, l = lg(perm);
+  for (i = 1; i < l; i++) gel(v,i) = gel(v,perm[i]);
 }
 
 /* Find basis of newspace using closures; assume k >= 2 and !badchar.

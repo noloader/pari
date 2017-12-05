@@ -4065,7 +4065,6 @@ GEN   mftraceform(GEN NK, long coderat);
 GEN   mftwist(GEN F, GEN D);
 GEN   mfvecembed(GEN f, GEN vz);
 GEN   mfvectomat(GEN vF, long lim, long d);
-void  vecpermute_inplace(GEN v, GEN perm);
 
 /* mp.c */
 
