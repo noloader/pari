@@ -3086,12 +3086,10 @@ ellperiod(GEN E, long s)
 /* Let W = msinit(conductor(E), 2), xpm an integral modular symbol with the same
  * eigenvalues as L_E. There exist a unique C such that
  *   C*L(E,(D/.),1)_{xpm} = L(E,(D/.),1) / w1(E_D) != 0, for all D fundamental,
- * sign(D) = s, and such that E_D has rank 0. Return the normalized symbol
- * C * xpm */
+ * sign(D) = s, and such that E_D has rank 0. Return C * ellperiod(E,s) */
 static GEN
-ell_get_scale(GEN LE, GEN E, GEN W, GEN xpm, long s)
+ell_get_Cw(GEN LE, GEN E, GEN W, GEN xpm, long s)
 {
-  GEN w = ellperiod(E, s);
   long f, NE = ms_get_N(W);
   const long bit = 64;
 
@@ -3108,9 +3106,9 @@ ell_get_scale(GEN LE, GEN E, GEN W, GEN xpm, long s)
     for (i = 1; i < l; i++)
     {
       pari_sp av2 = avma;
-      GEN C, tau, z, S, L, chi = gel(vchi,i);
+      GEN tau, z, S, L, chi = gel(vchi,i);
       long o = zncharisodd(G,chi);
-      if ((s == 1 && o) || (s == -1 && !o)
+      if ((s > 0 && o) || (s < 0 && !o)
           || itos(zncharconductor(G, chi)) != f) continue;
       S = seval(G, chi, vx);
       if (!S) { avma = av2; continue; }
@@ -3118,14 +3116,46 @@ ell_get_scale(GEN LE, GEN E, GEN W, GEN xpm, long s)
       L = lfuntwist(LE, mkvec2(G, zncharconj(G,chi)));
       z = lfun(L, gen_1, bit);
       tau = znchargauss(G, chi, gen_1, bit);
-      C = gdiv(gmul(z, tau), gmul(S,w));
-      C = bestappr(C, int2n(bit >> 1));
-      return RgC_Rg_mul(xpm, C);
+      return gdiv(gmul(z, tau), S); /* C * w */
     }
     avma = av;
   }
 }
-
+static GEN
+ell_get_scale(GEN E, GEN W, long sign, GEN x)
+{
+  GEN LE = lfuncreate(E);
+  if (sign)
+    return ell_get_Cw(LE, E, W, gel(x,1), sign);
+  else
+  {
+    GEN Cwp = ell_get_Cw(LE, E, W, gel(x,1), 1);
+    GEN Cwm = ell_get_Cw(LE, E, W, gel(x,2),-1);
+    return mkvec2(Cwp, Cwm);
+  }
+}
+static GEN
+msfromell_scale(GEN x, GEN Cw, GEN E, long s)
+{
+  GEN B = int2n(32);
+  if (s)
+  {
+    GEN C = gdiv(Cw, ellperiod(E,s));
+    return ZC_Q_mul(gel(x,1), bestappr(C,B));
+  }
+  else
+  {
+    GEN xp = gel(x,1), Cp = gdiv(gel(Cw,1), ellperiod(E, 1)), L;
+    GEN xm = gel(x,2), Cm = gdiv(gel(Cw,2), ellperiod(E,-1));
+    xp = ZC_Q_mul(xp, bestappr(Cp,B));
+    xm = ZC_Q_mul(xm, bestappr(Cm,B));
+    if (signe(ell_get_disc(E)) > 0)
+      L = mkmat2(xp, xm); /* E(R) has 2 connected components */
+    else
+      L = mkmat2(gsub(xp,xm), gmul2n(xm,1));
+    return mkvec3(xp, xm, L);
+  }
+}
 /* v != 0 */
 static GEN
 Flc_normalize(GEN v, ulong p)
@@ -3139,7 +3169,6 @@ Flc_normalize(GEN v, ulong p)
     }
   return NULL;
 }
-
 /* K \cap Ker M  [F_l vector spaces]. K = NULL means full space */
 static GEN
 msfromell_ker(GEN K, GEN M, ulong l)
@@ -3180,6 +3209,7 @@ msfromell_l(GEN *pxl, GEN K, GEN star, long sign, ulong l)
   else
     *pxl = mkmat2(Flc_normalize(xp, l), Flc_normalize(xm, l));
 }
+/* return a primitive symbol */
 static GEN
 msfromell_ratlift(GEN x, GEN q)
 {
@@ -3206,28 +3236,11 @@ msfromell_check(GEN x, GEN vT, GEN star, long sign)
   else
     return ZV_equal(gel(sx,1),gel(x,1)) && ZV_equal(gel(sx,2),ZC_neg(gel(x,2)));
 }
-static GEN
-msfromell_scale(GEN LE, GEN E, GEN W, long sign, GEN x)
-{
-  if (sign)
-    x = ell_get_scale(LE, E, W, gel(x,1), sign);
-  else
-  {
-    GEN p = ell_get_scale(LE, E, W, gel(x,1), 1);
-    GEN m = ell_get_scale(LE, E, W, gel(x,2),-1), L;
-    if (signe(ell_get_disc(E)) > 0)
-      L = mkmat2(p,m); /* E(R) has 2 connected components */
-    else
-      L = mkmat2(gsub(p,m),gmul2n(m,1));
-    x = mkvec3(p, m, L);
-  }
-  return x;
-}
 GEN
 msfromell(GEN E0, long sign)
 {
   pari_sp av = avma, av2;
-  GEN T, LE, E, cond, W, x = NULL, K = NULL, star, q, vT, xl, xr;
+  GEN T, Cw, E, NE, star, q, vT, xl, xr, W, x = NULL, K = NULL;
   long lE, single;
   ulong p, l, N;
   forprime_t S, Sl;
@@ -3237,10 +3250,10 @@ msfromell(GEN E0, long sign)
   if (lE == 1) return cgetg(1,t_VEC);
   single = (typ(gel(E0,1)) != t_VEC);
   E = single ? E0: gel(E0,1);
-  cond = ellQ_get_N(E);
+  NE = ellQ_get_N(E);
   /* must make it integral for ellap; we have minimal model at hand */
   T = obj_check(E, Q_MINIMALMODEL); if (lg(T) != 2) E = gel(T,3);
-  N = itou(cond); av2 = avma;
+  N = itou(NE); av2 = avma;
   W = gerepilecopy(av2, mskinit(N,2,0));
   star = msk_get_star(W);
   init_modular_small(&Sl);
@@ -3282,14 +3295,14 @@ msfromell(GEN E0, long sign)
     xr = msfromell_ratlift(x, q);
   }
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) if sign != 0 */
-  LE = lfuncreate(E);
+  Cw = ell_get_scale(E, W, sign, xr);
   if (single)
-    x = msfromell_scale(LE, E, W, sign, xr);
+    x = msfromell_scale(xr, Cw, E, sign);
   else
   {
     GEN v = cgetg(lE, t_VEC);
     long i;
-    for (i=1; i<lE; i++) gel(v,i) = msfromell_scale(LE, gel(E0,i), W, sign, xr);
+    for (i=1; i<lE; i++) gel(v,i) = msfromell_scale(xr, Cw, gel(E0,i), sign);
     x = v;
   }
   return gerepilecopy(av, mkvec2(W, x));
