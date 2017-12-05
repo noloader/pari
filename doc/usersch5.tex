@@ -4744,6 +4744,12 @@ s Newton sums given by the coefficients of $x$.
 This function assumes that $p$ and the accuracy of $x$ as a \kbd{FpXn} is
 larger than the degree of the solution.
 
+\fun{GEN}{FpX_Laplace}{GEN x, GEN p} return
+$\sum{i=0}^{n-1} x_i\*i!\*X^i$.
+
+\fun{GEN}{FpX_invLaplace}{GEN x, GEN p} return
+$\sum{i=0}^{n-1} x_i/{i!}\*X^i$.
+
 \subsec{\kbd{FpXQ}, \kbd{Fq}} Let \kbd{p} a \typ{INT} and \kbd{T} an
 \kbd{FpX} for \kbd{p}, both to be given in the function arguments; an \kbd{FpXQ}
 object is an \kbd{FpX} whose degree is strictly less than the degree of

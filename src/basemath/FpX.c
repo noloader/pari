@@ -876,6 +876,36 @@ FpX_fromNewton(GEN P, GEN p)
   return gerepilecopy(av, Q);
 }
 
+GEN
+FpX_invLaplace(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  long i, e = 0, l = lg(x);
+  GEN t = gen_1, y = cgetg(l,t_POL);
+  y[1] = x[1];
+  for (i=2; i<l; i++)
+  {
+    gel(y,i) = Fp_div(gel(x,i), t, p);
+    e++; t = Fp_mulu(t,e,p);
+  }
+  return gerepilecopy(av, y);
+}
+
+GEN
+FpX_Laplace(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  long i, e = 0, l = lg(x);
+  GEN t = gen_1, y = cgetg(l,t_POL);
+  y[1] = x[1];
+  for (i=2; i<l; i++)
+  {
+    gel(y,i) = Fp_mul(gel(x,i), t, p);
+    e++; t = Fp_mulu(t,e,p);
+  }
+  return gerepilecopy(av, y);
+}
+
 int
 FpX_is_squarefree(GEN f, GEN p)
 {
