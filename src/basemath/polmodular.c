@@ -763,10 +763,40 @@ double_eta_root(long inv, ulong *r, ulong w, ulong p, ulong pi, ulong s2)
   return 0;
 }
 
+/* F = double_eta_Fl(inv, p) */
+static GEN
+Flx_double_eta_xpoly(GEN F, ulong j, ulong p, ulong pi)
+{
+  GEN u = gel(F,1), v = gel(F,2), w;
+  long i, k = itos(gel(F,3)), lu = lg(u), lv = lg(v), lw = lu + 1;
 
-/* TODO: Organise things better so that this forward decl is unnecessary. */
-static GEN Flx_double_eta_xpoly(GEN f, ulong j, ulong p, ulong pi);
-static GEN Flx_double_eta_jpoly(GEN f, ulong x, ulong p, ulong pi);
+  w = cgetg(lw, t_VECSMALL); /* lu >= max(lv,k) */
+  w[1] = 0; /* variable number */
+  for (i = 1; i < lv; i++)
+    uel(w, i + 1) = Fl_add(uel(u, i), Fl_mul_pre(j, uel(v, i), p, pi), p);
+  for (     ; i < lu; i++)
+    uel(w, i + 1) = uel(u, i);
+  uel(w, k + 2) = Fl_add(uel(w, k + 2), Fl_sqr_pre(j, p, pi), p);
+  return Flx_renormalize(w, lw);
+}
+
+/* F = double_eta_Fl(inv, p) */
+static GEN
+Flx_double_eta_jpoly(GEN F, ulong x, ulong p, ulong pi)
+{
+  pari_sp av = avma;
+  GEN u = gel(F,1), v = gel(F,2), xs;
+  long k = itos(gel(F,3));
+  ulong a, b, c;
+
+  /* u is always longest and the length is bigger than k */
+  xs = Fl_powers_pre(x, lg(u) - 1, p, pi);
+  c = Flv_dotproduct_pre(u, xs, p, pi);
+  b = Flv_dotproduct_pre(v, xs, p, pi);
+  a = uel(xs, k + 1);
+  avma = av;
+  return mkvecsmall4(0, c, b, a);
+}
 
 /* reduce F = double_eta_raw(inv) mod p */
 static GEN
@@ -3563,41 +3593,6 @@ double_eta_raw(long inv)
     pari_err_BUG("double_eta_raw");
   }
   return NULL;
-}
-
-/* F = double_eta_Fl(inv, p) */
-static GEN
-Flx_double_eta_xpoly(GEN F, ulong j, ulong p, ulong pi)
-{
-  GEN u = gel(F,1), v = gel(F,2), w;
-  long i, k = itos(gel(F,3)), lu = lg(u), lv = lg(v), lw = lu + 1;
-
-  w = cgetg(lw, t_VECSMALL); /* lu >= max(lv,k) */
-  w[1] = 0; /* variable number */
-  for (i = 1; i < lv; i++)
-    uel(w, i + 1) = Fl_add(uel(u, i), Fl_mul_pre(j, uel(v, i), p, pi), p);
-  for (     ; i < lu; i++)
-    uel(w, i + 1) = uel(u, i);
-  uel(w, k + 2) = Fl_add(uel(w, k + 2), Fl_sqr_pre(j, p, pi), p);
-  return Flx_renormalize(w, lw);
-}
-
-/* F = double_eta_Fl(inv, p) */
-static GEN
-Flx_double_eta_jpoly(GEN F, ulong x, ulong p, ulong pi)
-{
-  pari_sp av = avma;
-  GEN u = gel(F,1), v = gel(F,2), xs;
-  long k = itos(gel(F,3));
-  ulong a, b, c;
-
-  /* u is always longest and the length is bigger than k */
-  xs = Fl_powers_pre(x, lg(u) - 1, p, pi);
-  c = Flv_dotproduct_pre(u, xs, p, pi);
-  b = Flv_dotproduct_pre(v, xs, p, pi);
-  a = uel(xs, k + 1);
-  avma = av;
-  return mkvecsmall4(0, c, b, a);
 }
 
 /**
