@@ -944,48 +944,52 @@ ecpp_step2(GEN step1, GEN *X0)
     GEN g = NDinfomqg_get_g(NDinfomqg_i);
     GEN J, t, s, a4, P, EP, rt;
 
-
     /* C1: Find the appropriate class polynomial modulo N. */
     dbg_mode() timer_start(&ti);
     if (!equalii(D, Dprev)) HD = D_polclass(D, &db);
-    dbg_mode() tt = timer_record(X0, "C1", &ti, 1);
-    dbg_mode() err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
-    dbg_mode() err_printf(ANSI_COLOR_GREEN "      D = %8Ps  poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
-    dbg_mode() if (equalii(D, Dprev)) err_printf("  %8ld", tt);
-    dbg_mode() if (!equalii(D, Dprev)) err_printf(ANSI_COLOR_BRIGHT_WHITE "  %8ld" ANSI_COLOR_RESET, tt);
-
-    /* C2: Find a root modulo N of the polynomial obtained in the previous step. */
+    dbg_mode() {
+      tt = timer_record(X0, "C1", &ti, 1);
+      err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
+      err_printf(ANSI_COLOR_GREEN "      D = %8Ps  poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
+      if (equalii(D, Dprev)) err_printf("  %8ld", tt);
+      if (!equalii(D, Dprev)) err_printf(ANSI_COLOR_BRIGHT_WHITE "  %8ld" ANSI_COLOR_RESET, tt);
+    }
+    /* C2: Find a root modulo N of the polynomial obtained in previous step. */
     dbg_mode() timer_start(&ti);
     rt = FpX_oneroot_split(HD, N);
-    dbg_mode() tt = timer_record(X0, "C2", &ti, 1);
-    dbg_mode() err_printf("  %8ld", tt);
-
-    /* C3: Convert the root obtained from the previous step into the appropriate j-invariant. */
+    dbg_mode() {
+      tt = timer_record(X0, "C2", &ti, 1);
+      err_printf("  %8ld", tt);
+    }
+    /* C3: Convert the root obtained from the previous step into
+     * the appropriate j-invariant. */
     dbg_mode() timer_start(&ti);
     J = NDinfor_find_J(N, Dinfo, rt);
-    dbg_mode() tt = timer_record(X0, "C3", &ti, 1);
-    dbg_mode() err_printf("  %8ld", tt);
-
+    dbg_mode() {
+      tt = timer_record(X0, "C3", &ti, 1);
+      err_printf("  %8ld", tt);
+    }
     /* D1: Find an elliptic curve E with a point P satisfying the theorem. */
     dbg_mode() timer_start(&ti);
     s = diviiexact(m, q);
     EP = NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
-    dbg_mode() tt = timer_record(X0, "D1", &ti, 1);
-    dbg_mode() err_printf("  %8ld", tt);
-
+    dbg_mode() {
+      tt = timer_record(X0, "D1", &ti, 1);
+      err_printf("  %8ld", tt);
+    }
     /* D2: Compute for t and s */
     dbg_mode() timer_start(&ti);
     t = subii(addiu(N, 1), m); /* t = N+1-m */
     a4 = gmael(EP, 1, 1);
     P = FpJ_to_FpE(gel(EP, 2), N);
-    dbg_mode() tt = timer_record(X0, "D2", &ti, 1);
-    dbg_mode() err_printf("  %8ld", tt);
+    dbg_mode() {
+      tt = timer_record(X0, "D2", &ti, 1);
+      err_printf("  %8ld", tt);
+    }
 
     gel(step2, i) = mkvec5(N, t, s, a4, P);
-
     Dprev = D;
   }
-
   return step2;
 }
 /* end of functions for step 2 */
@@ -1194,8 +1198,11 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   dbg_mode() timer_start(&ti);
   sqrtofDmodN = D_find_discsqrt(N, param, X0, Dinfo, sqrtlist, g);
   if (sqrtofDmodN == NULL) pari_err_BUG("D_find_discsqrt");
-  dbg_mode() if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ ) pari_err_BUG("D_find_discsqrt");
-  dbg_mode() timer_record(X0, "A3", &ti, 1);
+  dbg_mode() {
+    if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ )
+      pari_err_BUG("D_find_discsqrt");
+    timer_record(X0, "A3", &ti, 1);
+  }
 
   /* A5: Use the square root to use cornacchia to find the solution to U^2 + |D|V^2 = 4N. */
   dbg_mode() timer_start(&ti);
@@ -1213,7 +1220,8 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   /* A6: Collect the w(D) possible cardinalities of elliptic curves over F_N whose discriminant is D. */
   wD = D_get_wD(D);
   mvec = NUV_find_mvec(N, U, V, wD);
-  for (j = 1; j < lg(mvec); j++) vectrunc_append(Dmbatch, mkvec2(Dinfo, gel(mvec, j)) );
+  for (j = 1; j < lg(mvec); j++)
+    vectrunc_append(Dmbatch, mkvec2(Dinfo, gel(mvec, j)) );
   dbg_mode() timer_record(X0, "A6", &ti, 1);
 
   return wD;
@@ -1231,8 +1239,7 @@ ecpp_qlo(GEN N)
   GEN c = shifti(gen_1, 2);
   GEN d = addii(addii(a, b), c);
   GEN e = shifti(d, -2);
-  GEN f = addiu(e, 1);
-  return f;
+  return addiu(e, 1);
 }
 
 /* E is &qlo, use for zv_binsearch */
@@ -1361,9 +1368,8 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
   Dmqvec = Dmvec_batchfactor_Dmqvec(Dmbatch, curr_primorial);
   dbg_mode() timer_record(X0, "B1", &ti, 1);
 
-  /* B2: For each batch,
-         remove cardinalities lower than (N^(1/4)+1)^2
-         and cardinalities in which we didn't win enough bits. */
+  /* B2: For each batch, remove cardinalities lower than (N^(1/4)+1)^2
+   *     and cardinalities in which we didn't win enough bits. */
   dbg_mode() timer_start(&ti);
   Dmqvec = Dmqvec_slice_Dmqvec(N, Dmqvec);
   dbg_mode() timer_record(X0, "B2", &ti, lg(Dmqvec)-1);
@@ -1468,9 +1474,12 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   if (g == NULL) return gen_0; /* Composite if this happens. */
 
   /* Print the start of this iteration. */
-  dbg_mode() if (!persevere) err_printf(ANSI_COLOR_BRIGHT_CYAN "\n[ %3d | %4ld bits] " ANSI_COLOR_RESET, *depth, expiN, persevere);
-  dbg_mode() if (persevere) err_printf(ANSI_COLOR_BRIGHT_CYAN "\n< %3d | %4ld bits> " ANSI_COLOR_RESET, *depth, expiN, persevere);
-
+  dbg_mode() {
+    char o = persevere? '<': '[';
+    char c = persevere? '>': ']';
+    err_printf(ANSI_COLOR_BRIGHT_CYAN "\n%c %3d | %4ld bits%c "ANSI_COLOR_RESET,
+               o, *depth, expiN, c);
+  }
   /* Initialize Dmbatch
        It will be populated with candidate cardinalities on Phase I (until its length reaches at least t).
        Its elements will be factored on Phase II.
@@ -1554,16 +1563,23 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       a = Dmq_isgoodq(Dmq, X0);
       if (!a) continue;
 
-      dbg_mode() err_printf(ANSI_COLOR_BRIGHT_BLUE "  %ld" ANSI_COLOR_RESET, Dmq_get_cnum(Dmq));
-      dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "\n       %5ld bits " ANSI_COLOR_RESET, expi(q)-expiN);
-
+      dbg_mode() {
+        err_printf(ANSI_COLOR_BRIGHT_BLUE "  %ld" ANSI_COLOR_RESET,
+                   Dmq_get_cnum(Dmq));
+        err_printf(ANSI_COLOR_BRIGHT_RED "\n       %5ld bits " ANSI_COLOR_RESET,
+                   expi(q)-expiN);
+      }
       /* Cardinality is pseudoprime. Call the next downrun! */
       ret = N_downrun_NDinfomq(q, param, X0, depth, persevere_next);
 
       /* That downrun failed. */
       if (ret == NULL) {
-        dbg_mode() if (!persevere) err_printf(ANSI_COLOR_CYAN "\n[ %3d | %4ld bits] " ANSI_COLOR_RESET, *depth, expiN, persevere);
-        dbg_mode() if (persevere) err_printf(ANSI_COLOR_CYAN "\n< %3d | %4ld bits> " ANSI_COLOR_RESET, *depth, expiN, persevere);
+        dbg_mode() {
+          char o = persevere? '<': '[';
+          char c = persevere? '>': ']';
+          err_printf(ANSI_COLOR_CYAN "\n%c %3d | %4ld bits%c " ANSI_COLOR_RESET,
+                     o, *depth, expiN, c);
+        }
         continue;
       }
 
@@ -1580,7 +1596,6 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  !" ANSI_COLOR_RESET);
       persevere_next = 1;
     }
-
   }
 
   /* FAILED: Out of discriminants. */
@@ -1656,7 +1671,10 @@ ecpp0(GEN N, GEN param, GEN* X0)
     GEN v = gel(Tv, i);
     long lgv = lg(v);
     for (j = 1; j < lgv; j++)
-      dbg_mode() err_printf("\n   %c%ld: %16ld %16ld %16f", 'A'+i-1, j, umael3(*X0, 1, i, j), umael3(*X0, 2, i, j), (double)(umael3(*X0, 1, i, j))/(double)(umael3(*X0, 2, i, j)));
+      dbg_mode() err_printf("\n   %c%ld: %16ld %16ld %16f", 'A'+i-1, j,
+        umael3(*X0, 1, i, j),
+        umael3(*X0, 2, i, j),
+        (double)(umael3(*X0, 1, i, j)) / (double)(umael3(*X0, 2, i, j)));
   }
   dbg_mode() err_printf("\n" ANSI_COLOR_BRIGHT_RED "\nFAILS: %16ld" ANSI_COLOR_RESET "\n", umael(*X0, 3, 1));
 
@@ -1701,8 +1719,11 @@ ecpp(GEN N)
     pari_timer T;
     dbg_mode() timer_start(&T);
     param = ecpp_param_set( tune );
-    dbg_mode() err_printf(ANSI_COLOR_BRIGHT_WHITE "\n%Ps" ANSI_COLOR_RESET, gel(tune, tunelen));
-    dbg_mode() err_printf(ANSI_COLOR_WHITE "  %8ld" ANSI_COLOR_RESET, timer_delay(&T));
+    dbg_mode() {
+      err_printf(ANSI_COLOR_BRIGHT_WHITE "\n%Ps" ANSI_COLOR_RESET,
+                 gel(tune, tunelen));
+      err_printf(ANSI_COLOR_WHITE "  %8ld" ANSI_COLOR_RESET, timer_delay(&T));
+    }
     answer = ecpp0(N, param, &garbage);
     if (answer != NULL) break;
     umael(tune, tunelen, 1) *= 2;
