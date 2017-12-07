@@ -1,7 +1,7 @@
 #! /bin/sh
 srcbase="`echo src/*/*.[chy] | sed -e 's,src/language/parse\.[ch],,g'`"
 CFILES="$srcbase src/*/*/*.[ch] examples/*.c examples/*.gp"
-docbase="`echo doc/*.tex | sed -e 's,doc/usersch3.tex,,'`"
+docbase="`echo doc/*.tex doc/*.1 | sed -e 's,doc/usersch3.tex,,'`"
 OFILES="$docbase AUTHORS COMPAT NEW TODO CHANGES src/test/in/* src/functions/*/*"
 SCRIPTS="config/* src/test/dotest"
 ALLFILES="$CFILES $OFILES $SCRIPTS"
