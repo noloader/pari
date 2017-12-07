@@ -27,7 +27,7 @@ Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
 
  \item the list $G$ of pairing matrices between $e$ and
  $\overline{e^*}$, i.e. the matrices $\gamma_e\in \Gamma_0(N)$ such that $e =
- \gamma \overline{e^*}$. If $e = E[i]$, then $\gamma_e = G[i]$.
+ \gamma_e \overline{e^*}$. If $e = E[i]$, then $\gamma_e = G[i]$.
  Remark that $\gamma_{e^*}=\gamma_e^{-1}$ if $e \neq e^*$; modulo these
  trivial relations, the pairing matrices form a system of independant
  generators of $\Gamma_0(N)$. Note that $\gamma_e$ is elliptic if and only if
