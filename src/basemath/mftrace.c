@@ -1779,22 +1779,20 @@ mflinear_i(GEN NK, GEN F, GEN L)
   if (!mflinear_strip(&F,&L)) return mftrivial();
   return taglinear(NK, F,L);
 }
-/* assume F has homogeneous [N,K,CHI] */
 static GEN
-mflinear_bhn(GEN F, GEN L)
+mflinear_bhn(GEN mf, GEN L)
 {
   long i, l;
-  GEN P, f;
+  GEN P, NK, F = MF_get_S(mf);
   if (!mflinear_strip(&F,&L)) return mftrivial();
-  f = gel(F,1); l = lg(L); P = mf_get_field(f);
+  l = lg(L); P = pol_x(1);
   for (i = 1; i < l; i++)
   {
     GEN c = gel(L,i);
     if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1) P = mfsamefield(P,gel(c,1));
   }
-  f = taglinear_i(t_MF_LINEAR_BHN, mf_get_NK(f), F,L);
-  if (degpol(P) > 1) mf_setfield(f, P);
-  return f;
+  NK = mkgNK(MF_get_gN(mf), MF_get_gk(mf), MF_get_CHI(mf), P);
+  return taglinear_i(t_MF_LINEAR_BHN,  NK, F,L);
 }
 static GEN
 tobasis(GEN mf, GEN F, GEN L)
@@ -1820,7 +1818,7 @@ mflinear(GEN F, GEN L)
       if (typ(gk) == t_INT && itou(gk) > 1)
       {
         L = tobasis(mf, F, L);
-        return gerepilecopy(av, mflinear_bhn(F, L));
+        return gerepilecopy(av, mflinear_bhn(mf, L));
       }
     }
   }
@@ -4107,7 +4105,7 @@ mfeigenbasis(GEN mf)
   {
     res = cgetg_copy(mfsplit, &l);
     for (i = 1; i < l; i++)
-      gel(res,i) = mflinear_bhn(S, gel(mfsplit,i));
+      gel(res,i) = mflinear_bhn(mf, gel(mfsplit,i));
   }
   for (i = 1; i < l; i++) mf_setfield(gel(res,i), gel(vP,i));
   return gerepilecopy(ltop, res);
@@ -10951,7 +10949,7 @@ mfsymbol_i(GEN mf, GEN F, GEN cosets, long bit)
   }
   else
   {
-    F = mflinear_bhn(MF_get_S(mf), vS); /* assume k > 1 */
+    F = mflinear_bhn(mf, vS); /* assume k > 1 */
     vE = mfgetembed(F, prec);
   }
   FE = mkcol2(F, mf_eisendec(mf,F,prec));

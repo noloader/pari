@@ -112,6 +112,7 @@ T=mftraceform([88,1,Mod(65,88)],1); vec(T)
 T=mftraceform([8,4,8],0); vec(T)
 T=mftraceform([15,2]); vec(T)
 T=mftraceform([15,4]); vec(T)
+mf = mfinit([15,4],1); mfparams(mflinear(mf,[1,0,1,0]))
 
 mf=mfinit([96,6],1);#mf[3]
 F=mflinear([mf[3][1],mf[3][2]],[4,7]);
