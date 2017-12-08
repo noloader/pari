@@ -183,12 +183,20 @@ QabX_to_Flx(GEN A, ulong r, ulong p)
 
 /* FIXME: remove */
 static GEN
-ZM_pseudoinv_i(GEN M, GEN *pv, GEN *den)
+ZM_pseudoinv_i(GEN M, GEN *pv, GEN *den, int ratlift)
 {
   GEN v = ZM_indexrank(M);
   if (pv) *pv = v;
   M = shallowmatextract(M,gel(v,1),gel(v,2));
-  return ZM_inv(M, den);
+  return ratlift? ZM_inv_ratlift(M, den): ZM_inv(M, den);
+}
+static GEN
+ZabM_pseudoinv_i(GEN M, GEN P, long n, GEN *pv, GEN *den, int ratlift)
+{
+  GEN v = ZabM_indexrank(M, P, n);
+  if (pv) *pv = v;
+  M = shallowmatextract(M,gel(v,1),gel(v,2));
+  return ratlift? ZabM_inv_ratlift(M, P, n, den): ZabM_inv(M, P, n, den);
 }
 
 /* M matrix with coeff in Q(\chi)), where Q(\chi) = Q(X)/(P) for
@@ -211,7 +219,7 @@ QabM_pseudoinv(GEN M, GEN P, long n, GEN *pv, GEN *pden)
   if (n <= 2)
   {
     M = Q_primitive_part(M, &cM);
-    Mi = ZM_pseudoinv_i(M, pv, pden); /* M^(-1) = Mi / (cM * den) */
+    Mi = ZM_pseudoinv_i(M, pv, pden, 0); /* M^(-1) = Mi / (cM * den) */
   }
   else
   {
@@ -3689,13 +3697,13 @@ mfclean2(GEN M, GEN z, GEN P, long n)
  * invertible square matrix in mkMinv format. Return [y,Minv, M[..y[#y],]]
  * P cyclotomic polynomial of order n != 2 mod 4 or NULL */
 static GEN
-mfclean(GEN M, GEN P, long n)
+mfclean(GEN M, GEN P, long n, int ratlift)
 {
   GEN W, v, y, z, d, Minv, dM, MdM = Q_remove_denom(M, &dM);
   if (n == 1)
-    W = ZM_pseudoinv_i(MdM, &v, &d);
+    W = ZM_pseudoinv_i(MdM, &v, &d, ratlift);
   else
-    W = ZabM_pseudoinv(liftpol_shallow(MdM), P, n, &v, &d);
+    W = ZabM_pseudoinv_i(liftpol_shallow(MdM), P, n, &v, &d, ratlift);
   y = gel(v,1);
   z = gel(v,2);
   if (lg(z) != lg(MdM)) M = vecpermute(M,z);
@@ -3705,11 +3713,11 @@ mfclean(GEN M, GEN P, long n)
 }
 /* call mfclean using only CHI */
 static GEN
-mfcleanCHI(GEN M, GEN CHI)
+mfcleanCHI(GEN M, GEN CHI, int ratlift)
 {
   long n = mfcharorder_canon(CHI);
   GEN P = (n == 1)? NULL: mfcharpol(CHI);
-  return mfclean(M, P, n);
+  return mfclean(M, P, n, ratlift);
 }
 
 /* reset cachenew for new level incorporating new DATA
@@ -5132,7 +5140,7 @@ mftreatdihedral(GEN DIH, GEN POLCYC, long ordchi, long biglim, GEN *pS)
     gel(M,i) = RgV_normalize(v, &c);
     gel(C,i) = Rg_col_ei(c, l-1, i);
   }
-  Minv = gel(mfclean(M,POLCYC,ordchi),2);
+  Minv = gel(mfclean(M,POLCYC,ordchi,0),2);
   M = RgM_Minv_mul(M, Minv);
   C = RgM_Minv_mul(C, Minv);
   *pS = vecmflinear(DIH, C);
@@ -5366,7 +5374,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
   }
   if (pS)
   {
-    GEN Minv = gel(mfclean(M, POLCYC, ordchi), 2);
+    GEN Minv = gel(mfclean(M, POLCYC, ordchi, 0), 2);
     M = RgM_Minv_mul(M, Minv);
     C = RgM_Minv_mul(C, Minv);
     *pS = vecmflineardiv0(S, C, gel(ESA,1));
@@ -5426,11 +5434,11 @@ mfwt1init(long N, GEN CHI, GEN TMP, long space, long flraw)
   mf = mkmf(mf1, cgetg(1,t_VEC), S, gen_0, NULL);
   if (space == mf_NEW)
   {
-    gel(mf,5) = mfcleanCHI(M,CHI);
+    gel(mf,5) = mfcleanCHI(M,CHI, 0);
     mf = mfwt1_cusptonew(mf); if (!mf) return NULL;
     if (!flraw) M = mfcoefs_mf(mf, mfsturmNk(N,1)+1, 1);
   }
-  gel(mf,5) = flraw? zerovec(3): mfcleanCHI(M, CHI);
+  gel(mf,5) = flraw? zerovec(3): mfcleanCHI(M, CHI, 0);
   return mf;
 }
 
@@ -6430,17 +6438,8 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
         if (mf && !flraw)
         {
           GEN S = MF_get_S(mf);
-          if (space != mf_FULL)
-          { /* try to clean with heuristic bound < Sturm bound */
-            M = bhnmat_extend(M, ceilA1(N,k), 1, S, &cache);
-            z = QabM_indexrank(M, P, ord);
-            if (lg(gel(z,2)) != lg(M)) z = NULL; /* fail */
-          }
-          if (!z)
-          {
-            M = bhnmat_extend(M, sb+1, 1, S, &cache);
-            if (space == mf_CUSP) gel(mf,5) = mfcleanCHI(M, CHI);
-          }
+          M = bhnmat_extend(M, sb+1, 1, S, &cache);
+          if (space != mf_FULL) gel(mf,5) = mfcleanCHI(M, CHI, 1);
         }
         dbg_cachenew(&cache);
         break;
@@ -6464,7 +6463,7 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
         M = shallowconcat(mfvectomat(E, sb+1, 1), M);
       else
         M = mfcoefs_mf(mf, sb+1, 1);
-      gel(mf,5) = mfcleanCHI(M, CHI);
+      gel(mf,5) = mfcleanCHI(M, CHI, 0);
     }
   }
   return mf;
@@ -10071,7 +10070,7 @@ mf2init_Nkchi(long N, long r, GEN CHI, long space)
   L = mfsturmNgk(N, gk) + 1;
   B = mf2basis(N, r, CHI, space);
   M = mflineardivtomat(B,L);
-  M = mfcleanCHI(M, CHI);
+  M = mfcleanCHI(M, CHI, 0);
   Minv = gel(M,2);
   Minvmat = RgM_Minv_mul(NULL, Minv);
   B = vecmflineardiv_linear(B, Minvmat);
