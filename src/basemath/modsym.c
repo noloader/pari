@@ -3088,7 +3088,7 @@ ellperiod(GEN E, long s)
  *   C*L(E,(D/.),1)_{xpm} = L(E,(D/.),1) / w1(E_D) != 0, for all D fundamental,
  * sign(D) = s, and such that E_D has rank 0. Return C * ellperiod(E,s) */
 static GEN
-ell_get_Cw(GEN LE, GEN E, GEN W, GEN xpm, long s)
+ell_get_Cw(GEN LE, GEN W, GEN xpm, long s)
 {
   long f, NE = ms_get_N(W);
   const long bit = 64;
@@ -3122,15 +3122,14 @@ ell_get_Cw(GEN LE, GEN E, GEN W, GEN xpm, long s)
   }
 }
 static GEN
-ell_get_scale(GEN E, GEN W, long sign, GEN x)
+ell_get_scale(GEN LE, GEN W, long sign, GEN x)
 {
-  GEN LE = lfuncreate(E);
   if (sign)
-    return ell_get_Cw(LE, E, W, gel(x,1), sign);
+    return ell_get_Cw(LE, W, gel(x,1), sign);
   else
   {
-    GEN Cwp = ell_get_Cw(LE, E, W, gel(x,1), 1);
-    GEN Cwm = ell_get_Cw(LE, E, W, gel(x,2),-1);
+    GEN Cwp = ell_get_Cw(LE, W, gel(x,1), 1);
+    GEN Cwm = ell_get_Cw(LE, W, gel(x,2),-1);
     return mkvec2(Cwp, Cwm);
   }
 }
@@ -3295,7 +3294,7 @@ msfromell(GEN E0, long sign)
     xr = msfromell_ratlift(x, q);
   }
   /* linear form = 0 on all Im(Tp - ap) and Im(S - sign) if sign != 0 */
-  Cw = ell_get_scale(E, W, sign, xr);
+  Cw = ell_get_scale(lfuncreate(E), W, sign, xr);
   if (single)
     x = msfromell_scale(xr, Cw, E, sign);
   else
