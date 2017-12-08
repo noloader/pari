@@ -6463,7 +6463,7 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
         M = shallowconcat(mfvectomat(E, sb+1, 1), M);
       else
         M = mfcoefs_mf(mf, sb+1, 1);
-      gel(mf,5) = mfcleanCHI(M, CHI, 0);
+      gel(mf,5) = mfcleanCHI(M, CHI, 1);
     }
   }
   return mf;
