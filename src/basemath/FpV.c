@@ -1648,9 +1648,7 @@ FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p)
   for(;;)
   {
     avma = av2;
-    B = cgetg(n+1,t_VEC);
-    for(i=1; i<=n; i++)
-      gel(B,i) = randomi(p);
+    B = random_FpV(n, p);
     MB = FpV_FpMs_mul(B, Mp, p);
     if (DEBUGLEVEL) timer_start(&ti);
     pari_CATCH(e_INV)
