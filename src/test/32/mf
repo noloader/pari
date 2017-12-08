@@ -19,6 +19,7 @@ d(-169*t + 1, t^2 + 1), Mod(53*t - 195, t^2 + 1), Mod(-9*t + 1, t^2 + 1)]
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 [0, 1, 0, 8, 0, -26, 0, -48, 0, 73, 0, 120, 0, -170, 0, -208]
 5
+23
 40000
 20000
 0
@@ -1327,4 +1328,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mfcosets(1.)
   ***                 ^------------
   *** mfcosets: incorrect type in mfcosets (t_REAL).
-Total time spent: 5160
+Total time spent: 9587

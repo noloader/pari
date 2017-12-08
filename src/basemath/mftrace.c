@@ -8572,7 +8572,7 @@ mfeisenstein(long k, GEN CHI1, GEN CHI2)
 static GEN
 mfeisenstein2all(long N0, GEN NK, long k, GEN CHI1, GEN CHI2, GEN T, long o)
 {
-  GEN E, E0 = mfeisenstein2_0(k, CHI1, CHI2, o), vchi = mkvec4(E0, T, CHI1, CHI2);
+  GEN E, E0 = mfeisenstein2_0(k, CHI1,CHI2, o), vchi = mkvec4(E0, T, CHI1,CHI2);
   long j, d = (lg(T)==4)? itou(gmael(T,3,1)): 1;
   E = cgetg(d+1, t_VEC);
   for (j=1; j<=d; j++) gel(E,j) = tag2(t_MF_EISEN, NK,vchi,mkvecsmall2(o,j-1));
@@ -8632,6 +8632,7 @@ mfeisensteinbasis_i(long N0, long k, GEN CHI)
       long p = P[i];
       N *= upowuu(p, maxuu(E[i]/2, z_lval(F,p)));
     }
+    if ((N & 3) == 2) N >>= 1;
     if (N == 1) { setlg(RES,j); return RES; }
     if (F != N)
     {
@@ -8664,10 +8665,10 @@ mfeisensteinbasis_i(long N0, long k, GEN CHI)
     CHI2 = mfcharGL(G2, chi2);
     o12 = clcm(mfcharorder(CHI1), mfcharorder(CHI2));
     /* remove Galois orbit: same trace */
-    no = Fl_powu(n1, ord, N1);
+    no = Fl_powu(n1, ord, N);
     for (t = 1+ord, m = n1; t <= o12; t += ord)
     { /* m <-> CHI1^t, if t in Gal(Q(chi1,chi2)/Q), omit (CHI1^t,CHI2^t) */
-      m = Fl_mul(m, no, N1); if (!m) break;
+      m = Fl_mul(m, no, N); if (!m) break;
       if (ugcd(t, o12) == 1) Lchi[m] = 0;
     }
     oc = ord_canon(o12); T = gel(vT,oc);
