@@ -55,7 +55,8 @@ char_simplify(GEN D, GEN C)
     GEN t = gcdii(d, ZV_content(C));
     if (!equali1(t))
     {
-      C = ZC_Z_divexact(C, t);
+      long tc = typ(C);
+      C = ZC_Z_divexact(C, t); settyp(C, tc);
       d = diviiexact(d, t);
     }
   }
