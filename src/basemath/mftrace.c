@@ -6378,6 +6378,11 @@ mfdihedralcusp(long N, GEN CHI)
   return gerepilecopy(av, shallowconcat1(z));
 }
 
+/* used to decide between ratlift and comatrix for ZM_inv; ratlift is better
+ * when N has many divisors */
+static int
+abundant(ulong N) { return mynumdivu(N) >= 8; }
+
 /* CHI an mfchar */
 static int
 cmp_ord(void *E, GEN a, GEN b)
@@ -6439,7 +6444,7 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
         {
           GEN S = MF_get_S(mf);
           M = bhnmat_extend(M, sb+1, 1, S, &cache);
-          if (space != mf_FULL) gel(mf,5) = mfcleanCHI(M, CHI, 1);
+          if (space != mf_FULL) gel(mf,5) = mfcleanCHI(M, CHI, abundant(N));
         }
         dbg_cachenew(&cache);
         break;
@@ -6463,7 +6468,7 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
         M = shallowconcat(mfvectomat(E, sb+1, 1), M);
       else
         M = mfcoefs_mf(mf, sb+1, 1);
-      gel(mf,5) = mfcleanCHI(M, CHI, 1);
+      gel(mf,5) = mfcleanCHI(M, CHI, abundant(N));
     }
   }
   return mf;
