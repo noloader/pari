@@ -3891,7 +3891,7 @@ GEN     znchargauss(GEN G, GEN chi, GEN a, long bitprec);
 /* lfunutils.c */
 
 GEN     dirzetak(GEN nf, GEN b);
-GEN     ellmoddegree(GEN e, long bitprec);
+GEN     ellmoddegree(GEN e);
 GEN     eta_inflate_ZXn(long m, long v);
 long    etaquotype(GEN *eta, GEN *pN, GEN *pk, GEN *CHI, long *pv, long *sd, long *cusp);
 GEN     lfunabelianrelinit(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec);
