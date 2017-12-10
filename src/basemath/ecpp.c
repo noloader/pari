@@ -1477,8 +1477,8 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   dbg_mode() {
     char o = persevere? '<': '[';
     char c = persevere? '>': ']';
-    err_printf(ANSI_COLOR_BRIGHT_CYAN "\n%c %3d | %4ld bits%c "ANSI_COLOR_RESET,
-               o, *depth, expiN, c);
+    err_printf(ANSI_COLOR_BRIGHT_CYAN "\n%c %3d | %4ld bits%c "
+               ANSI_COLOR_RESET, o, *depth, expiN, c);
   }
   /* Initialize Dmbatch
        It will be populated with candidate cardinalities on Phase I (until its length reaches at least t).
