@@ -2107,7 +2107,7 @@ vecmax0(GEN x, GEN *pi)
     case t_MAT: {
       long j, i0 = 1, j0 = 1, lx2 = lgcols(x);
       GEN s;
-      if (lx2 == 1) pari_err_DOMAIN("vecmin", "empty argument", "=", x,x);
+      if (lx2 == 1) pari_err_DOMAIN("vecmax", "empty argument", "=", x,x);
       s = gcoeff(x,i0,j0); i = 2;
       for (j=1; j<lx; j++,i=1)
       {

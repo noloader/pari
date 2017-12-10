@@ -241,7 +241,7 @@
   ***                                        ^---
   ***   at top-level: vecmax(matrix(0,2))
   ***                 ^-------------------
-  *** vecmax: domain error in vecmin: empty argument = matrix(0,2)
+  *** vecmax: domain error in vecmax: empty argument = matrix(0,2)
   ***   at top-level: listput(L,x,-1)
   ***                 ^---------------
   *** listput: non-existent component in listput: index < 0
@@ -626,4 +626,4 @@ INFINITY
   ***   at top-level: Mod(0,n)^(-1)
   ***                         ^-----
   *** _^_: impossible inverse in Fp_inv: (...).
-Total time spent: 20
+Total time spent: 17
