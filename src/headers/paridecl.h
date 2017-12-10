@@ -4643,6 +4643,7 @@ GEN     derivfun(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec)
 GEN     derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec);
 int     forvec_init(forvec_t *T, GEN x, long flag);
 GEN     forvec_next(forvec_t *T);
+GEN     laurentseries(void *E, GEN (*f)(void*,GEN x, long), long M, long v, long prec);
 GEN     limitnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
 GEN     polzag(long n, long m);
 GEN     prodeuler(void *E, GEN (*eval)(void *, GEN), GEN ga, GEN gb, long prec);

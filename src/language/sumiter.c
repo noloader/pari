@@ -1592,6 +1592,45 @@ derivfun(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 }
 
 GEN
+laurentseries(void *E, GEN (*f)(void*,GEN x, long), long M, long v, long prec)
+{
+  pari_sp av = avma;
+  long d;
+
+  if (v < 0) v = 0;
+  d = maxss(M+1,1);
+  for (;;)
+  {
+    long i, dr, vr;
+    GEN s;
+    s = cgetg(d+2, t_SER); s[1] = evalsigne(1) | evalvalp(1) | evalvarn(v);
+    gel(s, 2) = gen_1; for (i = 3; i <= d+1; i++) gel(s, i) = gen_0;
+    s = f(E, s, prec);
+    if (typ(s) != t_SER || varn(s) != v) pari_err_TYPE("laurentseries", s);
+    vr = valp(s);
+    if (M < vr) { avma = av; return zeroser(v, M); }
+    dr = lg(s) + vr - 3 - M;
+    if (dr >= 0) return gerepileupto(av, s);
+    avma = av; d -= dr;
+  }
+}
+static GEN
+_evalclosprec(void *E, GEN x, long prec)
+{
+  GEN s;
+  push_localprec(prec); s = closure_callgen1((GEN)E, x);
+  pop_localprec(); return s;
+}
+#define CLOS_ARGPREC __E, &_evalclosprec
+GEN
+laurentseries0(GEN f, long M, long v, long prec)
+{
+  if (typ(f) != t_CLOSURE || closure_arity(f) != 1 || closure_is_variadic(f))
+    pari_err_TYPE("laurentseries",f);
+  EXPR_WRAP(f, laurentseries(CLOS_ARGPREC,M,v,prec));
+}
+
+GEN
 derivnum0(GEN a, GEN code, GEN ind, long prec)
 { EXPR_WRAP(code, derivfunk(EXPR_ARGPREC,a,ind,prec)); }
 

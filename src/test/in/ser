@@ -79,6 +79,10 @@ subst(1+x+O(x^2),x,O(3)*x)
 subst(1+x^2+O(x^3),x,z)
 subst(1+x^2+y^2+O(x^3),x,z)
 
+laurentseries(x->sin(x)/x^2, 3)
+laurentseries(x->sin(x)/x^2, 3, t)
+laurentseries(x->(cos(x)-1)/x)
+
 \\ Errors. Keep at end of file
 subst(x^-1+O(x),x,Mod(0,3))
 subst(O(x^-1),x,Mod(0,3))
