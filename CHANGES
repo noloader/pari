@@ -328,6 +328,7 @@ BA  130- [libpari] famat_pows_shallow, famat_mulpows_shallow
 BA  132- [libpari] FpXn_mul, FpXn_sqr, RgXn_recip_shallow, FpXn_exp,
          FpX_Newton, FpX_fromNewton, FpX_Laplace, FpX_invLaplace
 BA  133- [libpari] FpX_integ, FpX_convol
+    134- allow zeta(power series)
 
   Changed
       1- rewrite bnfnarrow

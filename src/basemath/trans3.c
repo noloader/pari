@@ -2186,6 +2186,8 @@ zetap(GEN s)
 GEN
 gzeta(GEN x, long prec)
 {
+  pari_sp av = avma;
+  GEN y;
   if (gequal1(x)) pari_err_DOMAIN("zeta", "argument", "=", gen_1, x);
   switch(typ(x))
   {
@@ -2199,7 +2201,9 @@ gzeta(GEN x, long prec)
       return szeta(itos(x),prec);
     case t_REAL: case t_COMPLEX: return czeta(x,prec);
     case t_PADIC: return zetap(x);
-    case t_SER: pari_err_IMPL("zeta(t_SER)");
+    default:
+      av = avma; if (!(y = toser_i(x))) break;
+      return gerepileupto(av, lfun(gen_1,y,prec2nbits(prec)));
   }
   return trans_eval("zeta",gzeta,x,prec);
 }
