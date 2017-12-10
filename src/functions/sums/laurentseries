@@ -21,7 +21,7 @@ Doc: Expand $f$ as a Laurent series around $x = 0$ to order $M$. This
  Note that individual Laurent coefficients of order $\leq M$
  can be retrieved from $s = \kbd{laurentseries}(f,M)$ via \kbd{polcoeff(s,i)}
  for any $i \leq M$. The series $s$ may occasionally be more precise that
- the requires $O(x^M)$.
+ the required $O(x^{M+1})$.
 
  With respect to successive calls to \tet{derivnum},
  \kbd{laurentseries} is both faster and more precise:
