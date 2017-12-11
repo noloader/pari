@@ -481,7 +481,7 @@ ellnftorsprimary(GEN E, long p, long N1, long N2, long v)
     P2 = Q2;
   }
 
-  /* compute E[p^\infty] = < P1, P2 > */
+  /* compute E[p^oo] = < P1, P2 > */
   n1 = n2;
   if (n2 == N2)
   {

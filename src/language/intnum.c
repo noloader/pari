@@ -513,7 +513,7 @@ initexpsinh(long m, long prec)
   return intinit_end(&D, nt, nt);
 }
 
-/* phi(t)=exp(t-exp(-t)) : from 0 to \infty, exponentially decreasing. */
+/* phi(t)=exp(t-exp(-t)) : from 0 to +oo, exponentially decreasing. */
 static GEN
 initexpexp(long m, long prec)
 {
@@ -603,11 +603,11 @@ enum {
   f_SER     = 1, /* power series */
   f_SINGSER = 2, /* algebraic singularity, power series endpoint */
   f_SING    = 3, /* algebraic singularity */
-  f_YSLOW   = 4, /* +\infty, slowly decreasing, at least x^(-2)  */
-  f_YVSLO   = 5, /* +\infty, very slowly decreasing, worse than x^(-2) */
-  f_YFAST   = 6, /* +\infty, exponentially decreasing */
-  f_YOSCS   = 7, /* +\infty, sine oscillating */
-  f_YOSCC   = 8  /* +\infty, cosine oscillating */
+  f_YSLOW   = 4, /* oo, slowly decreasing, at least x^(-2)  */
+  f_YVSLO   = 5, /* oo, very slowly decreasing, worse than x^(-2) */
+  f_YFAST   = 6, /* oo, exponentially decreasing */
+  f_YOSCS   = 7, /* oo, sine oscillating */
+  f_YOSCC   = 8  /* oo, cosine oscillating */
 };
 /* is finite ? */
 static int
@@ -1918,8 +1918,8 @@ intnumgauexpinit(long prec)
   return gerepilecopy(ltop, mkvec2(vabs, vwt));
 }
 
-/* Compute $\int_{-\infty}^\infty w(x)f(x)\,dx$, where $w(x)=x/(exp(2\pi x)-1)$
- * for $x>0$ and $w(-x)=w(x)$. For Abel-Plana (sumnumap). */
+/* Compute \int_{-oo}^oo w(x)f(x) dx, where w(x)=x/(exp(2pi x)-1)
+ * for x>0 and w(-x)=w(x). For Abel-Plana (sumnumap). */
 static GEN
 intnumgauexp(void *E, GEN (*eval)(void*,GEN), GEN gN, GEN tab, long prec)
 {
