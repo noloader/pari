@@ -1528,7 +1528,7 @@ inv_szeta_euler(long n, double lba, long prec)
 }
 
 /* assume n even > 0, if iz != NULL, assume iz = 1/zeta(n) */
-GEN
+static GEN
 bernreal_using_zeta(long n, GEN iz, long prec)
 {
   long l = prec+EXTRAPRECWORD;

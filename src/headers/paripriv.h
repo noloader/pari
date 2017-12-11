@@ -862,7 +862,6 @@ GEN     trans_fix_arg(long *prec, GEN *s0, GEN *sig, GEN *tau, pari_sp *av, GEN 
 
 /* trans3.c */
 
-GEN     bernreal_using_zeta(long n, GEN iz, long prec);
 GEN     double_eta_quotient(GEN a, GEN w, GEN D, long p, long q, GEN pq, GEN sqrtD);
 GEN     inv_szeta_euler(long n, double lba, long prec);
 GEN     trueE2(GEN tau, long prec);
