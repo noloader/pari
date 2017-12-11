@@ -2954,6 +2954,7 @@ GEN     gvsprintf(const char *fmt, va_list ap);
 char*   itostr(GEN x);
 void    matbrute(GEN g, char format, long dec);
 char*   os_getenv(const char *s);
+char*   uordinal(ulong i);
 void    outmat(GEN x);
 void    output(GEN x);
 char*   RgV_to_str(GEN g, long flag);

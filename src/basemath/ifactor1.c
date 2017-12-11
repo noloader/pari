@@ -1957,8 +1957,6 @@ is_357_power(GEN x, GEN *pt, ulong *mask)
       avma = (pari_sp)y; *pt = gerepileuptoint(av, y);
       return e;
     }
-    if (DEBUGLEVEL>4)
-      err_printf("\tBut it nevertheless wasn't a %ld%s power.\n", e,eng_ord(e));
     *mask &= ~b; /* turn the bit off */
     avma = av;
   }

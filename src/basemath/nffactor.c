@@ -2165,7 +2165,7 @@ rootsof1(GEN nf)
       r = nfcyclo_root(pk, T, &L);
       if (DEBUGLEVEL>2) timer_printf(&ti, "for factoring Phi_%ld^%ld", p,k);
       if (r) {
-        if (DEBUGLEVEL>2) err_printf("  %ld-th root of unity found.\n", pk);
+        if (DEBUGLEVEL>2) err_printf("  %s root of unity found\n",uordinal(pk));
         if (p==2) { nbroots = pk; z = r; }
         else     { nbroots *= pk; z = nfmul(nf, z,r); }
         break;

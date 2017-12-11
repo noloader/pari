@@ -685,7 +685,6 @@ GEN     ecpp0(GEN N, GEN param, GEN* X0);
 
 /* es.c */
 
-const char * eng_ord(long i);
 void    filestate_restore(pariFILE *F);
 void    killallfiles(void);
 pariFILE* newfile(FILE *f, const char *name, int type);

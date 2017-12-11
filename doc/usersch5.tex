@@ -12492,6 +12492,9 @@ concatenation of $s$ and $t$, allocated on the PARI stack (uses
 \fun{char*}{stack_sprintf}{const char *fmt, ...} runs \kbd{pari\_sprintf}
 on the given arguments, returning a string allocated on the PARI stack.
 
+\fun{char*}{uordinal}{ulong x} return the ordinal number attached to $x$
+(i.e. $1$st, $2$nd, etc.) as a  \tet{stack_malloc}'ed string.
+
 \fun{char*}{itostr}{GEN x} writes the \typ{INT} $x$ to a \tet{stack_malloc}'ed
 string.
 

@@ -2001,25 +2001,23 @@ wr_vecsmall(pariout_t *T, pari_str *S, GEN g)
 /**                       HEXADECIMAL OUTPUT                       **/
 /**                                                                **/
 /********************************************************************/
-/* English ordinal numbers -- GN1998Apr17 */
-static const char *ordsuff[4] = {"st","nd","rd","th"};
-const char*
-eng_ord(long i)                        /* i > 0 assumed */
+/* English ordinal numbers */
+char *
+uordinal(ulong i)
 {
+  const char *suff[] = {"st","nd","rd","th"};
+  char *s = stack_malloc(23);
+  long k = 3;
   switch (i%10)
   {
-    case 1:
-      if (i%100==11) return ordsuff[3]; /* xxx11-th */
-      return ordsuff[0];         /* xxx01-st, xxx21-st,... */
-    case 2:
-      if (i%100==12) return ordsuff[3]; /* xxx12-th */
-      return ordsuff[1];         /* xxx02-nd, xxx22-nd,... */
-    case 3:
-      if (i%100==13) return ordsuff[3]; /* xxx13-th */
-      return ordsuff[2];         /* xxx03-rd, xxx23-rd,... */
-    default:
-      return ordsuff[3];         /* xxxx4-th,... */
+    case 1: if (i%100!=11) k = 0;
+            break;
+    case 2: if (i%100!=12) k = 1;
+            break;
+    case 3: if (i%100!=13) k = 2;
+            break;
   }
+  sprintf(s, "%lu%s", i, suff[k]); return s;
 }
 
 const char *
@@ -2174,7 +2172,7 @@ dbg(GEN x, long nb, long bl)
     case t_QFR: case t_QFI: case t_VEC: case t_COL:
       for (i=1; i<lx; i++)
       {
-        blancs(bl); pari_printf("%ld%s component = ",i,eng_ord(i));
+        blancs(bl); pari_printf("%s component = ",uordinal(i));
         dbg(gel(x,i),nb,bl);
       }
       break;
@@ -2199,7 +2197,7 @@ dbg(GEN x, long nb, long bl)
       pari_printf("error type = %s\n", numerr_name(err_get_num(x)));
       for (i=2; i<lx; i++)
       {
-        blancs(bl); pari_printf("%ld%s component = ",i-1,eng_ord(i-1));
+        blancs(bl); pari_printf("%s component = ",uordinal(i-1));
         dbg(gel(x,i),nb,bl);
       }
       break;
@@ -2217,7 +2215,7 @@ dbg(GEN x, long nb, long bl)
       {
         for (i = 1; i < lx; i++)
         {
-          blancs(bl); pari_printf("%ld%s column = ",i,eng_ord(i));
+          blancs(bl); pari_printf("%s column = ",uordinal(i));
           dbg(gel(x,i),nb,bl);
         }
       }
