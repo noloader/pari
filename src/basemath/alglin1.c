@@ -4135,7 +4135,7 @@ ZM_pivots(GEN M0, long *rr)
 
   m = nbrows(M0);
   rmin = maxss(zc, n-m);
-  init_modular(&S);
+  init_modular_small(&S);
   imax = (n < (1<<4))? 1: (n>>3); /* heuristic */
 
   for(;;)

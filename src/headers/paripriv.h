@@ -711,7 +711,6 @@ GEN FpXQX_factor_Berlekamp(GEN x, GEN T, GEN p);
 
 /* forprime.c*/
 
-void    init_modular(forprime_t *S);
 void    init_modular_big(forprime_t *S);
 void    init_modular_small(forprime_t *S);
 

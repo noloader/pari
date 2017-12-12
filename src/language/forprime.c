@@ -770,12 +770,6 @@ init_modular_big(forprime_t *S)
 #endif
 }
 
-void
-init_modular(forprime_t *S)
-{
-  u_forprime_init(S, 27449, ULONG_MAX);
-}
-
 /* T->cache is a 0-terminated list of primes, return the first one and
  * remove it from list. Most of the time the list contains a single prime */
 static ulong
