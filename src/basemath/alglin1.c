@@ -1202,15 +1202,14 @@ FlxqM_echelon(GEN A, GEN *R, GEN *C, GEN T, ulong p)
 /*******************************************************************/
 
 static long
-F2v_find_nonzero(GEN x0, GEN mask0, long l, long m)
+F2v_find_nonzero(GEN x0, GEN mask0, long m)
 {
   ulong *x = (ulong *)x0+2, *mask = (ulong *)mask0+2, e;
-  long i, j;
+  long i, l = lg(x0)-2;
   for (i = 0; i < l; i++)
   {
     e = *x++ & *mask++;
-    if (e)
-      for (j = 1; ; j++, e >>= 1) if (e & 1uL) return i*BITS_IN_LONG+j;
+    if (e) return i*BITS_IN_LONG+vals(e)+1;
   }
   return m+1;
 }
@@ -1220,17 +1219,17 @@ GEN
 F2m_ker_sp(GEN x, long deplin)
 {
   GEN y, c, d;
-  long i, j, k, l, r, m, n;
+  long i, j, k, r, m, n;
 
   n = lg(x)-1;
   m = mael(x,1,1); r=0;
 
   d = cgetg(n+1, t_VECSMALL);
-  c = const_F2v(m); l = lg(c)-1;
+  c = const_F2v(m);
   for (k=1; k<=n; k++)
   {
     GEN xk = gel(x,k);
-    j = F2v_find_nonzero(xk, c, l, m);
+    j = F2v_find_nonzero(xk, c, m);
     if (j>m)
     {
       if (deplin) {
@@ -1720,17 +1719,17 @@ static GEN
 F2m_gauss_pivot(GEN x, long *rr)
 {
   GEN c, d;
-  long i, j, k, l, r, m, n;
+  long i, j, k, r, m, n;
 
   n = lg(x)-1; if (!n) { *rr=0; return NULL; }
   m = mael(x,1,1); r=0;
 
   d = cgetg(n+1, t_VECSMALL);
-  c = const_F2v(m); l = lg(c)-1;
+  c = const_F2v(m);
   for (k=1; k<=n; k++)
   {
     GEN xk = gel(x,k);
-    j = F2v_find_nonzero(xk, c, l, m);
+    j = F2v_find_nonzero(xk, c, m);
     if (j>m) { r++; d[k] = 0; }
     else
     {
