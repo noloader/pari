@@ -4721,31 +4721,28 @@ suppl(GEN x)
 GEN
 FpM_suppl(GEN x, GEN p)
 {
-  pari_sp av = avma;
   GEN d;
   long r;
   init_suppl(x); d = FpM_gauss_pivot(x,p, &r);
-  avma = av; return get_suppl(x,d,nbrows(x),r,&col_ei);
+  return get_suppl(x,d,nbrows(x),r,&col_ei);
 }
 
 GEN
 Flm_suppl(GEN x, ulong p)
 {
-  pari_sp av = avma;
   GEN d;
   long r;
   init_suppl(x); d = Flm_pivots(x, p, &r, 0);
-  avma = av; return get_suppl(x,d,nbrows(x),r,&vecsmall_ei);
+  return get_suppl(x,d,nbrows(x),r,&vecsmall_ei);
 }
 
 GEN
 F2m_suppl(GEN x)
 {
-  pari_sp av = avma;
   GEN d;
   long r;
   init_suppl(x); d = F2m_gauss_pivot(F2m_copy(x), &r);
-  avma = av; return get_suppl(x,d,mael(x,1,1),r,&F2v_ei);
+  return get_suppl(x,d,mael(x,1,1),r,&F2v_ei);
 }
 
 /* variable number to be filled in later */

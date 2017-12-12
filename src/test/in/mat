@@ -89,6 +89,8 @@ a=matrixqz(m,-2);matdet(a~*a)
 A=[1,2,3;4,5,6;7,8,9];
 test(lindep)
 test(matsupplement)
+A=matrix(5,1);
+test(matsupplement)
 
 default(parisize,10^6); \\ need to exercise gerepile in matker+matimage
 p=2^64+13;
@@ -163,6 +165,7 @@ test(x,u=1) =
    M = matrix(n, n, i, j, random(x)*u);
    P = matrix(n, r, i, j, if(2*i >= 3*j + 8, random(x)*u, 0));
    N = P*matrix(r, n, i, j, random(x)*u);
+   S = matsupplement(P);
    Q = N[,1..r];
    R = mattranspose(P);
    X = matsolve(M, N);
@@ -173,6 +176,7 @@ test(x,u=1) =
    if (N*lindep(N) != 0, error("lindep(N)"));
    if (R*lindep(R) != 0, error("lindep(R)"));
    if (matimage(J) != J, error("matimage(J)"));
+   if (matdet(S) == 0, error("matsupplement(S)"));
    if (matrank(J) != r, error("matrank(J)"));
    if (matrank(K) != n - r, error("matrank(K)"));
    if (matrank(N) != r, error("matrank(N)"));
