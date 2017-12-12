@@ -1723,8 +1723,9 @@ const_F2v(long m)
 {
   long i, l = nbits2lg(m);
   GEN c = cgetg(l, t_VECSMALL);
-  for (i = 2; i <= l; i++) c[i] = -1;
-  if (remsBIL(m)) c[l] = (1UL<<remsBIL(m))-1UL;
+  c[1] = m;
+  for (i = 2; i < l; i++) uel(c,i) = -1UL;
+  if (remsBIL(m)) uel(c,l-1) = (1UL<<remsBIL(m))-1UL;
   return c;
 }
 
