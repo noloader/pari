@@ -30,7 +30,7 @@ Function: iferr
 Section: programming/control
 C-Name: iferrpari
 Prototype: EVEDE
-Help: iferr(seq1,E,seq2{,pred}): evaluates the expression sequence seq1. If
+Help: iferr(seq1,E,seq2,{pred}): evaluates the expression sequence seq1. If
  an error occurs, set the formal parameter E set to the error data.
  If pred is not present or evaluates to true, catch the error and evaluate
  seq2. Both pred and seq2 can reference E.
@@ -229,4 +229,3 @@ Doc: evaluates the expression sequence \var{seq1}. If an error occurs,
   not exist, in function $s$. (As in \kbd{sqrt(Mod(-1,3))}.)
   \var{E} has two components, 1 (\typ{STR}): the function name $s$,
   2: the argument $x$.
-
