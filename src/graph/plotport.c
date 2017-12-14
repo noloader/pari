@@ -1930,7 +1930,7 @@ static void
 ps_rect(void *data, long x, long y, long w, long h)
 {
   pari_str *S = (pari_str*)data;
-  str_printf(S,"%ld %ld m %ld %ld l %ld %ld l %ld %ld l closepath\n",
+  str_printf(S,"%ld %ld m %ld %ld l %ld %ld l %ld %ld l closepath stroke\n",
              y,x, y,x+w, y+h,x+w, y+h,x);
 }
 

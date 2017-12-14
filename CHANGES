@@ -150,6 +150,8 @@ BA  118- [win32] plot colors were shifted by 1
     119- RgX_translate(P,c) with c equal to \pm 1 (e.g. as t_REAL or t_PADIC)
          incorrectly replaced c by its t_INT approximation [#1995]
 BA  120- matsupplement(Mod(matrix(5,1),2)) --> SEGV [#1996]
+    121- PostScript engine: missing 'stroke' in plotbox method => some
+         commands (e.g. colors) could be ignored
 
   Added
       1- [libari] ZM_isidentity
