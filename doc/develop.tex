@@ -493,6 +493,111 @@ Evaluate the string \kbd{s} with GP and return the result as a string,
 in a format similar to what GP displays (with the history index).
 The resulting string is allocated on the PARI stack, so subsequent call
 to \kbd{gp\_embedded} will destroy it.
+
+\section{Readline interface}
+
+Code which wants to use libpari readline (such as the Jupyter notebook)
+needs to do the following:
+\bprog
+#include <readline.h>
+#include <paripriv.h>
+pari_rl_interface S;
+...
+pari_use_readline(S);
+@eprog\noindent The variable $S$, as initialized above, encapsulates
+the libpari readline interface. (And allow us to move gp's readline code
+to libpari without introducing a mandatory dependency on readline in
+libpari.) The following functions then become available:
+
+\fun{char**}{pari_completion_matches}{pari_rl_interface *pS, const char *s,
+long pos, long *wordpos} given a command string $s$, where the cursor
+is at index \kbd{pos}, return an array of completion matches.
+
+If \kbd{wordpos} is not \kbd{NULL}, set \kbd{*wordpos} to the index for the
+start of the expression we complete.
+
+\fun{char**}{pari_completion}{pari_rl_interface *pS, char *text, int start,
+int end} the low-level completer called by \tet{pari_completion_matches}.
+The following wrapper
+\bprog
+char**
+gp_completion(char *text, int START, int END)
+{ return pari_completion(&S, text, START, END);)
+@eprog\noindent is a valid value for
+\tet{rl_attempted_completion_function}.
+
+\section{Constructors called by \kbd{pari\_init} functions}
+
+\fun{void}{pari_init_buffers}{}
+
+\fun{void}{pari_init_compiler}{}
+
+\fun{void}{pari_init_defaults}{}
+
+\fun{void}{pari_init_evaluator}{}
+
+\fun{void}{pari_init_files}{}
+
+\fun{void}{pari_init_floats}{}
+
+\fun{void}{pari_init_graphics}{}
+
+\fun{void}{pari_init_homedir}{}
+
+\fun{void}{pari_init_parser}{}
+
+\fun{void}{pari_init_paths}{}
+
+\fun{void}{pari_init_primetab}{}
+
+\fun{void}{pari_init_rand}{}
+
+\fun{void}{pari_init_seadata}{}
+
+\section{Destructors called by \kbd{pari\_close}}
+
+\fun{void}{pari_close_compiler}{}
+
+\fun{void}{pari_close_evaluator}{}
+
+\fun{void}{pari_close_files}{}
+
+\fun{void}{pari_close_floats}{}
+
+\fun{void}{pari_close_homedir}{}
+
+\fun{void}{pari_close_mf}{}
+
+\fun{void}{pari_close_parser}{}
+
+\fun{void}{pari_close_paths}{}
+
+\fun{void}{pari_close_primes}{}
+
+\section{Constructors and destructors used by the \kbd{pthreads} interface}
+
+\item Called by \tet{pari_thread_sync}
+
+\fun{void}{pari_pthread_init_primetab}{}
+
+\fun{void}{pari_pthread_init_seadata}{}
+
+\fun{void}{pari_pthread_init_varstate}{}
+
+
+\item Called by \tet{pari_thread_start}
+
+\fun{void}{pari_thread_init_primetab}{}
+
+\fun{void}{pari_thread_init_seadata}{}
+
+\fun{void}{pari_thread_init_varstate}{}
+
+
+\item Called by \tet{pari_thread_close}
+
+\fun{void}{pari_thread_close_files}{}
+
 \newpage
 
 \chapter{Regression tests, benches}
