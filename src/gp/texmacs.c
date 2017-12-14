@@ -66,14 +66,10 @@ static void
 tm_completion(const char *s, long pos)
 {
   char **matches, *text;
+  long w;
 
-  if (rl_line_buffer) pari_free(rl_line_buffer);
-  rl_line_buffer = pari_strdup(s);
-  text = pari_completion_word(&pari_rl, pos);
-  /* text = start of expression we complete */
-  rl_end = strlen(s)-1;
-  rl_point = pos;
-  matches = pari_completion(&pari_rl, text, text - rl_line_buffer, pos);
+  matches = pari_completion_matches(&pari_rl, s, pos, &w);
+  text = *pari_rl.line_buffer + w;
   printf("%cscheme:(tuple",DATA_BEGIN);
   if (matches)
   {

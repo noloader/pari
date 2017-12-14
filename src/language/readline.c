@@ -350,54 +350,40 @@ pari_completion(pari_rl_interface *rl, char *text, int START, int END)
   return get_matches(rl, END, text, command_generator);
 }
 
-char *
-pari_completion_word(pari_rl_interface *rl, long end)
+static char *
+pari_completion_word(char *line, long end)
 {
-  char *line = *rl->line_buffer;
   char *s = line + end, *found_quote = NULL;
   long i;
-  /* truncate at cursor position */
-  *s = 0;
-  /* first look for unclosed string */
+  *s = 0; /* truncate at cursor position */
   for (i=0; i < end; i++)
-  {
+  { /* first look for unclosed string */
     switch(line[i])
     {
       case '"':
         found_quote = found_quote? NULL: line + i;
         break;
-
       case '\\': i++; break;
     }
-
   }
   if (found_quote) return found_quote + 1; /* return next char after quote */
-
   /* else find beginning of word */
-  while (s > line)
-  {
-    s--;
-    if (!is_keyword_char(*s)) { s++; break; }
-  }
+  while (s > line && is_keyword_char(s[-1])) s--;
   return s;
 }
 
 char **
 pari_completion_matches(pari_rl_interface *rl, const char *s, long pos, long *wordpos)
 {
-  char *text;
-  char **matches;
+  char *text, *b;
   long w;
 
   if (*rl->line_buffer) pari_free(*rl->line_buffer);
-  *rl->line_buffer = pari_strdup(s);
-
-  text = pari_completion_word(rl, pos);
-  w = text - *rl->line_buffer;
-  if (wordpos) *wordpos = w;
+  *rl->line_buffer = b = pari_strdup(s);
+  text = pari_completion_word(b, pos);
+  w = text - b; if (wordpos) *wordpos = w;
   /* text = start of expression we complete */
-  *rl->end = strlen(s)-1;
+  *rl->end = strlen(b)-1;
   *rl->point = pos;
-  matches = pari_completion(rl, text, w, pos);
-  return matches;
+  return pari_completion(rl, text, w, pos);
 }
