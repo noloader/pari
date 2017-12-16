@@ -4350,6 +4350,7 @@ GEN     Q_primitive_part(GEN x, GEN *ptc);
 GEN     Q_primpart(GEN x);
 GEN     Q_remove_denom(GEN x, GEN *ptd);
 long    Rg_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa);
+long    RgM_RgC_type(GEN x, GEN y, GEN *p, GEN *pol, long *pa);
 GEN     RgM_rescale_to_int(GEN x);
 long    RgM_type(GEN x, GEN *p, GEN *pol, long *pa);
 long    RgM_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa);

@@ -486,16 +486,20 @@ RgX_settype(GEN x, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long 
 }
 
 static long
+RgC_settype(GEN x, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var)
+{
+  long i, l = lg(x);
+  for (i = 1; i<l; i++)
+    if (!settype(gel(x,i),t,p,pol,pa,ff,t2,var)) return 0;
+  return 1;
+}
+
+static long
 RgM_settype(GEN x, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var)
 {
-  long j, lx = lg(x);
-  for (j = 1; j < lx; j++)
-  {
-    GEN c = gel(x,j);
-    long i, l = lg(c);
-    for (i=1; i<l; i++)
-      if (!settype(gel(c,i),t,p,pol,pa,ff,t2,var)) return 0;
-  }
+  long i, l = lg(x);
+  for (i = 1; i < l; i++)
+    if (!RgC_settype(gel(x,i),t,p,pol,pa,ff,t2,var)) return 0;
   return 1;
 }
 
@@ -550,6 +554,18 @@ RgM_type(GEN x, GEN *p, GEN *pol, long *pa)
   GEN ff = NULL;
   *p = *pol = NULL; *pa = LONG_MAX;
   if (!RgM_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  return choosetype(t,t2,ff,pol,var);
+}
+
+long
+RgM_RgC_type(GEN x, GEN y, GEN *p, GEN *pol, long *pa)
+{
+  long t[] = {0,0,0,0,0,0,0,0,0,0,0,0};
+  long t2 = 0, var = NO_VARIABLE;
+  GEN ff = NULL;
+  *p = *pol = NULL; *pa = LONG_MAX;
+  if (!RgM_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  if (!RgC_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
   return choosetype(t,t2,ff,pol,var);
 }
 
