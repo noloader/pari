@@ -2678,20 +2678,12 @@ RgM_inv_fast(GEN x)
 }
 #undef code
 
-GEN
-RgM_inv(GEN a)
-{
-  GEN b = RgM_inv_fast(a);
-  return b==gen_0? RgM_solve(a, NULL): b;
-}
-
 static int
 is_modular_solve(GEN a, GEN b, GEN *u)
 {
   GEN p = NULL;
   ulong pp;
   if (!RgM_is_FpM(a, &p) || !p) return 0;
-  if (!b) { *u = RgM_inv_FpM(a, p); return 1; }
   switch(typ(b))
   {
     case t_COL:
@@ -2753,24 +2745,15 @@ is_modular_solve(GEN a, GEN b, GEN *u)
  * aco: number of columns of a
  * bco: number of columns of b (if matrix)
  */
-GEN
-RgM_solve(GEN a, GEN b)
+static GEN
+RgM_solve_basecase(GEN a, GEN b)
 {
   pari_sp av = avma;
   long i, j, k, li, bco, aco;
   int iscol;
   pivot_fun pivot;
-  GEN p, u, data, ff = NULL;
+  GEN p, u, data;
 
-  if (is_modular_solve(a,b,&u)) return gerepileupto(av, u);
-  if (RgM_is_FFM(a, &ff)) {
-    if (!b)
-      return FFM_inv(a, ff);
-    if (typ(b) == t_COL && RgC_is_FFC(b, &ff))
-      return FFM_FFC_gauss(a, b, ff);
-    if (typ(b) == t_MAT && RgM_is_FFM(b, &ff))
-      return FFM_gauss(a, b, ff);
-  }
   avma = av;
 
   if (lg(a)-1 == 2 && nbrows(a) == 2) {
@@ -2826,6 +2809,31 @@ RgM_solve(GEN a, GEN b)
   u = cgetg(bco+1,t_MAT);
   for (j=1; j<=bco; j++) gel(u,j) = get_col(a,gel(b,j),p,aco);
   return gerepilecopy(av, iscol? gel(u,1): u);
+}
+
+GEN
+RgM_solve(GEN a, GEN b)
+{
+  pari_sp av = avma;
+  GEN u, ff = NULL;
+  if (!b) return RgM_inv(a);
+
+  if (is_modular_solve(a,b,&u)) return gerepileupto(av, u);
+  if (RgM_is_FFM(a, &ff)) {
+    if (typ(b) == t_COL && RgC_is_FFC(b, &ff))
+      return FFM_FFC_gauss(a, b, ff);
+    if (typ(b) == t_MAT && RgM_is_FFM(b, &ff))
+      return FFM_gauss(a, b, ff);
+  }
+  avma = av;
+  return RgM_solve_basecase(a, b);
+}
+
+GEN
+RgM_inv(GEN a)
+{
+  GEN b = RgM_inv_fast(a);
+  return b==gen_0? RgM_solve_basecase(a, NULL): b;
 }
 
 /* assume dim A >= 1, A invertible + upper triangular  */
