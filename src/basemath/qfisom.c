@@ -1367,7 +1367,7 @@ gen_comb(long cdep, GEN A, GEN e, struct qfauto *qf, long lim)
     GEN T = lllgramint(qf_apply_ZM(A,M));
     if (lim && lg(T)-1>=lim) return NULL;
     B = ZM_mul(M,T);
-    BI = RgM_solve(B,NULL);
+    BI = RgM_inv(B);
     sumvecbase = ZM_trunc_to_zm(B);
     trans = ZM_trunc_to_zm(T);
     ccoef = ZM_trunc_to_zm(RgM_mul(BI,M));
