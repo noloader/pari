@@ -2678,62 +2678,52 @@ RgM_inv_fast(GEN x)
 }
 #undef code
 
-static int
-is_modular_solve(GEN a, GEN b, GEN *u)
+static GEN
+RgM_RgC_solve_FpC(GEN a, GEN b, GEN p)
 {
-  GEN p = NULL;
+  pari_sp av = avma;
   ulong pp;
-  if (!RgM_is_FpM(a, &p) || !p) return 0;
-  switch(typ(b))
+  a = RgM_Fp_init(a, p, &pp);
+  switch(pp)
   {
-    case t_COL:
-      if (!RgV_is_FpV(b, &p)) return 0;
-      a = RgM_Fp_init(a, p, &pp);
-      switch(pp)
-      {
-      case 0:
-        b = RgC_to_FpC(b, p);
-        a = FpM_FpC_gauss(a,b,p);
-        if (a) a = FpC_to_mod(a, p);
-        break;
-      case 2:
-        b = RgV_to_F2v(b);
-        a = F2m_F2c_gauss(a,b);
-        if (a) a = F2c_to_mod(a);
-        break;
-      default:
-        b = RgV_to_Flv(b, pp);
-        a = Flm_Flc_gauss(a,b,pp);
-        if (a) a = Flc_to_mod(a, pp);
-        break;
-      }
-      break;
-    case t_MAT:
-      if (!RgM_is_FpM(b, &p)) return 0;
-      a = RgM_Fp_init(a, p, &pp);
-      switch(pp)
-      {
-      case 0:
-        b = RgM_to_FpM(b, p);
-        a = FpM_gauss(a,b,p);
-        if (a) a = FpM_to_mod(a, p);
-        break;
-      case 2:
-        b = RgM_to_F2m(b);
-        a = F2m_gauss(a,b);
-        if (a) a = F2m_to_mod(a);
-        break;
-      default:
-        b = RgM_to_Flm(b, pp);
-        a = Flm_gauss(a,b,pp);
-        if (a) a = Flm_to_mod(a, pp);
-        break;
-      }
-      break;
-    default: return 0;
+  case 0:
+    b = RgC_to_FpC(b, p);
+    a = FpM_FpC_gauss(a,b,p);
+    return a ? gerepileupto(av, FpC_to_mod(a, p)): NULL;
+  case 2:
+    b = RgV_to_F2v(b);
+    a = F2m_F2c_gauss(a,b);
+    return a ? gerepileupto(av, F2c_to_mod(a)): NULL;
+  default:
+    b = RgV_to_Flv(b, pp);
+    a = Flm_Flc_gauss(a, b, pp);
+    return a ? gerepileupto(av, Flc_to_mod(a, pp)): NULL;
   }
-  *u = a; return 1;
 }
+
+static GEN
+RgM_solve_FpM(GEN a, GEN b, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp;
+  a = RgM_Fp_init(a, p, &pp);
+  switch(pp)
+  {
+  case 0:
+    b = RgM_to_FpM(b, p);
+    a = FpM_gauss(a,b,p);
+    return a ? gerepileupto(av, FpM_to_mod(a, p)): NULL;
+  case 2:
+    b = RgM_to_F2m(b);
+    a = F2m_gauss(a,b);
+    return a ? gerepileupto(av, F2m_to_mod(a)): NULL;
+  default:
+    b = RgM_to_Flm(b, pp);
+    a = Flm_gauss(a,b,pp);
+    return a ? gerepileupto(av, Flm_to_mod(a, pp)): NULL;
+  }
+}
+
 /* Gaussan Elimination. If a is square, return a^(-1)*b;
  * if a has more rows than columns and b is NULL, return c such that c a = Id.
  * a is a (not necessarily square) matrix
@@ -2811,21 +2801,45 @@ RgM_solve_basecase(GEN a, GEN b)
   return gerepilecopy(av, iscol? gel(u,1): u);
 }
 
+static GEN
+RgM_RgC_solve_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_RgC_type(x, y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZM_gauss(x, y);
+    case t_INTMOD: return RgM_RgC_solve_FpC(x, y, p);
+    case t_FFELT:  return FFM_FFC_gauss(x, y, pol);
+    default:       return gen_0;
+  }
+}
+
+static GEN
+RgM_solve_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type2(x, y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZM_gauss(x, y);
+    case t_INTMOD: return RgM_solve_FpM(x, y, p);
+    case t_FFELT:  return FFM_gauss(x, y, pol);
+    default:       return gen_0;
+  }
+}
+
 GEN
 RgM_solve(GEN a, GEN b)
 {
   pari_sp av = avma;
-  GEN u, ff = NULL;
+  GEN u;
   if (!b) return RgM_inv(a);
-
-  if (is_modular_solve(a,b,&u)) return gerepileupto(av, u);
-  if (RgM_is_FFM(a, &ff)) {
-    if (typ(b) == t_COL && RgC_is_FFC(b, &ff))
-      return FFM_FFC_gauss(a, b, ff);
-    if (typ(b) == t_MAT && RgM_is_FFM(b, &ff))
-      return FFM_gauss(a, b, ff);
-  }
-  avma = av;
+  u = typ(b)==t_MAT ? RgM_solve_fast(a, b): RgM_RgC_solve_fast(a, b);
+  if (!u) { avma = av; return u; }
+  if (u != gen_0) return u;
   return RgM_solve_basecase(a, b);
 }
 
@@ -2988,12 +3002,10 @@ GEN
 gauss(GEN a, GEN b)
 {
   GEN z;
+  long t = typ(b);
   if (typ(a)!=t_MAT) pari_err_TYPE("gauss",a);
-  if (RgM_is_ZM(a) && b &&
-      ((typ(b) == t_COL && RgV_is_ZV(b)) || (typ(b) == t_MAT && RgM_is_ZM(b))))
-    z = ZM_gauss(a,b);
-  else
-    z = RgM_solve(a,b);
+  if (t!=t_COL && t!=t_MAT) pari_err_TYPE("gauss",b);
+  z = RgM_solve(a,b);
   if (!z) pari_err_INV("gauss",a);
   return z;
 }
