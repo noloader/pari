@@ -4749,7 +4749,7 @@ mspetersson(GEN W, GEN F, GEN G)
     return gerepilecopy(av, M);
   }
   else
-  { /* <(f_1,...,f_m), (f_1,...,f_n)> */
+  { /* <(f_1,...,f_n), (f_1,...,f_n)> */
     long iF, iG, n = lg(F)-1;
     GEN M = zeromatcopy(n,n);
     for (iG = 1; iG <= n; iG++)

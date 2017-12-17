@@ -27,8 +27,8 @@ Doc: $M$ being a full modular symbol space for $\Gamma = \Gamma_0(N)$,
  $\Z$-structure on $M$ given by \kbd{mslattice} and defines a Riemann form on
  $H^1_{par}(\Gamma,\R)$.
 
- For user convenience, we allow $F$ and $G$ to be
- matrices with the same number of columns and return the attached Gram matrix:
+ For user convenience, we allow $F$ and $G$ to be matrices and return the
+ attached Gram matrix:
  \bprog
  ? M = msinit(37,2);
  ? C = mscuspidal(M)[1];
@@ -40,13 +40,13 @@ Doc: $M$ being a full modular symbol space for $\Gamma = \Gamma_0(N)$,
  [17  25 17   0]
  ? mspetersson(M, mslattice(M,C))
  %4 =
- [ 0 -1  1  0]
- [ 1  0 -1  0]
- [-1  1  0 -1]
- [ 0  0  1  0]
+ [0 -1 0 -1]
+ [1  0 0 -1]
+ [0  0 0 -1]
+ [1  1 1  0]
  ? E = ellinit("33a1");
- ? [M,xpm] = msfromell(E);
- ? mspetersson(M, mslattice(M,Mat(xpm)))
+ ? [M,xpm] = msfromell(E); [xp,xm,L] = xpm;
+ ? mspetersson(M, mslattice(M,L))
  %7 =
  [0 -3]
  [3  0]
