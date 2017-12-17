@@ -336,6 +336,7 @@ BA  133- [libpari] FpX_integ, FpX_convol
 LGr 136- default(echo): new value echo = 2 [ print as is, incl. whitespace ]
 LGr 137- allow power series as limits for intnum()
     138- [libpari] uordinal
+BA  139- [libpari] QM_gauss
 
   Changed
       1- rewrite bnfnarrow

@@ -2810,6 +2810,7 @@ RgM_RgC_solve_fast(GEN x, GEN y)
   switch(t)
   {
     case t_INT:    return ZM_gauss(x, y);
+    case t_FRAC:   return QM_gauss(x, y);
     case t_INTMOD: return RgM_RgC_solve_FpC(x, y, p);
     case t_FFELT:  return FFM_FFC_gauss(x, y, pol);
     default:       return gen_0;
@@ -2825,6 +2826,7 @@ RgM_solve_fast(GEN x, GEN y)
   switch(t)
   {
     case t_INT:    return ZM_gauss(x, y);
+    case t_FRAC:   return QM_gauss(x, y);
     case t_INTMOD: return RgM_solve_FpM(x, y, p);
     case t_FFELT:  return FFM_gauss(x, y, pol);
     default:       return gen_0;
@@ -3574,6 +3576,17 @@ ZM_gauss(GEN a, GEN b0)
   else
     res = FpM_ratlift(xb, N, delta,delta, NULL);
   return gerepileupto(av, res);
+}
+
+/* same as above, M rational */
+GEN
+QM_gauss(GEN M, GEN B)
+{
+  pari_sp av = avma;
+  GEN K, MB;
+  MB = Q_primitive_part(mkvec2(M,B), NULL);
+  K = ZM_gauss(gel(MB,1), gel(MB,2));
+  return gerepileupto(av, K);
 }
 
 static GEN

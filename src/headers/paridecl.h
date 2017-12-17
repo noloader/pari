@@ -1523,6 +1523,7 @@ GEN     FqM_invimage(GEN a, GEN b, GEN T, GEN p);
 GEN     FqM_mul(GEN a, GEN b, GEN T, GEN p);
 long    FqM_rank(GEN a, GEN T, GEN p);
 GEN     FqM_suppl(GEN x, GEN T, GEN p);
+GEN     QM_gauss(GEN a, GEN b);
 GEN     QM_inv(GEN M);
 GEN     RgM_Fp_init(GEN a, GEN p, ulong *pp);
 GEN     RgM_Hadamard(GEN a);
