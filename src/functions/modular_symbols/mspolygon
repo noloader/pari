@@ -87,7 +87,7 @@ Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
  %11 = Vecsmall([2, 1, 4, 3, 6, 5, 9, 10, 7, 8])
  @eprog
  One can see from this last example that the (normalized) polygon has the form
- $$a_1, a_1^*, a_2, a_2^*, a_3, a_3^*, a_4, a_5, a_4^*, a_5^*).$$
+ $$a_1, a_1^*, a_2, a_2^*, a_3, a_3^*, a_4, a_5, a_4^*, a_5^*),$$
  that $X_0(14)$ is of genus 1 (in general the genus is the number of blocks
  of the form $aba^*b^*$), has no elliptic points ($A$ has no fixed point)
  and 4 cusps (number of blocks of the form $aa^*$ plus 1). The vertices
