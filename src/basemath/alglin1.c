@@ -4358,55 +4358,6 @@ GEN
 ZM_imagecompl(GEN x) { return imagecompl_aux(x, &ZM_pivots); }
 
 GEN
-RgM_RgC_invimage(GEN A, GEN y)
-{
-  pari_sp av = avma;
-  long i, l = lg(A);
-  GEN M, x, t, p = NULL;
-
-  if (RgM_is_FpM(A, &p) && RgV_is_FpV(y, &p) && p)
-  {
-    ulong pp;
-    A = RgM_Fp_init(A,p,&pp);
-    switch(pp)
-    {
-    case 0:
-      y = RgC_to_FpC(y,p);
-      x = FpM_FpC_invimage(A, y, p);
-      if (x) x = FpC_to_mod(x,p);
-      break;
-    case 2:
-      y = RgV_to_F2v(y);
-      x = F2m_F2c_invimage(A, y);
-      if (x) x = F2c_to_mod(x);
-      break;
-    default:
-      y = RgV_to_Flv(y,pp);
-      x = Flm_Flc_invimage(A, y, pp);
-      if (x) x = Flc_to_mod(x,pp);
-    }
-    if (!x) { avma = av; return NULL; }
-    return gerepileupto(av, x);
-  }
-
-  if (l==1) return NULL;
-  if (lg(y) != lgcols(A)) pari_err_DIM("inverseimage");
-  {
-    GEN ff = NULL;
-    if (RgM_is_FFM(A, &ff) && RgC_is_FFC(y, &ff))
-      return FFM_FFC_invimage(A, y, ff);
-  }
-  M = ker(shallowconcat(A, y));
-  i = lg(M)-1;
-  if (!i) { avma = av; return NULL; }
-
-  x = gel(M,i); t = gel(x,l);
-  if (gequal0(t)) { avma = av; return NULL; }
-
-  t = gneg_i(t); setlg(x,l);
-  return gerepileupto(av, RgC_Rg_div(x, t));
-}
-GEN
 FpM_FpC_invimage(GEN A, GEN y, GEN p)
 {
   pari_sp av = avma;
@@ -4474,6 +4425,66 @@ F2m_F2c_invimage(GEN A, GEN y)
   if (!F2v_coeff(x,l)) { avma = av; return NULL; }
   F2v_clear(x, x[1]); x[1]--; /* remove last coord */
   return gerepileuptoleaf(av, x);
+}
+
+static GEN
+RgM_RgC_invimage_FpC(GEN A, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp;
+  GEN x;
+  A = RgM_Fp_init(A,p,&pp);
+  switch(pp)
+  {
+  case 0:
+    y = RgC_to_FpC(y,p);
+    x = FpM_FpC_invimage(A, y, p);
+    return x ? gerepileupto(av, FpC_to_mod(x,p)): NULL;
+  case 2:
+    y = RgV_to_F2v(y);
+    x = F2m_F2c_invimage(A, y);
+    return x ? gerepileupto(av, F2c_to_mod(x)): NULL;
+  default:
+    y = RgV_to_Flv(y,pp);
+    x = Flm_Flc_invimage(A, y, pp);
+    return x ? gerepileupto(av, Flc_to_mod(x,pp)): NULL;
+  }
+}
+
+static GEN
+RgM_RgC_invimage_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_RgC_type(x, y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INTMOD: return RgM_RgC_invimage_FpC(x, y, p);
+    case t_FFELT:  return FFM_FFC_invimage(x, y, pol);
+    default:       return gen_0;
+  }
+}
+
+GEN
+RgM_RgC_invimage(GEN A, GEN y)
+{
+  pari_sp av = avma;
+  long i, l = lg(A);
+  GEN M, x, t;
+  if (l==1) return NULL;
+  if (lg(y) != lgcols(A)) pari_err_DIM("inverseimage");
+  M = RgM_RgC_invimage_fast(A, y);
+  if (!M) {avma = av; return NULL; }
+  if (M != gen_0) return M;
+  M = ker(shallowconcat(A, y));
+  i = lg(M)-1;
+  if (!i) { avma = av; return NULL; }
+
+  x = gel(M,i); t = gel(x,l);
+  if (gequal0(t)) { avma = av; return NULL; }
+
+  t = gneg_i(t); setlg(x,l);
+  return gerepileupto(av, RgC_Rg_div(x, t));
 }
 
 /* Return X such that m X = v (t_COL or t_MAT), resp. an empty t_COL / t_MAT
@@ -4631,6 +4642,44 @@ FpM_invimage(GEN A, GEN B, GEN p)
   return gerepileupto(av, X);
 }
 
+static GEN
+RgM_invimage_FpM(GEN A, GEN B, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp;
+  GEN x;
+  A = RgM_Fp_init(A,p,&pp);
+  switch(pp)
+  {
+  case 0:
+    B = RgM_to_FpM(B,p);
+    x = FpM_invimage_i(A, B, p);
+    return x ? gerepileupto(av, FpM_to_mod(x, p)): x;
+  case 2:
+    B = RgM_to_F2m(B);
+    x = F2m_invimage_i(A, B);
+    return x ? gerepileupto(av, F2m_to_mod(x)): x;
+  default:
+    B = RgM_to_Flm(B,pp);
+    x = Flm_invimage_i(A, B, pp);
+    return x ? gerepileupto(av, Flm_to_mod(x, pp)): x;
+  }
+}
+
+static GEN
+RgM_invimage_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type2(x, y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INTMOD: return RgM_invimage_FpM(x, y, p);
+    case t_FFELT:  return FFM_invimage(x, y, pol);
+    default:       return gen_0;
+  }
+}
+
 /* find Z such that A Z = B. Return NULL if no solution */
 GEN
 RgM_invimage(GEN A, GEN B)
@@ -4638,37 +4687,9 @@ RgM_invimage(GEN A, GEN B)
   pari_sp av = avma;
   GEN d, x, X, Y;
   long i, j, nY, nA = lg(A)-1, nB = lg(B)-1;
-  GEN p = NULL;
-  if (RgM_is_FpM(A, &p) && RgM_is_FpM(B, &p) && p)
-  {
-    ulong pp;
-    A = RgM_Fp_init(A,p,&pp);
-    switch(pp)
-    {
-    case 0:
-      B = RgM_to_FpM(B,p);
-      x = FpM_invimage_i(A, B, p);
-      if (x) x = FpM_to_mod(x, p);
-    break;
-    case 2:
-      B = RgM_to_F2m(B);
-      x = F2m_invimage_i(A, B);
-      if (x) x = F2m_to_mod(x);
-      break;
-    default:
-      B = RgM_to_Flm(B,pp);
-      x = Flm_invimage_i(A, B, pp);
-      if (x) x = Flm_to_mod(x,pp);
-      break;
-    }
-    if (!x) { avma = av; return NULL; }
-    return gerepileupto(av, x);
-  }
-  {
-    GEN ff = NULL;
-    if (RgM_is_FFM(A, &ff) && RgM_is_FFM(B, &ff))
-      return FFM_invimage(A, B, ff);
-  }
+  X = RgM_invimage_fast(A, B);
+  if (!X) {avma = av; return NULL; }
+  if (X != gen_0) return X;
   x = ker(shallowconcat(RgM_neg(A), B));
   /* AX = BY, Y in strict upper echelon form with pivots = 1.
    * We must find T such that Y T = Id_nB then X T = Z. This exists iff
