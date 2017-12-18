@@ -3319,7 +3319,7 @@ Flm_adjoint(GEN A, ulong p)
     GEN X = Flm_gauss_from_CUP(matid_Flm(m), R, C, U, P, p, &D);
     return gerepileupto(av, Flm_Fl_mul(X, D, p));
   }
-  if (r < n-1) return zeromat(m, m);
+  if (r < n-1) return zero_Flm(m, m);
   for (q = m, i = 1; i < m; i++)
    if (R[i] != i) { q = i; break; }
   C1 = matslice(C, 1, q-1, 1, q-1);
