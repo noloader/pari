@@ -43,6 +43,8 @@ This file lists the incompatible changes between Version 2.x and older versions
   - ellpadicheight and ellpadicmatrix no longer accept [p,[a,b]]
     arguments; use * [a,b]~
   - msissymbol now returns a GEN (gen_0/gen_1) instead of a long
+  -  V=galoisfixedfield(P,,2): return V[1] in the same variable as the
+     coeffs of V[3] instead of P.
 
 * Specific to the PARI library:
 ===============================

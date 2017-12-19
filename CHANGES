@@ -431,6 +431,8 @@ BA   46-[libpari] RgX_type now only handles polynomials.
      57- allow mseval(M, t_MAT)
      58- change 'debugmem' default value to 1 under gp and 0 in libpari mode;
          no memory-related message at value 0 (not recommended under gp).
+BA   59- V=galoisfixedfield(,,2): return V[1] in the same variable as the
+         coeffs of V[3] instead of P.
 
   Removed
       1- file 'MACHINES' (no longer maintained)

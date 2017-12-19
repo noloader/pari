@@ -2425,6 +2425,7 @@ galoisfixedfield(GEN gal, GEN perm, long flag, long y)
     if (y < 0) y = 1;
     if (varncmp(y, vT) <= 0)
       pari_err_PRIORITY("galoisfixedfield", T, "<=", y);
+    setvarn(P, y);
     res = cgetg(4, t_VEC);
     gel(res,3) = fixedfieldfactor(L,O,gal_get_group(gal), PM,Pden,mod,mod2,vT,y);
   }

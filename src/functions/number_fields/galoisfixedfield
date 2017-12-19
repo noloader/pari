@@ -28,11 +28,13 @@ Doc: \var{gal} being be a Galois group as output by \tet{galoisinit} and
  factorization of $\var{gal}.pol$ over the field defined by $P$, where
  variable $v$ ($y$ by default) stands for a root of $P$. The priority of $v$
  must be less than the priority of the variable of $\var{gal}.pol$ (see
- \secref{se:priority}). Example:
+ \secref{se:priority}).
+ In this case, $P$ is also expressed in the variable $v$ for compatibility
+ with $F$. Example:
 
  \bprog
  ? G = galoisinit(x^4+1);
  ? galoisfixedfield(G,G.group[2],2)
- %2 = [x^2 + 2, Mod(x^3 + x, x^4 + 1), [x^2 - y*x - 1, x^2 + y*x - 1]]
+ %2 = [y^2 - 2, Mod(- x^3 + x, x^4 + 1), [x^2 - y*x + 1, x^2 + y*x + 1]]
  @eprog\noindent
- computes the factorization  $x^4+1=(x^2-\sqrt{-2}x-1)(x^2+\sqrt{-2}x-1)$
+ computes the factorization  $x^4+1=(x^2-\sqrt{2}x+1)(x^2+\sqrt{2}x+1)$
