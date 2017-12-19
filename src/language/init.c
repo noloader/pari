@@ -535,7 +535,8 @@ pari_init_defaults(void)
 #endif
 
   precdl = 16;
-  DEBUGFILES = DEBUGLEVEL = DEBUGMEM = 0;
+  DEBUGFILES = DEBUGLEVEL = 0;
+  DEBUGMEM = 1;
   disable_color = 1;
   logstyle = logstyle_none;
 

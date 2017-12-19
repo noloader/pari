@@ -23,5 +23,4 @@ Doc: memory debugging level (see \b{gm}). If this is non-zero, \kbd{gp} will
  This functionality is disabled on non-debugging builds as it noticeably
  slows down the performance.
 
- The default value is \kbd{1} under \kbd{gp} (no messages except
- \kbd{parisize} changes) and \kbd{0} in library mode (no messages).
+ The default value is \kbd{1}.
