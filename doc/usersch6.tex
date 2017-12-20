@@ -728,11 +728,18 @@ basis of the kernel of $M$.
 (but correct) when $M$ does not have almost full column rank.
 
 \fun{GEN}{ZabM_inv}{GEN M, GEN P, long n, GEN *pden}
-assume that $M$ is invertible; return $N$ and sets the integer \kbd{den} such
-that $M N = \kbd{den} \cdot \Id$.
+assume that $M$ is invertible; return $N$ and sets the algebraic integer
+\kbd{*pden} (an integer or a \kbd{ZX}, implicitly modulo $P$)
+such that $M N = \kbd{den} \cdot \Id$.
 
-\fun{GEN}{ZabM_pseudoinv}{GEN M, GEN P, long n, GEN *pv, GEN *den} analog
+\fun{GEN}{ZabM_pseudoinv}{GEN M, GEN P, long n, GEN *pv, GEN *pden} analog
 of \kbd{ZM\_pseudoinv}. Not gerepile-safe.
+
+\fun{GEN}{ZabM_inv_ratlift}{GEN M, GEN P, long n, GEN *pden}
+return a primitive matrix $H$ such that $M H$ is $d$ times the identity
+and set \kbd{*pden} to $d$. Uses a multimodular algorithm, attempting
+rational reconstruction along the way. To be used when you expect that the
+denominator of $M^{-1}$ is much smaller than $\det M$ else use \kbd{ZabM\_inv}.
 
 \subsec{Elements in factored form}
 
