@@ -4716,6 +4716,9 @@ roots in \kbd{\Z/p\Z} of the \kbd{FpX}~\kbd{f}. Assumes that \kbd{p} is prime.
 the \kbd{FpX}~\kbd{f}. Return \kbd{NULL} if no root exists.
 Assumes that \kbd{p} is prime.
 
+\fun{GEN}{FpX_oneroot_split}{GEN f, GEN p} as \kbd{FpX\_oneroot}.
+Faster when $f$ is close to be totally split.
+
 \fun{GEN}{FpX_roots}{GEN f, GEN p} returns the roots in \kbd{\Z/p\Z} of
 the \kbd{FpX}~\kbd{f} (without multiplicity, as a vector of \kbd{Fp}s).
 Assumes that \kbd{p} is prime.
