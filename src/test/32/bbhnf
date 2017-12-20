@@ -170,6 +170,8 @@ invmod
 8
 8
 6
+1
+1
   ***   at top-level: matimagemod([],1)
   ***                 ^-----------------
   *** matimagemod: incorrect type in matimagemod (t_VEC).
@@ -221,4 +223,4 @@ invmod
   ***   at top-level: matinvmod([1,2,3;4,5,6],1)
   ***                 ^--------------------------
   *** matinvmod: impossible inverse in matinvmod: [1, 2, 3; 4, 5, 6].
-Total time spent: 528
+Total time spent: 636

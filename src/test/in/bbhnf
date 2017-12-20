@@ -164,6 +164,12 @@ matdetmod([0,1;1,0],9)
 matdetmod([7,1;1,0],9)
 matdetmod([6,0;0,1],9)
 
+\\matdetmod fixes
+M = [21,7,7;23,2,7;20,21,31];
+n=36;
+matdetmod(M,n) == matdet(M)%n
+M = matrix(11,11,i,j,if(j<i,1,i==j,prime(i+2)%n,0));
+matdetmod(M,n) == matdet(M)%n
 
 \\bad inputs
 matimagemod([],1);
