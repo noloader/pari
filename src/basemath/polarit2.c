@@ -866,7 +866,7 @@ factor(GEN x)
         default:
         {
           GEN w;
-          long killv, t1, t2, v2 = varn(pol);
+          long killv = 0, t1, t2, v2 = varn(pol);
           x = leafcopy(x); lx=lg(x);
           pol = leafcopy(pol);
           v = pari_var_next_temp();
@@ -877,10 +877,11 @@ factor(GEN x)
             {
               case t_QUAD: p1++;
               case t_COMPLEX:
-                gel(x,i) = mkpolmod(deg1pol_shallow(gel(p1,2), gel(p1,1), v), pol);
+                gel(x,i) = mkpolmod(deg1pol_shallow(gel(p1,2), gel(p1,1), v),
+                                    pol);
+                killv = 1;
             }
           }
-          killv = (avma != (pari_sp)pol);
           if (killv) setvarn(pol, fetch_var());
           RgX_type_decode(tx, &t1, &t2);
           switch (t2)
