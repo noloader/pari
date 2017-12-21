@@ -7,7 +7,7 @@ Help: mfgaloistype(NK,{F}): NK being either [N,1,CHI] or an mf
  types of Galois representations attached to each cuspidal eigenform,
  unless the eigenform F is specified, in which case only for F.
  Types A_4, S_4, A_5 are represented by minus their cardinality -12, -24,
- or -60, and type D_n is represented by the integer n.
+ or -60, and type D_n is represented by its cardinality, the integer 2*n.
 Doc: \kbd{NK} being either \kbd{[N,1,CHI]} or an \kbd{mf} output by
  \kbd{mfinit} in weight $1$, gives the vector of types of Galois
  representations attached to each cuspidal eigenform,
