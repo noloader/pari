@@ -261,22 +261,23 @@ BA   86- GP functions galoischardet, galoischarpoly
      87- [libpari] mulcxpowIs
 BA   88- [libpari] function RgXn_sqrt
 KB+HC89- new package 'mf' for modular forms; new GP functions
-         getcache         lfunmf         mfDelta          mfEH
-         mfEk             mfTheta        mfatkin          mfatkineigenvalues
-         mfatkininit      mfbasis        mfbd             mfbracket
-         mfcoef           mfcoefs        mfconductor      mfcosets
-         mfcuspisregular  mfcusps        mfcuspval        mfcuspwidth
-         mfderiv          mfderivE2      mfdescribe       mfdim
-         mfdiv            mfeigenbasis   mfeigensearch    mfeisenstein
-         mfeval           mffields       mffromell        mffrometaquo
-         mffromlfun       mffromqf       mfgaloistype     mfhecke
-         mfheckemat       mfinit         mfisCM           mfisequal
-         mflinear         mfmanin        mfmul            mfnumcusps
-         mfparams         mfperiodpol    mfperiodpolbasis mfpetersson
-         mfpow            mfsearch       mfshift          mfshimura
-         mfslashexpansion mfspace        mfsplit          mfsturm
-         mfsymbol         mfsymboleval   mftaylor         mftobasis
-         mftocoset        mftonew        mftraceform      mftwist
+      getcache         lfunmf            mfDelta            mfEH
+      mfEk             mfTheta           mfatkin            mfatkineigenvalues
+      mfatkininit      mfbasis           mfbd               mfbracket
+      mfcoef           mfcoefs           mfconductor        mfcosets
+      mfcuspisregular  mfcusps           mfcuspval          mfcuspwidth
+      mfderiv          mfderivE2         mfdescribe         mfdim
+      mfdiv            mfeigenbasis      mfeigensearch      mfeisenstein
+      mfeval           mffields          mffromell          mffrometaquo
+      mffromlfun       mffromqf          mfgaloistype       mfhecke
+      mfheckemat       mfinit            mfisCM             mfisequal
+      mfkohnenbasis    mfkohnenbijection mfkohneneigenbasis mflinear
+      mfmanin          mfmul             mfnumcusps         mfparams
+      mfperiodpol      mfperiodpolbasis  mfpetersson        mfpow
+      mfsearch         mfshift           mfshimura          mfslashexpansion
+      mfspace          mfsplit           mfsturm            mfsymbol
+      mfsymboleval     mftaylor          mftobasis          mftocoset
+      mftonew          mftraceform       mftwist
      90- [libpari] ZV_cba, Z_cba_extend
      91- [libpari] RgV_is_ZVpos, RgV_is_ZVnon0
 JA   92- GP functions ecpp, ecppexport, ecppisvalid.

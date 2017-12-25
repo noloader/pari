@@ -1,20 +1,18 @@
 Function: mfpetersson
 Section: modular_forms
 C-Name: mfpetersson
-Prototype: GDGb
+Prototype: GDG
 Help: mfpetersson(fs,{gs}): Petersson scalar product of the modular forms f and
  g belonging to the same modular form space mf, given by the corresponding
- modular symbols fs and gs output by mfsymbol. One of them at least must
- be a cusp form, and for now only for integral weight >= 2. The scalar product
- is normalized by the factor 1/[G:G_0(N)].
+ modular symbols fs and gs output by mfsymbol, for now only for integral
+ weight >= 2. The scalar product is normalized by the factor 1/[G:G_0(N)].
 Doc: Petersson scalar product of the modular forms $f$ and $g$ belonging to
  the same modular form space \kbd{mf}, given by the corresponding modular
  symbols $fs$ and $gs$ output by \kbd{mfsymbol}. If $gs$ is omitted, set
- $gs = fs$.
-
- One of them at least must be
- a cusp form, and for now only for integral weight $k\ge2$. The scalar product
- is normalized by the factor $1/[\Gamma:\Gamma_0(N)]$.
+ $gs = fs$. For now only for integral weight $k\ge2$. The scalar product
+ is normalized by the factor $1/[\Gamma:\Gamma_0(N)]$. Note that $f$ and
+ $g$ can both be noncuspidal, and the program returns an error if the product
+ is divergent.
  If the fields of definition $\Q(f)$ and $\Q(g)$ are equal to $\Q(\chi)$
  the result is a scalar. If $[\Q(f):\Q(\chi)]=d>1$ and
  $[\Q(g):\Q(\chi)]=e>1$ the result is a $d\times e$ matrix corresponding
@@ -45,4 +43,18 @@ Doc: Petersson scalar product of the modular forms $f$ and $g$ belonging to
 
  [1.2630501762985554269 E-40 0.0056442542987647835101583821368582485396]
 
+ @eprog
+
+ Noncuspidal example:
+ \bprog
+ ? E1=mfeisenstein(5,1,-3);E2=mfeisenstein(5,-3,1);
+ ? mf=mfinit([12,5,-3]); cusps=mfcusps(12);
+ ? apply(x->mfcuspval(mf,E1,x),cusps)
+ %3 = [0, 0, 1, 0, 1, 1]
+ ? apply(x->mfcuspval(mf,E2,x),cusps)
+ %4 = [1/3, 1/3, 0, 1/3, 0, 0]
+ ? E1S=mfsymbol(mf,E1);E2S=mfsymbol(mf,E2);
+ ? mfpetersson(E1S,E2S)
+ %6 = -1.8848216716468969562647734582232071466 E-5\
+     - 1.9057659114817512165 E-43*I
  @eprog

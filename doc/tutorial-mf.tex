@@ -109,7 +109,7 @@ to the real axis, or $L$-functions attached to an arbitrary form.
 Reasonable levels (for low weight) can go up to a few hundred.
 \item The third level (which uses the second level functions) allows more
 numerical computations such as period polynomials, modular symbols,
-Petersson products, special value polynomials, etc...
+Petersson products, special value polynomials, etc\dots
 \end{enumerate}
 
 \section{Creation of Modular Forms}
@@ -128,7 +128,7 @@ In \kbd{Pari/GP} modular forms can be created in three different ways:
 \item From existing forms by applying \emph{operations}.
   Examples: multiplication/division, linear combination,
   derivation and integration, Serre derivative, RC-brackets, Hecke and
-  Atkin--Lehner operations, expansion and diamond operators, etc...
+  Atkin--Lehner operations, expansion and diamond operators, etc\dots
 \item Through the creation of the modular form \emph{spaces}:
   typically, if only \kbd{mf=mfinit} is applied, then a
   basis of forms is obtained by the command \kbd{mfbasis(mf)}. On the other
@@ -145,7 +145,7 @@ This is now a tutorial session. We will see sample commands as we go along.
 \end{verbatim}
 
 The command \kbd{mfcoefs(D,n)} gives the vector of Fourier coefficients (at
-infinity) $[a(0),a(1),....,a(n)]$ (note that there are $n+1$ coefficients).
+infinity) $[a(0),a(1),\dots,a(n)]$ (note that there are $n+1$ coefficients).
 This is a compact representation, but if you prefer power series you
 can use \kbd{Ser(V,q)} (convert a vector into a power series).
 
@@ -1080,28 +1080,76 @@ plane (see below), also computes values at the cusps:
 \begin{verbatim}
 ? mf = mfinit([96,4],0); B = mfbasis(mf); F1 = B[1];
 ? FS1 = mfsymbol(mf,F1);
-time = 35,592 ms
+time = 2,272 ms
 ? mfsymboleval(FS1,[0,oo])
 % = 2.0968669678226579060336519703627002478*I*x^2\
- + 0.36368580656317635568444277442842940073*x\
- - 0.049315736834713109138297211986510643780*I
+  + 0.36368580656317635568444277442842940073*x\
+  - 0.049315736834713109138297211986510643780*I
 ? mfsymboleval(FS1,[1,5/2])
-% = (7.346839692639296925 E-39 +\
-     4.1937339356453158120673039407254004956*I)*x^2\
+% =  4.1937339356453158120673039407254004956*I*x^2\
   + (0.72737161312635271136888554885685880147\
   - 14.678068774758605342235563792538901735*I)*x\
  + (-1.2729003229711172448955497104995029026\
   + 15.103654043044843600467382361156555509*I)
+? mfsymboleval(FS1,[1,2],[0,-1;1,0])
+% = (0.54552870984476453352666416164264410111\
+   + 2.5224522361088961642654705389803540222*I)*x^2\
+ + (-0.72737161312635271136888554885685880148\
+   - 6.2906009034679737181009559110881007434*I)*x\
+   + 4.1937339356453158120673039407254004956*I
 \end{verbatim}
 
 The general strategy for computing these quantities is first to do a
 precomputation which only involves \kbd{mf} and the form $F$ using
-\kbd{mfsymbol}. As can be seen on this example, this can take some time,
-but afterwards all the computations are instantaneous.
+\kbd{mfsymbol}, which can take a few seconds, but afterwards all the
+computations are instantaneous.
 
 Note that if you only want the period polynomial from $0$ to
 $\infty$ use \kbd{mfperiodpol(mf,F1)} which gives the same answer as before
 but in only $20$ ms.
+
+You may also use \kbd{mfsymboleval} in two other ways, but note that in
+this case the precomputation is not used so the computation may be slow:
+
+\begin{verbatim}
+? mf=mfinit([96,6],0);F=mfbasis(mf)[1];
+? FS=mfsymbol(mf,F);
+time = 9,761 ms.
+? mfsymboleval(FS,[I,oo])
+% = 0.00297212...*I*x^4 + 0.0137806...*x^3 + ... + 0.00610099...
+? mfsymboleval(FS,[I,2*I])
+% = 0.00296657...*I*x^4 + 0.0137326...*x^3 + ... + 0.00597601...
+? mfsymboleval(FS,[I/10000,I])
+time = 20,512 ms.
+% = 46.3637302...*I*x^4 + 3.8815894...*x^3 + ... + 0.01838690...
+? -x^4*subst(mfsymboleval(FS,[I,10000*I],[0,-1;1,0]),x,-1/x)
+time = 741 ms.
+% = 46.3637302...*I*x^4 + 3.8815894...*x^3 + ... + 0.01838690...
+? mfsymboleval([mf,F],[I,oo])
+% = 0.00297212...*I*x^4 + 0.0137806...*x^3 + ... + 0.00610099...
+? mfsymboleval([mf,F],[I,2*I])
+% = 0.00296657...*I*x^4 + 0.0137326...*x^3 + ... + 0.00597601...
+\end{verbatim}
+
+These examples illustrate four points:
+\begin{enumerate}\item Computing an \kbd{mfsymbol}
+may be rather long ($9.8$ seconds in this example), although as already
+mentioned, subsequent computations of symbols \emph{between cusps} will then
+be instantaneous.
+\item As the next three commands show, \kbd{mfsymboleval}
+also accepts paths with endpoints in the upper half-plane, but in this case
+the computation may be very slow if an endpoint is very close to the real line.
+\item The next command shows the use of the extra parameter $\ga$ which
+asks to integrate $F|_k\ga$ instead of $F$, here with \kbd{ga=[0,-1;1,0]}.
+This allows to perform the same computation in $0.74$ seconds instead of
+$20.5$. This is what is done \emph{automatically} by \kbd{mfsymboleval} when
+the endpoints are cusps, but here we must do it by hand.
+\item The last two commands show a special format which avoids doing the
+longish \kbd{mfsymbol} computation: the results are obtained almost
+instantaneously \emph{without} using symbols. The price to pay in using this
+``cheaper'' format is that the endpoints of the path cannot be cusps other than
+oo.
+\end{enumerate}
 
 \begin{verbatim}
 ? mfpetersson(FS1, FS1)
@@ -1145,6 +1193,41 @@ product of $B[i]$ with $B[j]$ will vanish when the corresponding scalar
 product of the corresponding columns vanish, hence for $(i,j)=(1,2)$,
 $(1,4)$, $(1,5)$, $(2,3)$, $(2,6)$, $(3,4)$, $(3,5)$, $(4,6)$, and $(5,6)$.
 
+\smallskip
+
+Note that \kbd{mfpetersson} can also be used for two noncuspidal forms, as
+long as the Petersson product converges. Consider the following example:
+
+\begin{verbatim}
+? E1=mfeisenstein(5,1,-3);E2=mfeisenstein(5,-3,1);
+? mf=mfinit([12,5,-3]); cusps=mfcusps(12);
+? apply(x->mfcuspval(mf,E1,x),cusps)
+% = [0, 0, 1, 0, 1, 1]
+? apply(x->mfcuspval(mf,E2,x),cusps)
+% = [1/3, 1/3, 0, 1/3, 0, 0]
+? E1S=mfsymbol(mf,E1);E2S=mfsymbol(mf,E2);
+? mfpetersson(E1S,E2S)
+% = -1.8848216716468969562647734582232071466 E-5\
+     - 1.9057659114817512165 E-43*I
+? mf3=mfinit([3,5,-3]);E1S=mfsymbol(mf3,E1);E2S=mfsymbol(mf3,E2);
+? mfpetersson(E1S,E2S);
+time = 16 ms.
+? mf96=mfinit([96,5,-3]);E1S=mfsymbol(mf96,E1);E2S=mfsymbol(mf96,E2);
+? mfpetersson(E1S,E2S);
+time = 3,521 ms.
+\end{verbatim}
+
+The first commands create the two Eisenstein series of weight $5$
+$E_5(1,\chi_{-3})$ and $E_5(\chi_{-3},1)$, which belong to
+$M_5(\G_0(3),\chi_{-3})$. In the next commands, we look at the larger space of
+level $12$ and compute the valuations of $E_1$ and $E_2$ at the six cusps of
+$\G_0(12)$. We see that at these six cusps one of the two Eisenstein series
+vanishes, so the Petersson product will converge, and is computed in the
+next command. In the last commands we compute the same product but in level
+$3$ and level $96$; because of the normalization, we obtain the same result
+(not given), but of course the times are very different: $0.016$ seconds in
+level $3$ and $3.5$ seconds in level $96$.
+
 \medskip
 
 There are two more important numerical functions: evaluating a modular form
@@ -1152,7 +1235,7 @@ at a point in the upper half plane, and evaluating the corresponding
 $L$-function. We begin by a trivial example:
 
 \begin{verbatim}
-? E4 = mfEk(4); mfeval(E4,I)
+? E4 = mfEk(4); mf = mfinit(E4); mfeval(mf,E4,I)
 % = 1.4557628922687093224624220035988692874
 ? 3*gamma(1/4)^8/(2*Pi)^6
 % = 1.4557628922687093224624220035988692874
@@ -1362,6 +1445,183 @@ using \kbd{mfsturm([N,k])}, not \kbd{mfsturm(mf)}) is also valid modulo
 $p$. Here the bound is equal to $15$, so the fact that the coefficients
 are congruent up to $n=16$ shows that they are congruent for all $n$.
 
+\section{Half-Integral Weight Functions}
+
+\subsection{General Functions}
+
+Many of the commands that we have seen, and most importantly the
+\kbd{mfinit} and \kbd{mfdim} command, can be used verbatim in the case
+of modular forms of half-integral weight, sometimes with small differences.
+\begin{itemize}\item The only preprogrammed leaf functions created from
+scratch are \kbd{mfEH}, which gives the Cohen--Hurwitz Eisenstein series
+of half-integral weight, and \kbd{mfTheta} which gives the standard Jacobi
+theta function of weight $1/2$.
+\item Two functions created from mathematical objects can give half-integral
+weight forms, \kbd{mfetaquo} and \kbd{mffromqf}:
+\end{itemize}
+
+\begin{verbatim}
+? F=mffrometaquo([2,5;1,-2;4,-2]);Ser(mfcoefs(F,10),q)
+% = 1 + 2*q + 2*q^4 + 2*q^9 + O(q^11)
+? T=mfTheta();mfisequal(F,T)
+% = 1
+? F=mffromqf(2*matid(3))[2];Ser(mfcoefs(F,5),q)
+% = 1 + 6*q + 12*q^2 + 8*q^3 + 6*q^4 + 24*q^5 + O(q^6)
+? mfisequal(F,mfpow(T,3))
+% = 1
+\end{verbatim}
+
+\begin{itemize}\item The only spaces which are \emph{directly} available
+by \kbd{mfinit} and \kbd{mfdim} are the full cuspidal space and the full
+modular form space. The new space can be defined in some cases but indirectly,
+using Kohnen's theory, see below.
+\item The only Hecke operators $T(n)$ which are nonzero are those where
+$n$ is a square (we have not programmed the $T(p)$ with $p$ dividing the
+level).
+\end{itemize}
+
+\subsection{Specific Functions}
+
+The most important specific function in half-integral weight is
+\kbd{mfshimura}, which computes the Shimura lift corresponding to a
+fundamental discriminant $D$ (1 by default) and also returns an \kbd{mf} space
+containing the lift:
+
+\begin{verbatim}
+? mf=mfinit([60,5/2],1); F=mfbasis(mf)[1]; D = [1,5,8,12,13,17,21];
+? for (i=1, #D, \
+    [mf2,G] = mfshimura(mf,F,D[i]); print(mfcoefs(G,10)))
+[0, 1, 2, 0, 2, -1, -2, 6, 6, -3, -10]
+[0, 0, 0, -1, 0, 0, 20, 0, 0, -2, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 24, 0, 0, 0, 0, -48]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+[0, 1, 0, 3, 52, -5, -120, 14, -156, 3, 0]
+? mfdescribe(mf)
+% = "S_5/2(G_0(60, 1))"
+? mfdescribe(mf2)
+% = "S_4(G_0(30, 1))"
+\end{verbatim}
+
+Two things to notice: first the image can be identically $0$.
+Second, the program takes some time (20 seconds for the above), because
+computing a Shimura image takes time proportional to $D^4$.
+
+\smallskip
+
+The other specific functions are related to the Kohnen $+$-space. Continuing
+the above example:
+
+\begin{verbatim}
+? K=mfkohnenbasis(mf); matsize(K)
+% = [14, 4]
+? K[,1]
+% = [-1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]~
+? F=mflinear(mf,K[,1]);
+? Ser(mfcoefs(F,40),q)
+% = -q + 2*q^4 - 4*q^16 + 3*q^21 - 6*q^24 + 5*q^25 + 12*q^36 + O(q^41)
+\end{verbatim}
+
+The first command shows that although the dimension of the cuspidal space
+is $14$, that of the Kohnen $+$-space is $4$; if desired, the corresponding
+modular forms can be obtained by \kbd{mflinear(mf,K[,j])} for each $j$ as
+done in the next command. The Fourier expansion of $F$ given
+on the last line shows that the only nonzero coefficients of $q^n$ occur
+when $n\equiv0,1\pmod4$. Continuing:
+
+\begin{verbatim}
+? [mf2,FS]=mfshimura(mf,F); mfparams(FS)
+% = [15, 4, 1, y]
+? [mf2,FS]=mfshimura(mf,mfbasis(mf)[1]); mfparams(FS)
+% = [30, 4, 1, y]
+\end{verbatim}
+
+These commmands show that the image of an element of the Kohnen $+$-space has
+level $15=60/4$, while the second shows that the image of a random form has
+level $30=60/2$.
+
+\smallskip
+
+The last important command related to the Kohnen $+$-space is
+\kbd{mfkohnenbijection}. This allows, in half-integral weight, to compute
+the new space, its splitting, and the eigenforms:
+
+\begin{verbatim}
+? [mf3,M,K,shi] = mfkohnenbijection(mf);
+? M*mfheckemat(mf3,11)*M^(-1)
+% =
+[ 48  24  24  24]
+
+[  0  32   0 -20]
+
+[-48 -72 -40 -72]
+
+[  0   0   0  52]
+? mf30=mfinit(mf3,0); B0=mfbasis(mf30);
+? BNEW=apply(x->mflinear(mf,K*M*mftobasis(mf3,x)),B0); #BNEW
+% = 2
+? BE=mfeigenbasis(mf30);
+? BEIGEN = [mflinear(mf,K*M*mftobasis(mf3,f)) | f<-BE ];
+? Ser(mfcoefs(BEIGEN[1],36),q)
+% = q + q^4 - 3*q^9 - 5*q^16 + 6*q^21 + 3*q^24 - 5*q^25 - 3*q^36 + O(q^37)
+? Ser(mfcoefs(BEIGEN[2],40),q)
+% = q^5 + q^8 - 3*q^12 - 4*q^17 + 3*q^20 + q^32 + 6*q^33 + O(q^37)
+? mfcoefs(BEIGEN[1],10^4);
+time = 43,060 ms.
+? T=mfTheta();F1T=mfmul(BEIGEN[1],T);mf1t=mfinit(F1T,1);V=mftobasis(mf1t,F1T);
+? COEFS=mfcoefs(mf1t,10^4)*V;
+time = 11,080 ms.
+\end{verbatim}
+
+The \kbd{mfkohnenbijection} command computes a square matrix $M$ giving
+a Hecke-module isomorphism from the space $S_{2k-1}(\G_0(N),\chi^2)$ to the
+Kohnen $+$-space $S_k^+(\G_0(4N,\chi))$. Note that this
+makes sense only when $N$ is squarefree.
+
+Thus, $M$ allows to transport all problems from the ``difficult'' space
+$S=S_k^+(\G_0(4N),\chi)$ to the ``easy'' space $S_{2k-1}(\G_0(N),\chi^2)$.
+For instance, the next command (essentially instantaneous) gives the matrix of
+the Hecke operator $T(121)$ on $S$; a direct implementation using the action
+of $T(121)$ would take $10.6$ seconds.
+
+The vector \kbd{BNEW} computed afterwards gives a basis of the Kohnen new
+space $S_k^{+,\text{new}}(\G_0(4N),\chi)$, here of dimension $2$.
+
+The vector \kbd{BEIGEN} computed in a similar way contains the eigenfunctions
+of this new space. The example of \kbd{BEIGEN[2]} shows that, contrary to
+the integral weight case, these eigenfunctions can have vanishing coefficient
+of $q^1$. Note that we \emph{know} by construction that the image of
+\kbd{BEIGEN[j]} by any Shimura lift is a multiple of \kbd{BE[j]} (with the
+same index $j$).
+
+Computing $10^4$ coefficients of these eigenforms (or more generally forms
+of half-integral weight) takes some time, here $43$ seconds. The last commands
+show a more efficient way to compute them: we first multiply by
+\kbd{mfTheta()}; computing the coefficients of the resulting \kbd{F1T}
+would not be any faster. However, the \kbd{mfcoefs(mf1t,10\^{}4)} command
+uses the special structure of the modular form space to compute the
+coefficients more efficiently, here in $11$ seconds, almost $4$ times faster.
+Of course, to recover the coefficients of \kbd{BEIGEN[1]} itself one can write
+something like:
+
+\begin{verbatim}
+? concat(0, Vec(Ser(COEFS)/Ser(mfcoefs(T,10^4))));
+\end{verbatim}
+
+This takes negligible time. The initial \kbd{concat} is due to the fact that
+the \kbd{Pari/GP} \kbd{Vec} command ignores the initial valuation of a power
+series.
+
+\smallskip
+
+The above construction of the new space and the eigenforms being so useful,
+a specific function exists for this purpose: instead of all the above,
+simply write \kbd{[mf30,BNEW,BEIGEN]=mfkoheneigenbasis(mf,bij)}. Here
+\kbd{BNEW} and \kbd{BEIGEN} will be matrices whose columns are the
+coefficients of a basis of the Kohnen new space and of the eigenforms
+respectively, and \kbd{mf30} the corresponding new space of integral weight.
+
 \section{Reference Manual for the Modular Forms Package}
 
 We give a brief description in alphabetical order of all the functions
@@ -1439,7 +1699,7 @@ only quasi-modular.
 
 \kbd{mfderivE2(F,\{m=1\})}: $m$th Serre derivative $q.d/dq F-kE_2F/12$.
 
-\kbd{mfdescribe(F,\&G)}: $F$ being a modular form or a modular form space,
+\kbd{mfdescribe(F,\{\&G\})}: $F$ being a modular form or a modular form space,
 gives a human-readable description of $F$. If the address of $G$ is given,
 put in it the vector of parameters of the outmost operator defining $F$
 (empty vector if $F$ is a leaf or a modular form space).
@@ -1539,6 +1799,26 @@ two CM discriminants.
 \kbd{mfisequal(F,G,\{lim=0\})}: Are $F$ and $G$ equal, or at least are their
 first \kbd{lim+1} Fourier coefficients equal ?
 
+\kbd{mfkohnenbasis}(mf): \kbd{mf} being a cuspidal space of half-integral
+weight and level $4N$ with $N$ squarefree, computes a basis $B$ of the Kohnen
+$+$-space as a matrix whose columns are the coefficients of $B$ on the basis
+of \kbd{mf}.
+
+\kbd{mfkohnenbijection}(mf): \kbd{mf} being a cuspidal space of
+half-integral weight, computes \kbd{[mf2,M,K,shi]}, where \kbd{M} is a matrix
+giving a Hecke-module isomorphism from the cuspidal space \kbd{mf2} of weight
+$2k-1$ and level $N$ to the Kohnen $+$-space of weight $k$ and level $4N$,
+the columns of the matrix \kbd{K} are the coefficients of the Kohnen $+$-space
+on the basis of \kbd{mf}, and \kbd{shi} gives technical information about
+which linear combination of Shimura lifts has been chosen.
+
+\kbd{mfkohneneigenbasis}(mf,bij): \kbd{mf} being a cuspidal space of
+half-integral weight and \kbd{bij} the output of \kbd{mfkohnenbijection(mf)},
+computes \kbd{[mf0,BNEW,BEIGEN]}, where \kbd{BNEW} and \kbd{BEIGEN} are two
+matrices whose columns are the coefficients of a basis of the Kohnen new space
+and of the eigenforms on the basis of \kbd{mf} respectively, and \kbd{mf0} is
+the corresponding new space of integral weight $2k-1$.
+
 \kbd{mflinear(vecF,vecL)}: linear combination of the forms in \kbd{vecF}
 with coefficients in \kbd{vecL}. Forms must have the same weight and
 character, but not necessarily the same level. This function must be used
@@ -1582,9 +1862,12 @@ dividing $N$.
 is one, where $m$ can be positive or negative. The result is usually not
 a modular form.
 
-\kbd{mfshimura(F,t)}: $F$ being a modular form of half-integral weight
-$k\ge3/2$ and $t$ a positive squarefree integer, return the corresponding
-Shimura lift of integral weight $2k-1$.
+\kbd{mfshimura(mf,F,\{D = 1\})}: $F$ being a modular form of
+half-integral weight $k\ge3/2$ and $D$ a fundamental discriminant, return
+\kbd{[mf2,FS,v]}, where \kbd{FS} is the corresponding Shimura lift of integral
+weight $2k-1$, \kbd{mf2} the corresponding modular form space and \kbd{v} the
+coefficients of \kbd{FS} on the basis of \kbd{mf2}. By extension, $D$ can also
+be a positive squarefree integer.
 
 \kbd{mfslashexpansion(mf,F,g,n,\{flrat=1\},\{\&A\})}: compute the Fourier
 expansion of $F|_kg$ to order $n$, where $F$ is a form in \kbd{mf} and
@@ -1613,10 +1896,13 @@ only an upper bound.
 \kbd{mfsymbol(mf,F)}: initialize data for working with integrals related
 to $F$ such as \kbd{mfsymboleval}, \kbd{mfpetersson}, and \kbd{mfmanin}.
 
-\kbd{mfsymboleval(FS,path)}: $FS$ being the modular symbol assocated to
-some form $F$ and \kbd{path} being $[s1,s2]$ where $s1$ and $s2$ are cusps,
-evaluate the symbol on the path, i.e., compute the polynomial
-$\int_{s1}^{s2}(X-\tau)^{k-2}F(\tau)\,d\tau$.
+\kbd{mfsymboleval(FS,path,\{ga\})}: $FS$ being the modular symbol assocated to
+some form $F$ and \kbd{path} being $[s1,s2]$ where $s1$ and $s2$ are cusps
+or points in the upper half-plane, evaluate the symbol on the path, i.e.,
+compute the polynomial
+$\int_{s1}^{s2}(X-\tau)^{k-2}F(\tau)\,d\tau$. If $\ga\in GL_2^+(\Q)$ is given,
+replace $F$ by $F|_k\ga$. If the integral diverges, the result will be
+a rational function.
 
 \kbd{mftaylor(F,n,\{fl=0\})}: for now, only for $F\in M_k(\G)$ and at the
 point $i$. Compute the first $n$ Taylor coefficients of $F$ around $i$;
