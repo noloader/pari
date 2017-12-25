@@ -3980,6 +3980,7 @@ GEN   MF_get_gN(GEN mf);
 GEN   MF_get_gk(GEN mf);
 long  MF_get_k(GEN mf);
 GEN   MF_get_newforms(GEN mf);
+long  MF_get_r(GEN mf);
 long  MF_get_space(GEN mf);
 GEN   MF_get_S(GEN mf);
 GEN   MFcusp_get_vMjd(GEN mf);

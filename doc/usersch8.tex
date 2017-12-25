@@ -175,6 +175,9 @@ is created by \kbd{mfinit} and checked using \kbd{checkMF}.
 
 \fun{long}{MF_get_k}{GEN mf} return the level $k$ as a \kbd{long}.
 
+\fun{long}{MF_get_r}{GEN mf} assuming the level is a half-integer, return
+the integer $r = k - (1/2)$.
+
 \fun{GEN}{MF_get_CHI}{GEN mf} return the nebentypus $\chi$, which is a
  special form of character structure attached to Dirichlet characters (see
  next section). Its values are given as algebraic numbers: either $\pm1$ or

@@ -7155,15 +7155,12 @@ mfiscuspidal(GEN mf, GEN F)
 {
   pari_sp av = avma;
   GEN mf2;
-  long space = MF_get_space(mf);
-  if (space == mf_CUSP || space == mf_NEW || space == mf_OLD)
-    return 1;
+  if (space_is_cusp(MF_get_space(mf))) return 1;
   if (typ(mf_get_gk(F)) == t_INT)
   {
     GEN v = mftobasis(mf, F, 0);
-    long tr = gequal0(vecslice(v, 1, lg(MF_get_E(mf)) - 1));
-    avma = av;
-    return tr;
+    long s = gequal0(vecslice(v, 1, lg(MF_get_E(mf)) - 1));
+    avma = av; return s;
   }
   if (!gequal0(mfak_i(F, 0))) return 0;
   mf2 = obj_checkbuild(mf, MF_MF2INIT, &mf2init);
