@@ -5366,7 +5366,7 @@ ZabM_ker(GEN M, GEN P, long n)
     Hr = FpXM_ratlift(H, q);
     if (DEBUGLEVEL>5) err_printf("ZabM_ker mod %ld (ratlift=%ld)\n", p,!!Hr);
     if (Hr) {/* DONE ? */
-      GEN Hl = Q_remove_denom(Hr, NULL);
+      GEN Hl = vec_Q_primpart(Hr);
       GEN MH = ZXQM_mul(M, Hl,P);
       if (gequal0(MH)) { H = Hl;  break; }
     }
