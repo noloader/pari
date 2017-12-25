@@ -6,15 +6,8 @@ Help: mfsymbol(mf,f): Initialize data for working with all period
  polynomials of the modular form f: this is essential for efficiency
  for functions such as mfsymboleval, mfmanin, and mfpetersson.
 Doc: Initialize data for working with all period
- polynomials of the modular form $f$, more precisely by the cuspidal part
- of $f$: this is essential for efficiency for functions such as
- \kbd{mfsymboleval}, \kbd{mfmanin}, and \kbd{mfpetersson}.
- The (technical) output is a 6-component vector
- \kbd{[mf,coefs,pols,cosets,bitprec,embed]}, where \kbd{coefs} are the
- coefficients of $f$ on the Eisenstein and cuspidal part, \kbd{cosets} is the
- output of \kbd{mfcosets(mf)}, \kbd{pols} the period polynomials corresponding
- to each coset, \kbd{bitprec} is the current bitprecision, and \kbd{embed}
- is a vector describing all the embeddings of $f$ into $\C$.
+ polynomials of the modular form $f$: this is essential for efficiency for
+ functions such as \kbd{mfsymboleval}, \kbd{mfmanin}, and \kbd{mfpetersson}.
  \bprog
  ? mf=mfinit([23,2],0);F=mfeigenbasis(mf)[1];
  ? FS=mfsymbol(mf,F);

@@ -58,6 +58,12 @@ We let $M$ = \kbd{mfinit}$(\dots)$ denote a modular space.
 \li{\dots of Atkin--Lehner $w_Q$ on $(f_i)$}{mfatkinmat$(M,Q)$}
 \li{eigenvalues of $w_Q$}{mfatkineigenvalues$(M,Q)$}
 \li{basis of period poynomials for weight $k$}{mfperiodpolbasis$(k)$}
+
+\li{basis of the Kohnen $+$-space}{mfkohnenbasis$(M)$}
+\li{\dots new space and eigenforms}{mfkohneneigenbasis$(M, b)$}
+\li{isomorphism $S_k^+(4N,\chi) \to S_{2k-1}(N,\chi^2)$}
+   {mfkohnenbijection$(M)$}
+
 \smallskip
 Useful data can also be obtained a priori, without computing a complete
 modular space:
@@ -122,7 +128,7 @@ the $F[i]$ are modular forms\hfil\break
 \li{Serre derivative $\big(q \cdot {d\over dq} - {k\over 12} E_2\big) f$}
    {mfderivE2$(f)$}
 \li{Rankin-Cohen bracket $[f,g]_n$}{mfbracket$(f,g,n)$}
-\li{Shimura lift of $f$ for discriminant $D$}{mfshimura$(f,D)$}
+\li{Shimura lift of $f$ for discriminant $D$}{mfshimura$(mf,f,D)$}
 \li{complex embeddings of $f$}{mfembed$(f)$}
 
 \subsec{Properties of modular forms} In this section, $f = \sum_n f_n q^n$
