@@ -172,7 +172,7 @@ find_j_inv_with_given_trace(
   long i, found = 0;
   ulong p = ne->p, pi = ne->pi;
   long t = ne->t;
-  ulong p1 = p + 1, j = 0, m, c_1728 = 1728 % p;
+  ulong p1 = p + 1, a4, a6, m;
   GEN A4, A6, tx, ty;
   /* This number must be the same as LAST_X1_LEVEL in 'torsion.c', */
   enum { MAX_X1_CURVE_LVL = 39 };
@@ -228,13 +228,11 @@ find_j_inv_with_given_trace(
                                  (ulong *)(tx + 1), (ulong *)(ty + 1),
                                  batch_size, m, p);
     for (i = 1; i <= batch_size; ++i) {
-      ulong a4, a6;
       GEN P, p1P, tP;
       ++curves_tested;
       a4 = A4[i];
       a6 = A6[i];
-      j = Fl_ellj_pre(a4, a6, p, pi);
-      if (j == 0 || j == c_1728)
+      if (a4 == 0 || a6 == 0)
         continue;
 
       P = random_Flj_pre(a4, a6, p, pi);
@@ -244,12 +242,12 @@ find_j_inv_with_given_trace(
       if (jac_eq_or_opp(p1P, tP, p, pi)
           && test_curve_order(ne, a4, a6, N0, N1, n0, n1, hasse)) {
         found = 1;
+        *j_t = Fl_ellj_pre(a4, a6, p, pi);
         break;
       }
       avma = av;
     }
   }
-  *j_t = j;
   avma = ltop;
   return curves_tested;
 }
