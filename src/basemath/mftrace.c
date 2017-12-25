@@ -10237,36 +10237,47 @@ mf2init_Nkchi(long N, long r, GEN CHI, long space)
 /**************************************************************************/
 /*                          Kohnen + space                                */
 /**************************************************************************/
+
+static GEN
+mfkohnenbasis_i(GEN mf, GEN CHIP, long eps, long sb)
+{
+  GEN M = shallowtrans(mfcoefs_mf(mf, sb, 1)), ME;
+  long c, i, n;
+  ME = cgetg(sb + 2, t_MAT);
+  for (i = 0, c = 1; i <= sb; i++)
+  {
+    long j = i & 3L;
+    if (j == 2 || j == 2 + eps) gel(ME, c++) = gel(M, i+1);
+  }
+  setlg(ME, c); ME = shallowtrans(Q_primpart(ME));
+  n = mfcharorder_canon(CHIP);
+  return n == 1? ZM_ker(ME): ZabM_ker(liftpol_shallow(ME), mfcharpol(CHIP), n);
+}
 GEN
 mfkohnenbasis(GEN mf)
 {
   pari_sp av = avma;
-  GEN gk, CHI, CHIP, M, ME, K;
-  long N4, r, eps, sb, c, i, n;
+  GEN gk, CHI, CHIP, K;
+  long N4, r, eps, sb;
   checkMF(mf);
   if (MF_get_space(mf) != mf_CUSP)
     pari_err_TYPE("mfkohnenbasis [not a cuspidal space", mf);
-  if (!MF_get_dim(mf))
-    return cgetg(1, t_MAT);
+  if (!MF_get_dim(mf)) return cgetg(1, t_MAT);
   N4 = MF_get_N(mf) >> 2; gk = MF_get_gk(mf); CHI = MF_get_CHI(mf);
   if (typ(gk) == t_INT) pari_err_TYPE("mfkohnenbasis", gk);
   r = MF_get_r(mf);
   CHIP = mfcharchiliftprim(CHI, N4, &eps);
   if (!CHIP) pari_err_TYPE("mfkohnenbasis [incorrect CHI]", CHI);
   if (odd(r)) eps = -eps;
-  sb = mfsturmNgk(N4 << 4, gk) + 1;
-  M = shallowtrans(mfcoefs_mf(mf, sb, 1));
-  ME = cgetg(sb + 2, t_MAT); c = 1;
-  for (i = 0; i <= sb; i++)
+  if (uissquarefree(N4))
   {
-    long j = i & 3L;
-    if (j == 2 || j == 2 + eps) gel(ME, c++) = gel(M, i+1);
+    long d = mfdim_Nkchi(N4, 2*r, mfcharpow(CHI, gen_2), mf_CUSP);
+    sb = mfsturmNgk(N4 << 2, gk) + 1;
+    K = mfkohnenbasis_i(mf, CHIP, eps, sb);
+    if (lg(K) - 1 == d) return gerepilecopy(av, K);
   }
-  setlg(ME, c); ME = shallowtrans(ME);
-  n = mfcharorder_canon(CHIP);
-  ME = Q_primpart(ME);
-  K = n==1? ZM_ker(ME)
-          : ZabM_ker(liftpol_shallow(ME), mfcharpol(CHIP), n);
+  sb = mfsturmNgk(N4 << 4, gk) + 1;
+  K = mfkohnenbasis_i(mf, CHIP, eps, sb);
   return gerepilecopy(av, K);
 }
 
