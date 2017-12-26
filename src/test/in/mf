@@ -294,7 +294,9 @@ mfcoefs(mfderivE2(E6),6)
 mfcoefs(mfbracket(E4,E6,1),10)/(-3456)
 mf = mfinit([7,3,Mod(6,7)], 0); mfeigenbasis(mf);
 mf=mfinit([10,7,[Z5,2]], 0); mffields(mf)
-[f1,f2]=mfeigenbasis(mf); f1=mfsymbol(mf,f1); f2=mfsymbol(mf,f2);
+[f1,f2]=mfeigenbasis(mf);
+mfperiodpol(mf,f1)
+f1=mfsymbol(mf,f1); f2=mfsymbol(mf,f2);
 mfperiodpol(mf,f1)
 mfperiodpol(mf,f2)
 mfsymboleval(f1,[0,oo])
