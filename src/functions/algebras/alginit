@@ -16,19 +16,19 @@ Doc: initialize the central simple algebra defined by data $B$, $C$ and
  Assumes that $e_1= 1$, that the multiplication table is integral, and that
  $K[e_1,\dots,e_n]$ describes a central simple algebra over $K$.
  \bprog
- { m_i = [0,-1,0, 0;
+ { mi = [0,-1,0, 0;
           1, 0,0, 0;
           0, 0,0,-1;
           0, 0,1, 0];
-   m_j = [0, 0,-1,0;
+   mj = [0, 0,-1,0;
           0, 0, 0,1;
           1, 0, 0,0;
           0,-1, 0,0];
-   m_k = [0, 0, 0, 0;
+   mk = [0, 0, 0, 0;
           0, 0,-1, 0;
           0, 1, 0, 0;
           1, 0, 0,-1];
-   A = alginit(nfinit(y), [matid(4), m_i,m_j,m_k],  0); }
+   A = alginit(nfinit(y), [matid(4), mi,mj,mk],  0); }
  @eprog represents (in a complicated way) the quaternion algebra $(-1,-1)_\Q$.
  See below for a simpler solution.
 
