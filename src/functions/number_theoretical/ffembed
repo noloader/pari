@@ -14,4 +14,4 @@ Doc: given two finite fields elements $a$ and $b$, return a \var{map}
  ? A = ffmap(m, a);
  ? minpoly(A) == minpoly(a)
  %5 = 1
- \eprog
+ @eprog

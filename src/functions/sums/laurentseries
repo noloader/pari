@@ -48,5 +48,4 @@ Doc: Expand $f$ as a Laurent series around $x = 0$ to order $M$. This
  time = 1,134 ms.
  @eprog
 
- \synt{laurentseries}{void *E, GEN (*f)(void*,GEN,long), long M, long v, long
- prec}.
+ \synt{laurentseries}{void *E, GEN (*f)(void*,GEN,long), long M, long v, long prec}.

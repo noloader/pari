@@ -28,4 +28,4 @@ Doc: evaluates \var{seq}, where the formal variable $E = [\var{name}, M, G]$
  The \tet{elldata} database must be installed and contain data for the
  specified conductors.
 
- \synt{forell}{void *data, long (*call)(void*,GEN), long a, long b, long flag}.
+ \synt{forell}{void *data, long (*f)(void*,GEN), long a, long b, long flag}.
