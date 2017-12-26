@@ -4574,10 +4574,7 @@ static int
 iselliptic(GEN Ast, long i) { return i == Ast[i]; }
 static int
 isparabolic(GEN Ast, long i)
-{
-  long i2 = Ast[i];
-  return (i2 == i+1 || i2 == i-1);
-}
+{ long i2 = Ast[i]; return (i2 == i+1 || i2 == i-1); }
 #endif
 
 /* M from msinit, F QM maximal rank */
