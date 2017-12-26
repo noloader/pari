@@ -159,6 +159,9 @@ jac_eq_or_opp(GEN P, GEN Q, ulong p, ulong pi)
                   Fl_mul_pre(Q[1], Fl_sqr_pre(P[3], p, pi), p, pi), p);
 }
 
+static GEN
+random_FleV(GEN x, GEN a6, ulong p, ulong pi)
+{ pari_APPLY_type(t_VEC, random_Fle_pre(uel(x,i), uel(a6,i), p, pi)) }
 
 /* This is Sutherland 2009 Algorithm 1.1 */
 static long
@@ -223,30 +226,31 @@ find_j_inv_with_given_trace(
   hasse_bounds(&hasse[0], &hasse[1], p);
 
   av = avma;
-  while ( ! found && (max_curves <= 0 || curves_tested < max_curves)) {
+  while ( ! found && (max_curves <= 0 || curves_tested < max_curves))
+  {
+    GEN Pp1, Pt;
     random_curves_with_m_torsion((ulong *)(A4 + 1), (ulong *)(A6 + 1),
                                  (ulong *)(tx + 1), (ulong *)(ty + 1),
                                  batch_size, m, p);
+    Pp1 = random_FleV(A4, A6, p, pi);
+    Pt = gcopy(Pp1);
+    FleV_mulu_pre_inplace(Pp1, p1, A4, p, pi);
+    FleV_mulu_pre_inplace(Pt, t, A4,  p, pi);
     for (i = 1; i <= batch_size; ++i) {
-      GEN P, p1P, tP;
       ++curves_tested;
       a4 = A4[i];
       a6 = A6[i];
       if (a4 == 0 || a6 == 0)
         continue;
 
-      P = random_Flj_pre(a4, a6, p, pi);
-      p1P = Flj_mulu_pre(P, p1, a4, p, pi);
-      tP = Flj_mulu_pre(P, t, a4, p, pi);
-
-      if (jac_eq_or_opp(p1P, tP, p, pi)
+      if (mael(Pp1,i,1) == mael(Pt,i,1)
           && test_curve_order(ne, a4, a6, N0, N1, n0, n1, hasse)) {
         found = 1;
         *j_t = Fl_ellj_pre(a4, a6, p, pi);
         break;
       }
-      avma = av;
     }
+    avma = av;
   }
   avma = ltop;
   return curves_tested;

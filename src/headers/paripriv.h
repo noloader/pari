@@ -691,6 +691,13 @@ pariFILE* newfile(FILE *f, const char *name, int type);
 int     popinfile(void);
 pariFILE* try_pipe(const char *cmd, int flag);
 
+/* Fle.c */
+
+void    FleV_add_pre_inplace(GEN P, GEN Q, GEN a4, ulong p, ulong pi);
+void    FleV_dbl_pre_inplace(GEN P, GEN a4, ulong p, ulong pi);
+void    FleV_mulu_pre_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi);
+void    FleV_sub_pre_inplace(GEN P, GEN Q, GEN a4, ulong p, ulong pi);
+
 /* Flxq_log.c */
 
 GEN Flxq_log_index(GEN a0, GEN b0, GEN m, GEN T0, ulong p);

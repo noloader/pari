@@ -596,3 +596,130 @@ Fl_elltwist(ulong a4, ulong a6, ulong p, ulong *pt_a4, ulong *pt_a6)
 {
   Fl_elltwist_disc(a4, a6, nonsquare_Fl(p), p, pt_a4, pt_a6);
 }
+
+static void
+Fle_dbl_sinv_pre_inplace(GEN P, ulong a4, ulong sinv, ulong p, ulong pi)
+{
+  ulong x, y, slope;
+  if (P[1]==p) return;
+  if (!P[2]) { P[1] = p; return; }
+  x = P[1]; y = P[2];
+  slope = Fl_mul_pre(Fl_add(Fl_triple(Fl_sqr_pre(x, p, pi), p), a4, p),
+                sinv, p, pi);
+  P[1] = Fl_sub(Fl_sqr_pre(slope, p, pi), Fl_double(x, p), p);
+  P[2] = Fl_sub(Fl_mul_pre(slope, Fl_sub(x, P[1], p), p, pi), y, p);
+}
+
+static void
+Fle_add_sinv_pre_inplace(GEN P, GEN Q, ulong a4, ulong sinv, ulong p, ulong pi)
+{
+  ulong Px, Py, Qx, Qy, slope;
+  if (P[1]==p) { P[1] = Q[1]; P[2] = Q[2]; }
+  if (ell_is_inf(Q)) return;
+  Px = P[1]; Py = P[2];
+  Qx = Q[1]; Qy = Q[2];
+  if (Px==Qx)
+  {
+    if (Py==Qy) Fle_dbl_sinv_pre_inplace(P, a4, sinv, p, pi);
+    else P[1] = p;
+    return;
+  }
+  slope = Fl_mul_pre(Fl_sub(Py, Qy, p), sinv, p, pi);
+  P[1] = Fl_sub(Fl_sub(Fl_sqr_pre(slope, p, pi), Px, p), Qx, p);
+  P[2] = Fl_sub(Fl_mul_pre(slope, Fl_sub(Px, P[1], p), p, pi), Py, p);
+}
+
+static void
+Fle_sub_sinv_pre_inplace(GEN P, GEN Q, ulong a4, ulong sinv, ulong p, ulong pi)
+{
+  ulong Px, Py, Qx, Qy, slope;
+  if (P[1]==p) { P[1] = Q[1]; P[2] = Fl_neg(Q[2], p); }
+  if (ell_is_inf(Q)) return;
+  Px = P[1]; Py = P[2];
+  Qx = Q[1]; Qy = Q[2];
+  if (Px==Qx)
+  {
+    if (Py==Qy) P[1] = p;
+    else
+      Fle_dbl_sinv_pre_inplace(P, a4, sinv, p, pi);
+    return;
+  }
+  slope = Fl_mul_pre(Fl_add(Py, Qy, p), sinv, p, pi);
+  P[1] = Fl_sub(Fl_sub(Fl_sqr_pre(slope, p, pi), Px, p), Qx, p);
+  P[2] = Fl_sub(Fl_mul_pre(slope, Fl_sub(Px, P[1], p), p, pi), Py, p);
+}
+
+static long
+skipzero(long n) { return n ? n:1; }
+
+void
+FleV_add_pre_inplace(GEN P, GEN Q, GEN a4, ulong p, ulong pi)
+{
+  long i, l=lg(a4);
+  GEN sinv = cgetg(l, t_VECSMALL);
+  for(i=1; i<l; i++)
+    uel(sinv,i) = mael(P,i,1)==p ? 1: skipzero(Fl_sub(mael(P,i,1), mael(Q,i,1), p));
+  Flv_inv_pre_inplace(sinv, p, pi);
+  for (i=1; i<l; i++)
+    Fle_add_sinv_pre_inplace(gel(P, i), gel(Q, i), uel(a4, i), uel(sinv, i), p, pi);
+}
+
+void
+FleV_sub_pre_inplace(GEN P, GEN Q, GEN a4, ulong p, ulong pi)
+{
+  long i, l=lg(a4);
+  GEN sinv = cgetg(l, t_VECSMALL);
+  for(i=1; i<l; i++)
+    uel(sinv,i) = mael(P,i,1)==p ? 1: skipzero(Fl_sub(mael(P,i,1), mael(Q,i,1), p));
+  Flv_inv_pre_inplace(sinv, p, pi);
+  for (i=1; i<l; i++)
+    Fle_sub_sinv_pre_inplace(gel(P, i), gel(Q, i), uel(a4, i), uel(sinv, i), p, pi);
+}
+
+void
+FleV_dbl_pre_inplace(GEN P, GEN a4, ulong p, ulong pi)
+{
+  long i, l=lg(a4);
+  GEN sinv = cgetg(l, t_VECSMALL);
+  for(i=1; i<l; i++)
+    uel(sinv,i) = mael(P,i,1)==p ? 1:skipzero(Fl_double(umael(P,i,2), p));
+  Flv_inv_pre_inplace(sinv, p, pi);
+  for(i=1; i<l; i++)
+    Fle_dbl_sinv_pre_inplace(gel(P, i), uel(a4, i), uel(sinv, i), p, pi);
+}
+
+static void
+FleV_mulu_pre_naf_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi, const naf_t *x)
+{
+  pari_sp av = avma;
+  GEN R;
+  ulong pbits, nbits, lnzb;
+  ulong m;
+  if (n == 1) return;
+
+  R = P; P = gcopy(P);
+  FleV_dbl_pre_inplace(R, a4, p, pi);
+  if (n == 2) return;
+
+  pbits = x->pbits;
+  nbits = x->nbits;
+  lnzb = x->lnzb;
+
+  m = (1UL << lnzb);
+  for ( ; m; m >>= 1) {
+    FleV_dbl_pre_inplace(R, a4, p, pi);
+    if (m & pbits)
+      FleV_add_pre_inplace(R, P, a4, p, pi);
+    else if (m & nbits)
+      FleV_sub_pre_inplace(R, P, a4, p, pi);
+  }
+  avma = av;
+}
+
+void
+FleV_mulu_pre_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi)
+{
+  naf_t x;
+  naf_repr(&x, n);
+  FleV_mulu_pre_naf_inplace(P, n, a4, p, pi, &x);
+}
