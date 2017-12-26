@@ -6,9 +6,9 @@ Doc:
 
  This section describes routines related to $L$-functions. We first introduce
  the basic concept and notations, then explain how to represent them in GP.
- Let $\Gamma_\R(s) = \pi^{-s/2}\Gamma(s/2)$, where $\Gamma$ is Euler's gamma
+ Let $\Gamma_{\R}(s) = \pi^{-s/2}\Gamma(s/2)$, where $\Gamma$ is Euler's gamma
  function. Given $d \geq 1$ and a $d$-tuple $A=[\alpha_1,\dots,\alpha_d]$ of
- complex numbers, we let $\gamma_A(s) = \prod_{\alpha \in A} \Gamma_\R(s +
+ complex numbers, we let $\gamma_A(s) = \prod_{\alpha \in A} \Gamma_{\R}(s +
  \alpha)$.
 
  Given a sequence $a = (a_n)_{n\geq 1}$ of complex numbers (such that $a_1 = 1$),

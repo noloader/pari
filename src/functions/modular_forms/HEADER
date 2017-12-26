@@ -41,7 +41,7 @@ Doc:
  the elements of this basis now have Fourier coefficients in a relative field
  extension of $\Q(\chi)$.
 
- \subsec{Modular forms} %GPHELPskip
+ \subsec{Generalized modular forms} %GPHELPskip
 
  A modular form is represented in a special internal format giving the
  possibility to compute an arbitrary number of terms of its Fourier coefficients
