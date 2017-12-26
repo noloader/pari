@@ -836,50 +836,51 @@ ellpadics2(GEN E, GEN p, long n)
   return gerepileupto(av, gdiv(b, gsub(l, a))); /* slope of eigenvector */
 }
 
+/* symbol and modular symbol space attached to E to later compute
+ * ellpadicL(E,p,, s,,D) */
 static GEN
-ellpadicL_symbol(GEN E, GEN s, long D)
+ellpadicL_symbol(GEN E, GEN p, GEN s, GEN D)
 {
-  GEN s1, s2;
-  long sign = D > 0? 1: -1;
-  if (!sisfundamental(D))
-    pari_err_DOMAIN("ellpadicL", "isfundamental(D)", "=", gen_0, stoi(D));
+  GEN s1, s2, N = ellQ_get_N(E), ap = ellap(E,p);
+  long sign;
+  if (D && typ(D) != t_INT) pari_err_TYPE("ellpadicL",D);
+  if (D && !Z_isfundamental(D))
+    pari_err_DOMAIN("ellpadicL", "isfundamental(D)", "=", gen_0, D);
+  if (!D) D = gen_1;
+  if (Z_pval(N, p) >= 2) pari_err_IMPL("additive reduction in ellpadicL");
   mspadic_parse_chi(s, &s1,&s2);
-  if (mpodd(s2)) sign = -sign;
-  return msfromell(E, sign);
+  sign = signe(D); if (mpodd(s2)) sign = -sign;
+  return shallowconcat(msfromell(E, sign), mkvec4(ap, p, s, D));
 }
+/* W an ellpadicL_symbol, initialize for ellpadicL(E,p,n,s,,D) */
 static GEN
-ellpadicL_init(GEN W, GEN E, GEN pp, long n, long D)
+ellpadicL_init(GEN W, long n)
 {
-  GEN M = gel(W,1), xpm = gel(W,2), NE = ellQ_get_N(E), Wp, den;
-  ulong p = itou(pp);
+  GEN Wp, den, M = gel(W,1), xpm = gel(W,2), ap = gel(W,3), s = gel(W,5);
+  long p = itos(gel(W,4)), D = itos(gel(W,6));
 
-  if (Z_lval(NE, p) >= 2) pari_err_IMPL("additive reduction in ellpadicL");
   xpm = Q_remove_denom(xpm,&den); if (!den) den = gen_1;
-  n += Z_lval(den, p);
-  Wp = mspadicinit(M, p, n, umodiu(ellap(E,pp),p)? 0: 1);
-  return mkvec2(mspadicmoments(Wp,xpm,D), den);
+  n += Z_lval(den,p);
+  Wp = mspadicinit(M, p, n, Z_lval(ap,p));
+  return mkvec3(mspadicmoments(Wp,xpm,D), den, s);
 }
+/* v from ellpadicL_init, compute ellpadicL(E,p,n,s,r,D) */
 static GEN
-ellpadic_i(GEN v, GEN s, long r)
+ellpadic_i(GEN v, long r)
 {
-  GEN oms = gel(v,1), den = gel(v,2);
+  GEN oms = gel(v,1), den = gel(v,2), s = gel(v,3);
   return gdiv(mspadicL(oms,s,r), den);
 }
 GEN
-ellpadicL(GEN E, GEN pp, long n, GEN s, long r, GEN DD)
+ellpadicL(GEN E, GEN p, long n, GEN s, long r, GEN D)
 {
   pari_sp av = avma;
   GEN W, v;
-  long D;
   if (r < 0) pari_err_DOMAIN("ellpadicL","r","<",gen_0,stoi(r));
-  if (typ(pp) != t_INT) pari_err_TYPE("ellpadicL",pp);
-  if (cmpis(pp,2) < 0) pari_err_PRIME("ellpadicL",pp);
   if (n <= 0) pari_err_DOMAIN("ellpadicL","precision","<=",gen_0,stoi(n));
-  if (DD && typ(DD) != t_INT) pari_err_TYPE("ellpadicL",DD);
-  D = DD? itos(DD): 1;
-  W = ellpadicL_symbol(E, s, D);
-  v = ellpadicL_init(W, E, pp, n, D);
-  return gerepileupto(av, ellpadic_i(v, s, r));
+  W = ellpadicL_symbol(E, p, s, D);
+  v = ellpadicL_init(W, n);
+  return gerepileupto(av, ellpadic_i(v, r));
 }
 
 static long
@@ -903,31 +904,26 @@ get_Euler(GEN E, GEN D)
   return Qdivii(a, b);
 }
 GEN
-ellpadicbsd(GEN E, GEN p, long n, GEN DD)
+ellpadicbsd(GEN E, GEN p, long n, GEN D)
 {
   const long MAXR = 30;
   pari_sp av = avma;
   GEN W, ED, tam, ND, C, apD, U = NULL;/*-Wall*/
-  long r, D, vN;
+  long r, vN;
   checkell(E);
-  if (ell_get_type(E) != t_ELL_Q) pari_err_TYPE("ellpadicbsd",E);
-  if (DD && typ(DD) != t_INT) pari_err_TYPE("ellpadicbsd",DD);
-  D = DD? itos(DD): 1;
-  if (D == 1) DD = NULL;
-  if (typ(p) != t_INT) pari_err_TYPE("ellpadicbsd",p);
-  ED = DD? ellinit(elltwist(E,DD), gen_1, 0): E;
+  if (D && isint1(D)) D = NULL;
+  W = ellpadicL_symbol(E, p, gen_0, D);
+  ED = D? ellinit(elltwist(E,D), gen_1, 0): E;
   ED = ellanal_globalred_all(ED, NULL, &ND, &tam);
-  /* additive reduction ? */
-  vN = Z_pval(ND, p);
+  vN = Z_pval(ND, p); /* additive reduction ? */
   if (vN >= 2) pari_err_DOMAIN("ellpadicbsd","v_p(N(E_D))",">",gen_1,stoi(vN));
-  W = ellpadicL_symbol(E, gen_0, D);
   if (n < 5) n = 5;
   for(;; n <<= 1)
   {
-    GEN v = ellpadicL_init(W, E, p, n, D);
+    GEN v = ellpadicL_init(W, n);
     for (r = 0; r < MAXR; r++)
     {
-      U = ellpadic_i(v, gen_0, r);
+      U = ellpadic_i(v, r);
       if (!gequal0(U)) break;
     }
     if (r < MAXR) break;
@@ -956,9 +952,9 @@ ellpadicbsd(GEN E, GEN p, long n, GEN DD)
     U = gmul(U, gpowgs(gsubsg(1, ginv(a)), -2));
   }
   C = mulii(tam, mpfact(r));
-  if (DD) C = gmul(C, get_Euler(ED, DD));
+  if (D) C = gmul(C, get_Euler(ED, D));
   C = gdiv(sqru(torsion_order(ED)), C);
-  if (DD) obj_free(ED);
+  if (D) obj_free(ED);
   return gerepilecopy(av, mkvec2(utoi(r), gmul(U, C)));
 }
 
