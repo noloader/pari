@@ -20,7 +20,7 @@ Doc: If $NK=[N,k,\var{CHI}]$ as in \kbd{mfinit}, gives the dimension of the
  \misctitle{Wildcards}
  As in \kbd{mfinit}, \var{CHI} may be the wildcard 0
  (all Galois orbits of characters); in this case, the output is a vector of
- $[\var{order},\var{conrey},\var{dim},\var{dimdih}]$ corresponding
+ $[\var{order}, \var{conrey}, \var{dim}, \var{dimdih}]$ corresponding
  to the non-trivial spaces, where
 
  \item \var{order} is the order of the character,
