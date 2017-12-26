@@ -892,8 +892,11 @@ c_pow(long n, long d, GEN F, GEN a)
 static GEN
 mfmultheta(GEN F)
 {
-  if (typ(mf_get_gk(F)) == t_FRAC && mf_get_type(F) == t_MF_DIV
-      && mf_get_type(gel(F,3)) == t_MF_THETA) return gel(F,2);
+  if (typ(mf_get_gk(F)) == t_FRAC && mf_get_type(F) == t_MF_DIV)
+  {
+    GEN T = gel(F,3); /* hopefully mfTheta() */
+    if (mf_get_type(T) == t_MF_THETA && mf_get_N(T) == 4) return gel(F,2);
+  }
   return mfmul(F, mfTheta(NULL));
 }
 

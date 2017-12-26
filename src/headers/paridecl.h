@@ -4043,7 +4043,6 @@ long  mffulldim(long N, long k, GEN CHI);
 GEN   mfgaloistype(GEN NK, GEN F);
 GEN   mfhecke(GEN mf, GEN F, long n);
 GEN   mfheckemat(GEN mf, GEN vecn);
-GEN   mfheckematkohnen(GEN mf, long n);
 GEN   mfinit(GEN NK, long space);
 GEN   mfisCM(GEN F);
 long  mfiscuspidal(GEN mf, GEN F);
