@@ -12,6 +12,7 @@ List([1, 2])
 [0, 1, 2]
 [2, 3]
 [2, 3]
+[1, 3]
 24
 [[[1, 2], 3], 4]
 256
@@ -21,4 +22,4 @@ List([1, 2])
   ***   at top-level: call(Strprintf,["%d",10])
   ***                 ^-------------------------
   *** call: incorrect type in call (t_INT).
-Total time spent: 0
+Total time spent: 1
