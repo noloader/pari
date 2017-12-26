@@ -1042,14 +1042,6 @@ RgC_embed(GEN P, GEN vz)
   for (i = 1; i < l; i++) gel(Q,i) = Rg_embed(gel(P,i), vz);
   return Q;
 }
-static GEN
-RgM_embed(GEN P, GEN vz)
-{
-  long i, l;
-  GEN Q = cgetg_copy(P, &l);
-  for (i = 1; i < l; i++) gel(Q,i) = RgC_embed(gel(P,i), vz);
-  return Q;
-}
 /* P in L = K[X]/(U), K = Q[t]/T; s an embedding of K -> C attached
  * to a root of T, extended to an embedding of L -> C attached to a root
  * of s(U); vT powers of the root of T, vU powers of the root of s(U).
@@ -4202,20 +4194,6 @@ Minv_RgC_mul(GEN Minv, GEN v)
   if (!equali1(A)) v = RgC_Rg_mul(v, A);
   if (!equali1(d)) v = RgC_Rg_div(v, d);
   return v;
-}
-/* map to C an Minv struct */
-static GEN
-Minv_embed(GEN Minv, GEN vz)
-{
-  GEN M = gel(Minv,1), d = gel(Minv,2), A = gel(Minv,3);
-  M = RgM_embed(M, vz);
-  if (!equali1(A))
-  {
-    A = Rg_embed(A, vz);
-    M = RgM_Rg_mul(M, gdiv(A,d));
-  }
-  else if (!equali1(d)) M = RgM_Rg_div(M, d);
-  return mkvec2(M,gen_1);
 }
 static GEN
 Minv_RgM_mul(GEN Minv, GEN B)
@@ -7387,8 +7365,7 @@ atkin_get_NQ(long N, long Q, const char *f)
 static GEN
 mfatkininit_i(GEN mf, long Q, long flag, long prec)
 {
-  GEN M, B, C, CHI, CHIAL, G, chi, P, z, g, mfB;
-  GEN Mindex, Minv;
+  GEN M, B, C, CHI, CHIAL, G, chi, P, z, g, mfB, s, Mindex, Minv;
   long j, l, lim, ord, FC, NQ, cQ, nk, dk, N = MF_get_N(mf);
 
   B = MF_get_basis(mf); l = lg(B);
@@ -7401,6 +7378,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   ord = mfcharorder_canon(CHI);
   if (MF_get_space(mf) == mf_NEW && ord == 1 && NQ % FC == 0 && dk == 1)
     return mfatkinmatnewquad(mf, CHI, Q, flag, prec);
+  /* now flag != 0 */
   G   = gel(CHI,1);
   chi = gel(CHI,2);
   if (Q == N) { g = mkmat22s(0, -1, N, 0); cQ = NQ; } /* Fricke */
@@ -7415,25 +7393,22 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
     g = mkmat22s(Q, 1, -N*v, Q*t);
     cQ = -NQ*v;
   }
-  C = gen_1;
-  if (flag)
-  { /* N.B. G,chi are G_Q,chi_Q [primitive] at this point */
-    GEN s = gen_1;
-    if (lg(chi) != 1) C = ginv( znchargauss(G, chi, gen_1, prec2nbits(prec)) );
-    if (dk == 1)
-    { if (odd(nk)) s = myusqrt(Q,prec); }
-    else
+  C = s = gen_1;
+  /* N.B. G,chi are G_Q,chi_Q [primitive] at this point */
+  if (lg(chi) != 1) C = ginv( znchargauss(G, chi, gen_1, prec2nbits(prec)) );
+  if (dk == 1)
+  { if (odd(nk)) s = myusqrt(Q,prec); }
+  else
+  {
+    long r = nk >> 1; /* k-1/2 */
+    s = gpow(utoipos(Q), mkfracss(odd(r)? 1: 3, 4), prec);
+    if (odd(cQ))
     {
-      long r = nk >> 1; /* k-1/2 */
-      s = gpow(utoipos(Q), mkfracss(odd(r)? 1: 3, 4), prec);
-      if (odd(cQ))
-      {
-        long t = r + ((cQ-1) >> 1);
-        s = mkcomplex(s, odd(t)? gneg(s): s);
-      }
+      long t = r + ((cQ-1) >> 1);
+      s = mkcomplex(s, odd(t)? gneg(s): s);
     }
-    if (!isint1(s)) C = gmul(C, s);
   }
+  if (!isint1(s)) C = gmul(C, s);
   CHIAL = mfcharAL(CHI, Q);
   if (dk == 2)
     CHIAL = mfcharmul(CHIAL, induce(gel(CHIAL,1), utoipos(odd(Q) ? Q<<2 : Q)));
@@ -7442,21 +7417,14 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   Mindex = MF_get_Mindex(mfB);
   Minv = MF_get_Minv(mfB);
   P = z = NULL;
-  if (ord != 1)
-  {
-    if (flag) { P = mfcharpol(CHI); z = rootsof1u_cx(ord, prec); }
-    else Minv = Minv_embed(Minv, grootsof1(ord, prec));
-  }
+  if (ord != 1) { P = mfcharpol(CHI); z = rootsof1u_cx(ord, prec); }
   lim = maxss(mfsturm(mfB), mfsturm(mf)) + 1;
   for (j = 1; j < l; j++)
   {
     GEN v = mfslashexpansion(mf, gel(B,j), g, lim, 0, NULL, prec+1);
     long junk;
-    if (flag)
-    {
-      if (!isint1(C)) v = RgV_Rg_mul(v, C);
-      v = bestapprnf(v, P, z, prec);
-    }
+    if (!isint1(C)) v = RgV_Rg_mul(v, C);
+    v = bestapprnf(v, P, z, prec);
     v = vecpermute_partial(v, Mindex, &junk);
     v = Minv_RgC_mul(Minv, v); /* cf mftobasis_i */
     gel(M, j) = v;
@@ -7867,8 +7835,8 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
   { /* trivial case: ga in Gamma_0(N) */
     long N = MF_get_N(mf), w = mfcuspcanon_width(N,c);
     GEN chid = mfcharcxeval(mf_get_CHI(F), d, prec);
-    v = bdexpandall(mfcoefs_i(F, n/w, 1), w);
-    return mkvec3(gen_0, stoi(w), RgV_Rg_mul(v,chid));
+    v = mfcoefs_i(F, n/w, 1); if (!isint1(chid)) v = RgV_Rg_mul(v,chid);
+    return mkvec3(gen_0, stoi(w), bdexpandall(v,w));
   }
   if (MF_get_space(mf) == mf_NEW)
   {
@@ -9876,8 +9844,8 @@ mfeisensteingacx(GEN E, long w, GEN ga, long lim, long prec)
     long i, l = lg(v);
     for (i = 1; i < l; i++) gel(v,i) = gmul(gel(v,i), rootsof1pow(z,i-1));
   }
-  v = bdexpand(RgV_Rg_mul(v, gmul(S, rootsof1q_cx(-mu*na, da, prec))), w/wN);
-  return mkvec2(ALPHA, v);
+  v = RgV_Rg_mul(v, gmul(S, rootsof1q_cx(-mu*na, da, prec)));
+  return mkvec2(ALPHA, bdexpand(v, w/wN));
 }
 
 /*****************************************************************/
