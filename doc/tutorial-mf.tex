@@ -66,10 +66,10 @@ series ${\cal E}_k(\G_0(N),\chi)$ (flag = 3), and finally the full space
 including the Eisenstein part $M_k(\G_0(N),\chi)$ (flag = 4, which can be
 omitted since it is the default). Note that although it can be defined, we have
 not included the space $M_k^{\new}$, nor the ``certain space'' of
-Zagier--Skoruppa. Also, in the half-integral weight case, we have included
-only the full cuspidal space and the full space (flags $1$ and $4$), although
-in the future we may also include Kohnen's $+$-space and the corresponding
-newspace when $N$ is squarefree.
+Zagier--Skoruppa. In the half-integral weight case, we have included
+only the full cuspidal space and the full space (flags $1$ and $4$), as
+well as the Kohnen's $+$-space and the corresponding newspace and eigenforms
+when $N$ is squarefree.
 
 Note in particular that the package includes the computation of modular
 forms of weight $k=1$ and of half-integral weight.
@@ -295,6 +295,20 @@ algebraic numbers (in our case of trivial character, they will be in $\R$).
 This is why a few functions (most notably \kbd{mfeval} and \kbd{lfunmf})
 will return a \emph{vector} of results and not a scalar when called on such
 a form.
+
+For instance, here is a little GP script which computes the
+numerical expansion of a modular form instead of the expansion in
+\kbd{polmods}, assuming for simplicity that there is a unique \kbd{polmod}
+variable \kbd{y} (do NOT use otherwise):
+
+\begin{verbatim}
+mfcoefsembed(F,n)=
+{ my(ro=polroots(mfparams(F)[4]),V=lift(mfcoefs(F,n)));
+  vector(#ro,j,subst(V,y,ro[j]));
+}
+\end{verbatim}
+
+(The \kbd{mfparams(F)[4]} command gives the necessary \kbd{polmod}.)
 
 The first eigenform found above is \emph{rational}, hence by the modularity
 theorem there exists up to isogeny a unique elliptic curve to which it
@@ -1120,10 +1134,8 @@ time = 9,761 ms.
 ? mfsymboleval(FS,[I,2*I])
 % = 0.00296657...*I*x^4 + 0.0137326...*x^3 + ... + 0.00597601...
 ? mfsymboleval(FS,[I/10000,I])
-time = 20,512 ms.
 % = 46.3637302...*I*x^4 + 3.8815894...*x^3 + ... + 0.01838690...
 ? -x^4*subst(mfsymboleval(FS,[I,10000*I],[0,-1;1,0]),x,-1/x)
-time = 741 ms.
 % = 46.3637302...*I*x^4 + 3.8815894...*x^3 + ... + 0.01838690...
 ? mfsymboleval([mf,F],[I,oo])
 % = 0.00297212...*I*x^4 + 0.0137806...*x^3 + ... + 0.00610099...
@@ -1137,21 +1149,25 @@ may be rather long ($9.8$ seconds in this example), although as already
 mentioned, subsequent computations of symbols \emph{between cusps} will then
 be instantaneous.
 \item As the next three commands show, \kbd{mfsymboleval}
-also accepts paths with endpoints in the upper half-plane, but in this case
-the computation may be very slow if an endpoint is very close to the real line.
+also accepts paths with endpoints in the upper half-plane. Although we
+have tried to optimize the computation, in certain cases (but not in
+the above example) when one of the endpoints is close to the real line
+the computation may be slow.
 \item The next command shows the use of the extra parameter $\ga$ which
 asks to integrate $F|_k\ga$ instead of $F$, here with \kbd{ga=[0,-1;1,0]}.
-This allows to perform the same computation in $0.74$ seconds instead of
-$20.5$. This is what is done \emph{automatically} by \kbd{mfsymboleval} when
-the endpoints are cusps, but here we must do it by hand.
+This allows to perform the same computation with endpoints which are away
+from the real line. This is essentially what is done \emph{automatically} by
+\kbd{mfsymboleval}.
 \item The last two commands show a special format which avoids doing the
 longish \kbd{mfsymbol} computation: the results are obtained almost
 instantaneously \emph{without} using symbols. The price to pay in using this
-``cheaper'' format is that the endpoints of the path cannot be cusps other than
-oo.
+``cheaper'' format is that the endpoints of the path cannot be cusps other
+than oo.
 \end{enumerate}
 
 \begin{verbatim}
+? mf = mfinit([96,4],0); B = mfbasis(mf); [F1,F2] = B[1..2];
+? FS1 = mfsymbol(mf,F1); FS2 = mfsymbol(mf,F2);
 ? mfpetersson(FS1, FS1)
 % = 0.00061471684149817788924091516302517391826
 ? F2 = B[2]; FS2 = mfsymbol(mf, F2);
@@ -1161,12 +1177,13 @@ oo.
 % = 1.5879887877319313665 E-40 + 7.652958013165934297 E-42*I
 \end{verbatim}
 
-  Same remark: once the \kbd{mfsymbol} \kbd{FS2} initialized, all the
-  Petersson product computations (as well as others) are essentially immediate.
+Same remark: once the \kbd{mfsymbols} \kbd{FS1} and \kbd{FS2} initialized,
+all the Petersson product computations (as well as others) are essentially
+immediate.
 
-  Note that since neither \kbd{F1} nor \kbd{F2} are eigenforms, there is
-  no reason for their Petersson product to vanish. To prove this rigorously
-  we do as follows:
+Note that since neither \kbd{F1} nor \kbd{F2} are eigenforms, there is
+no reason for their Petersson product to vanish. To prove this rigorously
+we do as follows:
 
 \begin{verbatim}
 ? BE = mfeigenbasis(mf);
@@ -1264,13 +1281,15 @@ $L$-function. We begin by a trivial example:
   modular transformation to reduce to the evaluation in the fundamental domain
   of $\G$, which would be very fast. Here we do something similar but much
   more sophisticated.
-\item The result at height $10^{-7}$ is not a numerical approximation of
-  $0$, the exact value is indeed as printed to the given accuracy.
+\item Contrary to most examples, the result at height $10^{-7}$ is not a
+  numerical approximation of $0$, the exact value is indeed as printed to
+  the given accuracy.
 \item It is amusing to see the large oscillations of the value: at height
   $10^{-6}$ the value is still in the $10^5$ range, and at $10^{-7}$ it is
   in the $10^{-52}$ range. Of course it must eventually tend to $0$ since
   $F$ is a cusp form (for $E_4$ it would tend to infinity).
-\item When applying \kbd{mfeval} at a \emph{cusp} (as above), the result is
+\item When applying \kbd{mfeval} at a \emph{cusp} (as above for
+  \kbd{mfTheta()}), the result is
   the value at the cusp, but is in general \emph{not} equal
   to the limit of the value of the modular form when the argument tends to
   the cusp, since this limit is often infinite for a non-cusp form.
@@ -1673,22 +1692,23 @@ is ignored, or \kbd{mf=[N,k,CHI]} (use \kbd{mfeigenbasis} for the eigenforms).
 of $F$ up to $n$. If $F$ is a modular form \emph{space}, give the matrix
 whose columns are the vectors of the Fourier coefficients of the basis.
 
-\kbd{mfconductor(F)}: smallest $M$ such that $F$ belongs to
-$M_k(\G_0(M),\chi)$.
+\kbd{mfconductor(mf,F)}: smallest $M$ such that $F$ belongs to
+$M_k(\G_0(M),\chi)$. For now, only for \kbd{mf} a cuspidal space.
 
 \kbd{mfcosets(N)}: list of right cosets of $\G$ modulo $\G_0(N)$. In the
 present implementation, the trivial coset is the last and represented by
-the matrix $[1,0;N,1]$.
+the matrix $[1,0;N,1]$. $N$ can also be an \kbd{mf}.
 
 \kbd{mfcuspisregular(NK,cusp)}: \kbd{NK} being $[N,k,\chi]$ or an \kbd{mf},
 determine if the cusp is regular or not.
 
-\kbd{mfcusps(N)}: list of cusps of $\G_0(N)$.
+\kbd{mfcusps(N)}: list of cusps of $\G_0(N)$. $N$ can also be an \kbd{mf}.
 
 \kbd{mfcuspval(mf,F,cusp)}: valuation of modular form $F$ at \kbd{cusp}, which
 can be a rational number or \kbd{oo}.
 
-\kbd{mfcuspwidth(N,cusp)}: width of \kbd{cusp} in $\G_0(N)$.
+\kbd{mfcuspwidth(N,cusp)}: width of \kbd{cusp} in $\G_0(N)$. $N$ can also be
+an \kbd{mf}.
 
 \kbd{mfDelta()}: Ramanujan's Delta function of weight $12$.
 
@@ -1824,7 +1844,9 @@ with coefficients in \kbd{vecL}. Forms must have the same weight and
 character, but not necessarily the same level. This function must be used
 for simpler operations such as scalar multiplication (\kbd{mflinear([F],[s])}),
 addition (\kbd{mflinear([F,G],[1,1])}), and subtraction
-(\kbd{mflinear([F,G],[1,-1])}).
+(\kbd{mflinear([F,G],[1,-1])}). If \kbd{vecF=mfbasis(mf)}, it is allowed and
+often better to write \kbd{mflinear(mf,vecL)} instead, since coefficient
+computations may be faster.
 
 \kbd{mfmanin(FS)}: $FS$ being a modular symbol associated to an eigenform,
 returns $[[P^+,P^-],[\omega^+,\omega^-,r]]$ where the $P^{\pm}$ are the
