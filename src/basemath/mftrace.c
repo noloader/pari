@@ -11312,7 +11312,7 @@ mftocoset(ulong N, GEN M, GEN cosets)
 }
 
 static long
-getnlimtmp(long N, long w1, long w2, long nlim, long k, long bitprec)
+getnlim2(long N, long w1, long w2, long nlim, long k, long bitprec)
 {
   if (w2 == N) return nlim;
   return mfperiod_prelim_double(1./sqrt((double)w1*w2), k, bitprec + 32);
@@ -11338,22 +11338,22 @@ mfgaexpansionall(GEN mf, GEN FE, GEN cosets, double height, long prec)
   GEN CHI = MF_get_CHI(mf), vres, vresaw;
   long lco, j, k = MF_get_k(mf), N = MF_get_N(mf), bitprec = prec2nbits(prec);
 
-  cosets = mfcosets(utoi(N)); lco = lg(cosets);
+  lco = lg(cosets);
   vres = const_vec(lco-1, NULL);
   vresaw = cgetg(lco, t_VEC);
   for (j = 1; j < lco; j++) if (!gel(vres,j))
   {
-    GEN ga = gel(cosets, j), tmp, aw, al, z, gai;
+    GEN ga = gel(cosets, j), van, aw, al, z, gai;
     long w1 = mfZC_width(N, gel(ga,1));
     long w2 = mfZC_width(N, gel(ga,2));
-    long nlim, daw, da, na, i, nlimtmp;
+    long nlim, nlim2, daw, da, na, i;
     double sqNinvdbl = height ? height/w1 : 1./sqrt((double)w1*N);
     nlim = mfperiod_prelim_double(sqNinvdbl, k, bitprec + 32);
-    tmp = mfslashexpansion(mf, FE, ga, nlim, 0, &aw, prec + 1);
-    tmp = vanembed(gel(FE, 1), tmp, prec + 1);
+    van = mfslashexpansion(mf, FE, ga, nlim, 0, &aw, prec + 1);
+    van = vanembed(gel(FE, 1), van, prec + 1);
     al = gel(aw, 1);
-    nlimtmp = height? nlim: getnlimtmp(N, w1, w2, nlim, k, bitprec);
-    gel(vres, j) = vecslice(tmp, 1, nlimtmp + 1);
+    nlim2 = height? nlim: getnlim2(N, w1, w2, nlim, k, bitprec);
+    gel(vres, j) = vecslice(van, 1, nlim2 + 1);
     gel(vresaw, j) = aw;
     Qtoss(al, &na, &da); daw = da*w1;
     z = rootsof1powinit(1, daw, prec + 1);
@@ -11365,13 +11365,13 @@ mfgaexpansionall(GEN mf, GEN FE, GEN cosets, double height, long prec)
       gai = ZM_mulT(gai);
       ind = mftocoset_iD(N, gai, cosets, &Di);
       w2 = mfZC_width(N, gel(gel(cosets,ind), 2));
-      nlimtmp = height? nlim: getnlimtmp(N, w1, w2, nlim, k, bitprec);
+      nlim2 = height? nlim: getnlim2(N, w1, w2, nlim, k, bitprec);
       gel(vresaw, ind) = aw;
-      V = cgetg(nlimtmp + 2, t_VEC);
-      for (n = 0; n <= nlimtmp; n++, s = Fl_add(s, t, daw))
-        gel(V, n+1) = gmul(gel(tmp, n+1), rootsof1pow(z, s));
+      V = cgetg(nlim2 + 2, t_VEC);
+      for (n = 0; n <= nlim2; n++, s = Fl_add(s, t, daw))
+        gel(V, n+1) = gmul(gel(van, n+1), rootsof1pow(z, s));
       coe = mfcharcxeval(CHI, Di, prec + 1);
-      if (!gequal1(coe)) V = gmul(V, gconj(coe));
+      if (!gequal1(coe)) V = RgV_Rg_mul(V, gconj(coe));
       gel(vres, ind) = V;
     }
   }
@@ -11380,11 +11380,12 @@ mfgaexpansionall(GEN mf, GEN FE, GEN cosets, double height, long prec)
 
 /* Compute all period pols of F|_k\ga_j, vF = mftobasis(F_S) */
 static GEN
-mfperiodpols_i(GEN mf, GEN FE, GEN cosets, long bit)
+mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
 {
   long N, i, prec = nbits2prec(bit), k = MF_get_k(mf);
-  GEN vP, PCO, CHI, vanall = gen_0, intall = gen_0;
+  GEN vP, PCO, CHI, intall = gen_0;
 
+  *pvan = gen_0;
   if (k == 0 && gequal0(gel(FE,2)))
     return cosets? const_vec(lg(cosets)-1, pol_0(0)): pol_0(0);
   N = MF_get_N(mf);
@@ -11416,7 +11417,8 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, long bit)
   else
   {
     long lco = lg(cosets);
-    vanall = mfgaexpansionall(mf, FE, cosets, 0, prec);
+    GEN vanall = mfgaexpansionall(mf, FE, cosets, 0, prec);
+    *pvan = vanall;
     intall = intAoowithvanall(mf, vanall, PCO, cosets, bit);
     vP = const_vec(lco-1, NULL);
     for (i = 1; i < lco; i++)
@@ -11440,20 +11442,20 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, long bit)
       gel(vP,iS) = gprec_wtrunc(P, prec);
     }
   }
-  delete_var(); return mkvec2(vP, vanall);
+  delete_var(); return vP;
 }
 
 /* when cosets = NULL, return a "fake" symbol containing only fs(oo->0) */
 static GEN
 mfsymbol_i(GEN mf, GEN F, GEN cosets, long bit)
 {
-  GEN FE, vE, vES = mftobasisES(mf,F), vPvan;
+  GEN FE, van, vP, vE, vES = mftobasisES(mf,F);
   long k = MF_get_k(mf), prec = nbits2prec(bit);
   if (k <= 1) pari_err_IMPL("mfsymbol when k <= 1");
   vE = mfgetembed(F, prec);
   FE = mkcol2(F, mf_eisendec(mf,F,prec));
-  vPvan = mfperiodpols_i(mf, FE, cosets, bit);
-  return mkvecn(8, mf, vES, gel(vPvan, 1), cosets, utoi(bit), vE, FE, gel(vPvan, 2));
+  vP = mfperiodpols_i(mf, FE, cosets, &van, bit);
+  return mkvecn(8, mf, vES, vP, cosets, utoi(bit), vE, FE, van);
 }
 GEN
 mfsymbol(GEN mf, GEN F, long bit)
