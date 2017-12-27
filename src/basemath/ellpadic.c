@@ -841,13 +841,17 @@ ellpadics2(GEN E, GEN p, long n)
 static GEN
 ellpadicL_symbol(GEN E, GEN p, GEN s, GEN D)
 {
-  GEN s1, s2, N = ellQ_get_N(E), ap = ellap(E,p);
+  GEN s1, s2, ap;
   long sign;
+  checkell(E);
+  if (ell_get_type(E) != t_ELL_Q) pari_err_TYPE("ellpadicL",E);
+  ap = ellap(E,p);
   if (D && typ(D) != t_INT) pari_err_TYPE("ellpadicL",D);
   if (D && !Z_isfundamental(D))
     pari_err_DOMAIN("ellpadicL", "isfundamental(D)", "=", gen_0, D);
   if (!D) D = gen_1;
-  if (Z_pval(N, p) >= 2) pari_err_IMPL("additive reduction in ellpadicL");
+  if (Z_pval(ellQ_get_N(E), p) >= 2)
+    pari_err_IMPL("additive reduction in ellpadicL");
   mspadic_parse_chi(s, &s1,&s2);
   sign = signe(D); if (mpodd(s2)) sign = -sign;
   return shallowconcat(msfromell(E, sign), mkvec4(ap, p, s, D));
