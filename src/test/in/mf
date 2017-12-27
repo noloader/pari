@@ -546,6 +546,7 @@ V=mfslashexpansion(mf,F,[0,-1;1,0],10,0,&A);
 [A,V]
 V=mfslashexpansion(mf,F,[-1,0;2,-1],10,0,&A);
 [A,V]
+mfeval(mf,F,I)
 mf=mfinit([36,5/2],1);mfparams(mfbasis(mf)[3])
 K=mfkohnenbasis(mf); nbcol=matsize(K)[2]
 K~

@@ -1,9 +1,11 @@
 Function: mfcuspwidth
 Section: modular_forms
 C-Name: mfcuspwidth
-Prototype: lLG
-Help: mfcuspwidth(N, cusp): width of cusp in Gamma_0(N).
-Doc: width of \kbd{cusp} in $\Gamma_0(N)$.
+Prototype: lGG
+Help: mfcuspwidth(N, cusp): width of cusp in Gamma_0(N), N being either an
+ integer or a modular form space.
+Doc: width of \kbd{cusp} in $\Gamma_0(N)$, $N$ being either an integer or a
+ modular form space.
  \bprog
  ? mfcusps(12)
  %1 = [0, 1/2, 1/3, 1/4, 1/6, 1/12]

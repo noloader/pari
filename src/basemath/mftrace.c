@@ -1340,11 +1340,12 @@ c_theta(long n, long d, GEN psi)
   for (f = d2; f <= lim; f += d2)
     if (cgcd(F, f) == 1)
     {
+      pari_sp av = avma;
       GEN c = mfchareval_i(psi, f);
-      gel(V, f*f/d + 1) = par < 0 ? gmulgs(c, 2*f) : gmul2n(c, 1);
+      gel(V, f*f/d + 1) = gerepileupto(av, par < 0 ? gmulgs(c,2*f) : gmul2n(c,1));
     }
   if (F == 1) gel(V, 1) = gen_1;
-  return V;
+  return V; /* no gerepile needed */
 }
 
 static GEN
@@ -1371,12 +1372,13 @@ c_ell(long n, long d, GEN E)
 static GEN
 c_cusptrace(long n, long d, GEN F)
 {
+  pari_sp av = avma;
   GEN D = gel(F,2), res = cgetg(n+2, t_VEC);
   long i, N = mf_get_N(F), k = mf_get_k(F);
   gel(res, 1) = gen_0;
   for (i = 1; i <= n; i++)
     gel(res, i+1) = mfcusptrace_i(N, k, i*d, mydivisorsu(i*d), D);
-  return res;
+  return gerepilecopy(av, res);
 }
 
 static GEN
@@ -1417,9 +1419,12 @@ c_dihedral(long n, long d, GEN bnr, GEN w, GEN k0j)
 static GEN
 c_mfEH(long n, long d, GEN F)
 {
-  long i, r = mf_get_r(F);
+  pari_sp av = avma;
   GEN v, M, A;
-  if (n == 1) return mkvec2(mfEHcoef(r,0),mfEHcoef(r,d)); /* speedup mfcoef */
+  long i, r = mf_get_r(F);
+  if (n == 1)
+    return gerepilecopy(av, mkvec2(mfEHcoef(r,0),mfEHcoef(r,d)));
+  /* speedup mfcoef */
   if (r == 1)
   {
     v = cgetg(n+2, t_VEC);
@@ -1429,7 +1434,7 @@ c_mfEH(long n, long d, GEN F)
       long id = i*d, a = id & 3;
       gel(v,i+1) = (a==1 || a==2)? gen_0: sstoQ(hclassno6u(id), 6);
     }
-    return v;
+    return v; /* no gerepile needed */
   }
   M = mfEHmat(n*d+1,r);
   if (d > 1)
@@ -1439,12 +1444,13 @@ c_mfEH(long n, long d, GEN F)
   }
   A = gel(F,2); /* [num(B), den(B)] */
   v = RgC_Rg_div(RgM_RgC_mul(M, gel(A,1)), gel(A,2));
-  settyp(v,t_VEC); return v;
+  settyp(v,t_VEC); return gerepileupto(av, v);
 }
 
 static GEN
 c_mfeisen(long n, long d, GEN F)
 {
+  pari_sp av = avma;
   GEN v, vchi, E0, P, T, CHI, gk = mf_get_gk(F);
   long i, k;
   if (typ(gk) != t_INT) return c_mfEH(n, d, F);
@@ -1467,8 +1473,8 @@ c_mfeisen(long n, long d, GEN F)
   { /* E_k(chi) */
     for (i = 1; i <= n; i++) gel(v, i+1) = sigchi(k, CHI, i*d);
   }
-  if (degpol(P) != 1 && !RgV_is_QV(v)) v = gmodulo(v, P);
-  return v;
+  if (degpol(P) != 1 && !RgV_is_QV(v)) return gerepileupto(av, gmodulo(v, P));
+  return gerepilecopy(av, v);
 }
 
 /* L(chi_D, 1-k) */
@@ -6694,9 +6700,12 @@ mfZC_width(long N, GEN v)
   return (C == 0)? 1: N / cgcd(N, Fl_sqr(C,N));
 }
 long
-mfcuspwidth(long N, GEN cusp)
+mfcuspwidth(GEN gN, GEN cusp)
 {
-  long A, C;
+  long N = 0, A, C;
+  if (typ(gN) == t_INT) N = itos(gN);
+  else if (checkMF_i(gN)) N = MF_get_N(gN);
+  else pari_err_TYPE("mfcuspwidth", gN);
   cusp_canon(cusp, N, &A, &C);
   return mfcuspcanon_width(N, C);
 }
@@ -11043,7 +11052,11 @@ normalizeapprox(GEN R, long bit)
   if (is_vec_t(typ(R)))
   {
     Q = cgetg_copy(R, &l);
-    for (i = 1; i < l; i++) gel(Q,i) = normalizeapprox(gel(R,i), bit);
+    for (i = 1; i < l; i++)
+    {
+      pari_sp av = avma;
+      gel(Q,i) = gerepileupto(av, normalizeapprox(gel(R,i), bit));
+    }
     return Q;
   }
   if (typ(R) == t_RFRAC && varn(gel(R,2)) == 0) { X = gel(R,2); R = gel(R,1); }
@@ -11525,20 +11538,20 @@ static GEN
 mfgetvan(GEN fs, GEN ga, GEN *pal, long nlim, long prec)
 {
   GEN van, mf, F, W;
+  long PREC;
   get_mf_F(fs, &mf, &F);
-  if (F)
-  {
-    long PREC = prec + EXTRAPRECWORD;
-    van = mfslashexpansion(mf, F, ga, nlim, 0, &W, PREC);
-    van = vanembed(F, van, PREC);
-  }
-  else
+  if (!F)
   {
     GEN vanall = fs_get_expan(fs);
     long jga = mftocoset_i(MF_get_N(mf), ga, fs_get_cosets(fs));
     van = gmael(vanall, 1, jga);
     W   = gmael(vanall, 2, jga);
+    if (lg(van) >= nlim + 2) { *pal = gel(W,1); return van; }
+    F = gel(fs_get_EF(fs), 1);
   }
+  PREC = prec + EXTRAPRECWORD;
+  van = mfslashexpansion(mf, F, ga, nlim, 0, &W, PREC);
+  van = vanembed(F, van, PREC);
   *pal = gel(W,1); return van;
 }
 /* Computation of int_A^oo (f | ga)(t)(X-t)^{k-2} dt, assuming convergence;
@@ -11661,14 +11674,14 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
       z2 = mfsymbolevalpartial(fs, be, ga, bitprec);
     z = gsub(z, z2);
     if (fl) z = unact(z, vabd, k, prec);
-    return gerepileupto(av, z);
+    return gerepileupto(av, normalizeapprox(z, bitprec-20));
   }
   else if (!tsc2)
   {
     GEN z = mfsymbolevalpartial(fs, be, ga, bitprec);
     if (c) z = gsub(mfsymboleval(fs, mkvec2(al, mkoo()), ga, bitprec), z);
     if (fl) z = unact(z, vabd, k, prec);
-    return gerepileupto(av, z);
+    return gerepileupto(av, normalizeapprox(z, bitprec-20));
   }
   if (F) pari_err_TYPE("mfsymboleval", fs);
   D = a*d-b*c; if (!D) { avma = av; return gen_0; }
@@ -11700,7 +11713,7 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
   }
   if (fl) S = unact(S, vabd, k, prec);
   S = polembedall(S, 0, fs_get_vE(fs));
-  return gerepilecopy(av, normalizeapprox(S, bitprec-20));
+  return gerepileupto(av, normalizeapprox(S, bitprec-20));
 }
 
 /* v a scalar or t_POL; set *pw = a if expo(a) > E for some coefficient;
@@ -11951,7 +11964,7 @@ mfpeterssonnoncusp(GEN F1S, GEN F2S)
   return gerepileupto(av, gdivgs(Haberland(GF1,GF2, vE1,vE2, k), r));
 }
 
-/* Petersson product of cuspidal parts of F and G, given by mfsymbol's */
+/* Petersson product of F and G, given by mfsymbol's */
 GEN
 mfpetersson(GEN FS, GEN GS)
 {

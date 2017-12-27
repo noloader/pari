@@ -4020,7 +4020,7 @@ long  mfcuspdim(long N, long k, GEN CHI);
 long  mfcuspisregular(GEN NK, GEN cusp);
 GEN   mfcusps(GEN gN);
 GEN   mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec);
-long  mfcuspwidth(long N, GEN cusp);
+long  mfcuspwidth(GEN gN, GEN cusp);
 GEN   mfderiv(GEN F, long m);
 GEN   mfderivE2(GEN F, long k);
 GEN   mfdescribe(GEN F, GEN *PTU);
