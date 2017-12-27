@@ -1806,64 +1806,7 @@ mflinear_bhn(GEN mf, GEN L)
   NK = mkgNK(MF_get_gN(mf), MF_get_gk(mf), MF_get_CHI(mf), P);
   return taglinear_i(t_MF_LINEAR_BHN,  NK, F,L);
 }
-static GEN
-tobasis(GEN mf, GEN F, GEN L)
-{
-  if (checkmf_i(L) && mf) return mftobasis(mf, L, 0);
-  if (typ(F) != t_VEC) pari_err_TYPE("mflinear",F);
-  if (!is_vec_t(typ(L))) pari_err_TYPE("mflinear",L);
-  if (lg(L) != lg(F)) pari_err_DIM("mflinear");
-  return L;
-}
-GEN
-mflinear(GEN F, GEN L)
-{
-  pari_sp av = avma;
-  GEN G, NK, P, mf = NULL, N = NULL, K = NULL, CHI = NULL;
-  long i, l;
-  if (checkMF_i(F))
-  {
-    mf = F; F = MF_get_basis(F);
-    if (space_is_cusp(MF_get_space(mf)))
-    {
-      GEN gk = MF_get_gk(mf);
-      if (typ(gk) == t_INT && itou(gk) > 1)
-      {
-        L = tobasis(mf, F, L);
-        return gerepilecopy(av, mflinear_bhn(mf, L));
-      }
-    }
-  }
-  L = tobasis(mf, F, L);
-  if (!mflinear_strip(&F,&L)) return mftrivial();
 
-  l = lg(F);
-  if (l == 2 && gequal1(gel(L,1))) return gerepilecopy(av, gel(F,1));
-  P = pol_x(1);
-  for (i = 1; i < l; i++)
-  {
-    GEN f = gel(F,i), c = gel(L,i), Ni, Ki;
-    if (!checkmf_i(f)) pari_err_TYPE("mflinear", f);
-    Ni = mf_get_gN(f); N = N? lcmii(N, Ni): Ni;
-    Ki = mf_get_gk(f);
-    if (!K) K = Ki;
-    else if (!gequal(K, Ki))
-      pari_err_TYPE("mflinear [different weights]", mkvec2(K,Ki));
-    P = mfsamefield(P, mf_get_field(f));
-    if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1) P = mfsamefield(P, gel(c,1));
-  }
-  G = znstar0(N,1);
-  for (i = 1; i < l; i++)
-  {
-    GEN CHI2 = mf_get_CHI(gel(F,i));
-    CHI2 = induce(G, CHI2);
-    if (!CHI) CHI = CHI2;
-    else if (!gequal(CHI, CHI2))
-      pari_err_TYPE("mflinear [different characters]", mkvec2(CHI,CHI2));
-  }
-  NK = mkgNK(N, K, CHI, P);
-  return gerepilecopy(av, taglinear(NK,F,L));
-}
 /* F vector of forms with same weight and character but varying level, return
  * global [N,k,chi,P] */
 static GEN
@@ -1915,6 +1858,88 @@ mflinear_linear(GEN F, GEN L)
   }
   vF = gmael(F,1,2);
   return taglinear(vecmfNK(vF), vF, RgM_RgC_mul(M,L));
+}
+/* F non-empty vector of forms of the form mfdiv(mflinear(B,v), E) where E
+ * does not vanish at oo, or mflinear(B,v). Apply mflinear(F, L) */
+static GEN
+mflineardiv_linear(GEN F, GEN L)
+{
+  long l = lg(F), j;
+  GEN v, E, f;
+  if (lg(L) != l) pari_err_DIM("mflineardiv_linear");
+  f = gel(F,1); /* l > 1 */
+  if (mf_get_type(f) != t_MF_DIV) return mflinear_linear(F, L);
+  E = gel(f,3);
+  v = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++) { GEN f = gel(F,j); gel(v,j) = gel(f,2); }
+  return mfdiv_val(mflinear_linear(v,L), E, 0);
+}
+static GEN
+vecmflineardiv_linear(GEN F, GEN M)
+{
+  long i, l = lg(M);
+  GEN v = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(v,i) = mflineardiv_linear(F, gel(M,i));
+  return v;
+}
+
+static GEN
+tobasis(GEN mf, GEN F, GEN L)
+{
+  if (checkmf_i(L) && mf) return mftobasis(mf, L, 0);
+  if (typ(F) != t_VEC) pari_err_TYPE("mflinear",F);
+  if (!is_vec_t(typ(L))) pari_err_TYPE("mflinear",L);
+  if (lg(L) != lg(F)) pari_err_DIM("mflinear");
+  return L;
+}
+GEN
+mflinear(GEN F, GEN L)
+{
+  pari_sp av = avma;
+  GEN G, NK, P, mf = NULL, N = NULL, K = NULL, CHI = NULL;
+  long i, l;
+  if (checkMF_i(F))
+  {
+    GEN gk;
+    mf = F; gk = MF_get_gk(mf);
+    F = MF_get_basis(F);
+    if (typ(gk) != t_INT)
+      return gerepilecopy(av, mflineardiv_linear(F, L));
+    if (itou(gk) > 1 && space_is_cusp(MF_get_space(mf)))
+    {
+      L = tobasis(mf, F, L);
+      return gerepilecopy(av, mflinear_bhn(mf, L));
+    }
+  }
+  L = tobasis(mf, F, L);
+  if (!mflinear_strip(&F,&L)) return mftrivial();
+
+  l = lg(F);
+  if (l == 2 && gequal1(gel(L,1))) return gerepilecopy(av, gel(F,1));
+  P = pol_x(1);
+  for (i = 1; i < l; i++)
+  {
+    GEN f = gel(F,i), c = gel(L,i), Ni, Ki;
+    if (!checkmf_i(f)) pari_err_TYPE("mflinear", f);
+    Ni = mf_get_gN(f); N = N? lcmii(N, Ni): Ni;
+    Ki = mf_get_gk(f);
+    if (!K) K = Ki;
+    else if (!gequal(K, Ki))
+      pari_err_TYPE("mflinear [different weights]", mkvec2(K,Ki));
+    P = mfsamefield(P, mf_get_field(f));
+    if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1) P = mfsamefield(P, gel(c,1));
+  }
+  G = znstar0(N,1);
+  for (i = 1; i < l; i++)
+  {
+    GEN CHI2 = mf_get_CHI(gel(F,i));
+    CHI2 = induce(G, CHI2);
+    if (!CHI) CHI = CHI2;
+    else if (!gequal(CHI, CHI2))
+      pari_err_TYPE("mflinear [different characters]", mkvec2(CHI,CHI2));
+  }
+  NK = mkgNK(N, K, CHI, P);
+  return gerepilecopy(av, taglinear(NK,F,L));
 }
 
 GEN
@@ -4138,29 +4163,6 @@ mffields(GEN mf)
   checkMF(mf); return gcopy(MF_get_fields(mf));
 }
 
-/* F non-empty vector of forms of the form mfdiv(mflinear(B,v), E) where E
- * does not vanish at oo, or mflinear(B,v). Apply mflinear(F, L) */
-static GEN
-mflineardiv_linear(GEN F, GEN L)
-{
-  long l = lg(F), j;
-  GEN v, E, f;
-  if (lg(L) != l) pari_err_DIM("mflineardiv_linear");
-  f = gel(F,1); /* l > 1 */
-  if (mf_get_type(f) != t_MF_DIV) return mflinear_linear(F, L);
-  E = gel(f,3);
-  v = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) { GEN f = gel(F,j); gel(v,j) = gel(f,2); }
-  return mfdiv_val(mflinear_linear(v,L), E, 0);
-}
-static GEN
-vecmflineardiv_linear(GEN F, GEN M)
-{
-  long i, l = lg(M);
-  GEN v = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(v,i) = mflineardiv_linear(F, gel(M,i));
-  return v;
-}
 GEN
 mfeigenbasis(GEN mf)
 {
