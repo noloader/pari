@@ -9980,17 +9980,19 @@ lfunfindchi(GEN ldata, GEN van, long prec)
     for (n = B0; n <= B; n++)
     {
       GEN an = gel(van,n), r;
+      long j;
       if (cgcd(n, N) != 1 || gexpo(an) < bit) continue;
       r = gdiv(an, gconj(an));
       for (i = 1; i < l; i++)
       {
         GEN CHI = gel(L,i);
         if (gexpo(gsub(r, gel(vz, znchareval_i(CHI,n,go)+1))) > bit)
-        {
-          L = vecsplice(L,i);
-          if (--l == 2) return gel(L,1);
-        }
+          gel(L,i) = NULL;
       }
+      for (i = j = 1; i < l; i++)
+        if (gel(L,i)) gel(L,j++) = gel(L,i);
+      l = j; setlg(L,l);
+      if (l == 2) return gel(L,1);
     }
     B0 = B+1; B <<= 1;
     van = ldata_vecan(ldata_get_an(ldata), B, prec);
