@@ -5774,44 +5774,31 @@ static ulong
 radical_u(ulong n)
 { return zv_prod(gel(myfactoru(n),1)); }
 
-/* list of fundamental discriminants unramified outside N */
+/* list of fundamental discriminants unramified outside N, with sign s
+ * [s = 0 => no sign condition] */
 static GEN
-mfunram(long N)
+mfunram(long N, long s)
 {
-  long cN = radical_u(N >> vals(N)), l, c, i;
+  long cN = radical_u(N >> vals(N)), p = 1, m = 1, l, c, i;
   GEN D = mydivisorsu(cN), res;
   l = lg(D);
+  if (s == 1) m = 0; else if (s == -1) p = 0;
   res = cgetg(6*l - 5, t_VECSMALL);
-  for (i = c = 1; i < l; i++)
-  {
-    long d = D[i], d4 = d & 3L; /* d odd, squarefree */
-    if (d > 1 && d4 == 1) res[c++] = d;
-    if (d4 == 3) res[c++] = -d;
-    if ((N&1L) == 0)
-    {
-      if (d4 == 2 || d4 == 3) res[c++] = 4*d;
-      if (d4 == 2 || d4 == 1) res[c++] =-4*d;
-      if (d & 1) { res[c++] = 8*d; res[c++] = -8*d; }
-    }
+  c = 1;
+  if (!odd(N))
+  { /* d = 1 */
+    if (p) res[c++] = 8;
+    if (m) { res[c++] =-8; res[c++] =-4; }
   }
-  setlg(res, c); return res;
-}
-/* list of negative fundamental discriminants unramified outside N */
-static GEN
-mfunramneg(long N)
-{
-  long cN = radical_u(N >> vals(N)), l, c, i;
-  GEN D = mydivisorsu(cN), res;
-  l = lg(D);
-  res = cgetg(3*l - 2, t_VECSMALL);
-  for (i = c = 1; i < l; i++)
-  {
-    long d = D[i], d4 = d & 3L; /* d odd, squarefree */
-    if (d4 == 3) res[c++] = -d;
-    if ((N&1L) == 0)
+  for (i = 2; i < l; i++)
+  { /* skip d = 1, done above */
+    long d = D[i], d4 = d & 3L; /* d odd, squarefree, d4 = 1 or 3 */
+    if (d4 == 1) { if (p) res[c++] = d; }
+    else         { if (m) res[c++] =-d; }
+    if (!odd(N))
     {
-      if (d4 == 2 || d4 == 1) res[c++] =-4*d;
-      if (d & 1) { res[c++] = 8*d; res[c++] = -8*d; }
+      if (p) { res[c++] = 8*d; if (d4 == 3) res[c++] = 4*d; }
+      if (m) { res[c++] =-8*d; if (d4 == 1) res[c++] =-4*d; }
     }
   }
   setlg(res, c); return res;
@@ -5821,7 +5808,7 @@ mfunramneg(long N)
 static long
 mfisnotS4(long N, GEN w)
 {
-  GEN D = mfunram(N);
+  GEN D = mfunram(N, 0);
   long i, lD = lg(D), lw = lg(w);
   for (i = 1; i < lD; i++)
   {
@@ -9932,7 +9919,7 @@ mfisCM(GEN F)
   if (!checkmf_i(F)) pari_err_TYPE("mfisCM", F);
   N = mf_get_N(F);
   k = mf_get_k(F); if (N < 0 || k < 0) pari_err_IMPL("mfisCM for this F");
-  D = mfunramneg(N);
+  D = mfunram(N, -1);
   lD = lg(D);
   sb = maxss(mfsturmNk(N, k), 4*N);
   v = mfcoefs_i(F, sb, 1);
