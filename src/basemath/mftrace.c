@@ -72,7 +72,6 @@ static GEN mfgaexpansion(GEN mf, GEN F, GEN gamma, long n, long prec);
 static GEN mfEHmat(long n, long r);
 static GEN mfEHcoef(long r, long N);
 static GEN mftobasis_i(GEN mf, GEN F);
-static GEN mfcharcxeval(GEN CHI, long n, long prec);
 
 static GEN
 mkgNK(GEN N, GEN k, GEN CHI, GEN P) { return mkvec4(N, k, CHI, P); }
@@ -2016,6 +2015,7 @@ mfdiv(GEN F, GEN G)
 {
   pari_sp av = avma;
   long v = mfval(G);
+  if (!checkmf_i(F)) pari_err_TYPE("mfdiv", F);
   if (v < 0 || (v && !gequal0(mfcoefs(F, v-1, 1))))
     pari_err_DOMAIN("mfdiv", "ord(G)", ">", strtoGENstr("ord(F)"),
                     mkvec2(F, G));

@@ -661,6 +661,8 @@ mftonew(mf,E4)
 mfconductor(mf,E4)
 mffields(mf)
 
+mfdiv(1,mfTheta())
+
 mfdiv(D,mftraceform([1,3]))
 mfcosets(1.)
 mf=mfinit([1,0]);F=mfbasis(mf)[1];mfsymbol(mf,F);

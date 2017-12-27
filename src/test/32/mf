@@ -1425,6 +1425,9 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mffields(mf)
   ***                 ^------------
   *** mffields: incorrect type in mfsplit [cannot split old/fullspace] (t_VEC).
+  ***   at top-level: mfdiv(1,mfTheta())
+  ***                 ^------------------
+  *** mfdiv: incorrect type in mfdiv (t_INT).
   ***   at top-level: mfdiv(D,mftraceform([1,3]))
   ***                 ^---------------------------
   *** mfdiv: domain error in mfdiv: ord(G) > ord(F)
@@ -1434,4 +1437,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: ...([1,0]);F=mfbasis(mf)[1];mfsymbol(mf,F)
   ***                                             ^--------------
   *** mfsymbol: sorry, mfsymbol when k <= 1 is not yet implemented.
-Total time spent: 6165
+Total time spent: 6326
