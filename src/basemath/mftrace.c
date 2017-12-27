@@ -10013,7 +10013,6 @@ mffromlfun(GEN L, long prec)
   mf = mfinit_Nkchi(N, k, CHI, space, 0);
   if (!RgV_is_QV(van)) return gerepilecopy(av, mf);
   a0 = (space == mf_CUSP)? gen_0: gneg(lfun(L, gen_0, prec2nbits(prec)));
-  setlg(van, MF_get_dim(mf));
   V = mftobasis_i(mf, shallowconcat(a0, van));
   if (typ(V) == t_VEC) pari_err_BUG("mffromlfun");
   return gerepilecopy(av, mkvec3(mf, mflinear(mf,V), V));
