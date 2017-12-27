@@ -981,6 +981,27 @@ bhn_newtrace(GEN f)
   return f;
 }
 static int
+ok_bhn_linear(GEN vf)
+{
+  long i, k, N0 = 0, l = lg(vf);
+  GEN CHI;
+  if (l == 1) return 1;
+  k = mf_get_k(gel(vf,1));
+  CHI = mf_get_CHI(gel(vf,1));
+  for (i = 1; i < l; i++)
+  {
+    GEN f = bhn_newtrace(gel(vf,i));
+    long N = mf_get_N(f);
+    if (mf_get_type(f) != t_MF_NEWTRACE) return 0;
+    if (N < N0) return 0; /* largest level must come last */
+    N0 = N;
+    if (k != mf_get_k(f)) return 0; /* same k */
+    if (!gequal(gel(mf_get_CHI(f),2), gel(CHI,2))) return 0; /* same CHI */
+  }
+  return 1;
+}
+
+static int
 newtrace_stripped(GEN DATA)
 { return lg(DATA) == 5 && typ(gel(DATA,3)) == t_INT; }
 static GEN
@@ -1783,7 +1804,11 @@ taglinear_i(long t, GEN NK, GEN F, GEN L)
   return tag3(t, NK, F, L, dL);
 }
 static GEN
-taglinear(GEN NK, GEN F, GEN L) { return taglinear_i(t_MF_LINEAR, NK, F,L);}
+taglinear(GEN NK, GEN F, GEN L)
+{
+  long t = ok_bhn_linear(F)? t_MF_LINEAR_BHN: t_MF_LINEAR;
+   return taglinear_i(t, NK, F, L);
+}
 /* assume F has parameters NK = [N,K,CHI] */
 static GEN
 mflinear_i(GEN NK, GEN F, GEN L)
