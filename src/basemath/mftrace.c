@@ -1870,7 +1870,7 @@ vecmflineardiv0(GEN F, GEN C, GEN E)
 /* Non empty linear combination of linear combinations of same
  * F_j=\sum_i \mu_{i,j}G_i so R = \sum_i (\sum_j(\la_j\mu_{i,j})) G_i */
 static GEN
-mflinear_linear(GEN F, GEN L)
+mflinear_linear(GEN F, GEN L, int strip)
 {
   long l = lg(F), j;
   GEN vF, M = cgetg(l, t_MAT);
@@ -1882,29 +1882,31 @@ mflinear_linear(GEN F, GEN L)
     gel(M,j) = c;
   }
   vF = gmael(F,1,2);
-  return taglinear(vecmfNK(vF), vF, RgM_RgC_mul(M,L));
+  L = RgM_RgC_mul(M,L);
+  if (strip && !mflinear_strip(&vF,&L)) return mftrivial();
+  return taglinear(vecmfNK(vF), vF, L);
 }
 /* F non-empty vector of forms of the form mfdiv(mflinear(B,v), E) where E
  * does not vanish at oo, or mflinear(B,v). Apply mflinear(F, L) */
 static GEN
-mflineardiv_linear(GEN F, GEN L)
+mflineardiv_linear(GEN F, GEN L, int strip)
 {
   long l = lg(F), j;
   GEN v, E, f;
   if (lg(L) != l) pari_err_DIM("mflineardiv_linear");
   f = gel(F,1); /* l > 1 */
-  if (mf_get_type(f) != t_MF_DIV) return mflinear_linear(F, L);
+  if (mf_get_type(f) != t_MF_DIV) return mflinear_linear(F,L,strip);
   E = gel(f,3);
   v = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) { GEN f = gel(F,j); gel(v,j) = gel(f,2); }
-  return mfdiv_val(mflinear_linear(v,L), E, 0);
+  return mfdiv_val(mflinear_linear(v,L,strip), E, 0);
 }
 static GEN
 vecmflineardiv_linear(GEN F, GEN M)
 {
   long i, l = lg(M);
   GEN v = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(v,i) = mflineardiv_linear(F, gel(M,i));
+  for (i = 1; i < l; i++) gel(v,i) = mflineardiv_linear(F, gel(M,i), 0);
   return v;
 }
 
@@ -1929,7 +1931,7 @@ mflinear(GEN F, GEN L)
     mf = F; gk = MF_get_gk(mf);
     F = MF_get_basis(F);
     if (typ(gk) != t_INT)
-      return gerepilecopy(av, mflineardiv_linear(F, L));
+      return gerepilecopy(av, mflineardiv_linear(F, L, 1));
     if (itou(gk) > 1 && space_is_cusp(MF_get_space(mf)))
     {
       L = tobasis(mf, F, L);
@@ -5080,13 +5082,14 @@ initwt1trace(GEN mf)
   if (lg(S) == 1) return mftrivial();
   H = mfheckemat(mf, Mindex_as_coef(mf));
   l = lg(H); v = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(v, i) = gtrace(gel(H,i));
-  return mflineardiv_linear(S, Minv_RgC_mul(MF_get_Minv(mf),v));
+  for (i = 1; i < l; i++) gel(v,i) = gtrace(gel(H,i));
+  v = Minv_RgC_mul(MF_get_Minv(mf), v);
+  return mflineardiv_linear(S, v, 1);
 }
 static GEN
 initwt1newtrace(GEN mf)
 {
-  GEN D, S, Mindex, res, CHI = MF_get_CHI(mf);
+  GEN v, D, S, Mindex, CHI = MF_get_CHI(mf);
   long FC, lD, i, sb, N1, N2, lM, N = MF_get_N(mf);
   CHI = mfchartoprimitive(CHI, &FC);
   if (N % FC || mfcharparity(CHI) == 1) return mftrivial();
@@ -5098,15 +5101,15 @@ initwt1newtrace(GEN mf)
   Mindex = MF_get_Mindex(mf);
   lM = lg(Mindex);
   sb = Mindex[lM-1];
-  res = zerovec(sb+1);
+  v = zerovec(sb+1);
   for (i = 1; i < lD; i++)
   {
     long M = FC*D[i], j;
     GEN tf = initwt1trace(M == N? mf: mfinit_Nkchi(M, 1, CHI, mf_CUSP, 0));
-    GEN listd, v;
+    GEN listd, w;
     if (mf_get_type(tf) == t_MF_CONST) continue;
-    v = mfcoefs_i(tf, sb, 1);
-    if (M == N) { res = gadd(res, v); continue; }
+    w = mfcoefs_i(tf, sb, 1);
+    if (M == N) { v = gadd(v, w); continue; }
     listd = mydivisorsu(u_ppo(cgcd(N/M, N1), FC));
     for (j = 1; j < lg(listd); j++)
     {
@@ -5118,16 +5121,17 @@ initwt1newtrace(GEN mf)
         long be = mubeta2(NMd, m);
         if (be)
         {
-          GEN c = gmul(dk, gmulsg(be, gel(v, m+1)));
+          GEN c = gmul(dk, gmulsg(be, gel(w, m+1)));
           long n = m*d2;
-          gel(res, n+1) = gadd(gel(res, n+1), c);
+          gel(v, n+1) = gadd(gel(v, n+1), c);
         }
       }
     }
   }
-  if (gequal0(gel(res,2))) return mftrivial();
-  res = vecpermute(res,Mindex);
-  return mflineardiv_linear(S, Minv_RgC_mul(MF_get_Minv(mf), res));
+  if (gequal0(gel(v,2))) return mftrivial();
+  v = vecpermute(v,Mindex);
+  v = Minv_RgC_mul(MF_get_Minv(mf), v);
+  return mflineardiv_linear(S, v, 1);
 }
 
 /* Matrix of T(p), p \nmid N */
@@ -5533,7 +5537,7 @@ mfwt1_cusptonew(GEN mf)
     gel(vF,i) = V = zerovec(dSnew);
     if (d == 1)
     {
-      gel(Snew, ct+1) = mflineardiv_linear(S, f);
+      gel(Snew, ct+1) = mflineardiv_linear(S, f, 0);
       gel(V, ct+1) = gen_1;
     }
     else
@@ -5541,7 +5545,7 @@ mfwt1_cusptonew(GEN mf)
       f = RgXV_to_RgM(f,d);
       for (j = 1; j <= d; j++)
       {
-        gel(Snew, ct+j) = mflineardiv_linear(S, row(f,j));
+        gel(Snew, ct+j) = mflineardiv_linear(S, row(f,j), 0);
         gel(V, ct+j) = mkpolmod(pol_xn(j-1,vy), P);
       }
     }
