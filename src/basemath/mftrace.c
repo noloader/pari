@@ -1850,11 +1850,12 @@ vecmfNK(GEN F)
 static GEN
 vecmflinear(GEN F, GEN C)
 {
-  long i, l = lg(C);
+  long i, t, l = lg(C);
   GEN NK, v = cgetg(l, t_VEC);
   if (l == 1) return v;
+  t = ok_bhn_linear(F)? t_MF_LINEAR_BHN: t_MF_LINEAR;
   NK = vecmfNK(F);
-  for (i = 1; i < l; i++) gel(v,i) = taglinear(NK, F, gel(C,i));
+  for (i = 1; i < l; i++) gel(v,i) = taglinear_i(t, NK, F, gel(C,i));
   return v;
 }
 /* vecmflinear(F,C), then divide everything by E, which has valuation 0 */
