@@ -39,3 +39,24 @@ Doc: evaluation of the modular symbol $fs$ (corresponding to the modular
  ? mfsymboleval(E2S,[0,1])
  %6 = (-1.00000...*x^2 + 1.00000...*x - 0.50000...)/(x^2 - x)
  @eprog
+ The rational function which is given in case the integral diverges is
+ easy to interpret. For instance:
+ \bprog
+ ? E4=mfEk(4);mf=mfinit(E4);ES=mfsymbol(mf,E4);
+ ? mfsymboleval(ES,[I,oo])
+ %2 = 1/720*x^3
+      - 0.0038669465907372100307704581291608330335*I*x^2\
+      - 0.0034722222222222222222222222222222222222*x\
+      + 0.00097907585962738983686952816067931069225*I
+ ? mfsymboleval(ES,[0,I])
+ %3 = (-0.00097907585962738983686952816067931069226*I*x^3\
+       - 0.0034722222222222222222222222222222222223*x^2\
+       + 0.0038669465907372100307704581291608330335*I*x\
+       + 0.0013888888888888888888888888888888888889)/x
+ @eprog
+ \kbd{mfsymboleval(ES,[a,oo])} will be the limit as $T\to\infty$ of
+ $$\int_a^{iT}(X-\tau)^{k-2}F(\tau)\,d\tau+a(0)(X-iT)^{k-1}/(k-1)\;,$$
+ where $a(0)$ is the $0$th coefficient of $F$ at infinity. Similarly,
+ \kbd{mfsymboleval(ES,[0,a])} will be the limit as $T\to\infty$ of
+ $$\int_{i/T}^a(X-\tau)^{k-2}F(\tau)\,d\tau+b(0)(1+iTX)^{k-1}/(k-1)\;,$$
+ where $b(0)$ is the $0$th coefficient of $F|_kS$ at infinity.
