@@ -758,15 +758,10 @@ find_j_inv_with_given_trace(
   long i, found = 0;
   ulong p = ne->p, pi = ne->pi;
   long t = ne->t;
-  ulong p1 = p + 1, a4, a6, m;
+  ulong p1 = p + 1, a4, a6, m, N;
   GEN A4, A6, tx, ty;
-  /* This number must be the same as LAST_X1_LEVEL in 'torsion.c', */
-  enum { MAX_X1_CURVE_LVL = 39 };
   int s2_flag, t3_flag, twist;
 
-  /* ellap(ellinit(ellfromj(Mod(1,2)))) == -1
-   * ellap(ellinit(ellfromj(Mod(1,3)))) ==  1
-   * ellap(ellinit(ellfromj(Mod(2,3)))) ==  2 */
   if (p == 2 || p == 3) {
     if (t == 0) pari_err_BUG("find_j_inv_with_given_trace");
     *j_t = t;
@@ -779,6 +774,7 @@ find_j_inv_with_given_trace(
   n1 = factoru(N1);
 
   best_torsion_constraint(p, t, &twist, &m, &s2_flag, &t3_flag);
+  N = p1 - (twist<3 ? (twist==1 ? t: -t): 0);
 
   /* Select batch size so that we have roughly a 50% chance of finding
    * a good curve in a batch. */
@@ -802,8 +798,8 @@ find_j_inv_with_given_trace(
                                  batch_size, m, p);
     Pp1 = random_FleV(A4, A6, p, pi);
     Pt = gcopy(Pp1);
-    FleV_mulu_pre_inplace(Pp1, p1, A4, p, pi);
-    FleV_mulu_pre_inplace(Pt, t, A4,  p, pi);
+    FleV_mulu_pre_inplace(Pp1, N, A4, p, pi);
+    if (twist >= 3) FleV_mulu_pre_inplace(Pt, t, A4,  p, pi);
     for (i = 1; i <= batch_size; ++i) {
       ++curves_tested;
       a4 = A4[i];
@@ -811,7 +807,8 @@ find_j_inv_with_given_trace(
       if (a4 == 0 || a6 == 0)
         continue;
 
-      if (mael(Pp1,i,1) == mael(Pt,i,1)
+      if (( (twist >= 3 && mael(Pp1,i,1) == mael(Pt,i,1))
+         || (twist < 3 && umael(Pp1,i,1) == p))
           && test_curve_order(ne, a4, a6, N0, N1, n0, n1, hasse)) {
         found = 1;
         *j_t = Fl_ellj_pre(a4, a6, p, pi);
