@@ -3596,14 +3596,12 @@ heckef2_data(long N, long n)
   fN = u_ppo(f, N); fN2 = fN*fN;
   return mkvec2(myfactoru(fN), mkvecsmall4(n, N, fN2, n/fN2));
 }
+/* N = mf_get_N(F) or a multiple */
 static GEN
-mfhecke_i(long N, long k, GEN CHI, GEN F, long n)
+mfhecke_i(long n, long N, GEN F)
 {
-  GEN NK;
   if (n == 1) return F;
-  if (!CHI) CHI = mfchartrivial();
-  NK = mkgNK(utoi(N), utoi(k), CHI, mf_get_field(F));
-  return tag2(t_MF_HECKE, NK, hecke_data(N,n), F);
+  return tag2(t_MF_HECKE, mf_get_NK(F), hecke_data(N,n), F);
 }
 
 GEN
@@ -4064,7 +4062,7 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
     jin = jlim + 1; SB = sb;
   }
   S = cgetg(dim + 1, t_VEC);
-  for (j = 1; j <= dim; j++) gel(S, j) = mfhecke_i(N, k, CHIP, tf, vj[j]);
+  for (j = 1; j <= dim; j++) gel(S, j) = mfhecke_i(vj[j], N, tf);
   dbg_cachenew(cache);
   mf1 = mkvec4(utoipos(N), utoipos(k), CHI, utoi(mf_NEW));
   return mkmf(mf1, cgetg(1, t_VEC), S, vj, M);
@@ -4572,7 +4570,7 @@ mfnewmathecke_p(GEN mf, long p)
   perm = zero_zv(lim);
   V = cgetg(lim+1, t_VEC);
   for (i = j = 1; i <= lim; i++)
-    if (need[i]) { gel(V,j) = mfhecke_i(N, k, CHI, tf, i); perm[i] = j; j++; }
+    if (need[i]) { gel(V,j) = mfhecke_i(i, N, tf); perm[i] = j; j++; }
   setlg(V, j);
   V = bhnmat_extend_nocache(NULL, mfsturm_mf(mf)-1, 1, V);
   V = rowpermute(V, Mindex); /* V[perm[i]] = coeffs(T_i newtrace) */
