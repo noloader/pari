@@ -3852,13 +3852,13 @@ newtrace_DATA(long N, GEN f)
   GEN DATA = gel(f,2);
   return newtrace_stripped(DATA)? initnewtrace(N, DATA): DATA;
 }
-/* reset cachenew for new level incorporating new DATA, f a t_MF_NEWTRACE
+/* reset cachenew for new level incorporating new DATA, tf a t_MF_NEWTRACE
  * (+ possibly initialize 'full' for new allowed levels) */
 static void
-reset_cachenew(cachenew_t *cache, long N, GEN f)
+reset_cachenew(cachenew_t *cache, long N, GEN tf)
 {
   long i, n, l;
-  GEN v, DATA = newtrace_DATA(N,f);
+  GEN v, DATA = newtrace_DATA(N,tf);
   cache->DATA = DATA;
   if (!DATA) return;
   n = cache->n;
@@ -3869,18 +3869,18 @@ reset_cachenew(cachenew_t *cache, long N, GEN f)
   cache->VCHIP = gel(gel(DATA,N),_VCHIP);
 }
 /* initialize a cache of newtrace / cusptrace up to index n and level N;
- * DATA may be NULL (<=> Tr^new = 0). f a t_MF_NEWTRACE */
+ * DATA may be NULL (<=> Tr^new = 0). tf a t_MF_NEWTRACE */
 static void
-init_cachenew(cachenew_t *cache, long n, long N, GEN f)
+init_cachenew(cachenew_t *cache, long n, long N, GEN tf)
 {
-  long i, l = N+1; /* = lg(f.DATA) when DATA != NULL */
+  long i, l = N+1; /* = lg(tf.DATA) when DATA != NULL */
   GEN v;
   cache->n = n;
   cache->vnew = v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(v,i) = (N % i)? gen_0: const_vec(n, NULL);
   cache->newHIT = cache->newTOTAL = cache->cuspHIT = cache->cuspTOTAL = 0;
   cache->vfull = v = zerovec(N);
-  reset_cachenew(cache, N, f);
+  reset_cachenew(cache, N, tf);
 }
 static void
 dbg_cachenew(cachenew_t *C)
@@ -4011,15 +4011,15 @@ vecpermute_inplace(GEN v, GEN perm)
 static GEN
 mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
 {
-  GEN S, vj, M, CHIP, mf1, listj, P, fake_f;
+  GEN S, vj, M, CHIP, mf1, listj, P, tf;
   long j, ct, ctlj, dim, jin, SB, sb, two, ord, FC, badj;
 
   dim = mfnewdim(N, k, CHI);
   if (!dim && !init) return NULL;
   sb = mfsturmNk(N, k);
   CHIP = mfchartoprimitive(CHI, &FC);
-  /* Fake t_MF_NEWTRACE wrapper */
-  fake_f = mkvec2(NULL, initnewtrace(N,CHIP)); /* NULL if dim = 0 and init */
+  /* remove newtrace data from S to save space inoutput: negligible slowdown */
+  tf = tag(t_MF_NEWTRACE, mkNK(N,k,CHIP), CHIP);
   badj = get_badj(N, FC);
   /* try sbsmall first: Sturm bound not sharp for new space */
   SB = ceilA1(N, k);
@@ -4028,11 +4028,11 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
     if (cgcd(j, badj) == 1) listj[ctlj++] = j;
   if (init)
   {
-    init_cachenew(cache, (SB+1)*listj[dim+1], N, fake_f);
+    init_cachenew(cache, (SB+1)*listj[dim+1], N, tf);
     if (init == -1 || !dim) return NULL; /* old space or dim = 0 */
   }
   else
-    reset_cachenew(cache, N, fake_f);
+    reset_cachenew(cache, N, tf);
   /* cache.DATA is not NULL */
   ord = mfcharorder_canon(CHIP);
   P = ord == 1? NULL: mfcharpol(CHIP);
@@ -4064,11 +4064,7 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
     jin = jlim + 1; SB = sb;
   }
   S = cgetg(dim + 1, t_VEC);
-  if (dim)
-  { /* remove newtrace data from S to save space: negligible slowdown */
-    GEN tf = tag(t_MF_NEWTRACE, mkNK(N,k,CHI), CHI);
-    for (j = 1; j <= dim; j++) gel(S, j) = mfhecke_i(N, k, CHIP, tf, vj[j]);
-  }
+  for (j = 1; j <= dim; j++) gel(S, j) = mfhecke_i(N, k, CHIP, tf, vj[j]);
   dbg_cachenew(cache);
   mf1 = mkvec4(utoipos(N), utoipos(k), CHI, utoi(mf_NEW));
   return mkmf(mf1, cgetg(1, t_VEC), S, vj, M);
