@@ -7019,12 +7019,12 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
 static long
 mfistrivial(GEN F)
 {
-  long tf;
-  if (gequal(F, mftrivial())) return 1;
-  tf = mf_get_type(F);
-  if ((tf == t_MF_LINEAR || tf == t_MF_LINEAR_BHN) && gequal0(gel(F, 3)))
-    return 1;
-  return 0;
+  switch(mf_get_type(F))
+  {
+    case t_MF_CONST: return lg(gel(F,2)) == 1;
+    case t_MF_LINEAR: case t_MF_LINEAR_BHN: return gequal0(gel(F,3));
+    default: return 0;
+  }
 }
 
 /* check parameters rigorously, but not coefficients */
