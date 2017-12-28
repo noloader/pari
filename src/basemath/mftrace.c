@@ -31,7 +31,7 @@ typedef struct {
   long n, newHIT, newTOTAL, cuspHIT, cuspTOTAL;
 } cachenew_t;
 
-static void init_cachenew(cachenew_t *c, long n, long N, GEN D);
+static void init_cachenew(cachenew_t *c, long n, long N, GEN f);
 static GEN mfinit_i(GEN NK, long space);
 static GEN mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw);
 static GEN mf2init_Nkchi(long N, long k, GEN CHI, long space);
@@ -1000,25 +1000,18 @@ ok_bhn_linear(GEN vf)
   return 1;
 }
 
-static int
-newtrace_stripped(GEN DATA)
-{ return lg(DATA) == 5 && typ(gel(DATA,3)) == t_INT; }
-static GEN
-newtrace_DATA(long N, GEN DATA)
-{ return newtrace_stripped(DATA)? initnewtrace(N, DATA): DATA; }
 /* vF not empty, same hypotheses as bhnmat_extend */
 static GEN
 bhnmat_extend_nocache(GEN M, long n, long d, GEN vF)
 {
-  GEN DATA, f, F;
+  GEN f, F;
   long N, l = lg(vF);
   cachenew_t cache;
   if (l == 1) return M? M: cgetg(1, t_MAT);
   F = gel(vF, l-1); /* vF[#vF-1] has largest level */
   N = mf_get_N(F);
-  f = bhn_newtrace(F);
-  DATA = newtrace_DATA(N, gel(f,2)); /* N.B. mf_get_N(f) divides N */
-  init_cachenew(&cache, n*d, N, DATA);
+  f = bhn_newtrace(F); /* N.B. mf_get_N(f) divides N */
+  init_cachenew(&cache, n*d, N, f);
   M = bhnmat_extend(M, n, d, vF, &cache);
   dbg_cachenew(&cache); return M;
 }
@@ -1388,7 +1381,7 @@ c_newtrace(long n, long d, GEN F)
   cachenew_t cache;
   long N = mf_get_N(F);
   GEN v;
-  init_cachenew(&cache, n*d, N, newtrace_DATA(N, gel(F,2)));
+  init_cachenew(&cache, n*d, N, F);
   v = colnewtrace(0, n, d, N, mf_get_k(F), &cache);
   settyp(v, t_VEC); return gerepilecopy(av, v);
 }
@@ -3848,13 +3841,24 @@ mfcleanCHI(GEN M, GEN CHI, int ratlift)
   return mfclean(M, P, n, ratlift);
 }
 
-/* reset cachenew for new level incorporating new DATA
+/* DATA component of a t_MF_NEWTRACE. Was it stripped to save memory ? */
+static int
+newtrace_stripped(GEN DATA)
+{ return DATA && (lg(DATA) == 5 && typ(gel(DATA,3)) == t_INT); }
+/* f a t_MF_NEWTRACE */
+static GEN
+newtrace_DATA(long N, GEN f)
+{
+  GEN DATA = gel(f,2);
+  return newtrace_stripped(DATA)? initnewtrace(N, DATA): DATA;
+}
+/* reset cachenew for new level incorporating new DATA, f a t_MF_NEWTRACE
  * (+ possibly initialize 'full' for new allowed levels) */
 static void
-reset_cachenew(cachenew_t *cache, long N, GEN DATA)
+reset_cachenew(cachenew_t *cache, long N, GEN f)
 {
   long i, n, l;
-  GEN v;
+  GEN v, DATA = newtrace_DATA(N,f);
   cache->DATA = DATA;
   if (!DATA) return;
   n = cache->n;
@@ -3865,18 +3869,18 @@ reset_cachenew(cachenew_t *cache, long N, GEN DATA)
   cache->VCHIP = gel(gel(DATA,N),_VCHIP);
 }
 /* initialize a cache of newtrace / cusptrace up to index n and level N;
- * DATA may be NULL (<=> Tr^new = 0) */
+ * DATA may be NULL (<=> Tr^new = 0). f a t_MF_NEWTRACE */
 static void
-init_cachenew(cachenew_t *cache, long n, long N, GEN DATA)
+init_cachenew(cachenew_t *cache, long n, long N, GEN f)
 {
-  long i, l = N+1; /* = lg(DATA) when DATA != NULL */
+  long i, l = N+1; /* = lg(f.DATA) when DATA != NULL */
   GEN v;
   cache->n = n;
   cache->vnew = v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(v,i) = (N % i)? gen_0: const_vec(n, NULL);
   cache->newHIT = cache->newTOTAL = cache->cuspHIT = cache->cuspTOTAL = 0;
   cache->vfull = v = zerovec(N);
-  reset_cachenew(cache, N, DATA);
+  reset_cachenew(cache, N, f);
 }
 static void
 dbg_cachenew(cachenew_t *C)
@@ -3908,7 +3912,7 @@ heckenewtrace(long m0, long m, long l, long N, long NBIG, long k, long n, cachen
   D = mydivisorsu(u_ppo(n, NBIG)); lD = lg(D);
   k1 = k - 1;
   for (a = 2; a < lD; a++)
-  { /* d > 1, (d,N) = 1 */
+  { /* d > 1, (d,NBIG) = 1 */
     long i, j, d = D[a], c = cgcd(l, d), dl = d/c, m0d = ceildiv(m0, dl);
     GEN C = vchip_lift(VCHIP, d, powuu(d, k1));
     /* m0=0: i = 1 => skip F(0) = 0 */
@@ -3920,10 +3924,6 @@ heckenewtrace(long m0, long m, long l, long N, long NBIG, long k, long n, cachen
   }
   return v;
 }
-
-/* tf a t_MF_NEWTRACE */
-static GEN
-tf_get_DATA(GEN tf) { return gel(tf,2); }
 
 /* Given v = an[i], return an[d*i] */
 static GEN
@@ -3938,7 +3938,7 @@ anextract(GEN v, long n, long d)
 static GEN
 hecke_i(long m, long l, GEN F, GEN DATA)
 {
-  long k, n, nN, NBIG, lD, M, a, t, nl;
+  long k, n, nNBIG, NBIG, lD, M, a, t, nl;
   GEN D, v, AN, CHI;
   if (typ(DATA) == t_VEC)
   { /* 1/2-integral k */
@@ -3947,27 +3947,26 @@ hecke_i(long m, long l, GEN F, GEN DATA)
   }
   k = mf_get_k(F);
   n = DATA[1]; nl = n*l;
-  nN = DATA[2];
+  nNBIG = DATA[2];
   NBIG = DATA[3];
-  if (nN == 1) return mfcoefs_i(F,m,nl);
+  if (nNBIG == 1) return mfcoefs_i(F,m,nl);
   if (mf_get_type(F) == t_MF_NEWTRACE)
-  { /* inline F to allow cache */
+  { /* inline F to allow cache, T_n at level NBIG acting on Tr^new(N,k,CHI) */
     cachenew_t cache;
     long N = mf_get_N(F);
-    GEN DATA = newtrace_DATA(N, tf_get_DATA(F)); /* != NULL */
-    init_cachenew(&cache, m*nl, N, DATA);
+    init_cachenew(&cache, m*nl, N, F);
     v = heckenewtrace(0, m, l, N, NBIG, k, n, &cache);
     dbg_cachenew(&cache);
     settyp(v, t_VEC); return v;
   }
   CHI = mf_get_CHI(F);
-  D = mydivisorsu(nN); lD = lg(D);
+  D = mydivisorsu(nNBIG); lD = lg(D);
   M = m + 1;
-  t = nN * cgcd(nN, l);
+  t = nNBIG * cgcd(nNBIG, l);
   AN = mfcoefs_i(F, m * t, nl / t); /* usually nl = t and we gain nothing */
   v = anextract(AN, m, t); /* mfcoefs(F, m, nl); d = 1 */
   for (a = 2; a < lD; a++)
-  { /* d > 1, (d, N) = 1 */
+  { /* d > 1, (d, NBIG) = 1 */
     long d = D[a], c = cgcd(l, d), dl = d/c, i, idl;
     GEN C = gmul(mfchareval_i(CHI, d), powuu(d, k-1));
     GEN V = anextract(AN, m/dl, t/(d*c)); /* mfcoefs(F, m/dl, nl/(d*c)) */
@@ -4012,14 +4011,15 @@ vecpermute_inplace(GEN v, GEN perm)
 static GEN
 mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
 {
-  GEN S, vj, M, CHIP, mf1, listj, DATA, P;
+  GEN S, vj, M, CHIP, mf1, listj, P, fake_f;
   long j, ct, ctlj, dim, jin, SB, sb, two, ord, FC, badj;
 
   dim = mfnewdim(N, k, CHI);
   if (!dim && !init) return NULL;
   sb = mfsturmNk(N, k);
   CHIP = mfchartoprimitive(CHI, &FC);
-  DATA = initnewtrace(N,CHIP); /* NULL if dim = 0 and init */
+  /* Fake t_MF_NEWTRACE wrapper */
+  fake_f = mkvec2(NULL, initnewtrace(N,CHIP)); /* NULL if dim = 0 and init */
   badj = get_badj(N, FC);
   /* try sbsmall first: Sturm bound not sharp for new space */
   SB = ceilA1(N, k);
@@ -4028,11 +4028,11 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
     if (cgcd(j, badj) == 1) listj[ctlj++] = j;
   if (init)
   {
-    init_cachenew(cache, (SB+1)*listj[dim+1], N, DATA);
+    init_cachenew(cache, (SB+1)*listj[dim+1], N, fake_f);
     if (init == -1 || !dim) return NULL; /* old space or dim = 0 */
   }
   else
-    reset_cachenew(cache, N, DATA);
+    reset_cachenew(cache, N, fake_f);
   /* cache.DATA is not NULL */
   ord = mfcharorder_canon(CHIP);
   P = ord == 1? NULL: mfcharpol(CHIP);
@@ -4099,13 +4099,12 @@ bhnmat_extend(GEN M, long m, long r, GEN S, cachenew_t *cache)
   for (i = 1; i < l; i++)
   {
     long d, j, m0d, N;
-    GEN DATA, c, f = bhn_parse(gel(S,i), &d,&j); /* t_MF_NEWTRACE */
-    N = mf_get_N(f); DATA = gel(f,2);
+    GEN c, f = bhn_parse(gel(S,i), &d,&j); /* t_MF_NEWTRACE */
+    N = mf_get_N(f);
     m0d = ceildiv(m0,d);
-    if (N!=Nold)
-    { reset_cachenew(cache, N, newtrace_DATA(N,DATA)); Nold=N; jold=0; }
+    if (N != Nold) { reset_cachenew(cache, N, f); Nold = N; jold = 0; }
     if (!cache->DATA) { gel(MAT,i) = zerocol(m+1); continue; }
-    if (j!=jold || m0)
+    if (j != jold || m0)
     { v = heckenewtrace(m0d, m/d, r, N, N, mf_get_k(f), j,cache); jold=j; }
     c = RgC_Bd_expand(m0, m, v, d, m0d);
     if (M) c = shallowconcat(gel(M,i), c);
