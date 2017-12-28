@@ -38,8 +38,8 @@ Doc: \kbd{mf} being a cuspidal space of half-integral weight, returns
  $k$: matrices of Hecke operators, new space, splitting into eigenspaces and
  eigenforms. Examples:
  \bprog
- ? K^(-1)*mfheckemat(mf,121)*K /* matrix of T_11^2 on K. Slow ! */
- time = 10,737 ms.
+ ? K^(-1)*mfheckemat(mf,121)*K /* matrix of T_11^2 on K. Slowish. */
+ time = 1,280 ms.
  %1 =
  [ 48  24  24  24]
 
