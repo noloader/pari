@@ -982,10 +982,10 @@ bhn_newtrace(GEN f)
 static int
 ok_bhn_linear(GEN vf)
 {
-  long i, k, N0 = 0, l = lg(vf);
-  GEN CHI;
+  long i, N0 = 0, l = lg(vf);
+  GEN CHI, gk;
   if (l == 1) return 1;
-  k = mf_get_k(gel(vf,1));
+  gk = mf_get_gk(gel(vf,1));
   CHI = mf_get_CHI(gel(vf,1));
   for (i = 1; i < l; i++)
   {
@@ -994,7 +994,7 @@ ok_bhn_linear(GEN vf)
     if (mf_get_type(f) != t_MF_NEWTRACE) return 0;
     if (N < N0) return 0; /* largest level must come last */
     N0 = N;
-    if (k != mf_get_k(f)) return 0; /* same k */
+    if (!gequal(gk,mf_get_gk(f))) return 0; /* same k */
     if (!gequal(gel(mf_get_CHI(f),2), gel(CHI,2))) return 0; /* same CHI */
   }
   return 1;
