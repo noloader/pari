@@ -1587,10 +1587,7 @@ the new space, its splitting, and the eigenforms:
 ? Ser(mfcoefs(BEIGEN[2],40),q)
 % = q^5 + q^8 - 3*q^12 - 4*q^17 + 3*q^20 + q^32 + 6*q^33 + O(q^37)
 ? mfcoefs(BEIGEN[1],10^4);
-time = 43,060 ms.
-? T=mfTheta();F1T=mfmul(BEIGEN[1],T);mf1t=mfinit(F1T,1);V=mftobasis(mf1t,F1T);
-? COEFS=mfcoefs(mf1t,10^4)*V;
-time = 11,080 ms.
+time = 7,532 ms.
 \end{verbatim}
 
 The \kbd{mfkohnenbijection} command computes a square matrix $M$ giving
@@ -1613,30 +1610,11 @@ the integral weight case, these eigenfunctions can have vanishing coefficient
 of $q^1$. Note that we \emph{know} by construction that the image of
 \kbd{BEIGEN[j]} by any Shimura lift is a multiple of \kbd{BE[j]} (with the
 same index $j$).
-
-Computing $10^4$ coefficients of these eigenforms (or more generally forms
-of half-integral weight) takes some time, here $43$ seconds. The last commands
-show a more efficient way to compute them: we first multiply by
-\kbd{mfTheta()}; computing the coefficients of the resulting \kbd{F1T}
-would not be any faster. However, the \kbd{mfcoefs(mf1t,10\^{}4)} command
-uses the special structure of the modular form space to compute the
-coefficients more efficiently, here in $11$ seconds, almost $4$ times faster.
-Of course, to recover the coefficients of \kbd{BEIGEN[1]} itself one can write
-something like:
-
-\begin{verbatim}
-? concat(0, Vec(Ser(COEFS)/Ser(mfcoefs(T,10^4))));
-\end{verbatim}
-
-This takes negligible time. The initial \kbd{concat} is due to the fact that
-the \kbd{Pari/GP} \kbd{Vec} command ignores the initial valuation of a power
-series.
-
 \smallskip
 
 The above construction of the new space and the eigenforms being so useful,
 a specific function exists for this purpose: instead of all the above,
-simply write \kbd{[mf30,BNEW,BEIGEN]=mfkoheneigenbasis(mf,bij)}. Here
+simply write \kbd{[mf30,BNEW,BEIGEN]=mfkohneneigenbasis(mf,bij)}. Here
 \kbd{BNEW} and \kbd{BEIGEN} will be matrices whose columns are the
 coefficients of a basis of the Kohnen new space and of the eigenforms
 respectively, and \kbd{mf30} the corresponding new space of integral weight.
