@@ -3337,7 +3337,7 @@ mfheckemat(GEN mf, GEN vecn)
   vP = vecsmall_uniq_sorted(vP); /* all primes occurring in vecn */
   lvP = lg(vP);
   if (lvP != 1 && k == 1 && mf_get_type(gel(S,1)) == t_MF_DIV)
-    B = mflineardivtomat(S, vP[lvP-1] * mfsturm_mf(mf));
+    B = mflineardivtomat(S, vP[lvP-1] * (mfsturm_mf(mf)-1));
   else
     B = NULL;
   for (i = 1; i < lvP; i++)
@@ -4605,17 +4605,16 @@ mfheckemat_i(GEN mf, long n)
   if (n == 1) return matid(l-1);
   gk = MF_get_gk(mf);
   N = MF_get_N(mf);
+  sb = mfsturm_mf(mf)-1;
   if (typ(gk) == t_INT)
   {
     if (itou(gk) == 1 && mf_get_type(gel(b,1)) == t_MF_DIV)
     {
-      M = mflineardivtomat(MF_get_S(mf), n * mfsturm_mf(mf));
+      M = mflineardivtomat(MF_get_S(mf), n * sb);
       return mfheckematwt1(mf, n, M);
     }
-    if (MF_get_space(mf) == mf_NEW && uisprime(n))
-      return mfnewmathecke_p(mf, n);
+    if (MF_get_space(mf) == mf_NEW && uisprime(n)) return mfnewmathecke_p(mf,n);
     DATA = hecke_data(N, n);
-    sb = mfsturm_mf(mf)-1;
     M = NULL;
   }
   else
@@ -4624,7 +4623,6 @@ mfheckemat_i(GEN mf, long n)
     DATA = heckef2_data(N,n);
     if (!DATA) return zeromat(l-1,l-1);
     S = gel(DATA,2);
-    sb = mfsturm_mf(mf)-1;
     M = mfcoefs_mf(mf, sb * S[3], S[4]);
   }
   Mindex = MF_get_Mindex(mf);
