@@ -4243,7 +4243,7 @@ const_mat(long n, GEN x)
   return A;
 }
 
-/* L is the mftobasis of a form on CUSP space */
+/* L is the mftobasis of a form on CUSP space. We allow mf_FULL or mf_CUSP */
 static GEN
 mftonew_i(GEN mf, GEN L, long *plevel)
 {
@@ -4306,15 +4306,6 @@ mftonew(GEN mf, GEN F)
 
 static GEN mfeisenstein_i(long k, GEN CHI1, GEN CHI2);
 
-static long
-mfcondspec(GEN F, long D)
-{
-  GEN E = mfeisenstein_i(1, mfchartrivial(), get_mfchar(stoi(D))), mf;
-  F = mfmul(F, E);
-  mf = mfinit_Nkchi(mf_get_N(F), mf_get_k(F), mf_get_CHI(F), mf_CUSP, 0);
-  return mfconductor(mf, F);
-}
-
 /* mfinit(F * Theta) */
 static GEN
 mf2init(GEN mf)
@@ -4322,31 +4313,6 @@ mf2init(GEN mf)
   GEN CHI = MF_get_CHI(mf), gk = gadd(MF_get_gk(mf), ghalf);
   long N = MF_get_N(mf);
   return mfinit_Nkchi(N, itou(gk), mfchiadjust(CHI, gk, N), mf_FULL, 0);
-}
-long
-mfconductor(GEN mf, GEN F)
-{
-  pari_sp av = avma;
-  GEN gk;
-  long N;
-  checkMF(mf);
-  if (MF_get_space(mf) != mf_CUSP)
-    pari_err_TYPE("mfconductor [not a cuspidal space]", mf);
-  gk = MF_get_gk(mf);
-  if (gequal1(gk))
-  {
-    N = cgcd(mfcondspec(F, -3), mfcondspec(F, -4));
-    avma = av; return N;
-  }
-  if (typ(gk) != t_INT)
-  {
-    F = mfmultheta(F);
-    mf = obj_checkbuild(mf, MF_MF2INIT, &mf2init);
-  }
-  F = mftobasis_i(mf, F);
-  if (typ(gk) != t_INT) F = vecslice(F, lg(MF_get_E(mf)), lg(F)-1);
-  (void)mftonew_i(mf, F, &N);
-  avma = av; return N;
 }
 
 static long
@@ -9954,7 +9920,7 @@ mfspace_i(GEN mf, GEN F)
       if (!gequal0(vecslice(v,1,nE)))
         return gequal0(vecslice(v,nE+1,n))? mf_EISEN: mf_FULL;
   }
-  /* mf_CUSP */
+  /* mf is mf_CUSP or mf_FULL, F a cusp form */
   gk = mf_get_gk(F);
   if (typ(gk) == t_FRAC || equali1(gk)) return mf_CUSP;
   vF = mftonew_i(mf, vecslice(v, nE+1, n), &N);
@@ -11188,6 +11154,53 @@ mftobasisES(GEN mf, GEN F)
   GEN v = mftobasis(mf, F, 0);
   long nE = lg(MF_get_E(mf))-1;
   return mkvec2(vecslice(v,1,nE), vecslice(v,nE+1,lg(v)-1));
+}
+
+static long
+mfcondspec(GEN F, long D)
+{
+  GEN E = mfeisenstein_i(1, mfchartrivial(), get_mfchar(stoi(D))), mf;
+  F = mfmul(F, E);
+  mf = mfinit_Nkchi(mf_get_N(F), mf_get_k(F), mf_get_CHI(F), mf_CUSP, 0);
+  return mfconductor(mf, F);
+}
+long
+mfconductor(GEN mf, GEN F)
+{
+  pari_sp av = avma;
+  GEN gk;
+  long space, N, M;
+
+  if (mfistrivial(F)) return 1;
+  checkMF(mf); space = MF_get_space(mf);
+  if (space == mf_NEW) return mf_get_N(F);
+  gk = MF_get_gk(mf);
+  if (isint1(gk))
+  {
+    N = cgcd(mfcondspec(F, -3), mfcondspec(F, -4));
+    avma = av; return N;
+  }
+  if (typ(gk) != t_INT)
+  {
+    F = mfmultheta(F);
+    mf = obj_checkbuild(mf, MF_MF2INIT, &mf2init); /* mf_FULL */
+  }
+  N = 1;
+  if (space == mf_CUSP || space == mf_OLD)
+  {
+    F = mftobasis_i(mf, F);
+    if (typ(gk) != t_INT) F = vecslice(F, lg(MF_get_E(mf)), lg(F) - 1);
+  }
+  else
+  {
+    GEN EF = mftobasisES(mf, F), vE = gel(EF,1), B = MF_get_E(mf);
+    long i, l = lg(B);
+    for (i = 1; i < l; i++)
+      if (!gequal0(gel(vE,i))) N = clcm(N, mf_get_N(gel(B, i)));
+    F = gel(EF,2);
+  }
+  (void)mftonew_i(mf, F, &M); /* M = conductor of cuspidal part */
+  avma = av; return clcm(M, N);
 }
 
 static GEN
