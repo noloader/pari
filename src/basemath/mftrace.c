@@ -6957,9 +6957,12 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
 {
   GEN L0, vL, vb, sqN, vga, vTAU, vs, van, vE;
   long N = mf_get_N(F), N0, ta, lv, i, prec = nbits2prec(bitprec);
-  GEN gN = utoipos(N), gk = mf_get_gk(F);
+  GEN gN = utoipos(N), gk = mf_get_gk(F), gk1 = gsubgs(gk,1), vgk;
   long flscal = 0;
 
+  /* gen_0 is ignored, second component assumes Ramanujan-Petersson in
+   * 1/2-integer weight */
+  vgk = mkvec2(gen_0, mfiscuspidal(mf,F)? gmul2n(gk1,-1): gk1);
   ta = typ(vtau);
   if (!is_vec_t(ta)) { flscal = 1; vtau = mkvec(vtau); ta = t_VEC; }
   lv = lg(vtau);
@@ -6969,7 +6972,7 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   vL = cgetg(lv, t_VEC);
   vTAU = cgetg(lv, t_VEC);
   vga = cgetg(lv, t_VEC);
-  L0 = mfthetaancreate(NULL, gN, gk); /* only for thetacost */
+  L0 = mfthetaancreate(NULL, gN, vgk); /* only for thetacost */
   vE = mfgetembed(F, prec);
   N0 = 0;
   for (i = 1; i < lv; i++)
@@ -6987,7 +6990,7 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
     if (flag)
     {
       GEN A, al, v = mfslashexpansion(mf,F,ginv(U),N0,0,&A,prec);
-      gel(vL,i) = van_embedall(v, vE, gN, gk);
+      gel(vL,i) = van_embedall(v, vE, gN, vgk);
       al = gel(A,1);
       if (!gequal0(al))
         gel(vb,i) = gexp(gmul(gmul(gmulsg(w,al),PiI2(prec)), tau), prec);
@@ -6998,7 +7001,7 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   if (!flag)
   {
     van = mfcoefs_i(F, N0, 1);
-    vL = const_vec(lv-1, van_embedall(van, vE, gN, gk));
+    vL = const_vec(lv-1, van_embedall(van, vE, gN, vgk));
   }
   for (i = 1; i < lv; i++)
   {

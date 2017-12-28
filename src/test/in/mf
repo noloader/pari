@@ -404,6 +404,7 @@ E4=mfEk(4);E6=mfEk(6);D=mfDelta();
 mf=mfinit([1,4],3);
 mfeval(mf,E4,I)
 mfeval(mf,E4,I/10)
+mf12=mfinit([1,12],3); mfeval(mf12,mfEk(12),I)
 L4=lfunmf(mf, E4);
 [lfun(L4,0),lfun(L4,1)*Pi^2/zeta(3),lfun(L4,4)/zeta(4)]
 L6=lfunmf(mfinit([1,6],3), E6);
