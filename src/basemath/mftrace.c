@@ -4605,10 +4605,18 @@ mfheckemat(GEN mf, GEN vn)
       Tp = B? mfheckemat_mfcoefs_p(mf, p, B): mfnewmathecke_p(mf, p);
     gel(vT, p) = Tp;
     if (e == 1) continue;
-    if (dk == 2) C = N % p? gmul(mfchareval_i(CHI,p*p), powuu(p, nk-2)): NULL;
-    else         C = N % p? gmul(mfchareval_i(CHI,p),   powuu(p, nk-1)): NULL;
-    for (u0=gen_1, u1=Tp, q=p, l=2; l <= e; l++)
-    { /* u0 = T_{p^{l-1}}, u1 = T_{p^l} */
+    if (dk == 2)
+    {
+      C = N % p? gmul(mfchareval_i(CHI,p*p), powuu(p, nk-2)): NULL;
+      u0 = sstoQ(p+1,p);
+    }
+    else
+    {
+      C = N % p? gmul(mfchareval_i(CHI,p),   powuu(p, nk-1)): NULL;
+      u0 = gen_1;
+    }
+    for (u1=Tp, q=p, l=2; l <= e; l++)
+    { /* u0 = T_{p^{l-2}}, u1 = T_{p^{l-1}} for l > 2 */
       GEN v = gmul(Tp, u1);
       if (C) v = gsub(v, gmul(C, u0));
       /* q = p^l, vT[q] = T_q for k integer else T_{q^2} */
