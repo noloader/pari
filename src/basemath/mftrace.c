@@ -57,9 +57,7 @@ static GEN colnewtrace(long n0, long n, long d, long N, long k, cachenew_t *c);
 static GEN dihan(GEN bnr, GEN w, GEN k0j, ulong n);
 static GEN sigchi(long k, GEN CHI, long n);
 static GEN sigchi2(long k, GEN CHI1, GEN CHI2, long n, long ord);
-static GEN mfheckemat_mfcoefs(GEN mf, long n, GEN B);
 static GEN mflineardivtomat(GEN vF, long n);
-static GEN mfheckemat_i(GEN mf, long n);
 static GEN mfdihedralcusp(long N, GEN CHI);
 static long mfdihedralcuspdim(long N, GEN CHI);
 static GEN mfdihedralnew(long N, GEN CHI);
@@ -3296,73 +3294,6 @@ void
 checkMF(GEN mf)
 { if (!checkMF_i(mf)) pari_err_TYPE("checkMF [please use mfinit]", mf); }
 
-GEN
-mfheckemat(GEN mf, GEN vn)
-{
-  pari_sp ltop = avma;
-  long lv, lvP, i, N, dim, k;
-  GEN CHI, S, res, vT, FA, B, vP;
-
-  checkMF(mf);
-  if (typ(vn) == t_INT)
-  {
-    long n = itos(vn); if (!n) pari_err_TYPE("mfheckemat", vn);
-    return mfheckemat_i(mf, labs(n));
-  }
-  N = MF_get_N(mf); dim = MF_get_dim(mf); k = MF_get_k(mf);
-  CHI = MF_get_CHI(mf); S = MF_get_S(mf);
-  if (typ(vn) != t_VECSMALL) vn = gtovecsmall(vn);
-  lv = lg(vn);
-  res = cgetg(lv, t_VEC);
-  FA = cgetg(lv, t_VEC);
-  vP = cgetg(lv, t_VEC);
-  vT = const_vec(vecsmall_max(vn), NULL);
-  for (i = 1; i < lv; i++)
-  {
-    long n = vn[i];
-    GEN fa;
-    if (!n) pari_err_TYPE("mfheckemat", vn);
-    gel(FA, i) = fa = myfactoru(labs(n));
-    gel(vP, i) = gel(fa,1);
-  }
-  vP = shallowconcat1(vP); vecsmall_sort(vP);
-  vP = vecsmall_uniq_sorted(vP); /* all primes occurring in vn */
-  lvP = lg(vP);
-  if (lvP != 1 && (k == 1 || MF_get_space(mf) != mf_NEW))
-    B = mfcoefs_mf(mf, vP[lvP-1] * (mfsturm_mf(mf)-1), 1);
-  else
-    B = NULL;
-  for (i = 1; i < lvP; i++)
-  {
-    long j, l,  q, e = 1, p = vP[i];
-    GEN C, Tp, u1, u0;
-    for (j = 1; j < lv; j++) e = maxss(e, z_lval(vn[j], p));
-    Tp = B? mfheckemat_mfcoefs(mf, p, B): mfnewmathecke_p(mf, p);
-    gel(vT, p) = Tp;
-    if (e == 1) continue;
-    C = (N % p)? gmul(mfchareval_i(CHI,p), powuu(p, k-1)): NULL;
-    for (u0=gen_1, u1=Tp, q=p, l=2; l <= e; l++)
-    { /* u0 = T_{p^{l-1}}, u1 = T_{p^l} */
-      GEN v = gmul(Tp, u1);
-      if (C) v = gsub(v, gmul(C, u0));
-      q *= p; u0 = u1; gel(vT, q) = u1 = v; /* T_q, q = p^l */
-    }
-  }
-  /* vT[p^e] = T_{p^e} for all p^e occurring below */
-  for (i = 1; i < lv; i++)
-  {
-    long n = vn[i], j, lP;
-    GEN fa, P, E, M;
-    if (n == 1) { gel(res,i) = matid(dim); continue; }
-    fa = gel(FA,i);
-    P = gel(fa,1); lP = lg(P);
-    E = gel(fa,2); M = gel(vT, upowuu(P[1], E[1]));
-    for (j = 2; j < lP; j++) M = RgM_mul(M, gel(vT, upowuu(P[j], E[j])));
-    gel(res,i) = M;
-  }
-  return gerepilecopy(ltop, res);
-}
-
 static long
 badchar(long N, long k, GEN CHI)
 { return mfcharparity(CHI) != m1pk(k) || (CHI && N % mfcharconductor(CHI)); }
@@ -4502,48 +4433,49 @@ Mindex_as_coef(GEN mf)
   for (i = 1; i < l; i++) v[i] = Mindex[i]-1;
   return v;
 }
-/* B from mfcoefs_mf */
+/* 1/2-integral weight, T_p^2 */
 static GEN
-mfheckemat_mfcoefs(GEN mf, long n, GEN B)
+mfheckemat_mfcoefs_p2(GEN mf, long p, GEN B)
 {
   pari_sp av = avma;
-  GEN CHI, vm, Minv, D, Q, vC;
-  long lm, l, lD, k, N, nN, i, j;
+  GEN Mindex = MF_get_Mindex(mf), Minv = MF_get_Minv(mf);
+  GEN Q, b = MF_get_basis(mf), DATA = heckef2_data(MF_get_N(mf), p*p);
+  long j, l = lg(B), sb = mfsturm_mf(mf)-1;
+  Q = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++)
+  {
+    GEN vj = hecke_i(sb, 1, gel(B,j), gel(b,j), DATA); /* Tn f[j] */
+    settyp(vj,t_COL); gel(Q,j) = vecpermute(vj, Mindex);
+  }
+  return gerepileupto(av, Minv_RgM_mul(Minv,Q));
+}
+/* B from mfcoefs_mf, p prime, integral weight */
+static GEN
+mfheckemat_mfcoefs_p(GEN mf, long p, GEN B)
+{
+  pari_sp av = avma;
+  GEN vm, Minv, Q, C;
+  long lm, k, N, i, j, l = lg(B);
 
-  l = lg(B);
   k = MF_get_k(mf);
   N = MF_get_N(mf);
-  nN = u_ppo(n, N); /* largest divisor of n coprime to N */
-  CHI = MF_get_CHI(mf);
+  C = N % p? gmul(mfchareval_i(MF_get_CHI(mf), p), powuu(p, k-1)): NULL;
   vm = Mindex_as_coef(mf); lm = lg(vm);
   Minv = MF_get_Minv(mf);
   Q = cgetg(l, t_MAT);
   for (j = 1; j < l; j++) gel(Q,j) = cgetg(lm, t_COL);
-  D = mydivisorsu(nN); lD = lg(D);
-  vC = cgetg(nN+1, t_VEC);
-  for (j = 2; j < lD; j++) /* skip d = 1 */
-  {
-    long d = D[j];
-    gel(vC, d) = gmul(mfchareval_i(CHI, d), powuu(d, k-1));
-  }
-
   for (i = 1; i < lm; i++)
   {
-    long m = vm[i], mn = m*n;
-    D = mydivisorsu(cgcd(m, nN)); lD = lg(D);
+    long m = vm[i], mp = m*p;
+    GEN Cm = (C && (m % p) == 0)? C : NULL;
     for (j = 1; j < l; j++)
     {
-      GEN S = gel(B,j), s = gel(S, mn + 1);
-      long jj;
-      for (jj = 2; jj < lD; jj++) /* skip d = 1 */
-      {
-        long d = D[jj]; /* coprime to N */
-        s = gadd(s, gmul(gel(vC,d), gel(S, mn/(d*d) + 1)));
-      }
+      GEN S = gel(B,j), s = gel(S, mp + 1);
+      if (Cm) s = gadd(s, gmul(C, gel(S, m/p + 1)));
       gcoeff(Q, i, j) = s;
     }
   }
-  return gerepileupto(av, Minv_RgM_mul(Minv, Q));
+  return gerepileupto(av, Minv_RgM_mul(Minv,Q));
 }
 
 /* mf_NEW != (0), weight > 1, p prime. Use
@@ -4622,6 +4554,84 @@ mfheckemat_i(GEN mf, long n)
   }
   return gerepileupto(av, Minv_RgM_mul(Minv,v));
 }
+GEN
+mfheckemat(GEN mf, GEN vn)
+{
+  pari_sp av = avma;
+  long lv, lvP, i, N, dim, nk, dk, p;
+  GEN CHI, res, vT, FA, B, vP;
+
+  checkMF(mf);
+  if (typ(vn) == t_INT)
+  {
+    long n = itos(vn); if (!n) pari_err_TYPE("mfheckemat", vn);
+    return mfheckemat_i(mf, labs(n));
+  }
+  if (typ(vn) != t_VECSMALL) vn = gtovecsmall(vn);
+  N = MF_get_N(mf); CHI = MF_get_CHI(mf); Qtoss(MF_get_gk(mf), &nk, &dk);
+  dim = MF_get_dim(mf);
+  lv = lg(vn);
+  res = cgetg(lv, t_VEC);
+  FA = cgetg(lv, t_VEC);
+  vP = cgetg(lv, t_VEC);
+  vT = const_vec(vecsmall_max(vn), NULL);
+  for (i = 1; i < lv; i++)
+  {
+    ulong n = (ulong)labs(vn[i]);
+    GEN fa;
+    if (!n) pari_err_TYPE("mfheckemat", vn);
+    if (dk == 1 || uissquareall(n, &n)) fa = myfactoru(n);
+    else { n = 0; fa = myfactoru(1); } /* dummy: T_{vn[i]} = 0 */
+    vn[i] = n;
+    gel(FA,i) = fa;
+    gel(vP,i) = gel(fa,1);
+  }
+  vP = shallowconcat1(vP); vecsmall_sort(vP);
+  vP = vecsmall_uniq_sorted(vP); /* all primes occurring in vn */
+  lvP = lg(vP); if (lvP == 1) goto END;
+  p = vP[lvP-1]; if (dk == 2) p = p*p;
+  if (dk == 1 && nk != 1 && MF_get_space(mf) == mf_NEW)
+    B = NULL; /* special purpose mfnewmathecke_p is faster */
+  else
+    B = mfcoefs_mf(mf, p * (mfsturm_mf(mf)-1), 1);
+  for (i = 1; i < lvP; i++)
+  {
+    long j, l, q, e = 1;
+    GEN C, Tp, u1, u0;
+    p = vP[i];
+    for (j = 1; j < lv; j++) e = maxss(e, z_lval(vn[j], p));
+    if (dk == 2) Tp = mfheckemat_mfcoefs_p2(mf, p, B);
+    else
+      Tp = B? mfheckemat_mfcoefs_p(mf, p, B): mfnewmathecke_p(mf, p);
+    gel(vT, p) = Tp;
+    if (e == 1) continue;
+    if (dk == 2) C = N % p? gmul(mfchareval_i(CHI,p*p), powuu(p, nk-2)): NULL;
+    else         C = N % p? gmul(mfchareval_i(CHI,p),   powuu(p, nk-1)): NULL;
+    for (u0=gen_1, u1=Tp, q=p, l=2; l <= e; l++)
+    { /* u0 = T_{p^{l-1}}, u1 = T_{p^l} */
+      GEN v = gmul(Tp, u1);
+      if (C) v = gsub(v, gmul(C, u0));
+      /* q = p^l, vT[q] = T_q for k integer else T_{q^2} */
+      q *= p; u0 = u1; gel(vT, q) = u1 = v;
+    }
+  }
+END:
+  /* vT[p^e] = T_{p^e} for all p^e occurring below */
+  for (i = 1; i < lv; i++)
+  {
+    long n = vn[i], j, lP;
+    GEN fa, P, E, M;
+    if (n == 0) { gel(res,i) = zeromat(dim,dim); continue; }
+    if (n == 1) { gel(res,i) = matid(dim); continue; }
+    fa = gel(FA,i);
+    P = gel(fa,1); lP = lg(P);
+    E = gel(fa,2); M = gel(vT, upowuu(P[1], E[1]));
+    for (j = 2; j < lP; j++) M = RgM_mul(M, gel(vT, upowuu(P[j], E[j])));
+    gel(res,i) = M;
+  }
+  return gerepilecopy(av, res);
+}
+
 
 /* f = \sum_i v[i] T_listj[i] (Trace Form) attached to v; replace by f/a_1(f) */
 static GEN
@@ -10760,6 +10770,7 @@ RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
 {
   GEN CHI = mf_get_CHI(F), fa = gel(DATA,1), P = gel(fa,1), E = gel(fa,2);
   long i, l = lg(P), r = mf_get_r(F), s4 = odd(r)? -4: 4, k2m3 = (r<<1)-2;
+  if (typ(V) == t_COL) V = shallowtrans(V);
   for (i = 1; i < l; i++)
   { /* p does not divide N */
     long p = P[i], e = E[i], p2 = p*p;
