@@ -47,7 +47,7 @@ static GEN mfcoefs_i(GEN F, long n, long d);
 static GEN bhnmat_extend(GEN M, long m,long l, GEN S, cachenew_t *cache);
 static GEN initnewtrace(long N, GEN CHI);
 static void dbg_cachenew(cachenew_t *C);
-static GEN hecke_i(long m, long l, GEN F, GEN DATA);
+static GEN hecke_i(long m, long l, GEN V, GEN F, GEN DATA);
 static GEN c_Ek(long n, long d, GEN F);
 static GEN RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA);
 static GEN mfcusptrace_i(long N, long k, long n, GEN Dn, GEN TDATA);
@@ -1271,7 +1271,7 @@ static GEN
 c_hecke(long m, long l, GEN DATA, GEN F)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, hecke_i(m, l, F, DATA));
+  return gerepilecopy(av, hecke_i(m, l, NULL, F, DATA));
 }
 static GEN
 c_const(long n, long d, GEN C)
@@ -1552,7 +1552,7 @@ mfcoefs_mf(GEN mf, long n, long d)
   ME = (lE == 1)? cgetg(1, t_MAT): mfvectomat(E, n, d);
   if (lS == 1)
     MS = cgetg(1, t_MAT);
-  else if (mf_get_type(gel(S,1)) == t_MF_DIV) /* k 1/2-integer or k=1 (exotic) */
+  else if (mf_get_type(gel(S,1)) == t_MF_DIV) /*k 1/2-integer or k=1 (exotic)*/
     MS = matdeflate(n,d, mflineardivtomat(S, n*d));
   else if (MF_get_k(mf) == 1) /* k = 1 (dihedral) */
   {
@@ -1561,8 +1561,8 @@ mfcoefs_mf(GEN mf, long n, long d)
     MS = cgetg(lS, t_MAT);
     for (i = 1; i < lS; i++)
     {
-      GEN f = gel(S,i), d = gel(f,4), c = RgM_RgC_mul(M, gel(f,3));
-      if (!equali1(d)) c = RgC_Rg_div(c,d);
+      GEN f = gel(S,i), dc = gel(f,4), c = RgM_RgC_mul(M, gel(f,3));
+      if (!equali1(dc)) c = RgC_Rg_div(c,dc);
       gel(MS,i) = c;
     }
   }
@@ -3934,21 +3934,21 @@ anextract(GEN v, long n, long d)
 }
 /* T_n(F)(0, l, ..., l*m) */
 static GEN
-hecke_i(long m, long l, GEN F, GEN DATA)
+hecke_i(long m, long l, GEN V, GEN F, GEN DATA)
 {
   long k, n, nNBIG, NBIG, lD, M, a, t, nl;
-  GEN D, v, AN, CHI;
+  GEN D, v, CHI;
   if (typ(DATA) == t_VEC)
   { /* 1/2-integral k */
-    GEN S = gel(DATA,2), V = mfcoefs_i(F, m*l*S[3], S[4]);
+    if (!V) { GEN S = gel(DATA,2); V = mfcoefs_i(F, m*l*S[3], S[4]); }
     return RgV_heckef2(m, l, V, F, DATA);
   }
   k = mf_get_k(F);
   n = DATA[1]; nl = n*l;
   nNBIG = DATA[2];
   NBIG = DATA[3];
-  if (nNBIG == 1) return mfcoefs_i(F,m,nl);
-  if (mf_get_type(F) == t_MF_NEWTRACE)
+  if (nNBIG == 1) return V? V: mfcoefs_i(F,m,nl);
+  if (!V && mf_get_type(F) == t_MF_NEWTRACE)
   { /* inline F to allow cache, T_n at level NBIG acting on Tr^new(N,k,CHI) */
     cachenew_t cache;
     long N = mf_get_N(F);
@@ -3961,15 +3961,15 @@ hecke_i(long m, long l, GEN F, GEN DATA)
   D = mydivisorsu(nNBIG); lD = lg(D);
   M = m + 1;
   t = nNBIG * cgcd(nNBIG, l);
-  AN = mfcoefs_i(F, m * t, nl / t); /* usually nl = t and we gain nothing */
-  v = anextract(AN, m, t); /* mfcoefs(F, m, nl); d = 1 */
+  if (!V) V = mfcoefs_i(F, m * t, nl / t); /* usually nl = t */
+  v = anextract(V, m, t); /* mfcoefs(F, m, nl); d = 1 */
   for (a = 2; a < lD; a++)
   { /* d > 1, (d, NBIG) = 1 */
     long d = D[a], c = cgcd(l, d), dl = d/c, i, idl;
     GEN C = gmul(mfchareval_i(CHI, d), powuu(d, k-1));
-    GEN V = anextract(AN, m/dl, t/(d*c)); /* mfcoefs(F, m/dl, nl/(d*c)) */
+    GEN w = anextract(V, m/dl, t/(d*c)); /* mfcoefs(F, m/dl, nl/(d*c)) */
     for (i = idl = 1; idl <= M; i++, idl += dl)
-      gel(v,idl) = gadd(gel(v,idl), gmul(C, gel(V,i)));
+      gel(v,idl) = gadd(gel(v,idl), gmul(C, gel(w,i)));
   }
   return v;
 }
@@ -4081,26 +4081,28 @@ RgC_Bd_expand(long m0, long m, GEN v, long d, long m0d)
   return w;
 }
 /* S a non-empty vector of t_MF_BD(t_MF_HECKE(t_MF_NEWTRACE)); M the matrix
- * of their coefficients up to m0 (~ mfvectomat) or NULL (empty),
+ * of their coefficients r*0, r*1, ..., r*m0 (~ mfvectomat) or NULL (empty),
  * extend it to coeffs up to m > m0. The forms B_d(T_j(tf_N))in S should be
  * sorted by level N, then j, then increasing d. No reordering here. */
 static GEN
 bhnmat_extend(GEN M, long m, long r, GEN S, cachenew_t *cache)
 {
-  long i, m0, Nold = 0, jold = 0, l = lg(S);
+  long i, mr, m0, m0r, Nold = 0, jold = 0, l = lg(S);
   GEN MAT = cgetg(l, t_MAT), v = NULL;
-  m0 = M? nbrows(M): 0;
+  if (M) { m0 = nbrows(M); m0r = m0 * r; } else m0 = m0r = 0;
+  mr = m*r;
   for (i = 1; i < l; i++)
   {
-    long d, j, m0d, N;
+    long d, j, md, N;
     GEN c, f = bhn_parse(gel(S,i), &d,&j); /* t_MF_NEWTRACE */
     N = mf_get_N(f);
-    m0d = ceildiv(m0,d);
+    md = ceildiv(m0r,d);
     if (N != Nold) { reset_cachenew(cache, N, f); Nold = N; jold = 0; }
     if (!cache->DATA) { gel(MAT,i) = zerocol(m+1); continue; }
-    if (j != jold || m0)
-    { v = heckenewtrace(m0d, m/d, r, N, N, mf_get_k(f), j,cache); jold=j; }
-    c = RgC_Bd_expand(m0, m, v, d, m0d);
+    if (j != jold || md)
+    { v = heckenewtrace(md, mr/d, 1, N, N, mf_get_k(f), j,cache); jold=j; }
+    c = RgC_Bd_expand(m0r, mr, v, d, md);
+    if (r > 1) c = c_deflate(m-m0, r, c);
     if (M) c = shallowconcat(gel(M,i), c);
     gel(MAT,i) = c;
   }
@@ -4601,14 +4603,15 @@ mfheckemat_i(GEN mf, long n)
   sb = mfsturm_mf(mf)-1;
   if (typ(gk) == t_INT)
   {
+    long nNBIG;
     if (itou(gk) == 1 && mf_get_type(gel(b,1)) == t_MF_DIV)
     {
       M = mflineardivtomat(MF_get_S(mf), n * sb);
       return mfheckematwt1(mf, n, M);
     }
     if (MF_get_space(mf) == mf_NEW && uisprime(n)) return mfnewmathecke_p(mf,n);
-    DATA = hecke_data(N, n);
-    M = NULL;
+    DATA = hecke_data(N, n); nNBIG = DATA[2];
+    M = mfcoefs_mf(mf, sb * nNBIG, n / nNBIG);
   }
   else
   {
@@ -4623,10 +4626,8 @@ mfheckemat_i(GEN mf, long n)
   v = cgetg(l, t_VEC);
   for (j = 1; j < l; j++)
   {
-    GEN vj = M ? RgV_heckef2(sb, 1, gel(M,j), gel(b,j), DATA)
-               : hecke_i(sb, 1, gel(b,j), DATA);
-    settyp(vj,t_COL); /* Tn f[j] */
-    gel(v, j) = vecpermute(vj, Mindex);
+    GEN vj = hecke_i(sb, 1, gel(M,j), gel(b,j), DATA); /* Tn f[j] */
+    settyp(vj,t_COL); gel(v,j) = vecpermute(vj, Mindex);
   }
   return gerepileupto(av, Minv_RgM_mul(Minv,v));
 }
