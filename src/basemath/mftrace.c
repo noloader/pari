@@ -4558,7 +4558,7 @@ GEN
 mfheckemat(GEN mf, GEN vn)
 {
   pari_sp av = avma;
-  long lv, lvP, i, N, dim, nk, dk, p;
+  long lv, lvP, i, N, dim, nk, dk, p, sb;
   GEN CHI, res, vT, FA, B, vP;
 
   checkMF(mf);
@@ -4590,17 +4590,19 @@ mfheckemat(GEN mf, GEN vn)
   vP = vecsmall_uniq_sorted(vP); /* all primes occurring in vn */
   lvP = lg(vP); if (lvP == 1) goto END;
   p = vP[lvP-1]; if (dk == 2) p = p*p;
+  sb = mfsturm_mf(mf)-1;
   if (dk == 1 && nk != 1 && MF_get_space(mf) == mf_NEW)
     B = NULL; /* special purpose mfnewmathecke_p is faster */
   else
-    B = mfcoefs_mf(mf, p * (mfsturm_mf(mf)-1), 1);
+    B = mfcoefs_mf(mf, p * sb, 1);
   for (i = 1; i < lvP; i++)
   {
     long j, l, q, e = 1;
     GEN C, Tp, u1, u0;
     p = vP[i];
     for (j = 1; j < lv; j++) e = maxss(e, z_lval(vn[j], p));
-    if (dk == 2) Tp = mfheckemat_mfcoefs_p2(mf, p, B);
+    if (dk == 2)
+      Tp = mfheckemat_mfcoefs_p2(mf, p, N % p? B: matdeflate(sb,p*p,B));
     else
       Tp = B? mfheckemat_mfcoefs_p(mf, p, B): mfnewmathecke_p(mf, p);
     gel(vT, p) = Tp;
