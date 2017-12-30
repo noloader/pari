@@ -4297,10 +4297,16 @@ GEN
 mftonew(GEN mf, GEN F)
 {
   pari_sp av = avma;
+  GEN ES;
+  long s;
   checkMF(mf);
-  if (MF_get_space(mf) != mf_CUSP)
-    pari_err_TYPE("mftonew [not a cuspidal space]", mf);
-  F = mftobasis_i(mf, F);
+  s = MF_get_space(mf);
+  if (s != mf_FULL && s != mf_CUSP)
+    pari_err_TYPE("mftonew [not a full or cuspidal space]", mf);
+  ES = mftobasisES(mf,F);
+  if (!gequal0(gel(ES,1)))
+    pari_err_TYPE("mftonew [not a cuspidal form]", F);
+  F = gel(ES,2);
   return gerepilecopy(av, mftonew_i(mf,F, NULL));
 }
 

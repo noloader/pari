@@ -2,13 +2,13 @@ Function: mftonew
 Section: modular_forms
 C-Name: mftonew
 Prototype: GG
-Help: mftonew(mf,F): mf being the cuspidal space with parameters [N,k,chi]
- and F a form in that space, returns a vector of 3-component vectors
+Help: mftonew(mf,F): mf being a full or cuspidal space with parameters [N,k,chi]
+ and F a cusp form in that space, returns a vector of 3-component vectors
  [M,d,G], where f(chi) divides M divides N, d divides N/M, and G is a
  form in S_k^new(G_0(M),chi) such that F is equal to the sum of the
  B(d)(G) over all these 3-component vectors.
-Doc: \kbd{mf} being being the cuspidal space with parameters $[N,k,\chi]$
- and $F$ a form in that space, returns a vector of 3-component vectors
+Doc: \kbd{mf} being being a full or cuspidal space with parameters $[N,k,\chi]$
+ and $F$ a cusp form in that space, returns a vector of 3-component vectors
  $[M,d,G]$, where $f(\chi)\mid M\mid N$, $d\mid N/M$, and $G$ is a form
  in $S_k^{\text{new}}(\Gamma_0(M),\chi)$ such that $F$ is equal to the sum of
  the $B(d)(G)$ over all these 3-component vectors.
