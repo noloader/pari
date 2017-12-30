@@ -4846,14 +4846,14 @@ mfsplit_i(GEN mf, long dimlim, long flag)
 {
   forprime_t iter;
   GEN NF, POLCYC, CHI, todosp, Tpbigvec, simplesp, empty = cgetg(1, t_VEC);
-  long N, k, ord, FC, newdim, dim = MF_get_dim(mf), dimsimple = 0;
+  long N, k, ord, FC, newdim, dim = MF_get_dim(mf), dimsimple = 0, NEWT = 0;;
   const long NBH = 5, vz = 1;
   ulong p;
 
   newdim = dim;
   switch(MF_get_space(mf))
   {
-    case mf_NEW: break;
+    case mf_NEW: NEWT = k > 1; break;
     case mf_CUSP: /* in wt1 much faster to compute mfolddim */
       if (dimlim) pari_err_FLAG("mfsplit [cusp space]");
       newdim -= mfolddim(MF_get_N(mf), MF_get_k(mf), MF_get_CHI(mf));
@@ -4885,7 +4885,7 @@ mfsplit_i(GEN mf, long dimlim, long flag)
     GEN nextsp;
     long ind;
     if (N % (p*p) == 0 && N/p % FC == 0) continue; /* T_p = 0 in this case */
-    vecpush(Tpbigvec,  k > 1? mfnewmathecke_p(mf,p): mfheckemat_p(mf,p));
+    vecpush(Tpbigvec, NEWT? mfnewmathecke_p(mf,p): mfheckemat_p(mf,p));
     if (k == 1 && !NF) NF = RgM_getnf(gel(Tpbigvec,1));
     nextsp = empty;
     for (ind = 1; ind < lg(todosp); ind++)
