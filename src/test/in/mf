@@ -198,6 +198,9 @@ mf=mfinit([12,8],0);F=mfbasis(mf)[1];
 mfslashexpansion(mf,F,[1,0;2,1],12,0)
 mfslashexpansion(mf,F,[1,0;2,1],12,1)
 
+mf=mfinit([12,7,-4],0);F=mfbasis(mf)[1];
+mfslashexpansion(mf,F,[1,0;6,1],7,1,&A)
+
 mf=mfinit([96,2,8], 0);
 mfa = mfatkininit(mf,3);
 mfa[2]
