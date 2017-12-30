@@ -10738,7 +10738,7 @@ mfEH(GEN gk)
 /*             T(f^2) for half-integral weight            */
 /**********************************************************/
 
-/* T_p^2 V */
+/* T_p^2 V, p2 = p^2, c1 = chi(p) (-1/p)^r p^(r-1), c2 = chi(p^2)*p^(2r-1) */
 static GEN
 tp2apply(GEN V, long p, long p2, GEN c1, GEN c2)
 {
@@ -10750,7 +10750,7 @@ tp2apply(GEN V, long p, long p2, GEN c1, GEN c2)
   {
     GEN c = gel(V, p2*n + 1);
     if (n%p) c = gadd(c, gmulsg(kross(n,p), gmul(gel(V,n+1), c1)));
-    gel(W, n+1) = c;
+    gel(W, n+1) = c; /* a(p^2*n) + c1 * (n/p) a(n) */
   }
   for (m = 1, n = p2; n < lw; m++, n += p2)
     gel(W, n+1) = gadd(gel(W,n+1), gmul(gel(V,m+1), c2));
@@ -10784,14 +10784,13 @@ RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
   for (i = 1; i < l; i++)
   { /* p does not divide N */
     long p = P[i], e = E[i], p2 = p*p;
-    GEN chip, c1, c2, a, b, q = NULL;
-    chip = mfchareval(CHI,p);
-    a = r? powuu(p,r-1): mkfrac(gen_1,utoipos(p)); /* p^(r-1) */
-    b = r? mulii(powuu(p,r), a): a; /* p^(2r-1) */
-    c1 = gmul(chip, gmulsg(kross(s4,p),a));
-    c2 = gmul(chip, b);
-    if (e > 1)
-      q = gmul(c2, gmulsg(1+p, r? powuu(p,k2m3): mkfrac(gen_1, utoipos(p2))));
+    GEN c1, c2, a, b, q = NULL, C = mfchareval_i(CHI,p), C2 = gsqr(C);
+    a = r? powuu(p,r-1): mkfrac(gen_1,utoipos(p)); /* p^(r-1) = p^(k-3/2) */
+    b = r? mulii(powuu(p,r), a): a; /* p^(2r-1) = p^(2k-2) */
+    c1 = gmul(C, gmulsg(kross(s4,p),a));
+    c2 = gmul(C2, b);
+    if (e > 1) /* chi(p^2) (p+1)*p^(2k-3) */
+      q = gmul(C2, gmulsg(1+p, r? powuu(p,k2m3): mkfrac(gen_1, utoipos(p2))));
     V = tp2eapply(V, p, p2, e, q, c1, c2);
   }
   return c_deflate(n, d, V);
