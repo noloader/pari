@@ -4579,16 +4579,14 @@ mfheckemat(GEN mf, GEN vn)
       Tp = mfheckemat_mfcoefs_p(mf, p, (lvP==2||N%p)? B: matdeflate(sb,p,B));
     gel(vT, p) = Tp;
     if (e == 1) continue;
+    u0 = gen_1;
     if (dk == 2)
     {
       C = N % p? gmul(mfchareval_i(CHI,p*p), powuu(p, nk-2)): NULL;
-      u0 = sstoQ(p+1,p);
+      if (e == 2) u0 = sstoQ(p+1,p); /* special case T_{p^4} */
     }
     else
-    {
       C = N % p? gmul(mfchareval_i(CHI,p),   powuu(p, nk-1)): NULL;
-      u0 = gen_1;
-    }
     for (u1=Tp, q=p, l=2; l <= e; l++)
     { /* u0 = T_{p^{l-2}}, u1 = T_{p^{l-1}} for l > 2 */
       GEN v = gmul(Tp, u1);
@@ -10752,7 +10750,7 @@ static GEN
 RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
 {
   GEN CHI = mf_get_CHI(F), fa = gel(DATA,1), P = gel(fa,1), E = gel(fa,2);
-  long i, l = lg(P), r = mf_get_r(F), s4 = odd(r)? -4: 4, k2m3 = (r<<1)-2;
+  long i, l = lg(P), r = mf_get_r(F), s4 = odd(r)? -4: 4, k2m2 = (r<<1)-1;
   if (typ(V) == t_COL) V = shallowtrans(V);
   for (i = 1; i < l; i++)
   { /* p does not divide N */
@@ -10762,8 +10760,12 @@ RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
     b = r? mulii(powuu(p,r), a): a; /* p^(2r-1) = p^(2k-2) */
     c1 = gmul(C, gmulsg(kross(s4,p),a));
     c2 = gmul(C2, b);
-    if (e > 1) /* chi(p^2) (p+1)*p^(2k-3) */
-      q = gmul(C2, gmulsg(1+p, r? powuu(p,k2m3): mkfrac(gen_1, utoipos(p2))));
+    if (e > 1)
+    {
+      q = r? powuu(p,k2m2): a;
+      if (e == 2) q = gmul(q, sstoQ(p+1,p)); /* special case T_{p^4} */
+      q = gmul(C2, q); /* chi(p^2) [ p^(2k-2) or (p+1)p^(2k-3) ] */
+    }
     V = tp2eapply(V, p, p2, e, q, c1, c2);
   }
   return c_deflate(n, d, V);
