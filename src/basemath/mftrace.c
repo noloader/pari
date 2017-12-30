@@ -10781,24 +10781,39 @@ bestapprnf2(GEN V, long m, long prec)
   return gmodulo(gdivgs(Vl, degpol(P)/degpol(Pf)), Pf);
 }
 
+static GEN
+RgV_approx(GEN v, long bit)
+{
+  long i, l = lg(v);
+  GEN w = cgetg_copy(v, &l);
+  for (i = 1; i < lg(v); i++)
+  {
+    GEN t = gel(v,i), re = real_i(t), im = imag_i(t);
+    long e1 = gexpo(re), e2 = gexpo(im);
+    if (e2 < -bit) { t = e1 < -bit? gen_0: re; }
+    else if (e1 < -bit) t = mkcomplex(gen_0, im);
+    gel(w, i) = t;
+  }
+  return w;
+}
 /* F | gamma expansion; [F, mf_eisendec(F)]~ allowed */
 GEN
 mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long prec)
 {
   pari_sp av = avma;
-  GEN res, al, V, M, gw;
-  long i, a, b, d;
+  GEN res, al, V, M;
+  long i, a, b, d, w;
 
   checkMF(mf);
   M = GL2toSL2(gamma, &a,&b,&d);
   res = mfgaexpansion(mf, F, M, n, prec);
   al = gel(res,1);
-  gw = gel(res,2);
+  w = itou(gel(res,2));
   V = gel(res,3);
   if (a != 1 || d != 1 || b != 0)
   {
     GEN ad = sstoQ(a,d), z, W, sh, adal, t;
-    long nums, dens, w = itos(gw);
+    long nums, dens;
     Qtoss(sstoQ(b, w*d), &nums, &dens);
     z = rootsof1powinit(nums, dens, prec);
     W = cgetg(n+2, t_VEC);
@@ -10806,25 +10821,25 @@ mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long
     t = gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
     t = gmul(t, gpow(ad, gmul2n(MF_get_gk(mf), -1), prec));
     W = RgV_Rg_mul(W, t);
-    Qtoss(gdivgs(ad, w), &nums, &w);
+    Qtoss(gdivgs(ad, w), &nums, &w); /* update w */
     adal = gmul(ad, al); sh = gfloor(adal); al = gsub(adal, sh);
     V = RgV_shift(bdexpand(W, nums), sh);
-    gw = utoipos(w);
   }
   if (flrat)
   {
     GEN CV, gk = MF_get_gk(mf);
-    long C = itos(gcoeff(M, 2, 1)), N = MF_get_N(mf), g, w = itos(gw);
-    long ord = mfcharorder_canon(MF_get_CHI(mf)), k;
+    long C = itos(gcoeff(M, 2, 1)), N = MF_get_N(mf);
+    long ord = mfcharorder_canon(MF_get_CHI(mf)), k, g;
     if (typ(gk) != t_INT)
       pari_err_IMPL("rationalization of half-integral weight slash");
     k = itos(gk);
     g = cgcd(N/cgcd(N, C), C);
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
-    V = gdiv(bestapprnf2(gmul(CV, V), ord_canon(clcm(g*w, ord)), prec), CV);
+    V = RgV_approx(V, prec2nbits_mul(prec, 0.8));
+    V = gdiv(bestapprnf2(gmul(CV,V), ord_canon(clcm(g*w, ord)), prec), CV);
   }
   if (!params) return gerepilecopy(av, V);
-  *params = mkvec2(al, gw); gerepileall(av,2,&V,params); return V;
+  *params = mkvec2(al, utoipos(w)); gerepileall(av,2,&V,params); return V;
 }
 
 /**************************************************************/
