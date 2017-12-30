@@ -52,7 +52,6 @@ static GEN c_Ek(long n, long d, GEN F);
 static GEN RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA);
 static GEN mfcusptrace_i(long N, long k, long n, GEN Dn, GEN TDATA);
 static GEN mfnewtracecache(long N, long k, long n, cachenew_t *cache);
-static GEN mfnewmathecke_p(GEN mf, long p);
 static GEN colnewtrace(long n0, long n, long d, long N, long k, cachenew_t *c);
 static GEN dihan(GEN bnr, GEN w, GEN k0j, ulong n);
 static GEN sigchi(long k, GEN CHI, long n);
@@ -4422,6 +4421,28 @@ mflineardivtomat(GEN vF, long n)
   return B;
 }
 
+static GEN
+mfheckemat_mfcoefs(GEN mf, GEN B, GEN DATA)
+{
+  GEN Mindex = MF_get_Mindex(mf), Minv = MF_get_Minv(mf);
+  long j, l = lg(B), sb = mfsturm_mf(mf)-1;
+  GEN b = MF_get_basis(mf), Q = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++)
+  {
+    GEN v = hecke_i(sb, 1, gel(B,j), gel(b,j), DATA); /* Tn b[j] */
+    settyp(v,t_COL); gel(Q,j) = vecpermute(v, Mindex);
+  }
+  return Minv_RgM_mul(Minv,Q);
+}
+/* T_p^2, p prime, 1/2-integral weight; B = mfcoefs(mf,sb*p^2,1) or (mf,sb,p^2)
+ * if p|N */
+static GEN
+mfheckemat_mfcoefs_p2(GEN mf, long p, GEN B)
+{
+  pari_sp av = avma;
+  GEN DATA = heckef2_data(MF_get_N(mf), p*p);
+  return gerepileupto(av, mfheckemat_mfcoefs(mf, B, DATA));
+}
 /* convert Mindex from row-index to mfcoef indexation: a(n) is stored in
  * mfcoefs()[n+1], so subtract 1 from all indices */
 static GEN
@@ -4433,41 +4454,24 @@ Mindex_as_coef(GEN mf)
   for (i = 1; i < l; i++) v[i] = Mindex[i]-1;
   return v;
 }
-/* 1/2-integral weight, T_p^2 */
-static GEN
-mfheckemat_mfcoefs_p2(GEN mf, long p, GEN B)
-{
-  pari_sp av = avma;
-  GEN Mindex = MF_get_Mindex(mf), Minv = MF_get_Minv(mf);
-  GEN Q, b = MF_get_basis(mf), DATA = heckef2_data(MF_get_N(mf), p*p);
-  long j, l = lg(B), sb = mfsturm_mf(mf)-1;
-  Q = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++)
-  {
-    GEN vj = hecke_i(sb, 1, gel(B,j), gel(b,j), DATA); /* Tn f[j] */
-    settyp(vj,t_COL); gel(Q,j) = vecpermute(vj, Mindex);
-  }
-  return gerepileupto(av, Minv_RgM_mul(Minv,Q));
-}
-/* B from mfcoefs_mf, p prime, integral weight */
+/* T_p, p prime; B = mfcoefs(mf,sb*p,1) or (mf,sb,p) if p|N; integral weight */
 static GEN
 mfheckemat_mfcoefs_p(GEN mf, long p, GEN B)
 {
   pari_sp av = avma;
-  GEN vm, Minv, Q, C;
-  long lm, k, N, i, j, l = lg(B);
+  GEN vm, Q, C, Minv = MF_get_Minv(mf);
+  long lm, k, i, j, l = lg(B), N = MF_get_N(mf);
 
+  if (N % p == 0) return Minv_RgM_mul(Minv, rowpermute(B, MF_get_Mindex(mf)));
   k = MF_get_k(mf);
-  N = MF_get_N(mf);
-  C = N % p? gmul(mfchareval_i(MF_get_CHI(mf), p), powuu(p, k-1)): NULL;
+  C = gmul(mfchareval_i(MF_get_CHI(mf), p), powuu(p, k-1));
   vm = Mindex_as_coef(mf); lm = lg(vm);
-  Minv = MF_get_Minv(mf);
   Q = cgetg(l, t_MAT);
   for (j = 1; j < l; j++) gel(Q,j) = cgetg(lm, t_COL);
   for (i = 1; i < lm; i++)
   {
     long m = vm[i], mp = m*p;
-    GEN Cm = (C && (m % p) == 0)? C : NULL;
+    GEN Cm = (m % p) == 0? C : NULL;
     for (j = 1; j < l; j++)
     {
       GEN S = gel(B,j), s = gel(S, mp + 1);
@@ -4476,6 +4480,15 @@ mfheckemat_mfcoefs_p(GEN mf, long p, GEN B)
     }
   }
   return gerepileupto(av, Minv_RgM_mul(Minv,Q));
+}
+/* Matrix of T(p), p prime, dim(mf) > 0 and integral weight */
+static GEN
+mfheckemat_p(GEN mf, long p)
+{
+  pari_sp av = avma;
+  long N = MF_get_N(mf), sb = mfsturm_mf(mf)-1;
+  GEN B = (N % p)? mfcoefs_mf(mf, sb * p, 1): mfcoefs_mf(mf, sb, p);
+  return gerepileupto(av, mfheckemat_mfcoefs(mf, B, hecke_data(N,p)));
 }
 
 /* mf_NEW != (0), weight > 1, p prime. Use
@@ -4514,59 +4527,14 @@ mfnewmathecke_p(GEN mf, long p)
   return gerepileupto(av, Minv_RgM_mul(Minv, M));
 }
 
-/* Matrix of T(n), assume n > 0 */
-static GEN
-mfheckemat_i(GEN mf, long n)
-{
-  pari_sp av = avma;
-  GEN M, Minv, v, b, Mindex, DATA, gk;
-  long j, l, sb, N;
-
-  b = MF_get_basis(mf); l = lg(b);
-  if (l == 1) return cgetg(1, t_MAT);
-  if (n == 1) return matid(l-1);
-  gk = MF_get_gk(mf);
-  N = MF_get_N(mf);
-  sb = mfsturm_mf(mf)-1;
-  if (typ(gk) == t_INT)
-  {
-    long nN;
-    if (MF_get_space(mf) == mf_NEW && itou(gk) > 1 && uisprime(n))
-      return mfnewmathecke_p(mf,n);
-    DATA = hecke_data(N, n); nN = DATA[2];
-    M = mfcoefs_mf(mf, sb * nN, n / nN);
-  }
-  else
-  {
-    GEN S;
-    DATA = heckef2_data(N,n);
-    if (!DATA) return zeromat(l-1,l-1);
-    S = gel(DATA,2);
-    M = mfcoefs_mf(mf, sb * S[3], S[4]);
-  }
-  Mindex = MF_get_Mindex(mf);
-  Minv = MF_get_Minv(mf);
-  v = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++)
-  {
-    GEN vj = hecke_i(sb, 1, gel(M,j), gel(b,j), DATA); /* Tn f[j] */
-    settyp(vj,t_COL); gel(v,j) = vecpermute(vj, Mindex);
-  }
-  return gerepileupto(av, Minv_RgM_mul(Minv,v));
-}
 GEN
 mfheckemat(GEN mf, GEN vn)
 {
   pari_sp av = avma;
-  long lv, lvP, i, N, dim, nk, dk, p, sb;
+  long lv, lvP, i, N, dim, nk, dk, p, sb, flint = (typ(vn)==t_INT);
   GEN CHI, res, vT, FA, B, vP;
 
   checkMF(mf);
-  if (typ(vn) == t_INT)
-  {
-    long n = itos(vn); if (!n) pari_err_TYPE("mfheckemat", vn);
-    return mfheckemat_i(mf, labs(n));
-  }
   if (typ(vn) != t_VECSMALL) vn = gtovecsmall(vn);
   N = MF_get_N(mf); CHI = MF_get_CHI(mf); Qtoss(MF_get_gk(mf), &nk, &dk);
   dim = MF_get_dim(mf);
@@ -4589,22 +4557,26 @@ mfheckemat(GEN mf, GEN vn)
   vP = shallowconcat1(vP); vecsmall_sort(vP);
   vP = vecsmall_uniq_sorted(vP); /* all primes occurring in vn */
   lvP = lg(vP); if (lvP == 1) goto END;
-  p = vP[lvP-1]; if (dk == 2) p = p*p;
+  p = vP[lvP-1];
   sb = mfsturm_mf(mf)-1;
   if (dk == 1 && nk != 1 && MF_get_space(mf) == mf_NEW)
     B = NULL; /* special purpose mfnewmathecke_p is faster */
+  else if (lvP == 2 && N % p == 0)
+    B = mfcoefs_mf(mf, sb, dk==2? p*p: p); /* single prime | N, can optimize */
   else
-    B = mfcoefs_mf(mf, p * sb, 1);
+    B = mfcoefs_mf(mf, sb * (dk==2? p*p: p), 1); /* general initialization */
   for (i = 1; i < lvP; i++)
   {
     long j, l, q, e = 1;
     GEN C, Tp, u1, u0;
     p = vP[i];
     for (j = 1; j < lv; j++) e = maxss(e, z_lval(vn[j], p));
-    if (dk == 2)
-      Tp = mfheckemat_mfcoefs_p2(mf, p, N % p? B: matdeflate(sb,p*p,B));
+    if (!B)
+      Tp = mfnewmathecke_p(mf, p);
+    else if (dk == 2)
+      Tp = mfheckemat_mfcoefs_p2(mf,p, (lvP==2||N%p)? B: matdeflate(sb,p*p,B));
     else
-      Tp = B? mfheckemat_mfcoefs_p(mf, p, B): mfnewmathecke_p(mf, p);
+      Tp = mfheckemat_mfcoefs_p(mf, p, (lvP==2||N%p)? B: matdeflate(sb,p,B));
     gel(vT, p) = Tp;
     if (e == 1) continue;
     if (dk == 2)
@@ -4639,6 +4611,7 @@ END:
     for (j = 2; j < lP; j++) M = RgM_mul(M, gel(vT, upowuu(P[j], E[j])));
     gel(res,i) = M;
   }
+  if (flint) res = gel(res,1);
   return gerepilecopy(av, res);
 }
 
@@ -4942,7 +4915,7 @@ mfsplit_i(GEN mf, long dimlim, long flag)
     GEN nextsp;
     long ind;
     if (N % (p*p) == 0 && N/p % FC == 0) continue; /* T_p = 0 in this case */
-    vecpush(Tpbigvec, mfheckemat_i(mf,p));
+    vecpush(Tpbigvec,  k > 1? mfnewmathecke_p(mf,p): mfheckemat_p(mf,p));
     if (k == 1 && !NF) NF = RgM_getnf(gel(Tpbigvec,1));
     nextsp = empty;
     for (ind = 1; ind < lg(todosp); ind++)
