@@ -11,16 +11,15 @@ Help: mfsymboleval(fs,path,{ga=id}): evaluation of the modular
  If the integral diverges, the result will be a rational function.
 Doc: evaluation of the modular symbol $fs$ (corresponding to the modular
  form $f$) output by \kbd{mfsymbol} on the given path \kbd{path}, where
- \kbd{path} is either a vector $[s1,s2]$ or an integral matrix $[a,b;c,d]$
- representing the path $[a/c,b/d]$. In both cases $s1$ or $s2$ (or $a/c$ or
- $b/d$) can also be elements of the upper half-plane, although in that case
- the program may be slow if $s1$ or $s2$ are near (but not equal to) cusps.
+ \kbd{path} is either a vector $[s_1,s_2]$ or an integral matrix $[a,b;c,d]$
+ representing the path $[a/c,b/d]$. In both cases $s_1$ or $s_2$ (or $a/c$ or
+ $b/d$) can also be elements of the upper half-plane.
  To avoid possibly lengthy \kbd{mfsymbol} computations, the program also
- accepts $fs$ of the form \kbd{[mf,F]}, but in that case $s1$ and $s2$
- are limited to oo and elements of the upper half-plane.
+ accepts $fs$ of the form \kbd{[mf,F]}, but in that case $s_1$ and $s_2$
+ are limited to \kbd{oo} and elements of the upper half-plane.
  The result is the polynomial equal to
- $\int_{s1}^{s2}(X-\tau)^{k-2}F(\tau)\,d\tau$, the integral being
- computed along a geodesic joining $s1$ and $s2$. If \kbd{ga} in $GL_2^+(\Q)$
+ $\int_{s_1}^{s_2}(X-\tau)^{k-2}F(\tau)\,d\tau$, the integral being
+ computed along a geodesic joining $s_1$ and $s_2$. If \kbd{ga} in $GL_2^+(\Q)$
  is given, replace $F$ by $F|_{k}\gamma$. Note that if the integral diverges,
  the result will be a rational function.
  If the field of definition $\Q(f)$ is larger than $\Q(\chi)$ then $f$ can be
