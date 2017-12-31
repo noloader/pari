@@ -10757,29 +10757,6 @@ GL2toSL2(GEN ga, long *pa, long *pb, long *pd)
   *pb = r; return mkmat22s(A, -v + q*A, C, u + q*C);
 }
 
-/* m != 2 (mod 4) */
-static GEN
-bestapprnf2(GEN V, long m, long prec)
-{
-  long vt = fetch_user_var("t"), i, j, f;
-  GEN Tinit, Vl, H, Pf, P = polcyclo(m, vt);
-  V = bestapprnf(liftpol_shallow(V), P, NULL, prec);
-  Vl = liftpol_shallow(V);
-  H = coprimes_zv(m);
-  for (i = 2; i < m; i++)
-  {
-    if (H[i] != 1) continue;
-    if (!gequal(Vl, vecGalois(Vl, i, P))) H[i] = 0;
-    else for (j = i; j < m; j *= i) H[i] = 3;
-  }
-  f = znstar_conductor_bits(Flv_to_F2v(H));
-  if (f == m || f == 1) return V;
-  Tinit = Qab_trace_init(P, m, f);
-  Pf = gel(Tinit,1);
-  Vl = QabV_tracerel(Tinit, 0, Vl);
-  return gmodulo(gdivgs(Vl, degpol(P)/degpol(Pf)), Pf);
-}
-
 static GEN
 RgV_approx(GEN v, long bit)
 {
@@ -10795,6 +10772,32 @@ RgV_approx(GEN v, long bit)
   }
   return w;
 }
+/* m != 2 (mod 4), D t_INT; V has "denominator" D, recognize in Q(zeta_m) */
+static GEN
+bestapprnf2(GEN V, long m, GEN D, long prec)
+{
+  long i, j, f, vt = fetch_user_var("t"), bit = prec2nbits_mul(prec, 0.8);
+  GEN Tinit, Vl, H, Pf, P = polcyclo(m, vt);
+
+  V = liftpol_shallow(V);
+  V = gmul(RgV_approx(V, bit), D);
+  V = bestapprnf(V, P, NULL, prec);
+  Vl = liftpol_shallow(V);
+  H = coprimes_zv(m);
+  for (i = 2; i < m; i++)
+  {
+    if (H[i] != 1) continue;
+    if (!gequal(Vl, vecGalois(Vl, i, P))) H[i] = 0;
+    else for (j = i; j < m; j *= i) H[i] = 3;
+  }
+  f = znstar_conductor_bits(Flv_to_F2v(H));
+  if (f == m || f == 1) return gdiv(V, D);
+  Tinit = Qab_trace_init(P, m, f);
+  Pf = gel(Tinit,1);
+  Vl = QabV_tracerel(Tinit, 0, Vl);
+  return gmodulo(gdiv(Vl, muliu(D, degpol(P)/degpol(Pf))), Pf);
+}
+
 /* F | gamma expansion; [F, mf_eisendec(F)]~ allowed */
 GEN
 mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long prec)
@@ -10834,8 +10837,7 @@ mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long
     k = itos(gk);
     g = cgcd(N/cgcd(N, C), C);
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
-    V = RgV_approx(V, prec2nbits_mul(prec, 0.8));
-    V = gdiv(bestapprnf2(gmul(CV,V), ord_canon(clcm(g*w, ord)), prec), CV);
+    V = bestapprnf2(V, ord_canon(clcm(g*w, ord)), CV, prec);
   }
   if (!params) return gerepilecopy(av, V);
   *params = mkvec2(al, utoipos(w)); gerepileall(av,2,&V,params); return V;
