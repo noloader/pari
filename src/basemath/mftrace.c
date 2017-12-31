@@ -4846,7 +4846,7 @@ mfsplit_i(GEN mf, long dimlim, long flag)
 {
   forprime_t iter;
   GEN NF, POLCYC, CHI, todosp, Tpbigvec, simplesp, empty = cgetg(1, t_VEC);
-  long N, k, ord, FC, newdim, dim = MF_get_dim(mf), dimsimple = 0, NEWT = 0;;
+  long N, k, ord, FC, newdim, dim = MF_get_dim(mf), dimsimple = 0, NEWT = 0;
   const long NBH = 5, vz = 1;
   ulong p;
 
