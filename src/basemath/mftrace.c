@@ -4845,8 +4845,10 @@ static GEN
 mfsplit_i(GEN mf, long dimlim, long flag)
 {
   forprime_t iter;
-  GEN NF, POLCYC, CHI, todosp, Tpbigvec, simplesp, empty = cgetg(1, t_VEC);
-  long N, k, ord, FC, newdim, dim = MF_get_dim(mf), dimsimple = 0, NEWT = 0;
+  GEN CHI = MF_get_CHI(mf), empty = cgetg(1, t_VEC);
+  GEN NF, POLCYC, todosp, Tpbigvec, simplesp;
+  long N = MF_get_N(mf), k = MF_get_k(mf), dim = MF_get_dim(mf);
+  long ord, FC, newdim, dimsimple = 0, NEWT = 0;
   const long NBH = 5, vz = 1;
   ulong p;
 
@@ -4856,14 +4858,11 @@ mfsplit_i(GEN mf, long dimlim, long flag)
     case mf_NEW: NEWT = k > 1; break;
     case mf_CUSP: /* in wt1 much faster to compute mfolddim */
       if (dimlim) pari_err_FLAG("mfsplit [cusp space]");
-      newdim -= mfolddim(MF_get_N(mf), MF_get_k(mf), MF_get_CHI(mf));
+      newdim -= mfolddim(N, k, CHI);
       break;
     default: pari_err_TYPE("mfsplit [cannot split old/fullspace]", mf);
   }
   if (!newdim) return mkvec2(empty, empty);
-  N = MF_get_N(mf);
-  k = MF_get_k(mf);
-  CHI = MF_get_CHI(mf);
   FC = mfcharconductor(CHI);
   ord = mfcharorder_canon(CHI);
   if (ord > 1)
