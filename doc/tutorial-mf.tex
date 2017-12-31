@@ -1227,7 +1227,7 @@ long as the Petersson product converges. Consider the following example:
 ? P(mf)
 % = -1.8848216716468969562647734582232071466 E-5\
      - 1.9057659114817512165 E-43*I
-? mfinit([3,5,-3]); P(mf3)
+? mf3 = mfinit([3,5,-3]); P(mf3)
 time = 16 ms.
 ? mf96 = mfinit([96,5,-3]); P(mf96)
 time = 3,521 ms.
@@ -1855,9 +1855,10 @@ period polynomial.
 \f\kbd{mfperiodpolbasis(k,$\{\text{parity}=0\}$)}: basis of period polynomials of weight
 $k$ for the full modular group, even/odd ones if \kbd{parity} is $1$ or $-1$.
 
-\f\kbd{mfpetersson(FS,GS)}: $FS$ and $GS$ being the modular symbols associated
+\f\kbd{mfpetersson(FS,$\{GS\}$)}: $FS$ and $GS$ being the modular symbols associated
 to $F$ and $G$ with \kbd{mfsymbol}, computes the Petersson product of $F$ and
-$G$ with the usual normalization $1/[\G:\G_0(N)]$.
+$G$ with the usual normalization $1/[\G:\G_0(N)]$. (Petersson square if $G$
+is omitted.)
 
 \f\kbd{mfpow(F, n)}: Modular form $F$ to the power $n$.
 
