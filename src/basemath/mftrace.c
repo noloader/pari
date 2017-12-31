@@ -8840,17 +8840,17 @@ mftobasis(GEN mf, GEN F, long flag)
 {
   pari_sp av2, av = avma;
   GEN G, v, y;
-  long B;
+  long B, ismf = checkmf_i(F);
 
   checkMF(mf);
-  if (checkmf_i(F) && !mfisinspace_i(mf, F))
+  if (ismf && !mfisinspace_i(mf, F))
   {
     if (flag) return cgetg(1, t_COL);
     err_space(F);
   }
   /* at least the parameters are right */
   B = mfsturmNgk(MF_get_N(mf), MF_get_gk(mf)) + 1;
-  if (checkmf_i(F)) v = mfcoefs_i(F,B,1);
+  if (ismf) v = mfcoefs_i(F,B,1);
   else
   {
     switch(typ(F))
@@ -11191,8 +11191,10 @@ mfconductor(GEN mf, GEN F)
   GEN gk;
   long space, N, M;
 
+  checkMF(mf);
+  if (!checkmf_i(F)) pari_err_TYPE("mfconductor",F);
   if (mfistrivial(F)) return 1;
-  checkMF(mf); space = MF_get_space(mf);
+  space = MF_get_space(mf);
   if (space == mf_NEW) return mf_get_N(F);
   gk = MF_get_gk(mf);
   if (isint1(gk))
