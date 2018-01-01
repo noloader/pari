@@ -601,7 +601,7 @@ static void
 Fle_dbl_sinv_pre_inplace(GEN P, ulong a4, ulong sinv, ulong p, ulong pi)
 {
   ulong x, y, slope;
-  if (P[1]==p) return;
+  if (uel(P,1)==p) return;
   if (!P[2]) { P[1] = p; return; }
   x = P[1]; y = P[2];
   slope = Fl_mul_pre(Fl_add(Fl_triple(Fl_sqr_pre(x, p, pi), p), a4, p),
@@ -614,7 +614,7 @@ static void
 Fle_add_sinv_pre_inplace(GEN P, GEN Q, ulong a4, ulong sinv, ulong p, ulong pi)
 {
   ulong Px, Py, Qx, Qy, slope;
-  if (P[1]==p) { P[1] = Q[1]; P[2] = Q[2]; }
+  if (uel(P,1)==p) { P[1] = Q[1]; P[2] = Q[2]; }
   if (ell_is_inf(Q)) return;
   Px = P[1]; Py = P[2];
   Qx = Q[1]; Qy = Q[2];
@@ -633,7 +633,7 @@ static void
 Fle_sub_sinv_pre_inplace(GEN P, GEN Q, ulong a4, ulong sinv, ulong p, ulong pi)
 {
   ulong Px, Py, Qx, Qy, slope;
-  if (P[1]==p) { P[1] = Q[1]; P[2] = Fl_neg(Q[2], p); }
+  if (uel(P,1)==p) { P[1] = Q[1]; P[2] = Fl_neg(Q[2], p); }
   if (ell_is_inf(Q)) return;
   Px = P[1]; Py = P[2];
   Qx = Q[1]; Qy = Q[2];
@@ -658,7 +658,7 @@ FleV_add_pre_inplace(GEN P, GEN Q, GEN a4, ulong p, ulong pi)
   long i, l=lg(a4);
   GEN sinv = cgetg(l, t_VECSMALL);
   for(i=1; i<l; i++)
-    uel(sinv,i) = mael(P,i,1)==p ? 1: skipzero(Fl_sub(mael(P,i,1), mael(Q,i,1), p));
+    uel(sinv,i) = umael(P,i,1)==p? 1: skipzero(Fl_sub(mael(P,i,1), mael(Q,i,1), p));
   Flv_inv_pre_inplace(sinv, p, pi);
   for (i=1; i<l; i++)
     Fle_add_sinv_pre_inplace(gel(P, i), gel(Q, i), uel(a4, i), uel(sinv, i), p, pi);
@@ -670,7 +670,7 @@ FleV_sub_pre_inplace(GEN P, GEN Q, GEN a4, ulong p, ulong pi)
   long i, l=lg(a4);
   GEN sinv = cgetg(l, t_VECSMALL);
   for(i=1; i<l; i++)
-    uel(sinv,i) = mael(P,i,1)==p ? 1: skipzero(Fl_sub(mael(P,i,1), mael(Q,i,1), p));
+    uel(sinv,i) = umael(P,i,1)==p? 1: skipzero(Fl_sub(mael(P,i,1), mael(Q,i,1), p));
   Flv_inv_pre_inplace(sinv, p, pi);
   for (i=1; i<l; i++)
     Fle_sub_sinv_pre_inplace(gel(P, i), gel(Q, i), uel(a4, i), uel(sinv, i), p, pi);
@@ -682,7 +682,7 @@ FleV_dbl_pre_inplace(GEN P, GEN a4, ulong p, ulong pi)
   long i, l=lg(a4);
   GEN sinv = cgetg(l, t_VECSMALL);
   for(i=1; i<l; i++)
-    uel(sinv,i) = mael(P,i,1)==p ? 1:skipzero(Fl_double(umael(P,i,2), p));
+    uel(sinv,i) = umael(P,i,1)==p? 1: skipzero(Fl_double(umael(P,i,2), p));
   Flv_inv_pre_inplace(sinv, p, pi);
   for(i=1; i<l; i++)
     Fle_dbl_sinv_pre_inplace(gel(P, i), uel(a4, i), uel(sinv, i), p, pi);
