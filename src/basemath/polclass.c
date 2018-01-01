@@ -16,7 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #define dbg_printf(lvl) if (DEBUGLEVEL >= (lvl) + 3) err_printf
 
-/**
+/*
  * SECTION: Functions dedicated to finding a j-invariant with a given
  * trace.
  */
@@ -722,14 +722,11 @@ find_j_inv_with_given_trace(
 
   if (p == 2 || p == 3) {
     if (t == 0) pari_err_BUG("find_j_inv_with_given_trace");
-    *j_t = t;
-    return 1;
+    *j_t = t; return 1;
   }
 
-  N0 = (long)p1 - t;
-  N1 = (long)p1 + t;
-  n0 = factoru(N0);
-  n1 = factoru(N1);
+  N0 = (long)p1 - t; n0 = factoru(N0);
+  N1 = (long)p1 + t; n1 = factoru(N1);
 
   best_torsion_constraint(p, t, &twist, &m, &s2_flag, &t3_flag);
   N = p1 - (twist<3 ? (twist==1 ? t: -t): 0);
@@ -743,10 +740,8 @@ find_j_inv_with_given_trace(
   ty = cgetg(batch_size + 1, t_VECSMALL);
 
   dbg_printf(2)("  Selected torsion constraint m = %lu and batch "
-             "size = %ld\n", m, batch_size);
-
+                "size = %ld\n", m, batch_size);
   hasse_bounds(&hasse[0], &hasse[1], p);
-
   av = avma;
   while (!found && (max_curves <= 0 || curves_tested < max_curves))
   {
@@ -775,8 +770,7 @@ find_j_inv_with_given_trace(
   avma = ltop; return curves_tested;
 }
 
-
-/**
+/*
  * SECTION: Functions for dealing with polycyclic presentations.
  */
 
@@ -799,43 +793,34 @@ next_generator(GEN DD, long D, ulong u, long filter, long *P)
       genred = redimag(gen);
       norm = itos(gel(genred, 1));
       avma = av1;
-      if (norm != 1)
-        break;
+      if (norm != 1) break;
       avma = av;
     }
   }
-  *P = (long)p;
-  return gen;
+  *P = (long)p; return gen;
 }
 
 INLINE long *
 evec_ri_mutate(long r[], long i)
-{
-  return r + (i * (i - 1) >> 1);
-}
+{ return r + (i * (i - 1) >> 1); }
 
 INLINE const long *
 evec_ri(const long r[], long i)
-{
-  return r + (i * (i - 1) >> 1);
-}
+{ return r + (i * (i - 1) >> 1); }
 
-/* Reduces evec e so that e[i] < n[i] (e[i] are assumed to be
- * nonnegative) using pcp (n,r,k). Does not check for overflow -- this
- * could be an issue for large groups. */
+/* Reduces evec e so that e[i] < n[i] (assume e[i] >= 0) using pcp(n,r,k).
+ * No check for overflow, this could be an issue for large groups */
 INLINE void
 evec_reduce(long e[], const long n[], const long r[], long k)
 {
   long i, j, q;
   const long *ri;
-  if (!k)
-    return;
+  if (!k) return;
   for (i = k - 1; i > 0; i--) {
     if (e[i] >= n[i]) {
       q = e[i] / n[i];
       ri = evec_ri(r, i);
-      for (j = 0; j < i; j++)
-        e[j] += q * ri[j];
+      for (j = 0; j < i; j++) e[j] += q * ri[j];
       e[i] -= q * n[i];
     }
   }
@@ -845,13 +830,11 @@ evec_reduce(long e[], const long n[], const long r[], long k)
 /* Computes e3 = log(a^e1*a^e2) in terms of the given polycyclic
  * presentation (here a denotes the implicit vector of generators) */
 INLINE void
-evec_compose(
-  long e3[],
+evec_compose(long e3[],
   const long e1[], const long e2[], const long n[],const long r[], long k)
 {
     long i;
-    for (i = 0; i < k; i++)
-      e3[i] = e1[i] + e2[i];
+    for (i = 0; i < k; i++) e3[i] = e1[i] + e2[i];
     evec_reduce(e3, n, r, k);
 }
 
@@ -862,8 +845,7 @@ INLINE long
 evec_to_index(const long e[], const long m[], long k)
 {
   long i, index = e[0];
-  for (i = 1; i < k; i++)
-    index += e[i] * m[i - 1];
+  for (i = 1; i < k; i++) index += e[i] * m[i - 1];
   return index;
 }
 
@@ -871,25 +853,21 @@ INLINE void
 evec_copy(long f[], const long e[], long k)
 {
   long i;
-  for (i = 0; i < k; ++i)
-    f[i] = e[i];
+  for (i = 0; i < k; ++i) f[i] = e[i];
 }
 
 INLINE void
 evec_clear(long e[], long k)
 {
   long i;
-  for (i = 0; i < k; ++i)
-    e[i] = 0;
+  for (i = 0; i < k; ++i) e[i] = 0;
 }
 
 /* e1 and e2 may overlap */
-/* Note that this function is not very efficient because it does not
- * know the orders of the elements in the presentation, only the
- * relative orders */
+/* Note that this function is not very efficient because it does not know the
+ * orders of the elements in the presentation, only the relative orders */
 INLINE void
-evec_inverse(
-  long e2[], const long e1[], const long n[], const long r[], long k)
+evec_inverse(long e2[], const long e1[], const long n[], const long r[], long k)
 {
   pari_sp av = avma;
   long i, *e3, *e4;
@@ -900,13 +878,12 @@ evec_inverse(
   evec_copy(e3, e1, k);
   /* We have e1 + e4 = e3 which we maintain throughout while making e1
    * the zero vector */
-  for (i = k - 1; i >= 0; i--) {
-    if (e3[i]) {
-      e4[i] += n[i] - e3[i];
-      evec_reduce(e4, n, r, k);
-      e3[i] = n[i];
-      evec_reduce(e3, n, r, k);
-    }
+  for (i = k - 1; i >= 0; i--) if (e3[i])
+  {
+    e4[i] += n[i] - e3[i];
+    evec_reduce(e4, n, r, k);
+    e3[i] = n[i];
+    evec_reduce(e3, n, r, k);
   }
   evec_copy(e2, e4, k);
   avma = av;
@@ -921,10 +898,9 @@ evec_inverse_o(
   long e2[],
   const long e1[], const long n[], const long o[], const long r[], long k)
 {
-    long j;
-    for (j = 0; j < k; j++)
-      e2[j] = (e1[j] ? o[j] - e1[j] : 0);
-    evec_reduce(e2, n, r, k);
+  long j;
+  for (j = 0; j < k; j++) e2[j] = (e1[j] ? o[j] - e1[j] : 0);
+  evec_reduce(e2, n, r, k);
 }
 
 /* Computes the order of the group element a^e using the pcp (n,r,k) */
@@ -936,17 +912,14 @@ evec_order(const long e[], const long n[], const long r[], long k)
   long i, j, o, m;
 
   evec_copy(f, e, k);
-  for (o = 1, i = k - 1; i >= 0; i--) {
-    if (f[i]) {
-      m = n[i] / cgcd(f[i], n[i]);
-      for (j = 0; j < k; j++)
-        f[j] *= m;
-      evec_reduce(f, n, r, k);
-      o *= m;
-    }
+  for (o = 1, i = k - 1; i >= 0; i--) if (f[i])
+  {
+    m = n[i] / cgcd(f[i], n[i]);
+    for (j = 0; j < k; j++) f[j] *= m;
+    evec_reduce(f, n, r, k);
+    o *= m;
   }
-  avma = av;
-  return o;
+  avma = av; return o;
 }
 
 /* Computes orders o[] for each generator using relative orders n[]
@@ -960,8 +933,7 @@ evec_orders(long o[], const long n[], const long r[], long k)
   evec_clear(e, k);
   for (i = 0; i < k; i++) {
     e[i] = 1;
-    if (i)
-      e[i - 1] = 0;
+    if (i) e[i - 1] = 0;
     o[i] = evec_order(e, n, r, k);
   }
   avma = av;
@@ -972,8 +944,7 @@ evec_equal(const long e1[], const long e2[], long k)
 {
   long j;
   for (j = 0; j < k; ++j)
-    if (e1[j] != e2[j])
-      break;
+    if (e1[j] != e2[j]) break;
   return j == k;
 }
 
@@ -993,40 +964,32 @@ evec_n_to_m(long m[], const long n[], long k)
 {
   long i;
   m[0] = n[0];
-  for (i = 1; i < k; ++i)
-    m[i] = m[i - 1] * n[i];
+  for (i = 1; i < k; ++i) m[i] = m[i - 1] * n[i];
 }
 
-#define HALFLOGPI 0.57236494292470008707171367567653
 
-/*
- * Based on logfac() in Sutherland's classpoly package.
- *
- * Ramanujan approximation to log(n!), accurate to O(1/n^3)
- */
+/* Based on logfac() in Sutherland's classpoly package.
+ * Ramanujan approximation to log(n!), accurate to O(1/n^3) */
 INLINE double
 logfac(long n)
 {
+  const double HALFLOGPI = 0.57236494292470008707171367567653;
   return n * log((double) n) - (double) n +
     log((double) n * (1.0 + 4.0 * n * (1.0 + 2.0 * n))) / 6.0 +
     HALFLOGPI;
 }
 
-
-#define LOG2E 1.44269504088896340735992468100189
-
-
 /* This is based on Sutherland 2009, Lemma 8 (p31). */
 static double
 upper_bound_on_classpoly_coeffs(long D, long h, GEN qfinorms)
 {
+  const double LOG2E = 1.44269504088896340735992468100189;
   pari_sp ltop = avma;
   GEN C = dbltor(2114.567);
   double Mk, m, logbinom;
   GEN tmp = mulrr(mppi(LOWDEFAULTPREC), sqrtr(stor(-D, LOWDEFAULTPREC)));
-  /* We treat this case separately since the table is not initialised
-   * when h = 1. This is the same as in the for loop below but with ak
-   * = 1. */
+  /* We treat this case separately since the table is not initialised when
+   * h = 1. This is the same as in the for loop below but with ak = 1. */
   double log2Mk = dbllog2r(mpadd(mpexp(tmp), C));
   double res = log2Mk;
   ulong maxak = 1;
@@ -1036,24 +999,19 @@ upper_bound_on_classpoly_coeffs(long D, long h, GEN qfinorms)
   long k;
   for (k = 2; k <= h; ++k) {
     ulong ak = uel(qfinorms, k);
-    /* Unfortunately exp(tmp/a[k]) can overflow for even moderate
-     * discriminants, so we need to do this calculation with t_REALs
-     * instead of just doubles.  Sutherland has a (much more
-     * complicated) implementation in the classpoly package which
-     * should be consulted if this ever turns out to be a bottleneck.
+    /* exp(tmp/a[k]) can overflow for even moderate discriminants, so we need
+     * to use t_REALs instead of doubles.  Sutherland has a (more complicated)
+     * implementation in the classpoly package which should be consulted if
+     * this ever turns out to be a bottleneck.
      *
-     * [Note that one idea to avoid t_REALs is the following: we have
+     * One idea to avoid t_REALs is the following: we have
      * log(e^x + C) - x <= log(2) ~ 0.69 for x >= log(C) ~ 0.44 and
-     * the difference is basically zero for x slightly bigger than
-     * log(C).  Hence for large discriminants, we will always have x =
-     * \pi\sqrt{-D}/ak >> log(C) and so we could approximate log(e^x +
-     * C) by x.] */
+     * the difference is basically zero for x slightly bigger than log(C).
+     * Hence for large discriminants, we have x = \pi\sqrt{-D}/ak >> log(C)
+     * and so we could approximate log(e^x + C) by x. */
     log2Mk = dbllog2r(mpadd(mpexp(divru(tmp, ak)), C));
     res += log2Mk;
-    if (ak > maxak) {
-      maxak = ak;
-      log2Mh = log2Mk;
-    }
+    if (ak > maxak) { maxak = ak; log2Mh = log2Mk; }
     avma = btop;
   }
 
@@ -1070,61 +1028,41 @@ upper_bound_on_classpoly_coeffs(long D, long h, GEN qfinorms)
 }
 
 INLINE long
-distinct_inverses(
-  const long f[], const long ef[], const long ei[],
-  const long n[], const long o[], const long r[], long k,
-  long L0, long i)
+distinct_inverses(const long f[], const long ef[], const long ei[],
+  const long n[], const long o[], const long r[], long k, long L0, long i)
 {
   pari_sp av = avma;
   long j, *e2, *e3;
 
-  if ( ! ef[i] || (L0 && ef[0]))
-    return 0;
+  if ( ! ef[i] || (L0 && ef[0])) return 0;
   for (j = i + 1; j < k; ++j)
-    if (ef[j])
-      break;
-  if (j < k)
-    return 0;
+    if (ef[j]) break;
+  if (j < k) return 0;
 
   e2 = new_chunk(k);
   evec_copy(e2, ef, i);
   e2[i] = o[i] - ef[i];
-  for (j = i + 1; j < k; ++j)
-    e2[j] = 0;
+  for (j = i + 1; j < k; ++j) e2[j] = 0;
   evec_reduce(e2, n, r, k);
 
-  if (evec_equal(ef, e2, k)) {
-    avma = av;
-    return 0;
-  }
+  if (evec_equal(ef, e2, k)) { avma = av; return 0; }
 
   e3 = new_chunk(k);
   evec_inverse_o(e3, ef, n, o, r, k);
-  if (evec_equal(e2, e3, k)) {
-    avma = av;
-    return 0;
-  }
+  if (evec_equal(e2, e3, k)) { avma = av; return 0; }
 
   if (f) {
     evec_compose(e3, f, ei, n, r, k);
-    if (evec_equal(e2, e3, k)) {
-      avma = av;
-      return 0;
-    }
+    if (evec_equal(e2, e3, k)) { avma = av; return 0; }
 
     evec_inverse_o(e3, e3, n, o, r, k);
-    if (evec_equal(e2, e3, k)) {
-      avma = av;
-      return 0;
-    }
+    if (evec_equal(e2, e3, k)) { avma = av; return 0; }
   }
-  avma = av;
-  return 1;
+  avma = av; return 1;
 }
 
 INLINE long
-next_prime_evec(
-  long *qq, long f[], const long m[], long k,
+next_prime_evec(long *qq, long f[], const long m[], long k,
   hashtable *tbl, long D, GEN DD, long u, long lvl, long ubound)
 {
   pari_sp av = avma;
@@ -1133,21 +1071,17 @@ next_prime_evec(
   long idx, q = *qq;
 
   do q = unextprime(q + 1);
-  while (!(u % q) || kross(D, q) == -1
-      || !(lvl % q) || !(D % (q * q)));
-  if (q > ubound)
-    return 0;
+  while (!(u % q) || kross(D, q) == -1 || !(lvl % q) || !(D % (q * q)));
+  if (q > ubound) return 0;
   *qq = q;
 
   /* Get evec f corresponding to q */
   P = redimag(primeform_u(DD, q));
   he = hash_search(tbl, P);
-  if ( ! he) pari_err_BUG("next_prime_evec");
+  if (!he) pari_err_BUG("next_prime_evec");
   idx = itos((GEN) he->val);
   index_to_evec(f, idx, m, k);
-
-  avma = av;
-  return 1;
+  avma = av; return 1;
 }
 
 /* Return 1 on success, 0 on failure. */
@@ -1155,8 +1089,7 @@ static int
 orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
 {
   pari_sp av = avma;
-  /* NB: MAX_ORIENT_P = 199 seems to suffice, but can be increased if
-   * necessary. */
+  /* 199 seems to suffice, but can be increased if necessary */
   enum { MAX_ORIENT_P = 199 };
   const long *L = G->L, *n = G->n, *r = G->r, *m = G->m, *o = G->o;
   long i, *ps = G->orient_p, *qs = G->orient_q, *reps = G->orient_reps;
@@ -1167,13 +1100,8 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
   memset(qs, 0, k * sizeof(long));
   memset(reps, 0, k * k * sizeof(long));
 
-  for (i = 0; i < k; ++i) {
-    ps[i] = -1;
-    if (o[i] > 2)
-      break;
-  }
-  for (++i; i < k; ++i)
-    ps[i] = (o[i] > 2) ? 0 : -1; /* ps[i] = -!(o[i] > 2); */
+  for (i = 0; i < k; ++i) { ps[i] = -1; if (o[i] > 2) break; }
+  for (++i; i < k; ++i) ps[i] = (o[i] > 2) ? 0 : -1; /* ps[i] = -!(o[i] > 2); */
 
   e = new_chunk(k);
   ei = new_chunk(k);
@@ -1181,54 +1109,45 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
 
   for (i = 0; i < k; ++i) {
     long p;
-    if (ps[i])
-      continue;
+    if (ps[i]) continue;
     p = L[i];
     ef = &reps[i * k];
-    while ( ! ps[i]) {
-      if ( ! next_prime_evec(&p, ef, m, k, tbl, D, DD, u, lvl, MAX_ORIENT_P))
+    while (!ps[i]) {
+      if (!next_prime_evec(&p, ef, m, k, tbl, D, DD, u, lvl, MAX_ORIENT_P))
         break;
       evec_inverse_o(ei, ef, n, o, r, k);
-      if ( ! distinct_inverses(NULL, ef, ei, n, o, r, k, G->L0, i))
-        continue;
+      if (!distinct_inverses(NULL, ef, ei, n, o, r, k, G->L0, i)) continue;
       ps[i] = p;
       qs[i] = 1;
     }
-    if (ps[i])
-      continue;
+    if (ps[i]) continue;
 
     p = unextprime(L[i] + 1);
-    while ( ! ps[i]) {
+    while (!ps[i]) {
       long q;
 
-      if ( ! next_prime_evec(&p, e, m, k, tbl, D, DD, u, lvl, MAX_ORIENT_P))
+      if (!next_prime_evec(&p, e, m, k, tbl, D, DD, u, lvl, MAX_ORIENT_P))
         break;
       evec_inverse_o(ei, e, n, o, r, k);
 
       q = L[i];
-      while ( ! qs[i]) {
-        if ( ! next_prime_evec(&q, f, m, k, tbl, D, DD, u, lvl, p - 1))
-          break;
+      while (!qs[i]) {
+        if (!next_prime_evec(&q, f, m, k, tbl, D, DD, u, lvl, p - 1)) break;
         evec_compose(ef, e, f, n, r, k);
-        if ( ! distinct_inverses(f, ef, ei, n, o, r, k, G->L0, i))
-          continue;
-
+        if (!distinct_inverses(f, ef, ei, n, o, r, k, G->L0, i)) continue;
         ps[i] = p;
         qs[i] = q;
       }
     }
-    if ( ! ps[i])
-      return 0;
+    if (!ps[i]) return 0;
   }
-
   if (ni) {
     GEN N = qfb_nform(D, *ni);
     hashentry *he = hash_search(tbl, N);
-    if ( ! he) pari_err_BUG("orient_pcp");
+    if (!he) pari_err_BUG("orient_pcp");
     *ni = itos((GEN) he->val);
   }
-  avma = av;
-  return 1;
+  avma = av; return 1;
 }
 
 /* We must avoid situations where L_i^{+/-2} = L_j^2 (or = L_0*L_j^2
@@ -1248,54 +1167,41 @@ classgp_pcp_check_generators(const long *n, long *r, long k, long L0)
   e1 = new_chunk(k);
 
   for (i = s + 1; i < k; i++) {
-    if (n[i] != 2)
-      continue;
+    if (n[i] != 2) continue;
     ei = evec_ri(r, i);
     for (j = s; j < i; j++)
-      if (ei[j])
-        break;
-    if (j == i)
-      continue;
+      if (ei[j]) break;
+    if (j == i) continue;
     for (i0 = s; i0 < i; i0++) {
-      if ((4 % n[i0]))
-        continue;
+      if ((4 % n[i0])) continue;
       evec_clear(e1, k);
       e1[i0] = 4;
       evec_reduce(e1, n, r, k);
       for (j = s; j < i; j++)
-        if (e1[j])
-          break;
-      if (j < i)
-        continue;       /* L_i0^4 is not trivial or in <L_0> */
+        if (e1[j]) break;
+      if (j < i) continue; /* L_i0^4 is not trivial or in <L_0> */
       evec_clear(e1, k);
       e1[i0] = 2;
-      evec_reduce(e1, n, r, k);   /* compute L_i0^2 */
+      evec_reduce(e1, n, r, k); /* compute L_i0^2 */
       for (j = s; j < i; j++)
-        if (e1[j] != ei[j])
-          break;
-      if (j == i)
-        return i;
-      evec_inverse(e1, e1, n, r, k);   /* compute L_i0^{-2} */
+        if (e1[j] != ei[j]) break;
+      if (j == i) return i;
+      evec_inverse(e1, e1, n, r, k); /* compute L_i0^{-2} */
       for (j = s; j < i; j++)
-        if (e1[j] != ei[j])
-          break;
-      if (j == i)
-        return i;
+        if (e1[j] != ei[j]) break;
+      if (j == i) return i;
     }
   }
-  avma = av;
-  return -1;
+  avma = av; return -1;
 }
 
 static void
 pcp_alloc_and_set(
   classgp_pcp_t G, const long *L, const long *n, const long *r, long k)
 {
-  /* classgp_pcp contains 6 arrays of length k (L, m, n, o, orient_p,
-   * orient_q), one of length binom(k, 2) (r) and one of length k^2
-   * (orient_reps). */
-  long rlen = k * (k - 1) / 2;
-  long datalen = 6 * k + rlen + k * k;
+  /* classgp_pcp contains 6 arrays of length k (L, m, n, o, orient_p, orient_q),
+   * one of length binom(k, 2) (r) and one of length k^2 (orient_reps) */
+  long rlen = k * (k - 1) / 2, datalen = 6 * k + rlen + k * k;
   G->_data = newblock(datalen);
   G->L = G->_data;
   G->m = G->L + k;
@@ -1316,14 +1222,9 @@ pcp_alloc_and_set(
 
 static void
 classgp_pcp_clear(classgp_pcp_t G)
-{
-  if (G->_data)
-    killblock(G->_data);
-}
+{ if (G->_data) killblock(G->_data); }
 
-/*
- * This is Sutherland 2009, Algorithm 2.2 (p16).
- */
+/* This is Sutherland 2009, Algorithm 2.2 (p16). */
 static void
 classgp_make_pcp(
   classgp_pcp_t G, double *height, long *ni,
@@ -1331,8 +1232,7 @@ classgp_make_pcp(
 {
   enum { MAX_GENS = 16, MAX_RLEN = MAX_GENS * (MAX_GENS - 1) / 2 };
   pari_sp av = avma, bv;
-  long curr_p;
-  long h2, nelts, lvl = modinv_level(inv);
+  long curr_p, h2, nelts, lvl = modinv_level(inv);
   GEN DD, ident, T, v;
   hashtable *tbl;
   long i, L1, L2;
@@ -1355,8 +1255,7 @@ classgp_make_pcp(
     v = const_vecsmall(1, 1);
     *height = upper_bound_on_classpoly_coeffs(D, h, v);
     /* NB: No need to set *ni when h = 1 */
-    avma = av;
-    return;
+    avma = av; return;
   }
 
   DD = stoi(D);
@@ -1413,8 +1312,7 @@ classgp_make_pcp(
 
         /* This is to reset the curr_p counter when we have G->L0 != 0
          * in the first position of L. */
-        if (curr_p == G->L0)
-          curr_p = 1;
+        if (curr_p == G->L0) curr_p = 1;
 
         N = 1;
         si = itos((GEN) e->val);
@@ -1428,8 +1326,7 @@ classgp_make_pcp(
 
     if ((i = classgp_pcp_check_generators(n, r, k, G->L0)) < 0) {
       pcp_alloc_and_set(G, L, n, r, k);
-      if ( ! orient || orient_pcp(G, ni, D, u, tbl))
-        break;
+      if (!orient || orient_pcp(G, ni, D, u, tbl)) break;
       G->Lfilter *= G->L[0];
       classgp_pcp_clear(G);
     } else if (log2(G->Lfilter) + log2(L[i]) >= BITS_IN_LONG)
@@ -1441,8 +1338,7 @@ classgp_make_pcp(
 
   v = cgetg(h + 1, t_VECSMALL);
   v[1] = 1;
-  for (i = 2; i <= h; ++i)
-    uel(v, i) = itou(gmael(T, i, 1));
+  for (i = 2; i <= h; ++i) uel(v,i) = itou(gmael(T,i,1));
 
   h2 = G->L0 ? h / 2 : h;
   *height = upper_bound_on_classpoly_coeffs(D, h2, v);
@@ -1457,24 +1353,19 @@ classgp_make_pcp(
   if (G->L0 && (G->L[0] != G->L0 || G->o[0] != 2))
     pari_err_BUG("classgp_pcp");
 
-  avma = av;
-  return;
+  avma = av; return;
 }
 
 INLINE ulong
 classno_wrapper(long D)
 {
   pari_sp av = avma;
-  GEN clsgp;
-  ulong h;
-  clsgp = quadclassunit0(stoi(D), 0, NULL, DEFAULTPREC);
-  h = itou(gel(clsgp, 1));
-  avma = av;
-  return h;
+  GEN clsgp = quadclassunit0(stoi(D), 0, NULL, DEFAULTPREC);
+  ulong h = itou(gel(clsgp, 1));
+  avma = av; return h;
 }
 
-
-/**
+/*
  * SECTION: Functions for calculating class polynomials.
  */
 
@@ -1493,16 +1384,12 @@ is_smooth_enough(ulong *factors, long v)
   *factors = 0;
   for (i = 0; i < NSMALL_PRIMES; ++i) {
     long p = SMALL_PRIMES[i];
-    if (v % p == 0)
-      *factors |= 1UL << i;
-    while (v % p == 0)
-      v /= p;
-    if (v == 1)
-      break;
+    if (v % p == 0) *factors |= 1UL << i;
+    while (v % p == 0) v /= p;
+    if (v == 1) break;
   }
   return v == 1;
 }
-
 
 /* Hurwitz class number of |D| assuming hclassno() and attached
  * conversion to double costs much more than unegisfundamental(). */
@@ -1519,16 +1406,12 @@ hclassno_wrapper(long D, long h)
     hurwitz = (double) h;
   else
     hurwitz = rtodbl(gtofp(hclassno(utoi(abs_D)), DEFAULTPREC));
-  avma = av;
-  return hurwitz;
+  avma = av; return hurwitz;
 }
 
 
-/*
- * This is Sutherland 2009, Algorithm 2.1 (p8).
- *
- * NB: This function is not gerepileupto-safe.
- */
+/* This is Sutherland 2009, Algorithm 2.1 (p8).
+ * NB: This function is not gerepileupto-safe. */
 static GEN
 select_classpoly_prime_pool(
   double min_prime_bits, double delta, classgp_pcp_t G)
@@ -1546,10 +1429,8 @@ select_classpoly_prime_pool(
   hurwitz = hclassno_wrapper(D, G->h);
 
   res = cgetg(1, t_VEC);
-  /* Initialise t_min to be all 2's.  This avoids trace 0 and trace
-   * 1 curves. */
-  for (i = 0; i < V_MAX; ++i)
-    t_min[i] = 2;
+  /* Initialise t_min to be all 2's.  This avoids trace 0 and trace 1 curves */
+  for (i = 0; i < V_MAX; ++i) t_min[i] = 2;
 
   /* maximum possible trace = sqrt(2^BIL - D) */
   t_size_lim = 2.0 * sqrt((double)((1UL << (BITS_IN_LONG - 2)) - (((ulong)-D) >> 2)));
@@ -1567,11 +1448,9 @@ select_classpoly_prime_pool(
       double hurwitz_ratio_bound = log(log(v + 4.0)), max_p, H;
       hurwitz_ratio_bound *= 11.0 * hurwitz_ratio_bound;
 
-      if (v >= v_bound_aux * hurwitz_ratio_bound / D || v >= V_MAX)
-        break;
+      if (v >= v_bound_aux * hurwitz_ratio_bound / D || v >= V_MAX) break;
 
-      if ( ! is_smooth_enough(&vfactors, v))
-        continue;
+      if ( ! is_smooth_enough(&vfactors, v)) continue;
       H = hclassno_wrapper(m_vsqr_D, 0);
 
       /* t <= 2 sqrt(p) and p <= z H(-v^2 D) and
@@ -1579,7 +1458,6 @@ select_classpoly_prime_pool(
        *   H(-v^2 D) < vH(-D) (11 log(log(v + 4))^2)
        *
        * This last term is v * hurwitz * hurwitz_ratio_bound. */
-
       max_p = z * v * hurwitz * hurwitz_ratio_bound;
       t_max = 2.0 * mindd(sqrt((double)((1UL << (BITS_IN_LONG - 2)) - (m_vsqr_D >> 2))),
                           sqrt(max_p));
@@ -1613,7 +1491,6 @@ select_classpoly_prime_pool(
         return gerepilecopy(av, res);
       }
     }
-
     /* Have we exhausted all possible solutions that fit in machine words? */
     if (t_min[1] >= t_size_lim) {
       char *err = stack_sprintf("class polynomial of discriminant %ld", D);
@@ -1624,16 +1501,11 @@ select_classpoly_prime_pool(
 
 INLINE int
 cmp_small(long a, long b)
-{
-  return a>b? 1: (a<b? -1: 0);
-}
+{ return a>b? 1: (a<b? -1: 0); }
 
 static int
 primecmp(void *data, GEN v1, GEN v2)
-{
-  (void)data;
-  return cmp_small(v1[4], v2[4]);
-}
+{ (void)data; return cmp_small(v1[4], v2[4]); }
 
 
 static long
@@ -1641,18 +1513,11 @@ height_margin(long inv, long D)
 {
   (void)D;
   /* NB: avs just uses a height margin of 256 for everyone and everything. */
-  if (inv == INV_F)
-    return 64;  /* Verified for "many" discriminants up to about -350000 */
-  if (inv == INV_G2)
-    return 5;
-
-  /* TODO: This should be made more accurate */
-  if (inv != INV_J)
-    return 256;
-
+  if (inv == INV_F) return 64;  /* checked for discriminants up to -350000 */
+  if (inv == INV_G2) return 5;
+  if (inv != INV_J) return 256; /* TODO: This should be made more accurate */
   return 0;
 }
-
 
 static GEN
 select_classpoly_primes(
@@ -1664,7 +1529,6 @@ select_classpoly_primes(
   ulong biggest_p;
   double prime_bits, min_prime_bits, b;
   GEN prime_pool;
-
 
   if (k < 2) pari_err_BUG("select_suitable_primes");
 
@@ -1688,21 +1552,16 @@ select_classpoly_primes(
     ulong v = gel(prime_pool, i)[3];
     prime_bits += log2(p);
     *vfactors |= gel(prime_pool, i)[5];
-    if (p > biggest_p)
-      biggest_p = p;
-    if (v > *biggest_v)
-      *biggest_v = v;
-    if (prime_bits > b)
-      break;
+    if (p > biggest_p) biggest_p = p;
+    if (v > *biggest_v) *biggest_v = v;
+    if (prime_bits > b) break;
   }
   dbg_printf(1)("Selected %ld primes; largest is %lu ~ 2^%.2f\n",
              i, biggest_p, log2(biggest_p));
   return gerepilecopy(av, vecslice0(prime_pool, 1, i));
 }
 
-/*
- * This is Sutherland 2009 Algorithm 1.2.
- */
+/* This is Sutherland 2009 Algorithm 1.2. */
 static long
 oneroot_of_classpoly(
   ulong *j_endo, int *endo_cert, ulong j, norm_eqn_t ne, GEN jdb)
@@ -1715,10 +1574,7 @@ oneroot_of_classpoly(
   if (j == 0 || j == 1728 % p) pari_err_BUG("oneroot_of_classpoly");
 
   *endo_cert = 1;
-  if (ne->u * ne->v == 1) {
-    *j_endo = j;
-    return 1;
-  }
+  if (ne->u * ne->v == 1) { *j_endo = j; return 1; }
 
   /* TODO: Precalculate all this data further up */
   factw = factoru(ne->u * ne->v);
@@ -1738,10 +1594,7 @@ oneroot_of_classpoly(
     GEN phi;
     long jlvl, lvl_diff, depth = vdepths[i];
     long L = factors[i];
-    if (L > L_bound) {
-      *endo_cert = 0;
-      break;
-    }
+    if (L > L_bound) { *endo_cert = 0; break; }
 
     phi = polmodular_db_getp(jdb, L, p);
 
@@ -1751,13 +1604,12 @@ oneroot_of_classpoly(
     jlvl = j_level_in_volcano(phi, j, p, pi, L, depth);
     lvl_diff = u_levels[i] - jlvl;
 
-    if (lvl_diff < 0) {
+    if (lvl_diff < 0)
       /* j's level is less than v(u) so we must ascend */
       j = ascend_volcano(phi, j, p, pi, jlvl, L, depth, -lvl_diff);
-    } else if (lvl_diff > 0) {
-      /* Otherwise j's level is greater than v(u) so we descend */
+    else if (lvl_diff > 0)
+      /* otherwise j's level is greater than v(u) so we descend */
       j = descend_volcano(phi, j, p, pi, jlvl, L, depth, lvl_diff);
-    }
     avma = bv;
   }
   avma = av;
@@ -1777,8 +1629,7 @@ carray_isin(ulong *v, long n, ulong x)
 {
   long i;
   for (i = 0; i < n; ++i)
-    if (v[i] == x)
-      break;
+    if (v[i] == x) break;
   return i;
 }
 
@@ -1786,12 +1637,9 @@ INLINE ulong
 select_twisting_param(ulong p)
 {
   ulong T;
-  do
-    T = random_Fl(p);
-  while (krouu(T, p) != -1);
+  do T = random_Fl(p); while (krouu(T, p) != -1);
   return T;
 }
-
 
 INLINE void
 setup_norm_eqn(norm_eqn_t ne, long D, long u, GEN norm_eqn)
@@ -1829,17 +1677,14 @@ modinv_has_sign_ambiguity(long inv)
   case INV_W2W7:
   case INV_W3W3:
   case INV_W2W13:
-  case INV_W3W7:
-    return 1;
+  case INV_W3W7: return 1;
   }
   return 0;
 }
 
 INLINE int
 modinv_units(int inv)
-{
-  return modinv_is_double_eta(inv) || modinv_is_Weber(inv);
-}
+{ return modinv_is_double_eta(inv) || modinv_is_Weber(inv); }
 
 INLINE void
 adjust_signs(GEN js, ulong p, ulong pi, long inv, GEN T, long e)
@@ -1849,8 +1694,7 @@ adjust_signs(GEN js, ulong p, ulong pi, long inv, GEN T, long e)
   if ((h & 1) && modinv_units(inv)) {
     ulong prod = Flv_prod_pre(js, p, pi);
     if (prod != p - 1) {
-      if (prod != 1)
-        pari_err_BUG("adjust_signs: constant term is not +/-1");
+      if (prod != 1) pari_err_BUG("adjust_signs: constant term is not +/-1");
       negate = 1;
     }
   } else {
@@ -1858,13 +1702,11 @@ adjust_signs(GEN js, ulong p, ulong pi, long inv, GEN T, long e)
     tp = umodiu(T, p);
     t = Flv_powsum_pre(js, e, p, pi);
     if (t != tp) {
-      if (Fl_neg(t, p) != tp)
-        pari_err_BUG("adjust_signs: incorrect trace");
+      if (Fl_neg(t, p) != tp) pari_err_BUG("adjust_signs: incorrect trace");
       negate = 1;
     }
   }
-  if (negate)
-    Flv_neg_inplace(js, p);
+  if (negate) Flv_neg_inplace(js, p);
 }
 
 static ulong
@@ -1889,16 +1731,15 @@ find_jinv(
 
       found = oneroot_of_classpoly(&j, cert, j_t, ne, jdb);
       ++*endo_tries;
-    } while ( ! found);
+    } while (!found);
 
     if (modinv_is_double_eta(inv))
       ok = modfn_unambiguous_root(&r, inv, j, ne, jdb);
     else
       r = modfn_root(j, ne, inv);
-  } while ( ! ok);
+  } while (!ok);
   return r;
 }
-
 
 static GEN
 polclass_roots_modp(
@@ -1926,7 +1767,7 @@ polclass_roots_modp(
       avma = av;
       res = NULL;
     }
-  } while ( ! res);
+  } while (!res);
 
   dbg_printf(2)("  j-invariant %ld has correct endomorphism ring "
              "(%ld tries)\n", j, endo_tries);
@@ -1936,14 +1777,11 @@ polclass_roots_modp(
 
 INLINE int
 modinv_inverted_involution(long inv)
-{
-  return modinv_is_double_eta(inv);
-}
+{ return modinv_is_double_eta(inv); }
 
 INLINE int
 modinv_negated_involution(long inv)
-{
-  /* determined by trial and error */
+{ /* determined by trial and error */
   return inv == INV_F || inv == INV_W3W5 || inv == INV_W3W7
     || inv == INV_W3W3 || inv == INV_W5W7;
 }
@@ -1956,8 +1794,7 @@ verify_edge(ulong j0, ulong j1, ulong p, ulong pi, long L, GEN fdb)
   GEN phi = polmodular_db_getp(fdb, L, p);
   GEN f = Flm_Fl_polmodular_evalx(phi, L, j1, p, pi);
   ulong r = Flx_eval_pre(f, j0, p, pi);
-  avma = av;
-  return !r;
+  avma = av; return !r;
 }
 
 INLINE long
@@ -1971,13 +1808,8 @@ verify_2path(
   GEN g = Flm_Fl_polmodular_evalx(phi2, L2, j2, p, pi);
   GEN d = Flx_gcd(f, g, p);
   long n = degpol(d);
-  if (n < 2) {
-    avma = av;
-    return n;
-  }
-  n = Flx_nbroots(d, p);
-  avma = av;
-  return n;
+  if (n >= 2) n = Flx_nbroots(d, p);
+  avma = av; return n;
 }
 
 static long
@@ -1996,13 +1828,9 @@ oriented_n_action(
   evec_copy(rels, r, nr);
 
   for (i = 0; i < k; ++i) {
-    /* If generator doesn't require orientation, just copy its power
-     * relations and continue. */
-    if (ps[i] <= 0) {
-      signs[i] = 1;
-      /* power rels already copied to *rels in initialisation */
-      continue;
-    }
+    /* If generator doesn't require orientation, continue; power rels already
+     * copied to *rels in initialisation */
+    if (ps[i] <= 0) { signs[i] = 1; continue; }
     /* Get rep of orientation element and express it in terms of the
      * (partially) oriented presentation */
     for (j = 0; j < i; ++j) {
@@ -2010,60 +1838,49 @@ oriented_n_action(
       e[j] = (signs[j] < 0 ? o[j] - t : t);
     }
     e[j] = reps[i * k + j];
-    for (++j; j < k; ++j)
-      e[j] = 0;
+    for (++j; j < k; ++j) e[j] = 0;
     evec_reduce(e, n, rels, k);
     j = evec_to_index(e, m, k);
 
     /* FIXME: These calls to verify_edge recalculate powers of v[0]
-     * and v[j] over and over again, they also reduce
-     * Phi_{ps[i]} modulo p over and over again.  Need to cache
-     * these things! */
-    if (qs[i] > 1) {
+     * and v[j] over and over again, they also reduce Phi_{ps[i]} modulo p over
+     * and over again.  Need to cache these things! */
+    if (qs[i] > 1)
       signs[i] =
-        (verify_2path(uel(v, 1), uel(v, j + 1), p, pi, ps[i], qs[i], fdb)
-            ? 1 : -1);
-    } else {
+        (verify_2path(uel(v,1), uel(v,j+1), p, pi, ps[i], qs[i], fdb) ? 1 : -1);
+    else
       /* Verify ps[i]-edge to orient ith generator */
       signs[i] =
-        (verify_edge(uel(v, 1), uel(v, j + 1), p, pi, ps[i], fdb)
-            ? 1 : -1);
-    }
+        (verify_edge(uel(v,1), uel(v,j+1), p, pi, ps[i], fdb) ? 1 : -1);
     /* Update power relation */
     for (j = 0; j < i; ++j) {
       long t = evec_ri(r, i)[j];
       e[j] = (signs[i] * signs[j] < 0 ? o[j] - t : t);
     }
-    while (j < k)
-      e[j++] = 0;
+    while (j < k) e[j++] = 0;
     evec_reduce(e, n, rels, k);
-    for (j = 0; j < i; ++j)
-      evec_ri_mutate(rels, i)[j] = e[j];
-    /* TODO: This is a sanity check and can be removed if everything
-     * is working */
+    for (j = 0; j < i; ++j) evec_ri_mutate(rels, i)[j] = e[j];
+    /* TODO: This is a sanity check, can be removed if everything is working */
     for (j = 0; j <= i; ++j) {
       long t = reps[i * k + j];
       e[j] = (signs[j] < 0 ? o[j] - t : t);
     }
-    while (j < k)
-      e[j++] = 0;
+    while (j < k) e[j++] = 0;
     evec_reduce(e, n, rels, k);
     j = evec_to_index(e, m, k);
     if (qs[i] > 1) {
-      if ( ! verify_2path(uel(v, 1), uel(v, j + 1), p, pi, ps[i], qs[i], fdb))
+      if (!verify_2path(uel(v,1), uel(v, j+1), p, pi, ps[i], qs[i], fdb))
         pari_err_BUG("oriented_n_action");
     } else {
-      if ( ! verify_edge(uel(v, 1), uel(v, j + 1), p, pi, ps[i], fdb))
+      if (!verify_edge(uel(v,1), uel(v, j+1), p, pi, ps[i], fdb))
         pari_err_BUG("oriented_n_action");
     }
   }
 
   /* Orient representation of [N] relative to the torsor <signs, rels> */
-  for (i = 0; i < k; ++i)
-    e[i] = (signs[i] < 0 ? o[i] - ni[i] : ni[i]);
+  for (i = 0; i < k; ++i) e[i] = (signs[i] < 0 ? o[i] - ni[i] : ni[i]);
   evec_reduce(e, n, rels, k);
-  avma = av;
-  return evec_to_index(e, m, k);
+  avma = av; return evec_to_index(e, m, k);
 }
 
 /* F = double_eta_raw(inv) */
@@ -2072,15 +1889,11 @@ adjust_orientation(GEN F, long inv, GEN v, long e, ulong p, ulong pi)
 {
   ulong j0 = uel(v, 1), je = uel(v, e);
 
-  if ( ! modinv_j_from_2double_eta(F, inv, NULL, j0, je, p, pi)) {
-    if (modinv_inverted_involution(inv)) {
-      Flv_inv_pre_inplace(v, p, pi);
-    }
-    if (modinv_negated_involution(inv))
-      Flv_neg_inplace(v, p);
+  if (!modinv_j_from_2double_eta(F, inv, NULL, j0, je, p, pi)) {
+    if (modinv_inverted_involution(inv)) Flv_inv_pre_inplace(v, p, pi);
+    if (modinv_negated_involution(inv)) Flv_neg_inplace(v, p);
   }
 }
-
 
 static void
 polclass_psum(
@@ -2093,12 +1906,7 @@ polclass_psum(
   GEN ps, psum_sqr, P;
   long i, e, stabcnt, nprimes = lg(primes) - 1;
 
-  if ((h & 1) && modinv_units(inv)) {
-    *psum = gen_1;
-    *d = 0;
-    return;
-  }
-
+  if ((h & 1) && modinv_units(inv)) { *psum = gen_1; *d = 0; return; }
   e = -1;
   ps = cgetg(nprimes+1, t_VECSMALL);
   do {
@@ -2121,12 +1929,8 @@ polclass_psum(
     ulong stab = Z_incremental_CRT(&psum_sqr, ps2, &P, p);
 
     /* stabcnt = stab * (stabcnt + 1) */
-    if (stab)
-      ++stabcnt;
-    else
-      stabcnt = 0;
-    if (gc_needed(av, 2))
-      gerepileall(av, 2, &psum_sqr, &P);
+    if (stab) ++stabcnt; else stabcnt = 0;
+    if (gc_needed(av, 2)) gerepileall(av, 2, &psum_sqr, &P);
   }
   if (stabcnt < MIN_STAB_CNT && nprimes >= MIN_STAB_CNT)
     pari_err_BUG("polclass_psum");
@@ -2142,17 +1946,12 @@ polclass_psum(
 static GEN
 polclass_small_disc(long D, long inv, long xvar)
 {
-  if (D == -3) /* x */
-    return pol_x(xvar);
+  if (D == -3) return pol_x(xvar);
   if (D == -4) {
     switch (inv) {
-    case INV_J:
-      return deg1pol(gen_1, stoi(-1728), xvar);
-    case INV_G2:
-      return deg1pol(gen_1, stoi(-12), xvar);
-    default:
-      /* There are no other invariants for which we can calculate
-       * H_{-4}(X). */
+    case INV_J: return deg1pol(gen_1, stoi(-1728), xvar);
+    case INV_G2:return deg1pol(gen_1, stoi(-12), xvar);
+    default: /* no other invariants for which we can calculate H_{-4}(X) */
       pari_err_BUG("polclass_small_disc");
     }
   }
@@ -2174,8 +1973,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
   static const long k = 2;
   static const double delta = 0.5;
 
-  if (D >= -4)
-    return polclass_small_disc(D, inv, xvar);
+  if (D >= -4) return polclass_small_disc(D, inv, xvar);
 
   (void) corediscs(D, &u);
   h = classno_wrapper(D);
@@ -2194,30 +1992,24 @@ polclass0(long D, long inv, long xvar, GEN *db)
   maxL = maxdd(log((double) -D), (double)biggest_v);
   if (u > 1) {
     for (L = 2; L <= maxL; L = unextprime(L + 1))
-      if ( ! (u % L))
-        polmodular_db_add_level(db, L, INV_J);
+      if (!(u % L)) polmodular_db_add_level(db, L, INV_J);
   }
   for (i = 0; vfactors; ++i) {
     if (vfactors & 1UL)
       polmodular_db_add_level(db, SMALL_PRIMES[i], INV_J);
     vfactors >>= 1;
   }
-  if (p1 > 1)
-    polmodular_db_add_level(db, p1, INV_J);
-  if (p2 > 1)
-    polmodular_db_add_level(db, p2, INV_J);
+  if (p1 > 1) polmodular_db_add_level(db, p1, INV_J);
+  if (p2 > 1) polmodular_db_add_level(db, p2, INV_J);
   s = !!G->L0;
   polmodular_db_add_levels(db, G->L + s, G->k - s, inv);
   if (orient) {
     for (i = 0; i < G->k; ++i)
     {
-      if (G->orient_p[i] > 1)
-        polmodular_db_add_level(db, G->orient_p[i], inv);
-      if (G->orient_q[i] > 1)
-        polmodular_db_add_level(db, G->orient_q[i], inv);
+      if (G->orient_p[i] > 1) polmodular_db_add_level(db, G->orient_p[i], inv);
+      if (G->orient_q[i] > 1) polmodular_db_add_level(db, G->orient_q[i], inv);
     }
   }
-
   nprimes = lg(primes) - 1;
   H = cgetg(nprimes + 1, t_VEC);
   plist = cgetg(nprimes + 1, t_VECSMALL);
@@ -2227,8 +2019,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
     norm_eqn_t ne;
     setup_norm_eqn(ne, D, u, gel(primes, i));
 
-    gel(H, i) =
-      polclass_roots_modp(&n_curves_tested, ne, rho_inv, G, *db);
+    gel(H, i) = polclass_roots_modp(&n_curves_tested, ne, rho_inv, G, *db);
     uel(plist, i) = ne->p;
     uel(pilist, i) = ne->pi;
     if (DEBUGLEVEL>2 && (i & 3L)==0) err_printf(" %ld%%", i*100/nprimes);
@@ -2312,17 +2103,15 @@ polclass(GEN DD, long inv, long xvar)
   GEN db, H;
   long dummy, D;
 
-  if (xvar < 0)
-    xvar = 0;
+  if (xvar < 0) xvar = 0;
   check_quaddisc_imag(DD, &dummy, "polclass");
   check_modinv(inv);
 
   D = itos(DD);
-  if ( ! modinv_good_disc(inv, D))
+  if (!modinv_good_disc(inv, D))
     pari_err_DOMAIN("polclass", "D", "incompatible with given invariant", stoi(inv), DD);
 
   db = polmodular_db_init(inv);
   H = polclass0(D, inv, xvar, &db);
-  gunclone_deep(db);
-  return H;
+  gunclone_deep(db); return H;
 }
