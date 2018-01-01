@@ -4848,7 +4848,7 @@ sort_by_dim(GEN v)
   return vecpermute(v , vecsmall_indexsort(D));
 }
 static GEN
-split_starting_space(GEN mf, long newd)
+split_starting_space(GEN mf)
 {
   long d = MF_get_dim(mf), d2;
   GEN id = matid(d);
@@ -4889,7 +4889,7 @@ mfsplit_i(GEN mf, long dimlim, long flag)
   if (!newd) return mkvec2(empty, empty);
 
   NEWT = (k > 1 && MF_get_space(mf0) == mf_NEW);
-  todosp = mkvec( split_starting_space(mf0, newd) );
+  todosp = mkvec( split_starting_space(mf0) );
   simplesp = empty;
   FC = mfcharconductor(CHI);
   ord = mfcharorder_canon(CHI);
