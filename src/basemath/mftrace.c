@@ -6345,21 +6345,17 @@ mfdihedralall(GEN LIM)
   }
   return z;
 }
-static GEN
-mfdihedral(long N)
-{
-  GEN z = cache_get(cache_DIH, N);
-  return z? z: mfdihedralall(mkvecsmall(N));
-}
 
 /* return [vF, index], where vecpermute(vF,index) generates dihedral forms
  * for character CHI */
 static GEN
 mfdihedralnew_i(long N, GEN CHI)
 {
-  GEN bnf, Tinit, Pm, vf, M, V, NK, SP = mfdihedral(N);
+  GEN bnf, Tinit, Pm, vf, M, V, NK, SP;
   long Dold, d, ordw, i, SB, c, l, k0, k1, chino, chinoorig, lv;
 
+  SP = cache_get(cache_DIH, N);
+  if (!SP) SP = mfdihedralall(mkvecsmall(N));
   lv = lg(SP); if (lv == 1) return NULL;
   CHI = mfcharinduce(CHI,N);
   ordw = mfcharorder(CHI);
