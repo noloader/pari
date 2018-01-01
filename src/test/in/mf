@@ -120,19 +120,19 @@ T=mftraceform([15,2]); vec(T)
 T=mftraceform([15,4]); vec(T)
 mf = mfinit([15,4],1); mfparams(mflinear(mf,[1,0,1,0]))
 
-mf=mfinit([96,6],1);#mf[3]
-F=mflinear([mf[3][1],mf[3][2]],[4,7]);
-V=mftonew(mf,F);
-for (i=1,#V,v=V[i];print([v[1],v[2],mfcoefs(v[3],9)]))
-mfconductor(mf,F)
 mf=mfinit([16,6]); B = mfbasis(mf); F = mflinear([B[7],B[8]],[4,7]);
 mfconductor(mf,F)
 V=mftonew(mf,F);
 for (i=1,#V,v=V[i];print([v[1],v[2],mfcoefs(v[3],9)]))
 
-mf=mfinit([96,6],2);#mf[3]
-#mfinit([96,6],3)[2]+#mf[3]
-mf=mfinit([96,6],0);#mf[3]
+mf=mfinit([96,6],1);#mf[3]
+F=mflinear([mf[3][1],mf[3][2]],[4,7]);
+V=mftonew(mf,F);
+for (i=1,#V,v=V[i];print([v[1],v[2],mfcoefs(v[3],9)]))
+mfconductor(mf,F)
+#mfinit([96,6],2)[3]
+#mfinit([96,6],3)[2]
+mf=mfinit(mf,0);#mf[3]
 mfsplit(mf,,1)
 mfsplit(mf,,2)
 [poldegree(p) | p<-mffields(mf)]
@@ -515,7 +515,7 @@ for(i=1,#B,print(p(mf,B[i])));
 apply(x->mfconductor(mf,x),B)
 mf=mfinit([23,1,-23],0); f=mfbasis(mf)[1]; p(mf,f)
 mf=mfinit([92,1,-23],1); mfconductor(mf,f)
-mf=mfinit([96,2]); L=mfbasis(mf); mf0=mfinit([96,2],0);
+mf=mfinit([96,2]); L=mfbasis(mf); mf0=mfinit(mf,0);
 mftobasis(mf0,L[1],1)
 F=mffromlfun(lfuncreate(x^2+1))[2]; mfparams(F)
 F=mffromell(ellinit([0,1]))[2]; mfisCM(F)

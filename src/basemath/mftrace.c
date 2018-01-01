@@ -6591,9 +6591,12 @@ mfinit_i(GEN NK, long space)
   }
   else if (checkMF_i(NK))
   {
-    if (MF_get_space(NK) == space) return NK;
-    N = MF_get_N(NK);
+    long s = MF_get_space(NK);
+    if (s == space) return NK;
     Qtoss(MF_get_gk(NK), &k, &dk);
+    if (dk == 1 && k > 1 && space == mf_NEW && (s == mf_CUSP || s == mf_FULL))
+      return mfinittonew(NK);
+    N = MF_get_N(NK);
     CHI = MF_get_CHI(NK);
   }
   else
