@@ -11198,12 +11198,21 @@ mftobasisES(GEN mf, GEN F)
 }
 
 static long
-mfcondspec(GEN F, long D)
+wt1mulcond(GEN F, long D, long space)
 {
   GEN E = mfeisenstein_i(1, mfchartrivial(), get_mfchar(stoi(D))), mf;
   F = mfmul(F, E);
-  mf = mfinit_Nkchi(mf_get_N(F), mf_get_k(F), mf_get_CHI(F), mf_CUSP, 0);
+  mf = mfinit_Nkchi(mf_get_N(F), mf_get_k(F), mf_get_CHI(F), space, 0);
   return mfconductor(mf, F);
+}
+static int
+wt1newlevel(long N)
+{
+  GEN P = gel(myfactoru(N),1);
+  long l = lg(P), i;
+  for (i = 1; i < l; i++)
+    if (!wt1empty(N/P[i])) return 0;
+  return 1;
 }
 long
 mfconductor(GEN mf, GEN F)
@@ -11220,7 +11229,13 @@ mfconductor(GEN mf, GEN F)
   gk = MF_get_gk(mf);
   if (isint1(gk))
   {
-    N = cgcd(mfcondspec(F, -3), mfcondspec(F, -4));
+    N = mf_get_N(F);
+    if (!wt1newlevel(N))
+    {
+      long s = (space == mf_EISEN || space == mf_FULL)? mf_FULL: mf_CUSP;
+      N = cgcd(N, wt1mulcond(F,-3,s));
+      if (!wt1newlevel(N)) N = cgcd(N, wt1mulcond(F,-4,s));
+    }
     avma = av; return N;
   }
   if (typ(gk) != t_INT)
