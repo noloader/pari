@@ -100,8 +100,8 @@ pari_set_plot_engine(void (*plot)(PARI_plot *))
   for (n = 0; n < NUMRECT; n++)
   {
     PariRect *e = &rectgraph[n];
-    e->head = e->tail = NULL;
-    e->sizex = e->sizey = 0;
+    RHead(e) = RTail(e) = NULL;
+    RXsize(e) = RYsize(e) = 0;
     current_color[n] = DEFAULT_COLOR;
   }
 }
