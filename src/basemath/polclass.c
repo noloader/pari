@@ -31,122 +31,80 @@ hasse_bounds(long *low, long *high, long p)
   *high = p + 1 + two_sqrt_p;
 }
 
-
-/*
- * a and b must be the result of factoru_pow(), and b must divide a
- * exactly.
- */
-INLINE void
+/* a / b : a and b are from factoru and b must divide a exactly */
+INLINE GEN
 famatsmall_divexact(GEN a, GEN b)
 {
-  long i, j;
-  for (i = j = 1; j < lg(gel(a, 1)) && i < lg(gel(b, 1)); ++j)
-    if (gel(a, 1)[j] == gel(b, 1)[i])
-      gel(a, 2)[j] -= gel(b, 2)[i++];
-
-  for (i = j = 1; j < lg(gel(a, 1)); ++j) {
-    if (gel(a, 2)[j]) {
-      gel(a, 1)[i] = gel(a, 1)[j];
-      gel(a, 2)[i] = gel(a, 2)[j];
-      ++i;
-    }
+  GEN a1 = gel(a,1), a2 = gel(a,2), c1, c2;
+  GEN b1 = gel(b,1), b2 = gel(b,2);
+  long i, j, k, la = lg(a1);
+  c1 = cgetg(la, t_VECSMALL);
+  c2 = cgetg(la, t_VECSMALL);
+  for (i = j = k = 1; j < la; j++)
+  {
+    c1[k] = a1[j];
+    c2[k] = a2[j];
+    if (a1[j] == b1[i]) { c2[k] -= b2[i++]; if (!c2[k]) continue; }
+    k++;
   }
-  if (i == 1) {
-    /* b == a, so a must now be 1. */
-    gel(a, 1)[1] = 1;
-    gel(a, 2)[1] = 0;
-    setlg(gel(a, 1), 2);
-    setlg(gel(a, 2), 2);
-  } else {
-    setlg(gel(a, 1), i);
-    setlg(gel(a, 2), i);
-  }
+  setlg(c1, k);
+  setlg(c2, k); return mkvec2(c1,c2);
 }
 
-
-/*
- * This is Sutherland, 2009, TestCurveOrder.
+/* This is Sutherland, 2009, TestCurveOrder.
  *
- * [a4, a6] and p specify an elliptic curve over FF_p.  N is a
- * two-element array containing the two possible curve orders, and n
- * is a two-element array containg the corresponding factorisations as
- * famats.
- */
+ * [a4, a6] and p specify an elliptic curve over FF_p.  N0,N1 are the two
+ * possible curve orders, and n0,n1 their factoru */
 static long
-test_curve_order(
-  norm_eqn_t ne, ulong a4, ulong a6,
-  long N0, long N1, GEN n0, GEN n1,
-  const long hasse[2])
+test_curve_order(norm_eqn_t ne, ulong a4, ulong a6,
+  long N0, long N1, GEN n0, GEN n1, const long hasse[2])
 {
   pari_sp ltop = avma, av;
-  ulong a4t, a6t;
-  long m0, m1;
-  long hasse_low, hasse_high;
-  ulong p = ne->p, pi = ne->pi, T = ne->T;
-  ulong swapped = 0;
+  ulong a4t, a6t, p = ne->p, pi = ne->pi, T = ne->T, swapped = 0;
+  long m0, m1, hasse_low, hasse_high;
 
   if (p <= 11) {
     long card = (long)p + 1 - Fl_elltrace(a4, a6, p);
     return card == N0 || card == N1;
   }
-
-  /* [a4, a6] is the given curve and [a4t, a6t] is its quadratic
-   * twist. */
+  /* [a4, a6] is the given curve and [a4t, a6t] is its quadratic twist */
   Fl_elltwist_disc(a4, a6, T, p, &a4t, &a6t);
 
   m0 = m1 = 1;
-
   if (N0 + N1 != 2 * (long)p + 2) pari_err_BUG("test_curve_order");
 
   hasse_low = hasse[0];
   hasse_high = hasse[1];
-
-  av = avma;
-  for ( ; ; ) {
-    GEN pt, Q, tmp;
+  for (av = avma;;)
+  {
+    GEN pt, Q, fa0;
     long a1, x, n_s;
 
     pt = random_Flj_pre(a4, a6, p, pi);
     Q = Flj_mulu_pre(pt, m0, a4, p, pi);
-    /* TODO: Work out how to avoid this copying. */
-    tmp = gcopy(n0);
-    famatsmall_divexact(tmp, factoru(m0));
-    n_s = Flj_order_ufact(Q, N0 / m0, tmp, a4, p, pi);
-
+    fa0 = m0 == 1? n0: famatsmall_divexact(n0, factoru(m0));
+    n_s = Flj_order_ufact(Q, N0 / m0, fa0, a4, p, pi);
     if (n_s == 0) {
-      /* If m0 divides N1 and m1 divides N0 and N0 < N1,
-       * then swap. */
-      if ( ! swapped && N1 % m0 == 0 && N0 % m1 == 0) {
+      /* If m0 divides N1 and m1 divides N0 and N0 < N1, then swap */
+      if (!swapped && N1 % m0 == 0 && N0 % m1 == 0) {
         swapspec(n0, n1, N0, N1);
-        swapped = 1;
-        continue;
-      } else {
-        avma = ltop;
-        return 0;
+        swapped = 1; continue;
       }
+      avma = ltop; return 0;
     }
 
     m0 *= n_s;
     a1 = (2 * p + 2) % m1;
-    /* Using ceil(n/d) = (n + d - 1)/d */
-    x = (hasse_low + m0 - 1) / m0;
+    x = (hasse_low + m0 - 1) / m0; /* using ceil(n/d) = (n + d - 1)/d */
     x *= m0;
-    for ( ; x <= hasse_high; x += m0) {
-      if ((x % m1) == a1 && x != N0 && x != N1)
-        break;
-    }
-    /* We exited the loop because we finished iterating, not because
-     * of the break.  That means every x in N was either N0 or N1, so
-     * we return true. */
-    if (x > hasse_high) {
-      avma = ltop;
-      return 1;
-    }
+    for ( ; x <= hasse_high; x += m0)
+      if ((x % m1) == a1 && x != N0 && x != N1) break;
+    /* every x in N was either N0 or N1, so we return true */
+    if (x > hasse_high) { avma = ltop; return 1; }
 
     lswap(a4, a4t);
     lswap(a6, a6t);
-    lswap(m0, m1);
-    avma = av;
+    lswap(m0, m1); avma = av;
   }
 }
 
@@ -790,7 +748,7 @@ find_j_inv_with_given_trace(
   hasse_bounds(&hasse[0], &hasse[1], p);
 
   av = avma;
-  while ( ! found && (max_curves <= 0 || curves_tested < max_curves))
+  while (!found && (max_curves <= 0 || curves_tested < max_curves))
   {
     GEN Pp1, Pt;
     random_curves_with_m_torsion((ulong *)(A4 + 1), (ulong *)(A6 + 1),
@@ -803,22 +761,18 @@ find_j_inv_with_given_trace(
     for (i = 1; i <= batch_size; ++i) {
       ++curves_tested;
       a4 = A4[i];
-      a6 = A6[i];
-      if (a4 == 0 || a6 == 0)
-        continue;
+      a6 = A6[i]; if (a4 == 0 || a6 == 0) continue;
 
       if (( (twist >= 3 && mael(Pp1,i,1) == mael(Pt,i,1))
          || (twist < 3 && umael(Pp1,i,1) == p))
           && test_curve_order(ne, a4, a6, N0, N1, n0, n1, hasse)) {
-        found = 1;
         *j_t = Fl_ellj_pre(a4, a6, p, pi);
-        break;
+        found = 1; break;
       }
     }
     avma = av;
   }
-  avma = ltop;
-  return curves_tested;
+  avma = ltop; return curves_tested;
 }
 
 
