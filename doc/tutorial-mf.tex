@@ -181,11 +181,11 @@ A final example of the same type:
 % = 1
 \end{verbatim}
 
-  Here, \kbd{mffrometaquo} takes as argument a matrix representing an
-  \emph{eta quotient}, here $\eta(1\times\tau)^2\eta(11\times\tau)^2$.
+Here, \kbd{mffrometaquo} takes as argument a matrix representing an
+\emph{eta quotient}, here $\eta(1\times\tau)^2\eta(11\times\tau)^2$.
 
-  The second component of the \kbd{mffromell} output is
-  the modular form associated to the elliptic curve by modularity.
+The second component of the \kbd{mffromell} output is the modular form
+associated to the elliptic curve by modularity.
 
 \section{A Second Session: Modular Form Spaces}
 
@@ -260,8 +260,9 @@ this is obtained by the function \kbd{mfeigenbasis} (note in passing that
 \kbd{B=mfeigenbasis(mf)} adds components to \kbd{mf}, so that the next
 call is instantaneous). You can ask for the defining number fields with the
 command \kbd{mffields}. Note that these commands act only on the new space,
-but the package also accepts the cuspidal space (but not the others),
-although the result is only about the new space.
+but the package also accepts the spaces that contain it (such as the cuspidal
+space or the full space, but not the old space), although the result is only
+about the new space.
 
 \begin{verbatim}
 ? mffields(mf)
@@ -279,15 +280,14 @@ although the result is only about the new space.
 \end{verbatim}
 
 The command \kbd{mffields} gives the polynomials in the variable $y$ defining
-the number field extensions on which
-the eigenforms are defined. Here, one of the fields is $\Q$, the other is
-$\Q(\sqrt{17})$. To obtain the eigenforms, we use \kbd{mfeigenbasis}, and
-there are only two and not three, since the one defined on $\Q(\sqrt{17})$
-goes together with its conjugate. Asking directly \kbd{mfcoefs(L[2],4)} gives
-the coefficients as \kbd{polmods}, not easy to read, so it is usually
-preferable to \emph{lift} them, giving the last command, where in the output
-we must of course remember that $y$ stands for \emph{one} of the two roots
-of $y^2-y-4=0$, i.e., $(1\pm\sqrt{17})/2$.
+the number field extensions on which the eigenforms are defined. Here, one of
+the fields is $\Q$, the other is $\Q(\sqrt{17})$. To obtain the eigenforms,
+we use \kbd{mfeigenbasis}, and there are only two and not three, since the
+one defined on $\Q(\sqrt{17})$ goes together with its conjugate. Asking
+directly \kbd{mfcoefs(L[2],4)} gives the coefficients as \kbd{polmods}, not
+easy to read, so it is usually preferable to \emph{lift} them, giving the
+last command, where in the output we must of course remember that $y$ stands
+for \emph{one} of the two roots of $y^2-y-4=0$, i.e., $(1\pm\sqrt{17})/2$.
 
 In fact, for some numerical computations, we really need the
 coefficients of the eigenform embedded in $\C$, and not just as abstract
@@ -303,12 +303,13 @@ variable \kbd{y} (do NOT use otherwise):
 
 \begin{verbatim}
 mfcoefsembed(F,n)=
-{ my(ro=polroots(mfparams(F)[4]),V=lift(mfcoefs(F,n)));
-  vector(#ro,j,subst(V,y,ro[j]));
+{ my([N,k,chi,P] = mfparams(F), V = lift(mfcoefs(F,n)));
+  [ subst(V,y,r) | r <- polroots(P) ];
 }
 \end{verbatim}
-
-(The \kbd{mfparams(F)[4]} command gives the necessary \kbd{polmod}.)
+The \kbd{mfparams(F)} command gives the parameters of the form: level, weight
+character and the polynomial giving the field of definition, such
+as $y^2-y-4$ above.
 
 The first eigenform found above is \emph{rational}, hence by the modularity
 theorem there exists up to isogeny a unique elliptic curve to which it
@@ -324,7 +325,7 @@ corresponds. We check this by writing
 For a more typical example (still with no character):
 
 \begin{verbatim}
-? [ mfdim([96, 2], flag) | flag <- [0..4] ]
+? [ mfdim([96,2], flag) | flag <- [0..4] ]
 % = [2, 9, 7, 15, 24]
 \end{verbatim}
 
@@ -333,7 +334,6 @@ the old space, the space of Eisenstein series, and the whole space of
 modular forms.
 
 Just for fun, we write (recall that the default is the full space):
-
 \begin{verbatim}
 ? mf = mfinit([96,2]); L = mfbasis(mf);
 ? for (i = 12, 15, print(mfcoefs(L[i], 15)))
@@ -490,9 +490,9 @@ Since this form is of dihedral type, it can be obtained via theta functions.
 Indeed:
 
 \begin{verbatim}
-? F1 = mffromqf([2,1;1,12])[2]; V1 = mfcoefs(F1, 16)
+? F1 = mffromqf([2,1; 1,12])[2]; V1 = mfcoefs(F1, 16)
 % = [1, 2, 0, 0, 2, 0, 4, 0, 4, 2, 0, 0, 4, 0, 0, 0, 2]
-? F2 = mffromqf([4,1;1,6])[2]; V2 = mfcoefs(F2, 16)
+? F2 = mffromqf([4,1; 1,6])[2]; V2 = mfcoefs(F2, 16)
 % = [1, 0, 2, 2, 2, 0, 2, 0, 2, 2, 0, 0, 4, 2, 0, 0, 4]
 ? (V1 - V2)/2
 % = [0, 1, -1, -1, 0, 0, 1, 0, 1, 0, 0, 0, 0, -1, 0, 0, -1]
@@ -1081,21 +1081,21 @@ commands would not be possible without it. Immediate applications are the
 plane (see below), also computes values at the cusps:
 
 \begin{verbatim}
-? T = mfTheta(); mf=mfinit(T);C=mfcusps(4)
+? T = mfTheta(); mf=mfinit(T);C=mfcusps(mf)
 % = [0, 1/2, 1/4]
-? apply(x->mfcuspval(mf,T,x),C)
+? [ mfcuspval(mf,T,c) | c<-C ]
 % = [0, 1/4, 0]
-? mfeval(mf,T,C) // Or apply(x->mfeval(mf,T,x),C)
+? mfeval(mf, T, C) \\ or [mfeval(mf,T,c) | c<-C]
 % = [1/2 - 1/2*I, 0, 1]
 \end{verbatim}
 
-  More sophisticated is the computation of numerical periods, and more
-  generally of \emph{symbols}
-  $$\int_{s_1}^{s_2}(X-\tau)^{k-2}F|_k\ga(\tau)\,d\tau\;,$$
-  where $s_1$ and $s_2$ are two cusps (e.g., $s_1=0$, $s_2=\infty$):
+More sophisticated is the computation of numerical periods, and more
+generally of \emph{symbols}
+$$\int_{s_1}^{s_2}(X-\tau)^{k-2}F|_k\ga(\tau)\,d\tau\;,$$
+where $s_1$ and $s_2$ are two cusps (e.g., $s_1=0$, $s_2=\infty$):
 
 \begin{verbatim}
-? mf = mfinit([96,4],0); B = mfbasis(mf); F1 = B[1];
+? mf = mfinit([96,4],0); [F1] = mfbasis(mf);
 ? FS1 = mfsymbol(mf,F1);
 time = 2,272 ms
 ? mfsymboleval(FS1,[0,oo])
@@ -1121,9 +1121,9 @@ precomputation which only involves \kbd{mf} and the form $F$ using
 \kbd{mfsymbol}, which can take a few seconds, but afterwards all the
 computations are instantaneous.
 
-Note that if you only want the period polynomial from $0$ to
-$\infty$ use \kbd{mfperiodpol(mf,F1)} which gives the same answer as before
-but in only $20$ ms.
+Note that if you only want the period polynomial from $0$ to $\infty$ use
+\kbd{mfperiodpol(mf,F1)} which gives the same answer as before but in only
+$20$ ms.
 
 You may also use \kbd{mfsymboleval} in two other ways, but note that in
 this case the precomputation is not used so the computation may be slow:
@@ -1169,7 +1169,7 @@ than \kbd{oo}.
 \end{enumerate}
 
 \begin{verbatim}
-? mf = mfinit([96,4],0); B = mfbasis(mf); [F1,F2] = B;
+? mf = mfinit([96,4],0); [F1,F2] = mfbasis(mf);
 ? FS1 = mfsymbol(mf,F1); FS2 = mfsymbol(mf,F2);
 ? mfpetersson(FS1)
 % = 0.00061471684149817788924091516302517391826
@@ -1722,7 +1722,7 @@ is the dimension of the subspace of dihedral forms.
 \f\kbd{mfEH(k)}: $k$ being half-integral, gives the Cohen--Eisenstein series
 of weight $k$ on $\G_0(4)$.
 
-\f\kbd{mfeigenbasis(mf)}: \kbd{mf} being a new or cuspidal space, gives
+\f\kbd{mfeigenbasis(mf)}: \kbd{mf} containing the new space, gives
 (in some order) the basis of normalized eigenforms.
 
 \f\kbd{mfeigensearch(NK,AP)}: search for normalized eigenforms with
@@ -1745,7 +1745,7 @@ so that $a(0)=1$, including for $k=2$.
 vector of points) in the completed upper half-plane. If $F$ is an eigenform
 with several embeddings in $\C$, evaluate at each embedding.
 
-\f\kbd{mffields(mf)}: \kbd{mf} being a new or cuspidal space, gives the list of
+\f\kbd{mffields(mf)}: \kbd{mf} containing the new space, gives the list of
 relative polynomials defining the number field extensions for all the Galois
 orbits of the eigenforms. \kbd{mf} can also be a modular form, in which case
 the result is the number field extension of $\Q(\chi)$ in which the Fourier
@@ -1894,9 +1894,9 @@ the space.
 \f\kbd{mfsplit(mf,$\{\text{dimlim}=0\}$,$\{\text{flag}=0\}$)}: compute the
 eigenforms in \kbd{mf}, and limit the dimension of each Galois orbit to
 \kbd{dimlim} if set. \kbd{flag} is used to avoid some long computations (see
-doc). The space \kbd{mf} \emph{must} be a new space. Note that the result is
-only a two-component vector \kbd{vF,vK}, where \kbd{vF} is a vector of
-eigenforms and \kbd{vK} the corresponding number fields, but is \emph{not}
+doc). The space \kbd{mf} \emph{must} contain the new space. Note that the
+result is only a two-component vector \kbd{vF,vK}, where \kbd{vF} is a vector
+of eigenforms and \kbd{vK} the corresponding number fields, but is \emph{not}
 similar to the output of an \kbd{mfinit} command.
 
 \f\kbd{mfsturm(mf)}: If \kbd{mf} is a space, true Sturm bound of \kbd{mf}, i.e.,
