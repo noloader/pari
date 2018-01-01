@@ -27,19 +27,14 @@ Doc:
  $S_k=S_k^{\text{new}}\oplus S_k^{\text{old}}$.
 
  These resulting \kbd{mf} structure contains a basis of modular forms, which
- is accessed by the function \kbd{mfbasis}; the elements of this basis are
- guaranteed to have Fourier coefficients in the cyclotomic field $\Q(\chi)$,
- and no larger.
+ is accessed by the function \kbd{mfbasis}; the elements of this basis have
+ Fourier coefficients in the cyclotomic field $\Q(\chi)$.
 
- In addition, since one often works with eigenforms, a space can be
- \emph{split}, using the command \kbd{mfsplit}. Because of multiplicity 1,
- only a newspace can be split; however for implementation reasons in weight $1$
- \kbd{mfsplit} of a cuspidal space is tolerated, but the result concerns
- only the split of the new space.
-
- The basis of eigenforms is obtained by the function \kbd{mfeigenbasis}:
- the elements of this basis now have Fourier coefficients in a relative field
- extension of $\Q(\chi)$.
+ The basis of eigenforms for the new space is obtained by the function
+ \kbd{mfeigenbasis}: the elements of this basis now have Fourier coefficients
+ in a relative field extension of $\Q(\chi)$. Note that if the space is
+ larger than the new space (i.e. is the cuspidal or full space) we
+ nevertheless obtain only the eigenbasis for the new space.
 
  \subsec{Generalized modular forms} %GPHELPskip
 

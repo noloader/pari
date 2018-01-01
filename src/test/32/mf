@@ -1431,7 +1431,7 @@ t, -6*t - 4, t + 2]
   *** mftonew: incorrect type in mftonew [not a full or cuspidal space] (t_VEC).
   ***   at top-level: mffields(mf)
   ***                 ^------------
-  *** mffields: incorrect type in mfsplit [cannot split old/fullspace] (t_VEC).
+  *** mffields: incorrect type in mfsplit [space does not contain newspace] (t_VEC).
   ***   at top-level: mfdiv(1,mfTheta())
   ***                 ^------------------
   *** mfdiv: incorrect type in mfdiv (t_INT).
@@ -1444,4 +1444,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: ...([1,0]);F=mfbasis(mf)[1];mfsymbol(mf,F)
   ***                                             ^--------------
   *** mfsymbol: sorry, mfsymbol when k <= 1 is not yet implemented.
-Total time spent: 6734
+Total time spent: 6430
