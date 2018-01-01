@@ -4874,7 +4874,6 @@ mfsplit_i(GEN mf, long dimlim, long flag)
       newd = d;
       NEWT = k > 1; break;
     case mf_CUSP: /* in wt1 much faster to compute mfolddim */
-      if (dimlim) pari_err_FLAG("mfsplit [cusp space]");
       newd = d - mfolddim(N, k, CHI);
       break;
     case mf_FULL:

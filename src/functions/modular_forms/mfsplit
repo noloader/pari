@@ -2,28 +2,30 @@ Function: mfsplit
 Section: modular_forms
 C-Name: mfsplit
 Prototype: GD0,L,D0,L,
-Help: mfsplit(mf,{dimlim=0},{flag=0}): mf being in the cuspidal space
- (either the newspace or the full cuspidal space), split the space into Galois
+Help: mfsplit(mf,{dimlim=0},{flag=0}): mf containing the new space
+ split the new space into Galois
  orbits of eigenforms of the newspace and return [vF,vK], where vF is a
  vector of (Galois orbit of) eigenforms and vK is a list of polynomials
- defining each Galois orbit. If dimlim is set and mf is the newspace,
- only the Galois orbits of dimension <= dimlim are computed (i.e. the rational
- eigenforms if dimlim = 1 and the character is real). Flag is used to avoid
- long computations when the dimension is large: if flag = d > 0, when the
- dimension of the eigenspace is > d, only the Galois polynomial is computed.
-Doc: \kbd{mf} from \kbd{mfinit} being in the cuspidal space, preferably the
- newspace, split the space into Galois orbits of eigenforms of the newspace,
- satisfying various restrictions.
+ defining each Galois orbit. If dimlim is set only the Galois orbits of
+ dimension <= dimlim are computed (i.e. the rational eigenforms if dimlim = 1
+ and the character is real). Flag is used to avoid long computations when the
+ dimension is large: if flag = d > 0, when the dimension of the eigenspace is > d,
+ only the Galois polynomial is computed.
+Doc: \kbd{mf} from \kbd{mfinit} with integral weight containing the new space
+ (either the new space itself or the cuspidal space or the full space), and
+ preferably the newspace itself for efficiency, split the space into Galois orbits
+ of eigenforms of the newspace, satisfying various restrictions.
 
  The functions returns $[vF, vK]$, where $vF$ is a vector of (Galois orbit of)
  eigenforms and $vK$ is a list of polynomials defining each Galois orbit.
  The eigenforms are given in \kbd{mftobasis} format, i.e. as a coefficient
  vector with respect to \kbd{mfbasis(mf)}.
 
- If \kbd{dimlim} is set and \kbd{mf} is the newspace, only the Galois orbits of
- dimension $\leq \kbd{dimlim}$ are computed (i.e. the rational eigenforms
- if $\kbd{dimlim} = 1$ and the character is real). This can considerably speed
- up the function when a Galois orbit is defined over a large field.
+ If \kbd{dimlim} is set, only the Galois orbits of dimension $\leq \kbd{dimlim}$
+ are computed (i.e. the rational eigenforms if $\kbd{dimlim} = 1$ and the
+ character is real). This can considerably speed up the function when a Galois
+ orbit is defined over a large field.
+
  \kbd{flag} is used to avoid long computations when the dimension is large:
  if $flag=d>0$, when the dimension of the eigenspace is $>d$, only the Galois
  polynomial is computed.
