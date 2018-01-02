@@ -6804,15 +6804,15 @@ ZX_roots(GEN P, long prec)
   long d = degpol(P);
   if (d == 1) return mkvec(gen_0);
   if (d == 2 && isint1(gel(P,2)) && isintzero(gel(P,3)) && isint1(gel(P,4)))
-    return mkvec2(gen_I(), powIs(3));
+    return mkvec2(powIs(3), gen_I()); /* order as polroots */
   return (ZX_sturm(P) == d)? realroots(P,NULL,prec): QX_complex_roots(P,prec);
 }
 /* initializations for RgX_RgV_eval / RgC_embed */
 static GEN
 rootspowers(GEN v)
 {
-  long i, l;
-  GEN w = cgetg_copy(v, &l);
+  long i, l = lg(v);
+  GEN w = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(w,i) = gpowers(gel(v,i), l-2);
   return w;
 }
@@ -6838,9 +6838,9 @@ getembed(GEN P, GEN T, GEN zcyclo, long prec)
   }
   else /* cyclotomic or rational */
     v = mkvec(P? mkvec2(P, zcyclo): cgetg(1,t_VEC));
-  settyp(v, t_VEC); return v;
+  return v;
 }
-/* return mf embeddings from inspecting vector v */
+/* return the [Q(F):Q(chi)] embeddings of F */
 static GEN
 mfgetembed(GEN F, long prec)
 {
@@ -6848,16 +6848,17 @@ mfgetembed(GEN F, long prec)
   long o = mfcharorder_canon(CHI);
   return getembed(P, T, grootsof1(o,prec), prec);
 }
+/* mfgetembed for the successive eigenforms in MF_get_newforms */
 static GEN
 mfeigenembed(GEN mf, long prec)
 {
-  GEN CHI = MF_get_CHI(mf), P = mfcharpol(CHI), vP = MF_get_fields(mf);
-  long i, l, o = mfcharorder_canon(CHI);
-  GEN vE, zcyclo = grootsof1(o, prec);
-  l = lg(vP); vE = cgetg(l, t_VEC);
+  GEN vP = MF_get_fields(mf), CHI = MF_get_CHI(mf), P = mfcharpol(CHI);
+  long i, o = mfcharorder_canon(CHI), l = lg(vP);
+  GEN zcyclo = grootsof1(o, prec), vE = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(vE,i) = getembed(P, gel(vP,i), zcyclo, prec);
   return vE;
 }
+
 /* dummy lfun create for theta evaluation */
 static GEN
 mfthetaancreate(GEN van, GEN N, GEN k)

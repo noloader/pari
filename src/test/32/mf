@@ -437,9 +437,9 @@ y^2 - 31), Mod(0, y^2 - 31), Mod(81, y^2 - 31), y^2 - 31]
  0, 0, Mod(-40*t, t^2 + t + 1), 0]
 [-5/32, 81/32, 21/16, -597/8, 1215/32, 1689/8, -14813/16, -14337/16]
 
-[0 -1]
+[ 0 1]
 
-[1  0]
+[-1 0]
 
 1
 
@@ -1444,4 +1444,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: ...([1,0]);F=mfbasis(mf)[1];mfsymbol(mf,F)
   ***                                             ^--------------
   *** mfsymbol: sorry, mfsymbol when k <= 1 is not yet implemented.
-Total time spent: 6693
+Total time spent: 6158
