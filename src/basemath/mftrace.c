@@ -5802,35 +5802,18 @@ mfisnotS4(long N, GEN w)
   return 1;
 }
 
-/* Return 1 if F is definitely not A5 type; return 0 on failure. */
+/* Return 1 if Q(sqrt(5)) \not\subset Q(F), i.e. F is definitely not A5 type;
+ * return 0 on failure. */
 static long
-mfisnotA5(GEN van)
+mfisnotA5(GEN F)
 {
-  long l = lg(van) - 2, i, vz = 1;
-  GEN pol5 = gsubgs(gsqr(pol_x(vz)), 5);
-  for (i = 1; i < l; i++)
-  {
-    GEN c = gel(van, i);
-    if (i != 1 && !uisprime(i+1)) continue; /* only test a_0 and a_prime */
-    if (typ(c) == t_POLMOD)
-    {
-      GEN T = gel(c,1);
-      if (varn(T) == vz)
-      { /* K / Q(zeta_n) / Q */
-        GEN t = NULL, p = NULL;
-        if (!RgX_is_FpXQX(T, &t,&p) || p) pari_err_TYPE("mfgaloistype", c);
-        if (t) T = rnfequation(t,T);
-        if (typ(nfisincl(pol5, T)) != t_INT) return 0;
-      }
-      else
-      { /* Q(zeta_n) / Q */
-        long n = poliscyclo(T);
-        if (!n) pari_err_TYPE("mfgaloistype", c);
-        if (n % 5 == 0) return 0;
-      }
-    }
-  }
-  return 1;
+  GEN CHI = mf_get_CHI(F), P = mfcharpol(CHI), T, Q;
+
+  if (mfcharorder(CHI) % 5 == 0) return 0;
+  T = mf_get_field(F); if (degpol(T) == 1) return 1;
+  if (degpol(P) > 1) T = rnfequation(P,T);
+  Q = gsubgs(pol_xn(2,varn(T)), 5);
+  return (typ(nfisincl(Q, T)) == t_INT);
 }
 
 /* Given x = z + 1/z with z prim. root of unity of order n, find n */
@@ -5869,7 +5852,7 @@ mfgaloistype_i(long N, GEN CHI, GEN F, long lim)
     if (n > 5) pari_err_DOMAIN("mfgaloistype", "form", "not a",
                                strtoGENstr("cuspidal eigenform"), F);
   }
-  if (mfisnotS4(N,w) && mfisnotA5(v)) return -12; /* A4 */
+  if (mfisnotS4(N,w) && mfisnotA5(F)) return -12; /* A4 */
   return 0; /* FAILURE */
 }
 
