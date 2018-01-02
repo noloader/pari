@@ -36,7 +36,8 @@ Doc: Create the space of modular forms corresponding to the data contained in
  \var{CHI} was a wildcard, which contains the following information:
  $[N,k,\chi]$ is given by \kbd{mfparams}$(S)$, the space
  dimension is \kbd{mfdim}$(S)$ and a $\C$-basis for the space is
- \kbd{mfbasis}$(S)$.
+ \kbd{mfbasis}$(S)$. The structure is entirely algebraic and does not depend
+ on the current \kbd{realbitprecision}.
  \bprog
  ? S = mfinit([36,2], 0); \\ new space
  ? mfdim(S)
