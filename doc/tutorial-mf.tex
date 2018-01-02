@@ -296,20 +296,21 @@ This is why a few functions (most notably \kbd{mfeval} and \kbd{lfunmf})
 will return a \emph{vector} of results and not a scalar when called on such
 a form.
 
-For instance, here is a little GP script which computes the
-numerical expansion of a modular form instead of the expansion in
-\kbd{polmods}, assuming for simplicity that there is a unique \kbd{polmod}
-variable \kbd{y} (do NOT use otherwise):
+For instance, here is a little GP script which computes the numerical
+expansion of a modular form instead of the expansion in \kbd{polmods}:
 
 \begin{verbatim}
-mfcoefsembed(F,n)=
-{ my([N,k,chi,P] = mfparams(F), V = lift(mfcoefs(F,n)));
-  [ subst(V,y,r) | r <- polroots(P) ];
-}
+mfcoefsembed(F,n) = mfembed(F, mfcoefs(F,n));
 \end{verbatim}
-The \kbd{mfparams(F)} command gives the parameters of the form: level, weight
-character and the polynomial giving the field of definition, such
-as $y^2-y-4$ above.
+
+Note that this produces a vector of expansions when the eigenforms
+are defined over an extension, i.e. $[\Q(F):\Q(\chi)] > 1$, one per conjugate
+form.
+\begin{verbatim}
+? mfcoefsembed(L[2],5)  \\ two conjugate forms
+%4 = [[0, 1, 1.5615..., -2.5615..., 0.43844..., 1],
+      [0, 1, -2.561...,, 1.5615...,, 4.5615..., 1]]
+\end{verbatim}
 
 The first eigenform found above is \emph{rational}, hence by the modularity
 theorem there exists up to isogeny a unique elliptic curve to which it

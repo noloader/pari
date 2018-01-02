@@ -1049,7 +1049,7 @@ RgX_embed1(GEN P, GEN vz)
 }
 /* return s(P) in C^n */
 static GEN
-RgC_embed1(GEN P, GEN vz)
+vecembed1(GEN P, GEN vz)
 {
   long i, l;
   GEN Q = cgetg_copy(P, &l);
@@ -1074,7 +1074,7 @@ Rg_embed2(GEN P, long vt, GEN vT, GEN vU)
   return Rg_embed1(Q, vU);
 }
 static GEN
-RgC_embed2(GEN P, long vt, GEN vT, GEN vU)
+vecembed2(GEN P, long vt, GEN vT, GEN vU)
 {
   long i, l;
   GEN Q = cgetg_copy(P, &l);
@@ -1094,7 +1094,7 @@ static GEN
 RgX_embed(GEN f, long vx, GEN E)
 {
   GEN vT;
-  if (typ(f) != t_POL || varn(f) != vx) return mfembed(f, E);
+  if (typ(f) != t_POL || varn(f) != vx) return mfembed(E, f);
   if (lg(E) == 1) return f;
   vT = gel(E,2);
   if (lg(E) == 3)
@@ -1105,16 +1105,26 @@ RgX_embed(GEN f, long vx, GEN E)
 }
 /* embed vector, E from getembed */
 GEN
-mfvecembed(GEN f, GEN E)
+mfvecembed(GEN E, GEN v)
 {
   GEN vT;
-  if (lg(E) == 1) return f;
+  if (lg(E) == 1) return v;
   vT = gel(E,2);
   if (lg(E) == 3)
-    f = RgC_embed1(f, vT);
+    v = vecembed1(v, vT);
   else
-    f = RgC_embed2(f, varn(gel(E,1)), vT, gel(E,3));
-  return f;
+    v = vecembed2(v, varn(gel(E,1)), vT, gel(E,3));
+  return v;
+}
+GEN
+mfmatembed(GEN E, GEN f)
+{
+  long i, l;
+  GEN g;
+  if (lg(E) == 1) return f;
+  g = cgetg_copy(f, &l);
+  for (i = 1; i < l; i++) gel(g,i) = mfvecembed(E, gel(f,i));
+  return g;
 }
 /* embed vector of polynomials in var vx */
 static GEN
@@ -1130,7 +1140,7 @@ RgXV_embed(GEN f, long vx, GEN E)
 
 /* embed scalar */
 GEN
-mfembed(GEN f, GEN E)
+mfembed(GEN E, GEN f)
 {
   GEN vT;
   if (lg(E) == 1) return f;
@@ -1156,7 +1166,7 @@ RgC_embedall(GEN v, GEN vE)
 {
   long j, l = lg(vE);
   GEN M = cgetg(l, t_MAT);
-  for (j = 1; j < l; j++) gel(M,j) = mfvecembed(v, gel(vE,j));
+  for (j = 1; j < l; j++) gel(M,j) = mfvecembed(gel(vE,j), v);
   return M;
 }
 /* vector of the sigma(v), sigma in vE */
@@ -1165,7 +1175,7 @@ Rg_embedall(GEN v, GEN vE)
 {
   long j, l = lg(vE);
   GEN M = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++) gel(M,j) = mfembed(v, gel(vE,j));
+  for (j = 1; j < l; j++) gel(M,j) = mfembed(gel(vE,j), v);
   return M;
 }
 
@@ -6812,23 +6822,73 @@ getembed(GEN P, GEN T, GEN zcyclo, long prec)
     v = mkvec(P? mkvec2(P, zcyclo): cgetg(1,t_VEC));
   return v;
 }
+static GEN
+grootsof1_CHI(GEN CHI, long prec)
+{ return grootsof1(mfcharorder_canon(CHI), prec); }
 /* return the [Q(F):Q(chi)] embeddings of F */
 static GEN
 mfgetembed(GEN F, long prec)
 {
   GEN T = mf_get_field(F), CHI = mf_get_CHI(F), P = mfcharpol(CHI);
-  long o = mfcharorder_canon(CHI);
-  return getembed(P, T, grootsof1(o,prec), prec);
+  return getembed(P, T, grootsof1_CHI(CHI, prec), prec);
+}
+static GEN
+mfchiembed(GEN mf, long prec)
+{
+  GEN CHI = MF_get_CHI(mf), P = mfcharpol(CHI);
+  return getembed(P, pol_x(0), grootsof1_CHI(CHI, prec), prec);
 }
 /* mfgetembed for the successive eigenforms in MF_get_newforms */
 static GEN
 mfeigenembed(GEN mf, long prec)
 {
   GEN vP = MF_get_fields(mf), CHI = MF_get_CHI(mf), P = mfcharpol(CHI);
-  long i, o = mfcharorder_canon(CHI), l = lg(vP);
-  GEN zcyclo = grootsof1(o, prec), vE = cgetg(l, t_VEC);
+  long i, l = lg(vP);
+  GEN zcyclo = grootsof1_CHI(CHI, prec), vE = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(vE,i) = getembed(P, gel(vP,i), zcyclo, prec);
   return vE;
+}
+
+static int
+checkPv(GEN P, GEN v)
+{ return typ(P) == t_POL && typ(v) == t_VEC && lg(v)-1 >= degpol(P); }
+static int
+checkemb_i(GEN E)
+{
+  long t = typ(E), l = lg(E);
+  if (t == t_VEC) return l == 1 || (l == 3 && checkPv(gel(E,1), gel(E,2)));
+  if (t != t_COL) return 0;
+  if (l == 3) return checkPv(gel(E,1), gel(E,2));
+  return l == 4 && typ(gel(E,2)) == t_VEC && checkPv(gel(E,1), gel(E,3));
+}
+static GEN
+anyembed(GEN v, GEN E)
+{
+  switch(typ(v))
+  {
+    case t_VEC: case t_COL: return mfvecembed(E, v);
+    case t_MAT: return mfmatembed(E, v);
+  }
+  return mfembed(E, v);
+}
+GEN
+mfembed0(GEN E, GEN v, long prec)
+{
+  pari_sp av = avma;
+  GEN vE = NULL;
+  if (checkmf_i(E)) vE = mfgetembed(E, prec);
+  else if (checkMF_i(E)) vE = mfchiembed(E, prec);
+  if (vE)
+  {
+    long i, l = lg(vE);
+    GEN w;
+    if (!v) return gerepilecopy(av, l == 2? gel(vE,1): vE);
+    w = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(w,i) = anyembed(v, gel(vE,i));
+    return gerepilecopy(av, l == 2? gel(w,1): w);
+  }
+  if (!checkemb_i(E) || !v) pari_err_TYPE("mfembed", E);
+  return gerepilecopy(av, anyembed(v,E));
 }
 
 /* dummy lfun create for theta evaluation */
@@ -6852,8 +6912,8 @@ van_embedall(GEN van, GEN vE, GEN gN, GEN gk)
   vL = cgetg(lE, t_VEC);
   for (i = 1; i < lE; i++)
   {
-    GEN E = gel(vE,i), v = mfvecembed(van, E);
-    gel(vL,i) = mkvec2(mfembed(a0,E), mfthetaancreate(v, gN, gk));
+    GEN E = gel(vE,i), v = mfvecembed(E, van);
+    gel(vL,i) = mkvec2(mfembed(E,a0), mfthetaancreate(v, gN, gk));
   }
   return vL;
 }

@@ -128,7 +128,6 @@ the $F[i]$ are modular forms\hfil\break
    {mfderivE2$(f)$}
 \li{Rankin-Cohen bracket $[f,g]_n$}{mfbracket$(f,g,n)$}
 \li{Shimura lift of $f$ for discriminant $D$}{mfshimura$(mf,f,D)$}
-\li{complex embeddings of $f$}{mfembed$(f)$}
 
 \subsec{Properties of modular forms} In this section, $f = \sum_n f_n q^n$
 is a modular form
@@ -153,14 +152,20 @@ in some space $M$ with parameters $N,k,\chi$.\hfil\break
 \li{$n$-Taylor expansion of $f$ at $i$}{mftaylor$(f,n)$}
 \li{all rational eigenforms matching criteria}{mfeigensearch}
 \li{\dots  forms matching criteria}{mfsearch}
-\subsec{Forms embedded into $\CC$} In this section $F=\sigma(f)$ is the
-complex embedding of some modular form $f$ for some
-$\sigma\colon \Q(f)\to \CC$ obtained via \kbd{mfembed}.\hfill\break
-\li{evaluate $F$ at $\tau\in{\cal H}$}{mfeval$(F,\tau)$}
-\li{$L$-function attached to $F$}{lfunmf$(mf,F)$}
+\subsec{Forms embedded into $\CC$} Given a modular form $f$
+in $M_k(\Gamma_0(N),\chi)$ its field of definition $\Q(f)$ has
+$n = [\Q(f):\Q(\chi)]$ embeddings into the complex numbers.
+If $n = 1$, the following functions return a single answer, attached to the
+canonical embedding of $f$ in $\CC[[q]]$; else
+a vector of $n$ results, corresponding to the $n$ conjugates of $f$.\hfill\break
+\li{complex embeddings of $\Q(f)$}{mfembed$(f)$}
+\li{... embed coefs of $f$}{mfembed$(f, v)$}
+\li{evaluate $f$ at $\tau\in{\cal H}$}{mfeval$(f,\tau)$}
+\li{$L$-function attached to $f$}{lfunmf$(mf,f)$}
 \li{\dots eigenforms of new space $M$}{lfunmf$(M)$}
 
-\subsec{Periods and symbols}
+\subsec{Periods and symbols} The functions in this section
+depend on $[\Q(f):\Q(\chi)]$ as above.
 \li{initialize symbol $fs$ attached to $f$}{mfsymbol$(M,f)$}
 \li{evaluate symbol $fs$ on path $p$}{mfsymboleval$(fs,p)$}
 \li{Petersson product of $f$ and $g$}{mfpetersson$(fs,gs)$}

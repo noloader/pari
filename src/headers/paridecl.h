@@ -4032,7 +4032,8 @@ GEN   mfeigensearch(GEN nklim, GEN vmod);
 GEN   mfeisenstein(long k, GEN CHI1, GEN CHI2);
 long  mfeisensteindim(long N, long k, GEN CHI);
 GEN   mfeisensteinspaceinit(GEN NK);
-GEN   mfembed(GEN f, GEN E);
+GEN   mfembed(GEN E, GEN f);
+GEN   mfembed0(GEN E, GEN v, long prec);
 GEN   mfeval(GEN mf, GEN F, GEN vtau, long bitprec);
 GEN   mffields(GEN mf);
 GEN   mffromell(GEN E);
@@ -4052,6 +4053,7 @@ GEN   mfkohnenbijection(GEN mf);
 GEN   mfkohneneigenbasis(GEN mf, GEN bij);
 GEN   mflinear(GEN vF, GEN vla);
 GEN   mfmanin(GEN F, long bitprec);
+GEN   mfmatembed(GEN E, GEN f);
 GEN   mfmul(GEN F, GEN G);
 long  mfnewdim(long N, long k, GEN CHI);
 long  mfolddim(long N, long k, GEN CHI);
@@ -4080,7 +4082,7 @@ GEN   mftocoset(ulong N, GEN M, GEN listcosets);
 GEN   mftonew(GEN mf, GEN F);
 GEN   mftraceform(GEN NK, long coderat);
 GEN   mftwist(GEN F, GEN D);
-GEN   mfvecembed(GEN f, GEN vz);
+GEN   mfvecembed(GEN E, GEN v);
 GEN   mfvectomat(GEN vF, long lim, long d);
 
 /* mp.c */
