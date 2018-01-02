@@ -5271,7 +5271,7 @@ mfstabiter(GEN M, GEN A2, GEN E1inv, long lim, GEN P, long ordchi)
   A = mfmatsermul(A2, E1inv);
   while(1)
   {
-    GEN R = shallowconcat(RgM_mul(M,A),  rowslice(A,1,lim));
+    GEN R = shallowconcat(RgM_mul(M,A), rowslice(A,1,lim));
     GEN B = QabM_ker(R, P, ordchi);
     long lA = lg(A), lB = lg(B);
     if (lB == 1 || lB == lA) return mkvec2(A, VC);
