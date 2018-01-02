@@ -1030,7 +1030,7 @@ c_linear_bhn(long n, long d, GEN F, GEN L, GEN dL)
 /* c in K, K := Q[X]/(T) vz = vector of consecutive powers of root z of T
  * attached to an embedding s: K -> C. Return s(c) in C */
 static GEN
-Rg_embed(GEN c, GEN vz)
+Rg_embed1(GEN c, GEN vz)
 {
   long t = typ(c);
   if (t == t_POLMOD) { c = gel(c,2); t = typ(c); }
@@ -1039,21 +1039,21 @@ Rg_embed(GEN c, GEN vz)
 }
 /* return s(P) in C[X] */
 static GEN
-RgX_embed(GEN P, GEN vz)
+RgX_embed1(GEN P, GEN vz)
 {
   long i, l;
   GEN Q = cgetg_copy(P, &l);
   Q[1] = P[1];
-  for (i = 2; i < l; i++) gel(Q,i) = Rg_embed(gel(P,i), vz);
+  for (i = 2; i < l; i++) gel(Q,i) = Rg_embed1(gel(P,i), vz);
   return normalizepol_lg(Q,l); /* normally a no-op */
 }
 /* return s(P) in C^n */
 static GEN
-RgC_embed(GEN P, GEN vz)
+RgC_embed1(GEN P, GEN vz)
 {
   long i, l;
   GEN Q = cgetg_copy(P, &l);
-  for (i = 1; i < l; i++) gel(Q,i) = Rg_embed(gel(P,i), vz);
+  for (i = 1; i < l; i++) gel(Q,i) = Rg_embed1(gel(P,i), vz);
   return Q;
 }
 /* P in L = K[X]/(U), K = Q[t]/T; s an embedding of K -> C attached
@@ -1067,11 +1067,11 @@ Rg_embed2(GEN P, long vt, GEN vT, GEN vU)
   GEN Q;
   P = liftpol_shallow(P);
   if (typ(P) != t_POL) return P;
-  if (varn(P) == vt) return Rg_embed(P, vT);
+  if (varn(P) == vt) return Rg_embed1(P, vT);
   /* varn(P) == vx */
   Q = cgetg_copy(P, &l); Q[1] = P[1];
-  for (i = 2; i < l; i++) gel(Q,i) = Rg_embed(gel(P,i), vT);
-  return Rg_embed(Q, vU);
+  for (i = 2; i < l; i++) gel(Q,i) = Rg_embed1(gel(P,i), vT);
+  return Rg_embed1(Q, vU);
 }
 static GEN
 RgC_embed2(GEN P, long vt, GEN vT, GEN vU)
@@ -1091,14 +1091,14 @@ RgX_embed2(GEN P, long vt, GEN vT, GEN vU)
 }
 /* embed polynomial f in variable vx [ may be a scalar ], E from getembed */
 static GEN
-polembed(GEN f, long vx, GEN E)
+RgX_embed(GEN f, long vx, GEN E)
 {
   GEN vT;
   if (typ(f) != t_POL || varn(f) != vx) return mfembed(f, E);
   if (lg(E) == 1) return f;
   vT = gel(E,2);
   if (lg(E) == 3)
-    f = RgX_embed(f, vT);
+    f = RgX_embed1(f, vT);
   else
     f = RgX_embed2(f, varn(gel(E,1)), vT, gel(E,3));
   return f;
@@ -1111,20 +1111,20 @@ mfvecembed(GEN f, GEN E)
   if (lg(E) == 1) return f;
   vT = gel(E,2);
   if (lg(E) == 3)
-    f = RgC_embed(f, vT);
+    f = RgC_embed1(f, vT);
   else
     f = RgC_embed2(f, varn(gel(E,1)), vT, gel(E,3));
   return f;
 }
 /* embed vector of polynomials in var vx */
 static GEN
-vecpolembed(GEN f, long vx, GEN E)
+RgXV_embed(GEN f, long vx, GEN E)
 {
   long i, l;
   GEN v;
   if (lg(E) == 1) return f;
   v = cgetg_copy(f, &l);
-  for (i = 1; i < l; i++) gel(v,i) = polembed(gel(f,i), vx, E);
+  for (i = 1; i < l; i++) gel(v,i) = RgX_embed(gel(f,i), vx, E);
   return v;
 }
 
@@ -1136,23 +1136,23 @@ mfembed(GEN f, GEN E)
   if (lg(E) == 1) return f;
   vT = gel(E,2);
   if (lg(E) == 3)
-    f = Rg_embed(f, vT);
+    f = Rg_embed1(f, vT);
   else
     f = Rg_embed2(f, varn(gel(E,1)), vT, gel(E,3));
   return f;
 }
 /* vector of the sigma(f), sigma in vE */
 static GEN
-polembedall(GEN f, long vx, GEN vE)
+RgX_embedall(GEN f, long vx, GEN vE)
 {
   long i, l = lg(vE);
   GEN v = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(v,i) = polembed(f, vx, gel(vE,i));
+  for (i = 1; i < l; i++) gel(v,i) = RgX_embed(f, vx, gel(vE,i));
   return l == 2? gel(v,1): v;
 }
 /* matrix whose colums are the sigma(v), sigma in vE */
 static GEN
-mfvecembedall(GEN v, GEN vE)
+RgC_embedall(GEN v, GEN vE)
 {
   long j, l = lg(vE);
   GEN M = cgetg(l, t_MAT);
@@ -1161,7 +1161,7 @@ mfvecembedall(GEN v, GEN vE)
 }
 /* vector of the sigma(v), sigma in vE */
 static GEN
-mfembedall(GEN v, GEN vE)
+Rg_embedall(GEN v, GEN vE)
 {
   long j, l = lg(vE);
   GEN M = cgetg(l, t_VEC);
@@ -6798,7 +6798,7 @@ getembed(GEN P, GEN T, GEN zcyclo, long prec)
   if (degpol(T) == 1) T = NULL; /* dim 1 orbit */
   if (T && P)
   { /* K(y) / (T(y)), K = Q(t)/(P) cyclotomic */
-    GEN vr = RgX_is_ZX(T)? ZX_roots(T,prec): roots(RgX_embed(T,zcyclo), prec);
+    GEN vr = RgX_is_ZX(T)? ZX_roots(T,prec): roots(RgX_embed1(T,zcyclo), prec);
     v = rootspowers(vr); l = lg(v);
     for (i = 1; i < l; i++) gel(v,i) = mkcol3(P,zcyclo,gel(v,i));
   }
@@ -7279,7 +7279,7 @@ START:
   prec = nbits2prec(bitprec);
   vE = mfeigenembed(mf, prec);
   M = cgetg(lF, t_VEC);
-  for (i = 1; i < lF; i++) gel(M,i) = mfvecembedall(gel(F,i), gel(vE,i));
+  for (i = 1; i < lF; i++) gel(M,i) = RgC_embedall(gel(F,i), gel(vE,i));
   if (Q != N)
   {
     D = mfatkineigenquad(mf, CHIP, Q, M, bitprec);
@@ -7474,7 +7474,7 @@ mfatkineigenvalues(GEN mf, long Q, long prec)
   for (i = 1; i < l; i++)
   {
     GEN c = RgV_dotproduct(RgM_RgC_mul(MQ,gel(vF,i)), M); /* C * eigen_i */
-    gel(L,i) = mfembedall(c, gel(vE,i));
+    gel(L,i) = Rg_embedall(c, gel(vE,i));
   }
   if (!gequal1(C)) L = gdiv(L, C);
   if (MF_get_space(mf) == mf_NEW && mfcharorder(CHI) <= 2
@@ -11530,7 +11530,7 @@ mfperiodpol(GEN mf, GEN F, long flag, long bit)
     pol = fs_get_pols(F);
   }
   if (flag) pol = RgX_by_parity(pol, flag < 0);
-  return gerepilecopy(av, polembedall(pol, 0, fs_get_vE(F)));
+  return gerepilecopy(av, RgX_embedall(pol, 0, fs_get_vE(F)));
 }
 
 static int
@@ -11618,7 +11618,7 @@ mfsymboleval_direct(GEN fs, GEN path, GEN ga, GEN PCO)
   van = mfgetvan(fs, ga, &al, maxss(nlimA,nlimB), prec);
   S = intAoo(van, nlimA, al,w, PCO, A, k, prec);
   if (B) S = gsub(S, intAoo(van, nlimB, al,w, PCO, B, k, prec));
-  return polembedall(S, 0, fs_get_vE(fs));
+  return RgX_embedall(S, 0, fs_get_vE(fs));
 }
 
 /* Computation of int_A^oo (f | ga)(t)(X-t)^{k-2} dt, assuming convergence;
@@ -11645,7 +11645,7 @@ mfsymbolevalpartial(GEN fs, GEN A, GEN ga, long bit)
   }
   else
     S = intAoo0(fs, A, ga, PCO, bit);
-  S = polembedall(S, 0, F? mfgetembed(F,prec): fs_get_vE(fs));
+  S = RgX_embedall(S, 0, F? mfgetembed(F,prec): fs_get_vE(fs));
   delete_var(); return normalizeapprox(S, bit-20);
 }
 
@@ -11746,7 +11746,7 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
     if (gexpo(R) < -bitprec + 20) S = S1;
   }
   if (fl) S = unact(S, vabd, k, prec);
-  S = polembedall(S, 0, fs_get_vE(fs));
+  S = RgX_embedall(S, 0, fs_get_vE(fs));
   return gerepileupto(av, normalizeapprox(S, bitprec-20));
 }
 
@@ -11850,8 +11850,8 @@ mfmanin(GEN FS, long bitprec)
   for (i = 1; i < lvE; i++)
   {
     GEN p, m, wp, wm, petdiag, r, E = gel(vE,i);
-    p = normal(vecpolembed(vpp,0,E), polabs, roabs, rnfeq, &wp, prec);
-    m = normal(vecpolembed(vmm,0,E), polabs, roabs, rnfeq, &wm, prec);
+    p = normal(RgXV_embed(vpp,0,E), polabs, roabs, rnfeq, &wp, prec);
+    m = normal(RgXV_embed(vmm,0,E), polabs, roabs, rnfeq, &wm, prec);
     petdiag = typ(pet)==t_MAT? gcoeff(pet,i,i): pet;
     r = gdiv(imag_i(gmul(wp, gconj(wm))), petdiag);
     r = bestapprnfrel(r, polabs, roabs, rnfeq, prec);
@@ -11937,8 +11937,8 @@ Haberland(GEN PF, GEN PG, GEN vEF, GEN vEG, long k)
     for (n = 0; n <= k-2; n++)
     {
       GEN a = RgX_coeff(PGj, k-2-n), b = RgX_coeff(PFj, n);
-      a = mfembedall(a, vEG); if (lg(vEG)==2) a = gel(a,1);
-      b = mfembedall(b, vEF); if (lg(vEF)==2) b = gel(b,1);
+      a = Rg_embedall(a, vEG); if (lg(vEG)==2) a = gel(a,1);
+      b = Rg_embedall(b, vEF); if (lg(vEF)==2) b = gel(b,1);
       a = gconj(a); if (typ(a) == t_VEC) settyp(a, t_COL);
       /* a*b = scalar or t_VEC or t_COL or t_MAT */
       S = gadd(S, gdiv(gmul(a,b), gel(vC,n+1)));
