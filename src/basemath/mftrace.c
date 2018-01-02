@@ -5271,19 +5271,16 @@ mfstabiter(GEN M, GEN A2, GEN E1inv, long lim, GEN P, long ordchi)
   A = mfmatsermul(A2, E1inv);
   while(1)
   {
-    long lA = lg(A);
-    GEN Ash = rowslice(A, 1, lim);
-    GEN R = shallowconcat(RgM_mul(M, A), Ash);
+    GEN R = shallowconcat(RgM_mul(M,A),  rowslice(A,1,lim));
     GEN B = QabM_ker(R, P, ordchi);
-    if (lg(B) == 1) return mkvec2(A, VC);
-    if (lg(B) == lA) break;
+    long lA = lg(A), lB = lg(B);
+    if (lB == 1 || lB == lA) return mkvec2(A, VC);
     B = rowslice(B, 1, lA-1);
     if (ordchi != 1) B = gmodulo(B, P);
     A = Q_primitive_part(RgM_mul(A,B), &con);
     VC = gmul(VC,B); /* first VC is a scalar, then a RgM */
     if (con) VC = RgM_Rg_div(VC, con);
   }
-  return mkvec2(A, VC);
 }
 static long
 mfstabitermodp(GEN Mp, GEN Ap, long p, long lim)
@@ -5291,13 +5288,11 @@ mfstabitermodp(GEN Mp, GEN Ap, long p, long lim)
   GEN VC = NULL;
   while (1)
   {
-    long lAp = lg(Ap);
-    GEN Ashp = rowslice(Ap, 1, lim);
-    GEN Rp = shallowconcat(Flm_mul(Mp, Ap, p), Ashp);
+    GEN Rp = shallowconcat(Flm_mul(Mp,Ap,p), rowslice(Ap,1,lim));
     GEN Bp = Flm_ker(Rp, p);
-    if (lg(Bp) == 1) return 0;
-    if (lg(Bp) == lAp) return lAp-1;
-    Bp = rowslice(Bp, 1, lAp-1);
+    long lA = lg(Ap), lB = lg(Bp);
+    if (lB == 1 || lB == lA) return lA-1;
+    Bp = rowslice(Bp, 1, lA-1);
     Ap = Flm_mul(Ap, Bp, p);
     VC = VC? Flm_mul(VC, Bp, p): Bp;
   }
