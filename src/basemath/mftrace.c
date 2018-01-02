@@ -5877,7 +5877,7 @@ mfgaloistype(GEN NK, GEN f)
 {
   pari_sp av = avma;
   GEN CHI, mf, T, F, DIH;
-  long N, k, lL, i, dim, lim, SB;
+  long N, k, lL, i, lim, SB;
 
   if (checkMF_i(NK))
   {
@@ -5897,9 +5897,6 @@ mfgaloistype(GEN NK, GEN f)
   DIH = mfdihedralnew(N,CHI);
   DIH = mkvec2(DIH, mfvectomat(DIH,SB,1));
   if (f) return gerepileuptoint(av, mfgaloistype0(N,CHI, f, DIH, lim));
-
-  dim = lg(MF_get_S(mf)) - 1;
-  if (!dim) { avma = av; return cgetg(1, t_VEC); }
   F = mfeigenbasis(mf); lL = lg(F);
   T = cgetg(lL, t_VEC);
   for (i=1; i < lL; i++) gel(T,i) = mfgaloistype0(N,CHI, gel(F,i), DIH, lim);
