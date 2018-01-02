@@ -5301,22 +5301,20 @@ mfstabitermodp(GEN Mp, GEN Ap, long p, long lim)
 static GEN
 mfintereis(GEN A, GEN M2, GEN y, GEN den, GEN E2, GEN P, long ordchi)
 {
-  pari_sp av = avma;
   GEN z, M1 = mfmatsermul(A,E2), M1den = is_pm1(den)? M1: RgM_Rg_mul(M1,den);
   M2 = RgM_mul(M2, rowpermute(M1, y));
   z = QabM_ker(RgM_sub(M2,M1den), P, ordchi);
   if (ordchi != 1) z = gmodulo(z, P);
-  return gerepilecopy(av, mkvec2(RgM_mul(A, z), z));
+  return mkvec2(RgM_mul(A,z), z);
 }
 static GEN
 mfintereismodp(GEN A, GEN M2, GEN E2, ulong p)
 {
-  pari_sp av = avma;
   GEN M1 = mfmatsermul_Fl(A, E2, p), z;
   long j, lx = lg(A);
   z = Flm_ker(shallowconcat(M1, M2), p);
   for (j = lg(z) - 1; j; j--) setlg(z[j], lx);
-  return gerepilecopy(av, mkvec2(Flm_mul(A, z, p), z));
+  return mkvec2(Flm_mul(A,z,p), z);
 }
 
 static GEN
@@ -5330,9 +5328,8 @@ mfcharinv_i(GEN CHI)
 static long
 mfwt1dimmodp(GEN A, GEN ES, GEN M, long ordchi, long dih, long lim)
 {
-  GEN Ap, C, ApF, ES1p, ES1INVp, Mp, VC, ApC;
+  GEN Ap, ApF, ES1p, VC;
   ulong r, p;
-  long i, plim = nbrows(A);
 
   ordchi = ord_canon(ordchi);
   r = QabM_init(ordchi, &p);
@@ -5342,20 +5339,21 @@ mfwt1dimmodp(GEN A, GEN ES, GEN M, long ordchi, long dih, long lim)
   if (lg(ES) >= 3)
   {
     GEN M2 = mfmatsermul_Fl(ApF, ES1p, p);
+    pari_sp av = avma;
+    long i;
     for (i = 2; i < lg(ES); i++)
     {
       GEN ESip = QabX_to_Flx(gel(ES,i), r, p);
-      ApC = mfintereismodp(Ap, M2, ESip, p);
+      GEN C, ApC = mfintereismodp(Ap, M2, ESip, p);
       Ap = gel(ApC,1);
       if (lg(Ap)-1 == dih) return dih;
       C = gel(ApC,2); VC = VC? Flm_mul(VC, C, p): C;
+      gerepileall(av, 2, &Ap,&VC);
     }
   }
   /* intersection of Eisenstein series quotients non empty: use Schaeffer */
-  ES1INVp = Flxn_inv(ES1p, plim, p);
-  Ap = mfmatsermul_Fl(Ap, ES1INVp, p);
-  Mp = QabM_to_Flm(M, r, p);
-  return mfstabitermodp(Mp, Ap, p, lim);
+  Ap = mfmatsermul_Fl(Ap, Flxn_inv(ES1p,nbrows(Ap),p), p);
+  return mfstabitermodp(QabM_to_Flm(M,r,p), Ap, p, lim);
 }
 
 /* Compute the full S_1(\G_0(N),\chi). If pS is NULL, only the dimension
@@ -5368,8 +5366,8 @@ static GEN
 mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
 {
   GEN ES, mf, A, M, Tp, tmp1, tmp2, den;
-  GEN S, ESA, VC, C, Ash, POLCYC, ES1, ES1INV, DIH, a0, a0i;
-  long plim, lim, biglim, i, p, dA, dimp, ordchi, dih, lim2;
+  GEN S, ESA, VC, C, POLCYC, ES1, ES1INV, DIH, a0, a0i;
+  long plim, lim, biglim, i, p, dA, dimp, ordchi, dih;
 
   if (ptdimdih) *ptdimdih = 0;
   if (pS) *pS = NULL;
@@ -5434,13 +5432,13 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
   dimp = mfwt1dimmodp(A, ES, Tp, ordchi, dih, lim);
   if (!dimp) return NULL;
   if (dimp == dih) return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS);
-  VC = matid(lg(A) - 1);
-  lim2 = (3*lim)/2 + 1;
-  Ash = rowslice(A, 1, lim2);
+  VC = gen_1;
   if (lg(ES) >= 3)
   {
     pari_sp btop;
-    GEN v, y, M2M2I, M2I, M2 = mfmatsermul(Ash, ES1);
+    long lim2 = (3*lim)/2 + 1;
+    GEN Ash = rowslice(A, 1, lim2), M2 = mfmatsermul(Ash, ES1);
+    GEN v, y, M2M2I, M2I;
     M2I = QabM_pseudoinv(M2, POLCYC, ordchi, &v, &den);
     y = gel(v,1);
     M2M2I = RgM_mul(M2,M2I);
@@ -5448,17 +5446,16 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
     for (i = 2; i < lg(ES); i++)
     {
       GEN APC = mfintereis(Ash, M2M2I, y, den, gel(ES,i), POLCYC,ordchi);
-      Ash = gel(APC,1);
-      if (lg(Ash) == 1) return NULL;
-      VC = RgM_mul(VC, gel(APC,2));
+      Ash = gel(APC,1); if (lg(Ash) == 1) return NULL;
+      VC = gmul(VC, gel(APC,2));
       if (gc_needed(btop, 1))
       {
         if (DEBUGMEM > 1) pari_warn(warnmem,"mfwt1basis i = %ld", i);
         gerepileall(btop, 2, &Ash, &VC);
       }
     }
+    A = RgM_mul(A, vecslice(VC,1, lg(Ash)-1));
   }
-  A = RgM_mul(A, vecslice(VC,1, lg(Ash)-1));
   a0 = gel(ES1,2); /* non-zero */
   if (gequal1(a0)) a0 = a0i = NULL;
   else
