@@ -294,22 +294,31 @@ spaces have a special structure.
 
 \subsec{Miscellaneous functions}
 
-\fun{long}{mfnewdim}{long N, long k, GEN CHI}
+\fun{long}{mfnewdim}{long N, long k, GEN CHI} dimension of the new part
+of the cuspidal space.
 
-\fun{long}{mfcuspdim}{long N, long k, GEN CHI}
+\fun{long}{mfcuspdim}{long N, long k, GEN CHI} dimension of the cuspidal space.
 
-\fun{long}{mfolddim}{long N, long k, GEN CHI}
+\fun{long}{mfolddim}{long N, long k, GEN CHI} dimension of the old part
+of the cuspidal space.
 
-\fun{long}{mfeisensteindim}{long N, long k, GEN CHI}
+\fun{long}{mfeisensteindim}{long N, long k, GEN CHI} dimension of the
+Eisenstein subspace.
 
-\fun{long}{mffulldim}{long N, long k, GEN CHI}
+\fun{long}{mffulldim}{long N, long k, GEN CHI} dimension of the full space.
+
+
 
 \fun{GEN}{mfeisensteinspaceinit}{GEN NK}
 
-
 \fun{GEN}{mfdiv_val}{GEN F, GEN G, long vG}
 
-\fun{GEN}{mfembed}{GEN f, GEN E}
+
+\fun{GEN}{mfembed}{GEN E, GEN v}
+
+\fun{GEN}{mfmatembed}{GEN E, GEN v}
+
+\fun{GEN}{mfvecembed}{GEN E, GEN v}
 
 
 \fun{long}{mfsturmNgk}{long N, GEN k}
@@ -318,16 +327,13 @@ spaces have a special structure.
 
 \fun{long}{mfsturm_mf}{GEN mf}
 
+\fun{long}{mfiscuspidal}{GEN mf, GEN F}
 
 \fun{GEN}{mftobasisES}{GEN mf, GEN F}
 
 \fun{GEN}{mftocol}{GEN F, long lim, long d}
 
-\fun{GEN}{mfvecembed}{GEN f, GEN vz}
-
 \fun{GEN}{mfvectomat}{GEN vF, long lim, long d}
-
-
 
 \newpage
 
