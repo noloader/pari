@@ -16,9 +16,9 @@ Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
  \item a \typ{INTMOD} \kbd{Mod(m, N)}, return the Conrey character
  modulo $N$ of index $m$ (see \kbd{znconreylog}).
 
- \item a modular form space as per \kbd{mfinit}$([N,k,\chi])$, return
- the underlying Dirichlet character $\chi$ (which may be defined modulo a
- divisor of $N$ but need not be primitive).
+ \item a modular form space as per \kbd{mfinit}$([N,k,\chi])$ or a modular
+ form for such a space, return the underlying Dirichlet character $\chi$
+ (which may be defined modulo a divisor of $N$ but need not be primitive).
 
  In the remaining cases, \kbd{G} is initialized by \kbd{znstar(N, 1)}.
 
@@ -41,4 +41,9 @@ Doc: Given a datum $D$ describing a group $(\Z/N\Z)^*$ and a Dirichlet
  %4 = -1
  ? znchartokronecker(G,chi)
  %5 = -3
+ ? mf = mfinit([28, 5/2, Mod(2,7)]); [f] = mfbasis(mf);
+ ? [G,chi] = znchar(mf); [G.mod, chi]
+ %7 = [7, [2]~]
+ ? [G,chi] = znchar(f); chi
+ %8 = [28, [0, 2]~]
  @eprog

@@ -1235,14 +1235,15 @@ znchar(GEN D)
     case t_INT:
       if (!signe(D) || Mod4(D) > 1) pari_err_TYPE("znchar", D);
       G = znstar0(D,1);
-      chi = znchar_quad(G,D);
+      chi = mkvec2(G, znchar_quad(G,D));
       break;
     case t_INTMOD:
       G = znstar0(gel(D,1), 1);
-      chi = znconreylog(G, gel(D,2));
+      chi = mkvec2(G, znconreylog(G, gel(D,2)));
       break;
     case t_VEC:
-      if (checkMF_i(D)) { D = MF_get_CHI(D); G=gel(D,1); chi=gel(D,2); break; }
+      if (checkMF_i(D)) { chi = vecslice(MF_get_CHI(D),1,2); break; }
+      else if (checkmf_i(D)) { chi = vecslice(mf_get_CHI(D),1,2); break; }
       if (lg(D) != 3) pari_err_TYPE("znchar", D);
       G = gel(D,1);
       if (!checkznstar_i(G)) pari_err_TYPE("znchar", D);
@@ -1255,12 +1256,12 @@ znchar(GEN D)
         chi = char_denormalize(cyc, n, chic);
       }
       if (!zncharcheck(G, chi)) pari_err_TYPE("znchar", D);
-      break;
+      chi = mkvec2(G,chi); break;
     default:
       pari_err_TYPE("znchar", D);
       return NULL; /*LCOV_EXCL_LINE*/
   }
-  return gerepilecopy(av, mkvec2(G, chi));
+  return gerepilecopy(av, chi);
 }
 
 /* G a znstar, not stack clean */

@@ -290,7 +290,17 @@ their mathematical structure.
 @eprog
 
 \subsec{Nebentypus} The characters stored in modular forms and modular form
-spaces have a special structure.
+spaces have a special structure. One can recover the parameters
+of an ordinary Dirichlet character by \kbd{G = gel(CHI,1)} (the underlying
+\kbd{znstar}) and \kbd{chi = gel(CHI,2)} (the underlying character in
+\kbd{znconreylog} form).
+
+\fun{long}{mfcharmodulus}{GEN CHI} the modulus of $\chi$.
+
+\fun{long}{mfcharorder}{GEN CHI} the order of $\chi$.
+
+\fun{GEN}{mfcharpol}{GEN CHI} the cyclotomic polynomial $\Phi_n$
+defining $\Q(\chi)$, always normalized so that $n$ is not $2$ mod $4$.
 
 \subsec{Miscellaneous functions}
 

@@ -550,6 +550,7 @@ mf=mfinit([28,5/2],1); B=mfbasis(mf); mfcoefs(mf,5)
 for(i=1,#B,print(vec(B[i])));
 mf=mfinit([28,5/2,Mod(2,7)],1); B=mfbasis(mf);
 [G,chi] = znchar(mf); chi
+[G,chi] = znchar(B[1]); chi
 mfheckemat(mf,4)
 for(i=1,#B,print(lift(vec(B[i]))));
 T=mfTheta(); T2=mfmul(T,T); mfparams(T2)
