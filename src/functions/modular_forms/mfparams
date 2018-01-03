@@ -16,12 +16,27 @@ Doc: If $F$ is a modular form space, returns \kbd{[N,k,CHI,space]}, level,
  \kbd{mfconductor(mfinit(F),F)}. The polynomial $P$ defines an extension of
  $\Q(\chi) = \Q[t]/(\Phi(t))$ for the cyclotomic polynomial of order
  $f(\chi)$; it has coefficients in that number field (polmods in $t$).
+
+ In contrast with \kbd{mfparams(f)[4]} which always gives the polynomial
+ $P$ defining the relative extension $\Q(f)/\Q(\chi)$, the member function
+ \kbd{$f$.mod} returns the polynomial used to define $\Q(f)$ over $\Q$
+ (either a cyclotomic polynomial or a polynomial with cyclotomic
+ coefficients).
+
  \bprog
  ? E1 = mfeisenstein(4,-3,-4); E2 = mfeisenstein(3,5,-7); E3 = mfmul(E1,E2);
  ? apply(mfparams, [E1,E2,E3])
  %2 = [[12, 4, 12, y], [35, 3, -35, y], [420, 7, -420, y]]
- ? mf = mfinit([23,2],0); mfparams(mf)
- %3 = [23, 2, 1, 0]
- ? B=mfeigenbasis(mf); apply(mfparams, B)
- %4 = [[23, 2, 1, y^2 - y - 1]]
+
+ ? mf = mfinit([36,2,Mod(13,36)],0); [f] = mfeigenbasis(mf); mfparams(mf)
+ %3 = [36, 2, Mod(13, 36), 0]
+ ? mfparams(f)
+ %4 = [36, 2, Mod(13, 36), y]
+ ? f.mod
+ %5 = t^2 + t + 1
+
+ ? mf = mfinit([36,4,Mod(13,36)],0); [f] = mfeigenbasis(mf);
+ ? mfparams(f)
+ %7 = [36, 4, Mod(13, 36), y^3 + Mod(2*t - 2, t^2 + t + 1)*y^2
+       + Mod(-4*t + 6, t^2+t+1)*y + Mod(10*t - 1, t^2+t+1)]
  @eprog

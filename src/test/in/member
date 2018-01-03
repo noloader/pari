@@ -90,3 +90,6 @@ A=idealpow(NF,P,2);
 print("BID"); test(idealstar(NF,A,2))
 print("BID (nogen)"); test(idealstar(NF,idealpow(NF,A,1)))
 nfinit(y^3-2).codiff
+print("MF"); mf=mfinit([31, 2, Mod(25,31)], 0); [f]=mfeigenbasis(mf);
+test(mf)
+test(f)

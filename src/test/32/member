@@ -336,4 +336,7 @@ BID (nogen)
 
 [  0   0 1/6]
 
-Total time spent: 63
+MF
+.mod: t^2 + t + 1
+.mod: Mod(1, t^2 + t + 1)*y^2 + Mod(2*t + 2, t^2 + t + 1)
+Total time spent: 106

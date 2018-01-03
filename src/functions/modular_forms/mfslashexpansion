@@ -40,7 +40,7 @@ Doc: let \var{mf} be a modular form space in leven $N$ and let
  @eprog
  If $[\Q(F):\Q(\chi)]>1$, the coefficients may be polynomials in $y$,
  where $y$ is any root of the polynomial giving the field of definition of
- $F$ (\kbd{mfparams(F)[4]}).
+ $F$ (\kbd{F.mod} or \kbd{mfparams(F)[4]}).
  \bprog
  ? mf=mfinit([23,2],0);F=mfeigenbasis(mf)[1];
  ? mfcoefs(F,5)

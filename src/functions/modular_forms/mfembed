@@ -46,33 +46,35 @@ Doc: let $f$ be a modular form with parameters $[N,k,\chi,P]$ (see
  \bprog
  ? mf = mfinit([35,2,Mod(11,35)], 0);
  ? [f] = mfbasis(mf);
- ? v = mfcoefs(f,5); lift(v)  \\ coefficients in Q(chi)
- %3 = [0, 2, -2*t - 2, 2*t, 2*t, -2*t - 2]
+ ? f.mod  \\@com $\Q(\chi) = \Q(\zeta_3)$
+ %3 = t^2 + t + 1
+ ? v = mfcoefs(f,5); lift(v)  \\@com coefficients in $\Q(\chi)$
+ %4 = [0, 2, -2*t - 2, 2*t, 2*t, -2*t - 2]
  ? mfembed(f, v)   \\ single embedding
- %4 = [0, 2, -1 - 1.7320...*I, -1 + 1.73205...*I, -1 + 1.7320...*I, ...]
+ %5 = [0, 2, -1 - 1.7320...*I, -1 + 1.73205...*I, -1 + 1.7320...*I, ...]
 
  ? [F] = mfeigenbasis(mf);
  ? mffields(mf)
- %6 = [y^2 + Mod(-2*t, t^2 + t + 1)]   \\ [Q(f):Q(chi)] = 2
+ %7 = [y^2 + Mod(-2*t, t^2 + t + 1)]   \\@com $[\Q(f):\Q(\chi)] = 2$
  ? V = liftpol( mfcoefs(F,5) );
- %7 = [0, 1, y + (-t - 1), (t + 1)*y + t, (-2*t - 2)*y + t, -t - 1]
+ %8 = [0, 1, y + (-t - 1), (t + 1)*y + t, (-2*t - 2)*y + t, -t - 1]
  ? vall = mfembed(F, V); #vall
- %8 = 2    \\ 2 embeddings, both applied to V
+ %9 = 2    \\ 2 embeddings, both applied to V
  ? vall[1] \\ the first
- %9 = [0, 1, -1.2071... - 2.0907...*I, 0.2071... - 0.3587...*I, ...]
+ %10 = [0, 1, -1.2071... - 2.0907...*I, 0.2071... - 0.3587...*I, ...]
  ? vall[2] \\ and the second one
- %10 = [0, 1, 0.2071... + 0.3587...*I, -1.2071... + 2.0907...*I, ...]
+ %11 = [0, 1, 0.2071... + 0.3587...*I, -1.2071... + 2.0907...*I, ...]
 
  ? vE = mfembed(F); #vE   \\ same 2 embeddings
- %11 = 2
+ %12 = 2
  ? mfembed(vE[1], V)  \\ apply first embedding to V
- %12 = [0, 1, -1.2071... - 2.0907...*I, 0.2071... - 0.3587...*I, ...]
+ %13 = [0, 1, -1.2071... - 2.0907...*I, 0.2071... - 0.3587...*I, ...]
  @eprog
 
  For convenience, we also allow a modular form space from \kbd{mfinit}
  instead of $f$, corresponding to the single embedding of $\Q(\chi)$.
  \bprog
- ? [mfB,MC,C] = mfatkininit(mf,7); MC  \\ coefs in Q(chi)
+ ? [mfB,MC,C] = mfatkininit(mf,7); MC  \\@com coefs in $\Q(\chi)$
  %13 =
  [       Mod(2/7*t, t^2 + t + 1) Mod(-1/7*t - 2/7, t^2 + t + 1)]
 

@@ -28,4 +28,4 @@ Doc: Given a modular form space \kbd{mf} which must be new or cuspidal, and a
  $\Q(\chi)$, whereas $C$ may be given by a complex number. If the coefficients
  of the characteristic polynomial are polmods modulo $T$ they must be embedded
  to $\C$ first using \kbd{subst(lift(), t, exp(2*I*Pi/n))}, when $n$ is
- \kbd{poliscyclo(T)}.
+ \kbd{poliscyclo(T)}; note that $T = \kbd{mf.mod}$.

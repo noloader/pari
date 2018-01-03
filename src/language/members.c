@@ -200,6 +200,14 @@ member_mod(GEN x) /* modulus */
     case t_INTMOD: case t_POLMOD: case t_QUAD: break;
     case t_PADIC: return gel(x,3);
     case t_FFELT: return FF_mod(x);
+    case t_VEC:
+      if (checkmf_i(x))
+      {
+        GEN T = mf_get_field(x), CHI = mf_get_CHI(x), P = mfcharpol(CHI);
+        return (degpol(T) == 1)? P: (degpol(P) > 1? gmodulo(T, P): T);
+      }
+      else if (checkMF_i(x))
+        return mfcharpol(MF_get_CHI(x));
     default: member_err("mod",x);
   }
   return gel(x,1);

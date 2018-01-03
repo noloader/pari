@@ -28,7 +28,12 @@ Doc:
 
  These resulting \kbd{mf} structure contains a basis of modular forms, which
  is accessed by the function \kbd{mfbasis}; the elements of this basis have
- Fourier coefficients in the cyclotomic field $\Q(\chi)$.
+ Fourier coefficients in the cyclotomic field $\Q(\chi)$. These coefficients
+ are given algebraically, as rational numbers or \typ{POLMOD}s. The member
+ function \kbd{mf.mod} recovers the modulus used to define $\Q(\chi)$, which
+ is a cyclotomic polynomial $\Phi_n(t)$. When needed, the elements of
+ $\Q(\chi)$ are considered to be canonically embedded into $\C$ via
+ $\kbd{Mod}(t,\Phi_n(t)) \mapsto \exp(2i\pi/n)$.
 
  The basis of eigenforms for the new space is obtained by the function
  \kbd{mfeigenbasis}: the elements of this basis now have Fourier coefficients
@@ -40,9 +45,14 @@ Doc:
 
  A modular form is represented in a special internal format giving the
  possibility to compute an arbitrary number of terms of its Fourier coefficients
- at infinity $[a(0),a(1),...,a(n)]$ using the function \kbd{mfcoefs}. Modular
- forms are obtained either directly from other mathematical objects, e.g.,
- elliptic curves, or by a specific formula, e.g., Eisenstein series or
+ at infinity $[a(0),a(1),...,a(n)]$ using the function \kbd{mfcoefs}. These
+ coefficients are given algebraically, as rational numbers or \typ{POLMOD}s.
+ The member function \kbd{f.mod} recovers the modulus used in the
+ coefficients of $f$, which will be the same as for $\Q(chi)$ (a cyclotomic
+ polynomial), or define a number field extension.
+
+ Modular forms are obtained either directly from other mathematical objects,
+ e.g., elliptic curves, or by a specific formula, e.g., Eisenstein series or
  Ramanujan's Delta function, or by applying standard operators to existing forms
  (Hecke operators, Rankin--Cohen brackets, \dots). A function \kbd{mfparams} is
  provided so that one can recover the level, weight, character and field of

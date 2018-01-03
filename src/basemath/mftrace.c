@@ -506,15 +506,15 @@ newd_params2(long N)
 
 static GEN
 gmfcharorder(GEN CHI) { return gel(CHI, 3); }
-static long
+long
 mfcharorder(GEN CHI) { return itou(gmfcharorder(CHI)); }
 static long
 mfcharistrivial(GEN CHI) { return !CHI || mfcharorder(CHI) == 1; }
 static GEN
 gmfcharmodulus(GEN CHI) { return gmael3(CHI, 1, 1, 1); }
-static long
+long
 mfcharmodulus(GEN CHI) { return itou(gmfcharmodulus(CHI)); }
-static GEN
+GEN
 mfcharpol(GEN CHI) { return gel(CHI,4); }
 static long
 ord_canon(long ord)

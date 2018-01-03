@@ -10,19 +10,18 @@ Help: mftobasis(mf,F,{flag=0}): coefficients of the form F on the
  of error messages return an output as an affine space of solutions if
  a q-expansion or vector of coefficients is given, or the empty column
  otherwise.
-Doc: coefficients of the form $F$ on the basis given by
- \kbd{mfbasis(mf)}. A $q$-expansion or vector of coefficients
+Doc: coefficients of the form $F$ on the basis given by \kbd{mfbasis(mf)}.
+ A $q$-expansion or vector of coefficients
  can also be given instead of $F$, but in this case an error message may occur
  if the expansion is too short. An error message is also given if $F$ does not
  belong to the modular form space. If \kbd{flag} is set, instead of
  error messages the output is an affine space of solutions if a $q$-expansion
  or vector of coefficients is given, or the empty column otherwise.
  \bprog
- ? mf = mfinit([26,2],0); vtf = mfbasis(mf);
- ? #vtf \\ dimension 2
- %2 = 2
- ? F = mflinear(vtf,[a,b]); mftobasis(mf,F)
- %3 = [a, b]~
+ ? mf = mfinit([26,2],0); mfdim(mf)
+ %1 = 2
+ ? F = mflinear(mf,[a,b]); mftobasis(mf,F)
+ %2 = [a, b]~
  @eprog
  A $q$-expansion or vector of coefficients can also be given instead of $F$.
  \bprog
@@ -50,7 +49,7 @@ Doc: coefficients of the form $F$ on the basis given by
  %4 = [1, 0, 0, 0]~ \\ now uniquely determined
  ? mftobasis(mf, [0,1,-24,252,-1472,0], 1)
  %5 = [1, 0, 0, 0]~ \\ wrong result: no such form exists
- ? mfcoefs(mflinear(mfbasis(mf),%), 5)  \\ double check
+ ? mfcoefs(mflinear(mf,%), 5)  \\ double check
  %6 = [0, 1, -24, 252, -1472, 4830]
  ? mftobasis(mf, [0,1,-24,252,-1472,0])
   ***   at top-level: mftobasis(mf,[0,1,

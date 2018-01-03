@@ -172,7 +172,8 @@ get_bnf(GEN x, long *t)
     case t_VEC:
       switch(lg(x))
       {
-        case 5: *t = typ_QUA; return NULL;
+        case 5: if (typ(gel(x,1)) != t_INT) break;
+                *t = typ_QUA; return NULL;
         case 6: *t = typv6(x); return NULL;
         case 7:  *t = typ_BNR;
           x = bnr_get_bnf(x); if (typ(x)!=t_VEC || lg(x)!=11) break;
@@ -207,7 +208,9 @@ get_nf(GEN x, long *t)
         case 3:
           if (typ(gel(x,2)) != t_POLMOD) break;
           return get_nf(gel(x,1),t);
-        case 5: *t = typ_QUA; return NULL;
+        case 5:
+          if (typ(gel(x,1)) != t_INT) break;
+          *t = typ_QUA; return NULL;
         case 6: *t = typv6(x); return NULL;
         case 7: *t = typ_BNR;
           x = bnr_get_bnf(x); if (typ(x)!=t_VEC || lg(x)!=11) break;
