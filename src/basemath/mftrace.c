@@ -5339,10 +5339,8 @@ static long
 mfwt1dimmodp(GEN A, GEN ES, GEN M, long ordchi, long dih, long lim)
 {
   GEN Ap, ApF, ES1p, VC;
-  ulong r, p;
+  ulong p, r = QabM_init(ordchi, &p);
 
-  ordchi = ord_canon(ordchi);
-  r = QabM_init(ordchi, &p);
   ApF = Ap = QabM_to_Flm(A, r, p);
   VC = NULL;
   ES1p = QabX_to_Flx(gel(ES,1), r, p);
