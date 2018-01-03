@@ -8534,14 +8534,14 @@ mfcharcxinit(GEN CHI, long prec)
   V = cgetg(l, t_VEC);
   z = grootsof1(o, prec); /* Mod(t, Phi_o(t)) -> e(1/o) */
   for (n = 1; n < l; n++) gel(V,n) = v[n] < 0? gen_0: gel(z, v[n]+1);
-  return mkvecn(6, G, chi, gel(CHI,3), v, V, gel(CHI,5));
+  return mkvecn(6, G, chi, gmfcharorder(CHI), v, V, mfcharpol(CHI));
 }
 /* v a "CHIvec" */
 static long
 CHIvec_N(GEN v) { return itou(znstar_get_N(gel(v,1))); }
 static GEN
 CHIvec_CHI(GEN v)
-{ return mkvec4(gel(v,1), gel(v,2), gel(v,3), gel(v,5)); }
+{ return mkvec4(gel(v,1), gel(v,2), gel(v,3), gel(v,6)); }
 /* character order */
 static long
 CHIvec_ord(GEN v) { return itou(gel(v,3)); }
@@ -9177,7 +9177,7 @@ charsmodN(long N)
     if (!equaliu(go, pn)) v = zv_z_mul(v, pn / o);
     P = gel(vP, o); if (!P) P = gel(vP,o) = polcyclo(o,vt);
     /* mfcharcxinit with dummy complex powers */
-    gel(vCHI,i) = mkvecn(6, G0, chi0, go, v, P, dummy);
+    gel(vCHI,i) = mkvecn(6, G0, chi0, go, v, dummy, P);
     D = mydivisorsu(N / F); l = lg(D);
     for (j = 1; j < l; j++) vecsmalltrunc_append(gel(bymod, F*D[j]), i);
   }
