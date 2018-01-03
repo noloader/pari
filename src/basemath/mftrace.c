@@ -1704,25 +1704,32 @@ mfcharconj(GEN CHI)
   return CHI;
 }
 
-/* CHI mfchar, assume 4 | N. Multiply CHI by \chi_{-4}^k */
+/* CHI mfchar, assume 4 | N. Multiply CHI by \chi_{-4} */
 static GEN
-mfchilift(GEN CHI, long k, long N)
+mfchilift(GEN CHI, long N)
 {
-  if (!odd(k)) return CHI;
   CHI = induceN(N, CHI);
   return mfcharmul_i(CHI, induce(gel(CHI,1), stoi(-4)));
 }
-
-/* (-1)^k */
-static long
-m1pk(long k) { return odd(k)? -1 : 1; }
-
+/* CHI defined mod N, N4 = N/4;
+ * if CHI is defined mod N4 return CHI;
+ * else if CHI' = CHI*(-4,.) is defined mod N4, return CHI' (primitive)
+ * else return NULL */
+static GEN
+mfcharchiliftprim(GEN CHI, long N4)
+{
+  long FC = mfcharconductor(CHI);
+  if (N4 % FC == 0) return CHI;
+  CHI = mfchilift(CHI, N4 << 2);
+  CHI = mfchartoprimitive(CHI, &FC);
+  return (N4 % FC == 0)? CHI: NULL;
+}
 static GEN
 mfchiadjust(GEN CHI, GEN gk, long N)
 {
   long par = mfcharparity(CHI);
-  if (typ(gk) == t_INT) par *= m1pk(itos(gk));
-  return par == 1 ? CHI : mfchilift(CHI, 1, N);
+  if (typ(gk) == t_INT &&  mpodd(gk)) par = -par;
+  return par == 1 ? CHI : mfchilift(CHI, N);
 }
 
 static GEN
@@ -3303,6 +3310,9 @@ void
 checkMF(GEN mf)
 { if (!checkMF_i(mf)) pari_err_TYPE("checkMF [please use mfinit]", mf); }
 
+/* (-1)^k */
+static long
+m1pk(long k) { return odd(k)? -1 : 1; }
 static long
 badchar(long N, long k, GEN CHI)
 { return mfcharparity(CHI) != m1pk(k) || (CHI && N % mfcharconductor(CHI)); }
@@ -3586,20 +3596,7 @@ mfbd(GEN F, long d)
   return gerepilecopy(av, mfbd_i(F, d));
 }
 
-static GEN
-mfcharchiliftprim(GEN CHI, long N4, long *pteps)
-{
-  long FC = mfcharconductor(CHI);
-  if (pteps) *pteps = 1;
-  if (N4 % FC == 0) return CHI;
-  CHI = mfchilift(CHI, 1, N4 << 2);
-  CHI = mfchartoprimitive(CHI, &FC);
-  if (N4 % FC == 0) { if (pteps) *pteps = -1; return CHI; }
-  return NULL;
-}
-
-/* CHI is now a character defined modulo N4 */
-
+/* CHI is a character defined modulo N4 */
 static GEN
 RgV_shimura(GEN V, long n, long D, long N4, long r, GEN CHI)
 {
@@ -3681,23 +3678,27 @@ mfshimura(GEN mf, GEN F, long D)
 {
   pari_sp av = avma;
   GEN gk, G, res, mf2, CHI, CHIP;
-  long M, r, space, cusp, eps, flagfund, N4;
+  long M, r, space, cusp, N4, flagfund = 0;
   if (!checkmf_i(F)) pari_err_TYPE("mfshimura",F);
   gk = mf_get_gk(F);
   if (typ(gk) != t_FRAC) pari_err_TYPE("mfshimura [integral weight]", F);
   r = MF_get_r(mf);
   if (r <= 0) pari_err_DOMAIN("mfshimura", "weight", "<=", ghalf, gk);
   N4 = MF_get_N(mf) >> 2; CHI = MF_get_CHI(mf);
-  CHIP = mfcharchiliftprim(CHI, N4, &eps);
-  if (odd(r)) eps = -eps;
-  if (eps * D > 0 && sisfundamental(D)) flagfund = 1;
+  CHIP = mfcharchiliftprim(CHI, N4);
+  if (!CHIP) CHIP = CHI;
   else
   {
-    if (D < 0 || !uissquarefree(D))
-      pari_err_TYPE("shimura [incorrect D]", stoi(D));
-    flagfund = 0; D = eps * D;
+    long epsD = CHI == CHIP? D: -D;
+    if (odd(r)) epsD = -epsD;
+    if (epsD > 0 && sisfundamental(D)) flagfund = 1;
+    else
+    {
+      if (D < 0 || !uissquarefree(D))
+        pari_err_TYPE("shimura [incorrect D]", stoi(D));
+      D = epsD;
+    }
   }
-  if (!CHIP) { flagfund = 0; CHIP = CHI; }
   M = N4;
   cusp = mfiscuspidal(mf,F);
   space = cusp && mfshimura_space_cusp(mf)? mf_CUSP : mf_FULL;
@@ -10272,7 +10273,8 @@ mfkohnenbasis(GEN mf)
   N4 = MF_get_N(mf) >> 2; gk = MF_get_gk(mf); CHI = MF_get_CHI(mf);
   if (typ(gk) == t_INT) pari_err_TYPE("mfkohnenbasis", gk);
   r = MF_get_r(mf);
-  CHIP = mfcharchiliftprim(CHI, N4, &eps);
+  CHIP = mfcharchiliftprim(CHI, N4);
+  eps = CHIP==CHI? 1: -1;
   if (!CHIP) pari_err_TYPE("mfkohnenbasis [incorrect CHI]", CHI);
   if (odd(r)) eps = -eps;
   if (uissquarefree(N4))
@@ -10304,7 +10306,7 @@ mfkohnenbijection_i(GEN mf)
   if (MF_get_dim(mf3) != lK - 1)
     pari_err_BUG("mfkohnenbijection [different dimensions]");
   if (lK == 1) return mkvec4(mf3, cgetg(1, t_MAT), K, cgetg(1, t_VECSMALL));
-  CHI = mfcharchiliftprim(CHI, N4, NULL);
+  CHI = mfcharchiliftprim(CHI, N4);
   if (!CHI) pari_err_TYPE("mfkohnenbijection [incorrect CHI]", CHI);
   n = mfcharorder_canon(CHI);
   P = n==1? NULL: mfcharpol(CHI);
