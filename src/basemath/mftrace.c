@@ -11488,19 +11488,20 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
   if (!cosets)
   { /* ga = id */
     long nlim, PREC = prec + EXTRAPRECWORD;
-    GEN AR, v, van, T1, T2, sqNinv = invr(sqrtr_abs(utor(N, PREC))); /* A/w */
+    GEN F = gel(FE,1), sqNinv = invr(sqrtr_abs(utor(N, PREC))); /* A/w */
+    GEN AR, v, van, T1, T2;
 
     nlim = mfperiod_prelim(sqNinv, k, bit + 32);
-    /* id: al = 0, w = 1 */
-    v = mfgaexpansion(mf, FE, matid(2), nlim, PREC);
-    van = vanembed(gel(FE,1), gel(v,3), PREC);
+    /* F|id: al = 0, w = 1 */
+    v = mfcoefs_i(F, nlim, 1);
+    van = vanembed(F, v, PREC);
     AR = mkcomplex(gen_0, sqNinv);
     T1 = intAoo(van, nlim, gen_0,1, PCO, AR, k, prec);
     if (N == 1) T2 = T1;
     else
-    { /* S: al = 0, w = N */
+    { /* F|S: al = 0, w = N */
       v = mfgaexpansion(mf, FE, mkS(), nlim, PREC);
-      van = vanembed(gel(FE,1), gel(v,3), PREC);
+      van = vanembed(F, gel(v,3), PREC);
       AR = mkcomplex(gen_0, mulur(N,sqNinv));
       T2 = intAoo(van, nlim, gen_0,N, PCO, AR, k, prec);
     }
