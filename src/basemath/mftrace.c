@@ -10787,18 +10787,19 @@ RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
 }
 
 static GEN
-GL2toSL2(GEN g, long *pa, long *pb, long *pd)
+GL2toSL2(GEN g, GEN *abd)
 {
   long A, B, C, D, u, v, a, b, d, q, r;
   g = Q_primpart(g);
   if (!check_M2Z(g)) pari_err_TYPE("GL2toSL2", g);
   A = itos(gcoeff(g,1,1)); B = itos(gcoeff(g,1,2));
   C = itos(gcoeff(g,2,1)); D = itos(gcoeff(g,2,2));
-  *pa = a = cbezout(A, C, &u, &v);
+  a = cbezout(A, C, &u, &v);
   if (a > 1) { A /= a; C /= a; }
-  *pd = d = A*D - B*C; if (d <= 0) pari_err_TYPE("GL2toSL2",g);
+  d = A*D - B*C; if (d <= 0) pari_err_TYPE("GL2toSL2",g);
   b = u*B + v*D; q = sdivss_rem(b, d, &r);
-  *pb = r; return mkmat22s(A, -v + q*A, C, u + q*C);
+  *abd = (a == 1 && d == 1)? NULL: mkvecsmall3(a, r, d);
+  return mkmat22s(A, -v + q*A, C, u + q*C);
 }
 
 static GEN
@@ -10847,27 +10848,27 @@ GEN
 mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long prec)
 {
   pari_sp av = avma;
-  GEN res, al, V, M;
-  long i, a, b, d, w;
+  GEN res, al, V, M, abd;
+  long i, w;
 
   checkMF(mf);
-  M = GL2toSL2(gamma, &a,&b,&d);
+  M = GL2toSL2(gamma, &abd);
   res = mfgaexpansion(mf, F, M, n, prec);
   al = gel(res,1);
   w = itou(gel(res,2));
   V = gel(res,3);
-  if (a != 1 || d != 1 || b != 0)
+  if (abd)
   {
+    long a = abd[1], b = abd[2], d = abd[3], wd = w*d, nums, dens;
     GEN ad = sstoQ(a,d), z, W, sh, adal, t;
-    long nums, dens;
-    Qtoss(sstoQ(b, w*d), &nums, &dens);
+    Qtoss(sstoQ(b, wd), &nums, &dens);
     z = rootsof1powinit(nums, dens, prec);
     W = cgetg(n+2, t_VEC);
     for (i = 1; i <= n+1; i++) gel(W, i) = gmul(gel(V,i), rootsof1pow(z, i-1));
     t = gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
     t = gmul(t, gpow(ad, gmul2n(MF_get_gk(mf), -1), prec));
     W = RgV_Rg_mul(W, t);
-    Qtoss(gdivgs(ad, w), &nums, &w); /* update w */
+    Qtoss(sstoQ(a, wd), &nums, &w); /* update w */
     adal = gmul(ad, al); sh = gfloor(adal); al = gsub(adal, sh);
     V = RgV_shift(bdexpand(W, nums), sh);
   }
@@ -11723,7 +11724,7 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
 {
   pari_sp av = avma;
   GEN tau, V, LM, S, CHI, mfpols, cosets, al, be, mf, F, vabd = NULL;
-  long D, B, m, u, v, a, b, c, d, j, k, N, prec, tsc1, tsc2, fl;
+  long D, B, m, u, v, a, b, c, d, j, k, N, prec, tsc1, tsc2;
 
   if (checkfs_i(fs))
   {
@@ -11741,11 +11742,9 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
   if (typ(path) != t_VEC) pari_err_TYPE("mfsymboleval",path);
   al = gel(path,1);
   be = gel(path,2);
-  if (!ga) { ga = matid(2); a = 1; b = 0; d = 1; fl = 0; }
-  else { ga = GL2toSL2(ga, &a, &b, &d); fl = a != 1 || b != 0 || d != 1; }
-  if (fl)
+  ga = ga? GL2toSL2(ga, &vabd): matid(2);
+  if (vabd)
   {
-    vabd = mkvecsmall3(a, b, d);
     al = actal(al, vabd);
     be = actal(be, vabd); path = mkvec2(al, be);
   }
@@ -11761,14 +11760,14 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
     else
       z2 = mfsymbolevalpartial(fs, be, ga, bitprec);
     z = gsub(z, z2);
-    if (fl) z = unact(z, vabd, k, prec);
+    if (vabd) z = unact(z, vabd, k, prec);
     return gerepileupto(av, normalizeapprox(z, bitprec-20));
   }
   else if (!tsc2)
   {
     GEN z = mfsymbolevalpartial(fs, be, ga, bitprec);
     if (c) z = gsub(mfsymboleval(fs, mkvec2(al, mkoo()), ga, bitprec), z);
-    if (fl) z = unact(z, vabd, k, prec);
+    if (vabd) z = unact(z, vabd, k, prec);
     return gerepileupto(av, normalizeapprox(z, bitprec-20));
   }
   if (F) pari_err_TYPE("mfsymboleval", fs);
@@ -11799,7 +11798,7 @@ mfsymboleval(GEN fs, GEN path, GEN ga, long bitprec)
     S1 = poldivrem(gel(S,1), gel(S,2), &R);
     if (gexpo(R) < -bitprec + 20) S = S1;
   }
-  if (fl) S = unact(S, vabd, k, prec);
+  if (vabd) S = unact(S, vabd, k, prec);
   S = RgX_embedall(S, 0, fs_get_vE(fs));
   return gerepileupto(av, normalizeapprox(S, bitprec-20));
 }
