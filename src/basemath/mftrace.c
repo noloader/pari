@@ -7572,21 +7572,13 @@ parse_vecj(GEN T, GEN *E1, GEN *E2)
   else { *E1 = T; *E2 = NULL; }
 }
 
+/* g in M_2(Z) ? */
 static int
-is_in_M2(GEN g) { return typ(g) == t_MAT && lg(g) == 3 && lgcols(g) == 3; }
+check_M2Z(GEN g)
+{  return typ(g) == t_MAT && lg(g) == 3 && lgcols(g) == 3 && RgM_is_ZM(g); }
 /* g in SL_2(Z) ? */
-static void
-check_SL2Z(GEN g)
-{
-  if (!is_in_M2(g) || !RgM_is_ZM(g) || !equali1(ZM_det(g)))
-    pari_err_TYPE("check_SL2Z", g);
-}
-/* g in M_2(Q) ? */
-static void
-check_M2Q(GEN g)
-{
-  if (!is_in_M2(g) || !RgM_is_QM(g)) pari_err_TYPE("check_M2Q", g);
-}
+static int
+check_SL2Z(GEN g) { return check_M2Z(g) && equali1(ZM_det(g)); }
 
 static GEN
 mfcharcxeval(GEN CHI, long n, long prec)
@@ -7868,7 +7860,7 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
   if (n < 0) pari_err_DOMAIN("mfgaexpansion", "n", "<", gen_0, stoi(n));
   if (typ(F) == t_COL && lg(F) == 3) { EF = gel(F,2); F = gel(F,1); }
   if (!checkmf_i(F)) pari_err_TYPE("mfgaexpansion", F);
-  check_SL2Z(ga);
+  if (!check_SL2Z(ga)) pari_err_TYPE("mfgaexpansion",ga);
   if (typ(mf_get_gk(F)) != t_INT) return mf2gaexpansion(mf, F, ga, n, prec);
   c = itos(gcoeff(ga,2,1));
   d = itos(gcoeff(ga,2,2));
@@ -10795,16 +10787,16 @@ RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
 }
 
 static GEN
-GL2toSL2(GEN ga, long *pa, long *pb, long *pd)
+GL2toSL2(GEN g, long *pa, long *pb, long *pd)
 {
   long A, B, C, D, u, v, a, b, d, q, r;
-  check_M2Q(ga);
-  ga = Q_remove_denom(ga, NULL);
-  A = itos(gcoeff(ga,1,1)); B = itos(gcoeff(ga,1,2));
-  C = itos(gcoeff(ga,2,1)); D = itos(gcoeff(ga,2,2));
+  g = Q_primpart(g);
+  if (!check_M2Z(g)) pari_err_TYPE("GL2toSL2", g);
+  A = itos(gcoeff(g,1,1)); B = itos(gcoeff(g,1,2));
+  C = itos(gcoeff(g,2,1)); D = itos(gcoeff(g,2,2));
   *pa = a = cbezout(A, C, &u, &v);
   if (a > 1) { A /= a; C /= a; }
-  *pd = d = A*D - B*C; if (d <= 0) pari_err_TYPE("GL2toSL2",ga);
+  *pd = d = A*D - B*C; if (d <= 0) pari_err_TYPE("GL2toSL2",g);
   b = u*B + v*D; q = sdivss_rem(b, d, &r);
   *pb = r; return mkmat22s(A, -v + q*A, C, u + q*C);
 }
@@ -11401,7 +11393,8 @@ GEN
 mftocoset(ulong N, GEN M, GEN cosets)
 {
   long i;
-  check_SL2Z(M); i = mftocoset_i(N, M, cosets);
+  if (!check_SL2Z(M)) pari_err_TYPE("mftocoset",M);
+  i = mftocoset_i(N, M, cosets);
   retmkvec2(gdiv(M,gel(cosets,i)), utoipos(i));
 }
 
