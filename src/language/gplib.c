@@ -478,6 +478,7 @@ gphelp_keyword_list(void)
   "refcard-mf",
   "refcard-lfun",
   "tutorial",
+  "tutorial-mf",
   "nf",
   "bnf",
   "bnr",
@@ -560,10 +561,10 @@ help(const char *s0, int flag)
   if (*s == '\\') { char *t = s+1; pari_skip_alpha(&t); *t = '\0'; }
   if (isalpha((int)*s))
   {
+    char *t = s;
     if (!strncmp(s, "default", 7))
     { /* special-case ?default(dft_name), e.g. default(log) */
-      char *t = s+7;
-      pari_skip_space(&t);
+      t += 7; pari_skip_space(&t);
       if (*t == '(')
       {
         t++; pari_skip_space(&t);
@@ -571,10 +572,9 @@ help(const char *s0, int flag)
         if (pari_is_default(t)) { default_help(t,flag); return; }
       }
     }
-    if (!strncmp(s, "refcard-", 8))
-      cut_trailing_garbage(s+8);
-    else
-      cut_trailing_garbage(s);
+    if (!strncmp(s, "refcard-", 8)) t += 8;
+    else if (!strncmp(s, "tutorial-", 9)) t += 9;
+    cut_trailing_garbage(t);
   }
 
   if (long_help && (n = ok_external_help(&s))) { external_help(s,n); return; }
