@@ -285,7 +285,7 @@ sub treat {
   {
     $_ = "users" if (/^$/);
     open_viewer_then_quit($_) if (/^(users|tutorial|refcard|libpari)$/
-                                  || /^refcard-/);
+                                  || /^refcard-/ || /^tutorial-mf$/);
     if ($transl{$_}) { $_ = $transl{$_}; &choose_chap; }
   }
   if (/^[^a-zA-Z0-9]*$/) { $_ = 'GP operators@2'; &choose_chap; }
