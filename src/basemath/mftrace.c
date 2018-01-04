@@ -10843,34 +10843,33 @@ bestapprnf2(GEN V, long m, GEN D, long prec)
   return gmodulo(gdiv(Vl, muliu(D, degpol(P)/degpol(Pf))), Pf);
 }
 
-/* F | gamma expansion; [F, mf_eisendec(F)]~ allowed */
+/* F | ga expansion; [F, mf_eisendec(F)]~ allowed */
 GEN
-mfslashexpansion(GEN mf, GEN F, GEN gamma, long n, long flrat, GEN *params, long prec)
+mfslashexpansion(GEN mf, GEN F, GEN ga, long n, long flrat, GEN *params, long prec)
 {
   pari_sp av = avma;
   GEN res, al, V, M, abd;
   long i, w;
 
   checkMF(mf);
-  M = GL2toSL2(gamma, &abd);
+  M = GL2toSL2(ga, &abd);
   res = mfgaexpansion(mf, F, M, n, prec);
   al = gel(res,1);
   w = itou(gel(res,2));
   V = gel(res,3);
   if (abd)
-  {
+  { /* ga = M * [a,b;0,d] * rational, F | M = q^al * \sum V[j] q^(j/w) */
     long a = abd[1], b = abd[2], d = abd[3], wd = w*d, nums, dens;
-    GEN ad = sstoQ(a,d), z, W, sh, adal, t;
+    GEN ad = sstoQ(a,d), z, sh, adal, t;
     Qtoss(sstoQ(b, wd), &nums, &dens);
     z = rootsof1powinit(nums, dens, prec);
-    W = cgetg(n+2, t_VEC);
-    for (i = 1; i <= n+1; i++) gel(W, i) = gmul(gel(V,i), rootsof1pow(z, i-1));
+    for (i = 1; i <= n+1; i++) gel(V,i) = gmul(gel(V,i), rootsof1pow(z, i-1));
     t = gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
     t = gmul(t, gpow(ad, gmul2n(MF_get_gk(mf), -1), prec));
-    W = RgV_Rg_mul(W, t);
+    V = RgV_Rg_mul(V, t);
     Qtoss(sstoQ(a, wd), &nums, &w); /* update w */
     adal = gmul(ad, al); sh = gfloor(adal); al = gsub(adal, sh);
-    V = RgV_shift(bdexpand(W, nums), sh);
+    V = RgV_shift(bdexpand(V, nums), sh);
   }
   if (flrat)
   {
