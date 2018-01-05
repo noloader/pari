@@ -378,11 +378,11 @@ mf=mfsplit(mfinit([675,1,Mod(161,675)],1));
 mfgaloistype(mf, mfeigenbasis(mf)[1])
 */
 
-see(L) = for(i=1,#L, my(f=L[i][2]); print([mfparams(f), mfcoefs(f,10)]));
-L=mfeigensearch([40,2],[[2,1],[3,-1]]); see(L)
-L=mfeigensearch([40,2],[[2,Mod(1,3)],[3,Mod(2,4)]]); see(L)
-L=mfeigensearch([38,2],[[2,-1],[11,-6]]); see(L)
-L=mfeigensearch([16,3],[[2,0]]); see(L)
+see(L) = for(i=1,#L, my(f=L[i]); print([mfparams(f), mfcoefs(f,10)]));
+L=mfeigensearch([[1..40],2],[[2,1],[3,-1]]); see(L)
+L=mfeigensearch([[1..40],2],[[2,Mod(1,3)],[3,Mod(2,4)]]); see(L)
+L=mfeigensearch([[1..38],2],[[2,-1],[11,-6]]); see(L)
+L=mfeigensearch([[1..16],3],[[2,0]]); see(L)
 
 V=mfsearch([[11..40],2],[0,1,2,3,4],1);
 for(i=1,#V,print([mfparams(V[i])[1..3],mfcoefs(V[i],10)]));

@@ -7966,7 +7966,7 @@ static GEN
 search_from_split(GEN mf, GEN vap, GEN vlp)
 {
   pari_sp av = avma;
-  long lvlp = lg(vlp), N = MF_get_N(mf), j, jv, l1;
+  long lvlp = lg(vlp), j, jv, l1;
   GEN v, NK, S1, S, M = NULL;
 
   S1 = gel(mfsplit(mf, 1, 0), 1); /* rational newforms */
@@ -7985,8 +7985,7 @@ search_from_split(GEN mf, GEN vap, GEN vlp)
       GEN rhs = gel(vap,t), lhs = RgMrow_RgC_mul(M, vF, t);
       if (!gequal(lhs, rhs)) break;
     }
-    if (t) continue;
-    gel(v,jv++) = mkvec2(utoi(N), mflinear_i(NK,S,vF));
+    if (!t) gel(v,jv++) = mflinear_i(NK,S,vF);
   }
   if (jv == 1) { avma = av; return NULL; }
   setlg(v,jv); return v;
@@ -7995,8 +7994,8 @@ GEN
 mfeigensearch(GEN NK, GEN AP)
 {
   pari_sp av = avma;
-  GEN k, vap, vlp, vres = cgetg(1, t_VEC), D;
-  long N, N0, i, l, even;
+  GEN k, vN, vap, vlp, vres = cgetg(1, t_VEC), D;
+  long n, lvN, i, l, even;
 
   if (!AP) l = 1;
   else
@@ -8022,17 +8021,24 @@ mfeigensearch(GEN NK, GEN AP)
     }
   }
   l = lg(NK);
-  if (typ(NK) != t_VEC || l != 3
-      || typ(gel(NK,1)) != t_INT
-      || typ(gel(NK,2)) != t_INT) pari_err_TYPE("mfeigensearch",NK);
-  N0 = itos(gel(NK,1));
+  if (typ(NK) != t_VEC || l != 3) pari_err_TYPE("mfeigensearch",NK);
+  vN = gel(NK,1);
   k = gel(NK,2);
+  switch(typ(vN))
+  {
+    case t_INT: vN = mkvecsmall(itos(vN)); break;
+    case t_VEC: case t_COL: vN = ZV_to_zv(vN); break;
+    case t_VECSMALL: vN = leafcopy(vN); break;
+    default: pari_err_TYPE("mfeigensearch [N]", vN);
+  }
+  vecsmall_sort(vN); lvN = lg(vN);
   vecsmall_sort(vlp);
   even = !mpodd(k);
-  for (N = 1; N <= N0; N++)
+  for (n = 1; n < lvN; n++)
   {
     pari_sp av2 = avma;
     GEN mf, L;
+    long N = vN[n];
     if (even) D = gen_1;
     else
     {
