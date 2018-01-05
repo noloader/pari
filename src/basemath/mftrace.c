@@ -7899,47 +7899,67 @@ findd(long N, long parity)
   }
   setlg(L,j); return L;
 }
-
+/* does ND contain a divisor of N ? */
+static int
+seenD(long N, GEN ND)
+{
+  long j, l = lg(ND);
+  for (j = 1; j < l; j++)
+    if (N % ND[j] == 0) return 1;
+  return 0;
+}
 GEN
 mfsearch(GEN NK, GEN V, long space)
 {
-  pari_sp ltop = avma;
-  GEN RES, gk;
-  long N, nk, dk, parity, lV, i, Nlim, N0;
-  if (typ(NK) != t_VEC || lg(NK) != 3
-      || typ(gel(NK,1)) != t_INT
-      || typ(gmul2n(gel(NK,2), 1)) != t_INT) pari_err_TYPE("mfsearch", NK);
-  Nlim = itos(gel(NK,1));
-  gk = gel(NK,2); Qtoss(gk, &nk,&dk);
-  parity = (dk == 1 && odd(nk)) ? -1 : 1;
-  if (typ(V) == t_VEC) settyp(V, t_COL);
-  if (typ(V) != t_COL) pari_err_TYPE("mfsearch", V);
-  lV = lg(V) - 1; RES = cgetg(1, t_VEC);
-  N0 = (dk == 2) ? 4 : 1;
-  for (N = N0; N <= Nlim; N += N0)
+  pari_sp av = avma;
+  GEN F, gk, NbyD, vN;
+  long n, nk, dk, parity, nV, i, lvN;
+
+  if (typ(NK) != t_VEC || lg(NK) != 3) pari_err_TYPE("mfsearch", NK);
+  vN = gel(NK,1);
+  gk = gel(NK,2);
+  if (typ(gmul2n(gk, 1)) != t_INT) pari_err_TYPE("mfsearch [k]", gk);
+  switch(typ(V))
   {
-    GEN L = findd(N, parity), gN = utoi(N);
+    case t_VEC: V = shallowtrans(V);
+    case t_COL: break;
+    default: pari_err_TYPE("mfsearch [V]", V);
+  }
+  switch(typ(vN))
+  {
+    case t_INT: vN = mkvecsmall(itos(vN)); break;
+    case t_VEC: case t_COL: vN = ZV_to_zv(vN); break;
+    case t_VECSMALL: vN = leafcopy(vN); break;
+    default: pari_err_TYPE("mfsearch [N]", vN);
+  }
+  vecsmall_sort(vN); lvN = lg(vN);
+
+  Qtoss(gk, &nk,&dk);
+  parity = (dk == 1 && odd(nk)) ? -1 : 1;
+  nV = lg(V)-2;
+  F = cgetg(1, t_VEC);
+  NbyD = const_vec(vN[lvN-1], cgetg(1,t_VECSMALL));
+  for (n = 1; n < lvN; n++)
+  {
+    long N = vN[n];
+    GEN L;
+    if (N <= 0 || (dk == 2 && (N & 3))) continue;
+    L = findd(N, parity);
     for (i = 1; i < lg(L); i++)
     {
-      GEN gD = gel(L, i), CHI = get_mfchar(gD);
-      GEN mf = mfinit_Nndkchi(N, nk, dk, CHI, space);
-      GEN M = mfcoefs(mf, lV - 1, 1);
-      GEN CO = inverseimage(M, V);
-      if (lg(CO) > 1)
-      {
-        long found = 0, j;
-        for (j = 1; j < lg(RES); j++)
-        {
-          GEN tmp = gel(RES, j);
-          if (gequal(gel(tmp, 3), gD) && gequal0(modii(gN, gel(tmp, 1))))
-          { found = 1; break; }
-        }
-        if (!found)
-          RES = concat(RES, mkvec(mkvec4(gN, gk, gD, mflinear(mf, CO))));
-      }
+      GEN mf, M, CO, gD = gel(L,i);
+      GEN *ND = (GEN*)NbyD + itou(gD); /* points to NbyD[|D|] */
+
+      if (seenD(N, *ND)) continue;
+      mf = mfinit_Nndkchi(N, nk, dk, get_mfchar(gD), space);
+      M = mfcoefs_mf(mf, nV, 1);
+      CO = inverseimage(M, V); if (lg(CO) == 1) continue;
+
+      F = vec_append(F, mflinear(mf,CO));
+      *ND = vecsmall_append(*ND, N); /* add to NbyD[|D|] */
     }
   }
-  return gerepilecopy(ltop, RES);
+  return gerepilecopy(av, F);
 }
 
 static GEN
