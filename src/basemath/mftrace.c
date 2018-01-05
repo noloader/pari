@@ -5285,7 +5285,8 @@ mfstabiter(GEN M, GEN A2, GEN E1inv, long lim, GEN P, long ordchi)
     GEN R = shallowconcat(RgM_mul(M,A), rowslice(A,1,lim));
     GEN B = QabM_ker(R, P, ordchi);
     long lA = lg(A), lB = lg(B);
-    if (lB == 1 || lB == lA) return mkvec2(A, VC);
+    if (lB == 1) return NULL;
+    if (lB == lA) return mkvec2(A, VC);
     B = rowslice(B, 1, lA-1);
     if (ordchi != 1) B = gmodulo(B, P);
     A = Q_primitive_part(RgM_mul(A,B), &con);
@@ -5302,7 +5303,8 @@ mfstabitermodp(GEN Mp, GEN Ap, long p, long lim)
     GEN Rp = shallowconcat(Flm_mul(Mp,Ap,p), rowslice(Ap,1,lim));
     GEN Bp = Flm_ker(Rp, p);
     long lA = lg(Ap), lB = lg(Bp);
-    if (lB == 1 || lB == lA) return lA-1;
+    if (lB == 1) return 0;
+    if (lB == lA) return lA-1;
     Bp = rowslice(Bp, 1, lA-1);
     Ap = Flm_mul(Ap, Bp, p);
     VC = VC? Flm_mul(VC, Bp, p): Bp;
@@ -5475,8 +5477,8 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
   ES1INV = RgXn_inv(ES1, plim-1);
   if (a0) ES1INV = RgX_Rg_mul(RgX_unscale(ES1INV, a0i), a0i);
   tmp2 = mfstabiter(Tp, A, ES1INV, lim, POLCYC, ordchi);
+  if (!tmp2) return NULL;
   A = gel(tmp2,1); dA = lg(A);
-  if (dA == 1) return NULL;
   VC = gmul(VC, gel(tmp2,2));
   C = cgetg(dA, t_VEC);
   M = cgetg(dA, t_MAT);
