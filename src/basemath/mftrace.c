@@ -10836,7 +10836,8 @@ bestapprnf2(GEN V, long m, GEN D, long prec)
     else for (j = i; j < m; j *= i) H[i] = 3;
   }
   f = znstar_conductor_bits(Flv_to_F2v(H));
-  if (f == m || f == 1) return gdiv(V, D);
+  if (f == 1) return gdiv(V, D);
+  if (f == m) return gmodulo(gdiv(V, D), P);
   Tinit = Qab_trace_init(P, m, f);
   Pf = gel(Tinit,1);
   Vl = QabV_tracerel(Tinit, 0, Vl);
@@ -10848,7 +10849,7 @@ GEN
 mfslashexpansion(GEN mf, GEN F, GEN ga, long n, long flrat, GEN *params, long prec)
 {
   pari_sp av = avma;
-  GEN res, al, V, M, abd;
+  GEN res, al, V, M, abd, A = NULL;
   long i, w;
 
   checkMF(mf);
@@ -10857,34 +10858,37 @@ mfslashexpansion(GEN mf, GEN F, GEN ga, long n, long flrat, GEN *params, long pr
   al = gel(res,1);
   w = itou(gel(res,2));
   V = gel(res,3);
-  if (abd)
+  if (flrat)
+  {
+    GEN CV, gk = MF_get_gk(mf);
+    long C = itos(gcoeff(M, 2, 1)), N = MF_get_N(mf);
+    long ord = mfcharorder_canon(MF_get_CHI(mf)), k, g;
+    /* weight of f * Theta in 1/2-integral weight */
+    k = typ(gk) == t_INT? itou(gk): MF_get_r(mf)+1;
+    g = cgcd(N/cgcd(N, C), C);
+    CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
+    V = bestapprnf2(V, ord_canon(clcm(g*w, ord)), CV, prec);
+    if (abd) A = mkmat22s(abd[1], abd[2], 0, abd[3]);
+  }
+  else if (abd)
   { /* ga = M * [a,b;0,d] * rational, F | M = q^al * \sum V[j] q^(j/w) */
     long a = abd[1], b = abd[2], d = abd[3], wd = w*d, nums, dens;
-    GEN ad = sstoQ(a,d), z, sh, adal, t;
+    GEN ad = sstoQ(a,d), sh, adal, t;
     Qtoss(sstoQ(b, wd), &nums, &dens);
-    z = rootsof1powinit(nums, dens, prec);
-    for (i = 1; i <= n+1; i++) gel(V,i) = gmul(gel(V,i), rootsof1pow(z, i-1));
-    t = gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
+    if (dens > 1)
+    {
+      GEN z = rootsof1powinit(nums, dens, prec);
+      for (i = 1; i <= n+1; i++) gel(V,i) = gmul(gel(V,i), rootsof1pow(z, i-1));
+    }
+    t = gequal0(al)? gen_1: gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
     t = gmul(t, gpow(ad, gmul2n(MF_get_gk(mf), -1), prec));
     V = RgV_Rg_mul(V, t);
     Qtoss(sstoQ(a, wd), &nums, &w); /* update w */
     adal = gmul(ad, al); sh = gfloor(adal); al = gsub(adal, sh);
     V = RgV_shift(bdexpand(V, nums), sh);
   }
-  if (flrat)
-  {
-    GEN CV, gk = MF_get_gk(mf);
-    long C = itos(gcoeff(M, 2, 1)), N = MF_get_N(mf);
-    long ord = mfcharorder_canon(MF_get_CHI(mf)), k, g;
-    if (typ(gk) != t_INT)
-      pari_err_IMPL("rationalization of half-integral weight slash");
-    k = itos(gk);
-    g = cgcd(N/cgcd(N, C), C);
-    CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
-    V = bestapprnf2(V, ord_canon(clcm(g*w, ord)), CV, prec);
-  }
-  if (!params) return gerepilecopy(av, V);
-  *params = mkvec2(al, utoipos(w)); gerepileall(av,2,&V,params); return V;
+  if (params) *params = mkvec3(al, utoipos(w), A? A: matid(2));
+  gerepileall(av,params?2:1,&V,params); return V;
 }
 
 /**************************************************************/

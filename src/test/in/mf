@@ -200,6 +200,10 @@ mfslashexpansion(mf,F,[1,0;2,1],12,1)
 
 mf=mfinit([12,7,-4],0);F=mfbasis(mf)[1];
 mfslashexpansion(mf,F,[1,0;6,1],7,1,&A)
+A
+
+mf=mfinit([4,7,-4]); B=mfbasis(mf);
+mfslashexpansion(mf,B[1],[0,-1;4,0],5,1)
 
 mf=mfinit([96,2,8], 0);
 mfa = mfatkininit(mf,3);
@@ -551,6 +555,7 @@ for(i=1,#B,print(vec(B[i])));
 mf=mfinit([28,5/2,Mod(2,7)],1); B=mfbasis(mf);
 [G,chi] = znchar(mf); chi
 [G,chi] = znchar(B[1]); chi
+mfslashexpansion(mf, B[1], [1,0;2,1], 5, 1)
 mfheckemat(mf,4)
 for(i=1,#B,print(lift(vec(B[i]))));
 T=mfTheta(); T2=mfmul(T,T); mfparams(T2)
