@@ -7553,15 +7553,15 @@ bdexpand(GEN V, long d)
   for (n = 0; n <= (N-1)/d; n++) gel(W, n*d+1) = gel(V, n+1);
   return W;
 }
-/* expand B_d V, multiply length by d */
+/* expand B_d V, increasing length up to lim */
 static GEN
-bdexpandall(GEN V, long d)
+bdexpandall(GEN V, long d, long lim)
 {
   GEN W;
   long N, n;
   if (d == 1) return V;
-  N = lg(V)-1; W = zerovec(N*d);
-  for (n = 0; n <= N-1; n++) gel(W, n*d+1) = gel(V, n+1);
+  N = lg(V)-1; W = zerovec(lim);
+  for (n = 0; n <= N-1 && n*d <= lim; n++) gel(W, n*d+1) = gel(V, n+1);
   return W;
 }
 
@@ -7869,7 +7869,7 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
     long N = MF_get_N(mf), w = mfcuspcanon_width(N,c);
     GEN chid = mfcharcxeval(mf_get_CHI(F), d, prec);
     v = mfcoefs_i(F, n/w, 1); if (!isint1(chid)) v = RgV_Rg_mul(v,chid);
-    return mkvec3(gen_0, stoi(w), bdexpandall(v,w));
+    return mkvec3(gen_0, stoi(w), bdexpandall(v,w,n+1));
   }
   if (MF_get_space(mf) == mf_NEW)
   {

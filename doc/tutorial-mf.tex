@@ -7,6 +7,7 @@
 \DeclareMathOperator{\Tr}{Tr}
 \DeclareMathOperator{\PSL}{PSL}
 \DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\GL}{GL}
 \newcommand{\Q}{{\mathbb Q}}
 \newcommand{\Z}{{\mathbb Z}}
 \newcommand{\R}{{\mathbb R}}
@@ -988,45 +989,60 @@ vector $[\ga,i]$, where $\ga\in\G_0(N)$ is such that $M=\ga\cdot C[i]$.
 
 \section{The mfslashexpansion command}
 
-We now give examples of the use of advanced features of the package,
-which use inexact complex arithmetic. However in many cases the results
-are known algebraic numbers, and the program tries to give them exactly
-if possible.
+We now give examples of the use of advanced features of the package, which
+use inexact complex arithmetic. However in many cases the results are known
+algebraic numbers and, if asked to do so, the function give them exactly.
+
+This command returns the Fourier expansion at infinity of $f |_k \gamma$,
+for $\gamma\in \GL_2(\Q)^+$. It returns a vector $v$ of coefficients, which
+can only be interpreted together with three extra parameters
+$\al\in \Q_{\geq 0}$, $w \in \Z_{\geq 1}$ and a
+$2\times 2$ upper triangular matrix $A=[a,b;0,d]$
+(equal to the identity if $\gamma\in\PSL_2(\Z)$). We have
+$f |_k \gamma = F |_k A $, with
+$$F(\tau) = q^\al \sum_{n\geq 0} v[n] q^{n/w}$$
+and $q = e(\tau)$. Of course, $F |_k A = (a/d)^{k/2} F(\tau + b/d)$ so the
+exact expansion is easily inferred from the returned one, whereas the chosen
+encoding allows to compute the coefficients $v[n]$ in a smaller number field
+than if we had included all the constants into $v$. It is important to note
+that the three parameters $\al, w, A$ only depend on the modular form
+space and $\gamma$, but not on the form $f$.
 
 \begin{verbatim}
 ? mf = mfinit([4,6]); B = mfbasis(mf);
 ? for (i=1, #B, \
-    R = mfslashexpansion(mf,B[i],[1,0;2,1],5,1,&A); \
-    print([A,R]))
-[[0, 1], [-1/504, 1, 33, 244, 1057, 3126]]
-[[0, 1], [-1/504, 0, 1, 0, 33, 0]]
-[[0, 1], [-1/32256, -1/64, 33/64, -61/16, 1057/64, -1563/32]]
-[[0, 1], [0, -1, 0, 12, 0, -54]]
-? R = mfslashexpansion(mf,B[1],[0,-1;4,0],5,1,&A); [A,R]
-% = [[0, 1], [-8/63, 0, 0, 0, 64, 0]]
-? R = mfslashexpansion(mf,B[1],[0,-1;1,0],5,1,&A); [A,R]
-% = [[0, 4], [-1/504, 0, 0, 0, 1, 0, 0]]
+    print( mfslashexpansion(mf,B[i],[1,0;2,1],5,1,&P) ))
+\\ we don't print P which is [0, 1, [1,0;0,1]] in all cases
+[-1/504, 1, 33, 244, 1057, 3126]
+[-1/504, 0, 1, 0, 33, 0]
+[-1/32256, -1/64, 33/64, -61/16, 1057/64, -1563/32]
+[0, -1, 0, 12, 0, -54]
+? R = mfslashexpansion(mf,B[1],[0,-1;4,0],5,1,&P); [P,R]
+% = [[0, 1, [1,0;0,1]], [-8/63, 0, 0, 0, 64, 0]]
+? R = mfslashexpansion(mf,B[1],[0,-1;1,0],5,1,&P); [P,R]
+% = [[0, 4, [1,0;0,1]], [-1/504, 0, 0, 0, 1, 0]]
+
 ? mf=mfinit([4,7,-4]); B=mfbasis(mf);
 ? for (i=1, #B, \
-    R = mfslashexpansion(mf,B[i],[1,0;2,1],5,1,&A); \
-    print([A,R]))
-[[1/2, 1], [1/64, 91/8, 7813/32, 7353/4, 530713/64, 221445/8]]
-[[1/2, 1], [1, -728, 15626, -117648, 530713, -1771560]]
-[[1/2, 1], [1/16, -15/2, 5/8, 75, -231/16, -465/2]]
-[[1/2, 1], [2, 0, 20, 0, -462, 0]]
-? mfslashexpansion(mf,B[1],[0,-1;4,0],5,1)
-  ***   at top-level: mfslashexpansion(mf,B[1],[0,-1;4,0],5)
-  ***                 ^---------------------------------------
-  *** mfslashexpansion: cannot rationalize coeff in bestapprnf
-? R=mfslashexpansion(mf,B[1],[0,-1;4,0],5,0,&A)
+    print( mfslashexpansion(mf,B[i],[1,0;2,1],5,1,&P) ))
+\\ we don't print P which is [1/2, 1, [1,0;0,1]] in all cases
+[1/64, 91/8, 7813/32, 7353/4, 530713/64, 221445/8]
+[1, -728, 15626, -117648, 530713, -1771560]
+[1/16, -15/2, 5/8, 75, -231/16, -465/2]
+[2, 0, 20, 0, -462, 0]
+? mfslashexpansion(mf,B[1],[0,-1;4,0],5,1,&P)
+% = [Mod(61/256*t, t^2 + 1), Mod(-1/64*t, t^2 + 1),
+     Mod(-1/64*t, t^2 + 1), Mod(91/8*t, t^2 + 1),
+     Mod(-1/64*t, t^2 + 1), Mod(-7813/32*t, t^2 + 1)]
+? P
+% = [0, 1, [1, 0; 0, 1]]
+? R=mfslashexpansion(mf,B[1],[0,-1;4,0],5,0)
 % = [0.23828125000000000000000000000000000000*I,\
     -0.015625000000000000000000000000000000000*I,\
     -0.015625000000000000000000000000000000000*I,\
     11.375000000000000000000000000000000000*I,\
     -0.015625000000000000000000000000000000000*I,\
   -244.15625000000000000000000000000000000*I]
-? A
-% = [0, 1]
 ? bestappr(R)
 % = [61/256*I, -1/64*I, -1/64*I, 91/8*I, -1/64*I, -7813/32*I]
 \end{verbatim}
@@ -1034,35 +1050,31 @@ if possible.
 Here are some detailed explanations. The first space is $M_6(\G_0(4))$,
 of dimension $4$. We ask for $1+5$ terms of the Fourier expansion of
 $F|_6\ga$ for all $F$ in the given basis, and $\ga=[1,0;2,1]$, which is one
-of the possible Fourier expansions at the cusp $1/2$. The last two parameters
-($1$ and $A$) are important, but for now let us ignore them.
+of the possible Fourier expansions at the cusp $1/2$. The last parameter
+$P$ contains $[\al,w,A]$ after the call and the $1$ means we want an exact
+algebraic expression (a $0$ as used in the last example means we expect
+floating point complex numbers).
+
 We obtain the $4$ desired expansions. In the next commands, we do the same
 for the first basis element and $\ga=[0,-1;4,0]$, which is the
 \emph{Fricke involution}, and corresponds to the cusp $0$. The next
 command, which does essentially the same computation, uses $\ga=[0,-1;1,0]$,
-and now $A=[0,4]$ which tells us that the expansion is in powers of
+and now $P=[0,4, [1,0;0,1]]$ which tells us that the expansion is in powers of
 $q^{1/4}$.
 
 The next example is the space $M_7(\G_0(4),\chi_{-4})$, also of
-dimension $4$, and we ask the same thing. Here $A=[1/2,1]$ is essential:
-in the general case, $A=[\al,w]$ means that the expansion given
-by \kbd{mfslashexpansion} is in powers of $q^{1/w}=e^{2\pi i\tau/w}$,
-and must be multiplied by $q^{\al}$. Thus, in the present case, we have
-for instance
-$$B[1]|_7\ga=(1/64)q^{1/2}+(91/8)q^{3/2}+\cdots$$
+dimension $4$, and we ask the same thing. Now $P$ tells us that $\al = 1/2$
+and $w = 1$ so we now have for instance
+$$B[1]|_7\ga = (1/64)q^{1/2} + (91/8)q^{3/2}+\cdots$$
 
-In the next command, we try to expand $B[1]|_7\ga$ with $\ga$ equal to
-the Fricke involution, and the command fails because the program tries
-to ``rationalize'' the output in a simple-minded way, and does not
-succeed (this will hopefully change in the future). This is where the
-one-to-last parameter enters: in the next command we set it to $0$ to
-obtain the expansion as raw complex numbers. We recognize them immediately
-using the \kbd{bestappr} command.
+In the next command, we expand $B[1]|_7\ga$ with $\ga$ equal to the Fricke
+involution; and finally we check numerically by setting the one-to-last
+parameter to $0$ and obtain the expansion as raw complex numbers. We
+recognize them immediately using the \kbd{bestappr} command.
 
 Note that in the special case (like here) where $\ga$ is a Fricke (or more
 generally an Atkin--Lehner) involution, we can proceed otherwise to obtain
-the expansion, and it is then guaranteed that the output will be
-``rationalized'':
+the expansion:
 
 \begin{verbatim}
 ? mfatk = mfatkininit(mf,4); C = mfatk[3]
@@ -1084,20 +1096,21 @@ It is also important to see what affects the timing of the
 ? mf = mfinit([496,4],0); F = mfbasis(mf)[1]; mfdim(mf)
 time = 329 ms.
 % = 45
-? mfslashexpansion(mf,F,[1,0;3,1],5,0,&A);
+? mfslashexpansion(mf,F,[1,0;3,1],5,0,&P);
 time = 1,316 ms.
-? mfslashexpansion(mf,F,[1,0;3,1],5,1,&A);
+? mfslashexpansion(mf,F,[1,0;3,1],5,1,&P);
 time = 51,136 ms.
+
 ? mf = mfinit([503,4],0); F = mfbasis(mf)[1]; mfdim(mf)
 time = 1,505 ms.
 % = 125
 ? sizebyte(mf)
 % = 5123352
-? mfslashexpansion(mf,F,[1,0;3,1],5,0,&A);
+? mfslashexpansion(mf,F,[1,0;3,1],5,0,&P);
 time = 32,640 ms.
 ? sizebyte(mf)
 % = 18216400
-? mfslashexpansion(mf,F,[1,0;3,1],5,0,&A);
+? mfslashexpansion(mf,F,[1,0;3,1],5,0,&P);
 time = 6,504 ms.
 \end{verbatim}
 
@@ -1106,9 +1119,9 @@ discussion. We notice several things:
 \begin{itemize}
 \item First, the time for rationalization (flag $1$) in the first example
 is extremely large: $51$ seconds instead of $1.3$. The reason for this is
-that the width of the corresponding cusp (here $1/3$) is equal to $A[2]=496$,
-and the program does some LLL type computation in the large cyclotomic field
-$\Q(\zeta_{496})$ which takes a huge amount of time. In fact, at the
+that the width of the corresponding cusp (here $1/3$) is equal to $P[2]=496$,
+and the program must recognize algebraic numbers in the large cyclotomic
+field $\Q(\zeta_{496})$ which takes a huge amount of time. In fact, at the
 default accuracy of $38D$, the result is certainly wrong.
 \item Second, the time depends enormously on the dimension: the expansion
 for dimension $125$ is $25$ times slower than for dimension $45$, of course
@@ -1930,12 +1943,14 @@ weight $2k-1$, \kbd{mf2} the corresponding modular form space and \kbd{v} the
 coefficients of \kbd{FS} on the basis of \kbd{mf2}. By extension, $D$ can also
 be a positive squarefree integer.
 
-\f\kbd{mfslashexpansion(mf,F,g,n,flrat,$\{\&A\}$)}: compute the Fourier
-expansion of $F|_kg$ to order $n$, where $F$ is a form in \kbd{mf} and
+\f\kbd{mfslashexpansion(mf,f,g,n,flrat,$\{\&P\}$)}: compute the Fourier
+expansion of $f|_k g$ to order $n$, where $f$ is a form in \kbd{mf} and
 $g\in M_2^+(\Q)$. If \kbd{flrat} is set (default), try to ``rationalize''
-(error if unsuccessful). Optional $A$ contains parameters $[\al,w]$ such that
-the output $[a(0),...,a(n)]$ corresponds to the expansion
-$q^{\al}\sum_{0\le j\le n}a(j)q^{j/w}$, with $q=\exp(2\pi i\tau)$.
+(error if unsuccessful). If the output is $[a(0),...,a(n)]$ and the
+optional $P$ contains parameters $[\al,w,A]$, then $f|_k g = F|_k A$
+where
+$F(\tau) = q^{\al}\sum_{0\le j\le n}a(j)q^{j/w}$, with $q=\exp(2\pi i\tau)$.
+$A$ is always upper triangular and usually the identity.
 
 \f\kbd{mfspace(mf,$\{F\}$)}: type of modular space \kbd{mf} if $F$ is omitted,
 or of a modular form $F$ in \kbd{mf}: result is $0$ for new, $1$ for cuspidal,
