@@ -1445,19 +1445,18 @@ Another illustration of the $L$-function package:
 The last commands that we want to illustrate are \emph{searching} commands,
 i.e., you know some Fourier coefficients and you would like to know which
 modular forms match these coefficients in a given range. The
-\kbd{mfsearch} command does this very naively, and may in fact disappear
-since the user may easily write a taylor-made script for his needs.
+\kbd{mfsearch} command does this naively, and may in fact disappear
+since the user may write taylor-made scripts for his needs.
 
-The \kbd{mfeigensearch} command is more interesting: the idea
-of this command is simple: you believe that you have a modular form,
-but you do not know its level, weight, character, or field of definition
-of its coefficients, but only a number of its Fourier coefficients, perhaps
-only modulo $p$, and you would like to find forms which ``match'' your
-given form. In this degree of generality, the search space is too wide
-and would take much too long. We have therefore decided to reduce
-the generality, so as to make the search more reasonable. Note that this
-will probably vary with the different versions of the program, so what is
-described here may be more or less restrictive than future versions.
+The \kbd{mfeigensearch} command is more interesting. The idea is simple: you
+believe that you have a modular form, but you do not know its level, weight,
+character, or field of definition of its coefficients, but only a number of
+its Fourier coefficients, perhaps only modulo $p$, and you would like to find
+forms which ``match'' your given form. In this degree of generality, the
+search space is too wide. We have therefore decided to reduce the generality,
+so as to make the search more reasonable. Note that this will probably vary
+with the different versions of the program, so what is described here may be
+more or less restrictive than future versions.
 
 In the present implementation, we assume that the form we are looking
 for is a cuspidal \emph{eigenform}, and that its field of definition is $\Q$,
@@ -1465,33 +1464,31 @@ so that its Fourier coefficients are integers, and its character is
 (trivial or) quadratic. An example is as follows:
 
 \begin{verbatim}
-? L = mfeigensearch([30,4], [[2,2],[3,-1]]); #L
-% = 1
-? [N, F] = L[1]; mfparams(F)
-% = [26, 4, 1, y]
-? mfcoefs(F, 10)
+? L = mfeigensearch([[1..120],4], [[2,2], [3,-1]]); #L
+% = 2
+? [f,g] = L; [mfparams(f), mfparams(g)]
+% = [[26, 4, 1, y], [118, 4, 1, y]]
+? mfcoefs(f, 10)
 % = [0, 1, 2, -1, 4, 17, -2, -35, 8, -26, 34]
+? mfcoefs(g, 10)
+% = [0, 1, 2, -1, 4, -13, -2, -27, 8, -26, -26]
 \end{verbatim}
 
-The first command asks for all forms as above in weight $4$ and level
-up to $30$, such that $a(2)=2$ and $a(3)=-1$. The answer is that there is a
-single such form, given in format $[N,F]$, where $F$ is the form
-and $N$ is its level, here $N = 26$. We compute its Fourier coefficients up
-to $10$ and we see that indeed $a(2)=2$ and $a(3)=-1$.
-
-Note that the way to specify levels and weights may change, for now we
-stick to the above format, a two-component vector $[N_0,k]$,
-where we look in weight $k$ at levels up to $N_0$, with trivial
-or quadratic characters.
+The first command asks for all forms as above in weight $4$ and level from
+$1$ up to $120$, such that $a(2)=2$ and $a(3)=-1$. The answer is that there
+are two forms, which we call $f$ and $g$. We compute their levels ($26$ and
+$118$ respectively), notice they have trivial character, and list their
+Fourier coefficients up to $10$ and we see that indeed $a(2)=2$ and $a(3)=-1$
+in both cases.
 
 To specify the coefficients that we want there are a number of ways. The
 simplest, as above, is to give the list of pairs of integers $[p,a(p)]$.
 For instance:
 
 \begin{verbatim}
-? L = mfeigensearch([80,2], [[2,2], [7,-3]]); #L
+? L = mfeigensearch([[1..80],2], [[2,2], [7,-3]]); #L
 % = 1
-? [N, F] = L[1]; mfparams(F)
+? F = L[1]; mfparams(F)
 % = [75, 2, 1, y]
 ? mfcoefs(F, 12)
 % = [0, 1, 2, -1, 2, 0, -2, -3, 0, 1, 0, 2, -2]
@@ -1501,32 +1498,32 @@ The coefficient $a(p)$ may also be given as an \kbd{intmod} \kbd{Mod}$(a,m)$
 then one looks for a match for $a(p)$ modulo $m$. For instance, we come
 back to our first example:
 \begin{verbatim}
-? L=mfeigensearch([30,4], [[2,Mod(2,5)], [3,Mod(-1,5)]]); #L
-% = 2
-? apply(x->x[1], L)
-% = [26, 26]
-? F1 = L[1][2]; mfcoefs(F1, 10)
+? L=mfeigensearch([[1..120], 4], [[2,Mod(2,5)], [3,Mod(-1,5)]]); #L
+% = 3
+? [ mfparams(f)[1] | f <- L ]
+% = [26, 26, 118]
+? [F1,F2] = L;  \\ let's consider the first two
+? mfcoefs(F1, 10)
 % = [0, 1, 2, -1, 4, 17, -2, -35, 8, -26, 34]
-? F2 = L[2][2]; mfcoefs(F2, 10)
+? mfcoefs(F2, 10)
 % = [0, 1, 2, 4, 4, -18, 8, 20, 8, -11, -36]
 ? F = mflinear([F1, F2], [-1, 1]);
 ? content(mfcoefs(F, mfsturm([26,4])+1))
 % = 5
 \end{verbatim}
 
-Working modulo $5$, we now find that there are \emph{two} eigenforms
-satisfying our criteria, and perhaps surprisingly, both are in weight $4$
-and level $26$. The first, \kbd{F1}, is the one found above, with
-$a(2)=2$ and $a(3)=-1$. The second, \kbd{F2}, has $a(2)=2$ but
-$a(3)=4\equiv-1\pmod5$.
+Working modulo $5$, we now find that there is an extra eigenform satisfying
+our criteria, and perhaps surprisingly, again in level $26$. The first,
+\kbd{F1}, is the one found above, with $a(2)=2$ and $a(3)=-1$. The second,
+\kbd{F2}, has $a(2)=2$ but $a(3)=4\equiv-1\pmod5$.
 
 But we can go further and see that this is not a simple coincidence:
 the next command shows that both eigenforms seem to be congruent modulo $5$,
-at least up to $a(16)$. In fact they are indeed congruent modulo $5$:
-to prove this, we use the fact that the basic sturm bound (the one obtained
-using \kbd{mfsturm([N,k])}, not \kbd{mfsturm(mf)}) is also valid modulo
-$p$. Here the bound is equal to $15$, so the fact that the coefficients
-are congruent up to $n=16$ shows that they are congruent for all $n$.
+at least up to $a(10)$. In fact they are indeed congruent modulo $5$:
+to prove this, we use the fact that the basic Sturm bound (the one obtained
+using \kbd{mfsturm([N,k])}, not \kbd{mfsturm(mf)}) is also valid modulo $p$.
+Since all coefficients are congruent up to the Sturm bound, they are
+congruent for all $n$.
 
 \section{Half-Integral Weight Functions}
 
@@ -1791,10 +1788,11 @@ of weight $k$ on $\G_0(4)$.
 
 \f\kbd{mfeigensearch(NK,AP)}: search for normalized eigenforms with
 integer coefficients in spaces specified by \kbd{NK}, satisfying conditions
-satisfied by \kbd{AP}. \kbd{NK} is a pair $[N_0,k]$, the search being in
-weight $k$ up to level $N_0$ with trivial or quadratic character.
-\kbd{AP} is a list of pairs $[[p_1,a(p_1)],...,[p_n,a(p_n)]]$, where $a(p)$
-is either an integer or an \kbd{intmod} (match modulo $a(p)\kbd{.mod}$).
+satisfied by \kbd{AP}. \kbd{NK} is a pair $[N,k]$, the search being in
+level $N$ and weight $k$ with trivial or quadratic character; the parameter
+$N$ may be replaced by a vector of allowed levels. \kbd{AP} is a list of pairs
+$[[p_1,a(p_1)],...,[p_n,a(p_n)]]$, where $a(p)$ is either an integer or an
+\kbd{intmod} (match modulo $a(p)\kbd{.mod}$).
 
 \f\kbd{mfeisenstein(k,$\{\chi_1\}$,$\{\chi_2\}$)}: Eisenstein series
 $E_k(\chi_1)$ or
@@ -1926,11 +1924,12 @@ is omitted.)
 
 \f\kbd{mfpow(F, n)}: Modular form $F$ to the power $n$.
 
-\f\kbd{mfsearch([N0,k], V, $\{\text{space}=4\}$)}: search for \emph{rational}
-modular forms of weight~$k$ and level $N\le N_0$ in the specified modular
+\f\kbd{mfsearch([N,k], V, $\{\text{space}=4\}$)}: search for \emph{rational}
+modular forms of weight~$k$ and level $N$ in the specified modular
 form spaces whose Fourier expansion up to the length of $V$ exactly matches
-$V$. The output is a list of $[N,k,D]$, where $D$ is a fundamental
-discriminant dividing $N$.
+$V$. The output is a list of forms. The parameter $N$ may be replaced
+by a list of allowed levels, e.g. \kbd{[$N_1$..$N_2$]} for all levels
+between $N_1$ and $N_2$.
 
 \f\kbd{mfshift(F,m)}: \kbd{F} divided by $q^m$, omitting the remainder if there
 is one, where $m$ can be positive or negative. The result is usually not
