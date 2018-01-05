@@ -7908,6 +7908,18 @@ seenD(long N, GEN ND)
     if (N % ND[j] == 0) return 1;
   return 0;
 }
+static GEN
+search_levels(GEN vN, const char *f)
+{
+  switch(typ(vN))
+  {
+    case t_INT: vN = mkvecsmall(itos(vN)); break;
+    case t_VEC: case t_COL: vN = ZV_to_zv(vN); break;
+    case t_VECSMALL: vN = leafcopy(vN); break;
+    default: pari_err_TYPE(f, vN);
+  }
+  vecsmall_sort(vN); return vN;
+}
 GEN
 mfsearch(GEN NK, GEN V, long space)
 {
@@ -7916,7 +7928,6 @@ mfsearch(GEN NK, GEN V, long space)
   long n, nk, dk, parity, nV, i, lvN;
 
   if (typ(NK) != t_VEC || lg(NK) != 3) pari_err_TYPE("mfsearch", NK);
-  vN = gel(NK,1);
   gk = gel(NK,2);
   if (typ(gmul2n(gk, 1)) != t_INT) pari_err_TYPE("mfsearch [k]", gk);
   switch(typ(V))
@@ -7925,14 +7936,8 @@ mfsearch(GEN NK, GEN V, long space)
     case t_COL: break;
     default: pari_err_TYPE("mfsearch [V]", V);
   }
-  switch(typ(vN))
-  {
-    case t_INT: vN = mkvecsmall(itos(vN)); break;
-    case t_VEC: case t_COL: vN = ZV_to_zv(vN); break;
-    case t_VECSMALL: vN = leafcopy(vN); break;
-    default: pari_err_TYPE("mfsearch [N]", vN);
-  }
-  vecsmall_sort(vN); lvN = lg(vN);
+  vN = search_levels(gel(NK,1), "mfsearch [N]");
+  lvN = lg(vN);
 
   Qtoss(gk, &nk,&dk);
   parity = (dk == 1 && odd(nk)) ? -1 : 1;
@@ -8022,16 +8027,9 @@ mfeigensearch(GEN NK, GEN AP)
   }
   l = lg(NK);
   if (typ(NK) != t_VEC || l != 3) pari_err_TYPE("mfeigensearch",NK);
-  vN = gel(NK,1);
   k = gel(NK,2);
-  switch(typ(vN))
-  {
-    case t_INT: vN = mkvecsmall(itos(vN)); break;
-    case t_VEC: case t_COL: vN = ZV_to_zv(vN); break;
-    case t_VECSMALL: vN = leafcopy(vN); break;
-    default: pari_err_TYPE("mfeigensearch [N]", vN);
-  }
-  vecsmall_sort(vN); lvN = lg(vN);
+  vN = search_levels(gel(NK,1), "mfeigensearch [N]");
+  lvN = lg(vN);
   vecsmall_sort(vlp);
   even = !mpodd(k);
   for (n = 1; n < lvN; n++)
