@@ -10789,7 +10789,7 @@ RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
 static GEN
 GL2toSL2(GEN g, GEN *abd)
 {
-  long A, B, C, D, u, v, a, b, d, q, r;
+  long A, B, C, D, u, v, a, b, d, q;
   g = Q_primpart(g);
   if (!check_M2Z(g)) pari_err_TYPE("GL2toSL2", g);
   A = itos(gcoeff(g,1,1)); B = itos(gcoeff(g,1,2));
@@ -10797,8 +10797,8 @@ GL2toSL2(GEN g, GEN *abd)
   a = cbezout(A, C, &u, &v);
   if (a > 1) { A /= a; C /= a; }
   d = A*D - B*C; if (d <= 0) pari_err_TYPE("GL2toSL2",g);
-  b = u*B + v*D; q = sdivss_rem(b, d, &r);
-  *abd = (a == 1 && d == 1)? NULL: mkvecsmall3(a, r, d);
+  q = sdivss_rem(u*B + v*D, d, &b);
+  *abd = (a == 1 && d == 1)? NULL: mkvecsmall3(a, b, d);
   return mkmat22s(A, -v + q*A, C, u + q*C);
 }
 
@@ -10844,50 +10844,76 @@ bestapprnf2(GEN V, long m, GEN D, long prec)
   return gmodulo(gdiv(Vl, muliu(D, degpol(P)/degpol(Pf))), Pf);
 }
 
-/* F | ga expansion; [F, mf_eisendec(F)]~ allowed */
+/* f | ga expansion; [f, mf_eisendec(f)]~ allowed */
 GEN
-mfslashexpansion(GEN mf, GEN F, GEN ga, long n, long flrat, GEN *params, long prec)
+mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long prec)
 {
   pari_sp av = avma;
-  GEN res, al, V, M, abd, A = NULL;
-  long i, w;
+  GEN res, al, V, M, ad, abd, gk, A, awd = NULL;
+  long a, b, d, i, w;
 
   checkMF(mf);
+  gk = MF_get_gk(mf);
   M = GL2toSL2(ga, &abd);
-  res = mfgaexpansion(mf, F, M, n, prec);
+  if (abd) { a = abd[1]; b = abd[2]; d = abd[3]; } else { a = d = 1; b = 0; }
+  ad = sstoQ(a,d);
+  res = mfgaexpansion(mf, f, M, n, prec);
   al = gel(res,1);
   w = itou(gel(res,2));
   V = gel(res,3);
   if (flrat)
   {
-    GEN CV, gk = MF_get_gk(mf);
     long C = itos(gcoeff(M, 2, 1)), N = MF_get_N(mf);
     long ord = mfcharorder_canon(MF_get_CHI(mf)), k, g;
+    GEN CV, t;
     /* weight of f * Theta in 1/2-integral weight */
     k = typ(gk) == t_INT? itou(gk): MF_get_r(mf)+1;
     g = cgcd(N/cgcd(N, C), C);
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
     V = bestapprnf2(V, ord_canon(clcm(g*w, ord)), CV, prec);
-    if (abd) A = mkmat22s(abd[1], abd[2], 0, abd[3]);
+    if (abd && b == 0)
+    { /* can [a,0; 0,d] be simplified to id ? */
+      long nk, dk; Qtoss(gk, &nk, &dk);
+      if (ispower(ad, utoipos(2*dk), &t)) /* t^(2*dk) = a/d or t = NULL */
+      {
+        V = RgV_Rg_mul(V, powiu(t,nk));
+        awd = sstoQ(a, w*d);
+      }
+    }
   }
   else if (abd)
-  { /* ga = M * [a,b;0,d] * rational, F | M = q^al * \sum V[j] q^(j/w) */
-    long a = abd[1], b = abd[2], d = abd[3], wd = w*d, nums, dens;
-    GEN ad = sstoQ(a,d), sh, adal, t;
-    Qtoss(sstoQ(b, wd), &nums, &dens);
-    if (dens > 1)
+  { /* ga = M * [a,b;0,d] * rational, F := f | M = q^al * \sum V[j] q^(j/w) */
+    GEN t = NULL, u;
+    long wd = w*d;
+    /* a > 0, 0 <= b < d; f | ga = (a/d)^(k/2) * F(tau + b/d) */
+    if (b)
     {
-      GEN z = rootsof1powinit(nums, dens, prec);
+      long ns, ds;
+      GEN z;
+      Qtoss(sstoQ(b, wd), &ns, &ds); z = rootsof1powinit(ns, ds, prec);
       for (i = 1; i <= n+1; i++) gel(V,i) = gmul(gel(V,i), rootsof1pow(z, i-1));
+      if (!gequal0(al)) t = gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
     }
-    t = gequal0(al)? gen_1: gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
-    t = gmul(t, gpow(ad, gmul2n(MF_get_gk(mf), -1), prec));
+    awd = sstoQ(a, wd);
+    u = gpow(ad, gmul2n(gk,-1), prec);
+    t = t? gmul(t, u): u;
     V = RgV_Rg_mul(V, t);
-    Qtoss(sstoQ(a, wd), &nums, &w); /* update w */
-    adal = gmul(ad, al); sh = gfloor(adal); al = gsub(adal, sh);
-    V = RgV_shift(bdexpand(V, nums), sh);
   }
-  if (params) *params = mkvec3(al, utoipos(w), A? A: matid(2));
+  if (!awd) A = mkmat22s(a, b, 0, d);
+  else
+  { /* rescale and update w from [a,0; 0,d] */
+    long ns;
+    Qtoss(awd, &ns, &w); /* update w */
+    V = bdexpand(V, ns);
+    if (!gequal0(al))
+    {
+      GEN adal = gmul(ad, al), sh = gfloor(adal);
+      al = gsub(adal, sh);
+      V = RgV_shift(V, sh);
+    }
+    A = matid(2);
+  }
+  if (params) *params = mkvec3(al, utoipos(w), A);
   gerepileall(av,params?2:1,&V,params); return V;
 }
 

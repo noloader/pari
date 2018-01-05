@@ -203,7 +203,8 @@ mfslashexpansion(mf,F,[1,0;6,1],7,1,&A)
 A
 
 mf=mfinit([4,7,-4]); B=mfbasis(mf);
-mfslashexpansion(mf,B[1],[0,-1;4,0],5,1)
+mfslashexpansion(mf,B[1],[0,-1;4,0],5,1,&A)
+A
 
 mf=mfinit([96,2,8], 0);
 mfa = mfatkininit(mf,3);
