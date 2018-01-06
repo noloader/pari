@@ -3506,7 +3506,7 @@ treatspecialsigma(GEN bnr)
   if (absequaliu(D,3)) /* Q(j) */
   {
     if (i == 4 || i == 5 || i == 7) return polcyclo(i,0);
-    if (!absequaliu(gcoeff(f,1,1),9) || !absequaliu(Q_content(f),3)) return NULL;
+    if (!absequaliu(gcoeff(f,1,1),9) || !absequaliu(Z_content(f),3)) return NULL;
     /* f = P_3^3 */
     p1 = mkpolmod(bnf_get_tuU(bnf), nf_get_pol(nf));
     return gadd(pol_xn(3,0), p1); /* x^3+j */
@@ -3533,7 +3533,7 @@ treatspecialsigma(GEN bnr)
   p2 = gcoeff(f,2,2); /* integer > 0 */
   if (is_pm1(p2)) fl = 0;
   else {
-    if (Ds % 16 != 8 || !absequaliu(Q_content(f),2)) return NULL;
+    if (Ds % 16 != 8 || !absequaliu(Z_content(f),2)) return NULL;
     fl = 1; tryf >>= 1;
   }
   if (tryf <= 3 || umodiu(D, tryf) || !uisprime(tryf)) return NULL;
