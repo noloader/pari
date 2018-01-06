@@ -187,14 +187,6 @@ QabX_to_Flx(GEN A, ulong r, ulong p)
 
 /* FIXME: remove */
 static GEN
-ZM_pseudoinv_i(GEN M, GEN *pv, GEN *den, int ratlift)
-{
-  GEN v = ZM_indexrank(M);
-  if (pv) *pv = v;
-  M = shallowmatextract(M,gel(v,1),gel(v,2));
-  return ratlift? ZM_inv_ratlift(M, den): ZM_inv(M, den);
-}
-static GEN
 ZabM_pseudoinv_i(GEN M, GEN P, long n, GEN *pv, GEN *den, int ratlift)
 {
   GEN v = ZabM_indexrank(M, P, n);
@@ -223,7 +215,7 @@ QabM_pseudoinv(GEN M, GEN P, long n, GEN *pv, GEN *pden)
   if (n <= 2)
   {
     M = Q_primitive_part(M, &cM);
-    Mi = ZM_pseudoinv_i(M, pv, pden, 0); /* M^(-1) = Mi / (cM * den) */
+    Mi = ZM_pseudoinv(M, pv, pden); /* M^(-1) = Mi / (cM * den) */
   }
   else
   {
@@ -3756,7 +3748,7 @@ mfclean(GEN M, GEN P, long n, int ratlift)
 {
   GEN W, v, y, z, d, Minv, dM, MdM = Q_remove_denom(M, &dM);
   if (n == 1)
-    W = ZM_pseudoinv_i(MdM, &v, &d, ratlift);
+    W = ZM_pseudoinv(MdM, &v, &d);
   else
     W = ZabM_pseudoinv_i(liftpol_shallow(MdM), P, n, &v, &d, ratlift);
   y = gel(v,1);
