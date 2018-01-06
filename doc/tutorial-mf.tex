@@ -500,7 +500,7 @@ weights, and in particular in weight $1$:
 \end{verbatim}
 
 The last output means that the image in $\PSL_2(\C)$ of the projective
-representation associated to $F$ is of type $D_6$. Note that an ''exotic''
+representation associated to $F$ is of type $D_3$. Note that an ''exotic''
 representation is given by a negative number, opposite of the cardinality
 of the projective image.
 
@@ -1477,7 +1477,8 @@ time = 5 ms.
 time = 40 ms.
 % = 5
 ? [ mfparams(f) | f<-V ]
-% = [[56,2,8,y], [58,2,1,y], [60,2,1,y], [60,2,12,y], [60,2,60,y]]
+% = [[56, 2, 8, y], [58, 2, 1, y],
+     [60, 2, 1, y], [60, 2, 12, y], [60, 2, 60, y]]
 ? [ print(mfcoefs(f,10)) | f<-V ]
 [0, 1, 2, 3, 4, 5, 6, -6, -4, -7, -20]
 [0, 1, 2, 3, 4, 5, 6, -34, 37, 22, 7]
@@ -1496,7 +1497,8 @@ cuspidal \emph{eigenform} whose field of definition is $\Q$, so that its
 Fourier coefficients are integers, and its character is (trivial or)
 quadratic. An example is as follows:
 \begin{verbatim}
-? L = mfeigensearch([[1..120],4], [[2,2], [3,-1]]); #L
+? AP = [[2,2], [3,-1]]  \\ a(2) = 2 and a(3) = -1
+? L = mfeigensearch([[1..120],4], AP); #L
 % = 2
 ? [f,g] = L; [mfparams(f), mfparams(g)]
 % = [[26, 4, 1, y], [118, 4, 1, y]]
@@ -1529,7 +1531,8 @@ The coefficient $a(p)$ may also be given as an \kbd{intmod} \kbd{Mod}$(a,m)$
 then one looks for a match for $a(p)$ modulo $m$. For instance, we come
 back to our first example:
 \begin{verbatim}
-? L=mfeigensearch([[1..120], 4], [[2,Mod(2,5)], [3,Mod(-1,5)]]); #L
+? AP5 = [[2,Mod(2,5)], [3,Mod(-1,5)]]; \\ now modulo 5
+? L=mfeigensearch([[1..120], 4], AP); #L
 % = 3
 ? [ mfparams(f)[1] | f <- L ]
 % = [26, 26, 118]
@@ -1542,7 +1545,6 @@ back to our first example:
 ? content(mfcoefs(F, mfsturm([26,4])+1))
 % = 5
 \end{verbatim}
-
 Working modulo $5$, we now find that there is an extra eigenform satisfying
 our criteria, and perhaps surprisingly, again in level $26$. The first,
 \kbd{F1}, is the one found above, with $a(2)=2$ and $a(3)=-1$. The second,
@@ -1768,7 +1770,7 @@ of $F$ up to $n$. If $F$ is a modular form \emph{space}, give the matrix
 whose columns are the vectors of the Fourier coefficients of the basis.
 
 \f\kbd{mfconductor(mf,F)}: smallest $M$ such that $F$ belongs to
-$M_k(\G_0(M),\chi)$. For now, only for \kbd{mf} a cuspidal space.
+$M_k(\G_0(M),\chi)$.
 
 \f\kbd{mfcosets(N)}: list of right cosets of $\G$ modulo $\G_0(N)$. In the
 present implementation, the trivial coset is the last and represented by
@@ -1872,8 +1874,8 @@ and \kbd{coe} the coefficients of \kbd{F} on the basis of \kbd{mf}.
 \f\kbd{mfgaloistype(mf,$\{F\}$)}: \kbd{mf} being either $[N,1,\chi]$ or
 a new or cuspidal space of weight $1$ forms, outputs the type of the projective
 representations attached to all the eigenforms in \kbd{mf}, or only that of
-\kbd{F} if it is given. The output is $n$ for $D_n$, or $-12$, $-24$, $-60$ for
-$A_4$, $S_4$, $A_5$.
+\kbd{F} if it is given. The output is $2n$ for $D_n$, or $-12$, $-24$, $-60$
+for $A_4$, $S_4$, $A_5$.
 
 \f\kbd{mfhecke(mf,F,n)}: Computes $T(n)(f)$, where $T(n)$ is the $n$th Hecke
 operator. Note that the level which is used is that of the modular form space
@@ -1890,7 +1892,7 @@ where $0$ is a wildcard, in which case it gives the vector of all nonzero
 
 \f\kbd{mfisCM(F)}: returns $0$ if $F$ does not have complex multiplication,
 and the CM discriminant(s) if it does. Note that in weight $1$ $F$ may have
-two CM discriminants.
+two CM discriminants, which occurs iff its galoistype is $D_2$.
 
 \f\kbd{mfisequal(F,G,$\{\text{lim}=0\}$)}: Are $F$ and $G$ equal, or at least
 are their first \kbd{lim+1} Fourier coefficients equal ?
@@ -1948,9 +1950,9 @@ period polynomial.
 \f\kbd{mfperiodpolbasis(k,$\{\text{parity}=0\}$)}: basis of period polynomials of weight
 $k$ for the full modular group, even/odd ones if \kbd{parity} is $1$ or $-1$.
 
-\f\kbd{mfpetersson(FS,$\{GS\}$)}: $FS$ and $GS$ being the modular symbols associated
+\f\kbd{mfpetersson(FS,$\{\text{GS}=\text{FS}\}$)}: $FS$ and $GS$ being the modular symbols associated
 to $F$ and $G$ with \kbd{mfsymbol}, computes the Petersson product of $F$ and
-$G$ with the usual normalization $1/[\G:\G_0(N)]$. (Petersson square if $G$
+$G$ with the usual normalization $1/[\G:\G_0(N)]$. (Petersson square if $GS$
 is omitted.)
 
 \f\kbd{mfpow(F, n)}: Modular form $F$ to the power $n$.
@@ -1975,12 +1977,13 @@ be a positive squarefree integer.
 
 \f\kbd{mfslashexpansion(mf,f,g,n,flrat,$\{\&P\}$)}: compute the Fourier
 expansion of $f|_k g$ to order $n$, where $f$ is a form in \kbd{mf} and
-$g\in M_2^+(\Q)$. If \kbd{flrat} is set (default), try to ``rationalize''
+$g\in M_2^+(\Q)$. If \kbd{flrat} is set, try to ``rationalize''
 (error if unsuccessful). If the output is $[a(0),...,a(n)]$ and the
 optional $P$ contains parameters $[\al,w,A]$, then $f|_k g = F|_k A$
 where
 $F(\tau) = q^{\al}\sum_{0\le j\le n}a(j)q^{j/w}$, with $q=\exp(2\pi i\tau)$.
-$A$ is always upper triangular and usually the identity.
+$A$ is always upper triangular and usually the identity, so that $F|_k A$
+is immediate to compute.
 
 \f\kbd{mfspace(mf,$\{F\}$)}: type of modular space \kbd{mf} if $F$ is omitted,
 or of a modular form $F$ in \kbd{mf}: result is $0$ for new, $1$ for cuspidal,
@@ -2008,12 +2011,12 @@ $s_2$ are cusps or points in the upper half-plane, evaluate the symbol on the
 path, i.e., compute the polynomial
 $\int_{s_1}^{s_2}(X-\tau)^{k-2}F(\tau)\,d\tau$. If $\ga\in GL_2^+(\Q)$ is
 given, replace $F$ by $F|_k\ga$. If the integral diverges, the result will be
-a rational function.
+either a rational function or a polynomial of degree $d>k-2$.
 
 \f\kbd{mftaylor(F,n,$\{\text{fl}=0\}$)}: for now, only for $F\in M_k(\G)$ and
 at the point $i$. Compute the first $n$ Taylor coefficients of $F$ around
 $i$; if \kbd{fl} is set compute in fact $p_n$ such that
-$$f(\tau)=(2i/(\tau+i))^k\sum_{n>=0}p_n((\tau-i)/(\tau+i))^n\;.$$
+$$f(\tau)=(2i/(\tau+i))^k\sum_{n\ge0}p_n((\tau-i)/(\tau+i))^n\;.$$
 
 \f\kbd{mfTheta($\{\chi\}$)}: unary theta series corresponding to the primitive
 Dirichlet character $\chi$, thus in weight $1/2$ (resp., $3/2$)
@@ -2032,7 +2035,8 @@ a sum of $B(d)G_M$ where $G_M\in S_k^{\new}(\G_0(M),\chi)$ and $dM\mid N$,
 return the vector of $[M,d,G]$.
 
 \f\kbd{mftraceform(NK,$\{\text{space}=0\}$)}: gives the trace form
-corresponding to $NK=[N,k,\chi]$ and \kbd{space}.
+corresponding to $NK=[N,k,\chi]$ and \kbd{space} (only the new space and the
+cuspidal space).
 
 \f\kbd{mftwist(F,D)}: twist of the form $F$ by the quadratic character
 $(D/n)$.
