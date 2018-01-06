@@ -386,6 +386,8 @@ L=mfeigensearch([[1..16],3],[[2,0]]); see(L)
 
 V=mfsearch([[11..40],2],[0,1,2,3,4],1);
 for(i=1,#V,print([mfparams(V[i])[1..3],mfcoefs(V[i],10)]));
+V=mfsearch([60,2],[0,1,2,3,4,5,6], 1); #V
+mfcoefs(V[1],5)
 
 charpoly(mfheckemat(mfinit([106,2],1),2))
 

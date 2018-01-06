@@ -56,7 +56,7 @@ static GEN colnewtrace(long n0, long n, long d, long N, long k, cachenew_t *c);
 static GEN dihan(GEN bnr, GEN w, GEN k0j, ulong n);
 static GEN sigchi(long k, GEN CHI, long n);
 static GEN sigchi2(long k, GEN CHI1, GEN CHI2, long n, long ord);
-static GEN mflineardivtomat(GEN vF, long n);
+static GEN mflineardivtomat(long N, GEN vF, long n);
 static GEN mfdihedralcusp(long N, GEN CHI);
 static long mfdihedralcuspdim(long N, GEN CHI);
 static GEN mfdihedralnew(long N, GEN CHI);
@@ -1000,28 +1000,26 @@ ok_bhn_linear(GEN vf)
 
 /* vF not empty, same hypotheses as bhnmat_extend */
 static GEN
-bhnmat_extend_nocache(GEN M, long n, long d, GEN vF)
+bhnmat_extend_nocache(GEN M, long N, long n, long d, GEN vF)
 {
-  GEN f, F;
-  long N, l = lg(vF);
   cachenew_t cache;
+  long l = lg(vF);
+  GEN f;
   if (l == 1) return M? M: cgetg(1, t_MAT);
-  F = gel(vF, l-1); /* vF[#vF-1] has largest level */
-  N = mf_get_N(F);
-  f = bhn_newtrace(F); /* N.B. mf_get_N(f) divides N */
+  f = bhn_newtrace(gel(vF,1)); /* N.B. mf_get_N(f) divides N */
   init_cachenew(&cache, n*d, N, f);
   M = bhnmat_extend(M, n, d, vF, &cache);
   dbg_cachenew(&cache); return M;
 }
 /* c_linear of "bhn" mf closures, same hypotheses as bhnmat_extend */
 static GEN
-c_linear_bhn(long n, long d, GEN F, GEN L, GEN dL)
+c_linear_bhn(long n, long d, GEN F)
 {
   pari_sp av;
-  GEN M, v;
+  GEN M, v, vF = gel(F,2), L = gel(F,3), dL = gel(F,4);
   if (lg(L) == 1) return zerovec(n+1);
   av = avma;
-  M = bhnmat_extend_nocache(NULL, n, d, F);
+  M = bhnmat_extend_nocache(NULL, mf_get_N(F), n, d, vF);
   v = RgM_RgC_mul(M,L); settyp(v, t_VEC);
   if (!is_pm1(dL)) v = gdiv(v, dL);
   return gerepileupto(av, v);
@@ -1521,7 +1519,7 @@ mfcoefs_i(GEN F, long n, long d)
     case t_MF_POW: return c_pow(n, d, gel(F,2), gel(F,3));
     case t_MF_BRACKET: return c_bracket(n, d, gel(F,2), gel(F,3), gel(F,4));
     case t_MF_LINEAR: return c_linear(n, d, gel(F,2), gel(F,3), gel(F,4));
-    case t_MF_LINEAR_BHN: return c_linear_bhn(n, d, gel(F,2),gel(F,3),gel(F,4));
+    case t_MF_LINEAR_BHN: return c_linear_bhn(n, d, F);
     case t_MF_DIV: return c_div(n, d, gel(F,2), gel(F,3));
     case t_MF_SHIFT: return c_shift(n, d, gel(F,2), gel(F,3));
     case t_MF_DERIV: return c_deriv(n, d, gel(F,2), gel(F,3));
@@ -1563,7 +1561,7 @@ mfcoefs_mf(GEN mf, long n, long d)
   if (lS == 1)
     MS = cgetg(1, t_MAT);
   else if (mf_get_type(gel(S,1)) == t_MF_DIV) /*k 1/2-integer or k=1 (exotic)*/
-    MS = matdeflate(n,d, mflineardivtomat(S, n*d));
+    MS = matdeflate(n,d, mflineardivtomat(MF_get_N(mf), S, n*d));
   else if (MF_get_k(mf) == 1) /* k = 1 (dihedral) */
   {
     GEN M = mfvectomat(gmael(S,1,2), n, d);
@@ -1577,7 +1575,7 @@ mfcoefs_mf(GEN mf, long n, long d)
     }
   }
   else /* k >= 2 integer */
-    MS = bhnmat_extend_nocache(NULL, n, d, S);
+    MS = bhnmat_extend_nocache(NULL, MF_get_N(mf), n, d, S);
   return shallowconcat(ME,MS);
 }
 GEN
@@ -3804,7 +3802,7 @@ reset_cachenew(cachenew_t *cache, long N, GEN tf)
       gel(v,i) = const_vec(n, NULL);
   cache->VCHIP = gel(gel(DATA,N),_VCHIP);
 }
-/* initialize a cache of newtrace / cusptrace up to index n and level N;
+/* initialize a cache of newtrace / cusptrace up to index n and level | N;
  * DATA may be NULL (<=> Tr^new = 0). tf a t_MF_NEWTRACE */
 static void
 init_cachenew(cachenew_t *cache, long n, long N, GEN tf)
@@ -3954,7 +3952,7 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
   if (!dim && !init) return NULL;
   sb = mfsturmNk(N, k);
   CHIP = mfchartoprimitive(CHI, &FC);
-  /* remove newtrace data from S to save space inoutput: negligible slowdown */
+  /* remove newtrace data from S to save space in output: negligible slowdown */
   tf = tag(t_MF_NEWTRACE, mkNK(N,k,CHIP), CHIP);
   badj = get_badj(N, FC);
   /* try sbsmall first: Sturm bound not sharp for new space */
@@ -4369,11 +4367,11 @@ mfvec_first_cusp(GEN v)
   }
   return i;
 }
-/* vF a vector of mf F of type DIV(LINEAR(BAS,L), f),
+/* vF a vector of mf F of type DIV(LINEAR(BAS,L), f) in (lcm) level N,
  * F[2]=LINEAR(BAS,L), F[2][2]=BAS=fixed basis (Eisentstein or bhn type),
  * F[2][3]=L, F[3]=f; mfvectomat(vF, n) */
 static GEN
-mflineardivtomat(GEN vF, long n)
+mflineardivtomat(long N, GEN vF, long n)
 {
   GEN F, M, f, fc, V, ME, B, a0;
   long lM, lF = lg(vF), i, j;
@@ -4389,7 +4387,7 @@ mflineardivtomat(GEN vF, long n)
     ME = mfvectomat(vecslice(M,1,i-1), n, 1);
     M = vecslice(M, i,lM-1);
   }
-  M = bhnmat_extend_nocache(NULL, n, 1, M);
+  M = bhnmat_extend_nocache(NULL, N, n, 1, M);
   if (ME) M = shallowconcat(ME,M);
   /* M = mfcoefs of BAS */
   f = mfcoefsser(gel(F,3),n);
@@ -4520,7 +4518,7 @@ mfnewmathecke_p(GEN mf, long p)
   for (i = j = 1; i <= lim; i++)
     if (need[i]) { gel(V,j) = mfhecke_i(i, N, tf); perm[i] = j; j++; }
   setlg(V, j);
-  V = bhnmat_extend_nocache(NULL, mfsturm_mf(mf)-1, 1, V);
+  V = bhnmat_extend_nocache(NULL, N, mfsturm_mf(mf)-1, 1, V);
   V = rowpermute(V, Mindex); /* V[perm[i]] = coeffs(T_i newtrace) */
   M = cgetg(lvj, t_MAT);
   for (i = 1; i < lvj; i++)
@@ -5165,7 +5163,7 @@ mfwt1_pre(long N)
     lim = mfsturm_mf(mf) + 1;
   }
   /* p = smalllest prime not dividing N */
-  M = bhnmat_extend_nocache(MF_get_M(mf), p*lim-1, 1, MF_get_S(mf));
+  M = bhnmat_extend_nocache(MF_get_M(mf), N, p*lim-1, 1, MF_get_S(mf));
   return mkvec3(mkvecsmall2(lim, p), mf, M);
 }
 
@@ -10251,7 +10249,7 @@ mf2init_Nkchi(long N, long r, GEN CHI, long space, long flraw)
   if (space==mf_EISEN) pari_err_IMPL("half-integral weight Eisenstein space");
   L = mfsturmNgk(N, gk) + 1;
   B = mf2basis(N, r, CHI, space);
-  M = mflineardivtomat(B,L);
+  M = mflineardivtomat(N,B,L);
   if (flraw) M = mkvec3(gen_0,gen_0,M);
   else
   {
