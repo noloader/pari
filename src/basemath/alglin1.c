@@ -3669,40 +3669,6 @@ ZM_inv2(GEN A, GEN *pden)
     retmkmat2(mkcol2(negi(d), icopy(c)), mkcol2(icopy(b), negi(a)));
 }
 
-GEN
-ZM_inv(GEN A, GEN *pden)
-{
-  pari_sp av = avma;
-  long B, m = lg(A)-1;
-  GEN d, H, D, mod, worker;
-
-  if (m == 0) return ZM_inv0(A,pden);
-  if (pden) *pden = gen_1;
-  if (nbrows(A) < m) return NULL;
-  if (m == 1 && nbrows(A)==1) return ZM_inv1(A,pden);
-  if (m == 2 && nbrows(A)==2) return ZM_inv2(A,pden);
-
-  B = expi(RgM_true_Hadamard(A));
-  worker = strtoclosure("_ZM_inv_worker", 1, A);
-  H = gen_crt("ZM_inv", worker, NULL, B, m, &mod, nmV_chinese_center, FpM_center);
-  D = ZMrow_ZC_mul(H, gel(A,1), 1); /* det(A) */
-  if (signe(D)==0) pari_err_INV("ZM_inv", A);
-  d = Z_content(mkvec2(H, D));
-  if (!d) d = gen_1;
-  if (signe(D) < 0) d = negi(d);
-  if (!equali1(d))
-  {
-    H = ZM_Z_divexact(H, d);
-    D = diviiexact(D, d);
-  }
-  if (pden)
-  {
-    gerepileall(av, 2, &H, &D);
-    *pden = D; return H;
-  }
-  return gerepilecopy(av, H);
-}
-
 /* to be used when denom(M^(-1)) << det(M) and a sharp multiple is
  * not available. Return H primitive such that M*H = den*Id */
 GEN
@@ -3774,7 +3740,7 @@ ZM_adj_ratlift(GEN A, GEN H, GEN mod)
 }
 
 GEN
-ZM_inv_mix(GEN A, GEN *pden)
+ZM_inv(GEN A, GEN *pden)
 {
   pari_sp av = avma;
   long m = lg(A)-1, n, k1 = 1, k2;
@@ -5532,7 +5498,7 @@ ZM_pseudoinv(GEN M, GEN *pv, GEN *den)
   GEN v = ZM_indexrank(M);
   if (pv) *pv = v;
   M = shallowmatextract(M,gel(v,1),gel(v,2));
-  return ZM_inv_mix(M, den);
+  return ZM_inv(M, den);
 }
 
 /*******************************************************************/
