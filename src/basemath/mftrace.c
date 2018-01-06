@@ -34,7 +34,7 @@ typedef struct {
 static void init_cachenew(cachenew_t *c, long n, long N, GEN f);
 static GEN mfinit_i(GEN NK, long space);
 static GEN mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw);
-static GEN mf2init_Nkchi(long N, long k, GEN CHI, long space);
+static GEN mf2init_Nkchi(long N, long k, GEN CHI, long space, long flraw);
 static GEN mf2basis(long N, long r, GEN CHI, long space);
 static GEN mfeisensteinbasis(long N, long k, GEN CHI);
 static GEN mfeisensteindec(GEN mf, GEN F);
@@ -6554,9 +6554,9 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
 
 /* mfinit for k = nk/dk */
 static GEN
-mfinit_Nndkchi(long N, long nk, long dk, GEN CHI, long space)
-{ return (dk == 2)? mf2init_Nkchi(N, nk >> 1, CHI, space)
-                  : mfinit_Nkchi(N, nk, CHI, space, 0); }
+mfinit_Nndkchi(long N, long nk, long dk, GEN CHI, long space, long flraw)
+{ return (dk == 2)? mf2init_Nkchi(N, nk >> 1, CHI, space, flraw)
+                  : mfinit_Nkchi(N, nk, CHI, space, flraw); }
 static GEN
 mfinit_i(GEN NK, long space)
 {
@@ -6609,7 +6609,7 @@ mfinit_i(GEN NK, long space)
       l = lg(vCHI); mf = cgetg(l, t_VEC);
       for (i = j = 1; i < l; i++)
       {
-        GEN v = mfinit_Nndkchi(N, k, dk, gel(vCHI,i), space);
+        GEN v = mfinit_Nndkchi(N, k, dk, gel(vCHI,i), space, 0);
         if (MF_get_dim(v) || CHI) gel(mf, j++) = v;
       }
     }
@@ -6617,7 +6617,7 @@ mfinit_i(GEN NK, long space)
     if (!CHI) gen_sort_inplace(mf, NULL, &cmp_ord, NULL);
     return mf;
   }
-  return mfinit_Nndkchi(N, k, dk, CHI, space);
+  return mfinit_Nndkchi(N, k, dk, CHI, space, 0);
 }
 GEN
 mfinit(GEN NK, long space)
@@ -7456,7 +7456,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   if (dk == 2)
     CHIAL = mfcharmul(CHIAL, induce(gel(CHIAL,1), utoipos(odd(Q) ? Q<<2 : Q)));
   CHIAL = mfchartoprimitive(CHIAL,NULL);
-  mfB = gequal(CHIAL, CHI)? mf: mfinit_Nndkchi(N,nk,dk,CHIAL,MF_get_space(mf));
+  mfB = gequal(CHIAL,CHI)? mf: mfinit_Nndkchi(N,nk,dk,CHIAL,MF_get_space(mf),0);
   Mindex = MF_get_Mindex(mfB);
   Minv = MF_get_Minv(mfB);
   P = z = NULL;
@@ -7958,7 +7958,7 @@ mfsearch(GEN NK, GEN V, long space)
       GEN *ND = (GEN*)NbyD + itou(gD); /* points to NbyD[|D|] */
 
       if (seenD(N, *ND)) continue;
-      mf = mfinit_Nndkchi(N, nk, dk, get_mfchar(gD), space);
+      mf = mfinit_Nndkchi(N, nk, dk, get_mfchar(gD), space, 1);
       M = mfcoefs_mf(mf, nV, 1);
       CO = inverseimage(M, V); if (lg(CO) == 1) continue;
 
@@ -10240,7 +10240,7 @@ mf2dim_Nkchi(long N, long r, GEN CHI, ulong space)
 
 /* weight k=r+1/2 */
 static GEN
-mf2init_Nkchi(long N, long r, GEN CHI, long space)
+mf2init_Nkchi(long N, long r, GEN CHI, long space, long flraw)
 {
   GEN Minv, Minvmat, B, M, gk = gaddsg(r,ghalf);
   GEN mf1 = mkvec4(utoi(N),gk,CHI,utoi(space));
@@ -10250,12 +10250,16 @@ mf2init_Nkchi(long N, long r, GEN CHI, long space)
   L = mfsturmNgk(N, gk) + 1;
   B = mf2basis(N, r, CHI, space);
   M = mflineardivtomat(B,L);
-  M = mfcleanCHI(M, CHI, 0);
-  Minv = gel(M,2);
-  Minvmat = RgM_Minv_mul(NULL, Minv);
-  B = vecmflineardiv_linear(B, Minvmat);
-  gel(M,3) = RgM_Minv_mul(gel(M,3), Minv);
-  gel(M,2) = mkMinv(matid(lg(B)-1), NULL,NULL,NULL);
+  if (flraw) M = mkvec3(gen_0,gen_0,M);
+  else
+  {
+    M = mfcleanCHI(M, CHI, 0);
+    Minv = gel(M,2);
+    Minvmat = RgM_Minv_mul(NULL, Minv);
+    B = vecmflineardiv_linear(B, Minvmat);
+    gel(M,3) = RgM_Minv_mul(gel(M,3), Minv);
+    gel(M,2) = mkMinv(matid(lg(B)-1), NULL,NULL,NULL);
+  }
   return mkmf(mf1, cgetg(1,t_VEC), B, gen_0, M);
 }
 
