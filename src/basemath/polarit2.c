@@ -1827,45 +1827,35 @@ primitive_part(GEN x, GEN *ptc)
 GEN
 primpart(GEN x) { return primitive_part(x, NULL); }
 
+static GEN
+Q_content_v(GEN x, long i, long l)
+{
+  pari_sp av = avma;
+  GEN d = Q_content_safe(gel(x,i));
+  if (!d) return NULL;
+  for (i++; i < l; i++)
+  {
+    GEN c = Q_content_safe(gel(x,i));
+    if (!c) return NULL;
+    d = Q_gcd(d, c);
+  }
+  return gerepileupto(av, d);
+}
 /* As content(), but over Q. Treats polynomial as elts of Q[x1,...xn], instead
  * of Q(x2,...,xn)[x1] */
 GEN
 Q_content_safe(GEN x)
 {
-  long i, l;
-  GEN c, d;
-  pari_sp av;
-
+  long l;
   switch(typ(x))
   {
     case t_INT:  return absi(x);
     case t_FRAC: return absfrac(x);
-
-    case t_VEC: case t_COL: case t_MAT:
-      l = lg(x); if (l == 1) return gen_1;
-      av = avma; d = Q_content_safe(gel(x,1)); if (!d) return NULL;
-      for (i=2; i<l; i++)
-      {
-        c = Q_content_safe(gel(x,i)); if (!c) return NULL;
-        d = Q_gcd(d, c);
-        if ((i & 255) == 0) d = gerepileupto(av, d);
-      }
-      return gerepileupto(av, d);
-
+    case t_COMPLEX: case t_VEC: case t_COL: case t_MAT:
+      l = lg(x); return l==1? gen_1: Q_content_v(x, 1, l);
     case t_POL:
-      l = lg(x); if (l == 2) return gen_0;
-      av = avma; d = Q_content_safe(gel(x,2)); if (!d) return NULL;
-      for (i=3; i<l; i++)
-      {
-        c = Q_content_safe(gel(x,i)); if (!c) return NULL;
-        d = Q_gcd(d, c);
-      }
-      return gerepileupto(av, d);
+      l = lg(x); return l==2? gen_0: Q_content_v(x, 2, l);
     case t_POLMOD: return Q_content_safe(gel(x,2));
-    case t_COMPLEX:
-      c = Q_content_safe(gel(x,1)); if (!c) return NULL;
-      d = Q_content_safe(gel(x,2)); if (!d) return NULL;
-      return Q_gcd(c,d);
   }
   return NULL;
 }
@@ -1893,46 +1883,36 @@ ZX_content(GEN x)
   return gerepileuptoint(av, d);
 }
 
+static GEN
+Z_content_v(GEN x, long i, long l)
+{
+  pari_sp av = avma;
+  GEN d = Z_content(gel(x,1));
+  if (!d) return NULL;
+  for (i=2; i<l; i++)
+  {
+    GEN c = Z_content(gel(x,i));
+    if (!c) return NULL;
+    d = gcdii(d, c); if (is_pm1(d)) return NULL;
+    if ((i & 255) == 0) d = gerepileuptoint(av, d);
+  }
+  return gerepileuptoint(av, d);
+}
+/* return NULL for 1 */
 GEN
 Z_content(GEN x)
 {
-  long i, l;
-  GEN c, d;
-  pari_sp av;
-
+  long l;
   switch(typ(x))
   {
     case t_INT:
       if (is_pm1(x)) return NULL;
       return absi(x);
-
-    case t_VEC: case t_COL: case t_MAT:
-      l = lg(x); if (l == 1) return NULL;
-      av = avma; d = Z_content(gel(x,1)); if (!d) return NULL;
-      for (i=2; i<l; i++)
-      {
-        c = Z_content(gel(x,i)); if (!c) return NULL;
-        d = gcdii(d, c); if (is_pm1(d)) return NULL;
-        if ((i & 255) == 0) d = gerepileupto(av, d);
-      }
-      return gerepileupto(av, d);
-
+    case t_COMPLEX: case t_VEC: case t_COL: case t_MAT:
+      l = lg(x); return l==1? NULL: Z_content_v(x, 1, l);
     case t_POL:
-      l = lg(x); if (l == 2) return gen_0;
-      av = avma; d = Z_content(gel(x,2)); if (!d) return NULL;
-      for (i=3; i<l; i++)
-      {
-        c = Z_content(gel(x,i)); if (!c) return NULL;
-        d = gcdii(d, c); if (is_pm1(d)) return NULL;
-      }
-      return gerepileupto(av, d);
+      l = lg(x); return l==2? gen_0: Z_content_v(x, 2, l);
     case t_POLMOD: return Z_content(gel(x,2));
-    case t_COMPLEX:
-      av = avma;
-      c = Z_content(gel(x,1)); if (!c) return NULL;
-      d = Z_content(gel(x,2)); if (!d) return NULL;
-      d = gcdii(d, c); if (is_pm1(d)) return NULL;
-      return gerepileupto(av, d);
   }
   pari_err_TYPE("Z_content", x);
   return NULL; /* LCOV_EXCL_LINE */
