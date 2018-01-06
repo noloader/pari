@@ -1549,14 +1549,16 @@ matdeflate(long n, long d, GEN M)
 }
 static int
 space_is_cusp(long space) { return space != mf_FULL && space != mf_EISEN; }
+/* safe with flraw mf */
 static GEN
 mfcoefs_mf(GEN mf, long n, long d)
 {
-  GEN MS, ME, E = MF_get_E(mf), S = MF_get_S(mf);
+  GEN MS, ME, E = MF_get_E(mf), S = MF_get_S(mf), M = MF_get_M(mf);
   long lE = lg(E), lS = lg(S), l = lE+lS-1;
 
   if (l == 1) return cgetg(1, t_MAT);
-  if (n*d < mfsturm_mf(mf)) return matdeflate(n, d, MF_get_M(mf)); /*cached*/
+  if (typ(M) == t_MAT && lg(M) != 1 && (n+1)*d < nbrows(M))
+    return matdeflate(n, d, M); /*cached; lg = 1 is possible from mfinit */
   ME = (lE == 1)? cgetg(1, t_MAT): mfvectomat(E, n, d);
   if (lS == 1)
     MS = cgetg(1, t_MAT);
