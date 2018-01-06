@@ -1887,9 +1887,9 @@ static GEN
 Z_content_v(GEN x, long i, long l)
 {
   pari_sp av = avma;
-  GEN d = Z_content(gel(x,1));
+  GEN d = Z_content(gel(x,i));
   if (!d) return NULL;
-  for (i=2; i<l; i++)
+  for (i++; i<l; i++)
   {
     GEN c = Z_content(gel(x,i));
     if (!c) return NULL;
@@ -1918,43 +1918,34 @@ Z_content(GEN x)
   return NULL; /* LCOV_EXCL_LINE */
 }
 
+static GEN
+Q_denom_v(GEN x, long i, long l)
+{
+  pari_sp av = avma;
+  GEN d = Q_denom(gel(x,i));
+  for (i++; i<l; i++)
+  {
+    GEN D = Q_denom(gel(x,i));
+    if (D != gen_1) d = lcmii(d, D);
+    if ((i & 255) == 0) d = gerepileuptoint(av, d);
+  }
+  return gerepileuptoint(av, d);
+}
 /* NOT MEMORY CLEAN (because of t_FRAC).
  * As denom(), but over Q. Treats polynomial as elts of Q[x1,...xn], instead
  * of Q(x2,...,xn)[x1] */
 GEN
 Q_denom(GEN x)
 {
-  long i, l;
-  GEN d, D;
-  pari_sp av;
-
+  long l;
   switch(typ(x))
   {
     case t_INT: return gen_1;
     case t_FRAC: return gel(x,2);
-    case t_COMPLEX: return lcmii(Q_denom(gel(x,1)), Q_denom(gel(x,2)));
-
-    case t_VEC: case t_COL: case t_MAT:
-      l = lg(x); if (l == 1) return gen_1;
-      av = avma; d = Q_denom(gel(x,1));
-      for (i=2; i<l; i++)
-      {
-        D = Q_denom(gel(x,i));
-        if (D != gen_1) d = lcmii(d, D);
-        if ((i & 255) == 0) d = gerepileuptoint(av, d);
-      }
-      return gerepileuptoint(av, d);
-
+    case t_COMPLEX: case t_VEC: case t_COL: case t_MAT:
+      l = lg(x); return l==1? gen_1: Q_denom_v(x, 1, l);
     case t_POL:
-      l = lg(x); if (l == 2) return gen_1;
-      av = avma; d = Q_denom(gel(x,2));
-      for (i=3; i<l; i++)
-      {
-        D = Q_denom(gel(x,i));
-        if (D != gen_1) d = lcmii(d, D);
-      }
-      return gerepileuptoint(av, d);
-
+      l = lg(x); return l==2? gen_1: Q_denom_v(x, 2, l);
     case t_POLMOD: return Q_denom(gel(x,2));
   }
   pari_err_TYPE("Q_denom",x);
