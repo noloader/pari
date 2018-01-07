@@ -2193,6 +2193,7 @@ update_factor_cache(long a, long lim, long *pb)
   /* FIXME: need only factor odd integers in the range */
   return vecfactoru_i(a, *pb);
 }
+/* assume lim < MAX_LONG/8 */
 static void
 constcoredisc(long lim)
 {
@@ -2205,8 +2206,9 @@ constcoredisc(long lim)
   D = zero_zv(lim);
   av2 = avma;
   cachea = cacheb = 0;
-  for (N = 1; N <= lim; ++N)
-  {
+  for (N = 1; N <= lim; N+=2)
+  { /* N odd */
+    long i, d, d2;
     GEN F;
     if (N > cacheb)
     {
@@ -2214,7 +2216,15 @@ constcoredisc(long lim)
       CACHE = update_factor_cache(N, lim, &cacheb);
     }
     F = gel(CACHE, N-cachea+1); /* factoru(N) */
-    D[N] = corediscs_fact(F);
+    D[N] = d = corediscs_fact(F); /* = 3 mod 4 or 4 mod 16 */
+    d2 = odd(d)? d<<3: d<<1;
+    for (i = 1;;)
+    {
+      if ((N << i) > lim) break;
+      D[N<<i] = d2; i++;
+      if ((N << i) > lim) break;
+      D[N<<i] = d; i++;
+    }
   }
   cache_set(cache_D, D);
   avma = av;

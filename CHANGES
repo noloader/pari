@@ -244,7 +244,8 @@ BA   68- new GP functions hyperellratpoints and ellratpoints based on
      71- GP function znchargauss
      72- Configure --graphic=svg
      73- GP function divisorslenstra (divisors in residue classes)
-     74- [libpari] lg_increase, vecfactoru, vecfactoru_i
+     74- [libpari] lg_increase, vecfactoru, vecfactoru_i, vecfactoroddu,
+         vecfactoroddu_i
 BA   75- ellheight for curves over number fields
      76- new GP function forfactored
      77- [libpari] ZV_sort_inplace

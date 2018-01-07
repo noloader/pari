@@ -3869,9 +3869,7 @@ vecfactoru_i(ulong a, ulong b)
     ulong pk = p, K = ulogint(b, p);
     for (k = 1; k <= K; k++)
     {
-      ulong ap, j, t;
-      t = a / pk;
-      ap = t * pk;
+      ulong j, t = a / pk, ap = t * pk;
       if (ap < a) { ap += pk; t++; }
       /* t = (j+a-1) \ pk */
       for (j = ap-a+1; j <= n; j += pk, t++)
@@ -3889,4 +3887,54 @@ vecfactoru(ulong a, ulong b)
 {
   pari_sp av = avma;
   return gerepilecopy(av, vecfactoru_i(a,b));
+}
+
+/* Assume a and b odd, return L s.t. L[k] = factoru(a + 2*(k-1))
+ * If a <= c <= b odd, factoru(c) = L[(c-a)>>1 + 1] */
+GEN
+vecfactoroddu_i(ulong a, ulong b)
+{
+  ulong N, k, p, n = ((b-a)>>1) + 1;
+  GEN v = const_vecsmall(n, 1);
+  GEN L = cgetg(n+1, t_VEC);
+  forprime_t T;
+  /* f(N)=my(a=primes(n+1));vecprod(a[2..#a]); */
+  if (b < 255255UL) N = 6;
+  else if (b < 4849845UL) N = 7;
+  else if (b < 111546435UL) N = 8;
+#ifdef LONG_IS_64BIT
+  else if (b < 3234846615UL) N = 9;
+  else if (b < 100280245065UL) N = 10;
+  else if (b < 3710369067405UL) N = 11;
+  else if (b < 152125131763605UL) N = 12;
+  else N = 16; /* don't bother */
+#else
+  else N = 9;
+#endif
+  for (k = 1; k <= n; k++) gel(L,k) = matsmalltrunc_init(N);
+  u_forprime_init(&T, 3, usqrt(b));
+  while ((p = u_forprime_next(&T)))
+  { /* p <= sqrt(b) */
+    ulong pk = p, K = ulogint(b, p);
+    for (k = 1; k <= K; k++)
+    {
+      ulong j, t = (a / pk) | 1UL, ap = t * pk;
+      /* t and ap are odd, ap multiple of pk = p^k */
+      if (ap < a) { ap += pk<<1; t+=2; }
+      /* c=t*p^k by steps of 2*p^k; factorization of c*=p^k if (t,p)=1 */
+      for (j = ((ap-a)>>1)+1; j <= n; j += pk, t+=2)
+        if (t % p) { v[j] *= pk; matsmalltrunc_append(gel(L,j), p,k); }
+      pk *= p;
+    }
+  }
+  /* complete factorisation of non-sqrt(b)-smooth numbers */
+  for (k = 1, N = a; k <= n; k++, N+=2)
+    if (uel(v,k) != N) matsmalltrunc_append(gel(L,k), N/uel(v,k),1UL);
+  return L;
+}
+GEN
+vecfactoroddu(ulong a, ulong b)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, vecfactoroddu_i(a,b));
 }

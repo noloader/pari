@@ -3651,6 +3651,8 @@ ulong   uprecprime(ulong n);
 GEN     usumdivkvec(ulong n, GEN K);
 GEN     vecfactoru_i(ulong a, ulong b);
 GEN     vecfactoru(ulong a, ulong b);
+GEN     vecfactoroddu_i(ulong a, ulong b);
+GEN     vecfactoroddu(ulong a, ulong b);
 
 /* init.c */
 
