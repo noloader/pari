@@ -3654,6 +3654,7 @@ GEN     vecfactoru_i(ulong a, ulong b);
 GEN     vecfactoru(ulong a, ulong b);
 GEN     vecfactoroddu_i(ulong a, ulong b);
 GEN     vecfactoroddu(ulong a, ulong b);
+GEN     vecsquarefreeu(ulong a, ulong b);
 
 /* init.c */
 

@@ -3979,3 +3979,22 @@ vecfactorsquarefreeu(ulong a, ulong b)
     if (gel(L,k) && uel(v,k) != N) vecsmalltrunc_append(gel(L,k), N/uel(v,k));
   return L;
 }
+
+GEN
+vecsquarefreeu(ulong a, ulong b)
+{
+  ulong j, k, p, n = b-a+1;
+  GEN L = const_vecsmall(n, 1);
+  forprime_t T;
+  u_forprime_init(&T, 2, usqrt(b));
+  while ((p = u_forprime_next(&T)))
+  { /* p <= sqrt(b), kill non-squarefree */
+    ulong pk = p*p, t = a / pk, ap = t * pk;
+    if (ap < a) { ap += pk; t++; }
+    /* t = (j+a-1) \ pk */
+    for (j = ap-a+1; j <= n; j += pk, t++) L[j] = 0;
+  }
+  for (k = j = 1; k <= n; k++)
+    if (L[k]) L[j++] = a+k-1;
+  setlg(L,j); return L;
+}
