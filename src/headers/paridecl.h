@@ -3649,6 +3649,7 @@ long    uissquarefree_fact(GEN f);
 ulong   unextprime(ulong n);
 ulong   uprecprime(ulong n);
 GEN     usumdivkvec(ulong n, GEN K);
+GEN     vecfactorsquarefreeu(ulong a, ulong b);
 GEN     vecfactoru_i(ulong a, ulong b);
 GEN     vecfactoru(ulong a, ulong b);
 GEN     vecfactoroddu_i(ulong a, ulong b);

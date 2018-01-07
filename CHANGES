@@ -245,7 +245,7 @@ BA   68- new GP functions hyperellratpoints and ellratpoints based on
      72- Configure --graphic=svg
      73- GP function divisorslenstra (divisors in residue classes)
      74- [libpari] lg_increase, vecfactoru, vecfactoru_i, vecfactoroddu,
-         vecfactoroddu_i
+         vecfactoroddu_i, vecfactorsquarefreeu
 BA   75- ellheight for curves over number fields
      76- new GP function forfactored
      77- [libpari] ZV_sort_inplace
@@ -342,6 +342,7 @@ BA  139- [libpari] QM_gauss
 LGr 140- make TESTS="a b c" test-all to test only 'a' 'b' and 'c', e.g.
          'lfun', 'gamma' and 'lfuntype' (same for statest-all and dyntest-all)
     141- allow quaddisc(integer factorization matrix)
+    142- New GP function forsquarefree
 
   Changed
       1- rewrite bnfnarrow

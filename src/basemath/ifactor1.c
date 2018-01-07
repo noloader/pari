@@ -3843,6 +3843,7 @@ matsmalltrunc_init(long l)
   GEN E = vecsmalltrunc_init(l); return mkvec2(P,E);
 }
 
+/* If a <= c <= b , factoru(c) = L[c-a+1] */
 GEN
 vecfactoru_i(ulong a, ulong b)
 {
@@ -3937,4 +3938,44 @@ vecfactoroddu(ulong a, ulong b)
 {
   pari_sp av = avma;
   return gerepilecopy(av, vecfactoroddu_i(a,b));
+}
+
+/* If 0 <= a <= c <= b; L[c-a+1] = factoru(c)[,1] if c squarefree, else NULL */
+GEN
+vecfactorsquarefreeu(ulong a, ulong b)
+{
+  ulong N, k, p, n = b-a+1;
+  GEN v = const_vecsmall(n, 1);
+  GEN L = cgetg(n+1, t_VEC);
+  forprime_t T;
+  if (b < 510510UL) N = 7;
+  else if (b < 9699690UL) N = 8;
+#ifdef LONG_IS_64BIT
+  else if (b < 223092870UL) N = 9;
+  else if (b < 6469693230UL) N = 10;
+  else if (b < 200560490130UL) N = 11;
+  else if (b < 7420738134810UL) N = 12;
+  else if (b < 304250263527210UL) N = 13;
+  else N = 16; /* don't bother */
+#else
+  else N = 9;
+#endif
+  for (k = 1; k <= n; k++) gel(L,k) = vecsmalltrunc_init(N);
+  u_forprime_init(&T, 2, usqrt(b));
+  while ((p = u_forprime_next(&T)))
+  { /* p <= sqrt(b), kill non-squarefree */
+    ulong j, pk = p*p, t = a / pk, ap = t * pk;
+    if (ap < a) { ap += pk; t++; }
+    /* t = (j+a-1) \ pk */
+    for (j = ap-a+1; j <= n; j += pk, t++) gel(L,j) = NULL;
+
+    t = a / p; ap = t * p;
+    if (ap < a) { ap += p; t++; }
+    for (j = ap-a+1; j <= n; j += p, t++)
+      if (gel(L,j)) { v[j] *= p; vecsmalltrunc_append(gel(L,j), p); }
+  }
+  /* complete factorisation of non-sqrt(b)-smooth numbers */
+  for (k = 1, N = a; k <= n; k++, N++)
+    if (gel(L,k) && uel(v,k) != N) vecsmalltrunc_append(gel(L,k), N/uel(v,k));
+  return L;
 }

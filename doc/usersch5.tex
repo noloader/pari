@@ -7474,6 +7474,15 @@ given in in $v[(c-a)/2 + 1]$.
 \fun{GEN}{vecfactoroddu_i}{ulong a, ulong b}, private version of
 \kbd{vecfactoroddu}, not memory clean.
 
+\fun{GEN}{vecfactorsquarefreeu}{ulong a, ulong b} return a \typ{VEC} $v$
+containing the prime divisors of squarefree integers in $a,\dots,b$; assume
+that $b \geq a \geq 0$. Uses a sive with primes up to $\sqrt{b}$.
+For all squarefree $c$, $a\leq c\leq b$, the prime divisors of $c$ (as a
+\typ{VECSMALL}) are given in $v[c-a+1]$, and the other entries are
+\kbd{NULL}. Note that because of these \kbd{NULL} markers, $v$ is not a valid
+\kbd{GEN}, it is not memory clean and cannot be used in garbage collection
+routines.
+
 \fun{ulong}{tridiv_bound}{GEN n} returns the trial division bound used by
 \tet{Z_factor}$(n)$.
 

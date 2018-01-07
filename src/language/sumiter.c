@@ -130,6 +130,84 @@ forfactoredpos(ulong a, ulong b, GEN code)
   }
   return 0;
 }
+
+/* vector of primes to squarefree factorization */
+static GEN
+zv_to_ZM(GEN v)
+{ return mkmat2(zc_to_ZC(v), const_col(lg(v)-1,gen_1)); }
+/* vector of primes to negative squarefree factorization */
+static GEN
+zv_to_mZM(GEN v)
+{
+  long i, l = lg(v);
+  GEN w = cgetg(l+1, t_COL);
+  gel(w,1) = gen_m1; for (i = 1; i < l; i++) gel(w,i+1) = utoipos(v[i]);
+  return mkmat2(w, const_col(l,gen_1));
+}
+/* 0 <= a <= b. Using small consecutive chunks to 1) limit memory use, 2) allow
+ * cheap early abort */
+static void
+forsquarefreepos(ulong a, ulong b, GEN code)
+{
+  const ulong step = 1024;
+  pari_sp av = avma;
+  ulong x1;
+  for(x1 = a;; x1 += step, avma = av)
+  { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
+    ulong j, lv, x2 = (b >= 2*step && b - 2*step >= x1)? x1-1 + step: b;
+    GEN v = vecfactorsquarefreeu(x1, x2);
+    lv = lg(v);
+    for (j = 1; j < lv; j++)
+    {
+      ulong n;
+      if (!gel(v,j)) continue;
+      n = x1-1 + j;
+      set_lex(-1, mkvec2(utoipos(n), zv_to_ZM(gel(v,j))));
+      closure_evalvoid(code); if (loop_break()) return;
+    }
+    if (x2 == b) break;
+    set_lex(-1, gen_0);
+  }
+}
+/* 0 <= a <= b. Loop from -b, ... -a through squarefree integers */
+static void
+forsquarefreeneg(ulong a, ulong b, GEN code)
+{
+  const ulong step = 1024;
+  pari_sp av = avma;
+  ulong x2;
+  for(x2 = b;; x2 -= step, avma = av)
+  { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
+    ulong j, x1 = (x2 >= 2*step && x2-2*step >= a)? x2+1 - step: a;
+    GEN v = vecfactorsquarefreeu(x1, x2);
+    for (j = lg(v)-1; j > 0; j--)
+    {
+      ulong n;
+      if (!gel(v,j)) continue;
+      n = x1-1 + j;
+      set_lex(-1, mkvec2(utoineg(n), zv_to_mZM(gel(v,j))));
+      closure_evalvoid(code); if (loop_break()) return;
+    }
+    if (x1 == a) break;
+    set_lex(-1, gen_0);
+  }
+}
+void
+forsquarefree(GEN a, GEN b, GEN code)
+{
+  pari_sp av = avma;
+  long s;
+  if (typ(a) != t_INT) pari_err_TYPE("forsquarefree", a);
+  if (typ(b) != t_INT) pari_err_TYPE("forsquarefree", b);
+  if (cmpii(a,b) > 0) return;
+  s = signe(a);
+  if (s * signe(b) < 0) pari_err_TYPE("forsquarefree [!= signs]", mkvec2(a,b));
+  push_lex(NULL,code);
+  if (s < 0) forsquarefreeneg(itou(b), itou(a), code);
+  else       forsquarefreepos(itou(a), itou(b), code);
+  pop_lex(1); avma = av;
+}
+
 /* convert factoru(n) to factor(-n); M pre-allocated factorization matrix
  * with (-1)^1 already set */
 static void
@@ -167,8 +245,7 @@ forfactoredneg(ulong a, ulong b, GEN code)
       ulong n = x1-1 + j;
       Flm2negfact(gel(v,j), M);
       set_lex(-1, mkvec2(utoineg(n), M));
-      closure_evalvoid(code);
-      if (loop_break()) return 1;
+      closure_evalvoid(code); if (loop_break()) return 1;
     }
     if (x1 == a) break;
     set_lex(-1, gen_0);
