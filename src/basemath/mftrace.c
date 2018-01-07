@@ -2185,7 +2185,7 @@ pari_close_mf(void)
 static GEN
 update_factor_cache(long a, long lim, long *pb)
 {
-  const long step = 2000; /* even; don't increase this: RAM cache thrashing */
+  const long step = 16000; /* even; don't increase this: RAM cache thrashing */
   if (a + 2*step > lim)
     *pb = lim; /* fuse last 2 chunks */
   else
