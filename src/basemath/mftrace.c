@@ -2181,11 +2181,22 @@ pari_close_mf(void)
 }
 
 /*************************************************************************/
+/* update local cache (recycle memory) */
+static GEN
+update_factor_cache(long a, long lim, long *pb)
+{
+  const long step = 1000; /* don't increase this: RAM cache thrashing */
+  if (a + 2*step > lim)
+    *pb = lim; /* fuse last 2 chunks */
+  else
+    *pb = a + step;
+  /* FIXME: need only factor odd integers in the range */
+  return vecfactoru_i(a, *pb);
+}
 static void
 constcoredisc(long lim)
 {
   pari_sp av2, av = avma;
-  const long cachestep = 1000; /* don't increase this: RAM cache thrashing */
   GEN D = caches[cache_D].cache, CACHE = NULL;
   long cachea, cacheb, N, LIM = !D ? 4 : lg(D)-1;
   if (lim <= 0) lim = 5;
@@ -2198,16 +2209,11 @@ constcoredisc(long lim)
   {
     GEN F;
     if (N > cacheb)
-    { /* update local cache (recycle memory) */
-      cachea = N;
-      if (cachea + 2*cachestep > lim)
-        cacheb = lim; /* fuse last 2 chunks */
-      else
-        cacheb = cachea + cachestep;
-      avma = av2; /* FIXME: need only factor odd integers in the range */
-      CACHE = vecfactoru_i(cachea, cacheb);
+    {
+      avma = av2; cachea = N;
+      CACHE = update_factor_cache(N, lim, &cacheb);
     }
-    F = gel(CACHE,N - cachea + 1); /* factoru(N) */
+    F = gel(CACHE, N-cachea+1); /* factoru(N) */
     D[N] = corediscs_fact(F);
   }
   cache_set(cache_D, D);
@@ -2266,7 +2272,6 @@ consttabh(long lim)
   pari_sp av = avma;
   GEN VHDH0, VDIV, CACHE = NULL;
   GEN VHDH = caches[cache_H].cache;
-  const long cachestep = 1000; /* don't increase this: RAM cache thrashing */
   long r, N, cachea, cacheb, lim0 = VHDH? lg(VHDH)-1: 2, LIM = lim0 << 1;
 
   if (lim <= 0) lim = 5;
@@ -2285,22 +2290,16 @@ consttabh(long lim)
     long s = 0, limt = usqrt(N>>2), flsq = 0, ind, t, L, S;
     GEN DN, DN2;
     if (N + 2 >= lg(VDIV))
-    {
+    { /* use local cache */
       GEN F;
       if (N + 2 > cacheb)
-      { /* update local cache (recycle memory) */
-        cachea = N;
-        if (cachea + 2*cachestep > lim)
-          cacheb = lim+2; /* fuse last 2 chunks */
-        else
-          cacheb = cachea + cachestep;
-        avma = av; /* FIXME: need only factor odd integers in the range */
-        CACHE = vecfactoru_i(cachea, cacheb);
+      {
+        avma = av; cachea = N;
+        CACHE = update_factor_cache(N, lim+2, &cacheb);
       }
-      /* use local cache */
-      F = gel(CACHE,N - cachea + 1); /* factoru(N) */
+      F = gel(CACHE, N-cachea+1); /* factoru(N) */
       DN = divisorsu_fact(F);
-      F = gel(CACHE,N - cachea + 3); /* factoru(N+2) */
+      F = gel(CACHE, N-cachea+3); /* factoru(N+2) */
       DN2 = divisorsu_fact(F);
     }
     else
