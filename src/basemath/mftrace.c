@@ -2181,17 +2181,16 @@ pari_close_mf(void)
 }
 
 /*************************************************************************/
-/* update local cache (recycle memory) */
+/* a odd, update local cache (recycle memory) */
 static GEN
 update_factor_cache(long a, long lim, long *pb)
 {
-  const long step = 1000; /* don't increase this: RAM cache thrashing */
+  const long step = 2000; /* even; don't increase this: RAM cache thrashing */
   if (a + 2*step > lim)
     *pb = lim; /* fuse last 2 chunks */
   else
     *pb = a + step;
-  /* FIXME: need only factor odd integers in the range */
-  return vecfactoru_i(a, *pb);
+  return vecfactoroddu_i(a, *pb);
 }
 /* assume lim < MAX_LONG/8 */
 static void
@@ -2215,7 +2214,7 @@ constcoredisc(long lim)
       avma = av2; cachea = N;
       CACHE = update_factor_cache(N, lim, &cacheb);
     }
-    F = gel(CACHE, N-cachea+1); /* factoru(N) */
+    F = gel(CACHE, ((N-cachea)>>1)+1); /* factoru(N) */
     D[N] = d = corediscs_fact(F); /* = 3 mod 4 or 4 mod 16 */
     d2 = odd(d)? d<<3: d<<1;
     for (i = 1;;)
@@ -2307,9 +2306,9 @@ consttabh(long lim)
         avma = av; cachea = N;
         CACHE = update_factor_cache(N, lim+2, &cacheb);
       }
-      F = gel(CACHE, N-cachea+1); /* factoru(N) */
+      F = gel(CACHE, ((N-cachea)>>1)+1); /* factoru(N) */
       DN = divisorsu_fact(F);
-      F = gel(CACHE, N-cachea+3); /* factoru(N+2) */
+      F = gel(CACHE, ((N-cachea)>>1)+2); /* factoru(N+2) */
       DN2 = divisorsu_fact(F);
     }
     else
