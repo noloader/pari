@@ -3,4 +3,4 @@ Section: number_theoretical
 C-Name: moebius
 Prototype: lG
 Help: moebius(x): Moebius function of x.
-Doc: \idx{Moebius} $\mu$-function of $|x|$. $x$ must be of type integer.
+Doc: \idx{Moebius} $\mu$-function of $|x|$; $x$ must be a non-zero integer.
