@@ -4340,22 +4340,24 @@ Z_isfundamental(GEN x)
   return (r==1) ? Z_issquarefree(x) : 0;
 }
 
+static GEN
+fa_quaddisc(GEN f)
+{
+  GEN P = gel(f,1), E = gel(f,2), s = gen_1;
+  long i, l = lg(P);
+  for (i = 1; i < l; i++) /* possibly including -1 */
+    if (mpodd(gel(E,i))) s = mulii(s, gel(P,i));
+  if (Mod4(s) > 1) s = shifti(s,2);
+  return s;
+}
+
 GEN
 quaddisc(GEN x)
 {
   const pari_sp av = avma;
-  long i,r,tx=typ(x);
-  GEN P,E,f,s;
-
-  if (!is_rational_t(tx)) pari_err_TYPE("quaddisc",x);
-  f = factor(x);
-  P = gel(f,1);
-  E = gel(f,2); s = gen_1;
-  for (i=1; i<lg(P); i++)
-    if (odd(mael(E,i,2))) s = mulii(s,gel(P,i));
-  r = mod4(s); if (gsigne(x) < 0) r = 4-r;
-  if (r>1) s = shifti(s,2);
-  return gerepileuptoint(av, s);
+  if (is_rational_t(typ(x))) x = factor(x);
+  else x = check_arith_all(x,"quaddisc");
+  return gerepileuptoint(av, fa_quaddisc(x));
 }
 
 /*********************************************************************/

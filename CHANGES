@@ -341,6 +341,7 @@ LGr 137- allow power series as limits for intnum()
 BA  139- [libpari] QM_gauss
 LGr 140- make TESTS="a b c" test-all to test only 'a' 'b' and 'c', e.g.
          'lfun', 'gamma' and 'lfuntype' (same for statest-all and dyntest-all)
+    141- allow quaddisc(integer factorization matrix)
 
   Changed
       1- rewrite bnfnarrow
