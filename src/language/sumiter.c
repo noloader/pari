@@ -157,11 +157,9 @@ forsquarefreepos(ulong a, ulong b, GEN code)
     ulong j, lv, x2 = (b >= 2*step && b - 2*step >= x1)? x1-1 + step: b;
     GEN v = vecfactorsquarefreeu(x1, x2);
     lv = lg(v);
-    for (j = 1; j < lv; j++)
+    for (j = 1; j < lv; j++) if (gel(v,j))
     {
-      ulong n;
-      if (!gel(v,j)) continue;
-      n = x1-1 + j;
+      ulong n = x1-1 + j;
       set_lex(-1, mkvec2(utoipos(n), zv_to_ZM(gel(v,j))));
       closure_evalvoid(code); if (loop_break()) return;
     }
@@ -180,11 +178,9 @@ forsquarefreeneg(ulong a, ulong b, GEN code)
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, x1 = (x2 >= 2*step && x2-2*step >= a)? x2+1 - step: a;
     GEN v = vecfactorsquarefreeu(x1, x2);
-    for (j = lg(v)-1; j > 0; j--)
+    for (j = lg(v)-1; j > 0; j--) if (gel(v,j))
     {
-      ulong n;
-      if (!gel(v,j)) continue;
-      n = x1-1 + j;
+      ulong n = x1-1 + j;
       set_lex(-1, mkvec2(utoineg(n), zv_to_mZM(gel(v,j))));
       closure_evalvoid(code); if (loop_break()) return;
     }
