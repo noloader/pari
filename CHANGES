@@ -343,6 +343,8 @@ LGr 140- make TESTS="a b c" test-all to test only 'a' 'b' and 'c', e.g.
          'lfun', 'gamma' and 'lfuntype' (same for statest-all and dyntest-all)
     141- allow quaddisc(integer factorization matrix)
     142- New GP function forsquarefree
+    143- allow matsolve(m,b) when m is only left-invertible
+
 
   Changed
       1- rewrite bnfnarrow

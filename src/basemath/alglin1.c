@@ -2594,7 +2594,6 @@ init_gauss(GEN a, GEN *b, long *aco, long *li, int *iscol)
   if (*li < *aco) pari_err_INV("gauss [no left inverse]", a);
   if (*b)
   {
-    if (*li != *aco) pari_err_DIM("gauss");
     switch(typ(*b))
     {
       case t_MAT:
