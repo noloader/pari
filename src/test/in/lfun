@@ -113,6 +113,9 @@ print("Curve y^2+(x^3+x^2+1)*y = x^2+x");
 L=lfungenus2([x^2+x,x^3+x^2+1]);
 default("realprecision",19);
 lfuncheckfeq(L)
+print("Curve y^2+(x^3+1)*y = x^2+x");
+L=lfungenus2([x^2+x,x^3+1]);
+for(i=1,20,lfunan(L,i))
 
 print("Curve y^2+(x^2+x)*y = x^6+3*x^5+6*x^4+7*x^3+6*x^2+3*x+1");
 L=lfungenus2([x^6+3*x^5+6*x^4+7*x^3+6*x^2+3*x+1,x^2+x]);

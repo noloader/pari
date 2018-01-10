@@ -1215,11 +1215,11 @@ Flx_difftable(GEN P, ulong p)
 {
   long i, n = degpol(P);
   GEN V = cgetg(n+2, t_VECSMALL);
-  uel(V, n+1) = uel(P, 2);
+  uel(V, n+1) = Flx_constant(P);
   for(i = n; i >= 1; i--)
   {
     P = Flx_diff1(P, p);
-    uel(V, i) = uel(P, 2);
+    uel(V, i) = Flx_constant(P);
   }
   return V;
 }
