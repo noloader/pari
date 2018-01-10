@@ -1980,6 +1980,8 @@ INLINE GEN
 leading_coeff(GEN x) { return lg(x) == 2? gen_0: gel(x,lg(x)-1); }
 INLINE ulong
 Flx_lead(GEN x) { return lg(x) == 2? 0: x[lg(x)-1]; }
+INLINE ulong
+Flx_constant(GEN x) { return lg(x) == 2? 0: x[2]; }
 INLINE long
 degpol(GEN x) { return lg(x)-3; }
 INLINE long

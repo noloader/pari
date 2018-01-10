@@ -5383,6 +5383,7 @@ INLINE GEN    F2v_ei(long n, long i);
 INLINE GEN    Flm_copy(GEN x);
 INLINE GEN    Flv_copy(GEN x);
 INLINE int    Flx_equal1(GEN x);
+INLINE ulong  Flx_constant(GEN x);
 INLINE GEN    Flx_copy(GEN x);
 INLINE GEN    Flx_div(GEN x, GEN y, ulong p);
 INLINE ulong  Flx_lead(GEN x);
