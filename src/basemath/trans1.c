@@ -1706,14 +1706,15 @@ sqrtnint(GEN a, long n)
   }
   if (e < n*(BITS_IN_LONG - 1))
   {
-    ulong s, xs, qs;
-    s = 1 + e/n; xs = 1UL << s;
-    qs = itou(shifti(a, -nm1*s));
-    while (qs < xs) {
-      xs -= (xs - qs + nm1)/n;
+    ulong xs, qs;
+    b = itor(a, DEFAULTPREC);
+    x = mpexp(divru(logr_abs(b), n));
+    xs = itou(floorr(x)) + 1;
+    for(;;) {
       q = divii(a, powuu(xs, nm1));
       if (lgefint(q) > 3) break;
-      qs = itou(q);
+      qs = itou(q); if (qs >= xs) break;
+      xs -= (xs - qs + nm1)/n;
     }
     return utoi(xs);
   }
