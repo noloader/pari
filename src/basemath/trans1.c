@@ -1704,12 +1704,12 @@ sqrtnint(GEN a, long n)
     flag = cmpii(a, powuu(3, n)); avma = ltop;
     return (flag < 0) ? gen_2: stoi(3);
   }
-  if (e < n*(BITS_IN_LONG - 1))
+  if (e < n*BITS_IN_LONG - 1)
   {
     ulong xs, qs;
-    b = itor(a, DEFAULTPREC);
+    b = itor(a, MEDDEFAULTPREC);
     x = mpexp(divru(logr_abs(b), n));
-    xs = itou(floorr(x)) + 1;
+    xs = itou(floorr(x)) + 1; /* >= a^(1/n) */
     for(;;) {
       q = divii(a, powuu(xs, nm1));
       if (lgefint(q) > 3) break;
