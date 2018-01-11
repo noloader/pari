@@ -1707,7 +1707,7 @@ sqrtnint(GEN a, long n)
   if (e < n*BITS_IN_LONG - 1)
   {
     ulong xs, qs;
-    b = itor(a, MEDDEFAULTPREC);
+    b = itor(a, (2*e < n*BITS_IN_LONG)? DEFAULTPREC: MEDDEFAULTPREC);
     x = mpexp(divru(logr_abs(b), n));
     xs = itou(floorr(x)) + 1; /* >= a^(1/n) */
     for(;;) {
