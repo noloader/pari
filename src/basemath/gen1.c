@@ -1511,26 +1511,7 @@ mul_polmod_same(GEN T, GEN x, GEN y)
     if (lg(T) == 5 && isint1(gel(T,4))) /* quadratic fields */
       a = quad_polmod_mul(T, x, y);
     else
-    {
-      pari_sp av = avma;
-      GEN p = NULL;
-      if (RgX_is_FpX(T, &p) && RgX_is_FpX(x, &p) && RgX_is_FpX(y, &p) && p)
-      {
-        T = RgX_to_FpX(T, p); x = RgX_to_FpX(x, p); y = RgX_to_FpX(y, p);
-        if (lgefint(p) == 3)
-        {
-          ulong pp = p[2];
-          a = Flxq_mul(ZX_to_Flx(x, pp), ZX_to_Flx(y, pp), ZX_to_Flx(T, pp), pp);
-          a = Flx_to_ZX(a);
-        }
-        else
-          a = FpXQ_mul(x, y, T, p);
-        a = FpX_to_mod(a, p);
-      }
-      else
-        a = RgXQ_mul(x, y, gel(z,1));
-      a = gerepileupto(av, a);
-    }
+      a = RgXQ_mul(x, y, gel(z,1));
   }
   gel(z,2) = a; return z;
 }
@@ -1544,22 +1525,7 @@ sqr_polmod(GEN T, GEN x)
   else
   {
     pari_sp av = avma;
-    GEN p = NULL;
-    if (RgX_is_FpX(T, &p) && RgX_is_FpX(x, &p) && p)
-    {
-      T = RgX_to_FpX(T, p); x = RgX_to_FpX(x, p);
-      if (lgefint(p) == 3)
-      {
-        ulong pp = p[2];
-        a = Flxq_sqr(ZX_to_Flx(x, pp), ZX_to_Flx(T, pp), pp);
-        a = Flx_to_ZX(a);
-      }
-      else
-        a = FpXQ_sqr(x, T, p);
-      a = FpX_to_mod(a, p);
-    }
-    else
-      a = RgXQ_sqr(x, gel(z,1));
+    a = RgXQ_sqr(x, gel(z,1));
     a = gerepileupto(av, a);
   }
   gel(z,2) = a; return z;
@@ -2454,24 +2420,7 @@ div_polmod_same(GEN T, GEN x, GEN y)
   else
   {
     pari_sp av = avma;
-    GEN p = NULL;
-    if (RgX_is_FpX(T, &p) && RgX_is_FpX(x, &p) && RgX_is_FpX(y, &p) && p)
-    {
-      T = RgX_to_FpX(T, p); x = RgX_to_FpX(x, p); y = RgX_to_FpX(y, p);
-      if (lgefint(p) == 3)
-      {
-        ulong pp = p[2];
-        x = ZX_to_Flx(x, pp);
-        y = ZX_to_Flx(y, pp);
-        T = ZX_to_Flx(T, pp);
-        a = Flxq_mul(x, Flxq_inv(y,T,pp),T,pp);
-        a = Flx_to_ZX(a);
-      }
-      else
-        a = FpXQ_div(x, y, T, p);
-      a = FpX_to_mod(a, p);
-    } else
-      a = RgXQ_mul(x, ginvmod(y, gel(z,1)), gel(z,1));
+    a = RgXQ_mul(x, ginvmod(y, gel(z,1)), gel(z,1));
     a = gerepileupto(av, a);
   }
   gel(z,2) = a; return z;

@@ -3444,6 +3444,38 @@ newtonpoly(GEN x, GEN p)
 }
 
 static GEN
+RgXQ_mul_FpXQ(GEN x, GEN y, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flxq_mul(RgX_to_Flx(x, pp),
+                RgX_to_Flx(y, pp), RgX_to_Flx(T, pp), pp));
+  }
+  else
+    r = FpXQ_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), RgX_to_FpX(T, p), p);
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgXQ_sqr_FpXQ(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flxq_sqr(RgX_to_Flx(x, pp),
+                                   RgX_to_Flx(y, pp), pp));
+  }
+  else
+    r = FpXQ_sqr(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
 RgXQ_inv_FpXQ(GEN x, GEN y, GEN p)
 {
   pari_sp av = avma;
@@ -3457,6 +3489,44 @@ RgXQ_inv_FpXQ(GEN x, GEN y, GEN p)
   else
     r = FpXQ_inv(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
   return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgXQ_mul_FpXQXQ(GEN x, GEN y, GEN S, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  GEN T = RgX_to_FpX(pol, p);
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    GEN Tp = ZX_to_Flx(T, pp);
+    r = FlxX_to_ZXX(FlxqXQ_mul(RgX_to_FlxqX(x, Tp, pp),
+                               RgX_to_FlxqX(y, Tp, pp),
+                               RgX_to_FlxqX(S, Tp, pp), Tp, pp));
+  }
+  else
+    r = FpXQXQ_mul(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p),
+                   RgX_to_FpXQX(S, T, p), T, p);
+  return gerepileupto(av, FpXQX_to_mod(r, T, p));
+}
+
+static GEN
+RgXQ_sqr_FpXQXQ(GEN x, GEN y, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  GEN T = RgX_to_FpX(pol, p);
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    GEN Tp = ZX_to_Flx(T, pp);
+    r = FlxX_to_ZXX(FlxqXQ_sqr(RgX_to_FlxqX(x, Tp, pp),
+                               RgX_to_FlxqX(y, Tp, pp), Tp, pp));
+  }
+  else
+    r = FpXQXQ_sqr(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p), T, p);
+  return gerepileupto(av, FpXQX_to_mod(r, T, p));
 }
 
 static GEN
@@ -3478,6 +3548,58 @@ RgXQ_inv_FpXQXQ(GEN x, GEN y, GEN pol, GEN p)
 }
 
 #define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgXQ_mul_fast(GEN x, GEN y, GEN T)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type3(x,y,T, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZX_is_monic(T) ? ZXQ_mul(x,y,T): NULL;
+    case t_FRAC:   return RgX_is_ZX(T) && ZX_is_monic(T) ? QXQ_mul(x,y,T): NULL;
+    case t_FFELT:  return FFXQ_mul(x, y, T, pol);
+    case t_INTMOD: return RgXQ_mul_FpXQ(x, y, T, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgXQ_mul_FpXQXQ(x, y, T, pol, p);
+    default:       return NULL;
+  }
+}
+
+GEN
+RgXQ_mul(GEN x, GEN y, GEN T)
+{
+  GEN z = RgXQ_mul_fast(x, y, T);
+  if (!z) z = RgX_rem(RgX_mul(x, y), T);
+  return z;
+}
+
+static GEN
+RgXQ_sqr_fast(GEN x, GEN T)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type2(x, T, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZX_is_monic(T) ? ZXQ_sqr(x,T): NULL;
+    case t_FRAC:   return RgX_is_ZX(T) && ZX_is_monic(T) ? QXQ_sqr(x,T): NULL;
+    case t_FFELT:  return FFXQ_sqr(x, T, pol);
+    case t_INTMOD: return RgXQ_sqr_FpXQ(x, T, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgXQ_sqr_FpXQXQ(x, T, pol, p);
+    default:       return NULL;
+  }
+}
+
+GEN
+RgXQ_sqr(GEN x, GEN T)
+{
+  GEN z = RgXQ_sqr_fast(x, T);
+  if (!z) z = RgX_rem(RgX_sqr(x), T);
+  return z;
+}
+
 static GEN
 RgXQ_inv_fast(GEN x, GEN y)
 {

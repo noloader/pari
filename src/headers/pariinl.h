@@ -1994,11 +1994,6 @@ INLINE GEN
 truecoeff(GEN x, long n) { return polcoeff0(x,n,-1); }
 
 INLINE GEN
-RgXQ_mul(GEN y, GEN x, GEN T) { return RgX_rem(RgX_mul(y, x), T); }
-INLINE GEN
-RgXQ_sqr(GEN x, GEN T) { return RgX_rem(RgX_sqr(x), T); }
-
-INLINE GEN
 ZXQ_mul(GEN y, GEN x, GEN T) { return ZX_rem(ZX_mul(y, x), T); }
 INLINE GEN
 ZXQ_sqr(GEN x, GEN T) { return ZX_rem(ZX_sqr(x), T); }
