@@ -11973,10 +11973,6 @@ return $1$ if the \kbd{FFX} $P$ is a $k$-th power, $0$ otherwise,
 where \kbd{P} is defined over the definition field of the \typ{FFELT} \kbd{a}.
 If \kbd{py} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
 
-\fun{GEN}{FFXQ_inv}{GEN P, GEN Q, GEN a} returns the inverse
-of the polynomial \kbd{P} modulo the polynomial \kbd{Q}, where \kbd{P} and
-\kbd{Q} are defined over the definition field of the \typ{FFELT} \kbd{a}.
-
 \fun{GEN}{FFX_factor}{GEN f, GEN a} returns the factorization of the univariate
 polynomial \kbd{f} over the definition field of the \typ{FFELT} \kbd{a}. The
 coefficients of \kbd{f} must be of type \typ{INT}, \typ{INTMOD} or \typ{FFELT}
@@ -12053,6 +12049,21 @@ matrix~\kbd{M} over the finite field given by \kbd{ff}.
 finite field given by \kbd{ff} whose columns are linearly independent,
 returns a square invertible matrix whose first columns are those
 of~\kbd{M}.
+
+\subsec{FFXQ}
+
+\fun{GEN}{FFXQ_mul}{GEN P, GEN Q, GEN T, GEN a} returns the product
+of the polynomials \kbd{P} and \kbd{Q} modulo the polynomial \kbd{T}, where
+\kbd{P}, \kbd{Q} and \kbd{T} are defined over the definition field of the
+\typ{FFELT} \kbd{a}.
+
+\fun{GEN}{FFXQ_sqr}{GEN P, GEN T, GEN a} returns the square
+of the polynomial \kbd{P} modulo the polynomial \kbd{T}, where \kbd{P} and
+\kbd{T} are defined over the definition field of the \typ{FFELT} \kbd{a}.
+
+\fun{GEN}{FFXQ_inv}{GEN P, GEN Q, GEN a} returns the inverse
+of the polynomial \kbd{P} modulo the polynomial \kbd{Q}, where \kbd{P} and
+\kbd{Q} are defined over the definition field of the \typ{FFELT} \kbd{a}.
 
 \section{Transcendental functions}
 
