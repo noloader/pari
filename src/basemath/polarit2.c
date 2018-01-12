@@ -547,6 +547,19 @@ RgX_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa)
 }
 
 long
+RgX_type3(GEN x, GEN y, GEN z, GEN *p, GEN *pol, long *pa)
+{
+  long t[] = {0,0,0,0,0,0,0,0,0,0,0,0};
+  long t2 = 0, var = NO_VARIABLE;
+  GEN ff = NULL;
+  *p = *pol = NULL; *pa = LONG_MAX;
+  if (!RgX_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  if (!RgX_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  if (!RgX_settype(z,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  return choosetype(t,t2,ff,pol,var);
+}
+
+long
 RgM_type(GEN x, GEN *p, GEN *pol, long *pa)
 {
   long t[] = {0,0,0,0,0,0,0,0,0,0,0,0};

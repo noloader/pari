@@ -4384,6 +4384,7 @@ GEN     RgX_resultant_all(GEN P, GEN Q, GEN *sol);
 long    RgX_sturmpart(GEN x, GEN ab);
 long    RgX_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa);
 long    RgX_type2(GEN x, GEN y, GEN *ptp, GEN *ptpol, long *ptpa);
+long    RgX_type3(GEN x, GEN y, GEN z, GEN *ptp, GEN *ptpol, long *ptpa);
 void    RgX_type_decode(long x, long *t1, long *t2);
 int     RgX_type_is_composite(long t);
 GEN     Z_content(GEN x);
