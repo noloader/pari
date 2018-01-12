@@ -345,7 +345,7 @@ LGr 140- make TESTS="a b c" test-all to test only 'a' 'b' and 'c', e.g.
     141- allow quaddisc(integer factorization matrix)
     142- New GP function forsquarefree
     143- allow matsolve(m,b) when m is only left-invertible
-
+BA  144- [libpari] QXQ_mul, QXQ_sqr
 
   Changed
       1- rewrite bnfnarrow

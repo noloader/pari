@@ -2049,6 +2049,30 @@ QX_disc(GEN x)
   return gerepileupto(av, d);
 }
 
+GEN
+QXQ_mul(GEN x, GEN y, GEN T)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN dy, ny = Q_primitive_part(y, &dy);
+  GEN z = ZXQ_mul(nx, ny, T);
+  if (dx || dy)
+  {
+    GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
+    if (!gequal1(d)) z = ZX_Q_mul(z, d);
+  }
+  return z;
+}
+
+GEN
+QXQ_sqr(GEN x, GEN T)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN z = ZXQ_sqr(nx, T);
+  if (dx)
+    z = ZX_Q_mul(z, gsqr(dx));
+  return z;
+}
+
 /* lift(1 / Mod(A,B)). B a ZX, A a scalar or a QX */
 GEN
 QXQ_inv(GEN A, GEN B)

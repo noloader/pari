@@ -9016,6 +9016,12 @@ ensure that $B$ is a \kbd{ZX}, one may replace it by \kbd{Q\_primpart(B)}
 If the result is not known to be an integer, you must use \tet{QXQ_norm}
 instead, which is slower.
 
+\fun{GEN}{QXQ_mul}{GEN A, GEN B, GEN T} returns the product of $A$ and $B$
+modulo $T$ where both $A$ and $B$ are a \kbd{QX} and $T$ is a monic \kbd{ZX}.
+
+\fun{GEN}{QXQ_sqr}{GEN A, GEN T} returns the square of $A$
+modulo $T$ where $A$ is a \kbd{QX} and $T$ is a monic \kbd{ZX}.
+
 \fun{GEN}{QXQ_inv}{GEN A, GEN B} returns the inverse of $A$ modulo $B$
 where $A$ is a \kbd{QX} and $B$ is a \kbd{ZX}. Should you need this for
 a \kbd{QX} $B$, just use
