@@ -2762,9 +2762,9 @@ static GEN
 galoischar_charpoly(GEN cc, GEN ch, long o)
 {
   GEN chm, V, elts = gel(cc,1), repr = gel(cc,3);
-  long i, d, l = lg(ch);
+  long i, d, l = lg(ch), v = gvar(ch);
   checkgaloischar(ch, repr);
-  chm = gmodulo(ch, polcyclo(o, gvar(ch)));
+  chm = v < 0 ? ch: gmodulo(ch, polcyclo(o, v));
   V = cgetg(l, t_COL); d = galoischar_dim(ch);
   for (i = 1; i < l; i++)
     gel(V,i) = galoischar_aut_charpoly(cc, chm, gel(elts,repr[i]), d);
