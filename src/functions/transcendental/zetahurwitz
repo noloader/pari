@@ -8,7 +8,7 @@ Doc: Hurwitz zeta function $\zeta(s,x)=\sum_{n\ge0}(n+x)^{-s}$. We must have
  $\Re(s)>1$ and $x$ real positive. Note that $\zeta(s,1) = \zeta(s)$
  \bprog
  ? zetahurwitz(Pi,Pi)
- %1 = 0.056155444497585099925180502385781494486
+ %1 = 0.056155444497585099925180502385781494484
  ? zetahurwitz(2,1) - zeta(2)
  %2 = -2.350988701644575016 E-38
  @eprog\noindent We also define $\zeta(1,x) = - \psi(x)$, where $\psi$
