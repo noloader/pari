@@ -7139,12 +7139,20 @@ mfeval(GEN mf, GEN F, GEN vtau, long bitprec)
   return gerepilecopy(av, mfeval_i(mf, F, vtau, flnew, bitprec));
 }
 
+static long
+val(GEN v, long bit)
+{
+  long c, l = lg(v);
+  for (c = 1; c < l; c++)
+    if (gexpo(gel(v,c)) > -bit) return c-1;
+  return -1;
+}
 GEN
 mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec)
 {
   pari_sp av = avma;
-  long w, N, sb, n, A, C, prec = nbits2prec(bitprec);
-  GEN ga, gk;
+  long lvE, w, N, sb, n, A, C, prec = nbits2prec(bitprec);
+  GEN ga, gk, vE;
   checkMF(mf);
   if (!checkmf_i(F)) pari_err_TYPE("mfcuspval",F);
   N = MF_get_N(mf);
@@ -7157,17 +7165,29 @@ mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec)
     if ((C & 3L) == 2) r = gsub(r, ginv(stoi(4)));
     return gerepileupto(av, r);
   }
+  vE = mfgetembed(F, prec);
+  lvE = lg(vE);
   w = mfcuspcanon_width(N, C);
   sb = w * mfsturmNk(N, itos(gk));
   ga = cusp2mat(A,C);
   for (n = 8;; n = minss(sb, n << 1))
   {
     GEN R = mfgaexpansion(mf, F, ga, n, prec), res = liftpol_shallow(gel(R,3));
-    long c;
-    for (c = 1; c < n; c++)
-      if (gexpo(gel(res,c)) > -bitprec/2)
-        return gerepileupto(av, gadd(gel(R,1), sstoQ(c-1, w)));
-    if (n == sb) { avma = av; return mkoo(); }
+    GEN v = cgetg(lvE-1, t_VECSMALL);
+    long j, ok = 1;
+    res = RgC_embedall(res, vE);
+    for (j = 1; j < lvE; j++)
+    {
+      v[j] = val(gel(res,j), bitprec/2);
+      if (v[j] < 0) ok = 0;
+    }
+    if (ok)
+    {
+      res = cgetg(lvE, t_VEC);
+      for (j = 1; j < lvE; j++) gel(res,j) = gadd(gel(R,1), sstoQ(v[j], w));
+      return gerepilecopy(av, lvE==2? gel(res,1): res);
+    }
+    if (n == sb) return lvE==2? mkoo(): const_vec(lvE-1, mkoo()); /* 0 */
   }
 }
 
