@@ -43,11 +43,11 @@ Doc: If $NK=[N,k,\var{CHI}]$ as in \kbd{mfinit}, gives the dimension of the
  \misctitle{Wildcards for sets of characters} \var{CHI} may be a set
  of characters, and we return the set of $[\var{dim},\var{dimdih}]$.
 
- \misctitle{Wildcard for $S_k(\Gamma_1(N))$}
+ \misctitle{Wildcard for $M_k(\Gamma_1(N))$}
  Additionally, the wildcard $\var{CHI} = -1$ is available in which case we
- output the total dimension of
- $S_k(\Gamma_1(N))$. In weight $1$, this is only implemented when
- the space is 0 (newspace), 1 (cusp space), or 2(old space).
+ output the total dimension of the corresponding
+ subspace of $M_k(\Gamma_1(N))$. In weight $1$, this is not implemented
+ when the space is 4 (fullspace).
 
  \bprog
  ? mfdim([23,2], 0) \\ new space

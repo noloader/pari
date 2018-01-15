@@ -8132,9 +8132,14 @@ static long
 mfwtkdimsum(long N, long k, long dk, long space)
 {
   GEN w = mfchars(N, k, dk, NULL);
-  long i, j, d = 0, l = lg(w);
-  for (i = j = 1; i < l; i++) d += mfdim_Nndkchi(N,k,dk,gel(w,i),space);
-  return d;
+  long i, j, D = 0, l = lg(w);
+  for (i = j = 1; i < l; i++)
+  {
+    GEN CHI = gel(w,i);
+    long d = mfdim_Nndkchi(N,k,dk,CHI,space);
+    if (d) D += d * myeulerphiu(mfcharorder(CHI));
+  }
+  return D;
 }
 static GEN
 mfwt1dims(long N, GEN vCHI, long space)
@@ -8216,7 +8221,7 @@ mfdim(GEN NK, long space)
       }
     }
     if (dk == 1 && k == 1 && space != mf_EISEN)
-    {
+    { /* FIXME: implement mf_FULL */
       if (!space_is_cusp(space))
         pari_err_IMPL("noncuspidal dimension of G_1(N)");
       if (joker == 2) { d = mfwt1dimsum(N, space); avma = av; return utoi(d); }
