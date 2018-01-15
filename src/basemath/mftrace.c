@@ -244,101 +244,6 @@ QabM_indexrank(GEN M, GEN P, long n)
   return z;
 }
 
-/*******************************************************************/
-/*   Relative trace between cyclotomic fields (TODO: export this)  */
-/*******************************************************************/
-/* g>=1; return g * prod_{p | g, (p,q) = 1} (1-1/p) */
-static long
-phipart(long g, long q)
-{
-  if (g > 1)
-  {
-    GEN P = gel(myfactoru(g), 1);
-    long i, l = lg(P);
-    for (i = 1; i < l; i++) { long p = P[i]; if (q % p) g -= g / p; }
-  }
-  return g;
-}
-
-/* Trace(zeta_n^k) from Q(\zeta_n) to Q; k > 0 */
-static GEN
-tracerelzQ(long n, long k)
-{
-  long s, g = cgcd(k, n), q = n/g, muq = moebiusu(q);
-  if (!muq) return gen_0;
-  s = phipart(g, q); if (muq < 0) s = -s;
-  return stoi(s);
-}
-/* Trace(zeta_n^k) from Q(\zeta_n) to Q(\zeta_m) with m|n; k > 0 */
-static GEN
-tracerelz(long n, long m, long k, long vt)
-{
-  long s, d, g, q, muq, v;
-  if (m == 1) return tracerelzQ(n, k);
-  d = n / m;
-  g = cgcd(k, d);
-  q = d / g; if (cgcd(q, m) > 1) return gen_0;
-  muq = moebiusu(q); if (!muq) return gen_0;
-  k /= g;
-  /* (m,q) = 1 */
-  s = phipart(g, m*q); if (muq < 0) s = -s;
-  v = Fl_inv(q % m, m);
-  v = (v*k) % m;
-  return mygmodulo_lift(v, m, stoi(s), vt);
-}
-/* x a t_POL modulo Phi_n; n, m not 2 mod 4, degrel != 1*/
-static GEN
-tracerel_i(GEN T, GEN x)
-{
-  long k, l = lg(x);
-  GEN S = gen_0;
-  for (k = 2; k < l; k++) S = gadd(S, gmul(gel(T,k-1), gel(x,k)));
-  return S;
-}
-/* m | n, both not 2 mod 4. Pn = polcyclo(n) */
-GEN
-Qab_trace_init(GEN Pn, long n, long m)
-{
-  GEN T, Pm;
-  long i, d, vt;
-  if (m == n) return mkvec(Pn);
-  d = degpol(Pn);
-  vt = varn(Pn);
-  Pm = polcyclo(m, vt);
-  T = cgetg(d+1, t_VEC);
-  gel(T,1) = utoipos(d / degpol(Pm)); /* Tr 1 */
-  for (i = 1; i < d; i++) gel(T,i+1) = tracerelz(n, m, i, vt);
-  return mkvec3(Pm, Pn, T);
-}
-/* v = Qab_trace_init(n,m); x is a t_VEC of polmodulo Phi_n
- * Tr_{Q(zeta_n)/Q(zeta_m)} (zeta_n^t * x) */
-GEN
-QabV_tracerel(GEN v, long t, GEN x)
-{
-  long d, dm, lx, j, degrel;
-  GEN y, z, Pm, Pn, T;
-  if (lg(v) != 4) return x;
-  y = cgetg_copy(x, &lx);
-  Pm = gel(v,1);
-  Pn = gel(v,2);
-  T  = gel(v,3);
-  d = degpol(Pn);
-  dm = degpol(Pm); degrel = d / dm;
-  z = RgX_rem(pol_xn(t, varn(Pn)), Pn);
-  for (j = 1; j < lx; j++)
-  {
-    GEN a = liftpol_shallow(gel(x,j));
-    a = simplify_shallow( gmul(a, z) );
-    if (typ(a) == t_POL)
-    {
-      a = gdivgs(tracerel_i(T, RgX_rem(a, Pn)), degrel);
-      if (typ(a) == t_POL) a = RgX_rem(a, Pm);
-    }
-    gel(y,j) = a;
-  }
-  return y;
-}
-
 /*********************************************************************/
 /*                    Simple arithmetic functions                    */
 /*********************************************************************/
@@ -352,6 +257,15 @@ myeulerphiu(ulong n)
   if (n == 1) return 1;
   av = avma; fa = myfactoru(n);
   avma = av; return eulerphiu_fact(fa);
+}
+static long
+mymoebiusu(ulong n)
+{
+  pari_sp av;
+  GEN fa;
+  if (n == 1) return 1;
+  av = avma; fa = myfactoru(n);
+  avma = av; return moebiusu_fact(fa);
 }
 
 static long
@@ -487,6 +401,92 @@ newd_params2(long N)
     if (e >= 2) N2 *= upowuu(p, e);
   }
   return N2;
+}
+
+/*******************************************************************/
+/*   Relative trace between cyclotomic fields (TODO: export this)  */
+/*******************************************************************/
+/* g>=1; return g * prod_{p | g, (p,q) = 1} (1-1/p) */
+static long
+phipart(long g, long q)
+{
+  if (g > 1)
+  {
+    GEN P = gel(myfactoru(g), 1);
+    long i, l = lg(P);
+    for (i = 1; i < l; i++) { long p = P[i]; if (q % p) g -= g / p; }
+  }
+  return g;
+}
+/* Trace(zeta_n^k) from Q(\zeta_n) to Q(\zeta_m) with n = m*d; k > 0 */
+static GEN
+tracerelz(long d, long m, long k, long vt)
+{
+  long s, v, g = cgcd(k, d), q = d / g, muq = mymoebiusu(q);
+  if (!muq) return gen_0;
+  if (m == 1)
+  {
+    s = phipart(g, q); if (muq < 0) s = -s;
+    return stoi(s);
+  }
+  if (cgcd(q, m) > 1) return gen_0;
+  s = phipart(g, m*q); if (muq < 0) s = -s;
+  v = Fl_inv(q % m, m);
+  v = (v*(k/g)) % m;
+  return mygmodulo_lift(v, m, stoi(s), vt);
+}
+/* m | n, both not 2 mod 4. Pn = polcyclo(n) */
+GEN
+Qab_trace_init(GEN Pn, long n, long m)
+{
+  GEN T, Pm;
+  long a, i, d, vt;
+  if (m == n) return mkvec(Pn);
+  d = degpol(Pn);
+  vt = varn(Pn);
+  Pm = polcyclo(m, vt);
+  T = cgetg(d+1, t_VEC);
+  gel(T,1) = utoipos(d / degpol(Pm)); /* Tr 1 */
+  a = n / m;
+  for (i = 1; i < d; i++) gel(T,i+1) = tracerelz(a, m, i, vt);
+  return mkvec3(Pm, Pn, T);
+}
+/* x a t_POL modulo Phi_n; n, m not 2 mod 4, degrel != 1*/
+static GEN
+tracerel_i(GEN T, GEN x)
+{
+  long k, l = lg(x);
+  GEN S = gen_0;
+  for (k = 2; k < l; k++) S = gadd(S, gmul(gel(T,k-1), gel(x,k)));
+  return S;
+}
+/* v = Qab_trace_init(n,m); x is a t_VEC of polmodulo Phi_n
+ * Tr_{Q(zeta_n)/Q(zeta_m)} (zeta_n^t * x) */
+GEN
+QabV_tracerel(GEN v, long t, GEN x)
+{
+  long d, dm, lx, j, degrel;
+  GEN y, z, Pm, Pn, T;
+  if (lg(v) != 4) return x;
+  y = cgetg_copy(x, &lx);
+  Pm = gel(v,1);
+  Pn = gel(v,2);
+  T  = gel(v,3);
+  d = degpol(Pn);
+  dm = degpol(Pm); degrel = d / dm;
+  z = RgX_rem(pol_xn(t, varn(Pn)), Pn);
+  for (j = 1; j < lx; j++)
+  {
+    GEN a = liftpol_shallow(gel(x,j));
+    a = simplify_shallow( gmul(a, z) );
+    if (typ(a) == t_POL)
+    {
+      a = gdivgs(tracerel_i(T, RgX_rem(a, Pn)), degrel);
+      if (typ(a) == t_POL) a = RgX_rem(a, Pm);
+    }
+    gel(y,j) = a;
+  }
+  return y;
 }
 
 /*              Operations on Dirichlet characters                       */
@@ -7250,7 +7250,7 @@ mfatkineigenquad(GEN mf, GEN CHIP, long Q, GEN MF, long bitprec)
   lF = lg(F);
   Z = cgetg(lF, t_VEC);
   S = MF_get_S(mf); dim = lg(S) - 1;
-  muQ = moebiusu(Q);
+  muQ = mymoebiusu(Q);
   if (muQ)
   {
     GEN SQ = cgetg(dim+1,t_VEC), Qk = gpow(stoi(Q), sstoQ(k-2, 2), prec);
@@ -10690,7 +10690,7 @@ mfEHcoef(long r, long N)
   S = gen_0;
   for (i = 1; i < l; i++)
   {
-    long d = Df[i], s = moebiusu(d)*kross(D0, d); /* != 0 */
+    long d = Df[i], s = mymoebiusu(d)*kross(D0, d); /* != 0 */
     GEN c = gmul(powuu(d, r-1), mysumdivku(f/d, 2*r-1));
     S = s > 0? addii(S, c): subii(S, c);
   }
