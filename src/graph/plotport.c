@@ -2020,15 +2020,16 @@ rect2ps(GEN w, GEN x, GEN y, PARI_plot *T)
 void
 pari_plot_by_file(const char *env, const char *suf, const char *img)
 {
-  char *cmd, *s = pari_unique_filename_suffix("plotfile", suf);
+  const char *cmd, *s = pari_unique_filename_suffix("plotfile", suf);
   FILE *f = fopen(s, "w");
   if (!f) pari_err_FILE("image file", s);
   fputs(img, f); (void)fclose(f);
-  cmd = os_getenv(env); if (!cmd) cmd = (char*)"open -W";
+  cmd = os_getenv(env);
+  if (!cmd) cmd = "open -W";
   cmd = pari_sprintf("%s \"%s\" 2>/dev/null", cmd, s);
   gpsystem(cmd);
   pari_unlink(s);
-  pari_free(s);
+  pari_free((char*)s);
 }
 
 /*************************************************************************/
