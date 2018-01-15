@@ -267,7 +267,7 @@ plotcolor(long ne, long c)
 {
   long n = lg(GP_DATA->colormap)-2;
   check_rect(ne);
-  if (c < 1) pari_err_DOMAIN("plotcolor", "color", "<", gen_1, stoi(c));
+  if (c < 0) pari_err_DOMAIN("plotcolor", "color", "<", gen_0, stoi(c));
   if (c > n) pari_err_DOMAIN("plotcolor", "color", ">", stoi(n), stoi(c));
   current_color[ne] = c;
 }
