@@ -354,5 +354,9 @@ error("incorrect type in ffextend (t_POL).")
   ***   at top-level: ffgen(x^2+x+Mod(1,3))
   ***                 ^---------------------
   *** ffgen: not an irreducible polynomial in ffgen: x^2 + x + 1.
+? ffembed(ffgen([3,5],'b),ffgen([3,6],'a));
+  ***   at top-level: ffembed(ffgen([3,5],'b),ffgen([3,6],'a))
+  ***                 ^----------------------------------------
+  *** ffembed: domain error in ffembed: b is not a subfield of a
 ? print("Total time spent: ",gettime);
-Total time spent: 1032
+Total time spent: 960
