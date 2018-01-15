@@ -2625,7 +2625,7 @@ ffeltmap_i(GEN m, GEN x)
 {
    GEN r = gel(m,2);
    if (!FF_samefield(x, gel(m,1)))
-     pari_err_DOMAIN("ffmap","m","domain do not contain", x, r);
+     pari_err_DOMAIN("ffmap","m","domain does not contain", x, r);
    if (typ(r)==t_FFELT)
      return FF_map(r, x);
    else
@@ -2669,7 +2669,7 @@ ffmap(GEN m, GEN x)
 
 static void
 err_compo(GEN m, GEN n)
-{ pari_err_DOMAIN("ffcompomap","m","domain do not contain codomain of",n,m); }
+{ pari_err_DOMAIN("ffcompomap","m","domain does not contain codomain of",n,m); }
 
 GEN
 ffcompomap(GEN m, GEN n)

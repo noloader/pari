@@ -254,101 +254,101 @@ t^4 + t^2
 0
 ? default(echo,0);
 ? test(2,1,5,3)
-error("domain error in ffcompomap: m domain do not contain codomain of [b, c
-^12 + c^10 + c^9 + c^5 + c^3 + c^2]")
-error("domain error in ffcompomap: m domain do not contain codomain of [b, b
-^5 + b^4 + b^2 + b + 1]")
-error("domain error in ffmap: m domain do not contain b^4 + b^3 + 1")
-error("domain error in ffmap: m domain do not contain c^12 + c^10 + c^9 + c^
-5 + c^3 + c^2")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ c^12 + c^10 + c^9 + c^5 + c^3 + c^2]")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ b^5 + b^4 + b^2 + b + 1]")
+error("domain error in ffmap: m domain does not contain b^4 + b^3 + 1")
+error("domain error in ffmap: m domain does not contain c^12 + c^10 + c^9 + 
+c^5 + c^3 + c^2")
 error("incorrect type in ffextend (t_POL).")
 ? test(2,5,5,3)
-error("domain error in ffcompomap: m domain do not contain codomain of [b, c
-^70 + c^69 + c^67 + c^66 + c^64 + c^60 + c^58 + c^57 + c^56 + c^54 + c^51 + 
-c^50 + c^48 + c^47 + c^45 + c^44 + c^42 + c^40 + c^39 + c^37 + c^34 + c^32 +
- c^31 + c^30 + c^29 + c^28 + c^24 + c^20 + c^18 + c^15 + c^13 + c^9 + c^8 + 
-c^7 + c^4 + c^3 + c^2 + c + 1]")
-error("domain error in ffcompomap: m domain do not contain codomain of [b, b
-^5 + (a^4 + a^3 + a^2 + 1)*b^4 + (a^4 + a^3 + a^2)*b^3 + (a^4 + a^2 + a + 1)
-*b^2 + (a^3 + a^2)*b + (a^4 + a^3)]")
-error("domain error in ffmap: m domain do not contain b^23 + b^22 + b^20 + b
-^19 + b^18 + b^14 + b^13 + b^12 + b^9 + b^8 + b^7 + b^4 + b + 1")
-error("domain error in ffmap: m domain do not contain c^70 + c^69 + c^67 + c
-^66 + c^64 + c^60 + c^58 + c^57 + c^56 + c^54 + c^51 + c^50 + c^48 + c^47 + 
-c^45 + c^44 + c^42 + c^40 + c^39 + c^37 + c^34 + c^32 + c^31 + c^30 + c^29 +
- c^28 + c^24 + c^20 + c^18 + c^15 + c^13 + c^9 + c^8 + c^7 + c^4 + c^3 + c^2
- + c + 1")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ c^70 + c^69 + c^67 + c^66 + c^64 + c^60 + c^58 + c^57 + c^56 + c^54 + c^51 
++ c^50 + c^48 + c^47 + c^45 + c^44 + c^42 + c^40 + c^39 + c^37 + c^34 + c^32
+ + c^31 + c^30 + c^29 + c^28 + c^24 + c^20 + c^18 + c^15 + c^13 + c^9 + c^8 
++ c^7 + c^4 + c^3 + c^2 + c + 1]")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ b^5 + (a^4 + a^3 + a^2 + 1)*b^4 + (a^4 + a^3 + a^2)*b^3 + (a^4 + a^2 + a + 
+1)*b^2 + (a^3 + a^2)*b + (a^4 + a^3)]")
+error("domain error in ffmap: m domain does not contain b^23 + b^22 + b^20 +
+ b^19 + b^18 + b^14 + b^13 + b^12 + b^9 + b^8 + b^7 + b^4 + b + 1")
+error("domain error in ffmap: m domain does not contain c^70 + c^69 + c^67 +
+ c^66 + c^64 + c^60 + c^58 + c^57 + c^56 + c^54 + c^51 + c^50 + c^48 + c^47 
++ c^45 + c^44 + c^42 + c^40 + c^39 + c^37 + c^34 + c^32 + c^31 + c^30 + c^29
+ + c^28 + c^24 + c^20 + c^18 + c^15 + c^13 + c^9 + c^8 + c^7 + c^4 + c^3 + c
+^2 + c + 1")
 error("incorrect type in ffextend (t_POL).")
 ? test(3,1,2,3)
-error("domain error in ffcompomap: m domain do not contain codomain of [b, c
-^4 + c^2 + c]")
-error("domain error in ffcompomap: m domain do not contain codomain of [b, b
-^2 + b + 2]")
-error("domain error in ffmap: m domain do not contain 2")
-error("domain error in ffmap: m domain do not contain c^4 + c^2 + c")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ c^4 + c^2 + c]")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ b^2 + b + 2]")
+error("domain error in ffmap: m domain does not contain 2")
+error("domain error in ffmap: m domain does not contain c^4 + c^2 + c")
 error("incorrect type in ffextend (t_POL).")
 ? test(3,10,2,3)
-error("domain error in ffcompomap: m domain do not contain codomain of [b, 2
-*c^55 + 2*c^53 + c^52 + 2*c^50 + 2*c^47 + c^46 + 2*c^45 + c^43 + 2*c^42 + c^
-41 + 2*c^39 + 2*c^37 + 2*c^35 + c^34 + 2*c^32 + c^31 + 2*c^30 + 2*c^28 + c^2
-6 + c^25 + c^23 + c^21 + 2*c^20 + c^19 + 2*c^18 + c^17 + c^15 + c^14 + c^13 
-+ 2*c^12 + 2*c^11 + 2*c^9 + c^8 + c^6 + c^5 + 2*c^4 + c^3 + 2*c^2 + 1]")
-error("domain error in ffcompomap: m domain do not contain codomain of [b, b
-^2 + (2*a^9 + 2*a^7 + 2*a^6)*b + (2*a^9 + 2*a^2)]")
-error("domain error in ffmap: m domain do not contain 2*b^19 + b^18 + 2*b^17
- + b^16 + b^14 + 2*b^13 + b^12 + 2*b^11 + b^10 + 2*b^9 + 2*b^8 + b^7 + 2*b^6
- + b^3 + 2*b^2")
-error("domain error in ffmap: m domain do not contain 2*c^55 + 2*c^53 + c^52
- + 2*c^50 + 2*c^47 + c^46 + 2*c^45 + c^43 + 2*c^42 + c^41 + 2*c^39 + 2*c^37 
-+ 2*c^35 + c^34 + 2*c^32 + c^31 + 2*c^30 + 2*c^28 + c^26 + c^25 + c^23 + c^2
-1 + 2*c^20 + c^19 + 2*c^18 + c^17 + c^15 + c^14 + c^13 + 2*c^12 + 2*c^11 + 2
-*c^9 + c^8 + c^6 + c^5 + 2*c^4 + c^3 + 2*c^2 + 1")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ 2*c^55 + 2*c^53 + c^52 + 2*c^50 + 2*c^47 + c^46 + 2*c^45 + c^43 + 2*c^42 + 
+c^41 + 2*c^39 + 2*c^37 + 2*c^35 + c^34 + 2*c^32 + c^31 + 2*c^30 + 2*c^28 + c
+^26 + c^25 + c^23 + c^21 + 2*c^20 + c^19 + 2*c^18 + c^17 + c^15 + c^14 + c^1
+3 + 2*c^12 + 2*c^11 + 2*c^9 + c^8 + c^6 + c^5 + 2*c^4 + c^3 + 2*c^2 + 1]")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ b^2 + (2*a^9 + 2*a^7 + 2*a^6)*b + (2*a^9 + 2*a^2)]")
+error("domain error in ffmap: m domain does not contain 2*b^19 + b^18 + 2*b^
+17 + b^16 + b^14 + 2*b^13 + b^12 + 2*b^11 + b^10 + 2*b^9 + 2*b^8 + b^7 + 2*b
+^6 + b^3 + 2*b^2")
+error("domain error in ffmap: m domain does not contain 2*c^55 + 2*c^53 + c^
+52 + 2*c^50 + 2*c^47 + c^46 + 2*c^45 + c^43 + 2*c^42 + c^41 + 2*c^39 + 2*c^3
+7 + 2*c^35 + c^34 + 2*c^32 + c^31 + 2*c^30 + 2*c^28 + c^26 + c^25 + c^23 + c
+^21 + 2*c^20 + c^19 + 2*c^18 + c^17 + c^15 + c^14 + c^13 + 2*c^12 + 2*c^11 +
+ 2*c^9 + c^8 + c^6 + c^5 + 2*c^4 + c^3 + 2*c^2 + 1")
 error("incorrect type in ffextend (t_POL).")
 ? test(nextprime(2^100),1,3,2)
-error("domain error in ffcompomap: m domain do not contain codomain of [b, 5
-68210514509985430766932066568*c^5 + 227284205803994172306772826627*c^4 + 466
-744351204630889558551340395*c^3 + 82525812821688360182816323954*c^2 + 415334
-828463251255346305105801*c + 117700749434211267801721642361]")
-error("domain error in ffcompomap: m domain do not contain codomain of [b, b
-^3 + b^2 + 1267650600228229401496703205649*b + 1]")
-error("domain error in ffmap: m domain do not contain b^2 + 1267650600228229
-401496703205652*b + 1")
-error("domain error in ffmap: m domain do not contain 5682105145099854307669
-32066568*c^5 + 227284205803994172306772826627*c^4 + 466744351204630889558551
-340395*c^3 + 82525812821688360182816323954*c^2 + 415334828463251255346305105
-801*c + 117700749434211267801721642361")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ 568210514509985430766932066568*c^5 + 227284205803994172306772826627*c^4 + 4
+66744351204630889558551340395*c^3 + 82525812821688360182816323954*c^2 + 4153
+34828463251255346305105801*c + 117700749434211267801721642361]")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ b^3 + b^2 + 1267650600228229401496703205649*b + 1]")
+error("domain error in ffmap: m domain does not contain b^2 + 12676506002282
+29401496703205652*b + 1")
+error("domain error in ffmap: m domain does not contain 56821051450998543076
+6932066568*c^5 + 227284205803994172306772826627*c^4 + 4667443512046308895585
+51340395*c^3 + 82525812821688360182816323954*c^2 + 4153348284632512553463051
+05801*c + 117700749434211267801721642361")
 error("incorrect type in ffextend (t_POL).")
 ? test(nextprime(2^100),3,3,2)
-error("domain error in ffcompomap: m domain do not contain codomain of [b, 4
-6484092795487340755616362656*c^17 + 1055644262063180547422327045544*c^16 + 3
-46641065720009000378954983294*c^15 + 639520333054888837052043648112*c^14 + 9
-57675960342270992241528178704*c^13 + 696402750970714831280062285793*c^12 + 1
-102408057754003899068126760036*c^11 + 767540362444860636247634715531*c^10 + 
-1149362134291872086981828566611*c^9 + 430243837953824360545080751371*c^8 + 7
-89576238369354582328704492347*c^7 + 602440036890400798835137474014*c^6 + 580
-523431234345594424300815049*c^5 + 604254505049932046775583257110*c^4 + 10566
-39807179138440960522156332*c^3 + 565071891011786154985459862809*c^2 + 200748
-44311373213928728633027*c + 370341892320446299776532835998]")
-error("domain error in ffcompomap: m domain do not contain codomain of [b, b
-^3 + (1137416257572846559662200662715*a^2 + 503912325036190431090267314273*a
- + 558673802978212002533596733572)*b^2 + (633503932536656128571933348442*a^2
- + 1136773522417929415309364153946*a + 168613510166980621382925613526)*b + (
-633503932536656128571933348442*a^2 + 1136773522417929415309364153946*a + 168
-613510166980621382925613525)]")
-error("domain error in ffmap: m domain do not contain b^8 + b^7 + 1267650600
-228229401496703205646*b^6 + 1267650600228229401496703205647*b^5 + 15*b^4 + 1
-0*b^3 + 1267650600228229401496703205643*b^2 + 126765060022822940149670320565
-0*b + 4")
-error("domain error in ffmap: m domain do not contain 4648409279548734075561
-6362656*c^17 + 1055644262063180547422327045544*c^16 + 3466410657200090003789
-54983294*c^15 + 639520333054888837052043648112*c^14 + 9576759603422709922415
-28178704*c^13 + 696402750970714831280062285793*c^12 + 1102408057754003899068
-126760036*c^11 + 767540362444860636247634715531*c^10 + 114936213429187208698
-1828566611*c^9 + 430243837953824360545080751371*c^8 + 7895762383693545823287
-04492347*c^7 + 602440036890400798835137474014*c^6 + 580523431234345594424300
-815049*c^5 + 604254505049932046775583257110*c^4 + 10566398071791384409605221
-56332*c^3 + 565071891011786154985459862809*c^2 + 200748443113732139287286330
-27*c + 370341892320446299776532835998")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ 46484092795487340755616362656*c^17 + 1055644262063180547422327045544*c^16 +
+ 346641065720009000378954983294*c^15 + 639520333054888837052043648112*c^14 +
+ 957675960342270992241528178704*c^13 + 696402750970714831280062285793*c^12 +
+ 1102408057754003899068126760036*c^11 + 767540362444860636247634715531*c^10 
++ 1149362134291872086981828566611*c^9 + 430243837953824360545080751371*c^8 +
+ 789576238369354582328704492347*c^7 + 602440036890400798835137474014*c^6 + 5
+80523431234345594424300815049*c^5 + 604254505049932046775583257110*c^4 + 105
+6639807179138440960522156332*c^3 + 565071891011786154985459862809*c^2 + 2007
+4844311373213928728633027*c + 370341892320446299776532835998]")
+error("domain error in ffcompomap: m domain does not contain codomain of [b,
+ b^3 + (1137416257572846559662200662715*a^2 + 503912325036190431090267314273
+*a + 558673802978212002533596733572)*b^2 + (633503932536656128571933348442*a
+^2 + 1136773522417929415309364153946*a + 168613510166980621382925613526)*b +
+ (633503932536656128571933348442*a^2 + 1136773522417929415309364153946*a + 1
+68613510166980621382925613525)]")
+error("domain error in ffmap: m domain does not contain b^8 + b^7 + 12676506
+00228229401496703205646*b^6 + 1267650600228229401496703205647*b^5 + 15*b^4 +
+ 10*b^3 + 1267650600228229401496703205643*b^2 + 1267650600228229401496703205
+650*b + 4")
+error("domain error in ffmap: m domain does not contain 46484092795487340755
+616362656*c^17 + 1055644262063180547422327045544*c^16 + 34664106572000900037
+8954983294*c^15 + 639520333054888837052043648112*c^14 + 95767596034227099224
+1528178704*c^13 + 696402750970714831280062285793*c^12 + 11024080577540038990
+68126760036*c^11 + 767540362444860636247634715531*c^10 + 1149362134291872086
+981828566611*c^9 + 430243837953824360545080751371*c^8 + 78957623836935458232
+8704492347*c^7 + 602440036890400798835137474014*c^6 + 5805234312343455944243
+00815049*c^5 + 604254505049932046775583257110*c^4 + 105663980717913844096052
+2156332*c^3 + 565071891011786154985459862809*c^2 + 2007484431137321392872863
+3027*c + 370341892320446299776532835998")
 error("incorrect type in ffextend (t_POL).")
 ? ffgen(x^2+x+Mod(1,3))
   ***   at top-level: ffgen(x^2+x+Mod(1,3))
@@ -359,4 +359,4 @@ error("incorrect type in ffextend (t_POL).")
   ***                 ^----------------------------------------
   *** ffembed: domain error in ffembed: b is not a subfield of a
 ? print("Total time spent: ",gettime);
-Total time spent: 960
+Total time spent: 1561
