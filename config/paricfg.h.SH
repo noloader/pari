@@ -75,6 +75,14 @@ EOT
   fi
 fi
 
+if test -n "$gp_mime_open"; then
+  cat >> $file << EOT
+
+#define GP_MIME_OPEN "$gp_mime_open"
+
+EOT
+fi
+
 if test "$osname" = "mingw"; then
 cat >> $file << EOT
 

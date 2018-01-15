@@ -67,4 +67,10 @@ case $which_graphic_lib in
       which_graphic_lib=none
     fi;;
 esac
+
+case $osname in
+  linux|gnu*|*bsd) gp_mime_open="xdg-open";;
+  darwin)          gp_mime_open="open -W";;
+esac
+
 echo "Hi-Res Graphics: $which_graphic_lib"

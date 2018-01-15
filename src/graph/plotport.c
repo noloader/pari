@@ -2025,7 +2025,11 @@ pari_plot_by_file(const char *env, const char *suf, const char *img)
   if (!f) pari_err_FILE("image file", s);
   fputs(img, f); (void)fclose(f);
   cmd = os_getenv(env);
+#ifdef GP_MIME_OPEN
+  if (!cmd) cmd = GP_MIME_OPEN;
+#else
   if (!cmd) cmd = "open -W";
+#endif
   cmd = pari_sprintf("%s \"%s\" 2>/dev/null", cmd, s);
   gpsystem(cmd);
   pari_unlink(s);
