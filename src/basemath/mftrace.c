@@ -7162,7 +7162,11 @@ mfcuspval(GEN mf, GEN F, GEN cusp, long bitprec)
   {
     GEN FT = mfmultheta(F), mf2 = obj_checkbuild(mf, MF_MF2INIT, &mf2init);
     GEN r = mfcuspval(mf2, FT, cusp, bitprec);
-    if ((C & 3L) == 2) r = gsub(r, ginv(stoi(4)));
+    if ((C & 3L) == 2)
+    {
+      GEN z = sstoQ(1,4);
+      r = gsub(r, typ(r) == t_VEC? const_vec(lg(r)-1, z): z);
+    }
     return gerepileupto(av, r);
   }
   vE = mfgetembed(F, prec);
