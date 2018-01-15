@@ -18,4 +18,4 @@ Doc: returns the absolute precision of $x$ with respect to power series
  @eprog
 
 Variant: Also available is \fun{long}{serprec}{GEN x, GEN p}, which returns
- \tet{LONG_MAX} if $x = 0$ and the series precision as a \kbd{long} integer.
+ \tet{LONG_MAX} if $x = 0$, otherwise the series precision as a \kbd{long} integer.
