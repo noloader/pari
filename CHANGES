@@ -212,7 +212,7 @@ BA   44- new GP functions permorder, permsign
 BA   45- new GP function galoisconjclasses
 AP   46- new GP functions galoischartable, alggroupcenter, algmakeintegral
      47- [libpari] Flxn_inv
-     48- new GP function znchargalois
+     48- new GP function chargalois
      49- [libpari] expose znstar internal interface: znstar_get_N,
       znstar_get_conreycyc, znstar_get_conreygen, znstar_get_faN, znstar_get_no,
       znstar_get_pe, znstar_get_Ui, checkznstar_i
