@@ -4627,7 +4627,7 @@ double  fujiwara_bound_real(GEN p, long sign);
 int     isrealappr(GEN x, long l);
 GEN     polgraeffe(GEN p);
 GEN     polmod_to_embed(GEN x, long prec);
-GEN     polrootsbound(GEN p);
+GEN     polrootsbound(GEN p, GEN tau);
 GEN     roots(GEN x,long l);
 GEN     realroots(GEN P, GEN ab, long prec);
 long    ZX_sturm(GEN P);

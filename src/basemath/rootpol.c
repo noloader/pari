@@ -643,7 +643,7 @@ lower_bound(GEN p, long *k, double eps)
   avma = ltop; return R;
 }
 
-/* log of modulus of the largest root of p with relative error tau. Assume
+/* return R such that exp(R - tau) <= rho_n(P) <= exp(R + tau)
  * P(0) != 0 and P non constant */
 static double
 logmax_modulus(GEN p, double tau)
@@ -705,7 +705,7 @@ RgX_normalize1(GEN x)
 }
 
 static GEN
-polrootsbound_i(GEN P)
+polrootsbound_i(GEN P, double TAU)
 {
   pari_sp av = avma;
   double d;
@@ -716,15 +716,15 @@ polrootsbound_i(GEN P)
     case -1: pari_err_ROOTS0("roots");
     case 0:  avma = av; return gen_0;
   }
-  d = logmax_modulus(P, 0.01) + 0.01;
+  d = logmax_modulus(P, TAU) + TAU;
   avma = av; return dblexp(d);
 }
 GEN
-polrootsbound(GEN P)
+polrootsbound(GEN P, GEN tau)
 {
   if (typ(P) != t_POL) pari_err_TYPE("polrootsbound",P);
   checkvalidpol(P, "polrootsbound");
-  return polrootsbound_i(P);
+  return polrootsbound_i(P, tau? gtodouble(tau): 0.01);
 }
 
 /* log of modulus of the smallest root of p, with relative error tau */

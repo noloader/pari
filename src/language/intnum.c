@@ -2005,7 +2005,7 @@ polmax(GEN P)
 {
   GEN r;
   if (typ(P) != t_POL || degpol(P) <= 0) return gen_1;
-  r = polrootsbound(P);
+  r = polrootsbound(P, NULL);
   if (gcmpgs(r, 1) <= 0) return gen_1;
   return r;
 }

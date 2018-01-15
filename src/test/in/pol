@@ -60,6 +60,10 @@ A=x^2+y*z*x+Mod(1,y^2+3); check(A)
 A=x^4+x*y^5+Mod(1,y^2+1); check(A)
 A=x^4+x*y^5+Mod(1,5*y^2+y+1); check(A)
 
+T=x^2+2;
+polrootsbound(T)
+polrootsbound(T, 1e-5)
+
 \\#1651
 f1=(x-1)/(x*x-x);
 type(subst(1/f1,x,1))

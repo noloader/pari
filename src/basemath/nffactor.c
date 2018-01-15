@@ -769,7 +769,7 @@ nf_root_bounds(GEN nf, GEN P)
   long lR, i, j, l, prec, r1;
   GEN Ps, R, V;
 
-  if (RgX_is_rational(P)) return polrootsbound(P);
+  if (RgX_is_rational(P)) return polrootsbound(P, NULL);
   r1 = nf_get_r1(nf);
   P = Q_primpart(P);
   prec = ZXX_max_lg(P) + 1;
@@ -786,7 +786,7 @@ nf_root_bounds(GEN nf, GEN P)
   {
     GEN r = gel(R,j);
     for (i=2; i<l; i++) gel(Ps,i) = poleval(gel(P,i), r);
-    gel(V,j) = polrootsbound(Ps);
+    gel(V,j) = polrootsbound(Ps, NULL);
   }
   return mkvec2(vecslice(V,1,r1), vecslice(V,r1+1,lg(V)-1));
 }
