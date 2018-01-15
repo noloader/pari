@@ -37,3 +37,9 @@ a=ffgen(ffinit(nextprime(2^30),3),'a); E = ellinit([1,a]);
 ellsea(E,1)
 ellsea(E,2)
 ellsea(ellinit([1,519],523))
+
+p = nextprime(2^100); E = ellinit([1122988618244467583984567614936, 429172847969450664478514342664], p);
+ellsea(E, -1)
+E = ellinit([1213812743793711191989251498394, 677975617584150034841507871840], p);
+ellsea(E, 2)
+ellsea(E, -2)

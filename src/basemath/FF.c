@@ -1242,7 +1242,7 @@ FF_ellcard(GEN E)
 }
 
 GEN
-FF_ellcard_SEA(GEN E, ulong smallfact)
+FF_ellcard_SEA(GEN E, long smallfact)
 {
   pari_sp av = avma;
   GEN T,p;

@@ -2857,7 +2857,7 @@ GEN     elltwist(GEN E, GEN D);
 GEN     ellrandom(GEN e);
 long    ellrootno(GEN e, GEN p);
 long    ellrootno_global(GEN e);
-GEN     ellsea(GEN E, ulong smallfact);
+GEN     ellsea(GEN E, long smallfact);
 GEN     ellsigma(GEN om, GEN z, long flag, long prec);
 GEN     ellsub(GEN e, GEN z1, GEN z2);
 GEN     elltamagawa(GEN e);
@@ -2909,8 +2909,8 @@ GEN     ellweilcurve(GEN E);
 
 /* ellsea.c */
 
-GEN     Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, ulong smallfact);
-GEN     Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact);
+GEN     Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, long smallfact);
+GEN     Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact);
 GEN     ellmodulareqn(long l, long vx, long vy);
 
 /* es.c */
@@ -3110,7 +3110,7 @@ GEN     FF_charpoly(GEN x);
 GEN     FF_conjvec(GEN x);
 GEN     FF_div(GEN a, GEN b);
 GEN     FF_ellcard(GEN E);
-GEN     FF_ellcard_SEA(GEN E, ulong smallfact);
+GEN     FF_ellcard_SEA(GEN E, long smallfact);
 GEN     FF_ellgens(GEN E);
 GEN     FF_ellgroup(GEN E);
 GEN     FF_elllog(GEN E, GEN P, GEN Q, GEN o);

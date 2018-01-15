@@ -1234,7 +1234,7 @@ study_modular_eqn(long ell, GEN mpoly, GEN T, GEN p, enum mod_type *mt, long *pt
 
 /*Returns the trace modulo ell^k when ell is an Elkies prime */
 static GEN
-find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GEN g, GEN tr, GEN q, GEN T, GEN p, ulong smallfact, pari_timer *ti)
+find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GEN g, GEN tr, GEN q, GEN T, GEN p, long smallfact, pari_timer *ti)
 {
   pari_sp ltop = avma, btop;
   GEN tmp, Eba4, Eba6, Eca4, Eca6, Ib, kpoly;
@@ -1258,6 +1258,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
     ulong pell = pellk%ell;
     ulong ap = Fl_add(lambda, Fl_div(pell, lambda, ell), ell);
     if (Fl_sub(pell, ap, ell)==ell-1) { avma = ltop; return mkvecsmall(ap); }
+    if (smallfact < 0 && Fl_add(pell, ap, ell)==ell-1) { avma = ltop; return mkvecsmall(ap); }
   }
   btop = avma;
   for (cnt = 2; cnt <= k; cnt++)
@@ -1338,7 +1339,7 @@ find_trace_lp1_roots(long ell, GEN q)
 /*trace modulo ell^k: [], [t] or [t1,...,td] */
 static GEN
 find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
-  ulong smallfact, long vx, long vy)
+  long smallfact, long vx, long vy)
 {
   pari_sp ltop = avma;
   GEN g, meqnj, tr, tr2;
@@ -1829,7 +1830,7 @@ get_FqE_group(void ** pt_E, GEN a4, GEN a6, GEN T, GEN p)
  * is detected. Useful when searching for a good curve for cryptographic
  * applications */
 GEN
-Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
+Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
 {
   const long MAX_ATKIN = 21;
   pari_sp ltop = avma, btop;
@@ -1889,11 +1890,20 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
       long t_mod_ellkt = trace_mod[1];
       if (smallfact && smallfact%ell!=0)
       { /* does ell divide q + 1 - t ? */
-        long card_mod_ell = umodsu(umodiu(q,ell) + 1 - t_mod_ellkt, ell) ;
+        long q_mod_ell_plus_one = umodiu(q,ell) + 1;
+        long card_mod_ell = umodsu(q_mod_ell_plus_one - t_mod_ellkt, ell);
+        if (!card_mod_ell && DEBUGLEVEL)
+        {
+            err_printf("\nAborting: #E(Fq) divisible by %ld\n",ell);
+        }
+        if (smallfact < 0)
+        {
+          card_mod_ell = umodsu(q_mod_ell_plus_one + t_mod_ellkt, ell);
+          if (!card_mod_ell && DEBUGLEVEL)
+            err_printf("\nAborting: #E_twist(Fq) divisible by %ld\n",ell);
+        }
         if (!card_mod_ell)
         {
-          if (DEBUGLEVEL)
-            err_printf("\nAborting: #E(Fq) divisible by %ld\n",ell);
           delete_var();
           delete_var();
           avma = ltop; return gen_0;
@@ -1954,7 +1964,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, ulong smallfact)
 }
 
 GEN
-Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, ulong smallfact)
+Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, long smallfact)
 {
   return Fq_ellcard_SEA(a4, a6, p, NULL, p, smallfact);
 }

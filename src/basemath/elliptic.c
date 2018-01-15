@@ -6364,7 +6364,7 @@ ellap(GEN E, GEN p)
 /* N.B. q > minq, then the list of potential orders in ellsea will not contain
  * an ambiguity => oo-loop. E.g. ellsea(ellinit([1,519],523)) */
 GEN
-ellsea(GEN E, ulong smallfact)
+ellsea(GEN E, long smallfact)
 {
   const ulong minq = 523;
   checkell_Fq(E);
