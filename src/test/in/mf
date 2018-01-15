@@ -304,6 +304,7 @@ mfcoefs(mfderiv(E6),6)
 mfcoefs(mfderiv(E6,-1),6)
 mfcoefs(mfderivE2(E6),6)
 
+f = mfbracket(mfbd(E4,4), mfTheta(), 1); vec(f)
 mfcoefs(mfbracket(E4,E6,1),10)/(-3456)
 mf = mfinit([7,3,Mod(6,7)], 0); mfeigenbasis(mf);
 mf=mfinit([10,7,[Z5,2]], 0); mffields(mf)

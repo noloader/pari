@@ -921,11 +921,8 @@ c_bracket(long n, long d, GEN F, GEN G, GEN gm)
     c = gmul(C, c_deflate(n, d, RgV_mul_RgXn(tF, tG)));
     res = res? gadd(res, c): c;
     if (j < m)
-    {
       C = gdiv(gmul(C, gmulsg(m-j, gaddgs(gl,m-j-1))),
-               gmulsg(j+1, gaddgs(gk,j)));
-      togglesign_safe(&C);
-    }
+               gmulsg(-(j+1), gaddgs(gk,j)));
   }
   return gerepileupto(av, res);
 }
