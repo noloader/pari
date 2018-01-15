@@ -16,7 +16,7 @@ Doc: initialize data (depending on the precision) used to compute
  ? T = zetamultinit(13); \\ instantaneous
  ? for(i = 1, 2^12-1, zetamult(i, T)) \\ used cached data
  time = 1,315 ms
- ? zetatamultall(12); \\ much faster !
+ ? zetamultall(12); \\ much faster !
  time = 27 ms
 
  ? T=zetamultinit(102); sizebyte(T) \\ small even for huge weights
@@ -28,4 +28,4 @@ Doc: initialize data (depending on the precision) used to compute
  time = 550 ms.
  @eprog\noindent
  For small weights, \kbd{zetamultall} will be much more efficient; but it
- is not an obtion when the weight gets large.
+ is not an option when the weight gets large.
