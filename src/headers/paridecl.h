@@ -1431,7 +1431,6 @@ GEN     galoischarpoly(GEN gal, GEN ch, long o);
 GEN     galoischartable(GEN gal);
 GEN     hassecoprime(GEN hi, GEN hf, long n);
 GEN     hassedown(GEN nf, long n, GEN hi, GEN hf);
-GEN     hassewedderburn(GEN hi, GEN hf, long n);
 long    localhasse(GEN rnf, GEN cnd, GEN pl, GEN auts, GEN b, long k);
 GEN     nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN     nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var);
