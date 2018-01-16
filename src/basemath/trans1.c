@@ -560,7 +560,7 @@ powuu(ulong p, ulong N)
   if (N <= 2)
   {
     if (N == 2) return sqru(p);
-    if (N == 1) return utoipos(p);
+    if (N == 1) return utoi(p);
     return gen_1;
   }
   if (!p) return gen_0;

@@ -153,6 +153,7 @@ BA  120- matsupplement(Mod(matrix(5,1),2)) --> SEGV [#1996]
     121- PostScript engine: missing 'stroke' in plotbox method => some
          commands (e.g. colors) could be ignored
     122- sqrtnint(a,k) very inefficient for huge k [and huge a]
+    123- powuu(0,1) -> SEGV
 
   Added
       1- [libari] ZM_isidentity
