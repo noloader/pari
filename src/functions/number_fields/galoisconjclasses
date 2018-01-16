@@ -2,9 +2,9 @@ Function: galoisconjclasses
 Section: number_fields
 C-Name: galoisconjclasses
 Prototype: G
-Help: galoisconjclasses(gal): gal being as output by galoisinit,
+Help: galoisconjclasses(gal): gal being output by galoisinit,
  return the list of conjugacy classes.
-Doc: \var{gal} being as output by \kbd{galoisinit},
+Doc: \var{gal} being output by \kbd{galoisinit},
  return the list of conjugacy classes of the underlying group.
  The ordering of the classes is consistent with \kbd{galoischartable}.
 
@@ -18,4 +18,10 @@ Doc: \var{gal} being as output by \kbd{galoisinit},
  ? apply(x->[permorder(x[1]),#x],S)
  %3 = [[1,1],[3,2],[2,3]]
  @eprog\noindent
- This command also accepts subgroups returned by \kbd{galoissubgroups}.
+ This command also accepts subgroups returned by \kbd{galoissubgroups}:
+ \bprog
+ ? subgroups_of_G = galoissubgroups(G);
+ ? S=galoisconjclasses(subgroups_of_G[5]);
+ ? apply(x->[permorder(x[1]),#x],S)
+ %4 = [[1, 1], [2, 1]]
+ @eprog\noindent
