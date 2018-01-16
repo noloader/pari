@@ -1768,7 +1768,7 @@ mfbracket(GEN f, GEN g, long m)
   if (!checkmf_i(g)) pari_err_TYPE("mfbracket",g);
   if (m < 0) pari_err_TYPE("mfbracket [m<0]",stoi(m));
   K = gaddgs(gadd(mf_get_gk(f), mf_get_gk(g)), 2*m);
-  if (signe(K) < 0) pari_err_IMPL("mfbracket for this form");
+  if (gsigne(K) < 0) pari_err_IMPL("mfbracket for this form");
   N = lcmii(mf_get_gN(f), mf_get_gN(g));
   CHI = mfcharmul(mf_get_CHI(f), mf_get_CHI(g));
   CHI = mfchiadjust(CHI, K, itou(N));
