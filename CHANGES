@@ -443,6 +443,8 @@ BA   46-[libpari] RgX_type now only handles polynomials.
          no memory-related message at value 0 (not recommended under gp).
 BA   59- V=galoisfixedfield(,,2): return V[1] in the same variable as the
          coeffs of V[3] instead of P.
+     60- numtoperm now returns a t_VECSMALL (so that results can be
+         multiplied as permutations, etc.), no longer a ZV
 
   Removed
       1- file 'MACHINES' (no longer maintained)

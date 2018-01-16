@@ -382,14 +382,9 @@ Z_to_perm(long n, GEN x)
 GEN
 numtoperm(long n, GEN x)
 {
-  long i;
-  GEN v;
-
   if (n < 0) pari_err_DOMAIN("numtoperm", "n", "<", gen_0, stoi(n));
   if (typ(x) != t_INT) pari_err_TYPE("numtoperm",x);
-  v = Z_to_perm(n, x); settyp(v, t_VEC);
-  for (i = 1; i <= n; i++) gel(v,i) = utoipos(uel(v,i));
-  return v;
+  return Z_to_perm(n, x);
 }
 
 /* destroys v */
