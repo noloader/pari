@@ -657,9 +657,11 @@ t^2, t^2, 0, 0, t^3 + t, 0, 0]]]]
 , 7] [137, 0, 0] [138, 4, 0] [139, 1, 1] [140, 6, 6] [141, 4, 0] [142, 6, 0]
  [143, 4, 4] [144, 5, 1] [145, 4, 4] [146, 0, 0] [147, 6, 6] [148, 10, 10] [
 149, 0, 0] [150, 0, 0] 
+[[22, Mod(5, 23), 1, 0], [2, Mod(22, 23), 2, 1]]
 [[2, Mod(22, 23), 1, 1]]
 [[2, Mod(22, 23), 1, 1]]
 []
+[[2, Mod(22, 23), 1, 0], [22, Mod(5, 23), 1, 0]]
 [[2, Mod(45, 46), 2, -1]]
 [[0, 0], [0, 0], [0, 0], [1, 1]]
 [[0, 0], [0, 0], [0, 0], [1, 1]]
@@ -1440,9 +1442,6 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mfinit([1,2],5)
   ***                 ^---------------
   *** mfinit: invalid flag in mfinit.
-  ***   at top-level: mfdim([23,1,0])
-  ***                 ^---------------
-  *** mfdim: sorry, noncuspidal dimension of G_1(N) is not yet implemented.
   ***   at top-level: mfgaloistype([11,1,Mod(2,11)],mfeisenstein(1,1
   ***                 ^----------------------------------------------
   *** mfgaloistype: domain error in mfgaloistype: form not a cuspidal eigenform
@@ -1479,4 +1478,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: ...([1,0]);F=mfbasis(mf)[1];mfsymbol(mf,F)
   ***                                             ^--------------
   *** mfsymbol: sorry, mfsymbol when k <= 1 is not yet implemented.
-Total time spent: 7295
+Total time spent: 6407

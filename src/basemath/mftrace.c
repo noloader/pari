@@ -5576,6 +5576,27 @@ mfEMPTYall(long N, GEN gk, GEN vCHI, long space)
 static GEN
 fmt_dim(GEN CHI, long d, long dih)
 { return mkvec4(gmfcharorder(CHI), gmfcharno(CHI), utoi(d), stoi(dih)); }
+/* merge two vector of fmt_dim's for the same vector of characters. If CHI
+ * is not NULL, remove dim-0 spaces and add character from CHI */
+static GEN
+merge_dims(GEN V, GEN W, GEN CHI)
+{
+  long i, j, id, l = lg(V);
+  GEN A = cgetg(l, t_VEC);
+  if (l == 1) return A;
+  id = CHI? 1: 3;
+  for (i = j = 1; i < l; i++)
+  {
+    GEN v = gel(V,i), w = gel(W,i);
+    long dv = itou(gel(v,id)), dvh = itou(gel(v,id+1)), d;
+    long dw = itou(gel(w,id)), dwh = itou(gel(w,id+1));
+    d = dv + dw;
+    if (d || CHI)
+      gel(A,j++) = CHI? fmt_dim(gel(CHI,i),d, dvh+dwh)
+                      : mkvec2s(d,dvh+dwh);
+  }
+  setlg(A, j); return A;
+}
 static GEN
 mfdim0all(GEN w)
 {
@@ -8125,6 +8146,7 @@ static long
 mfdim_Nndkchi(long N, long nk, long dk, GEN CHI, long space)
 { return (dk == 2)? mf2dim_Nkchi(N, nk >> 1, CHI, space)
                   : mfdim_Nkchi(N, nk, CHI, space); }
+/* FIXME: use direct dim Gamma1(N) formula, don't compute individual spaces */
 static long
 mfwtkdimsum(long N, long k, long dk, long space)
 {
@@ -8188,7 +8210,6 @@ mfdim(GEN NK, long space)
   {
     long d;
     GEN D;
-    /* for now no jokers in 1/2 integral weight */
     if (k < 0) switch(joker)
     {
       case 1: return cgetg(1,t_VEC);
@@ -8218,11 +8239,27 @@ mfdim(GEN NK, long space)
       }
     }
     if (dk == 1 && k == 1 && space != mf_EISEN)
-    { /* FIXME: implement mf_FULL */
-      if (!space_is_cusp(space))
-        pari_err_IMPL("noncuspidal dimension of G_1(N)");
-      if (joker == 2) { d = mfwt1dimsum(N, space); avma = av; return utoi(d); }
+    {
+      long fix = 0, space0 = space;
+      if (space == mf_FULL) space = mf_CUSP; /* remove Eisenstein part */
+      if (joker == 2)
+      {
+        d = mfwt1dimsum(N, space);
+        if (space0 == mf_FULL) d += mfwtkdimsum(N,k,dk,mf_EISEN);/*add it back*/
+        avma = av; return utoi(d);
+      }
+      /* must initialize explicitly: trivial spaces for E_k/S_k differ */
+      if (space0 == mf_FULL)
+      {
+        if (!CHI) fix = 1; /* must remove 0 spaces */
+        CHI = mfchars(N, k, dk, CHI);
+      }
       D = mfwt1dims(N, CHI, space);
+      if (space0 == mf_FULL)
+      {
+        GEN D2 = mfwtkdims(N, k, dk, CHI, mf_EISEN);
+        D = merge_dims(D, D2, fix? CHI: NULL);
+      }
     }
     else
     {

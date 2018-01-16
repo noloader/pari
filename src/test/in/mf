@@ -251,9 +251,11 @@ mfwt1all(N,mf)=
 }
 for(N=1,150,my(mf=mfinit([N,1,0],1));if(#mf,mfwt1all(N,mf)));
 for(N=1,150,print1([N,mfdim([N,1,-1],1),mfdim([N,1,-1],0)]," "));
+mfdim([23,1,0])
 mfdim([23,1,0],0)
 mfdim([23,1,0],1)
 mfdim([23,1,0],2)
+mfdim([23,1,0],3)
 mfdim([46,1,0],2)
 G=znstar(23,1); w=[[G,v] | v<-chargalois(G)];
 mfdim([23,1,w],0)
@@ -674,7 +676,6 @@ mfinit([7,1,-7],2);
 mfinit([7,1,-7],5);
 mfinit([1,2],5)
 
-mfdim([23,1,0])
 mfgaloistype([11,1,Mod(2,11)], mfeisenstein(1,1,Mod(2,11)))
 
 D=mfDelta();
