@@ -24,7 +24,7 @@ static void SetForeground(void *data, long col)
   int r,g,b;
   HPEN hOldPen;
   color_to_rgb(gel(GP_DATA->colormap,col+1), &r, &g, &b);
-
+  SetDCPenColor((HDC)data,RGB(r,g,b));
   hOldPen = SelectObject((HDC)data, CreatePen(PS_SOLID, 1, RGB(r,g,b)));
   if( hOldPen ) DeleteObject(hOldPen);
 }
@@ -46,6 +46,19 @@ static void DrawRectangle(void *data, long x, long y, long w, long h)
   DrawLine(data, x,y,x,y+h);
   DrawLine(data, x+w,y,x+w,y+h);
   DrawLine(data, x,y+h,x+w,y+h);
+}
+
+static void FillRectangle(void *data, long x, long y, long w, long h)
+{
+  RECT rc;
+  COLORREF color;
+  HBRUSH brush;
+  rc.left = x; rc.right  = x+w;
+  rc.top  = y; rc.bottom = y+h;
+  color = GetDCPenColor((HDC) data);
+  brush = CreateSolidBrush(color);
+  FillRect((HDC)data, &rc, brush);
+  DeleteObject(brush);
 }
 
 static void DrawPoints(void *data, long nb, struct plot_points *p)
@@ -90,6 +103,7 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   plotWin32.pt=&DrawPoint;
   plotWin32.ln=&DrawLine;
   plotWin32.bx=&DrawRectangle;
+  plotWin32.fb=&FillRectangle;
   plotWin32.mp=&DrawPoints;
   plotWin32.ml=&DrawLines;
   plotWin32.st=&DrawString;

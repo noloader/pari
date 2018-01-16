@@ -138,6 +138,13 @@ DrawRectangle(void *data, long x, long y, long w, long h)
 }
 
 static void
+FillRectangle(void *data, long x, long y, long w, long h)
+{
+  struct data_qt *d = (struct data_qt *) data;
+  d->p->fillRect(x, y, w, h, d->p->pen().color());
+}
+
+static void
 DrawPoints(void *data, long nb, struct plot_points *p)
 {
   struct data_qt *d = (struct data_qt *) data;
@@ -176,6 +183,8 @@ Plotter::draw(QPainter *p)
   plotQt.pt=&DrawPoint;
   plotQt.ln=&DrawLine;
   plotQt.bx=&DrawRectangle;
+  plotQt.fb=&FillRectangle;
+  plotQt.mp=&DrawPoints;
   plotQt.mp=&DrawPoints;
   plotQt.ml=&DrawLines;
   plotQt.st=&DrawString;

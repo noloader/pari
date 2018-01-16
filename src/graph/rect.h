@@ -82,6 +82,7 @@ struct plot_eng {
   void (*pt)(void *data, long x, long y);
   void (*ln)(void *data, long x1, long y1, long x2, long y2);
   void (*bx)(void *data, long x, long y, long w, long h);
+  void (*fb)(void *data, long x, long y, long w, long h);
   void (*mp)(void *data, long n, struct plot_points *points);
   void (*ml)(void *data, long n, struct plot_points *points);
   void (*st)(void *data, long x, long y, char *s, long l);

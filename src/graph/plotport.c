@@ -40,6 +40,7 @@ enum {
   ROt_PT,  /* Point */
   ROt_LN,  /* Line */
   ROt_BX,  /* Box */
+  ROt_FBX, /* Filled Box */
   ROt_MP,  /* Multiple point */
   ROt_ML,  /* Multiple lines */
   ROt_ST,  /* String */
@@ -430,7 +431,7 @@ rectticks(PARI_plot *WW, long ne, double dx1, double dy1, double dx2,
 }
 
 static void
-rectbox0(long ne, double gx2, double gy2, long relative)
+rectbox0(long ne, double gx2, double gy2, long relative, long filled)
 {
   double xx, yy, x1, y1, x2, y2, xmin, ymin, xmax, ymax;
   PariRect *e = check_rect_init(ne);
@@ -447,18 +448,18 @@ rectbox0(long ne, double gx2, double gy2, long relative)
   xmin = maxdd(mindd(x1,x2),0); xmax = mindd(maxdd(x1,x2),RXsize(e));
   ymin = maxdd(mindd(y1,y2),0); ymax = mindd(maxdd(y1,y2),RYsize(e));
 
-  RoType(z) = ROt_BX;
+  RoType(z) = filled ? ROt_FBX: ROt_BX;
   RoBXx1(z) = xmin; RoBXy1(z) = ymin;
   RoBXx2(z) = xmax; RoBXy2(z) = ymax;
   Rchain(e, z);
   RoCol(z) = current_color[ne];
 }
 void
-plotbox(long ne, GEN gx2, GEN gy2)
-{ rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 0); }
+plotbox(long ne, GEN gx2, GEN gy2, long f)
+{ rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 0, f); }
 void
-plotrbox(long ne, GEN gx2, GEN gy2)
-{ rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 1); }
+plotrbox(long ne, GEN gx2, GEN gy2, long f)
+{ rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 1, f); }
 
 static void
 freeobj(RectObj *z) {
@@ -690,7 +691,7 @@ plotcopy(long source, long dest, GEN xoff, GEN yoff, long flag)
         o = (RectObj*)cp(R, sizeof(RectObj1P));
         RoPTx(o) += x; RoPTy(o) += y;
         break;
-      case ROt_LN: case ROt_BX:
+      case ROt_LN: case ROt_BX: case ROt_FBX:
         o = (RectObj*)cp(R, sizeof(RectObj2P));
         RoLNx1(o) += x; RoLNy1(o) += y;
         RoLNx2(o) += x; RoLNy2(o) += y;
@@ -810,7 +811,7 @@ plotclip(long rect)
         if ( DTOL(RoPTx(R)) < xmin || DTOL(RoPTx(R)) > xmax
           || DTOL(RoPTy(R)) < ymin || DTOL(RoPTy(R)) > ymax) REMOVE();
         NEXT();
-      case ROt_BX:
+      case ROt_BX: case ROt_FBX:
         if (RoLNx1(R) < xmin) RoLNx1(R) = xmin, did_clip = 1;
         if (RoLNx2(R) < xmin) RoLNx2(R) = xmin, did_clip = 1;
         if (RoLNy1(R) < ymin) RoLNy1(R) = ymin, did_clip = 1;
@@ -1439,7 +1440,7 @@ plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     plotlinetype(grect, -2); /* Frame. */
     current_color[grect] = DEFAULT_COLOR;
     plotmove0(grect,xsml,ysml,0);
-    rectbox0(grect,xbig,ybig,0);
+    rectbox0(grect,xbig,ybig,0,0);
     if (!(flags & PLOT_NO_TICK_X)) {
       rectticks(pl, grect, xsml, ysml, xbig, ysml, xsml, xbig,
         TICKS_CLOCKW | do_double);
@@ -1686,6 +1687,14 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
                 DTOL((RoBXx2(R)-RoBXx1(R))*xs),
                 DTOL((RoBXy2(R)-RoBXy1(R))*ys));
         break;
+      case ROt_FBX:
+        eng->sc(data,col);
+        eng->fb(data,
+                DTOL((RoBXx1(R)+x0)*xs),
+                DTOL((RoBXy1(R)+y0)*ys),
+                DTOL((RoBXx2(R)-RoBXx1(R))*xs),
+                DTOL((RoBXy2(R)-RoBXy1(R))*ys));
+        break;
       case ROt_MP:
         {
           double *ptx = RoMPxs(R);
@@ -1796,6 +1805,16 @@ svg_rect(void *data, long x, long y, long w, long h)
 }
 
 static void
+svg_fillrect(void *data, long x, long y, long w, long h)
+{
+  pari_str *S = data_str(data);
+  const char * color = data_hexcolor(data);
+  str_printf(S, "<rect x='%.2f' y='%.2f' width='%.2f' height='%.2f' ",
+    svg_rescale(x), svg_rescale(y), svg_rescale(w), svg_rescale(h));
+  str_printf(S, "style='fill:%s;stroke:%s;'/>", color, color);
+}
+
+static void
 svg_points(void *data, long nb, struct plot_points *p)
 {
   long i;
@@ -1881,6 +1900,7 @@ rect2svg(GEN w, GEN x, GEN y, PARI_plot *T)
   pl.pt = &svg_point;
   pl.ln = &svg_line;
   pl.bx = &svg_rect;
+  pl.fb = &svg_fillrect;
   pl.mp = &svg_points;
   pl.ml = &svg_lines;
   pl.st = &svg_text;
@@ -1931,6 +1951,14 @@ ps_rect(void *data, long x, long y, long w, long h)
 {
   pari_str *S = (pari_str*)data;
   str_printf(S,"%ld %ld m %ld %ld l %ld %ld l %ld %ld l closepath stroke\n",
+             y,x, y,x+w, y+h,x+w, y+h,x);
+}
+
+static void
+ps_fillrect(void *data, long x, long y, long w, long h)
+{
+  pari_str *S = (pari_str*)data;
+  str_printf(S,"%ld %ld m %ld %ld l %ld %ld l %ld %ld l closepath fill\n",
              y,x, y,x+w, y+h,x+w, y+h,x);
 }
 
@@ -2002,6 +2030,7 @@ rect2ps_i(GEN w, GEN x, GEN y, PARI_plot *T, int plotps)
   pl.pt = &ps_point;
   pl.ln = &ps_line;
   pl.bx = &ps_rect;
+  pl.fb = &ps_fillrect;
   pl.mp = &ps_points;
   pl.ml = &ps_lines;
   pl.st = &ps_string;

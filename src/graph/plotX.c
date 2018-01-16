@@ -79,6 +79,12 @@ static void DrawRectangle(void *data, long x, long y, long w, long h)
   XDrawRectangle(dx->display,dx->win,dx->gc, x,y, w,h);
 }
 
+static void FillRectangle(void *data, long x, long y, long w, long h)
+{
+  struct data_x *dx = (struct data_x *) data;
+  XFillRectangle(dx->display,dx->win,dx->gc, x,y, w,h);
+}
+
 static void DrawPoints(void *data, long nb, struct plot_points *p)
 {
   struct data_x *dx = (struct data_x *) data;
@@ -222,6 +228,7 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   plotX.pt = &DrawPoint;
   plotX.ln = &DrawLine;
   plotX.bx = &DrawRectangle;
+  plotX.fb = &FillRectangle;
   plotX.mp = &DrawPoints;
   plotX.ml = &DrawLines;
   plotX.st = &DrawString;

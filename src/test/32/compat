@@ -4213,8 +4213,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: box(x,a) ===> plotbox(x,a)
 
-plotbox(w,x2,y2): if the cursor is at position (x1,y1), draw a box with 
-diagonal (x1,y1) and (x2,y2) in rectwindow w (cursor does not move).
+plotbox(w,x2,y2,{filled=0}): if the cursor is at position (x1,y1), draw a box 
+with diagonal (x1,y1) and (x2,y2) in rectwindow w (cursor does not move). If 
+filled=1, fill the box.
 
 
   ***   at top-level: color()
@@ -4397,8 +4398,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: rbox(w,dx,dy) ===> plotrbox(w,dx,dy)
 
-plotrbox(w,dx,dy): if the cursor is at (x1,y1), draw a box with diagonal 
-(x1,y1)-(x1+dx,y1+dy) in rectwindow w (cursor does not move).
+plotrbox(w,dx,dy,{filled}): if the cursor is at (x1,y1), draw a box with 
+diagonal (x1,y1)-(x1+dx,y1+dy) in rectwindow w (cursor does not move). If 
+filled=1, fill the box.
 
 
   ***   at top-level: read()

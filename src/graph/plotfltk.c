@@ -70,6 +70,9 @@ static void
 DrawRectangle(void *data, long x, long y, long w, long h)
 { (void)data; fl_rect(x,y,w,h); }
 static void
+FillRectangle(void *data, long x, long y, long w, long h)
+{ (void)data; fl_rectf(x,y,w,h); }
+static void
 DrawPoints(void *data, long nb, struct plot_points *p)
 {
   long i;
@@ -107,6 +110,7 @@ Plotter::draw()
   pl.pt = &DrawPoint;
   pl.ln = &DrawLine;
   pl.bx = &DrawRectangle;
+  pl.fb = &FillRectangle;
   pl.mp = &DrawPoints;
   pl.ml = &DrawLines;
   pl.st = &DrawString;
