@@ -119,14 +119,16 @@ GEN
 zm_permanent(GEN M)
 {
   pari_sp av = avma;
-  long x, n = lg(M)-1, upper = (1L<<n);
+  long n = lg(M)-1;
+  ulong x, upper = (1UL<<n);
   GEN p = gen_0, in = const_vecsmall(n, 0);
   pari_sp av2 = avma;
   for (x = 1; x < upper; x++)
   {
-    long i, gray = x ^ (x>>1), k = vals(x);
+    ulong gray = x ^ (x>>1);
+    long i, k = vals(x);
     GEN c, col = gel(M, k+1);
-    if (gray & (1L<<k))
+    if (gray & (1UL<<k))
     { for (i = 1; i <= n; ++i) in[i] += col[i]; }
     else
     { for (i = 1; i <= n; ++i) in[i] -= col[i]; }
