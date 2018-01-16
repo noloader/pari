@@ -309,11 +309,18 @@ perm_cycles(GEN v)
 static long
 isperm(GEN v)
 {
-  long i, l = lg(v)-1;
-  if (typ(v)!=t_VECSMALL) return 0;
-  for (i=1; i<=l; i++)
-    if (v[i]<1 || v[i]>l) return 0;
-  return 1;
+  pari_sp av = avma;
+  long i, n = lg(v)-1;
+  GEN w;
+  if (typ(v) != t_VECSMALL) return 0;
+  w = zero_zv(n);
+  for (i=1; i<=n; i++)
+  {
+    long d = v[i];
+    if (d < 1 || d > n || w[d]) { avma = av; return 0; }
+    w[d] = 1;
+  }
+  avma = av; return 1;
 }
 
 /* Output the order of p */
@@ -349,9 +356,84 @@ perm_sign(GEN v)
 long
 permsign(GEN v)
 {
-  if (!isperm(v)) pari_err_TYPE("permorder",v);
+  if (!isperm(v)) pari_err_TYPE("permsign",v);
   return perm_sign(v);
 }
+
+GEN
+Z_to_perm(long n, GEN x)
+{
+  pari_sp av;
+  ulong i, r;
+  GEN v = cgetg(n+1, t_VECSMALL);
+  if (n==0) return v;
+  uel(v,n) = 1; av = avma;
+  if (signe(x) <= 0) x = modii(x, mpfact(n));
+  for (r=n-1; r>=1; r--)
+  {
+    ulong a;
+    x = diviu_rem(x, n+1-r, &a);
+    for (i=r+1; i<=(ulong)n; i++)
+      if (uel(v,i) > a) uel(v,i)++;
+    uel(v,r) = a+1;
+  }
+  avma = av; return v;
+}
+GEN
+numtoperm(long n, GEN x)
+{
+  long i;
+  GEN v;
+
+  if (n < 0) pari_err_DOMAIN("numtoperm", "n", "<", gen_0, stoi(n));
+  if (typ(x) != t_INT) pari_err_TYPE("numtoperm",x);
+  v = Z_to_perm(n, x); settyp(v, t_VEC);
+  for (i = 1; i <= n; i++) gel(v,i) = utoipos(uel(v,i));
+  return v;
+}
+
+/* destroys v */
+static GEN
+perm_to_Z_inplace(GEN v)
+{
+  long l = lg(v), i, r;
+  GEN x = gen_0;
+  if (!isperm(v)) pari_err_TYPE("permsign",v);
+  for (i = 1; i < l; i++)
+  {
+    long vi = v[i];
+    if (vi <= 0) return NULL;
+    x = i==1 ? utoi(vi-1): addiu(muliu(x,l-i), vi-1);
+    for (r = i+1; r < l; r++)
+      if (v[r] > vi) v[r]--;
+  }
+  return x;
+}
+GEN
+perm_to_Z(GEN v)
+{
+  pari_sp av = avma;
+  GEN x = perm_to_Z_inplace(leafcopy(v));
+  if (!x) pari_err_TYPE("permtonum",v);
+  return gerepileuptoint(av, x);
+}
+GEN
+permtonum(GEN p)
+{
+  pari_sp av = avma;
+  GEN v, x;
+  switch(typ(p))
+  {
+    case t_VECSMALL: return perm_to_Z(p);
+    case t_VEC: case t_COL:
+      if (RgV_is_ZV(p)) { v = ZV_to_zv(p); break; }
+    default: pari_err_TYPE("permtonum",p); return NULL;
+  }
+  x = perm_to_Z_inplace(v);
+  if (!x) pari_err_TYPE("permtonum",p);
+  return gerepileuptoint(av, x);
+}
+
 
 GEN
 cyc_pow(GEN cyc, long exp)

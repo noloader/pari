@@ -22,7 +22,11 @@ forperm([],p,print(p))
 forperm(Vecsmall([]),p,print(p))
 forperm(0,p,print(p))
 forperm(1,p,print(p))
+
 \\ errors
 forperm(p,3,)
 forperm(1.0,q,)
 forperm(-1,q,)
+permsign(Vecsmall([1,1]))
+permsign(Vecsmall([1,2,1]))
+permorder(Vecsmall([1,2,1]))

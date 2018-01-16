@@ -162,4 +162,13 @@ Vecsmall([1])
   ***   at top-level: forperm(-1,q,)
   ***                 ^--------------
   ***   domain error in forperm: a < 0
-Total time spent: 0
+  ***   at top-level: permsign(Vecsmall([1,1]))
+  ***                 ^-------------------------
+  *** permsign: incorrect type in permsign (t_VECSMALL).
+  ***   at top-level: permsign(Vecsmall([1,2,1]))
+  ***                 ^---------------------------
+  *** permsign: incorrect type in permsign (t_VECSMALL).
+  ***   at top-level: permorder(Vecsmall([1,2,1]))
+  ***                 ^----------------------------
+  *** permorder: incorrect type in permorder (t_VECSMALL).
+Total time spent: 1
