@@ -3,8 +3,7 @@ Section: algebras
 C-Name: algcharpoly
 Prototype: GGDn
 Help: algcharpoly(al,b,{v='x}): (reduced) characteristic polynomial of b in
- \var{al}, with respect to the variable $v$.
-
+ al, with respect to the variable v.
 Doc: Given an element $b$ in \var{al}, returns its characteristic polynomial
  as a polynomial in the variable $v$. If \var{al} is a table algebra output
  by \tet{algtableinit}, returns the absolute characteristic polynomial of

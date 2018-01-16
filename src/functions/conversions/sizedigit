@@ -4,7 +4,7 @@ C-Name: sizedigit
 Prototype: lG
 Obsolete: 2015-01-13
 Help: sizedigit(x): rough upper bound for the number of decimal digits
- of (the components of) $x$. DEPRECATED.
+ of (the components of) x. DEPRECATED.
 Doc:
  This function is DEPRECATED, essentially meaningless, and provided for
  backwards compatibility only. Don't use it!
