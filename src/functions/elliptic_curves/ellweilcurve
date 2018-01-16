@@ -2,10 +2,10 @@ Function: ellweilcurve
 Section: elliptic_curves
 C-Name: ellweilcurve
 Prototype: G
-Help: ellweilcurve(E): E being an elliptic curve over $\Q$,
+Help: ellweilcurve(E): E being an elliptic curve over Q,
  return a list of representatives of the isomorphism classes of elliptic curves
  isogenous to E as given by ellisomat and the list of the Smith invariants of
- the lattice associated to $E$ in $H^1(E,\Q)$ in the lattice associated to the
+ the lattice associated to E in H^1(E,Q) in the lattice associated to the
  modular form.
 Doc: If $E'$ is an elliptic curve over $\Q$, let $L_{E'}$ be the
  sub-$\Z$-module of $\Hom_{\Gamma_0(N)}(\Delta,\Q)$ attached to $E'$
