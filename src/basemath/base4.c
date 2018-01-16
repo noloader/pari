@@ -693,6 +693,61 @@ idealfactor(GEN nf, GEN x)
   return sort_factor(fa, (void*)&cmp_prime_ideal, &cmp_nodata);
 }
 
+/* true nf; A is assumed to be the n-th power of an integral ideal,
+return its n-th root. */
+static long
+idealsqrtn_int(GEN nf, GEN A, long n, GEN *pB)
+{
+  GEN C, ram, vram, root;
+  long i, l;
+  /* compute valuations at ramified primes */
+  ram = gel(idealfactor(nf, idealadd(nf, nf_get_diff(nf),A)), 1);
+  l = lg(ram); vram = cgetg(l, t_VECSMALL);
+  for (i = 1; i < l; i++)
+  {
+    long v = idealval(nf,A,gel(ram,i));
+    if (v % n) return 0;
+    vram[i] = v / n;
+  }
+  root = idealfactorback(nf, ram, vram, 0);
+  /* remove ramified primes */
+  A = idealdivexact(nf, A, idealpows(nf,root,n));
+  A = Q_primitive_part(A, &C);
+  if (C)
+  {
+    if (!Z_ispowerall(C,n,&C)) return 0;
+    if (pB) root = ZM_Z_mul(root, C);
+  }
+
+  /* compute final n-th root, at most degree(nf)-1 iterations */
+  for (i = 0;; i++)
+  {
+    GEN J, b, a = gcoeff(A,1,1); /* A \cap Z */
+    if (is_pm1(a)) break;
+    if (!Z_ispowerall(a,n,&b)) return 0;
+    J = idealadd(nf, b, A);
+    A = idealdivexact(nf, idealpows(nf,J,n), A);
+    if (pB) root = odd(i)? idealdivexact(nf, root, J): idealmul(nf, root, J);
+    i++;
+  }
+  if (pB) *pB = root;
+  return 1;
+}
+
+/* A is assumed to be the n-th power of an ideal in nf
+ returns its n-th root. */
+long
+idealispower(GEN nf, GEN A, long n, GEN *pB)
+{
+  pari_sp av = avma;
+  GEN v, N, D;
+  nf = checknf(nf); v = idealnumden(nf,A);
+  if (!idealsqrtn_int(nf, gel(v,1), n, pB? &N: NULL)) return 0;
+  if (!idealsqrtn_int(nf, gel(v,2), n, pB? &D: NULL)) return 0;
+  if (pB) *pB = gerepileupto(av, idealdiv(nf,N,D)); else avma = av;
+  return 1;
+}
+
 /* P prime ideal in idealprimedec format. Return valuation(A) at P */
 long
 idealval(GEN nf, GEN A, GEN P)

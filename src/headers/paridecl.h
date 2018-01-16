@@ -2238,6 +2238,7 @@ GEN     idealintersect(GEN nf, GEN x, GEN y);
 GEN     idealinv(GEN nf, GEN ix);
 GEN     idealHNF_inv(GEN nf, GEN I);
 GEN     idealHNF_inv_Z(GEN nf, GEN I);
+long    idealispower(GEN nf, GEN A, long n, GEN *pB);
 GEN     idealred0(GEN nf, GEN I,GEN vdir);
 GEN     idealmul(GEN nf, GEN ix, GEN iy);
 GEN     idealmul0(GEN nf, GEN ix, GEN iy, long flag);

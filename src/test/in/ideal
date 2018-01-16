@@ -102,6 +102,14 @@ idealchinese(K, C, [1,t])
 C = idealchinese(K, [C,[-1,-1]]);
 idealchinese(K, C, [1,t])
 
+K = nfinit(x^3 - 2);
+A = [46875, 30966, 9573; 0, 3, 0; 0, 0, 3];
+idealispower(K, A, 3, &B)
+B
+A = [9375, 2841, 198; 0, 3, 0; 0, 0, 3];
+idealispower(K, A, 3)
+
+
 \\ #1643
 K=nfinit(x^8-1310*x^6+575380*x^4-93689568*x^2+3644295424);
 idealprimedec(K,17,1)

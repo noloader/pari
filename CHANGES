@@ -348,6 +348,7 @@ LGr 140- make TESTS="a b c" test-all to test only 'a' 'b' and 'c', e.g.
     142- New GP function forsquarefree
     143- allow matsolve(m,b) when m is only left-invertible
 BA  144- [libpari] QXQ_mul, QXQ_sqr, FFXQ_mul, FFXQ_sqr
+    145- New GP function idealispower
 
   Changed
       1- rewrite bnfnarrow
