@@ -10,7 +10,6 @@ Doc: return a sharp upper bound $B$ for the modulus of
  with relative error $\tau$. More precisely, we have $|z| \leq B$ for all roots
  and there exist one root such that $|z_0| \geq B \exp(-2\tau)$. Much faster
  than either polroots or polrootsreal.
-
  \bprog
  ? T=poltchebi(500);
  ? vecmax(abs(polroots(T)))
