@@ -108,6 +108,7 @@ idealispower(K, A, 3, &B)
 B
 A = [9375, 2841, 198; 0, 3, 0; 0, 0, 3];
 idealispower(K, A, 3)
+idealispower(K, A, 1)
 
 
 \\ #1643

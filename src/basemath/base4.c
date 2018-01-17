@@ -694,7 +694,7 @@ idealfactor(GEN nf, GEN x)
 }
 
 /* true nf; A is assumed to be the n-th power of an integral ideal,
-return its n-th root. */
+ * return its n-th root; n > 1 */
 static long
 idealsqrtn_int(GEN nf, GEN A, long n, GEN *pB)
 {
@@ -741,7 +741,10 @@ idealispower(GEN nf, GEN A, long n, GEN *pB)
 {
   pari_sp av = avma;
   GEN v, N, D;
-  nf = checknf(nf); v = idealnumden(nf,A);
+  nf = checknf(nf);
+  if (n <= 0) pari_err_DOMAIN("idealispower", "n", "<=", gen_0, stoi(n));
+  if (n == 1) { if (pB) *pB = idealhnf(nf,A); return 1; }
+  v = idealnumden(nf,A);
   if (!idealsqrtn_int(nf, gel(v,1), n, pB? &N: NULL)) return 0;
   if (!idealsqrtn_int(nf, gel(v,2), n, pB? &D: NULL)) return 0;
   if (pB) *pB = gerepileupto(av, idealdiv(nf,N,D)); else avma = av;
