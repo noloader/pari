@@ -8,8 +8,8 @@ Doc: Let $G$ be the group attached to the \kbd{galoisinit}
  structure~\var{gal}, and
  let $\chi$ be the character of some representation $\rho$ of the group $G$,
  where a polynomial variable is to be interpreted as an $o$-th root of 1.
- E.g., if \kbd{[T,o] = galoischartable(gal)} and $\chi$ is a column of
- \kbd{T}.
+ For instance, if \kbd{[T,o] = galoischartable(gal)} the characters
+ $\chi$ are input as the columns of \kbd{T}.
 
  Return the degree-$1$ character $\det\rho$ as the list of $\det \rho(g)$,
  where $g$ runs through representatives of the conjugacy classes
