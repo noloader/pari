@@ -728,7 +728,6 @@ idealsqrtn_int(GEN nf, GEN A, long n, GEN *pB)
     J = idealadd(nf, b, A);
     A = idealdivexact(nf, idealpows(nf,J,n), A);
     if (pB) root = odd(i)? idealdivexact(nf, root, J): idealmul(nf, root, J);
-    i++;
   }
   if (pB) *pB = root;
   return 1;
