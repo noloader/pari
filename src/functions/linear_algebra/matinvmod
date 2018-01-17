@@ -23,4 +23,8 @@ Doc: computes a left inverse of the matrix~$x$ modulo~$d$. The matrix $x$ must
  [0 1 0]
 
  [0 0 1]
+ ? matinvmod(A,5)
+  ***   at top-level: matinvmod(A,5)
+  ***                 ^--------------
+  *** matinvmod: impossible inverse in gen_inv: 0.
  @eprog
