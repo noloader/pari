@@ -5,7 +5,7 @@ Prototype: GDGD&
 Help: alggroupcenter(gal,{p=0},{&cc}): construct the center of the group
  algebra of gal over Q (resp. Fp), and set cc to the conjugacy classes of gal.
 Doc: initialise the center~$Z(K[G])$ of the group algebra~$K[G]$ over~$K=\Q$
- ($p$ omitted) or~$\F_p$ where~$G$ is the underlying group of the
+ ($p = 0$ or omitted) or~$\F_p$ where~$G$ is the underlying group of the
  \kbd{galoisinit} structure~\var{gal}. The input~\var{gal} is also allowed to
  be a \typ{VEC} of permutations that is closed under products.
  Set~\var{cc} to a \typ{VEC}~$[\var{elts},\var{conjclass},\var{rep},\var{flag}]$
@@ -29,4 +29,8 @@ Doc: initialise the center~$Z(K[G])$ of the group algebra~$K[G]$ over~$K=\Q$
  %4 = 1
  ? #cc[3] \\ number of conjugacy classes of S4
  %5 = 5
+ ? gal = [Vecsmall([1,2,3]),Vecsmall([1,3,2])]; \\ C2
+ ? al = alggroupcenter(gal,,&cc);
+ ? cc[3]
+ %8 = Vecsmall([1, 2])
  @eprog
