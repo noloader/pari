@@ -3,16 +3,16 @@ Section: linear_algebra
 C-Name: bestapprnf
 Prototype: GGDGp
 Help: bestapprnf(V,T,{rootT}): T being an integral polynomial
- and V being a scalar, vector, or matrix, returns a reasonable
+ and V being a scalar, vector, or matrix, return a reasonable
  approximation of V with polmods modulo T. The rootT argument,
  if present, must be an element of polroots(T), i.e. a root of T fixing a
  complex embedding of Q[x]/(T).
 Doc: $T$ being an integral polynomial and $V$ being a scalar, vector, or
- matrix with complex coefficients, returns a reasonable approximation of $V$
+ matrix with complex coefficients, return a reasonable approximation of $V$
  with polmods modulo $T$. $T$ can also be any number field structure, in which
  case the minimal polynomial attached to the structure (\kbd{$T$}.pol) is
  used. The \var{rootT} argument, if present, must be an element of
- \kbd{polroots(T)}, i.e.~a complex root of $T$ fixing an embedding of
+ \kbd{polroots($T$)} (or \kbd{$T$}.pol), i.e.~a complex root of $T$ fixing an embedding of
  $\Q[x]/(T)$ into $\C$.
  \bprog
  ? bestapprnf(sqrt(5), polcyclo(5))
