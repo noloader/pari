@@ -745,6 +745,7 @@ idealispower(GEN nf, GEN A, long n, GEN *pB)
   if (n <= 0) pari_err_DOMAIN("idealispower", "n", "<=", gen_0, stoi(n));
   if (n == 1) { if (pB) *pB = idealhnf(nf,A); return 1; }
   v = idealnumden(nf,A);
+  if (gequal0(gel(v,1))) { avma = av; if (pB) *pB = cgetg(1,t_MAT); return 1; }
   if (!idealsqrtn_int(nf, gel(v,1), n, pB? &N: NULL)) return 0;
   if (!idealsqrtn_int(nf, gel(v,2), n, pB? &D: NULL)) return 0;
   if (pB) *pB = gerepileupto(av, idealdiv(nf,N,D)); else avma = av;
