@@ -4,7 +4,7 @@ C-Name: nfeltembed
 Prototype: GGDG
 Help: nfeltembed(nf,x,{pl}): complex embeddings of x at places given
  by vector pl.
-Doc: given an element $x$ in the number field \var{nf}, returns
+Doc: given an element $x$ in the number field \var{nf}, return
  the (real or) complex embeddings of $x$ specified by optional argument
  \var{pl}:
 
@@ -15,7 +15,7 @@ Doc: given an element $x$ in the number field \var{nf}, returns
  $i$-th embedding of $x$, attached to the $i$-th root of \kbd{nf.pol},
  i.e. \kbd{nf.roots$[i]$};
 
- \item \var{pl} a vector or \typ{VECSMALL}: vector of embeddings; the $i$-th
+ \item \var{pl} a vector or \typ{VECSMALL}: return the vector of embeddings; the $i$-th
  entry gives the embedding at the place attached to the $\var{pl}[i]$-th real
  root of \kbd{nf.pol}.
 
