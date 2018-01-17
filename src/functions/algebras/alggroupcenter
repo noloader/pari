@@ -33,4 +33,6 @@ Doc: initialise the center~$Z(K[G])$ of the group algebra~$K[G]$ over~$K=\Q$
  ? al = alggroupcenter(gal,,&cc);
  ? cc[3]
  %8 = Vecsmall([1, 2])
+ ? cc[4]
+ %9 = 0
  @eprog
