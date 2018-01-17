@@ -4,7 +4,9 @@ C-Name: galoischardet
 Prototype: GGD1,L,
 Help: galoischardet(gal, chi, {o=1}): return the determinant character of the
  character chi.
-Doc: Let $\chi$ be the character of some representation $\rho$ of the group $G$.
+Doc: Let $G$ be the underlying group of the \kbd{galoisinit}
+ structure~\var{gal}, and
+ let $\chi$ be the character of some representation $\rho$ of the group $G$.
  Return the degree-$1$ character $\det\rho$ as the list of $\det(1 -
  \rho{g}T)$, where $g$ runs through representatives of the conjugacy classes
  in \kbd{galoisconjclasses(gal)}, with the same ordering.
