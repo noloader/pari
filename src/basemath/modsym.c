@@ -85,12 +85,6 @@ static GEN
 msk_get_basis(GEN W) { return gmael(W,3,1); }
 static long
 msk_get_weight(GEN W) { return gmael(W,3,2)[1]; }
-static GEN
-msk_get_st(GEN W) { return gmael(W,3,3); }
-static GEN
-msk_get_link(GEN W) { return gmael(W,3,4); }
-static GEN
-msk_get_invphiblock(GEN W) { return gmael(W,3,5); }
 static long
 msk_get_sign(GEN W)
 {
@@ -868,11 +862,7 @@ msnew(GEN W)
   GEN S = mscuspidal(W, 0);
   ulong N = ms_get_N(W);
   long s = msk_get_sign(W), k = msk_get_weight(W);
-  if (uisprime(N))
-  { if (k == 12 || k > 14)
-      pari_err_IMPL("msnew in prime level and large weight");
-  }
-  else
+  if (N > 1 && (!uisprime(N) || (k == 12 || k > 14)))
   {
     GEN p1N = ms_get_p1N(W), P = gel(p1N_get_fa(p1N), 1);
     long i, nP = lg(P)-1;
@@ -1444,21 +1434,42 @@ indices_backward(GEN W, GEN C)
   return v;
 }
 
+/*[0,-1;1,-1]*/
+static GEN
+mkTAU()
+{ return mkmat22(gen_0,gen_m1, gen_1,gen_m1); }
+/* S */
+static GEN
+mkS()
+{ return mkmat22(gen_0,gen_1, gen_m1,gen_0); }
 /* N = integer > 1. Returns data describing Delta_0 = Z[P^1(Q)]_0 seen as
  * a Gamma_0(N) - module. */
 static GEN
 msinit_N(ulong N)
 {
-  GEN p1N = create_p1mod(N);
-  GEN C, vecF, vecT2, vecT31;
-  ulong r, s, width;
-  long nball, nbgen, nbp1N = p1_size(p1N);
-  GEN TAU = mkmat22(gen_0,gen_m1, gen_1,gen_m1); /*[0,-1;1,-1]*/
-  GEN W, W2, singlerel, annT2, annT31;
+  GEN p1N, C, vecF, vecT2, vecT31, TAU, W, W2, singlerel, annT2, annT31;
   GEN F_index;
+  ulong r, s, width;
+  long nball, nbgen, nbp1N;
   hashtable *F, *T2, *T31, *T32, *E1, *E2;
   PS_sets_t S;
 
+  W = zerovec(16);
+  gel(W,1) = p1N = create_p1mod(N);
+  gel(W,16)= inithashcusps(p1N);
+  TAU = mkTAU();
+  if (N == 1)
+  {
+    gel(W,5) = mkvecsmall(1);
+    /* cheat because sets are not disjoint if N=1 */
+    gel(W,11) = mkvecsmall5(0, 0, 1, 1, 2);
+    gel(W,12) = mkvec(mat2(1,0,0,1));
+    gel(W,8) = mkvec( mkmat22(gen_1,gen_1, mkS(),gen_1) );
+    gel(W,9) = mkvec( mkmat2(mkcol3(gen_1,TAU,ZM_sqr(TAU)),
+                             mkcol3(gen_1,gen_1,gen_1)) );
+    return W;
+  }
+  nbp1N = p1_size(p1N);
   form_E_F_T(N,p1N, &C, &S);
   E1  = S.E1;
   E2  = S.E2;
@@ -1468,16 +1479,12 @@ msinit_N(ulong N)
   T2  = S.T2;
   nbgen = lg(C)-1;
 
-  W = cgetg(17, t_VEC);
-  gel(W,1) = p1N;
-
  /* Put our paths in the order: F,E2,T32,E1,T2,T31
   * W2[j] associates to the j-th element of this list its index in P1. */
   fill_W2_W12(W, &S);
   W2 = gel(W, 2);
   nball = lg(W2)-1;
   gel(W,3) = reverse_list(W2, nbp1N);
-
   gel(W,5) = vecslice(gel(W,2), F->nb + E2->nb + T32->nb + 1, nball);
   gel(W,4) = reverse_list(gel(W,5), nbp1N);
   gel(W,13) = indices_forward(W, C);
@@ -1488,7 +1495,6 @@ msinit_N(ulong N)
                           F->nb + E2->nb + T32->nb,
                           F->nb + E2->nb + T32->nb + E1->nb,
                           F->nb + E2->nb + T32->nb + E1->nb + T2->nb);
-
   /* relations between T32 and T31 [not stored!]
    * T32[i] = - T31[i] */
 
@@ -1542,17 +1548,15 @@ msinit_N(ulong N)
   gel(W,8) = annT2;
   gel(W,9) = annT31;
   gel(W,10)= singlerel;
-  gel(W,16)= inithashcusps(p1N);
   return W;
 }
 static GEN
 cusp_to_P1Q(GEN c) { return c[2]? gdivgs(stoi(c[1]), c[2]): mkoo(); }
-GEN
-mspathgens(GEN W)
+static GEN
+mspathgens_i(GEN W)
 {
-  pari_sp av = avma;
-  long i,j, l, nbE1, nbT2, nbT31;
-  GEN R, r, g, section, gen, annT2, annT31, singlerel;
+  long i,j, l, nbT2, nbT31, nbE1 = ms_get_nbE1(W);
+  GEN R, r, g, section, gen, annT2, annT31;
   checkms(W); W = get_msN(W);
   section = msN_get_section(W);
   gen = ms_get_genindex(W);
@@ -1563,25 +1567,37 @@ mspathgens(GEN W)
     GEN p = gel(section,gen[i]);
     gel(g,i) = mkvec2(cusp_to_P1Q(gel(p,1)), cusp_to_P1Q(gel(p,2)));
   }
-  nbE1 = ms_get_nbE1(W);
   annT2 = msN_get_annT2(W); nbT2 = lg(annT2)-1;
   annT31 = msN_get_annT31(W); nbT31 = lg(annT31)-1;
-  singlerel = msN_get_singlerel(W);
-  R = cgetg(nbT2+nbT31+2, t_VEC);
-  l = lg(singlerel);
-  r = cgetg(l, t_VEC);
-  for (i = 1; i <= nbE1; i++)
-    gel(r,i) = mkvec2(gel(singlerel, i), stoi(i));
-  for (; i < l; i++)
-    gel(r,i) = mkvec2(gen_1, stoi(i));
-  gel(R,1) = r; j = 2;
+  if (ms_get_N(W) == 1)
+  {
+    R = cgetg(3, t_VEC);
+    j = 1;
+  }
+  else
+  {
+    GEN singlerel = msN_get_singlerel(W);
+    R = cgetg(nbT2+nbT31+2, t_VEC);
+    l = lg(singlerel);
+    r = cgetg(l, t_VEC);
+    for (i = 1; i <= nbE1; i++)
+      gel(r,i) = mkvec2(gel(singlerel, i), utoi(i));
+    for (; i < l; i++)
+      gel(r,i) = mkvec2(gen_1, utoi(i));
+    gel(R,1) = r; j = 2;
+  }
   for (i = 1; i <= nbT2; i++,j++)
-    gel(R,j) = mkvec( mkvec2(gel(annT2,i), stoi(i + nbE1)) );
+    gel(R,j) = mkvec( mkvec2(gel(annT2,i), utoi(i + nbE1)) );
   for (i = 1; i <= nbT31; i++,j++)
-    gel(R,j) = mkvec( mkvec2(gel(annT31,i), stoi(i + nbE1 + nbT2)) );
-  return gerepilecopy(av, mkvec2(g,R));
+    gel(R,j) = mkvec( mkvec2(gel(annT31,i), utoi(i + nbE1 + nbT2)) );
+  return mkvec2(g,R);
 }
-
+GEN
+mspathgens(GEN W)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, mspathgens_i(W));
+}
 /* Modular symbols in weight k: Hom_Gamma(Delta, Q[x,y]_{k-2}) */
 /* A symbol phi is represented by the {phi(g_i)}, {phi(g'_i)}, {phi(g''_i)}
  * where the {g_i, g'_i, g''_i} are the Z[\Gamma]-generators of Delta,
@@ -2023,10 +2039,14 @@ mspathlog_trivial(GEN W, GEN p)
 static GEN
 getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
 {
-  GEN W1 = get_msN(WW1), W2 = get_msN(WW2);
-  GEN section = msN_get_section(W2), gen = msN_get_genindex(W2);
-  long j, lv, d2 = ms_get_nbE1(W2);
-  GEN T = cgetg(d2+1, t_MAT);
+  GEN T, section, gen, W1 = get_msN(WW1), W2 = get_msN(WW2);
+  long j, lv, d2;
+  if (ms_get_N(W1) == 1) return cgetg(1,t_MAT);
+  if (ms_get_N(W2) == 1) return zeromat(0, ms_get_nbE1(W1));
+  section = msN_get_section(W2);
+  gen = msN_get_genindex(W2);
+  d2 = ms_get_nbE1(W2);
+  T = cgetg(d2+1, t_MAT);
   lv = lg(v);
   for (j = 1; j <= d2; j++)
   {
@@ -2153,6 +2173,7 @@ sparse_act_col(GEN col, GEN phi)
   GEN s = NULL, colind = gel(col,1), colval = gel(col,2);
   GEN ind = gel(phi,2), val = gel(phi,3);
   long a, l = lg(ind);
+  if (lg(gel(phi,1)) == 1) return RgM_RgC_mul(gel(colval,1), gel(val,1));
   for (a = 1; a < l; a++)
   {
     GEN t = gel(val, a); /* phi(G_i) */
@@ -2183,25 +2204,36 @@ dual_act(long dimV, GEN act, GEN phi)
   return v;
 }
 
+/* in level N > 1 */
+static void
+msk_get_st(GEN W, long *s, long *t)
+{ GEN st = gmael(W,3,3); *s = st[1]; *t = st[2]; }
+static GEN
+msk_get_link(GEN W) { return gmael(W,3,4); }
+static GEN
+msk_get_inv(GEN W) { return gmael(W,3,5); }
 /* \phi in Hom(Delta, V), \phi(G_k) = phi[k]. Write \phi as
  *   \sum_{i,j} mu_{i,j} phi_{i,j}, mu_{i,j} in Q */
 static GEN
 getMorphism_basis(GEN W, GEN phi)
 {
-  GEN basis = msk_get_basis(W);
-  long i, j, r, lvecT = lg(phi), dim = lg(basis)-1;
-  GEN st = msk_get_st(W);
-  GEN link = msk_get_link(W);
-  GEN invphiblock = msk_get_invphiblock(W);
-  long s = st[1], t = st[2];
-  GEN R = zerocol(dim), Q, Ls, T0, T1, Ts;
+  GEN R, Q, Ls, T0, T1, Ts, link, basis, inv = msk_get_inv(W);
+  long i, j, r, s, t, dim, lvecT;
+
+  if (ms_get_N(W) == 1) return ZC_apply_dinv(inv, gel(phi,1));
+  lvecT = lg(phi);
+  basis = msk_get_basis(W);
+  dim = lg(basis)-1;
+  R = zerocol(dim);
+  msk_get_st(W, &s, &t);
+  link = msk_get_link(W);
   for (r = 2; r < lvecT; r++)
   {
     GEN Tr, L;
     if (r == s) continue;
     Tr = gel(phi,r); /* Phi(G_r), r != 1,s */
     L = gel(link, r);
-    Q = ZC_apply_dinv(gel(invphiblock,r), Tr);
+    Q = ZC_apply_dinv(gel(inv,r), Tr);
     /* write Phi(G_r) as sum_{a,b} mu_{a,b} Phi_{a,b}(G_r) */
     for (j = 1; j < lg(L); j++) gel(R, L[j]) = gel(Q,j);
   }
@@ -2227,7 +2259,7 @@ getMorphism_basis(GEN W, GEN phi)
   Ts = gel(phi,s); /* Phi(G_s) */
   if (T0) Ts = RgC_sub(Ts, T0);
   /* solve \sum_{j!=t} mu_{s,j} Phi_{s,j}(G_s) = Ts */
-  Q = ZC_apply_dinv(gel(invphiblock,s), Ts);
+  Q = ZC_apply_dinv(gel(inv,s), Ts);
   for (j = 1; j < t; j++) gel(R, Ls[j]) = gel(Q,j);
   /* avoid mu_{s,t} */
   for (j = t; j < lg(Q); j++) gel(R, Ls[j+1]) = gel(Q,j);
@@ -2501,7 +2533,7 @@ get_Ec_r(GEN c, long k)
   gr = mat2(p, -v, q, u); /* g . (1:0) = (p:q) */
   return voo_act_Gl2Q(sl2_inv(gr), k);
 }
-/* returns the modular symbol attached to the cusp c := p/q via the rule
+/* N > 1; returns the modular symbol attached to the cusp c := p/q via the rule
  * E_c(path from a to b in Delta_0) := E_c(b) - E_c(a), where
  * E_c(r) := 0 if r != c mod Gamma
  *           v_oo | gamma_r^(-1)
@@ -2533,7 +2565,11 @@ msfromcusp_i(GEN W, GEN c)
 {
   GEN section, gen, S, phi;
   long j, ic, l, k = msk_get_weight(W);
-  if (k == 2) return msfromcusp_trivial(W, c);
+  if (k == 2)
+  {
+    long N = ms_get_N(W);
+    return N == 1? cgetg(1,t_COL): msfromcusp_trivial(W, c);
+  }
   k = msk_get_weight(W);
   section = ms_get_section(W);
   gen = ms_get_genindex(W);
@@ -2737,7 +2773,7 @@ static GEN
 mskinit_nontrivial(GEN WN, long k)
 {
   GEN annT2 = gel(WN,8), annT31 = gel(WN,9), singlerel = gel(WN,10);
-  GEN link, basis, monomials, invphiblock;
+  GEN link, basis, monomials, Inv;
   long nbE1 = ms_get_nbE1(WN);
   GEN dinv = Delta_inv(ZG_neg( ZSl2_star(gel(singlerel,1)) ), k);
   GEN p1 = cgetg(nbE1+1, t_VEC), remove;
@@ -2840,8 +2876,8 @@ mskinit_nontrivial(GEN WN, long k)
       n++;
     }
   }
-  invphiblock = cgetg(lg(link), t_VEC);
-  gel(invphiblock,1) = cgetg(1, t_MAT); /* dummy */
+  Inv = cgetg(lg(link), t_VEC);
+  gel(Inv,1) = cgetg(1, t_MAT); /* dummy */
   for (i = 2; i < lg(link); i++)
   {
     GEN M, inv, B = gel(link,i);
@@ -2857,10 +2893,10 @@ mskinit_nontrivial(GEN WN, long k)
       inv = ZM_inv_denom(M);
     else /* i = s (rank k-2) or from torsion: rank k/3 or k/2 */
       inv = Qevproj_init(M);
-    gel(invphiblock,i) = inv;
+    gel(Inv,i) = inv;
   }
   return mkvec3(WN, gen_0, mkvec5(basis, mkvecsmall2(k, dim), mkvecsmall2(s,t),
-                                  link, invphiblock));
+                                  link, Inv));
 }
 static GEN
 add_star(GEN W, long sign)
@@ -2874,9 +2910,20 @@ add_star(GEN W, long sign)
 static GEN
 mskinit(ulong N, long k, long sign)
 {
-  GEN WN = msinit_N(N);
-  GEN W = k == 2? mskinit_trivial(WN)
-                : mskinit_nontrivial(WN, k);
+  GEN W, WN = msinit_N(N);
+  if (N == 1)
+  {
+    GEN basis, M = RgXV_to_RgM(mfperiodpolbasis(k, 0), k-1);
+    GEN T = cgetg(1, t_VECSMALL), ind = mkvecsmall(1);
+    long i, l = lg(M);
+    basis = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(basis,i) = mkvec3(T, ind, mkvec(gel(M,i)));
+    W = mkvec3(WN, gen_0, mkvec5(basis, mkvecsmall2(k, l-1), mkvecsmall2(0,0),
+                                 gen_0, Qevproj_init(M)));
+  }
+  else
+    W = k == 2? mskinit_trivial(WN)
+              : mskinit_nontrivial(WN, k);
   return add_star(W, sign);
 }
 GEN
@@ -2891,7 +2938,6 @@ msinit(GEN N, GEN K, long sign)
   if (k < 2) pari_err_DOMAIN("msinit","k", "<", gen_2,K);
   if (odd(k)) pari_err_IMPL("msinit [odd weight]");
   if (signe(N) <= 0) pari_err_DOMAIN("msinit","N", "<=", gen_0,N);
-  if (equali1(N)) pari_err_IMPL("msinit [ N = 1 ]");
   W = mskinit(itou(N), k, sign);
   return gerepilecopy(av, W);
 }
@@ -4545,11 +4591,15 @@ mspolygon(GEN M, long flag)
   {
     long N = itos(M);
     if (N <= 0) pari_err_DOMAIN("msinit","N", "<=", gen_0,M);
-    if (N == 1) pari_err_IMPL("msinit [ N = 1 ]");
     msN = msinit_N(N);
   }
   else { checkms(M); msN = get_msN(M); }
   if (flag < 0 || flag > 1) pari_err_FLAG("mspolygon");
+  if (ms_get_N(msN) == 1)
+  {
+    GEN S = mkS(), V = mkvec2(matid(2), S);
+    return gerepilecopy(av, mkvec3(V, mkvecsmall2(1,2), mkvec2(S, mkTAU())));
+  }
   siegel_init(&S, msN);
   l = lg(S.V);
   if (flag)
@@ -4665,28 +4715,36 @@ bil(GEN P, GEN Q, GEN C)
 static void
 mspetersson_i(GEN W, GEN F, GEN G, GEN *pvf, GEN *pvg, GEN *pC)
 {
-  GEN WN, annT2, annT31, E2fromE1, singlerel, section, gen, c, vf, vg;
-  long i, n1, n2, n3, k, l;
+  GEN WN, annT2, annT31, section, c, vf, vg;
+  long i, n1, n2, n3;
 
-  checkms(W);
-  WN = get_msN(W);
+  checkms(W); WN = get_msN(W);
   annT2 = msN_get_annT2(WN);
   annT31 = msN_get_annT31(WN);
-  E2fromE1 = msN_get_E2fromE1(WN);
-  singlerel = msN_get_singlerel(WN);
   section = msN_get_section(WN);
-  gen = msN_get_genindex(WN);
 
   /* generators of Delta ordered as E1, T2, T31 */
-  l = lg(gen);
-  *pvf = vf = cgetg(l, t_VEC);
-  *pvg = vg = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(vf, i) = mseval(W, F, gel(section,gen[i]));
-  n1 = lg(E2fromE1)-1; /* E1 */
-  for (i = 1; i <= n1; i++)
+  if (ms_get_N(WN) == 1)
   {
-    c = cocycle(gcoeff(gel(singlerel,i),2,1));
-    gel(vg, i) = mseval(W, G, c);
+    vf = cgetg(3, t_VEC);
+    vg = cgetg(3, t_VEC);
+    gel(vf,1) = gel(vf,2) = mseval(W, F, gel(section,1));
+    n1 = 0;
+  }
+  else
+  {
+    GEN E2fromE1 = msN_get_E2fromE1(WN), singlerel = msN_get_singlerel(WN);
+    GEN gen = msN_get_genindex(WN);
+    long l = lg(gen);
+    vf = cgetg(l, t_VEC);
+    vg = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(vf, i) = mseval(W, F, gel(section,gen[i]));
+    n1 = lg(E2fromE1)-1; /* E1 */
+    for (i = 1; i <= n1; i++)
+    {
+      c = cocycle(gcoeff(gel(singlerel,i),2,1));
+      gel(vg, i) = mseval(W, G, c);
+    }
   }
   n2 = lg(annT2)-1; /* T2 */
   for (i = 1; i <= n2; i++)
@@ -4703,8 +4761,9 @@ mspetersson_i(GEN W, GEN F, GEN G, GEN *pvf, GEN *pvg, GEN *pC)
     c = cocycle(gcoeff(gel(annT31,i), 3,1));
     gel(vg, i+n1+n2) = gdivgs(gadd(f, mseval(W, G, c)), 3);
   }
-  k = msk_get_weight(W);
-  *pC = vecbinome(k-2);
+  *pC = vecbinome(msk_get_weight(W) - 2);
+  *pvf = vf;
+  *pvg = vg;
 }
 
 /* Petersson product on Hom_G(Delta_0, V_k) */

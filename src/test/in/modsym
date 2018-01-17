@@ -1,8 +1,7 @@
 allocatemem(40*10^6)
-N = 11;
-W2 = msinit(N,2,-1);
-W1 = msinit(N,2,1);
-W = msinit(N,2);
+W2 = msinit(11,2,-1);
+W1 = msinit(11,2,1);
+W = msinit(11,2);
 msdim(W1)
 msdim(W2)
 msdim(W)
@@ -15,6 +14,32 @@ mshecke(W2, 2)
 mshecke(W1, 2)
 mshecke(W, 2)
 mshecke(W1, 11)
+
+M=msinit(1,12);
+msgetlevel(M)
+msgetweight(M)
+msgetsign(M)
+msatkinlehner(M,1)
+mscuspidal(M)
+msdim(M)
+mseisenstein(M)
+D = [0,1,0]~ \\ Delta
+mseval(M,D)
+mseval(M,D,[0,oo])
+msfromcusp(M,0)
+msfromhecke(M, [[2,-24]])
+mshecke(M,2)
+msissymbol(M,D)
+mslattice(M)
+msnew(M)
+mspathgens(M)
+mspathlog(M,[1/2,1/3])
+mspetersson(M,D)
+mspolygon(M)
+msqexpansion(M,D)
+msstar(M)
+M=msinit(1,32,1);
+mssplit(M,msnew(M))
 
 E = ellinit([1,2]);
 [W,xpm] = msfromell(E);
@@ -39,8 +64,7 @@ check_twist([0,0,1,0,-7])  \\27a1
 vE=[[1,-1,1,-1,-14],[1,-1,1,-6,-4],[1,-1,1,-91,-310],[1,-1,1,-1,0]];
 msfromell([ellinit(e)|e<-vE])[2]
 
-N = 227
-W = msinit(N,2,1);
+W = msinit(227,2,1);
 Wnew = msnew(W);
 mssplit(W, Wnew)
 #mssplit(W, Wnew, 1)
@@ -52,8 +76,7 @@ W=msinit(12,2,1); mssplit(W,msnew(W))
 W = msinit(11,6,1);
 mssplit(W,msnew(W))
 
-N = 1000;
-W = msinit(N,2,1);
+W = msinit(1000,2,1);
 matsize( msnew(W)[1] )
 W = msinit(2, 4);
 charpoly(mshecke(W, 2))

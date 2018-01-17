@@ -18,7 +18,7 @@ Doc:
  space is a $G$-module, canonically isomorphic to $H^1_c(X(G), V)$,
  and allows to compute modular forms for $G$.
 
- Currently, we only support the groups $\Gamma_0(N)$ ($N > 1$ an integer)
+ Currently, we only support the groups $\Gamma_0(N)$ ($N > 0$ an integer)
  and the representations $V_k = \Q[X,Y]_{k-2}$ ($k \geq 2$ an integer) over
  $\Q$. We represent a space of modular symbols by an \var{ms} structure,
  created by the function \tet{msinit}. It encodes basic data attached to the

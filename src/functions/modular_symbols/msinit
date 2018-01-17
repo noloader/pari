@@ -18,7 +18,7 @@ Doc: given $G$ a finite index subgroup of $\text{SL}(2,\Z)$
  compute modular forms for $G$. If \emph{sign} is present and non-zero, it
  must be $\pm1$ and we consider the subspace defined by $\text{Ker} (\sigma -
  \var{sign})$, where $\sigma$ is induced by \kbd{[-1,0;0,1]}. Currently the
- only supported groups are the $\Gamma_0(N)$, coded by the integer $N > 1$.
+ only supported groups are the $\Gamma_0(N)$, coded by the integer $N > 0$.
  The only supported representation is $V_k = \Q[X,Y]_{k-2}$, coded by the
  integer $k \geq 2$.
  \bprog
