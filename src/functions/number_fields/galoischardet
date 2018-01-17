@@ -11,7 +11,7 @@ Doc: Let $G$ be the group attached to the \kbd{galoisinit}
  E.g., if \kbd{[T,o] = galoischartable(gal)} and $\chi$ is a column of
  \kbd{T}.
 
- Return the degree-$1$ character $\det\rho$ as the list of $\det(\rho{g})$,
+ Return the degree-$1$ character $\det\rho$ as the list of $\det \rho(g)$,
  where $g$ runs through representatives of the conjugacy classes
  in \kbd{galoisconjclasses(gal)}, with the same ordering.
  \bprog

@@ -10,7 +10,7 @@ Doc: Let $G$ be the group attached to the \kbd{galoisinit}
  $G$, where a polynomial variable is to be interpreted as an $o$-th root of
  1, e.g., if \kbd{[T,o] = galoischartable(gal)} and $\chi$ is a column of
  \kbd{T}.
- Return the list of characteristic polynomials $\det(1 - \rho{g}T)$,
+ Return the list of characteristic polynomials $\det(1 - \rho(g)T)$,
  where $g$ runs through representatives of the conjugacy classes
  in \kbd{galoisconjclasses(gal)}, with the same ordering.
  \bprog
