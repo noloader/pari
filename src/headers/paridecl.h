@@ -4313,6 +4313,7 @@ void    plotcopy(long source, long dest, GEN xoff, GEN yoff, long flag);
 GEN     plotcursor(long ne);
 void    plotdraw(GEN list, long flag);
 GEN     ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b, long flags,long n, long prec);
+GEN     parploth(GEN a, GEN b, GEN code, long flags,long n, long prec);
 GEN     plothraw(GEN listx, GEN listy, long flag);
 GEN     plothsizes(long flag);
 void    plotinit(long ne, GEN x, GEN y, long flag);

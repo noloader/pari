@@ -172,6 +172,7 @@ struct plot_eng {
 #define PLOT_NO_TICK_Y    0x00400
 #define PLOT_NODOUBLETICK 0x00800
 #define PLOT_COMPLEX      0x01000
+#define PLOT_PARA         0x02000
 
 #define RECT_CP_RELATIVE  0x1
 #define RECT_CP_NW        0x0

@@ -947,6 +947,22 @@ Appendy(dblPointList *f, dblPointList *l,double y)
 }
 
 static void
+Appendxat(dblPointList *f, dblPointList *l,long n,double x)
+{
+  (l->d)[n]=x; l->nb=n+1;
+  if (x < f->xsml) f->xsml = x;
+  if (x > f->xbig) f->xbig = x;
+}
+
+static void
+Appendyat(dblPointList *f, dblPointList *l,long n,double y)
+{
+  (l->d)[n]=y; l->nb=n+1;
+  if (y < f->ysml) f->ysml = y;
+  if (y > f->ybig) f->ybig = y;
+}
+
+static void
 get_xy(long cplx, GEN t, double *x, double *y)
 {
   if (cplx)
@@ -1261,13 +1277,33 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
   }
   else /* non-recursive plot */
   {
-    pari_sp av2 = avma;
+    pari_sp av2;
+    GEN worker = NULL, vx = NULL;
+    long pending = 0, workid;
+    struct pari_mt pt;
+    if (flags & PLOT_PARA && eval == gp_call)
+    {
+      worker = snm_closure(is_entry("_parvector_worker"), mkvec(E));
+      mt_queue_start_lim(&pt, worker, N-1);
+      vx = mkvec(x);
+    }
+    av2 = avma;
     if (param)
     {
-      for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
+      for (i=0; i<N || pending; i++, avma = av2)
       {
         long k, nt;
-        t = eval(E,x);
+        if (worker)
+        {
+          mt_queue_submit(&pt, i, i<N ? vx : NULL);
+          t = mt_queue_get(&pt, &workid, &pending);
+          if (!t) continue;
+        }
+        else
+        {
+          t = eval(E,x);
+          workid = i;
+        }
         if (typ(t) != t_VEC)
         {
           if (cplx) nt = 1;
@@ -1281,26 +1317,58 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
         {
           double xx, yy;
           get_xy_from_vec(cplx, t, &j, &xx, &yy);
-          Appendx(&pl[0], &pl[k++], xx);
-          Appendy(&pl[0], &pl[k++], yy);
+          Appendxat(&pl[0], &pl[k++], workid, xx);
+          Appendyat(&pl[0], &pl[k++], workid, yy);
         }
+        if (i<N) affrr(addrr(x,dx), x);
       }
     }
     else if (non_vec)
-      for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
+      for (i=0; i<N || pending; i++, avma = av2)
       {
-        t = eval(E,x);
-        pl[0].d[i] = gtodouble(x);
-        Appendy(&pl[0],&pl[1], gtodouble(t));
+        if (worker)
+        {
+          mt_queue_submit(&pt, i, i<N ? vx : NULL);
+          t = mt_queue_get(&pt, &workid, &pending);
+        }
+        else
+        {
+          t = eval(E,x);
+          workid = i;
+        }
+        if (t) Appendyat(&pl[0], &pl[1], workid, gtodouble(t));
+        if (i<N)
+        {
+          pl[0].d[i] = gtodouble(x);
+          affrr(addrr(x,dx), x);
+        }
       }
     else /* vector of non-parametric curves */
-      for (i=0; i<N; i++, affrr(addrr(x,dx), x), avma = av2)
+      for (i=0; i<N || pending; i++, avma = av2)
       {
-        t = eval(E,x);
-        if (typ(t) != t_VEC || lg(t) != nl) pari_err_DIM("plotrecth");
-        pl[0].d[i] = gtodouble(x);
-        for (j=1; j<nl; j++) Appendy(&pl[0],&pl[j], gtodouble(gel(t,j)));
+        if (worker)
+        {
+          mt_queue_submit(&pt, i, i<N ? vx : NULL);
+          t = mt_queue_get(&pt, &workid, &pending);
+        }
+        else
+        {
+          t = eval(E,x);
+          workid = i;
+        }
+        if (t)
+        {
+          if (typ(t) != t_VEC || lg(t) != nl) pari_err_DIM("plotrecth");
+          for (j=1; j<nl; j++)
+            Appendyat(&pl[0], &pl[j], workid, gtodouble(gel(t,j)));
+        }
+        if (i<N)
+        {
+          pl[0].d[i] = gtodouble(x);
+          affrr(addrr(x,dx), x);
+        }
       }
+    if (worker) mt_queue_end(&pt);
   }
   pl[0].nb = nc; avma = av; return pl;
 }
@@ -1533,7 +1601,7 @@ plotrecth_i(void *E, GEN(*f)(void*,GEN), PARI_plot *T, long ne, GEN a,GEN b,
 GEN
 plotrecth(void *E, GEN(*f)(void*,GEN), long ne, GEN a,GEN b,
           ulong flags, long n, long prec)
-{ return plotrecth_i(E,f, NULL, ne, a,b, flags, n, prec); }
+{ return plotrecth_i(E,f, NULL, ne, a,b, flags&~PLOT_PARA, n, prec); }
 GEN
 plotrecth0(long ne, GEN a,GEN b,GEN code,ulong flags,long n, long prec)
 { EXPR_WRAP(code, plotrecth(EXPR_ARG, ne, a,b, flags, n, prec)); }
@@ -1541,7 +1609,13 @@ GEN
 ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b,long flags, long n, long prec)
 {
   PARI_plot T; pari_get_plot(&T);
-  return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags,n, prec);
+  return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
+}
+GEN
+parploth(GEN a, GEN b, GEN code, long flags, long n, long prec)
+{
+  PARI_plot T; pari_get_plot(&T);
+  return plotrecth_i(code,gp_call,&T, NUMRECT-1, a,b, flags|PLOT_PARA,n, prec);
 }
 GEN
 ploth0(GEN a, GEN b, GEN code, long flags,long n, long prec)
@@ -1550,7 +1624,7 @@ GEN
 psploth(void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags, long n, long prec)
 {
   PARI_plot T; pari_get_psplot(&T,0);
-  return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags,n, prec);
+  return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
 }
 GEN
 psploth0(GEN a, GEN b, GEN code, long flags, long n, long prec)
