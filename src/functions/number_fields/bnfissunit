@@ -19,9 +19,11 @@ Doc: $\var{bnf}$ being output by
   ? S = idealprimedec(bnf,5); #S
   %3 = 2
   ? sfu = bnfsunit(bnf,S);
+  ? sfu[1]
+  %5 = [-5/6*x^3 + 4/3*x^2 - 4/3*x - 3/2, 5]
   ? u = [10,-40,24,11]~;
   ? bnfissunit(bnf,sfu,u)
-  %6 = [1, Mod(2, 6), 2, 0]~
+  %7 = [1, Mod(2, 6), 2, 0]~
   ? bnfissunit(bnf,sfu,3)
-  %7 = []~
+  %8 = []~
  @eprog
