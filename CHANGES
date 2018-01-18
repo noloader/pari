@@ -154,6 +154,8 @@ BA  120- matsupplement(Mod(matrix(5,1),2)) --> SEGV [#1996]
          commands (e.g. colors) could be ignored
     122- sqrtnint(a,k) very inefficient for huge k [and huge a]
     123- powuu(0,1) -> SEGV
+    124- divisorslenstra could return negative divisors, e.g.
+         divisorslenstra(1680,1,13)
 
   Added
       1- [libari] ZM_isidentity

@@ -1127,9 +1127,8 @@ static void
 add(hashtable *H, GEN t1, GEN t2, GEN a, GEN b, GEN r, GEN s)
 {
   GEN ra, qa = dvmdii(t1, a, &ra);
-  if (signe(ra)) return;
-  if (!dvdii(t2, b)) return;
-  if (equalii(modii(qa, s), r)) set_add(H, (void*)qa);
+  if (!signe(ra) && dvdii(t2, b) && equalii(modii(qa, s), r))
+    set_add(H, (void*)qa);
 }
 /* T^2 - B*T + C has integer roots ? */
 static void
@@ -1137,10 +1136,10 @@ check_t(hashtable *H, GEN B, GEN C4, GEN a, GEN b, GEN r, GEN s)
 {
   GEN d, t1, t2, D = subii(sqri(B), C4);
   if (!Z_issquareall(D, &d)) return;
-  t1 = shifti(addii(B, d), -1);
+  t1 = shifti(addii(B, d), -1); /* >= 0 */
   t2 = subii(B, t1);
   add(H, t1,t2, a,b,r,s);
-  add(H, t2,t1, a,b,r,s);
+  if (signe(t2) >= 0) add(H, t2,t1, a,b,r,s);
 }
 /* N > s > r >= 0, (r,s) = 1 */
 GEN
@@ -1151,9 +1150,9 @@ divisorslenstra(GEN N, GEN r, GEN s)
   hashtable *H = hash_create(11, (ulong(*)(void*))&hash_GEN,
                                  (int(*)(void*,void*))&equalii, 1);
   long j;
-  if (typ(N) != t_INT) pari_err_TYPE("Lenstradiv", N);
-  if (typ(r) != t_INT) pari_err_TYPE("Lenstradiv", r);
-  if (typ(s) != t_INT) pari_err_TYPE("Lenstradiv", s);
+  if (typ(N) != t_INT) pari_err_TYPE("divisorslenstra", N);
+  if (typ(r) != t_INT) pari_err_TYPE("divisorslenstra", r);
+  if (typ(s) != t_INT) pari_err_TYPE("divisorslenstra", s);
   u = Fp_inv(r, s);
   rp = Fp_mul(u, N, s); /* r' */
   s2 = sqri(s);
