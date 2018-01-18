@@ -1355,10 +1355,8 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
 }
 
 static void
-put_label(long ne, long x, long y, double d, long dir)
+put_label(long ne, long x, long y, char *c, long dir)
 {
-  char c[16];
-  sprintf(c,"%.5g", d);
   plotmove0(ne,(double)x,(double)y,0);
   plotstring(ne, c, dir);
 }
@@ -1409,8 +1407,12 @@ plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
   { /* actual output; else output to rectwindow: no labels */
     const long srect = NUMRECT-2;
     long lm, rm, tm, bm;
+    char lybig[16], lysml[16], lxsml[16], lxbig[16];
     /* left/right/top/bottom margin */
-    lm = W->fwidth*12 + 2*W->hunit - 1;
+    sprintf(lysml,"%.5g", ysml); sprintf(lybig,"%.5g", ybig);
+    sprintf(lxsml,"%.5g", xsml); sprintf(lxbig,"%.5g", xbig);
+    /* left margin has y labels with hgap on both sides of text */
+    lm = maxss(strlen(lysml),strlen(lybig))*W->fwidth + 2*W->hunit-1;
     rm = W->hunit-1;
     tm = W->vunit-1;
     bm = W->vunit+W->fheight-1;
@@ -1423,10 +1425,10 @@ plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     current_color[srect] = DEFAULT_COLOR;
     initrect_i(grect, W->width - (lm+rm) - 1, W->height - (tm+bm) - 1);
     /* draw labels on srect */
-    put_label(srect, lm, 0, ybig, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirTOP);
-    put_label(srect, lm, W->height-bm, ysml, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirVGAP);
-    put_label(srect, lm, W->height - bm, xsml, RoSTdirLEFT|RoSTdirTOP);
-    put_label(srect, W->width-rm-1, W->height-bm, xbig, RoSTdirRIGHT|RoSTdirTOP);
+    put_label(srect, lm, 0, lybig, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirTOP);
+    put_label(srect, lm, W->height-bm, lysml, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirVGAP);
+    put_label(srect, lm, W->height - bm, lxsml, RoSTdirLEFT|RoSTdirTOP);
+    put_label(srect, W->width-rm-1, W->height-bm, lxbig, RoSTdirRIGHT|RoSTdirTOP);
   }
   if (!(flags & PLOT_NO_RESCALE))
     plotscale0(grect, xsml, xbig, ysml, ybig);
