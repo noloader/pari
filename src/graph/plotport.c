@@ -1410,7 +1410,7 @@ plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
     const long srect = NUMRECT-2;
     long lm, rm, tm, bm;
     /* left/right/top/bottom margin */
-    lm = W->fwidth*10;
+    lm = W->fwidth*12 + 2*W->hunit - 1;
     rm = W->hunit-1;
     tm = W->vunit-1;
     bm = W->vunit+W->fheight-1;
