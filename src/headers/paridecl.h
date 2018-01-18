@@ -2264,6 +2264,7 @@ GEN     nfC_multable_mul(GEN v, GEN x);
 GEN     nfC_nf_mul(GEN nf, GEN v, GEN x);
 GEN     nfdetint(GEN nf,GEN pseudo);
 GEN     nfdivmodpr(GEN nf, GEN x, GEN y, GEN modpr);
+GEN     nfeltredmodpower(GEN nf, GEN x, ulong k, ulong B);
 GEN     nfhnf(GEN nf, GEN x);
 GEN     nfhnf0(GEN nf, GEN x, long flag);
 GEN     nfhnfmod(GEN nf, GEN x, GEN d);

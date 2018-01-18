@@ -751,6 +751,25 @@ idealispower(GEN nf, GEN A, long n, GEN *pB)
   return 1;
 }
 
+GEN
+nfeltredmodpower(GEN nf, GEN x, ulong k, ulong B)
+{
+  pari_sp av = avma;
+  GEN ix, F, P, E, N, iD, idQ, numden, Rnum, Rden, betalpha, z;
+  nf = checknf(nf);
+  ix = gmael(idealhnf_principal(nf,x),1,1);
+  F = Z_factor_limit(ix, B); P = gel(F,1); E = gel(F,2);
+  N = factorback2(P, FpV_red(E, utoi(k)));
+  iD = idealdiv(nf, x, idealadd(nf, x, N));
+  if (!idealispower(nf, iD, k, &idQ)) return cgetg(1,t_VEC);
+  numden = idealnumden(nf,idQ);
+  Rnum = idealred(nf,mkvec2(gel(numden,1),gen_1));
+  Rden = idealred(nf,mkvec2(gel(numden,2),gen_1));
+  betalpha = nfdiv(nf,gel(Rden,2),gel(Rnum,2));
+  z = nfmul(nf,x,nfpow(nf,betalpha, utoi(k)));
+  return gerepilecopy(av, mkvec2(z, betalpha));
+}
+
 /* P prime ideal in idealprimedec format. Return valuation(A) at P */
 long
 idealval(GEN nf, GEN A, GEN P)
