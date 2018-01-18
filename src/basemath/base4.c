@@ -755,19 +755,17 @@ GEN
 nfeltredmodpower(GEN nf, GEN x, ulong k, ulong B)
 {
   pari_sp av = avma;
-  GEN ix, F, P, E, N, iD, idQ, numden, Rnum, Rden, betalpha, z;
+  GEN ix, F, N, iD, iQ, y, z;
   nf = checknf(nf);
   ix = gmael(idealhnf_principal(nf,x),1,1);
-  F = Z_factor_limit(ix, B); P = gel(F,1); E = gel(F,2);
-  N = factorback2(P, FpV_red(E, utoi(k)));
-  iD = idealdiv(nf, x, idealadd(nf, x, N));
-  if (!idealispower(nf, iD, k, &idQ)) return cgetg(1,t_VEC);
-  numden = idealnumden(nf,idQ);
-  Rnum = idealred(nf,mkvec2(gel(numden,1),gen_1));
-  Rden = idealred(nf,mkvec2(gel(numden,2),gen_1));
-  betalpha = nfdiv(nf,gel(Rden,2),gel(Rnum,2));
-  z = nfmul(nf,x,nfpow(nf,betalpha, utoi(k)));
-  return gerepilecopy(av, mkvec2(z, betalpha));
+  F = Z_factor_limit(ix, B);
+  N = factorback2(gel(F,1), FpV_red(gel(F,2), utoi(k)));
+  iD = idealdivexact(nf, x, idealadd(nf, x, N)); /* integral */
+  if (!idealispower(nf, iD, k, &iQ)) { avma = av; return cgetg(1,t_VEC); }
+  y = idealred_elt(nf, idealHNF_inv_Z(nf, iQ));
+  ix = gcoeff(iQ,1,1);
+  z = gdiv(nfmul(nf, x, nfpow_u(nf, y, k)), powiu(ix,k));
+  return gerepilecopy(av, mkvec2(z, gdiv(y,ix)));
 }
 
 /* P prime ideal in idealprimedec format. Return valuation(A) at P */

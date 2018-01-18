@@ -2,18 +2,18 @@ Function: nfeltredmodpower
 Section: number_fields
 C-Name: nfeltredmodpower
 Prototype: GGUD0,U,
-Help: nfredmodpowers(nf,x,n,{B=primelimit}): return [v,b] such that x=v*b^k and v small,
- assuming the prime factor of v are less than B.
+Help: nfeltredmodpower(nf,x,n,{B=primelimit}): return [v,b] such that x=v*b^k
+ and v small, assuming the prime factors of v are less than B.
 Doc: let \var{nf} be a number field and $n > 0$ be a positive integer.
- Return $[v,b]$ such that $x=v\*b^k$ and $v$ small, assuming the prime factor
- of $v$ are less than $B$ (\var{primelimit} by default).
- Return $[]$ if it is not the case.
+ Return $[v,b]$ such that $x=v\*b^k$ and $v$ small, assuming the prime factors
+ of $v$ are less than $B$ (\var{primelimit} by default). Return $[]$ if it is
+ not the case.
  \bprog
- ? nf = nfinit(x^6+108);
- ? a = Mod(x,x^6+108);
+ ? T = x^6+108; nf = nfinit(T); a = Mod(x,T);
  ? u = (2*a^2+a+3)*random(2^1000*x^6)^6;
  ? [v,b] = nfeltredmodpower(nf,u,2);
  ? nfeltmul(nf,u,nfeltpow(nf,b,2))==v
+ %4 = 1
  ? v
- %10 = [79,108,44,80,11,15]~
+ %5 = [79,108,44,80,11,15]~
  @eprog\noindent
