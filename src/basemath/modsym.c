@@ -4731,7 +4731,8 @@ mspetersson_i(GEN W, GEN F, GEN G, GEN *pvf, GEN *pvg, GEN *pC)
   {
     vf = cgetg(3, t_VEC);
     vg = cgetg(3, t_VEC);
-    gel(vf,1) = gel(vf,2) = mseval(W, F, gel(section,1));
+    gel(vf,1) = mseval(W, F, gel(section,1));
+    gel(vf,2) = gneg(gel(vf,1));
     n1 = 0;
   }
   else
