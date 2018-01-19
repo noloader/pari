@@ -101,4 +101,7 @@ Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
   ***   at top-level: Pol("")
   ***                 ^-------
   *** Pol: incorrect type in gtopoly (t_STR).
-Total time spent: 5
+  ***   at top-level: (1/x)%x
+  ***                      ^--
+  *** _%_: impossible inverse in Flx_divrem: Vecsmall([0]).
+Total time spent: 8

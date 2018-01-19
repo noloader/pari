@@ -80,3 +80,4 @@ polrootsbound('x)
 polrootsbound(Pol(0))
 polrootsbound(1)
 Pol("")
+(1/x) % x
