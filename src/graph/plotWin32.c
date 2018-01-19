@@ -116,23 +116,27 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   ShellExecute(NULL,NULL,fname,NULL,NULL,SW_SHOWDEFAULT);
 }
 
-void
-gp_get_plot(PARI_plot *T)
+INLINE void
+gp_get_display_sizes(long *dwidth, long *dheight, long *fwidth, long *fheight)
 {
   HDC hdc;
   TEXTMETRIC tm;
 
-  T->width   = GetSystemMetrics(SM_CXSCREEN)*4/5;
-  T->height  = GetSystemMetrics(SM_CYSCREEN)*4/5;
-  T->hunit   = T->width/100;
-  T->vunit   = T->height/100;
+  *dwidth  = GetSystemMetrics(SM_CXSCREEN);
+  *dheight = GetSystemMetrics(SM_CYSCREEN);
 
   hdc = GetDC(0);
   SelectObject(hdc, GetStockObject(DEFAULT_GUI_FONT));
   GetTextMetrics(hdc, &tm);
   ReleaseDC(0,hdc);
 
-  T->fwidth  = tm.tmAveCharWidth;
-  T->fheight = tm.tmHeight;
+  *fwidth  = tm.tmAveCharWidth;
+  *fheight = tm.tmHeight;
+}
+
+void
+gp_get_plot(PARI_plot *T)
+{
+  gp_get_plot_generic(T,gp_get_display_sizes);
   T->draw = &draw;
 }

@@ -283,14 +283,31 @@ EXIT:
   }
 }
 
+INLINE void
+gp_get_display_sizes(long *dwidth, long *dheight, long *fwidth, long *fheight)
+{
+  Display *display;
+
+  display = XOpenDisplay(NULL);
+  if (display)
+  {
+    int screen = DefaultScreen(display);
+    *dwidth  = DisplayWidth(display, screen);
+    *dheight = DisplayHeight(display, screen);
+  }
+  else
+  {
+    /* Situation looks grim */
+    *dwidth  = 0;
+    *dheight = 0;
+  }
+  *fwidth  = 7;
+  *fheight = 13;
+}
+
 void
 gp_get_plot(PARI_plot *T)
 {
-  T->width  = 800;
-  T->height = 600;
-  T->fheight = 13;
-  T->fwidth  = 7;
-  T->hunit   = 5;
-  T->vunit   = 5;
+  gp_get_plot_generic(T,gp_get_display_sizes);
   T->draw = &draw;
 }

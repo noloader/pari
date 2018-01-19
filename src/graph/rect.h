@@ -148,4 +148,22 @@ struct plot_eng {
 
 void gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys);
 void gp_get_plot(PARI_plot *T);
+
+#define gp_get_plot_generic(T,gp_get_display_sizes)                           \
+{                                                                             \
+  long dwidth, dheight;                                                       \
+  PARI_plot *_T = (PARI_plot *)(T);                                           \
+                                                                              \
+  gp_get_display_sizes(&dwidth, &dheight, &_T->fwidth, &_T->fheight);         \
+  if (dwidth)                                                                 \
+    _T->width  = dwidth*4/5;                                                  \
+  else                                                                        \
+    _T->width  = 640;                                                         \
+  if (dheight)                                                                \
+    _T->height = dheight*4/5;                                                 \
+  else                                                                        \
+    _T->height = 480;                                                         \
+  _T->hunit = maxss(_T->height/100,3);                                        \
+  _T->vunit = maxss(_T->height/100,3);                                        \
+}
 ENDEXTERN

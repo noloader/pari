@@ -185,14 +185,18 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   exit(0);
 }
 
+INLINE void
+gp_get_display_sizes(long *dwidth, long *dheight, long *fwidth, long *fheight)
+{
+  T->dwidth  = Fl::w();
+  T->dheight = Fl::h();
+  T->fwidth  = 6;   // font width
+  T->fheight = 9;   //   and height
+}
+
 void
 gp_get_plot(PARI_plot *T)
 {
-  T->width   = 400; // width and
-  T->height  = 300; //  height of plot window
-  T->hunit   = 3;   //
-  T->vunit   = 3;   //
-  T->fwidth  = 6;   // font width
-  T->fheight = 9;   //   and height
+  gp_get_plot_generic(T,gp_get_display_sizes);
   T->draw = &draw;
 }

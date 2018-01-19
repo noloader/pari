@@ -405,15 +405,32 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   a.exec(); exit(0);
 }
 
-/* This function initialises the PARI_plot struct *T */
+INLINE void
+gp_get_display_sizes(long *dwidth, long *dheight, long *fwidth, long *fheight)
+{
+  /* There must be an easier way to get desktop size... */
+  int argc = 1;
+  const char * argv[] = { "gp", "-qws"};
+  QApplication a(argc, (char**) argv);
+  QDesktopWidget *qw = new QDesktopWidget();
+  if (qw)
+  {
+    QRect rec = qw->screenGeometry();
+    *dwidth  = rec.width();   // screen width
+    *dheight = rec.height();  //   and height
+  }
+  else
+  {
+    *dwidth  = 0;
+    *dheight = 0;
+  }
+  T->fwidth  = 6;             // font width
+  T->fheight = 9;             //   and height
+}
+
 void
 gp_get_plot(PARI_plot *T)
 {
-  T->width   = 400; // width and
-  T->height  = 300; //  height of plot window
-  T->hunit   = 3;
-  T->vunit   = 3;
-  T->fwidth  = 6;   // font width
-  T->fheight = 9;   //   and height
+  gp_get_plot_generic(T,gp_get_display_sizes);
   T->draw = &draw;
 }
