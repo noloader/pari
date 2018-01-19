@@ -2999,7 +2999,7 @@ symtophi(GEN W, GEN s)
   GEN e, basis = msk_get_basis(W);
   long i, l = lg(basis);
   if (lg(s) != l) pari_err_TYPE("mseval",s);
-  e = const_vec(ms_get_nbgen(W), gen_0);
+  e = zerovec(ms_get_nbgen(W));
   for (i=1; i<l; i++)
   {
     GEN phi, ind, pols, c = gel(s,i);

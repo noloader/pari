@@ -2461,9 +2461,9 @@ usp(GEN Q0, long deg, long flag, long bitprec)
   long listsize = 64, nbr = 0, nb_todo, ind, deg0, indf, i, k, nb;
 
 
-  sol = const_col(deg, gen_0);
+  sol = zerocol(deg);
   deg0 = deg;
-  Lc = const_vec(listsize, gen_0);
+  Lc = zerovec(listsize);
   Lk = cgetg(listsize+1, t_VECSMALL);
   c = gen_0;
   k = Lk[1] = 0;

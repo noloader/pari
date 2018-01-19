@@ -48,7 +48,7 @@ matpermanent(GEN M)
   }
 
   p = gen_0;
-  in = const_vec(n, gen_0);
+  in = zerovec(n);
   upper = 1L << n;
   for (x = 1; x < upper; x++)
   {
@@ -95,7 +95,7 @@ ZM_permanent(GEN M)
   if (!is_bigint(ZM_normoo(M)))
     return gerepileuptoint(av, zm_permanent(ZM_to_zm(M)));
   p = gen_0;
-  in = const_col(n, gen_0);
+  in = zerocol(n);
   upper = (1L<<n);
   for (x = 1; x < upper; x++)
   {

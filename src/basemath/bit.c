@@ -205,7 +205,7 @@ binaire(GEN x)
       return F2v_to_ZV_inplace( binary_zv(x) );
     case t_REAL:
       ex = expo(x);
-      if (!signe(x)) return const_vec(maxss(-ex,0), gen_0);
+      if (!signe(x)) return zerovec(maxss(-ex,0));
 
       lx=lg(x); y=cgetg(3,t_VEC);
       if (ex > bit_prec(x)) pari_err_PREC("binary");
