@@ -189,33 +189,25 @@ charpoly(mshecke(M,5,S))
 mspetersson(M, xpm[1],xpm[2])
 
 [M,xpm] = msfromell(ellinit([1,1,0,-9825,-412250])); \\1225e1, #1906
-content(xpm[1])
-content(xpm[2])
+[content(xpm[1]), content(xpm[2])]
 
 M = msinit(11,4); n = msdim(M); A = matid(n);
 T=matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
 mspetersson(M, A, A) == T
 mspetersson(M, A) == T
+mspetersson(M) == T
 
 M = msinit(12,4); n = msdim(M); A = matid(n);
 T=matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
 mspetersson(M, A, A) == T
 mspetersson(M, A) == T
+mspetersson(M) == T
 
-M = msinit(11,4,1); n = msdim(M); A = matid(n);
-matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
-
-M = msinit(11,4,-1); n = msdim(M); A = matid(n);
-matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
-
-M = msinit(17,4); n = msdim(M); A = matid(n);
-matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
-
-M = msinit(19,4); n = msdim(M); A = matid(n);
-matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
-
-M = msinit(13,4); n = msdim(M); A = matid(n);
-matrix(n,n,i,j,mspetersson(M,A[,i],A[,j]))
+M = msinit(11,4,1); mspetersson(M)
+M = msinit(11,4,-1); mspetersson(M)
+M = msinit(17,4); mspetersson(M)
+M = msinit(19,4); mspetersson(M)
+M = msinit(13,4); mspetersson(M)
 
 \\ mspadic from now on
 

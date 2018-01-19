@@ -4718,15 +4718,13 @@ bil(GEN P, GEN Q, GEN C)
 static void
 mspetersson_i(GEN W, GEN F, GEN G, GEN *pvf, GEN *pvg, GEN *pC)
 {
-  GEN WN, annT2, annT31, section, c, vf, vg;
+  GEN WN = get_msN(W), annT2, annT31, section, c, vf, vg;
   long i, n1, n2, n3;
 
-  checkms(W); WN = get_msN(W);
   annT2 = msN_get_annT2(WN);
   annT31 = msN_get_annT31(WN);
   section = msN_get_section(WN);
 
-  /* generators of Delta ordered as E1, T2, T31 */
   if (ms_get_N(WN) == 1)
   {
     vf = cgetg(3, t_VEC);
@@ -4737,13 +4735,13 @@ mspetersson_i(GEN W, GEN F, GEN G, GEN *pvf, GEN *pvg, GEN *pC)
   }
   else
   {
-    GEN E2fromE1 = msN_get_E2fromE1(WN), singlerel = msN_get_singlerel(WN);
+    GEN singlerel = msN_get_singlerel(WN);
     GEN gen = msN_get_genindex(WN);
     long l = lg(gen);
     vf = cgetg(l, t_VEC);
-    vg = cgetg(l, t_VEC);
+    vg = cgetg(l, t_VEC); /* generators of Delta ordered as E1,T2,T31 */
     for (i = 1; i < l; i++) gel(vf, i) = mseval(W, F, gel(section,gen[i]));
-    n1 = lg(E2fromE1)-1; /* E1 */
+    n1 = ms_get_nbE1(WN); /* E1 */
     for (i = 1; i <= n1; i++)
     {
       c = cocycle(gcoeff(gel(singlerel,i),2,1));
@@ -4776,9 +4774,11 @@ mspetersson(GEN W, GEN F, GEN G)
 {
   pari_sp av = avma;
   GEN vf, vg, C;
-  long k, l, tG, tF = typ(F);
-
+  long k, l, tG, tF;
+  checkms(W);
+  if (!F) F = matid(msdim(W));
   if (!G) G = F;
+  tF = typ(F);
   tG = typ(G);
   if (tF == t_MAT && tG != t_MAT) pari_err_TYPE("mspetersson",G);
   if (tG == t_MAT && tF != t_MAT) pari_err_TYPE("mspetersson",F);
