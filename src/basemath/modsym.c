@@ -1555,9 +1555,10 @@ cusp_to_P1Q(GEN c) { return c[2]? gdivgs(stoi(c[1]), c[2]): mkoo(); }
 static GEN
 mspathgens_i(GEN W)
 {
-  long i,j, l, nbT2, nbT31, nbE1 = ms_get_nbE1(W);
+  long i,j, l, nbT2, nbT31, nbE1;
   GEN R, r, g, section, gen, annT2, annT31;
   checkms(W); W = get_msN(W);
+  nbE1 = ms_get_nbE1(W);
   section = msN_get_section(W);
   gen = ms_get_genindex(W);
   l = lg(gen);
