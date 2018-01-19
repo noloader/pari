@@ -39,7 +39,7 @@ mspolygon(M)
 msqexpansion(M,D)
 msstar(M)
 M=msinit(1,32,1);
-mssplit(M,msnew(M))
+mssplit(M)
 
 E = ellinit([1,2]);
 [W,xpm] = msfromell(E);
@@ -71,10 +71,10 @@ mssplit(W, Wnew)
 #mssplit(W, Wnew, 2)
 #mssplit(W, Wnew, 3)
 
-W=msinit(12,2,1); mssplit(W,msnew(W))
+W=msinit(12,2,1); mssplit(W)
 
 W = msinit(11,6,1);
-mssplit(W,msnew(W))
+mssplit(W)
 
 W = msinit(1000,2,1);
 matsize( msnew(W)[1] )
@@ -118,11 +118,11 @@ msfromcusp(W,1/2)
 msfromhecke(W, [[2,-2],[3,-1]])
 
 W = msinit(23,2, 1);
-V = mssplit(W, msnew(W));
+V = mssplit(W);
 msqexpansion(W, V[1], 30)
 msqexpansion(W, V[1])
 
-M=msinit(603,2,1);L=msnew(M);V=mssplit(M,L,1);
+M=msinit(603,2,1);;V=mssplit(M,,1);
 Set([v|v<-vector(#V,i,msqexpansion(M,V[i]))])
 
 W = msinit(6,4);
@@ -163,7 +163,7 @@ matsize(msnew(W)[1]) \\ used to be too slow
 check(N,k)=
 {
   M=msinit(N,k,1);
-  S=mssplit(M,msnew(M));
+  S=mssplit(M);
   for(i=1, #S,
     f = msqexpansion(M,S[i],2)[1];
     mod = if(type(f)=="t_INT", x, f.mod);

@@ -673,6 +673,7 @@ mssplit(GEN W, GEN H, long deglim)
   checkms(W);
   if (!msk_get_sign(W))
     pari_err_DOMAIN("mssplit","abs(sign)","!=",gen_1,gen_0);
+  if (!H) H = msnew(W);
   H = Qevproj_init0(H);
   return gerepilecopy(av, mssplit_i(W,H,deglim));
 }
