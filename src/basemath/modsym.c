@@ -1555,29 +1555,30 @@ cusp_to_P1Q(GEN c) { return c[2]? gdivgs(stoi(c[1]), c[2]): mkoo(); }
 static GEN
 mspathgens_i(GEN W)
 {
-  long i,j, l, nbT2, nbT31, nbE1;
   GEN R, r, g, section, gen, annT2, annT31;
+  long i, l;
   checkms(W); W = get_msN(W);
-  nbE1 = ms_get_nbE1(W);
   section = msN_get_section(W);
   gen = ms_get_genindex(W);
   l = lg(gen);
   g = cgetg(l,t_VEC);
-  for (i=1; i<l; i++)
+  for (i = 1; i < l; i++)
   {
     GEN p = gel(section,gen[i]);
     gel(g,i) = mkvec2(cusp_to_P1Q(gel(p,1)), cusp_to_P1Q(gel(p,2)));
   }
-  annT2 = msN_get_annT2(W); nbT2 = lg(annT2)-1;
-  annT31 = msN_get_annT31(W); nbT31 = lg(annT31)-1;
+  annT2 = msN_get_annT2(W);
+  annT31= msN_get_annT31(W);
   if (ms_get_N(W) == 1)
   {
     R = cgetg(3, t_VEC);
-    j = 1;
+    gel(R,1) = mkvec( mkvec2(gel(annT2,1), gen_1) );
+    gel(R,2) = mkvec( mkvec2(gel(annT31,1), gen_1) );
   }
   else
   {
     GEN singlerel = msN_get_singlerel(W);
+    long j, nbT2 = lg(annT2)-1, nbT31 = lg(annT31)-1, nbE1 = ms_get_nbE1(W);
     R = cgetg(nbT2+nbT31+2, t_VEC);
     l = lg(singlerel);
     r = cgetg(l, t_VEC);
@@ -1586,11 +1587,11 @@ mspathgens_i(GEN W)
     for (; i < l; i++)
       gel(r,i) = mkvec2(gen_1, utoi(i));
     gel(R,1) = r; j = 2;
+    for (i = 1; i <= nbT2; i++,j++)
+      gel(R,j) = mkvec( mkvec2(gel(annT2,i), utoi(i + nbE1)) );
+    for (i = 1; i <= nbT31; i++,j++)
+      gel(R,j) = mkvec( mkvec2(gel(annT31,i), utoi(i + nbE1 + nbT2)) );
   }
-  for (i = 1; i <= nbT2; i++,j++)
-    gel(R,j) = mkvec( mkvec2(gel(annT2,i), utoi(i + nbE1)) );
-  for (i = 1; i <= nbT31; i++,j++)
-    gel(R,j) = mkvec( mkvec2(gel(annT31,i), utoi(i + nbE1 + nbT2)) );
   return mkvec2(g,R);
 }
 GEN
