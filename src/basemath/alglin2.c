@@ -1794,13 +1794,13 @@ GEN
 QM_ImQ_hnfall(GEN x, GEN *U, long remove)
 {
   pari_sp av = avma, av1;
-  long k, m, n = lg(x);
+  long k, r, m, n = lg(x);
   GEN c, V;
 
   if (U) *U = matid(n-1);
   if (n==1) return gcopy(x);
   m = lgcols(x); x = RgM_shallowcopy(x);
-  c = zero_zv(n-1);
+  c = zero_zv(n-1); r = 1;
   av1 = avma;
   for (k = 1; k < m; k++)
   {
@@ -1820,6 +1820,7 @@ QM_ImQ_hnfall(GEN x, GEN *U, long remove)
         if (U) gel(*U,a) = RgC_sub(gel(*U,a), RgC_Rg_mul(gel(*U,j),t));
         gel(x,a) = RgC_sub(gel(x,a), RgC_Rg_mul(gel(x,j),t));
       }
+    if (++r == n) break;
     if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"QM_ImQ_hnf");

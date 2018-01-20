@@ -215,8 +215,16 @@ inithashmsymbols(ulong N, GEN symbols)
 static GEN
 SL2_inv(GEN M)
 {
-  GEN a=gcoeff(M,1,1), b=gcoeff(M,1,2), c=gcoeff(M,2,1), d=gcoeff(M,2,2);
+  GEN a = gcoeff(M,1,1), b = gcoeff(M,1,2);
+  GEN c = gcoeff(M,2,1), d = gcoeff(M,2,2);
   return mkmat22(d,negi(b), negi(c),a);
+}
+/* SL2_inv(M)[2] */
+static GEN
+SL2_inv2(GEN M)
+{
+  GEN a = gcoeff(M,1,1), c = gcoeff(M,2,1);
+  return mkcol2(negi(c),a);
 }
 /* M a 2x2 mat2 in SL2(Z) */
 static GEN
@@ -4658,18 +4666,13 @@ mslattice(GEN M, GEN F)
   {
     GEN B, vb, g = gel(G,i);
     if (A[i] < i) continue;
-    gel(m,2) = gel(SL2_inv(g),2);
+    gel(m,2) = SL2_inv2(g);
     vb = mseval(M, F, m);
-    if (k == 2)
-    {
-      B = cgetg(lF, t_VEC);
-      for (j = 1; j < lF; j++) gel(B,j) = gel(vb,j);
-    }
+    if (k == 2) B = vb;
     else
     {
       long lB;
-      B = cgetg(lF, t_MAT);
-      for (j = 1; j < lF; j++) gel(B,j) = RgX_to_RgC(gel(vb,j), k-1);
+      B = RgXV_to_RgM(vb, k-1);
       /* add coboundaries */
       B = shallowconcat(B, RgM_Rg_sub(RgX_act_Gl2Q(g, k), gen_1));
       /* beware: the basis for RgX_act_Gl2Q is (X^(k-2),...,Y^(k-2)) */
