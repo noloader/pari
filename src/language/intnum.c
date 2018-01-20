@@ -2173,75 +2173,10 @@ sumnumrat(GEN F, GEN a, long prec)
   return gerepileupto(av, sumnumrat_i(F, F0, vF, prec));
 }
 static GEN
-_add(GEN x, GEN y)
-{
-  if (!x) return y;
-  return y? gadd(x, y): x;
-}
-static GEN
-_sub(GEN x, GEN y)
-{
-  if (!x) return y? gneg(y): NULL;
-  return y? gsub(x, y): x;
-}
-static GEN
 _mpmul(GEN x, GEN y)
 {
   if (!x) return y;
   return y? mpmul(x, y): x;
-}
-
-GEN
-sumaltrat(GEN F, GEN ga, long prec)
-{
-  pari_sp av = avma;
-  GEN G, res, vG = NULL, G0, F1, F2, X1, X2;
-  long a, vx;
-
-  switch(typ(F))
-  {
-    case t_RFRAC: break;
-    case t_INT: case t_REAL: case t_COMPLEX: case t_POL:
-      if (gequal0(F)) return real_0(prec);
-    default: pari_err_TYPE("sumaltrat",F);
-  }
-  vx = varn(gel(F,2));
-  X2 = deg1pol_shallow(gen_2, gen_0, vx);
-  X1 = deg1pol_shallow(gen_2, gen_1, vx);
-  switch(typ(ga))
-  {
-    case t_INT:
-      a = itos(ga);
-      if (signe(ga)) F = gsubst(F, vx, deg1pol_shallow(gen_1,ga,vx));
-      G0 = NULL;
-      break;
-    case t_INFINITY:
-      if (inf_get_sign(ga) == -1)
-      {
-        GEN Fm = gsubst(F, vx, RgX_neg(pol_x(vx)));
-        G0 = _sub(rfrac_eval0(F), rfrac_eval(F, gen_1));
-        vG = mkvec2(F,Fm);
-        F = gadd(F, Fm);
-        if (gequal0(F)) { avma = av; return real_0(prec); }
-        a = 0;
-        break;
-      }
-    default:
-      pari_err_TYPE("sumnumaltrat",ga);
-      return NULL; /* LCOV_EXCL_LINE */
-  }
-  F2 = gsubst(F, vx, X2); /* F(2n) */
-  F1 = gneg(gsubst(F, vx, X1)); /* - F(2n+1) */
-  if (!G0) G0 = _add(rfrac_eval0(F2), rfrac_eval0(F1));
-  G = gadd(F2, F1);
-  if (gequal0(G)) { avma = av; return real_0(prec); }
-  if (vG)
-    vG = shallowconcat(gsubst(vG, vx, X2), gsubst(vG, vx, X1));
-  else
-    vG = mkvec2(F2, F1);
-  res = sumnumrat_i(G, G0, vG, prec);
-  if (odd(a)) res = gneg(res);
-  return gerepileupto(av, res);
 }
 
 /* prod_{n >= a} F(n) */

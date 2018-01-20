@@ -187,8 +187,7 @@ PB   23- [libpari] F2xqM_F2xqC_gauss F2xqM_F2xqC_invimage F2xqM_gauss F2xqM_invi
          gen_matcolinvimage gen_matinvimage
          FFM_FFC_invimage FFM_FFC_gauss FFM_gauss FFM_invimage
      24- new GP function polrootsbound
-HC   25- new GP functions prodeulerrat, sumeulerrat, sumaltrat, sumnumrat,
-         prodnumrat
+HC   25- new GP functions prodeulerrat, sumeulerrat, sumnumrat, prodnumrat
 HC   26- new GP function zetahurwitz
      27- libpari function sqrtnr_abs
      28- binomial(x,k): allow omitting k [ => vecbinomial ]
