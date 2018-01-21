@@ -688,7 +688,7 @@ mfdiv(D,mfpow(D,2))
 mfeval(mfD,D,-I)
 mftonew(mfD,1)
 T=mftraceform([96,6],4);
-mfshimura(mfinit(T5),T5,4)
+mfshimura(mfinit(T5),T5,-3)
 mf=mfinit([1,4],3);
 mftonew(mf,E4)
 mffields(mf)

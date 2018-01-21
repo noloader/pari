@@ -1459,8 +1459,8 @@ t, -6*t - 4, t + 2]
   ***   at top-level: T=mftraceform([96,6],4)
   ***                   ^---------------------
   *** mftraceform: domain error in mftraceform: space = 4
-  ***   at top-level: mfshimura(mfinit(T5),T5,4)
-  ***                 ^--------------------------
+  ***   at top-level: mfshimura(mfinit(T5),T5,-3)
+  ***                 ^---------------------------
   *** mfshimura: incorrect type in shimura [incorrect D] (t_INT).
   ***   at top-level: mftonew(mf,E4)
   ***                 ^--------------
@@ -1480,4 +1480,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: ...([1,0]);F=mfbasis(mf)[1];mfsymbol(mf,F)
   ***                                             ^--------------
   *** mfsymbol: sorry, mfsymbol when k <= 1 is not yet implemented.
-Total time spent: 6256
+Total time spent: 4097

@@ -3666,15 +3666,15 @@ mfshimura_space_cusp(GEN mf)
   return fl;
 }
 
-/* D is either a fundamental discriminant with sign(D)=(-1)^{k-1/2}*eps,
-   or a positive squarefree integer t, which is then transformed into a
-   fundamental discriminant of the correct sign. */
+/* D is either a discriminant (not necessarily fundamental) with
+   sign(D)=(-1)^{k-1/2}*eps, or a positive squarefree integer t, which is then
+   transformed into a fundamental discriminant of the correct sign. */
 GEN
 mfshimura(GEN mf, GEN F, long D)
 {
   pari_sp av = avma;
   GEN gk, G, res, mf2, CHI, CHIP;
-  long M, r, space, cusp, N4, flagfund = 0;
+  long M, r, space, cusp, N4, flagdisc = 0;
   if (!checkmf_i(F)) pari_err_TYPE("mfshimura",F);
   gk = mf_get_gk(F);
   if (typ(gk) != t_FRAC) pari_err_TYPE("mfshimura [integral weight]", F);
@@ -3685,9 +3685,9 @@ mfshimura(GEN mf, GEN F, long D)
   if (!CHIP) CHIP = CHI;
   else
   {
-    long epsD = CHI == CHIP? D: -D;
+    long epsD = CHI == CHIP? D: -D, rd = D & 3L;
     if (odd(r)) epsD = -epsD;
-    if (epsD > 0 && sisfundamental(D)) flagfund = 1;
+    if (epsD > 0 && (rd == 0 || rd == 1)) flagdisc = 1;
     else
     {
       if (D < 0 || !uissquarefree(D))
@@ -3698,7 +3698,7 @@ mfshimura(GEN mf, GEN F, long D)
   M = N4;
   cusp = mfiscuspidal(mf,F);
   space = cusp && mfshimura_space_cusp(mf)? mf_CUSP : mf_FULL;
-  if (!cusp || !flagfund || !mfisinkohnen(mf,F)) M <<= 1;
+  if (!cusp || !flagdisc || !mfisinkohnen(mf,F)) M <<= 1;
   mf2 = mfinit_Nkchi(M, r << 1, mfcharpow(CHI, gen_2), space, 0);
   G = c_shimura(mfsturm(mf2), F, D, CHIP);
   res = mftobasis_i(mf2, G);
