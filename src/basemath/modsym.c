@@ -223,8 +223,8 @@ SL2_inv(GEN M)
 static GEN
 SL2_inv2(GEN M)
 {
-  GEN a = gcoeff(M,1,1), c = gcoeff(M,2,1);
-  return mkcol2(negi(c),a);
+  GEN a = gcoeff(M,1,1), b = gcoeff(M,1,2);
+  return mkcol2(negi(b),a);
 }
 /* M a 2x2 mat2 in SL2(Z) */
 static GEN
