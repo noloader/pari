@@ -4831,7 +4831,7 @@ GEN     weber0(GEN x, long flag,long prec);
 GEN     weberf(GEN x, long prec);
 GEN     weberf1(GEN x, long prec);
 GEN     weberf2(GEN x, long prec);
-GEN     zetahurwitz(GEN s, GEN x, long prec);
+GEN     zetahurwitz(GEN s, GEN x, long bitprec);
 
 /* modsym.c */
 GEN     Qevproj_apply(GEN T, GEN pro);

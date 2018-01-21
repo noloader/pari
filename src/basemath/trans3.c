@@ -2214,20 +2214,48 @@ gzeta(GEN x, long prec)
 
 /* If s=1 return -psi(x), else zeta(s,x). In particular, if x=1 return zeta(s),
  * and Euler's constant if s=1 */
+
+/* New zetahurwitz, from Fredrik Johansson. For now, no derivative. */
+
+static GEN
+BINSPLIT(GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
+{
+  if (j + 1 == k)
+  {
+    GEN P;
+    if (!j) P = gdiv(s, aN2);
+    else
+    {
+      long j2 = j << 1;
+      GEN tmp = gaddgs(s, j2 - 1);
+      P = gmul(tmp, gaddgs(tmp, 1));
+      P = gdivgs(gmul(P, isqaN), (j2 + 1)*(j2 + 2));
+    }
+    return mkvec2(P, gmul(bernreal((j << 1) + 2, prec), P));
+  }
+  else
+  {
+    GEN P1R1 = BINSPLIT(aN2, isqaN, s, j, (j + k) >> 1, prec);
+    GEN P2R2 = BINSPLIT(aN2, isqaN, s, (j + k) >> 1, k, prec);
+    GEN P1 = gel(P1R1, 1);
+    return mkvec2(gmul(P1, gel(P2R2, 1)), gadd(gel(P1R1, 2), gmul(P1, gel(P2R2, 2))));
+  }
+}
+
 GEN
-zetahurwitz(GEN s, GEN x, long prec)
+zetahurwitz(GEN s, GEN x, long bitprec)
 {
   pari_sp av = avma;
   GEN al, ral, ral0, Nx, S1, S2, S3, N2;
-  long j, k, m, N, bitprec = prec2nbits(prec);
+  long j, k, m, N, prec = nbits2prec(bitprec);
+  pari_timer T;
 
   if (!is_real_t(typ(x))) pari_err_TYPE("zetahurwitz", x);
   if (gsigne(x) <= 0) pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
-  al = gneg(s); ral = greal(al);
-  if (!gequal1(s) && gcmpgs(ral, -1) >= 0)
-    pari_err_IMPL("Re(s) <= 1 in zetahurwitz");
-  ral0 = ground(ral);
-  if (signe(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17-bitprec)
+  al = gneg(s); ral = greal(al); ral0 = ground(ral);
+  if (gequal1(s))
+    pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s);
+  if (signe(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec)
   { /* al ~ non negative integer */
     k = itos(gceil(ral)) + 1;
     if (odd(k)) k++;
@@ -2236,8 +2264,11 @@ zetahurwitz(GEN s, GEN x, long prec)
   else
   {
     GEN C;
+    if (gcmpgs(ral, -1) >= 0)
+      pari_err_IMPL("Re(s) <= 1 in zetahurwitz");
     k = maxss(itos(gceil(gadd(ral, ghalf))) + 1, 50);
-    k = maxss(k, (long)(0.24*bitprec));
+    if (typ(s) == t_INT) k = maxss(k, (long)(0.24*bitprec));
+    else k = maxss(k, (long)(0.4*bitprec));
     if (odd(k)) k++;
     C = gmulsg(2, gmul(binomial(al, k+1), gdivgs(bernfrac(k+2), k+2)));
     C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
@@ -2245,24 +2276,33 @@ zetahurwitz(GEN s, GEN x, long prec)
     N = itos(gceil(C));
     if (N < 1) N = 1;
   }
-  S1 = real_0(prec);
-  for (m = 0; m < N; m++) S1 = gadd(S1, gpow(gaddsg(m,x), al, prec));
-  Nx = gaddsg(N-1, x);
+  if (DEBUGLEVEL>2) timer_start(&T);
+  incrprec(prec); S1 = gmul(real_1(prec), gpow(x, al, prec));
+  for (m = 1; m < N; m++) S1 = gadd(S1, gpow(gaddsg(m, x), al, prec));
+  if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
+  mpbern(k >> 1, prec);
+  Nx = gmul(real_1(prec + 1), gaddsg(N - 1, x));
   N2 = ginv(gsqr(Nx));
-  S2 = gen_0;
-  for (j = k; j >= 2; j -= 2)
+  if (typ(s) == t_INT)
   {
-    GEN t = gsubgs(al, j), u = gmul(t, gaddgs(t, 1));
-    u = gmul(gdivgs(u, j*(j+1)), gmul(S2, N2));
-    S2 = gadd(gdivgs(bernfrac(j), j), u);
+    S2 = gen_0;
+    for (j = k; j >= 2; j -= 2)
+    {
+      GEN t = gsubgs(al, j), u = gmul(t, gaddgs(t, 1));
+      u = gmul(gdivgs(u, j*(j + 1)), gmul(S2, N2));
+      S2 = gadd(gdivgs(bernreal(j, prec), j), u);
+    }
+    S2 = gmul(S2, gdiv(al, Nx));
   }
-  S2 = gadd(gmul(S2, gdiv(al, Nx)), ghalf);
+  else S2 = gneg(gel(BINSPLIT(gmul2n(Nx, 1), N2, s, 0, k >> 1, prec), 2));
+  S2 = gadd(ghalf, S2);
+  if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
   S3 = gpow(Nx, al, prec);
   if (!gequal1(s))
     S2 = gmul(S3, gadd(gdiv(Nx, gaddsg(1, al)), S2));
   else
     S2 = gadd(glog(Nx, prec), gmul(S3, S2));
-  return gerepileupto(av, gsub(S1,S2));
+  return gerepileupto(av, gsub(S1, S2));
 }
 
 /***********************************************************************/

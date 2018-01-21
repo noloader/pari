@@ -1,7 +1,7 @@
 Function: zetahurwitz
 Section: transcendental
 C-Name: zetahurwitz
-Prototype: GGp
+Prototype: GGb
 Help: zetahurwitz(s,x): Hurwitz zeta function at s, x. s must be of real
  part > 1 and x must be a positive real number.
 Doc: Hurwitz zeta function $\zeta(s,x)=\sum_{n\ge0}(n+x)^{-s}$. We must have
@@ -11,9 +11,6 @@ Doc: Hurwitz zeta function $\zeta(s,x)=\sum_{n\ge0}(n+x)^{-s}$. We must have
  %1 = 0.056155444497585099925180502385781494484
  ? zetahurwitz(2,1) - zeta(2)
  %2 = -2.350988701644575016 E-38
- @eprog\noindent We also define $\zeta(1,x) = - \psi(x)$, where $\psi$
- is the digamma function (\kbd{psi}).
- \bprog
- ? zetahurwitz(1,1) - Euler
- %3 = 2.644862289350146893 E-38
+ ? zetahurwitz(Pi,3) - (zeta(Pi)-1-1/2^Pi)
+ %3 = -2.2040519077917890774 E-39
  @eprog

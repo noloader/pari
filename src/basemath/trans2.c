@@ -1225,15 +1225,18 @@ cxgamma(GEN s0, int dolog, long prec)
   }
   else
   { /* Compute lngamma mod 2 I Pi */
-    for (i=1; i < nn; i++)
+    pari_sp av3 = avma;
+    GEN sq = gsqr(s);
+    for (i = 1; i < nn - 1; i += 2)
     {
-      y = gmul(y, gaddgs(s,i));
+      y = gmul(y, gaddsg(i*(i + 1), gadd(gmulsg(2*i + 1, s), sq)));
       if (gc_needed(av2,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"gamma");
-        y = gerepileupto(av2, y);
+        y = gerepileupto(av3, y);
       }
     }
+    if (!odd(nn)) y = gmul(y, gaddsg(nn - 1, s));
     if (dolog)
     {
       if (typ(s) == t_REAL) y = logr_abs(y);
@@ -1683,7 +1686,7 @@ static GEN
 cxpsi(GEN s0, long prec)
 {
   pari_sp av, av2;
-  GEN sum,z,a,res,tes,in2,sig,tau,s,unr;
+  GEN sum,z,a,res,tes,in2,sig,tau,s,unr,s2,sq;
   long lim,nn,k;
   const long la = 3;
   int funeq = 0;
@@ -1737,16 +1740,18 @@ cxpsi(GEN s0, long prec)
     if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n",lim,nn);
   }
   incrprec(prec); unr = real_1(prec); /* one extra word of precision */
-
+  s2 = gmul2n(s, 1); sq = gsqr(s);
   a = gdiv(unr, gaddgs(s, nn)); /* 1 / (s+n) */
-  av2 = avma; sum = gmul2n(a,-1);
-  for (k = 0; k < nn; k++)
+  av2 = avma; sum = gmul2n(a, -1);
+  for (k = 0; k < nn - 1; k += 2)
   {
-    sum = gadd(sum, gdiv(unr, gaddgs(s, k)));
-    if ((k & 127) == 0) sum = gerepileupto(av2, sum);
+    GEN tmp = gaddsg(k*(k + 1), gadd(gmulsg(2*k + 1, s), sq));
+    sum = gadd(sum, gdiv(gaddsg(2*k + 1, s2), tmp));
+    if ((k & 1023) == 0) sum = gerepileupto(av2, sum);
   }
+  if (odd(nn)) sum = gadd(sum, gdiv(unr, gaddsg(nn - 1, s)));
   z = gsub(glog(gaddgs(s, nn), prec), sum);
-  if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N-1");
+  if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
 
   in2 = gsqr(a);
   mpbern(lim,prec);

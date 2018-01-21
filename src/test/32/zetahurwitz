@@ -1,5 +1,8 @@
--39
+-38
 -37
--37
-+oo
-Total time spent: 4
+-oo
+-38
+  ***   at top-level: zetahurwitz(1,Pi)
+  ***                 ^-----------------
+  *** zetahurwitz: domain error in zetahurwitz: s = 1
+Total time spent: 0
