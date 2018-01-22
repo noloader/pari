@@ -2216,29 +2216,29 @@ gzeta(GEN x, long prec)
  * and Euler's constant if s=1 */
 
 /* New zetahurwitz, from Fredrik Johansson. For now, no derivative. */
-
-static GEN
-BINSPLIT(GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
+static void
+binsplit(GEN *pP, GEN *pR, GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
 {
   if (j + 1 == k)
   {
+    long j2 = j << 1;
     GEN P;
     if (!j) P = gdiv(s, aN2);
     else
     {
-      long j2 = j << 1;
-      GEN tmp = gaddgs(s, j2 - 1);
-      P = gmul(tmp, gaddgs(tmp, 1));
-      P = gdivgs(gmul(P, isqaN), (j2 + 1)*(j2 + 2));
+      P = gmul(gaddgs(s, j2-1), gaddgs(s, j2));
+      P = gdivgs(gmul(P, isqaN), (j2+1) * (j2+2));
     }
-    return mkvec2(P, gmul(bernreal((j << 1) + 2, prec), P));
+    *pP = P;
+    *pR = gmul(bernreal(j2+2, prec), P);
   }
   else
   {
-    GEN P1R1 = BINSPLIT(aN2, isqaN, s, j, (j + k) >> 1, prec);
-    GEN P2R2 = BINSPLIT(aN2, isqaN, s, (j + k) >> 1, k, prec);
-    GEN P1 = gel(P1R1, 1);
-    return mkvec2(gmul(P1, gel(P2R2, 1)), gadd(gel(P1R1, 2), gmul(P1, gel(P2R2, 2))));
+    GEN P1, R1, P2, R2;
+    binsplit(&P1,&R1, aN2, isqaN, s, j, (j + k) >> 1, prec);
+    binsplit(&P2,&R2, aN2, isqaN, s, (j + k) >> 1, k, prec);
+    *pP = gmul(P1,P2);
+    *pR = gadd(R1, gmul(P1, R2));
   }
 }
 
@@ -2289,12 +2289,17 @@ zetahurwitz(GEN s, GEN x, long bitprec)
     for (j = k; j >= 2; j -= 2)
     {
       GEN t = gsubgs(al, j), u = gmul(t, gaddgs(t, 1));
-      u = gmul(gdivgs(u, j*(j + 1)), gmul(S2, N2));
+      u = gmul(gdivgs(u, j*(j+1)), gmul(S2, N2));
       S2 = gadd(gdivgs(bernreal(j, prec), j), u);
     }
     S2 = gmul(S2, gdiv(al, Nx));
   }
-  else S2 = gneg(gel(BINSPLIT(gmul2n(Nx, 1), N2, s, 0, k >> 1, prec), 2));
+  else
+  {
+    GEN P, R;
+    binsplit(&P,&R, gmul2n(Nx,1), N2, s, 0, k >> 1, prec);
+    S2 = gneg(R);
+  }
   S2 = gadd(ghalf, S2);
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
   S3 = gpow(Nx, al, prec);
