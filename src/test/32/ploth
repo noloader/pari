@@ -1,4 +1,4 @@
-   echo = 1 (on)
+   echo = 1
 ? \p19
    realprecision = 19 significant digits
 ? default(parisize,"20M");
@@ -221,4 +221,4 @@
   ***                             ^-----
   ***   domain error in ploth: #points < 2
 ? print("Total time spent: ",gettime);
-Total time spent: 72
+Total time spent: 96
