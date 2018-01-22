@@ -2125,33 +2125,34 @@ zetap(GEN s)
   return gerepileupto(av, cvtop(val, gp, prec));
 }
 #else
+/* s1 = s-1 or NULL (if s=1) */
 static GEN
-hurwitz_p(GEN cache, GEN s, GEN x, GEN p, long prec)
+hurwitzp_i(GEN cache, GEN s1, GEN x, GEN p, long prec)
 {
-  GEN S, x2, x2j, s_1 = gsubgs(s,1);
-  long j, J = lg(cache)-2;
-  x = ginv(gadd(x, zeropadic(p, prec)));
-  x2 = gsqr(x);
-  S = gmul2n(gmul(s_1, x), -1);
-  x2j = gen_1;
-  for (j = 0;; j++)
+  long j, J = lg(cache) - 2;
+  GEN S, x2, x2j;
+
+  x = ginv(gadd(x, zeropadic_shallow(p, prec)));
+  S = s1? gmul2n(gmul(s1, x), -1): gadd(Qp_log(x), gmul2n(x, -1));
+  x2j = x2 = gsqr(x); S = gaddgs(S,1);
+  for (j = 1;; j++)
   {
     S = gadd(S, gmul(gel(cache, j+1), x2j));
     if (j == J) break;
     x2j = gmul(x2, x2j);
   }
-  return gmul(gdiv(S, s_1), Qp_exp(gmul(s_1, Qp_log(x))));
+  if (s1) S = gmul(gdiv(S, s1), Qp_exp(gmul(s1, Qp_log(x))));
+  return S;
 }
 
 static GEN
-init_cache(long J, GEN s)
+init_cache(long prec, long p, GEN s)
 {
+  long j, fls = !gequal1(s), J = (((p==2)? (prec >> 1): prec) + 2) >> 1;
   GEN C = gen_1, cache = bernvec(J);
-  long j;
-
   for (j = 1; j <= J; j++)
   { /* B_{2j} * binomial(1-s, 2j) */
-    GEN t = gmul(gaddgs(s, 2*j-3), gaddgs(s, 2*j-2));
+    GEN t = (j > 1 || fls) ? gmul(gaddgs(s, 2*j-3), gaddgs(s, 2*j-2)) : s;
     C = gdiv(gmul(C, t), mulss(2*j, 2*j-1));
     gel(cache, j+1) = gmul(gel(cache, j+1), C);
   }
@@ -2159,28 +2160,41 @@ init_cache(long J, GEN s)
 }
 
 static GEN
-zetap(GEN s)
+zetap_i(GEN s, long D)
 {
   pari_sp av = avma;
-  GEN cache, S, gp = gel(s,2);
-  ulong a, p = itou(gp);
-  long J, prec = valp(s) + precp(s);
+  GEN cache, S, s1, gm, va, gp = gel(s,2);
+  ulong a, p = itou(gp), m;
+  long prec = valp(s) + precp(s);
 
+  if (D <= 0) pari_err_DOMAIN("p-adic L-function", "D", "<=", gen_0, stoi(D));
+  if (!uposisfundamental(D))
+    pari_err_TYPE("p-adic L-function [D not fundamental]", stoi(D));
+  if (D == 1 && gequal1(s))
+    pari_err_DOMAIN("p-adic zeta", "argument", "=", gen_1, s);
   if (prec <= 0) prec = 1;
-  if (p == 2) {
-    J = ((long)(1+ceil((prec+1.)/2))) >> 1;
-    cache = init_cache(J, s);
-    S = gmul2n(hurwitz_p(cache, s, gmul2n(gen_1, -2), gen_2, prec), -1);
-  } else {
-    J = (prec+2) >> 1;
-    cache = init_cache(J, s);
-    S = gen_0;
-    for (a = 1; a <= (p-1)>>1; a++)
-      S = gadd(S, hurwitz_p(cache, s, gdivsg(a, gp), gp, prec));
-    S = gdiv(gmul2n(S, 1), gp);
+  cache = init_cache(prec, p, s);
+  m = clcm(D, p == 2? 4: p);
+  gm = stoi(m);
+  va = coprimes_zv(m);
+  S = gen_0; s1 = gsubgs(s,1); if (gequal0(s1)) s1 = NULL;
+  for (a = 1; a <= (m >> 1); a++)
+    if (va[a])
+    {
+      GEN z = hurwitzp_i(cache, s1, gdivsg(a,gm), gp, prec);
+      S = gadd(S, gmulsg(kross(D,a), z));
+    }
+  S = gdiv(gmul2n(S, 1), gm);
+  if (D > 1)
+  {
+    gm = gadd(gm, zeropadic_shallow(gp, prec));
+    S = gmul(S, Qp_exp(gmul(gsubsg(1, s), Qp_log(gm))));
   }
   return gerepileupto(av, S);
 }
+static GEN
+zetap(GEN s) { return zetap_i(s, 1); }
+
 #endif
 
 GEN
@@ -2212,10 +2226,20 @@ gzeta(GEN x, long prec)
 /*                   Hurwitz zeta function              */
 /********************************************************/
 
-/* If s=1 return -psi(x), else zeta(s,x). In particular, if x=1 return zeta(s),
- * and Euler's constant if s=1 */
+static GEN
+hurwitzp(GEN s, GEN x)
+{
+  GEN s1, gp = gel(s,2);
+  long p = itou(gp), vqp = (p==2)? 2: 1, prec = maxss(1, valp(s) + precp(s));
+  x = gadd(x, zeropadic_shallow(gp, prec));
+  if (valp(x) > -vqp)
+    pari_err_DOMAIN("hurwitzp", "v(x)", ">", stoi(-vqp), x);
+  if (valp(s) <= 1/(p-1) - vqp)
+    pari_err_DOMAIN("hurwitzp", "v(s)", "<=", stoi(1/(p-1)-vqp), s);
+  s1 = gsubgs(s,1); if (gequal0(s1)) s1 = NULL;
+  return hurwitzp_i(init_cache(prec,p,s), s1, x, gp, prec);
+}
 
-/* New zetahurwitz, from Fredrik Johansson. For now, no derivative. */
 static void
 binsplit(GEN *pP, GEN *pR, GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
 {
@@ -2242,20 +2266,56 @@ binsplit(GEN *pP, GEN *pR, GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
   }
 }
 
+/* New zetahurwitz, from Fredrik Johansson. */
 GEN
-zetahurwitz(GEN s, GEN x, long bitprec)
+zetahurwitz(GEN s, GEN x, long der, long bitprec)
 {
   pari_sp av = avma;
-  GEN al, ral, ral0, Nx, S1, S2, S3, N2;
-  long j, k, m, N, prec = nbits2prec(bitprec);
+  GEN al, ral, ral0, Nx, S1, S2, S3, N2, rx, sch = gen_0, s0 = s, y;
+  long j, k, m, N, precinit = nbits2prec(bitprec), prec = precinit;
+  long flscal = 1, fli = 0, v, prpr, ts = typ(s);
   pari_timer T;
 
-  if (!is_real_t(typ(x))) pari_err_TYPE("zetahurwitz", x);
-  if (gsigne(x) <= 0) pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
-  al = gneg(s); ral = greal(al); ral0 = ground(ral);
-  if (typ(ral0) != t_INT) pari_err_TYPE("zetahurwitz",s);
-  if (gequal1(s)) pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s);
-  if (signe(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec)
+  if (der < 0) pari_err_DOMAIN("zetahurwitz", "der", "<", gen_0, stoi(der));
+  if (der)
+  {
+    GEN z;
+    if (!is_scalar_t(ts))
+    {
+      z = deriv(zetahurwitz(s, x, der - 1, bitprec), -1);
+      z = gdiv(z, deriv(s, -1));
+    }
+    else
+    {
+      GEN sser;
+      if( gequal1(s))
+        pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
+      sser = gadd(gadd(s, pol_x(0)), zeroser(0, der + 2));
+      z = zetahurwitz(sser, x, 0, bitprec);
+      z = gmul(mpfact(der), polcoeff0(z, der, -1));
+    }
+    return gerepileupto(av,z);
+  }
+  rx = ground(greal(x));
+  if (signe(rx) <= 0 && gexpo(gsub(x, rx)) < 17 - bitprec)
+    pari_err(e_MISC, "x <= 0 integral in zetahurwitz");
+  switch (ts)
+  {
+    case t_PADIC: return gerepilecopy(av, hurwitzp(s, x)); break;
+    case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: break;
+    default:
+      if (!(y = toser_i(s))) pari_err_TYPE("zetahurwitz", s);
+      if (valp(y) < 0)
+        pari_err_DOMAIN("zetahurwitz", "val(s)", "<", gen_0, s);
+      flscal = 0; s0 = gel(y, 2); sch = serchop0(y); v = valp(sch);
+      prpr = (precdl + v + 1)/v; if (gequal1(s0)) prpr += v;
+      s = gadd(gadd(s0, pol_x(0)), zeroser(0, prpr));
+    }
+  al = gneg(s0); ral = greal(al); ral0 = ground(ral);
+  if (flscal && gequal1(s0))
+    pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
+  fli = (signe(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec);
+  if (flscal && fli)
   { /* al ~ non negative integer */
     k = itos(gceil(ral)) + 1;
     if (odd(k)) k++;
@@ -2264,25 +2324,39 @@ zetahurwitz(GEN s, GEN x, long bitprec)
   else
   {
     const double D = (typ(s) == t_INT)? 0.24: 0.4;
-    GEN C;
-    if (gcmpgs(ral, -1) >= 0) pari_err_IMPL("Re(s) <= 1 in zetahurwitz");
+    GEN C, rs = greal(gsubsg(1, s0));
+    long ebit = 0;
+    if (fli) al = gadd(al, ghalf); /* hack */
+    if (gsigne(rs) > 0)
+    {
+      ebit = (long)(ceil(gtodouble(rs)*expu(bitprec)));
+      bitprec += ebit; prec = nbits2prec(bitprec);
+      x = gprec_w(x, prec);
+      s = gprec_w(s, prec);
+      al = gprec_w(al, prec);
+      if (!flscal) sch = gprec_w(sch, prec);
+    }
     k = maxss(itos(gceil(gadd(ral, ghalf))) + 1, 50);
     k = maxss(k, (long)(D*bitprec));
     if (odd(k)) k++;
     C = gmulsg(2, gmul(binomial(al, k+1), gdivgs(bernfrac(k+2), k+2)));
     C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
-    C = gadd(gpow(C, ginv(gsubsg(k+1, ral)), LOWDEFAULTPREC), gsubsg(1,x));
+    C = gadd(gpow(C, ginv(gsubsg(k+1, ral)), LOWDEFAULTPREC),
+             gabs(gsubsg(1,x), LOWDEFAULTPREC));
     N = itos(gceil(C));
     if (N < 1) N = 1;
   }
+  N = maxss(N, 1 - itos(rx));
+  al = gneg(s);
   if (DEBUGLEVEL>2) timer_start(&T);
-  incrprec(prec); S1 = gmul(real_1(prec), gpow(x, al, prec));
-  for (m = 1; m < N; m++) S1 = gadd(S1, gpow(gaddsg(m, x), al, prec));
+  incrprec(prec);
+  Nx = gmul(real_1(prec), gaddsg(N - 1, x));
+  S3 = gpow(Nx, al, prec); S1 = S3;
+  for (m = N - 2; m >= 0; m--) S1 = gadd(S1, gpow(gaddsg(m,x), al, prec));
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
   mpbern(k >> 1, prec);
-  Nx = gmul(real_1(prec + 1), gaddsg(N - 1, x));
   N2 = ginv(gsqr(Nx));
-  if (typ(s) == t_INT)
+  if (typ(s0) == t_INT)
   {
     S2 = gen_0;
     for (j = k; j >= 2; j -= 2)
@@ -2300,12 +2374,10 @@ zetahurwitz(GEN s, GEN x, long bitprec)
   }
   S2 = gadd(ghalf, S2);
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
-  S3 = gpow(Nx, al, prec);
-  if (!gequal1(s))
-    S2 = gmul(S3, gadd(gdiv(Nx, gaddsg(1, al)), S2));
-  else
-    S2 = gadd(glog(Nx, prec), gmul(S3, S2));
-  return gerepileupto(av, gsub(S1, S2));
+  S2 = gmul(S3, gadd(gdiv(Nx, gaddsg(1, al)), S2));
+  S1 = gprec_wtrunc(gsub(S1, S2), precinit);
+  if (flscal) return gerepilecopy(av, S1);
+  else return gerepileupto(av, gsubst(S1, 0, sch));
 }
 
 /***********************************************************************/
