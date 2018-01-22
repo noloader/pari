@@ -6,6 +6,7 @@ divisorslenstra(2841696, 2, 175)
 divisorslenstra(2841696, 23, 175)
 divisorslenstra(1680,1,13)
 divisorslenstra(4,1,2) \\ #1930
+divisorslenstra(2,1,2)
 
 divisors(1)
 divisors(12)

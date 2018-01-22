@@ -1207,7 +1207,7 @@ divisorslenstra(GEN N, GEN r, GEN s)
         if (!signe(ry))
         {
           GEN d = addii(ys, rp);
-          if (signe(d))
+          if (signe(d) > 0)
           {
             d = dvmdii(N, d, &ry);
             if (!signe(ry)) set_add(H, (void*)d);
