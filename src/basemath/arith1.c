@@ -2235,11 +2235,20 @@ GEN
 Fp_2gener(GEN p)
 { return Fp_2gener_all(vali(subis(p,1)),p); }
 
+static GEN
+choose_sqrt(GEN v, GEN p)
+{
+  pari_sp av = avma;
+  GEN q = subii(p,v);
+  if (cmpii(v,q) > 0) v = q; else avma = av;
+  return q;
+}
+
 /* Tonelli-Shanks. Assume p is prime and return NULL if (a,p) = -1. */
 GEN
 Fp_sqrt_i(GEN a, GEN y, GEN p)
 {
-  pari_sp av = avma, av1;
+  pari_sp av = avma;
   long i, k, e;
   GEN p1, q, v, w;
 
@@ -2253,32 +2262,43 @@ Fp_sqrt_i(GEN a, GEN y, GEN p)
     return utoi(u);
   }
 
+  a = modii(a, p); if (!signe(a)) { avma = av; return gen_0; }
   p1 = subiu(p,1); e = vali(p1);
-  a = modii(a, p);
-
-  /* On average, the algorithm of Cipolla is better than the algorithm of
-   * Tonelli and Shanks if and only if e(e-1)>8*log2(n)+20
-   * see LNCS 2286 pp 430 [GTL] */
+  if (e <= 2)
+  { /* direct formulas more efficient */
+    if (e == 0) pari_err_PRIME("Fp_sqrt [modulus]",p); /* p != 2 */
+    if (e == 1)
+    {
+      q = addiu(shifti(p1,-2),1); /* (p+1) / 4 */
+      v = Fp_pow(a, q, p);
+    }
+    else
+    { /* Atkin's formula */
+      GEN i, a2 = shifti(a,1);
+      if (cmpii(a2,p) >= 0) a2 = subii(a2,p);
+      q = shifti(p1, -3); /* (p-5)/8 */
+      v = Fp_pow(a2, q, p);
+      i = Fp_mul(a2, Fp_sqr(v,p), p); /* i^2 = -1 */
+      v = Fp_mul(a, Fp_mul(v, subiu(i,1), p), p);
+    }
+    /* must check equality in case (a/p) = -1 or p not prime */
+    e = equalii(Fp_sqr(v,p), a); avma = (pari_sp)v;
+    return e? gerepileuptoint(av,choose_sqrt(v,p)): NULL;
+  }
+  /* On average, Cipolla is better than Tonelli/Shanks if and only if
+   * e(e-1) > 8*log2(n)+20, see LNCS 2286 pp 430 [GTL] */
   if (e*(e-1) > 20 + 8 * expi(p))
   {
-    v = sqrt_Cipolla(a,p);
-    if (!v) { avma = av; return NULL; }
+    v = sqrt_Cipolla(a,p); if (!v) { avma = av; return NULL; }
     return gerepileuptoint(av,v);
   }
-
-  if (e == 0) /* p = 2 */
+  if (!y)
   {
-    avma = av;
-    if (!absequaliu(p,2)) pari_err_PRIME("Fp_sqrt [modulus]",p);
-    if (!signe(a) || !mod2(a)) return gen_0;
-    return gen_1;
+    y = Fp_2gener_all(e, p);
+    if (!y) pari_err_PRIME("Fp_sqrt [modulus]",p);
   }
   q = shifti(p1,-e); /* q = (p-1)/2^oo is odd */
-  if (e == 1) y = p1;
-  else if (!y) y = Fp_2gener_all(e, p);
-  if (!y) pari_err_PRIME("Fp_sqrt [modulus]",p);
-  p1 = Fp_pow(a, shifti(q,-1), p); /* a ^ [(q-1)/2] */
-  if (!signe(p1)) { avma=av; return gen_0; }
+  p1 = Fp_pow(a, shifti(q,-1), p); /* a ^ (q-1)/2 */
   v = Fp_mul(a, p1, p);
   w = Fp_mul(v, p1, p);
   while (!equali1(w))
@@ -2299,9 +2319,7 @@ Fp_sqrt_i(GEN a, GEN y, GEN p)
       gerepileall(av,3, &y,&w,&v);
     }
   }
-  av1 = avma;
-  p1 = subii(p,v); if (cmpii(v,p1) > 0) v = p1; else avma = av1;
-  return gerepileuptoint(av, v);
+  return gerepileuptoint(av, choose_sqrt(v,p));
 }
 
 GEN
