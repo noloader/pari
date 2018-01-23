@@ -163,6 +163,9 @@ A = [4,2,3; 4,5,6; 7,8,9]; matdetmod(A,27)
 matdetmod([0,1;1,0],9)
 matdetmod([7,1;1,0],9)
 matdetmod([6,0;0,1],9)
+matimagemod([1;2],4)
+matimagemod([4,1;0,4],8,&U)
+U
 
 \\matdetmod fixes
 M = [21,7,7;23,2,7;20,21,31];

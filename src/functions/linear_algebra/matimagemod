@@ -28,3 +28,31 @@ Doc: gives a Howell basis (unique representation for submodules of~$(\Z/d\Z)^n$)
 
  [0 2]
  @eprog
+
+ \misctitle{Caveat} In general the number of columns of the Howell form is not
+ the minimal number of generators of the submodule. Example:
+
+ \bprog
+ ? matimagemod([1;2],4)
+ %5 =
+ [2 1]
+
+ [0 2]
+ @eprog
+
+ \misctitle{Caveat 2} In general the matrix $U$ is not invertible, even if~$A$
+ and~$H$ have the same size. Example:
+
+ \bprog
+ ? matimagemod([4,1;0,4],8,&U)
+ %6 =
+ [2 1]
+
+ [0 4]
+
+ ? U
+ %7 =
+ [0 0]
+
+ [2 1]
+ @eprog
