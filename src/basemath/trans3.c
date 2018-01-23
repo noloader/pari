@@ -2229,16 +2229,16 @@ binsplit(GEN *pP, GEN *pR, GEN aN2, GEN isqaN, GEN s, long j, long k, long prec)
       P = gmul(gaddgs(s, j2-1), gaddgs(s, j2));
       P = gdivgs(gmul(P, isqaN), (j2+1) * (j2+2));
     }
-    *pP = P;
-    *pR = gmul(bernreal(j2+2, prec), P);
+    if (pP) *pP = P;
+    if (pR) *pR = gmul(bernreal(j2+2, prec), P);
   }
   else
   {
     GEN P1, R1, P2, R2;
-    binsplit(&P1,&R1, aN2, isqaN, s, j, (j + k) >> 1, prec);
-    binsplit(&P2,&R2, aN2, isqaN, s, (j + k) >> 1, k, prec);
-    *pP = gmul(P1,P2);
-    *pR = gadd(R1, gmul(P1, R2));
+    binsplit(&P1,pR? &R1: NULL, aN2, isqaN, s, j, (j+k) >> 1, prec);
+    binsplit(pP? &P2: NULL, pR? &R2: NULL, aN2, isqaN, s, (j+k) >> 1, k, prec);
+    if (pP) *pP = gmul(P1,P2);
+    if (pR) *pR = gadd(R1, gmul(P1, R2));
   }
 }
 
@@ -2296,9 +2296,8 @@ zetahurwitz(GEN s, GEN x, long bitprec)
   }
   else
   {
-    GEN P, R;
-    binsplit(&P,&R, gmul2n(Nx,1), N2, s, 0, k >> 1, prec);
-    S2 = gneg(R);
+    binsplit(NULL,&S2, gmul2n(Nx,1), N2, s, 0, k >> 1, prec);
+    S2 = gneg(S2);
   }
   S2 = gadd(ghalf, S2);
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
