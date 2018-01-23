@@ -4470,8 +4470,7 @@ ellminimalnormu(GEN E0)
   return P;
 }
 /* E integral model; return change of variable to miminal model (t_VEC)
- * or (non-trivial) Weierstrass class (t_COL), set DP = primes where the
- * model is not locally minimal */
+ * or (non-trivial) Weierstrass class (t_COL) */
 static GEN
 bnf_get_v(GEN E)
 {
