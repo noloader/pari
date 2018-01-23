@@ -2253,8 +2253,8 @@ zetahurwitz(GEN s, GEN x, long bitprec)
   if (!is_real_t(typ(x))) pari_err_TYPE("zetahurwitz", x);
   if (gsigne(x) <= 0) pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
   al = gneg(s); ral = greal(al); ral0 = ground(ral);
-  if (gequal1(s))
-    pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s);
+  if (typ(ral0) != t_INT) pari_err_TYPE("zetahurwitz",s);
+  if (gequal1(s)) pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s);
   if (signe(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec)
   { /* al ~ non negative integer */
     k = itos(gceil(ral)) + 1;
@@ -2263,12 +2263,11 @@ zetahurwitz(GEN s, GEN x, long bitprec)
   }
   else
   {
+    const double D = (typ(s) == t_INT)? 0.24: 0.4;
     GEN C;
-    if (gcmpgs(ral, -1) >= 0)
-      pari_err_IMPL("Re(s) <= 1 in zetahurwitz");
+    if (gcmpgs(ral, -1) >= 0) pari_err_IMPL("Re(s) <= 1 in zetahurwitz");
     k = maxss(itos(gceil(gadd(ral, ghalf))) + 1, 50);
-    if (typ(s) == t_INT) k = maxss(k, (long)(0.24*bitprec));
-    else k = maxss(k, (long)(0.4*bitprec));
+    k = maxss(k, (long)(D*bitprec));
     if (odd(k)) k++;
     C = gmulsg(2, gmul(binomial(al, k+1), gdivgs(bernfrac(k+2), k+2)));
     C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
