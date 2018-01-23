@@ -2360,6 +2360,7 @@ GEN     matdetmod(GEN A, GEN d);
 GEN     matimagemod(GEN A, GEN d, GEN* U);
 GEN     matinvmod(GEN A, GEN d);
 GEN     matkermod(GEN A, GEN d, GEN* im);
+GEN     matsolvemod(GEN M, GEN D, GEN Y, long flag);
 
 /* bibli1.c */
 

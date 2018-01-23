@@ -906,6 +906,81 @@ gen_inv(GEN A, void* data, const struct bb_hermite *R)
   return gerepilecopy(av0,U);
 }
 
+/*
+  H true Howell form (no zero columns).
+  Compute Z = Y - HX canonical representative of R^m mod H(R^n)
+*/
+static GEN
+gen_reduce_mod_howell(GEN H, GEN Y, GEN *X, void* data, const struct bb_hermite *R)
+{
+  pari_sp av = avma;
+  long m,n,i,j;
+  GEN Z, q, r, C;
+  RgM_dimensions(H,&m,&n);
+  if (X) *X = gen_zerocol(n,data,R);
+  Z = shallowcopy(Y);
+  i = m;
+  for (j=n; j>0; j--)
+  {
+    while (R->equal0(gcoeff(H,i,j))) i--;
+    q = R->lquo(data, gel(Z,i), gcoeff(H,i,j), &r);
+    gel(Z,i) = r;
+    C = gen_rightmulcol(gel(H,j), R->neg(data,q), i, 0, data, R);
+    if (C) gen_addcol(Z, C, i-1, data, R);
+    if (X) gel(*X,j) = q;
+  }
+  gen_redcol(Z, lg(Z)-1, data, R);
+  if (X)
+  {
+    gerepileall(av, 2, &Z, X);
+    return Z;
+  }
+  return gerepilecopy(av, Z);
+}
+
+/* H: Howell form of A */
+/* (m,n): dimensions of original matrix A */
+/* return NULL if no solution */
+static GEN
+gen_solve_from_howell(GEN H, GEN ops, long m, long n, GEN Y, void* data, const struct bb_hermite *R)
+{
+  pari_sp av = avma;
+  GEN Z, X;
+  long n2, mH, nH, i;
+  RgM_dimensions(H,&mH,&nH);
+  n2 = maxss(n,m+1);
+  Z = gen_reduce_mod_howell(H, Y, &X, data, R);
+  if (!gen_is_zerocol(Z,m,data,R)) { avma=av; return NULL; }
+
+  X = shallowconcat(zerocol(n2-nH),X);
+  for (i=lg(ops)-1; i>0; i--) gen_leftapply(X, gel(ops,i), data, R);
+  X = vecslice(X, n2-n+1, n2);
+  gen_redcol(X, n, data, R);
+  return gerepilecopy(av, X);
+}
+
+/* return NULL if no solution */
+static GEN
+gen_solve(GEN A, GEN Y, GEN* K, void* data, const struct bb_hermite *R)
+{
+  pari_sp av = avma;
+  GEN H, ops, X;
+  long m,n;
+
+  RgM_dimensions(A,&m,&n);
+  if (!n) m = lg(Y)-1;
+  H = gen_howell_i(A, 2, 1, 0, 0, &ops, data, R);
+  X = gen_solve_from_howell(H, ops, m, n, Y, data, R);
+  if (!X) { avma = av; return NULL; }
+  if (K)
+  {
+    *K = gen_kernel_from_howell(H, ops, n, data, R);
+    gerepileall(av, 2, &X, K);
+    return X;
+  }
+  return gerepilecopy(av, X);
+}
+
 GEN
 matimagemod(GEN A, GEN d, GEN* U)
 {
@@ -993,5 +1068,86 @@ matinvmod(GEN A, GEN d)
   R = get_Fp_hermite(&data, d);
   U = gen_inv(shallowtrans(A), data, R);
   return gerepilecopy(av, shallowtrans(U));
+}
+
+/* assume all D[i]>0 */
+static GEN
+matsolvemod_finite(GEN M, GEN D, GEN Y, long flag)
+{
+  pari_sp av = avma;
+  void *data;
+  const struct bb_hermite* R;
+  GEN X, K, d, MD;
+  GEN* ptK;
+  long m,n,i,i2,extra=0;
+
+  RgM_dimensions(M,&m,&n);
+
+  if (typ(D)==t_COL)
+  {
+    /* create extra variables for the D[i] */
+    d = gen_1;
+    for (i=1; i<lg(D); i++) d = lcmii(d,gel(D,i));
+    for (i=1; i<lg(D); i++) if (cmpii(gel(D,i),d)) extra++;
+    MD = cgetg(extra+1,t_MAT);
+    i2=1;
+    for (i=1; i<lg(D); i++)
+      if (cmpii(gel(D,i),d))
+      {
+        gel(MD,i2) = Rg_col_ei(gel(D,i),m,i);
+        i2++;
+      }
+    M = shallowconcat(M,MD);
+  }
+  else d=D;
+
+  R = get_Fp_hermite(&data, d);
+
+  if (flag) ptK = &K;
+  else      ptK = NULL;
+
+  X = gen_solve(M, Y, ptK, data, R);
+  if (!X) { avma = av; return gen_0; }
+  X = vecslice(X,1,n);
+
+  if (flag)
+  {
+    K = rowslice(K,1,n);
+    K = hnfmodid(shallowconcat(zerocol(n),K),d);
+    X = mkvec2(X,K);
+  }
+  return gerepilecopy(av, X);
+}
+
+GEN
+matsolvemod(GEN M, GEN D, GEN Y, long flag)
+{
+  pari_sp av = avma;
+  long m,n,i,char0=0;
+  if (typ(M)!=t_MAT) pari_err_TYPE("matsolvemod (M)",M);
+  RgM_dimensions(M,&m,&n);
+  if (typ(D)!=t_COL && typ(D)!=t_INT) pari_err_TYPE("matsolvemod (D)",D);
+  if (n)
+    { if (typ(D)==t_COL && lg(D)!=m+1) pari_err_DIM("matsolvemod [1]"); }
+  else
+    { if (typ(D)==t_COL) m = lg(D)-1; }
+  if (typ(Y)==t_INT) Y = const_col(m,Y);
+  if (typ(Y)!=t_COL) pari_err_TYPE("matsolvemod (Y)",Y);
+  if (!n && !m) m = lg(Y)-1;
+  else if (m != lg(Y)-1) pari_err_DIM("matsolvemod [2]");
+  if (typ(D)==t_INT)
+  {
+    if (signe(D)<0) pari_err_DOMAIN("matsolvemod","D","<",gen_0,D);
+    if (!signe(D)) return gerepilecopy(av, matsolvemod0(M,D,Y,flag));
+  }
+  else //typ(D)==t_COL
+    for (i=1; i<=m; i++)
+    {
+      if (signe(gel(D,i))<0) pari_err_DOMAIN("matsolvemod","D[i]","<",gen_0,gel(D,i));
+      if (!signe(gel(D,i))) char0 = 1;
+    }
+
+  if (char0) return gerepilecopy(av, matsolvemod0(M,D,Y,flag));
+  return gerepilecopy(av, matsolvemod_finite(M,D,Y,flag));
 }
 

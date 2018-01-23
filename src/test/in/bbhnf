@@ -139,6 +139,27 @@ setrand(1);
   );
 );}
 
+\\matsolvemod
+aff2lin(X) = mathnf(matconcat([X[2],X[1];0,1]));
+M = [1,2;3,4];
+aff2lin(matsolvemod(M, [3,4]~, [1,2]~, 1))
+aff2lin(matsolvemod(M, 3, [1,1]~, 1))
+aff2lin(matsolvemod([1,1;1,1], [15,6]~, [2,2]~, 1))
+aff2lin(matsolvemod(Mat([2,4,6]), 8, [2]~, 1))
+aff2lin(matsolvemod([3;5;7], [2,3,5]~, [-1,-2,-3]~, 1))
+aff2lin(matsolvemod([7,8,6;1,11,16],512,[-1,-1]~,1))
+matsolvemod([1,1;1,1], 32, [17,1]~)
+matsolvemod(Mat(1),2,[1]~)
+matsolvemod([;],2,1)
+matsolvemod([;],2,0)
+matsolvemod([;],[2,2]~,1)
+matsolvemod([;],[2,2]~,0)
+matsolvemod([;],[2,2]~,[0,0]~)
+matsolvemod([;],[2,2]~,[1,2]~)
+matsolvemod([;],2,[1,2]~)
+matsolvemod(Mat(1),2,1)
+matsolvemod([1,2;3,4],0,1)
+
 \\zero ring
 matimagemod([1,2;3,4],1)
 matdetmod(Mat(3),1)
@@ -146,6 +167,7 @@ matdetmod([;],1)
 matkermod([1,2;3,4],1)
 matinvmod([1,2;3,4],1)
 matinvmod([1,2;3,4;5,6],1)
+matsolvemod(Mat(1),1,[1]~,1)
 
 \\examples from docu
 A = [2,1;0,2];
@@ -192,3 +214,12 @@ matdetmod(Mat(1),0);
 matkermod(Mat(1),0);
 matinvmod(Mat(1),0);
 matinvmod([1,2,3;4,5,6],1);
+matsolvemod([;],[2,2]~,[1,2,3]~)
+matsolvemod(Mat(1),[1,2]~,1)
+matsolvemod(Mat(1),2,[1,2]~)
+matsolvemod(Mat(1),[2],1)
+matsolvemod(Mat(1),2,[1])
+matsolvemod("a",2,1)
+matsolvemod(Mat(1),-2,1)
+matsolvemod([1,2;3,4],[2,-3]~,1)
+

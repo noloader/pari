@@ -1,6 +1,6 @@
 Function: matsolvemod
 Section: linear_algebra
-C-Name: matsolvemod0
+C-Name: matsolvemod
 Prototype: GGGD0,L,
 Help: matsolvemod(M,D,B,{flag=0}): one solution of system of congruences
  MX=B mod D (M matrix, B and D column vectors). If (optional) flag is
@@ -15,9 +15,9 @@ Doc: $M$ being any integral matrix,
  \bprog
  ? M = [1,2;3,4];
  ? matsolvemod(M, [3,4]~, [1,2]~)
- %2 = [-2, 0]~
+ %2 = [10, 0]~
  ? matsolvemod(M, 3, 1) \\ M X = [1,1]~ over F_3
- %3 = [-1, 1]~
+ %3 = [2, 1]~
  ? matsolvemod(M, [3,0]~, [1,2]~) \\ x + 2y = 1 (mod 3), 3x + 4y = 2 (in Z)
  %4 = [6, -4]~
  @eprog
