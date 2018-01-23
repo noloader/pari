@@ -5926,11 +5926,14 @@ static GEN
 ellnf_height(GEN E, GEN P, long prec)
 {
   pari_sp av = avma;
-  GEN nf = ellnf_get_nf(E), disc = ell_get_disc(E);
-  GEN d, F, Ee, Pe, s;
-  long i, n, l, r1 = nf_get_r1(nf);
-  if (ell_is_inf(elladd(E, P, P))) { avma = av; return gen_0; }
-  d = idealnorm(nf, gel(idealnumden(nf, gel(P,1)), 2));
+  GEN x, nf, disc, d, F, Ee, Pe, s;
+  long i, n, l, r1;
+  if (ell_is_inf(P)) return gen_0;
+  x = gel(P,1);
+  if (gequal0(ec_2divpol_evalx(E, x))) { avma = av; return gen_0; }
+  nf = ellnf_get_nf(E); r1 = nf_get_r1(nf);
+  disc = ell_get_disc(E);
+  d = idealnorm(nf, gel(idealnumden(nf, x), 2));
   F = gel(idealfactor(nf, disc), 1);
   Ee = ellnfembed(E, prec);
   Pe = ellpointnfembed(E, P);
