@@ -4427,14 +4427,14 @@ Q_to_minimalprimes(GEN nf, GEN P, GEN Q)
   }
   return mkvec5(L, U, Lr, Ls, Lt);
 }
+/* E integral */
 static GEN
-ellminimalprimes(GEN E0)
+ellminimalprimes(GEN E)
 {
-  GEN E, S, nf, c4, c6, P, Q;
+  GEN S, nf, c4, c6, P, Q;
   long j, k, l;
 
-  if ((S = obj_check(E0, NF_MINIMALPRIMES))) return S;
-  E = ellintegralmodel_i(E0, NULL);
+  if ((S = obj_check(E, NF_MINIMALPRIMES))) return S;
   nf = ellnf_get_nf(E);
   c4 = nf_to_scalar_or_basis(nf, ell_get_c4(E));
   c6 = nf_to_scalar_or_basis(nf, ell_get_c6(E));
@@ -4451,7 +4451,7 @@ ellminimalprimes(GEN E0)
     gel(P,j++) = pr;
   }
   setlg(P,j); setlg(Q,j);
-  return obj_insert(E0, NF_MINIMALPRIMES, Q_to_minimalprimes(nf,P,Q));
+  return obj_insert(E, NF_MINIMALPRIMES, Q_to_minimalprimes(nf,P,Q));
 }
 static GEN
 ellminimalnormu(GEN E0)
@@ -4508,8 +4508,9 @@ ellminimaldisc(GEN E)
       return gerepileuptoint(av, absi(ell_get_disc(E)));
     case t_ELL_NF:
     {
-      GEN nf = ellnf_get_nf(E);
-      GEN S = ellminimalprimes(E), L, U, D;
+      GEN nf = ellnf_get_nf(E), S, L, U, D;
+      E = ellintegralmodel_i(E,NULL);
+      S = ellminimalprimes(E);
       L = gel(S,1);
       U = ZC_z_mul(gel(S,2), 12);
       D = idealfactorback(nf, L, U, 0);

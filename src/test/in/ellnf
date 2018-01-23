@@ -152,7 +152,11 @@ ellminimaldisc(E)
 E = ellinit([1,2,3,4,5]);
 ellminimaldisc(E)
 
-E=ellinit([0,0,1,-5*a-25,-15*a-49],nfinit(a^2-a-1));
+nf2=nfinit(a^2-a-1);
+E=ellinit([0, 0, 0, -3/2*a - 3/16, 7/8*a + 7/32],nf2);
+ellminimaldisc(E)
+
+E=ellinit([0,0,1,-5*a-25,-15*a-49], nf2);
 P=[-4*a+3,-a+1];
 ellheight(E,P)
 ellrootno(E)
@@ -167,7 +171,7 @@ P=[2*a-5,-2*a+5];
 ellheight(E,P)
 ellrootno(E)
 
-E=ellinit([0,a+a^2,0,a^3,(a+1)^2],nfinit(a^2-a-1));
+E=ellinit([0,a+a^2,0,a^3,(a+1)^2],nf2);
 P1=[-a,a+1];
 P2=[-a^2,a+1];
 ellheight(E,P1)
@@ -181,7 +185,7 @@ ellheight(E,P1)
 ellheight(E,P2)
 ellrootno(E)
 
-E=ellinit([0,1,0,a*(1-a),(a+1)^2],nfinit(a^2-a-1));
+E=ellinit([0,1,0,a*(1-a),(a+1)^2],nf2);
 P1=[-a,a+1];
 P2=[a-1,a+1];
 ellheight(E,P1)
