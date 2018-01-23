@@ -211,3 +211,7 @@ E = ellinit([a+1,-1,a,-a^2,0], nfinit(a^3-a^2+1));
 P = [0,-a];
 ellheight(E,P)
 ellrootno(E)
+
+E = ellinit([-22032-15552*a,0],nfinit(a^2-2));
+P = [-72*a-108,0];
+ellheight(E,P)

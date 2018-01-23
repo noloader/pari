@@ -5925,13 +5925,17 @@ ellnf_localheight(GEN e, GEN P, GEN pr)
 static GEN
 ellnf_height(GEN E, GEN P, long prec)
 {
+  pari_sp av = avma;
   GEN nf = ellnf_get_nf(E), disc = ell_get_disc(E);
-  GEN d = idealnorm(nf, gel(idealnumden(nf, gel(P,1)), 2));
-  GEN F = gel(idealfactor(nf, disc), 1);
-  GEN Ee = ellnfembed(E, prec);
-  GEN Pe = ellpointnfembed(E, P);
-  long i, n = lg(Ee), l = lg(F), r1 = nf_get_r1(nf);
-  GEN s = gmul2n(glog(d, prec), -1);
+  GEN d, F, Ee, Pe, s;
+  long i, n, l, r1 = nf_get_r1(nf);
+  if (ell_is_inf(elladd(E, P, P))) { avma = av; return gen_0; }
+  d = idealnorm(nf, gel(idealnumden(nf, gel(P,1)), 2));
+  F = gel(idealfactor(nf, disc), 1);
+  Ee = ellnfembed(E, prec);
+  Pe = ellpointnfembed(E, P);
+  n = lg(Ee); l = lg(F);
+  s = gmul2n(glog(d, prec), -1);
   for (i=1; i<=r1; i++)
     s = gadd(s, ellheightoo(gel(Ee, i), gel(Pe, i), prec));
   for (   ; i<n; i++)
@@ -5943,7 +5947,7 @@ ellnf_height(GEN E, GEN P, long prec)
     GEN lam = ellnf_localheight(E, P, pr);
     s = gadd(s, gmul(lam, mulrs(glog(p, prec), f)));
   }
-  return gmul2n(s, 1);
+  return gerepileupto(av, gmul2n(s, 1));
 }
 
 static GEN
