@@ -339,6 +339,10 @@ infinity.
 The naming scheme assumes an affine equation
 $F(x,y) = f(x) - (y^2 + h(x)y) = 0$
 in standard Weierstrass form: $f = x^3+a_2x^2+a_4x+a_6$, $h = a_1x + a_3$.
+Unless mentionned otherwise, these routine assume that all arguments are
+compatible with generic functions of \kbd{gadd} or \kbd{gmul} type. In
+particular they do not handle elements in number field in \kbd{nfalgtobasis}
+format.
 
 \fun{GEN}{ellbasechar}{GEN E} returns the characteristic of the base ring over
 which $E$ is defined.
@@ -360,7 +364,8 @@ where $Q = [x,y]$.
 where $Q = [x,y]$.
 
 \fun{GEN}{ec_2divpol_evalx}{GEN E, GEN x} returns
-$4x^3 + b_2\*x^2 + 2\*b_4x + b_6$.
+$4x^3 + b_2\*x^2 + 2\*b_4x + b_6$. This function supports inputs
+in \kbd{nfalgtobasis} format.
 
 \fun{GEN}{ec_half_deriv_2divpol_evalx}{GEN E, GEN x} returns
 $6\*x^2 + b_2\*x + b_4$.

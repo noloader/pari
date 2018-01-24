@@ -107,6 +107,17 @@ point_to_a4a6_Fl(GEN E, GEN P, ulong p, ulong *pa4)
   return Fle_changepointinv(RgV_to_Flv(P,p), a4a6_ch_Fl(E,p), p);
 }
 
+/* shallow basistoalg */
+static GEN
+nftoalg(GEN nf, GEN x)
+{
+  switch(typ(x))
+  {
+    case t_INT: case t_FRAC: case t_POLMOD: return x;
+    default: return basistoalg(nf, x);
+  }
+}
+
 void
 checkellpt(GEN z)
 {
@@ -313,12 +324,24 @@ GEN
 ec_2divpol_evalx(GEN E, GEN x)
 {
   pari_sp av = avma;
-  GEN b2 = ell_get_b2(E);
-  GEN b4 = ell_get_b4(E);
+  GEN b2 = ell_get_b2(E), x4 = gmul2n(x,2), t1, t2;
+  GEN b42 = gmul2n(ell_get_b4(E), 1);
   GEN b6 = ell_get_b6(E);
-  GEN t1 = gmul(gadd(gmulsg(4L, x), b2), x);
-  GEN t2 = gadd(t1, gmulsg(2L, b4));
-  return gerepileupto(av, gadd(gmul(t2, x), b6));
+  if (ell_get_type(E) == t_ELL_NF)
+  {
+    GEN nf = ellnf_get_nf(E);
+    t1 = nfmul(nf, nfadd(nf, x4, b2), x);
+    t2 = nfadd(nf, t1, b42);
+    t2 = nfadd(nf, nfmul(nf, t2, x), b6);
+    t2 = nftoalg(nf, t2);
+  }
+  else
+  {
+    t1 = gmul(gadd(x4, b2), x);
+    t2 = gadd(t1, b42);
+    t2 = gadd(gmul(t2, x), b6);
+  }
+  return gerepileupto(av, t2);
 }
 
 /* Given E and a point Q = [xQ, yQ], return
@@ -650,16 +673,6 @@ ellinit_Q(GEN x, long prec)
   return y;
 }
 
-/* shallow basistoalg */
-static GEN
-nftoalg(GEN nf, GEN x)
-{
-  switch(typ(x))
-  {
-    case t_INT: case t_FRAC: case t_POLMOD: return x;
-    default: return basistoalg(nf, x);
-  }
-}
 static GEN
 nfVtoalg(GEN nf, GEN x)
 {
