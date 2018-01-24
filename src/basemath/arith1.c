@@ -2235,15 +2235,15 @@ GEN
 Fp_2gener(GEN p)
 { return Fp_2gener_all(vali(subis(p,1)),p); }
 
+/* smallest square root */
 static GEN
 choose_sqrt(GEN v, GEN p)
 {
   pari_sp av = avma;
   GEN q = subii(p,v);
   if (cmpii(v,q) > 0) v = q; else avma = av;
-  return q;
+  return v;
 }
-
 /* Tonelli-Shanks. Assume p is prime and return NULL if (a,p) = -1. */
 GEN
 Fp_sqrt_i(GEN a, GEN y, GEN p)
