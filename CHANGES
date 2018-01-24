@@ -450,6 +450,7 @@ BA   59- V=galoisfixedfield(,,2): return V[1] in the same variable as the
      60- numtoperm now returns a t_VECSMALL (so that results can be
          multiplied as permutations, etc.), no longer a ZV
      61- improve Fp_sqrt for p = 5 (mod 8) [Atkin's formula]
+     62- improved matrixqz(,‐1 or -2) by using matkermod
 
   Removed
       1- file 'MACHINES' (no longer maintained)

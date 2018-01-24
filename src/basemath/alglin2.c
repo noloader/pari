@@ -1757,23 +1757,15 @@ QM_minors_coprime(GEN x, GEN D)
 }
 
 static GEN
-QM_ImZ_hnfall_i(GEN A0, GEN *U, long remove)
+QM_ImZ_hnfall_i(GEN A, GEN *U, long remove)
 {
-  GEN A = A0, V = NULL, D;
-  long l = lg(A);
-  if (l == 1)
-  {
-    if (U) *U = cgetg(1,t_MAT);
-    return cgetg(1,t_MAT);
-  }
+  GEN V = NULL, D;
   A = Q_remove_denom(A,&D);
   if (D)
   {
-    GEN B = shallowconcat(A, scalarmat_shallow(D, nbrows(A)));
-    (void)ZM_hnfall(B, &V, 1);
-    V = vecslice(V, 1, lg(A)-1); /* V = Ker_Z(D*A0 | D) */
-    A = ZM_neg( rowslice(V, l, lg(B)-1) );
-    V = rowslice(V, 1, lg(A)-1); /* A = A0 V, integral */
+    V = matkermod(A,D,NULL);
+    if (lg(V) < lg(A)) V = hnfmodid(V,D);
+    A = ZM_Z_divexact(ZM_mul(A, V), D);
   }
   A = ZM_hnflll(A, U, remove);
   if (U && V) *U = ZM_mul(V,*U);
