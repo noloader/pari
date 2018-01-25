@@ -130,6 +130,7 @@ Emacs           @Using GP under GNU Emacs@2
 15              @Modular symbols
 16              @Plotting functions
 ell             @Elliptic curves
+mf              @Modular forms
 nf              @Number field structures
 bnf             @Number field structures
 bnr             @Number field structures

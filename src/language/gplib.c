@@ -479,6 +479,7 @@ gphelp_keyword_list(void)
   "refcard-lfun",
   "tutorial",
   "tutorial-mf",
+  "mf",
   "nf",
   "bnf",
   "bnr",
