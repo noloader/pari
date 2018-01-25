@@ -16,9 +16,10 @@ Doc: If $E'$ is an elliptic curve over $\Q$, let $L_{E'}$ be the
  the $f$-component of
  $\Hom_{\Gamma_0(N)}(\Delta,\Q)$ given by the elements $\phi$ such that
  $\phi(\{0,\gamma^{-1} 0\}) \in \Z$ for all $\gamma \in \Gamma_0(N)$
- (see \tet{mslattice}). Return the list of representatives of the isomorphism
- classes of elliptic curves $E'$ isogenous to $E$ given by \kbd{ellisomat} and
- the list of the Smith invariants of the lattices $L_{E'}$ in $L_f$.
+ (see \tet{mslattice}). Return minimal models for the list of representatives
+ of the isomorphism classes of elliptic curves $E'$ isogenous to $E$ given by
+ \kbd{ellisomat} and the list of the Smith invariants of the lattices $L_{E'}$
+ in $L_f$.
 
  In particular, the strong Weil curve amongst the curves isogenous to $E$
  is the one whose Smith invariants are $[1,1]$.

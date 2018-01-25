@@ -3355,7 +3355,7 @@ msfromell(GEN E0, long sign)
   if (single)
     x = msfromell_scale(xr, Cw, E, sign);
   else
-  {
+  { /* assume all E0[i] isogenous, given by minimal models */
     GEN v = cgetg(lE, t_VEC);
     long i;
     for (i=1; i<lE; i++) gel(v,i) = msfromell_scale(xr, Cw, gel(E0,i), sign);
