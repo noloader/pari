@@ -4,12 +4,12 @@ C-Name: mfspace
 Prototype: lGDG
 Help: mfspace(mf,{f}): identify the modular space mf, resp. the modular form f
  in mf. Returns 0 (newspace), 1 (cuspidal space), 2 (old space),
- 3 (full space) or 4 (Eisenstein space). Return -1 when the form does not
+ 3 (Eisenstein space) or 4 (full space). Return -1 when the form does not
  belong to the space.
 Doc: identify the modular space \var{mf}, resp.~the modular form $f$ in
  \var{mf} if present, as the flag given to \kbd{mfinit}.
  Returns 0 (newspace), 1 (cuspidal space), 2 (old space),
- 3 (full space) or 4 (Eisenstein space).
+ 3 (Eisenstein space) or 4 (full space).
  \bprog
  ? mf = mfinit([1,12],1); mfspace(mf)
  %1 = 1
