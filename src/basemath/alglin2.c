@@ -1763,9 +1763,15 @@ QM_ImZ_hnfall_i(GEN A, GEN *U, long remove)
   A = Q_remove_denom(A,&D);
   if (D)
   {
+    long l;
     V = matkermod(A,D,NULL);
-    if (lg(V) < lg(A)) V = hnfmodid(V,D);
-    A = ZM_Z_divexact(ZM_mul(A, V), D);
+    l = lg(V);
+    if (l == 1) V = NULL;
+    else
+    {
+      if (l < lg(A)) V = hnfmodid(V,D);
+      A = ZM_Z_divexact(ZM_mul(A, V), D);
+    }
   }
   A = ZM_hnflll(A, U, remove);
   if (U && V) *U = ZM_mul(V,*U);
