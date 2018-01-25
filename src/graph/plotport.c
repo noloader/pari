@@ -1283,7 +1283,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     struct pari_mt pt;
     if (flags & PLOT_PARA && eval == gp_call)
     {
-      worker = snm_closure(is_entry("_parvector_worker"), mkvec(E));
+      worker = snm_closure(is_entry("_parvector_worker"), mkvec((GEN)E));
       mt_queue_start_lim(&pt, worker, N-1);
       vx = mkvec(x);
     }
