@@ -3125,19 +3125,18 @@ seval(GEN G, GEN chi, GEN vx)
 
 static long
 nb_components(GEN E) { return signe(ell_get_disc(E)) > 0? 2: 1; }
+/* E minimal */
 static GEN
 ellperiod(GEN E, long s)
 {
-  GEN E0, u, v, w = ellR_omega(E,DEFAULTPREC);
+  GEN w = ellR_omega(E,DEFAULTPREC);
   if (s == 1)
     w = gel(w,1);
   else if (nb_components(E) == 2)
     w = gneg(gel(w,2));
   else
     w = mkcomplex(gen_0, gneg(gmul2n(imag_i(gel(w,2)), 1)));
-  E0 = ellminimalmodel(E,&v);
-  u = gel(v,1); if (!is_pm1(u)) w = gdiv(w,u);
-  obj_free(E0); return w;
+  return w;
 }
 
 /* Let W = msinit(conductor(E), 2), xpm an integral modular symbol with the same
@@ -3190,6 +3189,7 @@ ell_get_scale(GEN LE, GEN W, long sign, GEN x)
     return mkvec2(Cwp, Cwm);
   }
 }
+/* E minimal */
 static GEN
 msfromell_scale(GEN x, GEN Cw, GEN E, long s)
 {
