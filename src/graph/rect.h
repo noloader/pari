@@ -149,6 +149,24 @@ struct plot_eng {
 void gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys);
 void gp_get_plot(PARI_plot *T);
 
+#define gp_get_ploth_default_sizes(T)                                         \
+{                                                                             \
+  PARI_plot *_T = (PARI_plot *)(T);                                           \
+  GEN dflt = GP_DATA->plothsizes;                                             \
+  long l = dflt ? lg(dflt) : 0;                                               \
+                                                                              \
+  switch(l)                                                                   \
+  {                                                                           \
+    default:                                                                  \
+    case 5: if (dflt[4]) _T->vunit  = dflt[4];                                \
+    case 4: if (dflt[3]) _T->hunit  = dflt[3];                                \
+    case 3: if (dflt[2]) _T->height = dflt[2];                                \
+    case 2: if (dflt[1]) _T->width  = dflt[1];                                \
+    case 1:                                                                   \
+    case 0: break;                                                            \
+  }                                                                           \
+}
+
 #define gp_get_plot_generic(T,gp_get_display_sizes)                           \
 {                                                                             \
   long dwidth, dheight;                                                       \
@@ -165,5 +183,6 @@ void gp_get_plot(PARI_plot *T);
     _T->height = 480;                                                         \
   _T->hunit = maxss(_T->height/100,3);                                        \
   _T->vunit = maxss(_T->height/100,3);                                        \
+  gp_get_ploth_default_sizes(T);                                              \
 }
 ENDEXTERN

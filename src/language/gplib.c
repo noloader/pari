@@ -1539,30 +1539,9 @@ sd_graphcolormap(const char *v, long flag)
 GEN
 sd_graphcolors(const char *v, long flag)
 {
-  long i, l;
-  char *p;
-
   if (v) {
-    char *t = gp_filter(v);
-    for (p = t+1, l=2; *p != ']'; p++)
-      if (*p == ',') l++;
-      else if (*p < '0' || *p > '9')
-        pari_err(e_SYNTAX, "incorrect value for graphcolors", p, t);
-    if (*++p) pari_err(e_SYNTAX, "incorrect value for graphcolors", p, t);
-    if (GP_DATA->graphcolors) pari_free(GP_DATA->graphcolors);
-    GP_DATA->graphcolors = cgetalloc(t_VECSMALL, l);
-    for (p = t+1, i=0; *p; p++)
-    {
-      long n = 0;
-      while (*p >= '0' && *p <= '9')
-      {
-        n *= 10;
-        n += *p-'0';
-        p++;
-      }
-      GP_DATA->graphcolors[++i] = n;
-    }
-    pari_free(t);
+    pari_free(GP_DATA->graphcolors);
+    GP_DATA->graphcolors = sd_intarray(v, flag, "graphcolors");
   }
   switch(flag)
   {
@@ -1570,6 +1549,22 @@ sd_graphcolors(const char *v, long flag)
     return vecsmall_to_vec(GP_DATA->graphcolors);
   case d_ACKNOWLEDGE:
     pari_printf("   graphcolors = %Ps\n", vecsmall_to_vec(GP_DATA->graphcolors));
+  }
+  return gnil;
+}
+GEN
+sd_plothsizes(const char *v, long flag)
+{
+  if (v) {
+    pari_free(GP_DATA->plothsizes);
+    GP_DATA->plothsizes = sd_intarray(v, flag, "plothsizes");
+  }
+  switch(flag)
+  {
+  case d_RETURN:
+    return vecsmall_to_vec(GP_DATA->plothsizes);
+  case d_ACKNOWLEDGE:
+    pari_printf("   plothsizes = %Ps\n", vecsmall_to_vec(GP_DATA->plothsizes));
   }
   return gnil;
 }

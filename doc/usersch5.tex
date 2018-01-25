@@ -13948,6 +13948,8 @@ a \typ{STR} otherwise.
 
 \fun{GEN}{sd_path}{const char *v, long flag}
 
+\fun{GEN}{sd_plothsizes}{const char *v, long flag}
+
 \fun{GEN}{sd_prettyprinter}{const char *v, long flag}
 
 \fun{GEN}{sd_primelimit}{const char *v, long flag}
@@ -14051,6 +14053,10 @@ possibly a message attached to it via the \kbd{msg} argument, and return
 \kbd{gnil}.
 
 \item other cases: print nothing and return \kbd{gnil}.
+
+\fun{GEN}{sd_intarry}{const char *v, long flag, const char *s}
+
+\item return a \typ{VECSMALL} array of integers.
 
 \fun{GEN}{sd_string}{const char *v, long flag, const char *s, char **pstr}
 \item \kbd{v} is subjet to environment expansion, then time expansion.

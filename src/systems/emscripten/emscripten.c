@@ -49,6 +49,7 @@ pari_emscripten_get_plot(PARI_plot *T)
   T->vunit   = 3;   //
   T->fwidth  = 9;   // font width
   T->fheight = 12;  //   and height
+  gp_get_ploth_default_sizes(T);
   T->draw = &emscripten_draw;
 }
 

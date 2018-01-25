@@ -272,6 +272,44 @@ sd_ulong(const char *v, long flag, const char *s, ulong *ptn, ulong Min, ulong M
 }
 
 GEN
+sd_intarray(const char *v, long flag, const char *s)
+{
+  char *t = gp_filter(v);
+  long i, l;
+  char *p;
+  GEN res;
+  if (t[1] == ']') return cgetalloc(t_VECSMALL, 1);
+  for (p = t+1, l=2; *p != ']'; p++)
+    if (*p == ',') l++;
+    else if (*p < '0' || *p > '9')
+    {
+      char *buf = pari_malloc(64 + strlen(s));
+      sprintf(buf, "incorrect value for %s", s);
+      pari_err(e_SYNTAX, buf, p, t);
+    }
+  if (*++p)
+  {
+    char *buf = pari_malloc(64 + strlen(s));
+    sprintf(buf, "incorrect value for %s", s);
+    pari_err(e_SYNTAX, buf, p, t);
+  }
+  res = cgetalloc(t_VECSMALL, l);
+  for (p = t+1, i=0; *p; p++)
+  {
+    long n = 0;
+    while (*p >= '0' && *p <= '9')
+    {
+      n *= 10;
+      n += *p-'0';
+      p++;
+    }
+    res[++i] = n;
+  }
+  pari_free(t);
+  return res;
+}
+
+GEN
 sd_realprecision(const char *v, long flag)
 {
   pariout_t *fmt = GP_DATA->fmt;
@@ -965,6 +1003,7 @@ default_gp_data(void)
   init_path(D->sopath, "");
   init_pp(D);
   init_graphs(D);
+  D->plothsizes = cgetalloc(t_VECSMALL, 1);
   D->prompt_comment = (char*)"comment> ";
   D->prompt = pari_strdup("? ");
   D->prompt_cont = pari_strdup("");

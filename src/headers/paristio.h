@@ -281,7 +281,7 @@ typedef struct {
   ulong lim_lines, flags, linewrap, readline_state;
   int echo, breakloop, recover, use_readline;
   char *help, *histfile, *prompt, *prompt_cont, *prompt_comment;
-  GEN colormap, graphcolors;
+  GEN colormap, graphcolors, plothsizes;
 
   int secure, simplify, strictmatch, strictargs, chrono;
   pari_timer *T;

@@ -1031,6 +1031,7 @@ pari_close_opts(ulong init_opts)
     if (GP_DATA->hist->v) free((void*)GP_DATA->hist->v);
     if (GP_DATA->pp->cmd) free((void*)GP_DATA->pp->cmd);
     if (GP_DATA->help) free((void*)GP_DATA->help);
+    if (GP_DATA->plothsizes) free((void*)GP_DATA->plothsizes);
     free((void*)GP_DATA->prompt);
     free((void*)GP_DATA->prompt_cont);
     free((void*)GP_DATA->histfile);
