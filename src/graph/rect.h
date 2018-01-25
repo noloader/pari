@@ -169,16 +169,15 @@ void gp_get_plot(PARI_plot *T);
 
 #define gp_get_plot_generic(T,gp_get_display_sizes)                           \
 {                                                                             \
-  long dwidth, dheight;                                                       \
   PARI_plot *_T = (PARI_plot *)(T);                                           \
                                                                               \
-  gp_get_display_sizes(&dwidth, &dheight, &_T->fwidth, &_T->fheight);         \
-  if (dwidth)                                                                 \
-    _T->width  = dwidth*4/5;                                                  \
+  gp_get_display_sizes(&_T->dwidth, &_T->dheight, &_T->fwidth, &_T->fheight); \
+  if (_T->dwidth)                                                             \
+    _T->width  = _T->dwidth*4/5;                                              \
   else                                                                        \
     _T->width  = 640;                                                         \
-  if (dheight)                                                                \
-    _T->height = dheight*4/5;                                                 \
+  if (_T->dheight)                                                            \
+    _T->height = _T->dheight*4/5;                                             \
   else                                                                        \
     _T->height = 480;                                                         \
   _T->hunit = maxss(_T->height/100,3);                                        \

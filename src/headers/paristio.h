@@ -105,6 +105,8 @@ typedef struct PARI_plot {
   long vunit;
   long fwidth;
   long fheight;
+  long dwidth;
+  long dheight;
 } PARI_plot;
 
 /* binary I/O */

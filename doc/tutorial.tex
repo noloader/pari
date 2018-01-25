@@ -3635,6 +3635,10 @@ After querying sizes with \kbd{plothsizes} one can fine-tune sizes and
 locations of subrectangles to the details of an arbitrary plotting
 device.
 
+The last two elements of the array returned by \kbd{plothsizes} are the
+dimensions of the display, if applicable. If there is no real display, like
+in svg or postscript plots, the width and height of display are set to $0$.
+
 To check how good your fine-tuning is, you may test your graphs with a
 medium-resolution plotting (as many display output devices are), and
 with a low-resolution plotting (say, with \kbd{plotterm("dumb")} of gnuplot).

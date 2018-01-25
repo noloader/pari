@@ -101,6 +101,8 @@ pari_get_psplot(PARI_plot *T, long scale)
   T->height= PS_HEIGH;
   T->fheight= 15;
   T->fwidth = 6;
+  T->dwidth = 0;
+  T->dheight= 0;
   T->hunit = 5;
   T->vunit = 5;
   T->draw = scale? &_psdraw: &_psdraw_scale;
@@ -1674,7 +1676,7 @@ plothrawexport(GEN fmt, GEN X, GEN Y, long flags)
 GEN
 plothsizes(long flag)
 {
-  GEN vect = cgetg(1+6,t_VEC);
+  GEN vect = cgetg(1+8,t_VEC);
   PARI_plot T;
 
   pari_get_plot(&T);
@@ -1691,6 +1693,8 @@ plothsizes(long flag)
     gel(vect,5) = stoi(T.fwidth);
     gel(vect,6) = stoi(T.fheight);
   }
+  gel(vect,7) = stoi(T.dwidth);
+  gel(vect,8) = stoi(T.dheight);
   return vect;
 }
 
@@ -1991,6 +1995,8 @@ pari_get_svgplot(PARI_plot *T)
   T->hunit   = 3;
   T->vunit   = 3;
   T->fwidth  = 9;
+  T->dwidth  = 0;
+  T->dheight = 0;
   T->fheight = 12;
 }
 
