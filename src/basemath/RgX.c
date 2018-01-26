@@ -2308,7 +2308,7 @@ RgXn_inv_i(GEN f, long e)
     W = deg1pol_shallow(b, a, v);
     return gcopy(W);
   }
-  W = scalarpol_shallow(ginv(gel(f,2)),v);
+  W = scalarpol_shallow(a,v);
   mask = quadratic_prec_mask(e);
   av = avma;
   for (;mask>1;)
