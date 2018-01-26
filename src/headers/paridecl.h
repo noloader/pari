@@ -768,6 +768,8 @@ GEN     FpXQXQ_autsum(GEN aut, long n, GEN S, GEN T, GEN p);
 GEN     FpXQXQ_auttrace(GEN aut, long n, GEN S, GEN T, GEN p);
 GEN     FpXQXV_FpXQX_fromdigits(GEN x, GEN B, GEN T, GEN p);
 GEN     FpXQXV_prod(GEN V, GEN Tp, GEN p);
+GEN     FpXQXn_mul(GEN x, GEN y, long n, GEN T, GEN p);
+GEN     FpXQXn_sqr(GEN x, long n, GEN T, GEN p);
 GEN     FpXX_Fp_mul(GEN x, GEN y, GEN p);
 GEN     FpXX_FpX_mul(GEN x, GEN y, GEN p);
 GEN     FpXX_add(GEN x, GEN y, GEN p);

@@ -5252,6 +5252,15 @@ the \kbd{FpXQX} $y$, namely a lift of $1/\kbd{polrecip}(y)+O(x^{\deg(y)-1})$.
 \fun{GEN}{FpXQX_FpXQXQ_eval}{GEN f,GEN x,GEN S, GEN T,GEN p} returns
 $\kbd{f}(\kbd{x})$.
 
+\subsec{\kbd{FpXQXn}, \kbd{FqXn}}
+
+A \kbd{FpXQXn} is a \typ{FpXQX} which represents an element of the ring
+$(Fp[X]/T(X))[Y]/(Y^n)$, where $T$ is a \kbd{FpX}.
+
+\fun{GEN}{FpXQXn_sqr}{GEN x, long n, GEN T, GEN p}
+
+\fun{GEN}{FpXQXn_mul}{GEN x, GEN y, long n, GEN T, GEN p}
+
 \subsec{\kbd{FpXQXQ}, \kbd{FqXQ}}
 
 A \kbd{FpXQXQ} is a \typ{FpXQX} which represents an element of the ring

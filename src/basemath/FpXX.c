@@ -358,6 +358,34 @@ FpXQX_sqr(GEN x, GEN T, GEN p)
 }
 
 GEN
+FpXQXn_mul(GEN x, GEN y, long n, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN z, kx, ky;
+  long d;
+  if (ZXX_is_ZX(y) && ZXX_is_ZX(x))
+    return FpXn_mul(x,y,n,p);
+  d = get_FpX_degree(T);
+  kx = ZXX_to_Kronecker(x, d);
+  ky = ZXX_to_Kronecker(y, d);
+  z = Kronecker_to_FpXQX(ZXn_mul(ky,kx,(2*d-1)*n), T, p);
+  return gerepileupto(av, z);
+}
+
+GEN
+FpXQXn_sqr(GEN x, long n, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN z, kx;
+  long d;
+  if (ZXX_is_ZX(x)) return ZXn_sqr(x, n);
+  d = get_FpX_degree(T);
+  kx= ZXX_to_Kronecker(x, d);
+  z = Kronecker_to_FpXQX(ZXn_sqr(kx, (2*d-1)*n), T, p);
+  return gerepileupto(av, z);
+}
+
+GEN
 FpXQX_FpXQ_mul(GEN P, GEN U, GEN T, GEN p)
 {
   long i, lP;
@@ -1370,12 +1398,6 @@ FpXQXQ_powers(GEN x, long l, GEN S, GEN T, GEN p)
   S = FpXQX_get_red(S, T, p);
   D.S = S; D.T = T; D.p = p;
   return gen_powers(x, l, use_sqr, (void*)&D, &_FpXQXQ_sqr, &_FpXQXQ_mul,&_FpXQXQ_one);
-}
-
-static GEN
-FpXQXn_mul(GEN a, GEN b, long n, GEN T, GEN p)
-{
-  return RgXn_red_shallow(FpXQX_mul(a, b, T, p), n);
 }
 
 /* Let v a linear form, return the linear form z->v(tau*z)

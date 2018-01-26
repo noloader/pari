@@ -351,6 +351,7 @@ BA  144- [libpari] QXQ_mul, QXQ_sqr, FFXQ_mul, FFXQ_sqr
 BA  146- New GP function nfeltredmodpower
     147- 'ms' modular symbol package: support N = 1 as well
     148- allow mssplit(M), splits msnew(M) by default
+BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr
 
   Changed
       1- rewrite bnfnarrow
