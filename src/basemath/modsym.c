@@ -481,7 +481,7 @@ cusp_index(GEN c, GEN S)
 static GEN
 ZM_inv_denom(GEN M)
 {
-  GEN diM, iM = ZM_inv_ratlift(M, &diM);
+  GEN diM, iM = ZM_inv(M, &diM);
   return mkvec2(iM, diM);
 }
 /* return M^(-1) v, dinv = ZM_inv_denom(M) OR Qevproj_init(M) */
@@ -514,7 +514,7 @@ Qevproj_init(GEN M)
   GEN v, perm, MM, iM, diM;
   v = ZM_indexrank(M); perm = gel(v,1);
   MM = rowpermute(M, perm); /* square invertible */
-  iM = ZM_inv_ratlift(MM, &diM);
+  iM = ZM_inv(MM, &diM);
   return mkvec4(M, iM, diM, perm);
 }
 
@@ -727,7 +727,7 @@ msqexpansion_i(GEN W, GEN proV, ulong B)
   gel(Tiv, 1) = v;
   for (i = 2; i <= d; i++) gel(Tiv, i) = RgM_RgC_mul(TV, gel(Tiv,i-1));
   Tiv = Q_remove_denom(Tiv, &dTiv);
-  iM = ZM_inv_ratlift(Tiv, &diM);
+  iM = ZM_inv(Tiv, &diM);
   if (dTiv) diM = gdiv(diM, dTiv);
   L = const_vec(B,NULL);
   sqrtB = usqrt(B);
