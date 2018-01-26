@@ -2469,13 +2469,13 @@ FpXn_red(GEN a, long n)
 GEN
 FpXn_mul(GEN a, GEN b, long n, GEN p)
 {
-  return FpX_red(FpXn_red(ZX_mul(a, b), n), p);
+  return FpX_red(ZXn_mul(a, b, n), p);
 }
 
 GEN
 FpXn_sqr(GEN a, long n, GEN p)
 {
-  return FpX_red(FpXn_red(ZX_sqr(a), n), p);
+  return FpX_red(ZXn_sqr(a, n), p);
 }
 
 GEN

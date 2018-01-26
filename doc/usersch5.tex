@@ -5036,9 +5036,9 @@ object is an \kbd{FpX} whose degree is strictly less than \kbd{n}.
 They represent a class in $(\Z/\kbd{p}\Z)[X] / (X^n)$, in which all operations
 below take place. They can be seen as truncated power series.
 
-\fun{GEN}{FpXn_mul}{GEN x, GEN y, GEN p} return $x\*y$.
+\fun{GEN}{FpXn_mul}{GEN x, GEN y, long n, GEN p} return $x\*y\pmod{X^n}$.
 
-\fun{GEN}{FpXn_sqr}{GEN x, GEN p} return $x^2$.
+\fun{GEN}{FpXn_sqr}{GEN x, long n, GEN p} return $x^2\pmod{X^n}$.
 
 \fun{GEN}{FpXn_exp}{GEN x, long n, GEN p} return $\exp(x)$
 as a composition of formal power series.
@@ -8909,6 +8909,12 @@ that all inputs are \kbd{ZX}s and that $T$ is monic.
 More generally, \kbd{A} is allowed to be a \kbd{QX}, hence possibly has
 rational coefficients, \emph{assuming} the result is a \kbd{ZX}, i.e.~the
 algebraic number \kbd{Mod(A,T)} is integral over \kbd{Z}.
+
+\subsec{\kbd{ZXn}}
+
+\fun{GEN}{ZXn_mul}{GEN x, GEN y, long n} return $x\*y\pmod{X^n}$.
+
+\fun{GEN}{ZXn_sqr}{GEN x, long n} return $x^2\pmod{X^n}$.
 
 \subsec{\kbd{ZXQM}}
 

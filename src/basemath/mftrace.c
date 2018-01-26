@@ -1295,8 +1295,6 @@ eta3_ZXn(long m)
 }
 
 static GEN
-ZXn_sqr(GEN f, long n) { return RgXn_red_shallow(ZX_sqr(f), n); }
-static GEN
 c_delta(long n, long d)
 {
   pari_sp ltop = avma;

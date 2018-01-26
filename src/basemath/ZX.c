@@ -704,6 +704,20 @@ ZXV_dotproduct(GEN x, GEN y)
 /*                                                                 */
 /*******************************************************************/
 
+GEN
+ZXn_mul(GEN x, GEN y, long n)
+{ return RgXn_red_shallow(ZX_mul(x, y), n); }
+
+GEN
+ZXn_sqr(GEN x, long n)
+{ return RgXn_red_shallow(ZX_sqr(x), n); }
+
+/*******************************************************************/
+/*                                                                 */
+/*                                ZXQM                             */
+/*                                                                 */
+/*******************************************************************/
+
 static long
 ZX_expi(GEN x)
 {

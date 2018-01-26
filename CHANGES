@@ -332,8 +332,8 @@ BA  128- New GP function lfuntwist
          Qp_descending_Landen
 BA  130- [libpari] famat_pows_shallow, famat_mulpows_shallow
     131- [libpari] QXQ_div_ratlift, ZM_equal0, QM_ImZ_hnfall, QM_ImQ_hnfall
-BA  132- [libpari] FpXn_mul, FpXn_sqr, RgXn_recip_shallow, FpXn_exp,
-         FpX_Newton, FpX_fromNewton, FpX_Laplace, FpX_invLaplace
+BA  132- [libpari] ZXn_mul, ZXn_sqr, FpXn_mul, FpXn_sqr, RgXn_recip_shallow,
+         FpXn_exp, FpX_Newton, FpX_fromNewton, FpX_Laplace, FpX_invLaplace
 BA  133- [libpari] FpX_integ, FpX_convol
     134- allow zeta(power series)
     135- New GP function laurentseries

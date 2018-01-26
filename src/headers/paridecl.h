@@ -1305,6 +1305,8 @@ long    ZXX_max_lg(GEN x);
 GEN     ZXX_renormalize(GEN x, long lx);
 GEN     ZXX_to_Kronecker(GEN P, long n);
 GEN     ZXX_to_Kronecker_spec(GEN P, long lP, long n);
+GEN     ZXn_mul(GEN x, GEN y, long n);
+GEN     ZXn_sqr(GEN x, long n);
 GEN     scalar_ZX(GEN x, long v);
 GEN     scalar_ZX_shallow(GEN x, long v);
 GEN     zx_to_ZX(GEN z);
