@@ -1857,13 +1857,11 @@ function. If the result is not a modular form or function, return an error if
 \kbd{flag=0}, or $0$ otherwise. If the result has negative valuation,
 normalize to valuation $0$.
 
-\f\kbd{mffromlfun(L)}: \kbd{L} being the $L$-function of a self-dual
-modular form with rational coefficients, for instance a rational eigenform,
-retun \kbd{[mf,F,coe]}, where \kbd{F} is the form, \kbd{mf} the corresponding
-space and \kbd{coe} the coefficients of \kbd{F} on the basis of \kbd{mf}.
-More generally when \kbd{L} is the $L$-function of a modular form with
-inexact complex coefficients, only return \kbd{mf}, a modular form space
-which \emph{possibly} contains the form we are looking for.
+\f\kbd{mffromlfun(L)}: \kbd{L} being the $L$-function of a self-dual modular
+form with rational coefficients, for instance a rational eigenform, retun
+\kbd{[NK,space,v]}, where \kbd{mf = mfinit(NK,space)} is a modular form space
+containing the form and \kbd{mftobasis(mf,v)} yields the coefficients of
+\kbd{F} on the basis of \kbd{mf}.
 
 \f\kbd{mffromqf(Q,$\{P\}$)}: \kbd{Q} being an even integral quadratic form of
 even dimension and \kbd{P} an optional homogeneous spherical polynomial with

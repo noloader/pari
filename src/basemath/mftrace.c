@@ -10122,7 +10122,7 @@ mffromlfun(GEN L, long prec)
 {
   pari_sp av = avma;
   GEN ldata = lfunmisc_to_ldata_shallow(L), Vga = ldata_get_gammavec(ldata);
-  GEN mf, V, van, a0, CHI;
+  GEN van, a0, CHI, NK;
   long k, N, space;
   if (!gequal(Vga, mkvec2(gen_0, gen_1))) pari_err_TYPE("mffromlfun", L);
   k = ldata_get_k(ldata);
@@ -10130,12 +10130,9 @@ mffromlfun(GEN L, long prec)
   van = ldata_vecan(ldata_get_an(ldata), mfsturmNk(N,k) + 2, prec);
   CHI = lfunfindchi(ldata, van, prec);
   space = (lg(ldata) == 7)? mf_CUSP: mf_FULL;
-  mf = mfinit_Nkchi(N, k, CHI, space, 0);
-  if (!RgV_is_QV(van)) return gerepilecopy(av, mf);
   a0 = (space == mf_CUSP)? gen_0: gneg(lfun(L, gen_0, prec2nbits(prec)));
-  V = mftobasis_i(mf, shallowconcat(a0, van));
-  if (typ(V) == t_VEC) pari_err_BUG("mffromlfun");
-  return gerepilecopy(av, mkvec3(mf, mflinear(mf,V), V));
+  NK = mkvec3(utoi(N), utoi(k), mfchisimpl(CHI));
+  return gerepilecopy(av, mkvec3(NK, utoi(space), shallowconcat(a0, van)));
 }
 /*******************************************************************/
 /*                                                                 */
