@@ -8395,7 +8395,7 @@ mffromell(GEN E)
 
   checkell(E);
   if (ell_get_type(E) != t_ELL_Q) pari_err_TYPE("mfffromell [E not over Q]", E);
-  N = itos(gel(ellglobalred(E), 1));
+  N = itos(ellQ_get_N(E));
   mf = mfinit_i(mkvec2(utoi(N), gen_2), mf_NEW);
   v = mfsplit(mf, 1, 0);
   S = gel(v,1); l = lg(S); /* rational newforms */
