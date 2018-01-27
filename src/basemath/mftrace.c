@@ -1340,6 +1340,7 @@ c_etaquo(long n, long d, GEN eta, GEN gs)
   pari_sp av = avma;
   GEN B = gel(eta,1), E = gel(eta,2), c = gen_1;
   long i, s = itos(gs), nd = n*d, nds = nd - s + 1, l = lg(B);
+  if (nds <= 0) return zerovec(n+1);
   for (i = 1; i < l; i++) c = gmul(c, gpowgs(eta_inflate_ZXn(nds, B[i]), E[i]));
   if (s > 0) setvalp(c, valp(c) + s);
   return gerepilecopy(av, c_deflate(n, d, sertovecslice(c, nd)));

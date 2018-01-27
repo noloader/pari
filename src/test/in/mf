@@ -356,6 +356,11 @@ liftpol(mfcoefs(F[1], 9))
 liftpol(mfcoefs(F[2], 9))
 mfcoefs(mffrometaquo([1,2;11,2]),10)
 
+f=mffrometaquo([864,6;432,-3;288,-2;144,1]);
+mfcoefs(f,11,12)
+mfcoefs(f,12,12)
+
+
 F=mffrometaquo([1,8;2,-2;4,2;6,2;12,2]);
 mf=mfinit([12,6],1);
 mftobasis(mf,F)
