@@ -2288,8 +2288,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     else
     {
       GEN sser;
-      if( gequal1(s))
-        pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
+      if (gequal1(s)) pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
       sser = gadd(gadd(s, pol_x(0)), zeroser(0, der + 2));
       z = zetahurwitz(sser, x, 0, bitprec);
       z = gmul(mpfact(der), polcoeff0(z, der, -1));
@@ -2298,15 +2297,14 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   }
   rx = ground(greal(x));
   if (signe(rx) <= 0 && gexpo(gsub(x, rx)) < 17 - bitprec)
-    pari_err(e_MISC, "x <= 0 integral in zetahurwitz");
+    pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
   switch (ts)
   {
     case t_PADIC: return gerepilecopy(av, hurwitzp(s, x)); break;
     case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: break;
     default:
       if (!(y = toser_i(s))) pari_err_TYPE("zetahurwitz", s);
-      if (valp(y) < 0)
-        pari_err_DOMAIN("zetahurwitz", "val(s)", "<", gen_0, s);
+      if (valp(y) < 0) pari_err_DOMAIN("zetahurwitz", "val(s)", "<", gen_0, s);
       flscal = 0; s0 = gel(y, 2); sch = serchop0(y); v = valp(sch);
       prpr = (precdl + v + 1)/v; if (gequal1(s0)) prpr += v;
       s = gadd(gadd(s0, pol_x(0)), zeroser(0, prpr));
