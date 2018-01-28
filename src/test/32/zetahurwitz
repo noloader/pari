@@ -48,4 +48,7 @@ x^14 - 15.999999999999999936177684699023112054*x^15 + O(x^16)
   ***   at top-level: zetahurwitz(1,Pi)
   ***                 ^-----------------
   *** zetahurwitz: domain error in zetahurwitz: s = 1
-Total time spent: 37
+  ***   at top-level: zetahurwitz(1+O(x),1)
+  ***                 ^---------------------
+  *** zetahurwitz: domain error in zetahurwitz: s = 1
+Total time spent: 38

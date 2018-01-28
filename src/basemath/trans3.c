@@ -2271,16 +2271,16 @@ GEN
 zetahurwitz(GEN s, GEN x, long der, long bitprec)
 {
   pari_sp av = avma;
-  GEN al, ral, ral0, Nx, S1, S2, S3, N2, rx, sch = gen_0, s0 = s, y;
+  GEN al, ral, ral0, Nx, S1, S2, S3, N2, rx, sch = NULL, s0 = s, y;
   long j, k, m, N, precinit = nbits2prec(bitprec), prec = precinit;
-  long flscal = 1, fli = 0, v, prpr, ts = typ(s);
+  long fli = 0, v, prpr;
   pari_timer T;
 
   if (der < 0) pari_err_DOMAIN("zetahurwitz", "der", "<", gen_0, stoi(der));
   if (der)
   {
     GEN z;
-    if (!is_scalar_t(ts))
+    if (!is_scalar_t(typ(s)))
     {
       z = deriv(zetahurwitz(s, x, der - 1, bitprec), -1);
       z = gdiv(z, deriv(s, -1));
@@ -2298,14 +2298,13 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   rx = ground(greal(x));
   if (signe(rx) <= 0 && gexpo(gsub(x, rx)) < 17 - bitprec)
     pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
-  switch (ts)
+  switch (typ(s))
   {
     case t_PADIC: return gerepilecopy(av, hurwitzp(s, x)); break;
     case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: break;
     default:
       if (!(y = toser_i(s))) pari_err_TYPE("zetahurwitz", s);
       if (valp(y) < 0) pari_err_DOMAIN("zetahurwitz", "val(s)", "<", gen_0, s);
-      flscal = 0;
       s0 = polcoeff_i(y, 0, -1);
       sch = gequal0(s0)? y: serchop0(y);
       v = valp(sch);
@@ -2313,10 +2312,10 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       s = gadd(gadd(s0, pol_x(0)), zeroser(0, prpr));
     }
   al = gneg(s0); ral = greal(al); ral0 = ground(ral);
-  if (flscal && gequal1(s0))
+  if (gequal1(s0) && (!sch || gequal0(sch)))
     pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
   fli = (signe(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec);
-  if (flscal && fli)
+  if (!sch && fli)
   { /* al ~ non negative integer */
     k = itos(gceil(ral)) + 1;
     if (odd(k)) k++;
@@ -2335,7 +2334,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       x = gprec_w(x, prec);
       s = gprec_w(s, prec);
       al = gprec_w(al, prec);
-      if (!flscal) sch = gprec_w(sch, prec);
+      if (sch) sch = gprec_w(sch, prec);
     }
     k = maxss(itos(gceil(gadd(ral, ghalf))) + 1, 50);
     k = maxss(k, (long)(D*bitprec));
@@ -2377,8 +2376,8 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
   S2 = gmul(S3, gadd(gdiv(Nx, gaddsg(1, al)), S2));
   S1 = gprec_wtrunc(gsub(S1, S2), precinit);
-  if (flscal) return gerepilecopy(av, S1);
-  else return gerepileupto(av, gsubst(S1, 0, sch));
+  if (sch) return gerepileupto(av, gsubst(S1, 0, sch));
+  return gerepilecopy(av, S1);
 }
 
 /***********************************************************************/
