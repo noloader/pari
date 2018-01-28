@@ -2305,7 +2305,10 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     default:
       if (!(y = toser_i(s))) pari_err_TYPE("zetahurwitz", s);
       if (valp(y) < 0) pari_err_DOMAIN("zetahurwitz", "val(s)", "<", gen_0, s);
-      flscal = 0; s0 = gel(y, 2); sch = serchop0(y); v = valp(sch);
+      flscal = 0;
+      s0 = polcoeff_i(y, 0, -1);
+      sch = gequal0(s0)? y: serchop0(y);
+      v = valp(sch);
       prpr = (precdl + v + 1)/v; if (gequal1(s0)) prpr += v;
       s = gadd(gadd(s0, pol_x(0)), zeroser(0, prpr));
     }
