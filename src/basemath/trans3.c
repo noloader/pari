@@ -2306,6 +2306,12 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       if (!(y = toser_i(s))) pari_err_TYPE("zetahurwitz", s);
       if (valp(y) < 0) pari_err_DOMAIN("zetahurwitz", "val(s)", "<", gen_0, s);
       s0 = polcoeff_i(y, 0, -1);
+      switch(typ(s0))
+      {
+        case t_INT: case t_REAL: case t_COMPLEX: case t_FRAC: break;
+        case t_PADIC: pari_err_IMPL("zetahurwitz(t_SER of t_PADIC)");
+        default: pari_err_TYPE("zetahurwitz", s0);
+      }
       sch = gequal0(s0)? y: serchop0(y);
       v = valp(sch);
       prpr = (precdl + v + 1)/v; if (gequal1(s0)) prpr += v;
