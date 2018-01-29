@@ -2063,9 +2063,10 @@ getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
   {
     GEN w = gel(section, gen[j]);
     GEN t = init_act_trivial(W1);
+    pari_sp av = avma;
     long l;
     for (l = 1; l < lv; l++) M2_log_trivial(t, W1, Gl2Q_act_path(gel(v,l), w));
-    gel(T,j) = t;
+    gel(T,j) = t; avma = av;
   }
   return shallowtrans(zm_to_ZM(T));
 }
