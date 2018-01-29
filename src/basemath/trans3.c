@@ -2295,9 +2295,19 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     }
     return gerepileupto(av,z);
   }
-  rx = ground(greal(x));
-  if (signe(rx) <= 0 && gexpo(gsub(x, rx)) < 17 - bitprec)
-    pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
+  switch(typ(x))
+  {
+    case t_PADIC: return gerepilecopy(av, hurwitzp(s, x)); break;
+    case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX:
+      rx = ground(real_i(x));
+      if (signe(rx) <= 0 && gexpo(gsub(x, rx)) < 17 - bitprec)
+        pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
+      break;
+    default:
+      if (!(x = toser_i(x))) pari_err_TYPE("zetahurwitz", x);
+      rx = ground(polcoeff_i(x, 0, -1));
+      if (typ(rx) != t_INT) pari_err_TYPE("zetahurwitz", x);
+  }
   switch (typ(s))
   {
     case t_PADIC: return gerepilecopy(av, hurwitzp(s, x)); break;
@@ -2320,7 +2330,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   al = gneg(s0); ral = greal(al); ral0 = ground(ral);
   if (gequal1(s0) && (!sch || gequal0(sch)))
     pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
-  fli = (signe(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec);
+  fli = (gsigne(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec);
   if (!sch && fli)
   { /* al ~ non negative integer */
     k = itos(gceil(ral)) + 1;
@@ -2348,8 +2358,9 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     C = gmulsg(2, gmul(binomial(al, k+1), gdivgs(bernfrac(k+2), k+2)));
     C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
     C = gadd(gpow(C, ginv(gsubsg(k+1, ral)), LOWDEFAULTPREC),
-             gabs(gsubsg(1,x), LOWDEFAULTPREC));
-    C = polcoeff_i(C, 0, -1);
+             gabs(gsubsg(1,rx), LOWDEFAULTPREC));
+    C = gceil(polcoeff_i(C, 0, -1));
+    if (typ(C) != t_INT) pari_err_TYPE("zetahurwitz",s);
     N = itos(gceil(C));
     if (N < 1) N = 1;
   }
@@ -2358,7 +2369,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   if (DEBUGLEVEL>2) timer_start(&T);
   incrprec(prec);
   Nx = gmul(real_1(prec), gaddsg(N - 1, x));
-  S3 = gpow(Nx, al, prec); S1 = S3;
+  S1 = S3 = gpow(Nx, al, prec);
   for (m = N - 2; m >= 0; m--) S1 = gadd(S1, gpow(gaddsg(m,x), al, prec));
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
   mpbern(k >> 1, prec);
