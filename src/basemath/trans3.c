@@ -2349,6 +2349,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
     C = gadd(gpow(C, ginv(gsubsg(k+1, ral)), LOWDEFAULTPREC),
              gabs(gsubsg(1,x), LOWDEFAULTPREC));
+    C = polcoeff_i(C, 0, -1);
     N = itos(gceil(C));
     if (N < 1) N = 1;
   }
