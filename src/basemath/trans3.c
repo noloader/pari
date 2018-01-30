@@ -2233,7 +2233,16 @@ hurwitzp(GEN s, GEN x)
   long p = itou(gp), vqp = (p==2)? 2: 1, prec = maxss(1, valp(s) + precp(s));
   x = gadd(x, zeropadic_shallow(gp, prec));
   if (valp(x) > -vqp)
-    pari_err_DOMAIN("hurwitzp", "v(x)", ">", stoi(-vqp), x);
+  {
+    GEN S = gen_0;
+    long j, M = (p==2)? 4: p;
+    for (j = 0; j < M; j++)
+    {
+      GEN y = gaddsg(j, x);
+      if (valp(y) == 0) S = gadd(S, hurwitzp(s, gdivgs(y, M)));
+    }
+    return gdivgs(S, M);
+  }
   if (valp(s) <= 1/(p-1) - vqp)
     pari_err_DOMAIN("hurwitzp", "v(s)", "<=", stoi(1/(p-1)-vqp), s);
   s1 = gsubgs(s,1); if (gequal0(s1)) s1 = NULL;
