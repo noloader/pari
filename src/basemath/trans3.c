@@ -2239,7 +2239,7 @@ hurwitzp(GEN s, GEN x)
     for (j = 0; j < M; j++)
     {
       GEN y = gaddsg(j, x);
-      if (valp(y) == 0) S = gadd(S, hurwitzp(s, gdivgs(y, M)));
+      if (valp(y) <= 0) S = gadd(S, hurwitzp(s, gdivgs(y, M)));
     }
     return gdivgs(S, M);
   }
@@ -2304,9 +2304,10 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     }
     return gerepileupto(av,z);
   }
+  if (typ(x) == t_PADIC || typ(s) == t_PADIC)
+    return gerepilecopy(av, hurwitzp(s, x));
   switch(typ(x))
   {
-    case t_PADIC: return gerepilecopy(av, hurwitzp(s, x)); break;
     case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX:
       rx = ground(real_i(x));
       if (signe(rx) <= 0 && gexpo(gsub(x, rx)) < 17 - bitprec)
@@ -2319,7 +2320,6 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   }
   switch (typ(s))
   {
-    case t_PADIC: return gerepilecopy(av, hurwitzp(s, x)); break;
     case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: break;
     default:
       if (!(y = toser_i(s))) pari_err_TYPE("zetahurwitz", s);
