@@ -1378,6 +1378,8 @@ t, -6*t - 4, t + 2]
 0.0061538599016729274239549224845781815123
 0
 +oo
+0
+[1, 24, 324, 3200, 25650, 176256, 1073720]
 
 [  "Factors"  50000 13 1000000000]
 
@@ -1401,9 +1403,6 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mfdim([4,1/2],5)
   ***                 ^----------------
   *** mfdim: incorrect type in half-integral weight [incorrect space] (t_INT).
-  ***   at top-level: mffrometaquo(Mat([1,1]))
-  ***                 ^------------------------
-  *** mffrometaquo: domain error in mffrometaquo: eta quotient not modular
   ***   at top-level: mfeisenstein(2,1.0)
   ***                 ^-------------------
   *** mfeisenstein: incorrect type in znchar (t_REAL).
@@ -1480,4 +1479,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: ...([1,0]);F=mfbasis(mf)[1];mfsymbol(mf,F)
   ***                                             ^--------------
   *** mfsymbol: sorry, mfsymbol when k <= 1 is not yet implemented.
-Total time spent: 4097
+Total time spent: 4492

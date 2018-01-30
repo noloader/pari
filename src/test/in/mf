@@ -656,6 +656,9 @@ E=mfeisenstein(3); mf=mfinit([3,3]); ES=mfsymbol(mf,E);
 mfsymboleval(ES,[1,I])
 mfcuspval(mf,E,1/2)
 
+mffrometaquo(Mat([1,-24]))
+mfcoefs(mffrometaquo(Mat([1,-24]),1),6)
+
 getcache()[,1..4]
 
 \\ ERRORS, leave at end of bench
@@ -664,7 +667,6 @@ mfdim([4,1/2],0)
 mfdim([4,1/2],2)
 mfdim([4,1/2],5)
 
-mffrometaquo(Mat([1,1]))
 mfeisenstein(2,1.0)
 mfeisenstein(2,[0,0])
 mfinit([1,1.0])

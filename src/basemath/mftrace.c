@@ -9163,6 +9163,10 @@ NK_eta(GEN M, GEN R)
   return mkgNK(gN, sstoQ(k,2), get_mfchar(coredisc(D)), pol_x(1));
 }
 
+/* Output 0 if not desired eta product: if flag=0 (default) require
+   holomorphic at cusps. If flag set, accept meromorphic, but sill in some
+   modular function space */
+
 GEN
 mffrometaquo(GEN eta, long flag)
 {
@@ -9176,11 +9180,29 @@ mffrometaquo(GEN eta, long flag)
   E = gel(eta,2); s = maxss(0, itos(ZV_dotproduct(B,E)) / 24);
   B = ZV_to_zv(B);
   E = ZV_to_zv(E); NK = NK_eta(B,E);
-  if (!NK)
+  if (!NK) { avma = av; return gen_0; }
+  if (!flag)
   {
-    if (flag) { avma = av; return gen_0; }
-    pari_err_DOMAIN("mffrometaquo", "eta quotient", "not",
-                    strtoGENstr("modular"), eta);
+    /* Must check holomorphy at all cusps */
+    long fl = 1;
+    if (gsigne(gel(NK, 2)) < 0) fl = 0;
+    else
+    {
+      long N = itos(gel(NK, 1)), i, j, lb = lg(B);
+      GEN ld = mydivisorsu(N);
+      for (i = 1; i < lg(ld); ++i)
+      {
+        GEN S = gen_0;
+        long d = ld[i];
+        for (j = 1; j < lb; ++j)
+        {
+          long g = cgcd(B[j], d), nu = g*g*E[j];
+          S = gadd(S, sstoQ(nu, B[j]));
+        }
+        if (gsigne(S) < 0) { fl = 0; break; }
+      }
+    }
+    if (!fl) { avma = av; return gen_0; }
   }
   return gerepilecopy(av, tag2(t_MF_ETAQUO, NK, mkvec2(B,E), stoi(s)));
 }
