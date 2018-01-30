@@ -2304,8 +2304,8 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
         pari_err_DOMAIN("zetahurwitz", "x", "<=", gen_0, x);
       break;
     default:
-      if (!(x = toser_i(x))) pari_err_TYPE("zetahurwitz", x);
-      rx = ground(polcoeff_i(x, 0, -1));
+      if (!(y = toser_i(x))) pari_err_TYPE("zetahurwitz", x);
+      x = y; rx = ground(polcoeff_i(x, 0, -1));
       if (typ(rx) != t_INT) pari_err_TYPE("zetahurwitz", x);
   }
   switch (typ(s))
