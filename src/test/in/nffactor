@@ -125,3 +125,6 @@ nfroots(a^2-a+3,x^2+Mod(84*a-248/3,a^2-a+3)*x+Mod(-1440*a-73760/9,a^2-a+3))
 nfroots(a^2-a+3,a*(x^2-4))
 
 nffactor(y^2+7, (11*x)^4 - 10*(11*x)^2 + 1)
+
+\\ Errors, keep at end of file
+polhensellift(x^2+x+1,[x+a,x+a+1],2,10)
