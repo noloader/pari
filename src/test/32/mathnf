@@ -49,6 +49,10 @@
 
 [0 0 1]
 
+? mathnfmodid([;],[2])
+
+[2]
+
 ? matsolvemod([;],[]~,[]~,1)
 0
 ? matsolvemod([;],[],[]~,1)
@@ -64,4 +68,4 @@
 ? matsolvemod([1,2;3,4],1,2,1)
 [[0, 0]~, [-1, 0; 0, 1]]
 ? print("Total time spent: ",gettime);
-Total time spent: 1
+Total time spent: 0

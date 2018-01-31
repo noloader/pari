@@ -2116,7 +2116,7 @@ static GEN
 zsimp(void)
 {
   GEN empty = cgetg(1, t_VECSMALL);
-  return mkvec3(mkmat2(empty,empty), cgetg(1,t_VEC), cgetg(1,t_COL));
+  return mkvec3(mkmat2(empty,empty), cgetg(1,t_VEC), cgetg(1,t_MAT));
 }
 
 /* fa a vecsmall factorization, append p^e */

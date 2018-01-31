@@ -1151,8 +1151,19 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   long li, co, i, j, k, def, ldef;
   GEN a, b, p1, p2, u, dm2, LDM;
 
-  co = lg(x); if (co == 1) return cgetg(1,t_MAT);
-  li = lgcols(x); if (li == 1) return cgetg(1,t_MAT);
+  co = lg(x);
+  if (co == 1)
+  {
+    if (typ(dm) == t_INT || lg(dm) == 1) return cgetg(1,t_MAT);
+    x = diagonal_shallow(dm); /* handle flags properly */
+    co = lg(x);
+  }
+  li = lgcols(x);
+  if (li == 1)
+  {
+    if (typ(dm) != t_INT && lg(dm) != li) pari_err_DIM("ZM_hnfmod");
+    return cgetg(1,t_MAT);
+  }
   if (typ(dm) == t_INT)
   {
     if (flag == hnf_MODID)
