@@ -6249,7 +6249,7 @@ gaussmoduloall(GEN M, GEN D, GEN Y, GEN *ptu1)
       default: pari_err_TYPE("gaussmodulo",D);
     }
     if (ptu1) *ptu1 = cgetg(1, t_MAT);
-    return gen_0;
+    return cgetg(1,t_COL);
   }
   n = nbrows(M);
   switch(typ(D))

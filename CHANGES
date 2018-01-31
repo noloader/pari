@@ -156,6 +156,7 @@ BA  120- matsupplement(Mod(matrix(5,1),2)) --> SEGV [#1996]
     123- powuu(0,1) -> SEGV
     124- mathnfmodid([;], t_VEC) did not correspond to specifications
          (always returned [;])
+    125- matsolvemod([;],2,[]~) -> no solution [ instead of []~ ]
 
   Added
       1- [libari] ZM_isidentity

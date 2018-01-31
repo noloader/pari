@@ -54,7 +54,7 @@
 [2]
 
 ? matsolvemod([;],[]~,[]~,1)
-0
+[[]~, [;]]
 ? matsolvemod([;],[],[]~,1)
   ***   at top-level: matsolvemod([;],[],[]~,1)
   ***                 ^-------------------------
@@ -64,7 +64,7 @@
   ***                 ^-------------------------
   *** matsolvemod: incorrect type in gaussmodulo (t_VEC).
 ? matsolvemod([;],1,1,1)
-0
+[[]~, [;]]
 ? matsolvemod([1,2;3,4],1,2,1)
 [[0, 0]~, [-1, 0; 0, 1]]
 ? print("Total time spent: ",gettime);
