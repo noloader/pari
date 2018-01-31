@@ -1472,11 +1472,13 @@ set_range(double m, double M, double *sml, double *big)
  *
  * + If there is no such flag, the first element is an array with
  *   x-coordinates and the following ones contain y-coordinates.
- * If grect >= 0, output to this rectwindow. Otherwise draw immediately to
- * screen (grect=-1) or to PS file (grect=-2), using two drawing rectangles:
- * one for labels, another for graphs.*/
+ * If W != NULL, output wrt this PARI_plot using two drawing rectangles:
+ * one for labels, another for graphs. Else draw to rectwindow ne without
+ * labels.
+ * If fmt != NULL (requires W != NULL), output is a t_STR containing the
+ * converted picture, else a bounding box */
 static GEN
-plotrecthrawin(GEN fmt, PARI_plot *W, long grect, dblPointList *data, long flags)
+plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
 {
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
   const long max_graphcolors = lg(GP_DATA->graphcolors)-1;
@@ -1491,7 +1493,7 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long grect, dblPointList *data, long flags
   set_range(x.ysml, x.ybig, &ysml, &ybig);
   if (W)
   { /* actual output; else output to rectwindow: no labels */
-    const long srect = NUMRECT-2;
+    const long se = NUMRECT-2;
     long lm, rm, tm, bm;
     char lybig[16], lysml[16], lxsml[16], lxbig[16];
     /* left/right/top/bottom margin */
@@ -1503,60 +1505,52 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long grect, dblPointList *data, long flags
     tm = W->vunit-1;
     bm = W->vunit+W->fheight-1;
     w[0] = wx[0] = wy[0] = evaltyp(t_VECSMALL) | evallg(3);
-    w[1] = srect; wx[1] = 0;  wy[1] = 0;
-    w[2] = grect; wx[2] = lm; wy[2] = tm;
+    w[1] = se; wx[1] = 0;  wy[1] = 0;
+    w[2] = ne; wx[2] = lm; wy[2] = tm;
    /* Window (width x height) is given in pixels, correct pixels are 0..n-1,
     * whereas rect functions work with windows whose pixel range is [0,n] */
-    initrect_i(srect, W->width - 1, W->height - 1);
-    current_color[srect] = DEFAULT_COLOR;
-    initrect_i(grect, W->width - (lm+rm) - 1, W->height - (tm+bm) - 1);
-    /* draw labels on srect */
-    put_label(srect, lm, 0, lybig, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirTOP);
-    put_label(srect, lm, W->height-bm, lysml, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirVGAP);
-    put_label(srect, lm, W->height - bm, lxsml, RoSTdirLEFT|RoSTdirTOP);
-    put_label(srect, W->width-rm-1, W->height-bm, lxbig, RoSTdirRIGHT|RoSTdirTOP);
+    initrect_i(se, W->width - 1, W->height - 1);
+    current_color[se] = DEFAULT_COLOR;
+    initrect_i(ne, W->width - (lm+rm) - 1, W->height - (tm+bm) - 1);
+    /* draw labels on se */
+    put_label(se, lm, 0, lybig, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirTOP);
+    put_label(se, lm, W->height-bm,lysml, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirVGAP);
+    put_label(se, lm, W->height - bm, lxsml, RoSTdirLEFT|RoSTdirTOP);
+    put_label(se, W->width-rm-1, W->height-bm, lxbig, RoSTdirRIGHT|RoSTdirTOP);
   }
-  if (!(flags & PLOT_NO_RESCALE))
-    plotscale0(grect, xsml, xbig, ysml, ybig);
-
+  if (!(flags & PLOT_NO_RESCALE)) plotscale0(ne, xsml, xbig, ysml, ybig);
   if (!(flags & PLOT_NO_FRAME))
   {
-    int do_double = (flags & PLOT_NODOUBLETICK) ? TICKS_NODOUBLE : 0;
+    long fl = (flags & PLOT_NODOUBLETICK)? TICKS_CLOCKW|TICKS_NODOUBLE
+                                         : TICKS_CLOCKW;
     PARI_plot T, *pl;
     if (W) pl = W; else { pl = &T; pari_get_plot(pl); }
-
-    plotlinetype(grect, -2); /* Frame. */
-    current_color[grect] = DEFAULT_COLOR;
-    plotmove0(grect,xsml,ysml,0);
-    rectbox0(grect,xbig,ybig,0,0);
+    plotlinetype(ne, -2); /* frame */
+    current_color[ne] = DEFAULT_COLOR;
+    plotmove0(ne,xsml,ysml,0);
+    rectbox0(ne,xbig,ybig,0,0);
     if (!(flags & PLOT_NO_TICK_X)) {
-      rectticks(pl, grect, xsml, ysml, xbig, ysml, xsml, xbig,
-        TICKS_CLOCKW | do_double);
-      rectticks(pl, grect, xbig, ybig, xsml, ybig, xbig, xsml,
-        TICKS_CLOCKW | do_double);
+      rectticks(pl, ne, xsml, ysml, xbig, ysml, xsml, xbig, fl);
+      rectticks(pl, ne, xbig, ybig, xsml, ybig, xbig, xsml, fl);
     }
     if (!(flags & PLOT_NO_TICK_Y)) {
-      rectticks(pl, grect, xbig, ysml, xbig, ybig, ysml, ybig,
-        TICKS_CLOCKW | do_double);
-      rectticks(pl, grect, xsml, ybig, xsml, ysml, ybig, ysml,
-        TICKS_CLOCKW | do_double);
+      rectticks(pl, ne, xbig, ysml, xbig, ybig, ysml, ybig, fl);
+      rectticks(pl, ne, xsml, ybig, xsml, ysml, ybig, ysml, fl);
     }
   }
-
   if (!(flags & PLOT_NO_AXE_Y) && (xsml<=0 && xbig >=0))
   {
-    plotlinetype(grect, -1); /* Axes. */
-    current_color[grect] = AXIS_COLOR;
-    plotmove0(grect,0.0,ysml,0);
-    rectline0(grect,0.0,ybig,0);
+    plotlinetype(ne, -1); /* axes */
+    current_color[ne] = AXIS_COLOR;
+    plotmove0(ne,0.0,ysml,0);
+    rectline0(ne,0.0,ybig,0);
   }
-
   if (!(flags & PLOT_NO_AXE_X) && (ysml<=0 && ybig >=0))
   {
-    plotlinetype(grect, -1); /* Axes. */
-    current_color[grect] = AXIS_COLOR;
-    plotmove0(grect,xsml,0.0,0);
-    rectline0(grect,xbig,0.0,0);
+    plotlinetype(ne, -1); /* axes */
+    current_color[ne] = AXIS_COLOR;
+    plotmove0(ne,xsml,0.0,0);
+    rectline0(ne,xbig,0.0,0);
   }
 
   if (param) {
@@ -1566,14 +1560,14 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long grect, dblPointList *data, long flags
   } else i = 1;
   for (ltype = 0; ltype < nc; ltype++)
   {
-    current_color[grect] = GP_DATA->graphcolors[1+(ltype%max_graphcolors)];
+    current_color[ne] = GP_DATA->graphcolors[1+(ltype%max_graphcolors)];
     if (param) x = data[i++];
 
     y = data[i++];
     if (flags & (PLOT_POINTS_LINES|PLOT_POINTS)) {
-      plotlinetype(grect, plotpoint_itype + ltype); /* Graphs */
-      plotpointtype(grect,plotpoint_itype + ltype); /* Graphs */
-      plotpoints0(grect, x.d, y.d, y.nb);
+      plotlinetype(ne, plotpoint_itype + ltype); /* Graphs */
+      plotpointtype(ne,plotpoint_itype + ltype); /* Graphs */
+      plotpoints0(ne, x.d, y.d, y.nb);
       if (!(flags & PLOT_POINTS_LINES)) continue;
     }
 
@@ -1581,11 +1575,11 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long grect, dblPointList *data, long flags
       /* rectsplines will call us back with ltype == 0 */
       int old = rectline_itype;
       rectline_itype = rectline_itype + ltype;
-      rectsplines(grect, x.d, y.d, y.nb, flags);
+      rectsplines(ne, x.d, y.d, y.nb, flags);
       rectline_itype = old;
     } else {
-      plotlinetype(grect, rectline_itype + ltype); /* Graphs */
-      rectlines0(grect, x.d, y.d, y.nb, 0);
+      plotlinetype(ne, rectline_itype + ltype); /* Graphs */
+      rectlines0(ne, x.d, y.d, y.nb, 0);
     }
   }
   for (i--; i>=0; i--) pari_free(data[i].d);
