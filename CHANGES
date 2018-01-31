@@ -355,6 +355,7 @@ BA  146- New GP function nfeltredmodpower
     147- 'ms' modular symbol package: support N = 1 as well
     148- allow mssplit(M), splits msnew(M) by default
 BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr
+    150- New GP functions plothexport, plothrawexport, plotexport
 
   Changed
       1- rewrite bnfnarrow

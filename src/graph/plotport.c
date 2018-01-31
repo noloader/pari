@@ -1422,6 +1422,24 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
   avma = av0;
 }
 
+typedef char * (*RECTFMT)(GEN,GEN,GEN,PARI_plot*);
+static RECTFMT
+fmt_parse(GEN fmt)
+{
+  char *f;
+  if (typ(fmt) != t_STR) pari_err_TYPE("plotexport",fmt);
+  f = GSTR(fmt);
+  if (!strcmp(f, "svg")) return &rect2svg;
+  if (strcmp(f, "ps")) pari_err_TYPE("plotexport [unknown format]", fmt);
+  return &rect2ps;
+}
+static GEN
+fmt_convert(GEN fmt, GEN w, GEN x, GEN y, PARI_plot *T)
+{
+  RECTFMT c = fmt_parse(fmt);
+  return strtoGENstr(c(w, x, y, T));
+}
+
 static void
 put_label(long ne, long x, long y, char *c, long dir)
 {
@@ -1458,7 +1476,7 @@ set_range(double m, double M, double *sml, double *big)
  * screen (grect=-1) or to PS file (grect=-2), using two drawing rectangles:
  * one for labels, another for graphs.*/
 static GEN
-plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
+plotrecthrawin(GEN fmt, PARI_plot *W, long grect, dblPointList *data, long flags)
 {
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
   const long max_graphcolors = lg(GP_DATA->graphcolors)-1;
@@ -1575,9 +1593,12 @@ plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
 
   if (W)
   {
-    W->draw(W, w,wx,wy);
+    GEN s = NULL;
+    if (fmt) s = fmt_convert(fmt, w, wx, wy, W);
+    else W->draw(W, w,wx,wy);
     plotkill(w[1]);
     plotkill(w[2]);
+    if (fmt) return s;
   }
   avma = av;
   retmkvec4(dbltor(xsml), dbltor(xbig), dbltor(ysml), dbltor(ybig));
@@ -1592,16 +1613,16 @@ plotrecthrawin(PARI_plot *W, long grect, dblPointList *data, long flags)
  * Else write to rectwindow 'ne'.
  * Graph y=f(x), x=a..b, use n points */
 static GEN
-plotrecth_i(void *E, GEN(*f)(void*,GEN), PARI_plot *T, long ne, GEN a,GEN b,
-            ulong flags,long n, long prec)
+plotrecth_i(GEN fmt, void *E, GEN(*f)(void*,GEN), PARI_plot *T, long ne,
+            GEN a,GEN b, ulong flags,long n, long prec)
 {
   dblPointList *pl = plotrecthin(E,f, a,b, flags, n, prec);
-  return plotrecthrawin(T, ne, pl, flags);
+  return plotrecthrawin(fmt, T, ne, pl, flags);
 }
 GEN
 plotrecth(void *E, GEN(*f)(void*,GEN), long ne, GEN a,GEN b,
           ulong flags, long n, long prec)
-{ return plotrecth_i(E,f, NULL, ne, a,b, flags&~PLOT_PARA, n, prec); }
+{ return plotrecth_i(NULL, E,f, NULL, ne, a,b, flags&~PLOT_PARA, n, prec); }
 GEN
 plotrecth0(long ne, GEN a,GEN b,GEN code,ulong flags,long n, long prec)
 { EXPR_WRAP(code, plotrecth(EXPR_ARG, ne, a,b, flags, n, prec)); }
@@ -1609,13 +1630,13 @@ GEN
 ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b,long flags, long n, long prec)
 {
   PARI_plot T; pari_get_plot(&T);
-  return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
+  return plotrecth_i(NULL, E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
 }
 GEN
 parploth(GEN a, GEN b, GEN code, long flags, long n, long prec)
 {
   PARI_plot T; pari_get_plot(&T);
-  return plotrecth_i(code,gp_call,&T, NUMRECT-1, a,b, flags|PLOT_PARA,n, prec);
+  return plotrecth_i(NULL, code,gp_call,&T, NUMRECT-1, a,b, flags|PLOT_PARA,n, prec);
 }
 GEN
 ploth0(GEN a, GEN b, GEN code, long flags,long n, long prec)
@@ -1624,21 +1645,34 @@ GEN
 psploth(void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags, long n, long prec)
 {
   PARI_plot T; pari_get_psplot(&T,0);
-  return plotrecth_i(E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
+  return plotrecth_i(NULL, E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
 }
 GEN
 psploth0(GEN a, GEN b, GEN code, long flags, long n, long prec)
 { EXPR_WRAP(code, psploth(EXPR_ARG, a, b, flags, n, prec)); }
+GEN
+plothexport(GEN fmt, void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags,
+            long n, long prec)
+{
+  pari_sp av = avma;
+  GEN s;
+  PARI_plot T; pari_get_plot(&T);
+  s = plotrecth_i(fmt, E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
+  return gerepileuptoleaf(av, s);
+}
+GEN
+plothexport0(GEN fmt, GEN a, GEN b, GEN code, long flags, long n, long prec)
+{ EXPR_WRAP(code, plothexport(fmt, EXPR_ARG, a, b, flags, n, prec)); }
 
 /* Draw list of points */
 static GEN
-plotrecthraw_i(PARI_plot *T, long ne, GEN data, long flags)
+plotrecthraw_i(GEN fmt, PARI_plot *T, long ne, GEN data, long flags)
 {
   dblPointList *pl = gtodblList(data,flags);
-  return plotrecthrawin(T, ne, pl, flags);
+  return plotrecthrawin(fmt, T, ne, pl, flags);
 }
 static GEN
-plothraw_i(PARI_plot *T, GEN X, GEN Y, long flag)
+plothraw_i(GEN fmt, PARI_plot *T, GEN X, GEN Y, long flag)
 {
   pari_sp av = avma;
   switch (flag) {
@@ -1646,17 +1680,20 @@ plothraw_i(PARI_plot *T, GEN X, GEN Y, long flag)
     case 1: flag = PLOT_PARAMETRIC; break;
     default: flag |= PLOT_PARAMETRIC; break;
   }
-  return gerepileupto(av, plotrecthraw_i(T, NUMRECT-1, mkvec2(X,Y), flag));
+  return gerepileupto(av, plotrecthraw_i(fmt, T, NUMRECT-1, mkvec2(X,Y), flag));
 }
 GEN
 plothraw(GEN X, GEN Y, long flags)
-{ PARI_plot T; pari_get_plot(&T); return plothraw_i(&T, X, Y, flags); }
+{ PARI_plot T; pari_get_plot(&T); return plothraw_i(NULL,&T,X,Y,flags); }
 GEN
 psplothraw(GEN X, GEN Y, long flags)
-{ PARI_plot T; pari_get_psplot(&T,0); return plothraw_i(&T, X, Y, flags); }
+{ PARI_plot T; pari_get_psplot(&T,0); return plothraw_i(NULL,&T,X,Y,flags); }
 GEN
 plotrecthraw(long ne, GEN data, long flags)
-{ return plotrecthraw_i(NULL, ne, data, flags); }
+{ return plotrecthraw_i(NULL, NULL, ne, data, flags); }
+GEN
+plothrawexport(GEN fmt, GEN X, GEN Y, long flags)
+{ PARI_plot T; pari_get_plot(&T); return plothraw_i(fmt,&T,X,Y,flags); }
 
 GEN
 plothsizes(long flag)
@@ -1686,26 +1723,23 @@ plothsizes(long flag)
 /*                         POSTSCRIPT OUTPUT                             */
 /*                                                                       */
 /*************************************************************************/
-/* if flag is set, rescale wrt T */
-static void
-gendraw(PARI_plot *T, GEN wxy, long flag)
+static long
+wxy_n(GEN wxy)
 {
-  long i, n;
-  GEN W, X, Y;
-
+  long n = lg(wxy)-1;
   if (typ(wxy) != t_VEC) pari_err_TYPE("plotdraw",wxy);
-  n = lg(wxy)-1; if (!n) return;
   if (n%3) pari_err_DIM("plotdraw");
-  n = n/3;
-  /* malloc mandatory in case T->draw forks then pari_close() */
-  W = cgetalloc(t_VECSMALL, n+1); /* win number */
-  X = cgetalloc(t_VECSMALL, n+1);
-  Y = cgetalloc(t_VECSMALL, n+1); /* (x,y)-offset */
-  for (i=1; i<=n; i++)
+  return n/3;
+}
+static void
+wxy_init(GEN wxy, GEN W, GEN X, GEN Y, PARI_plot *T)
+{
+  long i, l = lg(X);
+  for (i = 1; i < l; i++)
   {
     GEN w = gel(wxy,3*i-2), x = gel(wxy,3*i-1), y = gel(wxy,3*i);
-    if (typ(w)!=t_INT) pari_err_TYPE("plotdraw",w);
-    if (flag) {
+    if (typ(w) != t_INT) pari_err_TYPE("plotdraw",w);
+    if (T) {
       X[i] = DTOL(gtodouble(x)*(T->width - 1));
       Y[i] = DTOL(gtodouble(y)*(T->height - 1));
     } else {
@@ -1714,11 +1748,21 @@ gendraw(PARI_plot *T, GEN wxy, long flag)
     }
     W[i] = itos(w); check_rect_init(W[i]);
   }
+}
+/* if flag is set, rescale wrt T */
+static void
+gendraw(PARI_plot *T, GEN wxy, long flag)
+{
+  long n = wxy_n(wxy);
+  /* malloc mandatory in case T->draw forks then pari_close() */
+  GEN W = cgetalloc(t_VECSMALL, n+1); /* win number */
+  GEN X = cgetalloc(t_VECSMALL, n+1);
+  GEN Y = cgetalloc(t_VECSMALL, n+1); /* (x,y)-offset */
+  wxy_init(wxy, W,X,Y, flag? T: NULL);
   T->draw(T,W,X,Y);
   pari_free(W);
   pari_free(X);
   pari_free(Y);
-
 }
 void
 psdraw(GEN wxy, long flag)
@@ -1726,6 +1770,20 @@ psdraw(GEN wxy, long flag)
 void
 plotdraw(GEN wxy, long flag)
 { PARI_plot T; pari_get_plot(&T); gendraw(&T, wxy, flag); }
+
+GEN
+plotexport(GEN fmt, GEN wxy, long flag)
+{
+  pari_sp av = avma;
+  long n = wxy_n(wxy);
+  GEN w = cgetg(n+1, t_VECSMALL);
+  GEN x = cgetg(n+1, t_VECSMALL);
+  GEN y = cgetg(n+1, t_VECSMALL);
+  PARI_plot T;
+  pari_get_plot(&T);
+  wxy_init(wxy, w, x, y, flag? &T: NULL);
+  return gerepileuptoleaf(av, fmt_convert(fmt, w, x, y, &T));
+}
 
 /* may be called after pari_close(): don't use the PARI stack */
 void
