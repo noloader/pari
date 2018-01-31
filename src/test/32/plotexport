@@ -1,8 +1,8 @@
 [200, 150]
 "%!\n50 50 translate\n/p {moveto 0 2 rlineto 2 0 rlineto 0 -2 rlineto closep
-ath fill} def\n/l {lineto} def\n/m {moveto} def\n/Times-Roman findfont 17 sc
-alefont setfont\n0.000000 0.000000 0.000000 setrgbcolor\n0 0 m 0 718 l 772 7
-18 l 772 0 l closepath stroke\nstroke showpage\n"
+ath fill} def\n/c0 {0 0 0 setrgbcolor} def\n/c {setrgbcolor} def\n/l {lineto
+} def\n/m {moveto} def\n/Times-Roman findfont 17 scalefont setfont\nc0\n0 0 
+m 0 718 l 772 718 l 772 0 l closepath stroke\nstroke showpage\n"
 [243, 583]
 "<svg width='480' height='320' version='1.1' xmlns='http://www.w3.org/2000/s
 vg'><rect x='20.00' y='20.00' width='500.00' height='500.00' style='fill:non
@@ -624,4 +624,4 @@ cy='510.00' r='0.5' style='fill:#000000;stroke:none;'/><rect x='60.00' y='60
 '/><text x='110.00000' y='110.00000' font-size='12' style='fill:#000000;'>3.
 1415926535897932384626433832795028842</text><text x='210.00000' y='210.00000
 ' font-size='12' style='fill:#000000;'>(0,0)</text></svg>"
-Total time spent: 9
+Total time spent: 8

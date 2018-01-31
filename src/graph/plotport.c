@@ -2056,7 +2056,10 @@ ps_sc(void *data, long col)
     col = l-1;
   }
   color_to_rgb(gel(GP_DATA->colormap,col+1), &r, &g, &b);
-  str_printf(S,"%.6f %.6f %.6f setrgbcolor\n", r/255., g/255., b/255.);
+  if (!r && !g && !b)
+    str_puts(S,"c0\n");
+  else
+    str_printf(S,"%.6f %.6f %.6f c\n", r/255., g/255., b/255.);
 }
 
 static void
@@ -2150,6 +2153,8 @@ rect2ps_i(GEN w, GEN x, GEN y, PARI_plot *T, int plotps)
   str_printf(&S, "%%!\n\
 50 50 translate\n\
 /p {moveto 0 2 rlineto 2 0 rlineto 0 -2 rlineto closepath fill} def\n\
+/c0 {0 0 0 setrgbcolor} def\n\
+/c {setrgbcolor} def\n\
 /l {lineto} def\n\
 /m {moveto} def\n"
 "/Times-Roman findfont %ld scalefont setfont\n", DTOL(T->fheight * xs));
