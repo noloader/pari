@@ -8,7 +8,17 @@ Prototype: GV=GGED0,M,D0,L,p\nParametric|1; Recursive|2; no_Rescale|4; no_X_axis
 Help: plothexport(fmt, X=a,b,expr,{flags=0},{n=0}): plot of expression expr,
  X goes from a to b in high resolution, returning the resulting picture as
  a character string which can then be written to a file.
+Doc: plot of expression \var{expr}, $X$ goes from $a$ to $b$ in high
+ resolution, returning the resulting picture as a character string which can
+ then be written to a file.
 
- All other parameters and flags are as in \kbd{ploth}.
+ The format \kbd{fmt} is either \kbd{"ps"} (PostScript output) or \kbd{"svg"}
+ (Scalable Vector Graphics). All other parameters and flags are as in
+ \kbd{ploth}.
+
+ \bprog
+  ? s = plothexport("svg", x=1,10, x^2+3);
+  ? write("graph.svg", s);
+ @eprog
 
  \synt{plothexport}{GEN fmt, void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long flags, long n, long prec},

@@ -9,3 +9,13 @@ Doc: draw vector or rectwindows as in \kbd{plotdraw(list,flag)}, returning
  the resulting picture as a character string which can then be written to
  a file. The format \kbd{fmt} is either \kbd{"ps"} (PostScript output)
  or \kbd{"svg"} (Scalable Vector Graphics).
+
+ \bprog
+  ? plotinit(0, 100, 100);
+  ? plotbox(0, 50, 50);
+  ? plotcolor(0, 2);
+  ? plotbox(0, 30, 30);
+  ? plotdraw([0,0,0]); \\ watch result on screen
+  ? s = plotexport("svg, [0,0,0]);
+  ? write("graph.svg", s); \\ dump result to file
+ @eprog
