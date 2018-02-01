@@ -1453,10 +1453,10 @@ lfunsumcoth(GEN R, GEN s, GEN h, long prec)
   return gmul2n(S, -1);
 }
 
+static GEN lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec);
 /* L is a t_LDESC_PRODUCT Linit */
 static GEN
-lfun_genproduct(GEN L, GEN s, long bitprec,
-                GEN (*fun)(GEN ldata, GEN s, long bitprec))
+lfunlambda_product(GEN L, GEN s, GEN sdom, long bitprec)
 {
   pari_sp av = avma;
   GEN ldata = linit_get_ldata(L), v = lfunprod_get_fact(linit_get_tech(L));
@@ -1466,12 +1466,12 @@ lfun_genproduct(GEN L, GEN s, long bitprec,
   long isreal = gequal(imag_i(s), imag_i(cs));
   for (i = 1; i < l; ++i)
   {
-    GEN f = fun(gel(F, i), s, bitprec);
+    GEN f = lfunlambda_OK(gel(F, i), s, sdom, bitprec);
     if (E[i])
       r = gmul(r, gpowgs(f, E[i]));
     if (C[i])
     {
-      GEN fc = isreal ? f: fun(gel(F, i), cs, bitprec);
+      GEN fc = isreal ? f: lfunlambda_OK(gel(F, i), cs, sdom, bitprec);
       r = gmul(r, gpowgs(gconj(fc), C[i]));
     }
   }
@@ -1508,18 +1508,22 @@ get_domain(GEN s, GEN *dom, long *der)
 /* assume lmisc is an linit, s went through get_domain and s/bitprec belong
  * to domain */
 static GEN
-lfunlambda_OK(GEN linit, GEN s, long bitprec)
+lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec)
 {
   GEN eno, ldata, tech, h, pol;
-  GEN S, S0 = NULL, k2;
-  long prec;
+  GEN S, S0 = NULL, k2, cost;
+  long prec, prec0;
 
   if (linit_get_type(linit) == t_LDESC_PRODUCT)
-    return lfun_genproduct(linit, s, bitprec, lfunlambda_OK);
+    return lfunlambda_product(linit, s, sdom, bitprec);
   ldata = linit_get_ldata(linit);
   eno = ldata_get_rootno(ldata);
   tech = linit_get_tech(linit);
   h = lfun_get_step(tech); prec = realprec(h);
+  /* reduce accuracy if possible */
+  cost = lfuncost(linit, sdom, typ(s)==t_SER? der_level(s): 0, bitprec);
+  prec0 = nbits2prec(cost[2]);
+  if (prec0 < prec) { prec = prec0; h = gprec_w(h, prec); }
   pol = lfun_get_pol(tech);
   s = gprec_w(s, prec);
   if (ldata_get_residue(ldata))
@@ -1556,20 +1560,20 @@ lfunlambda(GEN lmisc, GEN s, long bitprec)
   long der;
   s = get_domain(s, &dom, &der);
   linit = lfuninit(lmisc, dom, der, bitprec);
-  z = lfunlambda_OK(linit,s,bitprec);
+  z = lfunlambda_OK(linit,s, dom, bitprec);
   return gerepilecopy(av, z);
 }
 
 /* assume lmisc is an linit, s went through get_domain and s/bitprec belong
  * to domain */
 static GEN
-lfun_OK(GEN linit, GEN s, long bitprec)
+lfun_OK(GEN linit, GEN s, GEN sdom, long bitprec)
 {
   GEN N, gas, S, FVga, res, ss = s;
   long prec = nbits2prec(bitprec);
 
   FVga = lfun_get_factgammavec(linit_get_tech(linit));
-  S = lfunlambda_OK(linit, s, bitprec);
+  S = lfunlambda_OK(linit, s, sdom, bitprec);
   if (typ(S)==t_SER && typ(s)!=t_SER)
   {
     long d = fracgammadegree(FVga);
@@ -1597,7 +1601,7 @@ lfun(GEN lmisc, GEN s, long bitprec)
   long der;
   s = get_domain(s, &dom, &der);
   linit = lfuninit(lmisc, dom, der, bitprec);
-  z = lfun_OK(linit,s,bitprec);
+  z = lfun_OK(linit, s, dom, bitprec);
   return gerepilecopy(av, z);
 }
 
@@ -1691,8 +1695,8 @@ lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
     /* HACK: pretend lfuninit was done to right accuracy */
     s = deg1ser_shallow(gen_1, s, 0, m+1+ex);
   }
-  res = flag ? lfunlambda_OK(linit, s, bitprec):
-               lfun_OK(linit, s, bitprec);
+  res = flag ? lfunlambda_OK(linit, s, dom, bitprec):
+               lfun_OK(linit, s, dom, bitprec);
   if (S)
     res = gsubst(derivnser(res, m), varn(S), S);
   else if (typ(res)==t_SER)
@@ -1750,7 +1754,7 @@ lfunhardy(GEN lmisc, GEN t, long bitprec)
   prec = precision(argz);
   a = gsub(gmulsg(d, gmul(t, gmul2n(argz,-1))),
            gmul(expot,glog(gnorm(z),prec)));
-  h = lfunlambda_OK(linit, z, bitprec);
+  h = lfunlambda_OK(linit, z, mkvec(t), bitprec);
   if (typ(ldata_get_dual(ldata))==t_INT)
     h = mulreal(h, w2);
   else
