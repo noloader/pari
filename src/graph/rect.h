@@ -146,27 +146,6 @@ struct plot_eng {
 #define RoLNTpen(rop) (RoLNT(rop)->pen)
 #define RoPTSsize(rop) (RoPTS(rop)->size)
 
-#define PLOT_PARAMETRIC   0x00001
-#define PLOT_RECURSIVE    0x00002
-#define PLOT_NO_RESCALE   0x00004
-#define PLOT_NO_AXE_X     0x00008
-#define PLOT_NO_AXE_Y     0x00010
-#define PLOT_NO_FRAME     0x00020
-#define PLOT_POINTS       0x00040
-#define PLOT_POINTS_LINES 0x00080
-#define PLOT_SPLINES      0x00100
-#define PLOT_NO_TICK_X    0x00200
-#define PLOT_NO_TICK_Y    0x00400
-#define PLOT_NODOUBLETICK 0x00800
-#define PLOT_COMPLEX      0x01000
-#define PLOT_PARA         0x02000
-
-#define RECT_CP_RELATIVE  0x1
-#define RECT_CP_NW        0x0
-#define RECT_CP_SW        0x2
-#define RECT_CP_SE        0x4
-#define RECT_CP_NE        0x6
-
 void gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys);
 void gp_get_plot(PARI_plot *T);
 ENDEXTERN
