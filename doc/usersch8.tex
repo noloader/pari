@@ -382,9 +382,6 @@ n, long prec} draw physically.
 \fun{GEN}{plotrecth}{void *E, GEN(*f)(void*,GEN), long w, GEN a,GEN b, ulong
 flags,long n, long prec} draw in rectwindow $w$.
 
-\fun{GEN}{psploth}{void *E, GEN(*f)(void*,GEN), GEN a, GEN b, long flags,
-long n, long prec} draw to a PostScript file.
-
 \subsec{Function }
 
 \fun{void}{plotbox}{long ne, GEN gx2, GEN gy2}
@@ -435,9 +432,17 @@ long n, long prec} draw to a PostScript file.
 
 \fun{void}{plotstring}{long ne, char *x, long dir}
 
+\subsec{Obsolete functions} These draw directly to a PostScript file
+specified by a global variable and should no longer be used. Use
+\kbd{plotexport} and friends instead.
+
 \fun{void}{psdraw}{GEN list, long flag}
 
 \fun{GEN}{psplothraw}{GEN listx, GEN listy, long flag}
+
+\fun{GEN}{psploth}{void *E, GEN(*f)(void*,GEN), GEN a, GEN b, long flags,
+long n, long prec} draw to a PostScript file.
+
 
 \subsec{Dump rectwindows to a PostScript or SVG file}
 

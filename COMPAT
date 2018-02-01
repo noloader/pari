@@ -47,6 +47,9 @@ This file lists the incompatible changes between Version 2.x and older versions
      coeffs of V[3] instead of P.
   - numtoperm now returns a t_VECSMALL (so that results can be
     multiplied as permutations, etc.), no longer a ZV
+  - The functions psdraw, psploth and psplothraw and the default psfile
+    are obsolete. Use one of plotexport, plothexport or plothrawexport
+    with format "ps" and write the result to file.
 
 * Specific to the PARI library:
 ===============================

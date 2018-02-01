@@ -4367,8 +4367,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: postploth2(X=a,b,expr) ===> psploth(X=a,b,expr,1)
 
-psploth(X=a,b,expr,{flags=0},{n=0}): same as ploth, except that the output is a 
-PostScript program in psfile (pari.ps by default).
+psploth(X=a,b,expr,{flags=0},{n=0}): obsolete function.
 
 
   ***   at top-level: postplothraw()
@@ -4524,4 +4523,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 4
+Total time spent: 9

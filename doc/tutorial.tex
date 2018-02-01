@@ -3457,12 +3457,11 @@ between the exact graph and one based on 30 points exist, but are pretty
 small.  On the other hand, decreasing the number of points to 20 would make
 quite a noticeable difference.
 
-Additionally, one can ask PARI to output a plot into a PS file: just
-use the command \kbd{psdraw} instead of \kbd{plotdraw} in the above examples
-(or \kbd{psploth} instead of \kbd{ploth}).  See \kbd{psfile} argument
-to \kbd{default} for how to change the output file for this operation.  Keep
-in mind that the precision of PARI PS output will be the same as for the
-current output device.
+Additionally, one can ask PARI to convert a plot to PS (PostScript)
+or SVG (Scalable Vector Graphics) format: just use the command
+\kbd{plotexport} instead of \kbd{plotdraw} in the above examples (or
+\kbd{plothexport} instead of \kbd{ploth}). This returns a character string
+which you can then write to a file using \kbd{write}.
 
 Now suppose we want to join many different small graphs into one picture.
 We cannot use one rectangle for all the output as we did in the example

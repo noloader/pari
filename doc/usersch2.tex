@@ -2690,7 +2690,7 @@ function \tet{strftime}. This means that \kbd{\%}\var{char} combinations have
 a special meaning, usually related to the time and date. For instance,
 \kbd{\%H} = hour (24-hour clock) and \kbd{\%M} = minute [00,59] (on a Unix
 system, you can try \kbd{man strftime} at your shell prompt to get a complete
-list). This is applied to \kbd{prompt}, \kbd{psfile}, and \kbd{logfile}. For
+list). This is applied to \kbd{prompt} and \kbd{logfile}. For
 instance,
 
 \kbd{default(prompt,"(\%H:\%M) ? ")}
@@ -2778,7 +2778,8 @@ it knows about operators as well: you can type \kbd{??~*} or
 number~$n$ in Chapter~3, just by typing \kbd{??~$n$} (where \kbd{?$n$} would
 yield merely a list of functions). Finally, a few key concepts in \kbd{gp} are
 documented in this way: metacommands (e.g \kbd{??~"??"}), defaults (e.g
-\kbd{??~psfile}) and type names (e.g \typ{INT} or \kbd{integer}), as well as
+\kbd{??~default(log)}) not to be mistaken with \kbd{??~log} (the natural
+logarithm) and type names (e.g \typ{INT} or \kbd{integer}), as well as
 various miscellaneous keywords such as \kbd{edit} (short summary of line
 editor commands), \kbd{operator}, \kbd{member}, \kbd{"user defined"},
 \kbd{nf}, \kbd{ell}, \dots

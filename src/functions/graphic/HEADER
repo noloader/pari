@@ -59,14 +59,11 @@ Doc:
  using the standard window manager functions. No zooming procedure is
  implemented though.
 
- \subsec{Functions for PostScript output} in the same way that \kbd{printtex} allows you to have a \TeX\ output
- corresponding to printed results, the functions starting with \kbd{ps} allow
- you to have \tet{PostScript} output of the plots. This will not be identical
- with the screen output, but sufficiently close. Note that you can use
- PostScript output even if you do not have the plotting routines enabled. The
- PostScript output is written in a file whose name is derived from the
- \tet{psfile} default (\kbd{./pari.ps} if you did not tamper with it). Each
- time a new PostScript output is asked for, the PostScript output is appended
- to that file. Hence you probably want to remove this file, or change the
- value of \kbd{psfile}, in between plots. On the other hand, in this manner,
- as many plots as desired can be kept in a single file. \smallskip
+ \subsec{Functions for PostScript or SVG output} in the same way that
+ \kbd{printtex} allows you to have a \TeX\ output
+ corresponding to printed results, the functions \kbd{plotexport},
+ \kbd{plothexport} and \kbd{plothrawexport} convert a plot to a character
+ string in either \tet{PostScript} or \tet{Scalable Vector Graphics} format.
+ This string can then be written to a file in the customary way, using
+ \kbd{write}. These export routines are available even if no Graphic Library is.
+ \smallskip
