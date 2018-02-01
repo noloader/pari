@@ -146,19 +146,6 @@ struct plot_eng {
 #define RoLNTpen(rop) (RoLNT(rop)->pen)
 #define RoPTSsize(rop) (RoPTS(rop)->size)
 
-#define RoSTdirLEFT       0x00
-#define RoSTdirCENTER     0x01
-#define RoSTdirRIGHT      0x02
-#define RoSTdirHPOS_mask  0x03
-
-#define RoSTdirBOTTOM     0x00
-#define RoSTdirVCENTER    0x04
-#define RoSTdirTOP        0x08
-#define RoSTdirVPOS_mask  0x0c
-
-#define RoSTdirHGAP       0x10
-#define RoSTdirVGAP       0x20
-
 #define PLOT_PARAMETRIC   0x00001
 #define PLOT_RECURSIVE    0x00002
 #define PLOT_NO_RESCALE   0x00004

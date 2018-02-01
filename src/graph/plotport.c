@@ -50,6 +50,16 @@ enum {
   ROt_NULL, /* To be the start of the chain */
 };
 
+/* string justification */
+#define RoSTdirLEFT       0x00
+#define RoSTdirRIGHT      0x02
+#define RoSTdirHPOS_mask  0x03
+#define RoSTdirBOTTOM     0x00
+#define RoSTdirTOP        0x08
+#define RoSTdirVPOS_mask  0x0c
+#define RoSTdirHGAP       0x10
+#define RoSTdirVGAP       0x20
+
 INLINE long
 DTOL(double t) { return (long)(t + 0.5); }
 
@@ -976,9 +986,8 @@ get_xy_from_vec(long cplx, GEN t, long *i, double *x, double *y)
   GEN a, b;
   if (cplx)
   {
-    GEN z;
-    if (typ(t) == t_VEC) z = gel(t,(*i)++); else { z = t; (*i)++; }
-    a = real_i(z); b = imag_i(z);
+    if (typ(t) == t_VEC) t = gel(t,*i);
+    a = real_i(t); b = imag_i(t); (*i)++;
   }
   else
   {
@@ -1091,7 +1100,7 @@ single_recursion(void *E, GEN(*eval)(void*,GEN), dblPointList *pl,
   xx = rmiddle(xleft,xright);
   yy = gtodouble(eval(E,xx));
 
-  if (dy && fabs(yleft+yright-2*yy)< dy*RECUR_PREC) return;
+  if (dy && fabs(yleft+yright-2*yy) < dy*RECUR_PREC) return;
   single_recursion(E,eval, pl,xleft,yleft, xx,yy, depth+1);
   Appendx(&pl[0],&pl[0],rtodbl(xx));
   Appendy(&pl[0],&pl[1],yy);
@@ -1811,20 +1820,19 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
       case ROt_ST:
         {
           long dir = RoSTdir(R);
-          long hjust = dir & RoSTdirHPOS_mask, hgap  = dir & RoSTdirHGAP;
-          long vjust = dir & RoSTdirVPOS_mask, vgap  = dir & RoSTdirVGAP;
-          char *text = RoSTs(R);
+          long h = dir & RoSTdirHPOS_mask, hgap  = 0;
+          long v = dir & RoSTdirVPOS_mask, vgap  = 0;
           long x, y, l = RoSTl(R);
-          long shift = (hjust == RoSTdirLEFT ? 0 :
-              (hjust == RoSTdirRIGHT ? 2 : 1));
-          if (hgap) hgap = (hjust == RoSTdirLEFT) ? hgapsize : -hgapsize;
-          if (vgap) vgap = (vjust == RoSTdirBOTTOM) ? 2*vgapsize : -2*vgapsize;
-          if (vjust != RoSTdirBOTTOM)
-            vgap -= ((vjust == RoSTdirTOP) ? 2 : 1)*(fheight - 1);
-          x = DTOL((RoSTx(R) + x0 + hgap - (l * fwidth * shift)/2)*xs);
-          y = DTOL((RoSTy(R) + y0 - vgap/2)*ys);
+          long shift = (h == RoSTdirLEFT ? 0 : (h == RoSTdirRIGHT? 2: 1));
+          long vshift= (v == RoSTdirBOTTOM? 0: (v == RoSTdirTOP? 2: 1));
+          if (dir & RoSTdirHGAP)
+            hgap = (h == RoSTdirLEFT) ? hgapsize : -hgapsize;
+          if (dir & RoSTdirVGAP)
+            vgap = (v == RoSTdirBOTTOM) ? 2*vgapsize : -2*vgapsize;
+          x = DTOL(xs * (RoSTx(R) + x0 + hgap - (l * fwidth * shift)/2));
+          y = DTOL(ys * (RoSTy(R) + y0 - (vgap - vshift*(fheight-1))/2));
           eng->sc(data,col);
-          eng->st(data, x, y, text, l);
+          eng->st(data, x, y, RoSTs(R), l);
           break;
         }
       default:
