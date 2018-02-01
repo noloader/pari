@@ -931,40 +931,26 @@ plotclip(long rect)
 /**                                                                **/
 /********************************************************************/
 static void
-Appendx(dblPointList *f, dblPointList *l,double x)
-{
-  (l->d)[l->nb++]=x;
-  if (x < f->xsml) f->xsml = x;
-  if (x > f->xbig) f->xbig = x;
-}
-
-static void
-Appendy(dblPointList *f, dblPointList *l,double y)
-{
-  (l->d)[l->nb++]=y;
-  if (y < f->ysml) f->ysml = y;
-  if (y > f->ybig) f->ybig = y;
-}
-
+set_xrange(dblPointList *f, double x)
+{ if (x < f->xsml) f->xsml = x; else if (x > f->xbig) f->xbig = x; }
 static void
 Appendxat(dblPointList *f, dblPointList *l,long n,double x)
-{
-  (l->d)[n]=x; l->nb=n+1;
-  if (x < f->xsml) f->xsml = x;
-  if (x > f->xbig) f->xbig = x;
-}
-
+{ (l->d)[n] = x; l->nb = n+1; set_xrange(f,x); }
+static void
+set_yrange(dblPointList *f, double y)
+{ if (y < f->ysml) f->ysml = y; else if (y > f->ybig) f->ybig = y; }
 static void
 Appendyat(dblPointList *f, dblPointList *l,long n,double y)
-{
-  (l->d)[n]=y; l->nb=n+1;
-  if (y < f->ysml) f->ysml = y;
-  if (y > f->ybig) f->ybig = y;
-}
+{ (l->d)[n] = y; l->nb = n+1; set_yrange(f,y); }
+static void
+Appendx(dblPointList *f, dblPointList *l,double x) { Appendxat(f,l,l->nb,x); }
+static void
+Appendy(dblPointList *f, dblPointList *l,double y) { Appendyat(f,l,l->nb,y); }
 
 static void
 get_xy(long cplx, GEN t, double *x, double *y)
 {
+  GEN a, b;
   if (cplx)
   {
     if (typ(t) == t_VEC)
@@ -972,58 +958,60 @@ get_xy(long cplx, GEN t, double *x, double *y)
       if (lg(t) != 2) pari_err_DIM("get_xy");
       t = gel(t,1);
     }
-    *x = gtodouble( real_i(t) );
-    *y = gtodouble( imag_i(t) );
+    a = real_i(t); b = imag_i(t);
   }
   else
   {
     if (typ(t) != t_VEC || lg(t) != 3) pari_err_DIM("get_xy");
-    *x = gtodouble( gel(t,1) );
-    *y = gtodouble( gel(t,2) );
+    a = gel(t,1); b = gel(t,2);
   }
+  *x = gtodouble(a);
+  *y = gtodouble(b);
 }
 /* t a t_VEC (possibly a scalar if cplx), get next (x,y) coordinate starting
  * at index *i [update i] */
 static void
 get_xy_from_vec(long cplx, GEN t, long *i, double *x, double *y)
 {
+  GEN a, b;
   if (cplx)
   {
     GEN z;
     if (typ(t) == t_VEC) z = gel(t,(*i)++); else { z = t; (*i)++; }
-    *x = gtodouble( real_i(z) );
-    *y = gtodouble( imag_i(z) );
+    a = real_i(z); b = imag_i(z);
   }
   else
   {
-    *x = gtodouble( gel(t, (*i)++) );
-    *y = gtodouble( gel(t, (*i)++) );
+    a = gel(t, (*i)++);
+    b = gel(t, (*i)++);
   }
+  *x = gtodouble(a);
+  *y = gtodouble(b);
 }
-/* X,Y t_VEC, get next (x,y) coordinate starting at index i
- * Y ignored if (cplx) */
+/* X,Y t_VEC; next (x,y) coordinate starting at index i; Y ignored if (cplx) */
 static void
 get_xy_from_vec2(long cplx, GEN X, GEN Y, long i, double *x, double *y)
 {
+  GEN a, b;
   if (cplx)
   {
     GEN z = gel(X,i);
-    *x = gtodouble( real_i(z) );
-    *y = gtodouble( imag_i(z) );
+    a = real_i(z); b = imag_i(z);
   }
   else
   {
-    *x = gtodouble( gel(X, i) );
-    *y = gtodouble( gel(Y, i) );
+    a = gel(X,i); b = gel(Y,i);
   }
+  *x = gtodouble(a);
+  *y = gtodouble(b);
 }
 
 /* Convert data from GEN to double before we call plotrecthrawin. */
 static dblPointList*
 gtodblList(GEN data, long flags)
 {
-  dblPointList *l;
-  double xsml, xbig, ysml, ybig;
+  dblPointList *l, *L;
+  double *X, *Y;
   long nl=lg(data)-1, lx1, i, j;
   const long param = (flags & (PLOT_PARAMETRIC|PLOT_COMPLEX));
   const long cplx = (flags & PLOT_COMPLEX);
@@ -1036,9 +1024,9 @@ gtodblList(GEN data, long flags)
   if (nl == 1 && !cplx) pari_err_DIM("gtodblList");
   /* Allocate memory, then convert coord. to double */
   l = (dblPointList*)pari_malloc((cplx? 2*nl: nl)*sizeof(dblPointList));
-  for (i=0; i<nl; i += (cplx? 1: 2))
+  L = &l[0];
+  for (i = 0; i < nl; i += cplx? 1: 2)
   {
-    dblPointList *LX = l + i, *LY = l + (i+1);
     GEN x = gel(data,i+1), y;
     long lx = lg(x);
     if (!is_vec_t(typ(x))) pari_err_TYPE("gtodblList",x);
@@ -1049,59 +1037,41 @@ gtodblList(GEN data, long flags)
       if (!is_vec_t(typ(y))) pari_err_TYPE("gtodblList",y);
       if (lg(y) != lx || (!param && lx != lx1)) pari_err_DIM("gtodblList");
     }
-
     lx--;
-    LX->d = (double*)pari_malloc(lx*sizeof(double));
-    LY->d = (double*)pari_malloc(lx*sizeof(double));
-    for (j=1; j<=lx; j++)
-    {
-      double xx, yy;
-      get_xy_from_vec2(cplx, x,y, j, &xx,&yy);
-      LX->d[j-1] = xx;
-      LY->d[j-1] = yy;
-    }
-    LX->nb = LY->nb = lx;
+    l[i].d   = X = (double*)pari_malloc(lx*sizeof(double));
+    l[i+1].d = Y = (double*)pari_malloc(lx*sizeof(double));
+    for (j=1; j<=lx; j++) get_xy_from_vec2(cplx, x, y, j, X+(j-1), Y+(j-1));
+    l[i].nb = l[i+1].nb = lx;
   }
 
-  /* Now compute extremas */
+  /* Compute extremas */
   if (param)
   {
-    l[0].nb = cplx? nl: nl/2;
-    for (i=0; i < l[0].nb; i+=2)
+    L->nb = cplx? nl: nl/2;
+    for (i=0; i < L->nb; i+=2)
       if (l[i+1].nb) break;
-    if (i >= l[0].nb) { pari_free(l); return NULL; }
-    xsml = xbig = l[i  ].d[0];
-    ysml = ybig = l[i+1].d[0];
-    for (; i < l[0].nb; i+=2)
+    if (i >= L->nb) { pari_free(l); return NULL; }
+    L->xsml = L->xbig = l[i  ].d[0];
+    L->ysml = L->ybig = l[i+1].d[0];
+    for (; i < L->nb; i+=2)
     {
-      dblPointList *LX = l + i, *LY = l + (i+1);
-      for (j=0; j < LY->nb; j++)
-      {
-        double x = LX->d[j], y = LY->d[j];
-        if (x < xsml) xsml = x; else if (x > xbig) xbig = x;
-        if (y < ysml) ysml = y; else if (y > ybig) ybig = y;
-      }
+      long nbi = l[i+1].nb; X = l[i].d; Y = l[i+1].d;
+      for (j = 0; j < nbi; j++) { set_xrange(L, X[j]); set_yrange(L, Y[j]); }
     }
   }
   else
   {
-    l[0].nb = nl-1;
-    xsml = xbig = l[0].d[0];
-    ysml = ybig = l[1].d[0];
-    for (j=0; j < l[1].nb; j++)
+    L->nb = nl-1;
+    X = L->d;   L->xsml = L->xbig = X[0];
+    Y = l[1].d; L->ysml = L->ybig = Y[0];
+    for (j=0; j < l[1].nb; j++) set_xrange(L, X[j]);
+    for (i=1; i <= L->nb; i++)
     {
-      double x = l[0].d[j];
-      if (x < xsml) xsml = x; else if (x > xbig) xbig = x;
+      long nbi = l[i].nb; Y = l[i].d;
+      for (j = 0; j < nbi; j++) set_yrange(L, Y[j]);
     }
-    for (i=1; i <= l[0].nb; i++)
-      for (j=0; j < l[i].nb; j++)
-      {
-        double y = l[i].d[j];
-        if (y < ysml) ysml = y; else if (y > ybig) ybig = y;
-      }
   }
-  l[0].xsml = xsml; l[0].xbig = xbig;
-  l[0].ysml = ysml; l[0].ybig = ybig; return l;
+  return l;
 }
 
 /* (x+y)/2 */
@@ -1123,10 +1093,8 @@ single_recursion(void *E, GEN(*eval)(void*,GEN), dblPointList *pl,
 
   if (dy && fabs(yleft+yright-2*yy)< dy*RECUR_PREC) return;
   single_recursion(E,eval, pl,xleft,yleft, xx,yy, depth+1);
-
   Appendx(&pl[0],&pl[0],rtodbl(xx));
   Appendy(&pl[0],&pl[1],yy);
-
   single_recursion(E,eval, pl,xx,yy, xright,yright, depth+1);
   avma = av;
 }
@@ -1136,24 +1104,21 @@ param_recursion(void *E,GEN(*eval)(void*,GEN), long cplx, dblPointList *pl,
   GEN tleft,double xleft, double yleft,
   GEN tright,double xright,double yright, long depth)
 {
-  GEN tt, p1;
-  pari_sp av=avma;
+  GEN tt;
+  pari_sp av = avma;
   double xx, dy=pl[0].ybig - pl[0].ysml;
   double yy, dx=pl[0].xbig - pl[0].xsml;
 
   if (depth==RECUR_MAXDEPTH) return;
 
   tt = rmiddle(tleft,tright);
-  p1 = eval(E,tt);
-  get_xy(cplx, p1, &xx,&yy);
+  get_xy(cplx, eval(E,tt), &xx,&yy);
 
   if (dx && dy && fabs(xleft+xright-2*xx) < dx*RECUR_PREC
                && fabs(yleft+yright-2*yy) < dy*RECUR_PREC) return;
   param_recursion(E,eval, cplx, pl, tleft,xleft,yleft, tt,xx,yy, depth+1);
-
   Appendx(&pl[0],&pl[0],xx);
   Appendy(&pl[0],&pl[1],yy);
-
   param_recursion(E,eval,cplx, pl, tt,xx,yy, tright,xright,yright, depth+1);
   avma = av;
 }
@@ -1177,38 +1142,27 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
 
   sig = gcmp(b,a); if (!sig) return NULL;
   if (sig < 0) swap(a, b);
-  if (N == 1)
-    pari_err_DOMAIN("ploth", "#points", "<", gen_2, stoi(N));
+  if (N == 1) pari_err_DOMAIN("ploth", "#points", "<", gen_2, stoi(N));
   if (!N) N = recur? 8: (param? 1500: 1000);
   /* compute F(a) to determine nc = #curves; nl = #coord. lists */
   x = gtofp(a, prec);
   t = eval(E, x); tx = typ(t);
-  if (param)
+  if (cplx) nc = nl = (tx == t_VEC)? lg(t)-1: 1;
+  else if (param)
   {
-    if (cplx) nc = nl = (tx == t_VEC)? lg(t)-1: 1;
-    else
-    {
-      if (tx != t_VEC)
-        pari_err_TYPE("ploth [not a t_VEC with PLOT_PARAMETRIC]", t);
-      nl = lg(t)-1;
-      nc = nl/2;
-      if (odd(nl))
-        pari_err_TYPE("ploth [parametric plot with odd # of components]",t);
-    }
+    if (tx != t_VEC) pari_err_TYPE("ploth [not a t_VEC in parametric plot]", t);
+    nl = lg(t)-1; nc = nl >> 1;
+    if (odd(nl)) pari_err_TYPE("ploth [odd #components in parametric plot]",t);
   }
+  else if (!is_matvec_t(tx)) { nl = 2; non_vec = 1; nc = 1; }
   else
   {
-    if (!is_matvec_t(tx)) { nl = 2; non_vec = 1; }
-    else
-    {
-      if (tx != t_VEC) pari_err_TYPE("ploth [not a t_VEC]",t);
-      nl = lg(t);
-    }
+    if (tx != t_VEC) pari_err_TYPE("ploth [not a t_VEC]",t);
+    nl = lg(t);
     nc = nl-1;
   }
   if (!nc) { avma = av; return NULL; }
-  if (recur && nc > 1)
-    pari_err_TYPE("ploth [multi-curves cannot be plot recursively]",t);
+  if (recur && nc > 1) pari_err_TYPE("ploth [multi-curves + recursive]",t);
 
   ncoords = cplx? 2*nl: nl;
   nbpoints = recur? N << RECUR_MAXDEPTH: N;
@@ -1230,8 +1184,8 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     pl[i].nb=0;
   }
   dx = divru(gtofp(gsub(b,a),prec), N-1);
-  if (recur) /* recursive plot */
-  {
+  if (recur)
+  { /* recursive plot */
     double yleft, yright = 0;
     if (param)
     {
