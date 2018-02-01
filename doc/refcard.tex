@@ -740,10 +740,11 @@ $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 \li{draw point $(x+dx,y+dy)$}{plotrpoint$(w,dx,dy)$}
 \li{draw point $(x+dx,y+dy)$}{plotrpoint$(w,dx,dy)$}
 %
-\subsec{Postscript Functions}
-\li{as {\tt ploth}}{psploth$(X=a,b,expr,\{\fl\},\{n\})$}
-\li{as {\tt plothraw}}{psplothraw$(lx,ly,\{\fl\})$}
-\li{as {\tt plotdraw}}{psdraw$($[[$w_1,x_1,y_1$]$,\dots$]$)$}
+\subsec{Convert to Postscript or Scalable Vector Graphics}
+The format $f$ is either \kbd{"ps"} or \kbd{"svg"}.\hfil\break
+\li{as {\tt ploth}}{plothexport$(f,X=a,b,expr,\{\fl\},\{n\})$}
+\li{as {\tt plothraw}}{plothrawexport$(f,lx,ly,\{\fl\})$}
+\li{as {\tt plotdraw}}{plotexport$(f,$[[$w_1,x_1,y_1$]$,\dots$]$)$}
 
 % This goes at the bottom of the second page (column 6)
 \copyrightnotice
