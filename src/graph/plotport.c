@@ -1376,22 +1376,19 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
   avma = av0;
 }
 
-typedef char * (*RECTFMT)(GEN,GEN,GEN,PARI_plot*);
-static RECTFMT
-fmt_parse(GEN fmt)
-{
-  char *f;
-  if (typ(fmt) != t_STR) pari_err_TYPE("plotexport",fmt);
-  f = GSTR(fmt);
-  if (!strcmp(f, "svg")) return &rect2svg;
-  if (strcmp(f, "ps")) pari_err_TYPE("plotexport [unknown format]", fmt);
-  return &rect2ps;
-}
 static GEN
 fmt_convert(GEN fmt, GEN w, GEN x, GEN y, PARI_plot *T)
 {
-  RECTFMT c = fmt_parse(fmt);
-  return strtoGENstr(c(w, x, y, T));
+  char *f, *s = NULL;
+  if (typ(fmt) != t_STR) pari_err_TYPE("plotexport",fmt);
+  f = GSTR(fmt);
+  if (!strcmp(f, "svg"))
+    s = rect2svg(w,x,y,T);
+  else if (!strcmp(f, "ps"))
+    s = rect2ps(w,x,y,T);
+  else
+    pari_err_TYPE("plotexport [unknown format]", fmt);
+  return strtoGENstr(s);
 }
 
 static void
