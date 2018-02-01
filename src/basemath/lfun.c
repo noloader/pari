@@ -1513,6 +1513,7 @@ lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec)
   GEN eno, ldata, tech, h, pol;
   GEN S, S0 = NULL, k2, cost;
   long prec, prec0;
+  struct lfunp D, D0;
 
   if (linit_get_type(linit) == t_LDESC_PRODUCT)
     return lfunlambda_product(linit, s, sdom, bitprec);
@@ -1520,10 +1521,15 @@ lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec)
   eno = ldata_get_rootno(ldata);
   tech = linit_get_tech(linit);
   h = lfun_get_step(tech); prec = realprec(h);
-  /* reduce accuracy if possible */
-  cost = lfuncost(linit, sdom, typ(s)==t_SER? der_level(s): 0, bitprec);
-  prec0 = nbits2prec(cost[2]);
-  if (prec0 < prec) { prec = prec0; h = gprec_w(h, prec); }
+  /* try to reduce accuracy */
+  parse_dom(0, sdom, &D0);
+  parse_dom(0, domain_get_dom(lfun_get_domain(tech)), &D);
+  if (0.8 * D.dh > D0.dh)
+  {
+    cost = lfuncost(linit, sdom, typ(s)==t_SER? der_level(s): 0, bitprec);
+    prec0 = nbits2prec(cost[2]);
+    if (prec0 < prec) { prec = prec0; h = gprec_w(h, prec); }
+  }
   pol = lfun_get_pol(tech);
   s = gprec_w(s, prec);
   if (ldata_get_residue(ldata))
