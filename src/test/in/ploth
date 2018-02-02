@@ -6,7 +6,7 @@ plotinit(0,t[1]-11,t[2]-11)
 plotscale(0,0,1000,0,1000);
 plotbox(0,500,500)
 plotdraw([0,0,0])
-psdraw([0,0,0])
+write("pari0.svg", plotexport("svg", [0,0,0]))
 plotcolor(0,2);
 plotmove(0,0,900); plotlines(0,900,0)
 plotlines(0,vector(5,k,50*k),vector(5,k,10*k*k))
@@ -23,8 +23,8 @@ plothraw(vector(501,k,k-1),vector(501,k,(k-1)*(k-1)/500));
 plothraw(vector(501,k,k-1),vector(501,k,(k-1)*(k-1)/500),1);
 plotpoints(0,225,334)
 plotpoints(0,vector(10,k,10*k),vector(10,k,5*k*k))
-psploth(x=-5,5,sin(x));
-psplothraw(vector(501,k,k-1),vector(501,k,(k-1)*(k-1)/500),1);
+write("pari1.svg", plothexport("svg", x=-5,5,sin(x)));
+write("pari2.svg", plothrawexport("svg", vector(501,k,k-1),vector(501,k,(k-1)*(k-1)/500),1));
 plotmove(0,50,50);plotrbox(0,50,50)
 plotrline(0,150,100)
 plotcolor(0,4);
@@ -34,7 +34,7 @@ plotrpoint(0,20,20)
 plotmove(0,100,100); plotstring(0,Pi)
 plotmove(0,200,200); plotstring(0,"(0,0)")
 plotdraw([0,10,10])
-psdraw([0,10,10])
+write("pari3.svg", plotexport("svg",[0,10,10]))
 ploth(x=0,1, x^3,"Splines")
 ploth(x=0,1, [x^2,x^3],"Parametric|Splines")
 plotinit(1);
