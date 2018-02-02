@@ -4319,7 +4319,6 @@ void    plotdraw(GEN list, long flag);
 GEN     plotexport(GEN fmt, GEN wxy, long flag);
 GEN     ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b, long flags,long n, long prec);
 GEN     plothexport(GEN fmt, void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags, long n, long prec);
-GEN     plothexport0(GEN fmt, GEN a, GEN b, GEN code, long flags, long n, long prec);
 GEN     parploth(GEN a, GEN b, GEN code, long flags,long n, long prec);
 GEN     plothraw(GEN listx, GEN listy, long flag);
 GEN     plothrawexport(GEN fmt, GEN X, GEN Y, long flags);

@@ -96,7 +96,8 @@ to relative extensions $L/K$.\hfill\break
 Elements are \typ{INT}, \typ{FRAC}, \typ{POL}, \typ{POLMOD}, or \typ{COL} (on
 integral basis \kbd{\var{nf}.zk}). Basic operations (prefix \kbd{nfelt}):
 $($\kbd{nfelt}$)$\kbd{add}, \kbd{mul}, \kbd{pow}, \kbd{div}, \kbd{diveuc},
-\kbd{mod}, \kbd{divrem}, \kbd{val}, \kbd{trace}, \kbd{norm}, \kbd{reduce}
+\kbd{mod}, \kbd{divrem}, \kbd{val}, \kbd{trace}, \kbd{norm}, \kbd{reduce},
+\kbd{redmodpower}.
 \hfill\break
 %
 \li{express $x$ on integer basis}{nfalgtobasis$(\var{nf},x)$}
@@ -221,7 +222,7 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \subsec{Primes and Multiplicative Structure}
 \li{factor ideal $x$ in $\ZZ_K$}{idealfactor$(\var{nf},x)$}
 \li{expand ideal factorization in $K$}{idealfactorback$(\var{nf},f,\{e\})$}
-\li{is ideal $A$ an $n$-th power ?}{idealfactor$(\var{nf},A,n)$}
+\li{is ideal $A$ an $n$-th power ?}{idealispower$(\var{nf},A,n)$}
 \li{expand elt factorization in $K$}{nffactorback$(\var{nf},f,\{e\})$}
 \li{decomposition of prime $p$ in $\ZZ_K$}{idealprimedec$(\var{nf},p)$}
 \li{valuation of $x$ at prime ideal \var{pr}}{idealval$(\var{nf},x,\var{pr})$}
