@@ -1,6 +1,6 @@
 default(realprecision,38);
 \\ platform independent
-test(s)= concat(Vec(s)[30..100]);
+test(s)= concat(Vec(s)[30..88]);
 
 plotinit(0,500,500)
 plotmove(0,0,0);plotbox(0,500,500)
