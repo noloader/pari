@@ -49,9 +49,9 @@ dsprintf9(double d, char *buf)
 
   while (--i >= 0) {
     sprintf(buf, "%9.*g", i, d);
-    if (strlen(buf) <= 9) return buf;
+    if (strlen(buf) <= 9) break;
   }
-  return buf; /* Should not happen? */
+  return buf;
 }
 
 typedef unsigned char screen[ISCR+1][JSCR+1];
@@ -164,4 +164,3 @@ pariplot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
   }
   pop_lex(1);
 }
-
