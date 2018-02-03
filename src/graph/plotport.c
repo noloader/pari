@@ -273,6 +273,9 @@ plotmove0(long ne, double x, double y, long relative)
   RoMVy(z) = RYcursor(e) * RYscale(e) + RYshift(e);
   Rchain(e, z);
 }
+static void
+_move(long ne, double x, double y)
+{ plotmove0(ne,x,y,0); }
 void
 plotmove(long ne, GEN x, GEN y)
 { plotmove0(ne,gtodouble(x),gtodouble(y),0); }
@@ -358,6 +361,9 @@ rectline0(long ne, double gx2, double gy2, long relative)
   Rchain(e, z);
   RoCol(z) = current_color[ne];
 }
+static void
+_line(long ne, double x, double y)
+{ rectline0(ne, x, y, 0); }
 void
 plotline(long ne, GEN gx2, GEN gy2)
 { rectline0(ne, gtodouble(gx2), gtodouble(gy2),0); }
@@ -495,6 +501,9 @@ rectbox0(long ne, double gx2, double gy2, long relative, long filled)
   Rchain(e, z);
   RoCol(z) = current_color[ne];
 }
+static void
+_box(long ne, double x, double y)
+{ rectbox0(ne, x, y, 0, 0); }
 void
 plotbox(long ne, GEN gx2, GEN gy2, long f)
 { rectbox0(ne, gtodouble(gx2), gtodouble(gy2), 0, f); }
@@ -979,13 +988,15 @@ plotclip(long rect)
 /********************************************************************/
 static void
 set_xrange(dblPointList *f, double x)
-{ if (x < f->xsml) f->xsml = x; else if (x > f->xbig) f->xbig = x; }
+{ if (x < f->xsml) f->xsml = x;
+  if (x > f->xbig) f->xbig = x; }
 static void
 Appendxat(dblPointList *f, dblPointList *l,long n,double x)
 { (l->d)[n] = x; l->nb = n+1; set_xrange(f,x); }
 static void
 set_yrange(dblPointList *f, double y)
-{ if (y < f->ysml) f->ysml = y; else if (y > f->ybig) f->ybig = y; }
+{ if (y < f->ysml) f->ysml = y;
+  if (y > f->ybig) f->ybig = y; }
 static void
 Appendyat(dblPointList *f, dblPointList *l,long n,double y)
 { (l->d)[n] = y; l->nb = n+1; set_yrange(f,y); }
@@ -1448,13 +1459,6 @@ fmt_convert(GEN fmt, GEN w, GEN x, GEN y, PARI_plot *T)
 static void
 Draw(PARI_plot *T, GEN w, GEN x, GEN y)
 { if (T->draw) T->draw(T, w,x,y); else get_plot_null(NULL); }
-
-static void
-put_label(long ne, long x, long y, char *c, long dir)
-{
-  plotmove0(ne,(double)x,(double)y,0);
-  plotstring(ne, c, dir);
-}
 static void
 set_range(double m, double M, double *sml, double *big)
 {
@@ -1504,12 +1508,12 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
   { /* actual output; else output to rectwindow: no labels */
     const long se = NUMRECT-2;
     long lm, rm, tm, bm;
-    char lybig[16], lysml[16], lxsml[16], lxbig[16];
+    char YBIG[16], YSML[16], XSML[16], XBIG[16];
     /* left/right/top/bottom margin */
-    sprintf(lysml,"%.5g", ysml); sprintf(lybig,"%.5g", ybig);
-    sprintf(lxsml,"%.5g", xsml); sprintf(lxbig,"%.5g", xbig);
+    sprintf(YSML,"%.5g", ysml); sprintf(YBIG,"%.5g", ybig);
+    sprintf(XSML,"%.5g", xsml); sprintf(XBIG,"%.5g", xbig);
     /* left margin has y labels with hgap on both sides of text */
-    lm = maxss(strlen(lysml),strlen(lybig))*W->fwidth + 2*W->hunit-1;
+    lm = maxss(strlen(YSML),strlen(YBIG))*W->fwidth + 2*W->hunit-1;
     rm = W->hunit-1;
     tm = W->vunit-1;
     bm = W->vunit+W->fheight-1;
@@ -1522,10 +1526,10 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
     current_color[se] = DEFAULT_COLOR;
     initrect_i(ne, W->width - (lm+rm) - 1, W->height - (tm+bm) - 1);
     /* draw labels on se */
-    put_label(se, lm, 0, lybig, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirTOP);
-    put_label(se, lm, W->height-bm,lysml, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirVGAP);
-    put_label(se, lm, W->height - bm, lxsml, RoSTdirLEFT|RoSTdirTOP);
-    put_label(se, W->width-rm-1, W->height-bm, lxbig, RoSTdirRIGHT|RoSTdirTOP);
+    _move(se,lm,0); plotstring(se, YBIG, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirTOP);
+    _move(se,lm,W->height-bm); plotstring(se,YSML, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirVGAP);
+    _move(se,lm,W->height-bm); plotstring(se, XSML, RoSTdirLEFT|RoSTdirTOP);
+    _move(se,W->width-rm-1, W->height-bm); plotstring(se, XBIG, RoSTdirRIGHT|RoSTdirTOP);
   }
   if (!(flags & PLOT_NO_RESCALE)) plotscale0(ne, xsml, xbig, ysml, ybig);
   if (!(flags & PLOT_NO_FRAME))
@@ -1536,8 +1540,8 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
     if (W) pl = W; else { pl = &T; pari_get_plot(pl); }
     plotlinetype(ne, -2); /* frame */
     current_color[ne] = DEFAULT_COLOR;
-    plotmove0(ne,xsml,ysml,0);
-    rectbox0(ne,xbig,ybig,0,0);
+    _move(ne,xsml,ysml);
+    _box(ne,xbig,ybig);
     if (!(flags & PLOT_NO_TICK_X)) {
       rectticks(pl, ne, xsml, ysml, xbig, ysml, xsml, xbig, fl);
       rectticks(pl, ne, xbig, ybig, xsml, ybig, xbig, xsml, fl);
@@ -1551,15 +1555,15 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
   {
     plotlinetype(ne, -1); /* axes */
     current_color[ne] = AXIS_COLOR;
-    plotmove0(ne,0.0,ysml,0);
-    rectline0(ne,0.0,ybig,0);
+    _move(ne,0.0,ysml);
+    _line(ne,0.0,ybig);
   }
   if (!(flags & PLOT_NO_AXE_X) && (ysml<=0 && ybig >=0))
   {
     plotlinetype(ne, -1); /* axes */
     current_color[ne] = AXIS_COLOR;
-    plotmove0(ne,xsml,0.0,0);
-    rectline0(ne,xbig,0.0,0);
+    _move(ne,xsml,0.0);
+    _line(ne,xbig,0.0);
   }
 
   if (param) {
