@@ -824,7 +824,7 @@ ptr_proplock(gp_pointer *g, GEN C)
   g->x = C;
   if (isclone(g->x))
   {
-    clone_unlock(g->ox);
+    clone_unlock_deep(g->ox);
     g->ox = g->x;
     ++bl_refc(g->ox);
   }
@@ -976,7 +976,7 @@ closure_eval(GEN C)
             changevalue(g->ep, g->x);
         }
         else change_compo(&(g->c), g->x);
-        clone_unlock(g->ox);
+        clone_unlock_deep(g->ox);
       }
       break;
     case OCstoredyn:
@@ -993,7 +993,7 @@ closure_eval(GEN C)
       {
         gp_pointer *g = &ptrs[--rp];
         change_compo(&(g->c), gel(st,--sp));
-        clone_unlock(g->ox);
+        clone_unlock_deep(g->ox);
         break;
       }
     case OCstackgen:
@@ -1483,7 +1483,7 @@ endeval:
     for(  ; rp>saved_rp ;  )
     {
       gp_pointer *g = &ptrs[--rp];
-      clone_unlock(g->ox);
+      clone_unlock_deep(g->ox);
     }
   }
   s_prec.n = saved_prec;

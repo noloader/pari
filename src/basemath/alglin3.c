@@ -538,7 +538,7 @@ genindexselect(void *E, long (*f)(void* E, GEN x), GEN A)
     if (f(E, gel(z,i))) v[lv++] = i;
     avma = av;
   }
-  clone_unlock(A); fixlg(v, lv); return v;
+  clone_unlock_deep(A); fixlg(v, lv); return v;
 }
 static GEN
 extract_copy(GEN A, GEN v)
@@ -556,7 +556,7 @@ vecselect(void *E, long (*f)(void* E, GEN x), GEN A)
   clone_lock(A);
   v = genindexselect(E, f, A);
   A = extract_copy(A, v); settyp(A, t_VEC);
-  clone_unlock(A); return A;
+  clone_unlock_deep(A); return A;
 }
 GEN
 genselect(void *E, long (*f)(void* E, GEN x), GEN A)
@@ -586,7 +586,7 @@ genselect(void *E, long (*f)(void* E, GEN x), GEN A)
       pari_err_TYPE("select",A);
       return NULL;/*LCOV_EXCL_LINE*/
   }
-  clone_unlock(A); return y;
+  clone_unlock_deep(A); return y;
 }
 
 static void
@@ -676,7 +676,7 @@ vecapply(void *E, GEN (*f)(void* E, GEN x), GEN x)
 {
   GEN y;
   clone_lock(x); y = vecapply1(E,f,x);
-  clone_unlock(x); settyp(y, t_VEC); return y;
+  clone_unlock_deep(x); settyp(y, t_VEC); return y;
 }
 GEN
 genapply(void *E, GEN (*f)(void* E, GEN x), GEN x)
@@ -722,7 +722,7 @@ genapply(void *E, GEN (*f)(void* E, GEN x), GEN x)
       pari_err_TYPE("apply",x);
       return NULL;/*LCOV_EXCL_LINE*/
   }
-  clone_unlock(x); return y;
+  clone_unlock_deep(x); return y;
 }
 
 GEN
@@ -741,7 +741,7 @@ vecselapply(void *Epred, long (*pred)(void* E, GEN x), void *Efun,
   clone_lock(A); y = cgetg(l, t_VEC);
   for (i=1; i<l; i++)
     if (pred(Epred, gel(A,i))) gel(y,nb++) = fun(Efun, gel(A,i));
-  fixlg(y,nb); clone_unlock(A); return y;
+  fixlg(y,nb); clone_unlock_deep(A); return y;
 }
 
 GEN
@@ -800,7 +800,7 @@ genfold(void *E, GEN (*f)(void* E, GEN x, GEN y), GEN x)
       z = gerepilecopy(av, z);
     }
   }
-  clone_unlock(x);
+  clone_unlock_deep(x);
   return gerepilecopy(av, z);
 }
 

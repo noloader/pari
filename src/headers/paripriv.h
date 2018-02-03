@@ -37,6 +37,8 @@ INLINE void
 clone_lock(GEN C) { if (isclone(C)) ++bl_refc(C); }
 INLINE void
 clone_unlock(GEN C) { if (isclone(C)) gunclone(C); }
+INLINE void
+clone_unlock_deep(GEN C) { if (isclone(C)) gunclone_deep(C); }
 
 /* swap */
 #define lswap(x,y) {long _z=x; x=y; y=_z;}
