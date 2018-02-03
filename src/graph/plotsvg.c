@@ -31,10 +31,10 @@ gp_get_plot(PARI_plot *T)
 {
   T->width   = 480;
   T->height  = 320;
+  T->fheight = 12;
+  T->fwidth  = 6;
   T->hunit   = 3;
   T->vunit   = 3;
-  T->fwidth  = 9;
-  T->fheight = 12;
   gp_get_ploth_default_sizes(T);
   T->dwidth  = 0;
   T->dheight = 0;

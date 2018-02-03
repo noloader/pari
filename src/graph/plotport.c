@@ -113,7 +113,7 @@ pari_get_svgplot(PARI_plot *T)
   T->width   = 480;
   T->height  = 320;
   T->fheight = 12;
-  T->fwidth  = 9;
+  T->fwidth  = 6;
   T->hunit   = 3;
   T->vunit   = 3;
   T->dwidth  = 0;
