@@ -95,17 +95,30 @@ static void
 _psdraw(PARI_plot *T, GEN w, GEN x, GEN y)
 { (void)T; _psdraw_scale(NULL,w,x,y); }
 static void
-pari_get_psplot(PARI_plot *T, long scale)
+pari_get_psplot(PARI_plot *T)
 {
-  T->width = PS_WIDTH;
-  T->height= PS_HEIGH;
+  T->width  = PS_WIDTH;
+  T->height = PS_HEIGH;
   T->fheight= 15;
   T->fwidth = 6;
+  T->hunit  = 5;
+  T->vunit  = 5;
   T->dwidth = 0;
   T->dheight= 0;
-  T->hunit = 5;
-  T->vunit = 5;
-  T->draw = scale? &_psdraw: &_psdraw_scale;
+  T->draw = NULL;
+}
+static void
+pari_get_svgplot(PARI_plot *T)
+{
+  T->width   = 480;
+  T->height  = 320;
+  T->fheight = 12;
+  T->fwidth  = 9;
+  T->hunit   = 3;
+  T->vunit   = 3;
+  T->dwidth  = 0;
+  T->dheight = 0;
+  T->draw = NULL;
 }
 
 /********************************************************************/
@@ -1409,6 +1422,14 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
   avma = av0;
 }
 
+static void
+pari_get_fmtplot(GEN fmt, PARI_plot *T)
+{
+  char *f = GSTR(fmt);
+  if (!strcmp(f, "svg")) pari_get_svgplot(T);
+  else if (!strcmp(f, "ps")) pari_get_psplot(T);
+  else pari_err_TYPE("plotexport [unknown format]", fmt);
+}
 static GEN
 fmt_convert(GEN fmt, GEN w, GEN x, GEN y, PARI_plot *T)
 {
@@ -1423,6 +1444,10 @@ fmt_convert(GEN fmt, GEN w, GEN x, GEN y, PARI_plot *T)
     pari_err_TYPE("plotexport [unknown format]", fmt);
   return strtoGENstr(s);
 }
+
+static void
+Draw(PARI_plot *T, GEN w, GEN x, GEN y)
+{ if (T->draw) T->draw(T, w,x,y); else get_plot_null(NULL); }
 
 static void
 put_label(long ne, long x, long y, char *c, long dir)
@@ -1572,8 +1597,7 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
   if (W)
   {
     GEN s = NULL;
-    if (fmt) s = fmt_convert(fmt, w, wx, wy, W);
-    else W->draw(W, w,wx,wy);
+    if (fmt) s = fmt_convert(fmt, w, wx, wy, W); else Draw(W, w,wx,wy);
     plotkill(w[1]);
     plotkill(w[2]);
     if (fmt) return s;
@@ -1622,7 +1646,7 @@ ploth0(GEN a, GEN b, GEN code, long flags,long n, long prec)
 GEN
 psploth(void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags, long n, long prec)
 {
-  PARI_plot T; pari_get_psplot(&T,0);
+  PARI_plot T; pari_get_psplot(&T); T.draw = &_psdraw;
   return plotrecth_i(NULL, E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
 }
 GEN
@@ -1634,7 +1658,7 @@ plothexport(GEN fmt, void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags,
 {
   pari_sp av = avma;
   GEN s;
-  PARI_plot T; pari_get_plot(&T);
+  PARI_plot T; pari_get_fmtplot(fmt, &T);
   s = plotrecth_i(fmt, E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
   return gerepileuptoleaf(av, s);
 }
@@ -1665,13 +1689,14 @@ plothraw(GEN X, GEN Y, long flags)
 { PARI_plot T; pari_get_plot(&T); return plothraw_i(NULL,&T,X,Y,flags); }
 GEN
 psplothraw(GEN X, GEN Y, long flags)
-{ PARI_plot T; pari_get_psplot(&T,0); return plothraw_i(NULL,&T,X,Y,flags); }
+{ PARI_plot T; pari_get_psplot(&T); T.draw = &_psdraw;
+  return plothraw_i(NULL,&T,X,Y,flags); }
 GEN
 plotrecthraw(long ne, GEN data, long flags)
 { return plotrecthraw_i(NULL, NULL, ne, data, flags); }
 GEN
 plothrawexport(GEN fmt, GEN X, GEN Y, long flags)
-{ PARI_plot T; pari_get_plot(&T); return plothraw_i(fmt,&T,X,Y,flags); }
+{ PARI_plot T; pari_get_fmtplot(fmt,&T); return plothraw_i(fmt,&T,X,Y,flags); }
 
 GEN
 plothsizes(long flag)
@@ -1734,23 +1759,23 @@ static void
 gendraw(PARI_plot *T, GEN wxy, long flag)
 {
   long n = wxy_n(wxy);
-  /* malloc mandatory in case T->draw forks then pari_close() */
+  /* malloc mandatory in case draw() forks then pari_close() */
   GEN W = cgetalloc(t_VECSMALL, n+1); /* win number */
   GEN X = cgetalloc(t_VECSMALL, n+1);
   GEN Y = cgetalloc(t_VECSMALL, n+1); /* (x,y)-offset */
   wxy_init(wxy, W,X,Y, flag? T: NULL);
-  T->draw(T,W,X,Y);
+  Draw(T,W,X,Y);
   pari_free(W);
   pari_free(X);
   pari_free(Y);
 }
 void
 psdraw(GEN wxy, long flag)
-{ PARI_plot T; pari_get_psplot(&T,flag); gendraw(&T, wxy, flag); }
+{ PARI_plot T; pari_get_psplot(&T); T.draw = flag? &_psdraw: &_psdraw_scale;
+  gendraw(&T, wxy, flag); }
 void
 plotdraw(GEN wxy, long flag)
 { PARI_plot T; pari_get_plot(&T); gendraw(&T, wxy, flag); }
-
 GEN
 plotexport(GEN fmt, GEN wxy, long flag)
 {
@@ -1759,10 +1784,10 @@ plotexport(GEN fmt, GEN wxy, long flag)
   GEN w = cgetg(n+1, t_VECSMALL);
   GEN x = cgetg(n+1, t_VECSMALL);
   GEN y = cgetg(n+1, t_VECSMALL);
-  PARI_plot T;
-  pari_get_plot(&T);
-  wxy_init(wxy, w, x, y, flag? &T: NULL);
-  return gerepileuptoleaf(av, fmt_convert(fmt, w, x, y, &T));
+  PARI_plot _T, *T = flag? &_T: NULL;
+  if (T) pari_get_plot(T);
+  wxy_init(wxy, w, x, y, T);
+  return gerepileuptoleaf(av, fmt_convert(fmt, w, x, y, T));
 }
 
 /* may be called after pari_close(): don't use the PARI stack */
@@ -1987,19 +2012,6 @@ svg_tail(pari_str *S)
   str_printf(S, "</svg>");
 }
 
-static void
-pari_get_svgplot(PARI_plot *T)
-{
-  T->width   = 480;
-  T->height  = 320;
-  T->hunit   = 3;
-  T->vunit   = 3;
-  T->fwidth  = 9;
-  T->dwidth  = 0;
-  T->dheight = 0;
-  T->fheight = 12;
-}
-
 char *
 rect2svg(GEN w, GEN x, GEN y, PARI_plot *T)
 {
@@ -2133,7 +2145,7 @@ rect2ps_i(GEN w, GEN x, GEN y, PARI_plot *T, int plotps)
   }
   else
   {
-    T = &U; pari_get_psplot(T,0);
+    T = &U; pari_get_psplot(T);
   }
   str_init(&S, 1);
   /* Definitions taken from post terminal of Gnuplot. */
