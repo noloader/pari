@@ -283,13 +283,13 @@ sd_intarray(const char *v, long flag, const char *s)
     if (*p == ',') l++;
     else if (*p < '0' || *p > '9')
     {
-      char *buf = pari_malloc(64 + strlen(s));
+      char *buf = stack_malloc(64 + strlen(s));
       sprintf(buf, "incorrect value for %s", s);
       pari_err(e_SYNTAX, buf, p, t);
     }
   if (*++p)
   {
-    char *buf = pari_malloc(64 + strlen(s));
+    char *buf = stack_malloc(64 + strlen(s));
     sprintf(buf, "incorrect value for %s", s);
     pari_err(e_SYNTAX, buf, p, t);
   }
