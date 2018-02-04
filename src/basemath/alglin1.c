@@ -3992,16 +3992,17 @@ reducemodlll(GEN x,GEN y)
 static GEN
 deplin_aux(GEN x0)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   long i, j, k, nl, nc = lg(x0)-1;
   GEN D, x, y, c, l, d, ck;
 
   if (!nc) { avma=av; return cgetg(1,t_COL); }
-  x = RgM_shallowcopy(x0);
-  nl = nbrows(x);
-  d = const_vec(nl, gen_1); /* pivot list */
+  nl = nbrows(x0);
   c = zero_zv(nl);
   l = cgetg(nc+1, t_VECSMALL); /* not initialized */
+  av2 = avma;
+  x = RgM_shallowcopy(x0);
+  d = const_vec(nl, gen_1); /* pivot list */
   ck = NULL; /* gcc -Wall */
   for (k=1; k<=nc; k++)
   {
@@ -4015,7 +4016,12 @@ deplin_aux(GEN x0)
 
     i = gauss_get_pivot_NZ(x, NULL, k, c);
     if (i > nl) break;
-
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"deplin k = %ld/%ld",k,nc);
+      gerepileall(av2, 2, &x, &d);
+      ck = gel(x,k);
+    }
     gel(d,k) = gel(ck,i);
     c[i] = k; l[k] = i; /* pivot d[k] in x[i,k] */
   }
