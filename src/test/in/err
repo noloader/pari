@@ -267,3 +267,8 @@ a
 n=1<<10000;
 znlog(Mod(1,n),Mod(1,n+1))
 Mod(0,n)^(-1)
+default(plothsizes,"[")
+default(plothsizes,"1")
+default(plothsizes,"[2,")
+default(plothsizes,"[2,]")
+default(plothsizes,"[2,3]") \\ succeeds

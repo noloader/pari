@@ -271,42 +271,33 @@ sd_ulong(const char *v, long flag, const char *s, ulong *ptn, ulong Min, ulong M
   return gnil;
 }
 
+static void
+err_intarray(char *t, char *p, const char *s)
+{
+  char *b = stack_malloc(64 + strlen(s));
+  sprintf(b, "incorrect value for %s", s);
+  pari_err(e_SYNTAX, b, p, t);
+}
 GEN
 sd_intarray(const char *v, long flag, const char *s)
 {
-  char *t = gp_filter(v);
+  char *p, *t = gp_filter(v);
   long i, l;
-  char *p;
-  GEN res;
+  GEN w;
+  if (*t != '[') err_intarray(t, t, s);
   if (t[1] == ']') return cgetalloc(t_VECSMALL, 1);
-  for (p = t+1, l=2; *p != ']'; p++)
+  for (p = t+1, l=2; *p; p++)
     if (*p == ',') l++;
-    else if (*p < '0' || *p > '9')
-    {
-      char *buf = stack_malloc(64 + strlen(s));
-      sprintf(buf, "incorrect value for %s", s);
-      pari_err(e_SYNTAX, buf, p, t);
-    }
-  if (*++p)
-  {
-    char *buf = stack_malloc(64 + strlen(s));
-    sprintf(buf, "incorrect value for %s", s);
-    pari_err(e_SYNTAX, buf, p, t);
-  }
-  res = cgetalloc(t_VECSMALL, l);
+    else if (*p < '0' || *p > '9') break;
+  if (*p != ']') err_intarray(t, p, s);
+  w = cgetalloc(t_VECSMALL, l);
   for (p = t+1, i=0; *p; p++)
   {
     long n = 0;
-    while (*p >= '0' && *p <= '9')
-    {
-      n *= 10;
-      n += *p-'0';
-      p++;
-    }
-    res[++i] = n;
+    while (*p >= '0' && *p <= '9') n = 10*n + (*p++ -'0');
+    w[++i] = n;
   }
-  pari_free(t);
-  return res;
+  pari_free(t); return w;
 }
 
 GEN

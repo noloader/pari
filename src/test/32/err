@@ -626,4 +626,10 @@ INFINITY
   ***   at top-level: Mod(0,n)^(-1)
   ***                         ^-----
   *** _^_: impossible inverse in Fp_inv: (...).
-Total time spent: 17
+  ***   incorrect value for plothsizes: [
+  ***                                    ^
+  ***   incorrect value for plothsizes: 1
+  ***                                   ^-
+  ***   incorrect value for plothsizes: [2,
+  ***                                      ^
+Total time spent: 16
