@@ -1667,8 +1667,12 @@ glcm(GEN x, GEN y)
   pari_sp av;
   GEN z;
   if (typ(x)==t_INT && typ(y)==t_INT) return lcmii(x,y);
-  av = avma;
-  z = ggcd(x,y); if (!gequal1(z)) y = gdiv(y,z);
+  av = avma; z = ggcd(x,y);
+  if (!gequal1(z))
+  {
+    if (gequal0(z)) { avma = av; return gmul(x,y); }
+    y = gdiv(y,z);
+  }
   return gerepileupto(av, fix_lcm(gmul(x,y)));
 }
 
