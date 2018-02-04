@@ -74,8 +74,7 @@ protected:
 private:
   PARI_plot *T;
   GEN w, x, y;
-  long numcolors;
-  QColor *color;
+  QColor color0;
   QFont font;
   static QString *plotFile;
   void draw(QPainter *p);
@@ -83,102 +82,95 @@ private:
 
 QString *Plotter::plotFile = new QString("pariplot");
 
+static QColor
+rgb_color(long c)
+{
+  int r, g, b; long_to_rgb(c, &r, &g, &b);
+  return QColor(r, g, b);
+}
 Plotter::Plotter(PARI_plot *T, GEN w, GEN x, GEN y, QWidget* parent)
     : QWidget(parent), font("lucida", 9) {
-  long i;
-
-  this->w = w; this->x = x; this->y = y; this->T = T;
+  this->w = w;
+  this->x = x;
+  this->y = y;
+  this->T = T;
   this->setFont(font);
-  numcolors = lg(GP_DATA->colormap)-1;
-  color = (QColor*)pari_malloc(numcolors*sizeof(QColor));
-  for (i = 1; i < lg(GP_DATA->colormap); i++)
   {
     int r, g, b;
-    color_to_rgb(gel(GP_DATA->colormap,i), &r, &g, &b);
-    color[i-1] = QColor(r, g, b);
+    color_to_rgb(gel(GP_DATA->colormap,1), &r, &g, &b);
+    color0 = QColor(r, g, b);
   }
   QPalette palette;
-  palette.setColor(backgroundRole(), color[0]);
+  palette.setColor(backgroundRole(), color0);
   setPalette(palette);
 }
-
-struct data_qt
-{
-  QPainter *p;
-  long numcolors;
-  QColor *color;
-};
 
 static void
 SetForeground(void *data, long col)
 {
-  struct data_qt *d = (struct data_qt *) data;
-  d->p->setPen(d->color[col]);
+  QPainter *p = (QPainter *)data;
+  p->setPen(rgb_color(col));
 }
 
 static void
 DrawPoint(void *data, long x, long y)
 {
-  struct data_qt *d = (struct data_qt *) data;
-  d->p->drawPoint(x, y);
+  QPainter *p = (QPainter *)data;
+  p->drawPoint(x, y);
 }
 
 static void
 DrawLine(void *data, long x1, long y1, long x2, long y2)
 {
-  struct data_qt *d = (struct data_qt *) data;
-  d->p->drawLine(x1, y1, x2, y2);
+  QPainter *p = (QPainter *)data;
+  p->drawLine(x1, y1, x2, y2);
 }
 
 static void
 DrawRectangle(void *data, long x, long y, long w, long h)
 {
-  struct data_qt *d = (struct data_qt *) data;
-  d->p->drawRect(x, y, w, h);
+  QPainter *p = (QPainter *)data;
+  p->drawRect(x, y, w, h);
 }
 
 static void
 FillRectangle(void *data, long x, long y, long w, long h)
 {
-  struct data_qt *d = (struct data_qt *) data;
-  d->p->fillRect(x, y, w, h, d->p->pen().color());
+  QPainter *p = (QPainter *)data;
+  p->fillRect(x, y, w, h, p->pen().color());
 }
 
 static void
-DrawPoints(void *data, long nb, struct plot_points *p)
+DrawPoints(void *data, long nb, struct plot_points *pt)
 {
-  struct data_qt *d = (struct data_qt *) data;
+  QPainter *p = (QPainter *)data;
   QPolygon xp = QPolygon(nb);
   long i;
-  for (i = 0;i < nb; i++) xp.setPoint(i,p[i].x, p[i].y);
-  d->p->drawPoints(xp);
+  for (i = 0;i < nb; i++) xp.setPoint(i,pt[i].x, pt[i].y);
+  p->drawPoints(xp);
 }
 
 static void
-DrawLines(void *data, long nb, struct plot_points *p)
+DrawLines(void *data, long nb, struct plot_points *pt)
 {
-  struct data_qt *d = (struct data_qt *) data;
+  QPainter *p = (QPainter *)data;
   QPolygon xp = QPolygon(nb);
   long i;
-  for (i = 0;i < nb; i++) xp.setPoint(i, p[i].x, p[i].y);
-  d->p->drawPolyline(xp);
+  for (i = 0;i < nb; i++) xp.setPoint(i, pt[i].x, pt[i].y);
+  p->drawPolyline(xp);
 }
 
 static void
 DrawString(void *data, long x, long y, char *text, long numtext)
 {
-  struct data_qt *d = (struct data_qt *) data;
-  d->p->drawText(x, y, QString(text).left(numtext));
+  QPainter *p = (QPainter *)data;
+  p->drawText(x, y, QString(text).left(numtext));
 }
 
 void
 Plotter::draw(QPainter *p)
 {
   struct plot_eng plotQt;
-  struct data_qt d;
-  d.p= p;
-  d.numcolors = numcolors;
-  d.color=color;
   plotQt.sc=&SetForeground;
   plotQt.pt=&DrawPoint;
   plotQt.ln=&DrawLine;
@@ -189,7 +181,7 @@ Plotter::draw(QPainter *p)
   plotQt.ml=&DrawLines;
   plotQt.st=&DrawString;
   plotQt.pl=T;
-  plotQt.data=(void *)&d;
+  plotQt.data=(void *)p;
   double xs = double(this->width()) / T->width;
   double ys = double(this->height()) / T->height;
   gen_draw(&plotQt, this->w, this->x, this->y, xs, ys);
@@ -202,7 +194,7 @@ Plotter::save(const QString& s, const QString& f)
   QPainter p;
   p.begin(&pm);
   p.initFrom(this);
-  p.fillRect(0, 0, pm.width(), pm.height(), color[0]);
+  p.fillRect(0, 0, pm.width(), pm.height(), color0);
   draw(&p);
   p.end();
   pm.save(s, f.toAscii().data());

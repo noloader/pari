@@ -21,9 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 static void SetForeground(void *data, long col)
 {
-  int r,g,b;
   HPEN hOldPen;
-  color_to_rgb(gel(GP_DATA->colormap,col+1), &r, &g, &b);
+  int r, g, b; long_to_rgb(col, &r, &g, &b);
   SetDCPenColor((HDC)data,RGB(r,g,b));
   hOldPen = SelectObject((HDC)data, CreatePen(PS_SOLID, 1, RGB(r,g,b)));
   if( hOldPen ) DeleteObject(hOldPen);
@@ -87,7 +86,7 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   char tmppath[MAX_PATH], fname[MAX_PATH];
   struct plot_eng plotWin32;
   HDC hEmf;
-  int bg_r,bg_g,bg_b;
+  int r, g, b;
 
   GetTempPath(sizeof(tmppath), tmppath);
   sprintf(fname, "%s\\gp-ploth-%lx.emf", tmppath, time(NULL)/(24*60*60)*1000+GetTickCount());
@@ -95,8 +94,8 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   hEmf = CreateEnhMetaFile(GetDC(NULL), fname, NULL, NULL);
   SetMapMode(hEmf, MM_TEXT);
   SelectObject(hEmf, GetStockObject(DEFAULT_GUI_FONT));
-  color_to_rgb(gel(GP_DATA->colormap,1), &bg_r, &bg_g, &bg_b);
-  SetBkColor(hEmf, RGB(bg_r,bg_g,bg_b));
+  color_to_rgb(gel(GP_DATA->colormap,1), &r,&g,&b);
+  SetBkColor(hEmf, RGB(r,g,b));
   SetBkMode(hEmf, OPAQUE);
 
   plotWin32.sc=&SetForeground;

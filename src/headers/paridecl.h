@@ -4309,12 +4309,13 @@ void    pari_mt_close(void);
 
 void    color_to_rgb(GEN c, int *r, int *g, int *b);
 void    colorname_to_rgb(const char *s, int *r, int *g, int *b);
+void    long_to_rgb(long c, int *r, int *g, int *b);
 void    pari_plot_by_file(const char *env, const char *suf, const char *img);
 void    pari_set_plot_engine(void (*plot)(PARI_plot *));
 void    pari_kill_plot_engine(void);
 void    plotbox(long ne, GEN gx2, GEN gy2, long fl);
 void    plotclip(long rect);
-void    plotcolor(long ne, long color);
+void    plotcolor(long ne, GEN c);
 void    plotcopy(long source, long dest, GEN xoff, GEN yoff, long flag);
 GEN     plotcursor(long ne);
 void    plotdraw(GEN list, long flag);

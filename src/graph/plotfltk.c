@@ -38,24 +38,21 @@ private:
 private:
   PARI_plot *T;
   GEN my_w, my_x, my_y;
-  Fl_Color *color;
 };
 
 static Fl_Color
-rgb_color(GEN col)
+rgb_color(long c)
 {
-  int r, g, b;
-  color_to_rgb(col, &r, &g, &b);
+  int r, g, b; long_to_rgb(c, &r, &g, &b);
   return fl_color_cube(r*FL_NUM_RED/256, g*FL_NUM_GREEN/256, b*FL_NUM_BLUE/256);
 }
 Plotter::Plotter(PARI_plot *T, GEN w, GEN x, GEN y)
         : Fl_Window(T->width, T->height, "PARI/GP")
 {
-  long i, n = lg(GP_DATA->colormap)-1;
-
-  this->T = T; this->my_w = w; this->my_x = x; this->my_y = y;
-  color = (Fl_Color*)pari_malloc(n*sizeof(Fl_Color));
-  for (i = 0; i < n; i++) color[i] = rgb_color( gel(GP_DATA->colormap,i+1) );
+  this->T = T;
+  this->my_w = w;
+  this->my_x = x;
+  this->my_y = y;
 }
 
 static void
@@ -75,15 +72,13 @@ FillRectangle(void *data, long x, long y, long w, long h)
 static void
 DrawPoints(void *data, long nb, struct plot_points *p)
 {
-  long i;
-  (void)data;
+  long i; (void)data;
   for (i=0; i<nb; i++) fl_point(p[i].x, p[i].y);
 }
 static void
 SetForeground(void *data, long col)
 {
-  Fl_Color *color = (Fl_Color*)data;
-  fl_color(color[col]);
+  (void)data; fl_color(rgb_color(col));
 }
 static void
 DrawLines(void *data, long nb, struct plot_points *p)
@@ -104,7 +99,7 @@ Plotter::draw()
   double ys = double(this->h()) / T->height;
 
   fl_font(FL_COURIER, int(T->fheight * xs));
-  fl_color(color[0]); // transparent window on Windows otherwise
+  fl_color(rgb_color(0xffffff)); // transparent window on Windows otherwise
   fl_rectf(0, 0, this->w(), this->h());
   pl.sc = &SetForeground;
   pl.pt = &DrawPoint;
@@ -115,7 +110,7 @@ Plotter::draw()
   pl.ml = &DrawLines;
   pl.st = &DrawString;
   pl.pl = T;
-  pl.data = (void*)color;
+  pl.data = NULL;
   gen_draw(&pl, my_w, my_x, my_y, xs, ys);
 }
 

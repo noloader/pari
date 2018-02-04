@@ -36,7 +36,6 @@ BEGINEXTERN
 ENDEXTERN
 
 static Colormap PARI_Colormap;
-static XColor  *PARI_Colors;
 
 struct data_x
 {
@@ -55,10 +54,35 @@ exiterr(const char *str)
   term_color(c_NONE); exit(1);
 }
 
+static long
+rgb_to_pixel(Display *display, int r, int g, int b)
+{
+  XColor X;
+  X.red   = r*65535/255;
+  X.green = g*65535/255;
+  X.blue  = b*65535/255;
+  X.flags = DoRed | DoGreen | DoBlue;
+  if (!XAllocColor(display,PARI_Colormap,&X)) exiterr("cannot allocate color");
+  return X.pixel;
+}
+static long
+colormapindex_to_pixel(Display *display, long i)
+{
+  GEN c = gel(GP_DATA->colormap, i+1);
+  int r,g,b; color_to_rgb(c, &r,&g,&b);
+  return rgb_to_pixel(display, r, g, b);
+}
+static long
+rgb_color(Display *display, long c)
+{
+  int r,g,b; long_to_rgb(c, &r, &g, &b);
+  return rgb_to_pixel(display, r, g, b);
+}
+
 static void SetForeground(void *data, long col)
 {
   struct data_x *dx = (struct data_x *) data;
-  XSetForeground(dx->display,dx->gc, PARI_Colors[col].pixel);
+  XSetForeground(dx->display,dx->gc, rgb_color(dx->display,col));
 }
 
 static void DrawPoint(void *data, long x, long y)
@@ -136,30 +160,6 @@ IOerror(Display *d) {
 }
 
 static void
-PARI_ColorSetUp(Display *display, GEN colors)
-{
-  static int init_done = 0;
-  long i, n = lg(colors)-1;
-
-  if (init_done) return;
-  init_done=1;
-
-  PARI_Colormap = DefaultColormap(display, 0);
-  PARI_Colors = (XColor *) pari_malloc((n+1) * sizeof(XColor));
-  for (i=0; i<n; i++)
-  {
-    int r, g, b;
-    color_to_rgb(gel(colors,i+1), &r, &g, &b);
-    PARI_Colors[i].red   = r*65535/255;
-    PARI_Colors[i].green = g*65535/255;
-    PARI_Colors[i].blue  = b*65535/255;
-    PARI_Colors[i].flags = DoRed | DoGreen | DoBlue;
-    if (!XAllocColor(display, PARI_Colormap, &PARI_Colors[i]))
-      exiterr("cannot allocate color");
-  }
-}
-
-static void
 draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
   long oldwidth,oldheight;
@@ -177,7 +177,6 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   Atom wm_delete_window, wm_protocols;
 
   if (pari_daemon()) return;  /* parent process returns */
-
   pari_close();
 
   display = XOpenDisplay(NULL);
@@ -185,13 +184,14 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   if (!font_info) exiterr("cannot open 7x13 font");
   XSetErrorHandler(Xerror);
   XSetIOErrorHandler(IOerror);
-  PARI_ColorSetUp(display,GP_DATA->colormap);
+  PARI_Colormap = DefaultColormap(display, 0);
 
   screen = DefaultScreen(display);
   win = XCreateSimpleWindow
     (display, RootWindow(display, screen), 0, 0,
      T->width, T->height, 4,
-     PARI_Colors[1].pixel, PARI_Colors[0].pixel);
+     colormapindex_to_pixel(display, 1),
+     colormapindex_to_pixel(display, 0));
 
   size_hints.flags = PPosition | PSize;
   size_hints.x = 0;

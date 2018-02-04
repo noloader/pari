@@ -143,7 +143,6 @@ pari_set_plot_engine(void (*plot)(PARI_plot *))
     PariRect *e = &rectgraph[n];
     RHead(e) = RTail(e) = NULL;
     RXsize(e) = RYsize(e) = 0;
-    current_color[n] = DEFAULT_COLOR;
   }
 }
 
@@ -190,6 +189,17 @@ Rchain(PariRect *e, RectObj *z)
   RoNext(z) = NULL;
 }
 
+/* c from graphcolormap */
+static long
+colormap_to_color(GEN c)
+{
+  int r, g, b; color_to_rgb(c, &r,&g,&b);
+  return (r << 16) | (g << 8) | b;
+}
+static long
+colormapindex_to_color(long i)
+{ return colormap_to_color(gel(GP_DATA->colormap,i+1)); }
+
 static void
 initrect_i(long ne, long x, long y)
 {
@@ -200,6 +210,7 @@ initrect_i(long ne, long x, long y)
   if (y <= 1) pari_err_DOMAIN("plotinit", "y", "<=", gen_1, stoi(y));
   e = check_rect(ne); if (RHead(e)) plotkill(ne);
 
+  current_color[ne] = colormapindex_to_color(DEFAULT_COLOR);
   z = (RectObj*) pari_malloc(sizeof(RectObj));
   RoType(z) = ROt_NULL;
   Rchain(e, z);
@@ -308,13 +319,23 @@ plotrpoint(long ne, GEN x, GEN y)
 { plotpoint0(ne,gtodouble(x),gtodouble(y),1); }
 
 void
-plotcolor(long ne, long c)
+plotcolor(long ne, GEN c)
 {
-  long n = lg(GP_DATA->colormap)-2;
+  long t = typ(c), n = lg(GP_DATA->colormap)-2;
   check_rect(ne);
-  if (c < 0) pari_err_DOMAIN("plotcolor", "color", "<", gen_0, stoi(c));
-  if (c > n) pari_err_DOMAIN("plotcolor", "color", ">", stoi(n), stoi(c));
-  current_color[ne] = c;
+  if (t == t_INT)
+  {
+    long i = itos(c);
+    if (i < 0) pari_err_DOMAIN("plotcolor", "color", "<", gen_0, c);
+    if (i > n) pari_err_DOMAIN("plotcolor", "color", ">", stoi(n), c);
+    c = gel(GP_DATA->colormap,i+1);
+  }
+  else
+  {
+    if (t == t_VEC) { c = ZV_to_zv(c); t = typ(c); }
+    if (t != t_VECSMALL && t != t_STR) pari_err_TYPE("plotcolor",c);
+  }
+  current_color[ne] = colormap_to_color(c);
 }
 
 /* ROt_MV/ROt_LN */
@@ -529,8 +550,7 @@ plotkill(long ne)
   RectObj *z, *t;
   PariRect *e = check_rect_init(ne);
 
-  current_color[ne]=DEFAULT_COLOR;
-  z=RHead(e);
+  z = RHead(e);
   RHead(e) = RTail(e) = NULL;
   RXsize(e) = RYsize(e) = 0;
   RXcursor(e) = RYcursor(e) = 0;
@@ -1523,7 +1543,6 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
    /* Window (width x height) is given in pixels, correct pixels are 0..n-1,
     * whereas rect functions work with windows whose pixel range is [0,n] */
     initrect_i(se, W->width - 1, W->height - 1);
-    current_color[se] = DEFAULT_COLOR;
     initrect_i(ne, W->width - (lm+rm) - 1, W->height - (tm+bm) - 1);
     /* draw labels on se */
     _move(se,lm,0); plotstring(se, YBIG, RoSTdirRIGHT|RoSTdirHGAP|RoSTdirTOP);
@@ -1539,7 +1558,7 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
     PARI_plot T, *pl;
     if (W) pl = W; else { pl = &T; pari_get_plot(pl); }
     plotlinetype(ne, -2); /* frame */
-    current_color[ne] = DEFAULT_COLOR;
+    current_color[ne] = colormapindex_to_color(DEFAULT_COLOR);
     _move(ne,xsml,ysml);
     _box(ne,xbig,ybig);
     if (!(flags & PLOT_NO_TICK_X)) {
@@ -1554,14 +1573,14 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
   if (!(flags & PLOT_NO_AXE_Y) && (xsml<=0 && xbig >=0))
   {
     plotlinetype(ne, -1); /* axes */
-    current_color[ne] = AXIS_COLOR;
+    current_color[ne] = colormapindex_to_color(AXIS_COLOR);
     _move(ne,0.0,ysml);
     _line(ne,0.0,ybig);
   }
   if (!(flags & PLOT_NO_AXE_X) && (ysml<=0 && ybig >=0))
   {
     plotlinetype(ne, -1); /* axes */
-    current_color[ne] = AXIS_COLOR;
+    current_color[ne] = colormapindex_to_color(AXIS_COLOR);
     _move(ne,xsml,0.0);
     _line(ne,xbig,0.0);
   }
@@ -1573,7 +1592,8 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
   } else i = 1;
   for (ltype = 0; ltype < nc; ltype++)
   {
-    current_color[ne] = GP_DATA->graphcolors[1+(ltype%max_graphcolors)];
+    long c = GP_DATA->graphcolors[1+(ltype%max_graphcolors)];
+    current_color[ne] = colormapindex_to_color(c);
     if (param) x = data[i++];
 
     y = data[i++];
@@ -1802,7 +1822,6 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
   long i, j, lw = lg(w);
   long hgapsize = eng->pl->hunit, fheight = eng->pl->fheight;
   long vgapsize = eng->pl->vunit,  fwidth = eng->pl->fwidth;
-  long numcolors = lg(GP_DATA->colormap)-1;
   for(i = 1; i < lw; i++)
   {
     PariRect *e = &rectgraph[w[i]];
@@ -1810,7 +1829,7 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
     long x0 = x[i], y0 = y[i];
     for (R = RHead(e); R; R = RoNext(R))
     {
-      long col = minss(numcolors, RoCol(R));
+      long col = RoCol(R);
       switch(RoType(R))
       {
       case ROt_PT:
@@ -1896,7 +1915,6 @@ gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys)
     }
   }
 }
-
 /*************************************************************************/
 /*                               SVG                                     */
 /*************************************************************************/
@@ -1907,8 +1925,6 @@ struct svg_data {
 };
 #define data_str(d) (&((struct svg_data*)(d))->str)
 #define data_hexcolor(d) (((struct svg_data*)(d))->hexcolor)
-
-static const char hexdigit[] = "0123456789abcdef";
 
 /* Work with precision 1/scale */
 static const float SVG_SCALE = 1024.0;
@@ -1967,17 +1983,18 @@ svg_points(void *data, long nb, struct plot_points *p)
 static void
 svg_color(void *data, long col)
 {
+  static const char hex[] = "0123456789abcdef";
+  char *c = data_hexcolor(data);
   int r, g, b;
-  char *hexcolor = data_hexcolor(data);
-  color_to_rgb(gel(GP_DATA->colormap, col+1), &r, &g, &b);
-  hexcolor[0] = '#';
-  hexcolor[1] = hexdigit[r / 16];
-  hexcolor[2] = hexdigit[r & 15];
-  hexcolor[3] = hexdigit[g / 16];
-  hexcolor[4] = hexdigit[g & 15];
-  hexcolor[5] = hexdigit[b / 16];
-  hexcolor[6] = hexdigit[b & 15];
-  hexcolor[7] = '\0';
+  long_to_rgb(col, &r, &g, &b);
+  c[0] = '#';
+  c[1] = hex[r / 16];
+  c[2] = hex[r & 15];
+  c[3] = hex[g / 16];
+  c[4] = hex[g & 15];
+  c[5] = hex[b / 16];
+  c[6] = hex[b & 15];
+  c[7] = '\0';
 }
 
 static void
@@ -2051,14 +2068,7 @@ static void
 ps_sc(void *data, long col)
 {
   pari_str *S = (pari_str*)data;
-  long l = lg(GP_DATA->colormap)-1;
-  int r, g, b;
-  if (col >= l)
-  {
-    pari_warn(warner,"non-existent color: %ld", col);
-    col = l-1;
-  }
-  color_to_rgb(gel(GP_DATA->colormap,col+1), &r, &g, &b);
+  int r, g, b; long_to_rgb(col, &r, &g, &b);
   if (!r && !g && !b)
     str_puts(S,"c0\n");
   else
@@ -2885,20 +2895,50 @@ COL(NULL,0) /* sentinel */
 #undef COL
 
 void
+long_to_rgb(long c, int *r, int *g, int *b)
+{
+  *b = c & 0xff; c >>= 8;
+  *g = c & 0xff; c >>= 8;
+  *r = c;
+}
+static int
+hex2(const char *s)
+{
+  int m = 0, i, c;
+  for (i = 0; i < 2; i++, s++)
+  {
+    if (*s >= '0' && *s <= '9')
+      c = *s - '0';
+    else if (*s >= 'A' && *s <= 'F')
+      c = *s - 'A' + 10;
+    else if (*s >= 'a' && *s <= 'f')
+      c = *s - 'a' + 10;
+    else pari_err(e_MISC,"incorrect hexadecimal number: %s", s);
+    m = 16*m + c;
+  }
+  return m;
+}
+void
 colorname_to_rgb(const char *s, int *r, int *g, int *b)
 {
-  hashentry *ep;
-  long rgb;
-
   if (!rgb_colors) rgb_colors = hashstr_import_static(col_list, 1000);
-  ep = hash_search(rgb_colors, (void*)s);
-  if (!ep) pari_err(e_MISC, "unknown color %s", s);
-  rgb = (long)ep->val;
-  *b = rgb & 0xff; rgb >>= 8;
-  *g = rgb & 0xff; rgb >>= 8;
-  *r = rgb;
+  if (*s == '#' && strlen(s) == 7)
+  {
+    *r = hex2(s+1);
+    *g = hex2(s+3);
+    *b = hex2(s+5);
+  }
+  else
+  {
+    hashentry *ep = hash_search(rgb_colors, (void*)s);
+    if (!ep) pari_err(e_MISC, "unknown color %s", s);
+    long_to_rgb((long)ep->val, r,g,b);
+  }
 }
 
+static void
+chk_8bit(int v, GEN c)
+{ if (v & ~0xff) pari_err(e_MISC, "invalid RGB code: %Ps", c); }
 void
 color_to_rgb(GEN c, int *r, int *g, int *b)
 {
@@ -2908,7 +2948,9 @@ color_to_rgb(GEN c, int *r, int *g, int *b)
       colorname_to_rgb(GSTR(c), r,g,b);
       break;
     default: /* t_VECSMALL: */
-      *r = c[1]; *g = c[2]; *b = c[3];
+      *r = c[1]; chk_8bit(*r, c);
+      *g = c[2]; chk_8bit(*g, c);
+      *b = c[3]; chk_8bit(*b, c);
       break;
   }
 }

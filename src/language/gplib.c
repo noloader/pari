@@ -1438,8 +1438,7 @@ static long
 atocolor(const char *s)
 {
   long l = atol(s);
-  if (l <   0) l =   0;
-  if (l > 255) l = 255;
+  if (l & ~0xff) pari_err(e_MISC, "invalid 8bit RGB code: %ld", l);
   return l;
 }
 
@@ -1519,19 +1518,15 @@ sd_graphcolormap(const char *v, long flag)
   }
   if (flag == d_RETURN || flag == d_ACKNOWLEDGE)
   {
-    GEN cols = cgetg(lg(GP_DATA->colormap), t_VEC);
-    long i;
-
-    for (i = 1; i < lg(cols); i++)
+    GEN C = cgetg(lg(GP_DATA->colormap), t_VEC);
+    long i, l = lg(C);
+    for (i = 1; i < l; i++)
     {
       GEN c = gel(GP_DATA->colormap, i);
-      if (typ(c) == t_STR)
-        gel(cols, i) = gcopy(c);
-      else
-        gel(cols, i) = vecsmall_to_vec(c);
+      gel(C, i) = (typ(c) == t_STR)? gcopy(c): zv_to_ZV(c);
     }
-    if (flag == d_RETURN) return cols;
-    pari_printf("   graphcolormap = %Ps\n", cols);
+    if (flag == d_RETURN) return C;
+    pari_printf("   graphcolormap = %Ps\n", C);
   }
   return gnil;
 }
