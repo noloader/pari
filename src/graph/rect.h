@@ -150,23 +150,23 @@ void gen_draw(struct plot_eng *eng, GEN w, GEN x, GEN y, double xs, double ys);
 void gp_get_plot(PARI_plot *T);
 
 #define gp_get_ploth_default_sizes(S)                                  \
-{ PARI_plot *T = (PARI_plot *)S;                                       \
+{ PARI_plot *_T = (PARI_plot *)S;                                      \
   GEN D = GP_DATA->plothsizes;                                         \
   if (D) switch(lg(D)) {                                               \
-    case 5: if (D[4]) T->vunit  = D[4];                                \
-    case 4: if (D[3]) T->hunit  = D[3];                                \
-    case 3: if (D[2]) T->height = D[2];                                \
-    case 2: if (D[1]) T->width  = D[1];                                \
+    case 5: if (D[4]) _T->vunit  = D[4];                               \
+    case 4: if (D[3]) _T->hunit  = D[3];                               \
+    case 3: if (D[2]) _T->height = D[2];                               \
+    case 2: if (D[1]) _T->width  = D[1];                               \
   }                                                                    \
 }
 
-#define gp_get_plot_generic(S,gp_get_display_sizes)                       \
-{ PARI_plot *T = (PARI_plot *)S;                                          \
-  gp_get_display_sizes(&T->dwidth, &T->dheight, &T->fwidth, &T->fheight); \
-  T->width = T->dwidth? T->dwidth*4/5: 640;                               \
-  T->height= T->dheight?T->dheight*4/5: 480;                              \
-  T->hunit = maxss(T->height/100,3);                                      \
-  T->vunit = maxss(T->height/100,3);                                      \
-  gp_get_ploth_default_sizes(S);                                          \
+#define gp_get_plot_generic(S,gp_get_display_sizes)                          \
+{ PARI_plot *_T = (PARI_plot *)S;                                            \
+  gp_get_display_sizes(&_T->dwidth, &_T->dheight, &_T->fwidth, &_T->fheight);\
+  _T->width = _T->dwidth? _T->dwidth*4/5: 640;                               \
+  _T->height= _T->dheight?_T->dheight*4/5: 480;                              \
+  _T->hunit = maxss(_T->height/100,3);                                       \
+  _T->vunit = maxss(_T->height/100,3);                                       \
+  gp_get_ploth_default_sizes(S);                                             \
 }
 ENDEXTERN
