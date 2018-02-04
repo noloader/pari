@@ -424,8 +424,8 @@ gp_get_display_sizes(long *dwidth, long *dheight, long *fwidth, long *fheight)
     *dwidth  = 0;
     *dheight = 0;
   }
-  T->fwidth  = 6;             // font width
-  T->fheight = 9;             //   and height
+  *fwidth  = 6; // font width
+  *fheight = 9; //   and height
 }
 
 void

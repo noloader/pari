@@ -188,10 +188,10 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
 INLINE void
 gp_get_display_sizes(long *dwidth, long *dheight, long *fwidth, long *fheight)
 {
-  T->dwidth  = Fl::w();
-  T->dheight = Fl::h();
-  T->fwidth  = 6;   // font width
-  T->fheight = 9;   //   and height
+  *dwidth  = Fl::w();
+  *dheight = Fl::h();
+  *fwidth  = 6;
+  *fheight = 9;
 }
 
 void
