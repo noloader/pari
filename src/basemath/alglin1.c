@@ -3990,13 +3990,13 @@ reducemodlll(GEN x,GEN y)
 /*                                                                 */
 /*******************************************************************/
 static GEN
-deplin_aux(GEN x0)
+RgM_deplin_i(GEN x0)
 {
   pari_sp av = avma, av2;
   long i, j, k, nl, nc = lg(x0)-1;
   GEN D, x, y, c, l, d, ck;
 
-  if (!nc) { avma=av; return cgetg(1,t_COL); }
+  if (!nc) { avma=av; return NULL; }
   nl = nbrows(x0);
   c = zero_zv(nl);
   l = cgetg(nc+1, t_VECSMALL); /* not initialized */
@@ -4025,7 +4025,7 @@ deplin_aux(GEN x0)
     gel(d,k) = gel(ck,i);
     c[i] = k; l[k] = i; /* pivot d[k] in x[i,k] */
   }
-  if (k > nc) { avma = av; return cgetg(1,t_COL); }
+  if (k > nc) { avma = av; return NULL; }
   if (k == 1) { avma = av; return scalarcol_shallow(gen_1,nc); }
   y = cgetg(nc+1,t_COL);
   gel(y,1) = gcopy(gel(ck, l[1]));
@@ -4059,48 +4059,73 @@ RgV_deplin(GEN v)
   return gerepileupto(av, y);
 
 }
+
+static GEN
+RgM_deplin_FpM(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp;
+  x = RgM_Fp_init(x, p, &pp);
+  switch(pp)
+  {
+  case 0:
+    x = FpM_ker_gen(x,p,1);
+    if (!x) { avma = av; return NULL; }
+    x = FpC_center(x,p,shifti(p,-1));
+    break;
+  case 2:
+    x = F2m_ker_sp(x,1);
+    if (!x) { avma = av; return NULL; }
+    x = F2c_to_ZC(x); break;
+  default:
+    x = Flm_ker_sp(x,pp,1);
+    if (!x) { avma = av; return NULL; }
+    x = Flv_center(x, pp, pp>>1);
+    x = zc_to_ZC(x);
+    break;
+  }
+  return gerepileupto(av, x);
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgM_deplin_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_FFELT:  return FFM_deplin(x, pol);
+    case t_INTMOD: return RgM_deplin_FpM(x, p);
+    default:       return gen_0;
+  }
+}
+#undef code
+
+static GEN
+RgM_deplin(GEN x)
+{
+  GEN z = RgM_deplin_fast(x);
+  if (z!= gen_0) return z;
+  return RgM_deplin_i(x);
+}
+
 GEN
 deplin(GEN x)
 {
-  GEN p = NULL, ff = NULL;
   switch(typ(x))
   {
-    case t_MAT: break;
+    case t_MAT:
+    {
+      GEN z = RgM_deplin(x);
+      if (z) return z;
+      return cgetg(1, t_COL);
+    }
     case t_VEC: return RgV_deplin(x);
     default: pari_err_TYPE("deplin",x);
   }
-  if (RgM_is_FpM(x, &p) && p)
-  {
-    pari_sp av = avma;
-    ulong pp;
-    x = RgM_Fp_init(x, p, &pp);
-    switch(pp)
-    {
-    case 0:
-      x = FpM_ker_gen(x,p,1);
-      if (!x) { avma = av; return cgetg(1,t_COL); }
-      x = FpC_center(x,p,shifti(p,-1));
-      break;
-    case 2:
-      x = F2m_ker_sp(x,1);
-      if (!x) { avma = av; return cgetg(1,t_COL); }
-      x = F2c_to_ZC(x); break;
-    default:
-      x = Flm_ker_sp(x,pp,1);
-      if (!x) { avma = av; return cgetg(1,t_COL); }
-      x = Flv_center(x, pp, pp>>1);
-      x = zc_to_ZC(x);
-      break;
-    }
-    return gerepileupto(av, x);
-  }
-  if (RgM_is_FFM(x, &ff))
-  {
-    x = FFM_deplin(x, ff);
-    if (!x) return cgetg(1, t_COL);
-    return x;
-  }
-  return deplin_aux(x);
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /*******************************************************************/
