@@ -4087,6 +4087,30 @@ RgM_deplin_FpM(GEN x, GEN p)
   return gerepileupto(av, x);
 }
 
+/* FIXME: implement direct modular ZM_deplin ? */
+static GEN
+QM_deplin(GEN M)
+{
+  pari_sp av = avma;
+  long l = lg(M)-1;
+  GEN k;
+  if (l==0) return NULL;
+  if (lgcols(M)==1) return col_ei(l, 1);
+  M = shallowtrans(vec_Q_primpart(shallowtrans(M)));
+  k = ZM_ker_i(M, 1);
+  if (lg(k)== 1) { avma = av; return NULL; }
+  return gerepilecopy(av, gel(k,1));
+}
+
+static GEN
+RgM_deplin_FqM(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  GEN b = FqM_deplin(RgM_to_FqM(x, T, p), T, p);
+  return gerepileupto(av, b);
+}
+
 #define code(t1,t2) ((t1 << 6) | t2)
 static GEN
 RgM_deplin_fast(GEN x)
@@ -4096,8 +4120,12 @@ RgM_deplin_fast(GEN x)
   long t = RgM_type(x, &p,&pol,&pa);
   switch(t)
   {
+    case t_INT:    /* fall through */
+    case t_FRAC:   return QM_deplin(x);
     case t_FFELT:  return FFM_deplin(x, pol);
     case t_INTMOD: return RgM_deplin_FpM(x, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_deplin_FqM(x, pol, p);
     default:       return gen_0;
   }
 }
