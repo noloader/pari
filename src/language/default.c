@@ -278,8 +278,8 @@ err_intarray(char *t, char *p, const char *s)
   sprintf(b, "incorrect value for %s", s);
   pari_err(e_SYNTAX, b, p, t);
 }
-GEN
-sd_intarray(const char *v, long flag, const char *s)
+static GEN
+parse_intarray(const char *v, const char *s)
 {
   char *p, *t = gp_filter(v);
   long i, l;
@@ -298,6 +298,17 @@ sd_intarray(const char *v, long flag, const char *s)
     w[++i] = n;
   }
   pari_free(t); return w;
+}
+GEN
+sd_intarray(const char *v, long flag, GEN *pz, const char *s)
+{
+  if (v) { pari_free(*pz); *pz = parse_intarray(v, s); }
+  switch(flag)
+  {
+    case d_RETURN: return zv_to_ZV(*pz);
+    case d_ACKNOWLEDGE: pari_printf("   %s = %Ps\n", s, zv_to_ZV(*pz));
+  }
+  return gnil;
 }
 
 GEN

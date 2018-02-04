@@ -2696,7 +2696,7 @@ GEN sd_strictmatch(const char *v, long flag);
 GEN sd_string(const char *v, long flag, const char *s, char **f);
 GEN sd_threadsize(const char *v, long flag);
 GEN sd_threadsizemax(const char *v, long flag);
-GEN sd_intarray(const char *v, long flag, const char *s);
+GEN sd_intarray(const char *v, long flag, GEN *pz, const char *s);
 GEN sd_toggle(const char *v, long flag, const char *s, int *ptn);
 GEN sd_ulong(const char *v, long flag, const char *s, ulong *ptn, ulong Min, ulong Max, const char **msg);
 GEN setdefault(const char *s, const char *v, long flag);

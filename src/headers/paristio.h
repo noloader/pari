@@ -280,8 +280,8 @@ typedef struct {
   gp_pp *pp;
   gp_path *path, *sopath;
   pariout_t *fmt;
-  ulong lim_lines, flags, linewrap, readline_state;
-  int echo, breakloop, recover, use_readline;
+  ulong lim_lines, flags, linewrap, readline_state, echo;
+  int breakloop, recover, use_readline;
   char *help, *histfile, *prompt, *prompt_cont, *prompt_comment;
   GEN colormap, graphcolors, plothsizes;
 

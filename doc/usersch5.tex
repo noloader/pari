@@ -14046,7 +14046,7 @@ a message attached to the value $i$ of the default. The last entry in the
 
 The exact behavior and return value depends on \kbd{flag}:
 
-\item \tet{d_RETURN}: returns the new toggle value, as a \kbd{GEN}.
+\item \tet{d_RETURN}: returns the new value, as a \kbd{GEN}.
 
 \item \tet{d_ACKNOWLEDGE}: prints a message indicating the new value,
 possibly a message attached to it via the \kbd{msg} argument, and return
@@ -14054,9 +14054,22 @@ possibly a message attached to it via the \kbd{msg} argument, and return
 
 \item other cases: print nothing and return \kbd{gnil}.
 
-\fun{GEN}{sd_intarry}{const char *v, long flag, const char *s}
+\fun{GEN}{sd_intarray}{const char *v, long flag, const char *s, GEN *pz}
 
-\item return a \typ{VECSMALL} array of integers.
+\item records a \typ{VECSMALL} array of non-negative integers.
+
+\item \kbd{pz} points to the current \typ{VECSMALL} value, and is set to the
+new value (when \kbd{v} is non-empty).
+
+The exact return value depends on \kbd{flag}:
+
+\item \tet{d_RETURN}: returns the new value, as a \typ{VEC} (converted via
+\kbd{zv\_to\_ZV})
+
+\item \tet{d_ACKNOWLEDGE}: prints a message indicating the new value,
+(as a \typ{VEC}) and return \kbd{gnil}.
+
+\item other cases: print nothing and return \kbd{gnil}.
 
 \fun{GEN}{sd_string}{const char *v, long flag, const char *s, char **pstr}
 \item \kbd{v} is subjet to environment expansion, then time expansion.

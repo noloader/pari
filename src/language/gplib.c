@@ -1538,36 +1538,10 @@ sd_graphcolormap(const char *v, long flag)
 
 GEN
 sd_graphcolors(const char *v, long flag)
-{
-  if (v) {
-    pari_free(GP_DATA->graphcolors);
-    GP_DATA->graphcolors = sd_intarray(v, flag, "graphcolors");
-  }
-  switch(flag)
-  {
-  case d_RETURN:
-    return vecsmall_to_vec(GP_DATA->graphcolors);
-  case d_ACKNOWLEDGE:
-    pari_printf("   graphcolors = %Ps\n", vecsmall_to_vec(GP_DATA->graphcolors));
-  }
-  return gnil;
-}
+{ return sd_intarray(v, flag, &(GP_DATA->graphcolors), "graphcolors"); }
 GEN
 sd_plothsizes(const char *v, long flag)
-{
-  if (v) {
-    pari_free(GP_DATA->plothsizes);
-    GP_DATA->plothsizes = sd_intarray(v, flag, "plothsizes");
-  }
-  switch(flag)
-  {
-  case d_RETURN:
-    return vecsmall_to_vec(GP_DATA->plothsizes);
-  case d_ACKNOWLEDGE:
-    pari_printf("   plothsizes = %Ps\n", vecsmall_to_vec(GP_DATA->plothsizes));
-  }
-  return gnil;
-}
+{ return sd_intarray(v, flag, &(GP_DATA->plothsizes), "plothsizes"); }
 
 GEN
 sd_help(const char *v, long flag)
@@ -1615,12 +1589,7 @@ sd_breakloop(const char *v, long flag)
 { return sd_toggle(v,flag,"breakloop", &(GP_DATA->breakloop)); }
 GEN
 sd_echo(const char *v, long flag)
-{
-  ulong echo = GP_DATA->echo;
-  GEN ret = sd_ulong(v,flag,"echo", &echo, 0,2,NULL);
-  GP_DATA->echo = echo;
-  return ret;
-}
+{ return sd_ulong(v,flag,"echo", &(GP_DATA->echo), 0,2,NULL); }
 GEN
 sd_timer(const char *v, long flag)
 { return sd_toggle(v,flag,"timer", &(GP_DATA->chrono)); }
