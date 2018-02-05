@@ -2904,7 +2904,7 @@ long_to_rgb(long c, int *r, int *g, int *b)
 static int
 hex2(const char *s)
 {
-  int m = 0, i, c;
+  int m = 0, c = 0, i;
   for (i = 0; i < 2; i++, s++)
   {
     if (*s >= '0' && *s <= '9')
