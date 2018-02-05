@@ -39,163 +39,77 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * allowed: either when arg looks like no[-_]id, or when id looks like
  * this, and arg is not-negated. */
 
-enum { A_ACTION_ASSIGN, A_ACTION_SET, A_ACTION_UNSET };
-#define IS_ID(c)        (isalnum((int)c) || ((c) == '_') || ((c) == '-'))
-
+static int
+IS_ID(char c) { return isalnum((int)c) || c == '_'; }
 long
 eval_mnemonic(GEN str, const char *tmplate)
 {
-  pari_sp av=avma;
+  const char *arg, *etmplate;
   ulong retval = 0;
-  const char *etmplate = NULL;
-  const char *arg;
 
   if (typ(str)==t_INT) return itos(str);
   if (typ(str)!=t_STR) pari_err_TYPE("eval_mnemonic",str);
 
-  arg=GSTR(str);
+  arg = GSTR(str);
   etmplate = strchr(tmplate, '\n');
-  if (!etmplate)
-    etmplate = tmplate + strlen(tmplate);
+  if (!etmplate) etmplate = tmplate + strlen(tmplate);
 
   while (1)
   {
     long numarg;
-    const char *e, *id;
-    const char *negated;                /* action found with 'no'-ID */
-    int negate;                 /* Arg has 'no' prefix removed */
-    ulong l, action = 0, first = 1, singleton = 0;
-    char *buf, *inibuf;
+    const char *e, *id, *negated = NULL;
+    int negate = 0; /* Arg has 'no' prefix removed */
+    ulong l;
+    char *buf;
     static char b[80];
 
     while (isspace((int)*arg)) arg++;
-    if (!*arg)
-      break;
-    e = arg;
-    while (IS_ID(*e)) e++;
+    if (!*arg) break;
+    e = arg; while (IS_ID(*e)) e++;
     /* Now the ID is whatever is between arg and e. */
     l = e - arg;
-    if (l >= sizeof(b))
-      pari_err(e_MISC,"id too long in a stringified flag");
-    if (!l)                             /* Garbage after whitespace? */
-      pari_err(e_MISC,"a stringified flag does not start with an id");
-    strncpy(b, arg, l);
-    b[l] = 0;
-    arg = e;
-    e = inibuf = buf = b;
-    while (('0' <= *e) && (*e <= '9'))
-      e++;
-    if (*e == 0)
-      pari_err(e_MISC,"numeric id in a stringified flag");
-    negate = 0;
-    negated = NULL;
-find:
+    if (l >= sizeof(b)) pari_err(e_MISC,"id too long in a mnemonic");
+    if (!l) pari_err(e_MISC,"mnemonic does not start with an id");
+    strncpy(b, arg, l); b[l] = 0;
+    arg = e; e = buf = b;
+    while ('0' <= *e && *e <= '9') e++;
+    if (*e == 0) pari_err(e_MISC,"numeric id in a mnemonic");
+FIND:
     id = tmplate;
     while ((id = strstr(id, buf)) && id < etmplate)
     {
-      if (IS_ID(id[l])) {       /* We do not allow abbreviations yet */
-        id += l;                /* False positive */
-        continue;
-      }
-      if ((id >= tmplate + 2) && (IS_ID(id[-1])))
-      {
-        const char *s = id;
-
-        if ( !negate && s >= tmplate+3
-            && ((id[-1] == '_') || (id[-1] == '-')) )
-          s--;
-        /* Check whether we are preceeded by "no" */
-        if ( negate             /* buf initially started with "no" */
-            || (s < tmplate+2) || (s[-1] != 'o') || (s[-2] != 'n')
-            || (s >= tmplate+3 && IS_ID(s[-3]))) {
-          id += l;              /* False positive */
-          continue;
-        }
-        /* Found noID in the template! */
-        id += l;
-        negated = id;
-        continue;               /* Try to find without 'no'. */
-      }
-      /* Found as is */
-      id += l;
-      break;
+      const char *s = id;
+      id += l; if (s[l] != '|') continue; /* False positive */
+      if (s == tmplate || !IS_ID(s[-1])) break; /* Found as is */
+      /* If we found "no_ID", negate */
+      if (!negate && s >= tmplate+3 && (s == tmplate+3 || !IS_ID(s[-4]))
+          && s[-3] == 'n' && s[-2] == 'o' && s[-1] == '_')
+         { negated = id; break; }
     }
-    if ( !id && !negated && !negate
-        && (l > 2) && buf[0] == 'n' && buf[1] == 'o' ) {
-      /* Try to find the flag without the prefix "no". */
-      buf += 2; l -= 2;
-      if ((buf[0] == '_') || (buf[0] == '-')) { buf++; l--; }
-      negate = 1;
-      if (buf[0])
-        goto find;
+    if (!id && !negated && !negate && l > 3
+            && buf[0] == 'n' && buf[1] == 'o' && buf[2] == '_')
+    { /* Try to find the flag without the prefix "no_". */
+      buf += 3; l -= 3; negate = 1;
+      if (buf[0]) goto FIND;
     }
-    if (!id && negated) /* Negated and AS_IS forms, prefer AS_IS */
-    {
-      id = negated;     /* Otherwise, use negated form */
-      negate = 1;
-    }
+    /* Negated and AS_IS forms, prefer AS_IS otherwise use negated form */
     if (!id)
-      pari_err(e_MISC,"Unrecognized id '%s' in a stringified flag", inibuf);
-    if (singleton && !first)
-      pari_err(e_MISC,"Singleton id non-single in a stringified flag");
-    if (id[0] == '=') {
-      if (negate)
-        pari_err(e_MISC,"Cannot negate id=value in a stringified flag");
-      if (!first)
-        pari_err(e_MISC,"Assign action should be first in a stringified flag");
-      action = A_ACTION_ASSIGN;
-      id++;
-      if (id[0] == '=') {
-        singleton = 1;
-        id++;
-      }
-    } else if (id[0] == '^') {
-      if (id[1] != '~')
-        pari_err(e_MISC, "Unrecognized action in a template");
-      id += 2;
-      if (negate)
-        action = A_ACTION_SET;
-      else
-        action = A_ACTION_UNSET;
-    } else if (id[0] == '|') {
-      id++;
-      if (negate)
-        action = A_ACTION_UNSET;
-      else
-        action = A_ACTION_SET;
+    {
+      if (!negated) pari_err(e_MISC,"Unrecognized id '%s' in mnemonic", b);
+      id = negated; negate = 1;
     }
-
+    if (*id++ != '|') pari_err(e_MISC,"Missing | in mnemonic template");
     e = id;
-
-    while ((*e >= '0' && *e <= '9')) e++;
-    while (isspace((int)*e))
-      e++;
-    if (*e && (*e != ';') && (*e != ','))
-      pari_err(e_MISC, "Non-numeric argument of an action in a template");
-    numarg = atol(id);          /* Now it is safe to get it... */
-    switch (action) {
-    case A_ACTION_SET:
-      retval |= numarg;
-      break;
-    case A_ACTION_UNSET:
-      retval &= ~numarg;
-      break;
-    case A_ACTION_ASSIGN:
-      retval = numarg;
-      break;
-    default:
-      pari_err(e_MISC,"error in parse_option_string");
-    }
-    first = 0;
-    while (isspace((int)*arg))
-      arg++;
-    if (*arg && !(ispunct((int)*arg) && *arg != '-'))
-      pari_err(e_MISC,"Junk after an id in a stringified flag");
-    /* Skip punctuation */
-    if (*arg)
-      arg++;
+    while (*e >= '0' && *e <= '9') e++;
+    while (isspace((int)*e)) e++;
+    if (*e && *e != ';' && *e != ',')
+      pari_err(e_MISC, "Non-numeric argument in mnemonic template");
+    numarg = atol(id);
+    if (negate) retval &= ~numarg; else retval |= numarg;
+    while (isspace((int)*arg)) arg++;
+    if (*arg && !ispunct((int)*arg++)) /* skip punctuation */
+      pari_err(e_MISC,"Junk after id in mnemonic");
   }
-  avma=av;
   return retval;
 }
 

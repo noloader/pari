@@ -83,31 +83,19 @@ are set to $0$). This is announced as ``The binary digits of $\fl$ mean 1:
 $p_0$, 2: $p_1$, 4: $p_2$'', and so on, using the available consecutive
 powers of~$2$.
 
-\misctitle{Mnemonics for flags} Numeric flags as mentioned above are
-obscure, error-prone, and quite rigid: should the authors
-want to adopt a new flag numbering scheme (for instance when noticing
-flags with the same meaning but different numeric values across a set of
-routines), it would break backward compatibility. The only advantage of
-explicit numeric values is that they are fast to type, so their use is only
-advised when using the calculator \kbd{gp}.
+\misctitle{Mnemonics for binary flags} Numeric flags as mentioned above are
+obscure, error-prone, and quite rigid: should the authors want to adopt a new
+flag numbering scheme, it would break backward compatibility. The only
+advantage of explicit numeric values is that they are fast to type, so their
+use is only advised when using the calculator \kbd{gp}.
 
-As an alternative, one can replace a numeric flag by a character string
-containing symbolic identifiers. For a generic flag, the mnemonic
-corresponding to the numeric identifier is given after it as in
-
-\bprog
-fun(x, {flag = 0} ):
-
-  If flag is equal to 1 = AGM, use an agm formula ...
-@eprog\noindent
-which means that one can use indifferently \kbd{fun($x$, 1)} or
-\kbd{fun($x$, "AGM")}.
-
-For a binary flag, mnemonics corresponding to the various toggles are given
-after each of them. They can be negated by prepending \kbd{no\_} to the
-mnemonic, or by removing such a prefix. These toggles are grouped together
-using any punctuation character (such as ',' or ';'). For instance (taken
-from description of $\tet{ploth}(X=a,b,\var{expr},\{\fl=0\},\{n=0\})$)
+As an alternative, one can replace a binary flag by a character string
+containing symbolic identifiers (mnemonics). In the function description,
+mnemonics corresponding to the various toggles are given after each of them.
+They can be negated by prepending \kbd{no\_} to the mnemonic, or by removing
+such a prefix. These toggles are grouped together using any punctuation
+character (such as ',' or ';'). For instance (taken from description of
+$\tet{ploth}(X=a,b,\var{expr},\{\fl=0\},\{n=0\})$)
 
 \centerline{Binary digits of flags mean: $1=\kbd{Parametric}$,
 $2=\kbd{Recursive}$, \dots}
