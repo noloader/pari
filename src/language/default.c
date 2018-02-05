@@ -285,7 +285,7 @@ parse_intarray(const char *v, const char *s)
   long i, l;
   GEN w;
   if (*t != '[') err_intarray(t, t, s);
-  if (t[1] == ']') return cgetalloc(t_VECSMALL, 1);
+  if (t[1] == ']') { pari_free(t); return cgetalloc(t_VECSMALL, 1); }
   for (p = t+1, l=2; *p; p++)
     if (*p == ',') l++;
     else if (*p < '0' || *p > '9') break;
@@ -302,7 +302,7 @@ parse_intarray(const char *v, const char *s)
 GEN
 sd_intarray(const char *v, long flag, GEN *pz, const char *s)
 {
-  if (v) { pari_free(*pz); *pz = parse_intarray(v, s); }
+  if (v) { GEN z = *pz; *pz = parse_intarray(v, s); pari_free(z); }
   switch(flag)
   {
     case d_RETURN: return zv_to_ZV(*pz);
