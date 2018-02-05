@@ -4844,21 +4844,26 @@ static GEN
 ellnfembed(GEN E, long prec)
 {
   pari_sp av = avma;
-  GEN nf = ellnf_get_nf(E);
-  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2;
-  GEN Eb, e, L;
-  long i,j;
-  Eb = cgetg(6, t_VEC);
-  for(i=1;i<=5; i++)
-    gel(Eb, i) = nfeltembed(nf,gel(E, i),NULL);
-  e = cgetg(6, t_VEC);
-  L =  cgetg(n+1, t_VEC);
-  for(i=1; i<=n; i++)
+  GEN nf = ellnf_get_nf(E), Eb = cgetg(6, t_VEC), e, L;
+  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2, i, j;
+
+  i = nf_get_prec(nf);
+  if (i < prec) nf = nfnewprec_shallow(nf, prec);
+  for(;;)
   {
-    for(j=1;j<=5; j++) gel(e,j) = gmael(Eb,j,i);
-    gel(L,i) = ellinit_Rg(e, i<=r1, prec);
+    for (i=1; i<=5; i++) gel(Eb,i) = nfeltembed(nf,gel(E,i),NULL);
+    e = cgetg(6, t_VEC);
+    L =  cgetg(n+1, t_VEC);
+    for (i=1; i<=n; i++)
+    {
+      for (j=1; j<=5; j++) gel(e,j) = gmael(Eb,j,i);
+      gel(L,i) = ellinit_Rg(e, i<=r1, prec);
+      if (!gel(L,i)) break;
+    }
+    if (i > n) return gerepilecopy(av, L);
+    if (DEBUGLEVEL>1) pari_warn(warnprec,"ellnfembed", prec);
+    prec = precdbl(prec); nf = nfnewprec_shallow(nf, prec);
   }
-  return gerepilecopy(av, L);
 }
 
 static GEN
