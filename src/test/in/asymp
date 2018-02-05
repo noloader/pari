@@ -30,3 +30,4 @@ C=-1/2-log(2*sqrt(Pi));
 check(limitnum(n->b(n^2)), C)
 asympnum(n->b(n^2)-C)
 asympnum(n->lngamma(n+1)-(n+1/2)*log(n)+n-1/2*log(2*Pi))
+asympnum(a->a^(-5/2)*if(a%40==0,I,0))

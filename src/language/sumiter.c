@@ -1874,6 +1874,7 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
     s = limitnum_i(&L);
     /* NOT bestappr: lindep properly ignores the lower bits */
     v = lindep_bit(mkvec2(gen_1, s), maxss((long)(0.95*floor(B - i*LB)), 32));
+    if (lg(v) == 1) break;
     p = negi(gel(v,1));
     q = gel(v,2);
     if (!signe(q)) break;
