@@ -117,6 +117,11 @@ E2.eta
 E.area
 E2.area
 
+K=bnfinit(t^5 - 8*t^4 - 2*t^3 + 2*t^2 + t - 8);
+E=ellinit([-10, -6, -10, -7, -8],K);
+Emin=ellminimalmodel(E);
+Emin.omega
+
 K = nfinit(a^2 - a - 22);
 E = ellinit([0, 0, 1, -1590*a - 8580, 92750*a + 359875],K);
 idealnorm(K,ellglobalred(E)[1])
