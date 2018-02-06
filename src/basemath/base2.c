@@ -3670,7 +3670,7 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
   if (nf)
   {
     nf = checknf(nf);
-    if (v == nf_get_varn(nf)) pari_err_PRIORITY("polcompositum", nf, "==",  v);
+    if (varncmp(v,nf_get_varn(nf))>=0) pari_err_PRIORITY("polcompositum", nf, ">=",  v);
   }
   same = (A == B || RgX_equal(A,B));
   A = compositum_fix(nf,A);

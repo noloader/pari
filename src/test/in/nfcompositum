@@ -27,3 +27,7 @@ nfcompo() = gusuite("compositum of relative extensions", ()->{
 });
 
 nfcompo();
+
+\\bad input
+nfcompositum(nfinit(x),w^2+1,w^2+1)
+nfcompositum(x,w^2+1,w^2+1)
