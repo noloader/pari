@@ -1338,7 +1338,12 @@ alg_model0(GEN al, GEN x)
   if (typ(x) != t_COL) return al_INVALID;
   if (N == 1) {
     if (lx != 2) return al_INVALID;
-    return al_TRIVIAL; /* cannot distinguish basis and alg from size */
+    switch(typ(gel(x,1)))
+    {
+      case t_INT: case t_FRAC: return al_TRIVIAL; /* cannot distinguish basis and alg from size */
+      case t_POL: case t_POLMOD: return al_ALGEBRAIC;
+      default: return al_INVALID;
+    }
   }
 
   switch(alg_type(al)) {
