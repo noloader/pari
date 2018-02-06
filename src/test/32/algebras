@@ -2071,4 +2071,19 @@ x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
   ***                 ^----------------------------------------------
   *** nfgrunwaldwang: incorrect priority in nfgrunwaldwang: variable x >= x
-Total time spent: 876
+
+[1]
+
+
+[1]
+
+
+[1]
+
+
+[1/2]
+
+
+[1/2]
+
+Total time spent: 852

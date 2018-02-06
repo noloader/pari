@@ -1905,4 +1905,11 @@ print("nfgrunwaldwang SEGV #1669");
 nfgrunwaldwang(nfinit(y),[2,3],[1,2],Vecsmall(1))
 nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(1))
 
+\\alg_model bug for 1-dim al_CSA
+al = alginit(nfinit(y),[matid(1)]);
+algsplittingmatrix(al,[Mod(1,y)]~)
+algsplittingmatrix(al,[1]~)
+algsplittingmatrix(al,[1+y-y]~)
+algsplittingmatrix(al,[1/2]~)
+algsplittingmatrix(al,[Mod(1/2,y)]~)
 
