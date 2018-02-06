@@ -1183,7 +1183,8 @@ cxgamma(GEN s0, int dolog, long prec)
     l2 = u*u - st*st;
     if (l2 > 0)
     {
-      nn = (long)ceil(sqrt(l2) - ssig);
+      double t = ceil(sqrt(l2) - ssig);
+      nn = (t < 1)? 1: (long)t;
       if (nn < 1) nn = 1;
     }
     else

@@ -1948,10 +1948,12 @@ all_roots(GEN p, long bit)
 {
   GEN lc, pd, q, roots_pol, m;
   long bit0,  bit2, i, e, h, n = degpol(p);
+  double fb;
   pari_sp av;
 
   pd = RgX_deflate_max(p, &h); lc = leading_coeff(pd);
-  e = (long)(2 * fujiwara_bound(pd)); if (e < 0) e = 0;
+  fb = fujiwara_bound(pd);
+  e = (fb < 0)? 0: (long)(2 * fb);
   bit0 = bit + gexpo(pd) - gexpo(lc) + (long)log2(n/h)+1+e;
   bit2 = bit0; e = 0;
   for (av=avma,i=1;; i++,avma=av)
