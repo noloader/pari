@@ -2042,7 +2042,19 @@ rect2svg(GEN w, GEN x, GEN y, PARI_plot *T)
 
   str_init(&data.str, 1);
   svg_color(&data, 0);
-  if (!T) { T = &U; pari_get_svgplot(T); }
+  if (!T)
+  {
+    long i, l = lg(w), xmax = 0, ymax = 0;
+    T = &U; pari_get_svgplot(T);
+    for (i = 1; i < l; i++)
+    {
+      PariRect *e = check_rect_init(w[i]);
+      xmax = maxss(xmax, RXsize(e) + x[i]);
+      ymax = maxss(ymax, RYsize(e) + y[i]);
+    }
+    T->width = xmax;
+    T->height = ymax;
+  }
   pl.data = &data;
   pl.sc = &svg_color;
   pl.pt = &svg_point;
