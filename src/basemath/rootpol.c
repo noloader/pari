@@ -2175,14 +2175,16 @@ GEN
 QX_complex_roots(GEN p, long l)
 {
   pari_sp av = avma;
-  long bit;
+  long bit, v;
   GEN L;
 
   if (!signe(p)) pari_err_ROOTS0("QX_complex_roots");
   if (lg(p) == 3) return cgetg(1,t_COL); /* constant polynomial */
   if (l < LOWDEFAULTPREC) l = LOWDEFAULTPREC;
   bit = prec2nbits(l);
-  L = all_roots(Q_primpart(p), bit);
+  v = RgX_valrem(p, &p);
+  L = lg(p) > 3? all_roots(Q_primpart(p), bit): cgetg(1,t_COL);
+  if (v) L = shallowconcat(const_vec(v, real_0_bit(-bit)), L);
   return gerepileupto(av, clean_roots(L, l, bit, 1));
 }
 

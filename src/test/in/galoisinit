@@ -75,3 +75,6 @@ galoissubcyclo(1,1,2)
 
 G=galoisinit(polcyclo(20))
 galoissubfields(G)
+
+G=galoisinit(x^6+108);
+galoissubfields(G,2,z)

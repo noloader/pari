@@ -159,6 +159,7 @@ BA  120- matsupplement(Mod(matrix(5,1),2)) --> SEGV [#1996]
     125- matsolvemod([;],2,[]~) -> no solution [ instead of []~ ]
     126- a[1]=vector(10):a[1][1]=b;a[1]=vector(10); could leak memory [#1999]
     127- lcm(Pol(0),0) -> division by 0
+    128- QX_complex_roots(a*x^n,) => SEGV
 
   Added
       1- [libari] ZM_isidentity
