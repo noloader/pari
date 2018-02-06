@@ -1074,40 +1074,34 @@ matinvmod(GEN A, GEN d)
 static GEN
 matsolvemod_finite(GEN M, GEN D, GEN Y, long flag)
 {
-  pari_sp av = avma;
   void *data;
   const struct bb_hermite* R;
-  GEN X, K, d, MD;
-  GEN* ptK;
-  long m,n,i,i2,extra=0;
+  GEN X, K, d;
+  long m, n;
 
   RgM_dimensions(M,&m,&n);
-
   if (typ(D)==t_COL)
-  {
-    /* create extra variables for the D[i] */
+  { /* create extra variables for the D[i] */
+    GEN MD;
+    long i, i2, extra = 0;
     d = gen_1;
     for (i=1; i<lg(D); i++) d = lcmii(d,gel(D,i));
-    for (i=1; i<lg(D); i++) if (cmpii(gel(D,i),d)) extra++;
+    for (i=1; i<lg(D); i++) if (!equalii(gel(D,i),d)) extra++;
     MD = cgetg(extra+1,t_MAT);
-    i2=1;
+    i2 = 1;
     for (i=1; i<lg(D); i++)
-      if (cmpii(gel(D,i),d))
+      if (!equalii(gel(D,i),d))
       {
         gel(MD,i2) = Rg_col_ei(gel(D,i),m,i);
         i2++;
       }
     M = shallowconcat(M,MD);
   }
-  else d=D;
+  else d = D;
 
   R = get_Fp_hermite(&data, d);
-
-  if (flag) ptK = &K;
-  else      ptK = NULL;
-
-  X = gen_solve(M, Y, ptK, data, R);
-  if (!X) { avma = av; return gen_0; }
+  X = gen_solve(M, Y, flag? &K: NULL, data, R);
+  if (!X) return gen_0;
   X = vecslice(X,1,n);
 
   if (flag)
@@ -1116,14 +1110,14 @@ matsolvemod_finite(GEN M, GEN D, GEN Y, long flag)
     K = hnfmodid(shallowconcat(zerocol(n),K),d);
     X = mkvec2(X,K);
   }
-  return gerepilecopy(av, X);
+  return X;
 }
 
 GEN
 matsolvemod(GEN M, GEN D, GEN Y, long flag)
 {
   pari_sp av = avma;
-  long m,n,i,char0=0;
+  long m, n, i, char0 = 0;
   if (typ(M)!=t_MAT) pari_err_TYPE("matsolvemod (M)",M);
   RgM_dimensions(M,&m,&n);
   if (typ(D)!=t_COL && typ(D)!=t_INT) pari_err_TYPE("matsolvemod (D)",D);
@@ -1138,16 +1132,15 @@ matsolvemod(GEN M, GEN D, GEN Y, long flag)
   if (typ(D)==t_INT)
   {
     if (signe(D)<0) pari_err_DOMAIN("matsolvemod","D","<",gen_0,D);
-    if (!signe(D)) return gerepilecopy(av, matsolvemod0(M,D,Y,flag));
+    if (!signe(D)) char0 = 1;
   }
-  else //typ(D)==t_COL
+  else /*typ(D)==t_COL*/
     for (i=1; i<=m; i++)
     {
-      if (signe(gel(D,i))<0) pari_err_DOMAIN("matsolvemod","D[i]","<",gen_0,gel(D,i));
+      if (signe(gel(D,i))<0)
+        pari_err_DOMAIN("matsolvemod","D[i]","<",gen_0,gel(D,i));
       if (!signe(gel(D,i))) char0 = 1;
     }
-
-  if (char0) return gerepilecopy(av, matsolvemod0(M,D,Y,flag));
-  return gerepilecopy(av, matsolvemod_finite(M,D,Y,flag));
+  return gerepilecopy(av, char0? matsolvemod0(M,D,Y,flag)
+                               : matsolvemod_finite(M,D,Y,flag));
 }
-
