@@ -19,3 +19,6 @@ print1(":");myprintsep(", ")
 myprintsep(", ",a,b,c,d)
 myprintsep(,a,b,c,d)
 myprintsep(", ",a,,c,)
+make_function(a) = (b,c)->123;
+f=make_function(456);
+f(1)

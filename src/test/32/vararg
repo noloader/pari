@@ -24,4 +24,9 @@ a, b, c, d
   ***                           ^-------
   ***   missing mandatory argument 's' in user function.
 a, 0, c, 0
+  ***   at top-level: f(1)
+  ***                 ^----
+  ***   in function f: b,c
+  ***                  ^---
+  ***   missing mandatory argument 'c' in user function.
 Total time spent: 0

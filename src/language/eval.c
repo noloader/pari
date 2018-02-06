@@ -735,8 +735,12 @@ get_next_label(const char *s, int member, char **next_fun)
 static const char *
 get_arg_name(GEN C, long i)
 {
-  GEN e = gmael(closure_get_dbg(C), 3, 1);
-  return ((entree*)e[i])->name;
+  GEN d = closure_get_dbg(C), frpc = gel(d,2), fram = gel(d,3);
+  long j, l = lg(frpc);
+  for (j=1; j<l; j++)
+    if (frpc[j]==1 && i<lg(gel(fram,j)))
+      return ((entree*)mael(fram,j,i))->name;
+  return "(unnamed)";
 }
 
 void
