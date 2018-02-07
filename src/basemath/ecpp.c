@@ -1635,8 +1635,7 @@ ecpp_step1(GEN N, GEN param, GEN* X0)
   return ecpp_flattencert(downrun, depth);
 }
 
-/* This is the main function called.
-   The input is an integer N.
+/* The input is an integer N.
    It uses the precomputation step0 done in ecpp_step0. */
 GEN
 ecpp0(GEN N, GEN param, GEN* X0)
@@ -1694,15 +1693,13 @@ ecpp(GEN N)
   /* Check if N is pseudoprime to begin with. */
   if (!ispseudoprime(N, 0)) return gen_0;
   /* Check if we should even prove it. */
-  if (expi(N) < 64) return N;
-
   expiN = expi(N);
-  param = NULL;
-  answer = NULL;
-  garbage = NULL;
+  if (expiN < 64) return N;
 
-  /* tuning for 1500, 2500, 3500, 4500 bits */
-  /* ecpp is supposed to be faster than isprime on average if N is more than 1500 bits */
+  param = answer = garbage = NULL;
+
+  /* tuning for 1500, 2500, 3500, 4500 bits; ecpp is supposed to be faster than
+   * isprime on average if N has more than 1500 bits */
   if (expiN <= 1500) tunelen = 1;
   else if (expiN <= 2500) tunelen = 2;
   else if (expiN <= 3500) tunelen = 3;
