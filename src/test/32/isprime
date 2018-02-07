@@ -1,3 +1,4 @@
+  ***   Warning: new stack size = 200000000 (190.735 Mbytes).
 1
 1
 1
@@ -21,4 +22,7 @@
 [0, 1, 0, 1]
 1
 1
-Total time spent: 3000
+1
+0
+1
+Total time spent: 15540

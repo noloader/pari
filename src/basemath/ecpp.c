@@ -1730,6 +1730,13 @@ ecpp(GEN N)
   }
   return answer;
 }
+long
+isprimeECPP(GEN N)
+{
+  pari_sp av = avma;
+  GEN res = ecpp(N);
+  avma = av; return !isintzero(res);
+}
 
 /*  Input: PARI ECPP Certificate
    Output: Human-readable format.

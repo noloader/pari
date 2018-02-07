@@ -2707,6 +2707,7 @@ long setrealprecision(long n, long *prec);
 GEN     ecpp(GEN N);
 GEN     ecppexport(GEN cert, long flag);
 long    ecppisvalid(GEN cert);
+long    isprimeECPP(GEN N);
 
 /* gplib.c */
 GEN sd_breakloop(const char *v, long flag);

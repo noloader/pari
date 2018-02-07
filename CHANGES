@@ -363,6 +363,7 @@ BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr
     150- New GP functions plothexport, plothrawexport, plotexport
     151- plotcolor(w, col) now allows color names (t_STR) or [R,G,B] values
     152- allow a t_STR composed of # + 6 hex digits for colour names
+    153- isprime(,3): use ECPP
 
   Changed
       1- rewrite bnfnarrow
@@ -469,6 +470,7 @@ BA   59- V=galoisfixedfield(,,2): return V[1] in the same variable as the
 AP   64- new implementation of matsolvemod
      65- plotcolor(w,c) now returns the [R,G,B] value attached to c
      66- allow plotdraw(w) for plotdraw([w,0,0])
+     67- allow isprime(n) to use ECPP
 
   Removed
       1- file 'MACHINES' (no longer maintained)

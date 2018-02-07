@@ -15,21 +15,30 @@ Doc: true (1) if $x$ is a prime
  itself.
 
  This routine proves or disproves rigorously that a number is prime, which can
- be very slow when $x$ is indeed prime and has more than $1000$ digits, say.
- Use \tet{ispseudoprime} to quickly check for compositeness. See also
- \kbd{factor}. It accepts vector/matrices arguments, and is then applied
- componentwise.
+ be very slow when $x$ is indeed a large prime integer. For instance
+ a $1000$ digits prime should require 15 to 30 minutes with default algorithms.
+ Use \tet{ispseudoprime} to quickly check for compositeness; see also
+ \kbd{factor}. The function accepts vector/matrices arguments, and is then
+ applied componentwise.
 
- If $\fl=0$, use a combination of Baillie-PSW pseudo primality test (see
- \tet{ispseudoprime}), Selfridge ``$p-1$'' test if $x-1$ is smooth enough, and
- Adleman-Pomerance-Rumely-Cohen-Lenstra (APRCL) for general $x$.
+ If $\fl=0$, use a combination of
+
+ \item Baillie-PSW pseudo primality test (see \tet{ispseudoprime}),
+
+ \item Selfridge ``$p-1$'' test if $x-1$ is smooth enough,
+
+ \item Adleman-Pomerance-Rumely-Cohen-Lenstra (APRCL) for general medium
+ $x$ (less than 1500 bits),
+
+ \item Atkin-Morain's Elliptic Curve Primality Prover (ECPP) for general
+ large $x$.
 
  If $\fl=1$, use Selfridge-Pocklington-Lehmer ``$p-1$'' test and output a
  primality certificate as follows: return
 
- \item 0 if $x$ is composite,
+ \item $0$ if $x$ is composite,
 
- \item 1 if $x$ is small enough that passing Baillie-PSW test guarantees
+ \item $1$ if $x$ is small enough that passing Baillie-PSW test guarantees
  its primality (currently $x < 2^{64}$, as checked by Jan Feitsma),
 
  \item $2$ if $x$ is a large prime whose primality could only sensibly be
@@ -51,6 +60,8 @@ Doc: true (1) if $x$ is a prime
  not affect the validity of the whole \kbd{isprime} procedure.
 
  If $\fl=2$, use APRCL.
+
+ If $\fl=3$, use ECPP.
 
 Function: _aprcl_step4_worker
 Section: programming/internals

@@ -668,7 +668,7 @@ BLS_test(GEN N, GEN f)
 }
 
 /* BPSW_psp(N) && !BPSW_isprime_small(N). Decide between Pocklington-Lehmer
- * and APRCL. Return a vector of (small) primes such that PL-witnesses
+ * and APRCL/ECPP. Return a vector of (small) primes such that PL-witnesses
  * guarantee the primality of N. Return NULL if PL is likely too expensive.
  * Return gen_0 if BLS test finds N to be composite */
 static GEN
@@ -791,8 +791,8 @@ BPSW_isprime(GEN N)
   GEN P;
   if (BPSW_isprime_small(N)) return 1;
   av = avma; P = BPSW_try_PL(N);
-  if (!P)
-    t = isprimeAPRCL(N); /* not smooth enough */
+  if (!P) /* not smooth enough */
+    t = expi(N) < 1500? isprimeAPRCL(N): isprimeECPP(N);
   else
     t = (typ(P) == t_INT)? 0: PL_certify(N,P);
   avma = av; return t;
@@ -806,6 +806,7 @@ gisprime(GEN x, long flag)
     case 0: return map_proto_lG(isprime,x);
     case 1: return map_proto_G(isprimePL,x);
     case 2: return map_proto_lG(isprimeAPRCL,x);
+    case 3: return map_proto_lG(isprimeECPP,x);
   }
   pari_err_FLAG("gisprime");
   return NULL;
