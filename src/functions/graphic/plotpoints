@@ -16,3 +16,12 @@ Doc: draw on the rectwindow $w$ the
  be (simultaneously) scalar. In this case, draw the single point $(X,Y)$ on
  the rectwindow $w$ (if it is actually inside $w$), and in any case
  \emph{move} the virtual cursor to position $(x,y)$.
+
+ If you draw few points in the rectwindow, they will be hard to see; in
+ this case, you can use filled boxes instead. Compare:
+ \bprog
+ ? plotinit(0, 100,100); plotpoints(0, 50,50);
+ ? plotdraw(0)
+ ? plotinit(1, 100,100); plotmove(1,48,48); plotrbox(1, 4,4, 1);
+ ? plotdraw(1)
+ @eprog

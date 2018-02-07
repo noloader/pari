@@ -48,7 +48,7 @@ plot_taylor(f, xmin=-5, xmax=5, ordlim=16, first=1, step=1) =
 
   plotmove(2, floor(dw+w/2-15*cw), floor(dh/2));
   plotstring(2, "Multiple Taylor Approximations");
-  plotdraw([2, 0, 0]);
+  plotdraw(2);
 }
 
 \p9
