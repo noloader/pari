@@ -4316,7 +4316,7 @@ void    pari_set_plot_engine(void (*plot)(PARI_plot *));
 void    pari_kill_plot_engine(void);
 void    plotbox(long ne, GEN gx2, GEN gy2, long fl);
 void    plotclip(long rect);
-void    plotcolor(long ne, GEN c);
+GEN     plotcolor(long ne, GEN c);
 void    plotcopy(long source, long dest, GEN xoff, GEN yoff, long flag);
 GEN     plotcursor(long ne);
 void    plotdraw(GEN list, long flag);

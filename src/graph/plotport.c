@@ -189,12 +189,15 @@ Rchain(PariRect *e, RectObj *z)
   RoNext(z) = NULL;
 }
 
+static long
+rgb_to_long(int r, int g, int b)
+{ return (r << 16) | (g << 8) | b; }
 /* c from graphcolormap */
 static long
 colormap_to_color(GEN c)
 {
   int r, g, b; color_to_rgb(c, &r,&g,&b);
-  return (r << 16) | (g << 8) | b;
+  return rgb_to_long(r, b, b);
 }
 static long
 colormapindex_to_color(long i)
@@ -318,10 +321,11 @@ void
 plotrpoint(long ne, GEN x, GEN y)
 { plotpoint0(ne,gtodouble(x),gtodouble(y),1); }
 
-void
+GEN
 plotcolor(long ne, GEN c)
 {
   long t = typ(c), n = lg(GP_DATA->colormap)-2;
+  int r, g, b;
   check_rect(ne);
   if (t == t_INT)
   {
@@ -335,7 +339,9 @@ plotcolor(long ne, GEN c)
     if (t == t_VEC) { c = ZV_to_zv(c); t = typ(c); }
     if (t != t_VECSMALL && t != t_STR) pari_err_TYPE("plotcolor",c);
   }
-  current_color[ne] = colormap_to_color(c);
+  color_to_rgb(c, &r,&g,&b);
+  current_color[ne] = rgb_to_long(r,g,b);
+  return mkvec3s(r, g, b);
 }
 
 /* ROt_MV/ROt_LN */

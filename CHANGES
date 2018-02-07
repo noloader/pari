@@ -467,6 +467,7 @@ BA   59- V=galoisfixedfield(,,2): return V[1] in the same variable as the
          are obsolete. Use one of plotexport, plothexport or plothrawexport
          with format "ps" and write the result to file.
 AP   64- new implementation of matsolvemod
+     65- plotcolor(w,c) now returns the [R,G,B] value attached to c
 
   Removed
       1- file 'MACHINES' (no longer maintained)

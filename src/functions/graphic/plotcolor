@@ -1,13 +1,14 @@
 Function: plotcolor
 Section: graphic
 C-Name: plotcolor
-Prototype: vLG
+Prototype: LG
 Help: plotcolor(w,c): in rectwindow w, set default color to c. Possible
  values for c are [R,G,B] values, a color name or an index in the
  graphcolormap default: factory settings
  are 1=black, 2=blue, 3=sienna, 4=red, 5=green, 6=grey, 7=gainsborough.
-Doc: set default color to $c$ in rectwindow $w$.
- Possible values for $c$ are
+ Return [R,G,B] value attached to color.
+Doc: set default color to $c$ in rectwindow $w$. Return [R,G,B] value attached
+ to color. Possible values for $c$ are
 
  \item a \typ{VEC} or \typ{VECSMALL} $[R,G,B]$ giving the color RGB value
  (all 3 values are between 0 and 255), e.g. \kbd{[250,235,215]} or
@@ -24,3 +25,14 @@ Doc: set default color to $c$ in rectwindow $w$.
  1=black, 2=blue, 3=violetred, 4=red, 5=green, 6=grey, 7=gainsborough.
 
  but this can be extended if needed.
+ \bprog
+ ? plotinit(0,100,100);
+ ? plotcolor(0, "turquoise")
+ %2 = [64, 224, 208]
+ ? plotbox(0, 50,50,1);
+ ? plotmove(0, 50,50);
+ ? plotcolor(0, 2) \\ blue
+ %4 = [0, 0, 255]
+ ? plotbox(0, 50,50,1);
+ ? plotdraw([0,0,0]);
+ @eprog
