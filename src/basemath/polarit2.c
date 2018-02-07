@@ -847,20 +847,20 @@ factor(GEN x)
         case t_FRAC: return QX_factor(x);
         case t_INTMOD: return factmod(x,p);
 
-        case t_COMPLEX: y=cgetg(3,t_MAT); lx=lg(x)-2;
-          av = avma; p1 = roots(x,pa); tetpil = avma;
-          p1 = deg1_from_roots(p1, varn(x));
-          gel(y,1) = gerepile(av,tetpil,p1);
-          gel(y,2) = const_col(lx-1, gen_1); return y;
+        case t_COMPLEX: y = cgetg(3,t_MAT);
+          av = avma; p1 = deg1_from_roots(roots(x,pa), varn(x));
+          gel(y,1) = p1 = gerepileupto(av, p1);
+          gel(y,2) = const_col(lg(p1)-1, gen_1); return y;
 
-        case t_REAL: y=cgetg(3,t_MAT); lx=lg(x)-2; v=varn(x);
+        case t_REAL: y=cgetg(3,t_MAT); v=varn(x);
           av=avma; p1=cleanroots(x,pa); tetpil=avma;
-          for(r1=1; r1<lx; r1++)
+          lx = lg(p1);
+          for (r1 = 1; r1 < lx; r1++)
             if (typ(gel(p1,r1)) == t_COMPLEX) break;
           lx=(r1+lx)>>1; p2=cgetg(lx,t_COL);
-          for(i=1; i<r1; i++)
+          for (i = 1; i < r1; i++)
             gel(p2,i) = deg1pol_shallow(gen_1, negr(gel(p1,i)), v);
-          for(   ; i<lx; i++)
+          for (   ; i < lx; i++)
           {
             GEN a = gel(p1,2*i-r1);
             p = cgetg(5, t_POL); gel(p2,i) = p;
