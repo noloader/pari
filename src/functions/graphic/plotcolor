@@ -34,5 +34,5 @@ Doc: set default color to $c$ in rectwindow $w$. Return [R,G,B] value attached
  ? plotcolor(0, 2) \\ blue
  %4 = [0, 0, 255]
  ? plotbox(0, 50,50,1);
- ? plotdraw([0,0,0]);
+ ? plotdraw(0);
  @eprog

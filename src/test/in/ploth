@@ -5,8 +5,8 @@ t=plothsizes();
 plotinit(0,t[1]-11,t[2]-11)
 plotscale(0,0,1000,0,1000);
 plotbox(0,500,500)
-plotdraw([0,0,0])
-write("pari0.svg", plotexport("svg", [0,0,0]))
+plotdraw(0)
+write("pari0.svg", plotexport("svg", 0))
 plotcolor(0,2);
 plotmove(0,0,900); plotlines(0,900,0)
 plotlines(0,vector(5,k,50*k),vector(5,k,10*k*k))

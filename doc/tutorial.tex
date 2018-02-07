@@ -3509,8 +3509,8 @@ only, \kbd{A} and \kbd{T}:
   plotmove(A, 0, 0)
   plotbox(A, 1, 1)
 
-  plotdraw([A, 0, 0])
-  \\ psdraw([A, 0, 0], relative)          \\ @com if hard copy is needed
+  plotdraw(A)
+  \\ s = plotexport(A, relative); write("foo.ps", s) \\ @com if hard copy needed
 @eprog
 
 The rectangle \kbd{A} plays the role of accumulator, rectangle \kbd{T} is

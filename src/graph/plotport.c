@@ -1761,15 +1761,28 @@ plothsizes(long flag)
 static long
 wxy_n(GEN wxy)
 {
-  long n = lg(wxy)-1;
-  if (typ(wxy) != t_VEC) pari_err_TYPE("plotdraw",wxy);
-  if (n%3) pari_err_DIM("plotdraw");
-  return n/3;
+  long n;
+  switch(typ(wxy))
+  {
+    case t_INT: return 1;
+    case t_VEC:
+      n = lg(wxy)-1;
+      if (n%3) pari_err_DIM("plotdraw");
+      return n/3;
+  }
+  pari_err_TYPE("plotdraw",wxy);
+  return 0;/*LCOV_EXCL_LINE*/
 }
 static void
 wxy_init(GEN wxy, GEN W, GEN X, GEN Y, PARI_plot *T)
 {
   long i, l = lg(X);
+  if (typ(wxy) == t_INT)
+  {
+    W[1] = itos(wxy); check_rect_init(W[1]);
+    X[1] = 0;
+    Y[1] = 0; return;
+  }
   for (i = 1; i < l; i++)
   {
     GEN w = gel(wxy,3*i-2), x = gel(wxy,3*i-1), y = gel(wxy,3*i);
