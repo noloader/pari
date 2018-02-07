@@ -190,18 +190,16 @@ Rchain(PariRect *e, RectObj *z)
 }
 
 static long
-rgb_to_long(int r, int g, int b)
+rgb_to_long(long r, long g, long b)
 { return (r << 16) | (g << 8) | b; }
 /* c from graphcolormap */
 static long
-colormap_to_color(GEN c)
+colormap_to_color(long i)
 {
+  GEN c = gel(GP_DATA->colormap,i+1);
   int r, g, b; color_to_rgb(c, &r,&g,&b);
-  return rgb_to_long(r, b, b);
+  return rgb_to_long(r, g, b);
 }
-static long
-colormapindex_to_color(long i)
-{ return colormap_to_color(gel(GP_DATA->colormap,i+1)); }
 
 static void
 initrect_i(long ne, long x, long y)
@@ -213,7 +211,7 @@ initrect_i(long ne, long x, long y)
   if (y <= 1) pari_err_DOMAIN("plotinit", "y", "<=", gen_1, stoi(y));
   e = check_rect(ne); if (RHead(e)) plotkill(ne);
 
-  current_color[ne] = colormapindex_to_color(DEFAULT_COLOR);
+  current_color[ne] = colormap_to_color(DEFAULT_COLOR);
   z = (RectObj*) pari_malloc(sizeof(RectObj));
   RoType(z) = ROt_NULL;
   Rchain(e, z);
@@ -1564,7 +1562,7 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
     PARI_plot T, *pl;
     if (W) pl = W; else { pl = &T; pari_get_plot(pl); }
     plotlinetype(ne, -2); /* frame */
-    current_color[ne] = colormapindex_to_color(DEFAULT_COLOR);
+    current_color[ne] = colormap_to_color(DEFAULT_COLOR);
     _move(ne,xsml,ysml);
     _box(ne,xbig,ybig);
     if (!(flags & PLOT_NO_TICK_X)) {
@@ -1579,14 +1577,14 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
   if (!(flags & PLOT_NO_AXE_Y) && (xsml<=0 && xbig >=0))
   {
     plotlinetype(ne, -1); /* axes */
-    current_color[ne] = colormapindex_to_color(AXIS_COLOR);
+    current_color[ne] = colormap_to_color(AXIS_COLOR);
     _move(ne,0.0,ysml);
     _line(ne,0.0,ybig);
   }
   if (!(flags & PLOT_NO_AXE_X) && (ysml<=0 && ybig >=0))
   {
     plotlinetype(ne, -1); /* axes */
-    current_color[ne] = colormapindex_to_color(AXIS_COLOR);
+    current_color[ne] = colormap_to_color(AXIS_COLOR);
     _move(ne,xsml,0.0);
     _line(ne,xbig,0.0);
   }
@@ -1599,7 +1597,7 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
   for (ltype = 0; ltype < nc; ltype++)
   {
     long c = GP_DATA->graphcolors[1+(ltype%max_graphcolors)];
-    current_color[ne] = colormapindex_to_color(c);
+    current_color[ne] = colormap_to_color(c);
     if (param) x = data[i++];
 
     y = data[i++];
