@@ -3540,6 +3540,14 @@ modulo \kbd{n} (possibly not prime), where \kbd{x} is a \typ{INT} and \kbd{n}
 is either a \typ{INT} or is given by its factorization matrix.  Return
 \kbd{NULL} if no such square root exist.
 
+\fun{GEN}{Zn_quad_roots}{GEN N, GEN B, GEN C} solves the equation $X^2 + B X
++ C$ modulo $N$. Return \kbd{NULL} if there are no solutions. Else returns
+ $[v, M]$ where $M \mid N$ and the \kbd{FpV} $v$ of distinct integers
+(reduced, implicitly modulo $M$) is such that $x$ modulo $N$ is a solution to
+the equation if and only if $x$ modulo $M$ belongs to $v$. If the
+discriminant $B^2-4C$ is coprime to $N$, we have $M = N$ but in general $M$
+can be a strict divisor of $N$.
+
 \fun{long}{kross}{long x, long y} returns the \idx{Kronecker symbol} $(x|y)$,
 i.e.$-1$, $0$ or $1$. If \kbd{y} is an odd prime, this is the \idx{Legendre
 symbol}. (Contrary to \kbd{krouu}, \kbd{kross} also supports $\kbd{y} = 0$)

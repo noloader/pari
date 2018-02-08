@@ -1928,6 +1928,7 @@ GEN     znorder(GEN x, GEN o);
 GEN     znprimroot(GEN m);
 GEN     znstar(GEN x);
 GEN     znstar0(GEN N, long flag);
+GEN     Zn_quad_roots(GEN N, GEN B, GEN C);
 
 /* arith2.c */
 

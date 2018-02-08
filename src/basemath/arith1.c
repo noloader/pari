@@ -1100,6 +1100,114 @@ Zn_issquare(GEN d, GEN fn)
   return 1;
 }
 
+/* return [N',v]; v contains all x mod N' s.t. x^2 + B x + C = 0 modulo N */
+GEN
+Zn_quad_roots(GEN N, GEN B, GEN C)
+{
+  pari_sp av = avma;
+  GEN fa = NULL, D, w, v, P, E, F0, Q0, F, mF, A, Q, T, R, Np, N4;
+  long l, i, j, ct;
+
+  if ((fa = check_arith_non0(N,"Zn_quad_roots")))
+    N = typ(N) == t_VEC? gel(N,1): factorback(N);
+  N = absi_shallow(N);
+  N4 = shifti(N,2);
+  D = modii(subii(sqri(B), shifti(C,2)), N4);
+  if (!signe(D))
+  { /* (x + B/2)^2 = 0 (mod N), D = B^2-4C = 0 (4N) => B even */
+    if (!fa) fa = Z_factor(N);
+    P = gel(fa,1);
+    E = ZV_to_zv(gel(fa,2));
+    l = lg(P);
+    for (i = 1; i < l; i++) E[i] = (E[i]+1) >> 1;
+    Np = factorback2(P, E); /* x = -B mod N' */
+    B = shifti(B,-1);
+    return gerepilecopy(av, mkvec2(Np, mkvec(Fp_neg(B,Np))));
+  }
+  if (!fa)
+    fa = Z_factor(N4);
+  else  /* convert to factorization of N4 = 4*N */
+    fa = famat_reduce(famat_mulpows_shallow(fa, gen_2, 2));
+  P = gel(fa,1); l = lg(P);
+  E = ZV_to_zv(gel(fa,2));
+  F = cgetg(l, t_VEC);
+  mF= cgetg(l, t_VEC); F0 = gen_0;
+  Q = cgetg(l, t_VEC); Q0 = gen_1;
+  for (i = j = 1, ct = 0; i < l; i++)
+  {
+    GEN p = gel(P,i), q, f, mf, D0;
+    long t2, s = E[i], t = Z_pvalrem(D, p, &D0), d = s - t;
+    if (d <= 0)
+    {
+      q = powiu(p, (s+1)>>1);
+      Q0 = mulii(Q0, q); continue;
+    }
+    /* d > 0 */
+    if (odd(t)) return NULL;
+    t2 = t >> 1;
+    if (i > 1)
+    { /* p > 2 */
+      if (kronecker(D0, p) == -1) return NULL;
+      q = powiu(p,s-t2);
+      f = Zp_sqrt(D0, p, d); if (t2) f = mulii(powiu(p,t2), f);
+      mf = Fp_neg(f, q);
+    }
+    else
+    { /* p = 2 */
+      if (d == 1) { Q0 = int2n(1+t2); F0 = NULL; continue; }
+      if (d == 2)
+      {
+        if (Mod4(D0) != 1) return NULL;
+        Q0 = int2n(1+t2); F0 = NULL; continue;
+      }
+      /* d > 2 */
+      if (Mod8(D0) != 1) return NULL;
+      q = int2n(d-1+t2);
+      f = shifti(Z2_sqrt(D0, d), t2);
+      mf = Fp_neg(f, q);
+    }
+    gel(Q,j) = q;
+    gel(F,j) = f;
+    gel(mF,j)= mf; j++;
+  }
+  setlg(Q,j);
+  setlg(F,j);
+  setlg(mF,j);
+  if (is_pm1(Q0)) A = leafcopy(F);
+  else
+  { /* append the fixed congruence (F0 mod Q0) */
+    if (!F0) F0 = shifti(Q0,-1);
+    A = shallowconcat(F, F0);
+    Q = shallowconcat(Q, Q0);
+  }
+  ct = 1 << (j-1);
+  T = ZV_producttree(Q);
+  R = ZV_chinesetree(Q,T);
+  Np = gmael(T, lg(T)-1, 1);
+  B = modii(B, Np);
+  if (!signe(B)) B = NULL;
+  Np = shifti(Np, -1); /* N' = (\prod_i Q[i]) / 2 */
+  w = cgetg(3, t_VEC);
+  gel(w,1) = icopy(Np);
+  gel(w,2) = v = cgetg(ct+1, t_VEC);
+  l = lg(F);
+  for (j = 1; j <= ct; j++)
+  {
+    pari_sp av2 = avma;
+    long m = j - 1;
+    GEN u;
+    for (i = 1; i < l; i++)
+    {
+      gel(A,i) = (m&1L)? gel(mF,i): gel(F,i);
+      m >>= 1;
+    }
+    u = ZV_chinese_tree(A,Q,T,R); /* u mod N' st u^2 = B^2-4C modulo 4N */
+    if (B) u = subii(u,B);
+    gel(v,j) = gerepileuptoint(av2, modii(shifti(u,-1), Np));
+  }
+  return gerepileupto(av, w);
+}
+
 static long
 Qp_ispower(GEN x, GEN K, GEN *pt)
 {
