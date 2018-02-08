@@ -114,4 +114,4 @@ Doc: high precision plot of the function $y=f(x)$ represented by the expression
  @eprog\noindent will draw respectively a circle and a circle cut by the line
  $y=x$.
 
- \synt{parploth}{GEN a, GEN b, GEN code, long flags, long n, long prec}.
+ \synt{parploth}{GEN a,GEN b,GEN code, long flag, long n, long prec}.
