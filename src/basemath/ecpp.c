@@ -175,6 +175,14 @@ ecpp_primelist_init( long maxsqrt)
   return primelist;
 }
 
+static GEN
+Dfac_to_disc(GEN x, GEN P)
+{ pari_APPLY_long(uel(P,x[i])); }
+
+static GEN
+Dfac_to_roots(GEN x, GEN P)
+{ pari_APPLY_type(t_VEC, gel(P,x[i])); }
+
 /*  Input: p, indexlist
    Output: index of p in the primelist associated to indexlist
            notice the special case when p is even
@@ -319,6 +327,7 @@ ecpp_param_set_disclist(GEN param)
    m, as in the theorem in ??ecpp
    q, as in the theorem in ??ecpp
    g, a quadratic non-residue modulo N
+   sqrt, a list of squareroots
 */
 
 INLINE GEN
@@ -348,6 +357,10 @@ NDinfomqg_get_q(GEN x)
 INLINE GEN
 NDinfomqg_get_g(GEN x)
 { return gel(x,5); }
+
+INLINE GEN
+NDinfomqg_get_sqrt(GEN x)
+{ return gel(x,6); }
 
 /* COMPARATOR FUNCTIONS */
 
@@ -914,6 +927,53 @@ NDinfomqgJ_find_EP(GEN N, GEN Dinfo, GEN m, GEN q, GEN g, GEN J, GEN s)
   return NULL;
 }
 
+/* Convert the disc. factorisation of a genus field to the
+ * disc. factorisation of its real part. */
+static GEN
+realgenusfield(GEN Dfac, GEN sq, GEN p)
+{
+  long i, j, l = lg(Dfac), dn, n = 0;
+  GEN sn, s = gen_0;
+  GEN R = cgetg(l-1, t_VECSMALL);
+  for (i = 1; i < l; i++)
+    if (Dfac[i] < 0) { n = i; break; }
+  if (n == 0) pari_err_BUG("realgenusfield");
+  dn = Dfac[n]; sn = gel(sq, n);
+  for (j = i = 1; i < l; i++)
+    if (i != n)
+    {
+      long d = Dfac[i];
+      GEN si = gel(sq,i);
+      R[j++] = d > 0 ? d : d * dn;
+      s = Fp_add(s, d > 0? si: Fp_mul(si, sn, p), p);
+    }
+  return mkvec2(R, s);
+}
+
+static GEN
+FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
+{
+  pari_sp av = avma;
+  long i, l;
+  GEN V, v, R, F, C, N = NULL;
+  if (degpol(P)==1 || gcmp(gsupnorm(P,DEFAULTPREC), p) >= 0)
+    return FpX_oneroot_split(P, p);
+  V = realgenusfield(Dfac, sq, p);
+  v = gel(V, 1); R = gel(V,2);
+  l = lg(v)-1;
+  for(i=1; i<=l; i++)
+  {
+    ulong d = uel(v,i);
+    GEN Q = deg2pol_shallow(gen_1, gen_0, stoi(-(long)d), 1);
+    N = N ? polcompositum0(N,Q,2): Q;
+  }
+  if (!N) return FpX_oneroot_split(P, p);
+  F = liftpol_shallow(gmael(nffactor(N, P),1,1));
+  C = FpX_oneroot_split(FpXY_evalx(Q_primpart(F), R, p), p);
+  if(signe(FpX_eval(P,C,p))) pari_err_BUG("FpX_classtower_oneroot");
+  return gerepileupto(av, C);
+}
+
 /* This uses the unravelled [N, D, m, q] in step 1
    to find the appropriate j-invariants
    to be used in step 3.
@@ -938,10 +998,12 @@ ecpp_step2(GEN step1, GEN *X0)
 
     GEN N = NDinfomqg_get_N(NDinfomqg_i);
     GEN Dinfo = NDinfomqg_get_Dinfo(NDinfomqg_i);
+    GEN Dfac = Dinfo_get_Dfac(Dinfo);
     GEN D = NDinfomqg_get_D(NDinfomqg_i);
     GEN m = NDinfomqg_get_m(NDinfomqg_i);
     GEN q = NDinfomqg_get_q(NDinfomqg_i);
     GEN g = NDinfomqg_get_g(NDinfomqg_i);
+    GEN sq = NDinfomqg_get_sqrt(NDinfomqg_i);
     GEN J, t, s, a4, P, EP, rt;
 
     /* C1: Find the appropriate class polynomial modulo N. */
@@ -956,7 +1018,7 @@ ecpp_step2(GEN step1, GEN *X0)
     }
     /* C2: Find a root modulo N of the polynomial obtained in previous step. */
     dbg_mode() timer_start(&ti);
-    rt = FpX_oneroot_split(HD, N);
+    rt = FpX_classtower_oneroot(HD, Dfac, sq, N);
     dbg_mode() {
       tt = timer_record(X0, "C2", &ti, 1);
       err_printf("  %8ld", tt);
@@ -1552,7 +1614,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       GEN Dinfo = Dmq_get_Dinfo(Dmq);
       GEN m = Dmq_get_m(Dmq);
       GEN q = Dmq_get_q(Dmq);
-      GEN ret;
+      GEN ret, Dfac;
       long a;
       if (expiN - expi(q) < 1)
       {
@@ -1584,7 +1646,9 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       }
 
       /* That downrun succeeded. */
-      NDinfomq = mkvec5(N, Dinfo, m, q, g);
+      Dfac = Dinfo_get_Dfac(Dinfo);
+      gel(Dinfo, 2) = Dfac_to_disc(Dfac, primelist);
+      NDinfomq = mkcol6(N, Dinfo, m, q, g, Dfac_to_roots(Dfac,gel(sqrtlist,1)));
       return gerepilecopy(ave, mkvec2(NDinfomq, ret));
     }
 
