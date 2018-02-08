@@ -1414,6 +1414,7 @@ GEN     algpow(GEN al, GEN x, GEN n);
 GEN     algprimesubalg(GEN al);
 GEN     algramifiedplaces(GEN al);
 GEN     algrandom(GEN al, GEN b);
+GEN     algsplit(GEN al, long v);
 GEN     algsplittingmatrix(GEN al, GEN x);
 GEN     algsqr(GEN al, GEN x);
 GEN     algsub(GEN al, GEN x, GEN y);

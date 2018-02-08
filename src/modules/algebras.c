@@ -32,6 +32,8 @@ static GEN alg_pmaximal(GEN al, GEN p);
 static GEN alg_maximal(GEN al);
 static GEN algtracematrix(GEN al);
 static GEN algtableinit_i(GEN mt0, GEN p);
+static GEN algbasisrightmultable(GEN al, GEN x);
+static GEN algabstrace(GEN al, GEN x);
 
 static int
 checkalg_i(GEN al)
@@ -815,11 +817,12 @@ random_pm1(long n)
   return z;
 }
 
-static GEN alg_decompose(GEN al, GEN Z, int mini);
+static GEN alg_decompose(GEN al, GEN Z, int mini, GEN* pt_primelt);
 /* Try to split al using x's charpoly. Return gen_0 if simple, NULL if failure.
- * And a splitting otherwise */
+ * And a splitting otherwise
+ * If pt_primelt!=NULL, compute a primitive element of the center when simple */
 static GEN
-try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini)
+try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini, GEN* pt_primelt)
 {
   GEN z, dec0, dec1, cp = algcharpoly(Zal,zx,0), fa, p = alg_get_char(al);
   long nfa, e;
@@ -831,12 +834,16 @@ try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini)
   if (nfa == 1) {
     if (signe(p)) e = gel(fa,2)[1];
     else          e = itos(gcoeff(fa,1,2));
-    return e==1 ? gen_0 : NULL;
+    if (e == 1) {
+      if (pt_primelt != NULL) *pt_primelt = mkvec2(x, cp);
+      return gen_0;
+    }
+    else return NULL;
   }
   dec0 = alg_decompose_from_facto(al, x, fa, Z, mini);
   if (!dec0) return NULL;
   if (!mini) return dec0;
-  dec1 = alg_decompose(gel(dec0,1), gel(dec0,4), 1);
+  dec1 = alg_decompose(gel(dec0,1), gel(dec0,4), 1, pt_primelt);
   z = gel(dec0,5);
   if (!isintzero(dec1)) {
     if (signe(p)) z = FpM_FpC_mul(gel(dec0,3),dec1,p);
@@ -858,21 +865,26 @@ randcol(long n, GEN b)
   return res;
 }
 /* Return gen_0 if already simple. mini: only returns a central idempotent
- * corresponding to one simple factor */
+ * corresponding to one simple factor
+ * if pt_primelt!=NULL, sets it to a primitive element of the center when simple */
 static GEN
-alg_decompose(GEN al, GEN Z, int mini)
+alg_decompose(GEN al, GEN Z, int mini, GEN* pt_primelt)
 {
   pari_sp av;
   GEN Zal, x, zx, rand, dec0, B, p;
   long i, nz = lg(Z)-1;
 
-  if (nz==1) return gen_0;
+  if (nz == 1) {
+    if (pt_primelt != 0) *pt_primelt = mkvec2(zerocol(alg_get_dim(al)), pol_x(0));
+    return gen_0;
+  }
   p = alg_get_char(al);
   dbg_printf(2)(" alg_decompose: char=%Ps, dim=%d, dim Z=%d\n", p, alg_get_absdim(al), nz);
   Zal = alg_subalg(al,Z);
   Z = gel(Zal,2);
   Zal = gel(Zal,1);
   av = avma;
+
   rand = random_pm1(nz);
   zx = zc_to_ZC(rand);
   if (signe(p)) {
@@ -881,12 +893,13 @@ alg_decompose(GEN al, GEN Z, int mini)
     x = FpC_red(x,p);
   }
   else x = RgM_zc_mul(Z,rand);
-  dec0 = try_fact(al,x,zx,Z,Zal,mini);
+  dec0 = try_fact(al,x,zx,Z,Zal,mini,pt_primelt);
   if (dec0) return dec0;
   avma = av;
+
   for (i=2; i<=nz; i++)
   {
-    dec0 = try_fact(al,gel(Z,i),col_ei(nz,i),Z,Zal,mini);
+    dec0 = try_fact(al,gel(Z,i),col_ei(nz,i),Z,Zal,mini,pt_primelt);
     if (dec0) return dec0;
     avma = av;
   }
@@ -894,7 +907,7 @@ alg_decompose(GEN al, GEN Z, int mini)
   for (;;)
   {
     GEN x = randcol(nz,B), zx = ZM_ZC_mul(Z,x);
-    dec0 = try_fact(al,x,zx,Z,Zal,mini);
+    dec0 = try_fact(al,x,zx,Z,Zal,mini,pt_primelt);
     if (dec0) return dec0;
     avma = av;
   }
@@ -906,7 +919,7 @@ alg_decompose_total(GEN al, GEN Z, int maps)
   GEN dec, sc, p;
   long i;
 
-  dec = alg_decompose(al, Z, 0);
+  dec = alg_decompose(al, Z, 0, NULL);
   if (isintzero(dec))
   {
     if (maps) {
@@ -948,6 +961,7 @@ alg_subalg(GEN al, GEN basis)
   if (!signe(p)) p = NULL;
   basis = shallowmatconcat(mkvec2(col_ei(n,1),basis));
   /* 1st column, being e1, is kept in 1st position when computing the image */
+  /* FIXME using image_keep_first */
   if (p)    basis = FpM_image(basis,p);
   else      basis = QM_ImQ_hnf(basis);
   if (p) { /*TODO change after bugfix?*/
@@ -1034,6 +1048,314 @@ alg_decomposition(GEN al)
   return gerepilecopy(av,res);
 }
 
+static GEN alg_idempotent(GEN al, long n, long d);
+static GEN
+try_split(GEN al, GEN x, long n, long d)
+{
+  GEN cp, p = alg_get_char(al), fa, e, pol, exp, P, Q, U, u, mx, mte, ire;
+  long nfa, i, smalldim = alg_get_absdim(al)+1, dim, smalli = 0;
+  cp = algcharpoly(al,x,0);
+  fa = FpX_factor(cp,p);
+  nfa = nbrows(fa);
+  if (nfa == 1) return NULL;
+  pol = gel(fa,1);
+  exp = gel(fa,2);
+
+  /* charpoly is always a d-th power */
+  for (i=1; i<lg(exp); i++) {
+    if (exp[i]%d) pari_err(e_MISC, "the algebra must be simple (try_split 1)");
+    exp[i] /= d;
+  }
+  cp = FpX_factorback(fa,p);
+
+  /* find smallest Fp-dimension of a characteristic space */
+  for (i=1; i<lg(pol); i++) {
+    dim = degree(gel(pol,i))*exp[i];
+    if (dim < smalldim) {
+      smalldim = dim;
+      smalli = i;
+    }
+  }
+  i = smalli;
+  if (smalldim != n) return NULL;
+  /* We could also compute e*al*e and try again with this smaller algebra */
+  /* Fq-rank 1 = Fp-rank n idempotent : success */
+
+  /* construct idempotent */
+  mx = algbasismultable(al,x);
+  P = gel(pol,i);
+  P = FpX_powu(P, exp[i], p);
+  Q = FpX_div(cp, P, p);
+  e = algpoleval(al, Q, mx);
+  U = FpXQ_inv(Q, P, p);
+  u = algpoleval(al, U, mx);
+  e = algbasismul(al, e, u);
+  mte = algbasisrightmultable(al,e);
+  ire = FpM_indexrank(mte,p);
+  if (lg(gel(ire,1))-1 != smalldim*d) pari_err(e_MISC, "the algebra must be simple (try_split 2)");
+
+  return mkvec3(e,mte,ire);
+}
+
+/*
+ * Given a simple algebra al of dimension d^2 over its center of degree n,
+ * find an idempotent e in al with rank n (which is minimal).
+*/
+static GEN
+alg_idempotent(GEN al, long n, long d)
+{
+  pari_sp av = avma;
+  long i, N = alg_get_absdim(al);
+  GEN e, p = alg_get_char(al), x;
+  for(i=2; i<=N; i++) {
+    x = col_ei(N,i);
+    e = try_split(al, x, n, d);
+    if (e) return e;
+    avma = av;
+  }
+  for(;;) {
+    x = random_FpC(N,p);
+    e = try_split(al, x, n, d);
+    if (e) return e;
+    avma = av;
+  }
+}
+
+static GEN
+try_descend(GEN M, GEN B, GEN p, long m, long n, long d)
+{
+  GEN B2 = cgetg(m+1,t_MAT), b;
+  long i, j, k=0;
+  for (i=1; i<=d; i++)
+  {
+    k++;
+    b = gel(B,i);
+    gel(B2,k) = b;
+    for (j=1; j<n; j++)
+    {
+      k++;
+      b = FpM_FpC_mul(M,b,p);
+      gel(B2,k) = b;
+    }
+  }
+  if (!signe(FpM_det(B2,p))) return NULL;
+  return FpM_inv(B2,p);
+}
+
+/* Given an m*m matrix M with irreducible charpoly over F of degree n,
+ * let K = F(M), which is a field, and write m=d*n.
+ * Compute the d-dimensional K-vector space structure on V=F^m induced by M.
+ * Return [B,C] where:
+ *  - B is m*d matrix over F giving a K-basis b_1,...,b_d of V
+ *  - C is d*m matrix over F[x] expressing the canonical F-basis of V on the b_i
+ * Currently F = Fp TODO extend this. */
+static GEN
+descend_i(GEN M, long n, GEN p, long v)
+{
+  GEN B, C;
+  long m,d,i;
+  pari_sp av;
+  m = lg(M)-1;
+  d = m/n;
+  B = cgetg(d+1,t_MAT);
+  av = avma;
+
+  /* try a subset of the canonical basis */
+  for (i=1; i<=d; i++)
+    gel(B,i) = col_ei(m,n*(i-1)+1);
+  C = try_descend(M,B,p,m,n,d);
+  if (C) return mkvec2(B,C);
+  avma = av;
+
+  /* try smallish elements */
+  for (i=1; i<=d; i++)
+    gel(B,i) = FpC_red(zc_to_ZC(random_pm1(m)),p);
+  C = try_descend(M,B,p,m,n,d);
+  if (C) return mkvec2(B,C);
+  avma = av;
+
+  /* try random elements */
+  for (;;)
+  {
+    for (i=1; i<=d; i++)
+      gel(B,i) = random_FpC(m,p);
+    C = try_descend(M,B,p,m,n,d);
+    if (C) return mkvec2(B,C);
+    avma = av;
+  }
+}
+static GEN
+RgC_contract(GEN C, long n, long v) /* n>1 */
+{
+  GEN C2, P;
+  long m, d, i, j;
+  m = lg(C)-1;
+  d = m/n;
+  C2 = cgetg(d+1,t_COL);
+  for (i=1; i<=d; i++)
+  {
+    P = pol_xn(n-1,v);
+    for (j=1; j<=n; j++)
+      gel(P,j+1) = gel(C,n*(i-1)+j);
+    P = normalizepol(P);
+    gel(C2,i) = P;
+  }
+  return C2;
+}
+static GEN
+RgM_contract(GEN A, long n, long v) /* n>1 */
+{
+  GEN A2 = cgetg(lg(A),t_MAT);
+  long i;
+  for (i=1; i<lg(A2); i++)
+    gel(A2,i) = RgC_contract(gel(A,i),n,v);
+  return A2;
+}
+static GEN
+descend(GEN M, long n, GEN p, long v)
+{
+  GEN res;
+  res = descend_i(M,n,p,v);
+  gel(res,2) = RgM_contract(gel(res,2),n,v);
+  return res;
+}
+
+/* isomorphism of Fp-vector spaces M_d(F_p^n) -> (F_p)^(d^2*n)*/
+static GEN
+Fq_mat2col(GEN M, long d, long n)
+{
+  long N = d*d*n, i, j, k;
+  GEN C = cgetg(N+1, t_COL);
+  for (i=1; i<=d; i++)
+    for (j=1; j<=d; j++)
+      for (k=0; k<n; k++)
+        gel(C,n*(d*(i-1)+j-1)+k+1) = truecoeff(gcoeff(M,i,j),k);
+  return C;
+}
+
+static GEN
+alg_finite_csa_split(GEN al, long v)
+{
+  GEN Z, e, mte, ire, primelt, b, T, M, proje, lifte, extre, p, B, C, mt, mx, map, mapi, T2, ro;
+  long n, d, N = alg_get_absdim(al), i;
+  p = alg_get_char(al);
+  /* compute the center */
+  Z = algcenter(al);
+  /* TODO option to give the center as input instead of computing it */
+  n = lg(Z)-1;
+
+  /* compute a minimal rank idempotent e */
+  if (n==N) {
+    d = 1;
+    e = col_ei(N,1);
+    mte = matid(N);
+    ire = mkvec2(identity_perm(n),identity_perm(n));
+  }
+  else {
+    d = usqrt(N/n);
+    if (d*d*n != N) pari_err(e_MISC, "the algebra must be simple (alg_finite_csa_split 1)");
+    e = alg_idempotent(al,n,d);
+    mte = gel(e,2);
+    ire = gel(e,3);
+    e = gel(e,1);
+  }
+
+  /* identify the center */
+  if (n==1)
+  {
+    T = pol_x(v);
+    primelt = gen_0;
+  }
+  else
+  {
+    b = alg_decompose(al, Z, 1, &primelt);
+    if (!gequal0(b)) pari_err(e_MISC, "the algebra must be simple (alg_finite_csa_split 2)");
+    T = gel(primelt,2);
+    primelt = gel(primelt,1);
+    setvarn(T,v);
+  }
+
+  /* use the ffinit polynomial */
+  if (n>1)
+  {
+    T2 = init_Fq(p,n,v);
+    setvarn(T,fetch_var_higher());
+    ro = FpXQX_roots(T2,T,p);
+    ro = gel(ro,1);
+    primelt = algpoleval(al,ro,primelt);
+    T = T2;
+  }
+
+  /* descend al*e to a vector space over the center */
+  /* lifte: al*e -> al ; proje: al*e -> al */
+  lifte = shallowextract(mte,gel(ire,2));
+  extre = shallowmatextract(mte,gel(ire,1),gel(ire,2));
+  extre = FpM_inv(extre,p);
+  proje = rowpermute(mte,gel(ire,1));
+  proje = FpM_mul(extre,proje,p);
+  if (n==1)
+  {
+    B = lifte;
+    C = proje;
+  }
+  else
+  {
+    M = algbasismultable(al,primelt);
+    M = FpM_mul(M,lifte,p);
+    M = FpM_mul(proje,M,p);
+    B = descend(M,n,p,v);
+    C = gel(B,2);
+    B = gel(B,1);
+    B = FpM_mul(lifte,B,p);
+    C = FqM_mul(C,proje,T,p);
+  }
+
+  /* compute the isomorphism */
+  mt = alg_get_multable(al);
+  map = cgetg(N+1,t_VEC);
+  M = cgetg(N+1,t_MAT);
+  for (i=1; i<=N; i++)
+  {
+    mx = gel(mt,i);
+    mx = FpM_mul(mx,B,p);
+    mx = FqM_mul(C,mx,T,p);
+    gel(map,i) = mx;
+    gel(M,i) = Fq_mat2col(mx,d,n);
+  }
+  mapi = FpM_inv(M,p);
+  if (!mapi) pari_err(e_MISC, "the algebra must be simple (alg_finite_csa_split 3)");
+  return mkvec3(T,map,mapi);
+}
+
+GEN
+algsplit(GEN al, long v)
+{
+  pari_sp av = avma;
+  GEN res, T, map, mapi, ff, p;
+  long i,j,k,li,lj;
+  checkalg(al);
+  p = alg_get_char(al);
+  if (gequal0(p))
+    pari_err_IMPL("splitting a characteristic 0 algebra over its center");
+  res = alg_finite_csa_split(al, v);
+  T = gel(res,1);
+  map = gel(res,2);
+  mapi = gel(res,3);
+  ff = Tp_to_FF(T,p);
+  for (i=1; i<lg(map); i++)
+  {
+    li = lg(gel(map,i));
+    for (j=1; j<li; j++)
+    {
+      lj = lg(gmael(map,i,j));
+      for (k=1; k<lj; k++)
+        gmael3(map,i,j,k) = Fq_to_FF(gmael3(map,i,j,k),ff);
+    }
+  }
+
+  return gerepilecopy(av, mkvec2(map,mapi));
+}
+
 /* multiplication table sanity checks */
 static GEN
 check_mt(GEN mt, GEN p)
@@ -1046,7 +1368,7 @@ check_mt(GEN mt, GEN p)
     GEN M = gel(mt,i);
     if (typ(M) != t_MAT || lg(M) != l || lgcols(M) != l) return NULL;
     if (p) M = RgM_to_FpM(M,p);
-    if (i > 1 && ZC_is_ei(gel(M,1)) != i) return NULL; /* i = 1 checked at end*/
+    if (i > 1 && ZC_is_ei(gel(M,1)) != i) return NULL; /* i = 1 checked at end */
     gel(MT,i) = M;
   }
   if (!ZM_isidentity(gel(MT,1))) return NULL;
@@ -1148,7 +1470,7 @@ algissimple(GEN al, long ss)
     avma = av;
     return 1;
   }
-  dec = alg_decompose(al, Z, 1);
+  dec = alg_decompose(al, Z, 1, NULL);
   avma = av;
   return gequal0(dec);
 }
@@ -1930,13 +2252,16 @@ static GEN
 algbasisrightmultable(GEN al, GEN x)
 {
   long N = alg_get_absdim(al), i,j,k;
-  GEN res = zeromatcopy(N,N), c, mt = alg_get_multable(al);
+  GEN res = zeromatcopy(N,N), c, mt = alg_get_multable(al), p = alg_get_char(al);
+  if (gequal0(p)) p = NULL;
   for (i=1; i<=N; i++) {
     c = gel(x,i);
     if (!gequal0(c)) {
       for (j=1; j<=N; j++)
-      for (k=1; k<=N; k++)
-        gcoeff(res,k,j) = addii(gcoeff(res,k,j), mulii(c, gcoeff(gel(mt,j),k,i)));
+      for(k=1; k<=N; k++) {
+        if (p) gcoeff(res,k,j) = Fp_add(gcoeff(res,k,j), Fp_mul(c, gcoeff(gel(mt,j),k,i), p), p);
+        else gcoeff(res,k,j) = addii(gcoeff(res,k,j), mulii(c, gcoeff(gel(mt,j),k,i)));
+      }
     }
   }
   return res;
@@ -4911,7 +5236,7 @@ QM_invimZ(GEN m)
   return RgM_invimage(m, QM_ImQ_hnf(m));
 }
 
-/* An isomorphism of Z-modules M_{m,n}(Z) -> Z^{m*n} */
+/* An isomorphism of R-modules M_{m,n}(R) -> R^{m*n} */
 static GEN
 mat2col(GEN M, long m, long n)
 {
