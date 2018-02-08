@@ -290,7 +290,7 @@ KB+HC89- new package 'mf' for modular forms; new GP functions
       mftocoset        mftonew         mftraceform       mftwist
      90- [libpari] ZV_cba, Z_cba_extend
      91- [libpari] RgV_is_ZVpos, RgV_is_ZVnon0
-JA   92- GP functions ecpp, ecppexport, ecppisvalid.
+JA   92- GP functions primecert, primecertexport, primecertisvalid (ECPP).
      93- [libpari] ncharvecexpo
      94- [libpari] rootsof1q_cx, rootsof1powinit, rootsof1pow
 BA   95- [libpari] RgX_digits
@@ -471,6 +471,9 @@ AP   64- new implementation of matsolvemod
      65- plotcolor(w,c) now returns the [R,G,B] value attached to c
      66- allow plotdraw(w) for plotdraw([w,0,0])
      67- allow isprime(n) to use ECPP
+     68- isprime(n,1) no longer outputs a certificate, use primecert(n)
+     69- isprime(n,1) no longer uses APRCL for large prime divisors of n-1
+         (pure Pocklington-Lehmer-Selfridge); use primecert(n).
 
   Removed
       1- file 'MACHINES' (no longer maintained)

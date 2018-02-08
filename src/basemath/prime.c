@@ -696,23 +696,7 @@ BPSW_try_PL(GEN N)
   return NULL; /* not smooth enough */
 }
 
-static GEN isprimePL(GEN N);
-static GEN PL_certificate(GEN N, GEN F);
-/* Assume N a BPSW pseudoprime. Return 0 if not prime, and a primality label
- * otherwise: 1 (small), 2 (APRCL), or PL-certificate  */
-static GEN
-check_prime(GEN N)
-{
-  GEN P;
-  if (BPSW_isprime_small(N)) return gen_1;
-  /* PL for small N: APRCL is faster but we prefer a certificate */
-  if (expi(N) <= 250) return isprimePL(N);
-  P = BPSW_try_PL(N);
-  /* if PL likely too expensive: give up certificate and use APRCL */
-  if (!P) return isprimeAPRCL(N)? gen_2: gen_0;
-  return typ(P) != t_INT? PL_certificate(N,P): gen_0;
-}
-
+static GEN isprimePL_i(GEN N);
 /* F is a vector whose entries are primes. For each of them, find a PL
  * witness. Return 0 if caller lied and F contains a composite */
 static long
@@ -723,50 +707,89 @@ PL_certify(GEN N, GEN F)
     if (! pl831(N, gel(F,i))) return 0;
   return 1;
 }
-/* F is a vector whose entries are *believed* to be primes. For each of them,
- * recording a witness and recursive primality certificate */
+/* F is a vector whose entries are *believed* to be primes (BPSW_psp).
+ * For each of them, recording a witness and recursive primality certificate */
 static GEN
 PL_certificate(GEN N, GEN F)
 {
   long i, l = lg(F);
-  GEN W = cgetg(l,t_COL);
-  GEN R = cgetg(l,t_COL);
-  for(i=1; i<l; i++)
+  GEN C;
+  if (BPSW_isprime_small(N)) return N;
+  C = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
   {
-    GEN p = gel(F,i);
-    ulong witness = pl831(N,p);
-    if (!witness) return gen_0;
-    gel(W,i) = utoipos(witness);
-    gel(R,i) = check_prime(p);
-    if (isintzero(gel(R,i)))
+    GEN p = gel(F,i), C0;
+    ulong w;
+
+    if (BPSW_isprime_small(p)) { gel(C,i) = p; continue; }
+    w = pl831(N,p); if (!w) return gen_0;
+    C0 = isprimePL_i(p);
+    if (isintzero(C0))
     { /* composite in prime factorisation ! */
       err_printf("Not a prime: %Ps", p);
       pari_err_BUG("PL_certificate [false prime number]");
     }
+    gel(C,i) = mkvec3(p,utoipos(w), C0);
   }
-  return mkmat3(F, W, R);
+  return mkvec2(N, C);
 }
+/* M a t_MAT */
+static int
+PL_isvalid(GEN v)
+{
+  GEN C, F, F2, N, N1, U;
+  long i, l;
+  switch(typ(v))
+  {
+    case t_INT: return BPSW_isprime_small(v) && BPSW_psp(v);
+    case t_VEC: if (lg(v) == 3) break;/*fall through */
+    default: return 0;
+  }
+  N = gel(v,1);
+  C = gel(v,2);
+  if (typ(N) != t_INT || signe(N) <= 0 || typ(C) != t_VEC) return 0;
+  U = N1 = subiu(N,1);
+  l = lg(C);
+  for (i = 1; i < l; i++)
+  {
+    GEN p = gel(C,i), a = NULL, C0 = NULL, ap;
+    long vp;
+    if (typ(p) != t_INT)
+    {
+      if (lg(p) != 4) return 0;
+      a = gel(p,2); C0 = gel(p,3); p = gel(p,1);
+      if (typ(p) != t_INT || typ(a) != t_INT || !PL_isvalid(C0)) return 0;
+    }
+    vp = Z_pvalrem(U, p, &U); if (!vp) return 0;
+    if (!a)
+    {
+      if (!BPSW_isprime_small(p)) return 0;
+      continue;
+    }
+    if (!equalii(gel(C0,1), p)) return 0;
+    ap = Fp_pow(a, diviiexact(N1,p), N);
+    if (!equali1(gcdii(subiu(ap,1), N)) || !equali1(Fp_pow(ap, p, N))) return 0;
+  }
+  F = diviiexact(N1, U); /* factored part of N-1 */
+  F2= sqri(F);
+  if (cmpii(F2, N) > 0) return 1;
+  if (cmpii(mulii(F2,F), N) <= 0) return 0;
+  return BLS_test(N,F);
+}
+
 /* Assume N is a strong BPSW pseudoprime, Pocklington-Lehmer primality proof.
- * Return gen_0 (non-prime), gen_1 (small prime), matrix (large prime)
+ * Return gen_0 (non-prime), N (small prime), matrix (large prime)
  *
  * The matrix has 3 columns, [a,b,c] with
  * a[i] prime factor of N-1,
  * b[i] witness for a[i] as in pl831
  * c[i] check_prime(a[i]) */
 static GEN
-isprimePL(GEN N)
+isprimePL_i(GEN N)
 {
-  pari_sp ltop = avma;
   GEN cbrtN, N_1, F, f;
-
-  if (typ(N) != t_INT) pari_err_TYPE("isprimePL",N);
-  switch(cmpis(N,2))
-  {
-    case -1:return gen_0;
-    case 0: return gen_1;
-  }
-  /* N > 2 */
-  cbrtN = sqrtnint(N, 3);
+  if (BPSW_isprime_small(N)) return N;
+  cbrtN = sqrtnint(N,3);
   N_1 = subiu(N,1);
   F = Z_factor_until(N_1, sqri(cbrtN));
   f = factorback(F); /* factored part of N-1, f^3 > N */
@@ -778,8 +801,17 @@ isprimePL(GEN N)
   }
   /* if N-1 is only N^(1/3)-smooth, BLS test */
   if (!equalii(f,N_1) && cmpii(sqri(f),N) <= 0 && !BLS_test(N,f))
-  { avma = ltop; return gen_0; } /* Failed, N is composite */
-  return gerepilecopy(ltop, PL_certificate(N, gel(F,1)));
+    return gen_0; /* Failed, N is composite */
+  F = gel(F,1); settyp(F, t_VEC);
+  return PL_certificate(N, F);
+}
+static GEN
+isprimePL(GEN N)
+{
+  pari_sp av = avma;
+  if (typ(N) != t_INT) pari_err_TYPE("isprimePL",N);
+  if (!BPSW_psp(N)) return gen_0;
+  return gerepilecopy(av, isprimePL_i(N));
 }
 
 /* assume N a BPSW pseudoprime, in particular, it is odd > 2. Prove N prime */
@@ -798,13 +830,19 @@ BPSW_isprime(GEN N)
   avma = av; return t;
 }
 
+static long
+_isprimePL(GEN x)
+{
+  pari_sp av = avma; x = isprimePL(x);
+  avma = av; return !isintzero(x);
+}
 GEN
 gisprime(GEN x, long flag)
 {
   switch (flag)
   {
     case 0: return map_proto_lG(isprime,x);
-    case 1: return map_proto_G(isprimePL,x);
+    case 1: return map_proto_lG(_isprimePL,x);
     case 2: return map_proto_lG(isprimeAPRCL,x);
     case 3: return map_proto_lG(isprimeECPP,x);
   }
@@ -814,6 +852,53 @@ gisprime(GEN x, long flag)
 
 long
 isprime(GEN x) { return BPSW_psp(x) && BPSW_isprime(x); }
+
+GEN
+primecert(GEN x, long flag)
+{
+  switch(flag)
+  {
+    case 0: return ecpp(x);
+    case 1: return isprimePL(x);
+  }
+  pari_err_FLAG("primecert");
+  return NULL;/*LCOV_EXCL_LINE*/
+}
+
+enum { c_VOID = 0, c_ECPP, c_N1 };
+static long
+cert_type(GEN c)
+{
+  switch(typ(c))
+  {
+    case t_INT: return c_ECPP;
+    case t_VEC:
+      if (lg(c) == 3 && typ(gel(c,1)) == t_INT) return c_N1;
+      return c_ECPP;
+  }
+  return c_VOID;
+}
+
+long
+primecertisvalid(GEN c)
+{
+  switch(typ(c))
+  {
+    case t_INT: return BPSW_isprime_small(c) && BPSW_psp(c);
+    case t_VEC:
+      return cert_type(c) == c_ECPP? ecppisvalid(c): PL_isvalid(c);
+  }
+  return 0;
+}
+
+GEN
+primecertexport(GEN c, long flag)
+{
+  if (cert_type(c) != c_ECPP) pari_err_IMPL("N-1 certificate");
+  if (!primecertisvalid(c))
+    pari_err_TYPE("primecertexport - invalid certificate", c);
+  return ecppexport(c, flag);
+}
 
 /***********************************************************************/
 /**                                                                   **/
