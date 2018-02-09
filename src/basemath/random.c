@@ -118,11 +118,16 @@ setrand(GEN x)
   if (lx != 2 + r2+2+(r2==128))
     pari_err_DOMAIN("setrand", "n", "!=", strtoGENstr("getrand()"), x);
   xp = int_LSW(x);
-  for (i = 0; i < r2; i++) { state[i] = *xp; xp = int_nextW(xp); }
 #ifdef LONG_IS_64BIT
+  for (i = 0; i < r2; i++) { state[i] = *xp; xp = int_nextW(xp); }
   xorgen_w = *xp; xp = int_nextW(xp);
 #else
-  xorgen_w = _32to64(*xp, *int_nextW(xp)); xp = int_nextW(int_nextW(xp));
+  for (i = 0; i < r2; i+=2)
+  {
+    state[i+1] = *xp; xp = int_nextW(xp);
+    state[i]   = *xp; xp = int_nextW(xp);
+  }
+  xorgen_w = _32to64(*int_nextW(xp), *xp); xp = int_nextW(int_nextW(xp));
 #endif
   xorgen_i =  (*xp) & 63;
 }
@@ -137,11 +142,16 @@ getrand(void)
   if (xorgen_i < 0) init_xor4096i(1UL);
 
   x = cgetipos(2+r2+2+(r2==128)); xp = (ulong *) int_LSW(x);
-  for (i = 0; i < r2; i++) { *xp = state[i]; xp = int_nextW(xp); }
 #ifdef LONG_IS_64BIT
+  for (i = 0; i < r2; i++)  { *xp = state[i]; xp = int_nextW(xp); }
   *xp = xorgen_w; xp = int_nextW(xp);
 #else
-  _64to32(xorgen_w, xp, int_nextW(xp)); xp = int_nextW(int_nextW(xp));
+  for (i = 0; i < r2; i+=2)
+  {
+    *xp = state[i+1]; xp = int_nextW(xp);
+    *xp = state[i];   xp = int_nextW(xp);
+  }
+  _64to32(xorgen_w, int_nextW(xp), xp); xp = int_nextW(int_nextW(xp));
 #endif
   *xp = xorgen_i? xorgen_i: 64; return x;
 }
