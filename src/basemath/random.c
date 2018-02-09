@@ -28,19 +28,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #ifdef LONG_IS_64BIT
   typedef ulong u64;
-  static THREAD ulong state[64];
-  #define u64state(i)      ((u64)state[(i)])
-  #define u64stateset(i,x) state[(i)] = (ulong) (x);
 #else
   typedef unsigned long long u64;
-  static THREAD ulong state[128];
-  #define u64state(i)      _32to64(state[2*(i)],state[2*(i)+1])
-  #define u64stateset(i,x) _64to32(x,state+2*(i),state+2*(i)+1)
 static u64
 _32to64(ulong a, ulong b) { u64 v = a; return (v<<32)|b; }
 static void
 _64to32(u64 v, ulong *a, ulong *b) { *a = v>>32; *b = v&0xFFFFFFFF; }
 #endif
+static THREAD u64 state[64];
 static THREAD u64 xorgen_w;
 static THREAD int xorgen_i;
 /* weyl = odd approximation to 2^64*(sqrt(5)-1)/2. */
@@ -53,13 +48,12 @@ block(void)
   const int a = 33, b = 26, c = 27, d = 29, s = 53;
   u64 t, v, w;
   xorgen_i = (xorgen_i+1)&(r-1);
-  t = u64state(xorgen_i);
-  v = u64state((xorgen_i+(r-s))&(r-1));   /* index is (i-s) mod r */
+  t = state[xorgen_i];
+  v = state[(xorgen_i+(r-s))&(r-1)];   /* index is (i-s) mod r */
   t ^= t<<a; t ^= t>>b;                   /* (I + L^a)(I + R^b) */
   v ^= v<<c; v ^= v>>d;                   /* (I + L^c)(I + R^d) */
   w = t^v;
-  u64stateset(xorgen_i, w);               /* update circular array */
-  return w;
+  return state[xorgen_i] = w;               /* update circular array */
 }
 
 /* v > 0 */
@@ -76,7 +70,7 @@ init_xor4096i(u64 v)
   for (xorgen_w = v, k = 0; k < r; k++) { /* initialise circular array */
     v ^= v<<10; v ^= v>>15;
     v ^= v<<4;  v ^= v>>13;
-    u64stateset(k, v + (xorgen_w+=weyl));
+    state[k] = v + (xorgen_w+=weyl);
   }
   /* discard first 4*r results */
   for (xorgen_i = r-1, k = 4*r; k > 0; k--) (void)block();
@@ -115,18 +109,17 @@ setrand(GEN x)
     init_xor4096i(v); return;
   }
 #endif
-  if (lx != 2 + r2+2+(r2==128))
-    pari_err_DOMAIN("setrand", "n", "!=", strtoGENstr("getrand()"), x);
   xp = int_LSW(x);
 #ifdef LONG_IS_64BIT
-  for (i = 0; i < r2; i++) { state[i] = *xp; xp = int_nextW(xp); }
+  if (lx != 2 + r2+2)
+    pari_err_DOMAIN("setrand", "n", "!=", strtoGENstr("getrand()"), x);
+  for (i = 0; i < r2; i++, xp = int_nextW(xp)) state[i] = *xp;
   xorgen_w = *xp; xp = int_nextW(xp);
 #else
-  for (i = 0; i < r2; i+=2)
-  {
-    state[i+1] = *xp; xp = int_nextW(xp);
-    state[i]   = *xp; xp = int_nextW(xp);
-  }
+  if (lx != 2 + 2*r2+3)
+    pari_err_DOMAIN("setrand", "n", "!=", strtoGENstr("getrand()"), x);
+  for (i = 0; i < r2; i++, xp = int_nextW(int_nextW(xp)))
+    state[i] = _32to64(*int_nextW(xp), *xp);
   xorgen_w = _32to64(*int_nextW(xp), *xp); xp = int_nextW(int_nextW(xp));
 #endif
   xorgen_i =  (*xp) & 63;
@@ -141,16 +134,14 @@ getrand(void)
   long i;
   if (xorgen_i < 0) init_xor4096i(1UL);
 
-  x = cgetipos(2+r2+2+(r2==128)); xp = (ulong *) int_LSW(x);
 #ifdef LONG_IS_64BIT
-  for (i = 0; i < r2; i++)  { *xp = state[i]; xp = int_nextW(xp); }
+  x = cgetipos(2+r2+2); xp = (ulong *) int_LSW(x);
+  for (i = 0; i < r2; i++, xp = int_nextW(xp)) *xp = state[i];
   *xp = xorgen_w; xp = int_nextW(xp);
 #else
-  for (i = 0; i < r2; i+=2)
-  {
-    *xp = state[i+1]; xp = int_nextW(xp);
-    *xp = state[i];   xp = int_nextW(xp);
-  }
+  x = cgetipos(2+2*r2+3); xp = (ulong *) int_LSW(x);
+  for (i = 0; i < r2; i++, xp = int_nextW(int_nextW(xp)))
+    _64to32(state[i], int_nextW(xp), xp);
   _64to32(xorgen_w, int_nextW(xp), xp); xp = int_nextW(int_nextW(xp));
 #endif
   *xp = xorgen_i? xorgen_i: 64; return x;
