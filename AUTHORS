@@ -25,6 +25,7 @@ Major contributors (large modules written or rewritten from scratch):
     package, multithread model, PARI description system, FLTK support,
     Bug tracking system, administration of pari.math.u-bordeaux.fr, the
     http://pari.math.u-bordeaux.fr website, Lfun package
+  Jared ASUNCION: ECPP
   Christian BATUT: 68k multiprecision kernel, Linear algebra, lattices
   Karim BELABAS: current project leader, native multiprecision kernel, modular
     kernel, polynomial arithmetic, polynomial factorization (finite fields,
