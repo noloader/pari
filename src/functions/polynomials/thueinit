@@ -35,8 +35,8 @@ Doc: initializes the \var{tnf} corresponding to $P$, a non-constant
  \misctitle{Note} The general philosophy is to disprove the existence of large
  solutions then to enumerate bounded solutions naively. The implementation
  will overflow when there exist huge solutions and the equation has degree
- $> 2$ (the quadratic imaginary case is special, since we can use
- \kbd{bnfisintnorm}):
+ $> 2$ (the quadratic imaginary case is special, since we can stick to
+ \kbd{bnfisintnorm}, there are no fundamental units):
  \bprog
  ? thue(t^3+2, 10^30)
   ***   at top-level: L=thue(t^3+2,10^30)

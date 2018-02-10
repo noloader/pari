@@ -22,7 +22,7 @@ Doc: returns all solutions of the equation
  then the result is unconditional. Otherwise, it depends in principle of the
  truth of the GRH, but may still be unconditionally correct in some
  favorable cases. The result is conditional on the GRH if
- $a\neq \pm 1$ and, $P$ has a single irreducible rational factor, whose
+ $a\neq \pm 1$ and $P$ has a single irreducible rational factor, whose
  attached tentative class number $h$ and regulator $R$ (as computed
  assuming the GRH) satisfy
 
@@ -36,7 +36,7 @@ Doc: returns all solutions of the equation
  ? thue(tnf, -4)
  %1 = [[1, 1]]
  @eprog\noindent In this case, one checks that \kbd{bnfinit(x\pow13 -5).no}
- is $1$. Hence, the only solution is $(x,y) = (1,1)$, and the result is
+ is $1$. Hence, the only solution is $(x,y) = (1,1)$ and the result is
  unconditional. On the other hand:
  \bprog
  ? P = x^3-2*x^2+3*x-17; tnf = thueinit(P);

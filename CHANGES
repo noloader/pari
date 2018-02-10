@@ -475,6 +475,8 @@ AP   64- new implementation of matsolvemod
      69- isprime(n,1) no longer uses APRCL for large prime divisors of n-1
          (pure Pocklington-Lehmer-Selfridge); use primecert(n).
      70- getrand() encoded results in a way that depended on 32bit/64bit arch
+     71- thue(p, rhs) is much easier when p has no real roots; don't insist
+         on computing bnfinit(p) in this case [#2003]
 
   Removed
       1- file 'MACHINES' (no longer maintained)

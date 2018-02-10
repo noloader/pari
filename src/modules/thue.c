@@ -838,14 +838,18 @@ thueinit(GEN pol, long flag, long prec)
     long k,l;
     if (!bnf)
     {
-      bnf = Buchall(pol, nf_FORCE, DEFAULTPREC);
-      if (flag) (void)bnfcertify(bnf);
+      bnf = gen_0;
+      if (expi(ZX_disc(pol)) <= 50)
+      {
+        bnf = Buchall(pol, nf_FORCE, DEFAULTPREC);
+        if (flag) (void)bnfcertify(bnf);
+      }
     }
-    ro = nf_get_roots(bnf_get_nf(bnf));
-    l = lg(ro);
-    c0 = imag_i(gel(ro,1));
+    ro = typ(bnf)==t_VEC? nf_get_roots(bnf_get_nf(bnf))
+                        : QX_complex_roots(pol, DEFAULTPREC);
+    l = lg(ro); c0 = imag_i(gel(ro,1));
     for (k = 2; k < l; k++) c0 = mulrr(c0, imag_i(gel(ro,k)));
-    c0 = invr(sqrr(c0)); tnf = mkvec3(pol,bnf,c0);
+    setsigne(c0,1); c0 = invr(c0); tnf = mkvec3(pol, bnf, c0);
   }
   gel(tnf,1) = mkvec3(gel(tnf,1), C, L);
   return gerepilecopy(av,tnf);
@@ -1247,6 +1251,16 @@ sols_from_R(GEN Rab, GEN *pS, GEN P, GEN POL, GEN rhs)
   for (k = 1; k < l; k++)
     if (typ(gel(ry,k)) == t_INT) check_y(pS, P, POL, gel(ry,k), rhs);
 }
+static GEN
+Z_factor_if_easy(GEN rhs)
+{
+  GEN F, P;
+  long l;
+  if (expi(rhs) < 150) return Z_factor(rhs);
+  F = Z_factor_limit(rhs, 500000);
+  P = gel(F,1); l = lg(P);
+  return (l == 1 || BPSW_psp(gel(P,l-1)))? F: NULL;
+}
 /* Given a tnf structure as returned by thueinit, a RHS and
  * optionally the solutions to the norm equation, returns the solutions to
  * the Thue equation F(x,y)=a */
@@ -1289,17 +1303,9 @@ thue(GEN tnf, GEN rhs, GEN ne)
     x3 = sqrtnr(mulir(absi(rhs),c0), degpol(POL));
     x3 = addrr(x3, dbltor(0.1)); /* guard from round-off errors */
     S = cgetg(1,t_VEC);
-    if (!ne && expo(x3) > 10)
+    if (!ne && typ(bnf) == t_VEC && expo(x3) > 10)
     {
-      long l;
-      GEN P;
-      if (expi(rhs) < 150) F = Z_factor(rhs);
-      else
-      {
-        F = Z_factor_limit(rhs, 500000);
-        P = gel(F,1); l = lg(P);
-        if (!is_pm1(rhs) && !BPSW_psp(gel(P,l-1))) F = NULL;
-      }
+      F = Z_factor_if_easy(rhs);
       if (F) ne = get_ne(bnf, F, gen_1);
     }
     if (ne)
