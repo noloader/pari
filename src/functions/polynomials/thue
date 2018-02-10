@@ -62,3 +62,13 @@ Doc: returns all solutions of the equation
  ? thue(tnf, 128)
  %2 = [[-1, 0], [1, 0]]
  @eprog\noindent Reducible polynomials are in fact much easier to handle.
+
+ \misctitle{Note} When $P$ is irreducible without a real root, the default
+ strategy is to use brute force enumeration in time $|a|^{1/\deg P}$ and
+ avoid computing a touch \var{bnf} attached to $P$, see \kbd{thueinit}.
+ Besides reusing a quantity you might need for other purposes, the
+ default argument \emph{sol} can also be used to use a different strategy
+ and prove that there are no solutions; of course you need to compute a
+ \var{bnf} on you own to obtain \emph{sol}. If there \emph{are} solutions
+ this won't help unless $P$ is quadratic, since the enumeration will be
+ performed in any case.
