@@ -1313,8 +1313,25 @@ thue(GEN tnf, GEN rhs, GEN ne)
       if (lg(ne) == 1) { avma = av; return cgetg(1,t_VEC); }
       if (degpol(POL) == 2) /* quadratic imaginary */
       {
-        GEN u = bnf_get_tuU(bnf);
-        long w =  bnf_get_tuN(bnf);
+        GEN u = NULL;
+        long w = 2;
+        if (typ(bnf) == t_VEC)
+        {
+          u = bnf_get_tuU(bnf);
+          w =  bnf_get_tuN(bnf);
+        }
+        else
+        {
+          GEN D = coredisc(ZX_disc(POL));
+          if (cmpis(D, -4) >= 0)
+          {
+            GEN F, T = quadpoly(D);
+            w = equalis(D, -4)? 4: 6;
+            setvarn(T, fetch_var_higher());
+            F = gcoeff(nffactor(POL, T), 1, 1);
+            u = gneg(lift_shallow(gel(F,2))); delete_var();
+          }
+        }
         if (w == 4) /* u = I */
           ne = shallowconcat(ne, RgXQV_RgXQ_mul(ne,u,POL));
         else if (w == 6) /* u = j */
