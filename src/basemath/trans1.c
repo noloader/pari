@@ -2111,10 +2111,18 @@ exp1r_abs(GEN x)
 GEN
 mpexpm1(GEN x)
 {
-  long sx = signe(x);
+  const long s = 6;
+  long l, sx = signe(x);
   GEN y, z;
   pari_sp av;
   if (!sx) return real_0_bit(expo(x));
+  l = realprec(x);
+  if (l > maxss(EXPNEWTON_LIMIT, (1L<<s) + 2))
+  {
+    long e = expo(x);
+    if (e < 0) x = rtor(x, l + nbits2extraprec(-e));
+    return subrs(mpexp(x), 1);
+  }
   if (sx > 0) return exp1r_abs(x);
   /* compute exp(x) * (1 - exp(-x)) */
   av = avma; y = exp1r_abs(x);

@@ -162,6 +162,7 @@ BA  120- matsupplement(Mod(matrix(5,1),2)) --> SEGV [#1996]
     128- QX_complex_roots(a*x^n,) => SEGV
 BA  129- default(strictargs,1); my(a=2);(f(b,c)=123);f(1) => SEGV [#2004]
     130- factor(0.*x + 1) -> SEGV [#2005]
+    140- sinh(x close to 0): loss of accuracy
 
   Added
       1- [libari] ZM_isidentity
@@ -477,6 +478,7 @@ AP   64- new implementation of matsolvemod
      70- getrand() encoded results in a way that depended on 32bit/64bit arch
      71- thue(p, rhs) is much easier when p has no real roots; don't insist
          on computing bnfinit(p) in this case [#2003]
+     72- use Newton in expm1
 
   Removed
       1- file 'MACHINES' (no longer maintained)

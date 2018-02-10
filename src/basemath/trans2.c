@@ -418,8 +418,18 @@ mpsinh(GEN x)
 
   if (!signe(x)) return real_0_bit(ex);
   lx = realprec(x); res = cgetr(lx); av = avma;
-  if (ex < 1 - BITS_IN_LONG) x = rtor(x, lx + nbits2extraprec(-ex)-1);
-  z = mpexp(x); z = subrr(z, invr(z)); shiftr_inplace(z, -1);
+  if (ex < 1 - BITS_IN_LONG)
+  { /* y = e^x-1; e^x - e^(-x) = y(1 + 1/(y+1)) */
+    GEN y = mpexpm1(x);
+    z = addrs(y,1); if (lg(z) > lx+1) z = rtor(z,lx+1); /* e^x */
+    z = mulrr(y, addsr(1,invr(z)));
+  }
+  else
+  {
+    z = mpexp(x);
+    z = subrr(z, invr(z));
+  }
+  shiftr_inplace(z, -1);
   affrr(z, res); avma = av; return res;
 }
 
