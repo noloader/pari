@@ -2095,7 +2095,7 @@ polred_aux(nfmaxord_t *S, GEN *pro, long flag)
   }
 
   (void)polred_init(S, &F, &d);
-  *pro = F.ro;
+  if (pro) *pro = F.ro;
   M = F.M;
   if (best)
   {
@@ -2144,7 +2144,6 @@ static GEN
 Polred(GEN x, long flag, GEN fa)
 {
   pari_sp av = avma;
-  GEN ro;
   nfmaxord_t S;
   if (fa)
     nfinit_basic(&S, mkvec2(x,fa));
@@ -2152,19 +2151,19 @@ Polred(GEN x, long flag, GEN fa)
     nfinit_basic_partial(&S, x);
   else
     nfinit_basic(&S, x);
-  return gerepilecopy(av, polred_aux(&S, &ro, flag));
+  return gerepilecopy(av, polred_aux(&S, NULL, flag));
 }
 
 /* finds "best" polynomial in polred_aux list, defaulting to S->T if none of
  * them is primitive. *px is the ZX, characteristic polynomial of Mod(*pb,S->T),
- * *pdx its discriminant. Set *pro = polroots(S->T) [ NOT *px ]. */
+ * *pdx its discriminant if pdx != NULL. Set *pro = polroots(S->T) */
 static void
 polredbest_aux(nfmaxord_t *S, GEN *pro, GEN *px, GEN *pdx, GEN *pb)
 {
-  GEN y, x = S->T; /* default value */
+  GEN y, dx, x = S->T; /* default value */
   long i, l;
   y = polred_aux(S, pro, pb? nf_ORIG|nf_ABSOLUTE: nf_ABSOLUTE);
-  *pdx = S->dT;
+  dx = S->dT;
   if (pb)
   {
     GEN a, b = deg1pol_shallow(S->unscale, gen_0, varn(x));
@@ -2174,7 +2173,7 @@ polredbest_aux(nfmaxord_t *S, GEN *pro, GEN *px, GEN *pdx, GEN *pb)
     {
       GEN yi = gel(y,i);
       pari_sp av = avma;
-      if (ZX_is_better(yi,x,pdx)) { x = yi; b = gel(a,i); } else avma = av;
+      if (ZX_is_better(yi,x,&dx)) { x = yi; b = gel(a,i); } else avma = av;
     }
     *pb = b;
   }
@@ -2185,32 +2184,36 @@ polredbest_aux(nfmaxord_t *S, GEN *pro, GEN *px, GEN *pdx, GEN *pb)
     {
       GEN yi = gel(y,i);
       pari_sp av = avma;
-      if (ZX_is_better(yi,x,pdx)) x = yi; else avma = av;
+      if (ZX_is_better(yi,x,&dx)) x = yi; else avma = av;
     }
   }
-  if (!*pdx) *pdx = ZX_disc(x);
+  if (pdx) { if (!dx) dx = ZX_disc(x); *pdx = dx; }
   *px = x;
 }
+static GEN
+polredbest_i(GEN T0, long flag)
+{
+  GEN T = T0, a;
+  nfmaxord_t S;
+  nfinit_basic_partial(&S, T);
+  polredbest_aux(&S, NULL, &T, NULL, flag? &a: NULL);
+  if (flag == 2)
+    T = mkvec2(T, a);
+  else if (flag == 1)
+  {
+    GEN b = (T0 == T)? pol_x(varn(T)): QXQ_reverse(a, T0);
+    /* charpoly(Mod(a,T0)) = T; charpoly(Mod(b,T)) = S.x */
+    if (degpol(T) == 1) b = grem(b,T);
+    T = mkvec2(T, mkpolmod(b,T));
+  }
+  return T;
+}
 GEN
-polredbest(GEN T0, long flag)
+polredbest(GEN T, long flag)
 {
   pari_sp av = avma;
-  GEN T, dT, ro, a;
-  nfmaxord_t S;
   if (flag < 0 || flag > 1) pari_err_FLAG("polredbest");
-  T = T0; nfinit_basic_partial(&S, T);
-  polredbest_aux(&S, &ro, &T, &dT, flag? &a: NULL);
-  if (flag)
-  { /* charpoly(Mod(a,T0)) = T */
-    GEN b;
-    if (T0 == T)
-      b = pol_x(varn(T)); /* no improvement */
-    else
-      b = QXQ_reverse(a, T0); /* charpoly(Mod(b,T)) = S.x */
-    b = (degpol(T) == 1)? gmodulo(b, T): mkpolmod(b,T);
-    T = mkvec2(T, b);
-  }
-  return gerepilecopy(av, T);
+  return gerepilecopy(av, polredbest_i(T, flag));
 }
 /* DEPRECATED: backward compatibility */
 GEN
@@ -2592,20 +2595,10 @@ rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
       rnfeq = mkvec5(gen_0,gen_0,stoi(sa),T,liftpol_shallow(relpol));
     }
     bas = listP? mkvec2(pol, listP): pol;
-    if (best)
-    {
-      if (abs) red = polredbest(bas, 1);
-      else
-      {
-        GEN ro, x, dx, a;
-        nfmaxord_t S;
-        nfinit_basic_partial(&S, bas);
-        polredbest_aux(&S, &ro, &x, &dx, &a);
-        red = mkvec2(x, a);
-      }
-    }
-    else
+    if (!best)
       red = polredabs0(bas, (abs? nf_ORIG: nf_RAW)|nf_PARTIALFACT);
+    else
+      red = polredbest_i(bas, abs? 1: 2);
   }
   else
   {
