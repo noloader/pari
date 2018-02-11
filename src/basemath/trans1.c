@@ -3524,8 +3524,9 @@ gsinc(GEN x, long prec)
     case t_COMPLEX:
       if (isintzero(gel(x,1)))
       {
-        av = avma;
-        return gerepileuptoleaf(av,gdiv(gsinh(gel(x,2),prec),gel(x,2)));
+        av = avma; x = gel(x,2);
+        if (gequal0(x)) return gcosh(x,prec);
+        return gerepileuptoleaf(av,gdiv(gsinh(x,prec),x));
       }
       i = precision(x); if (i) prec = i;
       y = cgetc(prec); av = avma;

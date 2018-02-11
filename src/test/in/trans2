@@ -68,6 +68,8 @@ sinc(3+O(3^4))
 sinc(2+O(3^2))
 sinc(x)
 sinc(1/x)
+sinc(0.*I)
+sinc(O(3^4)*I)
 
 localprec(2003); log(exp(1.5)) - 1.5
 

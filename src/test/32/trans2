@@ -112,6 +112,8 @@ O(x)
   ***   at top-level: sinc(1/x)
   ***                 ^---------
   *** sinc: domain error in sinc: valuation < 0
+1.0000000000000000000000000000000000000
+1 + O(3^4)
 0.E-2003
 exp: [320, 320, 320]
 expm1: [320, 320, 320]
@@ -138,4 +140,4 @@ gamma: [320, 320, 320]
 lngamma: [320, 320, 320]
 psi: [320, 320, 320]
 zeta: [320, 320, 320]
-Total time spent: 20
+Total time spent: 21

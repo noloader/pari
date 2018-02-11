@@ -162,7 +162,8 @@ BA  120- matsupplement(Mod(matrix(5,1),2)) --> SEGV [#1996]
     128- QX_complex_roots(a*x^n,) => SEGV
 BA  129- default(strictargs,1); my(a=2);(f(b,c)=123);f(1) => SEGV [#2004]
     130- factor(0.*x + 1) -> SEGV [#2005]
-    140- sinh(x close to 0): loss of accuracy
+    140- sinh(x close to 0) -> loss of accuracy
+    141- sinc(0.*I) -> division by 0
 
   Added
       1- [libari] ZM_isidentity
