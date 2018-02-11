@@ -2558,39 +2558,50 @@ polredabs(GEN x) { return polredabs0(x,0); }
 GEN
 polredabs2(GEN x) { return polredabs0(x,nf_ORIG); }
 
+static GEN
+get_factor(GEN fa, long d)
+{
+  GEN P = gel(fa, 1);
+  long i, l = lg(P);
+  for (i = 1; i < l; i++)
+  {
+    GEN p = gel(P,i);
+    if (degpol(p) == d) return p;
+  }
+  return NULL;
+}
 /* relative polredabs/best. Returns relative polynomial by default (flag = 0)
  * flag & nf_ORIG: + element (base change)
  * flag & nf_ABSOLUTE: absolute polynomial */
 static GEN
-rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
+rnfpolred_i(GEN nf, GEN R, long flag, long best)
 {
   const char *f = best? "rnfpolredbest": "rnfpolredabs";
   const long abs = ((flag & nf_ORIG) && (flag & nf_ABSOLUTE));
-  GEN listP = NULL, red, A, P, T, rnfeq;
+  GEN listP = NULL, red, pol, A, P, T, rnfeq;
   pari_sp av = avma;
 
-  if (typ(relpol) == t_VEC) {
-    if (lg(relpol) != 3) pari_err_TYPE(f,relpol);
-    listP = gel(relpol,2);
-    relpol = gel(relpol,1);
+  if (typ(R) == t_VEC) {
+    if (lg(R) != 3) pari_err_TYPE(f,R);
+    listP = gel(R,2);
+    R = gel(R,1);
   }
-  if (typ(relpol) != t_POL) pari_err_TYPE(f,relpol);
+  if (typ(R) != t_POL) pari_err_TYPE(f,R);
   nf = checknf(nf);
   T = nf_get_pol(nf);
-  relpol = RgX_nffix(f, T, relpol, 0);
+  R = RgX_nffix(f, T, R, 0);
   if (best || (flag & nf_PARTIALFACT))
   {
-    GEN pol;
     if (abs)
     {
-      rnfeq = nf_rnfeq(nf, relpol);
+      rnfeq = nf_rnfeq(nf, R);
       pol = gel(rnfeq,1);
     }
     else
     {
       long sa;
-      pol = rnfequationall(nf, relpol, &sa, NULL);
-      rnfeq = mkvec5(gen_0,gen_0,stoi(sa),T,liftpol_shallow(relpol));
+      pol = rnfequationall(nf, R, &sa, NULL);
+      rnfeq = mkvec5(gen_0,gen_0,stoi(sa),T,liftpol_shallow(R));
     }
     if (listP) pol = mkvec2(pol, listP);
     red = best? polredbest_i(pol, abs? 1: 2)
@@ -2598,14 +2609,15 @@ rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
   }
   else
   {
-    GEN rnf, pol;
+    GEN rnf;
     pari_timer ti;
     if (DEBUGLEVEL>1) timer_start(&ti);
-    rnf = rnfinit(nf, relpol);
+    rnf = rnfinit(nf, R);
     rnfeq = rnf_get_map(rnf);
     pol = rnf_zkabs(rnf);
     if (DEBUGLEVEL>1) timer_printf(&ti, "absolute basis");
     red = polredabs0(pol, nf_RAW);
+    pol = gel(pol,1);
   }
   P = gel(red,1);
   A = gel(red,2);
@@ -2615,16 +2627,32 @@ rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
     if (flag & nf_ORIG)
     {
       GEN a = gel(rnfeq,2); /* Mod(a,pol) root of T */
-      GEN k = gel(rnfeq,3); /* Mod(variable(relpol),relpol) + k*a root of pol */
+      GEN k = gel(rnfeq,3); /* Mod(variable(R),R) + k*a root of pol */
       a = RgX_RgXQ_eval(a, lift_shallow(A), P); /* Mod(a, P) root of T */
       P = mkvec3(P, mkpolmod(a,P), gsub(A, gmul(k,a)));
     }
     return gerepilecopy(av, P);
   }
-  A = eltabstorel_lift(rnfeq, A);
-  P = RgXQ_charpoly(A, relpol, varn(relpol));
-  P = lift_if_rational(P);
-  if (flag & nf_ORIG) P = mkvec2(P, mkpolmod(RgXQ_reverse(A,relpol),P));
+  if (best)
+  {
+    A = eltabstorel_lift(rnfeq, A);
+    P = RgXQ_charpoly(A, R, varn(R));
+    P = lift_if_rational(P);
+    if (flag & nf_ORIG) P = mkvec2(P, mkpolmod(RgXQ_reverse(A,R),P));
+  }
+  else
+  { /* canonical factor */
+    P = get_factor(nffactor(nf,P), degpol(R));
+    if (!P) pari_err_IRREDPOL(best?"rnfpolredbest":"rnfpolredabs", R);
+    P = lift_if_rational(P);
+    if (flag & nf_ORIG)
+    {
+      GEN B = QXQ_reverse(A, pol); /* Mod(B,P) root of pol */
+      GEN k = gel(rnfeq,3);
+      B = gsub(RgX_rem(B, P), gmul(k, pol_x(varn(T)))); /* root of R */
+      P = mkvec2(P, mkpolmod(B,P));
+    }
+  }
   return gerepilecopy(av, P);
 }
 GEN

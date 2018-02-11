@@ -480,6 +480,8 @@ AP   64- new implementation of matsolvemod
      71- thue(p, rhs) is much easier when p has no real roots; don't insist
          on computing bnfinit(p) in this case [#2003]
      72- use Newton in expm1
+     73- change rnfpolredabs so that it outputs a canonical polynomial. As a
+         result, the function is no longer Obsolete.
 
   Removed
       1- file 'MACHINES' (no longer maintained)
