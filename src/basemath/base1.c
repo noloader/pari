@@ -2566,23 +2566,21 @@ rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
 {
   const char *f = best? "rnfpolredbest": "rnfpolredabs";
   const long abs = ((flag & nf_ORIG) && (flag & nf_ABSOLUTE));
-  pari_timer ti;
-  GEN listP = NULL, red, bas, A, P, pol, T, rnfeq;
-  long ty = typ(relpol);
+  GEN listP = NULL, red, A, P, T, rnfeq;
   pari_sp av = avma;
 
-  if (ty == t_VEC) {
+  if (typ(relpol) == t_VEC) {
     if (lg(relpol) != 3) pari_err_TYPE(f,relpol);
     listP = gel(relpol,2);
     relpol = gel(relpol,1);
   }
   if (typ(relpol) != t_POL) pari_err_TYPE(f,relpol);
   nf = checknf(nf);
-  if (DEBUGLEVEL>1) timer_start(&ti);
   T = nf_get_pol(nf);
   relpol = RgX_nffix(f, T, relpol, 0);
   if (best || (flag & nf_PARTIALFACT))
   {
+    GEN pol;
     if (abs)
     {
       rnfeq = nf_rnfeq(nf, relpol);
@@ -2594,19 +2592,20 @@ rnfpolred_i(GEN nf, GEN relpol, long flag, long best)
       pol = rnfequationall(nf, relpol, &sa, NULL);
       rnfeq = mkvec5(gen_0,gen_0,stoi(sa),T,liftpol_shallow(relpol));
     }
-    bas = listP? mkvec2(pol, listP): pol;
-    if (!best)
-      red = polredabs0(bas, (abs? nf_ORIG: nf_RAW)|nf_PARTIALFACT);
-    else
-      red = polredbest_i(bas, abs? 1: 2);
+    if (listP) pol = mkvec2(pol, listP);
+    red = best? polredbest_i(pol, abs? 1: 2)
+              : polredabs0(pol, (abs? nf_ORIG: nf_RAW)|nf_PARTIALFACT);
   }
   else
   {
-    GEN rnf = rnfinit(nf, relpol);
+    GEN rnf, pol;
+    pari_timer ti;
+    if (DEBUGLEVEL>1) timer_start(&ti);
+    rnf = rnfinit(nf, relpol);
     rnfeq = rnf_get_map(rnf);
-    bas = rnf_zkabs(rnf);
+    pol = rnf_zkabs(rnf);
     if (DEBUGLEVEL>1) timer_printf(&ti, "absolute basis");
-    red = polredabs0(bas, nf_RAW);
+    red = polredabs0(pol, nf_RAW);
   }
   P = gel(red,1);
   A = gel(red,2);
