@@ -9139,7 +9139,7 @@ mfTheta(GEN psi)
 
 /* FIXME: unify with etaquotype */
 static GEN
-NK_eta(GEN M, GEN R)
+eta_NK(GEN M, GEN R)
 {
   long N, k, i, lD, lM = lg(M);
   GEN gN, S0, S1, P, D;
@@ -9163,47 +9163,47 @@ NK_eta(GEN M, GEN R)
   return mkgNK(gN, sstoQ(k,2), get_mfchar(coredisc(D)), pol_x(1));
 }
 
-/* Output 0 if not desired eta product: if flag=0 (default) require
-   holomorphic at cusps. If flag set, accept meromorphic, but sill in some
-   modular function space */
+/* check holomorphy at all cusps */
+static int
+eta_holomorphic(GEN B, GEN E, GEN NK)
+{
+  long N = itos(gel(NK, 1)), i, j, lD, lb;
+  GEN D;
+  if (gsigne(gel(NK,2)) < 0) return 0;
+  D = mydivisorsu(N); lD = lg(D); lb = lg(B);
+  for (i = 1; i < lD; i++)
+  {
+    GEN S = gen_0;
+    long d = D[i];
+    for (j = 1; j < lb; j++)
+    {
+      long g = cgcd(B[j], d), nu = g*g*E[j];
+      S = gadd(S, sstoQ(nu, B[j]));
+    }
+    if (gsigne(S) < 0) return 0;
+  }
+  return 1;
+}
 
+/* Output 0 if not desired eta product: if flag=0 (default) require
+ * holomorphic at cusps. If flag set, accept meromorphic, but sill in some
+ * modular function space */
 GEN
 mffrometaquo(GEN eta, long flag)
 {
   pari_sp av = avma;
   GEN B, E, NK;
-  long s;
-  if (typ(eta) != t_MAT || !RgM_is_ZM(eta)) pari_err_TYPE("mffrometaquo", eta);
-  if (lg(eta) != 3 || lg(gel(eta,1)) == 1)
-    pari_err_TYPE("mffrometaquo [not a factorization]", eta);
-  B = gel(eta,1);
-  E = gel(eta,2); s = maxss(0, itos(ZV_dotproduct(B,E)) / 24);
+  long l, s;
+  if (typ(eta) != t_MAT || lg(eta) != 3 || !RgM_is_ZM(eta))
+    pari_err_TYPE("mffrometaquo", eta);
+  B = gel(eta,1); l = lg(B);
+  E = gel(eta,2);
+  if (lg(E) != l) pari_err_TYPE("mffrometaquo [not a factorization]", eta);
+  if (l == 1) return mf1();
+  s = maxss(0, itos(ZV_dotproduct(B,E)) / 24);
   B = ZV_to_zv(B);
-  E = ZV_to_zv(E); NK = NK_eta(B,E);
-  if (!NK) { avma = av; return gen_0; }
-  if (!flag)
-  {
-    /* Must check holomorphy at all cusps */
-    long fl = 1;
-    if (gsigne(gel(NK, 2)) < 0) fl = 0;
-    else
-    {
-      long N = itos(gel(NK, 1)), i, j, lb = lg(B);
-      GEN ld = mydivisorsu(N);
-      for (i = 1; i < lg(ld); ++i)
-      {
-        GEN S = gen_0;
-        long d = ld[i];
-        for (j = 1; j < lb; ++j)
-        {
-          long g = cgcd(B[j], d), nu = g*g*E[j];
-          S = gadd(S, sstoQ(nu, B[j]));
-        }
-        if (gsigne(S) < 0) { fl = 0; break; }
-      }
-    }
-    if (!fl) { avma = av; return gen_0; }
-  }
+  E = ZV_to_zv(E); NK = eta_NK(B,E);
+  if (!NK || (!flag && !eta_holomorphic(B,E,NK))) { avma = av; return gen_0; }
   return gerepilecopy(av, tag2(t_MF_ETAQUO, NK, mkvec2(B,E), stoi(s)));
 }
 
