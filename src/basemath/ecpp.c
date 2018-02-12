@@ -367,29 +367,33 @@ NDinfomqg_get_sqrt(GEN x)
 static int
 sort_disclist(void *data, GEN x, GEN y)
 {
-  long d1, h1, bi1, pd1, hf1, wD1, d2, h2, bi2, pd2, hf2, wD2;
+  long d1, h1, g1, o1, bi1, pd1, hf1, wD1, d2, h2, g2, o2, bi2, pd2, hf2, wD2;
   if (data != NULL) return itos(closure_callgen2( (GEN)data, x, y) );
 
   d1 = Dinfo_get_D(x); /* discriminant */
-  h1 = Dinfo_get_h(x); /* class number */
-  bi1 = Dinfo_get_bi(x); /* best invariant */
-  pd1 = Dinfo_get_pd(x); /* degree of polclass */
-  hf1 = modinv_height_factor(bi1); /* height factor */
   wD1 = D_get_wD(d1); /* number of units */
   d2 = Dinfo_get_D(y);
-  h2 = Dinfo_get_h(y);
-  bi2 = Dinfo_get_bi(y);
-  pd2 = Dinfo_get_pd(y);
-  hf2 = modinv_height_factor(bi2);
   wD2 = D_get_wD(d2);
-
   /* higher number of units means more elliptic curves to try */
   if (wD1 != wD2) return wD2 > wD1 ? 1 : -1;
   /* lower polclass degree is better because of faster computation of roots modulo N */
+  pd1 = Dinfo_get_pd(x); /* degree of polclass */
+  pd2 = Dinfo_get_pd(y);
   if (pd1 != pd2) return pd1 > pd2 ? 1 : -1;
+  g1 = lg(Dinfo_get_Dfac(x))-1; /* genus number */
+  h1 = Dinfo_get_h(x); /* class number */
+  o1 = h1 >> (g1-1); /* odd class number */
+  g2 = lg(Dinfo_get_Dfac(y))-1; /* genus number */
+  h2 = Dinfo_get_h(y);
+  o2 = h2 >> (g2-1); /* odd class number */
+  if (o1 != o2) return g1 > g2 ? 1 : -1;
   /* lower class number is better because of higher probability of passing cornacchia step */
   if (h1 != h2) return h1 > h2 ? 1 : -1;
   /* higher height factor is better because polclass would have lower coefficients */
+  bi1 = Dinfo_get_bi(x); /* best invariant */
+  hf1 = modinv_height_factor(bi1); /* height factor */
+  bi2 = Dinfo_get_bi(y);
+  hf2 = modinv_height_factor(bi2);
   if (hf1 != hf2) return hf2 > hf1 ? 1 : -1;
   /* "higher" discriminant is better since its absolute value is lower */
   if (d1 != d2) return d2 > d1 ? 1 : -1;
@@ -589,10 +593,10 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
   {
     long D = umael3(merge, i, 1, 1);
     long h = umael3(merge, i, 1, 2);
-    long modinv = umael3(merge, i, 1, 3) = disc_best_modinv(D);
-    long p1 = 1, p2 = 1;
-    if (modinv_degree(&p1, &p2, modinv) && (-D)%p1 == 0 && (-D)%p2 == 0)
-      umael3(merge, i, 1, 4) = h/2;
+    long dfaclen = lg(gmael2(merge, i, 2))-1;
+    long bi = disc_best_modinv(D);
+    umael3(merge, i, 1, 3) = bi;
+    if (bi) umael3(merge, i, 1, 4) = h >> (dfaclen-1);
   }
   merge = gen_sort(merge, NULL, &sort_disclist);
   return gerepileupto(av, merge);
