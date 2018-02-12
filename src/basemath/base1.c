@@ -2031,16 +2031,16 @@ polred_init(nfmaxord_t *S, nffp_t *F, CG_data *d)
   d->r1= S->r1; return prec;
 }
 static GEN
-findmindisc(GEN y, GEN *pa)
+findmindisc(GEN y)
 {
-  GEN a = *pa, x = gel(y,1), b = gel(a,1), dx = NULL;
+  GEN x = gel(y,1), dx = NULL;
   long i, l = lg(y);
   for (i = 2; i < l; i++)
   {
     GEN yi = gel(y,i);
-    if (ZX_is_better(yi,x,&dx)) { x = yi; b = gel(a,i); }
+    if (ZX_is_better(yi,x,&dx)) x = yi;
   }
-  *pa = b; return x;
+  return x;
 }
 /* filter [y,b] from polred_aux: keep a single polynomial of degree n in y
  * [ the best wrt discriminant ordering ], but keep all non-primitive
@@ -2431,16 +2431,16 @@ chk_gen_init(FP_chk_fun *chk, GEN R, GEN U)
   return bound;
 }
 
-/* z "small" minimal polynomial of Mod(a,x), deg z = deg x */
+/* z "small" minimal polynomial of Mod(a,T), deg z = deg T */
 static GEN
-store(GEN x, GEN z, GEN a, nfmaxord_t *S, long flag, GEN u)
+store(GEN z, GEN a, nfmaxord_t *S, long flag, GEN u)
 {
   GEN y, b;
 
   if (u) a = RgV_RgC_mul(S->basis, ZM_ZC_mul(u, a));
   if (flag & (nf_ORIG|nf_ADDZK))
   {
-    b = QXQ_reverse(a, x);
+    b = QXQ_reverse(a, S->T);
     if (!isint1(S->unscale)) b = gdiv(b, S->unscale); /* not RgX_Rg_div */
   }
   else
@@ -2454,7 +2454,7 @@ store(GEN x, GEN z, GEN a, nfmaxord_t *S, long flag, GEN u)
     y = z;
   if (flag & nf_ADDZK)
   { /* append integral basis for number field Q[X]/(z) to result */
-    long n = degpol(x);
+    long n = degpol(z);
     GEN t = RgV_RgM_mul(RgXQ_powers(b, n-1, z), RgV_to_RgM(S->basis,n));
     y = mkvec2(y, t);
   }
@@ -2490,63 +2490,64 @@ polredabs_aux(nfmaxord_t *S, GEN *u)
   *u = d.u; return v;
 }
 
-GEN
-polredabs0(GEN x, long flag)
+static GEN
+polredabs_i(GEN x, nfmaxord_t *S, GEN *u, long flag)
 {
-  pari_sp av = avma;
-  long i, l, vx;
-  GEN y, a, u;
-  nfmaxord_t S;
-
-  nfinit_basic_partial(&S, x);
-  x = S.T; vx = varn(x);
-
+  GEN v;
+  nfinit_basic_partial(S, x);
   if (degpol(x) == 1)
   {
-    u = NULL;
-    y = mkvec( pol_x(vx) );
-    a = mkvec( deg1pol_shallow(gen_1, negi(gel(x,2)), vx) );
-    l = 2;
+    long vx = varn(x);
+    *u = NULL;
+    v = mkvec2(mkvec( pol_x(vx) ),
+               mkvec( deg1pol_shallow(gen_1, negi(gel(S->T,2)), vx) ));
   }
   else
   {
-    GEN v;
-    if (!(flag & nf_PARTIALFACT) && S.dKP)
+    GEN y, a;
+    long i, l;
+    if (!(flag & nf_PARTIALFACT) && S->dKP)
     {
-      GEN vw = primes_certify(S.dK, S.dKP);
+      GEN vw = primes_certify(S->dK, S->dKP);
       v = gel(vw,1); l = lg(v);
       if (l != 1)
       { /* fix integral basis */
         GEN w = gel(vw,2);
         for (i = 1; i < l; i++)
           w = ZV_union_shallow(w, gel(Z_factor(gel(v,i)),1));
-        nfinit_basic(&S, mkvec2(S.T0,w));
+        nfinit_basic(S, mkvec2(S->T0,w));
       }
     }
-    v = polredabs_aux(&S, &u);
+    v = polredabs_aux(S, u);
     y = gel(v,1);
     a = gel(v,2); l = lg(a);
-    /* normalize wrt u -> -u */
-    for (i = 1; i < l; i++)
-    {
-      if (flag & nf_ORIG)
-      {
-        if (ZX_canon_neg(gel(y,i))) gel(a,i) = ZC_neg(gel(a,i));
-      }
-      else
-        (void)ZX_canon_neg(gel(y,i));
-    }
+    for (i = 1; i < l; i++) /* normalize wrt z -> -z */
+      if (ZX_canon_neg(gel(y,i)) && (flag & nf_ORIG))
+        gel(a,i) = ZC_neg(gel(a,i));
     remove_duplicates(v);
-    y = gel(v,1);
-    a = gel(v,2); l = lg(a);
-    if (l == 1) pari_err_BUG("polredabs (missing vector)");
   }
+  return v;
+}
+
+GEN
+polredabs0(GEN x, long flag)
+{
+  pari_sp av = avma;
+  long i, l;
+  GEN y, a, u, v;
+  nfmaxord_t S;
+  v = polredabs_i(x, &S, &u, flag);
+  y = gel(v,1);
+  a = gel(v,2);
+  l = lg(a); if (l == 1) pari_err_BUG("polredabs (missing vector)");
   if (DEBUGLEVEL) err_printf("Found %ld minimal polynomials.\n",l-1);
   if (flag & nf_ALL) {
-    for (i=1; i<l; i++) gel(y,i) = store(x, gel(y,i), gel(a,i), &S, flag, u);
+    for (i = 1; i < l; i++) gel(y,i) = store(gel(y,i), gel(a,i), &S, flag, u);
   } else {
-    GEN z = findmindisc(y, &a);
-    y = store(x, z, a, &S, flag, u);
+    GEN z = findmindisc(y);
+    for (i = 1; i < l; i++)
+      if (ZX_equal(gel(y,i), z)) break;
+    y = store(gel(y,i), gel(a,i), &S, flag, u);
   }
   return gerepilecopy(av, y);
 }
@@ -2606,21 +2607,34 @@ rnfpolred_i(GEN nf, GEN R, long flag, long best)
     if (listP) pol = mkvec2(pol, listP);
     red = best? polredbest_i(pol, abs? 1: 2)
               : polredabs0(pol, (abs? nf_ORIG: nf_RAW)|nf_PARTIALFACT);
+    P = gel(red,1);
+    A = gel(red,2);
   }
   else
   {
-    GEN rnf;
+    nfmaxord_t S;
+    GEN rnf, u, v, y, a;
+    long i, j, l;
     pari_timer ti;
     if (DEBUGLEVEL>1) timer_start(&ti);
     rnf = rnfinit(nf, R);
     rnfeq = rnf_get_map(rnf);
     pol = rnf_zkabs(rnf);
     if (DEBUGLEVEL>1) timer_printf(&ti, "absolute basis");
-    red = polredabs0(pol, nf_RAW);
+    v = polredabs_i(pol, &S, &u, 0);
     pol = gel(pol,1);
+    y = gel(v,1); P = findmindisc(y);
+    a = gel(v,2);
+    l = lg(y); A = cgetg(l, t_VEC);
+    for (i = j = 1; i < l; i++)
+      if (ZX_equal(gel(y,i),P))
+      {
+        GEN t = gel(a,i);
+        if (u) t = RgV_RgC_mul(S.basis, ZM_ZC_mul(u,t));
+        gel(A,j++) = t;
+      }
+    setlg(A,j); /* mod(A[i], pol) are all roots of P in Q[X]/(pol) */
   }
-  P = gel(red,1);
-  A = gel(red,2);
   if (DEBUGLEVEL>1) err_printf("reduced absolute generator: %Ps\n",P);
   if (flag & nf_ABSOLUTE)
   {
@@ -2628,12 +2642,13 @@ rnfpolred_i(GEN nf, GEN R, long flag, long best)
     {
       GEN a = gel(rnfeq,2); /* Mod(a,pol) root of T */
       GEN k = gel(rnfeq,3); /* Mod(variable(R),R) + k*a root of pol */
+      if (typ(A) == t_VEC) A = gel(A,1); /* any root will do */
       a = RgX_RgXQ_eval(a, lift_shallow(A), P); /* Mod(a, P) root of T */
       P = mkvec3(P, mkpolmod(a,P), gsub(A, gmul(k,a)));
     }
     return gerepilecopy(av, P);
   }
-  if (best)
+  if (typ(A) != t_VEC)
   {
     A = eltabstorel_lift(rnfeq, A);
     P = RgXQ_charpoly(A, R, varn(R));
@@ -2643,14 +2658,22 @@ rnfpolred_i(GEN nf, GEN R, long flag, long best)
   else
   { /* canonical factor */
     P = get_factor(nffactor(nf,P), degpol(R));
-    if (!P) pari_err_IRREDPOL(best?"rnfpolredbest":"rnfpolredabs", R);
+    if (!P) pari_err_IRREDPOL(f, R);
     P = lift_if_rational(P);
     if (flag & nf_ORIG)
     {
-      GEN B = QXQ_reverse(A, pol); /* Mod(B,P) root of pol */
-      GEN k = gel(rnfeq,3);
-      B = gsub(RgX_rem(B, P), gmul(k, pol_x(varn(T)))); /* root of R */
-      P = mkvec2(P, mkpolmod(B,P));
+      GEN kx = gmul(gel(rnfeq,3), pol_x(varn(T)));
+      long i, l = lg(A);
+      for (i = 1; i < l; i++)
+      {
+        GEN B = QXQ_reverse(gel(A,i), pol); /* Mod(B,P) root of pol */
+        B = gsub(RgX_rem(B, P), kx); /* root of R */
+        if (l == 2 || gequal0(gsubst(R, varn(R), B)))
+        {
+          P = mkvec2(P, mkpolmod(B,P));
+          break;
+        }
+      }
     }
   }
   return gerepilecopy(av, P);
