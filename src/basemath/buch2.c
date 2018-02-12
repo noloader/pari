@@ -3143,6 +3143,11 @@ bestappr_noer(GEN x, GEN k)
   return y;
 }
 
+/* leave small integer n as is, convert huge n to t_REAL (for readability) */
+static GEN
+i2print(GEN n)
+{ return lgefint(n) <= DEFAULTPREC? n: itor(n,LOWDEFAULTPREC); }
+
 /* Input:
  * lambda = approximate rational entries: coords of units found so far on a
  * sublattice of maximal rank (sublambda)
@@ -3156,7 +3161,7 @@ bestappr_noer(GEN x, GEN k)
  *
  * Output: *ptkR = R, *ptU = basis of fundamental units (in terms lambda) */
 static int
-compute_R(GEN lambda, GEN z, GEN *ptL, GEN *ptkR, pari_timer *T)
+compute_R(GEN lambda, GEN z, long prec, GEN *ptL, GEN *ptkR, pari_timer *T)
 {
   pari_sp av = avma;
   long r, ec;
@@ -3174,11 +3179,15 @@ compute_R(GEN lambda, GEN z, GEN *ptL, GEN *ptkR, pari_timer *T)
   den = Q_denom(lambda);
   if (mpcmp(den,D) > 0)
   {
-    if (DEBUGLEVEL) err_printf("D = %Ps\nden = %Ps\n",D,
-                    lgefint(den) <= DEFAULTPREC? den: itor(den,LOWDEFAULTPREC));
+    if (DEBUGLEVEL) err_printf("D = %Ps\nden = %Ps\n",D, i2print(den));
     return fupb_PRECI;
   }
   L = Q_muli_to_int(lambda, den);
+  if (gexpo(L) + expi(den) > bit_accuracy(prec) - gexpo(lambda))
+  {
+    if (DEBUGLEVEL) err_printf("dubious bestappr; den = %Ps\n", i2print(den));
+    return fupb_PRECI;
+  }
   H = ZM_hnf(L);
   r = lg(H)-1;
   if (r && r != nbrows(H))
@@ -4378,7 +4387,7 @@ START:
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
 
-    switch (compute_R(lambda, mulir(h,invhr), &L, &R, &T))
+    switch (compute_R(lambda, mulir(h,invhr), PRECREG, &L, &R, &T))
     {
       case fupb_RELAT:
         need = 1; /* not enough relations */
