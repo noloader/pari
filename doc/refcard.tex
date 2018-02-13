@@ -608,9 +608,9 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{factorization of $x$}{factor$(x,\{lim\})$}
 \li{\dots selecting specific algorithms}{factorint$(x,\{\fl=0\})$}
 \li{$n=df^2$, $d$ squarefree/fundamental}{core$(n,\{fl\})${\rm, }coredisc}
-\li{ECPP certificate for (prime) $N$}{ecpp$(N)$}
-\li{verifies an ECPP certificate $c$}{ecppisvalid$(c)$}
-\li{convert certificate to Magma/PRIMO}{ecppexport}
+\li{certificate for (prime) $N$}{primecert$(N)$}
+\li{verifies a certificate $c$}{primecertisvalid$(c)$}
+\li{convert certificate to Magma/PRIMO}{primecertexport}
 \li{recover $x$ from its factorization}{factorback$(f,\{e\})$}
 \li{$x\in\ZZ$, $|x|\leq X$, $\gcd(N,P(x)) \geq N$}
    {zncoppersmith$(P,N,X,\{B\})$}

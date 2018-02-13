@@ -2,10 +2,10 @@ Function: nfeltredmodpower
 Section: number_fields
 C-Name: nfeltredmodpower
 Prototype: GGUD0,U,
-Help: nfeltredmodpower(nf,x,n,{B=primelimit}): return [v,b] such that x=v*b^k
+Help: nfeltredmodpower(nf,x,n,{B=primelimit}): return [v,b] such that x=v*b^n
  and v small, assuming the prime factors of v are less than B.
 Doc: let \var{nf} be a number field and $n > 0$ be a positive integer.
- Return $[v,b]$ such that $x=v\*b^k$ and $v$ small, assuming the prime factors
+ Return $[v,b]$ such that $x=v\*b^n$ and $v$ small, assuming the prime factors
  of $v$ are less than $B$ (\var{primelimit} by default). Return $[]$ if it is
  not the case.
  \bprog
