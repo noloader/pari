@@ -1438,7 +1438,7 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
    *     and cardinalities in which we didn't win enough bits. */
   dbg_mode() timer_start(&ti);
   Dmqvec = Dmqvec_slice_Dmqvec(N, Dmqvec);
-  dbg_mode() timer_record(X0, "B2", &ti, lg(Dmqvec)-1);
+  dbg_mode() timer_record(X0, "B2", &ti, Dmqvec ? lg(Dmqvec)-1: 0);
 
   /* If nothing is left after B2, return NULL */
   if (Dmqvec == NULL) return NULL;
