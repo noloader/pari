@@ -2007,7 +2007,7 @@ remove_duplicates(GEN v)
   gel(P,k) = x; setlg(P,l); avma = av;
 }
 
-static long
+static void
 polred_init(nfmaxord_t *S, nffp_t *F, CG_data *d)
 {
   long e, prec, n = degpol(S->T);
@@ -2028,7 +2028,7 @@ polred_init(nfmaxord_t *S, nffp_t *F, CG_data *d)
   d->ZKembed = NULL;
   d->M = NULL;
   d->u = NULL;
-  d->r1= S->r1; return prec;
+  d->r1= S->r1;
 }
 static GEN
 findmindisc(GEN y)
@@ -2094,7 +2094,7 @@ polred_aux(nfmaxord_t *S, GEN *pro, long flag)
       return orig? trivial_fact(): cgetg(1,t_VEC);
   }
 
-  (void)polred_init(S, &F, &d);
+  polred_init(S, &F, &d);
   if (pro) *pro = F.ro;
   M = F.M;
   if (best)
@@ -2431,125 +2431,98 @@ chk_gen_init(FP_chk_fun *chk, GEN R, GEN U)
   return bound;
 }
 
-/* z "small" minimal polynomial of Mod(a,T), deg z = deg T */
-static GEN
-store(GEN z, GEN a, nfmaxord_t *S, long flag, GEN u)
-{
-  GEN y, b;
-
-  if (u) a = RgV_RgC_mul(S->basis, ZM_ZC_mul(u, a));
-  if (flag & (nf_ORIG|nf_ADDZK))
-  {
-    b = QXQ_reverse(a, S->T);
-    if (!isint1(S->unscale)) b = gdiv(b, S->unscale); /* not RgX_Rg_div */
-  }
-  else
-    b = NULL;
-
-  if (flag & nf_RAW)
-    y = mkvec2(z, a);
-  else if (flag & nf_ORIG) /* store phi(b mod z). */
-    y = mkvec2(z, mkpolmod(b,z));
-  else
-    y = z;
-  if (flag & nf_ADDZK)
-  { /* append integral basis for number field Q[X]/(z) to result */
-    long n = degpol(z);
-    GEN t = RgV_RgM_mul(RgXQ_powers(b, n-1, z), RgV_to_RgM(S->basis,n));
-    y = mkvec2(y, t);
-  }
-  return y;
-}
-static GEN
-polredabs_aux(nfmaxord_t *S, GEN *u)
-{
-  long prec;
-  GEN v;
-  FP_chk_fun chk = { &chk_gen, &chk_gen_init, NULL, NULL, 0 };
-  nffp_t F;
-  CG_data d; chk.data = (void*)&d;
-
-  prec = polred_init(S, &F, &d);
-  d.bound = embed_T2(F.ro, d.r1);
-  if (realprec(d.bound) > prec) d.bound = rtor(d.bound, prec);
-  for (;;)
-  {
-    GEN R = R_from_QR(F.G, prec);
-    if (R)
-    {
-      d.prec = prec;
-      d.M    = F.M;
-      v = fincke_pohst(mkvec(R),NULL,-1, 0, &chk);
-      if (v) break;
-    }
-    F.prec = prec = precdbl(prec);
-    F.ro = NULL;
-    make_M_G(&F, 1);
-    if (DEBUGLEVEL) pari_warn(warnprec,"polredabs0",prec);
-  }
-  *u = d.u; return v;
-}
-
 static GEN
 polredabs_i(GEN x, nfmaxord_t *S, GEN *u, long flag)
 {
-  GEN v;
+  FP_chk_fun chk = { &chk_gen, &chk_gen_init, NULL, NULL, 0 };
+  nffp_t F;
+  CG_data d;
+  GEN v, y, a;
+  long i, l;
+
   nfinit_basic_partial(S, x);
   if (degpol(x) == 1)
   {
     long vx = varn(x);
     *u = NULL;
-    v = mkvec2(mkvec( pol_x(vx) ),
-               mkvec( deg1pol_shallow(gen_1, negi(gel(S->T,2)), vx) ));
+    return mkvec2(mkvec( pol_x(vx) ),
+                  mkvec( deg1pol_shallow(gen_1, negi(gel(S->T,2)), vx) ));
   }
-  else
+  if (!(flag & nf_PARTIALFACT) && S->dKP)
   {
-    GEN y, a;
-    long i, l;
-    if (!(flag & nf_PARTIALFACT) && S->dKP)
-    {
-      GEN vw = primes_certify(S->dK, S->dKP);
-      v = gel(vw,1); l = lg(v);
-      if (l != 1)
-      { /* fix integral basis */
-        GEN w = gel(vw,2);
-        for (i = 1; i < l; i++)
-          w = ZV_union_shallow(w, gel(Z_factor(gel(v,i)),1));
-        nfinit_basic(S, mkvec2(S->T0,w));
-      }
+    GEN vw = primes_certify(S->dK, S->dKP);
+    v = gel(vw,1); l = lg(v);
+    if (l != 1)
+    { /* fix integral basis */
+      GEN w = gel(vw,2);
+      for (i = 1; i < l; i++)
+        w = ZV_union_shallow(w, gel(Z_factor(gel(v,i)),1));
+      nfinit_basic(S, mkvec2(S->T0,w));
     }
-    v = polredabs_aux(S, u);
-    y = gel(v,1);
-    a = gel(v,2); l = lg(a);
-    for (i = 1; i < l; i++) /* normalize wrt z -> -z */
-      if (ZX_canon_neg(gel(y,i)) && (flag & nf_ORIG))
-        gel(a,i) = ZC_neg(gel(a,i));
   }
-  return v;
+
+  chk.data = (void*)&d;
+  polred_init(S, &F, &d);
+  d.bound = embed_T2(F.ro, d.r1);
+  if (realprec(d.bound) > F.prec) d.bound = rtor(d.bound, F.prec);
+  for (;;)
+  {
+    GEN R = R_from_QR(F.G, F.prec);
+    if (R)
+    {
+      d.prec = F.prec;
+      d.M    = F.M;
+      v = fincke_pohst(mkvec(R),NULL,-1, 0, &chk);
+      if (v) break;
+    }
+    F.prec = precdbl(F.prec);
+    F.ro = NULL;
+    make_M_G(&F, 1);
+    if (DEBUGLEVEL) pari_warn(warnprec,"polredabs0",F.prec);
+  }
+  y = gel(v,1);
+  a = gel(v,2); l = lg(a);
+  for (i = 1; i < l; i++) /* normalize wrt z -> -z */
+    if (ZX_canon_neg(gel(y,i)) && (flag & (nf_ORIG|nf_RAW)))
+      gel(a,i) = ZC_neg(gel(a,i));
+  *u = d.u; return v;
 }
 
 GEN
 polredabs0(GEN x, long flag)
 {
   pari_sp av = avma;
-  long i, l;
-  GEN y, a, u, v;
+  GEN Y, A, u, v;
   nfmaxord_t S;
+  long i, l;
+
   v = polredabs_i(x, &S, &u, flag);
   remove_duplicates(v);
-  y = gel(v,1);
-  a = gel(v,2);
-  l = lg(a); if (l == 1) pari_err_BUG("polredabs (missing vector)");
+  Y = gel(v,1);
+  A = gel(v,2);
+  l = lg(A); if (l == 1) pari_err_BUG("polredabs (missing vector)");
   if (DEBUGLEVEL) err_printf("Found %ld minimal polynomials.\n",l-1);
-  if (flag & nf_ALL) {
-    for (i = 1; i < l; i++) gel(y,i) = store(gel(y,i), gel(a,i), &S, flag, u);
-  } else {
-    GEN z = findmindisc(y);
+  if (!(flag & nf_ALL))
+  {
+    GEN y = findmindisc(Y);
     for (i = 1; i < l; i++)
-      if (ZX_equal(gel(y,i), z)) break;
-    y = store(gel(y,i), gel(a,i), &S, flag, u);
+      if (ZX_equal(gel(Y,i), y)) break;
+    Y = mkvec(gel(Y,i));
+    A = mkvec(gel(A,i)); l = 2;
   }
-  return gerepilecopy(av, y);
+  if (flag & (nf_RAW|nf_ORIG)) for (i = 1; i < l; i++)
+  {
+    GEN y = gel(Y,i), a = gel(A,i);
+    if (u) a = RgV_RgC_mul(S.basis, ZM_ZC_mul(u, a));
+    if (flag & nf_ORIG)
+    {
+      a = QXQ_reverse(a, S.T);
+      if (!isint1(S.unscale)) a = gdiv(a, S.unscale); /* not RgX_Rg_div */
+      a = mkpolmod(a,y);
+    }
+    gel(Y,i) = mkvec2(y, a);
+  }
+  return gerepilecopy(av, (flag & nf_ALL)? Y: gel(Y,1));
 }
 
 GEN

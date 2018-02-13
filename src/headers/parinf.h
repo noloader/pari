@@ -83,7 +83,6 @@ enum {
   nf_RED = 8,
   nf_PARTIALFACT = 16,
   nf_ROUND2 = 64, /* obsolete */
-  nf_ADDZK =  256,
   nf_GEN_IF_PRINCIPAL = 512
 };
 
