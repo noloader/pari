@@ -2524,7 +2524,6 @@ polredabs_i(GEN x, nfmaxord_t *S, GEN *u, long flag)
     for (i = 1; i < l; i++) /* normalize wrt z -> -z */
       if (ZX_canon_neg(gel(y,i)) && (flag & nf_ORIG))
         gel(a,i) = ZC_neg(gel(a,i));
-    remove_duplicates(v);
   }
   return v;
 }
@@ -2537,6 +2536,7 @@ polredabs0(GEN x, long flag)
   GEN y, a, u, v;
   nfmaxord_t S;
   v = polredabs_i(x, &S, &u, flag);
+  remove_duplicates(v);
   y = gel(v,1);
   a = gel(v,2);
   l = lg(a); if (l == 1) pari_err_BUG("polredabs (missing vector)");
@@ -2667,13 +2667,10 @@ rnfpolred_i(GEN nf, GEN R, long flag, long best)
       for (i = 1; i < l; i++)
       {
         GEN B = QXQ_reverse(gel(A,i), pol); /* Mod(B,P) root of pol */
-        B = gsub(RgX_rem(B, P), kx); /* root of R */
-        if (l == 2 || gequal0(gsubst(R, varn(R), B)))
-        {
-          P = mkvec2(P, mkpolmod(B,P));
-          break;
-        }
+        B = mkpolmod(gsub(RgX_rem(B, P), kx), P); /* root of R */
+        if (l==2 || gequal0(gsubst(R, varn(R), B))) { P = mkvec2(P, B); break; }
       }
+      if (i == l) pari_err_BUG(f);
     }
   }
   return gerepilecopy(av, P);
