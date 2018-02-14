@@ -3158,10 +3158,11 @@ i2print(GEN n)
  * units AND the full set of relations for the class group has been computed.
  *
  * In fact z is a very rough approximation and we only expect 0.75 < Rz < 1.3
+ * bit is an estimate for the actual accuracy of lambda
  *
  * Output: *ptkR = R, *ptU = basis of fundamental units (in terms lambda) */
 static int
-compute_R(GEN lambda, GEN z, long prec, GEN *ptL, GEN *ptkR, pari_timer *T)
+compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR, pari_timer *T)
 {
   pari_sp av = avma;
   long r, ec;
@@ -3183,7 +3184,7 @@ compute_R(GEN lambda, GEN z, long prec, GEN *ptL, GEN *ptkR, pari_timer *T)
     return fupb_PRECI;
   }
   L = Q_muli_to_int(lambda, den);
-  if (gexpo(L) + expi(den) > bit_accuracy(prec) - gexpo(lambda))
+  if (gexpo(L) + expi(den) > bit - 32)
   {
     if (DEBUGLEVEL) err_printf("dubious bestappr; den = %Ps\n", i2print(den));
     return fupb_PRECI;
@@ -4387,7 +4388,8 @@ START:
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
 
-    switch (compute_R(lambda, mulir(h,invhr), PRECREG, &L, &R, &T))
+    switch (compute_R(lambda, mulir(h,invhr), bit_accuracy(PRECREG)-gexpo(C),
+                      &L, &R, &T))
     {
       case fupb_RELAT:
         need = 1; /* not enough relations */
