@@ -499,7 +499,8 @@ A finite field is encoded by any element (\typ{FFELT}).\hfil\break
 \li{inverse trig functions}{asin, acos, atan}
 \li{hyperbolic functions}{sinh, cosh, tanh, cotanh}
 \li{inverse hyperbolic functions}{asinh, acosh, atanh}
-\li{log$(x)$, $e^x$, $e^x-1$ }{log{\rm, }exp{\rm, }expm1}
+\li{$\log(x)$, $\log(1+x)$, $e^x$, $e^x-1$}
+   {log{\rm, }log1p{\rm, }exp{\rm, }expm1}
 \li{Euler $\Gamma$ function, $\log \Gamma$, $\Gamma'/\Gamma$}
    {gamma{\rm, }lngamma{\rm, }psi}
 \li{half-integer gamma function $\Gamma(n+1/2)$}{gammah$(n)$}
@@ -549,6 +550,8 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{sum of series $f(n)$, $n\geq a$ (low accuracy)}{suminf$(n=a,\expr)$}
 \li{sum of alternating/positive series}{sumalt{\rm,} sumpos}
 \li{sum of series using Euler-Maclaurin}{sumnum$(n=a,f,\{T\})$}
+
+\newcolumn
 \li{$\sum_{n\geq a} F(n)$, $F$ rational function}{sumnumrat$(F,a)$}
 \li{\dots $\sum_{n\geq a} (-1)^n F(n)$}{sumaltrat$(F,a)$}
 \li{\dots $\sum_{p\geq a} F(p^s)$}{sumeulerrat$(F, \{s = 1\}, \{a = 2\})$}
