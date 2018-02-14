@@ -3184,7 +3184,13 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR, pari_timer *T)
     return fupb_PRECI;
   }
   L = Q_muli_to_int(lambda, den);
-  if (gexpo(L) + expi(den) > bit - 32)
+  if (lg(L) > 1)
+  {
+    long m = lgcols(L);
+    if (m > 5) bit -= 64;
+    else if (m > 3) bit -= 32;
+  }
+  if (gexpo(L) + expi(den) > bit)
   {
     if (DEBUGLEVEL) err_printf("dubious bestappr; den = %Ps\n", i2print(den));
     return fupb_PRECI;
@@ -3961,6 +3967,20 @@ try_elt(RELCACHE_t *cache, FB_t *F, GEN nf, GEN x, FACT *fact)
   avma = av;
 }
 
+
+static long
+scalar_bit(GEN x) { return bit_accuracy(gprecision(x)) - gexpo(x); }
+static long
+RgM_bit(GEN x, long bit)
+{
+  long i, j, m, b = bit, l = lg(x);
+  if (l == 1) return b;
+  m = lgcols(x);
+  for (j = 1; j < l; j++)
+    for (i = 1; i < m; i++ ) b = minss(b, scalar_bit(gcoeff(x,i,j)));
+  return b;
+}
+
 GEN
 Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long prec)
 {
@@ -4388,7 +4408,7 @@ START:
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
 
-    switch (compute_R(lambda, mulir(h,invhr), bit_accuracy(PRECREG)-gexpo(C),
+    switch (compute_R(lambda, mulir(h,invhr), RgM_bit(C, bit_accuracy(PRECREG)),
                       &L, &R, &T))
     {
       case fupb_RELAT:
