@@ -1,0 +1,15 @@
+Function: log1p
+Section: transcendental
+C-Name: glog1p
+Prototype: Gp
+Help: log1p(x): log(1+x)
+Doc: return $\log(1+x)$, computed in a way that is also accurate
+ when the real part of $x$ is near $0$. This is the reciprocal function
+ of \kbd{expm1}$(x) = \exp(x)-1$.
+ \bprog
+ ? default(realprecision, 10000); x = Pi*1e-100;
+ ? (expm1(log1p(x)) - x) / x
+ %2 = -8.198163599331960435 E-10019
+ ? (log1p(expm1(x)) - x) / x
+ %3 = 0.E-10017
+ @eprog

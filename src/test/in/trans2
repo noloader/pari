@@ -75,7 +75,7 @@ localprec(2003); log(exp(1.5)) - 1.5
 
 localbitprec(320); obj=[1.2, 2.1*I, 1+1.1*I];
 {
-  fun=[exp,expm1,log,arg,
+  fun=[exp,expm1,log,log1p,arg,
        cos,sin,tan,cotan,sinc,
        cosh,sinh,tanh,cotanh,
        acos,asin,atan,

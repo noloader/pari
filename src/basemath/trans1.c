@@ -3027,6 +3027,13 @@ glog(GEN x, long prec)
   }
   return trans_eval("log",glog,x,prec);
 }
+
+GEN
+glog1p(GEN x, long prec)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, glog(gaddgs(x,1), prec));
+}
 /********************************************************************/
 /**                                                                **/
 /**                        SINE, COSINE                            **/
