@@ -487,6 +487,7 @@ AP   64- new implementation of matsolvemod
      72- use Newton in expm1
      73- change rnfpolredabs so that it outputs a canonical polynomial. As a
          result, the function is no longer Obsolete.
+     74- allow polrecip(scalar x) -> x
 
   Removed
       1- file 'MACHINES' (no longer maintained)

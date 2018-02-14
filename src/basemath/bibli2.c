@@ -962,7 +962,9 @@ stirling(long n, long m, long flag)
 GEN
 polrecip(GEN x)
 {
-  if (typ(x) != t_POL) pari_err_TYPE("polrecip",x);
+  long tx = typ(x);
+  if (is_scalar_t(tx)) return gcopy(x);
+  if (tx != t_POL) pari_err_TYPE("polrecip",x);
   return RgX_recip(x);
 }
 

@@ -20,6 +20,7 @@ y + 2*y^2 + O(y^4) (y + 2*y^2 + O(y^4)) + O(x^16) (y + 2*y^2 + O(y^4)) + O(x
 2 2 3
 y + 2 y + 2 x + 2
 1 1 x + 2
+1
 z
 y
 x^2 + x + 1
@@ -104,4 +105,4 @@ Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
   ***   at top-level: (1/x)%x
   ***                      ^--
   *** _%_: impossible inverse in Flx_divrem: Vecsmall([0]).
-Total time spent: 8
+Total time spent: 5
