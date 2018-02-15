@@ -57,6 +57,14 @@ expm1(3/4)
 expm1(1)
 forstep(x=1, 1+2*Pi, Pi/2, if(abs(expm1(I*x)-exp(I*x)+1) > 1e-38,print(x)))
 
+log1p(x + O(x^5))
+log1p(1e-10 + x + O(x^5))
+log1p(O(x))
+log1p(1/10^10)
+log1p(1e-10)
+log1p(1e-10*(1+I))
+log1p(2+O(5^3))
+
 localprec(1000); abs(sinh(1e-500)-1e-500) < 2e-1500
 
 sinc(0)
@@ -75,7 +83,7 @@ localprec(2003); log(exp(1.5)) - 1.5
 
 localbitprec(320); obj=[1.2, 2.1*I, 1+1.1*I];
 {
-  fun=[exp,expm1,log,log1p,arg,
+  fun=[exp,expm1,log,arg,
        cos,sin,tan,cotan,sinc,
        cosh,sinh,tanh,cotanh,
        acos,asin,atan,
