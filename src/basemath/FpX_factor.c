@@ -182,7 +182,6 @@ Flx_oneroot_mod_2(GEN f)
 
 static GEN FpX_roots_i(GEN f, GEN p);
 static GEN Flx_roots_i(GEN f, ulong p);
-static GEN FpX_Berlekamp_i(GEN f, GEN pp, long flag);
 
 static int
 cmpGuGu(GEN a, GEN b) { return (ulong)a < (ulong)b? -1: (a == b? 0: 1); }
@@ -2298,12 +2297,6 @@ factmod_aux(GEN f, GEN p, GEN (*Factor)(GEN,GEN,long), long flag)
     }
   return gerepileupto(av, y);
 }
-GEN
-factcantor0(GEN f, GEN p, long flag)
-{ return factmod_aux(f, p, &factcantor_i, flag); }
-GEN
-factmod(GEN f, GEN p)
-{ return factmod_aux(f, p, &FpX_Berlekamp_i, 0); }
 
 /* Use this function when you think f is reducible, and that there are lots of
  * factors. If you believe f has few factors, use FpX_nbfact(f,p)==1 instead */
@@ -2676,19 +2669,6 @@ FpX_Berlekamp_i(GEN f, GEN p, long flag)
   long lfact, val, d = degpol(f), j, k, lV;
   GEN y, E, t ,V;
 
-  if (typ(f) == t_VECSMALL)
-  {/* lgefint(p) == 3 */
-    ulong pp = p[2];
-    GEN F;
-    if (pp == 2) {
-      F = F2x_Berlekamp_i(Flx_to_F2x(f), flag);
-      if (flag==0) F2xV_to_ZXV_inplace(gel(F,1));
-    } else {
-      F = Flx_Berlekamp_i(f, pp, flag);
-      if (flag==0) FlxV_to_ZXV_inplace(gel(F,1));
-    }
-    return F;
-  }
   /* p is large (and odd) */
   if (d <= 2) return FpX_factor_deg2(f, p, d, flag);
   val = ZX_valrem(f, &f);
@@ -2724,18 +2704,40 @@ FpX_Berlekamp_i(GEN f, GEN p, long flag)
   return flag ? sort_factor(y, (void*)&cmpGuGu, cmp_nodata)
               : sort_factor_pol(y, cmpii);
 }
+
+static GEN
+FpX_factor_i(GEN f, GEN p, long flag)
+{
+  (void) flag;
+  if (typ(f) == t_VECSMALL)
+  {/* lgefint(p) == 3 */
+    ulong pp = p[2];
+    GEN F;
+    if (pp == 2) {
+      F = F2x_factor(Flx_to_F2x(f));
+      F2xV_to_ZXV_inplace(gel(F,1));
+    } else {
+      F = Flx_factor(f, pp);
+      FlxV_to_ZXV_inplace(gel(F,1));
+    }
+    return F;
+  }
+  return (degpol(f)>expi(p))? FpX_factcantor_i(f,p,0): FpX_Berlekamp_i(f,p,0);
+}
+
 GEN
 FpX_factor(GEN f, GEN p)
 {
   pari_sp av = avma;
   ZX_factmod_init(&f, p);
-  return gerepilecopy(av, FpX_Berlekamp_i(f, p, 0));
+  return gerepilecopy(av, FpX_factor_i(f, p, 0));
 }
+
 GEN
 Flx_factor(GEN f, ulong p)
 {
   pari_sp av = avma;
-  GEN F = (degpol(f)>log2(p))? Flx_factcantor_i(f,p,0): Flx_Berlekamp_i(f,p,0);
+  GEN F = (degpol(f)>expu(p))? Flx_factcantor_i(f,p,0): Flx_Berlekamp_i(f,p,0);
   return gerepilecopy(av, F);
 }
 GEN
@@ -2744,6 +2746,13 @@ F2x_factor(GEN f)
   pari_sp av = avma;
   return gerepilecopy(av, F2x_Berlekamp_i(f, 0));
 }
+
+GEN
+factcantor0(GEN f, GEN p, long flag)
+{ return factmod_aux(f, p, &factcantor_i, flag); }
+GEN
+factmod(GEN f, GEN p)
+{ return factmod_aux(f, p, &FpX_factor_i, 0); }
 
 GEN
 factormod0(GEN f, GEN p, long flag)
