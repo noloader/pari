@@ -62,6 +62,7 @@ log1p(1e-10 + x + O(x^5))
 log1p(O(x))
 log1p(1/10^10)
 log1p(1e-10)
+log1p(1e-20)
 log1p(1e-10*(1+I))
 log1p(2+O(5^3))
 
