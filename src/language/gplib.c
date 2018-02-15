@@ -536,6 +536,12 @@ digit_help(char *s, long flag)
   return;
 }
 
+long
+pari_community(void)
+{
+  return MAX_SECTION+1;
+}
+
 static void
 simple_help(const char *s1, const char *s2) { pari_printf("%s: %s\n", s1, s2); }
 
