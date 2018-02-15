@@ -3082,7 +3082,7 @@ compute_multiple_of_R_pivot(GEN X, GEN x0/*unused*/, long ix, GEN c)
  * L = NULL (prec problem) or B^(-1) * A with approximate rational entries
  * (as t_REAL), B a submatrix of A, with (probably) maximal rank RU */
 static GEN
-compute_multiple_of_R(GEN A, long RU, long N, long *pneed, GEN *ptL)
+compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
 {
   GEN T, d, mdet, Im_mdet, kR, xreal, L;
   long i, j, r, R1 = 2*RU - N;
@@ -3127,6 +3127,8 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, GEN *ptL)
   setabssign(kR);
   L = RgM_inv(Im_mdet);
   if (!L) { *ptL = NULL; return kR; }
+  /* estimate for # of correct bits in result */
+  *bit = - gexpo(RgM_Rg_sub(RgM_mul(L,Im_mdet), gen_1));
 
   L = rowslice(L, 2, RU); /* remove first line */
   L = RgM_mul(L, xreal); /* approximate rational entries */
@@ -3987,7 +3989,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   pari_timer T;
   pari_sp av0 = avma, av, av2;
   long PRECREG, N, R1, R2, RU, low, high, LIMC0, LIMC, LIMC2, LIMCMAX, zc, i;
-  long LIMres;
+  long LIMres, bit;
   long MAXDEPSIZESFB, MAXDEPSFB;
   long nreldep, sfb_trials, need, old_need, precdouble = 0, precadd = 0;
   long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
@@ -4394,7 +4396,8 @@ START:
       old_need = 0;
     }
     A = vecslice(C, 1, zc); /* cols corresponding to units */
-    R = compute_multiple_of_R(A, RU, N, &need, &lambda);
+    bit = bit_accuracy(PRECREG);
+    R = compute_multiple_of_R(A, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
     old_need = need;
     if (!lambda) { precpb = "bestappr"; continue; }
@@ -4408,8 +4411,7 @@ START:
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
 
-    switch (compute_R(lambda, mulir(h,invhr), RgM_bit(C, bit_accuracy(PRECREG)),
-                      &L, &R, &T))
+    switch (compute_R(lambda, mulir(h,invhr), RgM_bit(C, bit), &L, &R, &T))
     {
       case fupb_RELAT:
         need = 1; /* not enough relations */
