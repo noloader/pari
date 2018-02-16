@@ -64,6 +64,7 @@ log1p(1/10^10)
 log1p(1e-10)
 log1p(1e-20)
 log1p(1e-10*(1+I))
+log1p(1e-20*(1+I))
 log1p(2+O(5^3))
 
 localprec(1000); abs(sinh(1e-500)-1e-500) < 2e-1500
