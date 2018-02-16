@@ -118,9 +118,11 @@ idealprimedec(K,17,1)
 K=nfinit(2*x^2+1);
 idealprimedec(K,2)
 
-nf=nfinit(x^6+108);
-a=Mod(x,x^6+108);
-u=nfalgtobasis(nf,(2*a^2+a+3)*random(2^100*x^6)^6);
-[v,b]=nfeltredmodpower(nf,u,2);
-nfeltmul(nf,u,nfeltpow(nf,b,2))==v
-v
+nf=nfinit(x^6+108); a=Mod(x,x^6+108);
+{
+  for(k=2,5,
+    u=nfalgtobasis(nf,(2*a^2+a+3)*random(2^100*x^6)^k);
+    [v,b]=nfeltredmodpower(nf,u,k);
+    if (nfeltmul(nf,u,nfeltpow(nf,b,k))!=v,
+      error("nfeltredmodpower(",i,")")));
+}

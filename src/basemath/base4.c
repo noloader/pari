@@ -755,12 +755,16 @@ GEN
 nfeltredmodpower(GEN nf, GEN x, ulong k, ulong B)
 {
   pari_sp av = avma;
-  GEN ix, F, N, iD, iQ, y, z;
+  GEN iF, F, N, iD, iQ, ix, y, z;
+  long lF;
   nf = checknf(nf);
-  ix = gmael(idealhnf_principal(nf,x),1,1);
-  F = Z_factor_limit(ix, B);
-  N = factorback2(gel(F,1), FpV_red(gel(F,2), utoi(k)));
-  iD = idealdivexact(nf, x, idealadd(nf, x, N)); /* integral */
+  N = gmael(idealhnf_principal(nf,x),1,1);
+  F = Z_factor_limit(N, B); lF=lg(gel(F,1))-1;
+  if (!BPSW_psp(gmael(F,1,lF)))
+    N = diviiexact(N, powii(gmael(F,1,lF), gmael(F,2,lF)));
+  F = idealfactor(nf, idealadd(nf, x, N));
+  iF = idealfactorback(nf, gel(F,1), FpV_red(gel(F,2), utoi(k)), 0);
+  iD = idealdiv(nf, x, iF);
   if (!idealispower(nf, iD, k, &iQ)) { avma = av; return cgetg(1,t_VEC); }
   y = idealred_elt(nf, idealHNF_inv_Z(nf, iQ));
   ix = gcoeff(iQ,1,1);
