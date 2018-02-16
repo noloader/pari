@@ -2712,11 +2712,46 @@ logagmr_abs(GEN q)
   y = addrr(y, mulsr(e - lim, mplog2(prec)));
   affrr_fixlg(y, z); avma = av; return z;
 }
+
+/* sum_{k >= 0} y^(2k+1) / (2k+1), y close to 0 */
+static GEN
+logr_aux(GEN y)
+{
+  long k, L = realprec(y); /* should be ~ l+1 - (k-2) */
+  /* log(x) = log(1+y) - log(1-y) = 2 sum_{k odd} y^k / k
+   * Truncate the sum at k = 2n+1, the remainder is
+   *   2 sum_{k >= 2n+3} y^k / k < 2y^(2n+3) / (2n+3)(1-y) < y^(2n+3)
+   * We want y^(2n+3) < y 2^(-prec2nbits(L)), hence
+   *   n+1 > -prec2nbits(L) /-log_2(y^2) */
+  double d = -2*dbllog2r(y); /* ~ -log_2(y^2) */
+  k = (long)(2*(prec2nbits(L) / d));
+  k |= 1;
+  if (k >= 3)
+  {
+    GEN T, S = cgetr(L), y2 = sqrr(y), unr = real_1(L);
+    pari_sp av = avma;
+    long s = 0, incs = (long)d, l1 = nbits2prec((long)d);
+    setprec(S,  l1);
+    setprec(unr,l1); affrr(divru(unr,k), S);
+    for (k -= 2;; k -= 2) /* k = 2n+1, ..., 1 */
+    { /* S = y^(2n+1-k)/(2n+1) + ... + 1 / k */
+      setprec(y2, l1); T = mulrr(S,y2);
+      if (k == 1) break;
+
+      l1 += dvmdsBIL(s + incs, &s); if (l1>L) l1=L;
+      setprec(S, l1);
+      setprec(unr,l1);
+      affrr(addrr(divru(unr, k), T), S); avma = av;
+    }
+    /* k = 1 special-cased for eficiency */
+    y = mulrr(y, addsr(1,T)); /* = log(X)/2 */
+  }
+  return y;
+}
 /*return log(|x|), assuming x != 0 */
 GEN
 logr_abs(GEN X)
 {
-  pari_sp ltop;
   long EX, L, m, k, a, b, l = realprec(X);
   GEN z, x, y;
   ulong u;
@@ -2743,7 +2778,7 @@ logr_abs(GEN X)
   if (b > 24*a*log2(L) &&
       prec2nbits(l) > prec2nbits(LOGAGM_LIMIT)) return logagmr_abs(X);
 
-  z = cgetr(EX? l: l - (k-2)); ltop = avma;
+  z = cgetr(EX? l: l - (k-2));
 
  /* Multiplication is quadratic in this range (l is small, otherwise we
   * use AGM). Set Y = x^(1/2^m), y = (Y - 1) / (Y + 1) and compute truncated
@@ -2769,39 +2804,10 @@ logr_abs(GEN X)
   for (k=1; k<=m; k++) x = sqrtr_abs(x);
 
   y = divrr(subrs(x,1), addrs(x,1)); /* = (x-1) / (x+1), close to 0 */
-  L = realprec(y); /* should be ~ l+1 - (k-2) */
-  /* log(x) = log(1+y) - log(1-y) = 2 sum_{k odd} y^k / k
-   * Truncate the sum at k = 2n+1, the remainder is
-   *   2 sum_{k >= 2n+3} y^k / k < 2y^(2n+3) / (2n+3)(1-y) < y^(2n+3)
-   * We want y^(2n+3) < y 2^(-prec2nbits(L)), hence
-   *   n+1 > -prec2nbits(L) /-log_2(y^2) */
-  d = -2*dbllog2r(y); /* ~ -log_2(y^2) */
-  k = (long)(2*(prec2nbits(L) / d));
-  k |= 1;
-  if (k >= 3)
-  {
-    GEN S, T, y2 = sqrr(y), unr = real_1(L);
-    pari_sp av = avma;
-    long s = 0, incs = (long)d, l1 = nbits2prec((long)d);
-    S = x;
-    setprec(S,  l1);
-    setprec(unr,l1); affrr(divru(unr,k), S); /* destroy x, not needed anymore */
-    for (k -= 2;; k -= 2) /* k = 2n+1, ..., 1 */
-    { /* S = y^(2n+1-k)/(2n+1) + ... + 1 / k */
-      setprec(y2, l1); T = mulrr(S,y2);
-      if (k == 1) break;
-
-      l1 += dvmdsBIL(s + incs, &s); if (l1>L) l1=L;
-      setprec(S, l1);
-      setprec(unr,l1);
-      affrr(addrr(divru(unr, k), T), S); avma = av;
-    }
-    /* k = 1 special-cased for eficiency */
-    y = mulrr(y, addsr(1,T)); /* = log(X)/2 */
-  }
+  y = logr_aux(y); /* log(1+y) - log(1-y) = log(x) */
   shiftr_inplace(y, m + 1);
   if (EX) y = addrr(y, mulsr(EX, mplog2(l+1)));
-  affrr_fixlg(y, z); avma = ltop; return z;
+  affrr_fixlg(y, z); avma = (pari_sp)z; return z;
 }
 
 /* assume Im(q) != 0 and precision(q) >= prec. Compute log(q) with accuracy
@@ -3028,11 +3034,58 @@ glog(GEN x, long prec)
   return trans_eval("log",glog,x,prec);
 }
 
+static GEN
+mplog1p(GEN x)
+{
+  long ex, a, b, l, L;
+  if (!signe(x)) return rcopy(x);
+  ex = expo(x); if (ex >= 0) return glog(addrs(x,1), 0);
+  a = -ex;
+  b = realprec(x); L = b+1;
+  if (b > a*log2(L) && prec2nbits(b) > prec2nbits(LOGAGM_LIMIT))
+  {
+    x = addrs(x,1); l = b + nbits2extraprec(a);
+    if (realprec(x) < l) x = rtor(x,l);
+    return logagmr_abs(x);
+  }
+  x = rtor(x, L);
+  x = logr_aux(divrr(x, addrs(x,2)));
+  shiftr_inplace(x,1); return x;
+}
+
+static GEN
+log1p_i(GEN x, long prec)
+{
+  switch(typ(x))
+  {
+    case t_REAL: return mplog1p(x);
+    case t_COMPLEX: return glog(gaddgs(x,1), prec);
+    case t_PADIC: return Qp_log(gaddgs(x,1));
+    default:
+    {
+      long ey;
+      GEN y;
+      if (!(y = toser_i(x))) break;
+      ey = valp(y);
+      if (ey < 0) pari_err_DOMAIN("log1p","valuation", "<", gen_0, x);
+      if (gequal0(y)) return gcopy(y);
+      if (ey)
+        return glog(gaddgs(y,1),prec);
+      else
+      {
+        GEN a = gel(y,2), a1 = gaddgs(a,1);
+        y = gdiv(y, a1); gel(y,2) = gen_1;
+        return gadd(glog1p(a,prec), glog(y, prec));
+      }
+    }
+  }
+  return trans_eval("log1p",glog1p,x,prec);
+}
 GEN
 glog1p(GEN x, long prec)
 {
   pari_sp av = avma;
-  return gerepileupto(av, glog(gaddgs(x,1), prec));
+  return gerepileupto(av, log1p_i(x, prec));
 }
 /********************************************************************/
 /**                                                                **/
