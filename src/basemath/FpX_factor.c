@@ -2615,7 +2615,7 @@ F2x_Berlekamp_i(GEN f, long flag)
               : sort_factor_pol(y, cmpGuGu);
 }
 
-static GEN
+GEN
 Flx_Berlekamp_i(GEN f, ulong p, long flag)
 {
   long lfact, val, d = degpol(f), j, k, lV;
@@ -2663,7 +2663,7 @@ Flx_Berlekamp_i(GEN f, ulong p, long flag)
 }
 
 /* f an FpX or an Flx */
-static GEN
+GEN
 FpX_Berlekamp_i(GEN f, GEN p, long flag)
 {
   long lfact, val, d = degpol(f), j, k, lV;
@@ -2722,7 +2722,7 @@ FpX_factor_i(GEN f, GEN p, long flag)
     }
     return F;
   }
-  return (degpol(f)>expi(p))? FpX_factcantor_i(f,p,0): FpX_Berlekamp_i(f,p,0);
+  return FpX_factcantor_i(f,p,0);
 }
 
 GEN
@@ -2737,7 +2737,7 @@ GEN
 Flx_factor(GEN f, ulong p)
 {
   pari_sp av = avma;
-  GEN F = (degpol(f)>expu(p))? Flx_factcantor_i(f,p,0): Flx_Berlekamp_i(f,p,0);
+  GEN F = Flx_factcantor_i(f,p,0);
   return gerepilecopy(av, F);
 }
 GEN
