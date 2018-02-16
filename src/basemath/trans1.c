@@ -3054,26 +3054,30 @@ mplog1p(GEN x)
   shiftr_inplace(x,1); return x;
 }
 
+static GEN log1p_i(GEN x, long prec);
+static GEN
+cxlog1p(GEN x, long prec)
+{
+  pari_sp av;
+  GEN z, a, b = gel(x,2);
+  long l;
+  if (ismpzero(b)) return log1p_i(gel(x,1), prec);
+  l = precision(x); if (l > prec) prec = l;
+  if (prec >= LOGAGMCX_LIMIT) return logagmcx(gaddgs(x,1), prec);
+  a = gel(x,1);
+  z = cgetg(3,t_COMPLEX); av = avma;
+  a = gadd(gadd(gmul2n(a,1), gsqr(a)), gsqr(b));
+  a = log1p_i(a, prec); shiftr_inplace(a,-1);
+  gel(z,1) = gerepileupto(av, a);
+  gel(z,2) = garg(gaddgs(x,1),prec); return z;
+}
 static GEN
 log1p_i(GEN x, long prec)
 {
-  pari_sp av = avma;
-  GEN a, b, z;
-  long l;
   switch(typ(x))
   {
     case t_REAL: return mplog1p(x);
-    case t_COMPLEX:
-      b = gel(x,2);
-      if (ismpzero(b)) return log1p_i(gel(x,1), prec);
-      l = precision(x); if (l > prec) prec = l;
-      if (prec >= LOGAGMCX_LIMIT) return logagmcx(gaddgs(x,1), prec);
-      a = gel(x,1);
-      z = cgetg(3,t_COMPLEX); av = avma;
-      a = gadd(gadd(gmul2n(a,1), gsqr(a)), gsqr(b));
-      a = gmul2n(log1p_i(a, prec), -1);
-      gel(z,1) = gerepileupto(av, a);
-      gel(z,2) = garg(gaddgs(x,1),prec); return z;
+    case t_COMPLEX: return cxlog1p(x, prec);
     case t_PADIC: return Qp_log(gaddgs(x,1));
     default:
     {
