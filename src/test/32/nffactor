@@ -753,7 +753,16 @@ y - 1473852319020386314)]~
 
 [x^4 - 10/121*x^2 + 1/14641 1]
 
+
+[                                   x - 1 1]
+
+[                                   x + 1 1]
+
+[x + Mod(-y^5, y^8 - y^6 + y^4 - y^2 + 1) 1]
+
+[ x + Mod(y^5, y^8 - y^6 + y^4 - y^2 + 1) 1]
+
   ***   at top-level: polhensellift(x^2+x+1,[x+a,x+a+1],2,10)
   ***                 ^---------------------------------------
   *** polhensellift: incorrect type in polhensellift [not in Z[X]] (t_POL).
-Total time spent: 7896
+Total time spent: 8124

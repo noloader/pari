@@ -1713,7 +1713,7 @@ nf_pick_prime(long ct, GEN nf, GEN pol, long fl,
   return nbf;
 }
 
-/* assume lt(T) is a t_INT and T square free */
+/* Assume lt(T) is a t_INT and T square free. Return t_VEC of irred. factors */
 static GEN
 nfsqff_trager(GEN u, GEN T, GEN dent)
 {
@@ -1724,10 +1724,10 @@ nfsqff_trager(GEN u, GEN T, GEN dent)
 
   /* n guaranteed to be squarefree */
   fa = ZX_DDF(Q_primpart(n)); lx = lg(fa);
-  if (lx == 2) return mkcol(u);
+  if (lx == 2) return mkvec(u);
 
   tmonic = is_pm1(leading_coeff(T));
-  P = cgetg(lx,t_COL);
+  P = cgetg(lx,t_VEC);
   x0 = deg1pol_shallow(stoi(-k), gen_0, varn(T));
   mx0 = deg1pol_shallow(stoi(k), gen_0, varn(T));
   U = RgXQX_translate(u, mx0, T);
