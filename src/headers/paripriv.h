@@ -718,12 +718,18 @@ GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
 /* FpX_factor.c */
 
-GEN Flx_Berlekamp_i(GEN x, ulong p, long flag);
-GEN FpX_Berlekamp_i(GEN x, GEN p, long flag);
+GEN     Flx_Berlekamp_i(GEN x, ulong p, long flag);
+GEN     FpX_Berlekamp_i(GEN x, GEN p, long flag);
+GEN     F2x_factcantor(GEN f, long flag);
+GEN     Flx_factcantor(GEN f, ulong p, long flag);
+GEN     FpX_factcantor(GEN f, GEN pp, long flag);
+long    ddf_to_nbfact(GEN D);
+GEN     ddf_to_simplefact(GEN D, long n);
+GEN     factcantor0(GEN f, GEN pp, long flag);
 
 /* FpXQX_factor.c */
 
-GEN FpXQX_factor_Berlekamp(GEN x, GEN T, GEN p);
+GEN     FpXQX_factor_Berlekamp(GEN x, GEN T, GEN p);
 
 /* forprime.c*/
 
@@ -781,15 +787,6 @@ GEN     group_export_GAP(GEN G);
 GEN     group_export_MAGMA(GEN G);
 GEN     perm_generate(GEN S, GEN H, long o);
 long    perm_relorder(GEN p, GEN S);
-
-/* FpX_factcantor.c */
-
-GEN     F2x_factcantor(GEN f, long flag);
-GEN     Flx_factcantor(GEN f, ulong p, long flag);
-GEN     FpX_factcantor(GEN f, GEN pp, long flag);
-long    ddf_to_nbfact(GEN D);
-GEN     ddf_to_simplefact(GEN D, long n);
-GEN     factcantor0(GEN f, GEN pp, long flag);
 
 /* polarit2.c */
 
