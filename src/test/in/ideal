@@ -119,10 +119,12 @@ K=nfinit(2*x^2+1);
 idealprimedec(K,2)
 
 nf=nfinit(x^6+108); a=Mod(x,x^6+108);
-{
-  for(k=2,5,
+{ for(k=2,5,
     u=nfalgtobasis(nf,(2*a^2+a+3)*random(2^100*x^6)^k);
-    [v,b]=nfeltredmodpower(nf,u,k);
-    if (nfeltmul(nf,u,nfeltpow(nf,b,k))!=v,
-      error("nfeltredmodpower(",i,")")));
-}
+    b=idealredmodpower(nf,u,k);
+    v=nfeltmul(nf,u,nfeltpow(nf,b,k)); print(v)); }
+idealredmodpower(nf,0,2)
+idealredmodpower(nf,1,2)
+idealredmodpower(nf,x^5-3*x^4-3*x^3+18*x^2-18*x-54,2)
+idealredmodpower(nf,x/2,2)
+idealredmodpower(nf,x/12,2)

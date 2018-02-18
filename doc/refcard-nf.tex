@@ -148,7 +148,7 @@ Number field elements are \typ{INT}, \typ{FRAC}, \typ{POL}, \typ{POLMOD}, or
 \li{\dots write $x = \pi^{v_\p(x)} y$}{nfeltval$(\var{nf},x,\p,\&y)$}
 \li{quadratic Hilbert symbol (at $\p$)}
    {nfhilbert$(\var{nf},a,b,\{\p\})$}
-\li{$[v,b]$ such that $x = v b^n$, $v$ small}{nfeltredmodpower$(\var{nf},x,n)$}
+\li{$b$ such that $x b^n = v$ is small}{idealredmodpower$(\var{nf},x,n)$}
 
 \smallskip
 \subsec{Maximal order and discriminant}

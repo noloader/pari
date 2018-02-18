@@ -364,7 +364,7 @@ LGr 140- make TESTS="a b c" test-all to test only 'a' 'b' and 'c', e.g.
     143- allow matsolve(m,b) when m is only left-invertible
 BA  144- [libpari] QXQ_mul, QXQ_sqr, FFXQ_mul, FFXQ_sqr
     145- New GP function idealispower
-BA  146- New GP function nfeltredmodpower
+BA  146- New GP function idealredmodpower
     147- 'ms' modular symbol package: support N = 1 as well
     148- allow mssplit(M), splits msnew(M) by default
 BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr

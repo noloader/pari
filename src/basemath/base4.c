@@ -483,17 +483,12 @@ idealHNF_norm_pval(GEN x, GEN p, long Zval)
   return v;
 }
 
-/* return P, primes dividing Nx and xZ = x\cap Z, set v_p(Nx), v_p(xZ);
- * x integral in HNF */
+/* x integral in HNF, f = partial factorization of x[1,1] = x\cap Z */
 GEN
-idealHNF_Z_factor(GEN x, GEN *pvN, GEN *pvZ)
+idealHNF_Z_factor_i(GEN x, GEN f, GEN *pvN, GEN *pvZ)
 {
-  GEN xZ = gcoeff(x,1,1), f, P, E, vN, vZ;
-  long i, l;
-  if (typ(xZ) != t_INT) pari_err_TYPE("idealfactor",x);
-  f = Z_factor(xZ);
-  P = gel(f,1); l = lg(P);
-  E = gel(f,2);
+  GEN P = gel(f,1), E = gel(f,2), vN, vZ;
+  long i, l = lg(P);
   *pvN = vN = cgetg(l, t_VECSMALL);
   *pvZ = vZ = cgetg(l, t_VECSMALL);
   for (i = 1; i < l; i++)
@@ -502,6 +497,16 @@ idealHNF_Z_factor(GEN x, GEN *pvN, GEN *pvZ)
     vN[i] = idealHNF_norm_pval(x,gel(P,i), vZ[i]);
   }
   return P;
+}
+
+/* return P, primes dividing Nx and xZ = x\cap Z, set v_p(Nx), v_p(xZ);
+ * x integral in HNF */
+GEN
+idealHNF_Z_factor(GEN x, GEN *pvN, GEN *pvZ)
+{
+  GEN xZ = gcoeff(x,1,1);
+  if (typ(xZ) != t_INT) pari_err_TYPE("idealfactor",x);
+  return idealHNF_Z_factor_i(x, Z_factor(xZ), pvN, pvZ);
 }
 
 /* v_P(A)*f(P) <= Nval [e.g. Nval = v_p(Norm A)], Zval = v_p(A \cap Z).
@@ -571,16 +576,17 @@ idealHNF_val(GEN A, GEN P, long Nval, long Zval)
   }
   return v;
 }
-/* true nf, x integral ideal */
+/* true nf, x != 0 integral ideal in HNF, cx t_INT or NULL,
+ * FA integer factorization matrix or NULL. Return partial factorization of
+ * cx * x above primes in FA (complete factorization if !FA)*/
 static GEN
-idealHNF_factor(GEN nf, GEN x)
+idealHNF_factor_i(GEN nf, GEN x, GEN cx, GEN FA)
 {
   const long N = lg(x)-1;
   long i, j, k, l, v;
-  GEN vp, vN, vZ, vP, vE, cx;
+  GEN vN, vZ, vP, vE, fa = FA? FA: Z_factor(gcoeff(x,1,1));
+  GEN vp = idealHNF_Z_factor_i(x, fa, &vN,&vZ);
 
-  x = Q_primitive_part(x, &cx);
-  vp = idealHNF_Z_factor(x, &vN,&vZ);
   l = lg(vp);
   i = cx? expi(cx)+1: 1;
   vP = cgetg((l+i-2)*N+1, t_COL);
@@ -615,8 +621,8 @@ idealHNF_factor(GEN nf, GEN x)
       gel(vE,k) = utoipos(vc * pr_get_e(P)); k++;
     }
   }
-  if (cx)
-  {
+  if (cx && !FA)
+  { /* complete factorization */
     GEN f = Z_factor(cx), cP = gel(f,1), cE = gel(f,2);
     long lc = lg(cP);
     for (i=1; i<lc; i++)
@@ -633,6 +639,13 @@ idealHNF_factor(GEN nf, GEN x)
   }
   setlg(vP, k);
   setlg(vE, k); return mkmat2(vP, vE);
+}
+/* true nf, x integral ideal */
+static GEN
+idealHNF_factor(GEN nf, GEN x)
+{
+  GEN cx; x = Q_primitive_part(x, &cx);
+  return idealHNF_factor_i(nf, x, cx, NULL);
 }
 /* c * vector(#L,i,L[i].e), assume results fit in ulong */
 static GEN
@@ -751,25 +764,55 @@ idealispower(GEN nf, GEN A, long n, GEN *pB)
   return 1;
 }
 
+/* x t_INT or integral non-0 ideal in HNF */
+static GEN
+idealredmodpower_i(GEN nf, GEN x, ulong k, ulong B)
+{
+  GEN cx, y, U, N, F, Q;
+  long nF;
+  if (typ(x) == t_INT)
+  {
+    if (!signe(x) || is_pm1(x)) return gen_1;
+    F = Z_factor_limit(x, B);
+    gel(F,2) = gdiventgs(gel(F,2), k);
+    return factorback(F);
+  }
+  N = gcoeff(x,1,1); if (is_pm1(N)) return gen_1;
+  F = Z_factor_limit(N, B); nF=lg(gel(F,1))-1;
+  if (BPSW_psp(gcoeff(F,nF,1))) U = NULL;
+  else
+  {
+    GEN M = powii(gcoeff(F,nF,1), gcoeff(F,nF,2));
+    y = hnfmodid(x, M); /* coprime part to B! */
+    if (!idealispower(nf, y, k, &U)) U = NULL;
+    x = hnfmodid(x, diviiexact(N, M));
+    setlg(gel(F,1), nF); /* remove last entry (unfactored part) */
+    setlg(gel(F,2), nF);
+  }
+  /* x = B-smooth part of initial x */
+  x = Q_primitive_part(x, &cx);
+  F = idealHNF_factor_i(nf, x, cx, F);
+  gel(F,2) = gdiventgs(gel(F,2), k);
+  Q = idealfactorback(nf, gel(F,1), gel(F,2), 0);
+  if (U) Q = idealmul(nf,Q,U);
+  if (typ(Q) == t_INT) return Q;
+  y = idealred_elt(nf, idealHNF_inv_Z(nf, Q));
+  return gdiv(y, gcoeff(Q,1,1));
+}
 GEN
-nfeltredmodpower(GEN nf, GEN x, ulong k, ulong B)
+idealredmodpower(GEN nf, GEN x, ulong n, ulong B)
 {
   pari_sp av = avma;
-  GEN iF, F, N, iD, iQ, ix, y, z;
-  long lF;
+  GEN a, b;
   nf = checknf(nf);
-  N = gmael(idealhnf_principal(nf,x),1,1);
-  F = Z_factor_limit(N, B); lF=lg(gel(F,1))-1;
-  if (!BPSW_psp(gmael(F,1,lF)))
-    N = diviiexact(N, powii(gmael(F,1,lF), gmael(F,2,lF)));
-  F = idealfactor(nf, idealadd(nf, x, N));
-  iF = idealfactorback(nf, gel(F,1), FpV_red(gel(F,2), utoi(k)), 0);
-  iD = idealdiv(nf, x, iF);
-  if (!idealispower(nf, iD, k, &iQ)) { avma = av; return cgetg(1,t_VEC); }
-  y = idealred_elt(nf, idealHNF_inv_Z(nf, iQ));
-  ix = gcoeff(iQ,1,1);
-  z = gdiv(nfmul(nf, x, nfpow_u(nf, y, k)), powiu(ix,k));
-  return gerepilecopy(av, mkvec2(z, gdiv(y,ix)));
+  if (!n) pari_err_DOMAIN("idealredmodpower","n", "=", gen_0, gen_0);
+  x = idealnumden(nf, x);
+  a = gel(x,1);
+  if (isintzero(a)) { avma = av; return gen_1; }
+  a = idealredmodpower_i(nf, gel(x,1), n, B);
+  b = idealredmodpower_i(nf, gel(x,2), n, B);
+  if (!isint1(b)) a = nf_to_scalar_or_basis(nf, nfdiv(nf, a, b));
+  return gerepilecopy(av, a);
 }
 
 /* P prime ideal in idealprimedec format. Return valuation(A) at P */
