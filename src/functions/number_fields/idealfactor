@@ -11,6 +11,31 @@ Doc: factors into prime ideal powers the ideal $x$ in the number field
  \kbd{idealprimedec} function. If \var{lim} is set, return partial
  factorization, including only prime ideals above rational primes
  $< \var{lim}$.
+ \bprog
+ ? nf = nfinit(x^3-2);
+ ? idealfactor(nf, x) \\ a prime ideal above 2
+ %2 =
+ [[2, [0, 1, 0]~, 3, 1, ...] 1]
+
+ ? A = idealhnf(nf, 6*x, 4+2*x+x^2)
+ %3 =
+ [6 0 4]
+
+ [0 6 2]
+
+ [0 0 1]
+
+ ? idealfactor(nf, A)
+ %4 =
+  [[2, [0, 1, 0]~, 3, 1, ...] 2]
+
+  [[3, [1, 1, 0]~, 3, 1, ...] 2]
+
+ ? idealfactor(nf, A, 3) \\ restrict to primes above p < 3
+ %5 =
+ [[2, [0, 1, 0]~, 3, 1, ...] 2]
+ @eprog
+
 Variant: This function should only be used by the \kbd{gp} interface. Use
  directly \fun{GEN}{idealfactor}{GEN x} or
  \fun{GEN}{idealfactor_limit}{GEN x, ulong lim}.
