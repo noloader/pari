@@ -1755,11 +1755,11 @@ qfisominit0(GEN x, GEN flags, GEN minvec)
 }
 
 GEN
-qfisom(GEN F, GEN FF, GEN flags)
+qfisom(GEN F, GEN FF, GEN flags, GEN G)
 {
   pari_sp av = avma;
   struct fingerprint fp;
-  GEN G, res;
+  GEN res;
   struct qfauto qf, qff;
   struct qfcand cand;
   long max;
@@ -1768,14 +1768,22 @@ qfisom(GEN F, GEN FF, GEN flags)
   if (lg(qf.W)!=lg(qff.W)
       || !zvV_equal(vecvecsmall_sort(qf.W), vecvecsmall_sort(qff.W)))
     { avma=av; return gen_0; }
-  G = mkvec(scalar_Flm(-1, qff.dim));
+  if (!G) G = mkvec(scalar_Flm(-1, qff.dim));
   res = isometry(&qf, &qff, &fp, G, &cand);
   if (!res) { avma=av; return gen_0; }
   return gerepilecopy(av, zm_to_ZM(qf.U? zm_mul(res,gel(qf.U, 2)):res));
 }
 
+static GEN
+check_qfauto(GEN G)
+{
+  if (typ(G)==t_VEC && lg(G)==3 && typ(gel(G,1))==t_INT)
+    G = gel(G,2);
+  return qf_to_zmV(G);
+}
+
 GEN
-qfisom0(GEN x, GEN y, GEN flags)
+qfisom0(GEN x, GEN y, GEN flags, GEN G)
 {
   pari_sp av = avma;
   GEN F, FF;
@@ -1788,7 +1796,8 @@ qfisom0(GEN x, GEN y, GEN flags)
   }
   FF = qf_to_zmV(y);
   if (!FF) pari_err_TYPE("qfisom",y);
-  return gerepileupto(av, qfisom(F, FF, flags));
+  if (G) G = check_qfauto(G);
+  return gerepileupto(av, qfisom(F, FF, flags, G));
 }
 
 static GEN
@@ -1854,9 +1863,7 @@ qforbits(GEN G, GEN V)
   GEN gen, w, W, p, v, orb, o;
   long i, j, n, ng;
   long nborbits = 0;
-  if (typ(G)==t_VEC && lg(G)==3 && typ(gel(G,1))==t_INT)
-    G = gel(G,2);
-  gen = qf_to_zmV(G);
+  gen = check_qfauto(G);
   if (!gen) pari_err_TYPE("qforbits", G);
   if (typ(V)==t_VEC && lg(V)==4
    && typ(gel(V,1))==t_INT && typ(gel(V,2))==t_INT)

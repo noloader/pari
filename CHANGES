@@ -373,6 +373,7 @@ BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr
     152- allow a t_STR composed of # + 6 hex digits for colour names
     153- isprime(,3): use ECPP
     154- new GP function log1p [#1829]
+BA  155- qfisom: allow to give the automorphism group of the second lattice
 
   Changed
       1- rewrite bnfnarrow

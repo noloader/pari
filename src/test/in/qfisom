@@ -9,7 +9,9 @@ checkauto(M,f,fl)=
 }
 checkisom(M,N,f,fl)=
 {
-  my(Q=if(f,qfisom(in(M,fl),N),if(fl,qfisom(M,N,fl),qfisom(M,N))));
+  my(Q=if(f==0,if(fl,qfisom(M,N,fl),qfisom(M,N)),
+          f==1,qfisom(in(M,fl),N),
+          f==2,qfisom(in(M,fl),N,,qfauto(N))));
   if(Q==0 || M!=Q~*N*Q ,error(N),print("OK"));
 }
 qfauto(Mat(1))
@@ -30,12 +32,14 @@ checkisom(N1,N2,0)
 checkisom(N1,N2,0,[1,1])
 checkisom(N1,N2,1)
 checkisom(N1,N2,1,[1,1])
+checkisom(N1,N2,2)
 L1=[3,-2,-1,1,1;-2,2,0,-1,-1;-1,0,2,1,1;1,-1,1,2,2;1,-1,1,2,3];
 L2=matid(5);
 checkauto(L1,0)
 checkisom(L1,L2,0)
 checkauto(L1,1)
 checkisom(L1,L2,1)
+checkisom(L1,L2,2)
 
 G= [1152,[[-1,0,0,0;0,-1,0,0;0,0,-1,0;0,0,0,-1],[0,0,0,1;0,1,1,0;0,-1,0,0;1,-1,-1,0],[-1,0,0,0;0,0,-1,1;-1,0,1,0;-1,1,1,0]]];
 qfautoexport(G)
