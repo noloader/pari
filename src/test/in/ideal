@@ -63,6 +63,11 @@ nf=nfinit(x^2+x+1);
 p = 67452192952521724999; pi = idealprimedec(nf,p)[1];
 q = 762234946175168528650011228121; qi = idealprimedec(nf,q)[1];
 f=idealfactor(nf, idealdiv(nf,pi,qi))
+idealfactor(nf, 787033*(x+1), 100)
+fa = idealfactor(nf, 471440*x + 612823, 100)
+idealfactor(nf,fa[2,1],10)
+idealfactor(nf,fa[2,1],40)
+idealfactor(nf, 471440*x + 612823, 2000)
 id=idealfactorback(nf,f)
 idealnumden(nf,id)
 idealnumden(nf,pi)

@@ -812,6 +812,27 @@ gauss_factor(GEN x)
 }
 
 GEN
+Q_factor_limit(GEN x, ulong lim)
+{
+  pari_sp av = avma;
+  GEN a, b;
+  if (typ(x) == t_INT) return Z_factor_limit(x, lim);
+  a = Z_factor_limit(gel(x,1), lim);
+  b = Z_factor_limit(gel(x,2), lim); gel(b,2) = ZC_neg(gel(b,2));
+  return gerepilecopy(av, merge_factor(a,b,(void*)&cmpii,cmp_nodata));
+}
+GEN
+Q_factor(GEN x)
+{
+  pari_sp av = avma;
+  GEN a, b;
+  if (typ(x) == t_INT) return Z_factor(x);
+  a = Z_factor(gel(x,1));
+  b = Z_factor(gel(x,2)); gel(b,2) = ZC_neg(gel(b,2));
+  return gerepilecopy(av, merge_factor(a,b,(void*)&cmpii,cmp_nodata));
+}
+
+GEN
 factor(GEN x)
 {
   long tx=typ(x), lx, i, pa, v, r1;
@@ -831,11 +852,7 @@ factor(GEN x)
   switch(tx)
   {
     case t_INT: return Z_factor(x);
-
-    case t_FRAC:
-      p1 = Z_factor(gel(x,1));
-      p2 = Z_factor(gel(x,2)); gel(p2,2) = ZC_neg(gel(p2,2));
-      return gerepilecopy(av, merge_factor(p1,p2,(void*)&cmpii,cmp_nodata));
+    case t_FRAC: return Q_factor(x);
 
     case t_POL:
       tx=RgX_type(x,&p,&pol,&pa);

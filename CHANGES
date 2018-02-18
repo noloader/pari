@@ -374,6 +374,7 @@ BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr
     153- isprime(,3): use ECPP
     154- new GP function log1p [#1829]
 BA  155- qfisom: allow to give the automorphism group of the second lattice
+    156- optional argument to idealfactor [limit factorization]
 
   Changed
       1- rewrite bnfnarrow

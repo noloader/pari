@@ -642,10 +642,20 @@ idealHNF_factor_i(GEN nf, GEN x, GEN cx, GEN FA)
 }
 /* true nf, x integral ideal */
 static GEN
-idealHNF_factor(GEN nf, GEN x)
+idealHNF_factor(GEN nf, GEN x, ulong lim)
 {
-  GEN cx; x = Q_primitive_part(x, &cx);
-  return idealHNF_factor_i(nf, x, cx, NULL);
+  GEN cx, F = NULL;
+  if (lim)
+  {
+    GEN P, E;
+    long l;
+    F = Z_factor_limit(gcoeff(x,1,1), lim);
+    P = gel(F,1); l = lg(P);
+    E = gel(F,2);
+    if (l > 1 && cmpiu(gel(P,l-1), lim) >= 0) { setlg(P,l-1); setlg(E,l-1); }
+  }
+  x = Q_primitive_part(x, &cx);
+  return idealHNF_factor_i(nf, x, cx, F);
 }
 /* c * vector(#L,i,L[i].e), assume results fit in ulong */
 static GEN
@@ -658,7 +668,7 @@ prV_e_muls(GEN L, long c)
 }
 /* true nf, y in Q */
 static GEN
-Q_nffactor(GEN nf, GEN y)
+Q_nffactor(GEN nf, GEN y, ulong lim)
 {
   GEN f, P, E;
   long lfa, i;
@@ -667,7 +677,8 @@ Q_nffactor(GEN nf, GEN y)
     if (!signe(y)) pari_err_DOMAIN("idealfactor", "ideal", "=",gen_0,y);
     if (is_pm1(y)) return trivial_fact();
   }
-  f = factor(Q_abs_shallow(y));
+  y = Q_abs_shallow(y);
+  f = lim? Q_factor_limit(y, lim): Q_factor(y);
   P = gel(f,1); lfa = lg(P);
   E = gel(f,2);
   for (i = 1; i < lfa; i++)
@@ -682,28 +693,42 @@ Q_nffactor(GEN nf, GEN y)
 }
 
 GEN
-idealfactor(GEN nf, GEN x)
+idealfactor_limit(GEN nf, GEN x, ulong lim)
 {
   pari_sp av = avma;
   GEN fa, y;
   long tx = idealtyp(&x,&y);
 
   nf = checknf(nf);
-  if (tx == id_PRIME) retmkmat2(mkcolcopy(x), mkcol(gen_1));
+  if (tx == id_PRIME)
+  {
+    if (lim && cmpiu(pr_get_p(x), lim) >= 0) return trivial_fact();
+    retmkmat2(mkcolcopy(x), mkcol(gen_1));
+  }
   if (tx == id_PRINCIPAL)
   {
     y = nf_to_scalar_or_basis(nf, x);
-    if (typ(y) != t_COL) return gerepilecopy(av, Q_nffactor(nf, y));
+    if (typ(y) != t_COL) return gerepilecopy(av, Q_nffactor(nf, y, lim));
   }
   y = idealnumden(nf, x);
-  fa = idealHNF_factor(nf, gel(y,1));
+  fa = idealHNF_factor(nf, gel(y,1), lim);
   if (!isint1(gel(y,2)))
-  {
-    GEN F = idealHNF_factor(nf, gel(y,2));
-    fa = famat_mul_shallow(fa, famat_inv_shallow(F));
-  }
+    fa = famat_div_shallow(fa, idealHNF_factor(nf, gel(y,2), lim));
   fa = gerepilecopy(av, fa);
   return sort_factor(fa, (void*)&cmp_prime_ideal, &cmp_nodata);
+}
+GEN
+idealfactor(GEN nf, GEN x) { return idealfactor_limit(nf, x, 0); }
+GEN
+gpidealfactor(GEN nf, GEN x, GEN lim)
+{
+  ulong L = 0;
+  if (lim)
+  {
+    if (typ(lim) != t_INT || signe(lim) < 0) pari_err_FLAG("idealfactor");
+    L = itou(lim);
+  }
+  return idealfactor_limit(nf, x, L);
 }
 
 /* true nf; A is assumed to be the n-th power of an integral ideal,
@@ -1050,6 +1075,10 @@ famat_mulpows_shallow(GEN f, GEN g, long e)
   if (e==0) return f;
   return famat_mul_shallow(f, famat_pows_shallow(g, e));
 }
+
+GEN
+famat_div_shallow(GEN f, GEN g)
+{ return famat_mul_shallow(f, famat_inv_shallow(g)); }
 
 GEN
 to_famat(GEN x, GEN y) { retmkmat2(mkcolcopy(x), mkcolcopy(y)); }

@@ -7521,6 +7521,12 @@ of $B_1$ means higher chances of hitting a factor and more time spent.
 The computation is deterministic for a given set of parameters. Returns
 \kbd{NULL} on failure, else a non trivial factor or \kbd{N}.
 
+\fun{GEN}{Q_factor}{GEN x} as \tet{Z_factor}, where $x$ is a \typ{INT} or
+a \typ{FRAC}.
+
+\fun{GEN}{Q_factor_limit}{GEN x, ulong lim} as \tet{Z_factor_limit}, where
+$x$ is a \typ{INT} or a \typ{FRAC}.
+
 \subsec{Coprime factorization}
 
 Given $a$ and $b$ two non-zero integers, let \teb{ppi}$(a,b)$, \teb{ppo}$(a,b)$,
