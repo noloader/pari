@@ -1751,15 +1751,13 @@ ecpp0(GEN N, GEN param, GEN* X0)
   return answer;
 }
 
+/* assume N BPSW-pseudoprime */
 GEN
 ecpp(GEN N)
 {
   long expiN, tunelen;
   GEN param, answer, garbage, tune;
-  if (typ(N) != t_INT) pari_err_TYPE("ecpp", N);
 
-  /* Check if N is pseudoprime to begin with. */
-  if (!BPSW_psp(N)) return gen_0;
   /* Check if we should even prove it. */
   expiN = expi(N);
   if (expiN < 64) return N;
@@ -1802,7 +1800,9 @@ long
 isprimeECPP(GEN N)
 {
   pari_sp av = avma;
-  GEN res = ecpp(N);
+  GEN res;
+  if (!BPSW_psp(N)) return 0;
+  res = ecpp(N);
   avma = av; return !isintzero(res);
 }
 
