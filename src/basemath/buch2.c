@@ -3136,15 +3136,6 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
   *ptL = L; return kR;
 }
 
-static GEN
-bestappr_noer(GEN x, GEN k)
-{
-  GEN y;
-  pari_CATCH(e_PREC) { y = NULL; }
-  pari_TRY { y = bestappr(x,k); } pari_ENDCATCH;
-  return y;
-}
-
 /* leave small integer n as is, convert huge n to t_REAL (for readability) */
 static GEN
 i2print(GEN n)
@@ -3173,7 +3164,7 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR, pari_timer *T)
   if (DEBUGLEVEL) { err_printf("\n#### Computing check\n"); err_flush(); }
   D = gmul2n(mpmul(*ptkR,z), 1); /* bound for denom(lambda) */
   if (expo(D) < 0 && rtodbl(D) < 0.95) return fupb_PRECI;
-  lambda = bestappr_noer(lambda,D);
+  lambda = bestappr(lambda,D);
   if (!lambda)
   {
     if (DEBUGLEVEL) err_printf("truncation error in bestappr\n");

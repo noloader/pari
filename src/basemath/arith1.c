@@ -4863,9 +4863,8 @@ static GEN
 bestappr_real(GEN x, GEN k)
 {
   pari_sp av = avma;
-  GEN kr, p0, p1, p, q0, q1, q, a, y;
+  GEN kr, p0, p1, p, q0, q1, q, a, y = x;
 
-  y = x;
   p1 = gen_1; a = p0 = floorr(x);
   q1 = gen_0; q0 = gen_1;
   x = subri(x,a); /* 0 <= x < 1 */
@@ -4913,6 +4912,7 @@ bestappr_Q(GEN x, GEN k)
     case t_FRAC: return k? bestappr_frac(x, k): gcopy(x);
     case t_REAL:
       if (!signe(x)) return gen_0;
+      if (bit_prec(x) < expo(x)) return NULL;
       return k? bestappr_real(x, k): bestappr_real_max(x);
 
     case t_INTMOD: {
