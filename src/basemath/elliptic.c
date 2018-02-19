@@ -203,33 +203,23 @@ ec_bmodel(GEN e)
 static int
 invcmp(void *E, GEN x, GEN y) { (void)E; return -gcmp(x,y); }
 
+/* prec = working precision, prec0 = target precision */
 static GEN
-doellR_roots(GEN e, long prec0)
+doellR_roots_i(GEN e, long prec, long prec0)
 {
-  GEN R, d1, d2, d3, e1, e2, e3;
-  long s = ellR_get_sign(e), prec = prec0;
-START:
-  R = roots(ec_bmodel(e), prec);
+  GEN d1, d2, d3, e1, e2, e3, R = roots(ec_bmodel(e), prec);
+  long s = ellR_get_sign(e);
   if (s > 0)
   { /* sort 3 real roots in decreasing order */
     R = real_i(R);
     gen_sort_inplace(R, NULL, &invcmp, NULL);
-    e1 = gel(R,1);
-    e2 = gel(R,2);
-    e3 = gel(R,3);
+    e1 = gel(R,1); e2 = gel(R,2); e3 = gel(R,3);
     d3 = subrr(e1,e2);
     d1 = subrr(e2,e3);
     d2 = subrr(e1,e3);
-    if (realprec(d3) < prec0 || realprec(d1) < prec0)
-    {
-      prec = precdbl(prec);
-      if (DEBUGLEVEL) pari_warn(warnprec,"doellR_roots", prec);
-      goto START;
-    }
+    if (realprec(d3) < prec0 || realprec(d1) < prec0) return NULL;
   } else {
-    e1 = gel(R,1);
-    e2 = gel(R,2);
-    e3 = gel(R,3);
+    e1 = gel(R,1); e2 = gel(R,2); e3 = gel(R,3);
     if (s < 0)
     { /* make sure e1 is real, imag(e2) > 0 and imag(e3) < 0 */
       e1 = real_i(e1);
@@ -238,8 +228,22 @@ START:
     d3 = gsub(e1,e2);
     d1 = gsub(e2,e3);
     d2 = gsub(e1,e3);
+    if (precision(d1) < prec0
+        || precision(d2) < prec0
+        || precision(d3) < prec0) return NULL;
   }
   return mkcol6(e1,e2,e3,d1,d2,d3);
+}
+static GEN
+doellR_roots(GEN e, long prec0)
+{
+  long p;
+  for (p = prec0;; p = precdbl(p))
+  {
+    GEN v = doellR_roots_i(e, p, prec0);
+    if (v) return v;
+    if (DEBUGLEVEL) pari_warn(warnprec,"doellR_roots", p);
+  }
 }
 static GEN
 ellR_root(GEN e, long prec) { return gel(ellR_roots(e,prec),1); }
@@ -4843,12 +4847,10 @@ elltamagawa(GEN E)
 static GEN
 ellnfembed(GEN E, long prec)
 {
-  pari_sp av = avma;
   GEN nf = ellnf_get_nf(E), Eb = cgetg(6, t_VEC), e, L;
-  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2, i, j;
+  long prec0 = prec, r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2, i, j;
 
-  i = nf_get_prec(nf);
-  if (i < prec) nf = nfnewprec_shallow(nf, prec);
+  if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf, prec);
   for(;;)
   {
     for (i=1; i<=5; i++) gel(Eb,i) = nfeltembed(nf,gel(E,i),NULL);
@@ -4856,11 +4858,14 @@ ellnfembed(GEN E, long prec)
     L =  cgetg(n+1, t_VEC);
     for (i=1; i<=n; i++)
     {
+      GEN Ei, r;
       for (j=1; j<=5; j++) gel(e,j) = gmael(Eb,j,i);
-      gel(L,i) = ellinit_Rg(e, i<=r1, prec);
-      if (!gel(L,i)) break;
+      gel(L,i) = Ei = ellinit_Rg(e, i<=r1, prec);
+      if (!Ei) break;
+      r = doellR_roots_i(Ei, prec, prec0);
+      if (!r) break;
     }
-    if (i > n) return gerepilecopy(av, L);
+    if (i > n) return L;
     if (DEBUGLEVEL>1) pari_warn(warnprec,"ellnfembed", prec);
     prec = precdbl(prec); nf = nfnewprec_shallow(nf, prec);
   }
