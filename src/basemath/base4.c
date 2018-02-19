@@ -487,8 +487,11 @@ idealHNF_norm_pval(GEN x, GEN p, long Zval)
 GEN
 idealHNF_Z_factor_i(GEN x, GEN f, GEN *pvN, GEN *pvZ)
 {
-  GEN P = gel(f,1), E = gel(f,2), vN, vZ;
-  long i, l = lg(P);
+  GEN P, E, vN, vZ;
+  long i, l;
+  if (!f) f = Z_factor(gcoeff(x,1,1));
+  P = gel(f,1); l = lg(P);
+  E = gel(f,2);
   *pvN = vN = cgetg(l, t_VECSMALL);
   *pvZ = vZ = cgetg(l, t_VECSMALL);
   for (i = 1; i < l; i++)
@@ -498,16 +501,11 @@ idealHNF_Z_factor_i(GEN x, GEN f, GEN *pvN, GEN *pvZ)
   }
   return P;
 }
-
 /* return P, primes dividing Nx and xZ = x\cap Z, set v_p(Nx), v_p(xZ);
  * x integral in HNF */
 GEN
 idealHNF_Z_factor(GEN x, GEN *pvN, GEN *pvZ)
-{
-  GEN xZ = gcoeff(x,1,1);
-  if (typ(xZ) != t_INT) pari_err_TYPE("idealfactor",x);
-  return idealHNF_Z_factor_i(x, Z_factor(xZ), pvN, pvZ);
-}
+{ return idealHNF_Z_factor_i(x, NULL, pvN, pvZ); }
 
 /* v_P(A)*f(P) <= Nval [e.g. Nval = v_p(Norm A)], Zval = v_p(A \cap Z).
  * Return v_P(A) */
@@ -584,8 +582,7 @@ idealHNF_factor_i(GEN nf, GEN x, GEN cx, GEN FA)
 {
   const long N = lg(x)-1;
   long i, j, k, l, v;
-  GEN vN, vZ, vP, vE, fa = FA? FA: Z_factor(gcoeff(x,1,1));
-  GEN vp = idealHNF_Z_factor_i(x, fa, &vN,&vZ);
+  GEN vN, vZ, vP, vE, vp = idealHNF_Z_factor_i(x, FA, &vN,&vZ);
 
   l = lg(vp);
   i = cx? expi(cx)+1: 1;

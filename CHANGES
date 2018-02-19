@@ -375,6 +375,8 @@ BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr
     154- new GP function log1p [#1829]
 BA  155- qfisom: allow to give the automorphism group of the second lattice
     156- optional argument to idealfactor [limit factorization]
+    157- [libpari] idealHNF_Z_factor_i, idealfactor_limit, famat_div_shallow,
+         Q_factor, Q_factor_limit
 
   Changed
       1- rewrite bnfnarrow

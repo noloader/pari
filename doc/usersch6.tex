@@ -1085,6 +1085,13 @@ and sets \kbd{*pvN} and \kbd{*pvZ} to the corresponding \typ{VECSMALL} vector
 of exponents for the factorization for the Norm and intersection with $\Z$
 respetively.
 
+\fun{GEN}{idealHNF_Z_factor_i}{GEN x, GEN fa, GEN *pvN, GEN *pvZ} internal
+variant of \tet{idealHNF_Z_factor} where \kbd{fa} is either a partial
+factorization of $x\cap \Z$ ($= x[1,1]$) or \kbd{NULL}. Returns the prime
+divisors of $x$ above the rational primes in \kbd{fa} and attached \kbd{vN}
+and \kbd{vZ}. If \kbd{fa} is \kbd{NULL}, use the full factorization, i.e.
+identical to \tet{idealHNF_Z_factor}.
+
 \fun{GEN}{nf_pV_to_prV}{GEN}{nf, GEN P} given a vector of rational primes
 $P$, return the vector of all prime ideals above the $P[i]$.
 
