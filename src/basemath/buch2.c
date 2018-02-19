@@ -3165,7 +3165,7 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR, pari_timer *T)
   D = gmul2n(mpmul(*ptkR,z), 1); /* bound for denom(lambda) */
   if (expo(D) < 0 && rtodbl(D) < 0.95) return fupb_PRECI;
   lambda = bestappr(lambda,D);
-  if (!lambda)
+  if (lg(lambda) == 1)
   {
     if (DEBUGLEVEL) err_printf("truncation error in bestappr\n");
     return fupb_PRECI;
