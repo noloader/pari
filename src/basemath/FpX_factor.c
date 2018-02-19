@@ -979,8 +979,7 @@ FpX_factor_Shoup(GEN T, GEN p)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_Frobenius");
   D = FpX_ddf(T, XP, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf");
-  for (i = 1; i <= n; i++)
-    s += degpol(gel(D,i))/i;
+  s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_COL);
   for (i = 1, s = 1; i <= n; i++)
   {
@@ -999,13 +998,20 @@ FpX_factor_Shoup(GEN T, GEN p)
   return V;
 }
 
+long
+ddf_to_nbfact(GEN D)
+{
+  long l = lg(D), i, s = 0;
+  for(i = 1; i < l; i++)
+    s += degpol(gel(D,i))/i;
+  return s;
+}
+
 GEN
 ddf_to_simplefact(GEN D, long n)
 {
   GEN V;
-  long i, s = 0, j = 1, k;
-  for (i = 1; i <= n; i++)
-    s += degpol(gel(D,i))/i;
+  long i, j = 1, k, s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_VECSMALL);
   for (i = 1; i <= n; i++)
   {
@@ -1192,15 +1198,6 @@ FpX_factcantor_i(GEN f, GEN pp, long flag)
     case 1: return FpX_simplefact_Cantor(f, pp);
     case 2: return FpX_isirred_Cantor(f, pp)? gen_1: NULL;
   }
-}
-
-long
-ddf_to_nbfact(GEN D)
-{
-  long l = lg(D), i, s = 0;
-  for(i = 1; i < l; i++)
-    s += degpol(gel(D,i))/i;
-  return s;
 }
 
 long
@@ -2060,8 +2057,7 @@ Flx_factor_Shoup(GEN T, ulong p)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_Frobenius");
   D = Flx_ddf(T, XP, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_ddf");
-  for (i = 1; i <= n; i++)
-    s += degpol(gel(D,i))/i;
+  s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_COL);
   for (i = 1, s = 1; i <= n; i++)
   {

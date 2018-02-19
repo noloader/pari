@@ -1893,8 +1893,7 @@ F2xqX_factor_Shoup(GEN S, GEN xp, GEN T)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"F2xqX_Frobenius");
   D = F2xqX_ddf(S, Xq, T);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"F2xqX_ddf");
-  for (i = 1; i <= n; i++)
-    s += degpol(gel(D,i))/i;
+  s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_COL);
   for (i = 1, s = 1; i <= n; i++)
   {
@@ -2188,8 +2187,7 @@ FlxqX_factor_Shoup(GEN S, GEN xp, GEN T, ulong p)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FlxqX_Frobenius");
   D = FlxqX_ddf(S, Xq, T, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FlxqX_ddf");
-  for (i = 1; i <= n; i++)
-    s += degpol(gel(D,i))/i;
+  s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_COL);
   for (i = 1, s = 1; i <= n; i++)
   {
@@ -2458,8 +2456,7 @@ FpXQX_factor_Shoup(GEN S, GEN xp, GEN T, GEN p)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FpXQX_Frobenius");
   D = FpXQX_ddf(S, Xq, T, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FpXQX_ddf");
-  for (i = 1; i <= n; i++)
-    s += degpol(gel(D,i))/i;
+  s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_COL);
   for (i = 1, s = 1; i <= n; i++)
   {
