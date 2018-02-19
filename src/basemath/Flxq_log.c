@@ -111,7 +111,7 @@ cindex_Flx(long c, long d, ulong p, long v)
 static GEN
 factorel(GEN h, ulong p)
 {
-  GEN F = Flx_factcantor(h, p, 0);
+  GEN F = Flx_factor(h, p);
   GEN F1 = gel(F, 1), F2 = gel(F, 2);
   long i, l1 = lg(F1)-1;
   GEN p2 = cgetg(l1+1, t_VECSMALL);

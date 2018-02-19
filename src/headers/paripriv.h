@@ -721,8 +721,6 @@ GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 GEN     Flx_Berlekamp_i(GEN x, ulong p, long flag);
 GEN     FpX_Berlekamp_i(GEN x, GEN p, long flag);
 GEN     F2x_factcantor(GEN f, long flag);
-GEN     Flx_factcantor(GEN f, ulong p, long flag);
-GEN     FpX_factcantor(GEN f, GEN pp, long flag);
 long    ddf_to_nbfact(GEN D);
 GEN     ddf_to_simplefact(GEN D, long n);
 GEN     factcantor0(GEN f, GEN pp, long flag);

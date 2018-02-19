@@ -666,7 +666,7 @@ static long
 Flx_nbfactff(GEN P, GEN T, ulong p)
 {
   pari_sp av = avma;
-  GEN F = gel(Flx_factcantor(P, p, 1), 1);
+  GEN F = gel(Flx_degfact(P, p), 1);
   long s = simpleff_to_nbfact(F, get_Flx_degree(T));
   avma = av; return s;
 }
@@ -706,7 +706,7 @@ static long
 FpX_nbfactff(GEN P, GEN T, GEN p)
 {
   pari_sp av = avma;
-  GEN F = gel(FpX_factcantor(P, p, 1), 1);
+  GEN F = gel(FpX_degfact(P, p), 1);
   long s = simpleff_to_nbfact(F, get_FpX_degree(T));
   avma = av; return s;
 }

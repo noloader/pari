@@ -2172,15 +2172,6 @@ Flx_factcantor_i(GEN f, ulong pp, long flag)
 }
 
 GEN
-Flx_factcantor(GEN f, ulong p, long flag)
-{
-  pari_sp av = avma;
-  GEN z = Flx_factcantor_i(Flx_normalize(f,p),p,flag);
-  if (flag == 2) { avma = av; return z; }
-  return gerepilecopy(av, z);
-}
-
-GEN
 Flx_degfact(GEN f, ulong p)
 {
   pari_sp av = avma;
@@ -2254,16 +2245,6 @@ factcantor_i(GEN f, GEN pp, long flag)
     return F;
   }
   return FpX_factcantor_i(f, pp, flag);
-}
-GEN
-FpX_factcantor(GEN f, GEN pp, long flag)
-{
-  pari_sp av = avma;
-  GEN z;
-  ZX_factmod_init(&f,pp);
-  z = factcantor_i(f,pp,flag);
-  if (flag == 2) { avma = av; return z; }
-  return gerepilecopy(av, z);
 }
 
 static GEN
