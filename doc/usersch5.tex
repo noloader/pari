@@ -7492,12 +7492,16 @@ given in in $v[(c-a)/2 + 1]$.
 
 \fun{GEN}{vecfactorsquarefreeu}{ulong a, ulong b} return a \typ{VEC} $v$
 containing the prime divisors of squarefree integers in $a,\dots,b$; assume
-that $b \geq a \geq 0$. Uses a sive with primes up to $\sqrt{b}$.
+that $a \leq b$. Uses a sieve with primes up to $\sqrt{b}$.
 For all squarefree $c$, $a\leq c\leq b$, the prime divisors of $c$ (as a
 \typ{VECSMALL}) are given in $v[c-a+1]$, and the other entries are
 \kbd{NULL}. Note that because of these \kbd{NULL} markers, $v$ is not a valid
 \kbd{GEN}, it is not memory clean and cannot be used in garbage collection
 routines.
+
+\fun{GEN}{vecsquarefreeu}{ulong a, ulong b} return a \typ{VECSMALL} $v$
+containing the squarefree integers in $a,\dots,b$. Assume that
+$a\leq b$. Uses a sieve with primes up to $\sqrt{b}$.
 
 \fun{ulong}{tridiv_bound}{GEN n} returns the trial division bound used by
 \tet{Z_factor}$(n)$.
@@ -7756,6 +7760,10 @@ $0$ otherwise.
 prime number and $0$ otherwise, using only the APRCL test --- not even trial
 division or compositeness tests. The workhorse \kbd{isprime} should be
 faster on average, especially if non-primes are included!
+
+\fun{long}{isprimeECPP}{GEN n}, returns $1$ if the \typ{INT} \kbd{n} is a
+prime number and $0$ otherwise, using only the ECPP test. The workhorse
+\kbd{isprime} should be faster on average.
 
 \fun{long}{BPSW_psp}{GEN n}, returns $1$ if the \typ{INT} \kbd{n} is a
 Baillie-Pomerance-Selfridge-Wagstaff pseudoprime, and $0$ otherwise (proven
