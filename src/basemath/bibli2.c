@@ -1426,10 +1426,8 @@ static int
 closurecmp(void *data, GEN x, GEN y)
 {
   pari_sp av = avma;
-  GEN z = closure_callgen2((GEN)data, x,y);
-  if (typ(z) != t_INT)
-    pari_err_TYPE("closurecmp, cmp. fun. must return an integer", z);
-  avma = av; return signe(z);
+  long s = gsigne(closure_callgen2((GEN)data, x,y));
+  avma = av; return s;
 }
 
 static void

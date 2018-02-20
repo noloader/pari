@@ -48,7 +48,7 @@ Doc: sorts the vector $x$ in ascending order, using a mergesort method.
  and when these are equal, with respect to the third.
 
  \item a comparison function (\typ{CLOSURE}), with two arguments $x$ and $y$,
- and returning an integer which is $<0$, $>0$ or $=0$ if $x<y$, $x>y$ or
+ and returning a real number which is $<0$, $>0$ or $=0$ if $x<y$, $x>y$ or
  $x=y$ respectively.
  \bprog
  ? vecsort([3,0,2; 1,0,2]) \\ sort columns according to lex order

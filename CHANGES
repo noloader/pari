@@ -170,6 +170,8 @@ BA  129- default(strictargs,1); my(a=2);(f(b,c)=123);f(1) => SEGV [#2004]
           +19278898978723566612544;bnfinit(p).cyc}
          => [60,2,2,2,2,2,2,2,2,2] instead of [6,2]
     143- nffactor(y^8-y^6+y^4-y^2+1,x^4-1) -> concatenation error [#2009]
+    144- vecsort / vecsearch: comparison function was required to assume
+         integral values; allow t_INT, t_FRAC or t_REAL
 
   Added
       1- [libari] ZM_isidentity
