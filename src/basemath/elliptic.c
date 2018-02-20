@@ -4847,18 +4847,21 @@ elltamagawa(GEN E)
 static GEN
 ellnfembed(GEN E, long prec)
 {
-  GEN nf = ellnf_get_nf(E), Eb = cgetg(6, t_VEC), e, L;
-  long prec0 = prec, r1 = nf_get_r1(nf), r2 = nf_get_r2(nf), n = r1+r2, i, j;
+  GEN E0, nf = ellnf_get_nf(E), Eb = cgetg(6, t_VEC), e = cgetg(6, t_VEC), L;
+  long prec0 = prec, r1, r2, n, i;
 
+  nf_get_sign(nf, &r1, &r2); n = r1+r2;
+  E0 = RgC_to_nfC(nf, vecslice(E,1,5));
+  prec += nbits2extraprec(gexpo(E0));
   if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf, prec);
+  L =  cgetg(n+1, t_VEC);
   for(;;)
   {
-    for (i=1; i<=5; i++) gel(Eb,i) = nfeltembed(nf,gel(E,i),NULL);
-    e = cgetg(6, t_VEC);
-    L =  cgetg(n+1, t_VEC);
+    for (i=1; i<=5; i++) gel(Eb,i) = nfeltembed(nf,gel(E0,i),NULL);
     for (i=1; i<=n; i++)
     {
       GEN Ei, r;
+      long j;
       for (j=1; j<=5; j++) gel(e,j) = gmael(Eb,j,i);
       gel(L,i) = Ei = ellinit_Rg(e, i<=r1, prec);
       if (!Ei) break;

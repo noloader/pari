@@ -1792,10 +1792,8 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
 static void
 chk_ind(const char *s, long i, long r1)
 {
-  if (i <= 0)
-    pari_err_DOMAIN(s, "index", "<=", gen_0, stoi(i));
-  if (i > r1)
-    pari_err_DOMAIN(s, "index", ">", stoi(r1), stoi(i));
+  if (i <= 0) pari_err_DOMAIN(s, "index", "<=", gen_0, stoi(i));
+  if (i > r1) pari_err_DOMAIN(s, "index", ">", utoi(r1), utoi(i));
 }
 GEN
 nfeltsign(GEN nf, GEN x, GEN ind0)
