@@ -4,7 +4,7 @@ C-Name: vecsort0
 Prototype: GDGD0,L,
 Help: vecsort(x,{cmpf},{flag=0}): sorts the vector of vectors (or matrix) x in
  ascending order, according to the comparison function cmpf, if not omitted.
- (If cmpf is an integer, sort according to the value of the k-th component
+ (If cmpf is an integer k, sort according to the value of the k-th component
  of each entry.) Binary digits of flag (if present) mean: 1: indirect sorting,
  return the permutation instead of the permuted vector, 4: use descending
  instead of ascending order, 8: remove duplicate entries.
@@ -49,16 +49,16 @@ Doc: sorts the vector $x$ in ascending order, using a mergesort method.
 
  \item a comparison function (\typ{CLOSURE}), with two arguments $x$ and $y$,
  and returning an integer which is $<0$, $>0$ or $=0$ if $x<y$, $x>y$ or
- $x=y$ respectively. The \tet{sign} function is very useful in this context:
+ $x=y$ respectively.
  \bprog
  ? vecsort([3,0,2; 1,0,2]) \\ sort columns according to lex order
  %1 =
  [0 2 3]
 
  [0 2 1]
- ? vecsort(v, (x,y)->sign(y-x))            \\@com reverse sort
- ? vecsort(v, (x,y)->sign(abs(x)-abs(y)))  \\@com sort by increasing absolute value
- ? cmpf(x,y) = my(dx = poldisc(x), dy = poldisc(y)); sign(abs(dx) - abs(dy))
+ ? vecsort(v, (x,y)->y-x)            \\@com reverse sort
+ ? vecsort(v, (x,y)->abs(x)-abs(y))  \\@com sort by increasing absolute value
+ ? cmpf(x,y) = my(dx = poldisc(x), dy = poldisc(y)); abs(dx) - abs(dy);
  ? vecsort([x^2+1, x^3-2, x^4+5*x+1], cmpf)
  @eprog\noindent
  The last example used the named \kbd{cmpf} instead of an anonymous function,
@@ -67,7 +67,7 @@ Doc: sorts the vector $x$ in ascending order, using a mergesort method.
  a given discriminant is computed only once:
  \bprog
  ? DISC = vector(#v, i, abs(poldisc(v[i])));
- ? perm = vecsort(vector(#v,i,i), (x,y)->sign(DISC[x]-DISC[y]))
+ ? perm = vecsort(vector(#v,i,i), (x,y)->DISC[x]-DISC[y])
  ? vecextract(v, perm)
  @eprog\noindent Similar ideas apply whenever we sort according to the values
  of a function which is expensive to compute.
