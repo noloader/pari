@@ -59,15 +59,15 @@ Doc: sorts the vector $x$ in ascending order, using a mergesort method.
  ? vecsort(v, (x,y)->y-x)            \\@com reverse sort
  ? vecsort(v, (x,y)->abs(x)-abs(y))  \\@com sort by increasing absolute value
  ? cmpf(x,y) = my(dx = poldisc(x), dy = poldisc(y)); abs(dx) - abs(dy);
- ? vecsort([x^2+1, x^3-2, x^4+5*x+1], cmpf)
+ ? v = [x^2+1, x^3-2, x^4+5*x+1]; vecsort(v, cmpf)
  @eprog\noindent
  The last example used the named \kbd{cmpf} instead of an anonymous function,
  and sorts polynomials with respect to the absolute value of their
  discriminant. A more efficient approach would use precomputations to ensure
  a given discriminant is computed only once:
  \bprog
- ? DISC = vector(#v, i, abs(poldisc(v[i])));
- ? perm = vecsort(vector(#v,i,i), (x,y)->DISC[x]-DISC[y])
+ ? T = [abs(poldisc(x)) | x<-v];
+ ? perm = vecsort(T,,1); \\ indirect sort
  ? vecextract(v, perm)
  @eprog\noindent Similar ideas apply whenever we sort according to the values
  of a function which is expensive to compute.
