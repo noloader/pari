@@ -1425,15 +1425,6 @@ gen_sort_inplace(GEN x, void *E, int (*cmp)(void*,GEN,GEN), GEN *perm)
 }
 
 static int
-keycmp(void *data, GEN x, GEN y)
-{
-  pari_sp av = avma;
-  long r;
-  x = closure_callgen1((GEN)data, x);
-  y = closure_callgen1((GEN)data, y);
-  r = gcmp(x,y); avma = av; return r;
-}
-static int
 closurecmp(void *data, GEN x, GEN y)
 {
   pari_sp av = avma;
@@ -1449,6 +1440,7 @@ check_positive_entries(GEN k)
 }
 
 typedef int (*CMP_FUN)(void*,GEN,GEN);
+/* return NULL if t_CLOSURE k is a "key" (arity 1) and not a sorting func */
 static CMP_FUN
 sort_function(void **E, GEN x, GEN k)
 {
@@ -1471,7 +1463,7 @@ sort_function(void **E, GEN x, GEN k)
      *E = (void*)k;
      switch(closure_arity(k))
      {
-       case 1: return &keycmp;
+       case 1: return NULL; /* wrt key */
        case 2: return &closurecmp;
        default: pari_err_TYPE("sort_function, cmpf arity != 1, 2",k);
      }
@@ -1493,8 +1485,8 @@ vecsort0(GEN x, GEN k, long flag)
 
   if (flag < 0 || flag > (cmp_REV|cmp_LEX|cmp_IND|cmp_UNIQ))
     pari_err_FLAG("vecsort");
-  if (CMP == &keycmp)
-  { /* precompute all values: O(n) calls instead of O(n log n) */
+  if (!CMP)
+  { /* wrt key: precompute all values, O(n) calls instead of O(n log n) */
     pari_sp av = avma;
     GEN v, y;
     long i, tx, lx;
@@ -1540,6 +1532,22 @@ vecsort(GEN x, GEN k)
   if (typ(k) != t_VECSMALL) pari_err_TYPE("vecsort",k);
   return gen_sort(x, (void*)k, &veccmp);
 }
+/* adapted from gen_search; don't export: keys of T[i] should be precomputed */
+static long
+key_search(GEN T, GEN x, GEN code)
+{
+  long u = lg(T)-1, i, l, s;
+
+  if (!u) return 0;
+  l = 1; x = closure_callgen1(code, x);
+  do
+  {
+    i = (l+u)>>1; s = lexcmp(x, closure_callgen1(code, gel(T,i)));
+    if (!s) return i;
+    if (s<0) u=i-1; else l=i+1;
+  } while (u>=l);
+  return 0;
+}
 long
 vecsearch(GEN v, GEN x, GEN k)
 {
@@ -1550,7 +1558,7 @@ vecsearch(GEN v, GEN x, GEN k)
   if (tv == t_VECSMALL)
     x = (GEN)itos(x);
   else if (!is_matvec_t(tv)) pari_err_TYPE("vecsearch", v);
-  r = gen_search(v, x, 0, E, CMP);
+  r = CMP? gen_search(v, x, 0, E, CMP): key_search(v, x, k);
   avma = av; return r;
 }
 
@@ -1585,10 +1593,10 @@ tablesearch(GEN T, GEN x, int (*cmp)(GEN,GEN))
 long
 gen_search(GEN T, GEN x, long flag, void *data, int (*cmp)(void*,GEN,GEN))
 {
-  long lx = lg(T), i, l, u, s;
+  long u = lg(T)-1, i, l, s;
 
-  if (lx==1) return flag? 1: 0;
-  l = 1; u = lx-1;
+  if (!u) return flag? 1: 0;
+  l = 1;
   do
   {
     i = (l+u)>>1; s = cmp(data, x, gel(T,i));
