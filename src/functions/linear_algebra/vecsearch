@@ -27,7 +27,11 @@ Doc: determines whether $x$ belongs to the sorted vector or list $v$: return
  %3 = 0 \\ not in the list
  ? vecsearch([7,6,5], 5) \\ unsorted vector: result undefined
  %4 = 0
- @eprog
+ @eprog\noindent Note that if we are sorting with respect to a key
+ which is expensive to compute (e.g. a discriminant), one should rather
+ precompute all keys, sort that vector and search in the vector of keys,
+ rather than searching in the original vector with respect to a comparison
+ function.
 
  By abuse of notation, $x$ is also allowed to be a matrix, seen as a vector
  of its columns; again by abuse of notation, a \typ{VEC} is considered

@@ -1350,6 +1350,8 @@ sort_extract(GEN x, GEN y, long tx, long lx)
   return y;
 }
 
+static GEN
+triv_sort(long tx) { return tx == t_LIST? mklist(): cgetg(1, tx); }
 /* Sort the vector x, using cmp to compare entries. */
 GEN
 gen_sort_uniq(GEN x, void *E, int (*cmp)(void*,GEN,GEN))
@@ -1358,7 +1360,7 @@ gen_sort_uniq(GEN x, void *E, int (*cmp)(void*,GEN,GEN))
   GEN y;
 
   init_sort(&x, &tx, &lx);
-  if (lx==1) return tx == t_LIST? mklist(): cgetg(1, tx);
+  if (lx==1) return triv_sort(tx);
   y = gen_sortspec_uniq(x,lx-1,E,cmp);
   return sort_extract(x, y, tx, lg(y)); /* lg(y) <= lx */
 }
@@ -1370,7 +1372,7 @@ gen_sort(GEN x, void *E, int (*cmp)(void*,GEN,GEN))
   GEN y;
 
   init_sort(&x, &tx, &lx);
-  if (lx==1) return tx == t_LIST? mklist(): cgetg(1, tx);
+  if (lx==1) return triv_sort(tx);
   y = gen_sortspec(x,lx-1,E,cmp);
   return sort_extract(x, y, tx, lx);
 }
@@ -1423,13 +1425,21 @@ gen_sort_inplace(GEN x, void *E, int (*cmp)(void*,GEN,GEN), GEN *perm)
 }
 
 static int
+keycmp(void *data, GEN x, GEN y)
+{
+  pari_sp av = avma;
+  long r;
+  x = closure_callgen1((GEN)data, x);
+  y = closure_callgen1((GEN)data, y);
+  r = gcmp(x,y); avma = av; return r;
+}
+static int
 closurecmp(void *data, GEN x, GEN y)
 {
   pari_sp av = avma;
   long s = gsigne(closure_callgen2((GEN)data, x,y));
   avma = av; return s;
 }
-
 static void
 check_positive_entries(GEN k)
 {
@@ -1443,27 +1453,32 @@ static CMP_FUN
 sort_function(void **E, GEN x, GEN k)
 {
   int (*cmp)(GEN,GEN) = &lexcmp;
+  long tx = typ(x);
   if (!k)
   {
     *E = (void*)((typ(x) == t_VECSMALL)? cmp_small: cmp);
     return &cmp_nodata;
   }
-  if (typ(x) == t_VECSMALL) pari_err_TYPE("sort_function", x);
+  if (tx == t_VECSMALL) pari_err_TYPE("sort_function", x);
   switch(typ(k))
   {
     case t_INT: k = mkvecsmall(itos(k));  break;
     case t_VEC: case t_COL: k = ZV_to_zv(k); break;
     case t_VECSMALL: break;
     case t_CLOSURE:
-     if (closure_arity(k) != 2 || closure_is_variadic(k))
-       pari_err_TYPE("sort_function, cmp. fun. needs exactly 2 arguments",k);
+     if (closure_is_variadic(k))
+       pari_err_TYPE("sort_function, variadic cmpf",k);
      *E = (void*)k;
-     return &closurecmp;
+     switch(closure_arity(k))
+     {
+       case 1: return &keycmp;
+       case 2: return &closurecmp;
+       default: pari_err_TYPE("sort_function, cmpf arity != 1, 2",k);
+     }
     default: pari_err_TYPE("sort_function",k);
   }
   check_positive_entries(k);
-  *E = (void*)k;
-  return &veccmp;
+  *E = (void*)k; return &veccmp;
 }
 
 #define cmp_IND 1
@@ -1478,22 +1493,28 @@ vecsort0(GEN x, GEN k, long flag)
 
   if (flag < 0 || flag > (cmp_REV|cmp_LEX|cmp_IND|cmp_UNIQ))
     pari_err_FLAG("vecsort");
-  if (flag & cmp_UNIQ)
-    x = flag & cmp_IND? gen_indexsort_uniq(x, E, CMP): gen_sort_uniq(x, E, CMP);
+  if (CMP == &keycmp)
+  { /* precompute all values: O(n) calls instead of O(n log n) */
+    pari_sp av = avma;
+    GEN v, y;
+    long i, tx, lx;
+    init_sort(&x, &tx, &lx);
+    if (lx == 1) return flag&cmp_IND? cgetg(1,t_VECSMALL): triv_sort(tx);
+    v = cgetg(lx, t_VEC);
+    for (i = 1; i < lx; i++) gel(v,i) = closure_callgen1(k, gel(x,i));
+    y = vecsort0(v, NULL, flag | cmp_IND);
+    y = flag&cmp_IND? y: sort_extract(x, y, tx, lg(y));
+    return gerepileupto(av, y);
+  }
+  if (flag&cmp_UNIQ)
+    x = flag&cmp_IND? gen_indexsort_uniq(x, E, CMP): gen_sort_uniq(x, E, CMP);
   else
-    x = flag & cmp_IND? gen_indexsort(x, E, CMP): gen_sort(x, E, CMP);
-  if (flag & cmp_REV) { /* reverse order */
-    long j, lx;
-    GEN y;
-    if (typ(x)==t_LIST)
-    {
-      y = list_data(x);
-      if (!y) return x;
-    }
-    else
-      y = x;
-    lx = lg(y);
-    for (j=1; j<=(lx-1)>>1; j++) swap(gel(y,j), gel(y,lx-j));
+    x = flag&cmp_IND? gen_indexsort(x, E, CMP): gen_sort(x, E, CMP);
+  if (flag & cmp_REV)
+  { /* reverse order */
+    GEN y = x;
+    if (typ(x)==t_LIST) { y = list_data(x); if (!y) return x; }
+    vecreverse_inplace(y);
   }
   return x;
 }
