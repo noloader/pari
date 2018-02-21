@@ -1838,11 +1838,11 @@ nfeltsign(GEN nf, GEN x, GEN ind0)
 }
 
 GEN
-nfeltembed(GEN nf, GEN x, GEN ind0, long prec)
+nfeltembed(GEN nf, GEN x, GEN ind0, long prec0)
 {
   pari_sp av = avma;
-  long i, e, l, r1, r2;
-  GEN v, ind, cx, M;
+  long i, e, l, r1, r2, prec;
+  GEN v, ind, cx;
   nf = checknf(nf); nf_get_sign(nf,&r1,&r2);
   x = nf_to_scalar_or_basis(nf, x);
   if (!ind0) ind0 = identity_perm(r1+r2);
@@ -1863,15 +1863,25 @@ nfeltembed(GEN nf, GEN x, GEN ind0, long prec)
     if (typ(ind0) != t_INT) x = const_vec(l-1, x);
     return gerepilecopy(av, x);
   }
-  e = gexpo(x); if (e > 8) prec += nbits2extraprec(e);
+  x = Q_primitive_part(x, &cx);
+  prec = prec0; e = gexpo(x);
+  if (e > 8) prec += nbits2extraprec(e);
   if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf, prec);
-  x = Q_primitive_part(x, &cx); M = nf_get_M(nf);
   v = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
+  for(;;)
   {
-    GEN t = nfembed_i(M, x, ind[i]);
-    if (cx) t = gmul(t, cx);
-    gel(v,i) = t;
+    GEN M = nf_get_M(nf);
+    for (i = 1; i < l; i++)
+    {
+      GEN t = nfembed_i(M, x, ind[i]);
+      if (gequal0(t) || precision(t) < prec0) break;
+      if (cx) t = gmul(t, cx);
+      gel(v,i) = t;
+    }
+    if (i == l) break;
+    prec = precdbl(prec);
+    if (DEBUGLEVEL>1) pari_warn(warnprec,"eltnfembed", prec);
+    nf = nfnewprec_shallow(nf, prec);
   }
   if (typ(ind0) == t_INT) v = gel(v,1);
   return gerepilecopy(av, v);
