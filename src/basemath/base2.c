@@ -565,11 +565,9 @@ maxord(GEN p, GEN f, long mf)
   if (DEBUGLEVEL>2) err_printf("  ZX_dedekind: gcd has degree %ld\n", dk);
   if (!dk) { avma = av; return gen_1; }
   if (mf < 0) mf = ZpX_disc_val(f, p);
+  k = FpX_normalize(k, p);
   if (2*dk >= mf-1)
-  {
-    k = FpX_normalize(k, p);
     res = dbasis(p, f, mf, NULL, FpX_div(f,k,p));
-  }
   else
   {
     GEN w, F1, F2;
@@ -1297,9 +1295,12 @@ mycaract(decomp_t *S, GEN f, GEN a, GEN pp, GEN pdr)
 
 static GEN
 get_nu(GEN chi, GEN p, long *ptl)
-{
-  GEN P = gel(FpX_factor(chi, p),1);
-  *ptl = lg(P) - 1; return gel(P,*ptl);
+{ /* split off powers of x first for efficiency */
+  long v = ZX_valrem(FpX_red(chi,p), &chi), n;
+  GEN P;
+  if (!degpol(chi)) { *ptl = 1; return pol_x(varn(chi)); }
+  P = gel(FpX_factor(chi,p), 1); n = lg(P)-1;
+  *ptl = v? n+1: n; return gel(P,n);
 }
 
 /* Factor characteristic polynomial chi of phi mod p. If it splits, update
