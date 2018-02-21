@@ -81,7 +81,9 @@ Doc: sorts the vector $x$ in ascending order, using a mergesort method.
  @eprog\noindent This also provides the vector $T$ of all keys, which is
  interesting for instance in later \tet{vecsearch} calls: it is more
  efficient to sort $T$ (\kbd{T = vecextract(T, perm)}) then search for a key
- in \$T$ rather than to search in $v$ using a comparison function or a key.
+ in $T$ rather than to search in $v$ using a comparison function or a key.
+ Note also that \tet{mapisdefined} is often easier to use and faster than
+ \kbd{vecsearch}.
 
  \noindent The binary digits of \fl\ mean:
 
