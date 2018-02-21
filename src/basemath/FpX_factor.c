@@ -873,9 +873,8 @@ FpX_ddf(GEN T, GEN XP, GEN p)
 static void
 FpX_edf_simple(GEN Tp, GEN XP, long d, GEN p, GEN V, long idx)
 {
-  long n = degpol(Tp), r = n/d;
-  GEN T, f, ff;
-  GEN p2;
+  long n = degpol(Tp), r = n/d, ct = 0;
+  GEN T, f, ff, p2;
   if (r==1) { gel(V, idx) = Tp; return; }
   p2 = shifti(p,-1);
   T = FpX_get_red(Tp, p);
@@ -896,6 +895,7 @@ FpX_edf_simple(GEN Tp, GEN XP, long d, GEN p, GEN V, long idx)
       avma = btop2;
     }
     if (degpol(f) > 0 && degpol(f) < n) break;
+    if (++ct == 10 && !BPSW_psp(p)) pari_err_PRIME("FpX_edf_simple",p);
     avma = btop;
   }
   f = FpX_normalize(f, p);
@@ -909,9 +909,8 @@ FpX_edf_rec(GEN T, GEN hp, GEN t, long d, GEN p2, GEN p, GEN V, long idx)
 {
   pari_sp av;
   GEN Tp = get_FpX_mod(T);
-  long n = degpol(hp), vT = varn(Tp);
-  GEN u1, u2, f1, f2;
-  GEN R, h;
+  long n = degpol(hp), vT = varn(Tp), ct = 0;
+  GEN u1, u2, f1, f2, R, h;
   h = FpX_get_red(hp, p);
   t = FpX_rem(t, T, p);
   av = avma;
@@ -920,6 +919,7 @@ FpX_edf_rec(GEN T, GEN hp, GEN t, long d, GEN p2, GEN p, GEN V, long idx)
     avma = av;
     R = FpXQ_pow(deg1pol(gen_1, randomi(p), vT), p2, h, p);
     u1 = FpX_gcd(FpX_Fp_sub(R, gen_1, p), hp, p);
+    if (++ct == 10 && !BPSW_psp(p)) pari_err_PRIME("FpX_edf_rec",p);
   } while (degpol(u1)==0 || degpol(u1)==n);
   f1 = FpX_gcd(FpX_FpXQ_eval(u1, t, T, p), Tp, p);
   f1 = FpX_normalize(f1, p);
@@ -936,13 +936,14 @@ FpX_edf_rec(GEN T, GEN hp, GEN t, long d, GEN p2, GEN p, GEN V, long idx)
     FpX_edf_rec(FpX_get_red(f2, p), u2, t, d, p2, p, V, idx);
 }
 
+/* assume Tp a squarefree product of r > 1 irred. factors of degree d */
 static void
 FpX_edf(GEN Tp, GEN XP, long d, GEN p, GEN V, long idx)
 {
-  long n = degpol(Tp), r = n/d, vT = varn(Tp);
+  long n = degpol(Tp), r = n/d, vT = varn(Tp), ct = 0;
   GEN T, h, t;
   pari_timer ti;
-  if (r==1) { gel(V, idx) = Tp; return; }
+
   T = FpX_get_red(Tp, p);
   XP = FpX_rem(XP, T, p);
   if (DEBUGLEVEL>=7) timer_start(&ti);
@@ -953,6 +954,7 @@ FpX_edf(GEN Tp, GEN XP, long d, GEN p, GEN V, long idx)
     if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_edf: FpXQ_auttrace");
     h = FpXQ_minpoly(t, T, p);
     if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_edf: FpXQ_minpoly");
+    if (++ct == 10 && !BPSW_psp(p)) pari_err_PRIME("FpX_edf",p);
   } while (degpol(h) != r);
   FpX_edf_rec(T, h, t, d, shifti(p, -1), p, V, idx);
 }
