@@ -179,22 +179,29 @@ GEN
 charpoly(GEN x, long v)
 {
   GEN T, p = NULL;
+  long prec;
   if ((T = easychar(x,v))) return T;
-  if (RgM_is_ZM(x))
+  switch(RgM_type(x, &p,&T,&prec))
   {
-    T = ZM_charpoly(x);
-    setvarn(T, v);
+    case t_INT:
+      T = ZM_charpoly(x); setvarn(T, v); break;
+    case t_INTMOD:
+      if (!BPSW_psp(p)) T = carberkowitz(x, v);
+      else
+      {
+        pari_sp av = avma;
+        T = RgM_Fp_charpoly(x,p,v);
+        T = gerepileupto(av, FpX_to_mod(T,p));
+      }
+      break;
+    case t_REAL:
+    case t_COMPLEX:
+    case t_PADIC:
+      T = carhess(x, v);
+      break;
+    default:
+      T = carberkowitz(x, v);
   }
-  else if (RgM_is_FpM(x, &p) && BPSW_psp(p))
-  {
-    pari_sp av = avma;
-    T = RgM_Fp_charpoly(x,p,v);
-    T = gerepileupto(av, FpX_to_mod(T,p));
-  }
-  else if (isinexact(x))
-    T = carhess(x, v);
-  else
-    T = carberkowitz(x, v);
   return T;
 }
 
@@ -729,24 +736,36 @@ minpoly(GEN x, long v)
 /*                       HESSENBERG FORM                           */
 /*                                                                 */
 /*******************************************************************/
-GEN
-hess(GEN x)
+static int
+relative0(GEN a, GEN a0, long bit)
+{ return gequal0(a) || (bit && gexpo(a)-gexpo(a0) < bit); }
+/* assume x a non-empty square t_MAT */
+static GEN
+RgM_hess(GEN x0, long prec)
 {
-  pari_sp av = avma;
-  long lx = lg(x), m, i, j;
+  pari_sp av;
+  long lx = lg(x0), bit = prec? 8 - bit_accuracy(prec): 0, m, i, j;
+  GEN x;
 
-  if (typ(x) != t_MAT) pari_err_TYPE("hess",x);
-  if (lx == 1) return cgetg(1,t_MAT);
-  if (lgcols(x) != lx) pari_err_DIM("hess");
-
-  x = RgM_shallowcopy(x);
+  if (bit) x0 = RgM_shallowcopy(x0);
+  av = avma; x = RgM_shallowcopy(x0);
   for (m=2; m<lx-1; m++)
   {
     GEN t = NULL;
-    for (i=m+1; i<lx; i++) { t = gcoeff(x,i,m-1); if (!gequal0(t)) break; }
+    for (i=m+1; i<lx; i++)
+    {
+      t = gcoeff(x,i,m-1);
+      if (!relative0(t, gcoeff(x0,i,m-1), bit)) break;
+    }
     if (i == lx) continue;
     for (j=m-1; j<lx; j++) swap(gcoeff(x,i,j), gcoeff(x,m,j));
-    swap(gel(x,i), gel(x,m)); t = ginv(t);
+    swap(gel(x,i), gel(x,m));
+    if (bit)
+    {
+      for (j=m-1; j<lx; j++) swap(gcoeff(x0,i,j), gcoeff(x0,m,j));
+      swap(gel(x0,i), gel(x0,m));
+    }
+    t = ginv(t);
 
     for (i=m+1; i<lx; i++)
     {
@@ -765,7 +784,25 @@ hess(GEN x)
       }
     }
   }
-  return gerepilecopy(av,x);
+  return x;
+}
+
+GEN
+hess(GEN x)
+{
+  pari_sp av = avma;
+  GEN p = NULL, T = NULL;
+  long prec, lx = lg(x);
+  if (typ(x) != t_MAT) pari_err_TYPE("hess",x);
+  if (lx == 1) return cgetg(1,t_MAT);
+  if (lgcols(x) != lx) pari_err_DIM("hess");
+  switch(RgM_type(x, &p, &T, &prec))
+  {
+    case t_REAL:
+    case t_COMPLEX: break;
+    default: prec = 0;
+  }
+  return gerepilecopy(av, RgM_hess(x,prec));
 }
 
 GEN
@@ -839,18 +876,14 @@ FpM_hess(GEN x, GEN p)
   }
   return gerepilecopy(av,x);
 }
-GEN
-carhess(GEN x, long v)
+/* H in Hessenberg form */
+static GEN
+RgM_hess_charpoly(GEN H, long v)
 {
-  pari_sp av;
-  long lx, r, i;
-  GEN y, H;
-
-  if ((H = easychar(x,v))) return H;
-
-  lx = lg(x); av = avma; y = cgetg(lx+1, t_VEC);
-  gel(y,1) = pol_1(v); H = hess(x);
-  for (r = 1; r < lx; r++)
+  long n = lg(H), r, i;
+  GEN y = cgetg(n+1, t_VEC);
+  gel(y,1) = pol_1(v);
+  for (r = 1; r < n; r++)
   {
     pari_sp av2 = avma;
     GEN z, a = gen_1, b = pol_0(v);
@@ -864,7 +897,16 @@ carhess(GEN x, long v)
                 RgX_Rg_mul(gel(y,r), gcoeff(H,r,r)));
     gel(y,r+1) = gerepileupto(av2, RgX_sub(z, b)); /* (X - H[r,r])y[r] - b */
   }
-  return fix_pol(av, gel(y,lx));
+  return gel(y,n);
+}
+GEN
+carhess(GEN x, long v)
+{
+  pari_sp av;
+  GEN y;
+  if ((y = easychar(x,v))) return y;
+  av = avma; y = RgM_hess_charpoly(hess(x), v);
+  return fix_pol(av, y);
 }
 
 /* Bound for sup norm of charpoly(M/dM), M integral: let B = |M|oo / |dM|,
