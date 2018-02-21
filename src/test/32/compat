@@ -993,9 +993,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: factmod(x,p) ===> factormod(x,p)
 
-factormod(x,p,{flag=0}): factors the polynomial x modulo the prime p, using 
-Berlekamp. flag is optional, and can be 0: default or 1: only the degrees of 
-the irreducible factors are given.
+factormod(f,p,{flag=0}): factors the polynomial f modulo the prime p; flag is 
+optional, and can be 0: default or 1: only the degrees of the irreducible 
+factors are given.
 
 
   ***   at top-level: factoredbasis()
@@ -3638,9 +3638,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: simplefactmod(x,p) ===> factormod(x,p,1)
 
-factormod(x,p,{flag=0}): factors the polynomial x modulo the prime p, using 
-Berlekamp. flag is optional, and can be 0: default or 1: only the degrees of 
-the irreducible factors are given.
+factormod(f,p,{flag=0}): factors the polynomial f modulo the prime p; flag is 
+optional, and can be 0: default or 1: only the degrees of the irreducible 
+factors are given.
 
 
   ***   at top-level: size()
@@ -4524,4 +4524,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 8
+Total time spent: 10
