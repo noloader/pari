@@ -693,7 +693,7 @@ ellinit_nf(GEN x, GEN p)
   if (lg(x) > 6) x = vecslice(x,1,5);
   nf = checknf(p);
   x = nfVtoalg(nf, x);
-  if (!(y = initsmall(x, 4))) return NULL;
+  if (!(y = initsmall(x, 5))) return NULL;
   gel(y,14) = mkvecsmall(t_ELL_NF);
   gel(y,15) = mkvec(p);
   return y;
@@ -4845,6 +4845,31 @@ elltamagawa(GEN E)
 }
 
 static GEN
+ellnf_get_nf_prec(GEN E, long prec)
+{
+  GEN S, nf = ellnf_get_nf(E);
+  if (nf_get_prec(nf) >= prec) return nf;
+  if ((S = obj_check(E, NF_NF)) && nf_get_prec(S) >= prec) return S;
+  return obj_insert(E, NF_NF, nfnewprec_shallow(nf, prec));
+}
+/* true nf, use nf prec */
+static GEN
+nfembedall(GEN nf, GEN x)
+{
+  long r1, r2;
+  GEN cx;
+  nf_get_sign(nf,&r1,&r2);
+  x = nf_to_scalar_or_basis(nf,x);
+  if (typ(x) != t_COL) return const_vec(r1+r2, x);
+  x = Q_primitive_part(x, &cx);
+  x = RgM_RgC_mul(nf_get_M(nf), x);
+  if (cx) x = RgC_Rg_mul(x,cx);
+  return x;
+}
+static long
+nfembed_extraprec(GEN x)
+{ long e = gexpo(x); return e < 8? 0: nbits2extraprec(e); }
+static GEN
 ellnfembed(GEN E, long prec)
 {
   GEN E0, nf = ellnf_get_nf(E), Eb = cgetg(6, t_VEC), e = cgetg(6, t_VEC), L;
@@ -4852,12 +4877,12 @@ ellnfembed(GEN E, long prec)
 
   nf_get_sign(nf, &r1, &r2); n = r1+r2;
   E0 = RgC_to_nfC(nf, vecslice(E,1,5));
-  prec += nbits2extraprec(gexpo(E0));
-  if (nf_get_prec(nf) < prec) nf = nfnewprec_shallow(nf, prec);
+  prec += nfembed_extraprec(E0);
   L =  cgetg(n+1, t_VEC);
   for(;;)
   {
-    for (i=1; i<=5; i++) gel(Eb,i) = nfeltembed(nf,gel(E0,i),NULL);
+    nf = ellnf_get_nf_prec(E, prec);
+    for (i=1; i<=5; i++) gel(Eb,i) = nfembedall(nf,gel(E0,i));
     for (i=1; i<=n; i++)
     {
       GEN Ei, r;
@@ -4869,22 +4894,24 @@ ellnfembed(GEN E, long prec)
       if (!r) break;
     }
     if (i > n) return L;
+    prec = precdbl(prec);
     if (DEBUGLEVEL>1) pari_warn(warnprec,"ellnfembed", prec);
-    prec = precdbl(prec); nf = nfnewprec_shallow(nf, prec);
   }
 }
 
 static GEN
-ellpointnfembed(GEN E, GEN P)
+ellpointnfembed(GEN E, GEN P, long prec)
 {
-  pari_sp av = avma;
-  GEN nf = ellnf_get_nf(E);
-  GEN Px = nfeltembed(nf, gel(P,1), NULL);
-  GEN Py = nfeltembed(nf, gel(P,2), NULL);
-  long i, l = lg(Px);
-  GEN L =  cgetg(l, t_VEC);
+  GEN nf = ellnf_get_nf(E), Px, Py, L;
+  long i, l;
+  P = RgC_to_nfC(nf, P);
+  prec += nfembed_extraprec(P);
+  nf = ellnf_get_nf_prec(E, prec);
+  Px = nfembedall(nf, gel(P,1));
+  Py = nfembedall(nf, gel(P,2));
+  l = lg(Px); L =  cgetg(l, t_VEC);
   for(i = 1; i < l; i++) gel(L,i) = mkvec2(gel(Px,i), gel(Py,i));
-  return gerepilecopy(av, L);
+  return L;
 }
 
 static void
@@ -5962,7 +5989,7 @@ ellnf_height(GEN E, GEN P, long prec)
   d = idealnorm(nf, gel(idealnumden(nf, x), 2));
   F = gel(idealfactor(nf, disc), 1);
   Ee = ellnfembed(E, prec);
-  Pe = ellpointnfembed(E, P);
+  Pe = ellpointnfembed(E, P, prec);
   n = lg(Ee); l = lg(F);
   s = gmul2n(glog(d, prec), -1);
   for (i=1; i<=r1; i++)

@@ -1,12 +1,12 @@
 Function: nfeltembed
 Section: number_fields
 C-Name: nfeltembed
-Prototype: GGDG
+Prototype: GGDGp
 Help: nfeltembed(nf,x,{pl}): complex embeddings of x at places given
  by vector pl.
 Doc: given an element $x$ in the number field \var{nf}, return
  the (real or) complex embeddings of $x$ specified by optional argument
- \var{pl}:
+ \var{pl}, at the current \kbd{realprecision}:
 
  \item \var{pl} omitted: return the vector of embeddings at all $r_1+r_2$
  places;

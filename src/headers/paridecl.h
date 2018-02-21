@@ -2132,7 +2132,7 @@ GEN     nfdiv(GEN nf, GEN x, GEN y);
 GEN     nfdiveuc(GEN nf, GEN a, GEN b);
 GEN     nfdivrem(GEN nf, GEN a, GEN b);
 GEN     nfembed(GEN nf, GEN x, long k);
-GEN     nfeltembed(GEN nf, GEN x, GEN ind0);
+GEN     nfeltembed(GEN nf, GEN x, GEN ind0, long prec);
 GEN     nfeltsign(GEN nf, GEN x, GEN ind0);
 GEN     nfinv(GEN nf, GEN x);
 GEN     nfinvmodideal(GEN nf, GEN x, GEN ideal);
