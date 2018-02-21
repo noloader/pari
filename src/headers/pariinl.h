@@ -966,12 +966,12 @@ vecsmall_reverse(GEN A)
 INLINE void
 vecreverse_inplace(GEN y)
 {
-  long ly = lg(y), lim = ly>>1, i;
+  long l = lg(y), lim = l>>1, i;
   for (i = 1; i <= lim; i++)
   {
     GEN z = gel(y,i);
-    gel(y,i)    = gel(y,ly-i);
-    gel(y,ly-i) = z;
+    gel(y,i)    = gel(y,l-i);
+    gel(y,l-i) = z;
   }
 }
 
