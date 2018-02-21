@@ -2,13 +2,33 @@ Function: factormod
 Section: number_theoretical
 C-Name: factormod0
 Prototype: GGD0,L,
-Help: factormod(x,p,{flag=0}): factors the polynomial x modulo the prime p, using Berlekamp. flag is optional, and can be 0: default or 1:
- only the degrees of the irreducible factors are given.
-Doc: factors the polynomial $x$ modulo the prime integer $p$, using
- \idx{Berlekamp}. The coefficients of $x$ must be operation-compatible with
+Help: factormod(f,p,{flag=0}): factors the polynomial f modulo the prime p;
+ flag is optional, and can be 0: default or 1: only the degrees of the
+ irreducible factors are given.
+Doc: factors the polynomial $f$ modulo the prime integer $p$.
+ The coefficients of $f$ must be operation-compatible with
  $\Z/p\Z$. The result is a two-column matrix, the first column being the
- irreducible polynomials dividing $x$, and the second the exponents. If $\fl$
- is non-zero, outputs only the \emph{degrees} of the irreducible polynomials
- (for example, for computing an $L$-function). A different algorithm for
- computing the mod $p$ factorization is \kbd{factorcantor} which is sometimes
- faster.
+ irreducible polynomials dividing $f$, and the second the exponents.
+ By convention, the $0$ polynomial factors as $0^1$; a non-zero constant
+ polynomial has empty factorization, a $0\times 2$ matrix. The irreducible
+ factors are ordered by increasing degree and the result is canonical: it will
+ not change across multiple calls or sessions.
+
+ If $\fl$ is non-zero, outputs only the \emph{degrees} of the irreducible
+ polynomials (for example to compute an $L$-function). By convention, a
+ constant polynomial (including the $0$ polynomial) has empty factorization.
+ The degrees appear in increasing order but need not correspond to the
+ ordering with $\fl =0$ when multiplicities are present.
+ \bprog
+ ? f = x^3 + 2*x^2 + x + 2;
+ ? factormod(f, 5)  \\ (x+2)^2 * (x+3)
+ %1 =
+ [Mod(1, 5)*x + Mod(2, 5) 2]
+
+ [Mod(1, 5)*x + Mod(3, 5) 1]
+ ? factormod(f, 5, 1) \\ (deg 1) * (deg 1)^2
+ %2 =
+ [1 1]
+
+ [1 2]
+ @eprog

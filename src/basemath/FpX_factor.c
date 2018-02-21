@@ -1239,13 +1239,6 @@ prime_fact(GEN x) { retmkmat2(mkcolcopy(x), mkcol(gen_1)); }
 GEN
 trivial_fact(void) { retmkmat2(cgetg(1,t_COL), cgetg(1,t_COL)); }
 
-/* Mod(0,p) * x, where x is f's main variable */
-static GEN
-Mod0pX(GEN f, GEN p)
-{ return scalarpol(mkintmod(gen_0, p), varn(f)); }
-static GEN
-zero_fact_intmod(GEN f, GEN p) { return prime_fact(Mod0pX(f,p)); }
-
 /* not gerepile safe */
 static GEN
 FpX_factor_2(GEN f, GEN p, long d)
@@ -2231,38 +2224,6 @@ factcantor_i(GEN f, GEN pp, long flag)
   return FpX_factcantor_i(f, pp, flag);
 }
 
-static GEN
-factmod_aux(GEN f, GEN p, GEN (*Factor)(GEN,GEN,long), long flag)
-{
-  pari_sp av = avma;
-  long j, lfact;
-  GEN z, t, E, y, u, v;
-
-  factmod_init(&f, p);
-  switch(lg(f))
-  {
-    case 3: avma = av; return trivial_fact();
-    case 2: return gerepileupto(av, zero_fact_intmod(f, p));
-  }
-  z = Factor(f,p,flag); t = gel(z,1); E = gel(z,2);
-  lfact = lg(t); y = cgetg(3, t_MAT);
-  gel(y,1) = u = cgetg(lfact,t_COL);
-  gel(y,2) = v = cgetg(lfact,t_COL);
-  if (flag)
-    for (j=1; j<lfact; j++)
-    {
-      gel(u,j) = utoi(uel(t,j));
-      gel(v,j) = utoi(uel(E,j));
-    }
-  else
-    for (j=1; j<lfact; j++)
-    {
-      gel(u,j) = FpX_to_mod(gel(t,j), p);
-      gel(v,j) = utoi(uel(E,j));
-    }
-  return gerepileupto(av, y);
-}
-
 /* Use this function when you think f is reducible, and that there are lots of
  * factors. If you believe f has few factors, use FpX_nbfact(f,p)==1 instead */
 int
@@ -2668,9 +2629,8 @@ FpX_Berlekamp_i(GEN f, GEN p, long flag)
 }
 
 static GEN
-FpX_factor_i(GEN f, GEN p, long flag)
+FpX_factor_i(GEN f, GEN p)
 {
-  (void) flag;
   if (typ(f) == t_VECSMALL)
   {/* lgefint(p) == 3 */
     ulong pp = p[2];
@@ -2692,7 +2652,7 @@ FpX_factor(GEN f, GEN p)
 {
   pari_sp av = avma;
   ZX_factmod_init(&f, p);
-  return gerepilecopy(av, FpX_factor_i(f, p, 0));
+  return gerepilecopy(av, FpX_factor_i(f, p));
 }
 
 GEN
@@ -2709,12 +2669,50 @@ F2x_factor(GEN f)
   return gerepilecopy(av, F2x_Berlekamp_i(f, 0));
 }
 
+static GEN
+factmod_aux(GEN fa, GEN p)
+{
+  GEN P = gel(fa,1), E = gel(fa,2), y = cgetg(3, t_MAT), u;
+  gel(y,2) = Flc_to_ZC(E);
+  if (typ(P) == t_VECSMALL) u = Flc_to_ZC(P);
+  else
+  {
+    long j, l = lg(P);
+    u = cgetg(l,t_COL);
+    for (j = 1; j < l; j++) gel(u,j) = FpX_to_mod(gel(P,j), p);
+  }
+  gel(y,1) = u; return y;
+}
+/* [Mod(0,p) * x^0]~ */
+static GEN
+Mod0pC(long v, GEN p)
+{ retmkcol(scalarpol_shallow(mkintmod(gen_0, icopy(p)), v)); }
+static GEN
+zero_fact_intmod(long v, GEN p) { retmkmat2(Mod0pC(v,p), mkcol(gen_1)); }
 GEN
 factcantor0(GEN f, GEN p, long flag)
-{ return factmod_aux(f, p, &factcantor_i, flag); }
+{
+  pari_sp av = avma;
+  factmod_init(&f,p);
+  switch(lg(f))
+  {
+    case 2: avma = av; if (!flag) return zero_fact_intmod(varn(f),p);
+    case 3: avma = av; return trivial_fact();
+  }
+  return gerepileupto(av, factmod_aux(factcantor_i(f,p,flag), p));
+}
 GEN
 factmod(GEN f, GEN p)
-{ return factmod_aux(f, p, &FpX_factor_i, 0); }
+{
+  pari_sp av = avma;
+  factmod_init(&f,p);
+  switch(lg(f))
+  {
+    case 2: avma = av; return zero_fact_intmod(varn(f),p);
+    case 3: avma = av; return trivial_fact();
+  }
+  return gerepileupto(av, factmod_aux(FpX_factor_i(f,p), p));
+}
 
 GEN
 factormod0(GEN f, GEN p, long flag)
