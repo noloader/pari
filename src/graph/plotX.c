@@ -294,6 +294,7 @@ gp_get_display_sizes(long *dwidth, long *dheight, long *fwidth, long *fheight)
     int screen = DefaultScreen(display);
     *dwidth  = DisplayWidth(display, screen);
     *dheight = DisplayHeight(display, screen);
+    XCloseDisplay(display);
   }
   else
   {
