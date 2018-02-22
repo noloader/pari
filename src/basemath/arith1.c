@@ -2266,6 +2266,7 @@ Fp_sqrt_i(GEN a, GEN y, GEN p)
   p1 = subiu(p,1); e = vali(p1);
   if (e <= 2)
   { /* direct formulas more efficient */
+    pari_sp av2;
     if (e == 0) pari_err_PRIME("Fp_sqrt [modulus]",p); /* p != 2 */
     if (e == 1)
     {
@@ -2281,8 +2282,9 @@ Fp_sqrt_i(GEN a, GEN y, GEN p)
       i = Fp_mul(a2, Fp_sqr(v,p), p); /* i^2 = -1 */
       v = Fp_mul(a, Fp_mul(v, subiu(i,1), p), p);
     }
+    av2 = avma;
     /* must check equality in case (a/p) = -1 or p not prime */
-    e = equalii(Fp_sqr(v,p), a); avma = (pari_sp)v;
+    e = equalii(Fp_sqr(v,p), a); avma = av2;
     return e? gerepileuptoint(av,choose_sqrt(v,p)): NULL;
   }
   /* On average, Cipolla is better than Tonelli/Shanks if and only if
