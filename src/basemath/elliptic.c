@@ -641,12 +641,14 @@ base_ring(GEN x, GEN *pp, long *prec)
   *pp = p; *prec = (t == t_PADIC)? ep: e; return t;
 }
 
-/* s = 0 complex, else real and s = sign(D) */
+/* s = 0 complex, else real;
+ * if (s = 2) set s = sign(D), else accept s as is */
 static GEN
 ellinit_Rg(GEN x, long s, long prec)
 {
   GEN y;
   if (!(y = initsmall(x, 4))) return NULL;
+  if (s == 2) s = gsigne(ell_get_disc(y));
   gel(y,14) = mkvecsmall(t_ELL_Rg);
   gel(y,15) = mkvec(mkvecsmall2(prec2nbits(prec), s));
   return y;
@@ -785,7 +787,7 @@ ellinit(GEN x, GEN D, long prec)
     y = ellinit_Q(x, prec);
     break;
   case t_REAL:
-    y = ellinit_Rg(x, gsigne(ell_get_disc(x)), prec);
+    y = ellinit_Rg(x, 2, prec);
     break;
   case t_VEC:
     y = ellinit_nf(x, D);
