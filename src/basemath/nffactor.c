@@ -28,8 +28,7 @@ enum { FACTORS = 0, ROOTS, ROOTS_SPLIT };
  * P maximal ideal above p */
 typedef struct {
   long k;    /* input known mod P^k */
-  GEN p, pk; /* p^k */
-  GEN den;   /* denom(prk^-1) = p^k [ assume pr unramified ] */
+  GEN p, pk; /* p^k = denom(prk^-1) [ assume pr unramified ]*/
   GEN prk;   /* |.|^2 LLL-reduced basis (b_i) of P^k  (NOT T2-reduced) */
   GEN prkHNF;/* HNF basis of P^k */
   GEN iprk;  /* den * prk^-1 */
@@ -463,12 +462,12 @@ nf_bestlift(GEN elt, GEN bound, nflift_t *L)
   {
     if (t == t_POL) elt = ZM_ZX_mul(L->tozk, elt);
     u = ZM_ZC_mul(L->iprk,elt);
-    for (i=1; i<l; i++) gel(u,i) = diviiround(gel(u,i), L->den);
+    for (i=1; i<l; i++) gel(u,i) = diviiround(gel(u,i), L->pk);
   }
   else
   {
     u = ZC_Z_mul(gel(L->iprk,1), elt);
-    for (i=1; i<l; i++) gel(u,i) = diviiround(gel(u,i), L->den);
+    for (i=1; i<l; i++) gel(u,i) = diviiround(gel(u,i), L->pk);
     elt = scalarcol(elt, l-1);
   }
   u = ZC_sub(elt, ZM_ZC_mul(L->prk, u));
@@ -894,7 +893,7 @@ init_trace(trace_data *T, GEN S, nflift_t *L, GEN q)
   S1 = gdivround(S, q);
   if (gequal0(S1)) return NULL;
 
-  invd = invr(itor(L->den, DEFAULTPREC));
+  invd = invr(itor(L->pk, DEFAULTPREC));
 
   T->dPinvS = ZM_mul(L->iprk, S);
   l = lg(S);
@@ -910,7 +909,7 @@ init_trace(trace_data *T, GEN S, nflift_t *L, GEN q)
     avma = av;
   }
 
-  T->d  = L->den;
+  T->d  = L->pk;
   T->P1 = gdivround(L->prk, q);
   T->S1 = S1; return T;
 }
@@ -1345,7 +1344,7 @@ bestlift_init(long a, GEN nf, GEN C, nflift_t *L)
     err_printf("for this exponent, GSmin = %Ps\nTime reduction: %ld\n",
       GSmin, timer_delay(&ti));
   L->k = a;
-  L->den = L->pk = pk;
+  L->pk = pk;
   L->prk = PRK;
   L->iprk = ZM_inv(PRK, NULL);
   L->GSmin= GSmin;
@@ -1519,8 +1518,9 @@ AGAIN:
     if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nf_LLL_cmbf");
-      gerepileall(av, L->Tpk? 9: 8,
-                      &CM_L,&TT,&Tra,&famod,&L->pk,&L->GSmin,&L->prk,&L->iprk,&L->Tpk);
+      gerepileall(av, L->Tpk? 8: 7,
+                      &CM_L,&TT,&Tra,&famod,&L->GSmin,&L->prk,&L->iprk,&L->Tpk);
+      L->pk = gcoeff(L->prk,1,1);
     }
   }
   if (DEBUGLEVEL>2)
