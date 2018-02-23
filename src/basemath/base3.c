@@ -1834,7 +1834,6 @@ nfeltsign(GEN nf, GEN x, GEN ind0)
   settyp(v, t_VEC);
   for (i = 1; i < l; i++) gel(v,i) = v[i]? gen_m1: gen_1;
   return gerepileupto(av, v);
-
 }
 
 GEN
