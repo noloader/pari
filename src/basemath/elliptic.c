@@ -4879,6 +4879,9 @@ ellnfembed(GEN E, long prec)
   nf_get_sign(nf, &r1, &r2); n = r1+r2;
   E0 = RgC_to_nfC(nf, vecslice(E,1,5));
   prec += nfembed_extraprec(E0);
+  /* need accuracy 3b for bmodel to ensure roots are correct to b bits */
+  prec0 = prec;
+  prec += (prec-2)*3 + nfembed_extraprec(E0);
   L =  cgetg(n+1, t_VEC);
   sD = nfeltsign(nf, ell_get_disc(E), identity_perm(r1));
   for(;;)
