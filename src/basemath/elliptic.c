@@ -641,13 +641,12 @@ base_ring(GEN x, GEN *pp, long *prec)
   *pp = p; *prec = (t == t_PADIC)? ep: e; return t;
 }
 
+/* s = 0 complex, else real and s = sign(D) */
 static GEN
-ellinit_Rg(GEN x, int real, long prec)
+ellinit_Rg(GEN x, long s, long prec)
 {
   GEN y;
-  long s;
   if (!(y = initsmall(x, 4))) return NULL;
-  s = real? gsigne( ell_get_disc(y) ): 0;
   gel(y,14) = mkvecsmall(t_ELL_Rg);
   gel(y,15) = mkvec(mkvecsmall2(prec2nbits(prec), s));
   return y;
@@ -786,7 +785,7 @@ ellinit(GEN x, GEN D, long prec)
     y = ellinit_Q(x, prec);
     break;
   case t_REAL:
-    y = ellinit_Rg(x, 1, prec);
+    y = ellinit_Rg(x, gsigne(ell_get_disc(x)), prec);
     break;
   case t_VEC:
     y = ellinit_nf(x, D);
@@ -4872,13 +4871,14 @@ nfembed_extraprec(GEN x)
 static GEN
 ellnfembed(GEN E, long prec)
 {
-  GEN E0, nf = ellnf_get_nf(E), Eb = cgetg(6, t_VEC), e = cgetg(6, t_VEC), L;
+  GEN E0, nf = ellnf_get_nf(E), Eb = cgetg(6,t_VEC), e = cgetg(6,t_VEC), L, sD;
   long prec0 = prec, r1, r2, n, i;
 
   nf_get_sign(nf, &r1, &r2); n = r1+r2;
   E0 = RgC_to_nfC(nf, vecslice(E,1,5));
   prec += nfembed_extraprec(E0);
   L =  cgetg(n+1, t_VEC);
+  sD = nfeltsign(nf, ell_get_disc(E), identity_perm(r1));
   for(;;)
   {
     nf = ellnf_get_nf_prec(E, prec);
@@ -4888,7 +4888,7 @@ ellnfembed(GEN E, long prec)
       GEN Ei, r;
       long j;
       for (j=1; j<=5; j++) gel(e,j) = gmael(Eb,j,i);
-      gel(L,i) = Ei = ellinit_Rg(e, i<=r1, prec);
+      gel(L,i) = Ei = ellinit_Rg(e, i<=r1? signe(gel(sD,i)): 0, prec);
       if (!Ei) break;
       r = doellR_roots_i(Ei, prec, prec0);
       if (!r) break;
