@@ -1244,14 +1244,19 @@ ZqX_normalize(GEN P, GEN lt, nflift_t *L)
 /* return log [  2sqrt(C/d) * ( (3/2)sqrt(gamma) )^(d-1) ] ^d / log N(pr)
  * cf. Belabas relative van Hoeij algorithm, lemma 3.12 */
 static double
-bestlift_bound(GEN C, long d, double alpha, GEN Npr)
+bestlift_bound(GEN C, long d, double alpha, GEN p, long f)
 {
-  const double y = 1 / (alpha - 0.25); /* = 2 if alpha = 3/4 */
-  double t;
-  C = gtofp(C,DEFAULTPREC);
+  const double g = 1 / (alpha - 0.25); /* = 2 if alpha = 3/4 */
+  GEN C4 = shiftr(gtofp(C,DEFAULTPREC), 2);
+  double t, logp = log(gtodouble(p));
+  if (f == d)
+  { /* p inert, no LLL fudge factor: p^(2k) / 4 > C */
+    t = 0.5 * rtodbl(mplog(C4));
+    return ceil(t / logp);
+  }
   /* (1/2)log (4C/d) + (d-1)(log 3/2 sqrt(gamma)) */
-  t = rtodbl(mplog(gmul2n(divru(C,d), 2))) * 0.5 + (d-1) * log(1.5 * sqrt(y));
-  return ceil((t * d) / log(gtodouble(Npr)));
+  t = 0.5 * rtodbl(mplog(divru(C4,d))) + (d-1) * log(1.5 * sqrt(g));
+  return ceil((t * d) / (logp * f));
 }
 
 static GEN
@@ -1294,7 +1299,8 @@ init_proj(nflift_t *L, GEN nfT)
 
 /* Square of the radius of largest ball inscript in PRK's fundamental domain,
  *   whose orthogonalized vector's norms are the Bi
- * Rmax ^2 =  min 1/4T_i where T_i = sum ( s_ij^2 / B_j) */
+ * Rmax ^2 =  min 1/4T_i where T_i = sum_j ( s_ij^2 / B_j)
+ * For p inert, S = Id, T_i = 1 / p^{2k} and Rmax = p^k / 2 */
 static GEN
 max_radius(GEN PRK, GEN B)
 {
@@ -1319,34 +1325,43 @@ bestlift_init(long a, GEN nf, GEN C, nflift_t *L)
   const double alpha = 0.99; /* LLL parameter */
   const long d = nf_get_degree(nf);
   pari_sp av = avma, av2;
-  GEN prk, PRK, B, GSmin, pk;
-  GEN T = L->Tp, p = L->p, q, Tq;
-  GEN normp = powiu(p, degpol(T));
+  GEN prk, PRK, iPRK, GSmin, T = L->Tp, p = L->p;
+  long f = degpol(T);
   pari_timer ti;
 
+  if (f == d)
+  { /* inert p, much simpler */
+    long a0 = bestlift_bound(C, d, alpha, p, f);
+    GEN q;
+    if (a < a0) a = a0; /* guarantees GSmin >= C */
+    if (DEBUGLEVEL>2) err_printf("exponent %ld\n",a);
+    q = powiu(p,a);
+    PRK = prk = scalarmat_shallow(q, d);
+    GSmin = shiftr(itor(q, DEFAULTPREC), -1);
+    iPRK = matid(d); goto END;
+  }
   timer_start(&ti);
-  if (!a) a = (long)bestlift_bound(C, d, alpha, normp);
-
+  if (!a) a = (long)bestlift_bound(C, d, alpha, p, f);
   for (;; avma = av, a += (a==1)? 1: (a>>1)) /* roughly a *= 1.5 */
   {
+    GEN B, q = powiu(p,a), Tq = FpXQ_powu(T, a, FpX_red(nf_get_pol(nf), q), q);
     if (DEBUGLEVEL>2) err_printf("exponent %ld\n",a);
-    q = powiu(p, a);
-    Tq = FpXQ_powu(T, a, FpX_red(nf_get_pol(nf), q), q);
     prk = idealhnf_two(nf, mkvec2(q, Tq));
     av2 = avma;
-    pk = gcoeff(prk,1,1);
     PRK = ZM_lll_norms(prk, alpha, LLL_INPLACE, &B);
     GSmin = max_radius(PRK, B);
     if (gcmp(GSmin, C) >= 0) break;
   }
   gerepileall(av2, 2, &PRK, &GSmin);
+  iPRK = ZM_inv(PRK, NULL);
   if (DEBUGLEVEL>2)
     err_printf("for this exponent, GSmin = %Ps\nTime reduction: %ld\n",
-      GSmin, timer_delay(&ti));
+               GSmin, timer_delay(&ti));
+END:
   L->k = a;
-  L->pk = pk;
+  L->pk = gcoeff(prk,1,1);
   L->prk = PRK;
-  L->iprk = ZM_inv(PRK, NULL);
+  L->iprk = iPRK;
   L->GSmin= GSmin;
   L->prkHNF = prk;
   init_proj(L, nf_get_pol(nf));
@@ -1881,7 +1896,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
     return z;
   }
 
-  T.fact = gel(L.Tp ? FqX_factor(polred, L.Tp, L.p): FpX_factor(polred, L.p), 1);
+  T.fact = gel(FqX_factor(polred, L.Tp, L.p), 1);
   if (DEBUGLEVEL>2)
     timer_printf(&ti, "splitting mod %Ps^%ld", L.p, degpol(L.Tp));
   T.L  = &L;
@@ -1958,13 +1973,6 @@ static double
 mybestlift_bound(GEN C)
 {
   C = gtofp(C,DEFAULTPREC);
-#if 0 /* d = nf degree, Npr = Norm(pr) */
-  const double alpha = 0.99; /* LLL parameter */
-  const double y = 1 / (alpha - 0.25); /* = 2 if alpha = 3/4 */
-  double t;
-  t = rtodbl(mplog(gmul2n(divru(C,d), 4))) * 0.5 + (d-1) * log(1.5 * sqrt(y));
-  return ceil((t * d) / log(gtodouble(Npr))); /* proved upper bound */
-#endif
   return ceil(log(gtodouble(C)) / 0.2) + 3;
 }
 
