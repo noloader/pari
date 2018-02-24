@@ -271,6 +271,7 @@ forpart_next(forpart_t *T)
     if (n==0) return NULL;
     vi = T->amin;
     i = T->strip ? 1 : n + 1 - T->nmin; /* first non-zero index */
+    if (s <= (n-i)*vi) return NULL;
   }
   /* now fill [ v[i],... v[n] ] with s, start at vi */
   vn = s - (n-i)*vi; /* expected value for v[n] */

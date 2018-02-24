@@ -173,8 +173,8 @@ BA  129- default(strictargs,1); my(a=2);(f(b,c)=123);f(1) => SEGV [#2004]
     144- vecsort / vecsearch: comparison function was required to assume
          integral values; allow t_INT, t_FRAC or t_REAL
     145- mathess was very unstable, and so was charpoly(,,2) [#2010]
-    146- memory corruption in nffactor [#2013]; N.B. the example given doesn't
-         trigger the bug in 2.9 but it is latent in the code.
+    146- memory corruption in nffactor [#2013]
+BA  147- partitions(1,[0,5],[3,4]) -> incorrect result
 
   Added
       1- [libari] ZM_isidentity
