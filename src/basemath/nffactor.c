@@ -1646,21 +1646,19 @@ get_maxf(long nfdeg)
   return maxf;
 }
 
-/* Select a prime ideal pr over which to factor polbase.
- * Return the number of factors (or roots, according to flag fl) mod pr,
- * Input:
- *   ct: number of attempts to find best
+/* Select a prime ideal pr over which to factor pol.
+ * Return the number of factors (or roots, according to flag fl) mod pr.
  * Set:
  *   lt: leading term of polbase (t_INT or NULL [ for 1 ])
  *   pr: a suitable maximal ideal
  *   Fa: factors found mod pr
  *   Tp: polynomial defining Fq/Fp */
 static long
-nf_pick_prime(long ct, GEN nf, GEN pol, long fl,
-              GEN *lt, GEN *Tp, ulong *pp)
+nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
 {
   GEN nfpol = nf_get_pol(nf), bad = mulii(nf_get_disc(nf), nf_get_index(nf));
   long maxf, nfdeg = degpol(nfpol), dpol = degpol(pol), nbf = 0;
+  long ct = nfdeg * dpol > 128 ? 10: 5; /* number of attempts to find best */
   ulong p;
   forprime_t S;
   pari_timer ti_pr;
@@ -1700,8 +1698,7 @@ nf_pick_prime(long ct, GEN nf, GEN pol, long fl,
     {
       if (ltp) red = FlxqX_normalize(red, T, p);
       if (!FlxqX_is_squarefree(red, T, p)) { avma = av2; continue; }
-      anbf = fl == FACTORS? FlxqX_nbfact(red, T, p)
-                          : FlxqX_nbroots(red, T, p);
+      anbf = fl == FACTORS? FlxqX_nbfact(red, T,p): FlxqX_nbroots(red, T,p);
     }
     if (fl == ROOTS_SPLIT && anbf < dpol) return anbf;
     if (anbf <= 1)
@@ -1714,8 +1711,7 @@ nf_pick_prime(long ct, GEN nf, GEN pol, long fl,
           anbf, fl == FACTORS?"factors": "roots", p,degpol(T), timer_delay(&ti_pr));
 
     if (fl == ROOTS && degpol(T)==nfdeg) { *Tp = T; *pp = p; return anbf; }
-    if (!nbf || anbf < nbf
-             || (anbf == nbf && degpol(T) > degpol(*Tp)))
+    if (!nbf || anbf < nbf || (anbf == nbf && degpol(T) > degpol(*Tp)))
     {
       nbf = anbf;
       *Tp = T;
@@ -1844,7 +1840,7 @@ nfsqff(GEN nf, GEN pol, long fl, GEN den)
   }
 
   polbase = RgX_to_nfX(nf, pol);
-  nbf = nf_pick_prime(5, nf, pol, fl, &lt, &L.Tp, &pp);
+  nbf = nf_pick_prime(nf, pol, fl, &lt, &L.Tp, &pp);
   if (L.Tp)
   {
     L.Tp = Flx_to_ZX(L.Tp);
