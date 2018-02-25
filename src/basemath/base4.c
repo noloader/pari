@@ -2151,7 +2151,7 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
   }
   yZ = gcoeff(y,1,1);
   y = idealHNF_mul(nf,x, idealHNF_inv_Z(nf,y));
-  return gerepileupto(av, RgM_Rg_div(y, yZ));
+  return gerepileupto(av, ZM_Z_divexact(y, yZ));
 }
 
 GEN
