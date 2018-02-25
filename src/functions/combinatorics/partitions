@@ -43,10 +43,11 @@ Doc: returns the vector of partitions of the integer $k$ as a sum of positive
  %3 = [Vecsmall([4]), Vecsmall([1, 3]), Vecsmall([2, 2])]
  @eprog\noindent
  By default, parts are positive and we remove zero entries unless
- $amin\leq0$, in which case $nmin$ is ignored and $X$ is of constant length
- $\var{nmax}$:
+ $amin\leq0$, in which case $nmin$ is ignored and we fix $\#X = \var{nmax}$:
  \bprog
  ? partitions(4, [0,3])  \\ parts between 0 and 3
  %1 = [Vecsmall([0, 0, 1, 3]), Vecsmall([0, 0, 2, 2]),\
        Vecsmall([0, 1, 1, 2]), Vecsmall([1, 1, 1, 1])]
+ ? partitions(1, [0,3], [2,4]) \\ no partition with 2 to 4 non-zero parts
+ %2 = []
  @eprog

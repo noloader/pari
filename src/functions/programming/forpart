@@ -28,12 +28,16 @@ Doc: evaluate \var{seq} over the partitions $X=[x_1,\dots x_n]$ of the
  integer $k$, i.e.~increasing sequences $x_1\leq x_2\dots \leq x_n$ of sum
  $x_1+\dots + x_n=k$. By convention, $0$ admits only the empty partition and
  negative numbers have no partitions. A partition is given by a
- \typ{VECSMALL}, where parts are sorted in nondecreasing order:
+ \typ{VECSMALL}, where parts are sorted in nondecreasing order. The
+ partitions are listed by increasing size and in lexicographic order when
+ sizes are equal:
  \bprog
- ? forpart(X=3, print(X))
- Vecsmall([3])
- Vecsmall([1, 2])
- Vecsmall([1, 1, 1])
+ ? forpart(X=4, print(X))
+ Vecsmall([4])
+ Vecsmall([1, 3])
+ Vecsmall([2, 2])
+ Vecsmall([1, 1, 2])
+ Vecsmall([1, 1, 1, 1])
  @eprog\noindent Optional parameters $n$ and $a$ are as follows:
 
  \item $n=\var{nmax}$ (resp. $n=[\var{nmin},\var{nmax}]$) restricts
@@ -46,10 +50,10 @@ Doc: evaluate \var{seq} over the partitions $X=[x_1,\dots x_n]$ of the
  $\var{amax}$).
 
  By default, parts are positive and we remove zero entries unless $amin\leq0$,
- in which case $X$ is of constant length $\var{nmax}$.
+ in which case we fix the size $\#X = \var{nmax}$:
  \bprog
  \\ at most 3 non-zero parts, all <= 4
- ? forpart(v=5,print(Vec(v)),4,3)
+ ? forpart(v=5,print(Vec(v)), 4, 3)
  [1, 4]
  [2, 3]
  [1, 1, 3]
@@ -62,6 +66,10 @@ Doc: evaluate \var{seq} over the partitions $X=[x_1,\dots x_n]$ of the
  [0, 1, 1, 3]
  [0, 1, 2, 2]
  [1, 1, 1, 2]
+
+ \\ no partitions of 1 with 2 to 4 non-zero parts
+ ? forpart(v=1,print(v),[0,5],[2,4])
+ ?
  @eprog\noindent
  The behavior is unspecified if $X$ is modified inside the loop.
 
