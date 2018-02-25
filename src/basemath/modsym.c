@@ -538,15 +538,18 @@ Qevproj_init0(GEN M)
   return NULL;
 }
 
-/* T an n x n QM, stabilizing d-dimensional Q-vector space spanned by the
- * columns of M, pro = Qevproj_init(M). Return d x d matrix of T acting
- * on M */
-GEN
-Qevproj_apply(GEN T, GEN pro)
+/* T an n x n QM, pro = Qevproj_init(M), pro2 = Qevproj_init(M2); TM \subset M2.
+ * Express these column vectors on M2's basis */
+static GEN
+Qevproj_apply2(GEN T, GEN pro, GEN pro2)
 {
-  GEN M = gel(pro,1), iM = gel(pro,2), ciM = gel(pro,3), perm = gel(pro,4);
+  GEN M = gel(pro,1), iM = gel(pro2,2), ciM = gel(pro2,3), perm = gel(pro2,4);
   return RgM_Rg_div(RgM_mul(iM, RgM_mul(rowpermute(T,perm), M)), ciM);
 }
+/* T an n x n QM, stabilizing d-dimensional Q-vector space spanned by the
+ * d columns of M, pro = Qevproj_init(M). Return dxd matrix of T acting on M */
+GEN
+Qevproj_apply(GEN T, GEN pro) { return Qevproj_apply2(T, pro, pro); }
 /* Qevproj_apply(T,pro)[,k] */
 GEN
 Qevproj_apply_vecei(GEN T, GEN pro, long k)
@@ -783,12 +786,6 @@ msqexpansion(GEN W, GEN proV, ulong B)
   return gerepilecopy(av, msqexpansion_i(W,proV,B));
 }
 
-static GEN
-Qevproj_apply2(GEN T, GEN pro1, GEN pro2)
-{
-  GEN M = gel(pro1,1), iM = gel(pro2,2), ciM = gel(pro2,3), perm = gel(pro2,4);
-  return RgM_Rg_div(RgM_mul(iM, RgM_mul(rowpermute(T,perm), M)), ciM);
-}
 static GEN
 Qevproj_apply0(GEN T, GEN pro)
 {
