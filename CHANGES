@@ -162,19 +162,19 @@ BA  120- matsupplement(Mod(matrix(5,1),2)) --> SEGV [#1996]
     128- QX_complex_roots(a*x^n,) => SEGV
 BA  129- default(strictargs,1); my(a=2);(f(b,c)=123);f(1) => SEGV [#2004]
     130- factor(0.*x + 1) -> SEGV [#2005]
-    140- sinh(x close to 0) -> loss of accuracy
-    141- sinc(0.*I) -> division by 0
-    142- wrong result in bnfinit due to loss of accuracy and unsufficient
+    131- sinh(x close to 0) -> loss of accuracy
+    132- sinc(0.*I) -> division by 0
+    133- wrong result in bnfinit due to loss of accuracy and unsufficient
          heuristics to detect it [#2007].
          {setrand(2);p=x^8-1661000*x^6+967427199776*x^4-230628391373468096*x^2
           +19278898978723566612544;bnfinit(p).cyc}
          => [60,2,2,2,2,2,2,2,2,2] instead of [6,2]
-    143- nffactor(y^8-y^6+y^4-y^2+1,x^4-1) -> concatenation error [#2009]
-    144- vecsort / vecsearch: comparison function was required to assume
+    134- nffactor(y^8-y^6+y^4-y^2+1,x^4-1) -> concatenation error [#2009]
+    135- vecsort / vecsearch: comparison function was required to assume
          integral values; allow t_INT, t_FRAC or t_REAL
-    145- mathess was very unstable, and so was charpoly(,,2) [#2010]
-    146- memory corruption in nffactor [#2013]
-BA  147- partitions(1,[0,5],[3,4]) -> incorrect result
+    136- mathess was very unstable, and so was charpoly(,,2) [#2010]
+    137- memory corruption in nffactor [#2013]
+BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
 
   Added
       1- [libari] ZM_isidentity
