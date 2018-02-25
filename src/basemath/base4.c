@@ -2114,7 +2114,7 @@ GEN
 idealdivexact(GEN nf, GEN x0, GEN y0)
 {
   pari_sp av = avma;
-  GEN x, y, yZ, Nx, Ny, Nz, cy, q, r;
+  GEN x, y, xZ, yZ, Nx, Ny, Nz, cy, q, r;
 
   nf = checknf(nf);
   x = idealhnf_shallow(nf, x0);
@@ -2123,6 +2123,8 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
   if (lg(x) == 1) { avma = av; return cgetg(1, t_MAT); } /* numerator is zero */
   y = Q_primitive_part(y, &cy);
   if (cy) x = RgM_Rg_div(x,cy);
+  xZ = gcoeff(x,1,1); if (typ(xZ) != t_INT) err_divexact(x,y);
+  yZ = gcoeff(y,1,1); if (isint1(yZ)) return gerepilecopy(av, x);
   Nx = idealnorm(nf,x);
   Ny = idealnorm(nf,y);
   if (typ(Nx) != t_INT) err_divexact(x,y);
@@ -2137,12 +2139,16 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
     Nz = diviiexact(Nz,p1);
     q = mulii(q,p1);
   }
-  /* Replace x/y  by  x+(Nx/Nz) / y+(Ny/Nz) */
-  x = ZM_hnfmodid(x, q);
-  /* y reduced to unit ideal ? */
-  if (Nz == Ny) return gerepileupto(av, x);
+  xZ = gcoeff(x,1,1); q = gcdii(q, xZ);
+  if (!equalii(xZ,q))
+  { /* Replace x/y  by  x+(Nx/Nz) / y+(Ny/Nz) */
+    x = ZM_hnfmodid(x, q);
+    /* y reduced to unit ideal ? */
+    if (Nz == Ny) return gerepileupto(av, x);
 
-  y = ZM_hnfmodid(y, diviiexact(Ny,Nz));
+    yZ = gcoeff(y,1,1); q = gcdii(diviiexact(Ny,Nz), yZ);
+    y = ZM_hnfmodid(y, q);
+  }
   yZ = gcoeff(y,1,1);
   y = idealHNF_mul(nf,x, idealHNF_inv_Z(nf,y));
   return gerepileupto(av, RgM_Rg_div(y, yZ));

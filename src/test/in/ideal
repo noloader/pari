@@ -27,6 +27,7 @@ idealprincipalunits(Qi,P,10)
 idealprincipalunits(Qi,P,1)
 idealintersect(Qi, 1/2,1/2)
 ideallog(Q,1/2,idealstar(Q,3,1))
+idealdiv(Qi,7*x-1,3*x+1,1)
 
 K=nfinit(x^2-236*x+13384);\\ Q(sqrt(60)), in disguise
 idealhnf(K, qfbprimeform(60,2))
