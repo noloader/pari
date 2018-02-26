@@ -121,8 +121,11 @@ static GEN
 Flx_cut_out_roots(GEN f, ulong p)
 {
   GEN g = Flx_mod_Xnm1(f, p-1, p); /* f mod x^(p-1) - 1 */
-  if (g != f && degpol(g) >= 0) {
-    (void)Flx_valrem(g, &g); /* reduction may introduce 0 root */
+  long d = degpol(g);
+  /* reduction may introduce 0 root */
+  if (g != f && d >= 0) { (void)Flx_valrem(g, &g); d = degpol(g); }
+  if (d >= (p >> 1))
+  {
     g = Flx_gcd(g, Flx_Xnm1(g[1], p-1, p), p);
     g = Flx_normalize(g, p);
   }
@@ -1318,40 +1321,45 @@ F2x_factor_deg2(GEN f, long d, long flag)
   }
 }
 
+/* xt = NULL or x^(p-1)/2 mod g */
 static void
-split_squares(struct split_t *S, GEN g, ulong p)
+split_squares(struct split_t *S, GEN g, ulong p, GEN xt)
 {
   ulong q = p >> 1;
   GEN a = Flx_mod_Xnm1(g, q, p); /* mod x^(p-1)/2 - 1 */
-  if (degpol(a) < 0)
+  long d = degpol(a);
+  if (d < 0)
   {
     ulong i;
     split_add_done(S, (GEN)1);
     for (i = 2; i <= q; i++) split_add_done(S, (GEN)Fl_sqr(i,p));
   } else {
-    (void)Flx_valrem(a, &a);
-    if (degpol(a))
+    if (a != g) { (void)Flx_valrem(a, &a); d = degpol(a); }
+    if (d)
     {
-      a = Flx_gcd(a, Flx_Xnm1(g[1], q, p), p);
+      if (xt) xt = Flx_Fl_add(xt, p-1, p); else xt = Flx_Xnm1(g[1], q, p);
+      a = Flx_gcd(a, xt, p);
       if (degpol(a)) split_add(S, Flx_normalize(a, p));
     }
   }
 }
 static void
-split_nonsquares(struct split_t *S, GEN g, ulong p)
+split_nonsquares(struct split_t *S, GEN g, ulong p, GEN xt)
 {
   ulong q = p >> 1;
   GEN a = Flx_mod_Xn1(g, q, p); /* mod x^(p-1)/2 + 1 */
-  if (degpol(a) < 0)
+  long d = degpol(a);
+  if (d < 0)
   {
     ulong i, z = Fl_nonsquare(p);
     split_add_done(S, (GEN)z);
     for (i = 2; i <= q; i++) split_add_done(S, (GEN)Fl_mul(z, Fl_sqr(i,p), p));
   } else {
-    (void)Flx_valrem(a, &a);
-    if (degpol(a))
+    if (a != g) { (void)Flx_valrem(a, &a); d = degpol(a); }
+    if (d)
     {
-      a = Flx_gcd(a, Flx_Xn1(g[1], q, p), p);
+      if (xt) xt = Flx_Fl_add(xt, 1, p); else xt = Flx_Xn1(g[1], q, p);
+      a = Flx_gcd(a, xt, p);
       if (degpol(a)) split_add(S, Flx_normalize(a, p));
     }
   }
@@ -1366,11 +1374,11 @@ split_Flx_cut_out_roots(struct split_t *S, GEN f, ulong p)
   if (d < 0) return 0;
   if (g != f) { (void)Flx_valrem(g, &g); d = degpol(g); } /*kill powers of x*/
   if (!d) return 1;
-  if (p <= 1.4 * (ulong)d) {
-    /* small p; split further using x^((p-1)/2) +/- 1.
-     * 30% degree drop makes the extra gcd worth it. */
-    split_squares(S, g, p);
-    split_nonsquares(S, g, p);
+  if ((p >> 4) <= d)
+  { /* small p; split directly using x^((p-1)/2) +/- 1 */
+    GEN xt = (d < (p>>1))? Flx_rem(monomial_Flx(1, p>>1, g[1]), g, p): NULL;
+    split_squares(S, g, p, xt);
+    split_nonsquares(S, g, p, xt);
   } else { /* large p; use x^(p-1) - 1 directly */
     a = Flxq_powu(polx_Flx(f[1]), p-1, g,p);
     if (lg(a) < 3) pari_err_PRIME("rootmod",utoipos(p));
