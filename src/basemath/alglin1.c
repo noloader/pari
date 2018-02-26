@@ -4860,33 +4860,6 @@ init_suppl(GEN x)
   (void)new_chunk(lgcols(x) * 2);
 }
 
-/* x is an n x k matrix, rank(x) = k <= n. Return an invertible n x n matrix
- * whose first k columns are given by x. If rank(x) < k, undefined result. */
-GEN
-suppl(GEN x)
-{
-  pari_sp av = avma;
-  GEN d, X = x, p = NULL, ff = NULL;
-  long r;
-
-  if (typ(x)!=t_MAT) pari_err_TYPE("suppl",x);
-  if (RgM_is_FpM(x, &p) && p)
-  {
-    ulong pp;
-    x = RgM_Fp_init(x, p, &pp);
-    switch(pp)
-    {
-    case 0: x = FpM_to_mod(FpM_suppl(x,p), p); break;
-    case 2: x = F2m_to_mod(F2m_suppl(x)); break;
-    default:x = Flm_to_mod(Flm_suppl(x,pp), pp); break;
-    }
-    return gerepileupto(av, x);
-  }
-  if (RgM_is_FFM(x, &ff)) return FFM_suppl(x, ff);
-  avma = av; init_suppl(x);
-  d = gauss_pivot(X,&r);
-  avma = av; return get_suppl(X,d,nbrows(X),r,&col_ei);
-}
 GEN
 FpM_suppl(GEN x, GEN p)
 {
@@ -4914,6 +4887,50 @@ F2m_suppl(GEN x)
   return get_suppl(x,d,mael(x,1,1),r,&F2v_ei);
 }
 
+static GEN
+RgM_suppl_FpM(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp;
+  x = RgM_Fp_init(x, p, &pp);
+  switch(pp)
+  {
+  case 0: x = FpM_to_mod(FpM_suppl(x,p), p); break;
+  case 2: x = F2m_to_mod(F2m_suppl(x)); break;
+  default:x = Flm_to_mod(Flm_suppl(x,pp), pp); break;
+  }
+  return gerepileupto(av, x);
+}
+
+static GEN
+RgM_suppl_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x,&p,&pol,&pa);
+  switch(t)
+  {
+    case t_INTMOD: return RgM_suppl_FpM(x, p);
+    case t_FFELT:  return FFM_suppl(x, pol);
+    default:       return NULL;
+  }
+}
+
+/* x is an n x k matrix, rank(x) = k <= n. Return an invertible n x n matrix
+ * whose first k columns are given by x. If rank(x) < k, undefined result. */
+GEN
+suppl(GEN x)
+{
+  pari_sp av = avma;
+  GEN d, M;
+  long r;
+  if (typ(x)!=t_MAT) pari_err_TYPE("suppl",x);
+  M = RgM_suppl_fast(x);
+  if (M) return M;
+  init_suppl(x);
+  d = gauss_pivot(x,&r);
+  avma = av; return get_suppl(x,d,nbrows(x),r,&col_ei);
+}
 /* variable number to be filled in later */
 static GEN
 _FlxC_ei(long n, long i)
