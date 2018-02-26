@@ -5606,10 +5606,6 @@ that \kbd{p} is prime.
 \fun{ulong}{Flx_oneroot_split}{GEN f, ulong p} as \kbd{Flx\_oneroot} but
 assume $f$ is totally split.
 
-\fun{GEN}{Flx_roots_naive}{GEN f, ulong p} returns the vector of roots
-of $f$ as a \typ{VECSMALL} (multiple roots are not repeated), found
-by an exhaustive search. Efficient for very small $p$ !
-
 \fun{long}{Flx_ispower}{GEN f, ulong k, ulong p, GEN *pt}
 return $1$ if the \kbd{Flx} $f$ is a $k$-th power, $0$ otherwise.
 If \kbd{pt} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
@@ -6496,8 +6492,7 @@ from the modular kernel, then \kbd{*\_to\_mod}:
 
 \fun{GEN}{rootmod}{GEN f, GEN p}, applies \kbd{FpX\_roots}.
 
-\fun{GEN}{rootmod2}{GEN f, GEN p}, applies \kbd{ZX\_to\_flx} then
-\kbd{Flx\_roots\_naive}.
+\fun{GEN}{rootmod2}{GEN f, GEN p}, (now) identical to \kbd{rootmod}.
 
 \fun{GEN}{factmod}{GEN f, GEN p} applies \kbd{FpX\_factor}.
 

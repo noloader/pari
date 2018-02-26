@@ -3508,9 +3508,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: rootmod(x,p) ===> polrootsmod(x,p)
 
-polrootsmod(pol,p,{flag=0}): roots mod the prime p of the polynomial pol. flag 
-is optional, and can be 0: default, or 1: use a naive search, useful for small 
-p.
+polrootsmod(pol,p): roots mod the prime p of the polynomial pol.
 
 
   ***   at top-level: rootmod2()
@@ -3518,11 +3516,9 @@ p.
   ***   not a function in function call
 A function with that name existed in GP-1.39.15. Please update your script.
 
-New syntax: rootmod2(x,p) ===> polrootsmod(x,p,1)
+New syntax: rootmod2(x,p) ===> polrootsmod(x,p)
 
-polrootsmod(pol,p,{flag=0}): roots mod the prime p of the polynomial pol. flag 
-is optional, and can be 0: default, or 1: use a naive search, useful for small 
-p.
+polrootsmod(pol,p): roots mod the prime p of the polynomial pol.
 
 
   ***   at top-level: rootpadic()
@@ -4524,4 +4520,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 8

@@ -525,7 +525,7 @@ static const whatnow_t whatnowlist[]={
 {"rnfpseudobasis",_SAME},
 {"rnfsteinitz",_SAME},
 {"rootmod","polrootsmod","(x,p)","(x,p)"},
-{"rootmod2","polrootsmod","(x,p)","(x,p,1)"},
+{"rootmod2","polrootsmod","(x,p)","(x,p)"},
 {"rootpadic","polrootspadic","(x,p,r)","(x,p,r)"},
 {"roots","polroots","(x)","(x)"},
 {"rootsof1","nfrootsof1","(nf)","(nf)"},

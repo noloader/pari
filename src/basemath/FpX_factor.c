@@ -115,50 +115,6 @@ Fl_nonsquare(ulong p)
   }
 }
 
-/* f monic Flx, f(0) != 0. Return a monic squarefree g with the same
- * roots as f */
-static GEN
-Flx_cut_out_roots(GEN f, ulong p)
-{
-  GEN g = Flx_mod_Xnm1(f, p-1, p); /* f mod x^(p-1) - 1 */
-  long d = degpol(g);
-  /* reduction may introduce 0 root */
-  if (g != f && d >= 0) { (void)Flx_valrem(g, &g); d = degpol(g); }
-  if (d >= (p >> 1))
-  {
-    g = Flx_gcd(g, Flx_Xnm1(g[1], p-1, p), p);
-    g = Flx_normalize(g, p);
-  }
-  return g;
-}
-
-/* by checking f(0..p-1) */
-GEN
-Flx_roots_naive(GEN f, ulong p)
-{
-  long d, n = 0;
-  ulong s = 1UL, r;
-  GEN q, y = cgetg(degpol(f) + 1, t_VECSMALL);
-  pari_sp av2, av = avma;
-
-  if (Flx_valrem(f, &f)) y[++n] = 0;
-  f = Flx_cut_out_roots(f, p);
-  d = degpol(f);
-  if (d < 0) return all_roots_mod_p(p, n == 0);
-  av2 = avma;
-  while (d > 1) /* d = current degree of f */
-  {
-    q = Flx_div_by_X_x(f, s, p, &r); /* TODO: FFT-type multi-evaluation */
-    if (r) avma = av2; else { y[++n] = s; d--; f = q; av2 = avma; }
-    if (++s == p) break;
-  }
-  if (d == 1)
-  { /* -f[2]/f[3], root of deg 1 polynomial */
-    r = Fl_mul(p - Fl_inv(f[3], p), f[2], p);
-    if (r >= s) y[++n] = r; /* otherwise double root */
-  }
-  avma = av; fixlg(y, n+1); return y;
-}
 static GEN
 Flx_root_mod_2(GEN f)
 {
@@ -230,20 +186,11 @@ FpX_roots(GEN f, GEN pp)
 { return rootmod_aux(f, pp, Flx_roots_i, 0); }
 /* no assumptions on f and pp */
 GEN
-rootmod2(GEN f, GEN pp) { return rootmod_aux(f, pp, &Flx_roots_naive, 1); }
-GEN
 rootmod(GEN f, GEN pp) { return rootmod_aux(f, pp, &Flx_roots_i, 1); }
+/* OBSOLETE */
 GEN
 rootmod0(GEN f, GEN p, long flag)
-{
-  switch(flag)
-  {
-    case 0: return rootmod(f,p);
-    case 1: return rootmod2(f,p);
-    default: pari_err_FLAG("polrootsmod");
-  }
-  return NULL; /* LCOV_EXCL_LINE */
-}
+{ (void)flag; return rootmod(f,p); }
 
 /* assume x reduced mod p > 2, monic. */
 static int
