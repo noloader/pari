@@ -1645,7 +1645,16 @@ get_maxf(long nfdeg)
   else if (nfdeg >= 15) maxf = 8;
   return maxf;
 }
-
+/* number of maximal ideals to test before settling on best prime and number
+ * of factors; B = [K:Q]*deg(P) */
+static long
+get_nbprimes(long B)
+{
+  if (B <= 128) return 5;
+  if (B <= 1024) return 10;
+  if (B <= 2048) return 15;
+  return 20;
+}
 /* Select a prime ideal pr over which to factor pol.
  * Return the number of factors (or roots, according to flag fl) mod pr.
  * Set:
@@ -1657,8 +1666,8 @@ static long
 nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
 {
   GEN nfpol = nf_get_pol(nf), bad = mulii(nf_get_disc(nf), nf_get_index(nf));
-  long maxf, nfdeg = degpol(nfpol), dpol = degpol(pol), nbf = 0;
-  long ct = nfdeg * dpol > 128 ? 10: 5; /* number of attempts to find best */
+  long nfdeg = degpol(nfpol), dpol = degpol(pol), nbf = 0;
+  long maxf = get_maxf(nfdeg), ct = get_nbprimes(nfdeg * dpol);
   ulong p;
   forprime_t S;
   pari_timer ti_pr;
@@ -1668,8 +1677,6 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
   if (gequal1(*lt)) *lt = NULL;
   *pp = 0;
   *Tp = NULL;
-
-  maxf = get_maxf(nfdeg);
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   /* select pr such that pol has the smallest number of factors, ct attempts */
   while ((p = u_forprime_next(&S)))
