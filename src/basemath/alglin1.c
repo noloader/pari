@@ -4428,27 +4428,67 @@ matker0(GEN x,long flag)
   return ZM_ker(x);
 }
 
+static GEN
+RgM_image_FpM(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp;
+  x = RgM_Fp_init(x, p, &pp);
+  switch(pp)
+  {
+    case 0: x = FpM_to_mod(FpM_image(x,p),p); break;
+    case 2: x = F2m_to_mod(F2m_image(x)); break;
+    default:x = Flm_to_mod(Flm_image(x,pp), pp); break;
+  }
+  return gerepileupto(av, x);
+}
+
+static GEN
+RgM_image_FqM(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  GEN b = FqM_image(RgM_to_FqM(x, T, p), T, p);
+  return gerepileupto(av, FqM_to_mod(b, T, p));
+}
+
+static GEN
+QM_image(GEN A)
+{
+  pari_sp av = avma;
+  GEN M = vecpermute(A, ZM_indeximage(vec_Q_primpart(A)));
+  return gerepilecopy(av, M);
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgM_image_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    /* fall through */
+    case t_FRAC:   return QM_image(x);
+    case t_FFELT:  return FFM_image(x, pol);
+    case t_INTMOD: return RgM_image_FpM(x, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_image_FqM(x, pol, p);
+    default:       return NULL;
+  }
+}
+#undef code
+
 GEN
 image(GEN x)
 {
-  pari_sp av = avma;
-  GEN d, ff = NULL, p = NULL;
+  GEN d, M;
   long r;
 
   if (typ(x)!=t_MAT) pari_err_TYPE("matimage",x);
-  if (RgM_is_FpM(x, &p) && p)
-  {
-    ulong pp;
-    x = RgM_Fp_init(x, p, &pp);
-    switch(pp)
-    {
-    case 0: x = FpM_to_mod(FpM_image(x,p), p); break;
-    case 2: x = F2m_to_mod(F2m_image(x)); break;
-    default:x = Flm_to_mod(Flm_image(x,pp), pp);
-    }
-    return gerepileupto(av, x);
-  }
-  if (RgM_is_FFM(x, &ff)) return FFM_image(x, ff);
+  M = RgM_image_fast(x);
+  if (M) return M;
   d = gauss_pivot(x,&r); /* d left on stack for efficiency */
   return image_from_pivot(x,d,r);
 }
