@@ -1913,3 +1913,8 @@ algsplittingmatrix(al,[1+y-y]~)
 algsplittingmatrix(al,[1/2]~)
 algsplittingmatrix(al,[Mod(1/2,y)]~)
 
+\\al_MATRIX sqr bug
+al = algtableinit([matid(2),[0,0;1,0]],2);
+m = [[1,1]~,[1,0]~;[0,1]~,[0,0]~];
+type(algsqr(al,m))=="t_MAT"
+

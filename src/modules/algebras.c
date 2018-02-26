@@ -1712,10 +1712,10 @@ algsqr(GEN al, GEN x)
   long tx;
   checkalg(al);
   tx = alg_model(al,x);
+  if (tx==al_MATRIX) return gerepilecopy(av,alM_mul(al,x,x));
   if (signe(alg_get_char(al))) return algbasismul(al,x,x);
   if (tx==al_TRIVIAL) retmkcol(gsqr(gel(x,1)));
   if (tx==al_ALGEBRAIC) return algalgmul(al,x,x);
-  if (tx==al_MATRIX) return gerepilecopy(av,alM_mul(al,x,x));
   return gerepileupto(av,algbasismul(al,x,x));
 }
 
