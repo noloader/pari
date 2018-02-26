@@ -150,18 +150,13 @@ cmpGuGu(GEN a, GEN b) { return (ulong)a < (ulong)b? -1: (a == b? 0: 1); }
  * if (gpwrap), check types thoroughly and return t_INTMODs, otherwise
  * assume that f is an FpX, pp a prime and return t_INTs */
 static GEN
-rootmod_aux(GEN f, GEN pp, GEN (*Roots)(GEN,ulong), int gpwrap)
+rootmod_aux(GEN f, GEN pp)
 {
-  pari_sp av = avma;
   GEN y;
-  if (gpwrap)
-    factmod_init(&f, pp);
-  else
-    ZX_factmod_init(&f, pp);
   switch(lg(f))
   {
     case 2: pari_err_ROOTS0("rootmod");
-    case 3: avma = av; return cgetg(1,t_COL);
+    case 3: return cgetg(1,t_COL);
   }
   if (typ(f) == t_VECSMALL)
   {
@@ -171,26 +166,33 @@ rootmod_aux(GEN f, GEN pp, GEN (*Roots)(GEN,ulong), int gpwrap)
     else
     {
       if (!odd(p)) pari_err_PRIME("rootmod",utoi(p));
-      y = Roots(f, p);
+      y = Flx_roots_i(f, p);
     }
     y = Flc_to_ZC(y);
   }
   else
     y = FpX_roots_i(f, pp);
-  if (gpwrap) y = FpC_to_mod(y, pp);
+  return y;
+}
+/* assume that f is a ZX and p a prime */
+GEN
+FpX_roots(GEN f, GEN p)
+{
+  pari_sp av = avma;
+  GEN y; ZX_factmod_init(&f, p); y = rootmod_aux(f, p);
   return gerepileupto(av, y);
 }
-/* assume that f is a ZX an pp a prime */
+/* no assumptions on f and p */
 GEN
-FpX_roots(GEN f, GEN pp)
-{ return rootmod_aux(f, pp, Flx_roots_i, 0); }
-/* no assumptions on f and pp */
-GEN
-rootmod(GEN f, GEN pp) { return rootmod_aux(f, pp, &Flx_roots_i, 1); }
+rootmod(GEN f, GEN p)
+{
+  pari_sp av = avma;
+  GEN y; factmod_init(&f, p); y = rootmod_aux(f, p);
+  return gerepileupto(av, FpC_to_mod(y,p));
+}
 /* OBSOLETE */
 GEN
-rootmod0(GEN f, GEN p, long flag)
-{ (void)flag; return rootmod(f,p); }
+rootmod0(GEN f, GEN p, long flag) { (void)flag; return rootmod(f,p); }
 
 /* assume x reduced mod p > 2, monic. */
 static int
