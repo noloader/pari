@@ -1529,13 +1529,13 @@ AGAIN:
       if (DEBUGLEVEL>2) ti_CF += timer_delay(&ti);
       if (list) break;
     }
-    CM_L = gerepilecopy(av2, CM_L);
-    if (gc_needed(av,1))
+    if (!gc_needed(av,1)) CM_L = gerepilecopy(av2, CM_L);
+    else
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nf_LLL_cmbf");
       gerepileall(av, L->Tpk? 8: 7,
                       &CM_L,&TT,&Tra,&famod,&L->GSmin,&L->prk,&L->iprk,&L->Tpk);
-      L->pk = gcoeff(L->prk,1,1);
+      L->pk = gcoeff(L->prkHNF,1,1);
     }
   }
   if (DEBUGLEVEL>2)
