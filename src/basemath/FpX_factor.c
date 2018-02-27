@@ -2027,6 +2027,7 @@ Flx_isirred_Cantor(GEN Tp, ulong p)
   avma = av; return d==n;
 }
 
+/* f monic */
 static GEN
 Flx_factor_i(GEN f, ulong pp, long flag)
 {
@@ -2097,18 +2098,27 @@ Flx_nbfact(GEN T, ulong p)
 }
 
 int
-Flx_is_irred(GEN f, ulong p) { return !!Flx_factor_i(f,p,2); }
+Flx_is_irred(GEN f, ulong p)
+{
+  pari_sp av = avma;
+  int z = !!Flx_factor_i(Flx_normalize(f,p),p,2);
+  avma = av; return z;
+}
 
 /* Use this function when you think f is reducible, and that there are lots of
  * factors. If you believe f has few factors, use FpX_nbfact(f,p)==1 instead */
 int
-FpX_is_irred(GEN f, GEN p) {
+FpX_is_irred(GEN f, GEN p)
+{
+  pari_sp av = avma;
+  int z;
   switch(ZX_factmod_init(&f,p))
   {
-    case 0:  return !!F2x_factor_i(f,2);
-    case 1:  return !!Flx_factor_i(f,p[2],2);
-    default: return !!FpX_factor_i(f,p,2);
+    case 0:  z = !!F2x_factor_i(f,2); break;
+    case 1:  z = !!Flx_factor_i(f,p[2],2); break;
+    default: z = !!FpX_factor_i(f,p,2); break;
   }
+  avma = av; return z;
 }
 GEN
 FpX_degfact(GEN f, GEN p) {
