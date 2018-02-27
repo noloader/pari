@@ -1673,15 +1673,6 @@ F2x_factcantor_i(GEN f, long flag)
 }
 
 GEN
-F2x_factcantor(GEN f, long flag)
-{
-  pari_sp av = avma;
-  GEN z = F2x_factcantor_i(f, flag);
-  if (flag == 2) { avma = av; return z; }
-  return gerepilecopy(av, z);
-}
-
-GEN
 F2x_degfact(GEN f)
 {
   pari_sp av = avma;

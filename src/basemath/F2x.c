@@ -1083,7 +1083,7 @@ F2x_is_smooth(GEN g, long r)
 static GEN
 F2x_factorel(GEN h)
 {
-  GEN F = F2x_factcantor(h, 0);
+  GEN F = F2x_factor(h);
   GEN F1 = gel(F, 1), F2 = gel(F, 2);
   long i, l1 = lg(F1)-1;
   GEN p2 = cgetg(l1+1, t_VECSMALL);

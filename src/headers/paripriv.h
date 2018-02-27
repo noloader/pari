@@ -718,7 +718,6 @@ GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
 /* FpX_factor.c */
 
-GEN     F2x_factcantor(GEN f, long flag);
 long    ddf_to_nbfact(GEN D);
 GEN     ddf_to_simplefact(GEN D, long n);
 GEN     factcantor0(GEN f, GEN pp, long flag);
