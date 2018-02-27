@@ -5066,27 +5066,61 @@ matimage0(GEN x,long flag)
   return NULL; /* LCOV_EXCL_LINE */
 }
 
+static long
+RgM_rank_FpM(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp;
+  long r;
+  x = RgM_Fp_init(x,p,&pp);
+  switch(pp)
+  {
+  case 0: r = FpM_rank(x,p); break;
+  case 2: r = F2m_rank(x); break;
+  default:r = Flm_rank(x,pp); break;
+  }
+  avma = av; return r;
+}
+
+static long
+RgM_rank_FqM(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  long r = FqM_rank(RgM_to_FqM(x, T, p), T, p);
+  avma = av;
+  return r;
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static long
+RgM_rank_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x,&p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZM_rank(x);
+    case t_FRAC:   return QM_rank(x);
+    case t_INTMOD: return RgM_rank_FpM(x, p);
+    case t_FFELT:  return FFM_rank(x, pol);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_rank_FqM(x, pol, p);
+    default:       return -1;
+  }
+}
+#undef code
+
 long
 rank(GEN x)
 {
   pari_sp av = avma;
   long r;
-  GEN ff = NULL, p = NULL;
 
   if (typ(x)!=t_MAT) pari_err_TYPE("rank",x);
-  if (RgM_is_FpM(x, &p) && p)
-  {
-    ulong pp;
-    x = RgM_Fp_init(x,p,&pp);
-    switch(pp)
-    {
-    case 0: r = FpM_rank(x,p); break;
-    case 2: r = F2m_rank(x); break;
-    default:r = Flm_rank(x,pp); break;
-    }
-    avma = av; return r;
-  }
-  if (RgM_is_FFM(x, &ff)) return FFM_rank(x, ff);
+  r = RgM_rank_fast(x);
+  if (r >= 0) return r;
   (void)gauss_pivot(x, &r);
   avma = av; return lg(x)-1 - r;
 }
