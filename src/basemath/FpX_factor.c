@@ -1080,7 +1080,7 @@ static GEN FpX_factor_deg2(GEN f, GEN p, long d, long flag);
 
 /*Assume that p is large and odd*/
 static GEN
-FpX_factcantor_i(GEN f, GEN pp, long flag)
+FpX_factor_i(GEN f, GEN pp, long flag)
 {
   long d = degpol(f);
   if (d <= 2) return FpX_factor_deg2(f,pp,d,flag);
@@ -1660,7 +1660,7 @@ F2x_isirred_Cantor(GEN T)
 }
 
 static GEN
-F2x_factcantor_i(GEN f, long flag)
+F2x_factor_i(GEN f, long flag)
 {
   long d = F2x_degree(f);
   if (d <= 2) return F2x_factor_deg2(f,d,flag);
@@ -1676,12 +1676,12 @@ GEN
 F2x_degfact(GEN f)
 {
   pari_sp av = avma;
-  GEN z = F2x_factcantor_i(f, 1);
+  GEN z = F2x_factor_i(f, 1);
   return gerepilecopy(av, z);
 }
 
 int
-F2x_is_irred(GEN f) { return !!F2x_factcantor_i(f, 2); }
+F2x_is_irred(GEN f) { return !!F2x_factor_i(f, 2); }
 
 /* Adapted from Shoup NTL */
 GEN
@@ -2028,11 +2028,11 @@ Flx_isirred_Cantor(GEN Tp, ulong p)
 }
 
 static GEN
-Flx_factcantor_i(GEN f, ulong pp, long flag)
+Flx_factor_i(GEN f, ulong pp, long flag)
 {
   long d;
   if (pp==2) { /*We need to handle 2 specially */
-    GEN F = F2x_factcantor_i(Flx_to_F2x(f),flag);
+    GEN F = F2x_factor_i(Flx_to_F2x(f),flag);
     if (flag==0) F2xV_to_FlxV_inplace(gel(F,1));
     return F;
   }
@@ -2050,7 +2050,7 @@ GEN
 Flx_degfact(GEN f, ulong p)
 {
   pari_sp av = avma;
-  GEN z = Flx_factcantor_i(Flx_normalize(f,p),p,1);
+  GEN z = Flx_factor_i(Flx_normalize(f,p),p,1);
   return gerepilecopy(av, z);
 }
 
@@ -2097,7 +2097,7 @@ Flx_nbfact(GEN T, ulong p)
 }
 
 int
-Flx_is_irred(GEN f, ulong p) { return !!Flx_factcantor_i(f,p,2); }
+Flx_is_irred(GEN f, ulong p) { return !!Flx_factor_i(f,p,2); }
 
 /* Use this function when you think f is reducible, and that there are lots of
  * factors. If you believe f has few factors, use FpX_nbfact(f,p)==1 instead */
@@ -2105,9 +2105,9 @@ int
 FpX_is_irred(GEN f, GEN p) {
   switch(ZX_factmod_init(&f,p))
   {
-    case 0:  return !!F2x_factcantor_i(f,2);
-    case 1:  return !!Flx_factcantor_i(f,p[2],2);
-    default: return !!FpX_factcantor_i(f,p,2);
+    case 0:  return !!F2x_factor_i(f,2);
+    case 1:  return !!Flx_factor_i(f,p[2],2);
+    default: return !!FpX_factor_i(f,p,2);
   }
 }
 GEN
@@ -2116,9 +2116,9 @@ FpX_degfact(GEN f, GEN p) {
   GEN F;
   switch(ZX_factmod_init(&f,p))
   {
-    case 0:  F = F2x_factcantor_i(f,1); break;
-    case 1:  F = Flx_factcantor_i(f,p[2],1); break;
-    default: F = FpX_factcantor_i(f,p,1); break;
+    case 0:  F = F2x_factor_i(f,1); break;
+    case 1:  F = Flx_factor_i(f,p[2],1); break;
+    default: F = FpX_factor_i(f,p,1); break;
   }
   return gerepilecopy(av, F);
 }
@@ -2154,11 +2154,11 @@ FpX_factor(GEN f, GEN p)
   GEN F;
   switch(ZX_factmod_init(&f, p))
   {
-    case 0:  F = F2x_factcantor_i(f,0);
+    case 0:  F = F2x_factor_i(f,0);
              F2xV_to_ZXV_inplace(gel(F,1)); break;
-    case 1:  F = Flx_factcantor_i(f,p[2],0);
+    case 1:  F = Flx_factor_i(f,p[2],0);
              FlxV_to_ZXV_inplace(gel(F,1)); break;
-    default: F = FpX_factcantor_i(f,p,0); break;
+    default: F = FpX_factor_i(f,p,0); break;
   }
   return gerepilecopy(av, F);
 }
@@ -2167,13 +2167,13 @@ GEN
 Flx_factor(GEN f, ulong p)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, Flx_factcantor_i(f,p,0));
+  return gerepilecopy(av, Flx_factor_i(f,p,0));
 }
 GEN
 F2x_factor(GEN f)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, F2x_factcantor_i(f,0));
+  return gerepilecopy(av, F2x_factor_i(f,0));
 }
 
 GEN
@@ -2184,14 +2184,14 @@ factcantor0(GEN f, GEN p, long flag)
   if (!flag) return factmod(f, p);
   factmod_init(&f,p);
   if (lg(f) <= 3) { avma = av; return trivial_fact(); }
-  if (typ(f) == t_POL) F = FpX_factcantor_i(f, p, 1);
+  if (typ(f) == t_POL) F = FpX_factor_i(f, p, 1);
   else
   { /* lgefint(p) = 3 */
     ulong pp = p[2];
     if (pp==2)
-      F = F2x_factcantor_i(Flx_to_F2x(f), 1);
+      F = F2x_factor_i(Flx_to_F2x(f), 1);
     else
-      F = Flx_factcantor_i(f,pp, 1);
+      F = Flx_factor_i(f,pp, 1);
   }
   return gerepileupto(av, Flm_to_ZM(F));
 }
@@ -2220,7 +2220,7 @@ factmod(GEN f, GEN p)
     case 2: avma = av; return zero_fact_intmod(varn(f),p);
     case 3: avma = av; return trivial_fact();
   }
-  if (typ(f) == t_POL) F = FpX_factcantor_i(f,p,0);
+  if (typ(f) == t_POL) F = FpX_factor_i(f,p,0);
   else
   {/* lgefint(p) == 3 */
     ulong pp = p[2];
