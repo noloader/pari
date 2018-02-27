@@ -1282,9 +1282,10 @@ split_Flx_cut_out_roots(struct split_t *S, GEN f, ulong p)
   if (d < 0) return 0;
   if (g != f) { (void)Flx_valrem(g, &g); d = degpol(g); } /*kill powers of x*/
   if (!d) return 1;
-  if ((p >> 4) <= d)
+  if ((p >> 4) <= (ulong)d)
   { /* small p; split directly using x^((p-1)/2) +/- 1 */
-    GEN xt = (d < (p>>1))? Flx_rem(monomial_Flx(1, p>>1, g[1]), g, p): NULL;
+    GEN xt = ((ulong)d < (p>>1))? Flx_rem(monomial_Flx(1, p>>1, g[1]), g, p)
+                                : NULL;
     split_squares(S, g, p, xt);
     split_nonsquares(S, g, p, xt);
   } else { /* large p; use x^(p-1) - 1 directly */
