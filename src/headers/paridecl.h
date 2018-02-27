@@ -1526,6 +1526,7 @@ GEN     FqM_mul(GEN a, GEN b, GEN T, GEN p);
 long    FqM_rank(GEN a, GEN T, GEN p);
 GEN     FqM_suppl(GEN x, GEN T, GEN p);
 GEN     QM_gauss(GEN a, GEN b);
+GEN     QM_indexrank(GEN x);
 GEN     QM_inv(GEN M);
 long    QM_rank(GEN x);
 GEN     RgM_Fp_init(GEN a, GEN p, ulong *pp);

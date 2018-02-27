@@ -8036,18 +8036,9 @@ underlying \tet{detint}.
 \fun{GEN}{ZM_charpoly}{GEN M} returns the characteristic polynomial (in
 variable $0$) of the \kbd{ZM} $M$.
 
-\fun{GEN}{QM_charpoly_ZX}{GEN M} returns the characteristic polynomial
-(in variable $0$) of the \kbd{QM} $M$, assuming that the result has integer
-coefficients.
-
-\fun{GEN}{QM_charpoly_ZX_bound}{GEN M, long b} as \tet{QM_charpoly_ZX}
-assuming that the sup norm of the (integral) result is $\leq 2^b$.
-
 \fun{GEN}{ZM_imagecompl}{GEN x} returns \kbd{matimagecompl(x)}.
 
 \fun{long}{ZM_rank}{GEN x} returns \kbd{matrank(x)}.
-
-\fun{long}{QM_rank}{GEN x} returns \kbd{matrank(x)}.
 
 \fun{GEN}{ZM_ker}{GEN x} returns \kbd{matker(x)}
 
@@ -8077,13 +8068,8 @@ Return a primitive left-inverse $H$ such that $H M$ is
 $d$ times the identity and set \kbd{*pd} to $d$. If \kbd{pv} is not
 \kbd{NULL}, set \kbd{*pv} to $v$. Not gerepile-safe.
 
-\fun{GEN}{QM_inv}{GEN M} return the inverse of the \kbd{QM} $M$.
-
 \fun{GEN}{ZM_gauss}{GEN a, GEN b} as \kbd{gauss}, where $a$ and $b$
 coefficients are \typ{INT}s.
-
-\fun{GEN}{QM_gauss}{GEN a, GEN b} as \kbd{gauss}, where $a$ and $b$
-coefficients are \typ{FRAC}s.
 
 \fun{GEN}{ZM_det_triangular}{GEN x} returns the product of the diagonal
 entries of $x$ (its determinant if it is indeed triangular).
@@ -8105,6 +8091,26 @@ but for a $1$ at position $i$.
 \fun{int}{ZM_ishnf}{GEN x} return $1$ if $x$ is in HNF form, i.e. is upper
 triangular with positive diagonal coefficients, and  for $j>i$,
 $x_{i,i}>x_{i,j} \ge 0$.
+
+\subsec{\kbd{QM}}
+
+\fun{GEN}{QM_charpoly_ZX}{GEN M} returns the characteristic polynomial
+(in variable $0$) of the \kbd{QM} $M$, assuming that the result has integer
+coefficients.
+
+\fun{GEN}{QM_charpoly_ZX_bound}{GEN M, long b} as \tet{QM_charpoly_ZX}
+assuming that the sup norm of the (integral) result is $\leq 2^b$.
+
+\fun{GEN}{QM_gauss}{GEN a, GEN b} as \kbd{gauss}, where $a$ and $b$
+coefficients are \typ{FRAC}s.
+
+\fun{GEN}{QM_indexrank}{GEN x} returns \kbd{matindexrank(x)}.
+
+\fun{GEN}{QM_inv}{GEN M} return the inverse of the \kbd{QM} $M$.
+
+\fun{long}{QM_rank}{GEN x} returns \kbd{matrank(x)}.
+
+\subsec{\kbd{Qevproj}}
 
 \fun{GEN}{Qevproj_init}{GEN M} let $M$ be a  $n\times d$ \kbd{ZM} of
 maximal rank $d \leq n$, representing the basis of a $\Q$-subspace

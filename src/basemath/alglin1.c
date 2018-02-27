@@ -5303,6 +5303,14 @@ QM_rank(GEN x)
   return r;
 }
 
+GEN
+QM_indexrank(GEN x)
+{
+  pari_sp av = avma;
+  GEN r = ZM_indexrank(Q_primpart(x));
+  return gerepileupto(av, r);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                             ZabM                                */
