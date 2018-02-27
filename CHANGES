@@ -361,7 +361,7 @@ BA  133- [libpari] FpX_integ, FpX_convol
 LGr 136- default(echo): new value echo = 2 [ print as is, incl. whitespace ]
 LGr 137- allow power series as limits for intnum()
     138- [libpari] uordinal
-BA  139- [libpari] QM_gauss
+BA  139- [libpari] QM_gauss, QM_rank
 LGr 140- make TESTS="a b c" test-all to test only 'a' 'b' and 'c', e.g.
          'lfun', 'gamma' and 'lfuntype' (same for statest-all and dyntest-all)
     141- allow quaddisc(integer factorization matrix)

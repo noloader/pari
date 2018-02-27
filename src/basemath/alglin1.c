@@ -5260,6 +5260,15 @@ ZM_indexrank(GEN x) {
   avma = av; return indexrank0(lg(x)-1, r, d);
 }
 
+long
+QM_rank(GEN x)
+{
+  pari_sp av = avma;
+  long r = ZM_rank(Q_primpart(x));
+  avma = av;
+  return r;
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                             ZabM                                */
