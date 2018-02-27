@@ -30,7 +30,6 @@ typedef struct {
   long k;    /* input known mod P^k */
   GEN p, pk; /* p^k = denom(prk^-1) [ assume pr unramified ]*/
   GEN prk;   /* |.|^2 LLL-reduced basis (b_i) of P^k  (NOT T2-reduced) */
-  GEN prkHNF;/* HNF basis of P^k */
   GEN iprk;  /* den * prk^-1 */
   GEN GSmin; /* min |b_i^*|^2 */
 
@@ -1277,7 +1276,7 @@ get_R(GEN M)
 }
 
 static void
-init_proj(nflift_t *L, GEN nfT)
+init_proj(nflift_t *L, GEN prkHNF, GEN nfT)
 {
   if (degpol(L->Tp)>1)
   {
@@ -1293,7 +1292,7 @@ init_proj(nflift_t *L, GEN nfT)
   else
   {
     L->Tpk = NULL;
-    L->ZqProj = dim1proj(L->prkHNF);
+    L->ZqProj = dim1proj(prkHNF);
   }
 }
 
@@ -1363,8 +1362,7 @@ END:
   L->prk = PRK;
   L->iprk = iPRK;
   L->GSmin= GSmin;
-  L->prkHNF = prk;
-  init_proj(L, nf_get_pol(nf));
+  init_proj(L, prk, nf_get_pol(nf));
 }
 
 /* Let X = Tra * M_L, Y = bestlift(X) return V s.t Y = X - PRK V
