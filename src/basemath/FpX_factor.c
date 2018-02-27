@@ -355,31 +355,26 @@ FpX_roots_i(GEN f, GEN p)
     if (pol0[2] == 100 && !BPSW_psp(p)) pari_err_PRIME("polrootsmod",p);
     for (j = 1; j < l; j++)
     {
-      GEN c = gel(S.todo,j);
+      GEN b, r, s, c = gel(S.todo,j);
       switch(degpol(c))
       { /* convert linear and quadratics to roots, try to split the rest */
         case 1:
           split_moveto_done(&S, j, subii(p, gel(c,2)));
           j--; l--; break;
-        case 2: {
-          GEN r = FpX_quad_root(c, p, 0), s;
+        case 2:
+          r = FpX_quad_root(c, p, 0);
           if (!r) pari_err_PRIME("polrootsmod",p);
           s = FpX_otherroot(c,r, p);
           split_done(&S, j, r, s);
           j--; l--; break;
-        }
-        default: {
-          /* b = pol^(p-1)/2 - 1 */
-          GEN b = FpX_Fp_sub_shallow(FpXQ_pow(pol,q, c,p), gen_1, p);
-          long db;
-          b = FpX_gcd(c,b, p); db = degpol(b);
-          if (db && db < degpol(c))
-          {
-            b = FpX_normalize(b, p);
-            c = FpX_div(c,b, p);
-            split_todo(&S, j, b, c);
-          }
-        }
+        default:
+          b = FpXQ_pow(pol,q, c,p);
+          if (degpol(b) <= 0) continue;
+          b = FpX_gcd(c,FpX_Fp_sub_shallow(b,gen_1,p), p);
+          if (!degpol(b)) continue;
+          b = FpX_normalize(b, p);
+          c = FpX_div(c,b, p);
+          split_todo(&S, j, b, c);
       }
     }
   }
@@ -471,19 +466,18 @@ Flx_oneroot_i(GEN f, ulong p, long fl)
       case 2: return Flx_quad_root(a, p, 0);
       case 3: if (p>3) return Flx_cubic_root(a, p); /*FALL THROUGH*/
       default: {
-        GEN b = Flx_Fl_add(Flxq_powu(pol,q, a,p), p-1, p);
+        GEN b = Flxq_powu(pol,q, a,p);
         long db;
-        b = Flx_gcd(a,b, p); db = degpol(b);
-        if (db && db < da)
-        {
-          b = Flx_normalize(b, p);
-          if (db <= (da >> 1)) {
-            a = b;
-            da = db;
-          } else {
-            a = Flx_div(a,b, p);
-            da -= db;
-          }
+        if (degpol(b) <= 0) continue;
+        b = Flx_gcd(a,Flx_Fl_add(b,p-1,p), p);
+        db = degpol(b); if (!db) continue;
+        b = Flx_normalize(b, p);
+        if (db <= (da >> 1)) {
+          a = b;
+          da = db;
+        } else {
+          a = Flx_div(a,b, p);
+          da -= db;
         }
       }
     }
@@ -523,19 +517,18 @@ FpX_oneroot_i(GEN f, GEN p)
       case 1: return subii(p, gel(a,2));
       case 2: return FpX_quad_root(a, p, 0);
       default: {
-        GEN b = FpX_Fp_sub_shallow(FpXQ_pow(pol,q, a,p), gen_1, p);
+        GEN b = FpXQ_pow(pol,q, a,p);
         long db;
-        b = FpX_gcd(a,b, p); db = degpol(b);
-        if (db && db < da)
-        {
-          b = FpX_normalize(b, p);
-          if (db <= (da >> 1)) {
-            a = b;
-            da = db;
-          } else {
-            a = FpX_div(a,b, p);
-            da -= db;
-          }
+        if (degpol(b) <= 0) continue;
+        b = FpX_gcd(a,FpX_Fp_sub_shallow(b,gen_1,p), p);
+        db = degpol(b); if (!db) continue;
+        b = FpX_normalize(b, p);
+        if (db <= (da >> 1)) {
+          a = b;
+          da = db;
+        } else {
+          a = FpX_div(a,b, p);
+          da -= db;
         }
       }
     }
@@ -1340,30 +1333,27 @@ Flx_roots_i(GEN f, ulong p)
     if (pol[2] == 100 && !uisprime(p)) pari_err_PRIME("polrootsmod",utoipos(p));
     for (j = 1; j < l; j++)
     {
-      GEN c = gel(S.todo,j);
+      GEN b, c = gel(S.todo,j);
+      ulong r, s;
       switch(degpol(c))
       {
         case 1:
           split_moveto_done(&S, j, (GEN)(p - c[2]));
           j--; l--; break;
-        case 2: {
-          ulong r = Flx_quad_root(c, p, 0), s;
+        case 2:
+          r = Flx_quad_root(c, p, 0);
           if (r == p) pari_err_PRIME("polrootsmod",utoipos(p));
           s = Flx_otherroot(c,r, p);
           split_done(&S, j, (GEN)r, (GEN)s);
           j--; l--; break;
-        }
-        default: {
-          GEN b = Flx_Fl_add(Flxq_powu(pol,q, c,p), p-1, p); /* pol^(p-1)/2 */
-          long db;
-          b = Flx_gcd(c,b, p); db = degpol(b);
-          if (db && db < degpol(c))
-          {
-            b = Flx_normalize(b, p);
-            c = Flx_div(c,b, p);
-            split_todo(&S, j, b, c);
-          }
-        }
+        default:
+          b = Flxq_powu(pol,q, c,p); /* pol^(p-1)/2 */
+          if (degpol(b) <= 0) continue;
+          b = Flx_gcd(c,Flx_Fl_add(b,p-1,p), p);
+          if (!degpol(b)) continue;
+          b = Flx_normalize(b, p);
+          c = Flx_div(c,b, p);
+          split_todo(&S, j, b, c);
       }
     }
   }
