@@ -1529,14 +1529,14 @@ AGAIN:
       if (DEBUGLEVEL>2) ti_CF += timer_delay(&ti);
       if (list) break;
     }
-    if (!gc_needed(av,1)) CM_L = gerepilecopy(av2, CM_L);
-    else
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"nf_LLL_cmbf");
-      gerepileall(av, L->Tpk? 8: 7,
-                      &CM_L,&TT,&Tra,&famod,&L->GSmin,&L->prk,&L->iprk,&L->Tpk);
-      L->pk = gcoeff(L->prkHNF,1,1);
+      gerepileall(av, L->Tpk? 9: 8,
+                      &CM_L,&TT,&Tra,&famod,&L->GSmin,&L->pk,&L->prk,&L->iprk,
+                      &L->Tpk);
     }
+    else CM_L = gerepilecopy(av2, CM_L);
   }
   if (DEBUGLEVEL>2)
     err_printf("* Time LLL: %ld\n* Time Check Factor: %ld\n",ti_LLL,ti_CF);
