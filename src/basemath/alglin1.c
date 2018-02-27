@@ -5184,24 +5184,60 @@ init_indexrank(GEN x) {
   (void)new_chunk(3 + 2*lg(x)); /* HACK */
 }
 
+static GEN
+RgM_indexrank_FpM(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  ulong pp;
+  GEN r;
+  x = RgM_Fp_init(x,p,&pp);
+  switch(pp)
+  {
+  case 0:  r = FpM_indexrank(x,p); break;
+  case 2:  r = F2m_indexrank(x); break;
+  default: r = Flm_indexrank(x,pp); break;
+  }
+  return gerepileupto(av, r);
+}
+
+static GEN
+RgM_indexrank_FqM(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  GEN r = FqM_indexrank(RgM_to_FqM(x, T, p), T, p);
+  return gerepileupto(av, r);
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgM_indexrank_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_type(x,&p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZM_indexrank(x);
+    case t_FRAC:   return QM_indexrank(x);
+    case t_INTMOD: return RgM_indexrank_FpM(x, p);
+    case t_FFELT:  return FFM_indexrank(x, pol);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_indexrank_FqM(x, pol, p);
+    default:       return NULL;
+  }
+}
+#undef code
+
 GEN
-indexrank(GEN x) {
+indexrank(GEN x)
+{
   pari_sp av;
   long r;
-  GEN d, p = NULL, ff = NULL;
+  GEN d;
   if (typ(x)!=t_MAT) pari_err_TYPE("indexrank",x);
-  if (RgM_is_FpM(x, &p) && p)
-  {
-    ulong pp;
-    x = RgM_Fp_init(x,p,&pp);
-    switch(pp)
-    {
-    case 0:  return FpM_indexrank(x, p);
-    case 2:  return F2m_indexrank(x);
-    default: return Flm_indexrank(x, pp);
-    }
-  }
-  if (RgM_is_FFM(x, &ff)) return FFM_indexrank(x, ff);
+  d = RgM_indexrank_fast(x);
+  if (d) return d;
   av = avma;
   init_indexrank(x);
   d = gauss_pivot(x, &r);
