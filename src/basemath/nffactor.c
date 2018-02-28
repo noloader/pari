@@ -1666,9 +1666,9 @@ static long
 get_nbprimes(long B)
 {
   if (B <= 128) return 5;
-  if (B <= 1024) return 10;
-  if (B <= 2048) return 15;
-  return 20;
+  if (B <= 1024) return 20;
+  if (B <= 2048) return 65;
+  return 100;
 }
 /* Select a prime ideal pr over which to factor pol.
  * Return the number of factors (or roots, according to flag fl) mod pr.
