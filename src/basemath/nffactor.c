@@ -1636,6 +1636,18 @@ get_good_factor(GEN T, ulong p, long maxf)
   avma = av; return NULL; /* failure */
 }
 
+/* n = number of modular factors, f = residue degree; nold/fold current best
+ * return 1 if new values are "better" than old ones */
+static int
+record(long nold, long n, long fold, long f)
+{
+  if (!nold) return 1; /* uninitialized */
+  if (fold == f) return n < nold;
+  /* if f increases, allow increasing n *a little* */
+  if (fold < f) return n <= 20 || n < 1.1*nold;
+  /* f decreases, only allow if decreasing n *a log* */
+  return n < 0.7*nold;
+}
 /* Optimization problem: factorization of polynomials over large Fq is slow,
  * BUT bestlift correspondingly faster.
  * Return maximal residue degree to be considered when picking a prime ideal */
@@ -1697,7 +1709,8 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
     {
       pari_sp av2 = avma;
       GEN T = gel(vT,i), red = RgX_to_FlxqX(pol, T, p);
-      if (degpol(T)==1)
+      long dT = degpol(T);
+      if (dT == 1)
       { /* degree 1 */
         red = FlxX_to_Flx(red);
         if (ltp) red = Flx_normalize(red, p);
@@ -1712,7 +1725,7 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
         ok = 1;
         anbf = fl == FACTORS? FlxqX_nbfact(red, T,p): FlxqX_nbroots(red, T,p);
       }
-      if (fl == ROOTS_SPLIT && anbf < dpol) return anbf;
+      if (fl == ROOTS_SPLIT && anbf < dpol) return anbf; /* not split */
       if (anbf <= 1)
       {
         if (fl == FACTORS) return anbf; /* irreducible */
@@ -1720,15 +1733,10 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
       }
       if (DEBUGLEVEL>3)
         err_printf("%3ld %s at prime (%ld,x^%ld+...)\n Time: %ld\n",
-            anbf, fl == FACTORS?"factors": "roots", p,degpol(T), timer_delay(&ti_pr));
+            anbf, fl == FACTORS?"factors": "roots", p,dT, timer_delay(&ti_pr));
 
-      if (fl == ROOTS && degpol(T)==nfdeg) { *Tp = T; *pp = p; return anbf; }
-      if (!nbf || anbf < nbf || (anbf == nbf && degpol(T) > degpol(*Tp)))
-      {
-        nbf = anbf;
-        *Tp = T;
-        *pp = p;
-      }
+      if (fl == ROOTS && dT==nfdeg) { *Tp = T; *pp = p; return anbf; }
+      if (record(nbf, anbf, dT, degpol(*Tp))) { nbf = anbf; *Tp = T; *pp = p; }
       else avma = av2;
     }
     if (ok && --ct <= 0) break;
