@@ -1643,9 +1643,9 @@ record(long nold, long n, long fold, long f)
 {
   if (!nold) return 1; /* uninitialized */
   if (fold == f) return n < nold;
-  /* if f increases, allow increasing n *a little* */
+  /* if f increases, allow increasing n a little */
   if (fold < f) return n <= 20 || n < 1.1*nold;
-  /* f decreases, only allow if decreasing n *a log* */
+  /* f decreases, only allow if decreasing n a lot */
   return n < 0.7*nold;
 }
 /* Optimization problem: factorization of polynomials over large Fq is slow,
@@ -1681,7 +1681,7 @@ static long
 nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
 {
   GEN nfpol = nf_get_pol(nf), bad = mulii(nf_get_disc(nf), nf_get_index(nf));
-  long nfdeg = degpol(nfpol), dpol = degpol(pol), nbf = 0;
+  long nfdeg = degpol(nfpol), dpol = degpol(pol), nold = 0, fold = 1;
   long maxf = get_maxf(nfdeg), ct = get_nbprimes(nfdeg * dpol);
   ulong p;
   forprime_t S;
@@ -1697,7 +1697,7 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
   while ((p = u_forprime_next(&S)))
   {
     GEN vT;
-    long anbf, i, l, ok = 0;
+    long n, i, l, ok = 0;
     ulong ltp = 0;
 
     if (! umodiu(bad,p)) continue;
@@ -1709,40 +1709,40 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
     {
       pari_sp av2 = avma;
       GEN T = gel(vT,i), red = RgX_to_FlxqX(pol, T, p);
-      long dT = degpol(T);
-      if (dT == 1)
+      long f = degpol(T);
+      if (f == 1)
       { /* degree 1 */
         red = FlxX_to_Flx(red);
         if (ltp) red = Flx_normalize(red, p);
         if (!Flx_is_squarefree(red, p)) { avma = av2; continue; }
         ok = 1;
-        anbf = fl == FACTORS? Flx_nbfact(red, p): Flx_nbroots(red, p);
+        n = (fl == FACTORS)? Flx_nbfact(red,p): Flx_nbroots(red,p);
       }
       else
       {
         if (ltp) red = FlxqX_normalize(red, T, p);
         if (!FlxqX_is_squarefree(red, T, p)) { avma = av2; continue; }
         ok = 1;
-        anbf = fl == FACTORS? FlxqX_nbfact(red, T,p): FlxqX_nbroots(red, T,p);
+        n = (fl == FACTORS)? FlxqX_nbfact(red,T,p): FlxqX_nbroots(red,T,p);
       }
-      if (fl == ROOTS_SPLIT && anbf < dpol) return anbf; /* not split */
-      if (anbf <= 1)
+      if (fl == ROOTS_SPLIT && n < dpol) return n; /* not split */
+      if (n <= 1)
       {
-        if (fl == FACTORS) return anbf; /* irreducible */
-        if (!anbf) return 0; /* no root */
+        if (fl == FACTORS) return n; /* irreducible */
+        if (!n) return 0; /* no root */
       }
       if (DEBUGLEVEL>3)
         err_printf("%3ld %s at prime (%ld,x^%ld+...)\n Time: %ld\n",
-            anbf, fl == FACTORS?"factors": "roots", p,dT, timer_delay(&ti_pr));
+            n, (fl == FACTORS)? "factors": "roots", p,f, timer_delay(&ti_pr));
 
-      if (fl == ROOTS && dT==nfdeg) { *Tp = T; *pp = p; return anbf; }
-      if (record(nbf, anbf, dT, degpol(*Tp))) { nbf = anbf; *Tp = T; *pp = p; }
+      if (fl == ROOTS && f==nfdeg) { *Tp = T; *pp = p; return n; }
+      if (record(nold, n, fold, f)) { nold = n; fold = f; *Tp = T; *pp = p; }
       else avma = av2;
     }
     if (ok && --ct <= 0) break;
   }
-  if (!nbf) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
-  return nbf;
+  if (!nold) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
+  return nold;
 }
 
 /* Assume lt(T) is a t_INT and T square free. Return t_VEC of irred. factors */
