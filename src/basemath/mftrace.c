@@ -10914,18 +10914,20 @@ GL2toSL2(GEN g, GEN *abd)
 }
 
 static GEN
+Rg_approx(GEN t, long bit)
+{
+  GEN a = real_i(t), b = imag_i(t);
+  long e1 = gexpo(a), e2 = gexpo(b);
+  if (e2 < -bit) { t = e1 < -bit? gen_0: a; }
+  else if (e1 < -bit) t = gmul(b, gen_I());
+  return t;
+}
+static GEN
 RgV_approx(GEN v, long bit)
 {
   long i, l = lg(v);
   GEN w = cgetg_copy(v, &l);
-  for (i = 1; i < lg(v); i++)
-  {
-    GEN t = gel(v,i), re = real_i(t), im = imag_i(t);
-    long e1 = gexpo(re), e2 = gexpo(im);
-    if (e2 < -bit) { t = e1 < -bit? gen_0: re; }
-    else if (e1 < -bit) t = mkcomplex(gen_0, im);
-    gel(w, i) = t;
-  }
+  for (i = 1; i < lg(v); i++) gel(w,i) = Rg_approx(gel(v,i), bit);
   return w;
 }
 /* m != 2 (mod 4), D t_INT; V has "denominator" D, recognize in Q(zeta_m) */
@@ -11225,15 +11227,8 @@ normalizeapprox(GEN R, long bit)
   if (typ(R) == t_RFRAC && varn(gel(R,2)) == 0) { X = gel(R,2); R = gel(R,1); }
   if (typ(R) != t_POL || varn(R) != 0) return gdiv(R, X);
   Q = cgetg_copy(R, &l); Q[1] = R[1];
-  for (i = 2; i < l; ++i)
-  {
-    GEN c = gel(R,i), a = real_i(c), b = imag_i(c);
-    if (gexpo(b) < -bit) c = gexpo(a) < -bit? gen_0: a;
-    else if (gexpo(a) < -bit) c = gmul(b, gen_I());
-    gel(Q,i) = c;
-  }
-  Q = normalizepol_lg(Q, l);
-  return gdiv(Q, X);
+  for (i = 2; i < l; ++i) gel(Q,i) = Rg_approx(gel(R,i),bit);
+  Q = normalizepol_lg(Q,l); return gdiv(Q, X);
 }
 
 /* make sure T is a t_POL in variable 0 */
