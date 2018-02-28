@@ -1608,25 +1608,30 @@ nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, long fl, nflift_t *L)
   return z;
 }
 
-/* returns a factor of T in Fp of degree <= maxf, NULL if none exist */
+/* returns a few factors of T in Fp of degree <= maxf, NULL if none exist */
 static GEN
 get_good_factor(GEN T, ulong p, long maxf)
 {
   pari_sp av = avma;
-  GEN r, list = gel(Flx_factor(T,p), 1);
+  GEN r, R = gel(Flx_factor(ZX_to_Flx(T,p),p), 1);
   if (maxf == 1)
-  { /* deg.1 factors are best */
-    r = gel(list,1);
-    if (degpol(r) == 1) return r;
+  { /* degree 1 factors are best */
+    r = gel(R,1);
+    if (degpol(r) == 1) return mkvec(r);
   }
   else
   { /* otherwise, pick factor of largish degree */
-    long i, dr, dT = degpol(T);
-    for (i = lg(list)-1; i > 0; i--)
+    long i, j, dr, d = 0, l = lg(R);
+    GEN v;
+    if (l == 2) return mkvec(gel(R,1)); /* inert is fine */
+    v = cgetg(l, t_VEC);
+    for (i = j = 1; i < l; i++)
     {
-      r = gel(list,i); dr = degpol(r);
-      if (dr == dT || dr <= maxf) return r;
+      r = gel(R,i); dr = degpol(r);
+      if (dr > maxf) break;
+      if (dr != d) { gel(v,j++) = r; d = dr; }
     }
+    setlg(v,j); if (j > 1) return v;
   }
   avma = av; return NULL; /* failure */
 }
@@ -1679,51 +1684,54 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
   /* select pr such that pol has the smallest number of factors, ct attempts */
   while ((p = u_forprime_next(&S)))
   {
-    GEN T, red;
-    long anbf;
+    GEN vT;
+    long anbf, i, l, ok = 0;
     ulong ltp = 0;
-    pari_sp av2 = avma;
 
-    /* first step : select prime of high inertia degree */
     if (! umodiu(bad,p)) continue;
     if (*lt) { ltp = umodiu(*lt, p); if (!ltp) continue; }
-    T = get_good_factor(ZX_to_Flx(nfpol, p), p, maxf);
-    if (!T) continue;
+    vT = get_good_factor(nfpol, p, maxf);
+    if (!vT) continue;
+    l = lg(vT);
+    for (i = 1; i < l; i++)
+    {
+      pari_sp av2 = avma;
+      GEN T = gel(vT,i), red = RgX_to_FlxqX(pol, T, p);
+      if (degpol(T)==1)
+      { /* degree 1 */
+        red = FlxX_to_Flx(red);
+        if (ltp) red = Flx_normalize(red, p);
+        if (!Flx_is_squarefree(red, p)) { avma = av2; continue; }
+        ok = 1;
+        anbf = fl == FACTORS? Flx_nbfact(red, p): Flx_nbroots(red, p);
+      }
+      else
+      {
+        if (ltp) red = FlxqX_normalize(red, T, p);
+        if (!FlxqX_is_squarefree(red, T, p)) { avma = av2; continue; }
+        ok = 1;
+        anbf = fl == FACTORS? FlxqX_nbfact(red, T,p): FlxqX_nbroots(red, T,p);
+      }
+      if (fl == ROOTS_SPLIT && anbf < dpol) return anbf;
+      if (anbf <= 1)
+      {
+        if (fl == FACTORS) return anbf; /* irreducible */
+        if (!anbf) return 0; /* no root */
+      }
+      if (DEBUGLEVEL>3)
+        err_printf("%3ld %s at prime (%ld,x^%ld+...)\n Time: %ld\n",
+            anbf, fl == FACTORS?"factors": "roots", p,degpol(T), timer_delay(&ti_pr));
 
-    /* second step : evaluate factorisation mod apr */
-    red = RgX_to_FlxqX(pol, T, p);
-    if (degpol(T)==1)
-    { /* degree 1 */
-      red = FlxX_to_Flx(red);
-      if (ltp) red = Flx_normalize(red, p);
-      if (!Flx_is_squarefree(red, p)) { avma = av2; continue; }
-      anbf = fl == FACTORS? Flx_nbfact(red, p): Flx_nbroots(red, p);
+      if (fl == ROOTS && degpol(T)==nfdeg) { *Tp = T; *pp = p; return anbf; }
+      if (!nbf || anbf < nbf || (anbf == nbf && degpol(T) > degpol(*Tp)))
+      {
+        nbf = anbf;
+        *Tp = T;
+        *pp = p;
+      }
+      else avma = av2;
     }
-    else
-    {
-      if (ltp) red = FlxqX_normalize(red, T, p);
-      if (!FlxqX_is_squarefree(red, T, p)) { avma = av2; continue; }
-      anbf = fl == FACTORS? FlxqX_nbfact(red, T,p): FlxqX_nbroots(red, T,p);
-    }
-    if (fl == ROOTS_SPLIT && anbf < dpol) return anbf;
-    if (anbf <= 1)
-    {
-      if (fl == FACTORS) return anbf; /* irreducible */
-      if (!anbf) return 0; /* no root */
-    }
-    if (DEBUGLEVEL>3)
-      err_printf("%3ld %s at prime (%ld,x^%ld+...)\n Time: %ld\n",
-          anbf, fl == FACTORS?"factors": "roots", p,degpol(T), timer_delay(&ti_pr));
-
-    if (fl == ROOTS && degpol(T)==nfdeg) { *Tp = T; *pp = p; return anbf; }
-    if (!nbf || anbf < nbf || (anbf == nbf && degpol(T) > degpol(*Tp)))
-    {
-      nbf = anbf;
-      *Tp = T;
-      *pp = p;
-    }
-    else avma = av2;
-    if (--ct <= 0) break;
+    if (ok && --ct <= 0) break;
   }
   if (!nbf) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
   return nbf;
@@ -1956,10 +1964,11 @@ nf_pick_prime_for_units(GEN nf, nflift_t *L)
   while ( (pp = u_forprime_next(&S)) )
   {
     if (! umodiu(bad,pp)) continue;
-    r = get_good_factor(ZX_to_Flx(nfpol, pp), pp, maxf);
+    r = get_good_factor(nfpol, pp, maxf);
     if (r) break;
   }
   if (!r) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
+  r = gel(r,lg(r)-1); /* largest inertia degree */
   ap = utoipos(pp);
   L->p = ap;
   L->Tp = Flx_to_ZX(r);
