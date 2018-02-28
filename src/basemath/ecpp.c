@@ -272,8 +272,8 @@ producttree_find_partialprod(GEN tree, GEN v, ulong a)
   return b;
 }
 
-/*  Input: x, 22 <= x <= 26
-   Output: v, a vector whose ith component is the product of all primes below 2^(21+x)
+/*  Input: x, 21 <= x <= 30
+   Output: v, a vector whose ith component is the product of all primes below 2^x
 */
 static GEN
 primorial_vec(ulong x)
@@ -282,9 +282,10 @@ primorial_vec(ulong x)
   long i;
   GEN v = primes_upto_zv(1UL << x);
   GEN tree = ZV_producttree(v);
-  /* ind[i] is the number such that the ind[i]th prime number is the largest prime number below 2^(21+i) */
-  GEN ind = mkvecsmall5(295947, 564163, 1077871, 2063689, 3957809);
-  long y = x-21;
+  /* ind[i] is the number such that the ind[i]th prime number is the largest prime number below 2^(20+i) */
+  GEN ind = mkvecsmalln(10, 155611L, 295947L, 564163L, 1077871L, 2063689L,
+                           3957809L, 7603553L, 14630843L, 28192750L, 54400028L);
+  long y = x-20;
   GEN ret = cgetg(y+1, t_VEC);
   for (i = 1; i <= y; i++) gel(ret, i) = producttree_find_partialprod(tree, v, uel(ind, i));
   return gerepilecopy(av, ret);
@@ -1426,7 +1427,7 @@ static GEN
 Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
 {
   pari_timer ti;
-  GEN curr_primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param) - 21);
+  GEN curr_primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param) - 20);
   GEN Dmqvec;
 
   /* B1: Factor by batch. */
@@ -1792,7 +1793,7 @@ ecpp(GEN N)
     umael(tune, tunelen, 1) *= 2;
     umael(tune, tunelen, 2) *= 2;
     umael(tune, tunelen, 3)++;
-    if (umael(tune, tunelen, 3) > 26) umael(tune, tunelen, 3) = 26;
+    if (umael(tune, tunelen, 3) > 30) umael(tune, tunelen, 3) = 30;
   }
   return answer;
 }
