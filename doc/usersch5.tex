@@ -3571,18 +3571,18 @@ discriminant $D$ such that $d=D*f^2$ and set \kbd{*pt\_f} to $f$
 \fun{GEN}{divisorsu}{ulong n}, returns the divisors of $n$ in a
 \typ{VECSMALL}, sorted by increasing order.
 
-\fun{ulong}{divisorsu_fact}{GEN fa} same, where \kbd{fa} is \kbd{factoru(n)}.
+\fun{GEN}{divisorsu_fact}{GEN fa} same, where \kbd{fa} is \kbd{factoru(n)}.
 
-\fun{GEN}{numdivu}{ulong n}, returns the number of positive divisors of $n>0$.
+\fun{long}{numdivu}{ulong n}, returns the number of positive divisors of $n>0$.
 
-\fun{ulong}{numdivu_fact}{GEN fa} same, where \kbd{fa} is \kbd{factoru(n)}.
+\fun{long}{numdivu_fact}{GEN fa} same, where \kbd{fa} is \kbd{factoru(n)}.
 
 \fun{long}{omegau}{ulong n} returns the number of prime divisors of $n > 0$.
 
 \fun{long}{uissquarefree}{ulong n} returns $1$ if \kbd{n}
 is square-free, and $0$ otherwise.
 
-\fun{ulong}{uissquarefree_fact}{GEN fa} same, where \kbd{fa} is
+\fun{long}{uissquarefree_fact}{GEN fa} same, where \kbd{fa} is
 \kbd{factoru(n)}.
 
 \fun{long}{uposisfundamental}{ulong x} return $1$ if $x$ is a fundamental
