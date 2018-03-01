@@ -1447,6 +1447,130 @@ F2xV_to_ZXV_inplace(GEN v)
   for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_ZX(gel(v,i));
 }
 
+static GEN
+F2x_Berlekamp_ker(GEN u)
+{
+  pari_sp ltop=avma;
+  long j,N = F2x_degree(u);
+  GEN Q;
+  pari_timer T;
+  timer_start(&T);
+  Q = F2x_matFrobenius(u);
+  for (j=1; j<=N; j++)
+    F2m_flip(Q,j,j);
+  if(DEBUGLEVEL>=9) timer_printf(&T,"Berlekamp matrix");
+  Q = F2m_ker_sp(Q,0);
+  if(DEBUGLEVEL>=9) timer_printf(&T,"kernel");
+  return gerepileupto(ltop,Q);
+}
+#define set_irred(i) { if ((i)>ir) swap(t[i],t[ir]); ir++;}
+static long
+F2x_split_Berlekamp(GEN *t)
+{
+  GEN u = *t, a, b, vker;
+  long lb, d, i, ir, L, la, sv = u[1], du = F2x_degree(u);
+
+  if (du == 1) return 1;
+  if (du == 2)
+  {
+    if (F2x_quad_factortype(u) == 1) /* 0 is a root: shouldn't occur */
+    {
+      t[0] = mkvecsmall2(sv, 2);
+      t[1] = mkvecsmall2(sv, 3);
+      return 2;
+    }
+    return 1;
+  }
+
+  vker = F2x_Berlekamp_ker(u);
+  lb = lgcols(vker);
+  d = lg(vker)-1;
+  ir = 0;
+  /* t[i] irreducible for i < ir, still to be treated for i < L */
+  for (L=1; L<d; )
+  {
+    GEN pol;
+    if (d == 2)
+      pol = F2v_to_F2x(gel(vker,2), sv);
+    else
+    {
+      GEN v = zero_zv(lb);
+      v[1] = du;
+      v[2] = random_Fl(2); /*Assume vker[1]=1*/
+      for (i=2; i<=d; i++)
+        if (random_Fl(2)) F2v_add_inplace(v, gel(vker,i));
+      pol = F2v_to_F2x(v, sv);
+    }
+    for (i=ir; i<L && L<d; i++)
+    {
+      a = t[i]; la = F2x_degree(a);
+      if (la == 1) { set_irred(i); }
+      else if (la == 2)
+      {
+        if (F2x_quad_factortype(a) == 1) /* 0 is a root: shouldn't occur */
+        {
+          t[i] = mkvecsmall2(sv, 2);
+          t[L] = mkvecsmall2(sv, 3); L++;
+        }
+        set_irred(i);
+      }
+      else
+      {
+        pari_sp av = avma;
+        long lb;
+        b = F2x_rem(pol, a);
+        if (F2x_degree(b) <= 0) { avma=av; continue; }
+        b = F2x_gcd(a,b); lb = F2x_degree(b);
+        if (lb && lb < la)
+        {
+          t[L] = F2x_div(a,b);
+          t[i]= b; L++;
+        }
+        else avma = av;
+      }
+    }
+  }
+  return d;
+}
+/* assume deg f > 2 */
+static GEN
+F2x_Berlekamp_i(GEN f, long flag)
+{
+  long lfact, val, d = F2x_degree(f), j, k, lV;
+  GEN y, E, t, V;
+
+  val = F2x_valrem(f, &f);
+  if (flag == 2 && val > 1) return NULL;
+  V = F2x_factor_squarefree(f); lV = lg(V);
+  if (flag == 2 && lV > 2) return NULL;
+
+  /* to hold factors and exponents */
+  t = cgetg(d+1, flag? t_VECSMALL: t_VEC);
+  E = cgetg(d+1,t_VECSMALL);
+  lfact = 1;
+  if (val) {
+    if (flag == 1) t[1] = 1; else gel(t,1) = polx_F2x(f[1]);
+    E[1] = val; lfact++;
+  }
+
+  for (k=1; k<lV; k++)
+  {
+    if (F2x_degree(gel(V, k))==0) continue;
+    gel(t,lfact) = gel(V, k);
+    d = F2x_split_Berlekamp(&gel(t,lfact));
+    if (flag == 2 && d != 1) return NULL;
+    if (flag == 1)
+      for (j=0; j<d; j++) t[lfact+j] = F2x_degree(gel(t,lfact+j));
+    for (j=0; j<d; j++) E[lfact+j] = k;
+    lfact += d;
+  }
+  if (flag == 2) return gen_1; /* irreducible */
+  setlg(t, lfact);
+  setlg(E, lfact); y = mkvec2(t,E);
+  return flag ? sort_factor(y, (void*)&cmpGuGu, cmp_nodata)
+              : sort_factor_pol(y, cmpGuGu);
+}
+
 /* Adapted from Shoup NTL */
 GEN
 F2x_factor_squarefree(GEN f)
@@ -1622,6 +1746,7 @@ F2x_factor_Cantor(GEN T)
   return sort_factor_pol(FE_concat(F,E,j), cmpGuGu);
 }
 
+#if 0
 static GEN
 F2x_simplefact_Cantor(GEN T)
 {
@@ -1639,7 +1764,6 @@ F2x_simplefact_Cantor(GEN T)
     }
   return sort_factor(FE_concat(F,E,j), (void*)&cmpGuGu, cmp_nodata);
 }
-
 static int
 F2x_isirred_Cantor(GEN T)
 {
@@ -1658,18 +1782,29 @@ F2x_isirred_Cantor(GEN T)
   d = F2x_degree(gel(D, n));
   avma = av; return d==n;
 }
+#endif
 
+/* driver for Cantor factorization, assume deg f > 2; not competitive for
+ * flag != 0, or as deg f increases */
+static GEN
+F2x_Cantor_i(GEN f, long flag)
+{
+  switch(flag)
+  {
+    default: return F2x_factor_Cantor(f);
+#if 0
+    case 1: return F2x_simplefact_Cantor(f);
+    case 2: return F2x_isirred_Cantor(f)? gen_1: NULL;
+#endif
+  }
+}
 static GEN
 F2x_factor_i(GEN f, long flag)
 {
   long d = F2x_degree(f);
   if (d <= 2) return F2x_factor_deg2(f,d,flag);
-  switch(flag)
-  {
-    default: return F2x_factor_Cantor(f);
-    case 1: return F2x_simplefact_Cantor(f);
-    case 2: return F2x_isirred_Cantor(f)? gen_1: NULL;
-  }
+  return (flag == 0 && d <= 20)? F2x_Cantor_i(f, flag)
+                               : F2x_Berlekamp_i(f, flag);
 }
 
 GEN
