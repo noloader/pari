@@ -406,11 +406,12 @@ quadGRHchk(GEN D, GRHcheck_t *S, ulong LIMC)
       B *= (1 - pow(q, (double) M)*(M+1 - M*q)) * inv1_q * inv1_q;
     }
     if ((long)pr->dec>0) { SA += 2*A;SB += 2*B; } else { SA += A; SB += B; }
+    if (p == LIMC) break;
   }
   return GRHok(S, logC, SA, SB);
 }
 
-/* create B->FB, B->numFB; set B->badprim. Return L(kro_D, 1) */
+/* C2 >= C1; create B->FB, B->numFB; set B->badprim. Return L(kro_D, 1) */
 static void
 FBquad(struct buch_quad *B, ulong C2, ulong C1, GRHcheck_t *S)
 {
@@ -439,6 +440,11 @@ FBquad(struct buch_quad *B, ulong C2, ulong C1, GRHcheck_t *S)
         /* fall through */
       default:  /* split */
         i++; B->numFB[p] = i; B->FB[i] = p; break;
+    }
+    if (p == C2)
+    {
+      if (!B->KC) B->KC = i;
+      break;
     }
   }
   B->KC2 = i;

@@ -626,5 +626,7 @@
 [2, 2]
 ? setrand(1);quadclassunit(-612556842419).cyc
 [192199]
+? setrand(2);quadclassunit(-699,,[6,6]).cyc
+[10]
 ? print("Total time spent: ",gettime);
-Total time spent: 4592
+Total time spent: 3304

@@ -175,6 +175,7 @@ BA  129- default(strictargs,1); my(a=2);(f(b,c)=123);f(1) => SEGV [#2004]
     136- mathess was very unstable, and so was charpoly(,,2) [#2010]
     137- memory corruption in nffactor [#2013]
 BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
+    139- quadclassunit(-699,,[6,6]) -> SEGV [#2015]
 
   Added
       1- [libari] ZM_isidentity
