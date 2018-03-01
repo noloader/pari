@@ -7690,8 +7690,6 @@ necessarily squarefree, but $p^2 \mid n$ implies $p > \kbd{lim}$.
 \kbd{boundfact(n,lim)} to partially factor \kbd{n}. The resulting $d$ is not
 necessarily squarefree, but $p^2 \mid n$ implies $p > \kbd{lim}$.
 
-
-
 \subsec{Primes, primality and compositeness tests}
 
 \subsubsec{Chebyshev's $\pi$ function, bounds}
@@ -7783,6 +7781,15 @@ unfortunately, there is currently no way for the factoring machinery to
 become aware of it. (It is highly implausible that hard to find factors
 would be exhibited in this way, though.) This should be slower than
 \tet{BPSW_psp} for $k\geq 4$ and we would expect it to be less reliable.
+
+\fun{GEN}{ecpp}{GEN N} returns an ECPP certificate for \typ{INT} $N$;
+underlies \kbd{primecert}.
+
+\fun{GEN}{ecppexport}{GEN cert, long flag} export a PARI ECPP certificate to
+MAGMA or Primo format; underlies \kbd{primecertexport}.
+
+\fun{long}{ecppisvalid}{GEN cert} checks whether a PARI ECPP certificate
+is valid; underlies \kbd{primecertisvalid}.
 
 \subsec{Iterators over primes}
 
