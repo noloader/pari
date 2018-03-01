@@ -15,8 +15,12 @@ Doc: This default is specific to the \emph{parallel} version of PARI and gp
  If set to $0$, the value used is the same as \kbd{parisize}. It is not
  easy to estimate reliably a sufficient value for this parameter because PARI
  itself will parallelize computations and we recommend to not set this value
- explicitly unless it solves a specific problem for you. On the other hand we
- strongly recommend to set \kbd{parisizemax} and \kbd{threadsizemax} to a
- non-zero value.
+ explicitly unless it solves a specific problem for you. For instance if you
+ see frequent messages of the form
+ \bprog
+  *** Warning: not enough memory, new thread stack 10000002048
+ @eprog (Meaning that \kbd{threadsize} had to be temporarily increased.)
+ On the other hand we strongly recommend to set \kbd{parisizemax} and
+ \kbd{threadsizemax} to a non-zero value.
 
  The default value is $0$.
