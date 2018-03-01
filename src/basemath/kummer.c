@@ -145,8 +145,7 @@ idealsqrtn(GEN nf, GEN x, GEN gn, int strict)
 static GEN
 reducebeta(GEN bnfz, GEN b, GEN ell)
 {
-  long prec = nf_get_prec(bnfz);
-  GEN y, elllogfu, nf = bnf_get_nf(bnfz), fu = bnf_get_fu_nocheck(bnfz);
+  GEN y, cb, nf = bnf_get_nf(bnfz);
 
   if (DEBUGLEVEL>1) err_printf("reducing beta = %Ps\n",b);
   b = reduce_mod_Qell(nf, b, ell);
@@ -160,24 +159,34 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
       b = nfmul(nf, b, nfpow(nf, t, negi(ell)));
   }
   if (DEBUGLEVEL>1) err_printf("beta reduced via ell-th root = %Ps\n",b);
-  /* log. embeddings of fu^ell */
-  elllogfu = RgM_Rg_mul(real_i(bnf_get_logfu(bnfz)), ell);
-  for (;;)
-  {
-    GEN emb, z = get_arch_real(nf, b, &emb, prec);
-    if (z)
+  b = Q_primitive_part(b, &cb);
+  y = nfroots(nf, gsub(monomial(gen_1, itou(ell), fetch_var_higher()),
+                       basistoalg(nf,b)));
+  delete_var();
+  if (lg(y) != 1) b = gen_1;
+  else
+  { /* log. embeddings of fu^ell */
+    GEN fu = bnf_get_fu_nocheck(bnfz), logfu = bnf_get_logfu(bnfz);
+    GEN elllogfu = RgM_Rg_mul(real_i(logfu), ell);
+    long prec = nf_get_prec(nf);
+    for (;;)
     {
-      GEN ex = RgM_Babai(elllogfu, z);
-      if (ex)
+      GEN emb, z = get_arch_real(nf, b, &emb, prec);
+      if (z)
       {
-        b = nfdiv(nf, b, nffactorback(nf, fu, RgC_Rg_mul(ex,ell)));
-        break;
+        GEN ex = RgM_Babai(elllogfu, z);
+        if (ex)
+        {
+          y = nffactorback(nf, fu, RgC_Rg_mul(ex,ell));
+          b = nfdiv(nf, b, y); break;
+        }
       }
+      prec = precdbl(prec);
+      if (DEBUGLEVEL) pari_warn(warnprec,"reducebeta",prec);
+      nf = nfnewprec_shallow(nf,prec);
     }
-    prec = precdbl(prec);
-    if (DEBUGLEVEL) pari_warn(warnprec,"reducebeta",prec);
-    nf = nfnewprec_shallow(nf,prec);
   }
+  if (cb) b = gmul(b, cb);
   if (DEBUGLEVEL>1) err_printf("beta LLL-reduced mod U^l = %Ps\n",b);
   return b;
 }
