@@ -1,6 +1,6 @@
 Function: polrootsmod
 Section: polynomials
-C-Name: rootmod
+C-Name: polrootsmod
 Prototype: GG
 Help: polrootsmod(pol,p): roots mod the prime p of the polynomial pol.
 Description:

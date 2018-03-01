@@ -69,7 +69,6 @@ GEN     buchreal(GEN D, GEN gsens, GEN c1, GEN c2, GEN gRELSUP, long prec);
 GEN     zidealstar(GEN nf, GEN x);
 GEN     zidealstarinit(GEN nf, GEN x);
 GEN     zidealstarinitgen(GEN nf, GEN x);
-GEN     rootmod(GEN f, GEN p);
 GEN     factmod(GEN f, GEN p);
 GEN     simplefactmod(GEN f, GEN p);
 void    listkill(GEN list);
@@ -692,6 +691,7 @@ GEN     FpX_rootsff(GEN P, GEN T, GEN p);
 GEN     FpX_split_part(GEN f, GEN p);
 GEN     factcantor(GEN x, GEN p);
 GEN     factormod0(GEN f, GEN p,long flag);
+GEN     polrootsmod(GEN f, GEN p);
 GEN     rootmod0(GEN f, GEN p,long flag);
 
 /* FpXQX_factor.c */

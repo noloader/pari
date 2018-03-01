@@ -73,8 +73,9 @@ This file lists the incompatible changes between Version 2.x and older versions
   - changed ZM_inv: remove denominator bound and replace by pointer to
     denominator
   - changed QM_inv interface: removed second argument (useless)
-  - useless function Flx_roots_naive; rootmod2 is now an alias for rootmod
-    (and both have been deprecated for years)
+  - useless function Flx_roots_naive; rootmod and rootmod2 are now an alias
+    for polrootsmod (both have been deprecated for years). rootmod0 is just as
+    obsolete.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.8 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -6494,6 +6494,9 @@ from the modular kernel, then \kbd{*\_to\_mod}:
 
 \fun{GEN}{rootmod2}{GEN f, GEN p}, (now) identical to \kbd{rootmod}.
 
+\fun{GEN}{rootmod0}{GEN f, GEN p, long flag}, calls either
+\kbd{rootmod} or \kbd{rootmod2} depending on \kbd{flag}.
+
 \fun{GEN}{factmod}{GEN f, GEN p} applies \kbd{FpX\_factor}.
 
 \fun{GEN}{simplefactmod}{GEN f, GEN p} applies \kbd{FpX\_degfact}.

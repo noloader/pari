@@ -507,5 +507,6 @@ AP   64- new implementation of matsolvemod
       1- file 'MACHINES' (no longer maintained)
       2- useless argument nf in ZC_nfval, ZC_nfvalrem, pr_equal, ZC_prdvd
       3- useless flag argument in polrootsmod
-      4- [libpari] useless function Flx_roots_naive; rootmod2 is now an alias
-         for rootmod (and both have been deprecated for years)
+      4- [libpari] useless function Flx_roots_naive; rootmod and rootmod2
+         are now an alias for polrootsmod (both have been deprecated for years)
+         rootmod0 is just as obsolete.

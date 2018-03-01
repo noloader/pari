@@ -199,7 +199,7 @@ FpX_roots(GEN f, GEN p)
 }
 /* no assumptions on f and p */
 GEN
-rootmod(GEN f, GEN p)
+polrootsmod(GEN f, GEN p)
 {
   pari_sp av = avma;
   GEN y; factmod_init(&f, p); y = rootmod_aux(f, p);
@@ -207,7 +207,7 @@ rootmod(GEN f, GEN p)
 }
 /* OBSOLETE */
 GEN
-rootmod0(GEN f, GEN p, long flag) { (void)flag; return rootmod(f,p); }
+rootmod0(GEN f, GEN p, long flag) { (void)flag; return polrootsmod(f,p); }
 
 /* assume x reduced mod p > 2, monic. */
 static int
