@@ -715,7 +715,7 @@ fix_size(size_t a)
 }
 
 static void
-pari_mainstack_alloc(struct pari_mainstack *st, size_t rsize, size_t vsize)
+pari_mainstack_alloc(int numerr, struct pari_mainstack *st, size_t rsize, size_t vsize)
 {
   size_t sizemax = vsize ? vsize: rsize, s = fix_size(sizemax);
   for (;;)
@@ -724,7 +724,7 @@ pari_mainstack_alloc(struct pari_mainstack *st, size_t rsize, size_t vsize)
     if (st->vbot) break;
     if (s == MIN_STACK) pari_err(e_MEM); /* no way out. Die */
     s = fix_size(s >> 1);
-    pari_warn(warnstack, s);
+    pari_warn(numerr, s);
   }
   st->vsize = vsize ? s: 0;
   st->rsize = minuu(rsize, s);
@@ -750,7 +750,7 @@ pari_mainstack_resize(struct pari_mainstack *st, size_t rsize, size_t vsize)
 {
   BLOCK_SIGINT_START;
   pari_mainstack_free(st);
-  pari_mainstack_alloc(st, rsize, vsize);
+  pari_mainstack_alloc(warnstack, st, rsize, vsize);
   BLOCK_SIGINT_END;
 }
 
@@ -764,7 +764,7 @@ pari_mainstack_use(struct pari_mainstack *st)
 static void
 paristack_alloc(size_t rsize, size_t vsize)
 {
-  pari_mainstack_alloc(pari_mainstack, rsize, vsize);
+  pari_mainstack_alloc(warnstack, pari_mainstack, rsize, vsize);
   pari_mainstack_use(pari_mainstack);
 }
 
@@ -856,7 +856,7 @@ new_chunk_resize(size_t x)
 void
 pari_thread_valloc(struct pari_thread *t, size_t s, size_t v, GEN arg)
 {
-  pari_mainstack_alloc(&t->st,s,v);
+  pari_mainstack_alloc(warnstackthread, &t->st,s,v);
   t->data = arg;
 }
 
@@ -866,7 +866,7 @@ pari_thread_valloc(struct pari_thread *t, size_t s, size_t v, GEN arg)
 void
 pari_thread_alloc(struct pari_thread *t, size_t s, GEN arg)
 {
-  pari_mainstack_alloc(&t->st,s,0);
+  pari_mainstack_alloc(warnstackthread, &t->st,s,0);
   t->data = arg;
 }
 
@@ -1173,14 +1173,16 @@ pari_warn(int numerr, ...)
       break;
 
     case warnstack:
+    case warnstackthread:
     {
       ulong  s = va_arg(ap, ulong);
       char buf[128];
-      sprintf(buf,"Warning: not enough memory, new stack %lu", (ulong)s);
+      const char * stk = numerr == warnstackthread
+                         || mt_is_thread() ? "thread": "PARI";
+      sprintf(buf,"Warning: not enough memory, new %s stack %lu", stk, s);
       out_puts(pariErr,buf);
       break;
     }
-
   }
   va_end(ap);
   out_term_color(pariErr, c_NONE);
