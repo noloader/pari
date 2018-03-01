@@ -1150,7 +1150,7 @@ try_descend(GEN M, GEN B, GEN p, long m, long n, long d)
  *  - C is d*m matrix over F[x] expressing the canonical F-basis of V on the b_i
  * Currently F = Fp TODO extend this. */
 static GEN
-descend_i(GEN M, long n, GEN p, long v)
+descend_i(GEN M, long n, GEN p)
 {
   GEN B, C;
   long m,d,i;
@@ -1214,8 +1214,7 @@ RgM_contract(GEN A, long n, long v) /* n>1 */
 static GEN
 descend(GEN M, long n, GEN p, long v)
 {
-  GEN res;
-  res = descend_i(M,n,p,v);
+  GEN res = descend_i(M,n,p);
   gel(res,2) = RgM_contract(gel(res,2),n,v);
   return res;
 }
