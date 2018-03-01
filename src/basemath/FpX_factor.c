@@ -1704,6 +1704,25 @@ F2x_factor_Shoup(GEN T)
 }
 
 static GEN
+F2x_factor_Cantor(GEN T)
+{
+  GEN E, F, V = F2x_factor_squarefree(T);
+  long i, j, l = lg(V);
+  E = cgetg(l, t_VEC);
+  F = cgetg(l, t_VEC);
+  for (i=1, j=1; i < l; i++)
+    if (F2x_degree(gel(V,i)))
+    {
+      GEN Fj = F2x_factor_Shoup(gel(V,i));
+      gel(F, j) = Fj;
+      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
+      j++;
+    }
+  return sort_factor_pol(FE_concat(F,E,j), cmpGuGu);
+}
+
+#if 0
+static GEN
 F2x_simplefact_Shoup(GEN T)
 {
   long i, n, s = 0, j = 1, k;
@@ -1727,26 +1746,6 @@ F2x_simplefact_Shoup(GEN T)
   }
   return V;
 }
-
-static GEN
-F2x_factor_Cantor(GEN T)
-{
-  GEN E, F, V = F2x_factor_squarefree(T);
-  long i, j, l = lg(V);
-  E = cgetg(l, t_VEC);
-  F = cgetg(l, t_VEC);
-  for (i=1, j=1; i < l; i++)
-    if (F2x_degree(gel(V,i)))
-    {
-      GEN Fj = F2x_factor_Shoup(gel(V,i));
-      gel(F, j) = Fj;
-      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
-      j++;
-    }
-  return sort_factor_pol(FE_concat(F,E,j), cmpGuGu);
-}
-
-#if 0
 static GEN
 F2x_simplefact_Cantor(GEN T)
 {
