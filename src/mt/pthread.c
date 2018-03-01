@@ -71,7 +71,8 @@ mt_err_recover(long er)
   {
     struct mt_pstate *mt = pari_mt;
     struct mt_queue *mq = mt->mq+mt_thread_no;
-    GEN err = bin_copy(copy_bin(pari_err_last()));
+    GEN err = pari_err_last();
+    err = err_get_num(err)==e_STACK ? err_e_STACK: bin_copy(copy_bin(err));
     LOCK(mq->pmut)
     {
       mq->output = err;
