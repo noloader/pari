@@ -609,9 +609,9 @@ isogeny_from_kernel_poly(GEN E, GEN kerp, long only_image, long vx, long vy)
   /* isogeny degree: 2*degpol(kerp)+1-degpol(kerh) */
   m = degpol(kerq);
 
-  kerp = RgX_Rg_div(kerp, leading_coeff(kerp));
-  kerq = RgX_Rg_div(kerq, leading_coeff(kerq));
-  kerh = RgX_Rg_div(kerh, leading_coeff(kerh));
+  kerp = RgX_normalize(kerp);
+  kerq = RgX_normalize(kerq);
+  kerh = RgX_normalize(kerh);
   switch(degpol(kerh))
   {
   case 0:

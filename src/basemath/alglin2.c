@@ -701,8 +701,7 @@ easymin(GEN x, long v)
   if (!R) return R;
   dR=RgX_deriv(R);
   if (!lgpol(dR)) {avma=ltop; return NULL;}
-  G=RgX_gcd(R,dR);
-  G=RgX_Rg_div(G,leading_coeff(G));
+  G = RgX_normalize(RgX_gcd(R,dR));
   return gerepileupto(ltop, RgX_div(R,G));
 }
 

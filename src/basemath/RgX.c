@@ -1553,16 +1553,14 @@ RgX_Rg_div(GEN x, GEN y) {
 GEN
 RgX_normalize(GEN x)
 {
-  GEN d = NULL;
+  GEN z, d = NULL;
   long i, n = lg(x)-1;
-  for (i = n; i > 1; i--)
-  {
-    d = gel(x,i);
-    if (!gequal0(d)) break;
-  }
+  for (i = n; i > 1; i--) { d = gel(x,i); if (!gequal0(d)) break; }
   if (i == 1) return pol_0(varn(x));
   if (i == n && isint1(d)) return x;
-  return normalizepol_lg(RgX_Rg_div(x, d), i+1);
+  n = i; z = cgetg(n+1, t_POL); z[1] = x[1];
+  for (i=2; i<n; i++) gel(z,i) = gdiv(gel(x,i),d);
+  gel(z,n) = Rg_get_1(d); return z;
 }
 GEN
 RgX_divs(GEN x, long y) {

@@ -732,7 +732,7 @@ gbezout_step(GEN *pa, GEN *pb, GEN *pu, GEN *pv, long vx)
   { /* possible accuracy problem */
     GEN D = RgX_gcd_simple(a,b);
     if (degpol(D)) {
-      D = RgX_Rg_div(D, leading_coeff(D));
+      D = RgX_normalize(D);
       a = RgX_div(a, D);
       b = RgX_div(b, D);
       d = RgX_extgcd(a,b, pu,pv); /* retry now */
