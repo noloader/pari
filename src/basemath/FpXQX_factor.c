@@ -1755,7 +1755,7 @@ FpXQX_factor_2(GEN f, GEN T, GEN p)
 }
 
 static GEN
-F2xqX_ddf(GEN S, GEN Xq, GEN T)
+F2xqX_ddf_Shoup(GEN S, GEN Xq, GEN T)
 {
   pari_sp av = avma;
   GEN b, g, h, F, f, Sr, xq;
@@ -1782,18 +1782,18 @@ F2xqX_ddf(GEN S, GEN Xq, GEN T)
   else
   {
     xq = F2xqXQ_powers(gel(b, 2), bo, S, T);
-    if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: xq baby");
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf_Shoup: xq baby");
     for (i = 3; i <= l+1; i++)
       gel(b, i) = F2xqX_F2xqXQV_eval(gel(b, i-1), xq, S, T);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: baby");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf_Shoup: baby");
   xq = F2xqXQ_powers(gel(b, l+1), brent_kung_optpow(n, m-1, 1), S, T);
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: xq giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf_Shoup: xq giant");
   g = cgetg(m+1, t_VEC);
   gel(g, 1) = gel(xq, 2);
   for(i = 2; i <= m; i++)
     gel(g, i) = F2xqX_F2xqXQV_eval(gel(g, i-1), xq, S, T);
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf_Shoup: giant");
   h = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
   {
@@ -1804,7 +1804,7 @@ F2xqX_ddf(GEN S, GEN Xq, GEN T)
       e = F2xqXQ_mul(e, F2xX_add(gj, gel(b, i)), S, T);
     gel(h, j) = gerepileupto(av, e);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: diff");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf_Shoup: diff");
   Sr = get_F2xqX_mod(S);
   F = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
@@ -1812,7 +1812,7 @@ F2xqX_ddf(GEN S, GEN Xq, GEN T)
     gel(F, j) = F2xqX_gcd(Sr, gel(h, j), T);
     Sr = F2xqX_div(Sr, gel(F,j), T);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: F");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf_Shoup: F");
   f = const_vec(n, pol1_F2xX(v, vT));
   for (j = 1; j <= m; j++)
   {
@@ -1828,7 +1828,7 @@ F2xqX_ddf(GEN S, GEN Xq, GEN T)
       if (!degpol(e)) break;
     }
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf: f");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"F2xqX_ddf_Shoup: f");
   if (degpol(Sr)) gel(f, degpol(Sr)) = Sr;
   return gerepilecopy(av, f);
 }
@@ -1878,8 +1878,8 @@ F2xqX_factor_Shoup(GEN S, GEN xp, GEN T)
   Xq = F2xqXQ_Frobenius(xp, Xp, S, T);
   Sq = F2xqXQ_powers(Xq, n-1, S, T);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"F2xqX_Frobenius");
-  D = F2xqX_ddf(S, Xq, T);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2xqX_ddf");
+  D = F2xqX_ddf_Shoup(S, Xq, T);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"F2xqX_ddf_Shoup");
   s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_COL);
   for (i = 1, s = 1; i <= n; i++)
@@ -1995,7 +1995,7 @@ FpXQX_Berlekamp_i(GEN f, GEN T, GEN p)
 }
 
 static GEN
-FlxqX_ddf(GEN S, GEN Xq, GEN T, ulong p)
+FlxqX_ddf_Shoup(GEN S, GEN Xq, GEN T, ulong p)
 {
   pari_sp av = avma;
   GEN b, g, h, F, f, Sr, xq, q;
@@ -2023,18 +2023,18 @@ FlxqX_ddf(GEN S, GEN Xq, GEN T, ulong p)
   else
   {
     xq = FlxqXQ_powers(gel(b, 2), bo, S, T, p);
-    if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf: xq baby");
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_Shoup: xq baby");
     for (i = 3; i <= l+1; i++)
       gel(b, i) = FlxqX_FlxqXQV_eval(gel(b, i-1), xq, S, T, p);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf: baby");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_Shoup: baby");
   xq = FlxqXQ_powers(gel(b, l+1), brent_kung_optpow(n, m-1, 1), S, T, p);
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf: xq giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_Shoup: xq giant");
   g = cgetg(m+1, t_VEC);
   gel(g, 1) = gel(xq, 2);
   for(i = 2; i <= m; i++)
     gel(g, i) = FlxqX_FlxqXQV_eval(gel(g, i-1), xq, S, T, p);
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf: giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_Shoup: giant");
   h = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
   {
@@ -2045,7 +2045,7 @@ FlxqX_ddf(GEN S, GEN Xq, GEN T, ulong p)
       e = FlxqXQ_mul(e, FlxX_sub(gj, gel(b, i), p), S, T, p);
     gel(h, j) = gerepileupto(av, e);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf: diff");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_Shoup: diff");
   Sr = get_FlxqX_mod(S);
   F = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
@@ -2053,7 +2053,7 @@ FlxqX_ddf(GEN S, GEN Xq, GEN T, ulong p)
     gel(F, j) = FlxqX_gcd(Sr, gel(h, j), T, p);
     Sr = FlxqX_div(Sr, gel(F,j), T, p);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf: F");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_Shoup: F");
   f = const_vec(n, pol1_FlxX(v, vT));
   for (j = 1; j <= m; j++)
   {
@@ -2069,7 +2069,7 @@ FlxqX_ddf(GEN S, GEN Xq, GEN T, ulong p)
       if (!degpol(e)) break;
     }
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf: f");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_Shoup: f");
   if (degpol(Sr)) gel(f, degpol(Sr)) = Sr;
   return gerepilecopy(av, f);
 }
@@ -2172,8 +2172,8 @@ FlxqX_factor_Shoup(GEN S, GEN xp, GEN T, ulong p)
   Xp = FlxqXQ_powu(X, p, S, T, p);
   Xq = FlxqXQ_Frobenius(xp, Xp, S, T, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FlxqX_Frobenius");
-  D = FlxqX_ddf(S, Xq, T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"FlxqX_ddf");
+  D = FlxqX_ddf_Shoup(S, Xq, T, p);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FlxqX_ddf_Shoup");
   s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_COL);
   for (i = 1, s = 1; i <= n; i++)
@@ -2233,7 +2233,7 @@ FlxqX_nbfact_Frobenius(GEN S, GEN Xq, GEN T, ulong p)
   if (FlxY_degreex(u) <= 0)
     s = Flx_nbfactff(FlxX_to_Flx(u), T, p);
   else
-    s = ddf_to_nbfact(FlxqX_ddf(S, Xq, T, p));
+    s = ddf_to_nbfact(FlxqX_ddf_Shoup(S, Xq, T, p));
   avma = av; return s;
 }
 
@@ -2246,7 +2246,7 @@ FlxqX_nbfact(GEN S, GEN T, ulong p)
   if (FlxY_degreex(u) <= 0)
     s = Flx_nbfactff(FlxX_to_Flx(u), T, p);
   else
-    s = ddf_to_nbfact(FlxqX_ddf(S, FlxqX_Frobenius(S, T, p), T, p));
+    s = ddf_to_nbfact(FlxqX_ddf_Shoup(S, FlxqX_Frobenius(S, T, p), T, p));
   avma = av; return s;
 }
 
@@ -2265,7 +2265,7 @@ F2xqX_factor(GEN x, GEN T)
 }
 
 static GEN
-FpXQX_ddf(GEN S, GEN Xq, GEN T, GEN p)
+FpXQX_ddf_Shoup(GEN S, GEN Xq, GEN T, GEN p)
 {
   pari_sp av = avma;
   GEN b, g, h, F, f, Sr, xq, q;
@@ -2292,18 +2292,18 @@ FpXQX_ddf(GEN S, GEN Xq, GEN T, GEN p)
   else
   {
     xq = FpXQXQ_powers(gel(b, 2), bo, S, T, p);
-    if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf: xq baby");
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_Shoup: xq baby");
     for (i = 3; i <= l+1; i++)
       gel(b, i) = FpXQX_FpXQXQV_eval(gel(b, i-1), xq, S, T, p);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf: baby");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_Shoup: baby");
   xq = FpXQXQ_powers(gel(b, l+1), brent_kung_optpow(n, m-1, 1), S, T, p);
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf: xq giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_Shoup: xq giant");
   g = cgetg(m+1, t_VEC);
   gel(g, 1) = gel(xq, 2);
   for(i = 2; i <= m; i++)
     gel(g, i) = FpXQX_FpXQXQV_eval(gel(g, i-1), xq, S, T, p);
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf: giant");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_Shoup: giant");
   h = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
   {
@@ -2314,7 +2314,7 @@ FpXQX_ddf(GEN S, GEN Xq, GEN T, GEN p)
       e = FpXQXQ_mul(e, FpXX_sub(gj, gel(b, i), p), S, T, p);
     gel(h, j) = gerepileupto(av, e);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf: diff");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_Shoup: diff");
   Sr = get_FpXQX_mod(S);
   F = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
@@ -2322,7 +2322,7 @@ FpXQX_ddf(GEN S, GEN Xq, GEN T, GEN p)
     gel(F, j) = FpXQX_gcd(Sr, gel(h, j), T, p);
     Sr = FpXQX_div(Sr, gel(F,j), T, p);
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf: F");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_Shoup: F");
   f = const_vec(n, pol_1(v));
   for (j = 1; j <= m; j++)
   {
@@ -2338,7 +2338,7 @@ FpXQX_ddf(GEN S, GEN Xq, GEN T, GEN p)
       if (!degpol(e)) break;
     }
   }
-  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf: f");
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_Shoup: f");
   if (degpol(Sr)) gel(f, degpol(Sr)) = Sr;
   return gerepilecopy(av, f);
 }
@@ -2441,8 +2441,8 @@ FpXQX_factor_Shoup(GEN S, GEN xp, GEN T, GEN p)
   Xp = FpXQXQ_pow(X, p, S, T, p);
   Xq = FpXQXQ_Frobenius(xp, Xp, S, T, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FpXQX_Frobenius");
-  D = FpXQX_ddf(S, Xq, T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpXQX_ddf");
+  D = FpXQX_ddf_Shoup(S, Xq, T, p);
+  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpXQX_ddf_Shoup");
   s = ddf_to_nbfact(D);
   V = cgetg(s+1, t_COL);
   for (i = 1, s = 1; i <= n; i++)
@@ -2509,7 +2509,7 @@ FpXQX_nbfact_Frobenius(GEN S, GEN Xq, GEN T, GEN p)
   else if (isabsolutepol(u))
     s = FpX_nbfactff(simplify_shallow(u), T, p);
   else
-    s = ddf_to_nbfact(FpXQX_ddf(S, Xq, T, p));
+    s = ddf_to_nbfact(FpXQX_ddf_Shoup(S, Xq, T, p));
   avma = av; return s;
 }
 
@@ -2528,7 +2528,7 @@ FpXQX_nbfact(GEN S, GEN T, GEN p)
   else if (isabsolutepol(u))
     s = FpX_nbfactff(simplify_shallow(u), T, p);
   else
-    s = ddf_to_nbfact(FpXQX_ddf(S, FpXQX_Frobenius(S, T, p), T, p));
+    s = ddf_to_nbfact(FpXQX_ddf_Shoup(S, FpXQX_Frobenius(S, T, p), T, p));
   avma = av; return s;
 }
 
