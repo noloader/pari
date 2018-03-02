@@ -160,10 +160,13 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
   }
   if (DEBUGLEVEL>1) err_printf("beta reduced via ell-th root = %Ps\n",b);
   b = Q_primitive_part(b, &cb);
-  y = nfroots(nf, gsub(monomial(gen_1, itou(ell), fetch_var_higher()),
-                       basistoalg(nf,b)));
-  delete_var();
-  if (lg(y) != 1) b = gen_1;
+  if (cb)
+  {
+    y = nfroots(nf, gsub(monomial(gen_1, itou(ell), fetch_var_higher()),
+                         basistoalg(nf,b)));
+    delete_var();
+  }
+  if (cb && lg(y) != 1) b = gen_1;
   else
   { /* log. embeddings of fu^ell */
     GEN fu = bnf_get_fu_nocheck(bnfz), logfu = bnf_get_logfu(bnfz);
