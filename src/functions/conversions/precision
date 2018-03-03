@@ -17,8 +17,8 @@ Description:
 
 Doc: the function behaves differently according to whether $n$ is
  present and positive or not. If $n$ is missing, the function returns the
- precision in decimal digits of the PARI object $x$. If $x$ is an exact
- object, the function returns \kbd{+oo}.
+ floating point precision in decimal digits of the PARI object $x$. If $x$
+ has no floating point component, the function returns \kbd{+oo}.
 
  \bprog
  ? precision(exp(1e-100))
@@ -35,7 +35,7 @@ Doc: the function behaves differently according to whether $n$ is
  floating point precision $n$: $n$ is the number of desired significant
  \emph{decimal} digits. If $n$ is smaller than the precision of a \typ{REAL}
  component of $x$, it is truncated, otherwise it is extended with zeros.
- For exact or non-floating point types, no change.
+ For non-floating point types, no change.
 
 Variant: Also available are \fun{GEN}{gprec}{GEN x, long n} and
  \fun{long}{precision}{GEN x}. In both, the accuracy is expressed in

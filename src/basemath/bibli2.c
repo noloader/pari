@@ -489,35 +489,14 @@ matqpascal(long n, GEN q)
 /******************************************************************/
 
 GEN
-gprec(GEN x, long l)
+gprec(GEN x, long d)
 {
-  long lx, i;
-  GEN y;
-
-  if (l <= 0) pari_err_DOMAIN("gprec", "precision", "<=", gen_0, stoi(l));
-  switch(typ(x))
-  {
-    case t_REAL:
-      return rtor(x, ndec2prec(l));
-    case t_COMPLEX:
-      y = cgetg(3, t_COMPLEX);
-      gel(y,1) = gprec(gel(x,1),l);
-      gel(y,2) = gprec(gel(x,2),l);
-      break;
-    case t_POL: case t_SER:
-      y = cgetg_copy(x, &lx); y[1] = x[1];
-      for (i=2; i<lx; i++) gel(y,i) = gprec(gel(x,i),l);
-      break;
-    case t_POLMOD: case t_RFRAC: case t_VEC: case t_COL: case t_MAT:
-      y = cgetg_copy(x, &lx);
-      for (i=1; i<lx; i++) gel(y,i) = gprec(gel(x,i),l);
-      break;
-    default: y = gcopy(x);
-  }
-  return y;
+  pari_sp av = avma;
+  if (d <= 0) pari_err_DOMAIN("gprec", "precision", "<=", gen_0, stoi(d));
+  return gerepilecopy(av, gprec_w(x, ndec2prec(d)));
 }
 
-/* internal: precision given in word length (including codewords) */
+/* not GC-safe; precision given in word length (including codewords) */
 GEN
 gprec_w(GEN x, long pr)
 {
