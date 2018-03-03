@@ -625,11 +625,11 @@ intn(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab)
 {
   GEN tabx0, tabw0, tabxp, tabwp;
   GEN bpa, bma, bmb, S;
-  long i;
+  long i, prec;
   pari_sp ltop = avma, av;
 
   if (!checktabsimp(tab)) pari_err_TYPE("intnum",tab);
-  tabx0 = TABx0(tab); tabw0 = TABw0(tab);
+  tabx0 = TABx0(tab); tabw0 = TABw0(tab); prec = gprecision(tabw0);
   tabxp = TABxp(tab); tabwp = TABwp(tab);
   bpa = gmul2n(gadd(b, a), -1); /* (b+a)/2 */
   bma = gsub(bpa, a); /* (b-a)/2 */
@@ -645,6 +645,7 @@ intn(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab)
     SM = eval(E, gadd(bpa, bmb));
     S = gadd(S, gmul(gel(tabwp,i), gadd(SP, SM)));
     if ((i & 0x7f) == 1) S = gerepileupto(av, S);
+    S = gprec_wensure(S, prec);
   }
   return gerepileupto(ltop, gmul(S, gmul(bma, TABh(tab))));
 }
@@ -652,14 +653,14 @@ intn(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab)
 /* compute \int_a^b f(t)dt with [a,b] compact, possible singularity with
  * exponent a[2] at lower extremity, b regular. Use tanh(sinh(t)). */
 static GEN
-intnsing(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
+intnsing(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab)
 {
   GEN tabx0, tabw0, tabxp, tabwp, ea, ba, S;
-  long i;
+  long i, prec;
   pari_sp ltop = avma, av;
 
   if (!checktabsimp(tab)) pari_err_TYPE("intnum",tab);
-  tabx0 = TABx0(tab); tabw0 = TABw0(tab);
+  tabx0 = TABx0(tab); tabw0 = TABw0(tab); prec = gprecision(tabw0);
   tabxp = TABxp(tab); tabwp = TABwp(tab);
   ea = ginv(gaddsg(1, gel(a,2)));
   a = gel(a,1);
@@ -676,6 +677,7 @@ intnsing(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     GEN SM = gmul(gdiv(bm, m), eval(E, gadd(bm, a)));
     S = gadd(S, gmul(gel(tabwp,i), gadd(SP, SM)));
     if ((i & 0x7f) == 1) S = gerepileupto(av, S);
+    S = gprec_wensure(S, prec);
   }
   return gerepileupto(ltop, gmul(gmul(S, TABh(tab)), ea));
 }
@@ -691,11 +693,11 @@ intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long sb, GEN tab)
 {
   GEN tabx0, tabw0, tabxp, tabwp, tabxm, tabwm;
   GEN S;
-  long L, i;
+  long L, i, prec;
   pari_sp av = avma;
 
   if (!checktabdoub(tab)) pari_err_TYPE("intnum",tab);
-  tabx0 = TABx0(tab); tabw0 = TABw0(tab);
+  tabx0 = TABx0(tab); tabw0 = TABw0(tab); prec = gprecision(tabw0);
   tabxp = TABxp(tab); tabwp = TABwp(tab); L = lg(tabxp);
   tabxm = TABxm(tab); tabwm = TABwm(tab);
   if (gequal0(a))
@@ -708,6 +710,7 @@ intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long sb, GEN tab)
       GEN SM = eval(E, NEG(gel(tabxm,i)));
       S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
       if ((i & 0x7f) == 1) S = gerepileupto(av, S);
+      S = gprec_wensure(S, prec);
     }
   }
   else if (gexpo(a) <= 0 || is_osc(sb))
@@ -720,6 +723,7 @@ intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long sb, GEN tab)
       GEN SM = eval(E, ADD(a, gel(tabxm,i)));
       S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
       if ((i & 0x7f) == 1) S = gerepileupto(av, S);
+      S = gprec_wensure(S, prec);
     }
   }
   else
@@ -735,6 +739,7 @@ intninfpm(void *E, GEN (*eval)(void*, GEN), GEN a, long sb, GEN tab)
       GEN SM = eval(E, gmul(A, ADD(sa, gel(tabxm,i))));
       S = gadd(S, gadd(gmul(gel(tabwp,i), SP), gmul(gel(tabwm,i), SM)));
       if ((i & 0x7f) == 1) S = gerepileupto(av2, S);
+      S = gprec_wensure(S, prec);
     }
     S = gmul(S,A);
   }
@@ -752,11 +757,11 @@ intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
 {
   GEN tabx0, tabw0, tabxp, tabwp, tabwm;
   GEN S;
-  long L, i, spf;
+  long L, i, prec, spf;
   pari_sp ltop = avma;
 
   if (!checktabsimp(tab)) pari_err_TYPE("intnum",tab);
-  tabx0 = TABx0(tab); tabw0 = TABw0(tab);
+  tabx0 = TABx0(tab); tabw0 = TABw0(tab); prec = gprecision(tabw0);
   tabxp = TABxp(tab); tabwp = TABwp(tab); L = lg(tabxp);
   tabwm = TABwm(tab);
   spf = (lg(tabwm) == lg(tabwp));
@@ -773,6 +778,7 @@ intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
       S = gadd(S, gmul(gel(tabwp,i), gadd(SP,SM)));
     }
     if ((i & 0x7f) == 1) S = gerepileupto(ltop, S);
+    S = gprec_wensure(S, prec);
   }
   if (spf) S = gmul2n(S,1);
   return gerepileupto(ltop, gmul(S, TABh(tab)));
@@ -1103,12 +1109,12 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   if (codeb == f_SING)
   {
     if (codea == f_REG)
-      S = intnsing(E, eval, b, a, tab, prec), sgns = -sgns;
+      S = intnsing(E, eval, b, a, tab), sgns = -sgns;
     else
     {
       GEN c = gmul2n(gadd(gel(a,1), gel(b,1)), -1);
-      res1 = intnsing(E, eval, a, c, gel(tab,1), prec);
-      res2 = intnsing(E, eval, b, c, gel(tab,2), prec);
+      res1 = intnsing(E, eval, a, c, gel(tab,1));
+      res2 = intnsing(E, eval, b, c, gel(tab,2));
       S = gsub(res1, res2);
     }
     return (sgns < 0) ? gneg(S) : S;
@@ -1144,9 +1150,9 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
       default: c = addui(1, gceil(c));
         break;
     }
-    res1 = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1), prec)
+    res1 = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1))
                         : intn    (E, eval, a, c, gel(tab,1));
-    res2 = intninfpm(E, eval, c, sb*codeb,gel(tab,2));
+    res2 = intninfpm(E, eval, c, sb*codeb, gel(tab,2));
     if (sb < 0) res2 = gneg(res2);
     res1 = gadd(res1, res2);
     return sgns < 0 ? gneg(res1) : res1;
@@ -1170,8 +1176,8 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     GEN pis2 = Pi2n(-1, prec);
     GEN ca = (codea == f_YOSCC)? gmul(pis2, kma): gen_0;
     GEN cb = (codeb == f_YOSCC)? gmul(pis2, kmb): gen_0;
-    GEN c = codea == f_YOSCC ? ca : cb;
-    GEN SP, SN = intninfpm(E, eval, c, -sb*codea, gel(tab,1)); /*signe(a)=-sb*/
+    GEN c = codea == f_YOSCC ? ca : cb; /*signe(a)=-sb*/
+    GEN SP, SN = intninfpm(E, eval, c, -sb*codea, gel(tab,1));
     if (codea != f_YOSCC)
       SP = intninfpm(E, eval, cb, sb*codeb, gel(tab,2));
     /* codea = codeb = f_YOSCC */

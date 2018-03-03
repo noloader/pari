@@ -18,6 +18,10 @@ ref=F(4);
 T = intfuncinit(t=A,B, f(c + I*t));
 check(F(4), ref)
 
+\p100
+check(intnum(x=0,1,x*cos(Pi*x)), -2/Pi^2)
+check(intnum(x=0,1,x*cos(Pi*x),2), -2/Pi^2)
+
 \p96
 f(x) = 1/(exp(x)-1) - exp(-x)/x;
 F = truncate( f(t + O(t^7)) );

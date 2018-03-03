@@ -506,7 +506,7 @@ gprec_w(GEN x, long pr)
   switch(typ(x))
   {
     case t_REAL:
-      if (signe(x)) return rtor(x,pr);
+      if (signe(x)) return realprec(x) != pr? rtor(x,pr): x;
       i = -prec2nbits(pr);
       if (i < expo(x)) return real_0_bit(i);
       y = cgetr(2); y[1] = x[1]; return y;
@@ -527,9 +527,40 @@ gprec_w(GEN x, long pr)
   }
   return y;
 }
+/* not GC-safe; precision given in word length (including codewords) */
+GEN
+gprec_wensure(GEN x, long pr)
+{
+  long lx, i;
+  GEN y;
 
-/* internal: precision given in word length (including codewords), truncate
- * mantissa to precision 'pr' but never _increase_ it */
+  switch(typ(x))
+  {
+    case t_REAL:
+      if (signe(x)) return realprec(x) < pr? rtor(x,pr): x;
+      i = -prec2nbits(pr);
+      if (i < expo(x)) return real_0_bit(i);
+      y = cgetr(2); y[1] = x[1]; return y;
+    case t_COMPLEX:
+      y = cgetg(3, t_COMPLEX);
+      gel(y,1) = gprec_wensure(gel(x,1),pr);
+      gel(y,2) = gprec_wensure(gel(x,2),pr);
+      break;
+   case t_POL: case t_SER:
+      y = cgetg_copy(x, &lx); y[1] = x[1];
+      for (i=2; i<lx; i++) gel(y,i) = gprec_wensure(gel(x,i),pr);
+      break;
+    case t_POLMOD: case t_RFRAC: case t_VEC: case t_COL: case t_MAT:
+      y = cgetg_copy(x, &lx);
+      for (i=1; i<lx; i++) gel(y,i) = gprec_wensure(gel(x,i),pr);
+      break;
+    default: return x;
+  }
+  return y;
+}
+
+/* not GC-safe; precision given in word length (including codewords),
+ * truncate mantissa to precision 'pr' but never increase it */
 GEN
 gprec_wtrunc(GEN x, long pr)
 {

@@ -10199,6 +10199,11 @@ is often more useful than \kbd{gprec}.
 \emph{words}. Contrary to \kbd{gprec\_w}, this function may never increase
 the precision of~$x$.
 
+\fun{GEN}{gprec_wensure}{GEN x, long l} returns a shallow copy of $x$ whose
+\typ{REAL} components have their precision \emph{increased} to at least $l$
+\emph{words}. Contrary to \kbd{gprec\_w}, this function may never decrease
+the precision of~$x$.
+
 \subsec{Modular objects / lifts}
 
 \fun{GEN}{gmodulo}{GEN x, GEN y} creates the object \kbd{\key{Mod}(x,y)} on

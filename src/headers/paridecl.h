@@ -2424,6 +2424,7 @@ GEN     polcyclo(long n, long v);
 GEN     polcyclo_eval(long n, GEN x);
 GEN     dirdiv(GEN x, GEN y);
 GEN     dirmul(GEN x, GEN y);
+GEN     gprec_wensure(GEN x, long pr);
 GEN     gen_indexsort(GEN x, void *E, int (*cmp)(void*,GEN,GEN));
 GEN     gen_indexsort_uniq(GEN x, void *E, int (*cmp)(void*,GEN,GEN));
 long    gen_search(GEN x, GEN y, long flag, void *data, int (*cmp)(void*,GEN,GEN));

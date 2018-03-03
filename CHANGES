@@ -176,6 +176,8 @@ BA  129- default(strictargs,1); my(a=2);(f(b,c)=123);f(1) => SEGV [#2004]
     137- memory corruption in nffactor [#2013]
 BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     139- quadclassunit(-699,,[6,6]) -> SEGV [#2015]
+    140- intnum would lose accuracy when using more control points, e.g.
+         intnum(x=0,1,x*cos(Pi*x), 2) at \p100 [#2014]
 
   Added
       1- [libari] ZM_isidentity
@@ -385,6 +387,7 @@ BA  155- qfisom: allow to give the automorphism group of the second lattice
          Q_factor, Q_factor_limit, vecsquarefreeu
     158- vecsort / vecsearch: allow sort/search wrt to a "key" (closure with
          arity 1)
+    159- [libpari] gprec_wensure
 
   Changed
       1- rewrite bnfnarrow
