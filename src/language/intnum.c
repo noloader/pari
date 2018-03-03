@@ -252,7 +252,7 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
   pari_sp ltop = avma;
   GEN R, W, bma, bpa, S;
-  long n, i;
+  long n, i, prec2 = prec + EXTRAPREC;
   if (!tab)
     tab = intnumgaussinit(0,prec);
   else if (typ(tab) != t_INT)
@@ -265,8 +265,8 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 
   R = gel(tab,1); n = lg(R)-1;
   W = gel(tab,2);
-  a = gprec_w(a, prec+EXTRAPREC);
-  b = gprec_w(b, prec+EXTRAPREC);
+  a = gprec_w(a, prec2);
+  b = gprec_w(b, prec2);
   bma = gmul2n(gsub(b,a), -1); /* (b-a)/2 */
   bpa = gadd(bma, a); /* (b+a)/2 */
   S = gen_0;
@@ -276,6 +276,7 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     GEN P = eval(E, gadd(bpa, gmul(bma, r)));
     GEN M = eval(E, gsub(bpa, gmul(bma, r)));
     S = gadd(S, gmul(gel(W,i), gadd(P,M)));
+    S = gprec_wensure(S, prec2);
   }
   return gerepilecopy(ltop, gprec_wtrunc(gmul(bma,S), prec));
 }
@@ -1775,7 +1776,11 @@ sumnummonien(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
   if (typ(vabs) != t_VEC || typ(vwt) != t_VEC || lg(vwt) != l)
     pari_err_TYPE("sumnummonien", tab);
   S = gen_0;
-  for (i = 1; i < l; i++) S = gadd(S, gmul(gel(vwt,i), eval(E, gel(vabs,i))));
+  for (i = 1; i < l; i++)
+  {
+    S = gadd(S, gmul(gel(vwt,i), eval(E, gel(vabs,i))));
+    S = gprec_wensure(S, prec);
+  }
   return gerepileupto(av, gprec_w(S, prec));
 }
 
@@ -1869,6 +1874,7 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
       if (DEBUGMEM>1) pari_warn(warnmem,"sumnum [1], %ld/%ld",m,N);
       S = gerepileupto(av2, S);
     }
+    S = gprec_wensure(S, prec2);
   }
   for (m = 1; m <= k/2; m++)
   {
@@ -1880,6 +1886,7 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
       if (DEBUGMEM>1) pari_warn(warnmem,"sumnum [2], %ld/%ld",m,k/2);
       S = gerepileupto(av2, S);
     }
+    S = gprec_wensure(S, prec2);
   }
   S = gadd(S, intnum(E, eval,stoi(N), fast, tabint, prec2));
   return gerepilecopy(av, gprec_w(S, prec));
@@ -1943,6 +1950,7 @@ intnumgauexp(void *E, GEN (*eval)(void*,GEN), GEN gN, GEN tab, long prec)
     t = mulcxI(gsub(eval(E,U), eval(E,V)));
     if (typ(t) == t_COMPLEX && gequal0(gel(t,2))) t = gel(t,1);
     S = gadd(S, gmul(gdiv(w,x), t));
+    S = gprec_wensure(S, prec);
   }
   return gerepileupto(av, gprec_w(S, prec));
 }
@@ -1994,7 +2002,11 @@ sumnumap(void *E, GEN (*eval)(void*,GEN), GEN a, GEN tab, long prec)
   T.f = eval;
   gN = stoi(N);
   S = gtofp(gmul2n(eval(E, gN), -1), prec);
-  for (m = as; m < N; ++m) S = gadd(S, eval(E, stoi(m)));
+  for (m = as; m < N; ++m)
+  {
+    S = gadd(S, eval(E, stoi(m)));
+    S = gprec_wensure(S, prec);
+  }
   S = gadd(S, gmulsg(N, intnum(&T, &_exfn, gen_1, fast, gel(tab, 2), prec)));
   S = gadd(S, intnumgauexp(E, eval, gN, gel(tab, 1), prec));
   return gerepileupto(av, S);
@@ -2487,11 +2499,19 @@ sumaux(void *E, GEN (*eval)(void*,GEN,long), long as, long prec)
   long n;
   if (as > 1)
   {
-    for (n = 1; n < as; ++n) S = gadd(S, eval(E, stoi(n), prec));
+    for (n = 1; n < as; ++n)
+    {
+      S = gadd(S, eval(E, stoi(n), prec));
+      S = gprec_wensure(S, prec);
+    }
     S = gneg(S);
   }
   else
-    for (n = as; n <= 0; ++n) S = gadd(S, eval(E, stoi(n), prec));
+    for (n = as; n <= 0; ++n)
+    {
+      S = gadd(S, eval(E, stoi(n), prec));
+      S = gprec_wensure(S, prec);
+    }
   return S;
 }
 
@@ -2522,7 +2542,10 @@ sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
   else
     s = gen_0;
   for (n = 1; n < l; n++)
+  {
     s = gadd(s, gmul(gel(V, n), eval(E, stoi(n+as-1), prec2)));
+    s = gprec_wensure(s, prec);
+  }
   if (!gequal1(S)) s = gdiv(s,S);
   return gerepileupto(av, gprec_w(s, prec));
 }

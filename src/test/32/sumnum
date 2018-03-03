@@ -14,18 +14,18 @@
 -38
 -40
 (n)->log(1+1/n)/n
--36
++oo
 -38
 -36
 (n)->lngamma(1+1/n)/n
--37
++oo
 +oo
 -37
 (n)->sin(1/sqrt(n))/n^(3/2)
--36
++oo
 +oo
 -36
-2.3979771206715998375659850036324914714
+2.3979771206715998375659850036324914715
 2.3979771206715998375659850036324914714
 -37
 -38
@@ -35,7 +35,7 @@
 -38
 +oo
 +oo
--36
++oo
 -36
 +oo
    realprecision = 115 significant digits
@@ -57,7 +57,7 @@
 -307
 -307
 -307
--305
+-307
 -307
 [-307, -305]
 -307
@@ -92,4 +92,4 @@
   ***   at top-level: sumnumlagrangeinit(x)
   ***                 ^---------------------
   *** sumnumlagrangeinit: incorrect type in sumnumlagrangeinit (t_POL).
-Total time spent: 1848
+Total time spent: 3939
