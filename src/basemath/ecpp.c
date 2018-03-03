@@ -594,10 +594,10 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
   {
     long D = umael3(merge, i, 1, 1);
     long h = umael3(merge, i, 1, 2);
-    long dfaclen = lg(gmael2(merge, i, 2))-1;
-    long bi = disc_best_modinv(D);
-    umael3(merge, i, 1, 3) = bi;
-    if (bi) umael3(merge, i, 1, 4) = h >> (dfaclen-1);
+    long modinv = umael3(merge, i, 1, 3) = disc_best_modinv(D);
+    long p1 = 1, p2 = 1;
+    if (modinv_degree(&p1, &p2, modinv) && (-D)%p1 == 0 && (-D)%p2 == 0)
+      umael3(merge, i, 1, 4) = h/2;
   }
   merge = gen_sort(merge, NULL, &sort_disclist);
   return gerepileupto(av, merge);
