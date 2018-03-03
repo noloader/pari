@@ -43,8 +43,8 @@ Doc:
     *** ellap: inconsistent moduli in Rg_to_Fp:
       11
       13
- ? Fq = ffgen(ffinit(11,3), 'a); \\ defines F_q := F_{11^3}
- ? E = ellinit([a+1,a], Fq);  \\ y^2 = x^3 + (a+1)x + a, defined over F_q
+ ? a = ffgen(ffinit(11,3), 'a); \\ defines F_q := F_{11^3}
+ ? E = ellinit([a+1,a]);  \\ y^2 = x^3 + (a+1)x + a, defined over F_q
  ? ellap(E)
  %8 = -3
  @eprog
