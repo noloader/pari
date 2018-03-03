@@ -1236,8 +1236,8 @@ cxgamma(GEN s0, int dolog, long prec)
   }
   else
   { /* Compute lngamma mod 2 I Pi */
-    pari_sp av3 = avma;
     GEN sq = gsqr(s);
+    pari_sp av3 = avma;
     for (i = 1; i < nn - 1; i += 2)
     {
       y = gmul(y, gaddsg(i*(i + 1), gadd(gmulsg(2*i + 1, s), sq)));
