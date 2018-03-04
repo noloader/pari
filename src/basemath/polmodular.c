@@ -232,19 +232,14 @@ modinv_good_prime(long inv, long p)
   return 1;
 }
 
-/* Returns true if the prime p does not divide the conductor of D
- * (assumes p is prime). */
+/* Returns true if the prime p does not divide the conductor of D */
 INLINE int
 prime_to_conductor(long D, long p)
 {
   long b;
-  if (p > 2)
-    return (D % (p * p));
-  /* if 2 divides the conductor of D then D=0 mod 16 (when D_0 is 0
-   * mod 4) or D=4 mod 16 (when D_0 is 1 mod 4) */
+  if (p > 2) return (D % (p * p));
   b = D & 0xF;
-  return (b && b != 4);
-
+  return (b && b != 4); /* 2 divides the conductor of D <=> D=0,4 mod 16 */
 }
 
 INLINE GEN
@@ -252,15 +247,8 @@ red_primeform(long D, long p)
 {
   pari_sp av = avma;
   GEN P;
-
-  if ( ! prime_to_conductor(D, p))
-    return NULL;
-  P = primeform_u(stoi(D), p);
-  /* Check that P is primitive */
-  if (gequal(gel(P, 1), gel(P, 2)) && dvdis(gel(P, 3), p)) {
-    avma = av;
-    return NULL;
-  }
+  if (!prime_to_conductor(D, p)) return NULL;
+  P = primeform_u(stoi(D), p); /* primitive since p \nmid conductor */
   return gerepileupto(av, redimag(P));
 }
 
@@ -270,26 +258,17 @@ GEN
 qfb_nform(long D, long n)
 {
   pari_sp av = avma;
-  GEN N = NULL, fact, ps, es;
-  long i;
+  GEN N = NULL, fa = factoru(n), P = gel(fa,1), E = gel(fa,2);
+  long i, l = lg(P);
 
-  fact = factoru(n);
-  ps = gel(fact, 1);
-  es = gel(fact, 2);
-  for (i = 1; i < lg(ps); ++i) {
+  for (i = 1; i < l; ++i)
+  {
     long j, e;
-    GEN Q = red_primeform(D, ps[i]);
-    if ( ! Q) {
-      avma = av;
-      return NULL;
-    }
-    e = es[i];
-    for (j = 0; j < e; ++j) {
-      if ((i-1) || j)
-        N = qficomp(Q, N);
-      else
-        N = Q;
-    }
+    GEN Q = red_primeform(D, P[i]);
+    if (!Q) { avma = av; return NULL; }
+    e = E[i];
+    if (i == 1) { N = Q; j = 1; } else j = 0;
+    for (; j < e; ++j) N = qficomp(Q, N);
   }
   return gerepileupto(av, N);
 }
@@ -297,8 +276,8 @@ qfb_nform(long D, long n)
 INLINE int
 qfb_is_two_torsion(GEN x)
 {
-  return gequal1(gel(x, 1)) || gequal0(gel(x, 2))
-    || gequal(gel(x, 1), gel(x, 2)) || gequal(gel(x, 1), gel(x, 3));
+  return equali1(gel(x,1)) || !signe(gel(x,2))
+    || equalii(gel(x,1), gel(x,2)) || equalii(gel(x,1), gel(x,3));
 }
 
 /* Returns true iff the products p1*p2, p1*p2^-1, p1^-1*p2, and
@@ -306,31 +285,24 @@ qfb_is_two_torsion(GEN x)
 INLINE int
 qfb_distinct_prods(long D, long p1, long p2)
 {
-  pari_sp av = avma;
   GEN P1, P2;
-  int x;
 
   P1 = red_primeform(D, p1);
-  if ( ! P1) {
-    avma = av;
-    return 0;
-  }
+  if (!P1) return 0;
   P1 = qfisqr(P1);
 
   P2 = red_primeform(D, p2);
-  if ( ! P2) {
-    avma = av;
-    return 0;
-  }
+  if (!P2) return 0;
   P2 = qfisqr(P2);
 
-  x = ! (gequal(gel(P1, 1), gel(P2, 1))
-      && (gequal(gel(P1, 2), gel(P2, 2))
-          || gequal(gel(P1, 2), gneg(gel(P2, 2)))));
-  avma = av;
-  return x;
+  return !(equalii(gel(P1,1), gel(P2,1)) && absequalii(gel(P1,2), gel(P2,2)));
 }
 
+/* By Corollary 3.1 of Enge-Schertz Constructing elliptic curves over finite
+ * fields using double eta-quotients, we need p1 != p2 to both be non-inert
+ * and prime to the conductor, and if p1=p2=p we want p split and prime to the
+ * conductor. We exclude the case that p1=p2 divides the conductor, even
+ * though this does yield class invariants */
 INLINE int
 modinv_double_eta_good_disc(long D, long inv)
 {
@@ -338,64 +310,39 @@ modinv_double_eta_good_disc(long D, long inv)
   GEN P;
   long i1, i2, p1, p2, N;
 
-  /* By Corollary 3.1 of Enge-Schertz Constructing elliptic curves
-   * over finite fields using double eta-quotients, we need p1 != p2
-   * to both be non-inert and prime to the conductor, and if p1=p2=p
-   * we want p split and prime to the conductor.  We exclude the case
-   * that p1=p2 divides the conductor, even though this does yield
-   * class invariants */
   N = modinv_degree(&p1, &p2, inv);
-  if ( ! N)
-    return 0;
+  if (! N) return 0;
   i1 = kross(D, p1);
-  if (i1 < 0)
-    return 0;
+  if (i1 < 0) return 0;
   /* Exclude ramified case for w_{p,p} */
-  if (p1 == p2 && !i1)
-    return 0;
+  if (p1 == p2 && !i1) return 0;
   i2 = kross(D, p2);
-  if (i2 < 0)
-    return 0;
+  if (i2 < 0) return 0;
   /* this also verifies that p1 is prime to the conductor */
   P = red_primeform(D, p1);
-  if ( ! P
-      || gequal1(gel(P, 1)) /* don't allow p1 to be principal */
+  if (!P || gequal1(gel(P,1)) /* don't allow p1 to be principal */
       /* if p1 is unramified, require it to have order > 2 */
-      || (i1 && qfb_is_two_torsion(P))) {
-    avma = av;
-    return 0;
-  }
-  if (p1 == p2) {
-    /* if p1=p2 we need p1*p1 to be distinct from its inverse */
-    int not_2tors = ! qfb_is_two_torsion(qfisqr(P));
-    avma = av;
-    return not_2tors;
+      || (i1 && qfb_is_two_torsion(P))) { avma = av; return 0; }
+  if (p1 == p2)
+  { /* if p1=p2 we need p1*p1 to be distinct from its inverse */
+    int ok = ! qfb_is_two_torsion(qfisqr(P));
+    avma = av; return ok;
   }
   /* this also verifies that p2 is prime to the conductor */
   P = red_primeform(D, p2);
-  if ( ! P
-      || gequal1(gel(P, 1)) /* don't allow p2 to be principal */
+  if (!P || gequal1(gel(P,1)) /* don't allow p2 to be principal */
       /* if p2 is unramified, require it to have order > 2 */
-      || (i2 && qfb_is_two_torsion(P))) {
-    avma = av;
-    return 0;
-  }
+      || (i2 && qfb_is_two_torsion(P))) { avma = av; return 0; }
   avma = av;
 
-  if (i1 > 0 && i2 > 0) {
-    /* if p1 and p2 are split, we also require p1*p2,
-     * p1*p2^-1,p1^-1*p2, and p1^-1*p2^-1 to be distinct */
-    if ( ! qfb_distinct_prods(D, p1, p2))
-      return 0;
-  }
+  /* if p1 and p2 are split, we also require p1*p2, p1*p2^-1, p1^-1*p2,
+   * and p1^-1*p2^-1 to be distinct */
+  if (i1>0 && i2>0 && !qfb_distinct_prods(D, p1, p2)) { avma = av; return 0; }
   if (!i1 && !i2) {
     /* if both p1 and p2 are ramified, make sure their product is not
      * principal */
     P = qfb_nform(D, N);
-    if (gequal1(gel(P, 1))) {
-      avma = av;
-      return 0;
-    }
+    if (equali1(gel(P,1))) { avma = av; return 0; }
     avma = av;
   }
   return 1;
@@ -406,11 +353,8 @@ modinv_double_eta_good_disc(long D, long inv)
 long
 modinv_ramified(long D, long inv)
 {
-  long p1, p2, N;
-
-  N = modinv_degree(&p1, &p2, inv);
-  if (N <= 1)
-    return 0;
+  long p1, p2, N = modinv_degree(&p1, &p2, inv);
+  if (N <= 1) return 0;
   return !(D % p1) && !(D % p2);
 }
 
@@ -455,10 +399,9 @@ modinv_good_disc(long inv, long D)
     return (D % 3) && modinv_double_eta_good_disc(D, inv);
   case INV_W3W13: /* NB: This is a guess; avs doesn't have an entry */
     return (D & 1) && (D % 3) && modinv_double_eta_good_disc(D, inv);
-  default:
-    pari_err_BUG("modinv_good_discriminant");
   }
-  return 0;
+  pari_err_BUG("modinv_good_discriminant");
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 int
@@ -495,7 +438,8 @@ modinv_is_double_eta(long inv)
 INLINE int
 safe_abs_sqrt(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
-  if (krouu(x, p) == -1) {
+  if (krouu(x, p) == -1)
+  {
     if (p%4 == 1) return 0;
     x = Fl_neg(x, p);
   }
@@ -507,8 +451,7 @@ INLINE int
 eighth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
   ulong s;
-  if (krouu(x, p) == -1)
-    return 0;
+  if (krouu(x, p) == -1) return 0;
   s = Fl_sqrt_pre_i(x, s2, p, pi);
   return safe_abs_sqrt(&s, s, p, pi, s2) && safe_abs_sqrt(r, s, p, pi, s2);
 }
@@ -517,7 +460,7 @@ INLINE ulong
 modinv_f_from_j(ulong j, ulong p, ulong pi, ulong s2, long only_residue)
 {
   pari_sp av = avma;
-  GEN pol, rts;
+  GEN pol, r;
   long i;
   ulong g2, f = ULONG_MAX;
 
@@ -525,42 +468,29 @@ modinv_f_from_j(ulong j, ulong p, ulong pi, ulong s2, long only_residue)
   g2 = Fl_sqrtl_pre(j, 3, p, pi);
 
   pol = mkvecsmall5(0UL, Fl_neg(16 % p, p), Fl_neg(g2, p), 0UL, 1UL);
-  rts = Flx_roots(pol, p);
-  for (i = 1; i < lg(rts); ++i) {
-    if (only_residue) {
-      if (krouu(rts[i], p) != -1) {
-        f = rts[i];
-        break;
-      } else
-        continue;
-    } else if (eighth_root(&f, rts[i], p, pi, s2))
-      break;
-  }
-  if (i == lg(rts))
-    pari_err_BUG("modinv_f_from_j");
-  avma = av;
-  return f;
+  r = Flx_roots(pol, p);
+  for (i = 1; i < lg(r); ++i)
+    if (only_residue) { if (krouu(r[i], p) != -1) { avma = av; return r[i]; } }
+    else if (eighth_root(&f, r[i], p, pi, s2)) { avma = av; return f; }
+  pari_err_BUG("modinv_f_from_j");
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 INLINE ulong
 modinv_f3_from_j(ulong j, ulong p, ulong pi, ulong s2)
 {
   pari_sp av = avma;
-  GEN pol, rts;
+  GEN pol, r;
   long i;
   ulong f = ULONG_MAX;
 
   pol = mkvecsmall5(0UL,
       Fl_neg(4096 % p, p), Fl_sub(768 % p, j, p), Fl_neg(48 % p, p), 1UL);
-  rts = Flx_roots(pol, p);
-  for (i = 1; i < lg(rts); ++i) {
-    if (eighth_root(&f, rts[i], p, pi, s2))
-      break;
-  }
-  if (i == lg(rts))
-    pari_err_BUG("modinv_f3_from_j");
-  avma = av;
-  return f;
+  r = Flx_roots(pol, p);
+  for (i = 1; i < lg(r); ++i)
+    if (eighth_root(&f, r[i], p, pi, s2)) { avma = av; return f; }
+  pari_err_BUG("modinv_f3_from_j");
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 /* Return the exponent e for the double-eta "invariant" w such that
@@ -3457,13 +3387,6 @@ qform_primeform2(long p, long D)
   avma = ltop; return NULL;
 }
 
-#define divides(a,b) (!((b) % (a)))
-
-/* This gets around the fact that gen_PH_log returns garbage if g
- * doesn't have order n. */
-INLINE GEN
-discrete_log(GEN a, GEN g, long n) { return qfi_Shanks(a, g, n); }
-
 /* Output x such that [L0]^x = [L] in cl(D) where n = #cl(D).  Return
  * value indicates whether x was found or not */
 INLINE long
@@ -3476,23 +3399,20 @@ primeform_discrete_log(long *x, long L0, long L, long n, long D)
   DD = stoi(D);
   Q = redimag(primeform_u(DD, L0));
   R = redimag(primeform_u(DD, L));
-  X = discrete_log(R, Q, n);
+  X = qfi_Shanks(R, Q, n);
   if (X) { *x = itos(X); res = 1; }
   avma = av; return res;
 }
 
-/* Return the norm of a class group generator appropriate for a
- * discriminant that will be used to calculate the modular polynomial
- * of level L and invariant inv.  Don't consider norms less than
- * initial_L0 */
+/* Return the norm of a class group generator appropriate for a discriminant
+ * that will be used to calculate the modular polynomial of level L and
+ * invariant inv.  Don't consider norms less than initial_L0 */
 static long
 select_L0(long L, long inv, long initial_L0)
 {
-  long modinv_N;
-  long L0;
+  long L0, modinv_N = modinv_level(inv);
 
-  modinv_N = modinv_level(inv);
-  if (divides(L, modinv_N)) pari_err_BUG("select_L0");
+  if (modinv_N % L == 0) pari_err_BUG("select_L0");
 
   /* TODO: Clean up these anomolous L0 choices */
 
@@ -3525,7 +3445,7 @@ select_L0(long L, long inv, long initial_L0)
 
   /* L0 = smallest small prime different from L that doesn't divide modinv_N */
   for (L0 = unextprime(initial_L0 + 1);
-       L0 == L || divides(L0, modinv_N);
+       L0 == L || modinv_N % L0 == 0;
        L0 = unextprime(L0 + 1))
     ;
   return L0;
@@ -3541,12 +3461,6 @@ primeform_exp_order(long L, long n, long D, long ord)
   avma = av; return m;
 }
 
-INLINE long
-eql_elt(GEN P, GEN Q, long i)
-{
-  return gequal(gel(P, i), gel(Q, i));
-}
-
 /* If an ideal of norm modinv_deg is equivalent to an ideal of norm L0, we
  * have an orientation ambiguity that we need to avoid. Note that we need to
  * check all the possibilities (up to 8), but we can cheaply check inverses
@@ -3556,42 +3470,43 @@ orientation_ambiguity(long D1, long L0, long modinv_p1, long modinv_p2, long mod
 {
   pari_sp av = avma;
   long ambiguity = 0;
-  GEN D = stoi(D1);
-  GEN Q1 = primeform_u(D, modinv_p1), Q2 = NULL;
+  GEN D = stoi(D1), Q1 = primeform_u(D, modinv_p1), Q2 = NULL;
 
-  if (modinv_p2 > 1) {
-    if (modinv_p1 != modinv_p2) {
+  if (modinv_p2 > 1)
+  {
+    if (modinv_p1 == modinv_p2) Q1 = gsqr(Q1);
+    else
+    {
       GEN P2 = primeform_u(D, modinv_p2);
-      GEN Q = gsqr(P2);
-      GEN R = gsqr(Q1);
+      GEN Q = gsqr(P2), R = gsqr(Q1);
       /* check that p1^2 != p2^{+/-2}, since this leads to
        * ambiguities when converting j's to f's */
-      if (eql_elt(Q, R, 1)
-          && (eql_elt(Q, R, 2) || gequal(gel(Q, 2), gneg(gel(R, 2))))) {
+      if (equalii(gel(Q,1), gel(R,1)) && absequalii(gel(Q,2), gel(R,2)))
+      {
         dbg_printf(3)("Bad D=%ld, a^2=b^2 problem between modinv_p1=%ld and modinv_p2=%ld\n",
                       D1, modinv_p1, modinv_p2);
         ambiguity = 1;
-      } else {
-        /* generate both p1*p2 and p1*p2^{-1} */
+      }
+      else
+      { /* generate both p1*p2 and p1*p2^{-1} */
         Q2 = gmul(Q1, P2);
         P2 = ginv(P2);
         Q1 = gmul(Q1, P2);
       }
-    } else {
-      Q1 = gsqr(Q1);
     }
   }
-  if ( ! ambiguity) {
+  if (!ambiguity)
+  {
     GEN P = gsqr(primeform_u(D, L0));
-    if (eql_elt(P, Q1, 1)
-        || (modinv_p2 && modinv_p1 != modinv_p2 && eql_elt(P, Q2, 1))) {
+    if (equalii(gel(P,1), gel(Q1,1))
+        || (modinv_p2 && modinv_p1 != modinv_p2
+                      && equalii(gel(P,1), gel(Q2,1)))) {
       dbg_printf(3)("Bad D=%ld, a=b^{+/-2} problem between modinv_N=%ld and L0=%ld\n",
                     D1, modinv_N, L0);
       ambiguity = 1;
     }
   }
-  avma = av;
-  return ambiguity;
+  avma = av; return ambiguity;
 }
 
 static long
@@ -3600,11 +3515,9 @@ check_generators(
   long D, long h, long n, long subgrp_sz, long L0, long L1)
 {
   long n1, m = primeform_exp_order(L0, n, D, h);
-  if (m_)
-    *m_ = m;
+  if (m_) *m_ = m;
   n1 = n * m;
-  if ( ! n1)
-    pari_err_BUG("check_generators");
+  if (!n1) pari_err_BUG("check_generators");
   *n1_ = n1;
   if (n1 < subgrp_sz/2 || ( ! L1 && n1 < subgrp_sz))  {
     dbg_printf(3)("Bad D1=%ld with n1=%ld, h1=%ld, L1=%ld: "
@@ -3664,33 +3577,27 @@ modpoly_pickD_primes(
   /* FF_BITS = BITS_IN_LONG - NAIL_BITS (latter is 2 or 7) */
   ulong FF_BITS = BITS_IN_LONG - 2;
 
-  D = Dinfo->D1;
+  D = Dinfo->D1; absD = -D;
   L0 = Dinfo->L0;
   L1 = Dinfo->L1;
   L = Dinfo->L;
   inv = Dinfo->inv;
 
-  absD = -D;
-
   /* make sure pfilter and D don't preclude the possibility of p=(t^2-v^2D)/4 being prime */
   pfilter = modinv_pfilter(inv);
-  if ((pfilter & IQ_FILTER_1MOD3) && ! (D % 3))
-    return 0;
-  if ((pfilter & IQ_FILTER_1MOD4) && ! (D & 0xF))
-    return 0;
+  if ((pfilter & IQ_FILTER_1MOD3) && ! (D % 3)) return 0;
+  if ((pfilter & IQ_FILTER_1MOD4) && ! (D & 0xF)) return 0;
 
-  /* Naively estimate the number of primes satisfying 4p=t^2-L^2D
-   * with t=2 mod L and pfilter using the PNT this is roughly #{t:
-   * t^2 < max p and t=2 mod L} / pi(max p) * filter_density, where
-   * filter_density is 1, 2, or 4 depending on pfilter.  If this
-   * quantity is already more than twice the number of bits we need,
-   * assume that, barring some obstruction, we should have no problem
-   * getting enough primes.  In this case we just verify we can get
-   * one prime (which should always be true, assuming we chose D
-   * properly). */
+  /* Naively estimate the number of primes satisfying 4p=t^2-L^2D with
+   * t=2 mod L and pfilter. This is roughly
+   * #{t: t^2 < max p and t=2 mod L} / pi(max p) * filter_density,
+   * where filter_density is 1, 2, or 4 depending on pfilter.  If this quantity
+   * is already more than twice the number of bits we need, assume that,
+   * barring some obstruction, we should have no problem getting enough primes.
+   * In this case we just verify we can get one prime (which should always be
+   * true, assuming we chose D properly). */
   one_prime = 0;
-  if (totbits)
-    *totbits = 0;
+  if (totbits) *totbits = 0;
   if (max <= 1 && ! one_prime) {
     p = ((pfilter & IQ_FILTER_1MOD3) ? 2 : 1) * ((pfilter & IQ_FILTER_1MOD4) ? 2 : 1);
     one_prime = (1UL << ((FF_BITS+1)/2)) * (log2(L*L*(-D))-1)
@@ -3704,31 +3611,23 @@ modpoly_pickD_primes(
   maxp = 0;
   for (v = 1; v < 100 && bits < minbits; v++) {
     /* Don't allow v dividing the conductor. */
-    if (ugcd(absD, v) != 1)
-      continue;
+    if (ugcd(absD, v) != 1) continue;
     /* Avoid v dividing the level. */
     if (v > 2 && modinv_is_double_eta(inv) && ugcd(modinv_level(inv), v) != 1)
       continue;
     /* can't get odd p with D=1 mod 8 unless v is even */
-    if ((v & 1) && (D & 7) == 1)
-      continue;
-    /* don't use v divisible by 4 for L0=2 (we could remove this restriction, for a cost) */
-    if (L0 == 2 && !(v & 3))
-      continue;
+    if ((v & 1) && (D & 7) == 1) continue;
+    /* disallow 4 | v for L0=2 (removing this restriction is costly) */
+    if (L0 == 2 && !(v & 3)) continue;
     /* can't get p=3mod4 if v^2D is 0 mod 16 */
-    if ((pfilter & IQ_FILTER_1MOD4) && !((v*v*D) & 0xF))
-      continue;
-    if ((pfilter & IQ_FILTER_1MOD3) && !(v%3) )
-      continue;
+    if ((pfilter & IQ_FILTER_1MOD4) && !((v*v*D) & 0xF)) continue;
+    if ((pfilter & IQ_FILTER_1MOD3) && !(v%3) ) continue;
     /* avoid L0-volcanos with non-zero height */
-    if (L0 != 2 && ! (v % L0))
-      continue;
+    if (L0 != 2 && ! (v % L0)) continue;
     /* ditto for L1 */
-    if (L1 && !(v % L1))
-      continue;
+    if (L1 && !(v % L1)) continue;
     vcnt = 0;
-    if ((v*v*absD)/4 > (1L<<FF_BITS)/(L*L))
-      break;
+    if ((v*v*absD)/4 > (1L<<FF_BITS)/(L*L)) break;
     if (((v*D) & 1)) {
       a1_start = 1;
       a1_delta = 2;
@@ -3738,17 +3637,15 @@ modpoly_pickD_primes(
     }
     for (a1 = a1_start; bits < minbits; a1 += a1_delta) {
       a2 = (a1*a1 + v*v*absD) >> 2;
-      if ( !(a2 % L))
-        continue;
+      if (!(a2 % L)) continue;
       t = a1*L + 2;
       p = a2*L*L + t - 1;
-      if ( !(p & 1))
+      if (!(p & 1))
         pari_err_BUG("modpoly_pickD_primes");
       /* double check calculation just in case of overflow or other weirdness */
       if (t*t + v*v*L*L*absD != 4*p)
         pari_err_BUG("modpoly_pickD_primes");
-      if (p > (1UL<<FF_BITS))
-        break;
+      if (p > (1UL<<FF_BITS)) break;
       if (xprimes) {
         while (m < xcnt && xprimes[m] < p)
           m++;
@@ -3757,14 +3654,10 @@ modpoly_pickD_primes(
           continue;
         }
       }
-      if ( ! uisprime(p))
-        continue;
-      if ( ! modinv_good_prime(inv, p))
-        continue;
+      if (!uisprime(p) || !modinv_good_prime(inv, p)) continue;
       if (primes) {
         /* ulong vLp, vLm; */
-        if (n >= max)
-          goto done;
+        if (n >= max) goto done;
         /* TODO: Implement test to filter primes that lead to
          * L-valuation != 2 */
         primes[n] = p;
@@ -3773,24 +3666,21 @@ modpoly_pickD_primes(
       n++;
       vcnt++;
       bits += log2(p);
-      if (p > maxp)
-        maxp = p;
-      if (one_prime)
-        goto done;
+      if (p > maxp) maxp = p;
+      if (one_prime) goto done;
     }
     if (vcnt)
       dbg_printf(3)("%ld primes with v=%ld, maxp=%ld (%.2f bits)\n",
                  vcnt, v, maxp, log2(maxp));
   }
 done:
-  if ( ! n) {
+  if (!n) {
     dbg_printf(3)("check_primes failed completely for D=%ld\n", D);
     return 0;
   }
   dbg_printf(3)("D=%ld: Found %ld primes totalling %0.2f of %ld bits\n",
              D, n, bits, minbits);
-  if (totbits && ! *totbits)
-    *totbits = (long)bits;
+  if (totbits && ! *totbits) *totbits = (long)bits;
   return n;
 }
 
@@ -3805,10 +3695,8 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
 
   /* D1 is the discriminant with smallest absolute value among those we found */
   D1 = Ds[0].D1;
-  for (i = 1; i < Dcnt; i++) {
-    if (Ds[i].D1 > D1)
-      D1 = Ds[i].D1;
-  }
+  for (i = 1; i < Dcnt; i++)
+    if (Ds[i].D1 > D1) D1 = Ds[i].D1;
 
   /* n is an upper bound on the number of primes we might get. */
   n = ceil(minbits / (log2(L * L * (-D1)) - 2)) + 1;
@@ -3827,10 +3715,7 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
     totbits += Ds[i].bits;
     pcnt += Ds[i].nprimes;
 
-    if (totbits >= minbits || i == Dcnt - 1) {
-      Dcnt = i + 1;
-      break;
-    }
+    if (totbits >= minbits || i == Dcnt - 1) { Dcnt = i + 1; break; }
     /* merge lists */
     for (j = pcnt - Ds[i].nprimes - 1, k = Ds[i].nprimes - 1, m = pcnt - 1; m >= 0; m--) {
       if (k >= 0) {
@@ -3876,9 +3761,8 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
  * - MODPOLY_IGNORE_SPARSE_FACTOR: obtain D for which h(D) > L + 1
  *   rather than h(D) > (L + 1)/s */
 static long
-modpoly_pickD(
-  modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv, long L0, long max_L1, long minbits, long flags,
-  D_entry *tab, long tablen)
+modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
+  long L0, long max_L1, long minbits, long flags, D_entry *tab, long tablen)
 {
   pari_sp ltop = avma, btop;
   D_entry D0_entry;
@@ -3898,9 +3782,8 @@ modpoly_pickD(
   timer_start(&T);
   d = (flags & MODPOLY_IGNORE_SPARSE_FACTOR) ? 1 : modinv_sparse_factor(inv);
   /*d = ui_ceil_ratio(L + 1, d) + 1; */
-  tmp = (L + 1) / d;
-  d = ((tmp * d < (L + 1)) ? tmp + 1 : tmp);
-  d += 1;
+  tmp = (L+1) / d;
+  d = ((L+1) % d) ? tmp+2 : tmp+1;
   modinv_N = modinv_level(inv);
   modinv_deg = modinv_degree(&modinv_p1, &modinv_p2, inv);
   pfilter = modinv_pfilter(inv);
@@ -3927,8 +3810,7 @@ modpoly_pickD(
     /* extract D0 from D0_entry */
     D0 = D0_entry.D;
 
-    if ( ! modinv_good_disc(inv, D0))
-      continue;
+    if (! modinv_good_disc(inv, D0)) continue;
     /* extract class poly degree from D0_entry */
     deg = D0_entry.h;
 
@@ -3951,16 +3833,14 @@ modpoly_pickD(
 
     /* Look for L1: for each smooth prime p */
     for (i = 1 ; i <= SMOOTH_PRIMES; i++) {
-      if (PRIMES[i] <= L0)
-        continue;
+      if (PRIMES[i] <= L0) continue;
       /* If 1 + (D0 | p) == 1, i.e. if (D0 | p) == 0, i.e. if p | D0. */
       if (((D0_entry.m >> (2*i)) & 3) == 1) {
         /* set L1 = p if it's not L0, it's less than the maximum,
          * it doesn't divide modinv_N, and (L1 | L) == -1. */
         /* XXX: Why do we want (L1 | L) == -1?  Presumably so (L^2 v^2 D0 | L1) == -1? */
         L1 = PRIMES[i];
-        if (L1 <= max_L1 && (modinv_N % L1) && kross(L1, L) < 0)
-          break;
+        if (L1 <= max_L1 && (modinv_N % L1) && kross(L1, L) < 0) break;
       }
     }
     /* Didn't find suitable L1... */
@@ -3977,17 +3857,15 @@ modpoly_pickD(
 
     /* We're finished if we have sufficiently many discriminants that satisfy
      * the cost requirement */
-    if (totbits > minbits && best_cost && h0*(L-1) > 3*best_cost)
-      break;
+    if (totbits > minbits && best_cost && h0*(L-1) > 3*best_cost) break;
 
     D0_bits = log2(-D0);
     /* If L^2 D0 is too big to fit in a BIL bit integer, skip D0. */
-    if (D0_bits + 2 * L_bits > (BITS_IN_LONG - 1))
-      continue;
+    if (D0_bits + 2 * L_bits > (BITS_IN_LONG - 1)) continue;
 
     /* m is the order of L0^n0 in L^2 D0? */
     m = primeform_exp_order(L0, n0, L * L * D0, n0 * (L - 1));
-    if ( m < (L - 1)/2 ) {
+    if (m < (L-1)/2) {
       dbg_printf(3)("Bad D0=%ld because %ld is less than (L-1)/2=%ld\n",
                     D0, m, (L - 1)/2);
       continue;
@@ -4014,12 +3892,10 @@ modpoly_pickD(
       avma = btop;
       /* i = 0 corresponds to 1, which we do not want to skip! (i.e. DK = D) */
       if (i) {
-        if (modinv_odd_conductor(inv) && i == 1)
-          continue;
+        if (modinv_odd_conductor(inv) && i == 1) continue;
         p = PRIMES[i];
         /* Don't allow large factors in the conductor. */
-        if (p > max_L1)
-          break;
+        if (p > max_L1) break;
         if (p == L0 || p == L1 || p == L || p == modinv_p1 || p == modinv_p2)
           continue;
         p_bits = log2(p);
@@ -4030,8 +3906,7 @@ modpoly_pickD(
           ;
         D1 = q * q * D0;
         /* can't have D1 = 0 mod 16 and hope to get any primes congruent to 3 mod 4 */
-        if ((pfilter & IQ_FILTER_1MOD4) && !(D1 & 0xF))
-          continue;
+        if ((pfilter & IQ_FILTER_1MOD4) && !(D1 & 0xF)) continue;
       } else {
         /* i = 0, corresponds to "p = 1". */
         h1 = h0;
@@ -4042,28 +3917,21 @@ modpoly_pickD(
       /* include a factor of 4 if D1 is 5 mod 8 */
       /* XXX: No idea why he does this. */
       if (twofactor && (q & 1)) {
-        if (modinv_odd_conductor(inv))
-          continue;
+        if (modinv_odd_conductor(inv)) continue;
         D1 *= 4;
         h1 *= twofactor;
       }
-      /* heuristic early abort -- we may miss some good D1's, but this saves a *lot* of time */
-      if (totbits > minbits && best_cost && h1*(L-1) > 2.2*best_cost)
-        continue;
+      /* heuristic early abort; we may miss good D1's, but this saves time */
+      if (totbits > minbits && best_cost && h1*(L-1) > 2.2*best_cost) continue;
 
-      /* log2(D0 * (p^j)^2 * L^2 * twofactor) > (BIL - 1) -- i.e. params too big. */
-      if (D0_bits + 2*j*p_bits + 2*L_bits + (twofactor && (q & 1) ? 2.0 : 0.0) > (BITS_IN_LONG - 1))
-        continue;
+      /* log2(D0 * (p^j)^2 * L^2 * twofactor) > (BIL - 1) -- params too big. */
+      if (D0_bits + 2*j*p_bits + 2*L_bits
+          + (twofactor && (q & 1) ? 2.0 : 0.0) > (BITS_IN_LONG-1)) continue;
 
-      if ( ! check_generators(&n1, NULL, D1, h1, n0, d, L0, L1))
-        continue;
+      if (! check_generators(&n1, NULL, D1, h1, n0, d, L0, L1)) continue;
 
-      if (n1 < h1) {
-        if ( ! primeform_discrete_log(&dl1, L0, L, n1, D1))
-          continue;
-      } else {
-        dl1 = -1;   /* fill it in later, no point in wasting the effort right now */
-      }
+      if (n1 >= h1) dl1 = -1; /* fill it in later */
+      else if (! primeform_discrete_log(&dl1, L0, L, n1, D1)) continue;
       dbg_printf(3)("Good D0=%ld, D1=%ld with q=%ld, L1=%ld, n1=%ld, h1=%ld\n",
                     D0, D1, q, L1, n1, h1);
       if (modinv_deg && orientation_ambiguity(D1, L0, modinv_p1, modinv_p2, modinv_N))
@@ -4072,10 +3940,9 @@ modpoly_pickD(
       D2 = L * L * D1;
       h2 = h1 * (L-1);
       /* m is the order of L0^n1 in cl(D2) */
-      if ( ! check_generators(&n2, &m, D2, h2, n1, d*(L - 1), L0, L1))
-        continue;
+      if (!check_generators(&n2, &m, D2, h2, n1, d*(L-1), L0, L1)) continue;
 
-      /* This restriction on m is not strictly necessary, but simplifies life later. */
+      /* This restriction on m is not necessary, but simplifies life later */
       if (m < (L-1)/2 || (!L1 && m < L-1) ) {
         dbg_printf(3)("Bad D2=%ld for D1=%ld, D0=%ld, with n2=%ld, h2=%ld, L1=%ld, "
                       "order of L0^n1 in cl(D2) is too small\n", D2, D1, D0, n2, h2, L1);
@@ -4085,15 +3952,14 @@ modpoly_pickD(
       dl2[1] = 0;
       if (m < L - 1) {
         GEN Q1 = qform_primeform2(L, D1), Q2, X;
-        if ( ! Q1)
-          pari_err_BUG("modpoly_pickD");
+        if (!Q1) pari_err_BUG("modpoly_pickD");
         Q2 = primeform_u(stoi(D2), L1);
         Q2 = gmul(Q1, Q2); /* we know this element has order L-1 */
         Q1 = primeform_u(stoi(D2), L0);
         k = ((n2 & 1) ? 2*n2 : n2)/(L-1);
         Q1 = gpowgs(Q1, k);
-        X = discrete_log(Q2, Q1, L - 1);
-        if ( ! X) {
+        X = qfi_Shanks(Q2, Q1, L - 1);
+        if (!X) {
           dbg_printf(3)("Bad D2=%ld for D1=%ld, D0=%ld, with n2=%ld, h2=%ld, L1=%ld, "
               "form of norm L^2 not generated by L0 and L1\n",
               D2, D1, D0, n2, h2, L1);
@@ -4102,10 +3968,10 @@ modpoly_pickD(
         dl2[0] = itos(X) * k;
         dl2[1] = 1;
       }
-      if ( ! (m < L-1 || n2 < d*(L-1)) && n1 >= d && ! use_L1)
+      if (! (m < L-1 || n2 < d*(L-1)) && n1 >= d && ! use_L1)
         L1 = 0;  /* we don't need L1 */
 
-      if ( ! L1 && use_L1) {
+      if (!L1 && use_L1) {
         dbg_printf(3)("not using D2=%ld for D1=%ld, D0=%ld, with n2=%ld, h2=%ld, L1=%ld, "
                    "because we don't need L1 but must use it\n",
                    D2, D1, D0, n2, h2, L1);
@@ -4113,19 +3979,16 @@ modpoly_pickD(
       }
       /* don't allow zero dl2[1] with L1 for the moment, since
        * modpoly doesn't handle it - we may change this in the future */
-      if (L1 && ! dl2[1])
-        continue;
+      if (L1 && ! dl2[1]) continue;
       dbg_printf(3)("Good D0=%ld, D1=%ld, D2=%ld with s=%ld^%ld, L1=%ld, dl2=%ld, n2=%ld, h2=%ld\n",
                  D0, D1, D2, p, j, L1, dl2[0], n2, h2);
 
-      /* This is estimate is heuristic and fiddling with the
+      /* This estimate is heuristic and fiddling with the
        * parameters 5 and 0.25 can change things quite a bit. */
       enum_cost = n2 * (5 * L0 * L0 + 0.25 * L1 * L1);
       cost = enum_cost + H_cost;
-      if (best_cost && cost > 2.2*best_cost)
-        break;
-      if (best_cost && cost >= 0.99*best_cost)
-        continue;
+      if (best_cost && cost > 2.2*best_cost) break;
+      if (best_cost && cost >= 0.99*best_cost) continue;
 
       Dinfo.L = L;
       Dinfo.D0 = D0;
@@ -4140,7 +4003,7 @@ modpoly_pickD(
       Dinfo.cost = cost;
       Dinfo.inv = inv;
 
-      if ( ! modpoly_pickD_primes (NULL, NULL, 0, NULL, 0, &Dinfo.bits, minbits, &Dinfo))
+      if (!modpoly_pickD_primes(NULL, NULL, 0, NULL, 0, &Dinfo.bits, minbits, &Dinfo))
         continue;
       dbg_printf(2)("Best D2=%ld, D1=%ld, D0=%ld with s=%ld^%ld, L1=%ld, "
                  "n1=%ld, n2=%ld, cost ratio %.2f, bits=%ld\n",
@@ -4187,19 +4050,18 @@ modpoly_pickD(
 
   /* fill in any missing dl1's */
   for (i = 0 ; i < Dcnt; i++) {
-    if (Ds[i].dl1 < 0) {
+    if (Ds[i].dl1 < 0)
+    {
       long dl;
-      if ( ! primeform_discrete_log(&dl, L0, L, Ds[i].n1, Ds[i].D1))
-      {
-        pari_err_BUG("modpoly_pickD"); return -1; /*LCOV_EXCL_LINE*/
-      }
+      if (! primeform_discrete_log(&dl, L0, L, Ds[i].n1, Ds[i].D1))
+        pari_err_BUG("modpoly_pickD");
       Ds[i].dl1 = dl;
     }
   }
   if (DEBUGLEVEL > 1+3) {
     err_printf("Selected %ld discriminants using %ld msecs\n", Dcnt, timer_delay(&T));
-    for (i = 0 ; i < Dcnt ; i++) {
-      /* TODO: Reuse the calculation from the D_entry */
+    for (i = 0 ; i < Dcnt ; i++)
+    {
       GEN H = classno(stoi(Ds[i].D0));
       long h0 = itos(H);
       err_printf ("    D0=%ld, h(D0)=%ld, D=%ld, L0=%ld, L1=%ld, "
@@ -4262,13 +4124,11 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
   ulong m, x;
   long h, d, D, n, L1, cnt, i, j, k;
 
-  if (maxD < 0)
-    maxD = -maxD;
+  if (maxD < 0) maxD = -maxD;
 
   /* NB: As seen in the loop below, the real class number of D can be */
   /* 2*maxh if cl(D) is cyclic. */
-  if (maxh < 0)
-    pari_err_BUG("scanD0");
+  if (maxh < 0) pari_err_BUG("scanD0");
 
   /* Not checked, but L0 should be 2, 3, 5 or 7. */
 
@@ -4280,8 +4140,7 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
   for (d = *minD, cnt = 0; d <= maxD; d += 4) {
     D = -d;
     /* Check to see if (D | L0) = 1 */
-    if (kross(D, L0) < 1)
-      continue;
+    if (kross(D, L0) < 1) continue;
 
     /* [q, e] is the factorisation of d. */
     fact = factoru(d);
@@ -4291,41 +4150,33 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
 
     /* Check if the discriminant is square-free */
     for (i = 0; i < k; i++)
-      if (e[i] > 1)
-        break;
-    if (i < k)
-      continue;
+      if (e[i] > 1) break;
+    if (i < k) continue;
 
-    /* L1 is initially the first factor of d if small enough, otherwise ignored. */
-    if (k > 1 && q[0] <= MAX_L1)
-      L1 = q[0];
-    else
-      L1 = 0;
+    /* L1 initially the first factor of d if small enough, otherwise ignored */
+    L1 = (k > 1 && q[0] <= MAX_L1)? q[0]: 0;
 
     /* restrict to possibly cyclic class groups */
-    if (k > 2)
-      continue;
+    if (k > 2) continue;
 
     /* Check if h(D) is too big */
     DD = stoi(D);
     H = classno(DD);
     h = itos(H);
-    if (h > 2*maxh || (!L1 && h > maxh))
-      continue;
+    if (h > 2*maxh || (!L1 && h > maxh)) continue;
 
     /* Check if ord(q) is not big enough to generate at least half the
      * class group (where q is the L0-primeform). */
     frm = primeform_u(DD, L0);
     ordL = qfi_order(redimag(frm), H);
     n = itos(ordL);
-    if (n < h/2 || (!L1 && n < h))
-      continue;
+    if (n < h/2 || (!L1 && n < h)) continue;
 
     /* If q is big enough, great!  Otherwise, for each potential L1,
      * do a discrete log to see if it is NOT in the subgroup generated
      * by L0; stop as soon as such is found. */
     for (j = 0; ; j++) {
-      if (n == h || (L1 && ! discrete_log(primeform_u(DD, L1), frm, n))) {
+      if (n == h || (L1 && ! qfi_Shanks(primeform_u(DD, L1), frm, n))) {
         dbg_printf(2)("D0=%ld good with L1=%ld\n", D, L1);
         break;
       }
