@@ -470,4 +470,7 @@ an \kbd{X11} colorname to RGB values.
 \fun{void}{color_to_rgb}{GEN c, int *r, int *g, int *b} convert a pari color
 (\typ{VECSMALL} RGB triple or \typ{STR} name) to RGB values.
 
+\fun{void}{long_to_rgb}{long c, int *r, int *g, int *b} split a standard
+hexadecimal color value \kbd{0xfdf5e6} to its rgb components (\kbd{0xfd},
+\kbd{0xf5}, \kbd{0xe6}).
 \newpage
