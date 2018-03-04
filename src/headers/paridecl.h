@@ -1579,7 +1579,6 @@ GEN     ker(GEN x);
 GEN     mateigen(GEN x, long flag, long prec);
 GEN     matimage0(GEN x,long flag);
 GEN     matker0(GEN x, long flag);
-GEN     matsolvemod0(GEN M, GEN D, GEN Y,long flag);
 long    rank(GEN x);
 GEN     reducemodinvertible(GEN x, GEN y);
 GEN     reducemodlll(GEN x,GEN y);
