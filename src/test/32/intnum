@@ -17,12 +17,6 @@
 ? T=intfuncinit(t=A,B,f(c+I*t));
 ? check(F(4),ref)
 -37
-? \p100
-   realprecision = 115 significant digits (100 digits displayed)
-? check(intnum(x=0,1,x*cos(Pi*x)),-2/Pi^2)
--oo
-? check(intnum(x=0,1,x*cos(Pi*x),2),-2/Pi^2)
--115
 ? \p96
    realprecision = 96 significant digits
 ? f(x)=1/(exp(x)-1)-exp(-x)/x;
@@ -37,6 +31,10 @@
 ? check(intnum(x=[0,-1/2],1,1/sqrt(x)),2)
 -oo
 ? check(intnum(x=100000,oo,1/(1+x^2)),atan(1/100000))
+-oo
+? check(intnum(x=0,1,x*cos(Pi*x)),-2/Pi^2)
+-oo
+? check(intnum(x=0,1,x*cos(Pi*x),2),-2/Pi^2)
 -oo
 ? check(intnum(x=[0,-1/2],[oo,-3/2],1/(sqrt(x)+x^(3/2))),Pi)
 -oo
@@ -204,4 +202,4 @@
   ***                                             ^--
   ***   sorry, intfuncinit with hard endpoint behavior is not yet implemented.
 ? print("Total time spent: ",gettime);
-Total time spent: 2047
+Total time spent: 3260

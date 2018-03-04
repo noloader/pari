@@ -18,10 +18,6 @@ ref=F(4);
 T = intfuncinit(t=A,B, f(c + I*t));
 check(F(4), ref)
 
-\p100
-check(intnum(x=0,1,x*cos(Pi*x)), -2/Pi^2)
-check(intnum(x=0,1,x*cos(Pi*x),2), -2/Pi^2)
-
 \p96
 f(x) = 1/(exp(x)-1) - exp(-x)/x;
 F = truncate( f(t + O(t^7)) );
@@ -31,6 +27,8 @@ check(intnum(x = 0, [oo,1],  g(x)), Euler)
 check(intnum(x = 0, 1,  1/sqrt(x)), 2)
 check(intnum(x = [0,-1/2], 1,  1/sqrt(x)), 2)
 check(intnum(x = 100000, oo, 1/(1+x^2)), atan(1/100000))
+check(intnum(x=0,1,x*cos(Pi*x)), -2/Pi^2)
+check(intnum(x=0,1,x*cos(Pi*x),2), -2/Pi^2)
 
 check(intnum(x = [0,-1/2], [oo,-3/2],  1/(sqrt(x)+x^(3/2))), Pi)
 check(intnum(x = [-oo,-3/2], [oo,-3/2],  1/(1+abs(x)^(3/2))), 8*Pi/sqrt(27))
