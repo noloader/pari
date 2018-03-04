@@ -22,7 +22,7 @@ Doc: If \var{al} is a table algebra over~$\F_p$ output by \tet{algtableinit}
  Example:
  \bprog
  ? al0 = alginit(nfinit(y^2+7), [-1,-1]);
- ? al = algtableinit(algmultable(al0), 3); \\isomorphic to M_2(F_9)
+ ? al = algtableinit(algmultable(al0), 3); \\ isomorphic to M_2(F_9)
  ? [map,mapi] = algsplit(al, 'a);
  ? x = [1,2,1,0,0,0,0,0]~; fx = map*x
  %4 =
