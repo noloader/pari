@@ -3213,7 +3213,6 @@ gener_Flxq(GEN T, ulong p, GEN *po)
   F = Flx_Frobenius(T, p);
   for (av = avma;; avma = av)
   {
-    ulong RES;
     GEN tt;
     g = random_Flx(f, vT, p);
     if (degpol(g) < 1) continue;
@@ -3224,11 +3223,10 @@ gener_Flxq(GEN T, ulong p, GEN *po)
       if (t == 1 || !is_gener_Fl(t, p, p_1, L)) continue;
       tt = Flxq_powu(g, p_1>>1, T, p);
     }
-    RES = p_1;
     for (i = 1; i < j; i++)
     {
       GEN a = Flxq_pow_Frobenius(tt, gel(L2,i), F, T, p);
-      if (!degpol(a) && uel(a,2) == RES) break;
+      if (!degpol(a) && uel(a,2) == p_1) break;
     }
     if (i == j) break;
   }
