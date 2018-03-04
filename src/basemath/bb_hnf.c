@@ -1113,6 +1113,92 @@ matsolvemod_finite(GEN M, GEN D, GEN Y, long flag)
   return X;
 }
 
+/* Return a solution of congruence system sum M[i,j] X_j = Y_i mod D_i
+ * If pU != NULL, put in *pU a Z-basis of the homogeneous system.
+ * Works for all non negative D_i but inefficient compared to
+ * matsolvemod_finite; to be used only when one D_i is 0 */
+static GEN
+gaussmoduloall(GEN M, GEN D, GEN Y, GEN *pU)
+{
+  pari_sp av = avma;
+  long n, m, j, l, lM = lg(M);
+  GEN delta, H, U, u1, u2, x;
+
+  if (lM == 1)
+  {
+    long lY = 0;
+    switch(typ(Y))
+    {
+      case t_INT: break;
+      case t_COL: lY = lg(Y); break;
+      default: pari_err_TYPE("gaussmodulo",Y);
+    }
+    switch(typ(D))
+    {
+      case t_INT: break;
+      case t_COL: if (lY && lY != lg(D)) pari_err_DIM("gaussmodulo");
+                  break;
+      default: pari_err_TYPE("gaussmodulo",D);
+    }
+    if (pU) *pU = cgetg(1, t_MAT);
+    return cgetg(1,t_COL);
+  }
+  n = nbrows(M);
+  switch(typ(D))
+  {
+    case t_COL:
+      if (lg(D)-1!=n) pari_err_DIM("gaussmodulo");
+      delta = diagonal_shallow(D); break;
+    case t_INT: delta = scalarmat_shallow(D,n); break;
+    default: pari_err_TYPE("gaussmodulo",D);
+      return NULL; /* LCOV_EXCL_LINE */
+  }
+  switch(typ(Y))
+  {
+    case t_INT: Y = const_col(n, Y); break;
+    case t_COL:
+      if (lg(Y)-1!=n) pari_err_DIM("gaussmodulo");
+      break;
+    default: pari_err_TYPE("gaussmodulo",Y);
+      return NULL; /* LCOV_EXCL_LINE */
+  }
+  H = ZM_hnfall_i(shallowconcat(M,delta), &U, 1);
+  Y = hnf_solve(H,Y); if (!Y) return gen_0;
+  l = lg(H); /* may be smaller than lM if some moduli are 0 */
+  n = l-1;
+  m = lg(U)-1 - n;
+  u1 = cgetg(m+1,t_MAT);
+  u2 = cgetg(n+1,t_MAT);
+  for (j=1; j<=m; j++) { GEN c = gel(U,j); setlg(c,lM); gel(u1,j) = c; }
+  U += m;
+  for (j=1; j<=n; j++) { GEN c = gel(U,j); setlg(c,lM); gel(u2,j) = c; }
+  /*       (u1 u2)
+   * (M D) (*  * ) = (0 H) */
+  u1 = ZM_lll(u1, 0.75, LLL_INPLACE);
+  Y = ZM_ZC_mul(u2,Y);
+  x = ZC_reducemodmatrix(Y, u1);
+  if (!pU) x = gerepileupto(av, x);
+  else
+  {
+    gerepileall(av, 2, &x, &u1);
+    *pU = u1;
+  }
+  return x;
+}
+/* to be used when one D_i is 0 */
+static GEN
+msolvemod0(GEN M, GEN D, GEN Y, long flag)
+{
+  pari_sp av = avma;
+  GEN y, x, U;
+  if (!flag) return gaussmoduloall(M,D,Y,NULL);
+  y = cgetg(3,t_VEC);
+  x = gaussmoduloall(M,D,Y,&U);
+  if (x == gen_0) { avma = av; return gen_0; }
+  gel(y,1) = x;
+  gel(y,2) = U; return y;
+
+}
 GEN
 matsolvemod(GEN M, GEN D, GEN Y, long flag)
 {
@@ -1141,6 +1227,10 @@ matsolvemod(GEN M, GEN D, GEN Y, long flag)
         pari_err_DOMAIN("matsolvemod","D[i]","<",gen_0,gel(D,i));
       if (!signe(gel(D,i))) char0 = 1;
     }
-  return gerepilecopy(av, char0? matsolvemod0(M,D,Y,flag)
+  return gerepilecopy(av, char0? msolvemod0(M,D,Y,flag)
                                : matsolvemod_finite(M,D,Y,flag));
 }
+GEN
+gaussmodulo2(GEN M, GEN D, GEN Y) { return matsolvemod(M,D,Y, 1); }
+GEN
+gaussmodulo(GEN M, GEN D, GEN Y) { return matsolvemod(M,D,Y, 0); }

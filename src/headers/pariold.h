@@ -12,6 +12,7 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* For compatibility with older PARI versions */
+#define matsolvemod0 matsolvemod
 #define rootmod2 polrootsmod
 #define rootmod polrootsmod
 #define resultant_all RgX_resultant_all
