@@ -3387,21 +3387,17 @@ qform_primeform2(long p, long D)
   avma = ltop; return NULL;
 }
 
-/* Output x such that [L0]^x = [L] in cl(D) where n = #cl(D).  Return
- * value indicates whether x was found or not */
+/* Let n = #cl(D); return x such that [L0]^x = [L] in cl(D), or -1 if x was
+ * not found */
 INLINE long
-primeform_discrete_log(long *x, long L0, long L, long n, long D)
+primeform_discrete_log(long L0, long L, long n, long D)
 {
-  GEN X, Q, R, DD;
   pari_sp av = avma;
-  long res = 0;
-
-  DD = stoi(D);
-  Q = redimag(primeform_u(DD, L0));
-  R = redimag(primeform_u(DD, L));
+  GEN X, Q, R, DD = stoi(D);
+  Q = primeform_u(DD, L0);
+  R = primeform_u(DD, L);
   X = qfi_Shanks(R, Q, n);
-  if (X) { *x = itos(X); res = 1; }
-  avma = av; return res;
+  avma = av; return X? itos(X): -1;
 }
 
 /* Return the norm of a class group generator appropriate for a discriminant
@@ -3931,7 +3927,7 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       if (! check_generators(&n1, NULL, D1, h1, n0, d, L0, L1)) continue;
 
       if (n1 >= h1) dl1 = -1; /* fill it in later */
-      else if (! primeform_discrete_log(&dl1, L0, L, n1, D1)) continue;
+      else if ((dl1 = primeform_discrete_log(L0, L, n1, D1)) < 0) continue;
       dbg_printf(3)("Good D0=%ld, D1=%ld with q=%ld, L1=%ld, n1=%ld, h1=%ld\n",
                     D0, D1, q, L1, n1, h1);
       if (modinv_deg && orientation_ambiguity(D1, L0, modinv_p1, modinv_p2, modinv_N))
@@ -4049,15 +4045,10 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
   Dcnt = calc_primes_for_discriminants(Ds, Dcnt, L, minbits);
 
   /* fill in any missing dl1's */
-  for (i = 0 ; i < Dcnt; i++) {
-    if (Ds[i].dl1 < 0)
-    {
-      long dl;
-      if (! primeform_discrete_log(&dl, L0, L, Ds[i].n1, Ds[i].D1))
+  for (i = 0 ; i < Dcnt; i++)
+    if (Ds[i].dl1 < 0 &&
+       (Ds[i].dl1 = primeform_discrete_log(L0, L, Ds[i].n1, Ds[i].D1)) < 0)
         pari_err_BUG("modpoly_pickD");
-      Ds[i].dl1 = dl;
-    }
-  }
   if (DEBUGLEVEL > 1+3) {
     err_printf("Selected %ld discriminants using %ld msecs\n", Dcnt, timer_delay(&T));
     for (i = 0 ; i < Dcnt ; i++)
