@@ -11,6 +11,17 @@ forprime(n=2,oo,if(n>10,break);print(n))
 forprime(n=2^100,,if(n>2^100+400,break);print(n))
 forprime(n=2^100,oo,if(n>2^100+400,break);print(n))
 
+forprimestep(a=1,10,Mod(2,4),print(a))
+forprimestep(a=3,10,Mod(2,4),print(a))
+forprimestep(a=0,1,Mod(2,4),print(a))
+forprimestep(a=1,10,Mod(3,6),print(a))
+forprimestep(p=2^32-50,2^32+30,Mod(1,3),print(p))
+forprimestep(p=2^64-70,2^64+50,Mod(2,3), print(p))
+forprimestep(n=2,,5,if(n>20,break);print(n)) /*backward compat */
+forprimestep(n=2,oo,5,if(n>20,break);print(n))
+forprimestep(n=2^100,,Mod(1,3),if(n>2^100+400,break);print(n))
+forprimestep(n=2^100,oo,Mod(1,3),if(n>2^100+400,break);print(n))
+
 for(a=0.5,3,print(a))
 for(a=1,10, print(a+=2))
 

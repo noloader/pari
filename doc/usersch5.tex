@@ -7811,8 +7811,9 @@ followed by a number of calls to \tet{u_forprime_next}, and $a \leq c \leq
 b$. Restrict the range of primes considered to $[a,c]$.
 
 \fun{int}{u_forprime_arith_init}{forprime_t *T, ulong a,ulong b, ulong c,ulong q} initialize an iterator over primes in $[a,b]$, congruent to $c$
-modulo $q$. Assume $0 \leq c < q$ and $(c,q) = 1$. Subsequent calls to
-\tet{u_forprime_next} will only return primes congruent to $c$ modulo $q$.
+modulo $q$. Subsequent calls to \tet{u_forprime_next} will only return primes
+congruent to $c$ modulo $q$. Note that unless $(c,q) = 1$ there will be at
+most one such prime.
 
 \section{Integral, rational and generic linear algebra}
 \subsec{\kbd{ZC} / \kbd{ZV}, \kbd{ZM}} A \kbd{ZV} (resp.~a~\kbd{ZM},

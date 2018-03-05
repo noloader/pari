@@ -559,8 +559,7 @@ arith_set(forprime_t *T)
   T->p = itou_or_0(d); avma = av; /* d = 0 is impossible */
 }
 
-/* run through primes in arithmetic progression = c (mod q).
- * Assume (c,q)=1, 0 <= c < q */
+/* run through primes in arithmetic progression = c (mod q) */
 static int
 u_forprime_sieve_arith_init(forprime_t *T, struct pari_sieve *psieve,
                             ulong a, ulong b, ulong c, ulong q)
@@ -576,10 +575,15 @@ u_forprime_sieve_arith_init(forprime_t *T, struct pari_sieve *psieve,
     return 0;
   }
   maxp = maxprime();
-  if (q != 1 && c != 2 && odd(q)) {
-    /* only allow *odd* primes. If c = 2, then p = 2 must be included :-( */
-    if (!odd(c)) c += q;
-    q <<= 1;
+  if (q != 1)
+  {
+    c %= q;
+    if (ugcd(c,q) != 1) { a = maxuu(a,c); b = minuu(b,c); }
+    if (odd(q) && (a > 2 || c != 2))
+    { /* only *odd* primes. If a <= c = 2, then p = 2 must be included :-( */
+      if (!odd(c)) c += q;
+      q <<= 1;
+    }
   }
   T->q = q;
   T->c = c;
@@ -642,7 +646,7 @@ u_forprime_restrict(forprime_t *T, ulong c) { T->b = c; }
 
 /* b = NULL: loop forever */
 int
-forprime_init(forprime_t *T, GEN a, GEN b)
+forprimestep_init(forprime_t *T, GEN a, GEN b, GEN q)
 {
   long lb;
   a = gceil(a); if (typ(a) != t_INT) pari_err_TYPE("forprime_init",a);
@@ -654,9 +658,7 @@ forprime_init(forprime_t *T, GEN a, GEN b)
     if (signe(b) < 0 || cmpii(a,b) > 0)
     {
       T->strategy = PRST_nextprime; /* paranoia */
-      T->bb = gen_0;
-      T->pp = gen_0;
-      return 0;
+      T->bb = T->pp = gen_0; return 0;
     }
     lb = lgefint(b);
     T->bb = b;
@@ -669,18 +671,39 @@ forprime_init(forprime_t *T, GEN a, GEN b)
   else /* b == -oo */
   {
     T->strategy = PRST_nextprime; /* paranoia */
-    T->bb = gen_0;
-    T->pp = gen_0;
-    return 0;
+    T->bb = T->pp = gen_0; return 0;
   }
   T->pp = cgeti(lb);
+  T->c = 0;
+  T->q = 1;
   /* a, b are positive integers, a <= b */
+  if (q)
+  {
+    switch(typ(q))
+    {
+      case t_INT: break;
+      case t_INTMOD: a = addii(a, modii(subii(gel(q,2),a), gel(q,1)));
+                     q = gel(q,1); break;
+      default: pari_err_TYPE("forprimestep_init",q);
+    }
+    if (signe(q) <= 0) pari_err_TYPE("forprimestep_init (q <= 0)",q);
+    if (equali1(q)) q = NULL;
+    else
+    {
+      T->q = itou(q);
+      T->c = umodiu(a, T->q);
+    }
+  }
   if (lgefint(a) == 3) /* lb == 3 implies b != NULL */
-    return u_forprime_init(T, uel(a,2), lb == 3? uel(b,2): ULONG_MAX);
+    return u_forprime_arith_init(T, uel(a,2), lb == 3? uel(b,2): ULONG_MAX,
+                                    T->c, T->q);
   T->strategy = PRST_nextprime;
-  affii(subiu(a,1), T->pp);
+  affii(subiu(a,T->q), T->pp);
   return 1;
 }
+int
+forprime_init(forprime_t *T, GEN a, GEN b)
+{ return forprimestep_init(T,a,b,NULL); }
 
 /* assume a <= b <= maxprime()^2, a,b odd, sieve[n] corresponds to
  *   a+16*n, a+16*n+2, ..., a+16*n+14 (bits 0 to 7)
@@ -892,20 +915,13 @@ NEXT_CHUNK:
 #endif
       T->p = unextprime(T->p + 1);
     }
-    else
-    {
-      do {
-        T->p += T->q;
-        if (T->p < T->q) return 0; /* overflow */
-      } while (!uisprime(T->p));
-    }
-    if (!T->p) /* overflow ulong, switch to GEN */
-      T->strategy = PRST_nextprime;
-    else
-    {
-      if (T->p > T->b) return 0;
-      return T->p;
-    }
+    else do {
+      T->p += T->q;
+      if (T->p < T->q) { T->p = 0; break; } /* overflow */
+    } while (!uisprime(T->p));
+    if (T->p && T->p <= T->b) return T->p;
+    /* overflow ulong, switch to GEN */
+    T->strategy = PRST_nextprime;
   }
   return 0; /* overflow */
 }
@@ -917,26 +933,28 @@ forprime_next(forprime_t *T)
   GEN p;
   if (T->strategy != PRST_nextprime)
   {
-    ulong q = u_forprime_next(T);
-    if (q) { affui(q, T->pp); return T->pp; }
+    ulong u = u_forprime_next(T);
+    if (u) { affui(u, T->pp); return T->pp; }
     /* failure */
     if (T->strategy != PRST_nextprime) return NULL; /* we're done */
     /* overflow ulong, switch to GEN */
-    affui(ULONG_MAX, T->pp); /* initialize */
+    u = ULONG_MAX;
+    if (T->q > 1) u -= (ULONG_MAX-T->c) % T->q;
+    affui(u, T->pp);
   }
   av = avma;
-  p = nextprime(addiu(T->pp, 1));
+  p = nextprime(addiu(T->pp, T->q));
   if (T->bb && abscmpii(p, T->bb) > 0) { avma = av; return NULL; }
   affii(p, T->pp); avma = av; return T->pp;
 }
 
 void
-forprime(GEN a, GEN b, GEN code)
+forprimestep(GEN a, GEN b, GEN q, GEN code)
 {
   pari_sp av = avma;
   forprime_t T;
 
-  if (!forprime_init(&T, a,b)) { avma = av; return; }
+  if (!forprimestep_init(&T, a,b,q)) { avma = av; return; }
 
   push_lex(T.pp,code);
   while(forprime_next(&T))
@@ -948,6 +966,8 @@ forprime(GEN a, GEN b, GEN code)
   }
   pop_lex(1); avma = av;
 }
+void
+forprime(GEN a, GEN b, GEN code) { return forprimestep(a,b,NULL,code); }
 
 int
 forcomposite_init(forcomposite_t *C, GEN a, GEN b)
