@@ -4275,10 +4275,7 @@ discriminant_with_classno_at_least(
       }
       maxD *= 2;
       minD += 4;
-      if (DEBUGLEVEL > 3) {
-        err_printf("  Doubling discriminant search space (closest: %.1f%%, cost ratio: %.1f)...\n",
-            eps*100, cost/(double)(d*(L-1)));
-      }
+      dbg_printf(0)("  Doubling discriminant search space (closest: %.1f%%, cost ratio: %.1f)...\n", eps*100, cost/(double)(d*(L-1)));
     }
     max_max_D *= 2;
   }
