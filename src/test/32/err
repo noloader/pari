@@ -577,7 +577,7 @@
   *** removeprimes: domain error in removeprime: prime not in primetable
   ***   at top-level: forstep(a=1,2,0,)
   ***                 ^-----------------
-  ***   domain error in forstep: step = 0
+  *** forstep: domain error in forstep: step = 0
   ***   at top-level: e.omega
   ***                   ^-----
   *** _.omega: incorrect type in omega [not defined over C] (t_VEC).
@@ -632,4 +632,4 @@ INFINITY
   ***                                   ^-
   ***   incorrect value for plothsizes: [2,
   ***                                      ^
-Total time spent: 16
+Total time spent: 21

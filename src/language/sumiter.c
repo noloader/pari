@@ -319,17 +319,19 @@ forstep(GEN a, GEN b, GEN s, GEN code)
   GEN v = NULL;
   int (*cmp)(GEN,GEN);
 
-  b = gcopy(b); s = gcopy(s); av=avma;
-  push_lex(a,code);
-  if (is_vec_t(typ(s)))
+  b = gcopy(b);
+  s = gcopy(s); av = avma;
+  switch(typ(s))
   {
-    v = s; s = gen_0;
-    for (i=lg(v)-1; i; i--) s = gadd(s,gel(v,i));
+    case t_VEC: case t_COL: ss = gsigne(vecsum(s)); v = s; break;
+    case t_INTMOD: a = gadd(a, gmod(gsub(gel(s,2),a), gel(s,1)));
+                   s = gel(s,1);
+    default: ss = gsigne(s);
   }
-  ss = gsigne(s);
   if (!ss) pari_err_DOMAIN("forstep","step","=",gen_0,s);
   cmp = (ss > 0)? &gcmp: &negcmp;
   i = 0;
+  push_lex(a,code);
   while (cmp(a,b) <= 0)
   {
     closure_evalvoid(code); if (loop_break()) break;
