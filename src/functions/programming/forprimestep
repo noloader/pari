@@ -18,15 +18,11 @@ Doc: evaluates \var{seq},
  ($p \equiv a \pmod{q}$) or an intmod \kbd{Mod(c,N)} and we restrict
  to that congruence class. Nothing is done if $a>b$.
  \bprog
- ? forprimestep(p = 4, 20, 5, print(p))
- 4
- 9
- 13
- 17
- ? forprimestep(p = 4, 20, Mod(1,5), print(p))
- 6
+ ? forprimestep(p = 4, 30, 5, print(p))
+ 19
+ 29
+ ? forprimestep(p = 4, 30, Mod(1,5), print(p))
  11
- 16
  @eprog\noindent Setting $b$ to \kbd{+oo} means we will run through all primes
  $\geq a$, starting an infinite loop; it is expected that the caller will break
  out of the loop itself at some point, using \kbd{break} or \kbd{return}.
