@@ -1212,38 +1212,26 @@ mod_r(GEN x, long v, GEN T)
   pari_err_TYPE("substpol",x);
   return NULL;/*LCOV_EXCL_LINE*/
 }
-static GEN
-gsubst_expr(GEN expr, GEN from, GEN to)
-{
-  pari_sp av = avma;
-  long w, v = fetch_var(); /* FIXME: Need fetch_var_low_priority() */
-  GEN y;
-
-  from = simplify_shallow(from);
-  switch (typ(from)) {
-    case t_RFRAC: /* M= numerator(from) - t * denominator(from) */
-      y = gsub(gel(from,1), gmul(pol_x(v), gel(from,2)));
-      break;
-    default:
-      y = gsub(from, pol_x(v));        /* M = from - t */
-  }
-  w = gvar(from);
-  if (varncmp(v,w) <= 0) pari_err_PRIORITY("subst", pol_x(v), "<=", w);
-  y = gsubst(mod_r(expr, w, y), v, to);
-  (void)delete_var(); return gerepileupto(av, y);
-}
 GEN
 gsubstpol(GEN x, GEN T, GEN y)
 {
+  pari_sp av = avma;
+  long v;
+  GEN z;
   if (typ(T) == t_POL && RgX_is_monomial(T) && gequal1(leading_coeff(T)))
   { /* T = t^d */
-    long d = degpol(T), v = varn(T);
-    pari_sp av = avma;
-    GEN deflated = d == 1? x: gdeflate(x, v, d);
-    if (deflated) return gerepileupto(av, gsubst(deflated, v, y));
-    avma = av;
+    long d = degpol(T);
+    v = varn(T); z = (d==1)? x: gdeflate(x, v, d);
+    if (z) return gerepileupto(av, gsubst(z, v, y));
   }
-  return gsubst_expr(x,T,y);
+  v = fetch_var(); T = simplify_shallow(T);
+  if (typ(T) == t_RFRAC)
+    z = gsub(gel(T,1), gmul(pol_x(v), gel(T,2)));
+  else
+    z = gsub(T, pol_x(v));
+  z = mod_r(x, gvar(T), z);
+  z = gsubst(z, v, y); (void)delete_var();
+  return gerepileupto(av, z);
 }
 
 long
