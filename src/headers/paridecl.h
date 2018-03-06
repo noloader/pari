@@ -4403,6 +4403,7 @@ GEN     RgX_gcd_simple(GEN x, GEN y);
 int     RgXQ_ratlift(GEN y, GEN x, long amax, long bmax, GEN *P, GEN *Q);
 GEN     RgX_resultant_all(GEN P, GEN Q, GEN *sol);
 long    RgX_sturmpart(GEN x, GEN ab);
+GEN     RgX_sylvestermatrix(GEN x, GEN y);
 long    RgX_type(GEN x, GEN *ptp, GEN *ptpol, long *ptpa);
 long    RgX_type2(GEN x, GEN y, GEN *ptp, GEN *ptpol, long *ptpa);
 long    RgX_type3(GEN x, GEN y, GEN z, GEN *ptp, GEN *ptpol, long *ptpa);

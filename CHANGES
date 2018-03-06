@@ -390,6 +390,7 @@ BA  155- qfisom: allow to give the automorphism group of the second lattice
     159- [libpari] forprimestep_init
     160- allow forstep(a,b, Mod(c,q), ...)
     161- new GP function forprimestep
+    162- [libpari] RgX_sylvestermatrix
 
   Changed
       1- rewrite bnfnarrow

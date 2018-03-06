@@ -2792,58 +2792,44 @@ resultant(GEN P, GEN Q)
 /*                                                                 */
 /*******************************************************************/
 static GEN
-_pol_0(void)
-{
-  GEN x = cgetg(3,t_POL);
-  x[1] = 0;
-  gel(x,2) = gen_0; return x;
-}
-
-static GEN
-sylvester_col(GEN x, long j, long d, long D)
+syl_RgC(GEN x, long j, long d, long D, long cp)
 {
   GEN c = cgetg(d+1,t_COL);
   long i;
   for (i=1; i< j; i++) gel(c,i) = gen_0;
-  for (   ; i<=D; i++) gel(c,i) = gel(x,D-i+2);
+  for (   ; i<=D; i++) { GEN t = gel(x,D-i+2); gel(c,i) = cp? gcopy(t): t; }
   for (   ; i<=d; i++) gel(c,i) = gen_0;
   return c;
 }
-
-GEN
-sylvestermatrix_i(GEN x, GEN y)
+static GEN
+syl_RgM(GEN x, GEN y, long cp)
 {
-  long j,d,dx,dy;
+  long j, d, dx = degpol(x), dy = degpol(y);
   GEN M;
-
-  dx = degpol(x); if (dx < 0) { dx = 0; x = _pol_0(); }
-  dy = degpol(y); if (dy < 0) { dy = 0; y = _pol_0(); }
+  if (dx < 0) return dy < 0? cgetg(1,t_MAT): zeromat(dy,dy);
+  if (dy < 0) return zeromat(dx,dx);
   d = dx+dy; M = cgetg(d+1,t_MAT);
-  for (j=1; j<=dy; j++) gel(M,j)    = sylvester_col(x,j,d,j+dx);
-  for (j=1; j<=dx; j++) gel(M,j+dy) = sylvester_col(y,j,d,j+dy);
+  for (j=1; j<=dy; j++) gel(M,j)    = syl_RgC(x,j,d,j+dx, cp);
+  for (j=1; j<=dx; j++) gel(M,j+dy) = syl_RgC(y,j,d,j+dy, cp);
   return M;
 }
-
+GEN
+RgX_sylvestermatrix(GEN x, GEN y) { return syl_RgM(x,y,0); }
 GEN
 sylvestermatrix(GEN x, GEN y)
 {
-  long i,j,lx;
   if (typ(x)!=t_POL) pari_err_TYPE("sylvestermatrix",x);
   if (typ(y)!=t_POL) pari_err_TYPE("sylvestermatrix",y);
   if (varn(x) != varn(y)) pari_err_VAR("sylvestermatrix",x,y);
-  x = sylvestermatrix_i(x,y); lx = lg(x);
-  for (i=1; i<lx; i++)
-    for (j=1; j<lx; j++) gcoeff(x,i,j) = gcopy(gcoeff(x,i,j));
-  return x;
+  return syl_RgM(x,y,1);
 }
 
 GEN
 resultant2(GEN x, GEN y)
 {
-  pari_sp av;
-  GEN r;
-  if ((r = init_resultant(x,y))) return r;
-  av = avma; return gerepileupto(av,det(sylvestermatrix_i(x,y)));
+  pari_sp av = avma;
+  GEN r = init_resultant(x,y);
+  return r? r: gerepileupto(av, det(RgX_sylvestermatrix(x,y)));
 }
 
 /* If x a t_POL, let vx = main variable of x; return a t_POL in variable v0:

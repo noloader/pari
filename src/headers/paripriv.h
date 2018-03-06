@@ -779,10 +779,6 @@ GEN     group_export_MAGMA(GEN G);
 GEN     perm_generate(GEN S, GEN H, long o);
 long    perm_relorder(GEN p, GEN S);
 
-/* polarit2.c */
-
-GEN     sylvestermatrix_i(GEN x, GEN y);
-
 /* polclass.c */
 
 GEN polclass0(long D, long inv, long xvar, GEN *db);
