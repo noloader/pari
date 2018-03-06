@@ -2429,10 +2429,8 @@ FpXQX_edf_simple(GEN Sp, GEN xp, GEN Xp, GEN Xq, long d, GEN T, GEN p, GEN V, lo
 static GEN
 FpXQX_factor_Shoup(GEN S, GEN xp, GEN T, GEN p)
 {
-  long i, n, s = 0;
+  long i, n, s = 0, dT = get_FpX_degree(T), e = expi(powiu(p, dT));
   GEN X, Xp, Xq, D, V;
-  long dT = get_FpX_degree(T);
-  long e = expi(powiu(p, dT));
   pari_timer ti;
   n = get_FpXQX_degree(S);
   S = FpXQX_get_red(S, T, p);
@@ -2486,9 +2484,8 @@ FpXQX_factor_Cantor(GEN f, GEN T, GEN p)
     if (degpol(gel(V,i)))
     {
       GEN Fj = FpXQX_factor_Shoup(gel(V,i), xp, T, p);
-      gel(F, j) = Fj;
-      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
-      j++;
+      gel(E,j) = const_vecsmall(lg(Fj)-1, i);
+      gel(F,j) = Fj; j++;
     }
   return sort_factor_pol(FE_concat(F,E,j), cmp_RgX);
 }
@@ -2531,13 +2528,9 @@ FpXQX_nbfact(GEN S, GEN T, GEN p)
     s = ddf_to_nbfact(FpXQX_ddf_Shoup(S, FpXQX_Frobenius(S, T, p), T, p));
   avma = av; return s;
 }
-
 long
 FqX_nbfact(GEN u, GEN T, GEN p)
-{
-  return T ? FpXQX_nbfact(u, T, p): FpX_nbfact(u, p);
-}
-
+{ return T ? FpXQX_nbfact(u, T, p): FpX_nbfact(u, p); }
 
 static GEN
 FpXQX_factor_Berlekamp_i(GEN f, GEN T, GEN p)
@@ -2557,13 +2550,9 @@ FpXQX_factor_Berlekamp_i(GEN f, GEN T, GEN p)
   }
   return FpXQX_Berlekamp_i(f, T, p);
 }
-
 GEN
 FpXQX_factor_Berlekamp(GEN x, GEN T, GEN p)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, FpXQX_factor_Berlekamp_i(x, T, p));
-}
+{ pari_sp av = avma; return gerepilecopy(av, FpXQX_factor_Berlekamp_i(x,T,p)); }
 
 static GEN
 FpXQX_factor_i(GEN f, GEN T, GEN p)
@@ -2583,13 +2572,9 @@ FpXQX_factor_i(GEN f, GEN T, GEN p)
   }
   return FpXQX_factor_Cantor(f, T, p);
 }
-
 GEN
 FpXQX_factor(GEN x, GEN T, GEN p)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, FpXQX_factor_i(x, T, p));
-}
+{ pari_sp av = avma; return gerepilecopy(av, FpXQX_factor_i(x,T,p)); }
 
 static void
 ffcheck(pari_sp *av, GEN *f, GEN *T, GEN p)
@@ -2644,8 +2629,7 @@ FlxqX_is_squarefree(GEN P, GEN T, ulong p)
 {
   pari_sp av = avma;
   GEN z = FlxqX_gcd(P, FlxX_deriv(P, p), T, p);
-  avma = av;
-  return degpol(z)==0;
+  avma = av; return degpol(z)==0;
 }
 
 long
@@ -2653,6 +2637,5 @@ FqX_is_squarefree(GEN P, GEN T, GEN p)
 {
   pari_sp av = avma;
   GEN z = FqX_gcd(P, FqX_deriv(P, T, p), T, p);
-  avma = av;
-  return degpol(z)==0;
+  avma = av; return degpol(z)==0;
 }
