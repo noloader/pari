@@ -741,10 +741,6 @@ GEN     matrixnorm(GEN M, long prec);
 GEN     gred_rfrac_simple(GEN n, GEN d);
 GEN     sqr_ser_part(GEN x, long l1, long l2);
 
-/* gen3.c */
-
-GEN     gsubst_expr(GEN pol, GEN from, GEN to);
-
 /* hash.c */
 
 hashtable *hashstr_import_static(hashentry *e, ulong size);

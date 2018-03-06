@@ -1212,7 +1212,7 @@ mod_r(GEN x, long v, GEN T)
   pari_err_TYPE("substpol",x);
   return NULL;/*LCOV_EXCL_LINE*/
 }
-GEN
+static GEN
 gsubst_expr(GEN expr, GEN from, GEN to)
 {
   pari_sp av = avma;
@@ -1232,7 +1232,6 @@ gsubst_expr(GEN expr, GEN from, GEN to)
   y = gsubst(mod_r(expr, w, y), v, to);
   (void)delete_var(); return gerepileupto(av, y);
 }
-
 GEN
 gsubstpol(GEN x, GEN T, GEN y)
 {
