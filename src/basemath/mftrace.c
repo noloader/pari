@@ -7841,7 +7841,7 @@ mf2gaexpansion(GEN mf2, GEN F, GEN ga, long n, long prec)
 {
   GEN FT = mfmultheta(F), mf = obj_checkbuild(mf2, MF_MF2INIT, &mf2init);
   GEN res, V1, Tres, V2, al, V, gsh;
-  long w2, C = itos(gcoeff(ga,2,1)), w = mfcuspcanon_width(mf_get_N(FT), C);
+  long w2, C = itos(gcoeff(ga,2,1)), w = mfcuspcanon_width(MF_get_N(mf), C);
   long ext = ((C & 3L) != 2)? 0: (w+3) >> 2;
 
   res = mfgaexpansion(mf, FT, ga, n + ext, prec);
