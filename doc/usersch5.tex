@@ -7796,7 +7796,16 @@ is valid; underlies \kbd{primecertisvalid}.
 \fun{int}{forprime_init}{forprime_t *T, GEN a, GEN b} initialize an
 iterator $T$ over primes in $[a,b]$; over primes $\geq a$ if $b =
 \kbd{NULL}$. Return $0$ if the range is known to be empty from the start
-(as if $b < a$ or $b < 0$), and return $1$ otherwise.
+(as if $b < a$ or $b < 0$), and return $1$ otherwise. Use \tet{forprime_next}
+to iterate over the prime collection.
+
+\fun{int}{forprimestep_init}{forprime_t *T, GEN a, GEN b, GEN q} initialize an
+iterator $T$ over primes in an arithmetic progression in $[a,b]$;
+over primes $\geq a$ if $b = \kbd{NULL}$. The argument $q$ is either a
+\typ{INT} ($p \equiv a \pmod{q}$) or a \typ{INTMOD} \kbd{Mod(c,N)}
+and we restrict to that congruence class. Return $0$ if the range is known to
+be empty from the start (as if $b < a$ or $b < 0$), and return $1$ otherwise.
+Use \tet{forprime_next} to iterate over the prime collection.
 
 \fun{GEN}{forprime_next}{forprime_t *T} returns the next prime in the range,
 assuming that $T$ was initialized by \tet{forprime_init}.

@@ -3099,6 +3099,7 @@ int     forcomposite_init(forcomposite_t *C, GEN a, GEN b);
 GEN     forcomposite_next(forcomposite_t *C);
 GEN     forprime_next(forprime_t *T);
 int     forprime_init(forprime_t *T, GEN a, GEN b);
+int     forprimestep_init(forprime_t *T, GEN a, GEN b, GEN q);
 byteptr initprimes(ulong maxnum, long *lenp, ulong *lastp);
 void    initprimetable(ulong maxnum);
 ulong   init_primepointer_geq(ulong a, byteptr *pd);
