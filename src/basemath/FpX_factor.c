@@ -31,7 +31,7 @@ static void
 factmod_init(GEN *F, GEN p)
 {
   if (typ(p)!=t_INT) pari_err_TYPE("factmod",p);
-  if (signe(p) < 0) pari_err_PRIME("factmod",p);
+  if (signe(p) <= 0) pari_err_PRIME("factmod",p);
   if (typ(*F)!=t_POL) pari_err_TYPE("factmod",*F);
   if (lgefint(p) == 3)
   {
