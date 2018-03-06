@@ -2266,10 +2266,6 @@ FpX_degfact(GEN f, GEN p) {
   }
   return gerepilecopy(av, F);
 }
-GEN
-factcantor(GEN f, GEN p) { return factcantor0(f,p,0); }
-GEN
-simplefactmod(GEN f, GEN p) { return factcantor0(f,p,1); }
 
 #if 0
 /* set x <-- x + c*y mod p */
@@ -2321,11 +2317,10 @@ F2x_factor(GEN f)
 }
 
 GEN
-factcantor0(GEN f, GEN p, long flag)
+simplefactmod(GEN f, GEN p)
 {
   pari_sp av = avma;
   GEN F;
-  if (!flag) return factmod(f, p);
   factmod_init(&f,p);
   if (lg(f) <= 3) { avma = av; return trivial_fact(); }
   if (typ(f) == t_POL) F = FpX_factor_i(f, p, 1);
@@ -2384,11 +2379,7 @@ factmod(GEN f, GEN p)
 GEN
 factormod0(GEN f, GEN p, long flag)
 {
-  switch(flag)
-  {
-    case 0: return factmod(f,p);
-    case 1: return simplefactmod(f,p);
-    default: pari_err_FLAG("factormod");
-  }
-  return NULL; /* LCOV_EXCL_LINE */
+  if (flag == 0) return factmod(f,p);
+  if (flag != 1) pari_err_FLAG("factormod");
+  return simplefactmod(f,p);
 }

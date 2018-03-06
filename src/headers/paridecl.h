@@ -689,7 +689,6 @@ GEN     FpX_oneroot_split(GEN fact, GEN p);
 GEN     FpX_roots(GEN f, GEN p);
 GEN     FpX_rootsff(GEN P, GEN T, GEN p);
 GEN     FpX_split_part(GEN f, GEN p);
-GEN     factcantor(GEN x, GEN p);
 GEN     factormod0(GEN f, GEN p,long flag);
 GEN     polrootsmod(GEN f, GEN p);
 GEN     rootmod0(GEN f, GEN p,long flag);
