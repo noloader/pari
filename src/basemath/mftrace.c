@@ -4182,7 +4182,11 @@ Minv_RgC_mul(GEN Minv, GEN v)
 {
   GEN M = gel(Minv,1), d = gel(Minv,2), A = gel(Minv,3);
   v = RgM_RgC_mul(M, v);
-  if (!equali1(A)) v = RgC_Rg_mul(v, A);
+  if (!equali1(A))
+  {
+    if (typ(A) == t_POL && degpol(A) > 0) A = mkpolmod(A, gel(Minv,4));
+    v = RgC_Rg_mul(v, A);
+  }
   if (!equali1(d)) v = RgC_Rg_div(v, d);
   return v;
 }
@@ -4198,12 +4202,12 @@ Minv_RgM_mul(GEN Minv, GEN B)
 static GEN
 RgM_Minv_mul(GEN B, GEN Minv)
 {
-  GEN M = gel(Minv,1), d = gel(Minv,2), A = gel(Minv,3), P = gel(Minv,4);
+  GEN M = gel(Minv,1), d = gel(Minv,2), A = gel(Minv,3);
   if (B) M = RgM_mul(B, M);
   if (!equali1(A))
   {
+    if (typ(A) == t_POL) A = mkpolmod(A, gel(Minv,4));
     M = RgM_Rg_mul(M, A);
-    if (typ(A) != t_INT) M = RgXQM_red(M,P);
   }
   if (!equali1(d)) M = RgM_Rg_div(M,d);
   return M;
@@ -9626,10 +9630,10 @@ mfeisensteindec(GEN mf, GEN F)
   if (o > 1 && o != ord)
   { /* convert Mod(.,polcyclo(o)) to Mod(., polcyclo(N)) for o | N,
      * o and N both != 2 (mod 4) */
-    GEN z, P = mfcharpol(CHI);
+    GEN z, P = gel(M,4); /* polcyclo(ord) */
     long vt = varn(P);
+    z = gmodulo(pol_xn(ord/o, vt), P);
     if (ord % o) pari_err_TYPE("mfeisensteindec", V);
-    z = gmodulo(pol_xn(ord/o, vt), polcyclo(ord, vt));
     V = gsubst(liftpol_shallow(V), vt, z);
   }
   B = Minv_RgC_mul(M, vecpermute(V, Mindex));
@@ -10462,7 +10466,7 @@ mfkohnenbijection_i(GEN mf)
     }
     avma = av;
   }
-  pari_err_BUG("mfkohnenbijection failed");
+  pari_err_BUG("mfkohnenbijection");
   return NULL; /*LCOV_EXCL_LINE*/
 }
 GEN
