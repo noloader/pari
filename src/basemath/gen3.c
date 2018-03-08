@@ -3266,12 +3266,18 @@ compo(GEN x, long n)
   return gcopy(gel(x,l));
 }
 
-/* assume v > varn(x), extract coeff of pol_x(v)^n */
+/* assume x a t_POL */
 static GEN
-multi_coeff(GEN x, long n, long v, long dx)
+_polcoeff(GEN x, long n, long v)
 {
-  long i, lx = dx+3;
-  GEN z = cgetg(lx, t_POL); z[1] = x[1];
+  long i, w, lx = lg(x), dx = lx-3;
+  GEN z;
+  if (dx < 0) return gen_0;
+  if (v < 0 || v == (w=varn(x)))
+    return (n < 0 || n > dx)? gen_0: gel(x,n+2);
+  if (varncmp(w,v) > 0) return n? gen_0: x;
+  /* w < v */
+  z = cgetg(lx, t_POL); z[1] = x[1];
   for (i = 2; i < lx; i++) gel(z,i) = polcoeff_i(gel(x,i), n, v);
   z = normalizepol_lg(z, lx);
   switch(lg(z))
@@ -3282,42 +3288,30 @@ multi_coeff(GEN x, long n, long v, long dx)
   return z;
 }
 
-/* assume x a t_POL */
-static GEN
-_polcoeff(GEN x, long n, long v)
-{
-  long w, dx;
-  dx = degpol(x);
-  if (dx < 0) return gen_0;
-  if (v < 0 || v == (w=varn(x)))
-    return (n < 0 || n > dx)? gen_0: gel(x,n+2);
-  if (varncmp(w,v) > 0) return n? gen_0: x;
-  /* w < v */
-  return multi_coeff(x, n, v, dx);
-}
-
 /* assume x a t_SER */
 static GEN
 _sercoeff(GEN x, long n, long v)
 {
-  long w, dx = lg(x)-3, ex = valp(x), N = n - ex;
+  long i, w = varn(x), lx = lg(x), dx = lx-3, N;
   GEN z;
+  if (v < 0) v = w;
+  N = v == w? n - valp(x): n;
   if (dx < 0)
   {
     if (N >= 0) pari_err_DOMAIN("polcoeff", "t_SER", "=", x, x);
     return gen_0;
   }
-  if (v < 0 || v == (w=varn(x)))
+  if (v == w)
   {
     if (N > dx)
-      pari_err_DOMAIN("polcoeff", "degree", ">", stoi(dx+ex), stoi(n));
+      pari_err_DOMAIN("polcoeff", "degree", ">", stoi(dx+valp(x)), stoi(n));
     return (N < 0)? gen_0: gel(x,N+2);
   }
   if (varncmp(w,v) > 0) return N? gen_0: x;
   /* w < v */
-  z = multi_coeff(x, n, v, dx);
-  if (ex) z = gmul(z, pol_xnall(ex, w));
-  return z;
+  z = cgetg(lx, t_SER); z[1] = x[1];
+  for (i = 2; i < lx; i++) gel(z,i) = polcoeff_i(gel(x,i), n, v);
+  return normalize(z);
 }
 
 /* assume x a t_RFRAC(n) */

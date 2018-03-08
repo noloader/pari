@@ -178,6 +178,9 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     139- quadclassunit(-699,,[6,6]) -> SEGV [#2015]
     140- intnum would lose accuracy when using more control points, e.g.
          intnum(x=0,1,x*cos(Pi*x), 2) at \p100 [#2014]
+    141- polcoeff(t_SER) -> incorrect types and values
+         polcoeff(1/(1+x+y+O(y^2)+O(x^2)), 1,y) -> 2*x-1 [now -1+2*x+O(x^2)]
+         polcoeff(y+O(y^2), 0, x) -> 0 [now y+O(y^2)]
 
   Added
       1- [libari] ZM_isidentity

@@ -320,10 +320,11 @@ error("incorrect type in polcoeff (t_STR).")
 error("non-existent component in polcoeff: index > 3")
 error("incorrect type in polcoeff (t_ERROR).")
 0
-0
-x + 1
-0
+O(x^2)
+1 + x + O(x^2)
 y + O(y^2)
+0
+9 + 18*x + 36*x^2 + O(x^3)
 Vecsmall([4, 5, 3])
   ***   at top-level: vecextract([1],11)
   ***                 ^------------------
