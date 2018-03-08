@@ -7846,9 +7846,11 @@ mf2gaexpansion(GEN mf2, GEN F, GEN ga, long n, long prec)
   GEN FT = mfmultheta(F), mf = obj_checkbuild(mf2, MF_MF2INIT, &mf2init);
   GEN res, V1, Tres, V2, al, V, gsh;
   long w2, C = itos(gcoeff(ga,2,1)), w = mfcuspcanon_width(MF_get_N(mf), C);
-  long ext = ((C & 3L) != 2)? 0: (w+3) >> 2;
+  long ext = ((C & 3L) != 2)? 0: (w+3) >> 2, precnew;
+  double bpr = M_PI/LOG2*sqrt(n + ext);
 
-  res = mfgaexpansion(mf, FT, ga, n + ext, prec);
+  precnew = nbits2prec(prec2nbits(prec) + (long)(bpr/2));
+  res = mfgaexpansion(mf, FT, ga, n + ext, precnew);
   Tres = mfthetaexpansion(ga, n + ext);
   V1 = gel(res,3);
   V2 = gel(Tres,3);
@@ -7876,7 +7878,7 @@ mf2gaexpansion(GEN mf2, GEN F, GEN ga, long n, long prec)
       V = vecslice(V, sh+1, n + sh+1);
     }
   }
-  obj_free(mf); return mkvec3(al, stoi(w), V);
+  obj_free(mf); return mkvec3(al, stoi(w), gprec_wtrunc(V, prec));
 }
 
 static GEN
@@ -7901,8 +7903,8 @@ mfgaexpansionatkin(GEN mf, GEN F, long C, long D, long Q, long n, long prec)
 static GEN
 mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
 {
-  GEN v, EF = NULL;
-  long c, d;
+  GEN v, EF = NULL, res, Mvecj;
+  long c, d, precnew;
 
   if (n < 0) pari_err_DOMAIN("mfgaexpansion", "n", "<", gen_0, stoi(n));
   if (typ(F) == t_COL && lg(F) == 3) { EF = gel(F,2); F = gel(F,1); }
@@ -7927,8 +7929,11 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
                       && degpol(mf_get_field(F)) == 1)
       return mfgaexpansionatkin(mf, F, c, d, Q, n, prec);
   }
-  if (!EF) EF = mf_eisendec(mf,F,prec);
-  return mfgaexpansion_i(mf, EF, ga, n, prec);
+  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
+  precnew = (lg(Mvecj) < 5)? prec + nbits2extraprec(n >> 1): prec;
+  if (!EF) EF = mf_eisendec(mf, F, precnew);
+  res = mfgaexpansion_i(mf, EF, ga, n, precnew);
+  return precnew == prec ? res : gprec_wtrunc(res, prec);
 }
 
 /* parity = -1 or +1 */
