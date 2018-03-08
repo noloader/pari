@@ -3661,7 +3661,7 @@ mfshimura_space_cusp(GEN mf)
   {
     GEN E = gel(myfactoru(M), 2);
     long ma = vecsmall_max(E);
-    if (ma > 2 || (ma == 2 && !mfcharistrivial(mf_get_CHI(mf)))) fl = 0;
+    if (ma > 2 || (ma == 2 && !mfcharistrivial(MF_get_CHI(mf)))) fl = 0;
   }
   return fl;
 }
@@ -10411,13 +10411,11 @@ mfkohnenbijection_i(GEN mf)
   long Dm[] = {-3, -4, -7, -8, -11, -15, -19, -20}, *D = odd(r)? Dm: Dp;
   const long nbD = 8, MAXm = 6560; /* #D, 3^#D - 1 */
 
-  if (!uissquarefree(N4))
-    pari_err_TYPE("mfkohnenbijection [N/4 not squarefree]", utoi(4*N4));
   K = mfkohnenbasis(mf); lK = lg(K);
   mf3 = mfinit_Nkchi(N4, r<<1, mfcharpow(CHI,gen_2), mf_CUSP, 0);
   if (MF_get_dim(mf3) != lK - 1)
     pari_err_BUG("mfkohnenbijection [different dimensions]");
-  if (lK == 1) return mkvec4(mf3, cgetg(1, t_MAT), K, cgetg(1, t_VECSMALL));
+  if (lK == 1) return mkvec4(mf3, cgetg(1, t_MAT), K, cgetg(1, t_VEC));
   CHI = mfcharchiliftprim(CHI, N4);
   if (!CHI) pari_err_TYPE("mfkohnenbijection [incorrect CHI]", CHI);
   n = mfcharorder_canon(CHI);
@@ -10478,7 +10476,10 @@ GEN
 mfkohnenbijection(GEN mf)
 {
   pari_sp av = avma;
-  checkMF(mf);
+  long N;
+  checkMF(mf); N = MF_get_N(mf);
+  if (!uissquarefree(N >> 2))
+    pari_err_TYPE("mfkohnenbijection [N/4 not squarefree]", utoi(N));
   if (MF_get_space(mf) != mf_CUSP || MF_get_r(mf) == 0 || !mfshimura_space_cusp(mf))
     pari_err_TYPE("mfkohnenbijection [incorrect mf for Kohnen]", mf);
   return gerepilecopy(av, mfkohnenbijection_i(mf));
@@ -10506,7 +10507,7 @@ mfkohneneigenbasis(GEN mf, GEN bij)
   if (MF_get_space(mf) != mf_CUSP)
     pari_err_TYPE("mfkohneneigenbasis [not a cuspidal space]", mf);
   if (!MF_get_dim(mf))
-    return gcopy(mkvec2(cgetg(1, t_VEC), cgetg(1, t_VEC)));
+    retmkvec3(cgetg(1, t_VEC), cgetg(1, t_VEC), cgetg(1, t_VEC));
   N4 = MF_get_N(mf) >> 2; k = MF_get_gk(mf);
   if (typ(k) == t_INT) pari_err_TYPE("mfkohneneigenbasis", k);
   if (!uissquarefree(N4))
