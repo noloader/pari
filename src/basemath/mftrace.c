@@ -8061,7 +8061,7 @@ mfeigensearch(GEN NK, GEN AP)
     if (typ(AP) != t_VEC) pari_err_TYPE("mfeigensearch",AP);
   }
   vap = cgetg(l, t_VEC);
-  vlp = cgetg(l, t_VEC);
+  vlp = cgetg(l, t_VECSMALL);
   if (l > 1)
   {
     GEN perm = indexvecsort(AP, mkvecsmall(1));
