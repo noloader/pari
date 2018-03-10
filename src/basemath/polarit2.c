@@ -531,7 +531,6 @@ RgX_type(GEN x, GEN *p, GEN *pol, long *pa)
   long t2 = 0, var = NO_VARIABLE;
   GEN ff = NULL;
   *p = *pol = NULL; *pa = LONG_MAX;
-  if(typ(x) != t_POL) pari_err_BUG("RgX_type");
   if (!RgX_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
   return choosetype(t,t2,ff,pol,var);
 }
@@ -543,8 +542,8 @@ RgX_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa)
   long t2 = 0, var = NO_VARIABLE;
   GEN ff = NULL;
   *p = *pol = NULL; *pa = LONG_MAX;
-  if (!RgX_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
-  if (!RgX_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  if (!RgX_settype(x,t,p,pol,pa,&ff,&t2,&var) ||
+      !RgX_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
   return choosetype(t,t2,ff,pol,var);
 }
 
@@ -555,9 +554,9 @@ RgX_type3(GEN x, GEN y, GEN z, GEN *p, GEN *pol, long *pa)
   long t2 = 0, var = NO_VARIABLE;
   GEN ff = NULL;
   *p = *pol = NULL; *pa = LONG_MAX;
-  if (!RgX_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
-  if (!RgX_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
-  if (!RgX_settype(z,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  if (!RgX_settype(x,t,p,pol,pa,&ff,&t2,&var) ||
+      !RgX_settype(y,t,p,pol,pa,&ff,&t2,&var) ||
+      !RgX_settype(z,t,p,pol,pa,&ff,&t2,&var)) return 0;
   return choosetype(t,t2,ff,pol,var);
 }
 
@@ -579,8 +578,8 @@ RgM_RgC_type(GEN x, GEN y, GEN *p, GEN *pol, long *pa)
   long t2 = 0, var = NO_VARIABLE;
   GEN ff = NULL;
   *p = *pol = NULL; *pa = LONG_MAX;
-  if (!RgM_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
-  if (!RgC_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  if (!RgM_settype(x,t,p,pol,pa,&ff,&t2,&var) ||
+      !RgC_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
   return choosetype(t,t2,ff,pol,var);
 }
 
@@ -591,16 +590,13 @@ RgM_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa)
   long t2 = 0, var = NO_VARIABLE;
   GEN ff = NULL;
   *p = *pol = NULL; *pa = LONG_MAX;
-  if (!RgM_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
-  if (!RgM_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
+  if (!RgM_settype(x,t,p,pol,pa,&ff,&t2,&var) ||
+      !RgM_settype(y,t,p,pol,pa,&ff,&t2,&var)) return 0;
   return choosetype(t,t2,ff,pol,var);
 }
 
 GEN
-factor0(GEN x,long flag)
-{
-  return (flag<0)? factor(x): boundfact(x,flag);
-}
+factor0(GEN x,long flag) { return (flag<0)? factor(x): boundfact(x,flag); }
 
 /* only present for interface with GP */
 GEN
