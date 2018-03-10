@@ -811,6 +811,7 @@ strntoGENstr(const char *s, long n0)
   long n = nchar2nlong(n0+1);
   GEN x = cgetg(n+1, t_STR);
   char *t = GSTR(x);
+  x[n] = 0;
   strncpy(t, s, n0); t[n0] = 0; return x;
 }
 
