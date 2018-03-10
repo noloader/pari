@@ -401,12 +401,13 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
       {
         GEN pbis, polbis;
         long pabis;
+        *t2 = t_POLMOD;
         switch(Rg_type(gel(c,j),&pbis,&polbis,&pabis))
         {
-          case t_INT:  *t2 = t_POLMOD; break;
-          case t_FRAC: t[1]=1; *t2 = t_POLMOD; break;
-          case t_INTMOD: t[3]=1; *t2 = t_POLMOD; break;
-          case t_PADIC: t[7]=1; *t2 = t_POLMOD; update_prec(pabis,pa); break;
+          case t_INT:  break;
+          case t_FRAC: t[1]=1; break;
+          case t_INTMOD: t[3]=1; break;
+          case t_PADIC: t[7]=1; update_prec(pabis,pa); break;
           default: return 0;
         }
         if (pbis) assign_or_fail(pbis,p);
@@ -416,13 +417,14 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
     case t_POL: t[10] = 1;
     {
       GEN pbis, polbis;
-      long tbis, pabis, v;
+      long tbis, pabis;
       tbis = RgX_type(c,&pbis,&polbis,&pabis);
-      if (tbis==0 || tbis==t_POL || polbis) *var = MAXVARN+1;
-      v = varn(c);
-      if (*var==NO_VARIABLE) *var = v;
-      else if (*var!=v) *var = MAXVARN+1;
-      break;
+      if (tbis && tbis!=t_POL && !polbis)
+      {
+        if (*var == NO_VARIABLE) { *var = varn(c); break; }
+        if (*var == varn(c)) break;
+      }
+      *var = MAXVARN+1; break; /* ensure varn() == *var fails in choosetype */
     }
     default: return 0;
   }
