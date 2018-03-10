@@ -399,7 +399,7 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
         return 0;
       for (j=1; j<=2; j++)
       {
-        GEN pbis = NULL, polbis = NULL;
+        GEN pbis, polbis;
         long pabis;
         switch(Rg_type(gel(c,j),&pbis,&polbis,&pabis))
         {
