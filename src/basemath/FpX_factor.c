@@ -25,28 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*           ROOTS MODULO a prime p (no multiplicities)            */
 /*                                                                 */
 /*******************************************************************/
-/* Check types and replace F by a monic normalized FpX having the same roots
- * Don't bother to make constant polynomials monic */
-static void
-factmod_init(GEN *F, GEN p)
-{
-  if (typ(p)!=t_INT) pari_err_TYPE("factmod",p);
-  if (signe(p) <= 0) pari_err_PRIME("factmod",p);
-  if (typ(*F)!=t_POL) pari_err_TYPE("factmod",*F);
-  if (lgefint(p) == 3)
-  {
-    ulong pp = p[2];
-    if (pp < 2) pari_err_PRIME("factmod", p);
-    *F = RgX_to_Flx(*F, pp);
-    if (lg(*F) > 3) *F = Flx_normalize(*F, pp);
-  }
-  else
-  {
-    *F = RgX_to_FpX(*F, p);
-    if (lg(*F) > 3) *F = FpX_normalize(*F, p);
-  }
-}
-/* as above, assume p prime and *F a ZX */
+/* Replace F by a monic normalized FpX having the same factors;
+ * assume p prime and *F a ZX */
 static int
 ZX_factmod_init(GEN *F, GEN p)
 {
@@ -197,17 +177,6 @@ FpX_roots(GEN f, GEN p)
   GEN y; ZX_rootmod_init(&f, p); y = rootmod_aux(f, p);
   return gerepileupto(av, y);
 }
-/* no assumptions on f and p */
-GEN
-polrootsmod(GEN f, GEN p)
-{
-  pari_sp av = avma;
-  GEN y; factmod_init(&f, p); y = rootmod_aux(f, p);
-  return gerepileupto(av, FpC_to_mod(y,p));
-}
-/* OBSOLETE */
-GEN
-rootmod0(GEN f, GEN p, long flag) { (void)flag; return polrootsmod(f,p); }
 
 /* assume x reduced mod p > 2, monic. */
 static int
@@ -1202,9 +1171,8 @@ static GEN
 F2x_factor_2(GEN f, long d)
 {
   long v = f[1];
-  if (d < 0) pari_err(e_ROOTS0,"Flx_factor_2");
   if (!d) return mkvec2(cgetg(1,t_COL), cgetg(1,t_VECSMALL));
-  if (d == 1) return mkvec2(mkcol(f), mkvecsmall(1));
+  if (labs(d) == 1) return mkvec2(mkcol(f), mkvecsmall(1));
   switch(F2x_quad_factortype(f))
   {
   case -1: return mkvec2(mkcol(f), mkvecsmall(1));
@@ -1404,9 +1372,8 @@ Flx_factor_2(GEN f, ulong p, long d)
   ulong r, s;
   GEN R,S;
   long v = f[1];
-  if (d < 0) pari_err(e_ROOTS0,"Flx_factor_2");
   if (!d) return mkvec2(cgetg(1,t_COL), cgetg(1,t_VECSMALL));
-  if (d == 1) return mkvec2(mkcol(f), mkvecsmall(1));
+  if (labs(d) == 1) return mkvec2(mkcol(f), mkvecsmall(1));
   r = Flx_quad_root(f, p, 1);
   if (r==p) return mkvec2(mkcol(f), mkvecsmall(1));
   s = Flx_otherroot(f, r, p);
@@ -2314,72 +2281,4 @@ F2x_factor(GEN f)
 {
   pari_sp av = avma;
   return gerepilecopy(av, F2x_factor_i(f,0));
-}
-
-GEN
-simplefactmod(GEN f, GEN p)
-{
-  pari_sp av = avma;
-  GEN F;
-  factmod_init(&f,p);
-  if (lg(f) <= 3) { avma = av; return trivial_fact(); }
-  if (typ(f) == t_POL) F = FpX_factor_i(f, p, 1);
-  else
-  { /* lgefint(p) = 3 */
-    ulong pp = p[2];
-    if (pp==2)
-      F = F2x_factor_i(Flx_to_F2x(f), 1);
-    else
-      F = Flx_factor_i(f,pp, 1);
-  }
-  return gerepileupto(av, Flm_to_ZM(F));
-}
-
-/* Mod(0,p)^1 */
-static GEN
-zero_fact_intmod(long v, GEN p)
-{ retmkmat2(mkcol(scalarpol_shallow(Fp_to_mod(gen_0,p), v)),
-            mkcol(gen_1)); }
-static GEN
-FpXC_to_mod(GEN v, GEN p)
-{
-  long j, l = lg(v);
-  GEN u = cgetg(l,t_COL);
-  for (j = 1; j < l; j++) gel(u,j) = FpX_to_mod(gel(v,j), p);
-  return u;
-}
-GEN
-factmod(GEN f, GEN p)
-{
-  pari_sp av = avma;
-  GEN F, y;
-  factmod_init(&f,p);
-  switch(lg(f))
-  {
-    case 2: avma = av; return zero_fact_intmod(varn(f),p);
-    case 3: avma = av; return trivial_fact();
-  }
-  if (typ(f) == t_POL) F = FpX_factor_i(f,p,0);
-  else
-  {/* lgefint(p) == 3 */
-    ulong pp = p[2];
-    if (pp == 2) {
-      F = F2x_factor(Flx_to_F2x(f));
-      F2xV_to_ZXV_inplace(gel(F,1));
-    } else {
-      F = Flx_factor(f, pp);
-      FlxV_to_ZXV_inplace(gel(F,1));
-    }
-  }
-  y = cgetg(3, t_MAT);
-  gel(y,1) = FpXC_to_mod(gel(F,1), p);
-  gel(y,2) = Flc_to_ZC(gel(F,2)); return gerepileupto(av, y);
-}
-
-GEN
-factormod0(GEN f, GEN p, long flag)
-{
-  if (flag == 0) return factmod(f,p);
-  if (flag != 1) pari_err_FLAG("factormod");
-  return simplefactmod(f,p);
 }

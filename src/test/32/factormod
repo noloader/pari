@@ -276,5 +276,5 @@ Mod(38, 41), Mod(40, 41)]~
   *** polrootsmod: zero polynomial in rootmod.
   ***   at top-level: factormod(x,0)
   ***                 ^--------------
-  *** factormod: not a prime number in factmod: 0.
-Total time spent: 78
+  *** factormod: not a prime number in factormod: 0.
+Total time spent: 70

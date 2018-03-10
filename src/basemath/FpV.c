@@ -1138,7 +1138,13 @@ GEN
 FpX_to_mod(GEN z, GEN p)
 {
   long i,l = lg(z);
-  GEN x = cgetg(l,t_POL);
+  GEN x;
+  if (l == 2)
+  {
+    x = cgetg(3,t_POL); x[1] = z[1];
+    gel(x,2) = mkintmod(gen_0,icopy(p)); return x;
+  }
+  x = cgetg(l,t_POL);
   if (l >2) p = icopy(p);
   for (i=2; i<l; i++) gel(x,i) = to_intmod(gel(z,i), p);
   x[1] = z[1]; return normalizepol_lg(x,l);

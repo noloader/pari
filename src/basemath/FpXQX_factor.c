@@ -712,52 +712,6 @@ FpX_factorff(GEN P, GEN T, GEN p)
 /***********************************************************************/
 
 static GEN
-to_Fq(GEN x, GEN T, GEN p)
-{
-  long i, lx, tx = typ(x);
-  GEN y;
-
-  if (tx == t_INT)
-    y = mkintmod(x,p);
-  else
-  {
-    if (tx != t_POL) pari_err_TYPE("to_Fq",x);
-    lx = lg(x);
-    y = cgetg(lx,t_POL); y[1] = x[1];
-    for (i=2; i<lx; i++) gel(y,i) = mkintmod(gel(x,i), p);
-  }
-  return mkpolmod(y, T);
-}
-
-static GEN
-to_Fq_pol(GEN x, GEN T, GEN p)
-{
-  long i, lx = lg(x);
-  for (i=2; i<lx; i++) gel(x,i) = to_Fq(gel(x,i),T,p);
-  return x;
-}
-
-static GEN
-to_Fq_fact(GEN P, GEN E, GEN T, GEN p, pari_sp av)
-{
-  GEN y = gerepilecopy(av, mkmat2(simplify_shallow(P), Flc_to_ZC(E)));
-  GEN u = gel(y,1);
-  long j, l = lg(u);
-  p = icopy(p); T = FpX_to_mod(T, p);
-  for (j=1; j<l; j++) gel(u,j) = to_Fq_pol(gel(u,j), T,p);
-  return y;
-}
-static GEN
-to_FqC(GEN P, GEN T, GEN p, pari_sp av)
-{
-  GEN u = gerepilecopy(av, simplify_shallow(P));
-  long j, l = lg(P);
-  p = icopy(p); T = FpX_to_mod(T, p);
-  for (j=1; j<l; j++) gel(u,j) = to_Fq(gel(u,j), T,p);
-  return u;
-}
-
-static GEN
 FlxqXQ_halfFrobenius_i(GEN a, GEN xp, GEN Xp, GEN S, GEN T, ulong p)
 {
   GEN ap2 = FlxqXQ_powu(a, p>>1, S, T, p);
@@ -2560,52 +2514,6 @@ GEN
 FpXQX_factor(GEN x, GEN T, GEN p)
 { pari_sp av = avma; return gerepilecopy(av, FpXQX_factor_i(x,T,p)); }
 
-static void
-ffcheck(pari_sp *av, GEN *f, GEN *T, GEN p)
-{
-  long v;
-  if (typ(*T)!=t_POL) pari_err_TYPE("factorff",*T);
-  if (typ(*f)!=t_POL) pari_err_TYPE("factorff",*f);
-  if (typ(p)!=t_INT) pari_err_TYPE("factorff",p);
-  v = varn(*T);
-  if (varncmp(v, varn(*f)) <= 0)
-    pari_err_PRIORITY("factorff", *T, "<=", varn(*f));
-  *T = RgX_to_FpX(*T, p); *av = avma;
-  *f = RgX_to_FqX(*f, *T,p);
-}
-GEN
-factorff(GEN f, GEN p, GEN T)
-{
-  pari_sp av;
-  GEN z;
-  if (!p || !T)
-  {
-    long pa, t;
-    if (typ(f) != t_POL) pari_err_TYPE("factorff",f);
-    t = RgX_type(f, &p, &T, &pa);
-    if (t != t_FFELT) pari_err_TYPE("factorff",f);
-    return FFX_factor(f,T);
-  }
-  ffcheck(&av, &f, &T, p); z = FpXQX_factor_i(f, T, p);
-  return to_Fq_fact(gel(z,1),gel(z,2), T,p, av);
-}
-GEN
-polrootsff(GEN f, GEN p, GEN T)
-{
-  pari_sp av;
-  GEN z;
-  if (!p || !T)
-  {
-    long pa, t;
-    if (typ(f) != t_POL) pari_err_TYPE("polrootsff",f);
-    t = RgX_type(f, &p, &T, &pa);
-    if (t != t_FFELT) pari_err_TYPE("polrootsff",f);
-    return FFX_roots(f,T);
-  }
-  ffcheck(&av, &f, &T, p); z = FpXQX_roots_i(f, T, p);
-  return to_FqC(z, T,p, av);
-}
-
 long
 FlxqX_is_squarefree(GEN P, GEN T, ulong p)
 {
@@ -2620,4 +2528,157 @@ FqX_is_squarefree(GEN P, GEN T, GEN p)
   pari_sp av = avma;
   GEN z = FqX_gcd(P, FqX_deriv(P, T, p), T, p);
   avma = av; return degpol(z)==0;
+}
+
+/* Check types and replace F by a monic normalized FpX having the same roots
+ * Don't bother to make constant polynomials monic */
+static GEN
+factmod_init(GEN f, GEN D, GEN *pT, GEN *pp)
+{
+  const char *s = "factormod";
+  GEN T = NULL, p = NULL;
+  if (typ(f) != t_POL) pari_err_TYPE(s,f);
+  if (!D)
+  {
+    long pa, t = RgX_type(f, pp, pT, &pa);
+    if (t != t_FFELT) pari_err_TYPE(s,f);
+    return f;
+  }
+  switch(typ(D))
+  {
+    case t_INT: p = D; break;
+    case t_VEC:
+      if (lg(D) == 3)
+      {
+        p = gel(D,1);
+        T = gel(D,2);
+        if (typ(p) == t_INT) break;
+        if (typ(T) == t_INT) { swap(T,p); break; }
+      }
+    default: pari_err_TYPE(s,p);
+  }
+  if (signe(p) <= 0) pari_err_PRIME(s,p);
+  if (T)
+  {
+    if (typ(T) != t_POL) pari_err_TYPE(s,p);
+    T = RgX_to_FpX(T,p);
+    if (varncmp(varn(T), varn(f)) <= 0) pari_err_PRIORITY(s, T, "<=", varn(f));
+  }
+  *pT = T; *pp = p; return RgX_to_FqX(f, T, p);
+}
+
+static GEN
+to_Fq(GEN x, GEN T, GEN p)
+{
+  long i, lx, tx = typ(x);
+  GEN y;
+
+  if (tx == t_INT)
+    y = mkintmod(x,p);
+  else
+  {
+    if (tx != t_POL) pari_err_TYPE("to_Fq",x);
+    lx = lg(x);
+    y = cgetg(lx,t_POL); y[1] = x[1];
+    for (i=2; i<lx; i++) gel(y,i) = mkintmod(gel(x,i), p);
+  }
+  return mkpolmod(y, T);
+}
+static GEN
+to_Fq_pol(GEN x, GEN T, GEN p)
+{
+  long i, lx = lg(x);
+  for (i=2; i<lx; i++) gel(x,i) = to_Fq(gel(x,i),T,p);
+  return x;
+}
+static GEN
+to_Fq_fact(GEN fa, GEN T, GEN p)
+{
+  GEN P = gel(fa,1);
+  long j, l = lg(P);
+  p = icopy(p); T = FpX_to_mod(T, p);
+  for (j=1; j<l; j++) gel(P,j) = to_Fq_pol(gel(P,j), T,p);
+  return fa;
+}
+static GEN
+to_FqC(GEN P, GEN T, GEN p)
+{
+  long j, l = lg(P);
+  p = icopy(p); T = FpX_to_mod(T, p);
+  for (j=1; j<l; j++) gel(P,j) = to_Fq(gel(P,j), T,p);
+  return P;
+}
+
+static GEN
+FpXC_to_mod(GEN v, GEN p)
+{
+  long j, l = lg(v);
+  GEN u = cgetg(l,t_COL);
+  for (j = 1; j < l; j++) gel(u,j) = FpX_to_mod(gel(v,j), p);
+  return u;
+}
+GEN
+factmod(GEN f, GEN D)
+{
+  pari_sp av;
+  GEN y, F, P, E, T, p;
+  f = factmod_init(f, D, &T,&p);
+  if (!D) return FFX_factor(f, T);
+  av = avma;
+  F = FqX_factor(f, T, p); P = gel(F,1); E = gel(F,2);
+  if (!T)
+  {
+    y = cgetg(3, t_MAT);
+    gel(y,1) = FpXC_to_mod(P, p);
+    gel(y,2) = Flc_to_ZC(E); return gerepileupto(av, y);
+  }
+  F = gerepilecopy(av, mkmat2(simplify_shallow(P), Flc_to_ZC(E)));
+  return to_Fq_fact(F, T, p);
+}
+GEN
+simplefactmod(GEN f, GEN D)
+{
+  pari_sp av = avma;
+  GEN T, p;
+  f = factmod_init(f,D, &T,&p);
+  if (lg(f) <= 3) { avma = av; return trivial_fact(); }
+  if (T) pari_err_IMPL("factormod(f,D,1) in this case");
+  return gerepileupto(av, Flm_to_ZM(FpX_degfact(f, p)));
+}
+
+GEN
+factormod0(GEN f, GEN p, long flag)
+{
+  if (flag == 0) return factmod(f,p);
+  if (flag != 1) pari_err_FLAG("factormod");
+  return simplefactmod(f,p);
+}
+GEN
+polrootsmod(GEN f, GEN D)
+{
+  pari_sp av;
+  GEN y, T, p;
+  f = factmod_init(f, D, &T,&p);
+  if (!D) return FFX_roots(f, T);
+  av = avma; y = FqX_roots(f, T, p);
+  if (!T) return gerepileupto(av, FpC_to_mod(y,p));
+  y = gerepilecopy(av, simplify_shallow(y));
+  return to_FqC(y, T, p);
+}
+
+GEN /* OBSOLETE */
+rootmod0(GEN f, GEN p, long flag) { (void)flag; return polrootsmod(f,p); }
+GEN /* OBSOLETE */
+factorff(GEN f, GEN p, GEN T)
+{
+  pari_sp av = avma;
+  GEN D = (p && T)? mkvec2(T,p): NULL;
+  return gerepileupto(av, factmod(f,D));
+}
+GEN /* OBSOLETE */
+polrootsff(GEN f, GEN p, GEN T)
+{
+  pari_sp av = avma;
+  GEN D = (p && T)? mkvec2(T,p): NULL;
+  return gerepileupto(av, polrootsmod(f, D));
 }
