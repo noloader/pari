@@ -343,7 +343,7 @@ gp_main_loop(long ismain)
       /* true error not from main instance, let caller sort it out */
       if (!ismain) { kill_buffers_upto_including(b); return NULL; }
     } else { /* allocatemem */
-      filestate_restore(rec.file);
+      tmp_restore(rec.file.file);
       gp_context_save(&rec);
     }
     avma = av = pari_mainstack->top;

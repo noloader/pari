@@ -26,3 +26,20 @@ write(F,"1+1")
 extern("cat "F)
 externstr("cat "F)
 del()
+{
+  my(f=fileopen(F,"w"));
+  for(i=1,10, filewrite(f,i));
+  fileclose(f);
+  my(f=fileopen(F,"a"));
+  for(i=1,10, filewrite1(f,i));
+  filewrite1(f,"\n");
+  fileclose(f);
+  my(i=0,l,f=fileopen(F));
+  while(l=fileread(f),
+    print(i++,":",eval(l)));
+  fileclose(f);
+  my(i=0,l,f=fileopen(F,"r"));
+  while(l=filereadstr(f),
+    print(i++,":",l));
+  fileclose(f);
+}

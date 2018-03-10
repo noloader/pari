@@ -188,6 +188,12 @@ struct pari_varstate
   long nvar, max_avail, min_priority, max_priority;
 };
 
+struct pari_filestate
+{
+  pariFILE *file;
+  long serial;
+};
+
 struct gp_context
 {
   long listloc;
@@ -195,7 +201,7 @@ struct gp_context
   struct pari_varstate var;
   struct pari_evalstate eval;
   struct pari_parsestate parse;
-  pariFILE *file;
+  struct pari_filestate file;
   jmp_buf *iferr_env;
   GEN err_data;
 };

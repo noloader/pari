@@ -310,7 +310,6 @@ ulong get_uint(const char *s);
 void gp_initrc(pari_stack *p_A);
 
 void pari_sigint(const char *s);
-pariFILE *pari_last_tmp_file(void);
 void* get_stack(double fraction, long min);
 void  free_graph(void);
 void  initout(int initerr);
@@ -338,6 +337,10 @@ void parsestate_restore(struct pari_parsestate *state);
 void compilestate_reset(void);
 void compilestate_save(struct pari_compilestate *comp);
 void compilestate_restore(struct pari_compilestate *comp);
+
+void filestate_save(struct pari_filestate *file);
+void filestate_restore(struct pari_filestate *file);
+void tmp_restore(pariFILE *F);
 
 void evalstate_clone(void);
 void evalstate_reset(void);
@@ -690,7 +693,6 @@ GEN     ecpp0(GEN N, GEN param, GEN* X0);
 
 /* es.c */
 
-void    filestate_restore(pariFILE *F);
 void    killallfiles(void);
 pariFILE* newfile(FILE *f, const char *name, int type);
 int     popinfile(void);

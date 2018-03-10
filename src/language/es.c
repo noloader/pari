@@ -3341,8 +3341,17 @@ static THREAD pariFILE *last_tmp_file;
 /* stack of "permanent" (output) files */
 static THREAD pariFILE *last_file;
 
-pariFILE *
-pari_last_tmp_file(void) { return last_tmp_file; }
+typedef struct gpfile
+{
+  const char *name;
+  FILE *fp;
+  int type;
+  long serial;
+} gpfile;
+
+static THREAD gpfile *gp_file;
+static THREAD pari_stack s_gp_file;
+static THREAD long gp_file_serial;
 
 #if defined(UNIX) || defined(__EMX__)
 #  include <fcntl.h>
@@ -3497,9 +3506,9 @@ popinfile(void)
 
 /* delete all "temp" files open since last reference point F */
 void
-filestate_restore(pariFILE *F)
+tmp_restore(pariFILE *F)
 {
-  pariFILE *f = pari_last_tmp_file();
+  pariFILE *f = last_tmp_file;
   if (DEBUGFILES>1) err_printf("gp_context_restore: deleting open files...\n");
   while (f)
   {
@@ -3521,6 +3530,30 @@ filestate_restore(pariFILE *F)
       err_printf("gp_context_restore: restoring pari_infile to stdin\n");
   }
   if (DEBUGFILES>1) err_printf("done\n");
+}
+
+void
+filestate_save(struct pari_filestate *file)
+{
+  file->file = last_tmp_file;
+  file->serial = gp_file_serial;
+}
+
+static void
+filestate_close(long serial)
+{
+  long i;
+  for (i = 0; i < s_gp_file.n; i++)
+    if (gp_file[i].fp && gp_file[i].serial >= serial)
+      gp_fileclose(i);
+  gp_file_serial = serial;
+}
+
+void
+filestate_restore(struct pari_filestate *file)
+{
+  tmp_restore(file->file);
+  filestate_close(file->serial);
 }
 
 static void
@@ -3560,6 +3593,8 @@ pari_init_files(void)
   last_filename = NULL;
   last_tmp_file = NULL;
   last_file=NULL;
+  pari_stack_init(&s_gp_file, sizeof(*gp_file), (void**)&gp_file);
+  gp_file_serial = 0;
 }
 
 void
@@ -3569,6 +3604,8 @@ pari_thread_close_files(void)
   kill_file_stack(&last_file);
   if (last_filename) pari_free(last_filename);
   kill_file_stack(&last_tmp_file);
+  filestate_close(-1);
+  pari_stack_delete(&s_gp_file);
 }
 
 void
@@ -4911,6 +4948,187 @@ pari_unique_dir(const char *s)
   if (pari_dir_exists(buf) && !get_file(buf, pari_dir_exists, NULL))
     pari_err(e_MISC,"couldn't find a suitable name for a tempdir (%s)",s);
   return buf;
+}
+
+static long
+get_free_gp_file(void)
+{
+  long i, l = s_gp_file.n;
+  for (i=0; i<l; i++)
+    if (!gp_file[i].fp)
+      return i;
+  return pari_stack_new(&s_gp_file);
+}
+
+static void
+check_gp_file(const char *s, long n)
+{
+  if (n < 0 || n >= s_gp_file.n || !gp_file[n].fp)
+    pari_err_TYPE(s, stoi(n));
+}
+
+static long
+new_gp_file(const char *s, FILE *f, int t)
+{
+  long n;
+  n = get_free_gp_file();
+  gp_file[n].name = pari_strdup(s);
+  gp_file[n].fp = f;
+  gp_file[n].type = t;
+  gp_file[n].serial = gp_file_serial++;
+  if (DEBUGFILES) err_printf("fileopen:%ld (%ld)\n", n, gp_file[n].serial);
+  return n;
+}
+
+#if defined(ZCAT) && defined(HAVE_PIPES)
+static long
+check_compress(const char *name)
+{
+  long l = strlen(name);
+  const char *end = name + l-1;
+  if (l > 2 && (!strncmp(end-1,".Z",2)
+#ifdef GNUZCAT
+             || !strncmp(end-2,".gz",3)
+#endif
+  ))
+  { /* compressed file (compress or gzip) */
+    char *cmd = stack_malloc(strlen(ZCAT) + l + 4);
+    sprintf(cmd,"%s \"%s\"",ZCAT,name);
+    return gp_fileextern(cmd);
+  }
+  return -1;
+}
+#endif
+
+long
+gp_fileopen(char *s, char *mode)
+{
+  FILE *f;
+  if (mode[0]==0 || mode[1]!=0)
+    pari_err_TYPE("fileopen",strtoGENstr(mode));
+  switch (mode[0])
+  {
+  case 'r':
+#if defined(ZCAT) && defined(HAVE_PIPES)
+    {
+      long n = check_compress(s);
+      if (n >= 0) return n;
+    }
+#endif
+    f = fopen(s, "r");
+    if (!f) pari_err_FILE("requested file", s);
+    return new_gp_file(s, f, mf_IN);
+  case 'w':
+  case 'a':
+    f = fopen(s, mode[0]=='w' ? "w": "a");
+    if (!f) pari_err_FILE("requested file", s);
+    return new_gp_file(s, f, mf_OUT);
+  default:
+    pari_err_TYPE("fileopen",strtoGENstr(mode));
+    return -1; /* LCOV_EXCL_LINE */
+  }
+}
+
+long
+gp_fileextern(char *s)
+{
+#ifndef HAVE_PIPES
+  pari_err(e_ARCH,"pipes"); return NULL;
+#else
+  FILE *f;
+  check_secure(s);
+  f = popen(s, "r");
+  if (!f) pari_err(e_MISC,"[pipe:] '%s' failed",s);
+  return new_gp_file(s,f, mf_PIPE);
+#endif
+}
+
+void
+gp_fileclose(long n)
+{
+  check_gp_file("fileclose", n);
+  if (DEBUGFILES) err_printf("fileclose(%ld)\n",n);
+  if (gp_file[n].type == mf_PIPE)
+    pclose(gp_file[n].fp);
+  else
+    fclose(gp_file[n].fp);
+  pari_free((void*)gp_file[n].name);
+  gp_file[n].name = NULL;
+  gp_file[n].fp = NULL;
+  gp_file[n].type = mf_FALSE;
+  gp_file[n].serial = -1;
+  while (s_gp_file.n > 0 && !gp_file[s_gp_file.n-1].fp)
+    s_gp_file.n--;
+}
+
+GEN
+gp_fileread(long n)
+{
+  Buffer *b;
+  FILE *fp;
+  GEN z;
+  int t;
+  check_gp_file("fileread", n);
+  t = gp_file[n].type;
+  if (t!=mf_IN && t!=mf_PIPE)
+    pari_err_TYPE("fileread",stoi(n));
+  fp = gp_file[n].fp;
+  b = new_buffer();
+  while(1)
+  {
+    if (!gp_read_stream_buf(fp, b)) { delete_buffer(b); return gen_0; }
+    if (*(b->buf)) break;
+  }
+  z = strtoGENstr(b->buf);
+  delete_buffer(b);
+  return z;
+}
+
+void
+gp_filewrite(long n, const char *s)
+{
+  FILE *fp;
+  check_gp_file("filewrite", n);
+  if (gp_file[n].type!=mf_OUT)
+    pari_err_TYPE("filewrite",stoi(n));
+  fp = gp_file[n].fp;
+  fputs(s, fp);
+  fputc('\n',fp);
+}
+
+void
+gp_filewrite1(long n, const char *s)
+{
+  FILE *fp;
+  check_gp_file("filewrite1", n);
+  if (gp_file[n].type!=mf_OUT)
+    pari_err_TYPE("filewrite1",stoi(n));
+  fp = gp_file[n].fp;
+  fputs(s, fp);
+}
+
+GEN
+gp_filereadstr(long n)
+{
+  Buffer *b;
+  char *s, *e;
+  GEN z;
+  int t;
+  input_method IM;
+  check_gp_file("filereadstr", n);
+  t = gp_file[n].type;
+  if (t!=mf_IN && t!=mf_PIPE)
+    pari_err_TYPE("fileread",stoi(n));
+  b = new_buffer();
+  IM.fgets = (fgets_t)&fgets;
+  IM.file = (void*) gp_file[n].fp;
+  s = b->buf;
+  if (!file_getline(b, &s, &IM)) { delete_buffer(b); return gen_0; }
+  e = s + strlen(s)-1;
+  if (*e == '\n') *e = 0;
+  z = strtoGENstr(s);
+  delete_buffer(b);
+  return z;
 }
 
 /*******************************************************************/

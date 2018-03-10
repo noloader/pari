@@ -1051,9 +1051,6 @@ pari_close(void)
 void
 gp_context_save(struct gp_context* rec)
 {
-  rec->file = pari_last_tmp_file();
-  if (DEBUGFILES>1)
-    err_printf("gp_context_save: %s\n", rec->file ? rec->file->name: "NULL");
   rec->prettyp = GP_DATA->fmt->prettyp;
   rec->listloc = next_block;
   rec->iferr_env = iferr_env;
@@ -1061,6 +1058,7 @@ gp_context_save(struct gp_context* rec)
   varstate_save(&rec->var);
   evalstate_save(&rec->eval);
   parsestate_save(&rec->parse);
+  filestate_save(&rec->file);
 }
 
 void
@@ -1075,7 +1073,7 @@ gp_context_restore(struct gp_context* rec)
   if (DEBUGMEM>2) err_printf("entering recover(), loc = %ld\n", rec->listloc);
   evalstate_restore(&rec->eval);
   parsestate_restore(&rec->parse);
-  filestate_restore(rec->file);
+  filestate_restore(&rec->file);
   global_err_data = rec->err_data;
   iferr_env = rec->iferr_env;
   GP_DATA->fmt->prettyp = rec->prettyp;

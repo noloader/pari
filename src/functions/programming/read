@@ -18,3 +18,8 @@ Doc: reads in the file
  In case the file you read in contains an \tet{allocatemem} statement (to be
  generally avoided), you should leave \kbd{read} instructions by themselves,
  and not part of larger instruction sequences.
+
+ \misctitle{Variants} \kbd{readvec} allows to read a whole file at once;
+ \kbd{fileopen} followed by either \kbd{fileread} (evaluated lines) or
+ \kbd{filereadstr} (lines as non-evaluated strings) allows to read a file
+ one line at a time.
