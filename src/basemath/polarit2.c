@@ -415,7 +415,7 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
       break;
     case t_POL: t[10] = 1;
     {
-      GEN pbis = NULL, polbis = NULL;
+      GEN pbis, polbis;
       long tbis, pabis, v;
       tbis = RgX_type(c,&pbis,&polbis,&pabis);
       if (tbis==0 || tbis==t_POL || polbis) *var = MAXVARN+1;
