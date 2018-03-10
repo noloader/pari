@@ -740,36 +740,20 @@ to_Fq_pol(GEN x, GEN T, GEN p)
 static GEN
 to_Fq_fact(GEN P, GEN E, GEN T, GEN p, pari_sp av)
 {
-  GEN y, u, v;
-  long j, l = lg(P), nbf = lg(P);
-
-  u = cgetg(nbf,t_COL);
-  v = cgetg(nbf,t_COL);
-  for (j=1; j<l; j++)
-  {
-    gel(u,j) = simplify_shallow(gel(P,j)); /* may contain pols of degree 0 */
-    gel(v,j) = utoi(uel(E,j));
-  }
-  y = gerepilecopy(av, mkmat2(u, v));
-  u = gel(y,1);
-  p = icopy(p);
-  T = FpX_to_mod(T, p);
-  for (j=1; j<nbf; j++) gel(u,j) = to_Fq_pol(gel(u,j), T,p);
+  GEN y = gerepilecopy(av, mkmat2(simplify_shallow(P), Flc_to_ZC(E)));
+  GEN u = gel(y,1);
+  long j, l = lg(u);
+  p = icopy(p); T = FpX_to_mod(T, p);
+  for (j=1; j<l; j++) gel(u,j) = to_Fq_pol(gel(u,j), T,p);
   return y;
 }
 static GEN
 to_FqC(GEN P, GEN T, GEN p, pari_sp av)
 {
-  GEN u;
-  long j, l = lg(P), nbf = lg(P);
-
-  u = cgetg(nbf,t_COL);
-  for (j=1; j<l; j++)
-    gel(u,j) = simplify_shallow(gel(P,j)); /* may contain pols of degree 0 */
-  u = gerepilecopy(av, u);
-  p = icopy(p);
-  T = FpX_to_mod(T, p);
-  for (j=1; j<nbf; j++) gel(u,j) = to_Fq(gel(u,j), T,p);
+  GEN u = gerepilecopy(av, simplify_shallow(P));
+  long j, l = lg(P);
+  p = icopy(p); T = FpX_to_mod(T, p);
+  for (j=1; j<l; j++) gel(u,j) = to_Fq(gel(u,j), T,p);
   return u;
 }
 
