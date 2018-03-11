@@ -9871,23 +9871,32 @@ f00(long k, GEN CHI1vec,GEN CHI2vec, GEN G1,GEN G2, GEN data, long prec)
 static void
 mfgatogap(GEN ga, long N, long *pA, long *pC, long *pD, long *pd, long *pmu)
 {
-  long A = itos(gcoeff(ga,1,1)), B = itos(gcoeff(ga,1,2));
-  long C = itos(gcoeff(ga,2,1)), D = itos(gcoeff(ga,2,2));
-  long a, b, c, d, t, u, v, w, mu, ANsurCp, B1, Ap, D1, Cp, cN;
-  Cp = cbezout(A*N, C, &c, &d);
-  w = 0; ANsurCp = A*N/Cp;
-  while (cgcd(d, N) > 1) { w++; d -= ANsurCp; }
-  c += w*C/Cp; cN = c*N;
-  D1 = cN*B + d*D;
-  cbezout(d, -cN, &a, &b);
-  t = 0; Ap = a*A + b*C;
-  while (cgcd(Ap, N) > 1) { t++; Ap += Cp; }
-  B1 = a*B + b*D + t*D1;
-  cbezout(Ap, N, &u, &v);
-  *pmu = mu = (-B1*u)%N;
-  *pd = d; /* other coeffs of beta are useless */
-  *pA = Ap; /* *pB = B1 + Ap*mu; useless */
-  *pC = Cp; *pD = D1 + Cp*mu;
+  GEN A = gcoeff(ga,1,1), B = gcoeff(ga,1,2);
+  GEN C = gcoeff(ga,2,1), D = gcoeff(ga,2,2), a, b, c, d;
+  long t, Ap, Cp, B1, D1, mu;
+  Cp = itou(bezout(muliu(A,N), C, &c, &d)); /* divides N */
+  t = 0;
+  if (Cp > 1)
+  { /* (d, N/Cp) = 1, find t such that (d - t*(A*N/Cp), N) = 1 */
+    long dN = umodiu(d,Cp), Q = (N/Cp * umodiu(A,Cp)) % Cp;
+    while (cgcd(dN, Cp) > 1) { t++; dN = Fl_sub(dN, Q, Cp); }
+  }
+  if (t)
+  {
+    c = addii(c, mului(t, diviuexact(C,Cp)));
+    d = subii(d, mului(t, muliu(A, N/Cp))); /* (d,N) = 1 */
+  }
+  D1 = umodiu(mulii(d,D), N);
+  (void)bezout(d, mulis(c,-N), &a, &b); /* = 1 */
+  t = 0; Ap = umodiu(addii(mulii(a,A), mulii(b,C)), N); /* (Ap,Cp) = 1 */
+  while (cgcd(Ap, N) > 1) { t++; Ap = Fl_add(Ap, Cp, N); }
+  B1 = umodiu(a,N)*umodiu(B,N) + umodiu(b,N)*umodiu(D,N) + t*D1;
+  B1 %= N;
+  *pmu = mu = Fl_neg(Fl_div(B1, Ap, N), N);
+  /* A', D' and d only needed modulo N */
+  *pd = umodiu(d, N);
+  *pA = Ap;
+  *pC = Cp; *pD = (D1 + Cp*mu) % N;
 }
 
 #if 0
