@@ -365,6 +365,9 @@
   ***   at top-level: polroots(Mod(1,2))
   ***                 ^------------------
   *** polroots: incorrect type in roots (t_INTMOD).
+  ***   at top-level: polrootsmod(x,x)
+  ***                 ^----------------
+  *** polrootsmod: incorrect type in factormod (t_POL).
   ***   at top-level: prime(-2)
   ***                 ^---------
   *** prime: domain error in prime: n <= 0
@@ -632,4 +635,4 @@ INFINITY
   ***                                   ^-
   ***   incorrect value for plothsizes: [2,
   ***                                      ^
-Total time spent: 21
+Total time spent: 18
