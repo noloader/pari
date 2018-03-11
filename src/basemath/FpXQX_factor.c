@@ -2635,13 +2635,7 @@ to_FqC(GEN P, GEN T, GEN p)
 }
 
 static GEN
-FpXC_to_mod(GEN v, GEN p)
-{
-  long j, l = lg(v);
-  GEN u = cgetg(l,t_COL);
-  for (j = 1; j < l; j++) gel(u,j) = FpX_to_mod(gel(v,j), p);
-  return u;
-}
+FpXC_to_mod(GEN x, GEN p) { pari_APPLY_type(t_COL, FpX_to_mod(gel(x,i),p)) }
 GEN
 factmod(GEN f, GEN D)
 {
