@@ -10911,17 +10911,18 @@ RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
 static GEN
 GL2toSL2(GEN g, GEN *abd)
 {
-  long A, B, C, D, u, v, a, b, d, q;
+  GEN A, B, C, D, u, v, a, b, d, q;
   g = Q_primpart(g);
   if (!check_M2Z(g)) pari_err_TYPE("GL2toSL2", g);
-  A = itos(gcoeff(g,1,1)); B = itos(gcoeff(g,1,2));
-  C = itos(gcoeff(g,2,1)); D = itos(gcoeff(g,2,2));
-  a = cbezout(A, C, &u, &v);
-  if (a > 1) { A /= a; C /= a; }
-  d = A*D - B*C; if (d <= 0) pari_err_TYPE("GL2toSL2",g);
-  q = sdivss_rem(u*B + v*D, d, &b);
-  *abd = (a == 1 && d == 1)? NULL: mkvecsmall3(a, b, d);
-  return mkmat22s(A, -v + q*A, C, u + q*C);
+  A = gcoeff(g,1,1); B = gcoeff(g,1,2);
+  C = gcoeff(g,2,1); D = gcoeff(g,2,2);
+  a = bezout(A, C, &u, &v);
+  if (!equali1(a)) { A = diviiexact(A,a); C = diviiexact(C,a); }
+  d = subii(mulii(A,D), mulii(B,C));
+  if (signe(d) <= 0) pari_err_TYPE("GL2toSL2",g);
+  q = dvmdii(addii(mulii(u,B), mulii(v,D)), d, &b);
+  *abd = (equali1(a) && equali1(d))? NULL: mkvec3(a, b, d);
+  return mkmat22(A, subii(mulii(q,A), v), C, addii(mulii(q,C), u));
 }
 
 static GEN
@@ -10973,14 +10974,15 @@ GEN
 mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long prec)
 {
   pari_sp av = avma;
-  GEN res, al, V, M, ad, abd, gk, A, awd = NULL;
-  long a, b, d, i, w;
+  GEN a, b, d, res, al, V, M, ad, abd, gk, A, awd = NULL;
+  long i, w;
 
   checkMF(mf);
   gk = MF_get_gk(mf);
   M = GL2toSL2(ga, &abd);
-  if (abd) { a = abd[1]; b = abd[2]; d = abd[3]; } else { a = d = 1; b = 0; }
-  ad = sstoQ(a,d);
+  if (abd) { a = gel(abd,1); b = gel(abd,2); d = gel(abd,3); }
+  else { a = d = gen_1; b = gen_0; }
+  ad = gdiv(a,d);
   res = mfgaexpansion(mf, f, M, n, prec);
   al = gel(res,1);
   w = itou(gel(res,2));
@@ -10995,35 +10997,34 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
     g = cgcd(N/cgcd(N, C), C);
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
     V = bestapprnf2(V, ord_canon(clcm(g*w, ord)), CV, prec);
-    if (abd && b == 0)
+    if (abd && !signe(b))
     { /* can [a,0; 0,d] be simplified to id ? */
       long nk, dk; Qtoss(gk, &nk, &dk);
       if (ispower(ad, utoipos(2*dk), &t)) /* t^(2*dk) = a/d or t = NULL */
       {
         V = RgV_Rg_mul(V, powiu(t,nk));
-        awd = sstoQ(a, w*d);
+        awd = gdiv(a, muliu(d,w));
       }
     }
   }
   else if (abd)
   { /* ga = M * [a,b;0,d] * rational, F := f | M = q^al * \sum V[j] q^(j/w) */
-    GEN t = NULL, u;
-    long wd = w*d;
+    GEN u, t = NULL, wd = muliu(d,w);
     /* a > 0, 0 <= b < d; f | ga = (a/d)^(k/2) * F(tau + b/d) */
-    if (b)
+    if (signe(b))
     {
       long ns, ds;
       GEN z;
-      Qtoss(sstoQ(b, wd), &ns, &ds); z = rootsof1powinit(ns, ds, prec);
+      Qtoss(gdiv(b, wd), &ns, &ds); z = rootsof1powinit(ns, ds, prec);
       for (i = 1; i <= n+1; i++) gel(V,i) = gmul(gel(V,i), rootsof1pow(z, i-1));
-      if (!gequal0(al)) t = gexp(gmul(PiI2(prec), gmul(al, sstoQ(b,d))), prec);
+      if (!gequal0(al)) t = gexp(gmul(PiI2(prec), gmul(al, gdiv(b,d))), prec);
     }
-    awd = sstoQ(a, wd);
+    awd = gdiv(a, wd);
     u = gpow(ad, gmul2n(gk,-1), prec);
     t = t? gmul(t, u): u;
     V = RgV_Rg_mul(V, t);
   }
-  if (!awd) A = mkmat22s(a, b, 0, d);
+  if (!awd) A = mkmat22(a, b, gen_0, d);
   else
   { /* rescale and update w from [a,0; 0,d] */
     long ns;
@@ -11854,14 +11855,14 @@ static GEN
 actal(GEN x, GEN vabd)
 {
   if (typ(x) == t_INFINITY) return x;
-  return gdivgs(gaddgs(gmulsg(vabd[1], x), vabd[2]), vabd[3]);
+  return gdiv(gadd(gmul(gel(vabd,1), x), gel(vabd,2)), gel(vabd,3));
 }
 
 static GEN
 unact(GEN z, GEN vabd, long k, long prec)
 {
   GEN res = gsubst(z, 0, actal(pol_x(0), vabd));
-  GEN CO = gpow(sstoQ(vabd[3], vabd[1]), sstoQ(k - 2, 2), prec);
+  GEN CO = gpow(gdiv(gel(vabd,3), gel(vabd,1)), sstoQ(k-2, 2), prec);
   return gmul(CO, res);
 }
 
