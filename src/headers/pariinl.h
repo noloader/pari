@@ -2191,6 +2191,8 @@ Fq_to_FpXQ(GEN x, GEN T, GEN p /*unused*/)
   (void) p;
   return typ(x)==t_INT ? scalarpol(x, get_FpX_var(T)): x;
 }
+INLINE GEN
+Rg_to_Fq(GEN x, GEN T, GEN p) { return T? Rg_to_FpXQ(x,T,p): Rg_to_Fp(x,p); }
 
 INLINE GEN
 gener_Fq_local(GEN T, GEN p, GEN L)

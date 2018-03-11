@@ -315,11 +315,9 @@ RgX_to_FqX(GEN x, GEN T, GEN p)
   long i, l = lg(x);
   GEN z = cgetg(l, t_POL); z[1] = x[1];
   if (T)
-    for (i = 2; i < l; i++)
-      gel(z,i) = simplify_shallow(Rg_to_FpXQ(gel(x,i), T, p));
+    for (i = 2; i < l; i++) gel(z,i) = Rg_to_FpXQ(gel(x,i), T, p);
   else
-    for (i = 2; i < l; i++)
-      gel(z,i) = Rg_to_Fp(gel(x,i), p);
+    for (i = 2; i < l; i++) gel(z,i) = Rg_to_Fp(gel(x,i), p);
   return FpXQX_renormalize(z, l);
 }
 
@@ -329,11 +327,9 @@ RgC_to_FqC(GEN x, GEN T, GEN p)
   long i, l = lg(x);
   GEN z = cgetg(l, t_COL);
   if (T)
-    for (i = 1; i < l; i++)
-      gel(z,i) = simplify_shallow(Rg_to_FpXQ(gel(x,i), T, p));
+    for (i = 1; i < l; i++) gel(z,i) = Rg_to_FpXQ(gel(x,i), T, p);
   else
-    for (i = 1; i < l; i++)
-      gel(z,i) = Rg_to_Fp(gel(x,i), p);
+    for (i = 1; i < l; i++) gel(z,i) = Rg_to_Fp(gel(x,i), p);
   return z;
 }
 

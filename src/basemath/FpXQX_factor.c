@@ -2530,16 +2530,17 @@ FqX_is_squarefree(GEN P, GEN T, GEN p)
   avma = av; return degpol(z)==0;
 }
 
-/* as FqX_to_FFX, leaving alone t_FFELT */
+/* as RgX_to_FpXQ(FqX_to_FFX), leaving alone t_FFELT */
 static GEN
-myFqX_to_FFX(GEN x, GEN ff)
+RgX_to_FFX(GEN x, GEN ff)
 {
   long i, lx;
-  GEN y =  cgetg_copy(x,&lx); y[1] = x[1];
+  GEN p = FF_p_i(ff), T = FF_mod(ff), y =  cgetg_copy(x,&lx);
+  y[1] = x[1]; if (degpol(T) == 1) T = NULL;
   for (i=2; i<lx; i++)
   {
     GEN c = gel(x,i);
-    gel(y,i) = typ(c) == t_FFELT? c: Fq_to_FF(c, ff);
+    gel(y,i) = typ(c) == t_FFELT? c: Fq_to_FF(Rg_to_Fq(c,T,p), ff);
   }
   return y;
 }
@@ -2564,7 +2565,7 @@ factmod_init(GEN f, GEN *pD, GEN *pT, GEN *pp)
   switch(typ(D))
   {
     case t_INT: p = D; break;
-    case t_FFELT: { *pD = NULL; *pT = D; return myFqX_to_FFX(f,D); }
+    case t_FFELT: { *pD = NULL; *pT = D; return RgX_to_FFX(f,D); }
     case t_VEC:
       if (lg(D) == 3)
       {

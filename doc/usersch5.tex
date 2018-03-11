@@ -4819,12 +4819,14 @@ a \typ{POL} to which \kbd{RgX\_to\_FpX} can be applied to, a \typ{POLMOD}
 whose modulus is divisible by $T$ (once mapped to a \kbd{FpX}), a suitable
 \typ{RFRAC}. Returns \kbd{z} as an \kbd{FpXQ}, normalized.
 
+\fun{GEN}{Rg_to_Fq}{GEN z, GEN T, GEN p}, applies \kbd{Rg\_to\_Fp} if $T$
+is \kbd{NULL} and \kbd{Rg\_to\_FpXQ} otherwise.
+
 \fun{GEN}{RgX_to_FpXQX}{GEN z, GEN T, GEN p}, \kbd{z} a \typ{POL}, returns the
 \kbd{FpXQ} obtained by applying \kbd{Rg\_to\_FpXQ} coefficientwise.
 
 \fun{GEN}{RgX_to_FqX}{GEN z, GEN T, GEN p}: let \kbd{z} be a \typ{POL};
-returns the \kbd{FqX} obtained by applying \kbd{Rg\_to\_FpXQ}
-coefficientwise and simplifying scalars to \typ{INT}s.
+returns the \kbd{FqX} obtained by applying \kbd{Rg\_to\_Fq} coefficientwise.
 
 \fun{GEN}{Fq_to_FpXQ}{GEN z, GEN T, GEN p /*unused*/}
 if $z$ is a \typ{INT}, convert it to a constant polynomial in the variable of
