@@ -2390,7 +2390,7 @@ set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
   long e = gexpo(gel(t,2));
   pari_sp av = avma;
 
-  if (e < -8) *pt = t = gprec_wensure(t, precision(t) + nbits2extraprec(-e));
+  if (e < 0) *pt = t = gprec_wensure(t, precision(t) + nbits2extraprec(-e));
   a = d = gen_1;
   b = c = gen_0;
   for(;;)
