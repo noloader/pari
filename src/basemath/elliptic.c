@@ -2384,16 +2384,18 @@ typedef struct {
 /* compute g in SL_2(Z), g.t is in the usual
    fundamental domain. Internal function no check, no garbage. */
 static void
-set_gamma(GEN t, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
+set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
 {
-  GEN a, b, c, d, run = dbltor(1. - 1e-8);
+  GEN a, b, c, d, t = *pt, run = dbltor(1. - 1e-8);
+  long e = gexpo(gel(t,2));
   pari_sp av = avma;
 
+  if (e < -8) *pt = t = gprec_wensure(t, precision(t) + nbits2extraprec(-e));
   a = d = gen_1;
   b = c = gen_0;
   for(;;)
   {
-    GEN m, n = ground(real_i(t));
+    GEN m, n = ground(gel(t,1));
     if (signe(n))
     { /* apply T^n */
       t = gsub(t,n);
@@ -2409,10 +2411,7 @@ set_gamma(GEN t, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
       gerepileall(av, 5, &t, &a,&b,&c,&d);
     }
   }
-  *pa = a;
-  *pb = b;
-  *pc = c;
-  *pd = d;
+  *pa = a; *pb = b; *pc = c; *pd = d;
 }
 /* Im t > 0. Return U.t in PSl2(Z)'s standard fundamental domain.
  * Set *pU to U. */
@@ -2421,7 +2420,7 @@ cxredsl2(GEN t, GEN *pU)
 {
   pari_sp av = avma;
   GEN U, a,b,c,d;
-  set_gamma(t, &a, &b, &c, &d);
+  set_gamma(&t, &a, &b, &c, &d);
   U = mkmat2(mkcol2(a,c), mkcol2(b,d));
   t = gdiv(gadd(gmul(a,t), b), gadd(gmul(c,t), d));
   gerepileall(av, 2, &t, &U);
@@ -2441,8 +2440,14 @@ red_modSL2(ellred_t *T, long prec)
                           mkvec2(T->w1,T->w2));
   T->swap = (s < 0);
   if (T->swap) { swap(T->w1, T->w2); T->tau = ginv(T->tau); }
-  set_gamma(T->tau, &T->a, &T->b, &T->c, &T->d);
+  set_gamma(&T->tau, &T->a, &T->b, &T->c, &T->d);
   /* update lattice */
+  p = precision(T->tau);
+  if (p)
+  {
+    T->w1 = gprec_wensure(T->w1, p);
+    T->w2 = gprec_wensure(T->w2, p);
+  }
   T->W1 = gadd(gmul(T->a,T->w1), gmul(T->b,T->w2));
   T->W2 = gadd(gmul(T->c,T->w1), gmul(T->d,T->w2));
   T->Tau = gdiv(T->W1, T->W2);

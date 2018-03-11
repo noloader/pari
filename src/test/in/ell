@@ -215,6 +215,7 @@ ellmul(ellinit([3,0]), [1,2], -quadgen(-4))
 
 logsigma(e,z='x)=if(type(z) != "t_POL" && type(z) != "t_SER", ellsigma(e,z,1));
 v = [ellwp,ellzeta,ellsigma,logsigma];
+ellperiods([1,0.1 + I/10^50])
 e = ellinit([1,1]);
 w = ellperiods([1,I/2])
 w2 = ellperiods([1,I/2], 1)
