@@ -2530,6 +2530,20 @@ FqX_is_squarefree(GEN P, GEN T, GEN p)
   avma = av; return degpol(z)==0;
 }
 
+/* as FqX_to_FFX, leaving alone t_FFELT */
+static GEN
+myFqX_to_FFX(GEN x, GEN ff)
+{
+  long i, lx;
+  GEN y =  cgetg_copy(x,&lx); y[1] = x[1];
+  for (i=2; i<lx; i++)
+  {
+    GEN c = gel(x,i);
+    gel(y,i) = typ(c) == t_FFELT? c: Fq_to_FF(c, ff);
+  }
+  return y;
+}
+
 #define code(t1,t2) ((t1 << 6) | t2)
 /* Check types and replace F by a monic normalized FpX having the same roots
  * Don't bother to make constant polynomials monic */
@@ -2550,7 +2564,7 @@ factmod_init(GEN f, GEN *pD, GEN *pT, GEN *pp)
   switch(typ(D))
   {
     case t_INT: p = D; break;
-    case t_FFELT: { *pD = NULL; *pT = D; return f; }
+    case t_FFELT: { *pD = NULL; *pT = D; return myFqX_to_FFX(f,D); }
     case t_VEC:
       if (lg(D) == 3)
       {

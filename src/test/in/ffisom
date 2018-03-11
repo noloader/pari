@@ -1,18 +1,11 @@
 fpisom2(l,P,Q)=
-{
-        my(L);
-        x=variable(P);
-        L=factorff(lift(P),l,lift(subst(Q,x,MAXVARN)))[,1];
-        L=-subst(L,x,0);
-        subst(lift(L),MAXVARN,x)*Mod(1,Q);
+{ my(L, x=variable(P));
+  L = polrootsmod(P, [l,subst(Q,x,MAXVARN)]);
+  subst(lift(L),MAXVARN,x)*Mod(1,Q);
 }
 fptest(l,P,Q)=
-{
-        my(C);
-        C=fpisom2(l,P,Q);
-        print(vector(length(C),i,if(subst(P,x,C[i])==0,0,error("fptest("a","l","P","Q")"))));
-        C;
-}
+  [ if(subst(P,x,c),error([a,l,P,Q])) | c<-fpisom2(l,P,Q)];
+
 print("-------------e=0--------------");
 fptest(13,x^4+2*x^2+2*x+1,x^4+2*x^3+2*x^2+1);
 fptest(131,x^10+126*x^5+78,x^10+128*x^5+70);

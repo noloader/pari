@@ -124,17 +124,11 @@ Mat([x^2 + x + a, 1])
 [  x + (4*t^3 + t + 4) 1]
 
 
-[Mod(0, 5) 1]
+[0 1]
 
 [;]
 
-[Mod(Mod(1, 5), Mod(1, 5)*t^4 + Mod(1, 5)*t^3 + Mod(2, 5)*t^2 + Mod(1, 5)*t 
-+ Mod(3, 5))*x^4 + Mod(Mod(0, 5), Mod(1, 5)*t^4 + Mod(1, 5)*t^3 + Mod(2, 5)*
-t^2 + Mod(1, 5)*t + Mod(3, 5))*x^3 + Mod(Mod(0, 5), Mod(1, 5)*t^4 + Mod(1, 5
-)*t^3 + Mod(2, 5)*t^2 + Mod(1, 5)*t + Mod(3, 5))*x^2 + Mod(Mod(0, 5), Mod(1,
- 5)*t^4 + Mod(1, 5)*t^3 + Mod(2, 5)*t^2 + Mod(1, 5)*t + Mod(3, 5))*x + Mod(M
-od(4, 5)*t, Mod(1, 5)*t^4 + Mod(1, 5)*t^3 + Mod(2, 5)*t^2 + Mod(1, 5)*t + Mo
-d(3, 5)) 1]
+[x^4 + 4*t 1]
 
 
 [x + t 1]
@@ -166,4 +160,4 @@ d(3, 5)) 1]
 200
 1000
 200
-Total time spent: 5413
+Total time spent: 5457
