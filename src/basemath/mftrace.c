@@ -6765,13 +6765,16 @@ findqganew(long N, GEN z)
 static GEN
 cxredga0N(long N, GEN z, GEN *pU, long flag)
 {
-  GEN v = NULL, A, B, C, D, g;
+  GEN v = NULL, A, B, C, D;
+  long e;
   if (N == 1) return cxredsl2(z, pU);
+  e = gexpo(gel(z,2));
+  if (e < -8) z = gprec_wensure(z, precision(z) + nbits2extraprec(-e));
   v = flag? findqganew(N,z): findqga(N,z);
   if (!v) { *pU = matid(2); return z; }
   C = gel(v,1);
-  D = gel(v,2); g = bezout(C, D, &B, &A);
-  if (!equali1(g)) pari_err_BUG("cxredga0N [gcd > 1]");
+  D = gel(v,2);
+  if (!is_pm1(bezout(C,D, &B,&A))) pari_err_BUG("cxredga0N [gcd > 1]");
   B = negi(B);
   *pU = mkmat2(mkcol2(A,C), mkcol2(B,D));
   return gdiv(gadd(gmul(A,z), B), gadd(gmul(C,z), D));
