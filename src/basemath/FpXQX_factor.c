@@ -2537,7 +2537,7 @@ RgX_to_FFX(GEN x, GEN ff)
   long i, lx;
   GEN p = FF_p_i(ff), T = FF_mod(ff), y =  cgetg_copy(x,&lx);
   y[1] = x[1]; if (degpol(T) == 1) T = NULL;
-  for (i=2; i<lx; i++)
+  for (i = 2; i < lx; i++)
   {
     GEN c = gel(x,i);
     gel(y,i) = typ(c) == t_FFELT? c: Fq_to_FF(Rg_to_Fq(c,T,p), ff);
@@ -2598,8 +2598,7 @@ to_Fq(GEN x, GEN T, GEN p)
   else
   {
     if (tx != t_POL) pari_err_TYPE("to_Fq",x);
-    lx = lg(x);
-    y = cgetg(lx,t_POL); y[1] = x[1];
+    y = cgetg_copy(x,&lx); y[1] = x[1];
     for (i=2; i<lx; i++) gel(y,i) = mkintmod(gel(x,i), p);
   }
   return mkpolmod(y, T);
