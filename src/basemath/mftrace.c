@@ -6740,25 +6740,25 @@ valNC2(GEN P, GEN E, long e)
 static GEN
 findqganew(long N, GEN z)
 {
-  GEN MI, DI, x = real_i(z), y = imag_i(z), fa, P, E;
-  long i, Ck = 0, Dk = 1;
+  GEN MI, DI, x = real_i(z), y = imag_i(z), Ck = gen_0, Dk = gen_1, fa, P, E;
+  long i;
   MI = ginv(utoi(N));
   DI = mydivisorsu(mysqrtu(N));
   fa = myfactoru(N); P = gel(fa,1); E = gel(fa,2);
   for (i = 1; i < lg(DI); i++)
   {
-    long e = DI[i], C, D, g;
-    GEN U, m;
+    long e = DI[i], g;
+    GEN U, C, D, m;
     (void)cxredsl2(gmulsg(e, z), &U);
-    C = itos(gcoeff(U,2,1)); if (!C) continue;
-    D = itos(gcoeff(U,2,2));
-    C *= e;
-    g = cgcd(e, D); if (g > 1) { C /= g; D /= g; }
-    m = gadd(gsqr(gaddgs(gmulsg(C, x), D)), gsqr(gmulsg(C, y)));
+    C = gcoeff(U,2,1); if (!signe(C)) continue;
+    D = gcoeff(U,2,2);
+    g = cgcd(e, umodiu(D,e));
+    if (g > 1) { C = muliu(C,e/g); D = diviuexact(D,g); } else C = muliu(C,e);
+    m = gadd(gsqr(gadd(gmul(C, x), D)), gsqr(gmul(C, y)));
     m = gdivgs(m, valNC2(P, E, e));
     if (gcmp(m, MI) < 0) { MI = m; Ck = C; Dk = D; }
   }
-  return Ck? mkvec2s(Ck, Dk): NULL;
+  return signe(Ck)? mkvec2(Ck, Dk): NULL;
 }
 
 /* Return z' and U \in SL_2(Z), z' = U*z, Im(z')/width(U.oo) > sqrt(3)/(2N) */
