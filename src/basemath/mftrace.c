@@ -6761,23 +6761,25 @@ findqganew(long N, GEN z)
   return signe(Ck)? mkvec2(Ck, Dk): NULL;
 }
 
-/* Return z' and U \in SL_2(Z), z' = U*z, Im(z')/width(U.oo) > sqrt(3)/(2N) */
+/* Return z' and U = [a,b;c,d] \in SL_2(Z), z' = U*z,
+ * Im(z')/width(U.oo) > sqrt(3)/(2N). Set *pczd = c*z+d */
 static GEN
-cxredga0N(long N, GEN z, GEN *pU, long flag)
+cxredga0N(long N, GEN z, GEN *pU, GEN *pczd, long flag)
 {
   GEN v = NULL, A, B, C, D;
   long e;
-  if (N == 1) return cxredsl2(z, pU);
+  if (N == 1) return cxredsl2_i(z, pU, pczd);
   e = gexpo(gel(z,2));
   if (e < -8) z = gprec_wensure(z, precision(z) + nbits2extraprec(-e));
   v = flag? findqganew(N,z): findqga(N,z);
-  if (!v) { *pU = matid(2); return z; }
+  if (!v) { *pU = matid(2); *pczd = gen_1; return z; }
   C = gel(v,1);
   D = gel(v,2);
   if (!is_pm1(bezout(C,D, &B,&A))) pari_err_BUG("cxredga0N [gcd > 1]");
   B = negi(B);
   *pU = mkmat2(mkcol2(A,C), mkcol2(B,D));
-  return gdiv(gadd(gmul(A,z), B), gadd(gmul(C,z), D));
+  *pczd = gadd(gmul(C,z), D);
+  return gdiv(gadd(gmul(A,z), B), *pczd);
 }
 
 static GEN
@@ -6988,7 +6990,7 @@ evalcusp(GEN mf, GEN F, GEN t, long prec)
 static GEN
 mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
 {
-  GEN L0, vL, vb, sqN, vga, vTAU, vs, van, vE;
+  GEN L0, vL, vb, sqN, vczd, vTAU, vs, van, vE;
   long N = mf_get_N(F), N0, ta, lv, i, prec = nbits2prec(bitprec);
   GEN gN = utoipos(N), gk = mf_get_gk(F), gk1 = gsubgs(gk,1), vgk;
   long flscal = 0;
@@ -7004,32 +7006,30 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   vb = const_vec(lv-1, NULL);
   vL = cgetg(lv, t_VEC);
   vTAU = cgetg(lv, t_VEC);
-  vga = cgetg(lv, t_VEC);
+  vczd = cgetg(lv, t_VEC);
   L0 = mfthetaancreate(NULL, gN, vgk); /* only for thetacost */
   vE = mfgetembed(F, prec);
   N0 = 0;
   for (i = 1; i < lv; i++)
   {
-    GEN t = gel(vtau,i), tau, U;
+    GEN z = gel(vtau,i), tau, U;
     long w, n;
 
-    gel(vs,i) = evalcusp(mf, F, t, prec);
+    gel(vs,i) = evalcusp(mf, F, z, prec);
     if (gel(vs,i)) continue;
-    tau = cxredga0N(N, t, &U, flag);
+    tau = cxredga0N(N, z, &U, &gel(vczd,i), flag);
     if (!flag) w = 0; else { w = mfZC_width(N, gel(U,1)); tau = gdivgs(tau,w); }
-    tau = mulcxmI(gmul(tau, sqN));
+    gel(vTAU,i) = tau = mulcxmI(gmul(tau, sqN));
     n = lfunthetacost(L0, real_i(tau), 0, bitprec);
     if (N0 < n) N0 = n;
     if (flag)
     {
-      GEN A, al, v = mfslashexpansion(mf,F,ginv(U),N0,0,&A,prec);
+      GEN A, al, v = mfslashexpansion(mf, F, ZM_inv(U,NULL), N0, 0, &A, prec);
       gel(vL,i) = van_embedall(v, vE, gN, vgk);
       al = gel(A,1);
       if (!gequal0(al))
         gel(vb,i) = gexp(gmul(gmul(gmulsg(w,al),PiI2(prec)), tau), prec);
     }
-    gel(vTAU,i) = tau;
-    gel(vga,i) = U;
   }
   if (!flag)
   {
@@ -7038,11 +7038,9 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
   }
   for (i = 1; i < lv; i++)
   {
-    GEN z, g, c, d, T;
+    GEN T;
     if (gel(vs,i)) continue;
-    z = gel(vtau,i); g = gel(vga,i);
-    c = gcoeff(g,2,1); d = gcoeff(g,2,2);
-    T = gpow(gadd(gmul(c,z), d), gneg(gk), prec);
+    T = gpow(gel(vczd,i), gneg(gk), prec);
     if (flag && gel(vb,i)) T = gmul(T, gel(vb,i));
     gel(vs,i) = lfunthetaall(T, gel(vL,i), gel(vTAU,i), bitprec);
   }
@@ -11848,7 +11846,7 @@ mfsymbolevalpartial(GEN fs, GEN A, GEN ga, long bit)
   PCO = get_PCO(k, prec);
   if (lg(fs) != 3 && gtodouble(Y)*(2*N) < 1)
   { /* true symbol + low imaginary part: use GL_2 action to improve */
-    GEN U, Ui, ga2, A2 = cxredga0N(N, A, &U, 1), oo = mkoo();
+    GEN U, Ui, ga2, czd, A2 = cxredga0N(N, A, &U, &czd, 1), oo = mkoo();
     Ui = ZM_inv(U, NULL);
     ga2 = ZM_mul(ga, Ui);
     S = intAoo0(fs, A2, ga2, PCO, bit);

@@ -2413,18 +2413,24 @@ set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
   }
   *pa = a; *pb = b; *pc = c; *pd = d;
 }
-/* Im t > 0. Return U.t in PSl2(Z)'s standard fundamental domain.
+/* Im z > 0. Return U.z in PSl2(Z)'s standard fundamental domain.
  * Set *pU to U. */
+GEN
+cxredsl2_i(GEN z, GEN *pU, GEN *czd)
+{
+  GEN a,b,c,d;
+  set_gamma(&z, &a, &b, &c, &d);
+  *pU = mkmat2(mkcol2(a,c), mkcol2(b,d));
+  *czd = gadd(gmul(c,z), d);
+  return gdiv(gadd(gmul(a,z), b), *czd);
+}
 GEN
 cxredsl2(GEN t, GEN *pU)
 {
   pari_sp av = avma;
-  GEN U, a,b,c,d;
-  set_gamma(&t, &a, &b, &c, &d);
-  U = mkmat2(mkcol2(a,c), mkcol2(b,d));
-  t = gdiv(gadd(gmul(a,t), b), gadd(gmul(c,t), d));
-  gerepileall(av, 2, &t, &U);
-  *pU = U; return t;
+  GEN czd;
+  t = cxredsl2_i(t, pU, &czd);
+  gerepileall(av, 2, &t, pU); return t;
 }
 
 /* swap w1, w2 so that Im(t := w1/w2) > 0. Set tau = representative of t in
