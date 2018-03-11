@@ -6670,7 +6670,7 @@ cusp_canon(GEN cusp, long N, long *pA, long *pC)
 }
 static long
 mfcuspcanon_width(long N, long C)
-{ return (C == N)? 1 : N / cgcd(N, Fl_sqr(umodsu(C,N),N)); }
+{ return (!C || C == N)? 1 : N / cgcd(N, Fl_sqr(umodsu(C,N),N)); }
 /* v = [a,c] a ZC, width of cusp (a:c) */
 static long
 mfZC_width(long N, GEN v)
@@ -7883,19 +7883,19 @@ mf2gaexpansion(GEN mf2, GEN F, GEN ga, long n, long prec)
 }
 
 static GEN
-mfgaexpansionatkin(GEN mf, GEN F, long C, long D, long Q, long n, long prec)
+mfgaexpansionatkin(GEN mf, GEN F, GEN C, GEN D, long Q, long n, long prec)
 {
   GEN mfa = mfatkininit_i(mf, Q, 0, prec), MQ = gel(mfa,2);
-  long i, t, v, FC, k = MF_get_k(mf);
-  GEN V, z, s, CHI = mfchartoprimitive(MF_get_CHI(mf), &FC);
+  long i, FC, k = MF_get_k(mf);
+  GEN t, v, V, z, s, CHI = mfchartoprimitive(MF_get_CHI(mf), &FC);
 
   /* V = mfcoefs(F | w_Q, n), can't use mfatkin because MQ non-rational */
   V = RgM_RgC_mul(mfcoefs_mf(mf,n,1), RgM_RgC_mul(MQ, mftobasis_i(mf,F)));
-  (void)cbezout(Q, C, &t, &v);
-  s = mfchareval_i(CHI, (((t*Q) % FC) * D) % FC);
+  (void)bezout(utoipos(Q), C, &t, &v);
+  s = mfchareval_i(CHI, (((umodiu(t,FC)*Q) % FC) * umodiu(D,FC)) % FC);
   s = gdiv(s, gpow(utoipos(Q), sstoQ(k,2), prec));
   V = RgV_Rg_mul(V, s);
-  z = rootsof1powinit(D*v % Q, Q, prec);
+  z = rootsof1powinit(umodiu(D,Q)*umodiu(v,Q) % Q, Q, prec);
   for (i = 1; i <= n+1; i++) gel(V,i) = gmul(gel(V,i), rootsof1pow(z, i-1));
   return mkvec3(gen_0, utoipos(Q), V);
 }
@@ -7904,30 +7904,31 @@ mfgaexpansionatkin(GEN mf, GEN F, long C, long D, long Q, long n, long prec)
 static GEN
 mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
 {
-  GEN v, EF = NULL, res, Mvecj;
-  long c, d, precnew;
+  GEN v, EF = NULL, res, Mvecj, c, d;
+  long precnew;
 
   if (n < 0) pari_err_DOMAIN("mfgaexpansion", "n", "<", gen_0, stoi(n));
   if (typ(F) == t_COL && lg(F) == 3) { EF = gel(F,2); F = gel(F,1); }
   if (!checkmf_i(F)) pari_err_TYPE("mfgaexpansion", F);
   if (!check_SL2Z(ga)) pari_err_TYPE("mfgaexpansion",ga);
   if (typ(mf_get_gk(F)) != t_INT) return mf2gaexpansion(mf, F, ga, n, prec);
-  c = itos(gcoeff(ga,2,1));
-  d = itos(gcoeff(ga,2,2));
-  if (c % mf_get_N(F) == 0)
+  c = gcoeff(ga,2,1);
+  d = gcoeff(ga,2,2);
+  if (!umodiu(c, mf_get_N(F)))
   { /* trivial case: ga in Gamma_0(N) */
-    long N = MF_get_N(mf), w = mfcuspcanon_width(N,c);
-    GEN chid = mfcharcxeval(mf_get_CHI(F), d, prec);
+    long N = MF_get_N(mf), w = mfcuspcanon_width(N, umodiu(c,N));
+    GEN CHI = mf_get_CHI(F);
+    GEN chid = mfcharcxeval(CHI, umodiu(d,mfcharmodulus(CHI)), prec);
     v = mfcoefs_i(F, n/w, 1); if (!isint1(chid)) v = RgV_Rg_mul(v,chid);
     return mkvec3(gen_0, stoi(w), bdexpandall(v,w,n+1));
   }
   if (MF_get_space(mf) == mf_NEW)
   {
-    long N = MF_get_N(mf), g = cgcd(c,N), Q = N/g;
+    long N = MF_get_N(mf), cN = umodiu(c,N), g = cgcd(cN,N), Q = N/g;
     GEN CHI = MF_get_CHI(mf);
-    if (cgcd(c, Q)==1 && mfcharorder(CHI) <= 2
-                      && g % mfcharconductor(CHI) == 0
-                      && degpol(mf_get_field(F)) == 1)
+    if (cgcd(cN, Q)==1 && mfcharorder(CHI) <= 2
+                       && g % mfcharconductor(CHI) == 0
+                       && degpol(mf_get_field(F)) == 1)
       return mfgaexpansionatkin(mf, F, c, d, Q, n, prec);
   }
   Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
