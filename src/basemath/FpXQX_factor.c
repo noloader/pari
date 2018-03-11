@@ -2530,19 +2530,22 @@ FqX_is_squarefree(GEN P, GEN T, GEN p)
   avma = av; return degpol(z)==0;
 }
 
+#define code(t1,t2) ((t1 << 6) | t2)
 /* Check types and replace F by a monic normalized FpX having the same roots
  * Don't bother to make constant polynomials monic */
 static GEN
-factmod_init(GEN f, GEN D, GEN *pT, GEN *pp)
+factmod_init(GEN f, GEN *pD, GEN *pT, GEN *pp)
 {
   const char *s = "factormod";
-  GEN T = NULL, p = NULL;
+  GEN T = NULL, p = NULL, D = *pD;
   if (typ(f) != t_POL) pari_err_TYPE(s,f);
   if (!D)
   {
     long pa, t = RgX_type(f, pp, pT, &pa);
-    if (t != t_FFELT) pari_err_TYPE(s,f);
-    return f;
+    if (t == t_FFELT) return f;
+    *pD = gen_0;
+    if (t != t_INTMOD && t != code(t_POLMOD,t_INTMOD)) pari_err_TYPE(s,f);
+    return RgX_to_FqX(f, *pT, *pp);
   }
   switch(typ(D))
   {
@@ -2566,6 +2569,7 @@ factmod_init(GEN f, GEN D, GEN *pT, GEN *pp)
   }
   *pT = T; *pp = p; return RgX_to_FqX(f, T, p);
 }
+#undef code
 
 static GEN
 to_Fq(GEN x, GEN T, GEN p)
@@ -2588,7 +2592,12 @@ static GEN
 to_Fq_pol(GEN x, GEN T, GEN p)
 {
   long i, lx = lg(x);
-  for (i=2; i<lx; i++) gel(x,i) = to_Fq(gel(x,i),T,p);
+  if (lx == 2)
+  {
+    GEN y = cgetg(3,t_POL); y[1]=x[1];
+    gel(y,2) = mkintmod(gen_0,p); return y;
+  }
+  for (i = 2; i < lx; i++) gel(x,i) = to_Fq(gel(x,i),T,p);
   return x;
 }
 static GEN
@@ -2622,7 +2631,7 @@ factmod(GEN f, GEN D)
 {
   pari_sp av;
   GEN y, F, P, E, T, p;
-  f = factmod_init(f, D, &T,&p);
+  f = factmod_init(f, &D, &T,&p);
   if (!D) return FFX_factor(f, T);
   av = avma;
   F = FqX_factor(f, T, p); P = gel(F,1); E = gel(F,2);
@@ -2640,7 +2649,7 @@ simplefactmod(GEN f, GEN D)
 {
   pari_sp av = avma;
   GEN T, p;
-  f = factmod_init(f,D, &T,&p);
+  f = factmod_init(f, &D, &T,&p);
   if (lg(f) <= 3) { avma = av; return trivial_fact(); }
   if (T) pari_err_IMPL("factormod(f,D,1) in this case");
   return gerepileupto(av, Flm_to_ZM(FpX_degfact(f, p)));
@@ -2658,7 +2667,7 @@ polrootsmod(GEN f, GEN D)
 {
   pari_sp av;
   GEN y, T, p;
-  f = factmod_init(f, D, &T,&p);
+  f = factmod_init(f, &D, &T,&p);
   if (!D) return FFX_roots(f, T);
   av = avma; y = FqX_roots(f, T, p);
   if (!T) return gerepileupto(av, FpC_to_mod(y,p));
