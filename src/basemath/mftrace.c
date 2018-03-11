@@ -6770,7 +6770,7 @@ cxredga0N(long N, GEN z, GEN *pU, GEN *pczd, long flag)
   long e;
   if (N == 1) return cxredsl2_i(z, pU, pczd);
   e = gexpo(gel(z,2));
-  if (e < -8) z = gprec_wensure(z, precision(z) + nbits2extraprec(-e));
+  if (e < 0) z = gprec_wensure(z, precision(z) + nbits2extraprec(-e));
   v = flag? findqganew(N,z): findqga(N,z);
   if (!v) { *pU = matid(2); *pczd = gen_1; return z; }
   C = gel(v,1);
