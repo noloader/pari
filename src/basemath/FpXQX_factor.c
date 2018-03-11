@@ -2550,6 +2550,7 @@ factmod_init(GEN f, GEN *pD, GEN *pT, GEN *pp)
   switch(typ(D))
   {
     case t_INT: p = D; break;
+    case t_FFELT: { *pD = NULL; *pT = D; return f; }
     case t_VEC:
       if (lg(D) == 3)
       {
@@ -2558,7 +2559,7 @@ factmod_init(GEN f, GEN *pD, GEN *pT, GEN *pp)
         if (typ(p) == t_INT) break;
         if (typ(T) == t_INT) { swap(T,p); break; }
       }
-    default: pari_err_TYPE(s,p);
+    default: pari_err_TYPE(s,D);
   }
   if (signe(p) <= 0) pari_err_PRIME(s,p);
   if (T)

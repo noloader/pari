@@ -54,6 +54,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - isprime(n,1) no longer uses APRCL for large prime divisors of n-1
     (pure Pocklington-Lehmer-Selfridge); use primecert(n).
   - removed useless (optional) flag argument in polrootsmod
+  - factorff and polrootsff are now obsolete. Use factormod/polrootsmod
 
 * Specific to the PARI library:
 ===============================

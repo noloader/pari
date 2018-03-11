@@ -511,6 +511,10 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
      73- change rnfpolredabs so that it outputs a canonical polynomial. As a
          result, the function is no longer Obsolete.
      74- allow polrecip(scalar x) -> x
+     75- extend factormod(f, D) for general finite fields: D = p prime
+         [over Fp], D = [T,p] (over Fp[x]/(T)), or omited [over field of
+         definition of f]. Same for polrootsmod.
+     76- factorff and polrootsff are now obsolete. Use factormod/polrootsmod
 
   Removed
       1- file 'MACHINES' (no longer maintained)

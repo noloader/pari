@@ -924,7 +924,7 @@ factor(GEN x)
             case t_INT: case t_FRAC: p1 = nffactor(T,x); break;
             case t_INTMOD:
               T = RgX_to_FpX(T,p);
-              if (FpX_is_irred(T,p)) { p1 = factorff(x,p,T); break; }
+              if (FpX_is_irred(T,p)) { p1 = factmod(x,mkvec2(p,T)); break; }
             /*fall through*/
             default:
               if (w) (void)delete_var();

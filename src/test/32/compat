@@ -981,8 +981,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: factfq(x,p,a) ===> factorff(x,p,a)
 
-factorff(x,{p},{a}): factorization of the polynomial x in the finite field 
-F_p[X]/a(X)F_p[X].
+factorff(x,{p},{a}): obsolete, use factormod.
 
 
   ***   at top-level: factmod()
@@ -992,9 +991,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: factmod(x,p) ===> factormod(x,p)
 
-factormod(f,p,{flag=0}): factors the polynomial f modulo the prime p; flag is 
-optional, and can be 0: default or 1: only the degrees of the irreducible 
-factors are given.
+factormod(f,{D},{flag=0}): factors the polynomial f over the finite field 
+defined by the domain D; flag is optional, and can be 0: default or 1: only the 
+degrees of the irreducible factors are given.
 
 
   ***   at top-level: factoredbasis()
@@ -3507,7 +3506,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: rootmod(x,p) ===> polrootsmod(x,p)
 
-polrootsmod(pol,p): roots mod the prime p of the polynomial pol.
+polrootsmod(f,{D}): roots of the polynomial f over the finite field defined by 
+the domain D.
 
 
   ***   at top-level: rootmod2()
@@ -3517,7 +3517,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: rootmod2(x,p) ===> polrootsmod(x,p)
 
-polrootsmod(pol,p): roots mod the prime p of the polynomial pol.
+polrootsmod(f,{D}): roots of the polynomial f over the finite field defined by 
+the domain D.
 
 
   ***   at top-level: rootpadic()
@@ -3633,9 +3634,9 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: simplefactmod(x,p) ===> factormod(x,p,1)
 
-factormod(f,p,{flag=0}): factors the polynomial f modulo the prime p; flag is 
-optional, and can be 0: default or 1: only the degrees of the irreducible 
-factors are given.
+factormod(f,{D},{flag=0}): factors the polynomial f over the finite field 
+defined by the domain D; flag is optional, and can be 0: default or 1: only the 
+degrees of the irreducible factors are given.
 
 
   ***   at top-level: size()
@@ -4519,4 +4520,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 11
+Total time spent: 10

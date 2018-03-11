@@ -12,6 +12,8 @@ Doc: vector of roots of the polynomial $f$ over the finite field defined
  \item $D = [T,p]$ for a prime $p$ and $T$ an irreducible polynomial over
  $\F_p$: factor over $\F_p[x]/(T)$;
 
+ \item $D$ a \typ{FFELT}: factor over the attached field;
+
  \item $D$ omitted: factor over the field of definition of $f$, which
  must be a finite field.
 
