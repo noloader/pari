@@ -11258,11 +11258,11 @@ toRgX0(GEN T)
 
 /* integrate by summing  nlim+1 terms of van [may be < lg(van)]
  * van can be an expansion with vector coefficients
- * CO * \int_A^oo \sum_n van[n] * q^(n/w + al) * P(z-A) dz, q = e(z) */
+ * \int_A^oo \sum_n van[n] * q^(n/w + al) * P(z-A) dz, q = e(z) */
 static GEN
-intAoo(GEN van, long nlim, GEN al, long w, GEN PCO, GEN A, long k, long prec)
+intAoo(GEN van, long nlim, GEN al, long w, GEN P, GEN A, long k, long prec)
 {
-  GEN alw, P1, piI2A, q, S, van0, P = gel(PCO, 1), CO = gel(PCO, 2);
+  GEN alw, P1, piI2A, q, S, van0;
   long n, vz = varn(gel(P,2));
 
   if (nlim < 1) nlim = 1;
@@ -11276,11 +11276,11 @@ intAoo(GEN van, long nlim, GEN al, long w, GEN PCO, GEN A, long k, long prec)
     GEN t = gsubst(P1, vz, gdivsg(w, gaddsg(n, alw)));
     S = gadd(gmul(gel(van, n+1), t), gmul(q, S));
   }
-  S = gmul(gmul(q, S), gneg(CO));
+  S = gmul(q, S);
   van0 = gel(van, 1);
   if (!gequal0(al))
   {
-    S = gadd(S, gmul(gsubst(P1, vz, ginv(al)), gmul(gneg(CO), van0)));
+    S = gadd(S, gmul(gsubst(P1, vz, ginv(al)), van0));
     S = gmul(S, gexp(gmul(piI2A, al), prec));
   }
   else if (!gequal0(van0))
@@ -11295,32 +11295,21 @@ intAoo(GEN van, long nlim, GEN al, long w, GEN PCO, GEN A, long k, long prec)
   return gneg(S);
 }
 
-/* Y * \sum_{j <= k} X^j * Y^{k-j} / j! */
+/* \sum_{j <= k} X^j * I^(j-k-1) * (Y / (2*\pi))^{k+1-j} k! / j! */
 static GEN
-expsum(long k, long v)
+get_P(long k, long v, long prec)
 {
-  GEN S = cgetg(k + 3, t_POL), a = gen_1;
-  long j;
-  S[1] = evalsigne(1)|evalvarn(0);
-  gel(S,2) = monomial(a, k+1, v);
-  for(j = 1; j <= k; j++)
+  GEN a, S = cgetg(k + 1, t_POL), u = invr(Pi2n(1, prec+EXTRAPRECWORD));
+  long j, K = k-2;
+  S[1] = evalsigne(1)|evalvarn(0); a = u;
+  gel(S,K+2) = monomial(mulcxpowIs(a,3), 1, v); /* j = K */
+  for(j = K-1; j >= 0; j--)
   {
-    a = gdivgs(a,j);
-    gel(S,j+2) = monomial(a, k+1-j, v);
+    a = mulrr(mulru(a,j+1), u);
+    gel(S,j+2) = monomial(mulcxpowIs(a,j+3*K-1), K+1-j, v);
   }
   return S;
 }
-/* (Y / (2*Pi)) * \sum_{j <= k} X^j * i^j * (Y / (2*\pi))^{k-j} / j! */
-static GEN
-expsumscale(long k, long v, long prec)
-{
-  GEN T = RgX_unscale(expsum(k, v), gen_I());
-  T = gsubst(T, v, gdiv(pol_x(v), Pi2n(1, prec)));
-  return toRgX0(T);
-}
-static GEN
-get_PCO(long k, long v, long prec)
-{ return mkvec2(expsumscale(k-2, v, prec), mulcxpowIs(mpfact(k-2), 3*k-1)); }
 
 static GEN
 getw1w2(long N, GEN ga)
@@ -11328,7 +11317,7 @@ getw1w2(long N, GEN ga)
                      mfZC_width(N, gel(ga,2))); }
 
 static GEN
-intAoowithvanall(GEN mf, GEN vanall, GEN PCO, GEN cosets, long bitprec)
+intAoowithvanall(GEN mf, GEN vanall, GEN P, GEN cosets, long bitprec)
 {
   GEN vvan = gel(vanall,1), vaw = gel(vanall,2), W1W2, resall;
   long prec = nbits2prec(bitprec), N, k, lco, j;
@@ -11357,7 +11346,7 @@ intAoowithvanall(GEN mf, GEN vanall, GEN PCO, GEN cosets, long bitprec)
     setlg(M,c); VAN = shallowmatconcat(M);
     AR = mkcomplex(gen_0, sqrtr_abs(divru(utor(w1, prec+1), w2)));
     w = itos(gel(alj,2));
-    RES = intAoo(VAN, lg(VAN)-2, gel(alj,1),w, PCO, AR, k, prec);
+    RES = intAoo(VAN, lg(VAN)-2, gel(alj,1),w, P, AR, k, prec);
     for (jq = 1; jq < c; jq++) gel(resall, Q[jq]) = gel(RES, jq);
   }
   return resall;
@@ -11619,14 +11608,14 @@ static GEN
 mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
 {
   long N, i, prec = nbits2prec(bit), k = MF_get_k(mf);
-  GEN vP, PCO, CHI, intall = gen_0;
+  GEN vP, P, CHI, intall = gen_0;
 
   *pvan = gen_0;
   if (k == 0 && gequal0(gel(FE,2)))
     return cosets? const_vec(lg(cosets)-1, pol_0(0)): pol_0(0);
   N = MF_get_N(mf);
   CHI = MF_get_CHI(mf);
-  PCO = get_PCO(k, fetch_var(), prec);
+  P = get_P(k, fetch_var(), prec);
   if (!cosets)
   { /* ga = id */
     long nlim, PREC = prec + EXTRAPRECWORD;
@@ -11638,14 +11627,14 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
     v = mfcoefs_i(F, nlim, 1);
     van = vanembed(F, v, PREC);
     AR = mkcomplex(gen_0, sqNinv);
-    T1 = intAoo(van, nlim, gen_0,1, PCO, AR, k, prec);
+    T1 = intAoo(van, nlim, gen_0,1, P, AR, k, prec);
     if (N == 1) T2 = T1;
     else
     { /* F|S: al = 0, w = N */
       v = mfgaexpansion(mf, FE, mkS(), nlim, PREC);
       van = vanembed(F, gel(v,3), PREC);
       AR = mkcomplex(gen_0, mulur(N,sqNinv));
-      T2 = intAoo(van, nlim, gen_0,N, PCO, AR, k, prec);
+      T2 = intAoo(van, nlim, gen_0,N, P, AR, k, prec);
     }
     T1 = gsub(T1, act_S(T2, k));
     T1 = normalizeapprox(T1, bit-20);
@@ -11656,7 +11645,7 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
     long lco = lg(cosets);
     GEN vanall = mfgaexpansionall(mf, FE, cosets, 0, prec);
     *pvan = vanall;
-    intall = intAoowithvanall(mf, vanall, PCO, cosets, bit);
+    intall = intAoowithvanall(mf, vanall, P, cosets, bit);
     vP = const_vec(lco-1, NULL);
     for (i = 1; i < lco; i++)
     {
@@ -11794,7 +11783,7 @@ mfgetvan(GEN fs, GEN ga, GEN *pal, long nlim, long prec)
 /* Computation of int_A^oo (f | ga)(t)(X-t)^{k-2} dt, assuming convergence;
  * fs is either a symbol or a triple [mf,F,bitprec]. A != oo and im(A) > 0 */
 static GEN
-intAoo0(GEN fs, GEN A, GEN ga, GEN PCO, long bit)
+intAoo0(GEN fs, GEN A, GEN ga, GEN P, long bit)
 {
   long nlim, N, k, w, prec = nbits2prec(bit);
   GEN van, mf, F, al;
@@ -11802,12 +11791,12 @@ intAoo0(GEN fs, GEN A, GEN ga, GEN PCO, long bit)
   w = mfZC_width(N, gel(ga,1));
   nlim = mfperiod_prelim(gdivgs(imag_i(A), w), k, bit + 32);
   van = mfgetvan(fs, ga, &al, nlim, prec);
-  return intAoo(van, nlim, al,w, PCO, A, k, prec);
+  return intAoo(van, nlim, al,w, P, A, k, prec);
 }
 
 /* fs symbol, naive summation, A != oo, im(A) > 0 and B = oo or im(B) > 0 */
 static GEN
-mfsymboleval_direct(GEN fs, GEN path, GEN ga, GEN PCO)
+mfsymboleval_direct(GEN fs, GEN path, GEN ga, GEN P)
 {
   GEN A, B, van, S, al, mf = fs_get_MF(fs);
   long w, nlimA, nlimB = 0, N = MF_get_N(mf), k = MF_get_k(mf);
@@ -11819,8 +11808,8 @@ mfsymboleval_direct(GEN fs, GEN path, GEN ga, GEN PCO)
   nlimA = mfperiod_prelim(gdivgs(imag_i(A),w), k, bit + 32);
   if (B) nlimB = mfperiod_prelim(gdivgs(imag_i(B),w), k, bit + 32);
   van = mfgetvan(fs, ga, &al, maxss(nlimA,nlimB), prec);
-  S = intAoo(van, nlimA, al,w, PCO, A, k, prec);
-  if (B) S = gsub(S, intAoo(van, nlimB, al,w, PCO, B, k, prec));
+  S = intAoo(van, nlimA, al,w, P, A, k, prec);
+  if (B) S = gsub(S, intAoo(van, nlimB, al,w, P, B, k, prec));
   return RgX_embedall(S, 0, fs_get_vE(fs));
 }
 
@@ -11829,25 +11818,25 @@ mfsymboleval_direct(GEN fs, GEN path, GEN ga, GEN PCO)
 static GEN
 mfsymbolevalpartial(GEN fs, GEN A, GEN ga, long bit)
 {
-  GEN Y, F, S, PCO, mf;
+  GEN Y, F, S, P, mf;
   long N, k, w, prec = nbits2prec(bit);
 
   get_mf_F(fs, &mf, &F);
   N = MF_get_N(mf); w = mfZC_width(N, gel(ga,1));
   k = MF_get_k(mf);
   Y = gdivgs(imag_i(A), w);
-  PCO = get_PCO(k, fetch_var(), prec);
+  P = get_P(k, fetch_var(), prec);
   if (lg(fs) != 3 && gtodouble(Y)*(2*N) < 1)
   { /* true symbol + low imaginary part: use GL_2 action to improve */
     GEN U, Ui, ga2, czd, A2 = cxredga0N(N, A, &U, &czd, 1), oo = mkoo();
     Ui = ZM_inv(U, NULL);
     ga2 = ZM_mul(ga, Ui);
-    S = intAoo0(fs, A2, ga2, PCO, bit);
+    S = intAoo0(fs, A2, ga2, P, bit);
     S = gsub(S, mfsymboleval(fs, mkvec2(mat2cusp(Ui), oo), ga2, bit));
     S = act_GL2(S, U, k);
   }
   else
-    S = intAoo0(fs, A, ga, PCO, bit);
+    S = intAoo0(fs, A, ga, P, bit);
   S = RgX_embedall(S, 0, F? mfgetembed(F,prec): fs_get_vE(fs));
   delete_var(); return normalizeapprox(S, bit-20);
 }
@@ -12149,7 +12138,7 @@ static GEN
 mfpeterssonnoncusp(GEN F1S, GEN F2S)
 {
   pari_sp av = avma;
-  GEN mf, F1, F2, GF1, GF2, P2, cosets, vE1, vE2, FE1, FE2, PCO;
+  GEN mf, F1, F2, GF1, GF2, P2, cosets, vE1, vE2, FE1, FE2, P;
   GEN I, IP1, RHO, RHOP1, INF, res, ress;
   const double height = sqrt(3.)/2;
   long k, r, j, bitprec, prec;
@@ -12174,18 +12163,18 @@ mfpeterssonnoncusp(GEN F1S, GEN F2S)
   mffvanish(mf, F1, F2, cosets, &res, &ress);
   P2 = fs_get_pols(F2S);
   GF1 = cgetg(r+1, t_VEC);
-  GF2 = cgetg(r+1, t_VEC); PCO = get_PCO(k, fetch_var(), prec);
+  GF2 = cgetg(r+1, t_VEC); P = get_P(k, fetch_var(), prec);
   for (j = 1; j <= r; j++)
   {
     GEN g = gel(cosets,j);
     if (res[j]) {
-      gel(GF1,j) = mfsymboleval_direct(F1S, mkvec2(RHOP1,INF), g, PCO);
-      gel(GF2,j) = mfsymboleval_direct(F2S, mkvec2(I,IP1), g, PCO);
+      gel(GF1,j) = mfsymboleval_direct(F1S, mkvec2(RHOP1,INF), g, P);
+      gel(GF2,j) = mfsymboleval_direct(F2S, mkvec2(I,IP1), g, P);
     } else if (ress[j]) {
-      gel(GF1,j) = mfsymboleval_direct(F1S, mkvec2(RHOP1,RHO), g, PCO);
-      gel(GF2,j) = mfsymboleval_direct(F2S, mkvec2(I,INF), g, PCO);
+      gel(GF1,j) = mfsymboleval_direct(F1S, mkvec2(RHOP1,RHO), g, P);
+      gel(GF2,j) = mfsymboleval_direct(F2S, mkvec2(I,INF), g, P);
     } else {
-      gel(GF1,j) = mfsymboleval_direct(F1S, mkvec2(RHO,I), g, PCO);
+      gel(GF1,j) = mfsymboleval_direct(F1S, mkvec2(RHO,I), g, P);
       gel(GF2,j) = gneg(gel(P2,j)); /* - symboleval(F2S, [0,oo] */
     }
   }
