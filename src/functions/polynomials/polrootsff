@@ -1,5 +1,5 @@
 Function: polrootsff
-Section: number_theoretical
+Section: polynomials
 C-Name: polrootsff
 Prototype: GDGDG
 Obsolete: 2018-03-11
