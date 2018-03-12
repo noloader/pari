@@ -10527,7 +10527,7 @@ mfkohneneigenbasis(GEN mf, GEN bij)
   mf30 = mfinit_Nkchi(N4, 2*r, MF_get_CHI(mf3), mf_NEW, 0);
   B = mfcoefs_mf(mf30, mfsturm_mf(mf3), 1); l = lg(B);
   M = cgetg(l, t_MAT);
-  for (i=1; i<l; i++) gel(M, i) = RgM_RgC_mul(KM, mftobasis_i(mf3, gel(B,i)));
+  for (i=1; i<l; i++) gel(M,i) = RgM_RgC_mul(KM, mftobasis_i(mf3, gel(B,i)));
   return gerepilecopy(av, mkvec3(mf30, M, RgM_mul(M, MF_get_newforms(mf30))));
 }
 /*************************** End Kohnen ************************************/
