@@ -735,6 +735,8 @@ idealsqrtn_int(GEN nf, GEN A, long n, GEN *pB)
 {
   GEN C, ram, vram, root;
   long i, l;
+
+  if (typ(A) == t_INT) return Z_ispowerall(A, n, pB);
   /* compute valuations at ramified primes */
   ram = gel(idealfactor(nf, idealadd(nf, nf_get_diff(nf),A)), 1);
   l = lg(ram); vram = cgetg(l, t_VECSMALL);
@@ -746,7 +748,10 @@ idealsqrtn_int(GEN nf, GEN A, long n, GEN *pB)
   }
   root = idealfactorback(nf, ram, vram, 0);
   /* remove ramified primes */
-  A = idealdivexact(nf, A, idealpows(nf,root,n));
+  if (isint1(root))
+    root = matid(nf_get_degree(nf));
+  else
+    A = idealdivexact(nf, A, idealpows(nf,root,n));
   A = Q_primitive_part(A, &C);
   if (C)
   {
