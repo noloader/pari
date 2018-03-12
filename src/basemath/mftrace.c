@@ -11295,7 +11295,7 @@ intAoo(GEN van, long nlim, GEN al, long w, GEN P, GEN A, long k, long prec)
   return gneg(S);
 }
 
-/* \sum_{j <= k} X^j * I^(j-k-1) * (Y / (2*\pi))^{k+1-j} k! / j! */
+/* \sum_{j <= k} X^j * (Y / (2I\pi))^{k+1-j} k! / j! */
 static GEN
 get_P(long k, long v, long prec)
 {
@@ -11306,7 +11306,7 @@ get_P(long k, long v, long prec)
   for(j = K-1; j >= 0; j--)
   {
     a = mulrr(mulru(a,j+1), u);
-    gel(S,j+2) = monomial(mulcxpowIs(a,j+3*K-1), K+1-j, v);
+    gel(S,j+2) = monomial(mulcxpowIs(a,3*(K+1-j)), K+1-j, v);
   }
   return S;
 }
