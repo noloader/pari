@@ -3,7 +3,9 @@ do(x^3+x^2+x-1,3,t^3+t^2+t-1)
 t = ffgen(3^3,'t); do((x^3+x^2+x-1)*t^0, t.p, t.mod)
 polrootsmod(x^4+1,[2,y^2+y+1])
 t = ffgen(('t^2+'t+1)*Mod(1,2));
-factormod(x^12 + t*x^10 + x^6 + (t+1)*x^2 + 1)
+f=x^12+t*x^10+x^6+(t+1)*x^2+1;
+factormod(f)
+factormod(f,,1)
 
 \\ #1241
 polrootsmod(x^2 - x - ffgen(v^2+Mod(1,3)))
@@ -20,6 +22,7 @@ check(p)=
   V = [0*x*'a,'a*x^0,x*'a-1,x^2-'a^2,x^2+x+'a,'a*x^2+1,'a*x^3+x+1];
   for(i=1,#V,
     print(factormod(V[i],a));
+    print(factormod(V[i],a,1));
     print(liftall(factormod(V[i],[a.p,a.mod]))));
 }
 check(2)
@@ -30,7 +33,9 @@ t = ffgen(5^4,'t);
 factor((x^24-1)*t^0)
 factormod(Pol(0),t)
 factormod(Pol(1),t)
+factormod(Pol(1),t,1)
 factormod(x^4-t,t)
+factormod(x^4-t,t,1)
 factor(5*x^2+x+t)
 
 p = nextprime(2^96); a = ffgen(p^3,'a);
@@ -38,6 +43,7 @@ factor(p*x^2+x+a)
 P=(x-1)*(x-a)*(x-a^2)*(x-a-1)*subst(ffinit(p,2),x,x+a)*ffinit(p,4);
 polrootsmod(P)
 factormod(P)
+factormod(P,,1)
 
 check(P)=my(V=polrootsmod(P));for(i=1,#V,if(subst(P,x,V[i])!=0,error(P)));#V;
 a=ffgen([3,2],'a);check((x^2+a*x)^3*(x+1))

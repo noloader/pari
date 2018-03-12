@@ -6562,8 +6562,9 @@ coefficients are \kbd{QXQ}. Analogous to \kbd{QXQV\_to\_mod}.
 Used to normalize the output of \kbd{nffactor}.
 
 The following functions are obsolete and should not be used: they receive a
-polynomial with arbitrary coefficients, apply \kbd{RgX\_to\_FpX}, a function
-from the modular kernel, then \kbd{*\_to\_mod}:
+polynomial with arbitrary coefficients, apply a conversion function to map
+them to a finite field, a function from the modular kernel, then
+\kbd{*\_to\_mod}:
 
 \fun{GEN}{rootmod}{GEN f, GEN p}, applies \kbd{FpX\_roots}.
 
@@ -6572,9 +6573,9 @@ from the modular kernel, then \kbd{*\_to\_mod}:
 \fun{GEN}{rootmod0}{GEN f, GEN p, long flag}, calls either
 \kbd{rootmod} or \kbd{rootmod2} depending on \kbd{flag}.
 
-\fun{GEN}{factmod}{GEN f, GEN p} applies \kbd{FpX\_factor}.
+\fun{GEN}{factmod}{GEN f, GEN p} applies \kbd{*\_factor}.
 
-\fun{GEN}{simplefactmod}{GEN f, GEN p} applies \kbd{FpX\_degfact}.
+\fun{GEN}{simplefactmod}{GEN f, GEN p} applies \kbd{*\_degfact}.
 
 \subsec{Slow Chinese remainder theorem over $\Z$}
 The routines in this section have quadratic time complexity with respect to

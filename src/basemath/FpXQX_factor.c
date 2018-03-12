@@ -2829,8 +2829,8 @@ simplefactmod(GEN f, GEN D)
   GEN T, p;
   f = factmod_init(f, &D, &T,&p);
   if (lg(f) <= 3) { avma = av; return trivial_fact(); }
-  if (T) pari_err_IMPL("factormod(f,D,1) in this case");
-  return gerepileupto(av, Flm_to_ZM(FpX_degfact(f, p)));
+  f = D? FqX_degfact(f, T, p): FFX_degfact(f, T);
+  return gerepileupto(av, Flm_to_ZM(f));
 }
 
 GEN
