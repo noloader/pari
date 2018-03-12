@@ -11297,42 +11297,35 @@ intAoo(GEN van, long nlim, GEN al, long w, GEN PCO, GEN A, long k, long prec)
 
 /* Y * \sum_{j <= k} X^j * Y^{k-j} / j! */
 static GEN
-expsum(long k, long vy)
+expsum(long k, long v)
 {
   GEN S = cgetg(k + 3, t_POL), a = gen_1;
   long j;
   S[1] = evalsigne(1)|evalvarn(0);
-  gel(S,2) = monomial(a, k+1, vy);
+  gel(S,2) = monomial(a, k+1, v);
   for(j = 1; j <= k; j++)
   {
     a = gdivgs(a,j);
-    gel(S,j+2) = monomial(a, k+1-j, vy);
+    gel(S,j+2) = monomial(a, k+1-j, v);
   }
   return S;
 }
 /* (Y / (2*Pi)) * \sum_{j <= k} X^j * i^j * (Y / (2*\pi))^{k-j} / j! */
 static GEN
-expsumscale(long k, long vy, long prec)
+expsumscale(long k, long v, long prec)
 {
-  GEN T = RgX_unscale(expsum(k, vy), gen_I());
-  T = gsubst(T, vy, gdiv(pol_x(vy), Pi2n(1, prec)));
+  GEN T = RgX_unscale(expsum(k, v), gen_I());
+  T = gsubst(T, v, gdiv(pol_x(v), Pi2n(1, prec)));
   return toRgX0(T);
 }
-/* Need to be followed by delete_var() ! */
 static GEN
-get_PCO(long k, long prec)
-{
-  long v = fetch_var();
-  GEN P = expsumscale(k-2, v, prec);
-  return mkvec2(P, mulcxpowIs(mpfact(k-2), 3*k-1));
-}
+get_PCO(long k, long v, long prec)
+{ return mkvec2(expsumscale(k-2, v, prec), mulcxpowIs(mpfact(k-2), 3*k-1)); }
 
 static GEN
 getw1w2(long N, GEN ga)
-{
-  long w1 = mfZC_width(N, gel(ga,1)), w2 = mfZC_width(N, gel(ga,2));
-  return mkvecsmall2(w1, w2);
-}
+{ return mkvecsmall2(mfZC_width(N, gel(ga,1)),
+                     mfZC_width(N, gel(ga,2))); }
 
 static GEN
 intAoowithvanall(GEN mf, GEN vanall, GEN PCO, GEN cosets, long bitprec)
@@ -11633,7 +11626,7 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
     return cosets? const_vec(lg(cosets)-1, pol_0(0)): pol_0(0);
   N = MF_get_N(mf);
   CHI = MF_get_CHI(mf);
-  PCO = get_PCO(k, prec);
+  PCO = get_PCO(k, fetch_var(), prec);
   if (!cosets)
   { /* ga = id */
     long nlim, PREC = prec + EXTRAPRECWORD;
@@ -11843,7 +11836,7 @@ mfsymbolevalpartial(GEN fs, GEN A, GEN ga, long bit)
   N = MF_get_N(mf); w = mfZC_width(N, gel(ga,1));
   k = MF_get_k(mf);
   Y = gdivgs(imag_i(A), w);
-  PCO = get_PCO(k, prec);
+  PCO = get_PCO(k, fetch_var(), prec);
   if (lg(fs) != 3 && gtodouble(Y)*(2*N) < 1)
   { /* true symbol + low imaginary part: use GL_2 action to improve */
     GEN U, Ui, ga2, czd, A2 = cxredga0N(N, A, &U, &czd, 1), oo = mkoo();
@@ -12113,25 +12106,21 @@ zero_at_cusp(GEN mf, GEN F, GEN c)
   return (gequal0(v) || gexpo(v) <= -62);
 }
 /* Compute list E of j such that F|_k g_j vanishes at oo: return [E, s(E)] */
-static GEN
-mffvanish(GEN mf, GEN F, GEN G, GEN cosets)
+static void
+mffvanish(GEN mf, GEN F, GEN G, GEN cosets, GEN *pres, GEN *press)
 {
-  GEN res, ress;
-  long lc = lg(cosets), j, N = MF_get_N(mf);
-  res  = zero_zv(lc-1);
-  ress = zero_zv(lc-1);
+  long j, lc = lg(cosets), N = MF_get_N(mf);
+  GEN v, vs;
+  *pres = v  = zero_zv(lc-1);
+  *press= vs = zero_zv(lc-1);
   for (j = 1; j < lc; j++)
   {
     GEN ga = gel(cosets,j), c = mat2cusp(ga);
     if (zero_at_cusp(mf, F, c))
-    {
-      long js = mftocoset_i(N, ZM_mulS(ga), cosets);
-      res[j] = ress[js] = 1;
-    }
+      v[j] = vs[ mftocoset_i(N, ZM_mulS(ga), cosets) ] = 1;
     else if (!zero_at_cusp(mf, G, c))
       pari_err_IMPL("divergent Petersson product");
   }
-  return mkvec2(res, ress);
 }
 static GEN
 Haberland(GEN PF, GEN PG, GEN vEF, GEN vEG, long k)
@@ -12161,7 +12150,7 @@ mfpeterssonnoncusp(GEN F1S, GEN F2S)
 {
   pari_sp av = avma;
   GEN mf, F1, F2, GF1, GF2, P2, cosets, vE1, vE2, FE1, FE2, PCO;
-  GEN I, IP1, RHO, RHOP1, INF, vanish, res, ress;
+  GEN I, IP1, RHO, RHOP1, INF, res, ress;
   const double height = sqrt(3.)/2;
   long k, r, j, bitprec, prec;
 
@@ -12182,12 +12171,10 @@ mfpeterssonnoncusp(GEN F1S, GEN F2S)
   RHO = rootsof1u_cx(3, prec+1);
   RHOP1 = gaddsg(1, RHO);
   INF = mkoo();
-  vanish = mffvanish(mf, F1, F2, cosets);
-  res  = gel(vanish, 1);
-  ress = gel(vanish, 2);
+  mffvanish(mf, F1, F2, cosets, &res, &ress);
   P2 = fs_get_pols(F2S);
   GF1 = cgetg(r+1, t_VEC);
-  GF2 = cgetg(r+1, t_VEC); PCO = get_PCO(k, prec);
+  GF2 = cgetg(r+1, t_VEC); PCO = get_PCO(k, fetch_var(), prec);
   for (j = 1; j <= r; j++)
   {
     GEN g = gel(cosets,j);
