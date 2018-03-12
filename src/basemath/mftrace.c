@@ -4169,7 +4169,7 @@ mfeigenbasis(GEN mf)
   else
   {
     GEN (*L)(GEN, GEN) = (MF_get_space(mf) == mf_FULL)? mflinear: mflinear_bhn;
-    v = cgetg_copy(F, &l);
+    l = lg(F); v = cgetg(l, t_VEC);
     for (i = 1; i < l; i++) gel(v,i) = L(mf, gel(F,i));
   }
   for (i = 1; i < l; i++) mf_setfield(gel(v,i), gel(vP,i));
@@ -4687,7 +4687,7 @@ mfspclean(GEN mf, GEN mf0, GEN NF, long ord, GEN simplesp, long flag)
 {
   const long vz = 1;
   long i, l = lg(simplesp);
-  GEN res = cgetg(l, t_VEC), pols = cgetg(l, t_VEC);
+  GEN res = cgetg(l, t_MAT), pols = cgetg(l, t_VEC);
   GEN zeros = (mf == mf0)? NULL: zerocol(MF_get_dim(mf) - MF_get_dim(mf0));
   for (i = 1; i < l; i++)
   {
@@ -4713,8 +4713,11 @@ mfspclean(GEN mf, GEN mf0, GEN NF, long ord, GEN simplesp, long flag)
         v = gmodulo(RgM_RgC_mul(A, RgM_RgC_mul(K,v)), P);
       }
     }
-    if (v) { v = mf_normalize(mf0, v); if (zeros) v = shallowconcat(zeros,v); }
-    gel(res, i) = v? : gen_0;
+    if (v)
+    {
+      v = mf_normalize(mf0, v); if (zeros) v = shallowconcat(zeros,v);
+      gel(res,i) = v; if (flag) setlg(res,i+1);
+    }
     gel(pols,i) = P;
   }
   return mkvec2(res, pols);
@@ -4897,7 +4900,7 @@ mfsplit_i(GEN mf, long dimlim, long flag)
       return NULL; /*LCOV_EXCL_LINE*/
   }
   if (newd < 0) newd = mf0? MF_get_dim(mf0): 0;
-  if (!newd) return mkvec2(empty, empty);
+  if (!newd) return mkvec2(cgetg(1, t_MAT), empty);
 
   NEWT = (k > 1 && MF_get_space(mf0) == mf_NEW);
   todosp = mkvec( split_starting_space(mf0) );
