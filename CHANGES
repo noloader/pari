@@ -408,6 +408,7 @@ BA  168- New file GP interface: fileclose fileextern fileflush fileopen
 BA  169- [libpari] Flx_ddf, F2x_ddf, FpX_ddf, F2xqX_ddf, FlxqX_ddf, FpXQX_ddf,
          FqX_ddf, FFX_ddf
          F2xqX_degfact, FlxqX_degfact, FpXQX_degfact, FqX_degfact, FFX_degfact
+    170- new GP functions factormodSQF, factormodDDF
 
   Changed
       1- rewrite bnfnarrow

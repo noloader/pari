@@ -2803,7 +2803,12 @@ to_FqC(GEN P, GEN T, GEN p)
 }
 
 static GEN
-FpXC_to_mod(GEN x, GEN p) { pari_APPLY_type(t_COL, FpX_to_mod(gel(x,i),p)) }
+FpXC_to_mod(GEN x, GEN p)
+{ pari_APPLY_type(t_COL, FpX_to_mod(gel(x,i),p)) }
+static GEN
+FqXC_to_mod(GEN x, GEN T, GEN p)
+{ pari_APPLY_type(t_COL, FqX_to_mod(gel(x,i), T, p)) }
+
 GEN
 factmod(GEN f, GEN D)
 {
@@ -2831,6 +2836,50 @@ simplefactmod(GEN f, GEN D)
   if (lg(f) <= 3) { avma = av; return trivial_fact(); }
   f = D? FqX_degfact(f, T, p): FFX_degfact(f, T);
   return gerepileupto(av, Flm_to_ZM(f));
+}
+static GEN
+sqf_to_fact(GEN f)
+{
+  long i, j, l = lg(f);
+  GEN P = cgetg(l, t_COL), E = cgetg(l, t_COL);
+  for (i = j = 1; i < l; i++)
+    if (degpol(gel(f,i)))
+    {
+      gel(P,j) = gel(f,i);
+      gel(E,j) = utoi(i); j++;
+    }
+  setlg(P,j);
+  setlg(E,j); return mkvec2(P,E);
+}
+
+GEN
+factormodSQF(GEN f, GEN D)
+{
+  pari_sp av = avma;
+  GEN F, T, p;
+  f = factmod_init(f, &D, &T,&p);
+  if (lg(f) <= 3) { avma = av; return trivial_fact(); }
+  if (!D)
+    F = sqf_to_fact(FFX_factor_squarefree(f, T));
+  else
+  {
+    F = sqf_to_fact(FqX_factor_squarefree(f,T,p));
+    gel(F,1) = FqXC_to_mod(gel(F,1), T,p);
+  }
+  settyp(F,t_MAT); return gerepilecopy(av, F);
+}
+GEN
+factormodDDF(GEN f, GEN D)
+{
+  pari_sp av = avma;
+  GEN F, T, p;
+  f = factmod_init(f, &D, &T,&p);
+  if (lg(f) <= 3) { avma = av; return trivial_fact(); }
+  if (!D) return FFX_ddf(f, T);
+  F = FqX_ddf(f,T,p);
+  gel(F,1) = FqXC_to_mod(gel(F,1), T,p);
+  gel(F,2) = Flc_to_ZC(gel(F,2));
+  settyp(F, t_MAT); return gerepilecopy(av, F);
 }
 
 GEN

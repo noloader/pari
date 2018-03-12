@@ -212,6 +212,16 @@ Mod(38, 41), Mod(40, 41)]~
 
 [2 1]
 
+
+[Mod(1, 2)*x^3 + Mod(1, 2)*x^2 + Mod(1, 2)*x 1]
+
+[                    Mod(1, 2)*x + Mod(1, 2) 2]
+
+
+[            Mod(1, 2)*x^2 + Mod(1, 2)*x 1]
+
+[Mod(1, 2)*x^2 + Mod(1, 2)*x + Mod(1, 2) 2]
+
 [Mod(1, 7), Mod(2, 7), Mod(3, 7), Mod(5, 7), Mod(6, 7)]~
 []~
 [Mod(0, 18446744073709551629)]~
@@ -257,6 +267,8 @@ Mod(38, 41), Mod(40, 41)]~
 [Mod(0, 18446744073709551629) 1]
 
 [;]
+[;]
+[;]
 1
 0
 
@@ -277,4 +289,4 @@ Mod(38, 41), Mod(40, 41)]~
   ***   at top-level: factormod(x,0)
   ***                 ^--------------
   *** factormod: not a prime number in factormod: 0.
-Total time spent: 70
+Total time spent: 40

@@ -693,9 +693,6 @@ GEN     FpX_oneroot_split(GEN fact, GEN p);
 GEN     FpX_roots(GEN f, GEN p);
 GEN     FpX_rootsff(GEN P, GEN T, GEN p);
 GEN     FpX_split_part(GEN f, GEN p);
-GEN     factormod0(GEN f, GEN p,long flag);
-GEN     polrootsmod(GEN f, GEN p);
-GEN     rootmod0(GEN f, GEN p,long flag);
 
 /* FpXQX_factor.c */
 
@@ -742,7 +739,12 @@ long    FqX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt);
 long    FqX_nbfact(GEN u, GEN T, GEN p);
 long    FqX_nbroots(GEN f, GEN T, GEN p);
 GEN     factorff(GEN f, GEN p, GEN a);
+GEN     factormod0(GEN f, GEN p,long flag);
+GEN     factormodDDF(GEN f, GEN D);
+GEN     factormodSQF(GEN f, GEN D);
 GEN     polrootsff(GEN f, GEN p, GEN T);
+GEN     polrootsmod(GEN f, GEN p);
+GEN     rootmod0(GEN f, GEN p,long flag);
 
 /* FpXX.c */
 
