@@ -10508,8 +10508,8 @@ GEN
 mfkohneneigenbasis(GEN mf, GEN bij)
 {
   pari_sp av = avma;
-  GEN mf3, mf30, B0, BE, K, KM, BNEW, BEIGEN, k;
-  long r, i, l0, lE, N4;
+  GEN mf3, mf30, B, KM, M, k;
+  long r, i, l, N4;
   checkMF(mf);
   if (!checkbij_i(bij))
     pari_err_TYPE("mfkohneneigenbasis [bijection]", bij);
@@ -10522,19 +10522,13 @@ mfkohneneigenbasis(GEN mf, GEN bij)
   if (!uissquarefree(N4))
     pari_err_TYPE("mfkohneneigenbasis [N not squarefree]", utoipos(N4));
   r = MF_get_r(mf);
-  K = gel(bij, 3);
-  KM = RgM_mul(K, gel(bij, 2));
-  mf3 = gel(bij, 1);
+  KM = RgM_mul(gel(bij,3), gel(bij,2));
+  mf3 = gel(bij,1);
   mf30 = mfinit_Nkchi(N4, 2*r, MF_get_CHI(mf3), mf_NEW, 0);
-  B0 = MF_get_S(mf30); l0 = lg(B0);
-  BNEW = cgetg(l0, t_MAT);
-  for (i = 1; i < l0; i++)
-    gel(BNEW, i) = RgM_RgC_mul(KM, mftobasis_i(mf3, gel(B0,i)));
-  BE = mfeigenbasis(mf30); lE = lg(BE);
-  BEIGEN = cgetg(lE, t_MAT);
-  for (i = 1; i < lE; i++)
-    gel(BEIGEN, i) = RgM_RgC_mul(KM, mftobasis_i(mf3, gel(BE,i)));
-  return gerepilecopy(av, mkvec3(mf30, BNEW, BEIGEN));
+  B = mfcoefs_mf(mf30, mfsturm_mf(mf3), 1); l = lg(B);
+  M = cgetg(l, t_MAT);
+  for (i=1; i<l; i++) gel(M, i) = RgM_RgC_mul(KM, mftobasis_i(mf3, gel(B,i)));
+  return gerepilecopy(av, mkvec3(mf30, M, RgM_mul(M, MF_get_newforms(mf30))));
 }
 /*************************** End Kohnen ************************************/
 /***************************************************************************/
