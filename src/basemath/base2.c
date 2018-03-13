@@ -206,7 +206,7 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
   }
   S->dTP = P;
   S->dTE = vec_to_vecsmall(E);
-  if (DEBUGLEVEL) timer_printf(&t, "disc. factorisation");
+  if (DEBUGLEVEL>2) timer_printf(&t, "disc. factorisation");
 }
 
 static int
@@ -328,7 +328,7 @@ get_maxord(nfmaxord_t *S, GEN T0, long flag)
       N = S->dT; E[i] = Z_pvalrem(N, gel(P,i), &N);
       for (k=lP, lP=lg(P); k < lP; k++) E[k] = Z_pvalrem(N, gel(P,k), &N);
     } pari_RETRY {
-      if (DEBUGLEVEL) err_printf("Treating p^k = %Ps^%ld\n",P[i],E[i]);
+      if (DEBUGLEVEL>2) err_printf("Treating p^k = %Ps^%ld\n",P[i],E[i]);
       O = shallowconcat(O, mkvec( maxord(gel(P,i),S->T,E[i]) ));
     } pari_ENDCATCH;
   }

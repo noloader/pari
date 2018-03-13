@@ -953,24 +953,32 @@ realgenusfield(GEN Dfac, GEN sq, GEN p)
 static GEN
 FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
 {
+  pari_timer ti;
   pari_sp av = avma;
   long i, l;
-  GEN V, v, R, F, C, N = NULL;
+  GEN V, v, R, C, N = NULL;
   if (degpol(P)==1 || gcmp(gsupnorm(P,DEFAULTPREC), p) >= 0)
     return FpX_oneroot_split(P, p);
   V = realgenusfield(Dfac, sq, p);
   v = gel(V, 1); R = gel(V,2);
   l = lg(v)-1;
+  dbg_mode() timer_start(&ti);
   for(i=1; i<=l; i++)
   {
     ulong d = uel(v,i);
     GEN Q = deg2pol_shallow(gen_1, gen_0, stoi(-(long)d), 1);
     N = N ? polcompositum0(N,Q,2): Q;
   }
-  if (!N) return FpX_oneroot_split(P, p);
-  F = liftpol_shallow(gmael(nffactor(N, P),1,1));
-  C = FpX_oneroot_split(FpXY_evalx(Q_primpart(F), R, p), p);
-  if(signe(FpX_eval(P,C,p))) pari_err_BUG("FpX_classtower_oneroot");
+  if (N)
+  {
+    P = liftpol_shallow(gmael(nffactor(N, P),1,1));
+    P = FpXY_evalx(Q_primpart(P), R, p);
+    dbg_mode() err_printf(ANSI_COLOR_BRIGHT_GREEN " %6ld" ANSI_COLOR_RESET
+                         , timer_delay(&ti));
+  } else
+    dbg_mode() err_printf("       ");
+  C = FpX_oneroot_split(P, p);
+  dbg_mode() err_printf(" %6ld", timer_delay(&ti));
   return gerepileupto(av, C);
 }
 
@@ -1012,16 +1020,16 @@ ecpp_step2(GEN step1, GEN *X0)
     dbg_mode() {
       tt = timer_record(X0, "C1", &ti, 1);
       err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
-      err_printf(ANSI_COLOR_GREEN "      D = %8Ps  poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
-      if (equalii(D, Dprev)) err_printf("  %8ld", tt);
-      if (!equalii(D, Dprev)) err_printf(ANSI_COLOR_BRIGHT_WHITE "  %8ld" ANSI_COLOR_RESET, tt);
+      err_printf(ANSI_COLOR_GREEN " D = %8Ps poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
+      if (equalii(D, Dprev)) err_printf(" %6ld", tt);
+      if (!equalii(D, Dprev)) err_printf(ANSI_COLOR_BRIGHT_WHITE " %6ld" ANSI_COLOR_RESET, tt);
     }
     /* C2: Find a root modulo N of the polynomial obtained in previous step. */
     dbg_mode() timer_start(&ti);
     rt = FpX_classtower_oneroot(HD, Dfac, sq, N);
     dbg_mode() {
       tt = timer_record(X0, "C2", &ti, 1);
-      err_printf("  %8ld", tt);
+      err_printf(" %6ld", tt);
     }
     /* C3: Convert the root obtained from the previous step into
      * the appropriate j-invariant. */
@@ -1029,7 +1037,7 @@ ecpp_step2(GEN step1, GEN *X0)
     J = NDinfor_find_J(N, Dinfo, rt);
     dbg_mode() {
       tt = timer_record(X0, "C3", &ti, 1);
-      err_printf("  %8ld", tt);
+      err_printf(" %6ld", tt);
     }
     /* D1: Find an elliptic curve E with a point P satisfying the theorem. */
     dbg_mode() timer_start(&ti);
@@ -1037,7 +1045,7 @@ ecpp_step2(GEN step1, GEN *X0)
     EP = NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
     dbg_mode() {
       tt = timer_record(X0, "D1", &ti, 1);
-      err_printf("  %8ld", tt);
+      err_printf(" %6ld", tt);
     }
     /* D2: Compute for t and s */
     dbg_mode() timer_start(&ti);
@@ -1046,7 +1054,7 @@ ecpp_step2(GEN step1, GEN *X0)
     P = FpJ_to_FpE(gel(EP, 2), N);
     dbg_mode() {
       tt = timer_record(X0, "D2", &ti, 1);
-      err_printf("  %8ld", tt);
+      err_printf(" %6ld", tt);
     }
 
     gel(step2, i) = mkvec5(N, t, s, a4, P);
