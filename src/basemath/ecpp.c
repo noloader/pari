@@ -613,27 +613,22 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
              param[3]    =          tune
 */
 static GEN
-ecpp_param_set(GEN tune)
+ecpp_param_set(GEN tune, long tunelen)
 {
   pari_sp av = avma;
-  long lgtune = lg(tune);
   GEN param1 = mkvec3(zero_zv(3), zerovec(1), zerovec(1));
   GEN param2 = gen_1;
   GEN param3 = tune;
   GEN param = mkvec3(param1, param2, param3);
-  GEN x = gel(tune, lgtune-1);
-  long  maxsqrt = typ(x) == t_VECSMALL ? uel(x, 1) : itos(gel(x, 1));
-  ulong maxpcdg = typ(x) == t_VECSMALL ? uel(x, 2) : itos(gel(x, 2));
-  ulong tdivexp = typ(x) == t_VECSMALL ? uel(x, 3) : itos(gel(x, 3));
-
-  if (tune != NULL)
-  {
-    ecpp_param_set_maxsqrt(param, maxsqrt);
-    ecpp_param_set_maxdisc(param, maxsqrt*maxsqrt);
-    ecpp_param_set_maxpcdg(param, maxpcdg);
-    ecpp_param_set_disclist(param);
-    ecpp_param_set_tdivexp(param, tdivexp);
-  }
+  GEN x = gel(tune, tunelen);
+  long  maxsqrt = uel(x, 1);
+  ulong maxpcdg = uel(x, 2);
+  ulong tdivexp = uel(x, 3);
+  ecpp_param_set_maxsqrt(param, maxsqrt);
+  ecpp_param_set_maxdisc(param, maxsqrt*maxsqrt);
+  ecpp_param_set_maxpcdg(param, maxpcdg);
+  ecpp_param_set_disclist(param);
+  ecpp_param_set_tdivexp(param, tdivexp);
   return gerepilecopy(av, param);
 }
 
@@ -1402,12 +1397,11 @@ Dmvec_batchfactor_Dmqvec(GEN Dmvec, GEN primorial)
 static GEN
 tunevec(GEN N, GEN param)
 {
-  long e = expi(N);
   GEN T = gel(param,3);
-  if      (e <= 1500) return gel(T,1);
-  else if (e <= 2500) return gel(T,2);
-  else if (e <= 3500) return gel(T,3);
-  return gel(T,4);
+  long e = expi(N), i, l = lg(T)-1;
+  for (i = 1; i < l; i++)
+    if (mael(T,i,4) == 0 || e <= mael(T,i,4)) break;
+  return gel(T,i);
 }
 static long
 tunevec_tdivbd(GEN N, GEN param)
@@ -1752,11 +1746,19 @@ ecpp0(GEN N, GEN param, GEN* X0)
   return answer;
 }
 
+static const long ecpp_tune[4][4]=
+{
+  {  500, 24, 22, 1500 },
+  { 1500, 32, 23, 2500 },
+  { 1500, 32, 24, 3500 },
+  { 3000, 40, 24, 0    }
+};
+
 /* assume N BPSW-pseudoprime */
 GEN
 ecpp(GEN N)
 {
-  long expiN, tunelen;
+  long expiN, i, tunelen;
   GEN param, answer, garbage, tune;
 
   /* Check if we should even prove it. */
@@ -1767,22 +1769,23 @@ ecpp(GEN N)
 
   /* tuning for 1500, 2500, 3500, 4500 bits; ecpp is supposed to be faster than
    * isprime on average if N has more than 1500 bits */
-  if (expiN <= 1500) tunelen = 1;
-  else if (expiN <= 2500) tunelen = 2;
-  else if (expiN <= 3500) tunelen = 3;
-  else tunelen = 4;
 
+  for (i = 0; ; i++)
+  {
+    long thr = ecpp_tune[i][3];
+    if (thr == 0 || expiN <= thr) break;
+  }
+  tunelen = i+1;
   tune = cgetg(tunelen+1, t_VEC);
-  if (tunelen >= 1) gel(tune, 1) = mkvecsmall3( 500, 24, 22);
-  if (tunelen >= 2) gel(tune, 2) = mkvecsmall3(1500, 32, 23);
-  if (tunelen >= 3) gel(tune, 3) = mkvecsmall3(1500, 32, 24);
-  if (tunelen >= 4) gel(tune, 4) = mkvecsmall3(3000, 40, 24);
+  for (i=1; i <= tunelen; i++)
+    gel(tune, i) = mkvecsmall4(ecpp_tune[i-1][0], ecpp_tune[i-1][1],
+                               ecpp_tune[i-1][2], ecpp_tune[i-1][3]);
 
   while (answer == NULL)
   {
     pari_timer T;
     dbg_mode() timer_start(&T);
-    param = ecpp_param_set( tune );
+    param = ecpp_param_set( tune, tunelen );
     dbg_mode() {
       err_printf(ANSI_COLOR_BRIGHT_WHITE "\n%Ps" ANSI_COLOR_RESET,
                  gel(tune, tunelen));
