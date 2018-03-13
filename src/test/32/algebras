@@ -2066,6 +2066,12 @@ testing simplify: quatalg csa over Q
   ***   at top-level: algaut(al)
   ***                 ^----------
   *** algaut: incorrect type in alg_get_aut [non-cyclic algebra] (t_VEC).
+  ***   at top-level: algtableinit([Mat(1)],1)
+  ***                 ^------------------------
+  *** algtableinit: not a prime number in algtableinit: 1.
+  ***   at top-level: algtableinit([Mat(1)],4)
+  ***                 ^------------------------
+  *** algtableinit: not a prime number in algtableinit: 4.
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
@@ -2087,4 +2093,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 740
+Total time spent: 724

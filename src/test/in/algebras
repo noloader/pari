@@ -1899,6 +1899,8 @@ algsqr(al,[Mod(1,y),Mod(2,y)]~)
 alfail = alginit(nf, [0,0], 'x);
 algb(al);
 algaut(al);
+algtableinit([Mat(1)],1)
+algtableinit([Mat(1)],4)
 \\end bad inputs
 
 print("nfgrunwaldwang SEGV #1669");

@@ -4419,7 +4419,6 @@ algtableinit_i(GEN mt0, GEN p)
   GEN al, mt;
   long i, n;
 
-  if (p && typ(p) != t_INT) pari_err_TYPE("algtableinit",p);
   if (p && !signe(p)) p = NULL;
   mt = check_mt(mt0,p);
   if (!mt) pari_err_TYPE("algtableinit", mt0);
@@ -4439,6 +4438,11 @@ GEN
 algtableinit(GEN mt0, GEN p)
 {
   pari_sp av = avma;
+  if (p)
+  {
+    if (typ(p) != t_INT) pari_err_TYPE("algtableinit",p);
+    if (signe(p) && !BPSW_psp(p)) pari_err_PRIME("algtableinit",p);
+  }
   return gerepilecopy(av, algtableinit_i(mt0, p));
 }
 
