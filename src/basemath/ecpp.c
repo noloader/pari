@@ -272,7 +272,7 @@ producttree_find_partialprod(GEN tree, GEN v, ulong a)
   return b;
 }
 
-/*  Input: x, 21 <= x <= 30
+/*  Input: x, 20 <= x <= 30
    Output: v, a vector whose ith component is the product of all primes below 2^x
 */
 static GEN
@@ -283,9 +283,9 @@ primorial_vec(ulong x)
   GEN v = primes_upto_zv(1UL << x);
   GEN tree = ZV_producttree(v);
   /* ind[i] is the number such that the ind[i]th prime number is the largest prime number below 2^(20+i) */
-  GEN ind = mkvecsmalln(10, 155611L, 295947L, 564163L, 1077871L, 2063689L,
+  GEN ind = mkvecsmalln(11, 82025L, 155611L, 295947L, 564163L, 1077871L, 2063689L,
                            3957809L, 7603553L, 14630843L, 28192750L, 54400028L);
-  long y = x-20;
+  long y = x-19;
   GEN ret = cgetg(y+1, t_VEC);
   for (i = 1; i <= y; i++) gel(ret, i) = producttree_find_partialprod(tree, v, uel(ind, i));
   return gerepilecopy(av, ret);
@@ -1429,7 +1429,7 @@ static GEN
 Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
 {
   pari_timer ti;
-  GEN curr_primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param) - 20);
+  GEN curr_primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param) - 19);
   GEN Dmqvec;
 
   /* B1: Factor by batch. */
@@ -1754,12 +1754,22 @@ ecpp0(GEN N, GEN param, GEN* X0)
   return answer;
 }
 
-static const long ecpp_tune[4][4]=
+static const long ecpp_tune[][4]=
 {
-  {  500, 24, 22, 1500 },
-  { 1500, 32, 23, 2500 },
-  { 1500, 32, 24, 3500 },
-  { 3000, 40, 24, 0    }
+  {  100,  2,  20,   500 },
+  {  350, 14,  21,  1000 },
+  {  450, 18,  21,  1500 },
+  {  750, 22,  22,  2000 },
+  {  900, 26,  23,  2500 },
+  { 1000, 32,  23,  3000 },
+  { 1200, 38,  24,  3500 },
+  { 1400, 44,  24,  4000 },
+  { 1800, 56,  24,  5000 },
+  { 2200, 68,  25,  6000 },
+  { 2600, 80,  25,  7000 },
+  { 3000, 92,  25,  8000 },
+  { 3400, 104, 26,  9000 },
+  { 3800, 116, 26,     0 }
 };
 
 /* assume N BPSW-pseudoprime */
@@ -1774,9 +1784,6 @@ ecpp(GEN N)
   if (expiN < 64) return N;
 
   param = answer = garbage = NULL;
-
-  /* tuning for 1500, 2500, 3500, 4500 bits; ecpp is supposed to be faster than
-   * isprime on average if N has more than 1500 bits */
 
   for (i = 0; ; i++)
   {
