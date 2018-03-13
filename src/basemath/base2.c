@@ -2546,7 +2546,7 @@ get_prid(GEN x)
 static GEN
 to_ff_init(GEN nf, GEN *pr, GEN *T, GEN *p, int zk)
 {
-  GEN modpr = (typ(*pr) == t_COL)? *pr: modprinit(nf, *pr, zk);
+  GEN modpr = ok_modpr(*pr)? *pr: modprinit(nf, *pr, zk);
   *T = modpr_get_T(modpr);
   *pr = modpr_get_pr(modpr);
   *p = pr_get_p(*pr); return modpr;

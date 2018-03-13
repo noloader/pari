@@ -169,4 +169,7 @@ y
   *** matsolve: impossible inverse in gauss: [1, 1; 1, 1].
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 0, 0, 0, 0, 0, 0, 0]~
-Total time spent: 145
+  ***   at top-level: nfmodpr(nfinit(x),[],[]~)
+  ***                 ^-------------------------
+  *** nfmodpr: incorrect type in checkprid (t_COL).
+Total time spent: 142
