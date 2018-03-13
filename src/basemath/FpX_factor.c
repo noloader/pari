@@ -731,8 +731,13 @@ FpX_ddf_Shoup(GEN T, GEN XP, GEN p)
   F = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
   {
-    gel(F,j) = FpX_gcd(Tr, gel(h,j), p);
-    if (degpol(gel(F,j))) Tr = FpX_div(Tr, gel(F,j), p);
+    GEN u = FpX_gcd(Tr, gel(h,j), p);
+    if (degpol(u))
+    {
+      u = FpX_normalize(u, p);
+      Tr = FpX_div(Tr, u, p);
+    }
+    gel(F,j) = u;
   }
   if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf_Shoup: F");
   f = const_vec(n, pol_1(v));
@@ -742,7 +747,12 @@ FpX_ddf_Shoup(GEN T, GEN XP, GEN p)
     for (i=l-1; i >= 0; i--)
     {
       GEN u = FpX_gcd(e, FpX_sub(gel(g, j), gel(b, i+1), p), p);
-      if (degpol(u)) { gel(f, l*j-i) = u; e = FpX_div(e, u, p); }
+      if (degpol(u))
+      {
+        u = FpX_normalize(u, p);
+        gel(f, l*j-i) = u;
+        e = FpX_div(e, u, p);
+      }
       if (!degpol(e)) break;
     }
   }
@@ -1899,8 +1909,13 @@ Flx_ddf_Shoup(GEN T, GEN XP, ulong p)
   F = cgetg(m+1, t_VEC);
   for (j = 1; j <= m; j++)
   {
-    gel(F, j) = Flx_gcd(Tr, gel(h, j), p);
-    Tr = Flx_div(Tr, gel(F,j), p);
+    GEN u = Flx_gcd(Tr, gel(h, j), p);
+    if (degpol(u))
+    {
+      u = Flx_normalize(u, p);
+      Tr = Flx_div(Tr, u, p);
+    }
+    gel(F, j) = u;
   }
   if (DEBUGLEVEL>=7) timer_printf(&ti,"Flx_ddf_Shoup: F");
   f = const_vec(n, pol1_Flx(v));
