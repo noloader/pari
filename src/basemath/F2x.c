@@ -2013,24 +2013,12 @@ Kronecker_to_F2xqX(GEN z, GEN T)
 /***********************************************************************/
 
 GEN
-FlxXC_to_F2xXC(GEN B)
-{
-  long i, l = lg(B);
-  GEN z = cgetg(l, t_COL);
-  for (i=1; i<l; i++)
-    gel(z,i) = FlxX_to_F2xX(gel(B,i));
-  return z;
-}
+FlxXC_to_F2xXC(GEN x)
+{ pari_APPLY_type(t_COL, FlxX_to_F2xX(gel(x,i))); }
 
 GEN
-F2xXC_to_ZXXC(GEN B)
-{
-  long i, l = lg(B);
-  GEN z = cgetg(l, t_COL);
-  for (i=1; i<l; i++)
-    gel(z,i) = F2xX_to_ZXX(gel(B,i));
-  return z;
-}
+F2xXC_to_ZXXC(GEN x)
+{ pari_APPLY_type(t_COL, F2xX_to_ZXX(gel(x,i))); }
 
 /***********************************************************************/
 /**                                                                   **/
