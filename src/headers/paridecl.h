@@ -3193,6 +3193,7 @@ GEN     FFM_mul(GEN M, GEN N, GEN ff);
 long    FFM_rank(GEN M, GEN ff);
 GEN     FFM_suppl(GEN M, GEN ff);
 GEN     FFX_factor(GEN f, GEN x);
+GEN     FFX_factor_squarefree(GEN f, GEN x);
 long    FFX_ispower(GEN Pf, long k, GEN ff, GEN *pt_r);
 GEN     FFX_mul(GEN Pf, GEN Qf, GEN ff);
 GEN     FFX_preimage(GEN x, GEN F, GEN y);

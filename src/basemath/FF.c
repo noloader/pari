@@ -1615,6 +1615,10 @@ FFX_roots(GEN Pf, GEN ff)
 }
 
 static GEN
+raw_to_FFXC(GEN x, GEN ff)
+{ pari_APPLY_type(t_COL, raw_to_FFX(gel(x,i), ff)); }
+
+static GEN
 raw_to_FFX_fact(GEN F, GEN ff)
 {
   GEN y, u, v;
@@ -1777,6 +1781,28 @@ FFX_factor(GEN Pf, GEN ff)
     r = FlxqX_factor(P, T, pp);
   }
   return gerepilecopy(av, raw_to_FFX_fact(r, ff));
+}
+
+GEN
+FFX_factor_squarefree(GEN Pf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_factor_squarefree(P, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_factor_squarefree(P, T);
+    break;
+  default:
+    r = FlxqX_factor_squarefree(P, T, pp);
+  }
+  return gerepilecopy(av, raw_to_FFXC(r, ff));
 }
 
 GEN

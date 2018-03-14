@@ -12057,6 +12057,11 @@ polynomial \kbd{f} over the definition field of the \typ{FFELT} \kbd{a}. The
 coefficients of \kbd{f} must be of type \typ{INT}, \typ{INTMOD} or \typ{FFELT}
 and compatible with \kbd{a}.
 
+\fun{GEN}{FFX_factor_squarefree}{GEN f, GEN a} returns the squarefree
+factorization of the univariate polynomial \kbd{f} over the definition field of
+the \typ{FFELT} \kbd{a}.  This is a vector $[u_1,\dots,u_k]$ of pairwise
+coprime \kbd{FFX} such that $u_k \neq 1$ and $f = \prod u_i^i$.
+
 \fun{GEN}{FFX_roots}{GEN f, GEN a} returns the roots (\typ{FFELT})
 of the univariate polynomial \kbd{f} over the definition field of the
 \typ{FFELT} \kbd{a}. The coefficients of \kbd{f} must be of type \typ{INT},
