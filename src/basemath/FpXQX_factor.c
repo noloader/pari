@@ -1271,11 +1271,11 @@ FlxqX_Frobenius_deflate(GEN S, GEN ixp, GEN T, ulong p)
 
 /* Adapted from Shoup NTL */
 static GEN
-FlxqX_factor_squarefree(GEN f, GEN xp, GEN T, ulong p)
+FlxqX_factor_squarefree_i(GEN f, GEN xp, GEN T, ulong p)
 {
   pari_sp av = avma;
   GEN r, t, v, tv;
-  long q, n = degpol(f);
+  long i, q, n = degpol(f);
   GEN u = const_vec(n+1, pol1_FlxX(varn(f),get_Flx_var(T)));
   GEN ixp = NULL;
   for(q = 1;;q *= p)
@@ -1306,7 +1306,15 @@ FlxqX_factor_squarefree(GEN f, GEN xp, GEN T, ulong p)
     if (!ixp) ixp = FlxqX_invFrobenius(xp, T, p);
     f = FlxqX_Frobenius_deflate(r, ixp, T, p);
   }
-  return gerepilecopy(av, u);
+  for (i = n; i; i--)
+    if (degpol(gel(u,i))) break;
+  setlg(u,i+1); return gerepilecopy(av, u);
+}
+
+GEN
+FlxqX_factor_squarefree(GEN f, GEN T, ulong p)
+{
+  return FlxqX_factor_squarefree_i(f, NULL, T, p);
 }
 
 long
@@ -1314,17 +1322,17 @@ FlxqX_ispower(GEN f, ulong k, GEN T, ulong p, GEN *pt_r)
 {
   pari_sp av = avma;
   GEN lc, F;
-  long i, n = degpol(f), v = varn(f);
+  long i, l, n = degpol(f), v = varn(f);
   if (n % k) return 0;
   lc = Flxq_sqrtn(leading_coeff(f), stoi(k), T, p, NULL);
   if (!lc) { av = avma; return 0; }
-  F = FlxqX_factor_squarefree(f, NULL, T, p);
-  for(i=1; i<=n; i++)
+  F = FlxqX_factor_squarefree_i(f, NULL, T, p); l = lg(F)-1;
+  for(i=1; i<=l; i++)
     if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
   if (pt_r)
   {
     GEN r = scalarpol(lc, v), s = pol1_FlxX(v, T[1]);
-    for(i=n; i>=1; i--)
+    for(i=l; i>=1; i--)
     {
       if (i%k) continue;
       s = FlxqX_mul(s, gel(F,i), T, p);
@@ -1408,7 +1416,7 @@ FlxqX_roots_i(GEN S, GEN T, ulong p)
   if (!M)
   {
     GEN xp = Flx_Frobenius(T, p);
-    GEN F, V = FlxqX_factor_squarefree(S, xp, T, p);
+    GEN F, V = FlxqX_factor_squarefree_i(S, xp, T, p);
     long i, j, l = lg(V);
     F = cgetg(l, t_VEC);
     for (i=1, j=1; i < l; i++)
@@ -1885,7 +1893,7 @@ FlxqX_Berlekamp_i(GEN f, GEN T, ulong p)
   if (FlxY_degreex(f) <= 0) return Flx_factorff_i(FlxX_to_Flx(f), T, p);
   if (degpol(f)==2) return FlxqX_factor_2(f, T, p);
   xp = Flx_Frobenius(T, p);
-  V = FlxqX_factor_squarefree(f, xp, T, p); lV = lg(V);
+  V = FlxqX_factor_squarefree_i(f, xp, T, p); lV = lg(V);
 
   /* to hold factors and exponents */
   t = cgetg(d+1,t_VEC);
@@ -2157,7 +2165,7 @@ FlxqX_factor_Cantor(GEN f, GEN T, ulong p)
   }
   if (FlxY_degreex(f) <= 0) return Flx_factorff_i(FlxX_to_Flx(f), T, p);
   xp = Flx_Frobenius(T, p);
-  V = FlxqX_factor_squarefree(f, xp, get_Flx_mod(T), p);
+  V = FlxqX_factor_squarefree_i(f, xp, get_Flx_mod(T), p);
   l = lg(V);
   F = cgetg(l, t_VEC);
   E = cgetg(l, t_VEC);

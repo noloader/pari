@@ -703,6 +703,7 @@ GEN     Flx_ffisom(GEN P,GEN Q,ulong l);
 GEN     Flxq_ffisom_inv(GEN S,GEN Tp, ulong p);
 GEN     FlxqX_Frobenius(GEN S, GEN T, ulong p);
 GEN     FlxqX_factor(GEN x, GEN T, ulong p);
+GEN     FlxqX_factor_squarefree(GEN x, GEN T, ulong p);
 long    FlxqX_ispower(GEN f, ulong k, GEN T, ulong p, GEN *pt_r);
 long    FlxqX_is_squarefree(GEN P, GEN T, ulong p);
 long    FlxqX_nbfact(GEN S, GEN T, ulong p);

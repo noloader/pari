@@ -397,6 +397,7 @@ BA  155- qfisom: allow to give the automorphism group of the second lattice
     161- new GP function forprimestep
     162- [libpari] RgX_sylvestermatrix
     163- [libpari] Rg_to_Fq
+BA  164- [libpari] FlxqX_factor_squarefree
 
   Changed
       1- rewrite bnfnarrow
