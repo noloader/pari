@@ -944,7 +944,7 @@ FpX_factor_Yun(GEN T, GEN p)
 GEN
 FpX_factor_squarefree(GEN T, GEN p)
 {
-  if (abscmpiu(p, degpol(T)) <= 0)
+  if (lgefint(p)==3)
   {
     ulong pp = (ulong)p[2];
     GEN u = Flx_factor_squarefree(ZX_to_Flx(T,pp), pp);
