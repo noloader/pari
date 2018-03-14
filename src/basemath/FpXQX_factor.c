@@ -1100,12 +1100,12 @@ F2xqX_easyroots(GEN f, GEN T)
 }
 
 /* Adapted from Shoup NTL */
-static GEN
+GEN
 F2xqX_factor_squarefree(GEN f, GEN T)
 {
   pari_sp av = avma;
   GEN r, t, v, tv;
-  long q, n = degpol(f);
+  long i, q, n = degpol(f);
   GEN u = const_vec(n+1, pol1_F2xX(varn(f), get_F2x_var(T)));
   for(q = 1;;q *= 2)
   {
@@ -1133,7 +1133,9 @@ F2xqX_factor_squarefree(GEN f, GEN T)
     }
     f = F2xqX_Frobenius_deflate(r, T);
   }
-  return gerepilecopy(av, u);
+  for (i = n; i; i--)
+    if (degpol(gel(u,i))) break;
+  setlg(u,i+1); return gerepilecopy(av, u);
 }
 
 long
@@ -1141,17 +1143,17 @@ F2xqX_ispower(GEN f, long k, GEN T, GEN *pt_r)
 {
   pari_sp av = avma;
   GEN lc, F;
-  long i, n = degpol(f), v = varn(f);
+  long i, l, n = degpol(f), v = varn(f);
   if (n % k) return 0;
   lc = F2xq_sqrtn(leading_coeff(f), stoi(k), T, NULL);
   if (!lc) { av = avma; return 0; }
-  F = F2xqX_factor_squarefree(f, T);
-  for(i=1; i<=n; i++)
+  F = F2xqX_factor_squarefree(f, T); l = lg(F)-1;
+  for(i=1; i<=l; i++)
     if (i%k && degpol(gel(F,i))) { avma = av; return 0; }
   if (pt_r)
   {
     GEN r = scalarpol(lc, v), s = pol1_F2xX(v, T[1]);
-    for(i=n; i>=1; i--)
+    for(i=l; i>=1; i--)
     {
       if (i%k) continue;
       s = F2xqX_mul(s, gel(F,i), T);
