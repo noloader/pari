@@ -3395,6 +3395,11 @@ $[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ modulo \kbd{m} as a \typ{VEC}
 \fun{GEN}{Fp_invsafe}{GEN a, GEN m} as \kbd{Fp\_inv}, but return
 \kbd{NULL} if \kbd{a} is not invertible.
 
+\fun{GEN}{Fp_invgen}{GEN x, GEN m, GEN *pg} set \kbd{*pg} to
+$g = \gcd(x,m)$ and return $u$ in $(\Z/m\Z)^*$ such that $x u = g$ modulo $m$.
+We have $g = 1$ if and only if $x$ is invertible, and in this case $u$
+is its inverse.
+
 \fun{GEN}{FpV_inv}{GEN x, GEN m} $x$ being a vector of \typ{INT}s, return
 the vector of inverses of the $x[i]$ mod $m$. The routine uses Montgomery's
 trick, and involves a single inversion mod $m$, plus $3(N-1)$ multiplications

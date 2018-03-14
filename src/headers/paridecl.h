@@ -1864,6 +1864,7 @@ long    kross(long x, long y);
 long    kroui(ulong x, GEN y);
 long    krouu(ulong x, ulong y);
 GEN     lcmii(GEN a, GEN b);
+GEN     Fp_invgen(GEN x, GEN N, GEN *pd);
 long    logint0(GEN B, GEN y, GEN *ptq);
 long    logintall(GEN B, GEN y, GEN *ptq);
 GEN     mpfact(long n);

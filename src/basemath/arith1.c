@@ -2347,6 +2347,29 @@ lcmii(GEN x, GEN y)
   b = mulii(x,y); setabssign(b); return gerepileuptoint(av, b);
 }
 
+/* given x in assume 0 < x < N; return u in (Z/NZ)^* such that u x = gcd(x,N) (mod N);
+ * set *pd = gcd(x,N) */
+GEN
+Fp_invgen(GEN x, GEN N, GEN *pd)
+{
+  GEN d, d0, e, v;
+  if (lgefint(N) == 3)
+  {
+    ulong dd, NN = N[2], xx = umodiu(x,NN);
+    if (!xx) { *pd = N; return gen_0; }
+    xx = Fl_invgen(xx, NN, &dd);
+    *pd = utoi(dd); return utoi(xx);
+  }
+  *pd = d = bezout(x, N, &v, NULL);
+  if (equali1(d)) return v;
+  /* vx = gcd(x,N) (mod N), v coprime to N/d but need not be coprime to N */
+  e = diviiexact(N,d);
+  d0 = Z_ppo(d, e); /* d = d0 d1, d0 coprime to N/d, rad(d1) | N/d */
+  if (equali1(d0)) return v;
+  if (!equalii(d,d0)) e = lcmii(e, diviiexact(d,d0));
+  return Z_chinese_coprime(v, gen_1, e, d0, mulii(e,d0));
+}
+
 /*********************************************************************/
 /**                                                                 **/
 /**                      CHINESE REMAINDERS                         **/

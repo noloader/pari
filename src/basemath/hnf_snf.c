@@ -1149,7 +1149,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   const long center = (flag & hnf_CENTER);
   long moddiag = (flag & hnf_MODID);
   long li, co, i, j, k, def, ldef;
-  GEN a, b, p1, p2, u, dm2, LDM;
+  GEN u, dm2, LDM;
 
   co = lg(x);
   if (co == 1)
@@ -1172,7 +1172,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
       if ((lgefint(dm) == 3 || !C || (ulong)expi(dm) < C) && BPSW_psp(dm))
         return ZM_hnfmodprime(x, dm);
     }
-    LDM= const_vecsmall(li-1, lgefint(dm));
+    LDM = const_vecsmall(li-1, lgefint(dm));
     dm2 = shifti(dm, -1);
     dm = const_vec(li-1,dm);
     dm2= const_vec(li-1,dm2);
@@ -1202,16 +1202,25 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   for (def = co-1,i = li-1; i > ldef; i--,def--)
   {
     GEN d = gel(dm,i), d2 = gel(dm2,i);
-    gcoeff(x,i,def) = centermodii(gcoeff(x,i,def), d,d2);
-    for (j = def-1; j; j--)
+    int add_N = !moddiag;
+    for (j = 1; j < def; j++)
     {
-      gcoeff(x,i,j) = centermodii(gcoeff(x,i,j), d,d2);
-      a = gcoeff(x,i,j);
+      GEN p1, p2, b, a = gcoeff(x,i,j) = centermodii(gcoeff(x,i,j), d,d2);
       if (!signe(a)) continue;
 
-      k = (j==1)? def: j-1;
-      gcoeff(x,i,k) = centermodii(gcoeff(x,i,k), d,d2);
-      ZC_elem(a,gcoeff(x,i,k), x,NULL, j,k);
+      k = j+1;
+      b = gcoeff(x,i,k) = centermodii(gcoeff(x,i,k), d,d2);
+      if (!signe(b)) { swap(gel(x,j), gel(x,k)); continue; }
+      if (add_N)
+      { /* ensure the moving pivot on row i divides d from now on */
+        add_N = 0;
+        if (!equali1(a))
+        {
+          GEN u = Fp_invgen(a, d, &a);
+          gel(x,j) = vecmodii(ZC_Z_mul(gel(x,j), u), dm);
+        }
+      }
+      ZC_elem(a,b, x, NULL, j,k);
       p1 = gel(x,j);
       p2 = gel(x,k);
       /* prevent coeffs explosion: reduce mod dm when lg() > ldm */
@@ -1274,7 +1283,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   }
   else
   {
-    b = gel(dm,1);
+    GEN b = gel(dm,1);
     for (i = li-1; i > 0; i--)
     {
       GEN d = bezout(gcoeff(x,i,i),b, &u,NULL);
@@ -1288,7 +1297,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
 
   if (!moddiag)
   { /* compute optimal value for dm */
-    b = cgetg(li, t_VEC); gel(b,1) = gcoeff(x,1,1);
+    GEN b = cgetg(li, t_VEC); gel(b,1) = gcoeff(x,1,1);
     for (i = 2; i < li; i++) gel(b,i) = mulii(gel(b,i-1), gcoeff(x,i,i));
     dm = b;
   }
@@ -1299,7 +1308,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
     if (signe(diag) < 0) { gel(x,i) = ZC_neg(gel(x,i)); diag = gcoeff(x,i,i); }
     for (j = i+1; j < li; j++)
     {
-      b = gcoeff(x,i,j);
+      GEN p1, b = gcoeff(x,i,j);
       b = center? diviiround(b,diag): truedivii(b, diag);
       if (!signe(b)) continue;
       togglesign(b);
