@@ -2265,6 +2265,9 @@ FqX_deriv(GEN f, /*unused*/GEN T, GEN p) { (void)T; return FpXX_deriv(f, p); }
 INLINE GEN
 FqX_factor(GEN f, GEN T, GEN p) { return T?FpXQX_factor(f, T, p): FpX_factor(f, p); }
 INLINE GEN
+FqX_factor_squarefree(GEN f, GEN T, GEN p)
+{ return T ? FpXQX_factor_squarefree(f, T, p): FpX_factor_squarefree(f, p); }
+INLINE GEN
 FqX_roots(GEN f, GEN T, GEN p) { return T?FpXQX_roots(f, T, p): FpX_roots(f, p); }
 INLINE GEN
 FqX_to_mod(GEN f, GEN T, GEN p) { return T?FpXQX_to_mod(f, T, p): FpX_to_mod(f, p); }
