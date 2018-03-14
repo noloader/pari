@@ -1460,6 +1460,26 @@ FpXQX_factor_Yun(GEN f, GEN T, GEN p)
   setlg(u, j+1); return gerepilecopy(av, u);
 }
 
+GEN
+FpXQX_factor_squarefree(GEN f, GEN T, GEN p)
+{
+  if (lgefint(p)==3)
+  {
+    pari_sp av = avma;
+    ulong pp = p[2];
+    GEN M;
+    long vT = get_FpX_var(T);
+    if (pp==2)
+    {
+      M = F2xqX_factor_squarefree(ZXX_to_F2xX(f, vT),  ZX_to_F2x(get_FpX_mod(T)));
+      return gerepileupto(av, F2xXC_to_ZXXC(M));
+    }
+    M = FlxqX_factor_squarefree(ZXX_to_FlxX(f, pp, vT),  ZXT_to_FlxT(T, pp), pp);
+    return gerepileupto(av, FlxXC_to_ZXXC(M));
+  }
+  return FpXQX_factor_Yun(f, T, p);
+}
+
 long
 FpXQX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt_r)
 {
