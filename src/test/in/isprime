@@ -20,7 +20,7 @@ p=2^256+5721;
 isprime(p)
 addprimes([38430950967054905712282083,237470764391881188851670682297783,1029859]);
 isprime(p,1)
-setrand(1); c=primecert(p)
+setrand(1); c=primecert(p);apply(x->x[1],c)
 primecertisvalid(c)
 c[1][1]++; primecertisvalid(c)
 c=primecert(p,1)
