@@ -1149,7 +1149,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   const long center = (flag & hnf_CENTER);
   long moddiag = (flag & hnf_MODID);
   long li, co, i, j, k, def, ldef;
-  GEN u, dm2, LDM;
+  GEN u, LDM;
 
   co = lg(x);
   if (co == 1)
@@ -1173,21 +1173,14 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
         return ZM_hnfmodprime(x, dm);
     }
     LDM = const_vecsmall(li-1, lgefint(dm));
-    dm2 = shifti(dm, -1);
     dm = const_vec(li-1,dm);
-    dm2= const_vec(li-1,dm2);
   }
   else
   {
     if (lg(dm) != li) pari_err_DIM("ZM_hnfmod");
     moddiag = 1;
-    dm2 = cgetg(li, t_VEC);
     LDM = cgetg(li, t_VECSMALL);
-    for (i=1; i<li; i++)
-    {
-      gel(dm2,i) = shifti(gel(dm,i),-1);
-      LDM[i] = lgefint(gel(dm,i));
-    }
+    for (i=1; i<li; i++) LDM[i] = lgefint(gel(dm,i));
   }
   av = avma;
   x = RgM_shallowcopy(x);
@@ -1201,15 +1194,15 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   }
   for (def = co-1,i = li-1; i > ldef; i--,def--)
   {
-    GEN d = gel(dm,i), d2 = gel(dm2,i);
+    GEN d = gel(dm,i);
     int add_N = !moddiag;
     for (j = 1; j < def; j++)
     {
-      GEN p1, p2, b, a = gcoeff(x,i,j) = centermodii(gcoeff(x,i,j), d,d2);
+      GEN p1, p2, b, a = gcoeff(x,i,j) = remii(gcoeff(x,i,j), d);
       if (!signe(a)) continue;
 
       k = j+1;
-      b = gcoeff(x,i,k) = centermodii(gcoeff(x,i,k), d,d2);
+      b = gcoeff(x,i,k) = remii(gcoeff(x,i,k), d);
       if (!signe(b)) { swap(gel(x,j), gel(x,k)); continue; }
       if (add_N)
       { /* ensure the moving pivot on row i divides d from now on */
@@ -1226,10 +1219,8 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
       /* prevent coeffs explosion: reduce mod dm when lg() > ldm */
       for (k = 1; k < i; k++)
       {
-        if (lgefint(gel(p1,k)) > LDM[k])
-          gel(p1,k) = centermodii(gel(p1,k), gel(dm,k),gel(dm2,k));
-        if (lgefint(gel(p2,k)) > LDM[k])
-          gel(p2,k) = centermodii(gel(p2,k), gel(dm,k),gel(dm2,k));
+        if (lgefint(gel(p1,k)) > LDM[k]) gel(p1,k) = remii(gel(p1,k),gel(dm,k));
+        if (lgefint(gel(p2,k)) > LDM[k]) gel(p2,k) = remii(gel(p2,k),gel(dm,k));
       }
     }
     if (gc_needed(av,1))
