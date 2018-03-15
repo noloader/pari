@@ -775,6 +775,7 @@ GEN     FpXX_Fp_mul(GEN x, GEN y, GEN p);
 GEN     FpXX_FpX_mul(GEN x, GEN y, GEN p);
 GEN     FpXX_add(GEN x, GEN y, GEN p);
 GEN     FpXX_deriv(GEN P, GEN p);
+GEN     FpXX_integ(GEN P, GEN p);
 GEN     FpXX_mulu(GEN P, ulong u, GEN p);
 GEN     FpXX_neg(GEN x, GEN p);
 GEN     FpXX_red(GEN z, GEN p);

@@ -169,6 +169,25 @@ FpXX_deriv(GEN P, GEN p)
   return FpXX_renormalize(res, l);
 }
 
+GEN
+FpXX_integ(GEN P, GEN p)
+{
+  long i, l = lg(P);
+  GEN res;
+
+  if (l == 2) return pol_0(varn(P));
+  res = cgetg(l+1, t_POL);
+  res[1] = P[1];
+  gel(res,2) = gen_0;
+  for (i=3; i<=l ; i++)
+  {
+    GEN x = gel(P,i-1);
+    GEN i1 = Fp_inv(utoi(i-2), p);
+    gel(res,i) = typ(x)==t_INT? Fp_mul(x,i1,p): FpX_Fp_mul(x,i1,p);
+  }
+  return FpXX_renormalize(res, l+1);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                             (Fp[X]/(Q))[Y]                      */
