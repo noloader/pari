@@ -1147,7 +1147,8 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
 {
   pari_sp av;
   const long center = (flag & hnf_CENTER);
-  long moddiag = (flag & hnf_MODID);
+  const long modfixed = typ(dm) == t_INT; /* triangularize mod fixed d */
+  const long moddiag = (flag & hnf_MODID) || !modfixed;
   long li, co, i, j, k, def, ldef;
   GEN u, LDM;
 
@@ -1164,21 +1165,16 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
     if (typ(dm) != t_INT && lg(dm) != li) pari_err_DIM("ZM_hnfmod");
     return cgetg(1,t_MAT);
   }
-  if (typ(dm) == t_INT)
+  if (modfixed)
   {
-    if (flag == hnf_MODID)
-    { /* if log p >> n^3, ispsp dominates hnf ! */
-      ulong C = itou_or_0(muliu(sqru(co-1), 2*(li-1)));
-      if ((lgefint(dm) == 3 || !C || (ulong)expi(dm) < C) && BPSW_psp(dm))
-        return ZM_hnfmodprime(x, dm);
-    }
+    if (flag == hnf_MODID && lgefint(dm) == 3 && uisprime(dm[2]))
+      return ZM_hnfmodprime(x, dm);
     LDM = const_vecsmall(li-1, lgefint(dm));
     dm = const_vec(li-1,dm);
   }
   else
   {
     if (lg(dm) != li) pari_err_DIM("ZM_hnfmod");
-    moddiag = 1;
     LDM = cgetg(li, t_VECSMALL);
     for (i=1; i<li; i++) LDM[i] = lgefint(gel(dm,i));
   }
@@ -1195,7 +1191,7 @@ ZM_hnfmodall_i(GEN x, GEN dm, long flag)
   for (def = co-1,i = li-1; i > ldef; i--,def--)
   {
     GEN d = gel(dm,i);
-    int add_N = !moddiag;
+    long add_N = modfixed;
     for (j = 1; j < def; j++)
     {
       GEN p1, p2, b, a = gcoeff(x,i,j) = remii(gcoeff(x,i,j), d);
