@@ -2298,6 +2298,14 @@ INLINE GEN
 FqXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
 { return T? FpXQXQ_pow(x,n,S,T,p): FpXQ_pow(x,n,S,p); }
 
+/*FqXn*/
+INLINE GEN
+FqXn_mul(GEN x, GEN y, long n, GEN T, GEN p)
+{ return T? FpXQXn_mul(x, y, n, T, p): FpXn_mul(x, y, n, p); }
+INLINE GEN
+FqXn_sqr(GEN x, long n, GEN T, GEN p)
+{ return T? FpXQXn_sqr(x,n,T,p): FpXn_sqr(x,n,p); }
+
 /*FpXQ*/
 INLINE GEN
 FpXQ_add(GEN x,GEN y,GEN T/*unused*/,GEN p)

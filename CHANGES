@@ -381,7 +381,7 @@ BA  144- [libpari] QXQ_mul, QXQ_sqr, FFXQ_mul, FFXQ_sqr
 BA  146- New GP function idealredmodpower
     147- 'ms' modular symbol package: support N = 1 as well
     148- allow mssplit(M), splits msnew(M) by default
-BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr
+BA  149- [libpari] FpXQXn_mul, FpXQXn_sqr, FqXn_mul, FqXn_sqr
     150- New GP functions plothexport, plothrawexport, plotexport
     151- plotcolor(w, col) now allows color names (t_STR) or [R,G,B] values
     152- allow a t_STR composed of # + 6 hex digits for colour names
