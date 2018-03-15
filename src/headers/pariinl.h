@@ -2308,6 +2308,9 @@ FqXn_mul(GEN x, GEN y, long n, GEN T, GEN p)
 INLINE GEN
 FqXn_sqr(GEN x, long n, GEN T, GEN p)
 { return T? FpXQXn_sqr(x,n,T,p): FpXn_sqr(x,n,p); }
+INLINE GEN
+FqXn_exp(GEN x, long n, GEN T, GEN p)
+{ return T? FpXQXn_exp(x,n,T,p): FpXn_exp(x,n,p); }
 
 /*FpXQ*/
 INLINE GEN
