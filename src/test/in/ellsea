@@ -38,8 +38,19 @@ ellsea(E,1)
 ellsea(E,2)
 ellsea(ellinit([1,519],523))
 
-p = nextprime(2^100); E = ellinit([1122988618244467583984567614936, 429172847969450664478514342664], p);
+p = nextprime(2^100);
+E = ellinit([1122988618244467583984567614936, 429172847969450664478514342664], p);
 ellsea(E, -1)
 E = ellinit([1213812743793711191989251498394, 677975617584150034841507871840], p);
 ellsea(E, 2)
 ellsea(E, -2)
+
+p=1048845330395786101209839; E = ellinit([1,15], p); F=ellinit([1,-15], p);
+ellsea(E, 1)
+ellsea(E, -1)
+ellsea(F, 1)
+ellsea(F, -1)
+ellsea(E, 7)
+ellsea(E, -7)
+ellsea(F, 7)
+ellsea(F, -7)

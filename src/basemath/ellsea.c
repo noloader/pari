@@ -1253,7 +1253,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
   lambda = tr ? find_eigen_value_oneroot(a4, a6, ell, tr, kpoly, T, p):
                 find_eigen_value_power(a4, a6, ell, 1, 1, kpoly, T, p);
   if (DEBUGLEVEL>1) err_printf(" [%ld ms]", timer_delay(ti));
-  if (smallfact && smallfact%ell!=0)
+  if (smallfact && smallfact%(long)ell!=0)
   {
     ulong pell = pellk%ell;
     ulong ap = Fl_add(lambda, Fl_div(pell, lambda, ell), ell);
@@ -1891,19 +1891,15 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
       if (smallfact && smallfact%ell!=0)
       { /* does ell divide q + 1 - t ? */
         long q_mod_ell_plus_one = umodiu(q,ell) + 1;
-        long card_mod_ell = umodsu(q_mod_ell_plus_one - t_mod_ellkt, ell);
-        if (!card_mod_ell && DEBUGLEVEL)
+        ulong  card_mod_ell = umodsu(q_mod_ell_plus_one - t_mod_ellkt, ell);
+        ulong tcard_mod_ell = 1;
+        if (card_mod_ell && smallfact < 0)
+          tcard_mod_ell = umodsu(q_mod_ell_plus_one + t_mod_ellkt, ell);
+        if (!card_mod_ell || !tcard_mod_ell)
         {
-            err_printf("\nAborting: #E(Fq) divisible by %ld\n",ell);
-        }
-        if (smallfact < 0)
-        {
-          card_mod_ell = umodsu(q_mod_ell_plus_one + t_mod_ellkt, ell);
-          if (!card_mod_ell && DEBUGLEVEL)
-            err_printf("\nAborting: #E_twist(Fq) divisible by %ld\n",ell);
-        }
-        if (!card_mod_ell)
-        {
+          if (DEBUGLEVEL)
+            err_printf("\nAborting: #E%s(Fq) divisible by %ld\n",
+                       tcard_mod_ell ? "" : "_twist", ell);
           delete_var();
           delete_var();
           avma = ltop; return gen_0;
