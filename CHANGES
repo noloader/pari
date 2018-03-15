@@ -400,6 +400,7 @@ BA  155- qfisom: allow to give the automorphism group of the second lattice
     163- [libpari] Rg_to_Fq, Fp_invgen
 BA  164- [libpari] F2xqX_factor_squarefree, FlxqX_factor_squarefree,
          FpXQX_factor_squarefree, FqX_factor_squarefree, FFX_factor_squarefree
+BA  165- [libpari] FpXn_inv
 
   Changed
       1- rewrite bnfnarrow

@@ -2506,3 +2506,59 @@ FpXn_exp(GEN h, long e, GEN p)
   }
   return gerepileupto(av, f);
 }
+
+/* (f*g) \/ x^n */
+static GEN
+FpX_mulhigh_i(GEN f, GEN g, long n, GEN p)
+{
+  return RgX_shift_shallow(FpX_mul(f,g, p),-n);
+}
+
+static GEN
+FpXn_mulhigh(GEN f, GEN g, long n2, long n, GEN p)
+{
+  GEN F = RgX_blocks(f, n2, 2), fl = gel(F,1), fh = gel(F,2);
+  return FpX_add(FpX_mulhigh_i(fl, g, n2, p), FpXn_mul(fh, g, n - n2, p), p);
+}
+
+GEN
+FpXn_inv(GEN f, long e, GEN p)
+{
+  pari_sp av = avma, av2;
+  ulong mask;
+  GEN W, a;
+  long v = varn(f), n = 1;
+
+  if (!signe(f)) pari_err_INV("FpXn_inv",f);
+  a = Fp_inv(gel(f,2), p);
+  if (e == 1) return scalarpol(a, v);
+  else if (e == 2)
+  {
+    GEN b;
+    if (degpol(f) <= 0) return scalarpol(a, v);
+    b = Fp_neg(gel(f,3),p);
+    if (signe(b)==0) return scalarpol(a, v);
+    if (!is_pm1(a)) b = Fp_mul(b, Fp_sqr(a, p), p);
+    W = deg1pol_shallow(b, a, v);
+    return gerepilecopy(av, W);
+  }
+  W = scalarpol_shallow(Fp_inv(gel(f,2), p),v);
+  mask = quadratic_prec_mask(e);
+  av2 = avma;
+  for (;mask>1;)
+  {
+    GEN u, fr;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    fr = FpXn_red(f, n);
+    u = FpXn_mul(W, FpXn_mulhigh(fr, W, n2, n, p), n-n2, p);
+    W = FpX_sub(W, RgX_shift_shallow(u, n2), p);
+    if (gc_needed(av2,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"FpXn_inv, e = %ld", n);
+      W = gerepileupto(av2, W);
+    }
+  }
+  return gerepileupto(av, W);
+}
