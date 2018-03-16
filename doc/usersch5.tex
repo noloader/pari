@@ -4516,8 +4516,8 @@ $\kbd{l} = \kbd{lg(x)}$, in place.
 
 \fun{GEN}{FpX_sub}{GEN x,GEN y,GEN p} returns $x-y$.
 
-\fun{GEN}{FpX_halve}{GEN x, GEN m} returns $z$ such that $2\*z = x$ modulo
-$m$ assuming such $z$ exists.
+\fun{GEN}{FpX_halve}{GEN x, GEN p} returns $z$ such that $2\*z = x$ modulo
+$p$ assuming such $z$ exists.
 
 \fun{GEN}{FpX_mul}{GEN x,GEN y,GEN p} returns $x\*y$.
 
@@ -5090,8 +5090,8 @@ by the \kbd{Fp}~\kbd{y}.
 \fun{GEN}{FpXX_mulu}{GEN x, GEN y, GEN p} multiplies the \kbd{FpXX}~\kbd{x}
 by the scalar \kbd{y}.
 
-\fun{GEN}{FpXX_halve}{GEN x, GEN p} returns $z$ such that $2\*z = x$ modulo
-$m$ assuming such $z$ exists.
+\fun{GEN}{FpXX_halve}{GEN x, GEN p} returns $z$ such that $2\*z = x$
+assuming such $z$ exists.
 
 \fun{GEN}{FpXX_deriv}{GEN P, GEN p} differentiates \kbd{P} with respect to
 the main variable.
@@ -5155,6 +5155,9 @@ enforce strict consistency, which would not imply any efficiency gain.)
 
 \fun{GEN}{FqX_mulu}{GEN x, ulong y, GEN T, GEN p} multiplies the
 \kbd{FqX}~\kbd{x} by the scalar~\kbd{y}.
+
+\fun{GEN}{FqX_halve}{GEN x, GEN T, GEN p} returns $z$ such that $2\*z = x$
+assuming such $z$ exists.
 
 \fun{GEN}{FqX_Fp_mul}{GEN x, GEN y, GEN T, GEN p} multiplies the
 \kbd{FqX}~\kbd{x} by the \typ{INT}~\kbd{y}.
