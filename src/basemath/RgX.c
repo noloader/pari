@@ -2328,9 +2328,56 @@ RgXn_inv_i(GEN f, long e)
   }
   return W;
 }
+
+static GEN
+RgXn_inv_FpX(GEN x, long e, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flxn_inv(RgX_to_Flx(x, pp), e, pp));
+  }
+  else
+    r = FpXn_inv(RgX_to_FpX(x, p), e, p);
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgXn_inv_FpXQX(GEN x, long n, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN T = RgX_to_FpX(pol, p);
+  GEN r = FpXQXn_inv(RgX_to_FpXQX(x, T, p), n, T, p);
+  return gerepileupto(av, FpXQX_to_mod(r, pol, p));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+
+static GEN
+RgXn_inv_fast(GEN x, long e)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type(x,&p,&pol,&pa);
+  switch(t)
+  {
+    case t_INTMOD: return RgXn_inv_FpX(x, e, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgXn_inv_FpXQX(x, e, pol, p);
+    default:       return NULL;
+  }
+}
+#undef code
+
 GEN
 RgXn_inv(GEN f, long e)
-{ pari_sp av = avma; return gerepileupto(av, RgXn_inv_i(f,e)); }
+{
+  GEN h = RgXn_inv_fast(f, e);
+  if (h) return h;
+  return RgXn_inv_i(f, e);
+}
 
 GEN
 RgXn_exp(GEN h, long e)
