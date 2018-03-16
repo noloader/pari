@@ -5090,6 +5090,9 @@ by the \kbd{Fp}~\kbd{y}.
 \fun{GEN}{FpXX_mulu}{GEN x, GEN y, GEN p} multiplies the \kbd{FpXX}~\kbd{x}
 by the scalar \kbd{y}.
 
+\fun{GEN}{FpXX_halve}{GEN x, GEN p} returns $z$ such that $2\*z = x$ modulo
+$m$ assuming such $z$ exists.
+
 \fun{GEN}{FpXX_deriv}{GEN P, GEN p} differentiates \kbd{P} with respect to
 the main variable.
 

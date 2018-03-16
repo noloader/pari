@@ -153,6 +153,19 @@ FpXX_mulu(GEN P, ulong u, GEN p)
 }
 
 GEN
+FpXX_halve(GEN P, GEN p)
+{
+  long i, lP;
+  GEN res = cgetg_copy(P, &lP); res[1] = P[1];
+  for(i=2; i<lP; i++)
+  {
+    GEN x = gel(P,i);
+    gel(res,i) = typ(x)==t_INT? Fp_halve(x,p): FpX_halve(x,p);
+  }
+  return FpXX_renormalize(res,lP);
+}
+
+GEN
 FpXX_deriv(GEN P, GEN p)
 {
   long i, l = lg(P)-1;
