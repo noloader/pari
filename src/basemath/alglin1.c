@@ -3518,6 +3518,49 @@ FqM_FqC_gauss(GEN a, GEN b, GEN T, GEN p)
   return gerepilecopy(av, gel(u,1));
 }
 
+static GEN
+ZlM_gauss_ratlift(GEN a, GEN b, ulong p, long e, GEN C)
+{
+  pari_sp av = avma, av2;
+  GEN bb, xi, xb, pi, P, B, r;
+  long i, k = 2;
+  if (!C) {
+    C = Flm_inv(ZM_to_Flm(a, p), p);
+    if (!C) pari_err_INV("ZlM_gauss", a);
+  }
+  pi = P = utoipos(p);
+  av2 = avma;
+  xi = Flm_mul(C, ZM_to_Flm(b, p), p);
+  xb = Flm_to_ZM(xi);
+  bb = b;
+  for (i = 2; i <= e; i++)
+  {
+    bb = ZM_Z_divexact(ZM_sub(bb, ZM_nm_mul(a, xi)), P);
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZlM_gauss. i=%ld/%ld",i,e);
+      gerepileall(av2,3, &pi,&bb,&xb);
+    }
+    xi = Flm_mul(C, ZM_to_Flm(bb, p), p);
+    xb = ZM_add(xb, nm_Z_mul(xi, pi));
+    pi = muliu(pi, p); /* = p^(i-1) */
+    if (i==k && i < e)
+    {
+      k *= 2;
+      B = sqrti(shifti(pi,-1));
+      r = FpM_ratlift(xb, pi, B, B, NULL);
+      if (r && gequal(QM_mul(a, r), b))
+      {
+        if (DEBUGLEVEL>=4)
+          err_printf("ZlM_gauss: early solution: %ld/%ld\n",i,e);
+        return gerepilecopy(av, r);
+      }
+    }
+  }
+  B = sqrti(shifti(pi,-1));
+  return gerepileupto(av, FpM_ratlift(xb, pi, B, B, NULL));
+}
+
 /* Dixon p-adic lifting algorithm.
  * Numer. Math. 40, 137-141 (1982), DOI: 10.1007/BF01459082 */
 GEN
@@ -3527,7 +3570,7 @@ ZM_gauss(GEN a, GEN b0)
   int iscol;
   long n, ncol, i, m, elim;
   ulong p;
-  GEN N, C, delta, xb, nb, nmin, res, b = b0;
+  GEN C, delta, nb, nmin, res, b = b0;
   forprime_t S;
 
   if (!init_gauss(a, &b, &n, &ncol, &iscol)) return cgetg(1, iscol?t_COL:t_MAT);
@@ -3567,13 +3610,8 @@ ZM_gauss(GEN a, GEN b0)
    * whose log is < 1, hence + 1 (to cater for rounding errors) */
   m = (long)ceil((rtodbl(logr_abs(itor(delta,LOWDEFAULTPREC))) + 1)
                  / log((double)p));
-  xb = ZlM_gauss(a, b, p, m, C);
-  N = powuu(p, m);
-  delta = sqrti(delta);
-  if (iscol)
-    res = FpC_ratlift(gel(xb,1), N, delta,delta, NULL);
-  else
-    res = FpM_ratlift(xb, N, delta,delta, NULL);
+  res = ZlM_gauss_ratlift(a, b, p, m, C);
+  if (iscol) return gerepilecopy(av, gel(res, 1));
   return gerepileupto(av, res);
 }
 
