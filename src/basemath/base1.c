@@ -968,6 +968,7 @@ get_nfpol(GEN x, GEN *nf)
 
 /* is isomorphism / inclusion (a \subset b) compatible with what we know about
  * basic invariants ? (degree, signature, discriminant) */
+/* if fliso test for isomorphism, for inclusion otherwise. */
 static int
 tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
 {
@@ -1022,9 +1023,8 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
   return 1;
 }
 
-/* if fliso test for isomorphism, for inclusion otherwise. */
-static GEN
-nfiso0(GEN a, GEN b, long fliso)
+GEN
+nfisisom(GEN a, GEN b)
 {
   pari_sp av = avma;
   long i, vb, lx;
@@ -1033,10 +1033,10 @@ nfiso0(GEN a, GEN b, long fliso)
 
   a = get_nfpol(a, &nfa);
   b = get_nfpol(b, &nfb);
-  if (!nfa) { a = Q_primpart(a); RgX_check_ZX(a, "nsiso0"); }
-  if (!nfb) { b = Q_primpart(b); RgX_check_ZX(b, "nsiso0"); }
-  if (fliso && nfa && !nfb) { swap(a,b); nfb = nfa; nfa = NULL; sw = 1; }
-  if (!tests_OK(a, nfa, b, nfb, fliso)) { avma = av; return gen_0; }
+  if (!nfa) { a = Q_primpart(a); RgX_check_ZX(a, "nfisisom"); }
+  if (!nfb) { b = Q_primpart(b); RgX_check_ZX(b, "nfisisom"); }
+  if (nfa && !nfb) { swap(a,b); nfb = nfa; nfa = NULL; sw = 1; }
+  if (!tests_OK(a, nfa, b, nfb, 1)) { avma = av; return gen_0; }
 
   if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
   if (nfa) la = gen_1; else nfa = a = ZX_Q_normalize(a,&la);
@@ -1056,11 +1056,86 @@ nfiso0(GEN a, GEN b, long fliso)
   return gerepilecopy(av,y);
 }
 
-GEN
-nfisisom(GEN a, GEN b) { return nfiso0(a,b,1); }
+static GEN
+partmap_reverse(GEN a, GEN b, GEN F)
+{
+  pari_sp av = avma;
+  long i, j, k;
+  long da = degpol(a), d = degpol(F);
+  long v = varn(b);
+  GEN M1, M2,  W, U, V;
+  M1 = cgetg(1+da-d, t_MAT);
+  M2 = cgetg(1+da-d, t_MAT);
+  for (i=1; i<=da-d; i++)
+  {
+    gel(M1, i) = zerocol(d);
+    gel(M2, i) = zerocol(da-d);
+  }
+  W = monomial(gen_1, d-1, varn(F));
+  for (i=1; i<=da-d; i++)
+  {
+    long l;
+    GEN M1i = gel(M1, i), M2i = gel(M2,i);
+    W = RgX_shift_shallow(W,1);
+    if (degpol(W)==d)
+      W = RgX_sub(W, RgXQX_RgXQ_mul(F, gel(W, d+2), b));
+    l = lg(W);
+    for (j=2; j<l; j++)
+    {
+      GEN Wj = gel(W, j);
+      if (typ(Wj) == t_INT)
+        gel(M1i, j-1) = Wj;
+      else
+      {
+        long lj = lg(Wj), u;
+        if (lj > 2)
+          gel(M1i, j-1) = gel(Wj, 2);
+        for (k=3, u=j-1; k<lj; k++, u+=d)
+          gel(M2i, u) = gel(Wj, k);
+      }
+    }
+  }
+  V = QM_gauss(M2, col_ei(da-d, 1));
+  U = RgC_neg(QM_QC_mul(M1, V));
+  return gerepilecopy(av, RgV_to_RgX(shallowconcat(U,V), v));
+}
 
 GEN
-nfisincl(GEN a, GEN b) { return nfiso0(a,b,0); }
+nfisincl(GEN fa, GEN fb)
+{
+  pari_sp av = avma;
+  long i, k, va, lx;
+  long da, db, d;
+  GEN a, b, nfa, nfb, x, y, la, lb;
+  int newvar;
+
+  a = get_nfpol(fa, &nfa);
+  b = get_nfpol(fb, &nfb);
+  da = degpol(a); db = degpol(b);
+  if (da == db) return nfisisom(fa, fb);
+  if (!nfa) { a = Q_primpart(a); RgX_check_ZX(a, "nsisincl"); }
+  if (!nfb) { b = Q_primpart(b); RgX_check_ZX(b, "nsisincl"); }
+  if (!tests_OK(a, nfa, b, nfb, 0)) { avma = av; return gen_0; }
+
+  if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
+  if (nfa) la = gen_1; else nfa = a = ZX_Q_normalize(a,&la);
+  va = varn(a); newvar = (varncmp(va,varn(b)) <= 0);
+  if (newvar) { b = leafcopy(b); setvarn(b, fetch_var_higher()); }
+  y = lift_shallow(gel(nffactor(nfa,b),1));
+  lx = lg(y);
+  da = degpol(a); db = degpol(b); d = db/da;
+  x = cgetg(lx, t_VEC);
+  for (i=1, k=1; i<lx; i++)
+  {
+    GEN t = gel(y,i);
+    if (degpol(t)!=d) continue;
+    gel(x, k++) = partmap_reverse(b, a, t);
+  }
+  if (newvar) (void)delete_var();
+  setlg(x, k);
+  gen_sort_inplace(x, (void*)&cmp_RgX, &cmp_nodata, NULL);
+  return gerepilecopy(av,x);
+}
 
 /*************************************************************************/
 /**                                                                     **/
