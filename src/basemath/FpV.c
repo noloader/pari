@@ -452,13 +452,13 @@ F2m_F2c_mul_i(GEN x, GEN y, long lx, long l)
 GEN
 FpM_mul(GEN x, GEN y, GEN p)
 {
-  long j, l, lx=lg(x), ly=lg(y);
+  long lx=lg(x), ly=lg(y);
   GEN z;
+  pari_sp av = avma;
   if (ly==1) return cgetg(1,t_MAT);
   if (lx==1) return zeromat(0, ly-1);
   if (lgefint(p) == 3)
   {
-    pari_sp av = avma;
     ulong pp = uel(p,2);
     if (pp == 2)
     {
@@ -472,11 +472,9 @@ FpM_mul(GEN x, GEN y, GEN p)
       y = ZM_to_Flm(y, pp);
       z = Flm_to_ZM(Flm_mul(x,y, pp));
     }
-    return gerepileupto(av, z);
-  }
-  l = lgcols(x); z = cgetg(ly,t_MAT);
-  for (j=1; j<ly; j++) gel(z,j) = FpM_FpC_mul_i(x, gel(y,j), lx, l, p);
-  return z;
+  } else
+    z = FpM_red(ZM_mul(x, y), p);
+  return gerepileupto(av, z);
 }
 
 static GEN
