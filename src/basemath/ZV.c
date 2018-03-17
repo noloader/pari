@@ -435,6 +435,20 @@ QM_mul(GEN x, GEN y)
   return z;
 }
 
+GEN
+QM_QC_mul(GEN x, GEN y)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN dy, ny = Q_primitive_part(y, &dy);
+  GEN z = ZM_ZC_mul(nx, ny);
+  if (dx || dy)
+  {
+    GEN d = dx ? dy ? gmul(dx, dy): dx : dy;
+    if (!gequal1(d)) z = ZC_Q_mul(z, d);
+  }
+  return z;
+}
+
 /* assume result is symmetric */
 GEN
 ZM_multosym(GEN x, GEN y)

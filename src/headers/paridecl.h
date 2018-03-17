@@ -1153,6 +1153,7 @@ GEN     ZG_sub(GEN x, GEN y);
 
 void    Flc_lincomb1_inplace(GEN X, GEN Y, ulong v, ulong q);
 GEN     vecsmall_prod(GEN v);
+GEN     QM_QC_mul(GEN x, GEN y);
 GEN     QM_det(GEN x);
 GEN     QM_ker(GEN M);
 GEN     QM_mul(GEN x, GEN y);
