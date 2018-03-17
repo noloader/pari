@@ -1908,10 +1908,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isincl(x,y) ===> nfisincl(x,y)
 
-nfisincl(x,y): tests whether the number field x is isomorphic to a subfield of 
-y (where x and y are either polynomials or number fields as output by nfinit). 
-Return 0 if not, and otherwise all the isomorphisms. If y is a number field, a 
-faster algorithm is used.
+nfisincl(f,g): let f and g define number fields, either irreducible rational 
+polynomials or number fields as output by nfinit; tests whether the number 
+field f is isomorphic to a subfield of g. Return 0 if not, and otherwise all 
+the isomorphisms.
 
 
   ***   at top-level: isinclfast()
@@ -1921,10 +1921,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isinclfast(nf1,nf2) ===> nfisincl(nf1,nf2,1)
 
-nfisincl(x,y): tests whether the number field x is isomorphic to a subfield of 
-y (where x and y are either polynomials or number fields as output by nfinit). 
-Return 0 if not, and otherwise all the isomorphisms. If y is a number field, a 
-faster algorithm is used.
+nfisincl(f,g): let f and g define number fields, either irreducible rational 
+polynomials or number fields as output by nfinit; tests whether the number 
+field f is isomorphic to a subfield of g. Return 0 if not, and otherwise all 
+the isomorphisms.
 
 
   ***   at top-level: isirreducible()
@@ -1945,7 +1945,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isisom(x,y) ===> nfisisom(x,y)
 
-nfisisom(x,y): as nfisincl but tests whether x is isomorphic to y.
+nfisisom(f,g): as nfisincl but tests whether f is isomorphic to f.
 
 
   ***   at top-level: isisomfast()
@@ -1955,7 +1955,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isisomfast(x,y) ===> nfisisom(x,y)
 
-nfisisom(x,y): as nfisincl but tests whether x is isomorphic to y.
+nfisisom(f,g): as nfisincl but tests whether f is isomorphic to f.
 
 
   ***   at top-level: isoncurve()
@@ -4520,4 +4520,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 11
