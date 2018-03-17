@@ -1029,13 +1029,13 @@ nfiso0(GEN a, GEN b, long fliso)
   pari_sp av = avma;
   long i, vb, lx;
   GEN nfa, nfb, y, la, lb;
-  int newvar;
+  int newvar, sw = 0;
 
   a = get_nfpol(a, &nfa);
   b = get_nfpol(b, &nfb);
   if (!nfa) { a = Q_primpart(a); RgX_check_ZX(a, "nsiso0"); }
   if (!nfb) { b = Q_primpart(b); RgX_check_ZX(b, "nsiso0"); }
-  if (fliso && nfa && !nfb) { swap(a,b); nfb = nfa; nfa = NULL; }
+  if (fliso && nfa && !nfb) { swap(a,b); nfb = nfa; nfa = NULL; sw = 1; }
   if (!tests_OK(a, nfa, b, nfb, fliso)) { avma = av; return gen_0; }
 
   if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
@@ -1051,7 +1051,7 @@ nfiso0(GEN a, GEN b, long fliso)
     if (typ(t) == t_POL) setvarn(t, vb); else t = scalarpol(t, vb);
     if (lb != gen_1) t = RgX_unscale(t, lb);
     if (la != gen_1) t = RgX_Rg_div(t, la);
-    gel(y,i) = t;
+    gel(y,i) = sw? RgXQ_reverse(t, b): t;
   }
   return gerepilecopy(av,y);
 }

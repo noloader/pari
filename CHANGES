@@ -183,6 +183,7 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
          polcoeff(y+O(y^2), 0, x) -> 0 [now y+O(y^2)]
     142- ellperiods([1,0.1 + I/10^50]) -> division by 0
     143- nfmodpr(nfinit(x),[],[]~) -> SEGV [#2020]
+    144- nfisisom(nfinit(x^2+4),x^2+1) -> reverse isomorphism [#2022]
 
   Added
       1- [libari] ZM_isidentity
