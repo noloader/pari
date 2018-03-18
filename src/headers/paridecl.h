@@ -3386,7 +3386,10 @@ GEN     gtoser(GEN x, long v, long precdl);
 GEN     rfrac_to_ser(GEN x, long l);
 GEN     rfracrecip_to_ser_absolute(GEN R, long l);
 GEN     scalarser(GEN x, long v, long prec);
+GEN     sertoser(GEN x, long prec);
 GEN     toser_i(GEN x);
+GEN     RgV_to_ser(GEN x, long v, long l);
+GEN     Ser0(GEN x, long v, GEN d, long prec);
 
 /* gen3.c */
 
@@ -3532,7 +3535,6 @@ GEN     scalarpol_shallow(GEN x, long v);
 GEN     ser_unscale(GEN P, GEN h);
 long    serprec(GEN x, long v);
 GEN     serreverse(GEN x);
-GEN     sertoser(GEN x, long prec);
 GEN     simplify(GEN x);
 GEN     simplify_shallow(GEN x);
 GEN     tayl(GEN x, long v, long precdl);

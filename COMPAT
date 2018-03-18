@@ -55,6 +55,10 @@ This file lists the incompatible changes between Version 2.x and older versions
     (pure Pocklington-Lehmer-Selfridge); use primecert(n).
   - removed useless (optional) flag argument in polrootsmod
   - factorff and polrootsff are now obsolete. Use factormod/polrootsmod
+  - Ser(s, 'x, d) now always return a series with d significant terms.
+    It used to return a t_SER s in 'x verbatim and to use all given
+    coefficients for a t_VEC/t_COL. Only if d is explicitly given,
+    no change for Ser(s,'x)
 
 * Specific to the PARI library:
 ===============================

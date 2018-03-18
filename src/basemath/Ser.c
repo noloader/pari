@@ -54,6 +54,38 @@ GEN
 rfrac_to_ser(GEN x, long l)
 { return gdiv(gel(x,1), RgX_to_ser(gel(x,2), l)); }
 
+static GEN
+RgV_to_ser_i(GEN x, long v, long l, int copy)
+{
+  long j, lx = minss(lg(x), l-1);
+  GEN y;
+  if (lx == 1) return zeroser(v, l-2);
+  y = cgetg(l, t_SER); y[1] = evalvarn(v)|evalvalp(0);
+  x--;
+  if (copy)
+    for (j = 2; j <= lx; j++) gel(y,j) = gcopy(gel(x,j));
+  else
+    for (j = 2; j <= lx; j++) gel(y,j) = gel(x,j);
+  for (     ; j < l;   j++) gel(y,j) = gen_0;
+  return normalize(y);
+}
+GEN
+RgV_to_ser(GEN x, long v, long l) { return RgV_to_ser_i(x, v, l, 0); }
+
+/* x a t_SER, prec >= 0 */
+GEN
+sertoser(GEN x, long prec)
+{
+  long i, lx = lg(x), l;
+  GEN y;
+  if (lx == 2) return zeroser(varn(x), prec);
+  l = prec+2; lx = minss(lx, l);
+  y = cgetg(l,t_SER); y[1] = x[1];
+  for (i = 2; i < lx; i++) gel(y,i) = gel(x,i);
+  for (     ; i < l;  i++) gel(y,i) = gen_0;
+  return y;
+}
+
 /* R(1/x) + O(x^N) */
 GEN
 rfracrecip_to_ser_absolute(GEN R, long N)
@@ -107,7 +139,7 @@ coefstoser(GEN x, long v, long prec)
 }
 
 static void
-err_ser_priority(GEN x, long v) { pari_err_PRIORITY("gtoser", x, "<", v); }
+err_ser_priority(GEN x, long v) { pari_err_PRIORITY("Ser", x, "<", v); }
 /* x a t_POL */
 static GEN
 poltoser(GEN x, long v, long prec)
@@ -139,45 +171,66 @@ toser_i(GEN x)
   return NULL;
 }
 
+/* conversion: prec ignored if t_VEC or t_SER in variable v */
 GEN
 gtoser(GEN x, long v, long prec)
 {
-  long tx = typ(x), j;
-  GEN y;
+  long tx = typ(x);
 
   if (v < 0) v = 0;
-  if (prec < 0)
-    pari_err_DOMAIN("gtoser", "precision", "<", gen_0, stoi(prec));
+  if (prec < 0) pari_err_DOMAIN("Ser", "precision", "<", gen_0, stoi(prec));
   if (tx == t_SER)
   {
     long s = varncmp(varn(x), v);
-    if      (s < 0) y = coefstoser(x, v, prec);
-    else if (s > 0) y = scalarser(x, v, prec);
-    else y = gcopy(x);
-    return y;
+    if      (s < 0) return coefstoser(x, v, prec);
+    else if (s > 0) return scalarser(x, v, prec);
+    return gcopy(x);
   }
   if (is_scalar_t(tx)) return scalarser(x,v,prec);
   switch(tx)
   {
     case t_POL: return poltoser(x, v, prec);
     case t_RFRAC: return rfractoser(x, v, prec);
+    case t_QFR:
+    case t_QFI: return RgV_to_ser_i(x, v, 4+1, 1);
     case t_VECSMALL: x = zv_to_ZV(x);/*fall through*/
-    case t_QFR: case t_QFI: case t_VEC: case t_COL:
-    {
-      GEN z;
-      long lx = lg(x); if (tx == t_QFR) lx--;
-      if (varncmp(gvar(x), v) <= 0) pari_err_PRIORITY("gtoser", x, "<=", v);
-      y = cgetg(lx+1, t_SER);
-      y[1] = evalvarn(v)|evalvalp(0);
-      x--;
-      for (j=2; j<=lx; j++) gel(y,j) = gel(x,j);
-      z = gcopy(normalize(y));
-      settyp(y, t_VECSMALL);/* left on stack */
-      return z;
-    }
-
-    default: pari_err_TYPE("gtoser",x);
-      return NULL; /* LCOV_EXCL_LINE */
+    case t_VEC: case t_COL:
+      if (varncmp(gvar(x), v) <= 0) pari_err_PRIORITY("Ser", x, "<=", v);
+      return RgV_to_ser_i(x, v, lg(x)+1, 1);
   }
-  return y;
+  pari_err_TYPE("Ser",x);
+  return NULL; /* LCOV_EXCL_LINE */
+}
+/* impose prec */
+GEN
+gtoser_prec(GEN x, long v, long prec)
+{
+  pari_sp av = avma;
+  if (v < 0) v = 0;
+  if (prec < 0) pari_err_DOMAIN("Ser", "precision", "<", gen_0, stoi(prec));
+  switch(typ(x))
+  {
+    case t_SER: if (varn(x) != v) break;
+                return gerepilecopy(av, sertoser(x, prec));
+    case t_QFR:
+    case t_QFI:
+      x = RgV_to_ser_i(mkvec3(gel(x,1),gel(x,2),gel(x,3)), v, prec+2, 1);
+      return gerepileupto(av, x);
+    case t_VECSMALL: x = zv_to_ZV(x);/*fall through*/
+    case t_VEC: case t_COL:
+      if (varncmp(gvar(x), v) <= 0) pari_err_PRIORITY("Ser", x, "<=", v);
+      return RgV_to_ser_i(x, v, prec+2, 1);
+  }
+  return gtoser(x, v, prec);
+}
+GEN
+Ser0(GEN x, long v, GEN d, long prec)
+{
+  if (!d) return gtoser(x, v, prec);
+  if (typ(d) != t_INT)
+  {
+    d = gfloor(d);
+    if (typ(d) != t_INT) pari_err_TYPE("Ser [precision]",d);
+  }
+  return gtoser_prec(x, v, itos(d));
 }

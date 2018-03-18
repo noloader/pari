@@ -794,19 +794,10 @@ mfvectomat(GEN vF, long lim, long d)
 }
 
 static GEN
-RgV_to_ser(GEN x, long v)
-{
-  long j, lx = lg(x);
-  GEN y = cgetg(lx+1, t_SER);
-  y[1] = evalvarn(v)|evalvalp(0);
-  x--;
-  for (j = 2; j <= lx; j++) gel(y, j) = gel(x, j);
-  return normalize(y);
-}
-
+RgV_to_ser_full(GEN x) { return RgV_to_ser(x, 0, lg(x)+1); }
 /* TODO: delete */
 static GEN
-mfcoefsser(GEN F, long n) { return RgV_to_ser(mfcoefs_i(F,n,1), 0); }
+mfcoefsser(GEN F, long n) { return RgV_to_ser_full(mfcoefs_i(F,n,1)); }
 static GEN
 sertovecslice(GEN S, long n)
 {
@@ -4401,7 +4392,7 @@ mflineardivtomat(long N, GEN vF, long n)
   for (i = 1; i < lM; i++)
   {
     pari_sp av = avma;
-    GEN LISer = RgV_to_ser(gel(M,i),0), f;
+    GEN LISer = RgV_to_ser_full(gel(M,i)), f;
     if (a0) LISer = gdiv(ser_unscale(LISer, a0), a0);
     f = gmul(LISer, fc);
     if (a0) f = ser_unscale(f, ginv(a0));

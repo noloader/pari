@@ -524,6 +524,10 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
          [over Fp], D = [T,p] (over Fp[x]/(T)), or omited [over field of
          definition of f]. Same for polrootsmod.
      76- factorff and polrootsff are now obsolete. Use factormod/polrootsmod
+     77- Ser(s, 'x, d) now always return a series with d significant terms.
+         It used to return a t_SER s in 'x verbatim and to use all given
+         coefficients for a t_VEC/t_COL. Only if d is explicitly given,
+         no change for Ser(s,'x)
 
   Removed
       1- file 'MACHINES' (no longer maintained)
