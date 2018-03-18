@@ -27,5 +27,5 @@ Doc: creates a row vector whose components are the
  %3 = [1, x, x^2, x + 1, x^2 + x, x^3 + x^2, x^2 + 2*x + 1,
        x^3 + 2*x^2 + x, x^4 + 2*x^3 + x^2]
  @eprog
- Variant: The functions \fun{GEN}{divisors}{GEN N} ($\fl = 0$) and
+Variant: The functions \fun{GEN}{divisors}{GEN N} ($\fl = 0$) and
  \fun{GEN}{divisors_factored}{GEN N} ($\fl = 1$) are also available.
