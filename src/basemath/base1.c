@@ -972,8 +972,8 @@ get_nfpol(GEN x, GEN *nf)
 static int
 tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
 {
-  GEN da, db, fa, P, E, U;
-  long i, nP, q, m = degpol(a), n = degpol(b);
+  GEN da2, da, db, fa, P, E, U;
+  long i, l, nP, q, m = degpol(a), n = degpol(b);
 
   if (m <= 0) pari_err_IRREDPOL("nfisincl",a);
   if (n <= 0) pari_err_IRREDPOL("nfisincl",b);
@@ -981,27 +981,51 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
   if (fliso) { if (n != m) return 0; } else { if (n % m) return 0; }
   if (m == 1) return 1;
 
-  if (nfa && nfb) /* both nf structures available */
-  {
-    long r1a = nf_get_r1(nfa), r1b = nf_get_r1(nfb) ;
-    if (fliso)
-      return (r1a == r1b && equalii(nf_get_disc(nfa), nf_get_disc(nfb)));
-    else
-      return (r1b <= r1a * q &&
-              dvdii(nf_get_disc(nfb), powiu(nf_get_disc(nfa), q)));
-  }
   da = nfa? nf_get_disc(nfa): ZX_disc(a);
   if (!signe(da)) pari_err_IRREDPOL("nfisincl",a);
   db = nfb? nf_get_disc(nfb): ZX_disc(b);
   if (!signe(db)) pari_err_IRREDPOL("nfisincl",a);
+  if (nfa && nfb) /* both nf structures available */
+  {
+    long r1a = nf_get_r1(nfa), r1b = nf_get_r1(nfb);
+    return fliso ? (r1a == r1b && equalii(da, db))
+                 : (r1b <= r1a * q && dvdii(db, powiu(da, q)));
+  }
   if (fliso) return issquare(gdiv(da,db));
 
+  if (nfa)
+  {
+    P = nf_get_ramified_primes(nfa); l = lg(P);
+    for (i = 1; i < l; i++)
+      if (Z_pval(db, gel(P,i)) < q * Z_pval(da, gel(P,i))) return 0;
+    return 1;
+  }
+  else if (nfb)
+  {
+    P = nf_get_ramified_primes(nfb); l = lg(P);
+    for (i = 1; i < l; i++)
+    {
+      long va = Z_pval(da, gel(P,i));
+      if (va && Z_pval(db, gel(P,i)) < q * va) return 0;
+    }
+    return 1;
+  }
+  /* da = dK A^2, db = dL B^2, dL = dK^q * N(D)
+   * da = da1 * da2, da2 maximal s.t. (da2, db) = 1: let p a prime divisor of
+   * da2 then p \nmid da1 * dK and p | A => v_p(da) = v_p(da2) is even */
+  da2 = Z_ppo(da, db);
+  if (!is_pm1(da2))
+  { /* replace da by da1 all of whose prime divisors divide db */
+    da2 = absi_shallow(da2);
+    if (!Z_issquare(da2)) return 0;
+    da = diviiexact(da, da2);
+  }
   fa = absZ_factor_limit(da, 0);
   P = gel(fa,1);
   E = gel(fa,2); nP = lg(P) - 1;
-  for (i=1; i<nP; i++)
+  for (i=1; i<nP; i++) /* all but last factor (primes) */
     if (mod2(gel(E,i)) && !dvdii(db, powiu(gel(P,i),q))) return 0;
-  U = gel(P,nP);
+  U = gel(P,nP); /* unknown */
   if (mod2(gel(E,i)) && expi(U) < 150)
   { /* "unfactored" cofactor is small, finish */
     if (abscmpiu(U, maxprime()) > 0)
