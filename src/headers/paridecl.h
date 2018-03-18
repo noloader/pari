@@ -1174,6 +1174,7 @@ GEN     ZC_hnfremdiv(GEN x, GEN y, GEN *Q);
 long    ZC_is_ei(GEN x);
 GEN     ZC_lincomb(GEN u, GEN v, GEN X, GEN Y);
 void    ZC_lincomb1_inplace(GEN X, GEN Y, GEN v);
+void    ZC_lincomb1_inplace_i(GEN X, GEN Y, GEN v, long n);
 GEN     ZC_neg(GEN M);
 GEN     ZC_reducemodlll(GEN x,GEN y);
 GEN     ZC_reducemodmatrix(GEN v, GEN y);

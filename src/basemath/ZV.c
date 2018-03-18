@@ -859,14 +859,17 @@ ZM_Z_mul(GEN X, GEN c)
   }
   return A;
 }
-
+void
+ZC_lincomb1_inplace_i(GEN X, GEN Y, GEN v, long n)
+{
+  long i;
+  for (i = n; i; i--) gel(X,i) = addmulii_inplace(gel(X,i), gel(Y,i), v);
+}
 /* X <- X + v Y (elementary col operation) */
 void
 ZC_lincomb1_inplace(GEN X, GEN Y, GEN v)
 {
-  long i, m = lgefint(v);
-  if (m == 2) return; /* v = 0 */
-  for (i = lg(X)-1; i; i--) gel(X,i) = addmulii_inplace(gel(X,i), gel(Y,i), v);
+  if (lgefint(v) != 2) return ZC_lincomb1_inplace_i(X, Y, v, lg(X)-1);
 }
 void
 Flc_lincomb1_inplace(GEN X, GEN Y, ulong v, ulong q)
