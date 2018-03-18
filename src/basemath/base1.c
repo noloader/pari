@@ -967,8 +967,8 @@ get_nfpol(GEN x, GEN *nf)
 }
 
 /* is isomorphism / inclusion (a \subset b) compatible with what we know about
- * basic invariants ? (degree, signature, discriminant) */
-/* if fliso test for isomorphism, for inclusion otherwise. */
+ * basic invariants ? (degree, signature, discriminant); test for isomorphism
+ * if fliso is set and for inclusion otherwise */
 static int
 tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
 {
@@ -996,7 +996,6 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
   if (!signe(db)) pari_err_IRREDPOL("nfisincl",a);
   if (fliso) return issquare(gdiv(da,db));
 
-  if (odd(q) && signe(da) != signe(db)) return 0;
   fa = absZ_factor_limit(da, 0);
   P = gel(fa,1);
   E = gel(fa,2); nP = lg(P) - 1;
