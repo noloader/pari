@@ -82,6 +82,7 @@ nfisincl(f,g)
 \\#1921
 K=nfinit('x^2-2);L=nfinit('x^4-2);
 nfisincl(K,L)
+nfisincl(x^3-21*x-35,x^6-48*x^4-56*x^3+453*x^2+840*x+62)
 \\#2022
 nfisisom(K,x^2-8)
 nfisisom(x^2-8,K)

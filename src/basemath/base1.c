@@ -1132,6 +1132,7 @@ nfisincl(GEN fa, GEN fb)
     gel(x, k++) = partmap_reverse(b, a, t);
   }
   if (newvar) (void)delete_var();
+  if (k==1) { avma = av; return gen_0; }
   setlg(x, k);
   gen_sort_inplace(x, (void*)&cmp_RgX, &cmp_nodata, NULL);
   return gerepilecopy(av,x);
