@@ -3336,8 +3336,6 @@ GEN     gmin(GEN x, GEN y);
 GEN     gmings(GEN x, long y);
 GEN     gneg(GEN x);
 GEN     gneg_i(GEN x);
-GEN     RgX_to_ser(GEN x, long l);
-GEN     RgX_to_ser_inexact(GEN x, long l);
 int     gsigne(GEN x);
 GEN     gtolist(GEN x);
 long    gtolong(GEN x);
@@ -3360,8 +3358,6 @@ GEN     normalizepol_lg(GEN x, long lx);
 ulong   padic_to_Fl(GEN x, ulong p);
 GEN     padic_to_Fp(GEN x, GEN Y);
 GEN     quadtofp(GEN x, long l);
-GEN     rfrac_to_ser(GEN x, long l);
-GEN     rfracrecip_to_ser_absolute(GEN R, long l);
 long    sizedigit(GEN x);
 long    u_lval(ulong x, ulong p);
 long    u_lvalrem(ulong x, ulong p, ulong *py);
@@ -3379,6 +3375,15 @@ long    z_lvalrem(long s, ulong p, long *py);
 long    z_pval(long n, GEN p);
 long    z_pvalrem(long n, GEN p, long *py);
 
+/* Ser.c */
+
+GEN     RgX_to_ser(GEN x, long l);
+GEN     RgX_to_ser_inexact(GEN x, long l);
+GEN     gtoser(GEN x, long v, long precdl);
+GEN     rfrac_to_ser(GEN x, long l);
+GEN     rfracrecip_to_ser_absolute(GEN R, long l);
+GEN     scalarser(GEN x, long v, long prec);
+GEN     toser_i(GEN x);
 
 /* gen3.c */
 
@@ -3459,7 +3464,6 @@ GEN     gtocolrev(GEN x);
 GEN     gtocolrev0(GEN x, long n);
 GEN     gtopoly(GEN x, long v);
 GEN     gtopolyrev(GEN x, long v);
-GEN     gtoser(GEN x, long v, long precdl);
 GEN     gtovec(GEN x);
 GEN     gtovec0(GEN x, long n);
 GEN     gtovecrev(GEN x);
@@ -3522,7 +3526,6 @@ GEN     roundr(GEN x);
 GEN     roundr_safe(GEN x);
 GEN     scalarpol(GEN x, long v);
 GEN     scalarpol_shallow(GEN x, long v);
-GEN     scalarser(GEN x, long v, long prec);
 GEN     ser_unscale(GEN P, GEN h);
 long    serprec(GEN x, long v);
 GEN     serreverse(GEN x);
@@ -3530,7 +3533,6 @@ GEN     sertoser(GEN x, long prec);
 GEN     simplify(GEN x);
 GEN     simplify_shallow(GEN x);
 GEN     tayl(GEN x, long v, long precdl);
-GEN     toser_i(GEN x);
 GEN     trunc0(GEN x, GEN *pte);
 GEN     uu32toi(ulong a, ulong b);
 GEN     vars_sort_inplace(GEN z);
