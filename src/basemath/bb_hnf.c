@@ -525,7 +525,7 @@ static GEN
 gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, long early_abort, long only_triangular, GEN* ops, void *data, const struct bb_hermite *R)
 {
   pari_sp av = avma;
-  GEN H,U,piv,u,q,a,perm,iszero,C,zero=R->s(data,0),d,g,r,op,one=R->s(data,1);
+  GEN H,U,piv=gen_0,u,q,a,perm,iszero,C,zero=R->s(data,0),d,g,r,op,one=R->s(data,1);
   long m,n,i,j,s,si,i2,si2,nbz,lim,extra,maxop=0,nbop=0,lastinv=0;
   int smallop;
 
