@@ -912,9 +912,9 @@ F2v_dotproduct(GEN x, GEN y)
 {
   long i, lx = lg(x);
   ulong c;
-  if (lx == 1) return 0;
-  c = uel(x,1) & uel(y,1);
-  for (i=2; i<lx; i++) c ^= uel(x,i) & uel(y,i);
+  if (lx <= 2) return 0;
+  c = uel(x,2) & uel(y,2);
+  for (i=3; i<lx; i++) c ^= uel(x,i) & uel(y,i);
 #ifdef LONG_IS_64BIT
   c ^= c >> 32;
 #endif
