@@ -715,12 +715,12 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, long early_abor
       }
     }
 
-      if (gc_needed(av,1))
-      {
-        if (DEBUGMEM>1) pari_warn(warnmem,"gen_howell[2]. i=%ld",i);
-        gerepileall(av,ops?3:2,&H,&piv,ops);
-      }
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"gen_howell[2]. i=%ld",i);
+      gerepileall(av,ops?3:2,&H,&piv,ops);
     }
+  }
 
   if (R->red)
     for (j=1; j<=n; j++)
