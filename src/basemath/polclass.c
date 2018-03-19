@@ -1902,7 +1902,7 @@ polclass_psum(
   /* Number of consecutive CRT stabilisations before we assume we have
    * the correct answer. */
   enum { MIN_STAB_CNT = 3 };
-  pari_sp av = avma;
+  pari_sp av = avma, btop;
   GEN ps, psum_sqr, P;
   long i, e, stabcnt, nprimes = lg(primes) - 1;
 
@@ -1920,6 +1920,7 @@ polclass_psum(
     }
     if (i > nprimes) break;
   } while (1);
+  btop = avma;
   psum_sqr = Z_init_CRT(0, 1);
   P = gen_1;
   for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i)
@@ -1930,7 +1931,7 @@ polclass_psum(
 
     /* stabcnt = stab * (stabcnt + 1) */
     if (stab) ++stabcnt; else stabcnt = 0;
-    if (gc_needed(av, 2)) gerepileall(av, 2, &psum_sqr, &P);
+    if (gc_needed(av, 2)) gerepileall(btop, 2, &psum_sqr, &P);
   }
   if (stabcnt < MIN_STAB_CNT && nprimes >= MIN_STAB_CNT)
     pari_err_BUG("polclass_psum");
