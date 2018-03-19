@@ -229,7 +229,7 @@ Ser0(GEN x, long v, GEN d, long prec)
   if (!d) return gtoser(x, v, prec);
   if (typ(d) != t_INT)
   {
-    d = gfloor(d);
+    d = gceil(d);
     if (typ(d) != t_INT) pari_err_TYPE("Ser [precision]",d);
   }
   return gtoser_prec(x, v, itos(d));
