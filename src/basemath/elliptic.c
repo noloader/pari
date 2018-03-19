@@ -2388,10 +2388,7 @@ set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
 {
   GEN a, b, c, d, t = *pt, run = dbltor(1. - 1e-8);
   long e = gexpo(gel(t,2));
-  pari_sp av;
-
   if (e < 0) *pt = t = gprec_wensure(t, precision(t) + nbits2extraprec(-e));
-  av = avma;
   a = d = gen_1;
   b = c = gen_0;
   for(;;)
@@ -2407,10 +2404,6 @@ set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
     t = gneg_i(gdiv(gconj(t), m)); /* apply S */
     togglesign_safe(&c); swap(a,c);
     togglesign_safe(&d); swap(b,d);
-    if (gc_needed(av, 1)) {
-      if (DEBUGMEM>1) pari_warn(warnmem, "cxredsl2");
-      gerepileall(av, 5, &t, &a,&b,&c,&d);
-    }
   }
   *pa = a; *pb = b; *pc = c; *pd = d;
 }
