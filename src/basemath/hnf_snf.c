@@ -1313,7 +1313,7 @@ ZM_hnfmodall_i(GEN x, GEN D, long flag)
       if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"ZM_hnfmod[2]. i=%ld", i);
-        x = gerepilecopy(av, x);
+        gerepileall(av, 2, &x, &D2);
       }
     }
     D = D2;
