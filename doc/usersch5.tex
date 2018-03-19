@@ -10931,9 +10931,11 @@ number \kbd{v} dividing the \typ{POL}~\kbd{x}.
 \fun{long}{gcmp}{GEN x, GEN y} comparison of \kbd{x} with \kbd{y}: returns
 $1$ ($x > y$), $0$ ($x = y$) or $-1$ ($x < y$). Two \typ{STR}
 are compared using the standard lexicographic ordering; a \typ{STR}
-is considered strictly larger than any non-string type. If neither
-$x$ nor $y$ is a \typ{STR}, their allowed types are \typ{INT}, \typ{REAL}
-or \typ{FRAC}. Used \tet{cmp_universal} to compare arbitrary \kbd{GEN}s.
+cannot be compared to any non-string type. If neither
+$x$ nor $y$ is a \typ{STR}, their allowed types are \typ{INT}, \typ{REAL},
+\typ{FRAC}, \typ{QUAD} with positive discriminant (use the canonical
+embedding $w \to \sqrt{D}/2$ or $w \to (1 + \sqrt{D})/2$) or \typ{INFINITY}.
+Use \tet{cmp_universal} to compare arbitrary \kbd{GEN}s.
 
 \fun{long}{lexcmp}{GEN x, GEN y} comparison of \kbd{x} with \kbd{y} for the
 lexicographic ordering; when comparing objects of different lengths whose

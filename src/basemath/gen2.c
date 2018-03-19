@@ -647,8 +647,8 @@ gcmp(GEN x, GEN y)
 int
 gcmpsg(long s, GEN y)
 {
-  long ty = typ(y);
-  switch(ty) {
+  switch(typ(y))
+  {
     case t_INT:  return cmpsi(s,y);
     case t_REAL: return cmpsr(s,y);
     case t_FRAC: {
@@ -656,7 +656,11 @@ gcmpsg(long s, GEN y)
       GEN n = gel(y,1), d = gel(y,2);
       int f = cmpii(mulsi(s,d), n); avma = av; return f;
     }
-    case t_STR: return -1;
+    case t_QUAD: {
+      pari_sp av = avma;
+      int f = gsigne(gsubsg(s, y)); avma = av; return f;
+    }
+    case t_INFINITY: return -inf_get_sign(y);
   }
   pari_err_TYPE2("comparison",stoi(s),y);
   return 0; /* LCOV_EXCL_LINE */
