@@ -53,6 +53,8 @@ M4=Map(matrix(10,2,i,j,i*x^0));
 MV=[M0,M1,M2,M3,M4];
 [a==b|a<-MV;b<-MV]
 [a===b|a<-MV;b<-MV]
+cmp(M0,M1)
+cmp(M0,M0)
 
 M=Map();
 mapput(M,2,3);
