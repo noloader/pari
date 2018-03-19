@@ -13,6 +13,11 @@ isvec(x) = type(x) == "t_VEC" || type(x) == "t_COL";
     )
   );
 }
+lex(1,[1])
+lex(1,[2])
+lex(1,[0])
+lex([1],Mat(1))
+lex([1],Mat([1,0]~))
 
 v = Vecsmall([1,2,3]);
 lex(v, [1,2,3])
