@@ -4771,26 +4771,25 @@ FlxqX_extgcd(GEN x, GEN y, GEN T, ulong p, GEN *ptu, GEN *ptv)
 GEN
 FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
 {
-  pari_sp btop, ltop = avma;
+  pari_sp av = avma;
   GEN U;
   if (!signe(P)) return gcopy(Q);
   if (!signe(Q)) return gcopy(P);
-  btop = avma;
   for(;;)
   {
     U = Flxq_invsafe(leading_coeff(Q), T, p);
-    if (!U) { avma = ltop; return NULL; }
+    if (!U) { avma = av; return NULL; }
     Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
     P = FlxqX_rem(P,Q,T,p);
     if (!signe(P)) break;
-    if (gc_needed(btop, 1))
+    if (gc_needed(av, 1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"FlxqX_safegcd");
-      gerepileall(btop, 2, &P,&Q);
+      gerepileall(av, 2, &P,&Q);
     }
     swap(P, Q);
   }
-  return gerepileupto(ltop, Q);
+  return gerepileupto(av, Q);
 }
 
 struct _FlxqX {ulong p; GEN T;};
