@@ -1040,11 +1040,19 @@ matkermod(GEN A, GEN d, GEN* im)
 {
   void *data;
   const struct bb_hermite* R;
+  long m,n;
   if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matkermod", A);
   if (typ(d)!=t_INT) pari_err_TYPE("matkermod", d);
   if (signe(d)<=0) pari_err_DOMAIN("makermod", "d", "<=", gen_0, d);
   if (equali1(d)) return cgetg(1,t_MAT);
   R = get_Fp_hermite(&data, d);
+  RgM_dimensions(A,&m,&n);
+  if (!im && m>2*n) /* TODO tune treshold */
+  {
+    pari_sp av = avma;
+    A = shallowtrans(matimagemod(shallowtrans(A),d,NULL));
+    return gerepilecopy(av,gen_kernel(A, im, data, R));
+  }
   return gen_kernel(A, im, data, R);
 }
 
