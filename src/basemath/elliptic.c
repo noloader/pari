@@ -2956,7 +2956,7 @@ ellzeta(GEN w, GEN z, long prec0)
       if (gc_needed(av1,1))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"ellzeta");
-        gerepileall(av1,2, &y,&qn);
+        gerepileall(av1,2, &S,&qn);
       }
     }
     y = gadd(y, gmul(gsubgs(gsqr(u),1), S));
