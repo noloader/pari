@@ -1764,12 +1764,18 @@ static const long ecpp_tune[][4]=
   { 1000, 32,  23,  3000 },
   { 1200, 38,  24,  3500 },
   { 1400, 44,  24,  4000 },
-  { 1800, 56,  24,  5000 },
-  { 2200, 68,  25,  6000 },
-  { 2600, 80,  25,  7000 },
-  { 3000, 92,  25,  8000 },
-  { 3400, 104, 26,  9000 },
-  { 3800, 116, 26,     0 }
+  { 1600, 50,  24,  4500 },
+  { 1800, 56,  25,  5000 },
+  { 2000, 62,  25,  5500 },
+  { 2200, 68,  26,  6000 },
+  { 2400, 74,  26,  6500 },
+  { 2600, 80,  26,  7000 },
+  { 2800, 86,  26,  7500 },
+  { 3000, 92,  27,  8000 },
+  { 3200, 98,  27,  8500 },
+  { 3400, 104, 27,  9000 },
+  { 3400, 110, 27,  9500 },
+  { 3800, 116, 28,     0 }
 };
 
 /* assume N BPSW-pseudoprime */
@@ -1785,17 +1791,13 @@ ecpp(GEN N)
 
   param = answer = garbage = NULL;
 
-  for (i = 0; ; i++)
-  {
-    long thr = ecpp_tune[i][3];
-    if (thr == 0 || expiN <= thr) break;
-  }
-  tunelen = i+1;
+  tunelen = (expiN+499)/500;
   tune = cgetg(tunelen+1, t_VEC);
-  for (i=1; i <= tunelen; i++)
+  for (i=1; i <= tunelen && ecpp_tune[i-1][3]; i++)
     gel(tune, i) = mkvecsmall4(ecpp_tune[i-1][0], ecpp_tune[i-1][1],
                                ecpp_tune[i-1][2], ecpp_tune[i-1][3]);
-
+  for (; i <= tunelen; i++)
+    gel(tune, i) = mkvecsmall4(200*(i-1),6*i-4,28,500*i);
   while (answer == NULL)
   {
     pari_timer T;
