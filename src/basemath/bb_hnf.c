@@ -864,6 +864,7 @@ gen_kernel_from_howell(GEN H, GEN ops, long n, void *data, const struct bb_hermi
   return cgetg(1,t_MAT);
 }
 
+/* not GC-clean */
 static GEN
 gen_kernel(GEN A, GEN* im, void *data, const struct bb_hermite *R)
 {
@@ -874,15 +875,14 @@ gen_kernel(GEN A, GEN* im, void *data, const struct bb_hermite *R)
   gerepileall(av,2,&H,&ops);
   K = gen_kernel_from_howell(H, ops, n, data, R);
   if (im) *im = H;
-  gerepileall(av,im?2:1,&K,im);
   return K;
 }
 
-/* right inverse */
+/* right inverse, not GC-clean */
 static GEN
 gen_inv(GEN A, void* data, const struct bb_hermite *R)
 {
-  pari_sp av0 = avma, av;
+  pari_sp av;
   GEN ops, H, U, un=R->s(data,1);
   long m,n,j,o,n2;
   RgM_dimensions(A,&m,&n);
@@ -903,7 +903,7 @@ gen_inv(GEN A, void* data, const struct bb_hermite *R)
     gerepileall(av, 1, &gel(U,j));
   }
   if (n2>n) U = rowslice(U, n2-n+1, n2);
-  return gerepilecopy(av0,U);
+  return U;
 }
 
 /*
@@ -959,11 +959,10 @@ gen_solve_from_howell(GEN H, GEN ops, long m, long n, GEN Y, void* data, const s
   return gerepilecopy(av, X);
 }
 
-/* return NULL if no solution */
+/* return NULL if no solution, not GC-clean */
 static GEN
 gen_solve(GEN A, GEN Y, GEN* K, void* data, const struct bb_hermite *R)
 {
-  pari_sp av = avma;
   GEN H, ops, X;
   long m,n;
 
@@ -971,14 +970,9 @@ gen_solve(GEN A, GEN Y, GEN* K, void* data, const struct bb_hermite *R)
   if (!n) m = lg(Y)-1;
   H = gen_howell_i(A, 2, 1, 0, 0, &ops, data, R);
   X = gen_solve_from_howell(H, ops, m, n, Y, data, R);
-  if (!X) { avma = av; return NULL; }
-  if (K)
-  {
-    *K = gen_kernel_from_howell(H, ops, n, data, R);
-    gerepileall(av, 2, &X, K);
-    return X;
-  }
-  return gerepilecopy(av, X);
+  if (!X) return NULL;
+  if (K) *K = gen_kernel_from_howell(H, ops, n, data, R);
+  return X;
 }
 
 GEN
@@ -1038,9 +1032,11 @@ matdetmod(GEN A, GEN d)
 GEN
 matkermod(GEN A, GEN d, GEN* im)
 {
+  pari_sp av = avma;
   void *data;
   const struct bb_hermite* R;
   long m,n;
+  GEN K;
   if (typ(A)!=t_MAT || !RgM_is_ZM(A)) pari_err_TYPE("matkermod", A);
   if (typ(d)!=t_INT) pari_err_TYPE("matkermod", d);
   if (signe(d)<=0) pari_err_DOMAIN("makermod", "d", "<=", gen_0, d);
@@ -1048,12 +1044,10 @@ matkermod(GEN A, GEN d, GEN* im)
   R = get_Fp_hermite(&data, d);
   RgM_dimensions(A,&m,&n);
   if (!im && m>2*n) /* TODO tune treshold */
-  {
-    pari_sp av = avma;
     A = shallowtrans(matimagemod(shallowtrans(A),d,NULL));
-    return gerepilecopy(av,gen_kernel(A, im, data, R));
-  }
-  return gen_kernel(A, im, data, R);
+  K = gen_kernel(A, im, data, R);
+  gerepileall(av,im?2:1,&K,im);
+  return K;
 }
 
 /* left inverse */
@@ -1078,7 +1072,7 @@ matinvmod(GEN A, GEN d)
   return gerepilecopy(av, shallowtrans(U));
 }
 
-/* assume all D[i]>0 */
+/* assume all D[i]>0, not GC-clean */
 static GEN
 matsolvemod_finite(GEN M, GEN D, GEN Y, long flag)
 {
