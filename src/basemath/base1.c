@@ -966,6 +966,17 @@ get_nfpol(GEN x, GEN *nf)
   *nf = checknf(x); return nf_get_pol(*nf);
 }
 
+static GEN
+incl_disc(GEN nfa, GEN a, int nolocal)
+{
+  GEN d;
+  if (nfa) return nf_get_disc(nfa);
+  if (nolocal) return NULL;
+  d = ZX_disc(a);
+  if (!signe(d)) pari_err_IRREDPOL("nfisincl",a);
+  return d;
+}
+
 /* is isomorphism / inclusion (a \subset b) compatible with what we know about
  * basic invariants ? (degree, signature, discriminant); test for isomorphism
  * if fliso is set and for inclusion otherwise */
@@ -981,16 +992,16 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
   if (fliso) { if (n != m) return 0; } else { if (n % m) return 0; }
   if (m == 1) return 1;
 
-  da = nfa? nf_get_disc(nfa): ZX_disc(a);
-  if (!signe(da)) pari_err_IRREDPOL("nfisincl",a);
-  db = nfb? nf_get_disc(nfb): ZX_disc(b);
-  if (!signe(db)) pari_err_IRREDPOL("nfisincl",a);
+  /*local test expensive if n^2 >> m^4 <=> q = n/m >> m */
+  da = incl_disc(nfa, a, q > m);
+  db = incl_disc(nfb, b, q > m);
   if (nfa && nfb) /* both nf structures available */
   {
     long r1a = nf_get_r1(nfa), r1b = nf_get_r1(nfb);
     return fliso ? (r1a == r1b && equalii(da, db))
                  : (r1b <= r1a * q && dvdii(db, powiu(da, q)));
   }
+  if (!db) return 1;
   if (fliso) return issquare(gdiv(da,db));
 
   if (nfa)
