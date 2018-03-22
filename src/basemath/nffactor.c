@@ -171,32 +171,36 @@ GEN
 nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
 {
   pari_sp btop, ltop = avma;
-  GEN lP, lQ, M, dsol, R, bo, sol, mod = NULL;
+  GEN lP, lQ, M, dsol, R, bo, sol, mod = NULL, lden = NULL;
   long vP = varn(P), vT = varn(T), dT = degpol(T), dM = 0, dR;
   forprime_t S;
 
   if (!signe(P)) { if (Pnew) *Pnew = pol_0(vT); return gcopy(Q); }
   if (!signe(Q)) { if (Pnew) *Pnew = pol_1(vT);   return gcopy(P); }
   /*Compute denominators*/
-  if (!den) den = ZX_disc(T);
   lP = leading_coeff(P);
   lQ = leading_coeff(Q);
   if ( !((typ(lP)==t_INT && is_pm1(lP)) || (typ(lQ)==t_INT && is_pm1(lQ))) )
-    den = mulii(den, gcdii(ZX_resultant(lP, T), ZX_resultant(lQ, T)));
+  {
+    lden = gcdii(ZX_resultant(lP, T), ZX_resultant(lQ, T));
+    if (den) den = mulii(den, lden);
+  }
 
   init_modular_small(&S);
   btop = avma;
   for(;;)
   {
     ulong p = u_forprime_next(&S);
+    GEN Tp;
     if (!p) pari_err_OVERFLOW("nfgcd [ran out of primes]");
     /*Discard primes dividing disc(T) or lc(PQ) */
-    if (!umodiu(den, p)) continue;
-    if (DEBUGLEVEL>5) err_printf("nfgcd: p=%lu\n",p);
+    if (lden && !umodiu(lden, p)) continue;
+    Tp = ZX_to_Flx(T,p);
+    if (!Flx_is_squarefree(Tp, p)) continue;
     /*Discard primes when modular gcd does not exist*/
     if ((R = FlxqX_safegcd(ZXX_to_FlxX(P,p,vT),
                            ZXX_to_FlxX(Q,p,vT),
-                           ZX_to_Flx(T,p), p)) == NULL) continue;
+                           Tp, p)) == NULL) continue;
     dR = degpol(R);
     if (dR == 0) { avma = ltop; if (Pnew) *Pnew = P; return pol_1(vP); }
     if (mod && dR > dM) continue; /* p divides Res(P/gcd, Q/gcd). Discard. */
