@@ -4789,6 +4789,9 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
     }
     swap(P, Q);
   }
+  U = Flxq_invsafe(leading_coeff(Q), T, p);
+  if (!U) { avma = av; return NULL; }
+  Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
   return gerepileupto(av, Q);
 }
 
