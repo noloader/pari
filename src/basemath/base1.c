@@ -993,8 +993,8 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
   if (m == 1) return 1;
 
   /*local test expensive if n^2 >> m^4 <=> q = n/m >> m */
-  da = incl_disc(nfa, a, q > m);
   db = incl_disc(nfb, b, q > m);
+  da = db? incl_disc(nfa, a, 0): NULL;
   if (nfa && nfb) /* both nf structures available */
   {
     long r1a = nf_get_r1(nfa), r1b = nf_get_r1(nfb);

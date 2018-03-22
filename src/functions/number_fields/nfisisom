@@ -17,13 +17,13 @@ Doc: as \tet{nfisincl}, but tests for isomorphism. More efficient if
  \\ comparative bench
  ? K = nfinit(f); L = nfinit(g); B = 10^3;
  ? for (i=1, B, nfisisom(f,g))
- time = 12,178 ms.
+ time = 6,124 ms.
  ? for (i=1, B, nfisisom(K,g))
- time = 6,466 ms.
+ time = 3,356 ms.
  ? for (i=1, B, nfisisom(f,L))
- time = 6,458 ms.
+ time = 3,204 ms.
  ? for (i=1, B, nfisisom(K,L))
- time = 6,336 ms.
+ time = 3,173 ms.
  @eprog\noindent
  The function is usually very fast when the fields are non-isomorphic,
  whenever the fields can be distinguished via a simple invariant such as
@@ -32,7 +32,7 @@ Doc: as \tet{nfisincl}, but tests for isomorphism. More efficient if
  \bprog
  \\ usually very fast when the answer is 'no':
  ? for (i=1, B, nfisisom(f,h))
- time = 1 ms.
+ time = 32 ms.
 
  \\ but not always
  ? u = x^6 + 12*x^5 + 6*x^4 - 377*x^3 - 714*x^2 + 5304*x + 15379
@@ -44,8 +44,8 @@ Doc: as \tet{nfisincl}, but tests for isomorphism. More efficient if
  ? nfdisc(u) == nfdisc(v)
  %15 = 1
  ? for(i=1,B, nfisisom(u,v))
- time = 2,204 ms.
- ? K = nfinit(u);
+ time = 1,821 ms.
+ ? K = nfinit(u); L = nfinit(v);
  ? for(i=1,B, nfisisom(K,v))
- time = 332 ms.
+ time = 232 ms.
  @eprog

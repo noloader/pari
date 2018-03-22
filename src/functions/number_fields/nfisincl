@@ -34,24 +34,24 @@ Doc: let $f$ and $g$ define number fields, where $f$ and $g$ are irreducible
  ? nfisincl(K, L) == v
  %7 = 1
 
- \\ comparative bench: an nf is a little faster
+ \\ comparative bench: an nf is a little faster, esp. for the subfield
  ? B = 10^3;
  ? for (i=1, B, nfisincl(U,T))
- time = 4,250 ms.
+ time = 712 ms.
 
  ? for (i=1, B, nfisincl(K,T))
- time = 4,196 ms.
+ time = 485 ms.
 
  ? for (i=1, B, nfisincl(U,L))
- time = 2,497 ms.
+ time = 704 ms.
 
  ? for (i=1, B, nfisincl(K,L))
- time = 2,505 ms.
- @eprog\noindent Using an \var{nf} structure for the containing field is
+ time = 465 ms.
+ @eprog\noindent Using an \var{nf} structure for the potential subfield is
  faster if the structure is already available. On the other hand, the gain in
- \kbd{nfisincl} is not sufficient to make it worthwhile to initialize only
- for that purpose:
+ \kbd{nfisincl} is usually not sufficient to make it worthwhile to initialize
+ only for that purpose.
  \bprog
- ? for (i=1, B, nfinit(L))
- time = 2,731 ms.
+ ? for (i=1, B, nfinit(U))
+ time = 308 ms.
  @eprog
