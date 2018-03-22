@@ -10399,21 +10399,31 @@ but suitable for \kbd{gerepileupto}.
 \typ{RFRAC}~$F$, creates the \typ{SER} $F(1/t) + O(t^d)$. Note that
 we use absolute and not relative precision here.
 
-\fun{GEN}{gtoser}{GEN s, long v, long d} converts the object~$s$ into
-a \typ{SER} with main variable number~\kbd{v} and $d > 0$ significant terms.
+\fun{GEN}{gtoser}{GEN s, long v, long d} This function is deprecated,
+kept for backward compatibility: it follows the semantic of \kbd{Ser(s,v)},
+with $d = \kbd{seriesprecision}$ implied and is hard to use as a general
+conversion function. Use \tet{gtoser_prec} instead.
+
+It converts the object~$s$ into a \typ{SER} with main variable number~\kbd{v}
+and $d > 0$ significant terms, but the argument $d$ is sometimes ignored.
 More precisely
 
-\item if $s$ is a scalar,  we return a constant power series with $d$
-significant terms.
+\item if $s$ is a scalar (with respect to variable $v$),  we return a
+constant power series with $d$ significant terms;
 
-\item if $s$ is a \typ{POL}, it is truncated to $d$ terms if needed.
+\item if $s$ is a \typ{POL} in variable $v$, it is truncated to $d$ terms if
+needed;
 
-\item If $s$ is a vector, the coefficients of the vector  are understood to
+\item if $s$ is a vector, the coefficients of the vector  are understood to
 be the coefficients of the power series starting from the constant term (as
-in \tet{Polrev}), and the precision $d$ is \emph{ignored}.
+in \tet{Polrev}), and the precision $d$ is \emph{ignored};
 
-\item If $s$ is already a power series in $v$, we retur a copy, and
+\item if $s$ is already a power series in $v$, we return a copy, and
 the precision $d$ is again \emph{ignored}.
+
+\fun{GEN}{gtoser_prec}{GEN s, long v, long d} this function is a variant of
+\kbd{gtoser} following the semantic of \kbd{Ser(s,v,d)}: the precision $d$
+is always taken into account.
 
 \fun{GEN}{gtocol}{GEN x} converts the object~\kbd{x} into a \typ{COL}
 
