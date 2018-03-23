@@ -3382,7 +3382,8 @@ long    z_pvalrem(long n, GEN p, long *py);
 
 GEN     RgX_to_ser(GEN x, long l);
 GEN     RgX_to_ser_inexact(GEN x, long l);
-GEN     gtoser(GEN x, long v, long precdl);
+GEN     gtoser(GEN x, long v, long d);
+GEN     gtoser_prec(GEN x, long v, long d);
 GEN     rfrac_to_ser(GEN x, long l);
 GEN     rfracrecip_to_ser_absolute(GEN R, long l);
 GEN     scalarser(GEN x, long v, long prec);
