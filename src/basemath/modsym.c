@@ -4182,8 +4182,8 @@ mspadicseries(GEN oms, long teichi)
     if (done || j == m-1) break;
     bin = RgXn_mul(bin, gdivgs(gsubgs(X, j), j+1), m);
   }
-  s = gtoser(s,0,lg(s)-1);
-  if (s2) { s2 = gtoser(s2,0,lg(s2)-1); s = mkvec2(s, s2); }
+  s = RgV_to_ser(s,0,lg(s)+1);
+  if (s2) { s2 = RgV_to_ser(s2,0,lg(s2)+1); s = mkvec2(s, s2); }
   if (kross(oms_get_D(oms), p) >= 0) return gerepilecopy(av, s);
   return gerepileupto(av, gneg(s));
 }

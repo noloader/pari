@@ -6210,7 +6210,7 @@ elltaniyama(GEN e, long prec)
 
   x = cgetg(prec+3,t_SER);
   x[1] = evalsigne(1) | _evalvalp(-2) | evalvarn(0);
-  d = ginv(gtoser(ellanQ(e,prec+1), 0, prec)); setvalp(d,-1);
+  d = ginv(RgV_to_ser(ellanQ(e,prec+1), 0, prec+3)); setvalp(d,-1);
   /* 2y(q) + a1x + a3 = d qx'(q). Solve for x(q),y(q):
    * 4y^2 = 4x^3 + b2 x^2 + 2b4 x + b6 */
   c = gsqr(d);

@@ -10790,9 +10790,9 @@ mfEHmat(long lim, long r)
   long j, l, d = r/2;
   GEN f2, th4, th3, v, vth4, vf2;
   c_F2TH4(lim, &f2, &th4);
-  f2 = gtoser(f2, 0, 0);
-  th4 = gtoser(th4, 0, 0);
-  th3 = gtoser(c_theta(lim, 1, mfchartrivial()), 0, 0);
+  f2 =  RgV_to_ser(f2, 0, lim+3);
+  th4 = RgV_to_ser(th4, 0, lim+3);
+  th3 = RgV_to_ser(c_theta(lim, 1, mfchartrivial()), 0, lim+3);
   if (odd(r)) th3 = gpowgs(th3, 3);
   vth4 = gpowers(th4, d);
   vf2 = gpowers0(f2, d, th3); /* th3 f2^j */
