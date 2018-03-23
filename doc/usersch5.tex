@@ -5230,6 +5230,9 @@ by its leading term. The leading coefficient becomes $1$ as a \typ{INT}.
 \fun{GEN}{FqX_deriv}{GEN x, GEN T, GEN p} returns the derivative of \kbd{x}.
 (This function is suitable for \kbd{gerepilupto} but not memory-clean.)
 
+\fun{GEN}{FqX_integ}{GEN x, GEN T, GEN p} returns the primitive of \kbd{x}.
+whose constant term is $0$.
+
 \fun{GEN}{FqX_translate}{GEN P, GEN c, GEN T, GEN p} let $c$ be an \kbd{Fq}
 defined modulo $(p, T)$, and let $P$ be an \kbd{FqX}; returns the translated
 \kbd{FqX} of $P(X+c)$.
