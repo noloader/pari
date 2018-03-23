@@ -4964,7 +4964,7 @@ static void
 check_gp_file(const char *s, long n)
 {
   if (n < 0 || n >= s_gp_file.n || !gp_file[n].fp)
-    pari_err_TYPE(s, stoi(n));
+    pari_err_FILEDESC(s, n);
 }
 
 static long
@@ -5071,7 +5071,7 @@ gp_fileread(long n)
   check_gp_file("fileread", n);
   t = gp_file[n].type;
   if (t!=mf_IN && t!=mf_PIPE)
-    pari_err_TYPE("fileread",stoi(n));
+    pari_err_FILEDESC("fileread",n);
   fp = gp_file[n].fp;
   b = new_buffer();
   while(1)
@@ -5090,7 +5090,7 @@ gp_filewrite(long n, const char *s)
   FILE *fp;
   check_gp_file("filewrite", n);
   if (gp_file[n].type!=mf_OUT)
-    pari_err_TYPE("filewrite",stoi(n));
+    pari_err_FILEDESC("filewrite",n);
   fp = gp_file[n].fp;
   fputs(s, fp);
   fputc('\n',fp);
@@ -5102,7 +5102,7 @@ gp_filewrite1(long n, const char *s)
   FILE *fp;
   check_gp_file("filewrite1", n);
   if (gp_file[n].type!=mf_OUT)
-    pari_err_TYPE("filewrite1",stoi(n));
+    pari_err_FILEDESC("filewrite1",n);
   fp = gp_file[n].fp;
   fputs(s, fp);
 }
@@ -5118,7 +5118,7 @@ gp_filereadstr(long n)
   check_gp_file("filereadstr", n);
   t = gp_file[n].type;
   if (t!=mf_IN && t!=mf_PIPE)
-    pari_err_TYPE("fileread",stoi(n));
+    pari_err_FILEDESC("fileread",n);
   b = new_buffer();
   IM.fgets = (fgets_t)&fgets;
   IM.file = (void*) gp_file[n].fp;

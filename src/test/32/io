@@ -28,4 +28,28 @@ y
 9:9
 10:10
 11:12345678910
+  ***   at top-level: ...ileopen(F));fileclose(f);fileread(f)
+  ***                                             ^-----------
+  *** fileread: invalid file descriptor 0
+  ***   at top-level: ...ileopen(F));fileclose(f);filereadstr(f)
+  ***                                             ^--------------
+  *** filereadstr: invalid file descriptor 0
+  ***   at top-level: ...ileopen(F));fileclose(f);filewrite(f,"b")
+  ***                                             ^----------------
+  *** filewrite: invalid file descriptor 0
+  ***   at top-level: ...ileopen(F));fileclose(f);filewrite1(f,"b")
+  ***                                             ^-----------------
+  *** filewrite1: invalid file descriptor 0
+  ***   at top-level: my(f=fileopen(F,"w"));fileread(f)
+  ***                                       ^-----------
+  *** fileread: invalid file descriptor 0
+  ***   at top-level: my(f=fileopen(F,"a"));filereadstr(f)
+  ***                                       ^--------------
+  *** filereadstr: invalid file descriptor 0
+  ***   at top-level: my(f=fileopen(F));filewrite(f,"b")
+  ***                                   ^----------------
+  *** filewrite: invalid file descriptor 0
+  ***   at top-level: my(f=fileopen(F,"r"));filewrite1(f,"b")
+  ***                                       ^-----------------
+  *** filewrite1: invalid file descriptor 0
 Total time spent: 0

@@ -2885,6 +2885,8 @@ pari_err_DIM(const char *f) { pari_err(e_DIM, f); }
 INLINE void
 pari_err_FILE(const char *f, const char *g) { pari_err(e_FILE, f,g); }
 INLINE void
+pari_err_FILEDESC(const char *f, long n) { pari_err(e_FILEDESC, n); }
+INLINE void
 pari_err_FLAG(const char *f) { pari_err(e_FLAG,f); }
 INLINE void
 pari_err_IMPL(const char *f) { pari_err(e_IMPL,f); }

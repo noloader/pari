@@ -43,3 +43,11 @@ del()
     print(i++,":",l));
   fileclose(f);
 }
+my(f=fileopen(F));fileclose(f);fileread(f)
+my(f=fileopen(F));fileclose(f);filereadstr(f)
+my(f=fileopen(F));fileclose(f);filewrite(f,"b")
+my(f=fileopen(F));fileclose(f);filewrite1(f,"b")
+my(f=fileopen(F,"w"));fileread(f)
+my(f=fileopen(F,"a"));filereadstr(f)
+my(f=fileopen(F));filewrite(f,"b");
+my(f=fileopen(F,"r"));filewrite1(f,"b");

@@ -33,6 +33,7 @@ enum err_list {
 
   e_SQRTN,
 
+  e_FILEDESC,
 /* NO ERROR */
   e_NONE
 };

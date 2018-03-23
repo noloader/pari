@@ -5805,6 +5805,7 @@ INLINE void    pari_err_COPRIME(const char *f, GEN x, GEN y);
 INLINE void    pari_err_DIM(const char *f);
 INLINE void    pari_err_DOMAIN(const char *f, const char *v, const char *op, GEN l, GEN x);
 INLINE void    pari_err_FILE(const char *f, const char *g);
+INLINE void    pari_err_FILEDESC(const char *f, long n);
 INLINE void    pari_err_FLAG(const char *f);
 INLINE void    pari_err_IMPL(const char *f);
 INLINE void    pari_err_INV(const char *f, GEN x);

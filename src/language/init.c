@@ -1263,6 +1263,8 @@ pari_err2GEN(long numerr, va_list ap)
       const char *f = va_arg(ap, const char*);
       retmkerr3(numerr, strtoGENstr(f), strtoGENstr(va_arg(ap, char*)));
     }
+  case e_FILEDESC:
+    retmkerr2(numerr, stoi(va_arg(ap, long)));
   case e_OVERFLOW:
   case e_IMPL:
   case e_DIM:
@@ -1392,6 +1394,8 @@ pari_err2str(GEN e)
     return pari_sprintf("inconsistent dimensions in %Ps.", gel(e,2));
   case e_FILE:
     return pari_sprintf("error opening %Ps: `%Ps'.", gel(e,2), gel(e,3));
+  case e_FILEDESC:
+    return pari_sprintf("invalid file descriptor %Ps", gel(e,2));
   case e_FLAG:
     return pari_sprintf("invalid flag in %Ps.", gel(e,2));
   case e_IMPL:
@@ -1601,6 +1605,7 @@ numerr_name(long numerr)
   case e_DIM:      return "e_DIM";
   case e_DOMAIN:   return "e_DOMAIN";
   case e_FILE:     return "e_FILE";
+  case e_FILEDESC: return "e_FILEDESC";
   case e_FLAG:     return "e_FLAG";
   case e_IMPL:     return "e_IMPL";
   case e_INV:      return "e_INV";
@@ -1642,6 +1647,7 @@ name_numerr(const char *s)
   if (!strcmp(s,"e_DIM"))      return e_DIM;
   if (!strcmp(s,"e_DOMAIN"))   return e_DOMAIN;
   if (!strcmp(s,"e_FILE"))     return e_FILE;
+  if (!strcmp(s,"e_FILEDESC")) return e_FILEDESC;
   if (!strcmp(s,"e_FLAG"))     return e_FLAG;
   if (!strcmp(s,"e_IMPL"))     return e_IMPL;
   if (!strcmp(s,"e_INV"))      return e_INV;
