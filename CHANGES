@@ -259,7 +259,7 @@ JD   54- [plot] SVG support
      58- [libpari] ulogintall, ulogint, umuluu_or_0, QXQV_to_FpM, ZM_ZX_mul,
          RgM_RgX_mul
      59- new GP function ellminimaldisc
-     60- [libpari] rfracrecip_to_ser_absolute
+     60- [libpari] rfracrecip_to_ser_absolute, RgV_to_ser
      61- new GP function znchardecompose, zncharconductor, znchartoprimitive
 PB   62- perm_sign
 PB   63- [libpari] FlxC_neg FlxC_sub FlxM_neg FlxM_sub FlxqC_Flxq_mul

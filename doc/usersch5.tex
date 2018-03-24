@@ -10379,27 +10379,30 @@ $\deg_v(\kbd{P})$.
 as \kbd{RgXY\_swap} where the coefficients of $P$ are given by
 \kbd{gel(C,0),\dots,gel(C,lP-1)}.
 
-\fun{GEN}{RgX_to_ser}{GEN x, long l} applied to a \typ{POL}~\kbd{x}, creates
-a \emph{shallow} \typ{SER} of length~$l\geq 2$ starting with~\kbd{x}.
+\fun{GEN}{RgX_to_ser}{GEN x, long l} convert the \typ{POL}~\kbd{x} to
+a \emph{shallow} \typ{SER} of length~$l\geq 2$.
 Unless the polynomial is an exact zero, the coefficient of lowest degree
 $T^d$ of the result is not an exact zero (as per \kbd{isexactzero}). The
-remainder is $O(T^{d+l})$.
+remainder is $O(T^{d+l-2})$.
 
-\fun{GEN}{RgX_to_ser_inexact}{GEN x, long l} applied to a \typ{POL}~\kbd{x},
-creates a \emph{shallow} \typ{SER} of length~\kbd{l} starting with~\kbd{x}.
+\fun{GEN}{RgX_to_ser_inexact}{GEN x, long l} convert the \typ{POL}~\kbd{x} to
+a \emph{shallow} \typ{SER} of length~$l\geq 2$.
 Unless the polynomial is zero, the coefficient of lowest degree
 $T^d$ of the result is not zero (as per \kbd{gequal0}). The
-remainder is $O(T^{d+l})$.
+remainder is $O(T^{d+l-2})$.
+
+\fun{GEN}{RgV_to_ser}{GEN x, long v, long l} convert the \typ{VEC}~\kbd{x},
+to a \emph{shallow} \typ{SER} of length~$l\geq 2$.
 
 \fun{GEN}{rfrac_to_ser}{GEN F, long l} applied to a \typ{RFRAC}~$F$,
-creates a \typ{SER} of length~\kbd{l} congruent to $F$. Not memory-clean
+creates a \typ{SER} of length~$l\geq 2$ congruent to $F$. Not memory-clean
 but suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{rfracrecip_to_ser_absolute}{GEN F, long d} applied to a
 \typ{RFRAC}~$F$, creates the \typ{SER} $F(1/t) + O(t^d)$. Note that
 we use absolute and not relative precision here.
 
-\fun{GEN}{gtoser}{GEN s, long v, long d} This function is deprecated,
+\fun{GEN}{gtoser}{GEN s, long v, long d}. This function is deprecated,
 kept for backward compatibility: it follows the semantic of \kbd{Ser(s,v)},
 with $d = \kbd{seriesprecision}$ implied and is hard to use as a general
 conversion function. Use \tet{gtoser_prec} instead.
