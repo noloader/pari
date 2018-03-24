@@ -5061,6 +5061,22 @@ gp_fileclose(long n)
     s_gp_file.n--;
 }
 
+void
+gp_fileflush(long n)
+{
+  check_gp_file("fileflush", n);
+  if (DEBUGFILES) err_printf("fileflush(%ld)\n",n);
+  if (gp_file[n].type == mf_OUT) (void)fflush(gp_file[n].fp);
+}
+void
+gp_fileflush0(GEN gn)
+{
+  long i;
+  if (gn) gp_fileflush(itos(gn));
+  else for (i = 0; i < s_gp_file.n; i++)
+    if (gp_file[i].fp && gp_file[i].type == mf_OUT) gp_fileflush(i);
+}
+
 GEN
 gp_fileread(long n)
 {

@@ -2967,6 +2967,8 @@ void    err_printf(const char* pat, ...);
 GEN     gp_getenv(const char *s);
 void    gp_fileclose(long n);
 long    gp_fileextern(char *s);
+void    gp_fileflush(long n);
+void    gp_fileflush0(GEN n);
 long    gp_fileopen(char *s, char *mode);
 GEN     gp_fileread(long n);
 GEN     gp_filereadstr(long n);

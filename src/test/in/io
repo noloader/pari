@@ -31,7 +31,7 @@ del()
   for(i=1,10, filewrite(f,i));
   fileclose(f);
   my(f=fileopen(F,"a"));
-  for(i=1,10, filewrite1(f,i));
+  for(i=1,10, filewrite1(f,i); fileflush(f));
   filewrite1(f,"\n");
   fileclose(f);
   my(i=0,l,f=fileopen(F));
@@ -41,12 +41,14 @@ del()
   my(i=0,l,f=fileopen(F,"r"));
   while(l=filereadstr(f),
     print(i++,":",l));
+  fileflush();
   fileclose(f);
 }
 my(f=fileopen(F));fileclose(f);fileread(f)
 my(f=fileopen(F));fileclose(f);filereadstr(f)
 my(f=fileopen(F));fileclose(f);filewrite(f,"b")
 my(f=fileopen(F));fileclose(f);filewrite1(f,"b")
+my(f=fileopen(F));fileclose(f);fileflush(f)
 my(f=fileopen(F,"w"));fileread(f)
 my(f=fileopen(F,"a"));filereadstr(f)
 my(f=fileopen(F));filewrite(f,"b");
