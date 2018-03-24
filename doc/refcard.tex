@@ -229,6 +229,7 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{exit $n$ innermost enclosing loops}{break$(\{n\})$}
 \li{start new iteration of $n$-th enclosing loop}{next$(\{n\})$}
 \li{return $x$ from current subroutine}{return$(\{x\})$}
+\newcolumn
 
 \subsec{Exceptions, warnings}
 \li{raise an exception / warn}{error$()$, warning$()$}
@@ -255,6 +256,7 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{sort $x$ by $k$-th component}{vecsort$(x,\{k\},\{fl=0\})$}
 \li{min.~$m$ of $x$ ($m=x[i]$), max.}{vecmin$(x,\{\&i\})${\rm, }vecmax}
 \li{does $y$ belong to $x$, sorted wrt. $f$}{vecsearch$(x,y,\{f\})$}
+%
 
 \subsec{Input/Output}
 \li{print with/without \kbd{\bs n}, \TeX\ format}
@@ -269,6 +271,22 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{\dots return as vector of strings}{readstr($\{\file\}$)}
 \li{read a string from keyboard}{input$()$}
 
+\subsec{Files and file descriptors}
+File descriptors allows efficient small consecutive reads
+or writes from or to a given file. The argument $n$ below is always a
+descriptor, attached to a file in \kbd{r}(ead), \kbd{w}(rite) or \kbd{a}(ppend)
+mode.\hfil\break
+\li{get descriptor $n$ for file \var{path} in given \var{mode}}
+   {fileopen$(\var{path},\var{mode})$}
+\li{\dots from shell \var{cmd} output (pipe)}{fileextern$(\var{cmd})$}
+\smallskip
+\li{close descriptor}{fileclose$(n)$}
+\li{commit pending write operations}{fileflush($n$)}
+\li{read logical line from file}{fileread$(n)$}
+\li{\dots raw line from file}{filereadstr$(n)$}
+\li{write $s$\kbd{\bs n} to file}{filewrite$(n, s)$}
+\li{\dots write $s$ to file}{filewrite1$(n, s)$}
+
 \subsec{Timers}
 \li{CPU time in \var{ms} and reset timer}{gettime$()$}
 \li{CPU time in \var{ms} since gp startup}{getabstime$()$}
@@ -280,8 +298,12 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{alias \var{old}\ to \var{new}}{alias$(\var{new},\var{old})$}
 \li{install function from library}{install$(f,code,\{\var{gpf\/}\},\{\var{lib}\})$}
 \li{execute system command $a$}{system$(a)$}
-\li{as above, feed result to GP}{extern$(a)$}
-\li{as above, return GP string}{externstr$(a)$}
+\li{\dots and feed result to GP}{extern$(a)$}
+\li{\dots returning GP string}{externstr$(a)$}
+\newcolumn
+\title{\TITLE}
+\centerline{(PARI-GP version \PARIversion)}
+
 \li{get \kbd{\$VAR} from environment}{getenv$($\kbd{"VAR"}$)$}
 \li{expand env. variable in string}{Strexpand$(x)$}
 
@@ -295,12 +317,6 @@ header.
 \li{as \kbd{select}}{parselect$(f,A,\{\fl\})$}
 \li{as \kbd{sum}}{parsum$(i = a,b,\var{expr},\{x\})$}
 \li{as \kbd{vector}}{parvector$(n,i,\{\var{expr}\})$}
-%
-\newcolumn
-\title{\TITLE}
-\centerline{(PARI-GP version \PARIversion)}
-
-
 \li{eval $f$ for $i=a,\dots,b$}
    {parfor$(i = a, \{b\}, f,\{r\}, \{f_2\})$}
 \li{\dots for $p$ prime in $[a,b]$}
@@ -363,7 +379,6 @@ header.
 \li{kernel mod $D$}{matkermod$(M,D)$}
 \li{inverse mod $D$}{matinvmod$(M,D)$}
 \li{determinant mod $D$}{matdetmod$(M,D)$}
-\newcolumn
 
 \section{Lattices \& Quadratic Forms}
 \subsec{Quadratic forms}
@@ -404,6 +419,14 @@ header.
 \li{\dots of lowest priority (lower than $v$)}
    {varlower$(\var{name},\{v\})$}
 
+\copyrightnotice
+\newcolumn
+
+\title{\TITLE}
+
+\centerline{(PARI-GP version \PARIversion)}
+\bigskip
+
 \subsec{Coefficients, variables and basic operators}
 \li{degree of $f$}{poldegree$(f)$}
 \li{coeff. of degree $n$ of $f$, leading coeff.}{polcoeff$(f,n)${\rm, }pollead}
@@ -413,8 +436,6 @@ header.
 \li{replace polynomial expr.~$T(x)$ by $y$ in $f$}{substpol$(f,T,y)$}
 \li{replace $x_1,\dots,x_n$ by $y_1,\dots,y_n$ in $f$}{substvec$(f,x,y)$}
 \li{reciprocal polynomial $x^{\deg f}f(1/x)$}{polrecip$(f)$}
-\smallskip
-
 \li{gcd of coefficients of $f$}{content$(f)$}
 \li{derivative of $f$ w.r.t. $x$}{deriv$(f,\{x\})$}
 \li{formal integral of $f$ w.r.t. $x$}{intformal$(f,\{x\})$}
@@ -427,8 +448,6 @@ header.
 \li{return $n$ if $f=\Phi_n$, else $0$}{poliscyclo$(f)$}
 \li{is $f$ a product of cyclotomic polynomials?}{poliscycloprod$(f)$}
 \li{Zagier's polynomial of index $(n,m)$}{polzagier$(n,m)$}
-
-\copyrightnotice
 
 \subsec{Resultant, elimination}
 \li{discriminant of polynomial $f$}{poldisc$(f)$}
@@ -460,6 +479,8 @@ header.
    {polhensellift$(A,B,p,e)$}
 \li{extensions of $\QQ_p$ of degree $N$}{padicfields$(p,N)$}
 
+\shortcopyrightnotice
+
 \section{Finite Fields}
 A finite field is encoded by any element (\typ{FFELT}).\hfil\break
 \li{Create $t$ in $\F_q\simeq\F_p[t]/(T)$}{t = ffgen$(T,\text{'t})$}
@@ -482,14 +503,6 @@ A finite field is encoded by any element (\typ{FFELT}).\hfil\break
 \li{reverse power series $F$ so $F(f(x))=x$}{serreverse$(f)$}
 \li{Dirichlet series multiplication / division}{dirmul{\rm,} dirdiv$(x,y)$}
 \li{Dirichlet Euler product ($b$ terms)}{direuler$(p=a,b,\expr)$}
-
-\shortcopyrightnotice
-\newcolumn
-
-\title{\TITLE}
-
-\centerline{(PARI-GP version \PARIversion)}
-\bigskip
 
 \section{Transcendental and $p$-adic Functions}
 \li{real, imaginary part of $x$}{real$(x)$, imag$(x)$}
@@ -522,9 +535,9 @@ A finite field is encoded by any element (\typ{FFELT}).\hfil\break
 {(bessel)i{\rm, }k{\rm, }h1{\rm, }h2{\rm, }n}
 \li{Lambert $W$: $x$ s.t. $xe^x =y$}{lambertw$(y)$}
 \li{Teichmuller character of $p$-adic $x$}{teichmuller$(x)$}
+\newcolumn
 
 \section{Iterations, Sums \& Products}
-
 \subsec{Numerical integration for meromorphic functions}
 Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 ($a\in\CC$, regular) or $\pm$\kbd{oo} (decreasing at least as $x^{-2}$) or
@@ -551,7 +564,6 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{sum of alternating/positive series}{sumalt{\rm,} sumpos}
 \li{sum of series using Euler-Maclaurin}{sumnum$(n=a,f,\{T\})$}
 
-\newcolumn
 \li{$\sum_{n\geq a} F(n)$, $F$ rational function}{sumnumrat$(F,a)$}
 \li{\dots $\sum_{n\geq a} (-1)^n F(n)$}{sumaltrat$(F,a)$}
 \li{\dots $\sum_{p\geq a} F(p^s)$}{sumeulerrat$(F, \{s = 1\}, \{a = 2\})$}
