@@ -253,7 +253,7 @@ PB   53- [libpari] FFM_deplin, FFM_indexrank, FFM_suppl F2xqM_deplin,
          F2xqM_indexrank, F2xqM_suppl FlxqM_deplin, FlxqM_indexrank, FlxqM_suppl
          FqM_indexrank
 JD   54- [plot] SVG support
-     55- [libpari] upper_to_cx, cxredsl2
+     55- [libpari] upper_to_cx, cxredsl2, cxredsl2_i
      56- new GP function charpow
      57- [libpari] ZM_pseudoinv
      58- [libpari] ulogintall, ulogint, umuluu_or_0, QXQV_to_FpM, ZM_ZX_mul,

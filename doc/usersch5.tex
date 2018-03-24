@@ -12333,9 +12333,12 @@ coefficientwise.
 
 \subsec{Modular functions}
 
-\fun{GEN}{cxredsl2}{GEN t, GEN *g} given $t$ a \typ{COMPLEX} belonging to the
-upper half-plane, find $\gamma \in \text{SL}_2(\Z)$ such that $\gamma \cdot t$
+\fun{GEN}{cxredsl2}{GEN z, GEN *g} given $t$ a \typ{COMPLEX} belonging to the
+upper half-plane, find $\gamma \in \text{SL}_2(\Z)$ such that $\gamma \cdot z$
 belongs to the standard fundamental domain and set \kbd{*g} to $\gamma$.
+
+\fun{GEN}{cxredsl2_i}{GEN z, GEN *g, GEN *czd} as \kbd{cxredsl2}; also sets
+\kbd{*czd} to $cz + d$, if $\gamma = [a,b;c,d]$.
 
 \subsec{Transcendental functions with \typ{PADIC} arguments}
 
