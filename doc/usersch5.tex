@@ -13029,6 +13029,13 @@ this system}.
 @eprog\noindent prints the error message: \kbd{error opening
 \emph{what}: `\emph{name}'}.
 
+\subsubsec{e\_FILEDESC} Error while handling a file descriptor.
+\bprog
+  pari_err(e_FILEDESC, const char *where, long n)
+  pari_err_FILEDESC(const char *where, long n)
+@eprog\noindent prints the error message: \kbd{invalid file descriptor in
+\emph{where}: `\emph{name}'}.
+
 \subsubsec{e\_IMPL} A requested feature $s$ is not implemented.
 \bprog
   pari_err(e_IMPL, const char *s)

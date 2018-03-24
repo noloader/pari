@@ -1264,7 +1264,10 @@ pari_err2GEN(long numerr, va_list ap)
       retmkerr3(numerr, strtoGENstr(f), strtoGENstr(va_arg(ap, char*)));
     }
   case e_FILEDESC:
-    retmkerr2(numerr, stoi(va_arg(ap, long)));
+    {
+      const char *f = va_arg(ap, const char*);
+      retmkerr3(numerr, strtoGENstr(f), stoi(va_arg(ap, long)));
+    }
   case e_OVERFLOW:
   case e_IMPL:
   case e_DIM:
@@ -1395,7 +1398,7 @@ pari_err2str(GEN e)
   case e_FILE:
     return pari_sprintf("error opening %Ps: `%Ps'.", gel(e,2), gel(e,3));
   case e_FILEDESC:
-    return pari_sprintf("invalid file descriptor %Ps", gel(e,2));
+    return pari_sprintf("invalid file descriptor in %Ps [%Ps]", gel(e,2), gel(e,3));
   case e_FLAG:
     return pari_sprintf("invalid flag in %Ps.", gel(e,2));
   case e_IMPL:
