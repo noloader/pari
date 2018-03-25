@@ -420,13 +420,13 @@ static int
 iu_coprime(GEN N, ulong u)
 {
   const ulong n = umodiu(N, u);
-  return (n == 1 || gcduodd(n, u) == 1);
+  return (n == 1 || ugcd(n, u) == 1);
 }
 /* assume u odd, u > 1 */
 static int
 uu_coprime(ulong n, ulong u)
 {
-  return gcduodd(n, u) == 1;
+  return ugcd(n, u) == 1;
 }
 
 /* composite strong 2-pseudoprime < 1016801 whose prime divisors are > 101 */

@@ -515,7 +515,6 @@ GEN LLL_check_progress(GEN Bnorm, long n0, GEN m, int final, long *ti_LLL);
 /* integer factorization / discrete log */
 ulong is_kth_power(GEN x, ulong p, GEN *pt);
 GEN   mpqs(GEN N);
-ulong gcduodd(ulong x, ulong y);
 
 /* Polynomials */
 /* a) Arithmetic/conversions */

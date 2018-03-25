@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * the time be smaller than y). */
 
 /* Gotos are Harmful, and Programming is a Science.  E.W.Dijkstra. */
-ulong
+INLINE ulong
 gcduodd(ulong x, ulong y)         /* assume y&1==1, y > 1 */
 {
   if (!x) return y;
