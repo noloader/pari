@@ -5072,7 +5072,11 @@ void
 gp_fileflush0(GEN gn)
 {
   long i;
-  if (gn) gp_fileflush(itos(gn));
+  if (gn)
+  {
+    if (typ(gn) != t_INT) pari_err_TYPE("fileflush",gn);
+    gp_fileflush(itos(gn));
+  }
   else for (i = 0; i < s_gp_file.n; i++)
     if (gp_file[i].fp && gp_file[i].type == mf_OUT) gp_fileflush(i);
 }

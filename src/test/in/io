@@ -53,3 +53,4 @@ my(f=fileopen(F,"w"));fileread(f)
 my(f=fileopen(F,"a"));filereadstr(f)
 my(f=fileopen(F));filewrite(f,"b");
 my(f=fileopen(F,"r"));filewrite1(f,"b");
+fileflush('x)
