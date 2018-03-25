@@ -69,7 +69,7 @@ gcdii(GEN a, GEN b)
   switch (abscmpii(a,b))
   {
     case 0: return absi(a);
-    case -1: t=b; b=a; a=t;
+    case -1: swap(a,b);
   }
   if (!signe(b)) return absi(a);
   /* here |a|>|b|>0. Try single precision first */
@@ -85,7 +85,7 @@ gcdii(GEN a, GEN b)
   /* larger than gcd: "avma=av" gerepile (erasing t) is valid */
   av = avma; (void)new_chunk(lgefint(b)); /* HACK */
   t = remii(a,b);
-  if (!signe(t)) { avma=av; return absi(b); }
+  if (!signe(t)) { avma = av; return absi(b); }
 
   a = b; b = t;
   v = vali(a); a = shifti(a,-v); setabssign(a);
@@ -93,10 +93,10 @@ gcdii(GEN a, GEN b)
   if (w < v) v = w;
   switch(abscmpii(a,b))
   {
-    case  0: avma=av; a=shifti(a,v); return a;
-    case -1: p1=b; b=a; a=p1;
+    case  0: avma = av; a = shifti(a,v); return a;
+    case -1: swap(a,b);
   }
-  if (is_pm1(b)) { avma=av; return int2n(v); }
+  if (is_pm1(b)) { avma = av; return int2n(v); }
 
   /* we have three consecutive memory locations: a,b,t.
    * All computations are done in place */
@@ -107,12 +107,12 @@ gcdii(GEN a, GEN b)
     /* if a=b mod 4 set t=a-b, otherwise t=a+b, then strip powers of 2 */
     /* so that t <= (a+b)/4 < a/2 */
     gcd_plus_minus(a,b, t);
-    if (is_pm1(t)) { avma=av; return int2n(v); }
+    if (is_pm1(t)) { avma = av; return int2n(v); }
     switch(abscmpii(t,b))
     {
       case -1: p1 = a; a = b; b = t; t = p1; break;
-      case  1: p1 = a; a = t; t = p1; break;
-      case  0: avma = av; b=shifti(b,v); return b;
+      case  1: swap(a,t); break;
+      case  0: avma = av; b = shifti(b,v); return b;
     }
   }
   {
