@@ -2526,16 +2526,6 @@ RgXQ_matrix_pow(GEN y, long n, long m, GEN P)
 }
 
 GEN
-RgXQ_minpoly_naive(GEN y, GEN P)
-{
-  pari_sp ltop=avma;
-  long n=lgpol(P);
-  GEN M=ker(RgXQ_matrix_pow(y,n,n,P));
-  M=content(RgM_to_RgXV(M,varn(P)));
-  return gerepileupto(ltop,M);
-}
-
-GEN
 RgXQ_norm(GEN x, GEN T)
 {
   pari_sp av;

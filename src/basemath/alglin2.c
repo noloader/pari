@@ -693,39 +693,42 @@ matfrobenius(GEN M, long flag, long v)
 static GEN
 easymin(GEN x, long v)
 {
-  pari_sp ltop=avma;
   GEN G, R, dR;
-  if (typ(x)==t_POLMOD && !issquarefree(gel(x,1)))
-    return NULL;
+  if (typ(x)==t_POLMOD && !issquarefree(gel(x,1))) return NULL;
   R = easychar(x, v);
-  if (!R) return R;
-  dR=RgX_deriv(R);
-  if (!lgpol(dR)) {avma=ltop; return NULL;}
+  if (!R) return NULL;
+  dR = RgX_deriv(R);
+  if (!lgpol(dR)) return NULL;
   G = RgX_normalize(RgX_gcd(R,dR));
-  return gerepileupto(ltop, RgX_div(R,G));
+  return RgX_div(R,G);
 }
-
+static GEN
+RgXQ_minpoly_naive(GEN y, GEN P)
+{
+  long n = lgpol(P);
+  GEN M = ker(RgXQ_matrix_pow(y,n,n,P));
+  return content(RgM_to_RgXV(M,varn(P)));
+}
 GEN
 minpoly(GEN x, long v)
 {
-  pari_sp ltop=avma;
+  pari_sp av = avma;
   GEN P;
-  if (v<0) v = 0;
-  if (typ(x)==t_FFELT)
+  if (v < 0) v = 0;
+  if (typ(x) == t_FFELT)
   {
-      GEN p1 = FpX_to_mod(FF_minpoly(x), FF_p_i(x));
-      setvarn(p1,v); return gerepileupto(ltop,p1);
+    P = FpX_to_mod(FF_minpoly(x), FF_p_i(x));
+    setvarn(P,v); return gerepileupto(av,P);
   }
-
   P = easymin(x,v);
-  if (P) return P;
-  if (typ(x)==t_POLMOD)
+  if (P) return gerepileupto(av,P);
+  avma = av;
+  if (typ(x) == t_POLMOD)
   {
-    P = gcopy(RgXQ_minpoly_naive(gel(x,2), gel(x,1)));
-    setvarn(P,v);
-    return gerepileupto(ltop,P);
+    P = RgXQ_minpoly_naive(gel(x,2), gel(x,1));
+    setvarn(P,v); return gerepileupto(av,P);
   }
-  if (typ(x)!=t_MAT) pari_err_TYPE("minpoly",x);
+  if (typ(x) != t_MAT) pari_err_TYPE("minpoly",x);
   if (lg(x) == 1) return pol_1(v);
   return RgM_minpoly(x,v);
 }

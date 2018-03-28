@@ -534,7 +534,6 @@ GEN  ZXQ_charpoly_sqf(GEN A, GEN B, long *lambda, long v);
 GEN  ZX_disc_all(GEN,ulong);
 GEN  ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound);
 GEN  ZX_ZXY_resultant_all(GEN A, GEN B, long *lambda, GEN *LPRS);
-GEN  RgXQ_minpoly_naive(GEN y, GEN P);
 
 GEN FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p);
 GEN FqM_mul_Kronecker(GEN x, GEN y, GEN T, GEN p);
