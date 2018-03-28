@@ -1223,31 +1223,29 @@ is invalid. These assignment operators are right-associative:
 function object, of type \typ{CLOSURE}.
 
 \misctitle{Remark} Use the \var{op}\kbd{=} operators as often as possible
-since they make complex assignments more legible: one needs not parse
-complicated expressions twice to make sure they are indeed identical. Compare
+since they make complex assignments more legible. Compare
 \bprog
 v[i+j-1] = v[i+j-1] + 1    -->    v[i+j-1]++
 
 M[i,i+j] = M[i,i+j] * 2    -->    M[i,i+j] *= 2
 @eprog
 
-\misctitle{Remark} Less important but still interesting. The
-\kbd{++}, \kbd{--} and \var{op}\kbd{=} operators are slightly more efficient:
+\misctitle{Remark about efficiency} the operators \kbd{++}
+and \kbd{--} are usually a little more efficient than their expended
+counterpart:
 \bprog
-? a = 10^6;
-? i = 0; while(i<a, i=i+1)
-time = 365 ms.
-? i = 0; while(i<a, i++)
-time = 352 ms.
-@eprog
-\noindent For the same reason, the shift operators should be preferred to
-multiplication:
+? N = 10^7;
+? i = 0; for(k = 1, N, i=i+1)
+time = 949 ms.
+? i = 0; for(k = 1, N, i++)
+time = 933 ms.
+@eprog\noindent On the other hand, this is not the case for the
+\var{op}\kbd{=} operators which may even be a little less efficient:
 \bprog
-? a = 1<<(10^5);
-? i = 1; while(i<a, i=i*2);
-time = 1,052 ms.
-? i = 1; while(i<a, i<<=1);
-time = 617 ms.
+? i = 0; for(k = 1, N, i=i+10)
+time = 949 ms.
+? i = 0; for(k = 1, N, i+=10)
+time = 933 ms.
 @eprog
 
 \section{Variables and symbolic expressions}\sidx{variable}\label{se:varsymb}
