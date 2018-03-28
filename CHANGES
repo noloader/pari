@@ -403,7 +403,7 @@ BA  164- [libpari] F2xqX_factor_squarefree, FlxqX_factor_squarefree,
 BA  165- [libpari] FpXX_integ, FpXX_halve, FqX_halve, FpXQXn_exp, FqXn_exp
     166- new file Ser.c
 BA  167- [libpari] FpXn_inv, FpXQXn_inv, FqXn_inv
-BA  167- New file GP interface: fileclose fileextern fileflush fileopen
+BA  168- New file GP interface: fileclose fileextern fileflush fileopen
          fileread filereadstr filewrite filewrite1
 
   Changed
