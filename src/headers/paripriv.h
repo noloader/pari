@@ -721,7 +721,6 @@ GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
 GEN     ddf_to_ddf2(GEN V);
 long    ddf_to_nbfact(GEN D);
-GEN     ddf_to_simplefact(GEN D, long n);
 GEN     vddf_to_simplefact(GEN V, long d);
 
 /* FpXQX_factor.c */

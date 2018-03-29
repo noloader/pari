@@ -940,36 +940,6 @@ ddf_to_nbfact(GEN D)
   return s;
 }
 
-GEN
-ddf_to_simplefact(GEN D, long n)
-{
-  GEN V;
-  long i, j = 1, k, s = ddf_to_nbfact(D);
-  V = cgetg(s+1, t_VECSMALL);
-  for (i = 1; i <= n; i++)
-  {
-    long ni = degpol(gel(D,i)), ri = ni/i;
-    if (ni == 0) continue;
-    for (k = 1; k <= ri; k++) uel(V, j++) = i;
-  }
-  return V;
-}
-
-static GEN
-FpX_simplefact_Shoup(GEN T, GEN p)
-{
-  GEN XP, D;
-  long n = get_FpX_degree(T);
-  pari_timer ti;
-  T = FpX_get_red(T, p);
-  if (DEBUGLEVEL>=6) timer_start(&ti);
-  XP = FpX_Frobenius(T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_Frobenius");
-  D = FpX_ddf_Shoup(T, XP, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf_Shoup");
-  return ddf_to_simplefact(D, n);
-}
-
 /* Yun algorithm: Assume p > degpol(T) */
 static GEN
 FpX_factor_Yun(GEN T, GEN p)
@@ -1054,24 +1024,22 @@ FpX_factor_Cantor(GEN T, GEN p)
   return sort_factor_pol(FE_concat(F,E,j), cmpii);
 }
 
+static GEN Flx_simplefact_Cantor(GEN T, ulong p);
 static GEN
 FpX_simplefact_Cantor(GEN T, GEN p)
 {
-  GEN E, F, V;
-  long i, j, l;
-  V = FpX_factor_Yun(get_FpX_mod(T), p);
-  l = lg(V);
-  E = cgetg(l, t_VEC);
-  F = cgetg(l, t_VEC);
-  for (i=1, j=1; i < l; i++)
-    if (degpol(gel(V,i)))
-    {
-      GEN Fj = FpX_simplefact_Shoup(gel(V,i), p);
-      gel(F, j) = Fj;
-      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
-      j++;
-    }
-  return sort_factor(FE_concat(F,E,j), (void*)&cmpGuGu, cmp_nodata);
+  GEN V, XP;
+  long i, l;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    return Flx_simplefact_Cantor(ZX_to_Flx(T,pp), pp);
+  }
+  T = FpX_get_red(T, p);
+  XP = FpX_Frobenius(T, p);
+  V = FpX_factor_Yun(get_FpX_mod(T), p); l = lg(V);
+  for (i=1; i < l; i++) gel(V,i) = FpX_ddf_Shoup(gel(V,i), XP, p);
+  return vddf_to_simplefact(V, get_FpX_degree(T));
 }
 
 static int
@@ -2112,21 +2080,6 @@ Flx_factor_Shoup(GEN T, ulong p)
 }
 
 static GEN
-Flx_simplefact_Shoup(GEN T, ulong p)
-{
-  GEN XP, D;
-  pari_timer ti;
-  long n = get_Flx_degree(T);
-  T = Flx_get_red(T, p);
-  if (DEBUGLEVEL>=6) timer_start(&ti);
-  XP = Flx_Frobenius(T, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_Frobenius");
-  D = Flx_ddf_Shoup(T, XP, p);
-  if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_ddf_Shoup");
-  return ddf_to_simplefact(D, n);
-}
-
-static GEN
 Flx_factor_Cantor(GEN T, ulong p)
 {
   GEN E, F, V = Flx_factor_squarefree(get_Flx_mod(T), p);
@@ -2147,19 +2100,13 @@ Flx_factor_Cantor(GEN T, ulong p)
 static GEN
 Flx_simplefact_Cantor(GEN T, ulong p)
 {
-  GEN E, F, V = Flx_factor_squarefree(get_Flx_mod(T), p);
-  long i, j, l = lg(V);
-  F = cgetg(l, t_VEC);
-  E = cgetg(l, t_VEC);
-  for (i=1, j=1; i < l; i++)
-    if (degpol(gel(V,i)))
-    {
-      GEN Fj = Flx_simplefact_Shoup(gel(V,i), p);
-      gel(F, j) = Fj;
-      gel(E, j) = const_vecsmall(lg(Fj)-1, i);
-      j++;
-    }
-  return sort_factor(FE_concat(F,E,j), (void*)&cmpGuGu, cmp_nodata);
+  GEN XP, V;
+  long i, l;
+  T = Flx_get_red(T, p);
+  XP = Flx_Frobenius(T, p);
+  V = Flx_factor_squarefree(get_Flx_mod(T), p); l = lg(V);
+  for (i=1; i < l; i++) gel(V,i) = Flx_ddf_Shoup(gel(V,i), XP, p);
+  return vddf_to_simplefact(V, get_Flx_degree(T));
 }
 
 static int
