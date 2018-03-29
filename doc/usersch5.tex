@@ -12644,8 +12644,13 @@ of the elements of the group).
 of a small group, returns the list of elements of the center of the
 group.
 
-\fun{GEN}{group_export}{GEN grp, long format} exports a small group
-to another format, see \tet{galoisexport}.
+\fun{GEN}{group_export}{GEN grp, long format} convert a small group
+to another format, as a \typ{STR} describing the group for the given syntax,
+see \tet{galoisexport}.
+
+\fun{GEN}{group_export_GAP}{GEN G} export a small group to GAP format.
+
+\fun{GEN}{group_export_MAGMA}{GEN G} export a small group to MAGMA format.
 
 \fun{long}{group_ident}{GEN grp, GEN elts} returns the index of the small group
 \var{grp} in the GAP4 Small Group library, see \tet{galoisidentify}. If

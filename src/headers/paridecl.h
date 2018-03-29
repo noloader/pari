@@ -4278,6 +4278,8 @@ GEN     group_abelianHNF(GEN G, GEN L);
 GEN     group_abelianSNF(GEN G, GEN L);
 GEN     group_elts(GEN G, long n);
 GEN     group_export(GEN G, long format);
+GEN     group_export_GAP(GEN G);
+GEN     group_export_MAGMA(GEN G);
 GEN     group_leftcoset(GEN G, GEN g);
 GEN     group_quotient(GEN G, GEN H);
 GEN     group_rightcoset(GEN G, GEN g);

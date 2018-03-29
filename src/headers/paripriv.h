@@ -774,8 +774,6 @@ void    prime_table_next_p(ulong a, byteptr *pd, ulong *pp, ulong *pn);
 /* perm.c */
 
 long    cosets_perm_search(GEN C, GEN p);
-GEN     group_export_GAP(GEN G);
-GEN     group_export_MAGMA(GEN G);
 GEN     perm_generate(GEN S, GEN H, long o);
 long    perm_relorder(GEN p, GEN S);
 
