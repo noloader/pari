@@ -204,6 +204,11 @@ mf=mfinit([12,7,-4],0);F=mfbasis(mf)[1];
 mfslashexpansion(mf,F,[1,0;6,1],7,1,&A)
 A
 
+mf=mfinit([12,3,-4],0);F=mfbasis(mf)[1];
+V=mfslashexpansion(mf,F,[1,1;4,5],4,1)
+mf=mfinit([12,3,-4],1);
+mfslashexpansion(mf,F,[1,1;4,5],4,1)==V
+
 mf=mfinit([4,7,-4]); B=mfbasis(mf);
 mfslashexpansion(mf,B[1],[0,-1;4,0],5,1,&A)
 A

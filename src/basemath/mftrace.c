@@ -7281,7 +7281,7 @@ mfatkineigenquad(GEN mf, GEN CHIP, long Q, GEN MF, long bitprec)
 {
   GEN L0, la2, S, F, vP, tau, wtau, Z, va, vb, den, coe, sqrtQ, sqrtN;
   GEN M, gN, gk = MF_get_gk(mf);
-  long N0, t, yq, i, j, lF, dim, muQ, prec = nbits2prec(bitprec);
+  long N0, x, yq, i, j, lF, dim, muQ, prec = nbits2prec(bitprec);
   long N = MF_get_N(mf), k = itos(gk), NQ = N / Q;
 
   /* Q coprime to FC */
@@ -7309,12 +7309,12 @@ mfatkineigenquad(GEN mf, GEN CHIP, long Q, GEN MF, long bitprec)
     return Z;
   }
   la2 = mfchareval_i(CHIP, Q); /* 1 or -1 */
-  (void)cbezout(Q, NQ, &t, &yq);
+  (void)cbezout(Q, NQ, &x, &yq);
   sqrtQ = sqrtr_abs(utor(Q,prec));
-  tau = mkcomplex(gadd(sstoQ(-t, NQ), ginv(utoi(1000))),
+  tau = mkcomplex(gadd(sstoQ(-1, NQ), ginv(utoi(1000))),
                   divru(sqrtQ, N));
-  den = gaddgs(gmulsg(NQ, tau), t);
-  wtau = gdiv(gsub(tau, sstoQ(yq, Q)), den);
+  den = gaddgs(gmulsg(NQ, tau), 1);
+  wtau = gdiv(gsub(gmulsg(x, tau), sstoQ(yq, Q)), den);
   coe = gpowgs(gmul(sqrtQ, den), k);
 
   sqrtN = sqrtr_abs(utor(N,prec));
@@ -7444,6 +7444,25 @@ atkin_get_NQ(long N, long Q, const char *f)
   if (cgcd(NQ, Q) > 1) pari_err_DOMAIN(f,"gcd(Q,N/Q)","!=",gen_1,utoi(Q));
   return NQ;
 }
+
+/* transform mf to new_NEW if possible */
+static GEN
+MF_set_new(GEN mf)
+{
+  GEN vMjd, vj, gk = MF_get_gk(mf);
+  long l, j;
+  if (MF_get_space(mf) != mf_CUSP
+      || typ(gk) != t_INT || itou(gk) == 1) return mf;
+  vMjd = MFcusp_get_vMjd(mf); l = lg(vMjd);
+  if (l > 1 && gel(vMjd,1)[1] != MF_get_N(mf)) return mf; /* oldspace != 0 */
+  mf = shallowcopy(mf);
+  gel(mf,1) = shallowcopy(gel(mf,1));
+  MF_set_space(mf, mf_NEW);
+  vj = cgetg(l, t_VECSMALL);
+  for (j = 1; j < l; j++) vj[j] = gel(vMjd, j)[2];
+  gel(mf,4) = vj; return mf;
+}
+
 /* if flag = 1, rationalize, else don't */
 static GEN
 mfatkininit_i(GEN mf, long Q, long flag, long prec)
@@ -7459,6 +7478,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   CHI = MF_get_CHI(mf);
   CHI = mfchartoprimitive(CHI, &FC);
   ord = mfcharorder_canon(CHI);
+  mf = MF_set_new(mf);
   if (MF_get_space(mf) == mf_NEW && ord == 1 && NQ % FC == 0 && dk == 1)
     return mfatkinmatnewquad(mf, CHI, Q, flag, prec);
   /* now flag != 0 */
@@ -7473,7 +7493,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
     F = znconreyconductor(G, chi, &chi);
     G = znstar0(F,1);
     (void)cbezout(Q, NQ, &t, &v);
-    g = mkmat22s(Q, 1, -N*v, Q*t);
+    g = mkmat22s(Q*t, 1, -N*v, Q);
     cQ = -NQ*v;
   }
   C = s = gen_1;
@@ -7578,6 +7598,7 @@ mfatkineigenvalues(GEN mf, long Q, long prec)
     gel(L,i) = Rg_embedall(c, gel(vE,i));
   }
   if (!gequal1(C)) L = gdiv(L, C);
+  mf = MF_set_new(mf);
   if (MF_get_space(mf) == mf_NEW && mfcharorder(CHI) <= 2
       && (NQ==1 || NQ % mfcharconductor(CHI) == 0)
       && typ(MF_get_gk(mf)) == t_INT) L = ground(L);
@@ -7879,12 +7900,12 @@ mfgaexpansionatkin(GEN mf, GEN F, GEN C, GEN D, long Q, long n, long prec)
 {
   GEN mfa = mfatkininit_i(mf, Q, 0, prec), MQ = gel(mfa,2);
   long i, FC, k = MF_get_k(mf);
-  GEN t, v, V, z, s, CHI = mfchartoprimitive(MF_get_CHI(mf), &FC);
+  GEN x, v, V, z, s, CHI = mfchartoprimitive(MF_get_CHI(mf), &FC);
 
   /* V = mfcoefs(F | w_Q, n), can't use mfatkin because MQ non-rational */
   V = RgM_RgC_mul(mfcoefs_mf(mf,n,1), RgM_RgC_mul(MQ, mftobasis_i(mf,F)));
-  (void)bezout(utoipos(Q), C, &t, &v);
-  s = mfchareval_i(CHI, (((umodiu(t,FC)*Q) % FC) * umodiu(D,FC)) % FC);
+  (void)bezout(utoipos(Q), C, &x, &v);
+  s = mfchareval_i(CHI, (umodiu(x, FC) * umodiu(D, FC)) % FC);
   s = gdiv(s, gpow(utoipos(Q), sstoQ(k,2), prec));
   V = RgV_Rg_mul(V, s);
   z = rootsof1powinit(umodiu(D,Q)*umodiu(v,Q) % Q, Q, prec);
@@ -7914,6 +7935,7 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
     v = mfcoefs_i(F, n/w, 1); if (!isint1(chid)) v = RgV_Rg_mul(v,chid);
     return mkvec3(gen_0, stoi(w), bdexpandall(v,w,n+1));
   }
+  mf = MF_set_new(mf);
   if (MF_get_space(mf) == mf_NEW)
   {
     long N = MF_get_N(mf), cN = umodiu(c,N), g = cgcd(cN,N), Q = N/g;
