@@ -663,6 +663,7 @@ GEN     F2x_factor_squarefree(GEN f);
 int     F2x_is_irred(GEN f);
 void    F2xV_to_FlxV_inplace(GEN v);
 void    F2xV_to_ZXV_inplace(GEN v);
+GEN     Flx_ddf(GEN T, ulong p);
 int     Flx_is_irred(GEN f, ulong p);
 long    Flx_ispower(GEN f, ulong k, ulong p, GEN *pt_r);
 GEN     Flx_degfact(GEN f, ulong p);

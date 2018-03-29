@@ -2097,6 +2097,15 @@ Flx_factor_Cantor(GEN T, ulong p)
   return sort_factor_pol(FE_concat(F,E,j), cmpGuGu);
 }
 
+GEN
+Flx_ddf(GEN T, ulong p)
+{
+  GEN XP;
+  T = Flx_get_red(T, p);
+  XP = Flx_Frobenius(T, p);
+  return ddf_to_ddf2(Flx_ddf_Shoup(T, XP, p));
+}
+
 static GEN
 Flx_simplefact_Cantor(GEN T, ulong p)
 {
