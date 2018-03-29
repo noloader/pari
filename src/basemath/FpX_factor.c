@@ -636,6 +636,55 @@ FpX_oneroot_split(GEN fact, GEN p)
 /*                                                                 */
 /*******************************************************************/
 
+/* F / E  a vector of vectors of factors / exponents of virtual length l
+ * (their real lg may be larger). Set their lg to j, concat and return [F,E] */
+static GEN
+FE_concat(GEN F, GEN E, long l)
+{
+  setlg(E,l); E = shallowconcat1(E);
+  setlg(F,l); F = shallowconcat1(F); return mkvec2(F,E);
+}
+
+GEN
+ddf_to_ddf2(GEN V)
+{
+  GEN F, D;
+  long i, j, l = lg(V);
+  F = cgetg(l, t_VEC);
+  D = cgetg(l, t_VECSMALL);
+  for (i = j = 1; i < l; i++)
+  {
+    GEN Vi = gel(V,i);
+    if (degpol(Vi) == 0) continue;
+    gel(F,j) = Vi;
+    uel(D,j) = i; j++;
+  }
+  setlg(F,j);
+  setlg(D,j); return mkvec2(F,D);
+}
+
+GEN
+vddf_to_simplefact(GEN V, long d)
+{
+  GEN E, F;
+  long i, j, c, l = lg(V);
+  F = cgetg(d+1, t_VECSMALL);
+  E = cgetg(d+1, t_VECSMALL);
+  for (i = c = 1; i < l; i++)
+  {
+    GEN Vi = gel(V,i);
+    long l = lg(Vi);
+    for (j = 1; j < l; j++)
+    {
+      long k, n = degpol(gel(Vi,j)) / j;
+      for (k = 1; k <= n; k++) { uel(F,c) = j; uel(E,c) = i; c++; }
+    }
+  }
+  setlg(F,c);
+  setlg(E,c);
+  return sort_factor(mkvec2(F,E), (void*)&cmpGuGu, cmp_nodata);
+}
+
 /* product of terms of degree 1 in factorization of f */
 GEN
 FpX_split_part(GEN f, GEN p)
@@ -985,15 +1034,6 @@ FpX_ispower(GEN f, ulong k, GEN p, GEN *pt_r)
     *pt_r = gerepileupto(av, r);
   } else av = avma;
   return 1;
-}
-
-/* F / E  a vector of vectors of factors / exponents of virtual length l
- * (their real lg may be larger). Set their lg to j, concat and return [F,E] */
-static GEN
-FE_concat(GEN F, GEN E, long l)
-{
-  setlg(E,l); E = shallowconcat1(E);
-  setlg(F,l); F = shallowconcat1(F); return mkvec2(F,E);
 }
 
 static GEN
