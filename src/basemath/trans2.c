@@ -51,6 +51,10 @@ trans_fix_arg(long *prec, GEN *s0, GEN *sig, GEN *tau, pari_sp *av, GEN *res)
 /**                          ARCTANGENT                            **/
 /**                                                                **/
 /********************************************************************/
+/* atan(b/a), real a and b, suitable for gerepileupto */
+static GEN
+atan2_agm(GEN a, GEN b, long prec)
+{ return gel(logagmcx(mkcomplex(a, b), prec), 2); }
 static GEN
 mpatan(GEN x)
 {
@@ -67,10 +71,7 @@ mpatan(GEN x)
     return y;
   }
   if (l > AGM_ATAN_LIMIT)
-  {
-    av = avma; y = logagmcx(mkcomplex(gen_1, x), l);
-    return gerepileuptoleaf(av, gel(y,2));
-  }
+  { av = avma; return gerepileuptoleaf(av, atan2_agm(gen_1, x, l)); }
 
   e = expo(x); inv = (e >= 0); /* = (|x| > 1 ) */
   if (e > 0) lp += nbits2extraprec(e);
@@ -164,10 +165,7 @@ mpasin(GEN x) {
   pari_sp av = avma;
   GEN z, a = sqrtr(subsr(1, sqrr(x)));
   if (realprec(x) > AGM_ATAN_LIMIT)
-  {
-    z = logagmcx(mkcomplex(a,x), realprec(x));
-    z = gel(z,2);
-  }
+    z = atan2_agm(a, x, realprec(x));
   else
     z = mpatan(divrr(x, a));
   return gerepileuptoleaf(av, z);
@@ -234,11 +232,9 @@ mpacos(GEN x)
   pari_sp av = avma;
   GEN z, a = sqrtr(subsr(1, sqrr(x)));
   if (realprec(x) > AGM_ATAN_LIMIT)
+    z = atan2_agm(x, a, realprec(x));
+  else
   {
-    z = logagmcx(mkcomplex(x,a), realprec(x));
-    z = gel(z,2);
-  }
-  else {
     z = mpatan(divrr(a, x));
     if (signe(x) < 0) z = addrr(mppi(realprec(z)), z);
   }
