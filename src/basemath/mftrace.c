@@ -5493,7 +5493,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
 }
 
 static void
-mf_set_space(GEN mf, long x) { gmael(mf,1,4) = utoi(x); }
+MF_set_space(GEN mf, long x) { gmael(mf,1,4) = utoi(x); }
 static GEN
 mfwt1_cusptonew(GEN mf)
 {
@@ -5504,7 +5504,7 @@ mfwt1_cusptonew(GEN mf)
   F = gel(v,1);
   vP= gel(v,2); lP = lg(vP);
   if (lP == 1) { obj_insert(mf, MF_SPLIT, v); return NULL; }
-  mf_set_space(mf, mf_NEW);
+  MF_set_space(mf, mf_NEW);
   S = MF_get_S(mf);
   dSnew = 0;
   for (i = 1; i < lP; i++) dSnew += degpol(gel(vP,i));
