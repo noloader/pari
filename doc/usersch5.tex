@@ -4707,7 +4707,7 @@ factorization of $f$ modulo $p$. This is a vector $[u_1,\dots,u_k]$
 of pairwise coprime \kbd{FpX} such that $u_k \neq 1$ and $f = \prod u_i^i$.
 Shallow function.
 
-\fun{GEN}{FpX_ddf}{GEN f, GEN p} assuming that f is squarefree,
+\fun{GEN}{FpX_ddf}{GEN f, GEN p} assuming that $f$ is squarefree,
 returns the distinct degree factorization of $f$ modulo $p$.
 The returned value \kbd{v} is a \typ{VEC} with two
 components: \kbd{F=v[1]} is a vector of (\kbd{FpX})
@@ -4722,7 +4722,7 @@ returns the number of its irreducible factors. Assumes that \kbd{p} is prime.
 \kbd{FpX\_nbfact(f, p)} but faster,
 where \kbd{XP} is \kbd{FpX\_Frobenius(f, p)}.
 
-\fun{long}{FpX_degfact}{GEN f, GEN p}, as \kbd{FpX\_factor}, but the
+\fun{GEN}{FpX_degfact}{GEN f, GEN p}, as \kbd{FpX\_factor}, but the
 degrees of the irreducible factors are returned instead of the factors
 themselves (as a \typ{VECSMALL}). Assumes that \kbd{p} is prime.
 
