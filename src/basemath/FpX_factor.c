@@ -645,8 +645,8 @@ FE_concat(GEN F, GEN E, long l)
   setlg(F,l); F = shallowconcat1(F); return mkvec2(F,E);
 }
 
-GEN
-ddf_to_ddf2(GEN V)
+static GEN
+ddf_to_ddf2_i(GEN V, long fl)
 {
   GEN F, D;
   long i, j, l = lg(V);
@@ -655,13 +655,22 @@ ddf_to_ddf2(GEN V)
   for (i = j = 1; i < l; i++)
   {
     GEN Vi = gel(V,i);
-    if (degpol(Vi) == 0) continue;
+    if ((fl==2 && F2x_degree(Vi) == 0)
+      ||(fl==0 && degpol(Vi) == 0)) continue;
     gel(F,j) = Vi;
     uel(D,j) = i; j++;
   }
   setlg(F,j);
   setlg(D,j); return mkvec2(F,D);
 }
+
+GEN
+ddf_to_ddf2(GEN V)
+{ return ddf_to_ddf2_i(V, 0); }
+
+static GEN
+F2x_ddf_to_ddf2(GEN V)
+{ return ddf_to_ddf2_i(V, 2); }
 
 GEN
 vddf_to_simplefact(GEN V, long d)
@@ -1022,6 +1031,31 @@ FpX_factor_Cantor(GEN T, GEN p)
       j++;
     }
   return sort_factor_pol(FE_concat(F,E,j), cmpii);
+}
+
+static GEN
+FpX_ddf_i(GEN T, GEN p)
+{
+  GEN XP;
+  T = FpX_get_red(T, p);
+  XP = FpX_Frobenius(T, p);
+  return ddf_to_ddf2(FpX_ddf_Shoup(T, XP, p));
+}
+
+GEN
+FpX_ddf(GEN f, GEN p)
+{
+  pari_sp av = avma;
+  GEN F;
+  switch(ZX_factmod_init(&f, p))
+  {
+    case 0:  F = F2x_ddf(f);
+             F2xV_to_ZXV_inplace(gel(F,1)); break;
+    case 1:  F = Flx_ddf(f,p[2]);
+             FlxV_to_ZXV_inplace(gel(F,1)); break;
+    default: F = FpX_ddf_i(f,p); break;
+  }
+  return gerepilecopy(av, F);
 }
 
 static GEN Flx_simplefact_Cantor(GEN T, ulong p);
@@ -1619,6 +1653,15 @@ F2x_ddf_simple(GEN T, GEN XP)
   }
   if (F2x_degree(Tr)) gel(f, F2x_degree(Tr)) = Tr;
   return gerepilecopy(av, f);
+}
+
+GEN
+F2x_ddf(GEN T)
+{
+  GEN XP;
+  T = F2x_get_red(T);
+  XP = F2x_Frobenius(T);
+  return F2x_ddf_to_ddf2(F2x_ddf_simple(T, XP));
 }
 
 static GEN

@@ -658,6 +658,7 @@ GEN     random_FpX(long d, long v, GEN p);
 
 /* FpX_factor.c */
 
+GEN     F2x_ddf(GEN f);
 GEN     F2x_factor(GEN f);
 GEN     F2x_factor_squarefree(GEN f);
 int     F2x_is_irred(GEN f);
@@ -678,11 +679,12 @@ ulong   Flx_oneroot_split(GEN f, ulong p);
 GEN     Flx_roots(GEN f, ulong p);
 GEN     Flx_rootsff(GEN P, GEN T, ulong p);
 void    FlxV_to_ZXV_inplace(GEN v);
+GEN     FpX_ddf(GEN f, GEN p);
 GEN     FpX_degfact(GEN f, GEN p);
-int     FpX_is_irred(GEN f, GEN p);
-int     FpX_is_totally_split(GEN f, GEN p);
 GEN     FpX_factor(GEN f, GEN p);
 GEN     FpX_factor_squarefree(GEN T, GEN p);
+int     FpX_is_irred(GEN f, GEN p);
+int     FpX_is_totally_split(GEN f, GEN p);
 long    FpX_nbfact(GEN f, GEN p);
 long    FpX_nbfact_Frobenius(GEN T, GEN XP, GEN p);
 long    FpX_nbroots(GEN f, GEN p);
