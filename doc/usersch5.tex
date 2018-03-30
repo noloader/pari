@@ -12140,6 +12140,18 @@ factorization of the univariate polynomial \kbd{f} over the definition field of
 the \typ{FFELT} \kbd{a}.  This is a vector $[u_1,\dots,u_k]$ of pairwise
 coprime \kbd{FFX} such that $u_k \neq 1$ and $f = \prod u_i^i$.
 
+\fun{GEN}{FFX_ddf}{GEN f, GEN a} assuming that $f$ is squarefree,
+returns the distinct degree factorization of $f$ modulo $p$.
+The returned value \kbd{v} is a \typ{VEC} with two
+components: \kbd{F=v[1]} is a vector of (\kbd{FFX})
+factors, and \kbd{E=v[2]} is a \typ{VECSMALL}, such that
+$f$ is equal to the product of the \kbd{F[i]} and each \kbd{F[i]}
+is a product of irreducible factors of degree \kbd{E[i]}.
+
+\fun{GEN}{FFX_degfact}{GEN f, GEN a}, as \kbd{FFX\_factor}, but the
+degrees of the irreducible factors are returned instead of the factors
+themselves (as a \typ{VECSMALL}).
+
 \fun{GEN}{FFX_roots}{GEN f, GEN a} returns the roots (\typ{FFELT})
 of the univariate polynomial \kbd{f} over the definition field of the
 \typ{FFELT} \kbd{a}. The coefficients of \kbd{f} must be of type \typ{INT},

@@ -1806,6 +1806,50 @@ FFX_factor_squarefree(GEN Pf, GEN ff)
 }
 
 GEN
+FFX_ddf(GEN Pf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_ddf(P, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_ddf(P, T);
+    break;
+  default:
+    r = FlxqX_ddf(P, T, pp);
+  }
+  return gerepilecopy(av, raw_to_FFX_fact(r, ff));
+}
+
+GEN
+FFX_degfact(GEN Pf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  _getFF(ff, &T, &p, &pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_degfact(P, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_degfact(P, T);
+    break;
+  default:
+    r = FlxqX_degfact(P, T, pp);
+  }
+  return gerepilecopy(av, r);
+}
+
+GEN
 FqX_to_FFX(GEN x, GEN ff)
 {
   long i, lx;

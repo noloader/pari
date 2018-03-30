@@ -3218,6 +3218,8 @@ GEN     FFM_ker(GEN M, GEN ff);
 GEN     FFM_mul(GEN M, GEN N, GEN ff);
 long    FFM_rank(GEN M, GEN ff);
 GEN     FFM_suppl(GEN M, GEN ff);
+GEN     FFX_ddf(GEN f, GEN x);
+GEN     FFX_degfact(GEN Pf, GEN ff);
 GEN     FFX_factor(GEN f, GEN x);
 GEN     FFX_factor_squarefree(GEN f, GEN x);
 long    FFX_ispower(GEN Pf, long k, GEN ff, GEN *pt_r);
