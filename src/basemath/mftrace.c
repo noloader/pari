@@ -4986,19 +4986,14 @@ mfsplit(GEN mf, long dimlim, long flag)
   if (!checkMF_i(mf)) pari_err_TYPE("mfsplit", mf);
   if (obj_check(mf, MF_SPLIT))
   { /* already split; apply dimlim filter */
-    GEN pols = MF_get_fields(mf), forms = MF_get_newforms(mf);
-    if (dimlim)
-    {
-      long j, l = lg(pols);
-      for (j = 1; j < l; j++)
-        if (degpol(gel(pols,j)) > dimlim) break;
-      if (j != l)
-      {
-        pols = vecslice(pols,1,j-1);
-        forms= vecslice(forms,1,j-1);
-      }
-    }
-    v = mkvec2(forms,pols);
+    GEN vP = MF_get_fields(mf), F = MF_get_newforms(mf), vF;
+    long j, l = lg(vP);
+    for (j = 1; j < l; j++)
+      if (dimlim && degpol(gel(vP,j)) > dimlim) break;
+    if (j != l) vP = vecslice(vP,1,j-1);
+    vF = cgetg(j, t_MAT);
+    for (j--; j > 0; j--) gel(vF,j) = shallowtrans(gel(F,j));
+    v = mkvec2(vF,vP);
   }
   else
   {
@@ -5984,6 +5979,7 @@ dihan(GEN bnr, GEN w, GEN k0j, ulong lim)
   ulong p, n;
   forprime_t T;
 
+  if (!lim) return v;
   gel(v,2) = gen_1;
   u_forprime_init(&T, 2, lim);
   /* fill in prime powers first */
@@ -8331,7 +8327,7 @@ mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk)
     eps = mfa; /* cuspidal eigenform: root number; no poles */
   else
   { /* mfatkininit */
-    GEN a0, b0, vF, vG, G = NULL, M = gel(mfa,2), mf = gel(mfa,4);
+    GEN a0, b0, vF, vG, G = NULL, M = gdiv(gel(mfa,2), gel(mfa,3)), mf = gel(mfa,4);
     vF = mftobasis_i(mf, F);
     vG = RgM_RgC_mul(M, vF);
     if (gequal(vF,vG)) eps = gen_1;
