@@ -3746,7 +3746,7 @@ geval_gp(GEN x, GEN t)
   pari_sp av;
   GEN y, z;
 
-  if (is_const_t(tx)) return gcopy(x);
+  if (is_const_t(tx) || tx==t_VECSMALL) return gcopy(x);
   switch(tx)
   {
     case t_STR:
