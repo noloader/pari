@@ -9788,6 +9788,7 @@ eiscnm(long nm, long m, GEN CHI1vec, GEN CHI2vec, GEN data, GEN z1)
 static GEN
 fg1g2n(long n, long k, GEN CHI1vec, GEN CHI2vec, GEN data, GEN z1, GEN z2)
 {
+  pari_sp av = avma;
   GEN S = gen_0, D = mydivisorsu(n);
   long i, l = lg(D);
   for (i = 1; i < l; i++)
@@ -9798,7 +9799,7 @@ fg1g2n(long n, long k, GEN CHI1vec, GEN CHI2vec, GEN data, GEN z1, GEN z2)
     GEN w = odd(k) ? gsub(u, v) : gadd(u, v);
     S = gadd(S, gmul(powuu(m, k-1), w));
   }
-  return gmul(S, rootsof1pow(z2, n));
+  return gerepileupto(av, gmul(S, rootsof1pow(z2, n)));
 }
 
 static GEN
