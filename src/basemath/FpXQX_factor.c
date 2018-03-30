@@ -2390,6 +2390,66 @@ FpXQX_ddf_Shoup(GEN S, GEN Xq, GEN T, GEN p)
   return gerepilecopy(av, f);
 }
 
+static GEN
+FpXQX_ddf_i(GEN f, GEN T, GEN p)
+{
+  GEN Xq;
+  if (!get_FpXQX_degree(f)) return cgetg(1,t_VEC);
+  f = FpXQX_get_red(f, T, p);
+  Xq = FpXQX_Frobenius(f, T, p);
+  return FpXQX_ddf_Shoup(f, Xq, T, p);
+}
+
+static GEN
+FpXQX_ddf_raw(GEN f, GEN T, GEN p)
+{
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    GEN M;
+    long vT = get_FpX_var(T);
+    if (pp==2)
+    {
+      M = F2xqX_ddf(ZXX_to_F2xX(f, vT),  ZX_to_F2x(get_FpX_mod(T)));
+      return mkvec2(F2xXC_to_ZXXC(gel(M,1)), gel(M,2));
+    }
+    M = FlxqX_ddf(ZXX_to_FlxX(f, pp, vT),  ZXT_to_FlxT(T, pp), pp);
+    return mkvec2(FlxXC_to_ZXXC(gel(M,1)), gel(M,2));
+  }
+  T = FpX_get_red(T, p);
+  f = FpXQX_normalize(get_FpXQX_mod(f), T, p);
+  return ddf_to_ddf2( FpXQX_ddf_i(f, T, p) );
+}
+
+GEN
+FpXQX_ddf(GEN x, GEN T, GEN p)
+{ pari_sp av = avma; return gerepilecopy(av, FpXQX_ddf_raw(x,T,p)); }
+
+static GEN
+FpXQX_degfact_raw(GEN f, GEN T, GEN p)
+{
+  GEN V;
+  long i,l;
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    long vT = get_FpX_var(T);
+    if (pp==2)
+      return F2xqX_degfact(ZXX_to_F2xX(f, vT),  ZX_to_F2x(get_FpX_mod(T)));
+    else
+      return FlxqX_degfact(ZXX_to_FlxX(f, pp, vT),  ZXT_to_FlxT(T, pp), pp);
+  }
+  T = FpX_get_red(T, p);
+  f = FpXQX_normalize(get_FpXQX_mod(f), T, p);
+  V = FpXQX_factor_Yun(f, T, p); l = lg(V);
+  for (i=1; i < l; i++) gel(V,i) = FpXQX_ddf_i(gel(V,i), T, p);
+  return vddf_to_simplefact(V, degpol(f));
+}
+
+GEN
+FpXQX_degfact(GEN x, GEN T, GEN p)
+{ pari_sp av = avma; return gerepilecopy(av, FpXQX_degfact_raw(x,T,p)); }
+
 static void
 FpXQX_edf_rec(GEN S, GEN xp, GEN Xp, GEN hp, GEN t, long d, GEN T, GEN p, GEN V, long idx)
 {

@@ -726,6 +726,8 @@ void    FpX_ffintersect(GEN P,GEN Q,long n,GEN l,GEN *SP,GEN *SQ,GEN MA,GEN MB);
 GEN     FpX_ffisom(GEN P,GEN Q,GEN l);
 GEN     FpXQ_ffisom_inv(GEN S,GEN Tp, GEN p);
 GEN     FpXQX_Frobenius(GEN S, GEN T, GEN p);
+GEN     FpXQX_ddf(GEN S, GEN T, GEN p);
+GEN     FpXQX_degfact(GEN S, GEN T, GEN p);
 GEN     FpXQX_factor(GEN x, GEN T, GEN p);
 GEN     FpXQX_factor_squarefree(GEN x, GEN T, GEN p);
 long    FpXQX_ispower(GEN f, ulong k, GEN T, GEN p, GEN *pt);
