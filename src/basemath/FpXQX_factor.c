@@ -2088,6 +2088,34 @@ FlxqX_ddf_Shoup(GEN S, GEN Xq, GEN T, ulong p)
   return gerepilecopy(av, f);
 }
 
+static GEN
+FlxqX_ddf_i(GEN f, GEN T, ulong p)
+{
+  GEN Xq;
+  if (!get_FlxqX_degree(f)) return cgetg(1, t_VEC);
+  f = FlxqX_get_red(f, T, p);
+  Xq = FlxqX_Frobenius(f, T, p);
+  return FlxqX_ddf_Shoup(f, Xq, T, p);
+}
+GEN
+FlxqX_ddf(GEN S, GEN T, ulong p)
+{
+  T = Flx_get_red(T, p);
+  S = FlxqX_normalize(get_FlxqX_mod(S), T, p);
+  return ddf_to_ddf2( FlxqX_ddf_i(S, T, p) );
+}
+GEN
+FlxqX_degfact(GEN S, GEN T, ulong p)
+{
+  GEN V;
+  long i, l;
+  T = Flx_get_red(T, p);
+  S = FlxqX_normalize(get_FlxqX_mod(S), T, p);
+  V = FlxqX_factor_squarefree(S, T, p); l = lg(V);
+  for (i=1; i < l; i++) gel(V,i) = FlxqX_ddf_i(gel(V,i), T, p);
+  return vddf_to_simplefact(V, degpol(S));
+}
+
 static void
 FlxqX_edf_rec(GEN S, GEN xp, GEN Xp, GEN hp, GEN t, long d, GEN T, ulong p, GEN V, long idx)
 {
