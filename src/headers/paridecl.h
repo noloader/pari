@@ -5380,6 +5380,8 @@ INLINE GEN    gener_Fq_local(GEN T, GEN p, GEN L);
 INLINE GEN    FqX_Fp_mul(GEN P, GEN U, GEN T, GEN p);
 INLINE GEN    FqX_Fq_mul(GEN P, GEN U, GEN T, GEN p);
 INLINE GEN    FqX_add(GEN x,GEN y,GEN T,GEN p);
+INLINE GEN    FqX_ddf(GEN f, GEN T, GEN p);
+INLINE GEN    FqX_degfact(GEN f, GEN T, GEN p);
 INLINE GEN    FqX_deriv(GEN f, GEN T, GEN p);
 INLINE GEN    FqX_div(GEN x, GEN y, GEN T, GEN p);
 INLINE GEN    FqX_div_by_X_x(GEN x, GEN y, GEN T, GEN p, GEN *z);

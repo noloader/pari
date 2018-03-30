@@ -406,7 +406,7 @@ BA  167- [libpari] FpXn_inv, FpXQXn_inv, FqXn_inv
 BA  168- New file GP interface: fileclose fileextern fileflush fileopen
          fileread filereadstr filewrite filewrite1
 BA  169- [libpari] Flx_ddf, F2x_ddf, FpX_ddf, F2xqX_ddf, FlxqX_ddf, FpXQX_ddf,
-         F2xqX_degfact, FlxqX_degfact, FpXQX_degfact
+         F2xqX_degfact, FlxqX_degfact, FpXQX_degfact, FqX_degfact, FqX_ddf
 
   Changed
       1- rewrite bnfnarrow

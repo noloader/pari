@@ -2274,6 +2274,12 @@ INLINE GEN
 FqX_factor_squarefree(GEN f, GEN T, GEN p)
 { return T ? FpXQX_factor_squarefree(f, T, p): FpX_factor_squarefree(f, p); }
 INLINE GEN
+FqX_ddf(GEN f, GEN T, GEN p)
+{ return T ? FpXQX_ddf(f, T, p): FpX_ddf(f, p); }
+INLINE GEN
+FqX_degfact(GEN f, GEN T, GEN p)
+{ return T?FpXQX_degfact(f, T, p): FpX_degfact(f, p); }
+INLINE GEN
 FqX_roots(GEN f, GEN T, GEN p)
 { return T?FpXQX_roots(f, T, p): FpX_roots(f, p); }
 INLINE GEN
