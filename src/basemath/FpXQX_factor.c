@@ -1806,6 +1806,42 @@ F2xqX_ddf_Shoup(GEN S, GEN Xq, GEN T)
   return gerepilecopy(av, f);
 }
 
+static GEN
+F2xqX_ddf_i(GEN f, GEN T, GEN X, GEN xp)
+{
+  GEN Xp, Xq;
+  if (!get_F2xqX_degree(f)) return cgetg(1,t_VEC);
+  f = F2xqX_get_red(f, T);
+  Xp = F2xqXQ_sqr(X, f, T);
+  Xq = F2xqXQ_Frobenius(xp, Xp, f, T);
+  return F2xqX_ddf_Shoup(f, Xq, T);
+}
+static void
+F2xqX_ddf_init(GEN *S, GEN *T, GEN *xp, GEN *X)
+{
+  *T = F2x_get_red(*T);
+  *S = F2xqX_normalize(get_F2xqX_mod(*S), *T);
+  *xp = F2x_Frobenius(*T);
+  *X  = polx_F2xX(get_F2xqX_var(*S), get_F2x_var(*T));
+}
+GEN
+F2xqX_degfact(GEN S, GEN T)
+{
+  GEN xp, X, V;
+  long i, l;
+  F2xqX_ddf_init(&S,&T,&xp,&X);
+  V = F2xqX_factor_squarefree(S, T); l = lg(V);
+  for (i=1; i < l; i++) gel(V,i) = F2xqX_ddf_i(gel(V,i), T, X, xp);
+  return vddf_to_simplefact(V, degpol(S));
+}
+GEN
+F2xqX_ddf(GEN S, GEN T)
+{
+  GEN xp, X;
+  F2xqX_ddf_init(&S,&T,&xp,&X);
+  return ddf_to_ddf2( F2xqX_ddf_i(S, T, X, xp) );
+}
+
 static void
 F2xqX_edf_simple(GEN Sp, GEN xp, GEN Xp, GEN Sq, long d, GEN T, GEN V, long idx)
 {

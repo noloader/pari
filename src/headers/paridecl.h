@@ -699,6 +699,8 @@ GEN     rootmod0(GEN f, GEN p,long flag);
 
 /* FpXQX_factor.c */
 
+GEN     F2xqX_ddf(GEN S, GEN T);
+GEN     F2xqX_degfact(GEN S, GEN T);
 GEN     F2xqX_factor(GEN x, GEN T);
 GEN     F2xqX_factor_squarefree(GEN x, GEN T);
 GEN     F2xqX_roots(GEN x, GEN T);
