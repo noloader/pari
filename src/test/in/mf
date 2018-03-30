@@ -93,6 +93,7 @@ f2=mfbd(f,2);
 vec(f2)
 vec(mfbd(f2,3))
 vec(mftwist(f,-7))
+vec(mfEk(0))
 T=mfcusps(96)
 apply(x->mfcuspwidth(96,x),T)
 apply(x->mfcuspisregular([96,2,Mod(7,96)],x), T)

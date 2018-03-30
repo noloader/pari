@@ -9105,7 +9105,8 @@ mfEk(long k)
 {
   pari_sp av = avma;
   GEN E0, NK;
-  if (k <= 0 || (k & 1L)) pari_err_TYPE("mfEk [incorrect k]", stoi(k));
+  if (k < 0 || odd(k)) pari_err_TYPE("mfEk [incorrect k]", stoi(k));
+  if (!k) return mf1();
   E0 = gdivsg(-2*k, bernfrac(k));
   NK = mkNK(1,k,mfchartrivial());
   return gerepilecopy(av, tag(t_MF_Ek, NK, E0));
