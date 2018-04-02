@@ -267,7 +267,7 @@ lfuncheckfeq(L)
 
 print("zeta(s-a)");
 
-Z(a)=lfuncreate([(p,n)->1/(1-p^a*x),0,[-a],2*a+1,1,1,[[a+1,1/x+O(1)]]]);
+Z(a)=lfuncreate([(p,n)->1/(1-p^a*x),0,[-a],2*a+1,1,1,[[a+1,0]]]);
 lfuncheckfeq(Z(1))
 lfun(Z(1),2)
 lfun(Z(1),3)

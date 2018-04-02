@@ -483,7 +483,9 @@ lfunrtopoles(GEN r)
 static GEN
 simple_pole(GEN r)
 {
-  GEN S = deg1ser_shallow(gen_0, r, 0, 1);
+  GEN S;
+  if (isintzero(r)) return gen_0;
+  S = deg1ser_shallow(gen_0, r, 0, 1);
   setvalp(S, -1); return S;
 }
 static GEN
@@ -512,6 +514,21 @@ normalizepoles(GEN r, long k)
   }
   setlg(v, iv); return v;
 }
+static int
+residues_known(GEN r)
+{
+  long i, l = lg(r);
+  if (isintzero(r)) return 0;
+  if (!is_vec_t(typ(r))) return 1;
+  for (i = 1; i < l; i++)
+  {
+    GEN ri = gel(r,i);
+    if (!is_vec_t(typ(ri)) || lg(ri)!=3)
+      pari_err_TYPE("lfunrootres",r);
+    if (isintzero(gel(ri, 2))) return 0;
+  }
+  return 1;
+}
 
 /* Compute R's from r's (r = Taylor devts of L(s), R of Lambda(s)).
  * 'r/eno' passed to override the one from ldata  */
@@ -523,7 +540,8 @@ lfunrtoR_i(GEN ldata, GEN r, GEN eno, long prec)
   pari_sp av = avma;
   long lr, j, jR, k = ldata_get_k(ldata);
 
-  if (!r || isintzero(r) || isintzero(eno)) return gen_0;
+  if (!r || isintzero(eno) || !residues_known(r))
+    return gen_0;
   r = normalizepoles(r, k);
   if (typ(r) == t_COL) return gerepilecopy(av, r);
   if (typ(ldata_get_dual(ldata)) != t_INT)
@@ -1362,8 +1380,8 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
     if (isintzero(eno)) eno = NULL;
   }
   theta = lfun_init_theta(ldata, eno, &S);
-  if (eno)
-    R = theta_get_R(linit_get_tech(theta));
+  if (eno && lg(ldata)==7)
+    R = gen_0;
   else
   {
     GEN v = lfunrootres(theta, S.D);
@@ -2003,15 +2021,6 @@ lfunrootno(GEN linit, long bitprec)
     avma = av;
   }
   delete_var(); return ropm1(eno,prec);
-}
-
-static int
-residues_known(GEN r)
-{
-  long i, l = lg(r);
-  for (i = 1; i < l; i++)
-    if (gequal0(gmael(r, i, 2))) return 0;
-  return 1;
 }
 
 /* Find root number and/or residues when L-function coefficients and

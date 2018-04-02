@@ -205,7 +205,7 @@ check all formats
 1.00000000000000000000000000000000000000000000000000000
 -178
 zeta(s-a)
--188
+-189
 1.00000000000000000000000000000000000000000000000000000*x^-1 + O(x^0)
 1.64493406684822643647241516664602518921894990120679844
 -188
@@ -268,4 +268,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: ...t(x^2+1);G=galoisinit(N);lfunartin(N,G,[1,1,1]
   ***                                             ^---------------------
   *** lfunartin: inconsistent dimensions in lfunartin.
-Total time spent: 5271
+Total time spent: 5840
