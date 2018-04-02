@@ -6,13 +6,18 @@ Help: lfunrootres(data): given the Ldata attached to an L-function (or the
  output of lfunthetainit), compute the root number and the
  residues. In the present implementation, if the polar part is not already
  known completely, at most a single pole is allowed.
- The output is a 3-component vector [r,R,w], where r is the residue of L(s)
- at the unique pole (0 if no pole), R is the residue of Lambda(s), and w is
- the root number.
+ The output is a 3-component vector
+  [[[a_1, r_1],...,[a_n, r_n],[[b_1, R_1],...[b_m,R_m]], w], where r_i is the
+  polar part of L(s) at a_i, R_i is is the polar part of Lambda(s) at b_i,
+  or [0,0,r] if there is no pole, and w is the root number.
 Doc: Given the \kbd{Ldata} attached to an $L$-function (or the output of
  \kbd{lfunthetainit}), compute the root number and the residues.
- The output is a 3-component vector $[r,R,w]$, where $r$ is the
- residue of $L(s)$ at the unique pole, $R$ is the residue of $\Lambda(s)$,
+
+ The output is a 3-component vector
+ $[[[a_1,r_1],\cdots,[a_n, r_n], [[b_1, R_1],\cdots,[b_m, R_m]], w]$,
+ where $r_i$ is the
+ polar part of $L(s)$ at $a_i$, $R_i$ is is the polar part of $\Lambda(s)$ at
+ $b_i$ or $[0,0,r]$ if there is no pole,
  and $w$ is the root number. In the present implementation,
 
  \item either the polar part must be completely known (and is then arbitrary):
