@@ -487,12 +487,12 @@ simple_pole(GEN r)
   setvalp(S, -1); return S;
 }
 static GEN
-normalize_simple_pole(GEN r, long k)
+normalize_simple_pole(GEN r, GEN k)
 {
   long tx = typ(r);
   if (is_vec_t(tx)) return r;
   if (!is_scalar_t(tx)) pari_err_TYPE("normalizepoles", r);
-  return mkvec(mkvec2(stoi(k), simple_pole(r)));
+  return mkvec(mkvec2(k, simple_pole(r)));
 }
 /* normalize the description of a polar part */
 static GEN
@@ -500,7 +500,7 @@ normalizepoles(GEN r, long k)
 {
   long iv, j, l;
   GEN v;
-  if (!is_vec_t(typ(r))) return normalize_simple_pole(r, k);
+  if (!is_vec_t(typ(r))) return normalize_simple_pole(r, stoi(k));
   v = cgetg_copy(r, &l);
   for (j = iv = 1; j < l; j++)
   {
@@ -2026,7 +2026,7 @@ lfunrootres(GEN data, long bitprec)
   ldata = lfunmisc_to_ldata_shallow(data);
   r = ldata_get_residue(ldata);
   k = ldata_get_k(ldata);
-  if (r) r = normalize_simple_pole(r, k);
+  if (r) r = normalize_simple_pole(r, stoi(k));
   if (!r || residues_known(r))
   {
     w = lfunrootno(data, bitprec);
