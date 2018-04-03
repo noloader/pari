@@ -493,7 +493,7 @@ normalize_simple_pole(GEN r, GEN k)
 {
   long tx = typ(r);
   if (is_vec_t(tx)) return r;
-  if (!is_scalar_t(tx)) pari_err_TYPE("normalizepoles", r);
+  if (!is_scalar_t(tx)) pari_err_TYPE("lfunrootres [poles]", r);
   return mkvec(mkvec2(k, simple_pole(r)));
 }
 /* normalize the description of a polar part */
@@ -508,7 +508,7 @@ normalizepoles(GEN r, long k)
   {
     GEN rj = gel(r,j), a = gel(rj,1), ra = gel(rj,2);
     if (!is_scalar_t(typ(a)) || typ(ra) != t_SER)
-      pari_err_TYPE("normalizepoles",r);
+      pari_err_TYPE("lfunrootres [poles]",r);
     if (valp(ra) >= 0) continue;
     gel(v,iv++) = rj;
   }
@@ -524,7 +524,7 @@ residues_known(GEN r)
   {
     GEN ri = gel(r,i);
     if (!is_vec_t(typ(ri)) || lg(ri)!=3)
-      pari_err_TYPE("lfunrootres",r);
+      pari_err_TYPE("lfunrootres [poles]",r);
     if (isintzero(gel(ri, 2))) return 0;
   }
   return 1;
