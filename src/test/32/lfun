@@ -250,6 +250,13 @@ zeta(s)*zeta(s-a)
 -126
 [1, -127]
 1.6449340668482264364724151666460251892
+1:-54
+2:-35
+3:-43
+4:-31
+5:-38
+6:-25
+7:-22
   ***   at top-level: lfuntheta(1,0)
   ***                 ^--------------
   *** lfuntheta: domain error in lfunthetainit: t = 0
@@ -271,4 +278,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: localbitprec(16);lfun(Lt,12)
   ***                                  ^-----------
   *** lfun: incorrect type in vecan_closure (t_INT).
-Total time spent: 6188
+Total time spent: 5668

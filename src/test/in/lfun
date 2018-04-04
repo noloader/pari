@@ -371,6 +371,14 @@ a=n->vector(n,i,1);
 z=lfuncreate([a, a, [0], 1, 1, 1, [[0,-1/x+O(1)], [1,1/x+O(1)]]~]);
 lfun(z,2)
 
+{
+  E=ellinit([0,0,1,0,-7]); \\27a1
+  localbitprec(48);
+  for(i=1,7,
+    L=lfunsympow(E,i);
+    print(i,":",lfuncheckfeq(L)))
+}
+
 \\ ERRORS: keep them at end of file
 lfuntheta(1,0)
 lfunhardy(1,I)

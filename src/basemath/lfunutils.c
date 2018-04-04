@@ -964,6 +964,354 @@ lfunell(GEN e)
   return NULL; /*LCOV_EXCL_LINE*/
 }
 
+static GEN
+ellsympow_gamma(long m)
+{
+  GEN V = cgetg(m+2, t_VEC);
+  long i = 1, j;
+  if (!odd(m)) gel(V, i++) = stoi(-2*(m>>2));
+  for (j = (m+1)>>1; j > 0; i+=2, j--)
+  {
+    gel(V,i)   = stoi(1-j);
+    gel(V,i+1) = stoi(1-j+1);
+  }
+  return V;
+}
+
+static GEN
+ellsympow_trace(GEN p, GEN t, long m)
+{
+  long k, n = m >> 1;
+  GEN tp = gpowers0(sqri(t), n, odd(m)? t: NULL);
+  GEN pp = gen_1, b = gen_1, r = gel(tp,n+1);
+  for(k=1; k<=n; k++)
+  {
+    GEN s;
+    pp = mulii(pp, p);
+    b  = diviuexact(muliu(b, (m-(2*k-1))*(m-(2*k-2))), k*(m-(k-1)));
+    s = mulii(mulii(b, gel(tp,1+n-k)), pp);
+    r = odd(k) ? subii(r, s): addii(r, s);
+  }
+  return r;
+}
+
+static GEN
+ellsympow_abelian(GEN p, GEN ap, long m, long o)
+{
+  pari_sp av = avma;
+  long i, n = (m+1)>>1;
+  GEN pm = gpowers(p,n), F, v;
+  GEN tv = cgetg(m+2,t_VEC);
+  gel(tv, 1) = gen_2;
+  gel(tv, 2) = ap;
+  for (i = 3; i <= m+1; i++)
+    gel(tv,i) = subii(mulii(ap,gel(tv,i-1)),mulii(p,gel(tv,i-2)));
+  F = deg2pol_shallow(powiu(p, m), gen_0, gen_1, 0);
+  v = odd(m) ? pol_1(0): deg1pol_shallow(negi(gel(pm, n+1)), gen_1, 0);
+  for (i = 0; i < n; i++)
+    if ((2*i-m)%o==0)
+    {
+      gel(F,3) = negi(mulii(gel(tv,m-2*i+1), gel(pm,i+1)));
+      v = gmul(v, F);
+    }
+  return gerepilecopy(av, v);
+}
+
+static GEN
+ellsympow(void *E, GEN p, long n)
+{
+  pari_sp av = avma;
+  GEN v =(GEN) E, e = gel(v,1);
+  ulong m = itou(gel(v,2));
+  if (n <= 2)
+  {
+    GEN t = ellsympow_trace(p, ellap(e, p), m);
+    return deg1pol_shallow(t, gen_1, 0);
+  }
+  else
+    return gerepileupto(av, RgXn_inv_i(ellsympow_abelian(p, ellap(e, p), m, 1), n));
+}
+
+static GEN
+vecan_ellsympow(GEN an, long n)
+{
+  GEN nn = stoi(n), crvm = gel(an,1), bad = gel(an, 2);
+  return direuler_bad((void*)crvm, &ellsympow, gen_2, nn, nn, bad);
+}
+
+static long
+ellsympow_betam(long o, long m)
+{
+  const long c3[]={3, -1, 1};
+  const long c12[]={6, -2, 2, 0, 4, -4};
+  const long c24[]={12, -2, -4, 6, 4, -10};
+  if (!odd(o) && odd(m)) return 0;
+  switch(o)
+  {
+    case 1:  return m+1;
+    case 2:  return m+1;
+    case 3:  case 6: return (m+c3[m%3])/3;
+    case 4:  return m%4 == 0 ? (m+2)/2: m/2;
+    case 8:  return m%4 == 0 ? (m+4)/4: (m-2)/4;
+    case 12: return (m+c12[(m%12)/2])/6;
+    case 24: return (m+c24[(m%12)/2])/12;
+  }
+  return 0;
+}
+
+static long
+ellsympow_epsm(long o, long m)
+{
+  return m+1-ellsympow_betam(o, m);
+}
+
+static GEN
+ellsympow_multred(GEN E, GEN p, long m, long vN, long *cnd, long *w)
+{
+  if (vN==1) /* mult red*/
+  {
+    *cnd = m;
+    *w = odd(m) ? ellrootno(E, p): 1;
+    if (odd(m) && signe(ellap(E,p))==-1)
+      return deg1pol_shallow(gen_1, gen_1, 0);
+    else
+      return deg1pol_shallow(gen_m1, gen_1, 0);
+  } else
+  {
+    *cnd = odd(m)? m+1: m;
+    *w  = odd(m) && odd((m+1)>>1) ? ellrootno(E, p): 1;
+    if (odd(m) && equaliu(p,2))
+      *cnd += ((m+1)>>1)*(vN-2);
+    return odd(m)? pol_1(0): deg1pol_shallow(gen_m1, gen_1, 0);
+  }
+}
+
+static GEN
+ellsympow_nonabelian(GEN p, long m, long bet)
+{
+ GEN pm = powiu(p, m), F;
+ if (odd(m)) return gpowgs(deg2pol_shallow(pm, gen_0, gen_1, 0), bet>>1);
+ F = gpowgs(deg2pol_shallow(negi(pm), gen_0, gen_1, 0), bet>>1);
+ if (!odd(bet)) return F;
+ if (m%4==2)
+   return gmul(F, deg1pol_shallow(powiu(p, m>>1), gen_1, 0));
+ else
+   return gmul(F, deg1pol_shallow(negi(powiu(p, m>>1)), gen_1, 0));
+}
+
+static long
+safe_Z_pvalrem(GEN n, GEN p, GEN *pr)
+{ return signe(n)==0? -1: Z_pvalrem(n, p, pr); }
+
+static GEN
+c4c6_ap(GEN c4, GEN c6, GEN p)
+{
+  GEN N = Fp_ellcard(Fp_muls(c4,-27,p), Fp_muls(c6, -54, p), p);
+  return subii(addis(p, 1), N);
+}
+
+static GEN
+ellsympow_abelian_twist(GEN E, GEN p, long m, long o)
+{
+  GEN ap;
+  GEN c4 = ell_get_c4(E), c6 = ell_get_c6(E);
+  GEN c4t, c6t;
+  long v4 = safe_Z_pvalrem(c4, p, &c4t);
+  long v6 = safe_Z_pvalrem(c6, p, &c6t);
+  if (v6>=0 && (v4==-1 || 3*v4>=2*v6)) c6 = c6t;
+  if (v4>=0 && (v6==-1 || 3*v4<=2*v6)) c4 = c4t;
+  ap = c4c6_ap(c4, c6, p);
+  return ellsympow_abelian(p, ap, m, o);
+}
+
+static GEN
+ellsympow_goodred(GEN E, GEN p, long m, long vN, long *cnd, long *w)
+{
+  long o = 12/cgcd(12, Z_pval(ell_get_disc(E), p));
+  long bet = ellsympow_betam(o, m);
+  long eps = m + 1 - bet;
+  *w = odd(m) && odd(eps>>1) ? ellrootno(E,p): 1;
+  *cnd = eps;
+  if (umodiu(p, o) == 1)
+    return ellsympow_abelian_twist(E, p, m, o);
+  else
+    return ellsympow_nonabelian(p, m, bet);
+}
+
+static long
+ellsympow_inertia3(GEN E, long vN)
+{
+  long vD = Z_lval(ell_get_disc(E), 3);
+  if (vN==2) return vD%2==0 ? 2: 4;
+  if (vN==4) return vD%4==0 ? 3: 6;
+  if (vN==3 || vN==5) return 12;
+  return 0;
+}
+
+static long
+ellsympow_deltam3(long o, long m, long vN)
+{
+  if (o==3 || o==6) return ellsympow_epsm(3, m);
+  if (o==12 && vN ==3) return (ellsympow_epsm(3, m))/2;
+  if (o==12 && vN ==5) return (ellsympow_epsm(3, m))*3/2;
+  return 0;
+}
+
+static long
+ellsympow_isabelian3(GEN E)
+{
+  ulong c4 = umodiu(ell_get_c4(E),81), c6 = umodiu(ell_get_c6(E), 729);
+  if (c4%27==9 && (c6%243==108 || c6%243==135)) return 1;
+  if (c4%81==27) return 1;
+  return 0;
+}
+
+static long
+ellsympow_rootno3(GEN E, GEN p, long o, long m)
+{
+  const long  w6p[]={1,-1,-1,-1,1,1};
+  const long  w6n[]={-1,1,-1,1,-1,1};
+  const long w12p[]={1,1,-1,1,1,1};
+  const long w12n[]={-1,-1,-1,-1,-1,1};
+  long w = ellrootno(E, p), mm = (m%12)>>1;
+  switch(o)
+  {
+    case 2: return m%4== 1 ? -1: 1;
+    case 6:  return w == 1 ? w6p[mm]: w6n[mm];
+    case 12: return w == 1 ? w12p[mm]: w12n[mm];
+    default: return 1;
+  }
+}
+
+static GEN
+ellsympow_goodred3(GEN E, GEN F, GEN p, long m, long vN, long *cnd, long *w)
+{
+  long o = ellsympow_inertia3(E, vN);
+  long bet = ellsympow_betam(o, m);
+  *cnd = m + 1 - bet + ellsympow_deltam3(o, m, vN);
+  *w = odd(m)? ellsympow_rootno3(E, p, o, m): 1;
+  if (o==1 || o==2)
+    return ellsympow_abelian(p, ellap(F, p), m, o);
+  if ((o==3 || o==6) && ellsympow_isabelian3(F))
+    return ellsympow_abelian(p, p, m, o);
+  else
+    return ellsympow_nonabelian(p, m, bet);
+}
+
+static long
+ellsympow_inertia2(GEN F, long vN)
+{
+  long vM = itos(gel(elllocalred(F, gen_2),1));
+  GEN c6 = ell_get_c6(F);
+  long v6 = signe(c6) ? vali(c6): 24;
+  if (vM==0) return vN==0 ? 1: 2;
+  if (vM==2) return vN==2 ? 3: 6;
+  if (vM==5) return 8;
+  if (vM==8) return v6>=9? 8: 4;
+  if (vM==3 || vN==7) return 24;
+  return 0;
+}
+
+static long
+ellsympow_deltam2(long o, long m, long vN)
+{
+  if ((o==2 || o==6) && vN==4) return ellsympow_epsm(2, m);
+  if ((o==2 || o==6) && vN==6) return 2*ellsympow_epsm(2, m);
+  if (o==4) return 2*ellsympow_epsm(4, m)+ellsympow_epsm(2, m);
+  if (o==8 && vN==5) return ellsympow_epsm(8, m)+ellsympow_epsm(2, m)/2;
+  if (o==8 && vN==6) return ellsympow_epsm(8, m)+ellsympow_epsm(2, m);
+  if (o==8 && vN==8) return ellsympow_epsm(8, m)+ellsympow_epsm(4, m)+ellsympow_epsm(2, m);
+  if (o==24 && vN==3) return (2*ellsympow_epsm(8, m)+ellsympow_epsm(2, m))/6;
+  if (o==24 && vN==4) return (ellsympow_epsm(8, m)+ellsympow_epsm(2, m)*2)/3;
+  if (o==24 && vN==6) return (ellsympow_epsm(8, m)+ellsympow_epsm(2, m)*5)/3;
+  if (o==24 && vN==7) return (ellsympow_epsm(8, m)*10+ellsympow_epsm(2, m)*5)/6;
+  return 0;
+}
+
+static long
+ellsympow_isabelian2(GEN F)
+{ return umodi2n(ell_get_c4(F),7) == 96; }
+
+static long
+ellsympow_rootno2(GEN E, long vN, long m, long bet)
+{
+  long eps2 = (m + 1 - bet)>>1;
+  long eta = odd(vN) && m%8==3 ? -1 : 1;
+  long w2 = odd(eps2) ? ellrootno(E, gen_2): 1;
+  return eta == w2 ? 1 : -1;
+}
+
+static GEN
+ellsympow_goodred2(GEN E, GEN F, GEN p, long m, long vN, long *cnd, long *w)
+{
+  long o = ellsympow_inertia2(F, vN);
+  long bet = ellsympow_betam(o, m);
+  *cnd = m + 1 - bet + ellsympow_deltam2(o, m, vN);
+  *w = odd(m) ? ellsympow_rootno2(E, vN, m, bet): 1;
+  if (o==1 || o==2)
+    return ellsympow_abelian(p, ellap(F, p), m, o);
+  if (o==4 && ellsympow_isabelian2(F))
+    return ellsympow_abelian(p, p, m, o);
+  else
+    return ellsympow_nonabelian(p, m, bet);
+}
+
+/* Based on
+Symmetric powers of elliptic curve L-functions,
+Phil Martin and Mark Watkins, ANTS VII
+<http://magma.maths.usyd.edu.au/users/watkins/papers/antsVII.pdf>
+with thanks to Mark Watkins. BA20180402
+*/
+
+static GEN
+lfunellsympow(GEN e, ulong m)
+{
+  pari_sp av = avma;
+  GEN B, N, Nfa, pr, ex, ld, bad, ejd, et, pole;
+  long i, l, mero, w = (m&7)==1 || (m&7)==3 ? -1: 1;
+  checkell_Q(e);
+  e = ellminimalmodel(e, NULL);
+  et = ellinit(elltwist(e, ellminimaltwistcond(e)), NULL, DEFAULTPREC);
+  et = ellminimalmodel(et, NULL);
+  ejd = denom(ell_get_j(e));
+  mero = m==0 || (m%4==0 && ellQ_get_CM(e)<0);
+  ellQ_get_Nfa(e, &N, &Nfa);
+  pr = gel(Nfa,1); ex = gel(Nfa, 2); l = lg(pr);
+  B = gen_1;
+  bad = cgetg(l, t_VEC);
+  for (i=1; i<l; i++)
+  {
+    long vN = itos(gel(ex,i));
+    GEN p = gel(pr,i), eul;
+    long cnd, wp;
+    if (dvdii(ejd, p))
+      eul = ellsympow_multred(e, p, m, vN, &cnd, &wp);
+    else if (equaliu(p, 2))
+      eul = ellsympow_goodred2(e, et, p, m, vN, &cnd, &wp);
+    else if (equaliu(p, 3))
+      eul = ellsympow_goodred3(e, et, p, m, vN, &cnd, &wp);
+    else
+      eul = ellsympow_goodred(e, p, m, vN, &cnd, &wp);
+    gel(bad, i) = mkvec2(p, ginv(eul));
+    B = mulii(B, powiu(p,cnd));
+    w *= wp;
+  }
+  pole = mero ? mkvec(mkvec2(stoi(1+(m>>1)),gen_0)): NULL;
+  ld = mkvecn(mero? 7: 6, tag(mkvec2(mkvec2(e,utoi(m)),bad), t_LFUN_SYMPOW_ELL),
+        gen_0, ellsympow_gamma(m), stoi(m+1), B, stoi(w), pole);
+  obj_free(et);
+  return gerepilecopy(av, ld);
+}
+
+GEN
+lfunsympow(GEN ldata, ulong m)
+{
+  ldata = lfunmisc_to_ldata_shallow(ldata);
+  if (ldata_get_type(ldata) != t_LFUN_ELL)
+    pari_err_IMPL("lfunsympow");
+  return lfunellsympow(gel(ldata_get_an(ldata), 2), m);
+}
+
 GEN
 lfunmfspec(GEN lmisc, long bitprec)
 {
@@ -2143,6 +2491,7 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_MUL: an = vecan_mul(an, L, prec); break;
     case t_LFUN_CONJ: an = vecan_conj(an, L, prec); break;
     case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
+    case t_LFUN_SYMPOW_ELL: an = vecan_ellsympow(an, L); break;
     case t_LFUN_GENUS2: an = vecan_genus2(an, L); break;
     case t_LFUN_MFCLOS:
     {
