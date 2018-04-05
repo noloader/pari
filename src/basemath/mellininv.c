@@ -67,10 +67,9 @@ dbllambertW_1(double a)
 static double
 lemma526_i(double ac, double c, double t, double B)
 {
-  double D = -B/ac;
+  double D = -B/ac; /* sgn(t) = sgn(a) = - sgn(D) */
   if (D <= 0)
   {
-    double x = pow(t, c);
     if (D > -100)
     {
       D = -exp(D) / t;
@@ -82,7 +81,7 @@ lemma526_i(double ac, double c, double t, double B)
       double U = D - log(t);
       D = U - log(-U);
     }
-    return maxdd(x, pow(-t * D, c));
+    return pow(maxdd(t, -t * D), c);
   }
   else
   {
