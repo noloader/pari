@@ -12450,7 +12450,11 @@ fs2_init(GEN mf, GEN F, long bit)
   long i, l, lim, N, k2, prec = nbits2prec(bit);
   GEN DEN, cusps, tab, gk, gkm1, vW, vVW, vVF, al0;
   GEN vE = mfgetembed(F, prec), pi4 = Pi2n(2, prec);
-  if (checkMF_i(mf)) vW = NULL; /* true mf */
+  if (checkMF_i(mf))
+  {
+    vW = NULL; /* true mf */
+    DEN = cusps = NULL; /* -Wall */
+  }
   else
   { /* mf already an fs2, reset if its precision is too low */
     vW = (fs2_get_bitprec(mf) < bit)? NULL: fs2_get_W(mf);
