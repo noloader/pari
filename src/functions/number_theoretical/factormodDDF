@@ -4,8 +4,8 @@ C-Name: factormodDDF
 Prototype: GDG
 Help: factormodDDF(f,{D}): distinct-degree factorization of the
  squarefree polynomial f over the finite field defined by the domain D.
-Doc: distinct-degree factorization of the polynomial $f$ over the finite
- field defined by the domain $D$ as follows:
+Doc: distinct-degree factorization of the squarefree polynomial $f$ over the
+ finite field defined by the domain $D$ as follows:
 
  \item $D = p$ a prime: factor over $\F_p$;
 
@@ -31,27 +31,31 @@ Doc: distinct-degree factorization of the polynomial $f$ over the finite
 
  \bprog
  ? f = (x^2 + 1) * (x^2-1);
- ? factormodDDF(f, 3)  \\ over F_3
- %1 =
- [Mod(1, 3)*x^2 + Mod(1, 3) 3 2]  \\ irred of degree 2
+ ? factormodSQF(f,3) \\ squarefree over F_3
+ %2 =
+ [Mod(1, 3)*x^4 + Mod(2, 3) 1]
 
- [Mod(1, 3)*x^2 + Mod(2, 3) 2 1]  \\ two degree 1 factors
+ ? factormodDDF(f, 3)
+ %3 =
+ [Mod(1, 3)*x^2 + Mod(2, 3) 1]  \\ two degree 1 factors
+
+ [Mod(1, 3)*x^2 + Mod(1, 3) 2]  \\ irred of degree 2
 
  ? for(i=1,10^5,factormodDDF(f,3))
- time = 332 ms.
+ time = 424 ms.
  ? for(i=1,10^5,factormod(f,3))  \\ full factorization is slower
- time = 416 ms.
+ time = 464 ms.
 
  ? liftall( factormodDDF(x^2 + 1, [3, t^2+1]) ) \\ over F_9
- %4 =
- [x^2 + 1 1 1] \\ product of two degree 1 factors
+ %6 =
+ [x^2 + 1 1] \\ product of two degree 1 factors
 
  ? t = ffgen(t^2+Mod(1,3)); factormodDDF(x^2 + t^0) \\ same using t_FFELT
- %5 =
- [x^2 + 1 1 1]
+ %7 =
+ [x^2 + 1 1]
 
  ? factormodDDF(x^2-Mod(1,3))
- %6 =
- [Mod(1, 3)*x^2 + Mod(2, 3) 1 1]
+ %8 =
+ [Mod(1, 3)*x^2 + Mod(2, 3) 1]
 
  @eprog
