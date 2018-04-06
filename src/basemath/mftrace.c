@@ -8378,13 +8378,25 @@ mflfuncreateall(long sd, GEN mfa, GEN F, GEN vE, GEN gN, GEN gk)
     gel(L,i) = mflfuncreate(sd? gel(mfa,i): mfa, F, gel(vE,i), gN, gk);
   return L;
 }
-static GEN
-lfunmf_i(GEN mf, GEN F, long bitprec)
+GEN
+lfunmf(GEN mf, GEN F, long bitprec)
 {
-  long i, l, N = MF_get_N(mf), prec = nbits2prec(bitprec);
-  GEN L, gk = MF_get_gk(mf), gN = utoipos(N);
-
-  if (!F)
+  pari_sp av = avma;
+  long i, l, prec = nbits2prec(bitprec);
+  GEN L, gk, gN;
+  checkMF(mf);
+  gk = MF_get_gk(mf);
+  gN = MF_get_gN(mf);
+  if (F)
+  {
+    GEN mfa;
+    if (!checkmf_i(F)) pari_err_TYPE("lfunmf", F);
+    if (!mfisinspace_i(mf, F)) err_space(F);
+    mfa = mfatkininit_i(mf, itou(gN), 1, prec);
+    L = mflfuncreateall(0,mfa, F, mfgetembed(F,prec), gN, gk);
+    if (lg(L) == 2) L = gel(L,1);
+  }
+  else
   {
     GEN M = mfeigenbasis(mf), vE = mfeigenembed(mf, prec);
     GEN v = mffrickeeigen(mf, vE, prec);
@@ -8392,25 +8404,7 @@ lfunmf_i(GEN mf, GEN F, long bitprec)
     for (i = 1; i < l; i++)
       gel(L,i) = mflfuncreateall(1,gel(v,i), gel(M,i), gel(vE,i), gN, gk);
   }
-  else
-  {
-    GEN mfa = mfatkininit_i(mf, N, 1, prec);
-    L = mflfuncreateall(0,mfa, F, mfgetembed(F,prec), gN, gk);
-    if (lg(L) == 2) L = gel(L,1);
-  }
-  return L;
-}
-GEN
-lfunmf(GEN mf, GEN F, long bitprec)
-{
-  pari_sp av = avma;
-  checkMF(mf);
-  if (F)
-  {
-    if (!checkmf_i(F)) pari_err_TYPE("lfunmf", F);
-    if (!mfisinspace_i(mf, F)) err_space(F);
-  }
-  return gerepilecopy(av, lfunmf_i(mf, F, bitprec));
+  return gerepilecopy(av, L);
 }
 
 GEN
