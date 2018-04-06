@@ -2299,11 +2299,9 @@ ZM_snf_no_divide(GEN x, long i)
     return 0;
   }
   if (is_pm1(b)) return 0;
-  for (k=1; k<i; k++)
-  {
-    for (j=1; j<i; j++)
-      if (signe(remii(gcoeff(x,k,j),b))) return k;
-  }
+  for (k = 1; k < i; k++)
+    for (j = 1; j < i; j++)
+      if (!dvdii(gcoeff(x,k,j),b)) return k;
   return 0;
 }
 

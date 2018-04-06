@@ -590,7 +590,7 @@ make_unit(GEN nf, GEN bnfS, GEN *px)
   for (i=1; i<ls; i++)
   {
     GEN P = gel(S,i), p = pr_get_p(P);
-    if ( remii(N, p) == gen_0 )
+    if (dvdii(N, p))
     {
       v[i] = nfval(nf,xb,P);
       (void)Z_pvalrem(N0, p, &N0);

@@ -1866,8 +1866,7 @@ init_norm(norm_S *S, GEN nf, GEN p)
 /* f = f(pr/p), q = p^(f+1), a in pr.
  * Return 1 if v_pr(a) = 1, and 0 otherwise */
 static int
-is_uniformizer(GEN a, GEN q, norm_S *S)
-{ return (remii(get_norm(S,a), q) != gen_0); }
+is_uniformizer(GEN a, GEN q, norm_S *S) { return !dvdii(get_norm(S,a), q); }
 
 /* Return x * y, x, y are t_MAT (Fp-basis of in O_K/p), assume (x,y)=1.
  * Either x or y may be NULL (= O_K), not both */

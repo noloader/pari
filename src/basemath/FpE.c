@@ -624,14 +624,14 @@ FpE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN p)
 /* is jn/jd = J (mod p) */
 static int
 is_CMj(long J, GEN jn, GEN jd, GEN p)
-{ return remii(subii(mulis(jd,J), jn), p) == gen_0; }
+{ return dvdii(subii(mulis(jd,J), jn), p); }
 #ifndef LONG_IS_64BIT
 /* is jn/jd = -(2^32 a + b) (mod p) */
 static int
 u2_is_CMj(ulong a, ulong b, GEN jn, GEN jd, GEN p)
 {
   GEN mJ = uu32toi(a,b);
-  return remii(addii(mulii(jd,mJ), jn), p) == gen_0;
+  return dvdii(addii(mulii(jd,mJ), jn), p);
 }
 #endif
 

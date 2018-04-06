@@ -2496,11 +2496,11 @@ Z_chinese_post(GEN a, GEN b, GEN C, GEN U, GEN d)
   GEN b_a;
   if (!signe(a))
   {
-    if (d && remii(b, d) != gen_0) return NULL;
+    if (d && !dvdii(b, d)) return NULL;
     return Fp_mul(b, U, C);
   }
   b_a = subii(b,a);
-  if (d && remii(b_a, d) != gen_0) return NULL;
+  if (d && !dvdii(b_a, d)) return NULL;
   return modii(addii(a, mulii(U, b_a)), C);
 }
 static ulong
@@ -3468,7 +3468,7 @@ Fp_pows(GEN A, long k, GEN N)
 GEN
 Fp_pow(GEN A, GEN K, GEN N)
 {
-  pari_sp av = avma;
+  pari_sp av;
   long t,s, lN = lgefint(N), sA;
   int base_is_2, use_montgomery;
   GEN y;
@@ -3476,11 +3476,7 @@ Fp_pow(GEN A, GEN K, GEN N)
   void *E;
 
   s = signe(K);
-  if (!s)
-  {
-    t = signe(remii(A,N)); avma = av;
-    return t? gen_1: gen_0;
-  }
+  if (!s) return dvdii(A,N)? gen_0: gen_1;
   if (lN == 3 && lgefint(K) == 3)
   {
     ulong n = N[2], a = umodiu(A, n);
@@ -3489,6 +3485,7 @@ Fp_pow(GEN A, GEN K, GEN N)
     return utoi(Fl_powu(a, uel(K,2), n));
   }
 
+  av = avma;
   if (s < 0) y = Fp_inv(A,N);
   else
   {

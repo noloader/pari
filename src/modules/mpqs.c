@@ -2520,7 +2520,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
     X = gerepileuptoint(av3, X);
     if (MPQS_DEBUGLEVEL >= 1)
     {
-      if (signe(remii(subii(sqri(X), sqri(Y_prod)), N)))
+      if (!dvdii(subii(sqri(X), sqri(Y_prod)), N))
       { /* shouldn't happen */
         err_printf("MPQS: X^2 - Y^2 != 0 mod N\n");
         err_printf("\tindex i = %ld\n", i);

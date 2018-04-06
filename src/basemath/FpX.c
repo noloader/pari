@@ -2415,7 +2415,7 @@ gener_FpXQ(GEN T, GEN p, GEN *po)
   Lq = leafcopy( gel(o, 1) );
   for (i = j = 1; i < lg(Lq); i++)
   {
-    if (remii(p_1, gel(Lq,i)) == gen_0) continue;
+    if (dvdii(p_1, gel(Lq,i))) continue;
     gel(Lq,j++) = diviiexact(N, gel(Lq,i));
   }
   setlg(Lq, j);

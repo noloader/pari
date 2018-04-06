@@ -411,30 +411,29 @@ nucomp(GEN x, GEN y, GEN L)
   a1 = gel(x,1);
   a2 = gel(y,1); d = bezout(a2,a1,&u,&v);
   if (is_pm1(d)) { a = negi(mulii(u,n)); d1 = d; }
+  else if (dvdii(s,d)) /* d | s */
+  {
+    a = negi(mulii(u,n)); d1 = d;
+    a1 = diviiexact(a1, d1);
+    a2 = diviiexact(a2, d1);
+    s = diviiexact(s, d1);
+  }
   else
-    if (remii(s,d) == gen_0) /* d | s */
+  {
+    GEN p2, l;
+    d1 = bezout(s,d,&u1,NULL);
+    if (!is_pm1(d1))
     {
-      a = negi(mulii(u,n)); d1 = d;
-      a1 = diviiexact(a1, d1);
-      a2 = diviiexact(a2, d1);
-      s = diviiexact(s, d1);
+      a1 = diviiexact(a1,d1);
+      a2 = diviiexact(a2,d1);
+      s = diviiexact(s,d1);
+      d = diviiexact(d,d1);
     }
-    else
-    {
-      GEN p2, l;
-      d1 = bezout(s,d,&u1,NULL);
-      if (!is_pm1(d1))
-      {
-        a1 = diviiexact(a1,d1);
-        a2 = diviiexact(a2,d1);
-        s = diviiexact(s,d1);
-        d = diviiexact(d,d1);
-      }
-      p1 = remii(gel(x,3),d);
-      p2 = remii(gel(y,3),d);
-      l = modii(mulii(negi(u1), addii(mulii(u,p1),mulii(v,p2))), d);
-      a = subii(mulii(l,diviiexact(a1,d)), mulii(u,diviiexact(n,d)));
-    }
+    p1 = remii(gel(x,3),d);
+    p2 = remii(gel(y,3),d);
+    l = modii(mulii(negi(u1), addii(mulii(u,p1),mulii(v,p2))), d);
+    a = subii(mulii(l,diviiexact(a1,d)), mulii(u,diviiexact(n,d)));
+  }
   a = modii(a,a1); p1 = subii(a,a1); if (abscmpii(a,p1) > 0) a = p1;
   d = a1; v3 = a; z = parteucl(L, &d,&v3, &v,&v2);
   Q = cgetg(4,t_QFI);

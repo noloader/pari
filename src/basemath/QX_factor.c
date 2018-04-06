@@ -267,7 +267,7 @@ nextK:
         if (y) q = mulii(y, q);
         y = centermodii(q, pa, pas2);
       }
-      if (!signe(y) || remii(constant_coeff(lcpol), y) != gen_0)
+      if (!signe(y) || !dvdii(constant_coeff(lcpol), y))
       {
         if (DEBUGLEVEL>3) err_printf("T");
         avma = av; goto NEXT;

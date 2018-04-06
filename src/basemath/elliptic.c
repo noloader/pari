@@ -6071,7 +6071,7 @@ ellQ_height(GEN e, GEN a, long prec)
   {
     GEN p = gel(Lp,i);
     long u, v, n, n2;
-    if (signe(remii(c4,p)))
+    if (!dvdii(c4,p))
     { /* p \nmid c4 */
       long N = Z_pval(D,p);
       if (!N) continue;

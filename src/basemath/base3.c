@@ -742,7 +742,7 @@ ZC_prdvd(GEN x, GEN P)
   if (typ(mul) == t_INT) return ZV_Z_dvd(x, p);
   l = lg(x);
   for (i=1; i<l; i++)
-    if (remii(ZMrow_ZC_mul(mul,x,i), p) != gen_0) { avma = av; return 0; }
+    if (!dvdii(ZMrow_ZC_mul(mul,x,i), p)) { avma = av; return 0; }
   avma = av; return 1;
 }
 
