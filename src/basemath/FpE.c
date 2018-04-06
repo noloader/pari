@@ -1965,14 +1965,14 @@ FpXQ_ellcardj(GEN a4, GEN a6, GEN j, GEN T, GEN q, GEN p, long n)
       GEN a = addii(u,v), b = shifti(v,1);
       if (equali1(Fp_powu(w,3,p)))
       {
-        if (signe(Fp_add(modii(a,p),Fp_mul(w,modii(b,p),p),p))==0)
+        if (dvdii(addmulii(a, w, b), p))
           return subii(q1,subii(shifti(b,1),a));
         else
           return addii(q1,addii(a,b));
       }
       else
       {
-        if (signe(Fp_sub(modii(a,p),Fp_mul(w,modii(b,p),p),p))==0)
+        if (dvdii(submulii(a, w, b), p))
           return subii(q1,subii(a,shifti(b,1)));
         else
           return subii(q1,addii(a,b));
@@ -1992,7 +1992,7 @@ FpXQ_ellcardj(GEN a4, GEN a6, GEN j, GEN T, GEN q, GEN p, long n)
     else /*p=1 mod 4*/
     {
       GEN u = shifti(t,-1), v = sqrtint(subii(q,sqri(u)));
-      if (signe(Fp_add(modii(u,p),Fp_mul(w,modii(v,p),p),p))==0)
+      if (dvdii(addmulii(u, w, v), p))
         return subii(q1,shifti(v,1));
       else
         return addii(q1,shifti(v,1));
