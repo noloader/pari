@@ -4873,7 +4873,7 @@ split_starting_space(GEN mf)
 /* If dimlim > 0, keep only the dimension <= dimlim eigenspaces.
  * See mfsplit for the meaning of flag. */
 static GEN
-mfsplit_i(GEN mf, long dimlim, long flag)
+split_i(GEN mf, long dimlim, long flag)
 {
   forprime_t iter;
   GEN CHI = MF_get_CHI(mf), empty = cgetg(1, t_VEC), mf0 = mf;
@@ -4990,24 +4990,28 @@ mfsplit(GEN mf, long dimlim, long flag)
   if (!checkMF_i(mf)) pari_err_TYPE("mfsplit", mf);
   if (obj_check(mf, MF_SPLIT))
   { /* already split; apply dimlim filter */
-    GEN vP = MF_get_fields(mf), F = MF_get_newforms(mf), vF;
-    long j, l = lg(vP);
-    for (j = 1; j < l; j++)
-      if (dimlim && degpol(gel(vP,j)) > dimlim) break;
-    if (j != l) vP = vecslice(vP,1,j-1);
-    vF = cgetg(j, t_MAT);
-    for (j--; j > 0; j--) gel(vF,j) = shallowtrans(gel(F,j));
-    v = mkvec2(vF,vP);
+    GEN vP = MF_get_fields(mf), F = MF_get_newforms(mf);
+    if (dimlim)
+    {
+      long j, l = lg(vP);
+      for (j = 1; j < l; j++)
+        if (degpol(gel(vP,j)) > dimlim)
+        {
+          vP= vecslice(vP,1,j-1);
+          F = vecslice(F ,1,j-1); break;
+        }
+    }
+    v = mkvec2(F,vP);
   }
   else
   {
-    v = mfsplit_i(mf, dimlim, flag);
+    v = split_i(mf, dimlim, flag);
     if (!dimlim && !flag) obj_insert(mf, MF_SPLIT,v);
   }
   return gerepilecopy(av, v);
 }
 static GEN
-split(GEN mf) { return mfsplit_i(mf,0,0); }
+split(GEN mf) { return split_i(mf,0,0); }
 GEN
 MF_get_newforms(GEN mf) { return gel(obj_checkbuild(mf,MF_SPLIT,&split),1); }
 GEN
@@ -7229,14 +7233,14 @@ mfiscuspidal(GEN mf, GEN F)
   return mfiscuspidal(mf2, mfmultheta(F));
 }
 
+/* F = vector of newforms in mftobasis format */
 static GEN
-mffrickeeigen_i(GEN mf, GEN vE, long prec)
+mffrickeeigen_i(GEN mf, GEN F, GEN vE, long prec)
 {
-  GEN M, F, Z, L0, gN = MF_get_gN(mf), gk = MF_get_gk(mf);
+  GEN M, Z, L0, gN = MF_get_gN(mf), gk = MF_get_gk(mf);
   long N0, i, lM, bit = prec2nbits(prec), k = itou(gk);
   long LIM = 5; /* Sturm bound is enough */
 
-  F = MF_get_newforms(mf);
   L0 = mfthetaancreate(NULL, gN, gk); /* only for thetacost */
 START:
   N0 = lfunthetacost(L0, gen_1, LIM, bit);
@@ -7271,7 +7275,8 @@ mffrickeeigen(GEN mf, GEN vE, long prec)
 {
   GEN D = obj_check(mf, MF_FRICKE);
   if (D) { long p = gprecision(D); if (!p || p >= prec) return D; }
-  return obj_insert(mf, MF_FRICKE, mffrickeeigen_i(mf,vE,prec));
+  D = mffrickeeigen_i(mf, MF_get_newforms(mf), vE, prec);
+  return obj_insert(mf, MF_FRICKE, D);
 }
 
 /* integral weight, new space for primitive quadratic character CHIP;
@@ -8043,7 +8048,7 @@ search_from_split(GEN mf, GEN vap, GEN vlp)
   long lvlp = lg(vlp), j, jv, l1;
   GEN v, NK, S1, S, M = NULL;
 
-  S1 = gel(mfsplit(mf, 1, 0), 1); /* rational newforms */
+  S1 = gel(split_i(mf, 1, 0), 1); /* rational newforms */
   l1 = lg(S1);
   if (l1 == 1) { avma = av; return NULL; }
   v = cgetg(l1, t_VEC);
@@ -8418,7 +8423,7 @@ mffromell(GEN E)
   if (ell_get_type(E) != t_ELL_Q) pari_err_TYPE("mfffromell [E not over Q]", E);
   N = itos(ellQ_get_N(E));
   mf = mfinit_i(mkvec2(utoi(N), gen_2), mf_NEW);
-  v = mfsplit(mf, 1, 0);
+  v = split_i(mf, 1, 0);
   S = gel(v,1); l = lg(S); /* rational newforms */
   F = tag(t_MF_ELL, mkNK(N,2,mfchartrivial()), E);
   z = mftobasis_i(mf, F);
