@@ -5409,6 +5409,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
     case 522: case 527: case 532: case 576: case 579:
       /* no chi with both exotic and dihedral; one chi with exotic forms */
       if (dih) return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS);
+      CHI = mfcharinduce(CHI,N);
       m = mfcharno(CHI);
       if (N == 124 && (m != 67 && m != 87)) return NULL;
       if (N == 133 && (m != 83 && m !=125)) return NULL;

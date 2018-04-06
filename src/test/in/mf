@@ -78,6 +78,7 @@ mfdim([23,1,-1],2)
 L=mfinit([35,2,0],0);
 #L
 mf=L[1];
+#mfinit([296,1,0],0)
 
 mfadd(F,G) = mflinear([F,G],[1,1]);
 
