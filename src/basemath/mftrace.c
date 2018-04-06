@@ -23,7 +23,8 @@ enum {
   MF_SPLIT = 1,
   MF_EISENSPACE,
   MF_FRICKE,
-  MF_MF2INIT
+  MF_MF2INIT,
+  MF_SPLITN
 };
 
 typedef struct {
@@ -3904,7 +3905,7 @@ hecke_i(long m, long l, GEN V, GEN F, GEN DATA)
 static GEN
 mkmf(GEN x1, GEN x2, GEN x3, GEN x4, GEN x5)
 {
-  GEN MF = obj_init(5, 4);
+  GEN MF = obj_init(5, MF_SPLITN);
   gel(MF,1) = x1;
   gel(MF,2) = x2;
   gel(MF,3) = x3;
@@ -4873,7 +4874,7 @@ split_starting_space(GEN mf)
 /* If dimlim > 0, keep only the dimension <= dimlim eigenspaces.
  * See mfsplit for the meaning of flag. */
 static GEN
-split_i(GEN mf, long dimlim, long flag)
+split_ii(GEN mf, long dimlim, long flag, long *pnewd)
 {
   forprime_t iter;
   GEN CHI = MF_get_CHI(mf), empty = cgetg(1, t_VEC), mf0 = mf;
@@ -4895,6 +4896,7 @@ split_i(GEN mf, long dimlim, long flag)
       return NULL; /*LCOV_EXCL_LINE*/
   }
   if (newd < 0) newd = mf0? MF_get_dim(mf0): 0;
+  *pnewd = newd;
   if (!newd) return mkvec2(cgetg(1, t_MAT), empty);
 
   NEWT = (k > 1 && MF_get_space(mf0) == mf_NEW);
@@ -4978,6 +4980,30 @@ split_i(GEN mf, long dimlim, long flag)
   if (DEBUGLEVEL) err_printf("end split, need to clean\n");
   return mfspclean(mf, mf0, NF, ord, sort_by_dim(simplesp), flag);
 }
+static GEN
+dim_filter(GEN v, long dim)
+{
+  GEN P = gel(v,2);
+  long j, l = lg(P);
+  for (j = 1; j < l; j++)
+    if (degpol(gel(P,j)) > dim)
+    {
+      v = mkvec2(vecslice(gel(v,1),1,j-1), vecslice(P,1,j-1));
+      break;
+    }
+  return v;
+}
+static long
+dim_sum(GEN v)
+{
+  GEN P = gel(v,2);
+  long j, l = lg(P), d = 0;
+  for (j = 1; j < l; j++) d += degpol(gel(P,j));
+  return d;
+}
+static GEN
+split_i(GEN mf, long dimlim, long flag)
+{ long junk; return split_ii(mf, dimlim, flag, &junk); }
 /* mf is either already split or output by mfinit. Splitting is done only for
  * newspace except in weight 1. If flag = 0 (default) split completely.
  * If flag = d > 0, only give the Galois polynomials in degree > d
@@ -4988,25 +5014,20 @@ mfsplit(GEN mf, long dimlim, long flag)
   pari_sp av = avma;
   GEN v;
   if (!checkMF_i(mf)) pari_err_TYPE("mfsplit", mf);
-  if (obj_check(mf, MF_SPLIT))
-  { /* already split; apply dimlim filter */
-    GEN vP = MF_get_fields(mf), F = MF_get_newforms(mf);
-    if (dimlim)
-    {
-      long j, l = lg(vP);
-      for (j = 1; j < l; j++)
-        if (degpol(gel(vP,j)) > dimlim)
-        {
-          vP= vecslice(vP,1,j-1);
-          F = vecslice(F ,1,j-1); break;
-        }
-    }
-    v = mkvec2(F,vP);
-  }
-  else
+  if ((v = obj_check(mf, MF_SPLIT)))
+  { if (dimlim) v = dim_filter(v, dimlim); }
+  else if (dimlim && (v = obj_check(mf, MF_SPLITN)))
+  { v = (itou(gel(v,1)) >= dimlim)? dim_filter(gel(v,2), dimlim): NULL; }
+  if (!v)
   {
-    v = split_i(mf, dimlim, flag);
-    if (!dimlim && !flag) obj_insert(mf, MF_SPLIT,v);
+    long newd;
+    v = split_ii(mf, dimlim, flag, &newd);
+    if (lg(v) == 1) obj_insert(mf, MF_SPLITN, mkvec2(utoi(dimlim), v));
+    else if (!flag)
+    {
+      if (dim_sum(v) == newd) obj_insert(mf, MF_SPLIT,v);
+      else obj_insert(mf, MF_SPLITN, mkvec2(utoi(dimlim), v));
+    }
   }
   return gerepilecopy(av, v);
 }
