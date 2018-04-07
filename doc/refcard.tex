@@ -75,7 +75,7 @@ To exit \kbd{gp}, type \kbd{quit}, \kbd{\\q}, or \kbd{<C-D>} at prompt.\hfill
 \li{\typ{REAL}. Reals}{$\pm 3.14$, $6.022$ E$23$}
 \li{\typ{INTMOD}. Integers modulo $m$}{Mod$(n,m)$}
 \li{\typ{FRAC}. Rational Numbers}{$n/m$}
-\li{\typ{FFELT}. Elt in finite field $\F_q$}{ffgen($q$,\text{'t})}
+\li{\typ{FFELT}. Elt in finite field $\FF_q$}{ffgen($q$,\text{'t})}
 \li{\typ{COMPLEX}. Complex Numbers}{$x +y\,*\;$I}
 \li{\typ{PADIC}. $p$-adic Numbers}{$x\;+\;$O$(p$\pow$k)$}
 \li{\typ{QUAD}. Quadratic Numbers}{$x + y\,*\;$quadgen($D$,'w)}
@@ -457,40 +457,47 @@ header.
 \li{solve Thue equation $f(x,y)=a$}{thue$(t,a,\{sol\})$}
 \li{initialize $t$ for Thue equation solver}{thueinit$(f)$}
 
-\subsec{Roots and Factorization}
+\subsec{Roots and Factorization (Complex/Real)}
 \li{complex roots of $f$}{polroots$(f)$}
 \li{bound complex roots of $f$}{polrootsbound$(f)$}
 \li{number of real roots of $f$ (in $[a,b]$)}{polsturm$(f,\{[a,b]\})$}
 \li{real roots of $f$ (in $[a,b]$)}{polrootsreal$(f,\{[a,b]\})$}
 \li{complex embeddings of \typ{POLMOD} $z$}{conjvec$(z)$}
-\li{symmetric powers of roots of $f$ up to $n$}{polsym$(f,n)$}
-\li{Graeffe transform of $f$, $g(x^2)=f(x)f(-x)$}{polgraeffe$(f)$}
-\li{factor $f$}{factor$(f)$}
-\li{factor $f\mod p$ / roots}{factormod$(f,p)${\rm, }polrootsmod}
-\li{factor $f$ over $\FF_p[x]/(T)$ / roots}{factormod$(f,[T,p])${\rm, }polrootsmod}
-\li{factor $f$ over $\QQ_p$ / roots}{factorpadic$(f,p,r)${\rm, }polrootspadic}
-\li{cyclotomic factors of $f\in\QQ[X]$}{polcyclofactors$(f)$}
 
-\li{find irreducible $T\in \FF_p[x]$, $\deg T = n$}{ffinit$(p,n,\{x\})$}
-\li{$\#\{{\rm monic\ irred.}\ T\in \FF_q[x], \deg T = n\}$}{ffnbirred$(q,n)$}
+\subsec{Roots and Factorization (Finite fields)}
+\li{factor $f\mod p$, roots}{factormod$(f,p)${\rm, }polrootsmod}
+\li{factor $f$ over $\FF_p[x]/(T)$, roots}{factormod$(f,[T,p])${\rm, }polrootsmod}
+\li{squarefree factorization of $f$ in $\FF_q[x]$}{factormodSQF$(f,\{D\})$}
+\li{distinct degree factorization of $f$ in $\FF_q[x]$}{factormodDDF$(f,\{D\})$}
+
+\subsec{Roots and Factorization ($p$-adic fields)}
+\li{factor $f$ over $\QQ_p$, roots}{factorpadic$(f,p,r)${\rm, }polrootspadic}
 \li{$p$-adic root of $f$ congruent to $a\mod p$}{padicappr$(f,a)$}
 \li{Newton polygon of $f$ for prime $p$}{newtonpoly$(f,p)$}
 \li{Hensel lift $A/\text{lc}(A) = \prod_i B[i]$ mod $p^e$}
    {polhensellift$(A,B,p,e)$}
 \li{extensions of $\QQ_p$ of degree $N$}{padicfields$(p,N)$}
 
+\subsec{Roots and Factorization (Miscellaneous)}
+\li{symmetric powers of roots of $f$ up to $n$}{polsym$(f,n)$}
+\li{Graeffe transform of $f$, $g(x^2)=f(x)f(-x)$}{polgraeffe$(f)$}
+\li{factor $f$ over coefficient field}{factor$(f)$}
+\li{cyclotomic factors of $f\in\QQ[X]$}{polcyclofactors$(f)$}
+
 \shortcopyrightnotice
 
 \section{Finite Fields}
 A finite field is encoded by any element (\typ{FFELT}).\hfil\break
-\li{Create $t$ in $\F_q\simeq\F_p[t]/(T)$}{t = ffgen$(T,\text{'t})$}
+\li{find irreducible $T\in \FF_p[x]$, $\deg T = n$}{ffinit$(p,n,\{x\})$}
+\li{Create $t$ in $\FF_q\simeq\FF_p[t]/(T)$}{t = ffgen$(T,\text{'t})$}
 \li{\dots indirectly, with implicit $T$}{t = ffgen$(q,\text{'t})$; T = t.mod}
-\li{map $m$ from $\F_q\ni a$ to $\F_{q^k} \ni b$}{m = ffembed$(a,b)$}
-\li{build $K=\F_q[x]/(P)$ extending $\F_q\ni a$, }{ffextend$(a, P)$}
+\li{map $m$ from $\FF_q\ni a$ to $\FF_{q^k} \ni b$}{m = ffembed$(a,b)$}
+\li{build $K=\FF_q[x]/(P)$ extending $\FF_q\ni a$, }{ffextend$(a, P)$}
 \li{evaluate map $m$ on $x$}{ffmap$(m,x)$}
 \li{inverse map of $m$}{ffinvmap$(m)$}
 \li{compose maps $m \circ n$}{ffcompomap$(m,n)$}
-\li{$F^n$ over $\F_q\ni a$}{fffrobenius$(a,n)$}
+\li{$F^n$ over $\FF_q\ni a$}{fffrobenius$(a,n)$}
+\li{$\#\{{\rm monic\ irred.}\ T\in \FF_q[x], \deg T = n\}$}{ffnbirred$(q,n)$}
 
 \section{Formal \& p-adic Series}
 \li{truncate power series or $p$-adic number}{truncate$(x)$}
