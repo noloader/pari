@@ -5531,15 +5531,14 @@ mfwt1_cusptonew(GEN mf)
   if (lP == 1) { obj_insert(mf, MF_SPLIT, v); return NULL; }
   MF_set_space(mf, mf_NEW);
   S = MF_get_S(mf);
-  dSnew = 0;
-  for (i = 1; i < lP; i++) dSnew += degpol(gel(vP,i));
+  dSnew = dim_sum(v);
   Snew = cgetg(dSnew + 1, t_VEC); ct = 0;
-  vF = cgetg(lP, t_VEC);
+  vF = cgetg(lP, t_MAT);
   for (i = 1; i < lP; i++)
   {
     GEN V, P = gel(vP,i), f = liftpol_shallow(gel(F,i));
     long j, d = degpol(P);
-    gel(vF,i) = V = zerovec(dSnew);
+    gel(vF,i) = V = zerocol(dSnew);
     if (d == 1)
     {
       gel(Snew, ct+1) = mflineardiv_linear(S, f, 0);
@@ -8415,11 +8414,33 @@ lfunmf(GEN mf, GEN F, long bitprec)
   gN = MF_get_gN(mf);
   if (F)
   {
-    GEN mfa;
+    GEN v;
+    long s = MF_get_space(mf);
     if (!checkmf_i(F)) pari_err_TYPE("lfunmf", F);
     if (!mfisinspace_i(mf, F)) err_space(F);
-    mfa = mfatkininit_i(mf, itou(gN), 1, prec);
-    L = mflfuncreateall(0,mfa, F, mfgetembed(F,prec), gN, gk);
+    L = NULL;
+    if ((s == mf_NEW || s == mf_CUSP || s == mf_FULL)
+        && gequal(mfcoefs_i(F,1,1), mkvec2(gen_0,gen_1)))
+    { /* check if eigenform */
+      GEN vP, vF, b = mftobasis_i(mf, F);
+      long lF, d = degpol(mf_get_field(F));
+      v = mfsplit(mf, d, 0);
+      vF = gel(v,1);
+      vP = gel(v,2); lF = lg(vF);
+      for (i = 1; i < lF; i++)
+        if (degpol(gel(vP,i)) == d && gequal(gel(vF,i), b))
+        {
+          GEN vE = mfgetembed(F, prec);
+          GEN Z = mffrickeeigen_i(mf, mkvec(b), mkvec(vE), prec);
+          L = mflfuncreateall(1, gel(Z,1), F, vE, gN, gk);
+          break;
+        }
+    }
+    if (!L)
+    { /* not an eigenform: costly general case */
+      GEN mfa = mfatkininit_i(mf, itou(gN), 1, prec);
+      L = mflfuncreateall(0,mfa, F, mfgetembed(F,prec), gN, gk);
+    }
     if (lg(L) == 2) L = gel(L,1);
   }
   else
