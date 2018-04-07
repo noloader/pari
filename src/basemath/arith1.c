@@ -3469,7 +3469,7 @@ GEN
 Fp_pow(GEN A, GEN K, GEN N)
 {
   pari_sp av;
-  long t,s, lN = lgefint(N), sA;
+  long s, lN = lgefint(N), sA;
   int base_is_2, use_montgomery;
   GEN y;
   muldata D;

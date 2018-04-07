@@ -5017,7 +5017,7 @@ mfsplit(GEN mf, long dimlim, long flag)
   if ((v = obj_check(mf, MF_SPLIT)))
   { if (dimlim) v = dim_filter(v, dimlim); }
   else if (dimlim && (v = obj_check(mf, MF_SPLITN)))
-  { v = (itou(gel(v,1)) >= dimlim)? dim_filter(gel(v,2), dimlim): NULL; }
+  { v = (itos(gel(v,1)) >= dimlim)? dim_filter(gel(v,2), dimlim): NULL; }
   if (!v)
   {
     long newd;
