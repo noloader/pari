@@ -1267,11 +1267,11 @@ FF_ellcard_SEA(GEN E, long smallfact)
   return gerepileuptoint(av, card);
 }
 
-/* return [G,m] */
+/* return G, set m */
 GEN
-FF_ellgroup(GEN E)
+FF_ellgroup(GEN E, GEN *pm)
 {
-  GEN T, p, e, fg, N, G, m;
+  GEN T, p, e, fg, N;
   ulong pp;
 
   N = ellff_get_card(E);
@@ -1281,37 +1281,37 @@ FF_ellgroup(GEN E)
   switch(fg[1])
   {
   case t_FF_FpXQ:
-    G = FpXQ_ellgroup(Fq_to_FpXQ(gel(e,1),T,p),Fq_to_FpXQ(gel(e,2),T,p),N,T,p,&m);
-    break;
+    return FpXQ_ellgroup(Fq_to_FpXQ(gel(e,1),T,p),
+                         Fq_to_FpXQ(gel(e,2),T,p),N,T,p,pm);
   case t_FF_F2xq:
-    G = F2xq_ellgroup(gel(e,1),gel(e,2),N,T,&m); break;
+    return F2xq_ellgroup(gel(e,1),gel(e,2),N,T,pm);
   default:
-    G = Flxq_ellgroup(gel(e,1),gel(e,2),N,T,pp,&m); break;
+    return Flxq_ellgroup(gel(e,1),gel(e,2),N,T,pp,pm);
   }
-  return mkvec2(G,m);
 }
 
 GEN
 FF_ellgens(GEN E)
 {
-  GEN fg, e, Gm, G, m, T, p, F, e3;
+  GEN D, fg, e, m, T, p, F, e3;
   ulong pp;
 
   fg = ellff_get_field(E);
   e = ellff_get_a4a6(E);
-  Gm = ellff_get_group(E); G = gel(Gm,1); m = gel(Gm,2);
+  m = ellff_get_m(E);
+  D = ellff_get_D(E);
   _getFF(fg,&T,&p,&pp);
   switch(fg[1])
   {
   case t_FF_FpXQ:
     e3 = FqV_to_FpXQV(gel(e,3),T);
-    F = FpXQ_ellgens(Fq_to_FpXQ(gel(e,1),T,p),Fq_to_FpXQ(gel(e,2),T,p),e3,G,m,T,p);
+    F = FpXQ_ellgens(Fq_to_FpXQ(gel(e,1),T,p),Fq_to_FpXQ(gel(e,2),T,p),e3,D,m,T,p);
     break;
   case t_FF_F2xq:
-    F = F2xq_ellgens(gel(e,1),gel(e,2),gel(e,3),G,m,T);
+    F = F2xq_ellgens(gel(e,1),gel(e,2),gel(e,3),D,m,T);
     break;
   default:
-    F = Flxq_ellgens(gel(e,1),gel(e,2),gel(e,3),G,m,T, pp);
+    F = Flxq_ellgens(gel(e,1),gel(e,2),gel(e,3),D,m,T, pp);
     break;
   }
   return to_FFE_vec(F,fg);

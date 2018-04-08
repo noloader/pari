@@ -268,7 +268,18 @@ $E(\F_q)$.
 
 \fun{GEN}{ellff_get_group}{GEN E} returns \kbd{ellgroup}$(E)$.
 
+\fun{GEN}{ellff_get_m}{GEN E} returns the \typ{INT} $m$ as needed by the
+\kbd{gen\_ellgroup} function (the order of the pairing required to verify a
+generating set).
+
 \fun{GEN}{ellff_get_o}{GEN E} returns $[d, \kbd{factor{d}}]$, where $d$ is
+the exponent of $E(\F_q)$.
+
+\fun{GEN}{ellff_get_D}{GEN E} returns the elementary divisors for $E(\F_q)$
+in a form suitable for \kbd{gen_ellgens}: either $[d_1]$ or $[d_1,d_2]$,
+where $d_1$ is in \tet{elff_get_o} format.
+
+$[d, \kbd{factor{d}}]$, where $d$ is
 the exponent of $E(\F_q)$.
 
 \fun{GEN}{ellff_get_a4a6}{GEN E} returns a canonical ``short model'' for $E$,
@@ -415,8 +426,8 @@ The parameter $s$ has the same meaning as in \kbd{Fp\_ellcard\_SEA}.
 order \kbd{o}, return $e$ such that $[e]P=G$. If $e$ does not exists, the
 result is undefined.
 
-\fun{GEN}{FF_ellgroup}{GEN E} returns the Abelian group $E(\F_q)$ in the form
-$[h,\kbd{cyc},\kbd{gen}]$.
+\fun{GEN}{FF_ellgroup}{GEN E, GEN *pm} returns the structure of the Abelian
+group $E(\F_q)$ and set \kbd{*pm} to $m$ (see \kbd{gen\_ellgens}).
 
 \fun{GEN}{FF_ellweilpairing}{GEN E, GEN P, GEN Q, GEN m} returns the
 Weil pairing of the points of $m$-torsion $P$ and $Q$.
@@ -704,8 +715,8 @@ Weil pairing of the points of $m$-torsion $P$ and $Q$.
 applying \kbd{Rg\_to\_F2xq} coefficientwise.
 
 \subsec{Elliptic curves over $\F_q$, small characteristic $p>2$ }
-Let $p$ be a prime \kbd{ulong}, $T$ an irreducible \kbd{Flx} mod $p$, and $E$
-the elliptic curve given by the equation $E:y^2=x^3+a_4\*x+a_6$, where $a_4$
+Let $p > 2$ be a prime \kbd{ulong}, $T$ an irreducible \kbd{Flx} mod $p$, and
+$E$ the elliptic curve given by the equation $E:y^2=x^3+a_4\*x+a_6$, where $a_4$
 and $a_6$ are \kbd{Flx} in $\F_p[X]/(T)$.  A \kbd{FlxqE} is a point of
 $E(\F_p[X]/(T))$.
 
@@ -738,6 +749,8 @@ sets \kbd{*pA4} and \kbd{*pA6} to the corresponding parameters for the
 quadratic twist of $E$.
 
 \subsec{\kbd{FlxqE}}
+
+Let $p > 2$ be a prime number.
 
 \fun{GEN}{FlxqE_changepoint}{GEN P, GEN m, GEN a4, GEN T, ulong p} returns
 the image $Q$ of the point $P$ on the curve $E:y^2=x^3+a_4\*x+a_6$ by the
@@ -778,8 +791,8 @@ obtained by applying \kbd{Rg\_to\_Flxq} coefficientwise.
 
 \subsec{Elliptic curves over $\F_q$, large characteristic }
 
-Let $p$ be a prime number, $T$ an irreducible polynomial mod $p$, and $E$ the
-elliptic curve given by the equation $E:y^2=x^3+a_4\*x+a_6$ with $a_4$ and
+Let $p > 3$ be a prime number, $T$ an irreducible polynomial mod $p$, and $E$
+the elliptic curve given by the equation $E:y^2=x^3+a_4\*x+a_6$ with $a_4$ and
 $a_6$ in $\F_p[X]/(T)$.  A \kbd{FpXQE} is a point of $E(\F_p[X]/(T))$.
 
 \fun{GEN}{FpXQ_ellj}{GEN a4, GEN a6, GEN T, GEN p}

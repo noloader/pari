@@ -6284,8 +6284,8 @@ elltaniyama(GEN e, long prec)
 static GEN
 doellff_get_o(GEN E)
 {
-  GEN G = ellgroup(E, NULL), d1 = gel(G,1);
-  return mkvec2(d1, Z_factor(d1));
+  GEN G = ellff_get_group(E), d = (lg(G) == 1)? gen_1: gel(G,1);
+  return mkvec2(d, Z_factor(d));
 }
 GEN
 ellff_get_o(GEN E)
@@ -6554,41 +6554,55 @@ ellgen(GEN E, GEN D, GEN m, GEN p)
 }
 
 static GEN
-ellgroup_m(GEN E, GEN p)
+ellgroup_m(GEN E, GEN p, GEN *pm)
 {
-  GEN a4, a6, G, m = gen_1, N = ellcard(E, p);
-  if (equali1(N)) { G = cgetg(1,t_VEC); goto END; }
-  if (absequaliu(p, 2)) { G = mkvec(N); goto END; }
+  GEN a4, a6, N = ellcard(E, p);
+  *pm = gen_1;
+  if (equali1(N)) return cgetg(1,t_VEC);
+  if (absequaliu(p, 2)) return mkvec(N);
   if (absequaliu(p, 3))
   { /* The only possible non-cyclic group is [2,2] which happens 9 times */
     ulong b2, b4, b6;
-    if (!absequaliu(N, 4)) { G = mkvec(N); goto END; }
+    if (!absequaliu(N, 4)) return mkvec(N);
     /* If the group is not cyclic, T = 4x^3 + b2 x^2 + 2b4 x + b6
      * must have 3 roots else 1 root. Test T(0) = T(1) = 0 mod 3 */
     b6 = Rg_to_Fl(ell_get_b6(E), 3);
-    if (b6) { G = mkvec(N); goto END; }
+    if (b6) return mkvec(N);
     /* b6 = T(0) = 0 mod 3. Test T(1) */
     b2 = Rg_to_Fl(ell_get_b2(E), 3);
     b4 = Rg_to_Fl(ell_get_b4(E), 3);
-    if ((1 + b2 + (b4<<1)) % 3) { G = mkvec(N); goto END; }
-    G = mkvec2s(2, 2); goto END;
+    if ((1 + b2 + (b4<<1)) % 3) return mkvec(N);
+    return mkvec2s(2, 2);
   } /* Now assume p > 3 */
   ell_to_a4a6(E, p, &a4,&a6);
-  G = Fp_ellgroup(a4,a6,N,p, &m);
-END:
-  return mkvec2(G, m);
+  return Fp_ellgroup(a4,a6,N,p, pm);
 }
 
 static GEN
-doellgroup(GEN E)
+doellGm(GEN E)
 {
   GEN fg = ellff_get_field(E);
-  return typ(fg) == t_FFELT ? FF_ellgroup(E): ellgroup_m(E, fg);
+  GEN m, G = (typ(fg) == t_FFELT)? FF_ellgroup(E, &m): ellgroup_m(E, fg, &m);
+  return mkvec2(G, m);
 }
-
+static GEN
+ellff_Gm(GEN E)
+{ return obj_checkbuild(E, FF_GROUP, &doellGm); }
 GEN
-ellff_get_group(GEN E)
-{ return obj_checkbuild(E, FF_GROUP, &doellgroup); }
+ellff_get_group(GEN E) { return gel(ellff_Gm(E), 1); }
+GEN
+ellff_get_m(GEN E) { return gel(ellff_Gm(E), 2); }
+GEN
+ellff_get_D(GEN E)
+{
+  GEN G = ellff_get_group(E), o = ellff_get_o(E);
+  switch(lg(G))
+  {
+    case 1: return G;
+    case 2: return mkvec(o);
+    default: return mkvec2(o, gel(G,2));
+  }
+}
 
 /* E / Fp */
 static GEN
@@ -6599,10 +6613,8 @@ doellgens(GEN E)
     return FF_ellgens(E);
   else
   {
-    GEN e, Gm, F, p = fg;
-    e = ellff_get_a4a6(E);
-    Gm = ellff_get_group(E);
-    F = Fp_ellgens(gel(e,1),gel(e,2),gel(e,3), gel(Gm,1),gel(Gm,2), p);
+    GEN F, p = fg, e = ellff_get_a4a6(E);
+    F = Fp_ellgens(gel(e,1),gel(e,2),gel(e,3), ellff_get_D(E),ellff_get_m(E),p);
     return FpVV_to_mod(F,p);
   }
 }
@@ -6615,11 +6627,11 @@ GEN
 ellgroup(GEN E, GEN p)
 {
   pari_sp av = avma;
-  GEN G;
+  GEN G, m;
   p = checkellp(E,p, "ellgroup");
   if (ell_over_Fq(E)) G = ellff_get_group(E);
-  else                G = ellgroup_m(E,p); /* t_ELL_Q */
-  return gerepilecopy(av, gel(G,1));
+  else                G = ellgroup_m(E,p,&m); /* t_ELL_Q */
+  return gerepilecopy(av, G);
 }
 
 GEN
@@ -6631,12 +6643,12 @@ ellgroup0(GEN E, GEN p, long flag)
   if (flag!=1) pari_err_FLAG("ellgroup");
   p = checkellp(E, p, "ellgroup");
   if (!ell_over_Fq(E))
-  { /* t_ELL_Q / t_ELL_Qp */
-    GEN Gm = ellgroup_m(E, p), G = gel(Gm,1), m = gel(Gm,2);
+  { /* t_ELL_Q / t_ELL_Qp / t_ELLNF */
+    GEN m, G = ellgroup_m(E, p, &m);
     GEN F = FpVV_to_mod(ellgen(E,G,m,p), p);
     return gerepilecopy(av, mkvec3(ZV_prod(G),G,F));
   }
-  V = mkvec3(ellff_get_card(E), gel(ellff_get_group(E), 1), ellff_get_gens(E));
+  V = mkvec3(ellff_get_card(E), ellff_get_group(E), ellff_get_gens(E));
   return gerepilecopy(av, V);
 }
 
