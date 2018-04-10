@@ -693,10 +693,12 @@ ellorder(GEN E, GEN P, GEN o)
   if (ell_is_inf(P)) return gen_1;
   if (ell_get_type(E)==t_ELL_Q)
   {
+    long tx = typ(gel(P,1)), ty = typ(gel(P,2));
     GEN p = NULL;
-    if (is_rational_t(typ(gel(P,1))) && is_rational_t(typ(gel(P,2))))
-      return utoi( ellorder_Q(E, P) );
-    if (RgV_is_FpV(P,&p) && p)
+    if (is_rational_t(tx) && is_rational_t(ty)) return utoi(ellorder_Q(E, P));
+    if (tx == t_INTMOD || tx == t_FFELT) p = gel(P,1);
+    if (!p && (ty == t_INTMOD || ty == t_FFELT)) p = gel(P,2);
+    if (p)
     {
       E = ellinit(E,p,0);
       if (lg(E)==1) pari_err_IMPL("ellorder for curve with singular reduction");

@@ -184,6 +184,9 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     142- ellperiods([1,0.1 + I/10^50]) -> division by 0
     143- nfmodpr(nfinit(x),[],[]~) -> SEGV [#2020]
     144- nfisisom(nfinit(x^2+4),x^2+1) -> reverse isomorphism [#2022]
+    145- forbid ellinit(E/Qp, prime != p or 1.0)
+    146- elllocalred(non integral E/nf,p) -> wrong result
+    147- ellorder(E/Q, P with t_FFELT entries) not accepted [ t_INTMOD was ]
 
   Added
       1- [libari] ZM_isidentity
@@ -534,6 +537,10 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
          It used to return a t_SER s in 'x verbatim and to use all given
          coefficients for a t_VEC/t_COL. Only if d is explicitly given,
          no change for Ser(s,'x)
+     78- elllocalred, ellap, ellcard, ellissupersingular, ellgroup(,0):
+         allow models which are not p-integral
+     79- ellgroup: allow E over number field
+     80- elllocalred: allow E over Qp
 
   Removed
       1- file 'MACHINES' (no longer maintained)

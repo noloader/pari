@@ -25,7 +25,6 @@ ellap(ellinit([0, 0, 1, -1, 0]),2486246173)
 testgroup(v,p)=
 { my(E,F,G,g);
   E=ellinit(v); if(!E || E.disc%p==0, next);
-  E[13] = 0; /*allow singular curves*/
   G=ellgroup(E,p,1); if (G.no == 1, return);
   g=G.gen; if (!ellisoncurve(E,g), error(E, G));
   F=vector(#g,i, ellorder(E,g[i],G.no));
@@ -184,12 +183,15 @@ E.group
 
 e = ellinit(ellfromj(1/3) * (1 + O(3^10))); e.roots
 e = ellinit(ellfromj(1/3), O(3^5)); e.tate
+iferr(ellinit(e,O(5)),E,E)
+iferr(ellinit(e,5),E,E)
+iferr(ellinit(e,1.0),E,E)
 e.roots
 E = ellchangecurve(e,[3,1,1,2]);
 E.tate
-iferr(ellztopoint(e,3),E,E)
+ellztopoint(e,3)
 
-e = ellinit(ellfromj(11/8),  O(2^5));
+e = ellinit(ellfromj(11/8), O(2^5));
 e.tate
 
 e = ellinit([1,0,1,4,-6], O(2^5));

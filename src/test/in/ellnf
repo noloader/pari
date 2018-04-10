@@ -32,6 +32,8 @@ ellinit(e, idealprimedec(K,5)[1])
     )
   )
 }
+e = ellchangecurve(ellinit([1,0],K),[17^2,0,0,0]);
+P = idealprimedec(K,17)[1]; elllocalred(e,P)
 
 K=nfinit(a^2+1);
 P17 = idealprimedec(K,17)[1];

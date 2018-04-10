@@ -1,5 +1,8 @@
   ***   Warning: new stack size = 20000000 (19.073 Mbytes).
 [[0, 0, 0, -11, -890], [1/2, 0, 0, 0]]
+[0, 1, [1/2, 0, 0, 0], 1]
+[0, 1, [1/6, 0, 0, 0], 1]
+[0, 1, [3/2, 0, 0, 0], 1]
 [2^-2 + 2^-1 + 1 + 2 + O(2^2), 1 + 2 + 2^2 + 2^3 + O(2^4)]
 [3 + 2*3^2 + 3^4 + O(3^5), 2*3^4 + 3^5 + O(3^8)]
 [3*5 + 5^2 + 2*5^3 + 3*5^4 + O(5^5), 5^2 + 4*5^4 + O(5^6)]
@@ -55,17 +58,20 @@ O(5^7)
 
   ***   at top-level: ellap(Ep,2)
   ***                 ^-----------
-  *** ellap: incorrect type in ellap (t_INT).
+  *** ellap: inconsistent moduli in ellap: 2 != 11
   ***   at top-level: ellpadics2(Ep,2,5)
   ***                 ^------------------
   *** ellpadics2: incorrect type in ellpadicfrobenius (t_INT).
   ***   at top-level: ellcard(Ep,2)
   ***                 ^-------------
-  *** ellcard: incorrect type in ellcard (t_INT).
+  *** ellcard: inconsistent moduli in ellcard: 2 != 11
   ***   at top-level: ellgroup(Ep,2)
   ***                 ^--------------
-  *** ellgroup: incorrect type in ellgroup (t_INT).
+  *** ellgroup: inconsistent moduli in ellgroup: 2 != 11
   ***   at top-level: ellissupersingular(Ep,2)
   ***                 ^------------------------
-  *** ellissupersingular: incorrect type in ellissupersingular (t_INT).
-Total time spent: 321
+  *** ellissupersingular: inconsistent moduli in ellissupersingular: 2 != 11
+  ***   at top-level: elllocalred(Ep,2)
+  ***                 ^-----------------
+  *** elllocalred: inconsistent moduli in elllocalred: 2 != 11
+Total time spent: 357

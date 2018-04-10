@@ -647,6 +647,12 @@ static GEN
 ellinit_Rg(GEN x, long s, long prec)
 {
   GEN y;
+  if (lg(x) > 6) switch(ell_get_type(x))
+  {
+    case t_ELL_Rg:
+    case t_ELL_Q: break;
+    default: pari_err_TYPE("elliptic curve base_ring", x);
+  }
   if (!(y = initsmall(x, 4))) return NULL;
   if (s == 2) s = gsigne(ell_get_disc(y));
   gel(y,14) = mkvecsmall(t_ELL_Rg);
@@ -658,7 +664,16 @@ static GEN
 ellinit_Qp(GEN x, GEN p, long prec)
 {
   GEN y;
-  if (lg(x) > 6) x = vecslice(x,1,5);
+  if (lg(x) > 6)
+  {
+    switch(ell_get_type(x))
+    { /* sanity checks */
+      case t_ELL_Q: break;
+      case t_ELL_Qp: chk_p(ellQp_get_p(x), p); break;
+      default: pari_err_TYPE("elliptic curve base_ring", x);
+    }
+    x = vecslice(x,1,5);
+  }
   x = QpV_to_QV(x); /* make entries rational */
   if (!(y = initsmall(x, 2))) return NULL;
   gel(y,14) = mkvecsmall(t_ELL_Qp);
@@ -705,6 +720,13 @@ ellinit_Fp(GEN x, GEN p)
 {
   long i;
   GEN y, disc;
+  if (lg(x) > 6) switch(ell_get_type(x))
+  {
+    case t_ELL_Q: break;
+    case t_ELL_Fp: chk_p(ellff_get_p(x),p); break;
+    case t_ELL_Qp: chk_p(ellQp_get_p(x),p); break;
+    default: pari_err_TYPE("elliptic curve base_ring", x);
+  }
   if (!(y = initsmall(x, 4))) return NULL;
   if (abscmpiu(p,3)<=0) /* ell_to_a4a6_bc does not handle p<=3 */
     return FF_ellinit(y,p_to_FF(p,0));
@@ -768,7 +790,7 @@ ellinit(GEN x, GEN D, long prec)
   }
   if (D && get_prid(D))
   {
-    if (ell_get_type(x) != t_ELL_NF) pari_err_TYPE("ellinit",x);
+    if (lg(x) == 6 || ell_get_type(x) != t_ELL_NF) pari_err_TYPE("ellinit",x);
     y = ellinit_nf_to_Fq(ellnf_get_nf(x), x, D);
     goto END;
   }
@@ -3554,6 +3576,7 @@ localred_23(GEN e, long p)
   return NULL; /* LCOV_EXCL_LINE */
 }
 
+/* e is integral */
 static GEN
 localred(GEN e, GEN p)
 {
@@ -3967,6 +3990,7 @@ nflocalred_p(GEN e, GEN P)
   }
   return localred_result(f,kod,c,ch);
 }
+/* E is integral */
 static GEN
 nflocalred(GEN E, GEN pr)
 {
@@ -4000,24 +4024,67 @@ nflocalred(GEN E, GEN pr)
   return nflocalred_p(E,pr);
 }
 
+static GEN
+checkellp(GEN *pE, GEN p, GEN *pv, const char *s)
+{
+  GEN q, E = *pE;
+  long tE = ell_get_type(E);
+  checkell(E);
+  if (pv) *pv = NULL;
+  if (p) switch(typ(p))
+  {
+    case t_INT:
+      if (cmpis(p, 2) < 0) pari_err_DOMAIN(s,"p", "<", gen_2, p);
+      break;
+    case t_VEC:
+      q = get_prid(p);
+      if (q && tE == t_ELL_NF)
+      {
+        *pE = ellintegralmodel_i(E, pv);
+        return q;
+      }
+    default: pari_err_TYPE(s,p);
+  }
+  switch(tE)
+  {
+    case t_ELL_Fp:
+    case t_ELL_Fq: q = ellff_get_p(E); break;
+    case t_ELL_Qp: q = ellQp_get_p(E); break;
+    case t_ELL_Q: if (p) { q = p; p = NULL; break; }
+    default:
+      pari_err_TYPE(stack_strcat(s," [can't determine p]"), E);
+      return NULL;/*LCOV_EXCL_LINE*/
+  }
+  if (p && !equalii(p, q)) pari_err_MODULUS(s, p,q);
+  if (tE == t_ELL_Q || tE == t_ELL_Qp || tE == t_ELL_NF)
+    *pE = ellintegralmodel_i(E, pv);
+  return q;
+}
+
 GEN
-elllocalred(GEN e, GEN p)
+elllocalred(GEN E, GEN p)
 {
   pari_sp av = avma;
-  checkell(e);
-  switch(ell_get_type(e))
+  GEN v, q;
+  checkell(E);
+  p = checkellp(&E, p, &v, "elllocalred");
+  switch(ell_get_type(E))
   {
-    case t_ELL_Q:
-      if (typ(ell_get_disc(e)) != t_INT)
-        pari_err_TYPE("elllocalred [not an integral curve]",e);
-      if (typ(p) != t_INT) pari_err_TYPE("elllocalred [prime]",p);
-      if (signe(p) <= 0) pari_err_PRIME("elllocalred",p);
-      return gerepileupto(av, localred(e, p));
-    default: pari_err_TYPE("elllocalred", e);
-    case t_ELL_NF:
-      checkprid(p);
-      return gerepileupto(av, nflocalred(e, p));
+    case t_ELL_Qp:
+    case t_ELL_Q:  q = localred(E, p); break;
+    case t_ELL_NF: q = nflocalred(E, p); break;
+    default: pari_err_TYPE("elllocalred", E);
+      return NULL;/*LCOV_EXCL_LINE*/
   }
+  if (v)
+  { /* compose local change of variables with v */
+    GEN u = gel(v,1), w = gel(q,3);
+    if (is_trivial_change(w))
+      gel(q,3) = mkvec4(u,gen_0,gen_0,gen_0);
+    else
+      gel(w,1) = gmul(u, gel(w,1));
+  }
+  return gerepilecopy(av, q);
 }
 
 /* typ(c) = t_INT or t_FRAC */
@@ -4045,16 +4112,18 @@ handle_coeff(GEN nf, GEN c, GEN *pd)
       return NULL;
   }
 }
-/* Return an integral model for e / Q. Set v = NULL (already integral)
+/* Return an integral model for e / nf, Q. Set v = NULL (already integral)
  * or the variable change [u,0,0,0], u = 1/t, t > 1 integer making e integral */
 GEN
 ellintegralmodel_i(GEN e, GEN *pv)
 {
-  GEN a = cgetg(6,t_VEC), t, u, L, nf;
+  GEN a, t, u, L, nf;
   long i, l, k;
 
+  if (pv) *pv = NULL;
+  /* t_ELL_Qp is also possible */
   nf = (ell_get_type(e) == t_ELL_NF)?ellnf_get_nf(e): NULL;
-  L = cgetg(1, t_VEC);
+  L = cgetg(1, t_VEC); a = cgetg(6, t_VEC);
   for (i = 1; i < 6; i++)
   {
     GEN d;
@@ -4063,7 +4132,7 @@ ellintegralmodel_i(GEN e, GEN *pv)
       L = shallowconcat(L, gel(Z_factor_limit(d, 0),1));
   }
   /* a = [a1, a2, a3, a4, a6] */
-  l = lg(L); if (l == 1) { if (pv) *pv = NULL; return e; }
+  l = lg(L); if (l == 1) return e;
   L = ZV_sort_uniq(L);
   l = lg(L);
 
@@ -4643,11 +4712,7 @@ ellnfminimalmodel(GEN E, GEN *ptv)
 {
   pari_sp av = avma;
   GEN v, y = ellnfminimalmodel_i(E, &v);
-  if (v) /* true change of variable; v = NULL => no minimal model */
-  {
-    if (!is_trivial_change(v)) (void)ch_Rg(y, E, v);
-    obj_insert_shallow(y, NF_MINIMALMODEL, cgetg(1,t_VEC));
-  }
+  if (v) obj_insert_shallow(y, NF_MINIMALMODEL, cgetg(1,t_VEC));
   if (!v || !ptv)
     y = gerepilecopy(av, y);
   else
@@ -6367,49 +6432,13 @@ ellcard_ram(GEN E, GEN p, int *good_red)
   return Fp_ellcard(a4, a6, p);
 }
 
-static GEN
-checkellp(GEN E, GEN p, const char *s)
-{
-  GEN q;
-  if (p) switch(typ(p))
-  {
-    case t_INT:
-      if (cmpis(p, 2) < 0) pari_err_DOMAIN(s,"p", "<", gen_2, p);
-      break;
-    case t_VEC:
-      q = get_prid(p);
-      if (q) { p = q; break; }
-    default: pari_err_TYPE(s,p);
-  }
-  checkell(E);
-  switch(ell_get_type(E))
-  {
-    case t_ELL_Qp:
-      q = ellQp_get_p(E);
-      if (p && !equalii(p, q)) pari_err_TYPE(s,p);
-      return q;
-
-    case t_ELL_Fp:
-    case t_ELL_Fq:
-      q = ellff_get_p(E);
-      if (p && !equalii(p, q)) pari_err_TYPE(s,p);
-      return q;
-    case t_ELL_NF:
-    case t_ELL_Q:
-      if (p) return p;
-    default:
-      pari_err_TYPE(stack_strcat(s," [can't determine p]"), E);
-      return NULL;/*LCOV_EXCL_LINE*/
-  }
-}
-
 GEN
 ellap(GEN E, GEN p)
 {
   pari_sp av = avma;
   GEN q, card;
   int goodred;
-  p = checkellp(E, p, "ellap");
+  p = checkellp(&E, p, NULL, "ellap");
   switch(ell_get_type(E))
   {
   case t_ELL_Fp:
@@ -6464,7 +6493,7 @@ ellff_get_card(GEN E)
 GEN
 ellcard(GEN E, GEN p)
 {
-  p = checkellp(E, p, "ellcard");
+  p = checkellp(&E, p, NULL, "ellcard");
   switch(ell_get_type(E))
   {
   case t_ELL_Fp: case t_ELL_Fq:
@@ -6492,71 +6521,11 @@ ellcard(GEN E, GEN p)
   }
 }
 
-/* D = [d_1, ..., d_r ] the elementary divisors for E(Fp), r = 0,1,2.
- * d_r | ... | d_1 */
-static GEN
-ellgen(GEN E, GEN D, GEN m, GEN p)
-{
-  pari_sp av = avma;
-  if (abscmpiu(p, 3)<=0)
-  {
-    ulong l = itou(p), r = lg(D)-1;
-    long a1 = Rg_to_Fl(ell_get_a1(E),l);
-    long a3 = Rg_to_Fl(ell_get_a3(E),l);
-    if (r==0) return cgetg(1,t_VEC);
-    if (l==2)
-    {
-      long a2 = Rg_to_Fl(ell_get_a2(E),l);
-      long a4 = Rg_to_Fl(ell_get_a4(E),l);
-      long a6 = Rg_to_Fl(ell_get_a6(E),l);
-      switch(a1|(a2<<1)|(a3<<2)|(a4<<3)|(a6<<4))
-      { /* r==0 : 22, 23, 25, 28, 31 */
-        case 18: case 29:
-          retmkvec(mkvec2s(1,1));
-        case 19: case 24: case 26:
-          retmkvec(mkvec2s(0,1));
-        case 9: case 16: case 17: case 20: case 21: case 27: case 30:
-          retmkvec(mkvec2s(1,0));
-        default:
-          retmkvec(mkvec2s(0,0));
-      }
-    } else
-    { /* y^2 = 4x^3 + b2 x^2 + 2b4 x + b6 */
-      long b2 = Rg_to_Fl(ell_get_b2(E),l);
-      long b4 = Rg_to_Fl(ell_get_b4(E),l);
-      long b6 = Rg_to_Fl(ell_get_b6(E),l);
-      long T1 = (1+b2+2*b4+b6)%3; /* RHS(1) */
-      long x,y;
-      if (r==2) /* [2,2] */
-        retmkvec2(mkvec2s(0,a3),mkvec2s(1,Fl_add(a1,a3,3)));
-      /* cyclic, order d_1 */
-      y = absequaliu(gel(D,1),2)? 0 : 1;
-      if (absequaliu(gel(D,1),6)) /* [6] */
-      {
-        long b8 = Rg_to_Fl(ell_get_b8(E),l);
-        x = (b6==1 && b8!=0) ? 0 : (T1==1 && (b2+b8)%3!=0) ? 1 : 2;
-      }
-      else /* [2],[3],[4],[5],[7] */
-      { /* Avoid [x,y] singular, iff b2 x + b4 = 0 = y. */
-        if (y == 1)
-          x = (b6==1) ? 0 : (T1==1) ? 1 : 2;
-        else
-          x = (b6==0 && b4) ? 0 : (T1==0 && (b2 + b4) % 3) ? 1 : 2;
-      }
-      retmkvec(mkvec2s(x,(2*y+a1*x+a3)%3));
-    }
-  }
-  else
-  {
-    GEN e = ell_to_a4a6_bc(E, p), a4 = gel(e, 1), a6 = gel(e, 2);
-    return gerepileupto(av, Fp_ellgens(a4,a6,gel(e,3),D,m,p));
-  }
-}
-
+/* assume model is p-minimal */
 static GEN
 ellgroup_m(GEN E, GEN p, GEN *pm)
 {
-  GEN a4, a6, N = ellcard(E, p);
+  GEN a4, a6, N = ellcard(E, p); /* #E^ns(Fp) */
   *pm = gen_1;
   if (equali1(N)) return cgetg(1,t_VEC);
   if (absequaliu(p, 2)) return mkvec(N);
@@ -6627,10 +6596,34 @@ GEN
 ellgroup(GEN E, GEN p)
 {
   pari_sp av = avma;
-  GEN G, m;
-  p = checkellp(E,p, "ellgroup");
-  if (ell_over_Fq(E)) G = ellff_get_group(E);
-  else                G = ellgroup_m(E,p,&m); /* t_ELL_Q */
+  GEN m, G;
+  p = checkellp(&E,p, NULL, "ellgroup");
+  switch(ell_get_type(E))
+  {
+    case t_ELL_Fp:
+    case t_ELL_Fq: G = ellff_get_group(E); break;
+    case t_ELL_Qp:
+    case t_ELL_Q:
+      if (Z_pval(Q_numer(ell_get_disc(E)), p))
+      {
+        GEN Q = localred(E,p), kod = gel(Q,2);
+        E = ellchangecurve(E, gel(Q,3));
+        if (!equali1(kod)) { G = mkvec(ellcard(E,p)); break; }
+      }
+      G = ellgroup_m(E,p,&m); break;
+    case t_ELL_NF:
+      if (nfval(ellnf_get_nf(E), ell_get_disc(E), p))
+      {
+        GEN Q = nflocalred(E,p), kod = gel(Q,2);
+        E = ellchangecurve(E, gel(Q,3));
+        if (!equali1(kod)) { G = mkvec(ellcard(E,p)); break; }
+      }
+      E = ellinit(E, p, 0);
+      G = ellff_get_group(E);
+      G = gcopy(G); obj_free(E); break;
+    default:
+      pari_err_TYPE("ellgroup", E);
+  }
   return gerepilecopy(av, G);
 }
 
@@ -6638,18 +6631,29 @@ GEN
 ellgroup0(GEN E, GEN p, long flag)
 {
   pari_sp av = avma;
-  GEN V;
+  long tE, freeE = 0;
+  GEN G;
   if (flag==0) return ellgroup(E, p);
   if (flag!=1) pari_err_FLAG("ellgroup");
-  p = checkellp(E, p, "ellgroup");
-  if (!ell_over_Fq(E))
-  { /* t_ELL_Q / t_ELL_Qp / t_ELLNF */
-    GEN m, G = ellgroup_m(E, p, &m);
-    GEN F = FpVV_to_mod(ellgen(E,G,m,p), p);
-    return gerepilecopy(av, mkvec3(ZV_prod(G),G,F));
+  checkell(E); tE = ell_get_type(E);
+  if (tE != t_ELL_Fp && tE != t_ELL_Fq)
+  {
+    GEN Q = elllocalred(E, p), v = gel(Q,3), u = gel(v,1);
+    long vu;
+    switch(tE)
+    {
+      case t_ELL_Qp: p = ellQp_get_p(E);/*fall through*/
+      case t_ELL_Q:  vu = Q_pval(u, p); break;
+      case t_ELL_NF: vu = nfval(ellnf_get_nf(E), u, p); break;
+      default: pari_err_TYPE("ellgroup", E); vu = 0;
+    }
+    if (vu) pari_err_TYPE("ellgroup [not a p-minimal curve]",E);
+    E = ellinit(E, p, 0); freeE = 1;
+    if (lg(E) == 1) pari_err_IMPL("bad reduction in ellgroup");
   }
-  V = mkvec3(ellff_get_card(E), ellff_get_group(E), ellff_get_gens(E));
-  return gerepilecopy(av, V);
+  G = mkvec3(ellff_get_card(E), ellff_get_group(E), ellff_get_gens(E));
+  if (!freeE) return gerepilecopy(av, G);
+  G = gcopy(G); obj_free(E); return gerepileupto(av, G);
 }
 
 GEN
@@ -6744,7 +6748,7 @@ ellissupersingular(GEN E, GEN p)
   int res;
   if (typ(E)!=t_VEC && !p) return elljissupersingular(E);
   j = ell_get_j(E);
-  p = checkellp(E, p, "ellissupersingular");
+  p = checkellp(&E, p, NULL, "ellissupersingular");
   switch(ell_get_type(E))
   {
   case t_ELL_Fp:

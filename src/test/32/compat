@@ -31,7 +31,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: akell(e,n) ===> ellak(e,n)
 
 ellak(E,n): computes the n-th Fourier coefficient of the L-function of the 
-elliptic curve E (assumed E is an integral model).
+elliptic curve E (assumes E is an integral model).
 
 
   ***   at top-level: algdep2()
@@ -74,8 +74,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: apell(e,n) ===> ellap(e,n)
 
-ellap(E,{p}): computes the trace of Frobenius a_p for the elliptic curve E, 
-defined over Q or a finite field.
+ellap(E,{p}): given an elliptic curve E defined over a finite field Fq, return 
+the trace of Frobenius a_p = q+1-#E(Fq); for other fields of definition K, p 
+must define a finite residue field, (p prime for K = Qp or Q; p a maximal ideal 
+for K a number field), return the order of the (non-singular) reduction of E.
 
 
   ***   at top-level: apell2()
@@ -85,8 +87,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: apell2(e,n) ===> ellap(e,n)
 
-ellap(E,{p}): computes the trace of Frobenius a_p for the elliptic curve E, 
-defined over Q or a finite field.
+ellap(E,{p}): given an elliptic curve E defined over a finite field Fq, return 
+the trace of Frobenius a_p = q+1-#E(Fq); for other fields of definition K, p 
+must define a finite residue field, (p prime for K = Qp or Q; p a maximal ideal 
+for K a number field), return the order of the (non-singular) reduction of E.
 
 
   ***   at top-level: apprpadic()
@@ -2499,10 +2503,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: localred(e) ===> elllocalred(e)
 
-elllocalred(E,p): E being an elliptic curve, returns [f,kod,[u,r,s,t],c], where 
-f is the conductor's exponent, kod is the Kodaira type for E at p, [u,r,s,t] is 
-the change of variable needed to make E minimal at p, and c is the local 
-Tamagawa number c_p.
+elllocalred(E,{p}): E being an elliptic curve, returns [f,kod,[u,r,s,t],c], 
+where f is the conductor's exponent, kod is the Kodaira type for E at p, 
+[u,r,s,t] is the change of variable needed to make E minimal at p, and c is the 
+local Tamagawa number c_p.
 
 
   ***   at top-level: logagm()

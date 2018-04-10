@@ -525,6 +525,8 @@ Flxq_ellgens(GEN a4, GEN a6, GEN ch, GEN D, GEN m, GEN T, ulong p)
   e.a4=a4; e.a6=a6; e.T=T; e.p=p;
   switch(lg(D)-1)
   {
+  case 0:
+    return cgetg(1,t_VEC);
   case 1:
     P = gen_gener(gel(D,1), (void*)&e, &FlxqE_group);
     P = mkvec(FlxqE_changepoint(P, ch, T, p));

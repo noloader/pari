@@ -2,29 +2,32 @@ Function: ellap
 Section: elliptic_curves
 C-Name: ellap
 Prototype: GDG
-Help: ellap(E,{p}): computes the trace of Frobenius a_p for the elliptic
- curve E, defined over Q or a finite field.
+Help: ellap(E,{p}): given an elliptic curve E defined over
+ a finite field Fq, return the trace of Frobenius a_p = q+1-#E(Fq); for other
+ fields of definition K, p must define a finite residue field,
+ (p prime for K = Qp or Q; p a maximal ideal for K a number field),
+ return the order of the (non-singular) reduction of E.
 Doc:
- Let $E$ be an \kbd{ell} structure as output by \kbd{ellinit}, defined over
- a number field, $\Q_p$ or a finite field $\F_q$. The argument $p$ is best left
- omitted if the curve is defined over a finite field or over $\Q_p$,
- and must be a prime number or a maximal ideal otherwise. This function
- computes the trace of
- Frobenius $t$ for the elliptic curve $E$, defined by the equation $\#E(\F_q)
- = q+1 - t$ (for primes of good reduction).
+ Let \kbd{E} be an \kbd{ell} structure as output by \kbd{ellinit}, attached
+ to an elliptic curve $E/K$. If the field $K = \F_q$ is finite, return the
+ trace of Frobenius $t$, defined by the equation $\#E(\F_q) = q+1 - t$.
+
+ For other fields of definition and $p$ defining a finite residue field
+ $\F_q$, return the trace of Frobenius for the reduction of $E$: the argument
+ $p$ is best left omitted if $K = \Q_\ell$ (else we must have $p = \ell$) and
+ must be a prime number ($K = \Q$) or prime ideal ($K$ a general number field)
+ with residue field $\F_q$ otherwise. The equation need not be minimal
+ or even integral at $p$; of course, a minimal model will be more efficient.
+
+ For a number field $K$, the trace of Frobenius is the $a_p$
+ coefficient in the Euler product defining the curve $L$-series, whence
+ the function name:
+ $$L(E/K,s) = \prod_{\text{bad}\ p} (1-a_p (Np)^{-s})^{-1}
+              \prod_{\text{good}\ p} (1-a_p (Np)^{-s} + (Np)^{1-2s})^{-1}. $$
 
  When the characteristic of the finite field is large, the availability of
- the \kbd{seadata} package will speed the computation.
+ the \kbd{seadata} package will speed up the computation.
 
- If the curve is defined over $\Q$, $p$ must be explicitly given and the
- function computes the trace of the reduction over $\F_p$.
- The trace of Frobenius is also the $a_p$ coefficient in the curve $L$-series
- $L(E,s) = \sum_n a_n n^{-s}$, whence the function name. The equation must be
- integral at $p$ but need not be minimal at $p$; of course, a minimal model
- will be more efficient.
-
- If the curve is defined over $\Q_p$, the function computes the cardinality
- of the reduction over the residue field $\F_p$, as over $\Q$.
  \bprog
  ? E = ellinit([0,1]);  \\ y^2 = x^3 + 0.x + 1, defined over Q
  ? ellap(E, 7) \\ 7 necessary here
@@ -71,16 +74,19 @@ Doc:
  %8 = 6  \\ same, starting from a non-miminal model
 
  ? P3 = idealprimedec(K,3)[1];
- ? E3 = ellchangecurve(E, [3,0,0,0]);
  ? ellap(E, P3)  \\ OK: E is minimal at P3
- %11 = -2
- ? ellap(E3, P3) \\ junk: E3 is not minimal at P3 | 3
- %12 = 0
+ %10 = -2
+ ? E3 = ellchangecurve(E, [3,0,0,0]);
+ ? ellap(E3, P3) \\ not integral at P3
+  ***   at top-level: ellap(E3,P3)
+  ***                 ^------------
+  *** ellap: impossible inverse in Rg_to_ff: Mod(0, 3).
  @eprog
 
  \misctitle{Algorithms used} If $E/\F_q$ has CM by a principal imaginary
  quadratic order we use a fast explicit formula (involving essentially
- Kronecker symbols and Cornacchia's algorithm), in $O(\log q)^2$.
+ Kronecker symbols and Cornacchia's algorithm), in $O(\log q)^2$ bit
+ operations.
  Otherwise, we use Shanks-Mestre's baby-step/giant-step method, which runs in
  time $\tilde{O}(q^{1/4})$ using $\tilde{O}(q^{1/4})$ storage, hence becomes
  unreasonable when $q$ has about 30~digits. Above this range, the \tet{SEA}

@@ -15,9 +15,9 @@ Doc:
  \kbd{[0]}.
 
  Given a vector of coefficients $[a_1,a_2,a_3,a_4,a_6]$, the function
- \tet{ellinit} initializes and returns an \tev{ell} structure. (An additional
+ \tet{ellinit} initializes and returns an \tev{ell} structure. An additional
  optional argument allows to specify the base field in case it cannot be
- inferred from the curve coefficients.) This structure contains data needed by
+ inferred from the curve coefficients. This structure contains data needed by
  elliptic curve related functions, and is generally passed as a first argument.
  Expensive data are skipped on initialization: they will be dynamically
  computed when (and if) needed, and then inserted in the structure. The
@@ -181,3 +181,58 @@ Doc:
  \item \tet{omega}, \tet{eta}, \tet{area}: vectors of complex periods,
  quasi-periods and lattice areas attached to the complex embeddings of $E$,
  in the same order as \kbd{E.nf.roots}.
+
+ \subsec{Reduction} %GPHELPskip
+ Let $E$ be a curve defined over $\Q_p$ given by a $p$-integral model;
+ if the curve has good reduction at $p$, we may define its reduction
+ $\tilde{E}$ over the finite field $\F_p$:
+ \bprog
+ ? E = ellinit([-3,1], O(5^10));  \\ @com $E/\Q_5$
+ ? Et = ellinit(E, 5)
+ ? ellcard(Et)  \\ @com $\tilde{E}/\F_5$ has 7 points
+ %3 = 7
+ ? ellinit(E, 7)
+  ***   at top-level: ellinit(E,7)
+  ***                 ^------------
+  *** ellinit: inconsistent moduli in ellinit: 5 != 7
+ @eprog\noindent
+ Likewise, if a curve is defined over a number field $K$ and $\goth{p}$ is a
+ maximal ideal with finite residue field $\F_q$, we define the reduction
+ $\tilde{E}/\F_q$ provided $E$ has good reduction at $\goth{p}$.
+ $E/\Q$ is an important special case:
+ \bprog
+ ? E = ellinit([-3,1]);
+ ? factor(E.disc)
+ %2 =
+ [2 4]
+
+ [3 4]
+ ? Et = ellinit(E, 5);
+ ? ellcard(Et) \\ @com $\tilde{E} / \F_5$ has 7 points
+ %4 = 7
+ ? ellinit(E, 3)  \\ bad reduction at 3
+ %5 = []
+ @eprog\noindent General number fields are similar:
+ \bprog
+ ? K = nfinit(x^2+1); E = ellinit([x,x+1], K);
+ ? idealfactor(K, E.disc)  \\ three primes of bad reduction
+ %2 =
+ [  [2, [1, 1]~, 2, 1, [1, -1; 1, 1]] 10]
+
+ [ [5, [-2, 1]~, 1, 1, [2, -1; 1, 2]]  2]
+
+ [[5, [2, 1]~, 1, 1, [-2, -1; 1, -2]]  2]
+ ? P = idealprimedec(K, 3); \\ a prime of good reduction
+ ? idealnorm(K, P)
+ %4 = 9
+ ? Et = ellinit(E, P);
+ ? ellcard(Et)  \\ @com $\tilde{E} / \F_9$ has 4 points
+ %6 = 4
+ @eprog\noindent
+ If the model is not locally minimal at $\goth{p}$, the above will fail:
+ \kbd{elllocalred} and \kbd{ellchangecurve} allow to reduce to that case.
+
+ Some functions such as \kbd{ellap}, \kbd{ellcard}, \kbd{ellgroup} and
+ \kbd{ellissupersingular} even implicitly replace the given equation by
+ a local minimal model and consider the group of non-singular points
+ $\tilde{E}^{ns}$ so they make sense even when the curve has bad reduction.
