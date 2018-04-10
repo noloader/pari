@@ -3430,6 +3430,7 @@ localred_23(GEN e, long p)
 
   k = get_vp_u_small(e, p, &nu6, &nuD);
   if (!k) v = init_ch();
+  else
   {
     ellmin_t M;
     min_set_all(&M, e, powuu(p, k));
@@ -3438,7 +3439,6 @@ localred_23(GEN e, long p)
   }
   /* model is minimal */
   nuD = Z_lval(ell_get_disc(e), (ulong)p);
-  v = init_ch();
   if (p == 2) { p2 = 4; p3 = 8;  p4 = 16; p5 = 32; }
   else        { p2 = 9; p3 = 27; p4 = 81; p5 =243; }
 
