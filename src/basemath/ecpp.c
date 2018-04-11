@@ -337,6 +337,16 @@ sort_disclist(void *data, GEN x, GEN y)
   return 0;
 }
 
+/* Dmq macros */
+INLINE GEN
+Dmq_get_Dinfo(GEN Dmq) { return gel(Dmq, 1); }
+INLINE GEN
+Dmq_get_m(GEN Dmq) { return gel(Dmq, 2); }
+INLINE GEN
+Dmq_get_q(GEN Dmq) { return gel(Dmq, 3); }
+INLINE long
+Dmq_get_cnum(GEN Dmq) { return gmael(Dmq, 1, 1)[2]; }
+
 static int
 sort_NDmq_by_D(void *data, GEN x, GEN y)
 {
@@ -347,19 +357,15 @@ sort_NDmq_by_D(void *data, GEN x, GEN y)
 
 static int
 sort_Dmq_by_q(void *data, GEN x, GEN y)
-{
-  GEN q1 = gel(x, 3);
-  GEN q2 = gel(y, 3);
-  (void)data; return cmpii(q1, q2);
-}
+{ (void)data; return cmpii(gel(x,3), gel(y,3)); }
 
 static int
 sort_Dmq_by_cnum(void *data, GEN x, GEN y)
 {
-  ulong h1 = umael3(x, 1, 1, 2);
-  ulong h2 = umael3(y, 1, 1, 2);
+  ulong h1 = Dmq_get_cnum(x);
+  ulong h2 = Dmq_get_cnum(y);
   if (h1 != h2) return h1 > h2 ? 1 : -1;
-  else return sort_Dmq_by_q(data, x, y);
+  return sort_Dmq_by_q(data, x, y);
 }
 
 static void
@@ -1244,16 +1250,6 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
   if (!Dmqvec) { avma = av; return NULL; } /* nothing is left */
   return gerepilecopy(av, Dmqvec);
 }
-
-/* Dmq macros */
-INLINE GEN
-Dmq_get_Dinfo(GEN Dmq) { return gel(Dmq, 1); }
-INLINE GEN
-Dmq_get_m(GEN Dmq) { return gel(Dmq, 2); }
-INLINE GEN
-Dmq_get_q(GEN Dmq) { return gel(Dmq, 3); }
-INLINE long
-Dmq_get_cnum(GEN Dmq) { return gmael(Dmq, 1, 1)[2]; }
 
 /*  Input: Dmq (where q does not have small prime factors)
    Output: whether q is pseudoprime or not
