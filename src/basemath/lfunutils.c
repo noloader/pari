@@ -1357,36 +1357,36 @@ lfunmfspec(GEN lmisc, long bitprec)
 }
 
 static long
-ellsymsq_bad2(GEN c4, GEN c6, long e, long *pb2)
+ellsymsq_bad2(GEN c4, GEN c6, long e)
 {
   switch (e)
   {
-    case 2: *pb2 = 1; return 1;
-    case 3: *pb2 = 2; return 0;
-    case 5: *pb2 = 3; return 0;
-    case 7: *pb2 = 4; return 0;
+    case 2: return 1;
+    case 3: return 0;
+    case 5: return 0;
+    case 7: return 0;
     case 8:
-      if (dvdiu(c6,512)) { *pb2 = 4; return 0; }
-      *pb2 = 3; return umodiu(c4,128)==32 ? 1 : -1;
-    default: *pb2 = 0; return 0;
+      if (dvdiu(c6,512)) return 0;
+      return umodiu(c4,128)==32 ? 1 : -1;
+    default: return 0;
   }
 }
 static long
-ellsymsq_bad3(GEN c4, GEN c6, long e, long *pb3)
+ellsymsq_bad3(GEN c4, GEN c6, long e)
 {
   long c6_243, c4_81;
   switch (e)
   {
-    case 2: *pb3 = 1; return 1;
-    case 3: *pb3 = 2; return 0;
-    case 5: *pb3 = 3; return 0;
-    case 4: *pb3 = 2;
+    case 2: return 1;
+    case 3: return 0;
+    case 5: return 0;
+    case 4:
       c4_81 = umodiu(c4,81);
       if (c4_81 == 27) return -1;
       if (c4_81%27 != 9) return 1;
       c6_243 = umodiu(c6,243);
       return (c6_243==108 || c6_243==135)? -1: 1;
-    default: *pb3 = 0; return 0;
+    default: return 0;
   }
 }
 static int
@@ -1394,11 +1394,10 @@ c4c6_testp(GEN c4, GEN c6, GEN p)
 { GEN p2 = sqri(p); return (dvdii(c6,p2) && !dvdii(c4,p2)); }
 /* assume e = v_p(N) >= 2 */
 static long
-ellsymsq_badp(GEN c4, GEN c6, GEN p, long e, long *pb)
+ellsymsq_badp(GEN c4, GEN c6, GEN p, long e)
 {
-  if (absequaliu(p, 2)) return ellsymsq_bad2(c4, c6, e, pb);
-  if (absequaliu(p, 3)) return ellsymsq_bad3(c4, c6, e, pb);
-  *pb = 1;
+  if (absequaliu(p, 2)) return ellsymsq_bad2(c4, c6, e);
+  if (absequaliu(p, 3)) return ellsymsq_bad3(c4, c6, e);
   switch(umodiu(p, 12UL))
   {
     case 1: return -1;
@@ -1408,45 +1407,10 @@ ellsymsq_badp(GEN c4, GEN c6, GEN p, long e, long *pb)
   }
 }
 static GEN
-ellsymsq(void *D, GEN p, long n)
-{
-  pari_sp av = avma;
-  GEN E = (GEN)D;
-  GEN T, ap = sqri(ellap(E, p));
-  long e = Z_pval(ellQ_get_N(E), p);
-  if (e)
-  {
-    if (e == 1)
-      T = deg1pol_shallow(negi(ap),gen_1,0);
-    else
-    {
-      GEN c4 = ell_get_c4(E);
-      GEN c6 = ell_get_c6(E);
-      long junk, a = ellsymsq_badp(c4, c6, p, e, &junk);
-      GEN pb = negi(mulis(p,a));
-      GEN u1 = negi(addii(ap,pb));
-      GEN u2 = mulii(ap,pb);
-      T = mkpoln(3,u2,u1,gen_1);
-    }
-  }
-  else
-  {
-    GEN u1 = subii(ap,p);
-    GEN u2 = mulii(p,u1);
-    GEN u3 = powiu(p,3);
-    T = mkpoln(4,negi(u3),u2,negi(u1),gen_1);
-  }
-  return gerepileupto(av, RgXn_inv_i(T,n));
-}
-static GEN
-vecan_ellsymsq(GEN an, long n)
-{ GEN nn = stoi(n); return direuler_bad((void*)an, &ellsymsq, gen_2, nn, nn, NULL); }
-
-static GEN
 lfunellsymsqmintwist(GEN e)
 {
   pari_sp av = avma;
-  GEN B, N, Nfa, P, E, V, c4, c6, ld;
+  GEN N, Nfa, P, E, V, c4, c6, ld;
   long i, l, k;
   checkell_Q(e);
   e = ellminimalmodel(e, NULL);
@@ -1456,19 +1420,16 @@ lfunellsymsqmintwist(GEN e)
   P = gel(Nfa,1); l = lg(P);
   E = gel(Nfa,2);
   V = cgetg(l, t_VEC);
-  B = gen_1;
   for (i=k=1; i<l; i++)
   {
     GEN p = gel(P,i);
-    long a, b, e = itos(gel(E,i));
-    if (e == 1) { B = mulii(B, p); continue; }
-    a = ellsymsq_badp(c4, c6, p, e, &b);
-    B = mulii(B, powiu(p, b));
+    long a, e = itos(gel(E,i));
+    if (e == 1) continue;
+    a = ellsymsq_badp(c4, c6, p, e);
     gel(V,k++) = mkvec2(p, stoi(a));
   }
   setlg(V, k);
-  ld = mkvecn(6, tag(e, t_LFUN_SYMSQ_ELL), gen_0,
-                 mkvec3(gen_0, gen_0, gen_1), stoi(3), sqri(B), gen_1);
+  ld = lfunellsympow(e, 2);
   return gerepilecopy(av, mkvec2(ld, V));
 }
 
@@ -2490,7 +2451,6 @@ ldata_vecan(GEN van, long L, long prec)
     case t_LFUN_DIV: an = vecan_div(an, L, prec); break;
     case t_LFUN_MUL: an = vecan_mul(an, L, prec); break;
     case t_LFUN_CONJ: an = vecan_conj(an, L, prec); break;
-    case t_LFUN_SYMSQ_ELL: an = vecan_ellsymsq(an, L); break;
     case t_LFUN_SYMPOW_ELL: an = vecan_ellsympow(an, L); break;
     case t_LFUN_GENUS2: an = vecan_genus2(an, L); break;
     case t_LFUN_MFCLOS:
