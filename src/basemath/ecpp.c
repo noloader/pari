@@ -816,11 +816,8 @@ FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
   return gerepileupto(av, C);
 }
 
-/* This uses the unravelled [N, D, m, q] in step 1
-   to find the appropriate j-invariants
-   to be used in step 3.
-   T2v is a timer used.
-   Step 2 is divided into three substeps 2a, 2b, 2c. */
+/* This uses [N, D, m, q] from step 1 to find the appropriate j-invariants
+ * to be used in step 3. Step 2 is divided into substeps 2a, 2b, 2c */
 static GEN
 ecpp_step2(GEN step1, GEN *X0)
 {
@@ -834,16 +831,13 @@ ecpp_step2(GEN step1, GEN *X0)
   {
     long i = uel(perm, j), tt;
     GEN J, t, s, a4, P, EP, rt, S = gel(step1, i);
-    GEN N = NDinfomqg_get_N(S);
     GEN Dinfo = NDinfomqg_get_Dinfo(S);
     GEN Dfac = Dinfo_get_Dfac(Dinfo);
-    GEN D = NDinfomqg_get_D(S);
-    GEN m = NDinfomqg_get_m(S);
-    GEN q = NDinfomqg_get_q(S);
-    GEN g = NDinfomqg_get_g(S);
-    GEN sq = NDinfomqg_get_sqrt(S);
+    GEN N = NDinfomqg_get_N(S), D = NDinfomqg_get_D(S);
+    GEN m = NDinfomqg_get_m(S), q = NDinfomqg_get_q(S);
+    GEN g = NDinfomqg_get_g(S), sq = NDinfomqg_get_sqrt(S);
 
-    /* C1: Find the appropriate class polynomial modulo N. */
+    /* C1: Find the appropriate class polynomial modulo N */
     dbg_mode() timer_start(&ti);
     if (!equalii(D, Dprev)) HD = D_polclass(D, &db);
     dbg_mode() {
@@ -851,24 +845,23 @@ ecpp_step2(GEN step1, GEN *X0)
       err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
       err_printf(ANSI_COLOR_GREEN " D = %8Ps poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
       if (equalii(D, Dprev)) err_printf(" %6ld", tt);
-      if (!equalii(D, Dprev)) err_printf(ANSI_COLOR_BRIGHT_WHITE " %6ld" ANSI_COLOR_RESET, tt);
+      else err_printf(ANSI_COLOR_BRIGHT_WHITE " %6ld" ANSI_COLOR_RESET, tt);
     }
-    /* C2: Find a root modulo N of the polynomial obtained in previous step. */
+    /* C2: Find a root modulo N of the polynomial obtained in previous step */
     dbg_mode() timer_start(&ti);
     rt = FpX_classtower_oneroot(HD, Dfac, sq, N);
     dbg_mode() {
       tt = timer_record(X0, "C2", &ti, 1);
       err_printf(" %6ld", tt);
     }
-    /* C3: Convert the root obtained from the previous step into
-     * the appropriate j-invariant. */
+    /* C3: Convert root from previous step into the appropriate j-invariant */
     dbg_mode() timer_start(&ti);
     J = NDinfor_find_J(N, Dinfo, rt);
     dbg_mode() {
       tt = timer_record(X0, "C3", &ti, 1);
       err_printf(" %6ld", tt);
     }
-    /* D1: Find an elliptic curve E with a point P satisfying the theorem. */
+    /* D1: Find an elliptic curve E with a point P satisfying the theorem */
     dbg_mode() timer_start(&ti);
     s = diviiexact(m, q);
     EP = NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
@@ -894,21 +887,6 @@ ecpp_step2(GEN step1, GEN *X0)
 /* end of functions for step 2 */
 
 /* start of functions for step 1 */
-
-/* start of macros for step 1 */
-
-/* earlyabort_pcdg is used when the downrun is told to NOT persevere
-   it returns TRUE (i.e. do an early abort) if the polynomial degree
-     of the discriminant in Dinfo[i] is larger than the param maxpcdg.
-*/
-INLINE long
-earlyabort_pcdg(GEN param, ulong maxpcdg, long i)
-{
-  GEN x = ecpp_param_get_disclist(param);
-  GEN Dinfo = gel(x, i);
-  ulong pd = Dinfo_get_pd(Dinfo);
-  return (pd > maxpcdg);
-}
 
 /*  Input: vector whose components are [D, m]
    Output: vector whose components are m
@@ -1305,30 +1283,22 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     setlg(Dmbatch, 1);
     numcard = 0;
 
-    /* PHASE I:
-       Go through the D's and search for canidate m's.
-       We fill up Dmbatch until there are at least t elements.
-    */
-
+    /* PHASE I: Go through the D's and search for candidate m's.
+     * Fill up Dmbatch until there are at least t elements. */
     while (i < lgdisclist )
     {
-      GEN Dinfo;
-      if (!persevere && earlyabort_pcdg(param, maxpcdg, i)) { FAIL = 1; break; }
-      Dinfo = gel(disclist, i);
+      GEN Dinfo = gel(disclist, i);
+      if (!persevere && Dinfo_get_pd(Dinfo) > maxpcdg) { FAIL = 1; break; }
       numcard += D_collectcards(N, param, X0, Dinfo, sqrtlist, g, Dmbatch, badP);
       last_i = i++;
       if (numcard >= t) break;
     }
 
-    /* If we have exhausted disclist and there are no cardinalities to be factored. */
+    /* We have exhausted disclist and there are no card. to be factored */
     if (FAIL && numcard <= 0) break;
     if (i >= lgdisclist && numcard <= 0) break;
 
-    /* PHASE II:
-       Find the corresponding q's for the m's found.
-       We use Dmbatch.
-    */
-
+    /* PHASE II: Find the corresponding q's for the m's found. Use Dmbatch */
     /* Find coresponding q of the candidate m's. */
     dbg_mode() timer_start(&F);
     Dmqlist = Dmbatch_factor_Dmqvec(N, X0, Dmbatch, param);
