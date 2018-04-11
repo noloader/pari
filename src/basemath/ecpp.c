@@ -1126,17 +1126,6 @@ Dmqvec_to_qvec(GEN Dmqvec)
   return qvec;
 }
 
-/* This initializes sqrtlist as a vector [A, B]
-     where A is a t_VEC of gen_0's
-       and B is a t_VECSMALL of 0's,
-   both of which are as long as primelist. */
-INLINE void
-primelist_sqrtlist_init(GEN primelist, GEN *sqrtlist)
-{
-  long l = lg(primelist)-1;
-  *sqrtlist = mkvec2(zerovec(l), zero_zv(l));
-}
-
 /* This returns the square root modulo N
      of the ith entry of the primelist.
    If this square root is already available on sqrtlist,
@@ -1150,15 +1139,15 @@ p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
 {
   pari_timer ti;
   long p = uel(primelist, i);
-  if (isintzero(gmael(sqrtlist,1,i)))
+  if (isintzero(gel(sqrtlist,i)))
   {
     dbg_mode() err_printf(ANSI_COLOR_MAGENTA "S" ANSI_COLOR_RESET);
     /* A4: Get the square root of a prime factor of D. */
     dbg_mode() timer_start(&ti);
-    gmael(sqrtlist, 1, i) = Fp_sqrt_i(stoi(p), g, N); /* NULL if invalid. */
+    gel(sqrtlist, i) = Fp_sqrt_i(stoi(p), g, N); /* NULL if invalid. */
     dbg_mode() timer_record(X0, "A4", &ti, 1);
   }
-  return gmael(sqrtlist, 1, i);
+  return gel(sqrtlist, i);
 }
 
 /* This finds the legit square root of D modulo N where D is the discriminant in Dinfo.
@@ -1529,7 +1518,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   lgdisclist = lg(disclist);
 
   /* Initialize sqrtlist for this N. */
-  primelist_sqrtlist_init(primelist, &sqrtlist);
+  sqrtlist = zerovec(lg(primelist)-1);
 
   /* Precomputation for batch size t. */
   /* Tuning! */
@@ -1655,7 +1644,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       /* That downrun succeeded. */
       Dfac = Dinfo_get_Dfac(Dinfo);
       gel(Dinfo, 2) = Dfac_to_disc(Dfac, primelist);
-      NDinfomq = mkcol6(N, Dinfo, m, q, g, Dfac_to_roots(Dfac,gel(sqrtlist,1)));
+      NDinfomq = mkcol6(N, Dinfo, m, q, g, Dfac_to_roots(Dfac,sqrtlist));
       return gerepilecopy(ave, mkvec2(NDinfomq, ret));
     }
 
