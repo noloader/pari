@@ -199,12 +199,6 @@ p_to_index(long p, GEN indexlist)
   return uel(indexlist, (labs(p))/2);
 }
 
-/*  Input: i, primelist
-   Output: returns the ith element of primelist
-*/
-INLINE long
-index_to_p(long i, GEN primelist) { return primelist[i]; }
-
 /*  Input: primelist
    Output: returns a vecsmall indicating at what index
            of primelist each odd prime occurs
@@ -1211,23 +1205,10 @@ NUV_find_mvec(GEN N, GEN U, GEN V, long wD)
 static long
 D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dmbatch, long* failflag)
 {
-
-  long i, j;
-  GEN U, V;
-  long corn_succ;
-  long wD;
-  GEN Dfac;
-  long lgDfac;
-  GEN sqrtofDmodN;
+  long kronDN, corn_succ, i, j, wD, lgDfac, D = gel(Dinfo, 1)[1];
+  GEN U, V, Dfac, sqrtofDmodN, mvec;
   GEN primelist = ecpp_param_get_primelist(param);
-  GEN mvec;
-
-  /* Unpacking info on the discriminant. */
-  long D = gel(Dinfo, 1)[1];
-
-  /* timers / counters */
   pari_timer ti;
-  long kronDN;
 
   /* A1: Check (D|N) = 1. */
   dbg_mode() timer_start(&ti);
@@ -1245,7 +1226,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   lgDfac = lg(Dfac);
   for (i = 1; i < lgDfac; i++)
   {
-    long p = index_to_p(uel(Dfac, i), primelist);
+    long p = primelist[uel(Dfac,i)];
     if (krosi(p, N) != 1) return 0;
   }
   dbg_mode() timer_record(X0, "A2", &ti, 1);
