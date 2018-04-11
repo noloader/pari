@@ -532,26 +532,23 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
 }
 
 /*  Input: a vector tune whose components are vectors of length 3
-   Output: vector param of precomputations
-     let x = [maxsqrt, maxdisc, maxpcdg] be the last component of tune then
-     param[1][1] = tune[#tune] = [maxsqrt, maxdisc, maxpcdg]
-     param[1][2] =   primelist = [ Vecsmall with the list of primes ]
-     param[1][3] =    disclist = vector of Dinfos, sorted by disclist
-     param[2]    = primorial_vec
-     param[3]    =          tune
-*/
+ * Output: vector param of precomputations
+ *   let x = [maxsqrt, maxdisc, maxpcdg] be the last component of tune then
+ *   param[1][1] = tune[#tune] = [maxsqrt, maxdisc, maxpcdg]
+ *   param[1][2] =   primelist = [ Vecsmall with the list of primes ]
+ *   param[1][3] =    disclist = vector of Dinfos, sorted by disclist
+ *   param[2]    = primorial_vec
+ *   param[3]    =          tune */
 static GEN
 ecpp_param_set(GEN tune, long tunelen)
 {
   pari_sp av = avma;
   GEN param1 = mkvec3(zero_zv(3), zerovec(1), zerovec(1));
-  GEN param2 = gen_1;
-  GEN param3 = tune;
-  GEN param = mkvec3(param1, param2, param3);
+  GEN param = mkvec3(param1, gen_1, tune);
   GEN x = gel(tune, tunelen);
-  long  maxsqrt = uel(x, 1);
-  ulong maxpcdg = uel(x, 2);
-  ulong tdivexp = uel(x, 3);
+  long  maxsqrt = uel(x,1);
+  ulong maxpcdg = uel(x,2);
+  ulong tdivexp = uel(x,3);
   ecpp_param_set_maxsqrt(param, maxsqrt);
   ecpp_param_set_maxdisc(param, maxsqrt*maxsqrt);
   ecpp_param_set_maxpcdg(param, maxpcdg);
@@ -560,14 +557,10 @@ ecpp_param_set(GEN tune, long tunelen)
   return gerepilecopy(av, param);
 }
 
-/* cert contains [N, t, s, a4, [x, y]] as documented in ??ecpp
-   the following information can be obtained:
-   D = squarefreepart(t^2-4N)
-   m = (N+1-t)
-   q = m/s
-   a6 = y^3 - x^2 - a4*x
-   J = use formula
-*/
+/* cert contains [N, t, s, a4, [x, y]] as documented in ??ecpp; the following
+ * information can be obtained:
+ * D = squarefreepart(t^2-4N)
+ * m = (N+1-t), q = m/s, a6 = y^3 - x^2 - a4*x, J */
 INLINE GEN
 cert_get_N(GEN x) { return gel(x,1); }
 INLINE GEN
@@ -576,8 +569,7 @@ INLINE GEN
 cert_get_D(GEN x)
 {
   GEN N = cert_get_N(x), t = cert_get_t(x);
-  GEN t2m4N = subii(sqri(t), shifti(N, 2));
-  return coredisc(t2m4N);
+  return coredisc(subii(sqri(t), shifti(N, 2)));
 }
 INLINE GEN
 cert_get_m(GEN x)
@@ -590,36 +582,21 @@ cert_get_s(GEN x) { return gel(x,3); }
 INLINE GEN
 cert_get_q(GEN x) { return diviiexact(cert_get_m(x), cert_get_s(x)); }
 INLINE GEN
-cert_get_a4(GEN x) { return gel(x, 4); }
+cert_get_a4(GEN x) { return gel(x,4); }
 INLINE GEN
-cert_get_P(GEN x) { return gel(x, 5); }
+cert_get_P(GEN x) { return gel(x,5); }
 INLINE GEN
 cert_get_x(GEN x) { return gel(cert_get_P(x), 1); }
-
 INLINE GEN
 cert_get_a6(GEN z)
 {
-  GEN N = cert_get_N(z);
-  GEN a = cert_get_a4(z);
-  GEN P = cert_get_P(z);
-
-  GEN x = gel(P, 1);
-  GEN y = gel(P, 2);
-  GEN yy = Fp_sqr(y, N);
-  GEN xx = Fp_sqr(x, N);
-  GEN xxpa = Fp_add(xx, a, N);
-  GEN xxxpax = Fp_mul(x, xxpa, N);
-  GEN yymxxxmax = Fp_sub(yy, xxxpax, N);
-  return yymxxxmax;
+  GEN N = cert_get_N(z), a = cert_get_a4(z), P = cert_get_P(z);
+  GEN x = gel(P,1), xx = Fp_sqr(x, N);
+  GEN y = gel(P,2), yy = Fp_sqr(y, N);
+  return Fp_sub(yy, Fp_mul(x, Fp_add(xx,a,N), N), N);
 }
-
 INLINE GEN
-cert_get_E(GEN x)
-{
-  GEN a = cert_get_a4(x), b = cert_get_a6(x);
-  return mkvec2(a, b);
-}
-
+cert_get_E(GEN x) { return mkvec2(cert_get_a4(x), cert_get_a6(x)); }
 INLINE GEN
 cert_get_J(GEN x)
 {
@@ -627,8 +604,7 @@ cert_get_J(GEN x)
   return Fp_ellj(a, b, N);
 }
 
-/* "Twist factor"
-   Does not cover J = 0, 1728 */
+/* "Twist factor". Does not cover J = 0, 1728 */
 static GEN
 FpE_get_lambda(GEN a, GEN b, GEN A, GEN B, GEN N)
 {
@@ -652,7 +628,7 @@ Fp_ellfromj(GEN j, GEN N)
   k = Fp_sub(utoi(1728), j, N);
   jk = Fp_mul(j, k, N);
   a = Fp_mulu(jk, 3, N);
-  b = Fp_mulu(Fp_mul(j, Fp_sqr(k, N), N), 2, N);
+  b = Fp_mulu(Fp_mul(j, Fp_sqr(k,N), N), 2, N);
   return mkvec2(a, b);
 }
 
