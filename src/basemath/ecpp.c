@@ -1185,57 +1185,43 @@ Dmq_isgoodq(GEN Dmq, GEN* X0)
 }
 
 /*  Input: N
-   Output: [ NDmqg, therest ]
-     NDmqg is a vector of the form [N, D, m, q, g].
-     therest is a vector of the form the same as the output OR [N].
-   This is the downrun.
-   It tries to find [N, D, m, q, g].
-   If N is small, terminate.
-   It finds a quadratic non-residue g.
-   It starts with finding the square root of D modulo N.
-   It then uses this square root for cornacchia's algorithm.
-   If there is a solution to U^2 + |D|V^2 = 4N, use it to find candidates for m.
-   It continues until you get a batch of size at least t = log2(N)/2^log2bsize
-     or if there's no more discriminants left on the list.
-   It factors the m's of the batch and produces the q's.
-   If one of the q's are pseudoprime, then call this function again with N = q.
-*/
+ * Output: [ NDmqg, therest ]
+ *   NDmqg is a vector of the form [N, D, m, q, g].
+ *   therest is a vector of the form the same as the output OR [N].
+ * This is the downrun; it tries to find [N,D,m,q,g], g a quadratic non-residue
+ * If N is small, terminate.
+ * It starts with finding the square root of D modulo N.
+ * It then uses this square root for cornacchia's algorithm.
+ * If there is a solution to U^2 + |D|V^2 = 4N, use it to find candidates for m.
+ * It continues until you get a batch of size at least t = log2(N)/2^log2bsize
+ *   or if there are no discriminants left in the list.
+ * It factors the m's of the batch and produces the q's.
+ * If one of the q's is pseudoprime, recursive call with N = q */
 static GEN
 N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
 {
   pari_sp ave = avma;
   pari_timer T, ti;
-  long lgdisclist, lprimelist, t, numcard, i, j, expiN = expi(N);
+  long lgdisclist, lprimelist, t, i, j, expiN = expi(N);
   long persevere_next = 0, FAIL = 0;
   ulong maxpcdg;
   GEN primelist, disclist, sqrtlist, g, Dmbatch, badP;
 
+  if (expiN < 64) return mkvec(N);
+
   dbg_mode() timer_start(&T);
-
-  /* Unpack trustbits. */
-  if (expiN < 64) return gerepilecopy(ave, mkvec(N));
-
-  /* This means we're going down the tree. */
-  *depth += 1;
-
-  /* Unpack maxpcdg. */
+  (*depth)++; /* we're going down the tree. */
   maxpcdg = ecpp_param_get_maxpcdg(param);
-
-  /* Unpack primelist, disclist. */
   primelist = ecpp_param_get_primelist(param);
   disclist = ecpp_param_get_disclist(param);
   lgdisclist = lg(disclist);
 
   /* Precomputation for batch size t. */
-  /* Tuning! */
   t = expiN >> tunevec_batchsize(N, param);
   if (t < 1) t = 1;
 
-  /* Precomputation for taking square roots.
-       g will be needed for Fp_sqrt_i
-  */
-  g = Fp_2gener(N);
-  if (g == NULL) return gen_0; /* Composite if this happens. */
+  /* Precomputation for taking square roots, g needed for Fp_sqrt_i */
+  g = Fp_2gener(N); if (!g) return gen_0; /* Composite if this happens. */
 
   /* Initialize sqrtlist for this N. */
   lprimelist = lg(primelist);
@@ -1259,29 +1245,22 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     err_printf(ANSI_COLOR_BRIGHT_CYAN "\n%c %3d | %4ld bits%c "
                ANSI_COLOR_RESET, o, *depth, expiN, c);
   }
-  /* Initialize Dmbatch
-       It will be populated with candidate cardinalities on Phase I (until its length reaches at least t).
-       Its elements will be factored on Phase II.
-       We allocate a vectrunc_init of t+7.
-  */
+  /* Initialize Dmbatch, populated with candidate cardinalities in Phase I
+   * (until #Dmbatch >= t); its elements will be factored on Phase II */
   Dmbatch = vectrunc_init(t+7);
 
-  /* Number of cardinalities collected so far.
-     Should always be equal to lg(Dmbatch)-1. */
-  numcard = 0;
-
+  /* Number of cardinalities so far; should always be equal to lg(Dmbatch)-1. */
   /* i determines which discriminant we are considering. */
   i = 1;
 
   while (!FAIL)
   {
     pari_timer F;
-    long lgDmqlist, last_i = i;
+    long lgDmqlist, last_i = i, numcard = 0; /* #Dmbatch */
     GEN Dmqlist;
 
-    /* Dmbatch begins "empty", but we keep the allocated memory. */
+    /* Dmbatch begins "empty", but keep the allocated memory. */
     setlg(Dmbatch, 1);
-    numcard = 0;
 
     /* PHASE I: Go through the D's and search for candidate m's.
      * Fill up Dmbatch until there are at least t elements. */
@@ -1289,14 +1268,13 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     {
       GEN Dinfo = gel(disclist, i);
       if (!persevere && Dinfo_get_pd(Dinfo) > maxpcdg) { FAIL = 1; break; }
-      numcard += D_collectcards(N, param, X0, Dinfo, sqrtlist, g, Dmbatch, badP);
+      numcard += D_collectcards(N,param, X0, Dinfo, sqrtlist, g, Dmbatch, badP);
       last_i = i++;
       if (numcard >= t) break;
     }
 
     /* We have exhausted disclist and there are no card. to be factored */
-    if (FAIL && numcard <= 0) break;
-    if (i >= lgdisclist && numcard <= 0) break;
+    if (numcard <= 0 && (FAIL || i >= lgdisclist)) break;
 
     /* PHASE II: Find the corresponding q's for the m's found. Use Dmbatch */
     /* Find coresponding q of the candidate m's. */
@@ -1365,9 +1343,8 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
 
   /* FAILED: Out of discriminants. */
   if (X0) umael(*X0, 3, 1)++; /* FAILS++ */
-  (*depth)--;
   dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  X" ANSI_COLOR_RESET);
-  return NULL;
+  (*depth)--; return NULL;
 }
 
 /*  Input: the output of the (recursive) downrun function
