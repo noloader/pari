@@ -52,14 +52,15 @@ ellglobalred(E)
 ellglobalred(E2)
 ellglobalred(E3)
 
-{ E = ellinit(
-  [-1377/256*x^6-6885/32*x^4+729/4*x^3-4131/2*x^2+14013/4*x+5589/4,
-   -1863/16*x^6-9315/2*x^4-5589/2*x^3-44712*x^2-53460*x+33534],
-  nfinit(x^4+20*x^2+16));
-}
-ellap(E,idealprimedec(E.nf,2)[1])
-ellap(E,idealprimedec(E.nf,3)[1])
-ellap(E,idealprimedec(E.nf,5)[1])
+K=nfinit(x^4+20*x^2+16);
+E = ellinit([-1377/256*x^6-6885/32*x^4+729/4*x^3-4131/2*x^2+14013/4*x+5589/4, -1863/16*x^6-9315/2*x^4-5589/2*x^3-44712*x^2-53460*x+33534], K);
+P2 = idealprimedec(K,2)[1]; [ellap(E,P2), ellgroup(E,P2)]
+P3 = idealprimedec(K,3)[1]; [ellap(E,P3), ellgroup(E,P3)]
+P5 = idealprimedec(K,5)[1]; [ellap(E,P5), ellgroup(E,P5)]
+E = ellinit([1/4*x^2+3,-7/4*x^2-1,-3/16*x^3-5/4*x^2-1/2,-1/4*x^3-3/4*x^2-x,-3/16*x^3-1/4*x^2-3/2*x+1/2],K);
+ellgroup(E,P2,1)
+ellgroup(E,P3,1)
+P=idealprimedec(K,209844281664738991)[1]; ellgroup(E,P,1)
 
 K=bnfinit(a^2 - 2*3*5*29);
 e = ellinit([a,1], K);

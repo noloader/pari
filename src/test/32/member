@@ -258,6 +258,7 @@ ELLQp
 .c4: -183
 .c6: -3429
 .disc: -10351
+.group: [12, [12], [[10, 4]]]
 .j: 6128487/10351
 .p: 11
 .roots: [9 + O(11^2)]~
@@ -338,4 +339,4 @@ BID (nogen)
 MF
 .mod: t^2 + t + 1
 .mod: Mod(1, t^2 + t + 1)*y^2 + Mod(-2*t, t^2 + t + 1)
-Total time spent: 113
+Total time spent: 116

@@ -1196,14 +1196,13 @@ F2xq_ell_to_a4a6(GEN E, GEN T)
     GEN d6 = F2xq_mul(F2x_add(F2x_add(F2xq_mul(F2x_add(F2xq_mul(da2,d,T),a4),d,T),a6),F2xq_sqr(e,T)),a1i6,T);
     retmkvec3(d2, d6, mkvec4(a1i,dd,pol0_F2x(v),ee));
   }
-  else if (lgpol(a3))
-  {
+  else
+  { /* allow a1 = a3 = 0: singular curve */
     GEN d4 = F2x_add(F2xq_sqr(a2,T),a4);
     GEN d6 = F2x_add(F2xq_mul(a2,a4,T),a6);
-    GEN a3i = F2xq_inv(a3,T);
+    GEN a3i = lgpol(a3)? F2xq_inv(a3,T): a3;
     retmkvec3(mkvec3(a3,d4,a3i), d6, mkvec4(pol1_F2x(v),a2,pol0_F2x(T[1]),pol0_F2x(T[1])));
   }
-  return NULL;
 }
 
 static GEN
@@ -1335,39 +1334,32 @@ FF_elldata(GEN E, GEN fg)
   return mkvec2(fg,e);
 }
 
+/* allow singular E, set E.j = 0 in this case */
 GEN
 FF_ellinit(GEN E, GEN fg)
 {
-  GEN T,p,e;
+  GEN T,p,e, D, c4, y = E;
   ulong pp;
   long i;
-  GEN y=E;
   _getFF(fg,&T,&p,&pp);
   switch(fg[1])
   {
   case t_FF_FpXQ:
     e = FpXQ_ell_to_a4a6(E,T,p);
-    for(i=1;i<=12;i++)
-      gel(y,i) = mkFF_i(fg,Rg_to_FpXQ(gel(E,i),T,p));
-    if (FF_equal0(gel(y,12))) return NULL;
-    gel(y,i) = mkFF_i(fg,Rg_to_FpXQ(gel(E,i),T,p));
+    for(i=1;i<=12;i++) gel(y,i) = mkFF_i(fg,Rg_to_FpXQ(gel(E,i),T,p));
     break;
   case t_FF_F2xq:
     e = F2xq_ell_to_a4a6(E,T);
-    if (!e) return NULL;
-    for(i=1;i<=12;i++)
-      gel(y,i) = mkFF_i(fg,Rg_to_F2xq(gel(E,i),T));
-    if (FF_equal0(gel(y,12))) return NULL;
-    gel(y,i) = mkFF_i(fg,Rg_to_F2xq(gel(E,i),T));
+    for(i=1;i<=12;i++) gel(y,i) = mkFF_i(fg,Rg_to_F2xq(gel(E,i),T));
     break;
   default:
     e = Flxq_ell_to_a4a6(E,T,pp);
-    for(i=1;i<=12;i++)
-      gel(y,i) = mkFF_i(fg,Rg_to_Flxq(gel(E,i),T,pp));
-    if (FF_equal0(gel(y,12))) return NULL;
-    gel(y,i) = mkFF_i(fg,Rg_to_Flxq(gel(E,i),T,pp));
+    for(i=1;i<=12;i++) gel(y,i) = mkFF_i(fg,Rg_to_Flxq(gel(E,i),T,pp));
     break;
   }
+  D = ell_get_disc(y);
+  c4 = ell_get_c4(y);
+  gel(y,13) = FF_equal0(D)? D: gdiv(gpowgs(c4,3), D);
   gel(y,14) = mkvecsmall(t_ELL_Fq);
   gel(y,15) = mkvec2(fg,e);
   return y;

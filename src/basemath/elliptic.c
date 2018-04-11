@@ -387,14 +387,13 @@ ellbasechar(GEN E)
   return gerepileuptoint(av, characteristic(D));
 }
 
-/* return basic elliptic struct y[1..13], y[14] (domain type) and y[15]
- * (domain-specific data) are left uninitialized, from x[1], ..., x[5].
- * Also allocate room for n dynamic members (actually stored in the last
- * component y[16])*/
+/* Initialize basic elliptic struct y[1..12] for initsmall
+ * (do not include j to allow for singular Weistrass model)
+ * Also allocate room for n dynamic members. */
 static GEN
-initsmall(GEN x, long n)
+initsmall_i(GEN x, long n)
 {
-  GEN a1,a2,a3,a4,a6, b2,b4,b6,b8, c4,c6, D, j;
+  GEN a1,a2,a3,a4,a6, b2,b4,b6,b8, c4,c6, D;
   GEN y = obj_init(15, n);
   switch(lg(x))
   {
@@ -450,6 +449,17 @@ initsmall(GEN x, long n)
   gel(y,10)= c4; /* b2^2 - 24 b4 */
   gel(y,11)= c6; /* 36 b2 b4 - b2^3 - 216 b6 */
   gel(y,12)= D;
+  gel(y,16) = zerovec(n);
+  return y;
+}
+/* return basic elliptic struct y[1..13], y[14] (domain type) and y[15]
+ * (domain-specific data) are left uninitialized, from x[1], ..., x[5].
+ * Also allocate room for n dynamic members (actually stored in the last
+ * component y[16])*/
+static GEN
+initsmall(GEN x, long n)
+{
+  GEN j, y = initsmall_i(x, n), c4 = ell_get_c4(y), D = ell_get_disc(y);
   if (gequal0(D)) { gel(y, 13) = gen_0; return NULL; }
 
   if (typ(D) == t_POL && typ(c4) == t_POL && varn(D) == varn(c4))
@@ -481,9 +491,8 @@ initsmall(GEN x, long n)
   else
     j = gdiv(gmul(gsqr(c4),c4), D);
   gel(y,13) = j;
-  gel(y,16) = zerovec(n); return y;
+  return y;
 }
-
 void
 ellprint(GEN e)
 {
@@ -715,6 +724,14 @@ ellinit_nf(GEN x, GEN p)
   return y;
 }
 
+/* FF_ellinit allows singular cubic, return NULL in that case */
+static GEN
+FF_ellinit_ns(GEN x, GEN fg)
+{
+  x = FF_ellinit(x,fg);
+  return FF_equal0(ell_get_disc(x))? NULL: x;
+}
+
 static GEN
 ellinit_Fp(GEN x, GEN p)
 {
@@ -728,8 +745,8 @@ ellinit_Fp(GEN x, GEN p)
     default: pari_err_TYPE("elliptic curve base_ring", x);
   }
   if (!(y = initsmall(x, 4))) return NULL;
-  if (abscmpiu(p,3)<=0) /* ell_to_a4a6_bc does not handle p<=3 */
-    return FF_ellinit(y,p_to_FF(p,0));
+  /* ell_to_a4a6_bc does not handle p<=3 */
+  if (abscmpiu(p,3)<=0) return FF_ellinit_ns(y,p_to_FF(p,0));
   disc = Rg_to_Fp(ell_get_disc(y),p);
   if (!signe(disc)) return NULL;
   for(i=1;i<=13;i++)
@@ -744,7 +761,7 @@ ellinit_Fq(GEN x, GEN fg)
 {
   GEN y;
   if (!(y = initsmall(x, 4))) return NULL;
-  return FF_ellinit(y,fg);
+  return FF_ellinit_ns(y,fg);
 }
 
 static GEN
@@ -4028,8 +4045,8 @@ static GEN
 checkellp(GEN *pE, GEN p, GEN *pv, const char *s)
 {
   GEN q, E = *pE;
-  long tE = ell_get_type(E);
-  checkell(E);
+  long tE;
+  checkell(E); tE = ell_get_type(E);
   if (pv) *pv = NULL;
   if (p) switch(typ(p))
   {
@@ -6623,6 +6640,7 @@ ellgroup(GEN E, GEN p)
       G = gcopy(G); obj_free(E); break;
     default:
       pari_err_TYPE("ellgroup", E);
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   return gerepilecopy(av, G);
 }
@@ -6638,7 +6656,7 @@ ellgroup0(GEN E, GEN p, long flag)
   checkell(E); tE = ell_get_type(E);
   if (tE != t_ELL_Fp && tE != t_ELL_Fq)
   {
-    GEN Q = elllocalred(E, p), v = gel(Q,3), u = gel(v,1);
+    GEN Q = elllocalred(E, p), v = gel(Q,3), u = gel(v,1), kod = gel(Q,2);
     long vu;
     switch(tE)
     {
@@ -6648,8 +6666,25 @@ ellgroup0(GEN E, GEN p, long flag)
       default: pari_err_TYPE("ellgroup", E); vu = 0;
     }
     if (vu) pari_err_TYPE("ellgroup [not a p-minimal curve]",E);
-    E = ellinit(E, p, 0); freeE = 1;
-    if (lg(E) == 1) pari_err_IMPL("bad reduction in ellgroup");
+    if (!equali1(kod)) /* bad reduction */
+    {
+      GEN Ep = obj_init(15, 4), T = NULL, q = p, ap = ellap(E,p);
+      if (typ(p) == t_INT)
+      {
+        long i;
+        for (i = 1; i <= 12; i++) gel(Ep,i) = gel(E,i);
+      }
+      else
+      {
+        q = pr_norm(p);
+        Ep = initsmall_i(ellnf_to_Fq(ellnf_get_nf(E), E, p, &p, &T), 4);
+      }
+      E = FF_ellinit(Ep, Tp_to_FF(T, p)); /* singular curve */
+      obj_insert(E, FF_CARD, subii(q, ap));
+    }
+    else
+      E = ellinit(E, p, 0);
+    freeE = 1;
   }
   G = mkvec3(ellff_get_card(E), ellff_get_group(E), ellff_get_gens(E));
   if (!freeE) return gerepilecopy(av, G);
