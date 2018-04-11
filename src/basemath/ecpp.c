@@ -165,22 +165,6 @@ Dfac_to_disc(GEN x, GEN P) { pari_APPLY_long(uel(P,x[i])); }
 static GEN
 Dfac_to_roots(GEN x, GEN P) { pari_APPLY_type(t_VEC, gel(P,x[i])); }
 
-/*  Input: p, indexlist
-   Output: index of p in the primelist associated to indexlist
-           notice the special case when p is even
-*/
-INLINE ulong
-p_to_index(long p, GEN indexlist)
-{
-  if (p%2 == 0)
-  {
-    if (p ==  8) return 1;
-    if (p == -4) return 2;
-    if (p == -8) return 3;
-  }
-  return uel(indexlist, (labs(p))/2);
-}
-
 /*  Input: primelist
    Output: returns a vecsmall indicating at what index
            of primelist each odd prime occurs
@@ -390,17 +374,14 @@ static GEN
 ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
 {
   pari_sp av = avma;
-  long i, p;
+  long i, p, u, lmerge;
   forprime_t T;
   GEN Harr = allh(maxdisc); /* table of class numbers*/
   GEN ev, od; /* ev: D = 0 mod 4; od: D = 1 mod 4 */
   GEN indexlist = primelist_to_indexlist(primelist); /* for making Dfac */
   GEN merge; /* return this */
   long lenv = maxdisc/4; /* max length of od/ev FIXME: ev can have length maxdisc/8 */
-  long lgmerge; /* length of merge */
   long N; /* maximum number of positive prime factors */
-  long u = 0; /* keeps track of size of merge */
-  long u3 = 1, u4 = 1; /* keeps track of size of od/ev */
 
   /* tuning paramaters blatantly copied from vecfactoru */
   if (maxdisc < 510510UL) N = 7;
@@ -424,20 +405,20 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
      ev[i] holds Dinfo of -(4*i)   */
   for (i = 1; i <= lenv; i++)
   {
-    long h, x;
+    long h, x, id;
     h = Harr[2*i-1]; /* class number of -(4*i-1) */
-    gel(od, i) = mkvec2( mkvecsmall4(1, h, 0, h), vecsmalltrunc_init(N) );
+    gel(od, i) = mkvec2(mkvecsmall4(1, h, 0, h), vecsmalltrunc_init(N));
     switch(i&7)
     {
       case 0:
-      case 4: x = 0; break;
-      case 2: x = -8; break;
-      case 6: x = 8; break;
-      default:x = -4; break;
+      case 4: gel(ev,i) = NULL; continue;
+      case 2: x =-8; id = 3; break;
+      case 6: x = 8; id = 1; break;
+      default:x =-4; id = 2; break;
     }
     h = Harr[2*i]; /* class number of -(4*i) */
-    gel(ev, i) = mkvec2( mkvecsmall4(x, h, 0, h), vecsmalltrunc_init(N) );
-    vecsmalltrunc_append(gmael(ev, i, 2), p_to_index(x, indexlist));
+    gel(ev, i) = mkvec2(mkvecsmall4(x, h, 0, h), vecsmalltrunc_init(N));
+    vecsmalltrunc_append(gmael(ev, i, 2), id);
   }
 
   /* sieve part */
@@ -452,62 +433,60 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
       case 1: q =  p; s = 3; break;
       default:q = -p; s = 1; break; /* case 3 */
     }
-    for (t = (s*p+1)>>2; t <= lenv; t += p)
+    for (t = (s*p+1)>>2; t <= lenv; t += p, s += 4)
     {
-      if (s%p != 0 && umael3(od, t, 1, 1) != 0)
+      GEN c = gel(od,t); if (!c) continue;
+      if (s%p == 0) gel(od,t) = NULL;
+      else
       {
-        u++;
-        umael3(od, t, 1, 1) *= q;
-        vecsmalltrunc_append( gmael(od, t, 2), p_to_index(q, indexlist) );
-      } else
-        umael3(od, t, 1, 1) = 0;
-      s += 4;
+        umael(c,1,1) *= q;
+        vecsmalltrunc_append(gel(c,2), uel(indexlist,p/2));
+      }
     }
-    s = 4;
-    for (t = p; t <= lenv; t += p)
+    s = 1;
+    for (t = p; t <= lenv; t += p, s++)
     {
-      if (s%p != 0 && umael3(ev, t, 1, 1) != 0)
+      GEN c = gel(ev,t); if (!c) continue;
+      if (s%p == 0) gel(ev,t) = NULL;
+      else
       {
-        u++;
-        umael3(ev, t, 1, 1) *= q;
-        vecsmalltrunc_append( gmael(ev, t, 2), p_to_index(q, indexlist) );
-      } else
-        umael3(ev, t, 1, 1) = 0;
-      s += 4;
+        umael(c,1,1) *= q;
+        vecsmalltrunc_append(gel(c,2), uel(indexlist,p/2));
+      }
     }
   }
 
-  /* merging the two arrays */
-  merge = cgetg(u+1, t_VEC);
-  lgmerge = 0;
-  while (1)
+  u = 0;
+  for (i = 1; i <= lenv; i++)
   {
-    long o3, o4;
-    if (u3 > lenv && u4 > lenv) break;
-    o3 = -1;
-    o4 = -1;
-    if (u3 <= lenv)
-    {
-      o3 = umael3(od, u3, 1, 1);
-      if (o3 != -4*u3+1) {u3++; continue;}
-    }
-    if (u4 <= lenv)
-    {
-      o4 = umael3(ev, u4, 1, 1);
-      if (o4 != -4*u4) {u4++; continue;}
-    }
-    if (o3 == -1) { gel(merge, ++lgmerge) = gel(ev, u4++); continue; }
-    if (o4 == -1) { gel(merge, ++lgmerge) = gel(od, u3++); continue; }
-    gel(merge, ++lgmerge) = o3 > o4? gel(od, u3++): gel(ev,u4++);
+    GEN c = gel(od,i);
+    if (c && umael(c,1,1) != -4*i+1) gel(od,i) = NULL; else u++;
   }
-  setlg(merge, lgmerge);
-  /* filling in bestinv [1][3] and poldegree [1][4] */
-  for (i = 1; i < lgmerge; i++)
+  for (i = 1; i <= lenv; i++)
   {
-    GEN T = gmael(merge,i,1);
+    GEN c = gel(ev,i);
+    if (c && umael(c,1,1) != -4*i) gel(ev,i) = NULL; else u++;
+  }
+
+  /* merging the two arrays */
+  merge = cgetg(u+1, t_VEC); lmerge = 0;
+  for (i = 1; i <= lenv; i++)
+  {
+    GEN c = gel(od,i);
+    if (c) gel(merge, ++lmerge) = c;
+  }
+  for (i = 1; i <= lenv; i++)
+  {
+    GEN c = gel(ev,i);
+    if (c) gel(merge, ++lmerge) = c;
+  }
+  setlg(merge, lmerge);
+  for (i = 1; i < lmerge; i++)
+  {
+    GEN T = gmael(merge,i,1); /* fill in bestinv [3] and poldegree [4] */
     long p1 = 1, p2 = 1, D = T[1], h = T[2];
-    long modinv = T[3] = disc_best_modinv(D);
-    if (modinv_degree(&p1,&p2,modinv) && (-D)%p1==0 && (-D)%p2==0) T[4] = h/2;
+    T[3] = disc_best_modinv(D);
+    if (modinv_degree(&p1,&p2,T[3]) && (-D)%p1==0 && (-D)%p2==0) T[4] = h/2;
   }
   merge = gen_sort(merge, NULL, &sort_disclist);
   return gerepileupto(av, merge);
