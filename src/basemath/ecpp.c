@@ -120,22 +120,21 @@ Dinfo_get_Dfac(GEN Dinfo) { return gel(Dinfo, 2); }
 
 /* primelist and indexlist
 
-   primelist begins with 8, -4, -8, which we consider as "prime"
-   the subsequent elements are the corresponding p^star of the
-   odd primes below the indicated limit (maxsqrt) listed in
-   increasing absolute value
+  primelist begins with 8, -4, -8, which we consider as "prime"
+  the subsequent elements are the corresponding p^star of the
+  odd primes below the indicated limit (maxsqrt) listed in
+  increasing absolute value
 
-   indexlist keeps the index of the odd primes. see tables below:
+  indexlist keeps the index of the odd primes. see tables below:
 
-              i |   1 |   2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |
-   -------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-   primelist[i] |   8 |  -4 |  -8 |  -3 |   5 |  -7 | -11 |  13 |  17 | -19 | -23 |
-
-              i |   1 |   2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |
-              p |   3 |   5 |   7 |   9 |  11 |  13 |  15 |  17 |  19 |  21 |  23 |
-   -------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-   indexlist[i] |   4 |   5 |   6 | XXX |   7 |   8 | XXX |   9 |  10 | XXX |  11 |
-   -------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+         i |   1 |   2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |
+  ---------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+         i |   1 |   2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |
+  Plist[i] |   8 |  -4 |  -8 |  -3 |   5 |  -7 | -11 |  13 |  17 | -19 | -23 |
+         p |   3 |   5 |   7 |   9 |  11 |  13 |  15 |  17 |  19 |  21 |  23 |
+  ---------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+  Ilist[i] |   4 |   5 |   6 | XXX |   7 |   8 | XXX |   9 |  10 | XXX |  11 |
+  ---------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
 */
 
 /*  Input: maxsqrt
@@ -163,7 +162,6 @@ ecpp_primelist_init(long maxsqrt)
 
 static GEN
 Dfac_to_disc(GEN x, GEN P) { pari_APPLY_long(uel(P,x[i])); }
-
 static GEN
 Dfac_to_roots(GEN x, GEN P) { pari_APPLY_type(t_VEC, gel(P,x[i])); }
 
