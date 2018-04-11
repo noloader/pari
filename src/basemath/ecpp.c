@@ -1137,10 +1137,10 @@ Dmqvec_to_qvec(GEN Dmqvec)
 static GEN
 p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
 {
-  pari_timer ti;
-  long p = uel(primelist, i);
   if (isintzero(gel(sqrtlist,i)))
   {
+    pari_timer ti;
+    long p = uel(primelist, i);
     dbg_mode() err_printf(ANSI_COLOR_MAGENTA "S" ANSI_COLOR_RESET);
     /* A4: Get the square root of a prime factor of D. */
     dbg_mode() timer_start(&ti);
@@ -1150,25 +1150,23 @@ p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
   return gel(sqrtlist, i);
 }
 
-/* This finds the legit square root of D modulo N where D is the discriminant in Dinfo.
-   This algorithm finds the square root modulo N of each prime p dividing D.
-   It then assembles the actual square root of D by multiplying the prime square roots.
-*/
+/* This finds the legit square root of D modulo N where D is the discriminant
+ * in Dinfo: find the square root modulo N of each prime p dividing D; then
+ * assemble the actual square root of D by multiplying the prime square roots */
 static GEN
 D_find_discsqrt(GEN N, GEN param, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
 {
-  GEN discsqrt = gen_1;
+  GEN s = NULL;
   GEN Dfac = Dinfo_get_Dfac(Dinfo);
-  long lgDfac = lg(Dfac);
-  long i;
+  long i, lgDfac = lg(Dfac);
   GEN primelist = ecpp_param_get_primelist(param);
   for (i = 1; i < lgDfac; i++)
   {
     GEN sqrtfi = p_find_primesqrt(N, X0, primelist, sqrtlist, uel(Dfac, i), g);
-    if (sqrtfi == NULL) return NULL; /* Only happens when N is composite. */
-    discsqrt = Fp_mul(discsqrt, sqrtfi, N);
+    if (!sqrtfi) pari_err_BUG("D_find_discsqrt"); ; /* when N composite ? */
+    s = s? Fp_mul(s, sqrtfi, N): sqrtfi;
   }
-  return discsqrt;
+  return s? s: gen_1;
 }
 
 /* Given a solution U, V to U^2 + |D|V^2 = 4N, this find all the possible
@@ -1256,7 +1254,6 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   /* If sqrtofDmodN is NULL, then N is composite. */
   dbg_mode() timer_start(&ti);
   sqrtofDmodN = D_find_discsqrt(N, param, X0, Dinfo, sqrtlist, g);
-  if (sqrtofDmodN == NULL) pari_err_BUG("D_find_discsqrt");
   dbg_mode() {
     if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ )
       pari_err_BUG("D_find_discsqrt");
