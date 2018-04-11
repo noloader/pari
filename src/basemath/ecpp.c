@@ -604,20 +604,8 @@ cert_get_J(GEN x)
   return Fp_ellj(a, b, N);
 }
 
-/* "Twist factor". Does not cover J = 0, 1728 */
-static GEN
-FpE_get_lambda(GEN a, GEN b, GEN A, GEN B, GEN N)
-{
-  GEN aB = Fp_mul(a, B, N);
-  GEN bA = Fp_mul(b, A, N);
-  return Fp_div(aB, bA, N);
-}
-
 /*  Input: J, N
-   Output: [a, b]
-           a = 3*J*(1728-J)   mod N
-           b = 2*J*(1728-J)^2 mod N
-*/
+ * Output: [a, b], a = 3*J*(1728-J) mod N, b = 2*J*(1728-J)^2 mod N */
 static GEN
 Fp_ellfromj(GEN j, GEN N)
 {
@@ -632,18 +620,18 @@ Fp_ellfromj(GEN j, GEN N)
   return mkvec2(a, b);
 }
 
+/* "Twist factor". Does not cover J = 0, 1728 */
 static GEN
-cert_get_lambda(GEN x)
+cert_get_lambda(GEN z)
 {
-  GEN N, J, a, b, A, B, AB;
-  J = cert_get_J(x);
-  N = cert_get_N(x);
-  a = cert_get_a4(x);
-  b = cert_get_a6(x);
+  GEN N, J, a, b, AB, aB, bA;
+  J = cert_get_J(z);
+  N = cert_get_N(z);
+  a = cert_get_a4(z);
+  b = cert_get_a6(z);
   AB = Fp_ellfromj(J, N);
-  A = gel(AB, 1);
-  B = gel(AB, 2);
-  return FpE_get_lambda(a, b, A, B, N);
+  aB = Fp_mul(a, gel(AB,2), N);
+  bA = Fp_mul(b, gel(AB,1), N); return Fp_div(aB, bA, N);
 }
 
 /* Solves for T such that if
@@ -656,8 +644,7 @@ cert_get_lambda(GEN x)
 static GEN
 cert_get_T(GEN z)
 {
-  GEN N = cert_get_N(z), P = cert_get_P(z);
-  GEN x = gel(P, 1);
+  GEN N = cert_get_N(z), x = cert_get_x(z);
   GEN l = cert_get_lambda(z); /* l = 1/L */
   return Fp_mul(x, l, N);
 }
@@ -668,8 +655,7 @@ cert_get_T(GEN z)
 static GEN
 polmodular_db_init_allinv(void)
 {
-  GEN ret1;
-  GEN ret2 = cgetg(39+1, t_VEC);
+  GEN ret1, ret2 = cgetg(39+1, t_VEC);
   enum { DEFAULT_MODPOL_DB_LEN = 32 };
   long i;
   for (i = 1; i < lg(ret2); i++)
@@ -678,58 +664,47 @@ polmodular_db_init_allinv(void)
   return mkvec2(ret1, ret2);
 }
 
-/*  Input: a discriminant D and a database of previously computed modular polynomials,
-   Output: polclass(D,disc_best_modinv(D))
-*/
+/*  Input: a discriminant D and a database of modular polynomials,
+ * Output: polclass(D,disc_best_modinv(D)) */
 static GEN
 D_polclass(GEN D, GEN *db)
 {
-  GEN HD;
   long inv = disc_best_modinv(itos(D));
-  GEN tmp_db = mkvec2(gel(*db, 1), gmael(*db, 2, inv));
-  if (inv == 0) tmp_db = mkvec2(gel(*db, 1), gen_0);
-  HD = polclass0( itos(D), inv, 0, &tmp_db);
-  gel(*db, 1) = gel(tmp_db, 1);
-  if (inv != 0) gmael(*db, 2, inv) = gel(tmp_db, 2);
+  GEN HD, t = mkvec2(gel(*db, 1), gmael(*db, 2, inv));
+  if (inv == 0) t = mkvec2(gel(*db, 1), gen_0);
+  HD = polclass0(itos(D), inv, 0, &t);
+  gel(*db, 1) = gel(t,1);
+  if (inv != 0) gmael(*db, 2, inv) = gel(t,2);
   return HD;
 }
 
 /*  Input: N, Dinfo, a root rt mod N of polclass(D,disc_best_modinv(D))
-   Output: a root J mod N of polclass(D)
-*/
+ * Output: a root J mod N of polclass(D) */
 INLINE GEN
 NDinfor_find_J(GEN N, GEN Dinfo, GEN rt)
-{
-  long inv = Dinfo_get_bi(Dinfo);
-  return Fp_modinv_to_j(rt, inv, N);
-}
+{ return Fp_modinv_to_j(rt, Dinfo_get_bi(Dinfo), N); }
 
 INLINE long
 NmqEP_check(GEN N, GEN q, GEN E, GEN P, GEN s)
 {
-  GEN a = gel(E, 1);
-  GEN mP, sP;
+  GEN a = gel(E,1), mP, sP;
   sP = FpJ_mul(P, s, a, N); if (FpJ_is_inf(sP)) return 0;
   mP = FpJ_mul(sP,q, a, N); return FpJ_is_inf(mP);
 }
 
-/* This finds an elliptic curve E modulo N and a point P on E
-     which corresponds to the ith element of the certificate.
-   It uses the corresponding N, D, m, q, J obtained in previous steps.
-
-   All computations are to be done modulo N unless stated otherwise.
-*/
+/* Find an elliptic curve E modulo N and a point P on E which corresponds to
+ * the ith element of the certificate; uses N, D, m, q, J from previous steps.
+ * All computations are modulo N unless stated otherwise */
 
 /* g is a quadratic and cubic non-residue modulo N */
 static GEN
 j0_find_g(GEN N)
 {
-  while (1)
+  GEN n = diviuexact(subiu(N, 1), 3);
+  for(;;)
   {
     GEN g = randomi(N);
-    if (kronecker(g, N) != -1) continue;
-    if (isint1(Fp_pow(g, diviuexact(subiu(N, 1), 3), N))) continue;
-    return g;
+    if (kronecker(g, N) == -1 && !equali1(Fp_pow(g, n, N))) return g;
   }
 }
 
