@@ -514,31 +514,18 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
       o4 = umael3(ev, u4, 1, 1);
       if (o4 != -4*u4) {u4++; continue;}
     }
-    if (o3 == -1)
-    {
-      gel(merge, ++lgmerge) = gel(ev, u4++);
-      continue;
-    }
-    if (o4 == -1)
-    {
-      gel(merge, ++lgmerge) = gel(od, u3++);
-      continue;
-    }
-    if (o3 > o4)
-      gel(merge, ++lgmerge) = gel(od, u3++);
-    else
-      gel(merge, ++lgmerge) = gel(ev, u4++);
+    if (o3 == -1) { gel(merge, ++lgmerge) = gel(ev, u4++); continue; }
+    if (o4 == -1) { gel(merge, ++lgmerge) = gel(od, u3++); continue; }
+    gel(merge, ++lgmerge) = o3 > o4? gel(od, u3++): gel(ev,u4++);
   }
   setlg(merge, lgmerge);
   /* filling in bestinv [1][3] and poldegree [1][4] */
   for (i = 1; i < lgmerge; i++)
   {
-    long D = umael3(merge, i, 1, 1);
-    long h = umael3(merge, i, 1, 2);
-    long modinv = umael3(merge, i, 1, 3) = disc_best_modinv(D);
-    long p1 = 1, p2 = 1;
-    if (modinv_degree(&p1, &p2, modinv) && (-D)%p1 == 0 && (-D)%p2 == 0)
-      umael3(merge, i, 1, 4) = h/2;
+    GEN T = gmael(merge,i,1);
+    long p1 = 1, p2 = 1, D = T[1], h = T[2];
+    long modinv = T[3] = disc_best_modinv(D);
+    if (modinv_degree(&p1,&p2,modinv) && (-D)%p1==0 && (-D)%p2==0) T[4] = h/2;
   }
   merge = gen_sort(merge, NULL, &sort_disclist);
   return gerepileupto(av, merge);
@@ -546,12 +533,12 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
 
 /*  Input: a vector tune whose components are vectors of length 3
    Output: vector param of precomputations
-             let x = [maxsqrt, maxdisc, maxpcdg] be the last component of tune then
-             param[1][1] =   tune[#tune] = [maxsqrt, maxdisc, maxpcdg]
-             param[1][2] =     primelist = [ Vecsmall with the list of primes ]
-             param[1][3] =      disclist = vector whose elements are Dinfos, sorted by disclist
-             param[2]    = primorial_vec
-             param[3]    =          tune
+     let x = [maxsqrt, maxdisc, maxpcdg] be the last component of tune then
+     param[1][1] = tune[#tune] = [maxsqrt, maxdisc, maxpcdg]
+     param[1][2] =   primelist = [ Vecsmall with the list of primes ]
+     param[1][3] =    disclist = vector of Dinfos, sorted by disclist
+     param[2]    = primorial_vec
+     param[3]    =          tune
 */
 static GEN
 ecpp_param_set(GEN tune, long tunelen)
