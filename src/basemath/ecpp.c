@@ -1294,15 +1294,13 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       GEN Dinfo = Dmq_get_Dinfo(Dmq);
       GEN m = Dmq_get_m(Dmq);
       GEN q = Dmq_get_q(Dmq);
-      long a;
-      if (expiN - expi(q) < 1)
+      if (expiN <= expi(q))
       {
         dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  x" ANSI_COLOR_RESET);
         continue;
       }
       dbg_mode() err_printf(ANSI_COLOR_WHITE "." ANSI_COLOR_RESET);
-      a = Dmq_isgoodq(Dmq, X0);
-      if (!a) continue;
+      if (!Dmq_isgoodq(Dmq, X0)) continue;
 
       dbg_mode() {
         err_printf(ANSI_COLOR_BRIGHT_BLUE "  %ld" ANSI_COLOR_RESET,
