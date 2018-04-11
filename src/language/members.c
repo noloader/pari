@@ -386,8 +386,7 @@ member_tu(GEN x)
     GEN z = bnf_get_tuU(bnf);
     if (t == typ_BNR) pari_err_IMPL("ray torsion units");
     gel(res,1) = utoipos( bnf_get_tuN(bnf) );
-    if (typ(z) != t_INT) z = basistoalg(bnf, z);
-    gel(res,2) = z;
+    gel(res,2) = typ(z)==t_INT? gen_m1: basistoalg(bnf,z);
   }
   return res;
 }
