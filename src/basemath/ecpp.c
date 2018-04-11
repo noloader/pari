@@ -1310,7 +1310,6 @@ gained_bits(void* E, GEN q) { return (expi(q) <= (long)E); }
 static GEN
 Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
 {
-  pari_sp av = avma;
   GEN qlo;
   GEN qvec;
   long lo_ind, bitgain, hi_ind, goal;
@@ -1321,14 +1320,14 @@ Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
 
   qlo = ecpp_qlo(N);
   lo_ind = zv_binsearch0((void*)qlo, &lessthan_qlo, qvec); lo_ind++;
-  if (lo_ind >= lg(qvec)) { avma = av; return NULL; }
+  if (lo_ind >= lg(qvec)) return NULL;
 
   bitgain = 1;
   goal = expi(N)-bitgain;
   hi_ind = zv_binsearch0((void*)goal, &gained_bits, qvec);
-  if (hi_ind == 0) { avma = av; return NULL; }
+  if (hi_ind == 0) return NULL;
 
-  return gerepilecopy(av, vecslice(Dmqvec, lo_ind, hi_ind));
+  return vecslice(Dmqvec, lo_ind, hi_ind);
 }
 
 /* Given a vector mvec of mi's,
@@ -1361,11 +1360,9 @@ mvec_batchfactor_qvec(GEN mvec, GEN primorial)
 static GEN
 Dmvec_batchfactor_Dmqvec(GEN Dmvec, GEN primorial)
 {
-  pari_sp av = avma;
   GEN mvec = Dmvec_to_mvec(Dmvec);
   GEN qvec = mvec_batchfactor_qvec(mvec, primorial);
-  GEN Dmqvec = Dmvec_qvec_to_Dmqvec(Dmvec, qvec);
-  return gerepilecopy(av, Dmqvec);
+  return Dmvec_qvec_to_Dmqvec(Dmvec, qvec);
 }
 
 /* tunevec = [maxsqrt, maxpcdg, tdivexp]
@@ -1397,6 +1394,7 @@ tunevec_batchsize(GEN N, GEN param)
 static GEN
 Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
 {
+  pari_sp av = avma;
   pari_timer ti;
   GEN curr_primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param) - 19);
   GEN Dmqvec;
@@ -1413,9 +1411,9 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
   dbg_mode() timer_record(X0, "B2", &ti, Dmqvec ? lg(Dmqvec)-1: 0);
 
   /* If nothing is left after B2, return NULL */
-  if (Dmqvec == NULL) return NULL;
+  if (Dmqvec == NULL) { avma = av; return NULL; }
 
-  return Dmqvec;
+  return gerepilecopy(av, Dmqvec);
 }
 
 /* Dmq macros */
@@ -1576,13 +1574,12 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     /* If none left, move to the next discriminant. */
     if (Dmqlist == NULL) continue;
 
-    lgDmqlist = lg(Dmqlist);
-
-    /* If we are cheating by adding class numbers, sort by class number instead. */
+    /* If we are cheating by adding class numbers, sort by class number */
     if (Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg)
-      Dmqlist = gen_sort(Dmqlist, NULL, &sort_Dmq_by_cnum);
+      gen_sort_inplace(Dmqlist, NULL, &sort_Dmq_by_cnum, NULL);
 
     /* Check pseudoprimality before going down. */
+    lgDmqlist = lg(Dmqlist);
     for (j = 1; j < lgDmqlist; j++)
     {
       GEN NDinfomq;
