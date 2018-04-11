@@ -582,61 +582,32 @@ ecpp_param_set(GEN tune, long tunelen)
    J = use formula
 */
 INLINE GEN
-cert_get_N(GEN x)
-{ return gel(x,1); }
-
+cert_get_N(GEN x) { return gel(x,1); }
 INLINE GEN
-cert_get_t(GEN x)
-{ return gel(x,2); }
-
+cert_get_t(GEN x) { return gel(x,2); }
 INLINE GEN
 cert_get_D(GEN x)
 {
-  GEN N = cert_get_N(x);
-  GEN t = cert_get_t(x);
+  GEN N = cert_get_N(x), t = cert_get_t(x);
   GEN t2m4N = subii(sqri(t), shifti(N, 2));
   return coredisc(t2m4N);
 }
-
 INLINE GEN
 cert_get_m(GEN x)
 {
-  GEN N = cert_get_N(x);
-  GEN t = cert_get_t(x);
+  GEN N = cert_get_N(x), t = cert_get_t(x);
   return subii(addiu(N, 1), t);
 }
-
 INLINE GEN
-cert_get_s(GEN x)
-{
-  return gel(x,3);
-}
-
+cert_get_s(GEN x) { return gel(x,3); }
 INLINE GEN
-cert_get_q(GEN x)
-{
-  GEN m = cert_get_m(x);
-  GEN s = cert_get_s(x);
-  return diviiexact(m, s);
-}
-
+cert_get_q(GEN x) { return diviiexact(cert_get_m(x), cert_get_s(x)); }
 INLINE GEN
-cert_get_a4(GEN x)
-{
-  return gel(x, 4);
-}
-
+cert_get_a4(GEN x) { return gel(x, 4); }
 INLINE GEN
-cert_get_P(GEN x)
-{
-  return gel(x, 5);
-}
-
+cert_get_P(GEN x) { return gel(x, 5); }
 INLINE GEN
-cert_get_x(GEN x)
-{
-  return gel(cert_get_P(x), 1);
-}
+cert_get_x(GEN x) { return gel(cert_get_P(x), 1); }
 
 INLINE GEN
 cert_get_a6(GEN z)
@@ -658,17 +629,14 @@ cert_get_a6(GEN z)
 INLINE GEN
 cert_get_E(GEN x)
 {
-  GEN a = cert_get_a4(x);
-  GEN b = cert_get_a6(x);
+  GEN a = cert_get_a4(x), b = cert_get_a6(x);
   return mkvec2(a, b);
 }
 
 INLINE GEN
 cert_get_J(GEN x)
 {
-  GEN N = cert_get_N(x);
-  GEN a = cert_get_a4(x);
-  GEN b = cert_get_a6(x);
+  GEN a = cert_get_a4(x), b = cert_get_a6(x), N = cert_get_N(x);
   return Fp_ellj(a, b, N);
 }
 
@@ -690,15 +658,14 @@ FpE_get_lambda(GEN a, GEN b, GEN A, GEN B, GEN N)
 static GEN
 Fp_ellfromj(GEN j, GEN N)
 {
-  GEN k, kk, jk, a, b;
+  GEN k, jk, a, b;
   j = Fp_red(j, N);
   if (isintzero(j)) return mkvec2(gen_0, gen_1);
-  if (equalii(Fp_red(stoi(1728), N), j)) return mkvec2(gen_1, gen_0);
-  k = Fp_sub(stoi(1728), j, N);
-  kk = Fp_sqr(k, N);
+  if (absequalui(umodui(1728, N), j)) return mkvec2(gen_1, gen_0);
+  k = Fp_sub(utoi(1728), j, N);
   jk = Fp_mul(j, k, N);
   a = Fp_mulu(jk, 3, N);
-  b = Fp_mulu(Fp_mul(j, kk, N), 2, N);
+  b = Fp_mulu(Fp_mul(j, Fp_sqr(k, N), N), 2, N);
   return mkvec2(a, b);
 }
 
@@ -719,22 +686,17 @@ cert_get_lambda(GEN x)
 /* Solves for T such that if
    [A, B] = [3*J*(1728-J), 2*J*(1728-J)^2]
    and you let
-   L = T^3 + A*T + B
-   A = A*L^2
-   B = B*L^3
+   L = T^3 + A*T + B, A = A*L^2, B = B*L^3
    then
-   x == TL
-   y == L^2
+   x == TL and y == L^2
 */
 static GEN
 cert_get_T(GEN z)
 {
-  GEN N = cert_get_N(z);
-  GEN P = cert_get_P(z);
+  GEN N = cert_get_N(z), P = cert_get_P(z);
   GEN x = gel(P, 1);
   GEN l = cert_get_lambda(z); /* l = 1/L */
-  GEN T = Fp_mul(x, l, N);
-  return T;
+  return Fp_mul(x, l, N);
 }
 
 /* database for all invariants
@@ -784,11 +746,8 @@ NmqEP_check(GEN N, GEN q, GEN E, GEN P, GEN s)
 {
   GEN a = gel(E, 1);
   GEN mP, sP;
-  sP = FpJ_mul(P, s, a, N);
-  if (FpJ_is_inf(sP)) return 0;
-  mP = FpJ_mul(sP, q, a, N);
-  if (FpJ_is_inf(mP)) return 1;
-  return 0;
+  sP = FpJ_mul(P, s, a, N); if (FpJ_is_inf(sP)) return 0;
+  mP = FpJ_mul(sP,q, a, N); return FpJ_is_inf(mP);
 }
 
 /* This finds an elliptic curve E modulo N and a point P on E
@@ -821,12 +780,9 @@ random_FpJ(GEN A, GEN B, GEN N)
 static GEN
 NDinfomqgJ_find_EP(GEN N, GEN Dinfo, GEN m, GEN q, GEN g, GEN J, GEN s)
 {
-  long i;
-  long D = Dinfo_get_D(Dinfo);
+  long i, D = Dinfo_get_D(Dinfo);
   GEN gg;
-  GEN E = Fp_ellfromj(J, N);
-  GEN A = gel(E, 1);
-  GEN B = gel(E, 2);
+  GEN E = Fp_ellfromj(J, N), A = gel(E,1), B = gel(E,2);
   GEN P = random_FpJ(A, B, N);
   if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
   switch (D_get_wD(D))
@@ -874,8 +830,7 @@ static GEN
 realgenusfield(GEN Dfac, GEN sq, GEN p)
 {
   long i, j, l = lg(Dfac), dn, n = 0;
-  GEN sn, s = gen_0;
-  GEN R = cgetg(l-1, t_VECSMALL);
+  GEN sn, s = gen_0, R = cgetg(l-1, t_VECSMALL);
   for (i = 1; i < l; i++)
     if (Dfac[i] < 0) { n = i; break; }
   if (n == 0) pari_err_BUG("realgenusfield");
@@ -935,25 +890,20 @@ ecpp_step2(GEN step1, GEN *X0)
   pari_timer ti;
   GEN perm = gen_indexsort(step1, NULL, &sort_NDmq_by_D);
   GEN step2 = cgetg(lg(step1), t_VEC);
-  GEN HD = NULL;
-  GEN Dprev = gen_0;
-  GEN db = polmodular_db_init_allinv();
+  GEN HD = NULL, Dprev = gen_0, db = polmodular_db_init_allinv();
 
   for (j = 1; j < lg(step2); j++)
   {
-
-    long i = uel(perm, j), tt = 0;
-    GEN NDinfomqg_i = gel(step1, i);
-
-    GEN N = NDinfomqg_get_N(NDinfomqg_i);
-    GEN Dinfo = NDinfomqg_get_Dinfo(NDinfomqg_i);
+    long i = uel(perm, j), tt;
+    GEN J, t, s, a4, P, EP, rt, S = gel(step1, i);
+    GEN N = NDinfomqg_get_N(S);
+    GEN Dinfo = NDinfomqg_get_Dinfo(S);
     GEN Dfac = Dinfo_get_Dfac(Dinfo);
-    GEN D = NDinfomqg_get_D(NDinfomqg_i);
-    GEN m = NDinfomqg_get_m(NDinfomqg_i);
-    GEN q = NDinfomqg_get_q(NDinfomqg_i);
-    GEN g = NDinfomqg_get_g(NDinfomqg_i);
-    GEN sq = NDinfomqg_get_sqrt(NDinfomqg_i);
-    GEN J, t, s, a4, P, EP, rt;
+    GEN D = NDinfomqg_get_D(S);
+    GEN m = NDinfomqg_get_m(S);
+    GEN q = NDinfomqg_get_q(S);
+    GEN g = NDinfomqg_get_g(S);
+    GEN sq = NDinfomqg_get_sqrt(S);
 
     /* C1: Find the appropriate class polynomial modulo N. */
     dbg_mode() timer_start(&ti);
@@ -1041,10 +991,9 @@ Dmvec_to_mvec(GEN Dmvec)
 static GEN
 Dmvec_qvec_to_Dmqvec(GEN Dmvec, GEN qvec)
 {
-  long lgDmqvec = lg(Dmvec);
-  GEN Dmqvec = cgetg(lgDmqvec, t_VEC);
-  long i;
-  for (i = 1; i < lgDmqvec; i++)
+  long i, l = lg(Dmvec);
+  GEN Dmqvec = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
   {
     GEN D = gmael(Dmvec, i, 1);
     GEN m = gmael(Dmvec, i, 2);
@@ -1060,25 +1009,22 @@ Dmvec_qvec_to_Dmqvec(GEN Dmvec, GEN qvec)
 static GEN
 Dmqvec_to_qvec(GEN Dmqvec)
 {
-  long lgqvec = lg(Dmqvec);
-  GEN qvec = cgetg(lgqvec, t_VEC);
-  long i;
-  for (i = 1; i < lgqvec; i++) gel(qvec, i) = gmael(Dmqvec, i, 3);
+  long i, l = lg(Dmqvec);
+  GEN qvec = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(qvec, i) = gmael(Dmqvec, i, 3);
   return qvec;
 }
 
-/* This returns the square root modulo N
-     of the ith entry of the primelist.
-   If this square root is already available on sqrtlist,
-     then simply return it.
+/* This returns the square root modulo N of the ith entry of the primelist.
+   If this square root is already in sqrtlist, simply return it.
    Otherwise, compute it, save it and return it.
-   y is a quadratic non-residue that is needed
+   g is a quadratic non-residue that is needed
      somehow in the algorithm for taking square roots modulo N.
 */
 static GEN
 p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
 {
-  if (isintzero(gel(sqrtlist,i)))
+  if (!signe(gel(sqrtlist,i)))
   {
     pari_timer ti;
     long p = uel(primelist, i);
@@ -1097,8 +1043,7 @@ p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
 static GEN
 D_find_discsqrt(GEN N, GEN param, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
 {
-  GEN s = NULL;
-  GEN Dfac = Dinfo_get_Dfac(Dinfo);
+  GEN s = NULL, Dfac = Dinfo_get_Dfac(Dinfo);
   long i, lgDfac = lg(Dfac);
   GEN primelist = ecpp_param_get_primelist(param);
   for (i = 1; i < lgDfac; i++)
@@ -1118,35 +1063,31 @@ D_find_discsqrt(GEN N, GEN param, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
 static GEN
 NUV_find_mvec(GEN N, GEN U, GEN V, long wD)
 {
-  GEN Nplus1 = addiu(N, 1);
-  GEN m;
-  GEN u = U;
-  GEN mvec = cgetg(wD + 1, t_VEC);
+  GEN m, Nplus1 = addiu(N, 1), u = U, mvec = cgetg(wD+1, t_VEC);
   long i;
   for (i = 0; i < wD; i++)
   {
-    if (i%2 == 0)
+    if (odd(i)) m = subii(Nplus1, u);
+    else
     {
       if (wD == 4 && i==2) u = shifti(V, 1);
       if (wD == 6 && i==2) u = shifti(submuliu(U, V, 3), -1);
       if (wD == 6 && i==4) u = shifti(addmuliu(U, V, 3), -1);
       m = addii(Nplus1, u);
-    } else
-      m = subii(Nplus1, u);
-    gel(mvec, i + 1) = m;
+    }
+    gel(mvec, i+1) = m;
   }
   return mvec;
 }
 
-/* This populates Dmbatch with Dmvec's -- vectors whose components are of the form [D, m],
-     where m is a cardinalities of an elliptic curve with endomorphism ring isomorphic to
-     the maximal order of the imaginary quadratic number field K = Q(sqrt(D)).
+/* Populates Dmbatch with Dmvec's -- whose components are of the form [D,m],
+   where m is a cardinalities of an elliptic curve with endomorphism ring
+   isomorphic to the maximal order of imaginary quadratic K = Q(sqrt(D)).
    It returns 0 if:
-     * D (of Dinfo) is not a quadratic residue mod N
      * Any of the p* dividing D is not a quadratic residue mod N
      * Cornacchia cannot find a solution U^2 + |D|V^2 = 4N.
    Otherwise, it returns the number of cardinalities added to Dmbatch.
-   Finally, sqrtlist and y are used to help compute the square root modulo N of D+.
+   Finally, sqrtlist and g help compute the square root modulo N of D.
 */
 static long
 D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dmbatch, GEN badP)
@@ -1194,19 +1135,14 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   return wD;
 }
 
-/* Compute (S(16N, 2) + S(4096N, 4) + 4)\4 + 1
-     where S is the nth root rounded down.
-   This is at most one more than (N^1/4 + 1)^2.
-*/
+/* Compute (S(16N, 2) + S(4096N, 4) + 4)\4 + 1,  where S is the nth root
+ * rounded down. This is at most one more than (N^1/4 + 1)^2. */
 static GEN
 ecpp_qlo(GEN N)
 {
   GEN a = sqrtnint(shifti(N, 4), 2);
   GEN b = sqrtnint(shifti(N, 12), 4);
-  GEN c = shifti(gen_1, 2);
-  GEN d = addii(addii(a, b), c);
-  GEN e = shifti(d, -2);
-  return addiu(e, 1);
+  return addiu(shifti(addii(a, b), -2), 2);
 }
 
 static long
@@ -1215,15 +1151,12 @@ static long
 gained_bits(void* E, GEN q) { return (expi(q) <= (long)E); }
 
 /*  Input: Dmqvec
-   Output: Dmqvec such that q satisfies
-     (N^1/4 + 1)^2 < q < N/2
-*/
+ * Output: Dmqvec such that q satisfies (N^1/4 + 1)^2 < q < N/2 */
 static GEN
 Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
 {
-  GEN qlo;
-  GEN qvec;
-  long lo_ind, bitgain, hi_ind, goal;
+  long lo_ind, hi_ind, goal;
+  GEN qlo, qvec;
 
   /* Dmqvec is sorted according to q */
   Dmqvec = gen_sort(Dmqvec, NULL, &sort_Dmq_by_q);
@@ -1233,17 +1166,16 @@ Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
   lo_ind = zv_binsearch0((void*)qlo, &lessthan_qlo, qvec); lo_ind++;
   if (lo_ind >= lg(qvec)) return NULL;
 
-  bitgain = 1;
-  goal = expi(N)-bitgain;
+  goal = expi(N)-1;
   hi_ind = zv_binsearch0((void*)goal, &gained_bits, qvec);
   if (hi_ind == 0) return NULL;
 
   return vecslice(Dmqvec, lo_ind, hi_ind);
 }
 
-/* Given a vector mvec of mi's,
-   This simultaneously removes all prime factors of each mi less then BOUND_PRIMORIAL
-   This implements Franke 2004: Proving the Primality of Very Large Numbers with fastECPP. */
+/* Given a vector mvec of mi's, simultaneously remove all prime factors of each
+ * mi less then BOUND_PRIMORIAL. This implements Franke 2004: Proving the
+ * Primality of Very Large Numbers with fastECPP */
 static GEN
 mvec_batchfactor_qvec(GEN mvec, GEN primorial)
 { /* Obtain the product tree of mvec. */
@@ -1271,8 +1203,7 @@ mvec_batchfactor_qvec(GEN mvec, GEN primorial)
 static GEN
 Dmvec_batchfactor_Dmqvec(GEN Dmvec, GEN primorial)
 {
-  GEN mvec = Dmvec_to_mvec(Dmvec);
-  GEN qvec = mvec_batchfactor_qvec(mvec, primorial);
+  GEN qvec = mvec_batchfactor_qvec(Dmvec_to_mvec(Dmvec), primorial);
   return Dmvec_qvec_to_Dmqvec(Dmvec, qvec);
 }
 
@@ -1289,15 +1220,10 @@ tunevec(GEN N, GEN param)
   return gel(T,i);
 }
 static long
-tunevec_tdivbd(GEN N, GEN param)
-{
-  return uel(tunevec(N, param), 3);
-}
+tunevec_tdivbd(GEN N, GEN param) { return uel(tunevec(N, param), 3); }
 static long
 tunevec_batchsize(GEN N, GEN param)
-{
-  return (28-tunevec_tdivbd(N, param) < 0 ? 0 : 28-tunevec_tdivbd(N, param));
-}
+{ return (28-tunevec_tdivbd(N, param) < 0 ? 0 : 28-tunevec_tdivbd(N, param)); }
 
 /*  Input: Dmbatch (from the downrun)
    Output: Dmqvec
@@ -1307,12 +1233,12 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
 {
   pari_sp av = avma;
   pari_timer ti;
-  GEN curr_primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param) - 19);
+  GEN primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param)-19);
   GEN Dmqvec;
 
   /* B1: Factor by batch. */
   dbg_mode() timer_start(&ti);
-  Dmqvec = Dmvec_batchfactor_Dmqvec(Dmbatch, curr_primorial);
+  Dmqvec = Dmvec_batchfactor_Dmqvec(Dmbatch, primorial);
   dbg_mode() timer_record(X0, "B1", &ti, 1);
 
   /* B2: For each batch, remove cardinalities lower than (N^(1/4)+1)^2
@@ -1321,28 +1247,19 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
   Dmqvec = Dmqvec_slice_Dmqvec(N, Dmqvec);
   dbg_mode() timer_record(X0, "B2", &ti, Dmqvec ? lg(Dmqvec)-1: 0);
 
-  /* If nothing is left after B2, return NULL */
-  if (Dmqvec == NULL) { avma = av; return NULL; }
-
+  if (!Dmqvec) { avma = av; return NULL; } /* nothing is left */
   return gerepilecopy(av, Dmqvec);
 }
 
 /* Dmq macros */
 INLINE GEN
-Dmq_get_Dinfo(GEN Dmq)
-{ return gel(Dmq, 1); }
-
+Dmq_get_Dinfo(GEN Dmq) { return gel(Dmq, 1); }
 INLINE GEN
-Dmq_get_m(GEN Dmq)
-{ return gel(Dmq, 2); }
-
+Dmq_get_m(GEN Dmq) { return gel(Dmq, 2); }
 INLINE GEN
-Dmq_get_q(GEN Dmq)
-{ return gel(Dmq, 3); }
-
+Dmq_get_q(GEN Dmq) { return gel(Dmq, 3); }
 INLINE long
-Dmq_get_cnum(GEN Dmq)
-{ return gmael(Dmq, 1, 1)[2]; }
+Dmq_get_cnum(GEN Dmq) { return gmael(Dmq, 1, 1)[2]; }
 
 /*  Input: Dmq (where q does not have small prime factors)
    Output: whether q is pseudoprime or not
@@ -1351,14 +1268,14 @@ static long
 Dmq_isgoodq(GEN Dmq, GEN* X0)
 {
   pari_timer ti;
-  long is_pseudoprime;
   GEN q = Dmq_get_q(Dmq);
+  long s;
 
   /* B3: Check pseudoprimality of each q on the list. */
   dbg_mode() timer_start(&ti);
-  is_pseudoprime = BPSW_psp_nosmalldiv(q);
+  s = BPSW_psp_nosmalldiv(q);
   dbg_mode() timer_record(X0, "B3", &ti, 1);
-  return is_pseudoprime; /* did not find for this m */
+  return s; /* did not find for this m */
 }
 
 /*  Input: N
@@ -1732,16 +1649,13 @@ cert_out(GEN x)
 
 /*  Input: PARI ECPP Certificate
    Output: Magma Certificate
-     Magma certificate looks like this
-     (newlines and extraneous spaces for clarity)
+     Magma certificate looks like this (newlines and extra spaces for clarity)
      [*
        [*
          N, |D|, -1, m,
          [* a, b *],
          [* x, y, 1 *],
-         [*
-           [* q, 1 *]
-         *]
+         [* [* q, 1 *] *]
        *], ...
      *]
 */
@@ -1871,7 +1785,7 @@ Nq_isvalid(GEN N, GEN q)
   if (cmpii(qm1sqr,N) > 0) /* (q-1)^2 > N */
   { /* (q-1)^4 + N^2 > 16Nq + 2N(q-1)^2 */
     GEN a = addii(sqri(qm1sqr), sqri(N));
-    GEN b = addii(shifti(mulii(N, q), 4 ), mulii(shifti(N, 1), qm1sqr));
+    GEN b = addii(shifti(mulii(N, q), 4), mulii(shifti(N, 1), qm1sqr));
     return (cmpii(a, b) > 0);
   }
   return 0;
