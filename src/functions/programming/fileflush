@@ -22,6 +22,5 @@ Doc: flushes the file descriptor $n$, created via \kbd{fileopen} or
      if (i % 10000 == 0, fileflush(n)))
  @eprog Until a \kbd{fileflush} or \kbd{fileclose}, there is no guarantee
  that the file contains all the expected data from previous \kbd{filewrite}s.
-Variant: Also available is \fun{void}{gp_fileflush}{long n}.
-
-
+Variant: But the direct and more specific variant
+ \fun{void}{gp_fileflush}{long n} is also available.
