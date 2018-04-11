@@ -304,8 +304,7 @@ INLINE void
 ecpp_param_set_tdivexp(GEN param, ulong x)
 { gel(param, 2) = primorial_vec(x); }
 
-static GEN
-ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist);
+static GEN ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist);
 
 INLINE void
 ecpp_param_set_disclist(GEN param)
@@ -1199,46 +1198,29 @@ NUV_find_mvec(GEN N, GEN U, GEN V, long wD)
      * Any of the p* dividing D is not a quadratic residue mod N
      * Cornacchia cannot find a solution U^2 + |D|V^2 = 4N.
    Otherwise, it returns the number of cardinalities added to Dmbatch.
-   Moreover, if N is determined to be composite, it sets failflag to 1.
    Finally, sqrtlist and y are used to help compute the square root modulo N of D+.
 */
 static long
-D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dmbatch, long* failflag)
+D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dmbatch, GEN badP)
 {
-  long kronDN, corn_succ, i, j, wD, lgDfac, D = gel(Dinfo, 1)[1];
-  GEN U, V, Dfac, sqrtofDmodN, mvec;
-  GEN primelist = ecpp_param_get_primelist(param);
+  long corn_succ, j, wD, D = gel(Dinfo, 1)[1], aD = labs(D);
+  GEN U, V, sqrtofDmodN, mvec;
   pari_timer ti;
 
-  /* A1: Check (D|N) = 1. */
+  /* A1: Check (D,badP) = 1 <=> (p*|N) = 1 for all primes dividing D */
   dbg_mode() timer_start(&ti);
-  kronDN = krosi(D, N);
+  aD = ugcd(aD, umodiu(badP, aD));
   dbg_mode() timer_record(X0, "A1", &ti, 1);
-  switch(kronDN) {
-     case 0: *failflag = 1;
-    case -1: return 0;
-  }
-
-  /* A2: Check (p*|N) = 1 for all p.
-     This is equivalent to checking (N|p) = 1. */
-  dbg_mode() timer_start(&ti);
-  Dfac = Dinfo_get_Dfac(Dinfo);
-  lgDfac = lg(Dfac);
-  for (i = 1; i < lgDfac; i++)
-  {
-    long p = primelist[uel(Dfac,i)];
-    if (krosi(p, N) != 1) return 0;
-  }
-  dbg_mode() timer_record(X0, "A2", &ti, 1);
+  if (aD > 1) return 0;
 
   /* A3: Get square root of D mod N. */
   /* If sqrtofDmodN is NULL, then N is composite. */
   dbg_mode() timer_start(&ti);
   sqrtofDmodN = D_find_discsqrt(N, param, X0, Dinfo, sqrtlist, g);
   dbg_mode() {
+    timer_record(X0, "A3", &ti, 1);
     if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ )
       pari_err_BUG("D_find_discsqrt");
-    timer_record(X0, "A3", &ti, 1);
   }
 
   /* A5: Use the square root to use cornacchia to find the solution to U^2 + |D|V^2 = 4N. */
@@ -1451,14 +1433,11 @@ static GEN
 N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
 {
   pari_sp ave = avma;
-  pari_timer T;
-  long i, j;
-  long expiN = expi(N);
-  long persevere_next = 0;
-  long lgdisclist, t, numcard;
+  pari_timer T, ti;
+  long lgdisclist, lprimelist, t, numcard, i, j, expiN = expi(N);
+  long persevere_next = 0, FAIL = 0;
   ulong maxpcdg;
-  GEN primelist, disclist, sqrtlist, g, Dmbatch;
-  long FAIL = 0;
+  GEN primelist, disclist, sqrtlist, g, Dmbatch, badP;
 
   dbg_mode() timer_start(&T);
 
@@ -1476,9 +1455,6 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   disclist = ecpp_param_get_disclist(param);
   lgdisclist = lg(disclist);
 
-  /* Initialize sqrtlist for this N. */
-  sqrtlist = zerovec(lg(primelist)-1);
-
   /* Precomputation for batch size t. */
   /* Tuning! */
   t = expiN >> tunevec_batchsize(N, param);
@@ -1489,6 +1465,21 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   */
   g = Fp_2gener(N);
   if (g == NULL) return gen_0; /* Composite if this happens. */
+
+  /* Initialize sqrtlist for this N. */
+  lprimelist = lg(primelist);
+  sqrtlist = zerovec(lprimelist-1);
+
+  /* A2: Check (p*|N) = 1 for all p */
+  dbg_mode() timer_start(&ti);
+  badP = gen_1;
+  for (i = 1; i < lprimelist; i++)
+  {
+    long p = primelist[i], s = krosi(p, N);
+    if (!s) return gen_0; /* N composite */
+    if (s < 0) badP = muliu(badP, labs(p));
+  } /* must restrict to the D coprime to badP */
+  dbg_mode() timer_record(X0, "A2", &ti, 1);
 
   /* Print the start of this iteration. */
   dbg_mode() {
@@ -1514,9 +1505,8 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   while (!FAIL)
   {
     pari_timer F;
-    long last_i = i, failflag;
+    long lgDmqlist, last_i = i;
     GEN Dmqlist;
-    long lgDmqlist;
 
     /* Dmbatch begins "empty", but we keep the allocated memory. */
     setlg(Dmbatch, 1);
@@ -1527,14 +1517,12 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
        We fill up Dmbatch until there are at least t elements.
     */
 
-    failflag = 0;
     while (i < lgdisclist )
     {
       GEN Dinfo;
       if (!persevere && earlyabort_pcdg(param, maxpcdg, i)) { FAIL = 1; break; }
       Dinfo = gel(disclist, i);
-      numcard += D_collectcards(N, param, X0, Dinfo, sqrtlist, g, Dmbatch, &failflag);
-      if (failflag) return gen_0;
+      numcard += D_collectcards(N, param, X0, Dinfo, sqrtlist, g, Dmbatch, badP);
       last_i = i++;
       if (numcard >= t) break;
     }
@@ -1551,9 +1539,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     /* Find coresponding q of the candidate m's. */
     dbg_mode() timer_start(&F);
     Dmqlist = Dmbatch_factor_Dmqvec(N, X0, Dmbatch, param);
-
-    /* If none left, move to the next discriminant. */
-    if (Dmqlist == NULL) continue;
+    if (Dmqlist == NULL) continue; /* none left => next discriminant. */
 
     /* If we are cheating by adding class numbers, sort by class number */
     if (Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg)
@@ -1563,12 +1549,10 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     lgDmqlist = lg(Dmqlist);
     for (j = 1; j < lgDmqlist; j++)
     {
-      GEN NDinfomq;
-      GEN Dmq = gel(Dmqlist, j);
+      GEN ret, Dfac, NDinfomq, Dmq = gel(Dmqlist,j);
       GEN Dinfo = Dmq_get_Dinfo(Dmq);
       GEN m = Dmq_get_m(Dmq);
       GEN q = Dmq_get_q(Dmq);
-      GEN ret, Dfac;
       long a;
       if (expiN - expi(q) < 1)
       {
