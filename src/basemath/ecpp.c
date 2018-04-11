@@ -72,10 +72,7 @@ timer_record(GEN* X0, const char* Xx, pari_timer* ti, long c)
 }
 
 INLINE long
-FpJ_is_inf(GEN P)
-{
-  return signe(gel(P, 3)) == 0;
-}
+FpJ_is_inf(GEN P) { return signe(gel(P, 3)) == 0; }
 
 /*****************************************************************/
 
@@ -111,24 +108,15 @@ D_get_wD(long D)
            it contains the index of q0*.
 */
 INLINE long
-Dinfo_get_D(GEN Dinfo)
-{ return gel(Dinfo, 1)[1]; }
-
+Dinfo_get_D(GEN Dinfo) { return gel(Dinfo, 1)[1]; }
 INLINE long
-Dinfo_get_h(GEN Dinfo)
-{ return gel(Dinfo, 1)[2]; }
-
+Dinfo_get_h(GEN Dinfo) { return gel(Dinfo, 1)[2]; }
 INLINE long
-Dinfo_get_bi(GEN Dinfo)
-{ return gel(Dinfo, 1)[3]; }
-
+Dinfo_get_bi(GEN Dinfo) { return gel(Dinfo, 1)[3]; }
 INLINE ulong
-Dinfo_get_pd(GEN Dinfo)
-{ return umael(Dinfo, 1, 4); }
-
+Dinfo_get_pd(GEN Dinfo) { return umael(Dinfo, 1, 4); }
 INLINE GEN
-Dinfo_get_Dfac(GEN Dinfo)
-{ return gel(Dinfo, 2); }
+Dinfo_get_Dfac(GEN Dinfo) { return gel(Dinfo, 2); }
 
 /* primelist and indexlist
 
@@ -154,34 +142,30 @@ Dinfo_get_Dfac(GEN Dinfo)
    Output: primelist containing primes whose absolute value is at most maxsqrt
 */
 static GEN
-ecpp_primelist_init( long maxsqrt)
+ecpp_primelist_init(long maxsqrt)
 {
+  GEN P = cgetg(maxsqrt, t_VECSMALL);
   forprime_t T;
-  GEN primelist = cgetg(maxsqrt, t_VECSMALL);
-  long j = 1;
+  long j;
   u_forprime_init(&T, 3, ULONG_MAX);
-  primelist[j] =  8; j++;
-  primelist[j] = -4; j++;
-  primelist[j] = -8; j++;
-  while (1) {
+  P[1] =  8;
+  P[2] = -4;
+  P[3] = -8;
+  for (j = 4;;j++)
+  {
     long p = u_forprime_next(&T);
-    if (p > maxsqrt) break;
-    if (p == 0) break;
+    if (!p || p > maxsqrt) break;
     if (p%4 == 3) p = -p;
-    primelist[j] = p;
-    j++;
+    P[j] = p;
   }
-  setlg(primelist, j);
-  return primelist;
+  setlg(P,j); return P;
 }
 
 static GEN
-Dfac_to_disc(GEN x, GEN P)
-{ pari_APPLY_long(uel(P,x[i])); }
+Dfac_to_disc(GEN x, GEN P) { pari_APPLY_long(uel(P,x[i])); }
 
 static GEN
-Dfac_to_roots(GEN x, GEN P)
-{ pari_APPLY_type(t_VEC, gel(P,x[i])); }
+Dfac_to_roots(GEN x, GEN P) { pari_APPLY_type(t_VEC, gel(P,x[i])); }
 
 /*  Input: p, indexlist
    Output: index of p in the primelist associated to indexlist
@@ -204,46 +188,33 @@ p_to_index(long p, GEN indexlist)
            of primelist each odd prime occurs
 */
 INLINE GEN
-primelist_to_indexlist(GEN primelist)
+primelist_to_indexlist(GEN P)
 {
-  long i;
-  long lgprimelist = lg(primelist);
-  long maxprime = labs(primelist[lgprimelist-1]);
+  long i, lP = lg(P), maxprime = labs(P[lP-1]);
   GEN indexlist;
 
   if (maxprime < 8) maxprime = 8;
   indexlist = zero_zv(maxprime/2);
-  for (i = 4; i < lgprimelist; i++)
+  for (i = 4; i < lP; i++)
   {
-    long p = labs(primelist[i]);
+    long p = labs(P[i]);
     uel(indexlist, p/2) = i;
   }
   return indexlist;
 }
 
 INLINE ulong
-ecpp_param_get_maxsqrt(GEN param)
-{ return umael3(param, 1, 1, 1); }
-
+ecpp_param_get_maxsqrt(GEN param) { return umael3(param, 1, 1, 1); }
 INLINE ulong
-ecpp_param_get_maxdisc(GEN param)
-{ return umael3(param, 1, 1, 2); }
-
+ecpp_param_get_maxdisc(GEN param) { return umael3(param, 1, 1, 2); }
 INLINE ulong
-ecpp_param_get_maxpcdg(GEN param)
-{ return umael3(param, 1, 1, 3); }
-
+ecpp_param_get_maxpcdg(GEN param) { return umael3(param, 1, 1, 3); }
 INLINE GEN
-ecpp_param_get_primelist(GEN param)
-{ return gmael3(param, 1, 2, 1); }
-
+ecpp_param_get_primelist(GEN param) { return gmael3(param, 1, 2, 1); }
 INLINE GEN
-ecpp_param_get_disclist(GEN param)
-{ return gmael(param, 1, 3); }
-
+ecpp_param_get_disclist(GEN param) { return gmael(param, 1, 3); }
 INLINE GEN
-ecpp_param_get_primorial_vec(GEN param)
-{ return gel(param, 2); }
+ecpp_param_get_primorial_vec(GEN param) { return gel(param, 2); }
 
 /*  Input: tree obtained using ZV_producttree(v), and integer a
    Output: product of v[1] to v[i]
@@ -252,9 +223,8 @@ static GEN
 producttree_find_partialprod(GEN tree, GEN v, ulong a)
 {
   GEN b = gen_1;
-  long i;
-  long lgtree = lg(tree);
-  for (i = 0; i < lgtree; i++)
+  long i, ltree = lg(tree);
+  for (i = 0; i < ltree; i++)
   {
     if (a%2 != 0)
     {
@@ -291,25 +261,19 @@ ecpp_param_get_primorial(GEN param, long v)
   GEN primorial_vec = ecpp_param_get_primorial_vec(param);
   return gel(primorial_vec, v);
 }
-
 INLINE void
-ecpp_param_set_maxdisc(GEN param, ulong x)
-{ umael3(param, 1, 1, 2) = x; }
-
+ecpp_param_set_maxdisc(GEN param, ulong x) { umael3(param, 1, 1, 2) = x; }
 INLINE void
-ecpp_param_set_maxpcdg(GEN param, ulong x)
-{ umael3(param, 1, 1, 3) = x; }
-
+ecpp_param_set_maxpcdg(GEN param, ulong x) { umael3(param, 1, 1, 3) = x; }
 INLINE void
-ecpp_param_set_tdivexp(GEN param, ulong x)
-{ gel(param, 2) = primorial_vec(x); }
+ecpp_param_set_tdivexp(GEN param, ulong x) { gel(param, 2) = primorial_vec(x); }
 
 static GEN ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist);
 
 INLINE void
 ecpp_param_set_disclist(GEN param)
 {
-   long maxsqrt = ecpp_param_get_maxsqrt(param);
+  long maxsqrt = ecpp_param_get_maxsqrt(param);
   ulong maxdisc = ecpp_param_get_maxdisc(param);
   GEN primelist = ecpp_param_get_primelist(param);
   gmael(param, 1, 3) = ecpp_disclist_init(maxsqrt, maxdisc, primelist);
@@ -323,38 +287,22 @@ ecpp_param_set_disclist(GEN param)
    g, a quadratic non-residue modulo N
    sqrt, a list of squareroots
 */
-
 INLINE GEN
-NDinfomqg_get_N(GEN x)
-{ return gel(x,1); }
-
+NDinfomqg_get_N(GEN x) { return gel(x,1); }
 INLINE GEN
-NDinfomqg_get_Dinfo(GEN x)
-{ return gel(x,2); }
-
-INLINE GEN
-NDinfomqg_get_D(GEN x)
-{ return stoi(Dinfo_get_D(NDinfomqg_get_Dinfo(x))); }
-
+NDinfomqg_get_Dinfo(GEN x) { return gel(x,2); }
 INLINE long
-NDinfomqg_get_longD(GEN x)
-{ return itos(NDinfomqg_get_D(x)); }
-
+NDinfomqg_get_longD(GEN x) { return Dinfo_get_D(NDinfomqg_get_Dinfo(x)); }
 INLINE GEN
-NDinfomqg_get_m(GEN x)
-{ return gel(x,3); }
-
+NDinfomqg_get_D(GEN x) { return stoi(NDinfomqg_get_longD(x)); }
 INLINE GEN
-NDinfomqg_get_q(GEN x)
-{ return gel(x,4); }
-
+NDinfomqg_get_m(GEN x) { return gel(x,3); }
 INLINE GEN
-NDinfomqg_get_g(GEN x)
-{ return gel(x,5); }
-
+NDinfomqg_get_q(GEN x) { return gel(x,4); }
 INLINE GEN
-NDinfomqg_get_sqrt(GEN x)
-{ return gel(x,6); }
+NDinfomqg_get_g(GEN x) { return gel(x,5); }
+INLINE GEN
+NDinfomqg_get_sqrt(GEN x) { return gel(x,6); }
 
 /* COMPARATOR FUNCTIONS */
 
