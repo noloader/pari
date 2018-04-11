@@ -1336,24 +1336,21 @@ Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
    This implements Franke 2004: Proving the Primality of Very Large Numbers with fastECPP. */
 static GEN
 mvec_batchfactor_qvec(GEN mvec, GEN primorial)
-{
-  pari_sp av = avma;
-  long i;
-  /* Obtain the product tree of mvec. */
+{ /* Obtain the product tree of mvec. */
   GEN leaf = Z_ZV_mod_tree(primorial, mvec, ZV_producttree(mvec));
+  long i;
 
   /* Go through each leaf and remove small factors. */
   for (i = 1; i < lg(mvec); i++)
   {
     GEN m = gel(mvec, i);
-    while (!isint1(gel(leaf, i)) )
+    while (!equali1(gel(leaf,i)) )
     {
-      gel(leaf, i) = gcdii( m, gel(leaf,i) );
-      m = diviiexact( m, gel(leaf,i) );
+      gel(leaf,i) = gcdii(m, gel(leaf,i));
+      m = diviiexact(m, gel(leaf,i));
     }
     gel(mvec, i) = m;
   }
-  gerepileall(av, 1, &mvec);
   return mvec;
 }
 
@@ -1368,8 +1365,7 @@ Dmvec_batchfactor_Dmqvec(GEN Dmvec, GEN primorial)
   GEN mvec = Dmvec_to_mvec(Dmvec);
   GEN qvec = mvec_batchfactor_qvec(mvec, primorial);
   GEN Dmqvec = Dmvec_qvec_to_Dmqvec(Dmvec, qvec);
-  gerepileall(av, 1, &Dmqvec);
-  return Dmqvec;
+  return gerepilecopy(av, Dmqvec);
 }
 
 /* tunevec = [maxsqrt, maxpcdg, tdivexp]
