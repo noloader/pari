@@ -214,43 +214,25 @@ ecpp_param_get_disclist(GEN param) { return gmael(param, 1, 3); }
 INLINE GEN
 ecpp_param_get_primorial_vec(GEN param) { return gel(param, 2); }
 
-/*  Input: tree obtained using ZV_producttree(v), and integer a
-   Output: product of v[1] to v[i]
-*/
-static GEN
-producttree_find_partialprod(GEN tree, GEN v, ulong a)
-{
-  GEN b = gen_1;
-  long i, ltree = lg(tree);
-  for (i = 0; i < ltree; i++)
-  {
-    if (a%2 != 0)
-    {
-      if (i==0) b = muliu(b, uel(v, a));
-      else b = mulii(b, gmael(tree, i, a));
-    }
-    a/=2;
-  }
-  return b;
-}
-
 /*  Input: x, 20 <= x <= 30
-   Output: v, a vector whose ith component is the product of all primes below 2^x
-*/
+ * Output: a vector whose ith entry is the product of all primes below 2^x */
 static GEN
 primorial_vec(ulong x)
 {
   pari_sp av = avma;
-  long i;
-  GEN v = primes_upto_zv(1UL << x);
-  GEN tree = ZV_producttree(v);
-  /* ind[i] is the number such that the ind[i]th prime number is the largest prime number below 2^(20+i) */
-  GEN ind = mkvecsmalln(11, 82025L, 155611L, 295947L, 564163L, 1077871L, 2063689L,
-                           3957809L, 7603553L, 14630843L, 28192750L, 54400028L);
-  long y = x-19;
-  GEN ret = cgetg(y+1, t_VEC);
-  for (i = 1; i <= y; i++) gel(ret, i) = producttree_find_partialprod(tree, v, uel(ind, i));
-  return gerepilecopy(av, ret);
+  long i, y = x-19;
+  GEN v = primes_upto_zv(1UL << x), w = cgetg(y+1, t_VEC);
+  /* ind[i]th prime number is the largest prime <= 2^(20+i) */
+  long ind[] = { 0, 82025L, 155611L, 295947L, 564163L, 1077871L, 2063689L,
+                 3957809L, 7603553L, 14630843L, 28192750L, 54400028L };
+  gel(w,1) = zv_prod_Z(vecslice(v,1,ind[1]));
+  for (i = 2; i <= y; i++)
+  {
+    pari_sp av2 = avma;
+    GEN q = mulii(gel(w,i-1), zv_prod_Z(vecslice(v,ind[i-1]+1,ind[i])));
+    gel(w,i) = gerepileuptoint(av2, q);
+  }
+  return gerepileupto(av, w);
 }
 
 INLINE GEN
