@@ -686,9 +686,6 @@ GEN direuler_factor(GEN s, long n);
 
 void ellprint(GEN e);
 
-/* ecpp.c */
-GEN     ecpp0(GEN N, GEN param, GEN* X0);
-
 /* es.c */
 
 void    killallfiles(void);

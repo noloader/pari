@@ -1708,50 +1708,45 @@ ecpp_step1(GEN N, GEN param, GEN* X0)
 
 /* The input is an integer N.
    It uses the precomputation step0 done in ecpp_step0. */
-GEN
-ecpp0(GEN N, GEN param, GEN* X0)
+static GEN
+ecpp0(GEN N, GEN param)
 {
 
+  GEN step1, answer, Tv, Cv, X0;
   pari_sp av = avma;
   long i, j;
-  GEN step1;
-  GEN answer;
-  GEN Tv, Cv;
 
   /* Check if N is pseudoprime to begin with. */
-  if (X0 && !BPSW_psp(N)) return gen_0;
+  if (!BPSW_psp(N)) return gen_0;
 
   /* Check if we should even prove it. */
-  if (X0 && expi(N) < 64) return N;
+  if (expi(N) < 64) return N;
 
   /* Timers and Counters */
   Tv = mkvec4(zero_zv(6), zero_zv(3), zero_zv(3), zero_zv(2));
   Cv = mkvec4(zero_zv(6), zero_zv(3), zero_zv(3), zero_zv(2));
-  if (X0) *X0 = mkvec3(Tv, Cv, zero_zv(1));
+  X0 = mkvec3(Tv, Cv, zero_zv(1));
 
-  step1 = ecpp_step1(N, param, X0);
-  if (step1 == NULL) return NULL;
-  if (typ(step1) != t_VEC) return gen_0;
+  step1 = ecpp_step1(N, param, &X0);
+  if (step1 == NULL) { avma = av; return NULL; }
+  if (typ(step1) != t_VEC) { avma = av; return gen_0; }
 
-  answer = ecpp_step2(step1, X0);
-  if (answer == NULL) pari_err_BUG("ecpp");
+  answer = ecpp_step2(step1, &X0);
 
+  dbg_mode() {
   for (i = 1; i < lg(Tv); i++)
   {
     GEN v = gel(Tv, i);
     long lgv = lg(v);
     for (j = 1; j < lgv; j++)
-      dbg_mode() err_printf("\n   %c%ld: %16ld %16ld %16f", 'A'+i-1, j,
-        umael3(*X0, 1, i, j),
-        umael3(*X0, 2, i, j),
-        (double)(umael3(*X0, 1, i, j)) / (double)(umael3(*X0, 2, i, j)));
+      err_printf("\n   %c%ld: %16ld %16ld %16f", 'A'+i-1, j,
+        umael3(X0, 1, i, j),
+        umael3(X0, 2, i, j),
+        (double)(umael3(X0, 1, i, j)) / (double)(umael3(X0, 2, i, j)));
   }
-  dbg_mode() err_printf("\n" ANSI_COLOR_BRIGHT_RED "\nFAILS: %16ld" ANSI_COLOR_RESET "\n", umael(*X0, 3, 1));
-
-  if (X0) *X0 = gcopy(mkvec3(Tv, Cv, stoi(umael(*X0, 3, 1))));
-
-  gerepileall(av, X0?2:1, &answer, X0);
-  return answer;
+    err_printf("\n" ANSI_COLOR_BRIGHT_RED "\nFAILS: %16ld" ANSI_COLOR_RESET "\n", umael(X0, 3, 1));
+  }
+  return gerepilecopy(av, answer);
 }
 
 static const long ecpp_tune[][4]=
@@ -1783,13 +1778,11 @@ GEN
 ecpp(GEN N)
 {
   long expiN, i, tunelen;
-  GEN param, answer, garbage, tune;
+  GEN tune;
 
   /* Check if we should even prove it. */
   expiN = expi(N);
   if (expiN < 64) return N;
-
-  param = answer = garbage = NULL;
 
   tunelen = (expiN+499)/500;
   tune = cgetg(tunelen+1, t_VEC);
@@ -1798,9 +1791,10 @@ ecpp(GEN N)
                                ecpp_tune[i-1][2], ecpp_tune[i-1][3]);
   for (; i <= tunelen; i++)
     gel(tune, i) = mkvecsmall4(200*(i-1),6*i-4,28,500*i);
-  while (answer == NULL)
+  for(;;)
   {
     pari_timer T;
+    GEN answer, param;
     dbg_mode() timer_start(&T);
     param = ecpp_param_set( tune, tunelen );
     dbg_mode() {
@@ -1808,14 +1802,13 @@ ecpp(GEN N)
                  gel(tune, tunelen));
       err_printf(ANSI_COLOR_WHITE "  %8ld" ANSI_COLOR_RESET, timer_delay(&T));
     }
-    answer = ecpp0(N, param, &garbage);
-    if (answer != NULL) break;
+    answer = ecpp0(N, param);
+    if (answer) return answer;
     umael(tune, tunelen, 1) *= 2;
     umael(tune, tunelen, 2) *= 2;
     umael(tune, tunelen, 3)++;
     if (umael(tune, tunelen, 3) > 30) umael(tune, tunelen, 3) = 30;
   }
-  return answer;
 }
 long
 isprimeECPP(GEN N)
