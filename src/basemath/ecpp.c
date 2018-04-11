@@ -308,28 +308,25 @@ static int
 sort_disclist(void *data, GEN x, GEN y)
 {
   long d1, h1, g1, o1, bi1, pd1, hf1, wD1, d2, h2, g2, o2, bi2, pd2, hf2, wD2;
-  if (data != NULL) return itos(closure_callgen2( (GEN)data, x, y) );
-
-  d1 = Dinfo_get_D(x); /* discriminant */
-  wD1 = D_get_wD(d1); /* number of units */
-  d2 = Dinfo_get_D(y);
-  wD2 = D_get_wD(d2);
+  (void)data;
+  d1 = Dinfo_get_D(x); wD1 = D_get_wD(d1);
+  d2 = Dinfo_get_D(y); wD2 = D_get_wD(d2);
   /* higher number of units means more elliptic curves to try */
   if (wD1 != wD2) return wD2 > wD1 ? 1 : -1;
-  /* lower polclass degree is better because of faster computation of roots modulo N */
+  /* lower polclass degree is better: faster computation of roots modulo N */
   pd1 = Dinfo_get_pd(x); /* degree of polclass */
   pd2 = Dinfo_get_pd(y);
   if (pd1 != pd2) return pd1 > pd2 ? 1 : -1;
   g1 = lg(Dinfo_get_Dfac(x))-1; /* genus number */
   h1 = Dinfo_get_h(x); /* class number */
   o1 = h1 >> (g1-1); /* odd class number */
-  g2 = lg(Dinfo_get_Dfac(y))-1; /* genus number */
+  g2 = lg(Dinfo_get_Dfac(y))-1;
   h2 = Dinfo_get_h(y);
-  o2 = h2 >> (g2-1); /* odd class number */
+  o2 = h2 >> (g2-1);
   if (o1 != o2) return g1 > g2 ? 1 : -1;
-  /* lower class number is better because of higher probability of passing cornacchia step */
+  /* lower class number is better: higher probability of succesful cornacchia */
   if (h1 != h2) return h1 > h2 ? 1 : -1;
-  /* higher height factor is better because polclass would have lower coefficients */
+  /* higher height factor is better: polclass would have lower coefficients */
   bi1 = Dinfo_get_bi(x); /* best invariant */
   hf1 = modinv_height_factor(bi1); /* height factor */
   bi2 = Dinfo_get_bi(y);
@@ -337,7 +334,6 @@ sort_disclist(void *data, GEN x, GEN y)
   if (hf1 != hf2) return hf2 > hf1 ? 1 : -1;
   /* "higher" discriminant is better since its absolute value is lower */
   if (d1 != d2) return d2 > d1 ? 1 : -1;
-
   return 0;
 }
 
