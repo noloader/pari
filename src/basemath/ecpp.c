@@ -1298,21 +1298,10 @@ ecpp_qlo(GEN N)
   return addiu(e, 1);
 }
 
-/* E is &qlo, use for zv_binsearch */
 static long
-lessthan_qlo(void* E, GEN q)
-{
-  GEN qlo = *((GEN*)E);
-  return (cmpii(q, qlo) < 0);
-}
-
-/* E is &goal, use for zv_binsearch */
+lessthan_qlo(void* E, GEN q) { return (cmpii(q, (GEN)E) < 0); }
 static long
-gained_bits(void* E, GEN q)
-{
-  long goal = *((long*)E);
-  return (expi(q) <= goal);
-}
+gained_bits(void* E, GEN q) { return (expi(q) <= (long)E); }
 
 /*  Input: Dmqvec
    Output: Dmqvec such that q satisfies
@@ -1331,17 +1320,15 @@ Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
   qvec = Dmqvec_to_qvec(Dmqvec);
 
   qlo = ecpp_qlo(N);
-  lo_ind = zv_binsearch0(&qlo, &lessthan_qlo, qvec); lo_ind++;
+  lo_ind = zv_binsearch0((void*)qlo, &lessthan_qlo, qvec); lo_ind++;
   if (lo_ind >= lg(qvec)) { avma = av; return NULL; }
 
   bitgain = 1;
   goal = expi(N)-bitgain;
-  hi_ind = zv_binsearch0(&goal, &gained_bits, qvec);
+  hi_ind = zv_binsearch0((void*)goal, &gained_bits, qvec);
   if (hi_ind == 0) { avma = av; return NULL; }
 
-  Dmqvec = vecslice(Dmqvec, lo_ind, hi_ind);
-  gerepileall(av, 1, &Dmqvec);
-  return Dmqvec;
+  return gerepilecopy(av, vecslice(Dmqvec, lo_ind, hi_ind));
 }
 
 /* Given a vector mvec of mi's,
