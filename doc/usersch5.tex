@@ -7987,6 +7987,10 @@ vY$, where $v$ is a \typ{INT} and $X,Y$ are \kbd{ZC} or \kbd{ZV}. (The result
 has the type of $X$.) Memory efficient (e.g. no-op if $v = 0$), but not
 gerepile-safe.
 
+\fun{void}{ZC_lincomb1_inplace_i}{GEN X, GEN Y, GEN v, long n} internal
+version of \tet{ZC_lincomb1_inplace}: only update $X[1], \dots, X[n]$,
+assuming that $n < \kbd{lg}(X)$.
+
 \fun{GEN}{ZC_ZV_mul}{GEN x, GEN y, GEN p} multiplies the \kbd{ZC}~\kbd{x}
 (seen as a column vector) by the \kbd{ZV}~\kbd{y} (seen as a row vector,
 assumed to have compatible dimensions).
