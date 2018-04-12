@@ -175,15 +175,14 @@ ecpp_param_set_maxpcdg(GEN param, ulong x) { umael3(param, 1, 1, 3) = x; }
 INLINE void
 ecpp_param_set_tdivexp(GEN param, ulong x) { gel(param, 2) = primorial_vec(x); }
 
-static GEN ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist);
+static GEN ecpp_disclist_init(ulong maxdisc, GEN primelist);
 
 INLINE void
 ecpp_param_set_disclist(GEN param)
 {
-  long maxsqrt = ecpp_param_get_maxsqrt(param);
   ulong maxdisc = ecpp_param_get_maxdisc(param);
   GEN primelist = ecpp_param_get_primelist(param);
-  gmael(param, 1, 3) = ecpp_disclist_init(maxsqrt, maxdisc, primelist);
+  gmael(param, 1, 3) = ecpp_disclist_init(maxdisc, primelist);
 }
 
 /* NDinfomqg contains
@@ -306,7 +305,7 @@ allh(ulong maxD)
 }
 
 static GEN
-ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
+ecpp_disclist_init(ulong maxdisc, GEN primelist)
 {
   pari_sp av = avma;
   long i, ip, u, lp, lmerge, lprimelist;
