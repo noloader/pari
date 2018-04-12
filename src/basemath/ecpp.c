@@ -58,17 +58,9 @@ zv_binsearch0(void *E, long (*f)(void* E, GEN x), GEN x)
 INLINE long
 timer_record(GEN* X0, const char* Xx, pari_timer* ti)
 {
-  long t = 0;
-  dbg_mode() {
-    long i, j;
-    t = timer_delay(ti);
-    if (!X0) return t;
-    i = Xx[0]-'A'+1;
-    j = Xx[1]-'1'+1;
-    umael3(*X0, 1, i, j) += t;
-    umael3(*X0, 2, i, j) ++;
-  }
-  return t;
+  long t = timer_delay(ti), i = Xx[0]-'A'+1, j = Xx[1]-'1'+1;
+  umael3(*X0, 1, i, j) += t;
+  umael3(*X0, 2, i, j) ++; return t;
 }
 
 INLINE long
