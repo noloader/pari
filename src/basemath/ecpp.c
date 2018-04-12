@@ -501,12 +501,11 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
  *   param[2]    = primorial_vec
  *   param[3]    =          tune */
 static GEN
-ecpp_param_set(GEN tune, long tunelen)
+ecpp_param_set(GEN tune, GEN x)
 {
   pari_sp av = avma;
   GEN param1 = mkvec3(zero_zv(3), zerovec(1), zerovec(1));
   GEN param = mkvec3(param1, gen_1, tune);
-  GEN x = gel(tune, tunelen);
   long  maxsqrt = uel(x,1);
   ulong maxpcdg = uel(x,2);
   ulong tdivexp = uel(x,3);
@@ -1421,28 +1420,24 @@ ecpp(GEN N)
 
   tunelen = (expiN+499)/500;
   tune = cgetg(tunelen+1, t_VEC);
-  for (i=1; i <= tunelen && ecpp_tune[i-1][3]; i++)
-    gel(tune, i) = mkvecsmall4(ecpp_tune[i-1][0], ecpp_tune[i-1][1],
-                               ecpp_tune[i-1][2], ecpp_tune[i-1][3]);
-  for (; i <= tunelen; i++)
-    gel(tune, i) = mkvecsmall4(200*(i-1),6*i-4,28,500*i);
+  for (i = 1; i <= tunelen && ecpp_tune[i-1][3]; i++)
+    gel(tune,i) = mkvecsmall4(ecpp_tune[i-1][0], ecpp_tune[i-1][1],
+                              ecpp_tune[i-1][2], ecpp_tune[i-1][3]);
+  for (; i <= tunelen; i++) gel(tune,i) = mkvecsmall4(200*(i-1),6*i-4,28,500*i);
   for(;;)
   {
+    GEN C, param, x = gel(tune, tunelen);
     pari_timer T;
-    GEN answer, param;
     dbg_mode() timer_start(&T);
-    param = ecpp_param_set( tune, tunelen );
+    param = ecpp_param_set(tune, x);
     dbg_mode() {
-      err_printf(ANSI_COLOR_BRIGHT_WHITE "\n%Ps" ANSI_COLOR_RESET,
-                 gel(tune, tunelen));
+      err_printf(ANSI_COLOR_BRIGHT_WHITE "\n%Ps" ANSI_COLOR_RESET, x);
       err_printf(ANSI_COLOR_WHITE "  %8ld" ANSI_COLOR_RESET, timer_delay(&T));
     }
-    answer = ecpp0(N, param);
-    if (answer) return answer;
-    umael(tune, tunelen, 1) *= 2;
-    umael(tune, tunelen, 2) *= 2;
-    umael(tune, tunelen, 3)++;
-    if (umael(tune, tunelen, 3) > 30) umael(tune, tunelen, 3) = 30;
+    if ((C = ecpp0(N, param))) return C;
+    x[1] *= 2;
+    x[2] *= 2;
+    x[3] = maxss(x[3]+1, 30);
   }
 }
 long
