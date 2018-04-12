@@ -1436,9 +1436,7 @@ isprimeECPP(GEN N)
   avma = av; return !isintzero(res);
 }
 
-/*  Input: PARI ECPP Certificate
-   Output: Human-readable format.
-*/
+/* PARI ECPP Certificate -> Human-readable format */
 static GEN
 cert_out(GEN x)
 {
@@ -1467,18 +1465,13 @@ cert_out(GEN x)
   return strtoGENstr(str.string);
 }
 
-/*  Input: PARI ECPP Certificate
-   Output: Magma Certificate
-     Magma certificate looks like this (newlines and extra spaces for clarity)
-     [*
-       [*
-         N, |D|, -1, m,
-         [* a, b *],
-         [* x, y, 1 *],
-         [* [* q, 1 *] *]
-       *], ...
-     *]
-*/
+/* PARI ECPP Certificate -> Magma Certificate
+ * [* [*
+ *     N, |D|, -1, m,
+ *     [* a, b *],
+ *     [* x, y, 1 *],
+ *     [* [* q, 1 *] *]
+ *   *], ... *] */
 static GEN
 magma_out(GEN x)
 {
