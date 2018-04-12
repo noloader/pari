@@ -234,7 +234,7 @@ NDinfomqg_get_sqrt(GEN x) { return gel(x,6); }
 static int
 sort_disclist(void *data, GEN x, GEN y)
 {
-  long d1, h1, g1, o1, bi1, pd1, hf1, wD1, d2, h2, g2, o2, bi2, pd2, hf2, wD2;
+  long d1, h1, g1, o1, pd1, hf1, wD1, d2, h2, g2, o2, pd2, hf2, wD2;
   (void)data;
   d1 = Dinfo_get_D(x); wD1 = D_get_wD(d1);
   d2 = Dinfo_get_D(y); wD2 = D_get_wD(d2);
@@ -254,10 +254,8 @@ sort_disclist(void *data, GEN x, GEN y)
   /* lower class number is better: higher probability of succesful cornacchia */
   if (h1 != h2) return h1 > h2 ? 1 : -1;
   /* higher height factor is better: polclass would have lower coefficients */
-  bi1 = Dinfo_get_bi(x); /* best invariant */
-  hf1 = modinv_height_factor(bi1); /* height factor */
-  bi2 = Dinfo_get_bi(y);
-  hf2 = modinv_height_factor(bi2);
+  hf1 = modinv_height_factor(Dinfo_get_bi(x)); /* height factor for best inv. */
+  hf2 = modinv_height_factor(Dinfo_get_bi(y));
   if (hf1 != hf2) return hf2 > hf1 ? 1 : -1;
   /* "higher" discriminant is better since its absolute value is lower */
   if (d1 != d2) return d2 > d1 ? 1 : -1;
