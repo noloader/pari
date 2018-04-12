@@ -119,44 +119,31 @@ INLINE GEN
 Dinfo_get_Dfac(GEN Dinfo) { return gel(Dinfo, 2); }
 
 /* primelist and indexlist
+ *
+ * primelist begins with 8, -4, -8; subsequent elements are the p^* for
+ * successive odd primes <= maxsqrt, by increasing absolute value
+ *
+ * indexlist keeps the index of the odd primes. see tables below:
+ *
+ *        i |  1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |  9 |  10 |  11 |
+ * ---------+----+----+----+----+----+----+----+----+----+-----+-----+
+ *        i |  1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |  9 |  10 |  11 |
+ * Plist[i] |  8 | -4 | -8 | -3 |  5 | -7 |-11 | 13 | 17 | -19 | -23 |
+ *        p |  3 |  5 |  7 |  9 | 11 | 13 | 15 | 17 | 19 |  21 |  23 |
+ * ---------+----+----+----+----+----+----+----+----+----+-----+-----+
+ * Ilist[i] |  4 |  5 |  6 |  X |  7 |  8 |  X |  9 | 10 |  X  |  11 |
+ * ---------+----+----+----+----+----+----+----+----+----+-----+-----+ */
 
-  primelist begins with 8, -4, -8, which we consider as "prime"
-  the subsequent elements are the corresponding p^star of the
-  odd primes below the indicated limit (maxsqrt) listed in
-  increasing absolute value
-
-  indexlist keeps the index of the odd primes. see tables below:
-
-         i |   1 |   2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |
-  ---------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-         i |   1 |   2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |  10 |  11 |
-  Plist[i] |   8 |  -4 |  -8 |  -3 |   5 |  -7 | -11 |  13 |  17 | -19 | -23 |
-         p |   3 |   5 |   7 |   9 |  11 |  13 |  15 |  17 |  19 |  21 |  23 |
-  ---------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-  Ilist[i] |   4 |   5 |   6 | XXX |   7 |   8 | XXX |   9 |  10 | XXX |  11 |
-  ---------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-*/
-
-/*  Input: maxsqrt
-   Output: primelist containing primes whose absolute value is at most maxsqrt
-*/
+/* primelist containing primes whose absolute value is at most maxsqrt */
 static GEN
 ecpp_primelist_init(long maxsqrt)
 {
   GEN P = cgetg(maxsqrt, t_VECSMALL);
   forprime_t T;
-  long j;
-  u_forprime_init(&T, 3, ULONG_MAX);
-  P[1] =  8;
-  P[2] = -4;
-  P[3] = -8;
-  for (j = 4;;j++)
-  {
-    long p = u_forprime_next(&T);
-    if (!p || p > maxsqrt) break;
-    if (p%4 == 3) p = -p;
-    P[j] = p;
-  }
+  long p, j = 4;
+  u_forprime_init(&T, 3, maxsqrt);
+  P[1] =  8; P[2] = -4; P[3] = -8;
+  while((p = u_forprime_next(&T))) P[j++] = ((p & 3UL) == 1)? p: -p;
   setlg(P,j); return P;
 }
 
@@ -165,18 +152,12 @@ Dfac_to_disc(GEN x, GEN P) { pari_APPLY_long(uel(P,x[i])); }
 static GEN
 Dfac_to_roots(GEN x, GEN P) { pari_APPLY_type(t_VEC, gel(P,x[i])); }
 
-/*  Input: primelist
-   Output: returns a vecsmall indicating at what index
-           of primelist each odd prime occurs
-*/
+/* given primelist P, returns a vecsmall s.t. I[p/2] = i when p = P[i] */
 INLINE GEN
 primelist_to_indexlist(GEN P)
 {
-  long i, lP = lg(P), maxprime = labs(P[lP-1]);
-  GEN indexlist;
-
-  if (maxprime < 8) maxprime = 8;
-  indexlist = zero_zv(maxprime/2);
+  long i, lP = lg(P), maxprime = labs(P[lP-1]); /* >= 8 */
+  GEN indexlist = zero_zv(maxprime/2);
   for (i = 4; i < lP; i++)
   {
     long p = labs(P[i]);
