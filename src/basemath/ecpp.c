@@ -76,8 +76,7 @@ FpJ_is_inf(GEN P) { return signe(gel(P, 3)) == 0; }
 
 /*****************************************************************/
 
-/* Assuming D < 0,
-   these return the number of units in Q(sqrt(D)). */
+/* D < 0 fundamental: return the number of units in Q(sqrt(D)) */
 INLINE long
 D_get_wD(long D)
 {
@@ -87,26 +86,15 @@ D_get_wD(long D)
 }
 
 /* Dinfo contains information related to the discirminant
-      D: the discriminant (D < 0)
-      h: the class number associated to D
-     bi: the "best invariant" for computing polclass(D, bi)
-         In particular, we choose this invariant to be the one
-           in which D is compatible
-           and the coefficients of polclass(D, bi) are minimized
-     pd: the degree of polclass
-         This is usually equal to h except when the invariant
-           is a double eta-quotient w_p,q and p|D and q|D.
-           In this special case, the degree is h/2.
-   Dfac: the prime factorization of D
-         Note that D can be factored as D = q0 q1* q2* ... qn*
-           where q0* = 1, 4, -4, 8
-             and qi* = 1 mod 4 and |qi| is a prime
-         The prime factorization is implemented as a vecsmall
-           listing the indices of the qi* as they appear in
-           the primelist. If q0* = 1, the first component of
-           this vecsmall contains the index of q1*. Otherwise,
-           it contains the index of q0*.
-*/
+ *    D: the discriminant (D < 0)
+ *    h: the class number associated to D
+ *   bi: the "best invariant" for computing polclass(D, bi)
+ *   pd: the degree of polclass; equal to h except when bi is a double
+ *       eta-quotient w_p,q with p|D and q|D, where pd = h/2.
+ * Dfac: the prime factorization of D; we have D = q0 q1* q2* ... qn*
+ *       where q0 = 1, 4, -4, 8, qi* = 1 mod 4 and |qi| is a prime.
+ *       The factorization is a vecsmall listing the indices of the qi* as
+ *       they appear in the primelist (q0 = 1 is omitted) */
 INLINE long
 Dinfo_get_D(GEN Dinfo) { return gel(Dinfo, 1)[1]; }
 INLINE long
