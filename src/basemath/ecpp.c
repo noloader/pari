@@ -56,7 +56,7 @@ zv_binsearch0(void *E, long (*f)(void* E, GEN x), GEN x)
 }
 
 INLINE long
-timer_record(GEN* X0, const char* Xx, pari_timer* ti, long c)
+timer_record(GEN* X0, const char* Xx, pari_timer* ti)
 {
   long t = 0;
   dbg_mode() {
@@ -66,7 +66,7 @@ timer_record(GEN* X0, const char* Xx, pari_timer* ti, long c)
     i = Xx[0]-'A'+1;
     j = Xx[1]-'1'+1;
     umael3(*X0, 1, i, j) += t;
-    umael3(*X0, 2, i, j) += c;
+    umael3(*X0, 2, i, j) ++;
   }
   return t;
 }
@@ -789,7 +789,7 @@ ecpp_step2(GEN step1, GEN *X0)
 
   for (j = 1; j < lg(step2); j++)
   {
-    long i = uel(perm, j), tt;
+    long i = uel(perm, j);
     GEN J, t, s, a4, P, EP, rt, S = gel(step1, i);
     GEN Dinfo = NDinfomqg_get_Dinfo(S);
     GEN Dfac = Dinfo_get_Dfac(Dinfo);
@@ -801,7 +801,7 @@ ecpp_step2(GEN step1, GEN *X0)
     dbg_mode() timer_start(&ti);
     if (!equalii(D, Dprev)) HD = D_polclass(D, &db);
     dbg_mode() {
-      tt = timer_record(X0, "C1", &ti, 1);
+      long tt = timer_record(X0, "C1", &ti);
       err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
       err_printf(ANSI_COLOR_GREEN " D = %8Ps poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
       if (equalii(D, Dprev)) err_printf(" %6ld", tt);
@@ -810,34 +810,25 @@ ecpp_step2(GEN step1, GEN *X0)
     /* C2: Find a root modulo N of the polynomial obtained in previous step */
     dbg_mode() timer_start(&ti);
     rt = FpX_classtower_oneroot(HD, Dfac, sq, N);
-    dbg_mode() {
-      tt = timer_record(X0, "C2", &ti, 1);
-      err_printf(" %6ld", tt);
-    }
+    dbg_mode() err_printf(" %6ld", timer_record(X0, "C2", &ti));
+
     /* C3: Convert root from previous step into the appropriate j-invariant */
     dbg_mode() timer_start(&ti);
     J = NDinfor_find_J(N, Dinfo, rt);
-    dbg_mode() {
-      tt = timer_record(X0, "C3", &ti, 1);
-      err_printf(" %6ld", tt);
-    }
+    dbg_mode() err_printf(" %6ld", timer_record(X0, "C3", &ti));
+
     /* D1: Find an elliptic curve E with a point P satisfying the theorem */
     dbg_mode() timer_start(&ti);
     s = diviiexact(m, q);
     EP = NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
-    dbg_mode() {
-      tt = timer_record(X0, "D1", &ti, 1);
-      err_printf(" %6ld", tt);
-    }
+    dbg_mode() err_printf(" %6ld", timer_record(X0, "D1", &ti));
+
     /* D2: Compute for t and s */
     dbg_mode() timer_start(&ti);
     t = subii(addiu(N, 1), m); /* t = N+1-m */
     a4 = gmael(EP, 1, 1);
     P = FpJ_to_FpE(gel(EP, 2), N);
-    dbg_mode() {
-      tt = timer_record(X0, "D2", &ti, 1);
-      err_printf(" %6ld", tt);
-    }
+    dbg_mode() err_printf(" %6ld", timer_record(X0, "D2", &ti));
 
     gel(step2, i) = mkvec5(N, t, s, a4, P);
     Dprev = D;
@@ -908,7 +899,7 @@ p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
     /* A4: Get the square root of a prime factor of D. */
     dbg_mode() timer_start(&ti);
     gel(sqrtlist, i) = Fp_sqrt_i(stoi(p), g, N); /* NULL if invalid. */
-    dbg_mode() timer_record(X0, "A4", &ti, 1);
+    dbg_mode() timer_record(X0, "A4", &ti);
   }
   return gel(sqrtlist, i);
 }
@@ -982,13 +973,13 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
     if (s == 0) return -1; /* N is composite */
     if (s < 0) return 0;
   }
-  dbg_mode() timer_record(X0, "A1", &ti, 1);
+  dbg_mode() timer_record(X0, "A1", &ti);
 
   /* A3: Get square root of D mod N */
   dbg_mode() timer_start(&ti);
   sqrtofDmodN = D_find_discsqrt(N, primelist, X0, Dinfo, sqrtlist, g);
   dbg_mode() {
-    timer_record(X0, "A3", &ti, 1);
+    timer_record(X0, "A3", &ti);
     if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ )
       pari_err_BUG("D_find_discsqrt");
   }
@@ -996,7 +987,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   /* A5: Use square root with Cornacchia to solve U^2 + |D|V^2 = 4N */
   dbg_mode() timer_start(&ti);
   corn_succ = cornacchia2_sqrt( absi(stoi(D)), N, sqrtofDmodN, &U, &V);
-  dbg_mode() timer_record(X0, "A5", &ti, 1);
+  dbg_mode() timer_record(X0, "A5", &ti);
   if (!corn_succ) {
     dbg_mode() err_printf(ANSI_COLOR_YELLOW "c" ANSI_COLOR_RESET);
     return 0;
@@ -1009,7 +1000,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   dbg_mode() timer_start(&ti);
   wD = D_get_wD(D);
   vectrunc_append_batch(Dmbatch,  NUV_find_m(Dinfo,N,U,V,wD));
-  dbg_mode() timer_record(X0, "A6", &ti, 1);
+  dbg_mode() timer_record(X0, "A6", &ti);
   return wD;
 }
 
@@ -1117,14 +1108,11 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
   /* B1: Factor by batch. */
   dbg_mode() timer_start(&ti);
   Dmqvec = Dmvec_batchfactor_Dmqvec(Dmbatch, primorial);
-  dbg_mode() timer_record(X0, "B1", &ti, 1);
+  dbg_mode() timer_record(X0, "B1", &ti);
 
   /* B2: For each batch, remove cardinalities lower than (N^(1/4)+1)^2
    *     and cardinalities in which we didn't win enough bits. */
-  dbg_mode() timer_start(&ti);
   Dmqvec = Dmqvec_slice_Dmqvec(N, Dmqvec);
-  dbg_mode() timer_record(X0, "B2", &ti, Dmqvec ? lg(Dmqvec)-1: 0);
-
   if (!Dmqvec) { avma = av; return NULL; } /* nothing is left */
   return gerepilecopy(av, Dmqvec);
 }
@@ -1142,7 +1130,7 @@ Dmq_isgoodq(GEN Dmq, GEN* X0)
   /* B3: Check pseudoprimality of each q on the list. */
   dbg_mode() timer_start(&ti);
   s = BPSW_psp_nosmalldiv(q);
-  dbg_mode() timer_record(X0, "B3", &ti, 1);
+  dbg_mode() timer_record(X0, "B3", &ti);
   return s; /* did not find for this m */
 }
 
@@ -1200,7 +1188,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     case 5: kroP[1] = -1; kroP[2] = 1; kroP[3] =-1; break;
     case 7: kroP[1] =  1; kroP[2] =-1; kroP[3] =-1; break;
   }
-  dbg_mode() timer_record(X0, "A2", &ti, 1);
+  dbg_mode() timer_record(X0, "A2", &ti);
 
   /* Print the start of this iteration. */
   dbg_mode() {
