@@ -305,13 +305,20 @@ allh(ulong maxD)
 }
 
 static GEN
+mkDinfo(GEN c, long h)
+{
+  long bi, pd, p1, p2, D = c[1];
+  bi = disc_best_modinv(D);
+  pd = (modinv_degree(&p1,&p2,bi) && (-D)%p1==0 && (-D)%p2==0)? h/2: h;
+  gel(c,1) = mkvecsmall4(D, h, bi, pd); return c;
+}
+
+static GEN
 ecpp_disclist_init(ulong maxdisc, GEN primelist)
 {
   pari_sp av = avma;
-  long i, ip, u, lp, lmerge, lprimelist;
-  GEN Harr = allh(maxdisc); /* table of class numbers*/
-  GEN ev, od; /* ev: D = 0 mod 4; od: D = 1 mod 4 */
-  GEN merge; /* return this */
+  long i, ip, u, lp, lmerge;
+  GEN merge, ev, od, Harr = allh(maxdisc); /* table of class numbers*/
   long lenv = maxdisc/4; /* max length of od/ev FIXME: ev can have length maxdisc/8 */
   long N; /* maximum number of positive prime factors */
 
@@ -333,13 +340,12 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
   od = cgetg(lenv + 1, t_VEC);
   ev = cgetg(lenv + 1, t_VEC);
 
-  /* od[i] holds Dinfo of -(4*i-1)
-     ev[i] holds Dinfo of -(4*i)   */
+  /* od[i] holds Dinfo of 1-4*i
+     ev[i] holds Dinfo of -4*i   */
   for (i = 1; i <= lenv; i++)
   {
-    long h, x, id;
-    h = Harr[2*i-1]; /* class number of -(4*i-1) */
-    gel(od, i) = mkvec2(mkvecsmall4(1, h, 0, h), vecsmalltrunc_init(N));
+    long x, id;
+    gel(od, i) = mkvec2((GEN)1, vecsmalltrunc_init(N));
     switch(i&7)
     {
       case 0:
@@ -348,8 +354,7 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
       case 6: x = 8; id = 1; break;
       default:x =-4; id = 2; break;
     }
-    h = Harr[2*i]; /* class number of -(4*i) */
-    gel(ev, i) = mkvec2(mkvecsmall4(x, h, 0, h), vecsmalltrunc_init(N));
+    gel(ev, i) = mkvec2((GEN)x, vecsmalltrunc_init(N));
     vecsmalltrunc_append(gmael(ev, i, 2), id);
   }
 
@@ -365,22 +370,14 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
     {
       GEN c = gel(od,t); if (!c) continue;
       if (s%p == 0) gel(od,t) = NULL;
-      else
-      {
-        umael(c,1,1) *= q;
-        vecsmalltrunc_append(gel(c,2), ip);
-      }
+      else { c[1] *= q; vecsmalltrunc_append(gel(c,2), ip); }
     }
     s = 1;
     for (t = p; t <= lenv; t += p, s++)
     {
       GEN c = gel(ev,t); if (!c) continue;
       if (s%p == 0) gel(ev,t) = NULL;
-      else
-      {
-        umael(c,1,1) *= q;
-        vecsmalltrunc_append(gel(c,2), ip);
-      }
+      else { c[1] *= q; vecsmalltrunc_append(gel(c,2), ip); }
     }
   }
 
@@ -388,12 +385,12 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
   for (i = 1; i <= lenv; i++)
   {
     GEN c = gel(od,i);
-    if (c && umael(c,1,1) != -4*i+1) gel(od,i) = NULL; else u++;
+    if (c && c[1] != -4*i+1) gel(od,i) = NULL; else u++;
   }
   for (i = 1; i <= lenv; i++)
   {
     GEN c = gel(ev,i);
-    if (c && umael(c,1,1) != -4*i) gel(ev,i) = NULL; else u++;
+    if (c && c[1] != -4*i) gel(ev,i) = NULL; else u++;
   }
 
   /* merging the two arrays */
@@ -401,21 +398,14 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
   for (i = 1; i <= lenv; i++)
   {
     GEN c = gel(od,i);
-    if (c) gel(merge, ++lmerge) = c;
+    if (c) gel(merge, ++lmerge) = mkDinfo(c, Harr[2*i-1]);
   }
   for (i = 1; i <= lenv; i++)
   {
     GEN c = gel(ev,i);
-    if (c) gel(merge, ++lmerge) = c;
+    if (c) gel(merge, ++lmerge) = mkDinfo(c, Harr[2*i]);
   }
   setlg(merge, lmerge);
-  for (i = 1; i < lmerge; i++)
-  {
-    GEN T = gmael(merge,i,1); /* fill in bestinv [3] and poldegree [4] */
-    long p1 = 1, p2 = 1, D = T[1], h = T[2];
-    T[3] = disc_best_modinv(D);
-    if (modinv_degree(&p1,&p2,T[3]) && (-D)%p1==0 && (-D)%p2==0) T[4] = h/2;
-  }
   gen_sort_inplace(merge, NULL, &sort_disclist, NULL);
   return gerepilecopy(av, merge);
 }

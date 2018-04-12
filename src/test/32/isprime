@@ -1,4 +1,4 @@
-  ***   Warning: new stack size = 160000000 (152.588 Mbytes).
+  ***   Warning: new stack size = 120000000 (114.441 Mbytes).
 1
 1
 1
@@ -56,4 +56,4 @@ nq = 45959444779\nE = [0, 27804066824294720140]\nP = [16662256621764551072,
 9020BF8EFBDD69F4BE3B0C\n\n[2]\nS=0x2BC3234B\nW=-0x2B40F3653\nA=0x0\nB=-0x526
 E47D559ADC7B9\nT=0xE73C3A1DF8AD21A0\n\n"
 1
-Total time spent: 28277
+Total time spent: 17844
