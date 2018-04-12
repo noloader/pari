@@ -263,14 +263,8 @@ sort_disclist(void *data, GEN x, GEN y)
 }
 
 /* Dmq macros */
-INLINE GEN
-Dmq_get_Dinfo(GEN Dmq) { return gel(Dmq, 1); }
-INLINE GEN
-Dmq_get_m(GEN Dmq) { return gel(Dmq, 2); }
-INLINE GEN
-Dmq_get_q(GEN Dmq) { return gel(Dmq, 3); }
 INLINE long
-Dmq_get_cnum(GEN Dmq) { return gmael(Dmq, 1, 1)[2]; }
+Dmq_get_h(GEN Dmq) { return Dinfo_get_h(gel(Dmq,1)); }
 
 static int
 sort_NDmq_by_D(void *data, GEN x, GEN y)
@@ -287,8 +281,8 @@ sort_Dmq_by_q(void *data, GEN x, GEN y)
 static int
 sort_Dmq_by_cnum(void *data, GEN x, GEN y)
 {
-  ulong h1 = Dmq_get_cnum(x);
-  ulong h2 = Dmq_get_cnum(y);
+  ulong h1 = Dmq_get_h(x);
+  ulong h2 = Dmq_get_h(y);
   if (h1 != h2) return h1 > h2 ? 1 : -1;
   return sort_Dmq_by_q(data, x, y);
 }
@@ -986,9 +980,7 @@ Dmvec_batchfactor(GEN Dmvec, GEN primorial)
   return v;
 }
 
-/* tunevec = [maxsqrt, maxpcdg, tdivexp]
-     and is a shorthand for specifying the parameters of ecpp
-*/
+/* [maxsqrt, maxpcdg, tdivexp] specifying good parameters for ecpp */
 static GEN
 tunevec(GEN N, GEN param)
 {
@@ -1002,11 +994,8 @@ static long
 tunevec_tdivbd(GEN N, GEN param) { return uel(tunevec(N, param), 3); }
 static long
 tunevec_batchsize(GEN N, GEN param)
-{ return (28-tunevec_tdivbd(N, param) < 0 ? 0 : 28-tunevec_tdivbd(N, param)); }
+{ long b = tunevec_tdivbd(N, param); return (28-b < 0 ? 0 : 28-b); }
 
-/*  Input: Dmbatch (from the downrun)
-   Output: Dmqvec
-*/
 static GEN
 Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
 {
@@ -1015,30 +1004,27 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
   GEN primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param)-19);
   GEN Dmqvec;
 
-  /* B1: Factor by batch. */
+  /* B1: Factor by batch */
   dbg_mode() timer_start(&ti);
   Dmqvec = Dmvec_batchfactor(Dmbatch, primorial);
   dbg_mode() timer_record(X0, "B1", &ti);
 
   /* B2: For each batch, remove cardinalities lower than (N^(1/4)+1)^2
-   *     and cardinalities in which we didn't win enough bits. */
+   *     and cardinalities in which we didn't win enough bits */
   Dmqvec = Dmqvec_slice_Dmqvec(N, Dmqvec);
   if (!Dmqvec) { avma = av; return NULL; } /* nothing is left */
   return gerepilecopy(av, Dmqvec);
 }
 
-/* Dmq (where q does not have small prime factors); determine if q is
- * pseudoprime */
+/* Dmq (where q has no small prime factors): determine if q is pseudoprime */
 static long
 Dmq_isgoodq(GEN Dmq, GEN* X0)
 {
   pari_timer ti;
-  GEN q = Dmq_get_q(Dmq);
   long s;
-
   /* B3: Check pseudoprimality of each q on the list. */
   dbg_mode() timer_start(&ti);
-  s = BPSW_psp_nosmalldiv(q);
+  s = BPSW_psp_nosmalldiv(gel(Dmq,3));
   dbg_mode() timer_record(X0, "B3", &ti);
   return s; /* did not find for this m */
 }
@@ -1147,9 +1133,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     for (j = 1; j < lgDmqlist; j++)
     {
       GEN ret, Dfac, NDinfomq, Dmq = gel(Dmqlist,j);
-      GEN Dinfo = Dmq_get_Dinfo(Dmq);
-      GEN m = Dmq_get_m(Dmq);
-      GEN q = Dmq_get_q(Dmq);
+      GEN Dinfo = gel(Dmq,1), m = gel(Dmq,2), q = gel(Dmq,3);
       if (expiN <= expi(q))
       {
         dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  x" ANSI_COLOR_RESET);
@@ -1160,7 +1144,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
 
       dbg_mode() {
         err_printf(ANSI_COLOR_BRIGHT_BLUE "  %ld" ANSI_COLOR_RESET,
-                   Dmq_get_cnum(Dmq));
+                   Dmq_get_h(Dmq));
         err_printf(ANSI_COLOR_BRIGHT_RED "\n       %5ld bits " ANSI_COLOR_RESET,
                    expi(q)-expiN);
       }
