@@ -2229,9 +2229,12 @@ gzeta(GEN x, long prec)
 static GEN
 hurwitzp(GEN s, GEN x)
 {
-  GEN s1, gp = gel(s,2);
-  long p = itou(gp), vqp = (p==2)? 2: 1, prec = maxss(1, valp(s) + precp(s));
-  x = gadd(x, zeropadic_shallow(gp, prec));
+  GEN s1, T = (typ(s) == t_PADIC)? s: x, gp = gel(T,2);
+  long p = itou(gp), vqp = (p==2)? 2: 1, prec = maxss(1, valp(T) + precp(T));
+
+  if (s == T) x = gadd(x, zeropadic_shallow(gp, prec));
+  else        s = gadd(s, zeropadic_shallow(gp, prec));
+  /* now both s and x are t_PADIC */
   if (valp(x) > -vqp)
   {
     GEN S = gen_0;
