@@ -1438,7 +1438,7 @@ ecpp(GEN N)
     if ((C = ecpp0(N, param))) return C;
     x[1] *= 2;
     x[2] *= 2;
-    x[3] = maxss(x[3]+1, 30);
+    x[3] = minss(x[3]+1, 30);
   }
 }
 long
