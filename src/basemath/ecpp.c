@@ -893,13 +893,10 @@ p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
 {
   if (!signe(gel(sqrtlist,i)))
   {
-    pari_timer ti;
     long p = uel(primelist, i);
     dbg_mode() err_printf(ANSI_COLOR_MAGENTA "S" ANSI_COLOR_RESET);
     /* A4: Get the square root of a prime factor of D. */
-    dbg_mode() timer_start(&ti);
     gel(sqrtlist, i) = Fp_sqrt_i(stoi(p), g, N); /* NULL if invalid. */
-    dbg_mode() timer_record(X0, "A4", &ti);
   }
   return gel(sqrtlist, i);
 }
