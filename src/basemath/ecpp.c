@@ -1595,25 +1595,17 @@ primo_out(GEN x)
   return strtoGENstr(ret.string);
 }
 
-/*  Input: N, q
-   Output: 1 if q > (N^1/4 + 1)^2, 0 otherwise.
-*/
+/* return 1 if q > (N^1/4 + 1)^2, 0 otherwise */
 static long
 Nq_isvalid(GEN N, GEN q)
 {
-  GEN qm1sqr = sqri(subiu(q, 1));
-  if (cmpii(qm1sqr,N) > 0) /* (q-1)^2 > N */
-  { /* (q-1)^4 + N^2 > 16Nq + 2N(q-1)^2 */
-    GEN a = addii(sqri(qm1sqr), sqri(N));
-    GEN b = addii(shifti(mulii(N, q), 4), mulii(shifti(N, 1), qm1sqr));
-    return (cmpii(a, b) > 0);
-  }
-  return 0;
+  GEN c = subii(sqri(subiu(q,1)), N);
+  if (signe(c) <= 0) return 0;
+  /* (q-1)^2 > N; check that (N - (q-1)^2)^2 > 16Nq */
+  return (cmpii(sqri(c), shifti(mulii(N,q), 4)) > 0);
 }
 
-/*  Input: cert
-   Output: 1 if cert is a valid PARI ECPP certificate
-*/
+/* return 1 if 'cert' is a valid PARI ECPP certificate */
 static long
 ecppisvalid_i(GEN cert)
 {
