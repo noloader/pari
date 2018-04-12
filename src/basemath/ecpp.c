@@ -103,16 +103,12 @@ Dinfo_get_Dfac(GEN Dinfo) { return gel(Dinfo, 2); }
  * primelist begins with 8, -4, -8; subsequent elements are the p^* for
  * successive odd primes <= maxsqrt, by increasing absolute value
  *
- * indexlist keeps the index of the odd primes. see tables below:
- *
  *        i |  1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |  9 |  10 |  11 |
  * ---------+----+----+----+----+----+----+----+----+----+-----+-----+
  *        i |  1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |  9 |  10 |  11 |
  * Plist[i] |  8 | -4 | -8 | -3 |  5 | -7 |-11 | 13 | 17 | -19 | -23 |
  *        p |  3 |  5 |  7 |  9 | 11 | 13 | 15 | 17 | 19 |  21 |  23 |
- * ---------+----+----+----+----+----+----+----+----+----+-----+-----+
- * Ilist[i] |  4 |  5 |  6 |  X |  7 |  8 |  X |  9 | 10 |  X  |  11 |
- * ---------+----+----+----+----+----+----+----+----+----+-----+-----+ */
+ * ---------+----+----+----+----+----+----+----+----+----+-----+-----+*/
 
 /* primelist containing primes whose absolute value is at most maxsqrt */
 static GEN
@@ -131,20 +127,6 @@ static GEN
 Dfac_to_disc(GEN x, GEN P) { pari_APPLY_long(uel(P,x[i])); }
 static GEN
 Dfac_to_roots(GEN x, GEN P) { pari_APPLY_type(t_VEC, gel(P,x[i])); }
-
-/* given primelist P, returns a vecsmall s.t. I[p/2] = i when p = P[i] */
-INLINE GEN
-primelist_to_indexlist(GEN P)
-{
-  long i, lP = lg(P), maxprime = labs(P[lP-1]); /* >= 8 */
-  GEN indexlist = zero_zv(maxprime/2);
-  for (i = 4; i < lP; i++)
-  {
-    long p = labs(P[i]);
-    uel(indexlist, p/2) = i;
-  }
-  return indexlist;
-}
 
 INLINE ulong
 ecpp_param_get_maxsqrt(GEN param) { return umael3(param, 1, 1, 1); }
@@ -327,11 +309,9 @@ static GEN
 ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
 {
   pari_sp av = avma;
-  long i, p, u, lmerge;
-  forprime_t T;
+  long i, ip, u, lp, lmerge, lprimelist;
   GEN Harr = allh(maxdisc); /* table of class numbers*/
   GEN ev, od; /* ev: D = 0 mod 4; od: D = 1 mod 4 */
-  GEN indexlist = primelist_to_indexlist(primelist); /* for making Dfac */
   GEN merge; /* return this */
   long lenv = maxdisc/4; /* max length of od/ev FIXME: ev can have length maxdisc/8 */
   long N; /* maximum number of positive prime factors */
@@ -375,17 +355,13 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
   }
 
   /* sieve part */
-  u_forprime_init(&T, 3, maxsqrt);
-  while ( (p = u_forprime_next(&T)) )
+  lp = lg(primelist);
+  for (ip = 4; ip < lp; ip++) /* skip 8,-4,-8 */
   {
+    long q = primelist[ip], p = labs(q);
     long s; /* sp = number we're looking at, detects nonsquarefree numbers */
     long t; /* points to which number we're looking at */
-    long q; /* p^star */
-    switch(p&3)
-    {
-      case 1: q =  p; s = 3; break;
-      default:q = -p; s = 1; break; /* case 3 */
-    }
+    s = (q == p)? 3: 1;
     for (t = (s*p+1)>>2; t <= lenv; t += p, s += 4)
     {
       GEN c = gel(od,t); if (!c) continue;
@@ -393,7 +369,7 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
       else
       {
         umael(c,1,1) *= q;
-        vecsmalltrunc_append(gel(c,2), uel(indexlist,p/2));
+        vecsmalltrunc_append(gel(c,2), ip);
       }
     }
     s = 1;
@@ -404,7 +380,7 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
       else
       {
         umael(c,1,1) *= q;
-        vecsmalltrunc_append(gel(c,2), uel(indexlist,p/2));
+        vecsmalltrunc_append(gel(c,2), ip);
       }
     }
   }
@@ -441,8 +417,8 @@ ecpp_disclist_init( long maxsqrt, ulong maxdisc, GEN primelist)
     T[3] = disc_best_modinv(D);
     if (modinv_degree(&p1,&p2,T[3]) && (-D)%p1==0 && (-D)%p2==0) T[4] = h/2;
   }
-  merge = gen_sort(merge, NULL, &sort_disclist);
-  return gerepileupto(av, merge);
+  gen_sort_inplace(merge, NULL, &sort_disclist, NULL);
+  return gerepilecopy(av, merge);
 }
 
 /*  Input: a vector tune whose components are vectors of length 3
@@ -791,18 +767,6 @@ ecpp_step2(GEN step1, GEN *X0)
 /* end of functions for step 2 */
 
 /* start of functions for step 1 */
-
-/*  Input: vector whose components are [D, m, q]
-   Output: vector whose components are q
-*/
-static GEN
-Dmqvec_to_qvec(GEN Dmqvec)
-{
-  long i, l = lg(Dmqvec);
-  GEN qvec = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(qvec, i) = gmael(Dmqvec, i, 3);
-  return qvec;
-}
 
 /* This returns the square root modulo N of the ith entry of the primelist.
    If this square root is already in sqrtlist, simply return it.
