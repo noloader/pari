@@ -1114,9 +1114,8 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
   return gerepilecopy(av, Dmqvec);
 }
 
-/*  Input: Dmq (where q does not have small prime factors)
-   Output: whether q is pseudoprime or not
-*/
+/* Dmq (where q does not have small prime factors); determine if q is
+ * pseudoprime */
 static long
 Dmq_isgoodq(GEN Dmq, GEN* X0)
 {
@@ -1131,18 +1130,12 @@ Dmq_isgoodq(GEN Dmq, GEN* X0)
   return s; /* did not find for this m */
 }
 
-/*  Input: N
- * Output: [ NDmqg, therest ]
- *   NDmqg is a vector of the form [N, D, m, q, g].
- *   therest is a vector of the form the same as the output OR [N].
- * This is the downrun; it tries to find [N,D,m,q,g], g a quadratic non-residue
- * If N is small, terminate.
- * It starts with finding the square root of D modulo N.
- * It then uses this square root for cornacchia's algorithm.
- * If there is a solution to U^2 + |D|V^2 = 4N, use it to find candidates for m.
- * It continues until you get a batch of size at least t = log2(N)/2^log2bsize
- *   or if there are no discriminants left in the list.
- * It factors the m's of the batch and produces the q's.
+/* If N is small, return [N], else [ NDmqg, therest ] after a recursive call:
+ *   NDmqg is a vector of the form [N,D,m,q,g].
+ *   therest is the output of a recursive call with N = q
+ * For successive D, find a square root of D mod N (g is a quad. non-residue),
+ * use it to solve U^2 + |D|V^2 = 4N, then find candidates for m. When
+ * enough candidates m, factor the m's of the batch and produce the q's
  * If one of the q's is pseudoprime, recursive call with N = q */
 static GEN
 N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
@@ -1271,51 +1264,44 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
         }
         continue;
       }
-
       /* That downrun succeeded. */
       Dfac = Dinfo_get_Dfac(Dinfo);
       gel(Dinfo, 2) = Dfac_to_disc(Dfac, primelist);
       NDinfomq = mkcol6(N, Dinfo, m, q, g, Dfac_to_roots(Dfac,sqrtlist));
       return gerepilecopy(ave, mkvec2(NDinfomq, ret));
     }
-
     /* We have exhausted all the discriminants. */
     if (i >= lgdisclist) FAIL = 1;
-
     if (Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg)
     {
       dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  !" ANSI_COLOR_RESET);
       persevere_next = 1;
     }
   }
-
   /* FAILED: Out of discriminants. */
   if (X0) umael(*X0, 3, 1)++; /* FAILS++ */
   dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  X" ANSI_COLOR_RESET);
   (*depth)--; return NULL;
 }
 
-/*  Input: the output of the (recursive) downrun function
-   Output: a vector whose components are [N, D, m, q, g]
-*/
+/* x: the output of the (recursive) downrun function; return a vector
+ * whose components are [N, D, m, q, g] */
 static GEN
-ecpp_flattencert(GEN notflat, long depth)
+ecpp_flattencert(GEN x, long depth)
 {
-  long i, lgret = depth+1;
-  GEN ret = cgetg(lgret, t_VEC);
-  GEN x = notflat;
+  long i, l = depth+1;
+  GEN ret = cgetg(l, t_VEC);
   if (typ(x) != t_VEC) return gen_0;
-  for (i = 1; i < lgret; i++) { gel(ret, i) = gel(x, 1); x = gel(x, 2); }
+  for (i = 1; i < l; i++) { gel(ret, i) = gel(x,1); x = gel(x,2); }
   return ret;
 }
 
 /* This calls the first downrun.
-   Then unravels the skeleton of the certificate.
-   This returns one of the following:
-   * a vector of the form [N, D, m, q, y]
-   * gen_0 (if N is composite)
-   * NULL (if FAIL)
-*/
+ * Then unravels the skeleton of the certificate.
+ * This returns one of the following:
+ * - a vector of the form [N, D, m, q, y]
+ * - gen_0 (if N is composite)
+ * - NULL (if FAIL) */
 static GEN
 ecpp_step1(GEN N, GEN param, GEN* X0)
 {
