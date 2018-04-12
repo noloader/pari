@@ -798,37 +798,6 @@ ecpp_step2(GEN step1, GEN *X0)
 
 /* start of functions for step 1 */
 
-/*  Input: vector whose components are [D, m]
-   Output: vector whose components are m
-*/
-static GEN
-Dmvec_to_mvec(GEN Dmvec)
-{
-  long lgmvec = lg(Dmvec);
-  GEN mvec = cgetg(lgmvec, t_VEC);
-  long i;
-  for (i = 1; i < lgmvec; i++) gel(mvec, i) = gmael(Dmvec, i, 2);
-  return mvec;
-}
-
-/*  Input: vector v whose components are [D, m], vector w whose components are q
-   Output: vector whose components are [D, m, q]
-*/
-static GEN
-Dmvec_qvec_to_Dmqvec(GEN Dmvec, GEN qvec)
-{
-  long i, l = lg(Dmvec);
-  GEN Dmqvec = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-  {
-    GEN D = gmael(Dmvec, i, 1);
-    GEN m = gmael(Dmvec, i, 2);
-    GEN q = gel(qvec, i);
-    gel(Dmqvec, i) = mkvec3(D, m, q);
-  }
-  return Dmqvec;
-}
-
 /*  Input: vector whose components are [D, m, q]
    Output: vector whose components are q
 */
@@ -971,65 +940,50 @@ ecpp_qlo(GEN N)
 }
 
 static long
-lessthan_qlo(void* E, GEN q) { return (cmpii(q, (GEN)E) < 0); }
+lessthan_qlo(void* E, GEN Dmq) { return (cmpii(gel(Dmq,3), (GEN)E) < 0); }
 static long
-gained_bits(void* E, GEN q) { return (expi(q) <= (long)E); }
+gained_bits(void* E, GEN Dmq) { return (expi(gel(Dmq,3)) <= (long)E); }
 
 /*  Input: Dmqvec
  * Output: Dmqvec such that q satisfies (N^1/4 + 1)^2 < q < N/2 */
 static GEN
 Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
 {
-  long lo_ind, hi_ind, goal;
-  GEN qlo, qvec;
+  long lo, hi;
 
-  /* Dmqvec is sorted according to q */
-  Dmqvec = gen_sort(Dmqvec, NULL, &sort_Dmq_by_q);
-  qvec = Dmqvec_to_qvec(Dmqvec);
+  gen_sort_inplace(Dmqvec, NULL, &sort_Dmq_by_q, NULL); /* sort wrt q */
+  lo = zv_binsearch0((void*)ecpp_qlo(N), &lessthan_qlo, Dmqvec); lo++;
+  if (lo >= lg(Dmqvec)) return NULL;
 
-  qlo = ecpp_qlo(N);
-  lo_ind = zv_binsearch0((void*)qlo, &lessthan_qlo, qvec); lo_ind++;
-  if (lo_ind >= lg(qvec)) return NULL;
+  hi = zv_binsearch0((void*)(expi(N)-1), &gained_bits, Dmqvec);
+  if (hi == 0) return NULL;
 
-  goal = expi(N)-1;
-  hi_ind = zv_binsearch0((void*)goal, &gained_bits, qvec);
-  if (hi_ind == 0) return NULL;
-
-  return vecslice(Dmqvec, lo_ind, hi_ind);
+  return vecslice(Dmqvec, lo, hi);
 }
 
-/* Given a vector mvec of mi's, simultaneously remove all prime factors of each
- * mi less then BOUND_PRIMORIAL. This implements Franke 2004: Proving the
+/* Given a Dmvec of [D,m]'s, simultaneously remove all prime factors of each
+ * m less then BOUND_PRIMORIAL. This implements Franke 2004: Proving the
  * Primality of Very Large Numbers with fastECPP */
 static GEN
-mvec_batchfactor_qvec(GEN mvec, GEN primorial)
-{ /* Obtain the product tree of mvec. */
-  GEN leaf = Z_ZV_mod_tree(primorial, mvec, ZV_producttree(mvec));
-  long i;
-
-  /* Go through each leaf and remove small factors. */
-  for (i = 1; i < lg(mvec); i++)
-  {
-    GEN m = gel(mvec, i);
-    while (!equali1(gel(leaf,i)) )
-    {
-      gel(leaf,i) = gcdii(m, gel(leaf,i));
-      m = diviiexact(m, gel(leaf,i));
-    }
-    gel(mvec, i) = m;
-  }
-  return mvec;
-}
-
-/*  Input: Dmvec
-   Output: Dmqvec
-   Uses mvec_batchfactor_qvec to produce the output.
-*/
-static GEN
-Dmvec_batchfactor_Dmqvec(GEN Dmvec, GEN primorial)
+Dmvec_batchfactor(GEN Dmvec, GEN primorial)
 {
-  GEN qvec = mvec_batchfactor_qvec(Dmvec_to_mvec(Dmvec), primorial);
-  return Dmvec_qvec_to_Dmqvec(Dmvec, qvec);
+  long i, l = lg(Dmvec);
+  GEN leaf, v = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  { /* cheaply remove powers of 2 */
+    GEN m = gmael(Dmvec, i, 2);
+    long v2 = vali(m);
+    gel(v,i) = v2? shifti(m,-v2): m;
+  }
+  leaf = Z_ZV_mod_tree(primorial, v, ZV_producttree(v));
+  /* Go through each leaf and remove small factors. */
+  for (i = 1; i < l; i++)
+  {
+    GEN q = gel(v,i), Dm = gel(Dmvec,i), L = gel(leaf,i);
+    while (!equali1(L)) { L = gcdii(q, L); q = diviiexact(q, L); }
+    gel(v,i) = mkvec3(gel(Dm,1), gel(Dm,2), q);
+  }
+  return v;
 }
 
 /* tunevec = [maxsqrt, maxpcdg, tdivexp]
@@ -1063,7 +1017,7 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
 
   /* B1: Factor by batch. */
   dbg_mode() timer_start(&ti);
-  Dmqvec = Dmvec_batchfactor_Dmqvec(Dmbatch, primorial);
+  Dmqvec = Dmvec_batchfactor(Dmbatch, primorial);
   dbg_mode() timer_record(X0, "B1", &ti);
 
   /* B2: For each batch, remove cardinalities lower than (N^(1/4)+1)^2
