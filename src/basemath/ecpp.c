@@ -1371,12 +1371,13 @@ ecpp0(GEN N, GEN param)
   for (i = 1; i < lg(Tv); i++)
   {
     GEN v = gel(Tv, i);
-    long lgv = lg(v);
-    for (j = 1; j < lgv; j++)
-      err_printf("\n   %c%ld: %16ld %16ld %16f", 'A'+i-1, j,
-        umael3(X0, 1, i, j),
-        umael3(X0, 2, i, j),
-        (double)(umael3(X0, 1, i, j)) / (double)(umael3(X0, 2, i, j)));
+    long l = lg(v);
+    for (j = 1; j < l; j++)
+    {
+      long t = umael3(X0,1, i,j), n = umael3(X0,2, i,j);
+      if (!t) continue;
+      err_printf("\n  %c%ld: %16ld %16ld %16.3f", 'A'+i-1,j, t,n, (double)t/n);
+    }
   }
     err_printf("\n" ANSI_COLOR_BRIGHT_RED "\nFAILS: %16ld" ANSI_COLOR_RESET "\n", umael(X0, 3, 1));
   }
