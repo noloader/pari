@@ -918,11 +918,10 @@ p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
  * in Dinfo: find the square root modulo N of each prime p dividing D; then
  * assemble the actual square root of D by multiplying the prime square roots */
 static GEN
-D_find_discsqrt(GEN N, GEN param, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
+D_find_discsqrt(GEN N, GEN primelist, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
 {
   GEN s = NULL, Dfac = Dinfo_get_Dfac(Dinfo);
   long i, lgDfac = lg(Dfac);
-  GEN primelist = ecpp_param_get_primelist(param);
   for (i = 1; i < lgDfac; i++)
   {
     GEN sqrtfi = p_find_primesqrt(N, X0, primelist, sqrtlist, uel(Dfac, i), g);
@@ -938,7 +937,7 @@ D_find_discsqrt(GEN N, GEN param, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
      in the imaginary quadratic number field K = Q(sqrt(D)). ???
 */
 static GEN
-NUV_find_mvec(GEN N, GEN U, GEN V, long wD)
+NUV_find_m(GEN Dinfo, GEN N, GEN U, GEN V, long wD)
 {
   GEN m, Nplus1 = addiu(N, 1), u = U, mvec = cgetg(wD+1, t_VEC);
   long i;
@@ -952,7 +951,7 @@ NUV_find_mvec(GEN N, GEN U, GEN V, long wD)
       if (wD == 6 && i==4) u = shifti(addmuliu(U, V, 3), -1);
       m = addii(Nplus1, u);
     }
-    gel(mvec, i+1) = m;
+    gel(mvec, i+1) = mkvec2(Dinfo, m);
   }
   return mvec;
 }
@@ -967,29 +966,35 @@ NUV_find_mvec(GEN N, GEN U, GEN V, long wD)
    Finally, sqrtlist and g help compute the square root modulo N of D.
 */
 static long
-D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dmbatch, GEN badP)
+D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dmbatch, GEN kroP)
 {
-  long corn_succ, j, wD, D = gel(Dinfo, 1)[1], aD = labs(D);
-  GEN U, V, sqrtofDmodN, mvec;
+  long i, l, corn_succ, wD, D = Dinfo_get_D(Dinfo);
+  GEN U, V, sqrtofDmodN, Dfac = Dinfo_get_Dfac(Dinfo);
+  GEN primelist = ecpp_param_get_primelist(param);
   pari_timer ti;
 
-  /* A1: Check (D,badP) = 1 <=> (p*|N) = 1 for all primes dividing D */
+  /* A1: Check (p*|N) = 1 for all primes dividing D */
   dbg_mode() timer_start(&ti);
-  aD = ugcd(aD, umodiu(badP, aD));
+  l = lg(Dfac);
+  for (i = 1; i < l; i++)
+  {
+    long j = Dfac[i], s = kroP[j];
+    if (s > 1) kroP[j] = s = krosi(primelist[j], N); /* update cache */
+    if (s == 0) return -1; /* N is composite */
+    if (s < 0) return 0;
+  }
   dbg_mode() timer_record(X0, "A1", &ti, 1);
-  if (aD > 1) return 0;
 
-  /* A3: Get square root of D mod N. */
-  /* If sqrtofDmodN is NULL, then N is composite. */
+  /* A3: Get square root of D mod N */
   dbg_mode() timer_start(&ti);
-  sqrtofDmodN = D_find_discsqrt(N, param, X0, Dinfo, sqrtlist, g);
+  sqrtofDmodN = D_find_discsqrt(N, primelist, X0, Dinfo, sqrtlist, g);
   dbg_mode() {
     timer_record(X0, "A3", &ti, 1);
     if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ )
       pari_err_BUG("D_find_discsqrt");
   }
 
-  /* A5: Use the square root to use cornacchia to find the solution to U^2 + |D|V^2 = 4N. */
+  /* A5: Use square root with Cornacchia to solve U^2 + |D|V^2 = 4N */
   dbg_mode() timer_start(&ti);
   corn_succ = cornacchia2_sqrt( absi(stoi(D)), N, sqrtofDmodN, &U, &V);
   dbg_mode() timer_record(X0, "A5", &ti, 1);
@@ -1001,14 +1006,11 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   /* We're sticking with this D. */
   dbg_mode() err_printf(ANSI_COLOR_BRIGHT_YELLOW "D" ANSI_COLOR_RESET);
 
+  /* A6: Collect the w(D) cardinalities of E/(F_N) with CM by D */
   dbg_mode() timer_start(&ti);
-  /* A6: Collect the w(D) possible cardinalities of elliptic curves over F_N whose discriminant is D. */
   wD = D_get_wD(D);
-  mvec = NUV_find_mvec(N, U, V, wD);
-  for (j = 1; j < lg(mvec); j++)
-    vectrunc_append(Dmbatch, mkvec2(Dinfo, gel(mvec, j)) );
+  vectrunc_append_batch(Dmbatch,  NUV_find_m(Dinfo,N,U,V,wD));
   dbg_mode() timer_record(X0, "A6", &ti, 1);
-
   return wD;
 }
 
@@ -1166,7 +1168,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   long lgdisclist, lprimelist, t, i, j, expiN = expi(N);
   long persevere_next = 0, FAIL = 0;
   ulong maxpcdg;
-  GEN primelist, disclist, sqrtlist, g, Dmbatch, badP;
+  GEN primelist, disclist, sqrtlist, g, Dmbatch, kroP;
 
   if (expiN < 64) return mkvec(N);
 
@@ -1190,13 +1192,15 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
 
   /* A2: Check (p*|N) = 1 for all p */
   dbg_mode() timer_start(&ti);
-  badP = gen_1;
-  for (i = 1; i < lprimelist; i++)
-  {
-    long p = primelist[i], s = krosi(p, N);
-    if (!s) return gen_0; /* N composite */
-    if (s < 0) badP = muliu(badP, labs(p));
-  } /* must restrict to the D coprime to badP */
+  /* kroP[i] will contain (primelist[i] | N) */
+  kroP = const_vecsmall(lprimelist-1, 2/*sentinel*/);
+  switch(mod8(N))
+  { /* primelist[1,2,3] = [8,-4,-8]; N is odd */
+    case 1: kroP[1] = kroP[2] = kroP[3] = 1; break;
+    case 3: kroP[1] = -1; kroP[2] =-1; kroP[3] = 1; break;
+    case 5: kroP[1] = -1; kroP[2] = 1; kroP[3] =-1; break;
+    case 7: kroP[1] =  1; kroP[2] =-1; kroP[3] =-1; break;
+  }
   dbg_mode() timer_record(X0, "A2", &ti, 1);
 
   /* Print the start of this iteration. */
@@ -1213,7 +1217,6 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   /* Number of cardinalities so far; should always be equal to lg(Dmbatch)-1. */
   /* i determines which discriminant we are considering. */
   i = 1;
-
   while (!FAIL)
   {
     pari_timer F;
@@ -1228,10 +1231,12 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     while (i < lgdisclist )
     {
       GEN Dinfo = gel(disclist, i);
+      long n;
       if (!persevere && Dinfo_get_pd(Dinfo) > maxpcdg) { FAIL = 1; break; }
-      numcard += D_collectcards(N,param, X0, Dinfo, sqrtlist, g, Dmbatch, badP);
+      n = D_collectcards(N,param, X0, Dinfo, sqrtlist, g, Dmbatch, kroP);
+      if (n < 0) return gen_0;
       last_i = i++;
-      if (numcard >= t) break;
+      numcard += n; if (numcard >= t) break;
     }
 
     /* We have exhausted disclist and there are no card. to be factored */
