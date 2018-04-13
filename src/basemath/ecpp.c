@@ -1086,8 +1086,8 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       /* Cardinality is pseudoprime. Call the next downrun! */
       ret = N_downrun_NDinfomq(q, param, X0, depth, persevere_next);
 
-      /* That downrun failed. */
-      if (ret == NULL) {
+      /* Downrun failed [gen_0 is normally impossible]. */
+      if (ret == NULL || ret == gen_0) {
         dbg_mode() {
           char o = persevere? '<': '[';
           char c = persevere? '>': ']';
@@ -1096,7 +1096,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
         }
         continue;
       }
-      /* That downrun succeeded. */
+      /* Downrun succeeded. */
       Dfac = Dinfo_get_Dfac(Dinfo);
       gel(Dinfo, 2) = Dfac_to_disc(Dfac, primelist);
       NDinfomq = mkcol6(N, Dinfo, m, q, g, Dfac_to_roots(Dfac,sqrtlist));
