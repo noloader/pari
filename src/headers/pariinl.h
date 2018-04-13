@@ -2623,7 +2623,8 @@ nf_get_roots(GEN nf) { return gel(nf,6); }
 INLINE GEN
 nf_get_zk(GEN nf)
 {
-  GEN y = gel(nf,7), D = nf_get_zkden(nf);
+  GEN y = gel(nf,7), D = gel(y, 1);
+  if (typ(D) == t_POL) D = gel(D, 2);
   if (!equali1(D)) y = gdiv(y, D);
   return y;
 }

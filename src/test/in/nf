@@ -129,6 +129,7 @@ K=nfinit(x^2+23);
 K[7] /= 2;
 nfbasistoalg(K,[0,1]~)
 nfalgtobasis(K,x)
+K.zk
 
 nfinit(x, 3)[2]
 nfinit(1/2*x + 3/5, 3)[2]
