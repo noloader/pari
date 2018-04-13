@@ -419,7 +419,7 @@ ecpp_param_set(GEN tune, GEN x)
   ulong maxdisc = maxsqrt * maxsqrt;
   GEN T = mkvecsmall3(maxsqrt, maxdisc, maxpcdg);
   GEN Plist = ecpp_primelist_init(maxsqrt);
-  GEN Dlist = ecpp_disclist_init(maxsqrt*maxsqrt, Plist);
+  GEN Dlist = ecpp_disclist_init(maxdisc, Plist);
   GEN primorial = primorial_vec(tdivexp);
   return gerepilecopy(av, mkvec3(mkvec3(T,Plist,Dlist), primorial, tune));
 }
