@@ -881,7 +881,7 @@ gained_bits(void* E, GEN Dmq) { return (expi(gel(Dmq,3)) <= (long)E); }
 /*  Input: Dmqvec
  * Output: Dmqvec such that q satisfies (N^1/4 + 1)^2 < q < N/2 */
 static GEN
-Dmqvec_slice_Dmqvec(GEN N, GEN Dmqvec)
+Dmqvec_slice(GEN N, GEN Dmqvec)
 {
   long lo, hi;
 
@@ -951,7 +951,7 @@ Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
 
   /* B2: For each batch, remove cardinalities lower than (N^(1/4)+1)^2
    *     and cardinalities in which we didn't win enough bits */
-  Dmqvec = Dmqvec_slice_Dmqvec(N, Dmqvec);
+  Dmqvec = Dmqvec_slice(N, Dmqvec);
   if (!Dmqvec) { avma = av; return NULL; } /* nothing is left */
   return gerepilecopy(av, Dmqvec);
 }
@@ -1074,11 +1074,6 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     {
       GEN ret, Dfac, NDinfomq, Dmq = gel(Dmqlist,j);
       GEN Dinfo = gel(Dmq,1), m = gel(Dmq,2), q = gel(Dmq,3);
-      if (expiN <= expi(q))
-      {
-        dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  x" ANSI_COLOR_RESET);
-        continue;
-      }
       dbg_mode() err_printf(ANSI_COLOR_WHITE "." ANSI_COLOR_RESET);
       if (!Dmq_isgoodq(Dmq, X0)) continue;
 
