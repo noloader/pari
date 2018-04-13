@@ -140,6 +140,8 @@ INLINE GEN
 ecpp_param_get_disclist(GEN param) { return gmael(param, 1, 3); }
 INLINE GEN
 ecpp_param_get_primorial_vec(GEN param) { return gel(param, 2); }
+INLINE GEN
+ecpp_param_get_tune(GEN param) { return gel(param, 3); }
 
 /*  Input: x, 20 <= x <= 30
  * Output: a vector whose ith entry is the product of all primes below 2^x */
@@ -399,14 +401,14 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
   return gerepilecopy(av, merge);
 }
 
-/*  Input: a vector tune whose components are vectors of length 3
+/*  Input: a vector tune whose components are [maxsqrt,maxpcdg,tdivexp,expiN]
  * Output: vector param of precomputations
  *   let x =  be a component of tune then
- *   param[1][1] = tune[#tune] = [maxsqrt, maxdisc, maxpcdg]
- *   param[1][2] =   primelist = [ Vecsmall with the list of primes ]
- *   param[1][3] =    disclist = vector of Dinfos, sorted by disclist
+ *   param[1][1] = [maxsqrt, maxdisc, maxpcdg]
+ *   param[1][2] = primelist = Vecsmall of primes
+ *   param[1][3] = disclist  = vector of Dinfos, sorted by quality
  *   param[2]    = primorial_vec
- *   param[3]    =          tune */
+ *   param[3]    = tune */
 static GEN
 ecpp_param_set(GEN tune, GEN x)
 {
@@ -922,7 +924,7 @@ Dmvec_batchfactor(GEN Dmvec, GEN primorial)
 static GEN
 tunevec(GEN N, GEN param)
 {
-  GEN T = gel(param,3);
+  GEN T = ecpp_param_get_tune(param);
   long e = expi(N), i, l = lg(T)-1;
   for (i = 1; i < l; i++)
     if (mael(T,i,4) == 0 || e <= mael(T,i,4)) break;
