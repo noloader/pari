@@ -1100,7 +1100,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       Dfac = Dinfo_get_Dfac(Dinfo);
       gel(Dinfo, 2) = Dfac_to_disc(Dfac, primelist);
       NDinfomq = mkcol6(N, Dinfo, m, q, g, Dfac_to_roots(Dfac,sqrtlist));
-      return gerepilecopy(ave, mkvec2(NDinfomq, ret));
+      return mkvec2(NDinfomq, ret);
     }
     /* We have exhausted all the discriminants. */
     if (i >= lgdisclist) FAIL = 1;
@@ -1137,10 +1137,11 @@ ecpp_flattencert(GEN x, long depth)
 static GEN
 ecpp_step1(GEN N, GEN param, GEN* X0)
 {
+  pari_sp av = avma;
   long depth = 0;
   GEN downrun = N_downrun_NDinfomq(N, param, X0, &depth, 1);
-  if (downrun == NULL) return NULL;
-  return ecpp_flattencert(downrun, depth);
+  if (downrun == NULL) { avma = av; return NULL; }
+  return gerepilecopy(av, ecpp_flattencert(downrun, depth));
 }
 
 /* The input is an integer N.
