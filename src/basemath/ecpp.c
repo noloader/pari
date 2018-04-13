@@ -979,7 +979,6 @@ Dmq_isgoodq(GEN Dmq, GEN* X0)
 static GEN
 N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
 {
-  pari_sp ave = avma;
   pari_timer T, ti;
   long lgdisclist, lprimelist, t, i, j, expiN = expi(N);
   long persevere_next = 0, FAIL = 0;
