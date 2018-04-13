@@ -128,10 +128,12 @@ Dfac_to_disc(GEN x, GEN P) { pari_APPLY_long(uel(P,x[i])); }
 static GEN
 Dfac_to_roots(GEN x, GEN P) { pari_APPLY_type(t_VEC, gel(P,x[i])); }
 
+#if 0
 INLINE ulong
 ecpp_param_get_maxsqrt(GEN param) { return umael3(param, 1, 1, 1); }
 INLINE ulong
 ecpp_param_get_maxdisc(GEN param) { return umael3(param, 1, 1, 2); }
+#endif
 INLINE ulong
 ecpp_param_get_maxpcdg(GEN param) { return umael3(param, 1, 1, 3); }
 INLINE GEN
@@ -751,7 +753,7 @@ ecpp_step2(GEN step1, GEN *X0)
      somehow in the algorithm for taking square roots modulo N.
 */
 static GEN
-p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
+p_find_primesqrt(GEN N, GEN primelist, GEN sqrtlist, long i, GEN g)
 {
   if (!signe(gel(sqrtlist,i)))
   {
@@ -767,13 +769,13 @@ p_find_primesqrt(GEN N, GEN* X0, GEN primelist, GEN sqrtlist, long i, GEN g)
  * in Dinfo: find the square root modulo N of each prime p dividing D; then
  * assemble the actual square root of D by multiplying the prime square roots */
 static GEN
-D_find_discsqrt(GEN N, GEN primelist, GEN *X0, GEN Dinfo, GEN sqrtlist, GEN g)
+D_find_discsqrt(GEN N, GEN primelist, GEN Dinfo, GEN sqrtlist, GEN g)
 {
   GEN s = NULL, Dfac = Dinfo_get_Dfac(Dinfo);
   long i, lgDfac = lg(Dfac);
   for (i = 1; i < lgDfac; i++)
   {
-    GEN sqrtfi = p_find_primesqrt(N, X0, primelist, sqrtlist, uel(Dfac, i), g);
+    GEN sqrtfi = p_find_primesqrt(N, primelist, sqrtlist, uel(Dfac, i), g);
     if (!sqrtfi) pari_err_BUG("D_find_discsqrt"); ; /* when N composite ? */
     s = s? Fp_mul(s, sqrtfi, N): sqrtfi;
   }
@@ -836,7 +838,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
 
   /* A3: Get square root of D mod N */
   dbg_mode() timer_start(&ti);
-  sqrtofDmodN = D_find_discsqrt(N, primelist, X0, Dinfo, sqrtlist, g);
+  sqrtofDmodN = D_find_discsqrt(N, primelist, Dinfo, sqrtlist, g);
   dbg_mode() {
     timer_record(X0, "A3", &ti);
     if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ )
