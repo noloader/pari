@@ -135,7 +135,7 @@ ecpp_param_get_maxdisc(GEN param) { return umael3(param, 1, 1, 2); }
 INLINE ulong
 ecpp_param_get_maxpcdg(GEN param) { return umael3(param, 1, 1, 3); }
 INLINE GEN
-ecpp_param_get_primelist(GEN param) { return gmael3(param, 1, 2, 1); }
+ecpp_param_get_primelist(GEN param) { return gmael(param, 1, 2); }
 INLINE GEN
 ecpp_param_get_disclist(GEN param) { return gmael(param, 1, 3); }
 INLINE GEN
@@ -167,22 +167,6 @@ ecpp_param_get_primorial(GEN param, long v)
 {
   GEN primorial_vec = ecpp_param_get_primorial_vec(param);
   return gel(primorial_vec, v);
-}
-INLINE void
-ecpp_param_set_maxdisc(GEN param, ulong x) { umael3(param, 1, 1, 2) = x; }
-INLINE void
-ecpp_param_set_maxpcdg(GEN param, ulong x) { umael3(param, 1, 1, 3) = x; }
-INLINE void
-ecpp_param_set_tdivexp(GEN param, ulong x) { gel(param, 2) = primorial_vec(x); }
-
-static GEN ecpp_disclist_init(ulong maxdisc, GEN primelist);
-
-INLINE void
-ecpp_param_set_disclist(GEN param)
-{
-  ulong maxdisc = ecpp_param_get_maxdisc(param);
-  GEN primelist = ecpp_param_get_primelist(param);
-  gmael(param, 1, 3) = ecpp_disclist_init(maxdisc, primelist);
 }
 
 /* NDinfomqg contains
@@ -266,13 +250,6 @@ sort_Dmq_by_cnum(void *data, GEN x, GEN y)
   ulong h2 = Dmq_get_h(y);
   if (h1 != h2) return h1 > h2 ? 1 : -1;
   return sort_Dmq_by_q(data, x, y);
-}
-
-static void
-ecpp_param_set_maxsqrt(GEN param, long x)
-{
-  umael3(param, 1, 1, 1) = x;
-  gmael3(param, 1, 2, 1) = ecpp_primelist_init(x);
 }
 
 /* return H s.t if -maxD <= D < 0 is fundamental then H[(-D)>>1] is the
@@ -424,7 +401,7 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
 
 /*  Input: a vector tune whose components are vectors of length 3
  * Output: vector param of precomputations
- *   let x = [maxsqrt, maxdisc, maxpcdg] be the last component of tune then
+ *   let x =  be a component of tune then
  *   param[1][1] = tune[#tune] = [maxsqrt, maxdisc, maxpcdg]
  *   param[1][2] =   primelist = [ Vecsmall with the list of primes ]
  *   param[1][3] =    disclist = vector of Dinfos, sorted by disclist
@@ -434,17 +411,13 @@ static GEN
 ecpp_param_set(GEN tune, GEN x)
 {
   pari_sp av = avma;
-  GEN param1 = mkvec3(zero_zv(3), zerovec(1), zerovec(1));
-  GEN param = mkvec3(param1, gen_1, tune);
-  long  maxsqrt = uel(x,1);
-  ulong maxpcdg = uel(x,2);
-  ulong tdivexp = uel(x,3);
-  ecpp_param_set_maxsqrt(param, maxsqrt);
-  ecpp_param_set_maxdisc(param, maxsqrt*maxsqrt);
-  ecpp_param_set_maxpcdg(param, maxpcdg);
-  ecpp_param_set_disclist(param);
-  ecpp_param_set_tdivexp(param, tdivexp);
-  return gerepilecopy(av, param);
+  ulong maxsqrt = uel(x,1), maxpcdg = uel(x,2), tdivexp = uel(x,3);
+  ulong maxdisc = maxsqrt * maxsqrt;
+  GEN T = mkvecsmall3(maxsqrt, maxdisc, maxpcdg);
+  GEN Plist = ecpp_primelist_init(maxsqrt);
+  GEN Dlist = ecpp_disclist_init(maxsqrt*maxsqrt, Plist);
+  GEN primorial = primorial_vec(tdivexp);
+  return gerepilecopy(av, mkvec3(mkvec3(T,Plist,Dlist), primorial, tune));
 }
 
 /* cert contains [N, t, s, a4, [x, y]] as documented in ??ecpp; the following
