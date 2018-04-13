@@ -305,9 +305,9 @@ allh(ulong maxD)
 }
 
 static GEN
-mkDinfo(GEN c, long h)
+mkDinfo(GEN c, long D, long h)
 {
-  long bi, pd, p1, p2, D = c[1];
+  long bi, pd, p1, p2;
   bi = disc_best_modinv(D);
   pd = (modinv_degree(&p1,&p2,bi) && (-D)%p1==0 && (-D)%p2==0)? h/2: h;
   gel(c,1) = mkvecsmall4(D, h, bi, pd); return c;
@@ -317,9 +317,9 @@ static GEN
 ecpp_disclist_init(ulong maxdisc, GEN primelist)
 {
   pari_sp av = avma;
-  long i, ip, u, lp, lmerge;
+  long t, ip, u, lp, lmerge;
   GEN merge, ev, od, Harr = allh(maxdisc); /* table of class numbers*/
-  long lenv = maxdisc/4; /* max length of od/ev FIXME: ev can have length maxdisc/8 */
+  long lenv = maxdisc/4; /* max length of od/ev */
   long N; /* maximum number of positive prime factors */
 
   /* tuning paramaters blatantly copied from vecfactoru */
@@ -336,74 +336,86 @@ ecpp_disclist_init(ulong maxdisc, GEN primelist)
     else N = 9;
   #endif
 
-  /* initialization */
-  od = cgetg(lenv + 1, t_VEC);
+  /* od[t] attached to discriminant 1-4*t, ev[t] attached to -4*t */
+  od = cgetg(lenv + 1, t_VEC); /* contains 'long' at first: save memory */
   ev = cgetg(lenv + 1, t_VEC);
-
-  /* od[i] holds Dinfo of 1-4*i
-     ev[i] holds Dinfo of -4*i   */
-  for (i = 1; i <= lenv; i++)
+  /* first pass: squarefree sieve and restrict to maxsqrt-smooth disc */
+  for (t = 1; t <= lenv; t++)
   {
-    long x, id;
-    gel(od, i) = mkvec2((GEN)1, vecsmalltrunc_init(N));
-    switch(i&7)
+    od[t] = 1;
+    switch(t&7)
     {
-      case 0:
-      case 4: gel(ev,i) = NULL; continue;
-      case 2: x =-8; id = 3; break;
-      case 6: x = 8; id = 1; break;
-      default:x =-4; id = 2; break;
+      case 0: case 4: ev[t] = 0; break;
+      case 2: ev[t] =-8; break;
+      case 6: ev[t] = 8; break;
+      default:ev[t] =-4; break;
     }
-    gel(ev, i) = mkvec2((GEN)x, vecsmalltrunc_init(N));
-    vecsmalltrunc_append(gmael(ev, i, 2), id);
   }
-
-  /* sieve part */
   lp = lg(primelist);
   for (ip = 4; ip < lp; ip++) /* skip 8,-4,-8 */
-  {
-    long q = primelist[ip], p = labs(q);
-    long s; /* sp = number we're looking at, detects nonsquarefree numbers */
-    long t; /* points to which number we're looking at */
+  { /* sieve by squares of primes */
+    long s, q = primelist[ip], p = labs(q);
     s = (q == p)? 3: 1;
     for (t = (s*p+1)>>2; t <= lenv; t += p, s += 4)
     {
-      GEN c = gel(od,t); if (!c) continue;
-      if (s%p == 0) gel(od,t) = NULL;
-      else { c[1] *= q; vecsmalltrunc_append(gel(c,2), ip); }
+      long c = od[t];
+      if (c) { if (s%p == 0) od[t] = 0; else  od[t] = c*q; }
     }
     s = 1;
     for (t = p; t <= lenv; t += p, s++)
     {
-      GEN c = gel(ev,t); if (!c) continue;
-      if (s%p == 0) gel(ev,t) = NULL;
-      else { c[1] *= q; vecsmalltrunc_append(gel(c,2), ip); }
+      long c = ev[t];
+      if (c) { if (s%p == 0) ev[t] = 0; else  ev[t] = c*q; }
     }
   }
-
-  u = 0;
-  for (i = 1; i <= lenv; i++)
-  {
-    GEN c = gel(od,i);
-    if (c && c[1] != -4*i+1) gel(od,i) = NULL; else u++;
-  }
-  for (i = 1; i <= lenv; i++)
-  {
-    GEN c = gel(ev,i);
-    if (c && c[1] != -4*i) gel(ev,i) = NULL; else u++;
+  for (u = 0, t = 1; t <= lenv; t++)
+  { /* restrict to maxsqrt-smooth disc */
+    if (od[t] != -4*t+1) od[t] = 0; else u++;
+    if (ev[t] != -4*t)   ev[t] = 0; else u++;
   }
 
+  /* second pass: sieve by primes and record factorization */
+  for (t = 1; t <= lenv; t++)
+  {
+    if (od[t]) gel(od,t) = mkvec2(NULL, vecsmalltrunc_init(N));
+    if (ev[t])
+    {
+      GEN F = vecsmalltrunc_init(N);
+      long id;
+      switch(t&7)
+      {
+        case 2: id = 3; break;
+        case 6: id = 1; break;
+        default:id = 2; break;
+      }
+      vecsmalltrunc_append(F, id);
+      gel(ev,t) = mkvec2(NULL, F);
+    }
+  }
+  lp = lg(primelist);
+  for (ip = 4; ip < lp; ip++) /* skip 8,-4,-8 */
+  {
+    long s, q = primelist[ip], p = labs(q);
+    s = (q == p)? 3: 1;
+    for (t = (s*p+1)>>2; t <= lenv; t += p, s += 4)
+    {
+      GEN c = gel(od,t);
+      if (c) vecsmalltrunc_append(gel(c,2), ip);
+    }
+    s = 1;
+    for (t = p; t <= lenv; t += p, s++)
+    {
+      GEN c = gel(ev,t);
+      if (c) vecsmalltrunc_append(gel(c,2), ip);
+    }
+  }
   /* merging the two arrays */
   merge = cgetg(u+1, t_VEC); lmerge = 0;
-  for (i = 1; i <= lenv; i++)
+  for (t = 1; t <= lenv; t++)
   {
-    GEN c = gel(od,i);
-    if (c) gel(merge, ++lmerge) = mkDinfo(c, Harr[2*i-1]);
-  }
-  for (i = 1; i <= lenv; i++)
-  {
-    GEN c = gel(ev,i);
-    if (c) gel(merge, ++lmerge) = mkDinfo(c, Harr[2*i]);
+    GEN c;
+    c = gel(od,t); if (c) gel(merge, ++lmerge) = mkDinfo(c,1-4*t, Harr[2*t-1]);
+    c = gel(ev,t); if (c) gel(merge, ++lmerge) = mkDinfo(c, -4*t, Harr[2*t]);
   }
   setlg(merge, lmerge);
   gen_sort_inplace(merge, NULL, &sort_disclist, NULL);
