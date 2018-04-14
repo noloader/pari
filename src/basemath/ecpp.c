@@ -166,7 +166,7 @@ primorial_vec(ulong x)
   return gerepileupto(av, w);
 }
 
-/* NDinfomqg contains
+/* NDmqg contains
    N, as in the theorem in ??ecpp
    Dinfo, as discussed in the comment about Dinfo
    m, as in the theorem in ??ecpp
@@ -175,17 +175,17 @@ primorial_vec(ulong x)
    sqrt, a list of squareroots
 */
 INLINE GEN
-NDinfomqg_get_N(GEN x) { return gel(x,1); }
+NDmqg_get_N(GEN x) { return gel(x,1); }
 INLINE GEN
-NDinfomqg_get_Dinfo(GEN x) { return gel(x,2); }
+NDmqg_get_Dinfo(GEN x) { return gel(x,2); }
 INLINE GEN
-NDinfomqg_get_m(GEN x) { return gel(x,3); }
+NDmqg_get_m(GEN x) { return gel(x,3); }
 INLINE GEN
-NDinfomqg_get_q(GEN x) { return gel(x,4); }
+NDmqg_get_q(GEN x) { return gel(x,4); }
 INLINE GEN
-NDinfomqg_get_g(GEN x) { return gel(x,5); }
+NDmqg_get_g(GEN x) { return gel(x,5); }
 INLINE GEN
-NDinfomqg_get_sqrt(GEN x) { return gel(x,6); }
+NDmqg_get_sqrt(GEN x) { return gel(x,6); }
 
 /* COMPARATOR FUNCTIONS */
 
@@ -221,12 +221,12 @@ sort_disclist(void *data, GEN x, GEN y)
 }
 
 INLINE long
-NDinfomqg_get_D(GEN x) { return Dinfo_get_D(NDinfomqg_get_Dinfo(x)); }
+NDmqg_get_D(GEN x) { return Dinfo_get_D(NDmqg_get_Dinfo(x)); }
 static int
 sort_NDmq_by_D(void *data, GEN x, GEN y)
 {
-  long d1 = NDinfomqg_get_D(x);
-  long d2 = NDinfomqg_get_D(y);
+  long d1 = NDmqg_get_D(x);
+  long d2 = NDmqg_get_D(y);
   (void)data; return d2 > d1 ? 1 : -1;
 }
 
@@ -561,7 +561,7 @@ j0_find_g(GEN N)
 }
 
 static GEN
-NDinfomqgJ_find_EP(GEN N, long D, GEN m, GEN q, GEN g, GEN J, GEN s)
+NDmqgJ_find_EP(GEN N, long D, GEN m, GEN q, GEN g, GEN J, GEN s)
 {
   GEN A0, B0; Fp_ellfromj(J, N, &A0, &B0);
   long i;
@@ -671,12 +671,12 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
   {
     long i = uel(perm, j);
     GEN J, t, s, a4, P, EP, rt, S = gel(step1, i);
-    GEN Dinfo = NDinfomqg_get_Dinfo(S);
+    GEN Dinfo = NDmqg_get_Dinfo(S);
     long D = Dinfo_get_D(Dinfo), inv = Dinfo_get_bi(Dinfo);
     GEN Dfacp = Dfac_to_p(Dinfo_get_Dfac(Dinfo), primelist);
-    GEN N = NDinfomqg_get_N(S);
-    GEN m = NDinfomqg_get_m(S), q = NDinfomqg_get_q(S);
-    GEN g = NDinfomqg_get_g(S), sq = NDinfomqg_get_sqrt(S);
+    GEN N = NDmqg_get_N(S);
+    GEN m = NDmqg_get_m(S), q = NDmqg_get_q(S);
+    GEN g = NDmqg_get_g(S), sq = NDmqg_get_sqrt(S);
 
     /* C1: Find the appropriate class polynomial modulo N */
     dbg_mode() timer_start(&ti);
@@ -701,7 +701,7 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
     /* D1: Find an elliptic curve E with a point P satisfying the theorem */
     dbg_mode() timer_start(&ti);
     s = diviiexact(m, q);
-    EP = NDinfomqgJ_find_EP(N, D, m, q, g, J, s);
+    EP = NDmqgJ_find_EP(N, D, m, q, g, J, s);
     dbg_mode() err_printf(" %6ld", timer_record(X0, "D1", &ti));
 
     /* D2: Compute for t and s */
