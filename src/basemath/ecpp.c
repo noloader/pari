@@ -185,10 +185,6 @@ INLINE GEN
 NDinfomqg_get_N(GEN x) { return gel(x,1); }
 INLINE GEN
 NDinfomqg_get_Dinfo(GEN x) { return gel(x,2); }
-INLINE long
-NDinfomqg_get_longD(GEN x) { return Dinfo_get_D(NDinfomqg_get_Dinfo(x)); }
-INLINE GEN
-NDinfomqg_get_D(GEN x) { return stoi(NDinfomqg_get_longD(x)); }
 INLINE GEN
 NDinfomqg_get_m(GEN x) { return gel(x,3); }
 INLINE GEN
@@ -231,15 +227,13 @@ sort_disclist(void *data, GEN x, GEN y)
   return 0;
 }
 
-/* Dmq macros */
 INLINE long
-Dmq_get_h(GEN Dmq) { return Dinfo_get_h(gel(Dmq,1)); }
-
+NDinfomqg_get_D(GEN x) { return Dinfo_get_D(NDinfomqg_get_Dinfo(x)); }
 static int
 sort_NDmq_by_D(void *data, GEN x, GEN y)
 {
-  long d1 = NDinfomqg_get_longD(x);
-  long d2 = NDinfomqg_get_longD(y);
+  long d1 = NDinfomqg_get_D(x);
+  long d2 = NDinfomqg_get_D(y);
   (void)data; return d2 > d1 ? 1 : -1;
 }
 
@@ -247,6 +241,8 @@ static int
 sort_Dmq_by_q(void *data, GEN x, GEN y)
 { (void)data; return cmpii(gel(x,3), gel(y,3)); }
 
+INLINE long
+Dmq_get_h(GEN Dmq) { return Dinfo_get_h(gel(Dmq,1)); }
 static int
 sort_Dmq_by_cnum(void *data, GEN x, GEN y)
 {
@@ -531,22 +527,15 @@ polmodular_db_init_allinv(void)
 /*  Input: a discriminant D and a database of modular polynomials,
  * Output: polclass(D,disc_best_modinv(D)) */
 static GEN
-D_polclass(GEN D, GEN *db)
+D_polclass(long D, long inv, GEN *db)
 {
-  long inv = disc_best_modinv(itos(D));
   GEN HD, t = mkvec2(gel(*db, 1), gmael(*db, 2, inv));
   if (inv == 0) t = mkvec2(gel(*db, 1), gen_0);
-  HD = polclass0(itos(D), inv, 0, &t);
+  HD = polclass0(D, inv, 0, &t);
   gel(*db, 1) = gel(t,1);
   if (inv != 0) gmael(*db, 2, inv) = gel(t,2);
   return HD;
 }
-
-/*  Input: N, Dinfo, a root rt mod N of polclass(D,disc_best_modinv(D))
- * Output: a root J mod N of polclass(D) */
-INLINE GEN
-NDinfor_find_J(GEN N, GEN Dinfo, GEN rt)
-{ return Fp_modinv_to_j(rt, Dinfo_get_bi(Dinfo), N); }
 
 static GEN
 random_FpJ(GEN E, GEN N)
@@ -579,10 +568,10 @@ j0_find_g(GEN N)
 }
 
 static GEN
-NDinfomqgJ_find_EP(GEN N, GEN Dinfo, GEN m, GEN q, GEN g, GEN J, GEN s)
+NDinfomqgJ_find_EP(GEN N, long D, GEN m, GEN q, GEN g, GEN J, GEN s)
 {
-  long i, D = Dinfo_get_D(Dinfo);
   GEN A0, B0; Fp_ellfromj(J, N, &A0, &B0);
+  long i;
   for(;;)
   { /* expect one iteration: not worth saving the A's and B's */
     GEN gg, v, A = A0, B = B0;
@@ -679,46 +668,48 @@ FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
 static GEN
 ecpp_step2(GEN step1, GEN *X0)
 {
-  long j;
+  long j, Dprev = 0;
   pari_timer ti;
   GEN perm = gen_indexsort(step1, NULL, &sort_NDmq_by_D);
   GEN step2 = cgetg(lg(step1), t_VEC);
-  GEN HD = NULL, Dprev = gen_0, db = polmodular_db_init_allinv();
+  GEN HD = NULL, db = polmodular_db_init_allinv();
 
   for (j = 1; j < lg(step2); j++)
   {
     long i = uel(perm, j);
     GEN J, t, s, a4, P, EP, rt, S = gel(step1, i);
     GEN Dinfo = NDinfomqg_get_Dinfo(S);
+    long D = Dinfo_get_D(Dinfo), inv = Dinfo_get_bi(Dinfo);
     GEN Dfac = Dinfo_get_Dfac(Dinfo);
-    GEN N = NDinfomqg_get_N(S), D = NDinfomqg_get_D(S);
+    GEN N = NDinfomqg_get_N(S);
     GEN m = NDinfomqg_get_m(S), q = NDinfomqg_get_q(S);
     GEN g = NDinfomqg_get_g(S), sq = NDinfomqg_get_sqrt(S);
 
     /* C1: Find the appropriate class polynomial modulo N */
     dbg_mode() timer_start(&ti);
-    if (!equalii(D, Dprev)) HD = D_polclass(D, &db);
+    if (D != Dprev) HD = D_polclass(D, inv, &db);
     dbg_mode() {
       long tt = timer_record(X0, "C1", &ti);
       err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
       err_printf(ANSI_COLOR_GREEN " D = %8Ps poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
-      if (equalii(D, Dprev)) err_printf(" %6ld", tt);
+      if (D == Dprev) err_printf(" %6ld", tt);
       else err_printf(ANSI_COLOR_BRIGHT_WHITE " %6ld" ANSI_COLOR_RESET, tt);
     }
-    /* C2: Find a root modulo N of the polynomial obtained in previous step */
+    /* C2: Find a root modulo N of polclass(D,inv) */
     dbg_mode() timer_start(&ti);
     rt = FpX_classtower_oneroot(HD, Dfac, sq, N);
     dbg_mode() err_printf(" %6ld", timer_record(X0, "C2", &ti));
 
     /* C3: Convert root from previous step into the appropriate j-invariant */
     dbg_mode() timer_start(&ti);
-    J = NDinfor_find_J(N, Dinfo, rt);
+    J = Fp_modinv_to_j(rt, inv, N); /* root of polclass(D) */
+
     dbg_mode() err_printf(" %6ld", timer_record(X0, "C3", &ti));
 
     /* D1: Find an elliptic curve E with a point P satisfying the theorem */
     dbg_mode() timer_start(&ti);
     s = diviiexact(m, q);
-    EP = NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
+    EP = NDinfomqgJ_find_EP(N, D, m, q, g, J, s);
     dbg_mode() err_printf(" %6ld", timer_record(X0, "D1", &ti));
 
     /* D2: Compute for t and s */
