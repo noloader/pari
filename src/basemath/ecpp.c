@@ -768,8 +768,8 @@ NUV_find_m(GEN Dinfo, GEN N, GEN U, GEN V, long wD)
     else
     {
       if (wD == 4 && i==2) u = shifti(V, 1);
-      if (wD == 6 && i==2) u = shifti(submuliu(U, V, 3), -1);
-      if (wD == 6 && i==4) u = shifti(addmuliu(U, V, 3), -1);
+      else if (wD == 6 && i==2) u = shifti(submuliu(U, V, 3), -1);
+      else if (wD == 6 && i==4) u = shifti(addmuliu(U, V, 3), -1);
       m = addii(Nplus1, u);
     }
     gel(mvec, i+1) = mkvec2(Dinfo, m);
@@ -830,7 +830,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   /* A6: Collect the w(D) cardinalities of E/(F_N) with CM by D */
   dbg_mode() timer_start(&ti);
   wD = D_get_wD(D);
-  vectrunc_append_batch(Dmbatch,  NUV_find_m(Dinfo,N,U,V,wD));
+  vectrunc_append_batch(Dmbatch, NUV_find_m(Dinfo,N,U,V,wD));
   dbg_mode() timer_record(X0, "A6", &ti);
   return wD;
 }
