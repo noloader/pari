@@ -713,11 +713,9 @@ ecpp_step2(GEN step1, GEN *X0)
     dbg_mode() err_printf(" %6ld", timer_record(X0, "D1", &ti));
 
     /* D2: Compute for t and s */
-    dbg_mode() timer_start(&ti);
     t = subii(addiu(N, 1), m); /* t = N+1-m */
     a4 = gmael(EP, 1, 1);
     P = FpJ_to_FpE(gel(EP, 2), N);
-    dbg_mode() err_printf(" %6ld", timer_record(X0, "D2", &ti));
 
     gel(step2, i) = mkvec5(N, t, s, a4, P);
     Dprev = D;
@@ -795,7 +793,6 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   pari_timer ti;
 
   /* A1: Check (p*|N) = 1 for all primes dividing D */
-  dbg_mode() timer_start(&ti);
   l = lg(Dfac);
   for (i = 1; i < l; i++)
   {
@@ -804,17 +801,10 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
     if (s == 0) return -1; /* N is composite */
     if (s < 0) return 0;
   }
-  dbg_mode() timer_record(X0, "A1", &ti);
-
   /* A3: Get square root of D mod N */
   dbg_mode() timer_start(&ti);
   sqrtofDmodN = D_find_discsqrt(N, primelist, Dinfo, sqrtlist, g);
-  dbg_mode() {
-    timer_record(X0, "A3", &ti);
-    if (!equalii(Fp_sqr(sqrtofDmodN, N), addis(N, D)) /* D mod N, D < 0*/ )
-      pari_err_BUG("D_find_discsqrt");
-  }
-
+  dbg_mode() timer_record(X0, "A3", &ti);
   /* A5: Use square root with Cornacchia to solve U^2 + |D|V^2 = 4N */
   dbg_mode() timer_start(&ti);
   corn_succ = cornacchia2_sqrt( absi(stoi(D)), N, sqrtofDmodN, &U, &V);
@@ -823,15 +813,10 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
     dbg_mode() err_printf(ANSI_COLOR_YELLOW "c" ANSI_COLOR_RESET);
     return 0;
   }
-
-  /* We're sticking with this D. */
-  dbg_mode() err_printf(ANSI_COLOR_BRIGHT_YELLOW "D" ANSI_COLOR_RESET);
-
   /* A6: Collect the w(D) cardinalities of E/(F_N) with CM by D */
-  dbg_mode() timer_start(&ti);
+  dbg_mode() err_printf(ANSI_COLOR_BRIGHT_YELLOW "D" ANSI_COLOR_RESET);
   wD = D_get_wD(D);
   vectrunc_append_batch(Dmbatch, NUV_find_m(Dinfo,N,U,V,wD));
-  dbg_mode() timer_record(X0, "A6", &ti);
   return wD;
 }
 
@@ -1132,8 +1117,8 @@ ecpp0(GEN N, GEN param)
   if (expi(N) < 64) return N;
 
   /* Timers and Counters */
-  Tv = mkvec4(zero_zv(6), zero_zv(3), zero_zv(3), zero_zv(2));
-  Cv = mkvec4(zero_zv(6), zero_zv(3), zero_zv(3), zero_zv(2));
+  Tv = mkvec4(zero_zv(5), zero_zv(3), zero_zv(3), zero_zv(1));
+  Cv = mkvec4(zero_zv(5), zero_zv(3), zero_zv(3), zero_zv(1));
   X0 = mkvec3(Tv, Cv, zero_zv(1));
 
   step1 = ecpp_step1(N, param, &X0);
