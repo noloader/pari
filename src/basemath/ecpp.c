@@ -471,34 +471,31 @@ cert_get_J(GEN x)
   return Fp_ellj(a, b, N);
 }
 
-/*  Input: J, N
- * Output: [a, b], a = 3*J*(1728-J) mod N, b = 2*J*(1728-J)^2 mod N */
-static GEN
-Fp_ellfromj(GEN j, GEN N)
+/* Given J, N, set A = 3*J*(1728-J) mod N, B = 2*J*(1728-J)^2 mod N */
+static void
+Fp_ellfromj(GEN j, GEN N, GEN *A, GEN *B)
 {
-  GEN k, jk, a, b;
+  GEN k, jk;
   j = Fp_red(j, N);
-  if (isintzero(j)) return mkvec2(gen_0, gen_1);
-  if (absequalui(umodui(1728, N), j)) return mkvec2(gen_1, gen_0);
+  if (isintzero(j)) { *A = gen_0; *B = gen_1; return; }
+  if (absequalui(umodui(1728,N), j)) { *A = gen_1; *B = gen_0; return; }
   k = Fp_sub(utoi(1728), j, N);
   jk = Fp_mul(j, k, N);
-  a = Fp_mulu(jk, 3, N);
-  b = Fp_mulu(Fp_mul(j, Fp_sqr(k,N), N), 2, N);
-  return mkvec2(a, b);
+  *A = Fp_mulu(jk, 3, N);
+  *B = Fp_mulu(Fp_mul(j, Fp_sqr(k,N), N), 2, N);
 }
 
 /* "Twist factor". Does not cover J = 0, 1728 */
 static GEN
 cert_get_lambda(GEN z)
 {
-  GEN N, J, a, b, AB, aB, bA;
+  GEN N, J, a, b, A, B;
   J = cert_get_J(z);
   N = cert_get_N(z);
   a = cert_get_a4(z);
   b = cert_get_a6(z);
-  AB = Fp_ellfromj(J, N);
-  aB = Fp_mul(a, gel(AB,2), N);
-  bA = Fp_mul(b, gel(AB,1), N); return Fp_div(aB, bA, N);
+  Fp_ellfromj(J, N, &A, &B);
+  return Fp_div(Fp_mul(a,B,N), Fp_mul(b,A,N), N);
 }
 
 /* Solves for T such that if
@@ -551,12 +548,18 @@ INLINE GEN
 NDinfor_find_J(GEN N, GEN Dinfo, GEN rt)
 { return Fp_modinv_to_j(rt, Dinfo_get_bi(Dinfo), N); }
 
-INLINE long
-NmqEP_check(GEN N, GEN q, GEN E, GEN P, GEN s)
+static GEN
+random_FpJ(GEN E, GEN N)
 {
-  GEN a = gel(E,1), mP, sP;
-  sP = FpJ_mul(P, s, a, N); if (FpJ_is_inf(sP)) return 0;
-  mP = FpJ_mul(sP,q, a, N); return FpJ_is_inf(mP);
+  GEN P = random_FpE(gel(E,1), gel(E,2), N);
+  return mkvec3(gel(P,1), gel(P,2), gen_1);
+}
+static GEN
+NqE_check(GEN N, GEN q, GEN a, GEN b, GEN s)
+{
+  GEN mP, sP, E = mkvec2(a, b), P = random_FpJ(E, N);
+  sP = FpJ_mul(P, s, a, N); if (FpJ_is_inf(sP)) return NULL;
+  mP = FpJ_mul(sP,q, a, N); return FpJ_is_inf(mP)? mkvec2(E, P): NULL;
 }
 
 /* Find an elliptic curve E modulo N and a point P on E which corresponds to
@@ -576,52 +579,36 @@ j0_find_g(GEN N)
 }
 
 static GEN
-random_FpJ(GEN A, GEN B, GEN N)
-{
-  GEN P = random_FpE(A, B, N);
-  return FpE_to_FpJ(P);
-}
-
-static GEN
 NDinfomqgJ_find_EP(GEN N, GEN Dinfo, GEN m, GEN q, GEN g, GEN J, GEN s)
 {
   long i, D = Dinfo_get_D(Dinfo);
-  GEN gg;
-  GEN E = Fp_ellfromj(J, N), A = gel(E,1), B = gel(E,2);
-  GEN P = random_FpJ(A, B, N);
-  if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
+  GEN gg, A, B, v;
+  Fp_ellfromj(J, N, &A, &B);
+  if ((v = NqE_check(N, q, A, B, s))) return v;
   switch (D_get_wD(D))
   {
     case 2:
       gg = Fp_sqr(g, N);
       A = Fp_mul(A, gg, N); /* Ag^2 */
       B = Fp_mul(Fp_mul(B, gg, N), g, N); /* Bg^3 */
-      E = mkvec2(A, B);
-      P = random_FpJ(A, B, N);
-      if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
+      if ((v = NqE_check(N, q, A, B, s))) return v;
       else return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
     case 4:
       for (i = 1; i < 4; i++)
       {
         A = Fp_mul(A, g, N); /* Ag */
-        E = mkvec2(A, B);
-        P = random_FpJ(A, B, N);
-        if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
+        if ((v = NqE_check(N, q, A, B, s))) return v;
       }
       return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
     case 6:
       B = Fp_mul(B, g, N); /* Bg */
-      E = mkvec2(A, B);
-      P = random_FpJ(A, B, N);
-      if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
+      if ((v = NqE_check(N, q, A, B, s))) return v;
       g = j0_find_g(N);
       for (i = 1; i < 6; i++)
       {
         B = Fp_mul(B, g, N); /* Bg */
-        if (i % 3 == 0) continue;
-        E = mkvec2(A, B);
-        P = random_FpJ(A, B, N);
-        if (NmqEP_check(N, q, E, P, s)) return mkvec2(E, P);
+        if (i == 3) continue;
+        if ((v = NqE_check(N, q, A, B, s))) return v;
       }
       return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
   }
