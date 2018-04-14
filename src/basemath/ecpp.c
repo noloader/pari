@@ -926,13 +926,12 @@ mkNDmqg(GEN z, GEN N, GEN Dmq, GEN g, GEN sqrtlist)
   GEN NDmqg = mkcol6(N, Dinfo, gel(Dmq,2), gel(Dmq,3), g, sq);
   return mkvec2(NDmqg, z);
 }
-/* If N is small, return [N], else [ NDmqg, therest ] after a recursive call:
- *   NDmqg is a vector of the form [N,D,m,q,g].
- *   therest is the output of a recursive call with N = q
- * For successive D, find a square root of D mod N (g is a quad. non-residue),
- * use it to solve U^2 + |D|V^2 = 4N, then find candidates for m. When
- * enough candidates m, factor the m's of the batch and produce the q's
- * If one of the q's is pseudoprime, recursive call with N = q */
+/* expi(N) > 64. Return [ NDmqg, N_downrun(q) ]; NDmqg is a vector of the form
+ * [N,D,m,q,g,sqrt]. For successive D, find a square root of D mod N (g is a
+ * quadratic non-residue), solve U^2 + |D|V^2 = 4N, then find candidates for m.
+ * When enough m's, batch-factor them to produce the q's. If one of the q's is
+ * pseudoprime, recursive call with N = q. May return gen_0 at toplevel
+ * => N has a small prime divisor */
 static GEN
 N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
 {
@@ -1033,19 +1032,16 @@ N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
         err_printf(ANSI_COLOR_BRIGHT_RED "\n       %5ld bits " ANSI_COLOR_RESET,
                    expi(q)-expiN);
       }
-      /* Cardinality is pseudoprime. Call the next downrun! */
-      if (expi(q) < 64) z = mkvec(q);
+      /* q is pseudoprime */
+      if (expi(q) < 64) z = gen_1; /* q is prime; sentinel */
       else
       {
-         z = N_downrun(q, param, X0, depth, persevere_next);
-        if (!z || z == gen_0) {
-          dbg_mode() {
-            char o = persevere? '<': '[';
-            char c = persevere? '>': ']';
-            err_printf(ANSI_COLOR_CYAN "\n%c %3d | %4ld bits%c "
-                       ANSI_COLOR_RESET, o, *depth, expiN, c);
-          }
-          continue; /* Downrun failed [gen_0 is normally impossible] */
+        z = N_downrun(q, param, X0, depth, persevere_next);
+        if (!z) {
+          dbg_mode() { char o = persevere? '<': '[', c = persevere? '>': ']';
+                       err_printf(ANSI_COLOR_CYAN "\n%c %3d | %4ld bits%c "
+                                  ANSI_COLOR_RESET, o, *depth, expiN, c); }
+          continue; /* downrun failed */
         }
       }
       return mkNDmqg(z, N, Dmq, g, sqrtlist); /* SUCCESS */
