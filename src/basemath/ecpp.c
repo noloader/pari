@@ -656,38 +656,31 @@ FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
 {
   pari_timer ti;
   pari_sp av = avma;
-  long i, l;
-  GEN V, v, R, C, N = NULL;
+  GEN C;
   dbg_mode() timer_start(&ti);
-  if (degpol(P) >= 1)
+  if (degpol(P) > 1)
   {
-    V = realgenusfield(Dfac, sq, p);
-    v = gel(V, 1); R = gel(V,2);
-    l = lg(v)-1;
-    for (i=1; i<=l; i++)
+    GEN N = NULL, V = realgenusfield(Dfac, sq, p), v = gel(V,1), R = gel(V,2);
+    long i, l = lg(v);
+    for (i = 1; i < l; i++)
     {
-      ulong d = uel(v,i);
-      GEN Q = deg2pol_shallow(gen_1, gen_0, stoi(-(long)d), 1);
-      if (!N)
-      {
-        N = Q;
-        P = liftpol_shallow(gmael(nffactor(N, P),1,1));
-      }
+      GEN Q = deg2pol_shallow(gen_1, gen_0, stoi(-v[i]), 1);
+      if (!N) N = Q;
       else
       {
         GEN cm = polcompositum0(N,Q,3);
-        N = gel(cm, 1); P = gsubst(P, 1, gel(cm, 2));
-        P = liftpol_shallow(gmael(nffactor(N, P),1,1));
+        N = gel(cm,1); P = gsubst(P, 1, gel(cm,2));
       }
+      P = liftpol_shallow(gmael(nffactor(N,P),1,1));
     }
+    if (N)
+    {
+      P = FpXY_evalx(Q_primpart(P), R, p);
+      dbg_mode() err_printf(ANSI_COLOR_BRIGHT_GREEN" %6ld[%ld]"ANSI_COLOR_RESET,
+                            timer_delay(&ti), l-1);
+    } else
+      dbg_mode() err_printf("          ");
   }
-  if (N)
-  {
-    P = FpXY_evalx(Q_primpart(P), R, p);
-    dbg_mode() err_printf(ANSI_COLOR_BRIGHT_GREEN " %6ld[%ld]" ANSI_COLOR_RESET
-                        , timer_delay(&ti), l);
-  } else
-    dbg_mode() err_printf("          ");
   C = FpX_oneroot_split(P, p);
   dbg_mode() err_printf(" %6ld", timer_delay(&ti));
   return gerepileupto(av, C);
