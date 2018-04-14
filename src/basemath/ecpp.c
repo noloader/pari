@@ -691,7 +691,7 @@ ecpp_step2(GEN step1, GEN *X0)
     dbg_mode() {
       long tt = timer_record(X0, "C1", &ti);
       err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
-      err_printf(ANSI_COLOR_GREEN " D = %8Ps poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
+      err_printf(ANSI_COLOR_GREEN " D = %8ld poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
       if (D == Dprev) err_printf(" %6ld", tt);
       else err_printf(ANSI_COLOR_BRIGHT_WHITE " %6ld" ANSI_COLOR_RESET, tt);
     }
