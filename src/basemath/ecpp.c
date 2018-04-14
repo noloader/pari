@@ -747,7 +747,7 @@ D_find_discsqrt(GEN N, GEN primelist, GEN Dinfo, GEN sqrtlist, GEN g)
     }
     s = s? Fp_mul(s, sj, N): sj;
   }
-  return s? s: gen_1;
+  return s;/* != NULL */
 }
 
 /* Given a solution U, V to U^2 + |D|V^2 = 4N, this find all the possible
