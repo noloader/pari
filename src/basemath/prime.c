@@ -816,7 +816,7 @@ BPSW_isprime(GEN N)
   if (BPSW_isprime_small(N)) return 1;
   av = avma; P = BPSW_try_PL(N);
   if (!P) /* not smooth enough */
-    t = expi(N) < 1500? isprimeAPRCL(N): isprimeECPP(N);
+    t = expi(N) < 768? isprimeAPRCL(N): isprimeECPP(N);
   else
     t = (typ(P) == t_INT)? 0: PL_certify(N,P);
   avma = av; return t;
