@@ -728,38 +728,26 @@ ecpp_step2(GEN step1, GEN *X0)
 
 /* start of functions for step 1 */
 
-/* This returns the square root modulo N of the ith entry of the primelist.
-   If this square root is already in sqrtlist, simply return it.
-   Otherwise, compute it, save it and return it.
-   g is a quadratic non-residue that is needed
-     somehow in the algorithm for taking square roots modulo N.
-*/
-static GEN
-p_find_primesqrt(GEN N, GEN primelist, GEN sqrtlist, long i, GEN g)
-{
-  if (!signe(gel(sqrtlist,i)))
-  {
-    long p = uel(primelist, i);
-    dbg_mode() err_printf(ANSI_COLOR_MAGENTA "S" ANSI_COLOR_RESET);
-    /* A4: Get the square root of a prime factor of D. */
-    gel(sqrtlist, i) = Fp_sqrt_i(stoi(p), g, N); /* NULL if invalid. */
-  }
-  return gel(sqrtlist, i);
-}
-
-/* This finds the legit square root of D modulo N where D is the discriminant
- * in Dinfo: find the square root modulo N of each prime p dividing D; then
- * assemble the actual square root of D by multiplying the prime square roots */
+/* This finds the square root of Dinfo->D modulo N: find the square root modulo
+ * N of each prime p dividing D and multiply them out */
 static GEN
 D_find_discsqrt(GEN N, GEN primelist, GEN Dinfo, GEN sqrtlist, GEN g)
 {
   GEN s = NULL, Dfac = Dinfo_get_Dfac(Dinfo);
-  long i, lgDfac = lg(Dfac);
-  for (i = 1; i < lgDfac; i++)
+  long i, l = lg(Dfac);
+  for (i = 1; i < l; i++)
   {
-    GEN sqrtfi = p_find_primesqrt(N, primelist, sqrtlist, uel(Dfac, i), g);
-    if (!sqrtfi) pari_err_BUG("D_find_discsqrt"); ; /* when N composite ? */
-    s = s? Fp_mul(s, sqrtfi, N): sqrtfi;
+    long j = Dfac[i];
+    GEN sj = gel(sqrtlist,j);
+    if (!signe(sj))
+    {
+      GEN p = stoi(primelist[j]);
+      dbg_mode() err_printf(ANSI_COLOR_MAGENTA "S" ANSI_COLOR_RESET);
+      /* A4: Get the square root of a prime factor of D. */
+      sj = gel(sqrtlist, j) = Fp_sqrt_i(p, g, N);
+      if (!sj) pari_err_BUG("D_find_discsqrt"); ; /* possible if N composite */
+    }
+    s = s? Fp_mul(s, sj, N): sj;
   }
   return s? s: gen_1;
 }
