@@ -582,38 +582,39 @@ static GEN
 NDinfomqgJ_find_EP(GEN N, GEN Dinfo, GEN m, GEN q, GEN g, GEN J, GEN s)
 {
   long i, D = Dinfo_get_D(Dinfo);
-  GEN gg, A, B, v;
-  Fp_ellfromj(J, N, &A, &B);
-  if ((v = NqE_check(N, q, A, B, s))) return v;
-  switch (D_get_wD(D))
-  {
-    case 2:
-      gg = Fp_sqr(g, N);
-      A = Fp_mul(A, gg, N); /* Ag^2 */
-      B = Fp_mul(Fp_mul(B, gg, N), g, N); /* Bg^3 */
-      if ((v = NqE_check(N, q, A, B, s))) return v;
-      else return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
-    case 4:
-      for (i = 1; i < 4; i++)
-      {
-        A = Fp_mul(A, g, N); /* Ag */
+  GEN A0, B0; Fp_ellfromj(J, N, &A0, &B0);
+  for(;;)
+  { /* expect one iteration: not worth saving the A's and B's */
+    GEN gg, v, A = A0, B = B0;
+    if ((v = NqE_check(N, q, A, B, s))) return v;
+    switch (D_get_wD(D))
+    {
+      case 2:
+        gg = Fp_sqr(g, N);
+        A = Fp_mul(A, gg, N);
+        B = Fp_mul(Fp_mul(B, gg, N), g, N);
         if ((v = NqE_check(N, q, A, B, s))) return v;
-      }
-      return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
-    case 6:
-      B = Fp_mul(B, g, N); /* Bg */
-      if ((v = NqE_check(N, q, A, B, s))) return v;
-      g = j0_find_g(N);
-      for (i = 1; i < 6; i++)
-      {
-        B = Fp_mul(B, g, N); /* Bg */
-        if (i == 3) continue;
+        break;
+      case 4:
+        for (i = 1; i < 4; i++)
+        {
+          A = Fp_mul(A, g, N);
+          if ((v = NqE_check(N, q, A, B, s))) return v;
+        }
+        break;
+      default: /* 6 */
+        B = Fp_mul(B, g, N);
         if ((v = NqE_check(N, q, A, B, s))) return v;
-      }
-      return NDinfomqgJ_find_EP(N, Dinfo, m, q, g, J, s);
+        g = j0_find_g(N);
+        for (i = 1; i < 6; i++)
+        {
+          B = Fp_mul(B, g, N);
+          if (i == 3) continue;
+          if ((v = NqE_check(N, q, A, B, s))) return v;
+        }
+        break;
+    }
   }
-  pari_err(e_BUG, "NDinfomqgJ_find_EP");
-  return NULL;
 }
 
 /* Convert the disc. factorisation of a genus field to the
