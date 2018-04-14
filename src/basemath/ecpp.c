@@ -166,13 +166,6 @@ primorial_vec(ulong x)
   return gerepileupto(av, w);
 }
 
-INLINE GEN
-ecpp_param_get_primorial(GEN param, long v)
-{
-  GEN primorial_vec = ecpp_param_get_primorial_vec(param);
-  return gel(primorial_vec, v);
-}
-
 /* NDinfomqg contains
    N, as in the theorem in ??ecpp
    Dinfo, as discussed in the comment about Dinfo
@@ -703,7 +696,6 @@ ecpp_step2(GEN step1, GEN *X0)
     /* C3: Convert root from previous step into the appropriate j-invariant */
     dbg_mode() timer_start(&ti);
     J = Fp_modinv_to_j(rt, inv, N); /* root of polclass(D) */
-
     dbg_mode() err_printf(" %6ld", timer_record(X0, "C3", &ti));
 
     /* D1: Find an elliptic curve E with a point P satisfying the theorem */
@@ -877,29 +869,32 @@ Dmvec_batchfactor(GEN Dmvec, GEN primorial)
   return v;
 }
 
-/* [maxsqrt, maxpcdg, tdivexp] specifying good parameters for ecpp */
+/* return good parameters [maxsqrt, maxpcdg, tdivexp] for ecpp(N) */
 static GEN
-tunevec(GEN N, GEN param)
+tunevec(long expiN, GEN param)
 {
   GEN T = ecpp_param_get_tune(param);
-  long e = expi(N), i, l = lg(T)-1;
-  for (i = 1; i < l; i++)
-    if (mael(T,i,4) == 0 || e <= mael(T,i,4)) break;
-  return gel(T,i);
+  long i, n = lg(T)-1;
+  for (i = 1; i < n; i++) { GEN x = gel(T,i); if (expiN <= x[4]) return x; }
+  return gel(T,n);
 }
 static long
-tunevec_tdivbd(GEN N, GEN param) { return uel(tunevec(N, param), 3); }
+tunevec_tdivbd(long expiN, GEN param) { return uel(tunevec(expiN, param), 3); }
 static long
-tunevec_batchsize(GEN N, GEN param)
-{ long b = tunevec_tdivbd(N, param); return (28-b < 0 ? 0 : 28-b); }
+tunevec_batchsize(long expiN, GEN param)
+{
+  long t, b = 28 - tunevec_tdivbd(expiN, param);
+  if (b < 0) return expiN;
+  t = expiN >> b; return t < 1? 1: t;
+}
 
 static GEN
-Dmbatch_factor_Dmqvec(GEN N, GEN* X0, GEN Dmbatch, GEN param)
+Dmbatch_factor_Dmqvec(GEN N, long expiN, GEN* X0, GEN Dmbatch, GEN param)
 {
   pari_sp av = avma;
   pari_timer ti;
-  GEN primorial = ecpp_param_get_primorial(param, tunevec_tdivbd(N, param)-19);
-  GEN Dmqvec;
+  GEN Dmqvec, primorial_vec = ecpp_param_get_primorial_vec(param);
+  GEN primorial = gel(primorial_vec, tunevec_tdivbd(expiN, param)-19);
 
   /* B1: Factor by batch */
   dbg_mode() timer_start(&ti);
@@ -950,10 +945,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   primelist = ecpp_param_get_primelist(param);
   disclist = ecpp_param_get_disclist(param);
   lgdisclist = lg(disclist);
-
-  /* Precomputation for batch size t. */
-  t = expiN >> tunevec_batchsize(N, param);
-  if (t < 1) t = 1;
+  t = tunevec_batchsize(expiN, param);
 
   /* Precomputation for taking square roots, g needed for Fp_sqrt_i */
   g = Fp_2gener(N); if (!g) return gen_0; /* Composite if this happens. */
@@ -1017,7 +1009,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     /* PHASE II: Find the corresponding q's for the m's found. Use Dmbatch */
     /* Find coresponding q of the candidate m's. */
     dbg_mode() timer_start(&F);
-    Dmqlist = Dmbatch_factor_Dmqvec(N, X0, Dmbatch, param);
+    Dmqlist = Dmbatch_factor_Dmqvec(N, expiN, X0, Dmbatch, param);
     if (Dmqlist == NULL) continue; /* none left => next discriminant. */
 
     /* If we are cheating by adding class numbers, sort by class number */
