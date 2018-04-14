@@ -124,7 +124,7 @@ ecpp_primelist_init(long maxsqrt)
 }
 
 static GEN
-Dfac_to_disc(GEN x, GEN P) { pari_APPLY_long(uel(P,x[i])); }
+Dfac_to_p(GEN x, GEN P) { pari_APPLY_long(uel(P,x[i])); }
 static GEN
 Dfac_to_roots(GEN x, GEN P) { pari_APPLY_type(t_VEC, gel(P,x[i])); }
 
@@ -659,7 +659,7 @@ FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
 /* This uses [N, D, m, q] from step 1 to find the appropriate j-invariants
  * to be used in step 3. Step 2 is divided into substeps 2a, 2b, 2c */
 static GEN
-ecpp_step2(GEN step1, GEN *X0)
+ecpp_step2(GEN step1, GEN *X0, GEN primelist)
 {
   long j, Dprev = 0;
   pari_timer ti;
@@ -673,7 +673,7 @@ ecpp_step2(GEN step1, GEN *X0)
     GEN J, t, s, a4, P, EP, rt, S = gel(step1, i);
     GEN Dinfo = NDinfomqg_get_Dinfo(S);
     long D = Dinfo_get_D(Dinfo), inv = Dinfo_get_bi(Dinfo);
-    GEN Dfac = Dinfo_get_Dfac(Dinfo);
+    GEN Dfacp = Dfac_to_p(Dinfo_get_Dfac(Dinfo), primelist);
     GEN N = NDinfomqg_get_N(S);
     GEN m = NDinfomqg_get_m(S), q = NDinfomqg_get_q(S);
     GEN g = NDinfomqg_get_g(S), sq = NDinfomqg_get_sqrt(S);
@@ -690,7 +690,7 @@ ecpp_step2(GEN step1, GEN *X0)
     }
     /* C2: Find a root modulo N of polclass(D,inv) */
     dbg_mode() timer_start(&ti);
-    rt = FpX_classtower_oneroot(HD, Dfac, sq, N);
+    rt = FpX_classtower_oneroot(HD, Dfacp, sq, N);
     dbg_mode() err_printf(" %6ld", timer_record(X0, "C2", &ti));
 
     /* C3: Convert root from previous step into the appropriate j-invariant */
@@ -718,12 +718,12 @@ ecpp_step2(GEN step1, GEN *X0)
 
 /* start of functions for step 1 */
 
-/* This finds the square root of Dinfo->D modulo N: find the square root modulo
- * N of each prime p dividing D and multiply them out */
+/* This finds the square root of D modulo N [given by Dfac]: find the square
+ * root modulo N of each prime p dividing D and multiply them out */
 static GEN
-D_find_discsqrt(GEN N, GEN primelist, GEN Dinfo, GEN sqrtlist, GEN g)
+D_find_discsqrt(GEN N, GEN primelist, GEN Dfac, GEN sqrtlist, GEN g)
 {
-  GEN s = NULL, Dfac = Dinfo_get_Dfac(Dinfo);
+  GEN s = NULL;
   long i, l = lg(Dfac);
   for (i = 1; i < l; i++)
   {
@@ -795,7 +795,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   }
   /* A3: Get square root of D mod N */
   dbg_mode() timer_start(&ti);
-  sqrtofDmodN = D_find_discsqrt(N, primelist, Dinfo, sqrtlist, g);
+  sqrtofDmodN = D_find_discsqrt(N, primelist, Dfac, sqrtlist, g);
   dbg_mode() timer_record(X0, "A3", &ti);
   /* A5: Use square root with Cornacchia to solve U^2 + |D|V^2 = 4N */
   dbg_mode() timer_start(&ti);
@@ -937,8 +937,6 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   ulong maxpcdg;
   GEN primelist, disclist, sqrtlist, g, Dmbatch, kroP;
 
-  if (expiN < 64) return mkvec(N);
-
   dbg_mode() timer_start(&T);
   (*depth)++; /* we're going down the tree. */
   maxpcdg = ecpp_param_get_maxpcdg(param);
@@ -1032,21 +1030,24 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
                    expi(q)-expiN);
       }
       /* Cardinality is pseudoprime. Call the next downrun! */
-      ret = N_downrun_NDinfomq(q, param, X0, depth, persevere_next);
-
-      /* Downrun failed [gen_0 is normally impossible]. */
-      if (ret == NULL || ret == gen_0) {
-        dbg_mode() {
-          char o = persevere? '<': '[';
-          char c = persevere? '>': ']';
-          err_printf(ANSI_COLOR_CYAN "\n%c %3d | %4ld bits%c " ANSI_COLOR_RESET,
-                     o, *depth, expiN, c);
+      if (expi(q) < 64)
+        ret = mkvec(N);
+      else
+      {
+        ret = N_downrun_NDinfomq(q, param, X0, depth, persevere_next);
+        /* Downrun failed [gen_0 is normally impossible]. */
+        if (ret == NULL || ret == gen_0) {
+          dbg_mode() {
+            char o = persevere? '<': '[';
+            char c = persevere? '>': ']';
+            err_printf(ANSI_COLOR_CYAN "\n%c %3d | %4ld bits%c "
+                       ANSI_COLOR_RESET, o, *depth, expiN, c);
+          }
+          continue;
         }
-        continue;
       }
       /* Downrun succeeded. */
       Dfac = Dinfo_get_Dfac(Dinfo);
-      gel(Dinfo, 2) = Dfac_to_disc(Dfac, primelist);
       NDinfomq = mkcol6(N, Dinfo, m, q, g, Dfac_to_roots(Dfac,sqrtlist));
       return mkvec2(NDinfomq, ret);
     }
@@ -1076,9 +1077,8 @@ ecpp_flattencert(GEN x, long depth)
   return ret;
 }
 
-/* This calls the first downrun.
- * Then unravels the skeleton of the certificate.
- * This returns one of the following:
+/* Call the first downrun then unravel the skeleton of the certificate.
+ * Assume expi(N) < 64. This returns one of the following:
  * - a vector of the form [N, D, m, q, y]
  * - gen_0 (if N is composite)
  * - NULL (if FAIL) */
@@ -1117,7 +1117,7 @@ ecpp0(GEN N, GEN param)
   if (step1 == NULL) { avma = av; return NULL; }
   if (typ(step1) != t_VEC) { avma = av; return gen_0; }
 
-  answer = ecpp_step2(step1, &X0);
+  answer = ecpp_step2(step1, &X0, ecpp_param_get_primelist(param));
 
   dbg_mode() {
   for (i = 1; i < lg(Tv); i++)
