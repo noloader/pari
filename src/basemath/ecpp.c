@@ -671,12 +671,11 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
   {
     long i = uel(perm, j);
     GEN J, t, s, a4, P, EP, rt, S = gel(step1, i);
-    GEN Dinfo = NDmqg_get_Dinfo(S);
-    long D = Dinfo_get_D(Dinfo), inv = Dinfo_get_bi(Dinfo);
-    GEN Dfacp = Dfac_to_p(Dinfo_get_Dfac(Dinfo), primelist);
-    GEN N = NDmqg_get_N(S);
+    GEN N = NDmqg_get_N(S), Dinfo = NDmqg_get_Dinfo(S);
     GEN m = NDmqg_get_m(S), q = NDmqg_get_q(S);
     GEN g = NDmqg_get_g(S), sq = NDmqg_get_sqrt(S);
+    long D = Dinfo_get_D(Dinfo), inv = Dinfo_get_bi(Dinfo);
+    GEN Dfacp = Dfac_to_p(Dinfo_get_Dfac(Dinfo), primelist);
 
     /* C1: Find the appropriate class polynomial modulo N */
     dbg_mode() timer_start(&ti);
@@ -920,7 +919,13 @@ Dmq_isgoodq(GEN Dmq, GEN* X0)
   dbg_mode() timer_record(X0, "B3", &ti);
   return s; /* did not find for this m */
 }
-
+static GEN
+mkNDmqg(GEN z, GEN N, GEN Dmq, GEN g, GEN sqrtlist)
+{
+  GEN Dinfo = gel(Dmq,1), sq =  Dfac_to_roots(Dinfo_get_Dfac(Dinfo),sqrtlist);
+  GEN NDmqg = mkcol6(N, Dinfo, gel(Dmq,2), gel(Dmq,3), g, sq);
+  return mkvec2(NDmqg, z);
+}
 /* If N is small, return [N], else [ NDmqg, therest ] after a recursive call:
  *   NDmqg is a vector of the form [N,D,m,q,g].
  *   therest is the output of a recursive call with N = q
@@ -929,7 +934,7 @@ Dmq_isgoodq(GEN Dmq, GEN* X0)
  * enough candidates m, factor the m's of the batch and produce the q's
  * If one of the q's is pseudoprime, recursive call with N = q */
 static GEN
-N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
+N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
 {
   pari_timer T, ti;
   long lgdisclist, lprimelist, t, i, j, expiN = expi(N);
@@ -1018,8 +1023,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     lgDmqlist = lg(Dmqlist);
     for (j = 1; j < lgDmqlist; j++)
     {
-      GEN ret, Dfac, NDinfomq, Dmq = gel(Dmqlist,j);
-      GEN Dinfo = gel(Dmq,1), m = gel(Dmq,2), q = gel(Dmq,3);
+      GEN z, Dmq = gel(Dmqlist,j), q = gel(Dmq,3);
       dbg_mode() err_printf(ANSI_COLOR_WHITE "." ANSI_COLOR_RESET);
       if (!Dmq_isgoodq(Dmq, X0)) continue;
 
@@ -1030,29 +1034,23 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
                    expi(q)-expiN);
       }
       /* Cardinality is pseudoprime. Call the next downrun! */
-      if (expi(q) < 64)
-        ret = mkvec(N);
+      if (expi(q) < 64) z = mkvec(q);
       else
       {
-        ret = N_downrun_NDinfomq(q, param, X0, depth, persevere_next);
-        /* Downrun failed [gen_0 is normally impossible]. */
-        if (ret == NULL || ret == gen_0) {
+         z = N_downrun(q, param, X0, depth, persevere_next);
+        if (!z || z == gen_0) {
           dbg_mode() {
             char o = persevere? '<': '[';
             char c = persevere? '>': ']';
             err_printf(ANSI_COLOR_CYAN "\n%c %3d | %4ld bits%c "
                        ANSI_COLOR_RESET, o, *depth, expiN, c);
           }
-          continue;
+          continue; /* Downrun failed [gen_0 is normally impossible] */
         }
       }
-      /* Downrun succeeded. */
-      Dfac = Dinfo_get_Dfac(Dinfo);
-      NDinfomq = mkcol6(N, Dinfo, m, q, g, Dfac_to_roots(Dfac,sqrtlist));
-      return mkvec2(NDinfomq, ret);
+      return mkNDmqg(z, N, Dmq, g, sqrtlist); /* SUCCESS */
     }
-    /* We have exhausted all the discriminants. */
-    if (i >= lgdisclist) FAIL = 1;
+    if (i >= lgdisclist) break; /* discriminants exhausted: FAIL */
     if (Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg)
     {
       dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  !" ANSI_COLOR_RESET);
@@ -1060,7 +1058,7 @@ N_downrun_NDinfomq(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     }
   }
   /* FAILED: Out of discriminants. */
-  if (X0) umael(*X0, 3, 1)++; /* FAILS++ */
+  umael(*X0, 3, 1)++; /* FAILS++ */
   dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  X" ANSI_COLOR_RESET);
   (*depth)--; return NULL;
 }
@@ -1087,7 +1085,7 @@ ecpp_step1(GEN N, GEN param, GEN* X0)
 {
   pari_sp av = avma;
   long depth = 0;
-  GEN downrun = N_downrun_NDinfomq(N, param, X0, &depth, 1);
+  GEN downrun = N_downrun(N, param, X0, &depth, 1);
   if (downrun == NULL) { avma = av; return NULL; }
   return gerepilecopy(av, ecpp_flattencert(downrun, depth));
 }
