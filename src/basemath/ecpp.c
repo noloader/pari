@@ -564,10 +564,10 @@ static GEN
 NDmqgJ_find_EP(GEN N, long D, GEN m, GEN q, GEN g, GEN J, GEN s)
 {
   GEN A0, B0; Fp_ellfromj(J, N, &A0, &B0);
-  long i;
   for(;;)
   { /* expect one iteration: not worth saving the A's and B's */
     GEN gg, v, A = A0, B = B0;
+    long i;
     if ((v = NqE_check(N, q, A, B, s))) return v;
     switch (D_get_wD(D))
     {
