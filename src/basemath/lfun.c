@@ -888,8 +888,9 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
   {
     GEN K = theta_get_K(thetainit);
     GEN vroots = mkvroots(d, limt, prec);
+    pari_sp av;
     t = gpow(t, gdivgs(gen_2,d), prec);
-    S = gen_0;
+    S = gen_0; av = avma;
     for (n = 1; n <= limt; ++n)
     {
       GEN nt, an = get_an(vecan, n);
@@ -897,6 +898,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
       nt = gmul(gel(vroots,n), t);
       if (m) an = gmul(an, powuu(n, m));
       S = gadd(S, gmul(an, gammamellininvrt(K, nt, bitprec)));
+      if ((n & 0x1ff) == 0) S = gerepileupto(av, S);
     }
     if (m) S = gdiv(S, gpowgs(sqN, m));
     return gerepileupto(ltop, S);
