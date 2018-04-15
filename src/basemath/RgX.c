@@ -2289,9 +2289,9 @@ RgXn_sqrhigh(GEN f, long n2, long n)
 }
 
 GEN
-RgXn_inv(GEN f, long e)
+RgXn_inv_i(GEN f, long e)
 {
-  pari_sp av = avma, av2;
+  pari_sp av;
   ulong mask;
   GEN W, a;
   long v = varn(f), n = 1;
@@ -2303,14 +2303,14 @@ RgXn_inv(GEN f, long e)
   {
     GEN b;
     if (degpol(f) <= 0 || gequal0(b = gel(f,3))) return scalarpol(a, v);
-    b = gneg(b);
+    av = avma; b = gneg(b);
     if (!gequal1(a)) b = gmul(b, gsqr(a));
     W = deg1pol_shallow(b, a, v);
-    return gerepilecopy(av, W);
+    return gcopy(W);
   }
   W = scalarpol_shallow(ginv(gel(f,2)),v);
   mask = quadratic_prec_mask(e);
-  av2 = avma;
+  av = avma;
   for (;mask>1;)
   {
     GEN u, fr;
@@ -2320,14 +2320,17 @@ RgXn_inv(GEN f, long e)
     fr = RgXn_red_shallow(f, n);
     u = RgXn_mul(W, RgXn_mulhigh(fr, W, n2, n), n-n2);
     W = RgX_sub(W, RgX_shift_shallow(u, n2));
-    if (gc_needed(av2,2))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_inv, e = %ld", n);
-      W = gerepileupto(av2, W);
+      W = gerepileupto(av, W);
     }
   }
-  return gerepileupto(av, W);
+  return W;
 }
+GEN
+RgXn_inv(GEN f, long e)
+{ pari_sp av = avma; return gerepileupto(av, RgXn_inv_i(f,e)); }
 
 GEN
 RgXn_exp(GEN h, long e)

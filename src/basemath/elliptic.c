@@ -5760,7 +5760,7 @@ ellnflocal(void *S, GEN p, long n)
     T = T? ZX_mul(T, T2): T2;
   }
   if (!T) { avma = av; return pol_1(0); }
-  return gerepileupto(av, RgXn_inv(T, n));
+  return gerepileupto(av, RgXn_inv_i(T, n));
 }
 
 static GEN

@@ -1149,7 +1149,7 @@ ser_inv(GEN b)
 {
   pari_sp av = avma;
   long l = lg(b), e = valp(b), prec = l-2;
-  GEN y = RgXn_inv(ser2pol_i(b, l), prec);
+  GEN y = RgXn_inv_i(ser2pol_i(b, l), prec);
   GEN x = RgX_to_ser(y, l);
   setvalp(x, -e); return gerepilecopy(av, x);
 }

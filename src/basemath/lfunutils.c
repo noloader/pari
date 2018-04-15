@@ -1062,6 +1062,7 @@ ellsymsq_badp(GEN c4, GEN c6, GEN p, long e, long *pb)
 static GEN
 ellsymsq(void *D, GEN p, long n)
 {
+  pari_sp av = avma;
   GEN E = (GEN)D;
   GEN T, ap = sqri(ellap(E, p));
   long e = Z_pval(ellQ_get_N(E), p);
@@ -1087,7 +1088,7 @@ ellsymsq(void *D, GEN p, long n)
     GEN u3 = powiu(p,3);
     T = mkpoln(4,negi(u3),u2,negi(u1),gen_1);
   }
-  return RgXn_inv(T,n);
+  return gerepileupto(av, RgXn_inv_i(T,n));
 }
 static GEN
 vecan_ellsymsq(GEN an, long n)
@@ -1260,7 +1261,7 @@ dirgenus2(void *E, GEN p, long n)
     long t = Flx_genus2trace_naive(Qp, pp);
     f = deg1pol_shallow(stoi(t), gen_1, 0);
   }
-  return gerepileupto(av, RgXn_inv(f, n));
+  return gerepileupto(av, RgXn_inv_i(f, n));
 }
 
 static GEN
