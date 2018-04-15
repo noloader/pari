@@ -16,23 +16,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #define dbg_mode() if (DEBUGLEVEL >= 2)
 
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_WHITE   "\x1b[37m"
+#define ANSI_RED     "\x1b[31m"
+#define ANSI_GREEN   "\x1b[32m"
+#define ANSI_YELLOW  "\x1b[33m"
+#define ANSI_BLUE    "\x1b[34m"
+#define ANSI_MAGENTA "\x1b[35m"
+#define ANSI_CYAN    "\x1b[36m"
+#define ANSI_WHITE   "\x1b[37m"
 
-#define ANSI_COLOR_BRIGHT_RED     "\x1b[31;1m"
-#define ANSI_COLOR_BRIGHT_GREEN   "\x1b[32;1m"
-#define ANSI_COLOR_BRIGHT_YELLOW  "\x1b[33;1m"
-#define ANSI_COLOR_BRIGHT_BLUE    "\x1b[34;1m"
-#define ANSI_COLOR_BRIGHT_MAGENTA "\x1b[35;1m"
-#define ANSI_COLOR_BRIGHT_CYAN    "\x1b[36;1m"
-#define ANSI_COLOR_BRIGHT_WHITE   "\x1b[37;1m"
+#define ANSI_BRIGHT_RED     "\x1b[31;1m"
+#define ANSI_BRIGHT_GREEN   "\x1b[32;1m"
+#define ANSI_BRIGHT_YELLOW  "\x1b[33;1m"
+#define ANSI_BRIGHT_BLUE    "\x1b[34;1m"
+#define ANSI_BRIGHT_MAGENTA "\x1b[35;1m"
+#define ANSI_BRIGHT_CYAN    "\x1b[36;1m"
+#define ANSI_BRIGHT_WHITE   "\x1b[37;1m"
 
-#define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_RESET   "\x1b[0m"
 
 /* THINGS THAT DON'T BELONG */
 
@@ -646,7 +646,7 @@ FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
     if (N)
     {
       P = FpXY_evalx(Q_primpart(P), R, p);
-      dbg_mode() err_printf(ANSI_COLOR_BRIGHT_GREEN" %6ld[%ld]"ANSI_COLOR_RESET,
+      dbg_mode() err_printf(ANSI_BRIGHT_GREEN " %6ld[%ld]" ANSI_RESET,
                             timer_delay(&ti), l-1);
     } else
       dbg_mode() err_printf("          ");
@@ -682,10 +682,10 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
     if (D != Dprev) HD = D_polclass(D, inv, &db);
     dbg_mode() {
       long tt = timer_record(X0, "C1", &ti);
-      err_printf(ANSI_COLOR_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_COLOR_RESET, i, expi(N));
-      err_printf(ANSI_COLOR_GREEN " D = %8ld poldeg = %4ld" ANSI_COLOR_RESET, D, degpol(HD));
+      err_printf(ANSI_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_RESET, i, expi(N));
+      err_printf(ANSI_GREEN " D = %8ld poldeg = %4ld" ANSI_RESET, D, degpol(HD));
       if (D == Dprev) err_printf(" %6ld", tt);
-      else err_printf(ANSI_COLOR_BRIGHT_WHITE " %6ld" ANSI_COLOR_RESET, tt);
+      else err_printf(ANSI_BRIGHT_WHITE " %6ld" ANSI_RESET, tt);
     }
     /* C2: Find a root modulo N of polclass(D,inv) */
     dbg_mode() timer_start(&ti);
@@ -731,7 +731,7 @@ D_find_discsqrt(GEN N, GEN primelist, GEN Dfac, GEN sqrtlist, GEN g)
     if (!signe(sj))
     {
       GEN p = stoi(primelist[j]);
-      dbg_mode() err_printf(ANSI_COLOR_MAGENTA "S" ANSI_COLOR_RESET);
+      dbg_mode() err_printf(ANSI_MAGENTA "S" ANSI_RESET);
       /* A4: Get the square root of a prime factor of D. */
       sj = gel(sqrtlist, j) = Fp_sqrt_i(p, g, N);
       if (!sj) pari_err_BUG("D_find_discsqrt"); ; /* possible if N composite */
@@ -801,11 +801,11 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   corn_succ = cornacchia2_sqrt( absi(stoi(D)), N, sqrtofDmodN, &U, &V);
   dbg_mode() timer_record(X0, "A5", &ti);
   if (!corn_succ) {
-    dbg_mode() err_printf(ANSI_COLOR_YELLOW "c" ANSI_COLOR_RESET);
+    dbg_mode() err_printf(ANSI_YELLOW "c" ANSI_RESET);
     return 0;
   }
   /* A6: Collect the w(D) cardinalities of E/(F_N) with CM by D */
-  dbg_mode() err_printf(ANSI_COLOR_BRIGHT_YELLOW "D" ANSI_COLOR_RESET);
+  dbg_mode() err_printf(ANSI_BRIGHT_YELLOW "D" ANSI_RESET);
   wD = D_get_wD(D);
   vectrunc_append_batch(Dmbatch, NUV_find_m(Dinfo,N,U,V,wD));
   return wD;
@@ -973,8 +973,8 @@ N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
   dbg_mode() {
     char o = persevere? '<': '[';
     char c = persevere? '>': ']';
-    err_printf(ANSI_COLOR_BRIGHT_CYAN "\n%c %3d | %4ld bits%c "
-               ANSI_COLOR_RESET, o, *depth, expiN, c);
+    err_printf(ANSI_BRIGHT_CYAN "\n%c %3d | %4ld bits%c "
+               ANSI_RESET, o, *depth, expiN, c);
   }
   /* Initialize Dmbatch, populated with candidate cardinalities in Phase I
    * (until #Dmbatch >= t); its elements will be factored on Phase II */
@@ -1023,13 +1023,13 @@ N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     for (j = 1; j < lgDmqlist; j++)
     {
       GEN z, Dmq = gel(Dmqlist,j), q = gel(Dmq,3);
-      dbg_mode() err_printf(ANSI_COLOR_WHITE "." ANSI_COLOR_RESET);
+      dbg_mode() err_printf(ANSI_WHITE "." ANSI_RESET);
       if (!Dmq_isgoodq(Dmq, X0)) continue;
 
       dbg_mode() {
-        err_printf(ANSI_COLOR_BRIGHT_BLUE "  %ld" ANSI_COLOR_RESET,
+        err_printf(ANSI_BRIGHT_BLUE "  %ld" ANSI_RESET,
                    Dmq_get_h(Dmq));
-        err_printf(ANSI_COLOR_BRIGHT_RED "\n       %5ld bits " ANSI_COLOR_RESET,
+        err_printf(ANSI_BRIGHT_RED "\n       %5ld bits " ANSI_RESET,
                    expi(q)-expiN);
       }
       /* q is pseudoprime */
@@ -1039,8 +1039,8 @@ N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
         z = N_downrun(q, param, X0, depth, persevere_next);
         if (!z) {
           dbg_mode() { char o = persevere? '<': '[', c = persevere? '>': ']';
-                       err_printf(ANSI_COLOR_CYAN "\n%c %3d | %4ld bits%c "
-                                  ANSI_COLOR_RESET, o, *depth, expiN, c); }
+                       err_printf(ANSI_CYAN "\n%c %3d | %4ld bits%c "
+                                  ANSI_RESET, o, *depth, expiN, c); }
           continue; /* downrun failed */
         }
       }
@@ -1049,13 +1049,13 @@ N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     if (i >= lgdisclist) break; /* discriminants exhausted: FAIL */
     if (Dinfo_get_pd(gel(disclist, last_i)) > maxpcdg)
     {
-      dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  !" ANSI_COLOR_RESET);
+      dbg_mode() err_printf(ANSI_BRIGHT_RED "  !" ANSI_RESET);
       persevere_next = 1;
     }
   }
   /* FAILED: Out of discriminants. */
   umael(*X0, 3, 1)++; /* FAILS++ */
-  dbg_mode() err_printf(ANSI_COLOR_BRIGHT_RED "  X" ANSI_COLOR_RESET);
+  dbg_mode() err_printf(ANSI_BRIGHT_RED "  X" ANSI_RESET);
   (*depth)--; return NULL;
 }
 
@@ -1125,7 +1125,7 @@ ecpp0(GEN N, GEN param)
       err_printf("\n  %c%ld: %16ld %16ld %16.3f", 'A'+i-1,j, t,n, (double)t/n);
     }
   }
-    err_printf("\n" ANSI_COLOR_BRIGHT_RED "\nFAILS: %16ld" ANSI_COLOR_RESET "\n", umael(X0, 3, 1));
+    err_printf("\n" ANSI_BRIGHT_RED "\nFAILS: %16ld" ANSI_RESET "\n", umael(X0, 3, 1));
   }
   return gerepilecopy(av, answer);
 }
@@ -1178,8 +1178,8 @@ ecpp(GEN N)
     dbg_mode() timer_start(&T);
     param = ecpp_param_set(tune, x);
     dbg_mode() {
-      err_printf(ANSI_COLOR_BRIGHT_WHITE "\n%Ps" ANSI_COLOR_RESET, x);
-      err_printf(ANSI_COLOR_WHITE "  %8ld" ANSI_COLOR_RESET, timer_delay(&T));
+      err_printf(ANSI_BRIGHT_WHITE "\n%Ps" ANSI_RESET, x);
+      err_printf(ANSI_WHITE "  %8ld" ANSI_RESET, timer_delay(&T));
     }
     if ((C = ecpp0(N, param))) return C;
     x[1] *= 2;
