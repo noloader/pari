@@ -531,17 +531,12 @@ D_polclass(long D, long inv, GEN *db)
 }
 
 static GEN
-random_FpJ(GEN E, GEN N)
-{
-  GEN P = random_FpE(gel(E,1), gel(E,2), N);
-  return mkvec3(gel(P,1), gel(P,2), gen_1);
-}
-static GEN
 NqE_check(GEN N, GEN q, GEN a, GEN b, GEN s)
 {
-  GEN mP, sP, E = mkvec2(a, b), P = random_FpJ(E, N);
-  sP = FpJ_mul(P, s, a, N); if (FpJ_is_inf(sP)) return NULL;
-  mP = FpJ_mul(sP,q, a, N); return FpJ_is_inf(mP)? mkvec2(E, P): NULL;
+  GEN mP, sP, P = random_FpE(a, b, N);
+  GEN PJ = mkvec3(gel(P,1), gel(P,2), gen_1);
+  sP = FpJ_mul(PJ, s, a, N); if (FpJ_is_inf(sP)) return NULL;
+  mP = FpJ_mul(sP, q, a, N); return FpJ_is_inf(mP)? mkvec2(a, P): NULL;
 }
 
 /* Find an elliptic curve E modulo N and a point P on E which corresponds to
@@ -561,7 +556,7 @@ j0_find_g(GEN N)
 }
 
 static GEN
-NDmqgJ_find_EP(GEN N, long D, GEN m, GEN q, GEN g, GEN J, GEN s)
+find_EP(GEN N, long D, GEN q, GEN g, GEN J, GEN s)
 {
   GEN A0, B0; Fp_ellfromj(J, N, &A0, &B0);
   for(;;)
@@ -670,7 +665,7 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
   for (j = 1; j < lg(step2); j++)
   {
     long i = uel(perm, j);
-    GEN J, t, s, a4, P, EP, rt, S = gel(step1, i);
+    GEN J, t, s, EP, rt, S = gel(step1, i);
     GEN N = NDmqg_get_N(S), Dinfo = NDmqg_get_Dinfo(S);
     GEN m = NDmqg_get_m(S), q = NDmqg_get_q(S);
     GEN g = NDmqg_get_g(S), sq = NDmqg_get_sqrt(S);
@@ -700,15 +695,12 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
     /* D1: Find an elliptic curve E with a point P satisfying the theorem */
     dbg_mode() timer_start(&ti);
     s = diviiexact(m, q);
-    EP = NDmqgJ_find_EP(N, D, m, q, g, J, s);
+    EP = find_EP(N, D, q, g, J, s);
     dbg_mode() err_printf(" %6ld", timer_record(X0, "D1", &ti));
 
     /* D2: Compute for t and s */
     t = subii(addiu(N, 1), m); /* t = N+1-m */
-    a4 = gmael(EP, 1, 1);
-    P = FpJ_to_FpE(gel(EP, 2), N);
-
-    gel(step2, i) = mkvec5(N, t, s, a4, P);
+    gel(step2, i) = mkvec5(N, t, s, gel(EP,1), gel(EP,2));
     Dprev = D;
   }
   return step2;
