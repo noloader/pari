@@ -5208,6 +5208,7 @@ INLINE GEN    truedivsi(long a, GEN b);
 INLINE ulong  udivui_rem(ulong x, GEN y, ulong *rem);
 INLINE ulong  umodsu(long x, ulong y);
 INLINE ulong  umodui(ulong x, GEN y);
+INLINE ulong  umuluu_le(ulong x, ulong y, ulong n);
 INLINE ulong  umuluu_or_0(ulong x, ulong y);
 INLINE GEN    utoi(ulong x);
 INLINE GEN    utoineg(ulong x);

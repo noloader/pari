@@ -2920,6 +2920,10 @@ the real number equal to $x$. This is a special case of \kbd{gexpo}.
 
 \fun{GEN}{muluu}{ulong x, ulong y} multiplies \kbd{x} by \kbd{y}.
 
+\fun{ulong}{umuluu_le}{ulong x, ulong y, ulong n} multiplies \kbd{x} by \kbd{y}.
+Return $xy$ if $xy \leq n$ and $0$ otherwise (in particular if $xy$ does not
+fit in an \kbd{ulong}).
+
 \fun{ulong}{umuluu_or_0}{ulong x, ulong y} multiplies \kbd{x} by \kbd{y}.
 Return $0$ if $xy$ does not fit in an \kbd{ulong}.
 

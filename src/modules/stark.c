@@ -1169,15 +1169,6 @@ CopyCoeff(int** a, int** a2, long n, long m)
   }
 }
 
-/* return q*p if <= n. Beware overflow */
-static long
-next_pow(long q, long p, long n)
-{
-  const GEN x = muluu((ulong)q, (ulong)p);
-  const ulong qp = uel(x,2);
-  return (lgefint(x) > 3 || qp > (ulong)n)? 0: qp;
-}
-
 static void
 an_AddMul(int **an,int **an2, long np, long n, long deg, GEN chi, int **reduc)
 {
@@ -1191,7 +1182,7 @@ an_AddMul(int **an,int **an2, long np, long n, long deg, GEN chi, int **reduc)
     if (gequal1(chi2)) c = NULL; else { Polmod2Coeff(c2, chi2, deg); c = c2; }
     for(k = 1, qk = q; qk <= n; k++, qk += q)
       AddMulCoeff(an[qk], c, an2[k], reduc, deg);
-    if (! (q = next_pow(q,np, n)) ) break;
+    if (! (q = umuluu_le(q,np, n)) ) break;
 
     chi2 = gmul(chi2, chi);
   }
@@ -1824,10 +1815,10 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
     for (q=p;;)
     {
       an_set0_coprime(an, p,q,n,deg); /* v_p(q) odd */
-      if (! (q = next_pow(q,p, n)) ) break;
+      if (! (q = umuluu_le(q,p, n)) ) break;
 
       an_mul(an,p,q,n,deg,chi,reduc);
-      if (! (q = next_pow(q,p, n)) ) break;
+      if (! (q = umuluu_le(q,p, n)) ) break;
       chi = gmul(chi, chi1);
     }
   }
@@ -1842,7 +1833,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
     for(q=p;;)
     {
       an_mul(an,p,q,n,deg,chi,reduc);
-      if (! (q = next_pow(q,p, n)) ) break;
+      if (! (q = umuluu_le(q,p, n)) ) break;
       chi = gmul(chi, chi1);
     }
   }
@@ -1866,7 +1857,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
     for(q=p;;)
     {
       an_mul(an,p,q,n,deg,chi1,reduc);
-      if (! (q = next_pow(q,p, n)) ) break;
+      if (! (q = umuluu_le(q,p, n)) ) break;
       chi2 = gmul(chi2, chi12);
       chi1 = gadd(chi2, gmul(chi1, chi11));
     }

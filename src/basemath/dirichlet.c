@@ -42,8 +42,8 @@ dirmuleuler_small(GEN V, GEN v, long n, ulong p, GEN s, long d)
     v[++n] = q;
     for (j = 2; j <= m; j++)
     {
-      ulong nj = umuluu_or_0(uel(v,j), q);
-      if (!nj || nj > X) continue;
+      ulong nj = umuluu_le(uel(v,j), q, X);
+      if (!nj) continue;
       gel(V,nj) = gmul(aq, gel(V,v[j]));
       v[++n] = nj;
     }

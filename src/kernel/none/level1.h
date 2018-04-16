@@ -365,6 +365,15 @@ umuluu_or_0(ulong x, ulong y)
   z = mulll(x, y);
   return hiremainder? 0: z;
 }
+/* return x*y if <= n, else 0. Beware overflow */
+INLINE ulong
+umuluu_le(ulong x, ulong y, ulong n)
+{
+  ulong z;
+  LOCAL_HIREMAINDER;
+  z = mulll(x, y);
+  return (hiremainder || z > n)? 0: z;
+}
 
 INLINE GEN
 real_0_bit(long bitprec) { GEN x=cgetr(2); x[1]=evalexpo(bitprec); return x; }

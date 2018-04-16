@@ -6018,11 +6018,7 @@ dihan(GEN bnr, GEN w, GEN k0j, ulong lim)
     long k, lP;
     ulong q, qk;
     if (kross(D,p) >= 0) q = p;
-    else
-    {
-      q = umuluu_or_0(p,p);
-      if (!q || q > lim) continue;
-    }
+    else if (!(q = umuluu_le(p,p,lim))) continue;
     /* q = Norm P */
     vP = idealprimedec(nf, utoipos(p));
     lP = lg(vP);
@@ -6041,7 +6037,7 @@ dihan(GEN bnr, GEN w, GEN k0j, ulong lim)
       {
         S = mygmodulo_lift(s, ordmax, gen_1, vt);
         gel(v, qk+1) = fix_pol(S, Pn, &trace);
-        qk = umuluu_or_0(qk, q); if (!qk || qk > lim) break;
+        if (!(qk = umuluu_le(qk,q,lim))) break;
       }
     }
     else /* two primes above p not dividing f */
@@ -6057,7 +6053,7 @@ dihan(GEN bnr, GEN w, GEN k0j, ulong lim)
           S = gadd(S, mygmodulo_lift(s, ordmax, gen_1, vt));
         }
         gel(v, qk+1) = fix_pol(S, Pn, &trace);
-        qk = umuluu_or_0(qk, q); if (!qk || qk > lim) break;
+        if (!(qk = umuluu_le(qk,q,lim))) break;
       }
     }
   }
