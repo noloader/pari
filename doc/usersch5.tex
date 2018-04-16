@@ -9609,6 +9609,9 @@ the reciprocal polynomial of $f$. Not suitable for \kbd{gerepile}.
 where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$. Uses
 Newton-Raphson algorithm.
 
+\fun{GEN}{RgXn_inv_i}{GEN a, long n} as \tet{RgXn_inv} without final garbage
+collection (suitable for \kbd{gerepileupto}).
+
 \fun{GEN}{RgXn_powers}{GEN x, long m, long n} returns $[\kbd{x}^0,
 \dots, \kbd{x}^\kbd{m}]$ modulo $X^n$ as a \typ{VEC} of \kbd{RgXn}s.
 
