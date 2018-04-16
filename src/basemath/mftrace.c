@@ -6622,7 +6622,7 @@ mfinit_i(GEN NK, long space)
     long i, j, l;
     if (CHI && lg(CHI) == 1) return cgetg(1,t_VEC);
     if (k < 0) return mfEMPTYall(N, sstoQ(k,dk), CHI, space);
-    if (k == 1 && space != mf_EISEN)
+    if (k == 1 && dk == 1 && space != mf_EISEN)
     {
       GEN TMP, gN, gs;
       if (space != mf_CUSP && space != mf_NEW)
