@@ -7034,8 +7034,8 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
     if (gel(vs,i)) continue;
     tau = cxredga0N(N, z, &U, &gel(vczd,i), flag);
     if (!flag) w = 0; else { w = mfZC_width(N, gel(U,1)); tau = gdivgs(tau,w); }
-    gel(vTAU,i) = tau = mulcxmI(gmul(tau, sqN));
-    n = lfunthetacost(L0, real_i(tau), 0, bitprec);
+    gel(vTAU,i) = mulcxmI(gmul(tau, sqN));
+    n = lfunthetacost(L0, real_i(gel(vTAU,i)), 0, bitprec);
     if (N0 < n) N0 = n;
     if (flag)
     {

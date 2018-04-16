@@ -298,7 +298,8 @@ mfdim(mfinit([154,1,0],1)[1])
 mfinit([248,1,0],1);
 mfdim([455,1,Mod(94,455)],0)
 T=mfTheta();vec(T)
-mfeval(mfinit(T),T,[0,1/2,1,oo])
+mfT = mfinit(T);
+mfeval(mfT,T,[0,1/2,1,oo, (38+I)/85.])
 T=mfTheta(Mod(2,7)); vec(T)
 mfparams(T)
 T=mfTheta(Mod(2,5)); vec(T)
