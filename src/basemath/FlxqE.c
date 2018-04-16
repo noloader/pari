@@ -1089,7 +1089,7 @@ Flxq_ellcard_Kohel(GEN a4, GEN a6, GEN T, ulong p)
     if (DEBUGLEVEL) timer_printf(&ti,"Teichmuller/Fp");
     Nc2 = Fp_mul(Nc2,tNc2,q);
   }
-  t = Fp_center(Fp_mul(Nc2,Np,q),q,shifti(q,-1));
+  t = Fp_center_i(Fp_mul(Nc2,Np,q),q,shifti(q,-1));
   return gerepileupto(av, subii(addiu(powuu(p,n),1),t));
 }
 
@@ -1238,7 +1238,7 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
     if (DEBUGLEVEL) timer_printf(&ti,"Teichmuller/Fp");
     Nc2 = Fp_mul(Nc2,tNc2,q);
   }
-  t = Fp_center(Fp_mul(Nc2,Np,q),q,shifti(q,-1));
+  t = Fp_center_i(Fp_mul(Nc2,Np,q),q,shifti(q,-1));
   return gerepileupto(av, subii(addiu(powuu(p,n),1),t));
 }
 
@@ -1530,7 +1530,7 @@ Flxq_ellcard_Kedlaya(GEN a4, GEN a6, GEN T, ulong p)
   GEN N = ZpXQM_prodFrobenius(M, Tp, utoi(p), e);
   GEN q = powuu(p, e);
   GEN tp = Fq_add(gcoeff(N,1,1), gcoeff(N,2,2), Tp, q);
-  GEN t = Fp_center(typ(tp)==t_INT ? tp: leading_coeff(tp), q, shifti(q,-1));
+  GEN t = Fp_center_i(typ(tp)==t_INT ? tp: leading_coeff(tp), q, shifti(q,-1));
   return gerepileupto(av, subii(addiu(powuu(p, n), 1), t));
 }
 

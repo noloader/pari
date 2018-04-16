@@ -2293,7 +2293,7 @@ ZX_ZXY_resultant(GEN A, GEN B)
   worker = strtoclosure("_ZX_ZXY_resultant_worker", 4, A, B, dB?dB:gen_0,
                         mkvecsmall5(degA, degB,dres, vY, sX));
   H = gen_crt("ZX_ZXY_resultant_all", worker, dB, bound, degpol(A)+degpol(B), NULL,
-               nxV_chinese_center, FpX_center);
+               nxV_chinese_center, FpX_center_i);
   setvarn(H, vX); (void)delete_var();
   return gerepilecopy(av, H);
 }

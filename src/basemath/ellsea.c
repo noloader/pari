@@ -1676,9 +1676,8 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
     for (j = 1, i = 1; i < l; i++)
     {
       GEN t = Z_chinese_post(u, stoi(r2[i]), C, U, NULL);
-      t = Fp_center(t, C, Cs2);
-      if (abscmpii(t, bound) <= 0)
-        gel(card, j++) = subii(pp1, t);
+      t = Fp_center_i(t, C, Cs2);
+      if (abscmpii(t, bound) <= 0) gel(card, j++) = subii(pp1, t);
     }
     setlg(card, j);
     return gen_select_order(card, E, grp);

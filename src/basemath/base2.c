@@ -864,7 +864,7 @@ compmod(GEN p, GEN f, GEN g, GEN T, GEN q, long v)
   update_den(p, &z, &D, &vD, NULL);
   qD = mulii(D,q);
   if (v) vD -= v;
-  z = FpX_center(z, qD, shifti(qD,-1));
+  z = FpX_center_i(z, qD, shifti(qD,-1));
   if (vD > 0)
     z = RgX_Rg_div(z, powiu(p, vD));
   else if (vD < 0)
@@ -1044,7 +1044,7 @@ Decomp(decomp_t *S, long flag)
   fred = centermod(fred, pr);
   f1   = centermod(f1,   pr);
   f2 = FpX_div(fred,f1, pr);
-  f2 = FpX_center(f2, pr, shifti(pr,-1));
+  f2 = FpX_center_i(f2, pr, shifti(pr,-1));
 
   if (DEBUGLEVEL>5)
     err_printf("  leaving Decomp: f1 = %Ps\nf2 = %Ps\ne = %Ps\nde= %Ps\n", f1,f2,e,de);
@@ -1953,7 +1953,7 @@ idealprimedec_kummer(GEN nf,GEN u,long e,GEN p)
   { /* make sure v_pr(u) = 1 (automatic if e>1) */
     t = poltobasis(nf, FpX_div(T,u,p));
     t = centermod(t, p);
-    u = FpX_center(u, p, shifti(p,-1));
+    u = FpX_center_i(u, p, shifti(p,-1));
     if (e == 1 && ZpX_resultant_val(T, u, p, f+1) > f)
       gel(u,2) = addii(gel(u,2), p);
     u = poltobasis(nf,u);

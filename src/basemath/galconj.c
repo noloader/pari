@@ -393,7 +393,7 @@ monoratlift(void *E, GEN S, GEN q)
       err_printf("MonomorphismLift: trying early solution %Ps\n",tlift);
     if (gl->den != gen_1) {
       GEN N = gl->gb->ladicsol, N2 = shifti(N,-1);
-      tlift = FpX_center(FpX_red(Q_muli_to_int(tlift, gl->den), N), N,N2);
+      tlift = FpX_center_i(FpX_red(Q_muli_to_int(tlift, gl->den), N), N,N2);
     }
     if (poltopermtest(tlift, gl, d->frob))
     {
@@ -562,7 +562,7 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
       {
         u = v;
         for (j = 1; j < m; j++) u = ZX_add(u, gmael(C,SG[pf[j]],j));
-        u = FpX_center(FpX_red(u, gl->Q), gl->Q, shifti(gl->Q,-1));
+        u = FpX_center_i(FpX_red(u, gl->Q), gl->Q, shifti(gl->Q,-1));
         if (poltopermtest(u, gl, frob))
         {
           if (DEBUGLEVEL >= 4)
@@ -923,7 +923,7 @@ fixedfieldsurmer(GEN mod, GEN l, GEN p, long v, GEN NS, GEN W)
     if (DEBUGLEVEL>=6) err_printf("FixedField: Sym: %Ps\n",sym);
     L = sympol_eval(sym,NS);
     if (!vec_is1to1(FpC_red(L,l))) { avma = av; continue; }
-    P = FpX_center(FpV_roots_to_pol(L,mod,v),mod,mod2);
+    P = FpX_center_i(FpV_roots_to_pol(L,mod,v),mod,mod2);
     if (!p || FpX_is_squarefree(P,p)) return mkvec3(mkvec2(sym,W),L,P);
     avma = av;
   }
@@ -1427,7 +1427,7 @@ s4test(GEN u, GEN liftpow, struct galois_lift *gl, GEN phi)
       res = ZX_add(res, ZX_Z_mul(gel(liftpow,i), gel(u,i+2)));
   res = FpX_red(res, Q);
   if (gl->den != gen_1) res = FpX_Fp_mul(res, gl->den, Q);
-  res = FpX_center(res, Q, shifti(Q,-1));
+  res = FpX_center_i(res, Q, shifti(Q,-1));
   bl = poltopermtest(res, gl, phi);
   if (DEBUGLEVEL >= 6) timer_printf(&ti, "s4test()");
   avma = av; return bl;
@@ -1654,7 +1654,7 @@ galoisfrobeniustest(GEN aut, struct galois_lift *gl, GEN frob)
   GEN tlift = aut;
   long res;
   if (gl->den != gen_1) tlift = FpX_Fp_mul(tlift, gl->den, gl->Q);
-  tlift = FpX_center(tlift, gl->Q, shifti(gl->Q,-1));
+  tlift = FpX_center_i(tlift, gl->Q, shifti(gl->Q,-1));
   res = poltopermtest(tlift, gl, frob);
   avma = av; return res;
 }

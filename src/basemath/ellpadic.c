@@ -830,7 +830,7 @@ ellpadics2(GEN E, GEN p, long n)
   { /* either 2sqrt(p) < p/2 or n > 1 and 2sqrt(p) < p^2/2 (since p!=2) */
     GEN q = pp <= 13? utoipos(pp * pp): p;
     ap = padic_to_Fp(ap, q);
-    ap = Fp_center(ap, q, shifti(q,-1));
+    ap = Fp_center_i(ap, q, shifti(q,-1));
   }
   l = mspadic_unit_eigenvalue(ap, 2, p, n);
   return gerepileupto(av, gdiv(b, gsub(l, a))); /* slope of eigenvector */

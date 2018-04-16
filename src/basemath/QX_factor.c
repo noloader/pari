@@ -427,7 +427,7 @@ chk_factors(GEN P, GEN M_L, GEN bound, GEN famod, GEN pa)
   {
     if (DEBUGLEVEL) err_printf("LLL_cmbf: checking factor %ld\n",i);
     y = chk_factors_get(lt, famod, gel(piv,i), NULL, pa);
-    y = FpX_center(y, pa, paov2);
+    y = FpX_center_i(y, pa, paov2);
     if (! (pol = ZX_divides_i(ltpol,y,bound)) ) return NULL;
     if (lt) y = Q_primpart(y);
     gel(list,i) = y;

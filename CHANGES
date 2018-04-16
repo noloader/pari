@@ -414,6 +414,7 @@ BA  169- [libpari] Flx_ddf, F2x_ddf, FpX_ddf, F2xqX_ddf, FlxqX_ddf, FpXQX_ddf,
          F2xqX_degfact, FlxqX_degfact, FpXQX_degfact, FqX_degfact, FFX_degfact
     170- new GP functions factormodSQF, factormodDDF
     171- [libpari] umuluu_le
+    172- [libpari] Fp_center_i, FpX_center_i
 
   Changed
       1- rewrite bnfnarrow

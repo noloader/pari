@@ -785,7 +785,7 @@ hyperellcharpoly(GEN PQ)
     GEN b = get_basis(p, d) == 3 ? gen_1 : q;
     GEN pn = powuu(p, n);
     R = FpX_div_by_X_x(R, eps? b: negi(b), pn, NULL);
-    R = FpX_center(R, pn, shifti(pn,-1));
+    R = FpX_center_i(R, pn, shifti(pn,-1));
   }
   R = charpoly_funceq(R, q);
   return gerepilecopy(av, R);

@@ -65,8 +65,8 @@ lift_to_frac_tdenom(GEN t, GEN mod, GEN amax, GEN bmax, GEN denom, GEN tdenom)
   if (tdenom)
   {
     pari_sp av = avma;
-    a = Fp_center(Fp_mul(t, tdenom, mod), mod, shifti(mod,-1));
-    if (abscmpii(a, amax)<0)
+    a = Fp_center_i(Fp_mul(t, tdenom, mod), mod, shifti(mod,-1));
+    if (abscmpii(a, amax) < 0)
     {
       GEN d = gcdii(a, tdenom);
       a = diviiexact(a, d);
@@ -938,9 +938,9 @@ FqX_centermod(GEN z, GEN T, GEN pk, GEN pks2)
   {
     GEN c = gel(y,i);
     if (typ(c) == t_INT)
-      c = centermodii(c, pk, pks2);
+      c = Fp_center_i(c, pk, pks2);
     else
-      c = FpX_center(c, pk, pks2);
+      c = FpX_center_i(c, pk, pks2);
     gel(y,i) = c;
   }
   return y;
@@ -1221,7 +1221,7 @@ nf_to_Zq(GEN x, GEN T, GEN pk, GEN pks2, GEN proj)
   }
   y = ZM_ZC_mul(proj, x);
   y = RgV_to_RgX(y, varn(T));
-  return FpX_center(FpX_rem(y, T, pk), pk, pks2);
+  return FpX_center_i(FpX_rem(y, T, pk), pk, pks2);
 }
 
 /* Assume P in nfX form, lc(P) != 0 mod p. Reduce P to Zp[X]/(T) mod p^a */

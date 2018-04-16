@@ -3361,6 +3361,10 @@ non-negative residue).
 \kbd{shifti(p,-1)} and that \kbd{a} is between $0$ and $\kbd{p} - 1$ and,
 returns the representative of \kbd{a} in the symmetric residue system.
 
+\fun{GEN}{Fp_center_i}{GEN a, GEN p, GEN pov2} internal variant of
+\tet{Fp_center}, not \kbd{gerepile}-safe: when $a$ is already in the
+proper interval, it is returned as is, without a copy.
+
 \fun{GEN}{Fp_mul}{GEN a, GEN b, GEN m} returns the product of \kbd{a} by
 \kbd{b} modulo \kbd{m} (smallest non-negative residue).
 
@@ -4588,6 +4592,9 @@ This is useful when computing the inverse of $y$ modulo $x$.
 \fun{GEN}{FpX_center}{GEN z, GEN p, GEN pov2} returns the polynomial whose
 coefficient belong to the symmetric residue system. Assumes the coefficients
 already belong to $[0,\kbd{p}-1]$) and \kbd{pov2} is \kbd{shifti(p,-1)}.
+
+\fun{GEN}{FpX_center_i}{GEN z, GEN p, GEN pov2} internal variant of
+\tet{FpX_center}, not \kbd{gerepile}-safe.
 
 \fun{GEN}{FpX_Frobenius}{GEN T, GEN p} returns $X^{p}\pmod{T(X)}$.
 

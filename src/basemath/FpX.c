@@ -107,6 +107,14 @@ FpX_center(GEN T, GEN p, GEN pov2)
   for(i=2; i<l; i++) gel(P,i) = Fp_center(gel(T,i), p, pov2);
   P[1] = T[1]; return P;
 }
+GEN
+FpX_center_i(GEN T, GEN p, GEN pov2)
+{
+  long i, l = lg(T);
+  GEN P = cgetg(l,t_POL);
+  for(i=2; i<l; i++) gel(P,i) = Fp_center_i(gel(T,i), p, pov2);
+  P[1] = T[1]; return P;
+}
 
 GEN
 FpX_add(GEN x,GEN y,GEN p)

@@ -2524,7 +2524,7 @@ padic_to_Q_shallow(GEN x)
   if (!signe(u)) return gen_0;
   q = gel(x,3); q2 = shifti(q,-1);
   v = valp(x);
-  u = Fp_center(u, q, q2);
+  u = Fp_center_i(u, q, q2);
   if (!v) return u;
   p = gel(x,2);
   if (v>0) return mulii(powiu(p,v), u);

@@ -1307,11 +1307,11 @@ primo_out(GEN x)
     a4 = cert_get_a4(xi); Ais0 = isintzero(a4);
     a6 = cert_get_a6(xi); Bis0 = isintzero(a6);
     if (!Ais0 && !Bis0) { /* J != 0, 1728 */
-      primo_printval(&ret, "J", Fp_center(cert_get_J(xi), N, Nover2));
+      primo_printval(&ret, "J", Fp_center_i(cert_get_J(xi), N, Nover2));
       primo_printval(&ret, "T", cert_get_T(xi));
     } else {
-      if (!Ais0) a4 = Fp_center(a4, N, Nover2);
-      if (!Bis0) a6 = Fp_center(a6, N, Nover2);
+      if (!Ais0) a4 = Fp_center_i(a4, N, Nover2);
+      if (!Bis0) a6 = Fp_center_i(a6, N, Nover2);
       primo_printval(&ret, "A", a4);
       primo_printval(&ret, "B", a6);
       primo_printval(&ret, "T", cert_get_x(xi));
