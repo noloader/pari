@@ -1133,33 +1133,6 @@ redelt(GEN a, GEN N, GEN p)
   return a;
 }
 
-/* compute the Newton sums of g(x) mod p, assume deg g > 0 */
-GEN
-polsymmodp(GEN g, GEN p)
-{
-  pari_sp av;
-  long d = degpol(g), i, k;
-  GEN s, y, po2;
-
-  y = cgetg(d + 1, t_COL);
-  gel(y,1) = utoipos(d);
-  if (d == 1) return y;
-  /* k = 1, split off for efficiency */
-  po2 = shifti(p,-1); /* to be left on stack */
-  av = avma;
-  s = gel(g,d-1+2);
-  gel(y,2) = gerepileuptoint(av, centermodii(negi(s), p, po2));
-  for (k = 2; k < d; k++)
-  {
-    av = avma;
-    s = mului(k, remii(gel(g,d-k+2), p));
-    for (i = 1; i < k; i++) s = addii(s, mulii(gel(y,k-i+1), gel(g,d-i+2)));
-    togglesign_safe(&s);
-    gel(y,k+1) = gerepileuptoint(av, centermodii(s, p, po2));
-  }
-  return y;
-}
-
 /* compute the c first Newton sums modulo pp of the
    characteristic polynomial of a/d mod chi, d > 0 power of p (NULL = gen_1),
    a, chi in Zp[X], vda = v_p(da)
@@ -1168,7 +1141,7 @@ static GEN
 newtonsums(GEN p, GEN a, GEN da, long vda, GEN chi, long c, GEN pp, GEN ns)
 {
   GEN va, pa, dpa, s;
-  long j, k, vdpa;
+  long j, k, vdpa, lns = lg(ns);
   pari_sp av;
 
   a = centermod(a, pp); av = avma;
@@ -1177,21 +1150,18 @@ newtonsums(GEN p, GEN a, GEN da, long vda, GEN chi, long c, GEN pp, GEN ns)
   va = zerovec(c);
   for (j = 1; j <= c; j++)
   { /* pa/dpa = (a/d)^(j-1) mod (chi, pp), dpa = p^vdpa */
-    long degpa;
+    long l;
     pa = j == 1? a: FpXQ_mul(pa, a, chi, pp);
-    degpa = degpol(pa);
-    if (degpa < 0) {
-      for (; j <= c; j++) gel(va,j) = gen_0;
-      return va;
-    }
+    l = lg(pa); if (l == 2) break;
+    if (lns < l) l = lns;
 
     if (da) {
       dpa = j == 1? da: mulii(dpa, da);
       vdpa += vda;
       update_den(p, &pa, &dpa, &vdpa, &pp);
     }
-    s = mulii(gel(pa,2), gel(ns,1)); /* k = 0 */
-    for (k=1; k<=degpa; k++) s = addii(s, mulii(gel(pa,k+2), gel(ns,k+1)));
+    s = mulii(gel(pa,2), gel(ns,2)); /* k = 2 */
+    for (k = 3; k < l; k++) s = addii(s, mulii(gel(pa,k), gel(ns,k)));
     if (da) {
       GEN r;
       s = dvmdii(s, dpa, &r);
@@ -1205,6 +1175,7 @@ newtonsums(GEN p, GEN a, GEN da, long vda, GEN chi, long c, GEN pp, GEN ns)
       gerepileall(av, dpa?4:3, &pa, &va, &pp, &dpa);
     }
   }
+  for (; j <= c; j++) gel(va,j) = gen_0;
   return va;
 }
 
@@ -1254,7 +1225,7 @@ manage_cache(decomp_t *S, GEN f, GEN pp)
       err_printf("  Precision for cached Newton sums for %Ps: %Ps -> %Ps\n",
                  f, S->precns? S->precns: gen_0, t);
     S->nsf = f;
-    S->ns = polsymmodp(f, t);
+    S->ns = FpX_Newton(f, degpol(f), t);
     S->precns = t;
   }
 }
