@@ -466,17 +466,16 @@ tracerel_i(GEN T, GEN x)
 GEN
 QabV_tracerel(GEN v, long t, GEN x)
 {
-  long d, dm, lx, j, degrel;
+  long l, j, degrel;
   GEN y, z, Pm, Pn, T;
   if (lg(v) != 4) return x;
-  y = cgetg_copy(x, &lx);
+  y = cgetg_copy(x, &l);
   Pm = gel(v,1);
   Pn = gel(v,2);
   T  = gel(v,3);
-  d = degpol(Pn);
-  dm = degpol(Pm); degrel = d / dm;
+  degrel = degpol(Pn) / degpol(Pm);
   z = RgX_rem(pol_xn(t, varn(Pn)), Pn);
-  for (j = 1; j < lx; j++)
+  for (j = 1; j < l; j++)
   {
     GEN a = liftpol_shallow(gel(x,j));
     a = simplify_shallow( gmul(a, z) );
