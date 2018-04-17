@@ -1010,10 +1010,7 @@ typedef struct {
 
 static void
 modpoly_disc_info_clear(modpoly_disc_info *dinfo)
-{
-  killblock((GEN) dinfo->primes);
-  killblock((GEN) dinfo->traces);
-}
+{ killblock((GEN)dinfo->primes); }
 
 #define MODPOLY_MAX_DCNT    64
 
@@ -2022,7 +2019,7 @@ polmodular0_ZM(
       long workid;
       ulong p = dinfo->primes[i];
       ulong t = dinfo->traces[i];
-      mt_queue_submit(&pt, p, i < dinfo-> nprimes? mkvec2(utoi(p), utoi(t)): NULL);
+      mt_queue_submit(&pt, p, i < dinfo->nprimes? mkvec2(utoi(p), utoi(t)): NULL);
       done = mt_queue_get(&pt, &workid, &pending);
       if (done)
       {
@@ -3699,21 +3696,21 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
   primes = (ulong *) stack_malloc(n * sizeof(*primes));
   Dprimes = (ulong *) stack_malloc(n * sizeof(*Dprimes));
   Dtraces = (ulong *) stack_malloc(n * sizeof(*Dtraces));
-  for (i = 0, totbits = 0, pcnt = 0; i < Dcnt && totbits < minbits; i++) {
-    Ds[i].nprimes = modpoly_pickD_primes(Dprimes, Dtraces, n, primes, pcnt,
-                                         &Ds[i].bits, minbits - totbits, Ds + i);
-    Ds[i].primes = (ulong *) newblock(Ds[i].nprimes);
-    memcpy(Ds[i].primes, Dprimes, Ds[i].nprimes * sizeof(*Dprimes));
-
-    Ds[i].traces = (ulong *) newblock(Ds[i].nprimes);
-    memcpy(Ds[i].traces, Dtraces, Ds[i].nprimes * sizeof(*Dtraces));
+  for (i = 0, totbits = 0, pcnt = 0; i < Dcnt && totbits < minbits; i++)
+  {
+    long np = modpoly_pickD_primes(Dprimes, Dtraces, n, primes, pcnt,
+                                   &Ds[i].bits, minbits - totbits, Ds + i);
+    ulong *T = (ulong *)newblock(2*np);
+    Ds[i].nprimes = np;
+    Ds[i].primes = T;    memcpy(T   , Dprimes, np * sizeof(*Dprimes));
+    Ds[i].traces = T+np; memcpy(T+np, Dtraces, np * sizeof(*Dtraces));
 
     totbits += Ds[i].bits;
-    pcnt += Ds[i].nprimes;
+    pcnt += np;
 
     if (totbits >= minbits || i == Dcnt - 1) { Dcnt = i + 1; break; }
     /* merge lists */
-    for (j = pcnt - Ds[i].nprimes - 1, k = Ds[i].nprimes - 1, m = pcnt - 1; m >= 0; m--) {
+    for (j = pcnt - np - 1, k = np - 1, m = pcnt - 1; m >= 0; m--) {
       if (k >= 0) {
         if (j >= 0 && primes[j] > Dprimes[k])
           primes[m] = primes[j--];
