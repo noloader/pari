@@ -2269,7 +2269,7 @@ lamsig(GEN D, long *pL, long *pS)
 static void
 consttabh(long lim)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   GEN VHDH0, VDIV, CACHE = NULL;
   GEN VHDH = caches[cache_H].cache;
   long r, N, cachea, cacheb, lim0 = VHDH? lg(VHDH)-1: 2, LIM = lim0 << 1;
@@ -2280,10 +2280,11 @@ consttabh(long lim)
   r = lim&3L; if (r) lim += 4-r;
   cache_get(cache_DIV, lim);
   VDIV = caches[cache_DIV].cache;
-  VHDH0 = cgetg_block(lim/2 + 1, t_VECSMALL);
+  VHDH0 = cgetg(lim/2 + 1, t_VECSMALL);
   VHDH0[1] = 2;
   VHDH0[2] = 3;
   for (N = 3; N <= lim0; N++) VHDH0[N] = VHDH[N];
+  av2 = avma;
   cachea = cacheb = 0;
   for (N = LIM + 3; N <= lim; N += 4)
   {
@@ -2294,7 +2295,7 @@ consttabh(long lim)
       GEN F;
       if (N + 2 > cacheb)
       {
-        avma = av; cachea = N;
+        avma = av2; cachea = N;
         CACHE = update_factor_cache(N, lim+2, &cacheb);
       }
       F = gel(CACHE, ((N-cachea)>>1)+1); /* factoru(N) */
