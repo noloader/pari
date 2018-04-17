@@ -955,8 +955,7 @@ polmodular_db_add_level(GEN *DB, long L, long inv)
     for (i = 1; i <= max_L; ++i) gel(newdb, i) = gel(db, i);
     for (     ; i <= newlen; ++i) gel(newdb, i) = gen_0;
     killblock(db);
-    /* NB: Uses the fact that INV_J == 0 */
-    gel(*DB, 2 - !inv) = db = newdb;
+    gel(*DB, (inv == INV_J)? 1: 2) = db = newdb;
   }
   if ( isintzero(gel(db, L))) {
     pari_sp av = avma;
