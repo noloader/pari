@@ -502,28 +502,23 @@ cert_get_T(GEN z)
   return Fp_mul(x, l, N);
 }
 
-/* database for all invariants
-   stolen from Hamish's code
-*/
+/* database for all invariants, stolen from Hamish's code */
 static GEN
 polmodular_db_init_allinv(void)
 {
-  GEN ret1, ret2 = cgetg(39+1, t_VEC);
-  enum { DEFAULT_MODPOL_DB_LEN = 32 };
+  const long DEFAULT_MODPOL_DB_LEN = 32;
+  GEN a, b = cgetg(39+1, t_VEC);
   long i;
-  for (i = 1; i < lg(ret2); i++)
-    gel(ret2, i) = zerovec_block(DEFAULT_MODPOL_DB_LEN);
-  ret1 = zerovec_block(DEFAULT_MODPOL_DB_LEN);
-  return mkvec2(ret1, ret2);
+  for (i = 1; i < 40; i++) gel(b,i) = zerovec_block(DEFAULT_MODPOL_DB_LEN);
+  a = zerovec_block(DEFAULT_MODPOL_DB_LEN);
+  return mkvec2(a, b);
 }
 
-/*  Input: a discriminant D and a database of modular polynomials,
- * Output: polclass(D,disc_best_modinv(D)) */
+/* Given D and a database of modular polynomials, return polclass(D, inv) */
 static GEN
 D_polclass(long D, long inv, GEN *db)
 {
-  GEN HD, t = mkvec2(gel(*db, 1), gmael(*db, 2, inv));
-  if (inv == 0) t = mkvec2(gel(*db, 1), gen_0);
+  GEN HD, t = mkvec2(gel(*db, 1), inv == 0? gen_0: gmael(*db, 2, inv));
   HD = polclass0(D, inv, 0, &t);
   gel(*db, 1) = gel(t,1);
   if (inv != 0) gmael(*db, 2, inv) = gel(t,2);
@@ -703,7 +698,7 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
     gel(step2, i) = mkvec5(N, t, s, gel(EP,1), gel(EP,2));
     Dprev = D;
   }
-  return step2;
+  gunclone_deep(db); return step2;
 }
 /* end of functions for step 2 */
 
