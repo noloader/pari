@@ -12485,7 +12485,7 @@ fs2_init(GEN mf, GEN F, long bit)
 {
   pari_sp av = avma;
   long i, l, lim, N, k2, prec = nbits2prec(bit);
-  GEN DEN, cusps, tab, gk, gkm1, vW, vVW, vVF, al0;
+  GEN DEN, cusps, tab, gk, gkm1, W0, vW, vVW, vVF, al0;
   GEN vE = mfgetembed(F, prec), pi4 = Pi2n(2, prec);
   if (checkMF_i(mf))
   {
@@ -12527,6 +12527,7 @@ fs2_init(GEN mf, GEN F, long bit)
   vVF = cgetg(l, t_VEC);
   vVW = cgetg(l, t_VEC);
   al0 = cgetg(l, t_VECSMALL);
+  W0 = k2==1? ginv(pi4): gen_0;
   for (i = 1; i < l; i++)
   {
     long A, C, w, wi, Lw, n;
@@ -12549,7 +12550,7 @@ fs2_init(GEN mf, GEN F, long bit)
       for (n = 0; n <= Lw; n++)
       {
         GEN c;
-        if (!al) c = n? gel(tab, n * wi): gen_0;
+        if (!al) c = n? gel(tab, n * wi): W0;
         else
         {
           pari_sp av = avma;
