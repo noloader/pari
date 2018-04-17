@@ -2194,7 +2194,6 @@ zetap_i(GEN s, long D)
 }
 static GEN
 zetap(GEN s) { return zetap_i(s, 1); }
-
 #endif
 
 GEN
