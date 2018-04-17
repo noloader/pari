@@ -1163,8 +1163,7 @@ alias0(const char *s, const char *old)
   if (EpVALENCE(e) != EpALIAS && EpVALENCE(e) != EpNEW)
     pari_err(e_MISC,"can't replace an existing symbol by an alias");
   freeep(e);
-  x = newblock(2); x[0] = evaltyp(t_STR)|_evallg(2); /* for getheap */
-  gel(x,1) = (GEN)ep;
+  x = cgetg_block(2, t_VECSMALL); gel(x,1) = (GEN)ep;
   e->value=x; e->valence=EpALIAS;
 }
 
