@@ -27,8 +27,9 @@ typedef int (*QSCOMP)(const void *, const void *);
 #define numberof(x) (sizeof(x) / sizeof((x)[0]))
 
 /* to manipulate 'blocs' */
-#define BL_HEAD 4
+#define BL_HEAD 5
 #define bl_base(x) (void*)((x) - BL_HEAD)
+#define bl_size(x) (((GEN)x)[-5])
 #define bl_refc(x) (((GEN)x)[-4])
 #define bl_next(x) (((GEN*)x)[-3])
 #define bl_prev(x) (((GEN*)x)[-2])

@@ -188,6 +188,8 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     146- elllocalred(non integral E/nf,p) -> wrong result
     147- ellorder(E/Q, P with t_FFELT entries) not accepted [ t_INTMOD was ]
     148- missing GC in lfuntheta
+    149- implementation of newblock was incompatible with getheap(). Now we
+         always include the 'block' size in the header.
 
   Added
       1- [libari] ZM_isidentity

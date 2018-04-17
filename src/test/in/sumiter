@@ -1,4 +1,4 @@
-HEAP=[24, if(sizebyte(0)==16,203,231)];
+HEAP=[24, if(sizebyte(0)==16,227,255)];
 \p 19
 \e
 intnum(x=0,Pi,sin(x))

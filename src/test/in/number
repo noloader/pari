@@ -1,4 +1,4 @@
-HEAP=[93, if(sizebyte(0)==16,2723,2764)];
+HEAP=[93, if(sizebyte(0)==16,2810,2850)];
 default(realprecision,154); Pi; default(realprecision,38);
 \e
 addprimes([nextprime(10^9),nextprime(10^10)])

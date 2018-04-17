@@ -1,4 +1,4 @@
-HEAP=[48, if(sizebyte(0)==16,1913,3345)];
+HEAP=[48, if(sizebyte(0)==16,1961,3393)];
 STACK=if(sizebyte(0)==16, 232, 128);
 STACK == getstack
 default(realprecision,38);

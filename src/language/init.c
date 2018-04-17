@@ -173,6 +173,7 @@ newblock(size_t n)
 {
   long *x = (long *) pari_malloc((n + BL_HEAD)*sizeof(long)) + BL_HEAD;
 
+  bl_size(x) = n;
   bl_refc(x) = 1;
   bl_next(x) = NULL;
   bl_prev(x) = cur_block;
@@ -301,19 +302,19 @@ pari_stackcheck_init(void *pari_stack_base)
 /*                         HEAP TRAVERSAL                          */
 /*******************************************************************/
 struct getheap_t { long n, l; };
+/* x is a block, not necessarily a clone [x[0] may not be set] */
 static void
 f_getheap(GEN x, void *D)
 {
   struct getheap_t *T = (struct getheap_t*)D;
   T->n++;
-  T->l += gsizeword(x);
+  T->l += bl_size(x) + BL_HEAD;
 }
 GEN
 getheap(void)
 {
   struct getheap_t T = { 0, 0 };
-  traverseheap(&f_getheap, &T);
-  return mkvec2s(T.n, T.l + BL_HEAD * T.n);
+  traverseheap(&f_getheap, &T); return mkvec2s(T.n, T.l);
 }
 
 void
