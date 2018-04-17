@@ -2496,7 +2496,7 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
     (void) ZM_incremental_CRT(&pol, phi_modp, &P, p);
     if (gc_needed(av, 2)) gerepileall(av, 2, &pol, &P);
   }
-  return gerepileupto(ltop, pol);
+  killblock((GEN)Ds[0].primes); return gerepileupto(ltop, pol);
 }
 
 /* Returns the modular polynomial with the smallest level for the given
@@ -3724,6 +3724,7 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
   if (totbits < minbits) {
     dbg_printf(1)("Only obtained %ld of %ld bits using %ld discriminants\n",
                   totbits, minbits, Dcnt);
+    for (i = 0; i < Dcnt; i++) killblock((GEN)Ds[i].primes);
     Dcnt = 0;
   }
   avma = av; return Dcnt;
@@ -4239,7 +4240,7 @@ discriminant_with_classno_at_least(
 
       if (Dcnt) {
         long n1 = 0;
-        for (i = 0; i < Dcnt; ++i) {
+        for (i = 0; i < Dcnt; i++) {
           n1 = maxss(n1, Ds[i].n1);
           cost += Ds[i].cost;
         }
@@ -4251,8 +4252,9 @@ discriminant_with_classno_at_least(
           best_cnt = Dcnt;
           best_eps = eps;
           /* We're satisfied if n1 is within 5% of L. */
-          if (L / s <= SMALL_L_BOUND || eps < 0.05)
-            break;
+          if (L / s <= SMALL_L_BOUND || eps < 0.05) break;
+        } else {
+          for (i = 0; i < Dcnt; i++) killbloc((GEN)Ds[i].primes);
         }
       } else {
         if (log2(maxD) > BITS_IN_LONG - 2 * (log2(L) + 2))

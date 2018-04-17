@@ -546,6 +546,7 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
          allow models which are not p-integral
      79- ellgroup: allow E over number field
      80- elllocalred: allow E over Qp
+     81- memory leak in polclass()
 
   Removed
       1- file 'MACHINES' (no longer maintained)
