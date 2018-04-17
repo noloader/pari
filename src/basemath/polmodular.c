@@ -957,10 +957,11 @@ polmodular_db_add_level(GEN *DB, long L, long inv)
     killblock(db);
     gel(*DB, (inv == INV_J)? 1: 2) = db = newdb;
   }
-  if ( isintzero(gel(db, L))) {
+  if (typ(gel(db, L)) == t_INT) {
     pari_sp av = avma;
-    gel(db, L) = gclone(polmodular0_ZM(L, inv, NULL, NULL, 0, DB));
-    avma = av;
+    GEN x = polmodular0_ZM(L, inv, NULL, NULL, 0, DB); /* may set db[L] */
+    if (typ(gel(db, L)) != t_INT) gunclone(gel(db, L));
+    gel(db, L) = gclone(x); avma = av;
   }
 }
 
