@@ -3556,10 +3556,8 @@ check_generators(
  * RETURN:
  * - the number of primes and traces found (these are always the same).
  *
- * NOTE: Any of primes, traces and totbits can be zero, in which case
- * these values are discarded after calculation (however it is not
- * permitted for traces to be zero if primes is non-zero).  xprimes
- * can be zero, in which case it is treated as empty. */
+ * NOTE: primes and traces are both NULL or both non-NULL.
+ * xprimes can be zero, in which case it is treated as empty. */
 static long
 modpoly_pickD_primes(
   ulong *primes, ulong *traces, long max, ulong *xprimes, long xcnt,
@@ -3569,8 +3567,7 @@ modpoly_pickD_primes(
   long D, m, n, vcnt, pfilter, one_prime, inv;
   ulong maxp;
   register ulong a1, a2, v, t, p, a1_start, a1_delta, L0, L1, L, absD;
-  /* FF_BITS = BITS_IN_LONG - NAIL_BITS (latter is 2 or 7) */
-  ulong FF_BITS = BITS_IN_LONG - 2;
+  ulong FF_BITS = BITS_IN_LONG - 2; /* BITS_IN_LONG - NAIL_BITS */
 
   D = Dinfo->D1; absD = -D;
   L0 = Dinfo->L0;
@@ -3592,13 +3589,12 @@ modpoly_pickD_primes(
    * In this case we just verify we can get one prime (which should always be
    * true, assuming we chose D properly). */
   one_prime = 0;
-  if (totbits) *totbits = 0;
+  *totbits = 0;
   if (max <= 1 && ! one_prime) {
     p = ((pfilter & IQ_FILTER_1MOD3) ? 2 : 1) * ((pfilter & IQ_FILTER_1MOD4) ? 2 : 1);
     one_prime = (1UL << ((FF_BITS+1)/2)) * (log2(L*L*(-D))-1)
         > p*L*minbits*FF_BITS*LOG2;
-    if (one_prime && totbits)
-      *totbits = minbits+1;   /* lie */
+    if (one_prime) *totbits = minbits+1;   /* lie */
   }
 
   m = n = 0;
@@ -3623,11 +3619,11 @@ modpoly_pickD_primes(
     if (L1 && !(v % L1)) continue;
     vcnt = 0;
     if ((v*v*absD)/4 > (1L<<FF_BITS)/(L*L)) break;
-    if (((v*D) & 1)) {
+    if (both_odd(v,D)) {
       a1_start = 1;
       a1_delta = 2;
     } else {
-      a1_start = (((v*v*D) & 7) ? 2 : 0 );
+      a1_start = ((v*v*D) & 7)? 2: 0;
       a1_delta = 4;
     }
     for (a1 = a1_start; bits < minbits; a1 += a1_delta) {
@@ -3635,15 +3631,12 @@ modpoly_pickD_primes(
       if (!(a2 % L)) continue;
       t = a1*L + 2;
       p = a2*L*L + t - 1;
-      if (!(p & 1))
-        pari_err_BUG("modpoly_pickD_primes");
       /* double check calculation just in case of overflow or other weirdness */
-      if (t*t + v*v*L*L*absD != 4*p)
+      if (!odd(p) || t*t + v*v*L*L*absD != 4*p)
         pari_err_BUG("modpoly_pickD_primes");
       if (p > (1UL<<FF_BITS)) break;
       if (xprimes) {
-        while (m < xcnt && xprimes[m] < p)
-          m++;
+        while (m < xcnt && xprimes[m] < p) m++;
         if (m < xcnt && p == xprimes[m]) {
           dbg_printf(1)("skipping duplicate prime %ld\n", p);
           continue;
@@ -3651,7 +3644,6 @@ modpoly_pickD_primes(
       }
       if (!uisprime(p) || !modinv_good_prime(inv, p)) continue;
       if (primes) {
-        /* ulong vLp, vLm; */
         if (n >= max) goto done;
         /* TODO: Implement test to filter primes that lead to
          * L-valuation != 2 */
@@ -3675,7 +3667,7 @@ done:
   }
   dbg_printf(3)("D=%ld: Found %ld primes totalling %0.2f of %ld bits\n",
              D, n, bits, minbits);
-  if (totbits && ! *totbits) *totbits = (long)bits;
+  if (!*totbits) *totbits = (long)bits;
   return n;
 }
 
