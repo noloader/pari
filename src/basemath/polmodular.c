@@ -1990,7 +1990,7 @@ polmodular0_ZM(
 
     D = dinfo->D1;
     DK = dinfo->D0;
-    cond = sqrt((double)(D / DK));
+    cond = usqrt(D / DK);
     factu = factoru(cond);
     dbg_printf(1)("Selected discriminant D = %ld = %ld^2 * %ld.\n",
                   D, cond, DK);
@@ -4268,8 +4268,8 @@ discriminant_with_classno_at_least(
       h = itos(classno(stoi(bestD[i].D1)));
       avma = av;
       err_printf("  D = %ld, h = %ld, u = %ld, L0 = %ld, L1 = %ld, n1 = %ld, n2 = %ld, cost = %ld\n",
-          bestD[i].D1, h, (long)sqrt((double)(bestD[i].D1 / bestD[i].D0)), bestD[i].L0, bestD[i].L1,
-          bestD[i].n1, bestD[i].n2, bestD[i].cost);
+          bestD[i].D1, h, usqrt(bestD[i].D1 / bestD[i].D0), bestD[i].L0,
+          bestD[i].L1, bestD[i].n1, bestD[i].n2, bestD[i].cost);
     }
     err_printf("(off target by %.1f%%, cost ratio: %.1f)\n",
                best_eps*100, best_cost/(double)(d*(L-1)));
