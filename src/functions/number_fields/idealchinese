@@ -7,7 +7,7 @@ Help: idealchinese(nf,x,{y}): x being a prime ideal factorization and y a
  prime ideals p dividing x, and v_p(b)>=0 for all other p. If y is omitted,
  return a data structure which can be used in place of x in later calls.
 Doc: $x$ being a prime ideal factorization
- (i.e.~a 2 by 2 matrix whose first column contains prime ideals, and the second
+ (i.e.~a 2-columns matrix whose first column contains prime ideals, and the second
  column integral exponents), $y$ a vector of elements in $\var{nf}$ indexed by
  the ideals in $x$, computes an element $b$ such that
 
