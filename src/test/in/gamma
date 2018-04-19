@@ -19,6 +19,7 @@ lngamma(1+a*x+O(x^2))
 gamma(O(x))
 lngamma(O(x))
 psi(O(x))
+gamma(0.+1/2*x+O(x^2))
 
 psi(x)
 gamma(x)

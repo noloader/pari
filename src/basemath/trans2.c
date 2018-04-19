@@ -1527,11 +1527,38 @@ serlngamma0(GEN y, long prec)
   return integser(t);
 }
 
+static GEN
+serlngamma(GEN y, long prec)
+{
+  GEN z, y0, Y;
+  if (lg(y) == 2) pari_err_DOMAIN("gamma", "argument", "=", gen_0,y);
+  /* exp(lngamma) */
+  if (valp(y) > 0) return gdiv(gexp(glngamma(gaddgs(y,1),prec),prec),y);
+  y0 = simplify_shallow(gel(y,2));
+  z = NULL; Y = y;
+  if (isint(y0, &y0))
+  { /* fun eq. avoids log singularity of lngamma at negative ints */
+    long s = signe(y0);
+    /* possible if y[2] is an inexact 0 */
+    if (!s) return gdiv(gexp(glngamma(gaddgs(y,1),prec),prec),y);
+    if (signe(y0) < 0) { Y = gsubsg(1, y); y0 = subsi(1, y0); }
+    if (abscmpiu(y0, 50) < 0) z = mpfact(itos(y0)-1); /* more precise */
+  }
+  if (!z) z = ggamma(y0,prec);
+  z = gmul(z, gexp(serlngamma0(Y,prec),prec));
+  if (Y != y)
+  {
+    GEN pi = mppi(prec);
+    z = gdiv(mpodd(y0)? pi: negr(pi),
+             gmul(z, gsin(gmul(pi,serchop0(y)), prec)));
+  }
+  return z;
+}
 GEN
 ggamma(GEN x, long prec)
 {
   pari_sp av;
-  GEN y, z;
+  GEN y;
 
   switch(typ(x))
   {
@@ -1585,29 +1612,7 @@ ggamma(GEN x, long prec)
     case t_PADIC: return Qp_gamma(x);
     default:
       av = avma; if (!(y = toser_i(x))) break;
-      if (lg(y) == 2) pari_err_DOMAIN("gamma", "argument", "=", gen_0,y);
-      /* exp(lngamma) */
-      if (valp(y) > 0 || lg(y) == 2)
-        z = gdiv(gexp(glngamma(gaddgs(y,1),prec),prec),y);
-      else
-      {
-        GEN Y = y, y0 = simplify_shallow(gel(y,2));
-        z = NULL;
-        if (isint(y0, &y0))
-        { /* fun eq. avoids log singularity of lngamma at negative ints */
-          if (signe(y0) < 0) { Y = gsubsg(1, y); y0 = subsi(1, y0); }
-          if (abscmpiu(y0, 50) < 0) z = mpfact(itos(y0)-1); /* more precise */
-        }
-        if (!z) z = ggamma(y0,prec);
-        z = gmul(z, gexp(serlngamma0(Y,prec),prec));
-        if (Y != y)
-        {
-          GEN pi = mppi(prec);
-          z = gdiv(mpodd(y0)? pi: negr(pi),
-                   gmul(z, gsin(gmul(pi,serchop0(y)), prec)));
-        }
-      }
-      return gerepileupto(av, z);
+      return gerepileupto(av, serlngamma(y, prec));
   }
   return trans_eval("gamma",ggamma,x,prec);
 }
