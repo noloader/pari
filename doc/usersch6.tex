@@ -2029,6 +2029,37 @@ $4$ (0 or 1).
 \fun{void}{check_quaddisc_imag}{GEN x, long *mod4, const char *f} as
 \tet{check_quaddisc}; check that \kbd{signe(x)} is negative.
 
+\subsec{Class number}
+
+The function \kbd{quadclassunit} uses index calculus and runs in
+subexponential time but it assumes the truth of the GRH. For imaginary
+quadratic orders, it is comparatively slow for \emph{small} values,
+say $|D|\leq 10^{18}$. Here are some alternatives:
+
+ \fun{GEN}{classno}{GEN D} corresponds to \kbd{qfbclassno(D,0)} and is only
+useful for $D < 0$, uses a baby-step giant-step technique and runs in time
+$O(D{1/4})$. The result is guaranteed correct for $|D| < 2\cdot 10^{10}$
+and fastest in that range. For larger values of $|D|$, the algorithm is no
+longer rigorous and may give incorrect results (we know no concrete example);
+it also becomes relatively less interesting compared to \kbd{quadclassunit}.
+
+\fun{GEN}{classno2}{GEN D}  corresponds to \kbd{qfbclassno(D,1)} and runs in
+time $O(D^{1/2})$; it is provided for testing purposes only: it is never
+competitive.
+
+\fun{GEN}{hclassno}{GEN d} returns the Hurwitz-Kronecker class number $H(d)$.
+These play a central role in trace fomulas and are usually needed for many
+consecutive values of $d$. Thus, the function uses a cache so that later
+calls for \emph{small} consecutive values of $d$ are instantaneous, see
+\kbd{getcache}. Large values of $d$ ($d > 500000$) call \kbd{quadclassunit}
+individually and are not memoized.
+
+\fun{GEN}{hclassno6}{GEN d} assuming $d > 0$, returns the integer $6 H(d)$.
+This is a low-level function behind \kbd{hclassno}.
+
+\fun{ulong}{hclassno6u}{ulong d} assuming $d > 0$, returns the integer
+$6 H(d)$.
+
 \subsec{\typ{QFI}, \typ{QFR}}
 
 \fun{GEN}{qfi}{GEN x, GEN y, GEN z} creates the \typ{QFI} $(x,y,z)$.
@@ -2928,5 +2959,4 @@ number. Not stack clean.
 \fun{long}{localhasse}{GEN rnf, GEN cnd, GEN pl, GEN auts, GEN b, long k}
 
 \fun{GEN}{nfgwkummer}{GEN nf, GEN Lpr, GEN Ld, GEN pl, long var}
-
 \newpage

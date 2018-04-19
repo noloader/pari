@@ -19,12 +19,14 @@ Doc: ordinary class number of the quadratic order of discriminant $D$, for
 
  \misctitle{Important warning} In the latter case, this function only
  implements part of \idx{Shanks}'s method (which allows to speed it up
- considerably). It gives unconditionnally correct results for $|D| < 2\cdot
- 10^{10}$, but may give incorrect results for larger values if the class
+ considerably). It gives unconditionnally correct results for
+ $|D| < 2\cdot 10^{10}$, but may give incorrect results for larger values
+ if the class
  group has many cyclic factors. We thus recommend to double-check results
  using the function \kbd{quadclassunit}, which is about 2 to 3 times slower in
- the above range, assuming GRH. We currently have no counter-examples but
- they should exist: we'd appreciate a bug report if you find one.
+ the range $|D| \in [10^{10}, 10^{18}]$, assuming GRH. We currently have no
+ counter-examples but they should exist: we would appreciate a bug report if
+ you find one.
 
  \misctitle{Warning} Contrary to what its name implies, this routine does not
  compute the number of classes of binary primitive forms of discriminant $D$,
@@ -40,27 +42,17 @@ Doc: ordinary class number of the quadratic order of discriminant $D$, for
  @eprog\noindent
  Here are a few examples:
  \bprog
- ? qfbclassno(400000028)
+ ? qfbclassno(400000028) \\ D > 0: slow
  time = 3,140 ms.
  %1 = 1
  ? quadclassunit(400000028).no
- time = 20 ms. \\@com{ much faster}
+ time = 20 ms. \\@com{ much faster, assume GRH}
  %2 = 1
- ? qfbclassno(-400000028)
+ ? qfbclassno(-400000028) \\ D < 0: fast enough
  time = 0 ms.
- %3 = 7253 \\@com{ correct, and fast enough}
+ %3 = 7253
  ? quadclassunit(-400000028).no
  time = 0 ms.
  %4 = 7253
  @eprog\noindent
  See also \kbd{qfbhclassno}.
-Variant: The following functions are also available:
-
- \fun{GEN}{classno}{GEN D} ($\fl = 0$)
-
- \fun{GEN}{classno2}{GEN D} ($\fl = 1$).
-
- \noindent Finally
-
- \fun{GEN}{hclassno}{GEN D} computes the class number of an imaginary
- quadratic field by counting reduced forms, an $O(|D|)$ algorithm.

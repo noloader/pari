@@ -22,7 +22,6 @@ Doc:
 
  \item Factorizations of small integers up to $N$, computed in time
  $O(N^{1+\varepsilon})$ using $O(N\log N)$ space.
- memory with a large constant (about 16).
 
  \item Divisors of small integers up to $N$, computed in time
  $O(N^{1+\varepsilon})$ using $O(N\log N)$ space.
