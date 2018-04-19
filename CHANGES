@@ -191,6 +191,8 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     149- implementation of newblock was incompatible with getheap(). Now we
          always include the 'block' size in the header.
     150- gamma(0.0+1/2*x+O(x^2)) -> domain error in factorial
+    155- affrr(0.0, x) did not reset the exponent correctly: use
+         min(expo(0.0), bit_accuracy(lg(x)))
 
   Added
       1- [libari] ZM_isidentity

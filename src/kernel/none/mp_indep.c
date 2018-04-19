@@ -30,11 +30,13 @@ invmod2BIL(ulong b)
 void
 affrr(GEN x, GEN y)
 {
-  long lx,ly,i;
-
-  y[1] = x[1]; if (!signe(x)) return;
-
-  lx=lg(x); ly=lg(y);
+  long i, lx, ly = lg(y);
+  if (!signe(x))
+  {
+    y[1] = evalexpo(minss(expo(x), -bit_accuracy(ly)));
+    return;
+  }
+  y[1] = x[1]; lx = lg(x);
   if (lx <= ly)
   {
     for (i=2; i<lx; i++) y[i]=x[i];
