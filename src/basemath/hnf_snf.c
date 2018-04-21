@@ -1591,7 +1591,7 @@ reduce2(GEN A, GEN B, long k, long j, long *row0, long *row1, GEN lambda, GEN D)
     togglesign_safe(&q);
     if (*row0) ZC_lincomb1_inplace(gel(A,k),gel(A,j),q);
     if (B) ZC_lincomb1_inplace(gel(B,k),gel(B,j),q);
-    gel(Lk,j) = addii(gel(Lk,j), mulii(q,gel(D,j)));
+    gel(Lk,j) = addmulii(gel(Lk,j), q, gel(D,j));
     if (is_pm1(q))
     {
       if (signe(q) > 0)
@@ -1608,7 +1608,7 @@ reduce2(GEN A, GEN B, long k, long j, long *row0, long *row1, GEN lambda, GEN D)
     else
     {
       for (i=1; i<j; i++)
-        if (signe(gel(Lj,i))) gel(Lk,i) = addii(gel(Lk,i), mulii(q,gel(Lj,i)));
+        if (signe(gel(Lj,i))) gel(Lk,i) = addmulii(gel(Lk,i), q, gel(Lj,i));
     }
   }
 }
@@ -1757,11 +1757,11 @@ reduce1(GEN A, GEN B, long k, long j, GEN lambda, GEN D)
   {
     GEN Lk = gel(lambda,k), Lj = gel(lambda,j);
     togglesign_safe(&q);
-    gel(A,k) = addii(gel(A,k), mulii(q,gel(A,j)));
+    gel(A,k) = addmulii(gel(A,k), q, gel(A,j));
     ZC_lincomb1_inplace(gel(B,k),gel(B,j),q);
-    gel(Lk,j) = addii(gel(Lk,j), mulii(q,gel(D,j)));
+    gel(Lk,j) = addmulii(gel(Lk,j), q, gel(D,j));
     for (i=1; i<j; i++)
-      if (signe(gel(Lj,i))) gel(Lk,i) = addii(gel(Lk,i), mulii(q,gel(Lj,i)));
+      if (signe(gel(Lj,i))) gel(Lk,i) = addmulii(gel(Lk,i), q, gel(Lj,i));
   }
 }
 
