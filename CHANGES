@@ -193,6 +193,8 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     150- gamma(0.0+1/2*x+O(x^2)) -> domain error in factorial
     155- affrr(0.0, x) did not reset the exponent correctly: use
          min(expo(0.0), bit_accuracy(lg(x)))
+    157- matkerint could be exponentially slow; guarantee polynomial time
+         (drawback: slows down some classes of matrices) [#2034]
 
   Added
       1- [libari] ZM_isidentity
