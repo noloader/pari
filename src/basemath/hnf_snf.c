@@ -1654,6 +1654,15 @@ reverse_rows(GEN A)
   }
   return A;
 }
+/* decide whether to swap */
+static int
+must_swap(long k, GEN lambda, GEN D)
+{
+  pari_sp av = avma;
+  GEN z = addii(mulii(gel(D,k-2),gel(D,k)), sqri(gcoeff(lambda,k-1,k)));
+  long s = cmpii(z, sqri(gel(D,k-1)));
+  avma = av; return s < 0;
+}
 
 GEN
 ZM_hnflll(GEN A, GEN *ptB, int remove)
@@ -1673,17 +1682,9 @@ ZM_hnflll(GEN A, GEN *ptB, int remove)
     long row0, row1;
     int do_swap;
     reduce2(A,B,k,k-1,&row0,&row1,lambda,D);
-    if (row0)
-      do_swap = (!row1 || row0 <= row1);
-    else if (!row1)
-    { /* row0 == row1 == 0 */
-      pari_sp av1 = avma;
-      GEN z = addii(mulii(gel(D,k-2),gel(D,k)), sqri(gcoeff(lambda,k-1,k)));
-      do_swap = (cmpii(z, sqri(gel(D,k-1))) < 0);
-      avma = av1;
-    }
-    else
-      do_swap = 0;
+    if      (row0) do_swap = (!row1 || row0 <= row1);
+    else if (row1) do_swap = 0;
+    else do_swap = must_swap(k,lambda,D);
     if (do_swap)
     {
       hnfswap(A,B,k,lambda,D);
@@ -1781,16 +1782,9 @@ ZV_gcdext_i(GEN A)
     int do_swap;
 
     reduce1(A,B,k,k-1,lambda,D);
-    if (signe(gel(A,k-1))) do_swap = 1;
-    else if (!signe(gel(A,k)))
-    {
-      pari_sp av1 = avma;
-      GEN z = addii(mulii(gel(D,k-2),gel(D,k)), sqri(gcoeff(lambda,k-1,k)));
-      do_swap = (cmpii(z, sqri(gel(D,k-1))) < 0);
-      avma = av1;
-    }
-    else do_swap = 0;
-
+    if    (signe(gel(A,k-1))) do_swap = 1;
+    else if (signe(gel(A,k))) do_swap = 0;
+    else do_swap = must_swap(k,lambda,D);
     if (do_swap)
     {
       hnfswap(A,B,k,lambda,D);

@@ -9266,9 +9266,9 @@ mffrometaquo(GEN eta, long flag)
   long l, s;
   if (typ(eta) != t_MAT || lg(eta) != 3 || !RgM_is_ZM(eta))
     pari_err_TYPE("mffrometaquo", eta);
+  eta = famat_reduce(eta);
   B = gel(eta,1); l = lg(B);
   E = gel(eta,2);
-  if (lg(E) != l) pari_err_TYPE("mffrometaquo [not a factorization]", eta);
   if (l == 1) return mf1();
   s = maxss(0, itos(ZV_dotproduct(B,E)) / 24);
   B = ZV_to_zv(B);
