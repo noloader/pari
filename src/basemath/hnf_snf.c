@@ -1659,9 +1659,6 @@ GEN
 ZM_hnflll(GEN A, GEN *ptB, int remove)
 {
   pari_sp av = avma;
-#ifdef HNFLLL_QUALITY
-  const long m1 = 1, n1 = 1; /* alpha = m1/n1. Maybe 3/4 here ? */
-#endif
   long n, k, kmax;
   GEN B, lambda, D;
 
@@ -1682,11 +1679,7 @@ ZM_hnflll(GEN A, GEN *ptB, int remove)
     { /* row0 == row1 == 0 */
       pari_sp av1 = avma;
       GEN z = addii(mulii(gel(D,k-2),gel(D,k)), sqri(gcoeff(lambda,k-1,k)));
-#ifdef HNFLLL_QUALITY
-      do_swap = (cmpii(mului(n1,z), mului(m1,sqri(gel(D,k-1)))) < 0);
-#else /* assume m1 = n1 = 1 */
       do_swap = (cmpii(z, sqri(gel(D,k-1))) < 0);
-#endif
       avma = av1;
     }
     else
@@ -1774,9 +1767,6 @@ reduce1(GEN A, GEN B, long k, long j, GEN lambda, GEN D)
 static GEN
 ZV_gcdext_i(GEN A)
 {
-#ifdef HNFLLL_QUALITY
-  const long m1 = 1, n1 = 1; /* alpha = m1/n1. Maybe 3/4 here ? */
-#endif
   long k, n = lg(A);
   GEN B, lambda, D;
 
@@ -1796,11 +1786,7 @@ ZV_gcdext_i(GEN A)
     {
       pari_sp av1 = avma;
       GEN z = addii(mulii(gel(D,k-2),gel(D,k)), sqri(gcoeff(lambda,k-1,k)));
-#ifdef HNFLLL_QUALITY
-      do_swap = (cmpii(mului(n1,z), mului(m1,sqri(gel(D,k-1)))) < 0);
-#else /* assume m1 = n1 = 1 */
       do_swap = (cmpii(z, sqri(gel(D,k-1))) < 0);
-#endif
       avma = av1;
     }
     else do_swap = 0;
@@ -2019,10 +2005,10 @@ ZM_hnfall_i(GEN A, GEN *ptB, long remove)
     {
       for (i=h[j]; i>li; i--)
       {
-        a = gcoeff(A,i,j);
+        a = gcoeff(A,i,j); if (!signe(a)) continue;
         k = c[i];
         /* zero a = Aij  using  Aik */
-        if (signe(a)) ZC_elem(a,gcoeff(A,i,k), A,B,j,k);
+        ZC_elem(a,gcoeff(A,i,k), A,B,j,k);
         ZM_reduce(A,B, i,k); /* ensure reduced entries */
         if (gc_needed(av,1))
         {
