@@ -527,7 +527,7 @@ struct igusa {
   GEN a0, A2, A3, A5, B2;
 };
 struct igusa_p {
-  long eps, eps2, tt, r1, r2, R, tame;
+  long eps, tt, r1, r2, R, tame;
   GEN p, stable, val, neron;
   const char *type;
 };
@@ -536,16 +536,16 @@ struct igusa_p {
 static void
 stable_reduction(struct igusa *I, struct igusa_p *Ip, GEN p)
 {
-  static const long deg[9] = { 0,2,4,4,6,8,10,12 };
+  static const long d[9] = { 0,60,30,30,20,15,12,10 }; /* 120 / deg(X) */
   GEN j2 = I->j2, i4 = I->i4, j4 = I->j4, j6 = I->j6, j8 = I->j8;
-  GEN val, J, v, s, Ieps, j10 = I->j10, i12 = I->i12;
-  long r1, r2, r3, r4, i, eps, eps2;
+  GEN val, J, v, Ieps, j10 = I->j10, i12 = I->i12;
+  long s, r1, r2, r3, r4, i, eps;
 
   Ip->tame = 0;
   Ip->neron = NULL;
   Ip->type = NULL;
   Ip->p = p;
-  Ip->val = val = cgetg(8, t_VECSMALL);
+  Ip->val = val = cgetg(9, t_VECSMALL);
   val[1] = myval(j2,p);
   val[2] = myval(j4,p);
   val[3] = myval(i4,p);
@@ -553,36 +553,33 @@ stable_reduction(struct igusa *I, struct igusa_p *Ip, GEN p)
   val[5] = myval(j8,p);
   val[6] = myval(j10,p);
   val[7] = myval(i12,p);
-
-  v = cgetg(8,t_COL);
-  for(i = 1; i <= 7; i++) gel(v,i) = sstoQ(val[i], deg[i]);
-  s = gel(v,1);
-  for(i = 2; i <= 7; i++)
-    if (gcmp(gel(v,i),s) < 0) s = gel(v,i);
   switch(itos_or_0(p))
   {
-    case 2:  eps = 4; eps2 = 5; Ieps = j8; break;
-    case 3:  eps = 3; eps2 = 4; Ieps = j6; break;
-    default: eps = 1; eps2 = 1; Ieps = gdivgs(j2,12); break;
+    case 2:  eps = 4; val[8] = val[5]; Ieps = j8; break;
+    case 3:  eps = 3; val[8] = val[4]; Ieps = j6; break;
+    default: eps = 1; val[8] = val[1]; Ieps = gdivgs(j2,12); break;
   }
+
+  v = cgetg(8,t_VECSMALL);
+  for(i = 1; i <= 7; i++) v[i] = val[i] * d[i];
+  s = vecsmall_min(v);
   Ip->eps  = eps;
-  Ip->eps2 = eps2;
 
   r1 = 3*eps*val[3];
-  r3 = eps*val[6] + val[eps2];
+  r3 = eps*val[6] + val[8];
   r2 = eps*val[7];
   r4 = min3(r1, r2, r3);
 
   /* s = max(v_p(X) / deg(X)) */
   J = cgetg(1, t_VEC);
-  if (gequal(s,gel(v,6)))
+  if (s == v[6])
     Ip->tt = 1;
-  else if (gequal(s,gel(v,7)))
+  else if (s == v[7])
   {
     J = mkvec( Fp_to_mod(gmod(gdiv(gpowgs(i4,3),i12), p), p) );
     Ip->tt = 2;
   }
-  else if (gequal(s,gel(v,3)))
+  else if (s == v[3])
     Ip->tt = (val[2] == val[3] || 2*val[4] == 3*val[3])? 3: 4;
   else if (r3 == r4)
   {
@@ -673,7 +670,7 @@ get_red(struct red *S, struct igusa_p *Ip, GEN polh, GEN p, long alpha, long r)
     case 0:
       indice = FpX_is_squarefree(FpX_red(polh,p), p)
                ? 0
-               : val[6] - val[7] + val[Ip->eps2]/Ip->eps;
+               : val[6] - val[7] + val[8]/Ip->eps;
       S->t = stack_sprintf("I{%ld}", indice);
       S->tnum = 1;
       S->pages = "159-177";
@@ -684,7 +681,7 @@ get_red(struct red *S, struct igusa_p *Ip, GEN polh, GEN p, long alpha, long r)
         polh = ZX_Z_divexact(ZX_unscale_div(polh,p), sqri(p));
       indice = FpX_is_squarefree(FpX_red(polh,p), p)
                ? 0
-               : val[6] - val[7] + val[Ip->eps2]/Ip->eps;
+               : val[6] - val[7] + val[8]/Ip->eps;
       S->t = stack_sprintf("I*{%ld}", indice);
       S->tnum = 1.5;
       S->pages = "159-177";
@@ -1088,7 +1085,7 @@ tame_567_init(struct igusa *I, struct igusa_p *Ip, long dk,
   v2 = 6*va5-20*va0-5*val[1];
   ssQ_red(dk, 12, &ndk, &ddk);
   /* the definition of n differs according to the parity of val[1] */
-  if (! odd(val[Ip->eps2]))
+  if (! odd(val[8]))
   {
     if (3*vb2 >= 2*va0+2*val[1] && v1 >= 0 && v2 >= 0
                                 && (v1 == 0 || v2 == 0))
@@ -1123,9 +1120,9 @@ tame_5(struct igusa *I, struct igusa_p *Ip)
   long condp = -1, d, n, dm, r, dk;
   GEN val = Ip->val;
 
-  dk = Ip->eps*val[6]-5*val[Ip->eps2];
+  dk = Ip->eps*val[6]-5*val[8];
   tame_567_init(I, Ip, dk, &d, &n, &dm, &r);
-  if (! odd(val[Ip->eps2]))
+  if (! odd(val[8]))
   {
     switch(n)
     {
@@ -1410,9 +1407,9 @@ tame_6(struct igusa *I, struct igusa_p *Ip)
   long condp = -1, d, d1, n, dm, r, dk;
   GEN val = Ip->val, d1k;
 
-  dk = Ip->eps*val[7]-6*val[Ip->eps2];
+  dk = Ip->eps*val[7]-6*val[8];
   tame_567_init(I, Ip, dk, &d, &n, &dm, &r);
-  d1k = sstoQ(Ip->eps*(val[6]-val[7])+val[Ip->eps2], Ip->eps);
+  d1k = sstoQ(Ip->eps*(val[6]-val[7])+val[8], Ip->eps);
   d1 = itos(gmulsg(n,d1k));
   switch(n)
   {
@@ -1519,9 +1516,9 @@ tame_7(struct igusa *I, struct igusa_p *Ip)
   long condp = -1, d, d1, d2, n, dm, r, dk;
   GEN val = Ip->val, d1k, d2k, pro1;
 
-  dk = 3*(Ip->eps*val[3]-2*val[Ip->eps2]);
+  dk = 3*(Ip->eps*val[3]-2*val[8]);
   tame_567_init(I, Ip, dk, &d, &n, &dm, &r);
-  pro1 = sstoQ(Ip->eps*val[6]+val[Ip->eps2]-3*Ip->eps*val[3], Ip->eps);
+  pro1 = sstoQ(Ip->eps*val[6]+val[8]-3*Ip->eps*val[3], Ip->eps);
   d1k = gmin(stoi(val[7]-3*val[3]),gmul2n(pro1,-1));
   d2k = gsub(pro1,d1k);
 
@@ -1533,7 +1530,7 @@ tame_7(struct igusa *I, struct igusa_p *Ip)
       Ip->type = stack_sprintf("[I{%ld}-I{%ld}-%ld] page 179",d1,d2,d);
       Ip->neron = dicyclic(d1,d2); break;
     case 2:
-      if ( odd(val[Ip->eps2]) )
+      if (odd(val[8]))
       {
         condp = 3;
         Ip->type = stack_sprintf("[2I{%ld}-%ld] page 181",d1,d/2);
@@ -1611,7 +1608,7 @@ quartic(GEN polh, long alpha, long Dmin, struct igusa_p *Ip)
   {
     case 1: case 5: d = 0;break;
     case 3: d = val[6] - 5*val[3]/2;break;
-    case 7: d = val[6] - 3*val[3] + val[Ip->eps2]/Ip->eps;break;
+    case 7: d = val[6] - 3*val[3] + val[8]/Ip->eps;break;
     default: pari_err_BUG("quartic [type choices]");
              d = 0; /*LCOV_EXCL_LINE*/
   }
@@ -1690,7 +1687,7 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
     if (Ip->r1 == Ip->r2) return tame(polh, theta, alpha, Dmin, I, Ip);
     if (Ip->tt == 6)
     {
-      d = val[6] - val[7] + (val[Ip->eps2]/Ip->eps);
+      d = val[6] - val[7] + val[8]/Ip->eps;
       if (Ip->r1 && alpha1 == 0) /* H(px) / p^3 */
         polh1 = ZX_Z_divexact(ZX_unscale_div(polh1,p), sqri(p));
       if (FpX_is_squarefree(FpX_red(polh1,p),p))
@@ -1701,7 +1698,7 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
     else
     { /* Ip->tt == 7 */
       long d1;
-      d = val[6] - 3*val[3] + (val[Ip->eps2]/Ip->eps);
+      d = val[6] - 3*val[3] + val[8]/Ip->eps;
       if (gequal1(theta1)) /* H(px) / p^3 */
         polh1 = ZX_Z_divexact(ZX_unscale_div(polh1,p), sqri(p));
       d1 = minss(val[7]-3*val[3],d/2);
@@ -1755,7 +1752,7 @@ labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igus
   if (odd(R)) pari_err_BUG("labelm3 [R odd]");
   R /= 2;
   if (R <= -2) pari_err_BUG("labelm3 [R <= -2]");
-  if (val[Ip->eps2] % (2*Ip->eps)) pari_err_BUG("labelm3 [val(eps2)]");
+  if (val[8] % (2*Ip->eps)) pari_err_BUG("labelm3 [val(eps2)]");
   if (R >= 0 && (alpha+alpha1) >= 1) pari_err_BUG("labelm3 [minimal equation]");
   Ip->r1 = itos(gmulgs(theta1,6)) + 6*alpha1;
   Ip->r2 = itos(gmulgs(theta, 6)) + 6*alpha;
