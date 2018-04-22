@@ -416,10 +416,9 @@ zi_pow3mod(GEN a)
 static GEN
 polymini_zi(GEN pol) /* polynome minimal dans Z[i] */
 {
-  GEN p, polh, rac, a0, a1, a2, a3, a4, a5, a6;
+  GEN polh, rac, a0, a1, a2, a3, a4, a5, a6, p = utoipos(3);
   long alpha, beta, t6;
 
-  p = stoi(3);
   alpha = polval(pol,p) & 1;
   polh = alpha? RgX_Rg_div(pol, p): pol;
   beta = 0;
@@ -434,8 +433,7 @@ polymini_zi(GEN pol) /* polynome minimal dans Z[i] */
       GEN pe = powiu(p,e);
       polh = RgX_Rg_div(RgX_unscale(polh,pe), powiu(pe,3));
       alpha = (alpha+e)&1;
-      beta += e;
-      t6 -= e * 6;
+      t6 -= e * 6; beta += e;
     }
     RgX_to_6(polh, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
     if (t6 || !myval_zi(a4) || !myval_zi(a5)) break;
@@ -443,10 +441,9 @@ polymini_zi(GEN pol) /* polynome minimal dans Z[i] */
   }
   if (alpha && myval_zi(a0) >= 3 && myval_zi(a1) >= 2 && myval_zi(a2) >= 1)
   {
-    t6 += 6;
-    beta--;
-    alpha = 0;
+    t6 += 6; beta--; alpha = 0;
   }
+  if (alpha && beta >= 1) pari_err_BUG("quadratic");
   return mkvecsmall3(t6, alpha, beta);
 }
 
@@ -456,13 +453,11 @@ polymini_zi2(GEN pol)
 {
   long alpha, beta, t6;
   GEN a0, a1, a2, a3, a4, a5, a6;
-  GEN p, polh, rac, y = pol_x(fetch_var());
+  GEN polh, rac, y = pol_x(fetch_var()), p = utoipos(3);
 
-  p = stoi(3);
   if (polval(pol,p)) pari_err_BUG("polymini_zi2 [polynomial not minimal]");
   y = mkpolmod(y, gsubgs(gsqr(y), 3)); /* mod(y,y^2-3) */
-  polh = pol;
-  polh = gdivgs(RgX_unscale(polh, y),27); /* H(y*x) / 27 */
+  polh = gdivgs(RgX_unscale(pol, y),27); /* H(y*x) / 27 */
   if (myval_zi2(RgX_coeff(polh,4)) <= 0 ||
       myval_zi2(RgX_coeff(polh,2)) <= 0)
   {
@@ -486,8 +481,7 @@ polymini_zi2(GEN pol)
       GEN pent = gpowgs(y, e);
       polh = RgX_Rg_div(RgX_unscale(polh, pent), gpowgs(pent,3));
       alpha = (alpha+e)&1;
-      beta += e;
-      t6 -= 6*e;
+      t6 -= 6*e; beta += e;
     }
     RgX_to_6(polh, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
     if (t6 || !myval_zi2(a4) || !myval_zi2(a5)) break;
@@ -497,15 +491,12 @@ polymini_zi2(GEN pol)
   }
   if (alpha)
   {
-    if (myval_zi2(a0) >= 3 && myval_zi2(a1) >= 2 && myval_zi2(a2) >= 1)
-    {
-      t6 += 6;
-      beta--;
-      alpha = 0;
-    }
-    else pari_err_BUG("polymini_zi2 [alpha]");
+    if (myval_zi2(a0) < 3 || myval_zi2(a1) < 2 || myval_zi2(a2) < 1)
+      pari_err_BUG("polymini_zi2 [alpha]");
+    t6 += 6; beta--;
   }
   (void)delete_var();
+  if (odd(beta)) pari_err_BUG("quartic [type over Z[i] must be [K-K-(2*m)]]");
   return mkvecsmall2(t6, beta);
 }
 
@@ -1571,7 +1562,6 @@ quartic(GEN polh, long alpha, long Dmin, struct igusa_p *Ip)
   long condp = -1, d, R, r1, beta;
   r1 = polf[1];
   beta = polf[2];
-  if (odd(beta)) pari_err_BUG("quartic [type over Z[i] must be [K-K-(2*m)]]");
   R = beta/2;
   switch(Ip->tt)
   {
@@ -1738,7 +1728,6 @@ quadratic(GEN polh, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
   t6 = polf[1];
   alpha = polf[2];
   beta  = polf[3];
-  if (alpha && beta >= 1) pari_err_BUG("quadratic");
   Ip->R = beta-alpha;
   if (Ip->R >= 0 && alpha1)
   {
