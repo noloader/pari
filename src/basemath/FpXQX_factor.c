@@ -467,7 +467,7 @@ Flx_factorff_irred(GEN P, GEN Q, ulong p)
 {
   pari_sp ltop = avma, av;
   GEN SP, SQ, MP, MQ, M, FP, FQ, E, V, IR, res;
-  long np = get_Flx_degree(P), nq = get_Flx_degree(Q), d = cgcd(np,nq);
+  long np = get_Flx_degree(P), nq = get_Flx_degree(Q), d = ugcd(np,nq);
   long i, vp = get_Flx_var(P), vq = get_Flx_var(Q);
   if (d==1) retmkcol(Flx_to_FlxX(P, vq));
   FQ = Flx_matFrobenius(Q,p);
@@ -502,7 +502,7 @@ FpX_factorff_irred(GEN P, GEN Q, GEN p)
 {
   pari_sp ltop = avma, av;
   GEN res;
-  long np = get_FpX_degree(P), nq = get_FpX_degree(Q), d = cgcd(np,nq);
+  long np = get_FpX_degree(P), nq = get_FpX_degree(Q), d = ugcd(np,nq);
   if (d==1) return mkcolcopy(P);
 
   if (lgefint(p)==3)
@@ -643,9 +643,8 @@ Flx_factorff_i(GEN P, GEN T, ulong p)
 static long
 simpleff_to_nbfact(GEN F, long dT)
 {
-  long i, n = lg(F), k = 0;
-  for (i = 1; i < n; i++)
-    k += cgcd(uel(F,i), dT);
+  long i, l = lg(F), k = 0;
+  for (i = 1; i < l; i++) k += ugcd(uel(F,i), dT);
   return k;
 }
 
