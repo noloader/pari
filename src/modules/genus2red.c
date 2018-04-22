@@ -506,7 +506,7 @@ struct igusa {
   GEN a0, A2, A3, A5, B2;
 };
 struct igusa_p {
-  long eps, tt, r1, r2, R, tame;
+  long eps, tt, r1, r2, tame;
   GEN p, stable, val, neron;
   const char *type;
 };
@@ -1617,10 +1617,10 @@ quartic(GEN polh, long alpha, long Dmin, struct igusa_p *Ip)
 
 static long
 litredtp(long alpha, long alpha1, long t60, long t60_1, GEN polh, GEN polh1,
-         long Dmin, struct igusa *I, struct igusa_p *Ip)
+         long Dmin, long R, struct igusa *I, struct igusa_p *Ip)
 {
   GEN val = Ip->val, p = Ip->p;
-  long condp = -1, indice, d, R = Ip->R;
+  long condp = -1, indice, d;
 
   if ((Ip->r1 == 0||Ip->r1 == 6) && (Ip->r2 == 0||Ip->r2 == 6))
   { /* (r1,r2) = (0,0), (0,6), (6,0) or (6,6) */
@@ -1715,28 +1715,27 @@ labelm3(GEN polh, long t60, long alpha, long Dmin, struct igusa *I, struct igusa
   if (R >= 0 && (alpha+alpha1) >= 1) pari_err_BUG("labelm3 [minimal equation]");
   Ip->r1 = t60_1 / 10 + 6*alpha1;
   Ip->r2 = t60 / 10 + 6*alpha;
-  Ip->R = R;
-  return litredtp(alpha, alpha1, t60, t60_1, polh, polh1, Dmin, I, Ip);
+  return litredtp(alpha, alpha1, t60, t60_1, polh, polh1, Dmin, R, I, Ip);
 }
 
 /* p = 3 */
 static long
 quadratic(GEN polh, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
-  long alpha1 = alpha, beta, t6;
+  long alpha1 = alpha, beta, t6, R;
   GEN polf = polymini_zi(ZX_Z_mul(polh, powiu(Ip->p,alpha)));
   t6 = polf[1];
   alpha = polf[2];
   beta  = polf[3];
-  Ip->R = beta-alpha;
-  if (Ip->R >= 0 && alpha1)
+  R = beta-alpha;
+  if (R >= 0 && alpha1)
   {
     Dmin -= 10;
     if (DEBUGLEVEL)
       err_printf("(Care: minimal discriminant over Z[i] smaller than over Z)\n");
   }
   Ip->r2 = Ip->r1 = t6 + 6*alpha;
-  return litredtp(alpha, alpha, t6*10, t6*10, polh, polh, Dmin, I, Ip);
+  return litredtp(alpha, alpha, t6*10, t6*10, polh, polh, Dmin, R, I, Ip);
 }
 
 static long
