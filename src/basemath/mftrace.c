@@ -423,14 +423,14 @@ phipart(long g, long q)
 static GEN
 tracerelz(long d, long m, long k, long vt)
 {
-  long s, v, g = cgcd(k, d), q = d / g, muq = mymoebiusu(q);
+  long s, v, g = ugcd(k, d), q = d / g, muq = mymoebiusu(q);
   if (!muq) return gen_0;
   if (m == 1)
   {
     s = phipart(g, q); if (muq < 0) s = -s;
     return stoi(s);
   }
-  if (cgcd(q, m) > 1) return gen_0;
+  if (ugcd(q, m) > 1) return gen_0;
   s = phipart(g, m*q); if (muq < 0) s = -s;
   v = Fl_inv(q % m, m);
   v = (v*(k/g)) % m;
@@ -720,12 +720,6 @@ mfchareval_i(GEN CHI, long n)
   GEN ord = gmfcharorder(CHI);
   if (equali1(ord)) return gen_1;
   return mygmodulo(CHI, znchareval_i(CHI, n, ord));
-}
-static GEN
-mfchareval(GEN CHI, long n)
-{
-  long N = mfcharmodulus(CHI);
-  return (cgcd(N, n) > 1) ? gen_0 : mfchareval_i(CHI, n);
 }
 /* d a multiple of ord(CHI); n coprime with char modulus;
  * return x s.t. CHI(n) = \zeta_d^x] */
@@ -1319,7 +1313,7 @@ c_theta(long n, long d, GEN psi)
   long f, d2 = d == 1? 1: mysqrtu(d);
   GEN V = zerovec(n + 1);
   for (f = d2; f <= lim; f += d2)
-    if (cgcd(F, f) == 1)
+    if (ugcd(F, f) == 1)
     {
       pari_sp av = avma;
       GEN c = mfchareval_i(psi, f);
@@ -1379,7 +1373,7 @@ static GEN
 c_Bd(long n, long d, GEN F, GEN A)
 {
   pari_sp av = avma;
-  long a = itou(A), ad = cgcd(a,d), aad = a/ad, i, j;
+  long a = itou(A), ad = ugcd(a,d), aad = a/ad, i, j;
   GEN w, v = mfcoefs_i(F, n/aad, d/ad);
   if (a == 1) return v;
   n++; w = zerovec(n);
@@ -2783,7 +2777,7 @@ A3(long N, long FC)
   S = 0; NF = N/FC;
   for (i = 1; i < l; i++)
   {
-    long g = cgcd(D[i], D[l-i]);
+    long g = ugcd(D[i], D[l-i]);
     if (NF%g == 0) S += myeulerphiu(g);
   }
   return sstoQ(S, 2);
@@ -2873,7 +2867,7 @@ mutglistall(long t, long N, long NF, GEN VCHI, long n, GEN MUP, GEN li, GEN GCD)
     }
     if (!c) continue;
     y = (x*(x - t) + n) / N; /* exact division */
-    D = mydivisorsu(cgcd(y, NF)); lD = lg(D);
+    D = mydivisorsu(ugcd(labs(y), NF)); lD = lg(D);
     for (j=1; j < lD; j++) { g = D[j]; gel(v,g) = gadd(gel(v,g), c); }
   }
   /* j = 1 corresponds to g = 1, and MUP[1] = 1 */
@@ -3053,11 +3047,11 @@ auxsum(GEN VCHI, GEN GCD, long d, long nd, GEN DN, GEN BEZ)
     ic  = B[4];
     c = DN[ic];
     Nc= DN[lDN - ic]; /* Nc = N/c */
-    if (cgcd(Nc, nd) == 1)
+    if (ugcd(Nc, nd) == 1)
       y = mychicgcd(GCD, VCHI, d + uch*g); /* 0 if (c,d) > 1 */
     else
       y = NULL;
-    if (c != Nc && cgcd(Nc, d) == 1)
+    if (c != Nc && ugcd(Nc, d) == 1)
     {
       GEN y2 = mychicgcd(GCD, VCHI, nd - uch*g); /* 0 if (c,nd) > 1 */
       if (y2) y = y? gadd(y, y2): y2;
@@ -3435,7 +3429,7 @@ mfnewtrace_i(long N, long k, long n, cachenew_t *cache)
   for (i = 2; i < lDN1; i++)
   { /* skip M1 = 1, done above */
     long M1 = DN1[i], N1M1 = DN1[lDN1-i];
-    GEN Dg = mydivisorsu(cgcd(M1, g));
+    GEN Dg = mydivisorsu(ugcd(M1, g));
     M1 *= N2;
     s = gadd(s, gmulsg(mubeta2(N1M1,n),
                        mfcusptracecache(M1, k, n, Dn, gel(S,M1), cache)));
@@ -3839,7 +3833,7 @@ heckenewtrace(long m0, long m, long l, long N, long NBIG, long k, long n, cachen
   k1 = k - 1;
   for (a = 2; a < lD; a++)
   { /* d > 1, (d,NBIG) = 1 */
-    long i, j, d = D[a], c = cgcd(l, d), dl = d/c, m0d = ceildiv(m0, dl);
+    long i, j, d = D[a], c = ugcd(l, d), dl = d/c, m0d = ceildiv(m0, dl);
     GEN C = vchip_lift(VCHIP, d, powuu(d, k1));
     /* m0=0: i = 1 => skip F(0) = 0 */
     if (!m0) { i = 1; j = dl; } else { i = 0; j = m0d*dl; }
@@ -3888,12 +3882,12 @@ hecke_i(long m, long l, GEN V, GEN F, GEN DATA)
   CHI = mf_get_CHI(F);
   D = mydivisorsu(nNBIG); lD = lg(D);
   M = m + 1;
-  t = nNBIG * cgcd(nNBIG, l);
+  t = nNBIG * ugcd(nNBIG, l);
   if (!V) V = mfcoefs_i(F, m * t, nl / t); /* usually nl = t */
   v = anextract(V, m, t); /* mfcoefs(F, m, nl); d = 1 */
   for (a = 2; a < lD; a++)
   { /* d > 1, (d, NBIG) = 1 */
-    long d = D[a], c = cgcd(l, d), dl = d/c, i, idl;
+    long d = D[a], c = ugcd(l, d), dl = d/c, i, idl;
     GEN C = gmul(mfchareval_i(CHI, d), powuu(d, k-1));
     GEN w = anextract(V, m/dl, t/(d*c)); /* mfcoefs(F, m/dl, nl/(d*c)) */
     for (i = idl = 1; idl <= M; i++, idl += dl)
@@ -3951,7 +3945,7 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
   SB = ceilA1(N, k);
   listj = cgetg(2*sb + 3, t_VECSMALL);
   for (j = ctlj = 1; ctlj < 2*sb + 3; j++)
-    if (cgcd(j, badj) == 1) listj[ctlj++] = j;
+    if (ugcd(j, badj) == 1) listj[ctlj++] = j;
   if (init)
   {
     init_cachenew(cache, (SB+1)*listj[dim+1], N, tf);
@@ -4501,8 +4495,8 @@ mfnewmathecke_p(GEN mf, long p)
   GEN Mindex = MF_get_Mindex(mf), Minv = MF_get_Minv(mf);
   long N = MF_get_N(mf), k = MF_get_k(mf);
   long i, j, lvj = lg(vj), lim = vj[lvj-1] * p;
-  GEN perm, V, need = zero_zv(lim);
-  GEN M, C = gmul(mfchareval(CHI, p), powuu(p, k-1));
+  GEN M, perm, V, need = zero_zv(lim);
+  GEN C = (N % p)? gmul(mfchareval_i(CHI,p), powuu(p,k-1)): NULL;
   tf = mftraceform_new(N, k, CHI);
   for (i = 1; i < lvj; i++)
   {
@@ -4521,7 +4515,7 @@ mfnewmathecke_p(GEN mf, long p)
   {
     GEN t;
     j = vj[i]; t = gel(V, perm[j*p]);
-    if (N % p && j % p == 0) t = RgC_add(t, RgC_Rg_mul(gel(V, perm[j/p]),C));
+    if (C && j % p == 0) t = RgC_add(t, RgC_Rg_mul(gel(V, perm[j/p]),C));
     gel(M,i) = t;
   }
   return gerepileupto(av, Minv_RgM_mul(Minv, M));
@@ -5123,7 +5117,7 @@ initwt1newtrace(GEN mf)
     if (mf_get_type(tf) == t_MF_CONST) continue;
     w = mfcoefs_i(tf, sb, 1);
     if (M == N) { v = gadd(v, w); continue; }
-    listd = mydivisorsu(u_ppo(cgcd(N/M, N1), FC));
+    listd = mydivisorsu(u_ppo(ugcd(N/M, N1), FC));
     for (j = 1; j < lg(listd); j++)
     {
       long d = listd[j], d2 = d*d; /* coprime to FC */
@@ -6173,7 +6167,7 @@ mklvchi(GEN bnr, GEN con, GEN cycn)
     long n;
     if (!chi) continue;
     for (n = 2; n < ordmax; n++)
-      if (cgcd(n, ordmax) == 1)
+      if (ugcd(n, ordmax) == 1)
       {
         GEN tmp = vecmodii(gmulsg(n, chi), cyc);
         long j;
@@ -6685,13 +6679,13 @@ cusp_canon(GEN cusp, long N, long *pA, long *pC)
 }
 static long
 mfcuspcanon_width(long N, long C)
-{ return (!C || C == N)? 1 : N / cgcd(N, Fl_sqr(umodsu(C,N),N)); }
+{ return (!C || C == N)? 1 : N / ugcd(N, Fl_sqr(umodsu(C,N),N)); }
 /* v = [a,c] a ZC, width of cusp (a:c) */
 static long
 mfZC_width(long N, GEN v)
 {
   ulong C = umodiu(gel(v,2), N);
-  return (C == 0)? 1: N / cgcd(N, Fl_sqr(C,N));
+  return (C == 0)? 1: N / ugcd(N, Fl_sqr(C,N));
 }
 long
 mfcuspwidth(GEN gN, GEN cusp)
@@ -7463,7 +7457,7 @@ atkin_get_NQ(long N, long Q, const char *f)
 {
   long NQ = N / Q;
   if (N % Q) pari_err_DOMAIN(f,"N % Q","!=",gen_0,utoi(Q));
-  if (cgcd(NQ, Q) > 1) pari_err_DOMAIN(f,"gcd(Q,N/Q)","!=",gen_1,utoi(Q));
+  if (ugcd(NQ, Q) > 1) pari_err_DOMAIN(f,"gcd(Q,N/Q)","!=",gen_1,utoi(Q));
   return NQ;
 }
 
@@ -7509,7 +7503,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   if (Q == N) { g = mkmat22s(0, -1, N, 0); cQ = NQ; } /* Fricke */
   else
   {
-    GEN F, gQP = utoi(cgcd(Q, FC));
+    GEN F, gQP = utoi(ugcd(Q, FC));
     long t, v;
     chi = znchardecompose(G, chi, gQP);
     F = znconreyconductor(G, chi, &chi);
@@ -7670,7 +7664,7 @@ mfcharcxeval(GEN CHI, long n, long prec)
 {
   GEN ordg;
   ulong ord;
-  if (cgcd(mfcharmodulus(CHI), n) > 1) return gen_0;
+  if (ugcd(mfcharmodulus(CHI), labs(n)) > 1) return gen_0;
   ordg = gmfcharorder(CHI);
   ord = itou(ordg);
   return rootsof1q_cx(znchareval_i(CHI,n,ordg), ord, prec);
@@ -9091,7 +9085,7 @@ mfcusps_i(long N)
   {
     long C = D[i], NC = D[l-i], lima = ugcd(C, NC), A0, A;
     for (A0 = 0; A0 < lima; A0++)
-      if (cgcd(A0, lima) == 1)
+      if (ugcd(A0, lima) == 1)
       {
         A = A0; while (ugcd(A,C) > 1) A += lima;
         gel(v, c++) = sstoQ(A, C);
@@ -9876,7 +9870,7 @@ f00(long k, GEN CHI1vec,GEN CHI2vec, GEN G1,GEN G2, GEN data, long prec)
 }
 
 /* ga in SL_2(Z), find beta [a,b;c,d] in Gamma_0(N) and mu in Z such that
- * beta * ga * T^u = [A',B';C',D'] with C' | N and N | B' */
+ * beta * ga * T^u = [A',B';C',D'] with C' | N and N | B', C' > 0 */
 static void
 mfgatogap(GEN ga, long N, long *pA, long *pC, long *pD, long *pd, long *pmu)
 {
@@ -9975,7 +9969,7 @@ mfeisensteingacx(GEN E, long w, GEN ga, long lim, long prec)
   mfgatogap(ga, N, &A, &C, &Ai, &d, &mu);
   CHI1vec = mfcharcxinit(CHI1, prec);
   CHI2vec = mfcharcxinit(CHI2, prec);
-  NsurC = N/C; cg  = cgcd(C, NsurC); wN = NsurC / cg;
+  NsurC = N/C; cg  = ugcd(C, NsurC); wN = NsurC / cg;
   if (w%wN) pari_err_BUG("mfeisensteingacx [wN does not divide w]");
   alchi = mfalchi2(CHI1vec, CHI2vec, A*N, cg);
   ALPHA = sstoQ(alchi, NsurC);
@@ -11002,12 +10996,12 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
   V = gel(res,3);
   if (flrat)
   {
-    long C = itos(gcoeff(M, 2, 1)), N = MF_get_N(mf);
+    long C = labs(itos(gcoeff(M,2,1))), N = MF_get_N(mf);
     long ord = mfcharorder_canon(MF_get_CHI(mf)), k, g;
     GEN CV, t;
     /* weight of f * Theta in 1/2-integral weight */
     k = typ(gk) == t_INT? itou(gk): MF_get_r(mf)+1;
-    g = cgcd(N/cgcd(N, C), C);
+    g = ugcd(N/ugcd(N, C), C);
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
     V = bestapprnf2(V, ord_canon(clcm(g*w, ord)), CV, prec);
     if (abd && !signe(b))
@@ -11401,8 +11395,8 @@ mfconductor(GEN mf, GEN F)
     if (!wt1newlevel(N))
     {
       long s = (space == mf_EISEN || space == mf_FULL)? mf_FULL: mf_CUSP;
-      N = cgcd(N, wt1mulcond(F,-3,s));
-      if (!wt1newlevel(N)) N = cgcd(N, wt1mulcond(F,-4,s));
+      N = ugcd(N, wt1mulcond(F,-3,s));
+      if (!wt1newlevel(N)) N = ugcd(N, wt1mulcond(F,-4,s));
     }
     avma = av; return N;
   }
@@ -11464,12 +11458,12 @@ checkfs_i(GEN v)
     && lg(gel(fs_get_expan(v), 1)) == lg(fs_get_cosets(v))
     && typ(gel(v,5)) == t_INT; }
 
-/* c * Nc = N, find coset whose image in P1(Z/NZ) ~ (c, d + k(N/c)) */
+/* c,d >= 0; c * Nc = N, find coset whose image in P1(Z/NZ) ~ (c, d + k(N/c)) */
 static GEN
 coset_complete(long c, long d, long Nc)
 {
   long a, b;
-  while (cgcd(c, d) > 1) d += Nc;
+  while (ugcd(c, d) > 1) d += Nc;
   (void)cbezout(c, d, &b, &a);
   return mkmat22s(a, -b, c, d);
 }
@@ -11489,9 +11483,9 @@ mfcosets(GEN gN)
   D = mydivisorsu(N); l = lg(D);
   for (i = ct = 1; i < l; i++)
   {
-    long d, c = D[i], Nc = D[l-i], e = cgcd(Nc, c);
+    long d, c = D[i], Nc = D[l-i], e = ugcd(Nc, c);
     for (d = 0; d < Nc; d++)
-      if (cgcd(d,e) == 1) gel(V, ct++) = coset_complete(c, d, Nc);
+      if (ugcd(d,e) == 1) gel(V, ct++) = coset_complete(c, d, Nc);
   }
   return gerepilecopy(av, V);
 }
@@ -12483,7 +12477,7 @@ fs2_init(GEN mf, GEN F, long bit)
     long A, C, w, wi, Lw, n;
     GEN VF, W, paramsf, al;
     (void)cusp_AC(gel(cusps,i), &A,&C);
-    wi = cgcd(N, C*C); w = N / wi; Lw = w*lim;
+    wi = ugcd(N, C*C); w = N / wi; Lw = w*lim;
     VF = mfslashexpansion(mf, F, cusp2mat(A,C), Lw, 0, &paramsf, prec);
     /* paramsf[2] = w */
     av = avma; al = gel(paramsf, 1); if (gequal0(al)) al = NULL;
@@ -12533,7 +12527,7 @@ mfpetersson2(GEN Fs, GEN Gs)
     GEN W = gel(vW,j), VF = gel(vF,j), VG = gel(vG,j), T = gen_0;
     long A, C, w, n, L = lg(W);
     pari_sp av = avma;
-    (void)cusp_AC(gel(VC,j), &A,&C); w = N/cgcd(N, C*C);
+    (void)cusp_AC(gel(VC,j), &A,&C); w = N/ugcd(N, C*C);
     if (al0[j] && !isintzero(gel(VF,1)) && !isintzero(gel(VG,1)))
       pari_err_IMPL("divergent Petersson product");
     for (n = 1; n < L; n++)
