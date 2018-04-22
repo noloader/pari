@@ -253,13 +253,13 @@ discpart(GEN H, GEN p, long prec)
 }
 
 /* B = b0 X^6 + ... + b6 a ZX, 0 <= j <= 3.
- * Return theta_j(H) := min { v_p(b_i) / (i - j), j < i <= 6 } >= 0.
- * N.B. 60 theta \in Z */
-static GEN
+ * Let theta_j(H) := min { v_p(b_i) / (i - j), j < i <= 6 } >= 0.
+ * Return 60 theta \in Z */
+static long
 theta_j(GEN B, GEN p, long j)
 {
-  GEN theta, b0, b1, b2, b3, b4, b5, b6, v = new_chunk(7);
-  long i;
+  GEN b0, b1, b2, b3, b4, b5, b6, v = new_chunk(7);
+  long i, t;
 
   RgX_to_6(B, &b0,&b1,&b2,&b3,&b4,&b5,&b6);
   v[0] = myval(b0,p);
@@ -269,27 +269,27 @@ theta_j(GEN B, GEN p, long j)
   v[4] = myval(b4,p);
   v[5] = myval(b5,p);
   v[6] = myval(b6,p);
-  theta = stoi(v[1+j]);
-  for(i = 2+j; i <= 6; i++) theta = gmin(theta, sstoQ(v[i], i-j));
-  return theta;
+  t = 60*v[1+j];
+  for(i = 2+j; i <= 6; i++) t = minss(t, v[i] * (60 / (i-j)));
+  return t;
 }
-/* compute theta_3 for B in Z[i][X], p = 3 */
-static GEN
+/* compute 6 * theta_3 for B in Z[i][X], p = 3 */
+static long
 theta_3_zi(GEN B)
 {
   long v2 = myval_zi(RgX_coeff(B,2));
   long v1 = myval_zi(RgX_coeff(B,1));
   long v0 = myval_zi(RgX_coeff(B,0));
-  return sstoQ(min3(6*v2, 3*v1, 2*v0), 6);
+  return min3(6*v2, 3*v1, 2*v0);
 }
-/* compute theta_3 for B in (Z[i,Y]/(Y^2-3))[X], p = 3 */
-static GEN
+/* compute 6 * theta_3 for B in (Z[i,Y]/(Y^2-3))[X], p = 3 */
+static long
 theta_3_zi2(GEN B)
 {
   long v2 = myval_zi2(RgX_coeff(B,2));
   long v1 = myval_zi2(RgX_coeff(B,1));
   long v0 = myval_zi2(RgX_coeff(B,0));
-  return sstoQ(min3(6*v2, 3*v1, 2*v0), 6);
+  return min3(6*v2, 3*v1, 2*v0);
 }
 
 /* Set maxord to the maximal multiplicity of a factor. If there is at least
@@ -305,7 +305,7 @@ factmz(GEN Q, GEN p, long *maxord)
 
 /* H integral ZX of degree 5 or 6, p > 2. Modify until
  *   y^2 = p^alpha H is minimal over Z_p, alpha = 0,1
- * Return [H,lambda,theta,alpha,quad,beta], were model
+ * Return [H,lambda,60*theta,alpha,quad,beta], were model
  * quad = 1 if H has a root of order 3 in F_p^2 \ F_p, 0 otherwise
  * 0 <= lambda <= 3, integer
  * theta = theta_j(H, p, lambda), 60*theta in Z.
@@ -313,8 +313,8 @@ factmz(GEN Q, GEN p, long *maxord)
 static GEN
 polymini(GEN H, GEN p)
 {
-  GEN a0, a1, a2, a3, a4, a5, a6, Hp, rac, theta, polf, quad = gen_0;
-  long alpha, beta, lambda, maxord;
+  GEN a0, a1, a2, a3, a4, a5, a6, Hp, rac;
+  long t60, alpha, beta, lambda, maxord, quad = 0;
 
   alpha = polval(H,p);
   if (alpha) H = ZX_Z_divexact(H, powiu(p,alpha));
@@ -332,21 +332,21 @@ polymini(GEN H, GEN p)
   else lambda = 0;
 
   for(;;)
-  { /* lambda <= 3 */
-    theta = theta_j(H,p,lambda);
-    if (gcmp(theta,gen_1) >= 0)
+  { /* lambda <= 3, t60 = 60*theta */
+    long e;
+    t60 = theta_j(H,p,lambda); e = t60 / 60;
+    if (e)
     {
-      long e = itos(gfloor(theta));
       GEN pe = powiu(p,e);
       /* H <- H(p^e X) / p^(e(6-lambda)) */
       H = ZX_Z_divexact(ZX_unscale_div(H,pe), powiu(pe,5-lambda));
       alpha = (alpha + lambda*e)&1;
       beta += e;
-      theta = gsubgs(theta,e);
+      t60 -= 60*e;
     }
-    /* 0 <= theta < 1 */
+    /* 0 <= t < 60 */
     Hp = FpX_red(H, p);
-    if (!gequal0(theta)) break;
+    if (t60) break;
 
     rac = factmz(Hp,p, &maxord);
     if (maxord <= 2)
@@ -356,7 +356,7 @@ polymini(GEN H, GEN p)
     }
     else
     { /* maxord >= 3 */
-      if (!rac) { quad = gen_1; goto end; }
+      if (!rac) { quad = 1; goto end; }
       if (signe(rac)) H = ZX_translate(H, rac);
       lambda = 6-maxord;
     }
@@ -382,36 +382,25 @@ polymini(GEN H, GEN p)
       {
         H = ZX_rescale(H, p); /* H(x/p)p^(deg H) */
         H = ZX_Z_divexact(H, powiu(p, degpol(H)-3)); /* H(x/p)p^3 */
-        theta = gadd(theta,gen_1);
-        alpha = 0;
-        beta--;
+        t60 += 60; alpha = 0; beta--;
       }
     }
-    else if (degpol(Hp) == 6 && !gequal0(theta))
+    else if (degpol(Hp) == 6 && t60)
     {
       rac = factmz(RgX_mulXn(Hp, -3), p, &maxord);
       if (maxord == 3)
       {
-        GEN t = ZX_unscale(ZX_translate(H,rac),p); /* H(rac + px) */
-        if (polval(t,p)>= 3)
+        GEN T = ZX_unscale(ZX_translate(H,rac),p); /* H(rac + px) */
+        if (polval(T,p)>= 3)
         {
-          H = RgX_Rg_div(t, powiu(p,3));
-          alpha = 0;
-          beta--;
-          theta = theta_j(H,p,3);
+          H = RgX_Rg_div(T, powiu(p,3));
+          t60 = theta_j(H,p,3); alpha = 0; beta--;
         }
       }
     }
   }
 end:
-  polf = cgetg(7, t_VEC);
-  gel(polf,1) = H;
-  gel(polf,2) = stoi(lambda);
-  gel(polf,3) = theta;
-  gel(polf,4) = stoi(alpha);
-  gel(polf,5) = quad;
-  gel(polf,6) = stoi(beta);
-  return polf;
+  return mkvec2(H, mkvecsmall5(lambda,t60,alpha,quad,beta));
 }
 
 /* a in Q[i], return a^3 mod 3 */
@@ -427,9 +416,8 @@ zi_pow3mod(GEN a)
 static GEN
 polymini_zi(GEN pol) /* polynome minimal dans Z[i] */
 {
-  GEN p, polh, rac, theta;
-  GEN a0, a1, a2, a3, a4, a5, a6;
-  long alpha,beta;
+  GEN p, polh, rac, a0, a1, a2, a3, a4, a5, a6;
+  long alpha, beta, t6;
 
   p = stoi(3);
   alpha = polval(pol,p) & 1;
@@ -438,37 +426,37 @@ polymini_zi(GEN pol) /* polynome minimal dans Z[i] */
   rac = mkcomplex(Fp_div(RgX_coeff(polh,3), RgX_coeff(polh,6), p), gen_1);
   for(;;)
   {
+    long e;
     polh = RgX_translate(polh, rac);
-    theta = theta_3_zi(polh);
-    if (gcmp(theta,gen_1) >= 0)
+    t6 = theta_3_zi(polh); e = t6 / 6;
+    if (e)
     {
-      long ent = itos(gfloor(theta));
-      GEN pent = powiu(p,ent);
-      polh = RgX_Rg_div(RgX_unscale(polh,pent), powiu(pent,3));
-      alpha = (alpha+ent)&1;
-      beta += ent;
-      theta = gsubgs(theta,ent);
+      GEN pe = powiu(p,e);
+      polh = RgX_Rg_div(RgX_unscale(polh,pe), powiu(pe,3));
+      alpha = (alpha+e)&1;
+      beta += e;
+      t6 -= e * 6;
     }
     RgX_to_6(polh, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
-    if (!gequal0(theta) || !myval_zi(a4) || !myval_zi(a5)) break;
+    if (t6 || !myval_zi(a4) || !myval_zi(a5)) break;
     rac = zi_pow3mod(gdiv(a6, gneg(a3)));
   }
   if (alpha && myval_zi(a0) >= 3 && myval_zi(a1) >= 2 && myval_zi(a2) >= 1)
   {
-    theta = gadd(theta, gen_1);
+    t6 += 6;
     beta--;
     alpha = 0;
   }
-  return mkvec3(theta, stoi(alpha), stoi(beta));
+  return mkvecsmall3(t6, alpha, beta);
 }
 
 /* pol is a ZX, minimal polynomial over Z_3[i,Y]/(Y^2-3) */
 static GEN
 polymini_zi2(GEN pol)
 {
-  long alpha, beta;
+  long alpha, beta, t6;
   GEN a0, a1, a2, a3, a4, a5, a6;
-  GEN p, polh, rac, theta, y = pol_x(fetch_var());
+  GEN p, polh, rac, y = pol_x(fetch_var());
 
   p = stoi(3);
   if (polval(pol,p)) pari_err_BUG("polymini_zi2 [polynomial not minimal]");
@@ -479,7 +467,7 @@ polymini_zi2(GEN pol)
       myval_zi2(RgX_coeff(polh,2)) <= 0)
   {
     (void)delete_var();
-    return mkcol2(gen_0, gen_0);
+    return mkvecsmall2(0,0);
   }
 
   if (myval_zi2(gsub(RgX_coeff(polh,6), RgX_coeff(polh,0))) > 0)
@@ -490,19 +478,19 @@ polymini_zi2(GEN pol)
   beta  = 0;
   for(;;)
   {
+    long e;
     polh = RgX_translate(polh, rac);
-    theta = theta_3_zi2(polh);
-    if (gcmp(theta,gen_1) >= 0)
+    t6 = theta_3_zi2(polh); e = t6 / 6;
+    if (e)
     {
-      long ent = itos(gfloor(theta));
-      GEN pent = gpowgs(y, ent);
+      GEN pent = gpowgs(y, e);
       polh = RgX_Rg_div(RgX_unscale(polh, pent), gpowgs(pent,3));
-      alpha = (alpha+ent)&1;
-      beta += ent;
-      theta = gsubgs(theta,ent);
+      alpha = (alpha+e)&1;
+      beta += e;
+      t6 -= 6*e;
     }
     RgX_to_6(polh, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
-    if (!gequal0(theta) || !myval_zi2(a4) || !myval_zi2(a5)) break;
+    if (t6 || !myval_zi2(a4) || !myval_zi2(a5)) break;
     a3 = liftpol_shallow(a3); if (typ(a3)==t_POL) a3 = RgX_coeff(a3,0);
     a6 = liftpol_shallow(a6); if (typ(a6)==t_POL) a6 = RgX_coeff(a6,0);
     rac = zi_pow3mod(gdiv(a6,gneg(a3)));
@@ -511,14 +499,14 @@ polymini_zi2(GEN pol)
   {
     if (myval_zi2(a0) >= 3 && myval_zi2(a1) >= 2 && myval_zi2(a2) >= 1)
     {
-      theta = gadd(theta,gen_1);
+      t6 += 6;
       beta--;
       alpha = 0;
     }
     else pari_err_BUG("polymini_zi2 [alpha]");
   }
   (void)delete_var();
-  return mkcol2(theta, stoi(beta));
+  return mkvecsmall2(t6, beta);
 }
 
 
@@ -1559,9 +1547,9 @@ tame_7(struct igusa *I, struct igusa_p *Ip)
   return condp;
 }
 
-static long labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip);
+static long labelm3(GEN polh, long t60, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip);
 static long
-tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
+tame(GEN polh, long t60, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
   long d;
   Ip->tame = 1;
@@ -1575,7 +1563,7 @@ tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p
     case 6: d = tame_6(I,Ip); break;
     default:d = tame_7(I,Ip); break;
   }
-  if (d < 0) d = labelm3(polh,theta,alpha,Dmin,I,Ip); /* => tt=6 or 7 */
+  if (d < 0) d = labelm3(polh,t60,alpha,Dmin,I,Ip); /* => tt=6 or 7 */
   return d;
 }
 
@@ -1596,14 +1584,13 @@ get_maxc(GEN p)
 static long
 quartic(GEN polh, long alpha, long Dmin, struct igusa_p *Ip)
 {
-  GEN theta, val = Ip->val, p = Ip->p;
+  GEN val = Ip->val, p = Ip->p;
   GEN polf = polymini_zi2(ZX_Z_mul(polh, powiu(p, alpha)));
   long condp = -1, d, R, r1, beta;
-  theta = gel(polf,1);
-  beta = itos(gel(polf,2));
+  r1 = polf[1];
+  beta = polf[2];
   if (odd(beta)) pari_err_BUG("quartic [type over Z[i] must be [K-K-(2*m)]]");
   R = beta/2;
-  r1 = itos(gmulgs(theta,6));
   switch(Ip->tt)
   {
     case 1: case 5: d = 0;break;
@@ -1657,7 +1644,7 @@ quartic(GEN polh, long alpha, long Dmin, struct igusa_p *Ip)
 }
 
 static long
-litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
+litredtp(long alpha, long alpha1, long t60, long t60_1, GEN polh, GEN polh1,
          long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
   GEN val = Ip->val, p = Ip->p;
@@ -1684,7 +1671,7 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
       }
       return condp;
     }
-    if (Ip->r1 == Ip->r2) return tame(polh, theta, alpha, Dmin, I, Ip);
+    if (Ip->r1 == Ip->r2) return tame(polh, t60, alpha, Dmin, I, Ip);
     if (Ip->tt == 6)
     {
       d = val[6] - val[7] + val[8]/Ip->eps;
@@ -1699,7 +1686,7 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
     { /* Ip->tt == 7 */
       long d1;
       d = val[6] - 3*val[3] + val[8]/Ip->eps;
-      if (gequal1(theta1)) /* H(px) / p^3 */
+      if (t60_1 == 60) /* H(px) / p^3 */
         polh1 = ZX_Z_divexact(ZX_unscale_div(polh1,p), sqri(p));
       d1 = minss(val[7]-3*val[3],d/2);
       if (d == 2*d1) indice = d1;
@@ -1733,20 +1720,20 @@ litredtp(long alpha, long alpha1, GEN theta, GEN theta1, GEN polh, GEN polh1,
 }
 
 static long
-labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
+labelm3(GEN polh, long t60, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
-  GEN polh1, theta1, polf, val = Ip->val, p = Ip->p;
-  long alpha1, lambda, beta, R;
+  GEN polh1, polf, vs, val = Ip->val, p = Ip->p;
+  long alpha1, t60_1, lambda, beta, R;
 
   polh1 = polh;
-  theta1 = theta;
+  t60_1 = t60;
   alpha1 = alpha;
   polf = polymini(ZX_Z_mul(RgX_recip6(polh), powiu(p,alpha)), p);
-  polh  = gel(polf,1);
-  lambda= itos(gel(polf,2));
-  theta = gel(polf,3);
-  alpha = itos(gel(polf,4));
-  beta  = itos(gel(polf,6));
+  polh  = gel(polf,1); vs = gel(polf,2);
+  lambda= vs[1];
+  t60   = vs[2];
+  alpha = vs[3];
+  beta  = vs[5];
   if (lambda != 3) pari_err_BUG("labelm3 [lambda != 3]");
   R = beta-(alpha1+alpha);
   if (odd(R)) pari_err_BUG("labelm3 [R odd]");
@@ -1754,23 +1741,21 @@ labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igus
   if (R <= -2) pari_err_BUG("labelm3 [R <= -2]");
   if (val[8] % (2*Ip->eps)) pari_err_BUG("labelm3 [val(eps2)]");
   if (R >= 0 && (alpha+alpha1) >= 1) pari_err_BUG("labelm3 [minimal equation]");
-  Ip->r1 = itos(gmulgs(theta1,6)) + 6*alpha1;
-  Ip->r2 = itos(gmulgs(theta, 6)) + 6*alpha;
+  Ip->r1 = t60_1 / 10 + 6*alpha1;
+  Ip->r2 = t60 / 10 + 6*alpha;
   Ip->R = R;
-  return litredtp(alpha, alpha1, theta, theta1, polh, polh1, Dmin, I, Ip);
+  return litredtp(alpha, alpha1, t60, t60_1, polh, polh1, Dmin, I, Ip);
 }
 
 /* p = 3 */
 static long
 quadratic(GEN polh, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
-  long alpha1, beta, R;
-  GEN polf, polh1, theta, theta1;
-  alpha1 = alpha;
-  polf = polymini_zi(ZX_Z_mul(polh, powiu(Ip->p,alpha)));
-  theta = gel(polf,1);
-  alpha = itos(gel(polf,2));
-  beta  = itos(gel(polf,3));
+  long alpha1 = alpha, beta, t6, R;
+  GEN polf = polymini_zi(ZX_Z_mul(polh, powiu(Ip->p,alpha)));
+  t6 = polf[1];
+  alpha = polf[2];
+  beta  = polf[3];
   if (alpha && beta >= 1) pari_err_BUG("quadratc");
   R = beta-alpha;
   if (R >= 0 && alpha1)
@@ -1779,20 +1764,17 @@ quadratic(GEN polh, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
     if (DEBUGLEVEL)
       err_printf("(Care: minimal discriminant over Z[i] smaller than over Z)\n");
   }
-  Ip->r1 = itos(gmulgs(theta,6))+6*alpha;
+  Ip->r1 = t6 + 6*alpha;
   Ip->r2 = Ip->r1;
   Ip->R = R;
-  alpha1 = alpha;
-  theta1 = theta;
-  polh1 = polh; /* FIXME !!! */
-  return litredtp(alpha, alpha1, theta, theta1, polh, polh1, Dmin, I, Ip);
+  return litredtp(alpha, alpha, t6*10, t6*10, polh, polh, Dmin, I, Ip);
 }
 
 static long
 genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
 {
-  GEN val, polh, theta, list, c1, c2, c3, c4, c5, c6, prod;
-  long i, vb5, vb6, d, Dmin, alpha, lambda;
+  GEN val, vs, polh, list, c1, c2, c3, c4, c5, c6, prod;
+  long i, vb5, vb6, d, Dmin, alpha, lambda, t60;
   long condp = -1, indice, vc6, mm, nb, dism;
 
   stable_reduction(I, Ip, p);
@@ -1823,28 +1805,27 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
     default: pari_err_BUG("genus2localred [tt 2]");
   }
   if (absequaliu(p,2)) return -1;
-  polh = gel(polmini,1);
-  lambda = itos(gel(polmini,2));
-  theta = gel(polmini,3);
-  alpha = itos(gel(polmini,4));
-  if (!gequal0(gel(polmini,5)))
-    return equalis(p,3)? quadratic(polh, alpha, Dmin, I, Ip):
-                         tame(polh, theta, alpha, Dmin, I, Ip);
-  if (gequal0(theta) && lambda<= 2)
+  polh = gel(polmini,1); vs = gel(polmini,2);
+  lambda = vs[1];
+  t60    = vs[2];
+  alpha  = vs[3];
+  if (vs[4]) return equalis(p,3)? quadratic(polh, alpha, Dmin, I, Ip):
+                                  tame(polh, t60, alpha, Dmin, I, Ip);
+  if (!t60 && lambda<= 2)
   {
     if (Ip->tt >= 5) pari_err_BUG("genus2localred [tt 3]");
-    return tame(polh, theta, alpha, Dmin, I, Ip);
+    return tame(polh, t60, alpha, Dmin, I, Ip);
   }
   if (Dmin == 3)
   {
     switch(Ip->tt)
     {
-      case 2: return tame(polh, theta, alpha, Dmin, I, Ip);
+      case 2: return tame(polh, t60, alpha, Dmin, I, Ip);
       case 3: Ip->type = "[I{2-1-0}] page 179"; Ip->neron = cyclic(2); return 2;
       case 4: Ip->type = "[I{1-1-1}] page 182"; Ip->neron = cyclic(3); return 2;
       case 5:
-        if (equalis(p,3) && !gequal(theta,ghalf))
-          return labelm3(polh,theta,alpha,Dmin,I,Ip);
+        if (equalis(p,3) && t60 != 30)
+          return labelm3(polh,t60,alpha,Dmin,I,Ip);
         Ip->type = "[I{0}-III-0] page 161"; Ip->neron = cyclic(2); return 2;
       case 6:
         if (equalis(p,3)) pari_err_BUG("genus2localred [conductor]");
@@ -1856,7 +1837,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
   switch(lambda)
   {
     case 0:
-      switch(itos(gmulgs(theta, 60))+alpha)
+      switch(t60+alpha)
       {
         case 10:
           condp = Dmin-1;
@@ -1881,7 +1862,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           break;
         case 15: case 16:
           if (Ip->tt>= 5) pari_err_BUG("genus2localred [tt 6]");
-          return tame(polh, theta, alpha, Dmin, I, Ip);
+          return tame(polh, t60, alpha, Dmin, I, Ip);
         case 20: case 21:
           {
             GEN b0, b1, b2, b3, b4, b5, b6, b02, b03, b04, b05;
@@ -1954,12 +1935,12 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           break;
         case 30:
           return equalis(p,3)? quartic(polh, alpha, Dmin, Ip)
-                             : tame(polh, theta, alpha, Dmin, I, Ip);
+                             : tame(polh, t60, alpha, Dmin, I, Ip);
         default: pari_err_BUG("genus2localred [red2]");
       }
       break;
     case 1:
-      switch(itos(gmulgs(theta, 60))+alpha)
+      switch(t60+alpha)
       {
         case 12:
           condp = Dmin;
@@ -2023,7 +2004,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           if (vb5 == 2)
           {
             if (Ip->tt >= 5) pari_err_BUG("genus2localred [tt 6]");
-            return tame(polh, theta, alpha, Dmin, I, Ip);
+            return tame(polh, t60, alpha, Dmin, I, Ip);
           }
           condp = Dmin-7;
           Ip->type = "[II*-III-(-1)] page 167";
@@ -2031,13 +2012,13 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       }
       break;
     case 2:
-      if (equaliu(Q_denom(theta),4))
+      if (ugcd(t60, 60) == 15) /* denom(theta) = 4 */
       {
         if (Ip->tt>4) pari_err_BUG("genus2localred [tt 5]");
-        return tame(polh, theta, alpha, Dmin, I, Ip);
+        return tame(polh, t60, alpha, Dmin, I, Ip);
       }
-      if (!equaliu(p,3) && equaliu(Q_denom(theta),3))
-        return tame(polh, theta, alpha, Dmin, I, Ip);
+      if (!equaliu(p,3) && ugcd(t60, 60) == 20) /* denom(theta) = 3 */
+        return tame(polh, t60, alpha, Dmin, I, Ip);
       list = padicfactors(polh,p,Dmin-10*alpha);
       nb = lg(list); prod = pol_1(varn(polh));
       for(i = 1;i<nb;i++)
@@ -2062,7 +2043,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           pari_err_BUG("genus2localred [padicfactors 2]");
           dism = 0;
       }
-      switch(itos(gmulgs(theta,12))+alpha-4)
+      switch(t60/5+alpha-4)
       {
         case 0:
           condp = Dmin-dism-1;
@@ -2076,7 +2057,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           if (myval(RgX_coeff(polh,0),p) == 2)
           {
             if (Ip->tt>4) pari_err_BUG("genus2localred [tt 5]");
-            return tame(polh, theta, alpha, Dmin, I, Ip);
+            return tame(polh, t60, alpha, Dmin, I, Ip);
           }
           dism++;
           indice = val[6]-(5*val[3]/2)-dism;
@@ -2092,8 +2073,8 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       break;
     case 3:
       if (!equalis(p,3) || Ip->tt <= 4)
-        return tame(polh, theta, alpha, Dmin, I, Ip);
-      return labelm3(polh,theta,alpha,Dmin,I,Ip); /* p = 3 */
+        return tame(polh, t60, alpha, Dmin, I, Ip);
+      return labelm3(polh,t60,alpha,Dmin,I,Ip); /* p = 3 */
     default: pari_err_BUG("genus2localred [switch lambda]");
   }
   if (condp < 2 || condp > get_maxc(p))
@@ -2175,7 +2156,7 @@ genus2red(GEN PQ, GEN p)
     GEN l = gel(factp,i), pm;
     if (i == 1 && absequaliu(l, 2)) { gel(vecmini,1) = gen_0; continue; }
     gel(vecmini,i) = pm = polymini(polr, l);
-    polr = ZX_Q_mul(gel(pm,1), powii(l, gel(pm,4)));
+    polr = ZX_Q_mul(gel(pm,1), powiu(l, gel(pm,2)[3]));
   }
   RgX_to_6(polr, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
   I.j10 = !signe(a0)? mulii(sqri(a1), ZX_disc(polr)): ZX_disc(polr);
