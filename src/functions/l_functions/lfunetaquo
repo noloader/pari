@@ -14,5 +14,8 @@ Doc: returns the \kbd{Ldata} structure attached to the $L$ function
  \bprog
  ? L = lfunetaquo(Mat([1,24]));
  ? lfunan(L, 100)  \\ first 100 values of tau(n)
+ @eprog\noindent For convenience, a \typ{VEC} is also accepted instead of
+ a factorization matrix with a single row:
+ \bprog
+ ? L = lfunetaquo([1,24]); \\ same as above
  @eprog
-

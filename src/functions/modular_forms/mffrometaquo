@@ -25,6 +25,10 @@ Doc: modular form corresponding to the eta quotient matrix \kbd{eta}.
  %5 = [1, -2, 0, 0, 2, 0, 0, 0, 0, -2, 0]
  ? mffrometaquo(Mat([1,-24]))
  %6 = 0
- ? mfcoefs(mffrometaquo(Mat([1,-24]),1),6)
+ ? f = mffrometaquo(Mat([1,-24]),1); mfcoefs(f,6)
  %7 = [1, 24, 324, 3200, 25650, 176256, 1073720]
+ @eprog\noindent For convenience, a \typ{VEC} is also accepted instead of
+ a factorization matrix with a single row:
+ \bprog
+ ? f = mffrometaquo([1,-24]); \\ also valid
  @eprog

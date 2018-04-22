@@ -1628,7 +1628,13 @@ etaquotype(GEN eta, GEN *pN, GEN *pk, GEN *CHI, GEN *BR, long *pv,
   GEN B, R, S, T, N, NB;
   long l, i, u, S24;
 
-  if (typ(eta) != t_MAT || lg(eta) != 3) pari_err_TYPE("lfunetaquo", eta);
+  if (lg(eta) != 3) pari_err_TYPE("lfunetaquo", eta);
+  switch(typ(eta))
+  {
+    case t_VEC: eta = mkmat2(mkcol(gel(eta,1)), mkcol(gel(eta,2))); break;
+    case t_MAT: break;
+    default: pari_err_TYPE("lfunetaquo", eta);
+  }
   B = gel(eta,1); R = gel(eta,2);
   if (!RgV_is_ZVpos(B) || !RgV_is_ZV(R)) pari_err_TYPE("lfunetaquo", eta);
   eta = famat_reduce(eta);
