@@ -801,11 +801,10 @@ tame_1(struct igusa *I, struct igusa_p *Ip)
 }
 
 /* (4.2) */
-static void
-tame_234_init(struct igusa *I, struct igusa_p *Ip,
-              long *n, long *q, long *r, long *flc)
+static long
+tame_234_init(struct igusa *I, struct igusa_p *Ip, long *n, long *q, long *r)
 {
-  long va0, va5, vb2, v12 = -1;
+  long va0, va5, vb2, v12 = -1, flc = 1;
   GEN p = Ip->p;
   switch(Ip->tt)
   {
@@ -819,28 +818,27 @@ tame_234_init(struct igusa *I, struct igusa_p *Ip,
   if (9*vb2 >= 6*va0+v12 && 36*va5 >= 120*va0+5*v12)
   {
     get_nrq(12*va0-v12,36, 6*va0-v12,12, n, r, q);
-    *flc = 1;
   }
   else if (120*va0+5*v12 > 36*va5 && 60*vb2 >= 12*va5+5*v12)
   {
     ssQ_red(36*va5-25*v12,240, q,n);
     *r = smodss(-2* *q, *n);
-    *flc = 1;
   }
   else /* 6*va0+v12 > 9*vb2 && 12*va5+5*v12 > 60*vb2 */
   {
     get_nrq(v12-6*vb2,12, v12-9*vb2,12, n,r,q);
-    *flc = 2;
+    flc = 0;
   }
+  return flc;
 }
 
 /* Ip->tt = 2 */
 static long
 tame_2(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, d, n, q, r, flc;
+  long condp = -1, d, n, q, r;
   GEN val = Ip->val;
-  tame_234_init(I, Ip, &n, &q, &r, &flc);
+  (void)tame_234_init(I, Ip, &n, &q, &r);
   d = n * (6*val[6]-5*val[7]) / 6;
   switch(n)
   {
@@ -932,9 +930,9 @@ tame_2(struct igusa *I, struct igusa_p *Ip)
 static long
 tame_3(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, n, q, r, flc, va5, d1, d2;
+  long condp = -1, n, q, r, va5, d1, d2;
+  long flc = tame_234_init(I, Ip, &n, &q, &r);
   GEN val = Ip->val;
-  tame_234_init(I, Ip, &n, &q, &r, &flc);
 
   va5 = 2*val[6]-5*val[3];
   d1 = minss(n * (val[7]-3*val[3]), n * va5 / 4);
@@ -950,20 +948,16 @@ tame_3(struct igusa *I, struct igusa_p *Ip)
         case 0: condp = 4;
           Ip->type = stack_sprintf("[I*{%ld-%ld-0}] page 180", d1/2,d2/2);
           Ip->neron = shallowconcat(groupH(d1/2),groupH(d2/2)); break;
-        case 1:
-          switch(flc)
+        case 1: condp = 3;
+          if (flc)
           {
-            case 1:condp = 3;
-              Ip->type = stack_sprintf("[2I{%ld}-0] page 181", d1);
-              Ip->neron = cyclic(d1); break;
-            case 2: condp = 3;
-              Ip->type = stack_sprintf("[II{%ld-%ld}] page 182",d1/2,d2/2);
-              if ((d1*d2-4)&7)
-                Ip->neron = cyclic(2*d1);
-              else
-                Ip->neron = dicyclic(d1,2);
-              /* FIXME: "or" same with d1<->d2 */
-              break;
+            Ip->type = stack_sprintf("[2I{%ld}-0] page 181", d1);
+            Ip->neron = cyclic(d1);
+          }
+          else
+          { /* FIXME: "or" same with d1<->d2 */
+            Ip->type = stack_sprintf("[II{%ld-%ld}] page 182",d1/2,d2/2);
+            Ip->neron = ((d1*d2-4)&7)? cyclic(2*d1): dicyclic(d1,2);
           }
           break;
         default: pari_err_BUG("tame3 [bug20]");
@@ -981,9 +975,9 @@ tame_3(struct igusa *I, struct igusa_p *Ip)
 static long
 tame_4(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, d1,d2,d3, f1,f2, g, h, n, q, r, flc, vl,vn,vm, e1,e2,e3;
+  long condp = -1, d1,d2,d3, f1,f2, g, h, n, q, r, vl,vn,vm, e1,e2,e3;
   GEN val = Ip->val;
-  tame_234_init(I, Ip, &n, &q, &r, &flc);
+  (void)tame_234_init(I, Ip, &n, &q, &r);
   vl = val[6]-5*val[1];
   vn = val[7]-6*val[1];
   vm = val[2]-2*val[1]; /* all >= 0 */
