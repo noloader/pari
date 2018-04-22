@@ -1898,20 +1898,14 @@ galoisgenfixedfield(GEN Tp, GEN Pmod, GEN V, GEN ip, struct galois_borne *gb)
   return mkvec2(PG,Pg);
 }
 
-/* Let sigma^m=1,  tau*sigma*tau^-1=sigma^s.
- * Compute n so that (sigma*tau)^e = sigma^n*tau^e
- * We have n = sum_{k=0}^{e-1} s^k mod m.
- * so n*(1-s) = 1-s^e mod m
- * Unfortunately (1-s) might not invertible mod m.
- */
-
+/* Let sigma^m=1, tau*sigma*tau^-1=sigma^s. Return n = sum_{0<=k<e,0} s^k mod m
+ * so that (sigma*tau)^e = sigma^n*tau^e. N.B. n*(1-s) = 1-s^e mod m,
+ * unfortunately (1-s) may not invertible mod m */
 static long
 stpow(long s, long e, long m)
 {
-  long i;
-  long n = 1;
-  for (i = 1; i < e; i++)
-    n = (1 + n * s) % m;
+  long i, n = 1;
+  for (i = 1; i < e; i++) n = (1 + n * s) % m;
   return n;
 }
 
@@ -1967,7 +1961,7 @@ galoisgenliftauto(GEN O, GEN gj, long s, long n, struct galois_test *td)
       dg *= p; el /= p;
       sel = Fl_powu(s,el,deg);
       if (DEBUGLEVEL >= 6) err_printf("GaloisConj: B=%Ps\n", Bel);
-      sr  = cgcd(stpow(sel,p,deg),deg);
+      sr  = ugcd(stpow(sel,p,deg),deg);
       if (DEBUGLEVEL >= 6)
         err_printf("GaloisConj: exp %d: s=%ld [%ld] a=%ld w=%ld wg=%ld sr=%ld\n",
             dg, sel, deg, a, w[f], wg[f+1], sr);
