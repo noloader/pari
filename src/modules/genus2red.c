@@ -832,10 +832,11 @@ tame_234_init(struct igusa *I, struct igusa_p *Ip, long v12,
 
 /* Ip->tt = 2 */
 static long
-tame_2(struct igusa *I, struct igusa_p *Ip, long v12)
+tame_2(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, d, n, q, r, flc;
+  long condp = -1, d, n, q, r, flc, v12;
   GEN val = Ip->val;
+  v12 = myval(I->i12,  Ip->p);
   tame_234_init(I, Ip, v12, &n, &q, &r, &flc);
   d = n * (6*val[6]-5*val[7]) / 6;
   switch(n)
@@ -926,11 +927,11 @@ tame_2(struct igusa *I, struct igusa_p *Ip, long v12)
 
 /* Ip->tt = 3 */
 static long
-tame_3(struct igusa *I, struct igusa_p *Ip, long v12)
+tame_3(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, n, q, r, flc;
-  long va5, d1, d2;
+  long condp = -1, n, q, r, flc, va5, d1, d2, v12;
   GEN val = Ip->val, e1, e2;
+  v12 = 3*myval(I->i4, Ip->p);
   tame_234_init(I, Ip, v12, &n, &q, &r, &flc);
 
   va5 = 2*val[6]-5*val[3];
@@ -978,10 +979,11 @@ tame_3(struct igusa *I, struct igusa_p *Ip, long v12)
 
 /* Ip->tt = 4 */
 static long
-tame_4(struct igusa *I, struct igusa_p *Ip, long v12)
+tame_4(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, d1, d2, d3, f1, f2, g, h, n, q, r, flc, vl,vn,vm, e1,e2,e3;
+  long condp = -1, d1,d2,d3, f1,f2, g, h, n, q, r, flc, v12,vl,vn,vm, e1,e2,e3;
   GEN val = Ip->val;
+  v12 = 6*myval(I->j2, Ip->p);
   tame_234_init(I, Ip, v12, &n, &q, &r, &flc);
   vl = val[6]-5*val[1];
   vn = val[7]-6*val[1];
@@ -1099,11 +1101,12 @@ tame_567_init(struct igusa *I, struct igusa_p *Ip, long dk,
 }
 
 static long
-tame_5(struct igusa *I, struct igusa_p *Ip, long dk)
+tame_5(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, d, n, dm, r;
+  long condp = -1, d, n, dm, r, dk;
   GEN val = Ip->val;
 
+  dk = Ip->eps*val[6]-5*val[Ip->eps2];
   tame_567_init(I, Ip, dk, &d, &n, &dm, &r);
   if (! odd(val[Ip->eps2]))
   {
@@ -1385,12 +1388,13 @@ tame_5(struct igusa *I, struct igusa_p *Ip, long dk)
 }
 
 static long
-tame_6(struct igusa *I, struct igusa_p *Ip, long dk,
+tame_6(struct igusa *I, struct igusa_p *Ip,
        GEN polh, GEN theta, long alpha, long Dmin)
 {
-  long condp = -1, d, d1, n, dm, r;
+  long condp = -1, d, d1, n, dm, r, dk;
   GEN val = Ip->val, d1k;
 
+  dk = Ip->eps*val[7]-6*val[Ip->eps2];
   tame_567_init(I, Ip, dk, &d, &n, &dm, &r);
   d1k = sstoQ(Ip->eps*(val[6]-val[7])+val[Ip->eps2], Ip->eps);
   d1 = itos(gmulsg(n,d1k));
@@ -1494,12 +1498,13 @@ tame_6(struct igusa *I, struct igusa_p *Ip, long dk,
 }
 
 static long
-tame_7(struct igusa *I, struct igusa_p *Ip, long dk,
+tame_7(struct igusa *I, struct igusa_p *Ip,
          GEN polh, GEN theta, long alpha, long Dmin)
 {
-  long condp = -1, d, d1, d2, n, dm, r;
+  long condp = -1, d, d1, d2, n, dm, r, dk;
   GEN val = Ip->val, d1k, d2k, pro1;
 
+  dk = 3*(Ip->eps*val[3]-2*val[Ip->eps2]);
   tame_567_init(I, Ip, dk, &d, &n, &dm, &r);
   pro1 = sstoQ(Ip->eps*val[6]+val[Ip->eps2]-3*Ip->eps*val[3], Ip->eps);
   d1k = gmin(stoi(val[7]-3*val[3]),gmul2n(pro1,-1));
@@ -1545,23 +1550,16 @@ tame_7(struct igusa *I, struct igusa_p *Ip, long dk,
 static long
 tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
-  GEN val = Ip->val;
-  long dk;
   Ip->tame = 1;
   switch(Ip->tt)
   {
     case 1: return tame_1(I, Ip);
-    case 2: return tame_2(I, Ip, myval(I->i12,  Ip->p));
-    case 3: return tame_3(I, Ip, 3*myval(I->i4, Ip->p));
-    case 4: return tame_4(I, Ip, 6*myval(I->j2, Ip->p));
-    case 5:
-      return tame_5(I, Ip, Ip->eps*val[6]-5*val[Ip->eps2]);
-    case 6:
-      dk = Ip->eps*val[7]-6*val[Ip->eps2];
-      return tame_6(I, Ip, dk, polh, theta, alpha, Dmin);
-    case 7:
-      dk = 3*(Ip->eps*val[3]-2*val[Ip->eps2]);
-      return tame_7(I, Ip, dk, polh, theta, alpha, Dmin);
+    case 2: return tame_2(I, Ip);
+    case 3: return tame_3(I, Ip);
+    case 4: return tame_4(I, Ip);
+    case 5: return tame_5(I, Ip);
+    case 6: return tame_6(I, Ip, polh, theta, alpha, Dmin);
+    case 7: return tame_7(I, Ip, polh, theta, alpha, Dmin);
   }
   return -1; /*LCOV_EXCL_LINE*/
 }
