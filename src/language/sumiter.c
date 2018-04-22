@@ -1457,7 +1457,7 @@ derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
   a = eval(E, gsub(x, eps), newprec);
   b = eval(E, gadd(x, eps), newprec);
   y = gmul2n(gsub(b,a), e-1);
-  return gerepileupto(av, gprec_w(y, nbits2prec(fpr)));
+  return gerepilecopy(av, gprec_w(y, nbits2prec(fpr)));
 }
 
 /* Fornberg interpolation algorithm for finite differences coefficients
