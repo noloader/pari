@@ -532,14 +532,27 @@ struct igusa_p {
   const char *type;
 };
 
+/* initialize Ip */
 static void
-stable_reduction(struct igusa *I, struct igusa_p *Ip)
+stable_reduction(struct igusa *I, struct igusa_p *Ip, GEN p)
 {
   static const long deg[9] = { 0,2,4,4,6,8,10,12 };
-  GEN j2 = I->j2, i4 = I->i4, j6 = I->j6, j8 = I->j8, j10 = I->j10;
-  GEN i12 = I->i12, p = Ip->p, val = Ip->val;
-  GEN J, v, s, Ieps;
+  GEN j2 = I->j2, i4 = I->i4, j4 = I->j4, j6 = I->j6, j8 = I->j8;
+  GEN val, J, v, s, Ieps, j10 = I->j10, i12 = I->i12;
   long r1, r2, r3, r4, i, eps, eps2;
+
+  Ip->tame = 0;
+  Ip->neron = NULL;
+  Ip->type = NULL;
+  Ip->p = p;
+  Ip->val = val = cgetg(8, t_VECSMALL);
+  val[1] = myval(j2,p);
+  val[2] = myval(j4,p);
+  val[3] = myval(i4,p);
+  val[4] = myval(j6,p);
+  val[5] = myval(j8,p);
+  val[6] = myval(j10,p);
+  val[7] = myval(i12,p);
 
   v = cgetg(8,t_COL);
   for(i = 1; i <= 7; i++) gel(v,i) = sstoQ(val[i], deg[i]);
@@ -802,12 +815,19 @@ tame_1(struct igusa *I, struct igusa_p *Ip)
   return condp;
 }
 
+/* (4.2) */
 static void
-tame_234_init(struct igusa *I, struct igusa_p *Ip, long v12,
-                long *n, long *q, long *r, long *flc)
+tame_234_init(struct igusa *I, struct igusa_p *Ip,
+              long *n, long *q, long *r, long *flc)
 {
-  long va0, va5, vb2;
+  long va0, va5, vb2, v12 = -1;
   GEN p = Ip->p;
+  switch(Ip->tt)
+  {
+    case 2: v12 = myval(I->i12,  Ip->p); break;
+    case 3: v12 = 3*myval(I->i4, Ip->p); break;
+    case 4: v12 = 6*myval(I->j2, Ip->p); break;
+  }
   va0 = myval(I->a0,p);
   va5 = myval(I->A5,p);
   vb2 = myval(I->B2,p);
@@ -833,10 +853,9 @@ tame_234_init(struct igusa *I, struct igusa_p *Ip, long v12,
 static long
 tame_2(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, d, n, q, r, flc, v12;
+  long condp = -1, d, n, q, r, flc;
   GEN val = Ip->val;
-  v12 = myval(I->i12,  Ip->p);
-  tame_234_init(I, Ip, v12, &n, &q, &r, &flc);
+  tame_234_init(I, Ip, &n, &q, &r, &flc);
   d = n * (6*val[6]-5*val[7]) / 6;
   switch(n)
   {
@@ -928,10 +947,9 @@ tame_2(struct igusa *I, struct igusa_p *Ip)
 static long
 tame_3(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, n, q, r, flc, va5, d1, d2, v12;
+  long condp = -1, n, q, r, flc, va5, d1, d2;
   GEN val = Ip->val, e1, e2;
-  v12 = 3*myval(I->i4, Ip->p);
-  tame_234_init(I, Ip, v12, &n, &q, &r, &flc);
+  tame_234_init(I, Ip, &n, &q, &r, &flc);
 
   va5 = 2*val[6]-5*val[3];
   e1 = gmin(stoi(val[7]-3*val[3]),gmul2n(stoi(va5),-2));
@@ -980,10 +998,9 @@ tame_3(struct igusa *I, struct igusa_p *Ip)
 static long
 tame_4(struct igusa *I, struct igusa_p *Ip)
 {
-  long condp = -1, d1,d2,d3, f1,f2, g, h, n, q, r, flc, v12,vl,vn,vm, e1,e2,e3;
+  long condp = -1, d1,d2,d3, f1,f2, g, h, n, q, r, flc, vl,vn,vm, e1,e2,e3;
   GEN val = Ip->val;
-  v12 = 6*myval(I->j2, Ip->p);
-  tame_234_init(I, Ip, v12, &n, &q, &r, &flc);
+  tame_234_init(I, Ip, &n, &q, &r, &flc);
   vl = val[6]-5*val[1];
   vn = val[7]-6*val[1];
   vm = val[2]-2*val[1]; /* all >= 0 */
@@ -1051,6 +1068,7 @@ tame_567_init_3(struct igusa_p *Ip, long dk,
   *pdm = 0;
 }
 
+/* (4.3) */
 static void
 tame_567_init(struct igusa *I, struct igusa_p *Ip, long dk,
               long *pd, long *pn, long *pdm, long *pr)
@@ -1549,18 +1567,19 @@ static long
 tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
   long d;
+  Ip->tame = 1;
   switch(Ip->tt)
   {
-    case 1: d = tame_1(I,Ip); break;
-    case 2: d = tame_2(I,Ip); break;
-    case 3: d = tame_3(I,Ip); break;
-    case 4: d = tame_4(I,Ip); break;
-    case 5: d = tame_5(I,Ip); break;
+    case 1: return tame_1(I,Ip);
+    case 2: return tame_2(I,Ip);
+    case 3: return tame_3(I,Ip);
+    case 4: return tame_4(I,Ip);
+    case 5: return tame_5(I,Ip);
     case 6: d = tame_6(I,Ip); break;
     default:d = tame_7(I,Ip); break;
   }
   if (d < 0) d = labelm3(polh,theta,alpha,Dmin,I,Ip); /* => tt=6 or 7 */
-  Ip->tame = 1; return d;
+  return d;
 }
 
 /* maxc = maximum conductor valuation at p */
@@ -1779,21 +1798,8 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
   long i, vb5, vb6, d, Dmin, alpha, lambda;
   long condp = -1, indice, vc6, mm, nb, dism;
 
-  val = cgetg(8, t_VECSMALL);
-  Ip->tame = 0;
-  Ip->neron = NULL;
-  Ip->type = NULL;
-  Ip->p = p;
-  Ip->val = val;
-  val[1] = myval(I->j2,p);
-  val[2] = myval(I->j4,p);
-  val[3] = myval(I->i4,p);
-  val[4] = myval(I->j6,p);
-  val[5] = myval(I->j8,p);
-  val[6] = myval(I->j10,p);
-  val[7] = myval(I->i12,p);
-  Dmin = val[6];
-  stable_reduction(I, Ip);
+  stable_reduction(I, Ip, p);
+  val = Ip->val; Dmin = val[6];
   if (Dmin == 0)
   {
     Ip->tame = 1;
