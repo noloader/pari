@@ -191,15 +191,6 @@ min3(long a, long b, long c)
   if (c < m) m = c;
   return m;
 }
-/* min(a,b,c) */
-static GEN
-gmin3(GEN a, GEN b, GEN c)
-{
-  GEN m = a;
-  if (gcmp(b, m) < 0) m = b;
-  if (gcmp(c, m) < 0) m = c;
-  return m;
-}
 
 /* Vector of p-adic factors (over Q_p) to accuracy r of pol. */
 static GEN
@@ -732,36 +723,65 @@ get_red(struct red *S, struct igusa_p *Ip, GEN polh, GEN p, long alpha, long r)
 }
 
 static long labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip);
+/* reduce a/b; assume b > 0 */
+static void
+ssQ_red(long a, long b, long *n, long *d)
+{
+  long g = ugcd(labs(a), b);
+  if (g > 1) { a /= g; b /= g; }
+  *n = a; *d = b;
+}
+/* denom(a/b); assume b > 0 */
+static long
+ssQ_denom(long a, long b)
+{
+  long g = ugcd(labs(a), b);
+  return g == 1? b: b / g;
+}
+/* n = lcm(d, denom(a/b)); r = (a/b * n mod n); assume b > 0 and d > 0 */
+static void
+get_nr(long d, long a, long b, long *n, long *r)
+{
+  long c, A, B;
+  ssQ_red(a, b, &A,&B);
+  c = d / ugcd(d, B);
+  *n = B * c;
+  *r = smodss(A * c, *n);
+}
+/* n = lcm(denom(a/b), denom(c/d)); r = (a/b * n mod n); q = (c/d * n mod n);
+ * assume b > 0 and d > 0 */
+static void
+get_nrq(long a, long b, long c, long d, long *n, long *r, long *q)
+{
+  long g, A, B, C, D;
+  ssQ_red(a, b, &A,&B);
+  ssQ_red(c, d, &C,&D);
+  g = ugcd(B,D);
+  *n = B * (D/g);
+  *r = smodss(A * (D/g), *n);
+  *q = smodss(C * (B/g), *n);
+}
 
 /* Ip->tt = 1 */
 static long
 tame_1(struct igusa *I, struct igusa_p *Ip)
 {
   GEN p = Ip->p, val = Ip->val;
-  GEN r, n, pro1, pro2;
-  long condp = -1, va0, va5;
+  long condp = -1, va0, va5, r, n;
   va0 = myval(I->a0,p);
   va5 = myval(I->A5,p);
   if (!gequal0(I->A5) && 20*va0+val[6] > 6*va5)
-  {
-    pro1 = sstoQ(val[6]-2*va5, 20);
-    pro2 = sstoQ(5*val[6]-6*va5, 40);
-  }
+    get_nr(ssQ_denom(5*val[6]-6*va5, 40), val[6]-2*va5, 20, &n,&r);
   else
-  {
-    pro1 = sstoQ(10*va0-val[6], 30);
-    pro2 = sstoQ(5*va0-val[6], 10);
-  }
-  n = lcmii(denom(pro1),denom(pro2));
-  r = modii(gmul(n,pro1), n);
-  switch(itos(n))
+    get_nr(ssQ_denom(5*va0-val[6], 10), 10*va0-val[6], 30, &n,&r);
+  switch(n)
   {
     case 1:
       condp = 0;
       Ip->type = "[I{0-0-0}] page 155";
       Ip->neron = cyclic(1); break;
     case 2:
-      switch(itos(r))
+      switch(r)
       {
         case 0:
           condp = 4;
@@ -785,49 +805,29 @@ tame_1(struct igusa *I, struct igusa_p *Ip)
 
 static void
 tame_234_init(struct igusa *I, struct igusa_p *Ip, long v12,
-                long *pn, long *pq, long *pr, long *flc)
+                long *n, long *q, long *r, long *flc)
 {
   long va0, va5, vb2;
-  GEN p = Ip->p, pro1, pro2, n, r, q;
+  GEN p = Ip->p;
   va0 = myval(I->a0,p);
   va5 = myval(I->A5,p);
   vb2 = myval(I->B2,p);
   if (9*vb2 >= 6*va0+v12 && 36*va5 >= 120*va0+5*v12)
   {
-    pro1 = sstoQ(12*va0-v12, 36);
-    pro2 = sstoQ(6*va0-v12, 12);
-    n = lcmii(denom(pro1),denom(pro2));
-    r = gmul(n,pro1);
-    q = gmul(n,pro2);
+    get_nrq(12*va0-v12,36, 6*va0-v12,12, n, r, q);
     *flc = 1;
   }
   else if (120*va0+5*v12 > 36*va5 && 60*vb2 >= 12*va5+5*v12)
   {
-    pro1 = sstoQ(36*va5-25*v12, 240);
-    n = denom(pro1);
-    q = gmul(n,pro1);
-    r = gmulsg(-2,q);
+    ssQ_red(36*va5-25*v12,240, q,n);
+    *r = smodss(-2* *q, *n);
     *flc = 1;
   }
-  else if (6*va0+v12 > 9*vb2 && 12*va5+5*v12 > 60*vb2)
+  else /* 6*va0+v12 > 9*vb2 && 12*va5+5*v12 > 60*vb2 */
   {
-    pro1 = sstoQ(v12-6*vb2, 12);
-    pro2 = sstoQ(v12-9*vb2, 12);
-    n = lcmii(denom(pro1),denom(pro2));
-    r = gmul(n,pro1);
-    q = gmul(n,pro2);
+    get_nrq(v12-6*vb2,12, v12-9*vb2,12, n,r,q);
     *flc = 2;
   }
-  else
-  {
-    pari_err_BUG("tame234 [bug9]");
-    return; /*LCOV_EXCL_LINE*/
-  }
-  r = gmod(r,n);
-  q = gmod(q,n);
-  *pn = itos(n);
-  *pq = itos(q);
-  *pr = itos(r);
 }
 
 /* Ip->tt = 2 */
@@ -980,20 +980,20 @@ tame_3(struct igusa *I, struct igusa_p *Ip, long v12)
 static long
 tame_4(struct igusa *I, struct igusa_p *Ip, long v12)
 {
-  long condp = -1, d1, d2, d3, f1, f2, g, h, n, q, r, flc;
-  GEN val = Ip->val, e1, e2, e3, vl, vn, vm;
+  long condp = -1, d1, d2, d3, f1, f2, g, h, n, q, r, flc, vl,vn,vm, e1,e2,e3;
+  GEN val = Ip->val;
   tame_234_init(I, Ip, v12, &n, &q, &r, &flc);
-  vl = stoi(val[6]-5*val[1]);
-  vn = stoi(val[7]-6*val[1]);
-  vm = stoi(val[2]-2*val[1]);
-  e1 = gmin3(gdivgs(vl,3), gmul2n(vn,-1), vm);
-  e2 = gmin(gmul2n(gsub(vl,e1),-1), gsub(vn,e1));
-  e3 = gsub(vl,gadd(e1,e2));
-  d1 = itos(gmulsg(n,e1));
-  d2 = itos(gmulsg(n,e2));
-  d3 = itos(gmulsg(n,e3));
+  vl = val[6]-5*val[1];
+  vn = val[7]-6*val[1];
+  vm = val[2]-2*val[1]; /* all >= 0 */
+  e1 = min3(2*vl, 3*vn, 6*vm);
+  e2 = minss(6*vl - e1, 12*vn - 2*e1); /* >= 0 */
+  e3 = 12*vl - (2*e1+e2); /* >= 0 */
+  d1 = e1*n / 6;
+  d2 = e2*n / 12;
+  d3 = e3*n / 12;
   g = d1*d2 + d1*d3 + d2*d3;
-  h = cgcd(cgcd(d1,d2),d3);
+  h = ugcd(ugcd(d1,d2),d3);
   switch(n)
   {
     case 1: condp = 2;
@@ -1040,69 +1040,49 @@ tame_4(struct igusa *I, struct igusa_p *Ip, long v12)
 
 /* p = 3 */
 static void
-tame_567_init_3(struct igusa_p *Ip, GEN dk,
+tame_567_init_3(struct igusa_p *Ip, long dk,
                 long *pd, long *pn, long *pdm, long *pr)
 {
   long n = 1 + Ip->r1/6;
-  *pd = itos(gmulgs(dk,n));
+  *pd = n * dk / 36; /* / (12*Ip->eps) */
   *pn = n;
   *pr = -1; /* unused */
   *pdm = 0;
 }
 
 static void
-tame_567_init(struct igusa *I, struct igusa_p *Ip, GEN dk,
+tame_567_init(struct igusa *I, struct igusa_p *Ip, long dk,
               long *pd, long *pn, long *pdm, long *pr)
 {
-  long va0, va2, va3, va5, vb2;
-  long d, v1, v2;
-  GEN r, n, m;
-  GEN pro1, dm, rk;
+  long n, r, va0, va2, va3, va5, vb2, d, v1, v2, v5, ndk, ddk;
   GEN p = Ip->p, val = Ip->val;
-  long v5;
 
   if (equalis(p, 3)) { tame_567_init_3(Ip, dk, pd, pn, pdm, pr); return; }
-  /* assume p > 3 */
+  /* assume p > 3, Ip->eps = 1 */
   va0 = myval(I->a0,p);
   va2 = myval(I->A2,p);
   va3 = myval(I->A3,p);
   va5 = myval(I->A5,p);
   vb2 = myval(I->B2,p);
   v5 = myval(subii(mulii(I->A2,I->A3),mulsi(3,I->A5)),p);
-  rk = gadd(sstoQ(va0, 2),
-            gmin3(gmul2n(dk,-1),
-                  sstoQ(2*va3-3*va2, 8),
-                  sstoQ(2*v5 - 5*va2, 12)));
   v1 = 2*va3-4*va0-val[1];
   v2 = 6*va5-20*va0-5*val[1];
+  ssQ_red(dk, 12, &ndk, &ddk);
   /* the definition of n differs according to the parity of val[1] */
   if (! odd(val[Ip->eps2]))
   {
     if (3*vb2 >= 2*va0+2*val[1] && v1 >= 0 && v2 >= 0
                                 && (v1 == 0 || v2 == 0))
-    { /* Prop 4.3.1 (a) */
-      pro1 = sstoQ(va0+val[1], 6);
-      n = lcmii(denom(dk),denom(pro1));
-      r = gmul(n,pro1);
-    }
+      get_nr(ddk, va0+val[1], 6, &n,&r); /* Prop 4.3.1 (a) */
     else if (20*va0+5*val[1] > 6*va5 && 10*vb2 >= 2*va5+5*val[1])
-    { /* Prop 4.3.1 (b) */
-      pro1 = sstoQ(2*va5+val[1], 8);
-      n = lcmii(denom(dk),denom(pro1));
-      r = gmul(n,pro1);
-    }
+      get_nr(ddk, 2*va5+val[1], 8, &n,&r); /* Prop 4.3.1 (b) */
     else if (2*va0+2*val[1] > 3*vb2 && 2*va5+5*val[1] > 10*vb2)
-    { /* Prop 4.3.1 (c) */
-      pro1 = gmul2n(stoi(vb2),-2);
-      n = lcmii(denom(dk),denom(pro1));
-      r = gmul(n,pro1);
-    }
+      get_nr(ddk, vb2, 4, &n,&r); /* Prop 4.3.1 (c) */
     else if (3*vb2 >= 2*va0+2*val[1] && 2*va3 > 4*va0+val[1]
                                      && 6*va5 > 20*va0+5*val[1])
     { /* Prop 4.3.1 (d) */
       if (gequal0(I->A2)) pari_err_BUG("tame567 [bug27]");
-      n = lcmii(denom(dk),denom(rk));
-      r = gmul(n,rk);
+      get_nr(ddk, 12*va0 + min3(dk, 6*va3-9*va2, 4*v5 - 10*va2), 24, &n,&r);
     }
     else
     {
@@ -1110,23 +1090,16 @@ tame_567_init(struct igusa *I, struct igusa_p *Ip, GEN dk,
       return; /*LCOV_EXCL_LINE*/
     }
   }
-  else
-  {
-    m = denom(dk);
-    r = gmul(m,dk);
-    n = gmul2n(m,1);
-  }
-  d = itos(gmul(n,dk));
-  dm = modsi(d,n);
-  r = modii(r,n);
+  else { r = ndk; n = 2*ddk; }
+  d = (n/ddk) * ndk;
   *pd = d;
-  *pn = itos(n);
-  *pr = itos(r);
-  *pdm = itos(dm);
+  *pn = n;
+  *pr = r;
+  *pdm = smodss(d, n);
 }
 
 static long
-tame_5(struct igusa *I, struct igusa_p *Ip, GEN dk)
+tame_5(struct igusa *I, struct igusa_p *Ip, long dk)
 {
   long condp = -1, d, n, dm, r;
   GEN val = Ip->val;
@@ -1412,7 +1385,7 @@ tame_5(struct igusa *I, struct igusa_p *Ip, GEN dk)
 }
 
 static long
-tame_6(struct igusa *I, struct igusa_p *Ip, GEN dk,
+tame_6(struct igusa *I, struct igusa_p *Ip, long dk,
        GEN polh, GEN theta, long alpha, long Dmin)
 {
   long condp = -1, d, d1, n, dm, r;
@@ -1521,7 +1494,7 @@ tame_6(struct igusa *I, struct igusa_p *Ip, GEN dk,
 }
 
 static long
-tame_7(struct igusa *I, struct igusa_p *Ip, GEN dk,
+tame_7(struct igusa *I, struct igusa_p *Ip, long dk,
          GEN polh, GEN theta, long alpha, long Dmin)
 {
   long condp = -1, d, d1, d2, n, dm, r;
@@ -1572,7 +1545,8 @@ tame_7(struct igusa *I, struct igusa_p *Ip, GEN dk,
 static long
 tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
-  GEN val = Ip->val, dk;
+  GEN val = Ip->val;
+  long dk;
   Ip->tame = 1;
   switch(Ip->tt)
   {
@@ -1581,13 +1555,12 @@ tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p
     case 3: return tame_3(I, Ip, 3*myval(I->i4, Ip->p));
     case 4: return tame_4(I, Ip, 6*myval(I->j2, Ip->p));
     case 5:
-      dk = sstoQ(Ip->eps*val[6]-5*val[Ip->eps2], 12*Ip->eps);
-      return tame_5(I, Ip, dk);
+      return tame_5(I, Ip, Ip->eps*val[6]-5*val[Ip->eps2]);
     case 6:
-      dk = sstoQ(Ip->eps*val[7]-6*val[Ip->eps2], 12*Ip->eps);
+      dk = Ip->eps*val[7]-6*val[Ip->eps2];
       return tame_6(I, Ip, dk, polh, theta, alpha, Dmin);
     case 7:
-      dk = sstoQ(Ip->eps*val[3]-2*val[Ip->eps2], 4*Ip->eps);
+      dk = 3*(Ip->eps*val[3]-2*val[Ip->eps2]);
       return tame_7(I, Ip, dk, polh, theta, alpha, Dmin);
   }
   return -1; /*LCOV_EXCL_LINE*/
@@ -2058,12 +2031,12 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       }
       break;
     case 2:
-      if (equalis(denom(theta),4))
+      if (equaliu(Q_denom(theta),4))
       {
         if (Ip->tt>4) pari_err_BUG("genus2localred [tt 5]");
         return tame(polh, theta, alpha, Dmin, I, Ip);
       }
-      if (!equalis(p,3) && equalis(denom(theta),3))
+      if (!equaliu(p,3) && equaliu(Q_denom(theta),3))
         return tame(polh, theta, alpha, Dmin, I, Ip);
       list = padicfactors(polh,p,Dmin-10*alpha);
       nb = lg(list); prod = pol_1(varn(polh));
