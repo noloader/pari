@@ -2587,7 +2587,7 @@ cc_chartable(GEN cc)
     GEN jg, h = id, g = gel(elts,rep[j]);
     long o;
     vord[j] = o = perm_order(g);
-    expo = clcm(expo, o);
+    expo = ulcm(expo, o);
     gel(vjg,j) = jg = cgetg(o+1,t_VECSMALL);
     for (l=1; l<=o; l++)
     {

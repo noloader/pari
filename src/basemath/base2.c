@@ -1547,7 +1547,7 @@ loop(decomp_t *S, long Ea)
     {
       long Fa = degpol(S->nu), vdeng;
       GEN deng, numg, nume;
-      if (Fa % Fg) return testb2(S, clcm(Fa,Fg), g);
+      if (Fa % Fg) return testb2(S, ulcm(Fa,Fg), g);
       /* nu & nug irreducible mod p, deg nug | deg nu. To improve beta, look
        * for a root d of nug in Fp[phi] such that v_p(g - d) > 0 */
       if (ZX_equal(nug, S->nu))
@@ -2437,7 +2437,7 @@ modprinit(GEN nf, GEN pr, int zk)
     {
       k++; u2 = col_ei(f, k);
       deg2 = ffdegree(u2, frob, p);
-      deg = clcm(deg1,deg2);
+      deg = ulcm(deg1,deg2);
       if (deg == deg1) continue;
       if (deg == deg2) { deg1 = deg2; u = u2; continue; }
       u = ZC_add(u, u2);

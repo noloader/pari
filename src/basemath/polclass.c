@@ -1246,7 +1246,7 @@ classgp_make_pcp(
   G->L0 = (modinv_is_double_eta(inv) && modinv_ramified(D, inv))
     ? modinv_degree(NULL, NULL, inv) : 0;
   G->enum_cnt = h / (1 + !!G->L0);
-  G->Lfilter = clcm(Lfilter, lvl);
+  G->Lfilter = ulcm(Lfilter, lvl);
 
   if (h == 1) {
     if (G->L0) pari_err_BUG("classgp_pcp");

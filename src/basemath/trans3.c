@@ -2174,7 +2174,7 @@ zetap_i(GEN s, long D)
     pari_err_DOMAIN("p-adic zeta", "argument", "=", gen_1, s);
   if (prec <= 0) prec = 1;
   cache = init_cache(prec, p, s);
-  m = clcm(D, p == 2? 4: p);
+  m = ulcm(D, p == 2? 4: p);
   gm = stoi(m);
   va = coprimes_zv(m);
   S = gen_0; s1 = gsubgs(s,1); if (gequal0(s1)) s1 = NULL;

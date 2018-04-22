@@ -540,7 +540,7 @@ choose_prime(primedata *S, GEN pol, GEN dpol)
     if (r == N || r >= BIL) continue;
 
     n = cgetg(r+1, t_VECSMALL); lcm = n[1] = degpol(gel(ff,1));
-    for (j=2; j<=r; j++) { n[j] = degpol(gel(ff,j)); lcm = clcm(lcm, n[j]); }
+    for (j=2; j<=r; j++) { n[j] = degpol(gel(ff,j)); lcm = ulcm(lcm, n[j]); }
     if (lcm <= oldlcm) continue; /* false when oldlcm = 0 */
 
     if (DEBUGLEVEL) err_printf("p = %lu,\tlcm = %ld,\torbits: %Ps\n",p,lcm,n);

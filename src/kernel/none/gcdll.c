@@ -104,13 +104,15 @@ igcduu(ulong a, ulong b)
 }
 
 /*Warning: overflows silently if lcm does not fit*/
-long
-clcm(long a,long b)
+ulong
+ulcm(ulong a, ulong b)
 {
-  long d = cgcd(a,b);
+  ulong d = ugcd(a,b);
   if (!d) return 0;
   return d == 1? a*b: a*(b/d);
 }
+long
+clcm(long a,long b) { return ulcm(labs(a), labs(b)); }
 
 /********************************************************************/
 /**                                                                **/

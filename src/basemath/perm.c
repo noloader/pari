@@ -330,7 +330,7 @@ perm_order(GEN v)
   pari_sp ltop = avma;
   GEN c = vecperm_orbits_i(mkvec(v), lg(v)-1);
   long i, d;
-  for(i=1, d=1; i<lg(c); i++) d = clcm(d, lg(gel(c,i))-1);
+  for(i=1, d=1; i<lg(c); i++) d = ulcm(d, lg(gel(c,i))-1);
   avma = ltop; return d;
 }
 
@@ -1104,8 +1104,7 @@ long
 groupelts_exponent(GEN elts)
 {
   long i, n = lg(elts)-1, expo = 1;
-  for(i=1; i<=n; i++)
-    expo = clcm(expo, perm_order(gel(elts,i)));
+  for(i=1; i<=n; i++) expo = ulcm(expo, perm_order(gel(elts,i)));
   return expo;
 }
 

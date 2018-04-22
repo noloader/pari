@@ -3596,7 +3596,7 @@ RgV_shimura(GEN V, long n, long D, long N4, long r, GEN CHI)
   if (!gequal0(a0))
   {
     long D4 = D << 2;
-    GEN CHID = induceN(clcm(mfcharmodulus(CHI), labs(D4)), CHI);
+    GEN CHID = induceN(ulcm(mfcharmodulus(CHI), labs(D4)), CHI);
     CHID = mfcharmul_i(CHID, induce(gel(CHID,1), stoi(D4)));
     a0 = gmul(a0, charLFwtk(r, CHID, mfcharorder(CHID)));
   }
@@ -4308,7 +4308,7 @@ mftonew_i(GEN mf, GEN L, long *plevel)
       NK = mf_get_NK(gel(f,1));
       d = D[j];
       C = gcoeff(Acoef,i,j);
-      level = clcm(level, M*d);
+      level = ulcm(level, M*d);
       gel(res,t++) = mkvec3(gM, utoipos(d), mflinear_i(NK,f,C));
     }
   }
@@ -8859,7 +8859,7 @@ mfeisenstein_i(long k, GEN CHI1, GEN CHI2)
   /* E_k(chi1,chi2) */
   vt = varn(mfcharpol(CHI1));
   NK = NK_eisen2(k, CHI1, CHI2);
-  ord = clcm(mfcharorder(CHI1), mfcharorder(CHI2));
+  ord = ulcm(mfcharorder(CHI1), mfcharorder(CHI2));
   E0 = mfeisenstein2_0(k, CHI1, CHI2, ord);
   T = mkvec(polcyclo(ord_canon(ord), vt));
   vchi = mkvec4(E0, T, CHI1, CHI2);
@@ -8967,7 +8967,7 @@ mfeisensteinbasis_i(long N0, long k, GEN CHI)
     G2 = gel(LG,N2); if (!G2) gel(LG,N2) = G2 = znstar0(utoipos(N2), 1);
     CHI1 = mfcharGL(G1, chi1);
     CHI2 = mfcharGL(G2, chi2);
-    o12 = clcm(mfcharorder(CHI1), mfcharorder(CHI2));
+    o12 = ulcm(mfcharorder(CHI1), mfcharorder(CHI2));
     /* remove Galois orbit: same trace */
     no = Fl_powu(n1, ord, N);
     for (t = 1+ord, m = n1; t <= o12; t += ord)
@@ -11003,7 +11003,7 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
     k = typ(gk) == t_INT? itou(gk): MF_get_r(mf)+1;
     g = ugcd(N/ugcd(N, C), C);
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
-    V = bestapprnf2(V, ord_canon(clcm(g*w, ord)), CV, prec);
+    V = bestapprnf2(V, ord_canon(ulcm(g*w, ord)), CV, prec);
     if (abd && !signe(b))
     { /* can [a,0; 0,d] be simplified to id ? */
       long nk, dk; Qtoss(gk, &nk, &dk);
@@ -11071,7 +11071,7 @@ mf2basis(long N, long r, GEN CHI, long space)
   }
   mf1 = mfinit_Nkchi(N, k1, CHI1, space, 1);
   B1 = MF_get_basis(mf1); if (lg(B1) == 1) return cgetg(1,t_VEC);
-  N2 = clcm(8, N);
+  N2 = ulcm(8, N);
   mf2 = mfinit_Nkchi(N2, k1, CHI2, space, 1);
   B2 = MF_get_basis(mf2); if (lg(B2) == 1) return cgetg(1,t_VEC);
   sb = mfsturmNgk(N2, gaddsg(k1, ghalf));
@@ -11102,11 +11102,11 @@ mfwt1basisalt(long N, GEN CHI, long space)
 
   CHI = get_mfchar(CHI);
   CHI1 = mfcharmul(CHI, get_mfchar(stoi(-4)));
-  N1 = clcm(4, N);
+  N1 = ulcm(4, N);
   mf1 = mfinit_Nkchi(N1, 2, CHI1, space, 1);
   B1 = MF_get_basis(mf1);
   if (lg(B1) == 1) { avma = ltop; return cgetg(1,t_VEC); }
-  N2 = clcm(8, N);
+  N2 = ulcm(8, N);
   mf2 = mfinit_Nkchi(N2, 2, CHI1, space, 1);
   B2 = MF_get_basis(mf2);
   if (lg(B2) == 1) { avma = ltop; return cgetg(1,t_VEC); }
@@ -11416,11 +11416,11 @@ mfconductor(GEN mf, GEN F)
     GEN EF = mftobasisES(mf, F), vE = gel(EF,1), B = MF_get_E(mf);
     long i, l = lg(B);
     for (i = 1; i < l; i++)
-      if (!gequal0(gel(vE,i))) N = clcm(N, mf_get_N(gel(B, i)));
+      if (!gequal0(gel(vE,i))) N = ulcm(N, mf_get_N(gel(B, i)));
     F = gel(EF,2);
   }
   (void)mftonew_i(mf, F, &M); /* M = conductor of cuspidal part */
-  avma = av; return clcm(M, N);
+  avma = av; return ulcm(M, N);
 }
 
 static GEN

@@ -1582,13 +1582,11 @@ algindex(GEN al, GEN pl)
   res = 1;
   r1 = nf_get_r1(alg_get_center(al));
   hi = alg_get_hasse_i(al);
-  for (i=1; i<=r1 && res!=d; i++)
-    res = clcm(res, indexfromhasse(hi[i],d));
+  for (i=1; i<=r1 && res!=d; i++) res = ulcm(res, indexfromhasse(hi[i],d));
   hf = alg_get_hasse_f(al);
   L = gel(hf,1);
   hf = gel(hf,2);
-  for (i=1; i<lg(L) && res!=d; i++)
-    res = clcm(res, indexfromhasse(hf[i],d));
+  for (i=1; i<lg(L) && res!=d; i++) res = ulcm(res, indexfromhasse(hf[i],d));
   avma = av;
   return res;
 }
@@ -3781,11 +3779,11 @@ hassewedderburn(GEN hf, GEN hi, long n)
   checkhasse(NULL,hf,hi,n);
   for (i=1; i<lg(hi); i++) {
     denom = n/ugcd(hi[i],n);
-    ind = clcm(ind,denom);
+    ind = ulcm(ind,denom);
   }
   for (i=1; i<lgcols(hf); i++) {
     denom = n/ugcd(gel(hf,2)[i],n);
-    ind = clcm(ind,denom);
+    ind = ulcm(ind,denom);
   }
   k = n/ind;
   hid = zv_z_div(hi, k);
