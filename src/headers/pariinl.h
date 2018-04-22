@@ -160,13 +160,19 @@ Qtoss(GEN q, long *n, long *d)
 INLINE GEN
 sstoQ(long n, long d)
 {
-  long g, r, q;
-  if (d == 1) return stoi(n);
-  q = sdivss_rem(n,d,&r);
-  if (!r) return stoi(q);
-  g = cgcd(d,r); /* gcd(n,d) */
-  if (g != 1) { n /= g; d /= g; }
+  ulong r;
+  long g, q;
+  if (!n)
+  {
+    if (!d) pari_err_INV("sstoQ",gen_0);
+    return gen_0;
+  }
   if (d < 0) { d = -d; n = -n; }
+  if (d == 1) return stoi(n);
+  q = udivuu_rem(labs(n),d,&r);
+  if (!r) return n > 0? utoipos(q): utoineg(q);
+  g = ugcd(d,r); /* gcd(n,d) */
+  if (g != 1) { n /= g; d /= g; }
   retmkfrac(stoi(n), utoi(d));
 }
 
