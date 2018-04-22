@@ -6729,7 +6729,7 @@ findqga(long N, GEN z)
     GEN D, DC = gel(LDC,j), C1 = gel(DC,2);
     if (cmpii(C1,Q) > 0) break;
     D = gel(DC,1);
-    if (ugcd(umodiu(D,N), N) == 1)
+    if (ugcdiu(D,N) == 1)
     {
       GEN C = mului(N, C1), den;
       den = gadd(gsqr(gmul(C,y)), gsqr(gadd(D, gmul(C,x))));
@@ -6767,7 +6767,7 @@ findqganew(long N, GEN z)
     (void)cxredsl2(gmulsg(e, z), &U);
     C = gcoeff(U,2,1); if (!signe(C)) continue;
     D = gcoeff(U,2,2);
-    g = ugcd(e, umodiu(D,e));
+    g = ugcdiu(D,e);
     if (g > 1) { C = muliu(C,e/g); D = diviuexact(D,g); } else C = muliu(C,e);
     m = gadd(gsqr(gadd(gmul(C, x), D)), gsqr(gmul(C, y)));
     m = gdivgs(m, valNC2(P, E, e));

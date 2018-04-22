@@ -816,6 +816,11 @@ umodui(ulong x, GEN y)
   return x % (ulong)y[2];
 }
 
+INLINE ulong
+ugcdiu(GEN x, ulong y) { return ugcd(umodiu(x,y), y); }
+INLINE ulong
+ugcdui(ulong y, GEN x) { return ugcd(umodiu(x,y), y); }
+
 INLINE GEN
 remsi(long x, GEN y)
 { long r; (void)sdivsi_rem(x,y, &r); return stoi(r); }

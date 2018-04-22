@@ -3028,7 +3028,7 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
 
   /* compute Z/n-dual */
   Sst = cgetg(r+1, t_VECSMALL);
-  for (i=1; i<=r; i++) Sst[i] = ugcd(umodiu(gel(S,i), n), n);
+  for (i=1; i<=r; i++) Sst[i] = ugcdiu(gel(S,i), n);
   if (Sst[1] != n) return NULL;
 
   globGmod = cgetg(r+1,t_MAT);

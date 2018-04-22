@@ -1566,9 +1566,6 @@ vecan_eta(GEN eta, long L)
   return gtovec0(P, L);
 }
 
-static ulong
-ugcdiu(GEN x, ulong y) { return ugcd(umodiu(x,y), y); }
-
 /* return 1 if cuspidal, 0 if holomorphic, -1 otherwise */
 static int
 etacuspidal(GEN N, GEN k, GEN B, GEN R, GEN NB)

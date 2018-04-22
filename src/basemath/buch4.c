@@ -744,7 +744,7 @@ rnfisnorminit(GEN T, GEN relpol, int galois)
   for(i=1; i<l; i++)
   {
     GEN g = gel(gen,i);
-    if (ugcd(umodiu(gel(cyc,i), drel), drel) == 1) break;
+    if (ugcdiu(gel(cyc,i), drel) == 1) break;
     Zfa_append(gcoeff(g,1,1), H, NULL);
   }
   if (!galois)

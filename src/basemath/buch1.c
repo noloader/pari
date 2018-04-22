@@ -236,7 +236,7 @@ END:
   if (X > B->limhash) return 0;
   if (X != 1 && X <= limp)
   {
-    if (B->badprim && ugcd(X, umodiu(B->badprim,X)) > 1) return 0;
+    if (B->badprim && ugcdui(X, B->badprim) > 1) return 0;
     lo++; P[lo] = X; E[lo] = 1;
     X = 1;
   }

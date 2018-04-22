@@ -790,7 +790,7 @@ gmodgs(GEN x, long y)
 
     case t_INTMOD: z=cgetg(3, t_INTMOD);
       u = (ulong)labs(y);
-      i = ugcd(umodiu(gel(x,1), u), u);
+      i = ugcdiu(gel(x,1), u);
       gel(z,1) = utoi(i);
       gel(z,2) = modis(gel(x,2), i); return z;
 

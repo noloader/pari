@@ -795,11 +795,8 @@ qfmin_eval(GEN q0, GEN q1, GEN q2, long i)
 static ulong
 gcduii(ulong a, GEN b, GEN c)
 {
-  ulong d = a;
-  d = ugcd(umodiu(b, d), d );
-  if (d == 1) return 1;
-  d = ugcd(umodiu(c, d), d );
-  return d;
+  a = ugcdiu(b, a);
+  return a == 1? 1: ugcdiu(c, a);
 }
 
 static void
@@ -867,7 +864,7 @@ best_point(GEN Q, GEN NQ, GEN f, GEN *pu, GEN *pv)
       GEN x, N = qfmin_eval(q0, q1, AA4, i);
       if (cmpii(N , best) >= 0) break;
       x = addis(x0, i);
-      if (ugcd(umodiu(x, y), y) == 1)
+      if (ugcdiu(x, y) == 1)
       {
         GEN u, v;
         V = ZC_add(V0, ZC_z_mul(gel(U,1), i)); /* [X, Y] */
@@ -1095,8 +1092,7 @@ find_div(GEN N, GEN faN)
 }
 
 static long
-testDisc(GEN bad, long d)
-{ return !bad || ugcd(umodiu(bad, -d), -d) == 1; }
+testDisc(GEN bad, long d) { return !bad || ugcdiu(bad, -d) == 1; }
 /* bad = product of bad primes. Return the NDISC largest fundamental
  * discriminants D < d such that (D,bad) = 1 and d is a square mod 4N */
 static GEN

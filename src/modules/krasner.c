@@ -479,7 +479,7 @@ static GEN
 TamelyRamifiedCase(KRASNER_t *data)
 {
   long av = avma;
-  long g = ugcd(data->e, umodiu(data->qm1, data->e)); /* (e, q-1) */
+  long g = ugcdui(data->e, data->qm1); /* (e, q-1) */
   GEN rep, eis, Xe = gpowgs(pol_x(0), data->e), m = stoi(data->e / g);
 
   rep = zerovec(g);
@@ -697,7 +697,7 @@ setUnramData(KRASNER_t *d)
   {
     GEN L, z, T, p = d->p;
     d->T = T = init_Fq(p, d->f, d->v);
-    L = gel(factoru(ugcd(d->e, umodiu(d->qm1, d->e))), 1);
+    L = gel(factoru(ugcdui(d->e, d->qm1)), 1);
     z = gener_FpXQ_local(T, p, zv_to_ZV(L));
     d->u = ZpXQ_sqrtnlift(pol_1(d->v), d->qm1, z, T, p, d->r);
     d->frob = ZpX_ZpXQ_liftroot(T, FpXQ_pow(pol_x(d->v), p, T, p), T, p, d->r);
