@@ -1692,16 +1692,13 @@ litredtp(long alpha, long alpha1, long t60, long t60_1, GEN polh, GEN polh1,
 }
 
 static long
-labelm3(GEN polh, long t60, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
+labelm3(GEN h1, long t60_1, long alpha1, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
-  GEN polh1, polf, vs, val = Ip->val, p = Ip->p;
-  long alpha1, t60_1, lambda, beta, R;
+  GEN h, pm, vs, val = Ip->val, p = Ip->p;
+  long alpha, t60, lambda, beta, R;
 
-  polh1 = polh;
-  t60_1 = t60;
-  alpha1 = alpha;
-  polf = polymini(ZX_Z_mul(RgX_recip6(polh), powiu(p,alpha)), p);
-  polh  = gel(polf,1); vs = gel(polf,2);
+  pm = polymini(ZX_Z_mul(RgX_recip6(h1), powiu(p,alpha1)), p);
+  h  = gel(pm,1); vs = gel(pm,2);
   lambda= vs[1];
   t60   = vs[2];
   alpha = vs[3];
@@ -1715,7 +1712,7 @@ labelm3(GEN polh, long t60, long alpha, long Dmin, struct igusa *I, struct igusa
   if (R >= 0 && (alpha+alpha1) >= 1) pari_err_BUG("labelm3 [minimal equation]");
   Ip->r1 = t60_1 / 10 + 6*alpha1;
   Ip->r2 = t60 / 10 + 6*alpha;
-  return litredtp(alpha, alpha1, t60, t60_1, polh, polh1, Dmin, R, I, Ip);
+  return litredtp(alpha, alpha1, t60, t60_1, h, h1, Dmin, R, I, Ip);
 }
 
 /* p = 3 */
@@ -1723,10 +1720,10 @@ static long
 quadratic(GEN polh, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
   long alpha1 = alpha, beta, t6, R;
-  GEN polf = polymini_zi(ZX_Z_mul(polh, powiu(Ip->p,alpha)));
-  t6 = polf[1];
-  alpha = polf[2];
-  beta  = polf[3];
+  GEN vs = polymini_zi(ZX_Z_mul(polh, powiu(Ip->p,alpha)));
+  t6 = vs[1];
+  alpha = vs[2];
+  beta  = vs[3];
   R = beta-alpha;
   if (R >= 0 && alpha1)
   {
