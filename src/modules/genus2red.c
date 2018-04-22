@@ -722,7 +722,6 @@ get_red(struct red *S, struct igusa_p *Ip, GEN polh, GEN p, long alpha, long r)
   }
 }
 
-static long labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip);
 /* reduce a/b; assume b > 0 */
 static void
 ssQ_red(long a, long b, long *n, long *d)
@@ -1388,8 +1387,7 @@ tame_5(struct igusa *I, struct igusa_p *Ip)
 }
 
 static long
-tame_6(struct igusa *I, struct igusa_p *Ip,
-       GEN polh, GEN theta, long alpha, long Dmin)
+tame_6(struct igusa *I, struct igusa_p *Ip)
 {
   long condp = -1, d, d1, n, dm, r, dk;
   GEN val = Ip->val, d1k;
@@ -1409,7 +1407,7 @@ tame_6(struct igusa *I, struct igusa_p *Ip,
         case 0: condp = 4;
           Ip->type=stack_sprintf("[I*{0}-I*{%ld}-%ld] page 171", d1/2,(d-2)/2);
           Ip->neron = shallowconcat(groupH(d1/2), dicyclic(2,2)); break;
-        case 1: return labelm3(polh,theta,alpha,Dmin,I,Ip);
+        case 1: return -1;
         default: pari_err_BUG("tame6 [bug44]");
       }
       break;
@@ -1498,8 +1496,7 @@ tame_6(struct igusa *I, struct igusa_p *Ip,
 }
 
 static long
-tame_7(struct igusa *I, struct igusa_p *Ip,
-         GEN polh, GEN theta, long alpha, long Dmin)
+tame_7(struct igusa *I, struct igusa_p *Ip)
 {
   long condp = -1, d, d1, d2, n, dm, r, dk;
   GEN val = Ip->val, d1k, d2k, pro1;
@@ -1533,7 +1530,7 @@ tame_7(struct igusa *I, struct igusa_p *Ip,
       else
       {
         GEN H;
-        if (d1 != d2) return labelm3(polh,theta,alpha,Dmin,I,Ip);
+        if (d1 != d2) return -1;
         condp = 3; H = groupH(d1/2);
         Ip->type = stack_sprintf("[I{%ld}-I*{%ld}-%ld] page 180", d1/2,d1/2,(d-1)/2);
         Ip->neron = shallowconcat(H, H);
@@ -1547,21 +1544,23 @@ tame_7(struct igusa *I, struct igusa_p *Ip,
   return condp;
 }
 
+static long labelm3(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip);
 static long
 tame(GEN polh, GEN theta, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
-  Ip->tame = 1;
+  long d;
   switch(Ip->tt)
   {
-    case 1: return tame_1(I, Ip);
-    case 2: return tame_2(I, Ip);
-    case 3: return tame_3(I, Ip);
-    case 4: return tame_4(I, Ip);
-    case 5: return tame_5(I, Ip);
-    case 6: return tame_6(I, Ip, polh, theta, alpha, Dmin);
-    case 7: return tame_7(I, Ip, polh, theta, alpha, Dmin);
+    case 1: d = tame_1(I,Ip); break;
+    case 2: d = tame_2(I,Ip); break;
+    case 3: d = tame_3(I,Ip); break;
+    case 4: d = tame_4(I,Ip); break;
+    case 5: d = tame_5(I,Ip); break;
+    case 6: d = tame_6(I,Ip); break;
+    default:d = tame_7(I,Ip); break;
   }
-  return -1; /*LCOV_EXCL_LINE*/
+  if (d < 0) d = labelm3(polh,theta,alpha,Dmin,I,Ip); /* => tt=6 or 7 */
+  Ip->tame = 1; return d;
 }
 
 /* maxc = maximum conductor valuation at p */
