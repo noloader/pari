@@ -258,19 +258,9 @@ discpart(GEN H, GEN p, long prec)
 static long
 theta_j(GEN B, GEN p, long j)
 {
-  GEN b0, b1, b2, b3, b4, b5, b6, v = new_chunk(7);
-  long i, t;
-
-  RgX_to_6(B, &b0,&b1,&b2,&b3,&b4,&b5,&b6);
-  v[0] = myval(b0,p);
-  v[1] = myval(b1,p);
-  v[2] = myval(b2,p);
-  v[3] = myval(b3,p);
-  v[4] = myval(b4,p);
-  v[5] = myval(b5,p);
-  v[6] = myval(b6,p);
-  t = 60*v[1+j];
-  for(i = 2+j; i <= 6; i++) t = minss(t, v[i] * (60 / (i-j)));
+  long i, t = 60*myval(RgX_coeff(B,5-j), p);
+  for(i = 2+j; i <= 6; i++)
+    t = minss(t, myval(RgX_coeff(B,6-i), p) * (60 / (i-j)));
   return t;
 }
 /* compute 6 * theta_3 for B in Z[i][X], p = 3 */
