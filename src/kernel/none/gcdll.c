@@ -79,17 +79,6 @@ mygcduodd(ulong a, ulong b)
 }
 
 /* modified right shift binary algorithm with at most one division */
-long
-cgcd(long a,long b)
-{
-  long v;
-  a=labs(a); if (!b) return a;
-  b=labs(b); if (!a) return b;
-  if (a>b) { a %= b; if (!a) return b; }
-  else     { b %= a; if (!b) return a; }
-  v = vals(a|b);
-  return (long)(mygcduodd((ulong)(a>>v), (ulong)(b>>v)) << v);
-}
 ulong
 ugcd(ulong a,ulong b)
 {
@@ -101,6 +90,8 @@ ugcd(ulong a,ulong b)
   v = vals(a|b);
   return mygcduodd(a>>v, b>>v) << v;
 }
+long
+cgcd(long a,long b) { return (long)ugcd(labs(a), labs(b)); }
 
 /* For gcdii(): assume a>b>0, return gcd(a,b) as a GEN */
 static GEN
