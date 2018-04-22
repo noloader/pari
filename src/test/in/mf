@@ -591,6 +591,13 @@ T=mfTheta(); T2=mfmul(T,T); mfparams(T2)
 mf=mfinit([20,3/2]); B=mfbasis(mf);
 for(i=1,#B,print(lift(vec(B[i]))));
 mf=mfinit([4,5/2]);#mfbasis(mf)
+mfparams(mffrometaquo(Mat([1,24])))
+mfparams(mffrometaquo(Mat([2,12])))
+mfparams(mffrometaquo(Mat([3,8])))
+mfparams(mffrometaquo(Mat([4,6])))
+mfparams(mffrometaquo(Mat([6,4])))
+mfparams(mffrometaquo(Mat([12,2])))
+mfparams(mffrometaquo(Mat([24,1])))
 F=mffrometaquo(Mat([8,3]));mfparams(F)
 mf=mfinit([64,3/2]); mftobasis(mf,F)
 V=mfslashexpansion(mf,F,[0,-1;1,0],10,0,&A);

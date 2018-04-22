@@ -1566,82 +1566,113 @@ vecan_eta(GEN eta, long L)
   return gtovec0(P, L);
 }
 
-/* Return etaquotient type:
- * -1: nonholomorphic or not on gamma_0(N)
- * 0: holomorphic noncuspidal
- * 1: cuspidal
- * 2: selfdual noncuspidal
- * 3: selfdual cuspidal
- * Sets conductor, modular weight, canonical matrix, 24*v_q(eta) */
-static long
-etaquotype(GEN eta, GEN *pN, long *pw, GEN *pcan, GEN *pS)
-{
-  GEN D, R, S, T, U, N, ND;
-  long l, i, j, fl;
+static ulong
+ugcdiu(GEN x, ulong y) { return ugcd(umodiu(x,y), y); }
 
-  if (typ(eta) != t_MAT || lg(eta) != 3 || !RgM_is_ZM(eta))
-    pari_err_TYPE("lfunetaquo", eta);
+/* return 1 if cuspidal, 0 if holomorphic, -1 otherwise */
+static int
+etacuspidal(GEN N, GEN k, GEN B, GEN R, GEN NB)
+{
+  long i, j, lD, l, cusp = 1;
+  GEN D;
+  if (gsigne(k) < 0) return -1;
+  D = divisors(N); lD = lg(D); l = lg(B);
+  for (i = 1; i < lD; i++)
+  {
+    GEN t = gen_0, d = gel(D,i);
+    long s;
+    for (j = 1; j < l; j++)
+      t = addii(t, mulii(gel(NB,j), mulsi(R[j], sqru(ugcdiu(d, B[j])))));
+    s = signe(t);
+    if (s < 0) return -1;
+    if (!s) cusp = 0;
+  }
+  return cusp;
+}
+/* u | 24, level = u*N0, N0 = lcm(B), NB[i] = N0/B[i] */
+static int
+etaselfdual(GEN B, GEN R, GEN NB, ulong u)
+{
+  long i, l = lg(B);
+  for (i = 1; i < l; ++i)
+  {
+    GEN t = muliu(gel(NB,i), u); /* *pN / B[i] */
+    long j;
+    if (is_bigint(t)) return 0;
+    j = zv_search(B, itou(t)); if (!j || R[i] != R[j]) return 0;
+  }
+  return 1;
+}
+/* return Nebentypus of eta quotient, k2 = 2*k integral */
+static GEN
+etachar(GEN B, GEN R, GEN k2)
+{
+  long i, l = lg(B);
+  GEN P = gen_1;
+  for (i = 1; i < l; ++i) if (odd(R[i])) P = muliu(P, B[i]);
+  switch(Mod4(k2))
+  {
+    case 0: break;
+    case 2:  P = negi(P); break;
+    default: P = shifti(P, 1); break;
+  }
+  return coredisc(P);
+}
+/* Return 0 if not on gamma_0(N). Sets conductor, modular weight, character,
+ * canonical matrix, v_q(eta), sd = 1 iff self-dual, cusp = 1 iff cuspidal
+ * [0 if holomorphic at all cusps, else -1] */
+long
+etaquotype(GEN eta, GEN *pN, GEN *pk, GEN *CHI, GEN *BR, long *pv,
+           long *sd, long *cusp)
+{
+  GEN B, R, S, T, N, NB;
+  long l, i, u, S24;
+
+  if (typ(eta) != t_MAT || lg(eta) != 3) pari_err_TYPE("lfunetaquo", eta);
+  B = gel(eta,1); R = gel(eta,2);
+  if (!RgV_is_ZVpos(B) || !RgV_is_ZV(R)) pari_err_TYPE("lfunetaquo", eta);
   eta = famat_reduce(eta);
-  D = gel(eta,1); l = lg(D);
-  R = gel(eta,2);
-  N = glcm0(D, NULL);
-  ND = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(ND,i) = diviiexact(N, gel(D,i));
-  *pcan = mkvec2(ZV_to_zv(D), ZV_to_zv(R));
-  /* D sorted in increasing order */
-  S = gen_0; T = gen_0; U = gen_0;
+  B = gel(eta,1); R = gel(eta,2);
+  N = glcm0(B, NULL);
+  B = ZV_to_zv(B); /* sorted in increasing order */
+  R = ZV_to_zv(R); l = lg(B);
+  NB = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(NB,i) = diviuexact(N, B[i]);
+  *BR = mkvec2(B, R);
+  S = gen_0; T = gen_0; u = 0;
   for (i = 1; i < l; ++i)
   {
-    GEN m = gel(D,i), r = gel(R,i);
-    S = addii(S, mulii(m, r));
-    T = addii(T, r);
-    U = gadd(U, gdiv(r, m));
+    long b = B[i], r = R[i];
+    S = addii(S, mulss(b, r));
+    T = addis(T, r);
+    u += (r % 24) * (long)umodiu(gel(NB,i), 24);
   }
-  if (umodiu(S, 24) || umodiu(T, 2)) /* non-holomorphic, set dummy values */
-  { *pw = 0; *pN = gen_1; *pS = gen_0; return -1; }
-  *pS = S;
-  *pw = itos(shifti(T,-1));
-  U = Q_denom(gdivgs(U, 24));
-  U = diviiexact(U, gcdii(N,U));
-  *pN = mulii(N, U);
-  for (i = 1, fl = 1; i < l; i++)
-  {
-    GEN m = gel(D,i), s = mulii(gel(R,i), mulii(m,N));
-    long t;
-    for (j = 1; j < l; ++j)
-      if (j != i)
-      {
-        GEN mj = gel(D, j), nj = gel(ND, j); /* nj = N/mj */
-        s = addii(s, mulii(mulii(gel(R,j), sqri(gcdii(mj, m))), nj));
-      }
-    t = signe(s);
-    if (t < 0) return -1;
-    if (t == 0) fl = 0;
-  }
-  for (i = 1; i < l; ++i)
-  {
-    j = ZV_search(D, mulii(U,gel(ND,i))); /* *pN / D[i] */
-    if (!j || !equalii(gel(R,i), gel(R,j))) return fl;
-  }
-  return fl+2;
+  S = divis_rem(S, 24, &S24);
+  if (S24) return 0; /* non-integral valuation at oo */
+  u %= 24; if (u < 0) u += 24;
+  u = 24/ugcd(24, u);
+  *pN = muliu(N, u); /* level */
+  *pk = gmul2n(T,-1); /* weight */
+  *pv = itos(S); /* valuation */
+  if (cusp) *cusp = etacuspidal(*pN, *pk, B, R, NB);
+  if (sd) *sd = etaselfdual(B, R, NB, u);
+  if (CHI) *CHI = etachar(B, R, T);
+  return 1;
 }
 
 GEN
 lfunetaquo(GEN eta)
 {
   pari_sp ltop = avma;
-  GEN Ldata, N, can, v24;
-  long k;
-  switch(etaquotype(eta, &N, &k, &can, &v24))
-  {
-    case 3:
-      if (!equaliu(v24, 24)) pari_err_IMPL("valuation != 1 in lfunetaquo");
-      break;
-    case 2: pari_err_IMPL("noncuspidal eta quotient");
-    default: pari_err_TYPE("lfunetaquo [non holomorphic]", eta);
-  }
-  Ldata = mkvecn(6, tag(can, t_LFUN_ETA),
-                    gen_0, mkvec2(gen_0, gen_1), stoi(k), N, gen_1);
+  GEN Ldata, N, BR, k;
+  long v, sd, cusp;
+  if (!etaquotype(eta, &N, &k, NULL, &BR, &v, &sd, &cusp))
+    pari_err_TYPE("lfunetaquo", eta);
+  if (!cusp) pari_err_IMPL("noncuspidal eta quotient");
+  if (v != 1) pari_err_IMPL("valuation != 1");
+  if (!sd) pari_err_IMPL("non self-dual eta quotient");
+  if (typ(k) != t_INT) pari_err_TYPE("lfunetaquo [non-integral weight]", eta);
+  Ldata = mkvecn(6, tag(BR,t_LFUN_ETA), gen_0, mkvec2(gen_0,gen_1), k,N, gen_1);
   return gerepilecopy(ltop, Ldata);
 }
 

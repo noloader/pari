@@ -6767,7 +6767,7 @@ findqganew(long N, GEN z)
     (void)cxredsl2(gmulsg(e, z), &U);
     C = gcoeff(U,2,1); if (!signe(C)) continue;
     D = gcoeff(U,2,2);
-    g = cgcd(e, umodiu(D,e));
+    g = ugcd(e, umodiu(D,e));
     if (g > 1) { C = muliu(C,e/g); D = diviuexact(D,g); } else C = muliu(C,e);
     m = gadd(gsqr(gadd(gmul(C, x), D)), gsqr(gmul(C, y)));
     m = gdivgs(m, valNC2(P, E, e));
@@ -7960,9 +7960,9 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
   mf = MF_set_new(mf);
   if (MF_get_space(mf) == mf_NEW)
   {
-    long N = MF_get_N(mf), cN = umodiu(c,N), g = cgcd(cN,N), Q = N/g;
+    long N = MF_get_N(mf), cN = umodiu(c,N), g = ugcd(cN,N), Q = N/g;
     GEN CHI = MF_get_CHI(mf);
-    if (cgcd(cN, Q)==1 && mfcharorder(CHI) <= 2
+    if (ugcd(cN, Q)==1 && mfcharorder(CHI) <= 2
                        && g % mfcharconductor(CHI) == 0
                        && degpol(mf_get_field(F)) == 1)
       return mfgaexpansionatkin(mf, F, c, d, Q, n, prec);
@@ -9207,54 +9207,6 @@ mfTheta(GEN psi)
   return gerepilecopy(av, tag(t_MF_THETA, mkgNK(N, gk, psi2, pol_x(1)), psi));
 }
 
-/* FIXME: unify with etaquotype */
-static GEN
-eta_NK(GEN M, GEN R)
-{
-  long N, k, i, lD, lM = lg(M);
-  GEN gN, S0, S1, P, D;
-  N = 1; for(i = 1; i < lM; i++) N = clcm(N, M[i]);
-  D = mydivisorsu(N); lD = lg(D);
-  S0 = gen_0; S1 = gen_0; P = gen_1; k = 0;
-  for (i = 1; i < lD; i++)
-  {
-    long m = D[i], r = 0, j;
-    for (j = 1; j < lM; j++)
-      if (m == M[j]) r += R[j];
-    S0 = gaddgs(S0, r*m);
-    S1 = gadd(S1, sstoQ(r, 24*m));
-    if (odd(r)) P = mulis(P, m);
-    k += r;
-  }
-  if (smodis(S0, 24)) return NULL;
-  gN = lcmii(stoi(N), Q_denom(S1));
-  D = (k & 3L) == 2 ? negi(P): P;
-  if (odd(k)) D = gmul2n(D, 1);
-  return mkgNK(gN, sstoQ(k,2), get_mfchar(coredisc(D)), pol_x(1));
-}
-
-/* check holomorphy at all cusps */
-static int
-eta_holomorphic(GEN B, GEN E, GEN NK)
-{
-  long N = itos(gel(NK, 1)), i, j, lD, lb;
-  GEN D;
-  if (gsigne(gel(NK,2)) < 0) return 0;
-  D = mydivisorsu(N); lD = lg(D); lb = lg(B);
-  for (i = 1; i < lD; i++)
-  {
-    GEN S = gen_0;
-    long d = D[i];
-    for (j = 1; j < lb; j++)
-    {
-      long g = cgcd(B[j], d), nu = g*g*E[j];
-      S = gadd(S, sstoQ(nu, B[j]));
-    }
-    if (gsigne(S) < 0) return 0;
-  }
-  return 1;
-}
-
 /* Output 0 if not desired eta product: if flag=0 (default) require
  * holomorphic at cusps. If flag set, accept meromorphic, but sill in some
  * modular function space */
@@ -9262,19 +9214,16 @@ GEN
 mffrometaquo(GEN eta, long flag)
 {
   pari_sp av = avma;
-  GEN B, E, NK;
-  long l, s;
-  if (typ(eta) != t_MAT || lg(eta) != 3 || !RgM_is_ZM(eta))
-    pari_err_TYPE("mffrometaquo", eta);
-  eta = famat_reduce(eta);
-  B = gel(eta,1); l = lg(B);
-  E = gel(eta,2);
-  if (l == 1) return mf1();
-  s = maxss(0, itos(ZV_dotproduct(B,E)) / 24);
-  B = ZV_to_zv(B);
-  E = ZV_to_zv(E); NK = eta_NK(B,E);
-  if (!NK || (!flag && !eta_holomorphic(B,E,NK))) { avma = av; return gen_0; }
-  return gerepilecopy(av, tag2(t_MF_ETAQUO, NK, mkvec2(B,E), stoi(s)));
+  GEN NK, N, k, BR, P;
+  long v, cusp = 0;
+  if (!etaquotype(eta, &N,&k,&P, &BR, &v, NULL, flag? NULL: &cusp) || cusp < 0)
+  {
+    avma = av; return gen_0;
+  }
+  if (lg(gel(BR,1)) == 1) { avma = av; return mf1(); }
+  if (v < 0) v = 0;
+  NK = mkgNK(N, k, get_mfchar(P), pol_x(1));
+  return gerepilecopy(av, tag2(t_MF_ETAQUO, NK, BR, utoi(v)));
 }
 
 #if 0
@@ -9939,7 +9888,7 @@ mfgatogap(GEN ga, long N, long *pA, long *pC, long *pD, long *pd, long *pmu)
   if (Cp > 1)
   { /* (d, N/Cp) = 1, find t such that (d - t*(A*N/Cp), N) = 1 */
     long dN = umodiu(d,Cp), Q = (N/Cp * umodiu(A,Cp)) % Cp;
-    while (cgcd(dN, Cp) > 1) { t++; dN = Fl_sub(dN, Q, Cp); }
+    while (ugcd(dN, Cp) > 1) { t++; dN = Fl_sub(dN, Q, Cp); }
   }
   if (t)
   {
@@ -9949,7 +9898,7 @@ mfgatogap(GEN ga, long N, long *pA, long *pC, long *pD, long *pd, long *pmu)
   D1 = umodiu(mulii(d,D), N);
   (void)bezout(d, mulis(c,-N), &a, &b); /* = 1 */
   t = 0; Ap = umodiu(addii(mulii(a,A), mulii(b,C)), N); /* (Ap,Cp) = 1 */
-  while (cgcd(Ap, N) > 1) { t++; Ap = Fl_add(Ap, Cp, N); }
+  while (ugcd(Ap, N) > 1) { t++; Ap = Fl_add(Ap, Cp, N); }
   B1 = umodiu(a,N)*umodiu(B,N) + umodiu(b,N)*umodiu(D,N) + t*D1;
   B1 %= N;
   *pmu = mu = Fl_neg(Fl_div(B1, Ap, N), N);
@@ -10201,7 +10150,7 @@ lfunfindchi(GEN ldata, GEN van, long prec)
     {
       GEN an = gel(van,n), r;
       long j;
-      if (cgcd(n, N) != 1 || gexpo(an) < bit) continue;
+      if (ugcd(n, N) != 1 || gexpo(an) < bit) continue;
       r = gdiv(an, gconj(an));
       for (i = 1; i < l; i++)
       {
