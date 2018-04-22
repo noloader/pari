@@ -1058,48 +1058,41 @@ static void
 tame_567_init(struct igusa *I, struct igusa_p *Ip, long dk,
               long *pd, long *pn, long *pdm, long *pr)
 {
-  long n, r, va0, va2, va3, va5, vb2, d, v1, v2, v5, ndk, ddk;
+  long ndk, ddk;
   GEN p = Ip->p, val = Ip->val;
 
-  if (equalis(p, 3)) { tame_567_init_3(Ip, dk, pd, pn, pdm, pr); return; }
+  if (equaliu(p,3)) { tame_567_init_3(Ip, dk, pd, pn, pdm, pr); return; }
   /* assume p > 3, Ip->eps = 1 */
-  va0 = myval(I->a0,p);
-  va2 = myval(I->A2,p);
-  va3 = myval(I->A3,p);
-  va5 = myval(I->A5,p);
-  vb2 = myval(I->B2,p);
-  v5 = myval(subii(mulii(I->A2,I->A3),mulsi(3,I->A5)),p);
-  v1 = 2*va3-4*va0-val[1];
-  v2 = 6*va5-20*va0-5*val[1];
   ssQ_red(dk, 12, &ndk, &ddk);
-  /* the definition of n differs according to the parity of val[1] */
   if (! odd(val[8]))
   {
-    if (3*vb2 >= 2*va0+2*val[1] && v1 >= 0 && v2 >= 0
-                                && (v1 == 0 || v2 == 0))
-      get_nr(ddk, va0+val[1], 6, &n,&r); /* Prop 4.3.1 (a) */
-    else if (20*va0+5*val[1] > 6*va5 && 10*vb2 >= 2*va5+5*val[1])
-      get_nr(ddk, 2*va5+val[1], 8, &n,&r); /* Prop 4.3.1 (b) */
-    else if (2*va0+2*val[1] > 3*vb2 && 2*va5+5*val[1] > 10*vb2)
-      get_nr(ddk, vb2, 4, &n,&r); /* Prop 4.3.1 (c) */
-    else if (3*vb2 >= 2*va0+2*val[1] && 2*va3 > 4*va0+val[1]
-                                     && 6*va5 > 20*va0+5*val[1])
-    { /* Prop 4.3.1 (d) */
-      if (gequal0(I->A2)) pari_err_BUG("tame567 [bug27]");
-      get_nr(ddk, 12*va0 + min3(dk, 6*va3-9*va2, 4*v5 - 10*va2), 24, &n,&r);
-    }
-    else
+    long va0 = myval(I->a0,p), va2 = myval(I->A2,p), va3 = myval(I->A3,p);
+    long va5 = myval(I->A5,p), vb2 = myval(I->B2,p);
+    long v1 = 2*va3-4*va0-val[1],   v2 = 6*va5-20*va0-5*val[1];
+    long v3 = 3*vb2-2*va0-2*val[1], v4 = 10*vb2-2*va5-5*val[1];
+    if (v3 >= 0 && v2 >= 0 && v1 >= 0)
     {
-      pari_err_BUG("tame567 [bug29]");
-      return; /*LCOV_EXCL_LINE*/
+      if (v1==0 || v2==0) get_nr(ddk, va0+val[1], 6,pn,pr); /* Prop 4.3.1 (a) */
+      else
+      { /* Prop 4.3.1 (d) */
+        long v5 = myval(subii(mulii(I->A2,I->A3),mului(3,I->A5)),p);
+        if (gequal0(I->A2)) pari_err_BUG("tame567 [bug27]");
+        get_nr(ddk, 12*va0 + min3(dk, 6*va3-9*va2, 4*v5 - 10*va2), 24, pn,pr);
+      }
     }
+    else if (v2 < 0 && v4 >= 0)
+      get_nr(ddk, 2*va5+val[1], 8, pn,pr); /* Prop 4.3.1 (b) */
+    else if (v3 < 0 && v4 < 0)
+      get_nr(ddk, vb2, 4, pn,pr); /* Prop 4.3.1 (c) */
+    *pd = (*pn/ddk) * ndk;
   }
-  else { r = ndk; n = 2*ddk; }
-  d = (n/ddk) * ndk;
-  *pd = d;
-  *pn = n;
-  *pr = r;
-  *pdm = smodss(d, n);
+  else
+  {
+    *pr = ndk;
+    *pn = 2*ddk;
+    *pd = 2*ndk;
+  }
+  *pdm = smodss(*pd, *pn);
 }
 
 static long
@@ -1751,22 +1744,20 @@ labelm3(GEN polh, long t60, long alpha, long Dmin, struct igusa *I, struct igusa
 static long
 quadratic(GEN polh, long alpha, long Dmin, struct igusa *I, struct igusa_p *Ip)
 {
-  long alpha1 = alpha, beta, t6, R;
+  long alpha1 = alpha, beta, t6;
   GEN polf = polymini_zi(ZX_Z_mul(polh, powiu(Ip->p,alpha)));
   t6 = polf[1];
   alpha = polf[2];
   beta  = polf[3];
-  if (alpha && beta >= 1) pari_err_BUG("quadratc");
-  R = beta-alpha;
-  if (R >= 0 && alpha1)
+  if (alpha && beta >= 1) pari_err_BUG("quadratic");
+  Ip->R = beta-alpha;
+  if (Ip->R >= 0 && alpha1)
   {
     Dmin -= 10;
     if (DEBUGLEVEL)
       err_printf("(Care: minimal discriminant over Z[i] smaller than over Z)\n");
   }
-  Ip->r1 = t6 + 6*alpha;
-  Ip->r2 = Ip->r1;
-  Ip->R = R;
+  Ip->r2 = Ip->r1 = t6 + 6*alpha;
   return litredtp(alpha, alpha, t6*10, t6*10, polh, polh, Dmin, I, Ip);
 }
 
@@ -1809,7 +1800,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
   lambda = vs[1];
   t60    = vs[2];
   alpha  = vs[3];
-  if (vs[4]) return equalis(p,3)? quadratic(polh, alpha, Dmin, I, Ip):
+  if (vs[4]) return equaliu(p,3)? quadratic(polh, alpha, Dmin, I, Ip):
                                   tame(polh, t60, alpha, Dmin, I, Ip);
   if (!t60 && lambda<= 2)
   {
@@ -1824,11 +1815,11 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       case 3: Ip->type = "[I{2-1-0}] page 179"; Ip->neron = cyclic(2); return 2;
       case 4: Ip->type = "[I{1-1-1}] page 182"; Ip->neron = cyclic(3); return 2;
       case 5:
-        if (equalis(p,3) && t60 != 30)
+        if (equaliu(p,3) && t60 != 30)
           return labelm3(polh,t60,alpha,Dmin,I,Ip);
         Ip->type = "[I{0}-III-0] page 161"; Ip->neron = cyclic(2); return 2;
       case 6:
-        if (equalis(p,3)) pari_err_BUG("genus2localred [conductor]");
+        if (equaliu(p,3)) pari_err_BUG("genus2localred [conductor]");
         Ip->type = "[I{1}-II-0] page 172"; Ip->neron = cyclic(1); return 3;
     }
     pari_err_BUG("genus2localred [switch tt 4]");
@@ -1934,7 +1925,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
           }
           break;
         case 30:
-          return equalis(p,3)? quartic(polh, alpha, Dmin, Ip)
+          return equaliu(p,3)? quartic(polh, alpha, Dmin, Ip)
                              : tame(polh, t60, alpha, Dmin, I, Ip);
         default: pari_err_BUG("genus2localred [red2]");
       }
@@ -2072,7 +2063,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
       }
       break;
     case 3:
-      if (!equalis(p,3) || Ip->tt <= 4)
+      if (!equaliu(p,3) || Ip->tt <= 4)
         return tame(polh, t60, alpha, Dmin, I, Ip);
       return labelm3(polh,t60,alpha,Dmin,I,Ip); /* p = 3 */
     default: pari_err_BUG("genus2localred [switch lambda]");
