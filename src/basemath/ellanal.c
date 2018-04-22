@@ -1279,7 +1279,7 @@ ellheegner(GEN E)
     pari_err_DOMAIN("ellheegner", "(analytic rank)%2","=",gen_0,E);
   torsion = elltors(E);
   wtor = itos( gel(torsion,1) ); /* #E(Q)_tor */
-  etor = wtor > 1? itos(gmael(torsion, 2, 1)): 1; /* exponent of E(Q)_tor */
+  etor = wtor > 1? itou(gmael(torsion, 2, 1)): 1; /* exponent of E(Q)_tor */
   while (1)
   {
     GEN hnaive, l1;
@@ -1310,7 +1310,7 @@ ellheegner(GEN E)
   for (k = 2; k < l; ++k) z = addrr(z, mulsr(coefs[k], gel(s, k)));
   if (DEBUGLEVEL) err_printf("z=%Ps\n", z);
   z = gsub(z, gmul(gel(om,1), ground(gdiv(z, gel(om,1)))));
-  lint = wtor > 1 ? cgcd(ind, etor): 1;
+  lint = wtor > 1 ? ugcd(ind, etor): 1;
   P = heegner_find_point(E, om, ht, gmulsg(2*lint, z), lint*2*ind, prec);
   if (DEBUGLEVEL) timer_printf(&ti,"heegner_find_point");
   if (cb) P = ellchangepointinv(P, cb);

@@ -2412,7 +2412,7 @@ fpinit_check(GEN p, long n, long l)
   ulong q;
   if (!uisprime(n)) return 0;
   q = umodiu(p,n); if (!q) return 0;
-  return cgcd((n-1)/Fl_order(q, n-1, n), l) == 1;
+  return ugcd((n-1)/Fl_order(q, n-1, n), l) == 1;
 }
 
 /* let k=2 if p%4==1, and k=4 else and assume k*p does not divide l.

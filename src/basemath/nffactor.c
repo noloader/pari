@@ -2048,7 +2048,7 @@ guess_roots(GEN nf)
     /* the gcd of the p^f - 1 is p^(gcd of the f's) - 1 */
     for (i = 1; i <= nfdegree; i++)
       if (F[i]) {
-        gcdf = gcdf? cgcd(gcdf, i): i;
+        gcdf = gcdf? ugcd(gcdf, i): i;
         if (gcdf == 1) break;
       }
     pf_1 = subiu(powuu(p, gcdf), 1);

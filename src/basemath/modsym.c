@@ -3153,7 +3153,7 @@ ell_get_Cw(GEN LE, GEN W, GEN xpm, long s)
     pari_sp av = avma;
     GEN vchi, vx, G;
     long l, i;
-    if ((f & 3) == 2 || cgcd(NE,f) != 1) continue;
+    if ((f & 3) == 2 || ugcd(NE,f) != 1) continue;
     vx = allxpm(W, xpm, f); if (!vx) continue;
     G = znstar0(utoipos(f),1);
     vchi = chargalois(G,NULL); l = lg(vchi);

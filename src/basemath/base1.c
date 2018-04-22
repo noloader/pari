@@ -780,7 +780,7 @@ idealinertiagroup(GEN nf, GEN gal, GEN aut, GEN pr)
   long i, n = nf_get_degree(nf);
   GEN p, T, modpr = zk_to_Fq_init(nf,&pr,&T,&p);
   GEN b = modpr_genFq(modpr);
-  long e = pr_get_e(pr), coprime = cgcd(e, pr_get_f(pr)) == 1;
+  long e = pr_get_e(pr), coprime = ugcd(e, pr_get_f(pr)) == 1;
   GEN grp = gal_get_group(gal), pi = pr_get_gen(pr);
   pari_sp ltop = avma;
   for (i=1; i<=n; i++)
@@ -901,7 +901,7 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
     for (j = 2; j < o; j++)
     {
       piso = perm_mul(piso,iso);
-      if (cgcd(j,o)==1) idx[ piso[1] ] = idx[ix];
+      if (ugcd(j,o)==1) idx[ piso[1] ] = idx[ix];
     }
     avma = av2;
   }

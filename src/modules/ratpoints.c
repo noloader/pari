@@ -487,7 +487,7 @@ _ratpoints_sift0(long b, long w_low, long w_high,
   long range = w_high - w_low;
   long sp1 = args->sp1;
   long sp2 = args->sp2;
-  long i, n, nb = 0;
+  long i, n, nb = 0, absb = labs(b);
   ratpoints_bit_array *surv0;
 
   /* now do the sieving (fast!) */
@@ -563,7 +563,7 @@ _ratpoints_sift0(long b, long w_low, long w_high,
 
         for (a = a0; nums0; a += d, nums0 >>= 1)
         { /* test one bit */
-          if (odd(nums0) && cgcd(a, b)==1)
+          if (odd(nums0) && ugcd(a, absb)==1)
           {
             if (!args->bc) set_bc(b, args);
             nb += _ratpoints_check_point(a, b, args, quit, process, info);
@@ -573,7 +573,7 @@ _ratpoints_sift0(long b, long w_low, long w_high,
 #ifdef HAS_SSE2
         for (a = a0 + da; nums1; a += d, nums1 >>= 1)
         { /* test one bit */
-          if (odd(nums1) && cgcd(a, b)==1)
+          if (odd(nums1) && ugcd(a, absb)==1)
           {
             if (!args->bc) set_bc(b, args);
             nb += _ratpoints_check_point(a, b, args, quit, process, info);

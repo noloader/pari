@@ -447,7 +447,7 @@ algtensor(GEN al1, GEN al2, long maxord) {
 
   d1=alg_get_degree(al1);
   d2=alg_get_degree(al2);
-  if (cgcd(d1,d2) != 1)
+  if (ugcd(d1,d2) != 1)
     pari_err_IMPL("tensor of cylic algebras of non-coprime degrees"); /* TODO */
 
   if (d1==1) return gcopy(al2);
@@ -1557,8 +1557,9 @@ alghasse(GEN al, GEN pl)
   return gerepileupto(av, gdivgs(stoi(h),d));
 }
 
+/* h >= 0, d >= 0 */
 static long
-indexfromhasse(long h, long d) { return d/cgcd(h,d); }
+indexfromhasse(long h, long d) { return d/ugcd(h,d); }
 
 long
 algindex(GEN al, GEN pl)
@@ -3120,7 +3121,7 @@ bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var)
   (void)uisprimepower(n, &ell);
   nf = bnf_get_nf(bnf);
   deg = nf_get_degree(nf);
-  degell = cgcd(deg,ell-1);
+  degell = ugcd(deg,ell-1);
   finf = cgetg(lg(pl),t_VEC);
   for (i=1; i<lg(pl); i++) gel(finf,i) = pl[i]==-1 ? gen_1 : gen_0;
 
@@ -3480,13 +3481,14 @@ computecnd(GEN rnf, GEN Lpr)
   return mkvec2(fa, clean_factor(fa));
 }
 
+/* h >= 0 */
 static void
 nextgen(GEN gene, long h, GEN* gens, GEN* hgens, long* ngens, long* curgcd) {
-  long nextgcd = cgcd(h,*curgcd);
+  long nextgcd = ugcd(h,*curgcd);
   if (nextgcd == *curgcd) return;
   (*ngens)++;
   gel(*gens,*ngens) = gene;
-  gel(*hgens,*ngens) = stoi(h);
+  gel(*hgens,*ngens) = utoi(h);
   *curgcd = nextgcd;
   return;
 }
@@ -3498,12 +3500,11 @@ dividesmod(long d, long h, long n) { return !(h%cgcd(d,n)); }
 static GEN
 localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* v)
 {
-  GEN nf, gens, hgens, pr, modpr, T, p, Np, sol, U, D, b, gene, randg, pu;
+  GEN nf, gens, hgens, pr, modpr, T, p, sol, U, D, b, gene, randg, pu;
   long ngens, i, d, np, k, d1, d2, hg, dnf, vcnd, curgcd;
   nf = rnf_get_nf(rnf);
   pr = gcoeff(cnd,j,1);
-  Np = pr_norm(pr);
-  np = smodis(Np,n);
+  np = umodiu(pr_norm(pr), n);
   dnf = nf_get_degree(nf);
   vcnd = itos(gcoeff(cnd,j,2));
   ngens = 13+dnf;
@@ -3519,7 +3520,7 @@ localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* 
     nextgen(gene, hg, &gens, &hgens, &ngens, &curgcd);
   }
 
-  if (cgcd(np,n) != 1) { /* GCD(Np,n) != 1 */
+  if (ugcd(np,n) != 1) { /* GCD(Np,n) != 1 */
     pu = idealprincipalunits(nf,pr,vcnd);
     pu = abgrp_get_gen(pu);
     for (i=1; i<lg(pu) && !dividesmod(curgcd,h,n); i++) {
@@ -3529,7 +3530,7 @@ localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* 
     }
   }
 
-  d = cgcd(np-1,n);
+  d = ugcd(np-1,n);
   if (d != 1) { /* GCD(Np-1,n) != 1 */
     modpr = nf_to_Fq_init(nf, &pr, &T, &p);
     while (!dividesmod(curgcd,h,n)) { /*TODO gener_FpXQ_local*/
@@ -3552,8 +3553,8 @@ localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* 
   U = gmael(sol,2,ngens);
 
   b = gen_1;
-  d = itos(D);
-  d1 = cgcd(d,n);
+  d = itou(D);
+  d1 = ugcd(d,n);
   d2 = d/d1;
   d = ((h/d1)*Fl_inv(d2,n))%n;
   for (i=1; i<=ngens; i++) {
@@ -3649,9 +3650,9 @@ alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, long maxord)
   for (i=j=1; i<lg(Lpr); i++)
   {
     GEN pr = gcoeff(prcnd,i,1), yi;
-    long v, e = itos( gcoeff(prcnd,i,2) );
+    long v, e = itou( gcoeff(prcnd,i,2) );
     if (!e) {
-      long frob = cyclicrelfrob(rnf,auts,pr), f1 = cgcd(frob,n);
+      long frob = cyclicrelfrob(rnf,auts,pr), f1 = ugcd(frob,n);
       vectrunc_append(forbid, pr);
       yi = gen_0;
       v = ((hfe[i]/f1) * Fl_inv(frob/f1,n)) % n;
@@ -3751,7 +3752,7 @@ hassecoprime(GEN hf, GEN hi, long n)
       for (j=1; j<lg(hil); j++) hil[j] = 0;
     for (j=1; j<lgcols(hfl); j++) gel(hfl,2)[j] = (gel(hf,2)[j]*inv)%lk;
     hfl = hassereduce(hfl);
-    gel(res,i) = mkvec3(hfl,hil,stoi(lk));
+    gel(res,i) = mkvec3(hfl,hil,utoi(lk));
   }
 
   return gerepilecopy(av, res);
@@ -3779,11 +3780,11 @@ hassewedderburn(GEN hf, GEN hi, long n)
   hf = hasseconvert(hf,n);
   checkhasse(NULL,hf,hi,n);
   for (i=1; i<lg(hi); i++) {
-    denom = n/cgcd(hi[i],n);
+    denom = n/ugcd(hi[i],n);
     ind = clcm(ind,denom);
   }
   for (i=1; i<lgcols(hf); i++) {
-    denom = n/cgcd(gel(hf,2)[i],n);
+    denom = n/ugcd(gel(hf,2)[i],n);
     ind = clcm(ind,denom);
   }
   k = n/ind;
@@ -3857,7 +3858,7 @@ hdown(GEN pr, long h, long n, long *nn)
 {
   long prdeg, d, u, v;
   prdeg = pr_get_e(pr)*pr_get_f(pr);
-  d = cgcd(prdeg,n);
+  d = ugcd(prdeg,n);
   if (h%d) return 0;
   h /= d;
   prdeg /= d;
@@ -3908,7 +3909,7 @@ hassedown0(GEN nf, long n, GEN hf, GEN hi)
     hid = n/2;
   else if (total!=0) {
     GEN p;
-    nn = n/cgcd(total,n);
+    nn = n/ugcd(total,n);
     if (!searchprimedeg(nf, nn, pv, &p)) {avma = av; return gen_0;}
     nbp++;
     pv = vec_append(pv, p);
@@ -3987,7 +3988,7 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
     if (lg(gel(hfl,1))>1 || lk%2==0) {
       Lpr = gel(hfl,1);
       Ld = gcopy(gel(hfl,2));
-      for (j=1; j<lg(Ld); j++) Ld[j] = lk/cgcd(lk,Ld[j]);
+      for (j=1; j<lg(Ld); j++) Ld[j] = lk/ugcd(lk,Ld[j]);
       pl = gcopy(hil);
       for (j=1; j<lg(pl); j++) pl[j] = pl[j] ? -1 : 0;
 
@@ -4272,7 +4273,7 @@ alg_cyclic(GEN rnf, GEN aut, GEN b, long maxord)
     disc = absi(disc);
     h = gel(hf,2);
     for (i=1; i<lg(pr); i++) {
-      long dp = cgcd(n,h[i]);
+      long dp = ugcd(n,h[i]);
       disc = mulii(disc, powiu(pr_norm(gel(pr,i)), n*(n-dp)));
     }
     disc = mulii(disc, powuu(n,D));

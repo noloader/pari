@@ -1960,7 +1960,7 @@ polmodular0_ZM(
   modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
 
   long lvl = modinv_level(inv);
-  if (cgcd(L, lvl) != 1)
+  if (ugcd(L, lvl) != 1)
     pari_err_DOMAIN("polmodular0_ZM", "invariant",
                     "incompatible with", stoi(L), stoi(lvl));
 

@@ -914,7 +914,7 @@ evec_order(const long e[], const long n[], const long r[], long k)
   evec_copy(f, e, k);
   for (o = 1, i = k - 1; i >= 0; i--) if (f[i])
   {
-    m = n[i] / cgcd(f[i], n[i]);
+    m = n[i] / ugcd(f[i], n[i]);
     for (j = 0; j < k; j++) f[j] *= m;
     evec_reduce(f, n, r, k);
     o *= m;
