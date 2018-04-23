@@ -1595,10 +1595,13 @@ lfun_OK(GEN linit, GEN s, GEN sdom, long bitprec)
 
   FVga = lfun_get_factgammavec(linit_get_tech(linit));
   S = lfunlambda_OK(linit, s, sdom, bitprec);
-  if (typ(S)==t_SER && typ(s)!=t_SER)
+  if (typ(S)==t_SER)
   {
-    long d = fracgammadegree(FVga);
-    ss = deg1ser_shallow(gen_1, s, varn(S), lg(S)+d-2);
+    long d = lg(S) - 2 + fracgammadegree(FVga);
+    if (typ(s) == t_SER)
+      ss = sertoser(s, d);
+    else
+      ss = deg1ser_shallow(gen_1, s, varn(S), d);
   }
   gas = gammafactproduct(FVga, ss, prec);
   N = ldata_get_conductor(linit_get_ldata(linit));

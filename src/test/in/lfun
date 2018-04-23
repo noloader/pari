@@ -378,6 +378,7 @@ lfun(z,2)
     L=lfunsympow(E,i);
     print(i,":",lfuncheckfeq(L)))
 }
+L=lfunsympow(E,5); lfun(L,1,1)
 
 \\ ERRORS: keep them at end of file
 lfuntheta(1,0)
