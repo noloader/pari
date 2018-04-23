@@ -3903,7 +3903,7 @@ GEN     znchargauss(GEN G, GEN chi, GEN a, long bitprec);
 GEN     dirzetak(GEN nf, GEN b);
 GEN     ellmoddegree(GEN e, long bitprec);
 GEN     eta_inflate_ZXn(long m, long v);
-long    etaquotype(GEN eta, GEN *pN, GEN *pk, GEN *CHI, GEN *BR, long *pv, long *sd, long *cusp);
+long    etaquotype(GEN *eta, GEN *pN, GEN *pk, GEN *CHI, long *pv, long *sd, long *cusp);
 GEN     lfunabelianrelinit(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec);
 GEN     lfunartin(GEN N, GEN G, GEN M, long o, long bitprec);
 GEN     lfundiv(GEN ldata1, GEN ldata2, long bitprec);

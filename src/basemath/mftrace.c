@@ -9210,11 +9210,12 @@ mffrometaquo(GEN eta, long flag)
   pari_sp av = avma;
   GEN NK, N, k, BR, P;
   long v, cusp = 0;
-  if (!etaquotype(eta, &N,&k,&P, &BR, &v, NULL, flag? NULL: &cusp) || cusp < 0)
+  if (!etaquotype(&eta, &N,&k,&P, &v, NULL, flag? NULL: &cusp) || cusp < 0)
   {
     avma = av; return gen_0;
   }
-  if (lg(gel(BR,1)) == 1) { avma = av; return mf1(); }
+  if (lg(gel(eta,1)) == 1) { avma = av; return mf1(); }
+  BR = mkvec2(ZV_to_zv(gel(eta,1)), ZV_to_zv(gel(eta,2)));
   if (v < 0) v = 0;
   NK = mkgNK(N, k, get_mfchar(P), pol_x(1));
   return gerepilecopy(av, tag2(t_MF_ETAQUO, NK, BR, utoi(v)));
