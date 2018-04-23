@@ -1055,7 +1055,7 @@ tame_567_init(struct igusa *I, struct igusa_p *Ip, long dk,
     }
     else if (v2 < 0 && v4 >= 0)
       get_nr(ddk, 2*va5+val[1], 8, pn,pr); /* Prop 4.3.1 (b) */
-    else if (v3 < 0 && v4 < 0)
+    else /* (v3 < 0 && v4 < 0) */
       get_nr(ddk, vb2, 4, pn,pr); /* Prop 4.3.1 (c) */
     *pd = (*pn/ddk) * ndk;
   }
