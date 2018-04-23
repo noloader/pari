@@ -696,29 +696,25 @@ modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi, ulong s2)
   avma = av; return f;
 }
 
-/* TODO: Check whether I can use this to refactor something */
+/* assume j1 != j2 */
 static long
 modinv_double_eta_from_2j(
   ulong *r, long inv, ulong j1, ulong j2, ulong p, ulong pi, ulong s2)
 {
   pari_sp av = avma;
   GEN f, g, d, F = double_eta_Fl(inv, p);
-  if (j2 == j1) pari_err_BUG("modinv_double_eta_from_2j");
 
   f = Flx_double_eta_xpoly(F, j1, p, pi);
   g = Flx_double_eta_xpoly(F, j2, p, pi);
   d = Flx_gcd(f, g, p);
-
-  /* NB: Morally the next conditional should be written as follows,
-   * but, I think because of the case when j1 or j2 may not have the
-   * correct endomorphism ring, we need to use the less strict
-   * conditional underneath. */
+  /* NB: Morally the next conditional should be written as follows, but,
+   * because of the case when j1 or j2 may not have the correct endomorphism
+   * ring, we need to use the less strict conditional underneath */
 #if 0
   if (degpol(d) != 1
       || (*r = Flx_oneroot(d, p)) == p
-      || ! double_eta_root(inv, r, *r, p, pi, s2)) {
+      || ! double_eta_root(inv, r, *r, p, pi, s2))
     pari_err_BUG("modinv_double_eta_from_2j");
-  }
 #endif
   if (degpol(d) > 2
       || (*r = Flx_oneroot(d, p)) == p
@@ -738,15 +734,15 @@ modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb)
   p1_depth = u_lval(v, p1);
 
   phi = polmodular_db_getp(jdb, p1, p);
-  if ( ! next_surface_nbr(&j1, phi, p1, p1_depth, j0, NULL, p, pi))
+  if (!next_surface_nbr(&j1, phi, p1, p1_depth, j0, NULL, p, pi))
     pari_err_BUG("modfn_unambiguous_root");
   if (p2 == p1) {
-    if ( ! next_surface_nbr(&j1, phi, p1, p1_depth, j1, &j0, p, pi))
+    if (!next_surface_nbr(&j1, phi, p1, p1_depth, j1, &j0, p, pi))
       pari_err_BUG("modfn_unambiguous_root");
   } else {
     long p2_depth = u_lval(v, p2);
     phi = polmodular_db_getp(jdb, p2, p);
-    if ( ! next_surface_nbr(&j1, phi, p2, p2_depth, j1, NULL, p, pi))
+    if (!next_surface_nbr(&j1, phi, p2, p2_depth, j1, NULL, p, pi))
       pari_err_BUG("modfn_unambiguous_root");
   }
   avma = av;
