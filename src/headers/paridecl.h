@@ -3568,6 +3568,7 @@ GEN     simplify_shallow(GEN x);
 GEN     tayl(GEN x, long v, long precdl);
 GEN     trunc0(GEN x, GEN *pte);
 GEN     uu32toi(ulong a, ulong b);
+GEN     uu32toineg(ulong a, ulong b);
 GEN     vars_sort_inplace(GEN z);
 GEN     vars_to_RgXV(GEN h);
 GEN     variables_vecsmall(GEN x);

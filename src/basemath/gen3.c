@@ -2626,6 +2626,16 @@ uu32toi(ulong a, ulong b)
   return uutoi(a, b);
 #endif
 }
+/* - (2^32 a + b), assume a or b != 0 */
+GEN
+uu32toineg(ulong a, ulong b)
+{
+#ifdef LONG_IS_64BIT
+  return utoineg((a<<32) | b);
+#else
+  return uutoineg(a, b);
+#endif
+}
 
 /* return a_(n-1) x^(n-1) + ... + a_0 */
 GEN
