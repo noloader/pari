@@ -1256,13 +1256,22 @@ ellsympow_goodred2(GEN E, GEN F, GEN p, long m, long vN, long *cnd, long *w)
     return ellsympow_nonabelian(p, m, bet);
 }
 
+static GEN
+ellminimaldotwist(GEN E, GEN *pD, long prec)
+{
+  GEN D = ellminimaltwistcond(E), Et = elltwist(E, D), Etmin;
+  if (pD) *pD = D;
+  Et = ellinit(Et, NULL, prec);
+  Etmin = ellminimalmodel(Et, NULL);
+  obj_free(Et); return Etmin;
+}
+
 /* Based on
 Symmetric powers of elliptic curve L-functions,
 Phil Martin and Mark Watkins, ANTS VII
 <http://magma.maths.usyd.edu.au/users/watkins/papers/antsVII.pdf>
 with thanks to Mark Watkins. BA20180402
 */
-
 static GEN
 lfunellsympow(GEN e, ulong m)
 {
@@ -1271,12 +1280,15 @@ lfunellsympow(GEN e, ulong m)
   long i, l, mero, w = (m&7)==1 || (m&7)==3 ? -1: 1;
   checkell_Q(e);
   e = ellminimalmodel(e, NULL);
-  et = ellinit(elltwist(e, ellminimaltwistcond(e)), NULL, DEFAULTPREC);
-  et = ellminimalmodel(et, NULL);
-  ejd = denom(ell_get_j(e));
+  ejd = Q_denom(ell_get_j(e));
   mero = m==0 || (m%4==0 && ellQ_get_CM(e)<0);
   ellQ_get_Nfa(e, &N, &Nfa);
-  pr = gel(Nfa,1); ex = gel(Nfa, 2); l = lg(pr);
+  pr = gel(Nfa,1);
+  ex = gel(Nfa,2); l = lg(pr);
+  if (ugcd(umodiu(N,6), 6) == 1)
+    et = NULL;
+  else
+    et = ellminimaldotwist(e, NULL, DEFAULTPREC);
   B = gen_1;
   bad = cgetg(l, t_VEC);
   for (i=1; i<l; i++)
@@ -1299,7 +1311,7 @@ lfunellsympow(GEN e, ulong m)
   pole = mero ? mkvec(mkvec2(stoi(1+(m>>1)),gen_0)): NULL;
   ld = mkvecn(mero? 7: 6, tag(mkvec2(mkvec2(e,utoi(m)),bad), t_LFUN_SYMPOW_ELL),
         gen_0, ellsympow_gamma(m), stoi(m+1), B, stoi(w), pole);
-  obj_free(et);
+  if (et) obj_free(et);
   return gerepilecopy(av, ld);
 }
 
@@ -1498,14 +1510,10 @@ GEN
 lfunellmfpeters(GEN E, long bitprec)
 {
   pari_sp ltop = avma;
-  long prec = nbits2prec(bitprec);
-  GEN D = ellminimaltwistcond(E);
-  GEN Etr = ellinit(elltwist(E, D), NULL, prec);
-  GEN Et = ellminimalmodel(Etr, NULL);
+  GEN D, Et = ellminimaldotwist(E, &D, nbits2prec(bitprec));
   GEN nor = lfunellmfpetersmintwist(Et, bitprec);
   GEN nor2 = gmul(nor, elldiscfix(E, Et, D));
-  obj_free(Etr); obj_free(Et);
-  return gerepilecopy(ltop, nor2);
+  obj_free(Et); return gerepileupto(ltop, nor2);
 }
 
 /*************************************************************/
