@@ -1633,12 +1633,14 @@ ellminimaltwistcond(GEN e)
   if (f==4) D = negi(v==3 ? D: shifti(D, v==0? 2: -2));
   else if (f==6)
   {
-    if (v < 3) D = shifti(D, v==0? 3: 1);
+    long s, t;
+    if (v < 3) s = v==0? 3: 1;
     else
     {
-      long si = (mod32(D)>>3)==1? 1: -1;
-      D = shifti(D, signe(D)==si ? -3: -1);
+      t = v==3? 1: -1;
+      s = signe(D)==t ? -3: -1;
     }
+    D = shifti(D, s);
   }
   return gerepileuptoleaf(av, D);
 }
@@ -1648,10 +1650,8 @@ ellminimaltwist0(GEN e, long flag)
 {
   switch(flag)
   {
-    case 0:
-      return ellminimaltwist(e);
-    case 1:
-      return ellminimaltwistcond(e);
+    case 0: return ellminimaltwist(e);
+    case 1: return ellminimaltwistcond(e);
   }
   pari_err_FLAG("ellminimaltwist");
   return NULL; /* LCOV_EXCL_LINE */
