@@ -1125,7 +1125,7 @@ ellsympow_abelian_twist(GEN E, GEN p, long m, long o)
 }
 
 static GEN
-ellsympow_goodred(GEN E, GEN p, long m, long vN, long *cnd, long *w)
+ellsympow_goodred(GEN E, GEN p, long m, long *cnd, long *w)
 {
   long o = 12/cgcd(12, Z_pval(ell_get_disc(E), p));
   long bet = ellsympow_betam(o, m);
@@ -1291,7 +1291,7 @@ lfunellsympow(GEN e, ulong m)
     else if (equaliu(p, 3))
       eul = ellsympow_goodred3(e, et, p, m, vN, &cnd, &wp);
     else
-      eul = ellsympow_goodred(e, p, m, vN, &cnd, &wp);
+      eul = ellsympow_goodred(e, p, m, &cnd, &wp);
     gel(bad, i) = mkvec2(p, ginv(eul));
     B = mulii(B, powiu(p,cnd));
     w *= wp;
