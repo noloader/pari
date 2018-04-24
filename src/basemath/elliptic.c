@@ -1579,6 +1579,7 @@ ellminimaltwist(GEN e)
   pari_sp av = avma;
   GEN c4, c6, disc, g, N, M, F, E, D = gen_1;
   long i, lF;
+  checkell_Q(e);
   E = ellminimalmodel(e, NULL);
   c4 = ell_get_c4(E);
   c6 = ell_get_c6(E);
