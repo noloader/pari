@@ -1160,10 +1160,8 @@ ellsympow_deltam3(long o, long m, long vN)
 static long
 ellsympow_isabelian3(GEN E)
 {
-  ulong c4 = umodiu(ell_get_c4(E),81), c6 = umodiu(ell_get_c6(E), 729);
-  if (c4%27==9 && (c6%243==108 || c6%243==135)) return 1;
-  if (c4%81==27) return 1;
-  return 0;
+  ulong c4 = umodiu(ell_get_c4(E),81), c6 = umodiu(ell_get_c6(E), 243);
+  return (c4 == 27 || (c4%27==9 && (c6==108 || c6==135)));
 }
 
 static long
