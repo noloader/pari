@@ -610,14 +610,14 @@ make_unit(GEN nf, GEN bnfS, GEN *px)
   v = shallowconcat(v, zc_to_ZC(p1)); /* append bottom of p1 (= [0 Id] part) */
 
   gen = gel(bnfS,1);
-  xp = cgetg(1, t_MAT);
+  xp = trivial_fact();
   for (i=1; i<ls; i++)
   {
     GEN e = gel(v,i);
     if (!signe(e)) continue;
     xp = famat_mulpow_shallow(xp, gel(gen,i), negi(e));
   }
-  if (lg(xp) > 1) *px = famat_mulpow_shallow(xp, xb, gen_1);
+  if (lgcols(xp) != 1) *px = famat_mulpow_shallow(xp, xb, gen_1);
   return v;
 }
 

@@ -59,6 +59,7 @@ v=[1,1/2,x,Mod(x,K.pol),P[1],[;],Mat(1),vector(5),[1,2,3;4,5,6;7,8,9],[1,2,3;0,4
 for(i=1,#v, if(!nfisideal(K,v[i]),print(i)))
 idealred(K,2)
 idealred(K,[2,[;]])
+idealred(K,[2,factor(1)])
 
 nf=nfinit(x^2+x+1);
 p = 67452192952521724999; pi = idealprimedec(nf,p)[1];
@@ -137,3 +138,6 @@ idealredmodpower(nf,1,2)
 idealredmodpower(nf,x^5-3*x^4-3*x^3+18*x^2-18*x-54,2)
 idealredmodpower(nf,x/2,2)
 idealredmodpower(nf,x/12,2)
+
+\\ Errors, keep at end of file
+idealred(nf,[2,Mat(1)])

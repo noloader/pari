@@ -555,6 +555,8 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
      79- ellgroup: allow E over number field
      80- elllocalred: allow E over Qp
      81- memory leak in polclass()
+     82- factorback([;]) is now invalid [ [;] is not the empty factorization,
+         factor(1) = matrix(0,2) is ]
 
   Removed
       1- file 'MACHINES' (no longer maintained)

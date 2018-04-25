@@ -71,7 +71,9 @@ Doc:
  The ``principal part'' $t$ in an extended ideal may be
  represented in any of the above forms, and \emph{also} as a factorization
  matrix (in terms of number field elements, not ideals!), possibly the empty
- matrix \kbd{[;]} representing $1$. In the latter case, elements stay in
+ factorization matrix \kbd{factor(1)} representing $1$; the empty matrix
+ \kbd{[;]} is also accepted as a synonym for $1$. When $t$ is such a
+ factorization matrix, elements stay in
  factored form, or \tev{famat} for \emph{fa}ctorization \emph{mat}rix, which
  is a convenient way to avoid coefficient explosion. To recover the
  conventional expanded form, try \tet{nffactorback}; but many functions

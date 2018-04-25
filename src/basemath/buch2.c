@@ -404,7 +404,7 @@ subFB_change(FB_t *F)
 }
 
 static GEN
-init_famat(GEN x) { return mkvec2(x, cgetg(1,t_MAT)); }
+init_famat(GEN x) { return mkvec2(x, trivial_fact()); }
 
 static GEN
 red(GEN nf, GEN I, GEN G0, GEN *pm)
@@ -416,7 +416,7 @@ red(GEN nf, GEN I, GEN G0, GEN *pm)
   else
   {
     GEN m = gel(y,2);
-    *pm = lg(m)==1? gen_1: Q_primpart(gmael(m,1,1));
+    *pm = lgcols(m)==1? gen_1: Q_primpart(gmael(m,1,1));
   }
   return J;
 }
@@ -1995,7 +1995,8 @@ isprincipalfact(GEN bnf, GEN C, GEN P, GEN e, long flag)
 
   if (gen)
   {
-    Cext = (flag & nf_GENMAT)? cgetg(1, t_MAT): mkpolmod(gen_1,nf_get_pol(nf));
+    Cext = (flag & nf_GENMAT)? trivial_fact()
+                             : mkpolmod(gen_1,nf_get_pol(nf));
     C0 = mkvec2(C, Cext);
     id = expandext(nf, C0, P, e);
   } else {
@@ -2045,7 +2046,7 @@ isprincipalfact_or_fail(GEN bnf, GEN C, GEN P, GEN e)
   pari_sp av = avma;
   GEN u, y, id, C0, Cext, nf = bnf_get_nf(bnf);
 
-  Cext = cgetg(1, t_MAT);
+  Cext = trivial_fact();
   C0 = mkvec2(C, Cext);
   id = expandext(nf, C0, P, e);
   if (id == C0) /* e = 0 */

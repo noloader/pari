@@ -97,7 +97,7 @@ compute_fact(GEN nf, GEN U, GEN gen)
   long i, j, l = lg(U), h = lgcols(U); /* l > 1 */
   GEN basecl = cgetg(l,t_VEC), G;
 
-  G = mkvec2(NULL, cgetg(1,t_MAT));
+  G = mkvec2(NULL, trivial_fact());
   for (j = 1; j < l; j++)
   {
     GEN z = NULL;

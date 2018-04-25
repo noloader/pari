@@ -1073,7 +1073,6 @@ gen_factorback(GEN L, GEN e, GEN (*_mul)(void*,GEN,GEN),
         return gerepileupto(av, gen_product(L, data, _mul));
       case t_MAT: /* genuine factorization */
         l = lg(L);
-        if (l == 1) return gen_1;
         if (l == 3) break;
         /*fall through*/
       default:

@@ -254,7 +254,7 @@ lambdaofelt(GEN x, toK_s *T)
 {
   tau_s *tau = T->tau;
   long i, m = T->m;
-  GEN y = cgetg(1, t_MAT), powg = T->powg; /* powg[i] = g^i */
+  GEN y = trivial_fact(), powg = T->powg; /* powg[i] = g^i */
   for (i=1; i<m; i++)
   {
     y = famat_mulpows_shallow(y, x, uel(powg,m-i+1));
@@ -451,7 +451,7 @@ static GEN
 famat_factorback(GEN v, GEN e)
 {
   long i, l = lg(e);
-  GEN V = cgetg(1, t_MAT);
+  GEN V = trivial_fact();
   for (i=1; i<l; i++) V = famat_mulpow_shallow(V, gel(v,i), gel(e,i));
   return V;
 }
@@ -460,7 +460,7 @@ static GEN
 famat_factorbacks(GEN v, GEN e)
 {
   long i, l = lg(e);
-  GEN V = cgetg(1, t_MAT);
+  GEN V = trivial_fact();
   for (i=1; i<l; i++) V = famat_mulpows_shallow(V, gel(v,i), uel(e,i));
   return V;
 }
@@ -1227,11 +1227,11 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, ulong ell, long rc,
     gel(vecB,j)= gel(p1,2);
   }
 
-  vecC = cgetg(rc+1,t_VEC);
-  if (rc)
+  if (!rc) vecC = cgetg(1,t_VEC);
+  else
   {
     GEN p1, p2;
-    for (j=1; j<=rc; j++) gel(vecC,j) = cgetg(1, t_MAT);
+    vecC = const_vec(rc, trivial_fact());
     p1 = Flm_powers(Tc, m-2, ell);
     p2 = vecB;
     for (j=1; j<=m-1; j++)

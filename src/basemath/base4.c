@@ -32,11 +32,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * p is a rational prime, a belongs to Z_K, e=e(P/p), f=f(P/p), and b
  * is Lenstra's constant, such that p.P^(-1)= p Z_K + b Z_K.
  *
- * An extended ideal is a couple [I,F] where I is a valid ideal and F is
- * either an algebraic number, or a factorization matrix attached to an
- * algebraic number. All routines work with either extended ideals or ideals
- * (an omitted F is assumed to be [;] <-> 1).
- * All ideals are output in HNF form. */
+ * An extended ideal is a couple [I,F] where I is an ideal and F is either an
+ * algebraic number, or a factorization matrix attached to an algebraic number.
+ * All routines work with either extended ideals or ideals (an omitted F is
+ * assumed to be factor(1)). All ideals are output in HNF form. */
 
 /* types and conversions */
 
@@ -46,10 +45,18 @@ idealtyp(GEN *ideal, GEN *arch)
   GEN x = *ideal;
   long t,lx,tx = typ(x);
 
-  if (tx==t_VEC && lg(x)==3)
-  { *arch = gel(x,2); x = gel(x,1); tx = typ(x); }
+  if (tx!=t_VEC || lg(x)!=3) *arch = NULL;
   else
-    *arch = NULL;
+  {
+    GEN a = gel(x,2);
+    if (typ(a) == t_MAT && lg(a) != 3)
+    { /* allow [;] */
+      if (lg(a) != 1) pari_err_TYPE("idealtyp [extended ideal]",x);
+      a = trivial_fact();
+    }
+    *arch = a;
+    x = gel(x,1); tx = typ(x);
+  }
   switch(tx)
   {
     case t_MAT: lx = lg(x);
@@ -1059,8 +1066,8 @@ famat_mul_shallow(GEN f, GEN g)
 {
   if (typ(f) != t_MAT) f = to_famat_shallow(f,gen_1);
   if (typ(g) != t_MAT) g = to_famat_shallow(g,gen_1);
-  if (lg(f) == 1) return g;
-  if (lg(g) == 1) return f;
+  if (lgcols(f) == 1) return g;
+  if (lgcols(g) == 1) return f;
   return mkmat2(shallowconcat(gel(f,1), gel(g,1)),
                 shallowconcat(gel(f,2), gel(g,2)));
 }
@@ -1101,7 +1108,7 @@ static GEN
 famat_add(GEN f, GEN x)
 {
   GEN h = cgetg(3,t_MAT);
-  if (lg(f) == 1)
+  if (lgcols(f) == 1)
   {
     gel(h,1) = mkcolcopy(x);
     gel(h,2) = mkcol(gen_1);
@@ -1125,8 +1132,8 @@ famat_mul(GEN f, GEN g)
     gel(h,2) = mkcol2(gen_1, gen_1);
   }
   if (typ(f) != t_MAT) return famat_add(g, f);
-  if (lg(f) == 1) return gcopy(g);
-  if (lg(g) == 1) return gcopy(f);
+  if (lgcols(f) == 1) return gcopy(g);
+  if (lgcols(g) == 1) return gcopy(f);
   h = cgetg(3,t_MAT);
   gel(h,1) = gconcat(gel(f,1), gel(g,1));
   gel(h,2) = gconcat(gel(f,2), gel(g,2));
@@ -1137,8 +1144,8 @@ GEN
 famat_sqr(GEN f)
 {
   GEN h;
-  if (lg(f) == 1) return cgetg(1,t_MAT);
   if (typ(f) != t_MAT) return to_famat(f,gen_2);
+  if (lgcols(f) == 1) return gcopy(f);
   h = cgetg(3,t_MAT);
   gel(h,1) = gcopy(gel(f,1));
   gel(h,2) = gmul2n(gel(f,2),1);
@@ -1148,30 +1155,30 @@ famat_sqr(GEN f)
 GEN
 famat_inv_shallow(GEN f)
 {
-  if (lg(f) == 1) return f;
   if (typ(f) != t_MAT) return to_famat_shallow(f,gen_m1);
+  if (lgcols(f) == 1) return f;
   return mkmat2(gel(f,1), ZC_neg(gel(f,2)));
 }
 GEN
 famat_inv(GEN f)
 {
-  if (lg(f) == 1) return cgetg(1,t_MAT);
   if (typ(f) != t_MAT) return to_famat(f,gen_m1);
+  if (lgcols(f) == 1) return gcopy(f);
   retmkmat2(gcopy(gel(f,1)), ZC_neg(gel(f,2)));
 }
 GEN
 famat_pow(GEN f, GEN n)
 {
-  if (lg(f) == 1) return cgetg(1,t_MAT);
   if (typ(f) != t_MAT) return to_famat(f,n);
+  if (lgcols(f) == 1) return gcopy(f);
   retmkmat2(gcopy(gel(f,1)), ZC_Z_mul(gel(f,2),n));
 }
 GEN
 famat_pow_shallow(GEN f, GEN n)
 {
   if (is_pm1(n)) return signe(n) > 0? f: famat_inv_shallow(f);
-  if (lg(f) == 1) return f;
   if (typ(f) != t_MAT) return to_famat_shallow(f,n);
+  if (lgcols(f) == 1) return f;
   return mkmat2(gel(f,1), ZC_Z_mul(gel(f,2),n));
 }
 
@@ -1180,8 +1187,8 @@ famat_pows_shallow(GEN f, long n)
 {
   if (n==1) return f;
   if (n==-1) return famat_inv_shallow(f);
-  if (lg(f) == 1) return f;
   if (typ(f) != t_MAT) return to_famat_shallow(f, stoi(n));
+  if (lgcols(f) == 1) return f;
   return mkmat2(gel(f,1), ZC_z_mul(gel(f,2),n));
 }
 
@@ -1228,8 +1235,7 @@ famat_to_nf(GEN nf, GEN f)
 {
   GEN t, x, e;
   long i;
-  if (lg(f) == 1) return gen_1;
-
+  if (lgcols(f) == 1) return gen_1;
   x = gel(f,1);
   e = gel(f,2);
   t = nfpow(nf, gel(x,1), gel(e,1));
@@ -1244,7 +1250,7 @@ famat_reduce(GEN fa)
   GEN E, G, L, g, e;
   long i, k, l;
 
-  if (lg(fa) == 1) return fa;
+  if (lgcols(fa) == 1) return fa;
   g = gel(fa,1); l = lg(g);
   e = gel(fa,2);
   L = gen_indexsort(g, (void*)&cmp_universal, &cmp_nodata);
@@ -1278,7 +1284,7 @@ famatsmall_reduce(GEN fa)
 {
   GEN E, G, L, g, e;
   long i, k, l;
-  if (lg(fa) == 1) return fa;
+  if (lgcols(fa) == 1) return fa;
   g = gel(fa,1); l = lg(g);
   e = gel(fa,2);
   L = vecsmall_indexsort(g);
@@ -1314,7 +1320,7 @@ ZM_famat_limit(GEN fa, GEN limit)
   GEN E, G, g, e, r;
   long i, k, l, n, lG;
 
-  if (lg(fa) == 1) return fa;
+  if (lgcols(fa) == 1) return fa;
   g = gel(fa,1); l = lg(g);
   e = gel(fa,2);
   for(n=0, i=1; i<l; i++)
@@ -1487,7 +1493,7 @@ GEN
 famat_to_nf_moddivisor(GEN nf, GEN g, GEN e, GEN bid)
 {
   GEN t, cyc;
-  if (lg(g) == 1) return gen_1;
+  if (lgcols(g) == 1) return gen_1;
   cyc = bid_get_cyc(bid);
   if (lg(cyc) == 1)
     t = gen_1;
