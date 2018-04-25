@@ -72,6 +72,7 @@ extern long RgX_MUL_LIMIT;
 extern long RgX_SQR_LIMIT;
 extern long SQRI_FFT_LIMIT;
 extern long SQRI_KARATSUBA_LIMIT;
+extern long SQRR_MULII_LIMIT;
 #else
 #  define AGM_ATAN_LIMIT                 __AGM_ATAN_LIMIT
 #  define DIVRR_GMP_LIMIT                __DIVRR_GMP_LIMIT
@@ -144,4 +145,5 @@ extern long SQRI_KARATSUBA_LIMIT;
 #  define RgX_SQR_LIMIT                  __RgX_SQR_LIMIT
 #  define SQRI_FFT_LIMIT                 __SQRI_FFT_LIMIT
 #  define SQRI_KARATSUBA_LIMIT           __SQRI_KARATSUBA_LIMIT
+#  define SQRR_MULII_LIMIT               __SQRR_MULII_LIMIT
 #endif

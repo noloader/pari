@@ -65,11 +65,12 @@
 #define __LOGAGM_LIMIT                   6
 #define __MULII_FFT_LIMIT                -1
 #define __MULII_KARATSUBA_LIMIT          -1
-#define __MULRR_MULII_LIMIT              74
+#define __MULRR_MULII_LIMIT              55
 #define __RgX_MUL_LIMIT                  9
 #define __RgX_SQR_LIMIT                  38
 #define __SQRI_FFT_LIMIT                 -1
 #define __SQRI_KARATSUBA_LIMIT           -1
+#define __SQRR_MULII_LIMIT               12
 #else
 #define __AGM_ATAN_LIMIT                 89
 #define __DIVRR_GMP_LIMIT                4
@@ -137,9 +138,10 @@
 #define __LOGAGM_LIMIT                   45
 #define __MULII_FFT_LIMIT                -1
 #define __MULII_KARATSUBA_LIMIT          -1
-#define __MULRR_MULII_LIMIT              8
+#define __MULRR_MULII_LIMIT              19
 #define __RgX_MUL_LIMIT                  7
 #define __RgX_SQR_LIMIT                  34
 #define __SQRI_FFT_LIMIT                 -1
 #define __SQRI_KARATSUBA_LIMIT           -1
+#define __SQRR_MULII_LIMIT               9
 #endif

@@ -70,4 +70,5 @@ long RgX_MUL_LIMIT                  = __RgX_MUL_LIMIT;
 long RgX_SQR_LIMIT                  = __RgX_SQR_LIMIT;
 long SQRI_FFT_LIMIT                 = __SQRI_FFT_LIMIT;
 long SQRI_KARATSUBA_LIMIT           = __SQRI_KARATSUBA_LIMIT;
+long SQRR_MULII_LIMIT               = __SQRR_MULII_LIMIT;
 #endif

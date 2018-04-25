@@ -65,8 +65,9 @@ LOGAGMCX_LIMIT                      58      32      13      22
 LOGAGM_LIMIT                        55      45      16       6
 MULII_FFT_LIMIT                   1386      -1    1441      -1
 MULII_KARATSUBA_LIMIT               18      -1      23      -1
-MULRR_MULII_LIMIT                  102       8     276      74
+MULRR_MULII_LIMIT                  422      19     210      55
 RgX_MUL_LIMIT                        5       7       9       9
 RgX_SQR_LIMIT                       26      34      35      38
 SQRI_FFT_LIMIT                    1469      -1    1651      -1
 SQRI_KARATSUBA_LIMIT                27      -1      36      -1
+SQRR_MULII_LIMIT                    20       9      54      12

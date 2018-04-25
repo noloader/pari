@@ -306,8 +306,14 @@ static void disable(speed_param *s)
 static double speed_mulrr(speed_param *s)
 { TIME_FUN(mulrr(s->x, s->y)); }
 
+static double speed_sqrr(speed_param *s)
+{ TIME_FUN(sqrr(s->x)); }
+
 static double speed_mulii(speed_param *s)
 { TIME_FUN(mulii(s->x, s->y)); }
+
+static double speed_sqri (speed_param *s)
+{ TIME_FUN(sqri(s->x)); }
 
 static double speed_exp(speed_param *s)
 { TIME_FUN(mpexp(s->x)); }
@@ -327,9 +333,6 @@ static double speed_atan(speed_param *s)
 { setexpo(s->x, 0);
   gatan(s->x, 0);
   TIME_FUN(gatan(s->x, 0)); }
-
-static double speed_sqri (speed_param *s)
-{ TIME_FUN(sqri(s->x)); }
 
 static double speed_Fp_pow(speed_param *s)
 { TIME_FUN( Fp_pow(s->x, subis(s->y,1), s->y)); }
@@ -510,6 +513,7 @@ static tune_param param[] = {
 {PARI,var(MULII_FFT_LIMIT),        t_INT, 500,0, speed_mulii,0.02},
 {PARI,var(SQRI_FFT_LIMIT),         t_INT, 500,0, speed_sqri,0.02},
 {0,   var(MULRR_MULII_LIMIT),      t_REAL,4,0, speed_mulrr},
+{0,   var(SQRR_MULII_LIMIT),       t_REAL,4,0, speed_sqrr},
 {0,   var(Fp_POW_REDC_LIMIT),      t_INT, 3,100, speed_Fp_pow,0,0,&Fp_POW_BARRETT_LIMIT},
 {0,   var(Fp_POW_BARRETT_LIMIT),   t_INT, 3,0, speed_Fp_pow},
 {0,   var(INVNEWTON_LIMIT),        t_REAL,66,0, speed_inv,0.03},
