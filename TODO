@@ -10,14 +10,8 @@ Priority classification (first column): [subjective and debatable]
 0    no
 -    unclassified
 
-***************************   BUGS (general)     ****************************
-Unless specified otherwise, examples assume 32bit machine and default precision
-
-2  factorback should not accept [;] since matrix(0,2) is the only valid
-   form of an empty matrix input, corresponding e.g to factor(1). But the
-   empty matrix is used in many places as a marker for a void factorization.
-   This convention should be encapsulated; then we may declare [;] invalid
-   input.
+***************************    BUGS    ***********************************
+Unless specified otherwise, examples assume 64bit machine and default precision
 
 2  some functions assume MAXVARN is a free variable, yielding bogus
    results if the input involves it (only affects library programming).
@@ -29,22 +23,6 @@ Unless specified otherwise, examples assume 32bit machine and default precision
    O(y) * x --> O(y) * x
    [ design flaw in the current model for multivariate power series. Some work
    to change it, no application for this in the current PARI code... ]
-
-***************************   BUGS (GP specific) ****************************
-
-2  external prettyprinter tex2mail: on a fast machine with a slow 'perl',
-   the external prettyprinter does not return quickly enough and a new prompt
-   has already been printed.
-   ? default(output,3)
-     output = 3 (external prettyprint)
-   ? 1
-   ?  \\ THEN, %1 = 1 is printed.
-
-   gphelp is not affected by the problem since it prints an 'ugly_kludge'
-   string to tell the caller (gp) that it is finished [it should use 'wait'
-   instead, but less portable]. tex2mail just uses a delay loop [prettyp_wait].
-   Note that tex2mail is always running in the background whereas gphelp is
-   restarted everytime.
 
 ***************************  DOCUMENTATION    ****************************
 
@@ -77,17 +55,12 @@ Misc:
 
 2  merge quadclassunit and bnfinit
 
-2  p-adic ellztopoint
-
 ***************************   LIBRARY DESIGN   ****************************
 
 3  add a 'variable' as an optional last argument in content, denominator,
    numerator, as is done in divrem (cf. 2.6.2)
 
 3  remove all dependencies on types ordering [if (typ(x) < t_POL) ...]
-
-2  a system of DEBUGLEVEL classes [e.g \g 5 "LLL" ] (such that the user can
-   easily define new ones)
 
 2  rename library functions following GP names
 
@@ -122,6 +95,3 @@ Misc:
    _executed_, not as it is read
 
 2  possibility to save and load a session (variables, functions, defaults)
-
-2  a type t_FILE [current: stream re-opened/flushed/closed after every single
-   write(): disaster when one wants to write often to the same file]
