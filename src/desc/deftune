@@ -70,4 +70,4 @@ RgX_MUL_LIMIT                        5       7       9       9
 RgX_SQR_LIMIT                       26      34      35      38
 SQRI_FFT_LIMIT                    1469      -1    1651      -1
 SQRI_KARATSUBA_LIMIT                27      -1      36      -1
-SQRR_MULII_LIMIT                    20       9      54      12
+SQRR_SQRI_LIMIT                     20       9      54      12

@@ -70,7 +70,7 @@
 #define __RgX_SQR_LIMIT                  38
 #define __SQRI_FFT_LIMIT                 -1
 #define __SQRI_KARATSUBA_LIMIT           -1
-#define __SQRR_MULII_LIMIT               12
+#define __SQRR_SQRI_LIMIT                12
 #else
 #define __AGM_ATAN_LIMIT                 89
 #define __DIVRR_GMP_LIMIT                4
@@ -143,5 +143,5 @@
 #define __RgX_SQR_LIMIT                  34
 #define __SQRI_FFT_LIMIT                 -1
 #define __SQRI_KARATSUBA_LIMIT           -1
-#define __SQRR_MULII_LIMIT               9
+#define __SQRR_SQRI_LIMIT                9
 #endif

@@ -253,7 +253,7 @@ sqrz_i(GEN z, GEN x, long lz)
   LOCAL_HIREMAINDER;
   LOCAL_OVERFLOW;
 
-  if (lz > SQRR_MULII_LIMIT)
+  if (lz > SQRR_SQRI_LIMIT)
   {
     pari_sp av = avma;
     GEN hi = sqrispec_mirror(x+2, lz-2);
