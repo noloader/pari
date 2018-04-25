@@ -955,10 +955,8 @@ lfunell(GEN e)
   long t = ell_get_type(e);
   switch(t)
   {
-    case t_ELL_Q:
-      return lfunellQ(e);
-    case t_ELL_NF:
-      return lfunellnf(e);
+    case t_ELL_Q: return lfunellQ(e);
+    case t_ELL_NF:return lfunellnf(e);
   }
   pari_err_TYPE("lfun",e);
   return NULL; /*LCOV_EXCL_LINE*/
@@ -999,21 +997,29 @@ static GEN
 ellsympow_abelian(GEN p, GEN ap, long m, long o)
 {
   pari_sp av = avma;
-  long i, n = (m+1)>>1;
-  GEN pm = gpowers(p,n), F, v;
-  GEN tv = cgetg(m+2,t_VEC);
+  long i, M, n = (m+1)>>1;
+  GEN pk, tv, pn, pm, F, v;
+  if (!odd(o))
+  {
+    if (odd(m)) return pol_1(0);
+    M = m >> 1; o >>= 1;
+  }
+  else
+    M = m * ((o+1) >> 1);
+  pk = gpowers(p,n); pn = gel(pk,n+1);
+  tv = cgetg(m+2,t_VEC);
   gel(tv, 1) = gen_2;
   gel(tv, 2) = ap;
   for (i = 3; i <= m+1; i++)
-    gel(tv,i) = subii(mulii(ap,gel(tv,i-1)),mulii(p,gel(tv,i-2)));
-  F = deg2pol_shallow(powiu(p, m), gen_0, gen_1, 0);
-  v = odd(m) ? pol_1(0): deg1pol_shallow(negi(gel(pm, n+1)), gen_1, 0);
-  for (i = 0; i < n; i++)
-    if ((2*i-m)%o==0)
-    {
-      gel(F,3) = negi(mulii(gel(tv,m-2*i+1), gel(pm,i+1)));
-      v = gmul(v, F);
-    }
+    gel(tv,i) = subii(mulii(ap,gel(tv,i-1)), mulii(p,gel(tv,i-2)));
+  pm = odd(m)? mulii(gel(pk,n), pn): sqri(pn); /* cheap p^m */
+  F = deg2pol_shallow(pm, gen_0, gen_1, 0);
+  v = odd(m) ? pol_1(0): deg1pol_shallow(negi(pn), gen_1, 0);
+  for (i = M % o; i < n; i += o) /* o | m-2*i */
+  {
+    gel(F,3) = negi(mulii(gel(tv,m-2*i+1), gel(pk,i+1)));
+    v = ZX_mul(v, F);
+  }
   return gerepilecopy(av, v);
 }
 
@@ -1021,21 +1027,21 @@ static GEN
 ellsympow(void *E, GEN p, long n)
 {
   pari_sp av = avma;
-  GEN v =(GEN) E, e = gel(v,1);
+  GEN v =(GEN) E, ap = ellap(gel(v,1), p);
   ulong m = itou(gel(v,2));
   if (n <= 2)
   {
-    GEN t = ellsympow_trace(p, ellap(e, p), m);
+    GEN t = ellsympow_trace(p, ap, m);
     return deg1pol_shallow(t, gen_1, 0);
   }
   else
-    return gerepileupto(av, RgXn_inv_i(ellsympow_abelian(p, ellap(e, p), m, 1), n));
+    return gerepileupto(av, RgXn_inv_i(ellsympow_abelian(p, ap, m, 1), n));
 }
 
 static GEN
 vecan_ellsympow(GEN an, long n)
 {
-  GEN nn = stoi(n), crvm = gel(an,1), bad = gel(an, 2);
+  GEN nn = utoi(n), crvm = gel(an,1), bad = gel(an,2);
   return direuler_bad((void*)crvm, &ellsympow, gen_2, nn, nn, bad);
 }
 
