@@ -524,10 +524,12 @@ static GEN
  * non-invertible pivot */
 gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, long early_abort, long only_triangular, GEN* ops, void *data, const struct bb_hermite *R)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av1;
   GEN H,U,piv=gen_0,u,q,a,perm,iszero,C,zero=R->s(data,0),d,g,r,op,one=R->s(data,1);
   long m,n,i,j,s,si,i2,si2,nbz,lim,extra,maxop=0,nbop=0,lastinv=0;
   int smallop;
+
+  av1 = avma;
 
   RgM_dimensions(A,&m,&n);
   if (early_abort && n<m)
@@ -610,7 +612,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, long early_abor
     if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"gen_howell[1]. i=%ld",i);
-      gerepileall(av,ops?2:1,&H,ops);
+      gerepileall(av1,ops?2:1,&H,ops);
     }
   }
 
@@ -718,7 +720,7 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, long early_abor
     if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"gen_howell[2]. i=%ld",i);
-      gerepileall(av,ops?3:2,&H,&piv,ops);
+      gerepileall(av1,ops?3:2,&H,&piv,ops);
     }
   }
 
