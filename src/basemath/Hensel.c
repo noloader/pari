@@ -558,11 +558,11 @@ ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e)
     fr = FpXQX_red(f, Tq, qv);
     fa = FqX_eval(fr, a, Tq, qv);
     fa = typ(fa)==t_INT? diviiexact(fa,q2v): ZX_Z_divexact(fa, q2v);
-    a = Fq_sub(a, ZX_Z_mul(Fq_mul(W, fa, Tq2, q2v), q2), Tq, qv);
+    a = Fq_sub(a, Fq_mul(Fq_mul(W,fa,Tq2,q2v),q2, Tq,qv), Tq, qv);
     if (mask == 1) return gerepileupto(av, a);
     dfr = FpXQX_red(df, Tq, q);
-    u = ZX_Z_divexact(FpX_Fp_sub(Fq_mul(W,FqX_eval(dfr,a,Tq,q),Tq,q),gen_1,q),q2);
-    W = Fq_sub(W,ZX_Z_mul(Fq_mul(u,W,Tq2,q2),q2),Tq,q);
+    u = ZX_Z_divexact(Fq_sub(Fq_mul(W,FqX_eval(dfr,a,Tq,q),Tq,q),gen_1,Tq,q),q2);
+    W = Fq_sub(W, Fq_mul(Fq_mul(u,W,Tq2,q2),q2, Tq,q),Tq,q);
     if (gc_needed(av2,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXQX_liftroot, e = %ld", e);
