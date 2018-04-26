@@ -13,9 +13,6 @@ Priority classification (first column): [subjective and debatable]
 ***************************    BUGS    ***********************************
 Unless specified otherwise, examples assume 64bit machine and default precision
 
-2  some functions assume MAXVARN is a free variable, yielding bogus
-   results if the input involves it (only affects library programming).
-
 1  recursive plot easily fooled. One could split intervals in 3 + make sure
    size of neighbouring intervals don't differ too much.
 
