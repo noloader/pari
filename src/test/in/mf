@@ -619,6 +619,7 @@ mf=mfinit([12,5/2]); apply(x->mfconductor(mf,x),mfbasis(mf))
 mfconductor(mf,mflinear(mf,[0,1,2,4,8]))
 mf=mfinit([12,5/2],1); F=mfbasis(mf)[1]; FSbug = mfsymbol(mf,F);
 mfpetersson(FSbug)
+T5=mfTheta(5); mfT5=mfinit(T5); T5S=mfsymbol(mfT5,T5);Pi/mfpetersson(T5S)
 F=mffrometaquo([1,-2;2,5;4,-2]);mfparams(F)
 F=mffrometaquo([1,2;2,-1]);mfparams(F)
 mf=mfinit(F);mftobasis(mf,F)
