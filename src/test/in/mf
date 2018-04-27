@@ -332,6 +332,7 @@ mfembed(mf)
 vE=mfembed(f2); #vE
 mfembed(vE[1],mfcoefs(f2,4))
 mfembed(vE[2],mfcoefs(f2,4))
+mfembed(vE[1], [1,t;y,1/2])
 mfperiodpol(mf,f1)
 f1=mfsymbol(mf,f1); f2=mfsymbol(mf,f2);
 mfperiodpol(mf,f1)
