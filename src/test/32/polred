@@ -27,9 +27,8 @@ x^8 + Mod(-8*y + 1, y^2 - y - 7)*x^7 + Mod(21*y + 189, y^2 - y - 7)*x^6 + Mo
 d(-385*y - 251, y^2 - y - 7)*x^5 + Mod(695*y + 2955, y^2 - y - 7)*x^4 + Mod(
 -2451*y - 3350, y^2 - y - 7)*x^3 + Mod(2402*y + 6871, y^2 - y - 7)*x^2 + Mod
 (-2050*y - 3861, y^2 - y - 7)*x + Mod(565*y + 1331, y^2 - y - 7)
-  ***   at top-level: rnfpolredabs(K,T)
-  ***                 ^-----------------
-  *** rnfpolredabs: not an irreducible polynomial in rnfpolredabs: x^3 - x - 1.
+x^3 + Mod(y^2 - 2, y^3 - y - 1)*x^2 + Mod(-y + 1, y^3 - y - 1)*x + Mod(y - 1
+, y^3 - y - 1)
 x^9 - 4*x^8 + 8*x^7 - 9*x^6 + 7*x^5 - 3*x^4 - x^3 + 4*x^2 - 3*x + 1
 Mod(0, x^3 + Mod(y^2 - y - 2, y^3 - y - 1)*x^2 + Mod(-y^2 + y + 1, y^3 - y -
  1)*x + Mod(y^2, y^3 - y - 1))
@@ -84,4 +83,8 @@ x^4 + Mod(-1/24*z^3 - 1/8*z^2 - 59/24*z - 27/8, z^4 + 50*z^2 + 45)*x^3 + Mod
 x^4 + Mod(-1/24*z^3 - 1/8*z^2 - 59/24*z - 27/8, z^4 + 50*z^2 + 45)*x^3 + Mod
 (1/12*z^3 + 41/12*z + 5/2, z^4 + 50*z^2 + 45)*x^2 + Mod(-1/24*z^3 - 1/8*z^2 
 - 59/24*z - 27/8, z^4 + 50*z^2 + 45)*x + 1
-Total time spent: 10908
+[y^2 + Mod(t^3, t^4 + t^3 + t^2 + t + 1)*y + Mod(8*t^2 - 46*t + 8, t^4 + t^3
+ + t^2 + t + 1), Mod(Mod(-t, t^4 + t^3 + t^2 + t + 1)*y + Mod(-t^2 - t, t^4 
++ t^3 + t^2 + t + 1), y^2 + Mod(t^3, t^4 + t^3 + t^2 + t + 1)*y + Mod(8*t^2 
+- 46*t + 8, t^4 + t^3 + t^2 + t + 1))]
+Total time spent: 6916

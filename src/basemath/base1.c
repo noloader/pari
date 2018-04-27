@@ -2704,7 +2704,7 @@ rnfpolred_i(GEN nf, GEN R, long flag, long best)
     rnfeq = rnf_get_map(rnf);
     pol = rnf_zkabs(rnf);
     if (DEBUGLEVEL>1) timer_printf(&ti, "absolute basis");
-    v = polredabs_i(pol, &S, &u, 0);
+    v = polredabs_i(pol, &S, &u, nf_ORIG);
     pol = gel(pol,1);
     y = gel(v,1); P = findmindisc(y);
     a = gel(v,2);
@@ -2734,28 +2734,22 @@ rnfpolred_i(GEN nf, GEN R, long flag, long best)
   if (typ(A) != t_VEC)
   {
     A = eltabstorel_lift(rnfeq, A);
-    P = RgXQ_charpoly(A, R, varn(R));
-    P = lift_if_rational(P);
-    if (flag & nf_ORIG) P = mkvec2(P, mkpolmod(RgXQ_reverse(A,R),P));
+    P = lift_if_rational( RgXQ_charpoly(A, R, varn(R)) );
   }
   else
   { /* canonical factor */
-    P = get_factor(nffactor(nf,P), degpol(R));
-    if (!P) pari_err_IRREDPOL(f, R);
-    P = lift_if_rational(P);
-    if (flag & nf_ORIG)
+    long i, l = lg(A), v = varn(R);
+    GEN besta = NULL;
+    for (i = 1; i < l; i++)
     {
-      GEN kx = gmul(gel(rnfeq,3), pol_x(varn(T)));
-      long i, l = lg(A);
-      for (i = 1; i < l; i++)
-      {
-        GEN B = QXQ_reverse(gel(A,i), pol); /* Mod(B,P) root of pol */
-        B = mkpolmod(gsub(RgX_rem(B, P), kx), P); /* root of R */
-        if (l==2 || gequal0(gsubst(R, varn(R), B))) { P = mkvec2(P, B); break; }
-      }
-      if (i == l) pari_err_BUG(f);
+      GEN a = eltabstorel_lift(rnfeq, gel(A,i));
+      GEN p = lift_if_rational( RgXQ_charpoly(a, R, v) );
+      p = lift_if_rational(p);
+      if (i == 1 || cmp_universal(p, P) < 0) { P = p; besta = a; }
     }
+    A = besta;
   }
+  if (flag & nf_ORIG) P = mkvec2(P, mkpolmod(RgXQ_reverse(A,R),P));
   return gerepilecopy(av, P);
 }
 GEN
