@@ -2642,18 +2642,6 @@ polredabs(GEN x) { return polredabs0(x,0); }
 GEN
 polredabs2(GEN x) { return polredabs0(x,nf_ORIG); }
 
-static GEN
-get_factor(GEN fa, long d)
-{
-  GEN P = gel(fa, 1);
-  long i, l = lg(P);
-  for (i = 1; i < l; i++)
-  {
-    GEN p = gel(P,i);
-    if (degpol(p) == d) return p;
-  }
-  return NULL;
-}
 /* relative polredabs/best. Returns relative polynomial by default (flag = 0)
  * flag & nf_ORIG: + element (base change)
  * flag & nf_ABSOLUTE: absolute polynomial */
