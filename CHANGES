@@ -558,6 +558,8 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
      81- memory leak in polclass()
      82- factorback([;]) is now invalid [ [;] is not the empty factorization,
          factor(1) = matrix(0,2) is ]
+     83- cmpiu / cmpiu, equaliu / equalui : no longer assume that t_INT argument
+         is non-negative
 
   Removed
       1- file 'MACHINES' (no longer maintained)

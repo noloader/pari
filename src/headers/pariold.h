@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define ZM_ker_ratlift ZM_ker
 #define keri ZM_ker
 /* Following obsoleted in 2.9.* (2016) */
-#define cmpui abscmpui
-#define equalui absequalui
-#define equaliu absequaliu
-#define cmpiu abscmpiu
 #define absi_factor absZ_factor
 #define absi_factor_limit absZ_factor_limit
 #define absi_cmp abscmpii

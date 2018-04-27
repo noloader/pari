@@ -656,7 +656,7 @@ idealHNF_factor(GEN nf, GEN x, ulong lim)
     F = Z_factor_limit(gcoeff(x,1,1), lim);
     P = gel(F,1); l = lg(P);
     E = gel(F,2);
-    if (l > 1 && cmpiu(gel(P,l-1), lim) >= 0) { setlg(P,l-1); setlg(E,l-1); }
+    if (l > 1 && abscmpiu(gel(P,l-1), lim) >= 0) { setlg(P,l-1); setlg(E,l-1); }
   }
   x = Q_primitive_part(x, &cx);
   return idealHNF_factor_i(nf, x, cx, F);
@@ -706,7 +706,7 @@ idealfactor_limit(GEN nf, GEN x, ulong lim)
   nf = checknf(nf);
   if (tx == id_PRIME)
   {
-    if (lim && cmpiu(pr_get_p(x), lim) >= 0) return trivial_fact();
+    if (lim && abscmpiu(pr_get_p(x), lim) >= 0) return trivial_fact();
     retmkmat2(mkcolcopy(x), mkcol(gen_1));
   }
   if (tx == id_PRINCIPAL)

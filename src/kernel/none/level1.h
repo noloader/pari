@@ -452,6 +452,19 @@ cmpsr(long x, GEN y)
 }
 INLINE int
 cmprs(GEN x, long y) { return -cmpsr(y,x); }
+/* compare x and y */
+INLINE int
+cmpui(ulong x, GEN y)
+{
+  ulong p;
+  if (!x) return -signe(y);
+  if (signe(y) <= 0) return 1;
+  if (lgefint(y) > 3) return -1;
+  p = y[2]; if (p == x) return 0;
+  return p < x ? 1 : -1;
+}
+INLINE int
+cmpiu(GEN x, ulong y) { return -cmpui(y,x); }
 /* compare x and |y| */
 INLINE int
 abscmpui(ulong x, GEN y)
@@ -499,6 +512,14 @@ mpcmp(GEN x, GEN y)
 
 /* x == y ? */
 INLINE int
+equalui(ulong x, GEN y)
+{
+  if (!x) return !signe(y);
+  if (signe(y) <= 0 || lgefint(y) != 3) return 0;
+  return ((ulong)y[2] == (ulong)x);
+}
+/* x == y ? */
+INLINE int
 equalsi(long x, GEN y)
 {
   if (!x) return !signe(y);
@@ -521,6 +542,8 @@ INLINE int
 absequaliu(GEN x, ulong y) { return absequalui(y,x); }
 INLINE int
 equalis(GEN x, long y) { return equalsi(y,x); }
+INLINE int
+equaliu(GEN x, ulong y) { return equalui(y,x); }
 
 /* assume x != 0, is |x| == 2^n ? */
 INLINE int

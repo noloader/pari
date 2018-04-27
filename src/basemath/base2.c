@@ -178,9 +178,9 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
         fa = gel(fa,1); tf = t_COL; /* fall through */
       case t_VEC: case t_COL:
         P = gel(absZ_factor_limit(dT, MIN), 1); l = lg(P);
-        if (l > 1 && cmpiu(gel(P,1), MIN) <= 0)
+        if (l > 1 && abscmpiu(gel(P,1), MIN) <= 0)
         {
-          if (cmpiu(gel(P,l-1), MIN) > 0) setlg(P,l-1);
+          if (abscmpiu(gel(P,l-1), MIN) > 0) setlg(P,l-1);
           settyp(P,tf); fa = ZV_sort_uniq(shallowconcat(fa,P));
         }
         fa = fact_from_factors(dT, fa, 0);

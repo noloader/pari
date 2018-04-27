@@ -784,7 +784,7 @@ znconreylog(GEN bid, GEN x)
   if (!checkznstar_i(bid)) pari_err_TYPE("znconreylog", bid);
   N = znstar_get_N(bid);
   if (typ(N) != t_INT) pari_err_TYPE("znconreylog", N);
-  if (cmpiu(N, 2) <= 0) return cgetg(1, t_COL);
+  if (abscmpiu(N, 2) <= 0) return cgetg(1, t_COL);
   cycg = znstar_get_conreycyc(bid);
   switch(typ(x))
   {

@@ -2746,7 +2746,13 @@ $\kbd{x}-\kbd{y}$.
 \fun{int}{cmpis}{GEN x, long s} compares the \typ{INT}~\kbd{x} to the
 \kbd{long}~\kbd{s}.
 
+\fun{int}{cmpiu}{GEN x, ulong s} compares the \typ{INT}~\kbd{x} to the
+\kbd{ulong}~\kbd{s}.
+
 \fun{int}{cmpsi}{long s, GEN x} compares the \kbd{long}~\kbd{s} to the
+\typ{INT}~\kbd{x}.
+
+\fun{int}{cmpui}{ulong s, GEN x} compares the \kbd{ulong}~\kbd{s} to the
 \typ{INT}~\kbd{x}.
 
 \fun{int}{cmpsr}{long s, GEN x} compares the \kbd{long}~\kbd{s} to the
@@ -2771,10 +2777,16 @@ different from a non-zero real; two non-zero reals are equal if all their
 digits coincide up to the length of the shortest of the two, and the
 remaining words in the mantissa of the longest are all $0$.
 
-\fun{int}{equalsi}{long s, GEN x}
-
 \fun{int}{equalis}{GEN x, long s} compare the \typ{INT} \kbd{x} and
 the \kbd{long}~\kbd{s}. The result is $1$ if $\kbd{x} = \kbd{y}$, $0$ otherwise.
+
+\fun{int}{equalsi}{long s, GEN x}
+
+\fun{int}{equaliu}{GEN x, ulong s} compare the \typ{INT} \kbd{x} and
+the \kbd{ulong}~\kbd{s}. The result is $1$ if $\kbd{x} = \kbd{y}$, $0$
+otherwise.
+
+\fun{int}{equalui}{ulong s, GEN x}
 
 The remaining comparison operators disregard the sign of their operands
 

@@ -5605,7 +5605,7 @@ quadclassno(GEN x)
   GEN Hf, D;
   long s, r;
   check_quaddisc(x, &s, &r, "quadclassno");
-  if (s < 0 && cmpiu(x,12) <= 0) return gen_1;
+  if (s < 0 && abscmpiu(x,12) <= 0) return gen_1;
   Hf = conductor_part(x, r, &D, NULL);
   return gerepileuptoint(av, mulii(Hf, gel(quadclassunit0(D,0,NULL,0),1)));
 }
