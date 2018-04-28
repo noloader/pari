@@ -116,6 +116,8 @@ a=4; twisttest(3*2^a, 0, T2)
 twisttest(1, -161, T2)
 d=2; twisttest(-17*2^(2*d), 2^(3*d), T2)
 
+ellminimaltwist(ellinit([216,-432]),1)
+
 a=ffgen(2^5,'a);ellinit(ellfromj(a)).j
 a=ffgen(3^5,'a);ellinit(ellfromj(a)).j
 

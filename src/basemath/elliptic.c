@@ -1637,7 +1637,7 @@ ellminimaltwistcond(GEN e)
     if (v < 3) s = v==0? 3: 1;
     else
     {
-      t = v==3? 1: -1;
+      t = (v==3 && mod32(D) == 8)? 1: -1;
       s = signe(D)==t ? -3: -1;
     }
     D = shifti(D, s);
