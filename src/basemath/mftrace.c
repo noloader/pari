@@ -1507,8 +1507,7 @@ mfcoefs_i(GEN F, long n, long d)
     case t_MF_TRACE: return c_cusptrace(n, d, F);
     case t_MF_NEWTRACE: return c_newtrace(n, d, F);
     case t_MF_DIHEDRAL: return c_dihedral(n, d, gel(F,2), gel(F,3), gel(F,4));
-    default: pari_err_TYPE("mfcoefs",F);
-    return NULL;/*LCOV_EXCL_LINE*/
+    default: pari_err_TYPE("mfcoefs",F); return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 
