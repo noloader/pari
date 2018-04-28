@@ -1720,6 +1720,18 @@ print_all_user_fun(int member)
   avma = av;
 }
 
+static char *
+get_name(const char *s)
+{
+  char *t = get_sep(s);
+  if (*t == '"')
+  {
+    long n = strlen(t)-1;
+    if (t[n] == '"') { t[n] = 0; t++; }
+  }
+  return t;
+}
+
 static void
 escape(const char *tch, int ismain)
 {
@@ -1747,7 +1759,7 @@ escape(const char *tch, int ismain)
         case 'a': brute(x, GP_DATA->fmt->format, -1); break;
         case 'x': dbgGEN(x, get_int(s, -1)); break;
         case 'w':
-          s = get_sep(s); if (!*s) s = current_logfile;
+          s = get_name(s); if (!*s) s = current_logfile;
           write0(s, mkvec(x)); return;
       }
       pari_putc('\n'); return;
@@ -1769,7 +1781,7 @@ escape(const char *tch, int ismain)
       break;
     case 'h': print_functions_hash(s); break;
     case 'l':
-      s = get_sep(s);
+      s = get_name(s);
       if (*s)
       {
         (void)sd_logfile(s,d_ACKNOWLEDGE);
@@ -1791,7 +1803,7 @@ escape(const char *tch, int ismain)
       break;
     case 'q': cb_pari_quit(0); break;
     case 'r':
-      s = get_sep(s);
+      s = get_name(s);
       if (!ismain) { (void)gp_read_file(s); break; }
       switchin(s);
       if (file_is_binary(pari_infile))

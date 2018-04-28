@@ -2711,14 +2711,18 @@ to all file names\sidx{filename}. \label{se:envir}
 Simple metacommands are meant as shortcuts and should not be used in GP
 scripts (see \secref{se:programming}). Beware that these, as all of \kbd{gp}
 input, are \emph{case sensitive}. For example, \b{Q} is not identical to
-\b{q}. In the following list, braces are used to denote optional arguments,
-with their default values when applicable, e.g.~$\{n=0\}$ means that if $n$
-is not there, it is assumed to be~$0$. Whitespace (or spaces) between the
-metacommand and its arguments and within arguments is optional. (This can
-cause problems only with \b{w}, when you insist on having a file name whose
-first character is a digit, and with \b{r} or \b{w}, if the file name itself
-contains a space. In such cases, just use the underlying \tet{read} or
-\tet{write} function; see~\secref{se:write}).
+\b{q}. Two kinds of arguments are allowed: numbers (denoted $n$ below)
+and names (denoted \var{filename} below); braces are used to denote optional
+arguments, , e.g.~$\{n\}$ means that a numeric argument is expected but
+can be omitted. Names can be optionally surrounded by double quotes
+and in this case can contain whitespace, e.g. \kbd{"a b"} and are treated
+as ordinary character strings, see \secref{se:strings} for details.
+
+Whitespace (or spaces) between the metacommand and its arguments and within
+unquoted arguments is optional. (This can cause problems with \b{w},
+when you insist on having a file name whose first character is a digit, and
+with \b{r} or \b{w}, if the file name itself contains a space. In such cases,
+just quote filenames or use the underlying \tet{read} or \tet{write} function).
 
 \subseckbd{?$\{\var{command}\}$} The \kbd{gp} on-line help interface.
 If you type \kbd{?$n$} where $n$ is a number from 1 to 11, you will get the

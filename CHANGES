@@ -197,6 +197,8 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
          (drawback: slows down some classes of matrices) [#2034]
     158- ellminimaltwist did not check that E is defined over Q
     159- padicappr('x,Mod(0,'t^2+1)+O(7^10)) -> SEGV [#2036]
+    160- allow \r "foo bar" (quotes around file names are optional for
+         \l,\r, \w; they allow filenames with spaces) [#2035]
 
   Added
       1- [libari] ZM_isidentity
