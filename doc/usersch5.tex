@@ -2595,12 +2595,13 @@ $v_p(x)$.
 \fun{long}{Z_lvalrem}{GEN x, ulong p, GEN *r} as \kbd{Z\_pvalrem},
 except that \kbd{p} is an \kbd{ulong} ($\kbd{p} > 1$).
 
-\fun{long}{Z_lvalrem_stop}{GEN *x, ulong p, int *stop} returns $e := v_p(x)$
-and replaces $x$ by $x / p^e$. Set \kbd{stop} to $1$ if the new value
-of $x$ is $ < p^2$ (and $0$ otherwise). To be used when trial dividing $x$
-by successive primes: the \kbd{stop} condition is cheaply tested while
-testing whether $p$ divides $x$ (is the quotient less than $p$?), and allows
-to decide that $n$ is prime if no prime $< p$ divides $n$. Not memory-clean.
+\fun{long}{Z_lvalrem_stop}{GEN *x, ulong p, int *stop} assume $x > 0$;
+returns $e := v_p(x)$ and replaces $x$ by $x / p^e$. Set \kbd{stop} to $1$ if
+the new value of $x$ is $ < p^2$ (and $0$ otherwise). To be used when trial
+dividing $x$ by successive primes: the \kbd{stop} condition is cheaply tested
+while testing whether $p$ divides $x$ (is the quotient less than $p$?), and
+allows to decide that $n$ is prime if no prime $< p$ divides $n$. Not
+memory-clean.
 
 \fun{long}{Z_lval}{GEN x, ulong p} as \kbd{Z\_pval},
 except that \kbd{p} is an \kbd{ulong} ($\kbd{p} > 1$).
