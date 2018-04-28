@@ -12235,20 +12235,6 @@ mfpetersson_i(GEN FS, GEN GS)
  * for z>0 and absolute accuracy < 2^{-B}.
  * K_k(x) ~ (\pi/(2x))^{1/2}e^{-x} */
 
-/* Compute P_{k-1} and P_k, k >= 1 */
-static void
-WcomputeP(GEN *pP0, GEN *pPm1, long k)
-{
-  GEN X = pol_x(0), Xm1 = gsubgs(X, 1), Pm1 = gen_1, P0 = X;
-  long j;
-  for (j = 2; j <= k; j++)
-  {
-    Pm1 = P0;
-    P0 = RgX_shift_shallow(gsub(gmulsg(j, P0), gmul(Xm1, ZX_deriv(P0))), 1);
-  }
-  *pP0 = P0; *pPm1 = Pm1;
-}
-
 static void
 Wcomputeparams(GEN *ph, long *pN, long k, GEN x, long prec)
 {
@@ -12287,12 +12273,13 @@ Wcomputecoshall(GEN *pCOSH, GEN *pCOSHK, GEN *pCOSHKm1, GEN h, long N, long k,
 
 /* computing W(k,x) via integral */
 static GEN
-Wint(long k, GEN x, long prec)
+Wint(long k, GEN VP, GEN x, long prec)
 {
   GEN Pk, Pkm1, Sm1, S, h, COSH, COSHK, COSHKm1;
   long N, j;
   Wcomputeparams(&h, &N, k, x, prec);
-  WcomputeP(&Pk, &Pkm1, k);
+  Pk = gel(VP,k+1);
+  Pkm1 = gel(VP,k);
   Wcomputecoshall(&COSH, &COSHK, &COSHKm1, h, N, k, prec);
   Sm1 = gen_0; S = gen_0;
   for (j = 0; j <= N; j++)
@@ -12308,21 +12295,27 @@ Wint(long k, GEN x, long prec)
   return gmul(gmul(h, gpowgs(x, k-1)), gsub(gmul(x, S), gmulsg(2*k-1, Sm1)));
 }
 
+/* P_j given P_{j-1} */
+static GEN
+nextP(GEN P, long j, GEN Xm1)
+{ return RgX_shift_shallow(gsub(gmulsg(j, P), gmul(Xm1, ZX_deriv(P))), 1); }
+static GEN
+get_vP(long k)
+{
+  GEN v = cgetg(k+2, t_VEC), Xm1 = deg1pol_shallow(gen_1,gen_m1,0);
+  long j;
+  gel(v,1) = gen_1;
+  gel(v,2) = pol_x(0);
+  for (j = 2; j <= k; j++) gel(v,j+1) = nextP(gel(v,j), j, Xm1);
+  return v;
+}
 /* vector of (-1)^j(1/(exp(x)-1))^(j) [x = z] * z^j for 0<=j<=k */
 static GEN
-VS(long k, GEN z, long prec)
+VS(long k, GEN z, GEN V, long prec)
 {
-  GEN ex = gexp(z, prec), c = ginv(gsubgs(ex,1)), V = cgetg(k + 2, t_VEC);
+  GEN ex = gexp(z, prec), c = ginv(gsubgs(ex,1));
   GEN po = gpowers0(gmul(c, z), k, c);
-  GEN X = pol_x(0), Xm1 = gsubgs(X, 1);
   long j;
-  gel(V, 1) = gen_1;
-  if (k > 1) gel(V, 2) = X;
-  for (j = 2; j <= k; j++)
-  {
-    GEN t = gel(V,j);
-    gel(V, j+1) = gmul(X, gsub(gmulsg(j, t), gmul(Xm1, ZX_deriv(t))));
-  }
   V = gsubst(V, 0, ex);
   for (j = 1; j <= k + 1; j++) gel(V,j) = gmul(gel(V,j), gel(po, j));
   return V;
@@ -12344,19 +12337,19 @@ Unelsonhalf(long k, GEN V)
 }
 /* W(k+1/2,z) / sqrt(Pi/2) */
 static GEN
-Whalfint(long k, GEN z, long prec)
+Whalfint(long k, GEN VP, GEN z, long prec)
 {
-  GEN R, V = VS(k, z, prec);
+  GEN R, V = VS(k, z, VP, prec);
   R = Unelsonhalf(k, V);
   if (k) R = gsub(R, gmulsg(2*k, Unelsonhalf(k-1, V)));
   return R;
 }
 static GEN
-WfromZ(GEN Z, GEN gkm1, long k2, GEN pi4, long prec)
+WfromZ(GEN Z, GEN VP, GEN gkm1, long k2, GEN pi4, long prec)
 {
   GEN Zk = gpow(Z, gkm1, prec), z = gmul(pi4, gsqrt(Z,prec));
-  z = odd(k2)? Whalfint(k2 >> 1, z, prec)
-             : Wint(k2 >> 1, z, prec);
+  z = odd(k2)? Whalfint(k2 >> 1, VP, z, prec)
+             : Wint(k2 >> 1, VP, z, prec);
   return gdiv(z, Zk);
 }
 static long
@@ -12374,8 +12367,8 @@ static GEN
 fs2_init(GEN mf, GEN F, long bit)
 {
   pari_sp av = avma;
-  long i, l, lim, N, k2, prec = nbits2prec(bit);
-  GEN DEN, cusps, tab, gk, gkm1, W0, vW, vVW, vVF, al0;
+  long i, l, lim, N, k, k2, prec = nbits2prec(bit);
+  GEN DEN, cusps, tab, gk, gkm1, W0, vW, vVW, vVF, vP, al0;
   GEN vE = mfgetembed(F, prec), pi4 = Pi2n(2, prec);
   if (lg(mf) == 7)
   {
@@ -12390,7 +12383,10 @@ fs2_init(GEN mf, GEN F, long bit)
     mf = fs2_get_MF(mf);
   }
   N = MF_get_N(mf);
-  gk = MF_get_gk(mf); gkm1 = gsubgs(gk, 1); k2 = itos(gmul2n(gk,1));
+  gk = MF_get_gk(mf); gkm1 = gsubgs(gk, 1);
+  k2 = itos(gmul2n(gk,1));
+  k = k2 >> 1;
+  vP = get_vP(k);
   if (vW)
   {
     tab = gel(vW,1); /* attached to cusp 0, width N */
@@ -12407,7 +12403,7 @@ fs2_init(GEN mf, GEN F, long bit)
     for (n = 1; n <= Lw; n++)
     {
       pari_sp av = avma;
-      gel(tab,n) = gerepileupto(av, WfromZ(sstoQ(n,N), gkm1, k2, pi4, prec));
+      gel(tab,n) = gerepileupto(av, WfromZ(sstoQ(n,N),vP, gkm1, k2, pi4, prec));
     }
     cusps = mfcusps_i(N);
     DEN = gmul2n(gmulgs(gpow(Pi2n(3, prec), gkm1, prec), mfindex(N)), -2);
@@ -12444,7 +12440,7 @@ fs2_init(GEN mf, GEN F, long bit)
         else
         {
           pari_sp av = avma;
-          c = gerepileupto(av, WfromZ(gadd(al,sstoQ(n,w)), gkm1,k2,pi4, prec));
+          c = gerepileupto(av, WfromZ(gadd(al,sstoQ(n,w)),vP,gkm1,k2,pi4, prec));
         }
         gel(W,n+1) = c;
       }
