@@ -1,7 +1,7 @@
 Function: mfsymbol
 Section: modular_forms
 C-Name: mfsymbol
-Prototype: GGb
+Prototype: GDGb
 Help: mfsymbol(mf,f): Initialize data for working with all period
  polynomials of the modular form f: this is essential for efficiency
  for functions such as mfsymboleval, mfmanin, and mfpetersson. By abuse
@@ -42,4 +42,5 @@ Doc: Initialize data for working with all period polynomials of the modular
  time = 430 ms.
  ? mfpetersson(gs) == %4  \\ same value
  %6 = 1
- @eprog
+ @eprog For simplicity, we also allow \kbd{mfsymbol(f)} instead of
+ \kbd{mfsymbol(mfinit(f), f)}:

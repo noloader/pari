@@ -11655,6 +11655,12 @@ mfsymbol(GEN mf, GEN F, long bit)
 {
   pari_sp av = avma;
   GEN cosets = NULL;
+  if (!F)
+  {
+    F = mf;
+    if (!checkmf_i(F)) pari_err_TYPE("mfsymbol", F);
+    mf = mfinit_i(F, mf_FULL);
+  }
   if (checkfs2_i(mf)) return fs2_init(mf, F, bit);
   if (checkfs_i(mf))
   {

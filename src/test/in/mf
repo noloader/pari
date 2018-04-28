@@ -352,11 +352,11 @@ L=mfmanin(f2)[1];
 liftpol(L[1])
 L[2][3]
 
-E5=mfeisenstein(4,1,5);mf5=mfinit(E5);FS5=mfsymbol(mf5,E5);
+FS5=mfsymbol(mfeisenstein(4,1,5));
 FS3=FS5[3]; for(i=1,#FS3,print(FS3[i]));
 mfsymboleval(FS5,[0,oo])
 mfsymboleval(FS5,[1/5,oo])
-E16=mfeisenstein(4,-4,-4);mf16=mfinit(E16);FS16=mfsymbol(mf16,E16);
+FS16=mfsymbol(mfeisenstein(4,-4,-4));
 mfsymboleval(FS16,[0,oo])
 mfsymboleval(FS16,[1/4,oo])
 mfsymboleval(FS16,[1/4,oo],[0,-1;1,4])
@@ -623,7 +623,7 @@ mf=mfinit([12,5/2]); apply(x->mfconductor(mf,x),mfbasis(mf))
 mfconductor(mf,mflinear(mf,[0,1,2,4,8]))
 mf=mfinit([12,5/2],1); F=mfbasis(mf)[1]; FSbug = mfsymbol(mf,F);
 mfpetersson(FSbug)
-T5=mfTheta(5); mfT5=mfinit(T5); T5S=mfsymbol(mfT5,T5);Pi/mfpetersson(T5S)
+T5S=mfsymbol(mfTheta(5));Pi/mfpetersson(T5S)
 F=mffrometaquo([1,-2;2,5;4,-2]);mfparams(F)
 F=mffrometaquo([1,2;2,-1]);mfparams(F)
 mf=mfinit(F);mftobasis(mf,F)
