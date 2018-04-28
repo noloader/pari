@@ -372,7 +372,7 @@ Z_to_perm(long n, GEN x)
   for (r=n-1; r>=1; r--)
   {
     ulong a;
-    x = diviu_rem(x, n+1-r, &a);
+    x = absdiviu_rem(x, n+1-r, &a);
     for (i=r+1; i<=(ulong)n; i++)
       if (uel(v,i) > a) uel(v,i)++;
     uel(v,r) = a+1;

@@ -266,7 +266,7 @@ ellL1_add(void *E, GEN n, GEN a)
   for (j = 1; j < l; j++)
     if (cmpii(n, gel(bb->bnd,j)) <= 0)
     {
-      ulong r, q = udiviu_rem(n, bb->rbnd[j], &r);
+      ulong r, q = uabsdiviu_rem(n, bb->rbnd[j], &r);
       GEN giant = gel(bb->giant, j), baby = gel(bb->baby, j);
       affrr(addrr(gel(giant, q+1), mulri(gel(baby, r+1), a)), gel(giant, q+1));
       avma = av;
@@ -466,7 +466,7 @@ heegner_L1_bg(void*E, GEN n, GEN a)
   for (j = 1; j < l; j++)
     if (cmpii(n, gel(bb->bnd,j)) <= 0)
     {
-      ulong r, q = udiviu_rem(n, bb->rbnd[j], &r);
+      ulong r, q = uabsdiviu_rem(n, bb->rbnd[j], &r);
       GEN giant = gel(bb->giant, j), baby = gel(bb->baby, j);
       gaffect(gadd(gel(giant, q+1), gdiv(gmul(gel(baby, r+1), a), n)), gel(giant, q+1));
     }
@@ -480,7 +480,7 @@ heegner_L1(void*E, GEN n, GEN a)
   for (j = 1; j < l; j++)
     if (cmpii(n, gel(bb->bnd,j)) <= 0)
     {
-      ulong r, q = udiviu_rem(n, bb->rbnd[j], &r);
+      ulong r, q = uabsdiviu_rem(n, bb->rbnd[j], &r);
       GEN giant = gel(bb->giant, j), baby = gel(bb->baby, j);
       GEN ex = mulreal(gel(baby, r+1), gel(giant, q+1));
       affrr(addrr(gel(bb->sum, j), divri(mulri(ex, a), n)), gel(bb->sum, j));

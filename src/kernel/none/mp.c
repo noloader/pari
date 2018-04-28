@@ -524,14 +524,14 @@ umodiu(GEN y, ulong x)
 
 /* return |y| \/ x */
 GEN
-diviu_rem(GEN y, ulong x, ulong *rem)
+absdiviu_rem(GEN y, ulong x, ulong *rem)
 {
   long ly,i;
   GEN z;
   ulong xi;
   LOCAL_HIREMAINDER;
 
-  if (!x) pari_err_INV("diviu_rem",gen_0);
+  if (!x) pari_err_INV("absdiviu_rem",gen_0);
   if (!signe(y)) { *rem = 0; return gen_0; }
 
   ly = lgefint(y);
@@ -797,7 +797,7 @@ dvmdii(GEN x, GEN y, GEN *z)
       if (!rem) return gen_0;
       return (sx < 0)? utoineg(uel(y,2) - rem): utoipos(rem);
     }
-    q = diviu_rem(x, uel(y,2), &rem);
+    q = absdiviu_rem(x, uel(y,2), &rem);
     if (sx != sy) togglesign(q);
     if (!z) return q;
     if (!rem) *z = gen_0;

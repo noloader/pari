@@ -1373,13 +1373,13 @@ Z_lval(GEN x, ulong p)
   for(vx = 0;;)
   {
     ulong r;
-    GEN q = diviu_rem(x, p, &r);
+    GEN q = absdiviu_rem(x, p, &r);
     if (r) break;
     vx++; x = q;
     if (vx == VAL_DC_THRESHOLD) {
       if (p == 1) pari_err_DOMAIN("Z_lval", "p", "=", gen_1, gen_1);
       vx += Z_pvalrem_DC(x, sqru(p), &x) << 1;
-      q = diviu_rem(x, p, &r); if (!r) vx++;
+      q = absdiviu_rem(x, p, &r); if (!r) vx++;
       break;
     }
   }
@@ -1402,13 +1402,13 @@ Z_lvalrem(GEN x, ulong p, GEN *py)
   for(vx = 0;;)
   {
     ulong r;
-    GEN q = diviu_rem(x, p, &r);
+    GEN q = absdiviu_rem(x, p, &r);
     if (r) break;
     vx++; x = q;
     if (vx == VAL_DC_THRESHOLD) {
       if (p == 1) pari_err_DOMAIN("Z_lvalrem", "p", "=", gen_1, gen_1);
       vx += Z_pvalrem_DC(x, sqru(p), &x) << 1;
-      q = diviu_rem(x, p, &r); if (!r) { vx++; x = q; }
+      q = absdiviu_rem(x, p, &r); if (!r) { vx++; x = q; }
       break;
     }
   }
@@ -1451,7 +1451,7 @@ Z_lvalrem_stop(GEN *n, ulong p, int *stop)
     if (v) *n = utoipos(r);
     return v;
   }
-  av = avma; v = 0; q = diviu_rem(*n, p, &r);
+  av = avma; v = 0; q = absdiviu_rem(*n, p, &r);
   if (r) avma = av;
   else
   {
@@ -1460,10 +1460,10 @@ Z_lvalrem_stop(GEN *n, ulong p, int *stop)
       if (v == VAL_DC_THRESHOLD)
       {
         v += Z_pvalrem_DC(N,sqru(p),&N) << 1;
-        q = diviu_rem(N, p, &r); if (!r) { v++; N = q; }
+        q = absdiviu_rem(N, p, &r); if (!r) { v++; N = q; }
         break;
       }
-      q = diviu_rem(N, p, &r);
+      q = absdiviu_rem(N, p, &r);
     } while (!r);
     *n = N;
   }
@@ -1558,7 +1558,7 @@ gen_z_divides(GEN x, ulong q, long imin)
     ulong r;
     GEN xi = gel(x,i);
     if (!signe(xi)) { gel(y,i) = xi; continue; }
-    gel(y,i) = diviu_rem(xi, q, &r);
+    gel(y,i) = absdiviu_rem(xi, q, &r);
     if (r) { avma = (pari_sp)(y+l); return NULL; }
     affectsign_safe(xi, &gel(y,i));
   }
@@ -1619,7 +1619,7 @@ gen_lval(GEN x, ulong p, long imin)
   for(v = 0;; v++)
     for (i = imin; i < lx; i++)
     {
-      ulong r; gel(y,i) = diviu_rem(gel(y,i), p, &r);
+      ulong r; gel(y,i) = absdiviu_rem(gel(y,i), p, &r);
       if (r) { avma = av; return v; }
     }
 }
@@ -1710,7 +1710,7 @@ gen_lvalrem(GEN x, ulong p, GEN *px, long imin)
 
     for (i = imin; i < lx; i++)
     {
-      ulong r; gel(y,i) = diviu_rem(gel(x,i), p, &r);
+      ulong r; gel(y,i) = absdiviu_rem(gel(x,i), p, &r);
       if (r) { *px = x; return v; }
       affectsign_safe(gel(x,i), &gel(y,i));
     }

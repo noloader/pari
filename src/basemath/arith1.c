@@ -949,7 +949,7 @@ ispolygonal(GEN x, GEN S, GEN *N)
       d = subiu(d, 1);
     else
       d = addiu(d, s - 4);
-    n = diviu_rem(d, 2*s - 4, &r);
+    n = absdiviu_rem(d, 2*s - 4, &r);
     if (r) { avma = av; return 0; }
   }
   else

@@ -563,12 +563,12 @@ umodiu(GEN y, ulong x)
 
 /* return |y| \/ x */
 GEN
-diviu_rem(GEN y, ulong x, ulong *rem)
+absdiviu_rem(GEN y, ulong x, ulong *rem)
 {
   long ly;
   GEN z;
 
-  if (!x) pari_err_INV("diviu_rem",gen_0);
+  if (!x) pari_err_INV("absdiviu_rem",gen_0);
   if (!signe(y)) { *rem = 0; return gen_0; }
 
   ly = lgefint(y);

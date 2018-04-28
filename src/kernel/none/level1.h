@@ -737,7 +737,7 @@ udivui_rem(ulong x, GEN y, ulong *r)
 /* assume d != 0 and |n| / d can be represented as an ulong.
  * Return |n|/d, set *r = |n| % d */
 INLINE ulong
-udiviu_rem(GEN n, ulong d, ulong *r)
+uabsdiviu_rem(GEN n, ulong d, ulong *r)
 {
   switch(lgefint(n))
   {
@@ -953,7 +953,7 @@ dvdiuz(GEN x, ulong y, GEN z)
 {
   const pari_sp av = avma;
   ulong r;
-  GEN p1 = diviu_rem(x,y, &r);
+  GEN p1 = absdiviu_rem(x,y, &r);
   avma = av; if (r) return 0;
   affii(p1,z); return 1;
 }

@@ -204,11 +204,11 @@ factorquad(struct buch_quad *B, GEN f, long nFB, ulong limp)
   for (i=1; lgefint(x) > 3; i++)
   {
     ulong p = uel(FB,i), r;
-    GEN q = diviu_rem(x, p, &r);
+    GEN q = absdiviu_rem(x, p, &r);
     if (!r)
     {
       long k = 0;
-      do { k++; x = q; q = diviu_rem(x, p, &r); } while (!r);
+      do { k++; x = q; q = absdiviu_rem(x, p, &r); } while (!r);
       lo++; P[lo] = p; E[lo] = k;
     }
     if (isless_iu(q,p)) {
