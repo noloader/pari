@@ -154,8 +154,9 @@ Variants of \kbd{mfnumcusps} :
 \fun{void}{checkMF}{GEN mf} raise an exception if the argument is not a
 modular form space.
 
-\fun{int}{checkMF_i}{GEN mf} return $1$ if the argument is a modular form
-space and $0$ otherwise.
+\fun{GEN}{checkMF_i}{GEN mf} return the underlying modular form space
+if \kbd{mf} is either directly a modular form space from \kbd{mfinit}
+or a symbol from \kbd{mfsymbol}. Return \kbd{NULL} otherwise.
 
 \fun{int}{checkmf_i}{GEN mf} return $1$ if the argument is a modular form
 and $0$ otherwise.

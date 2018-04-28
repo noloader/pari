@@ -9,7 +9,9 @@ Help: mfsymbol(mf,f): Initialize data for working with all period
  or half-integral weight (where no symbol exist).
 Doc: Initialize data for working with all period polynomials of the modular
  form $f$: this is essential for efficiency for functions such as
- \kbd{mfsymboleval}, \kbd{mfmanin}, and \kbd{mfpetersson}.
+ \kbd{mfsymboleval}, \kbd{mfmanin}, and \kbd{mfpetersson}. An \kbd{mfsymbol}
+ contains an \kbd{mf} structure and can always be used whenever an \kbd{mf}
+ would be needed.
  \bprog
  ? mf=mfinit([23,2],0);F=mfeigenbasis(mf)[1];
  ? FS=mfsymbol(mf,F);
