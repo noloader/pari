@@ -11389,10 +11389,10 @@ checkMF_i(GEN mf)
          && typ(gel(v,3)) == t_VEC
          && typ(gel(v,4)) == t_INT)? mf: NULL; }
 GEN
-checkMF(GEN mf)
+checkMF(GEN T)
 {
-  mf = checkMF_i(mf);
-  if (!mf) pari_err_TYPE("checkMF [please use mfinit]", mf);
+  GEN mf = checkMF_i(T);
+  if (!mf) pari_err_TYPE("checkMF [please use mfinit]", T);
   return mf;
 }
 
