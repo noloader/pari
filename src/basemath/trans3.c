@@ -2425,15 +2425,14 @@ Harmonic(long n)
   return h;
 }
 
-/* m >= 2. Validity domain contains | log |x| | < 5, best for |x| ~ 1.
+/* m >= 2. Validity domain |log x| < 2*Pi, contains log |x| < 5.44,
  * Li_m(x = e^z) = sum_{n >= 0} zeta(m-n) z^n / n!
  *    with zeta(1) := H_{m-1} - log(-z) */
 static GEN
 cxpolylog(long m, GEN x, long prec)
 {
-  long li, n;
+  long li, n, real;
   GEN z, h, q, s;
-  int real;
 
   if (gequal1(x)) return szeta(m,prec);
   /* x real <= 1 ==> Li_m(x) real */
