@@ -4419,8 +4419,9 @@ mulu_interval(ulong a, ulong b)
   n = b - a + 1;
   if (n < 61)
   {
-    x = utoi(a);
-    for (k=a+1; k<=b; k++) x = mului(k,x);
+    if (n == 1) return utoi(a);
+    x = muluu(a,a+1); if (n == 2) return x;
+    for (k=a+2; k<=b; k++) x = mului(k,x);
     return gerepileuptoint(av, x);
   }
   lx = 1; x = cgetg(2 + n/2, t_VEC);
