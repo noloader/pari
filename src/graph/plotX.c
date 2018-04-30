@@ -180,6 +180,7 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   pari_close();
 
   display = XOpenDisplay(NULL);
+  if (!display) exiterr("cannot open Display");
   font_info = XLoadQueryFont(display, "7x13");
   if (!font_info) exiterr("cannot open 7x13 font");
   XSetErrorHandler(Xerror);
