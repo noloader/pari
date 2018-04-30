@@ -777,8 +777,7 @@ static GEN
 ellisograph_Kohel_iso(GEN nf, GEN e, long n, GEN z, long flag)
 {
   long i, r;
-  GEN R, V;
-  GEN c4 = gel(e,1), c6 = gel(e, 2);
+  GEN R, V, c4 = gel(e,1), c6 = gel(e,2);
   GEN a4 = gdivgs(c4, -48), a6 = gdivgs(c6, -864);
   GEN P = a4a6_divpol(a4, a6, n);
   R = nfroots(nf, z ? RgX_div_by_X_x(P, z, NULL): P);
@@ -1053,48 +1052,28 @@ etree_distmat(GEN T)
 }
 
 static GEN
-list_to_crv(GEN L)
-{
-  long i, l;
-  GEN V = cgetg_copy(L, &l);
-  for(i=1; i < l; i++)
-  {
-    GEN Li = gel(L, i);
-    GEN e = mkvec2(gdivgs(gel(Li,1), -48), gdivgs(gel(Li,2), -864));
-    gel(V, i) = lg(Li)==6 ? mkvec3(e, gel(Li,4), gel(Li,5)): e;
-  }
-  return V;
-}
-
-static GEN
 distmat_pow(GEN E, ulong p)
 {
-  long i, j, n = lg(E)-1;
-  GEN M = cgetg(n+1, t_MAT);
-  for(i = 1; i <= n; i++)
+  long i, j, l = lg(E);
+  GEN M = cgetg(l, t_MAT);
+  for(i = 1; i < l; i++)
   {
-    gel(M,i) = cgetg(n+1, t_COL);
-    for(j = 1; j <= n; j++)
-      gmael(M,i,j) = powuu(p,mael(E,i,j));
+    gel(M,i) = cgetg(l, t_COL);
+    for(j = 1; j < l; j++) gmael(M,i,j) = powuu(p,mael(E,i,j));
   }
   return M;
 }
 
 /* Assume there is a single p-isogeny */
-
 static GEN
 isomatdbl(GEN nf, GEN L, GEN M, ulong p, GEN T2, long flag)
 {
   long i, j, n = lg(L) -1;
   GEN P = p > 3 ? polmodular_ZXX(p, 0, 0, 1): NULL;
-  GEN V = cgetg(2*n+1, t_VEC);
-  GEN N = cgetg(2*n+1, t_MAT);
-  for(i=1; i <= n; i++)
-    gel(V, i) = gel(L, i);
-  for(i=1; i <= n; i++)
+  GEN V = cgetg(2*n+1, t_VEC), N = cgetg(2*n+1, t_MAT);
+  for (i=1; i <= n; i++)
   {
-    GEN e = gel(L, i);
-    GEN F, E;
+    GEN F, E, e = gel(L,i);
     if (i == 1)
       F = gmael(T2, 2, 1);
     else
@@ -1107,23 +1086,24 @@ isomatdbl(GEN nf, GEN L, GEN M, ulong p, GEN T2, long flag)
     }
     E = gel(F, 1);
     if (flag)
-      gel(V, i+n) = mkvec3(gel(E,1), gel(E,2), gel(E,3));
+      E = mkvec3(gel(E,1), gel(E,2), gel(E,3));
     else
     {
-      GEN iso = ellcompisog(gel(E,4), gel(e, 4));
-      GEN isot = ellcompisog(gel(e,5), gel(E, 5));
-      gel(V, i+n) = mkvec5(gel(E,1), gel(E,2), gel(E,3), iso, isot);
+      GEN iso = ellnfcompisog(nf, gel(E,4), gel(e, 4));
+      GEN isot = ellnfcompisog(nf, gel(e,5), gel(E, 5));
+      E = mkvec5(gel(E,1), gel(E,2), gel(E,3), iso, isot);
     }
+    gel(V, i)   = e;
+    gel(V, i+n) = E;
   }
-  for(i=1; i <= 2*n; i++)
-    gel(N, i) = cgetg(2*n+1, t_COL);
-  for(i=1; i <= n; i++)
-    for(j=1; j <= n; j++)
+  for (i=1; i <= 2*n; i++) gel(N, i) = cgetg(2*n+1, t_COL);
+  for (i=1; i <= n; i++)
+    for (j=1; j <= n; j++)
     {
       gcoeff(N,i,j) = gcoeff(N,i+n,j+n) = gcoeff(M,i,j);
       gcoeff(N,i,j+n) = gcoeff(N,i+n,j) = muliu(gcoeff(M,i,j), p);
     }
-  return mkvec2(list_to_crv(V), N);
+  return mkvec2(V, N);
 }
 
 static ulong
@@ -1188,29 +1168,16 @@ ellQ_exceptional_iso(GEN j, GEN *jt, GEN *jtp, GEN *s0)
 }
 
 static GEN
-mkisomat(ulong p, GEN T)
-{
-  pari_sp av = avma;
-  GEN L = list_to_crv(etree_list(NULL, T));
-  GEN M = distmat_pow(etree_distmat(T), p);
-  return gerepilecopy(av, mkvec2(L, M));
-}
-
+nfmkisomat(GEN nf, ulong p, GEN T)
+{ return mkvec2(etree_list(nf,T), distmat_pow(etree_distmat(T),p)); }
 static GEN
-mkisomatraw(GEN nf, ulong p, GEN T)
-{
-  pari_sp av = avma;
-  GEN L = etree_list(nf, T);
-  GEN M = distmat_pow(etree_distmat(T), p);
-  return gerepilecopy(av, mkvec2(L, M));
-}
-
+mkisomat(ulong p, GEN T)
+{ return nfmkisomat(NULL, p, T); }
 static GEN
 mkisomatdbl(ulong p, GEN T, ulong p2, GEN T2, long flag)
 {
-  GEN L = etree_list(NULL, T);
-  GEN M = distmat_pow(etree_distmat(T), p);
-  return isomatdbl(NULL, L, M, p2, T2, flag);
+  GEN v = mkisomat(p,T);
+  return isomatdbl(NULL, gel(v,1), gel(v,2), p2, T2, flag);
 }
 
 /*
@@ -1461,9 +1428,9 @@ ellQ_isomat(GEN E, long flag)
     if (n13>1) return mkisomat(13,T13);
   } else n13 = 1;
   if (flag)
-    retmkvec2(list_to_crv(mkvec(mkvec3(c4, c6, j))), matid(1));
+    retmkvec2(mkvec(mkvec3(c4, c6, j)), matid(1));
   else
-    retmkvec2(list_to_crv(mkvec(mkvec5(c4, c6, j, isogeny_a4a6(E), invisogeny_a4a6(E)))), matid(1));
+    retmkvec2(mkvec(mkvec5(c4, c6, j, isogeny_a4a6(E), invisogeny_a4a6(E))), matid(1));
 }
 
 static GEN
@@ -1479,7 +1446,7 @@ ellnf_isocrv(GEN nf, GEN E, GEN v, GEN PE, long flag)
     ulong p = uel(v,i);
     GEN P = gel(PE, i);
     GEN T = isograph_p(nf, e, p, P, flag);
-    GEN LM = mkisomatraw(nf, p, T);
+    GEN LM = nfmkisomat(nf, p, T);
     gel(LE, i) = LM;
     n *= lg(gel(LM,1)) - 1;
   }
@@ -1505,7 +1472,7 @@ ellnf_isocrv(GEN nf, GEN E, GEN v, GEN PE, long flag)
     {
       GEN e = gel(L, l);
       GEN T = isograph_p(nf, e, p, P, flag);
-      GEN LMe = mkisomatraw(nf, p, T);
+      GEN LMe = nfmkisomat(nf, p, T);
       GEN Le = gel(LMe, 1);
       GEN Me = gel(LMe, 2);
       long m = lg(Le);
@@ -1582,9 +1549,8 @@ ellnf_isomat(GEN E, long flag)
   GEN LM = ellnf_isocrv(nf, E, v, P, flag);
   GEN L = gel(LM,1), M = gel(LM, 2);
   long i, l = lg(L);
-  GEN R;
-  R = cgetg(l, t_MAT);
-  gel(R, 1) = M;
+  GEN R = cgetg(l, t_MAT);
+  gel(R,1) = M;
   for(i = 2; i < l; i++)
   {
     GEN Li = gel(L, i);
@@ -1592,43 +1558,54 @@ ellnf_isomat(GEN E, long flag)
     GEN LMi = ellnf_isocrv(nf, ellinit(e, nf, DEFAULTPREC), v, P, 1);
     GEN LLi = gel(LMi, 1), Mi = gel(LMi, 2);
     GEN r = isomat_perm(nf, L, LLi);
-    gel(R, i) = vecpermute(Mi, r);
+    gel(R,i) = vecpermute(Mi, r);
   }
-  return mkvec2(list_to_crv(L), R);
+  return mkvec2(L, R);
+}
+
+static GEN
+list_to_crv(GEN L)
+{
+  long i, l;
+  GEN V = cgetg_copy(L, &l);
+  for (i=1; i < l; i++)
+  {
+    GEN Li = gel(L,i);
+    GEN e = mkvec2(gdivgs(gel(Li,1), -48), gdivgs(gel(Li,2), -864));
+    gel(V,i) = lg(Li)==6 ? mkvec3(e, gel(Li,4), gel(Li,5)): e;
+  }
+  return V;
 }
 
 GEN
 ellisomat(GEN E, long p, long flag)
 {
   pari_sp av = avma;
-  GEN r;
+  GEN r = NULL, nf = NULL;
+  long good = 1;
   if (flag < 0 || flag > 1) pari_err_FLAG("ellisomat");
   if (p < 0) pari_err_PRIME("ellisomat", utoi(p));
   if (p == 1) { flag = 1; p = 0; } /* for backward compatibility */
   checkell(E);
   switch(ell_get_type(E))
   {
-    default: pari_err_TYPE("ellisomat",E);
-      return NULL; /*LCOV_EXCL_LINE*/
     case t_ELL_Q:
-      if (!p) r = ellQ_isomat(E, flag);
-      else
-      {
-        if (ellQ_goodl_l(E, p))
-          r = mkisomat(p, ellisograph_p(NULL, E, p, flag));
-        else r = mkvec2(mkvec(ellisograph_a4a6(E, flag)),matid(1));
-      }
+      if (p) good = ellQ_goodl_l(E, p);
       break;
     case t_ELL_NF:
-      if (!p)
-        r = ellnf_isomat(E, flag);
-      else
-      {
-        if (ellnf_goodl_l(E, mkvecsmall(p)))
-          r = mkisomat(p, ellisograph_p(ellnf_get_nf(E), E, p, flag));
-        else
-          r = mkvec2(mkvec(ellisograph_a4a6(E, flag)),matid(1));
-      }
+      if (p) good = ellnf_goodl_l(E, mkvecsmall(p));
+      nf = ellnf_get_nf(E);
+      break;
+    default: pari_err_TYPE("ellisomat",E);
+  }
+  if (!good) r = mkvec2(mkvec(ellisograph_a4a6(E, flag)),matid(1));
+  else
+  {
+    if (p)
+      r = nfmkisomat(nf, p, ellisograph_p(nf, E, p, flag));
+    else
+      r = nf? ellnf_isomat(E, flag): ellQ_isomat(E, flag);
+    gel(r,1) = list_to_crv(gel(r,1));
   }
   return gerepilecopy(av, r);
 }
