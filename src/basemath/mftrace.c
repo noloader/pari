@@ -4986,11 +4986,11 @@ split_i(GEN mf, long dimlim, long flag)
  * If flag = d > 0, only give the Galois polynomials in degree > d
  * Flag is ignored if dimlim = 1. */
 GEN
-mfsplit(GEN mf, long dimlim, long flag)
+mfsplit(GEN mf0, long dimlim, long flag)
 {
   pari_sp av = avma;
-  GEN v;
-  mf = checkMF_i(mf); if (!mf) pari_err_TYPE("mfsplit", mf);
+  GEN v, mf = checkMF_i(mf0);
+  if (!mf) pari_err_TYPE("mfsplit", mf0);
   if ((v = obj_check(mf, MF_SPLIT)))
   { if (dimlim) v = dim_filter(v, dimlim); }
   else if (dimlim && (v = obj_check(mf, MF_SPLITN)))
@@ -7139,11 +7139,12 @@ mf_eisendec(GEN mf, GEN F, long prec)
 }
 
 GEN
-mfeval(GEN mf, GEN F, GEN vtau, long bitprec)
+mfeval(GEN mf0, GEN F, GEN vtau, long bitprec)
 {
   pari_sp av = avma;
   long flnew = 1;
-  mf = checkMF_i(mf); if (!mf) pari_err_TYPE("mfeval", mf);
+  GEN mf = checkMF_i(mf0);
+  if (!mf) pari_err_TYPE("mfeval", mf0);
   if (!checkmf_i(F)) pari_err_TYPE("mfeval", F);
   if (!mfisinspace_i(mf, F)) err_space(F);
   if (!obj_check(mf, MF_EISENSPACE)) flnew = mfcheapeisen(mf);
@@ -11690,12 +11691,11 @@ RgX_by_parity(GEN P, long odd)
 }
 /* flag 0: period polynomial of F, >0 or <0 with corresponding parity */
 GEN
-mfperiodpol(GEN mf, GEN F, long flag, long bit)
+mfperiodpol(GEN mf0, GEN F, long flag, long bit)
 {
   pari_sp av = avma;
-  GEN pol;
-  mf = checkMF_i(mf);
-  if (!mf) pari_err_TYPE("mfperiodpol",mf);
+  GEN pol, mf = checkMF_i(mf0);
+  if (!mf) pari_err_TYPE("mfperiodpol",mf0);
   if (checkfs_i(F))
   {
     GEN mfpols = fs_get_pols(F);
