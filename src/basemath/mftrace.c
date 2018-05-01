@@ -1560,8 +1560,8 @@ mfcoefs(GEN F, long n, long d)
   if (!checkmf_i(F))
   {
     pari_sp av = avma;
-    F = checkMF_i(F); if (!F) pari_err_TYPE("mfcoefs", F);
-    return gerepilecopy(av, mfcoefs_mf(F,n,d));
+    GEN mf = checkMF_i(F); if (!mf) pari_err_TYPE("mfcoefs", F);
+    return gerepilecopy(av, mfcoefs_mf(mf,n,d));
   }
   if (d <= 0) pari_err_DOMAIN("mfcoefs", "d", "<=", gen_0, stoi(d));
   if (n < 0) return cgetg(1, t_VEC);
