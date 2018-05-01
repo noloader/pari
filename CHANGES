@@ -191,13 +191,13 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     149- implementation of newblock was incompatible with getheap(). Now we
          always include the 'block' size in the header.
     150- gamma(0.0+1/2*x+O(x^2)) -> domain error in factorial
-    155- affrr(0.0, x) did not reset the exponent correctly: use
+    151- affrr(0.0, x) did not reset the exponent correctly: use
          min(expo(0.0), bit_accuracy(lg(x)))
-    157- matkerint could be exponentially slow; guarantee polynomial time
+    152- matkerint could be exponentially slow; guarantee polynomial time
          (drawback: slows down some classes of matrices) [#2034]
-    158- ellminimaltwist did not check that E is defined over Q
-    159- padicappr('x,Mod(0,'t^2+1)+O(7^10)) -> SEGV [#2036]
-    160- allow \r "foo bar" (quotes around file names are optional for
+    153- ellminimaltwist did not check that E is defined over Q
+    154- padicappr('x,Mod(0,'t^2+1)+O(7^10)) -> SEGV [#2036]
+    155- allow \r "foo bar" (quotes around file names are optional for
          \l,\r, \w; they allow filenames with spaces) [#2035]
 
   Added
