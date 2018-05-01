@@ -1559,7 +1559,7 @@ F2x_Berlekamp_i(GEN f, long flag)
   GEN y, E, t, V;
 
   val = F2x_valrem(f, &f);
-  if (flag == 2 && val > 1) return NULL;
+  if (flag == 2 && val) return NULL;
   V = F2x_factor_squarefree(f); lV = lg(V);
   if (flag == 2 && lV > 2) return NULL;
 

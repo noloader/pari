@@ -271,6 +271,7 @@ Mod(38, 41), Mod(40, 41)]~
 [;]
 1
 0
+0
 
 [Mod(1, 100000000000000000039)*x + Mod(1, 100000000000000000039) 2]
 
@@ -289,4 +290,4 @@ Mod(38, 41), Mod(40, 41)]~
   ***   at top-level: factormod(x,0)
   ***                 ^--------------
   *** factormod: not a prime number in factormod: 0.
-Total time spent: 40
+Total time spent: 68

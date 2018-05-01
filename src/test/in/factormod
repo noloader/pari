@@ -45,6 +45,7 @@ factormodDDF(Pol(1),p)
 
 polisirreducible((x^2+x+1)*Mod(1,2))
 polisirreducible((x^2+1)*Mod(1,p))
+polisirreducible(Mod(x^4+x^2+x,2)) \\#2037
 
 factormod((x+1)^2, 10^20+39)
 
