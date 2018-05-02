@@ -3702,6 +3702,13 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
   avma = av; return Dcnt;
 }
 
+/* ceil(a / b) */
+static long
+ceil_ratio(long a, long b)
+{
+  long q = a / b;
+  return a % b? q+1: q;
+}
 /* Select discriminant(s) to use when calculating the modular
  * polynomial of level L and invariant inv.
  *
@@ -3731,28 +3738,19 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
   long L0, long max_L1, long minbits, long flags, D_entry *tab, long tablen)
 {
   pari_sp ltop = avma, btop;
-  D_entry D0_entry;
   modpoly_disc_info Dinfo;
   pari_timer T;
-  long p, q, L1;
-  long tmp, modinv_p1, modinv_p2;
-  long modinv_N, modinv_deg, deg, use_L1, twofactor, pfilter, Dcnt;
-  long how_many_D0s = 0;
-  double D0_bits, p_bits, L_bits;
-  long D0, D1, D2, m, h0, h1, h2, n0, n1, n2, dl1, dl2[2], d, cost, enum_cost, H_cost, best_cost, totbits;
-  register long i, j, k;
+  long modinv_p1, modinv_p2; /* const after next line */
+  const long modinv_deg = modinv_degree(&modinv_p1, &modinv_p2, inv);
+  const long pfilter = modinv_pfilter(inv), modinv_N = modinv_level(inv);
+  long i, k, use_L1, Dcnt, D0_i, d, cost, enum_cost, best_cost, totbits, dl2[2];
+  const double L_bits = log2(L);
 
-  if ( !(L & 1))
-    pari_err_BUG("modpoly_pickD");
+  if (!odd(L)) pari_err_BUG("modpoly_pickD");
 
   timer_start(&T);
-  d = (flags & MODPOLY_IGNORE_SPARSE_FACTOR) ? 1 : modinv_sparse_factor(inv);
-  /*d = ui_ceil_ratio(L + 1, d) + 1; */
-  tmp = (L+1) / d;
-  d = ((L+1) % d) ? tmp+2 : tmp+1;
-  modinv_N = modinv_level(inv);
-  modinv_deg = modinv_degree(&modinv_p1, &modinv_p2, inv);
-  pfilter = modinv_pfilter(inv);
+  if (flags & MODPOLY_IGNORE_SPARSE_FACTOR) d = L+2;
+  else d = ceil_ratio(L+1, modinv_sparse_factor(inv)) + 1;
 
   /* Now set level to 0 unless we will need to compute N-isogenies */
   dbg_printf(1)("Using L0=%ld for L=%ld, d=%ld, modinv_N=%ld, modinv_deg=%ld\n",
@@ -3761,29 +3759,18 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
   /* We use L1 if (L0|L) == 1 or if we are forced to by flags. */
   use_L1 = (kross(L0,L) > 0 || (flags & MODPOLY_USE_L1));
 
-  Dcnt = 0;
-  best_cost = 0;
-  L_bits = log2(L);
+  Dcnt = best_cost = totbits = 0;
   dbg_printf(3)("use_L1=%ld\n", use_L1);
   dbg_printf(3)("minbits = %ld\n", minbits);
 
-  totbits = 0;
-
   /* Iterate over the fundamental discriminants for L0 */
-  while (how_many_D0s < tablen) {
-    D0_entry = tab[how_many_D0s];
-    how_many_D0s++;
-    /* extract D0 from D0_entry */
-    D0 = D0_entry.D;
-
+  for (D0_i = 0; D0_i < tablen; D0_i++)
+  {
+    D_entry D0_entry = tab[D0_i];
+    long m, n0, h0, deg, L1, H_cost, twofactor, D0 = D0_entry.D;
+    double D0_bits;
     if (! modinv_good_disc(inv, D0)) continue;
-    /* extract class poly degree from D0_entry */
-    deg = D0_entry.h;
-
-    /* compute class number */
-    h0 = ((D0_entry.m & 2) ? 2*deg : deg);
     dbg_printf(3)("D0=%ld\n", D0);
-
     /* don't allow either modinv_p1 or modinv_p2 to ramify */
     if (kross(D0, L) < 1
         || (modinv_p1 > 1 && kross(D0, modinv_p1) < 1)
@@ -3791,32 +3778,28 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       dbg_printf(3)("Bad D0=%ld due to non-split L or ramified level\n", D0);
       continue;
     }
-
-    /* (D0_entry.m & 1) is 1 if ord(L0) < h0, is 0 if ord(L0) == h0.
-     * Hence (D0_entry.m & 1) + 1 is 2 if ord(L0) < h0 (hence ==
-     * h0/2) and is 1 if ord(L0) == h0.  Hence n0 = ord(L0). */
-    n0 = h0/((D0_entry.m & 1) + 1);
+    deg = D0_entry.h; /* class poly degree */
+    h0 = ((D0_entry.m & 2) ? 2*deg : deg); /* class number */
+    /* (D0_entry.m & 1) is 1 if ord(L0) < h0 (hence = h0/2),
+     *                  is 0 if ord(L0) = h0 */
+    n0 = h0 / ((D0_entry.m & 1) + 1); /* = ord(L0) */
 
     /* Look for L1: for each smooth prime p */
-    for (i = 1 ; i <= SMOOTH_PRIMES; i++) {
-      if (PRIMES[i] <= L0) continue;
-      /* If 1 + (D0 | p) == 1, i.e. if (D0 | p) == 0, i.e. if p | D0. */
+    L1 = 0;
+    for (i = 1 ; i <= SMOOTH_PRIMES; i++)
+    {
+      long p = PRIMES[i];
+      if (p <= L0) continue;
+      /* If 1 + (D0 | p) = 1, i.e. p | D0 */
       if (((D0_entry.m >> (2*i)) & 3) == 1) {
-        /* set L1 = p if it's not L0, it's less than the maximum,
-         * it doesn't divide modinv_N, and (L1 | L) == -1. */
-        /* XXX: Why do we want (L1 | L) == -1?  Presumably so (L^2 v^2 D0 | L1) == -1? */
-        L1 = PRIMES[i];
-        if (L1 <= max_L1 && (modinv_N % L1) && kross(L1, L) < 0) break;
+        /* XXX: Why (p | L) = -1?  Presumably so (L^2 v^2 D0 | p) = -1? */
+        if (p <= max_L1 && modinv_N % p && kross(p,L) < 0) { L1 = p; break; }
       }
     }
-    /* Didn't find suitable L1... */
-    if (i > SMOOTH_PRIMES) {
-      if (n0 < h0 || use_L1) {
-        /* ...though we needed one. */
-        dbg_printf(3)("Bad D0=%ld because there is no good L1\n", D0);
-        continue;
-      }
-      L1 = 0;
+    if (i > SMOOTH_PRIMES && (n0 < h0 || use_L1))
+    { /* Didn't find suitable L1 though we need one */
+      dbg_printf(3)("Bad D0=%ld because there is no good L1\n", D0);
+      continue;
     }
     dbg_printf(3)("Good D0=%ld with L1=%ld, n0=%ld, h0=%ld, d=%ld\n",
                   D0, L1, n0, h0, d);
@@ -3830,7 +3813,7 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
     if (D0_bits + 2 * L_bits > (BITS_IN_LONG - 1)) continue;
 
     /* m is the order of L0^n0 in L^2 D0? */
-    m = primeform_exp_order(L0, n0, L * L * D0, n0 * (L - 1));
+    m = primeform_exp_order(L0, n0, L * L * D0, n0 * (L-1));
     if (m < (L-1)/2) {
       dbg_printf(3)("Bad D0=%ld because %ld is less than (L-1)/2=%ld\n",
                     D0, m, (L - 1)/2);
@@ -3839,15 +3822,8 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
     /* Heuristic.  Doesn't end up contributing much. */
     H_cost = 2 * deg * deg;
 
-    /* 7 = 2^3 - 1 = 0b111, so D0 & 7 == D0 (mod 8).
-     * 0xc = 0b1100, so D0_entry.m & 0xc == 1 + (D0 | 2).
-     * Altogether, we get:
-     * if D0 = 5 (mod 8), then
-     *   if (D0 | 2) == -1, twofactor = 3
-     *   otherwise (i.e. (D0 | 2) == 0 or 1), twofactor = 1
-     * otherwise
-     *   twofactor is 0 */
-    if ((D0 & 7) == 5)
+    /* 0xc = 0b1100, so D0_entry.m & 0xc == 1 + (D0 | 2) */
+    if ((D0 & 7) == 5) /* D0 = 5 (mod 8) */
       twofactor = ((D0_entry.m & 0xc) ? 1 : 3);
     else
       twofactor = 0;
@@ -3855,6 +3831,8 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
     btop = avma;
     /* For each small prime... */
     for (i = 0; i <= SMOOTH_PRIMES; i++) {
+      long h1, h2, D1, D2, n1, n2, dl1, dl20, dl21, p, q, j;
+      double p_bits;
       avma = btop;
       /* i = 0 corresponds to 1, which we do not want to skip! (i.e. DK = D) */
       if (i) {
@@ -3909,14 +3887,14 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       if (!check_generators(&n2, &m, D2, h2, n1, d*(L-1), L0, L1)) continue;
 
       /* This restriction on m is not necessary, but simplifies life later */
-      if (m < (L-1)/2 || (!L1 && m < L-1) ) {
+      if (m < (L-1)/2 || (!L1 && m < L-1)) {
         dbg_printf(3)("Bad D2=%ld for D1=%ld, D0=%ld, with n2=%ld, h2=%ld, L1=%ld, "
                       "order of L0^n1 in cl(D2) is too small\n", D2, D1, D0, n2, h2, L1);
         continue;
       }
-      dl2[0] = n1;
-      dl2[1] = 0;
-      if (m < L - 1) {
+      dl20 = n1;
+      dl21 = 0;
+      if (m < L-1) {
         GEN Q1 = qform_primeform2(L, D1), Q2, X;
         if (!Q1) pari_err_BUG("modpoly_pickD");
         Q2 = primeform_u(stoi(D2), L1);
@@ -3924,15 +3902,15 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
         Q1 = primeform_u(stoi(D2), L0);
         k = ((n2 & 1) ? 2*n2 : n2)/(L-1);
         Q1 = gpowgs(Q1, k);
-        X = qfi_Shanks(Q2, Q1, L - 1);
+        X = qfi_Shanks(Q2, Q1, L-1);
         if (!X) {
           dbg_printf(3)("Bad D2=%ld for D1=%ld, D0=%ld, with n2=%ld, h2=%ld, L1=%ld, "
               "form of norm L^2 not generated by L0 and L1\n",
               D2, D1, D0, n2, h2, L1);
           continue;
         }
-        dl2[0] = itos(X) * k;
-        dl2[1] = 1;
+        dl20 = itos(X) * k;
+        dl21 = 1;
       }
       if (! (m < L-1 || n2 < d*(L-1)) && n1 >= d && ! use_L1)
         L1 = 0;  /* we don't need L1 */
@@ -3943,11 +3921,11 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
                    D2, D1, D0, n2, h2, L1);
         continue;
       }
-      /* don't allow zero dl2[1] with L1 for the moment, since
+      /* don't allow zero dl21 with L1 for the moment, since
        * modpoly doesn't handle it - we may change this in the future */
-      if (L1 && ! dl2[1]) continue;
+      if (L1 && ! dl21) continue;
       dbg_printf(3)("Good D0=%ld, D1=%ld, D2=%ld with s=%ld^%ld, L1=%ld, dl2=%ld, n2=%ld, h2=%ld\n",
-                 D0, D1, D2, p, j, L1, dl2[0], n2, h2);
+                 D0, D1, D2, p, j, L1, dl20, n2, h2);
 
       /* This estimate is heuristic and fiddling with the
        * parameters 5 and 0.25 can change things quite a bit. */
@@ -3964,8 +3942,8 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       Dinfo.n1 = n1;
       Dinfo.n2 = n2;
       Dinfo.dl1 = dl1;
-      Dinfo.dl2_0 = dl2[0];
-      Dinfo.dl2_1 = dl2[1];
+      Dinfo.dl2_0 = dl20;
+      Dinfo.dl2_1 = dl21;
       Dinfo.cost = cost;
       Dinfo.inv = inv;
 
@@ -3977,8 +3955,7 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
                  (double)cost/(d*(L-1)), Dinfo.bits);
       /* Insert Dinfo into the Ds array.  Ds is sorted by ascending cost. */
       for (j = 0; j < Dcnt; j++)
-        if (Dinfo.cost < Ds[j].cost)
-          break;
+        if (Dinfo.cost < Ds[j].cost) break;
       if (n2 > MAX_VOLCANO_FLOOR_SIZE && n2*(L1 ? 2 : 1) > 1.2* (d*(L-1)) ) {
         dbg_printf(3)("Not using D1=%ld, D2=%ld for space reasons\n", D1, D2);
         continue;
@@ -3986,27 +3963,20 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       if (j == Dcnt && Dcnt == MODPOLY_MAX_DCNT)
         continue;
       totbits += Dinfo.bits;
-      if (Dcnt == MODPOLY_MAX_DCNT)
-        totbits -= Ds[Dcnt-1].bits;
+      if (Dcnt == MODPOLY_MAX_DCNT) totbits -= Ds[Dcnt-1].bits;
+      if (Dcnt < MODPOLY_MAX_DCNT) Dcnt++;
       if (n2 > MAX_VOLCANO_FLOOR_SIZE)
         dbg_printf(3)("totbits=%ld, minbits=%ld\n", totbits, minbits);
-      if (Dcnt < MODPOLY_MAX_DCNT)
-        Dcnt++;
-      for (k = Dcnt - 1; k > j; k--)
-        Ds[k] = Ds[k - 1];
+      for (k = Dcnt-1; k > j; k--) Ds[k] = Ds[k-1];
       Ds[k] = Dinfo;
-      if (totbits > minbits)
-        best_cost = Ds[Dcnt-1].cost;
-      else
-        best_cost = 0;
+      best_cost = (totbits > minbits)? Ds[Dcnt-1].cost: 0;
       /* if we were able to use D1 with s = 1, there is no point in
        * using any larger D1 for the same D0 */
-      if ( ! i)
-        break;
+      if (!i) break;
     } /* END FOR over small primes */
   } /* END WHILE over D0's */
   dbg_printf(2)("  checked %ld of %ld fundamental discriminants to find suitable "
-                "discriminant (Dcnt = %ld)\n", how_many_D0s, tablen, Dcnt);
+                "discriminant (Dcnt = %ld)\n", D0_i, tablen, Dcnt);
   if ( ! Dcnt) {
     dbg_printf(1)("failed completely for L=%ld\n", L);
     return 0;
@@ -4033,8 +4003,7 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       err_printf (" %ld primes, %ld bits\n", Ds[i].nprimes, Ds[i].bits);
     }
   }
-  avma = ltop;
-  return Dcnt;
+  avma = ltop; return Dcnt;
 }
 
 static int
@@ -4168,7 +4137,7 @@ discriminant_with_classno_at_least(
 {
   enum { SMALL_L_BOUND = 101 };
   long max_max_D = 160000 * (inv ? 2 : 1);
-  long minD, maxD, maxh, L0, max_L1, minbits, Dcnt, flags, s, d, h, i, tmp;
+  long minD, maxD, maxh, L0, max_L1, minbits, Dcnt, flags, s, d, h, i;
   D_entry *tab;
   long tablen;
   pari_sp av = avma;
@@ -4179,11 +4148,7 @@ discriminant_with_classno_at_least(
   timer_start(&T);
 
   s = modinv_sparse_factor(inv);
-  d = s;
-  /*d = ui_ceil_ratio(L + 1, d) + 1; */
-  tmp = (L + 1) / d;
-  d = ((tmp * d < (L + 1)) ? tmp + 1 : tmp);
-  d += 1;
+  d = ceil_ratio(L+1, s) + 1;
 
   /* maxD of 10000 allows us to get a satisfactory discriminant in
    * under 250ms in most cases. */
