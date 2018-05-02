@@ -5213,7 +5213,7 @@ INLINE void   affectsign_safe(GEN x, GEN *py);
 INLINE GEN    truedivii(GEN a,GEN b);
 INLINE GEN    truedivis(GEN a, long b);
 INLINE GEN    truedivsi(long a, GEN b);
-INLINE ulong  udivui_rem(ulong x, GEN y, ulong *rem);
+INLINE ulong  uabsdivui_rem(ulong x, GEN y, ulong *rem);
 INLINE ulong  umodsu(long x, ulong y);
 INLINE ulong  umodui(ulong x, GEN y);
 INLINE ulong  ugcdiu(GEN x, ulong y);

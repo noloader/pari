@@ -722,12 +722,12 @@ ceildivuu(ulong a, ulong b)
 
 
 INLINE ulong
-udivui_rem(ulong x, GEN y, ulong *r)
+uabsdivui_rem(ulong x, GEN y, ulong *r)
 {
   long q, s = signe(y);
   LOCAL_HIREMAINDER;
 
-  if (!s) pari_err_INV("udivui_rem",gen_0);
+  if (!s) pari_err_INV("uabsdivui_rem",gen_0);
   if (!x || lgefint(y)>3) { *r = x; return 0; }
   hiremainder=0; q = (long)divll(x, (ulong)y[2]);
   if (s < 0) q = -q;

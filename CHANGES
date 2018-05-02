@@ -562,7 +562,8 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
          factor(1) = matrix(0,2) is ]
      83- cmpiu / cmpiu, equaliu / equalui : no longer assume that t_INT argument
          is non-negative
-     84- rename diviu_rem -> absdiviu_rem, udiviu_rem -> uabsdiviu_rem
+     84- rename diviu_rem -> absdiviu_rem, udiviu_rem -> uabsdiviu_rem,
+         udivui_rem -> uabsdivui_rem
 
   Removed
       1- file 'MACHINES' (no longer maintained)

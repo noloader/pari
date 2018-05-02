@@ -2811,7 +2811,7 @@ eiPi_frac(GEN z, long prec)
   ulong q, r;
   n = gel(z,1);
   d = gel(z,2);
-  q = udivui_rem(12, d, &r);
+  q = uabsdivui_rem(12, d, &r);
   if (!r) /* relatively frequent case */
     return e12(q * umodiu(n, 24), prec);
   n = centermodii(n, shifti(d,1), d);

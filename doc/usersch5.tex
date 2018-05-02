@@ -3125,8 +3125,8 @@ and remainder of \emph{absolute value} of the \typ{INT}~\kbd{x} by the
 \fun{ulong}{uabsdiviu_rem}{GEN n, ulong d, ulong *r} as \tet{absdiviu_rem}, assuming
 that $|n|/d$ fits into an \kbd{ulong}.
 
-\fun{ulong}{udivui_rem}{ulong x, GEN y, ulong *rem}
-computes the Euclidean quotient and remainder of $x$ by $y$. As
+\fun{ulong}{uabsdivui_rem}{ulong x, GEN y, ulong *rem}
+computes the Euclidean quotient and remainder of $x$ by $|y|$. As
 \kbd{sdivss\_rem} otherwise.
 
 \fun{ulong}{udivuu_rem}{ulong x, ulong y, ulong *rem}

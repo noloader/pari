@@ -695,7 +695,7 @@ handle_pe(GEN *pa, GEN q, GEN L, GEN K, GEN p, long e)
   else
   {
     ulong r;
-    v = udivui_rem(v, K, &r);
+    v = uabsdivui_rem(v, K, &r);
     if (r || !Up_ispower(A, K, p, d, L? &t: NULL)) return 0;
     if (L && v) t = mulii(t, powiu(p, v));
   }
