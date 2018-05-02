@@ -1570,7 +1570,7 @@ root_matrix(
     r1 = double_eta_power(inv, uel(surface_js, i), p, pi);
     f = Flx_double_eta_jpoly(F, r1, p, pi);
     r = Flx_roots(f, p);
-    if (glength(r) != 2) pari_err_BUG("root_matrix");
+    if (lg(r) != 3) pari_err_BUG("root_matrix");
     rev = (j != uel(r, 1)) && (j != uel(r, 2));
     avma = av0;
   } else {
@@ -2394,7 +2394,7 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
     av1 = avma;
     Hp = ZX_to_Flx(H, p);
     Hrts = Flx_roots(Hp, p);
-    if (glength(Hrts) < N) pari_err_BUG("polmodular0_powerup_ZM");
+    if (lg(Hrts)-1 < N) pari_err_BUG("polmodular0_powerup_ZM");
     js = cgetg(N + 1, t_VECSMALL);
     for (i = 1; i <= N; ++i)
       uel(js, i) = Fl_powu_pre(uel(Hrts, i), e, p, pi);
@@ -2435,13 +2435,11 @@ INLINE GEN
 internal_db(long L, long inv)
 {
   switch (inv) {
-  case INV_J: {
-    switch (L) {
+  case INV_J: switch (L) {
     case 2: return phi2_ZV();
     case 3: return phi3_ZV();
     case 5: return phi5_ZV();
     default: break;
-    }
   }
   case INV_F: return phi5_f_ZV();
   case INV_F2: return NULL;
@@ -2472,8 +2470,7 @@ static GEN
 polmodular_small_ZM(long L, long inv, GEN *db)
 {
   GEN f = internal_db(L, inv);
-  if ( ! f)
-    return polmodular0_powerup_ZM(L, inv, db);
+  if (!f) return polmodular0_powerup_ZM(L, inv, db);
   return sympol_to_ZM(f, L);
 }
 
