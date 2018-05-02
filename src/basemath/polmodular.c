@@ -3629,13 +3629,6 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
   avma = av; return Dcnt;
 }
 
-/* ceil(a / b) */
-static long
-ceil_ratio(long a, long b)
-{
-  long q = a / b;
-  return a % b? q+1: q;
-}
 /* Select discriminant(s) to use when calculating the modular
  * polynomial of level L and invariant inv.
  *
@@ -3677,7 +3670,7 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
 
   timer_start(&T);
   if (flags & MODPOLY_IGNORE_SPARSE_FACTOR) d = L+2;
-  else d = ceil_ratio(L+1, modinv_sparse_factor(inv)) + 1;
+  else d = ceildivuu(L+1, modinv_sparse_factor(inv)) + 1;
 
   /* Now set level to 0 unless we will need to compute N-isogenies */
   dbg_printf(1)("Using L0=%ld for L=%ld, d=%ld, modinv_N=%ld, modinv_deg=%ld\n",
@@ -4076,7 +4069,7 @@ discriminant_with_classno_at_least(
   timer_start(&T);
 
   s = modinv_sparse_factor(inv);
-  d = ceil_ratio(L+1, s) + 1;
+  d = ceildivuu(L+1, s) + 1;
 
   /* maxD of 10000 allows us to get a satisfactory discriminant in
    * under 250ms in most cases. */

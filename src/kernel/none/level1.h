@@ -720,7 +720,6 @@ ceildivuu(ulong a, ulong b)
   return (a%b)? c+1: c;
 }
 
-
 INLINE ulong
 uabsdivui_rem(ulong x, GEN y, ulong *r)
 {
