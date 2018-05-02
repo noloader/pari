@@ -1785,14 +1785,6 @@ polmodular_split_p_Flm(
 }
 
 INLINE void
-norm_eqn_init(norm_eqn_t ne, long D, long u)
-{
-  memset(ne, 0, sizeof(*ne));
-  ne->D = D;
-  ne->u = u;
-}
-
-INLINE void
 norm_eqn_update(norm_eqn_t ne, GEN vne, ulong t, ulong p, long L)
 {
   long res;
@@ -1842,8 +1834,6 @@ eval_modpoly_modp(GEN Tp, GEN j_powers, norm_eqn_t ne, int compute_derivs)
 }
 
 /* Parallel interface */
-static GEN
-ne_to_vne(norm_eqn_t ne) { return mkvecsmall2(ne->D, ne->u); }
 GEN
 polmodular_worker(ulong p, ulong t, ulong L,
                   GEN hilb, GEN factu, GEN vne, GEN vinfo,
@@ -1903,8 +1893,7 @@ modinv_max_internal_level(long inv)
 }
 
 GEN
-polmodular0_ZM(
-  long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
+polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
 {
   pari_sp ltop = avma;
   long k, d, Dcnt, nprimes = 0;
@@ -1917,41 +1906,29 @@ polmodular0_ZM(
                     "incompatible with", stoi(L), stoi(lvl));
 
   dbg_printf(1)("Calculating modular polynomial of level %lu for invariant %d\n", L, inv);
-  if (L <= modinv_max_internal_level(inv))
-    return polmodular_small_ZM(L, inv, db);
+  if (L <= modinv_max_internal_level(inv)) return polmodular_small_ZM(L,inv,db);
 
   Dcnt = discriminant_with_classno_at_least(Ds, L, inv, USE_SPARSE_FACTOR);
-  for (d = 0; d < Dcnt; ++d) nprimes += Ds[d].nprimes;
+  for (d = 0; d < Dcnt; d++) nprimes += Ds[d].nprimes;
   modpoly = cgetg(nprimes+1, t_VEC);
   plist = cgetg(nprimes+1, t_VECSMALL);
-  k = 1;
-
-  for (d = 0; d < Dcnt; ++d) {
-    long D, DK, i;
-    ulong cond;
-    GEN j_powers, factu, hilb;
-    norm_eqn_t ne;
+  for (d = 0, k = 1; d < Dcnt; d++)
+  {
     modpoly_disc_info *dinfo = &Ds[d];
-    GEN worker;
     struct pari_mt pt;
-    long pending = 0;
+    const long D = dinfo->D1, DK = dinfo->D0;
+    const ulong cond = usqrt(D / DK);
+    long i, pending = 0;
+    GEN worker, j_powers, factu, hilb;
 
     polmodular_db_add_level(db, dinfo->L0, inv);
-    if (dinfo->L1)
-      polmodular_db_add_level(db, dinfo->L1, inv);
-
-    D = dinfo->D1;
-    DK = dinfo->D0;
-    cond = usqrt(D / DK);
+    if (dinfo->L1) polmodular_db_add_level(db, dinfo->L1, inv);
     factu = factoru(cond);
-    dbg_printf(1)("Selected discriminant D = %ld = %ld^2 * %ld.\n",
-                  D, cond, DK);
+    dbg_printf(1)("Selected discriminant D = %ld = %ld^2 * %ld.\n", D,cond,DK);
 
     hilb = polclass0(DK, INV_J, 0, db);
-    norm_eqn_init(ne, D, cond);
-
     if (cond > 1)
-      polmodular_db_add_levels(db, zv_to_longptr(gel(factu, 1)), glength(gel(factu, 1)), INV_J);
+      polmodular_db_add_levels(db, zv_to_longptr(gel(factu,1)), lg(gel(factu,1))-1, INV_J);
 
     dbg_printf(1)("D = %ld, L0 = %lu, L1 = %lu, ", dinfo->D1, dinfo->L0, dinfo->L1);
     dbg_printf(1)("n1 = %lu, n2 = %lu, dl1 = %lu, dl2_0 = %lu, dl2_1 = %lu\n",
@@ -1961,24 +1938,22 @@ polmodular0_ZM(
     j_powers = gen_0;
     if (J) {
       compute_derivs = !!compute_derivs;
-      j_powers = Fp_powers(J, L + 1, Q);
+      j_powers = Fp_powers(J, L+1, Q);
     }
-    worker = strtoclosure("_polmodular_worker", 8, utoi(L), hilb, factu, ne_to_vne(ne),
-        (GEN)dinfo, stoi(compute_derivs), j_powers, *db);
+    worker = strtoclosure("_polmodular_worker", 8, utoi(L), hilb, factu,
+        mkvecsmall2(D, cond), (GEN)dinfo, stoi(compute_derivs), j_powers, *db);
     mt_queue_start_lim(&pt, worker, dinfo->nprimes);
-    for (i = 0; i < dinfo->nprimes || pending; ++i)
+    for (i = 0; i < dinfo->nprimes || pending; i++)
     {
       GEN done;
       long workid;
-      ulong p = dinfo->primes[i];
-      ulong t = dinfo->traces[i];
+      ulong p = dinfo->primes[i], t = dinfo->traces[i];
       mt_queue_submit(&pt, p, i < dinfo->nprimes? mkvec2(utoi(p), utoi(t)): NULL);
       done = mt_queue_get(&pt, &workid, &pending);
       if (done)
       {
         gel(modpoly, k) = done;
-        plist[k] = workid;
-        k++;
+        plist[k] = workid; k++;
         dbg_printf(0)(" %ld%%", k*100/nprimes);
       }
     }
@@ -3698,7 +3673,7 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
   long modinv_p1, modinv_p2; /* const after next line */
   const long modinv_deg = modinv_degree(&modinv_p1, &modinv_p2, inv);
   const long pfilter = modinv_pfilter(inv), modinv_N = modinv_level(inv);
-  long i, k, use_L1, Dcnt, D0_i, d, cost, enum_cost, best_cost, totbits, dl2[2];
+  long i, k, use_L1, Dcnt, D0_i, d, cost, enum_cost, best_cost, totbits;
   const double L_bits = log2(L);
 
   if (!odd(L)) pari_err_BUG("modpoly_pickD");
