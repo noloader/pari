@@ -1006,10 +1006,6 @@ typedef struct {
   long inv;
 } modpoly_disc_info;
 
-static void
-modpoly_disc_info_clear(modpoly_disc_info *dinfo)
-{ killblock((GEN)dinfo->primes); }
-
 #define MODPOLY_MAX_DCNT    64
 
 /* Flag for last parameter of discriminant_with_classno_at_least.
@@ -2029,7 +2025,7 @@ polmodular0_ZM(
     }
     dbg_printf(0)("\n");
     mt_queue_end(&pt);
-    modpoly_disc_info_clear(dinfo);
+    killblock((GEN)dinfo->primes);
   }
   modpoly = nmV_chinese_center(modpoly, plist, NULL);
   if (J) modpoly = FpM_red(modpoly, Q);
