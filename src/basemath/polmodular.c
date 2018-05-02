@@ -1719,7 +1719,6 @@ polmodular_split_p_Flm(
   ulong L, GEN hilb, GEN factu, norm_eqn_t ne, GEN db,
   const modpoly_disc_info *dinfo)
 {
-  pari_sp ltop = avma;
   ulong j0, j0_rt, j0pr, j0pr_rt;
   ulong n, card, val, p = ne->p, pi = ne->pi;
   long s = modinv_sparse_factor(dinfo->inv);
@@ -1782,7 +1781,7 @@ polmodular_split_p_Flm(
   } while (1);
   dbg_printf(4)("  Phi_%lu(X, Y) (mod %lu) = %Ps\n", L, p, phi_modp);
 
-  return gerepileupto(ltop, phi_modp);
+  return phi_modp;
 }
 
 INLINE void
@@ -1794,11 +1793,13 @@ norm_eqn_init(norm_eqn_t ne, long D, long u)
 }
 
 INLINE void
-norm_eqn_update(norm_eqn_t ne, ulong t, ulong p, long L)
+norm_eqn_update(norm_eqn_t ne, GEN vne, ulong t, ulong p, long L)
 {
   long res;
   ulong vL_sqr, vL;
 
+  ne->D = vne[1];
+  ne->u = vne[2];
   ne->t = t;
   ne->p = p;
   ne->pi = get_Fl_red(p);
@@ -1806,12 +1807,11 @@ norm_eqn_update(norm_eqn_t ne, ulong t, ulong p, long L)
 
   vL_sqr = (4 * p - t * t) / -ne->D;
   res = uissquareall(vL_sqr, &vL);
-  if ( ! res || vL % L) pari_err_BUG("norm_eqn_update");
+  if (!res || vL % L) pari_err_BUG("norm_eqn_update");
   ne->v = vL;
 
-  /* Select twisting parameter. */
-  do ne->T = random_Fl(p);
-  while (krouu(ne->T, p) != -1);
+  /* select twisting parameter */
+  do ne->T = random_Fl(p); while (krouu(ne->T, p) != -1);
 }
 
 INLINE void
@@ -1822,57 +1822,41 @@ Flv_deriv_pre_inplace(GEN v, long deg, ulong p, ulong pi)
   v[1] = 0;
 }
 
-/* NB: Deliberately leave a dirty stack, since the result must be
- * gerepileupto'd straight away in any case. */
 INLINE GEN
-eval_modpoly_modp(
-  GEN modpoly_modp, GEN j_powers, norm_eqn_t ne, int compute_derivs)
+eval_modpoly_modp(GEN Tp, GEN j_powers, norm_eqn_t ne, int compute_derivs)
 {
   ulong p = ne->p, pi = ne->pi;
   long L = lg(j_powers) - 3;
   GEN j_pows_p = ZV_to_Flv(j_powers, p);
   GEN tmp = cgetg(2 + 2 * compute_derivs, t_VEC);
-  /* We wrap the result in this t_VEC modpoly_modp to trick the
+  /* We wrap the result in this t_VEC Tp to trick the
    * ZM_*_CRT() functions into thinking it's a matrix. */
-  gel(tmp, 1) = Flm_Flc_mul_pre(modpoly_modp, j_pows_p, p, pi);
+  gel(tmp, 1) = Flm_Flc_mul_pre(Tp, j_pows_p, p, pi);
   if (compute_derivs) {
     Flv_deriv_pre_inplace(j_pows_p, L + 1, p, pi);
-    gel(tmp, 2) = Flm_Flc_mul_pre(modpoly_modp, j_pows_p, p, pi);
+    gel(tmp, 2) = Flm_Flc_mul_pre(Tp, j_pows_p, p, pi);
     Flv_deriv_pre_inplace(j_pows_p, L + 1, p, pi);
-    gel(tmp, 3) = Flm_Flc_mul_pre(modpoly_modp, j_pows_p, p, pi);
+    gel(tmp, 3) = Flm_Flc_mul_pre(Tp, j_pows_p, p, pi);
   }
   return tmp;
 }
 
 /* Parallel interface */
-
-static void
-vne_to_ne(norm_eqn_t ne, GEN vne)
-{
-  ne->D = vne[1];
-  ne->u = vne[2];
-}
-
 static GEN
 ne_to_vne(norm_eqn_t ne) { return mkvecsmall2(ne->D, ne->u); }
-
 GEN
-polmodular_worker(ulong p, ulong t,
-                  ulong L, GEN hilb, GEN factu, GEN vne, GEN vinfo,
-                  long compute_derivs, GEN j_powers, GEN fdb)
+polmodular_worker(ulong p, ulong t, ulong L,
+                  GEN hilb, GEN factu, GEN vne, GEN vinfo,
+                  long derivs, GEN j_powers, GEN fdb)
 {
   pari_sp av = avma;
-  GEN Tp;
   norm_eqn_t ne;
-  vne_to_ne(ne, vne);
-  norm_eqn_update(ne, t, p, L);
+  GEN Tp;
+  norm_eqn_update(ne, vne, t, p, L);
   Tp = polmodular_split_p_Flm(L, hilb, factu, ne, fdb,
                               (const modpoly_disc_info*)vinfo);
-  if (!isintzero(j_powers)) {
-    Tp = eval_modpoly_modp(Tp, j_powers, ne, compute_derivs);
-    Tp = gerepileupto(av, Tp);
-  }
-  return Tp;
+  if (!isintzero(j_powers)) Tp = eval_modpoly_modp(Tp, j_powers, ne, derivs);
+  return gerepileupto(av, Tp);
 }
 
 static GEN
