@@ -988,6 +988,8 @@ polmodular_db_getp(GEN db, long L, ulong p)
  * SECTION: Table of discriminants to use.
  */
 typedef struct {
+  long GENcode0;  /* used when serializing the struct to a t_VECSMALL */
+  long inv;      /* invariant */
   long L;        /* modpoly level */
   long D0;       /* fundamental discriminant */
   long D1;       /* chosen discriminant */
@@ -995,15 +997,15 @@ typedef struct {
   long L1;       /* second generator norm */
   long n1;       /* order of L0 in cl(D1) */
   long n2;       /* order of L0 in cl(D2) where D2 = L^2 D1 */
-  long nprimes;  /* number of primes needed for D1 */
   long dl1;      /* m such that L0^m = L in cl(D1) */
   long dl2_0;    /* These two are (m, n) such that L0^m L1^n = form of norm L^2 in D2 */
   long dl2_1;    /* This n is always 1 or 0. */
+  /* this part is not serialized */
+  long nprimes;  /* number of primes needed for D1 */
   long cost;     /* cost to enumerate  subgroup of cl(L^2D): subgroup size is n2 if L1=0, 2*n2 o.w. */
   long bits;
   ulong *primes;
   ulong *traces;
-  long inv;
 } modpoly_disc_info;
 
 #define MODPOLY_MAX_DCNT    64
@@ -1854,49 +1856,23 @@ vne_to_ne(norm_eqn_t ne, GEN vne)
 static GEN
 ne_to_vne(norm_eqn_t ne) { return mkvecsmall2(ne->D, ne->u); }
 
-static void
-vinfo_to_dinfo(modpoly_disc_info *dinfo, GEN vinfo)
-{
-  dinfo->L  = vinfo[1];
-  dinfo->D0 = vinfo[2];
-  dinfo->D1 = vinfo[3];
-  dinfo->L0 = vinfo[4];
-  dinfo->L1 = vinfo[5];
-  dinfo->n1 = vinfo[6];
-  dinfo->n2 = vinfo[7];
-  dinfo->nprimes = vinfo[8];
-  dinfo->dl1     = vinfo[9];
-  dinfo->dl2_0   = vinfo[10];
-  dinfo->dl2_1   = vinfo[11];
-  dinfo->inv     = vinfo[12];
-}
-
-static GEN
-dinfo_to_vinfo(const modpoly_disc_info *dinfo)
-{
-  return mkvecsmalln(12,  dinfo->L, dinfo->D0, dinfo->D1, dinfo->L0, dinfo->L1,
-         dinfo->n1, dinfo->n2, dinfo->nprimes, dinfo->dl1, dinfo->dl2_0,
-         dinfo->dl2_1, dinfo->inv);
-}
-
 GEN
 polmodular_worker(ulong p, ulong t,
                   ulong L, GEN hilb, GEN factu, GEN vne, GEN vinfo,
                   long compute_derivs, GEN j_powers, GEN fdb)
 {
   pari_sp av = avma;
-  GEN modpoly_modp;
-  modpoly_disc_info dinfo;
+  GEN Tp;
   norm_eqn_t ne;
-  vinfo_to_dinfo(&dinfo, vinfo);
   vne_to_ne(ne, vne);
   norm_eqn_update(ne, t, p, L);
-  modpoly_modp = polmodular_split_p_Flm(L, hilb, factu, ne, fdb, &dinfo);
+  Tp = polmodular_split_p_Flm(L, hilb, factu, ne, fdb,
+                              (const modpoly_disc_info*)vinfo);
   if (!isintzero(j_powers)) {
-    modpoly_modp = eval_modpoly_modp(modpoly_modp, j_powers, ne, compute_derivs);
-    modpoly_modp = gerepileupto(av, modpoly_modp);
+    Tp = eval_modpoly_modp(Tp, j_powers, ne, compute_derivs);
+    Tp = gerepileupto(av, Tp);
   }
-  return modpoly_modp;
+  return Tp;
 }
 
 static GEN
@@ -2004,8 +1980,7 @@ polmodular0_ZM(
       j_powers = Fp_powers(J, L + 1, Q);
     }
     worker = strtoclosure("_polmodular_worker", 8, utoi(L), hilb, factu, ne_to_vne(ne),
-        dinfo_to_vinfo(dinfo),
-        stoi(compute_derivs), j_powers, *db);
+        (GEN)dinfo, stoi(compute_derivs), j_powers, *db);
     mt_queue_start_lim(&pt, worker, dinfo->nprimes);
     for (i = 0; i < dinfo->nprimes || pending; ++i)
     {
@@ -3930,6 +3905,8 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       if (best_cost && cost > 2.2*best_cost) break;
       if (best_cost && cost >= 0.99*best_cost) continue;
 
+      Dinfo.GENcode0 = evaltyp(t_VECSMALL)|evallg(13);
+      Dinfo.inv = inv;
       Dinfo.L = L;
       Dinfo.D0 = D0;
       Dinfo.D1 = D1;
@@ -3941,7 +3918,6 @@ modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       Dinfo.dl2_0 = dl20;
       Dinfo.dl2_1 = dl21;
       Dinfo.cost = cost;
-      Dinfo.inv = inv;
 
       if (!modpoly_pickD_primes(NULL, NULL, 0, NULL, 0, &Dinfo.bits, minbits, &Dinfo))
         continue;
