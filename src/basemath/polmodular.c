@@ -4031,7 +4031,7 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
     m = (n < h ? 1 : 0);
     /* bits i and i+1 of m give the 2-bit number 1 + (D|p) where p is
      * the ith prime. */
-    for (i = 1 ; i <= ((BITS_IN_LONG >> 1) - 1); i++)
+    for (i = 1 ; i <= SMOOTH_PRIMES; i++)
     {
       ulong x  = (ulong) (1 + kross(D, PRIMES[i]));
       m |= x << (2*i);
