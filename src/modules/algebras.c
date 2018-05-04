@@ -1948,11 +1948,7 @@ _tablemul_ej_Fp(GEN mt, GEN x, long j, GEN p)
   if (!res) { avma = av; return zerocol(D); }
   return gerepileupto(av, res);
 }
-#if 0
-GEN
-algbasismul_ej(GEN al, GEN x, long j) /* not used */
-{ return _tablemul_ej(alg_get_multable(al), x, j); }
-#endif
+
 static GEN
 _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p)
 {
@@ -3752,7 +3748,7 @@ checkhasse(GEN nf, GEN hf, GEN hi, long n)
     pari_err_DOMAIN("checkhasse","sum(Hasse invariants)","!=",gen_0,Lh);
 }
 
-GEN
+static GEN
 hassecoprime(GEN hf, GEN hi, long n)
 {
   pari_sp av = avma;
@@ -3781,172 +3777,6 @@ hassecoprime(GEN hf, GEN hi, long n)
   }
 
   return gerepilecopy(av, res);
-}
-
-#if 0
-/* not used */
-
-static GEN
-zv_z_div(GEN z, long k)
-{
-  long i, l;
-  GEN x = cgetg_copy(z,&l);
-  for (i = 1; i < l; i++) x[i] = z[i]/k;
-  return x;
-}
-
-GEN
-hassewedderburn(GEN hf, GEN hi, long n)
-{
-  pari_sp av = avma;
-  long ind = 1, denom, i, k;
-  GEN hid, hfd;
-  hi = hasseconvert(hi,n);
-  hf = hasseconvert(hf,n);
-  checkhasse(NULL,hf,hi,n);
-  for (i=1; i<lg(hi); i++) {
-    denom = n/ugcd(hi[i],n);
-    ind = ulcm(ind,denom);
-  }
-  for (i=1; i<lgcols(hf); i++) {
-    denom = n/ugcd(gel(hf,2)[i],n);
-    ind = ulcm(ind,denom);
-  }
-  k = n/ind;
-  hid = zv_z_div(hi, k);
-  hfd = mkmat2(gel(hf,1), zv_z_div(gel(hf,2),k));
-  return gerepilecopy(av, mkvec3(hfd,hid,stoi(k)));
-}
-#endif
-
-static long
-alldegmultiple(GEN pr, long d)
-{
-  long i;
-  for (i=1; i<lg(pr); i++)
-    if ((pr_get_e(gel(pr,i))*pr_get_f(gel(pr,i))) % d) return 0;
-  return 1;
-}
-
-/* no garbage collection */
-static long
-searchprimedeg(GEN nf, long d, GEN forbidden, GEN *pp)
-{
-  ulong p, n = nf_get_degree(nf);
-  GEN b, pr;
-  forprime_t T;
-
-  if (n%d) return 0;
-
-  /* replace with a simple bound ? */
-  b = glog(nf_get_disc(nf),5);
-  b = mulrs(b,n);
-  b = mpsqr(b);
-  b = ceil_safe(b);
-  b = gmin(b, stoi(ULONG_MAX/2));
-  if (!u_forprime_init(&T, 0, itos(b))) return 0;
-
-  while ((p=u_forprime_next(&T))) {/* not a comparison : test p!=0 */
-    if (tablesearch(forbidden, stoi(p), cmpii)) continue;
-    pr = idealprimedec(nf,stoi(p));
-    if (alldegmultiple(pr,d)) { *pp = stoi(p); return 1; }
-  }
-  return 0;
-}
-
-/* no garbage collection */
-static GEN
-sortedp(GEN Lpr)
-{
-  long i;
-  GEN Lp = zerovec(lg(Lpr)-1);
-  for (i=1; i<lg(Lp); i++) gel(Lp,i) = pr_get_p(gel(Lpr,i));
-  return gen_sort_uniq(Lp, (void*)cmpii, cmp_nodata);
-}
-
-static long
-solvablecrt(long x1, long N1, long x2, long N2, long *x0, long *N)
-{
-  long d, a, b, u;
-  d = cbezout(N1, N2, &a, &b);
-  if ((x1-x2)%d != 0) return 0;
-  N1 /= d;
-  *N = N1*N2;
-  N2 /= d;
-  u = a*N1;
-  *x0 = smodss(u*x2+(1-u)*x1,*N);
-  return 1;
-}
-
-static long
-hdown(GEN pr, long h, long n, long *nn)
-{
-  long prdeg, d, u, v;
-  prdeg = pr_get_e(pr)*pr_get_f(pr);
-  d = ugcd(prdeg,n);
-  if (h%d) return 0;
-  h /= d;
-  prdeg /= d;
-  *nn = n/d;
-  d = cbezout(prdeg, *nn, &u, &v);
-  return (h*u)%(*nn); /* can be <0 */
-}
-
-/* Assumes hf contains no prime or all primes above every rational primes */
-/* Less efficient (might not find a soution) if a set of primes above p all have Hasse invariant 0. */
-static GEN
-hassedown0(GEN nf, long n, GEN hf, GEN hi)
-{
-  pari_sp av = avma;
-  long totcplx=(lg(hi)==1), hid=0, i, j, h, nn, total, nbp;
-  GEN pr, pv, h0v, nnv;
-  checkhasse(nf,hf,hi,n);
-
-  /* The Hasse invariant at gel(pv,i) has to be h0v[i] mod nnv[i], where nnv[i] | n. */
-  if (!totcplx) {
-    hid = hi[1];
-    for (i=2;i<lg(hi);i++)
-      if (hi[i] != hid) {avma = av; return gen_0;}
-  }
-
-  pv = sortedp(gel(hf,1));
-  h0v = cgetg(lg(pv),t_VECSMALL);
-  nnv = const_vecsmall(lg(pv)-1, 0);
-
-  for (i=1; i<lgcols(hf); i++) {
-    pr = gmael(hf,1,i);
-    h = gel(hf,2)[i];
-    h %= n;
-    nn = 0;
-    h = hdown(pr, h, n, &nn);
-    if (nn==0) {avma = av; return gen_0;}
-
-    j = ZV_search(pv, pr_get_p(pr));
-    if (nnv[j]==0) {
-      nnv[j] = nn;
-      h0v[j] = h;
-    }
-    else if (!solvablecrt(h0v[j], nnv[j], h, nn, &h0v[j], &nnv[j])) {avma = av; return gen_0;}
-  }
-  total = (hid + zv_sum(h0v)) % n;
-  nbp = lg(pv)-1;
-  if (total==n/2 && totcplx)
-    hid = n/2;
-  else if (total!=0) {
-    GEN p;
-    nn = n/ugcd(total,n);
-    if (!searchprimedeg(nf, nn, pv, &p)) {avma = av; return gen_0;}
-    nbp++;
-    pv = vec_append(pv, p);
-    h0v= vecsmall_append(h0v, (n-total)%n);
-  }
-  return gerepilecopy(av, mkvec2(mkvec2(pv,h0v), mkvecsmall(hid)));
-}
-
-GEN
-hassedown(GEN nf, long n, GEN hf, GEN hi)
-{
-  return hassedown0(nf,n,hasseconvert(hf,n),hasseconvert(hi,n));
 }
 
 /* no garbage collection */
@@ -4228,24 +4058,6 @@ algcomputehasse(GEN al)
   checkhasse(nf,alg_get_hasse_f(al),alg_get_hasse_i(al),n);
 }
 
-#if 0
-static GEN
-pr_idem(GEN nf, GEN pr)
-{
-  pari_sp av = avma;
-  GEN p, pri, dec, u;
-  long i;
-
-  p = pr_get_p(pr);
-  dec = idealprimedec(nf,p);
-  pri = gen_1;
-  for (i=1; i<lg(dec); i++)
-    if (!pr_equal(nf,pr,gel(dec,i))) pri = idealmul(nf,pri,gel(dec,i));
-  u = idealaddtoone_i(nf, pr, pri);
-  return gerepilecopy(av,u);
-}
-#endif
-
 static GEN
 alg_maximal_primes(GEN al, GEN P)
 {
@@ -4291,20 +4103,6 @@ alg_cyclic(GEN rnf, GEN aut, GEN b, long maxord)
   if (maxord) {
     GEN hf = alg_get_hasse_f(al), pr = gel(hf,1);
     al = alg_maximal_primes(al, pr_primes(pr));
-#if 0
-    /* check result */
-    GEN h, disc = powiu(nf_get_disc(nf), n*n);
-    long i;
-    disc = absi(disc);
-    h = gel(hf,2);
-    for (i=1; i<lg(pr); i++) {
-      long dp = ugcd(n,h[i]);
-      disc = mulii(disc, powiu(pr_norm(gel(pr,i)), n*(n-dp)));
-    }
-    disc = mulii(disc, powuu(n,D));
-    if (!absequalii(disc, algdisc(al)))
-      pari_err_BUG("alg_cyclic (wrong maximal order)");
-#endif
   }
   return gerepilecopy(av, al);
 }
@@ -4668,15 +4466,6 @@ algpradical_i(GEN al, GEN p, GEN zprad, GEN projs)
   else res = lg(zprad)==1 ? gen_0 : zprad;
   return gerepilecopy(av, res);
 }
-#if 0
-/* not used */
-GEN
-algpradical(GEN al, GEN p)
-{
-  GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
-  return algpradical_i(al, p, placeholder, NULL);
-}
-#endif
 
 static GEN
 algpdecompose0(GEN al, GEN prad, GEN p, GEN projs)
@@ -4731,15 +4520,6 @@ algpdecompose_i(GEN al, GEN p, GEN zprad, GEN projs)
   GEN prad = algpradical_i(al,p,zprad,projs);
   return gerepileupto(av, algpdecompose0(al, prad, p, projs));
 }
-#if 0
-/* not used */
-GEN
-algpdecompose(GEN al, GEN p)
-{
-  GEN placeholder = cgetg(1,t_MAT); /*left on stack*/
-  return algpdecompose_i(al, p, placeholder, NULL);
-}
-#endif
 
 /* ord is assumed to be in hnf wrt the integral basis of al. */
 /* assumes that alg_get_invbasis(al) is integral. */
@@ -4775,42 +4555,6 @@ alg_change_overorder_shallow(GEN al, GEN ord)
 
   return al2;
 }
-
-#if 0
-/* not used */
-/*ord is assumed to be in hnf wrt the integral basis of al.*/
-GEN
-alg_changeorder_shallow(GEN al, GEN ord)
-{
-  GEN al2, mt, iord, mtx;
-  long i, n;
-  n = alg_get_absdim(al);
-
-  iord = RgM_inv_upper(ord);
-  al2 = shallowcopy(al);
-  gel(al2,7) = RgM_mul(gel(al,7), ord);
-  gel(al2,8) = RgM_mul(iord, gel(al,8));
-
-  mt = cgetg(n+1,t_VEC);
-  gel(mt,1) = matid(n);
-  for (i=2; i<=n; i++) {
-    mtx = algbasismultable(al,gel(ord,i));
-    gel(mt,i) = RgM_mul(iord, RgM_mul(mtx, ord));
-  }
-  gel(al2,9) = mt;
-  gel(al2,11)= algtracebasis(al2);
-
-  return al2;
-}
-
-GEN
-alg_changeorder(GEN al, GEN ord)
-{
-  pari_sp av = avma;
-  GEN res = alg_changeorder_shallow(al, ord);
-  return gerepilecopy(av, res);
-}
-#endif
 
 static GEN
 algfromcenter(GEN al, GEN x)
