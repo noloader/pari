@@ -235,6 +235,8 @@ sort_Dmq_by_q(void *data, GEN x, GEN y)
 { (void)data; return cmpii(gel(x,3), gel(y,3)); }
 
 INLINE long
+Dmq_get_D(GEN Dmq) { return Dinfo_get_D(gel(Dmq,1)); }
+INLINE long
 Dmq_get_h(GEN Dmq) { return Dinfo_get_h(gel(Dmq,1)); }
 static int
 sort_Dmq_by_cnum(void *data, GEN x, GEN y)
@@ -1014,10 +1016,10 @@ N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       if (!Dmq_isgoodq(Dmq, X0)) continue;
 
       dbg_mode() {
-        err_printf(ANSI_BRIGHT_BLUE "  %ld" ANSI_RESET,
-                   Dmq_get_h(Dmq));
         err_printf(ANSI_BRIGHT_RED "\n       %5ld bits " ANSI_RESET,
                    expi(q)-expiN);
+        err_printf("  D = %ld", Dmq_get_D(Dmq));
+        err_printf(ANSI_BRIGHT_BLUE "  h = %ld" ANSI_RESET, Dmq_get_h(Dmq));
       }
       /* q is pseudoprime */
       if (expi(q) < 64) z = gen_1; /* q is prime; sentinel */
