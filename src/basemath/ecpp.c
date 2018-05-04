@@ -1138,9 +1138,10 @@ static const long ecpp_tune[][4]=
   { 2800, 86,  26,  7500 },
   { 3000, 92,  27,  8000 },
   { 3200, 98,  27,  8500 },
-  { 3400, 104, 27,  9000 },
-  { 3400, 110, 27,  9500 },
-  { 3800, 116, 28,     0 }
+  { 3400, 104, 28,  9000 },
+  { 3600, 110, 28,  9500 },
+  { 3800, 116, 29, 10000 },
+  { 4000, 122, 29,     0 }
 };
 
 /* assume N BPSW-pseudoprime */
@@ -1159,7 +1160,7 @@ ecpp(GEN N)
   for (i = 1; i <= tunelen && ecpp_tune[i-1][3]; i++)
     gel(tune,i) = mkvecsmall4(ecpp_tune[i-1][0], ecpp_tune[i-1][1],
                               ecpp_tune[i-1][2], ecpp_tune[i-1][3]);
-  for (; i <= tunelen; i++) gel(tune,i) = mkvecsmall4(200*(i-1),6*i-4,28,500*i);
+  for (; i <= tunelen; i++) gel(tune,i) = mkvecsmall4(200*(i-1),6*i-4,30,500*i);
   for(;;)
   {
     GEN C, param, x = gel(tune, tunelen);
