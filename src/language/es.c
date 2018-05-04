@@ -1776,7 +1776,7 @@ print_errcontext(PariOUT *out,
   lmsg = strlen(msg);
   /* msg + past + ': ' + '...' + term_get_color + \0 */
   t = buf = (char*)pari_malloc(lmsg + MAX_PAST + 2 + 3 + MAX_TERM_COLOR + 1);
-  strncpy(t, msg, lmsg); t += lmsg;
+  memcpy(t, msg, lmsg); t += lmsg;
   strcpy(t, ": "); t += 2;
   if (past <= 0) past = 0;
   else
@@ -1784,7 +1784,7 @@ print_errcontext(PariOUT *out,
     if (past > MAX_PAST) { past = MAX_PAST; strcpy(t, "..."); t += 3; }
     term_get_color(t, c_OUTPUT);
     t += strlen(t);
-    strncpy(t, s - past, past); t[past] = 0;
+    memcpy(t, s - past, past); t[past] = 0;
   }
 
   /* suffix (past arrow) */
@@ -3804,7 +3804,7 @@ _path_expand(const char *s)
   {
     size_t len = t - s;
     char *user = (char*)pari_malloc(len+1);
-    (void)strncpy(user,s,len); user[len] = 0;
+    (void)memcpy(user,s,len); user[len] = 0;
     dir = pari_get_homedir(user);
     pari_free(user);
   }
@@ -3828,7 +3828,7 @@ _expand_env(char *str)
     l = s - s0;
     if (l)
     {
-      s0 = strncpy((char*)pari_malloc(l+1), s0, l); s0[l] = 0;
+      s0 = memcpy((char*)pari_malloc(l+1), s0, l); s0[l] = 0;
       x[xnum++] = s0; len += l;
     }
     if (xnum > xlen - 3) /* need room for possibly two more elts */
@@ -3840,7 +3840,7 @@ _expand_env(char *str)
     s0 = ++s; /* skip $ */
     while (is_keyword_char(*s)) s++;
     l = s - s0;
-    env = strncpy((char*)pari_malloc(l+1), s0, l); env[l] = 0;
+    env = memcpy((char*)pari_malloc(l+1), s0, l); env[l] = 0;
     s0 = os_getenv(env);
     if (!s0)
     {
@@ -3850,7 +3850,7 @@ _expand_env(char *str)
     l = strlen(s0);
     if (l)
     {
-      s0 = strncpy((char*)pari_malloc(l+1), s0, l); s0[l] = 0;
+      s0 = memcpy((char*)pari_malloc(l+1), s0, l); s0[l] = 0;
       x[xnum++] = s0; len += l;
     }
     pari_free(env); s0 = s;
@@ -3858,7 +3858,7 @@ _expand_env(char *str)
   l = s - s0;
   if (l)
   {
-    s0 = strncpy((char*)pari_malloc(l+1), s0, l); s0[l] = 0;
+    s0 = memcpy((char*)pari_malloc(l+1), s0, l); s0[l] = 0;
     x[xnum++] = s0; len += l;
   }
 

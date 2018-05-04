@@ -151,7 +151,7 @@ initep(const char *name, long len)
   entree *ep = (entree *) pari_calloc(sizeof(entree) + add + len+1);
   entree *ep1 = initial_value(ep);
   char *u = (char *) ep1 + add;
-  ep->name    = u; strncpy(u, name,len); u[len]=0;
+  ep->name    = u; memcpy(u, name,len); u[len]=0;
   ep->valence = EpNEW;
   ep->value   = NULL;
   ep->menu    = 0;

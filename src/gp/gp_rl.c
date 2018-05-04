@@ -303,7 +303,7 @@ gprl_input(char **endp, int first, input_method *IM, filtre_t *F)
    *   b"); }
    * and conforms with the other input methods anyway. */
   t = (char*)pari_malloc(l + 1);
-  strncpy(t, s, l-1);
+  memcpy(t, s, l-1);
   t[l-1] = '\n';
   t[l]   = 0; /* equivalent to sprintf(t,"%s\n", s) */
   if (left < l)

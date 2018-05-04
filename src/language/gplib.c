@@ -1057,7 +1057,7 @@ color_prompt(const char *prompt)
   *s = 0;
   /* escape sequences bug readline, so use special bracing (if available) */
   brace_color(s, c_PROMPT, 0);
-  s += strlen(s); strncpy(s, prompt, n);
+  s += strlen(s); memcpy(s, prompt, n);
   s += n; *s = 0;
   brace_color(s, c_INPUT, 1);
   return t;

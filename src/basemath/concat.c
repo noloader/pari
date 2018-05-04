@@ -254,7 +254,7 @@ catmanySTR(GEN y1, GEN y2)
   {
     char *c = GSTR( gel(y,0) );
     long nc = strlen(c);
-    if (nc) { (void)strncpy(s, c, nc); s += nc; }
+    if (nc) { (void)memcpy(s, c, nc); s += nc; }
   }
   *s = 0; return z;
 }
