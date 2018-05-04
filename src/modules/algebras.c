@@ -1012,14 +1012,14 @@ cmp_algebra_maps(GEN x, GEN y)
 { return cmp_algebra(gel(x,1), gel(y,1)); }
 
 GEN
-algsimpledec(GEN al, int maps)
+algsimpledec_ss(GEN al, int maps)
 {
   pari_sp av = avma;
   GEN Z, p, res;
   long n;
   checkalg(al);
   p = alg_get_char(al);
-  dbg_printf(1)("algsimpledec: char=%Ps, dim=%d\n", p, alg_get_absdim(al));
+  dbg_printf(1)("algsimpledec_ss: char=%Ps, dim=%d\n", p, alg_get_absdim(al));
   if (signe(p)) Z = algprimesubalg(al);
   else          Z = algtablecenter(al);
 
@@ -1036,15 +1036,42 @@ algsimpledec(GEN al, int maps)
 }
 
 GEN
-alg_decomposition(GEN al)
+algsimpledec(GEN al, int maps)
 {
   pari_sp av = avma;
-  /*GEN p = alg_get_char(al);*/
-  GEN rad, alq, dec, res;
+  int ss;
+  GEN rad, dec, res, proj=NULL, lift=NULL;
   rad = algradical(al);
-  alq = gequal0(rad) ? al : alg_quotient(al,rad,0);
-  dec = algsimpledec(alq,0);
-  res = mkvec2(rad, dec); /*TODO si char 0, reconnaitre les centres comme nf et descendre les tables de multiplication*/
+  ss = gequal0(rad);
+  if (!ss)
+  {
+    al = alg_quotient(al, rad, maps);
+    if (maps) {
+      proj = gel(al,2);
+      lift = gel(al,3);
+      al = gel(al,1);
+    }
+  }
+  dec = algsimpledec_ss(al, maps);
+  if (!ss && maps) /* update maps */
+  {
+    GEN p = alg_get_char(al);
+    long i;
+    for (i=1; i<lg(dec); i++)
+    {
+      if (signe(p))
+      {
+        gmael(dec,i,2) = FpM_mul(gmael(dec,i,2), proj, p);
+        gmael(dec,i,3) = FpM_mul(lift, gmael(dec,i,3), p);
+      }
+      else
+      {
+        gmael(dec,i,2) = RgM_mul(gmael(dec,i,2), proj);
+        gmael(dec,i,3) = RgM_mul(lift, gmael(dec,i,3));
+      }
+    }
+  }
+  res = mkvec2(rad, dec);
   return gerepilecopy(av,res);
 }
 
@@ -4676,14 +4703,14 @@ algpdecompose0(GEN al, GEN prad, GEN p, GEN projs)
 
     dec = cgetg(lg(Lss),t_VEC);
     for (i=1; i<lg(Lss); i++) {
-      gel(dec,i) = algsimpledec(gmael(Lss,i,1), 1);
+      gel(dec,i) = algsimpledec_ss(gmael(Lss,i,1), 1);
       deci = gel(dec,i);
       for (j=1; j<lg(deci); j++)
        gmael(deci,j,3) = FpM_mul(gmael(Lss,i,3), gmael(deci,j,3), p);
     }
     dec = shallowconcat1(dec);
   }
-  else dec = algsimpledec(ss,1);
+  else dec = algsimpledec_ss(ss,1);
 
   res = cgetg(lg(dec),t_VEC);
   for (i=1; i<lg(dec); i++) {

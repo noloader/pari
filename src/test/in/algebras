@@ -491,8 +491,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(d) 0", ()->testcharpol(al,d));
   do("charpol annihil(e) 0", ()->testcharpol(al,e));
   do("random 0", ()->algrandom(al,1));
-  do("algsimpledec 0", ()->#algsimpledec(ss)==2);
-  do("alg_decomposition 0", ()->dec=algdecomposition(al); #dec[1]==1 && #dec[2]==2);
+  do("algsimpledec 0", ()->#algsimpledec(ss)[2]==2);
+  do("alg_decomposition 0", ()->dec=algsimpledec(al); #dec[1]==1 && #dec[2]==2);
   do("iscommutative 0", ()->algiscommutative(al)==0);
   do("issemisimple 0", ()->algissemisimple(al)==0);
   do("issimple 0", ()->algissimple(al)==0);
@@ -534,8 +534,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(b) 2", ()->testcharpol(al,b));
   do("charpol annihil(c) 2", ()->testcharpol(al,c));
   do("random 2", ()->algrandom(al,1));
-  do("algsimpledec 2", ()->#algsimpledec(ss)==2);
-  do("alg_decomposition 2", ()->dec=algdecomposition(al); #dec[1]==1 && #dec[2]==2);
+  do("algsimpledec 2", ()->#algsimpledec(ss)[2]==2);
+  do("alg_decomposition 2", ()->dec=algsimpledec(al); #dec[1]==1 && #dec[2]==2);
   do("iscommutative 2", ()->algiscommutative(al)==0);
   do("issemisimple 2", ()->algissemisimple(al)==0);
   do("issimple 2", ()->algissimple(al)==0);
@@ -575,8 +575,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(a) 3", ()->testcharpol(al,a));
   do("charpol annihil(b) 3", ()->testcharpol(al,b));
   do("random 3", ()->algrandom(al,1));
-  do("algsimpledec 3", ()->#algsimpledec(ss)==1);
-  do("alg_decomposition 3", ()->dec=algdecomposition(al); #dec[1]==1 && #dec[2]==1);
+  do("algsimpledec 3", ()->#algsimpledec(ss)[2]==1);
+  do("alg_decomposition 3", ()->dec=algsimpledec(al); #dec[1]==1 && #dec[2]==1);
   do("iscommutative 3", ()->algiscommutative(al)==1);
   do("issemisimple 3", ()->algissemisimple(al)==0);
   do("issemisimple ss 3", ()->algissemisimple(ss)==1);
@@ -614,8 +614,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(a) 3c", ()->testcharpol(al,a));
   do("charpol annihil(b) 3c", ()->testcharpol(al,b));
   do("random 3c", ()->algrandom(al,1));
-  do("algsimpledec 3c", ()->#algsimpledec(ss)==1);
-  do("alg_decomposition 3c", ()->dec=algdecomposition(al); #dec[1]==2 && #dec[2]==1);
+  do("algsimpledec 3c", ()->#algsimpledec(ss)[2]==1);
+  do("alg_decomposition 3c", ()->dec=algsimpledec(al); #dec[1]==2 && #dec[2]==1);
   do("iscommutative 3c", ()->algiscommutative(al)==1);
   do("issemisimple 3c", ()->algissemisimple(al)==0);
   do("issemisimple ss 3c", ()->algissemisimple(ss)==1);
@@ -650,8 +650,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(a) 2b", ()->testcharpol(al,a));
   do("charpol annihil(b) 2b", ()->testcharpol(al,b));
   do("random 2b", ()->algrandom(al,1));
-  do("algsimpledec 2b", ()->#algsimpledec(al)==1);
-  do("alg_decomposition 2b", ()->dec=algdecomposition(al); dec[1]==0 && #dec[2]==1 && algabsdim(dec[2][1])==2);
+  do("algsimpledec 2b", ()->#algsimpledec(al)[2]==1);
+  do("alg_decomposition 2b", ()->dec=algsimpledec(al); dec[1]==0 && #dec[2]==1 && algabsdim(dec[2][1])==2);
   do("iscommutative 2b", ()->algiscommutative(al)==1);
   do("issemisimple 2b", ()->algissemisimple(al)==1);
   do("issimple 2b", ()->algissimple(al)==1);
@@ -704,8 +704,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(b) 3b", ()->testcharpol(al,b));
   do("charpol annihil(c) 3b", ()->testcharpol(al,c));
   do("random 3b", ()->algrandom(al,1));
-  do("algsimpledec 3b", ()->#algsimpledec(al)==1);
-  do("alg_decomposition 3b", ()->dec=algdecomposition(al); dec[1]==0 && #dec[2]==1 && #algcenter(dec[2][1])==1);
+  do("algsimpledec 3b", ()->#algsimpledec(al)[2]==1);
+  do("alg_decomposition 3b", ()->dec=algsimpledec(al); dec[1]==0 && #dec[2]==1 && #algcenter(dec[2][1])==1);
   do("iscommutative 3b", ()->algiscommutative(al)==0);
   do("issemisimple 3b", ()->algissemisimple(al)==1);
   do("issimple 3b", ()->algissimple(al)==1);
@@ -759,8 +759,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(b) 2c", ()->testcharpol(al,b));
   do("charpol annihil(c) 2c", ()->testcharpol(al,c));
   do("random 2c", ()->algrandom(al,1));
-  do("algsimpledec 2c", ()->#algsimpledec(al)==1);
-  do("alg_decomposition 2c", ()->dec=algdecomposition(al); dec[1]==0 && #dec[2]==1 && #algcenter(dec[2][1])==1);
+  do("algsimpledec 2c", ()->#algsimpledec(al)[2]==1);
+  do("alg_decomposition 2c", ()->dec=algsimpledec(al); dec[1]==0 && #dec[2]==1 && #algcenter(dec[2][1])==1);
   do("iscommutative 2c", ()->algiscommutative(al)==0);
   do("issemisimple 2c", ()->algissemisimple(al)==1);
   do("issimple 2c", ()->algissimple(al)==1);
@@ -793,8 +793,8 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(a) 5", ()->testcharpol(al,a));
   do("charpol annihil(b) 5", ()->testcharpol(al,b));
   do("random 5", ()->algrandom(al,1));
-  do("algsimpledec 5", ()->#algsimpledec(al)==1);
-  do("alg_decomposition 5", ()->dec=algdecomposition(al); dec[1]==0 && #dec[2]==1 && algabsdim(dec[2][1])==1);
+  do("algsimpledec 5", ()->#algsimpledec(al)[2]==1);
+  do("alg_decomposition 5", ()->dec=algsimpledec(al); dec[1]==0 && #dec[2]==1 && algabsdim(dec[2][1])==1);
   do("iscommutative 5", ()->algiscommutative(al)==1);
   do("issemisimple 5", ()->algissemisimple(al)==1);
   do("issimple 5", ()->algissimple(al)==1);
@@ -867,11 +867,11 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(a) 0b", ()->testcharpol(al,a));
   do("charpol annihil(b) 0b", ()->testcharpol(al,b));
   do("random 0b", ()->algrandom(al,1));
-  do("algsimpledec 0b", ()->#algsimpledec(al)==2);
-  do("alg_decomposition 0b", ()->dec=algdecomposition(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (algabsdim(dec[2][1])==4 || algabsdim(dec[2][2])==4));
+  do("algsimpledec 0b", ()->#algsimpledec(al)[2]==2);
+  do("alg_decomposition 0b", ()->dec=algsimpledec(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (algabsdim(dec[2][1])==4 || algabsdim(dec[2][2])==4));
   do("subalg M2(Q)", ()->sal=algsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1;\
     0,0,0,0])[1]; algisassociative(sal) && algradical(sal)==0 &&\
-    #algsimpledec(sal)==1);
+    #algsimpledec(sal)[2]==1);
   do("iscommutative 0b", ()->algiscommutative(al)==0);
   do("issemisimple 0b", ()->algissemisimple(al)==1);
   do("issimple 0b", ()->algissimple(al)==0);
@@ -915,11 +915,11 @@ tablealg() = gusuite("table algebra", ()->{
   do("charpol annihil(a) 3d", ()->testcharpol(al,a));
   do("charpol annihil(b) 3d", ()->testcharpol(al,b));
   do("random 3d", ()->algrandom(al,1));
-  do("algsimpledec 3d", ()->#algsimpledec(al)==2);
-  do("alg_decomposition 3d", ()->dec=algdecomposition(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (algabsdim(dec[2][1])==4 || algabsdim(dec[2][2])==4));
+  do("algsimpledec 3d", ()->#algsimpledec(al)[2]==2);
+  do("alg_decomposition 3d", ()->dec=algsimpledec(al); dec[1]==0 && #dec[2]==2 && #algcenter(dec[2][1])==1 && #algcenter(dec[2][2])==1 && (algabsdim(dec[2][1])==4 || algabsdim(dec[2][2])==4));
   do("subalg M2(F3)", ()->sal=algsubalg(al,[1,0,0,0; 0,1,0,0; 0,0,1,0; 0,0,0,1;\
     0,0,0,0]); algisassociative(sal[1]) && algradical(sal[1])==0 &&\
-    #algsimpledec(sal[1])==1);
+    #algsimpledec(sal[1])[2]==1);
   do("iscommutative 3d", ()->algiscommutative(al)==0);
   do("issemisimple 3d", ()->algissemisimple(al)==1);
   do("issimple 3d", ()->algissimple(al)==0);
@@ -992,8 +992,8 @@ alt = algtableinit(al[9]);
 print(alt != 'alt);
 print("center of CSA: ", #algcenter(alt)==2);
 print("radical of CSA: ", algradical(alt)==0);
-print("decomposition of CSA: ", #algsimpledec(alt)==1);
-dec = algdecomposition(alt);
+print("decomposition of CSA: ", #algsimpledec(alt)[2]==1);
+dec = algsimpledec(alt);
 print("alg_decomposition of CSA: ", #dec==2 && dec[1]==0 && #dec[2]==1 && #algcenter(dec[2][1])==2 && algabsdim(dec[2][1])==8);
 
 print("alsimple bug");

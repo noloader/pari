@@ -2603,7 +2603,7 @@ cc_chartable(GEN cc)
   while (p%expo != 1) p = unextprime(p+1);
   /* compute character table modulo p: idempotents of Z(KG) */
   al = conjclasses_algcenter(cc, utoipos(p));
-  dec = algsimpledec(al,1);
+  dec = algsimpledec_ss(al,1);
   ctp = cgetg(lcl,t_VEC);
   for(i=1; i<lcl; i++)
   {

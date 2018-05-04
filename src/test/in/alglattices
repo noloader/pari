@@ -183,7 +183,7 @@ algissimple(B[1])
 
 \\image of lifts in algsimpledec
 testidem(al)={
-  dec = algsimpledec(al,1);
+  dec = algsimpledec(al,1)[2];
   Le = [d[3][,1] | d <- dec];
   for(i=1,#Le,
     ei = Le[i];

@@ -2949,13 +2949,13 @@ We see that~\kbd{al3} is not simple, and this implies that we can decompose it
 further. Indeed, every semisimple algebra is isomorphic to a product of simple algebras.
 We can obtain this decomposition with
 \bprog
-dec3 = algsimpledec(al3);
+dec3 = algsimpledec(al3)[2];
 apply(algdim, dec3)
 @eprog\noindent
 We see that~\kbd{al3} is isomorphic to~$\Q\times\Q$. Similarly, we can
 decompose~\kbd{al4}.
 \bprog
-dec4 = algsimpledec(al4);
+dec4 = algsimpledec(al4)[2];
 apply(algdim, dec4)
 @eprog\noindent
 We see that~\kbd{al4} is isomorphic to~$\F_5\times\F_5\times A$ where~$A$ is a
