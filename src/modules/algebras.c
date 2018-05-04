@@ -2391,7 +2391,7 @@ algbasissplittingmatrix_csa(GEN al, GEN x)
 }
 
 GEN
-algsplittingmatrix(GEN al, GEN x)
+algtomatrix(GEN al, GEN x)
 {
   pari_sp av = avma;
   GEN res = NULL;
@@ -2403,7 +2403,7 @@ algsplittingmatrix(GEN al, GEN x)
     res = zeromatcopy(nbrows(x),lg(x)-1);
     for (j=1; j<lg(x); j++)
     for (i=1; i<lgcols(x); i++)
-      gcoeff(res,i,j) = algsplittingmatrix(al,gcoeff(x,i,j));
+      gcoeff(res,i,j) = algtomatrix(al,gcoeff(x,i,j));
     res = shallowmatconcat(res);
   }
   else switch(alg_type(al))
@@ -2417,7 +2417,7 @@ algsplittingmatrix(GEN al, GEN x)
       res = algbasissplittingmatrix_csa(al,x);
       break;
     default:
-      pari_err_DOMAIN("algsplittingmatrix", "alg_type(al)", "=", stoi(alg_type(al)), stoi(alg_type(al)));
+      pari_err_DOMAIN("algtomatrix", "alg_type(al)", "=", stoi(alg_type(al)), stoi(alg_type(al)));
   }
   return gerepilecopy(av,res);
 }
@@ -2571,7 +2571,7 @@ static GEN
 algredcharpoly_i(GEN al, GEN x, long v)
 {
   GEN rnf = alg_get_splittingfield(al);
-  GEN cp = charpoly(algsplittingmatrix(al,x),v);
+  GEN cp = charpoly(algtomatrix(al,x),v);
   long i, m = lg(cp);
   for (i=2; i<m; i++) gel(cp,i) = rnfeltdown(rnf, gel(cp,i));
   return cp;
@@ -2761,7 +2761,7 @@ algnorm(GEN al, GEN x)
   switch(alg_type(al)) {
     case al_CYCLIC: case al_CSA:
       rnf = alg_get_splittingfield(al);
-      res = rnfeltdown(rnf, det(algsplittingmatrix(al,x)));
+      res = rnfeltdown(rnf, det(algtomatrix(al,x)));
       break;
     case al_TABLE:
       if (tx == al_MATRIX)  mx = algleftmultable_mat(al,x);

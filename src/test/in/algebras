@@ -946,25 +946,25 @@ un = [1,0]~;
 ii = [x,0]~;
 jj = [0,1]~;
 kk = algmul(al,ii,jj);
-print("spl(1): ", algsplittingmatrix(al,un)==matid(2));
-print("spl(i): ", algsplittingmatrix(al,ii)==[x,0;0,-x]);
-print("spl(j): ", algsplittingmatrix(al,jj)==[0,-5;1,0]);
-print("spl(k): ", algsplittingmatrix(al,kk)==[0,-5*x;-x,0]);
-print("spl(basis(1)): ", algsplittingmatrix(al,algalgtobasis(al,un))==matid(2));
-print("spl(basis(i)): ", algsplittingmatrix(al,algalgtobasis(al,ii))==[x,0;0,-x]);
-print("spl(basis(j)): ", algsplittingmatrix(al,algalgtobasis(al,jj))==[0,-5;1,0]);
-print("spl(basis(k)): ", algsplittingmatrix(al,algalgtobasis(al,kk))==[0,-5*x;-x,0]);
+print("spl(1): ", algtomatrix(al,un)==matid(2));
+print("spl(i): ", algtomatrix(al,ii)==[x,0;0,-x]);
+print("spl(j): ", algtomatrix(al,jj)==[0,-5;1,0]);
+print("spl(k): ", algtomatrix(al,kk)==[0,-5*x;-x,0]);
+print("spl(basis(1)): ", algtomatrix(al,algalgtobasis(al,un))==matid(2));
+print("spl(basis(i)): ", algtomatrix(al,algalgtobasis(al,ii))==[x,0;0,-x]);
+print("spl(basis(j)): ", algtomatrix(al,algalgtobasis(al,jj))==[0,-5;1,0]);
+print("spl(basis(k)): ", algtomatrix(al,algalgtobasis(al,kk))==[0,-5*x;-x,0]);
 a = y+1;
 b = 1/3;
 c = -y/5+1/2;
-print("spl(a*1): ", algsplittingmatrix(al,a*un)==a*matid(2));
-print("spl(a*i): ", algsplittingmatrix(al,a*ii)==a*[x,0;0,-x]);
-print("spl(a*j): ", algsplittingmatrix(al,a*jj)==a*[0,-5;1,0]);
-print("spl(a*k): ", algsplittingmatrix(al,a*kk)==a*[0,-5*x;-x,0]);
-print("spl(b*1): ", algsplittingmatrix(al,b*un)==b*matid(2));
-print("spl(b*i): ", algsplittingmatrix(al,b*ii)==b*[x,0;0,-x]);
-print("spl(b*j): ", algsplittingmatrix(al,b*jj)==b*[0,-5;1,0]);
-print("spl(b*k): ", algsplittingmatrix(al,b*kk)==b*[0,-5*x;-x,0]);
+print("spl(a*1): ", algtomatrix(al,a*un)==a*matid(2));
+print("spl(a*i): ", algtomatrix(al,a*ii)==a*[x,0;0,-x]);
+print("spl(a*j): ", algtomatrix(al,a*jj)==a*[0,-5;1,0]);
+print("spl(a*k): ", algtomatrix(al,a*kk)==a*[0,-5*x;-x,0]);
+print("spl(b*1): ", algtomatrix(al,b*un)==b*matid(2));
+print("spl(b*i): ", algtomatrix(al,b*ii)==b*[x,0;0,-x]);
+print("spl(b*j): ", algtomatrix(al,b*jj)==b*[0,-5;1,0]);
+print("spl(b*k): ", algtomatrix(al,b*kk)==b*[0,-5*x;-x,0]);
 
 
 ord = algbasis(al);
@@ -980,8 +980,8 @@ ax2 = algbasistoalg(al,x2);
 nx2 = algalgtobasis(al0,ax2);
 print("nattomax 2: ", nx2==ord*x2);
 print("ord*invord=id: ", ord*invord == matid(8));
-print("spl additive: ", algsplittingmatrix(al,x1) + algsplittingmatrix(al,x2) == algsplittingmatrix(al, algadd(al,x1,x2)));
-print("spl multiplicative: ", algsplittingmatrix(al,x1) * algsplittingmatrix(al,x2) == algsplittingmatrix(al, algmul(al,x1,x2)));
+print("spl additive: ", algtomatrix(al,x1) + algtomatrix(al,x2) == algtomatrix(al, algadd(al,x1,x2)));
+print("spl multiplicative: ", algtomatrix(al,x1) * algtomatrix(al,x2) == algtomatrix(al, algmul(al,x1,x2)));
 print("changebasis bug 1: ", algalgtobasis(al,algbasistoalg(al,algmul(al,x1,x2)))==algmul(al,x1,x2));
 print("changebasis bug 2: ", algalgtobasis(al0,algmul(al0,ax1,ax2)) == algmul(al0,nx1,nx2));
 print("changebasis bug 3: ", invord*algmul(al0,nx1,nx2) == algmul(al,x1,x2));
@@ -1094,8 +1094,8 @@ for(i=1, D,\
   for(j=i, D,\
     ei = matid(D)[,i];\
     ej = matid(D)[,j];\
-    flag = flag && (algsplittingmatrix(al,ei)*algsplittingmatrix(al,ej) == algsplittingmatrix(al, algmul(al, ei, ej)));\
-    flag = flag && (algsplittingmatrix(al,ei)+algsplittingmatrix(al,ej) == algsplittingmatrix(al, algadd(al, ei, ej)))\
+    flag = flag && (algtomatrix(al,ei)*algtomatrix(al,ej) == algtomatrix(al, algmul(al, ei, ej)));\
+    flag = flag && (algtomatrix(al,ei)+algtomatrix(al,ej) == algtomatrix(al, algadd(al, ei, ej)))\
     ));
 print(flag);
 
@@ -1250,7 +1250,7 @@ alginv(A,[1,1,0,0]~)
 algmul(A,[1,1,0,0]~,[0,0,2,1]~)
 algleftmultable(A,[0,1,0,0]~)
 algneg(A,[1,1,0,0]~)
-algsplittingmatrix(A,[0,0,0,2]~)
+algtomatrix(A,[0,0,0,2]~)
 algpow(A,[1,1,0,0]~,7)
 algsub(A,[1,1,0,0]~,[1,0,1,0]~)
 algtrace(A,[5,0,0,1]~)
@@ -1329,14 +1329,14 @@ print("algtobasis basistoalg alM 2: ", algalgtobasis(al, algbasistoalg(al, M2)) 
 print("algleftmultable add alM: ", algleftmultable(al, M1)+algleftmultable(al,M2) == algleftmultable(al, algadd(al, M1, M2)));
 print("algleftmultable mul alM: ", algleftmultable(al, M1)*algleftmultable(al,M2) == algleftmultable(al, algmul(al, M1, M2)));
 {print("algleftmultable sqr alM: ", algleftmultable(al, M1)^2 == algleftmultable(al, algsqr(al, M1)));}
-print("algsplitm add alM: ", algsplittingmatrix(al, M1)+algsplittingmatrix(al,M2) ==
- algsplittingmatrix(al, algadd(al, M1, M2)));
-print("algsplitm mul alM: ", algsplittingmatrix(al, M1)*algsplittingmatrix(al,M2) ==
- algsplittingmatrix(al, algmul(al, M1, M2)));
-print("algsplitm sqr alM: ", algsplittingmatrix(al, M1)^2 ==
- algsplittingmatrix(al, algsqr(al, M1)));
-print("algsplitm sqr alM 2: ", algsplittingmatrix(al, M2)^2 ==
- algsplittingmatrix(al, algsqr(al, M2)));
+print("algsplitm add alM: ", algtomatrix(al, M1)+algtomatrix(al,M2) ==
+ algtomatrix(al, algadd(al, M1, M2)));
+print("algsplitm mul alM: ", algtomatrix(al, M1)*algtomatrix(al,M2) ==
+ algtomatrix(al, algmul(al, M1, M2)));
+print("algsplitm sqr alM: ", algtomatrix(al, M1)^2 ==
+ algtomatrix(al, algsqr(al, M1)));
+print("algsplitm sqr alM 2: ", algtomatrix(al, M2)^2 ==
+ algtomatrix(al, algsqr(al, M2)));
 {print("algtrace alM: ", algtrace(al,M1) == algtrace(al,M1[1,1]) +
  algtrace(al,M1[2,2]));}
 {print("algtrace alM 2: ", algtrace(al,M2) == algtrace(al,M2[1,1]) +
@@ -1514,7 +1514,7 @@ print("v^(-1): ", alginv(al,[;]) == [;]);
 print("v^n: ", algpow(al, [;], 13) == [;]);
 print("v^0: ", algpow(al, [;], 0) == [;]);
 print("mt(v)", algleftmultable(al, [;]) == [;]);
-print("spl(v)", algsplittingmatrix(al, [;]) == [;]);
+print("spl(v)", algtomatrix(al, [;]) == [;]);
 print("trace(v): ", algtrace(al, [;]) == 0);
 print("norm(v): ", algnorm(al, [;]) == 1);
 print("charpoly(v): ", algcharpoly(al, [;]) == 1 && type(algcharpoly(al,[;])) == "t_POL");
@@ -1657,7 +1657,7 @@ test(str,al)={
  x = algrandom(al,3);
  y = algrandom(al,10);
  print(algsqr(al,x) == algsqr(sal,x));
- print(algsplittingmatrix(al,x) == algsplittingmatrix(sal,x));
+ print(algtomatrix(al,x) == algtomatrix(sal,x));
  print(algcharpoly(al,x) == algcharpoly(sal,x));
  print(algnorm(al,x) == algnorm(sal,x));
  print(algleftmultable(al,x) == algleftmultable(sal,x));
@@ -1672,7 +1672,7 @@ test(str,al)={
  print(algbasistoalg(al,y) == algbasistoalg(sal,y));
  y = algbasistoalg(al,y);
  print(algsqr(al,x) == algsqr(sal,x));
- print(algsplittingmatrix(al,x) == algsplittingmatrix(sal,x));
+ print(algtomatrix(al,x) == algtomatrix(sal,x));
  print(algcharpoly(al,x) == algcharpoly(sal,x));
  print(algnorm(al,x) == algnorm(sal,x));
  print(algleftmultable(al,x) == algleftmultable(sal,x));
@@ -1744,7 +1744,7 @@ algisassociative([[1,0;0,2],[0,0;0,0]])
 algmul(almt,a,b)
 algleftmultable(almt,a)
 alginv(almt,a)
-algsplittingmatrix(almt,[0,0,0,0]~)
+algtomatrix(almt,[0,0,0,0]~)
 algalgtobasis(almt,a)
 algbasistoalg(almt,[0,0,0,0]~)
 algpoleval(almt,1,a)
@@ -1909,11 +1909,11 @@ nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(1))
 
 \\alg_model bug for 1-dim al_CSA
 al = alginit(nfinit(y),[matid(1)]);
-algsplittingmatrix(al,[Mod(1,y)]~)
-algsplittingmatrix(al,[1]~)
-algsplittingmatrix(al,[1+y-y]~)
-algsplittingmatrix(al,[1/2]~)
-algsplittingmatrix(al,[Mod(1/2,y)]~)
+algtomatrix(al,[Mod(1,y)]~)
+algtomatrix(al,[1]~)
+algtomatrix(al,[1+y-y]~)
+algtomatrix(al,[1/2]~)
+algtomatrix(al,[Mod(1/2,y)]~)
 
 \\al_MATRIX sqr bug
 al = algtableinit([matid(2),[0,0;1,0]],2);
