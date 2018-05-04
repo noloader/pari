@@ -1712,6 +1712,7 @@ al = algtableinit(mt);
 B = [1,0;0,0;0,1/2;0,0]
 al2 = algsubalg(al,B);
 
+
 \\ bad inputs
 m_i = [0,-1,0, 0;\
        1, 0,0, 0;\
@@ -1902,6 +1903,22 @@ algaut(al);
 algtableinit([Mat(1)],1)
 algtableinit([Mat(1)],4)
 \\end bad inputs
+
+
+\\ K^3
+mt = [matid(3),[0,0,0;1,1,0;0,0,0],[0,0,0;0,0,0;1,0,1]];
+al = algtableinit(mt);
+algissimple(al)
+algsimpledec(al,1)
+al2 = algtableinit(mt,5);
+algissimple(al2)
+algsimpledec(al2,1)
+\\ upper-tri in M2(K)
+mt = [matid(3),[0,0,0;1,1,0;0,0,1],[0,0,0;0,0,0;1,0,0]];
+al = algtableinit(mt);
+algsimpledec(al,1)
+al2 = algtableinit(mt,5);
+algsimpledec(al2,1)
 
 print("nfgrunwaldwang SEGV #1669");
 nfgrunwaldwang(nfinit(y),[2,3],[1,2],Vecsmall(1))
