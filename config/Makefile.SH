@@ -526,9 +526,9 @@ test-all: $exec clean_pari_ps
 dotest-all:: clean_pari_ps
 	@\$(DOTEST) \$(TESTS)
 dyntest-all: gp-dyn$exe_suff clean_pari_ps
-	@env dotestSUF=dyn \$(MAKE) test-all
+	@env dotestSUF=dyn \$(DOTEST) \$(TESTS)
 statest-all: gp-sta$exe_suff clean_pari_ps
-	@env dotestSUF=sta \$(MAKE) test-all
+	@env dotestSUF=sta \$(DOTEST) \$(TESTS)
 
 dotest-env::
 	@export AAA=XXX BBB=YYY; \$(DOTEST) env
