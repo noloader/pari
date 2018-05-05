@@ -109,6 +109,11 @@ idealchinese(K, C, [1,t])
 C = idealchinese(K, [C,[-1,-1]]);
 idealchinese(K, C, [1,t])
 
+F = idealfactor(Q,2);
+idealchinese(Q, [F,[-1]], [0])
+idealchinese(Q, [F,[1]], [0])
+idealchinese(Q, [F,[0]], [0])
+
 K = nfinit(x^3 - 2);
 A = [46875, 30966, 9573; 0, 3, 0; 0, 0, 3];
 idealispower(K, A, 3, &B)

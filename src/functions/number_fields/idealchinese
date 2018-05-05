@@ -6,10 +6,10 @@ Help: idealchinese(nf,x,{y}): x being a prime ideal factorization and y a
  vector of elements, gives an element b such that v_p(b-y_p)>=v_p(x) for all
  prime ideals p dividing x, and v_p(b)>=0 for all other p. If y is omitted,
  return a data structure which can be used in place of x in later calls.
-Doc: $x$ being a prime ideal factorization
- (i.e.~a 2-columns matrix whose first column contains prime ideals, and the second
- column integral exponents), $y$ a vector of elements in $\var{nf}$ indexed by
- the ideals in $x$, computes an element $b$ such that
+Doc: $x$ being a prime ideal factorization (i.e.~a 2-columns matrix whose first
+ column contains prime ideals and the second column contains integral
+ exponents), $y$ a vector of elements in $\var{nf}$ indexed by the ideals in
+ $x$, computes an element $b$ such that
 
  $v_{\goth{p}}(b - y_{\goth{p}}) \geq v_{\goth{p}}(x)$ for all prime ideals
  in $x$ and $v_{\goth{p}}(b)\geq 0$ for all other $\goth{p}$.
@@ -31,8 +31,9 @@ Doc: $x$ being a prime ideal factorization
  $s_i$ in $\{-1,0,1\}$:
  if $\sigma_i$ denotes the $i$-th real embedding of the number field,
  the element $b$ returned satisfies further
- $s_i \kbd{sign}(\sigma_i(b)) \geq 0$ for all $i$. In other words, the sign is
- fixed to $s_i$ at the $i$-th embedding whenever $s_i$ is non-zero.
+ $\kbd{sign}(\sigma_i(b)) = s_i$ for all $i$ such that $s_i = \pm1$.
+ In other words, the sign is fixed to $s_i$ at the $i$-th embedding whenever
+ $s_i$ is non-zero.
  \bprog
  ? idealchinese(K, [x, [1,1]], y)
  %5 = [16, -3]~

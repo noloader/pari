@@ -1420,11 +1420,13 @@ nfsetsigns(GEN nf, GEN signs, GEN x, GEN sarch)
   /* Is signature already correct ? */
   if (typ(x) != t_COL)
   {
-    long s = gsigne(x) < 0? 1: 0;
-    if (!signs)
-      i = (s == 1)? 1: l;
+    long s = gsigne(x);
+    if (!s) i = 1;
+    else if (!signs)
+      i = (s < 0)? 1: l;
     else
     {
+      s = s < 0? 1: 0;
       for (i = 1; i < l; i++)
         if (signs[i] != s) break;
     }
@@ -1442,9 +1444,8 @@ nfsetsigns(GEN nf, GEN signs, GEN x, GEN sarch)
   }
   if (ex)
   { /* If no, fix it */
+    GEN MI = sarch_get_MI(sarch), F = sarch_get_F(sarch);
     GEN lambda = sarch_get_lambda(sarch);
-    GEN MI = sarch_get_MI(sarch);
-    GEN F = sarch_get_F(sarch);
     GEN t = RgC_sub(get_C(lambda, l, signs), ex);
     long e;
     t = grndtoi(RgM_RgC_mul(MI,t), &e);
@@ -1475,6 +1476,7 @@ setsigns_init(GEN nf, GEN archp, GEN F, GEN DATA)
 {
   GEN lambda, Mr = rowpermute(nf_get_M(nf), archp), MI = F? RgM_mul(Mr,F): Mr;
   lambda = gmul2n(matrixnorm(MI,DEFAULTPREC), -1);
+  if (typ(lambda) != t_REAL) lambda = gmul(lambda, sstoQ(1001,1000));
   if (lg(archp) < lg(MI))
   {
     GEN perm = gel(indexrank(MI), 2);
@@ -1635,16 +1637,19 @@ chineseinit_i(GEN nf, GEN fa, GEN w, GEN dw)
     default: pari_err_TYPE(fun,fa);
   }
 
-  if (pl)
-  {
-    GEN F = (lg(fa) == 1)? NULL: gel(fa,1);
-    long i, r = lg(archp);
-    GEN signs = cgetg(r, t_VECSMALL);
-    for (i = 1; i < r; i++) signs[i] = (pl[archp[i]] < 0)? 1: 0;
-    pl = setsigns_init(nf, archp, F, signs);
-  }
+  if (!pl) pl = cgetg(1,t_VEC);
   else
-    pl = cgetg(1,t_VEC);
+  {
+    long r = lg(archp);
+    if (r == 1) pl = cgetg(1, t_VEC);
+    else
+    {
+      GEN F = (lg(fa) == 1)? NULL: gel(fa,1), signs = cgetg(r, t_VECSMALL);
+      long i;
+      for (i = 1; i < r; i++) signs[i] = (pl[archp[i]] < 0)? 1: 0;
+      pl = setsigns_init(nf, archp, F, signs);
+    }
+  }
   return mkvec2(fa, pl);
 }
 
@@ -1667,6 +1672,7 @@ idealchinese(GEN nf, GEN x, GEN w)
   if (!is_chineseinit(x)) x = chineseinit_i(nf,x,w,dw);
   /* x is a 'chineseinit' */
   x1 = gel(x,1); s = NULL;
+  x2 = gel(x,2);
   if (lg(x1) == 1) F = NULL;
   else
   {
@@ -1681,10 +1687,9 @@ idealchinese(GEN nf, GEN x, GEN w)
       }
     if (s) s = ZC_reducemodmatrix(s, F);
   }
+  if (lg(x2) != 1) s = nfsetsigns(nf, gel(x2,1), s? s: gen_0, x2);
   if (!s) { s = zerocol(nf_get_degree(nf)); dw = NULL; }
 
-  x2 = gel(x,2);
-  if (lg(x2) != 1) s = nfsetsigns(nf, gel(x2,1), s, x2);
   if (dw) s = RgC_Rg_div(s,dw);
   return gerepileupto(av, s);
 }
