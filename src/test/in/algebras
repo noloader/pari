@@ -1905,6 +1905,7 @@ algtableinit([Mat(1)],4)
 \\end bad inputs
 
 
+print("new algsimpledec");
 \\ K^3
 mt = [matid(3),[0,0,0;1,1,0;0,0,0],[0,0,0;0,0,0;1,0,1]];
 al = algtableinit(mt);
@@ -1919,6 +1920,22 @@ al = algtableinit(mt);
 algsimpledec(al,1)
 al2 = algtableinit(mt,5);
 algsimpledec(al2,1)
+
+print("norm(,1)");
+nf = nfinit(y^2-5);
+B = alginit(nf,[-1,y]);
+b = [x,1]~;
+algnorm(B,b,1)
+n = algnorm(B,b)
+nfeltnorm(nf,n)^2
+algnorm(B,b/3,1)
+algnorm(B,[3,5,1,6,7,-2,1/7,0]~,1)
+m = [[1/3,y]~,[0,0]~;[y+1,y-1]~,[1..8]~];
+algnorm(B,m,1)==matdet(algleftmultable(B,m))
+a = algrandom(B,2);
+algnorm(B,a,1)*algnorm(B,b,1)==algnorm(B,algmul(B,a,b),1)
+
+
 
 print("nfgrunwaldwang SEGV #1669");
 nfgrunwaldwang(nfinit(y),[2,3],[1,2],Vecsmall(1))

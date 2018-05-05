@@ -2072,6 +2072,7 @@ testing simplify: quatalg csa over Q
   ***   at top-level: algtableinit([Mat(1)],4)
   ***                 ^------------------------
   *** algtableinit: not a prime number in algtableinit: 4.
+new algsimpledec
 0
 [0, [[[0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 0, [1]], Mat([1, 1, 0]), 
 [0; 1; 0]], [[0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 0, [1]], Mat([1, 0
@@ -2088,6 +2089,14 @@ Mat([1, 1, 0]), [0; 1; 0]]]]
 [[0; 0; 1], [[[0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 5, [1]], Mat([1, 
 1, 0]), [0; 1; 0]], [[0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 5, [1]], M
 at([1, 0, 0]), [1; 4; 0]]]]
+norm(,1)
+16
+Mod(-y + 1, y^2 - 5)
+16
+16/6561
+223225143999841/5764801
+1
+1
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
@@ -2109,4 +2118,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 1032
+Total time spent: 872

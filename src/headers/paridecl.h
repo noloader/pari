@@ -1430,7 +1430,7 @@ GEN     alglatrighttransporter(GEN al, GEN lat1, GEN lat2);
 int     alglatsubset(GEN al, GEN lat1, GEN lat2, GEN* ptindex);
 GEN     algleftmultable(GEN al, GEN x);
 GEN     algneg(GEN al, GEN x);
-GEN     algnorm(GEN al, GEN x);
+GEN     algnorm(GEN al, GEN x, long abs);
 GEN     algpoleval(GEN al, GEN pol, GEN x);
 GEN     algpow(GEN al, GEN x, GEN n);
 GEN     algprimesubalg(GEN al);

@@ -2766,7 +2766,7 @@ algtracei(GEN mt, ulong p, ulong expo, ulong modu)
 }
 
 GEN
-algnorm(GEN al, GEN x)
+algnorm(GEN al, GEN x, long abs)
 {
   pari_sp av = avma;
   long tx;
@@ -2783,9 +2783,16 @@ algnorm(GEN al, GEN x)
 
   switch(alg_type(al)) {
     case al_CYCLIC: case al_CSA:
-      rnf = alg_get_splittingfield(al);
-      res = rnfeltdown(rnf, det(algtomatrix(al,x)));
-      break;
+      if (abs)
+      {
+        if (alg_model(al,x)==al_ALGEBRAIC) x = algalgtobasis(al,x);
+      }
+      else
+      {
+        rnf = alg_get_splittingfield(al);
+        res = rnfeltdown(rnf, det(algtomatrix(al,x)));
+        break;
+      }
     case al_TABLE:
       if (tx == al_MATRIX)  mx = algleftmultable_mat(al,x);
       else                  mx = algbasismultable(al,x);
