@@ -1442,7 +1442,7 @@ GEN     algsqr(GEN al, GEN x);
 GEN     algsub(GEN al, GEN x, GEN y);
 GEN     algtableinit(GEN mt, GEN p);
 GEN     algtensor(GEN al1, GEN al2, long maxord);
-GEN     algtrace(GEN al, GEN x);
+GEN     algtrace(GEN al, GEN x, long abs);
 long    algtype(GEN al);
 GEN     bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var);
 GEN     bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl);

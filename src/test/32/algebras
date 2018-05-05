@@ -2097,6 +2097,13 @@ Mod(-y + 1, y^2 - 5)
 223225143999841/5764801
 1
 1
+trace(,1)
+Mod(2*y + 2, y^2 - 5)
+8
+8
+1
+1
+1
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
@@ -2118,4 +2125,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 872
+Total time spent: 868

@@ -2690,7 +2690,7 @@ algredtrace(GEN al, GEN x)
 }
 
 static GEN
-algtrace_mat(GEN al, GEN M) {
+algtrace_mat(GEN al, GEN M, long abs) {
   pari_sp av = avma;
   long N = lg(M)-1, i;
   GEN res, p = alg_get_char(al);
@@ -2698,22 +2698,24 @@ algtrace_mat(GEN al, GEN M) {
   if (N != nbrows(M)) pari_err_DIM("algtrace_mat (nonsquare)");
 
   if (!signe(p)) p = NULL;
-  res = algtrace(al, gcoeff(M,1,1));
+  res = algtrace(al, gcoeff(M,1,1), abs);
   for (i=2; i<=N; i++) {
-    if (p)  res = Fp_add(res, algtrace(al,gcoeff(M,i,i)), p);
-    else    res = gadd(res, algtrace(al,gcoeff(M,i,i)));
+    if (p)  res = Fp_add(res, algtrace(al,gcoeff(M,i,i),abs), p);
+    else    res = gadd(res, algtrace(al,gcoeff(M,i,i),abs));
   }
   if (alg_type(al) == al_TABLE) res = gmulgs(res, N); /* absolute trace */
   return gerepileupto(av, res);
 }
 
 GEN
-algtrace(GEN al, GEN x)
+algtrace(GEN al, GEN x, long abs)
 {
   checkalg(al);
-  if (alg_model(al,x) == al_MATRIX) return algtrace_mat(al,x);
+  if (alg_model(al,x) == al_MATRIX) return algtrace_mat(al,x,abs);
   switch(alg_type(al)) {
-    case al_CYCLIC: case al_CSA: return algredtrace(al,x);
+    case al_CYCLIC: case al_CSA:
+      if (!abs) return algredtrace(al,x);
+      if (alg_model(al,x)==al_ALGEBRAIC) x = algalgtobasis(al,x);
     case al_TABLE: return algabstrace(al,x);
     default : return NULL; /* LCOV_EXCL_LINE */
   }
