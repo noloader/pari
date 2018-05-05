@@ -1400,8 +1400,8 @@ ecppexport(GEN cert, long flag)
   switch(flag)
   {
     case 0: return cert_out(cert);
-    case 1: return magma_out(cert);
-    case 2: return primo_out(cert);
+    case 1: return primo_out(cert);
+    case 2: return magma_out(cert);
   }
   pari_err_FLAG("primecertexport");
   return NULL;/*LCOV_EXCL_LINE*/

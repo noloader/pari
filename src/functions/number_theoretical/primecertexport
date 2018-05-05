@@ -10,9 +10,9 @@ Doc:
 
  \item 0 (default): Human-readable format.
 
- \item 1: MAGMA format.
+ \item 1: Primo format 4.
 
- \item 2: Primo format 4.
+ \item 2: MAGMA format.
 
  Currently, only ECPP Primality Certificates are supported.
 
@@ -42,10 +42,11 @@ Doc:
  E = [0, 25895956964997806805]
  P = [29257172487394218479, 3678591960085668324]
 
- \\ Magma format, write to file
- ? s = primecertexport(cert,1); write("cert.m", s);
  \\ Primo format
- ? s = primecertexport(cert,2); write("cert.out", s);
+ ? s = primecertexport(cert,1); write("cert.out", s);
+
+ \\ Magma format, write to file
+ ? s = primecertexport(cert,2); write("cert.m", s);
 
  ? cert = primecert(10^35+69, 1); \\ N-1 certificate
   ***   at top-level: primecertexport(cert)
