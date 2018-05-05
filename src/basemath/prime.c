@@ -885,11 +885,37 @@ primecertisvalid(GEN c)
   return 0;
 }
 
+static long
+check_eccpcertentry(GEN c)
+{
+  GEN v;
+  long i,l = lg(c);
+  if (typ(c)!=t_VEC || l!=6) return 0;
+  for(i=1; i<=4; i++)
+    if (typ(gel(c,i))!=t_INT) return 0;
+  v = gel(c,5);
+  if(typ(v)!=t_VEC) return 0;
+  for(i=1; i<=2; i++)
+    if (typ(gel(v,i))!=t_INT) return 0;
+  return 1;
+}
+
+static long
+check_eccpcert(GEN c)
+{
+  long i, l = lg(c);
+  if (typ(c)==t_INT || signe(c)>=0) return 1;
+  if (typ(c)!=t_VEC) return 0;
+  for(i=1; i<l; i++)
+    if (check_eccpcertentry(gel(c,i))==0) return 0;
+  return 1;
+}
+
 GEN
 primecertexport(GEN c, long flag)
 {
   if (cert_type(c) != c_ECPP) pari_err_IMPL("N-1 certificate");
-  if (!primecertisvalid(c))
+  if (!check_eccpcert(c))
     pari_err_TYPE("primecertexport - invalid certificate", c);
   return ecppexport(c, flag);
 }
