@@ -824,7 +824,7 @@ static GEN alg_decompose(GEN al, GEN Z, int mini, GEN* pt_primelt);
 static GEN
 try_fact(GEN al, GEN x, GEN zx, GEN Z, GEN Zal, long mini, GEN* pt_primelt)
 {
-  GEN z, dec0, dec1, cp = algcharpoly(Zal,zx,0), fa, p = alg_get_char(al);
+  GEN z, dec0, dec1, cp = algcharpoly(Zal,zx,0,1), fa, p = alg_get_char(al);
   long nfa, e;
   dbg_printf(3)("  try_fact: zx=%Ps\n", zx);
   if (signe(p)) fa = FpX_factor(cp,p);
@@ -1081,7 +1081,7 @@ try_split(GEN al, GEN x, long n, long d)
 {
   GEN cp, p = alg_get_char(al), fa, e, pol, exp, P, Q, U, u, mx, mte, ire;
   long nfa, i, smalldim = alg_get_absdim(al)+1, dim, smalli = 0;
-  cp = algcharpoly(al,x,0);
+  cp = algcharpoly(al,x,0,1);
   fa = FpX_factor(cp,p);
   nfa = nbrows(fa);
   if (nfa == 1) return NULL;
@@ -2632,7 +2632,7 @@ algbasischarpoly(GEN al, GEN x, long v)
 }
 
 GEN
-algcharpoly(GEN al, GEN x, long v)
+algcharpoly(GEN al, GEN x, long v, long abs)
 {
   checkalg(al);
   if (v<0) v=0;
@@ -2645,7 +2645,12 @@ algcharpoly(GEN al, GEN x, long v)
   }
 
   switch(alg_type(al)) {
-    case al_CYCLIC: case al_CSA: return algredcharpoly(al,x,v);
+    case al_CYCLIC: case al_CSA:
+      if (abs)
+      {
+        if (alg_model(al,x)==al_ALGEBRAIC) x = algalgtobasis(al,x);
+      }
+      else return algredcharpoly(al,x,v);
     case al_TABLE: return algbasischarpoly(al,x,v);
     default : return NULL; /* LCOV_EXCL_LINE */
   }

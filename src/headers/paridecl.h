@@ -1393,7 +1393,7 @@ GEN     algbasismul(GEN al, GEN x, GEN y);
 GEN     algbasismultable(GEN al, GEN x);
 GEN     algbasismultable_Flm(GEN mt, GEN x, ulong m);
 GEN     algbasistoalg(GEN al, GEN x);
-GEN     algcharpoly(GEN al, GEN x, long v);
+GEN     algcharpoly(GEN al, GEN x, long v, long abs);
 GEN     algdisc(GEN al);
 GEN     algdivl(GEN al, GEN x, GEN y);
 GEN     algdivr(GEN al, GEN x, GEN y);

@@ -2104,6 +2104,13 @@ Mod(2*y + 2, y^2 - 5)
 1
 1
 1
+charpoly(,1)
+x^2 - 2*y*x + (-2*y + 5)
+x^8 - 20*x^6 - 80*x^5 + 110*x^4 + 800*x^3 + 1500*x^2 - 400*x + 25
+x^8 - 20*x^6 - 80*x^5 + 110*x^4 + 800*x^3 + 1500*x^2 - 400*x + 25
+1
+1
+1
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
@@ -2125,4 +2132,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 868
+Total time spent: 952
