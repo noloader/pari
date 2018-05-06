@@ -2375,23 +2375,11 @@ ellQp_t2P(GEN E, GEN t, long prec)
   return gerepilecopy(av, mkvec2(x0,y0));
 }
 
-GEN
-zell(GEN e, GEN z, long prec)
+static GEN
+zell_i(GEN e, GEN z, long prec)
 {
-  pari_sp av = avma;
   GEN t;
   long s;
-
-  checkell(e); checkellpt(z);
-  switch(ell_get_type(e))
-  {
-    case t_ELL_Qp:
-      prec = minss(ellQp_get_prec(e), padicprec_relative(z));
-      return ellQp_P2t(e, z, prec);
-    case t_ELL_Q: break;
-    case t_ELL_Rg: break;
-    default: pari_err_TYPE("ellpointtoz", e);
-  }
   (void)ellR_omega(e, prec); /* type checking */
   if (ell_is_inf(z)) return gen_0;
   s = ellR_get_sign(e);
@@ -2399,7 +2387,33 @@ zell(GEN e, GEN z, long prec)
     t = (s < 0)? zellrealneg(e,z,prec): zellrealpos(e,z,prec);
   else
     t = zellcx(e,z,prec);
-  return gerepileupto(av,t);
+  return t;
+}
+static GEN ellnfembed(GEN E, long prec);
+static GEN ellpointnfembed(GEN E, GEN P, long prec);
+static void ellnfembed_free(GEN L);
+GEN
+zell(GEN E, GEN P, long prec)
+{
+  pari_sp av = avma;
+  checkell(E); checkellpt(P);
+  switch(ell_get_type(E))
+  {
+    case t_ELL_Qp:
+      prec = minss(ellQp_get_prec(E), padicprec_relative(P));
+      return ellQp_P2t(E, P, prec);
+    case t_ELL_NF:
+    {
+      GEN Ee = ellnfembed(E, prec), Pe = ellpointnfembed(E, P, prec);
+      long i, l = lg(Pe);
+      for (i = 1; i < l; i++) gel(Pe,i) = zell_i(gel(Ee,i), gel(Pe,i), prec);
+      ellnfembed_free(Ee); return gerepilecopy(av, Pe);
+    }
+    case t_ELL_Q: break;
+    case t_ELL_Rg: break;
+    default: pari_err_TYPE("ellpointtoz", E);
+  }
+  return gerepileupto(av, zell_i(E, P, prec));
 }
 
 enum period_type { t_PER_W, t_PER_WETA, t_PER_ELL };

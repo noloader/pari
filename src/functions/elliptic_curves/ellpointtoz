@@ -6,11 +6,9 @@ Help: ellpointtoz(E,P): lattice point z corresponding to the point P on the
  elliptic curve E.
 Doc:
  if $E/\C \simeq \C/\Lambda$ is a complex elliptic curve ($\Lambda =
- \kbd{E.omega}$),
- computes a complex number $z$, well-defined modulo the lattice $\Lambda$,
- corresponding to the point $P$; i.e.~such that
-  $P = [\wp_\Lambda(z),\wp'_\Lambda(z)]$
- satisfies the equation
+ \kbd{E.omega}$), computes a complex number $z$, well-defined modulo the
+ lattice $\Lambda$, corresponding to the point $P$; i.e.~such that
+ $P = [\wp_\Lambda(z),\wp'_\Lambda(z)]$ satisfies the equation
  $$y^2 = 4x^3 - g_2 x - g_3,$$
  where $g_2$, $g_3$ are the elliptic invariants.
 
@@ -27,6 +25,22 @@ Doc:
  %4 = [2.548947057811923643 E-57, 7.646841173435770930 E-57]
  ? ellpointtoz(E, [0]) \\ the point at infinity
  %5 = 0
+ @eprog
+
+ If $E$ is defined over a general number field, the function returns the
+ values corresponding to the various complex embeddings of the curve
+ and of the point, in the same order as \kbd{E.nf.roots}:
+ \bprog
+ ? E=ellinit([-22032-15552*x,0], nfinit(x^2-2));
+ ? P=[-72*x-108,0];
+ ? ellisoncurve(E,P)
+ %3 = 1
+ ? ellpointtoz(E,P)
+ %4 = [-0.52751724240790530394437835702346995884*I,
+       -0.090507650025885335533571758708283389896*I]
+ ? E.nf.roots
+ %5 = [-1.4142135623730950488016887242096980786, \\ x-> -sqrt(2)
+        1.4142135623730950488016887242096980786] \\ x->  sqrt(2)
  @eprog
 
  If $E/\Q_p$ has multiplicative reduction, then $E/\bar{\Q_p}$ is analytically

@@ -563,6 +563,8 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
          is non-negative
      82- rename diviu_rem -> absdiviu_rem, udiviu_rem -> uabsdiviu_rem,
          udivui_rem -> uabsdivui_rem
+     83- allow E.omega, E.eta, E.area for E over number field
+     84- ellpointtoz for E over number field
 
   Removed
       1- file 'MACHINES' (no longer maintained)
