@@ -199,6 +199,7 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     154- padicappr('x,Mod(0,'t^2+1)+O(7^10)) -> SEGV [#2036]
     155- allow \r "foo bar" (quotes around file names are optional for
          \l,\r, \w; they allow filenames with spaces) [#2035]
+    156- memory leak in polclass()
 
   Added
       1- [libari] ZM_isidentity
@@ -234,7 +235,7 @@ PB   23- [libpari] F2xqM_F2xqC_gauss F2xqM_F2xqC_invimage F2xqM_gauss F2xqM_invi
      24- new GP function polrootsbound
 HC   25- new GP functions prodeulerrat, sumeulerrat, sumnumrat, prodnumrat
 HC   26- new GP function zetahurwitz
-     27- libpari function sqrtnr_abs
+     27- [libpari] sqrtnr_abs
      28- binomial(x,k): allow omitting k [ => vecbinomial ]
 VD   29- [libpari] forperm_init, forperm_next, forperm, forallsubset_init,
          forallsubset_next, forksubset_init, forksubset_next, forsubset
@@ -276,7 +277,7 @@ JD   54- [plot] SVG support
      59- new GP function ellminimaldisc
      60- [libpari] rfracrecip_to_ser_absolute, RgV_to_ser
      61- new GP function znchardecompose, zncharconductor, znchartoprimitive
-PB   62- perm_sign
+PB   62- [libpari] perm_sign
 PB   63- [libpari] FlxC_neg FlxC_sub FlxM_neg FlxM_sub FlxqC_Flxq_mul
                    FlxqM_Flxq_mul zero_FlxC zero_FlxM
 PB   64- asymptotically fast linear algebra using CUP decomposition
@@ -515,7 +516,7 @@ BA   46-[libpari] RgX_type now only handles polynomials.
          arguments; use * [a,b]~
      53- ellpadics2: allow curves with multiplicative reduction
      54- E/Qp now allowed in ellcard, ellap, ellgroup, ellissupersingular,
-         ellpadicfrobenius, ellpadics2, ellintegralmodel
+         ellpadicfrobenius, ellpadics2, ellintegralmodel, elllocalred
      55- E/Qp convert coefficient to exact form using centered residues
      56- msissymbol now returns a GEN (gen_0/gen_1) instead of a long, allow
          t_MAT arguments and return a vector of 0/1 in this case.
@@ -556,13 +557,11 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
      78- elllocalred, ellap, ellcard, ellissupersingular, ellgroup(,0):
          allow models which are not p-integral
      79- ellgroup: allow E over number field
-     80- elllocalred: allow E over Qp
-     81- memory leak in polclass()
-     82- factorback([;]) is now invalid [ [;] is not the empty factorization,
+     80- factorback([;]) is now invalid [ [;] is not the empty factorization,
          factor(1) = matrix(0,2) is ]
-     83- cmpiu / cmpiu, equaliu / equalui : no longer assume that t_INT argument
+     81- cmpiu / cmpiu, equaliu / equalui : no longer assume that t_INT argument
          is non-negative
-     84- rename diviu_rem -> absdiviu_rem, udiviu_rem -> uabsdiviu_rem,
+     82- rename diviu_rem -> absdiviu_rem, udiviu_rem -> uabsdiviu_rem,
          udivui_rem -> uabsdivui_rem
 
   Removed
