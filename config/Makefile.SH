@@ -425,10 +425,11 @@ install-cfg::
 	   \$(INSTALL_DATA) $desc/PARI/822.pm \$(DATADIR)/PARI;\
 	   \$(INSTALL_DATA) $desc/\$(DESC) \$(DATADIR); fi
 
-install-doc: install-gphelp install-docdvi
+install-doc: install-gphelp install-docdvi install-doctex
+
+install-doctex::
 	-mkdir -p \$(DOCDIR)
 	-cd $doc; \$(MAKE) usersch3.tex
-	-\$(INSTALL_DATA) $doc/translations \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/appa.tex     \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/appb.tex     \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/appd.tex     \$(DOCDIR)
@@ -437,6 +438,7 @@ install-doc: install-gphelp install-docdvi
 	-\$(INSTALL_DATA) $doc/develop.tex  \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/refcard.tex  \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/tutorial.tex \$(DOCDIR)
+	-\$(INSTALL_DATA) $doc/tutorial-mf.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/users.tex    \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/usersch1.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/usersch2.tex \$(DOCDIR)
@@ -450,6 +452,7 @@ install-doc: install-gphelp install-docdvi
 
 install-gphelp::
 	-mkdir -p \$(BINDIR)
+	-\$(INSTALL_DATA) $doc/translations \$(DOCDIR)
 	-\$(INSTALL_PROGRAM) $doc/gphelp    \$(BINDIR)
 
 install-docdvi::
