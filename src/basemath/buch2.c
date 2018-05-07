@@ -1708,18 +1708,23 @@ isprincipalarch(GEN bnf, GEN col, GEN kNx, GEN e, GEN dx, long *pe)
   long N, R1, RU, i, prec = gprecision(col);
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf); M = nf_get_M(nf);
   if (!prec) prec = prec_arch(bnf);
+  *pe = 128;
   logfu = bnf_get_logfu(bnf);
   N = nf_get_degree(nf);
   R1 = nf_get_r1(nf);
   RU = (N + R1)>>1;
-  col = cleanarch(col,N,prec); settyp(col, t_COL);
-  if (!col) pari_err_PREC( "isprincipalarch");
+  if (!(col = cleanarch(col,N,prec))) return NULL;
+  settyp(col, t_COL);
   if (RU > 1)
   { /* reduce mod units */
     GEN u, z = init_red_mod_units(bnf,prec);
     u = red_mod_units(col,z);
     if (!u && z) return NULL;
-    if (u) col = RgC_add(col, RgM_RgC_mul(logfu, u));
+    if (u)
+    {
+      col = RgC_add(col, RgM_RgC_mul(logfu, u));
+      if (!(col = cleanarch(col,N,prec))) return NULL;
+    }
   }
   s = divru(mulir(e, glog(kNx,prec)), N);
   for (i=1; i<=R1; i++) gel(col,i) = gexp(gadd(s, gel(col,i)),prec);
@@ -1728,11 +1733,7 @@ isprincipalarch(GEN bnf, GEN col, GEN kNx, GEN e, GEN dx, long *pe)
   x = RgM_solve_realimag(M,col); if (!x) return NULL;
   x = RgC_Rg_mul(x, dx);
   y = grndtoi(x, pe);
-  if (*pe > -5)
-  {
-    *pe = needed_bitprec(x);
-    return NULL;
-  }
+  if (*pe > -5) { *pe = needed_bitprec(x); return NULL; }
   return RgC_Rg_div(y, dx);
 }
 
