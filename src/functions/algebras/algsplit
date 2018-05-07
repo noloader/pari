@@ -14,10 +14,11 @@ Doc: If \var{al} is a table algebra over~$\F_p$ output by \tet{algtableinit}
 
  \item \var{mapi} is an~$N\times N$ matrix with \typ{INT} coefficients,
   representing the image in \var{al} by the inverse isomorphism of the
-  basis~$(b_i)$ of~$M_d(\F_p[\alpha])$, where~$\alpha$ has degree~$n$
-  over~$\F_p$, where~$b_i = E_{((i-1)/nd)+1, ((i-1)/n \mod d)+1} \alpha^{(i-1)
-  \mod n}$, and where~$E_{i,j}$ is the matrix having all coefficients~$0$
-  except the~$(i,j)$-th coeffcient equal to~$1$.
+  basis~$(b_i)$ of~$M_d(\F_p[\alpha])$ (where~$\alpha$ has degree~$n$
+  over~$\F_p$) defined as follows:
+  let~$E_{i,j}$ be the matrix having all coefficients~$0$ except the~$(i,j)$-th
+  coefficient equal to~$1$, and define
+  $$b_i = E_{((i-1)/nd)+1, ((i-1)/n \mod d)+1} \alpha^{(i-1)\mod n}.$$
 
  Example:
  \bprog
