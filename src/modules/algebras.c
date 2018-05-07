@@ -2454,7 +2454,11 @@ algdivl_i(GEN al, GEN x, GEN y, long tx, long ty) {
     if (tx==al_ALGEBRAIC) x = algalgtobasis(al,x);
     if (ty==al_ALGEBRAIC) y = algalgtobasis(al,y);
   }
-  if (ty == al_MATRIX) y = algmat2basis(al,y);
+  if (ty == al_MATRIX)
+  {
+    if (alg_type(al) != al_TABLE) y = algalgtobasis(al,y);
+    y = algmat2basis(al,y);
+  }
   if (signe(p)) res = FpM_FpC_invimage(algleftmultable(al,x),y,p);
   else          res = inverseimage(algleftmultable(al,x),y);
   if (!res || lg(res)==1) { avma = av; return NULL; }
