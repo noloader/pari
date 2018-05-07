@@ -385,8 +385,6 @@ $A$ is a general associative algebra given by a multiplication table \var{mt}
 \li{is $A$ commutative?}{algiscommutative$(\var{al})$}
 \li{is $A$ simple?}{algissimple$(\var{al})$}
 \li{is $A$ semi-simple?}{algissemisimple$(\var{al})$}
-\li{is $A$ ramified? (at place $v$)}{algisramified$(\var{al},\{v\})$}
-\li{is $A$ split? (at place $v$)}{algissplit$(\var{al},\{v\})$}
 \li{center of $A$}{algcenter$(\var{al})$}
 \li{Jacobson radical of $A$}{algradical$(\var{al})$}
 \li{radical $J$ and simple factors of $A/J$}{algsimpledec$(\var{al})$}
@@ -456,11 +454,8 @@ $A$ is a central simple algebra over a number field $K$; represented by
 \smallskip
 \subsec{Properties}
 \li{type of \var{al} (\var{mt}, CSA)}{algtype$(\var{al})$}
-\li{is \var{al} a division algebra? (at place $v$)}
-   {algisdivision$(\var{al},\{v\})$}
 \li{dimension of \var{al} over its center}{algdim$(\var{al})$}
 \li{degree of $A$ ($=\sqrt{\dim}$)}{algdegree$(\var{al})$}
-\li{index of $A$ over $K$ (index at $v$)}{algindex$(\var{al},\{v\})$}
 \li{\var{al} a cyclic algebra $(L/K,\sigma,b)$; return $\sigma$}
    {algaut$(\var{al})$}
 \li{\dots return $b$}{algb$(\var{al})$}
@@ -474,6 +469,11 @@ $A$ is a central simple algebra over a number field $K$; represented by
 \li{Hasse invariants at finite places of $K$}{alghassef$(\var{al})$}
 \li{Hasse invariants at infinite places of $K$}{alghassei$(\var{al})$}
 \li{Hasse invariant at place $v$}{alghasse$(\var{al},v)$}
+\li{index of $A$ over $K$ (index at $v$)}{algindex$(\var{al},\{v\})$}
+\li{is \var{al} a division algebra? (at place $v$)}
+   {algisdivision$(\var{al},\{v\})$}
+\li{is $A$ ramified? (at place $v$)}{algisramified$(\var{al},\{v\})$}
+\li{is $A$ split? (at place $v$)}{algissplit$(\var{al},\{v\})$}
 
 \smallskip
 \subsec{Operations on elements}
