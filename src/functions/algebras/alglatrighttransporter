@@ -5,7 +5,7 @@ Prototype: GGG
 Help: alglatrighttransporter(al,lat1,lat2): the set of x in al such that lat1*x
  is contained in lat2.
 Doc: Given an algebra \var{al} and two lattices \var{lat1} and \var{lat2}
- in~\var{al}, compute the right transporter from \var{lat1} to~\var{lat2}, i.e.
+ in~\var{al}, computes the right transporter from \var{lat1} to~\var{lat2}, i.e.
  the set of~$x\in al$ such that~$lat1\cdot x \subset lat2$.
  \bprog
  ? al = alginit(nfinit(y^2+7), [-1,-1]);

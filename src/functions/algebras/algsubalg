@@ -4,10 +4,10 @@ C-Name: algsubalg
 Prototype: GG
 Help: algsubalg(al,B): subalgebra of al with basis B.
 Doc: \var{al} being a table algebra output by \tet{algtableinit} and \var{B}
- being a basis of a subalgebra of~\var{al} represented by a matrix, compute an
+ being a basis of a subalgebra of~\var{al} represented by a matrix, computes an
  algebra~\var{al2} isomorphic to \var{B}.
 
- Return $[\var{al2},\var{B2}]$ where \var{B2} is a possibly different basis of
+ Returns $[\var{al2},\var{B2}]$ where \var{B2} is a possibly different basis of
  the subalgebra \var{al2}, with respect to which the multiplication table of
  \var{al2} is defined.
  \bprog

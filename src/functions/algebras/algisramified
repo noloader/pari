@@ -2,14 +2,14 @@ Function: algisramified
 Section: algebras
 C-Name: algisramified
 Prototype: iGDG
-Help: algisramified(al,{pl}): test whether the central simple algebra al is
+Help: algisramified(al,{pl}): tests whether the central simple algebra al is
  ramified, i.e. not isomorphic to a matrix ring over its center. If pl is set,
  it should be a prime ideal of the center or an integer between 1 and r1+r2, and
- in that case test whether al is locally ramified at the place pl instead.
-Doc: Given a central simple algebra \var{al} output by \tet{alginit}, test
+ in that case tests whether al is locally ramified at the place pl instead.
+Doc: Given a central simple algebra \var{al} output by \tet{alginit}, tests
  whether \var{al} is ramified, i.e. not isomorphic to a matrix algebra over its
  center. If \var{pl} is set, it should be a prime ideal of~$K$ or an integer
- between~$1$ and~$r_1+r_2$, and in that case test whether \var{al} is locally
+ between~$1$ and~$r_1+r_2$, and in that case tests whether \var{al} is locally
  ramified at the place \var{pl} instead.
 
  \bprog

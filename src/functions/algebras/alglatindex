@@ -4,7 +4,7 @@ C-Name: alglatindex
 Prototype: GGG
 Help: alglatindex(al,lat1,lat2): the generalized index (lat2:lat1).
 Doc: Given an algebra~\var{al} and two lattices~\var{lat1} and~\var{lat2}
- in~\var{al}, compute the generalized index of~\var{lat1} relative
+ in~\var{al}, computes the generalized index of~\var{lat1} relative
  to~\var{lat2}, i.e.~$|lat2/lat1\cap lat2|/|lat1/lat1\cap lat2|$.
  \bprog
  ? al = alginit(nfinit(y^2+7), [-1,-1]);

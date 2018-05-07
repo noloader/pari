@@ -2,9 +2,9 @@ Function: alginit
 Section: algebras
 C-Name: alginit
 Prototype: GGDnD1,L,
-Help: alginit(B, C, {v}, {flag = 1}): initialize the central simple algebra
+Help: alginit(B, C, {v}, {flag = 1}): initializes the central simple algebra
  defined by data B, C. If flag = 1, compute a maximal order.
-Doc: initialize the central simple algebra defined by data $B$, $C$ and
+Doc: initializes the central simple algebra defined by data $B$, $C$ and
  variable $v$, as follows.
 
  \item (multiplication table) $B$ is the base number field $K$ in \tet{nfinit}

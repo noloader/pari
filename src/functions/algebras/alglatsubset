@@ -2,11 +2,11 @@ Function: alglatsubset
 Section: algebras
 C-Name: alglatsubset
 Prototype: iGGGD&
-Help: alglatsubset(al,lat1,lat2,{&ptindex}): test whether lat1 is contained in
- lat2 and if true and ptindex is present, set it to the index (lat2:lat1).
+Help: alglatsubset(al,lat1,lat2,{&ptindex}): tests whether lat1 is contained in
+ lat2 and if true and ptindex is present, sets it to the index (lat2:lat1).
 Doc: Given an algebra~\var{al} and two lattices~\var{lat1} and~\var{lat2}
- in~\var{al}, test whether~$lat1\subset lat2$. If it is true and \var{ptindex}
- is present, set it to the index of~\var{lat1} in~\var{lat2}.
+ in~\var{al}, tests whether~$lat1\subset lat2$. If it is true and \var{ptindex}
+ is present, sets it to the index of~\var{lat1} in~\var{lat2}.
  \bprog
  ? al = alginit(nfinit(y^2+7), [-1,-1]);
  ? lat1 = alglathnf(al,[1,1,0,0,0,0,0,0]~);

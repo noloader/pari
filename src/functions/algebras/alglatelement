@@ -2,10 +2,10 @@ Function: alglatelement
 Section: algebras
 C-Name: alglatelement
 Prototype: GGG
-Help: alglatelement(al,lat,c): return the element of al whose coordinates on
+Help: alglatelement(al,lat,c): returns the element of al whose coordinates on
  the Z-basis of lat are c.
 Doc: Given an algebra \var{al}, a lattice \var{lat} and a~\typ{COL}~\var{c},
- return the element of~\var{al} whose coordinates on the \Z-basis of~\var{lat}
+ returns the element of~\var{al} whose coordinates on the \Z-basis of~\var{lat}
  are given by~\var{c}.
  \bprog
  ? al = alginit(nfinit(y^2+7), [-1,-1]);
