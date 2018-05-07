@@ -405,3 +405,6 @@ ellheight(E,P)
 
 \\#1648
 ellinit([0,0,0,0,1]).a1
+
+E=ellinit([-22032-15552*x,0], nfinit(x^2-2)); P=[-72*x-108,0];
+ellpointtoz(E,P)
