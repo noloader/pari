@@ -903,10 +903,15 @@ check_eccpcertentry(GEN c)
 static long
 check_eccpcert(GEN c)
 {
-  long i, l = lg(c);
-  if (typ(c)==t_INT || signe(c)>=0) return 1;
-  if (typ(c)!=t_VEC) return 0;
-  for(i=1; i<l; i++)
+  long i, l;
+  switch(typ(c))
+  {
+    case t_INT: return signe(c) >= 0;
+    case t_VEC: break;
+    default: return 0;
+  }
+  l = lg(c);
+  for (i = 1; i < l; i++)
     if (check_eccpcertentry(gel(c,i))==0) return 0;
   return 1;
 }
