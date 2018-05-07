@@ -380,7 +380,6 @@ $A$ is a general associative algebra given by a multiplication table \var{mt}
 \li{is $(\var{mt},p)$ OK for algtableinit?}
    {algisassociative$(\var{mt},\{p=0\})$}
 \li{multiplication table \var{mt}}{algmultable$(\var{al})$}
-\li{multiplication table over center}{algrelmultable$(\var{al})$}
 \li{dimension of $A$ over prime subfield}{algabsdim$(\var{al})$}
 \li{characteristic of $A$}{algchar$(\var{al})$}
 \li{is $A$ commutative?}{algiscommutative$(\var{al})$}
@@ -397,7 +396,7 @@ $A$ is a general associative algebra given by a multiplication table \var{mt}
 \li{create $A/I$, $I$ two-sided ideal}{algquotient$(\var{al},I,\{\fl=0\})$}
 \li{create $A_1\otimes A_2$}{algtensor$(\var{al1}, \var{al2})$}
 \li{create subalgebra from basis $B$}{algsubalg$(\var{al}, B)$}
-\li{\dots from orthogonal central idempotents $e$}
+\li{quotients by ortho. central idempotents $e$}
    {algcentralproj$(\var{al}, e)$}
 \li{isomorphic alg. with integral mult. table}{algmakeintegral(\var{mt})}
 \li{prime subalgebra of semi-simple $A$ over $\FF_p$}
@@ -469,6 +468,7 @@ $A$ is a central simple algebra over a number field $K$; represented by
 \li{split $A$ over an extension of $K$}{algsplittingdata$(\var{al})$}
 \li{splitting field of $A$ as an \var{rnf} over center}
    {algsplittingfield$(\var{al})$}
+\li{multiplication table over center}{algrelmultable$(\var{al})$}
 \li{places of $K$ at which $A$ ramifies}{algramifiedplaces$(\var{al})$}
 \li{Hasse invariants at finite places of $K$}{alghassef$(\var{al})$}
 \li{Hasse invariants at infinite places of $K$}{alghassei$(\var{al})$}
