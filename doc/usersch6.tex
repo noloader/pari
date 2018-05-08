@@ -2808,22 +2808,22 @@ $\chi(i) = e(v[i]/d)$, $1 \leq i \leq N$.
 
 Low-level routines underlying \kbd{alginit}.
 
-\fun{GEN}{alg_csa_table}{GEN nf, GEN mt, long v, long flag}
+\fun{GEN}{alg_csa_table}{GEN nf, GEN mt, long v, long maxord}
 algebra defined by a multiplication table.
 
-\fun{GEN}{alg_cyclic}{GEN rnf, GEN aut, GEN b, long flag}
+\fun{GEN}{alg_cyclic}{GEN rnf, GEN aut, GEN b, long maxord}
 cyclic algebra~$(L/K,\sigma,b)$.
 
-\fun{GEN}{alg_hasse}{GEN nf, long d, GEN hi, GEN hf, long v, long flag}
+\fun{GEN}{alg_hasse}{GEN nf, long d, GEN hi, GEN hf, long v, long maxord}
 algebra defined by local Hasse invariants.
 
-\fun{GEN}{alg_hilbert}{GEN nf, GEN a, GEN b, long v, long flag}
+\fun{GEN}{alg_hilbert}{GEN nf, GEN a, GEN b, long v, long maxord}
 quaternion algebra.
 
-\fun{GEN}{alg_matrix}{GEN nf, long n, long v, GEN L, long flag}
+\fun{GEN}{alg_matrix}{GEN nf, long n, long v, GEN L, long maxord}
 matrix algebra.
 
-\fun{GEN}{alg_complete}{GEN rnf, GEN aut, GEN hi, GEN hf, int maxord}
+\fun{GEN}{alg_complete}{GEN rnf, GEN aut, GEN hi, GEN hf, long maxord}
 cyclic algebra~$(L/K,\sigma,b)$ with~$b$ computed from the Hasse invariants.
 
 \subsec{Type checks}

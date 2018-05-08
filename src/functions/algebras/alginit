@@ -2,8 +2,8 @@ Function: alginit
 Section: algebras
 C-Name: alginit
 Prototype: GGDnD1,L,
-Help: alginit(B, C, {v}, {flag = 1}): initializes the central simple algebra
- defined by data B, C. If flag = 1, compute a maximal order.
+Help: alginit(B, C, {v}, {maxord = 1}): initializes the central simple algebra
+ defined by data B, C. If maxord = 1, compute a maximal order.
 Doc: initializes the central simple algebra defined by data $B$, $C$ and
  variable $v$, as follows.
 
@@ -98,7 +98,7 @@ Doc: initializes the central simple algebra defined by data $B$, $C$ and
  algebra isomorphic to the matrix algebra $M_d(K)$.
 
  In all cases, this function computes a maximal order for the algebra by default,
- which may require a lot of time. Setting $\fl = 0$ prevents this computation.
+ which may require a lot of time. Setting $maxord = 0$ prevents this computation.
 
  The pari object representing such an algebra $A$ is a \typ{VEC} with the
  following data:

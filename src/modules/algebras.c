@@ -579,7 +579,7 @@ change_Rgmultable(GEN mt, GEN P, GEN Pi)
 }
 
 static GEN
-alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
+alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, long maps)
 {
   GEN mt = cgetg(nq+1,t_VEC), P, Pi, d;
   long i;
@@ -606,7 +606,7 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, int maps)
 
 /*quotient of an algebra by a nontrivial two-sided ideal*/
 GEN
-alg_quotient(GEN al, GEN I, int maps)
+alg_quotient(GEN al, GEN I, long maps)
 {
   pari_sp av = avma;
   GEN p, IS, ISi, S, Si;
@@ -667,7 +667,7 @@ image_keep_first(GEN m, GEN p) /* assume first column is nonzero or m==0, no GC 
 /* z[1],...z[nz] central elements such that z[1]A + z[2]A + ... + z[nz]A = A
  * is a direct sum. idempotents ==> first basis element is identity */
 GEN
-alg_centralproj(GEN al, GEN z, int maps)
+alg_centralproj(GEN al, GEN z, long maps)
 {
   pari_sp av = avma;
   GEN S, U, Ui, alq, p;
@@ -779,7 +779,7 @@ out_decompose(GEN t, GEN Z, GEN P, GEN p)
 }
 /* fa factorization of charpol(x) */
 static GEN
-alg_decompose_from_facto(GEN al, GEN x, GEN fa, GEN Z, int mini)
+alg_decompose_from_facto(GEN al, GEN x, GEN fa, GEN Z, long mini)
 {
   long k = lgcols(fa)-1, k2 = mini? 1: k/2;
   GEN v1 = rowslice(fa,1,k2);
@@ -817,7 +817,7 @@ random_pm1(long n)
   return z;
 }
 
-static GEN alg_decompose(GEN al, GEN Z, int mini, GEN* pt_primelt);
+static GEN alg_decompose(GEN al, GEN Z, long mini, GEN* pt_primelt);
 /* Try to split al using x's charpoly. Return gen_0 if simple, NULL if failure.
  * And a splitting otherwise
  * If pt_primelt!=NULL, compute a primitive element of the center when simple */
@@ -868,7 +868,7 @@ randcol(long n, GEN b)
  * corresponding to one simple factor
  * if pt_primelt!=NULL, sets it to a primitive element of the center when simple */
 static GEN
-alg_decompose(GEN al, GEN Z, int mini, GEN* pt_primelt)
+alg_decompose(GEN al, GEN Z, long mini, GEN* pt_primelt)
 {
   pari_sp av;
   GEN Zal, x, zx, rand, dec0, B, p;
@@ -914,7 +914,7 @@ alg_decompose(GEN al, GEN Z, int mini, GEN* pt_primelt)
 }
 
 static GEN
-alg_decompose_total(GEN al, GEN Z, int maps)
+alg_decompose_total(GEN al, GEN Z, long maps)
 {
   GEN dec, sc, p;
   long i;
@@ -1012,7 +1012,7 @@ cmp_algebra_maps(GEN x, GEN y)
 { return cmp_algebra(gel(x,1), gel(y,1)); }
 
 GEN
-algsimpledec_ss(GEN al, int maps)
+algsimpledec_ss(GEN al, long maps)
 {
   pari_sp av = avma;
   GEN Z, p, res;
@@ -1036,7 +1036,7 @@ algsimpledec_ss(GEN al, int maps)
 }
 
 GEN
-algsimpledec(GEN al, int maps)
+algsimpledec(GEN al, long maps)
 {
   pari_sp av = avma;
   int ss;
@@ -3915,7 +3915,7 @@ subcycloindep(GEN nf, long n, long v, GEN L, GEN *pr)
 }
 
 GEN
-alg_matrix(GEN nf, long n, long v, GEN L, long flag)
+alg_matrix(GEN nf, long n, long v, GEN L, long maxord)
 {
   pari_sp av = avma;
   GEN pol, gal, rnf, cyclo, g, r, aut;
@@ -3926,11 +3926,11 @@ alg_matrix(GEN nf, long n, long v, GEN L, long flag)
   gal = galoisinit(cyclo, NULL);
   g = genefrob(cyclo,gal,r);
   aut = galoispermtopol(gal,g);
-  return gerepileupto(av, alg_cyclic(rnf, aut, gen_1, flag));
+  return gerepileupto(av, alg_cyclic(rnf, aut, gen_1, maxord));
 }
 
 GEN
-alg_hilbert(GEN nf, GEN a, GEN b, long v, long flag)
+alg_hilbert(GEN nf, GEN a, GEN b, long v, long maxord)
 {
   pari_sp av = avma;
   GEN C, P, rnf, aut;
@@ -3946,11 +3946,11 @@ alg_hilbert(GEN nf, GEN a, GEN b, long v, long flag)
   P = gtopoly(C,v);
   rnf = rnfinit(nf, P);
   aut = gneg(pol_x(v));
-  return gerepileupto(av, alg_cyclic(rnf, aut, b, flag));
+  return gerepileupto(av, alg_cyclic(rnf, aut, b, maxord));
 }
 
 GEN
-alginit(GEN A, GEN B, long v, long flag)
+alginit(GEN A, GEN B, long v, long maxord)
 {
   long w;
   switch(nftyp(A))
@@ -3962,21 +3962,22 @@ alginit(GEN A, GEN B, long v, long flag)
       switch(typ(B))
       {
         long nB;
-        case t_INT: return alg_matrix(A, itos(B), v, cgetg(1,t_VEC), flag);
+        case t_INT: return alg_matrix(A, itos(B), v, cgetg(1,t_VEC), maxord);
         case t_VEC:
           nB = lg(B)-1;
-          if (nB && typ(gel(B,1)) == t_MAT) return alg_csa_table(A, B, v, flag);
+          if (nB && typ(gel(B,1)) == t_MAT) return alg_csa_table(A,B,v,maxord);
           switch(nB)
           {
-            case 2: return alg_hilbert(A, gel(B,1),gel(B,2), v, flag);
-            case 3: return alg_hasse(A, itos(gel(B,1)),gel(B,2),gel(B,3),v,flag);
+            case 2: return alg_hilbert(A, gel(B,1), gel(B,2), v, maxord);
+            case 3: return alg_hasse(A, itos(gel(B,1)), gel(B,2), gel(B,3), v,
+                                                                      maxord);
           }
       }
       pari_err_TYPE("alginit", B); break;
 
     case typ_RNF:
       if (typ(B) != t_VEC || lg(B) != 3) pari_err_TYPE("alginit", B);
-      return alg_cyclic(A,gel(B,1),gel(B,2),flag);
+      return alg_cyclic(A, gel(B,1), gel(B,2), maxord);
   }
   pari_err_TYPE("alginit", A);
   return NULL;/*LCOV_EXCL_LINE*/
@@ -4458,7 +4459,7 @@ algpradical_i(GEN al, GEN p, GEN zprad, GEN projs)
       for (i=1; i<lg(projs); i++)
         gel(projs,i) = FpM_FpC_mul(projrad, gel(projs,i), p);
     }
-    Lalp = alg_centralproj(alp,projs,1);
+    Lalp = alg_centralproj(alp, projs, 1);
 
     alrad = cgetg(lg(Lalp),t_VEC);
     for (i=1; i<lg(Lalp); i++) {
@@ -4494,7 +4495,7 @@ algpdecompose0(GEN al, GEN prad, GEN p, GEN projs)
 
   alp = alg_ordermodp(al, p);
   if (!gequal0(prad)) {
-    quo = alg_quotient(alp,prad,1);
+    quo = alg_quotient(alp, prad, 1);
     ss = gel(quo,1);
     projm = gel(quo,2);
     liftm = gel(quo,3);
@@ -5042,7 +5043,7 @@ mat2col(GEN M, long m, long n)
 }
 
 static GEN
-alglattransporter_i(GEN al, GEN lat1, GEN lat2, int right)
+alglattransporter_i(GEN al, GEN lat1, GEN lat2, long right)
 {
   GEN m1, m2, m2i, M, MT, mt, t1, t2, T, c;
   long N, i;
@@ -5100,7 +5101,7 @@ alglatrighttransporter(GEN al, GEN lat1, GEN lat2)
 }
 
 GEN
-algmakeintegral(GEN mt0, int maps)
+algmakeintegral(GEN mt0, long maps)
 {
   pari_sp av = avma;
   long n,i;
