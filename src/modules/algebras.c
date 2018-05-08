@@ -1005,23 +1005,18 @@ algsubalg(GEN al, GEN basis)
 static int
 cmp_algebra(GEN x, GEN y)
 {
-  long d = alg_get_dim(x) - alg_get_dim(y);
-  if (d) return d < 0? -1: 1;
-  d = lg(algtablecenter(x))-lg(algtablecenter(y));
-    /* TODO precompute and store, don't compute every time when sorting */
-  if (d) return d < 0? -1: 1;
-  return cmp_universal(alg_get_multable(x), alg_get_multable(y));
+  long d;
+  d = gel(x,1)[1] - gel(y,1)[1]; if (d) return d < 0? -1: 1;
+  d = gel(x,1)[2] - gel(y,1)[2]; if (d) return d < 0? -1: 1;
+  return cmp_universal(gel(x,2), gel(y,2));
 }
-static int
-cmp_algebra_maps(GEN x, GEN y)
-{ return cmp_algebra(gel(x,1), gel(y,1)); }
 
 GEN
 algsimpledec_ss(GEN al, long maps)
 {
   pari_sp av = avma;
-  GEN Z, p, res;
-  long n;
+  GEN Z, p, r, res, perm;
+  long i, l, n;
   checkalg(al);
   p = alg_get_char(al);
   dbg_printf(1)("algsimpledec_ss: char=%Ps, dim=%d\n", p, alg_get_absdim(al));
@@ -1035,9 +1030,15 @@ algsimpledec_ss(GEN al, long maps)
     retmkvec(mkvec3(gcopy(al), matid(n), matid(n)));
   }
   res = alg_decompose_total(al, Z, maps);
-  gen_sort_inplace(res, (void*)(maps? &cmp_algebra_maps: &cmp_algebra),
-                   &cmp_nodata, NULL);
-  return gerepilecopy(av, res);
+  l = lg(res); r = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    GEN A = maps? gmael(res,i,1): gel(res,i);
+    gel(r,i) = mkvec2(mkvecsmall2(alg_get_dim(A), lg(algtablecenter(A))),
+                      alg_get_multable(A));
+  }
+  perm = gen_indexsort(r, (void*)cmp_algebra, &cmp_nodata);
+  return gerepilecopy(av, vecpermute(res, perm));
 }
 
 GEN
