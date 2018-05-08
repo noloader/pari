@@ -425,7 +425,7 @@ al:
 10* characteristic of the base field (used only for algebras given by a multiplication table)
 11* trace of basis elements
 
-If al is given by a multiplication table, only the * fields are present.
+If al is given by a multiplication table (al_TABLE), only the * fields are present.
 */
 
 /* assumes same center and same variable */
@@ -604,11 +604,11 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, long maps)
     S = RgM_mul(S,Pi);
   }
   al = algtableinit_i(mt,p);
-  if (maps) al = mkvec3(al,Si,S); /*algebra, proj, lift*/
+  if (maps) al = mkvec3(al,Si,S); /* algebra, proj, lift */
   return al;
 }
 
-/*quotient of an algebra by a nontrivial two-sided ideal*/
+/* quotient of an algebra by a nontrivial two-sided ideal */
 GEN
 alg_quotient(GEN al, GEN I, long maps)
 {
@@ -621,7 +621,7 @@ alg_quotient(GEN al, GEN I, long maps)
   n = alg_get_absdim(al);
   ni = lg(I)-1;
 
-  /*force first vector of complement to be the identity*/
+  /* force first vector of complement to be the identity */
   IS = shallowconcat(I, gcoeff(alg_get_multable(al),1,1));
   if (signe(p)) {
     IS = FpM_suppl(IS,p);
@@ -681,13 +681,13 @@ alg_centralproj(GEN al, GEN z, long maps)
   if (typ(z) != t_VEC) pari_err_TYPE("alcentralproj",z);
   p = alg_get_char(al);
   dbg_printf(3)("  alg_centralproj: char=%Ps, dim=%d, #z=%d\n", p, alg_get_absdim(al), lz-1);
-  S = cgetg(lz,t_VEC); /*S[i] = Im(z_i)*/
+  S = cgetg(lz,t_VEC); /* S[i] = Im(z_i) */
   for (i=1; i<lz; i++)
   {
     GEN mti = algleftmultable(al, gel(z,i));
     gel(S,i) = image_keep_first(mti,p);
   }
-  U = shallowconcat1(S); /*U = [Im(z_1)|Im(z_2)|...|Im(z_nz)], n x n*/
+  U = shallowconcat1(S); /* U = [Im(z_1)|Im(z_2)|...|Im(z_nz)], n x n */
   if (lg(U)-1 < alg_get_absdim(al)) pari_err_TYPE("alcentralproj [z[i]'s not surjective]",z);
   if (signe(p)) Ui = FpM_inv(U,p);
   else          Ui = RgM_inv(U);
@@ -1007,7 +1007,8 @@ cmp_algebra(GEN x, GEN y)
 {
   long d = alg_get_dim(x) - alg_get_dim(y);
   if (d) return d < 0? -1: 1;
-  d = lg(algtablecenter(x))-lg(algtablecenter(y));/* TODO precompute and store, don't compute every time when sorting */
+  d = lg(algtablecenter(x))-lg(algtablecenter(y));
+    /* TODO precompute and store, don't compute every time when sorting */
   if (d) return d < 0? -1: 1;
   return cmp_universal(alg_get_multable(x), alg_get_multable(y));
 }
@@ -1027,7 +1028,7 @@ algsimpledec_ss(GEN al, long maps)
   if (signe(p)) Z = algprimesubalg(al);
   else          Z = algtablecenter(al);
 
-  if (lg(Z) == 2) {/*dim Z = 1*/
+  if (lg(Z) == 2) {/* dim Z = 1 */
     n = alg_get_absdim(al);
     avma = av;
     if (!maps) return mkveccopy(al);
@@ -1110,7 +1111,7 @@ try_split(GEN al, GEN x, long n, long d)
   i = smalli;
   if (smalldim != n) return NULL;
   /* We could also compute e*al*e and try again with this smaller algebra */
-  /* Fq-rank 1 = Fp-rank n idempotent : success */
+  /* Fq-rank 1 = Fp-rank n idempotent: success */
 
   /* construct idempotent */
   mx = algbasismultable(al,x);
@@ -1250,7 +1251,7 @@ descend(GEN M, long n, GEN p, long v)
   return res;
 }
 
-/* isomorphism of Fp-vector spaces M_d(F_p^n) -> (F_p)^(d^2*n)*/
+/* isomorphism of Fp-vector spaces M_d(F_p^n) -> (F_p)^(d^2*n) */
 static GEN
 Fq_mat2col(GEN M, long d, long n)
 {
@@ -1466,7 +1467,7 @@ algisassociative(GEN mt0, GEN p)
           x = _tablemul_ej(mt,gcoeff(M,i,j),k);
           y = RgM_RgC_mul(mi,gcoeff(M,j,k));
         }
-        /* not cmp_universal: mustn't fail on 0 == Mod(0,2) for instance */
+        /* not cmp_universal: must not fail on 0 == Mod(0,2) for instance */
         if (!gequal(x,y)) { avma = av; return 0; }
       }
     }
@@ -1524,7 +1525,7 @@ algissimple(GEN al, long ss)
   if (signe(p)) Z = algprimesubalg(al);
   else          Z = algtablecenter(al);
 
-  if (lg(Z) == 2) {/*dim Z = 1*/
+  if (lg(Z) == 2) {/* dim Z = 1 */
     avma = av;
     return 1;
   }
@@ -1558,7 +1559,7 @@ is_place_prid(GEN nf, GEN pl, GEN* pr, long* emb)
   return res;
 }
 
-/* is there any reason for the primes of hassef not to be sorted ? */
+/* FIXME is there any reason for the primes of hassef not to be sorted ? */
 static long
 linear_prime_search(GEN L, GEN pr)
 {
@@ -1594,7 +1595,7 @@ alghasse_pr(GEN al, GEN pr)
 static long
 alghasse_0(GEN al, GEN pl)
 {
-  long ta, ispr, h, emb = 0;/*-Wall*/
+  long ta, ispr, h, emb = 0;
   GEN pr, nf;
   checkalg(al);
   ta = alg_type(al);
@@ -1741,7 +1742,8 @@ alg_model0(GEN al, GEN x)
         if (lx != D+1) return al_INVALID;
         for (i=1; i<=D; i++) {
           t = typ(gel(x,i));
-          if (t == t_POL || t == t_POLMOD)  return al_ALGEBRAIC; /* t_COL ? */
+          if (t == t_POL || t == t_POLMOD)  return al_ALGEBRAIC;
+            /* TODO t_COL for coefficients in basis form ? */
         }
         return al_BASIS;
       }
@@ -1771,7 +1773,7 @@ checkalgx(GEN x, long model)
       for (i=1; i<lg(x); i++) {
         t = typ(gel(x,i));
         if (t != t_INT && t != t_FRAC && t != t_POL && t != t_POLMOD)
-          /* t_COL ? */
+          /* TODO t_COL ? */
           pari_err_TYPE("checkalgx", gel(x,i));
       }
       return;
@@ -2407,7 +2409,7 @@ algmatbasis_ei(GEN al, long ijk, long N)
   return res;
 }
 
-/* FIXME lazy implementation ! */
+/* FIXME lazy implementation! */
 static GEN
 algleftmultable_mat(GEN al, GEN M)
 {
@@ -2567,12 +2569,14 @@ alginv_i(GEN al, GEN x)
         default: return NULL; /* LCOV_EXCL_LINE */
       }
       res = algdivl_i(al, x, col_ei(n,1), tx, al_ALGEBRAIC); break;
-    case al_BASIS : res = algdivl_i(al, x, col_ei(alg_get_absdim(al),1), tx, al_BASIS); break;
+    case al_BASIS : res = algdivl_i(al, x, col_ei(alg_get_absdim(al),1), tx,
+                                                            al_BASIS); break;
     case al_MATRIX :
       n = lg(x)-1;
       if (n==0) return cgetg(1, t_MAT);
       if (n != nbrows(x)) pari_err_DIM("alginv_i (nonsquare)");
-      res = algdivl_i(al, x, col_ei(n*n*alg_get_absdim(al),1), tx, al_BASIS); /* cheat on type because wrong dimension */
+      res = algdivl_i(al, x, col_ei(n*n*alg_get_absdim(al),1), tx, al_BASIS);
+        /* cheat on type because wrong dimension */
   }
   if (!res) { avma = av; return NULL; }
   return gerepilecopy(av,res);
@@ -2634,7 +2638,7 @@ algpow(GEN al, GEN x, GEN n)
       else              res = col_ei(alg_get_absdim(al),1);
       break;
     case 1 :            res = gen_pow(x, n, (void*)al, _sqr, _mul); break;
-    default : /*-1*/    res = gen_pow(alginv(al,x), gneg(n), (void*)al, _sqr, _mul);
+    default : /* -1 */  res = gen_pow(alginv(al,x), gneg(n), (void*)al, _sqr, _mul);
   }
   return gerepileupto(av,res);
 }
@@ -2726,7 +2730,8 @@ algredtrace(GEN al, GEN x)
   GEN res = NULL;
   switch(alg_model(al,x)) {
     case al_TRIVIAL: return gcopy(gel(x,1)); break;
-    case al_BASIS: return algredtrace(al, algbasistoalg(al,x)); /* TODO precompute too? */
+    case al_BASIS: return algredtrace(al, algbasistoalg(al,x));
+                   /* TODO precompute too? */
     case al_ALGEBRAIC:
       switch(alg_type(al))
       {
@@ -3025,13 +3030,13 @@ algrandom(GEN al, GEN b)
     pari_sp av = avma;
     gel(res,i) = gerepileuptoint(av, subii(randomi(N),b));
   }
-  if (signe(p)) res = FpC_red(res, p); /*FIXME: need garbage collection here?*/
+  if (signe(p)) res = FpC_red(res, p); /* FIXME need garbage collection here? */
   return res;
 }
 
-/*Assumes pol has coefficients in the same ring as the COL x; x either
+/* Assumes pol has coefficients in the same ring as the COL x; x either
  * in basis, algebraic or mult. table form.
- TODO more general version: pol with coeffs in center and x in basis form*/
+ TODO more general version: pol with coeffs in center and x in basis form */
 GEN
 algpoleval(GEN al, GEN pol, GEN x)
 {
@@ -3062,9 +3067,9 @@ algpoleval(GEN al, GEN pol, GEN x)
 
 /** GRUNWALD-WANG **/
 /*
-These de Song Wang (pages des pdf)
-p.25 def de chi_b. K^Ker(chi_b) = K(b^(1/m))
-p.26 borne sur le conducteur (also Cohen adv. p.166)
+Song Wang's PhD thesis (pdf pages)
+p.25 definition of chi_b. K^Ker(chi_b) = K(b^(1/m))
+p.26 bound on the conductor (also Cohen adv. GTM 193 p.166)
 p.21 & p.34 description special case, also on wikipedia:
 http://en.wikipedia.org/wiki/Grunwald%E2%80%93Wang_theorem#Special_fields
 p.77 Kummer case
@@ -3166,7 +3171,7 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
   /* H,U nbloc x nbloc */
   Rloc = cgetg(nbloc+1,t_COL);
   for (t=0; t<NTRY; t++) {
-    /* nonzero random coordinate */ /*TODO add special case ?*/
+    /* nonzero random coordinate */ /* TODO add special case ? */
     for (i=1; i<=nbloc; i++) gel(Rloc,i) = stoi(1 + random_Fl(loc[i]-1));
     Rglob = hnf_invimage(H, Rloc);
     if (Rglob)
@@ -3215,10 +3220,12 @@ bnfgwgeneric(GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var)
     dec = idealprimedec(nf, utoipos(p));
     for (i=1; i<lg(dec); i++) {
       GEN pp = gel(dec,i);
-      if (RgV_isin(Lpr,pp)) continue; /*TODO accepter aussi les ideaux premiers auxquels on pose une condition (utiliser Artin local) ?*/
+      if (RgV_isin(Lpr,pp)) continue;
+        /* TODO also accept the prime ideals at which there is a condition
+         * (use local Artin)? */
       if (smodis(idealnorm(nf,pp),ell) != 1) continue; /* ell | N(pp)-1 ? */
       ideal = idealmul(bnf,ideal,pp);
-      /* TODO: give factorization ?*/
+      /* TODO: give factorization ? */
       bnr = Buchray(bnf, mkvec2(ideal,finf), nf_INIT);
       H = bnrgwsearch(bnr,Lpr,Ld,pl);
       if (H != gen_0)
@@ -3342,8 +3349,8 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
 
   w = bnf? bnf_get_tuN(bnf): itos(gel(rootsof1(nf),1));
 
-  /*TODO choice between kummer and generic ? Let user choose between speed
-   * and size*/
+  /* TODO choice between kummer and generic ? Let user choose between speed
+   * and size */
   if (w%n==0 && lg(Ld)>1)
     return gerepileupto(av,nfgwkummer(nf,Lpr,Ld,pl,var));
   if (ell==n) {
@@ -3358,7 +3365,7 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
 
 /** HASSE INVARIANTS **/
 
-/*TODO long -> ulong + uel */
+/* TODO long -> ulong + uel */
 static GEN
 hasseconvert(GEN H, long n)
 {
@@ -3406,7 +3413,7 @@ cyclicrelfrob0(GEN nf, GEN aut, GEN pr, GEN q, long f, long g)
   b = nf_to_Fq(nf, b, modpr);
   for (s=0; !ZX_equal(a, b); s++) a = Fq_pow(a, q, T, p);
   avma = av;
-  return g*Fl_inv(s, f);/*<n*/
+  return g*Fl_inv(s, f);/* <n */
 }
 
 static GEN
@@ -3617,7 +3624,7 @@ localcomplete(GEN rnf, GEN pl, GEN cnd, GEN auts, long j, long n, long h, long* 
   d = ugcd(np-1,n);
   if (d != 1) { /* GCD(Np-1,n) != 1 */
     modpr = nf_to_Fq_init(nf, &pr, &T, &p);
-    while (!dividesmod(curgcd,h,n)) { /*TODO gener_FpXQ_local*/
+    while (!dividesmod(curgcd,h,n)) { /* TODO gener_FpXQ_local */
       if (T==NULL) randg = randomi(p);
       else randg = random_FpX(degpol(T), varn(T),p);
 
@@ -3874,7 +3881,7 @@ rnfcycaut(GEN rnf)
   pol0 = nf_get_pol(nf);
   X = RgX_rem(pol_x(varn(pol0)), pol0);
 
-  /* TODO: check mod prime of degree 1 */
+  /* TODO check mod prime of degree 1 */
   for (i=1; i<lg(L); i++) {
     s = gel(L,i);
     salpha = RgX_RgXQ_eval(alpha,s,polabs);
@@ -4222,7 +4229,7 @@ frobeniusform(GEN al, GEN x)
   /* /!\ has to be the *right* multiplication table */
   M = algbasisrightmultable(al, x);
 
-  FP = matfrobenius(M,2,0); /*M = P^(-1)*F*P*/
+  FP = matfrobenius(M,2,0); /* M = P^(-1)*F*P */
   P = gel(FP,2);
   Pi = RgM_inv(P);
   return mkvec2(P, Pi);
@@ -4247,12 +4254,12 @@ computesplitting(GEN al, long d, long v)
   pol = nffactor(nf,polabs);
   pol = gcoeff(pol,1,1);
   gel(al,1) = rnf = rnfinit(nf, pol);
-  /* if (!gequal0(rnf_get_k(rnf)))                    NECESSARY ?? */
+  /* if (!gequal0(rnf_get_k(rnf)))               TODO NECESSARY ?? */
   /*  pari_err_BUG("computesplitting (k!=0)");                     */
   gel(al,6) = gen_0;
   rnf_build_nfabs(rnf, nf_get_prec(nf));
 
-  /*TODO check whether should change polabs and generator here !!! */
+  /* TODO check whether should change polabs and generator here !!! */
 
   /* construct splitting data */
   Lbasis = cgetg(d+1, t_MAT);
@@ -4281,15 +4288,15 @@ alg_csa_table(GEN nf, GEN mt0, long v, long maxord)
   nf = checknf(nf);
   mt = check_relmt(nf,mt0);
   if (!mt) pari_err_TYPE("alg_csa_table", mt0);
-  /* TODO better error if denom != 1 */
   n = nf_get_degree(nf);
   D = n*d2;
   if (d*d != d2)
-    pari_err_DOMAIN("alg_csa_table", "(nonsquare) dimension", "!=",stoi(d*d),mt);
+    pari_err_DOMAIN("alg_csa_table","(nonsquare) dimension","!=",stoi(d*d),mt);
 
   al = cgetg(12, t_VEC);
   gel(al,10) = gen_0; /* must be set first */
-  gel(al,1) = zerovec(12); gmael(al,1,10) = nf; gmael(al,1,1) = gpowgs(pol_x(0), d); /* placeholder before actual splitting field */
+  gel(al,1) = zerovec(12); gmael(al,1,10) = nf;
+  gmael(al,1,1) = gpowgs(pol_x(0), d); /* placeholder before splitting field */
   gel(al,2) = mt;
   gel(al,3) = gen_0; /* placeholder */
   gel(al,4) = gel(al,5) = gen_0; /* TODO Hasse invariants */
@@ -4440,7 +4447,7 @@ mattocol(GEN M, long n)
   return C;
 }
 
-/*Ip is a lift of a left O/pO-ideal where O is the integral basis of al*/
+/* Ip is a lift of a left O/pO-ideal where O is the integral basis of al */
 static GEN
 algleftordermodp(GEN al, GEN Ip, GEN p)
 {
@@ -4461,7 +4468,8 @@ algleftordermodp(GEN al, GEN Ip, GEN p)
     gel(M,i) = mattocol(imi, n);
   }
 
-  /*TODO : FpM_invimage superbad documentation (have to read RgM_invimage) Does it really do what it claims if left matrix is not invertible ?*/
+  /* TODO : FpM_invimage superbad documentation (have to read RgM_invimage)
+   * Does it really do what it claims if left matrix is not invertible ? */
   K = FpM_ker(M, p);
   if (lg(K)==1) { avma = av; return matid(n); }
   K = ZM_hnfmodid(K,p);
@@ -4580,7 +4588,7 @@ algpdecompose0(GEN al, GEN prad, GEN p, GEN projs)
   return gerepilecopy(av, res);
 }
 
-/*finds a nontrivial ideal of O/prad or gen_0 if there is none.*/
+/* finds a nontrivial ideal of O/prad or gen_0 if there is none. */
 static GEN
 algpdecompose_i(GEN al, GEN p, GEN zprad, GEN projs)
 {
@@ -4700,7 +4708,7 @@ algcenter_p_projs(GEN al, GEN p, GEN pre)
   return zprojs;
 }
 
-/*al is assumed to be simple*/
+/* al is assumed to be simple */
 static GEN
 alg_pmaximal_i(GEN al, GEN p)
 {
@@ -4922,7 +4930,7 @@ alglatadd(GEN al, GEN lat1, GEN lat2, GEN* ptinter)
 int
 alglatsubset(GEN al, GEN lat1, GEN lat2, GEN* ptindex)
 {
-  /*TODO version that returns the quotient as abelian group?*/
+  /* TODO version that returns the quotient as abelian group? */
   /* return matrices to convert coordinates from one to other? */
   pari_sp av = avma;
   int res;
