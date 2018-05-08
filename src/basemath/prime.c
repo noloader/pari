@@ -910,7 +910,7 @@ check_eccpcert(GEN c)
     case t_VEC: break;
     default: return 0;
   }
-  l = lg(c);
+  l = lg(c); if (l == 1) return 0;
   for (i = 1; i < l; i++)
     if (check_eccpcertentry(gel(c,i))==0) return 0;
   return 1;

@@ -59,4 +59,7 @@ E47D559ADC7B9\nT=0xE73C3A1DF8AD21A0\n\n"
   ***   at top-level: primecertexport([0],1)
   ***                 ^----------------------
   *** primecertexport: incorrect type in primecertexport - invalid certificate (t_VEC).
-Total time spent: 32084
+  ***   at top-level: primecertexport([],1)
+  ***                 ^---------------------
+  *** primecertexport: incorrect type in primecertexport - invalid certificate (t_VEC).
+Total time spent: 26573

@@ -56,3 +56,4 @@ primecertisvalid(primecert(16285004170961712447000975451705488808641461042245717
 
 \\ Errors, keep at end of file
 primecertexport([0],1)
+primecertexport([],1)
