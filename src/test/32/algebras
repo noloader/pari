@@ -1849,7 +1849,7 @@ testing simplify: quatalg csa over Q
   *** algtableinit: domain error in algtableinit: denominator(mt) != 1
   ***   at top-level: alginit(Q,[matid(2),[0,1/2;1,0]])
   ***                 ^---------------------------------
-  *** alginit: incorrect type in alg_csa_table (t_VEC).
+  *** alginit: domain error in alg_csa_table: denominator(mt) != 1
   ***   at top-level: alginit(Q,[-1/2,-1])
   ***                 ^--------------------
   *** alginit: domain error in alg_hilbert: denominator(a) != 1
@@ -2303,7 +2303,7 @@ csa: denom over Z[y] but not in ZK
  0; 1, 0, 0, 0]]
   ***   at top-level: al=alginit(nf,mt*Mod(1,nf.pol))
   ***                    ^----------------------------
-  *** alginit: incorrect type in alg_csa_table (t_VEC).
+  *** alginit: domain error in alg_csa_table: denominator(mt) != 1
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
@@ -2325,4 +2325,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 1292
+Total time spent: 1300

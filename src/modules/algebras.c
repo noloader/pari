@@ -1420,10 +1420,10 @@ check_relmt(GEN nf, GEN mt)
       {
         a = gcoeff(M,j,k);
         if (typ(a)==t_INT) continue;
-        if (typ(a)==t_FRAC) return NULL;
         b = algtobasis(nf,a);
         d = Q_denom(b);
-        if (!isint1(d)) return NULL;
+        if (!isint1(d))
+          pari_err_DOMAIN("alg_csa_table", "denominator(mt)", "!=", gen_1, mt);
         gcoeff(M,j,k) = lift(basistoalg(nf,b));
       }
     if (i > 1 && RgC_is_ei(gel(M,1)) != i) return NULL; /* i = 1 checked at end */
