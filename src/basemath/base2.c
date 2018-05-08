@@ -3740,7 +3740,6 @@ nfsplitting_composite(GEN P)
 {
   GEN F = gel(ZX_factor(P), 1), Q = NULL;
   long i, n = lg(F)-1;
-  if (n == 1) return P;
   for (i = 1; i <= n; i++)
   {
     GEN Fi = gel(F, i);
