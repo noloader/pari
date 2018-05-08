@@ -2083,9 +2083,9 @@ sm1*sm2 == algtomatrix(al,algmul(al,m1,m2))
 print("more al_CSA tests");
 setrand(1);
 nf = nfinit(y^2-5);
-mti = [0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
-mtj = [0,0,y,0;0,0,0,-y;1,0,0,0;0,-1,0,0];
-mtk = [0,0,0,y;0,0,y,0;0,1,0,0;1,0,0,0];
+mti = [0,-1,0,0;[1,0]~,0,0,0;0,0,0,-1;0,0,1,0];
+mtj = [0,0,Mod(y,y^2-5),0;0,0,0,-y;1,0,0,0;0,-1,0,0];
+mtk = [0,0,0,y;0,0,[1,2]~,0;0,1,0,0;1,0,0,0];
 mt = [matid(4),mti,mtj,mtk];
 al = alginit(nf,mt);
 a1 = [1/2,-3,2,4/3,-1,0,1,2/5]~;
@@ -2166,6 +2166,39 @@ sa1+sa2 == algtomatrix(al,algadd(al,a1,a2))
 sa1*sa2 == algtomatrix(al,algmul(al,a1,a2))
 
 
+print("csa pol/polmod bugs");
+setrand(1);
+nf = nfinit(y^2-5);
+mti = [0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
+mtj = [0,0,y,0;0,0,0,-y;1,0,0,0;0,-1,0,0];
+mtk = [0,0,0,y;0,0,y,0;0,1,0,0;1,0,0,0];
+mt = [matid(4),mti,mtj,mtk];
+al = alginit(nf,mt*Mod(1,nf.pol));
+algrelmultable(al)
+a = [y,y,y,y/3]~;
+algpow(al,a,4)
+algpow(al,a,-2)
+algmul(al,a,a)
+algnorm(al,a) == algnorm(al,algalgtobasis(al,a))
+algnorm(al,a,1) == algnorm(al,algalgtobasis(al,a),1)
+algtrace(al,a) == algtrace(al,algalgtobasis(al,a))
+algtrace(al,a,1) == algtrace(al,algalgtobasis(al,a),1)
+algcharpoly(al,a) == algcharpoly(al,algalgtobasis(al,a))
+algcharpoly(al,a,,1) == algcharpoly(al,algalgtobasis(al,a),,1)
+algtomatrix(al,a) == algtomatrix(al,algalgtobasis(al,a))
+
+print("csa: denom over Z[y] but not in ZK");
+mti = [0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
+mtj = [0,0,(y-1)/2,0;0,0,0,-(y-1)/2;1,0,0,0;0,-1,0,0];
+mtk = [0,0,0,(y-1)/2;0,0,(y-1)/2,0;0,1,0,0;1,0,0,0];
+mt = [matid(4),mti,mtj,mtk];
+al = alginit(nf,mt*Mod(1,nf.pol));
+algrelmultable(al)
+mti = [0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
+mtj = [0,0,(y-1)/3,0;0,0,0,-(y-1)/3;1,0,0,0;0,-1,0,0];
+mtk = [0,0,0,(y-1)/3;0,0,(y-1)/3,0;0,1,0,0;1,0,0,0];
+mt = [matid(4),mti,mtj,mtk];
+al = alginit(nf,mt*Mod(1,nf.pol));
 
 
 

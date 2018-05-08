@@ -1405,6 +1405,34 @@ check_mt(GEN mt, GEN p)
   return MT;
 }
 
+static GEN
+check_relmt(GEN nf, GEN mt)
+{
+  long i, l = lg(mt), j, k;
+  GEN MT = gcopy(mt), a, b, d;
+  if (typ(MT) != t_VEC || l == 1) return NULL;
+  for (i = 1; i < l; i++)
+  {
+    GEN M = gel(MT,i);
+    if (typ(M) != t_MAT || lg(M) != l || lgcols(M) != l) return NULL;
+    for (k = 1; k < l; k++)
+      for (j = 1; j < l; j++)
+      {
+        a = gcoeff(M,j,k);
+        if (typ(a)==t_INT) continue;
+        if (typ(a)==t_FRAC) return NULL;
+        b = algtobasis(nf,a);
+        d = Q_denom(b);
+        if (!isint1(d)) return NULL;
+        gcoeff(M,j,k) = lift(basistoalg(nf,b));
+      }
+    if (i > 1 && RgC_is_ei(gel(M,1)) != i) return NULL; /* i = 1 checked at end */
+    gel(MT,i) = M;
+  }
+  if (!RgM_isidentity(gel(MT,1))) return NULL;
+  return MT;
+}
+
 
 int
 algisassociative(GEN mt0, GEN p)
@@ -1973,7 +2001,14 @@ _tablemul_ej_Fl(GEN mt, GEN x, long j, ulong p)
 
 static GEN
 algalgmul_csa(GEN al, GEN x, GEN y)
-{ return _tablemul(alg_get_relmultable(al), x, y); }
+{
+  GEN z, nf = alg_get_center(al);
+  long i;
+  z = _tablemul(alg_get_relmultable(al), x, y);
+  for (i=1; i<lg(z); i++)
+    gel(z,i) = basistoalg(nf,gel(z,i));
+  return z;
+}
 
 /* assumes x and y in algebraic form */
 static GEN
@@ -2238,7 +2273,13 @@ algbasismultable(GEN al, GEN x)
 static GEN
 algalgmultable_csa(GEN al, GEN x)
 {
-  return elementmultable(alg_get_relmultable(al), x);
+  GEN nf = alg_get_center(al), m;
+  long i,j;
+  m = elementmultable(alg_get_relmultable(al), x);
+  for (i=1; i<lg(m); i++)
+    for(j=1; j<lg(m); j++)
+      gcoeff(m,i,j) = basistoalg(nf,gcoeff(m,i,j));
+  return m;
 }
 
 /* assumes x in algebraic form */
@@ -3855,6 +3896,7 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
   pari_sp av = avma;
   GEN primary, al = gen_0, al2, rnf, hil, hfl, Ld, pl, pol, Lpr, aut;
   long i, lk, j;
+  dbg_printf(1)("alg_hasse\n");
   primary = hassecoprime(hf, hi, n);
   for (i=1; i<lg(primary); i++) {
     lk = itos(gmael(primary,i,3));
@@ -3923,6 +3965,7 @@ alg_matrix(GEN nf, long n, long v, GEN L, long maxord)
 {
   pari_sp av = avma;
   GEN pol, gal, rnf, cyclo, g, r, aut;
+  dbg_printf(1)("alg_matrix\n");
   if (n<=0) pari_err_DOMAIN("alg_matrix", "n", "<=", gen_0, stoi(n));
   pol = subcycloindep(nf, n, v, L, &r);
   rnf = rnfinit(nf, pol);
@@ -3938,6 +3981,7 @@ alg_hilbert(GEN nf, GEN a, GEN b, long v, long maxord)
 {
   pari_sp av = avma;
   GEN C, P, rnf, aut;
+  dbg_printf(1)("alg_hilbert\n");
   checknf(nf);
   if (!isint1(Q_denom(a)))
     pari_err_DOMAIN("alg_hilbert", "denominator(a)", "!=", gen_1,a);
@@ -4100,6 +4144,7 @@ alg_cyclic(GEN rnf, GEN aut, GEN b, long maxord)
   pari_sp av = avma;
   GEN al, nf;
   long D, n, d;
+  dbg_printf(1)("alg_cyclic\n");
   checkrnf(rnf);
   if (!isint1(Q_denom(b)))
     pari_err_DOMAIN("alg_cyclic", "denominator(b)", "!=", gen_1,b);
@@ -4231,12 +4276,12 @@ alg_csa_table(GEN nf, GEN mt0, long v, long maxord)
   pari_sp av = avma;
   GEN al, mt;
   long n, D, d2 = lg(mt0)-1, d = usqrt(d2);
+  dbg_printf(1)("alg_csa_table\n");
 
   nf = checknf(nf);
-  mt = check_mt(mt0,NULL);
+  mt = check_relmt(nf,mt0);
   if (!mt) pari_err_TYPE("alg_csa_table", mt0);
-  if (!isint1(Q_denom(mt)))
-    pari_err_DOMAIN("alg_csa_table", "denominator(mt)", "!=", gen_1,mt);
+  /* TODO better error if denom != 1 */
   n = nf_get_degree(nf);
   D = n*d2;
   if (d*d != d2)

@@ -1092,7 +1092,7 @@ x^2 + Mod(-y + 13, y^2 - 5)
 3
 [[1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [0, y, 0, 0; 1, 0, 0, 0; 
 0, 0, 0, y; 0, 0, 1, 0], [0, 0, y^2, 0; 0, 0, 0, -y^2; 1, 0, 0, 0; 0, -1, 0,
- 0], [0, 0, 0, -y^3; 0, 0, y^2, 0; 0, -y, 0, 0; 1, 0, 0, 0]]
+ 0], [0, 0, 0, -5; 0, 0, y^2, 0; 0, -y, 0, 0; 1, 0, 0, 0]]
 x^2 - y
 [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]~, [1, 0; 0, -1; 0, 0; 0, 0; 0, 0; 0, 0
 ; 0, 1; 0, 0; 0, 0; 0, 0; 0, 0; 0, 0], [1, Mod(x^2, x^6 - 5), Mod(x^4, x^6 -
@@ -1849,7 +1849,7 @@ testing simplify: quatalg csa over Q
   *** algtableinit: domain error in algtableinit: denominator(mt) != 1
   ***   at top-level: alginit(Q,[matid(2),[0,1/2;1,0]])
   ***                 ^---------------------------------
-  *** alginit: domain error in alg_csa_table: denominator(mt) != 1
+  *** alginit: incorrect type in alg_csa_table (t_VEC).
   ***   at top-level: alginit(Q,[-1/2,-1])
   ***                 ^--------------------
   *** alginit: domain error in alg_hilbert: denominator(a) != 1
@@ -2278,6 +2278,32 @@ algtomatrix
 1
 1
 1
+csa pol/polmod bugs
+[[1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [0, -1, 0, 0; 1, 0, 0, 0;
+ 0, 0, 0, -1; 0, 0, 1, 0], [0, 0, y, 0; 0, 0, 0, -y; 1, 0, 0, 0; 0, -1, 0, 0
+], [0, 0, 0, y; 0, 0, y, 0; 0, 1, 0, 0; 1, 0, 0, 0]]
+[Mod(1000/9*y + 4400/81, y^2 - 5), Mod(1000/9*y, y^2 - 5), Mod(1000/9*y, y^2
+ - 5), Mod(1000/27*y, y^2 - 5)]~
+[Mod(927/1936*y + 2025/1936, y^2 - 5), Mod(-729/1936*y - 8343/9680, y^2 - 5)
+, Mod(-729/1936*y - 8343/9680, y^2 - 5), Mod(-243/1936*y - 2781/9680, y^2 - 
+5)]~
+[Mod(50/9*y, y^2 - 5), Mod(10, y^2 - 5), Mod(10, y^2 - 5), Mod(10/3, y^2 - 5
+)]~
+1
+1
+1
+1
+1
+1
+1
+csa: denom over Z[y] but not in ZK
+[[1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [0, -1, 0, 0; 1, 0, 0, 0;
+ 0, 0, 0, -1; 0, 0, 1, 0], [0, 0, 1/2*y - 1/2, 0; 0, 0, 0, -1/2*y + 1/2; 1, 
+0, 0, 0; 0, -1, 0, 0], [0, 0, 0, 1/2*y - 1/2; 0, 0, 1/2*y - 1/2, 0; 0, 1, 0,
+ 0; 1, 0, 0, 0]]
+  ***   at top-level: al=alginit(nf,mt*Mod(1,nf.pol))
+  ***                    ^----------------------------
+  *** alginit: incorrect type in alg_csa_table (t_VEC).
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
@@ -2299,4 +2325,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 1300
+Total time spent: 1292
