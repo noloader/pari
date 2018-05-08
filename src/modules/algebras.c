@@ -4467,9 +4467,6 @@ algleftordermodp(GEN al, GEN Ip, GEN p)
     imi = ZM_Z_divexact(imi, p);
     gel(M,i) = mattocol(imi, n);
   }
-
-  /* TODO : FpM_invimage superbad documentation (have to read RgM_invimage)
-   * Does it really do what it claims if left matrix is not invertible ? */
   K = FpM_ker(M, p);
   if (lg(K)==1) { avma = av; return matid(n); }
   K = ZM_hnfmodid(K,p);
