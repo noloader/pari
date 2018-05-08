@@ -14,8 +14,8 @@ Doc: For $s$ a vector of positive integers such that $s[1] \geq 2$,
  If the bit precision is $B$, this function runs in time $\tilde{O}(k B^2)$.
 
  If $T$ is provided, it must be the output of \kbd{zetamultinit}$(w)$ for
- some $w \geq s_1 + \dots + s_k$ and will provide a small speed up the
- function, usually about 10\%.
+ some $w \geq s_1 + \dots + s_k$ and will provide a small speed up,
+ usually about 10\%.
  \bprog
  ? T = zetamultinit(20); s = [2,1,1,1,1,1,1,1,1];
  ? for(i=1,10^3, zetamult(s))
