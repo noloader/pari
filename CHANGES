@@ -430,6 +430,7 @@ BA  169- [libpari] Flx_ddf, F2x_ddf, FpX_ddf, F2xqX_ddf, FlxqX_ddf, FpXQX_ddf,
     172- [libpari] Fp_center_i, FpX_center_i
     173- [libpari] hclassno6, hclassno6u
 BA  174- New GP function lfunsympow
+BA  175- nfsplitting: support for reducible polynomials
 
   Changed
       1- rewrite bnfnarrow

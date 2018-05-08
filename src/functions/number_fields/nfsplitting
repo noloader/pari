@@ -2,20 +2,26 @@ Function: nfsplitting
 Section: number_fields
 C-Name: nfsplitting
 Prototype: GDG
-Help: nfsplitting(nf,{d}): defining polynomial over Q for the splitting field of
- the number field nf; if d is given, it must be a multiple of the splitting
+Help: nfsplitting(P,{d}): defining polynomial over Q for the splitting field of
+ P, that is the smallest field over which P is totally split. P can also be
+ given by a nf structure. If d is given, it must be a multiple of the splitting
  field degree.
-Doc: defining polynomial over~$\Q$ for the splitting field of \var{nf};
- if $d$ is given, it must be a multiple of the splitting field degree.
- Instead of~\kbd{nf}, it is possible to input a defining (irreducible)
- polynomial $T$ for~\kbd{nf}, but in general this is less efficient.
-
+Doc: defining polynomial over~$\Q$ for the splitting field of \var{P},
+ that is the smallest field over which $P$ is totally split. If $P$
+ can also be given by a~\kbd{nf} structure, which is more efficient.
+ If $d$ is given, it must be a multiple of the splitting field degree.
+ Note that if $P$ is reducible the splitting field degree can be smaller
+ than the degree of $P$.
  \bprog
  ? K = nfinit(x^3-2);
  ? nfsplitting(K)
  %2 = x^6 + 108
- ?  nfsplitting(x^8-2)
+ ? nfsplitting(x^8-2)
  %3 = x^16 + 272*x^8 + 64
+ ? S = nfsplitting(x^6-8) // reducible
+ %4 = x^4+2*x^2+4
+ ? lift(nfroots(subst(S,x,a),x^6-8))
+ %5 = [-a,a,-1/2*a^3-a,-1/2*a^3,1/2*a^3,1/2*a^3+a]
  @eprog
  \noindent
  Specifying the degree of the splitting field can make the computation faster.

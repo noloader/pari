@@ -3732,6 +3732,23 @@ ZX_compositum_disjoint(GEN A, GEN B)
   return ZX_ZXY_resultant_all(A, B, &k, NULL);
 }
 
+static GEN
+lastel(GEN x) { return gel(x, lg(x)-1); }
+
+static GEN
+nfsplitting_composite(GEN P)
+{
+  GEN F = gel(ZX_factor(P), 1), Q = NULL;
+  long i, n = lg(F)-1;
+  if (n == 1) return P;
+  for (i = 1; i <= n; i++)
+  {
+    GEN Fi = gel(F, i);
+    if (degpol(Fi) == 1) continue;
+    Q = Q ? lastel(compositum(Q, Fi)): Fi;
+  }
+  return Q ? Q: pol_x(varn(P));
+}
 GEN
 nfsplitting(GEN T, GEN D)
 {
@@ -3745,6 +3762,7 @@ nfsplitting(GEN T, GEN D)
     T = Q_primpart(T);
     RgX_check_ZX(T,"nfsplitting");
   }
+  T = nfsplitting_composite(T);
   d = degpol(T);
   if (d<=1) return pol_x(varn(T));
   if (!K) {
