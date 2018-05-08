@@ -2812,7 +2812,7 @@ Low-level routines underlying \kbd{alginit}.
 algebra defined by a multiplication table.
 
 \fun{GEN}{alg_cyclic}{GEN rnf, GEN aut, GEN b, long flag}
-cyclic algebra.
+cyclic algebra~$(L/K,\sigma,b)$.
 
 \fun{GEN}{alg_hasse}{GEN nf, long d, GEN hi, GEN hf, long v, long flag}
 algebra defined by local Hasse invariants.
@@ -2823,6 +2823,9 @@ quaternion algebra.
 \fun{GEN}{alg_matrix}{GEN nf, long n, long v, GEN L, long flag}
 matrix algebra.
 
+\fun{GEN}{alg_complete}{GEN rnf, GEN aut, GEN hi, GEN hf, int maxord}
+cyclic algebra~$(L/K,\sigma,b)$ with~$b$ computed from the Hasse invariants.
+
 \subsec{Type checks}
 
 \fun{void}{checkalg}{GEN a} raise an exception if $a$ was not initialized
@@ -2830,6 +2833,10 @@ by \tet{alginit}.
 
 \fun{void}{checklat}{GEN al, GEN lat} raise an exception if \kbd{lat} is not a
 valid full lattice in the algebra~\kbd{al}.
+
+\fun{void}{checkhasse}{GEN nf, GEN hi, GEN hf, long n} raise an exception
+if~$(\kbd{hi},\kbd{hf})$ do not describe valid Hasse invariants of a central
+simple algebra of degree~\kbd{n} over~\kbd{nf}.
 
 \fun{long}{alg_type}{GEN al} internal function called by \tet{algtype}: assume
 \kbd{al} was created by \tet{alginit} (thereby saving a call to \kbd{checkalg}).
@@ -2854,7 +2861,7 @@ model used for $x$:
 \item \kbd{al\_BASIS}: \kbd{algtobasis} form, column vector on the integral
 basis.
 
-\item \kbd{al\_MATRIX}: left multiplication table.
+\item \kbd{al\_MATRIX}: matrix with coefficients in an algebra.
 
 \item \kbd{al\_TRIVIAL}: trivial algebra of degree $1$; can be understood
 as both basis or algebraic form (since $e_1 = 1$).
@@ -2917,15 +2924,35 @@ the matrix \var{Lbasinv} from \kbd{algsplittingdata}.
 \fun{GEN}{alg_get_tracebasis}{GEN al} returns the traces of the
 basis elements; used by \kbd{algtrace}.
 
-% TODO
+\fun{GEN}{alglat_get_primbasis}{GEN lat} from the description of \kbd{lat}
+as~$\lambda L$ with~$L\subset{\cal O}_0$ and~$\lambda\in\Q$, returns a basis
+of~$L$.
 
-\fun{GEN}{alglat_get_primbasis}{GEN lat}
+\fun{GEN}{alglat_get_scalar}{GEN lat} from the description of \kbd{lat}
+as~$\lambda L$ with~$L\subset{\cal O}_0$ and~$\lambda\in\Q$, returns~$\lambda$.
 
-\fun{GEN}{alglat_get_scalar}{GEN lat}
+\subsec{Other low-level functions}
+
+\fun{GEN}{conjclasses_algcenter}{GEN cc, GEN p} low-level function underlying
+\kbd{alggroupcenter}, where \kbd{cc} is the output of
+\kbd{groupelts\_to\_conjclasses}, and $p$ is either \kbd{NULL} or a prime
+number. Not stack clean.
+
+\fun{GEN}{algsimpledec_ss}{GEN al, long maps} assuming that~\kbd{al} is
+semisimple, returns the second component of~\kbd{algsimpledec(al,maps)}.
+
+\fun{GEN}{nfgwkummer}{GEN nf, GEN Lpr, GEN Ld, GEN pl, long var}
+low-level version of \kbd{nfgrunwaldwang}, assuming that \kbd{nf} contains
+suitable roots of unity, and directly using Kummer theory to construct the
+extension.
+
+\fun{GEN}{bnfgwgeneric}{GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var}
+low-level version of \kbd{nfgrunwaldwang}, assuming that \kbd{bnf} is a
+\kbd{bnfinit} structure, and calling \kbd{rnfkummer} to construct the extension.
+
+%TODO keep??
 
 \fun{GEN}{alg_change_overorder_shallow}{GEN al, GEN ord}
-
-\fun{GEN}{alg_complete}{GEN rnf, GEN aut, GEN hi, GEN hf, int maxord}
 
 \fun{GEN}{alg_ordermodp}{GEN al, GEN p}
 
@@ -2939,20 +2966,10 @@ basis elements; used by \kbd{algtrace}.
 
 \fun{GEN}{algleftordermodp}{GEN al, GEN Ip, GEN p}
 
-\fun{GEN}{bnfgwgeneric}{GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var}
-
 \fun{GEN}{bnrgwsearch}{GEN bnr, GEN Lpr, GEN Ld, GEN pl}
-
-\fun{void}{checkhasse}{GEN nf, GEN hi, GEN hf, long n}
 
 \fun{long}{cyclicrelfrob}{GEN rnf, GEN auts, GEN pr}
 
-\fun{GEN}{conjclasses_algcenter}{GEN cc, GEN p} low-level function underlying
-\kbd{alggroupcenter}, where \kbd{cc} is the output of
-\kbd{groupelts\_to\_conjclasses}, and $p$ is either \kbd{NULL} or a prime
-number. Not stack clean.
-
 \fun{long}{localhasse}{GEN rnf, GEN cnd, GEN pl, GEN auts, GEN b, long k}
 
-\fun{GEN}{nfgwkummer}{GEN nf, GEN Lpr, GEN Ld, GEN pl, long var}
 \newpage
