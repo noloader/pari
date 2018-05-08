@@ -1770,6 +1770,17 @@ return the attached \var{bnr}, and set $H$ to the attached subgroup. If
 \kbd{addgen} is $1$, make sure that if the \var{bnr} needed to be computed,
 then it contains generators.
 
+\subsec{Grunwald--Wang theorem}
+
+\fun{GEN}{nfgwkummer}{GEN nf, GEN Lpr, GEN Ld, GEN pl, long var}
+low-level version of \kbd{nfgrunwaldwang}, assuming that \kbd{nf} contains
+suitable roots of unity, and directly using Kummer theory to construct the
+extension.
+
+\fun{GEN}{bnfgwgeneric}{GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var}
+low-level version of \kbd{nfgrunwaldwang}, assuming that \kbd{bnf} is a
+\kbd{bnfinit} structure, and calling \kbd{rnfkummer} to construct the extension.
+
 \subsec{Relative equations, Galois conjugates}
 
 \fun{GEN}{nfissquarefree}{GEN nf, GEN P} given $P$ a polynomial with
@@ -2940,14 +2951,5 @@ number. Not stack clean.
 
 \fun{GEN}{algsimpledec_ss}{GEN al, long maps} assuming that~\kbd{al} is
 semisimple, returns the second component of~\kbd{algsimpledec(al,maps)}.
-
-\fun{GEN}{nfgwkummer}{GEN nf, GEN Lpr, GEN Ld, GEN pl, long var}
-low-level version of \kbd{nfgrunwaldwang}, assuming that \kbd{nf} contains
-suitable roots of unity, and directly using Kummer theory to construct the
-extension.
-
-\fun{GEN}{bnfgwgeneric}{GEN bnf, GEN Lpr, GEN Ld, GEN pl, long var}
-low-level version of \kbd{nfgrunwaldwang}, assuming that \kbd{bnf} is a
-\kbd{bnfinit} structure, and calling \kbd{rnfkummer} to construct the extension.
 
 \newpage
