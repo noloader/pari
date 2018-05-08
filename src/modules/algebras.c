@@ -966,13 +966,16 @@ alg_subalg(GEN al, GEN basis)
   basis = shallowmatconcat(mkvec2(col_ei(n,1),basis));
   /* 1st column, being e1, is kept in 1st position when computing the image */
   /* FIXME using image_keep_first */
-  if (p)    basis = FpM_image(basis,p);
-  else      basis = QM_ImQ_hnf(basis);
-  if (p) { /*TODO change after bugfix?*/
-    GEN complbasis = FpM_suppl(basis,p);
-    invbasis = rowslice(FpM_inv(complbasis,p),1,n);
+  if (p)
+  {
+    basis = FpM_image(basis,p);
+    invbasis = FpM_inv(basis,p);
   }
-  else invbasis = RgM_inv(basis);
+  else
+  {
+    basis = QM_ImQ_hnf(basis);
+    invbasis = RgM_inv(basis);
+  }
   mt = cgetg(n+1,t_VEC);
   gel(mt,1) = matid(n);
   for (i=2; i<=n; i++) {
