@@ -2296,7 +2296,7 @@ csa pol/polmod bugs
 1
 1
 1
-csa: denom over Z[y] but not in ZK
+csa: denom over Z[y] but not over ZK
 [[1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [0, -1, 0, 0; 1, 0, 0, 0;
  0, 0, 0, -1; 0, 0, 1, 0], [0, 0, 1/2*y - 1/2, 0; 0, 0, 0, -1/2*y + 1/2; 1, 
 0, 0, 0; 0, -1, 0, 0], [0, 0, 0, 1/2*y - 1/2; 0, 0, 1/2*y - 1/2, 0; 0, 1, 0,
@@ -2304,6 +2304,23 @@ csa: denom over Z[y] but not in ZK
   ***   at top-level: al=alginit(nf,mt*Mod(1,nf.pol))
   ***                    ^----------------------------
   *** alginit: domain error in alg_csa_table: denominator(mt) != 1
+al_MAT over al_CSA
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
@@ -2325,4 +2342,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 1300
+Total time spent: 1388

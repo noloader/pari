@@ -2187,7 +2187,9 @@ algcharpoly(al,a) == algcharpoly(al,algalgtobasis(al,a))
 algcharpoly(al,a,,1) == algcharpoly(al,algalgtobasis(al,a),,1)
 algtomatrix(al,a) == algtomatrix(al,algalgtobasis(al,a))
 
-print("csa: denom over Z[y] but not in ZK");
+print("csa: denom over Z[y] but not over ZK");
+setrand(1);
+nf = nfinit(y^2-5);
 mti = [0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
 mtj = [0,0,(y-1)/2,0;0,0,0,-(y-1)/2;1,0,0,0;0,-1,0,0];
 mtk = [0,0,0,(y-1)/2;0,0,(y-1)/2,0;0,1,0,0;1,0,0,0];
@@ -2200,7 +2202,36 @@ mtk = [0,0,0,(y-1)/3;0,0,(y-1)/3,0;0,1,0,0;1,0,0,0];
 mt = [matid(4),mti,mtj,mtk];
 al = alginit(nf,mt*Mod(1,nf.pol));
 
-
+print("al_MAT over al_CSA");
+setrand(1);
+nf = nfinit(y^2-5);
+mti = [0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
+mtj = [0,0,(y-1)/2,0;0,0,0,-(y-1)/2;1,0,0,0;0,-1,0,0];
+mtk = [0,0,0,(y-1)/2;0,0,(y-1)/2,0;0,1,0,0;1,0,0,0];
+mt = [matid(4),mti,mtj,mtk];
+al = alginit(nf,mt*Mod(1,nf.pol));
+m1 = [algrandom(al,2)/2,algrandom(al,1)/3;algrandom(al,2)/5,algrandom(al,3)];
+m2 = [[y,1/2,2-y,0]~,[3,y/2,-3*y,1]~;[7,0,0,y]~,[1-y,2,-y,0]~];
+algnorm(al,algmul(al,m1,m2)) == algnorm(al,m1)*algnorm(al,m2)
+algnorm(al,algmul(al,m1,m2),1) == algnorm(al,m1,1)*algnorm(al,m2,1)
+algtrace(al,algadd(al,m1,m2)) == algtrace(al,m1)+algtrace(al,m2)
+algtrace(al,algadd(al,m1,m2),1) == algtrace(al,m1,1)+algtrace(al,m2,1)
+mid = [[1,0,0,0]~,vector(4)~;vector(4)~,[1,0,0,0]~];
+t = -3/7;
+testcp(m)=
+{
+  my(P,Q);
+  P = algcharpoly(al,m);
+  print(algnorm(al,m) == polcoeff(P,0));
+  print(algtrace(al,m) == -polcoeff(P,3));
+  print(algnorm(al,algsub(al,m,t*mid))==subst(P,x,t));
+  Q = algcharpoly(al,m,,1);
+  print(algnorm(al,m,1) == polcoeff(Q,0));
+  print(algtrace(al,m,1) == -polcoeff(Q,31));
+  print(algnorm(al,algsub(al,m,t*mid),1)==subst(Q,x,t));
+}
+testcp(m1);
+testcp(m2);
 
 
 
