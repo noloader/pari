@@ -34,6 +34,10 @@ static GEN algtracematrix(GEN al);
 static GEN algtableinit_i(GEN mt0, GEN p);
 static GEN algbasisrightmultable(GEN al, GEN x);
 static GEN algabstrace(GEN al, GEN x);
+static GEN algbasismul(GEN al, GEN x, GEN y);
+static GEN algbasismultable(GEN al, GEN x);
+static GEN algbasismultable_Flm(GEN mt, GEN x, ulong m);
+
 
 static int
 checkalg_i(GEN al)
@@ -1983,7 +1987,7 @@ algalgmul(GEN al, GEN x, GEN y)
   return NULL; /*LCOV_EXCL_LINE*/
 }
 
-GEN
+static GEN
 algbasismul(GEN al, GEN x, GEN y)
 {
   GEN mt = alg_get_multable(al), p = alg_get_char(al);
@@ -2171,7 +2175,7 @@ elementmultable(GEN mt, GEN x)
   return gerepileupto(av, z);
 }
 /* mt a t_VEC of Flm modulo m */
-GEN
+static GEN
 algbasismultable_Flm(GEN mt, GEN x, ulong m)
 {
   pari_sp av = avma;
@@ -2217,7 +2221,7 @@ elementabsmultable_Fp(GEN mt, GEN x, GEN p)
   GEN z = elementabsmultable_Z(mt, x);
   return z? FpM_red(z, p): z;
 }
-GEN
+static GEN
 algbasismultable(GEN al, GEN x)
 {
   pari_sp av = avma;
@@ -2620,7 +2624,7 @@ algredcharpoly(GEN al, GEN x, long v)
   return NULL; /*LCOV_EXCL_LINE*/
 }
 
-GEN
+static GEN
 algbasischarpoly(GEN al, GEN x, long v)
 {
   pari_sp av = avma;
@@ -3133,7 +3137,7 @@ get_phi0(GEN bnr, GEN Lpr, GEN Ld, GEN pl, long *pr, long *pn)
   return NULL;
 }
 
-GEN
+static GEN
 bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl)
 {
   pari_sp av = avma;
@@ -3368,7 +3372,7 @@ static GEN
 rnfprimedec(GEN rnf, GEN pr)
 { return idealfactor(obj_check(rnf,rnf_NFABS), rnfidealup0(rnf, pr, 1)); }
 
-long
+static long
 cyclicrelfrob(GEN rnf, GEN auts, GEN pr)
 {
   pari_sp av = avma;
@@ -3391,7 +3395,7 @@ cyclicrelfrob(GEN rnf, GEN auts, GEN pr)
   avma = av; return frob;
 }
 
-long
+static long
 localhasse(GEN rnf, GEN cnd, GEN pl, GEN auts, GEN b, long k)
 {
   pari_sp av = avma;
@@ -4392,7 +4396,7 @@ mattocol(GEN M, long n)
 }
 
 /*Ip is a lift of a left O/pO-ideal where O is the integral basis of al*/
-GEN
+static GEN
 algleftordermodp(GEN al, GEN Ip, GEN p)
 {
   pari_sp av = avma;
@@ -4420,7 +4424,7 @@ algleftordermodp(GEN al, GEN Ip, GEN p)
   return gerepileupto(av, ZM_Z_div(K,p));
 }
 
-GEN
+static GEN
 alg_ordermodp(GEN al, GEN p)
 {
   GEN alp;
@@ -4542,7 +4546,7 @@ algpdecompose_i(GEN al, GEN p, GEN zprad, GEN projs)
 
 /* ord is assumed to be in hnf wrt the integral basis of al. */
 /* assumes that alg_get_invbasis(al) is integral. */
-GEN
+static GEN
 alg_change_overorder_shallow(GEN al, GEN ord)
 {
   GEN al2, mt, iord, mtx, den, den2, div;
