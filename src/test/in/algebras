@@ -2031,13 +2031,13 @@ algdivl(al,m3,m1) == algmul(al,m3i,m1)
 algdivr(al,m1,m3) == algmul(al,m1,m3i)
 algisdivl(al,m3,m2,&d32)
 algdivl(al,m3,m2) == d32
-midbasis = [[1,0,0,0,0,0,0,0]~,vector(8);vector(8),[1,0,0,0,0,0,0,0]~];
-algmul(al,m1i,m1) == midbasis;
-algmul(al,m1,m1i) == midbasis;
-algmul(al,m2i,m2) == midbasis;
-algmul(al,m2,m2i) == midbasis;
-algmul(al,m3i,m3) == midbasis;
-algmul(al,m3,m3i) == midbasis;
+midbasis = [[1,0,0,0,0,0,0,0]~,vector(8)~;vector(8)~,[1,0,0,0,0,0,0,0]~];
+algmul(al,m1i,m1) == midbasis
+algmul(al,m1,m1i) == midbasis
+algmul(al,m2i,m2) == midbasis
+algmul(al,m2,m2i) == midbasis
+algmul(al,m3i,m3) == midbasis
+algmul(al,m3,m3i) == midbasis
 print("mul");
 algmul(al,algmul(al,m1,m2),m3) == algmul(al,m1,algmul(al,m2,m3))
 algmul(al,m1,algadd(al,m2,m3)) == algadd(al, algmul(al,m1,m2), algmul(al,m1,m3))
@@ -2078,6 +2078,95 @@ sm1+sm3 == algtomatrix(al,algadd(al,m1,m3))
 sm1*sm3 == algtomatrix(al,algmul(al,m1,m3))
 sm1+sm2 == algtomatrix(al,algadd(al,m1,m2))
 sm1*sm2 == algtomatrix(al,algmul(al,m1,m2))
+
+
+print("more al_CSA tests");
+setrand(1);
+nf = nfinit(y^2-5);
+mti = [0,-1,0,0;1,0,0,0;0,0,0,-1;0,0,1,0];
+mtj = [0,0,y,0;0,0,0,-y;1,0,0,0;0,-1,0,0];
+mtk = [0,0,0,y;0,0,y,0;0,1,0,0;1,0,0,0];
+mt = [matid(4),mti,mtj,mtk];
+al = alginit(nf,mt);
+a1 = [1/2,-3,2,4/3,-1,0,1,2/5]~;
+a2 = [1+2*y,y/3,5/2,-3*y/7]~*Mod(1,y^2-5);
+a3 = algrandom(al,2)/13;
+aid = [1,0,0,0]~;
+algadd(al,algadd(al,a1,a2),a3) == algadd(al,a1,algadd(al,a2,a3))
+algadd(al,a1,a2) == algadd(al,a2,a1)
+algbasistoalg(al,algalgtobasis(al,algbasistoalg(al,a1))) == algbasistoalg(al,a1)
+algalgtobasis(al,algbasistoalg(al,algalgtobasis(al,a2))) == algalgtobasis(al,a2)
+t = 7/3;
+testcp(a)=
+{
+  my(P,Q);
+  P = algcharpoly(al,a);
+  print(algnorm(al,a) == polcoeff(P,0));
+  print(algtrace(al,a) == -polcoeff(P,1));
+  print(algnorm(al,algsub(al,a,t*aid))==subst(P,x,t));
+  Q = algcharpoly(al,a,,1);
+  print(algnorm(al,a,1) == polcoeff(Q,0));
+  print(algtrace(al,a,1) == -polcoeff(Q,7));
+  print(algnorm(al,algsub(al,a,t*aid),1)==subst(Q,x,t));
+}
+print("charpoly");
+testcp(a1);
+testcp(a2);
+testcp(a3);
+print("inv/div");
+algisinv(al,a1,&a1i)
+a1i == alginv(al,a1)
+algdivl(al,a1,a2) == algmul(al,a1i,a2)
+algdivr(al,a2,a1) == algmul(al,a2,a1i)
+algisdivl(al,a1,a3,&d13)
+algdivl(al,a1,a3) == d13
+aidbasis = vector(8,i,i==1)~;
+algmul(al,a1i,a1) == aidbasis
+algmul(al,a1,a1i) == aidbasis
+a2i = alginv(al,a2);
+print("mul");
+algmul(al,a2i,a2) == aid
+algmul(al,a2,a2i) == aid
+algmul(al,algmul(al,a1,a2),a3) == algmul(al,a1,algmul(al,a2,a3))
+print("neg");
+algadd(al,a1,algneg(al,a1)) == 0
+algadd(al,a2,algneg(al,a2)) == 0
+algadd(al,a3,algneg(al,a3)) == 0
+print("norm");
+algnorm(al,a1)*algnorm(al,a2) == algnorm(al,algmul(al,a1,a2))
+algnorm(al,a1)*algnorm(al,a3) == algnorm(al,algmul(al,a1,a3))
+algnorm(al,a3)*algnorm(al,a2) == algnorm(al,algmul(al,a3,a2))
+print("pow");
+algpow(al,a1,5) == algmul(al,algpow(al,a1,2),algpow(al,a1,3))
+algpow(al,a2,3) == algmul(al,algpow(al,a2,5),algpow(al,a2,-2))
+algpow(al,a3,3) == algmul(al,algpow(al,a3,-1),algpow(al,a3,4))
+print("sqr");
+algsqr(al,a1) == algpow(al,a1,2)
+algsqr(al,a2) == algpow(al,a2,2)
+algsqr(al,a3) == algpow(al,a3,2)
+print("sub");
+algsub(al,a2,a3) == algadd(al,a2,algneg(al,a3))
+algsub(al,a1,a3) == algadd(al,a1,algneg(al,a3))
+algsub(al,a1,a2) == algadd(al,a1,algneg(al,a2))
+print("trace");
+algtrace(al,a2)+algtrace(al,a3) == algtrace(al,algadd(al,a2,a3))
+algtrace(al,a1)+algtrace(al,a3) == algtrace(al,algadd(al,a1,a3))
+algtrace(al,a1)+algtrace(al,a2) == algtrace(al,algadd(al,a1,a2))
+print("algtomatrix");
+sa1 = algtomatrix(al,a1);
+sa2 = algtomatrix(al,a2);
+sa3 = algtomatrix(al,a3);
+#sa1==2
+#sa1[,1]==2
+sa2+sa3 == algtomatrix(al,algadd(al,a2,a3))
+sa2*sa3 == algtomatrix(al,algmul(al,a2,a3))
+sa1+sa3 == algtomatrix(al,algadd(al,a1,a3))
+sa1*sa3 == algtomatrix(al,algmul(al,a1,a3))
+sa1+sa2 == algtomatrix(al,algadd(al,a1,a2))
+sa1*sa2 == algtomatrix(al,algmul(al,a1,a2))
+
+
+
 
 
 
