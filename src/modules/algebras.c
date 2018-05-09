@@ -1550,37 +1550,20 @@ is_place_prid(GEN nf, GEN pl, GEN* pr, long* emb)
   return res;
 }
 
-/* FIXME is there any reason for the primes of hassef not to be sorted ? */
-static long
-linear_prime_search(GEN L, GEN pr)
-{
-  long i;
-  for (i=1; i<lg(L); i++)
-    if (!cmp_prime_ideal(gel(L,i),pr)) return i;
-  return 0;
-}
-
 static long
 alghasse_emb(GEN al, long emb)
 {
-  GEN nf;
-  long r1;
-  nf = alg_get_center(al);
-  r1 = nf_get_r1(nf);
-  if (emb <= r1)    return alg_get_hasse_i(al)[emb];
-  else              return 0;
+  GEN nf = alg_get_center(al);
+  long r1 = nf_get_r1(nf);
+  return (emb <= r1)? alg_get_hasse_i(al)[emb]: 0;
 }
 
 static long
 alghasse_pr(GEN al, GEN pr)
 {
-  long i;
-  GEN hf, L;
-  hf = alg_get_hasse_f(al);
-  L = gel(hf,1);
-  i = linear_prime_search(L,pr);
-  if (i) return gel(hf,2)[i];
-  else   return 0;
+  GEN hf = alg_get_hasse_f(al);
+  long i = tablesearch(gel(hf,1), pr, &cmp_prime_ideal);
+  return i? gel(hf,2)[i]: 0;
 }
 
 static long
@@ -4134,7 +4117,8 @@ algcomputehasse(GEN al)
   gel(cnd,2) = gdiventgs(gel(cnd,2), eulerphiu(n));
   for (k=1; k<=m23; k++) H[k+m1] = localhasse(rnf, cnd, pl, auts, b, k);
   gel(al,4) = hi;
-  gel(al,5) = mkvec2(PH,H);
+  perm = gen_indexsort(PH, (void*)&cmp_prime_ideal, &cmp_nodata);
+  gel(al,5) = mkvec2(vecpermute(PH,perm),vecpermute(H,perm));
   checkhasse(nf,alg_get_hasse_f(al),alg_get_hasse_i(al),n);
 }
 
