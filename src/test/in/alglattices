@@ -150,7 +150,7 @@ setrand(1);
 nb = 250;
 for(i=1,nb,if(!testlataddinter(),print(i);break()));
 
-\\make integral
+print("make integral");
 mt = [matid(2),[0,-1/4;1,0]];
 mt2 = algmakeintegral(mt);
 algisassociative(mt2)
@@ -166,7 +166,7 @@ algissimple(al)
 mt = algmultable(alginit(nfinit(y),[-3,7]));
 mt == algmakeintegral(mt)
 
-\\integral subalg
+print("integral subalg");
 m = matcompanion(x^4+1);
 mt = [m^i | i <- [0..3]];
 al = algtableinit(mt);
@@ -175,13 +175,13 @@ al2 = algsubalg(al,B);
 algisassociative(al2[1])
 al2[2]
 
-\\bug in subalg when first vector is not 1
+print("bug in subalg when first vector is not 1");
 mt = [matid(3), [0,0,0; 1,1,0; 0,0,0], [0,0,1; 0,0,0; 1,0,1]];
 A = algtableinit(mt,2);
 B = algsubalg(A,[0,1; 0,0; 1,0]);
 algissimple(B[1])
 
-\\image of lifts in algsimpledec
+print("image of lifts in algsimpledec");
 testidem(al)={
   dec = algsimpledec(al,1)[2];
   Le = [d[3][,1] | d <- dec];
@@ -221,7 +221,28 @@ testidem(al)={
   testidem(al);
 );}*/
 
-\\examples from docu
+print("lattices in al_CSA");
+setrand(1);
+nf = nfinit(y^2-7);
+a = y;
+b = y+1;
+ab = lift(Mod(a*b,nf.pol));
+mti = [0,a,0,0;1,0,0,0;0,0,0,a;0,0,1,0];
+mtj = [0,0,b,0;0,0,0,-b;1,0,0,0;0,-1,0,0];
+mtk = [0,0,0,-ab;0,0,b,0;0,-a,0,0;1,0,0,0];
+mt = [matid(4),mti,mtj,mtk];
+al = alginit(nf,mt);
+x1 = [0,2/7,7,-1,0,0,1/5,-5]~;
+x2 = [-1/7-3*y,y+3/5,y,20+y]~;
+lat1 = alglathnf(al,x1);
+lat2 = alglathnf(al,x2);
+lat3 = alglathnf(al,concat([8/5*matid(8),[1,0,0,1,0,1,1,1]~]));
+alglatsubset(al,alglatmul(al,alglatlefttransporter(al,lat1,lat3),lat1),lat3)
+alglatadd(al,lat1,alglatadd(al,lat2,lat3))==alglatadd(al,alglatadd(al,lat1,lat2),lat3)
+{alglatinter(al,lat1,alglatinter(al,lat2,lat3)) ==
+  alglatinter(al,alglatinter(al,lat1,lat2),lat3)}
+
+print("examples from docu")
 al = alginit(nfinit(y^2+7), [-1,-1]);
 lat1 = alglathnf(al,[1,1,0,0,0,0,0,0]~);
 lat2 = alglathnf(al,[1,0,1,0,0,0,0,0]~);
@@ -263,7 +284,7 @@ alglatsubset(al,alglatmul(al,lat1,tr[1][,8]*tr[2]),lat2)
 alglatsubset(al,alglatmul(al,tr[1][,8]*tr[2],lat1),lat2)
 \\end examples
 
-\\bad inputs
+print("bad inputs");
 al = alginit(nfinit(y^2+7), [-1,-1]);
 alglathnf(al,0);
 alglathnf(al,Mat([0,0,0,0,0,0,0,0]));
@@ -290,5 +311,6 @@ mt = [[1,0;-1,1],[0,-1/4;1,0]];
 algmakeintegral(mt);
 algmakeintegral('x,1);
 alglatmul(al,lat1,[matdiagonal([1,1,0,1,1,1,1,1]),1]);
+\\end bad inputs
 
 

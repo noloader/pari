@@ -52,11 +52,13 @@
 1
 1
 [23804, 219387, -5/6, 1/6, 23/3, 2/3, 0, 1/6]~
+make integral
 1
 1
 1
 1
 1
+integral subalg
 
 [1   0]
 
@@ -76,6 +78,9 @@
 
 [0 0]
 
+bug in subalg when first vector is not 1
+1
+image of lifts in algsimpledec
 1
 1
 1
@@ -90,7 +95,11 @@
 1
 1
 1
+lattices in al_CSA
 1
+1
+1
+examples from docu
 4
 64
 4
@@ -112,6 +121,7 @@
 0
 1
 0
+bad inputs
   ***   at top-level: alglathnf(al,0)
   ***                 ^---------------
   *** alglathnf: incorrect type in alglathnf (t_INT).
@@ -155,4 +165,4 @@
   ***   at top-level: alglatmul(al,lat1,[matdiagonal([1,1,0,1,1,1,1,
   ***                 ^----------------------------------------------
   *** alglatmul: incorrect type in checklat [please apply alglathnf()] (t_VEC).
-Total time spent: 1208
+Total time spent: 1220
