@@ -1556,21 +1556,20 @@ static long
 alghasse_0(GEN al, GEN pl)
 {
   GEN pr, nf;
-  long ta;
-  checkalg(al); ta = alg_type(al);
-  if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
-  if (ta == al_TABLE) pari_err_TYPE("alghasse_0 [use alginit]",al);
+  if (alg_type(al)== al_CSA)
+    pari_err_IMPL("computation of Hasse invariants over table CSA");
   if ((pr = get_prid(pl))) return alghasse_pr(al, pr);
   nf = alg_get_center(al);
   return alghasse_emb(al, is_place_emb(nf, pl));
 }
-
 GEN
 alghasse(GEN al, GEN pl)
 {
-  pari_sp av = avma;
-  long h = alghasse_0(al,pl), d = alg_get_degree(al);
-  return gerepileupto(av, sstoQ(h,d));
+  long h;
+  checkalg(al);
+  if (alg_type(al) == al_TABLE) pari_err_TYPE("alghasse [use alginit]",al);
+  h = alghasse_0(al,pl);
+  return sstoQ(h, alg_get_degree(al));
 }
 
 /* h >= 0, d >= 0 */
@@ -1580,30 +1579,20 @@ indexfromhasse(long h, long d) { return d/ugcd(h,d); }
 long
 algindex(GEN al, GEN pl)
 {
-  pari_sp av = avma;
-  long h, d, res, i, r1;
-  GEN hi, hf, L;
+  long d, res, i, l;
+  GEN hi, hf;
 
   checkalg(al);
   if (alg_type(al) == al_TABLE) pari_err_TYPE("algindex [use alginit]",al);
   d = alg_get_degree(al);
-
-  if (pl) {
-    h = alghasse_0(al,pl);
-    avma = av;
-    return indexfromhasse(h,d);
-  }
+  if (pl) return indexfromhasse(alghasse_0(al,pl), d);
 
   /* else : global index */
   res = 1;
-  r1 = nf_get_r1(alg_get_center(al));
-  hi = alg_get_hasse_i(al);
-  for (i=1; i<=r1 && res!=d; i++) res = ulcm(res, indexfromhasse(hi[i],d));
-  hf = alg_get_hasse_f(al);
-  L = gel(hf,1);
-  hf = gel(hf,2);
-  for (i=1; i<lg(L) && res!=d; i++) res = ulcm(res, indexfromhasse(hf[i],d));
-  avma = av;
+  hi = alg_get_hasse_i(al); l = lg(hi);
+  for (i=1; i<l && res!=d; i++) res = ulcm(res, indexfromhasse(hi[i],d));
+  hf = gel(alg_get_hasse_f(al), 2); l = lg(hf);
+  for (i=1; i<l && res!=d; i++) res = ulcm(res, indexfromhasse(hf[i],d));
   return res;
 }
 
