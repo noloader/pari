@@ -2984,14 +2984,15 @@ algrandom(GEN al, GEN b)
   checkalg(al);
   n = alg_get_absdim(al);
   N = addiu(shifti(b,1), 1); /* left on stack */
-  p = alg_get_char(al);
+  p = alg_get_char(al); if (!signe(p)) p = NULL;
   res = cgetg(n+1,t_COL);
   for (i=1; i<= n; i++)
   {
     pari_sp av = avma;
-    gel(res,i) = gerepileuptoint(av, subii(randomi(N),b));
+    GEN t = subii(randomi(N),b);
+    if (p) t = modii(t, p);
+    gel(res,i) = gerepileuptoint(av, t);
   }
-  if (signe(p)) res = FpC_red(res, p); /* FIXME need garbage collection here? */
   return res;
 }
 
