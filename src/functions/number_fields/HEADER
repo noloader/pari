@@ -62,11 +62,12 @@ Doc:
  vector $[I, t]$, where $I$ is an ideal as above and $t$ is an algebraic
  number, representing the ideal $(t)I$. This is useful whenever \tet{idealred}
  is involved, implicitly working in the ideal class group, while keeping track
- of principal ideals. Ideal operations suitably update the principal part
- when it makes sense (in a multiplicative context), e.g.~using \kbd{idealmul}
- on $[I,t]$, $[J,u]$, we obtain $[IJ, tu]$. When it does not make sense, the
- extended part is silently discarded, e.g.~using \kbd{idealadd} with the above
- input produces $I+J$.
+ of principal ideals. The following multiplicative ideal operations
+ update the principal part: \kbd{idealmul}, \kbd{idealsqr}, \kbd{idealinv},
+ \kbd{idealpow} and \kbd{idealred}; e.g.~using \kbd{idealmul}
+ on $[I,t]$, $[J,u]$, we obtain $[IJ, tu]$. In all other
+ functions, the extended part is silently discarded, e.g.~using
+ \kbd{idealadd} with the above input produces $I+J$.
 
  The ``principal part'' $t$ in an extended ideal may be
  represented in any of the above forms, and \emph{also} as a factorization
