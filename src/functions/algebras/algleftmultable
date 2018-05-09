@@ -18,4 +18,13 @@ Doc: Given an element \var{x} in \var{al}, computes its left multiplication
  [0  0  1  1]
 
  [0  0 -2 -1]
+ ? algleftmultable(A,[0,x]~)
+ %3 =
+ [-1  0 0 -1]
+
+ [-1  0 1  0]
+
+ [-1 -1 0 -1]
+
+ [ 2  0 0  1]
  @eprog
