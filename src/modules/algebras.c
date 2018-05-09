@@ -4755,7 +4755,7 @@ alg_maximal(GEN al)
    the integral basis of the algebra, and
  - t>0 either an integer or a rational number.
 
- Advised and returned by the following functions:
+ Recommended and returned by the functions below:
  - I HNF and primitive
 */
 

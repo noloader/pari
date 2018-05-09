@@ -10,11 +10,11 @@ Doc:
  the center of $A$ is $K$, and that $A$ is \emph{simple} if it has no
  nontrivial two-sided ideals.
 
- We provide functions to manipulate associative algebras of finite
+ We provide functions to handle associative algebras of finite
  dimension over~$\Q$ or~$\F_p$. We represent them by the left multiplication
  table on a basis over the prime subfield. The function \kbd{algtableinit}
  creates the object representing an associative algebra. We also provide
- functions to manipulate central simple algebras over number fields. We
+ functions to handle central simple algebras over number fields. We
  represent them either by the left multiplication table on a basis over the
  center, or by a cyclic algebra (see below). The function~\kbd{alginit} creates
  the object representing a central simple algebra.
@@ -93,4 +93,16 @@ Doc:
  \typ{INT} or \typ{FRAC}, and as an algebraic representation if the coefficients
  are \typ{POL} or \typ{POLMOD}.
 
+ We also provide functions to handle full lattices in algebras over~$\Q$. A
+ full lattice~$J\subset A$ is represented by a $2$-component \typ{VEC}~$[I,t]$
+ representing~$J = tI$, where
 
+ \item $I$ is an integral nonsingular upper-triangular matrix representing a
+ sublattice of~${\cal O}_0$ expressed on the integral basis, and
+
+ \item $t\in\Q_{>0}$ is a \typ{INT} or \typ{FRAC}.
+
+ For the sake of efficiency you should use matrices~$I$ that are primitive and
+ in Hermite Normal Form; this makes the representation unique. No GP function
+ uses this property, but all GP functions return lattices in this form. The
+ prefix for lattice functions is \kbd{alglat}.
