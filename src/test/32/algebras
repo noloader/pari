@@ -1427,6 +1427,9 @@ t(1), 1, Mat(1), [1, 0], []], [0.E-77], [1], Mat(1), Mat(1)], [Mat(1), Mat(1
 
 [-2]
 
+
+[Mod(1/3, x)]
+
 x - 1/3
 4/5
 4/5
@@ -2222,6 +2225,19 @@ algtomatrix
 1
 1
 1
+algleftmultable
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
 more al_CSA tests
 1
 1
@@ -2292,6 +2308,17 @@ algtomatrix
 1
 1
 1
+algleftmultable
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
 csa pol/polmod bugs
 [[1, 0, 0, 0; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [0, -1, 0, 0; 1, 0, 0, 0;
  0, 0, 0, -1; 0, 0, 1, 0], [0, 0, y, 0; 0, 0, 0, -y; 1, 0, 0, 0; 0, -1, 0, 0
@@ -2335,6 +2362,13 @@ al_MAT over al_CSA
 1
 1
 1
+algleftmultable
+1
+1
+1
+1
+1
+1
 nfgrunwaldwang SEGV #1669
 x^2 + Mod(-17, y)
   ***   at top-level: nfgrunwaldwang(nfinit(x),[2,3],[1,2],Vecsmall(
@@ -2356,4 +2390,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 1372
+Total time spent: 1416

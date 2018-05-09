@@ -1473,6 +1473,7 @@ algdivr(al,c,b)
 alginv(al,a)
 algalgtobasis(al,b)
 algleftmultable(al,a)
+algtomatrix(al,b)
 algcharpoly(al,b)
 algtrace(al,c)
 algnorm(al,c)
@@ -2084,6 +2085,22 @@ sm1+sm3 == algtomatrix(al,algadd(al,m1,m3))
 sm1*sm3 == algtomatrix(al,algmul(al,m1,m3))
 sm1+sm2 == algtomatrix(al,algadd(al,m1,m2))
 sm1*sm2 == algtomatrix(al,algmul(al,m1,m2))
+print("algleftmultable");
+M1 = algleftmultable(al,m1);
+M2 = algleftmultable(al,m2);
+M3 = algleftmultable(al,m3);
+#M1==32
+#M1[,1]==32
+#M2==32
+#M2[,1]==32
+#M3==32
+#M3[,1]==32
+M2+M3 == algleftmultable(al,algadd(al,m2,m3))
+M2*M3 == algleftmultable(al,algmul(al,m2,m3))
+M1+M3 == algleftmultable(al,algadd(al,m1,m3))
+M1*M3 == algleftmultable(al,algmul(al,m1,m3))
+M1+M2 == algleftmultable(al,algadd(al,m1,m2))
+M1*M2 == algleftmultable(al,algmul(al,m1,m2))
 
 
 print("more al_CSA tests");
@@ -2170,6 +2187,20 @@ sa1+sa3 == algtomatrix(al,algadd(al,a1,a3))
 sa1*sa3 == algtomatrix(al,algmul(al,a1,a3))
 sa1+sa2 == algtomatrix(al,algadd(al,a1,a2))
 sa1*sa2 == algtomatrix(al,algmul(al,a1,a2))
+print("algleftmultable");
+ma1 = algleftmultable(al,a1);
+ma2 = algleftmultable(al,a2);
+ma3 = algleftmultable(al,a3);
+#ma1==8
+#ma1[,1]==8
+#ma2==8
+#ma2[,1]==8
+ma2+ma3 == algleftmultable(al,algadd(al,a2,a3))
+ma2*ma3 == algleftmultable(al,algmul(al,a2,a3))
+ma1+ma3 == algleftmultable(al,algadd(al,a1,a3))
+ma1*ma3 == algleftmultable(al,algmul(al,a1,a3))
+ma1+ma2 == algleftmultable(al,algadd(al,a1,a2))
+ma1*ma2 == algleftmultable(al,algmul(al,a1,a2))
 
 
 print("csa pol/polmod bugs");
@@ -2238,6 +2269,15 @@ testcp(m)=
 }
 testcp(m1);
 testcp(m2);
+print("algleftmultable");
+M1 = algleftmultable(al,m1);
+M2 = algleftmultable(al,m2);
+#M1==32
+#M1[,1]==32
+#M2==32
+#M2[,1]==32
+M1+M2 == algleftmultable(al,algadd(al,m1,m2))
+M1*M2 == algleftmultable(al,algmul(al,m1,m2))
 
 
 
