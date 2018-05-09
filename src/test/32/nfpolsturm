@@ -5,16 +5,16 @@
 [0, 0, 0, 0, 0]
 [0, 0, 0, 0, 0]
 [0, 2, 2, 2, 2]
-  ***   at top-level: nfsturm(nf,a,3)
-  ***                 ^---------------
-  *** nfsturm: domain error in nfsturm: index > 2
-  ***   at top-level: nfsturm(nf,a,[-1..1])
-  ***                 ^---------------------
-  *** nfsturm: domain error in nfsturm: index <= 0
-  ***   at top-level: nfsturm(nf,a,[1..3])
-  ***                 ^--------------------
-  *** nfsturm: domain error in nfsturm: index > 2
-  ***   at top-level: nfsturm(nf,0,1)
-  ***                 ^---------------
-  *** nfsturm: zero polynomial in nfsturm.
+  ***   at top-level: nfpolsturm(nf,a,3)
+  ***                 ^------------------
+  *** nfpolsturm: domain error in nfpolsturm: index > 2
+  ***   at top-level: nfpolsturm(nf,a,[-1..1])
+  ***                 ^------------------------
+  *** nfpolsturm: domain error in nfpolsturm: index <= 0
+  ***   at top-level: nfpolsturm(nf,a,[1..3])
+  ***                 ^-----------------------
+  *** nfpolsturm: domain error in nfpolsturm: index > 2
+  ***   at top-level: nfpolsturm(nf,0,1)
+  ***                 ^------------------
+  *** nfpolsturm: zero polynomial in nfpolsturm.
 Total time spent: 4
