@@ -1649,27 +1649,22 @@ FpX_compositum(GEN a, GEN b, GEN p)
 }
 
 /* Assume A in Z[Y], B in Q[Y][X], and Res_Y(A, B) in Z[X].
- * If lambda = NULL, return Res_Y(A,B).
- * Otherwise, find a small lambda (start from *lambda, use the sequence above)
+ * Find a small lambda (start from *lambda, use next_lambda successively)
  * such that R(X) = Res_Y(A(Y), B(X + lambda Y)) is squarefree, reset *lambda
  * to the chosen value and return R. Set LERS to the Last non-constant
  * polynomial in the Euclidean Remainder Sequence */
 static GEN
 ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
 {
-  int checksqfree = plambda? 1: 0, stable;
-  long lambda = plambda? *plambda: 0, cnt = 0;
   ulong bound, dp;
   pari_sp av = avma, av2 = 0;
-  long i,n, degA = degpol(A), degB, dres = degA*degpol(B0);
-  long v = fetch_var_higher();
-  long vX = varn(B0), vY = varn(A); /* assume vY has lower priority */
+  long lambda = *plambda, degA = degpol(A), dres = degA*degpol(B0);
+  long stable, checksqfree, i,n, cnt, degB;
+  long v = fetch_var_higher(), vX = varn(B0), vY = varn(A); /* vY < vX */
   GEN x, y, dglist, dB, B, q, a, b, ev, H, H0, H1, Hp, H0p, H1p, C0, C1;
   forprime_t S;
 
   dglist = Hp = H0p = H1p = C0 = C1 = NULL; /* gcc -Wall */
-  if (!checksqfree)
-    pari_err_BUG("ZX_ZXY_resultant_all [LERS != NULL needs lambda]");
   C0 = cgetg(dres+2, t_VECSMALL);
   C1 = cgetg(dres+2, t_VECSMALL);
   dglist = cgetg(dres+1, t_VECSMALL);
@@ -1687,7 +1682,7 @@ INIT:
   if (lambda) B = RgX_translate(B0, monomial(stoi(lambda), 1, vY));
   B = swap_vars(B, vY); setvarn(B,v);
   /* B0(lambda v + x, v) */
-  if (DEBUGLEVEL>4 && checksqfree) err_printf("Trying lambda = %ld\n", lambda);
+  if (DEBUGLEVEL>4) err_printf("Trying lambda = %ld\n", lambda);
   av2 = avma;
 
   if (degA <= 3)
@@ -1698,7 +1693,7 @@ INIT:
     if (typ(H0) == t_POL) setvarn(H0,vX); else H0 = scalarpol(H0,vX);
     H1 = gel(q,3);
     if (typ(H1) == t_POL) setvarn(H1,vX); else H1 = scalarpol(H1,vX);
-    if (checksqfree && !ZX_is_squarefree(H)) goto INIT;
+    if (!ZX_is_squarefree(H)) goto INIT;
     if (dB) H = ZX_Z_divexact(H, powiu(dB, degA));
     goto END;
   }
@@ -1709,7 +1704,7 @@ INIT:
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
   dp = 1;
   init_modular_big(&S);
-  for(;;)
+  for(cnt = 0, checksqfree = 1;;)
   {
     ulong p = u_forprime_next(&S);
     GEN Hi;
@@ -1795,7 +1790,12 @@ END:
 GEN
 ZX_ZXY_resultant_all(GEN A, GEN B, long *plambda, GEN *LERS)
 {
-  if (LERS) return ZX_ZXY_resultant_LERS(A, B, plambda, LERS);
+  if (LERS)
+  {
+    if (!plambda)
+      pari_err_BUG("ZX_ZXY_resultant_all [LERS != NULL needs lambda]");
+    return ZX_ZXY_resultant_LERS(A, B, plambda, LERS);
+  }
   return ZX_ZXY_rnfequation(A, B, plambda);
 }
 
