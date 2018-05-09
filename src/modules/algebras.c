@@ -308,15 +308,6 @@ rnfrealdec(GEN rnf, long k)
   avma = av; return r;
 }
 
-static int
-RgC_is_ZC(GEN x)
-{
-  int i;
-  for (i=lg(x)-1; i>0; i--)
-    if (typ(gel(x,i)) != t_INT) return 0;
-  return 1;
-}
-
 /* no garbage collection */
 static GEN
 backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GEN,GEN,GEN), GEN* fa, GEN N, GEN I)
@@ -5050,7 +5041,7 @@ alglatcontains(GEN al, GEN lat, GEN x, GEN *ptc)
   m = alglat_get_primbasis(lat);
   t = alglat_get_scalar(lat);
   x = RgC_Rg_div(x,t);
-  if (!RgC_is_ZC(x)) { avma = av; return 0; }
+  if (!RgV_is_ZV(x)) { avma = av; return 0; }
   sol = hnf_solve(m,x);
   if (!sol) { avma = av; return 0; }
   if (ptc)
