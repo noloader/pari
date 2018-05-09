@@ -1800,28 +1800,31 @@ chk_ind(const char *s, long i, long r1)
   if (i <= 0) pari_err_DOMAIN(s, "index", "<=", gen_0, stoi(i));
   if (i > r1) pari_err_DOMAIN(s, "index", ">", utoi(r1), utoi(i));
 }
+static GEN
+parse_embed(GEN ind, long r, const char *f)
+{
+  long l, i;
+  if (!ind) return identity_perm(r);
+  switch(typ(ind))
+  {
+    case t_INT: case t_VEC: case t_COL: ind = gtovecsmall(ind); break;
+    case t_VECSMALL: break;
+    default: pari_err_TYPE(f, ind);
+  }
+  l = lg(ind);
+  for (i = 1; i < l; i++) chk_ind(f, ind[i], r);
+  return ind;
+}
 GEN
 nfeltsign(GEN nf, GEN x, GEN ind0)
 {
   pari_sp av = avma;
   long i, l, r1;
   GEN v, ind;
-  nf = checknf(nf);
-  r1 = nf_get_r1(nf);
+  nf = checknf(nf); r1 = nf_get_r1(nf);
   x = nf_to_scalar_or_basis(nf, x);
-  if (!ind0) ind0 = identity_perm(r1);
-  switch(typ(ind0))
-  {
-    case t_INT: case t_VEC: case t_COL:
-      ind = gtovecsmall(ind0); break;
-    case t_VECSMALL:
-      ind = ind0; break;
-    default:
-      pari_err_TYPE("nfeltsign",ind0);
-      return NULL; /* LCOV_EXCL_LINE */
-  }
+  ind = parse_embed(ind0, r1, "nfeltsign");
   l = lg(ind);
-  for (i = 1; i < l; i++) chk_ind("nfeltsign", ind[i], r1);
   if (typ(x) != t_COL)
   {
     GEN s;
@@ -1832,10 +1835,10 @@ nfeltsign(GEN nf, GEN x, GEN ind0)
       default: s = gen_0; break;
     }
     avma = av;
-    return typ(ind0) == t_INT? s: const_vec(l-1, s);
+    return (ind0 && typ(ind0) == t_INT)? s: const_vec(l-1, s);
   }
   v = nfsign_arch(nf, x, ind);
-  if (typ(ind0) == t_INT) { avma = av; return v[1]? gen_m1: gen_1; }
+  if (ind0 && typ(ind0) == t_INT) { avma = av; return v[1]? gen_m1: gen_1; }
   settyp(v, t_VEC);
   for (i = 1; i < l; i++) gel(v,i) = v[i]? gen_m1: gen_1;
   return gerepileupto(av, v);
@@ -1849,22 +1852,11 @@ nfeltembed(GEN nf, GEN x, GEN ind0, long prec0)
   GEN v, ind, cx;
   nf = checknf(nf); nf_get_sign(nf,&r1,&r2);
   x = nf_to_scalar_or_basis(nf, x);
-  if (!ind0) ind0 = identity_perm(r1+r2);
-  switch(typ(ind0))
-  {
-    case t_INT: case t_VEC: case t_COL:
-      ind = gtovecsmall(ind0); break;
-    case t_VECSMALL:
-      ind = ind0; break;
-    default:
-      pari_err_TYPE("nfeltsign",ind0);
-      return NULL; /* LCOV_EXCL_LINE */
-  }
+  ind = parse_embed(ind0, r1+r2, "nfeltembed");
   l = lg(ind);
-  for (i = 1; i < l; i++) chk_ind("nfeltembed", ind[i], r1+r2);
   if (typ(x) != t_COL)
   {
-    if (typ(ind0) != t_INT) x = const_vec(l-1, x);
+    if (!(ind0 && typ(ind0) == t_INT)) x = const_vec(l-1, x);
     return gerepilecopy(av, x);
   }
   x = Q_primitive_part(x, &cx);
@@ -1890,9 +1882,59 @@ nfeltembed(GEN nf, GEN x, GEN ind0, long prec0)
     if (DEBUGLEVEL>1) pari_warn(warnprec,"eltnfembed", prec);
     nf = nfnewprec_shallow(nf, prec);
   }
-  if (typ(ind0) == t_INT) v = gel(v,1);
+  if (ind0 && typ(ind0) == t_INT) v = gel(v,1);
   return gerepilecopy(av, v);
 }
+
+/* number of distinct roots of sigma(f) */
+GEN
+nfsturm(GEN nf, GEN f, GEN ind0)
+{
+  pari_sp av = avma;
+  long d, l, r1, single;
+  GEN ind, u, v, vr1, T, s, t;
+
+  nf = checknf(nf); T = nf_get_pol(nf); r1 = nf_get_r1(nf);
+  ind = parse_embed(ind0, r1, "nfsturm");
+  single = ind0 && typ(ind0) == t_INT;
+  l = lg(ind);
+
+  if (gequal0(f)) pari_err_ROOTS0("nfsturm");
+  if (typ(f) == t_POL && varn(f) != varn(T))
+  {
+    f = RgX_nffix("nfsturn", T, f,1);
+    if (lg(f) == 3) f = NULL;
+  }
+  else
+  {
+    (void)Rg_nffix("nfsturm", T, f, 0);
+    f = NULL;
+  }
+  if (!f) { avma = av; return single? gen_0: zerovec(l-1); }
+  d = degpol(f);
+  if (d == 1) { avma = av; return single? gen_1: const_vec(l-1,gen_1); }
+
+  vr1 = const_vecsmall(l-1, 1);
+  u = Q_primpart(f); s = ZV_to_zv(nfeltsign(nf, gel(u,d+2), ind));
+  v = RgX_deriv(u); t = odd(d)? leafcopy(s): zv_neg(s);
+  for(;;)
+  {
+    GEN r = RgX_neg( Q_primpart(RgX_pseudorem(u, v)) ), sr;
+    long i, dr = degpol(r);
+    if (dr < 0) break;
+    sr = ZV_to_zv(nfeltsign(nf, gel(r,dr+2), ind));
+    for (i = 1; i < l; i++)
+      if (sr[i] != s[i]) { s[i] = sr[i], vr1[i]--; }
+    if (odd(dr)) sr = zv_neg(sr);
+    for (i = 1; i < l; i++)
+      if (sr[i] != t[i]) { t[i] = sr[i], vr1[i]++; }
+    if (!dr) break;
+    u = v; v = r;
+  }
+  if (single) { avma = av; return stoi(vr1[1]); }
+  return gerepileupto(av, zv_to_ZV(vr1));
+}
+
 
 /* return the vector of signs of x; the matrix of such if x is a vector
  * of nf elements */

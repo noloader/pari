@@ -300,16 +300,12 @@ alglat_get_scalar(GEN lat) { return gel(lat,2); }
 
 /** ADDITIONAL **/
 
-/* FIXME: not rigorous */
 static long
 rnfrealdec(GEN rnf, long k)
 {
   pari_sp av = avma;
-  GEN nf = rnf_get_nf(rnf), pol = rnf_get_pol(rnf);
-  long r, i, l = lg(pol);
-  pol = shallowcopy(pol);
-  for (i=2; i<l; i++) gel(pol,i) = nfembed(nf, gel(pol,i), k);
-  r = sturm(pol); avma = av; return r;
+  long r = itos(nfsturm(rnf_get_nf(rnf), rnf_get_pol(rnf), stoi(k)));
+  avma = av; return r;
 }
 
 static int

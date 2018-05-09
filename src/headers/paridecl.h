@@ -2164,6 +2164,7 @@ GEN     nfsign_arch(GEN nf,GEN alpha,GEN arch);
 GEN     nfsign_from_logarch(GEN Larch, GEN invpi, GEN archp);
 GEN     nfsqr(GEN nf,GEN x);
 GEN     nfsqri(GEN nf, GEN x);
+GEN     nfsturm(GEN nf, GEN f, GEN ind0);
 GEN     nfsub(GEN nf, GEN x, GEN y);
 GEN     nftrace(GEN nf, GEN x);
 long    nfval(GEN nf, GEN x, GEN vp);
