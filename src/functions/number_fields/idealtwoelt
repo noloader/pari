@@ -46,7 +46,9 @@ Doc: computes a two-element representation of the ideal $x$ in the number
  %5 = [-161, -161, -183, -207, 0]~
  ? idealhnf(K, 552, alpha2) == x
  %6 = 1
- @eprog
+ @eprog\noindent Note that, in both cases, the return value is \emph{not}
+ recognized as an ideal by GP functions; one must use \kbd{idealhnf} as
+ above to recover a valid ideal structure from the two-element representation.
 
 Variant: Also available are
  \fun{GEN}{idealtwoelt}{GEN nf, GEN x} and
