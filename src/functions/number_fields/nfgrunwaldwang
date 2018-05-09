@@ -15,8 +15,8 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
  coefficients in \var{nf} defining a cyclic extension of \var{nf} of
  minimal degree satisfying certain local conditions:
 
- \item at the prime \kbd{Lpr[i]}, the extension has local degree a multiple of
- \kbd{Ld[i]};
+ \item at the prime~$Lpr[i]$, the extension has local degree a multiple
+ of~$Ld[i]$;
 
  \item at the $i$-th real place of \var{nf}, it is complex if $pl[i]=-1$
  (no condition if $pl[i]=0$).
