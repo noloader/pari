@@ -1525,29 +1525,15 @@ algissimple(GEN al, long ss)
   return gequal0(dec);
 }
 
-static int
-is_place_prid_i(GEN nf, GEN pl, GEN* pr, long* emb)
+static long
+is_place_emb(GEN nf, GEN pl)
 {
-  long r1 = nf_get_r1(nf), r2 = nf_get_r2(nf);
-  *pr = get_prid(pl);
-  if (*pr) return 1;
-  if (typ(pl) != t_INT) return -1;
-  if (signe(pl)<=0) return -2;
-  if (cmpis(pl,r1+r2)>0) return -3;
-  *emb = itos(pl);
-  return 0;
-}
-
-/* if pl is a prime ideal, sets pr to this prime */
-/* if pl is an integer between 1 and r1+r2 sets emb to this integer */
-static int
-is_place_prid(GEN nf, GEN pl, GEN* pr, long* emb)
-{
-  int res = is_place_prid_i(nf, pl, pr, emb);
-  if (res == -1) pari_err_TYPE("is_place_prid", pl);
-  if (res == -2) pari_err_DOMAIN("is_place_prid", "pl", "<=", gen_0, pl);
-  if (res == -3) pari_err_DOMAIN("is_place_prid", "pl", ">", stoi(nf_get_r1(nf)+nf_get_r2(nf)), pl);
-  return res;
+  long r, r1, r2;
+  if (typ(pl) != t_INT) pari_err_TYPE("is_place_emb", pl);
+  if (signe(pl)<=0) pari_err_DOMAIN("is_place_emb", "pl", "<=", gen_0, pl);
+  nf_get_sign(nf,&r1,&r2); r = r1+r2;
+  if (cmpiu(pl,r)>0) pari_err_DOMAIN("is_place_emb", "pl", ">", utoi(r), pl);
+  return itou(pl);
 }
 
 static long
@@ -1569,26 +1555,22 @@ alghasse_pr(GEN al, GEN pr)
 static long
 alghasse_0(GEN al, GEN pl)
 {
-  long ta, ispr, h, emb = 0;
   GEN pr, nf;
-  checkalg(al);
-  ta = alg_type(al);
+  long ta;
+  checkalg(al); ta = alg_type(al);
   if (ta == al_CSA) pari_err_IMPL("computation of Hasse invariants over table CSA");
   if (ta == al_TABLE) pari_err_TYPE("alghasse_0 [use alginit]",al);
+  if ((pr = get_prid(pl))) return alghasse_pr(al, pr);
   nf = alg_get_center(al);
-  ispr = is_place_prid(nf, pl, &pr, &emb);
-  if (ispr) h = alghasse_pr(al, pr);
-  else      h = alghasse_emb(al, emb);
-  return h;
+  return alghasse_emb(al, is_place_emb(nf, pl));
 }
 
 GEN
 alghasse(GEN al, GEN pl)
 {
   pari_sp av = avma;
-  long h = alghasse_0(al,pl), d;
-  d = alg_get_degree(al);
-  return gerepileupto(av, gdivgs(stoi(h),d));
+  long h = alghasse_0(al,pl), d = alg_get_degree(al);
+  return gerepileupto(av, sstoQ(h,d));
 }
 
 /* h >= 0, d >= 0 */
