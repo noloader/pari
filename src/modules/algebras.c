@@ -589,7 +589,7 @@ alg_quotient0(GEN al, GEN S, GEN Si, long nq, GEN p, long maps)
   long i;
   dbg_printf(3)("  alg_quotient0: char=%Ps, dim=%d, dim I=%d\n", p, alg_get_absdim(al), lg(S)-1);
   for (i=1; i<=nq; i++) {
-    GEN mti = algleftmultable(al,gel(S,i));
+    GEN mti = algbasismultable(al,gel(S,i));
     if (signe(p)) gel(mt,i) = FpM_mul(Si, FpM_mul(mti,S,p), p);
     else          gel(mt,i) = RgM_mul(Si, RgM_mul(mti,S));
   }
@@ -684,7 +684,7 @@ alg_centralproj(GEN al, GEN z, long maps)
   S = cgetg(lz,t_VEC); /* S[i] = Im(z_i) */
   for (i=1; i<lz; i++)
   {
-    GEN mti = algleftmultable(al, gel(z,i));
+    GEN mti = algbasismultable(al, gel(z,i));
     gel(S,i) = image_keep_first(mti,p);
   }
   U = shallowconcat1(S); /* U = [Im(z_1)|Im(z_2)|...|Im(z_nz)], n x n */
@@ -800,7 +800,7 @@ alg_decompose_from_facto(GEN al, GEN x, GEN fa, GEN Z, long mini)
     Q = factorback(v2);
     P = RgX_mul(P, RgXQ_inv(P,Q));
   }
-  mx = algleftmultable(al, x);
+  mx = algbasismultable(al, x);
   P = algpoleval(al, P, mx);
   if (signe(p)) Q = FpC_sub(col_ei(lg(P)-1,1), P, p);
   else          Q = gsub(gen_1, P);
@@ -2430,7 +2430,7 @@ algleftmultable_mat(GEN al, GEN M)
   return res;
 }
 
-/* left multiplication table on elements of the same model as x */
+/* left multiplication table on integral basis */
 GEN
 algleftmultable(GEN al, GEN x)
 {
@@ -2442,7 +2442,7 @@ algleftmultable(GEN al, GEN x)
   tx = alg_model(al,x);
   switch(tx) {
     case al_TRIVIAL : res = mkmatcopy(mkcol(gel(x,1))); break;
-    case al_ALGEBRAIC : res = algalgmultable(al,x); break;
+    case al_ALGEBRAIC : x = algalgtobasis(al,x);
     case al_BASIS : res = algbasismultable(al,x); break;
     case al_MATRIX : res = algleftmultable_mat(al,x); break;
     default : return NULL; /* LCOV_EXCL_LINE */
@@ -2500,18 +2500,23 @@ algtomatrix(GEN al, GEN x)
 static GEN
 algdivl_i(GEN al, GEN x, GEN y, long tx, long ty) {
   pari_sp av = avma;
-  GEN res, p = alg_get_char(al);
+  GEN res, p = alg_get_char(al), mtx;
   if (tx != ty) {
-    if (tx==al_ALGEBRAIC) x = algalgtobasis(al,x);
-    if (ty==al_ALGEBRAIC) y = algalgtobasis(al,y);
+    if (tx==al_ALGEBRAIC) { x = algalgtobasis(al,x); tx=al_BASIS; }
+    if (ty==al_ALGEBRAIC) { y = algalgtobasis(al,y); ty=al_BASIS; }
   }
   if (ty == al_MATRIX)
   {
     if (alg_type(al) != al_TABLE) y = algalgtobasis(al,y);
     y = algmat2basis(al,y);
   }
-  if (signe(p)) res = FpM_FpC_invimage(algleftmultable(al,x),y,p);
-  else          res = inverseimage(algleftmultable(al,x),y);
+  if (signe(p)) res = FpM_FpC_invimage(algbasismultable(al,x),y,p);
+  else
+  {
+    if (ty==al_ALGEBRAIC)   mtx = algalgmultable(al,x);
+    else                    mtx = algleftmultable(al,x);
+    res = inverseimage(mtx,y);
+  }
   if (!res || lg(res)==1) { avma = av; return NULL; }
   if (tx == al_MATRIX) {
     res = algbasis2mat(al, res, lg(x)-1);
@@ -3045,12 +3050,22 @@ GEN
 algpoleval(GEN al, GEN pol, GEN x)
 {
   pari_sp av = avma;
-  GEN p, mx, res;
+  GEN p, mx = NULL, res;
   long i;
   checkalg(al);
   p = alg_get_char(al);
   if (typ(pol) != t_POL) pari_err_TYPE("algpoleval",pol);
-  mx = (typ(x) == t_MAT)? x: algleftmultable(al,x);
+  /* TODO change specification */
+  if (typ(x) == t_MAT) mx = x;
+  else
+  {
+    switch(alg_model(al,x))
+    {
+      case al_ALGEBRAIC: mx = algalgmultable(al,x); break;
+      case al_TRIVIAL: case al_BASIS: mx = algbasismultable(al,x); break;
+      default: pari_err_TYPE("algpoleval", x);
+    }
+  }
   res = zerocol(lg(mx)-1);
   if (signe(p)) {
     for (i=lg(pol)-1; i>1; i--)

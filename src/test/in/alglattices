@@ -276,7 +276,7 @@ fakemat = matid(8);
 fakemat[1,1] = 0;
 alglathnf(al,fakemat);
 lat = alglathnf(al,matconcat([mt*0,mt*0]));
-a = [0,0]~;
+a = [[0,0]~,[0,0]~;[0,0]~,[0,0]~];
 lat1 = alglathnf(al,a);
 lat2 = alglathnf(al,c);
 col = [3,6,-5,1,23,2,0,1]~;

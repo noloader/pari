@@ -113,8 +113,8 @@ operations() = gusuite("operations", ()->{
   do("inverse", ()->alginv(al,u)==algsub(al,un,n));
   do("powers", ()->algpow(al,u,124)==algadd(al,un,algmul(al,[124,0]~,n)));
   do("negative powers", ()->algpow(al,j,-56)==un);
-  do("multiplication table j", ()->algleftmultable(al,j)==[0,ii;1,0]);
-  do("multiplication table", ()->algleftmultable(al,u)==[1-ss,-1-ii;ii-1,1+ss]);
+  do("multiplication table j", ()->algtomatrix(al,j)==[0,ii;1,0]);
+  do("multiplication table", ()->algtomatrix(al,u)==[1-ss,-1-ii;ii-1,1+ss]);
   do("characteristic polynomial", ()->algcharpoly(al,u,'y)==y^2-2*y+1);
   do("characteristic polynomial j", ()->algcharpoly(al,j,'y)==y^2-nfii);
   do("trace zero", ()->algtrace(al,n)==0);
@@ -328,9 +328,9 @@ moreoperations() = gusuite("more operations", ()->{
   do("w*basis(ww)", ()->algmul(al,w,algalgtobasis(al,ww))==algalgtobasis(al,algmul(al,w,ww)));
   do("basis(w)^2", ()->algsqr(al,algalgtobasis(al,w))==algalgtobasis(al,algsqr(al,w)));
   do("basis(ww)^2", ()->algsqr(al,algalgtobasis(al,ww))==algalgtobasis(al,algsqr(al,ww)));
-  do("basis(w)\ww", ()->algdivl(al,algalgtobasis(al,w),ww)==algalgtobasis(al,algdivl(al,w,ww)));
-  do("w\basis(ww)", ()->algdivl(al,w,algalgtobasis(al,ww))==algalgtobasis(al,algdivl(al,w,ww)));
-  do("basis(ww)\w", ()->algdivl(al,algalgtobasis(al,ww),w)==algalgtobasis(al,algdivl(al,ww,w)));
+  do("basis(w)\\ww", ()->algdivl(al,algalgtobasis(al,w),ww)==algalgtobasis(al,algdivl(al,w,ww)));
+  do("w\\basis(ww)", ()->algdivl(al,w,algalgtobasis(al,ww))==algalgtobasis(al,algdivl(al,w,ww)));
+  do("basis(ww)\\w", ()->algdivl(al,algalgtobasis(al,ww),w)==algalgtobasis(al,algdivl(al,ww,w)));
   do("ww\basis(w)", ()->algdivl(al,ww,algalgtobasis(al,w))==algalgtobasis(al,algdivl(al,ww,w)));
   do("basis(w)^-1", ()->alginv(al,algalgtobasis(al,w))==algalgtobasis(al,alginv(al,w)));
   do("basis(ww)^-1", ()->alginv(al,algalgtobasis(al,ww))==algalgtobasis(al,alginv(al,ww)));
@@ -1069,7 +1069,7 @@ print("csa mul: ", algmul(al,a,b) == [Mod(y,T), 0, 0, Mod(2*y-2,T)]~);
 print("csa mul 2: ", algmul(al,b,a) == [Mod(y,T), 0, 0, Mod(2-2*y,T)]~);
 print("csa sqr: ", algsqr(al,a) == [Mod(-y^2,T),0,0,0]~);
 print("csa sqr 2: ", algsqr(al,b) == [Mod(-1-4*y^4,T),0,0,0]~);
-print("csa mt: ", algleftmultable(al,b) == -m_i + Mod(2*y^2,T)*m_j);
+print("csa mt: ", algrelmultable(al)*b == -m_i + Mod(2*y^2,T)*m_j);
 print("csa inv: ", alginv(al,a) == -1/y^2*a);
 print("csa inv 2: ", alginv(al,b) == -1/Mod(1+4*y^4,T)*b);
 print("csa divl: ", algdivl(al,1+a+b,b) == algmul(al, alginv(al, 1+a+b), b));
@@ -1442,6 +1442,7 @@ algdivl(al,b,c)
 algdivr(al,c,b)
 alginv(al,a)
 algalgtobasis(al,b)
+algtomatrix(al,a)
 algleftmultable(al,a)
 algcharpoly(al,b)
 algtrace(al,c)

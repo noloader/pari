@@ -355,9 +355,9 @@ basis(w)*ww: 1
 w*basis(ww): 1
 basis(w)^2: 1
 basis(ww)^2: 1
-basis(w)ww: 1
-wbasis(ww): 1
-basis(ww)w: 1
+basis(w)\ww: 1
+w\basis(ww): 1
+basis(ww)\w: 1
 wwbasis(w): 1
 basis(w)^-1: 1
 basis(ww)^-1: 1
@@ -1380,6 +1380,11 @@ x], [[x^2 + 1, [0, 1], -4, 1, [Mat([1, 0.E-77 + 1.00000000000000000000000000
 
 [Mod(Mod(y, y^2 + 1), x)]
 
+
+[ 0 1]
+
+[-1 0]
+
 x + Mod(2*y - 1, y^2 + 1)
 Mod(-y - 3, y^2 + 1)
 Mod(-y - 3, y^2 + 1)
@@ -2342,4 +2347,4 @@ x^2 + Mod(-17, y)
 [1/2]
 
 1
-Total time spent: 1388
+Total time spent: 1408
