@@ -1953,33 +1953,37 @@ algtrace(A,[[1,0]~,[0,0]~;[0,0]~,[1,0]~],1)==4*algabsdim(A)
 
 print("charpoly(,1)");
 nf = nfinit(y^2-5);
-al = alginit(nf,[-1,y]);
-a = [y,1+x]~*Mod(1,y^2-5)*Mod(1,x^2+1);
+al = alginit(nf,[-3-y,y]);
+pol = nf.pol;
+polrel = algsplittingfield(al).pol;
+a = [y,1+x]~*Mod(1,pol)*Mod(1,polrel);
 P = lift(algcharpoly(al,a))
 algcharpoly(al,a,,1)
-lift(P*subst(P,y,-y)*Mod(1,y^2-5))^2
-b = [1+x/3+y/2,3*y-x/7]~*Mod(1,y^2-5)*Mod(1,x^2+1);
+lift(P*subst(P,y,-y)*Mod(1,pol))^2
+b = [1+x/3+y/2,3*y-x/7]~*Mod(1,pol)*Mod(1,polrel);
 P = lift(algcharpoly(al,b));
 Q = algcharpoly(al,b,,1);
-Q == lift(P*subst(P,y,-y)*Mod(1,y^2-5))^2
+Q == lift(P*subst(P,y,-y)*Mod(1,pol))^2
 c = [4/3,2,1/7,6,4,9,-1,3/2]~;
 P = lift(algcharpoly(al,c));
 Q = algcharpoly(al,c,,1);
-Q == lift(P*subst(P,y,-y)*Mod(1,y^2-5))^2
-{m = [[y/3,x+1]~*Mod(1,y^2-5)*Mod(1,x^2+1),[1,7/11]~;
+Q == lift(P*subst(P,y,-y)*Mod(1,pol))^2
+{m = [[y/3,x+1]~*Mod(1,pol)*Mod(1,polrel),[1,7/11]~;
     [1..8]~,[1/7,5,6,7/2,8,1/4,1,-1/2]~];}
 P = lift(algcharpoly(al,m));
 Q = algcharpoly(al,m,,1);
-Q==lift(P*subst(P,y,-y)*Mod(1,y^2-5))^4
+Q==lift(P*subst(P,y,-y)*Mod(1,pol))^4
 
 print("more al_MAT tests");
 setrand(1);
 nf=nfinit(y^2-5);
-al=alginit(nf,[-1,y]);
+pol = nf.pol;
+al=alginit(nf,[y,-1]);
+polrel = algsplittingfield(al).pol;
 m1 = matrix(2,2,i,j,algrandom(al,1)/(i+2*j));
 {m2 = matrix(2,2,i,j,vector(2,k,random(2)+random(2)*x+random(2)*y+
-  random(2)*x*y)~*Mod(1,x^2+1)*Mod(1,y^2-5)/prime(i+2*j));}
-{m3 = [[1,0]~,[1..8]~;[y+x,y-x]~*Mod(1,x^2+1)*Mod(1,y^2-5),
+  random(2)*x*y)~*Mod(1,polrel)*Mod(1,pol)/prime(i+2*j));}
+{m3 = [[1,0]~,[1..8]~;[y+x,y-x]~*Mod(1,polrel)*Mod(1,pol),
   [1,3,5,0,-1,-2,0,-2]~/3];}
 print("add");
 algadd(al,m1,m2)==algadd(al,m2,m1)

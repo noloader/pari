@@ -307,6 +307,7 @@ rnfrealdec(GEN rnf, long k)
   pari_sp av = avma;
   GEN nf = rnf_get_nf(rnf), pol = rnf_get_pol(rnf);
   long r, i, l = lg(pol);
+  //pari_printf("%Ps --- %Ps\n", nf_get_pol(nf), pol);
   pol = shallowcopy(pol);
   for (i=2; i<l; i++) gel(pol,i) = nfembed(nf, gel(pol,i), k);
   r = sturm(pol); avma = av; return r;

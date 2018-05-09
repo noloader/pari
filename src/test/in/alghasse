@@ -246,3 +246,24 @@ algadd(A,[1,0,0,0,0,0,0,0,0]~,[1,2,3]~)
 algsub(A,[1,0,0,0,0,0,0,0,0]~,[1,2,3]~)
 algmul(A,[0,0,0,0,0,0,0,0,0]~,[1,2,3]~)
 
+print("\ntests with splitting field that does not descend");
+setrand(1);
+nf = nfinit(y^2-5);
+al = alginit(nf,[y,-1]);
+algramifiedplaces(al)
+al = alginit(nf,[-3+y,-1]);
+algramifiedplaces(al)
+al = alginit(nf,[-3+y,y]);
+algramifiedplaces(al)
+nf = nfinit(y^4 - 10*y^2 + 1);
+p3 = idealprimedec(nf,3)[1];
+p5 = idealprimedec(nf,5)[1];
+al = alginit(nf, [2, [[p3,p5],[1/2,1/2]], [1/2,0,0,1/2]]);
+algramifiedplaces(al)
+al = alginit(nf, [2, [[p3],[1/2]], [0,1/2,0,0]]);
+algramifiedplaces(al)
+nf = nfinit(y^8 - 40*y^6 + 352*y^4 - 960*y^2 + 576);
+p3 = idealprimedec(nf,3)[1];
+al = alginit(nf, [2,[[p3],[1/2]], [1/2,0,0,1/2,1/2,0,0,0]]);
+algramifiedplaces(al)
+
