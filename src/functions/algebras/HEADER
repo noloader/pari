@@ -5,7 +5,7 @@ Doc:
  \section{Associative and central simple algebras}
 
  This section collects functions related to associative algebras and central
- simple algebras over number fields. Let $A$ be a finite-dimensional unitary
+ simple algebras over number fields. Let $A$ be a finite-dimensional unital
  associative algebra over a field $K$. We say that $A$ is \emph{central} if
  the center of $A$ is $K$, and that $A$ is \emph{simple} if it has no
  nontrivial two-sided ideals.
