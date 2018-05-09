@@ -152,4 +152,7 @@
   ***   at top-level: algmakeintegral('x,1)
   ***                 ^---------------------
   *** algmakeintegral: incorrect type in algmakeintegral (t_POL).
-Total time spent: 2940
+  ***   at top-level: alglatmul(al,lat1,[matdiagonal([1,1,0,1,1,1,1,
+  ***                 ^----------------------------------------------
+  *** alglatmul: incorrect type in checklat [please apply alglathnf()] (t_VEC).
+Total time spent: 1208

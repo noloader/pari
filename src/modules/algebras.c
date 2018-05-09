@@ -74,6 +74,7 @@ checklat_i(GEN al, GEN lat)
       c = gcoeff(m,i,j);
       if (typ(c) != t_INT) return 0;
       if (j<i && signe(gcoeff(m,i,j))) return 0;
+      if (i==j && !signe(gcoeff(m,i,j))) return 0;
     }
   return 1;
 }
@@ -4750,8 +4751,12 @@ alg_maximal(GEN al)
 
 /*
  Convention: lattice = [I,t] representing t*I, where
- - I integral hnf over the integral basis of the algebra, and
+ - I integral nonsingular upper-triangular matrix representing a lattice over
+   the integral basis of the algebra, and
  - t>0 either an integer or a rational number.
+
+ Advised and returned by the following functions:
+ - I HNF and primitive
 */
 
 /* TODO use hnfmodid whenever possible using a*O <= I <= O

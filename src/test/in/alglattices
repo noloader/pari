@@ -289,5 +289,6 @@ algmakeintegral(mt);
 mt = [[1,0;-1,1],[0,-1/4;1,0]];
 algmakeintegral(mt);
 algmakeintegral('x,1);
+alglatmul(al,lat1,[matdiagonal([1,1,0,1,1,1,1,1]),1]);
 
 
