@@ -304,7 +304,7 @@ static long
 rnfrealdec(GEN rnf, long k)
 {
   pari_sp av = avma;
-  long r = itos(nfsturm(rnf_get_nf(rnf), rnf_get_pol(rnf), stoi(k)));
+  long r = itos(nfpolsturm(rnf_get_nf(rnf), rnf_get_pol(rnf), stoi(k)));
   avma = av; return r;
 }
 

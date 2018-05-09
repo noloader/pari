@@ -1888,18 +1888,18 @@ nfeltembed(GEN nf, GEN x, GEN ind0, long prec0)
 
 /* number of distinct roots of sigma(f) */
 GEN
-nfsturm(GEN nf, GEN f, GEN ind0)
+nfpolsturm(GEN nf, GEN f, GEN ind0)
 {
   pari_sp av = avma;
   long d, l, r1, single;
   GEN ind, u, v, vr1, T, s, t;
 
   nf = checknf(nf); T = nf_get_pol(nf); r1 = nf_get_r1(nf);
-  ind = parse_embed(ind0, r1, "nfsturm");
+  ind = parse_embed(ind0, r1, "nfpolsturm");
   single = ind0 && typ(ind0) == t_INT;
   l = lg(ind);
 
-  if (gequal0(f)) pari_err_ROOTS0("nfsturm");
+  if (gequal0(f)) pari_err_ROOTS0("nfpolsturm");
   if (typ(f) == t_POL && varn(f) != varn(T))
   {
     f = RgX_nffix("nfsturn", T, f,1);
@@ -1907,7 +1907,7 @@ nfsturm(GEN nf, GEN f, GEN ind0)
   }
   else
   {
-    (void)Rg_nffix("nfsturm", T, f, 0);
+    (void)Rg_nffix("nfpolsturm", T, f, 0);
     f = NULL;
   }
   if (!f) { avma = av; return single? gen_0: zerovec(l-1); }

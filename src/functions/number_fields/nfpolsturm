@@ -1,8 +1,8 @@
-Function: nfsturm
+Function: nfpolsturm
 Section: number_fields
-C-Name: nfsturm
+C-Name: nfpolsturm
 Prototype: GGDG
-Help: nfsturm(nf, T, {pl}): number of distinct real roots of the polynomial
+Help: nfpolsturm(nf, T, {pl}): number of distinct real roots of the polynomial
  s(T) where s runs through the real embeddings given by vector pl.
 Doc: given a polynomial $T$ with coefficients in the number field \var{nf},
  returns the number of real roots of the $s(T)$ where $s$ runs through
@@ -23,18 +23,18 @@ Doc: given a polynomial $T$ with coefficients in the number field \var{nf},
  ? nf.roots
  %3 = [-1.414..., 1.414...]
  ? T = x^2 + 'y;
- ? nfsturm(nf, T, 1) \\ subst(T,y,sqrt(2)) has two real roots
+ ? nfpolsturm(nf, T, 1) \\ subst(T,y,sqrt(2)) has two real roots
  %5 = 2
- ? nfsturm(nf, T, 2) \\ subst(T,y,-sqrt(2)) has no real root
+ ? nfpolsturm(nf, T, 2) \\ subst(T,y,-sqrt(2)) has no real root
  %6 = 0
- ? nfsturm(nf, T) \\ all embeddings together
+ ? nfpolsturm(nf, T) \\ all embeddings together
  %7 = [2, 0]
- ? nfsturm(nf, T, [2,1]) \\ second then first embedding
+ ? nfpolsturm(nf, T, [2,1]) \\ second then first embedding
  %8 = [0, 2]
- ? nfsturm(nf, x^3)  \\ number of distinct roots !
+ ? nfpolsturm(nf, x^3)  \\ number of distinct roots !
  %9 = [1, 1]
- ? nfsturm(nf, x, 6) \\ there are only 2 real embeddings !
-  ***   at top-level: nfsturm(nf,x,6)
+ ? nfpolsturm(nf, x, 6) \\ there are only 2 real embeddings !
+  ***   at top-level: nfpolsturm(nf,x,6)
   ***                 ^-----------------
-  *** nfsturm: domain error in nfsturm: index > 2
+  *** nfpolsturm: domain error in nfpolsturm: index > 2
  @eprog
