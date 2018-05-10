@@ -5,29 +5,32 @@ Doc:
  \section{Associative and central simple algebras}
 
  This section collects functions related to associative algebras and central
- simple algebras over number fields. Let $A$ be a finite-dimensional unital
- associative algebra over a field $K$. We say that $A$ is \emph{central} if
- the center of $A$ is $K$, and that $A$ is \emph{simple} if it has no
- nontrivial two-sided ideals.
+ simple algebras (CSA) over number fields.
+
+ \subsec{Basic definitions} %GPHELPskip
+
+ Let $A$ be a finite-dimensional unital associative algebra over a field $K$.
+ The algebra $A$ is \emph{central} if its center is $K$ and it is
+ \emph{simple} if it has no nontrivial two-sided ideals.
 
  We provide functions to handle associative algebras of finite
  dimension over~$\Q$ or~$\F_p$. We represent them by the left multiplication
- table on a basis over the prime subfield. The function \kbd{algtableinit}
+ table on a basis over the prime subfield; the function \kbd{algtableinit}
  creates the object representing an associative algebra. We also provide
- functions to handle central simple algebras over number fields. We
+ functions to handle central simple algebras over a number field $K$. We
  represent them either by the left multiplication table on a basis over the
- center, or by a cyclic algebra (see below). The function~\kbd{alginit} creates
- the object representing a central simple algebra.
+ center $K$ or by a cyclic algebra (see below); the function~\kbd{alginit}
+ creates the object representing a central simple algebra.
 
  The set of elements of an algebra~$A$ that annihilate every simple left
  $A$-module is a two-sided ideal, called the \emph{Jacobson radical} of~$A$.
- An algebra is \emph{semisimple} if its Jacobson radical is trivial. A
- semisimple algebra is isomorphic to a direct product of simple algebras. The
- dimension of a central simple algebra~$A$ over $K$ is always a square $d^2$,
- and the integer $d$ is called the \emph{degree} of the algebra~$A$ over~$K$.
- A central simple algebra~$A$ over a field~$K$ is always isomorphic to~$M_d(D)$
- for some integer~$d$ and some central division algebra~$D$ of degree~$e$ : the
- integer~$e$ is called the \emph{index} of~$A$.
+ If the Jacobson radical is trivial, the algebra is \emph{semisimple}: it is
+ isomorphic to a direct product of simple algebras. The
+ dimension of a CSA over its center $K$ is always a
+ square $d^2$ and the integer $d$ is called the \emph{degree} of the
+ algebra over~$K$. A CSA over a field~$K$ is always isomorphic to~$M_d(D)$
+ for some integer~$d$ and some central division algebra~$D$ of degree~$e$:
+ the integer~$e$ is the \emph{index} of the algebra.
 
  Let $L/K$ be a cyclic extension of degree $d$, let $\sigma$ be a
  generator of $\text{Gal}(L/K)$ and let $b\in K^*$. Then the
@@ -41,7 +44,9 @@ Doc:
  $L/K$ be the unique unramified extension of degree $d$. Then every central
  simple algebra $A$ of degree $d$ over $K$ is isomorphic to
  $(L/K, \Frob, \pi^h)$ for some integer $h$. The element $h/d\in
- (1/d)\Z/\Z\subset\Q/\Z$ is called the \emph{Hasse invariant} of $A$.
+ \Q/\Z$ is called the \emph{Hasse invariant} of $A$.
+
+ \subsec{Orders} %GPHELPskip
 
  Let~$A$ be an algebra of finite dimension over~$\Q$. An \emph{order}
  in~$A$ is a finitely generated $\Z$-submodule~${\cal O}$ such
@@ -64,6 +69,24 @@ Doc:
  in~$A$, called the \emph{natural order}. Let~$\omega_0,\dots,\omega_{n-1}$ be
  a~$\Z$-basis of~$\Z_K$. The \emph{natural basis} of~${\cal O}$
  is~$b_0,\dots,b_{nd^2-1}$ where~$b_i = \omega_{(i \mod n)}e_{i/n}$.
+
+ \subsec{Lattices} %GPHELPskip
+
+ We also provide functions to handle full lattices in algebras over~$\Q$. A
+ full lattice~$J\subset A$ is represented by a $2$-component \typ{VEC}~$[I,t]$
+ representing~$J = tI$, where
+
+ \item $I$ is an integral nonsingular upper-triangular matrix representing a
+ sublattice of~${\cal O}_0$ expressed on the integral basis, and
+
+ \item $t\in\Q_{>0}$ is a \typ{INT} or \typ{FRAC}.
+
+ For the sake of efficiency you should use matrices~$I$ that are primitive and
+ in Hermite Normal Form; this makes the representation unique. No GP function
+ uses this property, but all GP functions return lattices in this form. The
+ prefix for lattice functions is \kbd{alglat}.
+
+ \subsec{GP conventions} %GPHELPskip
 
  As with number fields, we represent elements of central simple algebras
  in two ways, called the \emph{algebraic representation} and the \emph{basis
@@ -92,17 +115,3 @@ Doc:
  interpret the column vector as a basis representation if the coefficients are
  \typ{INT} or \typ{FRAC}, and as an algebraic representation if the coefficients
  are \typ{POL} or \typ{POLMOD}.
-
- We also provide functions to handle full lattices in algebras over~$\Q$. A
- full lattice~$J\subset A$ is represented by a $2$-component \typ{VEC}~$[I,t]$
- representing~$J = tI$, where
-
- \item $I$ is an integral nonsingular upper-triangular matrix representing a
- sublattice of~${\cal O}_0$ expressed on the integral basis, and
-
- \item $t\in\Q_{>0}$ is a \typ{INT} or \typ{FRAC}.
-
- For the sake of efficiency you should use matrices~$I$ that are primitive and
- in Hermite Normal Form; this makes the representation unique. No GP function
- uses this property, but all GP functions return lattices in this form. The
- prefix for lattice functions is \kbd{alglat}.
