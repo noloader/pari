@@ -125,361 +125,360 @@ Mod(z^2, z^3 + z^2 - 2*z - 1)
 [Mod(1/2*y + 4, y^2 - 40), 1]
 [Mod(-1, y^3 - 21), -2]
 [Mod(-y + 3, y^3 - 21), 1]
+[1, 1]: [2, 0]~
+[1, 2]: Mod(2, x^2 + Mod(-y, y^3 - 21))
+[1, 3]: 2
+[1, 4]: 2
+[1, 5]: 2
+[1, 6]: 2
+[1, 7]: 4
+[1, 8]: 4
+[2, 1]: [1/2, 0]~
+[2, 2]: Mod(1/2, x^2 + Mod(-y, y^3 - 21))
+[2, 3]: 1/2
+[2, 4]: 1/2
+[2, 5]: 1/2
+[2, 6]: 1/2
+[2, 7]: 1
+[2, 8]: 1/4
+[3, 1]: [Mod(y^2 + y, y^3 - 21), Mod(1, y^3 - 21)]~
+[3, 2]: Mod(x + Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[3, 3]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[3, 4]: Mod(x^2 + x, x^6 - 21)
+[3, 5]: error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
+[3, 6]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[3, 7]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[3, 8]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[4, 1]: [1, 0]~
+[4, 2]: Mod(1, x^2 + Mod(-y, y^3 - 21))
+[4, 3]: Mod(1, x^2 + Mod(-y, y^3 - 21))
+[4, 4]: Mod(1, x^6 - 21)
+[4, 5]: 1
+[4, 6]: 1
+[4, 7]: 2
+[4, 8]: 1
+[5, 1]: [1/2, 0]~
+[5, 2]: Mod(1/2, x^2 + Mod(-y, y^3 - 21))
+[5, 3]: Mod(1/2, x^2 + Mod(-y, y^3 - 21))
+[5, 4]: Mod(1/2, x^6 - 21)
+[5, 5]: 1/2
+[5, 6]: 1/2
+[5, 7]: 1
+[5, 8]: 1/4
+[6, 1]: [Mod(y, y^3 - 21), 0]~
+[6, 2]: Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[6, 3]: Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[6, 4]: Mod(x^2, x^6 - 21)
+[6, 5]: Mod(x^2, x^6 - 21)
+[6, 6]: Mod(y, y^3 - 21)
+[6, 7]: Mod(2*y, y^3 - 21)
+[6, 8]: Mod(y^2, y^3 - 21)
+[7, 1]: error("inconsistent moduli in rnfalgtobasis: x^6 - 21 != y^3 - 21")
+[7, 2]: error("inconsistent moduli in rnfbasistoalg: x^6 - 21 != y^3 - 21")
+[7, 3]: 1
+[7, 4]: Mod(1, x^6 - 21)
+[7, 5]: Mod(1, x^6 - 21)
+[7, 6]: 1
+[7, 7]: 2
+[7, 8]: 1
+[8, 1]: error("inconsistent moduli in rnfalgtobasis: x^6 - 21 != y^3 - 21")
+[8, 2]: error("inconsistent moduli in rnfbasistoalg: x^6 - 21 != y^3 - 21")
+[8, 3]: 1/2
+[8, 4]: Mod(1/2, x^6 - 21)
+[8, 5]: Mod(1/2, x^6 - 21)
+[8, 6]: 1/2
+[8, 7]: 1
+[8, 8]: 1/4
+[9, 1]: error("inconsistent moduli in rnfalgtobasis: x^6 - 21 != y^3 - 21")
+[9, 2]: error("inconsistent moduli in rnfbasistoalg: x^6 - 21 != y^3 - 21")
+[9, 3]: Mod(x, x^2 + Mod(-y, y^3 - 21))
+[9, 4]: Mod(x, x^6 - 21)
+[9, 5]: Mod(x, x^6 - 21)
+[9, 6]: error("domain error in rnfeltdown: element not in the base field")
+[9, 7]: 0
+[9, 8]: Mod(-y, y^3 - 21)
+[10, 1]: [Mod(y^2 + 1/2*y, y^3 - 21), Mod(1, y^3 - 21)]~
+[10, 2]: Mod(x + Mod(1/2*y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[10, 3]: Mod(x + Mod(1/2*y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[10, 4]: Mod(1/2*x^2 + x, x^6 - 21)
+[10, 5]: error("inconsistent moduli in nf_to_scalar_or_basis: x^2 - y != y^3
+ - 21")
+[10, 6]: error("domain error in rnfeltdown: element not in the base field")
+[10, 7]: Mod(y, y^3 - 21)
+[10, 8]: Mod(1/4*y^2 - y, y^3 - 21)
+[11, 1]: [Mod(y, y^3 - 21), 0]~
+[11, 2]: Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[11, 3]: Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[11, 4]: Mod(x^2, x^6 - 21)
+[11, 5]: Mod(x^2, x^6 - 21)
+[11, 6]: Mod(y, y^3 - 21)
+[11, 7]: Mod(2*y, y^3 - 21)
+[11, 8]: Mod(y^2, y^3 - 21)
+[12, 1]: error("incorrect priority in rnfalgtobasis: variable z >= y")
+[12, 2]: error("inconsistent variables in rnfbasistoalg, z != x.")
+[12, 3]: error("inconsistent variables in rnfeltabstorel, z != x.")
+[12, 4]: error("inconsistent variables in eltreltoabs, z != y.")
+[12, 5]: error("inconsistent variables in nf_to_scalar_or_basis, z != y.")
+[12, 6]: error("inconsistent variables in rnfeltabstorel, z != x.")
+[12, 7]: error("inconsistent variables in rnfeltabstorel, z != x.")
+[12, 8]: error("inconsistent variables in rnfeltabstorel, z != x.")
+[13, 1]: error("inconsistent moduli in rnfalgtobasis: y^2 + 1 != y^3 - 21")
+[13, 2]: error("inconsistent moduli in rnfbasistoalg: y^2 + 1 != y^3 - 21")
+[13, 3]: error("inconsistent moduli in rnfeltabstorel: y^2 + 1 != x^6 - 21")
+[13, 4]: error("inconsistent moduli in rnfeltreltoabs: y^2 + 1 != y^3 - 21")
+[13, 5]: error("inconsistent moduli in nf_to_scalar_or_basis: y^2 + 1 != y^3
+ - 21")
+[13, 6]: error("inconsistent moduli in rnfeltdown: y^2 + 1 != y^3 - 21")
+[13, 7]: error("inconsistent moduli in rnfeltabstorel: y^2 + 1 != x^6 - 21")
+[13, 8]: error("inconsistent moduli in rnfeltabstorel: y^2 + 1 != x^6 - 21")
+[14, 1]: error("inconsistent dimensions in rnfalgtobasis.")
+[14, 2]: error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL 
+(1 elts).")
+[14, 3]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[14, 4]: error("incorrect type in rnfeltreltoabs (t_COL).")
+[14, 5]: error("incorrect type in nf_to_scalar_or_basis (t_COL).")
+[14, 6]: error("incorrect type in rnfeltdown (t_COL).")
+[14, 7]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[14, 8]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[15, 1]: [1, 2]~
+[15, 2]: Mod(2*x + Mod(-2*y^2 + 1, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[15, 3]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[15, 4]: error("incorrect type in rnfeltreltoabs (t_COL).")
+[15, 5]: error("incorrect type in nf_to_scalar_or_basis (t_COL).")
+[15, 6]: error("incorrect type in rnfeltdown (t_COL).")
+[15, 7]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[15, 8]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[16, 1]: [1, Mod(y, y^3 - 21)]~
+[16, 2]: Mod(Mod(y, y^3 - 21)*x - 20, x^2 + Mod(-y, y^3 - 21))
+[16, 3]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[16, 4]: error("incorrect type in rnfeltreltoabs (t_COL).")
+[16, 5]: error("incorrect type in nf_to_scalar_or_basis (t_COL).")
+[16, 6]: error("incorrect type in rnfeltdown (t_COL).")
+[16, 7]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[16, 8]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[17, 1]: error("incorrect type in rnfalgtobasis (t_COMPLEX).")
+[17, 2]: error("incorrect type in nf_to_scalar_or_alg (t_COMPLEX).")
+[17, 3]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[17, 4]: error("incorrect type in rnfeltreltoabs (t_COL).")
+[17, 5]: error("incorrect type in nf_to_scalar_or_basis (t_COL).")
+[17, 6]: error("incorrect type in rnfeltdown (t_COL).")
+[17, 7]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[17, 8]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[18, 1]: error("incorrect type in rnfalgtobasis [not in Q[X]] (t_POL).")
+[18, 2]: error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
+[18, 3]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[18, 4]: error("incorrect type in poltobasis (t_POL).")
+[18, 5]: error("incorrect type in poltobasis (t_POL).")
+[18, 6]: error("incorrect type in rnfeltdown [not in Q[X]] (t_POL).")
+[18, 7]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[18, 8]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[19, 1]: [y, 0]~
+[19, 2]: Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[19, 3]: Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
+[19, 4]: Mod(x^2, x^6 - 21)
+[19, 5]: error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
+[19, 6]: Mod(y, y^3 - 21)
+[19, 7]: Mod(2*y, y^3 - 21)
+[19, 8]: Mod(y^2, y^3 - 21)
 1:
-[2, 0]~
-Mod(2, x^2 + Mod(-y, y^3 - 21))
-2
-2
-2
-2
-4
-4
+1: x^2 - 4*x + 4
 2:
-[1/2, 0]~
-Mod(1/2, x^2 + Mod(-y, y^3 - 21))
-1/2
-1/2
-1/2
-1/2
-1
-1/4
+2: x^2 - x + 1/4
 3:
-[Mod(y^2 + y, y^3 - 21), Mod(1, y^3 - 21)]~
-Mod(x + Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-Mod(x^2 + x, x^6 - 21)
-error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+3: x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2 - y, y^3 - 21)
 4:
-[1, 0]~
-Mod(1, x^2 + Mod(-y, y^3 - 21))
-Mod(1, x^2 + Mod(-y, y^3 - 21))
-Mod(1, x^6 - 21)
-1
-1
-2
-1
+4: x^2 - 2*x + 1
 5:
-[1/2, 0]~
-Mod(1/2, x^2 + Mod(-y, y^3 - 21))
-Mod(1/2, x^2 + Mod(-y, y^3 - 21))
-Mod(1/2, x^6 - 21)
-1/2
-1/2
-1
-1/4
+5: x^2 - x + 1/4
 6:
-[Mod(y, y^3 - 21), 0]~
-Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(x^2, x^6 - 21)
-Mod(x^2, x^6 - 21)
-Mod(y, y^3 - 21)
-Mod(2*y, y^3 - 21)
-Mod(y^2, y^3 - 21)
+6: Mod(1, y^3 - 21)*x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2, y^3 - 21)
 7:
-error("inconsistent moduli in rnfalgtobasis: x^6 - 21 != y^3 - 21")
-error("inconsistent moduli in rnfbasistoalg: x^6 - 21 != y^3 - 21")
-1
-Mod(1, x^6 - 21)
-Mod(1, x^6 - 21)
-1
-2
-1
+7: error("inconsistent moduli in rnfcharpoly: x^6 - 21 != y^3 - 21")
 8:
-error("inconsistent moduli in rnfalgtobasis: x^6 - 21 != y^3 - 21")
-error("inconsistent moduli in rnfbasistoalg: x^6 - 21 != y^3 - 21")
-1/2
-Mod(1/2, x^6 - 21)
-Mod(1/2, x^6 - 21)
-1/2
-1
-1/4
+8: error("inconsistent moduli in rnfcharpoly: x^6 - 21 != y^3 - 21")
 9:
-error("inconsistent moduli in rnfalgtobasis: x^6 - 21 != y^3 - 21")
-error("inconsistent moduli in rnfbasistoalg: x^6 - 21 != y^3 - 21")
-Mod(x, x^2 + Mod(-y, y^3 - 21))
-Mod(x, x^6 - 21)
-Mod(x, x^6 - 21)
-error("domain error in rnfeltdown: element not in the base field")
-0
-Mod(-y, y^3 - 21)
+9: error("inconsistent moduli in rnfcharpoly: x^6 - 21 != y^3 - 21")
 10:
-[Mod(y^2 + 1/2*y, y^3 - 21), Mod(1, y^3 - 21)]~
-Mod(x + Mod(1/2*y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(x + Mod(1/2*y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(1/2*x^2 + x, x^6 - 21)
-error("inconsistent moduli in nf_to_scalar_or_basis: x^2 - y != y^3 - 21")
-error("domain error in rnfeltdown: element not in the base field")
-Mod(y, y^3 - 21)
-Mod(1/4*y^2 - y, y^3 - 21)
+10: x^2 + Mod(-y, y^3 - 21)*x + Mod(1/4*y^2 - y, y^3 - 21)
 11:
-[Mod(y, y^3 - 21), 0]~
-Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(x^2, x^6 - 21)
-Mod(x^2, x^6 - 21)
-Mod(y, y^3 - 21)
-Mod(2*y, y^3 - 21)
-Mod(y^2, y^3 - 21)
+11: Mod(1, y^3 - 21)*x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2, y^3 - 21)
 12:
-error("incorrect priority in rnfalgtobasis: variable z >= y")
-error("inconsistent variables in rnfbasistoalg, z != x.")
-error("inconsistent variables in rnfeltabstorel, z != x.")
-error("inconsistent variables in eltreltoabs, z != y.")
-error("inconsistent variables in nf_to_scalar_or_basis, z != y.")
-error("inconsistent variables in rnfeltabstorel, z != x.")
-error("inconsistent variables in rnfeltabstorel, z != x.")
-error("inconsistent variables in rnfeltabstorel, z != x.")
+12: error("incorrect priority in rnfcharpoly: variable z >= y")
 13:
-error("inconsistent moduli in rnfalgtobasis: y^2 + 1 != y^3 - 21")
-error("inconsistent moduli in rnfbasistoalg: y^2 + 1 != y^3 - 21")
-error("inconsistent moduli in rnfeltabstorel: y^2 + 1 != x^6 - 21")
-error("inconsistent moduli in rnfeltreltoabs: y^2 + 1 != y^3 - 21")
-error("inconsistent moduli in nf_to_scalar_or_basis: y^2 + 1 != y^3 - 21")
-error("inconsistent moduli in rnfeltdown: y^2 + 1 != y^3 - 21")
-error("inconsistent moduli in rnfeltabstorel: y^2 + 1 != x^6 - 21")
-error("inconsistent moduli in rnfeltabstorel: y^2 + 1 != x^6 - 21")
+13: error("inconsistent moduli in rnfcharpoly: y^2 + 1 != y^3 - 21")
 14:
-error("inconsistent dimensions in rnfalgtobasis.")
-error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL (1 elts).
-")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltreltoabs (t_COL).")
-error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltdown (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+14: error("incorrect type in rnfcharpoly (t_COL).")
 15:
-[1, 2]~
-Mod(2*x + Mod(-2*y^2 + 1, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltreltoabs (t_COL).")
-error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltdown (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+15: error("incorrect type in rnfcharpoly (t_COL).")
 16:
-[1, Mod(y, y^3 - 21)]~
-Mod(Mod(y, y^3 - 21)*x - 20, x^2 + Mod(-y, y^3 - 21))
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltreltoabs (t_COL).")
-error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltdown (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+16: error("incorrect type in rnfcharpoly (t_COL).")
 17:
-error("incorrect type in rnfalgtobasis (t_COMPLEX).")
-error("incorrect type in nf_to_scalar_or_alg (t_COMPLEX).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltreltoabs (t_COL).")
-error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltdown (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+17: error("incorrect type in rnfcharpoly (t_COL).")
 18:
-error("incorrect type in rnfalgtobasis [not in Q[X]] (t_POL).")
-error("incorrect type in rnfbasistoalg [not in Q[X]] (t_POL).")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-error("incorrect type in poltobasis (t_POL).")
-error("incorrect type in poltobasis (t_POL).")
-error("incorrect type in rnfeltdown [not in Q[X]] (t_POL).")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+18: error("incorrect type in rnfcharpoly [not in Q[X]] (t_POL).")
 19:
-[y, 0]~
-Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(Mod(y, y^3 - 21), x^2 + Mod(-y, y^3 - 21))
-Mod(x^2, x^6 - 21)
-error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
-Mod(y, y^3 - 21)
-Mod(2*y, y^3 - 21)
-Mod(y^2, y^3 - 21)
-1:
-x^2 - 4*x + 4
-2:
-x^2 - x + 1/4
-3:
-x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2 - y, y^3 - 21)
-4:
-x^2 - 2*x + 1
-5:
-x^2 - x + 1/4
-6:
-Mod(1, y^3 - 21)*x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2, y^3 - 21)
-7:
-error("inconsistent moduli in rnfcharpoly: x^6 - 21 != y^3 - 21")
-8:
-error("inconsistent moduli in rnfcharpoly: x^6 - 21 != y^3 - 21")
-9:
-error("inconsistent moduli in rnfcharpoly: x^6 - 21 != y^3 - 21")
-10:
-x^2 + Mod(-y, y^3 - 21)*x + Mod(1/4*y^2 - y, y^3 - 21)
-11:
-Mod(1, y^3 - 21)*x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2, y^3 - 21)
-12:
-error("incorrect priority in rnfcharpoly: variable z >= y")
-13:
-error("inconsistent moduli in rnfcharpoly: y^2 + 1 != y^3 - 21")
-14:
-error("incorrect type in rnfcharpoly (t_COL).")
-15:
-error("incorrect type in rnfcharpoly (t_COL).")
-16:
-error("incorrect type in rnfcharpoly (t_COL).")
-17:
-error("incorrect type in rnfcharpoly (t_COL).")
-18:
-error("incorrect type in rnfcharpoly [not in Q[X]] (t_POL).")
-19:
-x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2, y^3 - 21)
-1:
-[2, 0]~
-Mod(2, x^2 + 1)
-2
-2
-2
-2
-4
-4
-2:
-[1/2, 0]~
-Mod(1/2, x^2 + 1)
-1/2
-1/2
-1/2
-1/2
-1
-1/4
-3:
-[-1, 1]~
-Mod(x - 1, x^2 + 1)
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-Mod(x - 2, x^2 - 2*x + 2)
-error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
-4:
-[1/2, 0]~
-Mod(1/2, x^2 + 1)
-Mod(1/2, x^2 + 1)
-Mod(1/2, x^2 - 2*x + 2)
-1/2
-1/2
-1
-1/4
-5:
-[Mod(y, y + 1), 0]~
-Mod(Mod(-1, y + 1), x^2 + 1)
-Mod(-1, x^2 + 1)
--1
--1
--1
--2
-1
-6:
-[1, 1/2]~
-Mod(1/2*x + 1, x^2 + 1)
-Mod(1/2*x + 1, x^2 + 1)
-Mod(1/2*x + 1/2, x^2 - 2*x + 2)
-error("inconsistent moduli in nf_to_scalar_or_basis: x^2 + 1 != y + 1")
-error("domain error in rnfeltdown: element not in the base field")
-2
-5/4
-7:
-[0, 1]~
-Mod(x, x^2 + 1)
-Mod(x, x^2 + 1)
-Mod(x - 1, x^2 - 2*x + 2)
-error("inconsistent moduli in nf_to_scalar_or_basis: x^2 + 1 != y + 1")
-error("domain error in rnfeltdown: element not in the base field")
-0
-1
-8:
-error("inconsistent moduli in rnfalgtobasis: x^2 - 2*x + 2 != y + 1")
-error("inconsistent moduli in rnfbasistoalg: x^2 - 2*x + 2 != y + 1")
-Mod(x + 1, x^2 + 1)
-Mod(x, x^2 - 2*x + 2)
-Mod(x, x^2 - 2*x + 2)
-error("domain error in rnfeltdown: element not in the base field")
-2
-2
-9:
-error("inconsistent moduli in rnfalgtobasis: x^2 - y != y + 1")
-error("inconsistent moduli in rnfbasistoalg: x^2 - y != y + 1")
-error("inconsistent moduli in rnfeltabstorel: x^2 - y != x^2 - 2*x + 2")
-error("inconsistent moduli in rnfeltreltoabs: x^2 - y != y + 1")
-error("inconsistent moduli in nf_to_scalar_or_basis: x^2 - y != y + 1")
-error("inconsistent moduli in rnfeltdown: x^2 - y != y + 1")
-error("inconsistent moduli in rnfeltabstorel: x^2 - y != x^2 - 2*x + 2")
-error("inconsistent moduli in rnfeltabstorel: x^2 - y != x^2 - 2*x + 2")
-10:
-[0, 1]~
-Mod(x, x^2 + 1)
-Mod(x + 1, x^2 + 1)
-Mod(x - 1, x^2 - 2*x + 2)
-error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
-error("domain error in rnfeltdown: element not in the base field")
-2
-2
-11:
-error("inconsistent dimensions in rnfalgtobasis.")
-error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL (1 elts).
+19: x^2 + Mod(-2*y, y^3 - 21)*x + Mod(y^2, y^3 - 21)
+[1, 1]: [2, 0]~
+[1, 2]: Mod(2, x^2 + 1)
+[1, 3]: 2
+[1, 4]: 2
+[1, 5]: 2
+[1, 6]: 2
+[1, 7]: 4
+[1, 8]: 4
+[2, 1]: [1/2, 0]~
+[2, 2]: Mod(1/2, x^2 + 1)
+[2, 3]: 1/2
+[2, 4]: 1/2
+[2, 5]: 1/2
+[2, 6]: 1/2
+[2, 7]: 1
+[2, 8]: 1/4
+[3, 1]: [-1, 1]~
+[3, 2]: Mod(x - 1, x^2 + 1)
+[3, 3]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[3, 4]: Mod(x - 2, x^2 - 2*x + 2)
+[3, 5]: error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
+[3, 6]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[3, 7]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[3, 8]: error("incorrect type in rnfeltabstorel [not in Q[X]] (t_POL).")
+[4, 1]: [1/2, 0]~
+[4, 2]: Mod(1/2, x^2 + 1)
+[4, 3]: Mod(1/2, x^2 + 1)
+[4, 4]: Mod(1/2, x^2 - 2*x + 2)
+[4, 5]: 1/2
+[4, 6]: 1/2
+[4, 7]: 1
+[4, 8]: 1/4
+[5, 1]: [Mod(y, y + 1), 0]~
+[5, 2]: Mod(Mod(-1, y + 1), x^2 + 1)
+[5, 3]: Mod(-1, x^2 + 1)
+[5, 4]: -1
+[5, 5]: -1
+[5, 6]: -1
+[5, 7]: -2
+[5, 8]: 1
+[6, 1]: [1, 1/2]~
+[6, 2]: Mod(1/2*x + 1, x^2 + 1)
+[6, 3]: Mod(1/2*x + 1, x^2 + 1)
+[6, 4]: Mod(1/2*x + 1/2, x^2 - 2*x + 2)
+[6, 5]: error("inconsistent moduli in nf_to_scalar_or_basis: x^2 + 1 != y + 
+1")
+[6, 6]: error("domain error in rnfeltdown: element not in the base field")
+[6, 7]: 2
+[6, 8]: 5/4
+[7, 1]: [0, 1]~
+[7, 2]: Mod(x, x^2 + 1)
+[7, 3]: Mod(x, x^2 + 1)
+[7, 4]: Mod(x - 1, x^2 - 2*x + 2)
+[7, 5]: error("inconsistent moduli in nf_to_scalar_or_basis: x^2 + 1 != y + 
+1")
+[7, 6]: error("domain error in rnfeltdown: element not in the base field")
+[7, 7]: 0
+[7, 8]: 1
+[8, 1]: error("inconsistent moduli in rnfalgtobasis: x^2 - 2*x + 2 != y + 1"
+)
+[8, 2]: error("inconsistent moduli in rnfbasistoalg: x^2 - 2*x + 2 != y + 1"
+)
+[8, 3]: Mod(x + 1, x^2 + 1)
+[8, 4]: Mod(x, x^2 - 2*x + 2)
+[8, 5]: Mod(x, x^2 - 2*x + 2)
+[8, 6]: error("domain error in rnfeltdown: element not in the base field")
+[8, 7]: 2
+[8, 8]: 2
+[9, 1]: error("inconsistent moduli in rnfalgtobasis: x^2 - y != y + 1")
+[9, 2]: error("inconsistent moduli in rnfbasistoalg: x^2 - y != y + 1")
+[9, 3]: error("inconsistent moduli in rnfeltabstorel: x^2 - y != x^2 - 2*x +
+ 2")
+[9, 4]: error("inconsistent moduli in rnfeltreltoabs: x^2 - y != y + 1")
+[9, 5]: error("inconsistent moduli in nf_to_scalar_or_basis: x^2 - y != y + 
+1")
+[9, 6]: error("inconsistent moduli in rnfeltdown: x^2 - y != y + 1")
+[9, 7]: error("inconsistent moduli in rnfeltabstorel: x^2 - y != x^2 - 2*x +
+ 2")
+[9, 8]: error("inconsistent moduli in rnfeltabstorel: x^2 - y != x^2 - 2*x +
+ 2")
+[10, 1]: [0, 1]~
+[10, 2]: Mod(x, x^2 + 1)
+[10, 3]: Mod(x + 1, x^2 + 1)
+[10, 4]: Mod(x - 1, x^2 - 2*x + 2)
+[10, 5]: error("inconsistent variables in nf_to_scalar_or_basis, x != y.")
+[10, 6]: error("domain error in rnfeltdown: element not in the base field")
+[10, 7]: 2
+[10, 8]: 2
+[11, 1]: error("inconsistent dimensions in rnfalgtobasis.")
+[11, 2]: error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL 
+(1 elts).")
+[11, 3]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
 ")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltreltoabs (t_COL).")
-1
-1
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-12:
-[1, 2]~
-Mod(2*x + 1, x^2 + 1)
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltreltoabs (t_COL).")
-error("incorrect type in nf_to_scalar_or_basis (t_COL).")
-error("incorrect type in rnfeltdown (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-13:
-error("inconsistent dimensions in rnfalgtobasis.")
-error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL (1 elts).
+[11, 4]: error("incorrect type in rnfeltreltoabs (t_COL).")
+[11, 5]: 1
+[11, 6]: 1
+[11, 7]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
 ")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltreltoabs (t_COL).")
-Mod(y, x^2 - 2*x + 2)
-error("incorrect type in rnfeltdown (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
-error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).")
+[11, 8]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[12, 1]: [1, 2]~
+[12, 2]: Mod(2*x + 1, x^2 + 1)
+[12, 3]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[12, 4]: error("incorrect type in rnfeltreltoabs (t_COL).")
+[12, 5]: error("incorrect type in nf_to_scalar_or_basis (t_COL).")
+[12, 6]: error("incorrect type in rnfeltdown (t_COL).")
+[12, 7]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[12, 8]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[13, 1]: error("inconsistent dimensions in rnfalgtobasis.")
+[13, 2]: error("inconsistent operation 'RgV_RgC_mul' t_VEC (2 elts) , t_COL 
+(1 elts).")
+[13, 3]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[13, 4]: error("incorrect type in rnfeltreltoabs (t_COL).")
+[13, 5]: Mod(y, x^2 - 2*x + 2)
+[13, 6]: error("incorrect type in rnfeltdown (t_COL).")
+[13, 7]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
+[13, 8]: error("incorrect type in rnfeltabstorel, apply nfinit(rnf) (t_COL).
+")
 1:
-x^2 - 4*x + 4
+1: x^2 - 4*x + 4
 2:
-x^2 - x + 1/4
+2: x^2 - x + 1/4
 3:
-x^2 + 2*x + 2
+3: x^2 + 2*x + 2
 4:
-x^2 - x + 1/4
+4: x^2 - x + 1/4
 5:
-x^2 + 2*x + 1
+5: x^2 + 2*x + 1
 6:
-x^2 - 2*x + 5/4
+6: x^2 - 2*x + 5/4
 7:
-x^2 + 1
+7: x^2 + 1
 8:
-error("inconsistent moduli in rnfcharpoly: x^2 - 2*x + 2 != y + 1")
+8: error("inconsistent moduli in rnfcharpoly: x^2 - 2*x + 2 != y + 1")
 9:
-error("inconsistent moduli in rnfcharpoly: x^2 - y != y + 1")
+9: error("inconsistent moduli in rnfcharpoly: x^2 - y != y + 1")
 10:
-x^2 + 1
+10: x^2 + 1
 11:
-error("incorrect type in rnfcharpoly (t_COL).")
+11: error("incorrect type in rnfcharpoly (t_COL).")
 12:
-error("incorrect type in rnfcharpoly (t_COL).")
+12: error("incorrect type in rnfcharpoly (t_COL).")
 13:
-error("incorrect type in rnfcharpoly (t_COL).")
+13: error("incorrect type in rnfcharpoly (t_COL).")
 Mod(1, x^2 - 2)
 0
 [[1, -66328; 0, 1], [[280970, 12259, 35869; 0, 1, 0; 0, 0, 1], [1, 1/2, 1/2;
@@ -846,4 +845,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfislocalcyclo(rnfinit(K,x^6-y+1))
   ***                 ^-----------------------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
-Total time spent: 484
+Total time spent: 488

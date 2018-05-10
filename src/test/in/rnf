@@ -103,13 +103,12 @@ f=[rnfalgtobasis,rnfbasistoalg,rnfeltabstorel,rnfeltreltoabs,rnfeltup,rnfeltdown
 test(L,v) =
 {
   for (i=1,#v,
-    print(i,":");
-    for (j=1,#f, print(iferr(f[j](L,v[i]), E,E)))
+    for (j=1,#f, print([i,j], ": ", iferr(f[j](L,v[i]), E,E)))
   );
   my (K = L.nf);
   for (i=1,#v,
     print(i,":");
-    print(iferr(rnfcharpoly(K,x^2-y,v[i]),E,E))
+    print(i, ": ", iferr(rnfcharpoly(K,x^2-y,v[i]),E,E))
   );
 }
 test(L,v);
