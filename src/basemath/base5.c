@@ -790,7 +790,7 @@ rnfequationall(GEN A, GEN B, long *pk, GEN *pLPRS)
     pari_err_DOMAIN("rnfequation","issquarefree(B)","=",gen_0,B);
 
   *pk = 0; C = ZX_ZXY_resultant_all(A, B, pk, pLPRS);
-  if (gsigne(leading_coeff(C)) < 0) C = RgX_neg(C);
+  if (signe(leading_coeff(C)) < 0) C = ZX_neg(C);
   *pk = -*pk; return Q_primpart(C);
 }
 

@@ -1648,11 +1648,11 @@ FpX_compositum(GEN a, GEN b, GEN p)
   }
 }
 
-/* Assume A in Z[Y], B in Q[Y][X], and Res_Y(A, B) in Z[X].
- * Find a small lambda (start from *lambda, use next_lambda successively)
- * such that R(X) = Res_Y(A(Y), B(X + lambda Y)) is squarefree, reset *lambda
- * to the chosen value and return R. Set LERS to the Last non-constant
- * polynomial in the Euclidean Remainder Sequence */
+/* Assume A in Z[Y], B in Q[Y][X], B squarefree in (Q[Y]/(A))[X] and
+ * Res_Y(A, B) in Z[X]. Find a small lambda (start from *lambda, use
+ * next_lambda successively) such that C(X) = Res_Y(A(Y), B(X + lambda Y))
+ * is squarefree, reset *lambda to the chosen value and return C. Set LERS to
+ * the Last non-constant polynomial in the Euclidean Remainder Sequence */
 static GEN
 ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
 {
@@ -1660,9 +1660,19 @@ ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
   pari_sp av = avma, av2 = 0;
   long lambda = *plambda, degA = degpol(A), dres = degA*degpol(B0);
   long stable, checksqfree, i,n, cnt, degB;
-  long v = fetch_var_higher(), vX = varn(B0), vY = varn(A); /* vY < vX */
-  GEN x, y, dglist, dB, B, q, a, b, ev, H, H0, H1, Hp, H0p, H1p, C0, C1;
+  long v, vX = varn(B0), vY = varn(A); /* vY < vX */
+  GEN x, y, dglist, B, q, a, b, ev, H, H0, H1, Hp, H0p, H1p, C0, C1;
   forprime_t S;
+
+  if (degA == 1)
+  {
+    GEN a1 = gel(A,3), a0 = gel(A,2);
+    H = gsubst(B0, vY, gdiv(gneg(a0),a1));
+   if (!equali1(a1)) H = RgX_Rg_mul(H, powiu(a1, poldegree(B0,vY)));
+    *LERS = mkvec2(scalarpol_shallow(a0,vX), scalarpol_shallow(a1,vX));
+    gerepileall(av, 2, &H, LERS);
+    return H;
+  }
 
   dglist = Hp = H0p = H1p = C0 = C1 = NULL; /* gcc -Wall */
   C0 = cgetg(dres+2, t_VECSMALL);
@@ -1670,11 +1680,10 @@ ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
   dglist = cgetg(dres+1, t_VECSMALL);
   x = cgetg(dres+2, t_VECSMALL);
   y = cgetg(dres+2, t_VECSMALL);
-  B0 = Q_remove_denom(B0, &dB);
-  if (!dB) B0 = leafcopy(B0);
+  B0 = leafcopy(B0);
   A = leafcopy(A);
   B = B0;
-  setvarn(A,v);
+  v = fetch_var_higher(); setvarn(A,v);
   /* make sure p large enough */
 INIT:
   /* always except the first time */
@@ -1694,13 +1703,12 @@ INIT:
     H1 = gel(q,3);
     if (typ(H1) == t_POL) setvarn(H1,vX); else H1 = scalarpol(H1,vX);
     if (!ZX_is_squarefree(H)) goto INIT;
-    if (dB) H = ZX_Z_divexact(H, powiu(dB, degA));
     goto END;
   }
 
   H = H0 = H1 = NULL;
   degB = degpol(B);
-  bound = ZX_ZXY_ResBound(A, B, dB);
+  bound = ZX_ZXY_ResBound(A, B, NULL);
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
   dp = 1;
   init_modular_big(&S);
@@ -1708,8 +1716,6 @@ INIT:
   {
     ulong p = u_forprime_next(&S);
     GEN Hi;
-    if (dB) { dp = umodiu(dB, p); if (!dp) continue; }
-
     a = ZX_to_Flx(A, p);
     b = ZXX_to_FlxX(B, p, varn(A));
     if (degpol(a) < degA || degpol(b) < degB) continue; /* p | lc(A)lc(B) */
@@ -1781,10 +1787,9 @@ INIT:
 END:
   if (DEBUGLEVEL>5) err_printf(" done\n");
   setvarn(H, vX); (void)delete_var();
-  if (plambda) *plambda = lambda;
   *LERS = mkvec2(H0,H1);
   gerepileall(av, 2, &H, LERS);
-  return H;
+  *plambda = lambda; return H;
 }
 
 GEN

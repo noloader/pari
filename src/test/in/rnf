@@ -107,7 +107,6 @@ test(L,v) =
   );
   my (K = L.nf);
   for (i=1,#v,
-    print(i,":");
     print(i, ": ", iferr(rnfcharpoly(K,x^2-y,v[i]),E,E))
   );
 }
