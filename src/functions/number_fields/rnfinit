@@ -75,6 +75,7 @@ Doc: $\var{nf}$ being a number field in \kbd{nfinit}
 
  $k$ is a small integer such that, if $\beta$ is an abstract root of \var{pol}
  and $\alpha$ the generator of $K$ given above, then $P(\beta + k\alpha) = 0$.
+ It is guaranteed that $k = 0$ if $\Q(\beta) = L$.
 
  \misctitle{Caveat} Be careful if $k\neq0$ when dealing simultaneously with
  absolute and relative quantities since $L = \Q(\beta + k\alpha) =

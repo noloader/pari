@@ -37,7 +37,8 @@ Doc: given a number field
  polynomial defining the base field $\var{nf}$,
 
  \item $k$ is a small integer such that $\theta = \beta+k\alpha$
- is a root of $z$, where $\beta$ is a root of $\var{pol}$.
+ is a root of $z$, where $\beta$ is a root of $\var{pol}$. It is guaranteed
+ that $k=0$ whenever $\Q(\beta) = L$.
  \bprog
  ? T = y^3-2; pol = x^2 +x*y + y^2;
  ? [z,a,k] = rnfequation(T, pol, 1);
