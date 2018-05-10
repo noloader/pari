@@ -574,10 +574,11 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
      84- ellpointtoz for E over number field
 AP   85- algnorm, algtrace and algcharpoly now have an optional flag to get the
          absolute version over an alginit algebra
-AP   86- renamed algsplittingmatrix -> algtomatrix, algleftmultable now always
-         returns the multiplication table on the integral basis
-AP   87- merged algdecomposition + algsimpledec -> algsimpledec
-AP   88- algpoleval: new syntax for matrix argument algpoleval(al,pol,[x,mx])
+AP   86- renamed algsplittingmatrix -> algtomatrix
+AP   87- algleftmultable now always returns the multiplication table on the
+         integral basis
+AP   88- merged algdecomposition + algsimpledec -> algsimpledec
+AP   89- algpoleval: new syntax for matrix argument algpoleval(al,pol,[x,mx])
 
   Removed
       1- file 'MACHINES' (no longer maintained)
