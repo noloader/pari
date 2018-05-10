@@ -145,7 +145,7 @@ ecpp_param_get_primorial_vec(GEN param) { return gel(param, 2); }
 INLINE GEN
 ecpp_param_get_tune(GEN param) { return gel(param, 3); }
 
-/*  Input: x, 20 <= x <= 30
+/*  Input: x, 20 <= x <= 35
  * Output: a vector whose ith entry is the product of all primes below 2^x */
 static GEN
 primorial_vec(ulong x)
@@ -155,7 +155,8 @@ primorial_vec(ulong x)
   GEN v = primes_upto_zv(1UL << x), w = cgetg(y+1, t_VEC);
   /* ind[i]th prime number is the largest prime <= 2^(20+i) */
   long ind[] = { 0, 82025L, 155611L, 295947L, 564163L, 1077871L, 2063689L,
-                 3957809L, 7603553L, 14630843L, 28192750L, 54400028L };
+                 3957809L, 7603553L, 14630843L, 28192750L, 54400028L,
+                 105097565L, 203280221L, 393615806L, 762939111L, 1480206279L};
   gel(w,1) = zv_prod_Z(vecslice(v,1,ind[1]));
   for (i = 2; i <= y; i++)
   {
