@@ -1580,7 +1580,7 @@ ellisomat(GEN E, long p, long flag)
 }
 
 GEN
-ellweilcurve(GEN E)
+ellweilcurve(GEN E, GEN *ms)
 {
   pari_sp av = avma;
   GEN LM = ellisomat(E,0,1), vE = gel(LM,1);
@@ -1608,5 +1608,7 @@ ellweilcurve(GEN E)
     gel(vL,i) = Ce;
   }
   for (i = 1; i < l; i++) obj_free(gel(vE,i));
-  return gerepilecopy(av, mkvec2(vE, vL));
+  vE = mkvec2(vE, vL);
+  if (!ms) return gerepilecopy(av, vE);
+  *ms = Wx; gerepileall(av, 2, &vE, ms); return vE;
 }

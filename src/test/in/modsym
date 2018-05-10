@@ -266,3 +266,7 @@ testweil(E)=
 testweil([1,-1,1,-2,0])
 testweil([1,-1,1,-96608,-11533373])
 testweil([1,0,1,4,-6])
+E=ellinit([1,0,1,4,-6]); [e,s]=ellweilcurve(E,&ms);
+s
+msdim(ms[1])
+ms[2]

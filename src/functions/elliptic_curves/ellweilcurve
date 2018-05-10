@@ -1,25 +1,31 @@
 Function: ellweilcurve
 Section: elliptic_curves
 C-Name: ellweilcurve
-Prototype: G
-Help: ellweilcurve(E): E being an elliptic curve over Q,
+Prototype: GD&
+Help: ellweilcurve(E, {&ms}): E being an elliptic curve over Q,
  return a list of representatives of the isomorphism classes of elliptic curves
  isogenous to E as given by ellisomat and the list of the Smith invariants of
  the lattice associated to E in H^1(E,Q) in the lattice associated to the
- modular form.
+ modular form. If ms is present, it contains the output of msfromell(Emin,0)
+ where Emin is the list of minimal models attached to the curves in the
+ isogeny class.
 Doc: If $E'$ is an elliptic curve over $\Q$, let $L_{E'}$ be the
  sub-$\Z$-module of $\Hom_{\Gamma_0(N)}(\Delta,\Q)$ attached to $E'$
  (It is given by $x[3]$ if $[M,x] = \kbd{msfromell}(E')$.)
 
  On the other hand, if $N$ is the conductor of $E$ and $f$ is the modular form
- for $\Gamma_0(N)$ attached to $E$, let $L_f$ be the lattice of
- the $f$-component of
- $\Hom_{\Gamma_0(N)}(\Delta,\Q)$ given by the elements $\phi$ such that
- $\phi(\{0,\gamma^{-1} 0\}) \in \Z$ for all $\gamma \in \Gamma_0(N)$
- (see \tet{mslattice}). Return minimal models for the list of representatives
+ for $\Gamma_0(N)$ attached to $E$, let $L_f$ be the lattice of the
+ $f$-component of $\Hom_{\Gamma_0(N)}(\Delta,\Q)$ given by the elements
+ $\phi$ such that $\phi(\{0,\gamma^{-1} 0\}) \in \Z$ for all
+ $\gamma \in \Gamma_0(N)$ (see \tet{mslattice}).
+
+ This function returns minimal models for the list \kbd{vE} of representatives
  of the isomorphism classes of elliptic curves $E'$ isogenous to $E$ given by
  \kbd{ellisomat} and the list of the Smith invariants of the lattices $L_{E'}$
- in $L_f$.
+ in $L_f$. If the optional argument \kbd{ms} is present, it contains the
+ output of \kbd{msfromell(vE, 0)}, i.e. the new modular symbol space $M$
+ of level $N$ and a vector of triples $[x^+,x^-, L]$ attached to each curve
+ $E'$.
 
  In particular, the strong Weil curve amongst the curves isogenous to $E$
  is the one whose Smith invariants are $[1,1]$.
@@ -30,4 +36,17 @@ Doc: If $E'$ is an elliptic curve over $\Q$, let $L_{E'}$ be the
  %3 = [2]
  ? ellidentify(H[2]) \\ ... corresponds to strong Weil curve
  %4 = [["11a1", [0, -1, 1, -10, -20], []], [1, 0, 0, 0]]
- @eprog
+
+ ? [H, smith] = ellweilcurve(E, &ms); \\ H and smith are as above
+ ? [M, vx] = ms; msdim(M)
+ %6 = 3
+ ? #vx
+ %7 = 3
+ ? vx[1]
+ %8 = [[1/25, -1/10, -1/10]~, [0, 1/2, -1/2]~, [1/25,0; -3/5,1; 2/5,-1]]
+ ? forell(E, 11,11, print(msfromell(ellinit(E[1]), 1)[2]))
+ [1/5, -1/2, -1/2]~
+ [1, -5/2, -5/2]~
+ [1/25, -1/10, -1/10]~
+ @eprog\noindent The last example prints the modular symbols $x^+$ in $M^+$
+ attached to the curves \kbd{11a1}, \kbd{11a2} and \kbd{11a3}.
