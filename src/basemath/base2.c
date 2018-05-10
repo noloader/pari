@@ -3729,7 +3729,7 @@ GEN
 ZX_compositum_disjoint(GEN A, GEN B)
 {
   long k = 1;
-  return ZX_ZXY_resultant_all(A, B, &k, NULL);
+  return ZX_ZXY_rnfequation(A, B, &k);
 }
 
 static GEN
