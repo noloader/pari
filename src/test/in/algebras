@@ -1905,6 +1905,15 @@ algb(al);
 algaut(al);
 algtableinit([Mat(1)],1)
 algtableinit([Mat(1)],4)
+al = alginit(nfinit(y),[-1,-1]);
+algpoleval(al,x+1,"toto")
+algpoleval(al,x+1,[1,2,3])
+algpoleval(al,x+1,[1,2])
+a = [1..4]~;
+b = [5..8]~;
+mb = algleftmultable(al,b);
+algpoleval(al,x+1,[a,mb]);
+algpoleval(al,x+1,[1,mb]);
 \\end bad inputs
 
 
@@ -2298,4 +2307,17 @@ algtomatrix(al,[Mod(1/2,y)]~)
 al = algtableinit([matid(2),[0,0;1,0]],2);
 m = [[1,1]~,[1,0]~;[0,1]~,[0,0]~];
 type(algsqr(al,m))=="t_MAT"
+
+\\algpoleval type check
+setrand(1);
+nf = nfinit(y^2-5);
+al = alginit(nf,[y,-1]);
+a = [1..8]~;
+pol = algcharpoly(al,a);
+algpoleval(al,pol,a)==0
+algpoleval(al,pol,[;])
+pol = algcharpoly(al,a,,1);
+algpoleval(al,pol,a)==0
+ma = algleftmultable(al,a);
+algpoleval(al,pol,[a,ma])==0
 

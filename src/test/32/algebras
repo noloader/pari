@@ -2089,6 +2089,21 @@ testing simplify: quatalg csa over Q
   ***   at top-level: algtableinit([Mat(1)],4)
   ***                 ^------------------------
   *** algtableinit: not a prime number in algtableinit: 4.
+  ***   at top-level: algpoleval(al,x+1,"toto")
+  ***                 ^-------------------------
+  *** algpoleval: incorrect type in alg_model (t_STR).
+  ***   at top-level: algpoleval(al,x+1,[1,2,3])
+  ***                 ^--------------------------
+  *** algpoleval: incorrect type in algpoleval [vector must be of length 2] (t_VEC).
+  ***   at top-level: algpoleval(al,x+1,[1,2])
+  ***                 ^------------------------
+  *** algpoleval: incorrect type in algpoleval [mx must be the multiplication table of x] (t_INT).
+  ***   at top-level: algpoleval(al,x+1,[a,mb])
+  ***                 ^-------------------------
+  *** algpoleval: incorrect type in algpoleval [mx must be the multiplication table of x] (t_MAT).
+  ***   at top-level: algpoleval(al,x+1,[1,mb])
+  ***                 ^-------------------------
+  *** algpoleval: incorrect type in algpoleval [mx must be the multiplication table of x] (t_MAT).
 new algsimpledec
 0
 [0, [[[0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 0, [1]], Mat([1, 1, 0]), 
@@ -2389,5 +2404,13 @@ x^2 + Mod(-17, y)
 
 [1/2]
 
+1
+  ***   at top-level: algpoleval(al,pol,a)==0
+  ***                 ^-----------------------
+  *** algpoleval: sorry, algpoleval with x in basis form and pol not in Q[x] is not yet implemented.
+  ***   at top-level: algpoleval(al,pol,[;])
+  ***                 ^----------------------
+  *** algpoleval: incorrect type in algpoleval (t_MAT).
+1
 1
 Total time spent: 1416

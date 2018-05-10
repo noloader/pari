@@ -776,7 +776,7 @@ alg_decompose_from_facto(GEN al, GEN x, GEN fa, GEN Z, long mini)
   long k = lgcols(fa)-1, k2 = mini? 1: k/2;
   GEN v1 = rowslice(fa,1,k2);
   GEN v2 = rowslice(fa,k2+1,k);
-  GEN alq, P,Q, mx, p = alg_get_char(al);
+  GEN alq, P, Q, p = alg_get_char(al);
   dbg_printf(3)("  alg_decompose_from_facto\n");
   if (signe(p)) {
     P = FpX_factorback(v1, p);
@@ -788,8 +788,7 @@ alg_decompose_from_facto(GEN al, GEN x, GEN fa, GEN Z, long mini)
     Q = factorback(v2);
     P = RgX_mul(P, RgXQ_inv(P,Q));
   }
-  mx = algbasismultable(al, x);
-  P = algpoleval(al, P, mx);
+  P = algpoleval(al, P, x);
   if (signe(p)) Q = FpC_sub(col_ei(lg(P)-1,1), P, p);
   else          Q = gsub(gen_1, P);
   if (gequal0(P) || gequal0(Q)) return NULL;
@@ -1109,9 +1108,9 @@ try_split(GEN al, GEN x, long n, long d)
   P = gel(pol,i);
   P = FpX_powu(P, exp[i], p);
   Q = FpX_div(cp, P, p);
-  e = algpoleval(al, Q, mx);
+  e = algpoleval(al, Q, mkvec2(x,mx));
   U = FpXQ_inv(Q, P, p);
-  u = algpoleval(al, U, mx);
+  u = algpoleval(al, U, mkvec2(x,mx));
   e = algbasismul(al, e, u);
   mte = algbasisrightmultable(al,e);
   ire = FpM_indexrank(mte,p);
@@ -2986,7 +2985,7 @@ algrandom(GEN al, GEN b)
 }
 
 /* Assumes pol has coefficients in the same ring as the COL x; x either
- * in basis, algebraic or mult. table form.
+ * in basis or algebraic form or [x,mx] where mx is the mult. table of x.
  TODO more general version: pol with coeffs in center and x in basis form */
 GEN
 algpoleval(GEN al, GEN pol, GEN x)
@@ -2996,15 +2995,23 @@ algpoleval(GEN al, GEN pol, GEN x)
   long i;
   checkalg(al);
   p = alg_get_char(al);
-  if (typ(pol) != t_POL) pari_err_TYPE("algpoleval",pol);
-  /* TODO change specification */
-  if (typ(x) == t_MAT) mx = x;
+  if (typ(pol) != t_POL) pari_err_TYPE("algpoleval", pol);
+  if (typ(x) == t_VEC)
+  {
+    if (lg(x) != 3) pari_err_TYPE("algpoleval [vector must be of length 2]", x);
+    mx = gel(x,2);
+    x = gel(x,1);
+    if (typ(mx)!=t_MAT || !gequal(x,gel(mx,1)))
+      pari_err_TYPE("algpoleval [mx must be the multiplication table of x]", mx);
+  }
   else
   {
     switch(alg_model(al,x))
     {
       case al_ALGEBRAIC: mx = algalgmultable(al,x); break;
-      case al_TRIVIAL: case al_BASIS: mx = algbasismultable(al,x); break;
+      case al_BASIS: if (!RgX_is_QX(pol))
+        pari_err_IMPL("algpoleval with x in basis form and pol not in Q[x]");
+      case al_TRIVIAL: mx = algbasismultable(al,x); break;
       default: pari_err_TYPE("algpoleval", x);
     }
   }
