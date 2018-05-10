@@ -952,15 +952,14 @@ alg_subalg(GEN al, GEN basis)
   long i, j, n = lg(basis)-1;
   if (!signe(p)) p = NULL;
   basis = shallowmatconcat(mkvec2(col_ei(n,1),basis));
-  /* 1st column, being e1, is kept in 1st position when computing the image */
-  /* FIXME using image_keep_first */
   if (p)
   {
-    basis = FpM_image(basis,p);
+    basis = image_keep_first(basis,p);
     invbasis = FpM_inv(basis,p);
   }
   else
   {
+    /* FIXME use an integral variant of image_keep_first */
     basis = QM_ImQ_hnf(basis);
     invbasis = RgM_inv(basis);
   }
