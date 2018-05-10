@@ -200,6 +200,7 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
     155- allow \r "foo bar" (quotes around file names are optional for
          \l,\r, \w; they allow filenames with spaces) [#2035]
     156- memory leak in polclass()
+AP  157- fix integrality condition in algsubalg/algquotient/algcentralproj
 
   Added
       1- [libari] ZM_isidentity
@@ -431,6 +432,10 @@ BA  169- [libpari] Flx_ddf, F2x_ddf, FpX_ddf, F2xqX_ddf, FlxqX_ddf, FpXQX_ddf,
     173- [libpari] hclassno6, hclassno6u
 BA  174- New GP function lfunsympow
 BA  175- nfsplitting: support for reducible polynomials
+AP  176- new GP functions alglatadd, alglatcontains, alglatelement, alglathnf,
+         alglatindex, alglatinter, alglatlefttransporter, alglatmul,
+         alglatrighttransporter, alglatsubset
+AP  177- new GP function algsplit
 
   Changed
       1- rewrite bnfnarrow
@@ -567,6 +572,12 @@ AP   64- new implementation of matsolvemod; old matsolvemod0 is deprecated
          udivui_rem -> uabsdivui_rem
      83- allow E.omega, E.eta, E.area for E over number field
      84- ellpointtoz for E over number field
+AP   85- algnorm, algtrace and algcharpoly now have an optional flag to get the
+         absolute version over an alginit algebra
+AP   86- renamed algsplittingmatrix -> algtomatrix, algleftmultable now always
+         returns the multiplication table on the integral basis
+AP   87- merged algdecomposition + algsimpledec -> algsimpledec
+AP   88- algpoleval: new syntax for matrix argument algpoleval(al,pol,[x,mx])
 
   Removed
       1- file 'MACHINES' (no longer maintained)
