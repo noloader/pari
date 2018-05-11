@@ -28,11 +28,12 @@ Doc: If $E'$ is an elliptic curve over $\Q$, let $L_{E'}$ be the
  $E'$.
 
  In particular, the strong Weil curve amongst the curves isogenous to $E$
- is the one whose Smith invariants are $[1,1]$.
+ is the one whose Smith invariants are $[c,c]$, where $c$ is the Manin
+ constant, conjecturally equal to $1$.
  \bprog
  ? E = ellinit("11a3");
  ? [H, smith] = ellweilcurve(E);
- ? [ i | i<-[1..#ind], ind[i]==[1,1] ]  \\ one lattice with invariant [1,1]
+ ? [ i | i<-[1..#smith], smith[i]==[1,1] ]  \\ lattice with invariant [1,1]
  %3 = [2]
  ? ellidentify(H[2]) \\ ... corresponds to strong Weil curve
  %4 = [["11a1", [0, -1, 1, -10, -20], []], [1, 0, 0, 0]]
