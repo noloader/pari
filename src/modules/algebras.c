@@ -4223,12 +4223,11 @@ computesplitting(GEN al, long d, long v)
   pol = nffactor(nf,polabs);
   pol = gcoeff(pol,1,1);
   gel(al,1) = rnf = rnfinit(nf, pol);
-  /* if (!gequal0(rnf_get_k(rnf)))               TODO NECESSARY ?? */
-  /*  pari_err_BUG("computesplitting (k!=0)");                     */
+  /* since pol is irreducible over Q, we have k=0 in rnf. */
+  if (!gequal0(rnf_get_k(rnf)))
+    pari_err_BUG("computesplitting (k!=0)"); /*LCOV_EXCL_LINE*/
   gel(al,6) = gen_0;
   rnf_build_nfabs(rnf, nf_get_prec(nf));
-
-  /* TODO check whether should change polabs and generator here !!! */
 
   /* construct splitting data */
   Lbasis = cgetg(d+1, t_MAT);
