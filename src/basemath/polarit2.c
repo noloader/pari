@@ -3252,8 +3252,7 @@ sturmpart_i(GEN x, GEN ab)
   }
   if (lg(x) == 3) return 0;
   if (!RgX_is_ZX(x)) x = RgX_rescale_to_int(x);
-  if (!ZX_is_squarefree(x))
-    pari_err_DOMAIN("polsturm","issquarefree(pol)","=",gen_0,x);
+  (void)ZX_gcd_all(x, ZX_deriv(x), &x);
   if (ab)
   {
     GEN A, B;

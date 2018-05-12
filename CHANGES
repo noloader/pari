@@ -582,6 +582,7 @@ AP   88- merged algdecomposition + algsimpledec -> algsimpledec
 AP   89- algpoleval: new syntax for matrix argument algpoleval(al,pol,[x,mx])
 BA   90- ellmoddegree: return only the modular degree, do not depend on current
          precision.
+     91- polsturm: allow non-squarefree polynomials (count distinct roots)
 
   Removed
       1- file 'MACHINES' (no longer maintained)

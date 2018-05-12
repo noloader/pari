@@ -79,3 +79,5 @@ default(realprecision,19);
 default(realprecision,38);
 polsturm(x^2-1,[-1,1])
 polrootsreal(x^2-1,[-1,1])
+
+polsturm((x-1)^2*(x+2)*1.)

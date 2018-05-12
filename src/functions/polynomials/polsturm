@@ -2,9 +2,9 @@ Function: polsturm
 Section: polynomials
 C-Name: sturmpart
 Prototype: lGDGDG
-Help: polsturm(T,{ab}): number of real roots of the squarefree polynomial
+Help: polsturm(T,{ab}): number of distinct real roots of the polynomial
  T (in the interval ab = [a,b] if present).
-Doc: number of real roots of the real squarefree polynomial \var{T}. If
+Doc: number of distinct real roots of the real polynomial \var{T}. If
  the argument \var{ab} is present, it must be a vector $[a,b]$ with
  two real components (of type \typ{INT}, \typ{REAL}, \typ{FRAC}
  or  \typ{INFINITY}) and we count roots belonging to that closed interval.
@@ -30,10 +30,8 @@ Doc: number of real roots of the real squarefree polynomial \var{T}. If
  %5 = 3
  ? polsturm(T*1., [0, 4])  \\ T*1. inexact: not recommended !
  %6 = 3
- ? polsturm(T^2, [0, 4])  \\ not squarefree
-  ***   at top-level: polsturm(T^2,[0,4])
-  ***                 ^-------------------
-  *** polsturm: domain error in polsturm: issquarefree(pol) = 0
+ ? polsturm(T^2, [0, 4])  \\ not squarefree: roots are not repeated!
+ %7 = 3
  @eprog
  %\syn{NO}
 
