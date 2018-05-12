@@ -985,7 +985,8 @@ static GEN
 Decomp(decomp_t *S, long flag)
 {
   pari_sp av = avma;
-  GEN fred, pr, pk, ph, b1, b2, a, e, de, f1, f2, dt, th, chip, p = S->p;
+  GEN fred, pr2, pr, pk, ph2, ph, b1, b2, a, e, de, f1, f2, dt, th, chip;
+  GEN p = S->p;
   long vde, vdt, k, r = maxss(flag, 2*S->df + 1);
 
   if (DEBUGLEVEL>2)
@@ -1034,16 +1035,17 @@ Decomp(decomp_t *S, long flag)
     e = FpX_rem(e, centermod(S->f, D), D); /* e/de defined mod pk */
     update_den(p, &e, &de, &vde, NULL);
   }
-  pr = powiu(p, r); /* required precision of the factors */
-  ph = mulii(de, pr);
-  fred = centermod(S->f, ph);
-  e    = centermod(e, ph);
+  /* required precision of the factors */
+  pr = powiu(p, r); pr2 = shifti(pr, -1);
+  ph = mulii(de,pr);ph2 = shifti(ph, -1);
+  fred = FpX_center_i(S->f, ph, ph2);
+  e    = FpX_center_i(e, ph, ph2);
 
   f1 = ZpX_gcd(fred, Z_ZX_sub(de, e), p, ph); /* p-adic gcd(f, 1-e) */
-  fred = centermod(fred, pr);
-  f1   = centermod(f1,   pr);
+  fred = FpX_center_i(fred, pr, pr2);
+  f1   = FpX_center_i(f1,   pr, pr2);
   f2 = FpX_div(fred,f1, pr);
-  f2 = FpX_center_i(f2, pr, shifti(pr,-1));
+  f2 = FpX_center_i(f2, pr, pr2);
 
   if (DEBUGLEVEL>5)
     err_printf("  leaving Decomp: f1 = %Ps\nf2 = %Ps\ne = %Ps\nde= %Ps\n", f1,f2,e,de);
@@ -1184,7 +1186,7 @@ static GEN
 newtoncharpoly(GEN pp, GEN p, GEN NS)
 {
   long n = lg(NS)-1, j, k;
-  GEN c = cgetg(n + 2, t_VEC);
+  GEN c = cgetg(n + 2, t_VEC), pp2 = shifti(pp,-1);
 
   gel(c,1) = (n & 1 ? gen_m1: gen_1);
   for (k = 2; k <= n+1; k++)
@@ -1204,7 +1206,7 @@ newtoncharpoly(GEN pp, GEN p, GEN NS)
       if (typ(s) != t_INT) return NULL;
     }
     s = mulii(s, Fp_inv(utoipos(z), pp));
-    gel(c,k) = gerepileuptoint(av2, centermod(s, pp));
+    gel(c,k) = gerepileuptoint(av2, Fp_center_i(s, pp, pp2));
   }
   for (k = odd(n)? 1: 2; k <= n+1; k += 2) gel(c,k) = negi(gel(c,k));
   return gtopoly(c, 0);
