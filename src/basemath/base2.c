@@ -978,16 +978,15 @@ p_is_prime(decomp_t *S)
   if (S->pisprime < 0) S->pisprime = BPSW_psp(S->p);
   return S->pisprime;
 }
+static GEN ZpX_monic_factor_squarefree(GEN f, GEN p, long prec);
 
 /* if flag = 0, maximal order, else factorization to precision r = flag */
 static GEN
 Decomp(decomp_t *S, long flag)
 {
   pari_sp av = avma;
-  GEN fred, pr, pk, ph, b1, b2, a, e, de, f1, f2, dt, th;
-  GEN p = S->p, chip;
-  long k, r = maxss(flag, 2*S->df + 1);
-  long vde, vdt;
+  GEN fred, pr, pk, ph, b1, b2, a, e, de, f1, f2, dt, th, chip, p = S->p;
+  long vde, vdt, k, r = maxss(flag, 2*S->df + 1);
 
   if (DEBUGLEVEL>2)
   {
@@ -1051,8 +1050,8 @@ Decomp(decomp_t *S, long flag)
 
   if (flag) {
     gerepileall(av, 2, &f1, &f2);
-    return famat_mul_shallow(ZpX_monic_factor(f1, p, flag),
-                             ZpX_monic_factor(f2, p, flag));
+    return shallowconcat(ZpX_monic_factor_squarefree(f1, p, flag),
+                         ZpX_monic_factor_squarefree(f2, p, flag));
   } else {
     GEN D, d1, d2, B1, B2, M;
     long n, n1, n2, i;
@@ -1704,6 +1703,41 @@ expo_is_squarefree(GEN e)
     if (e[i] != 1) return 0;
   return 1;
 }
+/* pure round 4 */
+static GEN
+ZpX_round4(GEN f, GEN p, GEN w, long prec)
+{
+  GEN L = maxord_i(p, f, ZpX_disc_val(f,p), w, prec);
+  return L? L: mkvec(f);
+}
+/* f a squarefree ZX with leading_coeff 1, degree > 0. Return list of
+ * irreducible factors in Zp[X] (computed mod p^prec) */
+static GEN
+ZpX_monic_factor_squarefree(GEN f, GEN p, long prec)
+{
+  pari_sp av = avma;
+  GEN L, fa, w, e;
+  long i, l;
+  if (degpol(f) == 1) return mkvec(f);
+  fa = FpX_factor(f,p); w = gel(fa,1); e = gel(fa,2);
+  /* no repeated factors: Hensel lift */
+  if (expo_is_squarefree(e)) return ZpX_liftfact(f, w, powiu(p,prec), p, prec);
+  l = lg(w);
+  if (l == 2) L = ZpX_round4(f,p,w,prec);
+  else
+  { /* >= 2 factors mod p: partial Hensel lift */
+    GEN W = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++)
+      gel(W,i) = e[i] == 1? gel(w,i): FpX_powu(gel(w,i), e[i], p);
+    L = ZpX_liftfact(f, W, powiu(p,prec), p, prec);
+    for (i = 1; i < l; i++)
+      gel(L,i) = e[i] == 1? mkvec(gel(L,i))
+                          : ZpX_round4(gel(L,i), p, mkvec(gel(w,i)), prec);
+    L = shallowconcat1(L);
+  }
+  if (lg(L) == 2) { avma = av; return mkvec(f); }
+  return gerepilecopy(av, L);
+}
 
 /* assume f a ZX with leading_coeff 1, degree > 0 */
 GEN
@@ -1713,37 +1747,14 @@ ZpX_monic_factor(GEN f, GEN p, long prec)
   long l, i;
 
   if (degpol(f) == 1) return mkmat2(mkcol(f), mkcol(gen_1));
-
   poly = ZX_squff(f,&ex); l = lg(poly);
   P = cgetg(l, t_VEC);
   E = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
-    pari_sp av1 = avma;
-    GEN fx = gel(poly,i), fa = FpX_factor(fx,p);
-    GEN w = gel(fa,1), e = gel(fa,2);
-    if (expo_is_squarefree(e))
-    { /* no repeated factors: Hensel lift */
-      GEN L = ZpX_liftfact(fx, w, powiu(p,prec), p, prec);
-      gel(P,i) = L; settyp(L, t_COL);
-      gel(E,i) = const_col(lg(L)-1, utoipos(ex[i]));
-    }
-    else
-    { /* use Round 4 */
-      GEN M = maxord_i(p, fx, ZpX_disc_val(fx,p), w, prec);
-      if (M)
-      {
-        M = gerepilecopy(av1, M);
-        gel(P,i) = gel(M,1);
-        gel(E,i) = ZC_z_mul(gel(M,2), ex[i]);
-      }
-      else
-      { /* irreducible */
-        avma = av1;
-        gel(P,i) = mkcol(fx);
-        gel(E,i) = mkcols(ex[i]);
-      }
-    }
+    GEN L = ZpX_monic_factor_squarefree(gel(poly,i), p, prec);
+    gel(P,i) = L; settyp(L, t_COL);
+    gel(E,i) = const_col(lg(L)-1, utoipos(ex[i]));
   }
   return mkmat2(shallowconcat1(P), shallowconcat1(E));
 }
