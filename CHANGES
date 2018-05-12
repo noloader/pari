@@ -201,6 +201,7 @@ BA  138- partitions(1,[0,5],[3,4]) -> incorrect result
          \l,\r, \w; they allow filenames with spaces) [#2035]
     156- memory leak in polclass()
 AP  157- fix integrality condition in algsubalg/algquotient/algcentralproj
+    158- factorpadic gave wrong results at low accuracy
 
   Added
       1- [libari] ZM_isidentity

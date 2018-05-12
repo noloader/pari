@@ -986,7 +986,7 @@ Decomp(decomp_t *S, long flag)
   pari_sp av = avma;
   GEN fred, pr, pk, ph, b1, b2, a, e, de, f1, f2, dt, th;
   GEN p = S->p, chip;
-  long k, r = flag? flag: 2*S->df + 1;
+  long k, r = maxss(flag, 2*S->df + 1);
   long vde, vdt;
 
   if (DEBUGLEVEL>2)
