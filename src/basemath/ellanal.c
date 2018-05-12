@@ -1319,38 +1319,38 @@ ellheegner(GEN E)
 
 /* Modular degree */
 
-/* Modular degree of elliptic curve e over Q, assuming Manin constant = 1
-   (otherwise multiply by square of Manin constant). */
-
 static GEN
 ellisobound(GEN e)
 {
-  GEN M = gel(ellisomat(e,0,1),2);
-  settyp(M,t_VEC);
-  return glcm0(shallowconcat1(M), NULL);
+  GEN v, M = gel(ellisomat(e,0,1),2);
+  long i, j, k, n = lg(M)-1;
+  v = cgetg((n-1)*(n-2) / 2 + 1, t_VEC);
+  for (i = 1, k = 1; i <= n; i++)
+    for (j = i+1; j <= n; j++) gel(v,k++) = gcoeff(M,i,j);
+  return glcm0(v, NULL);
 }
 
+/* Modular degree of elliptic curve e over Q, assuming Manin constant = 1
+ * (otherwise multiply by square of Manin constant). */
 GEN
 ellmoddegree(GEN E)
 {
-  pari_sp ltop = avma;
-  long bitprec;
-  GEN N, cb, tam, mc2, degr;
-  E = ellanal_globalred_all(E, &cb, &N, &tam);
+  pari_sp av = avma;
+  GEN N, tam, mc2, d;
+  long b;
+  E = ellanal_globalred_all(E, NULL, &N, &tam);
   mc2 = sqri(ellisobound(E));
-  bitprec = expi(mulii(N, mc2))+16;
+  b = expi(mulii(N, mc2))+16;
   while(1)
   {
-    long  prec = nbits2prec(bitprec), err, s;
-    GEN nor, deg;
-    nor = lfunellmfpeters(E, bitprec);
+    long  prec = nbits2prec(b), err, s;
+    GEN deg, nor = lfunellmfpeters(E, b);
     deg = gmul(gdiv(gmul(nor, sqrr(Pi2n(1, prec))), ellR_area(E, prec)), mc2);
-    degr = grndtoi(deg, &err);
+    d = grndtoi(deg, &err);
     if (DEBUGLEVEL)
-      err_printf("ellmoddegree: %Ps : bitprec=%ld: err=%ld\n",deg,bitprec,err);
-    s = expi(degr);
-    if (err <= -8 && s<=bitprec-8) break;
-    bitprec = maxss(s+16,bitprec+err+16);
+      err_printf("ellmoddegree: %Ps : bitprec=%ld: err=%ld\n",deg,b,err);
+    s = expi(d);
+    if (err <= -8 && s <= b-8) return gerepileupto(av, gdiv(d,mc2));
+    b = maxss(s, b+err) + 16;
   }
-  return gerepileupto(ltop, gdiv(degr,mc2));
 }
