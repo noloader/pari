@@ -601,6 +601,26 @@ maxord(GEN p, GEN f, long mf)
   }
   return gerepilecopy(av,res);
 }
+/* T monic separable ZX, p prime */
+GEN
+ZpX_primedec(GEN T, GEN p)
+{
+  const pari_sp av = avma;
+  GEN w, F1, F2, res, g, k = ZX_Dedekind(T, &g, p);
+  decomp_t S;
+  if (!degpol(k)) return zm_to_ZM(FpX_degfact(T, p));
+  k = FpX_normalize(k, p);
+  F1 = FpX_factor(k,p);
+  F2 = FpX_factor(FpX_div(g,k,p),p);
+  w = merge_sort_uniq(gel(F1,1),gel(F2,1),(void*)cmpii,&gen_cmp_RgX);
+  res = maxord_i(&S, p, T, ZpX_disc_val(T, p), w, -1);
+  if (!res)
+  {
+    long f = degpol(S.nu), e = degpol(T) / f;
+    avma = av; retmkmat2(mkcols(f), mkcols(e));
+  }
+  return gerepilecopy(av,res);
+}
 
 static GEN
 Zlx_sylvester_echelon(GEN f1, GEN f2, long early_abort, ulong p, ulong pm)
@@ -1047,7 +1067,13 @@ Decomp(decomp_t *S, long flag)
   if (DEBUGLEVEL>5)
     err_printf("  leaving Decomp: f1 = %Ps\nf2 = %Ps\ne = %Ps\nde= %Ps\n", f1,f2,e,de);
 
-  if (flag) {
+  if (flag < 0)
+  {
+    GEN m = vconcat(ZpX_primedec(f1, p), ZpX_primedec(f2, p));
+    return sort_factor(m, &cmpii, &cmp_nodata);
+  }
+  else if (flag)
+  {
     gerepileall(av, 2, &f1, &f2);
     return shallowconcat(ZpX_monic_factor_squarefree(f1, p, flag),
                          ZpX_monic_factor_squarefree(f2, p, flag));
