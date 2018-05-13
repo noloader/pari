@@ -775,29 +775,23 @@ find_j_inv_with_given_trace(
  */
 
 static GEN
-next_generator(GEN DD, long D, ulong u, long filter, long *P)
+next_generator(GEN DD, long D, ulong u, long filter, GEN *genred, long *P)
 {
-  pari_sp av = avma, av1;
-  GEN gen, genred;
-  long norm;
+  pari_sp av = avma;
   ulong p = (ulong)*P;
-  while (1) {
+  while (1)
+  {
     p = unextprime(p + 1);
     if (p > LONG_MAX) pari_err_BUG("next_generator");
-    if (kross(D, (long)p) != -1 && u % p != 0 && filter % p != 0) {
-      gen = primeform_u(DD, p);
-      av1 = avma;
-
-      /* If the reduction of gen has norm = 1, then it is the identity
-       * form and is therefore skipped. */
-      genred = redimag(gen);
-      norm = itos(gel(genred, 1));
-      avma = av1;
-      if (norm != 1) break;
+    if (kross(D, (long)p) != -1 && u % p != 0 && filter % p != 0)
+    {
+      GEN gen = primeform_u(DD, p);
+      /* If gen is in the principal class, skip it */
+      *genred = redimag(gen);
+      if (!equali1(gel(*genred,1))) { *P = (long)p; return gen; }
       avma = av;
     }
   }
-  *P = (long)p; return gen;
 }
 
 INLINE long *
@@ -1285,15 +1279,13 @@ classgp_make_pcp(
         curr_p = G->L0;
         gamma_i = qfb_nform(D, curr_p);
         beta = redimag(gamma_i);
-        if (gequal1(gel(beta, 1))) {
+        if (equali1(gel(beta, 1)))
+        {
           curr_p = 1;
-          gamma_i = next_generator(DD, D, u, G->Lfilter, &curr_p);
-          beta = redimag(gamma_i);
+          gamma_i = next_generator(DD, D, u, G->Lfilter, &beta, &curr_p);
         }
-      } else {
-        gamma_i = next_generator(DD, D, u, G->Lfilter, &curr_p);
-        beta = redimag(gamma_i);
-      }
+      } else
+        gamma_i = next_generator(DD, D, u, G->Lfilter, &beta, &curr_p);
       while ((e = hash_search(tbl, beta)) == NULL) {
         long j;
         for (j = 1; j <= N; ++j) {
