@@ -252,7 +252,29 @@ get_coprimes(GEN a, GEN b)
 /*                            ROUND 4                              */
 /*                                                                 */
 /*******************************************************************/
-static GEN maxord_i(GEN p, GEN f, long mf, GEN w, long flag);
+typedef struct {
+  /* constants */
+  long pisprime; /* -1: unknown, 1: prime,  0: composite */
+  GEN p, f; /* goal: factor f p-adically */
+  long df;
+  GEN pdf; /* p^df = reduced discriminant of f */
+  long mf; /* */
+  GEN psf, pmf; /* stability precision for f, wanted precision for f */
+  long vpsf; /* v_p(p_f) */
+  /* these are updated along the way */
+  GEN phi; /* a p-integer, in Q[X] */
+  GEN phi0; /* a p-integer, in Q[X] from testb2 / testc2, to be composed with
+             * phi when correct precision is known */
+  GEN chi; /* characteristic polynomial of phi (mod psc) in Z[X] */
+  GEN nu; /* irreducible divisor of chi mod p, in Z[X] */
+  GEN invnu; /* numerator ( 1/ Mod(nu, chi) mod pmr ) */
+  GEN Dinvnu;/* denominator ( ... ) */
+  long vDinvnu; /* v_p(Dinvnu) */
+  GEN prc, psc; /* reduced discriminant of chi, stability precision for chi */
+  long vpsc; /* v_p(p_c) */
+  GEN ns, nsf, precns; /* cached Newton sums for nsf and their precision */
+} decomp_t;
+static GEN maxord_i(decomp_t *S, GEN p, GEN f, long mf, GEN w, long flag);
 static GEN dbasis(GEN p, GEN f, long mf, GEN alpha, GEN U);
 static GEN maxord(GEN p,GEN f,long mf);
 static GEN ZX_Dedekind(GEN F, GEN *pg, GEN p);
@@ -571,10 +593,11 @@ maxord(GEN p, GEN f, long mf)
   else
   {
     GEN w, F1, F2;
+    decomp_t S;
     F1 = FpX_factor(k,p);
     F2 = FpX_factor(FpX_div(g,k,p),p);
     w = merge_sort_uniq(gel(F1,1),gel(F2,1),(void*)cmpii,&gen_cmp_RgX);
-    res = maxord_i(p, f, mf, w, 0);
+    res = maxord_i(&S, p, f, mf, w, 0);
   }
   return gerepilecopy(av,res);
 }
@@ -948,29 +971,6 @@ get_partial_order_as_pols(GEN p, GEN f)
   long v = varn(f);
   return O == gen_1? pol_x_powers(degpol(f), v): RgM_to_RgXV(O, v);
 }
-
-typedef struct {
-  /* constants */
-  long pisprime; /* -1: unknown, 1: prime,  0: composite */
-  GEN p, f; /* goal: factor f p-adically */
-  long df;
-  GEN pdf; /* p^df = reduced discriminant of f */
-  long mf; /* */
-  GEN psf, pmf; /* stability precision for f, wanted precision for f */
-  long vpsf; /* v_p(p_f) */
-  /* these are updated along the way */
-  GEN phi; /* a p-integer, in Q[X] */
-  GEN phi0; /* a p-integer, in Q[X] from testb2 / testc2, to be composed with
-             * phi when correct precision is known */
-  GEN chi; /* characteristic polynomial of phi (mod psc) in Z[X] */
-  GEN nu; /* irreducible divisor of chi mod p, in Z[X] */
-  GEN invnu; /* numerator ( 1/ Mod(nu, chi) mod pmr ) */
-  GEN Dinvnu;/* denominator ( ... ) */
-  long vDinvnu; /* v_p(Dinvnu) */
-  GEN prc, psc; /* reduced discriminant of chi, stability precision for chi */
-  long vpsc; /* v_p(p_c) */
-  GEN ns, nsf, precns; /* cached Newton sums for nsf and their precision */
-} decomp_t;
 
 static long
 p_is_prime(decomp_t *S)
@@ -1599,22 +1599,22 @@ loop(decomp_t *S, long Ea)
 }
 
 static long
-loop_init(decomp_t *S, GEN *popa, long *poE)
+loop_init(decomp_t *S, GEN *ppa, long *pE)
 {
-  long oE = *poE;
-  GEN opa = *popa;
+  long E = *pE, F;
+  GEN pa = *ppa;
   for(;;)
   {
-    long l, La, Ea; /* N.B If oE = 0, getprime cannot return NULL */
-    GEN pia  = getprime(S, NULL, S->chi, S->nu, &La, &Ea, oE,0);
+    long l, La, Ea; /* N.B If E = 0, getprime cannot return NULL */
+    GEN pia  = getprime(S, NULL, S->chi, S->nu, &La, &Ea, E,0);
     if (pia) { /* success, we break out in THIS loop */
-      opa = (typ(pia) == t_POL)? RgX_RgXQ_eval(pia, S->phi, S->f): pia;
-      oE = Ea;
+      pa = (typ(pia) == t_POL)? RgX_RgXQ_eval(pia, S->phi, S->f): pia;
+      E = Ea;
       if (La == 1) break; /* no need to change phi so that nu = pia */
     }
     /* phi += prime elt */
-    S->phi = typ(opa) == t_INT? RgX_Rg_add_shallow(S->phi, opa)
-                              : RgX_add(S->phi, opa);
+    S->phi = typ(pa) == t_INT? RgX_Rg_add_shallow(S->phi, pa)
+                              : RgX_add(S->phi, pa);
     /* recompute char. poly. chi from scratch */
     S->chi = mycaract(S, S->f, S->phi, S->psf, S->pdf);
     S->nu = get_nu(S->chi, S->p, &l);
@@ -1622,7 +1622,9 @@ loop_init(decomp_t *S, GEN *popa, long *poE)
     if (!update_phi(S)) return 1; /* unramified / irreducible */
     if (pia) break;
   }
-  *poE = oE; *popa = opa; return 0;
+  *pE = E; *ppa = pa; F = degpol(S->nu);
+  if (DEBUGLEVEL>4) err_printf("  (E, F) = (%ld,%ld)\n", E, F);
+  return E * F == degpol(S->f);
 }
 /* flag != 0 iff we're looking for the p-adic factorization,
    in which case it is the p-adic precision we want */
@@ -1630,7 +1632,7 @@ static GEN
 nilord(decomp_t *S, GEN dred, long flag)
 {
   GEN p = S->p, opa = NULL; /* later t_INT or QX */
-  long oE, l, N  = degpol(S->f);
+  long oE, l;
 
   if (DEBUGLEVEL>2)
   {
@@ -1644,7 +1646,7 @@ nilord(decomp_t *S, GEN dred, long flag)
   }
 
   S->psf = S->psc = mulii(sqri(dred), p);
-  S->vpsf = S->vpsc= 2*S->df + 1;
+  S->vpsf = S->vpsc = 2*S->df + 1;
   S->prc = mulii(dred, p);
   S->chi = FpX_red(S->f, S->psc);
   S->pmf = powiu(p, S->mf+1);
@@ -1652,43 +1654,29 @@ nilord(decomp_t *S, GEN dred, long flag)
   oE = 0;
   for(;;)
   {
-    long Fa = degpol(S->nu);
     S->phi0 = NULL; /* no delayed composition */
-    l = loop_init(S, &opa, &oE);
-    if (l > 1) return Decomp(S,flag);
-    if (l == 1) break;
-    if (DEBUGLEVEL>4) err_printf("  (Fa, oE) = (%ld,%ld)\n", Fa, oE);
-    if (oE*Fa == N)
-    { /* O = Zp[phi] */
-      if (flag) return NULL;
-      return dbasis(p, S->f, S->mf, redelt(S->phi,sqri(p),p), NULL);
-    }
-    if (loop(S, oE)) return Decomp(S,flag);
-    if (!update_phi(S)) break; /* unramified / irreducible */
+    if ((l = loop_init(S, &opa, &oE)) == 1) break; /* O = Zp[phi] */
+    if (l > 1 || loop(S, oE)) return Decomp(S,flag);
+    if (!update_phi(S)) break; /* O = Zp[phi], unramified */
   }
-  if (flag) return NULL;
-  S->nu = get_nu(S->chi, S->p, &l);
-  return l != 1? Decomp(S,flag): dbasis(p, S->f, S->mf, S->phi, S->chi);
+  return flag? NULL: dbasis(p, S->f, S->mf, S->phi, S->chi);
 }
 
 static GEN
-maxord_i(GEN p, GEN f, long mf, GEN w, long flag)
+maxord_i(decomp_t *S, GEN p, GEN f, long mf, GEN w, long flag)
 {
-  long n = lg(w)-1;
-  GEN h = gel(w,n); /* largest factor */
+  long n = lg(w)-1; /* factor of largest degree */
   GEN D = ZpX_reduced_resultant_fast(f, ZX_deriv(f), p, mf);
-  decomp_t S;
-
-  S.f = f;
-  S.pisprime = -1;
-  S.p = p;
-  S.mf = mf;
-  S.nu = h;
-  S.df = Z_pval(D, p);
-  S.pdf = powiu(p, S.df);
-  S.phi = pol_x(varn(f));
-  S.chi = f;
-  return n == 1? nilord(&S, D, flag): Decomp(&S, flag);
+  S->f = f;
+  S->pisprime = -1;
+  S->p = p;
+  S->mf = mf;
+  S->nu = gel(w,n);
+  S->df = Z_pval(D, p);
+  S->pdf = powiu(p, S->df);
+  S->phi = pol_x(varn(f));
+  S->chi = f;
+  return n == 1? nilord(S, D, flag): Decomp(S, flag);
 }
 
 static int
@@ -1703,7 +1691,8 @@ expo_is_squarefree(GEN e)
 static GEN
 ZpX_round4(GEN f, GEN p, GEN w, long prec)
 {
-  GEN L = maxord_i(p, f, ZpX_disc_val(f,p), w, prec);
+  decomp_t S;
+  GEN L = maxord_i(&S, p, f, ZpX_disc_val(f,p), w, prec);
   return L? L: mkvec(f);
 }
 /* f a squarefree ZX with leading_coeff 1, degree > 0. Return list of
