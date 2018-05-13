@@ -989,12 +989,9 @@ Decomp(decomp_t *S, long flag)
   GEN p = S->p;
   long vde, vdt, k, r = maxss(flag, 2*S->df + 1);
 
-  if (DEBUGLEVEL>2)
-  {
-    err_printf("  entering Decomp");
-    if (DEBUGLEVEL>5) err_printf(", parameters: %Ps^%ld\n  f = %Ps",p, r, S->f);
-    err_printf("\n");
-  }
+  if (DEBUGLEVEL>5) err_printf("  entering Decomp: %Ps^%ld\n  f = %Ps\n",
+                               p, r, S->f);
+  else if (DEBUGLEVEL>2) err_printf("  entering Decomp\n");
   chip = FpX_red(S->chi, p);
   if (!FpX_valrem(chip, S->nu, p, &b1))
   {
@@ -1634,17 +1631,10 @@ nilord(decomp_t *S, GEN dred, long flag)
   GEN p = S->p, opa = NULL; /* later t_INT or QX */
   long oE, l;
 
-  if (DEBUGLEVEL>2)
-  {
-    err_printf("  entering Nilord");
-    if (DEBUGLEVEL>4)
-    {
-      err_printf(" with parameters: %Ps^%ld\n", p, S->df);
-      err_printf("  fx = %Ps, gx = %Ps", S->f, S->nu);
-    }
-    err_printf("\n");
-  }
-
+  if (DEBUGLEVEL>4)
+    err_printf("  entering Nilord: %Ps^%ld\n  f = %Ps, nu = %Ps\n",
+               p, S->df, S->f, S->nu);
+  else if (DEBUGLEVEL>2) err_printf("  entering Nilord\n");
   S->psf = S->psc = mulii(sqri(dred), p);
   S->vpsf = S->vpsc = 2*S->df + 1;
   S->prc = mulii(dred, p);
