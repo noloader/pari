@@ -1595,6 +1595,7 @@ loop(decomp_t *S, long Ea)
   }
 }
 
+/* E and F cannot decrease */
 static long
 loop_init(decomp_t *S, GEN *ppa, long *pE)
 {
