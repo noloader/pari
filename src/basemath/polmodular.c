@@ -1006,7 +1006,7 @@ typedef struct {
   long bits;
   ulong *primes;
   ulong *traces;
-} modpoly_disc_info;
+} disc_info;
 
 #define MODPOLY_MAX_DCNT    64
 
@@ -1017,9 +1017,8 @@ typedef struct {
 #define IGNORE_SPARSE_FACTOR 1
 
 static long
-discriminant_with_classno_at_least(
-  modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
-  long ignore_sparse);
+discriminant_with_classno_at_least(disc_info Ds[MODPOLY_MAX_DCNT], long L,
+  long inv, long ignore_sparse);
 
 /**
  * SECTION: Hard-coded evaluation functions for modular polynomials of
@@ -1362,7 +1361,7 @@ compute_L_isogenous_curve(
 }
 
 INLINE GEN
-get_Lsqr_cycle(const modpoly_disc_info *dinfo)
+get_Lsqr_cycle(const disc_info *dinfo)
 {
   long i, n1 = dinfo->n1, L = dinfo->L;
   GEN cyc = cgetg(L, t_VECSMALL);
@@ -1378,7 +1377,7 @@ get_Lsqr_cycle(const modpoly_disc_info *dinfo)
 }
 
 INLINE void
-update_Lsqr_cycle(GEN cyc, const modpoly_disc_info *dinfo)
+update_Lsqr_cycle(GEN cyc, const disc_info *dinfo)
 {
   long i, L = dinfo->L;
   for (i = 1; i < L; ++i) ++cyc[i];
@@ -1416,7 +1415,7 @@ oneroot_of_classpoly(
 
 /* TODO: Precompute the classgp_pcp_t structs and link them to dinfo */
 INLINE void
-make_pcp_surface(const modpoly_disc_info *dinfo, classgp_pcp_t G)
+make_pcp_surface(const disc_info *dinfo, classgp_pcp_t G)
 {
   long k = 1, datalen = 3 * k;
 
@@ -1435,7 +1434,7 @@ make_pcp_surface(const modpoly_disc_info *dinfo, classgp_pcp_t G)
 }
 
 INLINE void
-make_pcp_floor(const modpoly_disc_info *dinfo, classgp_pcp_t G)
+make_pcp_floor(const disc_info *dinfo, classgp_pcp_t G)
 {
   long k = dinfo->L1 ? 2 : 1, datalen = 3 * k;
 
@@ -1458,8 +1457,7 @@ make_pcp_floor(const modpoly_disc_info *dinfo, classgp_pcp_t G)
 }
 
 INLINE GEN
-enum_volcano_surface(
-  const modpoly_disc_info *dinfo, norm_eqn_t ne, ulong j0, GEN fdb)
+enum_volcano_surface(const disc_info *dinfo, norm_eqn_t ne, ulong j0, GEN fdb)
 {
   pari_sp av = avma;
   classgp_pcp_t G;
@@ -1468,9 +1466,7 @@ enum_volcano_surface(
 }
 
 INLINE GEN
-enum_volcano_floor(
-  long L, norm_eqn_t ne, ulong j0_pr, GEN fdb,
-  const modpoly_disc_info *dinfo)
+enum_volcano_floor(long L, norm_eqn_t ne, ulong j0_pr, GEN fdb, const disc_info *dinfo)
 {
   pari_sp av = avma;
   /* L^2 D is the discriminant for the order R = Z + L OO. */
@@ -1533,10 +1529,8 @@ vecsmall_pick(GEN res, GEN v, GEN indices)
 /* First element of surface_js must lie above the first element of floor_js.
  * Reverse surface_js if it is not oriented in the same direction as floor_js */
 INLINE GEN
-root_matrix(
-  long L, const modpoly_disc_info *dinfo,
-  long njinvs, GEN surface_js, GEN floor_js,
-  ulong n, ulong card, ulong val, norm_eqn_t ne)
+root_matrix(long L, const disc_info *dinfo, long njinvs, GEN surface_js,
+  GEN floor_js, ulong n, ulong card, ulong val, norm_eqn_t ne)
 {
   pari_sp av;
   long i, m = dinfo->dl1, njs = lg(surface_js) - 1, inv = dinfo->inv, rev;
@@ -1715,9 +1709,8 @@ double_eta_initial_js(
 
 /* This is Sutherland 2012, Algorithm 2.1, p16. */
 static GEN
-polmodular_split_p_Flm(
-  ulong L, GEN hilb, GEN factu, norm_eqn_t ne, GEN db,
-  const modpoly_disc_info *dinfo)
+polmodular_split_p_Flm(ulong L, GEN hilb, GEN factu, norm_eqn_t ne, GEN db,
+  const disc_info *dinfo)
 {
   ulong j0, j0_rt, j0pr, j0pr_rt;
   ulong n, card, val, p = ne->p, pi = ne->pi;
@@ -1843,8 +1836,7 @@ polmodular_worker(ulong p, ulong t, ulong L,
   norm_eqn_t ne;
   GEN Tp;
   norm_eqn_update(ne, vne, t, p, L);
-  Tp = polmodular_split_p_Flm(L, hilb, factu, ne, fdb,
-                              (const modpoly_disc_info*)vinfo);
+  Tp = polmodular_split_p_Flm(L, hilb, factu, ne, fdb, (const disc_info*)vinfo);
   if (!isintzero(j_powers)) Tp = eval_modpoly_modp(Tp, j_powers, ne, derivs);
   return gerepileupto(av, Tp);
 }
@@ -1898,8 +1890,7 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
   pari_sp ltop = avma;
   long k, d, Dcnt, nprimes = 0;
   GEN modpoly, plist;
-  modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
-
+  disc_info Ds[MODPOLY_MAX_DCNT];
   long lvl = modinv_level(inv);
   if (ugcd(L, lvl) != 1)
     pari_err_DOMAIN("polmodular0_ZM", "invariant",
@@ -1914,7 +1905,7 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
   plist = cgetg(nprimes+1, t_VECSMALL);
   for (d = 0, k = 1; d < Dcnt; d++)
   {
-    modpoly_disc_info *dinfo = &Ds[d];
+    disc_info *dinfo = &Ds[d];
     struct pari_mt pt;
     const long D = dinfo->D1, DK = dinfo->D0;
     const ulong cond = usqrt(D / DK);
@@ -2365,11 +2356,9 @@ polmodular0_powerup_ZM(long L, long inv, GEN *db)
   pari_sp ltop = avma, av;
   long s, D, nprimes, N;
   GEN mp, pol, P, H;
-
   long parent = modinv_parent(inv);
   long e = modinv_parent_power(inv);
-
-  modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
+  disc_info Ds[MODPOLY_MAX_DCNT];
   /* FIXME: We throw away the table of fundamental discriminants here. */
   long nDs = discriminant_with_classno_at_least(Ds, L, inv, IGNORE_SPARSE_FACTOR);
   if (nDs != 1) pari_err_BUG("polmodular0_powerup_ZM");
@@ -3466,7 +3455,7 @@ check_generators(
 static long
 modpoly_pickD_primes(
   ulong *primes, ulong *traces, long max, ulong *xprimes, long xcnt,
-  long *totbits, long minbits, modpoly_disc_info *Dinfo)
+  long *totbits, long minbits, disc_info *Dinfo)
 {
   double bits;
   long D, m, n, vcnt, pfilter, one_prime, inv;
@@ -3579,7 +3568,7 @@ done:
 #define MAX_VOLCANO_FLOOR_SIZE 100000000
 
 static long
-calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long minbits)
+calc_primes_for_discriminants(disc_info Ds[], long Dcnt, long L, long minbits)
 {
   pari_sp av = avma;
   long i, j, k, m, n, D1, pcnt, totbits;
@@ -3654,11 +3643,11 @@ calc_primes_for_discriminants(modpoly_disc_info Ds[], long Dcnt, long L, long mi
  * - MODPOLY_IGNORE_SPARSE_FACTOR: obtain D for which h(D) > L + 1
  *   rather than h(D) > (L + 1)/s */
 static long
-modpoly_pickD(modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
+modpoly_pickD(disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
   long L0, long max_L1, long minbits, long flags, D_entry *tab, long tablen)
 {
   pari_sp ltop = avma, btop;
-  modpoly_disc_info Dinfo;
+  disc_info Dinfo;
   pari_timer T;
   long modinv_p1, modinv_p2; /* const after next line */
   const long modinv_deg = modinv_degree(&modinv_p1, &modinv_p2, inv);
@@ -4053,7 +4042,7 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
  * used to calculate the modular polynomial of level L and invariant
  * inv.  Return the number of discriminants found. */
 static long
-discriminant_with_classno_at_least(modpoly_disc_info bestD[MODPOLY_MAX_DCNT],
+discriminant_with_classno_at_least(disc_info bestD[MODPOLY_MAX_DCNT],
   long L, long inv, long ignore_sparse)
 {
   enum { SMALL_L_BOUND = 101 };
@@ -4061,7 +4050,7 @@ discriminant_with_classno_at_least(modpoly_disc_info bestD[MODPOLY_MAX_DCNT],
   long minD, maxD, maxh, L0, max_L1, minbits, Dcnt, flags, s, d, h, i, tablen;
   D_entry *tab;
   double eps, cost, best_eps = -1.0, best_cost = -1.0;
-  modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
+  disc_info Ds[MODPOLY_MAX_DCNT];
   long best_cnt = 0;
   pari_timer T;
   timer_start(&T);
@@ -4105,7 +4094,7 @@ discriminant_with_classno_at_least(modpoly_disc_info bestD[MODPOLY_MAX_DCNT],
         if (best_cost < 0.0 || cost < best_cost) {
           if (best_cnt)
             for (i = 0; i < best_cnt; i++) killbloc((GEN)bestD[i].primes);
-          (void) memcpy(bestD, Ds, Dcnt * sizeof(modpoly_disc_info));
+          (void) memcpy(bestD, Ds, Dcnt * sizeof(disc_info));
           best_cost = cost;
           best_cnt = Dcnt;
           best_eps = eps;
