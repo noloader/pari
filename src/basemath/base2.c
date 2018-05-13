@@ -1595,12 +1595,14 @@ loop(decomp_t *S, long Ea)
   }
 }
 
-/* E and F cannot decrease */
+/* E and F cannot decrease; return 1 if O = Zp[phi], 2 if we can get a
+ * decomposition and 0 otherwise */
 static long
-loop_init(decomp_t *S, GEN *ppa, long *pE)
+progress(decomp_t *S, GEN *ppa, long *pE)
 {
   long E = *pE, F;
   GEN pa = *ppa;
+  S->phi0 = NULL; /* no delayed composition */
   for(;;)
   {
     long l, La, Ea; /* N.B If E = 0, getprime cannot return NULL */
@@ -1612,53 +1614,29 @@ loop_init(decomp_t *S, GEN *ppa, long *pE)
     }
     /* phi += prime elt */
     S->phi = typ(pa) == t_INT? RgX_Rg_add_shallow(S->phi, pa)
-                              : RgX_add(S->phi, pa);
+                             : RgX_add(S->phi, pa);
     /* recompute char. poly. chi from scratch */
     S->chi = mycaract(S, S->f, S->phi, S->psf, S->pdf);
     S->nu = get_nu(S->chi, S->p, &l);
-    if (l > 1) return l; /* we can get a decomposition */
-    if (!update_phi(S)) return 1; /* unramified / irreducible */
+    if (l > 1) return 2;
+    if (!update_phi(S)) return 1; /* unramified */
     if (pia) break;
   }
   *pE = E; *ppa = pa; F = degpol(S->nu);
   if (DEBUGLEVEL>4) err_printf("  (E, F) = (%ld,%ld)\n", E, F);
-  return E * F == degpol(S->f);
+  if (E * F == degpol(S->f)) return 1;
+  if (loop(S, E)) return 2;
+  if (!update_phi(S)) return 1;
+  return 0;
 }
+
 /* flag != 0 iff we're looking for the p-adic factorization,
    in which case it is the p-adic precision we want */
 static GEN
-nilord(decomp_t *S, GEN dred, long flag)
-{
-  GEN p = S->p, opa = NULL; /* later t_INT or QX */
-  long oE, l;
-
-  if (DEBUGLEVEL>4)
-    err_printf("  entering Nilord: %Ps^%ld\n  f = %Ps, nu = %Ps\n",
-               p, S->df, S->f, S->nu);
-  else if (DEBUGLEVEL>2) err_printf("  entering Nilord\n");
-  S->psf = S->psc = mulii(sqri(dred), p);
-  S->vpsf = S->vpsc = 2*S->df + 1;
-  S->prc = mulii(dred, p);
-  S->chi = FpX_red(S->f, S->psc);
-  S->pmf = powiu(p, S->mf+1);
-  S->precns = NULL;
-  oE = 0;
-  for(;;)
-  {
-    S->phi0 = NULL; /* no delayed composition */
-    if ((l = loop_init(S, &opa, &oE)) == 1) break; /* O = Zp[phi] */
-    if (l > 1 || loop(S, oE)) return Decomp(S,flag);
-    if (!update_phi(S)) break; /* O = Zp[phi], unramified */
-  }
-  return flag? NULL: dbasis(p, S->f, S->mf, S->phi, S->chi);
-}
-
-static GEN
 maxord_i(decomp_t *S, GEN p, GEN f, long mf, GEN w, long flag)
 {
-  long n = lg(w)-1; /* factor of largest degree */
-  GEN D = ZpX_reduced_resultant_fast(f, ZX_deriv(f), p, mf);
-  S->f = f;
+  long oE, n = lg(w)-1; /* factor of largest degree */
+  GEN opa, D = ZpX_reduced_resultant_fast(f, ZX_deriv(f), p, mf);
   S->pisprime = -1;
   S->p = p;
   S->mf = mf;
@@ -1666,8 +1644,25 @@ maxord_i(decomp_t *S, GEN p, GEN f, long mf, GEN w, long flag)
   S->df = Z_pval(D, p);
   S->pdf = powiu(p, S->df);
   S->phi = pol_x(varn(f));
-  S->chi = f;
-  return n == 1? nilord(S, D, flag): Decomp(S, flag);
+  S->chi = S->f = f;
+  if (n > 1) return Decomp(S, flag); /* FIXME: use bezout_lift_fact */
+
+  if (DEBUGLEVEL>4)
+    err_printf("  entering Nilord: %Ps^%ld\n  f = %Ps, nu = %Ps\n",
+               p, S->df, S->f, S->nu);
+  else if (DEBUGLEVEL>2) err_printf("  entering Nilord\n");
+  S->psf = S->psc = mulii(sqri(D), p);
+  S->vpsf = S->vpsc = 2*S->df + 1;
+  S->prc = mulii(D, p);
+  S->chi = FpX_red(S->f, S->psc);
+  S->pmf = powiu(p, S->mf+1);
+  S->precns = NULL;
+  for(opa = NULL, oE = 0;;)
+  {
+    long n = progress(S, &opa, &oE);
+    if (n == 1) return flag? NULL: dbasis(p, S->f, S->mf, S->phi, S->chi);
+    if (n == 2) return Decomp(S, flag);
+  }
 }
 
 static int
