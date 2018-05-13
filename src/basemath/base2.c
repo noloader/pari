@@ -1629,9 +1629,8 @@ loop_init(decomp_t *S, GEN *popa, long *poE)
 static GEN
 nilord(decomp_t *S, GEN dred, long flag)
 {
-  GEN p = S->p;
-  long oE, l, N  = degpol(S->f), v = varn(S->f);
-  GEN opa; /* t_INT or QX */
+  GEN p = S->p, opa = NULL; /* later t_INT or QX */
+  long oE, l, N  = degpol(S->f);
 
   if (DEBUGLEVEL>2)
   {
@@ -1644,17 +1643,13 @@ nilord(decomp_t *S, GEN dred, long flag)
     err_printf("\n");
   }
 
-  S->psc = mulii(sqri(dred), p);
-  S->vpsc= 2*S->df + 1;
+  S->psf = S->psc = mulii(sqri(dred), p);
+  S->vpsf = S->vpsc= 2*S->df + 1;
   S->prc = mulii(dred, p);
-  S->psf = S->psc;
-  S->vpsf = S->vpsc;
   S->chi = FpX_red(S->f, S->psc);
-  S->phi = pol_x(v);
   S->pmf = powiu(p, S->mf+1);
   S->precns = NULL;
   oE = 0;
-  opa = NULL; /* -Wall */
   for(;;)
   {
     long Fa = degpol(S->nu);
@@ -1679,8 +1674,8 @@ nilord(decomp_t *S, GEN dred, long flag)
 static GEN
 maxord_i(GEN p, GEN f, long mf, GEN w, long flag)
 {
-  long l = lg(w)-1;
-  GEN h = gel(w,l); /* largest factor */
+  long n = lg(w)-1;
+  GEN h = gel(w,n); /* largest factor */
   GEN D = ZpX_reduced_resultant_fast(f, ZX_deriv(f), p, mf);
   decomp_t S;
 
@@ -1691,10 +1686,9 @@ maxord_i(GEN p, GEN f, long mf, GEN w, long flag)
   S.nu = h;
   S.df = Z_pval(D, p);
   S.pdf = powiu(p, S.df);
-  if (l == 1) return nilord(&S, D, flag);
-  if (flag && flag <= mf) flag = mf + 1;
   S.phi = pol_x(varn(f));
-  S.chi = f; return Decomp(&S, flag);
+  S.chi = f;
+  return n == 1? nilord(&S, D, flag): Decomp(&S, flag);
 }
 
 static int
