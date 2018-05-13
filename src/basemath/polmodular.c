@@ -4058,11 +4058,9 @@ discriminant_with_classno_at_least(modpoly_disc_info bestD[MODPOLY_MAX_DCNT],
 {
   enum { SMALL_L_BOUND = 101 };
   long max_max_D = 160000 * (inv ? 2 : 1);
-  long minD, maxD, maxh, L0, max_L1, minbits, Dcnt, flags, s, d, h, i;
+  long minD, maxD, maxh, L0, max_L1, minbits, Dcnt, flags, s, d, h, i, tablen;
   D_entry *tab;
-  long tablen;
-  pari_sp av = avma;
-  double eps, best_eps = -1.0, cost, best_cost = -1.0;
+  double eps, cost, best_eps = -1.0, best_cost = -1.0;
   modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
   long best_cnt = 0;
   pari_timer T;
@@ -4128,9 +4126,9 @@ discriminant_with_classno_at_least(modpoly_disc_info bestD[MODPOLY_MAX_DCNT],
   }
 
   if (DEBUGLEVEL > 3) {
+    pari_sp av = avma;
     err_printf("Found discriminant(s):\n");
     for (i = 0; i < best_cnt; ++i) {
-      av = avma;
       h = itos(classno(stoi(bestD[i].D1)));
       avma = av;
       err_printf("  D = %ld, h = %ld, u = %ld, L0 = %ld, L1 = %ld, n1 = %ld, n2 = %ld, cost = %ld\n",
