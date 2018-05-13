@@ -4053,8 +4053,8 @@ scanD0(long *tablelen, long *minD, long maxD, long maxh, long L0)
  * used to calculate the modular polynomial of level L and invariant
  * inv.  Return the number of discriminants found. */
 static long
-discriminant_with_classno_at_least(
-  modpoly_disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv, long ignore_sparse)
+discriminant_with_classno_at_least(modpoly_disc_info bestD[MODPOLY_MAX_DCNT],
+  long L, long inv, long ignore_sparse)
 {
   enum { SMALL_L_BOUND = 101 };
   long max_max_D = 160000 * (inv ? 2 : 1);
@@ -4063,7 +4063,7 @@ discriminant_with_classno_at_least(
   long tablen;
   pari_sp av = avma;
   double eps, best_eps = -1.0, cost, best_cost = -1.0;
-  modpoly_disc_info bestD[MODPOLY_MAX_DCNT];
+  modpoly_disc_info Ds[MODPOLY_MAX_DCNT];
   long best_cnt = 0;
   pari_timer T;
   timer_start(&T);
@@ -4105,6 +4105,8 @@ discriminant_with_classno_at_least(
         eps = (n1 * s - L) / (double)L;
 
         if (best_cost < 0.0 || cost < best_cost) {
+          if (best_cnt)
+            for (i = 0; i < best_cnt; i++) killbloc((GEN)bestD[i].primes);
           (void) memcpy(bestD, Ds, Dcnt * sizeof(modpoly_disc_info));
           best_cost = cost;
           best_cnt = Dcnt;
