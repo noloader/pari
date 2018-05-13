@@ -399,12 +399,11 @@ next_surface_nbr(
   *nJ = uel(S, i+1); avma = av; return 1;
 }
 
-/* If flag is set, requires a unique common neighour.  Otherwise allow 2 common
- * neighbors and return both */
+/* Return the number of distinct neighbours (1 or 2) */
 INLINE long
 common_nbr(ulong *nbr,
   ulong J1, GEN Phi1, long L1,
-  ulong J2, GEN Phi2, long L2, ulong p, ulong pi, long flag)
+  ulong J2, GEN Phi2, long L2, ulong p, ulong pi)
 {
   pari_sp av = avma;
   GEN d, f, g, r;
@@ -414,13 +413,13 @@ common_nbr(ulong *nbr,
   f = Flm_Fl_polmodular_evalx(Phi2, L2, J2, p, pi);
   d = Flx_gcd(f, g, p);
   if (degpol(d) == 1) { *nbr = Flx_deg1_root(d, p); avma = av; return 1; }
-  if (flag || degpol(d) != 2) pari_err_BUG("common_neighbour");
+  if (degpol(d) != 2) pari_err_BUG("common_neighbour");
   r = Flx_roots(d, p);
   rlen = vecsmall_len(r);
   if (!rlen) pari_err_BUG("common_neighbour");
-  nbr[0] = uel(r, 1);
   /* rlen is 1 or 2 depending on whether the root is unique or not. */
-  nbr[1] = uel(r, rlen); avma = av; return 2;
+  nbr[0] = uel(r, 1);
+  nbr[1] = uel(r, rlen); avma = av; return rlen;
 }
 
 /* Return gcd(Phi1(X,J1)/(X - J0), Phi2(X,J2)). Not stack clean. */
@@ -483,9 +482,7 @@ common_nbr_corner(ulong *nbr,
   ulong J2, GEN Phi2, long L2, ulong J0, ulong p, ulong pi)
 {
   ulong nbrs[2];
-
-  if (common_nbr(nbrs, J1,Phi1,L1, J2,Phi2,L2, p, pi, 0) == 2
-      && nbrs[0] != nbrs[1])
+  if (common_nbr(nbrs, J1,Phi1,L1, J2,Phi2,L2, p, pi) == 2)
   {
     ulong nJ1, nJ2;
     if (!next_surface_nbr(&nJ2, Phi1, L1, h1, J2, &J0, p, pi) ||
@@ -597,9 +594,7 @@ surface_parallel_path(
   GEN Phi1, long L1, GEN Phi2, long L2, ulong p, ulong pi, long cycle)
 {
   ulong W2, nbrs[2];
-
-  if (common_nbr(nbrs, W[0], Phi1, L1, V[1], Phi2, L2, p, pi, 0) == 2
-      && nbrs[0] != nbrs[1])
+  if (common_nbr(nbrs, W[0], Phi1, L1, V[1], Phi2, L2, p, pi) == 2)
   {
     if (n <= 2) return 1; /* Error: Two choices with n = 2; ambiguous */
     if (!common_nbr_verify(&W2,nbrs[0], Phi1,L1,V[2], Phi2,L2,W[0], p,pi))
@@ -610,7 +605,7 @@ surface_parallel_path(
   W[1] = nbrs[0];
   if (n <= 2) return n;
   return cycle? surface_gcd_cycle(W, V, n, Phi1, L1, Phi2, L2, 2, p, pi)
-              : surface_gcd_path(W, V, n, Phi1, L1, Phi2, L2, 2, p, pi);
+              : surface_gcd_path (W, V, n, Phi1, L1, Phi2, L2, 2, p, pi);
 }
 
 GEN
