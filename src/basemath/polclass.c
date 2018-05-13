@@ -1678,7 +1678,7 @@ INLINE int
 modinv_units(int inv)
 { return modinv_is_double_eta(inv) || modinv_is_Weber(inv); }
 
-INLINE void
+INLINE int
 adjust_signs(GEN js, ulong p, ulong pi, long inv, GEN T, long e)
 {
   long negate = 0;
@@ -1693,12 +1693,14 @@ adjust_signs(GEN js, ulong p, ulong pi, long inv, GEN T, long e)
     ulong tp, t;
     tp = umodiu(T, p);
     t = Flv_powsum_pre(js, e, p, pi);
+    if (t == 0) return 0;
     if (t != tp) {
       if (Fl_neg(t, p) != tp) pari_err_BUG("adjust_signs: incorrect trace");
       negate = 1;
     }
   }
   if (negate) Flv_neg_inplace(js, p);
+  return 1;
 }
 
 static ulong
@@ -1908,25 +1910,22 @@ polclass_psum(
       GEN roots_modp = gel(roots, i);
       ulong p = uel(primes, i), pi = uel(pilist, i);
       uel(ps, i) = Flv_powsum_pre(roots_modp, e, p, pi);
-      if (uel(ps, i) == 0) break;
     }
-    if (i > nprimes) break;
-  } while (1);
-  btop = avma;
-  psum_sqr = Z_init_CRT(0, 1);
-  P = gen_1;
-  for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i)
-  {
-    ulong p = uel(primes, i), pi = uel(pilist, i);
-    ulong ps2 = Fl_sqr_pre(uel(ps, i), p, pi);
-    ulong stab = Z_incremental_CRT(&psum_sqr, ps2, &P, p);
-
-    /* stabcnt = stab * (stabcnt + 1) */
-    if (stab) ++stabcnt; else stabcnt = 0;
-    if (gc_needed(av, 2)) gerepileall(btop, 2, &psum_sqr, &P);
-  }
-  if (stabcnt < MIN_STAB_CNT && nprimes >= MIN_STAB_CNT)
-    pari_err_BUG("polclass_psum");
+    btop = avma;
+    psum_sqr = Z_init_CRT(0, 1);
+    P = gen_1;
+    for (i = 1, stabcnt = 0; stabcnt < MIN_STAB_CNT && i <= nprimes; ++i)
+    {
+      ulong p = uel(primes, i), pi = uel(pilist, i);
+      ulong ps2 = Fl_sqr_pre(uel(ps, i), p, pi);
+      ulong stab = Z_incremental_CRT(&psum_sqr, ps2, &P, p);
+      /* stabcnt = stab * (stabcnt + 1) */
+      if (stab) ++stabcnt; else stabcnt = 0;
+      if (gc_needed(av, 2)) gerepileall(btop, 2, &psum_sqr, &P);
+    }
+    if (stabcnt == 0 && nprimes >= MIN_STAB_CNT)
+      pari_err_BUG("polclass_psum");
+  } while (!signe(psum_sqr));
 
   if ( ! Z_issquareall(psum_sqr, psum)) pari_err_BUG("polclass_psum");
 
@@ -1957,7 +1956,7 @@ polclass0(long D, long inv, long xvar, GEN *db)
   pari_sp av = avma;
   GEN primes;
   long n_curves_tested = 0;
-  long nprimes, s, i, ni, orient;
+  long nprimes, s, i, j, del, ni, orient;
   GEN P, H, plist, pilist;
   ulong u, L, maxL, vfactors, biggest_v;
   long h, p1, p2, filter = 1;
@@ -2039,18 +2038,21 @@ polclass0(long D, long inv, long xvar, GEN *db)
     for (i = 1; i <= nprimes; ++i) {
       GEN v = gel(H, i);
       ulong p = uel(plist, i), pi = uel(pilist, i);
-      adjust_signs(v, p, pi, inv, psum, e);
+      if (!adjust_signs(v, p, pi, inv, psum, e))
+        uel(plist, i) = 0;
     }
   }
 
-  for (i = 1; i <= nprimes; ++i) {
+  for (i = 1, j = 1, del = 0; i <= nprimes; ++i) {
     GEN v = gel(H, i), pol;
     ulong p = uel(plist, i);
-
+    if (!p) { del++; continue; }
     pol = Flv_roots_to_pol(v, p, xvar);
-    gel(H, i) = Flx_to_Flv(pol, lg(pol) - 2);
+    uel(plist, j) = p;
+    gel(H, j++) = Flx_to_Flv(pol, lg(pol) - 2);
   }
-
+  setlg(H,nprimes+1-del);
+  setlg(plist,nprimes+1-del);
   classgp_pcp_clear(G);
 
   dbg_printf(1)("Total number of curves tested: %ld\n", n_curves_tested);
