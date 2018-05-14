@@ -451,7 +451,7 @@ install-doctex::
 	-\$(INSTALL_DATA) $doc/paricfg.tex  \$(DOCDIR)
 
 install-gphelp::
-	-mkdir -p \$(BINDIR)
+	-mkdir -p \$(BINDIR) \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/translations \$(DOCDIR)
 	-\$(INSTALL_PROGRAM) $doc/gphelp    \$(BINDIR)
 
