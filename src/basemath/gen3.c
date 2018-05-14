@@ -478,7 +478,7 @@ pollead(GEN x, long v)
 
     case t_SER:
       if (v < 0 || v == w) return signe(x)? gcopy(gel(x,2)): gen_0;
-      if (varncmp(v, w) > 0) x = polcoeff_i(x, valp(x), v);
+      if (varncmp(v, w) > 0) x = polcoef_i(x, valp(x), v);
       break;
 
     default:
@@ -3142,7 +3142,7 @@ compo(GEN x, long n)
 
 /* assume x a t_POL */
 static GEN
-_polcoeff(GEN x, long n, long v)
+_polcoef(GEN x, long n, long v)
 {
   long i, w, lx = lg(x), dx = lx-3;
   GEN z;
@@ -3152,7 +3152,7 @@ _polcoeff(GEN x, long n, long v)
   if (varncmp(w,v) > 0) return n? gen_0: x;
   /* w < v */
   z = cgetg(lx, t_POL); z[1] = x[1];
-  for (i = 2; i < lx; i++) gel(z,i) = polcoeff_i(gel(x,i), n, v);
+  for (i = 2; i < lx; i++) gel(z,i) = polcoef_i(gel(x,i), n, v);
   z = normalizepol_lg(z, lx);
   switch(lg(z))
   {
@@ -3164,7 +3164,7 @@ _polcoeff(GEN x, long n, long v)
 
 /* assume x a t_SER */
 static GEN
-_sercoeff(GEN x, long n, long v)
+_sercoef(GEN x, long n, long v)
 {
   long i, w = varn(x), lx = lg(x), dx = lx-3, N;
   GEN z;
@@ -3172,75 +3172,59 @@ _sercoeff(GEN x, long n, long v)
   N = v == w? n - valp(x): n;
   if (dx < 0)
   {
-    if (N >= 0) pari_err_DOMAIN("polcoeff", "t_SER", "=", x, x);
+    if (N >= 0) pari_err_DOMAIN("polcoef", "t_SER", "=", x, x);
     return gen_0;
   }
   if (v == w)
   {
     if (N > dx)
-      pari_err_DOMAIN("polcoeff", "degree", ">", stoi(dx+valp(x)), stoi(n));
+      pari_err_DOMAIN("polcoef", "degree", ">", stoi(dx+valp(x)), stoi(n));
     return (N < 0)? gen_0: gel(x,N+2);
   }
   if (varncmp(w,v) > 0) return N? gen_0: x;
   /* w < v */
   z = cgetg(lx, t_SER); z[1] = x[1];
-  for (i = 2; i < lx; i++) gel(z,i) = polcoeff_i(gel(x,i), n, v);
+  for (i = 2; i < lx; i++) gel(z,i) = polcoef_i(gel(x,i), n, v);
   return normalize(z);
 }
 
 /* assume x a t_RFRAC(n) */
 static GEN
-_rfraccoeff(GEN x, long n, long v)
+_rfraccoef(GEN x, long n, long v)
 {
   GEN P,Q, p = gel(x,1), q = gel(x,2);
   long vp = gvar(p), vq = gvar(q);
   if (v < 0) v = varncmp(vp, vq) < 0? vp: vq;
   P = (vp == v)? p: swap_vars(p, v);
   Q = (vq == v)? q: swap_vars(q, v);
-  if (!RgX_is_monomial(Q)) pari_err_TYPE("polcoeff", x);
+  if (!RgX_is_monomial(Q)) pari_err_TYPE("polcoef", x);
   n += degpol(Q);
-  return gdiv(_polcoeff(P, n, v), leading_coeff(Q));
+  return gdiv(_polcoef(P, n, v), leading_coeff(Q));
 }
 
 GEN
-polcoeff_i(GEN x, long n, long v)
+polcoef_i(GEN x, long n, long v)
 {
-  switch(typ(x))
+  long tx = typ(x);
+  switch(tx)
   {
-    case t_POL: return _polcoeff(x,n,v);
-    case t_SER: return _sercoeff(x,n,v);
-    case t_RFRAC: return _rfraccoeff(x,n,v);
-    default: return n? gen_0: x;
+    case t_POL: return _polcoef(x,n,v);
+    case t_SER: return _sercoef(x,n,v);
+    case t_RFRAC: return _rfraccoef(x,n,v);
   }
+  if (!is_scalar_t(tx)) pari_err_TYPE("polcoef", x);
+  return n? gen_0: x;
 }
 
 /* with respect to the main variable if v<0, with respect to the variable v
-   otherwise. v ignored if x is not a polynomial/series. */
+ * otherwise. v ignored if x is not a polynomial/series. */
 GEN
-polcoeff0(GEN x, long n, long v)
+polcoef(GEN x, long n, long v)
 {
-  long lx, tx = typ(x);
-  pari_sp av;
-
-  if (is_scalar_t(tx)) return n? gen_0: gcopy(x);
-  av = avma;
-  switch(tx)
-  {
-    case t_POL: x = _polcoeff(x,n,v); break;
-    case t_SER: x = _sercoeff(x,n,v); break;
-    case t_RFRAC: x = _rfraccoeff(x,n,v); break;
-
-    case t_QFR: case t_QFI: case t_VEC: case t_COL: case t_MAT:
-      if (n < 1) pari_err_COMPONENT("polcoeff","<",gen_1,stoi(n));
-      lx = lg(x);
-      if (n >= lx) pari_err_COMPONENT("polcoeff",">",stoi(lx-1),stoi(n));
-      return gcopy(gel(x,n));
-
-    default: pari_err_TYPE("polcoeff", x);
-  }
+  pari_sp av = avma;
+  x = polcoef_i(x,n,v);
   if (x == gen_0) return x;
-  if (avma == av) return gcopy(x);
-  return gerepilecopy(av, x);
+  return (avma == av)? gcopy(x): gerepilecopy(av, x);
 }
 
 static GEN

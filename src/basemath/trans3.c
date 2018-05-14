@@ -1932,7 +1932,7 @@ twistpartialzeta(GEN q, long f, long c, GEN va, GEN cff)
   av2 = avma;
   for (k = 1; k <= N; k++)
   {
-    GEN p2, ak = polcoeff_i(Bx, k, 0);
+    GEN p2, ak = polcoef_i(Bx, k, 0);
     p2  = quicktrace(ak, psm);
     rep = modii(addii(rep, mulii(gel(cff, k), p2)), q);
     if (gc_needed(av2, 1))
@@ -2317,7 +2317,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       break;
     default:
       if (!(y = toser_i(x))) pari_err_TYPE("zetahurwitz", x);
-      x = y; rx = ground(polcoeff_i(x, 0, -1));
+      x = y; rx = ground(polcoef_i(x, 0, -1));
       if (typ(rx) != t_INT) pari_err_TYPE("zetahurwitz", x);
   }
   switch (typ(s))
@@ -2326,7 +2326,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     default:
       if (!(y = toser_i(s))) pari_err_TYPE("zetahurwitz", s);
       if (valp(y) < 0) pari_err_DOMAIN("zetahurwitz", "val(s)", "<", gen_0, s);
-      s0 = polcoeff_i(y, 0, -1);
+      s0 = polcoef_i(y, 0, -1);
       switch(typ(s0))
       {
         case t_INT: case t_REAL: case t_COMPLEX: case t_FRAC: break;
@@ -2370,7 +2370,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     C = gmul2n(gabs(C,LOWDEFAULTPREC), bitprec);
     C = gadd(gpow(C, ginv(gsubsg(k+1, ral)), LOWDEFAULTPREC),
              gabs(gsubsg(1,rx), LOWDEFAULTPREC));
-    C = gceil(polcoeff_i(C, 0, -1));
+    C = gceil(polcoef_i(C, 0, -1));
     if (typ(C) != t_INT) pari_err_TYPE("zetahurwitz",s);
     N = itos(gceil(C));
     if (N < 1) N = 1;

@@ -2543,7 +2543,7 @@ ser_cmp_expo(GEN A, GEN B)
     GEN a = gel(A,i), b;
     long ei;
     if (isexactzero(a)) continue;
-    b = polcoeff_i(B, i-2 + d, v);
+    b = polcoef_i(B, i-2 + d, v);
     ei = gexpo(a);
     if (!isexactzero(b)) ei -= gexpo(b);
     e = maxss(e, ei);

@@ -1160,7 +1160,7 @@ c_div_i(long n, GEN F, GEN G)
 {
   GEN VF, VG, a0, a0i, H;
   VF = mfcoefsser(F, n); VG = mfcoefsser(G, n);
-  a0 = polcoeff_i(VG, 0, -1);
+  a0 = polcoef_i(VG, 0, -1);
   if (gequal0(a0) || gequal1(a0)) a0 = a0i = NULL;
   else
   {
@@ -4364,7 +4364,7 @@ mflineardivtomat(long N, GEN vF, long n)
   if (ME) M = shallowconcat(ME,M);
   /* M = mfcoefs of BAS */
   f = mfcoefsser(gel(F,3),n);
-  a0 = polcoeff_i(f, 0, -1);
+  a0 = polcoef_i(f, 0, -1);
   if (gequal0(a0) || gequal1(a0))
     a0 = NULL;
   else
@@ -9641,7 +9641,7 @@ sertocol2(GEN S, long l)
 {
   GEN C = cgetg(l + 2, t_COL);
   long i;
-  for (i = 0; i <= l; i++) gel(C, i+1) = polcoeff_i(S, i, -1);
+  for (i = 0; i <= l; i++) gel(C, i+1) = polcoef_i(S, i, -1);
   return C;
 }
 

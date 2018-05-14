@@ -1250,7 +1250,7 @@ Fq_mat2col(GEN M, long d, long n)
   for (i=1; i<=d; i++)
     for (j=1; j<=d; j++)
       for (k=0; k<n; k++)
-        gel(C,n*(d*(i-1)+j-1)+k+1) = truecoeff(gcoeff(M,i,j),k);
+        gel(C,n*(d*(i-1)+j-1)+k+1) = polcoef_i(gcoeff(M,i,j),k,-1);
   return C;
 }
 

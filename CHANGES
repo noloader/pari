@@ -1,5 +1,15 @@
 Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
+Done for version 2.10.1 (released ??/??/2018):
+  Fixed
+  Changed
+      1- polcoeff is deprecated and renamed polcoef: it now only applies
+         to scalars, polynomials, series and rational functions; no longer to
+         vector/matrices or quadratic forms (use [] or "component").
+      2- [libpari] rename polcoeff0 -> polcoef, polcoeff_i -> polcoef_i,
+         truecoeff -> truecoef
+  Added
+
 Done for version 2.10.0 (released 15/05/2018):
   Fixed
       1- subst(1+x^3+O(x^6),x,x+O(x^4)) -> SEGV [#1865]

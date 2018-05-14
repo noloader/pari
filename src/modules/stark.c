@@ -1360,7 +1360,7 @@ InitPrimes(GEN bnr, ulong N0, LISTray *R)
   }
 }
 
-static GEN /* cf polcoeff */
+static GEN /* cf polcoef */
 _sercoeff(GEN x, long n)
 {
   long i = n - valp(x);

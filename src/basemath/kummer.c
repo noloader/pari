@@ -1110,8 +1110,8 @@ compute_polrel(GEN nfz, toK_s *T, GEN be, long g, long ell)
     C_Rk = mul_content(C_Rk, D); /* root^k = prim_Rk * C_Rk */
 
     /* Newton sum is ell * constant coeff (in X), which has degree 0 in T */
-    z = polcoeff_i(prim_Rk, 0, 0);
-    z = polcoeff_i(z      , 0,vT);
+    z = polcoef_i(prim_Rk, 0, 0);
+    z = polcoef_i(z      , 0,vT);
     z = downtoK(T, gmulgs(z, ell));
     if (C_Rk) z = gmul(z, C_Rk);
     gerepileall(av, C_Rk? 3: 2, &z, &prim_Rk, &C_Rk);

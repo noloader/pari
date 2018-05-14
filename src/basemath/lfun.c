@@ -1501,7 +1501,7 @@ der_level(GEN s)
 
 /* s a t_SER; return coeff(s, X^0) */
 static GEN
-ser_coeff0(GEN s) { return simplify_shallow(polcoeff_i(s, 0, -1)); }
+ser_coeff0(GEN s) { return simplify_shallow(polcoef_i(s, 0, -1)); }
 
 static GEN
 get_domain(GEN s, GEN *dom, long *der)

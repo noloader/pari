@@ -2468,7 +2468,7 @@ to find the remainder of the characteristic polynomial of \kbd{u2} divided by
 coefficients, and we know that \kbd{u2}, being a root of both polynomials,
 is the root of \kbd{r}, hence can be obtained by typing
 \bprog
-  u2 = -polcoeff(r,0) / polcoeff(r,1)
+  u2 = -polcoef(r,0) / polcoef(r,1)
 @eprog\noindent There is an important technicality in the above: why did we
 need to substitute \kbd{NF} to \kbd{nf}? The reason is that data related to
 \kbd{nf} is given in terms of the variable \kbd{x}, seen modulo \kbd{nf.pol};

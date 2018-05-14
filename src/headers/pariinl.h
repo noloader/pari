@@ -2001,7 +2001,7 @@ lgcols(GEN x) { return lg(gel(x,1)); }
 INLINE long
 nbrows(GEN x) { return lg(gel(x,1))-1; }
 INLINE GEN
-truecoeff(GEN x, long n) { return polcoeff0(x,n,-1); }
+truecoef(GEN x, long n) { return polcoef(x,n,-1); }
 
 INLINE GEN
 ZXQ_mul(GEN y, GEN x, GEN T) { return ZX_rem(ZX_mul(y, x), T); }

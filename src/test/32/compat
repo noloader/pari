@@ -493,9 +493,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: coeff(x,s) ===> polcoeff(x,s)
 
-polcoeff(x,n,{v}): coefficient of degree n of x, or the n-th component for 
-vectors or matrices (for which it is simpler to use x[]). With respect to the 
-main variable if v is omitted, with respect to the variable v otherwise.
+polcoeff(x,n,{v}): deprecated alias for polcoef.
 
 
   ***   at top-level: compimag()
@@ -4524,4 +4522,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 13

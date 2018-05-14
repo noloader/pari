@@ -280,45 +280,45 @@ error("non-existent component: index > 5")
 error("incorrect type in component [leaf] (t_STR).")
 error("non-existent component: index > 3")
 error("non-existent component: index > 2")
-(x)->polcoeff(x,-1)
+(x)->polcoef(x,-1)
 0
 0
 1
 0
 0
-error("non-existent component in polcoeff: index < 1")
-error("incorrect type in polcoeff (t_VECSMALL).")
-error("incorrect type in polcoeff (t_LIST).")
-error("incorrect type in polcoeff (t_LIST).")
-error("incorrect type in polcoeff (t_STR).")
-error("non-existent component in polcoeff: index < 1")
-error("incorrect type in polcoeff (t_ERROR).")
-(x)->polcoeff(x,2)
+error("incorrect type in polcoef (t_VEC).")
+error("incorrect type in polcoef (t_VECSMALL).")
+error("incorrect type in polcoef (t_LIST).")
+error("incorrect type in polcoef (t_LIST).")
+error("incorrect type in polcoef (t_STR).")
+error("incorrect type in polcoef (t_MAT).")
+error("incorrect type in polcoef (t_ERROR).")
+(x)->polcoef(x,2)
 0
 0
 0
 3
 2
-2
-error("incorrect type in polcoeff (t_VECSMALL).")
-error("incorrect type in polcoeff (t_LIST).")
-error("incorrect type in polcoeff (t_LIST).")
-error("incorrect type in polcoeff (t_STR).")
-[2, 4]~
-error("incorrect type in polcoeff (t_ERROR).")
-(x)->polcoeff(x,10)
+error("incorrect type in polcoef (t_VEC).")
+error("incorrect type in polcoef (t_VECSMALL).")
+error("incorrect type in polcoef (t_LIST).")
+error("incorrect type in polcoef (t_LIST).")
+error("incorrect type in polcoef (t_STR).")
+error("incorrect type in polcoef (t_MAT).")
+error("incorrect type in polcoef (t_ERROR).")
+(x)->polcoef(x,10)
 0
 0
 0
 0
-error("domain error in polcoeff: degree > 2")
-error("non-existent component in polcoeff: index > 2")
-error("incorrect type in polcoeff (t_VECSMALL).")
-error("incorrect type in polcoeff (t_LIST).")
-error("incorrect type in polcoeff (t_LIST).")
-error("incorrect type in polcoeff (t_STR).")
-error("non-existent component in polcoeff: index > 3")
-error("incorrect type in polcoeff (t_ERROR).")
+error("domain error in polcoef: degree > 2")
+error("incorrect type in polcoef (t_VEC).")
+error("incorrect type in polcoef (t_VECSMALL).")
+error("incorrect type in polcoef (t_LIST).")
+error("incorrect type in polcoef (t_LIST).")
+error("incorrect type in polcoef (t_STR).")
+error("incorrect type in polcoef (t_MAT).")
+error("incorrect type in polcoef (t_ERROR).")
 0
 O(x^2)
 1 + x + O(x^2)

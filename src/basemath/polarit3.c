@@ -1545,7 +1545,7 @@ swap_vars(GEN b0, long v)
   if (n < 0) return pol_0(v);
   b = cgetg(n+3, t_POL); x = b + 2;
   b[1] = evalsigne(1) | evalvarn(v);
-  for (i=0; i<=n; i++) gel(x,i) = polcoeff_i(b0, i, v);
+  for (i=0; i<=n; i++) gel(x,i) = polcoef_i(b0, i, v);
   return b;
 }
 

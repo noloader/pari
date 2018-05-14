@@ -65,6 +65,9 @@ This file lists the incompatible changes between Version 2.x and older versions
   - merged algdecomposition + algsimpledec -> algsimpledec
   - ellmoddegree now only returns the modular degree D (divided by c^2), not
     [D, err]
+  - polcoeff is deprecated and renamed polcoef: it now only applies
+    to scalars, polynomials, series and rational functions; no longer to
+    vector/matrices or quadratic forms (use [] or "component").
 
 * Specific to the PARI library:
 ===============================
@@ -92,7 +95,8 @@ This file lists the incompatible changes between Version 2.x and older versions
     is non-negative
   - rename diviu_rem -> absdiviu_rem, udiviu_rem -> uabsdiviu_rem,
     udivui_rem -> uabsdivui_rem
-
+  - rename polcoeff0 -> polcoef, truecoeff -> truecoef, polcoeff_i -> polcoef_i
+f
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.8 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   - removed useless function sumnumalt: use sumalt

@@ -11863,10 +11863,12 @@ are automatically primitive.
 
 \section{Polynomials}\label{se:polynomials}
 
-\fun{GEN}{truecoeff}{GEN x, long n} returns \kbd{polcoeff0(x,n, -1)}, i.e.
-the coefficient of the term of degree \kbd{n} in the main variable.
+\fun{GEN}{truecoef}{GEN x, long n} returns \kbd{polcoef(x,n, -1)}, i.e.
+the coefficient of the term of degree \kbd{n} in the main variable. This is
+a safe but expensive function that must \emph{copy} its return value so that
+it be \kbd{gerepile}-safe. Use \kbd{polcoef\_i} for a fast internal variant.
 
-\fun{GEN}{polcoeff_i}{GEN x, long n, long v} internal shallow function. Rewrite
+\fun{GEN}{polcoef_i}{GEN x, long n, long v} internal shallow function. Rewrite
 $x$ as a Laurent polynomial in the variable $v$ and returns its coefficient
 of degree $n$ (\kbd{gen\_0} if this falls outside the coefficient array).
 Allow \typ{POL}, \typ{SER}, \typ{RFRAC} and scalars.
@@ -11941,8 +11943,10 @@ with respect to its main variable.
 \fun{GEN}{integser}{GEN x} returns the primitive of the \typ{SER} \kbd{x}
 with respect to its main variable.
 
-\fun{GEN}{truecoeff}{GEN x, long n} returns \kbd{polcoeff0(x,n, -1)}, i.e.
-the coefficient of the term of degree \kbd{n} in the main variable.
+\fun{GEN}{truecoef}{GEN x, long n} returns \kbd{polcoef(x,n, -1)}, i.e.
+the coefficient of the term of degree \kbd{n} in the main variable. This is a
+safe but expensive function that must \emph{copy} its return value so that it
+be \kbd{gerepile}-safe. Use \kbd{polcoef\_i} for a fast internal variant.
 
 \fun{GEN}{ser_unscale}{GEN P, GEN h} return $P(h x)$, not memory clean.
 
