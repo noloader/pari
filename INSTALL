@@ -17,4 +17,5 @@ in particular
 
   elldata: Cremona's Elliptic Curve Data, needed by ellsearch and ellidentify; 
   galdata: needed by polgalois to compute Galois group in degrees 8 through 11; 
+  galpol: a database of Galois polynomials for galoisgetpol
   seadata: allow ellcard(E) for large finite fields.

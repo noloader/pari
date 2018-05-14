@@ -57,7 +57,7 @@ Misc:
 3  add a 'variable' as an optional last argument in content, denominator,
    numerator, as is done in divrem (cf. 2.6.2)
 
-3  remove all dependencies on types ordering [if (typ(x) < t_POL) ...]
+2  remove all dependencies on types ordering [if (typ(x) < t_POL) ...]
 
 2  rename library functions following GP names
 

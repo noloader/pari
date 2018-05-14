@@ -1,7 +1,169 @@
 This file highlights some of the novelties in PARI/GP 2.x compared to 1.39.15
 (last release in the 1.x series). The detailed Changelog is in CHANGES.
-Incompatible changes are described in COMPAT. See TODO for possible future
-improvements.
+Incompatible changes are described in COMPAT.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.10 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[The GP language]
+  - new iterators: forperm (over permutations), forsubset (over subsets),
+    forfactored/fordivfactored (over integers/divisors in factored form),
+    forsquarefree (over squarefree integers), forprimestep (over primes in
+    arithmetic progressions). We also allow forstep(a,b, Mod(c,q), ...)
+  - new interface for handling files: fileclose, fileextern, fileflush,
+    fileopen fileread, filereadstr, filewrite, filewrite1. Orders of magnitude
+    faster than read / write for small incremental I/O operations
+  - allow \r "foo bar" to allow filenames containing spaces (quotes around
+    file names are optional; also for \l and \w).
+  - new function printp to print matrices in 2-D as output by gp
+    [ existed in 2.5 with a different meaning: "pretty" format ]
+  - default(echo, 2): print lines as is, including whitespace and comments
+
+[Multiprecision Kernel]
+  - new function exponent()
+  - new function log1p(x) = log(1+x) accurate near 0
+  - improvements to sqrtn, log, lngamma, expm1
+
+[Numerical summation and integration]
+  - derivnum: allow order k derivatives
+   ? derivnum(x = 0, exp(sin(x)), 16) \\ 16-th derivative
+   %1 = -52635599.000000000000000000000000000000
+  - new numerical summation functions: sumnumap / sumnumapinit (Abel-Plana),
+    sumnumlagrange / sumnulagrangeinit (Lagrange)
+  - new functions prodeulerrat, sumeulerrat, sumnumrat, prodnumrat for
+    numerical summation/product of rational functions at integers or primes
+  - intnum: allow power series as limits for the integration interval
+  - new function laurentseries
+
+[Combinatorics]
+  - new functions permorder (order of a permutation), permsign (signature)
+  - binomial(n): vector of all binomial(n, k) 0 <= k <= n
+  - new function vecprod = prod(i = 1, #v, v[i]) using product tree
+  - new function matpermanent
+
+[Elementary Number Theory]
+  - ECPP primality proof: primecert, primecertexport, primecertisvalid; also
+    used by isprime()
+  - new function divisorslenstra (divisors in residue classes)
+  - new functions to manipulate Abelian characters
+      * general characters: chargalois (Galois orbits), charpow (chi^n),
+      * Dirichlet characters: znchar (convert datum to Dirichlet character)
+        znchargauss (complex Gauss sum), zncharconductor, znchartoprimitive,
+        znchardecompose (chi mod N = chi_Q chi_N/Q),
+  - issquarefree / isfundamental / quaddisc: allow integers in factored form
+  - fast chinese remainder, fast multimodular reduction (reduce integer N mod
+    p1, ..., pk)
+  - optional flag to 'divisors' (include factorization)
+
+[Finite fields]
+  - new interface to handle maps between finite fields: ffmap (evaluate a map),
+    ffinvmap (invert a map), ffcompomap (compose maps), ffextend (create a map
+    from K to K[t]/(T)), ffembed(a,b) (create a map from k(a) to k(b)),
+    fffrobenius (create Frobenius as a map)
+  - parallel znlog/fflog over large prime fields and fields of
+    characteristic <= 5
+
+[Polynomials]
+  - new interface to factorization and root finding over finite fields;
+    extend factormod(f, D) for general finite fields: D = p prime [over Fp],
+    D = [T,p] (over Fp[x]/(T)) D a t_FFELT (over attached Fq), or omited
+    [over field of definition of f]. Same for polrootsmod.
+  - new functions factormodSQF (squarefree factorization), factormodDDF
+    (distinct degree factorization)
+  - new function polrootsbound (sharp upper bound for complex roots)
+
+[Linear Algebra]
+  - Linear algebra over Z/NZ: matdetmod, matimagemod, matinvmod, matkermod,
+    matsolvemod (also makes matrixqz(,-1 or- 2) an order of magnitude faster)
+  - new modular implementation of linear algebra over Z and cyclotomic rings
+  - asymptotically fast linear algebra over finite fields, using CUP
+    decomposition
+  - allow matsolve(M,b) when M is only left-invertible
+
+[Elliptic curves]
+  - E/Qp now allowed in ellap, ellcard, ellgroup, ellissupersingular
+    [these four now also allow models which are not p-integral],
+    ellintegralmodel, ellpadicfrobenius, ellpadics2 (now allows curve with
+    multiplicative reduction), elllocalred
+  - extend support for curves over number fields: ellheight, ellrootno,
+    ellpointtoz, E.omega, E.eta, E.area, ellgroup(E, P) (P maximal ideal),
+    ellisomat [E without CM].
+  - new functions elltamagawa, ellbsd, ellpadicbsd, ellpadicregulator,
+    ellweilcurve, ellminimaldisc
+  - new functions ellratpoints and hyperellratpoints based on
+    Michael Stoll 'ratpoints'.
+
+[Spaces of Modular Forms] New package; see ??14 and ??tutorial-mf
+      getcache         lfunmf          mfDelta           mfEH
+      mfEk             mfTheta         mfatkin           mfatkineigenvalues
+      mfatkininit      mfbasis         mfbd              mfbracket
+      mfcoef           mfcoefs         mfconductor       mfcosets
+      mfcuspisregular  mfcusps         mfcuspval         mfcuspwidth
+      mfderiv          mfderivE2       mfdescribe        mfdim
+      mfdiv            mfeigenbasis    mfeigensearch     mfeisenstein
+      mfembed          mfeval          mffields          mffromell
+      mffrometaquo     mffromlfun      mffromqf          mfgaloistype
+      mfhecke          mfheckemat      mfinit            mfisCM
+      mfisequal        mfkohnenbasis   mfkohnenbijection mfkohneneigenbasis
+      mflinear         mfmanin         mfmul             mfnumcusps
+      mfparams         mfperiodpol     mfperiodpolbasis  mfpetersson
+      mfpow            mfsearch        mfshift           mfshimura
+      mfslashexpansion mfspace         mfsplit           mfsturm
+      mfsymbol         mfsymboleval    mftaylor          mftobasis
+      mftocoset        mftonew         mftraceform       mftwist
+
+[Modular symbols & p-adic L functions]
+  - the package now supports level N = 1
+  - new functions msdim (dimension), mslattice (canonical integral structure),
+    mspetersson (intersection product), mspolygon (hyperbolic polygon / Farey
+    symbol attached to Gamma_0(N))
+  - msfromell: use a much faster modular algorithm, allow a vector
+    of isogenous curves
+  - allow mssplit(M) by itself, splits msnew(M) by default
+
+[Complex L-functions]
+  - lfuncreate: allow specifying an arbitrary growth rate a(n) << n^(c + eps)
+    [by default, assume Ramanujan-Petersson]
+  - new functions lfuntwist (twist by Dirichlet character), lfunsympow
+    (symmetric power)
+  - allow zeta(power series)
+  - new function zetahurwitz (complex or p-adic inputs)
+  - new function zetamultall (all MZV of bounded weight), zetamultinit,
+    zetamultconvert
+
+[Number Fields]
+  - new functions nfeltembed (complex embeddings), nfeltsign (signs of real
+    embeddings), nfpolsturm (number of real roots of s(T) for T in K[X] and
+    s a real embedding of K), bestapprnf (algdep for a known number field),
+    idealispower (I = J^n ?), idealredmodpower (reduce mod n-th powers)
+    poldiscfactors (fast partial factorisation of poldisc(T)),
+  - new functions to handle representations of galoisinit G:
+    galoisconjclasses (conjugacy classes of G), galoischartable (character
+    table), galoischarpoly (characteristic polynomial of representation),
+    galoischardet (determinant).
+  - bnrinit(,,1) [include generators] is no longer necessary for bnrL1,
+    bnrconductor, bnrrootnumber, bnrstark, rnfkummer, galoissubcyclo
+  - faster nfgaloismatrix / nfgaloisapply(nf,s, ideal)
+  - change rnfpolredabs so that it outputs a canonical polynomial.
+    As a result, the function is no longer Obsolete.
+  - optional argument to idealfactor [limit factorization]
+
+[Associative and central simple algebras]
+  - new functions alggroupcenter (Z(K[G])), algmakeintegral (integral
+    multiplication table), algsplit (isomorphism between A/F_p and a matrix
+    algebra M_d(F_p^n), where dim A = n*d^2)
+  - new functions to handle full lattices: alglatadd, alglatcontains,
+    alglatelement, alglathnf, alglatindex, alglatinter,
+    alglatlefttransporter, alglatmul, alglatrighttransporter, alglatsubset
+
+[Graphics]
+  - new functions plotexport / plothexport (support PostScript and SVG formats)
+    The functions psdraw, psploth and psplothraw and the default 'psfile'
+    are obsolete: use one of plotexport, plothexport or plothrawexport
+    with format "ps" and write the result to file.
+  - graph/plotport.c is now part of libpari
+  - plotcolor(w, col) now allows color names (t_STR), [R,G,B] values
+    or "#RRGGBB" hex triplet; returns the [R,G,B] value attached to c
+  - allow plotdraw(w) for plotdraw([w,0,0])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.9 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
