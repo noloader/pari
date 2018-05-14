@@ -30,4 +30,7 @@ Doc:
  must be omitted or an error is raised. Otherwise, if $n$ is given, $0$
  entries are appended at the end of the vector if $n > 0$, and prepended at
  the beginning if $n < 0$. The dimension of the resulting vector is $|n|$.
+
+ See ??Vec for examples.
+
 Variant: \fun{GEN}{gtocol}{GEN x} is also available.
