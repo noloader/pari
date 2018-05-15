@@ -339,7 +339,7 @@ check_kernel(long r, GEN M, long nbi, long nbrow, GEN T, ulong p, GEN m)
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
   while (signe(gel(K,u))==0)
-   u++;
+    u++;
   K = FpC_Fp_mul(K, Fp_inv(gel(K, u), m), m);
   g = Flxq_pow(cindex_Flx(u, r, p, T[1]), idx, T, p);
   setlg(K, N);
