@@ -380,7 +380,7 @@ $A$ is a general associative algebra given by a multiplication table \var{mt}
 \li{is $(\var{mt},p)$ OK for algtableinit?}
    {algisassociative$(\var{mt},\{p=0\})$}
 \li{multiplication table \var{mt}}{algmultable$(\var{al})$}
-\li{dimension of $A$ over prime subfield}{algabsdim$(\var{al})$}
+\li{dimension of $A$ over prime subfield}{algdim$(\var{al})$}
 \li{characteristic of $A$}{algchar$(\var{al})$}
 \li{is $A$ commutative?}{algiscommutative$(\var{al})$}
 \li{is $A$ simple?}{algissimple$(\var{al})$}
@@ -454,8 +454,9 @@ $A$ is a central simple algebra over a number field $K$; represented by
 \smallskip
 \subsec{Properties}
 \li{type of \var{al} (\var{mt}, CSA)}{algtype$(\var{al})$}
-\li{dimension of \var{al} over its center}{algdim$(\var{al})$}
-\li{degree of $A$ ($=\sqrt{\dim}$)}{algdegree$(\var{al})$}
+\li{dimension of $A$ over~$\QQ$}{algdim$(\var{al},1)$}
+\li{dimension of \var{al} over its center~$K$}{algdim$(\var{al})$}
+\li{degree of $A$ ($=\sqrt{\dim_K}$)}{algdegree$(\var{al})$}
 \li{\var{al} a cyclic algebra $(L/K,\sigma,b)$; return $\sigma$}
    {algaut$(\var{al})$}
 \li{\dots return $b$}{algb$(\var{al})$}
