@@ -63,6 +63,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - algleftmultable now always returns the multiplication table on the
     integral basis
   - merged algdecomposition + algsimpledec -> algsimpledec
+  - merged algabsdim + algdim -> algdim
   - ellmoddegree now only returns the modular degree D (divided by c^2), not
     [D, err]
   - polcoeff is deprecated and renamed polcoef: it now only applies
