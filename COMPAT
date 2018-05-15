@@ -64,6 +64,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     integral basis
   - merged algdecomposition + algsimpledec -> algsimpledec
   - merged algabsdim + algdim -> algdim
+  - merged algleftmultable + algtomatrix -> algtomatrix
   - ellmoddegree now only returns the modular degree D (divided by c^2), not
     [D, err]
   - polcoeff is deprecated and renamed polcoef: it now only applies

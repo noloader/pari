@@ -594,6 +594,7 @@ BA   90- ellmoddegree: return only the modular degree, do not depend on current
          precision.
      91- polsturm: allow non-squarefree polynomials (count distinct roots)
 AP   92- merge algdim + algdim -> algdim(,{abs=0})
+AP   93- merge algleftmultable + algtomatrix -> algtomatrix(,{abs=0})
 
   Removed
       1- file 'MACHINES' (no longer maintained)

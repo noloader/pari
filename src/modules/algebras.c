@@ -2373,7 +2373,7 @@ algleftmultable_mat(GEN al, GEN M)
 }
 
 /* left multiplication table on integral basis */
-GEN
+static GEN
 algleftmultable(GEN al, GEN x)
 {
   pari_sp av = avma;
@@ -2407,19 +2407,21 @@ algbasissplittingmatrix_csa(GEN al, GEN x)
 }
 
 GEN
-algtomatrix(GEN al, GEN x)
+algtomatrix(GEN al, GEN x, long abs)
 {
   pari_sp av = avma;
   GEN res = NULL;
-  long tx, i, j;
+  long ta, tx, i, j;
   checkalg(al);
+  ta = alg_type(al);
+  if (abs || ta==al_TABLE) return algleftmultable(al,x);
   tx = alg_model(al,x);
   if (tx==al_MATRIX) {
     if (lg(x) == 1) return cgetg(1, t_MAT);
     res = zeromatcopy(nbrows(x),lg(x)-1);
     for (j=1; j<lg(x); j++)
     for (i=1; i<lgcols(x); i++)
-      gcoeff(res,i,j) = algtomatrix(al,gcoeff(x,i,j));
+      gcoeff(res,i,j) = algtomatrix(al,gcoeff(x,i,j),0);
     res = shallowmatconcat(res);
   }
   else switch(alg_type(al))
@@ -2598,7 +2600,7 @@ static GEN
 algredcharpoly_i(GEN al, GEN x, long v)
 {
   GEN rnf = alg_get_splittingfield(al);
-  GEN cp = charpoly(algtomatrix(al,x),v);
+  GEN cp = charpoly(algtomatrix(al,x,0),v);
   long i, m = lg(cp);
   for (i=2; i<m; i++) gel(cp,i) = rnfeltdown(rnf, gel(cp,i));
   return cp;
@@ -2802,7 +2804,7 @@ algnorm(GEN al, GEN x, long abs)
       else
       {
         rnf = alg_get_splittingfield(al);
-        res = rnfeltdown(rnf, det(algtomatrix(al,x)));
+        res = rnfeltdown(rnf, det(algtomatrix(al,x,0)));
         break;
       }
     case al_TABLE:

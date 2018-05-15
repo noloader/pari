@@ -1720,15 +1720,12 @@ testing simplify: quatalg csa over Q
   ***   at top-level: algmul(almt,a,b)
   ***                 ^----------------
   *** algmul: incorrect type in alg_model (t_COL).
-  ***   at top-level: algleftmultable(almt,a)
-  ***                 ^-----------------------
-  *** algleftmultable: incorrect type in alg_model (t_COL).
+  ***   at top-level: algtomatrix(almt,a,1)
+  ***                 ^---------------------
+  *** algtomatrix: incorrect type in alg_model (t_COL).
   ***   at top-level: alginv(almt,a)
   ***                 ^--------------
   *** alginv: incorrect type in alg_model (t_COL).
-  ***   at top-level: algtomatrix(almt,[0,0,0,0]~)
-  ***                 ^----------------------------
-  *** algtomatrix: domain error in algtomatrix: alg_type(al) = 1
   ***   at top-level: algalgtobasis(almt,a)
   ***                 ^---------------------
   *** algalgtobasis: incorrect type in algalgtobasis [use alginit] (t_VEC).
@@ -1768,9 +1765,9 @@ testing simplify: quatalg csa over Q
   ***   at top-level: alginv(almt,m)
   ***                 ^--------------
   *** alginv: inconsistent dimensions in alginv_i (nonsquare).
-  ***   at top-level: algleftmultable(almt,m)
-  ***                 ^-----------------------
-  *** algleftmultable: inconsistent dimensions in algleftmultable_mat (nonsquare).
+  ***   at top-level: algtomatrix(almt,m,1)
+  ***                 ^---------------------
+  *** algtomatrix: inconsistent dimensions in algleftmultable_mat (nonsquare).
   ***   at top-level: algpow(almt,m,3)
   ***                 ^----------------
   *** algpow: inconsistent dimensions in alM_mul.
@@ -2419,4 +2416,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
   *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-Total time spent: 1408
+Total time spent: 1412
