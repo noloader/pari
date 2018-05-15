@@ -67,7 +67,7 @@ checklat_i(GEN al, GEN lat)
   if (gsigne(t)<=0) return 0;
   m = gel(lat,1);
   if (typ(m) != t_MAT) return 0;
-  N = algabsdim(al);
+  N = alg_get_absdim(al);
   if (lg(m)-1 != N || lg(gel(m,1))-1 != N) return 0;
   for (i=1; i<=N; i++)
     for (j=1; j<=N; j++) {
@@ -114,9 +114,6 @@ alg_get_dim(GEN al)
   }
   return -1; /*LCOV_EXCL_LINE*/
 }
-long
-algdim(GEN al)
-{ checkalg(al); return alg_get_dim(al); }
 
 long
 alg_get_absdim(GEN al)
@@ -130,9 +127,14 @@ alg_get_absdim(GEN al)
   }
   return -1;/*LCOV_EXCL_LINE*/
 }
+
 long
-algabsdim(GEN al)
-{ checkalg(al); return alg_get_absdim(al); }
+algdim(GEN al, long abs)
+{
+  checkalg(al);
+  if (abs) return alg_get_absdim(al);
+  return alg_get_dim(al);
+}
 
 /* only cyclic */
 GEN
@@ -4977,7 +4979,7 @@ alglatmul(GEN al, GEN lat1, GEN lat2)
     else /* typ(lat2)!=t_COL */
     {
       checklat(al,lat2);
-      N = algabsdim(al);
+      N = alg_get_absdim(al);
       m1 = alglat_get_primbasis(lat1);
       m2 = alglat_get_primbasis(lat2);
       dp = mulii(ZM_det_triangular(m1), ZM_det_triangular(m2));

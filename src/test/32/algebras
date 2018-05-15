@@ -1699,9 +1699,9 @@ testing simplify: quatalg csa over Q
   ***   at top-level: algdim([1,[1],0,0,0,0,0,0,0,0])
   ***                 ^-------------------------------
   *** algdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
-  ***   at top-level: algabsdim([1,[1],0,0,0,0,0,0,0,0])
-  ***                 ^----------------------------------
-  *** algabsdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
+  ***   at top-level: algdim([1,[1],0,0,0,0,0,0,0,0],1)
+  ***                 ^---------------------------------
+  *** algdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
   ***   at top-level: algtensor(al,al2)
   ***                 ^-----------------
   *** algtensor: incorrect type in checkalg [please apply alginit()] (t_VEC).
@@ -2413,4 +2413,4 @@ x^2 + Mod(-17, y)
   *** algpoleval: incorrect type in algpoleval (t_MAT).
 1
 1
-Total time spent: 1416
+Total time spent: 1436

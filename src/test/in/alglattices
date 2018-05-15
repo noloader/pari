@@ -42,7 +42,7 @@ lat = alglathnf(al,matconcat([7*mt/2,7*mtb/2]),21/2);
 print(lat==[1,7/2]);
 lat1 = alglathnf(al,a);
 lat2 = alglathnf(al,c);
-N = algabsdim(al);
+N = algdim(al,1);
 lat3 = [11*matid(N),1];
 lat4 = [3*matid(N),1];
 print(alglatinter(al,lat3,lat4) == [matid(N),33]);
