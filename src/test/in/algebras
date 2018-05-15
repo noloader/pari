@@ -2326,3 +2326,10 @@ algpoleval(al,pol,a)==0
 ma = algleftmultable(al,a);
 algpoleval(al,pol,[a,ma])==0
 
+\\not implemented
+al = algtableinit([Mat(1)]);
+al2 = algtensor(al,al);
+al = algtableinit([Mat(1)],2);
+al2 = algtensor(al,al);
+
+

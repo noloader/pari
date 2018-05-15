@@ -3768,8 +3768,7 @@ checkhasse(GEN nf, GEN hf, GEN hi, long n)
   Lh = gel(hf,2);
   if (typ(Lpr) != t_VEC) pari_err_TYPE("checkhasse [Lpr]", Lpr);
   if (typ(Lh) != t_VECSMALL) pari_err_TYPE("checkhasse [Lh]", Lh);
-  if (typ(hi) != t_VECSMALL)
-    pari_err_TYPE("checkhasse [hi]", hi);
+  if (typ(hi) != t_VECSMALL) pari_err_TYPE("checkhasse [hi]", hi);
   if ((nf && lg(hi) != nf_get_r1(nf)+1))
     pari_err_DOMAIN("checkhasse [hi should have r1 components]","#hi","!=",stoi(nf_get_r1(nf)),stoi(lg(hi)-1));
   if (lg(Lpr) != lg(Lh))

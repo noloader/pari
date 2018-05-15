@@ -2413,4 +2413,10 @@ x^2 + Mod(-17, y)
   *** algpoleval: incorrect type in algpoleval (t_MAT).
 1
 1
-Total time spent: 1436
+  ***   at top-level: al2=algtensor(al,al)
+  ***                     ^----------------
+  *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
+  ***   at top-level: al2=algtensor(al,al)
+  ***                     ^----------------
+  *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
+Total time spent: 1408
