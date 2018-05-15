@@ -14,7 +14,7 @@ Doc: Given an element $b$ in \var{al} and a polynomial $T$ in $K[X]$,
  ? pol = algcharpoly(al,b,,1);
  ? algpoleval(al,pol,b)==0
  %5 = 1
- ? mb = algleftmultable(al,b);
+ ? mb = algtomatrix(al,b,1);
  ? algpoleval(al,pol,[b,mb])==0
  %7 = 1
  @eprog

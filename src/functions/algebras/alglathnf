@@ -14,7 +14,7 @@ Doc: Given an algebra \var{al} and a matrix \var{m} with columns representing
  \bprog
  ? al = alginit(nfinit(y^2+7), [-1,-1]);
  ? a = [1,1,-1/2,1,1/3,-1,1,1]~;
- ? mt = algleftmultable(al,a);
+ ? mt = algtomatrix(al,a,1);
  ? lat = alglathnf(al,mt);
  ? lat[2]
  %5 = 1/6
