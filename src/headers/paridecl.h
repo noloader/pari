@@ -2359,14 +2359,14 @@ GEN gen_select_order(GEN o, void *E, const struct bb_group *grp);
 
 GEN gen_plog(GEN x,GEN g0,GEN q, void *E, const struct bb_group *grp);
 GEN gen_pow(GEN x, GEN n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN));
-GEN gen_pow_i(GEN x, GEN n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN));
 GEN gen_pow_fold(GEN x, GEN n, void *E, GEN (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
 GEN gen_pow_fold_i(GEN x, GEN n, void *E, GEN (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
+GEN gen_pow_i(GEN x, GEN n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN));
 GEN gen_powers(GEN x, long l, int use_sqr, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN), GEN (*one)(void*));
 GEN gen_powu(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN));
-GEN gen_powu_i(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN));
 GEN gen_powu_fold(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
 GEN gen_powu_fold_i(GEN x, ulong n, void *E, GEN  (*sqr)(void*,GEN), GEN (*msqr)(void*,GEN));
+GEN gen_powu_i(GEN x, ulong n, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(void*,GEN,GEN));
 GEN gen_product(GEN x, void *data, GEN (*mul)(void*,GEN,GEN));
 
 /* bb_hnf.c */
