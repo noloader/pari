@@ -33,8 +33,6 @@ Kernel:
 
 2  implement Mulders/Hanrot-Zimmermann Karatsuba short product t_REAL * t_REAL
 
-2  benchmark / profile basic functions and see what needs to be done
-
 2  inline level0 routines should operate on _limbs_, not on words.
 
 2  FFT for basic types and polynomials (say in A[X], for A = Z, F_q, ...)
