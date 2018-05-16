@@ -8,6 +8,7 @@ Done for version 2.10.1 (released ??/??/2018):
          vector/matrices or quadratic forms (use [] or "component").
       2- [libpari] rename polcoeff0 -> polcoef, polcoeff_i -> polcoef_i,
          truecoeff -> truecoef
+      3- t_LIST corrupted on writebin / read [#2040]
   Added
       1- [libpari] denom_i, numer_i
 

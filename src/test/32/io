@@ -4,6 +4,7 @@
 setting x
 setting y
 y
+List([])
 2
 ["1+1"]
 1:1

@@ -2110,6 +2110,7 @@ shiftaddress_canon(GEN x, long dec)
         shiftaddress_canon(L, dec);
         list_data(x) = list_internal_copy(L, lg(L)); avma = av;
       }
+      break;
     }
     default:
       lx = lg(x);
