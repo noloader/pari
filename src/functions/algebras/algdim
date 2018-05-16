@@ -5,8 +5,8 @@ Prototype: lGD0,L,
 Help: algdim(al,{abs=0}): dimension of the algebra al.
 Doc: If \var{al} is a table algebra output by \tet{algtableinit} or if~$abs=1$,
  returns the dimension of \var{al} over its prime subfield ($\Q$ or $\F_p$).
- If~\var{al} is a central simple algebra output by \tet{alginit}, returns
- the dimension of \var{al} over its center
+ If~\var{al} is a central simple algebra output by \tet{alginit} and~$abs=0$,
+ returns the dimension of \var{al} over its center.
 
  \bprog
  ? nf = nfinit(y^3-y+1);
