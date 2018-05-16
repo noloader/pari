@@ -2328,7 +2328,7 @@ GEN
 Flx_factor(GEN f, ulong p)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, Flx_factor_i(f,p,0));
+  return gerepilecopy(av, Flx_factor_i(Flx_normalize(f,p),p,0));
 }
 GEN
 F2x_factor(GEN f)
