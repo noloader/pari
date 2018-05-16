@@ -10,6 +10,7 @@
 1234567891012345678
 1234567891012345678
 12345678910
+2739979050900541
 1234567891012345
 123456789101
 1
@@ -25,4 +26,4 @@ error("incorrect type in generic discrete logarithm (order factorization) (t
 _INT).")
 error("incorrect type in factorback [not a factorization] (t_MAT).")
 error("incorrect type in factorback [not an exponent vector] (t_COL).")
-Total time spent: 4728
+Total time spent: 2948
