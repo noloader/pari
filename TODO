@@ -44,8 +44,6 @@ Misc:
 -  add an optional argument to content, denominator, numerator to specify
    the main variable
 
-2  decent (non-prime) finite field package [ esp. in small characteristic ]
-
 2  rnfkummer (non-prime degree)
 
 2  nfsubfields [use known subfields to discard blocs right away]
