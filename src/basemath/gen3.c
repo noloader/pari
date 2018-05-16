@@ -3241,6 +3241,21 @@ vecdenom(GEN v, long imin, long imax)
   }
   return s;
 }
+static GEN denompol(GEN x, long v);
+static GEN
+vecdenompol(GEN v, long imin, long imax, long vx)
+{
+  long i = imin;
+  GEN s;
+  if (imin > imax) return gen_1;
+  s = denompol(gel(v,i), vx);
+  for (i++; i<=imax; i++)
+  {
+    GEN t = denompol(gel(v,i), vx);
+    if (t != gen_1) s = glcm(s,t);
+  }
+  return s;
+}
 GEN
 denom_i(GEN x)
 {
@@ -3263,8 +3278,84 @@ denom_i(GEN x)
   pari_err_TYPE("denom",x);
   return NULL; /* LCOV_EXCL_LINE */
 }
+static GEN
+denompol(GEN x, long v)
+{
+  long tx = typ(x);
+  if (is_scalar_t(tx)) return gen_1;
+  switch(typ(x))
+  {
+    case t_SER: return gen_1;
+    case t_RFRAC: x = gel(x,2); return varn(x) == v? x: pol_1(v);
+    case t_POL: return pol_1(v);
+    case t_VEC: case t_COL: case t_MAT: return vecdenompol(x, 1, lg(x)-1, v);
+  }
+  pari_err_TYPE("denom",x);
+  return NULL; /* LCOV_EXCL_LINE */
+}
 GEN
 denom(GEN x) { pari_sp av = avma; return gerepilecopy(av, denom_i(x)); }
+
+static GEN
+denominator_v(GEN x, long v)
+{
+  long v0 = gvar(x);
+  GEN d;
+  if (v0 == NO_VARIABLE || varncmp(v0,v) > 0) return pol_1(v);
+  if (v0 != v) { v0 = fetch_var_higher(); x = gsubst(x, v, pol_x(v0)); }
+  d = denompol(x, v0);
+  if (v0 != v) { d = gsubst(d, v0, pol_x(v)); (void)delete_var(); }
+  return d;
+}
+GEN
+denominator(GEN x, GEN D)
+{
+  pari_sp av = avma;
+  long v, v0;
+  GEN d;
+  if (!D) return denom(x);
+  if (isint1(D))
+  {
+    d = Q_denom_safe(x);
+    if (!d) { avma = av; return gen_1; }
+    return gerepilecopy(av, d);
+  }
+  if (!gequalX(D)) pari_err_TYPE("denominator", D);
+  return gerepileupto(av, denominator_v(x, varn(D)));
+}
+GEN
+numerator(GEN x, GEN D)
+{
+  pari_sp av = avma;
+  long v;
+  if (!D) return numer(x);
+  if (isint1(D)) return Q_remove_denom(x,NULL);
+  if (!gequalX(D)) pari_err_TYPE("numerator", D);
+  v = varn(D); /* optimization */
+  if (typ(x) == t_RFRAC && varn(gel(x,2)) == v) return gcopy(gel(x,2));
+  return gerepileupto(av, gmul(x, denominator_v(x,v)));
+}
+GEN
+content0(GEN x, GEN D)
+{
+  pari_sp av = avma;
+  long v, v0;
+  GEN d;
+  if (!D) return content(x);
+  if (isint1(D))
+  {
+    d = Q_content_safe(x);
+    return d? d: gen_1;
+  }
+  if (!gequalX(D)) pari_err_TYPE("content", D);
+  v = varn(D);
+  v0 = gvar(x); if (v0 == NO_VARIABLE || varncmp(v0,v) > 0) return pol_1(v);
+  if (v0 != v) { v0 = fetch_var_higher(); x = gsubst(x, v, pol_x(v0)); }
+  d = content(x);
+  /* gsubst is needed because of content([x]) = x */
+  if (v0 != v) { d = gsubst(d, v0, pol_x(v)); (void)delete_var(); }
+  return gerepileupto(av, d);
+}
 
 GEN
 numer_i(GEN x)

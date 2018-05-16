@@ -1865,6 +1865,13 @@ Q_content_safe(GEN x)
     case t_POL:
       l = lg(x); return l==2? gen_0: Q_content_v(x, 2, l);
     case t_POLMOD: return Q_content_safe(gel(x,2));
+    case t_RFRAC:
+    {
+      GEN a, b;
+      a = Q_content(gel(x,1)); if (!a) return NULL;
+      b = Q_content(gel(x,2)); if (!b) return NULL;
+      return gdiv(a, b);
+    }
   }
   return NULL;
 }
@@ -1931,10 +1938,12 @@ static GEN
 Q_denom_v(GEN x, long i, long l)
 {
   pari_sp av = avma;
-  GEN d = Q_denom(gel(x,i));
+  GEN d = Q_denom_safe(gel(x,i));
+  if (!d) return NULL;
   for (i++; i<l; i++)
   {
-    GEN D = Q_denom(gel(x,i));
+    GEN D = Q_denom_safe(gel(x,i));
+    if (!D) return NULL;
     if (D != gen_1) d = lcmii(d, D);
     if ((i & 255) == 0) d = gerepileuptoint(av, d);
   }
@@ -1944,7 +1953,7 @@ Q_denom_v(GEN x, long i, long l)
  * As denom(), but over Q. Treats polynomial as elts of Q[x1,...xn], instead
  * of Q(x2,...,xn)[x1] */
 GEN
-Q_denom(GEN x)
+Q_denom_safe(GEN x)
 {
   long l;
   switch(typ(x))
@@ -1956,16 +1965,29 @@ Q_denom(GEN x)
     case t_POL:
       l = lg(x); return l==2? gen_1: Q_denom_v(x, 2, l);
     case t_POLMOD: return Q_denom(gel(x,2));
+    case t_RFRAC:
+    {
+      GEN a, b;
+      a = Q_content(gel(x,1)); if (!a) return NULL;
+      b = Q_content(gel(x,2)); if (!b) return NULL;
+      return Q_denom(gdiv(a, b));
+    }
   }
-  pari_err_TYPE("Q_denom",x);
-  return NULL; /* LCOV_EXCL_LINE */
+  return NULL;
+}
+GEN
+Q_denom(GEN x)
+{
+  GEN d = Q_denom_safe(x);
+  if (!d) pari_err_TYPE("Q_denom",x);
+  return d;
 }
 
 GEN
 Q_remove_denom(GEN x, GEN *ptd)
 {
-  GEN d = Q_denom(x);
-  if (d == gen_1) d = NULL; else x = Q_muli_to_int(x,d);
+  GEN d = Q_denom_safe(x);
+  if (d) { if (d == gen_1) d = NULL; else x = Q_muli_to_int(x,d); }
   if (ptd) *ptd = d;
   return x;
 }
@@ -2010,6 +2032,8 @@ Q_muli_to_int(GEN x, GEN d)
       gel(y,1) = RgX_copy(gel(x,1));
       gel(y,2) = Q_muli_to_int(gel(x,2), d);
       return y;
+    case t_RFRAC:
+      return gmul(x, d);
   }
   pari_err_TYPE("Q_muli_to_int",x);
   return NULL; /* LCOV_EXCL_LINE */

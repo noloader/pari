@@ -1,25 +1,25 @@
 Function: numerator
 Section: conversions
-C-Name: numer
-Prototype: G
-Help: numerator(x): numerator of x.
+C-Name: numerator
+Prototype: GDG
+Help: numerator(f,{D}): numerator of f.
 Doc:
- numerator of $x$. The meaning of this
- is clear when $x$ is a rational number or function. If $x$ is an integer
- or a polynomial, it is treated as a rational number or function,
- respectively, and the result is $x$ itself. For polynomials, you
- probably want to use
+ numerator of $f$. This is defined as \kbd{f * denominator(f)}, see
+ \kbd{denominator} for details. The optional argument $D$ allows to control
+ over which ring we compute the denominator:
+
+ \item $1$: we only consider the underlying $\Q$-structure and the
+ denominator is a (positive) rational integer
+
+ \item a simple variable, say \kbd{'x}: all entries as rational functions
+ in $K(x)$ and the denominator is a polynomial in $x$.
+
  \bprog
- numerator( content(x) )
- @eprog\noindent
- instead.
-
- In other cases, \kbd{numerator(x)} is defined to be
- \kbd{denominator(x)*x}. This is the case when $x$ is a vector or a
- matrix, but also for \typ{COMPLEX} or \typ{QUAD}. In particular since a
- \typ{PADIC} or \typ{INTMOD} has  denominator $1$, its numerator is
- itself.
-
- \misctitle{Warning} Multivariate objects are created according to variable
- priorities, with possibly surprising side effects ($x/y$ is a polynomial, but
- $y/x$ is a rational function). See \secref{se:priority}.
+ ? f = x + 1/y + 1/2;
+ ? numerator(f) \\ a t_POL in x
+ %2 = x + ((y + 2)/(2*y))
+ ? numerator(f, 1) \\ Q-denominator is 2
+ %3 = x + ((y + 2)/y)
+ ? numerator(f, y) \\ as a rational function in y
+ %5 = 2*y*x + (y + 2)
+ @eprog

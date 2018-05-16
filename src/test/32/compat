@@ -684,8 +684,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: denom(x) ===> denominator(x)
 
-denominator(x): denominator of x (or lowest common denominator in case of an 
-array).
+denominator(f,{D}): denominator of f.
 
 
   ***   at top-level: deplin()
@@ -2829,7 +2828,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: numer(x) ===> numerator(x)
 
-numerator(x): numerator of x.
+numerator(f,{D}): numerator of f.
 
 
   ***   at top-level: nupow()
@@ -4522,4 +4521,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 13
+Total time spent: 8
