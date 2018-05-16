@@ -16,7 +16,6 @@ Doc: \var{mt} being a multiplication table over $\Q$ in the same format as the
    ***   at top-level: algtableinit(mt)
    ***                 ^----------------
    *** algtableinit: domain error in algtableinit: denominator(mt) != 1
-   ***   Break loop: type 'break' to go back to GP prompt
  ? mt2 = algmakeintegral(mt);
  ? al = algtableinit(mt2);
  ? algisassociative(al)

@@ -456,7 +456,7 @@ $A$ is a central simple algebra over a number field $K$; represented by
 \li{type of \var{al} (\var{mt}, CSA)}{algtype$(\var{al})$}
 \li{dimension of $A$ over~$\QQ$}{algdim$(\var{al},1)$}
 \li{dimension of \var{al} over its center~$K$}{algdim$(\var{al})$}
-\li{degree of $A$ ($=\sqrt{\dim_K}$)}{algdegree$(\var{al})$}
+\li{degree of $A$ ($=\sqrt{\dim_K A}$)}{algdegree$(\var{al})$}
 \li{\var{al} a cyclic algebra $(L/K,\sigma,b)$; return $\sigma$}
    {algaut$(\var{al})$}
 \li{\dots return $b$}{algb$(\var{al})$}
@@ -470,7 +470,7 @@ $A$ is a central simple algebra over a number field $K$; represented by
 \li{Hasse invariants at finite places of $K$}{alghassef$(\var{al})$}
 \li{Hasse invariants at infinite places of $K$}{alghassei$(\var{al})$}
 \li{Hasse invariant at place $v$}{alghasse$(\var{al},v)$}
-\li{index of $A$ over $K$ (index at $v$)}{algindex$(\var{al},\{v\})$}
+\li{index of $A$ over $K$ (at place $v$)}{algindex$(\var{al},\{v\})$}
 \li{is \var{al} a division algebra? (at place $v$)}
    {algisdivision$(\var{al},\{v\})$}
 \li{is $A$ ramified? (at place $v$)}{algisramified$(\var{al},\{v\})$}

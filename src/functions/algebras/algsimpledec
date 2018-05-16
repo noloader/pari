@@ -13,7 +13,7 @@ Doc: \var{al} being the output of \tet{algtableinit}, returns a \typ{VEC}
  $[\var{al}_i,\var{proj}_i,\var{lift}_i]$ where $\var{proj}_i$ and~$\var{lift}_i$
  are matrices respectively representing the projection map~$\var{al} \to
  \var{al}_i$ and a section of it. Modulo~$J$, the images of the $\var{lift}_i$
- form a direct sum in~$\var{al}/J$, so that the images of~$1\in\var{al}_i$.
+ form a direct sum in~$\var{al}/J$, so that the images of~$1\in\var{al}_i$
  under~$\var{lift}_i$ are central primitive idempotents of~$\var{al}/J$. The
  factors are sorted by increasing dimension, then increasing dimension of the
  center. This ensures that the ordering of the isomorphism classes of the

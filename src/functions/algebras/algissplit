@@ -7,7 +7,7 @@ Help: algissplit(al,{pl}): tests whether the central simple algebra al is
  should be a prime ideal of the center or an integer between 1 and r1+r2, and in
  that case tests whether al is locally split at the place pl instead.
 Doc: Given a central simple algebra \var{al} output by \tet{alginit}, tests
- whether \var{al} is split, i.e. isomorphic to a matrix algebra over its center.
+ whether~\var{al} is split, i.e. isomorphic to a matrix algebra over its center.
  If \var{pl} is set, it should be a prime ideal of~$K$ or an integer between~$1$
  and~$r_1+r_2$, and in that case tests whether \var{al} is locally split at the
  place \var{pl} instead.
