@@ -691,8 +691,8 @@ ellpadicheight(GEN e, GEN p, long v0, GEN P)
   g = gel(S,2);
   v = v0 + 2*Z_pval(g, p);
   is2 = absequaliu(p,2); if (is2) v += 2;
-  x = gel(P,1);
-  x = mkvec2(numer(x), denom(x));
+  x = Q_remove_denom(gel(P,1), &b);
+  x = mkvec2(x, b? b: gen_1);
   vd = Z_pval(gel(x,2), p);
   if (!vd)
   { /* P not in kernel of reduction mod p */
