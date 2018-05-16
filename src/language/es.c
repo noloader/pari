@@ -300,11 +300,12 @@ gp_read_file(const char *s)
     if (!x) pari_err_FILE("input file",s);
   }
   else {
+    pari_sp av = avma;
     Buffer *b = new_buffer();
     x = gnil;
     for (;;) {
       if (!gp_read_stream_buf(f, b)) break;
-      if (*(b->buf)) x = readseq(b->buf);
+      if (*(b->buf)) { avma = av; x = readseq(b->buf); }
     }
     delete_buffer(b);
   }
