@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static int
 smaller_x(GEN p, GEN q)
 {
-  int s = abscmpii(denom(p), denom(q));
-  return (s<0 || (s==0 && abscmpii(numer(p),numer(q)) < 0));
+  int s = abscmpii(denom_i(p), denom_i(q));
+  return (s<0 || (s==0 && abscmpii(numer_i(p),numer_i(q)) < 0));
 }
 
 /* best generator in cycle of length k */

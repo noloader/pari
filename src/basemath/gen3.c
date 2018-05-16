@@ -3230,20 +3230,19 @@ polcoef(GEN x, long n, long v)
 static GEN
 vecdenom(GEN v, long imin, long imax)
 {
-  pari_sp av = avma;
   long i = imin;
   GEN s;
   if (imin > imax) return gen_1;
-  s = denom(gel(v,i));
+  s = denom_i(gel(v,i));
   for (i++; i<=imax; i++)
   {
-    GEN t = denom(gel(v,i));
+    GEN t = denom_i(gel(v,i));
     if (t != gen_1) s = glcm(s,t);
   }
-  return gerepileupto(av, s);
+  return s;
 }
 GEN
-denom(GEN x)
+denom_i(GEN x)
 {
   switch(typ(x))
   {
@@ -3253,49 +3252,49 @@ denom(GEN x)
     case t_FFELT:
     case t_PADIC:
     case t_SER: return gen_1;
-    case t_FRAC: return icopy(gel(x,2));
+    case t_FRAC: return gel(x,2);
     case t_COMPLEX: return vecdenom(x,1,2);
     case t_QUAD: return vecdenom(x,2,3);
-    case t_POLMOD: return denom(gel(x,2));
-    case t_RFRAC: return RgX_copy(gel(x,2));
+    case t_POLMOD: return denom_i(gel(x,2));
+    case t_RFRAC: return gel(x,2);
     case t_POL: return pol_1(varn(x));
     case t_VEC: case t_COL: case t_MAT: return vecdenom(x, 1, lg(x)-1);
   }
   pari_err_TYPE("denom",x);
   return NULL; /* LCOV_EXCL_LINE */
 }
+GEN
+denom(GEN x) { pari_sp av = avma; return gerepilecopy(av, denom_i(x)); }
 
 GEN
-numer(GEN x)
+numer_i(GEN x)
 {
-  pari_sp av;
   switch(typ(x))
   {
     case t_INT:
-    case t_REAL: return mpcopy(x);
+    case t_REAL:
     case t_INTMOD:
     case t_FFELT:
     case t_PADIC:
-    case t_SER: return gcopy(x);
-    case t_POL: return RgX_copy(x);
-    case t_FRAC: return icopy(gel(x,1));
-    case t_POLMOD:
-      av = avma; return gerepileupto(av, gmodulo(numer(gel(x,2)), gel(x,1)));
-    case t_RFRAC: return gcopy(gel(x,1));
+    case t_SER:
+    case t_POL: return x;
+    case t_POLMOD: return mkpolmod(numer_i(gel(x,2)), gel(x,1));
+    case t_FRAC:
+    case t_RFRAC: return gel(x,1);
     case t_COMPLEX:
     case t_QUAD:
     case t_VEC:
     case t_COL:
-    case t_MAT:
-      av = avma; return gerepileupto(av, gmul(denom(x),x));
+    case t_MAT: return gmul(denom_i(x),x);
   }
   pari_err_TYPE("numer",x);
   return NULL; /* LCOV_EXCL_LINE */
 }
+GEN
+numer(GEN x) { pari_sp av = avma; return gerepilecopy(av, numer_i(x)); }
 
 /* Lift only intmods if v does not occur in x, lift with respect to main
- * variable of x if v < 0, with respect to variable v otherwise.
- */
+ * variable of x if v < 0, with respect to variable v otherwise */
 GEN
 lift0(GEN x, long v)
 {

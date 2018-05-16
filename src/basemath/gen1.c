@@ -288,13 +288,13 @@ gred_rfrac_simple(GEN n, GEN d)
   {
     z = c;
     do { z = content(z); } while (typ(z) == t_POL);
-    cd = denom(z);
+    cd = denom_i(z);
     cn = gmul(c, cd);
   }
   else
   {
-    cn = numer(c);
-    cd = denom(c);
+    cn = numer_i(c);
+    cd = denom_i(c);
   }
   z = cgetg(3,t_RFRAC);
   gel(z,1) = gmul(n, cn);

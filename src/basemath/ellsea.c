@@ -1126,8 +1126,8 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
     h = FqX_homogenous_eval(gtmp, num_iso, kpoly2, T, p);
     if (signe(Fq_elldivpolmod(Eba4, Eba6, ell, h, T, p)))
     {
-      GEN Ic = FqX_homogenous_div(num_iso, kpoly2, numer(Ib), denom(Ib), T, p);
-      GEN kpoly_new = FqX_homogenous_eval(gtmp, numer(Ic), denom(Ic), T, p);
+      GEN Ic = FqX_homogenous_div(num_iso,kpoly2, numer_i(Ib),denom_i(Ib), T,p);
+      GEN kpoly_new = FqX_homogenous_eval(gtmp,   numer_i(Ic),denom_i(Ic), T,p);
       return gerepilecopy(ltop, mkvecn(5, a4t, a6t, kpoly_new, gtmp, Ic));
     }
     avma = btop;

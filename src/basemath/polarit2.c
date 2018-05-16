@@ -1217,8 +1217,8 @@ gauss_gcd(GEN x, GEN y)
 {
   pari_sp av = avma;
   GEN dx, dy;
-  dx = denom(x); x = gmul(x, dx);
-  dy = denom(y); y = gmul(y, dy);
+  dx = denom_i(x); x = gmul(x, dx);
+  dy = denom_i(y); y = gmul(y, dy);
   while (!gequal0(y))
   {
     GEN z = gsub(x, gmul(ground(gdiv(x,y)), y));

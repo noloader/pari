@@ -11426,6 +11426,10 @@ and returns the primitive part \kbd{x} / \kbd{c}. A trivial content is set to
 \fun{GEN}{primpart}{GEN x} as above but the content is lost.
 (For efficiency, the content remains on the stack.)
 
+\fun{GEN}{denom_i}{GEN x} shallow version of \kbd{denom}.
+
+\fun{GEN}{numer_i}{GEN x} shallow version of \kbd{numer}.
+
 \subsec{Over the rationals}
 
 \fun{long}{Q_pval}{GEN x, GEN p} valuation at the \typ{INT} \kbd{p}

@@ -347,7 +347,7 @@ CF_1stPass(GEN *B0, GEN kappa, baker_s *BS)
   if (cmprr(mulrr(dbltor(0.1),sqrr(denbound)), BS->inverrdelta) > 0)
     return -1;
 
-  q = denom( bestappr(BS->delta, denbound) );
+  q = denom_i( bestappr(BS->delta, denbound) );
   qd = errnum(BS->delta, q);
   ql = errnum(BS->lambda,q);
 
@@ -928,7 +928,7 @@ get_B0(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
         if (! (Q = GuessQi(BS->delta, BS->lambda, &ep)) ) break;
 
         denbound = gadd(B0, absi(gel(Q,1)));
-        q = denom( bestappr(BS->delta, denbound) );
+        q = denom_i( bestappr(BS->delta, denbound) );
         l0 = subrr(errnum(BS->delta, q), ep);
         if (signe(l0) <= 0) break;
 
@@ -980,7 +980,7 @@ get_Bx_LLL(long i1, GEN Delta2, GEN Lambda, long prec, baker_s *BS)
         /* Q[2] != 0 */
         denbound = gadd(mulri(B0, absi(gel(Q,1))),
                         mulii(BS->Ind, absi(gel(Q,2))));
-        q = denom( bestappr(BS->delta, denbound) );
+        q = denom_i( bestappr(BS->delta, denbound) );
         l0 = divri(subrr(errnum(BS->delta, q), ep), absi(gel(Q,2)));
         if (signe(l0) <= 0) break;
 

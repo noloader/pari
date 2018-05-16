@@ -805,7 +805,7 @@ pow_monome(GEN x, long n)
   b = gpowgs(gel(x,dx+2), n); /* not memory clean if (n < 0) */
   if (!y) y = A;
   else {
-    GEN c = denom(b);
+    GEN c = denom_i(b);
     gel(y,1) = c; if (c != gen_1) b = gmul(b,c);
     gel(y,2) = A;
   }

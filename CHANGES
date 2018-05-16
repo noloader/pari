@@ -9,6 +9,7 @@ Done for version 2.10.1 (released ??/??/2018):
       2- [libpari] rename polcoeff0 -> polcoef, polcoeff_i -> polcoef_i,
          truecoeff -> truecoef
   Added
+      1- [libpari] denom_i, numer_i
 
 Done for version 2.10.0 (released 15/05/2018):
   Fixed

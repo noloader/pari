@@ -4813,10 +4813,8 @@ static GEN
 prepare_multipliers(GEN *a, GEN *b)
 {
   GEN na, nb, da, db, d;
-  na = numer(*a);
-  da = denom(*a);
-  nb = numer(*b);
-  db = denom(*b);
+  na = numer_i(*a); da = denom_i(*a);
+  nb = numer_i(*b); db = denom_i(*b);
   na = mulii(na,db);
   nb = mulii(nb,da);
   d = gcdii(na,nb);
@@ -4828,8 +4826,7 @@ prepare_multipliers(GEN *a, GEN *b)
 static GEN
 prepare_lat(GEN m1, GEN t1, GEN m2, GEN t2)
 {
-  GEN d;
-  d = prepare_multipliers(&t1, &t2);
+  GEN d = prepare_multipliers(&t1, &t2);
   m1 = ZM_Z_mul(m1,t1);
   m2 = ZM_Z_mul(m2,t2);
   return mkvec3(m1,m2,d);
@@ -5097,10 +5094,9 @@ alglattransporter_i(GEN al, GEN lat1, GEN lat2, long right)
   }
 
   c = gdiv(t2,gmul(c,t1));
-  c = denom(c);
+  c = denom_i(c);
   T = QM_invimZ_mod(M,c);
-  T = primlat(mkvec2(T,gen_1));
-  return T;
+  return primlat(mkvec2(T,gen_1));
 }
 
 /*
