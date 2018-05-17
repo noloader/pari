@@ -4105,7 +4105,10 @@ discriminant_with_classno_at_least(disc_info bestD[MODPOLY_MAX_DCNT],
         }
       } else {
         if (log2(maxD) > BITS_IN_LONG - 2 * (log2(L) + 2))
-          pari_err(e_ARCH, "modular polynomial of given level and invariant");
+        {
+          char *err = stack_sprintf("modular polynomial of level %ld and invariant %ld",L,inv);
+          pari_err(e_ARCH, err);
+        }
       }
       maxD *= 2;
       minD += 4;
