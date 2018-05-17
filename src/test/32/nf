@@ -538,6 +538,9 @@ Mod(-6/5, x)
   ***   at top-level: nfcompositum(bnfinit(x),x^3-2,x^3-1)
   ***                 ^------------------------------------
   *** nfcompositum: incorrect priority in polcompositum: variable x >= x
+  ***   at top-level: nfisincl(y^2+1,z^4+z^2+1)
+  ***                 ^-------------------------
+  *** nfisincl: not an irreducible polynomial in nfsincl: z^4 + z^2 + 1.
   ***   at top-level: nfisisom(x,x^0)
   ***                 ^---------------
   *** nfisisom: not an irreducible polynomial in nfisincl: 1.

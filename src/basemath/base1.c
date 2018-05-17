@@ -1129,6 +1129,7 @@ partmap_reverse(GEN a, GEN b, GEN F, long v)
     }
   }
   V = QM_gauss(M2, col_ei(da-d, 1));
+  if (!V) { setvarn(a,v); pari_err_IRREDPOL("nfsincl", a); }
   U = RgC_neg(QM_QC_mul(M1, V));
   return gerepilecopy(av, RgV_to_RgX(shallowconcat(U,V), v));
 }
