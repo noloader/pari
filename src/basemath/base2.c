@@ -3688,6 +3688,7 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
       GEN D = gel(C,i);
       a = RgXQ_mul(mH0, nf? RgXQ_inv(H1,D): QXQ_inv(H1,D), D);
       b = gadd(pol_x(v), gmulsg(k,a));
+      if (degpol(D) == 1) b = RgX_rem(b,D);
       gel(C,i) = mkvec4(D, mkpolmod(a,D), mkpolmod(b,D), stoi(-k));
     }
   }

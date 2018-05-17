@@ -4,6 +4,7 @@ Done for version 2.10.1 (released ??/??/2018):
   Fixed
       1- t_LIST corrupted on writebin / read [#2040]
 BA    2- nfisincl() result uses wrong variable [#2041]
+      3- polcompositum(,1) when one polynomial has degree 1 [#2045]
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies

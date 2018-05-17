@@ -1667,8 +1667,9 @@ ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
   if (degA == 1)
   {
     GEN a1 = gel(A,3), a0 = gel(A,2);
-    H = gsubst(B0, vY, gdiv(gneg(a0),a1));
-   if (!equali1(a1)) H = RgX_Rg_mul(H, powiu(a1, poldegree(B0,vY)));
+    B = lambda? RgX_translate(B0, monomial(stoi(lambda), 1, vY)): B0;
+    H = gsubst(B, vY, gdiv(gneg(a0),a1));
+   if (!equali1(a1)) H = RgX_Rg_mul(H, powiu(a1, poldegree(B,vY)));
     *LERS = mkvec2(scalarpol_shallow(a0,vX), scalarpol_shallow(a1,vX));
     gerepileall(av, 2, &H, LERS);
     return H;
