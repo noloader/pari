@@ -303,6 +303,7 @@ RgXY_factor(GEN f)
 /**                          FACTORIZATION                            **/
 /**                                                                   **/
 /***********************************************************************/
+static long RgX_settype(GEN x, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var);
 #define assign_or_fail(x,y) { GEN __x = x;\
   if (!*y) *y=__x; else if (!gequal(__x,*y)) return 0;\
 }
@@ -395,8 +396,7 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
       break;
     case t_POLMOD:
       assign_or_fail(gel(c,1),pol);
-      if (typ(gel(c,2))==t_POL && varn(gel(c,2))!=varn(gel(c,1)))
-        return 0;
+      if (typ(gel(c,2))==t_POL && varn(gel(c,2))!=varn(gel(c,1))) return 0;
       for (j=1; j<=2; j++)
       {
         GEN pbis, polbis;
@@ -404,10 +404,10 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
         *t2 = t_POLMOD;
         switch(Rg_type(gel(c,j),&pbis,&polbis,&pabis))
         {
-          case t_INT:  break;
-          case t_FRAC: t[1]=1; break;
+          case t_INT: break;
+          case t_FRAC:   t[1]=1; break;
           case t_INTMOD: t[3]=1; break;
-          case t_PADIC: t[7]=1; update_prec(pabis,pa); break;
+          case t_PADIC:  t[7]=1; update_prec(pabis,pa); break;
           default: return 0;
         }
         if (pbis) assign_or_fail(pbis,p);
@@ -415,17 +415,12 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
       }
       break;
     case t_POL: t[10] = 1;
-    {
-      GEN pbis, polbis;
-      long tbis, pabis;
-      tbis = RgX_type(c,&pbis,&polbis,&pabis);
-      if (tbis && tbis!=t_POL && !polbis)
-      {
-        if (*var == NO_VARIABLE) { *var = varn(c); break; }
-        if (*var == varn(c)) break;
-      }
-      *var = MAXVARN+1; break; /* ensure varn() == *var fails in choosetype */
-    }
+      if (!RgX_settype(c,t,p,pol,pa,ff,t2,var)) return 0;
+      if (*var == NO_VARIABLE) { *var = varn(c); break; }
+      /* if more than one free var, ensure varn() == *var fails. FIXME: should
+       * keep the list of all variables, later t_POLMOD may cancel them */
+      if (*var != varn(c)) *var = MAXVARN+1;
+      break;
     default: return 0;
   }
   return 1;
