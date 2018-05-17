@@ -3533,9 +3533,9 @@ Fp_pow_init(GEN x, GEN n, long k, GEN p)
 }
 
 GEN
-Fp_pow_table(GEN x, GEN n, GEN R, GEN p)
+Fp_pow_table(GEN R, GEN n, GEN p)
 {
-  return gen_pow_table(x, n, R, (void*)p, &_Fp_one, &_Fp_mul);
+  return gen_pow_table(R, n, (void*)p, &_Fp_one, &_Fp_mul);
 }
 
 GEN
@@ -3925,7 +3925,7 @@ check_kernel(long nbg, long N, long prmax, GEN C, GEN M, GEN p, GEN m)
     {
       GEN k = gel(K,i);
       GEN j = i<=prmax ? utoi(i): addis(C,i-(prmax+1));
-      if (signe(k)==0 || !equalii(Fp_pow_table(g, k, tab, p), Fp_pow(j, idx, p)))
+      if (signe(k)==0 || !equalii(Fp_pow_table(tab, k, p), Fp_pow(j, idx, p)))
         gel(K,i) = cgetineg(lm);
       else
         f++;

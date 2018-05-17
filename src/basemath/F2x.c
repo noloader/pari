@@ -946,9 +946,9 @@ F2xq_pow_init(GEN x, GEN n, long k,  GEN T)
 }
 
 GEN
-F2xq_pow_table(GEN x, GEN n, GEN R, GEN T)
+F2xq_pow_table(GEN R, GEN n, GEN T)
 {
-  return gen_pow_table(x, n, R, (void*)T, &_F2xq_one, &_F2xq_mul);
+  return gen_pow_table(R, n, (void*)T, &_F2xq_one, &_F2xq_mul);
 }
 
 /* generates the list of powers of x of degree 0,1,2,...,l*/
@@ -1389,7 +1389,7 @@ check_kernel(long N, GEN M, long nbi, GEN T, GEN m)
   for(i=1; i<l; i++)
   {
     GEN k = gel(K,i);
-    if (signe(k)==0 || !F2x_equal(F2xq_pow_table(g, k, tab, T),
+    if (signe(k)==0 || !F2x_equal(F2xq_pow_table(tab, k, T),
                                   F2xq_pow(mkF2(i,T[1]), idx, T)))
       gel(K,i) = cgetineg(lm);
     else

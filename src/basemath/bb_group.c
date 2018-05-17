@@ -293,7 +293,7 @@ gen_pow_init(GEN x, GEN n, long k, void *E, GEN (*sqr)(void*,GEN), GEN (*mul)(vo
 }
 
 GEN
-gen_pow_table(GEN x, GEN n, GEN R, void *E, GEN (*one)(void*), GEN (*mul)(void*,GEN,GEN))
+gen_pow_table(GEN R, GEN n, void *E, GEN (*one)(void*), GEN (*mul)(void*,GEN,GEN))
 {
   long e = expu(lg(R)-1) + 1;
   long l = expi(n);

@@ -350,7 +350,7 @@ check_kernel(long r, GEN M, long nbi, long nbrow, GEN T, ulong p, GEN m)
   {
     GEN k = gel(K,i);
     pari_sp av = avma;
-    long t = signe(k) && Flx_equal(Flxq_pow_table(g, k, tab, T, p),
+    long t = signe(k) && Flx_equal(Flxq_pow_table(tab, k, T, p),
                                    Flxq_pow(cindex_Flx(i,r,p,T[1]), idx, T, p));
     avma = av;
     if (!t)

@@ -2596,11 +2596,11 @@ Flxq_pow_init(GEN x, GEN n, long k,  GEN T, ulong p)
 }
 
 GEN
-Flxq_pow_table(GEN x, GEN n, GEN R, GEN T, ulong p)
+Flxq_pow_table(GEN R, GEN n, GEN T, ulong p)
 {
   struct _Flxq D;
   D.T = Flx_get_red(T, p); D.p = p;
-  return gen_pow_table(x, n, R, (void*)&D, &_Flxq_one, &_Flxq_mul);
+  return gen_pow_table(R, n, (void*)&D, &_Flxq_one, &_Flxq_mul);
 }
 
 /* Inverse of x in Z/lZ[X]/(T) or NULL if inverse doesn't exist

@@ -3423,7 +3423,7 @@ Return a table \kbd{R} that can be used with
 \kbd{Fp\_pow\_table} to compute the powers of $x$ up to $n$.
 The table is of size $2^k\*\log_2(n)$.
 
-\fun{GEN}{Fp_pow_table}{GEN x, GEN n, GEN R, GEN p}
+\fun{GEN}{Fp_pow_table}{GEN R, GEN n, GEN p}
 Return $x^n$, where $R$ is as given by \kbd{Fp\_pow\_init(x,m,k,p)}
 for some integer $m\geq n$.
 
@@ -5911,7 +5911,7 @@ this function applies \kbd{FlxC\_eval\_powers\_pre} to all entries of \kbd{M}.
 
 \fun{GEN}{Flxq_pow_init}{GEN x, GEN n, long k, GEN T, ulong p}
 
-\fun{GEN}{Flxq_pow_table}{GEN x, GEN n, GEN R, GEN T, ulong p}
+\fun{GEN}{Flxq_pow_table}{GEN R, GEN n, GEN T, ulong p}
 
 \fun{GEN}{Flxq_powers}{GEN x, long n, GEN T, ulong p}
 
@@ -6351,7 +6351,7 @@ square of a \kbd{F2x}.
 
 \fun{GEN}{F2xq_pow_init}{GEN x, GEN n, long k, GEN T}
 
-\fun{GEN}{F2xq_pow_table}{GEN x, GEN n, GEN R, GEN T}
+\fun{GEN}{F2xq_pow_table}{GEN R, GEN n, GEN T}
 
 \fun{ulong}{F2xq_trace}{GEN x, GEN T}
 
@@ -11692,8 +11692,8 @@ Return a table \kbd{R} that can be used with
 \kbd{gen\_pow\_table} to compute the powers of $x$ up to $n$.
 The table is of size $2^k\*\log_2(n)$.
 
-\fun{GEN}{gen_pow_table}{GEN x, GEN n, GEN R, void *E, GEN (*one)(void*),
-                        GEN (*mul)(void*,GEN,GEN)}
+\fun{GEN}{gen_pow_table}{GEN R, GEN n, void *E, GEN (*one)(void*),
+                         GEN (*mul)(void*,GEN,GEN)}
 
 Return $x^n$, where $R$ is as given by \kbd{gen\_pow\_init(x,m,k,E,sqr,mul)}
 for some integer $m\geq n$.
