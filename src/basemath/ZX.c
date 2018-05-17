@@ -371,6 +371,7 @@ ZX_rescale_lt(GEN P)
 static GEN
 ZX_eval2BILspec(GEN x, long k, long nx)
 {
+  pari_sp av = avma;
   long i,j, lz = k*nx, ki;
   GEN pz = cgetipos(2+lz);
   GEN nz = cgetipos(2+lz);
@@ -390,7 +391,7 @@ ZX_eval2BILspec(GEN x, long k, long nx)
       for (j=0; j<lc; j++) *int_W(nz,j+ki) = *int_W(c,j);
   }
   pz = int_normalize(pz,0);
-  nz = int_normalize(nz,0); return subii(pz,nz);
+  nz = int_normalize(nz,0); return gerepileuptoint(av, subii(pz,nz));
 }
 
 static long
