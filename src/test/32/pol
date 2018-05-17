@@ -85,8 +85,8 @@ Mod(4, 11)*y^2 + Mod(9, 11)*y + Mod(7, 11), Mod(7, 11)*y^3 + Mod(10, 11)*y +
  Mod(10, 11))
 done
 Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
-1.4284266449676412680
-1.4142277045794295898
+1.4284266449676411750
+1.4142277045794296914
 "t_INT"
   *** polroots: Warning: normalizing a polynomial with 0 leading term.
 [0.E-38 + 0.E-38*I]~
@@ -105,4 +105,4 @@ Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
   ***   at top-level: (1/x)%x
   ***                      ^--
   *** _%_: impossible inverse in Flx_divrem: Vecsmall([0]).
-Total time spent: 5
+Total time spent: 4

@@ -717,7 +717,8 @@ polrootsbound_i(GEN P, double TAU)
     case 0:  avma = av; return gen_0;
   }
   d = logmax_modulus(P, TAU) + TAU;
-  avma = av; return dblexp(d);
+  /* not dblexp: result differs on ARM emulator */
+  return gerepileuptoleaf(av, mpexp(dbltor(d)));
 }
 GEN
 polrootsbound(GEN P, GEN tau)
