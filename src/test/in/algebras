@@ -1918,6 +1918,9 @@ b = [5..8]~;
 mb = algtomatrix(al,b,1);
 algpoleval(al,x+1,[a,mb]);
 algpoleval(al,x+1,[1,mb]);
+alginit(nfinit(y),["a",[[],[]],[]]);
+alginit(nfinit(y),[1,[[],[]],[]]);
+alginit(nfinit(y),[0,[[],[]],[]]);
 \\end bad inputs
 
 

@@ -2101,6 +2101,15 @@ testing simplify: quatalg csa over Q
   ***   at top-level: algpoleval(al,x+1,[1,mb])
   ***                 ^-------------------------
   *** algpoleval: incorrect type in algpoleval [mx must be the multiplication table of x] (t_MAT).
+  ***   at top-level: alginit(nfinit(y),["a",[[],[]],[]])
+  ***                 ^-----------------------------------
+  *** alginit: incorrect type in alginit [degree should be an integer] (t_STR).
+  ***   at top-level: alginit(nfinit(y),[1,[[],[]],[]])
+  ***                 ^---------------------------------
+  *** alginit: domain error in alg_hasse: degree <= 1
+  ***   at top-level: alginit(nfinit(y),[0,[[],[]],[]])
+  ***                 ^---------------------------------
+  *** alginit: domain error in alg_hasse: degree <= 1
 new algsimpledec
 0
 [0, [[[0, 0, 0, 0, 0, 0, Mat(1), Mat(1), [Mat(1)], 0, [1]], Mat([1, 1, 0]), 
@@ -2416,4 +2425,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
   *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-Total time spent: 1412
+Total time spent: 1404

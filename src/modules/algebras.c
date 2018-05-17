@@ -3875,6 +3875,7 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
   GEN primary, al = gen_0, al2, rnf, hil, hfl, Ld, pl, pol, Lpr, aut;
   long i, lk, j;
   dbg_printf(1)("alg_hasse\n");
+  if (n<=1) pari_err_DOMAIN("alg_hasse", "degree", "<=", gen_1, stoi(n));
   primary = hassecoprime(hf, hi, n);
   for (i=1; i<lg(primary); i++) {
     lk = itos(gmael(primary,i,3));
@@ -3995,7 +3996,10 @@ alginit(GEN A, GEN B, long v, long maxord)
           switch(nB)
           {
             case 2: return alg_hilbert(A, gel(B,1), gel(B,2), v, maxord);
-            case 3: return alg_hasse(A, itos(gel(B,1)), gel(B,2), gel(B,3), v,
+            case 3:
+              if (typ(gel(B,1))!=t_INT)
+                  pari_err_TYPE("alginit [degree should be an integer]", gel(B,1));
+              return alg_hasse(A, itos(gel(B,1)), gel(B,2), gel(B,3), v,
                                                                       maxord);
           }
       }
