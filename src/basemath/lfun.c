@@ -686,6 +686,31 @@ lfunan(GEN ldata, long L, long prec)
   return an;
 }
 
+static GEN
+mulrealvec(GEN x, GEN y)
+{
+  if (is_vec_t(typ(x)) && is_vec_t(typ(y)))
+    pari_APPLY_same(mulreal(gel(x,i),gel(y,i)))
+  else
+    return mulreal(x,y);
+}
+static GEN
+gmulvec(GEN x, GEN y)
+{
+  if (is_vec_t(typ(x)) && is_vec_t(typ(y)))
+    pari_APPLY_same(gmul(gel(x,i),gel(y,i)))
+  else
+    return gmul(x,y);
+}
+static GEN
+gdivvec(GEN x, GEN y)
+{
+  if (is_vec_t(typ(x)) && is_vec_t(typ(y)))
+    pari_APPLY_same(gdiv(gel(x,i),gel(y,i)))
+  else
+    return gdiv(x,y);
+}
+
 /* [1^B,...,N^B] */
 GEN
 vecpowuu(long N, ulong B)
@@ -1281,6 +1306,14 @@ checklfuninit(GEN linit, GEN dom, long der, long bitprec)
     && sdomain_isincl(gtodouble(ldata_get_k(ldata)), dom, domain_get_dom(domain));
 }
 
+static GEN
+ginvsqrtvec(GEN x, long prec)
+{
+  if (is_vec_t(typ(x)))
+    pari_APPLY_same(ginv(gsqrt(gel(x,i), prec)))
+  else return ginv(gsqrt(x, prec));
+}
+
 GEN
 lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
 {
@@ -1292,7 +1325,7 @@ lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
   {
     GEN eno = ldata_get_rootno(ldata);
     long prec = nbits2prec( domain_get_bitprec(domain) );
-    if (!isint1(eno)) w2 = ginv(gsqrt(eno, prec));
+    if (!isint1(eno)) w2 = ginvsqrtvec(eno, prec);
   }
   hardy = mkvec4(k2, w2, expot, gammafactor(Vga));
   return mkvec3(mkvecsmall(t),ldata, mkvec3(domain, molin, hardy));
@@ -1608,7 +1641,6 @@ get_domain(GEN s, GEN *dom, long *der)
   *dom = mkvec3(real_i(sa), gen_0, gabs(imag_i(sa),DEFAULTPREC));
   return s;
 }
-
 /* assume lmisc is an linit, s went through get_domain and s/bitprec belong
  * to domain */
 static GEN
@@ -1648,16 +1680,16 @@ lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec)
   { /* on critical line: shortcut */
     GEN polz, b = imag_i(s);
     polz = gequal0(b)? poleval(pol,gen_1): poleval(pol, expIr(gmul(h,b)));
-    S = gadd(polz, gmul(eno, conj_i(polz)));
+    S = gadd(polz, gmulvec(eno, conj_i(polz)));
   }
   else
   {
     GEN z = gexp(gmul(h, gsub(s, k2)), prec);
     GEN zi = ginv(z), zc = conj_i(zi);
     if (typ(pol)==t_POL)
-      S = gadd(poleval(pol, z), gmul(eno, conj_i(poleval(pol, zc))));
+      S = gadd(poleval(pol, z), gmulvec(eno, conj_i(poleval(pol, zc))));
     else
-      S = gadd(poleval(gel(pol,1), z), gmul(eno, poleval(gel(pol,2), zi)));
+      S = gadd(poleval(gel(pol,1), z), gmulvec(eno, poleval(gel(pol,2), zi)));
   }
   if (S0) S = gadd(S,S0);
   return gprec_w(gmul(S,h), nbits2prec(bitprec));
@@ -1869,7 +1901,9 @@ lfunhardy(GEN lmisc, GEN t, long bitprec)
            gmul(expot,glog(gnorm(z),prec)));
   h = lfunlambda_OK(linit, z, dom, bitprec);
   if (!isint1(w2) && typ(ldata_get_dual(ldata))==t_INT)
-    h = mulreal(h, w2);
+    h = mulrealvec(h, w2);
+  else
+    h = gmulvec(h, w2);
   if (typ(h) == t_COMPLEX && gexpo(imag_i(h)) < -(bitprec >> 1))
     h = real_i(h);
   return gerepileupto(ltop, gmul(h, gexp(a, prec)));
@@ -1937,11 +1971,12 @@ lfuncheckfeq_i(GEN theta, GEN thetad, GEN t0, GEN t0i, long bitprec)
     S0i = theta_add_polar_part(S0i, R, t0, prec);
   }
   if (gequal0(S0i) || gequal0(S0)) pari_err_PREC("lfuncheckfeq");
-  w = gdiv(S0i, gmul(S0, gpow(t0, ldata_get_k(ldata), prec)));
+
+  w = gdivvec(S0i, gmul(S0, gpow(t0, ldata_get_k(ldata), DEFAULTPREC)));
   /* missing rootno: guess it */
   if (gequal0(eno)) eno = lfunrootno(theta, bitprec);
   w = gsub(w, eno);
-  if (thetad) w = gdiv(w, eno); /* |eno| may be large in non-dual case */
+  if (thetad) w = gdivvec(w, eno); /* |eno| may be large in non-dual case */
   return gexpo(w);
 }
 
@@ -2067,7 +2102,7 @@ get_eno(GEN R, GEN k, GEN t, GEN v, GEN vi, long vx, long bitprec, long force)
   if (typ(S) != t_POL || degpol(S) != 1) return NULL;
   a1 = gel(S,3); if (!force && gexpo(a1) < -bitprec/4) return NULL;
   a0 = gel(S,2);
-  return gdiv(a0, gneg(a1));
+  return gdivvec(a0, gneg(a1));
 
 }
 /* Return w using theta(1/t) - w t^k \bar{theta}(t) = polar_part(t,w).
