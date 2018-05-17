@@ -540,11 +540,11 @@ Mod(-6/5, x)
   *** nfcompositum: incorrect priority in polcompositum: variable x >= x
   ***   at top-level: nfisincl(y^2+1,z^4+z^2+1)
   ***                 ^-------------------------
-  *** nfisincl: not an irreducible polynomial in nfsincl: z^4 + z^2 + 1.
+  *** nfisincl: not an irreducible polynomial in nfisincl: z^4 + z^2 + 1.
   ***   at top-level: nfisisom(x,x^0)
   ***                 ^---------------
   *** nfisisom: not an irreducible polynomial in nfisincl: 1.
   ***   at top-level: idealhnf(nfinit(a^2+1),3,(a^2+1)*Mod(1,3))
   ***                          ^---------------------------------
   *** nfinit: incorrect type in checknf [please apply nfinit()] (t_POLMOD).
-Total time spent: 1476
+Total time spent: 1448
