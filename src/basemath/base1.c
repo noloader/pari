@@ -1061,7 +1061,7 @@ GEN
 nfisisom(GEN a, GEN b)
 {
   pari_sp av = avma;
-  long i, vb, lx;
+  long i, va, vb, lx;
   GEN nfa, nfb, y, la, lb;
   int newvar, sw = 0;
 
@@ -1074,11 +1074,12 @@ nfisisom(GEN a, GEN b)
 
   if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
   if (nfa) la = gen_1; else nfa = a = ZX_Q_normalize(a,&la);
-  vb = varn(b); newvar = (varncmp(vb,varn(a)) <= 0);
+  va = varn(a); vb = varn(b); newvar = (varncmp(vb,va) <= 0);
   if (newvar) { a = leafcopy(a); setvarn(a, fetch_var_higher()); }
   y = lift_shallow(nfroots(nfb,a));
   if (newvar) (void)delete_var();
   lx = lg(y); if (lx==1) { avma=av; return gen_0; }
+  if (sw) { vb = va; setvarn(b, vb); }
   for (i=1; i<lx; i++)
   {
     GEN t = gel(y,i);
