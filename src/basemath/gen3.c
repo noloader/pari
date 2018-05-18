@@ -3311,7 +3311,6 @@ GEN
 denominator(GEN x, GEN D)
 {
   pari_sp av = avma;
-  long v, v0;
   GEN d;
   if (!D) return denom(x);
   if (isint1(D))
