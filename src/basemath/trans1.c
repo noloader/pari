@@ -2362,6 +2362,30 @@ serchop0(GEN s)
   return normalize(y);
 }
 
+GEN
+serchop_i(GEN s, long n)
+{
+  long i, m, l = lg(s);
+  GEN y;
+  if (l == 2 || (l == 3 && isexactzero(gel(s,2))))
+  {
+    if (valp(s) < n) { s = shallowcopy(s); setvalp(s,n); }
+    return s;
+  }
+  m = n - valp(s); if (m < 0) return s;
+  if (l-m <= 2) return zeroser(varn(s), n);
+  y = cgetg(l-m, t_SER); y[1] = s[1]; setvalp(y, valp(y)+m);
+  for (i=m+2; i < l; i++) gel(y,i-m) = gel(s,i);
+  return normalize(y);
+}
+GEN
+serchop(GEN s, long n)
+{
+  pari_sp av = avma;
+  if (typ(s) != t_SER) pari_err_TYPE("serchop",s);
+  return gerepilecopy(av, serchop_i(s,n));
+}
+
 static GEN
 serexp(GEN x, long prec)
 {

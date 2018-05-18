@@ -4828,6 +4828,8 @@ GEN     rootsof1u_cx(ulong d, long prec);
 GEN     rootsof1q_cx(long a, long b, long prec);
 GEN     rootsof1powinit(long a, long b, long prec);
 GEN     rootsof1pow(GEN T, long c);
+GEN     serchop(GEN s, long n);
+GEN     serchop_i(GEN s, long n);
 GEN     serchop0(GEN s);
 GEN     sqrtnint(GEN a, long n);
 GEN     sqrtnr_abs(GEN x, long n);
