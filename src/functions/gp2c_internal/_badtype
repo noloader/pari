@@ -8,7 +8,7 @@ Description:
  (vec):negbool                  is_matvec_t(typ($1))
  (vecsmall):bool:parens         typ($1) != t_VECSMALL
  (pol):bool:parens              typ($1) != t_POL
- (list):void                    typ($1) != t_LIST
+ (list):bool:parens             typ($1) != t_LIST
  (*nf):void:parens              $1 = checknf($1)
  (*bnf):void:parens             $1 = checkbnf($1)
  (bnr):void                     checkbnr($1)
