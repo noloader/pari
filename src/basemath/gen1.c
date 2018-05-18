@@ -1158,9 +1158,9 @@ gadd(GEN x, GEN y)
       {
         case t_SER:
           if (lg(x) == 2) return gcopy(y);
-          i = lg(y) + valp(y) - RgX_val(x);
+          i = RgX_val(x); if (i == LONG_MAX) i = 0; /* e.g. x = Mod(0,3)*x^0 */
+          i = lg(y) + valp(y) - i;
           if (i < 3) return gcopy(y);
-
           p1 = RgX_to_ser(x,i); y = ser_add(p1,y);
           settyp(p1, t_VECSMALL); /* p1 left on stack */
           return y;

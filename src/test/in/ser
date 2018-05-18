@@ -24,6 +24,7 @@ serchop(s, 2)
 serchop(s, 100)
 serchop(Mod(0,3)+x+O(x^2))
 serchop(Mod(0,3)+O(x^2))
+serchop(Mod(0,3)*x+O(x^2))
 
 Ser(Qfb(1,2,3))
 Ser(Qfb(1,2,3),, 5.5)

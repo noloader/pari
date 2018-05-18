@@ -25,8 +25,10 @@ RgX_to_ser_i(GEN x, long l, long lx, long v, int copy)
   long i;
   if (lx == 2) return zeroser(varn(x), l-2);
   if (l <= 2) pari_err_BUG("RgX_to_ser (l <= 2)");
-  y = cgetg(l,t_SER); y[1] = x[1]; setvalp(y, v);
-  x += v; lx = minss(lx-v, l);
+  y = cgetg(l,t_SER); y[1] = x[1];
+  /* e.g. Mod(0,3) * x^0 */
+  if (v == LONG_MAX) { v = 1; lx = 3; } else { x += v; lx = minss(lx-v, l); }
+  setvalp(y, v);
   if (copy)
     for (i = 2; i <lx; i++) gel(y,i) = gcopy(gel(x,i));
   else
