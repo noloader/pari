@@ -403,6 +403,28 @@ lfun(z,2)
 }
 L=lfunsympow(E,5); lfun(L,1,1)
 
+\\ lfunvec
+
+G=znstar(11,1);
+L1=lfuncreate([G,[3]]);
+L2=lfuncreate([G,[9]]);
+a=[lfun(L1,1),lfun(L2,1)];
+L=L1;
+L[1][2][2][2]=[[3]~,[9]~];
+b=lfun(L,1);
+round(a-b,&e)
+e
+
+bnf=bnfinit('a^2+47);bnr=bnrinit(bnf,1);
+L1=lfuncreate([bnr,[1]]);
+L2=lfuncreate([bnr,[2]]);
+a=[lfun(L1,1),lfun(L2,1)];
+L=L1;
+L[1][2][2][2]=[[1],[2]];
+b=lfun(L,1);
+round(a-b,&e)
+e
+
 \\ #2118
 Z = lfuncreate([n->[1], 0, [0], 1, 1, 1, 1]); lfun(Z,2)
 

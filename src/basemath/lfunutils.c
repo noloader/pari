@@ -446,11 +446,10 @@ lfunchiquad(GEN D)
 
 /* Value of CHI on x, coprime to bnr.mod */
 static GEN
-chigeneval(GEN logx, GEN nchi, GEN z, long prec)
+chigeneval_i(GEN logx, GEN d, GEN nchi, GEN z, long prec)
 {
   pari_sp av = avma;
-  GEN d = gel(nchi,1);
-  GEN e = FpV_dotproduct(gel(nchi,2), logx, d);
+  GEN e = FpV_dotproduct(nchi, logx, d);
   if (!is_vec_t(typ(z)))
     return gerepileupto(av, gpow(z, e, prec));
   else
@@ -458,6 +457,16 @@ chigeneval(GEN logx, GEN nchi, GEN z, long prec)
     ulong i = itou(e);
     set_avma(av); return gel(z, i+1);
   }
+}
+
+static GEN
+chigenevalvec(GEN logx, GEN nchi, GEN z, long prec, long multi)
+{
+  GEN d = gel(nchi,1), x = gel(nchi, 2);
+  if (multi)
+    pari_APPLY_same(chigeneval_i(logx, d, gel(x,i), z, prec))
+  else
+    return chigeneval_i(logx, d, x, z, prec);
 }
 
 /* return x + yz; y != 0; z = 0,1 "often"; x = 0 "often" */
@@ -476,19 +485,43 @@ gaddmul(GEN x, GEN y, GEN z)
 }
 
 static GEN
+gaddmulvec(GEN x, GEN y, GEN z, long multi)
+{
+  if (multi)
+    pari_APPLY_same(gaddmul(gel(x,i),gel(y,i),gel(z,i)))
+  else
+    return gaddmul(x,y,z);
+}
+
+static GEN
+mkvchi(GEN chi, long n)
+{
+  GEN v;
+  if (lg(chi) > 1 && is_vec_t(typ(gel(chi,1))))
+  {
+    long d = lg(chi)-1;
+    v = const_vec(n, zerovec(d));
+    gel(v,1) = const_vec(d, gen_1);
+  }
+  else
+    v = vec_ei(n, 1);
+  return v;
+}
+
+static GEN
 vecan_chiZ(GEN an, long n, long prec)
 {
   forprime_t iter;
   GEN G = gel(an,1);
-  GEN nchi = gel(an,2), gord = gel(nchi,1), z;
-  GEN gp = cgetipos(3), v = vec_ei(n, 1);
+  GEN nchi = gel(an,2), gord = gel(nchi,1), chi = gel(nchi,2), z;
+  GEN gp = cgetipos(3), v = mkvchi(chi, n);
   GEN N = znstar_get_N(G);
   long ord = itos_or_0(gord);
   ulong Nu = itou_or_0(N);
   long i, id, d = Nu ? minuu(Nu, n): n;
+  long multichi= (lg(chi) > 1 && is_vec_t(typ(gel(chi,1))));
   ulong p;
-
-  if (ord && n > (ord>>4))
+  if (!multichi && ord && n > (ord>>4))
   {
     GEN w = ncharvecexpo(G, nchi);
     z = grootsof1(ord, prec);
@@ -505,10 +538,10 @@ vecan_chiZ(GEN an, long n, long prec)
       ulong k;
       if (!umodiu(N,p)) continue;
       gp[2] = p;
-      ch = chigeneval(znconreylog(G, gp), nchi, z, prec);
+      ch = chigenevalvec(znconreylog(G, gp), nchi, z, prec, multichi);
       gel(v, p)  = ch;
       for (k = 2*p; k <= (ulong)d; k += p)
-        gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/p));
+        gel(v, k) = gaddmulvec(gel(v, k), ch, gel(v, k/p), multichi);
     }
   }
   for (id = i = d+1; i <= n; i++,id++) /* periodic mod d */
@@ -524,10 +557,11 @@ vecan_chigen(GEN an, long n, long prec)
 {
   forprime_t iter;
   GEN bnr = gel(an,1), nf = bnr_get_nf(bnr);
-  GEN nchi = gel(an,2), gord = gel(nchi,1), z;
-  GEN gp = cgetipos(3), v = vec_ei(n, 1);
+  GEN nchi = gel(an,2), gord = gel(nchi,1), chi = gel(nchi,2), z;
+  GEN gp = cgetipos(3), v = mkvchi(chi, n);
   GEN N = gel(bnr_get_mod(bnr), 1), NZ = gcoeff(N,1,1);
   long ord = itos_or_0(gord);
+  long multichi= (lg(chi) > 1 && is_vec_t(typ(gel(chi,1))));
   ulong p;
 
   if (ord && n > (ord>>4))
@@ -546,10 +580,10 @@ vecan_chigen(GEN an, long n, long prec)
       ulong k;
       if (!umodiu(NZ,p)) continue;
       gp[2] = p;
-      ch = chigeneval(isprincipalray(bnr,gp), nchi, z, prec);
+      ch = chigenevalvec(isprincipalray(bnr,gp), nchi, z, prec, multichi);
       gel(v, p)  = ch;
       for (k = 2*p; k <= (ulong)d; k += p)
-        gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/p));
+        gel(v, k) = gaddmulvec(gel(v, k), ch, gel(v, k/p), multichi);
     }
     for (id = i = d+1; i <= n; i++,id++) /* periodic mod d */
     {
@@ -573,11 +607,11 @@ vecan_chigen(GEN an, long n, long prec)
         GEN pr = gel(L, j), ch;
         ulong k, q;
         if (check && idealval(nf, N, pr)) continue;
-        ch = chigeneval(isprincipalray(bnr,pr), nchi, z, prec);
+        ch = chigenevalvec(isprincipalray(bnr,pr), nchi, z, prec, multichi);
         q = upr_norm(pr);
         gel(v, q) = gadd(gel(v, q), ch);
         for (k = 2*q; k <= (ulong)n; k += q)
-          gel(v, k) = gaddmul(gel(v, k), ch, gel(v, k/q));
+          gel(v, k) = gaddmulvec(gel(v, k), ch, gel(v, k/q), multichi);
       }
     }
   }
