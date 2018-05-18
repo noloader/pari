@@ -3742,6 +3742,7 @@ long    gsizebyte(GEN x);
 void    gunclone(GEN x);
 void    gunclone_deep(GEN x);
 GEN     listcopy(GEN x);
+GEN     listinit(GEN x);
 void    timer_printf(pari_timer *T, const char *format, ...);
 void    msgtimer(const char *format, ...);
 long    name_numerr(const char *s);

@@ -1735,6 +1735,15 @@ listassign(GEN x, GEN y)
   list_data(y) = list_internal_copy(L, nmax);
 }
 
+/* transform a non-malloced list (e.g. from gtolist or gtomap) to a malloced
+ * list suitable for listput */
+GEN
+listinit(GEN x)
+{
+  GEN y = cgetg(3, t_LIST);
+  listassign(x, y); return y;
+}
+
 /* copy list on the PARI stack */
 GEN
 listcopy(GEN x)

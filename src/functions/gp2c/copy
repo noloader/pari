@@ -8,4 +8,5 @@ Description:
  (vecsmall):vecsmall              gcopy($1)
  (vec):vec                        gcopy($1)
  (pol):pol                        gcopy($1)
+ (list):list                      listinit($1)
  (gen):gen                        gcopy($1)
