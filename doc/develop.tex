@@ -324,6 +324,28 @@ awkward whenever you're not implementing a new transcendental function in GP.
 Use \tet{RgX_to_ser} or \tet{rfrac_to_ser} for a fast clean alternative to
 \kbd{gtoser}.
 
+\fun{GEN}{listinit}{GEN x} a \typ{LIST} (from \kbd{List} or \kbd{Map}) may
+exist in two different forms due to GP memory model:
+
+\item an ordinary \emph{read-only} copy on the pari stack (as produced by
+\kbd{gtolist} or \kbd{gtomap}) to which one may not assign elements
+(\kbd{listput} will fail) unless the list is empty.
+
+\item a feature-complete GP list using (malloc'ed) \kbd{block}s to
+allow dynamic insertions. An empty list is automaticaly promoted to this
+status on first insertion.
+
+The \kbd{listinit} function creates a copy of existing \typ{SER} $x$ and
+makes sure it is of the second kind. Variants of this are automatically
+called by \kbd{gp} when assigning a \typ{LIST} to a GP variable; the
+mecanism avoid memory leaks when creating a constant list, e.g.
+\kbd{List([1,2,3])} (read-only), without assigning it to a variable. Whereas
+after \kbd{L = List([1,2,3])} (GP list), we keep a pointer to the object and
+may delete it when $L$ goes out of scope.
+
+This \kbd{libpari} function allows \kbd{gp2c} to simulate this process by
+generating \kbd{listinit} calls at appropriate places.
+
 \subsec{Output}
 
 \fun{void}{print0}{GEN g, long flag} internal function underlying the
