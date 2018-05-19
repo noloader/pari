@@ -1959,10 +1959,12 @@ Q_denom_safe(GEN x)
   switch(typ(x))
   {
     case t_INT: return gen_1;
+    case t_PADIC: l = valp(x); return l < 0? powiu(gel(x,2), -l): gen_1;
     case t_FRAC: return gel(x,2);
+    case t_QUAD: return Q_denom_v(x, 2, 4);
     case t_COMPLEX: case t_VEC: case t_COL: case t_MAT:
       l = lg(x); return l==1? gen_1: Q_denom_v(x, 1, l);
-    case t_POL:
+    case t_POL: case t_SER:
       l = lg(x); return l==2? gen_1: Q_denom_v(x, 2, l);
     case t_POLMOD: return Q_denom(gel(x,2));
     case t_RFRAC:
@@ -2016,13 +2018,21 @@ Q_muli_to_int(GEN x, GEN d)
       gel(y,1) = Q_muli_to_int(gel(x,1),d);
       gel(y,2) = Q_muli_to_int(gel(x,2),d);
       return y;
+    case t_PADIC:
+      y = gcopy(y); if (!isint1(d)) setvalp(y, 0);
+      return y;
+    case t_QUAD:
+      y = cgetg(4,t_QUAD);
+      gel(y,1) = ZX_copy(gel(x,1));
+      gel(y,2) = Q_muli_to_int(gel(x,2),d);
+      gel(y,3) = Q_muli_to_int(gel(x,3),d); return y;
 
     case t_VEC: case t_COL: case t_MAT:
       y = cgetg_copy(x, &l);
       for (i=1; i<l; i++) gel(y,i) = Q_muli_to_int(gel(x,i), d);
       return y;
 
-    case t_POL:
+    case t_POL: case t_SER:
       y = cgetg_copy(x, &l); y[1] = x[1];
       for (i=2; i<l; i++) gel(y,i) = Q_muli_to_int(gel(x,i), d);
       return y;

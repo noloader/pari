@@ -11492,6 +11492,11 @@ function returns as soon as the content is found to equal $1$.
 or \typ{INTMOD} component).
 
 \fun{GEN}{Q_denom}{GEN x} the $\Q$-denominator of $x$. Shallow function.
+Raises en \kbd{e\_TYPE} error out when the notion is meaningless, e.g. for
+a \typ{REAL} or \typ{INTMOD} component.
+
+\fun{GEN}{Q_denom_safe}{GEN x} the $\Q$-denominator of $x$. Shallow function.
+Return \kbd{NULL} when the notion is meaningless.
 
 \fun{GEN}{Q_primitive_part}{GEN x, GEN *c} sets \kbd{c} to the $\Q$-content
 of \kbd{x} and returns \kbd{x / c}, which is integral.

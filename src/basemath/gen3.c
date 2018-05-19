@@ -3266,7 +3266,8 @@ denom_i(GEN x)
     case t_INTMOD:
     case t_FFELT:
     case t_PADIC:
-    case t_SER: return gen_1;
+    case t_SER:
+    case t_VECSMALL: return gen_1;
     case t_FRAC: return gel(x,2);
     case t_COMPLEX: return vecdenom(x,1,2);
     case t_QUAD: return vecdenom(x,2,3);
@@ -3278,14 +3279,17 @@ denom_i(GEN x)
   pari_err_TYPE("denom",x);
   return NULL; /* LCOV_EXCL_LINE */
 }
+/* v has lower (or equal) priority as x's main variable */
 static GEN
 denompol(GEN x, long v)
 {
-  long tx = typ(x);
+  long vx, tx = typ(x);
   if (is_scalar_t(tx)) return gen_1;
   switch(typ(x))
   {
-    case t_SER: return gen_1;
+    case t_SER:
+      if (varn(x) != v) return x;
+      vx = valp(x); return vx < 0? pol_xn(-vx, v): pol_1(v);
     case t_RFRAC: x = gel(x,2); return varn(x) == v? x: pol_1(v);
     case t_POL: return pol_1(v);
     case t_VEC: case t_COL: case t_MAT: return vecdenompol(x, 1, lg(x)-1, v);
@@ -3367,6 +3371,7 @@ numer_i(GEN x)
     case t_FFELT:
     case t_PADIC:
     case t_SER:
+    case t_VECSMALL:
     case t_POL: return x;
     case t_POLMOD: return mkpolmod(numer_i(gel(x,2)), gel(x,1));
     case t_FRAC:
