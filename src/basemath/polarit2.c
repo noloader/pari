@@ -2019,7 +2019,7 @@ Q_muli_to_int(GEN x, GEN d)
       gel(y,2) = Q_muli_to_int(gel(x,2),d);
       return y;
     case t_PADIC:
-      y = gcopy(y); if (!isint1(d)) setvalp(y, 0);
+      y = gcopy(x); if (!isint1(d)) setvalp(y, 0);
       return y;
     case t_QUAD:
       y = cgetg(4,t_QUAD);
