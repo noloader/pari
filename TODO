@@ -13,9 +13,6 @@ Priority classification (first column): [subjective and debatable]
 ***************************    BUGS    ***********************************
 Unless specified otherwise, examples assume 64bit machine and default precision
 
-1  recursive plot easily fooled. One could split intervals in 3 + make sure
-   size of neighbouring intervals don't differ too much.
-
 1  O(x) * y --> O(x)
    O(y) * x --> O(y) * x
    [ design flaw in the current model for multivariate power series. Some work
