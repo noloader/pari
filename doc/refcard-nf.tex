@@ -101,15 +101,16 @@ to relative extensions $L/K$.\hfill\break
 \li{smallest poly defining $f=0$ (slow)}{polredabs$(f,\{\fl\})$}
 \li{small poly defining $f=0$ (fast)}{polredbest$(f,\{\fl\})$}
 \li{random Tschirnhausen transform of $f$}{poltschirnhaus$(f)$}
-\li{$\QQ[x]/(f) \subset \QQ[x]/(g)$ ? Isomorphic?}
+\li{$\QQ[t]/(f) \subset \QQ[t]/(g)$ ? Isomorphic?}
    {nfisincl$(f,g)$, \kbd{nfisisom}}
-\li{reverse polmod $a=A(X)\mod T(X)$}{modreverse$(a)$}
-\li{compositum of $\QQ[X]/(f)$, $\QQ[X]/(g)$}{polcompositum$(f,g,\{\fl\})$}
-\li{compositum of $K[X]/(f)$, $K[X]/(g)$}{nfcompositum$(\var{nf}, f,g,\{\fl\})$}
+\li{reverse polmod $a=A(t)\mod T(t)$}{modreverse$(a)$}
+\li{compositum of $\QQ[t]/(f)$, $\QQ[t]/(g)$}{polcompositum$(f,g,\{\fl\})$}
+\li{compositum of $K[t]/(f)$, $K[t]/(g)$}{nfcompositum$(\var{nf}, f,g,\{\fl\})$}
 \li{splitting field of $K$ (degree divides $d$)}
    {nfsplitting$(\var{nf},\{d\})$}
 \li{signs of real embeddings of $x$}{nfeltsign$(\var{nf},x,\{pl\})$}
 \li{complex embeddings of $x$}{nfeltembed$(\var{nf},x,\{pl\})$}
+\li{$T\in K[t]$, \# of real roots of $\sigma(T)\in\R[t]$}{nfpolsturm$(\var{nf},T,\{pl\})$}
 
 \smallskip
 \subsec{Subfields, polynomial factorization}
