@@ -45,3 +45,7 @@ exponent([-10,5;11,16.0])
 exponent(2.*x - 1.)
 exponent(2.*x - 1. + O(x^2))
 exponent(quadgen(-15))
+
+v=[1,1/2,2+3*quadgen(-3),2+3*I, (2+3*I)/(x+1)];
+real(v)
+imag(v)
