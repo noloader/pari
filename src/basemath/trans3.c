@@ -1392,7 +1392,7 @@ gerfc(GEN x, long prec)
   else
   { /* erfc(-x)=2-erfc(x) */
     /* FIXME could decrease prec
-    long size = nbits2extraprec(ceil((pow(rtodbl(gimag(x)),2)-pow(rtodbl(greal(x)),2))/LOG2)));
+    long size = nbits2extraprec((imag(x)^2-real(x)^2)/log(2));
     prec = size > 0 ? prec : prec + size;
     */
     /* NOT gsubsg(2, ...) : would create a result of
@@ -2338,7 +2338,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       prpr = (precdl + v + 1)/v; if (gequal1(s0)) prpr += v;
       s = gadd(gadd(s0, pol_x(0)), zeroser(0, prpr));
     }
-  al = gneg(s0); ral = greal(al); ral0 = ground(ral);
+  al = gneg(s0); ral = real_i(al); ral0 = ground(ral);
   if (gequal1(s0) && (!sch || gequal0(sch)))
     pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
   fli = (gsigne(ral0) >= 0 && gexpo(gsub(al, ral0)) < 17 - bitprec);
@@ -2351,7 +2351,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   else
   {
     const double D = (typ(s) == t_INT)? 0.24: 0.4;
-    GEN C, rs = greal(gsubsg(1, s0));
+    GEN C, rs = real_i(gsubsg(1, s0));
     long ebit = 0;
     if (fli) al = gadd(al, ghalf); /* hack */
     if (gsigne(rs) > 0)

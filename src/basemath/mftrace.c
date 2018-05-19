@@ -12129,7 +12129,7 @@ Haberland(GEN PF, GEN PG, GEN vEF, GEN vEG, long k)
     }
   }
   S = mulcxpowIs(gmul2n(S, 1-k), 1+k);
-  return vEF==vEG? greal(S): S;
+  return vEF==vEG? real_i(S): S;
 }
 /* F1S, F2S both symbols, same mf */
 static GEN

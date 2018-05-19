@@ -1490,7 +1490,7 @@ lfunlambda_product(GEN L, GEN s, GEN sdom, long bitprec)
       r = gmul(r, gpowgs(gconj(fc), C[i]));
     }
   }
-  if ((ldata_isreal(ldata) && gequal0(gimag(s)))) r = greal(r);
+  if ((ldata_isreal(ldata) && gequal0(imag_i(s)))) r = greal(r);
   return gerepileupto(av, r);
 }
 

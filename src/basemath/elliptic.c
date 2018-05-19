@@ -6027,8 +6027,8 @@ ellheight_C(GEN E, GEN P, long prec)
   GEN b = gdiv(gsub(gmul(w1, gconj(z)),gmul(w1c, z)), D);
   GEN a = gdiv(gsub(z, gmul(b, w2)), w1);
   GEN eta = gadd(gmul(a, e1), gmul(b, e2));
-  GEN r = gmul2n(greal(gmul(z, eta)), -1);
-  GEN l = greal(ellsigma(per, z, 1, prec));
+  GEN r = gmul2n(real_i(gmul(z, eta)), -1);
+  GEN l = real_i(ellsigma(per, z, 1, prec));
   return gerepileupto(av, gsub(r, l));
 }
 

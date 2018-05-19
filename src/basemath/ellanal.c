@@ -340,12 +340,12 @@ glambda(GEN t, GEN vec, GEN h, long real, long prec)
   /* assume vec is a grid */
   ehs = gexp(gmul(gen_I(),gmul(h, t)), prec);
   elhs = (real == 1) ? gen_1 : mkcomplex(gen_0, gen_m1);
-  r = gmul2n(greal(gmul(greal(gel(vec, 1)), elhs)), -1);
+  r = gmul2n(real_i(gmul(real_i(gel(vec, 1)), elhs)), -1);
   /* FIXME: summing backward may be more stable */
   for (l = 2; l <= L; ++l)
   {
     elhs = gmul(elhs, ehs);
-    r = gadd(r, greal(gmul(gel(vec, l), elhs)));
+    r = gadd(r, real_i(gmul(gel(vec, l), elhs)));
   }
   return gmul(mulsr(4, h), r);
 }
@@ -552,7 +552,7 @@ heegner_psi(GEN E, GEN N, GEN points, long bitprec)
   Q  = cgetg(L+1, t_VEC);
   for (l = 1; l <= L; ++l)
   {
-    gel(bnd,l) = ceil_safe(divrr(B,gimag(gel(points, l))));
+    gel(bnd,l) = ceil_safe(divrr(B,imag_i(gel(points, l))));
     rbnd[l] = itou(sqrtint(gel(bnd,l)))+1;
     gel(Q, l) = expIxy(pi2, gel(points, l), prec);
   }
@@ -945,7 +945,7 @@ static GEN
 heegner_indexmult(GEN om, long t, GEN tam, long prec)
 {
   pari_sp av = avma;
-  GEN Ovr = gabs(gimag(gel(om, 2)), prec); /* O_vol/O_re, t_REAL */
+  GEN Ovr = gabs(imag_i(gel(om, 2)), prec); /* O_vol/O_re, t_REAL */
   return gerepileupto(av, divru(divir(tam, Ovr), 4*t*t));
 }
 
@@ -982,7 +982,7 @@ heegner_try_point(GEN E, GEN lambdas, GEN ht, GEN z, long prec)
 {
   long l = lg(lambdas);
   long i, eps;
-  GEN P = greal(pointell(E, z, prec)), x = gel(P,1);
+  GEN P = real_i(pointell(E, z, prec)), x = gel(P,1);
   GEN rh = subrr(ht, shiftr(ellheightoo(E, P, prec),1));
   for (i = 1; i < l; ++i)
   {

@@ -278,7 +278,7 @@ gamma_imagchi(GEN gam, long w)
     GEN al = gel(gam, i);
     if (al)
     {
-      GEN N = gaddsg(w,gmul2n(greal(al),1));
+      GEN N = gaddsg(w,gmul2n(real_i(al),1));
       if (gcmpgs(N,2) > 0)
       {
         GEN bl = gsubgs(al, 1);
@@ -1363,7 +1363,7 @@ lfunmfspec(GEN lmisc, long bitprec)
     om = gen_1;
     op = gel(vodd,1);
   }
-  if (maxss(gexpo(gimag(om)), gexpo(gimag(op))) > -bitprec/2)
+  if (maxss(gexpo(imag_i(om)), gexpo(imag_i(op))) > -bitprec/2)
     pari_err_TYPE("lfunmfspec", lmisc);
   vodd = gdiv(vodd, op);
   eps = int2n(bitprec/4);
@@ -1452,7 +1452,7 @@ lfunellsymsqmintwist(GEN e)
 static GEN
 mfpeters(GEN ldata2, GEN fudge, GEN N, long k, long bitprec)
 {
-  GEN t, L = greal(lfun(ldata2, stoi(k), bitprec));
+  GEN t, L = real_i(lfun(ldata2, stoi(k), bitprec));
   long prec = nbits2prec(bitprec);
   t = powrs(mppi(prec), k+1); shiftr_inplace(t, 2*k-1); /* Pi/2 * (4Pi)^k */
   return gmul(gdiv(gmul(mulii(N,mpfact(k-1)), fudge), t), L);
