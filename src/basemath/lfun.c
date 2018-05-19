@@ -1706,6 +1706,34 @@ lfunlambda(GEN lmisc, GEN s, long bitprec)
   return gerepilecopy(av, z);
 }
 
+static long
+is_ser(GEN x)
+{
+  long t = typ(x);
+  if (t == t_SER) return 1;
+  if (!is_vec_t(t) || lg(x)==1) return 0;
+  if (typ(gel(x,1))==t_SER) return 1;
+  return 0;
+}
+
+static GEN
+lfunser(GEN res)
+{
+  long v = valp(res);
+  if (v > 0) return gen_0;
+  if (v == 0) res = gel(res, 2);
+  else
+    setlg(res, minss(lg(res), 2-v));
+  return res;
+}
+
+static GEN
+lfunservec(GEN x)
+{
+  if (typ(x)==t_SER) return lfunser(x);
+  pari_APPLY_same(lfunser(gel(x,i)))
+}
+
 /* assume lmisc is an linit, s went through get_domain and s/bitprec belong
  * to domain */
 static GEN
@@ -1716,25 +1744,20 @@ lfun_OK(GEN linit, GEN s, GEN sdom, long bitprec)
 
   FVga = lfun_get_factgammavec(linit_get_tech(linit));
   S = lfunlambda_OK(linit, s, sdom, bitprec);
-  if (typ(S)==t_SER)
+  if (is_ser(S))
   {
-    long d = lg(S) - 2 + fracgammadegree(FVga);
+    GEN r = typ(S)==t_SER ? S : gel(S,1);
+    long d = lg(r) - 2 + fracgammadegree(FVga);
     if (typ(s) == t_SER)
       ss = sertoser(s, d);
     else
-      ss = deg1ser_shallow(gen_1, s, varn(S), d);
+      ss = deg1ser_shallow(gen_1, s, varn(r), d);
   }
   gas = gammafactproduct(FVga, ss, prec);
   N = ldata_get_conductor(linit_get_ldata(linit));
   res = gdiv(S, gmul(gpow(N, gdivgs(ss, 2), prec), gas));
-  if (typ(s)!=t_SER && typ(res)==t_SER)
-  {
-    long v = valp(res);
-    if (v > 0) return gen_0;
-    if (v == 0) res = gel(res, 2);
-    else
-      setlg(res, minss(lg(res), 2-v));
-  }
+  if (typ(s)!=t_SER && is_ser(res))
+    res = lfunservec(res);
   return gprec_w(res, prec);
 }
 
@@ -1815,6 +1838,24 @@ lfunlambdaord(GEN linit, GEN s)
   return 0;
 }
 
+static GEN
+derser(GEN res, long m)
+{
+  long v = valp(res);
+  if (v > m) return gen_0;
+  if (v >= 0)
+    return gmul(mysercoeff(res, m), mpfact(m));
+  else
+    return derivn(res, m, -1);
+}
+
+static GEN
+derservec(GEN x, long m)
+{
+  if (typ(x)==t_SER) return derser(x, m);
+  pari_APPLY_same(derser(gel(x,i),m))
+}
+
 /* derivative of order m > 0 of L (flag = 0) or Lambda (flag = 1) */
 static GEN
 lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
@@ -1853,6 +1894,8 @@ lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
     else
       res = derivn(res, m, -1);
   }
+  else if (is_ser(res))
+    res = derservec(res, m);
   return gerepilecopy(ltop, gprec_w(res, prec));
 }
 
