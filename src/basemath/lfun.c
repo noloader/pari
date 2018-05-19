@@ -1473,12 +1473,9 @@ static GEN lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec);
 static GEN
 lfunlambda_product(GEN L, GEN s, GEN sdom, long bitprec)
 {
-  pari_sp av = avma;
   GEN ldata = linit_get_ldata(L), v = lfunprod_get_fact(linit_get_tech(L));
-  GEN r = gen_1, F = gel(v, 1), E = gel(v, 2), C = gel(v, 3);
-  long i, l = lg(F);
-  GEN cs = gconj(s);
-  long isreal = gequal(imag_i(s), imag_i(cs));
+  GEN r = gen_1, F = gel(v,1), E = gel(v,2), C = gel(v,3), cs = gconj(s);
+  long i, l = lg(F), isreal = gequal(imag_i(s), imag_i(cs));
   for (i = 1; i < l; ++i)
   {
     GEN f = lfunlambda_OK(gel(F, i), s, sdom, bitprec);
@@ -1486,12 +1483,11 @@ lfunlambda_product(GEN L, GEN s, GEN sdom, long bitprec)
       r = gmul(r, gpowgs(f, E[i]));
     if (C[i])
     {
-      GEN fc = isreal ? f: lfunlambda_OK(gel(F, i), cs, sdom, bitprec);
+      GEN fc = isreal? f: lfunlambda_OK(gel(F, i), cs, sdom, bitprec);
       r = gmul(r, gpowgs(gconj(fc), C[i]));
     }
   }
-  if ((ldata_isreal(ldata) && gequal0(imag_i(s)))) r = greal(r);
-  return gerepileupto(av, r);
+  return (ldata_isreal(ldata) && gequal0(imag_i(s)))? real_i(r): r;
 }
 
 /* s a t_SER */
