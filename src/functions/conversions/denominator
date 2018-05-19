@@ -42,3 +42,6 @@ Doc:
  ? denominator(f, y) \\ as a rational function in y
  %5 = 2*y
  @eprog
+Variant: Also available are
+ \fun{GEN}{denom}{GEN x}  which implements the not very useful default
+ behaviour ($D$ is \kbd{NULL}) and \fun{GEN}{Q_denom}{GEN x} ($D = 1$).

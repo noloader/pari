@@ -4,7 +4,7 @@ C-Name: numerator
 Prototype: GDG
 Help: numerator(f,{D}): numerator of f.
 Doc:
- numerator of $f$. This is defined as \kbd{f * denominator(f)}, see
+ numerator of $f$. This is defined as \kbd{f * denominator(f,D)}, see
  \kbd{denominator} for details. The optional argument $D$ allows to control
  over which ring we compute the denominator:
 
@@ -23,3 +23,8 @@ Doc:
  ? numerator(f, y) \\ as a rational function in y
  %5 = 2*y*x + (y + 2)
  @eprog
+Variant: Also available are
+ \fun{GEN}{numer}{GEN x}  which implements the not very useful default
+ behaviour ($D$ is \kbd{NULL}) and
+ \fun{GEN}{Q_remove_denom}{GEN x, GEN *ptd} ($D = 1$) and also returns the
+ denominator (coding $1$ as \kbd{NULL}).
