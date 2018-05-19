@@ -29,6 +29,7 @@ BA    2- [libpari] Fp_pow_init, Flxq_pow_init, F2xq_pow_init
                    Fp_pow_table, Flxq_pow_table, F2xq_pow_table
                    gen_pow_init, gen_pow_table
       3- new GP function serchop
+      4- [libpari] serchop_i
 
 Done for version 2.10.0 (released 15/05/2018):
   Fixed
