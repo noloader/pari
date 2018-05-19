@@ -142,6 +142,7 @@ for suf in $SUF; do
     flist=`eval echo '$'files$suf`
     for f in $flist; do
       wrln "	$f"
+      if test "$dump_dif" = 1; then cat $f; fi
     done
   fi
 done
