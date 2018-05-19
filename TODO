@@ -53,7 +53,7 @@ Misc:
 
 2  sparse representations for multivariate polynomials and matrices.
 
-2  type "element in" ([number|finite] field...), "point" on elliptic curve
+1  type "element in" ([number|finite] field...), "point" on elliptic curve
 
 2  find a way to deal (generically) with "integral object + its content"
    [ rational arithmetic would be much more efficient, when polynomials or
