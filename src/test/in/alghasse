@@ -267,3 +267,23 @@ p3 = idealprimedec(nf,3)[1];
 al = alginit(nf, [2,[[p3],[1/2]], [1/2,0,0,1/2,1/2,0,0,0]]);
 algramifiedplaces(al)
 
+print("degree bug");
+nf = nfinit(y); p2 = idealprimedec(nf,2)[1]; p3 = idealprimedec(nf,3)[1];
+al = alginit(nf, [4,[[p2,p3],[1/2,1/2]],[0]]); algdegree(al)
+{for(i=1,10,
+  al = alginit(nf, [2,[[p2,p3],[0,0]],[0]]);
+  print1(algdegree(al)," ");
+)};
+al = alginit(nf, [4,[[p2,p3],[0,0]],[0]]); algdegree(al)
+nf = nfinit(z^2+1);
+p31 = idealprimedec(nf,31)[1];
+p2 = idealprimedec(nf,2)[1];
+{for(i=1,10,
+   al = alginit(nf, [2, [[p31,p2], [0, 0]], []]); print1(algdegree(al)," ");
+)};
+
+
+
+
+
+

@@ -3868,12 +3868,31 @@ rnfcycaut(GEN rnf)
   return NULL; /*LCOV_EXCL_LINE*/
 }
 
+/* returns Lpr augmented with an extra, distinct prime */
+/* TODO be less lazy and return a small prime */
+static GEN
+extraprime(GEN nf, GEN Lpr)
+{
+  GEN Lpr2, p = gen_2, pr;
+  long i;
+  Lpr2 = cgetg(lg(Lpr)+1,t_VEC);
+  for (i=1; i<lg(Lpr); i++)
+  {
+    gel(Lpr2,i) = gel(Lpr,i);
+    p = gmax(p, pr_get_p(gel(Lpr,i)));
+  }
+  p = nextprime(addis(p,1));
+  pr = gel(idealprimedec_limit_f(nf, p, 0), 1);
+  gel(Lpr2,lg(Lpr)) = pr;
+  return Lpr2;
+}
+
 GEN
 alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
 {
   pari_sp av = avma;
-  GEN primary, al = gen_0, al2, rnf, hil, hfl, Ld, pl, pol, Lpr, aut;
-  long i, lk, j;
+  GEN primary, al = gen_0, al2, rnf, hil, hfl, Ld, pl, pol, Lpr, aut, Lpr2, Ld2;
+  long i, lk, j, maxdeg;
   dbg_printf(1)("alg_hasse\n");
   if (n<=1) pari_err_DOMAIN("alg_hasse", "degree", "<=", gen_1, stoi(n));
   primary = hassecoprime(hf, hi, n);
@@ -3882,17 +3901,46 @@ alg_hasse(GEN nf, long n, GEN hf, GEN hi, long var, long maxord)
     hfl = gmael(primary,i,1);
     hil = gmael(primary,i,2);
     checkhasse(nf, hfl, hil, lk);
+    dbg_printf(1)("alg_hasse: i=%d hf=%Ps hi=%Ps lk=%d\n", i, hfl, hil, lk);
 
     if (lg(gel(hfl,1))>1 || lk%2==0) {
+      maxdeg = 1;
       Lpr = gel(hfl,1);
       Ld = gcopy(gel(hfl,2));
-      for (j=1; j<lg(Ld); j++) Ld[j] = lk/ugcd(lk,Ld[j]);
+      for (j=1; j<lg(Ld); j++)
+      {
+        Ld[j] = lk/ugcd(lk,Ld[j]);
+        maxdeg = maxss(Ld[j],maxdeg);
+      }
       pl = gcopy(hil);
-      for (j=1; j<lg(pl); j++) pl[j] = pl[j] ? -1 : 0;
+      for (j=1; j<lg(pl); j++) if(pl[j])
+      {
+        pl[j] = -1;
+        maxdeg = maxss(maxdeg,2);
+      }
 
-      pol = nfgrunwaldwang(nf,Lpr,Ld,pl,var);
+      Lpr2 = Lpr;
+      Ld2 = Ld;
+      if (maxdeg<lk)
+      {
+        if (maxdeg==1 && lk==2 && lg(pl)>1) pl[1] = -1;
+        else
+        {
+          Lpr2 = extraprime(nf,Lpr);
+          Ld2 = cgetg(lg(Ld)+1, t_VECSMALL);
+          for (j=1; j<lg(Ld); j++) Ld2[j] = Ld[j];
+          Ld2[lg(Ld)] = lk;
+        }
+      }
+
+      dbg_printf(2)("alg_hasse: calling nfgrunwaldwang Lpr=%Ps Pd=%Ps pl=%Ps\n",
+          Lpr, Ld, pl);
+      pol = nfgrunwaldwang(nf, Lpr2, Ld2, pl, var);
+      dbg_printf(2)("alg_hasse: calling rnfinit(%Ps)\n", pol);
       rnf = rnfinit0(nf,pol,1);
+      dbg_printf(2)("alg_hasse: computing automorphism\n");
       aut = rnfcycaut(rnf);
+      dbg_printf(2)("alg_hasse: calling alg_complete\n");
       al2 = alg_complete0(rnf,aut,hfl,hil,maxord);
     }
     else al2 = alg_matrix(nf, lk, var, cgetg(1,t_VEC), maxord);

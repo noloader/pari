@@ -6,6 +6,7 @@ Done for version 2.10.1 (released ??/??/2018):
 BA    2- nfisincl() result uses wrong variable [#2041]
       3- polcompositum(,1) when one polynomial has degree 1 [#2045]
       4- Mod(0,3)*x + O(x^2) -> O(x^2) [instead of same]
+AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
