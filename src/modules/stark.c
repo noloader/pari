@@ -66,7 +66,7 @@ CharEval(GEN chi, GEN logelt)
   long nn = Fl_center(n,d,d>>1);
   GEN x = gel(chi,2);
   x = gpowgs(x, labs(nn));
-  if (nn < 0) x = gconj(x);
+  if (nn < 0) x = conj_i(x);
   return x;
 }
 
@@ -1548,7 +1548,7 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
   { /* (W(chi).S(conj(chi)) + T(chi)) / (sqrt(Pi)^q 2^{r1 - q}) */
     cf = gmul2n(powruhalf(mppi(prec), q), b);
 
-    z = gadd(gmul(W, gconj(S)), gconj(T));
+    z = gadd(gmul(W, conj_i(S)), conj_i(T));
     if (isreal) z = real_i(z);
     z = gdiv(z, cf); r = 0;
     if (fl & 2) z = gmul(z, ComputeAChi(dtcr, &r, 0, prec));
@@ -1992,7 +1992,7 @@ QuadGetST(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
           if (++c == 256) { gerepileall(av2,2, &p1,&p2); c = 0; }
         }
       gaffect(gmul(cf0, p1), gel(S,t));
-      gaffect(gmul(cf1,  gconj(p2)), gel(T,t));
+      gaffect(gmul(cf1,  conj_i(p2)), gel(T,t));
       FreeMat(matan,NN); avma = av2;
     }
     if (DEBUGLEVEL>1) err_printf("\n");
@@ -2245,7 +2245,7 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
            if (++c == 256) { gerepileall(av2,2, &p1,&p2); c = 0; }
           }
         gaffect(p1,        gel(S,t));
-        gaffect(gconj(p2), gel(T,t));
+        gaffect(conj_i(p2), gel(T,t));
         FreeMat(matan, NN); avma = av2;
       }
       else if (DEBUGLEVEL>1)
@@ -2431,7 +2431,7 @@ LABDOUB:
       long r;
       GEN WW, A = ComputeAChi(gel(dataCR,i), &r, 0, newprec);
       WW = gmul(gel(C,i), gmul(A, gel(W,i)));
-      gel(Lp,i) = gdiv(gmul(WW, gconj(gel(L1,i))), p1);
+      gel(Lp,i) = gdiv(gmul(WW, conj_i(gel(L1,i))), p1);
     }
   }
 
@@ -2652,7 +2652,7 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
         gel(L1,i) = GetValue(gel(dataCR,a), gel(W,a), gel(S,a), gel(T,a),
                              flag, prec);
       else
-        gel(L1,i) = gconj(gel(L1,-a));
+        gel(L1,i) = conj_i(gel(L1,-a));
     }
   }
   if (!(flag & 1))
@@ -3321,8 +3321,8 @@ ellphistinit(GEN om, long prec)
   GEN res,om1b,om2b, om1 = gel(om,1), om2 = gel(om,2);
 
   if (gsigne(imag_i(gdiv(om1,om2))) < 0) { swap(om1,om2); om = mkvec2(om1,om2); }
-  om1b = gconj(om1);
-  om2b = gconj(om2); res = cgetg(4,t_VEC);
+  om1b = conj_i(om1);
+  om2b = conj_i(om2); res = cgetg(4,t_VEC);
   gel(res,1) = gdivgs(elleisnum(om,2,0,prec),12);
   gel(res,2) = gdiv(PiI2(prec), gmul(om2, imag_i(gmul(om1b,om2))));
   gel(res,3) = om2b; return res;

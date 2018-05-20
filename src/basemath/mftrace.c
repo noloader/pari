@@ -7255,7 +7255,7 @@ START:
         if (gexpo(v) > bit_add - bit/2) break;
       }
       if (m > LIM) { LIM <<= 1; goto START; }
-      C = mulcxpowIs(gdiv(v,gconj(v)), 2*m - k);
+      C = mulcxpowIs(gdiv(v,conj_i(v)), 2*m - k);
       C0 = grndtoi(C, &e); if (e < 5-bit) C = C0;
       gel(z,j) = C;
     }
@@ -9752,7 +9752,7 @@ eiscnm(long nm, long m, GEN CHI1vec, GEN CHI2vec, GEN data, GEN z1)
       T = gadd(T, gmul(c1, S));
     }
   }
-  return gconj(T);
+  return conj_i(T);
 }
 
 static GEN
@@ -9817,7 +9817,7 @@ mfskcx(long k, GEN CHI, long M, long prec)
     GEN Q = mfqk(k, F), V = CHIvec_val(CHIvec);
     S = gmul(gel(V, F), RgX_coeff(Q, 0));
     for (m = 1; m < F; m++) S = gadd(S, gmul(gel(V, m), RgX_coeff(Q, m)));
-    S = gconj(S);
+    S = conj_i(S);
   }
   /* prime divisors of M not dividing f(chi) */
   P = gel(myfactoru(u_ppo(M/F,F)), 1); l = lg(P);
@@ -9838,7 +9838,7 @@ f00_i(long k, GEN CHI1vec, GEN CHI2vec, GEN G2, GEN S, long prec)
   c = mychareval(CHI1vec, S[3]);
   if (isintzero(c)) return gen_0;
   a = mfskcx(k, mfchardiv(CHIvec_CHI(CHI2vec), CHIvec_CHI(CHI1vec)), N1*N2, prec);
-  a = gmul(a, gconj(gmul(c,G2)));
+  a = gmul(a, conj_i(gmul(c,G2)));
   return gdiv(a, mulsi(-N2, powuu(S[1], k-1)));
 }
 
@@ -9982,11 +9982,11 @@ mfeisensteingacx(GEN E, long w, GEN ga, long lim, long prec)
   for (; m <= lim; n+=cg, m+=H)
     gel(v, m+1) = fg1g2n(n, k, CHI1vec, CHI2vec, data, z1,z2);
   t = (2*e)/g; if (odd(k)) t = -t;
-  v = gdiv(v, gmul(gconj(gmul(G1,G2)), mulsi(t, powuu(eg*N2/NC2, k-1))));
+  v = gdiv(v, gmul(conj_i(gmul(G1,G2)), mulsi(t, powuu(eg*N2/NC2, k-1))));
   if (k == 2 && N1 == 1 && N2 == 1) v = gsub(mkF2bd(wN,lim), gmulsg(e,v));
 
   Qtoss(ALPHA, &na,&da);
-  S = gconj( mfcharmulcxeval(CHI1vec,CHI2vec,d,prec) ); /* CHI(1/d) */
+  S = conj_i( mfcharmulcxeval(CHI1vec,CHI2vec,d,prec) ); /* CHI(1/d) */
   if (wN > 1)
   {
     GEN z = rootsof1powinit(-mu, wN, prec);
@@ -10128,7 +10128,7 @@ lfunfindchi(GEN ldata, GEN van, long prec)
       GEN an = gel(van,n), r;
       long j;
       if (ugcd(n, N) != 1 || gexpo(an) < bit) continue;
-      r = gdiv(an, gconj(an));
+      r = gdiv(an, conj_i(an));
       for (i = 1; i < l; i++)
       {
         GEN CHI = gel(L,i);
@@ -11534,7 +11534,7 @@ mfgaexpansionall(GEN mf, GEN FE, GEN cosets, double height, long prec)
       for (n = 0; n <= nlim2; n++, s = Fl_add(s, t, daw))
         gel(V, n+1) = gmul(gel(van, n+1), rootsof1pow(z, s));
       coe = mfcharcxeval(CHI, Di, prec + 1);
-      if (!gequal1(coe)) V = RgV_Rg_mul(V, gconj(coe));
+      if (!gequal1(coe)) V = RgV_Rg_mul(V, conj_i(coe));
       gel(vres, ind) = V;
     }
   }
@@ -11600,7 +11600,7 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
       gel(vP,i) = gprec_wtrunc(P, prec);
       if (iS == i) continue;
 
-      P = act_S(isint1(c)? P1: gmul(gconj(c), P1), k);
+      P = act_S(isint1(c)? P1: gmul(conj_i(c), P1), k);
       if (!odd(k)) P = gneg(P);
       P = normalizeapprox(gadd(P, P2), bit-20);
       gel(vP,iS) = gprec_wtrunc(P, prec);
@@ -12041,7 +12041,7 @@ mfmanin(GEN FS, long bitprec)
     p = normal(RgXV_embed(vpp,0,E), polabs, roabs, rnfeq, &wp, prec);
     m = normal(RgXV_embed(vmm,0,E), polabs, roabs, rnfeq, &wm, prec);
     petdiag = typ(pet)==t_MAT? gcoeff(pet,i,i): pet;
-    r = gdiv(imag_i(gmul(wp, gconj(wm))), petdiag);
+    r = gdiv(imag_i(gmul(wp, conj_i(wm))), petdiag);
     r = bestapprnfrel(r, polabs, roabs, rnfeq, prec);
     gel(M,i) = mkvec2(mkvec2(p,m), mkvec3(wp,wm,r));
   }
@@ -12123,7 +12123,7 @@ Haberland(GEN PF, GEN PG, GEN vEF, GEN vEG, long k)
       GEN a = RgX_coeff(PGj, k-2-n), b = RgX_coeff(PFj, n);
       a = Rg_embedall(a, vEG);
       b = Rg_embedall(b, vEF);
-      a = gconj(a); if (typ(a) == t_VEC) settyp(a, t_COL);
+      a = conj_i(a); if (typ(a) == t_VEC) settyp(a, t_COL);
       /* a*b = scalar or t_VEC or t_COL or t_MAT */
       S = gadd(S, gdiv(gmul(a,b), gel(vC,n+1)));
     }
@@ -12477,7 +12477,7 @@ mfpetersson2(GEN Fs, GEN Gs)
       GEN b = gel(VF,n), a = gel(VG,n);
       if (!isintzero(a) && !isintzero(b))
       {
-        T = gadd(T, gmul(gel(W,n), gmul(gconj(a),b)));
+        T = gadd(T, gmul(gel(W,n), gmul(conj_i(a),b)));
         if (gc_needed(av,2)) T = gerepileupto(av,T);
       }
     }

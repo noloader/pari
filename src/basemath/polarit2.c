@@ -711,11 +711,11 @@ gauss_factor(GEN x)
     long v, e = itos(gel(E,i));
     int is2 = absequaliu(p, 2);
     w = is2? mkcomplex(gen_1,gen_1): gauss_factor_p(p);
-    w2 = gauss_normal( gconj(w) );
-    /* w * w2 * I^3 = p, w2 = gconj(w) * I */
+    w2 = gauss_normal( conj_i(w) );
+    /* w * w2 * I^3 = p, w2 = conj(w) * I */
     pe = powiu(p, e);
     we = gpowgs(w, e);
-    t = gauss_primpart_try( gmul(y, gconj(we)), pe );
+    t = gauss_primpart_try( gmul(y, conj_i(we)), pe );
     if (t) y = t; /* y /= w^e */
     else {
       /* y /= conj(w)^e, should be y /= w2^e */
@@ -784,7 +784,7 @@ gauss_factor(GEN x)
         gel(E,i) = stoi(2*e);
       else
       {
-        P = shallowconcat(P, gauss_normal( gconj(w) ));
+        P = shallowconcat(P, gauss_normal( conj_i(w) ));
         E = shallowconcat(E, gel(E,i));
       }
       exp -= e; /* += 3*e mod 4 */

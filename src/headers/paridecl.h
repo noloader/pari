@@ -3286,6 +3286,7 @@ GEN     galoisnbpol(long a);
 GEN     galoisgetpol(long a, long b, long s);
 
 /* gen1.c */
+GEN     conj_i(GEN x);
 GEN     conjvec(GEN x,long prec);
 GEN     gadd(GEN x, GEN y);
 GEN     gaddsg(long x, GEN y);

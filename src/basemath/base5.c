@@ -911,7 +911,7 @@ rnfscal(GEN m, GEN x, GEN y)
   long i, l = lg(m);
   GEN z = cgetg(l, t_COL);
   for (i = 1; i < l; i++)
-    gel(z,i) = gmul(gconj(shallowtrans(gel(x,i))), gmul(gel(m,i), gel(y,i)));
+    gel(z,i) = gmul(conj_i(shallowtrans(gel(x,i))), gmul(gel(m,i), gel(y,i)));
   return z;
 }
 
@@ -995,7 +995,7 @@ do_SWAP(GEN I, GEN MC, GEN MCS, GEN h, GEN mu, GEN B, long kmax, long k,
   swap(gel(I,k-1), gel(I,k));
   for (j=1; j<=k-2; j++) swap(gcoeff(mu,k-1,j),gcoeff(mu,k,j));
   muf = gcoeff(mu,k,k-1);
-  mufc = gconj(muf);
+  mufc = conj_i(muf);
   Bf = gadd(gel(B,k), vecmul(real_i(vecmul(muf,mufc)), gel(B,k-1)));
   if (check_0(Bf)) return 1; /* precision problem */
 
@@ -1043,14 +1043,14 @@ rel_T2(GEN nf, GEN pol, long lx, long prec)
       {
         s = gen_0;
         for (j = 1; j < lx; j++)
-          s = gadd(s, gmul(gconj(gmael(powreorder,k,j)),
-                                 gmael(powreorder,l,j)));
+          s = gadd(s, gmul(conj_i(gmael(powreorder,k,j)),
+                                  gmael(powreorder,l,j)));
         if (l == k)
           gcoeff(m, l, l) = real_i(s);
         else
         {
           gcoeff(m, k, l) = s;
-          gcoeff(m, l, k) = gconj(s);
+          gcoeff(m, l, k) = conj_i(s);
         }
       }
     gel(T2,i) = m;

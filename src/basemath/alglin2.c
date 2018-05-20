@@ -1096,7 +1096,7 @@ gnorm(GEN x)
     case t_QUAD:    av = avma; return gerepileupto(av, quadnorm(x));
 
     case t_POL: case t_SER: case t_RFRAC: av = avma;
-      return gerepileupto(av, greal(gmul(gconj(x),x)));
+      return gerepileupto(av, greal(gmul(conj_i(x),x)));
 
     case t_FFELT:
       y = cgetg(3, t_INTMOD);
@@ -1417,7 +1417,7 @@ gtrace(GEN x)
 
 
     case t_RFRAC:
-      return gadd(x, gconj(x));
+      av = avma; return gerepileupto(av, gadd(x, conj_i(x)));
 
     case t_VEC: case t_COL:
       y = cgetg_copy(x, &lx);

@@ -1906,7 +1906,7 @@ rootsof1q_cx(long a, long b, long prec)
   if (g != 1) { a /= g; b /= g; }
   if (b < 0) { b = -b; a = -a; }
   z = rootsof1u_cx(b, prec);
-  if (a < 0) { z = gconj(z); a = -a; }
+  if (a < 0) { z = conj_i(z); a = -a; }
   return gpowgs(z, a);
 }
 

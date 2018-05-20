@@ -82,7 +82,7 @@ static GEN
 vecan_conj(GEN an, long n, long prec)
 {
   GEN p1 = ldata_vecan(gel(an,1), n, prec);
-  return typ(p1) == t_VEC? gconj(p1): p1;
+  return typ(p1) == t_VEC? conj_i(p1): p1;
 }
 
 static GEN

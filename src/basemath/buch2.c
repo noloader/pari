@@ -2233,7 +2233,7 @@ perm_log_embed(GEN C, GEN perm)
     if (v > 0)
       gel(Cnew, i) = gel(C, v);
     else
-      gel(Cnew, i) = gconj(gel(C, -v));
+      gel(Cnew, i) = conj_i(gel(C, -v));
   }
   return Cnew;
 }
@@ -2775,7 +2775,7 @@ automorphism_perms(GEN M, GEN auts, GEN cyclic, long N)
     gel(perms, l) = cgetg(r1plusr2, t_VECSMALL);
   av = avma;
   Mt = shallowtrans(gprec_w(M, 3)); /* need little accuracy */
-  Mt = shallowconcat(Mt, gconj(vecslice(Mt, r1+1, r1+r2)));
+  Mt = shallowconcat(Mt, conj_i(vecslice(Mt, r1+1, r1+r2)));
   for (l = 1; l < ncyc; l++)
   {
     GEN thiscyc = gel(cyclic, l);

@@ -2455,7 +2455,7 @@ set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
       b = subii(b, mulii(n,d));
     }
     m = cxnorm(t); if (gcmp(m,run) > 0) break;
-    t = gneg_i(gdiv(gconj(t), m)); /* apply S */
+    t = gneg_i(gdiv(conj_i(t), m)); /* apply S */
     togglesign_safe(&c); swap(a,c);
     togglesign_safe(&d); swap(b,d);
   }
@@ -2827,7 +2827,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
   }
   if (yp)
   {
-    if (simple_case) yp = gsub(yp, gconj(gmul(yp,gsqr(u))));
+    if (simple_case) yp = gsub(yp, conj_i(gmul(yp,gsqr(u))));
     yp = gadd(yp, gdiv(gaddsg(1,u), gmul(u1,u2)));
   }
 
@@ -6021,10 +6021,10 @@ ellheight_C(GEN E, GEN P, long prec)
   pari_sp av = avma;
   GEN z = zell(E, P, prec);
   GEN per = ellperiods(E, 1, prec);
-  GEN w = gel(per,1), w1 = gel(w,1), w2 = gel(w, 2), w1c = gconj(w1);
+  GEN w = gel(per,1), w1 = gel(w,1), w2 = gel(w, 2), w1c = conj_i(w1);
   GEN e = gel(per,2), e1 = gel(e,1), e2 = gel(e, 2);
-  GEN D = gsub(gmul(w1, gconj(w2)),gmul(w1c, w2));
-  GEN b = gdiv(gsub(gmul(w1, gconj(z)),gmul(w1c, z)), D);
+  GEN D = gsub(gmul(w1, conj_i(w2)),gmul(w1c, w2));
+  GEN b = gdiv(gsub(gmul(w1, conj_i(z)),gmul(w1c, z)), D);
   GEN a = gdiv(gsub(z, gmul(b, w2)), w1);
   GEN eta = gadd(gmul(a, e1), gmul(b, e2));
   GEN r = gmul2n(real_i(gmul(z, eta)), -1);

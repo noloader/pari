@@ -553,7 +553,7 @@ lfunrtoR_i(GEN ldata, GEN r, GEN eno, long prec)
   {
     GEN rj = gel(r,j), a = gel(rj,1), ra = gel(rj,2);
     GEN Ra = rtoR(a, ra, FVga, N, prec);
-    GEN b = gsubsg(k, gconj(a));
+    GEN b = gsubsg(k, conj_i(a));
     if (lg(Ra)-2 < -valp(Ra))
       pari_err(e_MISC,
         "please give more terms in L function's Taylor development at %Ps", a);
@@ -561,7 +561,7 @@ lfunrtoR_i(GEN ldata, GEN r, GEN eno, long prec)
     if (!tablesearch(vr, b, (int (*)(GEN,GEN))&cmp_universal))
     {
       GEN mX = gneg(pol_x(varn(Ra)));
-      GEN Rb = gmul(eno, gsubst(gconj(Ra), varn(Ra), mX));
+      GEN Rb = gmul(eno, gsubst(conj_i(Ra), varn(Ra), mX));
       gel(R,jR++) = mkvec2(b, Rb);
     }
   }
@@ -758,33 +758,28 @@ vecan_cmul(void *E, GEN P, long a, GEN x)
 static GEN
 theta2(GEN vecan, long limt, GEN t, GEN al, long prec)
 {
-  GEN S, q, pi2 = Pi2n(1,prec), vroots = NULL;
+  GEN S, q, T, pi2 = Pi2n(1,prec), vroots = NULL;
   const struct bb_algebra *alg = get_Rg_algebra();
   GEN (*cmul)(void *, GEN, long, GEN);
-  long flag;
   if (gequal0(al))
   {
     cmul = vecan_cmul;
-    flag = 0;
+    T = NULL;
   }
   else if (gequal1(al))
   {
     cmul = vecan_n_cmul;
-    flag = 1;
+    T = t;
   }
   else
   {
     vroots = vecpowug(limt, al, prec);
     cmul = vecan_nv_cmul;
-    flag = 2;
+    T = gpow(t,al,prec);
   }
   setsigne(pi2,-1); q = gexp(gmul(pi2, t), prec);
   S = gen_bkeval(vecan, limt, q, 1, (void*)vroots, alg, cmul);
-  switch (flag)
-  {
-    case 1: S = gmul(t, S); break;
-    case 2: S = gmul(gpow(t,al,prec), S);
-  }
+  if (T) S = gmul(T, S);
   return gmul2n(S,1);
 }
 
@@ -1081,7 +1076,6 @@ lfuninit_vecc_sum(GEN L, long M, GEN vecan, GEN vK, GEN pokq, long prec)
 
 /* return [\theta(exp(mh)), m=0..M], theta(t) = sum a(n) K(n/sqrt(N) t),
  * h = log(2)/m0 */
-
 static GEN
 lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
 {
@@ -1089,8 +1083,7 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
   GEN thetainit, vK, L, K, an, bn, d2, sqN, vroots, eh2d, peh2d, vprec;
   long d, M, prec, m, n, neval;
 
-  if (!S->vprec)
-    return lfuninit_vecc2(theta, h, S, poqk);
+  if (!S->vprec) return lfuninit_vecc2(theta, h, S, poqk);
 
   d = S->d;
   L = S->L;
@@ -1474,7 +1467,7 @@ static GEN
 lfunlambda_product(GEN L, GEN s, GEN sdom, long bitprec)
 {
   GEN ldata = linit_get_ldata(L), v = lfunprod_get_fact(linit_get_tech(L));
-  GEN r = gen_1, F = gel(v,1), E = gel(v,2), C = gel(v,3), cs = gconj(s);
+  GEN r = gen_1, F = gel(v,1), E = gel(v,2), C = gel(v,3), cs = conj_i(s);
   long i, l = lg(F), isreal = gequal(imag_i(s), imag_i(cs));
   for (i = 1; i < l; ++i)
   {
@@ -1484,7 +1477,7 @@ lfunlambda_product(GEN L, GEN s, GEN sdom, long bitprec)
     if (C[i])
     {
       GEN fc = isreal? f: lfunlambda_OK(gel(F, i), cs, sdom, bitprec);
-      r = gmul(r, gpowgs(gconj(fc), C[i]));
+      r = gmul(r, gpowgs(conj_i(fc), C[i]));
     }
   }
   return (ldata_isreal(ldata) && gequal0(imag_i(s)))? real_i(r): r;
@@ -1555,14 +1548,14 @@ lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec)
   { /* on critical line: shortcut */
     GEN polz, b = imag_i(s);
     polz = gequal0(b)? poleval(pol,gen_1): poleval(pol, expIr(gmul(h,b)));
-    S = gadd(polz, gmul(eno, gconj(polz)));
+    S = gadd(polz, gmul(eno, conj_i(polz)));
   }
   else
   {
     GEN z = gexp(gmul(h, gsub(s, k2)), prec);
-    GEN zi = ginv(z), zc = gconj(zi);
+    GEN zi = ginv(z), zc = conj_i(zi);
     if (typ(pol)==t_POL)
-      S = gadd(poleval(pol, z), gmul(eno, gconj(poleval(pol, zc))));
+      S = gadd(poleval(pol, z), gmul(eno, conj_i(poleval(pol, zc))));
     else
       S = gadd(poleval(gel(pol,1), z), gmul(eno, poleval(gel(pol,2), zi)));
   }
@@ -1851,7 +1844,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   if (thetad)
     S0 = lfuntheta(thetad, t0, 0, bitprec);
   else
-    S0 = gconj(lfuntheta(theta, gconj(t0), 0, bitprec));
+    S0 = conj_i(lfuntheta(theta, conj_i(t0), 0, bitprec));
   S0i = lfuntheta(theta, t0i, 0, bitprec);
 
   eno = ldata_get_rootno(ldata);
@@ -1997,21 +1990,20 @@ lfunrootno(GEN linit, long bitprec)
   t = gen_1;
   v = lfuntheta(linit, t, 0, bitprec);
   thetad = theta_dual(linit, ldata_get_dual(ldata));
-  vi = !thetad ? gconj(v):
-       lfuntheta(thetad, t, 0, bitprec);
+  vi = !thetad ? conj_i(v): lfuntheta(thetad, t, 0, bitprec);
   eno = get_eno(R,k,t,vi,v, vx, bitprec);
   if (!eno && !thetad)
   { /* t = sqrt(2), vi = theta(1/t), v = theta(t) */
     lfunthetaspec(linit, bitprec, &vi, &v);
     t = sqrtr(utor(2, prec));
-    eno = get_eno(R,k,t,gconj(v),vi, vx, bitprec);
+    eno = get_eno(R,k,t,conj_i(v),vi, vx, bitprec);
   }
   av = avma;
   while (!eno)
   {
     t = addsr(1, shiftr(utor(pari_rand(), prec), -66)); /* in [1,1.25[ */
-    v = !thetad ?  gconj(lfuntheta(linit, t, 0, bitprec)):
-          lfuntheta(thetad, t, 0, bitprec);
+    v = !thetad ? conj_i(lfuntheta(linit, t, 0, bitprec)):
+                  lfuntheta(thetad, t, 0, bitprec);
     vi= lfuntheta(linit, ginv(t), 0, bitprec);
     eno = get_eno(R,k,t,v,vi, vx, bitprec);
     avma = av;
@@ -2056,7 +2048,7 @@ lfunrootres(GEN data, long bitprec)
     if (gequalgs(be, k))
     {
       GEN p2k = int2n(k);
-      a = gconj(gsub(gmul(p2k, v), v2));
+      a = conj_i(gsub(gmul(p2k, v), v2));
       b = subiu(p2k, 1);
       e = gmul(gsqrt(p2k, prec), gsub(v2, v));
     }
@@ -2065,7 +2057,7 @@ lfunrootres(GEN data, long bitprec)
       GEN tk2 = gsqrt(int2n(k), prec);
       GEN tbe = gpow(gen_2, be, prec);
       GEN tkbe = gpow(gen_2, gdivgs(gsubsg(k, be), 2), prec);
-      a = gconj(gsub(gmul(tbe, v), v2));
+      a = conj_i(gsub(gmul(tbe, v), v2));
       b = gsub(gdiv(tbe, tkbe), tkbe);
       e = gsub(gmul(gdiv(tbe, tk2), v2), gmul(tk2, v));
     }
@@ -2078,7 +2070,7 @@ lfunrootres(GEN data, long bitprec)
       GEN tbe = gpow(t0, gmulsg(2, be), prec);
       GEN tkbe = gpow(t0, gsubsg(k, be), prec);
       GEN tk2 = gpowgs(t0, k);
-      GEN c = gconj(gsub(gmul(tbe, th1), th2));
+      GEN c = conj_i(gsub(gmul(tbe, th1), th2));
       GEN d = gsub(gdiv(tbe, tkbe), tkbe);
       GEN f = gsub(gmul(gdiv(tbe, tk2), th2), gmul(tk2, th1));
       GEN D = gsub(gmul(a, d), gmul(b, c));
@@ -2323,8 +2315,8 @@ wrap2(void *E, GEN M)
     t1be = t1k; t1bemk = t1k; t1kmbe = gen_1;
     t2be = t2k; t2bemk = t2k; t2kmbe = gen_1;
   }
-  F11 = gconj(gsub(gmul(gsqr(t1be), p1), p1inv));
-  F12 = gconj(gsub(gmul(gsqr(t2be), p2), p2inv));
+  F11 = conj_i(gsub(gmul(gsqr(t1be), p1), p1inv));
+  F12 = conj_i(gsub(gmul(gsqr(t2be), p2), p2inv));
   F21 = gsub(gmul(t1k, p1), gmul(t1bemk, p1inv));
   F22 = gsub(gmul(t2k, p2), gmul(t2bemk, p2inv));
   P1 = gsub(gmul(t1bemk, t1be), t1kmbe);
@@ -2441,7 +2433,7 @@ znchargauss_i(GEN G, GEN chi, long bitprec)
     }
     pari_err_BUG("znchargauss [ Theta(chi,1) = 0 ]");
   }
-  z = gmul(gdiv(z, gconj(z)), q);
+  z = gmul(gdiv(z, conj_i(z)), q);
   if (zncharisodd(G,chi)) z = mulcxI(z);
   return z;
 }
@@ -2480,7 +2472,7 @@ znchargauss(GEN G, GEN chi, GEN a, long bitprec)
 
       u = znchareval(GF, chi, ad, z);
       v = znchareval(GF, chi, t, z);
-      t = gmul(d, gmul(u, gconj(v)));
+      t = gmul(d, gmul(u, conj_i(v)));
       S = (m < 0)? gsub(S, t): gadd(S, t);
     }
     tau = gmul(tau, S);

@@ -3649,7 +3649,7 @@ op_ReIm(GEN f(GEN), GEN x)
 
     case t_RFRAC: {
       GEN dxb, n, d;
-      av = avma; dxb = gconj(gel(x,2));
+      av = avma; dxb = conj_i(gel(x,2));
       n = gmul(gel(x,1), dxb);
       d = gmul(gel(x,2), dxb);
       return gerepileupto(av, gdiv(f(n), d));
@@ -4094,7 +4094,7 @@ hqfeval(GEN q, GEN x)
   if (lgcols(q) != l) pari_err_DIM("hqfeval");
   if (l == 2) return gerepileupto(av, gmul(gcoeff(q,1,1), gnorm(gel(x,1))));
   /* l = lg(x) = lg(q) > 2 */
-  xc = gconj(x);
+  xc = conj_i(x);
   z = mulreal(gcoeff(q,2,1), gmul(gel(x,2),gel(xc,1)));
   for (i=3;i<l;i++)
     for (j=1;j<i;j++)

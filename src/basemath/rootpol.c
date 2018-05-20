@@ -1289,7 +1289,7 @@ scalepol(GEN p, GEN R, long bit)
 static GEN
 conformal_pol(GEN p, GEN a)
 {
-  GEN z, r, ma = gneg(a), ca = gconj(a);
+  GEN z, r, ma = gneg(a), ca = conj_i(a);
   long n = degpol(p), i;
   pari_sp av = avma;
 

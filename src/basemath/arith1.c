@@ -5157,13 +5157,13 @@ quadunit(GEN x)
     if ( equalii(v,v1) ) {
       y = get_quad(f,pol,r);
       update_f(f,a);
-      y = gdiv(get_quad(f,pol,r), gconj(y));
+      y = gdiv(get_quad(f,pol,r), conj_i(y));
       break;
     }
     a = divii(addii(sqd,u1), v1);
     if ( equalii(u,u1) ) {
       y = get_quad(f,pol,r);
-      y = gdiv(y, gconj(y));
+      y = gdiv(y, conj_i(y));
       break;
     }
     update_f(f,a);
