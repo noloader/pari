@@ -114,19 +114,58 @@ lfun_get_expot(GEN tech) { return gmael(tech, 3, 3);}
 GEN
 lfun_get_factgammavec(GEN tech) { return gmael(tech, 3, 4); }
 
+static long
+vgaell(GEN Vga)
+{
+  GEN c;
+  long d = lg(Vga)-1;
+  if (d != 2) return 0;
+  c = gsub(gel(Vga,1), gel(Vga,2));
+  return gequal1(c) || gequalm1(c);
+}
+static long
+vgaeasytheta(GEN Vga) { return lg(Vga)-1 == 1 || vgaell(Vga); }
+/* return b(n) := a(n) * n^c, when vgaeasytheta(Vga) is set */
+static GEN
+antwist(GEN an, GEN Vga, long prec)
+{
+  long l, i;
+  GEN b, c = vecmin(Vga);
+  if (gequal0(c)) return an;
+  l = lg(an); b = cgetg(l, t_VEC);
+  if (gequal1(c))
+  {
+    if (typ(an) == t_VECSMALL)
+      for (i = 1; i < l; i++) gel(b,i) = mulss(an[i], i);
+    else
+      for (i = 1; i < l; i++) gel(b,i) = gmulgs(gel(an,i), i);
+  }
+  else
+  {
+    GEN v = vecpowug(l-1, c, prec);
+    if (typ(an) == t_VECSMALL)
+      for (i = 1; i < l; i++) gel(b,i) = gmulsg(an[i], gel(v,i));
+    else
+      for (i = 1; i < l; i++) gel(b,i) = gmul(gel(an,i), gel(v,i));
+  }
+  return b;
+}
+
 static GEN
 theta_dual(GEN theta, GEN bn)
 {
   if (typ(bn)==t_INT) return NULL;
   else
   {
-    GEN thetad = shallowcopy(theta);
+    GEN thetad = shallowcopy(theta), ldata = linit_get_ldata(theta);
+    GEN Vga = ldata_get_gammavec(ldata);
     GEN tech = shallowcopy(linit_get_tech(theta));
     GEN an = theta_get_an(tech);
     long prec = nbits2prec(theta_get_bitprec(tech));
-    gel(tech,1) = ldata_vecan(bn, lg(an)-1, prec);
-    gel(thetad,3) = tech;
-    return thetad;
+    GEN vb = ldata_vecan(bn, lg(an)-1, prec);
+    if (!theta_get_m(tech) && vgaeasytheta(Vga)) vb = antwist(vb, Vga, prec);
+    gel(tech,1) = vb;
+    gel(thetad,3) = tech; return thetad;
   }
 }
 
@@ -574,9 +613,9 @@ static GEN
 lfunrtoR(GEN ldata, long prec)
 { return lfunrtoR_eno(ldata, ldata_get_rootno(ldata), prec); }
 
-/* thetainit using {an: n <= L} */
+/* thetainit using {an: n <= L}; if (m = 0 && easytheta), an2 is an * n^al */
 static GEN
-lfunthetainit0(GEN ldata, GEN tdom, GEN vecan, long m,
+lfunthetainit0(GEN ldata, GEN tdom, GEN an2, long m,
     long bitprec, long extrabit)
 {
   long prec = nbits2prec(bitprec);
@@ -591,7 +630,7 @@ lfunthetainit0(GEN ldata, GEN tdom, GEN vecan, long m,
     get_cone_fuzz(tdom, &r, &a);
     tdom = mkvec2(dbltor(r), a? dbltor(a): gen_0);
   }
-  tech = mkvecn(7, vecan,K,R, stoi(bitprec), stoi(m), tdom, gsqrt(N,prec));
+  tech = mkvecn(7, an2,K,R, stoi(bitprec), stoi(m), tdom, gsqrt(N,prec));
   return mkvec3(mkvecsmall(t_LDESC_THETA), ldata, tech);
 }
 
@@ -601,9 +640,11 @@ static GEN
 lfunthetainit_i(GEN data, GEN tdom, long m, long bitprec)
 {
   GEN ldata = lfunmisc_to_ldata_shallow(data);
-  long L = lfunthetacost(ldata, tdom, m, bitprec);
-  GEN vecan = ldata_vecan(ldata_get_an(ldata), L, nbits2prec(bitprec));
-  return lfunthetainit0(ldata, tdom, vecan, m, bitprec, 32);
+  long L = lfunthetacost(ldata, tdom, m, bitprec), prec = nbits2prec(bitprec);
+  GEN an = ldata_vecan(ldata_get_an(ldata), L, prec);
+  GEN Vga = ldata_get_gammavec(ldata);
+  if (m == 0 && vgaeasytheta(Vga)) an = antwist(an, Vga, prec);
+  return lfunthetainit0(ldata, tdom, an, m, bitprec, 32);
 }
 
 GEN
@@ -722,30 +763,6 @@ INIT:
   return lfunthetainit_i(data, t, m, bitprec);
 }
 
-static long
-lfunisvgaell(GEN Vga)
-{
-  GEN c;
-  long d = lg(Vga)-1;
-  if (d != 2) return 0;
-  c = gsub(gel(Vga,1), gel(Vga,2));
-  return gequal1(c) || gequalm1(c);
-}
-
-/* generic */
-static GEN
-vecan_nv_cmul(void *E, GEN P, long a, GEN x)
-{
-  GEN vroots = (GEN)E;
-  return (a==0 || !gel(P,a))? NULL: gmul(gmul(gel(vroots,a), gel(P,a)), x);
-}
-/* al = 1 */
-static GEN
-vecan_n_cmul(void *E, GEN P, long a, GEN x)
-{
-  (void)E;
-  return (a==0 || !gel(P,a))? NULL: gmul(gmulsg(a,gel(P,a)), x);
-}
 /* al = 0 */
 static GEN
 vecan_cmul(void *E, GEN P, long a, GEN x)
@@ -753,90 +770,52 @@ vecan_cmul(void *E, GEN P, long a, GEN x)
   (void)E;
   return (a==0 || !gel(P,a))? NULL: gmul(gel(P,a), x);
 }
-/* d=2, 2 sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t) */
+/* d=2, 2 sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t),
+ * an2[n] = a_n(n) * n^al */
 static GEN
-theta2(GEN vecan, long limt, GEN t, GEN al, long prec)
+theta2(GEN an2, long limt, GEN t, GEN al, long prec)
 {
-  GEN S, q, T, pi2 = Pi2n(1,prec), vroots = NULL;
+  GEN S, q, pi2 = Pi2n(1,prec);
   const struct bb_algebra *alg = get_Rg_algebra();
-  GEN (*cmul)(void *, GEN, long, GEN);
-  if (gequal0(al))
-  {
-    cmul = vecan_cmul;
-    T = NULL;
-  }
-  else if (gequal1(al))
-  {
-    cmul = vecan_n_cmul;
-    T = t;
-  }
-  else
-  {
-    vroots = vecpowug(limt, al, prec);
-    cmul = vecan_nv_cmul;
-    T = gpow(t,al,prec);
-  }
   setsigne(pi2,-1); q = gexp(gmul(pi2, t), prec);
-  S = gen_bkeval(vecan, limt, q, 1, (void*)vroots, alg, cmul);
-  if (T) S = gmul(T, S);
+  S = gen_bkeval(an2, limt, q, 1, NULL, alg, vecan_cmul);
+  if (gequal0(al)) /* nothing */;
+  else if (gequal1(al))
+    S = gmul(S, t);
+  else
+    S = gmul(S, gpow(t,al,prec));
   return gmul2n(S,1);
 }
 
 static GEN
-get_an(GEN vecan, long n)
+get_an(GEN an, long n)
 {
-  if (typ(vecan) == t_VECSMALL)
-  {
-    long a = vecan[n];
-    return a? stoi(a): NULL;
-  }
-  else
-  {
-    GEN a = gel(vecan,n);
-    return (!a || gequal0(a))? NULL: a;
-  }
+  if (typ(an) == t_VECSMALL) { long a = an[n]; if (a) return stoi(a); }
+  else { GEN a = gel(an,n); if (a && !gequal0(a)) return a; }
+  return NULL;
 }
 
-/* d=1, 2 sum_{n <= limt} a_n (n t)^al q^(n^2), q = exp(-pi t^2) */
+/* d=1, 2 sum_{n <= limt} a_n (n t)^al q^(n^2), q = exp(-pi t^2),
+ * an2[n] is a_n n^al */
 static GEN
-theta1(GEN vecan, long limt, GEN t, GEN al, long prec)
+theta1(GEN an2, long limt, GEN t, GEN al, long prec)
 {
   GEN q = gexp(gmul(negr(mppi(prec)), gsqr(t)), prec);
   GEN vexp = gsqrpowers(q, limt), S = gen_0;
   pari_sp av = avma;
   long n;
-  if (gequal0(al))
-    for (n = 1; n <= limt; ++n)
-    {
-      GEN an = get_an(vecan, n);
-      if (!an) continue;
-      S = gadd(S, gmul(an, gel(vexp, n)));
-      if (gc_needed(av, 3)) S = gerepileupto(av, S);
-    }
+  for (n = 1; n <= limt; ++n)
+  {
+    GEN an = get_an(an2, n);
+    if (!an) continue;
+    S = gadd(S, gmul(an, gel(vexp, n)));
+    if (gc_needed(av, 3)) S = gerepileupto(av, S);
+  }
+  if (gequal0(al)) /* nothing */;
   else if (gequal1(al))
-  {
-    for (n = 1; n <= limt; ++n)
-    {
-      GEN an = get_an(vecan, n);
-      if (!an) continue;
-      S = gadd(S, gmul(gmulgs(an, n), gel(vexp, n)));
-      if (gc_needed(av, 3)) S = gerepileupto(av, S);
-    }
-    S = gmul(S,t);
-  }
+    S = gmul(S, t);
   else
-  {
-    GEN vroots = vecpowug(limt, al, prec);
-    av = avma;
-    for (n = 1; n <= limt; ++n)
-    {
-      GEN an = get_an(vecan, n);
-      if (!an) continue;
-      S = gadd(S, gmul(gmul(an, gel(vroots,n)), gel(vexp, n)));
-      if (gc_needed(av, 3)) S = gerepileupto(av, S);
-    }
     S = gmul(S, gpow(t,al,prec));
-  }
   return gmul2n(S,1);
 }
 
@@ -867,15 +846,12 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
   }
   t = gdiv(t, sqN);
   Vga = ldata_get_gammavec(ldata);
-  d = lg(Vga) - 1;
-  if (m == 0 && d == 1)
+  d = lg(Vga)-1;
+  if (m == 0 && vgaeasytheta(Vga))
   {
-    S = theta1(vecan, limt, t, gel(Vga,1), prec);
-    return gerepileupto(ltop, S);
-  }
-  if (m == 0 && lfunisvgaell(Vga))
-  {
-    S = theta2(vecan, limt, t, vecmin(Vga), prec);
+    if (theta_get_m(thetainit) > 0) vecan = antwist(vecan, Vga, prec);
+    if (d == 1) S = theta1(vecan, limt, t, gel(Vga,1), prec);
+    else        S = theta2(vecan, limt, t, vecmin(Vga), prec);
     return gerepileupto(ltop, S);
   }
   else
@@ -1024,30 +1000,14 @@ lfuninit_vecc2_sum(GEN an, GEN qk, GEN a, struct lfunp *Q, GEN poqk)
   GEN L = Q->L;
   long m, L0 = lg(an)-1;
   GEN v = cgetg(M + 2, t_VEC);
+  if (typ(an) == t_VEC) an = RgV_kill0(an);
   for (m = 0; m <= M; m++)
   {
     pari_sp av = avma;
-    GEN t = gel(qk, m+1);
-    GEN S = theta2(an, minss(L[m+1],L0), t, a, prec);
+    GEN t = gel(qk, m+1), S = theta2(an, minss(L[m+1],L0), t, a, prec);
     gel(v, m+1) = gerepileupto(av, S); /* theta(exp(mh)) */
   }
   return lfuninit_pol(v, poqk, M, prec);
-}
-
-/* d=2 and Vga = [a,a+1] */
-static GEN
-lfuninit_vecc2(GEN theta, GEN h, struct lfunp *S, GEN poqk)
-{
-  GEN ldata = linit_get_ldata(theta);
-  GEN a = vecmin(ldata_get_gammavec(ldata));
-  GEN thetainit = linit_get_tech(theta);
-  GEN sqN = theta_get_sqrtN(thetainit);
-  GEN qk = powersshift(mpexp(h), S->M, ginv(sqN));
-  if (S->bn)
-    return mkvec2(lfuninit_vecc2_sum(S->an, qk, a, S, poqk),
-                  lfuninit_vecc2_sum(S->bn, qk, a, S, poqk));
-  else
-    return lfuninit_vecc2_sum(S->an, qk, a, S, poqk);
 }
 
 /* theta(exp(mh)) ~ sum_{n <= L[m]} a(n) k[m,n] */
@@ -1078,22 +1038,24 @@ lfuninit_vecc_sum(GEN L, long M, GEN vecan, GEN vK, GEN pokq, long prec)
 static GEN
 lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
 {
-  const long m0 = S->m0;
-  GEN thetainit, vK, L, K, an, bn, d2, sqN, vroots, eh2d, peh2d, vprec;
-  long d, M, prec, m, n, neval;
+  const long m0 = S->m0, M = S->M;
+  GEN tech = linit_get_tech(theta);
+  GEN va, vK, L, K, d2, vroots, eh2d, peh2d;
+  GEN sqN = theta_get_sqrtN(tech), an = S->an, bn = S->bn, vprec = S->vprec;
+  long d, prec, m, n, neval;
 
-  if (!S->vprec) return lfuninit_vecc2(theta, h, S, poqk);
-
+  if (!vprec)
+  { /* d=2 and Vga = [a,a+1] */
+    GEN ldata = linit_get_ldata(theta);
+    GEN a = vecmin(ldata_get_gammavec(ldata));
+    GEN qk = powersshift(mpexp(h), M, ginv(sqN));
+    va = lfuninit_vecc2_sum(an, qk, a, S, poqk);
+    return bn? mkvec2(va, lfuninit_vecc2_sum(bn, qk, a, S, poqk)): va;
+  }
   d = S->d;
   L = S->L;
-  M = S->M;
-  an= S->an;
-  bn= S->bn;
-  vprec = S->vprec;
   prec = S->precmax;
-  thetainit = linit_get_tech(theta);
-  K = theta_get_K(thetainit);
-  sqN = theta_get_sqrtN(thetainit);
+  K = theta_get_K(tech);
 
   /* For all 0<= m <= M, and all n <= L[m+1] such that a_n!=0, we must compute
    *   k[m,n] = K(n exp(mh)/sqrt(N))
@@ -1131,12 +1093,8 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
         gmael(vK,mm+1,nn) = kmn;
     }
   if (DEBUGLEVEL >= 1) err_printf("true evaluations: %ld\n", neval);
-
-  if (bn)
-    return mkvec2(lfuninit_vecc_sum(L, M, an, vK, poqk, S->precmax),
-                  lfuninit_vecc_sum(L, M, bn, vK, poqk, S->precmax));
-  else
-    return lfuninit_vecc_sum(L, M, an, vK, poqk, S->precmax);
+  va = lfuninit_vecc_sum(L, M, an, vK, poqk, S->precmax);
+  return bn? mkvec2(va, lfuninit_vecc_sum(L, M, bn, vK, poqk, S->precmax)): va;
 }
 
 static void
@@ -1207,28 +1165,36 @@ lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
 }
 
 static void
-lfunparams2(GEN ldata, GEN an, GEN bn, struct lfunp *S)
+lfunparams2(struct lfunp *S)
 {
-  GEN vprec, L, Vga = ldata_get_gammavec(ldata);
+  GEN vprec, L = S->L, an = S->an, bn = S->bn;
   double sig0, pmax, sub2;
-  long m, nan, nmax, neval, M;
-  L = S->L;
-  M = S->M;
+  long m, nan, nmax, neval, M = S->M;
 
   /* try to reduce parameters now we know the a_n (some may be 0) */
-  nan = lg(an)-1;
   if (typ(an) == t_VEC) an = RgV_kill0(an);
-  if (bn && typ(bn) == t_VEC) bn = RgV_kill0(bn);
-  S->an = an; S->bn = bn;
-  if (lfunisvgaell(Vga)) { S->vprec = NULL; return; }
+  nan = S->nmax; /* lg(an)-1 may be large than this */
   nmax = neval = 0;
-  for (m = 0; m <= M; m++)
+  if (!bn)
+    for (m = 0; m <= M; m++)
+    {
+      long n = minss(nan, L[m+1]);
+      while (n > 0 && !gel(an,n)) n--;
+      if (n > nmax) nmax = n;
+      neval += n;
+      L[m+1] = n; /* reduce S->L[m+1] */
+    }
+  else
   {
-    long n = minss(nan, L[m+1]);
-    while (n > 0 && !gel(an, n)) n--;
-    if (n > nmax) nmax = n;
-    neval += n;
-    L[m+1] = n; /* reduce S->L[m+1] */
+    if (typ(bn) == t_VEC) bn = RgV_kill0(bn);
+    for (m = 0; m <= M; m++)
+    {
+      long n = minss(nan, L[m+1]);
+      while (n > 0 && !gel(an,n) && !gel(bn,n)) n--;
+      if (n > nmax) nmax = n;
+      neval += n;
+      L[m+1] = n; /* reduce S->L[m+1] */
+    }
   }
   if (DEBUGLEVEL >= 1) err_printf("expected evaluations: %ld\n", neval);
   for (; M > 0; M--)
@@ -1241,7 +1207,7 @@ lfunparams2(GEN ldata, GEN an, GEN bn, struct lfunp *S)
   sig0 = S->MAXs/S->m0;
   sub2 = S->sub / LOG2;
   vprec = cgetg(S->M+2, t_VEC);
-  /* compute accuracy to which we will need k[m,n] = K(n*exp(mh/sqrt(N)))
+  /* compute accuracy to which we will need k[m,n] = K(n*exp(mh)/sqrt(N))
    * vprec[m+1,n] = absolute accuracy to which we need k[m,n] */
   for (m = 0; m <= S->M; m++)
   {
@@ -1272,7 +1238,7 @@ lfunparams2(GEN ldata, GEN an, GEN bn, struct lfunp *S)
 static GEN
 lfun_init_theta(GEN ldata, GEN eno, struct lfunp *S)
 {
-  GEN an, bn, dual, tdom = NULL;
+  GEN an2, dual, tdom = NULL, Vga = ldata_get_gammavec(ldata);
   long L;
   if (eno)
     L = S->nmax;
@@ -1281,11 +1247,18 @@ lfun_init_theta(GEN ldata, GEN eno, struct lfunp *S)
     tdom = dbltor(sqrt(0.5));
     L = maxss(S->nmax, lfunthetacost(ldata, tdom, 0, S->D));
   }
-  an = ldata_vecan(ldata_get_an(ldata), L, S->precmax);
   dual = ldata_get_dual(ldata);
-  bn = typ(dual)==t_INT? NULL: ldata_vecan(dual, L, S->precmax);
-  lfunparams2(ldata, an, bn, S);
-  return lfunthetainit0(ldata, tdom, an, 0, S->Dmax, 0);
+  S->an = ldata_vecan(ldata_get_an(ldata), L, S->precmax);
+  S->bn = typ(dual)==t_INT? NULL: ldata_vecan(dual, S->nmax, S->precmax);
+  if (!vgaell(Vga)) lfunparams2(S);
+  else
+  {
+    S->an = antwist(S->an, Vga, S->precmax);
+    if (S->bn) S->bn = antwist(S->bn, Vga, S->precmax);
+    S->vprec = NULL;
+  }
+  an2 = lg(Vga)-1 == 1? antwist(S->an, Vga, S->precmax): S->an;
+  return lfunthetainit0(ldata, tdom, an2, 0, S->Dmax, 0);
 }
 
 GEN
@@ -1903,7 +1876,7 @@ lfunthetaspec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
   thetainit = linit_get_tech(linit);
   prec = nbits2prec(bitprec);
   Vga = ldata_get_gammavec(ldata); d = lg(Vga)-1;
-  if (d == 1 || lfunisvgaell(Vga))
+  if (vgaeasytheta(Vga))
   {
     GEN v2 = sqrtr(real2n(1, nbits2prec(bitprec)));
     GEN v = shiftr(v2,-1);
