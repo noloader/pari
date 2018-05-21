@@ -722,15 +722,14 @@ INIT:
   return lfunthetainit_i(data, t, m, bitprec);
 }
 
-long
-lfunisvgaell(GEN Vga, long flag)
+static long
+lfunisvgaell(GEN Vga)
 {
-  GEN al1, al2;
+  GEN c;
   long d = lg(Vga)-1;
   if (d != 2) return 0;
-  al1 = gel(Vga, 1); al2 = gel(Vga, 2);
-  if (flag) return gequal1(gabs(gsub(al1, al2), LOWDEFAULTPREC));
-  else return (gequal0(al1) && gequal1(al2)) || (gequal0(al2) && gequal1(al1));
+  c = gsub(gel(Vga,1), gel(Vga,2));
+  return gequal1(c) || gequalm1(c);
 }
 
 /* generic */
@@ -874,7 +873,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
     S = theta1(vecan, limt, t, gel(Vga,1), prec);
     return gerepileupto(ltop, S);
   }
-  if (m == 0 && lfunisvgaell(Vga, 1))
+  if (m == 0 && lfunisvgaell(Vga))
   {
     S = theta2(vecan, limt, t, vecmin(Vga), prec);
     return gerepileupto(ltop, S);
@@ -1221,7 +1220,7 @@ lfunparams2(GEN ldata, GEN an, GEN bn, struct lfunp *S)
   if (typ(an) == t_VEC) an = RgV_kill0(an);
   if (bn && typ(bn) == t_VEC) bn = RgV_kill0(bn);
   S->an = an; S->bn = bn;
-  if (lfunisvgaell(Vga, 1)) { S->vprec = NULL; return; }
+  if (lfunisvgaell(Vga)) { S->vprec = NULL; return; }
   nmax = neval = 0;
   for (m = 0; m <= M; m++)
   {
@@ -1904,7 +1903,7 @@ lfunthetaspec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
   thetainit = linit_get_tech(linit);
   prec = nbits2prec(bitprec);
   Vga = ldata_get_gammavec(ldata); d = lg(Vga)-1;
-  if (d == 1 || lfunisvgaell(Vga, 1))
+  if (d == 1 || lfunisvgaell(Vga))
   {
     GEN v2 = sqrtr(real2n(1, nbits2prec(bitprec)));
     GEN v = shiftr(v2,-1);
