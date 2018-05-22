@@ -770,6 +770,13 @@ vecan_cmul(void *E, GEN P, long a, GEN x)
   (void)E;
   return (a==0 || !gel(P,a))? NULL: gmul(gel(P,a), x);
 }
+/* 2*t^a * x **/
+static GEN
+mulT(GEN t, GEN a, GEN x, long prec)
+{
+  if (gequal0(a)) return gmul2n(x,1);
+  return gmul(x, gmul2n(gequal1(a)? t: gpow(t,a,prec), 1));
+}
 /* d=2, 2 sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t),
  * an2[n] = a_n(n) * n^al */
 static GEN
@@ -779,12 +786,7 @@ theta2(GEN an2, long limt, GEN t, GEN al, long prec)
   const struct bb_algebra *alg = get_Rg_algebra();
   setsigne(pi2,-1); q = gexp(gmul(pi2, t), prec);
   S = gen_bkeval(an2, limt, q, 1, NULL, alg, vecan_cmul);
-  if (gequal0(al)) /* nothing */;
-  else if (gequal1(al))
-    S = gmul(S, t);
-  else
-    S = gmul(S, gpow(t,al,prec));
-  return gmul2n(S,1);
+  return mulT(t, al, S, prec);
 }
 
 static GEN
@@ -811,12 +813,7 @@ theta1(GEN an2, long limt, GEN t, GEN al, long prec)
     S = gadd(S, gmul(an, gel(vexp, n)));
     if (gc_needed(av, 3)) S = gerepileupto(av, S);
   }
-  if (gequal0(al)) /* nothing */;
-  else if (gequal1(al))
-    S = gmul(S, t);
-  else
-    S = gmul(S, gpow(t,al,prec));
-  return gmul2n(S,1);
+  return mulT(t, al, S, prec);
 }
 
 /* If m > 0, compute m-th derivative of theta(t) = theta0(t/sqrt(N))
