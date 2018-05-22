@@ -43,9 +43,10 @@ Help: forprime(p=a,{b},seq): the sequence is evaluated, p running over the
  primes between a and b. Omitting b runs through primes >= a.
 Iterator:
  (*notype,small,small) (forprime, _u_forprime_init, _u_forprime_next)
- (*small,gen,?gen)    (forprime, _u_forprime_init, _u_forprime_next)
- (*int,gen,?gen)      (forprime, _forprime_init, _forprime_next_)
- (gen,gen,?gen)       (forprime, _forprime_init, _forprime_next_)
+ (*notype,gen,gen,gen) (forprime, _forprime_init, _forprime_next_)
+ (*small,gen,?gen)     (forprime, _u_forprime_init, _u_forprime_next)
+ (*int,gen,?gen)       (forprime, _forprime_init, _forprime_next_)
+ (gen,gen,?gen)        (forprime, _forprime_init, _forprime_next_)
 Doc: evaluates \var{seq},
  where the formal variable $p$ ranges over the prime numbers between the real
  numbers $a$ to $b$, including $a$ and $b$ if they are prime. More precisely,

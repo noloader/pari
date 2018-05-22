@@ -11,7 +11,11 @@ Prototype: vV=GDGGI
 Help: forprimestep(p=a,b,q,seq): the sequence is evaluated, p running over the
  primes in an arithmetic progression of the form a + k*q and less than b.
 Iterator:
- (gen,gen,?gen,gen)       (forprime, _forprimestep_init, _forprime_next_)
+ (*notype,small,small,gen)  (forprime, _forprimestep_init, _u_forprime_next)
+ (*notype,gen,gen,gen)      (forprime, _forprimestep_init, _forprime_next_)
+ (*small,gen,?gen,gen)      (forprime, _forprimestep_init, _u_forprime_next)
+ (*int,gen,?gen,gen)        (forprime, _forprimestep_init, _forprime_next_)
+ (gen,gen,?gen,gen)         (forprime, _forprimestep_init, _forprime_next_)
 Doc: evaluates \var{seq},
  where the formal variable $p$ ranges over the prime numbers $p$
  in an arithmetic progression in $[a,b]$: $q$ is either an integer
