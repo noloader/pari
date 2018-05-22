@@ -162,6 +162,8 @@ lfuncheckfeq(L)
 lfunrootres(L)
 lfun(L,1)
 
+lfungenus2(x^5+3^5) \\#2047
+
 print("Elliptic curves over number fields");
 K=nfinit(a^2+1);
 E1=ellinit([1+a,0,1,0,0],K);

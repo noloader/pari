@@ -1646,7 +1646,7 @@ genus2_eulerfact(GEN P, GEN p)
   abe = dQ >= 5 ? RgX_recip(hyperellcharpoly(gmul(Q,gmodulo(gen_1,p))))
       : dQ >= 3 ? RgX_recip(ellfromeqncharpoly(Q,gen_0,p))
                 : pol_1(0);
-  ki = dQ > 0 ? oneminusxd(1)
+  ki = dQ != 0 ? oneminusxd(1)
               : Fp_issquare(gel(Q,2),p) ? ZX_sqr(oneminusxd(1))
                                         : oneminusxd(2);
   if (lF)
