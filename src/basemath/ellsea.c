@@ -1165,8 +1165,7 @@ Fp_study_eqn(long ell, GEN mpoly, GEN p, long *pt_dG, long *pt_r)
   *pt_dG = degpol(G);
   if (!*pt_dG)
   {
-    long s = FpX_nbfact_Frobenius(T, XP, p);
-    *pt_r = (ell + 1)/s;
+    *pt_r = FpX_ddf_degree(T, XP, p);
     return NULL;
   }
   return FpX_oneroot(G, p);

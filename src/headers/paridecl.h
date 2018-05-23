@@ -685,6 +685,7 @@ GEN     Flx_roots(GEN f, ulong p);
 GEN     Flx_rootsff(GEN P, GEN T, ulong p);
 void    FlxV_to_ZXV_inplace(GEN v);
 GEN     FpX_ddf(GEN f, GEN p);
+long    FpX_ddf_degree(GEN T, GEN XP, GEN p);
 GEN     FpX_degfact(GEN f, GEN p);
 GEN     FpX_factor(GEN f, GEN p);
 GEN     FpX_factor_squarefree(GEN T, GEN p);

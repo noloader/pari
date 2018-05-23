@@ -746,6 +746,47 @@ Flx_nbroots(GEN f, ulong p)
   avma = av; return degpol(z);
 }
 
+long
+FpX_ddf_degree(GEN T, GEN XP, GEN p)
+{
+  pari_sp av = avma;
+  GEN X, b, g, xq;
+  long i, j, n, v, B, l, m;
+  pari_timer ti;
+  hashtable h;
+
+  n = get_FpX_degree(T); v = get_FpX_var(T);
+  X = pol_x(v);
+  if (ZX_equal(X,XP)) return 1;
+  B = n/2;
+  l = usqrt(B);
+  m = (B+l-1)/l;
+  T = FpX_get_red(T, p);
+  hash_init_GEN(&h, l+2, ZX_equal, 1);
+  hash_insert_long(&h, X,  0);
+  hash_insert_long(&h, XP, 1);
+  if (DEBUGLEVEL>=7) timer_start(&ti);
+  b = XP;
+  xq = FpXQ_powers(b, brent_kung_optpow(n, l-1, 1),  T, p);
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf_degree: xq baby");
+  for (i = 3; i <= l+1; i++)
+  {
+    b = FpX_FpXQV_eval(b, xq, T, p);
+    if (gequalX(b)) { avma = av; return i-1; }
+    hash_insert_long(&h, b, i-1);
+  }
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf_degree: baby");
+  g = b;
+  xq = FpXQ_powers(g, brent_kung_optpow(n, m, 1),  T, p);
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf_degree: xq giant");
+  for(i = 2; i <= m+1; i++)
+  {
+    g = FpX_FpXQV_eval(g, xq, T, p);
+    if (hash_haskey_long(&h, g, &j)) { avma=av; return l*i-j; }
+  }
+  avma = av; return n;
+}
+
 /* See <http://www.shoup.net/papers/factorimpl.pdf> */
 static GEN
 FpX_ddf_Shoup(GEN T, GEN XP, GEN p)
