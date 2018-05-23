@@ -763,12 +763,20 @@ INIT:
   return lfunthetainit_i(data, t, m, bitprec);
 }
 
-/* al = 0 */
 static GEN
-vecan_cmul(void *E, GEN P, long a, GEN x)
+get_an(GEN an, long n)
 {
-  (void)E;
-  return (a==0 || !gel(P,a))? NULL: gmul(gel(P,a), x);
+  if (typ(an) == t_VECSMALL) { long a = an[n]; if (a) return stoi(a); }
+  else { GEN a = gel(an,n); if (a && !gequal0(a)) return a; }
+  return NULL;
+}
+/* x * an[n] */
+static GEN
+mul_an(GEN an, long n, GEN x)
+{
+  if (typ(an) == t_VECSMALL) { long a = an[n]; if (a) return gmulsg(a,x); }
+  else { GEN a = gel(an,n); if (a && !gequal0(a)) return gmul(a,x); }
+  return NULL;
 }
 /* 2*t^a * x **/
 static GEN
@@ -777,24 +785,24 @@ mulT(GEN t, GEN a, GEN x, long prec)
   if (gequal0(a)) return gmul2n(x,1);
   return gmul(x, gmul2n(gequal1(a)? t: gpow(t,a,prec), 1));
 }
-/* d=2, 2 sum_{n <= limt} a_n (n t)^al q^n, q = exp(-2pi t),
- * an2[n] = a_n(n) * n^al */
+
+static GEN
+vecan_cmul(void *E, GEN P, long a, GEN x)
+{
+  (void)E;
+  return (a==0 || !gel(P,a))? NULL: gmul(gel(P,a), x);
+}
+/* d=2, 2 sum_{n <= limt} a(n) (n t)^al q^n, q = exp(-2pi t),
+ * an2[n] = a(n) * n^al */
 static GEN
 theta2(GEN an2, long limt, GEN t, GEN al, long prec)
 {
   GEN S, q, pi2 = Pi2n(1,prec);
   const struct bb_algebra *alg = get_Rg_algebra();
   setsigne(pi2,-1); q = gexp(gmul(pi2, t), prec);
+  /* Brent-Kung in case the a_n are small integers */
   S = gen_bkeval(an2, limt, q, 1, NULL, alg, vecan_cmul);
   return mulT(t, al, S, prec);
-}
-
-static GEN
-get_an(GEN an, long n)
-{
-  if (typ(an) == t_VECSMALL) { long a = an[n]; if (a) return stoi(a); }
-  else { GEN a = gel(an,n); if (a && !gequal0(a)) return a; }
-  return NULL;
 }
 
 /* d=1, 2 sum_{n <= limt} a_n (n t)^al q^(n^2), q = exp(-pi t^2),
@@ -806,12 +814,14 @@ theta1(GEN an2, long limt, GEN t, GEN al, long prec)
   GEN vexp = gsqrpowers(q, limt), S = gen_0;
   pari_sp av = avma;
   long n;
-  for (n = 1; n <= limt; ++n)
+  for (n = 1; n <= limt; n++)
   {
-    GEN an = get_an(an2, n);
-    if (!an) continue;
-    S = gadd(S, gmul(an, gel(vexp, n)));
-    if (gc_needed(av, 3)) S = gerepileupto(av, S);
+    GEN c = mul_an(an2, n, gel(vexp,n));
+    if (c)
+    {
+      S = gadd(S, c);
+      if (gc_needed(av, 3)) S = gerepileupto(av, S);
+    }
   }
   return mulT(t, al, S, prec);
 }
@@ -1016,14 +1026,16 @@ lfuninit_vecc_sum(GEN L, long M, GEN vecan, GEN vK, GEN pokq, long prec)
   for (m = 0; m <= M; ++m)
   {
     pari_sp av = avma;
-    GEN s = gen_0;
+    GEN s = gen_0, vKm = gel(vK,m+1);
     long n;
     for (n = 1; n <= L[m+1]; n++)
     {
-      GEN an = get_an(vecan, n);
-      if (!an) continue;
-      s = gadd(s, gmul(an, gmael(vK,m+1,n)));
-      if (gc_needed(av, 3)) s = gerepileupto(av, s);
+      GEN c = mul_an(vecan, n, gel(vKm,n));
+      if (c)
+      {
+        s = gadd(s, c);
+        if (gc_needed(av, 3)) s = gerepileupto(av, s);
+      }
     }
     gel(vecc,m+1) = gerepileupto(av, s);
   }
