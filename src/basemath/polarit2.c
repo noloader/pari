@@ -235,8 +235,10 @@ RgX_cmbf(GEN p, long i, GEN BLOC, GEN Lmod, GEN Lfac, GEN *F)
   return 0;
 }
 
+static GEN factor_domain(GEN x, GEN flag);
+
 static GEN
-RgXY_factor_squarefree(GEN f)
+RgXY_factor_squarefree(GEN f, GEN dom)
 {
   pari_sp av = avma;
   GEN Lfac, Lmod, F = NULL, BLOC = NULL;
@@ -256,7 +258,7 @@ RgXY_factor_squarefree(GEN f)
   }
   if (DEBUGLEVEL >= 2)
     err_printf("bifactor: bloc:(x+%ld)^%ld, deg f=%ld\n",i,n,RgXY_degreex(f));
-  Lmod = gel(factor(F),1);
+  Lmod = gel(factor_domain(F,dom),1);
   if (DEBUGLEVEL >= 2)
     err_printf("bifactor: %ld local factors\n",lg(Lmod)-1);
   Lfac = vectrunc_init(lg(Lmod)+1);
@@ -275,14 +277,14 @@ FE_matconcat(GEN F, GEN E, long l)
 }
 
 static GEN
-RgXY_factor(GEN f)
+RgXY_factor(GEN f, GEN dom)
 {
   pari_sp av = avma;
   GEN F, E;
   GEN cnt = content(f);
   GEN V = RgXY_squff(gdiv(f, cnt));
   long i, j, l = lg(V);
-  GEN C = factor(cnt);
+  GEN C = factor_domain(cnt, dom);
   F = cgetg(l+1, t_VEC);
   E = cgetg(l+1, t_VEC);
   gel(F,1) = gel(C,1);
@@ -290,7 +292,7 @@ RgXY_factor(GEN f)
   for (i=1, j=2; i < l; i++)
     if (degpol(gel(V,i)))
     {
-      GEN Fj = RgXY_factor_squarefree(gel(V,i));
+      GEN Fj = RgXY_factor_squarefree(gel(V,i), dom);
       gel(F, j) = Fj;
       gel(E, j) = const_vec(lg(Fj)-1, stoi(i));
       j++;
@@ -601,15 +603,14 @@ RgM_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa)
 }
 
 GEN
-factor0(GEN x,long flag) { return (flag<0)? factor(x): boundfact(x,flag); }
-
-/* only present for interface with GP */
-GEN
-gp_factor0(GEN x, GEN flag)
+factor0(GEN x, GEN flag)
 {
   ulong B;
+  long tx = typ(x);
   if (!flag) return factor(x);
-  if (typ(flag) != t_INT || signe(flag) < 0) pari_err_FLAG("factor");
+  if ((tx != t_INT && tx!=t_FRAC) || typ(flag) != t_INT)
+    return factor_domain(x, flag);
+  if (signe(flag) < 0) pari_err_FLAG("factor");
   switch(lgefint(flag))
   {
     case 2: B = 0; break;
@@ -648,7 +649,7 @@ gauss_factor_p(GEN p)
 static GEN
 gauss_primpart(GEN x, GEN *c)
 {
-  GEN a = gel(x,1), b = gel(x,2), n = gcdii(a, b);
+  GEN a = real_i(x), b = imag_i(x), n = gcdii(a, b);
   *c = n; if (n == gen_1) return x;
   retmkcomplex(diviiexact(a,n), diviiexact(b,n));
 }
@@ -696,7 +697,7 @@ static GEN
 gauss_factor(GEN x)
 {
   pari_sp av = avma;
-  GEN a = gel(x,1), b = gel(x,2), d = gen_1, n, y, fa, P, E, P2, E2;
+  GEN a = real_i(x), b = imag_i(x), d = gen_1, n, y, fa, P, E, P2, E2;
   long t1 = typ(a);
   long t2 = typ(b), i, j, l, exp = 0;
   if (t1 == t_FRAC) d = gel(a,2);
@@ -705,8 +706,8 @@ gauss_factor(GEN x)
   else
   {
     y = gmul(x, d);
-    a = gel(y,1); t1 = typ(a);
-    b = gel(y,2); t2 = typ(b);
+    a = real_i(y); t1 = typ(a);
+    b = imag_i(y); t2 = typ(b);
   }
   if (t1 != t_INT || t2 != t_INT) return NULL;
   y = gauss_primpart(y, &n);
@@ -854,16 +855,16 @@ RgX_fix_quad(GEN x, GEN T)
 }
 
 static GEN
-RgX_factor(GEN x)
+RgX_factor(GEN x, GEN dom)
 {
   pari_sp av;
   long pa, v, lx, r1, i;
   GEN  p, pol, y, p1, p2;
-  long tx = RgX_type(x,&p,&pol,&pa);
+  long tx = dom ? RgX_Rg_type(x,dom,&p,&pol,&pa): RgX_type(x,&p,&pol,&pa);
   switch(tx)
   {
     case 0: pari_err_IMPL("factor for general polynomials");
-    case t_POL: return RgXY_factor(x);
+    case t_POL: return RgXY_factor(x, dom);
     case t_INT: return ZX_factor(x);
     case t_FRAC: return QX_factor(x);
     case t_INTMOD: return factmod(x,p);
@@ -928,11 +929,11 @@ RgX_factor(GEN x)
   }
 }
 
-GEN
-factor(GEN x)
+static GEN
+factor_domain(GEN x, GEN dom)
 {
-  long tx=typ(x);
-  GEN y;
+  long tx = typ(x);
+  long tdom = dom ? typ(dom): 0;
   pari_sp av;
 
   if (gequal0(x))
@@ -947,23 +948,29 @@ factor(GEN x)
   av = avma;
   switch(tx)
   {
-    case t_INT: return Z_factor(x);
-    case t_FRAC: return Q_factor(x);
-
-    case t_POL: return RgX_factor(x);
+    case t_POL: return RgX_factor(x, dom);
     case t_RFRAC: {
       GEN a = gel(x,1), b = gel(x,2);
-      y = famat_inv_shallow(factor(b));
-      if (typ(a)==t_POL && varn(a)==varn(b)) y = famat_mul_shallow(factor(a),y);
+      GEN y = famat_inv_shallow(RgX_factor(b, dom));
+      if (typ(a)==t_POL && varn(a)==varn(b))
+        y = famat_mul_shallow(RgX_factor(a, dom),y);
       return gerepilecopy(av, y);
     }
-    case t_COMPLEX:
-      y = gauss_factor(x); if (y) return y;
+    case t_INT:  if (tdom==0 || tdom==t_INT) return Z_factor(x);
+    case t_FRAC: if (tdom==0 || tdom==t_INT) return Q_factor(x);
+    case t_COMPLEX: /* fall through */
+      if (tdom==0 || tdom==t_COMPLEX)
+      {
+        GEN y = gauss_factor(x); if (y) return y;
+      }
       /* fall through */
   }
   pari_err_TYPE("factor",x);
   return NULL; /* LCOV_EXCL_LINE */
 }
+
+GEN
+factor(GEN x) { return factor_domain(x, NULL); }
 
 /*******************************************************************/
 /*                                                                 */
