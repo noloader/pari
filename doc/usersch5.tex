@@ -3877,6 +3877,10 @@ is defined, to the proper accuracy (e.g. \kbd{0}, \kbd{Mod(0,3)},
 the ``natural'' base ring over which the polynomial $x$ is defined,
 otherwise as \kbd{Rg\_type}.
 
+\fun{long}{RgX_Rg_type}{GEN x, GEN y, GEN *ptp, GEN *ptpol, long *ptprec}
+returns the ``natural'' base ring over which the polynomial $x$ and the element
+$y$ are defined, otherwise as \kbd{Rg\_type}.
+
 \fun{long}{RgX_type2}{GEN x, GEN y, GEN *ptp, GEN *ptpol, long *ptprec} returns
 the ``natural'' base ring over which the polynomials $x$ and $y$ are defined,
 otherwise as \kbd{Rg\_type}.
