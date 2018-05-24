@@ -349,10 +349,12 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
         switch(typ(d))
         {
           case t_INT: case t_FRAC:
-            t[4]=1; break;
+            if (!*t2) *t2 = t_COMPLEX;
+            t[1]=1; break;
           case t_REAL:
             update_prec(precision(d), pa);
-            t[6]=1; break;
+            if (!*t2) *t2 = t_COMPLEX;
+            t[2]=1; break;
           case t_INTMOD:
             assign_or_fail(gel(d,1),p);
             if (!signe(*p) || mod4(*p) != 3) return 0;
@@ -366,7 +368,7 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
           default: return 0;
         }
       }
-      if (!t[6]) assign_or_fail(mkpoln(3, gen_1,gen_0,gen_1), pol); /*x^2+1*/
+      if (!t[2]) assign_or_fail(mkpoln(3, gen_1,gen_0,gen_1), pol); /*x^2+1*/
       break;
     case t_PADIC:
       update_prec(precp(c)+valp(c), pa);
@@ -429,9 +431,9 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
  * t[1] : t_FRAC
  * t[2] : t_REAL
  * t[3] : t_INTMOD
- * t[4] : t_COMPLEX of rationals (t_INT/t_FRAC)
+ * t[4] : Unused
  * t[5] : t_FFELT
- * t[6] : t_COMPLEX of t_REAL
+ * t[6] : Unused
  * t[7] : t_PADIC
  * t[8] : t_QUAD of rationals (t_INT/t_FRAC)
  * t[9]:  Unused
@@ -442,31 +444,27 @@ static long
 choosetype(long *t, long t2, GEN ff, GEN *pol, long var)
 {
   if (t[10] && (!*pol || var!=varn(*pol))) return t_POL;
-  if (t[5]) /* ffelt */
-  {
-    if (t2 ||t[2]||t[4]||t[6]||t[8]||t[9]) return 0;
-    *pol=ff; return t_FFELT;
-  }
-  if (t[6]) /* inexact, complex */
-  {
-    if (t2 ||t[3]||t[7]||t[9]) return 0;
-    return t_COMPLEX;
-  }
-  if (t[2]) /* inexact, real */
-  {
-    if (t2 ||t[3]||t[7]||t[9]) return 0;
-    return t[4]?t_COMPLEX:t_REAL;
-  }
   if (t2) /* polmod/quad/complex of intmod/padic */
   {
+    if (t[2] && (t[3]||t[7])) return 0;
     if (t[3]) return code(t2,t_INTMOD);
     if (t[7]) return code(t2,t_PADIC);
+    if (t[2]) return t_COMPLEX;
     if (t[1]) return code(t2,t_FRAC);
     return code(t2,t_INT);
   }
+  if (t[5]) /* ffelt */
+  {
+    if (t[2]||t[8]||t[9]) return 0;
+    *pol=ff; return t_FFELT;
+  }
+  if (t[2]) /* inexact, real */
+  {
+    if (t[3]||t[7]||t[9]) return 0;
+    return t_REAL;
+  }
   if (t[10]) return t_POL;
   if (t[8]) return code(t_QUAD,t_INT);
-  if (t[4]) return code(t_COMPLEX,t_INT);
   if (t[3]) return t_INTMOD;
   if (t[7]) return t_PADIC;
   if (t[1]) return t_FRAC;
