@@ -13512,6 +13512,12 @@ when the keys are \kbd{ulongs} with ordinary equality test.
 when the keys are character strings with string equality test (and
 \tet{hash_str} hash function).
 
+\fun{void}{hash_init_GEN}{hashtable *h, ulong size, int (*eq)(GEN,GEN), use_stack}
+Initialize \kbd{h } for an hashtable with enough room to contain
+\kbd{size} entries of type \kbd{GEN}. The functions \kbd{eq} test keys for
+equality. If \kbd{use\_stack} is non zero, the resulting table will use the
+PARI stack; otherwise, we use \kbd{malloc}. The hash used is \kbd{hash\_GEN}.
+
 \fun{void}{hash_insert}{hashtable *h, void *k, void *v} inserts $(k,v)$
 in hashtable $h$. No copy is made: $k$ and $v$ themselves are stored. The
 implementation does not prevent one to insert two entries with equal
@@ -13520,11 +13526,18 @@ keys $k$, but which of the two is affected by later commands is undefined.
 \fun{void}{hash_insert2}{hashtable *h, void *k, void *v, ulong hash}
 as \kbd{hash\_insert}, assuming \kbd{h->hash(k)} is \kbd{hash}.
 
+\fun{void}{hash_insert_long}{hashtable *h, void *k, long v} as
+\kbd{hash\_insert} but \kbd{v} is a \kbd{long}.
+
 \fun{hashentry*}{hash_search}{hashtable *h, void *k} look for an entry
 with key $k$ in $h$. Return it if it one exists, and \kbd{NULL} if not.
 
 \fun{hashentry*}{hash_search2}{hashtable *h, void *k, ulong hash} as
 \kbd{hash\_search} assuming \kbd{h->hash(k)} is \kbd{hash}.
+
+\fun{int}{hash_haskey_long}{hashtable *h, void *k, long *v}
+returns $1$ if the key $k$ belongs to the hash and set $v$ to its value,
+otherwise returns 0.
 
 \fun{hashentry *}{hash_select}{hashtable *h, void *k, void *E, int (*select)(void *, hashentry *)} variant of \tet{hash_search}, useful when entries
 with identical keys are inserted: among the entries attached to

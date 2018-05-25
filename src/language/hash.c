@@ -81,6 +81,23 @@ hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*),
 }
 
 void
+hash_init_GEN(hashtable *h, ulong minsize, int (*eq)(GEN,GEN), int use_stack)
+{
+  int i = get_prime_index(minsize);
+  ulong len = hashprimes[i];
+  if (use_stack)
+    h->table = (hashentry**)stack_calloc(len * sizeof(hashentry*));
+  else
+    h->table = (hashentry**)pari_calloc(len * sizeof(hashentry*));
+  h->use_stack = use_stack;
+  h->pindex = i;
+  h->nb = 0;
+  h->hash = (ulong (*)(void*)) hash_GEN;
+  h->eq   = (int (*)(void*,void*)) eq;
+  setlen(h, len);
+}
+
+void
 hash_insert2(hashtable *h, void *k, void *v, ulong hash)
 {
   hashentry *e;
@@ -117,6 +134,10 @@ hash_insert2(hashtable *h, void *k, void *v, ulong hash)
 void
 hash_insert(hashtable *h, void *k, void *v)
 { hash_insert2(h,k,v,h->hash(k)); }
+
+void
+hash_insert_long(hashtable *h, void *k, long v)
+{ hash_insert2(h,k,(void*)v,h->hash(k)); }
 
 /* the key 'k' may correspond to different values in the hash, return
  * one satisfying the selection callback */
@@ -178,6 +199,14 @@ hash_search(hashtable *h, void *k)
 {
   if (h->nb == 0) return NULL;
   return hash_search2(h, k, h->hash(k));
+}
+
+int
+hash_haskey_long(hashtable *h, void *k, long *v)
+{
+  hashentry * e = hash_search(h, k);
+  if (e) { *v = (long) e->val; return 1; }
+  else return 0;
 }
 
 hashentry *
