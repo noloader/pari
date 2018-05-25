@@ -2305,6 +2305,55 @@ F2xqX_factor(GEN x, GEN T)
   return gerepilecopy(av, F2xqX_factor_Cantor(x, T));
 }
 
+long
+FpXQX_ddf_degree(GEN S, GEN XP, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN X, b, g, xq, q;
+  long i, j, n, v, B, l, m, bo, ro;
+  pari_timer ti;
+  hashtable h;
+
+  n = get_FpXQX_degree(S); v = get_FpXQX_var(S);
+  X = pol_x(v);
+  if (gequal(X,XP)) return 1;
+  B = n/2;
+  l = usqrt(B);
+  m = (B+l-1)/l;
+  T = FpX_get_red(T, p);
+  S = FpXQX_get_red(S, T, p);
+  hash_init_GEN(&h, l+2, gequal, 1);
+  hash_insert_long(&h, X,  0);
+  hash_insert_long(&h, simplify_shallow(XP), 1);
+  bo = brent_kung_optpow(n, l-1, 1);
+  ro = l<=1 ? 0: (bo-1)/(l-1) + ((n-1)/bo);
+  q = powiu(p, get_FpX_degree(T));
+  if (DEBUGLEVEL>=7) timer_start(&ti);
+  b = XP;
+  if (expi(q) > ro)
+  {
+    xq = FpXQXQ_powers(b, brent_kung_optpow(n, l-1, 1),  S, T, p);
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_degree: xq baby");
+  } else xq = NULL;
+  for (i = 3; i <= l+1; i++)
+  {
+    b = xq ? FpXQX_FpXQXQV_eval(b, xq, S, T, p)
+           : FpXQXQ_pow(b, q, S, T, p);
+    if (gequal(b,X)) { avma = av; return i-1; }
+    hash_insert_long(&h, simplify_shallow(b), i-1);
+  }
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_degree: baby");
+  g = b;
+  xq = FpXQXQ_powers(g, brent_kung_optpow(n, m, 1),  S, T, p);
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FpXQX_ddf_degree: xq giant");
+  for(i = 2; i <= m+1; i++)
+  {
+    g = FpXQX_FpXQXQV_eval(g, xq, S, T, p);
+    if (hash_haskey_long(&h, simplify_shallow(g), &j)) { avma=av; return l*i-j; }
+  }
+  avma = av; return n;
+}
+
 static GEN
 FpXQX_ddf_Shoup(GEN S, GEN Xq, GEN T, GEN p)
 {

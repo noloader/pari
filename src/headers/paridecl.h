@@ -730,6 +730,7 @@ GEN     FpX_ffisom(GEN P,GEN Q,GEN l);
 GEN     FpXQ_ffisom_inv(GEN S,GEN Tp, GEN p);
 GEN     FpXQX_Frobenius(GEN S, GEN T, GEN p);
 GEN     FpXQX_ddf(GEN S, GEN T, GEN p);
+long    FpXQX_ddf_degree(GEN S, GEN XP, GEN T, GEN p);
 GEN     FpXQX_degfact(GEN S, GEN T, GEN p);
 GEN     FpXQX_factor(GEN x, GEN T, GEN p);
 GEN     FpXQX_factor_squarefree(GEN x, GEN T, GEN p);
