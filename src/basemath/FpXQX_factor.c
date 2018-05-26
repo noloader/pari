@@ -2002,6 +2002,55 @@ FpXQX_Berlekamp_i(GEN f, GEN T, GEN p)
   return sort_factor_pol(mkvec2(t, E), cmp_RgX);
 }
 
+long
+FlxqX_ddf_degree(GEN S, GEN XP, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN X, b, g, xq, q;
+  long i, j, n, v, B, l, m, bo, ro;
+  pari_timer ti;
+  hashtable h;
+
+  n = get_FlxqX_degree(S); v = get_FlxqX_var(S);
+  X = polx_FlxX(v,get_Flx_var(T));
+  if (gequal(X,XP)) return 1;
+  B = n/2;
+  l = usqrt(B);
+  m = (B+l-1)/l;
+  T = Flx_get_red(T, p);
+  S = FlxqX_get_red(S, T, p);
+  hash_init_GEN(&h, l+2, gequal, 1);
+  hash_insert_long(&h, X,  0);
+  hash_insert_long(&h, XP, 1);
+  bo = brent_kung_optpow(n, l-1, 1);
+  ro = l<=1 ? 0: (bo-1)/(l-1) + ((n-1)/bo);
+  q = powuu(p, get_Flx_degree(T));
+  if (DEBUGLEVEL>=7) timer_start(&ti);
+  b = XP;
+  if (expi(q) > ro)
+  {
+    xq = FlxqXQ_powers(b, brent_kung_optpow(n, l-1, 1),  S, T, p);
+    if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_degree: xq baby");
+  } else xq = NULL;
+  for (i = 3; i <= l+1; i++)
+  {
+    b = xq ? FlxqX_FlxqXQV_eval(b, xq, S, T, p)
+           : FlxqXQ_pow(b, q, S, T, p);
+    if (gequal(b,X)) { avma = av; return i-1; }
+    hash_insert_long(&h, b, i-1);
+  }
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_degree: baby");
+  g = b;
+  xq = FlxqXQ_powers(g, brent_kung_optpow(n, m, 1),  S, T, p);
+  if (DEBUGLEVEL>=7) timer_printf(&ti,"FlxqX_ddf_degree: xq giant");
+  for(i = 2; i <= m+1; i++)
+  {
+    g = FlxqX_FlxqXQV_eval(g, xq, S, T, p);
+    if (hash_haskey_long(&h, g, &j)) { avma=av; return l*i-j; }
+  }
+  avma = av; return n;
+}
+
 static GEN
 FlxqX_ddf_Shoup(GEN S, GEN Xq, GEN T, ulong p)
 {

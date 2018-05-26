@@ -1149,8 +1149,7 @@ Flxq_study_eqn(long ell, GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
   *pt_dG = degpol(G);
   if (!*pt_dG)
   {
-    long s = FlxqX_nbfact_Frobenius(mpoly, Xq, T, p);
-    *pt_r = (ell + 1)/s;
+    *pt_r = FlxqX_ddf_degree(mpoly, Xq, T, p);
     return NULL;
   }
   return gel(FlxqX_roots(G, T, p), 1);

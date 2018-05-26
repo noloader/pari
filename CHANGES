@@ -36,6 +36,7 @@ BA    2- [libpari] Fp_pow_init, Flxq_pow_init, F2xq_pow_init
       3- new GP function serchop
       4- [libpari] serchop_i
 BA    5- [libpari] hash_init_GEN, hash_haskey_long, hash_insert_long
+BA    6- [libpari] FpX_ddf_degree, FpXQX_ddf_degree, FlxqX_ddf_degree
 
 Done for version 2.10.0 (released 15/05/2018):
   Fixed
