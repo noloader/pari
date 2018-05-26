@@ -1132,8 +1132,7 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
     }
     avma = btop;
   }
-  pari_err_BUG("failed to find kernel polynomial");
-  return NULL; /*LCOV_EXCL_LINE*/
+  avma = ltop; return NULL;
 }
 
 /****************************************************************************/
@@ -1231,10 +1230,11 @@ study_modular_eqn(long ell, GEN mpoly, GEN T, GEN p, enum mod_type *mt, long *pt
 
 /*Returns the trace modulo ell^k when ell is an Elkies prime */
 static GEN
-find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GEN g, GEN tr, GEN q, GEN T, GEN p, long smallfact, pari_timer *ti)
+find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long *pt_k, struct meqn *MEQN, GEN g, GEN tr, GEN q, GEN T, GEN p, long smallfact, pari_timer *ti)
 {
   pari_sp ltop = avma, btop;
   GEN tmp, Eba4, Eba6, Eca4, Eca6, Ib, kpoly;
+  long k = *pt_k;
   ulong lambda, ellk = upowuu(ell, k), pellk = umodiu(q, ellk);
   long cnt;
 
@@ -1260,10 +1260,9 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
   btop = avma;
   for (cnt = 2; cnt <= k; cnt++)
   {
-    GEN tmp;
+    GEN tmp = find_kernel_power(Eba4, Eba6, Eca4, Eca6, ell, MEQN, kpoly, Ib, T, p);
+    if (!tmp) { k = cnt-1; break; }
     if (DEBUGLEVEL) err_printf(", %Ps", powuu(ell, cnt));
-    tmp = find_kernel_power(Eba4, Eba6, Eca4, Eca6, ell, MEQN, kpoly, Ib, T, p);
-    if (!tmp) { avma = ltop; return NULL; }
     lambda = find_eigen_value_power(a4, a6, ell, cnt, lambda, gel(tmp,3), T, p);
     Eba4 = Eca4;
     Eba6 = Eca6;
@@ -1279,6 +1278,9 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long k, struct meqn *MEQN, GE
     if (DEBUGLEVEL>1) err_printf(" [%ld ms]", timer_delay(ti));
   }
   avma = ltop;
+  ellk = upowuu(ell, k);
+  pellk = umodiu(q, ellk);
+  *pt_k = k;
   return mkvecsmall(Fl_add(lambda, Fl_div(pellk, lambda, ellk), ellk));
 }
 
@@ -1358,17 +1360,14 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
   {
   case MTone_root:
     tr2 = find_trace_one_root(ell, q);
-    kt = 1;
-    /* Must take k = 1 because we can't apply Hensel: no guarantee that a
-     * root mod ell^2 exists */
-    tr = find_trace_Elkies_power(a4,a6,ell, kt, &MEQN, g, tr2, q, T, p, smallfact, &ti);
-    if (!tr) tr = tr2;
+    tr = find_trace_Elkies_power(a4,a6,ell, &kt, &MEQN, g, tr2, q, T, p, smallfact, &ti);
+    if (!tr) { tr = tr2; kt = 1; }
     break;
   case MTElkies:
     /* Contrary to MTone_root, may look mod higher powers of ell */
     if (abscmpiu(p, 2*ell+3) <= 0)
       kt = 1; /* Not implemented in this case */
-    tr = find_trace_Elkies_power(a4,a6,ell, kt, &MEQN, g, NULL, q, T, p, smallfact, &ti);
+    tr = find_trace_Elkies_power(a4,a6,ell, &kt, &MEQN, g, NULL, q, T, p, smallfact, &ti);
     if (!tr)
     {
       if (DEBUGLEVEL) err_printf("[fail]\n");
