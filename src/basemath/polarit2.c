@@ -251,7 +251,7 @@ RgXY_factor_squarefree(GEN f, GEN dom)
     {
       BLOC = gpowgs(gaddgs(pol_x(vy), i), n+1);
       F = poleval(f, BLOC);
-      if (issquarefree(c ? gmul(F,gmodulss(1,c)): F)) break;
+      if (issquarefree(c ? gmul(F,mkintmodu(1,c)): F)) break;
     }
     if (!c || i < c) break;
     n++;
@@ -265,7 +265,13 @@ RgXY_factor_squarefree(GEN f, GEN dom)
   settyp(Lfac, t_COL);
   (void)RgX_cmbf(NULL, 1, BLOC, Lmod, Lfac, &f);
   if (degpol(f)) vectrunc_append(Lfac, f);
-  if (val) vectrunc_append(Lfac, pol_x(varn(f)));
+  if (val)
+  {
+    GEN x = pol_x(varn(f)), c = NULL;
+    if (dom) { c = Rg_get_1(dom); if (typ(c) == t_INT) c = NULL; }
+    if (c) x = RgX_Rg_mul(x, c);
+    vectrunc_append(Lfac, x);
+  }
   return gerepilecopy(av, Lfac);
 }
 
@@ -280,23 +286,24 @@ static GEN
 RgXY_factor(GEN f, GEN dom)
 {
   pari_sp av = avma;
-  GEN F, E;
-  GEN cnt = content(f);
-  GEN V = RgXY_squff(gdiv(f, cnt));
-  long i, j, l = lg(V);
-  GEN C = factor_domain(cnt, dom);
-  F = cgetg(l+1, t_VEC);
-  E = cgetg(l+1, t_VEC);
-  gel(F,1) = gel(C,1);
-  gel(E,1) = gel(C,2);
+  GEN C, F, E, cf, V;
+  long i, j, l;
+  if (dom) { GEN c = Rg_get_1(dom); if (typ(c) != t_INT) f = RgX_Rg_mul(f,c); }
+  cf = content(f);
+  V = RgXY_squff(gdiv(f, cf)); l = lg(V);
+  C = factor_domain(cf, dom);
+  F = cgetg(l+1, t_VEC); gel(F,1) = gel(C,1);
+  E = cgetg(l+1, t_VEC); gel(E,1) = gel(C,2);
   for (i=1, j=2; i < l; i++)
-    if (degpol(gel(V,i)))
+  {
+    GEN v = gel(V,i);
+    if (degpol(v))
     {
-      GEN Fj = RgXY_factor_squarefree(gel(V,i), dom);
-      gel(F, j) = Fj;
-      gel(E, j) = const_vec(lg(Fj)-1, stoi(i));
+      gel(F,j) = v = RgXY_factor_squarefree(v, dom);
+      gel(E,j) = const_vec(lg(v)-1, utoipos(i));
       j++;
     }
+  }
   return gerepilecopy(av, sort_factor_pol(FE_matconcat(F,E,j), cmp_universal));
 }
 
