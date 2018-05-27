@@ -282,6 +282,12 @@ FE_matconcat(GEN F, GEN E, long l)
   setlg(F,l); F = shallowconcat1(F); return mkmat2(F,E);
 }
 
+static int
+gen_cmp_RgXY(void *data, GEN x, GEN y)
+{
+  long vx = varn(x), vy = varn(y);
+  return (vx == vy)? gen_cmp_RgX(data, x, y): -varncmp(vx, vy);
+}
 static GEN
 RgXY_factor(GEN f, GEN dom)
 {
@@ -304,7 +310,9 @@ RgXY_factor(GEN f, GEN dom)
       j++;
     }
   }
-  return gerepilecopy(av, sort_factor_pol(FE_matconcat(F,E,j), cmp_universal));
+  f = FE_matconcat(F,E,j);
+  (void)sort_factor(f,(void*)cmp_universal, &gen_cmp_RgXY);
+  return gerepilecopy(av, f);
 }
 
 /***********************************************************************/

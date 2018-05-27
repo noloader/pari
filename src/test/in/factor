@@ -68,6 +68,7 @@ factor(x^2+Mod(y,y^2+1),O(3))
 factor(5/2,I)
 factor(x^2+a^3*x-6,Mod(1,a^2-2))
 factor((x*y+1)*(x*y+2),Mod(1,2))
+factor((x*y+1)*x*(y^2+y+1)*(z^3+z+1),Mod(1,2))
 
 factor(x^3+y^3,quadgen(-3))
 factor(x^7-y^7,Mod(1,7))
