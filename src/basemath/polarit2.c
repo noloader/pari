@@ -418,6 +418,9 @@ settype(GEN c, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, long *t2, long *var
         if (polbis) assign_or_fail(polbis,pol);
       }
       break;
+    case t_RFRAC: t[10] = 1;
+      if (!settype(gel(c,1),t,p,pol,pa,ff,t2,var)) return 0;
+      c = gel(c,2); /* fall through */
     case t_POL: t[10] = 1;
       if (!RgX_settype(c,t,p,pol,pa,ff,t2,var)) return 0;
       if (*var == NO_VARIABLE) { *var = varn(c); break; }
@@ -952,9 +955,8 @@ factor_domain(GEN x, GEN dom)
     case t_RFRAC: {
       GEN a = gel(x,1), b = gel(x,2);
       GEN y = famat_inv_shallow(RgX_factor(b, dom));
-      if (typ(a)==t_POL && varn(a)==varn(b))
-        y = famat_mul_shallow(RgX_factor(a, dom),y);
-      return gerepilecopy(av, y);
+      if (typ(a)==t_POL) y = famat_mul_shallow(RgX_factor(a, dom), y);
+      return gerepilecopy(av, sort_factor_pol(y, cmp_universal));
     }
     case t_INT:  if (tdom==0 || tdom==t_INT) return Z_factor(x);
     case t_FRAC: if (tdom==0 || tdom==t_INT) return Q_factor(x);

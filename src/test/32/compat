@@ -192,9 +192,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: boundfact(x,lim) ===> factor(x,lim)
 
-factor(x,{lim}): factorization of x. lim is optional and can be set whenever x 
-is of (possibly recursive) rational type. If lim is set return partial 
-factorization, using primes < lim.
+factor(x,{D}): factorization of x over domain D. If x and D are both integers, 
+return partial factorization, using primes <= D.
 
 
   ***   at top-level: buchcertify()
@@ -1064,9 +1063,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: factpol(x,l,hint) ===> factor(x)
 
-factor(x,{lim}): factorization of x. lim is optional and can be set whenever x 
-is of (possibly recursive) rational type. If lim is set return partial 
-factorization, using primes < lim.
+factor(x,{D}): factorization of x over domain D. If x and D are both integers, 
+return partial factorization, using primes <= D.
 
 
   ***   at top-level: factpol2()
@@ -1076,9 +1074,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: factpol2(x,l,hint) ===> factor(x)
 
-factor(x,{lim}): factorization of x. lim is optional and can be set whenever x 
-is of (possibly recursive) rational type. If lim is set return partial 
-factorization, using primes < lim.
+factor(x,{D}): factorization of x over domain D. If x and D are both integers, 
+return partial factorization, using primes <= D.
 
 
   ***   at top-level: fibo()
@@ -3694,9 +3691,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: smallfact(x) ===> factor(x,0)
 
-factor(x,{lim}): factorization of x. lim is optional and can be set whenever x 
-is of (possibly recursive) rational type. If lim is set return partial 
-factorization, using primes < lim.
+factor(x,{D}): factorization of x over domain D. If x and D are both integers, 
+return partial factorization, using primes <= D.
 
 
   ***   at top-level: smallinitell()
@@ -4521,4 +4517,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 8
+Total time spent: 10

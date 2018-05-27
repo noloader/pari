@@ -7,6 +7,9 @@ BA    2- nfisincl() result uses wrong variable [#2041]
       3- polcompositum(,1) when one polynomial has degree 1 [#2045]
       4- Mod(0,3)*x + O(x^2) -> O(x^2) [instead of same]
 AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
+      6- factor(x/y) -> error
+      7- factor(y/x) -> x^-1 [ instead of y^1 * x^-1 ]
+      8- factor(x^2 + O(2^2)) -> x^2 [ instead of (x+O(2^2))^1 * (x+O(2^2))^1 ]
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
@@ -23,6 +26,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
          With arg: denominator(,1) is 2 in all 3 cases
                    denominator(,x) is x in all 3 cases
                    denominator(,y) is y in all 3 cases
+      5- factor(t_RFRAC): sort factors by increasing degree
 
   Added
       1- [libpari] denom_i, numer_i, conj_i

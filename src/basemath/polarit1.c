@@ -553,8 +553,8 @@ factorpadic(GEN f, GEN p, long r)
   if (!signe(f)) return prime_fact(f);
   if (!degpol(f)) return trivial_fact();
 
+  exact = RgX_is_QX(f); /* before RgX_valrem which may lose type information */
   v = RgX_valrem_inexact(f, &f);
-  exact = RgX_is_QX(f);
   ppow = powiu(p,r);
   n = degpol(f);
   if (!n)
