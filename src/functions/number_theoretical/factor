@@ -288,7 +288,8 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  \misctitle{Multivariate polynomials and rational functions}
  PARI recursively factors \emph{multivariate} polynomials in
  $K[t_1,\dots, t_d]$ for the same fields $K$ as above and the argument $D$
- is used in the same way to specify $K$:
+ is used in the same way to specify $K$. The irreducible factors are sorted
+ by their main variable (least priority first) then by increasing degree.
 
  \bprog
  ? factor(x^2 + y^2, Mod(1,5))
