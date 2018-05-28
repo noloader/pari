@@ -1191,8 +1191,7 @@ study_modular_eqn(long ell, GEN mpoly, GEN T, GEN p, enum mod_type *mt, long *pt
   pari_sp ltop = avma;
   GEN g = gen_0;
   *ptr_r = 0; /*gcc -Wall*/
-  if (degpol(FqX_gcd(mpoly, FqX_deriv(mpoly, T, p), T, p)) > 0)
-    *mt = MTpathological;
+  if (!FqX_is_squarefree(mpoly, T, p)) *mt = MTpathological;
   else
   {
     long dG;
