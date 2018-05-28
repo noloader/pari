@@ -4127,15 +4127,21 @@ mfeigenbasis(GEN mf)
 {
   pari_sp ltop = avma;
   GEN F, S, v, vP;
-  long i, l, k;
+  long i, l, k, dS;
 
   mf = checkMF(mf);
   k = MF_get_k(mf);
-  S = MF_get_S(mf); if (lg(S) == 1) return cgetg(1, t_VEC);
+  S = MF_get_S(mf); dS = lg(S)-1;
+  if (!dS) return cgetg(1, t_VEC);
   F = MF_get_newforms(mf);
   vP = MF_get_fields(mf);
   if (k == 1)
   {
+    if (MF_get_space(mf) == mf_FULL)
+    {
+      long dE = lg(MF_get_E(mf)) - 1;
+      if (dE) F = rowslice(F, dE+1, dE+dS);
+    }
     v = vecmflineardiv_linear(S, F);
     l = lg(v);
   }

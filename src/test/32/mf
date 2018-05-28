@@ -1027,6 +1027,7 @@ od(-675*t, t^2 + t + 1)*x^4 + Mod(54, t^2 + t + 1)*x^3 + Mod(-972*t - 972, t
 []
 [-24]
 [14]
+[14]
 [-12]
 [[33, 2, 1, y], [0, 1, 1, -1, -1, -2, -1, 4, -3, 1, -2]]
 [[38, 2, 1, y], [0, 1, 1, -1, 1, -4, -1, 3, 1, -2, -4]]
@@ -1529,4 +1530,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mfsymboleval(FSbug,[0,1])
   ***                 ^-------------------------
   *** mfsymboleval: incorrect type in mfsymboleval [need integral k > 1] (t_VEC).
-Total time spent: 5556
+Total time spent: 11377
