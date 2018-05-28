@@ -1146,11 +1146,7 @@ Flxq_study_eqn(GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
   GEN Xq = FlxqX_Frobenius(mpoly, T, p);
   GEN G  = FlxqX_gcd(FlxX_sub(Xq, pol_x(0), p), mpoly, T, p);
   *pt_dG = degpol(G);
-  if (!*pt_dG)
-  {
-    *pt_r = FlxqX_ddf_degree(mpoly, Xq, T, p);
-    return NULL;
-  }
+  if (!*pt_dG) { *pt_r = FlxqX_ddf_degree(mpoly, Xq, T, p); return NULL; }
   return gel(FlxqX_roots(G, T, p), 1);
 }
 
@@ -1161,18 +1157,15 @@ Fp_study_eqn(GEN mpoly, GEN p, long *pt_dG, long *pt_r)
   GEN XP = FpX_Frobenius(T, p);
   GEN G  = FpX_gcd(FpX_sub(XP, pol_x(0), p), mpoly, p);
   *pt_dG = degpol(G);
-  if (!*pt_dG)
-  {
-    *pt_r = FpX_ddf_degree(T, XP, p);
-    return NULL;
-  }
+  if (!*pt_dG) { *pt_r = FpX_ddf_degree(T, XP, p); return NULL; }
   return FpX_oneroot(G, p);
 }
 
 static GEN
-FpXQ_study_eqn(GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
+Fq_study_eqn(GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
 {
   GEN G;
+  if (!T) return Fp_study_eqn(mpoly, p, pt_dG, pt_r);
   if (lgefint(p)==3)
   {
     ulong pp = p[2];
@@ -1186,11 +1179,7 @@ FpXQ_study_eqn(GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
     GEN Xq = FpXQX_Frobenius(mpoly, T, p);
     G  = FpXQX_gcd(FpXX_sub(Xq, pol_x(0), p), mpoly, T, p);
     *pt_dG = degpol(G);
-    if (!*pt_dG)
-    {
-      *pt_r = FpXQX_ddf_degree(mpoly, Xq, T, p);
-      return NULL;
-    }
+    if (!*pt_dG) { *pt_r = FpXQX_ddf_degree(mpoly, Xq, T, p); return NULL; }
     return gel(FpXQX_roots(G, T, p), 1);
   }
 }
@@ -1207,8 +1196,7 @@ study_modular_eqn(long ell, GEN mpoly, GEN T, GEN p, enum mod_type *mt, long *pt
   else
   {
     long dG;
-    g = T ? FpXQ_study_eqn(mpoly, T, p, &dG, ptr_r)
-            : Fp_study_eqn(mpoly, p, &dG, ptr_r);
+    g = Fq_study_eqn(mpoly, T, p, &dG, ptr_r);
     switch(dG)
     {
       case 0:  *mt = MTAtkin; break;
