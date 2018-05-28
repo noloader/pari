@@ -1141,7 +1141,7 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
 enum mod_type {MTpathological, MTAtkin, MTElkies, MTone_root, MTroots};
 
 static GEN
-Flxq_study_eqn(long ell, GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
+Flxq_study_eqn(GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
 {
   GEN Xq = FlxqX_Frobenius(mpoly, T, p);
   GEN G  = FlxqX_gcd(FlxX_sub(Xq, pol_x(0), p), mpoly, T, p);
@@ -1155,7 +1155,7 @@ Flxq_study_eqn(long ell, GEN mpoly, GEN T, ulong p, long *pt_dG, long *pt_r)
 }
 
 static GEN
-Fp_study_eqn(long ell, GEN mpoly, GEN p, long *pt_dG, long *pt_r)
+Fp_study_eqn(GEN mpoly, GEN p, long *pt_dG, long *pt_r)
 {
   GEN T  = FpX_get_red(mpoly, p);
   GEN XP = FpX_Frobenius(T, p);
@@ -1170,7 +1170,7 @@ Fp_study_eqn(long ell, GEN mpoly, GEN p, long *pt_dG, long *pt_r)
 }
 
 static GEN
-FpXQ_study_eqn(long ell, GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
+FpXQ_study_eqn(GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
 {
   GEN G;
   if (lgefint(p)==3)
@@ -1178,7 +1178,7 @@ FpXQ_study_eqn(long ell, GEN mpoly, GEN T, GEN p, long *pt_dG, long *pt_r)
     ulong pp = p[2];
     GEN Tp = ZXT_to_FlxT(T,pp);
     GEN mpolyp = ZXX_to_FlxX(mpoly,pp,get_FpX_var(T));
-    G = Flxq_study_eqn(ell, mpolyp, Tp, pp, pt_dG, pt_r);
+    G = Flxq_study_eqn(mpolyp, Tp, pp, pt_dG, pt_r);
     return G ? Flx_to_ZX(G): NULL;
   }
   else
@@ -1207,8 +1207,8 @@ study_modular_eqn(long ell, GEN mpoly, GEN T, GEN p, enum mod_type *mt, long *pt
   else
   {
     long dG;
-    g = T ? FpXQ_study_eqn(ell, mpoly, T, p, &dG, ptr_r)
-            : Fp_study_eqn(ell, mpoly, p, &dG, ptr_r);
+    g = T ? FpXQ_study_eqn(mpoly, T, p, &dG, ptr_r)
+            : Fp_study_eqn(mpoly, p, &dG, ptr_r);
     switch(dG)
     {
       case 0:  *mt = MTAtkin; break;
