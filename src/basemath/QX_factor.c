@@ -488,7 +488,7 @@ LLL_cmbf(GEN P, GEN famod, GEN p, GEN pa, GEN bound, long a, long rec)
   const long N0 = 1; /* # of traces added at each step */
   double BitPerFactor = 0.4; /* nb bits in p^(a-b) / modular factor */
   long i,j,tmax,n0,C, dP = degpol(P);
-  double logp = log((double)itos(p)), LOGp2 = LOG2/logp;
+  double logp = log((double)itos(p)), LOGp2 = M_LN2/logp;
   double b0 = log((double)dP*2) / logp, logBr;
   GEN lP, Br, Bnorm, Tra, T2, TT, CM_L, m, list, ZERO;
   pari_sp av, av2;
@@ -642,7 +642,7 @@ AGAIN:
 static int
 cmbf_precs(GEN q, GEN A, GEN B, long *pta, long *ptb, GEN *qa, GEN *qb)
 {
-  long a,b,amin,d = (long)(31 * LOG2/gtodouble(glog(q,DEFAULTPREC)) - 1e-5);
+  long a,b,amin,d = (long)(31 * M_LN2/gtodouble(glog(q,DEFAULTPREC)) - 1e-5);
   int fl = 0;
 
   b = logintall(B, q, qb) + 1;

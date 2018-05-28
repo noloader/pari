@@ -445,9 +445,9 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   A = gammavec_expo(d, gtodouble(vecsum(Vga))); avma = av;
   a = (A+k1+1) + (m-1)/c;
   if (fabs(a) < 1e-10) a = 0.;
-  logC = c*LOG2 - log(c)/2;
+  logC = c*M_LN2 - log(c)/2;
   /* +1: fudge factor */
-  B = LOG2*bitprec+logC+m*log(2*M_PI) + 1 + (k1+1)*log(N)/2 - (k1+m+1)*log(rho);
+  B = M_LN2*bitprec+logC+m*log(2*M_PI) + 1 + (k1+1)*log(N)/2 - (k1+m+1)*log(rho);
   if (al)
   { /* t = rho e^(i*al), T^(1/c) = Re(t^(1/c)) > 0, T = rho cos^c(al/c) */
     double z = cos(al/c);
@@ -912,15 +912,15 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
 
   /* we compute Lambda^(der)(s) / der!; need to compensate for L^(der)(s)
    * ln |gamma(s)| ~ (pi/4) d |t|; max with 1: fudge factor */
-  S->D = (long)ceil(bitprec + derprec + maxdd((M_PI/(4*LOG2))*d*S->dh, 1));
-  S->E = E = LOG2*S->D; /* D:= required absolute bitprec */
+  S->D = (long)ceil(bitprec + derprec + maxdd((M_PI/(4*M_LN2))*d*S->dh, 1));
+  S->E = E = M_LN2*S->D; /* D:= required absolute bitprec */
 
   Ep = E + maxdd(M_PI * S->dh * d2, (d*S->MAXs + suma - 1) * log(E));
   hd = d2*M_PI*M_PI / Ep;
-  S->m0 = (long)ceil(LOG2/hd);
-  S->hd = LOG2/S->m0;
+  S->m0 = (long)ceil(M_LN2/hd);
+  S->hd = M_LN2/S->m0;
 
-  S->logC = d2*LOG2 - log(d2)/2;
+  S->logC = d2*M_LN2 - log(d2)/2;
   k1 = ldata_get_k1(ldata);
   S->k1 = k1; /* assume |a_n| << n^k1 with small implied constant */
   S->A  = gammavec_expo(d, suma);
@@ -937,7 +937,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
       if (typ(gas) != t_SER)
       {
         double dg = dbllog2(gas);
-        if (dg > 0) sub += dg * LOG2;
+        if (dg > 0) sub += dg * M_LN2;
       }
     }
   }
@@ -970,7 +970,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   S->L = L;
   S->nmax = nmax;
 
-  S->Dmax = S->D + (long)ceil((S->M * S->hd * S->MAXs - S->sub) / LOG2);
+  S->Dmax = S->D + (long)ceil((S->M * S->hd * S->MAXs - S->sub) / M_LN2);
   if (S->Dmax < S->D) S->Dmax = S->D;
   S->precmax = nbits2prec(S->Dmax);
   if (DEBUGLEVEL > 1)
@@ -1214,7 +1214,7 @@ lfunparams2(struct lfunp *S)
 
   pmax = 0;
   sig0 = S->MAXs/S->m0;
-  sub2 = S->sub / LOG2;
+  sub2 = S->sub / M_LN2;
   vprec = cgetg(S->M+2, t_VEC);
   /* compute accuracy to which we will need k[m,n] = K(n*exp(mh)/sqrt(N))
    * vprec[m+1,n] = absolute accuracy to which we need k[m,n] */
@@ -2170,7 +2170,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
   ldataf = linit_get_ldata(linit);
   Vga = ldata_get_gammavec(ldataf); d = lg(Vga) - 1;
   N = ldata_get_conductor(ldataf);
-  NEWD = minss((long) ceil(bitprec+(M_PI/(4*LOG2))*d*maxt),
+  NEWD = minss((long) ceil(bitprec+(M_PI/(4*M_LN2))*d*maxt),
                lfun_get_bitprec(linit_get_tech(linit)));
   precinit = prec; prec = nbits2prec(NEWD);
   pi2 = Pi2n(1, prec);

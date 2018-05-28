@@ -353,7 +353,7 @@ mpqs_find_k(mpqs_handle_t *h)
     double v;
     if ((k & 3) != N_mod_4) continue; /* want kN = 1 (mod 4) */
     v = -0.35 * log2((double)k);
-    if ((k & 7) == N_mod_8) v += LOG2; /* kN = 1 (mod 8) */
+    if ((k & 7) == N_mod_8) v += M_LN2; /* kN = 1 (mod 8) */
     cache[nbk].np = 0;
     cache[nbk]._k = cand_k;
     cache[nbk].value = v;

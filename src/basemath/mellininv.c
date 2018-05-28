@@ -174,7 +174,7 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     gel(mj,j) = gsubsg(2, vecmin(L));
   }
   prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
-  limn = ceil(2*LOG2*bitprec/(d*dbllambertW0(C2/(M_PI*M_E))));
+  limn = ceil(2*M_LN2*bitprec/(d*dbllambertW0(C2/(M_PI*M_E))));
   mat = cgetg(N+1, t_VEC);
   l = limn + 2;
   for (j=1; j <= N; j++)
@@ -251,7 +251,7 @@ evalvec(GEN vec, long lim, GEN u, GEN ui)
 /* gammamellininvinit accessors */
 static double
 get_tmax(long bitprec)
-{ return (LOG2 / MELLININV_CUTOFF) * bitprec ; }
+{ return (M_LN2 / MELLININV_CUTOFF) * bitprec ; }
 static GEN
 GMi_get_Vga(GEN K) { return gel(K,2); }
 static long
@@ -266,7 +266,7 @@ GMi_get_tmax(GEN K, long bitprec)
 
 /* Compute m-th derivative of inverse Mellin at x by generalized power series
  * around x = 0; x2d = x^(2/d), x is possibly NULL (don't bother about
- * complex branches). Assume |x|^(2/d) <= tmax = LOG2*bitprec/MELLININV_CUTOFF*/
+ * complex branches). Assume |x|^(2/d) <= tmax = M_LN2*bitprec/MELLININV_CUTOFF*/
 static GEN
 Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
 {
@@ -278,14 +278,14 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   double Ed, xd, Wd;
 
   N = lg(lj)-1; d = lg(Vga)-1; A = vecsum(Vga);
-  Ed = LOG2*bitprec / d;
+  Ed = M_LN2*bitprec / d;
   xd = maxdd(M_PI*dblmodulus(x2d), 1E-13); /* pi |x|^2/d unless x tiny */
   if (xd > Ed) pari_err_BUG("Kderivsmall (x2d too large)");
   /* Lemma 5.2.6 (2), a = 1 + log(Pi x^(2/d)) = log(e / xd),
    * B = log(2)*bitprec / d = Ed */
   Wd = dbllambertW0( Ed / (M_E*xd) ); /* solution of w exp(w) = B exp(-a)*/
   limn = (long) ceil(2*Ed/Wd);
-  prec = nbits2prec((long) ceil(bitprec+d*xd/LOG2));
+  prec = nbits2prec((long) ceil(bitprec+d*xd/M_LN2));
   pi = mppi(prec);
   d2 = gdivsg(d,gen_2);
   if (x)
@@ -331,19 +331,19 @@ Kderivlarge_optim(GEN K, long abs, GEN t2d,GEN gcd, long *pbitprec, long *pnlim)
   GEN Vga = GMi_get_Vga(K), VL = GMi_get_VL(K), A2 = gel(VL,3);
   long bitprec = *pbitprec, d = lg(Vga)-1;
   const double D = get_D(d), td = dblmodulus(t2d), cd = gtodouble(gcd);
-  double a, rtd, E = LOG2*bitprec;
+  double a, rtd, E = M_LN2*bitprec;
 
   rtd = (typ(t2d) == t_COMPLEX)? gtodouble(gel(t2d,1)): td;
 
   /* A2/2 = A, log(td) = (2/d)*log t */
-  a = d*gtodouble(A2)*log2(td)/2 - (M_PI/LOG2)*d*rtd + log2(cd); /*log2 K(t)~a*/
+  a = d*gtodouble(A2)*log2(td)/2 - (M_PI/M_LN2)*d*rtd + log2(cd); /*log2 K(t)~a*/
 
   /* if bitprec <= 0, caller should return K(t) ~ 0 */
   bitprec += 64;
   if (abs)
   {
     bitprec += ceil(a);
-    if (a <= -65) E = LOG2*bitprec; /* guarantees E <= initial E */
+    if (a <= -65) E = M_LN2*bitprec; /* guarantees E <= initial E */
   }
   *pbitprec = bitprec;
   *pnlim = ceil(E*E * log2(1+M_PI*td) / (D*td));
@@ -557,7 +557,7 @@ gammamellininvinit(GEN Vga, long m, long bitprec)
   GEN A2, M, VS, VL, cd;
   long d = lg(Vga)-1, status;
   const double C2 = MELLININV_CUTOFF, D = get_D(d);
-  double E = LOG2*bitprec, tmax = get_tmax(bitprec); /* = E/C2 */
+  double E = M_LN2*bitprec, tmax = get_tmax(bitprec); /* = E/C2 */
   const long nlimmax = ceil(E*log2(1+M_PI*tmax)*C2/D);
 
   if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);

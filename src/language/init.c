@@ -55,7 +55,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 #include "anal.h"
 
-const double LOG2    = 0.6931471805599453; /* log(2) */
 const double LOG10_2 = 0.3010299956639812; /* log_10(2) */
 const double LOG2_10 = 3.321928094887362;  /* log_2(10) */
 

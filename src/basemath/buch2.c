@@ -4025,7 +4025,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
     return gerepilecopy(av0, Buchall_deg1(nf));
   }
   D = absi(D);
-  LOGD = dbllog2(D) * LOG2;
+  LOGD = dbllog2(D) * M_LN2;
   LOGD2 = LOGD*LOGD;
   LIMCMAX = (long)(12.*LOGD2);
   /* In small_norm, LLL reduction produces v0 in I such that
@@ -4035,7 +4035,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
    * NI <= LIMCMAX^2 */
   small_norm_prec = nbits2prec( BITS_IN_LONG +
     (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N))
-     + 2*log((double) LIMCMAX) + LOGD/2) / LOG2 ); /* enough to compute norms */
+     + 2*log((double) LIMCMAX) + LOGD/2) / M_LN2 ); /* enough to compute norms */
   if (small_norm_prec > PRECREG) PRECREG = small_norm_prec;
   if (!nf)
     nf = nfinit_complete(&nfT, flag_nfinit, PRECREG);

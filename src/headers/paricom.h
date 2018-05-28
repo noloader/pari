@@ -93,9 +93,12 @@ extern const long CATCH_ALL;
     return _y;\
   }
 
-extern const double LOG2, LOG10_2, LOG2_10;
+extern const double LOG10_2, LOG2_10;
 #ifndef  M_PI
-#  define M_PI 3.14159265358979323846
+#  define M_PI 3.14159265358979323846264338327950288
+#endif
+#ifndef  M_LN2
+#  define M_LN2 0.693147180559945309417232121458176568
 #endif
 
 /* Common global variables: */
@@ -135,11 +138,11 @@ enum {
 
 #ifndef HAS_EXP2
 #  undef exp2
-#  define exp2(x) (exp((double)(x)*LOG2))
+#  define exp2(x) (exp((double)(x)*M_LN2))
 #endif
 #ifndef HAS_LOG2
 #  undef log2
-#  define log2(x) (log((double)(x))/LOG2)
+#  define log2(x) (log((double)(x))/M_LN2)
 #endif
 
 #define ONLY_REM ((GEN*)0x1L)

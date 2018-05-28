@@ -27,6 +27,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
                    denominator(,x) is x in all 3 cases
                    denominator(,y) is y in all 3 cases
       5- factor(t_RFRAC): sort factors by increasing degree
+      6- [libpari] rename constant LOG2 -> M_LN2 (from math.h if available)
 
   Added
       1- [libpari] denom_i, numer_i, conj_i

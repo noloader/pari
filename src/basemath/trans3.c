@@ -139,7 +139,7 @@ jbesselintern(GEN n, GEN z, long flag, long prec)
       L = HALF_E * gtodouble(gabs(gtofp(z,LOWDEFAULTPREC),prec));
       precnew = prec;
       if (L >= 1.0)
-        precnew += nbits2extraprec((long)(L/(HALF_E*LOG2) + BITS_IN_LONG));
+        precnew += nbits2extraprec((long)(L/(HALF_E*M_LN2) + BITS_IN_LONG));
       if (issmall(n,&ki)) {
         k = labs(ki);
         n = utoi(k);
@@ -148,7 +148,7 @@ jbesselintern(GEN n, GEN z, long flag, long prec)
         if (i && i < precnew) n = gtofp(n,precnew);
       }
       z = gtofp(z,precnew);
-      B = prec2nbits_mul(prec, LOG2/2) / L;
+      B = prec2nbits_mul(prec, M_LN2/2) / L;
       lim = bessel_get_lim(B, L);
       p1 = gprec_wtrunc(_jbessel(n,z,flag,lim), prec);
       return gerepileupto(av, gmul(p2,p1));
@@ -305,7 +305,7 @@ kbessel1(GEN nu, GEN gx, long prec)
   y = cgetr(l); l1=lnew+1;
   av = avma; x = gtofp(gx, lnew); nu = gtofp(nu, lnew);
   nu2 = gmul2n(sqrr(nu), 2); togglesign(nu2);
-  n = (long) (prec2nbits_mul(l,LOG2) + M_PI*fabs(rtodbl(nu))) / 2;
+  n = (long) (prec2nbits_mul(l,M_LN2) + M_PI*fabs(rtodbl(nu))) / 2;
   n2 = n<<1; pitemp=mppi(l1);
   r = gmul2n(x,1);
   if (cmprs(x, n) < 0)
@@ -453,7 +453,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
       L = HALF_E * gtodouble(gabs(z,prec));
       precnew = prec;
       if (L >= HALF_E) {
-        long rab = nbits2extraprec((long) (L/(HALF_E*LOG2)));
+        long rab = nbits2extraprec((long) (L/(HALF_E*M_LN2)));
         if (flK) rab *= 2;
          precnew += 1 + rab;
       }
@@ -462,7 +462,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
       {
         GEN z2 = gmul2n(z, -1);
         k = labs(ki);
-        B = prec2nbits_mul(prec,LOG2/2) / L;
+        B = prec2nbits_mul(prec,M_LN2/2) / L;
         if (flK) B += 0.367879;
         lim = bessel_get_lim(B, L);
         p1 = gmul(gpowgs(z2,k), _kbessel1(k,z,flag,lim,precnew));
@@ -587,7 +587,7 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
   if (gsigne(gx) <= 0) pari_err_IMPL("non-positive third argument in hyperu");
   x = gtofp(gx, l);
   a1 = gaddsg(1, gadd(a,mb)); P = gmul(a1, a);
-  n = (long)(prec2nbits_mul(l, LOG2) + M_PI*sqrt(dblmodulus(P)));
+  n = (long)(prec2nbits_mul(l, M_LN2) + M_PI*sqrt(dblmodulus(P)));
   S = gadd(a1, a);
   if (cmprs(x,n) < 0)
   {
@@ -659,7 +659,7 @@ incgam_0(GEN x, GEN expx)
 {
   pari_sp av;
   long l = realprec(x), n, i;
-  double mx = rtodbl(x), L = prec2nbits_mul(l,LOG2);
+  double mx = rtodbl(x), L = prec2nbits_mul(l,M_LN2);
   GEN z;
 
   if (!mx) pari_err_DOMAIN("eint1", "x","=",gen_0, x);
@@ -678,7 +678,7 @@ incgam_0(GEN x, GEN expx)
   }
   else
   {
-    long prec = l + nbits2extraprec((mx+log(mx))/LOG2 + 10);
+    long prec = l + nbits2extraprec((mx+log(mx))/M_LN2 + 10);
     GEN S, t, H, run = real_1(prec);
     n = -prec2nbits(prec);
     x = rtor(x, prec);
@@ -760,7 +760,7 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
   {
     double bit,  LGS = mygamma(rs,is);
     LS = LGS <= 0 ? 0: ceil(LGS);
-    bit = (LGS - (rs-1)*log(mx) + mx)/LOG2;
+    bit = (LGS - (rs-1)*log(mx) + mx)/M_LN2;
     if (bit > 0)
     {
       prec += nbits2extraprec((long)bit);
@@ -769,7 +769,7 @@ incgam_cf(GEN s, GEN x, double mx, long prec)
     }
   }
   /* |ln(2*gamma(s)*sin(s*Pi))| <= ln(2) + |lngamma(s)| + |Im(s)*Pi|*/
-  m = bitprec*LOG2 + LS + LOG2 + fabs(is)*M_PI + mx;
+  m = bitprec*M_LN2 + LS + M_LN2 + fabs(is)*M_PI + mx;
   if (rs < 1) m += (1 - rs)*log(mx);
   m /= 4;
   n = (long)(1 + m*m/mx);
@@ -822,7 +822,7 @@ findextraincgam(GEN s, GEN x)
   if (D <= 0.) return exd;
   n = (long)(sqrt(D)-sig);
   if (n <= 0) return exd;
-  return maxdd(exd, (n*log(Nx)/2 - mygamma(sig+n, t) + mygamma(sig, t)) / LOG2);
+  return maxdd(exd, (n*log(Nx)/2 - mygamma(sig+n, t) + mygamma(sig, t)) / M_LN2);
 }
 
 /* use exp(-x) * (x^s/s) * sum_{k >= 0} x^k / prod(i=1, k, s+i) */
@@ -940,8 +940,8 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
   {
     GEN xk = gdivgs(x, k);
     long bitprec = prec2nbits(prec);
-    double mx = (gexpo(xk) > bitprec)? bitprec*LOG2: log(dblmodulus(xk));
-    prec += nbits2extraprec((long)k*(mx + 1)/LOG2);
+    double mx = (gexpo(xk) > bitprec)? bitprec*M_LN2: log(dblmodulus(xk));
+    prec += nbits2extraprec((long)k*(mx + 1)/M_LN2);
     if (isinexactreal(s)) s = gtofp(s, prec);
   }
   x = gtofp(x, maxss(precision(x), prec) + EXTRAPREC);
@@ -978,7 +978,7 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
   E = prec2nbits(prec) + 1;
   if (gexpo(x) > 0)
   {
-    long X = (long)(dblmodulus(x)/LOG2);
+    long X = (long)(dblmodulus(x)/M_LN2);
     prec += 2*nbits2extraprec(X);
     x = gtofp(x, prec); mx = gneg(x);
     logx = glog(x, prec); sk = gtofp(sk, prec);
@@ -1085,7 +1085,7 @@ incgam0(GEN s, GEN x, GEN g, long prec)
       n -= 100;
       if (es > 0)
       {
-        es = mygamma(gtodouble(rs) - n, gtodouble(is)) / LOG2;
+        es = mygamma(gtodouble(rs) - n, gtodouble(is)) / M_LN2;
         if (es > 0)
         {
           l += nbits2extraprec(es);
@@ -1099,7 +1099,7 @@ incgam0(GEN s, GEN x, GEN g, long prec)
     if (DEBUGLEVEL > 2) err_printf("incgam: using power series 1\n");
     /* egs ~ expo(gamma(s)) */
     precg = g? precision(g): 0;
-    egs = g? gexpo(g): (long)(mygamma(gtodouble(rs), gtodouble(is)) / LOG2);
+    egs = g? gexpo(g): (long)(mygamma(gtodouble(rs), gtodouble(is)) / M_LN2);
     if (egs > 0) {
       l += nbits2extraprec(egs) + 1;
       x = gtofp(x, l);
@@ -1156,7 +1156,7 @@ cxeint1(GEN x, long prec)
   if (ex > 0)
   { /* take cancellation into account, log2(\sum |x|^n / n!) = |x| / log(2) */
     double dbx = dblmodulus(x);
-    long X = (long)((dbx + log(dbx))/LOG2 + 10);
+    long X = (long)((dbx + log(dbx))/M_LN2 + 10);
     prec += nbits2extraprec(X);
     x = gtofp(x, prec); E += X;
   }
@@ -1294,7 +1294,7 @@ mpveceint1(GEN C, GEN eC, long N)
   }
   if (Nmin == N) { avma = av0; return w; }
 
-  DL = prec2nbits_mul(prec, LOG2) + 5;
+  DL = prec2nbits_mul(prec, M_LN2) + 5;
   jmin = ceil(DL/log((double)N)) + 1;
   jmax = ceil(DL/log((double)Nmin)) + 1;
   v = sum_jall(C, jmax, prec);
@@ -1325,7 +1325,7 @@ cxerfc_r1(GEN x, long prec)
 {
   GEN h, h2, eh2, denom, res, lambda;
   long u, v;
-  const double D = prec2nbits_mul(prec, LOG2);
+  const double D = prec2nbits_mul(prec, M_LN2);
   const long npoints = (long)ceil(D/M_PI)+1;
   pari_sp av = avma;
   {
@@ -1440,7 +1440,7 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
     t = fabs( rtodbl(gel(S,2)) );
   }
 
-  B = prec2nbits_mul(prec, LOG2);
+  B = prec2nbits_mul(prec, M_LN2);
   if (s > 0 && !t) /* positive real input */
   {
     beta = B + 0.61 + s*(log2PI - log(s));
@@ -1452,7 +1452,7 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
     else
     {
       p = 0;
-      n = exp((B - LOG2) / s);
+      n = exp((B - M_LN2) / s);
     }
   }
   else if (s <= 0 || t < 0.01) /* s < 0 may occur if s ~ 0 */
@@ -1479,7 +1479,7 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
     }
     else
       if (s < 1.0) p = 1;
-    n = p? dabs(s + 2*p-1, t) / (2*M_PI) : exp((B-LOG2+L) / s);
+    n = p? dabs(s + 2*p-1, t) / (2*M_PI) : exp((B-M_LN2+L) / s);
   }
   *pp = p;
   *pn = (long)ceil(n);
@@ -1499,7 +1499,7 @@ inv_szeta_euler(long n, double lba, long prec)
 
   if (n > prec2nbits(prec)) return real_1(prec);
 
-  if (!lba) lba = prec2nbits_mul(prec, LOG2);
+  if (!lba) lba = prec2nbits_mul(prec, M_LN2);
   D = exp((lba - log((double)(n-1))) / (n-1));
   lim = 1 + (ulong)ceil(D);
   if (lim < 3) return subir(gen_1,real2n(-n,prec));
@@ -1508,7 +1508,7 @@ inv_szeta_euler(long n, double lba, long prec)
   z = subir(gen_1, real2n(-n, prec));
 
   (void)u_forprime_init(&S, 3, lim);
-  av2 = avma; A = n / LOG2;
+  av2 = avma; A = n / M_LN2;
   while ((p = u_forprime_next(&S)))
   {
     long l = prec2nbits(prec) - (long)floor(A * log((double)p)) - BITS_IN_LONG;
@@ -1558,7 +1558,7 @@ bernfrac_using_zeta(long n)
   }
   /* 1.612086 ~ log(8Pi) / 2 */
   t = log(gtodouble(d)) + (n + 0.5) * log((double)n) - n*(1+log2PI) + 1.612086;
-  u = t / LOG2; prec = nbits2prec((long)ceil(u) + BITS_IN_LONG);
+  u = t / M_LN2; prec = nbits2prec((long)ceil(u) + BITS_IN_LONG);
   iz = inv_szeta_euler(n, t, prec);
   a = roundr( mulir(d, bernreal_using_zeta(n, iz, prec)) );
   return gerepilecopy(av, mkfrac(a, d));
@@ -1567,7 +1567,7 @@ bernfrac_using_zeta(long n)
 static int
 bernreal_use_zeta_i(long n, long prec)
 {
-  return (n+0.5) * log((double)n) -n*(1+log2PI) > prec2nbits_mul(prec, LOG2);
+  return (n+0.5) * log((double)n) -n*(1+log2PI) > prec2nbits_mul(prec, M_LN2);
 }
 static int
 bernreal_use_zeta(long n, long prec)
@@ -1626,7 +1626,7 @@ static GEN
 veczetas(long a, long b, long N, long prec)
 {
   pari_sp av = avma;
-  const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
+  const long n = ceil(2 + prec2nbits_mul(prec, M_LN2/1.7627));
   long j, k;
   GEN c, d, z = zerovec(N);
   c = d = int2n(2*n-1);
@@ -1667,7 +1667,7 @@ veczeta(GEN a, GEN b, long N, long prec)
   if (typ(a) == t_INT && typ(b) == t_INT)
     return veczetas(itos(a),  itos(b), N, prec);
   av = avma; z = zerovec(N);
-  n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
+  n = ceil(2 + prec2nbits_mul(prec, M_LN2/1.7627));
   c = d = int2n(2*n-1);
   for (k = n; k; k--)
   {
@@ -1706,7 +1706,7 @@ static GEN
 zetaBorwein(long s, long prec)
 {
   pari_sp av = avma;
-  const long n = ceil(2 + prec2nbits_mul(prec, LOG2/1.7627));
+  const long n = ceil(2 + prec2nbits_mul(prec, M_LN2/1.7627));
   long k;
   GEN c, d, z = gen_0;
   c = d = int2n(2*n-1);
@@ -3284,7 +3284,7 @@ jell(GEN x, long prec)
      * but inteta(q) costly and useless if expo(q) << 1  => inteta(q) = 1.
      * log_2 ( exp(-2Pi Im tau) ) < -prec2nbits(prec)
      * <=> Im tau > prec2nbits(prec) * log(2) / 2Pi */
-    long C = (long)prec2nbits_mul(prec, LOG2/(2*M_PI));
+    long C = (long)prec2nbits_mul(prec, M_LN2/(2*M_PI));
     q = exp_IPiC(gmul2n(x,1), prec); /* e(x) */
     if (gcmpgs(gel(x,2), C) > 0) /* eta(q(x)) = 1 : no need to compute q(2x) */
       h = q;

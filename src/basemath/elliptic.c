@@ -2764,7 +2764,7 @@ ellperiods(GEN w, long flag, long prec)
 
 /* 2Pi Im(z)/log(2) */
 static double
-get_toadd(GEN z) { return (2*M_PI/LOG2)*gtodouble(imag_i(z)); }
+get_toadd(GEN z) { return (2*M_PI/M_LN2)*gtodouble(imag_i(z)); }
 
 /* computes the numerical value of wp(z | L), L = om1 Z + om2 Z
  * return NULL if z in L.  If flall=1, compute also wp' */
@@ -5892,7 +5892,7 @@ elllseries(GEN e, GEN s, GEN A, long prec)
   cg = divrr(Pi2n(1, prec), gsqrt(N,prec));
   cga = gmul(cg, A);
   cgb = gdiv(cg, A);
-  l = (ulong)((prec2nbits_mul(prec, LOG2) +
+  l = (ulong)((prec2nbits_mul(prec, M_LN2) +
               fabs(gtodouble(real_i(s))-1.) * log(rtodbl(cga)))
             / rtodbl(cgb) + 1);
   if ((long)l < 1) l = 1;

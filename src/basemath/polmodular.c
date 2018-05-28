@@ -3192,9 +3192,9 @@ modpoly_height_bound(long L, long inv)
   long hf;
 
   /* proven bound (in bits), derived from: 6l*log(l)+16*l+13*sqrt(l)*log(l) */
-  nbits = 6.0*L*log2(L)+16/LOG2*L+8.0*sqrt((double)L)*log2(L);
+  nbits = 6.0*L*log2(L)+16/M_LN2*L+8.0*sqrt((double)L)*log2(L);
   /* alternative proven bound (in bits), derived from: 6l*log(l)+17*l */
-  nbits2 = 6.0*L*log2(L)+17/LOG2*L;
+  nbits2 = 6.0*L*log2(L)+17/M_LN2*L;
   if ( nbits2 < nbits ) nbits = nbits2;
   hf = modinv_height_factor(inv);
   if (hf > 1) {
@@ -3487,7 +3487,7 @@ modpoly_pickD_primes(
   if (max <= 1 && ! one_prime) {
     p = ((pfilter & IQ_FILTER_1MOD3) ? 2 : 1) * ((pfilter & IQ_FILTER_1MOD4) ? 2 : 1);
     one_prime = (1UL << ((FF_BITS+1)/2)) * (log2(L*L*(-D))-1)
-        > p*L*minbits*FF_BITS*LOG2;
+        > p*L*minbits*FF_BITS*M_LN2;
     if (one_prime) *totbits = minbits+1;   /* lie */
   }
 

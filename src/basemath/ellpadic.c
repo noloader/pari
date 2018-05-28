@@ -570,7 +570,7 @@ static long
 logsigma_prec(GEN p, long v, long t)
 {
   double log2p = dbllog2(p);
-  long j, i = ceil((v - t) / (t - 2*LOG2/(3*log2p)) + 0.01);
+  long j, i = ceil((v - t) / (t - 2*M_LN2/(3*log2p)) + 0.01);
   if (absequaliu(p,2) && i < 5) i = 5;
   /* guaranteed to work, now optimize */
   for (j = i-1; j >= 2; j--)
@@ -589,7 +589,7 @@ static long
 log_prec(GEN p, long v, long t)
 {
   double log2p = dbllog2(p);
-  long j, i = ceil(v / (t - LOG2/(2*log2p)) + 0.01);
+  long j, i = ceil(v / (t - M_LN2/(2*log2p)) + 0.01);
   /* guaranteed to work, now optimize */
   for (j = i-1; j >= 1; j--)
   {

@@ -479,7 +479,7 @@ initsinh(long m, long prec)
     eti = invr(et);
     xp = subrr(et, eti);
     wp = addrr(et, eti);
-    if (cmprs(xp, (long)(LOG2*(expo(wp)+D.eps) + 1)) > 0) { nt = k-1; break; }
+    if (cmprs(xp, (long)(M_LN2*(expo(wp)+D.eps) + 1)) > 0) { nt = k-1; break; }
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
@@ -539,7 +539,7 @@ initexpexp(long m, long prec)
     xm = mpexp(negr(addrr(kh, eti)));
     wp = mulrr(xp, addsr(1, et));
     wm = mulrr(xm, addsr(1, eti));
-    if (expo(xm) < -D.eps && cmprs(xp, (long)(LOG2*(expo(wp)+D.eps) + 1)) > 0) { nt = k-1; break; }
+    if (expo(xm) < -D.eps && cmprs(xp, (long)(M_LN2*(expo(wp)+D.eps) + 1)) > 0) { nt = k-1; break; }
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k));
     affrr(xm, gel(D.tabxm,k));
@@ -1643,7 +1643,7 @@ static GEN
 sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
 {
   GEN c, M, P, Q, Qp, vr, vabs, vwt, ga = gadd(a, b);
-  double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*LOG2;
+  double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*M_LN2;
   double da = maxdd(1., gtodouble(a));
   long n = (long)ceil(D / (da*(log(D)-1)));
   long j, prec2, prec0 = prec + EXTRAPRECWORD;
@@ -1798,7 +1798,7 @@ sumnuminit(GEN fast, long prec)
   gel(res, 1) = d = mkfrac(gen_1, utoipos(4)); /* 1/4 */
   av = avma;
   w = gtodouble(glambertW(ginv(d), LOWDEFAULTPREC));
-  N = (long)ceil(LOG2*bitprec/(w*(1+w))+5);
+  N = (long)ceil(M_LN2*bitprec/(w*(1+w))+5);
   k = (long)ceil(N*w); if (k&1) k--;
 
   prec += EXTRAPRECWORD;

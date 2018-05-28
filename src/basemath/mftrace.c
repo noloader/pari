@@ -7862,7 +7862,7 @@ mf2gaexpansion(GEN mf2, GEN F, GEN ga, long n, long prec)
   GEN res, V1, Tres, V2, al, V, gsh;
   long w2, C = itos(gcoeff(ga,2,1)), w = mfcuspcanon_width(MF_get_N(mf), C);
   long ext = ((C & 3L) != 2)? 0: (w+3) >> 2;
-  long prec2 = prec + nbits2extraprec((long)M_PI/(2*LOG2)*sqrt(n + ext));
+  long prec2 = prec + nbits2extraprec((long)M_PI/(2*M_LN2)*sqrt(n + ext));
   res = mfgaexpansion(mf, FT, ga, n + ext, prec2);
   Tres = mfthetaexpansion(ga, n + ext);
   V1 = gel(res,3);
@@ -11063,7 +11063,7 @@ static long
 mfperiod_prelim_double(double t0, long k, long bitprec)
 {
   double nlim, c = 2*M_PI*t0;
-  nlim = ceil(bitprec * LOG2 / c);
+  nlim = ceil(bitprec * M_LN2 / c);
   c -= (k - 1)/(2*nlim); if (c < 1) c = 1.;
   nlim += ceil((0.7 + (k-1)/2*log(nlim))/c);
   return (long)nlim;
@@ -12240,9 +12240,9 @@ Wcomputeparams(GEN *ph, long *pN, long k, GEN x, long prec)
 {
   double B = prec2nbits(prec) + 10;
   double dx = gtodouble(x);
-  double C = B + k*log(dx)/LOG2 + 1;
-  double D = C*LOG2 + 2.065;
-  double F = 2*((C - 1)*LOG2 + log(gtodouble(mpfact(k))))/dx;
+  double C = B + k*log(dx)/M_LN2 + 1;
+  double D = C*M_LN2 + 2.065;
+  double F = 2*((C - 1)*M_LN2 + log(gtodouble(mpfact(k))))/dx;
   double T = log(F) * (1 + 2*k/dx/F);
   double PI2 = M_PI*M_PI;
   *pN = (long)ceil((T/PI2) * (D + log(D/PI2)));
@@ -12394,7 +12394,7 @@ fs2_init(GEN mf, GEN F, long bit)
   }
   else
   { /* true mf */
-    double kd = gtodouble(gk), B = (bit + 10)*LOG2;
+    double kd = gtodouble(gk), B = (bit + 10)*M_LN2;
     double L = (B + kd*log(B) + kd*kd*log(B)/B) / (4*M_PI);
     long n, Lw;
     lim = ((long)ceil(L*L));

@@ -274,7 +274,7 @@ consteuler(long prec)
 
   incrprec(prec);
 
-  l = prec+EXTRAPRECWORD; x = (long) (1 + prec2nbits_mul(l, LOG2/4));
+  l = prec+EXTRAPRECWORD; x = (long) (1 + prec2nbits_mul(l, M_LN2/4));
   a = utor(x,l); u=logr_abs(a); setsigne(u,-1); affrr(u,a);
   b = real_1(l);
   v = real_1(l);
@@ -2080,7 +2080,7 @@ exp1r_abs(GEN x)
   * error bounded by 1/6(n+1) <= 1/12. Finally, we want
   * n (-1/log(2) -log_2 |Y| + log_2(n+1)) >= b  */
   b += m;
-  d = m-dbllog2(x)-1/LOG2; /* ~ -log_2 Y - 1/log(2) */
+  d = m-dbllog2(x)-1/M_LN2; /* ~ -log_2 Y - 1/log(2) */
   n = (long)(b / d);
   if (n > 1)
     n = (long)(b / (d + log2((double)n+1))); /* log~constant in small ranges */
@@ -2178,8 +2178,8 @@ static GEN
 modlog2(GEN x, long *sh)
 {
   double d = rtodbl(x), da = fabs(d);
-  long q = (long) ((da + (LOG2/2))/LOG2);
-  if (da > LOG2 * LONG_MAX)
+  long q = (long) ((da + (M_LN2/2))/M_LN2);
+  if (da > M_LN2 * LONG_MAX)
     pari_err_OVERFLOW("expo()"); /* avoid overflow in  q */
   if (d < 0) q = -q;
   *sh = q;
@@ -3191,7 +3191,7 @@ mpcosm1(GEN x, long *ptmod8)
   L = l + nbits2extraprec(m);
 
   b += m;
-  d = 2.0 * (m-dbllog2r(x)-1/LOG2); /* ~ 2( - log_2 Y - 1/log(2) ) */
+  d = 2.0 * (m-dbllog2r(x)-1/M_LN2); /* ~ 2( - log_2 Y - 1/log(2) ) */
   n = (long)(b / d);
   if (n > 1)
     n = (long)(b / (d + log2((double)n+1))); /* log~constant in small ranges */

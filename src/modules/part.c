@@ -118,7 +118,7 @@ numbpart(GEN n)
   if (cmpii(n, uu32toi(0x38d7e, 0xa4c68000)) >= 0)
     pari_err_OVERFLOW("numbpart [n < 10^15]");
   est = estim(n);
-  bitprec = (long)(rtodbl(est)/LOG2) + 32;
+  bitprec = (long)(rtodbl(est)/M_LN2) + 32;
   prec = nbits2prec(bitprec);
   pinit(n, &C, &D, prec);
   sum = cgetr (prec); affsr(0, sum);

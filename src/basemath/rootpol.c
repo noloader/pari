@@ -385,7 +385,7 @@ mydbllog2i(GEN x)
 static double
 mydbllogr(GEN x) {
   if (!signe(x)) return -pariINFINITY;
-  return LOG2*dbllog2r(x);
+  return M_LN2*dbllog2r(x);
 }
 
 /* return log2(|x|) or -pariINFINITY */
@@ -686,7 +686,7 @@ logmax_modulus(GEN p, double tau)
   }
   if (!signe(r)) { avma = ltop; return 0.; }
   r = itor(r, DEFAULTPREC); shiftr_inplace(r, -M);
-  avma = ltop; return -rtodbl(r) * LOG2; /* -log(2) sum e_i 2^-i */
+  avma = ltop; return -rtodbl(r) * M_LN2; /* -log(2) sum e_i 2^-i */
 }
 
 static GEN
@@ -773,7 +773,7 @@ logmodulus(GEN p, long k, double tau)
     tau2 *= 1.5; if (tau2 > 1.) tau2 = 1.;
     bit = 1 + (long)(nn*(2. + log2(3.*nn/tau2)));
   }
-  avma = ltop; return -r * LOG2;
+  avma = ltop; return -r * M_LN2;
 }
 
 /* return the log of the k-th modulus r_k of p, rel. error tau, knowing that
@@ -793,7 +793,7 @@ logpre_modulus(GEN p, long k, double tau, double lrmin, double lrmax)
 
   lrho  = (lrmin + lrmax) / 2;
   av = avma;
-  bit = (long)(n*(2. + aux / LOG2 - log2(tau2)));
+  bit = (long)(n*(2. + aux / M_LN2 - log2(tau2)));
   q = homothetie(p, lrho, bit);
   imax2 = (long)(log2(3./tau * log(4.*n))) + 1;
   if (imax > imax2) imax = imax2;
@@ -805,7 +805,7 @@ logpre_modulus(GEN p, long k, double tau, double lrmin, double lrmax)
     q = gerepileupto(av, graeffe(q));
     aux = 2*aux + 2*tau2;
     tau2 *= 1.5;
-    bit = (long)(n*(2. + aux / LOG2 - log2(1-exp(-tau2))));
+    bit = (long)(n*(2. + aux / M_LN2 - log2(1-exp(-tau2))));
     q = RgX_gtofp_bit(q, bit);
   }
   aux = exp2((double)imax);
@@ -1230,7 +1230,7 @@ split_fromU(GEN p, long k, double delta, long bit,
   NN *= Lmax; ltop = avma;
   for(;;)
   {
-    bit2 = (long)(((double)NN*delta-mu)/LOG2) + gexpo(pp) + 8;
+    bit2 = (long)(((double)NN*delta-mu)/M_LN2) + gexpo(pp) + 8;
     dft(pp, k, NN, Lmax, bit2, FF, H, polreal);
     if (refine_F(pp,&FF,&GG,H,bit,gamma)) break;
     NN <<= 1; avma = ltop;
@@ -1399,7 +1399,7 @@ conformal_mapping(double *radii, GEN ctr, GEN p, long k, long bit,
   lrho = logradius(radii, q,k,aux/10., &delta);
   update_radius(n, radii, lrho, &param, &param2);
 
-  bit2 += (long)(n * fabs(lrho)/LOG2 + 1.);
+  bit2 += (long)(n * fabs(lrho)/M_LN2 + 1.);
   R = mygprec(dblexp(-lrho), bit2);
   q = scalepol(q,R,bit2);
   gerepileall(av,2, &q,&R);
@@ -1472,7 +1472,7 @@ split_2(GEN p, long bit, GEN ctr, double thickness, GEN *F, GEN *G)
     for (i=1; i<=n; i++)
       if (radii[i] != UNDEF) radii[i] -= lrho;
 
-    bit2 = bit + (long)(n * fabs(lrho)/LOG2 + 1.);
+    bit2 = bit + (long)(n * fabs(lrho)/M_LN2 + 1.);
     R = mygprec(dblexp(-lrho), bit2);
     q = scalepol(p,R,bit2);
     conformal_mapping(radii, ctr, q, k, bit2, aux, &FF, &GG);
@@ -1482,7 +1482,7 @@ split_2(GEN p, long bit, GEN ctr, double thickness, GEN *F, GEN *G)
     lrho = logradius(radii, p, k, aux/10., &delta);
     update_radius(n, radii, lrho, &param, &param2);
 
-    bit2 = bit + (long)(n * fabs(lrho)/LOG2 + 1.);
+    bit2 = bit + (long)(n * fabs(lrho)/M_LN2 + 1.);
     R = mygprec(dblexp(-lrho), bit2);
     q = scalepol(p,R,bit2);
     optimize_split(q, k, delta, bit2, &FF, &GG, param, param2);
@@ -1527,10 +1527,10 @@ split_1(GEN p, long bit, GEN *F, GEN *G)
       double lquo = logmax_modulus(qq,0.05) - lrmin;
       if (lquo > lthick) { lthick = lquo; newq = qq; ctr = gel(v,i); }
     }
-    if (lthick > LOG2) break;
-    if (polreal && i==2 && lthick > LOG3 - LOG2) break;
+    if (lthick > M_LN2) break;
+    if (polreal && i==2 && lthick > LOG3 - M_LN2) break;
   }
-  bit2 = bit + gexpo(newq) - ep + (long)(n*LOG3/LOG2 + 1);
+  bit2 = bit + gexpo(newq) - ep + (long)(n*LOG3/M_LN2 + 1);
   split_2(newq, bit2, ctr, lthick, &FF, &GG);
   r = gneg(mygprec(ctr,bit2));
   FF = RgX_translate(FF,r);
