@@ -561,7 +561,11 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
         pari_err_DOMAIN("galoissubcyclo", "degree", "<=", gen_0, stoi(n));
       break;
     case t_VEC:
-      if (lg(N)==7) N = bnr_to_znstar(N,&complex);
+      if (lg(N)==7)
+        N = bnr_to_znstar(N,&complex);
+      else if (checkznstar_i(N))
+        N = mkvec3(znstar_get_no(N), znstar_get_cyc(N),
+                   gmodulo(znstar_get_gen(N), znstar_get_N(N)));
       if (lg(N)==4)
       { /* znstar */
         GEN gen = abgrp_get_gen(N);

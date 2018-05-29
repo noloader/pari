@@ -8,19 +8,19 @@ Help: galoissubcyclo(N,H,{fl=0},{v}): compute a polynomial (in variable v)
  by a generator, a set of generator given by a vector or a HNF matrix (see
  manual). If flag is 1, output only the conductor of the abelian extension.
  If flag is 2 output [pol,f] where pol is the polynomial and f the conductor.
-Doc: computes the subextension
- of $\Q(\zeta_n)$ fixed by the subgroup $H \subset (\Z/n\Z)^*$. By the
- Kronecker-Weber theorem, all abelian number fields can be generated in this
- way (uniquely if $n$ is taken to be minimal).
+Doc: computes the subextension of $\Q(\zeta_n)$ fixed by the subgroup
+ $H \subset (\Z/n\Z)^*$. By the Kronecker-Weber theorem, all abelian number
+ fields can be generated in this way (uniquely if $n$ is taken to be minimal).
 
  \noindent The pair $(n, H)$ is deduced from the parameters $(N, H)$ as follows
 
  \item $N$ an integer: then $n = N$; $H$ is a generator, i.e. an
  integer or an integer modulo $n$; or a vector of generators.
 
- \item $N$ the output of \kbd{znstar($n$)}. $H$ as in the first case
- above, or a matrix, taken to be a HNF left divisor of the SNF for $(\Z/n\Z)^*$
- (of type \kbd{$N$.cyc}), giving the generators of $H$ in terms of \kbd{$N$.gen}.
+ \item $N$ the output of \kbd{znstar}$(n)$ or \kbd{znstar}$(n,1)$.
+ $H$ as in the first case above, or a matrix, taken to be a HNF left divisor
+ of the SNF for $(\Z/n\Z)^*$
+ (\kbd{$N$.cyc}), giving the generators of $H$ in terms of \kbd{$N$.gen}.
 
  \item $N$ the output of \kbd{bnrinit(bnfinit(y), $m$)} where $m$ is a
  module. $H$ as in the first case, or a matrix taken to be a HNF left

@@ -11,6 +11,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
       7- factor(y/x) -> x^-1 [ instead of y^1 * x^-1 ]
       8- factor(x^2 + O(2^2)) -> x^2 [ instead of (x+O(2^2))^1 * (x+O(2^2))^1 ]
       9- mfeigenbasis(mfinit(71,1,71)) -> error [ full space in wt 1 ]
+     10- make galoissubcyclo compatible with znstar(,1)
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies

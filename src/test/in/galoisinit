@@ -72,6 +72,8 @@ galoissubcyclo(17,2)
 galoissubcyclo(1,1)
 galoissubcyclo(1,1,1)
 galoissubcyclo(1,1,2)
+galoissubcyclo(znstar(124),[3,0;0,2])
+galoissubcyclo(znstar(124,1),[3,0;0,2])
 
 G=galoisinit(polcyclo(20))
 galoissubfields(G)
