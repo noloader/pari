@@ -37,3 +37,9 @@ Doc:
 
  [-8]
  @eprog
+
+Function: _eisker_worker
+Section: programming/internals
+C-Name: eisker_worker
+Prototype: GGGGG
+Help: worker for eisker

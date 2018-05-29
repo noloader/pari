@@ -2620,31 +2620,65 @@ TpE_char_bound(ulong p, long k, long d)
   return d * (2 + log2((double)p)*(k-1));
 }
 
+static GEN eisker(GEN M);
+static int
+use_Petersson(long N, long k, long s)
+{
+  if (!s)
+  {
+    if (N == 1)  return k >= 124;
+    if (N <= 3)  return k >= 44;
+    if (N == 4)  return k >= 30;
+    if (N == 5)  return k >= 20;
+    if (N <= 10) return k >= 14;
+    if (N <= 16) return k >= 10;
+    if (N <= 28) return k >= 8;
+    if (N <= 650) return k >= 6;
+    return k >= 4;
+  }
+  if (s < 0) return 0; /* TODO: why ? */
+  if (N == 1) return k >= 144;
+  if (N <= 4) return k >= 70;
+  if (N <= 9) return k >= 30;
+  if (N <= 100) return k >= 12;
+  if (N <= 200) return k >= 8;
+  return k >= 6;
+}
+
 GEN
 mscuspidal(GEN W, long flag)
 {
   pari_sp av = avma;
-  GEN S, E, M, T, TE, chE;
-  long bit;
-  forprime_t F;
+  GEN M, E, S;
   ulong p, N;
-  pari_timer ti;
+  long k;
 
   E = mseisenstein(W);
   N = ms_get_N(W);
-  (void)u_forprime_init(&F, 2, ULONG_MAX);
-  while ((p = u_forprime_next(&F)))
-    if (N % p) break;
-  if (DEBUGLEVEL) timer_start(&ti);
-  T = mshecke(W, p, NULL);
-  if (DEBUGLEVEL) timer_printf(&ti,"Tp, p = %ld", p);
-  TE = Qevproj_apply(T, E); /* T_p | E */
-  if (DEBUGLEVEL) timer_printf(&ti,"Qevproj_init(E)");
-  bit = TpE_char_bound(p, msk_get_weight(W), lg(TE)-1);
-  chE = QM_charpoly_ZX_bound(TE, bit);
-  chE = ZX_radical(chE);
-  M = RgX_RgM_eval(chE, T);
-  S = Qevproj_init(QM_image(M));
+  k = msk_get_weight(W);
+  if (use_Petersson(N, k, msk_get_sign(W))) M = eisker(W);
+  else
+  {
+    GEN T, TE, chE;
+    forprime_t F;
+    long bit;
+    pari_timer ti;
+
+    (void)u_forprime_init(&F, 2, ULONG_MAX);
+    while ((p = u_forprime_next(&F)))
+      if (N % p) break;
+    if (DEBUGLEVEL) timer_start(&ti);
+    T = mshecke(W, p, NULL);
+    if (DEBUGLEVEL) timer_printf(&ti,"Tp, p = %ld", p);
+    TE = Qevproj_apply(T, E); /* T_p | E */
+    if (DEBUGLEVEL) timer_printf(&ti,"Qevproj_init(E)");
+    bit = TpE_char_bound(p, k, lg(TE)-1);
+    chE = QM_charpoly_ZX_bound(TE, bit);
+    chE = ZX_radical(chE);
+    M = RgX_RgM_eval(chE, T);
+    M = QM_image(M);
+  }
+  S = Qevproj_init(M);
   return gerepilecopy(av, flag? mkvec2(S,E): S);
 }
 
@@ -4812,28 +4846,45 @@ mslattice(GEN M, GEN F)
 }
 
 /**** Petersson scalar product ****/
+/* TODO:
+ * Eisspace: represent functions by coordinates of non-0 entries in matrix */
 
 /* oo -> g^(-1) oo */
 static GEN
 cocycle(GEN g)
 { return mkmat22(gen_1, gcoeff(g,2,2), gen_0, negi(gcoeff(g,2,1))); }
 
-/* C = vecbinome(k-2) */
+/* CD = binomial_init(k-2); return <P,Q> * D (integral) */
 static GEN
-bil(GEN P, GEN Q, GEN C)
+bil(GEN P, GEN Q, GEN CD)
 {
+  GEN s, C = gel(CD,1);
   long i, n = lg(C)-2; /* k - 2 */
-  GEN s;
   if (!n) return gmul(P,Q);
   if (typ(P) != t_POL) P = scalarpol_shallow(P,0);
   if (typ(Q) != t_POL) Q = scalarpol_shallow(Q,0);
   s = gen_0;
-  for (i = 0; i <= n; i++)
+  for (i = n - degpol(Q); i <= degpol(P); i++)
   {
-    GEN t = gdiv(gmul(RgX_coeff(P,i), RgX_coeff(Q, n-i)), gel(C,i+1));
+    GEN t = gmul(gmul(RgX_coeff(P,i), RgX_coeff(Q, n-i)), gel(C,i+1));
     s = odd(i)? gsub(s, t): gadd(s, t);
   }
   return s;
+}
+
+/* Let D = lcm {binomial(n,k), k = 0..n} = lcm([1..n+1]) / (n+1)
+ * Return [C, D] where C[i] = D / binomial(n,i+1), i = 0..n */
+static GEN
+binomial_init(long n, GEN vC)
+{
+  GEN C = vC? shallowcopy(vC): vecbinomial(n), c = C + 1;
+  GEN D = diviuexact(ZV_lcm(identity_ZV(n+1)), n+1);
+  long k, d = (n + 1) >> 1;
+
+  gel(c,0) = D;
+  for (k = 1; k <= d; k++) gel(c, k) = diviiexact(D, gel(c, k));
+  for (     ; k <= n;  k++) gel(c, k) = gel(c, n-k);
+  return mkvec2(C, D);
 }
 
 static void
@@ -4884,7 +4935,7 @@ mspetersson_i(GEN W, GEN F, GEN G, GEN *pvf, GEN *pvg, GEN *pC)
     c = cocycle(gcoeff(gel(annT31,i), 3,1));
     gel(vg, i+n1+n2) = gdivgs(gadd(f, mseval(W, G, c)), 3);
   }
-  *pC = vecbinome(msk_get_weight(W) - 2);
+  *pC = binomial_init(msk_get_weight(W) - 2, NULL);
   *pvf = vf;
   *pvg = vg;
 }
@@ -4894,7 +4945,7 @@ GEN
 mspetersson(GEN W, GEN F, GEN G)
 {
   pari_sp av = avma;
-  GEN vf, vg, C;
+  GEN vf, vg, CD, cf, cg, A;
   long k, l, tG, tF;
   checkms(W);
   if (!F) F = matid(msdim(W));
@@ -4903,13 +4954,16 @@ mspetersson(GEN W, GEN F, GEN G)
   tG = typ(G);
   if (tF == t_MAT && tG != t_MAT) pari_err_TYPE("mspetersson",G);
   if (tG == t_MAT && tF != t_MAT) pari_err_TYPE("mspetersson",F);
-  mspetersson_i(W, F, G, &vf, &vg, &C);
+  mspetersson_i(W, F, G, &vf, &vg, &CD);
+  vf = Q_primitive_part(vf, &cf);
+  vg = Q_primitive_part(vg, &cg);
+  A = mul_content(mul_content(cf, cg), ginv(gel(CD,2)));
   l = lg(vf);
   if (tF != t_MAT)
   { /* <F,G>, two symbols */
     GEN s = gen_0;
-    for (k = 1; k < l; k++) s = gadd(s, bil(gel(vf,k), gel(vg,k), C));
-    return gerepileupto(av, s);
+    for (k = 1; k < l; k++) s = gadd(s, bil(gel(vf,k), gel(vg,k), CD));
+    return gerepileupto(av, gmul(s, A));
   }
   else if (F != G)
   { /* <(f_1,...,f_m), (g_1,...,g_n)> */
@@ -4923,11 +4977,11 @@ mspetersson(GEN W, GEN F, GEN G)
       {
         GEN s = gen_0;
         for (k = 1; k < l; k++)
-          s = gadd(s, bil(gmael(vf,k,iF), gmael(vg,k,iG), C));
+          s = gadd(s, bil(gmael(vf,k,iF), gmael(vg,k,iG), CD));
         gel(c,iF) = s; /* M[iF,iG] = <F[iF], G[iG] > */
       }
     }
-    return gerepilecopy(av, M);
+    return gerepileupto(av, RgM_Rg_mul(M, A));
   }
   else
   { /* <(f_1,...,f_n), (f_1,...,f_n)> */
@@ -4938,10 +4992,368 @@ mspetersson(GEN W, GEN F, GEN G)
       {
         GEN s = gen_0;
         for (k = 1; k < l; k++)
-          s = gadd(s, bil(gmael(vf,k,iF), gmael(vg,k,iG), C));
+          s = gadd(s, bil(gmael(vf,k,iF), gmael(vg,k,iG), CD));
         gcoeff(M,iF,iG) = s; /* <F[iF], F[iG] > */
         gcoeff(M,iG,iF) = gneg(s);
       }
-    return gerepilecopy(av, M);
+    return gerepileupto(av, RgM_Rg_mul(M, A));
   }
+}
+
+/* action of g in SL_2(Z/NZ) on functions f: (Z/NZ)^2 -> Q given by sparse
+ * matrix M. */
+static GEN
+actf(long N, GEN M, GEN g)
+{
+  long n, a, b, c, d, l;
+  GEN m;
+  c = umodiu(gcoeff(g,2,1), N); if (!c) return M;
+  d = umodiu(gcoeff(g,2,2), N);
+  a = umodiu(gcoeff(g,1,1), N);
+  b = umodiu(gcoeff(g,1,2), N);
+  m = cgetg_copy(M, &l);
+  for (n = 1; n < l; n++)
+  {
+    GEN v = gel(M,n);
+    long i = v[1], j = v[2];
+    long I = Fl_add(Fl_mul(a,i,N), Fl_mul(c,j,N), N);
+    long J = Fl_add(Fl_mul(b,i,N), Fl_mul(d,j,N), N);
+    if (!I) I = N;
+    if (!J) J = N;
+    gel(m,n) = mkvecsmall2(I,J);
+  }
+  return m;
+}
+
+/* q1 = N/a, q2 = q1/d, (u,a) = 1. Gamma_0(N)-orbit attached to [q1,q2,u]
+ * in (Z/N)^2; set of [q1 v, q2 w], v in (Z/a)^*, w in Z/a*d,
+ * w mod a = u / v [invertible]; w mod d in (Z/d)^*; c1+c2= q2, d2|c1, d1|c2
+ * The orbit has cardinal C = a phi(d) <= N */
+static GEN
+eisf(long N, long C, long a, long d1, GEN Z2, long c1, long c2,
+     long q1, long u)
+{
+  GEN m = cgetg(C+1, t_VEC);
+  long v, n = 1, l = lg(Z2);
+  for (v = 1; v <= a; v++)
+    if (ugcd(v,a)==1)
+    {
+      long w1 = Fl_div(u, v, a), vq1 = v * q1, i, j;
+      for (i = 0; i < d1; i++, w1 += a)
+      { /* w1 defined mod a*d1, lifts u/v (mod a) */
+        for (j = 1; j < l; j++)
+          if (Z2[j])
+          {
+            long wq2 = (c1 * w1 + c2 * j) % N;
+            if (wq2 <= 0) wq2 += N;
+            gel(m, n++) = mkvecsmall2(vq1, wq2);
+          }
+      }
+    }
+  return m;
+}
+
+/* basis for Gamma_0(N)-invariant functions attached to cusps */
+static GEN
+eisspace(long N, long k, GEN *pperm)
+{
+  GEN v, perm, F = factoru(N), D = divisorsu_fact(F);
+  long l = lg(D), n = mfnumcuspsu_fact(F), i, j;
+  v = cgetg((k==2)? n: n+1, t_VEC);
+  *pperm = perm = cgetg(lg(v), t_VECSMALL);
+  for (i = (k==2)? 2: 1, j = 1; i < l; i++) /* remove d = 1 if k = 2 */
+  {
+    long d = D[i], Nd = D[l-i], a = ugcd(d, Nd), q1 = N / a, q2 = q1 / d;
+    long d2 = u_ppo(d/a, a), d1 = d / d2, C = eulerphiu(d) * a;
+    long c1, c2, u;
+    GEN  Z2 = coprimes_zv(d2);
+    /* d = d1d2, (d2,a) = 1; d1 and a have same prime divisors */
+    (void)cbezout(d1, d2, &c2, &c1);
+    c2 *= d1 * q2;
+    c1 *= d2 * q2;
+    if (a <= 2)
+    { /* sigma.(C cusp attached to [q1,q2,u]) = C */
+      perm[j] = j;
+      gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, N/a, 1);
+      continue;
+    }
+    for (u = 1; 2*u < a; u++)
+    {
+      if (ugcd(u,a) != 1) continue;
+      perm[j] = j+1;
+      perm[j+1] = j;
+      gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, q1, u);
+      gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, q1, a-u);
+    }
+  }
+  return v;
+}
+
+/* action of g on V_k */
+static GEN
+act(GEN P, GEN g, long k)
+{
+  GEN a = gcoeff(g,1,1), b = gcoeff(g,1,2), V1, V2, Q;
+  GEN c = gcoeff(g,2,1), d = gcoeff(g,2,2);
+  long i;
+  if (k == 2) return P;
+  V1 = RgX_powers(deg1pol_shallow(c, a, 0), k-2); /* V1[i] = (a + c Y)^i */
+  V2 = RgX_powers(deg1pol_shallow(d, b, 0), k-2); /* V2[j] = (b + d Y)^j */
+  Q = gmul(RgX_coeff(P,0), gel(V1, k-2));
+  for (i = 1; i < k-2; i++)
+  {
+    GEN v1 = gel(V1, k-2-i);
+    GEN v2 = gel(V2, i);
+    Q = gadd(Q, gmul(RgX_coeff(P,i), RgX_mul(v1,v2)));
+  }
+  return gadd(Q, gmul(RgX_coeff(P,k-2), gel(V2,k-2)));
+}
+
+static long
+co_get_N(GEN co) { return gel(co,1)[1]; }
+static long
+co_get_k(GEN co) { return gel(co,1)[2]; }
+static GEN
+co_get_B(GEN co) { return gel(co,2); }
+static GEN
+co_get_BD(GEN co) { return gel(co,3); }
+static GEN
+co_get_C(GEN co) { return gel(co,4); }
+
+/* N g^(-1) . eval on g([0,a]_oo)=g([pi_oo(0),pi_oo(a)]), fg = f|g */
+static GEN
+evalcap(GEN co, GEN fg, GEN a)
+{
+  long n, t, l = lg(fg), N = co_get_N(co), k = co_get_k(co);
+  GEN P, B, z, T;
+  pari_sp av;
+  if (isintzero(a)) return gen_0;
+  /* (a+y)^(k-1) - y^(k-1) */
+  P = gsub(gpowgs(deg1pol_shallow(gen_1, a, 0), k-1), pol_xn(k-1, 0));
+  B = co_get_B(co); z = gen_0;
+  av = avma; T = zero_zv(N);
+  for (n = 1; n < l; n++)
+  {
+    GEN v = gel(fg, n);
+    t = v[1]; T[t]++;
+  }
+  for (t = 1; t <= N; t++)
+  {
+    long c = T[t];
+    if (c)
+    {
+      GEN u = gmael(B, k, t);
+      if (c != 1) u = gmulsg(c, u);
+      z = gadd(z, u);
+    }
+  }
+  if (co_get_BD(co)) z = gmul(co_get_BD(co),z);
+  z = gerepileupto(av, gdivgs(z, -k * (k-1)));
+  return RgX_Rg_mul(P, z);
+};
+
+/* eval N g^(-1) * Psi(f) on g{oo,0}, fg = f|g */
+static GEN
+evalcup(GEN co, GEN fg)
+{
+  long j, n, k = co_get_k(co), l = lg(fg);
+  GEN B = co_get_B(co), C = co_get_C(co), P = cgetg(k+1, t_POL);
+  P[1] = evalvarn(0);
+  for (j = 2; j <= k; j++) gel(P,j) = gen_0;
+  for (n = 1; n < l; n++)
+  {
+    GEN v = gel(fg,n);
+    long t = v[1], s = v[2];
+    for (j = 1; j < k; j++)
+    {
+      long j1 = k-j;
+      GEN u = gmael(B, j1, t);
+      GEN v = gmael(B, j, s);
+      gel(P, j1+1) = gadd(gel(P, j1+1), gmul(u,v));
+    }
+  }
+  for (j = 1; j < k; j++) gel(P, j+1) = gmul(gel(C,j), gel(P, j+1));
+  return normalizepol(P);
+}
+
+/* Manin-Stevens algorithm, prepare for [pi_0(oo),pi_r(oo)] */
+static GEN
+evalmanin(GEN r)
+{
+  GEN fr = gboundcf(r, 0), pq, V;
+  long j, n = lg(fr)-1; /* > 0 */
+  V = cgetg(n+2, t_VEC);
+  gel(V,1) = gel(fr,1); /* a_0; tau_{-1} = id */
+  if (n == 1)
+  { /* r integer, can happen iff N = 1 */
+    gel(V,2) = mkvec2(gen_0, mkmat22(negi(r), gen_1, gen_m1, gen_0));
+    return V;
+  }
+  pq = contfracpnqn(fr,n-1);
+  fr = vec_append(fr, gdiv(negi(gcoeff(pq,2,n-1)), gcoeff(pq,2,n)));
+  for (j = 0; j < n; j++)
+  {
+    GEN v1 = gel(pq, j+1), v2 = (j == 0)? col_ei(2,1): gel(pq, j);
+    GEN z = gel(fr,j+2);
+    if (!odd(j)) { v1 = ZC_neg(v1); z = gneg(z); }
+    gel(V,j+2) = mkvec2(z, mkmat2(v1,v2)); /* [a_{j+1}, tau_j] */
+  }
+  return V;
+}
+
+/* evaluate N * Psi(f) on
+  g[pi_oo(0),pi_r(oo)]=g[pi_oo(0),pi_0(oo)] + g[pi_0(oo),pi_r(oo)] */
+static GEN
+evalhull(GEN co, GEN f, GEN r)
+{
+  GEN V = evalmanin(r), res = evalcap(co,f,gel(V,1));
+  long j, l = lg(V), N = co_get_N(co);
+  for (j = 2; j < l; j++)
+  {
+    GEN v = gel(V,j), t = gel(v,2); /* in SL_2(Z) */
+    GEN ft = actf(N, f, t), a = gel(v,1); /* in Q */
+    /* t([pi_0(oo),pi_oo(a)]) */
+    res = gsub(res, act(gsub(evalcup(co,ft), evalcap(co,ft,a)), t, co_get_k(co)));
+  }
+  return res;
+};
+
+/* evaluate N * cocycle at g in Gamma_0(N), f Gamma_0(N)-invariant */
+static GEN
+eiscocycle(GEN co, GEN f, GEN g)
+{
+  pari_sp av = avma;
+  GEN a = gcoeff(g,1,1), b = gcoeff(g,1,2);
+  GEN c = gcoeff(g,2,1), d = gcoeff(g,2,2), P;
+  long N = co_get_N(co);
+  if (!signe(c))
+    P = evalcap(co,f, gdiv(negi(b),a));
+  else
+  {
+    GEN gi = SL2_inv(g);
+    P = gsub(evalhull(co, f, gdiv(negi(d),c)),
+             act(evalcap(co, actf(N,f,gi), gdiv(a,c)), gi, co_get_k(co)));
+  }
+  return gerepileupto(av, P);
+}
+
+static GEN
+eisCocycle(GEN co, GEN D, GEN f)
+{
+  GEN V = gel(D,1), Ast = gel(D,2), G = gel(D,3);
+  long i, j, n = lg(G)-1;
+  GEN VG = cgetg(n+1, t_VEC);
+  for (i = j = 1; i <= n; i++)
+  {
+    GEN c, g, d, s = gel(V,i);
+    if (i > Ast[i]) continue;
+    g = SL2_inv(gel(G,i));
+    c = eiscocycle(co,f,g);
+    if (i < Ast[i]) /* non elliptic */
+      d = gen_1;
+    else
+    { /* i = Ast[i] */
+      GEN g2 = ZM_sqr(g);
+      if (ZM_isdiagonal(g2)) d = gen_2; /* \pm Id */
+      else
+      {
+        c = gadd(c, eiscocycle(co,f,g2));
+        d = utoipos(3);
+      }
+    }
+    gel(VG, j++) = mkvec3(d, s, c);
+  }
+  setlg(VG, j); return VG;
+};
+
+/* F=modular symbol, Eis = cocycle attached to f invariant function
+ * by Gamma_0(N); CD = binomial_init(k-2) */
+static GEN
+eispetersson(GEN M, GEN F, GEN Eis, GEN CD)
+{
+  pari_sp av = avma;
+  long i, l = lg(Eis);
+  GEN res = gen_0;
+  for (i = 1; i < l; i++)
+  {
+    GEN e = gel(Eis,i), Q = mseval(M, F, gel(e,2)), z = bil(gel(e,3), Q, CD);
+    long d = itou(gel(e,1));
+    res = gadd(res, d == 1? z: gdivgs(z,d));
+  }
+  return gerepileupto(av, gdiv(simplify_shallow(res), gel(CD,2)));
+};
+
+/*vB[j][i] = {i/N} */
+static GEN
+get_bern(long N, long k)
+{
+  GEN vB = cgetg(k+1, t_VEC), gN = utoipos(N);
+  long i, j; /* no need for j = 0 */
+  for (j = 1; j <= k; j++)
+  {
+    GEN c, B = RgX_rescale(bernpol(j, 0), gN);
+    gel(vB, j) = c = cgetg(N+1, t_VEC);
+    for (i = 1; i < N; i++) gel(c,i) = poleval(B, utoipos(i));
+    gel(c,N) = gel(B,2); /* B(0) */
+  }
+  return vB;
+}
+GEN
+eisker_worker(GEN Ei, GEN M, GEN D, GEN co, GEN CD)
+{
+  pari_sp av = avma;
+  long j, n = msdim(M), s = msk_get_sign(M);
+  GEN V, Eis = eisCocycle(co, D, Ei), v = cgetg(n+1, t_VEC);
+
+  V = s? gel(msk_get_starproj(M), 1): matid(n);
+  /* T is multiplied by N * BD^2: same Ker */
+  for (j = 1; j <= n; j++) gel(v,j) = eispetersson(M, gel(V,j), Eis, CD);
+  return gerepileupto(av, v);
+}
+/* vC = vecbinomial(k-2); vC[j] = binom(k-2,j-1) = vC[k-j], j = 1..k-1, k even.
+ * C[k-j+1] = (-1)^(j-1) binom(k-2, j-1) / (j(k-j)) = C[j+1] */
+static GEN
+get_C(GEN vC, long k)
+{
+  GEN C = cgetg(k, t_VEC);
+  long j, k2 = k/2;
+  for (j = 1; j <= k2; j++)
+  {
+    GEN c = gel(vC, j);
+    if (!odd(j)) c = negi(c);
+    gel(C,k-j) = gel(C, j) = gdivgs(c, j*(k-j));
+  }
+  return C;
+}
+static GEN
+eisker(GEN M)
+{
+  long N = ms_get_N(M), k = msk_get_weight(M), s = msk_get_sign(M);
+  GEN worker, co, CD, D, B, BD, T, perm, E = eisspace(N, k, &perm);
+  GEN vC = vecbinomial(k-2);
+  long i, j, m = lg(E)-1, n = msdim(M), pending = 0;
+  struct pari_mt pt;
+
+  T = zeromatcopy(m, n);
+  D = mspolygon(M, 0);
+  B = Q_remove_denom(get_bern(N,k), &BD);
+  co = mkvec4(mkvecsmall2(N,k), B, BD, get_C(vC, k));
+  CD = binomial_init(k-2, vC);
+  worker = snm_closure(is_entry("_eisker_worker"), mkvec4(M, D, co, CD));
+  mt_queue_start_lim(&pt, worker, m);
+  for (i = 1; i <= m || pending; i++)
+  {
+    long workid;
+    GEN done;
+    mt_queue_submit(&pt, i, i<=m? mkvec(gel(E,i)): NULL);
+    done = mt_queue_get(&pt, &workid, &pending);
+    if (done) for (j = 1; j <= n; j++) gcoeff(T,workid,j) = gel(done,j);
+  }
+  mt_queue_end(&pt);
+  if (s)
+  {
+    GEN U = rowpermute(T, perm);
+    T = s == 1? gadd(T, U): gsub(T, U);
+  }
+  return QM_ker(T);
 }

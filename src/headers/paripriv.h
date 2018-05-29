@@ -153,6 +153,7 @@ void mt_export_del(const char *str);
 void mt_init_stack(size_t s);
 int  mt_is_thread(void);
 
+GEN  eisker_worker(GEN Ei, GEN M, GEN D, GEN co, GEN CD);
 GEN  pareval_worker(GEN code);
 GEN  parselect_worker(GEN d, GEN code);
 void parfor0(GEN a, GEN b, GEN code, GEN code2);
