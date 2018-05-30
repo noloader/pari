@@ -1579,19 +1579,50 @@ ellisomat(GEN E, long p, long flag)
   return gerepilecopy(av, r);
 }
 
+static GEN
+get_isomat(GEN v)
+{
+  GEN M, vE, wE;
+  long i, l;
+  if (typ(v) != t_VEC) return NULL;
+  if (checkell_i(v))
+  {
+    v = ellisomat(v,0,1);
+    wE = gel(v,1); l = lg(wE);
+    M  = gel(v,2);
+  }
+  else
+  {
+    if (lg(v) != 3) return NULL;
+    vE = gel(v,1); l = lg(vE);
+    M  = gel(v,2);
+    if (typ(M) != t_MAT || !RgM_is_ZM(M)) return NULL;
+    if (typ(vE) != t_VEC || l == 1) return NULL;
+    if (lg(gel(vE,1)) == 3) wE = shallowcopy(vE);
+    else
+    { /* [[a4,a6],f,g] */
+      wE = cgetg_copy(vE,&l);
+      for (i = 1; i < l; i++) gel(wE,i) = gel(gel(vE,i),1);
+    }
+  }
+  /* wE a vector of [a4,a6] */
+  for (i = 1; i < l; i++)
+  {
+    GEN e = ellinit(gel(wE,i), gen_1, 0), E = ellminimalmodel(e, NULL);
+    obj_free(e); gel(wE,i) = E;
+  }
+  return mkvec2(wE, M);
+}
+
 GEN
 ellweilcurve(GEN E, GEN *ms)
 {
   pari_sp av = avma;
-  GEN LM = ellisomat(E,0,1), vE = gel(LM,1);
-  GEN vL, Wx, W, XPM, Lf, Cf;
-  long i, l = lg(vE);
+  GEN vE = get_isomat(E), vL, Wx, W, XPM, Lf, Cf;
+  long i, l;
 
-  for (i = 1; i < l; i++)
-  {
-    GEN F = ellinit(gel(vE,i), gen_1, 0);
-    gel(vE,i) = ellminimalmodel(F, NULL); obj_free(F);
-  }
+  if (!vE) pari_err_TYPE("ellweilcurve",E);
+  vE = gel(vE,1); l = lg(vE);
   Wx = msfromell(vE, 0);
   W = gel(Wx,1);
   XPM = gel(Wx,2);

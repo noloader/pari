@@ -138,7 +138,7 @@ checkell5(GEN E)
 }
 void
 checkell(GEN E)
-{ if (typ(E)!=t_VEC || lg(E) != 17) pari_err_TYPE("checkell",E); }
+{ if (!checkell_i(E)) pari_err_TYPE("checkell",E); }
 void
 checkellisog(GEN v)
 { if (typ(v)!=t_VEC || lg(v) != 4) pari_err_TYPE("checkellisog",v); }
@@ -146,14 +146,14 @@ checkellisog(GEN v)
 void
 checkell_Q(GEN E)
 {
-  if (typ(E)!=t_VEC || lg(E) != 17 || ell_get_type(E)!=t_ELL_Q)
+  if (!checkell_i(E) || ell_get_type(E)!=t_ELL_Q)
     pari_err_TYPE("checkell over Q",E);
 }
 
 void
 checkell_Qp(GEN E)
 {
-  if (typ(E)!=t_VEC || lg(E) != 17 || ell_get_type(E)!=t_ELL_Qp)
+  if (!checkell_i(E) || ell_get_type(E)!=t_ELL_Qp)
     pari_err_TYPE("checkell over Qp",E);
 }
 
@@ -167,8 +167,7 @@ ell_over_Fq(GEN E)
 void
 checkell_Fq(GEN E)
 {
-  if (typ(E)!=t_VEC || lg(E) != 17 || !ell_over_Fq(E))
-  pari_err_TYPE("checkell over Fq", E);
+  if (!checkell_i(E) || !ell_over_Fq(E)) pari_err_TYPE("checkell over Fq", E);
 }
 
 GEN

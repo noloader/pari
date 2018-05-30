@@ -44,7 +44,10 @@ or a \typ{STR} in Cremona's notation, e.g. \kbd{"11a1"}. The optional $D$
 
 \subsec{Type checking}
 
-\fun{void}{checkell}{GEN e} raise an error unless $e$ is a \var{ell}.
+\fun{void}{checkell}{GEN e} raise an error unless $e$ is an \var{ell}.
+
+\fun{int}{checkell_i}{GEN e} return $1$ if $e$ is an \var{ell} and $0$
+otherwise.
 
 \fun{void}{checkell5}{GEN e} raise an error unless $e$ is an \var{ell}
 or an \var{ell5}.

@@ -2577,6 +2577,7 @@ INLINE long ellR_get_sign(GEN x) { return mael3(x, 15, 1, 2); }
 INLINE GEN ellnf_get_nf(GEN x) { return checknf_i(gmael(x,15,1)); }
 INLINE GEN ellnf_get_bnf(GEN x) { return checkbnf_i(gmael(x,15,1)); }
 
+INLINE int checkell_i(GEN e) { return typ(e) == t_VEC && lg(e) == 17; }
 INLINE int ell_is_inf(GEN z) { return lg(z) == 2; }
 INLINE GEN ellinf(void) { return mkvec(gen_0); }
 

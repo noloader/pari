@@ -270,3 +270,5 @@ E=ellinit([1,0,1,4,-6]); [e,s]=ellweilcurve(E,&ms);
 s
 msdim(ms[1])
 ms[2]
+ellweilcurve(ellisomat(E)) == [e,s]
+ellweilcurve(ellisomat(E,,1)) == [e,s]
