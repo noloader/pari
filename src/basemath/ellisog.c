@@ -1644,16 +1644,6 @@ ellweilcurve(GEN E, GEN *ms)
   *ms = Wx; gerepileall(av, 2, &vE, ms); return vE;
 }
 
-/* L \subset M ? */
-static int
-isin(GEN L, GEN M)
-{
-  GEN x, y;
-  x = gel(lindep(mkvec3(gel(L,1), gel(M,1), gel(M,2))), 1);
-  if (!is_pm1(x)) return 0;
-  y = gel(lindep(mkvec3(gel(L,2), gel(M,1), gel(M,2))), 1);
-  return is_pm1(y);
-}
 GEN
 ellisotree(GEN E)
 {
@@ -1664,14 +1654,18 @@ ellisotree(GEN E)
   vE = gel(L,1);
   adj = gel(L,2);
   n = lg(vE)-1; L = cgetg(n+1, t_VEC);
-  for (i = 1; i <= n; i++) gel(L,i) = ellR_omega(gel(vE,i), DEFAULTPREC);
+  for (i = 1; i <= n; i++) gel(L,i) = ellR_area(gel(vE,i), LOWDEFAULTPREC);
   M = zeromatcopy(n,n);
   for (i = 1; i <= n; i++)
     for (j = i+1; j <= n; j++)
     {
       GEN p = gcoeff(adj,i,j);
       if (!isprime(p)) continue;
-      if (isin(gel(L,i), gel(L,j))) gcoeff(M,i,j) = p; else gcoeff(M,j,i) = p;
+      /* L[i] / L[j] = p or 1/p; p iff E[i].lattice \subset E[j].lattice */
+      if (gcmp(gel(L,i), gel(L,j)) > 0)
+        gcoeff(M,i,j) = p;
+      else
+        gcoeff(M,j,i) = p;
     }
   for (i = 1; i <= n; i++) obj_free(gel(vE,i));
   return gerepilecopy(av, mkvec2(vE,M));
