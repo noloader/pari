@@ -3283,7 +3283,7 @@ get_d(GEN nf, GEN pol, GEN A)
  * Returns a pseudo-basis [A,I] of Z_L, set (D,d) to the relative
  * discriminant, and f to the index-ideal */
 GEN
-rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
+rnfallbase(GEN nf, ulong lim, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
 {
   long i, n, l;
   GEN nfT, fa, E, P, z, D, disc, pol = *ppol;
@@ -3296,7 +3296,7 @@ rnfallbase(GEN nf, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
   n = degpol(pol);
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   pol = lift_shallow(pol);
-  fa = idealfactor(nf, disc);
+  fa = idealfactor_limit(nf, disc, lim);
   P = gel(fa,1); l = lg(P);
   E = gel(fa,2);
   z = NULL;
@@ -3329,7 +3329,10 @@ GEN
 rnfpseudobasis(GEN nf, GEN pol)
 {
   pari_sp av = avma;
-  GEN D, d, z = rnfallbase(nf,&pol, &D, &d, NULL);
+  GEN D, d, z;
+  ulong lim;
+  pol = check_polrel(pol, &lim);
+  z = rnfallbase(nf, lim, &pol, &D, &d, NULL);
   return gerepilecopy(av, mkvec4(gel(z,1), gel(z,2), D, d));
 }
 
@@ -3337,7 +3340,10 @@ GEN
 rnfdiscf(GEN nf, GEN pol)
 {
   pari_sp av = avma;
-  GEN D, d; (void)rnfallbase(nf,&pol, &D, &d, NULL);
+  GEN D, d;
+  ulong lim;
+  pol = check_polrel(pol, &lim);
+  (void)rnfallbase(nf, lim, &pol, &D, &d, NULL);
   return gerepilecopy(av, mkvec2(D,d));
 }
 

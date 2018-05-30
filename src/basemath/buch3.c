@@ -1741,12 +1741,13 @@ rnfconductor(GEN bnf, GEN polrel)
 {
   pari_sp av = avma;
   GEN nf, module, bnr, group, den, D;
+  ulong lim;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
-  if (typ(polrel) != t_POL) pari_err_TYPE("rnfconductor",polrel);
+  polrel = check_polrel(polrel, &lim);
   den = Q_denom( RgX_to_nfX(nf, polrel) );
   if (!is_pm1(den)) polrel = RgX_rescale(polrel, den);
-  (void)rnfallbase(nf,&polrel, &D, NULL, NULL);
+  (void)rnfallbase(nf,lim, &polrel, &D, NULL, NULL);
   module = mkvec2(D, const_vec(nf_get_r1(nf), gen_1));
   bnr   = Buchray_i(bnf,module,nf_INIT | nf_GEN);
   group = rnfnormgroup_i(bnr,polrel);

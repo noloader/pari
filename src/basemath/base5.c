@@ -263,12 +263,26 @@ nf_nfzk(GEN nf, GEN rnfeq, GEN *zknf, GEN *czknf)
 }
 
 GEN
+check_polrel(GEN P, ulong *lim)
+{
+  if (typ(P) == t_VEC && lg(P)==3)
+  {
+    *lim = gtou(gel(P,2));
+    P = gel(P,1);
+  } else *lim = 0;
+  if (typ(P)!=t_POL) pari_err_TYPE("rnfinit",P);
+  return P;
+}
+
+GEN
 rnfinit0(GEN nf, GEN polrel, long flag)
 {
   pari_sp av = avma;
   GEN rnf, bas, D,d,f, B, rnfeq, zknf,czknf;
+  ulong lim;
   nf = checknf(nf);
-  bas = rnfallbase(nf,&polrel, &D,&d, &f);
+  polrel = check_polrel(polrel, &lim);
+  bas = rnfallbase(nf, lim, &polrel, &D,&d, &f);
   B = matbasistoalg(nf,gel(bas,1));
   gel(bas,1) = lift_if_rational( RgM_to_RgXV(B,varn(polrel)) );
   rnfeq = nf_rnfeq(nf,polrel);
