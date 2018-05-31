@@ -4646,7 +4646,7 @@ polygon2tex(GEN V, GEN Ast)
 }
 
 static GEN
-circle2tex(GEN V, GEN Ast, GEN G)
+circle2tex(GEN Ast, GEN G)
 {
   pari_sp av = avma;
   GEN v = Ast2v(Ast);
@@ -4729,7 +4729,7 @@ mspolygon(GEN M, long flag)
     for (i = 1; i < l; i++) gel(G,i) = get_g(&T, i);
   }
   if (flag & 2)
-    v = mkvec5(T.V, T.Ast, G, polygon2tex(T.V,T.Ast), circle2tex(T.V,T.Ast,G));
+    v = mkvec5(T.V, T.Ast, G, polygon2tex(T.V,T.Ast), circle2tex(T.Ast,G));
   else
     v = mkvec3(T.V, T.Ast, G);
   return gerepilecopy(av, v);
