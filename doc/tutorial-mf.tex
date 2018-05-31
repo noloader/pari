@@ -369,7 +369,7 @@ term, which is of course not possible. Indeed:
 % = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
      0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 0]
-? G = mfhecke(F, 24); mfcoefs(G, 12)
+? G = mfhecke(mf, F, 24); mfcoefs(G, 12)
 % = [1, 24, 24, 96, 24, 144, 96, 192, 24, 312, 144, 288, 96]
 ? mftobasis(mf, G)
 % = [0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
@@ -641,7 +641,7 @@ from a given mathematical object.
   Self-explanatory. More complicated Eisenstein series:
 
 \begin{verbatim}
-? E3 = mfeisenstein(1, 1, -3]); mfcoefs(E3, 10)
+? E3 = mfeisenstein(1, 1, -3); mfcoefs(E3, 10)
 % = [1/6, 1, 0, 1, 1, 0, 0, 2, 0, 1, 0]
 ? E4 = mfeisenstein(5, -4, 1); mfcoefs(E4, 10)
 % = [5/4, 1, 1, -80, 1, 626, -80, -2400, 1, 6481, 626]
@@ -892,7 +892,7 @@ by a power of $q$), but which again takes us outside the range of modular
 forms.
 
 \begin{verbatim}
-? E4 = mfEk(4); F = mftwist(E4, -3); mfcoefs(F, 6)
+? E4 = mfEk(4); F = mftwist(E4, -3); mfcoefs(F, 7)
 % = [0, 240, -2160, 0, 17520, -30240, 0, 82560]
 ? mfparams(F)
 % = [9, 4, 1, y]
@@ -1004,7 +1004,7 @@ vector $[\ga,i]$, where $\ga\in\G_0(N)$ is such that $M=\ga\cdot C[i]$.
 
 We now give examples of the use of advanced features of the package, which
 use inexact complex arithmetic. However in many cases the results are known
-algebraic numbers and, if asked to do so, the function give them exactly.
+algebraic numbers and, if asked to do so, the function gives them exactly.
 
 This command returns the Fourier expansion at infinity of $f |_k \gamma$,
 for $\gamma\in \GL_2(\Q)^+$. It returns a vector $v$ of coefficients, which
