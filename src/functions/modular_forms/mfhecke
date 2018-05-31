@@ -2,7 +2,7 @@ Function: mfhecke
 Section: modular_forms
 C-Name: mfhecke
 Prototype: GGL
-Help: mfhecke(mf,F,n}): F being a modular form in space mf, returns T(n)F,
+Help: mfhecke(mf,F,n): F being a modular form in space mf, returns T(n)F,
  where T(n) is the n-th Hecke operator. Warning: if F is of level M<N,
  T(n)F is in general not the same in M_k(G_0(M),CHI) and in M_k(G_0(N),CHI).
  We take T(n) at the same level as the one used in mf.
