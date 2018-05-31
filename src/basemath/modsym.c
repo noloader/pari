@@ -4589,13 +4589,111 @@ mssiegel(struct siegel *S)
     err_printf("%3ld: %6ld\n", k, countset[k]);
 #endif
 }
+
+/* return a vector of char */
+static GEN
+Ast2v(GEN Ast)
+{
+  long j = 0, k, l = lg(Ast);
+  GEN v = const_vec(l-1, NULL);
+  for (k=1; k < l; k++)
+  {
+    char *sj;
+    if (gel(v,k)) continue;
+    j++;
+    sj = stack_sprintf("$%ld$", j);
+    gel(v,k) = (GEN)sj;
+    if (Ast[k] != k) gel(v,Ast[k]) = (GEN)stack_sprintf("$%ld^*$", j);
+  }
+  return v;
+};
+static GEN
+M2Q(GEN p) { GEN c = gel(p,1); return gdiv(gel(c,1), gel(c,2)); }
+
+static GEN
+polygon2tex(GEN V, GEN Ast)
+{
+  pari_sp av = avma;
+  GEN v = Ast2v(Ast);
+  pari_str s;
+  long j, l = lg(V), flag;
+  double c;
+  str_init(&s, 1);
+  flag = (l <= 16);
+  str_puts(&s, "\n\\begin{tikzpicture}[scale=10]\n");
+  str_puts(&s, "\\draw (0,0.5)--(0,0) node [very near start, right] {$1^*$} node [below] {$0$}");
+  for (j=4; j < l; j++)
+  {
+    GEN a = M2Q(gel(V,j-1)), b = M2Q(gel(V,j));
+    c = gtodouble(gsub(b,a)) / 2;
+
+    str_printf(&s, "arc (180:0:%.4f)\n", c);
+    if (flag)
+    {
+      long sb = itos(numer_i(b));
+      long sa = itos(denom_i(a));
+      str_printf(&s,
+        "node [midway, above] {%s} node [below]{$\\frac{%ld}{%ld}$}\n",
+        (char*)gel(v,j-1), sb, sa);
+    }
+  }
+  c = (1- gtodouble(M2Q(gel(V,l-1)))) / 2;
+  str_printf(&s, "arc (180:0:%.4f)\n", c);
+  if (flag) str_printf(&s, "node [midway, above] {%s}", (char*)gel(v,l-1));
+  str_printf(&s,"node [below] {$1$} -- (1,0.5) node [very near end, left] {$1$};");
+  str_printf(&s, "\n\\end{tikzpicture}");
+  return gerepileuptoleaf(av, strtoGENstr(s.string));
+}
+
+static GEN
+circle2tex(GEN V, GEN Ast, GEN G)
+{
+  pari_sp av = avma;
+  GEN v = Ast2v(Ast);
+  pari_str s;
+  long u, n = lg(Ast)-1;
+  const double ang = 360./n;
+
+  if (n > 30)
+  {
+    v = const_vec(n, (GEN)"");
+    gel(v,1) = (GEN)"$(1,\\infty)$";
+  }
+  str_init(&s, 1);
+  str_puts(&s, "\n\\begingroup\n\
+  \\def\\geo#1#2{(#2:1) arc (90+#2:270+#1:{tan((#2-#1)/2)})}\n\
+  \\def\\sgeo#1#2{(#2:1) -- (#1:1)}\n\
+  \\def\\unarc#1#2#3{({#1 * #3}:1.2) node {#2}}\n\
+  \\def\\cell#1#2{({#1 * #2}:0.95) circle(0.05)}\n\
+  \\def\\link#1#2#3#4#5{\\unarc{#1}{#2}{#5}\\geo{#1*#5}{#3*#5}\\unarc{#3}{#4}{#5}}\n\
+  \\def\\slink#1#2#3#4#5{\\unarc{#1}{#2}{#5}\\sgeo{#1*#5}{#3*#5}\\unarc{#3}{#4}{#5}}");
+
+  str_puts(&s, "\n\\begin{tikzpicture}[scale=4]\n");
+  str_puts(&s, "\\draw (0, 0) circle(1);\n");
+  for (u=1; u <= n; u++)
+  {
+    if (Ast[u] == u)
+    {
+      str_printf(&s,"\\draw\\unarc{%ld}{%s}{%.4f}; \\draw\\cell{%ld}{%.4f};\n",
+                 u, v[u], ang, u, ang);
+      if (ZM_isscalar(gpowgs(gel(G,u),3), NULL))
+        str_printf(&s,"\\fill \\cell{%ld}{%.4f};\n", u, ang);
+    }
+    else if(Ast[u] > u)
+      str_printf(&s, "\\draw \\%slink {%ld}{%s}{%ld}{%s}{%.4f};\n",
+                     Ast[u]-u==n/2? "s": "", u, v[u], Ast[u], v[Ast[u]], ang);
+  }
+  str_printf(&s, "\\end{tikzpicture}\\endgroup");
+  return gerepileuptoleaf(av, strtoGENstr(s.string));
+}
+
 GEN
 mspolygon(GEN M, long flag)
 {
   pari_sp av = avma;
-  struct siegel S;
+  struct siegel T;
   long i, l;
-  GEN G, msN;
+  GEN v, G, msN;
   if (typ(M) == t_INT)
   {
     long N = itos(M);
@@ -4603,29 +4701,38 @@ mspolygon(GEN M, long flag)
     msN = msinit_N(N);
   }
   else { checkms(M); msN = get_msN(M); }
-  if (flag < 0 || flag > 1) pari_err_FLAG("mspolygon");
+  if (flag < 0 || flag > 3) pari_err_FLAG("mspolygon");
   if (ms_get_N(msN) == 1)
   {
-    GEN S = mkS(), V = mkvec2(matid(2), S);
-    return gerepilecopy(av, mkvec3(V, mkvecsmall2(1,2), mkvec2(S, mkTAU())));
+    GEN S = mkS();
+    T.V = mkvec2(matid(2), S);
+    T.Ast = mkvecsmall2(1,2);
+    G = mkvec2(S, mkTAU());
   }
-  siegel_init(&S, msN);
-  l = lg(S.V);
-  if (flag)
+  else
   {
-    long oo2 = 0;
-    mssiegel(&S);
-    for (i = 1; i < l; i++)
+    siegel_init(&T, msN);
+    l = lg(T.V);
+    if (flag & 1)
     {
-      GEN c = gel(S.V, i);
-      GEN c22 = gcoeff(c,2,2); if (!signe(c22)) { oo2 = i; break; }
+      long oo2 = 0;
+      mssiegel(&T);
+      for (i = 1; i < l; i++)
+      {
+        GEN c = gel(T.V, i);
+        GEN c22 = gcoeff(c,2,2); if (!signe(c22)) { oo2 = i; break; }
+      }
+      if (!oo2) pari_err_BUG("mspolygon");
+      siegel_perm0(&T, rotate_perm(l, oo2));
     }
-    if (!oo2) pari_err_BUG("mspolygon");
-    siegel_perm0(&S, rotate_perm(l, oo2));
+    G = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(G,i) = get_g(&T, i);
   }
-  G = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(G,i) = get_g(&S, i);
-  return gerepilecopy(av, mkvec3(S.V, S.Ast, G));
+  if (flag & 2)
+    v = mkvec5(T.V, T.Ast, G, polygon2tex(T.V,T.Ast), circle2tex(T.V,T.Ast,G));
+  else
+    v = mkvec3(T.V, T.Ast, G);
+  return gerepilecopy(av, v);
 }
 
 #if 0

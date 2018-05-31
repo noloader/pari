@@ -43,6 +43,7 @@ BA    5- [libpari] hash_init_GEN, hash_haskey_long, hash_insert_long
 BA    6- [libpari] FpX_ddf_degree, FpXQX_ddf_degree, FlxqX_ddf_degree
       7- [libpari] checkell_i
       8- [libpari] ellisotree
+      9- mspolygon: add graphical representations (LaTeX form)
 
 Done for version 2.10.0 (released 15/05/2018):
   Fixed
