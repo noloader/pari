@@ -1943,7 +1943,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isisom(x,y) ===> nfisisom(x,y)
 
-nfisisom(f,g): as nfisincl but tests whether f is isomorphic to f.
+nfisisom(f,g): as nfisincl but tests whether f is isomorphic to g.
 
 
   ***   at top-level: isisomfast()
@@ -1953,7 +1953,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isisomfast(x,y) ===> nfisisom(x,y)
 
-nfisisom(f,g): as nfisincl but tests whether f is isomorphic to f.
+nfisisom(f,g): as nfisincl but tests whether f is isomorphic to g.
 
 
   ***   at top-level: isoncurve()
@@ -4517,4 +4517,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 4
