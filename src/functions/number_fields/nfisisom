@@ -2,7 +2,7 @@ Function: nfisisom
 Section: number_fields
 C-Name: nfisisom
 Prototype: GG
-Help: nfisisom(f,g): as nfisincl but tests whether f is isomorphic to f.
+Help: nfisisom(f,g): as nfisincl but tests whether f is isomorphic to g.
 Doc: as \tet{nfisincl}, but tests for isomorphism. More efficient if
  $f$ or $g$ is a number field structure.
  \bprog
