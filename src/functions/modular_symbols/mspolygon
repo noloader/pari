@@ -106,10 +106,9 @@ Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
  that $X_0(14)$ is of genus 1 (in general the genus is the number of blocks
  of the form $aba^*b^*$), has no elliptic points ($A$ has no fixed point)
  and 4 cusps (number of blocks of the form $aa^*$ plus 1). The vertices
- of edges $a_4$ and $a_5$ all project to $0$ in $X_0(14)$: the image
- of the paths $a_4$ and $a_5$ project as loops in $X_0(14)$ and gives a
- symplectic basis of the homology $H_1(X_0(14),\Z)$.
-
+ of edges $a_4$ and $a_5$ all project to $0$ in $X_0(14)$: the paths $a_4$
+ and $a_5$ project as loops in $X_0(14)$ and give a symplectic basis of the
+ homology $H_1(X_0(14),\Z)$.
  \bprog
  ? [V,A] = mspolygon(15);
  ? apply(matdet, V) \\ all unimodular
