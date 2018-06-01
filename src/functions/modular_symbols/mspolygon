@@ -68,7 +68,7 @@ Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
  2: add graphical representations (in LaTeX form) for the hyperbolic polygon,
  in Poincar\'e's half-space and the involution $a\to a^*$ of the Farey symbol.
  The corresponding character strings can be written to file and included in a
- LaTeX document provided the preamble contains \kbd{\bs usepackage{tikz}}.
+ LaTeX document provided the preamble contains \kbd{\bs usepackage\{tikz\}}.
 
  \bprog
  ? [V,A,G] = mspolygon(3);
