@@ -754,22 +754,23 @@ testpermutation(GEN F, GEN B, GEN x, long s, long e, long cut,
       /* intheadlong test: overflow in + is OK, we compute mod 2^BIL */
       for (p1 = i+1, p5 = p1%d - 1 ; p1 >= 1; p1--, p5--) /* p5 = (p1%d) - 1 */
       {
+        GEN G1, G6;
         ulong V = 0;
         if (p5 == - 1) { p5 = d - 1; p6 = p1 + 1 - d; } else p6 = p1 + 1;
+        G1 = gel(G,p1); G6 = gel(G,p6);
         p4 = p5 ? x[p1-1] : 0;
-        V = 0;
         for (p2 = 1+p4, p3 = 1 + x[p1]; p2 <= b; p2++)
         {
-          V += umael(W,mael(G,p6,p3),mael(G,p1,p2));
+          V += umael(W,uel(G6,p3),uel(G1,p2));
           p3 += s; if (p3 > b) p3 -= b;
         }
         p3 = 1 + x[p1] - s; if (p3 <= 0) p3 += b;
         for (p2 = p4; p2 >= 1; p2--)
         {
-          V += umael(W,mael(G,p6,p3),mael(G,p1,p2));
+          V += umael(W,uel(G6,p3),uel(G1,p2));
           p3 -= s; if (p3 <= 0) p3 += b;
         }
-        ar[p1] = ar[p1+1] + V;
+        uel(ar,p1) = uel(ar,p1+1) + V;
       }
       if (!headlongisint(uel(ar,1),n)) continue;
 
