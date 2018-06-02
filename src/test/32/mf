@@ -1530,4 +1530,7 @@ t, -6*t - 4, t + 2]
   ***   at top-level: mfsymboleval(FSbug,[0,1])
   ***                 ^-------------------------
   *** mfsymboleval: incorrect type in mfsymboleval [need integral k > 1] (t_VEC).
-Total time spent: 11377
+  ***   at top-level: mfgaloistype([4,1,-4],x)
+  ***                 ^------------------------
+  *** mfgaloistype: incorrect type in mfgaloistype (t_POL).
+Total time spent: 10872

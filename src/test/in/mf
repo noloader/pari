@@ -735,3 +735,4 @@ mf=mfinit([1,0]);F=mfbasis(mf)[1];mfsymbol(mf,F);
 mf=mfinit([12,5/2],1); F=mfbasis(mf)[1];
 mfmanin(FSbug)
 mfsymboleval(FSbug,[0,1])
+mfgaloistype([4,1,-4],x)

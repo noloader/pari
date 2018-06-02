@@ -5904,6 +5904,7 @@ mfgaloistype(GEN NK, GEN f)
   GEN CHI, T, F, DIH, mf = checkMF_i(NK);
   long N, k, lL, i, lim, SB;
 
+  if (f && !checkmf_i(f)) pari_err_TYPE("mfgaloistype", f);
   if (mf)
   {
     N = MF_get_N(mf);
