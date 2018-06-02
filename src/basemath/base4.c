@@ -490,21 +490,22 @@ idealHNF_norm_pval(GEN x, GEN p, long Zval)
   return v;
 }
 
-/* x integral in HNF, f = partial factorization of x[1,1] = x\cap Z */
+/* x integral in HNF, f0 = partial factorization of a multiple of
+ * x[1,1] = x\cap Z */
 GEN
-idealHNF_Z_factor_i(GEN x, GEN f, GEN *pvN, GEN *pvZ)
+idealHNF_Z_factor_i(GEN x, GEN f0, GEN *pvN, GEN *pvZ)
 {
-  GEN P, E, vN, vZ;
+  GEN P, E, vN, vZ, xZ = gcoeff(x,1,1), f = f0? f0: Z_factor(xZ);
   long i, l;
-  if (!f) f = Z_factor(gcoeff(x,1,1));
   P = gel(f,1); l = lg(P);
   E = gel(f,2);
   *pvN = vN = cgetg(l, t_VECSMALL);
   *pvZ = vZ = cgetg(l, t_VECSMALL);
   for (i = 1; i < l; i++)
   {
-    vZ[i] = itou(gel(E,i));
-    vN[i] = idealHNF_norm_pval(x,gel(P,i), vZ[i]);
+    GEN p = gel(P,i);
+    vZ[i] = f0? Z_pval(xZ, p): itou(gel(E,i));
+    vN[i] = idealHNF_norm_pval(x,p, vZ[i]);
   }
   return P;
 }
@@ -606,7 +607,7 @@ idealHNF_factor_i(GEN nf, GEN x, GEN cx, GEN FA)
     }
     else
       L = idealprimedec_limit_f(nf,p,Nval);
-    for (j = 1; j < lg(L); j++)
+    for (j = 1; Nval && j < lg(L); j++) /* !Nval => only cx contributes */
     {
       GEN P = gel(L,j);
       pari_sp av = avma;
@@ -616,9 +617,8 @@ idealHNF_factor_i(GEN nf, GEN x, GEN cx, GEN FA)
       v += vc * pr_get_e(P); if (!v) continue;
       gel(vP,k) = P;
       gel(vE,k) = utoipos(v); k++;
-      if (!Nval) break; /* now only the content contributes */
     }
-    if (vc) for (j++; j<lg(L); j++)
+    if (vc) for (; j<lg(L); j++)
     {
       GEN P = gel(L,j);
       gel(vP,k) = P;

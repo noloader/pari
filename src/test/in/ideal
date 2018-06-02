@@ -61,6 +61,7 @@ idealred(K,2)
 idealred(K,[2,[;]])
 idealred(K,[2,factor(1)])
 
+idealfactor(nfinit(polcyclo(5)),2^4*[0,1,0,0]~,100)
 nf=nfinit(x^2+x+1);
 p = 67452192952521724999; pi = idealprimedec(nf,p)[1];
 q = 762234946175168528650011228121; qi = idealprimedec(nf,q)[1];
