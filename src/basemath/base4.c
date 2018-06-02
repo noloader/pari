@@ -809,7 +809,7 @@ idealredmodpower_i(GEN nf, GEN x, ulong k, ulong B)
     if (!signe(x) || is_pm1(x)) return gen_1;
     F = Z_factor_limit(x, B);
     gel(F,2) = gdiventgs(gel(F,2), k);
-    return factorback(F);
+    return ginv(factorback(F));
   }
   N = gcoeff(x,1,1); if (is_pm1(N)) return gen_1;
   F = Z_factor_limit(N, B); nF=lg(gel(F,1))-1;

@@ -3318,8 +3318,8 @@ rnfallbase(GEN nf, ulong lim, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
   }
   if (pd)
   {
-    GEN f = core2partial(Q_content(disc), 0);
-    *pd = gdiv(disc, sqri(gel(f,2)));
+    GEN b = idealredmodpower(nf, disc, 2, 100000);
+    *pd = nfmul(nf, disc, nfsqr(nf, b));
   }
   *pD = D;
   *ppol = pol; return z;
