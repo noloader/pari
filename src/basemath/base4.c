@@ -1927,7 +1927,8 @@ idealmulpowprime(GEN nf, GEN x, GEN pr, GEN n)
   if (pr_is_inert(pr))
   {
     GEN q = powii(pr_get_p(pr), n);
-    return typ(x) == t_MAT? RgM_Rg_mul(x,q): scalarmat_shallow(gmul(x,q), N);
+    return typ(x) == t_MAT? RgM_Rg_mul(x,q)
+                          : scalarmat_shallow(gmul(Q_abs(x),q), N);
   }
 
   y = idealpowprime(nf, pr, n, &c);
