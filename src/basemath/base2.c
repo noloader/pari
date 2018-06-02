@@ -3255,28 +3255,6 @@ RgV_nffix(const char *f, GEN T, GEN P, int lift)
   return Q;
 }
 
-#if 0
-/* determinant of the trace pairing. FIXME: unused; for rnfmaxord ? */
-static GEN
-get_d(GEN nf, GEN pol, GEN A)
-{
-  long i, j, n = degpol(pol);
-  GEN W = RgM_to_RgXV(lift_shallow(matbasistoalg(nf,A)), varn(pol));
-  GEN T, nfT = nf_get_pol(nf), sym = polsym_gen(pol, NULL, n-1, nfT, NULL);
-  T = cgetg(n+1,t_MAT);
-  for (j=1; j<=n; j++) gel(T,j) = cgetg(n+1,t_COL);
-  for (j=1; j<=n; j++)
-    for (i=j; i<=n; i++)
-    {
-      GEN c = RgXQX_mul(gel(W,i),gel(W,j), nfT);
-      c = RgXQX_rem(c, pol, nfT);
-      c = simplify_shallow(quicktrace(c,sym));
-      gcoeff(T,j,i) = gcoeff(T,i,j) = c;
-    }
-  return nf_to_scalar_or_basis(nf, det(T));
-}
-#endif
-
 static GEN
 get_d(GEN nf, GEN d)
 {
