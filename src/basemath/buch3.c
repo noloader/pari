@@ -1733,24 +1733,24 @@ rnfisabelian(GEN nf, GEN pol)
   avma = av; return t;
 }
 
-/* Given bnf and polrel defining an abelian relative extension, compute the
+/* Given bnf and T defining an abelian relative extension, compute the
  * corresponding conductor and congruence subgroup. Return
  * [cond,bnr(cond),group] where cond=[ideal,arch] is the conductor. */
 GEN
-rnfconductor(GEN bnf, GEN polrel)
+rnfconductor(GEN bnf, GEN T)
 {
   pari_sp av = avma;
-  GEN nf, module, bnr, group, den, D;
+  GEN nf, module, bnr, group, dT;
   ulong lim;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
-  polrel = check_polrel(polrel, &lim);
-  den = Q_denom( RgX_to_nfX(nf, polrel) );
-  if (!is_pm1(den)) polrel = RgX_rescale(polrel, den);
-  (void)rnfallbase(nf,lim, &polrel, &D, NULL, NULL);
-  module = mkvec2(D, const_vec(nf_get_r1(nf), gen_1));
+  T = check_polrel(nf, T, &lim);
+  dT = Q_denom( RgX_to_nfX(nf, T) );
+  if (!is_pm1(dT)) T = RgX_rescale(T, dT);
+  module = mkvec2(rnfdisc_factored(nf, T, NULL),
+                  const_vec(nf_get_r1(nf), gen_1));
   bnr   = Buchray_i(bnf,module,nf_INIT | nf_GEN);
-  group = rnfnormgroup_i(bnr,polrel);
+  group = rnfnormgroup_i(bnr,T);
   if (!group) { avma = av; return gen_0; }
   return gerepilecopy(av, bnrconductor_i(bnr,group,2));
 }

@@ -3277,29 +3277,30 @@ get_d(GEN nf, GEN pol, GEN A)
 }
 #endif
 
+static GEN
+get_d(GEN nf, GEN d)
+{
+  GEN b = idealredmodpower(nf, d, 2, 100000);
+  return nfmul(nf, d, nfsqr(nf,b));
+}
+
 /* nf = base field K
  * pol= monic polynomial, coefficients in Z_K, defining a relative
  *   extension L = K[X]/(pol). One MUST have varn(pol) << nf_get_varn(nf).
  * Returns a pseudo-basis [A,I] of Z_L, set (D,d) to the relative
  * discriminant, and f to the index-ideal */
 GEN
-rnfallbase(GEN nf, ulong lim, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
+rnfallbase(GEN nf, GEN pol, ulong lim, GEN *pD, GEN *pf)
 {
-  long i, n, l;
-  GEN nfT, fa, E, P, z, D, disc, pol = *ppol;
+  long i, l, n = degpol(pol);
+  GEN fa, E, P, z, D, disc;
 
-  nf = checknf(nf); nfT = nf_get_pol(nf);
-  pol = RgX_nffix("rnfallbase", nfT,pol,0);
-  if (!gequal1(leading_coeff(pol)))
-    pari_err_IMPL("non-monic relative polynomials");
-
-  n = degpol(pol);
+  nf = checknf(nf);
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   pol = lift_shallow(pol);
   fa = idealfactor_limit(nf, disc, lim);
-  P = gel(fa,1); l = lg(P);
+  P = gel(fa,1); l = lg(P); z = NULL;
   E = gel(fa,2);
-  z = NULL;
   for (i=1; i < l; i++)
   {
     long e = itos(gel(E,i));
@@ -3316,34 +3317,57 @@ rnfallbase(GEN nf, ulong lim, GEN *ppol, GEN *pD, GEN *pd, GEN *pf)
     if (pf) *pf = idealinv(nf, D);
     D = idealmul(nf, disc, idealsqr(nf,D));
   }
-  if (pd)
-  {
-    GEN b = idealredmodpower(nf, disc, 2, 100000);
-    *pd = nfmul(nf, disc, nfsqr(nf, b));
-  }
-  *pD = D;
-  *ppol = pol; return z;
+  *pD = mkvec2(D, get_d(nf, disc)); return z;
 }
 
 GEN
 rnfpseudobasis(GEN nf, GEN pol)
 {
   pari_sp av = avma;
-  GEN D, d, z;
+  GEN D, z;
   ulong lim;
-  pol = check_polrel(pol, &lim);
-  z = rnfallbase(nf, lim, &pol, &D, &d, NULL);
-  return gerepilecopy(av, mkvec4(gel(z,1), gel(z,2), D, d));
+  pol = check_polrel(nf, pol, &lim);
+  z = rnfallbase(nf, pol, lim, &D, NULL);
+  return gerepilecopy(av, shallowconcat(z,D));
 }
 
+GEN
+rnfdisc_factored(GEN nf, GEN pol, GEN *pd)
+{
+  long i, i2, l;
+  ulong lim;
+  GEN fa, E, P, E2, P2, disc;
+
+  nf = checknf(nf);
+  pol = check_polrel(nf, pol, &lim);
+  disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
+  pol = lift_shallow(pol);
+  fa = idealfactor_limit(nf, disc, lim);
+  P = gel(fa,1); l = lg(P);
+  E = gel(fa,2);
+  P2 = cgetg(l, t_COL);
+  E2 = cgetg(l, t_COL);
+  for (i = i2 = 1; i < l; i++)
+  {
+    long lD, j, e = itos(gel(E,i));
+    GEN pr = gel(P,i), vD = rnfmaxord(nf, pol, pr, e);
+    if (vD)
+    {
+      vD = gel(vD,2); lD = lg(vD);
+      for (j = 1; j < lD; j++) e += 2*idealval(nf, gel(vD,j), pr);
+    }
+    if (e) { gel(P2, i2) = pr; gel(E2, i2++) = stoi(e); }
+  }
+  if (pd) *pd = get_d(nf, disc);
+  setlg(P2, i2);
+  setlg(E2, i2); return mkmat2(P2, E2);
+}
 GEN
 rnfdiscf(GEN nf, GEN pol)
 {
   pari_sp av = avma;
-  GEN D, d;
-  ulong lim;
-  pol = check_polrel(pol, &lim);
-  (void)rnfallbase(nf, lim, &pol, &D, &d, NULL);
+  GEN d, fa = rnfdisc_factored(nf, pol, &d);
+  GEN D = idealfactorback(nf, gel(fa,1), gel(fa,2), 0);
   return gerepilecopy(av, mkvec2(D,d));
 }
 

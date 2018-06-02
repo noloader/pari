@@ -2095,6 +2095,7 @@ GEN     poldiscfactors(GEN T, long flag);
 GEN     rnfbasis(GEN bnf, GEN order);
 GEN     rnfdedekind(GEN nf, GEN T, GEN pr, long flag);
 GEN     rnfdet(GEN nf, GEN order);
+GEN     rnfdisc_factored(GEN nf, GEN pol, GEN *pd);
 GEN     rnfdiscf(GEN nf, GEN pol);
 GEN     rnfequation(GEN nf, GEN pol);
 GEN     rnfequation0(GEN nf, GEN pol, long flall);
