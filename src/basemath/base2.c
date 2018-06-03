@@ -3293,23 +3293,31 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN *pD, GEN *pf)
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   if (lim)
   {
-    GEN A, B, I, fi, rnfeq = nf_rnfeq_partial(nf, pol), D = idealhnf(nf, disc);
+    GEN A, B, rnfeq = nf_rnfeq_partial(nf, pol), D = idealhnf(nf, disc);
     long n = degpol(pol);
     P = ZV_union_shallow(nf_get_ramified_primes(nf),
                          gel(Z_factor_limit(gcoeff(D,1,1), lim), 1));
     B = nfbasis(gel(rnfeq,1), NULL, P); l = lg(B);
     A = cgetg(l,t_MAT);
-    I = cgetg(l,t_VEC);
     for (j = 1; j < l; j++)
     {
       GEN t = eltabstorel_lift(rnfeq, gel(B,j));
       gel(A,j) = Rg_to_RgC(t, n);
-      gel(I,j) = gen_1;
     }
-    z = nfhnf(nf, mkvec2(A,I));
-    fi = idealprod(nf,gel(z,2));
-    if (pf) *pf = idealinv(nf, fi);
-    D = idealmul(nf, D, idealsqr(nf, fi));
+    if (equali1(Q_denom(A)))
+    { /* order is maximal */
+      z = triv_order(degpol(pol));
+      if (pf) *pf = gen_1;
+    }
+    else
+    {
+      GEN fi;
+      A = mkvec2(A, const_vec(l-1,gen_1));
+      z = nfhnfmod(nf, A, nfdetint(nf,A));
+      fi = idealprod(nf,gel(z,2));
+      D = idealmul(nf, D, idealsqr(nf, fi));
+      if (pf) *pf = idealinv(nf, fi);
+    }
     if (RgM_isscalar(D,NULL)) D = gcoeff(D,1,1);
     *pD = mkvec2(D, get_d(nf, disc)); return z;
   }
