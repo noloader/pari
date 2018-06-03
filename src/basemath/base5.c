@@ -298,7 +298,8 @@ rnfinit0(GEN nf, GEN T, long flag)
   gel(rnf,6) = cgetg(1, t_VEC); /* dummy */
   gel(rnf,7) = bas;
   gel(rnf,8) = lift_if_rational( RgM_inv_upper(B) );
-  gel(rnf,9) = typ(f) == t_INT? gen_1: RgM_det_triangular(f);
+  gel(rnf,9) = typ(f) == t_INT? powiu(f, nf_get_degree(nf))
+                              : RgM_det_triangular(f);
   gel(rnf,10)= nf;
   gel(rnf,11)= rnfeq;
   rnf = gerepilecopy(av, rnf);

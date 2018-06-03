@@ -3262,6 +3262,22 @@ get_d(GEN nf, GEN d)
   return nfmul(nf, d, nfsqr(nf,b));
 }
 
+static GEN
+pr_factorback(GEN nf, GEN fa)
+{
+  GEN P = gel(fa,1), E = gel(fa,2), z = gen_1;
+  long i, l = lg(P);
+  for (i = 1; i < l; i++) z = idealmulpowprime(nf, z, gel(P,i), gel(E,i));
+  return z;
+}
+static GEN
+pr_factorback_scal(GEN nf, GEN fa)
+{
+  GEN D = pr_factorback(nf,fa);
+  if (typ(D) == t_MAT && RgM_isscalar(D,NULL)) D = gcoeff(D,1,1);
+  return D;
+}
+
 /* nf = base field K
  * pol= monic polynomial, coefficients in Z_K, defining a relative
  *   extension L = K[X]/(pol). One MUST have varn(pol) << nf_get_varn(nf).
@@ -3270,8 +3286,8 @@ get_d(GEN nf, GEN d)
 GEN
 rnfallbase(GEN nf, GEN pol, ulong lim, GEN *pD, GEN *pf)
 {
-  long i, l, n = degpol(pol);
-  GEN fa, E, P, z, D, disc;
+  long i, j, jf, l;
+  GEN fa, E, P, Ef, Pf, z, disc;
 
   nf = checknf(nf);
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
@@ -3279,23 +3295,34 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN *pD, GEN *pf)
   fa = idealfactor_limit(nf, disc, lim);
   P = gel(fa,1); l = lg(P); z = NULL;
   E = gel(fa,2);
-  for (i=1; i < l; i++)
+  Pf = cgetg(l, t_COL);
+  Ef = cgetg(l, t_COL);
+  for (i = j = jf = 1; i < l; i++)
   {
+    GEN pr = gel(P,i);
     long e = itos(gel(E,i));
-    if (e > 1) z = rnfjoinmodules(nf, z, rnfmaxord(nf, pol, gel(P,i), e));
+    if (e > 1)
+    {
+      GEN vD = rnfmaxord(nf, pol, pr, e);
+      if (vD)
+      {
+        long ef = idealprodval(nf, gel(vD,2), pr);
+        z = rnfjoinmodules(nf, z, vD);
+        if (ef) { gel(Pf, jf) = pr; gel(Ef, jf++) = stoi(-ef); }
+        e += 2 * ef;
+      }
+    }
+    if (e) { gel(P, j) = pr; gel(E, j++) = stoi(e); }
   }
-  if (z) D = idealprod(nf, gel(z,2)); else { z = triv_order(n); D = gen_1; }
-  if (isint1(D))
+  setlg(P,j);
+  setlg(E,j);
+  if (pf)
   {
-    if (pf) *pf = gen_1;
-    D = disc;
+    setlg(Pf, jf);
+    setlg(Ef, jf); *pf = pr_factorback_scal(nf, mkmat2(Pf,Ef));
   }
-  else
-  {
-    if (pf) *pf = idealinv(nf, D);
-    D = idealmul(nf, disc, idealsqr(nf,D));
-  }
-  *pD = mkvec2(D, get_d(nf, disc)); return z;
+  *pD = mkvec2(pr_factorback_scal(nf,fa), get_d(nf, disc));
+  return z? z: triv_order(degpol(pol));
 }
 
 GEN
@@ -3344,8 +3371,7 @@ rnfdiscf(GEN nf, GEN pol)
 {
   pari_sp av = avma;
   GEN d, fa = rnfdisc_factored(nf, pol, &d);
-  GEN D = idealfactorback(nf, gel(fa,1), gel(fa,2), 0);
-  return gerepilecopy(av, mkvec2(D,d));
+  return gerepilecopy(av, mkvec2(pr_factorback_scal(nf,fa), d));
 }
 
 GEN
