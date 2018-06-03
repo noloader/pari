@@ -2073,7 +2073,7 @@ testing simplify: quatalg csa over Q
   *** algsqr: incorrect type in alg_model (t_COL).
   ***   at top-level: alfail=alginit(nf,[0,0],'x)
   ***                        ^--------------------
-  *** alginit: domain error in idealfactor: ideal = 0
+  *** alginit: domain error in rnfequation: issquarefree(B) = 0
   ***   at top-level: algb(al)
   ***                 ^--------
   *** algb: incorrect type in alg_get_b [non-cyclic algebra] (t_VEC).
@@ -2425,4 +2425,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
   *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-Total time spent: 2030
+Total time spent: 1949

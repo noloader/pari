@@ -3279,12 +3279,11 @@ pr_factorback_scal(GEN nf, GEN fa)
 }
 
 /* nf = base field K
- * pol= monic polynomial, coefficients in Z_K, defining a relative
- *   extension L = K[X]/(pol). One MUST have varn(pol) << nf_get_varn(nf).
- * Returns a pseudo-basis [A,I] of Z_L, set (D,d) to the relative
- * discriminant, and f to the index-ideal */
+ * pol= monic polynomial in Z_K[X] defining a relative extension L = K[X]/(pol).
+ * Returns a pseudo-basis [A,I] of Z_L, set *pD to [D,d] and *pf to the
+ * index-ideal; rnfeq is used when lim != 0 and may be NULL */
 GEN
-rnfallbase(GEN nf, GEN pol, ulong lim, GEN *pD, GEN *pf)
+rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
 {
   long i, j, jf, l;
   GEN fa, E, P, Ef, Pf, z, disc;
@@ -3293,8 +3292,9 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN *pD, GEN *pf)
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   if (lim)
   {
-    GEN A, B, rnfeq = nf_rnfeq_partial(nf, pol), D = idealhnf(nf, disc);
+    GEN A, B, D = idealhnf(nf, disc);
     long n = degpol(pol);
+    if (!rnfeq) rnfeq = nf_rnfeq_partial(nf, pol);
     P = ZV_union_shallow(nf_get_ramified_primes(nf),
                          gel(Z_factor_limit(gcoeff(D,1,1), lim), 1));
     B = nfbasis(gel(rnfeq,1), NULL, P); l = lg(B);
@@ -3363,7 +3363,7 @@ rnfpseudobasis(GEN nf, GEN pol)
   ulong lim;
   nf = checknf(nf);
   pol = check_polrel(nf, pol, &lim);
-  z = rnfallbase(nf, pol, lim, &D, NULL);
+  z = rnfallbase(nf, pol, lim, NULL, &D, NULL);
   return gerepilecopy(av, shallowconcat(z,D));
 }
 

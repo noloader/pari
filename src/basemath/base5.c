@@ -279,15 +279,15 @@ GEN
 rnfinit0(GEN nf, GEN T, long flag)
 {
   pari_sp av = avma;
-  GEN rnf, bas, D, f, B, rnfeq, zknf,czknf;
+  GEN rnf, bas, D, f, B, T0, rnfeq, zknf,czknf;
   ulong lim;
   nf = checknf(nf);
-  T = check_polrel(nf, T, &lim);
-  bas = rnfallbase(nf, T, lim, &D, &f);
-  T = lift_shallow(T);
+  T0 = check_polrel(nf, T, &lim);
+  T = lift_shallow(T0);
+  rnfeq = nf_rnfeq(nf,T);
+  bas = rnfallbase(nf, T0, lim, rnfeq, &D, &f);
   B = matbasistoalg(nf,gel(bas,1));
   gel(bas,1) = lift_if_rational( RgM_to_RgXV(B,varn(T)) );
-  rnfeq = nf_rnfeq(nf,T);
   nf_nfzk(nf, rnfeq, &zknf, &czknf);
   rnf = obj_init(11, 2);
   gel(rnf,1) = T;
