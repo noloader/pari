@@ -1844,6 +1844,11 @@ this case \tet{rnfeltup} is more robust); \kbd{nf} is a true \var{nf}
 structure for $K$, returns $x \in K$ as a (lifted) element of $L$, in
 absolute form.
 
+\fun{GEN}{rnfdisc_factored}{GEN nf, GEN pol, GEN *pd} variant of \kbd{rnfdisc}
+returning the relative discriminant ideal \emph{factorization}, and setting
+\kbd{*pd} to the discriminant as an element in $K^*/(K^*)^2$. Shallow
+function.
+
 \fun{GEN}{Rg_nffix}{const char *f, GEN T, GEN c, int lift} given
 a \kbd{ZX} $T$ and a ``coefficient'' $c$ supposedly belonging to $\Q[y]/(T)$,
 check whether this is a the case and return a cleaned up version of $c$.

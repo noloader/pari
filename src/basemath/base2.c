@@ -3313,9 +3313,9 @@ rnfpseudobasis(GEN nf, GEN pol)
 GEN
 rnfdisc_factored(GEN nf, GEN pol, GEN *pd)
 {
-  long i, i2, l;
+  long i, j, l;
   ulong lim;
-  GEN fa, E, P, E2, P2, disc;
+  GEN fa, E, P, disc;
 
   nf = checknf(nf);
   pol = check_polrel(nf, pol, &lim);
@@ -3324,18 +3324,16 @@ rnfdisc_factored(GEN nf, GEN pol, GEN *pd)
   fa = idealfactor_limit(nf, disc, lim);
   P = gel(fa,1); l = lg(P);
   E = gel(fa,2);
-  P2 = cgetg(l, t_COL);
-  E2 = cgetg(l, t_COL);
-  for (i = i2 = 1; i < l; i++)
+  for (i = j = 1; i < l; i++)
   {
     long e = itos(gel(E,i));
     GEN pr = gel(P,i), vD = rnfmaxord(nf, pol, pr, e);
     if (vD) e += 2*idealprodval(nf, gel(vD,2), pr);
-    if (e) { gel(P2, i2) = pr; gel(E2, i2++) = stoi(e); }
+    if (e) { gel(P, j) = pr; gel(E, j++) = stoi(e); }
   }
   if (pd) *pd = get_d(nf, disc);
-  setlg(P2, i2);
-  setlg(E2, i2); return mkmat2(P2, E2);
+  setlg(P, j);
+  setlg(E, j); return fa;
 }
 GEN
 rnfdiscf(GEN nf, GEN pol)
