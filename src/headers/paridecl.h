@@ -2102,6 +2102,7 @@ GEN     rnfequation0(GEN nf, GEN pol, long flall);
 GEN     rnfequation2(GEN nf, GEN pol);
 GEN     nf_pV_to_prV(GEN nf, GEN P);
 GEN     nf_rnfeq(GEN nf, GEN relpol);
+GEN     nf_rnfeq_partial(GEN nf, GEN R);
 GEN     nf_rnfeqsimple(GEN nf, GEN relpol);
 GEN     rnfequationall(GEN A, GEN B, long *pk, GEN *pLPRS);
 GEN     rnfhnfbasis(GEN bnf, GEN order);
