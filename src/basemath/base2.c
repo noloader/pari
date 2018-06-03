@@ -3304,6 +3304,7 @@ rnfpseudobasis(GEN nf, GEN pol)
   pari_sp av = avma;
   GEN D, z;
   ulong lim;
+  nf = checknf(nf);
   pol = check_polrel(nf, pol, &lim);
   z = rnfallbase(nf, pol, lim, &D, NULL);
   return gerepilecopy(av, shallowconcat(z,D));
