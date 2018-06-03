@@ -3327,8 +3327,12 @@ rnfdisc_factored(GEN nf, GEN pol, GEN *pd)
   for (i = j = 1; i < l; i++)
   {
     long e = itos(gel(E,i));
-    GEN pr = gel(P,i), vD = rnfmaxord(nf, pol, pr, e);
-    if (vD) e += 2*idealprodval(nf, gel(vD,2), pr);
+    GEN pr = gel(P,i);
+    if (e > 1)
+    {
+      GEN vD = rnfmaxord(nf, pol, pr, e);
+      if (vD) e += 2*idealprodval(nf, gel(vD,2), pr);
+    }
     if (e) { gel(P, j) = pr; gel(E, j++) = stoi(e); }
   }
   if (pd) *pd = get_d(nf, disc);
