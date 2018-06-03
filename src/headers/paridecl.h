@@ -2279,6 +2279,7 @@ GEN     idealpow(GEN nf, GEN ix, GEN n);
 GEN     idealpow0(GEN nf, GEN ix, GEN n, long flag);
 GEN     idealpowred(GEN nf, GEN ix, GEN n);
 GEN     idealpows(GEN nf, GEN ideal, long iexp);
+long    idealprodval(GEN nf, GEN I, GEN pr);
 GEN     idealprodprime(GEN nf, GEN L);
 GEN     idealsqr(GEN nf, GEN x);
 long    idealtyp(GEN *ideal, GEN *arch);

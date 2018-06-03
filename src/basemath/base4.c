@@ -2587,6 +2587,16 @@ idealprod(GEN nf, GEN I)
   return z;
 }
 
+/* v_pr(idealprod(nf,I)) */
+long
+idealprodval(GEN nf, GEN I, GEN pr)
+{
+  long i, l = lg(I), v = 0;
+  for (i = 1; i < l; i++)
+    if (!equali1(gel(I,i))) v += idealval(nf, gel(I,i), pr);
+  return v;
+}
+
 /* assume L is a list of prime ideals. Return prod L[i]^e[i] */
 GEN
 factorbackprime(GEN nf, GEN L, GEN e)

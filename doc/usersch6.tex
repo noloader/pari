@@ -935,7 +935,10 @@ in \var{prid} form, return their product. Assume that \var{nf} is a true
 \var{nf} structure.
 
 \fun{GEN}{idealprod}{GEN nf, GEN v} given a list $v$ of ideals,
-return their product. Assume that \var{nf} is a true \var{nf} structure.
+return their product.
+
+\fun{GEN}{idealprodval}{GEN nf, GEN v, GEN pr} given a list $v$ of ideals
+return the valuation of their product at the prime ideal \kbd{pr}.
 
 \fun{GEN}{idealHNF_mul}{GEN nf, GEN x, GEN y} returns $xy$, assuming
 than \kbd{nf} is a true \var{nf}, $x$ is an integral ideal in HNF and $y$
