@@ -20,27 +20,6 @@ rnfconductor(Q,[T,10^3])
 rnfconductor(Q,galoissubcyclo(117,116))[1]
 K=bnfinit(quadpoly(1596,y),1); rnfbasis(K,rnfsteinitz(K,rnfpseudobasis(K,quadray(K,1))));
 
-nf = nfinit(y^2-3); P = x^3 - 2*y;
-pr3 = idealprimedec(nf,3)[1];
-pr2 = idealprimedec(nf,2)[1];
-
-rnfdedekind(nf, P, pr2)
-rnfdedekind(nf, P, pr3)
-rnfdedekind(nf, P, pr2, 1)
-rnfdedekind(nf, P, pr3, 1)
-rnfdedekind(nf, P)
-rnfdedekind(nf, P, [pr2,pr3])
-
-P = (y+1)*x^4 + x^2 + x + 2;
-rnfdedekind(nf, P, pr2, 1)
-rnfdedekind(nf, P, pr3, 1)
-rnfdedekind(nf, P)
-rnfdedekind(nf, P, [pr2,pr3])
-
-nf=nfinit(y^2+9); \\ 3 divides index
-P=idealprimedec(nf,3)[1];
-rnfdedekind(nf, (x+y/3)^3+3*y, P)
-
 K = nfinit(x^2-x+2); M = [1, 0, x; 0, x, 0; 0,0,2+x]; N = [1, 1, 1];
 nfsnf(K, [M, N, N])
 rnfisabelian(y,x)
@@ -178,15 +157,11 @@ rnfidealmul(L, x,y)
 rnfidealmul(L, y,x)
 rnfidealmul(L, id,x)
 rnfidealmul(L, x,id)
-rnfdet(L,[[;],[]])
 rnfdet(K,[[;],[]])
 rnfdet(K,id)
 rnfbasis(bnfinit(y^2-1105),x^2-y)
 \\#1508
 K=nfinit(y); L=rnfinit(K,x^3-2); rnfeltdown(L,Mod(Mod(1,K.pol),L.polabs))
-\\#1530
-L=rnfinit(nfinit(y^2-3),x^2+23);
-rnfidealtwoelt(L, [[1;0], [1/104]])
 
 k1=bnfinit(y^3+y^2-2*y-1);
 u=x^3+y*x^2+(y-2)*x+(y^2-y-1);
@@ -197,4 +172,32 @@ rnfislocalcyclo(rnfinit(K, x^3-2))
 rnfislocalcyclo(rnfinit(K, x))
 rnfislocalcyclo(rnfinit(K, x^3 - y))
 rnfislocalcyclo(rnfinit(K, x^3 - y + 3^6))
+
+nf=nfinit(y^2+9); \\ 3 divides index
+P=idealprimedec(nf,3)[1];
+rnfdedekind(nf, (x+y/3)^3+3*y, P)
+
+nf = nfinit(y^2-3); P = x^3 - 2*y;
+pr3 = idealprimedec(nf,3)[1];
+pr2 = idealprimedec(nf,2)[1];
+
+rnfdedekind(nf, P, pr2)
+rnfdedekind(nf, P, pr3)
+rnfdedekind(nf, P, pr2, 1)
+rnfdedekind(nf, P, pr3, 1)
+rnfdedekind(nf, P)
+rnfdedekind(nf, P, [pr2,pr3])
+
+P = (y+1)*x^4 + x^2 + x + 2;
+rnfdedekind(nf, P, pr3, 1)
+
+
+\\ Errors, keep at end of file
+rnfdedekind(nf, P, pr2, 1)
+rnfdedekind(nf, P)
+rnfdedekind(nf, P, [pr2,pr3])
+
 rnfislocalcyclo(rnfinit(K, x^6-y+1))
+\\#1530
+L=rnfinit(nfinit(y^2-3),x^2+23);
+rnfidealtwoelt(L, [[1;0], [1/104]])
