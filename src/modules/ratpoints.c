@@ -283,31 +283,28 @@ gen_squares(GEN listprime)
 }
 
 static GEN
-gen_offsets(GEN listprime)
+gen_offsets(GEN P)
 {
-  long n;
-  long nbprime = lg(listprime)-1;
-  GEN of = cgetg(nbprime+1, t_VEC);
-  for (n = 1; n <= nbprime; n++)
+  long n, l = lg(P);
+  GEN of = cgetg(l, t_VEC);
+  for (n = 1; n < l; n++)
   {
-    ulong p = uel(listprime,n);
+    ulong p = uel(P,n);
     uel(of, n) = Fl_inv((2*RBA_LENGTH)%p, p);
   }
   return of;
 }
 
 static GEN
-gen_inverses(GEN listprime)
+gen_inverses(GEN P)
 {
-  long n;
-  long nbprime = lg(listprime)-1;
-  GEN iv = cgetg(nbprime+1, t_VEC);
-  for (n = 1; n <= nbprime; n++)
+  long n, l = lg(P);
+  GEN iv = cgetg(l, t_VEC);
+  for (n = 1; n < l; n++)
   {
-    ulong i, p = uel(listprime,n);
+    ulong i, p = uel(P,n);
     GEN w = cgetg(p, t_VECSMALL);
-    for (i = 1; i < p; i++)
-      uel(w, i) = Fl_inv(i, p);
+    for (i = 1; i < p; i++) uel(w, i) = Fl_inv(i, p);
     gel(iv, n) = w;
   }
   return iv;
