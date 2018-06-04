@@ -1377,7 +1377,7 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
   nbtest = 1; nbtest_lim = 4;
   for(;;)
   {
-    GEN I, NI, id = x0;
+    GEN Ired, I, NI, id = x0;
     av = avma;
     if (DEBUGLEVEL>2) err_printf("# ideals tried = %ld\n",nbtest);
     for (i=1; i<lgsub; i++)
@@ -1400,10 +1400,11 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
         if (ex[i]) add_to_fact(Vbase_to_FB(F,gel(Vbase,i)), ex[i], fact);
       return gel(id,2);
     }
+    Ired = ru == 2? I: ZM_lll(I, 0.99, LLL_INPLACE);
     for (j=1; j<ru; j++)
     {
       pari_sp av2 = avma;
-      y = idealpseudomin_nonscalar(I, gel(vecG,j));
+      y = idealpseudomin_nonscalar(Ired, gel(vecG,j));
       if (factorgen(F, nf, I, NI, y, fact))
       {
         for (i=1; i<lgsub; i++)
