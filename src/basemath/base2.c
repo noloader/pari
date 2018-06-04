@@ -3292,7 +3292,7 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   if (lim)
   {
-    GEN A, B, D = idealhnf(nf, disc);
+    GEN dA, A, B, D = idealhnf(nf, disc);
     long n = degpol(pol);
     if (!rnfeq) rnfeq = nf_rnfeq_partial(nf, pol);
     P = ZV_union_shallow(nf_get_ramified_primes(nf),
@@ -3304,7 +3304,9 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
       GEN t = eltabstorel_lift(rnfeq, gel(B,j));
       gel(A,j) = Rg_to_RgC(t, n);
     }
-    if (equali1(Q_denom(A)))
+    A = RgM_to_nfM(nf, A);
+    A = Q_remove_denom(A, &dA);
+    if (!dA)
     { /* order is maximal */
       z = triv_order(degpol(pol));
       if (pf) *pf = gen_1;
@@ -3312,8 +3314,11 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
     else
     {
       GEN fi;
+      /* the first n columns of A are probably in HNF already */
+      A = shallowconcat(vecslice(A,n+1,lg(A)-1), vecslice(A,1,n));
       A = mkvec2(A, const_vec(l-1,gen_1));
       z = nfhnfmod(nf, A, nfdetint(nf,A));
+      gel(z,2) = gdiv(gel(z,2), dA);
       fi = idealprod(nf,gel(z,2));
       D = idealmul(nf, D, idealsqr(nf, fi));
       if (pf) *pf = idealinv(nf, fi);
