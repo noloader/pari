@@ -3549,11 +3549,15 @@ ZlM_gauss_ratlift(GEN a, GEN b, ulong p, long e, GEN C)
       k *= 2;
       B = sqrti(shifti(pi,-1));
       r = FpM_ratlift(xb, pi, B, B, NULL);
-      if (r && gequal(QM_mul(a, r), b))
+      if (r)
       {
-        if (DEBUGLEVEL>=4)
-          err_printf("ZlM_gauss: early solution: %ld/%ld\n",i,e);
-        return gerepilecopy(av, r);
+        GEN dr, nr = Q_remove_denom(r,&dr);
+        if (ZM_equal(ZM_mul(a,nr), dr? ZM_Z_mul(b,dr): b))
+        {
+          if (DEBUGLEVEL>=4)
+            err_printf("ZlM_gauss: early solution: %ld/%ld\n",i,e);
+          return gerepilecopy(av, r);
+        }
       }
     }
   }
