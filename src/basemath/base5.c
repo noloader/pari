@@ -1349,7 +1349,8 @@ zero_nfbezout(GEN nf,GEN bB, GEN b, GEN A,GEN B,GEN *u,GEN *v,GEN *w,GEN *di)
  * di=d^-1, w=A.B.di, u, v such that au+bv=1 and u in A.di, v in B.di.
  * Assume A, B non-zero, but a or b can be zero (not both) */
 static GEN
-nfbezout(GEN nf,GEN a,GEN b, GEN A,GEN B, GEN *pu,GEN *pv,GEN *pw,GEN *pdi)
+nfbezout(GEN nf,GEN a,GEN b, GEN A,GEN B, GEN *pu,GEN *pv,GEN *pw,GEN *pdi,
+         int red)
 {
   GEN w, u, v, d, di, aA, bB;
 
@@ -1371,7 +1372,7 @@ nfbezout(GEN nf,GEN a,GEN b, GEN A,GEN B, GEN *pu,GEN *pv,GEN *pw,GEN *pdi)
   aA = idealmul(nf,aA,di); /* integral */
   bB = idealmul(nf,bB,di); /* integral */
 
-  u = idealaddtoone_i(nf, aA, bB);
+  u = red? idealaddtoone_i(nf, aA, bB): idealaddtoone_raw(nf, aA, bB);
   w = idealmul(nf,aA,B);
   v = nfdiv(nf, nfsub(nf, gen_1, u), b);
   if (a != gen_1)
@@ -1441,7 +1442,7 @@ nfhnf0(GEN nf, GEN x, long flag)
       b = gel(T0,i); if (isintzero(b)) continue;
 
       S0 = gel(A,def); a = gel(S0,i);
-      d = nfbezout(nf, a,b, gel(I,def),gel(I,j), &u,&v,&w,&di);
+      d = nfbezout(nf, a,b, gel(I,def),gel(I,j), &u,&v,&w,&di,1);
       S = colcomb(nf, u,v, S0,T0);
       T = colcomb(nf, a,gneg(b), T0,S0);
       gel(A,def) = S; gel(A,j) = T;
@@ -1552,7 +1553,7 @@ nfsnf0(GEN nf, GEN x, long flag)
       b = gel(T0,i); if (gequal0(b)) continue;
 
       S0 = gel(A,i); a = gel(S0,i);
-      d = nfbezout(nf, a,b, gel(J,i),gel(J,j), &u,&v,&w,&dinv);
+      d = nfbezout(nf, a,b, gel(J,i),gel(J,j), &u,&v,&w,&dinv,1);
       S = colcomb(nf, u,v, S0,T0);
       T = colcomb(nf, a,gneg(b), T0,S0);
       gel(A,i) = S; gel(A,j) = T;
@@ -1571,7 +1572,7 @@ nfsnf0(GEN nf, GEN x, long flag)
       b = gcoeff(A,j,i); if (gequal0(b)) continue;
 
       a = gcoeff(A,i,i);
-      d = nfbezout(nf, a,b, gel(I,i),gel(I,j), &u,&v,&w,&dinv);
+      d = nfbezout(nf, a,b, gel(I,i),gel(I,j), &u,&v,&w,&dinv,1);
       ri = rowcomb(nf, u,v,       i,j, A, i);
       rj = rowcomb(nf, a,gneg(b), j,i, A, i);
       for (k=1; k<=i; k++) {
@@ -1805,7 +1806,7 @@ nfhnfmod(GEN nf, GEN x, GEN detmat)
       b = gel(T0,i); if (isintzero(b)) continue;
 
       S0 = gel(A,def); a = gel(S0,i);
-      d = nfbezout(nf, a,b, gel(I,def),gel(I,j), &u,&v,&w,&di);
+      d = nfbezout(nf, a,b, gel(I,def),gel(I,j), &u,&v,&w,&di,0);
       S = colcomb(nf, u,v, S0,T0);
       T = colcomb(nf, a,gneg(b), T0,S0);
       if (u != gen_0 && v != gen_0) /* already reduced otherwise */
@@ -1827,7 +1828,7 @@ nfhnfmod(GEN nf, GEN x, GEN detmat)
   for (i=li-1; i>=1; i--)
   {
     GEN b = gcoeff(A,i,i);
-    d = nfbezout(nf, gen_1,b, d0,gel(I,i), &u,&v,&w,&di);
+    d = nfbezout(nf, gen_1,b, d0,gel(I,i), &u,&v,&w,&di,0);
     p1 = nfC_nf_mul(nf,gel(A,i),v);
     if (i > 1)
     {
