@@ -1766,7 +1766,7 @@ nfcleanmod(GEN nf, GEN x, long lim, GEN D)
 }
 
 GEN
-nfhnfmod(GEN nf, GEN x, GEN detmat)
+nfhnfmod(GEN nf, GEN x, GEN D)
 {
   long li, co, i, j, def, ldef;
   pari_sp av0=avma, av;
@@ -1779,16 +1779,16 @@ nfhnfmod(GEN nf, GEN x, GEN detmat)
   co = lg(A); if (co==1) return cgetg(1,t_MAT);
 
   li = lgcols(A);
-  if (typ(detmat)!=t_MAT) detmat = idealhnf_shallow(nf, detmat);
-  detmat = Q_remove_denom(detmat, NULL);
-  RgM_check_ZM(detmat, "nfhnfmod");
+  if (typ(D)!=t_MAT) D = idealhnf_shallow(nf, D);
+  D = Q_remove_denom(D, NULL);
+  RgM_check_ZM(D, "nfhnfmod");
 
   av = avma;
   A = RgM_to_nfM(nf, A);
   A = Q_remove_denom(A, &dA);
   I = Q_remove_denom(leafcopy(I), &dI);
   dA = mul_denom(dA,dI);
-  if (dA) detmat = ZM_Z_mul(detmat, powiu(dA, minss(li,co)));
+  if (dA) D = ZM_Z_mul(D, powiu(dA, minss(li,co)));
 
   def = co; ldef = (li>co)? li-co+1: 1;
   for (i=li-1; i>=ldef; i--)
@@ -1810,18 +1810,18 @@ nfhnfmod(GEN nf, GEN x, GEN detmat)
       S = colcomb(nf, u,v, S0,T0);
       T = colcomb(nf, a,gneg(b), T0,S0);
       if (u != gen_0 && v != gen_0) /* already reduced otherwise */
-        nfcleanmod(nf, S, i, idealmul(nf,detmat,di));
-      nfcleanmod(nf, T, i, idealdiv(nf,detmat,w));
+        nfcleanmod(nf, S, i, idealmul(nf,D,di));
+      nfcleanmod(nf, T, i, idealdiv(nf,D,w));
       gel(A,def) = S; gel(A,j) = T;
       gel(I,def) = d; gel(I,j) = w;
     }
     if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"[1]: nfhnfmod, i = %ld", i);
-      gerepileall(av,dA? 4: 3, &A,&I,&detmat,&dA);
+      gerepileall(av,dA? 4: 3, &A,&I,&D,&dA);
     }
   }
-  def--; d0 = detmat;
+  def--; d0 = D;
   A += def; A[0] = evaltyp(t_MAT)|evallg(li);
   I += def; I[0] = evaltyp(t_VEC)|evallg(li);
   J = cgetg(li,t_VEC);
