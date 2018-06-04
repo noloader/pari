@@ -1339,12 +1339,20 @@ idealHNF_mulred(GEN nf, GEN x, GEN y)
   GEN F = famat_mul_shallow(gel(x,2), gel(y,2));
   return idealred(nf, mkvec2(A, F));
 }
+/* red(x * pr^n), n > 0 is small, x extended ideal. Reduction in order to
+ * avoid prec pb: don't let id become too large as lgsub increases */
+static GEN
+idealmulpowprimered(GEN nf, GEN x, GEN pr, ulong n)
+{
+  GEN A = idealmulpowprime(nf, gel(x,1), pr, utoipos(n));
+  return idealred(nf, mkvec2(A, gel(x,2)));
+}
 
 /* return famat y (principal ideal) such that y / x is smooth [wrt Vbase] */
 static GEN
 SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
 {
-  GEN vecG, z, ex, y, x0, Nx = ZM_det_triangular(x);
+  GEN vecG, ex, y, x0, Nx = ZM_det_triangular(x);
   long nbtest_lim, nbtest, i, j, ru, lgsub;
   pari_sp av;
 
@@ -1372,7 +1380,6 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
   /* tough case, multiply by random products */
   lgsub = 3;
   ex = cgetg(lgsub, t_VECSMALL);
-  z  = init_famat(NULL);
   x0 = init_famat(x);
   nbtest = 1; nbtest_lim = 4;
   for(;;)
@@ -1383,11 +1390,7 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
     for (i=1; i<lgsub; i++)
     {
       ex[i] = random_bits(RANDOM_BITS);
-      if (ex[i])
-      { /* avoid prec pb: don't let id become too large as lgsub increases */
-        gel(z,1) = gel(Vbase,i);
-        id = idealHNF_mulred(nf, id, idealpowred(nf,z,utoipos(ex[i])));
-      }
+      if (ex[i]) id = idealmulpowprimered(nf, id, gel(Vbase,i), ex[i]);
     }
     if (id == x0) continue;
     /* I^(-1) * \prod Vbase[i]^ex[i] = (id[2]) / x */
