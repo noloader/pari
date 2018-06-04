@@ -1740,14 +1740,15 @@ GEN
 rnfconductor(GEN bnf, GEN T)
 {
   pari_sp av = avma;
-  GEN nf, module, bnr, H, dT;
+  GEN D, nf, module, bnr, H, dT;
   ulong lim;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   T = check_polrel(nf, T, &lim);
   dT = Q_denom( RgX_to_nfX(nf, T) );
   if (!is_pm1(dT)) T = RgX_rescale(T, dT);
-  module = mkvec2(rnfdisc_factored(nf, T, NULL), identity_perm(nf_get_r1(nf)));
+  D = rnfdisc_factored(nf, lim? mkvec2(T, utoi(lim)): T, NULL);
+  module = mkvec2(D, identity_perm(nf_get_r1(nf)));
   bnr = Buchray_i(bnf,module,nf_INIT | nf_GEN);
   H = rnfnormgroup_i(bnr,T); if (!H) { avma = av; return gen_0; }
   return gerepilecopy(av, bnrconductor_i(bnr,H,2));
