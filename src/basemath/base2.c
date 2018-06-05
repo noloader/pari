@@ -3283,7 +3283,7 @@ pr_factorback_scal(GEN nf, GEN fa)
  * Returns a pseudo-basis [A,I] of Z_L, set *pD to [D,d] and *pf to the
  * index-ideal; rnfeq is used when lim != 0 and may be NULL */
 GEN
-rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
+rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
 {
   long i, j, jf, l;
   GEN fa, E, P, Ef, Pf, z, disc;
@@ -3292,21 +3292,29 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   if (lim)
   {
-    GEN zknf,dzknf, U, vU, dA, A, MB, dB, BdB, vj, B, Tabs;
+    GEN rnfeq, zknf, dzknf, U, vU, dA, A, MB, dB, BdB, vj, B, Tabs;
     GEN D = idealhnf(nf, disc);
     long rU, m = nf_get_degree(nf), n = degpol(pol), N = n*m;
 
     P = ZV_union_shallow(nf_get_ramified_primes(nf),
                          gel(Z_factor_limit(gcoeff(D,1,1), lim), 1));
-
-    if (!rnfeq) rnfeq = nf_rnfeq(nf, pol);
-    zknf = nf_nfzk(nf, rnfeq);
+    if (rnf)
+    {
+      rnfeq = rnf_get_map(rnf);
+      zknf = rnf_get_nfzk(rnf);
+    }
+    else
+    {
+      rnfeq = nf_rnfeq(nf, pol);
+      zknf = nf_nfzk(nf, rnfeq);
+    }
     dzknf = gel(zknf,1);
     if (gequal1(dzknf)) dzknf = NULL;
     Tabs = gel(rnfeq,1);
-    B = nfbasis(Tabs, NULL, P); l = lg(B);
+    B = nfbasis(Tabs, NULL, P);
     BdB = Q_remove_denom(B, &dB);
-    MB = RgXV_to_RgM(BdB, l-1); /* HNF */
+    MB = RgXV_to_RgM(BdB, N); /* HNF */
+
     vU = cgetg(N+1, t_VEC);
     vj = cgetg(N+1, t_VECSMALL);
     gel(vU,1) = U = cgetg(m+1, t_MAT);

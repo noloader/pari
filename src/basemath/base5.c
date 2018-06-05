@@ -276,18 +276,17 @@ GEN
 rnfinit0(GEN nf, GEN T, long flag)
 {
   pari_sp av = avma;
-  GEN rnf, bas, D, f, B, T0, rnfeq;
+  GEN bas, D, f, B, T0, rnfeq, rnf = obj_init(11, 2);
   ulong lim;
   nf = checknf(nf);
   T0 = check_polrel(nf, T, &lim);
   T = lift_shallow(T0);
-  rnfeq = nf_rnfeq(nf,T);
-  bas = rnfallbase(nf, T0, lim, rnfeq, &D, &f);
+  gel(rnf,11) = rnfeq = nf_rnfeq(nf,T);
+  gel(rnf,2) = nf_nfzk(nf, rnfeq);
+  bas = rnfallbase(nf, T0, lim, rnf, &D, &f);
   B = matbasistoalg(nf,gel(bas,1));
   gel(bas,1) = lift_if_rational( RgM_to_RgXV(B,varn(T)) );
-  rnf = obj_init(11, 2);
   gel(rnf,1) = T;
-  gel(rnf,2) = nf_nfzk(nf, rnfeq);
   gel(rnf,3) = D;
   gel(rnf,4) = f;
   gel(rnf,5) = cgetg(1, t_VEC); /* dummy */
@@ -297,7 +296,6 @@ rnfinit0(GEN nf, GEN T, long flag)
   gel(rnf,9) = typ(f) == t_INT? powiu(f, nf_get_degree(nf))
                               : RgM_det_triangular(f);
   gel(rnf,10)= nf;
-  gel(rnf,11)= rnfeq;
   rnf = gerepilecopy(av, rnf);
   if (flag) rnfcomplete(rnf);
   return rnf;
