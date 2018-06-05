@@ -3292,7 +3292,7 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   if (lim)
   {
-    GEN zknf,czknf, U, vU, dA, A, MB, dB, BdB, vj, B, Tabs;
+    GEN zknf,dzknf, U, vU, dA, A, MB, dB, BdB, vj, B, Tabs;
     GEN D = idealhnf(nf, disc);
     long rU, m = nf_get_degree(nf), n = degpol(pol), N = n*m;
 
@@ -3300,8 +3300,9 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
                          gel(Z_factor_limit(gcoeff(D,1,1), lim), 1));
 
     if (!rnfeq) rnfeq = nf_rnfeq(nf, pol);
-    nf_nfzk(nf, rnfeq, &zknf, &czknf);
-    if (gequal1(czknf)) czknf = NULL;
+    zknf = nf_nfzk(nf, rnfeq);
+    dzknf = gel(zknf,1);
+    if (gequal1(dzknf)) dzknf = NULL;
     Tabs = gel(rnfeq,1);
     B = nfbasis(Tabs, NULL, P); l = lg(B);
     BdB = Q_remove_denom(B, &dB);
@@ -3310,7 +3311,7 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
     vj = cgetg(N+1, t_VECSMALL);
     gel(vU,1) = U = cgetg(m+1, t_MAT);
     gel(U,1) = col_ei(N, 1);
-    A = dB? (czknf? gmul(dB,czknf): dB): NULL;
+    A = dB? (dzknf? gdiv(dB,dzknf): dB): NULL;
     if (A && gequal1(A)) A = NULL;
     for (j = 2; j <= m; j++)
     {
@@ -3326,7 +3327,7 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
       for (j = 2; j <= m; j++)
       {
         GEN t = ZX_rem(ZX_mul(b, gel(zknf,j)), Tabs);
-        if (czknf) t = gmul(t, czknf);
+        if (dzknf) t = gdiv(t, dzknf);
         gel(U,j) = hnf_solve(MB, RgX_to_RgC(t, N));
       }
     }

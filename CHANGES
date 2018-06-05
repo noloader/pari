@@ -33,6 +33,10 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
       5- factor(t_RFRAC): sort factors by increasing degree
       6- [libpari] rename constant LOG2 -> M_LN2 (from math.h if available)
       7- ellweilcurve: allow input in ellisomat form
+      8- [libpari] rnf_get_nfzk / nf_nfzk / nfeltup interface (czknf was
+         useless, return and use nfzk)
+      9- the rnf struct from rnfinit has changed, the new format is not
+         compatible with pari-2.9
 
   Added
       1- [libpari] denom_i, numer_i, conj_i

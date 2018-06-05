@@ -2813,8 +2813,8 @@ INLINE GEN
 rnf_get_alpha(GEN rnf) { return gmael(rnf, 11, 2); }
 INLINE GEN
 rnf_get_nf(GEN rnf) { return gel(rnf,10); }
-INLINE void
-rnf_get_nfzk(GEN rnf, GEN *b, GEN *cb) {*b=gmael(rnf,2,1); *cb=gmael(rnf,2,2);}
+INLINE GEN
+rnf_get_nfzk(GEN rnf) { return gel(rnf,2); }
 INLINE GEN
 rnf_get_polabs(GEN rnf) { return gmael(rnf,11,1); }
 INLINE GEN

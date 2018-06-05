@@ -689,10 +689,9 @@ static GEN
 nfX_eltup(GEN nf, GEN rnfeq, GEN x)
 {
   long i, l;
-  GEN zknf, czknf, y = cgetg_copy(x, &l);
-  y[1] = x[1]; nf_nfzk(nf, rnfeq, &zknf, &czknf);
-  for (i=2; i<l; i++) gel(y,i) = nfeltup(nf, gel(x,i), zknf, czknf);
-  return y;
+  GEN y = cgetg_copy(x, &l), zknf = nf_nfzk(nf, rnfeq);
+  for (i=2; i<l; i++) gel(y,i) = nfeltup(nf, gel(x,i), zknf);
+  y[1] = x[1]; return y;
 }
 
 static hashtable *
