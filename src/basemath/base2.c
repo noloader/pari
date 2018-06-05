@@ -3292,12 +3292,68 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   if (lim)
   {
-    GEN dA, A, B, D = idealhnf(nf, disc);
-    long n = degpol(pol);
-    if (!rnfeq) rnfeq = nf_rnfeq_partial(nf, pol);
+    GEN zknf,czknf, U, vU, dA, A, MB, dB, BdB, vj, B, Tabs;
+    GEN D = idealhnf(nf, disc);
+    long rU, m = nf_get_degree(nf), n = degpol(pol), N = n*m;
+
     P = ZV_union_shallow(nf_get_ramified_primes(nf),
                          gel(Z_factor_limit(gcoeff(D,1,1), lim), 1));
-    B = nfbasis(gel(rnfeq,1), NULL, P); l = lg(B);
+
+    if (!rnfeq) rnfeq = nf_rnfeq(nf, pol);
+    nf_nfzk(nf, rnfeq, &zknf, &czknf);
+    if (gequal1(czknf)) czknf = NULL;
+    Tabs = gel(rnfeq,1);
+    B = nfbasis(Tabs, NULL, P); l = lg(B);
+    BdB = Q_remove_denom(B, &dB);
+    MB = RgXV_to_RgM(BdB, l-1); /* HNF */
+    vU = cgetg(N+1, t_VEC);
+    vj = cgetg(N+1, t_VECSMALL);
+    gel(vU,1) = U = cgetg(m+1, t_MAT);
+    gel(U,1) = col_ei(N, 1);
+    A = dB? (czknf? gmul(dB,czknf): dB): NULL;
+    if (A && gequal1(A)) A = NULL;
+    for (j = 2; j <= m; j++)
+    {
+      GEN t = gel(zknf,j);
+      if (A) t = ZX_Z_mul(t, A);
+      gel(U,j) = hnf_solve(MB, RgX_to_RgC(t, N));
+    }
+    for (i = 2; i <= N; i++)
+    {
+      GEN b = gel(BdB,i);
+      gel(vU,i) = U = cgetg(m+1, t_MAT);
+      gel(U,1) = hnf_solve(MB, RgX_to_RgC(b, N));
+      for (j = 2; j <= m; j++)
+      {
+        GEN t = ZX_rem(ZX_mul(b, gel(zknf,j)), Tabs);
+        if (czknf) t = gmul(t, czknf);
+        gel(U,j) = hnf_solve(MB, RgX_to_RgC(t, N));
+      }
+    }
+    vj[1] = 1; U = gel(vU,1); rU = m;
+    for (i = j = 2; i <= N; i++)
+    {
+      GEN V = shallowconcat(U, gel(vU,i));
+      if (ZM_rank(V) != rU)
+      {
+        U = V; rU += m; vj[j++] = i;
+        if (rU == N) break;
+      }
+    }
+    for(;;)
+    {
+      GEN c = gen_1, H = ZM_hnfmodid(U, dB);
+      long ic = 0;
+      for (i = 1; i <= N; i++)
+        if (cmpii(gcoeff(H,i,i), c) > 0) { c = gcoeff(H,i,i); ic = i; }
+      if (!ic) break;
+      vj[j++] = ic;
+      U = shallowconcat(H, gel(vU, ic));
+    }
+    setlg(vj, j);
+    B = vecpermute(B, vj);
+
+    l = lg(B);
     A = cgetg(l,t_MAT);
     for (j = 1; j < l; j++)
     {
@@ -3308,7 +3364,7 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pf)
     A = Q_remove_denom(A, &dA);
     if (!dA)
     { /* order is maximal */
-      z = triv_order(degpol(pol));
+      z = triv_order(n);
       if (pf) *pf = gen_1;
     }
     else
