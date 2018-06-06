@@ -3281,7 +3281,7 @@ pr_factorback_scal(GEN nf, GEN fa)
 /* nf = base field K
  * pol= monic polynomial in Z_K[X] defining a relative extension L = K[X]/(pol).
  * Returns a pseudo-basis [A,I] of Z_L, set *pD to [D,d] and *pf to the
- * index-ideal; rnfeq is used when lim != 0 and may be NULL */
+ * index-ideal; rnf is used when lim != 0 and may be NULL */
 GEN
 rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
 {
@@ -3382,6 +3382,7 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
       /* the first n columns of A are probably in HNF already */
       A = shallowconcat(vecslice(A,n+1,lg(A)-1), vecslice(A,1,n));
       A = mkvec2(A, const_vec(l-1,gen_1));
+      if (DEBUGLEVEL > 2) err_printf("rnfallbase: nfhnf in dim %ld\n", l-1);
       z = nfhnfmod(nf, A, nfdetint(nf,A));
       gel(z,2) = gdiv(gel(z,2), dA);
       fi = idealprod(nf,gel(z,2));
