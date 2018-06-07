@@ -2392,8 +2392,10 @@ static GEN
 znchargauss_i(GEN G, GEN chi, long bitprec)
 {
   GEN z, q, F = znstar_get_N(G);
-  long prec = nbits2prec(bitprec);
+  long prec;
 
+  if (is_pm1(F)) return gen_1;
+  prec = nbits2prec(bitprec);
   q = sqrtr_abs(itor(F, prec));
   z = lfuntheta(mkvec2(G,chi), gen_1, 0, bitprec);
   if (gexpo(z) < 10 - bitprec)
