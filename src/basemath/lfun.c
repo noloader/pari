@@ -2423,8 +2423,8 @@ znchargauss_i(GEN G, GEN chi, long bitprec)
 GEN
 znchargauss(GEN G, GEN chi, GEN a, long bitprec)
 {
-  GEN T, N, F, GF, tau;
-  long prec = nbits2prec(bitprec);
+  GEN T, N, F, NF, GF, tau, ord, D, z, S;
+  long i, l, prec = nbits2prec(bitprec);
   pari_sp av = avma;
 
   if (typ(chi) != t_COL) chi = znconreylog(G,chi);
@@ -2435,30 +2435,29 @@ znchargauss(GEN G, GEN chi, GEN a, long bitprec)
   chi = gel(T,2); /* now primitive */
   N = znstar_get_N(G);
   F = znstar_get_N(GF);
+  if (!is_pm1(gcdii(a,F))) { avma = av; return gen_0; }
+  NF = diviiexact(N,F);
+  if (!is_pm1(gcdii(NF,F))) { avma = av; return gen_0; }
   tau = znchargauss_i(GF, chi, bitprec);
-  if (!equalii(N,F))
+  D = divisors(gcdii(NF, a));
+  ord = zncharorder(GF, chi);
+  z = mkvec2(rootsof1_cx(ord, prec), ord);
+  l = lg(D);
+  for (i = 1, S = gen_0; i < l; i++)
   {
-    GEN NF = diviiexact(N,F), D = divisors(gcdii(NF, a));
-    GEN ord = zncharorder(GF, chi);
-    GEN z = mkvec2(rootsof1_cx(ord, prec), ord), S = gen_0;
-    long i, l = lg(D);
-    for (i = 1; i < l; i++)
-    {
-      GEN d = gel(D,i), ad, t, u, v;
-      long m;
-      t = diviiexact(NF, d);
-      if (!is_pm1(gcdii(t, F))) continue;
-      m = moebius(t);
-      if (!m) continue;
-      ad = diviiexact(a,d);
-      if (!is_pm1(gcdii(ad, F))) continue;
+    GEN d = gel(D,i), ad, t, u, v;
+    long m;
+    t = diviiexact(NF, d);
+    if (!is_pm1(gcdii(t, F))) continue;
+    m = moebius(t);
+    if (!m) continue;
+    ad = diviiexact(a,d);
+    if (!is_pm1(gcdii(ad, F))) continue;
 
-      u = znchareval(GF, chi, ad, z);
-      v = znchareval(GF, chi, t, z);
-      t = gmul(d, gmul(u, conj_i(v)));
-      S = (m < 0)? gsub(S, t): gadd(S, t);
-    }
-    tau = gmul(tau, S);
+    u = znchareval(GF, chi, ad, z);
+    v = znchareval(GF, chi, t, z);
+    t = gmul(d, gmul(conj_i(u), v));
+    S = (m < 0)? gsub(S, t): gadd(S, t);
   }
-  return gerepilecopy(av, tau);
+  return gerepileupto(av, gmul(tau, S));
 }

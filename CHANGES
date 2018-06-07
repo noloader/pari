@@ -14,6 +14,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      10- make galoissubcyclo compatible with znstar(,1)
      11- idealfactor(nfinit(polcyclo(5)),2^4*[0,1,0,0]~,100) => SEGV
      12- idealredmodpower(nf,x,...) incorrect when x a t_INT or t_FRAC
+     13- znchargauss(,,a != 1): wrong value (missing \bar{chi}(a))
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
