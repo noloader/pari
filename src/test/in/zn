@@ -229,7 +229,7 @@ znchargauss(G,7)
 znchargauss(G,71)
 znchargauss(G,131)
 G=znstar(600,1);
-znchargauss(G,7)
+vector(30,a,znchargauss(G,7,a))
 znchargauss(G,491)
 znchargauss(G,11)
 G=znstar(12,1);

@@ -2457,15 +2457,15 @@ znchargauss(GEN G, GEN chi, GEN a, long bitprec)
   tau = gmul(mulii(aF,b2), znchargauss_i(GF, chi, bitprec));
   D = divisors(gcdii(A,b0));
   ord = zncharorder(GF, chi);
-  z = mkvec2(rootsof1_cx(ord, prec), ord);
+  z = rootsof1_cx(ord, prec);
   l = lg(D);
   for (i = 1, S = gen_0; i < l; i++)
   {
-    GEN d = gel(D,i), t = diviiexact(b0, d), ad = diviiexact(a,d);
-    GEN u = znchareval(GF, chi, ad, z);
-    GEN v = znchareval(GF, chi, t, z);
-    long m = moebius(t); /* m,u,v are non-zero */
-    t = gmul(d, gmul(conj_i(u), v));
+    GEN d = gel(D,i), t = diviiexact(b0, d);
+    GEN u = znchareval(GF, chi, diviiexact(A,d), ord); /* (A/d,F) = 1 */
+    GEN v = znchareval(GF, chi, t, ord); /* (t,F) = 1 */
+    long m = moebius(t); /* != 0 */
+    t = gmul(d, gpow(z, Fp_sub(v,u,ord), prec));
     S = (m < 0)? gsub(S, t): gadd(S, t);
   }
   return gerepileupto(av, gmul(tau, S));
