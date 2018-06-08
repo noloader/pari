@@ -1,6 +1,5 @@
 znprimroot(2)
 znprimroot(4)
-znprimroot(8)
 p=9223372036854775837;
 znprimroot(p)
 znprimroot(p^2)
@@ -8,7 +7,6 @@ znprimroot(2*p^2)
 znprimroot([2,1;p,2])
 znprimroot([2*p^2,[2,1;p,2]])
 znstar(0)
-znstar(0,1)
 znstar(1)
 znstar(10)
 znstar(14)
@@ -77,7 +75,6 @@ bnrchar(bnr, H, [0,1/2,1/2])
 bnrchar(bnr, H, [0,0,1/2])
 
 G8=znstar(8,1);
-znconreychar(G8,2) \\error
 znconreychar(G8,1)
 znconreychar(G8,3)
 znconreychar(G8,5)
@@ -86,8 +83,6 @@ vector(4, i, zncharisodd(G8,2*i-1))
 forstep(i=1,8,2,if(znconreyexp(G8, znconreylog(G8, i)) != i, error(i)));
 z = [[1,-1],2];
 vector(4, i, chareval(G8, [1,0], 1+2*i, z))
-
-znconreyexp(znstar(192,1), [2,8,1,1]~) \\ BIG
 
 G=znstar(5,1);
 vector(4,i,znconreychar(G,i))
@@ -235,3 +230,9 @@ znchargauss(G,11)
 G=znstar(12,1);
 znchargauss(G,[0,1]~,3)
 znchargauss(G,[1,0]~,3)
+
+\\ Errors, keep at end of file
+znprimroot(8)
+znstar(0,1)
+znconreychar(G8,2)
+znconreyexp(znstar(192,1), [2,8,1,1]~)
