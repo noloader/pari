@@ -2423,39 +2423,48 @@ znchargauss_i(GEN G, GEN chi, long bitprec)
 GEN
 znchargauss(GEN G, GEN chi, GEN a, long bitprec)
 {
-  GEN T, N, F, NF, GF, tau, ord, D, z, S;
+  GEN v, T, N, F, b0, b1, b2, bF, a1, aF, A, r, GF, tau, ord, D, z, S;
   long i, l, prec = nbits2prec(bitprec);
   pari_sp av = avma;
 
   if (typ(chi) != t_COL) chi = znconreylog(G,chi);
-  if (!a) a = gen_1;
-  else if (typ(a) != t_INT) pari_err_TYPE("znchargauss",a);
   T = znchartoprimitive(G, chi);
-  GF = gel(T,1);
+  GF  = gel(T,1);
   chi = gel(T,2); /* now primitive */
   N = znstar_get_N(G);
   F = znstar_get_N(GF);
-  if (!is_pm1(gcdii(a,F))) { avma = av; return gen_0; }
-  NF = diviiexact(N,F);
-  if (!is_pm1(gcdii(NF,F))) { avma = av; return gen_0; }
-  tau = znchargauss_i(GF, chi, bitprec);
-  D = divisors(gcdii(NF, a));
+  if (equalii(N,F)) b1 = bF = gen_1;
+  else
+  {
+    v = Z_ppio(diviiexact(N,F), F);
+    bF = gel(v,2); /* (N/F, F^oo) */
+    b1 = gel(v,3); /* cofactor */
+  }
+  if (!a) a = a1 = aF = gen_1;
+  else
+  {
+    if (typ(a) != t_INT) pari_err_TYPE("znchargauss",a);
+    a = modii(a, N);
+    v = Z_ppio(a, F);
+    aF = gel(v,2);
+    a1 = gel(v,3);
+  }
+  if (!equalii(aF, bF)) { avma = av; return gen_0; }
+  b0 = ZV_prod(gel(Z_factor(b1), 1));
+  b2 = diviiexact(b1, b0);
+  A = dvmdii(a1, b2, &r);
+  if (r != gen_0) { avma = av; return gen_0; }
+  tau = gmul(mulii(aF,b2), znchargauss_i(GF, chi, bitprec));
+  D = divisors(gcdii(A,b0));
   ord = zncharorder(GF, chi);
   z = mkvec2(rootsof1_cx(ord, prec), ord);
   l = lg(D);
   for (i = 1, S = gen_0; i < l; i++)
   {
-    GEN d = gel(D,i), ad, t, u, v;
-    long m;
-    t = diviiexact(NF, d);
-    if (!is_pm1(gcdii(t, F))) continue;
-    m = moebius(t);
-    if (!m) continue;
-    ad = diviiexact(a,d);
-    if (!is_pm1(gcdii(ad, F))) continue;
-
-    u = znchareval(GF, chi, ad, z);
-    v = znchareval(GF, chi, t, z);
+    GEN d = gel(D,i), t = diviiexact(b0, d), ad = diviiexact(a,d);
+    GEN u = znchareval(GF, chi, ad, z);
+    GEN v = znchareval(GF, chi, t, z);
+    long m = moebius(t); /* m,u,v are non-zero */
     t = gmul(d, gmul(conj_i(u), v));
     S = (m < 0)? gsub(S, t): gadd(S, t);
   }
