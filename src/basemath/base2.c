@@ -1694,19 +1694,24 @@ ZpX_monic_factor_squarefree(GEN f, GEN p, long prec)
   /* no repeated factors: Hensel lift */
   if (expo_is_squarefree(e)) return ZpX_liftfact(f, w, powiu(p,prec), p, prec);
   l = lg(w);
-  if (l == 2) L = ZpX_round4(f,p,w,prec);
+  if (l == 2)
+  {
+    L = ZpX_round4(f,p,w,prec);
+    if (lg(L) == 2) { avma = av; return mkvec(f); }
+  }
   else
   { /* >= 2 factors mod p: partial Hensel lift */
+    GEN D = ZpX_reduced_resultant_fast(f, ZX_deriv(f), p, ZpX_disc_val(f,p));
+    long r = maxss(2*Z_pval(D,p)+1, prec);
     GEN W = cgetg(l, t_VEC);
     for (i = 1; i < l; i++)
       gel(W,i) = e[i] == 1? gel(w,i): FpX_powu(gel(w,i), e[i], p);
-    L = ZpX_liftfact(f, W, powiu(p,prec), p, prec);
+    L = ZpX_liftfact(f, W, powiu(p,r), p, r);
     for (i = 1; i < l; i++)
       gel(L,i) = e[i] == 1? mkvec(gel(L,i))
                           : ZpX_round4(gel(L,i), p, mkvec(gel(w,i)), prec);
     L = shallowconcat1(L);
   }
-  if (lg(L) == 2) { avma = av; return mkvec(f); }
   return gerepilecopy(av, L);
 }
 
