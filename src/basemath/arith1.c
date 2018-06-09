@@ -4869,31 +4869,6 @@ bestappr_frac(GEN x, GEN k)
   }
   return gerepileupto(av, gdiv(p1,q1));
 }
-/* bestappr(t_REAL != 0), to maximal accuracy */
-static GEN
-bestappr_real_max(GEN x)
-{
-  pari_sp av = avma;
-  GEN p0, p1, p, q0, q1, q, a;
-  long e;
-  p1 = gen_1; a = p0 = floorr(x); q1 = gen_0; q0 = gen_1;
-  x = subri(x,a); /* 0 <= x < 1 */
-  e = bit_prec(x) - expo(x);
-  for(;;)
-  {
-    long d;
-    if (!signe(x) || expi(q0) > e) { p1 = p0; q1 = q0; break; }
-    x = invr(x); /* > 1 */
-    d = nbits2prec(expo(x) + 1);
-    if (d > lg(x)) { p1 = p0; q1 = q0; break; } /* original x was ~ 0 */
-
-    a = truncr(x); /* truncr(x) will NOT raise e_PREC */
-    p = addii(mulii(a,p0), p1); p1=p0; p0=p;
-    q = addii(mulii(a,q0), q1); q1=q0; q0=q;
-    x = subri(x,a); /* 0 <= x < 1 */
-  }
-  return gerepileupto(av, gdiv(p1,q1));
-}
 /* k > 0 t_INT, x != 0 a t_REAL, returns the convergent a/b
  * of the continued fraction of x with b <= k maximal */
 static GEN
@@ -4950,7 +4925,7 @@ bestappr_Q(GEN x, GEN k)
     case t_REAL:
       if (!signe(x)) return gen_0;
       if (bit_prec(x) < expo(x)) return NULL;
-      return k? bestappr_real(x, k): bestappr_real_max(x);
+      return bestappr_real(x, k? k: int2n(bit_prec(x)));
 
     case t_INTMOD: {
       pari_sp av = avma;
