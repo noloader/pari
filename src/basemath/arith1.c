@@ -4908,7 +4908,8 @@ bestappr_real(GEN x, GEN k)
     x = subri(x,a); /* 0 <= x < 1 */
     if (!signe(x)) { p1 = p0; q1 = q0; break; }
   }
-  return gerepileupto(av, gdiv(p1,q1));
+  if (signe(q1) < 0) { togglesign_safe(&p1); togglesign_safe(&q1); }
+  return gerepilecopy(av, equali1(q1)? p1: mkfrac(p1,q1));
 }
 
 /* k t_INT or NULL */
