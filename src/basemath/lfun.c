@@ -2394,7 +2394,7 @@ znchargauss_i(GEN G, GEN chi, long bitprec)
   GEN z, q, F = znstar_get_N(G);
   long prec;
 
-  if (is_pm1(F)) return gen_1;
+  if (equali1(F)) return gen_1;
   prec = nbits2prec(bitprec);
   q = sqrtr_abs(itor(F, prec));
   z = lfuntheta(mkvec2(G,chi), gen_1, 0, bitprec);
@@ -2420,11 +2420,17 @@ znchargauss_i(GEN G, GEN chi, long bitprec)
   if (zncharisodd(G,chi)) z = mulcxI(z);
   return z;
 }
+static GEN
+Z_radical(GEN N, long *om)
+{
+  GEN P = gel(Z_factor(N), 1);
+  *om = lg(P)-1; return ZV_prod(P);
+}
 GEN
 znchargauss(GEN G, GEN chi, GEN a, long bitprec)
 {
-  GEN v, T, N, F, b0, b1, b2, bF, a1, aF, A, r, GF, tau, ord, D, z, S;
-  long i, l, prec = nbits2prec(bitprec);
+  GEN v, T, N, F, b0, b1, b2, bF, a1, aF, A, r, GF, tau, B, faB, u, S;
+  long omb0, prec = nbits2prec(bitprec);
   pari_sp av = avma;
 
   if (typ(chi) != t_COL) chi = znconreylog(G,chi);
@@ -2450,23 +2456,20 @@ znchargauss(GEN G, GEN chi, GEN a, long bitprec)
     a1 = gel(v,3);
   }
   if (!equalii(aF, bF)) { avma = av; return gen_0; }
-  b0 = ZV_prod(gel(Z_factor(b1), 1));
+  b0 = Z_radical(b1, &omb0);
   b2 = diviiexact(b1, b0);
   A = dvmdii(a1, b2, &r);
   if (r != gen_0) { avma = av; return gen_0; }
-  tau = gmul(mulii(aF,b2), znchargauss_i(GF, chi, bitprec));
-  D = divisors(gcdii(A,b0));
-  ord = zncharorder(GF, chi);
-  z = rootsof1_cx(ord, prec);
-  l = lg(D);
-  for (i = 1, S = gen_0; i < l; i++)
+  B = gcdii(A,b0); faB = Z_factor(B); /* squarefree */
+  S = eulerphi(mkvec2(B,faB));
+  if (odd(omb0 + lg(gel(faB,1))-1)) S = negi(S); /* moebius(b0/B) * phi(B) */
+  S = mulii(S, mulii(aF,b2));
+  tau = znchargauss_i(GF, chi, bitprec);
+  u = Fp_div(b0, A, F);
+  if (!equali1(u))
   {
-    GEN d = gel(D,i), t = diviiexact(b0, d);
-    GEN u = znchareval(GF, chi, diviiexact(A,d), ord); /* (A/d,F) = 1 */
-    GEN v = znchareval(GF, chi, t, ord); /* (t,F) = 1 */
-    long m = moebius(t); /* != 0 */
-    t = gmul(d, gpow(z, Fp_sub(v,u,ord), prec));
-    S = (m < 0)? gsub(S, t): gadd(S, t);
+    GEN ord = zncharorder(GF, chi), z = rootsof1_cx(ord, prec);
+    tau = gmul(tau, znchareval(GF, chi, u, mkvec2(z,ord)));
   }
   return gerepileupto(av, gmul(tau, S));
 }
