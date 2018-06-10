@@ -1807,7 +1807,7 @@ galoisfindfrobenius(GEN T, GEN L, GEN den, struct galois_frobenius *gf,
       gptr[0]=&gf->Tmod; gptr[1]=&gf->psi; gptr[2]=&frob;
       gerepilemanysp(ltop,lbot,gptr,3); return frob;
     }
-    if ((ga->group&ga_all_normal) && d % deg == 0) gmask &= ~1;
+    if (ga->mindeg==0 && (ga->group&ga_all_normal) && d % deg == 0) gmask &= ~1;
     /* The first prime degree is always divisible by deg, so we don't
      * have to worry about ext_2 being used before regular supersolvable*/
     if (!gmask) { avma = ltop; return NULL; }
