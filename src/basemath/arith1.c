@@ -3229,11 +3229,11 @@ Fl_powers_pre(ulong x, long n, ulong p, ulong pi)
   powers[2] = x;
   for (i = 3, k=2; i <= n; i+=2, k++)
   {
-    powers[i] = Fl_mul_pre(powers[k], powers[k], p, pi);
+    powers[i] = Fl_sqr_pre(powers[k], p, pi);
     powers[i+1] = Fl_mul_pre(powers[k], powers[k+1], p, pi);
   }
   if (i==n+1)
-    powers[i] = Fl_mul_pre(powers[k], powers[k], p, pi);
+    powers[i] = Fl_sqr_pre(powers[k], p, pi);
   return powers;
 }
 
