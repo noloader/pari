@@ -1671,7 +1671,7 @@ galoismakepsi(long g, GEN sg, GEN pf)
 
 static GEN
 galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
-    struct galois_frobenius *gf,  struct galois_borne *gb, long mindeg)
+    struct galois_frobenius *gf,  struct galois_borne *gb)
 {
   pari_sp ltop=avma, av2;
   struct galois_testlift gt;
@@ -1689,7 +1689,6 @@ galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
   {
     avma = av2; gf->deg = gf->fp; return res;
   }
-  if (gf->fp <= mindeg) return NULL;
   inittestlift(aut,gf->Tmod, &gl, &gt);
   gt.C = cgetg(gf->fp+1,t_VEC);
   gt.Cd= cgetg(gf->fp+1,t_VEC);
@@ -1712,7 +1711,6 @@ galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
       GEN lo, pf;
       long l;
       dg *= Fp[k]; el /= Fp[k];
-      if (dg < mindeg) continue;
       if (DEBUGLEVEL>=4) err_printf("Trying degre %d.\n",dg);
       if (galoisfrobeniustest(gel(gt.pauto,el+1),&gl,frob))
       {
@@ -1785,14 +1783,13 @@ galoisfindfrobenius(GEN T, GEN L, GEN den, struct galois_frobenius *gf,
     if (!Flx_is_squarefree(Tp, gf->p)) continue;
     Ti = gel(Flx_factor(Tp, gf->p), 1);
     nb = lg(Ti)-1; d = degpol(gel(Ti,1));
-    if (d < ga->mindeg) continue;
     if (nb > 1 && degpol(gel(Ti,nb)) != d) { avma = ltop; return NULL; }
     if (((gmask&1)==0 || d % deg) && ((gmask&2)==0 || odd(d))) continue;
     if (DEBUGLEVEL >= 1) err_printf("GaloisConj: Trying p=%ld\n", gf->p);
     FlxV_to_ZXV_inplace(Ti);
     gf->fp = d;
     gf->Tmod = Ti; lbot = avma;
-    frob = galoisfrobeniuslift(T, den, L, Lden, gf, gb, ga->mindeg);
+    frob = galoisfrobeniuslift(T, den, L, Lden, gf, gb);
     if (frob)
     {
       GEN *gptr[3];
@@ -1807,7 +1804,7 @@ galoisfindfrobenius(GEN T, GEN L, GEN den, struct galois_frobenius *gf,
       gptr[0]=&gf->Tmod; gptr[1]=&gf->psi; gptr[2]=&frob;
       gerepilemanysp(ltop,lbot,gptr,3); return frob;
     }
-    if (ga->mindeg==0 && (ga->group&ga_all_normal) && d % deg == 0) gmask &= ~1;
+    if ((ga->group&ga_all_normal) && d % deg == 0) gmask &= ~1;
     /* The first prime degree is always divisible by deg, so we don't
      * have to worry about ext_2 being used before regular supersolvable*/
     if (!gmask) { avma = ltop; return NULL; }
