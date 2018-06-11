@@ -366,9 +366,9 @@ clean: cleanall
 .headers: $HEADERS
 	@touch \$@
 
-install-nodata: install-lib-$dft install-include install-bin install-man install-misc install-doc install-examples install-cfg
+install-nodata: install-lib-$dft install-include install-bin install-man install-misc install-examples install-cfg
 
-install: install-nodata install-data
+install: install-doc install-nodata install-data
 
 install-include:
 	-mkdir -p \$(INCLUDEDIR)/pari
@@ -425,10 +425,12 @@ install-cfg::
 	   \$(INSTALL_DATA) $desc/PARI/822.pm \$(DATADIR)/PARI;\
 	   \$(INSTALL_DATA) $desc/\$(DESC) \$(DATADIR); fi
 
-install-doc: install-gphelp install-docdvi install-doctex
+install-doc: install-docdvi install-doctex
 
-install-doctex::
-	-mkdir -p \$(DOCDIR)
+install-doctex:
+	-mkdir -p \$(BINDIR) \$(DOCDIR)
+	-\$(INSTALL_DATA) $doc/translations \$(DOCDIR)
+	-\$(INSTALL_PROGRAM) $doc/gphelp    \$(BINDIR)
 	-cd $doc; \$(MAKE) usersch3.tex
 	-\$(INSTALL_DATA) $doc/appa.tex     \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/appb.tex     \$(DOCDIR)
@@ -449,11 +451,6 @@ install-doctex::
 	-\$(INSTALL_DATA) $doc/usersch7.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/usersch8.tex \$(DOCDIR)
 	-\$(INSTALL_DATA) $doc/paricfg.tex  \$(DOCDIR)
-
-install-gphelp::
-	-mkdir -p \$(BINDIR) \$(DOCDIR)
-	-\$(INSTALL_DATA) $doc/translations \$(DOCDIR)
-	-\$(INSTALL_PROGRAM) $doc/gphelp    \$(BINDIR)
 
 install-docdvi::
 	-mkdir -p \$(DOCDIR)
