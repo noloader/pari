@@ -3197,7 +3197,7 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR, pari_timer *T)
   }
   H = ZM_hnf(L);
   r = lg(H)-1;
-  if (r && r != nbrows(H))
+  if (!r || r != nbrows(H))
     R = gen_0; /* wrong rank */
   else
     R = gmul(*ptkR, gdiv(ZM_det_triangular(H), powiu(den, r)));
