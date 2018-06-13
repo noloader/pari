@@ -2649,6 +2649,12 @@ trueE(GEN tau, long k, long prec)
   long n = 1;
 
   if (k == 2) return trueE2(tau, prec);
+  av = avma;
+  if (gcmp(imag_i(tau), dbltor(bit_accuracy_mul(prec, M_LN2 / M_PI))) > 0)
+  {
+    avma = av;
+    return real_1(prec);
+  }
   q = expIxy(Pi2n(1, prec), tau, prec);
   q = check_real(q);
   y = gen_0;

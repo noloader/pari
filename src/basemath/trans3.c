@@ -3634,6 +3634,7 @@ vecthetanullk_loop(GEN q2, long k, long prec)
   const long bit = prec2nbits(prec);
   long i, n;
 
+  if (gexpo(q2) < -2*bit) return y;
   ps = gneg_i(q2);
   for (n = 3;; n += 2)
   {
@@ -3697,6 +3698,11 @@ trueE2(GEN tau, long prec)
   pari_sp av = avma;
   GEN q2, y;
   if (l) prec = l;
+  if (gcmp(imag_i(tau), dbltor(bit_accuracy_mul(prec, M_LN2 / M_PI))) > 0)
+  {
+    avma = av;
+    return real_1(prec);
+  }
   q2 = expIxy(Pi2n(1, prec), tau, prec);
   y = vecthetanullk_loop(q2, 3, prec);
   return gerepileupto(av, gdiv(gel(y,2), gel(y,1)));
