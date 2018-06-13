@@ -2439,9 +2439,9 @@ typedef struct {
 static void
 set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
 {
-  GEN a, b, c, d, t = *pt, run = dbltor(1. - 1e-8);
-  long e = gexpo(gel(t,2));
-  if (e < 0) *pt = t = gprec_wensure(t, precision(t) + nbits2extraprec(-e));
+  GEN a, b, c, d, t, t0e, t0 = *pt, run = dbltor(1. - 1e-8);
+  long e = gexpo(gel(t0,2));
+  t = t0e = (e >= 0)? t0: gprec_wensure(t0, precision(t0)+nbits2extraprec(-e));
   a = d = gen_1;
   b = c = gen_0;
   for(;;)
@@ -2458,6 +2458,7 @@ set_gamma(GEN *pt, GEN *pa, GEN *pb, GEN *pc, GEN *pd)
     togglesign_safe(&c); swap(a,c);
     togglesign_safe(&d); swap(b,d);
   }
+  if (e < 0 && (signe(b) || signe(c))) *pt = t0e;
   *pa = a; *pb = b; *pc = c; *pd = d;
 }
 /* Im z > 0. Return U.z in PSl2(Z)'s standard fundamental domain.
