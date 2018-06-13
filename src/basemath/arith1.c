@@ -4925,8 +4925,9 @@ bestappr_Q(GEN x, GEN k)
     case t_FRAC: return k? bestappr_frac(x, k): gcopy(x);
     case t_REAL:
       if (!signe(x)) return gen_0;
-      if (bit_prec(x) < expo(x)) return NULL;
-      return bestappr_real(x, k? k: int2n(bit_prec(x)));
+      /* i <= e iff nbits2lg(e+1) > lg(x) iff floorr(x) fails */
+      i = bit_prec(x); if (i <= expo(x)) return NULL;
+      return bestappr_real(x, k? k: int2n(i));
 
     case t_INTMOD: {
       pari_sp av = avma;
