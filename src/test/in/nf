@@ -1,4 +1,5 @@
 default(realprecision,38);
+default(parisize,"60M");
 setrand(1429412696);bnfinit(x^2+29051222508*x-12).clgp
 setrand(1); bnfinit(x^8 + 12*x^6 + 30*x^4 + 24*x^2 + 4).reg
 setrand(1); bnfinit(x^4 - 3*x^2 + 49).reg
@@ -126,6 +127,11 @@ nfcompositum(bnfinit(y),x^3-2,x^3-1)
 K=bnfinit(x^2+2323);
 P=idealprimedec(K,23)[1];
 bnfisprincipal(K,P)
+
+\\ #2054
+D = 1460939943556665662782863549;
+K = nfinit([x^2-D,[3,7,1586327]]); setrand(426507128);
+bnfinit(K,,[0.132,0.15]);
 
 \\ test old-style nf.zk
 K=nfinit(x^2+23);
