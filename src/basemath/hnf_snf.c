@@ -1999,11 +1999,11 @@ ZM_hnfall_i(GEN A, GEN *ptB, long remove)
     {
       for (i=h[j]; i>li; i--)
       {
-        a = gcoeff(A,i,j); if (!signe(a)) continue;
+        a = gcoeff(A,i,j);
         k = c[i];
         /* zero a = Aij  using  Aik */
-        ZC_elem(a,gcoeff(A,i,k), A,B,j,k);
-        ZM_reduce(A,B, i,k); /* ensure reduced entries */
+        if (signe(a)) ZC_elem(a,gcoeff(A,i,k), A,B,j,k);
+        ZM_reduce(A,B, i,k); /* ensure reduced entries even if a = 0 */
         if (gc_needed(av,1))
         {
           if (DEBUGMEM>1)
