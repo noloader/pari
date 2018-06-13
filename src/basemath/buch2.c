@@ -2670,7 +2670,7 @@ static GEN
 remove_content(GEN I)
 {
   long N = lg(I)-1;
-  if (!is_pm1(gcoeff(I,N,N))) I = Q_primpart(I);
+  if (!equali1(gcoeff(I,N,N))) I = Q_primpart(I);
   return I;
 }
 
@@ -2960,16 +2960,16 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
             pari_warn(warner,"be_honest() failure on prime %Ps\n", gel(P,j));
           return 0;
         }
-        ideal = ideal0;
         /* occurs at most once in the whole function */
         if (F->newpow) powFBgen(NULL, F, nf, auts);
-        for (i=1; i<lgsub; i++)
+        for (i = 1, ideal = ideal0; i < lgsub; i++)
         {
           long id = F->subFB[i];
           ex = random_bits(RANDOM_BITS);
           if (ex) ideal = idealHNF_mul(nf,ideal, gmael(F->id2,id,ex));
         }
         ideal = remove_content(ideal);
+        if (expi(gcoeff(ideal,1,1)) > 100) ideal = idealred(nf, ideal);
       }
     }
     F->KCZ++; /* SUCCESS, "enlarge" factorbase */
