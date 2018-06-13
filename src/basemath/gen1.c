@@ -21,11 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 
 /* assume z[1] was created last */
-#define fix_frac_if_int(z) if (is_pm1(gel(z,2)))\
+#define fix_frac_if_int(z) if (equali1(gel(z,2)))\
   z = gerepileupto((pari_sp)(z+3), gel(z,1));
 
 /* assume z[1] was created last */
-#define fix_frac_if_int_GC(z,tetpil) { if (is_pm1(gel(z,2)))\
+#define fix_frac_if_int_GC(z,tetpil) { if (equali1(gel(z,2)))\
   z = gerepileupto((pari_sp)(z+3), gel(z,1));\
 else\
   gerepilecoeffssp((pari_sp)z, tetpil, z+1, 2); }
@@ -371,7 +371,7 @@ Qdivii(GEN x, GEN y)
   GEN r, q;
 
   if (is_pm1(y)) return (signe(y) < 0)? negi(x): icopy(x);
-  if (is_pm1(x)) {
+  if (equali1(x)) {
     long s = signe(y);
     if (!s) pari_err_INV("gdiv",y);
     if (signe(x) < 0) s = -s;
@@ -808,7 +808,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
     q = dvmdii(n, d, &r);
     if (r == gen_0) { avma = av; return icopy(q); }
     r = gcdii(d, r);
-    if (!is_pm1(r)) { n = diviiexact(n, r); d = diviiexact(d, r); }
+    if (!equali1(r)) { n = diviiexact(n, r); d = diviiexact(d, r); }
     gel(z,1) = icopy_avma(n, (pari_sp)z);
     gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
     avma = (pari_sp)gel(z,2); return z;
@@ -827,7 +827,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
         gel(z,2) = Q; return z;
       }
       r = gcdii(x2, r);
-      if (!is_pm1(r)) { n = diviiexact(n, r); x2 = diviiexact(x2, r); }
+      if (!equali1(r)) { n = diviiexact(n, r); x2 = diviiexact(x2, r); }
       d = mulii(x2,Q);
       gel(z,1) = icopy_avma(n, (pari_sp)z);
       gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
@@ -849,7 +849,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
         gel(z,2) = Q; return z;
       }
       r = gcdii(y2, r);
-      if (!is_pm1(r)) { n = diviiexact(n, r); y2 = diviiexact(y2, r); }
+      if (!equali1(r)) { n = diviiexact(n, r); y2 = diviiexact(y2, r); }
       d = mulii(y2,Q);
       gel(z,1) = icopy_avma(n, (pari_sp)z);
       gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
@@ -858,7 +858,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
     delta = gcdii(y2,r);
   }
   /* delta = gcd(x2,y2) */
-  if (is_pm1(delta))
+  if (equali1(delta))
   { /* numerator is non-zero */
     gel(z,1) = gerepileuptoint((pari_sp)z, op(mulii(x1,y2), mulii(y1,x2)));
     gel(z,2) = mulii(x2,y2); return z;
@@ -871,13 +871,13 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
   q = dvmdii(n, delta, &r);
   if (r == gen_0)
   {
-    if (is_pm1(d)) { avma = av; return icopy(q); }
+    if (equali1(d)) { avma = av; return icopy(q); }
     avma = (pari_sp)z;
     gel(z,2) = icopy(d);
     gel(z,1) = icopy(q); return z;
   }
   r = gcdii(delta, r);
-  if (!is_pm1(r))
+  if (!equali1(r))
   {
     n     = diviiexact(n, r);
     delta = diviiexact(delta, r);
@@ -1821,9 +1821,9 @@ gmul(GEN x, GEN y)
       GEN y1 = gel(y,1), y2 = gel(y,2);
       z=cgetg(3,t_FRAC);
       p1 = gcdii(x1, y2);
-      if (!is_pm1(p1)) { x1 = diviiexact(x1,p1); y2 = diviiexact(y2,p1); }
+      if (!equali1(p1)) { x1 = diviiexact(x1,p1); y2 = diviiexact(y2,p1); }
       p1 = gcdii(x2, y1);
-      if (!is_pm1(p1)) { x2 = diviiexact(x2,p1); y1 = diviiexact(y1,p1); }
+      if (!equali1(p1)) { x2 = diviiexact(x2,p1); y1 = diviiexact(y1,p1); }
       tetpil = avma;
       gel(z,2) = mulii(x2,y2);
       gel(z,1) = mulii(x1,y1);
@@ -1898,7 +1898,7 @@ gmul(GEN x, GEN y)
           if (!signe(x)) return gen_0;
           z=cgetg(3,t_FRAC);
           p1 = gcdii(x,gel(y,2));
-          if (is_pm1(p1))
+          if (equali1(p1))
           {
             avma = (pari_sp)z;
             gel(z,2) = icopy(gel(y,2));
@@ -2438,9 +2438,9 @@ gdiv(GEN x, GEN y)
       GEN y1 = gel(y,1), y2 = gel(y,2);
       z = cgetg(3, t_FRAC);
       p1 = gcdii(x1, y1);
-      if (!is_pm1(p1)) { x1 = diviiexact(x1,p1); y1 = diviiexact(y1,p1); }
+      if (!equali1(p1)) { x1 = diviiexact(x1,p1); y1 = diviiexact(y1,p1); }
       p1 = gcdii(x2, y2);
-      if (!is_pm1(p1)) { x2 = diviiexact(x2,p1); y2 = diviiexact(y2,p1); }
+      if (!equali1(p1)) { x2 = diviiexact(x2,p1); y2 = diviiexact(y2,p1); }
       tetpil = avma;
       gel(z,2) = mulii(x2,y1);
       gel(z,1) = mulii(x1,y2);
@@ -2549,7 +2549,7 @@ gdiv(GEN x, GEN y)
         return div_intmod_same(z, gel(y,1), modii(x, gel(y,1)), gel(y,2));
       case t_FRAC:
         z = cgetg(3,t_FRAC); p1 = gcdii(x,gel(y,1));
-        if (is_pm1(p1))
+        if (equali1(p1))
         {
           avma = (pari_sp)z;
           gel(z,2) = icopy(gel(y,1));
@@ -2630,7 +2630,7 @@ gdiv(GEN x, GEN y)
       {
         case t_INT: z = cgetg(3, t_FRAC);
         p1 = gcdii(y,gel(x,1));
-        if (is_pm1(p1))
+        if (equali1(p1))
         {
           avma = (pari_sp)z; tetpil = 0;
           gel(z,1) = icopy(gel(x,1));
