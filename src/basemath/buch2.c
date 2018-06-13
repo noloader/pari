@@ -1119,6 +1119,7 @@ getfu(GEN nf, GEN *ptA, long *pte, long prec)
   if (RU==1) { *pte=LONG_MAX; return cgetg(1,t_VEC); }
 
   *pte = 0; A = *ptA;
+  if (lg(A) < RU) return not_given(fupb_PRECI);
   matep = cgetg(RU,t_MAT);
   for (j=1; j<RU; j++)
   {
