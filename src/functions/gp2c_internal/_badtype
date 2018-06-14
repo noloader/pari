@@ -15,4 +15,4 @@ Description:
  (prid):void                    checkprid($1)
  (clgp):void                    checkabgrp($1)
  (ell):void                     checkell($1)
- (*gal):gal:parens              $1 = checkgal($1)
+ (*gal):void:parens             $1 = checkgal($1)
