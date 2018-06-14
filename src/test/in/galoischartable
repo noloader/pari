@@ -2,9 +2,8 @@
 
 inn(len, c1, c2, f) = simplify(lift(sum(i=1,#len,len[i]*c1[i]*subst(c2[i],y,1/y))*Mod(1,f)));
 
-testchar(G)=
+testchar(G, n = poldegree(G.pol))=
 {
-  my(n= poldegree(G.pol));
   my(cl = galoisconjclasses(G));
   my(len = apply(length, cl));
   my([ct,e] = galoischartable(G));
@@ -49,3 +48,6 @@ dopol(G)
            Vecsmall([4, 3, 2, 1, 5]), Vecsmall([4, 5, 1, 2, 3]),
            Vecsmall([5, 1, 2, 3, 4]), Vecsmall([5, 4, 3, 2, 1])];}
 dopol(G)
+
+G=[[Vecsmall([28,40,13,30,4,19,22,7,8,32,25,38,33,16,29,18,14,24,21,9,3,1,11,5,36,23,35,10,34,20,2,37,27,6,12,41,31,42,15,17,39,26]),Vecsmall([3,38,1,42,21,8,12,6,11,29,9,7,17,23,30,34,13,35,31,33,5,41,14,36,37,28,32,26,10,15,19,27,20,16,18,24,25,2,40,39,22,4])],Vecsmall([21,2])];
+testchar(G, 42);

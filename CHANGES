@@ -17,6 +17,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      13- znchargauss(,,a != 1): wrong value (missing \bar{chi}(a))
      14- factorpadic(): wrong results when p-adic accuracy too low
      15- elleisnum([1,I/2^100],4) -> exponent overflow
+     16- galoischartable: wrong results
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies

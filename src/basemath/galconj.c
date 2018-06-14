@@ -2552,10 +2552,6 @@ galoisidentify(GEN gal)
   avma = av; return mkvec2s(card, idx);
 }
 
-static GEN
-Qevproj_RgX(GEN c, long d, GEN pro)
-{ return RgV_to_RgX(Qevproj_down(RgX_to_RgC(c,d), pro), varn(c)); }
-
 /* index of conjugacy class containing g */
 static long
 cc_id(GEN cc, GEN g)
@@ -2565,6 +2561,40 @@ cc_id(GEN cc, GEN g)
   return conj[k];
 }
 
+static GEN
+Qevproj_RgX(GEN c, long d, GEN pro)
+{ return RgV_to_RgX(Qevproj_down(RgX_to_RgC(c,d), pro), varn(c)); }
+/* c in Z[X] / (X^o-1), To = polcyclo(o), T = polcyclo(expo), e = expo/o
+ * return c(X^e) mod T as an element of Z[X] / (To) */
+static GEN
+chival(GEN c, GEN T, GEN To, long e, GEN pro, long phie)
+{
+  c = ZX_rem(c, To);
+  if (e != 1) c = ZX_rem(RgX_inflate(c,e), T);
+  if (pro) c = Qevproj_RgX(c, phie, pro);
+  return c;
+}
+/* chi(g^l) = sum_{k=0}^{o-1} a_k zeta_o^{l*k} for all l;
+* => a_k = 1/o sum_{l=0}^{o-1} chi(g^l) zeta_o^{-k*l}. Assume o > 1 */
+static GEN
+chiFT(GEN cp, GEN jg, GEN vze, long e, long o, ulong p, ulong pov2)
+{
+  const long var = 1;
+  ulong oinv = Fl_inv(o,p);
+  long k, l;
+  GEN c = cgetg(o+2, t_POL);
+  for (k = 0; k < o; k++)
+  {
+    ulong a = 0;
+    for (l=0; l<o; l++)
+    {
+      ulong z = vze[Fl_mul(k,l,o)*e + 1];/* zeta_o^{-k*l} */
+      a = Fl_add(a, Fl_mul(uel(cp,jg[l+1]), z, p), p);
+    }
+    gel(c,k+2) = stoi(Fl_center(Fl_mul(a,oinv,p), p, pov2)); /* a_k */
+  }
+  c[1] = evalvarn(var) | evalsigne(1); return ZX_renormalize(c,o+2);
+}
 static GEN
 cc_chartable(GEN cc)
 {
@@ -2623,9 +2653,9 @@ cc_chartable(GEN cc)
   /* lift character table to Z[zeta_f] */
   pov2 = p>>1;
   ct = cgetg(lcl, t_MAT);
-  for (j=1; j<lcl; j++) gel(ct,j) = cgetg(lcl,t_COL);
   if (f == 1)
   { /* rational representation */
+    for (j=1; j<lcl; j++) gel(ct,j) = cgetg(lcl,t_COL);
     for(j=1; j<lcl; j++)
     {
       GEN jg = gel(vjg,j); /* jg[l+1] = class of g^l */
@@ -2639,12 +2669,13 @@ cc_chartable(GEN cc)
   }
   else
   {
-    hashtable *H = hash_create_ulong(p, 1);
     const long var = 1;
     ulong ze = Fl_powu(pgener_Fl(p),(p-1)/expo, p); /* seen as zeta_e^(-1) */
-    GEN vze = Fl_powers(ze, expo-1, p); /* vze[i] = ze^(i-1)/f */
-    GEN T = polcyclo(expo, var), pro = NULL;
-    long phie = degpol(T);
+    GEN vze = Fl_powers(ze, expo-1, p); /* vze[i] = ze^(i-1) */
+    GEN vzeZX = const_vec(p, gen_0);
+    GEN T = polcyclo(expo, var), vT = const_vec(expo,NULL), pro = NULL;
+    long phie = degpol(T), id1 = gel(vjg,1)[1]; /* index of 1_G, always 1 ? */
+    gel(vT, expo) = T;
     if (f != expo)
     {
       long phif = eulerphiu(f);
@@ -2658,50 +2689,34 @@ cc_chartable(GEN cc)
       }
       pro = Qevproj_init(M);
     }
-    for (j=lcl-1; j; j--)
-    { /* loop over conjugacy classes, decreasing order */
-      long jperm = operm[j];
-      GEN jg = gel(vjg,jperm); /* jg[l+1] = class of g^l */
-      long o = vord[jperm], oinv = Fl_inv(o,p), e = expo/o;
-      GEN To = e == 1? T: polcyclo(o, var);
-      for(i=1; i<lcl; i++)
-      { /* loop over characters */
-        GEN cp = gel(ctp,i), cj, cj0; /* cp[i] = chi(g_i) mod \P */
-        void *vj = (void*)uel(cp, jg[o == 1? 1: 2]); /* chi(g) */
-        ulong h = H->hash(vj);
-        hashentry *E = hash_search2(H, vj, h);
-        if (E) { gcoeff(ct,jperm,i) = (GEN)E->val; continue; }
+    gel(vzeZX,1) = pol_1(var);
+    for (i = 2; i <= expo; i++)
+    {
+      GEN t = ZX_rem(pol_xn(expo-(i-1), var), T);
+      if (pro) t = Qevproj_RgX(t, phie, pro);
+      gel(vzeZX, vze[i]) = t;
+    }
+    for(i=1; i<lcl; i++)
+    { /* loop over characters */
+      GEN cp = gel(ctp,i), C, cj; /* cp[j] = chi(g_j) mod \P */
+      long dim = cp[id1];
+      gel(ct, i) = C = const_col(lcl-1, NULL);
+      gel(C,operm[1]) = utoi(dim); /* chi(1_G) */
+      for (j=lcl-1; j > 1; j--)
+      { /* loop over conjugacy classes, decreasing order: skip 1_G */
+        long e, jperm = operm[j], o = vord[jperm];
+        GEN To, jg = gel(vjg,jperm); /* jg[l+1] = class of g^l */
 
-       /* chi(g^l) = sum_{k=0}^{o-1} a_k zeta_o^{l*k} for all l;
-        * => a_k = 1/o sum_{l=0}^{o-1} chi(g^l) zeta_o^{-k*l} */
-        cj = cgetg(o+2, t_POL);
-        cj[1] = evalvarn(var) | evalsigne(1);
-        for (k=0; k<o; k++)
-        {
-          ulong a = 0;
-          for (l=0; l<o; l++)
-          {
-            ulong z = vze[Fl_mul(k,l,o)*e + 1];/* zeta_o^{-k*l} */
-            a = Fl_add(a, Fl_mul(uel(cp,jg[l+1]), z, p), p);
-          }
-          gel(cj,k+2) = stoi(Fl_center(Fl_mul(a,oinv,p), p, pov2)); /* a_k */
-        }
-        cj0 = cj = ZX_renormalize(cj,o+2);
-        cj = ZX_rem(cj, To);
-        if (e != 1) cj = ZX_rem(RgX_inflate(cj,e), T);
-        if (pro) cj = Qevproj_RgX(cj, phie, pro);
-        gcoeff(ct,jperm,i) = cj;
-        hash_insert2(H, vj, cj, h);
+        if (gel(C, jperm)) continue; /* done already */
+        if (dim == 1) { gel(C, jperm) = gel(vzeZX, cp[jg[2]]); continue; }
+        e = expo / o;
+        cj = chiFT(cp, jg, vze, e, o, p, pov2);
+        To = gel(vT, o); if (!To) To = gel(vT,o) = polcyclo(o, var);
+        gel(C, jperm) = chival(cj, T, To, e, pro, phie);
         for (k = 2; k < o; k++)
         {
-          void *vk = (void*)uel(cp, jg[k+1]); /* chi(g^k) */
-          ulong hk = H->hash(vk);
-          GEN ck;
-          if (hash_search2(H, vk, hk)) continue;
-          ck = ZX_rem(RgX_inflate(cj0, k), To);
-          if (e != 1) ck = ZX_rem(RgX_inflate(ck,e), T);
-          if (pro) ck = Qevproj_RgX(ck, phie, pro);
-          hash_insert2(H, vk, ck, hk);
+          GEN ck = RgX_inflate(cj, k); /* chi(g^k) */
+          gel(C, jg[k+1]) = chival(ck, T, To, e, pro, phie);
         }
       }
     }
