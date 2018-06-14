@@ -208,7 +208,7 @@ enum { NF_MINIMALMODEL = 1, NF_GLOBALRED, NF_MINIMALPRIMES, NF_ROOTNO, NF_NF };
 enum { FF_CARD = 1, FF_GROUP, FF_GROUPGEN, FF_O };
 
 /* for Buchall_param */
-enum { fupb_NONE, fupb_RELAT, fupb_LARGE, fupb_PRECI };
+enum { fupb_NONE = 0, fupb_RELAT, fupb_LARGE, fupb_PRECI };
 
 /* Polycyclic presentation for the classgroup of discriminant D */
 typedef struct {

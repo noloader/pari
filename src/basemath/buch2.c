@@ -3148,6 +3148,17 @@ static GEN
 i2print(GEN n)
 { return lgefint(n) <= DEFAULTPREC? n: itor(n,LOWDEFAULTPREC); }
 
+static long
+bad_check(GEN c)
+{
+  long ec = gexpo(c);
+  if (DEBUGLEVEL) err_printf("\n ***** check = %.28Pg\n",c);
+  /* safe check for c < 0.75 : avoid underflow in gtodouble() */
+  if (ec < -1 || (ec == -1 && gtodouble(c) < 0.75)) return fupb_PRECI;
+  /* safe check for c > 1.3 : avoid overflow */
+  if (ec > 0 || (ec == 0 && gtodouble(c) > 1.3)) return fupb_RELAT;
+  return fupb_NONE;
+}
 /* Input:
  * lambda = approximate rational entries: coords of units found so far on a
  * sublattice of maximal rank (sublambda)
@@ -3162,13 +3173,14 @@ i2print(GEN n)
  *
  * Output: *ptkR = R, *ptU = basis of fundamental units (in terms lambda) */
 static int
-compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR, pari_timer *T)
+compute_R(GEN lambda, long RU, GEN z, long bit, GEN *ptL, GEN *ptkR)
 {
   pari_sp av = avma;
-  long r, ec;
+  long r, reason;
   GEN L, H, D, den, R, c;
 
   if (DEBUGLEVEL) { err_printf("\n#### Computing check\n"); err_flush(); }
+  if (RU == 1) { *ptkR = gen_1; *ptL = lambda; return bad_check(z); }
   D = gmul2n(mpmul(*ptkR,z), 1); /* bound for denom(lambda) */
   if (expo(D) < 0 && rtodbl(D) < 0.95) return fupb_PRECI;
   lambda = bestappr(lambda,D);
@@ -3184,48 +3196,26 @@ compute_R(GEN lambda, GEN z, long bit, GEN *ptL, GEN *ptkR, pari_timer *T)
     return fupb_PRECI;
   }
   L = Q_muli_to_int(lambda, den);
-  if (lg(L) > 1)
-  {
-    long m = lgcols(L);
-    if (m > 5) bit -= 64;
-    else if (m > 3) bit -= 32;
-  }
+  if (RU > 5) bit -= 64;
+  else if (RU > 3) bit -= 32;
   if (gexpo(L) + expi(den) > bit)
   {
     if (DEBUGLEVEL) err_printf("dubious bestappr; den = %Ps\n", i2print(den));
     return fupb_PRECI;
   }
-  H = ZM_hnf(L);
-  r = lg(H)-1;
+  H = ZM_hnf(L); r = lg(H)-1;
   if (!r || r != nbrows(H))
     R = gen_0; /* wrong rank */
   else
     R = gmul(*ptkR, gdiv(ZM_det_triangular(H), powiu(den, r)));
   /* R = tentative regulator; regulator > 0.2 uniformly */
   if (gexpo(R) < -3) {
-    if (DEBUGLEVEL)
-    {
-      err_printf("\n#### Tentative regulator: %.28Pg\n", R);
-      timer_printf(T, "computing check");
-    }
+    if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
     avma = av; return fupb_PRECI;
   }
   c = gmul(R,z); /* should be n (= 1 if we are done) */
-  if (DEBUGLEVEL)
-  {
-    err_printf("\n#### Tentative regulator: %.28Pg\n", R);
-    err_printf("\n ***** check = %.28Pg\n",c);
-    timer_printf(T, "computing check");
-  }
-  ec = gexpo(c);
-  /* safe check for c < 0.75 : avoid underflow in gtodouble() */
-  if (ec < -1 || (ec == -1 && gtodouble(c) < 0.75)) {
-    avma = av; return fupb_PRECI;
-  }
-  /* safe check for c > 1.3 : avoid overflow */
-  if (ec > 0 || (ec == 0 && gtodouble(c) > 1.3)) {
-    avma = av; return fupb_RELAT;
-  }
+  if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
+  if ((reason = bad_check(c))) { avma = av; return reason; }
   *ptkR = R; *ptL = L; return fupb_NONE;
 }
 
@@ -4409,7 +4399,7 @@ START:
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
 
-    switch (compute_R(lambda, mulir(h,invhr), RgM_bit(C, bit), &L, &R, &T))
+    switch (compute_R(lambda, RU, mulir(h,invhr), RgM_bit(C, bit), &L, &R))
     {
       case fupb_RELAT:
         need = 1; /* not enough relations */
