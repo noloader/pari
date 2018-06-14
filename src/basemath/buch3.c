@@ -1747,7 +1747,10 @@ rnfconductor(GEN bnf, GEN T)
   T = check_polrel(nf, T, &lim);
   dT = Q_denom( RgX_to_nfX(nf, T) );
   if (!is_pm1(dT)) T = RgX_rescale(T, dT);
-  D = rnfdisc_factored(nf, lim? mkvec2(T, utoi(lim)): T, NULL);
+  if (lim)
+    D = idealfactor_limit(nf, RgX_disc(T), lim);
+  else
+    D = rnfdisc_factored(nf, T, NULL);
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
   bnr = Buchray_i(bnf,module,nf_INIT | nf_GEN);
   H = rnfnormgroup_i(bnr,T); if (!H) { avma = av; return gen_0; }
