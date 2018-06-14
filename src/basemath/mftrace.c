@@ -5656,19 +5656,27 @@ mfwt1cuspdimsum(long N)
 static GEN
 mfwt1newdimall(long N, GEN vCHI)
 {
-  GEN z, w, vTMP;
-  long i, c, lw;
+  GEN z, w, vTMP, fa, P, E;
+  long i, c, l, lw, P1;
   if (wt1empty(N)) return mfdim0all(vCHI);
   w = mfwt1chars(N,vCHI);
   lw = lg(w); if (lw == 1) return cgetg(1,t_VEC);
   vTMP = const_vec(N, NULL);
   gel(vTMP,N) = mfwt1_pre(N);
+  /* if p || N and p \nmid F(CHI), S_1^new(G0(N),chi) = 0 */
+  fa = znstar_get_faN(gmael(w,1,1));
+  P = gel(fa,1); l = lg(P);
+  E = gel(fa,2);
+  for (i = P1 = 1; i < l; i++)
+    if (E[i] == 1) P1 *= itou(gel(P,i));
+  /* P1 = \prod_{v_p(N) = 1} p */
   z = cgetg(lw, t_VEC);
   for (i = c = 1; i < lw; i++)
   {
-    long j, l, F, dihnew;
+    long S, j, l, F, dihnew;
     GEN D, CHI = gel(w,i), CHIP = mfchartoprimitive(CHI,&F);
-    long S = mfwt1cuspdim_i(N, CHI, gel(vTMP,N), &dihnew);
+
+    S = F % P1? 0: mfwt1cuspdim_i(N, CHI, gel(vTMP,N), &dihnew);
     if (!S)
     {
       if (vCHI) gel(z, c++) = zerovec(2);
