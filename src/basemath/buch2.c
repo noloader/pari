@@ -3179,6 +3179,7 @@ compute_R(GEN lambda, long RU, GEN z, long bit, GEN *ptL, GEN *ptkR)
   long r, reason;
   GEN L, H, D, den, R, c;
 
+  *ptL = NULL;
   if (DEBUGLEVEL) { err_printf("\n#### Computing check\n"); err_flush(); }
   if (RU == 1) { *ptkR = gen_1; *ptL = lambda; return bad_check(z); }
   D = gmul2n(mpmul(*ptkR,z), 1); /* bound for denom(lambda) */
