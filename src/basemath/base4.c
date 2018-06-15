@@ -675,17 +675,28 @@ static GEN
 Q_nffactor(GEN nf, GEN y, ulong lim)
 {
   GEN f, P, E;
-  long lfa, i;
+  long l, i;
   if (typ(y) == t_INT)
   {
     if (!signe(y)) pari_err_DOMAIN("idealfactor", "ideal", "=",gen_0,y);
     if (is_pm1(y)) return trivial_fact();
   }
   y = Q_abs_shallow(y);
-  f = lim? Q_factor_limit(y, lim): Q_factor(y);
-  P = gel(f,1); lfa = lg(P);
+  if (!lim) f = Q_factor(y);
+  else
+  {
+    f = Q_factor_limit(y, lim);
+    P = gel(f,1); l = lg(P);
+    E = gel(f,2);
+    for (i = l-1; i > 0; i--)
+    {
+      if (abscmpiu(gel(P,i), lim) < 0) break;
+      setlg(P,i); setlg(E,i);
+    }
+  }
+  P = gel(f,1); l = lg(P); if (l == 1) return f;
   E = gel(f,2);
-  for (i = 1; i < lfa; i++)
+  for (i = 1; i < l; i++)
   {
     gel(P,i) = idealprimedec(nf, gel(P,i));
     gel(E,i) = prV_e_muls(gel(P,i), itos(gel(E,i)));
