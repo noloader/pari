@@ -1855,21 +1855,23 @@ lfungenus2(GEN G)
 /* m >= 1 representing f(\tau)=\prod_m\eta(m\tau)^{r_m}.     */
 /*************************************************************/
 
+/* eta(x^v) + O(x^m) */
 GEN
 eta_inflate_ZXn(long m, long v)
 {
-  long n, k;
+  long n, k, an = 0, bn = 1, cn = 0;
   GEN P = cgetg(m+2,t_POL);
   P[1] = 0;
   for(n = 0; n < m; n++) gel(P,n+2) = gen_0;
-  for(n = 0;; n++)
-  {
-    k = v * (((3*n - 1) * n) >> 1);
+  for(n = 0;; n++, an += bn, bn += 3, cn += v)
+  { /* an = (3*n-1) * n / 2; bn = 3*n + 1; cn = v * n */
+    k = v * an;
     if (k >= m) break;
     gel(P, 2+k) = odd(n)? gen_m1: gen_1;
-    k += n*v; /* v * (3*n + 1) * n / 2 */;
+    k += cn; /* v * (3*n + 1) * n / 2 */;
     if (k >= m) break;
     gel(P, 2+k) = odd(n)? gen_m1: gen_1;
+
   }
   return RgX_to_ser(P, m+2);
 }

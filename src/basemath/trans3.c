@@ -2879,7 +2879,7 @@ ser_addmulXn(GEN y, GEN x, long d)
 
 /* q a t_POL */
 static GEN
-inteta_pol(GEN q, long v, long l)
+RgXn_inteta(GEN q, long v, long lim)
 {
   pari_sp av = avma;
   GEN qn, ps, y;
@@ -2895,8 +2895,8 @@ inteta_pol(GEN q, long v, long l)
     long k1, k2;
     GEN t;
     vqn += v; vps = vt + vqn; /* valuation of qn, ps at END of body */
-    k1 = l-2 + v - vt + 1;
-    k2 = k1 - vqn; /* = l-2 + v - vps + 1 */
+    k1 = lim + v - vt + 1;
+    k2 = k1 - vqn; /* = lim + v - vps + 1 */
     if (k1 <= 0) break;
     t = RgX_mul(q, RgX_sqr(qn));
     t = RgXn_red_shallow(t, k1);
@@ -2918,7 +2918,7 @@ inteta_pol(GEN q, long v, long l)
       gerepileall(av, 3, &y, &qn, &ps);
     }
   }
-  setvarn(y, varn(q)); return RgX_to_ser(y, l+v);
+  setvarn(y, varn(q)); return y;
 }
 
 static GEN
@@ -2950,8 +2950,12 @@ inteta(GEN q)
     if (v <= 0) pari_err_DOMAIN("eta", "v_p(q)", "<=",gen_0,q);
     y = ser2pol_i(q, l); /* t_SER inefficient when input has low degree */
     n = degpol(y);
-    if (n == 1 || n < (l>>2)) return inteta_pol(y, v, l);
-
+    if (n <= (l>>2))
+    {
+      GEN z, c = gel(y,2);
+      if (n || !isint1(c)) return RgX_to_ser(RgXn_inteta(y, v, l-2), l+v);
+      z = eta_inflate_ZXn(l+v-2, v); setvarn(z, varn(y)); return z;
+    }
     q = leafcopy(q); av = avma;
     setvalp(q, 0);
     y = scalarser(gen_1, varn(q), l+v);
@@ -2980,10 +2984,9 @@ inteta(GEN q)
     }
   }
   {
-    long l; /* gcc -Wall */
+    long l = -prec2nbits(precision(q));
     pari_sp av = avma;
 
-    l = -prec2nbits(precision(q));
     for(;;)
     {
       GEN t = gneg_i(gmul(ps,gmul(q,gsqr(qn))));

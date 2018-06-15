@@ -41,6 +41,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
          useless, return and use nfzk)
       9- the rnf struct from rnfinit has changed, the new format is not
          compatible with pari-2.9
+     10- improved eta(x^k)
 
   Added
       1- [libpari] denom_i, numer_i, conj_i
