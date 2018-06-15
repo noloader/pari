@@ -3291,6 +3291,7 @@ GEN     polgalois(GEN x, long prec);
 
 GEN     galoisnbpol(long a);
 GEN     galoisgetgroup(long a, long b);
+GEN     galoisgetname(long a, long b);
 GEN     galoisgetpol(long a, long b, long s);
 
 /* gen1.c */

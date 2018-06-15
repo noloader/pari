@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2003  The PARI group.
+/* Copyright (C) 2000-2018  The PARI group.
 
 This file is part of the PARI/GP package.
 
@@ -86,3 +86,25 @@ galoisgetgroup(long a, long b)
   pari_fclose(F); return V;
 }
 
+GEN
+galoisgetname(long a, long b)
+{
+  pariFILE *F;
+  GEN V;
+  char *s;
+  if (a<=0) pari_err_DOMAIN("galoisgetname", "degree", "<=", gen_0, stoi(a));
+  if (b<0) pari_err_DOMAIN("galoisgetname", "index", "<", gen_0, stoi(b));
+  s = pari_sprintf("%s/galpol/%ld/%ld/name", pari_datadir, a,b);
+  F = pari_fopengz(s);
+  if (!F)
+  {
+    long n = itos(galoisnbpol(a));
+    if (b > n)
+      pari_err_DOMAIN("galoisgetname", "group index", ">", stoi(n), stoi(b));
+    else pari_err_FILE("galpol file", s);
+  }
+  pari_free(s);
+  V = gp_read_stream(F->file);
+  if (!V || typ(V)!=t_STR) pari_err_FILE("galpol file", F->name);
+  pari_fclose(F); return V;
+}
