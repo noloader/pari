@@ -12512,6 +12512,10 @@ belongs to the standard fundamental domain and set \kbd{*g} to $\gamma$.
 \fun{GEN}{cxredsl2_i}{GEN z, GEN *g, GEN *czd} as \kbd{cxredsl2}; also sets
 \kbd{*czd} to $cz + d$, if $\gamma = [a,b;c,d]$.
 
+\fun{GEN}{cxEk}{GEN tau, long k, long prec} returns $E_k(\tau)$ by direct
+evaluation of $1 + 2/\zeta(1-k) \sum_n n^{k-1} q^n/(1-q^n)$, $q = e(\tau)$.
+Very slow unless $\tau$ is already reduced modulo $\text{SL}_2(\Z)$.
+
 \subsec{Transcendental functions with \typ{PADIC} arguments}
 
 \fun{GEN}{Qp_exp}{GEN x} shortcut for \kbd{gexp(x, /*ignored*/prec)}

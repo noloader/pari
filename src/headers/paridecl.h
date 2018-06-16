@@ -4882,6 +4882,7 @@ GEN     sumformal(GEN T, long v);
 
 /* trans3.c */
 
+GEN     cxEk(GEN tau, long k, long prec);
 double  dblmodulus(GEN x);
 GEN     dilog(GEN x, long prec);
 GEN     eint1(GEN x, long prec);

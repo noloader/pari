@@ -2636,40 +2636,6 @@ PiI2div(GEN x, long prec) { return gdiv(Pi2n(1, prec), mulcxmI(x)); }
 GEN
 expIxy(GEN x, GEN y, long prec) { return gexp(gmul(x, mulcxI(y)), prec); }
 
-/* Return E_k(tau). Slow if tau is not in standard fundamental domain */
-static GEN
-cxEk(GEN tau, long k, long prec)
-{
-  pari_sp av;
-  GEN p1, q, y, qn;
-  long n = 1;
-
-  if (k == 2) return trueE2(tau, prec);
-  av = avma;
-  if (gcmp(imag_i(tau), dbltor(bit_accuracy_mul(prec, M_LN2 / M_PI))) > 0)
-  {
-    avma = av;
-    return real_1(prec);
-  }
-  q = expIxy(Pi2n(1, prec), tau, prec);
-  q = cxtoreal(q);
-  y = gen_0;
-  av = avma; qn = gen_1;
-  for(;; n++)
-  { /* compute y := sum_{n>0} n^(k-1) q^n / (1-q^n) */
-    qn = gmul(q,qn);
-    p1 = gdiv(gmul(powuu(n,k-1),qn), gsubsg(1,qn));
-    if (gequal0(p1) || gexpo(p1) <= - prec2nbits(prec) - 5) break;
-    y = gadd(y, p1);
-    if (gc_needed(av,2))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"elleisnum");
-      gerepileall(av, 2, &y,&qn);
-    }
-  }
-  return gadd(gen_1, gmul(y, gdiv(gen_2, szeta(1-k, prec))));
-}
-
 /* (2iPi/W2)^k E_k(W1/W2) */
 static GEN
 _elleisnum(ellred_t *T, long k)
@@ -2727,7 +2693,7 @@ elleta(GEN om, long prec)
   compute_periods(&T, NULL, prec);
   prec = T.prec;
   pi = mppi(prec);
-  E2 = trueE2(T.Tau, prec); /* E_2(Tau) */
+  E2 = cxEk(T.Tau, 2, prec); /* E_2(Tau) */
   if (signe(T.c))
   {
     GEN u = gdiv(T.w2, T.W2);
@@ -2991,7 +2957,7 @@ ellzeta(GEN w, GEN z, long prec0)
   pi2 = Pi2n(1, prec);
   q = expIxy(pi2, T.Tau, prec);
 
-  y = mulcxI(gmul(trueE2(T.Tau,prec), gmul(T.Z,divrs(pi2,-12))));
+  y = mulcxI(gmul(cxEk(T.Tau,2,prec), gmul(T.Z,divrs(pi2,-12))));
   if (!T.abs_u_is_1 || (!gequal(T.Z,ghalf) && !gequal(T.Z,gneg(ghalf))))
   { /* else u = -1 and this vanishes */
     long toadd = (long)ceil(get_toadd(T.Z));

@@ -3693,22 +3693,42 @@ vecthetanullk_tau(GEN tau, long k, long prec)
   return gerepileupto(av, gmul(p1, y));
 }
 
-/* -theta^(3)(tau/2) / theta^(1)(tau/2). Assume that Im tau > 0 */
+/* Return E_k(tau). Slow if tau is not in standard fundamental domain */
 GEN
-trueE2(GEN tau, long prec)
+cxEk(GEN tau, long k, long prec)
 {
-  long l = precision(tau);
   pari_sp av = avma;
-  GEN q2, y;
+  GEN p1, q, y, qn;
+  long n, l = precision(tau);
+
   if (l) prec = l;
   if (gcmp(imag_i(tau), dbltor(bit_accuracy_mul(prec, M_LN2 / M_PI))) > 0)
   {
     avma = av;
     return real_1(prec);
   }
-  q2 = expIxy(Pi2n(1, prec), tau, prec);
-  y = vecthetanullk_loop(q2, 3, prec);
-  return gerepileupto(av, gdiv(gel(y,2), gel(y,1)));
+  q = expIxy(Pi2n(1, prec), tau, prec);
+  q = cxtoreal(q);
+  if (k == 2)
+  { /* -theta^(3)(tau/2) / theta^(1)(tau/2). Assume that Im tau > 0 */
+    y = vecthetanullk_loop(q, 3, prec);
+    return gerepileupto(av, gdiv(gel(y,2), gel(y,1)));
+  }
+
+  y = gen_0; qn = gen_1;
+  for(n = 1;; n++)
+  { /* compute y := sum_{n>0} n^(k-1) q^n / (1-q^n) */
+    qn = gmul(q,qn);
+    p1 = gdiv(gmul(powuu(n,k-1),qn), gsubsg(1,qn));
+    if (gequal0(p1) || gexpo(p1) <= - prec2nbits(prec) - 5) break;
+    y = gadd(y, p1);
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"elleisnum");
+      gerepileall(av, 2, &y,&qn);
+    }
+  }
+  return gadd(gen_1, gmul(y, gdiv(gen_2, szeta(1-k, prec))));
 }
 
 /* Lambert W function : solution x of x*exp(x)=y, using Newton. y >= 0 t_REAL.
