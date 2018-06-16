@@ -1855,38 +1855,46 @@ lfungenus2(GEN G)
 /* m >= 1 representing f(\tau)=\prod_m\eta(m\tau)^{r_m}.     */
 /*************************************************************/
 
-/* eta(x^v) + O(x^m) */
+/* eta(x^v) + O(x^L) */
 GEN
-eta_inflate_ZXn(long m, long v)
+eta_ZXn(long v, long L)
 {
   long n, k, an = 0, bn = 1, cn = 0;
-  GEN P = cgetg(m+2,t_POL);
-  P[1] = 0;
-  for(n = 0; n < m; n++) gel(P,n+2) = gen_0;
+  GEN P;
+  if (!L) return zeropol(0);
+  P = cgetg(L+2,t_POL); P[1] = evalsigne(1);
+  for(n = 0; n < L; n++) gel(P,n+2) = gen_0;
   for(n = 0;; n++, an += bn, bn += 3, cn += v)
   { /* an = (3*n-1) * n / 2; bn = 3*n + 1; cn = v * n */
     k = v * an;
-    if (k >= m) break;
+    if (k >= L) break;
     gel(P, 2+k) = odd(n)? gen_m1: gen_1;
     k += cn; /* v * (3*n + 1) * n / 2 */;
-    if (k >= m) break;
+    if (k >= L) break;
     gel(P, 2+k) = odd(n)? gen_m1: gen_1;
-
   }
-  return RgX_to_ser(P, m+2);
+  return P;
 }
-
-static GEN
-vecan_eta(GEN eta, long L)
+GEN
+eta_product_ZXn(GEN eta, long L)
 {
   GEN P = NULL, D = gel(eta,1), R = gel(eta,2);
   long i, l = lg(D);
   for (i = 1; i < l; ++i)
   {
-    GEN Q = gpowgs(eta_inflate_ZXn(L, D[i]), R[i]);
+    GEN Q = eta_ZXn(D[i], L);
+    long r = R[i];
+    if (r < 0) { Q = RgXn_inv_i(Q, L); r = -r; }
+    if (r != 1) Q = RgXn_powu_i(Q, r, L);
     P = P? gmul(P, Q): Q;
   }
-  return gtovec0(P, L);
+  return P;
+}
+static GEN
+vecan_eta(GEN an, long L)
+{
+  GEN v = RgX_to_RgC(eta_product_ZXn(an, L), L);
+  settyp(v, t_VEC); return v;
 }
 
 /* return 1 if cuspidal, 0 if holomorphic, -1 otherwise */

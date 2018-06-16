@@ -2877,14 +2877,15 @@ ser_addmulXn(GEN y, GEN x, long d)
   z[1] = x[1]; return z;
 }
 
-/* q a t_POL */
+/* q a t_POL s.t. q(0) != 0, v > 0, Q = x^v*q; return \prod_i (1-Q^i) */
 static GEN
-RgXn_inteta(GEN q, long v, long lim)
+RgXn_eta(GEN q, long v, long lim)
 {
   pari_sp av = avma;
   GEN qn, ps, y;
   ulong vps, vqn, n;
 
+  if (!degpol(q) && isint1(gel(q,2))) return eta_ZXn(v, lim+v);
   y = qn = ps = pol_1(0);
   vps = vqn = 0;
   for(n = 0;; n++)
@@ -2918,7 +2919,7 @@ RgXn_inteta(GEN q, long v, long lim)
       gerepileall(av, 3, &y, &qn, &ps);
     }
   }
-  setvarn(y, varn(q)); return y;
+  return y;
 }
 
 static GEN
@@ -2952,9 +2953,8 @@ inteta(GEN q)
     n = degpol(y);
     if (n <= (l>>2))
     {
-      GEN z, c = gel(y,2);
-      if (n || !isint1(c)) return RgX_to_ser(RgXn_inteta(y, v, l-2), l+v);
-      z = eta_inflate_ZXn(l+v-2, v); setvarn(z, varn(y)); return z;
+      GEN z = RgXn_eta(y, v, l-2);
+      setvarn(z, varn(y)); return RgX_to_ser(z, l+v);
     }
     q = leafcopy(q); av = avma;
     setvalp(q, 0);

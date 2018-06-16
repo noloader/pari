@@ -9118,6 +9118,12 @@ algebraic number \kbd{Mod(A,T)} is integral over \kbd{Z}.
 
 \fun{GEN}{ZXn_sqr}{GEN x, long n} return $x^2\pmod{X^n}$.
 
+\fun{GEN}{eta_ZXn}{long r, long n} return $\eta(X^r) = \prod_{i>0} (1-X^{ri})
+\pmod{X^n}$, $r > 0$.
+
+\fun{GEN}{eta_product_ZXn}{GEN DR, long n}: $\kbd{DR}= [D,R]$ being a vector
+with two \typ{VECSMALL} components, return $\prod_i \eta(X^{r_i})^{d_i}$.
+
 \subsec{\kbd{ZXQM}}
 
 \kbd{ZXQM} are matrices of \kbd{ZXQ}. All entries must be integers or

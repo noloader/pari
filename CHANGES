@@ -56,6 +56,7 @@ BA    6- [libpari] FpX_ddf_degree, FpXQX_ddf_degree, FlxqX_ddf_degree
       8- new GP function ellisotree
       9- mspolygon: add graphical representations (LaTeX form)
      10- [libpari] idealprodval, rnfdisc_factored
+     11- [libpari] eta_ZXn, eta_product_ZXn
 
 Done for version 2.10.0 (released 15/05/2018):
   Fixed
