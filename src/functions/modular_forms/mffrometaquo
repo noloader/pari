@@ -30,5 +30,5 @@ Doc: modular form corresponding to the eta quotient matrix \kbd{eta}.
  @eprog\noindent For convenience, a \typ{VEC} is also accepted instead of
  a factorization matrix with a single row:
  \bprog
- ? f = mffrometaquo([1,-24]); \\ also valid
+ ? f = mffrometaquo([1,24]); \\ also valid
  @eprog
