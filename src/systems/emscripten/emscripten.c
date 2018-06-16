@@ -29,12 +29,36 @@ pari_emscripten_help(const char *s)
   pari_err(e_MISC,"Help: http://pari.math.u-bordeaux.fr/dochtml/help/%s",s);
 }
 
+static GEN
+emscripten_base64(const char *s)
+{
+  static const char *base64 =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  long i, ls = strlen(s), lt = (ls*4+2)/3;
+  long n = nchar2nlong(lt+1);
+  GEN g = cgetg(1+n, t_STR);
+  char *t = GSTR(g);
+  g[n] = 0;
+  for(i=0; i < ls; i+=3)
+  {
+    char s0 = s[0], s1 = i<ls-1 ? s[1]: 0, s2 = i<ls-2 ? s[2]: 0;
+    t[0] = base64[(s0 & 0xfc) >> 2];
+    t[1] = base64[((s0 & 0x3) << 4) + ((s1 & 0xf0) >> 4)];
+    t[2] = base64[((s1 & 0xf) << 2) + ((s2 & 0xc0) >> 6)];
+    t[3] = base64[s2 & 0x3f];
+    s+=3;
+    t+=4;
+  }
+  return g;
+}
+
 static void
 emscripten_draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
   pari_sp av = avma;
+  GEN svg = emscripten_base64(rect2svg(w,x,y,NULL));
   EM_ASM(rawPrint=true);(void)T;
-  pari_printf("%s\n", rect2svg(w,x,y,NULL));
+  pari_printf("<img src=\"data:image/svg+xml;charset=utf-8;base64,%Ps\">\n", svg);
   EM_ASM(rawPrint=false);
   avma = av;
 }
