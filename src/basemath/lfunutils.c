@@ -1878,6 +1878,7 @@ eta_ZXn(long v, long L)
 GEN
 eta_product_ZXn(GEN eta, long L)
 {
+  pari_sp av = avma;
   GEN P = NULL, D = gel(eta,1), R = gel(eta,2);
   long i, l = lg(D);
   for (i = 1; i < l; ++i)
@@ -1887,6 +1888,11 @@ eta_product_ZXn(GEN eta, long L)
     if (r < 0) { Q = RgXn_inv_i(Q, L); r = -r; }
     if (r != 1) Q = RgXn_powu_i(Q, r, L);
     P = P? gmul(P, Q): Q;
+    if (gc_needed(av,1) && i > 1)
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"eta_product_ZXn");
+      P = gerepileupto(av, P);
+    }
   }
   return P;
 }
