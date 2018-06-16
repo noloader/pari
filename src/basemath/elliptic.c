@@ -2636,13 +2636,9 @@ PiI2div(GEN x, long prec) { return gdiv(Pi2n(1, prec), mulcxmI(x)); }
 GEN
 expIxy(GEN x, GEN y, long prec) { return gexp(gmul(x, mulcxI(y)), prec); }
 
-static GEN
-check_real(GEN q)
-{ return (typ(q) == t_COMPLEX && gequal0(gel(q,2)))? gel(q,1): q; }
-
 /* Return E_k(tau). Slow if tau is not in standard fundamental domain */
 static GEN
-trueE(GEN tau, long k, long prec)
+cxEk(GEN tau, long k, long prec)
 {
   pari_sp av;
   GEN p1, q, y, qn;
@@ -2656,7 +2652,7 @@ trueE(GEN tau, long k, long prec)
     return real_1(prec);
   }
   q = expIxy(Pi2n(1, prec), tau, prec);
-  q = check_real(q);
+  q = cxtoreal(q);
   y = gen_0;
   av = avma; qn = gen_1;
   for(;; n++)
@@ -2678,9 +2674,9 @@ trueE(GEN tau, long k, long prec)
 static GEN
 _elleisnum(ellred_t *T, long k)
 {
-  GEN y = trueE(T->Tau, k, T->prec);
+  GEN y = cxEk(T->Tau, k, T->prec);
   y = gmul(y, gpowgs(mulcxI(gdiv(Pi2n(1,T->prec), T->W2)),k));
-  return check_real(y);
+  return cxtoreal(y);
 }
 
 /* Return (2iPi)^k E_k(L) = (2iPi/w2)^k E_k(tau), with L = <w1,w2>, k > 0 even

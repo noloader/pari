@@ -58,6 +58,7 @@ BA    6- [libpari] FpX_ddf_degree, FpXQX_ddf_degree, FlxqX_ddf_degree
      10- [libpari] idealprodval, rnfdisc_factored
      11- [libpari] eta_ZXn, eta_product_ZXn
 BA   12- New GP functions galoisgetgroup, galoisgetname
+     13- [libpari] cxtoreal
 
 Done for version 2.10.0 (released 15/05/2018):
   Fixed

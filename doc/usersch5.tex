@@ -10332,6 +10332,14 @@ These are all the real types which may occur as components of a
 \typ{COMPLEX}; special case of~\kbd{gtofp} (introduced so that the latter is
 not recursive and can thus be inlined).
 
+\fun{GEN}{cxtoreal}{GEN x} converts the complex (\typ{INT}, \typ{REAL},
+\typ{FRAC} or \typ{COMPLEX}) $x$ to a real number if its imaginary part is 0.
+Shallow function.
+
+converts the \typ{COMPLEX}~\kbd{x} to a
+a complex whose real and imaginary parts are \typ{REAL} of length \kbd{prec}
+(special case of~\kbd{gtofp}.
+
 \fun{GEN}{gtofp}{GEN x, long prec} converts the complex number~\kbd{x}
 (\typ{INT}, \typ{REAL}, \typ{FRAC}, \typ{QUAD} or \typ{COMPLEX}) to either
 a \typ{REAL} or \typ{COMPLEX} whose components are \typ{REAL} of precision

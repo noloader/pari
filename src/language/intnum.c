@@ -60,8 +60,7 @@ interp(GEN h, GEN s, long L, long bit, long D)
     err_printf("romb: relative error < 2^-%ld [target %ld bits]\n",e1-e2,bit);
   }
   if (e1-e2 <= bit && (L <= 10 || e1 >= -bit)) { avma = av; return NULL; }
-  if (typ(ss) == t_COMPLEX && gequal0(gel(ss,2))) ss = gel(ss,1);
-  return ss;
+  return cxtoreal(ss);
 }
 
 static GEN
@@ -1937,7 +1936,7 @@ static GEN
 intnumgauexp(void *E, GEN (*eval)(void*,GEN), GEN gN, GEN tab, long prec)
 {
   pari_sp av = avma;
-  GEN U = mkcomplex(gN, gen_0), V = mkcomplex(gel(U,1), gen_0), S = gen_0;
+  GEN U = mkcomplex(gN, NULL), V = mkcomplex(gN, NULL), S = gen_0;
   GEN vabs = gel(tab, 1), vwt = gel(tab, 2);
   long l = lg(vabs), i;
   if (lg(vwt) != l || typ(vabs) != t_VEC || typ(vwt) != t_VEC)
@@ -1948,8 +1947,7 @@ intnumgauexp(void *E, GEN (*eval)(void*,GEN), GEN gN, GEN tab, long prec)
     gel(U,2) = x;
     gel(V,2) = gneg(x);
     t = mulcxI(gsub(eval(E,U), eval(E,V)));
-    if (typ(t) == t_COMPLEX && gequal0(gel(t,2))) t = gel(t,1);
-    S = gadd(S, gmul(gdiv(w,x), t));
+    S = gadd(S, gmul(gdiv(w,x), cxtoreal(t)));
     S = gprec_wensure(S, prec);
   }
   return gerepileupto(av, gprec_w(S, prec));

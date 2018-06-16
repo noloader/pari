@@ -23,10 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 GEN
 trans_fix_arg(long *prec, GEN *s0, GEN *sig, GEN *tau, pari_sp *av, GEN *res)
 {
-  GEN s, p1;
+  GEN p1, s = *s0 = cxtoreal(*s0);
   long l;
-  if (typ(*s0)==t_COMPLEX && gequal0(gel(*s0,2))) *s0 = gel(*s0,1);
-  s = *s0;
   l = precision(s); if (!l) l = *prec;
   if (l < LOWDEFAULTPREC) l = LOWDEFAULTPREC;
   *res = cgetc(l); *av = avma;

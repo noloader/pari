@@ -2968,10 +2968,10 @@ inteta(GEN q)
       t = gneg_i(gmul(ps,gmul(q,gsqr(qn))));
       /* t = (-1)^(n+1) q^(n(3n+1)/2 + 2n+1) */
       y = ser_addmulXn(t, y, vt);
-      qn = gmul(qn,q); ps = gmul(t,qn);
       vqn += v; vps = vt + vqn;
       k = l+v - vps; if (k <= 2) return y;
 
+      qn = gmul(qn,q); ps = gmul(t,qn);
       y = ser_addmulXn(ps, y, vps);
       setlg(q, k);
       setlg(qn, k);

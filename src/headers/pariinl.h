@@ -1299,6 +1299,10 @@ INLINE GEN
 cxtofp(GEN x, long prec)
 { retmkcomplex(cxcompotor(gel(x,1),prec), cxcompotor(gel(x,2),prec)); }
 
+INLINE GEN
+cxtoreal(GEN q)
+{ return (typ(q) == t_COMPLEX && gequal0(gel(q,2)))? gel(q,1): q; }
+
 INLINE double
 gtodouble(GEN x)
 {
