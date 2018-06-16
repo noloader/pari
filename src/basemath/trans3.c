@@ -3699,20 +3699,21 @@ cxEk(GEN tau, long k, long prec)
 {
   pari_sp av = avma;
   GEN p1, q, y, qn;
-  long n, l = precision(tau);
+  long n, b, l = precision(tau);
 
   if (l) prec = l;
-  if (gcmp(imag_i(tau), dbltor(bit_accuracy_mul(prec, M_LN2 / M_PI))) > 0)
-  {
-    avma = av;
-    return real_1(prec);
-  }
+  b = bit_accuracy(prec);
+  /* sum n^(k-1) x^n <= x(1 + (k!-1)x) / (1-x)^k (cf Eulerian polynomials)
+   * S = \sum_{n > 0} n^(k-1) |q^n/(1-q^n)| <= x(1+(k!-1)x) / (1-x)^(k+1),
+   * where x = |q| = exp(-2Pi Im(tau)) < 1. Neglegt 2/zeta(1-k) * S if
+   * (2Pi)^k/(k-1)! x < 2^(-b-1) and k! x < 1. Use log2((2Pi)^k/(k-1)!) < 10 */
+  if (gcmpgs(imag_i(tau), (M_LN2 / M_PI) * (b+1+10)) > 0) return real_1(prec);
   q = expIxy(Pi2n(1, prec), tau, prec);
   q = cxtoreal(q);
   if (k == 2)
   { /* -theta^(3)(tau/2) / theta^(1)(tau/2). Assume that Im tau > 0 */
     y = vecthetanullk_loop(q, 3, prec);
-    return gerepileupto(av, gdiv(gel(y,2), gel(y,1)));
+    return gdiv(gel(y,2), gel(y,1));
   }
 
   y = gen_0; qn = gen_1;

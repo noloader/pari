@@ -12514,7 +12514,9 @@ belongs to the standard fundamental domain and set \kbd{*g} to $\gamma$.
 
 \fun{GEN}{cxEk}{GEN tau, long k, long prec} returns $E_k(\tau)$ by direct
 evaluation of $1 + 2/\zeta(1-k) \sum_n n^{k-1} q^n/(1-q^n)$, $q = e(\tau)$.
-Very slow unless $\tau$ is already reduced modulo $\text{SL}_2(\Z)$.
+Assume that $\Im \tau > 0$ and $k$ even. Very slow unless $\tau$ is already
+reduced modulo $\text{SL}_2(\Z)$. Not \kbd{gerepile}-clean but suitable for
+\kbd{gerepileupto}.
 
 \subsec{Transcendental functions with \typ{PADIC} arguments}
 
