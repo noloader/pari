@@ -1858,11 +1858,11 @@ eta_product_ZXn(GEN eta, long L)
     long r = R[i];
     if (r < 0) { Q = RgXn_inv_i(Q, L); r = -r; }
     if (r != 1) Q = RgXn_powu_i(Q, r, L);
-    P = P? gmul(P, Q): Q;
+    P = P? ZXn_mul(P, Q, L): Q;
     if (gc_needed(av,1) && i > 1)
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"eta_product_ZXn");
-      P = gerepileupto(av, P);
+      P = gerepilecopy(av, P);
     }
   }
   return P;
