@@ -3189,7 +3189,7 @@ factoru_sign(ulong n, ulong all, long hint)
       P[1] = 2; E[1] = v; i = 2;
       n >>= v; if (n == 1) goto END;
     }
-    u_forprime_init(&S, 3, lim);
+    u_forprime_init(&S, 3, lim-1);
     oldi = i;
     while ( (p = u_forprime_next_fast(&S)) )
     {

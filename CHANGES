@@ -18,6 +18,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      14- factorpadic(): wrong results when p-adic accuracy too low
      15- elleisnum([1,I/2^100],4) -> exponent overflow
      16- galoischartable: wrong results
+     17- factor(N, lim) was using primes <= lim instead of < lim as documented
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
