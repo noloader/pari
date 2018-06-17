@@ -1865,7 +1865,7 @@ eta_product_ZXn(GEN eta, long L)
       P = gerepilecopy(av, P);
     }
   }
-  return gerepilecopy(av,P);
+  return P;
 }
 static GEN
 vecan_eta(GEN an, long L)
