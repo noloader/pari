@@ -1740,7 +1740,8 @@ GEN
 rnfconductor(GEN bnf, GEN T)
 {
   pari_sp av = avma;
-  GEN D, nf, module, bnr, H, dT;
+  GEN P, E, Ez, D, nf, module, bnr, H, dT;
+  long i, l;
   ulong lim;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
@@ -1751,8 +1752,29 @@ rnfconductor(GEN bnf, GEN T)
     D = idealfactor_limit(nf, RgX_disc(T), lim);
   else
     D = rnfdisc_factored(nf, T, NULL);
+  P = gel(D,1); l = lg(P);
+  E = gel(D,2); Ez = ZV_to_zv(E);
+  if (l > 1 && vecsmall_max(Ez) > 1)
+  { /* cheaply remove unramified primes */
+    GEN p = gen_0, Tabs = rnfequation(nf, T);
+    long iP;
+    for (i = iP = 1; i < l; i++)
+    {
+      GEN pr = gel(P,i), q = pr_get_p(pr);
+      if (Ez[i] > 1 && !equalii(p,q))
+      { /* maybe unramified ? */
+        GEN L = gel(ZpX_primedec(Tabs,q), 2);
+        p = q;
+        if (itou(vecmax(L)) == pr_get_e(pr)) continue; /* unramified */
+      }
+      gel(P,iP) = gel(P,i);
+      gel(E,iP) = gel(E,i); iP++;
+    }
+    setlg(P,iP);
+    setlg(E,iP);
+  }
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
-  bnr = Buchray_i(bnf,module,nf_INIT);
+  bnr = Buchray_i(bnf,module,nf_INIT|nf_GEN);
   H = rnfnormgroup_i(bnr,T); if (!H) { avma = av; return gen_0; }
   return gerepilecopy(av, bnrconductor_i(bnr,H,2));
 }
