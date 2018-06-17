@@ -1752,7 +1752,7 @@ rnfconductor(GEN bnf, GEN T)
   else
     D = rnfdisc_factored(nf, T, NULL);
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
-  bnr = Buchray_i(bnf,module,nf_INIT | nf_GEN);
+  bnr = Buchray_i(bnf,module,nf_INIT);
   H = rnfnormgroup_i(bnr,T); if (!H) { avma = av; return gen_0; }
   return gerepilecopy(av, bnrconductor_i(bnr,H,2));
 }

@@ -42,6 +42,8 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
       9- the rnf struct from rnfinit has changed, the new format is not
          compatible with pari-2.9
      10- improved eta(x^k)
+     11- rnfconductor(bnf,T) no longer returns a bnr with explicit generators
+         [very costly in tough cases]
 
   Added
       1- [libpari] denom_i, numer_i, conj_i

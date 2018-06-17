@@ -15,7 +15,9 @@ Doc: given a \var{bnf} structure attached to a number field $K$, as produced
  the conductor of the extension given as a 2-component row vector
  $[f_0,f_\infty]$, \var{bnr} is the attached \kbd{bnr} structure
  and \var{subgroup} is a matrix in HNF defining the subgroup of the ray class
- group on \kbd{bnr.gen}.
+ group on the ray class group generators. Note that the latter are only
+ implicitly defined (which saves a lot of time) and \kbd{bnr.gen} will
+ produce an error.
 
  \misctitle{Huge discriminants, helping rnfdisc} the format $[T,B]$ is
  also accepted instead of $T$ and computes the conductor of the extension
