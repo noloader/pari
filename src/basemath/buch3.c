@@ -1740,38 +1740,41 @@ GEN
 rnfconductor(GEN bnf, GEN T)
 {
   pari_sp av = avma;
-  GEN P, E, Ez, D, nf, module, bnr, H, dT;
-  long i, l;
+  GEN D, nf, module, bnr, H, dT;
   ulong lim;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   T = check_polrel(nf, T, &lim);
   dT = Q_denom( RgX_to_nfX(nf, T) );
   if (!is_pm1(dT)) T = RgX_rescale(T, dT);
-  if (lim)
-    D = idealfactor_limit(nf, RgX_disc(T), lim);
-  else
+  if (!lim)
     D = rnfdisc_factored(nf, T, NULL);
-  P = gel(D,1); l = lg(P);
-  E = gel(D,2); Ez = ZV_to_zv(E);
-  if (l > 1 && vecsmall_max(Ez) > 1)
-  { /* cheaply remove unramified primes */
-    GEN p = gen_0, Tabs = rnfequation(nf, T);
-    long iP;
-    for (i = iP = 1; i < l; i++)
-    {
-      GEN pr = gel(P,i), q = pr_get_p(pr);
-      if (Ez[i] > 1 && !equalii(p,q))
-      { /* maybe unramified ? */
-        GEN L = gel(ZpX_primedec(Tabs,q), 2);
-        p = q;
-        if (itou(vecmax(L)) == pr_get_e(pr)) continue; /* unramified */
+  else
+  {
+    GEN P, E, Ez;
+    long i, l;
+    D = idealfactor_limit(nf, RgX_disc(T), lim);
+    P = gel(D,1); l = lg(P);
+    E = gel(D,2); Ez = ZV_to_zv(E);
+    if (l > 1 && vecsmall_max(Ez) > 1)
+    { /* cheaply remove unramified primes */
+      GEN p = gen_0, Tabs = rnfequation(nf, T);
+      long iP;
+      for (i = iP = 1; i < l; i++)
+      {
+        GEN pr = gel(P,i), q = pr_get_p(pr);
+        if (Ez[i] > 1 && !equalii(p,q))
+        { /* maybe unramified ? */
+          GEN L = gel(ZpX_primedec(Tabs,q), 2);
+          p = q;
+          if (equaliu(gel(L,1), pr_get_e(pr)) && vec_isconst(L)) continue;
+        }
+        gel(P,iP) = gel(P,i);
+        gel(E,iP) = gel(E,i); iP++;
       }
-      gel(P,iP) = gel(P,i);
-      gel(E,iP) = gel(E,i); iP++;
+      setlg(P,iP);
+      setlg(E,iP);
     }
-    setlg(P,iP);
-    setlg(E,iP);
   }
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
   bnr = Buchray_i(bnf,module,nf_INIT|nf_GEN);
