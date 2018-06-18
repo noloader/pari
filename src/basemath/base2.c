@@ -1070,7 +1070,7 @@ Decomp(decomp_t *S, long flag)
   if (flag < 0)
   {
     GEN m = vconcat(ZpX_primedec(f1, p), ZpX_primedec(f2, p));
-    return sort_factor(m, &cmpii, &cmp_nodata);
+    return sort_factor(m, (void*)&cmpii, &cmp_nodata);
   }
   else if (flag)
   {
