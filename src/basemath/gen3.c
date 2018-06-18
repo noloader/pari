@@ -1014,7 +1014,7 @@ divrem(GEN x, GEN y, long v)
   if (v < 0 || typ(y) != t_POL || typ(x) != t_POL) return gdiventres(x,y);
   vx = varn(x); if (vx != v) x = swap_vars(x,v);
   vy = varn(y); if (vy != v) y = swap_vars(y,v);
-  q = poldivrem(x,y, &r);
+  q = RgX_divrem(x,y, &r);
   if (v && (vx != v || vy != v))
   {
     GEN X = pol_x(v);
