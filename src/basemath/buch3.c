@@ -1752,28 +1752,28 @@ rnfconductor(GEN bnf, GEN T)
   else
   {
     GEN P, E, Ez;
-    long i, l;
+    long i, l, degT = degpol(T);
     D = idealfactor_limit(nf, RgX_disc(T), lim);
     P = gel(D,1); l = lg(P);
     E = gel(D,2); Ez = ZV_to_zv(E);
     if (l > 1 && vecsmall_max(Ez) > 1)
-    { /* cheaply remove unramified primes */
-      GEN p = gen_0, Tabs = rnfequation(nf, T);
-      long iP;
-      for (i = iP = 1; i < l; i++)
-      {
-        GEN pr = gel(P,i), q = pr_get_p(pr);
-        if (Ez[i] > 1 && !equalii(p,q))
-        { /* maybe unramified ? */
-          GEN L = gel(ZpX_primedec(Tabs,q), 2);
-          p = q;
-          if (equaliu(gel(L,1), pr_get_e(pr)) && vec_isconst(L)) continue;
+    { /* cheaply update tame primes */
+      for (i = 1; i < l; i++)
+      { /* v_pr(f) = 1 + \sum_{0 < i < l} g_i/g_0
+                   <= 1 + max_{i>0} g_i/(g_i-1) \sum_{0 < i < l} g_i -1
+                   <= 1 + (p/(p-1)) * v_P(e(L/K, pr)), P | pr | p */
+        GEN pr = gel(P,i), p = pr_get_p(pr), e = gen_1;
+        long q, v = z_pvalrem(degT, p, &q);
+        if (v)
+        { /* e = e_tame * e_wild, e_wild | p^v */
+          long ee, pp = itou(p);
+          long t = ugcd(umodiu(subiu(pr_norm(pr),1), q), q); /* e_tame | t */
+          /* upper bound for 1 + p/(p-1) * v * e(L/Q,p) */
+          ee = 1 + (pp * v * pr_get_e(pr) * upowuu(pp,v) * t) / (pp-1);
+          e = utoi(minss(ee, Ez[i]));
         }
-        gel(P,iP) = gel(P,i);
-        gel(E,iP) = gel(E,i); iP++;
+        gel(E,i) = e;
       }
-      setlg(P,iP);
-      setlg(E,iP);
     }
   }
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
