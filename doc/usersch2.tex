@@ -463,23 +463,29 @@ parts $x$ and $y$ can be of type \typ{INT}, \typ{REAL}, \typ{INTMOD},
 
 \subsec{$p$-adic numbers (\typ{PADIC}):}%
 \sidx{p-adic number}\label{se:padic}\kbdsidx{t_PADIC}
-Typing \kbd{O($p$\pow $k$)}, where $p$ and $k$ are integers, yields a
-$p$-adic $0$ of accuracy~$k$, representing any $p$-adic number whose
+Typing \kbd{O($p$\pow $k$)}, where $p$ is a prime and $k$ is an integer,
+yields a $p$-adic $0$ of accuracy~$k$, representing any $p$-adic number whose
 valuation is $\geq k$. To input a general non-0 $p$-adic number, write
 a suitably precise rational or integer approximation and add \kbd{O($p$\pow
-$k$)} to it.
+$k$)} to it. For example, you can type in the $7$-adic number
+\bprog
+  2*7^(-1) + 3 + 4*7 + 2*7^2 + O(7^3)
+@eprog\noindent exactly as shown, or equivalently as \kbd{905/7 + O(7\pow3)}.
 
 Note that it is not checked whether $p$ is indeed prime but results are
-undefined if this is not the case: you can work on $10$-adics if you want,
-but disasters will happen as soon as you do something non-trivial like
-taking a square root. Note that \kbd{O(25)} is not the same as
-\kbd{O(5\pow 2)}; you want the latter!
-
-For example, you can type in the $7$-adic number
-
-\kbd{2*7\pow(-1) + 3 + 4*7 + 2*7\pow 2 + O(7\pow3)}
-
-\noindent exactly as shown, or equivalently as \kbd{905/7 + O(7\pow3)}.
+undefined if this is not the case: you can try to work on $10$-adics if
+you want, but disasters will happen as soon as you do something non-trivial.
+For instance:
+\bprog
+? t = 2 * (1/10 + O(10^5));
+? lift(t)
+%2 = 2/10  \\ not reduced (invalid t_FRAC)
+? factor(x^2-t)
+  ***   at top-level: factor(x^2-%1)
+  ***                 ^--------------
+  *** factor: impossible inverse in Fl_inv: Mod(2, 10000).
+@eprog\noindent Note that \kbd{O(25)} is not the same as \kbd{O(5\pow 2)};
+you want the latter!
 
 If $a$ is a \typ{PADIC}, the following member functions are defined:
 
