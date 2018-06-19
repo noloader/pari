@@ -293,7 +293,6 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \li{ramification groups at $P$}{idealramgroups$(\var{nf},G,P)$}
 \li{is $G$ abelian?}{galoisisabelian$(G,\{\fl\})$}
 \li{abelian number fields/$\QQ$}{galoissubcyclo(N,H,\{\fl\},\{v\})}
-\li{query the \kbd{galpol} package}{galoisgetpol(a,b,\{s\})}
 
 \newcolumn
 \title{\TITLE}
@@ -301,6 +300,10 @@ $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \centerline{(PARI-GP version \PARIversion)}
 
 \medskip
+\subsec{The \kbd{galpol} package}
+\li{query the package: polynomial}{galoisgetpol(a,b,\{s\})}
+\li{\dots : permutation group}{galoisgetgroup(a,{b})}
+\li{\dots : group description}{galoisgetname(a,b)}
 
 \section{Relative Number Fields (rnf)}
 Extension $L/K$ is defined by $T\in K[x]$.
@@ -365,7 +368,6 @@ Extension $L/K$ is defined by $T\in K[x]$.
 \li{$\ZZ_K$-basis of $M$ if $\ZZ_K$-free, or $0$}{rnfhnfbasis$(\var{bnf},M)$}
 \li{$n$-basis of $M$, or $(n+1)$-generating set}{rnfbasis$(\var{bnf},M)$}
 \li{is $M$ a free $\ZZ_K$-module?}{rnfisfree$(\var{bnf},M)$}
-\medskip
 
 \section{Associative Algebras}
 $A$ is a general associative algebra given by a multiplication table \var{mt}
