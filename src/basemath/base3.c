@@ -2765,7 +2765,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
   sprk = cgetg(nbp+1,t_VEC);
   if (nbp)
   {
-    GEN t = (nbp==1)? NULL: x;
+    GEN t = (lg(gel(fa,1))==2)? NULL: x; /* beware fa != fa2 */
     cyc = cgetg(nbp+2,t_VEC);
     gen = cgetg(nbp+1,t_VEC);
     for (i = 1; i <= nbp; i++)
