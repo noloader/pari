@@ -2503,17 +2503,18 @@ ser2rfrac(GEN x)
 GEN
 padic_to_Q(GEN x)
 {
-  pari_sp av;
   GEN u = gel(x,4), p;
   long v;
   if (!signe(u)) return gen_0;
   v = valp(x);
   if (!v) return icopy(u);
   p = gel(x,2);
-  av = avma;
-  if (v > 0) return gerepileuptoint(av, mulii(u, powiu(p,v)));
-  /* could use mkfrac if we assume p is prime [#2057] */
-  return gerepileupto(av, gdiv(u, powiu(p, -v)));
+  if (v>0)
+  {
+    pari_sp av = avma;
+    return gerepileuptoint(av, mulii(u, powiu(p,v)));
+  }
+  retmkfrac(icopy(u), powiu(p,-v));
 }
 GEN
 padic_to_Q_shallow(GEN x)
