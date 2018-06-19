@@ -20,6 +20,8 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      16- galoischartable: wrong results
      17- factor(N, lim) was using primes <= lim instead of < lim as documented
      18- bnrinit(,m,1) could return generators not coprime to m (when 2 || Nm)
+     19- a = 7/6+O(6^5); lift(a*2) -> invalid 14/6 [6-adics are not supported
+         but they must not create invalid t_FRACs] [#2057]
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
