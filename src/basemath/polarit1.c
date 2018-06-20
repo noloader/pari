@@ -247,7 +247,7 @@ ZV_to_ZpV(GEN z, GEN p, long r)
 {
   long i, l = lg(z);
   GEN Z = cgetg(l, typ(z)), q = powiu(p, r);
-  for (i=1; i<lg(z); i++) gel(Z,i) = Z_to_Zp(gel(z,i),p,q,r);
+  for (i=1; i<l; i++) gel(Z,i) = Z_to_Zp(gel(z,i),p,q,r);
   return Z;
 }
 /* shallow */
@@ -256,7 +256,7 @@ ZX_to_ZpX(GEN z, GEN p, GEN q, long r)
 {
   long i, l = lg(z);
   GEN Z = cgetg(l, t_POL); Z[1] = z[1];
-  for (i=2; i<lg(z); i++) gel(Z,i) = Z_to_Zp(gel(z,i),p,q,r);
+  for (i=2; i<l; i++) gel(Z,i) = Z_to_Zp(gel(z,i),p,q,r);
   return Z;
 }
 /* return (x + O(p^r)) normalized (multiply by a unit such that leading coeff
