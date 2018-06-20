@@ -209,7 +209,7 @@ RgX_recip6(GEN x)
 }
 /* extract coefficients of a polynomial a0 X^6 + ... + a6, of degree <= 6 */
 static void
-RgX_to_6(GEN q, GEN *a0, GEN *a1, GEN *a2, GEN *a3, GEN *a4, GEN *a5, GEN *a6)
+RgX_to_06(GEN q, GEN *a0, GEN *a1, GEN *a2, GEN *a3, GEN *a4, GEN *a5, GEN *a6)
 {
   *a0 = gen_0;
   *a1 = gen_0;
@@ -227,6 +227,22 @@ RgX_to_6(GEN q, GEN *a0, GEN *a1, GEN *a2, GEN *a3, GEN *a4, GEN *a5, GEN *a6)
     case 2: *a4 = gel(q,4); /*fall through*/
     case 1: *a5 = gel(q,3); /*fall through*/
     case 0: *a6 = gel(q,2); /*fall through*/
+  }
+}
+/* extract coefficients a0,...a3 of a polynomial a0 X^6 + ... + a6 */
+static void
+RgX_to_03(GEN q, GEN *a0, GEN *a1, GEN *a2, GEN *a3)
+{
+  *a0 = gen_0;
+  *a1 = gen_0;
+  *a2 = gen_0;
+  *a3 = gen_0;
+  switch(degpol(q))
+  {
+    case 6: *a0 = gel(q,8); /*fall through*/
+    case 5: *a1 = gel(q,7); /*fall through*/
+    case 4: *a2 = gel(q,6); /*fall through*/
+    case 3: *a3 = gel(q,5); /*fall through*/
   }
 }
 
@@ -295,27 +311,25 @@ factmz(GEN Q, GEN p, long *maxord)
 
 /* H integral ZX of degree 5 or 6, p > 2. Modify until
  *   y^2 = p^alpha H is minimal over Z_p, alpha = 0,1
- * Return [H,lambda,60*theta,alpha,quad,beta], were model
- * quad = 1 if H has a root of order 3 in F_p^2 \ F_p, 0 otherwise
- * 0 <= lambda <= 3, integer
- * theta = theta_j(H, p, lambda), 60*theta in Z.
- * beta >= 0, t_INT */
+ * Return [H,lambda,60*theta,alpha,quad,beta], where
+ *   quad = 1 if H has a root of order 3 in F_p^2 \ F_p, 0 otherwise
+ *   0 <= lambda <= 3, index of a coefficient with valuation 0
+ *   theta = theta_j(H, p, lambda), 60*theta in Z.
+ *   beta >= -1 s.t. H = p^n H0(r + p^beta * X) for some n, r in Z, where
+ *   H0 is the initial H or polrecip(H) */
 static GEN
 polymini(GEN H, GEN p)
 {
-  GEN a0, a1, a2, a3, a4, a5, a6, Hp, rac;
-  long t60, alpha, beta, lambda, maxord, quad = 0;
+  GEN a0, a1, a2, a3, Hp, rac;
+  long t60, alpha, lambda, maxord, quad = 0, beta = 0;
 
-  alpha = polval(H,p);
-  if (alpha) H = ZX_Z_divexact(H, powiu(p,alpha));
-  RgX_to_6(H, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
+  alpha = ZX_pvalrem(H, p, &H) & 1;
+  RgX_to_03(H, &a0,&a1,&a2,&a3);
   if (dvdii(a0,p) && dvdii(a1,p) && dvdii(a2,p) && dvdii(a3,p))
   {
     H = RgX_recip6(H);
-    RgX_to_6(H, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
+    RgX_to_03(H, &a0,&a1,&a2,&a3);
   }
-  alpha &= 1;
-  beta = 0;
   if (!dvdii(a3,p)) lambda = 3;
   else if (!dvdii(a2,p)) lambda = 2;
   else if (!dvdii(a1,p)) lambda = 1;
@@ -425,7 +439,7 @@ polymini_zi(GEN pol) /* polynome minimal dans Z[i] */
       alpha = (alpha+e)&1;
       t6 -= e * 6; beta += e;
     }
-    RgX_to_6(polh, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
+    RgX_to_06(polh, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
     if (t6 || !myval_zi(a4) || !myval_zi(a5)) break;
     rac = zi_pow3mod(gdiv(a6, gneg(a3)));
   }
@@ -473,7 +487,7 @@ polymini_zi2(GEN pol)
       alpha = (alpha+e)&1;
       t6 -= 6*e; beta += e;
     }
-    RgX_to_6(polh, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
+    RgX_to_06(polh, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
     if (t6 || !myval_zi2(a4) || !myval_zi2(a5)) break;
     a3 = liftpol_shallow(a3); if (typ(a3)==t_POL) a3 = RgX_coeff(a3,0);
     a6 = liftpol_shallow(a6); if (typ(a6)==t_POL) a6 = RgX_coeff(a6,0);
@@ -1821,7 +1835,7 @@ genus2localred(struct igusa *I, struct igusa_p *Ip, GEN p, GEN polmini)
         case 20: case 21:
           {
             GEN b0, b1, b2, b3, b4, b5, b6, b02, b03, b04, b05;
-            RgX_to_6(polh, &b0,&b1,&b2,&b3,&b4,&b5,&b6);
+            RgX_to_06(polh, &b0,&b1,&b2,&b3,&b4,&b5,&b6);
             vb5 = myval(b5,p);
             vb6 = myval(b6,p);
             if (vb6 >= 3)
@@ -2088,7 +2102,7 @@ genus2red(GEN PQ, GEN p)
     default: pari_err_DOMAIN("genus2red","genus","!=", gen_2,mkvec2(P,Q));
   }
 
-  RgX_to_6(polr, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
+  RgX_to_03(polr, &a0,&a1,&a2,&a3);
   I.j10 = !signe(a0)? mulii(sqri(a1), ZX_disc(polr)): ZX_disc(polr);
   if (!signe(I.j10))
     pari_err_DOMAIN("genus2red","genus","<",gen_2,mkvec2(P,Q));
@@ -2113,7 +2127,7 @@ genus2red(GEN PQ, GEN p)
     gel(vecmini,i) = pm = polymini(polr, l);
     polr = ZX_Q_mul(gel(pm,1), powiu(l, gel(pm,2)[3]));
   }
-  RgX_to_6(polr, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
+  RgX_to_06(polr, &a0,&a1,&a2,&a3,&a4,&a5,&a6);
   I.j10 = !signe(a0)? mulii(sqri(a1), ZX_disc(polr)): ZX_disc(polr);
   I.j10 = gmul2n(I.j10,-12);
 
