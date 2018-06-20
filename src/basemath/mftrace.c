@@ -8400,6 +8400,7 @@ lfunmf(GEN mf, GEN F, long bitprec)
   mf = checkMF(mf);
   gk = MF_get_gk(mf);
   gN = MF_get_gN(mf);
+  if (typ(gk)!=t_INT) pari_err_IMPL("half-integral weight");
   if (F)
   {
     GEN v;
