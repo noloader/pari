@@ -158,16 +158,6 @@ static long
 myval(GEN x, GEN p) { return signe(x)? Z_pval(x,p): VERYBIG; }
 static long
 my3val(GEN x) { return signe(x)? Z_lval(x,3): VERYBIG; }
-/* largest power of p dividing pol */
-static long
-polval(GEN pol, GEN p)
-{
-  long v, i, lx = lg(pol);
-  if (!signe(pol)) return VERYBIG;
-  v = myval(gel(pol,2),p);
-  for(i = 3;i<lx;i++) v = minss(v, myval(gel(pol,i),p));
-  return v;
-}
 /* b in Z[i], return v_3(b) */
 static long
 myval_zi(GEN b) { return minss(my3val(real_i(b)), my3val(imag_i(b))); }
@@ -395,7 +385,7 @@ polymini(GEN H, GEN p)
       if (maxord == 3)
       {
         GEN T = ZX_unscale(ZX_translate(H,rac),p); /* H(rac + px) */
-        if (polval(T,p)>= 3)
+        if (ZX_pval(T,p)>= 3)
         {
           H = RgX_Rg_div(T, powiu(p,3));
           t60 = theta_j(H,p,3); alpha = 0; beta--;
@@ -421,11 +411,10 @@ static GEN
 polymini_zi(GEN pol) /* polynome minimal dans Z[i] */
 {
   GEN polh, rac, a0, a1, a2, a3, a4, a5, a6, p = utoipos(3);
-  long alpha, beta, t6;
+  long alpha, beta = 0, t6;
 
-  alpha = polval(pol,p) & 1;
+  alpha = ZX_pval(pol,p) & 1;
   polh = alpha? RgX_Rg_div(pol, p): pol;
-  beta = 0;
   rac = mkcomplex(Fp_div(RgX_coeff(polh,3), RgX_coeff(polh,6), p), gen_1);
   for(;;)
   {
@@ -459,7 +448,7 @@ polymini_zi2(GEN pol)
   GEN a0, a1, a2, a3, a4, a5, a6;
   GEN polh, rac, y = pol_x(fetch_var()), p = utoipos(3);
 
-  if (polval(pol,p)) pari_err_BUG("polymini_zi2 [polynomial not minimal]");
+  if (ZX_pval(pol,p)) pari_err_BUG("polymini_zi2 [polynomial not minimal]");
   y = mkpolmod(y, gsubgs(gsqr(y), 3)); /* mod(y,y^2-3) */
   polh = gdivgs(RgX_unscale(pol, y),27); /* H(y*x) / 27 */
   if (myval_zi2(RgX_coeff(polh,4)) <= 0 ||
@@ -2150,7 +2139,7 @@ genus2red(GEN PQ, GEN p)
 
   for(i = 1; i < l; i++)
     gcoeff(facto,i,2) = stoi(Q_pval(I.j10, gel(factp,i)));
-  dd = polval(polr,gen_2) & (~1); /* = 2 floor(val/2) */
+  dd = ZX_pval(polr,gen_2) & (~1); /* = 2 floor(val/2) */
   polr = gmul2n(polr, -dd);
 
   V = cgetg(l, t_VEC);
