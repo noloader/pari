@@ -2713,7 +2713,7 @@ makescind(GEN nf, GEN P)
   G = galoisinit(pol, NULL);
   L = gal_get_group(G);
   p = gal_get_p(G);
-  a = FpX_quad_root(nfpol, p, 0);
+  a = FpX_oneroot(nfpol, p);
   /* P mod a prime \wp above p (which splits) */
   Pp = FpXY_evalx(P, a, p);
   roo = gal_get_roots(G);

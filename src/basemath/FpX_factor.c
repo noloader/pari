@@ -187,7 +187,7 @@ FpX_quad_factortype(GEN x, GEN p)
   return kronecker(D,p);
 }
 /* assume x reduced mod p, monic. Return one root, or NULL if irreducible */
-GEN
+static GEN
 FpX_quad_root(GEN x, GEN p, int unknown)
 {
   GEN s, D, b = gel(x,3), c = gel(x,2);

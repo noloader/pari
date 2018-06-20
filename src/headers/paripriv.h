@@ -529,7 +529,6 @@ GEN  RgX_recipspec_shallow(GEN x, long l, long n);
 
 /* b) Modular */
 GEN  bezout_lift_fact(GEN T, GEN Tmod, GEN p, long e);
-GEN  FpX_quad_root(GEN x, GEN p, int unknown);
 GEN  polsym_gen(GEN P, GEN y0, long n, GEN T, GEN N);
 GEN  ZXQ_charpoly_sqf(GEN A, GEN B, long *lambda, long v);
 GEN  ZX_disc_all(GEN,ulong);
