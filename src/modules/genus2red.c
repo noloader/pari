@@ -302,10 +302,11 @@ factmz(GEN Q, GEN p, long *maxord)
 /* H integral ZX of degree 5 or 6, p > 2. Modify until
  *   y^2 = p^alpha H is minimal over Z_p, alpha = 0,1
  * Return [H,lambda,60*theta,alpha,quad,beta], where
- *   quad = 1 if H has a root of order 3 in F_p^2 \ F_p, 0 otherwise
- *   0 <= lambda <= 3, index of a coefficient with valuation 0
- *   theta = theta_j(H, p, lambda), 60*theta in Z.
- *   beta >= -1 s.t. H = p^n H0(r + p^beta * X) for some n, r in Z, where
+ *   - quad = 1 if H has a root of order 3 in F_p^2 \ F_p, 0 otherwise
+ *   - 0 <= lambda <= 3, index of a coefficient with valuation 0
+ *   - theta = theta_j(H(x + r), p, lambda), 60*theta in Z, where r is a root
+ *   of H mod p
+ *   - beta >= -1 s.t. H = p^n H0(r + p^beta * X) for some n, r in Z, where
  *   H0 is the initial H or polrecip(H) */
 static GEN
 polymini(GEN H, GEN p)
@@ -373,7 +374,8 @@ polymini(GEN H, GEN p)
     {
       if (myval(RgX_coeff(H,6),p) >= 3 &&
           myval(RgX_coeff(H,5),p) >= 2)
-      {
+      { /* too close to root [Kodaira symbol for y^2 = p^alpha*H not
+           implemented when alpha = 1]: go back one step */
         H = ZX_rescale(H, p); /* H(x/p)p^(deg H) */
         H = ZX_Z_divexact(H, powiu(p, degpol(H)-3)); /* H(x/p)p^3 */
         t60 += 60; alpha = 0; beta--;
@@ -388,7 +390,17 @@ polymini(GEN H, GEN p)
         if (ZX_pval(T,p)>= 3)
         {
           H = RgX_Rg_div(T, powiu(p,3));
-          t60 = theta_j(H,p,3); alpha = 0; beta--;
+          alpha = 0; beta++;
+          t60 = theta_j(H,p,3);
+          if (!t60)
+          {
+            Hp = FpX_red(H, p);
+            if (!signe(FpX_disc(Hp,p)))
+            {
+              rac = FpX_oneroot(Hp, p);
+              t60 = theta_j(ZX_translate(H,rac),p,3);
+            }
+          }
         }
       }
     }
