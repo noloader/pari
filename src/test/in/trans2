@@ -80,6 +80,8 @@ sinc(x)
 sinc(1/x)
 sinc(0.*I)
 sinc(O(3^4)*I)
+sinc((1+O(3^3)) * x)
+sinc(Pi * x)
 
 localprec(2003); log(exp(1.5)) - 1.5
 

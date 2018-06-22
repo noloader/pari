@@ -3658,12 +3658,30 @@ gsinc(GEN x, long prec)
       return gerepileuptoleaf(av,gdiv(y,x));
 
     default:
+    {
+      long ex;
       av = avma; if (!(y = toser_i(x))) break;
       if (gequal0(y)) return gerepileupto(av, gaddsg(1,y));
-      if (valp(y) < 0)
-        pari_err_DOMAIN("sinc","valuation", "<", gen_0, x);
-      gsincos(y,&u,&v,prec);
-      return gerepilecopy(av,gdiv(u,y));
+      ex = valp(y);
+      if (ex < 0) pari_err_DOMAIN("sinc","valuation", "<", gen_0, x);
+      if (ex)
+      {
+        gsincos(y,&u,&v,prec);
+        y = gerepileupto(av, gdiv(u,y));
+        if (lg(y) > 2) gel(y,2) = gen_1;
+        return y;
+      }
+      else
+      {
+        GEN z0, y0 = gel(y,2), y1 = serchop0(y), y10 = y1;
+        if (!gequal1(y0)) y10 = gdiv(y10, y0);
+        gsincos(y1,&u,&v,prec);
+        z0 = gdiv(gcos(y0,prec), y0);
+        y = gaddsg(1, y10);
+        u = gadd(gmul(gsinc(y0, prec),v), gmul(z0, u));
+        return gerepileupto(av,gdiv(u,y));
+      }
+    }
   }
   return trans_eval("sinc",gsinc,x,prec);
 }
