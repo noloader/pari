@@ -670,9 +670,22 @@ lfunan(GEN ldata, long L, long prec)
 GEN
 vecpowuu(long N, ulong B)
 {
-  GEN v = const_vec(N, NULL);
+  GEN v;
   long p, i;
   forprime_t T;
+
+  if (B <= 2)
+  {
+    if (!B) return const_vec(N,gen_1);
+    v = cgetg(N+1, t_VEC); if (N == 0) return v;
+    gel(v,1) = gen_1;
+    if (B == 1)
+      for (i = 2; i <= N; i++) gel(v,i) = utoipos(i);
+    else
+      for (i = 2; i <= N; i++) gel(v,i) = sqru(i);
+    return v;
+  }
+  v = const_vec(N, NULL);
   u_forprime_init(&T, 3, N);
   while ((p = u_forprime_next(&T)))
   {
