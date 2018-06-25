@@ -355,7 +355,7 @@ qflllgram_indefgoon2(GEN G)
   a = gcoeff(G2,3,1);
   b = gcoeff(G2,3,2);
   d = bezout(a,b, &u,&v);
-  if (!is_pm1(d))
+  if (!equali1(d))
   {
     a = diviiexact(a,d);
     b = diviiexact(b,d);

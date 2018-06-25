@@ -143,7 +143,7 @@ Beauzamy_bound(GEN S)
   /* s = [S]_2^2 */
   C = powruhalf(stor(3,prec), 3 + 2*d); /* 3^{3/2 + d} */
   C = divrr(mulrr(C, s), mulur(4*d, mppi(prec)));
-  lS = absi(leading_coeff(S));
+  lS = absi_shallow(leading_coeff(S));
   return mulir(lS, sqrtr(C));
 }
 
@@ -184,8 +184,8 @@ cmbf(GEN pol, GEN famod, GEN bound, GEN p, long a, long b,
   GEN fa       = cgetg(lfamod+1, t_VEC);
 
   *pmaxK = cmbf_maxK(lfamod);
-  lc = absi(leading_coeff(pol));
-  if (is_pm1(lc)) lc = NULL;
+  lc = absi_shallow(leading_coeff(pol));
+  if (equali1(lc)) lc = NULL;
   lcpol = lc? ZX_Z_mul(pol, lc): pol;
 
   {
@@ -312,7 +312,7 @@ nextK:
       if (lfamod < 2*K) goto END;
       i = 1; curdeg = deg[ind[1]];
       bound = factor_bound(pol);
-      if (lc) lc = absi(leading_coeff(pol));
+      if (lc) lc = absi_shallow(leading_coeff(pol));
       lcpol = lc? ZX_Z_mul(pol, lc): pol;
       if (DEBUGLEVEL>3)
         err_printf("\nfound factor %Ps\nremaining modular factor(s): %ld\n",
@@ -366,12 +366,12 @@ shifteval(GEN Q, long n)
 static GEN
 root_bound(GEN P0)
 {
-  GEN Q = leafcopy(P0), lP = absi(leading_coeff(Q)), x,y,z;
+  GEN Q = leafcopy(P0), lP = absi_shallow(leading_coeff(Q)), x,y,z;
   long k, d = degpol(Q);
 
   /* P0 = lP x^d + Q, deg Q < d */
   Q = normalizepol_lg(Q, d+2);
-  for (k=lg(Q)-1; k>1; k--) gel(Q,k) = absi(gel(Q,k));
+  for (k=lg(Q)-1; k>1; k--) gel(Q,k) = absi_shallow(gel(Q,k));
   k = (long)(fujiwara_bound(P0));
   for (  ; k >= 0; k--)
   {
@@ -419,8 +419,8 @@ chk_factors(GEN P, GEN M_L, GEN bound, GEN famod, GEN pa)
 
   r  = lg(piv)-1;
   list = cgetg(r+1, t_VEC);
-  lt = absi(leading_coeff(pol));
-  if (is_pm1(lt)) lt = NULL;
+  lt = absi_shallow(leading_coeff(pol));
+  if (equali1(lt)) lt = NULL;
   ltpol = lt? ZX_Z_mul(pol, lt): pol;
   paov2 = shifti(pa,-1);
   for (i = 1;;)
@@ -436,7 +436,7 @@ chk_factors(GEN P, GEN M_L, GEN bound, GEN famod, GEN pa)
     if (lt)
     {
       pol = ZX_Z_divexact(pol, leading_coeff(y));
-      lt = absi(leading_coeff(pol));
+      lt = absi_shallow(leading_coeff(pol));
       ltpol = ZX_Z_mul(pol, lt);
     }
     else
@@ -494,8 +494,8 @@ LLL_cmbf(GEN P, GEN famod, GEN p, GEN pa, GEN bound, long a, long rec)
   pari_sp av, av2;
   long ti_LLL = 0, ti_CF  = 0;
 
-  lP = absi(leading_coeff(P));
-  if (is_pm1(lP)) lP = NULL;
+  lP = absi_shallow(leading_coeff(P));
+  if (equali1(lP)) lP = NULL;
   Br = root_bound(P);
   if (lP) Br = mulii(lP, Br);
   logBr = gtodouble(glog(Br, DEFAULTPREC)) / logp;
@@ -678,7 +678,7 @@ combine_factors(GEN target, GEN famod, GEN p, long klim)
 
   A = factor_bound(target);
 
-  la = absi(leading_coeff(target));
+  la = absi_shallow(leading_coeff(target));
   B = mului(n, sqri(mulii(la, root_bound(target)))); /* = bound for S_2 */
 
   (void)cmbf_precs(p, A, B, &a, &b, &pa, &pb);

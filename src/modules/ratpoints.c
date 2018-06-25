@@ -1333,7 +1333,7 @@ find_points_work(ratpoints_args *args,
     if (is_pm1(w1))
       args->flags |= RATPOINTS_USE_SQUARES;
     else /* set up information on divisors of leading coefficient */
-      setup_us1(args, absi(w1));
+      setup_us1(args, absi_shallow(w1));
   }
 
   /* deal with f mod powers of 2 */

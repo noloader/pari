@@ -135,7 +135,7 @@ qfb_sqr(GEN z, GEN x)
   d1 = bezout(gel(x,2),gel(x,1),&x2, NULL); /* usually 1 */
   c = gel(x,3);
   m = mulii(c,x2);
-  if (is_pm1(d1))
+  if (equali1(d1))
     v1 = v2 = gel(x,1);
   else
   {
@@ -163,13 +163,13 @@ qfb_comp(GEN z, GEN x, GEN y)
   v2 = gel(y,1);
   c  = gel(y,3);
   d = bezout(v2,v1,&y1,NULL);
-  if (is_pm1(d))
+  if (equali1(d))
     m = mulii(y1,n);
   else
   {
     GEN s = subii(gel(y,2), n);
     GEN x2, y2, d1 = bezout(s,d,&x2,&y2); /* x2 s + y2 (x1 v1 + y1 v2) = d1 */
-    if (!is_pm1(d1))
+    if (!equali1(d1))
     {
       v1 = diviiexact(v1,d1);
       v2 = diviiexact(v2,d1); /* gcd = 1 iff x or y primitive */
@@ -410,7 +410,7 @@ nucomp(GEN x, GEN y, GEN L)
   n = subii(gel(y,2), s);
   a1 = gel(x,1);
   a2 = gel(y,1); d = bezout(a2,a1,&u,&v);
-  if (is_pm1(d)) { a = negi(mulii(u,n)); d1 = d; }
+  if (equali1(d)) { a = negi(mulii(u,n)); d1 = d; }
   else if (dvdii(s,d)) /* d | s */
   {
     a = negi(mulii(u,n)); d1 = d;
@@ -422,7 +422,7 @@ nucomp(GEN x, GEN y, GEN L)
   {
     GEN p2, l;
     d1 = bezout(s,d,&u1,NULL);
-    if (!is_pm1(d1))
+    if (!equali1(d1))
     {
       a1 = diviiexact(a1,d1);
       a2 = diviiexact(a2,d1);
@@ -452,7 +452,7 @@ nucomp(GEN x, GEN y, GEN L)
     q4 = subii(q3,s);
     b2 = addii(q3,q4);
     g = diviiexact(q4,v);
-    if (!is_pm1(d1)) { v2 = mulii(d1,v2); v = mulii(d1,v); b2 = mulii(d1,b2); }
+    if (!equali1(d1)) { v2 = mulii(d1,v2); v = mulii(d1,v); b2 = mulii(d1,b2); }
     gel(Q,1) = addii(mulii(d,b), mulii(e,v));
   }
   q1 = mulii(b, v3);
@@ -473,7 +473,7 @@ nudupl(GEN x, GEN L)
   a = gel(x,1);
   b = gel(x,2);
   d1 = bezout(b,a, &u,NULL);
-  if (!is_pm1(d1))
+  if (!equali1(d1))
   {
     a = diviiexact(a, d1);
     b = diviiexact(b, d1);
@@ -495,7 +495,7 @@ nudupl(GEN x, GEN L)
     e = diviiexact(addii(mulii(gel(x,3),v), mulii(b,d)), a);
     g = diviiexact(subii(mulii(e,v2), b), v);
     b2 = addii(mulii(e,v2), mulii(v,g));
-    if (!is_pm1(d1)) { b2 = mulii(d1,b2); v = mulii(d1,v); v2 = mulii(d1,v2); }
+    if (!equali1(d1)) { b2 = mulii(d1,b2); v = mulii(d1,v); v2 = mulii(d1,v2); }
     gel(Q,1) = addii(a2, mulii(e,v));
   }
   gel(Q,2) = addii(b2, subii(sqri(addii(d,v3)), addii(a2,c2)));
@@ -1302,7 +1302,7 @@ qfisolvep(GEN Q, GEN p)
   }
   d = qfb_disc(Q); if (kronecker(d,p) < 0) return gen_0;
   a = redimagsl2(Q, &N);
-  if (is_pm1(gel(a,1))) /* principal form */
+  if (equali1(gel(a,1))) /* principal form */
   {
     long r;
     if (!signe(gel(a,2)))
