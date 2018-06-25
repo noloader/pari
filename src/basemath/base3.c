@@ -2566,10 +2566,7 @@ pr_basis_perm(GEN nf, GEN pr)
     GEN H = pr_hnf(nf,pr);
     long i, k;
     for (i = k = 2; k <= f; i++)
-    {
-      if (is_pm1(gcoeff(H,i,i))) continue;
-      perm[k++] = i;
-    }
+      if (!equali1(gcoeff(H,i,i))) perm[k++] = i;
   }
   return perm;
 }
