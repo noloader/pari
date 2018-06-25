@@ -1631,7 +1631,7 @@ RecCoeff3(GEN nf, RC_data *d, long prec)
   d->G = minss(-10, -prec2nbits(prec) >> 4);
   BIG = maxss(32, -2*d->G);
   tB  = sqrtnr(real2n(BIG-N,DEFAULTPREC), N-1);
-  Bd  = grndtoi(gmin(B, tB), &e);
+  Bd  = grndtoi(gmin_shallow(B, tB), &e);
   if (e > 0) return NULL; /* failure */
   Bd = addiu(Bd, 1);
   prec2 = nbits2prec( expi(Bd) + 192 );

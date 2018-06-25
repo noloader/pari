@@ -1336,7 +1336,7 @@ redrealsl2step(GEN A, GEN d, GEN rd)
   GEN N, V = gel(A,1), M = gel(A,2);
   GEN a = gel(V,1), b = gel(V,2), c = gel(V,3);
   GEN C = mpabs_shallow(c);
-  GEN t = addii(b, gmax(rd, C));
+  GEN t = addii(b, gmax_shallow(rd, C));
   GEN r, q = truedvmdii(t, shifti(C,1), &r);
   b = subii(t, addii(r,b));
   a = c;
@@ -1358,7 +1358,7 @@ redrealsl2(GEN V, GEN d, GEN rd)
   while (!ab_isreduced(a,b,rd))
   {
     GEN C = mpabs_shallow(c);
-    GEN t = addii(b, gmax(rd,C));
+    GEN t = addii(b, gmax_shallow(rd,C));
     GEN r, q = truedvmdii(t, shifti(C,1), &r);
     b = subii(t, addii(r,b));
     a = c;

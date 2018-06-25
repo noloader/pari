@@ -11108,6 +11108,16 @@ to~\kbd{y}, 0~otherwise. In particular, the types and length of \kbd{x} and
 particular, \typ{REAL} with different accuracies are tested different. This
 relation is transitive.
 
+\fun{GEN}{gmax}{GEN x, GEN y} returns a copy of the maximum of $x$ and $y$,
+compared using \kbd{gcmp}.
+
+\fun{GEN}{gmin}{GEN x, GEN y} returns a copy of the minimum of $x$ and $y$,
+compared using \kbd{gcmp}.
+
+\fun{GEN}{gmax_shallow}{GEN x, GEN y} shallow version of \kbd{gmax}.
+
+\fun{GEN}{gmin_shallow}{GEN x, GEN y} shallow version of \kbd{gmin}.
+
 \subsec{Comparison with a small integer}
 
 \fun{int}{isexactzero}{GEN x} returns 1 (true) if \kbd{x} is exactly equal

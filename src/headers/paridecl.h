@@ -5097,6 +5097,8 @@ INLINE long   expi(GEN x);
 INLINE long   expu(ulong x);
 INLINE void   fixlg(GEN z, long ly);
 INLINE GEN    fractor(GEN x, long prec);
+INLINE GEN    gmax_shallow(GEN x, GEN y);
+INLINE GEN    gmin_shallow(GEN x, GEN y);
 INLINE GEN    icopy(GEN x);
 INLINE GEN    icopyspec(GEN x, long nx);
 INLINE GEN    icopy_avma(GEN x, pari_sp av);

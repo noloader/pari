@@ -1317,7 +1317,7 @@ zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
       if (gsigne(p) > 0) q = gneg_i(q); else p = gneg_i(p);
       min1 = gsub(gmulsg(3, gmul(xm,q)), gabs(gmul(q, tol1), 0));
       min2 = gabs(gmul(e, q), 0);
-      if (gcmp(gmul2n(p, 1), gmin(min1, min2)) < 0)
+      if (gcmp(gmul2n(p, 1), gmin_shallow(min1, min2)) < 0)
         { e = d; d = gdiv(p, q); } /* interpolation OK */
       else
         { d = xm; e = d; } /* failed, use bisection */

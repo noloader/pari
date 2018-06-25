@@ -3879,7 +3879,7 @@ extraprime(GEN nf, GEN Lpr)
   for (i=1; i<lg(Lpr); i++)
   {
     gel(Lpr2,i) = gel(Lpr,i);
-    p = gmax(p, pr_get_p(gel(Lpr,i)));
+    p = gmax_shallow(p, pr_get_p(gel(Lpr,i)));
   }
   p = nextprime(addis(p,1));
   pr = gel(idealprimedec_limit_f(nf, p, 0), 1);

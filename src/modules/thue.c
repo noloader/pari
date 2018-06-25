@@ -310,8 +310,8 @@ Baker(baker_s *BS)
   /* Compute a bound for the h_0 */
   hb0 = gadd(gmul2n(BS->hal,2), gmul2n(gadd(BS->Hmu,mplog2(DEFAULTPREC)), 1));
   tmp = gmul(BS->divro, gdiv(gel(BS->NE,i1), gel(BS->NE,i2)));
-  tmp = gmax(gen_1, abslog(tmp));
-  hb0 = gmax(hb0, gdiv(tmp, BS->bak));
+  tmp = gmax_shallow(gen_1, abslog(tmp));
+  hb0 = gmax_shallow(hb0, gdiv(tmp, BS->bak));
   c9 = gmul(BS->c91,hb0);
   c9 = gprec_w(myround(c9, 1), DEFAULTPREC);
   Indc11 = rtor(mulir(BS->Ind,BS->c11), DEFAULTPREC);
@@ -319,10 +319,9 @@ Baker(baker_s *BS)
   B0 = mulir(shifti(BS->Ind,1),
              divrr(addrr(mulrr(c9,mplog(divrr(mulir(BS->Ind, c9),BS->c10))),
                          mplog(Indc11)), BS->c10));
-  B0 = gmax(B0, dbltor(2.71828183));
-  B0 = gmax(B0, mulrr(divir(BS->Ind, BS->c10),
-                      mplog(divrr(Indc11, BS->Pi2))));
-
+  B0 = gmax_shallow(B0, dbltor(2.71828183));
+  B0 = gmax_shallow(B0, mulrr(divir(BS->Ind, BS->c10),
+                              mplog(divrr(Indc11, BS->Pi2))));
   if (DEBUGLEVEL>1) {
     err_printf("  B0  = %Ps\n",B0);
     err_printf("  Baker = %Ps\n",c9);
@@ -936,7 +935,8 @@ get_B0(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
         if (DEBUGLEVEL>1) err_printf("Semirat. reduction: B0 -> %Ps\n",B0);
       }
       /* if no progress, stop */
-      if (gcmp(oldB0, gadd(B0,dbltor(0.1))) <= 0) return gmin(oldB0, B0);
+      if (gcmp(oldB0, gadd(B0,dbltor(0.1))) <= 0)
+        return gmin_shallow(oldB0, B0);
       else step++;
     }
     i2++; if (i2 == i1) i2++;
@@ -1050,9 +1050,9 @@ START:
   c4 = mulur(n-1, c3);
   c14 = mulrr(c4, vecmax_shallow(RgM_sumcol(gabs(A,DEFAULTPREC))));
 
-  x1 = gmax(x0, sqrtnr(shiftr(tmp,1),n));
-  x2 = gmax(x1, sqrtnr(mulur(10,c14), n));
-  x3 = gmax(x2, sqrtnr(shiftr(c14, EXPO1+1),n));
+  x1 = gmax_shallow(x0, sqrtnr(shiftr(tmp,1),n));
+  x2 = gmax_shallow(x1, sqrtnr(mulur(10,c14), n));
+  x3 = gmax_shallow(x2, sqrtnr(shiftr(c14, EXPO1+1),n));
   c90 = gmul(shiftr(mulur(18,mppi(DEFAULTPREC)), 5*(4+r)),
                     gmul(gmul(mpfact(r+3), powiu(muliu(BS.bak,r+2), r+3)),
                          glog(muliu(BS.bak,2*(r+2)),DEFAULTPREC)));
@@ -1107,8 +1107,8 @@ START:
     for (k=1; k<=r; k++)
     {
       GEN z = gdiv(gcoeff(MatFU,iroot1,k), gcoeff(MatFU,iroot2,k));
-      z = gmax(gen_1, abslog(z));
-      c91 = gmul(c91, gmax(gel(ALH,k), gdiv(z, BS.bak)));
+      z = gmax_shallow(gen_1, abslog(z));
+      c91 = gmul(c91, gmax_shallow(gel(ALH,k), gdiv(z, BS.bak)));
     }
     BS.c91 = c91;
 
@@ -1155,12 +1155,12 @@ START:
       {
         if (! (Bx = get_Bx_LLL(i1, Delta2, Lambda, prec, &BS)) )
            goto START;
-        x3 = gerepileupto(av2, gmax(Bx, x3));
+        x3 = gerepileupto(av2, gmax_shallow(Bx, x3));
       }
     }
     ine = 1;
   }
-  x3 = gmax(x0, MiddleSols(&S, x3, ro, P, rhs, s, c1));
+  x3 = gmax_shallow(x0, MiddleSols(&S, x3, ro, P, rhs, s, c1));
   return SmallSols(S, x3, P, rhs);
 }
 

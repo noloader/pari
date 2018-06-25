@@ -2040,7 +2040,7 @@ ratpolemax2(GEN F, GEN *p)
   GEN t;
   if (typ(F) == t_POL) { if (p) *p = gen_1; return polmax(F); }
   t = polmax(gel(F,2)); if (p) *p = t;
-  return gmax(t, polmax(gel(F,1)));
+  return gmax_shallow(t, polmax(gel(F,1)));
 }
 
 static GEN

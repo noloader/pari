@@ -1969,12 +1969,12 @@ gabs(GEN x, long prec)
 }
 
 GEN
-gmax(GEN x, GEN y) { return gcopy(gcmp(x,y)<0? y: x); }
+gmax(GEN x, GEN y) { return gcopy(gmax_shallow(x,y)); }
 GEN
 gmaxgs(GEN x, long s) { return (gcmpsg(s,x)>=0)? stoi(s): gcopy(x); }
 
 GEN
-gmin(GEN x, GEN y) { return gcopy(gcmp(x,y)<0? x: y); }
+gmin(GEN x, GEN y) { return gcopy(gmin_shallow(x,y)); }
 GEN
 gmings(GEN x, long s) { return (gcmpsg(s,x)>0)? gcopy(x): stoi(s); }
 

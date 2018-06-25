@@ -1273,7 +1273,7 @@ mycaract(decomp_t *S, GEN f, GEN a, GEN pp, GEN pdr)
   {
     GEN p1 = powiu(d, n);
     prec2 = mulii(prec1, p1);
-    prec3 = mulii(prec1, gmin(mulii(p1, d), pdr));
+    prec3 = mulii(prec1, gmin_shallow(mulii(p1, d), pdr));
   }
   else
     prec2 = prec3 = prec1;

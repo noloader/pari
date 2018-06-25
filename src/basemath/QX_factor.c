@@ -158,7 +158,7 @@ factor_bound(GEN S)
     err_printf("Mignotte bound: %Ps\n",a);
     err_printf("Beauzamy bound: %Ps\n",b);
   }
-  return gerepileupto(av, ceil_safe(gmin(a, b)));
+  return gerepileupto(av, ceil_safe(gmin_shallow(a, b)));
 }
 
 /* Naive recombination of modular factors: combine up to maxK modular
