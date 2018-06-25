@@ -591,8 +591,8 @@ GuessQi(GEN b, GEN c, GEN *eps)
   Q = gel(lllint(Lat),1);
   if (gequal0(gel(Q,2))) return NULL; /* FAIL */
 
-  *eps = gadd(gadd(gel(Q,3), gmul(gel(Q,1),b)), gmul(gel(Q,2),c));
-  *eps = mpabs(*eps); return Q;
+  *eps = mpadd(mpadd(gel(Q,3), mpmul(gel(Q,1),b)), mpmul(gel(Q,2),c));
+  *eps = mpabs_shallow(*eps); return Q;
 }
 
 /* x a t_REAL */
@@ -927,7 +927,7 @@ get_B0(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
 
         if (! (Q = GuessQi(BS->delta, BS->lambda, &ep)) ) break;
 
-        denbound = gadd(B0, absi_shallow(gel(Q,1)));
+        denbound = mpadd(B0, absi_shallow(gel(Q,1)));
         q = denom_i( bestappr(BS->delta, denbound) );
         l0 = subrr(errnum(BS->delta, q), ep);
         if (signe(l0) <= 0) break;
@@ -973,15 +973,16 @@ get_Bx_LLL(long i1, GEN Delta2, GEN Lambda, long prec, baker_s *BS)
       /* FIXME: TO BE COMPLETED */
       if (!step && cf == cfMAX)
       { /* Semirational or totally rational case */
-        GEN Q, ep, q, l0, denbound;
+        GEN Q, Q1, Q2, ep, q, l0, denbound;
 
         if (! (Q = GuessQi(BS->delta, BS->lambda, &ep)) ) break;
 
         /* Q[2] != 0 */
-        denbound = gadd(mulri(B0, absi_shallow(gel(Q,1))),
-                        mulii(BS->Ind, absi_shallow(gel(Q,2))));
+        Q1 = absi_shallow(gel(Q,1));
+        Q2 = absi_shallow(gel(Q,2));
+        denbound = gadd(mulri(B0, Q1), mulii(BS->Ind, Q2));
         q = denom_i( bestappr(BS->delta, denbound) );
-        l0 = divri(subrr(errnum(BS->delta, q), ep), absi_shallow(gel(Q,2)));
+        l0 = divri(subrr(errnum(BS->delta, q), ep), Q2);
         if (signe(l0) <= 0) break;
 
         get_B0Bx(BS, l0, &B0, &Bx);
