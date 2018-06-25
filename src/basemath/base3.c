@@ -1965,7 +1965,7 @@ nfinvmodideal(GEN nf, GEN x, GEN y)
   pari_sp av = avma;
   GEN a, yZ = gcoeff(y,1,1);
 
-  if (is_pm1(yZ)) return gen_0;
+  if (equali1(yZ)) return gen_0;
   x = nf_to_scalar_or_basis(nf, x);
   if (typ(x) == t_INT) return gerepileupto(av, Fp_inv(x, yZ));
 
@@ -2017,7 +2017,7 @@ famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
   GEN EXo2, plus = NULL, minus = NULL, idZ = gcoeff(id,1,1);
   long i, lx = lg(g);
 
-  if (is_pm1(idZ)) return gen_1; /* id = Z_K */
+  if (equali1(idZ)) return gen_1; /* id = Z_K */
   EXo2 = (expi(EX) > 10)? shifti(EX,-1): NULL;
   for (i = 1; i < lx; i++)
   {

@@ -790,9 +790,9 @@ gauss_factor(GEN x)
     setlg(P2, j); setlg(E2, j);
     fa = famat_mul_shallow(mkmat2(P1,E1), mkmat2(P2,E2));
   }
-  if (!is_pm1(n) || !is_pm1(d))
+  if (!equali1(n) || !equali1(d))
   {
-    GEN Fa = factor(gdiv(n, d));
+    GEN Fa = factor(Qdivii(n, d));
     P = gel(Fa,1); l = lg(P);
     E = gel(Fa,2);
     for (i = 1; i < l; i++)
@@ -1425,7 +1425,7 @@ ggcd(GEN x, GEN y)
         else
         {
           av = avma; p1 = gcdii(gel(z,1),gel(x,2));
-          if (!is_pm1(p1))
+          if (!equali1(p1))
           {
             p1 = gcdii(p1,gel(y,2));
             if (equalii(p1, gel(z,1))) { cgiv(p1); p1 = gen_0; }
@@ -1473,7 +1473,7 @@ ggcd(GEN x, GEN y)
           case t_INTMOD: z = cgetg(3,t_INTMOD);
             gel(z,1) = icopy(gel(y,1)); av = avma;
             p1 = gcdii(gel(y,1),gel(y,2));
-            if (!is_pm1(p1)) {
+            if (!equali1(p1)) {
               p1 = gcdii(x,p1);
               if (equalii(p1, gel(z,1))) { cgiv(p1); p1 = gen_0; }
               else
@@ -1517,7 +1517,7 @@ ggcd(GEN x, GEN y)
         {
           case t_FRAC:
             av = avma; p1=gcdii(gel(x,1),gel(y,2)); avma = av;
-            if (!is_pm1(p1)) pari_err_OP("gcd",x,y);
+            if (!equali1(p1)) pari_err_OP("gcd",x,y);
             return ggcd(gel(y,1), x);
 
           case t_FFELT:
@@ -1840,7 +1840,7 @@ content(GEN x)
     while (lx-- > lontyp[tx])
     {
       c = gcdii(c, gel(x,lx));
-      if (is_pm1(c)) { avma=av; return gen_1; }
+      if (equali1(c)) { avma=av; return gen_1; }
     }
   }
   else
@@ -1952,7 +1952,7 @@ Z_content_v(GEN x, long i, long l)
   {
     GEN c = Z_content(gel(x,i));
     if (!c) return NULL;
-    d = gcdii(d, c); if (is_pm1(d)) return NULL;
+    d = gcdii(d, c); if (equali1(d)) return NULL;
     if ((i & 255) == 0) d = gerepileuptoint(av, d);
   }
   return gerepileuptoint(av, d);
@@ -2271,7 +2271,7 @@ Q_primitive_part(GEN x, GEN *ptc)
   {
     if (typ(c) == t_INT)
     {
-      if (is_pm1(c)) { avma = av; c = NULL; }
+      if (equali1(c)) { avma = av; c = NULL; }
       else if (signe(c)) x = Q_divi_to_int(x, c);
     }
     else x = Q_divq_to_int(x, c);
