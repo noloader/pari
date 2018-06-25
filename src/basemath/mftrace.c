@@ -11677,6 +11677,7 @@ mfsymbol(GEN mf, GEN F, long bit)
     if (!checkmf_i(F)) pari_err_TYPE("mfsymbol", F);
     mf = mfinit_i(F, mf_FULL);
   }
+  else if (!checkmf_i(F)) pari_err_TYPE("mfsymbol", F);
   if (checkfs2_i(mf)) return fs2_init(mf, F, bit);
   if (checkfs_i(mf))
   {
