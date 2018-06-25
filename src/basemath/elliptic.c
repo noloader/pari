@@ -2055,7 +2055,7 @@ CM_factor(GEN E, GEN Q)
     case NO: return NULL;
     case LOW_PREC: return gen_1;
   }
-  fk = absi(fk);
+  fk = absi_shallow(fk);
 
   fkb = gmul(fk, gmul2n(x,1));
   switch(myroundr(&fkb))
@@ -2077,7 +2077,7 @@ CM_factor(GEN E, GEN Q)
   q = dvmdii(dF, D, &r);
   if (r != gen_0 || !Z_issquareall(q, &q)) return NULL;
   /* disc(Q) = disc(tau) (v / q)^2 */
-  v = dvmdii(absi(v), q, &r);
+  v = dvmdii(absi_shallow(v), q, &r);
   if (r != gen_0) return NULL;
   return is_pm1(v)? gen_1: v; /* E has CM by Q/q: [Q] = [q] o [Q/q] */
 }
@@ -4596,7 +4596,7 @@ ellminimaldisc(GEN E)
   {
     case t_ELL_Q:
       E = ellminimalmodel(E,NULL);
-      return gerepileuptoint(av, absi(ell_get_disc(E)));
+      return gerepileuptoint(av, absi_shallow(ell_get_disc(E)));
     case t_ELL_NF:
     {
       GEN nf = ellnf_get_nf(E), S, L, U, D;

@@ -788,7 +788,7 @@ D_collectcards(GEN N, GEN param, GEN* X0, GEN Dinfo, GEN sqrtlist, GEN g, GEN Dm
   dbg_mode() timer_record(X0, "A3", &ti);
   /* A5: Use square root with Cornacchia to solve U^2 + |D|V^2 = 4N */
   dbg_mode() timer_start(&ti);
-  corn_succ = cornacchia2_sqrt( absi(stoi(D)), N, sqrtofDmodN, &U, &V);
+  corn_succ = cornacchia2_sqrt( utoi(labs(D)), N, sqrtofDmodN, &U, &V);
   dbg_mode() timer_record(X0, "A5", &ti);
   if (!corn_succ) {
     dbg_mode() err_printf(ANSI_YELLOW "c" ANSI_RESET);

@@ -537,7 +537,7 @@ bnr_to_znstar(GEN bnr, long *complex)
   {
     GEN x = gel(gen,i);
     if (typ(x) == t_COL) x = gel(x,1);
-    gel(v,i) = gmodulo(absi(x), F);
+    gel(v,i) = gmodulo(absi_shallow(x), F);
   }
   return mkvec3(bnr_get_no(bnr), bnr_get_cyc(bnr), v);
 }

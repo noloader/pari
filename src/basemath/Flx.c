@@ -2790,9 +2790,8 @@ Flxq_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, ulong p)
 {
   pari_sp av=avma;
   long d = get_Flx_degree(T);
-  GEN an = absi(n), z, q;
-  if (abscmpiu(an,p)<0 || cmpis(an,d)<=0)
-    return Flxq_pow(x, n, T, p);
+  GEN an = absi_shallow(n), z, q;
+  if (abscmpiu(an,p)<0 || cmpis(an,d)<=0) return Flxq_pow(x, n, T, p);
   q = powuu(p, d);
   if (dvdii(q, n))
   {

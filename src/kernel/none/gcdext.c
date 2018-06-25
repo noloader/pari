@@ -107,13 +107,14 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
    */
   if (lgefint(a) > lgefint(b))
   {
-    d = absi(b), q = dvmdii(absi(a), d, &d1);
+    d = absi_shallow(b);
+    q = dvmdii(absi_shallow(a), d, &d1);
     if (!signe(d1))                /* a == qb */
     {
       avma = av;
       if (pu) *pu = gen_0;
       if (pv) *pv = sb < 0 ? gen_m1 : gen_1;
-      return (icopy(d));
+      return icopy(d);
     }
     else
     {
@@ -125,7 +126,8 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
   }
   else
   {
-    d = absi(a); d1 = absi(b);
+    d = absi_shallow(a);
+    d1 = absi_shallow(b);
     u = v1 = gen_1; u1 = v = gen_0;
   }
   av1 = avma;

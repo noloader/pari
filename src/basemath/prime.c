@@ -31,8 +31,7 @@ typedef struct {
 static void
 init_MR_Jaeschke(MR_Jaeschke_t *S, GEN n)
 {
-  if (signe(n) < 0) n = absi(n);
-  S->n = n;
+  S->n = n = absi_shallow(n);
   S->t = subiu(n,1);
   S->r1 = vali(S->t);
   S->t1 = shifti(S->t, -S->r1);

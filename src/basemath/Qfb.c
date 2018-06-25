@@ -520,7 +520,7 @@ nupow(GEN x, GEN n, GEN L)
   D = qfb_disc(x);
   y = qfi_1_by_disc(D);
   if (!signe(n)) return y;
-  if (!L) L = sqrtnint(absi(D), 4);
+  if (!L) L = sqrtnint(absi_shallow(D), 4);
   y = gen_pow(x, n, (void*)L, &mul_nudupl, &mul_nucomp);
   if (signe(n) < 0
   && !absequalii(gel(y,1),gel(y,2))
@@ -1236,7 +1236,7 @@ primeform(GEN x, GEN p, long prec)
   }
   /* 2 or 3 mod 4 */
   if (s & 2) pari_err_DOMAIN(f, "disc % 4", ">",gen_1, x);
-  absp = absi(p); av = avma;
+  absp = absi_shallow(p); av = avma;
   b = Fp_sqrt(x, absp); if (!b) pari_err_SQRTN(f, mkintmod(x,absp));
   s &= 1; /* s = x mod 2 */
   /* mod(b) != mod2(x) ? [Warning: we may have b == 0] */

@@ -177,8 +177,10 @@ qfbreduce(GEN D, GEN Q)
   {
     GEN r, q, nexta, nextc;
     q = dvmdii(b,a, &r); /* FIXME: export as dvmdiiround ? */
-    if (signe(r) > 0 && abscmpii(shifti(r,1), a) > 0) {
-      r = subii(r, absi(a)); q = addis(q, signe(a));
+    if (signe(r) > 0 && abscmpii(shifti(r,1), a) > 0)
+    {
+      r = subii(r, absi_shallow(a));
+      q = addis(q, signe(a));
     }
     nextc = a; nexta = subii(c, mulii(q, addii(r,b)));
     if (abscmpii(nexta, a) >= 0) break;
@@ -880,7 +882,7 @@ qfsolve_i(GEN G)
   }
 
   /* factorization of the determinant */
-  fam2detG = Z_factor( absi(d) );
+  fam2detG = absZ_factor(d);
   P = gel(fam2detG,1);
   E = ZV_to_zv(gel(fam2detG,2));
   /* P,E = factor(|det(G)|) */

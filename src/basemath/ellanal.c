@@ -661,7 +661,7 @@ heightQ(GEN P, long prec)
   }
   s = signe(P);
   if (!s) return real_0(prec);
-  if (s < 0) P = absi(P);
+  if (s < 0) P = negi(P);
   return glog(P, prec);
 }
 
@@ -672,7 +672,7 @@ logplusQ(GEN t, long prec)
   if (typ(t) == t_INT)
   {
     if (!signe(t)) return real_1(prec);
-    if (signe(t) < 0) t = absi(t);
+    if (signe(t) < 0) t = negi(t);
   }
   else
   {
@@ -690,7 +690,7 @@ hnaive_max(GEN ell, GEN ht)
 {
   const long prec = LOWDEFAULTPREC; /* minimal accuracy */
   GEN b2     = ell_get_b2(ell), j = ell_get_j(ell);
-  GEN logd   = glog(absi(ell_get_disc(ell)), prec);
+  GEN logd   = glog(absi_shallow(ell_get_disc(ell)), prec);
   GEN logj   = logplusQ(j, prec);
   GEN hj     = heightQ(j, prec);
   GEN logb2p = signe(b2)? addrr(logplusQ(gdivgs(b2, 12),prec), mplog2(prec))
@@ -803,7 +803,7 @@ static void
 best_point(GEN Q, GEN NQ, GEN f, GEN *pu, GEN *pv)
 {
   GEN a = mulii(NQ, gel(f,3)), b = negi(gel(f,2)), c = diviiexact(gel(f,1), NQ);
-  GEN D = absi( qfb_disc(f) );
+  GEN D = absi_shallow( qfb_disc(f) );
   GEN U, qr = redimagsl2(qfi(a,b,c), &U);
   GEN A = gel(qr,1), B = gel(qr,2), A2 = shifti(A,1), AA4 = sqri(A2);
   GEN V, best;
@@ -834,7 +834,7 @@ best_point(GEN Q, GEN NQ, GEN f, GEN *pu, GEN *pv)
   if (is_pm1(gcdii(*pu, Q)) && is_pm1(gcdii(*pv, NQ))) return;
 
   /* (X,Y) = (1, \pm1) always works. Try to do better now */
-  best = subii(addii(a, c), absi(b));
+  best = subii(addii(a, c), absi_shallow(b));
   *pu = gen_1;
   *pv = signe(b) < 0? gen_1: gen_m1;
 

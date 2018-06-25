@@ -701,7 +701,7 @@ SmallSols(GEN S, GEN x3, GEN poly, GEN rhs)
   /* y = 0 first: solve X^n = rhs */
   if (odd(n))
   {
-    if (Z_ispowerall(absi(rhs), n, &X))
+    if (Z_ispowerall(absi_shallow(rhs), n, &X))
       add_sol(&S, signe(rhs) > 0? X: negi(X), gen_0);
   }
   else if (signe(rhs) > 0 && Z_ispowerall(rhs, n, &X))
@@ -927,7 +927,7 @@ get_B0(long i1, GEN Delta2, GEN Lambda, GEN Deps5, long prec, baker_s *BS)
 
         if (! (Q = GuessQi(BS->delta, BS->lambda, &ep)) ) break;
 
-        denbound = gadd(B0, absi(gel(Q,1)));
+        denbound = gadd(B0, absi_shallow(gel(Q,1)));
         q = denom_i( bestappr(BS->delta, denbound) );
         l0 = subrr(errnum(BS->delta, q), ep);
         if (signe(l0) <= 0) break;
@@ -978,10 +978,10 @@ get_Bx_LLL(long i1, GEN Delta2, GEN Lambda, long prec, baker_s *BS)
         if (! (Q = GuessQi(BS->delta, BS->lambda, &ep)) ) break;
 
         /* Q[2] != 0 */
-        denbound = gadd(mulri(B0, absi(gel(Q,1))),
-                        mulii(BS->Ind, absi(gel(Q,2))));
+        denbound = gadd(mulri(B0, absi_shallow(gel(Q,1))),
+                        mulii(BS->Ind, absi_shallow(gel(Q,2))));
         q = denom_i( bestappr(BS->delta, denbound) );
-        l0 = divri(subrr(errnum(BS->delta, q), ep), absi(gel(Q,2)));
+        l0 = divri(subrr(errnum(BS->delta, q), ep), absi_shallow(gel(Q,2)));
         if (signe(l0) <= 0) break;
 
         get_B0Bx(BS, l0, &B0, &Bx);

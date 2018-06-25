@@ -940,7 +940,7 @@ CharNewPrec(GEN dataCR, GEN nf, long prec)
   N     =  nf_get_degree(nf);
   prec2 = precdbl(prec) + EXTRA_PREC;
 
-  C = sqrtr(divir(absi(dk), powru(mppi(prec2), N)));
+  C = sqrtr(divir(absi_shallow(dk), powru(mppi(prec2), N)));
 
   l = lg(dataCR);
   for (j = 1; j < l; j++)

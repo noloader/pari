@@ -105,7 +105,7 @@ idealhnf_principal(GEN nf, GEN x)
   {
     case t_COL: break;
     case t_INT:  if (!signe(x)) return cgetg(1,t_MAT);
-      return scalarmat(absi(x), nf_get_degree(nf));
+      return scalarmat(absi_shallow(x), nf_get_degree(nf));
     case t_FRAC:
       return scalarmat(Q_abs_shallow(x), nf_get_degree(nf));
     default: pari_err_TYPE("idealhnf",x);
@@ -1837,8 +1837,8 @@ idealnumden(GEN nf, GEN x)
       x = nf_to_scalar_or_basis(nf, x);
       switch(typ(x))
       {
-        case t_INT: return gerepilecopy(av, mkvec2(absi(x),gen_1));
-        case t_FRAC:return gerepilecopy(av, mkvec2(absi(gel(x,1)), gel(x,2)));
+        case t_INT: return gerepilecopy(av, mkvec2(absi_shallow(x),gen_1));
+        case t_FRAC:return gerepilecopy(av, mkvec2(absi_shallow(gel(x,1)), gel(x,2)));
       }
       /* t_COL */
       x = Q_remove_denom(x, &d);
@@ -1905,7 +1905,7 @@ idealpowprime(GEN nf, GEN pr, GEN n, GEN *pc)
     }
     else
     {
-      m = absi(m);
+      m = absi_shallow(m);
       if (signe(r)) m = addiu(m,1);
       q = powii(p,m); /* m = ceil(|n|/e) */
       if (signe(n) >= 0) gen = nfpow(nf, pr_get_gen(pr), n);

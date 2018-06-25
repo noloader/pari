@@ -1938,7 +1938,7 @@ ZX_content(GEN x)
   if (l == 3) return absi(d);
   av = avma;
   for (i=3; !is_pm1(d) && i<l; i++) d = gcdii(d, gel(x,i));
-  if (signe(d) < 0) d = absi(d);
+  if (signe(d) < 0) d = negi(d);
   return gerepileuptoint(av, d);
 }
 

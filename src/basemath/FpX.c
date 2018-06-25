@@ -1947,9 +1947,8 @@ FpXQ_pow_Frobenius(GEN x, GEN n, GEN aut, GEN T, GEN p)
 {
   pari_sp av=avma;
   long d = get_FpX_degree(T);
-  GEN an = absi(n), z, q;
-  if (cmpii(an,p)<0 || cmpis(an,d)<=0)
-    return FpXQ_pow(x, n, T, p);
+  GEN an = absi_shallow(n), z, q;
+  if (cmpii(an,p)<0 || cmpis(an,d)<=0) return FpXQ_pow(x, n, T, p);
   q = powiu(p, d);
   if (dvdii(q, n))
   {

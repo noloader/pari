@@ -953,8 +953,8 @@ typedef struct {
 static void
 init_div_data(div_data *D, GEN pol, nflift_t *L)
 {
-  GEN C = mul_content(L->topowden, L->dn);
-  GEN C2lt, Clt, lc = leading_coeff(pol), lt = is_pm1(lc)? NULL: absi(lc);
+  GEN C2lt, Clt, C = mul_content(L->topowden, L->dn);
+  GEN lc = leading_coeff(pol), lt = is_pm1(lc)? NULL: absi_shallow(lc);
   if (C)
   {
     GEN C2 = sqri(C);
@@ -1406,7 +1406,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
   long ti_LLL = 0, ti_CF = 0;
   pari_timer ti2, TI;
 
-  lP = absi(leading_coeff(P));
+  lP = absi_shallow(leading_coeff(P));
   if (is_pm1(lP)) lP = NULL;
 
   n0 = lg(famod) - 1;

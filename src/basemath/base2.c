@@ -49,8 +49,8 @@ fact_from_factors(GEN D, GEN P, long flag)
     k = safe_Z_pvalrem(D, p, &D);
     if (k) { gel(Q,iq) = p; gel(E,iq) = utoipos(k); iq++; }
   }
-  if (signe(D) < 0) D = absi(D);
-  if (!is_pm1(D))
+  D = absi_shallow(D);
+  if (!equali1(D))
   {
     long k = Z_isanypower(D, &D);
     if (!k) k = 1;

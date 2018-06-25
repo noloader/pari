@@ -554,7 +554,7 @@ znstar0(GEN N, long flag)
     avma = av;
     retmkvec3(gen_2, mkvec(gen_2), mkvec(gen_m1));
   }
-  if (signe(N) < 0) N = absi(N);
+  N = absi_shallow(N);
   if (abscmpiu(N,2) <= 0)
   {
     G = mkvec3(gen_1, cgetg(1,t_VEC), cgetg(1,t_VEC));

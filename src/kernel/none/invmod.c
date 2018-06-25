@@ -58,7 +58,7 @@ invmod(GEN a, GEN b, GEN *res)
   }
 
   (void)new_chunk(lgefint(b));
-  d = absi(b); d1 = modii(a,d);
+  d = absi_shallow(b); d1 = modii(a,d);
 
   v=gen_0; v1=gen_1;        /* general case */
   av1 = avma;

@@ -656,7 +656,7 @@ zncoppersmith(GEN P0, GEN N, GEN X, GEN B)
     if (ZV_isscalar(short_pol)) short_pol = gel(sh, 2);
 
     nsp = gen_0;
-    for (j = 1; j <= dim; j++) nsp = addii(nsp, absi(gel(short_pol,j)));
+    for (j = 1; j <= dim; j++) nsp = addii(nsp, absi_shallow(gel(short_pol,j)));
 
     if (DEBUGLEVEL >= 2)
     {

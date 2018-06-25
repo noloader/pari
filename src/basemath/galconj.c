@@ -2117,7 +2117,7 @@ galoisconj4_main(GEN T, GEN den, long flag)
   if (den)
   {
     if (typ(den) != t_INT) pari_err_TYPE("galoisconj4 [2nd arg integer]", den);
-    den = absi(den);
+    den = absi_shallow(den);
   }
   gb.l = utoipos(ga.l);
   if (DEBUGLEVEL >= 1) timer_start(&ti);

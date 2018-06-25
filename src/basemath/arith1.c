@@ -212,7 +212,7 @@ znprimroot(GEN N)
     F = clean_Z_factor(F);
     N = typ(N) == t_VEC? gel(N,1): factorback(F);
   }
-  if (signe(N) < 0) N = absi(N);
+  N = absi_shallow(N);
   if (abscmpiu(N, 4) <= 0) { avma = av; return mkintmodu(N[2]-1,N[2]); }
   switch(mod4(N))
   {
@@ -1045,7 +1045,7 @@ Z_ispowerall(GEN x, ulong k, GEN *pt)
     return is_kth_power(x, k, pt);
   }
   if (!odd(k)) return 0;
-  if (Z_ispowerall(absi(x), k, pt))
+  if (Z_ispowerall(absi_shallow(x), k, pt))
   {
     if (pt) *pt = negi(*pt);
     return 1;
@@ -5413,7 +5413,8 @@ static GEN
 get_forms(GEN D, GEN *pL)
 {
   const long MAXFORM = 20;
-  GEN L, sqrtD = gsqrt(absi(D),DEFAULTPREC), forms = vectrunc_init(MAXFORM+1);
+  GEN L, sqrtD = gsqrt(absi_shallow(D),DEFAULTPREC);
+  GEN forms = vectrunc_init(MAXFORM+1);
   long s, nforms = 0;
   ulong p;
   forprime_t S;
@@ -5521,7 +5522,7 @@ classno(GEN x)
 
   l = lg(forms);
   order_bound = const_vec(l-1, NULL);
-  E = expi(D) > 60? (void*)sqrtnint(shifti(absi(D),-2),4): NULL;
+  E = expi(D) > 60? (void*)sqrtnint(shifti(absi_shallow(D),-2),4): NULL;
   g1 = gel(forms,1);
   gel(order_bound,1) = d1 = Shanks_order(E, g1, hin, &fad1);
   q = diviiround(hin, d1); /* approximate order of G/<g1> */
@@ -5618,7 +5619,7 @@ classno2(GEN x)
   if (s < 0 && abscmpiu(D,12) <= 0) return gerepilecopy(av, Hf); /* |D| < 12*/
 
   Pi = mppi(prec);
-  d = absi(D); dr = itor(d, prec);
+  d = absi_shallow(D); dr = itor(d, prec);
   logd = logr_abs(dr);
   p1 = sqrtr(divrr(mulir(d,logd), gmul2n(Pi,1)));
   if (s > 0)

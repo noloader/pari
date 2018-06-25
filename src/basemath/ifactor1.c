@@ -3474,7 +3474,7 @@ core(GEN n)
   }
 
   m = signe(n) < 0? gen_m1: gen_1;
-  n = absi(n);
+  n = absi_shallow(n);
   u_forprime_init(&S, 2, tridiv_bound(n));
   while ((p = u_forprime_next_fast(&S)))
   {

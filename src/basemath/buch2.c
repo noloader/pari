@@ -4020,7 +4020,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
     if (!nf) nf = nfinit_complete(&nfT, flag_nfinit, PRECREG);
     return gerepilecopy(av0, Buchall_deg1(nf));
   }
-  D = absi(D);
+  D = absi_shallow(D);
   LOGD = dbllog2(D) * M_LN2;
   LOGD2 = LOGD*LOGD;
   LIMCMAX = (long)(12.*LOGD2);

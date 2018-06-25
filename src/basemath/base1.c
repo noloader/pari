@@ -1477,7 +1477,7 @@ get_nfindex(GEN bas)
     if (!d) return D;
     mat = RgV_to_RgM(bas, n);
     mat = rowslice(mat, i,n);
-    D = mulii(D, diviiexact(powiu(d, n-i+1), absi(ZM_det(mat))));
+    D = mulii(D, diviiexact(powiu(d, n-i+1), absi_shallow(ZM_det(mat))));
   }
   return gerepileuptoint(av, D);
 }
@@ -1535,7 +1535,7 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   if (is_pm1(S->index))
   { /* principal ideal (T'), whose norm is |dK| */
     D = zk_scalar_or_multable(nf, ZX_deriv(T));
-    if (typ(D) == t_MAT) D = ZM_hnfmod(D, absi(S->dK));
+    if (typ(D) == t_MAT) D = ZM_hnfmod(D, absi_shallow(S->dK));
   }
   else
   {

@@ -629,7 +629,7 @@ nfpow(GEN nf, GEN z, GEN n)
     x = zk_inv(nf, x);
     x = primitive_part(x, &cx);
     cx = mul_content(cx, d);
-    n = absi(n);
+    n = negi(n);
   }
   else
     x = primitive_part(x, &cx);
@@ -1992,7 +1992,7 @@ nfpowmodideal(GEN nf,GEN x,GEN k,GEN A)
   av = avma;
   x = nf_to_scalar_or_basis(nf, x);
   if (typ(x) != t_COL) return Fp_pow(x, k, gcoeff(A,1,1));
-  if (s < 0) { x = nfinvmodideal(nf, x,A); k = absi(k); }
+  if (s < 0) { x = nfinvmodideal(nf, x,A); k = negi(k); }
   for(y = NULL;;)
   {
     if (mpodd(k)) y = nfmulmodideal(nf,y,x,A);
@@ -2041,7 +2041,7 @@ famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX)
     if (sn > 0)
       plus = nfmulpowmodideal(nf, plus, h, n, id);
     else /* sn < 0 */
-      minus = nfmulpowmodideal(nf, minus, h, absi(n), id);
+      minus = nfmulpowmodideal(nf, minus, h, negi(n), id);
   }
   if (minus) plus = nfmulmodideal(nf, plus, nfinvmodideal(nf,minus,id), id);
   return plus? plus: gen_1;

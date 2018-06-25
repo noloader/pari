@@ -2823,7 +2823,7 @@ ZV_snfall(GEN D, GEN *pU, GEN *pV)
     GEN b = gel(D,j);
     if (signe(b) < 0)
     {
-      gel(D,j) = absi(b);
+      gel(D,j) = negi(b);
       if (V) ZV_togglesign(gel(V,j));
     }
   }

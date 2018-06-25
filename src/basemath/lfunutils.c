@@ -638,7 +638,7 @@ lfunchigen(GEN bnr, GEN CHI)
   N = bnr_get_mod(bnr);
   n1 = lg(vec01_to_indices(gel(N,2))) - 1; /* vecsum(N[2]) */
   N = gel(N,1);
-  NN = mulii(idealnorm(nf, N), absi(nf_get_disc(nf)));
+  NN = mulii(idealnorm(nf, N), absi_shallow(nf_get_disc(nf)));
   if (equali1(NN)) return gerepileupto(av, lfunzeta());
   if (ZV_equal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr));
   nf_get_sign(nf, &r1, &r2);
@@ -686,7 +686,7 @@ lfunzetak_i(GEN T)
     if (!nf) nf = T = nfinit(T, DEFAULTPREC);
   }
   nf_get_sign(nf,&r1,&r2);
-  N = absi(nf_get_disc(nf));
+  N = absi_shallow(nf_get_disc(nf));
   if (bnf)
   {
     GEN h = bnf_get_no(bnf);
@@ -845,7 +845,7 @@ lfunzetakinit_quotient(GEN nf, GEN polk, GEN dom, long der, long bitprec)
   Lk = lfunzetakinit(nfk, dom, der, 0, bitprec); /* zeta_k */
   nf_get_sign(nfk,&r1k,&r2k);
   Vga = vec01((r1+r2) - (r1k+r2k), r2-r2k);
-  N = absi(diviiexact(nf_get_disc(nf), nf_get_disc(nfk)));
+  N = absi_shallow(diviiexact(nf_get_disc(nf), nf_get_disc(nfk)));
   ak = nf_get_degree(nf)==1 ? tag(gen_1, t_LFUN_ZETA): tag(nfk, t_LFUN_NF);
   an = tag(mkvec2(tag(nf,t_LFUN_NF), ak), t_LFUN_DIV);
   ldata = mkvecn(6, an, gen_0, Vga, gen_1, N, gen_1);
@@ -1452,7 +1452,7 @@ static GEN
 elldiscfix(GEN E, GEN Et, GEN D)
 {
   GEN N = ellQ_get_N(E), Nt = ellQ_get_N(Et);
-  GEN P = gel(Z_factor(absi(D)), 1);
+  GEN P = gel(absZ_factor(D), 1);
   GEN f = gen_1;
   long i, l = lg(P);
   for (i=1; i < l; i++)

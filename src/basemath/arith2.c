@@ -1085,13 +1085,12 @@ digits(GEN x, GEN B)
       avma = av; return binary_2k(x, k);
     }
   }
-  if (signe(x) < 0) x = absi(x);
+  x = absi_shallow(x);
   lz = logint(x,B) + 1;
   if (lgefint(B)>3)
   {
     z = gerepileupto(av, gen_digits_i(x, B, lz, NULL, &Z_ring, _dvmdii));
-    vecreverse_inplace(z);
-    return z;
+    vecreverse_inplace(z); return z;
   }
   else
   {

@@ -601,7 +601,7 @@ minkowski_bound(GEN D, long N, long r2, long prec)
   pari_sp av = avma;
   GEN c = divri(mpfactr(N,prec), powuu(N,N));
   if (r2) c = mulrr(c, powru(divur(4,mppi(prec)), r2));
-  c = mulrr(c, gsqrt(absi(D),prec));
+  c = mulrr(c, gsqrt(absi_shallow(D),prec));
   return gerepileuptoleaf(av, c);
 }
 
@@ -648,7 +648,7 @@ zimmertbound(GEN D, long N, long R2)
 {/*20*/28.1285704, 27.4021674, 26.6807314, 25.9645140, 25.2537867, 24.5488420,
        23.8499943, 23.1575823, 22.4719720, 21.7935548, 21.1227537}
     };
-    w = mulrr(dbltor(exp(-c[N-2][R2])), gsqrt(absi(D),DEFAULTPREC));
+    w = mulrr(dbltor(exp(-c[N-2][R2])), gsqrt(absi_shallow(D),DEFAULTPREC));
   }
   return gerepileuptoint(av, ceil_safe(w));
 }
@@ -724,7 +724,7 @@ regulatorbound(GEN bnf)
   nf = bnf_get_nf(bnf); N = nf_get_degree(nf);
   if (!isprimitive(nf)) return dft_bound();
 
-  dK = absi(nf_get_disc(nf));
+  dK = absi_shallow(nf_get_disc(nf));
   nf_get_sign(nf, &R1, &R2); R = R1+R2-1;
   c1 = (!R2 && N<12)? int2n(N & (~1UL)): powuu(N,N);
   if (cmpii(dK,c1) <= 0) return dft_bound();
@@ -1846,7 +1846,7 @@ bnrdisc_i(GEN bnr, GEN H, long flag)
     r1= d * r1;
     dk = factorback2(prV_norms(S.P), ED);
     if (((n-r1)&3) == 2) dk = negi(dk); /* (2r2) mod 4 = 2: r2(relext) is odd */
-    dk = mulii(dk, powiu(absi(nf_get_disc(nf)), d));
+    dk = mulii(dk, powiu(absi_shallow(nf_get_disc(nf)), d));
   }
   return mkvec3(utoipos(n), utoi(r1), dk);
 }

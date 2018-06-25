@@ -813,13 +813,13 @@ subfields_poldata(GEN T, poldata *PD)
   {
     PD->den = nf_get_zkden(nf);
     PD->roo = nf_get_roots(nf);
-    PD->dis = mulii(absi(nf_get_disc(nf)), sqri(nf_get_index(nf)));
+    PD->dis = mulii(absi_shallow(nf_get_disc(nf)), sqri(nf_get_index(nf)));
   }
   else
   {
     PD->den = initgaloisborne(T,NULL,nbits2prec(bit_accuracy(ZX_max_lg(T))), &L,NULL,&dis);
     PD->roo = L;
-    PD->dis = absi(dis);
+    PD->dis = absi_shallow(dis);
   }
 }
 
