@@ -886,8 +886,8 @@ real_be_honest(struct buch_quad *B)
 static GEN
 gcdreal(GEN a,GEN b)
 {
-  if (!signe(a)) return mpabs(b);
-  if (!signe(b)) return mpabs(a);
+  if (!signe(a)) return mpabs_shallow(b);
+  if (!signe(b)) return mpabs_shallow(a);
   if (typ(a)==t_INT)
   {
     if (typ(b)==t_INT) return gcdii(a,b);
@@ -905,7 +905,7 @@ gcdreal(GEN a,GEN b)
     if (e > 0) return NULL;
     r = subrr(a, mulir(q,b)); a = b; b = r;
   }
-  return absr(a);
+  return mpabs_shallow(a);
 }
 
 static int
@@ -917,7 +917,7 @@ get_R(struct buch_quad *B, GEN C, long sreg, GEN z, GEN *ptR)
 
   if (B->PRECREG)
   {
-    R = mpabs(gel(C,1));
+    R = mpabs_shallow(gel(C,1));
     for (i=2; i<=sreg; i++)
     {
       R = gcdreal(gel(C,i), R);

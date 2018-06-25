@@ -96,7 +96,7 @@ two_factor_bound(GEN x)
   z = shiftr(sqrtr(z), n);
   z = divrr(z, dbltor(pow((double)n, 0.75)));
   z = roundr_safe(sqrtr(z));
-  z = mulii(z, absi(gel(x,n)));
+  z = mulii(z, absi_shallow(gel(x,n)));
   return gerepileuptoint(av, shifti(z, 1));
 }
 #endif
@@ -1026,7 +1026,7 @@ maxnorm(GEN p)
     if (abscmpii(x,m) > 0) m = x;
   }
   m = divii(m, gel(p,n));
-  return gerepileuptoint(av, addiu(absi(m),1));
+  return gerepileuptoint(av, addiu(absi_shallow(m),1));
 }
 #endif
 

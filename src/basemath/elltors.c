@@ -344,7 +344,7 @@ ellisdivisible(GEN E, GEN P, GEN n, GEN *pQ)
   {
     case t_INT:
       N = n;
-      if (!isprime(absi(n)))
+      if (!isprime(absi_shallow(n)))
       {
         GEN f = absZ_factor(n), LP = gel(f,1), LE = gel(f,2);
         l = lg(LP);

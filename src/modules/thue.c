@@ -1032,7 +1032,7 @@ START:
   ALH    = gel(tnf,4);
   MatFU  = gel(tnf,5);
   A      = gel(tnf,6);
-  c1     = gel(csts,1); c1 = gmul(absi(rhs), c1);
+  c1     = mpmul(absi_shallow(rhs), gel(csts,1));
   c2     = gel(csts,2);
   BS.hal = gel(csts,3);
   x0     = gel(csts,4);
@@ -1301,7 +1301,7 @@ thue(GEN tnf, GEN rhs, GEN ne)
   { /* Case s=0. All solutions are "small". */
     GEN bnf = tnf_get_bnf(tnf);
     GEN c0 = gel(tnf,3), F;
-    x3 = sqrtnr(mulir(absi(rhs),c0), degpol(POL));
+    x3 = sqrtnr(mulir(absi_shallow(rhs),c0), degpol(POL));
     x3 = addrr(x3, dbltor(0.1)); /* guard from round-off errors */
     S = cgetg(1,t_VEC);
     if (!ne && typ(bnf) == t_VEC && expo(x3) > 10)

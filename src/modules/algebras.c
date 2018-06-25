@@ -335,7 +335,7 @@ backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GE
       for (i=1; i<=n; i++) y1 = nfadd(nf, y1, ZC_z_mul(gel(red,i), v[i]));
       if (!nfchecksigns(nf, y1, pl)) continue;
 
-      ny = absi(nfnorm(nf, y1));
+      ny = absi_shallow(nfnorm(nf, y1));
       if (!signe(ny)) continue;
       ny = diviiexact(ny,gcdii(ny,N));
       fan = Z_factor_limit(ny,1<<17);

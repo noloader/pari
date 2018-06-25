@@ -5952,7 +5952,7 @@ exphellagm(GEN e, GEN z, int flag, long prec)
   } else
     x = gadd(x, gsqr(a));
   /* height on E1 is log(x)/2. Go back to E0 */
-  return flag? gsqr(gdiv(gsqr(x), x_a)): gdiv(x, sqrtr(mpabs(x_a)));
+  return flag? gsqr(gdiv(gsqr(x), x_a)): gdiv(x, sqrtr(mpabs_shallow(x_a)));
 }
 /* is P \in E(R)^0, the neutral component ? */
 static int

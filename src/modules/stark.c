@@ -1594,7 +1594,7 @@ TestOne(GEN plg, RC_data *d)
   GEN z = gsub(d->beta, gel(plg,v));
   if (expo(z) >= d->G) return 0;
   for (j = 1; j < lg(plg); j++)
-    if (j != v && mpcmp(d->B, mpabs(gel(plg,j))) < 0) return 0;
+    if (j != v && mpcmp(d->B, mpabs_shallow(gel(plg,j))) < 0) return 0;
   return 1;
 }
 

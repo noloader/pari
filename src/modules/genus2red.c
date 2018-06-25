@@ -2111,7 +2111,7 @@ genus2red(GEN PQ, GEN p)
 
   if (p == NULL)
   {
-    facto = factor(absi(I.j10));
+    facto = absZ_factor(I.j10);
     factp = gel(facto,1);
   }
   else

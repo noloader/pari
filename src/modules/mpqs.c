@@ -1712,12 +1712,9 @@ mpqs_self_init(mpqs_handle_t *h)
   }
 
   if (MPQS_DEBUGLEVEL >= 6)
-  {
-    /* must happen before resetting avma, because of the absi() */
     err_printf("MPQS: chose Q_%ld(x) = %Ps x^2 %c %Ps x + C\n",
                (long) h->index_j, h->A,
-               signe(h->B) < 0? '-': '+', absi(h->B));
-  }
+               signe(h->B) < 0? '-': '+', absi_shallow(h->B));
 
   avma = av;
 
@@ -1915,7 +1912,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 
     /* A_2x_plus_B = (A*(2x)+B), Qx = (A*(2x)+B)^2/(4*A) = Q(x) */
     A_2x_plus_B = addii(mulis(A, 2 * x_minus_M), B);
-    Y = absi(A_2x_plus_B);
+    Y = absi_shallow(A_2x_plus_B);
 
     Qx = subii(sqri(A_2x_plus_B), h->kN);
 
