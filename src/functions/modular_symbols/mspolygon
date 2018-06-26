@@ -9,12 +9,12 @@ Help: mspolygon(M, {flag = 0}): M being a full modular symbol space, as given
 Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
  attached to the group $\Gamma_0(N)$. More precisely,
 
- \item its vertices are an ordered list in $\P_1(\Q)$, forming a system of
+ \item its vertices are an ordered list in $\P^{1}(\Q)$, forming a system of
  representatives of cusps,
 
  \item its edges are hyperbolic arcs joining two consecutive vertices,
 
- \item given a path $(a,b)$ between two elements of $\P^1(\Q)$, let
+ \item given a path $(a,b)$ between two elements of $\P^{1}(\Q)$, let
  $\overline{(a,b)} = (b,a)$ be the opposite path. There is an involution $e
  \to e^*$ on the edges, where $e^*$ is $\Gamma_0(N)$ equivalent to
  $\overline{e}$, i.e. there exist $\gamma_e \in \Gamma_0(N)$ such that $e =
@@ -59,7 +59,7 @@ Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
  $\Gamma_0(N)$. The external vertices of $a a^*$ such that $d(a,a^*) = 1$ are
  also equivalent to $0$; the internal vertices $a\cap a^*$ (a single point),
  together with $0$, form a system of representatives of the cusps of
- $\Gamma_0(N)\bs \P^1(\Q)$. This is useful to compute the homology group
+ $\Gamma_0(N)\bs \P^{1}(\Q)$. This is useful to compute the homology group
  $H_1(X_0(N),\Z)$ as it gives a symplectic basis for the intersection pairing.
  In this case, the number of parabolic matrices (trace 2) in the system of
  generators $G$ is $2(t-1)$, where $t$ is the number of non equivalent cusps

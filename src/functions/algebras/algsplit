@@ -47,8 +47,7 @@ Doc: If \var{al} is a table algebra over~$\F_p$ output by \tet{algtableinit}
  \misctitle{Warning} If~\var{al} is not simple, \kbd{algsplit(al)} can trigger
  an error, but can also run into an infinite loop. Example:
  \bprog
- ? al = alginit(nfinit(y),[-1,-1]); \\ramified at 2
- ? al2 = algtableinit(algmultable(al),2); \\maximal order modulo 2
- ? algsplit(al2); \\not semisimple, infinite loop
+ ? al = alginit(nfinit(y),[-1,-1]); \\ ramified at 2
+ ? al2 = algtableinit(algmultable(al),2); \\ maximal order modulo 2
+ ? algsplit(al2); \\ not semisimple, infinite loop
  @eprog
-
