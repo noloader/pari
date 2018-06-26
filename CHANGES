@@ -23,6 +23,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      19- genus2red(3*(4*x^6+6*x^5+3*x^4+8*x^3+9*x^2-3),3) -> bug in
          litredp [#2053]
      20- missing type check in mfsymbol [ mfsymbol(mf,'f) -> SEGV ]
+     21- incorrect values in ellzeta() [#2060]
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies

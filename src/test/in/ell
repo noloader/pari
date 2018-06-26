@@ -217,6 +217,9 @@ ellztopoint(ellinit([-1,0]), I)
 \\#1186
 ellmul(ellinit([3,0]), [1,2], -quadgen(-4))
 
+\\#2060
+ellzeta([1,I],2/10+I)
+
 logsigma(e,z='x)=if(type(z) != "t_POL" && type(z) != "t_SER", ellsigma(e,z,1));
 v = [ellwp,ellzeta,ellsigma,logsigma];
 ellperiods([1,0.1 + I/10^50])

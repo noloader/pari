@@ -2673,10 +2673,10 @@ elleisnum(GEN om, long k, long flag, long prec)
 static GEN
 _elleta(ellred_t *T)
 {
-  GEN y1, y2, e2 = gdivgs(_elleisnum(T,2), 12);
+  GEN y1, y2, e2 = gdivgs(_elleisnum(T,2), -12);
   y2 = gmul(T->W2, e2);
-  y1 = gadd(PiI2div(T->W2, T->prec), gmul(T->W1,e2));
-  retmkvec2(gneg(y1), gneg(y2));
+  y1 = gsub(gmul(T->W1,e2), PiI2div(T->W2, T->prec));
+  retmkvec2(y1, y2);
 }
 
 /* compute eta1, eta2 */
@@ -2984,13 +2984,19 @@ ellzeta(GEN w, GEN z, long prec0)
     y = gadd(y, gmul(gsubgs(gsqr(u),1), S));
   }
   y = mulcxI(gmul(gdiv(pi2,T.W2), y));
-  if (et) y = gadd(y,et);
-  if (T.some_q_is_real)
+  if (T.some_q_is_real && (!et || typ(et)))
   {
-    if (T.some_z_is_real) y = real_i(y);
-    else if (T.some_z_is_pure_imag) gel(y,1) = gen_0;
+    if (T.some_z_is_real)
+    {
+      if (!et || typ(et) != t_COMPLEX) y = real_i(y);
+    }
+    else if (T.some_z_is_pure_imag)
+    {
+      if (!et || (typ(et) == t_COMPLEX && isintzero(gel(et,1))))
+        gel(y,1) = gen_0;
+    }
   }
-  return gerepilecopy(av, y);
+  return et? gerepileupto(av, gadd(y,et)): gerepilecopy(av, y);
 }
 
 /* if flag=0, return ellsigma, otherwise return log(ellsigma) */
