@@ -1297,7 +1297,7 @@ zero_gcd(GEN x)
     case t_COMPLEX: return c_zero_gcd(x);
     case t_REAL: return gen_1;
     case t_PADIC: return powis(gel(x,2), valp(x));
-    case t_SER: return pol_xn(valp(x), varn(x));
+    case t_SER: return pol_xnall(valp(x), varn(x));
     case t_POLMOD: {
       GEN d = gel(x,2);
       if (typ(d) == t_POL && varn(d) == varn(gel(x,1))) return content(d);

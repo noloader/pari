@@ -18,6 +18,9 @@ a^2 == a*(a+1) - a \\ test RgX_mullow, RgX_sqrlow
 serreverse(x/2+O(x^2))
 serreverse(tan(x)/2)
 
+\\ #2063
+((y^-3+O(y))*x+1)/x
+
 s = 1/x + x + 2*x^2 + O(x^3);
 serchop(s)
 serchop(s, 2)
