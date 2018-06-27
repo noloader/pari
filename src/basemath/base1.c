@@ -1079,7 +1079,7 @@ nfisisom(GEN a, GEN b)
   y = lift_shallow(nfroots(nfb,a));
   if (newvar) (void)delete_var();
   lx = lg(y); if (lx==1) { avma=av; return gen_0; }
-  if (sw) { vb = va; setvarn(b, vb); }
+  if (sw) { vb = va; b = leafcopy(b); setvarn(b, vb); }
   for (i=1; i<lx; i++)
   {
     GEN t = gel(y,i);
