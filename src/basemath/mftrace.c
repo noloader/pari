@@ -1276,11 +1276,11 @@ eta3_ZXn(long m)
   for (n = 2; n < l; n++) gel(P,n) = gen_0;
   for (n = k = 0;; n++)
   {
-    k += n; if (k >= m) break;
+    if (k + n >= m) { setlg(P, k+3); return P; }
+    k += n;
     /* now k = n(n+1) / 2 */
     gel(P, k+2) = odd(n)? utoineg(2*n+1): utoipos(2*n+1);
   }
-  return P;
 }
 
 static GEN
