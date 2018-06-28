@@ -1034,7 +1034,7 @@ ZX_init_CRT(GEN Hp, ulong p, long v)
   H[1] = evalsigne(1) | evalvarn(v);
   for (i=2; i<l; i++)
     gel(H,i) = stoi(Fl_center(Hp[i], p, lim));
-  return H;
+  return ZX_renormalize(H,l);
 }
 
 GEN
@@ -1092,6 +1092,7 @@ ZX_incremental_CRT_raw(GEN *ptH, GEN Hp, GEN q, GEN qp, ulong p)
     h = Fl_chinese_coprime(gel(H,i),Hp[i],q,p,qinv,qp,qp2);
     if (h) { gel(H,i) = h; stable = 0; }
   }
+  (void)ZX_renormalize(H,lp);
   return stable;
 }
 
