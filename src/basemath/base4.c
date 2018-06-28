@@ -1503,9 +1503,7 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
 GEN
 famat_to_nf_moddivisor(GEN nf, GEN g, GEN e, GEN bid)
 {
-  GEN t, cyc;
-  if (lg(gel(g,1)) == 1) return gen_1;
-  cyc = bid_get_cyc(bid);
+  GEN t, cyc = bid_get_cyc(bid);
   if (lg(cyc) == 1)
     t = gen_1;
   else
