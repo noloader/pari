@@ -1317,6 +1317,7 @@ scpvecs(GEN *pt_vec, long I, GEN b, long dep, struct qfauto *qf)
     }
   }
   settyp(list,t_MAT);
+  settyp(vec,t_MAT);
   *pt_vec = vec;
   return list;
 }
