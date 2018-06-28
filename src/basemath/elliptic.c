@@ -2984,7 +2984,7 @@ ellzeta(GEN w, GEN z, long prec0)
     y = gadd(y, gmul(gsubgs(gsqr(u),1), S));
   }
   y = mulcxI(gmul(gdiv(pi2,T.W2), y));
-  if (T.some_q_is_real && (!et || typ(et)))
+  if (T.some_q_is_real)
   {
     if (T.some_z_is_real)
     {
