@@ -292,6 +292,14 @@ rhs(GEN a4, GEN a6, long v)
   return RHS;
 }
 
+static GEN
+Flxq_rhs(GEN a4, GEN a6, long v, long vs)
+{
+  GEN RHS = mkpoln(4, pol1_Flx(vs),  pol0_Flx(vs), a4, a6);
+  setvarn(RHS, v);
+  return RHS;
+}
+
 struct divpolmod_red
 {
   const struct bb_algebra *ff;
@@ -334,9 +342,10 @@ Flxq_elldivpolmod_init(struct divpolmod_red *d, GEN a4, GEN a6, long n, GEN h, G
   void *E;
   const struct bb_algebra *ff;
   GEN RHS, D3 = NULL, D4 = NULL;
+  long v = get_FlxqX_var(h), vT = get_Flx_var(T);
   D3 = n>=0 ? Flxq_elldivpol34(3, a4, a6, h, T, p): NULL;
   D4 = n>=1 ? Flxq_elldivpol34(4, a4, a6, h, T, p): NULL;
-  RHS = FlxX_Fl_mul(FlxqX_rem(rhs(a4, a6, get_FlxqX_var(h)), h, T, p), 4, p);
+  RHS = FlxX_Fl_mul(FlxqX_rem(Flxq_rhs(a4, a6, v, vT), h, T, p), 4, p);
   ff = get_FlxqXQ_algebra(&E, h, T, p);
   divpolmod_init(d, D3, D4, RHS, n, E, ff);
 }
@@ -549,8 +558,8 @@ Fq_to_Flx(GEN a4, GEN T, ulong p)
 static GEN
 Flxq_find_eigen_Frobenius(GEN a4, GEN a6, GEN h, GEN T, ulong p)
 {
-  long v = get_FlxqX_var(h);
-  GEN RHS = FlxqX_rem(rhs(a4, a6, v), h, T, p);
+  long v = get_FlxqX_var(h), vT = get_Flx_var(T);
+  GEN RHS = FlxqX_rem(Flxq_rhs(a4, a6, v, vT), h, T, p);
   return FlxqXQ_halfFrobenius(RHS, h, T, p);
 }
 
