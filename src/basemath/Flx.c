@@ -5361,7 +5361,7 @@ GEN
 FlxqX_FlxqXQ_eval(GEN Q, GEN x, GEN S, GEN T, ulong p)
 {
   struct _FlxqXQ D;
-  int use_sqr = 2*degpol(x) >= degpol(S);
+  int use_sqr = 2*degpol(x) >= get_FlxqX_degree(S);
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
