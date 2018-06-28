@@ -5203,7 +5203,7 @@ FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
   if (!s) return pol1_FlxX(get_FlxqX_var(S),get_Flx_var(T));
   if (s < 0) x = FlxqXQ_inv(x,S,T,p);
   if (is_pm1(n)) return s < 0 ? x : gcopy(x);
-  if (degpol(x)>=degpol(S)) x = FlxqX_rem(x,S,T,p);
+  if (degpol(x) >= get_FlxqX_degree(S)) x = FlxqX_rem(x,S,T,p);
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S = S;
