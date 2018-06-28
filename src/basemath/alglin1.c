@@ -1507,7 +1507,7 @@ Flm_deplin_echelon(GEN x, ulong p) {
   C1 = rowpermute(C, R);
   C2 = rowslice(C, i, i);
   s = Flm_row(Flm_lsolve_lower_unit(C1, C2, p), 1);
-  v = vecpermute(vecsmall_concat(Flv_neg(s, p), vecsmall_ei(n - r, 1)),
+  v = vecsmallpermute(vecsmall_concat(Flv_neg(s, p), vecsmall_ei(n - r, 1)),
                  perm_inv(vecsmall_concat(R, Rc)));
   return gerepileuptoleaf(av, v);
 }
