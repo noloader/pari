@@ -813,7 +813,10 @@ F2xqXQ_Frobenius(GEN xp, GEN Xp, GEN f, GEN T)
   if (dT >= expu(dT)*usqrt(df))
     return gel(F2xqXQ_autpow(mkvec2(xp, Xp), dT, f, T), 2);
   else
-    return F2xqXQ_pow(pol_x(get_F2xqX_var(f)), int2n(dT), f, T);
+  {
+    long v = get_F2xqX_var(f), vT = get_F2x_var(T);
+    return F2xqXQ_pow(polx_F2xX(v,vT), int2n(dT), f, T);
+  }
 }
 
 static GEN
