@@ -10932,7 +10932,7 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
   {
     GEN CHI = MF_get_CHI(mf);
     long N = MF_get_N(mf), F = mfcharconductor(CHI);
-    long ord = mfcharorder_canon(CHI), k, g, deg;
+    long ord = mfcharorder_canon(CHI), k, deg;
     long B = umodiu(gcoeff(M,1,2), N);
     long C = umodiu(gcoeff(M,2,1), N);
     long D = umodiu(gcoeff(M,2,2), N);
