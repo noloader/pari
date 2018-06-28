@@ -2552,6 +2552,7 @@ polredabs_i(GEN x, nfmaxord_t *S, GEN *u, long flag)
   long i, l;
 
   nfinit_basic_partial(S, x);
+  x = S->T0;
   if (degpol(x) == 1)
   {
     long vx = varn(x);
