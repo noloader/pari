@@ -10930,14 +10930,19 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
   V = gel(res,3);
   if (flrat)
   {
-    long C = labs(itos(gcoeff(M,2,1))), N = MF_get_N(mf);
-    long ord = mfcharorder_canon(MF_get_CHI(mf)), k, g;
+    GEN CHI = MF_get_CHI(mf);
+    long N = MF_get_N(mf), F = mfcharconductor(CHI);
+    long ord = mfcharorder_canon(CHI), k, g, deg;
+    long B = umodiu(gcoeff(M,1,2), N);
+    long C = umodiu(gcoeff(M,2,1), N);
+    long D = umodiu(gcoeff(M,2,2), N);
+    long CD = (C * D) % N, BC = (B * C) % F;
     GEN CV, t;
     /* weight of f * Theta in 1/2-integral weight */
     k = typ(gk) == t_INT? itou(gk): MF_get_r(mf)+1;
-    g = ugcd(N/ugcd(N, C), C);
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
-    V = bestapprnf2(V, ord_canon(ulcm(g*w, ord)), CV, prec);
+    deg = ulcm(ulcm(ord, N/ugcd(N,CD)), F/ugcd(F,BC));
+    V = bestapprnf2(V, deg, CV, prec);
     if (abd && !signe(b))
     { /* can [a,0; 0,d] be simplified to id ? */
       long nk, dk; Qtoss(gk, &nk, &dk);

@@ -25,6 +25,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      20- missing type check in mfsymbol [ mfsymbol(mf,'f) -> SEGV ]
      21- incorrect values in ellzeta() [#2060]
      22- ((y^-3+O(y))*x+1)/x -> oo loop [#2063]
+     23- mfslashexpansion: use Neururer-Brunault's theorem
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
