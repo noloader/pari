@@ -1055,8 +1055,8 @@ Decomp(decomp_t *S, long flag)
   /* required precision of the factors */
   pr = powiu(p, r); pr2 = shifti(pr, -1);
   ph = mulii(de,pr);ph2 = shifti(ph, -1);
-  fred = FpX_center_i(S->f, ph, ph2);
-  e    = FpX_center_i(e, ph, ph2);
+  fred = FpX_center_i(FpX_red(S->f, ph), ph, ph2);
+  e    = FpX_center_i(FpX_red(e, ph), ph, ph2);
 
   f1 = ZpX_gcd(fred, Z_ZX_sub(de, e), p, ph); /* p-adic gcd(f, 1-e) */
   fred = FpX_center_i(fred, pr, pr2);
