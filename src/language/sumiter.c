@@ -1178,7 +1178,7 @@ binsum(GEN S, ulong k, void *E, GEN (*f)(void *, GEN), GEN a,
     GEN u;
     av = avma; u = gtofp(f(E, addiu(a, k << i)), prec);
     if (typ(u) != t_REAL) pari_err_TYPE("sumpos",u);
-    t = addrr(gtofp(u,prec), shiftr(t,1)); /* ~ g(k*2^i) */
+    t = addrr(gtofp(u,prec), mpshift(t,1)); /* ~ g(k*2^i) */
     gel(S, k << i) = t = gerepileuptoleaf(av, t);
   }
 }
