@@ -1381,7 +1381,7 @@ sqrt_ser(GEN b, long prec)
   a = leafcopy(b);
   x = cgetg_copy(b, &lx);
   if (e & 1)
-    pari_err_DOMAIN("sqrtn", "valuation", "!=", mkintmod(gen_0, gen_2), x);
+    pari_err_DOMAIN("sqrtn", "valuation", "!=", mkintmod(gen_0, gen_2), b);
   a[1] = x[1] = evalsigne(1) | evalvarn(0) | _evalvalp(0);
   lta = gel(a,2);
   if (gequal1(lta)) ltx = lta;

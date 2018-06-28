@@ -26,6 +26,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      21- incorrect values in ellzeta() [#2060]
      22- ((y^-3+O(y))*x+1)/x -> oo loop [#2063]
      23- mfslashexpansion: use Neururer-Brunault's theorem
+     24- iferr(sqrt(x+1/y),E,E) -> SEGV  [ typo in err_DOMAIN exception ]
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
