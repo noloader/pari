@@ -87,6 +87,9 @@ RgXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T)
   return mkvec2(s, gel(B,d+1));
 }
 
+/* x must be nonzero */
+INLINE long _degree(GEN x) { return typ(x)==t_POL ? degpol(x): 0; }
+
 /* Given isogenies F:E' -> E and G:E'' -> E', return the composite
  * isogeny F o G:E'' -> E */
 static GEN
@@ -107,7 +110,8 @@ ellcompisog(GEN F, GEN G)
   K = RgX_normalize(RgX_div(K, RgX_gcd(K,deriv(K,0))));
   K2 = gsqr(K); K3 = gmul(K, K2);
   F0 = polcoeff0(gel(F,2), 0, vy); F1 = polcoeff0(gel(F,2), 1, vy);
-  d = maxss(maxss(degpol(gel(F,1)),degpol(gel(F,3))),maxss(degpol(F0),degpol(F1)));
+  d = maxss(maxss(degpol(gel(F,1)),_degree(gel(F,3))),
+            maxss(_degree(F0),_degree(F1)));
   Gp = gpowers(Gh2, d);
   f  = RgX_homogenous_evalpow(gel(F,1), gel(G,1), Gp);
   g0 = RgX_homogenous_evalpow(F0, gel(G,1), Gp);
