@@ -5303,8 +5303,8 @@ FlxqXQ_minpoly(GEN x, GEN S, GEN T, ulong p)
   vS = get_FlxqX_var(S);
   vT = get_Flx_var(T);
   n = get_FlxqX_degree(S);
-  g = pol_1(vS);
-  tau = pol_1(vS);
+  g = pol1_FlxX(vS,vT);
+  tau = pol1_FlxX(vS,vT);
   S = FlxqX_get_red(S, T, p);
   v_x = FlxqXQ_powers(x, usqrt(2*n), S, T, p);
   while(signe(tau) != 0)
