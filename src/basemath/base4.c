@@ -1499,12 +1499,12 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
   return famat_to_nf_modideal_coprime(nf, G, E, prk, EX);
 }
 
-/* prod g[i]^e[i] mod bid, assume (g[i], id) = 1 */
+/* prod g[i]^e[i] mod bid, assume (g[i], id) = 1 and 1 < lg(g) <= lg(e) */
 GEN
 famat_to_nf_moddivisor(GEN nf, GEN g, GEN e, GEN bid)
 {
   GEN t, cyc;
-  if (lgcols(g) == 1) return gen_1;
+  if (lg(gel(g,1)) == 1) return gen_1;
   cyc = bid_get_cyc(bid);
   if (lg(cyc) == 1)
     t = gen_1;
