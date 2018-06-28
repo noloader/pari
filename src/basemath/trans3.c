@@ -3697,8 +3697,8 @@ vecthetanullk_tau(GEN tau, long k, long prec)
 GEN
 cxEk(GEN tau, long k, long prec)
 {
-  pari_sp av = avma;
-  GEN p1, q, y, qn;
+  pari_sp av;
+  GEN q, y, qn;
   long n, b, l = precision(tau);
 
   if (l) prec = l;
@@ -3716,9 +3716,10 @@ cxEk(GEN tau, long k, long prec)
     return gdiv(gel(y,2), gel(y,1));
   }
 
-  y = gen_0; qn = gen_1;
+  av = avma; y = gen_0; qn = gen_1;
   for(n = 1;; n++)
   { /* compute y := sum_{n>0} n^(k-1) q^n / (1-q^n) */
+    GEN p1;
     qn = gmul(q,qn);
     p1 = gdiv(gmul(powuu(n,k-1),qn), gsubsg(1,qn));
     if (gequal0(p1) || gexpo(p1) <= - prec2nbits(prec) - 5) break;
