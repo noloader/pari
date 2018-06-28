@@ -4152,7 +4152,7 @@ algcomputehasse(GEN al)
   for (k=1; k<=m23; k++) H[k+m1] = localhasse(rnf, cnd, pl, auts, b, k);
   gel(al,4) = hi;
   perm = gen_indexsort(PH, (void*)&cmp_prime_ideal, &cmp_nodata);
-  gel(al,5) = mkvec2(vecpermute(PH,perm),vecpermute(H,perm));
+  gel(al,5) = mkvec2(vecpermute(PH,perm),vecsmallpermute(H,perm));
   checkhasse(nf,alg_get_hasse_f(al),alg_get_hasse_i(al),n);
 }
 
