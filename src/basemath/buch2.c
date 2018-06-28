@@ -1641,12 +1641,14 @@ red_mod_units(GEN col, GEN z)
   setlg(x,RU); return x;
 }
 
-/* [x] archimedian components, A column vector. return [x] A
- * x may be a translated GEN (y + k) */
+static GEN
+add(GEN a, GEN t) { return a = a? gadd(a,t): t; }
+
+/* [x] archimedian components, A column vector. return [x] A */
 static GEN
 act_arch(GEN A, GEN x)
 {
-  GEN a;
+  GEN a, t;
   long i,l = lg(A), tA = typ(A);
   if (tA == t_MAT)
   { /* assume lg(x) >= l */
@@ -1661,9 +1663,7 @@ act_arch(GEN A, GEN x)
     for (i=1; i<l; i++)
     {
       long c = A[i];
-      if (!c) continue;
-      if (!a) { a = gmulsg(c, gel(x,i)); continue; }
-      a = gadd(a, gmulsg(c, gel(x,i)));
+      if (c) a = add(a, gmulsg(c, gel(x,i)));
     }
   }
   else
@@ -1671,9 +1671,7 @@ act_arch(GEN A, GEN x)
     for (i=1; i<l; i++)
     {
       GEN c = gel(A,i);
-      if (!signe(c)) continue;
-      if (!a) { a = gmul(c, gel(x,i)); continue; }
-      a = gadd(a, gmul(gel(A,i), gel(x,i)));
+      if (signe(c)) a = add(a, gmul(c, gel(x,i)));
     }
   }
   if (!a) return zerovec(lgcols(x)-1);
@@ -1798,9 +1796,11 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
            = G R + [GD]Q + [ga]A */
     GEN ga = gel(clg2,2), GD = gel(clg2,3);
     long nW = lg(Wex)-1;
-    if (nB) col = act_arch(Bex, C + nW); else col = triv_arch(nf);
-    if (nW) col = gadd(col, act_arch(A, ga));
-    if (c)  col = gadd(col, act_arch(Q, GD));
+    col = NULL;
+    if (nB) col = act_arch(Bex, nW? vecslice(C,nW+1,lg(C)): C);
+    if (nW) col = add(col, act_arch(A, ga));
+    if (c)  col = add(col, act_arch(Q, GD));
+    if (!col) col = triv_arch(nf);
   }
   if (xar)
   {
