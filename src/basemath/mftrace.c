@@ -8483,14 +8483,14 @@ polishomogeneous(GEN P)
   return D;
 }
 
-/* 1 if spherical, 0 otherwise */
+/* P a t_POL, 1 if spherical, 0 otherwise */
 static long
-polisspherical(GEN Qi, GEN P)
+RgX_isspherical(GEN Qi, GEN P)
 {
   pari_sp av = avma;
   GEN va, S;
   long lva, i, j, r;
-  if (gequal0(P) || degpol(P) <= 1) return 1;
+  if (degpol(P) <= 1) return 1;
   va = variables_vecsmall(P); lva = lg(va);
   if (lva > lg(Qi)) pari_err(e_MISC, "too many variables in mffromqf");
   S = gen_0;
@@ -8562,11 +8562,14 @@ mffromqf(GEN Q, GEN P)
   if (!P || gequal1(P)) { d = 0; P = NULL; }
   else
   {
-    d = polishomogeneous(P);
-    if (d < 0) pari_err_TYPE("mffromqf [not homogeneous t_POL]", P);
-    if (!polisspherical(Qi, P))
-      pari_err_TYPE("mffromqf [not a spherical t_POL]", P);
-    if (d == 0) P = simplify_shallow(P);
+    P = simplify_shallow(P);
+    if (typ(P) == t_POL)
+    {
+      d = polishomogeneous(P);
+      if (d < 0) pari_err_TYPE("mffromqf [not homogeneous t_POL]", P);
+      if (!RgX_isspherical(Qi, P))
+        pari_err_TYPE("mffromqf [not a spherical t_POL]", P);
+    }
   }
   D = ZM_det(Q);
   if (typ(gk) == t_INT) { if (mpodd(gk)) D = negi(D); } else D = shifti(D, 1);
