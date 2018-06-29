@@ -1388,7 +1388,7 @@ c_dihedral(long n, long d, GEN bnr, GEN w, GEN k0j)
   GEN V = dihan(bnr, w, k0j, n*d);
   GEN Tinit = gel(w,3), Pm = gel(Tinit,1);
   GEN A = c_deflate(n, d, V);
-  if (degpol(Pm) == 1 || RgX_is_QX(A)) return gerepilecopy(av, A);
+  if (degpol(Pm) == 1 || RgV_is_ZV(A)) return gerepilecopy(av, A);
   return gerepileupto(av, gmodulo(A, Pm));
 }
 
