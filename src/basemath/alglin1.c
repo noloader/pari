@@ -3665,7 +3665,7 @@ RgM_true_Hadamard(GEN a)
   a = RgM_gtofp(a, LOWDEFAULTPREC);
   B = gnorml2(gel(a,1));
   for (i = 2; i <= n; i++) B = gmul(B, gnorml2(gel(a,i)));
-  return gerepileuptoint(av, ceil_safe(sqrtr_abs(B)));
+  return gerepileuptoint(av, ceil_safe(sqrtr(B)));
 }
 
 GEN
