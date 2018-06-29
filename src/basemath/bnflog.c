@@ -68,14 +68,14 @@ ftilde(GEN K, GEN pr, GEN T) { return ftilde_from_e(pr, etilde(K,pr, T)); }
 static long
 get_ZpX_index(GEN K, GEN pr, GEN T)
 {
-  GEN pi = nf_to_scalar_or_alg(K, pr_get_gen(pr));
-  GEN p = pr_get_p(pr);
+  GEN p, pi;
   long j, l = lg(T);
+  if (l == 2) return 1;
+  p = pr_get_p(pr); pi = nf_to_scalar_or_alg(K, pr_get_gen(pr));
   for (j = 1; j < l; j++)
   {
     GEN t = gel(T,j);
-    if (!t) continue;
-    if (gvaluation(RgXQ_norm(pi, t), p)) return j;
+    if (t && gvaluation(RgXQ_norm(pi, t), p)) return j;
   }
   return 0;
 }
