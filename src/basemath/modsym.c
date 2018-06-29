@@ -3458,7 +3458,12 @@ moments_act_i(struct m_act *S, GEN f)
     GEN C = Fp_neg(c,q), v = cgetg(D+2,t_POL);
     v[1] = evalsigne(1)|evalvarn(0);
     gel(v, 2) = gen_1; gel(v, 3) = C;
-    for (j = 4; j < D+2; j++) gel(v,j) = Fp_mul(gel(v,j-1), C, q);
+    for (j = 4; j < D+2; j++)
+    {
+      GEN t = Fp_mul(gel(v,j-1), C, q);
+      if (!signe(t)) { setlg(v,j); break; }
+      gel(v,j) = t;
+    }
     u = FpXn_mul(u, v, D, q);
   }
   for (j = 1; j <= D; j++)
