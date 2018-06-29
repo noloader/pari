@@ -4777,7 +4777,8 @@ mslattice(GEN M, GEN F)
   G = gel(D,3); l = lg(G);
   A = gel(D,2);
   vB = cgetg(l, t_COL);
-  m = mkmat2(mkcol2(gen_0,gen_1), NULL);
+  d = mkcol2(gen_0,gen_1);
+  m = mkmat2(d, d);
   for (i = ivB = 1; i < l; i++)
   {
     GEN B, vb, g = gel(G,i);
