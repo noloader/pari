@@ -249,7 +249,7 @@ Rg_to_FpXQ(GEN x, GEN T, GEN p)
       setvarn(z, v);
       return z;
     }
-    return scalar_ZX(Rg_to_Fp(x, p), v);
+    return scalar_ZX(degpol(T)? Rg_to_Fp(x, p): gen_0, v);
   }
   switch(tx)
   {
