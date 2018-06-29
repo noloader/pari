@@ -1648,7 +1648,7 @@ add(GEN a, GEN t) { return a = a? gadd(a,t): t; }
 static GEN
 act_arch(GEN A, GEN x)
 {
-  GEN a, t;
+  GEN a;
   long i,l = lg(A), tA = typ(A);
   if (tA == t_MAT)
   { /* assume lg(x) >= l */
