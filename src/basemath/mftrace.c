@@ -8559,7 +8559,8 @@ mffromqf(GEN Q, GEN P)
   gk = sstoQ(m, 2);
   Qi = ZM_inv(Q, &N);
   if (!qf_iseven(Qi)) N = shifti(N, 1);
-  if (!P || gequal1(P)) { d = 0; P = NULL; }
+  d = 0;
+  if (!P || gequal1(P)) P = NULL;
   else
   {
     P = simplify_shallow(P);
