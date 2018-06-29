@@ -4288,7 +4288,7 @@ siegel_init(struct siegel *C, GEN M)
   W = cgetg(l, t_VECSMALL);
   for (i = 1; i < l; ++i)
   {
-    gel(V,i) = zm_to_ZM(gel(S, L[CP[i]]));
+    gel(V,i) = mat2_to_ZM(gel(S, L[CP[i]]));
     CPI[CP[i]] = i;
   }
   for (i = 1; i < l; ++i) W[CPI[i]] = CPI[Ast[i]];
