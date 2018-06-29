@@ -148,11 +148,16 @@ ell1(GEN ell) { return equaliu(ell,2)? utoipos(5): addiu(ell,1); }
 static GEN
 vtilde_i(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
 {
-  GEN L, N, cx;
+  GEN L, cx;
   if (typ(x) != t_POL) x = nf_to_scalar_or_alg(K, x);
-  x = Q_primitive_part(x,&cx);
-  N = RgXQ_norm(x, T);
-  L = Qp_log(cvtop(N,ell,prec));
+  if (typ(x) != t_POL) { cx = x; L = gen_0; }
+  else
+  {
+    GEN N;
+    x = Q_primitive_part(x,&cx);
+    N = RgXQ_norm(x, T);
+    L = Qp_log(cvtop(N,ell,prec));
+  }
   if (cx)
   {
     Q_pvalrem(cx, ell, &cx);
