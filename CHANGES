@@ -27,6 +27,8 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      22- ((y^-3+O(y))*x+1)/x -> oo loop [#2063]
      23- mfslashexpansion: use Neururer-Brunault's theorem
      24- iferr(sqrt(x+1/y),E,E) -> SEGV  [ typo in err_DOMAIN exception ]
+     25- t_LIST corrupted on writebin / read [#2040]
+     26- prevent diviiexact from creating invalid t_INT on bad input [#2064]
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies
@@ -34,8 +36,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
          vector/matrices or quadratic forms (use [] or "component").
       2- [libpari] rename polcoeff0 -> polcoef, polcoeff_i -> polcoef_i,
          truecoeff -> truecoef
-      3- t_LIST corrupted on writebin / read [#2040]
-      4- add optional argument to denominator/content/numerator to allow
+      3- add optional argument to denominator/content/numerator to allow
          better control over semantic. E.g.
          No arg:  denominator([1/2, 1/x, 1/y]) -> 2*y*x
                   denominator([1/2, 1/x, x/y]) -> 2*x
@@ -43,15 +44,15 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
          With arg: denominator(,1) is 2 in all 3 cases
                    denominator(,x) is x in all 3 cases
                    denominator(,y) is y in all 3 cases
-      5- factor(t_RFRAC): sort factors by increasing degree
-      6- [libpari] rename constant LOG2 -> M_LN2 (from math.h if available)
-      7- ellweilcurve: allow input in ellisomat form
-      8- [libpari] rnf_get_nfzk / nf_nfzk / nfeltup interface (czknf was
+      4- factor(t_RFRAC): sort factors by increasing degree
+      5- [libpari] rename constant LOG2 -> M_LN2 (from math.h if available)
+      6- ellweilcurve: allow input in ellisomat form
+      7- [libpari] rnf_get_nfzk / nf_nfzk / nfeltup interface (czknf was
          useless, return and use nfzk)
-      9- the rnf struct from rnfinit has changed, the new format is not
+      8- the rnf struct from rnfinit has changed, the new format is not
          compatible with pari-2.9
-     10- improved eta(x^k)
-     11- sinc(t_SER) more accurate
+      9- improved eta(x^k)
+     10- sinc(t_SER) more accurate
 
   Added
       1- [libpari] denom_i, numer_i, conj_i

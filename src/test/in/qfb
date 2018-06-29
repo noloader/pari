@@ -28,8 +28,15 @@ qfeval(q,U[,1],U[,2])
 D=poldisc(q);
 qfbredsl2(q,[D,sqrtint(D)])
 qfbredsl2(q,[D]);
-qfbredsl2(q,[D,1.]);
 p=2^64+13;
 qfbprimeform(-4,p)
 qfbprimeform(5,p)
 
+\\ Errors, keep at end of file
+qfbredsl2(q,[D,1.]);
+f=Qfb(12,5,3);g=Qfb(5,5,2);
+f*g
+f/g
+f=Qfb(8,14,1);g=Qfb(4,12,6);
+f*g \\ should fail
+f/g

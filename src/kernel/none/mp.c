@@ -1072,7 +1072,12 @@ diviuexact_i(GEN x, ulong y)
 
   if (y == 1) return icopy(x);
   lx = lgefint(x);
-  if (lx == 3) return utoipos(uel(x,2) / y);
+  if (lx == 3)
+  {
+    q = uel(x,2) / y;
+    if (!q) pari_err_OP("exact division", x, utoi(y));
+    return utoipos(q);
+  }
   yinv = invmod2BIL(y);
   lz = (y <= uel(x,2)) ? lx : lx-1;
   z = new_chunk(lz);
@@ -1104,6 +1109,7 @@ diviuexact_i(GEN x, ulong y)
   z += i-2; lz -= i-2;
   z[0] = evaltyp(t_INT)|evallg(lz);
   z[1] = evalsigne(1)|evallg(lz);
+  if (lz == 2) pari_err_OP("exact division", x, y);
   avma = (pari_sp)z; return z;
 }
 
@@ -1120,6 +1126,7 @@ diviuexact(GEN x, ulong y)
   lx = lgefint(x);
   if (lx == 3) {
     ulong q = uel(x,2) / y;
+    if (!q) pari_err_OP("exact division", x, utoi(y));
     return (s > 0)? utoipos(q): utoineg(q);
   }
   av = avma; (void)new_chunk(lx); vy = vals(y);
@@ -1130,6 +1137,7 @@ diviuexact(GEN x, ulong y)
     if (lx == 3) {
       ulong q = uel(x,2) / y;
       avma = av;
+      if (!q) pari_err_OP("exact division", x, utoi(y));
       return (s > 0)? utoipos(q): utoineg(q);
     }
   } else x = icopy(x);
@@ -1154,6 +1162,7 @@ diviiexact(GEN x, GEN y)
   lx = lgefint(x);
   if (lx == 3) {
     q = uel(x,2) / uel(y,2);
+    if (!q) pari_err_OP("exact division", x, y);
     return (sx+sy) ? utoipos(q): utoineg(q);
   }
   vy = vali(y); av = avma;
@@ -1169,8 +1178,8 @@ diviiexact(GEN x, GEN y)
   ly = lgefint(y);
   if (ly == 3)
   {
-    x = diviuexact_i(x,uel(y,2)); /* x != 0 */
-    setsigne(x, (sx+sy)? 1: -1); return x;
+    z = diviuexact_i(x,uel(y,2)); /* x != 0 */
+    setsigne(z, (sx+sy)? 1: -1); return z;
   }
   y0inv = invmod2BIL(y[ly-1]);
   i=2; while (i<ly && y[i]==x[i]) i++;
@@ -1212,6 +1221,7 @@ diviiexact(GEN x, GEN y)
   z += i-2; lz -= (i-2);
   z[0] = evaltyp(t_INT)|evallg(lz);
   z[1] = evalsigne((sx+sy)? 1: -1) | evallg(lz);
+  if (lz == 2) pari_err_OP("exact division", x, y);
   avma = (pari_sp)z; return z;
 }
 

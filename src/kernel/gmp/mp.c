@@ -1054,83 +1054,86 @@ mpz2GEN(GEN z, mpz_t Z)
   z[1] = evalsigne(l > 0? 1: -1) | evallgefint(labs(l)+2);
 }
 
+#ifdef mpn_divexact_1
+static GEN
+diviuexact_i(GEN x, ulong y)
+{
+  long l = lgefint(x);
+  GEN z = cgeti(l);
+  mpn_divexact_1(LIMBS(z), LIMBS(x), NLIMBS(x), y);
+  if (z[l-1] == 0) l--;
+  z[1] = evallgefint(l) | evalsigne(signe(x));
+  return z;
+}
+#elif 1 && !defined(_WIN64) /* mpz_divexact_ui is not LLP64 friendly   */
+                            /* assume y != 0 and the division is exact */
+static GEN
+diviuexact_i(GEN x, ulong y)
+{
+  long l = lgefint(x);
+  GEN z = cgeti(l);
+  mpz_t X, Z;
+  GEN2mpz(X, x);
+  Z->_mp_alloc = l-2;
+  Z->_mp_size  = l-2;
+  Z->_mp_d = LIMBS(z);
+  mpz_divexact_ui(Z, X, y);
+  mpz2GEN(z, Z); return z;
+}
+#else
+/* assume y != 0 and the division is exact */
+static GEN
+diviuexact_i(GEN x, ulong y)
+{
+  /*TODO: implement true exact division.*/
+  return divii(x,utoi(y));
+}
+#endif
+
+GEN
+diviuexact(GEN x, ulong y)
+{
+  GEN z;
+  if (!signe(x)) return gen_0;
+  z = diviuexact_i(x, y);
+  if (lgefint(z) == 2) pari_err_OP("exact division", x, utoi(y));
+  return z;
+}
+
 /* Find z such that x=y*z, knowing that y | x (unchecked) */
 GEN
 diviiexact(GEN x, GEN y)
 {
+  GEN z;
   if (!signe(y)) pari_err_INV("diviiexact",y);
+  if (!signe(x)) return gen_0;
   if (lgefint(y) == 3)
   {
-    GEN z = diviuexact(x, y[2]);
+    z = diviuexact_i(x, y[2]);
     if (signe(y) < 0) togglesign(z);
-    return z;
   }
-  if (!signe(x)) return gen_0;
+  else
   {
     long l = lgefint(x);
     mpz_t X, Y, Z;
-    GEN z = cgeti(l);
+    z = cgeti(l);
     GEN2mpz(X, x);
     GEN2mpz(Y, y);
     Z->_mp_alloc = l-2;
     Z->_mp_size  = l-2;
     Z->_mp_d = LIMBS(z);
     mpz_divexact(Z, X, Y);
-    mpz2GEN(z, Z); return z;
+    mpz2GEN(z, Z);
   }
-}
-#else
-/* Find z such that x=y*z, knowing that y | x (unchecked)
- * Method: y0 z0 = x0 mod B = 2^BITS_IN_LONG ==> z0 = 1/y0 mod B.
- *    Set x := (x - z0 y) / B, updating only relevant words, and repeat */
-GEN
-diviiexact(GEN x, GEN y)
-{
-  /*TODO: use mpn_bdivmod instead*/
-  if (!signe(y)) pari_err_INV("diviiexact",y);
-  return divii(x,y);
-}
-#endif
-
-#ifdef mpn_divexact_1
-GEN
-diviuexact(GEN y, ulong x)
-{
-  long ly;
-  GEN z;
-  if (!signe(y)) return gen_0;
-  ly = lgefint(y);
-  z = cgeti(ly);
-  mpn_divexact_1(LIMBS(z), LIMBS(y), NLIMBS(y), x);
-  if (z [ly - 1] == 0) ly--;
-  z[1] = evallgefint(ly) | evalsigne(signe(y));
+  if (lgefint(z) == 2) pari_err_OP("exact division", x, y);
   return z;
 }
-#elif 1 && !defined(_WIN64) /* mpz_divexact_ui is not LLP64 friendly   */
-                            /* assume y != 0 and the division is exact */
-GEN
-diviuexact(GEN x, ulong y)
-{
-  if (!signe(x)) return gen_0;
-  {
-    long l = lgefint(x);
-    mpz_t X, Z;
-    GEN z = cgeti(l);
-    GEN2mpz(X, x);
-    Z->_mp_alloc = l-2;
-    Z->_mp_size  = l-2;
-    Z->_mp_d = LIMBS(z);
-    mpz_divexact_ui(Z, X, y);
-    mpz2GEN(z, Z); return z;
-  }
-}
 #else
-/* assume y != 0 and the division is exact */
 GEN
-diviuexact(GEN x, ulong y)
-{
-  /*TODO: implement true exact division.*/
-  return divii(x,utoi(y));
+diviiexact(GEN x, GEN y)
+{ /*TODO: use mpn_bdivmod instead*/
+  if (!signe(y)) pari_err_INV("diviiexact",y);
+  return divii(x,y);
 }
 #endif
 

@@ -22,9 +22,19 @@ Qfb(4, 3, -3, 0.E-38)
   ***   at top-level: qfbredsl2(q,[D])
   ***                 ^----------------
   *** qfbredsl2: incorrect type in qfbredsl2 (t_VEC).
+Qfb(18446744073709551629, 4741036151112220792, 304625896260305173)
+Qfb(18446744073709551629, 7562574061564804959, 775103267656920011, 0.E-38)
   ***   at top-level: qfbredsl2(q,[D,1.])
   ***                 ^-------------------
   *** qfbredsl2: incorrect type in qfbredsl2 (t_VEC).
-Qfb(18446744073709551629, 4741036151112220792, 304625896260305173)
-Qfb(18446744073709551629, 7562574061564804959, 775103267656920011, 0.E-38)
+  ***   at top-level: f*g
+  ***                  ^--
+  *** _*_: inconsistent exact division t_INT , t_INT.
+  ***   at top-level: f/g
+  ***                  ^--
+  *** _/_: inconsistent exact division t_INT , t_INT.
+Qfb(-1, 12, 0, 0.34657359027997265470861606072908828404)
+  ***   at top-level: f/g
+  ***                  ^--
+  *** _/_: inconsistent exact division t_INT , t_INT.
 Total time spent: 1
