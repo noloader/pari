@@ -1830,21 +1830,23 @@ lfungenus2(GEN G)
 GEN
 eta_ZXn(long v, long L)
 {
-  long n, k, an = 0, bn = 1, cn = 0;
+  long n, k = 0, v2 = 2*v, bn = v, cn = 0;
   GEN P;
   if (!L) return zeropol(0);
   P = cgetg(L+2,t_POL); P[1] = evalsigne(1);
   for(n = 0; n < L; n++) gel(P,n+2) = gen_0;
-  for(n = 0;; n++, an += bn, bn += 3, cn += v)
-  { /* an = (3*n-1) * n / 2; bn = 3*n + 1; cn = v * n */
-    k = v * an;
-    if (k >= L) break;
-    gel(P, 2+k) = odd(n)? gen_m1: gen_1;
-    k += cn; /* v * (3*n + 1) * n / 2 */;
-    if (k >= L) break;
-    gel(P, 2+k) = odd(n)? gen_m1: gen_1;
+  for(n = 0;; n++, bn += v2, cn += v)
+  { /* k = v * (3*n-1) * n / 2; bn = v * (2*n+1); cn = v * n */
+    long k2;
+    gel(P, k+2) = odd(n)? gen_m1: gen_1;
+    k2 = k+cn; if (k2 >= L) break;
+    k = k2;
+    /* k = v * (3*n+1) * n / 2 */;
+    gel(P, k+2) = odd(n)? gen_m1: gen_1;
+    k2 = k+bn; if (k2 >= L) break;
+    k = k2;
   }
-  return P;
+  setlg(P, k+3); return P;
 }
 GEN
 eta_product_ZXn(GEN eta, long L)
