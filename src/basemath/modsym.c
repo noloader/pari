@@ -3442,6 +3442,7 @@ moments_act_i(struct m_act *S, GEN f)
   GEN u, z, q = S->q, mat = cgetg(D+1, t_MAT);
 
   a = modii(a,q);
+  c = modii(c,q);
   z = FpX_powu(deg1pol(c,a,0), k-2, q); /* (a+cx)^(k-2) */
   /* u := (b+dx) / (a+cx) mod (q,x^D) = (b/a +d/a*x) / (1 - (-c/a)*x) */
   if (!equali1(a))
