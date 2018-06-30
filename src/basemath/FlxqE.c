@@ -1124,7 +1124,7 @@ getc5(GEN H, GEN A40, GEN A60, GEN A41, GEN A61, GEN T, GEN q, ulong p, long N)
 static GEN
 ZpXQX_liftrootmod_vald(GEN f, GEN H, long v, GEN T, GEN p, long e)
 {
-  pari_sp av = avma, av2, lim;
+  pari_sp av = avma, av2;
   GEN pv = p, q, qv, W, df, Tq, fr, dfr;
   ulong mask;
   pari_timer ti;
@@ -1137,8 +1137,7 @@ ZpXQX_liftrootmod_vald(GEN f, GEN H, long v, GEN T, GEN p, long e)
   if (DEBUGLEVEL) timer_start(&ti);
   W = FpXQXQ_inv(FpXQX_rem(dfr, H, Tq, p), H, Tq, p); /* 1/f'(a) mod (T,p) */
   if (DEBUGLEVEL) timer_printf(&ti,"FpXQXQ_inv");
-  q = p;
-  av2 = avma; lim = stack_lim(av2, 2);
+  q = p; av2 = avma;
   for (;;)
   {
     GEN u, fa, qv, q2v, Tq2, fadH;
@@ -1158,7 +1157,7 @@ ZpXQX_liftrootmod_vald(GEN f, GEN H, long v, GEN T, GEN p, long e)
     dfr = FpXQX_rem(FpXQX_red(df, Tq, q),H,Tq,q);
     u = ZXX_Z_divexact(ZXX_Z_add_shallow(FpXQXQ_mul(W,dfr,H,Tq,q),gen_m1),q2);
     W = gsub(W,gmul(FpXQXQ_mul(u,W,H2,Tq2,q2),q2));
-    if (low_stack(lim, stack_lim(av2,2)))
+    if (gc_needed(av2,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZpXQX_liftroot, e = %ld", e);
       gerepileall(av2, 3, &H, &W, &q);
