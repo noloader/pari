@@ -850,7 +850,7 @@ gmodulsg(long x, GEN y)
       retmkintmod(modsi(x,y), absi(y));
     case t_POL:
       if (!signe(y)) pari_err_INV("%", y);
-      retmkpolmod(stoi(x),RgX_copy(y));
+      retmkpolmod(degpol(y)? stoi(x): gen_0,RgX_copy(y));
   }
   pari_err_TYPE2("%",stoi(x),y);
   return NULL; /* LCOV_EXCL_LINE */

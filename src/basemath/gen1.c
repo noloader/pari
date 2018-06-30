@@ -689,7 +689,7 @@ addsub_polmod(GEN X, GEN Y, GEN x, GEN y, GEN(*op)(GEN,GEN))
 /* Mod(y, Y) +/- x,  x scalar or polynomial in same var and reduced degree */
 static GEN
 addsub_polmod_scal(GEN Y, GEN y, GEN x, GEN(*op)(GEN,GEN))
-{ retmkpolmod(op(y, x), RgX_copy(Y)); }
+{ retmkpolmod(degpol(Y)? op(y, x): gen_0, RgX_copy(Y)); }
 
 /* typ(y) == t_SER, x "scalar" [e.g object in lower variable] */
 static GEN
