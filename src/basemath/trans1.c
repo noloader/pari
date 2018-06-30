@@ -456,9 +456,7 @@ gpowg0(GEN x)
     case t_FFELT: return FF_1(x);
 
     case t_POLMOD:
-      y = cgetg(3,t_POLMOD);
-      gel(y,1) = gcopy(gel(x,1));
-      gel(y,2) = scalarpol_get_1(gel(x,1)); return y;
+      retmkpolmod(scalarpol_get_1(gel(x,1)), gcopy(gel(x,1)));
 
     case t_RFRAC:
       return scalarpol_get_1(gel(x,2));
