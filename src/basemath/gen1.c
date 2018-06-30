@@ -689,11 +689,7 @@ addsub_polmod(GEN X, GEN Y, GEN x, GEN y, GEN(*op)(GEN,GEN))
 /* Mod(y, Y) +/- x,  x scalar or polynomial in same var and reduced degree */
 static GEN
 addsub_polmod_scal(GEN Y, GEN y, GEN x, GEN(*op)(GEN,GEN))
-{
-  GEN z = cgetg(3,t_POLMOD);
-  gel(z,1) = RgX_copy(Y);
-  gel(z,2) = op(y, x); return z;
-}
+{ retmkpolmod(op(y, x), RgX_copy(Y)); }
 
 /* typ(y) == t_SER, x "scalar" [e.g object in lower variable] */
 static GEN
@@ -1435,11 +1431,7 @@ div_rfrac_pol(GEN x1, GEN x2, GEN y2)
 /* Mod(y, Y) * x,  assuming x scalar */
 static GEN
 mul_polmod_scal(GEN Y, GEN y, GEN x)
-{
-  GEN z = cgetg(3,t_POLMOD);
-  gel(z,1) = RgX_copy(Y);
-  gel(z,2) = gmul(x,y); return z;
-}
+{ retmkpolmod(gmul(x,y), RgX_copy(Y)); }
 
 /* cf mulqq */
 static GEN
@@ -2752,9 +2744,7 @@ gdiv(GEN x, GEN y)
     vx = varn(X);
     if (vx != vy) {
       if (varncmp(vx, vy) > 0) return div_scal_T(x, y, ty);
-      z = cgetg(3,t_POLMOD);
-      gel(z,1) = RgX_copy(X);
-      gel(z,2) = gdiv(gel(x,2), y); return z;
+      retmkpolmod(gdiv(gel(x,2), y), RgX_copy(X));
     }
     /* y is POL, SER or RFRAC */
     av = avma;
@@ -2879,9 +2869,8 @@ gmulsg(long s, GEN y)
       gel(z,2) = gmulsg(s,gel(y,2));
       gel(z,3) = gmulsg(s,gel(y,3)); return z;
 
-    case t_POLMOD: z = cgetg(3, t_POLMOD);
-      gel(z,1) = RgX_copy(gel(y,1));
-      gel(z,2) = gmulsg(s,gel(y,2)); return z;
+    case t_POLMOD:
+      retmkpolmod(gmulsg(s,gel(y,2)), RgX_copy(gel(y,1)));
 
     case t_POL:
       if (!signe(y)) return RgX_copy(y);
@@ -2983,9 +2972,8 @@ gdivgs(GEN x, long s)
       gel(z,2) = gdivgs(gel(x,2),s);
       gel(z,3) = gdivgs(gel(x,3),s); return z;
 
-    case t_POLMOD: z = cgetg(3, t_POLMOD);
-      gel(z,1) = RgX_copy(gel(x,1));
-      gel(z,2) = gdivgs(gel(x,2),s); return z;
+    case t_POLMOD:
+      retmkpolmod(gdivgs(gel(x,2),s), RgX_copy(gel(x,1)));
 
     case t_RFRAC:
       if (s == 1) return gcopy(x);
@@ -3060,9 +3048,8 @@ gmul2n(GEN x, long n)
       gel(z,2) = gmul2n(gel(x,2),n);
       gel(z,3) = gmul2n(gel(x,3),n); return z;
 
-    case t_POLMOD: z = cgetg(3,t_POLMOD);
-      gel(z,1) = RgX_copy(gel(x,1));
-      gel(z,2) = gmul2n(gel(x,2),n); return z;
+    case t_POLMOD:
+      retmkpolmod(gmul2n(gel(x,2),n), RgX_copy(gel(x,1)));
 
     case t_POL:
       z = cgetg_copy(x, &lx); z[1] = x[1];
