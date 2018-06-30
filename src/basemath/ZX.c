@@ -809,23 +809,39 @@ ZM_mod2BIL_ZXQM(GEN x, long bs, GEN T)
 GEN
 ZXQM_mul(GEN x, GEN y, GEN T)
 {
+  long d = degpol(T);
+  GEN z;
   pari_sp av = avma;
-  long ex = ZXM_expi(x), ey = ZXM_expi(y), d= degpol(T), n = lg(x)-1;
-  long e = ex + ey + expu(d) + expu(n) + 4;
-  long N = divsBIL(e)+1;
-  GEN  z = ZM_mul(ZXM_eval2BIL(x,N), ZXM_eval2BIL(y,N));
-  return gerepileupto(av, ZM_mod2BIL_ZXQM(z, N, T));
+  if (d == 0)
+    z = ZM_mul(simplify_shallow(x),simplify_shallow(y));
+  else
+  {
+    long ex = ZXM_expi(x), ey = ZXM_expi(y), d= degpol(T), n = lg(x)-1;
+    long e = ex + ey + expu(d) + expu(n) + 4;
+    long N = divsBIL(e)+1;
+    z = ZM_mul(ZXM_eval2BIL(x,N), ZXM_eval2BIL(y,N));
+    z = ZM_mod2BIL_ZXQM(z, N, T);
+  }
+  return gerepileupto(av, z);
 }
 
 GEN
 ZXQM_sqr(GEN x, GEN T)
 {
+  long d = degpol(T);
+  GEN z;
   pari_sp av = avma;
-  long ex = ZXM_expi(x), d = degpol(T), n = lg(x)-1;
-  long e = 2*ex + expu(d) + expu(n) + 4;
-  long N = divsBIL(e)+1;
-  GEN  z = ZM_sqr(ZXM_eval2BIL(x,N));
-  return gerepileupto(av, ZM_mod2BIL_ZXQM(z, N, T));
+  if (d == 0)
+    z = ZM_sqr(simplify_shallow(x));
+  else
+  {
+    long ex = ZXM_expi(x), d = degpol(T), n = lg(x)-1;
+    long e = 2*ex + expu(d) + expu(n) + 4;
+    long N = divsBIL(e)+1;
+    z = ZM_sqr(ZXM_eval2BIL(x,N));
+    z = ZM_mod2BIL_ZXQM(z, N, T);
+  }
+  return gerepileupto(av, z);
 }
 
 GEN
