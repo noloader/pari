@@ -1196,7 +1196,12 @@ rnfalgtobasis(GEN rnf,GEN x)
       if (typ(x) != t_POL) break;
       return gerepileupto(av, RgM_RgX_mul(rnf_get_invzk(rnf), x));
     case t_POL:
-      if (varn(x) == varn(T)) { RgX_check_QX(x,f); x = mkpolmod(x,T); break; }
+      if (varn(x) == varn(T))
+      {
+        RgX_check_QX(x,f);
+        if (degpol(x) >= degpol(T)) x = RgX_rem(x,T);
+        x = mkpolmod(x,T); break;
+      }
       x = RgX_nffix(f, T, x, 0);
       if (degpol(x) >= degpol(relpol)) x = RgX_rem(x,relpol);
       return gerepileupto(av, RgM_RgX_mul(rnf_get_invzk(rnf), x));
