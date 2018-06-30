@@ -31,6 +31,8 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      26- prevent diviiexact from creating invalid t_INT on bad input [#2064]
      27- Mod(*, constant polynomial) created invalid t_POLMODs
      28- rnfalgtobasis could create invalid t_POLMODs
+     29- mftobasis(mf,f) could raise an exception when f was defined at a
+         larger level than its conductor
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies

@@ -7065,30 +7065,32 @@ mfistrivial(GEN F)
   }
 }
 
-/* check parameters rigorously, but not coefficients */
 static long
-mfisinspace_i(GEN mf, GEN F)
+mf_same_k(GEN mf, GEN f) { return gequal(MF_get_gk(mf), mf_get_gk(f)); }
+static long
+mf_same_CHI(GEN mf, GEN f)
 {
-  GEN CHI1, CHI2, chi1, chi2, F1, F2, gk;
-  long Nmf, N, space = MF_get_space(mf);
-
-  if (mfistrivial(F)) return 1;
-  N = mf_get_N(F);
-  Nmf = MF_get_N(mf);
-  if (space == mf_NEW)
-  { if (N != Nmf) return 0; }
-  else
-  { if (Nmf % N) return 0; }
-  gk = mf_get_gk(F);
-  if (!gequal(MF_get_gk(mf), gk)) return 0;
-  CHI2 = mf_get_CHI(F);
-  CHI1 = MF_get_CHI(mf);
+  GEN F1, F2, chi1, chi2, CHI1 = MF_get_CHI(mf), CHI2 = mf_get_CHI(f);
   /* are the primitive chars attached to CHI1 and CHI2 equal ? */
   F1 = znconreyconductor(gel(CHI1,1), gel(CHI1,2), &chi1);
   if (typ(F1) == t_VEC) F1 = gel(F1,1);
   F2 = znconreyconductor(gel(CHI2,1), gel(CHI2,2), &chi2);
   if (typ(F2) == t_VEC) F2 = gel(F2,1);
   return equalii(F1,F2) && ZV_equal(chi1,chi2);
+}
+/* check parameters rigorously, but not coefficients */
+static long
+mfisinspace_i(GEN mf, GEN F)
+{
+  long Nmf, N;
+  if (mfistrivial(F)) return 1;
+  N = mf_get_N(F);
+  Nmf = MF_get_N(mf);
+  if (MF_get_space(mf) == mf_NEW)
+  { if (N != Nmf) return 0; }
+  else
+  { if (Nmf % N) return 0; }
+  return mf_same_k(mf, F) && mf_same_CHI(mf, F);
 }
 static void
 err_space(GEN F)
@@ -9025,7 +9027,13 @@ mfeisensteinbasis(long N, long k, GEN CHI)
   return lg(L) == 1? L: shallowconcat1(L);
 }
 
-/* when flag set, do not return error message */
+static GEN
+not_in_space(GEN F, long flag)
+{
+  if (!flag) err_space(F);
+  return cgetg(1, t_COL);
+}
+/* when flag set, no error */
 GEN
 mftobasis(GEN mf, GEN F, long flag)
 {
@@ -9034,16 +9042,19 @@ mftobasis(GEN mf, GEN F, long flag)
   long B, ismf = checkmf_i(F);
 
   mf = checkMF(mf);
-  if (ismf && !mfisinspace_i(mf, F))
+  if (ismf)
   {
-    if (flag) return cgetg(1, t_COL);
-    err_space(F);
+    if (mfistrivial(F)) return zerocol(MF_get_dim(mf));
+    if (!mf_same_k(mf, F) || !mf_same_CHI(mf, F)) return not_in_space(F, flag);
   }
-  /* at least the parameters are right */
-  B = mfsturmNgk(MF_get_N(mf), MF_get_gk(mf)) + 1;
-  if (ismf) v = mfcoefs_i(F,B,1);
+  if (ismf)
+  { /* use level of F */
+    B = mfsturmNgk(maxuu(mf_get_N(F),MF_get_N(mf)), MF_get_gk(mf)) + 1;
+    v = mfcoefs_i(F,B,1);
+  }
   else
   {
+    B = mfsturmNgk(MF_get_N(mf), MF_get_gk(mf)) + 1;
     switch(typ(F))
     { /* F(0),...,F(lg(v)-2) */
       case t_SER: v = sertocol(F); settyp(v,t_VEC); break;
@@ -9064,13 +9075,8 @@ mftobasis(GEN mf, GEN F, long flag)
   if (MF_get_space(mf) == mf_FULL || mfsturm(mf)+1 == B) return y;
   G = mflinear(mf, y);
   if (!gequal(v, mfcoefs_i(G, lg(v)-2,1))) y = NULL;
-  avma = av2;
-  if (!y)
-  {
-    if (flag) { avma = av; return cgetg(1, t_COL); }
-    err_space(F);
-  }
-  return gerepileupto(av, y);
+  if (!y) { avma = av; return not_in_space(F, flag); }
+  avma = av2; return gerepileupto(av, y);
 }
 
 /* assume N > 0; first cusp is always 0 */

@@ -382,6 +382,12 @@ F=mffrometaquo([1,8;2,-2;4,2;6,2;12,2]);
 mf=mfinit([12,6],1);
 mftobasis(mf,F)
 
+F=mffrometaquo([1,-16;2,68]);
+mf=mfinit([4,26],1);
+F2=mfhecke(mf,F,2);
+mf2=mfinit([2,26],1);
+mftobasis(mf2,F2)
+
 mfcoefs(mffrometaquo(matrix(0,2)),5)
 
 mfdim(mfinit([24,4,Mod(23,24)],1),1)
