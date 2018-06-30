@@ -1787,9 +1787,8 @@ gneg(GEN x)
       gel(y,2) = gneg(gel(x,2));
       break;
 
-    case t_POLMOD: y=cgetg(3,t_POLMOD);
-      gel(y,1) = RgX_copy(gel(x,1));
-      gel(y,2) = gneg(gel(x,2)); break;
+    case t_POLMOD:
+      retmkpolmod(gneg(gel(x,2)), RgX_copy(gel(x,1)));
 
     case t_RFRAC:
       y = cgetg(3, t_RFRAC);
@@ -1862,9 +1861,8 @@ gneg_i(GEN x)
       gel(y,3) = gel(x,3);
       gel(y,4) = signe(gel(x,4))? subii(gel(x,3),gel(x,4)): gen_0; break;
 
-    case t_POLMOD: y=cgetg(3,t_POLMOD);
-      gel(y,1) = gel(x,1);
-      gel(y,2) = gneg_i(gel(x,2)); break;
+    case t_POLMOD:
+      retmkpolmod(gneg_i(gel(x,2)), RgX_copy(gel(x,1)));
 
     case t_FFELT: return FF_neg_i(x);
 
