@@ -2239,9 +2239,8 @@ ground(GEN x)
     case t_INTMOD: case t_QUAD: return gcopy(x);
     case t_REAL: return roundr(x);
     case t_FRAC: return diviiround(gel(x,1), gel(x,2));
-    case t_POLMOD: y=cgetg(3,t_POLMOD);
-      gel(y,1) = RgX_copy(gel(x,1));
-      gel(y,2) = ground(gel(x,2)); return y;
+    case t_POLMOD:
+      retmkpolmod(ground(gel(x,2)), RgX_copy(gel(x,1)));
 
     case t_COMPLEX:
       av = avma; y = cgetg(3, t_COMPLEX);
@@ -2302,9 +2301,8 @@ grndtoi(GEN x, long *e)
       if (e1 > *e) *e = e1;
       return y;
 
-    case t_POLMOD: y = cgetg(3,t_POLMOD);
-      gel(y,1) = RgX_copy(gel(x,1));
-      gel(y,2) = grndtoi(gel(x,2), e); return y;
+    case t_POLMOD:
+      retmkpolmod(grndtoi(gel(x,2), e), RgX_copy(gel(x,1)));
 
     case t_POL:
       y = cgetg_copy(x, &lx); y[1] = x[1];
