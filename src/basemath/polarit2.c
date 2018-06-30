@@ -2083,10 +2083,7 @@ Q_muli_to_int(GEN x, GEN d)
       return y;
 
     case t_POLMOD:
-      y = cgetg(3, t_POLMOD);
-      gel(y,1) = RgX_copy(gel(x,1));
-      gel(y,2) = Q_muli_to_int(gel(x,2), d);
-      return y;
+      retmkpolmod(Q_muli_to_int(gel(x,2), d), RgX_copy(gel(x,1)));
     case t_RFRAC:
       return gmul(x, d);
   }
@@ -2182,10 +2179,7 @@ Q_divmuli_to_int(GEN x, GEN d, GEN n)
       return y;
 
     case t_POLMOD:
-      y = cgetg(3, t_POLMOD);
-      gel(y,1) = RgX_copy(gel(x,1));
-      gel(y,2) = Q_divmuli_to_int(gel(x,2), d,n);
-      return y;
+      retmkpolmod(Q_divmuli_to_int(gel(x,2), d,n), RgX_copy(gel(x,1)));
   }
   pari_err_TYPE("Q_divmuli_to_int",x);
   return NULL; /* LCOV_EXCL_LINE */
@@ -2214,10 +2208,7 @@ Q_divi_to_int(GEN x, GEN d)
       return y;
 
     case t_POLMOD:
-      y = cgetg(3, t_POLMOD);
-      gel(y,1) = RgX_copy(gel(x,1));
-      gel(y,2) = Q_divi_to_int(gel(x,2), d);
-      return y;
+      retmkpolmod(Q_divi_to_int(gel(x,2), d), RgX_copy(gel(x,1)));
   }
   pari_err_TYPE("Q_divi_to_int",x);
   return NULL; /* LCOV_EXCL_LINE */
