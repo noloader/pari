@@ -845,7 +845,7 @@ coltoalg(GEN nf, GEN x)
 GEN
 basistoalg(GEN nf, GEN x)
 {
-  GEN z, T;
+  GEN T;
 
   nf = checknf(nf);
   switch(typ(x))
@@ -862,15 +862,11 @@ basistoalg(GEN nf, GEN x)
     case t_POL:
       T = nf_get_pol(nf);
       if (varn(T) != varn(x)) pari_err_VAR("basistoalg",x,T);
-      z = cgetg(3,t_POLMOD);
-      gel(z,1) = ZX_copy(T);
-      gel(z,2) = RgX_rem(x, T); return z;
+      retmkpolmod(RgX_rem(x, T), ZX_copy(T));
     case t_INT:
     case t_FRAC:
       T = nf_get_pol(nf);
-      z = cgetg(3,t_POLMOD);
-      gel(z,1) = ZX_copy(T);
-      gel(z,2) = gcopy(x); return z;
+      retmkpolmod(gcopy(x), ZX_copy(T));
     default:
       pari_err_TYPE("basistoalg",x);
       return NULL; /* LCOV_EXCL_LINE */
