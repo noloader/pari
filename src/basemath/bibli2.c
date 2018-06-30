@@ -1176,15 +1176,14 @@ GEN
 modreverse(GEN x)
 {
   long v, n;
-  GEN T, a, y;
+  GEN T, a;
 
   if (typ(x)!=t_POLMOD) pari_err_TYPE("modreverse",x);
   T = gel(x,1); n = degpol(T); if (n <= 0) return gcopy(x);
   a = gel(x,2);
   v = varn(T);
-  y = cgetg(3,t_POLMOD);
-  gel(y,1) = (n==1)? gsub(pol_x(v), a): RgXQ_charpoly(a, T, v);
-  gel(y,2) = RgXQ_reverse(a, T); return y;
+  retmkpolmod(RgXQ_reverse(a, T),
+              (n==1)? gsub(pol_x(v), a): RgXQ_charpoly(a, T, v));
 }
 
 /********************************************************************/
