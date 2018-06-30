@@ -259,8 +259,9 @@ Rg_to_FpXQ(GEN x, GEN T, GEN p)
       if (is_const_t(ta))
         return scalar_ZX(degpol(T)? Rg_to_Fp(a, p): gen_0, v);
       b = RgX_to_FpX(b, p); if (varn(b) != v) break;
-      a = RgX_to_FpX(a, p); if (ZX_equal(b,get_FpX_mod(T))) return a;
-      if (signe(FpX_rem(b,T,p))==0) return FpX_rem(a, T, p);
+      a = RgX_to_FpX(a, p);
+      if (ZX_equal(b,get_FpX_mod(T)) || signe(FpX_rem(b,T,p))==0)
+        return FpX_rem(a, T, p);
       break;
     case t_POL:
       if (varn(x) != v) break;
