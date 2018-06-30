@@ -1109,7 +1109,7 @@ diviuexact_i(GEN x, ulong y)
   z += i-2; lz -= i-2;
   z[0] = evaltyp(t_INT)|evallg(lz);
   z[1] = evalsigne(1)|evallg(lz);
-  if (lz == 2) pari_err_OP("exact division", x, y);
+  if (lz == 2) pari_err_OP("exact division", x, utoi(y));
   avma = (pari_sp)z; return z;
 }
 
