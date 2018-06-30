@@ -1334,20 +1334,22 @@ zero_gcd2(GEN y, GEN z)
   }
   return NULL;
 }
+static GEN
+cont_gcd_pol_i(GEN x, GEN y) { return scalarpol(ggcd(content(x),y), varn(x));}
+/* tx = t_POL, y considered as constant */
+static GEN
+cont_gcd_pol(GEN x, GEN y)
+{ pari_sp av = avma; return gerepileupto(av, cont_gcd_pol_i(x,y)); }
 /* tx = t_RFRAC, y considered as constant */
 static GEN
 cont_gcd_rfrac(GEN x, GEN y)
 {
   pari_sp av = avma;
   GEN cx; x = primitive_part(x, &cx);
-  return gerepileupto(av, gred_rfrac_simple(ggcd(cx? cx: gen_1, y), gel(x,2)));
-}
-/* tx = t_POL, y considered as constant */
-static GEN
-cont_gcd_pol(GEN x, GEN y)
-{
-  pari_sp av = avma;
-  return gerepileupto(av, scalarpol(ggcd(content(x),y), varn(x)));
+  /* e.g. Mod(1,2) / (2*y+1) => primitive_part = Mod(1,2)*y^0 */
+  if (typ(x) != t_RFRAC) x = cont_gcd_pol_i(x, y);
+  else x = gred_rfrac_simple(ggcd(cx? cx: gen_1, y), gel(x,2));
+  return gerepileupto(av, x);
 }
 /* !is_const_t(tx), tx != t_POL,t_RFRAC, y considered as constant */
 static GEN
