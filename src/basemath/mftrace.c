@@ -586,11 +586,14 @@ static GEN
 get_mfchar(GEN CHI)
 {
   GEN G, L;
-  if (typ(CHI) != t_VEC)
-    CHI = znchar(CHI);
-  if (lg(CHI) == 5 && checkznstar_i(gel(CHI, 1))) return CHI;
-  else if (lg(CHI) != 3 || !checkznstar_i(gel(CHI,1)))
-    pari_err_TYPE("checkNF [chi]", CHI);
+  if (typ(CHI) != t_VEC) CHI = znchar(CHI);
+  else
+  {
+    long l = lg(CHI);
+    if ((l != 3 && l != 5) || !checkznstar_i(gel(CHI,1)))
+      pari_err_TYPE("checkNF [chi]", CHI);
+    if (l == 5) return CHI;
+  }
   G = gel(CHI,1);
   L = gel(CHI,2); if (typ(L) != t_COL) L = znconreylog(G,L);
   return mfcharGL(G, L);
