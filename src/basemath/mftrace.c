@@ -11642,10 +11642,17 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
 static GEN
 mfsymbol_i(GEN mf, GEN F, GEN cosets, long bit)
 {
-  GEN FE, van, vP, vE, vES = mftobasisES(mf,F);
-  long prec = nbits2prec(bit);
+  GEN FE, van, vP, vE, Mvecj, vES = mftobasisES(mf,F);
+  long precnew, prec = nbits2prec(bit), k = MF_get_k(mf);
   vE = mfgetembed(F, prec);
-  FE = mkcol2(F, mf_eisendec(mf,F,prec));
+  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
+  if (lg(Mvecj) >= 5) precnew = prec;
+  else
+  {
+    long n = mfperiod_prelim_double(1/(double)MF_get_N(mf), k, bit + 32);
+    precnew = prec + nbits2extraprec(n >> 1);
+  }
+  FE = mkcol2(F, mf_eisendec(mf,F,precnew));
   vP = mfperiodpols_i(mf, FE, cosets, &van, bit);
   return mkvecn(8, mf, vES, vP, cosets, utoi(bit), vE, FE, van);
 }
