@@ -2328,13 +2328,14 @@ div_ser(GEN x, GEN y, long vx)
   y_lead = gel(y,2);
   if (gequal0(y_lead)) /* normalize denominator if leading term is 0 */
   {
+    GEN y0 = y;
     pari_warn(warner,"normalizing a series with 0 leading term");
     for (l--, ly--,y++; ly > 2; l--, ly--, y++)
     {
       y_lead = gel(y,2);
       if (!gequal0(y_lead)) break;
     }
-    if (ly <= 2) pari_err_INV("div_ser", y);
+    if (ly <= 2) pari_err_INV("div_ser", y0);
   }
   if (ly < lx) lx = ly;
   p2 = cgetg(lx, t_VECSMALL); /* left on stack for efficiency */

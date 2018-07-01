@@ -149,4 +149,8 @@ O(x^18)
   ***   at top-level: Ser("")
   ***                 ^-------
   *** Ser: incorrect type in Ser (t_STR).
-Total time spent: 4
+  *** _/_: Warning: normalizing a series with 0 leading term.
+  ***   at top-level: O(13^-5)/Mat(Mod(2,26)*y*x+(Mod(1,2)*y^-1+O(y^
+  ***                         ^--------------------------------------
+  *** _/_: impossible inverse in div_ser: O(13^0) + O(13^0)*y + O(13^0)*y^2 + O(13^0)*y^3 + O(y^4).
+Total time spent: 11
