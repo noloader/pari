@@ -1199,6 +1199,7 @@ gp_read_line(filtre_t *F, const char *PROMPT)
   if (interactive)
   {
     BLOCK_EH_START
+    if (!pari_last_was_newline()) pari_putc('\n');
     if (cb_pari_get_line_interactive)
       res = cb_pari_get_line_interactive(p, GP_DATA->prompt_cont, F);
     else {

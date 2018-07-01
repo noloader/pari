@@ -370,11 +370,10 @@ gp_main_loop(long ismain)
     z = pari_compile_str(b->buf);
     z = closure_evalres(z);
     if (!ismain) continue;
-    pari_alarm(0);
-
-    if (!pari_last_was_newline()) pari_putc('\n');
 
     t = timer_delay(GP_DATA->T);
+    if (!pari_last_was_newline()) pari_putc('\n');
+    pari_alarm(0);
     if (t && GP_DATA->chrono)
     {
       pari_puts("time = ");
