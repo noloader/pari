@@ -519,6 +519,10 @@ mf=mfinit([7,4,Mod(2,7)], 0); F=mfsymbol(mf, mfeigenbasis(mf)[1]);
 L=mfmanin(F)
 mfcusps(mf)
 
+mf = mfinit([37,2],4);
+f=mfbasis(mf)[2]; s=mfsymbol(mf,f);
+mfpetersson(s)
+
 T=mfTheta();mf=mfinit([12,1/2]);CU12=mfcusps(12)
 mfcusps(mf)
 apply(x->mfcuspwidth(mf,x), CU12)
