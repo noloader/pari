@@ -11338,7 +11338,7 @@ mfconductor(GEN mf, GEN F)
     N = mf_get_N(F);
     if (!wt1newlevel(N))
     {
-      long s = (space == mf_EISEN || space == mf_FULL)? mf_FULL: mf_CUSP;
+      long s = space_is_cusp(space)? mf_CUSP: mf_FULL;
       N = ugcd(N, wt1mulcond(F,-3,s));
       if (!wt1newlevel(N)) N = ugcd(N, wt1mulcond(F,-4,s));
     }
@@ -11350,7 +11350,7 @@ mfconductor(GEN mf, GEN F)
     mf = obj_checkbuild(mf, MF_MF2INIT, &mf2init); /* mf_FULL */
   }
   N = 1;
-  if (space == mf_CUSP || space == mf_OLD)
+  if (space_is_cusp(space))
   {
     F = mftobasis_i(mf, F);
     if (typ(gk) != t_INT) F = vecslice(F, lg(MF_get_E(mf)), lg(F) - 1);
