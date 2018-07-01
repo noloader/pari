@@ -7078,19 +7078,11 @@ mf_same_CHI(GEN mf, GEN f)
   if (typ(F2) == t_VEC) F2 = gel(F2,1);
   return equalii(F1,F2) && ZV_equal(chi1,chi2);
 }
-/* check parameters rigorously, but not coefficients */
+/* check k and CHI rigorously, but not coefficients nor N */
 static long
 mfisinspace_i(GEN mf, GEN F)
 {
-  long Nmf, N;
-  if (mfistrivial(F)) return 1;
-  N = mf_get_N(F);
-  Nmf = MF_get_N(mf);
-  if (MF_get_space(mf) == mf_NEW)
-  { if (N != Nmf) return 0; }
-  else
-  { if (Nmf % N) return 0; }
-  return mf_same_k(mf, F) && mf_same_CHI(mf, F);
+  return mfistrivial(F) || (mf_same_k(mf,F) && mf_same_CHI(mf,F));
 }
 static void
 err_space(GEN F)
@@ -9038,8 +9030,8 @@ GEN
 mftobasis(GEN mf, GEN F, long flag)
 {
   pari_sp av2, av = avma;
-  GEN G, v, y;
-  long B, ismf = checkmf_i(F);
+  GEN G, v, y, gk;
+  long N, B, ismf = checkmf_i(F);
 
   mf = checkMF(mf);
   if (ismf)
@@ -9047,14 +9039,17 @@ mftobasis(GEN mf, GEN F, long flag)
     if (mfistrivial(F)) return zerocol(MF_get_dim(mf));
     if (!mf_same_k(mf, F) || !mf_same_CHI(mf, F)) return not_in_space(F, flag);
   }
+  N = MF_get_N(mf);
+  gk = MF_get_gk(mf);
   if (ismf)
-  { /* use level of F */
-    B = mfsturmNgk(maxuu(mf_get_N(F),MF_get_N(mf)), MF_get_gk(mf)) + 1;
+  {
+    long NF = mf_get_N(F);
+    B = maxuu(mfsturmNgk(NF,gk), mfsturmNgk(N,gk)) + 1;
     v = mfcoefs_i(F,B,1);
   }
   else
   {
-    B = mfsturmNgk(MF_get_N(mf), MF_get_gk(mf)) + 1;
+    B = mfsturmNgk(N, gk) + 1;
     switch(typ(F))
     { /* F(0),...,F(lg(v)-2) */
       case t_SER: v = sertocol(F); settyp(v,t_VEC); break;
