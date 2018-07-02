@@ -306,7 +306,7 @@ RgXY_factor(GEN f, GEN dom)
     if (degpol(v))
     {
       gel(F,j) = v = RgXY_factor_squarefree(v, dom);
-      gel(E,j) = const_vec(lg(v)-1, utoipos(i));
+      gel(E,j) = const_col(lg(v)-1, utoipos(i));
       j++;
     }
   }
