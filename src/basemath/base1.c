@@ -2246,8 +2246,9 @@ polred_aux(nfmaxord_t *S, GEN *pro, long flag)
   setlg(y, k);
   setlg(b, k); filter(y, b, n);
   if (!orig) return gen_sort_uniq(y, (void*)cmpii, &gen_cmp_RgX);
+  settyp(y, t_COL);
   (void)sort_factor_pol(mkmat2(y, b), cmpii);
-  settyp(y, t_COL); return mkmat2(b, y);
+  return mkmat2(b, y);
 }
 
 /* FIXME: obsolete */
