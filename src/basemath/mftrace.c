@@ -4741,7 +4741,7 @@ mynffactor(GEN NF, GEN P, long dimlim)
   v = varn(P);
   settyp(R, t_COL);
   if (degpol(P) == l-1)
-    E = const_vec(l-1, gen_1);
+    E = const_col(l-1, gen_1);
   else
   {
     E = cgetg(l, t_COL);
