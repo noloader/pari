@@ -2099,7 +2099,7 @@ remove_duplicates(GEN v)
   pari_sp av = avma;
 
   if (l < 2) return;
-  (void)sort_factor_pol(mkmat2(P, A), cmpii);
+  (void)sort_factor_pol(mkvec2(P, A), cmpii);
   x = gel(P,1); a = gel(A,1);
   for  (k=1,i=2; i<l; i++)
     if (ZX_equal(gel(P,i), x))
