@@ -511,6 +511,12 @@ vectrunc_init(long l)
   GEN z = new_chunk(l);
   z[0] = evaltyp(t_VEC) | _evallg(1); return z;
 }
+INLINE GEN
+coltrunc_init(long l)
+{
+  GEN z = new_chunk(l);
+  z[0] = evaltyp(t_COL) | _evallg(1); return z;
+}
 INLINE void
 lg_increase(GEN x) { x[0]++; }
 INLINE void
