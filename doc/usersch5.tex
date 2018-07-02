@@ -8103,6 +8103,9 @@ entries. Returns a vector with the same type as $L$.
 \tet{ZV_sort}, returns the union of $x$ and $y$. Shallow function. In case two
 entries are equal in $x$ and $y$,  include the one from $x$.
 
+\fun{GEN}{ZC_union_shallow}{GEN x, GEN y} as \kbd{ZV\_union\_shallow} but return
+a \typ{COL}.
+
 \subsubsec{\kbd{ZM}}
 
 \fun{void}{RgM_check_ZM}{GEN A, const char *s} Assuming \kbd{x} is a \typ{MAT}
