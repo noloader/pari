@@ -1037,8 +1037,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
 
 /* EXACT INTEGER DIVISION */
 
-#if 1 && !defined(_WIN64) /* use undocumented GMP interface */
-                          /* mpz_divexact_ui is not LLP64 friendly */
+/* use undocumented GMP interface */
 static void
 GEN2mpz(mpz_t X, GEN x)
 {
@@ -1128,14 +1127,6 @@ diviiexact(GEN x, GEN y)
   if (lgefint(z) == 2) pari_err_OP("exact division", x, y);
   return z;
 }
-#else
-GEN
-diviiexact(GEN x, GEN y)
-{ /*TODO: use mpn_bdivmod instead*/
-  if (!signe(y)) pari_err_INV("diviiexact",y);
-  return divii(x,y);
-}
-#endif
 
 /* assume yz != and yz | x */
 GEN
