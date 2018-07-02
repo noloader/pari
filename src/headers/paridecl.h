@@ -2428,6 +2428,7 @@ GEN     zncoppersmith(GEN P0, GEN N, GEN X, GEN B) ;
 GEN     QXQ_reverse(GEN a, GEN T);
 GEN     RgV_polint(GEN X, GEN Y, long v);
 GEN     RgXQ_reverse(GEN a, GEN T);
+GEN     ZC_union_shallow(GEN x, GEN y);
 GEN     ZV_indexsort(GEN L);
 long    ZV_search(GEN x, GEN y);
 GEN     ZV_sort(GEN L);

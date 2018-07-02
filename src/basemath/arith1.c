@@ -5297,7 +5297,7 @@ ok_q(GEN q, GEN h, GEN d2, long r2)
 static GEN
 split_lcm(GEN a, GEN Fa, GEN b, GEN Fb, GEN *pA, GEN *pB)
 {
-  GEN P = ZV_union_shallow(gel(Fa,1), gel(Fb,1));
+  GEN P = ZC_union_shallow(gel(Fa,1), gel(Fb,1));
   GEN A = gen_1, B = gen_1;
   long i, l = lg(P);
   GEN E = cgetg(l, t_COL);
