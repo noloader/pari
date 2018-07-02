@@ -3808,9 +3808,9 @@ Z_factor_until(GEN n, GEN limit)
   if (cmpii(q, limit) > 0)
   { /* factor further */
     long l2 = expi(q)+1;
-    GEN P2 = vectrunc_init(l2);
-    GEN E2 = vectrunc_init(l2);
-    GEN F2 = mkmat2(P2,E2);
+    GEN  P2 = coltrunc_init(l2);
+    GEN  E2 = coltrunc_init(l2);
+    GEN  F2 = mkmat2(P2,E2);
     part = ifac_start(q, 0);
     for(;;)
     {
