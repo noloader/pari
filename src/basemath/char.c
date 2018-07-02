@@ -1019,7 +1019,7 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
       P = vecsplice(P,1);
       E = vecsplice(E,1);
     }
-    E = zv_to_ZV(E);
+    E = zc_to_ZC(E);
     q = mkvec2(factorback2(P,E), mkmat2(P,E));
   }
   gerepileall(av, pm? 2: 1, &q, pm);
