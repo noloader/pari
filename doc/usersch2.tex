@@ -1206,7 +1206,15 @@ lvalue, raise an error.
 ? x + 1 = 1
   ***   syntax error, unexpected '=', expecting $end or ';': x+1=1
   ***                                                           ^--
-@eprog
+@eprog\noindent
+Assignment to all variables is a deep copy. To globals it is a full copy to
+the heap. To local variables (\secref{se:scope}), including formal parameters
+of function calls, it is implemented with a form of copy-on-write so objects
+like vectors are not duplicated unless modified.  Space used by local objects
+in local variables is on the Pari stack and is released when they go out of
+scope. Assigning a value to a vector or matrix entry allocates room for that
+entry only (on the heap).
+
 \leavevmode
 \kbd{\var{op}=}, where \var{op} is any binary operator
 among \kbd{+}, \kbd{-}, \kbd{*}, \kbd{\%}, \kbd{/}, \kbd{\bs}, \kbd{\bs/},
