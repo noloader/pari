@@ -1984,7 +1984,7 @@ factorsplice(GEN fa, long k)
   for (i=1; i<k; i++) { P[i] = p[i]; E[i] = e[i]; }
   p++; e++;
   for (   ; i<l; i++) { P[i] = p[i]; E[i] = e[i]; }
-  return mkmat2(P,E);
+  return mkvec2(P,E);
 }
 static GEN
 factorpow(GEN fa, long n)
@@ -2064,7 +2064,7 @@ get_discdata(GEN t, GEN h)
 {
   GEN bid = gel(t,1), fa = bid_get_fact(bid);
   GEN P = gel(fa,1), E = vec_to_vecsmall(gel(fa,2));
-  return mkvec3(mkmat2(P, E), (GEN)itou(get_classno(t, h)), bid_get_mod(bid));
+  return mkvec3(mkvec2(P, E), (GEN)itou(get_classno(t, h)), bid_get_mod(bid));
 }
 typedef struct _disc_data {
   long degk;
@@ -2144,7 +2144,7 @@ static GEN
 zsimp(void)
 {
   GEN empty = cgetg(1, t_VECSMALL);
-  return mkvec3(mkmat2(empty,empty), cgetg(1,t_VEC), cgetg(1,t_MAT));
+  return mkvec3(mkvec2(empty,empty), cgetg(1,t_VEC), cgetg(1,t_MAT));
 }
 
 /* fa a vecsmall factorization, append p^e */
@@ -2152,7 +2152,7 @@ static GEN
 fasmall_append(GEN fa, long p, long e)
 {
   GEN P = gel(fa,1), E = gel(fa,2);
-  retmkmat2(vecsmall_append(P,p), vecsmall_append(E,e));
+  retmkvec2(vecsmall_append(P,p), vecsmall_append(E,e));
 }
 
 static GEN
@@ -2164,7 +2164,7 @@ zsimpjoin(GEN b, GEN sprk, GEN U_pr, long prcode, long e)
 {
   GEN fa, cyc = sprk_get_cyc(sprk);
   if (lg(gel(b,2)) == 1) /* trivial group */
-    fa = mkmat2(mkvecsmall(prcode),mkvecsmall(e));
+    fa = mkvec2(mkvecsmall(prcode),mkvecsmall(e));
   else
   {
     fa = fasmall_append(gel(b,1), prcode, e);
@@ -2252,6 +2252,14 @@ bnrclassno_all(GEN B, ulong h, GEN sgnU)
   return L;
 }
 
+static int
+is_module(GEN v)
+{
+  if (lg(v) != 3) return 0;
+  if (typ(v) == t_MAT || typ(v) == t_VEC)
+    return typ(gel(v,1)) == t_VECSMALL && typ(gel(v,2)) == t_VECSMALL;
+  return 0;
+}
 GEN
 decodemodule(GEN nf, GEN fa)
 {
@@ -2260,8 +2268,7 @@ decodemodule(GEN nf, GEN fa)
   GEN G, E, id, pr;
 
   nf = checknf(nf);
-  if (typ(fa)!=t_MAT || lg(fa)!=3)
-    pari_err_TYPE("decodemodule [not a factorization]", fa);
+  if (!is_module(fa)) pari_err_TYPE("decodemodule [not a factorization]", fa);
   n = nf_get_degree(nf); nn = n*n; id = NULL;
   G = gel(fa,1);
   E = gel(fa,2);

@@ -59,6 +59,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      10- sinc(t_SER) more accurate
      11- in prettymatrix format, no longer print all 0 x n matrices as [;]:
          use [;] iff n = 0 and matrix(0,n) otherwise
+     12- bnrdisclist returned t_MATs whose columns were t_VECSMALL
 
   Added
       1- [libpari] denom_i, numer_i, conj_i
