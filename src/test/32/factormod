@@ -202,9 +202,9 @@ Mod(38, 41), Mod(40, 41)]~
 
 [Mod(0, 2) 1]
 
-[;]
-[;]
-[;]
+matrix(0,2)
+matrix(0,2)
+matrix(0,2)
 
 [1 1]
 
@@ -266,9 +266,9 @@ Mod(38, 41), Mod(40, 41)]~
 
 [Mod(0, 18446744073709551629) 1]
 
-[;]
-[;]
-[;]
+matrix(0,2)
+matrix(0,2)
+matrix(0,2)
 1
 0
 0
@@ -290,4 +290,4 @@ Mod(38, 41), Mod(40, 41)]~
   ***   at top-level: factormod(x,0)
   ***                 ^--------------
   *** factormod: not a prime number in factormod: 0.
-Total time spent: 68
+Total time spent: 40

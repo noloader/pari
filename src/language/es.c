@@ -2768,6 +2768,9 @@ print_context(GEN g, pariout_t *T, pari_str *S, long tex)
     str_puts(S,")");
   }
 }
+static void
+mat0n(pari_str *S, long n)
+{ str_puts(S, "matrix(0,"); str_long(S, n); str_putc(S, ')'); }
 
 static void
 bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
@@ -2969,14 +2972,7 @@ bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
       OUT_FUN print;
 
       r = lg(g); if (r==1) { str_puts(S, "[;]"); return; }
-      l = lgcols(g);
-      if (l==1)
-      {
-        str_puts(S, "matrix(0,");
-        str_long(S, r-1);
-        str_putc(S, ')');
-        return;
-      }
+      l = lgcols(g); if (l==1) { mat0n(S, r-1); return; }
       print = (typ(gel(g,1)) == t_VECSMALL)? prints: bruti;
       if (l==2)
       {
@@ -3017,8 +3013,9 @@ matbruti(GEN g, pariout_t *T, pari_str *S)
 
   if (typ(g) != t_MAT) { bruti(g,T,S); return; }
 
-  r=lg(g); if (r==1 || lgcols(g)==1) { str_puts(S, "[;]"); return; }
-  l = lgcols(g); str_putc(S, '\n');
+  r=lg(g); if (r==1) { str_puts(S, "[;]"); return; }
+  l = lgcols(g); if (l==1) { mat0n(S, r-1); return; }
+  str_putc(S, '\n');
   print = (typ(gel(g,1)) == t_VECSMALL)? prints: bruti;
   av = avma;
   w = term_width();

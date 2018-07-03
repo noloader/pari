@@ -152,11 +152,11 @@ Mat([x^2 + x + a, 1])
 
 [0 1]
 
-[;]
-[;]
-[;]
-[;]
-[;]
+matrix(0,2)
+matrix(0,2)
+matrix(0,2)
+matrix(0,2)
+matrix(0,2)
 
 [x^4 + 4*t 1]
 
@@ -226,4 +226,4 @@ Mat([x^2 + x + a, 1])
 200
 1000
 200
-Total time spent: 4192
+Total time spent: 3316

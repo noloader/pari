@@ -72,6 +72,8 @@ This file lists the incompatible changes between Version 2.x and older versions
   - polcoeff is deprecated and renamed polcoef: it now only applies
     to scalars, polynomials, series and rational functions; no longer to
     vector/matrices or quadratic forms (use [] or "component").
+  - in prettymatrix format, no longer print all 0 x n matrices as [;]:
+    use [;] iff n = 0 and matrix(0,n) otherwise
 
 * Specific to the PARI library:
 ===============================

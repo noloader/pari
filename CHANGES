@@ -57,6 +57,8 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
          compatible with pari-2.9
       9- improved eta(x^k)
      10- sinc(t_SER) more accurate
+     11- in prettymatrix format, no longer print all 0 x n matrices as [;]:
+         use [;] iff n = 0 and matrix(0,n) otherwise
 
   Added
       1- [libpari] denom_i, numer_i, conj_i
