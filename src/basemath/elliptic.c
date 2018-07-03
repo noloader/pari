@@ -3077,7 +3077,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
   if (flag)
   {
     y = gadd(y1, glog(y,prec));
-    if (T.some_q_is_real && T.some_z_is_real)
+    if (T.some_q_is_real && T.some_z_is_real && isintzero(imag_i(etnew)))
     { /* y = log(some real number): im(y) is 0 or Pi */
       if (gexpo(imag_i(y)) < 1) y = real_i(y);
     }
@@ -3085,7 +3085,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
   else
   {
     y = gmul(y, gexp(y1,prec));
-    if (T.some_q_is_real)
+    if (T.some_q_is_real && isintzero(imag_i(etnew)))
     {
       if (T.some_z_is_real) y = real_i(y);
       else if (T.some_z_is_pure_imag) gel(y,1) = gen_0;
