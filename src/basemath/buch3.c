@@ -2255,10 +2255,8 @@ bnrclassno_all(GEN B, ulong h, GEN sgnU)
 static int
 is_module(GEN v)
 {
-  if (lg(v) != 3) return 0;
-  if (typ(v) == t_MAT || typ(v) == t_VEC)
-    return typ(gel(v,1)) == t_VECSMALL && typ(gel(v,2)) == t_VECSMALL;
-  return 0;
+  if (lg(v) != 3 || (typ(v) != t_MAT && typ(v) != t_VEC)) return 0;
+  return typ(gel(v,1)) == t_VECSMALL && typ(gel(v,2)) == t_VECSMALL;
 }
 GEN
 decodemodule(GEN nf, GEN fa)
