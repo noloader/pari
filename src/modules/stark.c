@@ -2140,24 +2140,31 @@ zeta_get_N0(GEN C,  GEN limx)
   avma = av; return itos(z);
 }
 
-/* even i such that limx^i ( (i\2)! )^r1 ( i! )^r2 ~ B. Small. */
+static GEN
+eval_i(long r1, long r2, GEN limx, long i)
+{
+  GEN t = powru(limx, i);
+  if (!r1)      t = mulrr(t, powru(mpfactr(i  , DEFAULTPREC), r2));
+  else if (!r2) t = mulrr(t, powru(mpfactr(i/2, DEFAULTPREC), r1));
+  else {
+    GEN u1 = mpfactr(i/2, DEFAULTPREC);
+    GEN u2 = mpfactr(i,   DEFAULTPREC);
+    if (r1 == r2) t = mulrr(t, powru(mulrr(u1,u2), r1));
+    else t = mulrr(t, mulrr(powru(u1,r1), powru(u2,r2)));
+  }
+  return t;
+}
+
+/* "small" even i such that limx^i ( (i\2)! )^r1 ( i! )^r2 > B. */
 static long
 get_i0(long r1, long r2, GEN B, GEN limx)
 {
   long imin = 1, imax = 1400;
+  while (mpcmp(eval_i(r1,r2,limx, imax), B) < 0) { imin = imax; imax *= 2; }
   while(imax - imin >= 4)
   {
-    long i = (imax + imin) >> 1;
-    GEN t = powru(limx, i);
-    if (!r1)      t = mulrr(t, powru(mpfactr(i  , DEFAULTPREC), r2));
-    else if (!r2) t = mulrr(t, powru(mpfactr(i/2, DEFAULTPREC), r1));
-    else {
-      GEN u1 = mpfactr(i/2, DEFAULTPREC);
-      GEN u2 = mpfactr(i,   DEFAULTPREC);
-      if (r1 == r2) t = mulrr(t, powru(mulrr(u1,u2), r1));
-      else t = mulrr(t, mulrr(powru(u1,r1), powru(u2,r2)));
-    }
-    if (mpcmp(t, B) >= 0) imax = i; else imin = i;
+    long m = (imax + imin) >> 1;
+    if (mpcmp(eval_i(r1,r2,limx, m), B) >= 0) imax = m; else imin = m;
   }
   return imax & ~1; /* make it even */
 }

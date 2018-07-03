@@ -34,6 +34,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      29- mftobasis(mf,f) could raise an exception when f was defined at a
          larger level than its conductor
      30- incorrect values in ellsigma() [#2061]
+     31- incorrect values for bnrL1 at large accuracy [#1877]
 
   Changed
       1- polcoeff is deprecated and renamed polcoef: it now only applies

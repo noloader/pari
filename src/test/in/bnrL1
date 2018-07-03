@@ -1,3 +1,4 @@
+default(parisize,"10M");
 default(realprecision,38);
 setrand(1); K=bnfinit(x^2+31);bnrL1(bnrinit(K,1))
 setrand(1); K=bnfinit(x^2-3);
@@ -15,3 +16,6 @@ bnf=bnfinit(a^2-401*25);
 cond=rnfconductor(bnf,P);
 bnr=bnrinit(bnf,cond[1]);
 real(bnrL1(bnr,cond[3],1))
+
+default(realprecision,100);
+bnrL1(bnrinit(bnfinit(Q),[5,[1]],1))[1]
