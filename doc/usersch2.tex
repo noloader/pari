@@ -1209,12 +1209,10 @@ lvalue, raise an error.
 @eprog\noindent
 Assignment to all variables is a deep copy: after $x = y$, modifying a
 component of $y$ will \emph{not} change $x$. To globals it is a full copy to
-the heap. To local variables (\secref{se:scope}), including formal parameters
-of function calls, it is implemented with a form of copy-on-write so objects
-like vectors are not duplicated unless modified.  Space used by local objects
-in local variables is released when they go out of scope or when the value
-changes in local scope. Assigning a value to a vector or matrix entry
-allocates room for that entry only (on the heap).
+the heap. Space used by local objects in local variables is released when
+they go out of scope or when the value changes in local scope. Assigning a
+value to a vector or matrix entry allocates room for that entry only (on the
+heap).
 
 \leavevmode
 \kbd{\var{op}=}, where \var{op} is any binary operator
@@ -1686,9 +1684,11 @@ restricted blocks than the whole function body.
 Arguments are passed by value, not as variables: modifying a function's
 argument in the function body is allowed, but does not modify its value in the
 calling scope. In fact, a \emph{copy} of the actual parameter is assigned to
-the formal parameter when the function is called. Formal parameters are
-lexically scoped to the function body. It is not allowed to use the same
-variable name for different parameters of your function:
+the formal parameter when the function is called. (This is not litteraly
+true: a form of copy-on-write is implemented so an object is not duplicated
+unless modified in the function.) Formal parameters are lexically scoped
+to the function body. It is not allowed to use the same variable name for
+different parameters of your function:
 \bprog
 ? f(x,x) = 1
   ***   variable declared twice: f(x,x)=1
