@@ -5880,7 +5880,29 @@ RgMs_structelim(GEN M, long nbrow, GEN A, GEN *p_col, GEN *p_row)
 /*   (independent eigenvectors, sorted by increasing eigenvalue)   */
 /*                                                                 */
 /*******************************************************************/
-
+/* assume x is square of dimension > 0 */
+static int
+RgM_is_symmetric_cx(GEN x, long bit)
+{
+  pari_sp av = avma;
+  long i, j, l = lg(x);
+  for (i = 1; i < l; i++)
+    for (j = 1; j < i; j++)
+    {
+      GEN a = gcoeff(x,i,j), b = gcoeff(x,j,i), c = gsub(a,b);
+      if (!gequal0(c) && gexpo(c) - gexpo(a) > -bit) { avma = av; return 0; }
+    }
+  avma = av; return 1;
+}
+static GEN
+eigen_err(GEN x, long prec, long flag)
+{
+  pari_sp av = avma;
+  if (!RgM_is_symmetric_cx(x, 10-prec2nbits(prec))) pari_err_PREC("mateigen");
+  /* approximately symmetric: recover */
+  x = jacobi(x, prec); if (flag) return x;
+  return gerepilecopy(av, gel(x,1));
+}
 GEN
 mateigen(GEN x, long flag, long prec)
 {
@@ -5941,12 +5963,12 @@ mateigen(GEN x, long flag, long prec)
   {
     GEN F = ker_aux(RgM_Rg_sub_shallow(x, gel(R,k)), x);
     long d = lg(F)-1;
-    if (!d) pari_err_PREC("mateigen");
+    if (!d) { avma = av; return eigen_err(x, prec, flag); }
     gel(y,k) = F;
     if (flag) gel(R,k) = const_vec(d, gel(R,k));
   }
   y = shallowconcat1(y);
-  if (lg(y) > n) pari_err_PREC("mateigen");
+  if (lg(y) > n) { avma = av; return eigen_err(x, prec, flag); }
   /* lg(y) < n if x is not diagonalizable */
   if (flag) y = mkvec2(shallowconcat1(R), y);
   return gerepilecopy(av,y);

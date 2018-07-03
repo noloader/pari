@@ -61,6 +61,7 @@ AP    5- alginit(nf, hasse inv.) sometimes wrong degree or stack overflow
      11- in prettymatrix format, no longer print all 0 x n matrices as [;]:
          use [;] iff n = 0 and matrix(0,n) otherwise
      12- bnrdisclist returned t_MATs whose columns were t_VECSMALL
+     13- mateigen(m): fall back to qfjacobi when m close to symmetric [#2059]
 
   Added
       1- [libpari] denom_i, numer_i, conj_i
