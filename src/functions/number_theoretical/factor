@@ -3,7 +3,7 @@ Section: number_theoretical
 C-Name: factor0
 Prototype: GDG
 Help: factor(x,{D}): factorization of x over domain D. If x and D are both
- integers, return partial factorization, using primes <= D.
+ integers, return partial factorization, using primes < D.
 Description:
  (int):vec             Z_factor($1)
  (int,):vec            Z_factor($1)
@@ -12,7 +12,7 @@ Description:
  (gen,):vec            factor($1)
  (gen,gen):vec         factor0($1, $2)
 Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
- For instance, if $x$ is an integer, in is factored in $\Z$, it it is a
+ For instance, if $x$ is an integer, it is factored in $\Z$, if it is a
  polynomial with rational coefficients, it is factored in $\Q[x]$, etc., see
  below for details. The result is a two-column matrix: the first contains the
  irreducibles dividing $x$ (rational or Gaussian primes, irreducible
@@ -20,10 +20,9 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  as $0^1$.
 
  \misctitle{$x \in \Q$}
- See \tet{factorint} for more information about the algorithms used.
- The factorization includes the unit $-1$ when $x < 0$ and all other factors
- are positive; a denominator is factored with negative exponents. The factors
- are sorted in increasing order.
+ See \tet{factorint} for the algorithms used. The factorization includes the
+ unit $-1$ when $x < 0$ and all other factors are positive; a denominator is
+ factored with negative exponents. The factors are sorted in increasing order.
  \bprog
  ? factor(-7/106)
  %1 =
