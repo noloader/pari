@@ -843,7 +843,7 @@ c_deflate(long n, long d, GEN v)
   long i, id, l = n+2;
   GEN w;
   if (d == 1) return lg(v) == l ? v: vecslice(v, 1, l-1);
-  w = cgetg(l, t_VEC);
+  w = cgetg(l, typ(v));
   for (i = id = 1; i < l; i++, id += d) gel(w, i) = gel(v, id);
   return w;
 }
