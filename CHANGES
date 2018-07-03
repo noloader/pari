@@ -1,6 +1,6 @@
 Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
-Done for version 2.10.1 (released ??/??/2018):
+Done for version 2.10.1 (released 04/07/2018):
   Fixed
       1- t_LIST corrupted on writebin / read [#2040]
 BA    2- nfisincl() result uses wrong variable [#2041]
