@@ -3548,6 +3548,7 @@ RgXQ_mul_FpXQXQ(GEN x, GEN y, GEN S, GEN pol, GEN p)
   pari_sp av = avma;
   GEN r;
   GEN T = RgX_to_FpX(pol, p);
+  if (signe(T)==0) pari_err_OP("*",x,y);
   if (lgefint(p) == 3)
   {
     ulong pp = uel(p, 2);
@@ -3568,6 +3569,7 @@ RgXQ_sqr_FpXQXQ(GEN x, GEN y, GEN pol, GEN p)
   pari_sp av = avma;
   GEN r;
   GEN T = RgX_to_FpX(pol, p);
+  if (signe(T)==0) pari_err_OP("*",x,x);
   if (lgefint(p) == 3)
   {
     ulong pp = uel(p, 2);
@@ -3586,6 +3588,7 @@ RgXQ_inv_FpXQXQ(GEN x, GEN y, GEN pol, GEN p)
   pari_sp av = avma;
   GEN r;
   GEN T = RgX_to_FpX(pol, p);
+  if (signe(T)==0) pari_err_OP("^",x,gen_m1);
   if (lgefint(p) == 3)
   {
     ulong pp = uel(p, 2);

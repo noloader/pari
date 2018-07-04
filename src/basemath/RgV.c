@@ -526,8 +526,9 @@ static GEN
 RgM_mul_FqM(GEN x, GEN y, GEN pol, GEN p)
 {
   pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  GEN b = FqM_mul(RgM_to_FqM(x, T, p), RgM_to_FqM(y, T, p), T, p);
+  GEN b, T = RgX_to_FpX(pol, p);
+  if (signe(T) == 0) pari_err_OP("*", x, y);
+  b = FqM_mul(RgM_to_FqM(x, T, p), RgM_to_FqM(y, T, p), T, p);
   return gerepileupto(av, FqM_to_mod(b, T, p));
 }
 

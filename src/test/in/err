@@ -267,9 +267,14 @@ a
 n=1<<10000;
 znlog(Mod(1,n),Mod(1,n+1))
 Mod(0,n)^(-1)
-(Mod(1,7)*x+y)*(Mod(1,7*y^2+7)*x+4);
-(Mod(1,7)*x+y)%(Mod(1,7*y^2+7)*x+4);
-(Mod(1,7)*x+Mod(1,7*y^2+7))^2;
+a=Mod(1,7)*x+y; b=Mod(1,7*y^2+7)*x+4;
+a*b
+a%b
+(a*x^2+b)^2
+M=[Mod(1,7),1;0,Mod(x,7*x^2+7)];
+matrank(M)
+matimage(M)
+matker(M);
 default(plothsizes,"[")
 default(plothsizes,"1")
 default(plothsizes,"[2,")

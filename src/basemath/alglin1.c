@@ -2651,8 +2651,9 @@ static GEN
 RgM_inv_FqM(GEN x, GEN pol, GEN p)
 {
   pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  GEN b = FqM_inv(RgM_to_FqM(x, T, p), T, p);
+  GEN b, T = RgX_to_FpX(pol, p);
+  if (signe(T) == 0) pari_err_OP("^",x,gen_m1);
+  b = FqM_inv(RgM_to_FqM(x, T, p), T, p);
   if (!b) { avma = av; return NULL; }
   return gerepileupto(av, FqM_to_mod(b, T, p));
 }
@@ -4148,8 +4149,9 @@ static GEN
 RgM_deplin_FqM(GEN x, GEN pol, GEN p)
 {
   pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  GEN b = FqM_deplin(RgM_to_FqM(x, T, p), T, p);
+  GEN b, T = RgX_to_FpX(pol, p);
+  if (signe(T) == 0) pari_err_OP("deplin",x,pol);
+  b = FqM_deplin(RgM_to_FqM(x, T, p), T, p);
   return gerepileupto(av, b);
 }
 
@@ -4428,8 +4430,9 @@ static GEN
 RgM_ker_FqM(GEN x, GEN pol, GEN p)
 {
   pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  GEN b = FqM_ker(RgM_to_FqM(x, T, p), T, p);
+  GEN b, T = RgX_to_FpX(pol, p);
+  if (signe(T) == 0) pari_err_OP("ker",x,pol);
+  b = FqM_ker(RgM_to_FqM(x, T, p), T, p);
   return gerepileupto(av, FqM_to_mod(b, T, p));
 }
 
@@ -4489,8 +4492,9 @@ static GEN
 RgM_image_FqM(GEN x, GEN pol, GEN p)
 {
   pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  GEN b = FqM_image(RgM_to_FqM(x, T, p), T, p);
+  GEN b, T = RgX_to_FpX(pol, p);
+  if (signe(T) == 0) pari_err_OP("image",x,pol);
+  b = FqM_image(RgM_to_FqM(x, T, p), T, p);
   return gerepileupto(av, FqM_to_mod(b, T, p));
 }
 
@@ -5128,8 +5132,10 @@ static long
 RgM_rank_FqM(GEN x, GEN pol, GEN p)
 {
   pari_sp av = avma;
+  long r;
   GEN T = RgX_to_FpX(pol, p);
-  long r = FqM_rank(RgM_to_FqM(x, T, p), T, p);
+  if (signe(T) == 0) pari_err_OP("rank",x,pol);
+  r = FqM_rank(RgM_to_FqM(x, T, p), T, p);
   avma = av;
   return r;
 }
@@ -5246,8 +5252,9 @@ static GEN
 RgM_indexrank_FqM(GEN x, GEN pol, GEN p)
 {
   pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  GEN r = FqM_indexrank(RgM_to_FqM(x, T, p), T, p);
+  GEN r, T = RgX_to_FpX(pol, p);
+  if (signe(T) == 0) pari_err_OP("indexrank",x,pol);
+  r = FqM_indexrank(RgM_to_FqM(x, T, p), T, p);
   return gerepileupto(av, r);
 }
 
@@ -6415,8 +6422,9 @@ static GEN
 RgM_det_FqM(GEN x, GEN pol, GEN p)
 {
   pari_sp av = avma;
-  GEN T = RgX_to_FpX(pol, p);
-  GEN b = FqM_det(RgM_to_FqM(x, T, p), T, p);
+  GEN b, T = RgX_to_FpX(pol, p);
+  if (signe(T) == 0) pari_err_OP("%",x,pol);
+  b = FqM_det(RgM_to_FqM(x, T, p), T, p);
   if (!b) { avma = av; return NULL; }
   return gerepilecopy(av, mkpolmod(FpX_to_mod(b, p), FpX_to_mod(T, p)));
 }

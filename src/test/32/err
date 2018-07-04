@@ -626,15 +626,24 @@ INFINITY
   ***   at top-level: Mod(0,n)^(-1)
   ***                         ^-----
   *** _^_: impossible inverse in Fp_inv: (...).
-  ***   at top-level: (Mod(1,7)*x+y)*(Mod(1,7*y^2+7)*x+4)
-  ***                               ^---------------------
+  ***   at top-level: a*b
+  ***                  ^--
   *** _*_: inconsistent multiplication t_POL * t_POL.
-  ***   at top-level: (Mod(1,7)*x+y)%(Mod(1,7*y^2+7)*x+4)
-  ***                               ^---------------------
+  ***   at top-level: a%b
+  ***                  ^--
   *** _%_: inconsistent division t_POL % t_POL.
-  ***   at top-level: ...od(1,7)*x+Mod(1,7*y^2+7))^2
-  ***                                             ^--
+  ***   at top-level: (a*x^2+b)^2
+  ***                          ^--
   *** _^s: inconsistent multiplication t_POL * t_POL.
+  ***   at top-level: matrank(M)
+  ***                 ^----------
+  *** matrank: inconsistent rank t_MAT (2x2) , t_POL.
+  ***   at top-level: matimage(M)
+  ***                 ^-----------
+  *** matimage: inconsistent image t_MAT (2x2) , t_POL.
+  ***   at top-level: matker(M)
+  ***                 ^---------
+  *** matker: inconsistent ker t_MAT (2x2) , t_POL.
   ***   incorrect value for plothsizes: [
   ***                                    ^
   ***   incorrect value for plothsizes: 1
