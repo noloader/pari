@@ -2488,7 +2488,7 @@ red_modSL2(ellred_t *T, long prec)
 {
   long s, p;
   T->tau = gdiv(T->w1,T->w2);
-  if (isexactzero(real_i(T->tau))) T->some_q_is_real = 1;
+  if (isintzero(real_i(T->tau))) T->some_q_is_real = 1;
   s = gsigne(imag_i(T->tau));
   if (!s) pari_err_DOMAIN("elliptic function", "det(w1,w2)", "=", gen_0,
                           mkvec2(T->w1,T->w2));
@@ -2505,7 +2505,7 @@ red_modSL2(ellred_t *T, long prec)
   T->W1 = gadd(gmul(T->a,T->w1), gmul(T->b,T->w2));
   T->W2 = gadd(gmul(T->c,T->w1), gmul(T->d,T->w2));
   T->Tau = gdiv(T->W1, T->W2);
-  if (isexactzero(real_i(T->Tau))) T->some_q_is_real = T->q_is_real = 1;
+  if (isintzero(real_i(T->Tau))) T->some_q_is_real = T->q_is_real = 1;
   p = precision(T->Tau); if (!p) p = prec;
   T->prec = p;
 }
@@ -2513,17 +2513,15 @@ red_modSL2(ellred_t *T, long prec)
 static void
 check_complex(GEN z, int *real, int *imag)
 {
-  if (typ(z) != t_COMPLEX) *real = 1;
-  else if (isexactzero(gel(z,1))) *imag = 1;
+  if (typ(z) != t_COMPLEX)      { *real = 1; *imag = 0; }
+  else if (isintzero(gel(z,1))) { *real = 0; *imag = 1; }
+  else *real = *imag = 0;
 }
 static void
 reduce_z(GEN z, ellred_t *T)
 {
   long p;
   GEN Z;
-  T->abs_u_is_1 = 0;
-  T->some_z_is_real = 0;
-  T->some_z_is_pure_imag = 0;
   switch(typ(z))
   {
     case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: break;
@@ -2532,18 +2530,18 @@ reduce_z(GEN z, ellred_t *T)
       break;
     default: pari_err_TYPE("reduction mod 2-dim lattice (reduce_z)", z);
   }
-  T->z = z;
   Z = gdiv(z, T->W2);
+  T->z = z;
   T->x = ground(gdiv(imag_i(Z), imag_i(T->Tau)));
   if (signe(T->x)) Z = gsub(Z, gmul(T->x,T->Tau));
   T->y = ground(real_i(Z));
   if (signe(T->y)) Z = gsub(Z, T->y);
-  if (typ(Z) != t_COMPLEX) T->abs_u_is_1 = 1;
+  T->abs_u_is_1 = (typ(Z) != t_COMPLEX);
   /* Z = - y - x tau + z/W2, x,y integers */
   check_complex(z, &(T->some_z_is_real), &(T->some_z_is_pure_imag));
   if (!T->some_z_is_real && !T->some_z_is_pure_imag)
   {
-    int W2real = 0, W2imag = 0;
+    int W2real, W2imag;
     check_complex(T->W2,&W2real,&W2imag);
     if (W2real)
       check_complex(Z, &(T->some_z_is_real), &(T->some_z_is_pure_imag));
@@ -3005,8 +3003,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
 {
   long toadd, prec, n;
   pari_sp av = avma, av1;
-  GEN zinit, pi, pi2, q, q8, qn2, qn, y, y1, uinv, et, etnew;
-  GEN u, uhalf, urn, urninv;
+  GEN u, urn, urninv, z0, pi, pi2, q, q8, qn2, qn, y, y1, uinv, et, etnew;
   ellred_t T;
 
   if (flag < 0 || flag > 1) pari_err_FLAG("ellsigma");
@@ -3040,55 +3037,64 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
   pi2 = Pi2n(1,prec);
   pi  = mppi(prec);
 
-  toadd = (long)ceil(fabs( get_toadd(T.Z) ));
-  uhalf = expIxy(pi, T.Z, prec); /* exp(i Pi Z) */
-  u = gsqr(uhalf);
-  q8 = expIxy(gmul2n(pi2,-3), T.Tau, prec);
-  q = gpowgs(q8,8);
-  u = gneg_i(u); uinv = ginv(u);
-  y = gen_0;
-  av1 = avma;
-  qn = q; qn2 = gen_1;
-  urn = uhalf; urninv = ginv(uhalf);
-  for(n=0;;n++)
+  urninv = uinv = NULL;
+  if (typ(T.Z) == t_FRAC && equaliu(gel(T.Z,2), 2) && equalim1(gel(T.Z,1)))
   {
-    y = gadd(y,gmul(qn2,gsub(urn,urninv)));
+    toadd = 0;
+    urn = mkcomplex(gen_0, gen_m1); /* Z = -1/2 => urn = -I */
+    u = gen_1;
+  }
+  else
+  {
+    toadd = (long)ceil(fabs( get_toadd(T.Z) ));
+    urn = expIxy(pi, T.Z, prec); /* exp(i Pi Z) */
+    u = gneg_i(gsqr(urn));
+    if (!T.abs_u_is_1) { urninv = ginv(urn); uinv = gneg_i(gsqr(urninv)); }
+  }
+  q8 = expIxy(gmul2n(pi2,-3), T.Tau, prec);
+  q = gpowgs(q8,8); av1 = avma;
+  y = gen_0; qn = q; qn2 = gen_1;
+  for(n=0;;n++)
+  { /* qn = q^(n+1), qn2 = q^(n(n+1)/2), urn = u^((n+1)/2)
+     * if |u| = 1, will multiply by 2*I at the end ! */
+    y = gadd(y, gmul(qn2, uinv? gsub(urn,urninv): imag_i(urn)));
     qn2 = gmul(qn,qn2);
     if (gexpo(qn2) + n*toadd <= - prec2nbits(prec) - 5) break;
     qn  = gmul(q,qn);
     urn = gmul(urn,u);
-    urninv = gmul(urninv,uinv);
+    if (uinv) urninv = gmul(urninv,uinv);
     if (gc_needed(av1,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ellsigma");
-      gerepileall(av1,5, &y,&qn,&qn2,&urn,&urninv);
+      gerepileall(av1,urninv? 5: 4, &y,&qn,&qn2,&urn,&urninv);
     }
   }
-  y = gmul(gmul(y,q8),
-           gdiv(mulcxmI(T.W2), gmul(pi2,gpowgs(trueeta(T.Tau,prec),3))));
+  y = gmul(y, gdiv(q8, gmul(pi2,gpowgs(trueeta(T.Tau,prec),3))));
+  y = gmul(y, T.abs_u_is_1? gmul2n(T.W2,1): mulcxmI(T.W2));
 
   et = _elleta(&T);
-  etnew = eta_correction(&T, et);
-  zinit = gmul(T.Z,T.W2);
-  etnew = gmul(etnew, gadd(zinit,
-                           gmul2n(gadd(gmul(T.x,T.W1), gmul(T.y,T.W2)),-1)));
-  if (mpodd(T.x) || mpodd(T.y)) etnew = gadd(etnew, mulcxI(pi));
-  y1 = gadd(etnew, gmul2n(gmul(gmul(T.Z,zinit),gel(et,2)),-1));
+  z0 = gmul(T.Z,T.W2);
+  y1 = gadd(z0, gmul2n(gadd(gmul(T.x,T.W1), gmul(T.y,T.W2)),-1));
+  etnew = gmul(eta_correction(&T, et), y1);
+  y1 = gadd(etnew, gmul2n(gmul(gmul(T.Z,z0),gel(et,2)),-1));
   if (flag)
   {
     y = gadd(y1, glog(y,prec));
-    if (T.some_q_is_real && T.some_z_is_real && isintzero(imag_i(etnew)))
-    { /* y = log(some real number): im(y) is 0 or Pi */
-      if (gexpo(imag_i(y)) < 1) y = real_i(y);
-    }
+    if (mpodd(T.x) || mpodd(T.y)) y = gadd(y, mulcxI(pi));
+    /* log(real number): im(y) = 0 or Pi */
+    if (T.some_q_is_real && isintzero(imag_i(z)) && gexpo(imag_i(y)) < 1)
+      y = real_i(y);
   }
   else
   {
     y = gmul(y, gexp(y1,prec));
-    if (T.some_q_is_real && isintzero(imag_i(etnew)))
+    if (mpodd(T.x) || mpodd(T.y)) y = gneg_i(y);
+    if (T.some_q_is_real)
     {
-      if (T.some_z_is_real) y = real_i(y);
-      else if (T.some_z_is_pure_imag) gel(y,1) = gen_0;
+      int re, cx;
+      check_complex(z,&re,&cx);
+      if (re) y = real_i(y);
+      else if (cx && typ(y) == t_COMPLEX) gel(y,1) = gen_0;
     }
   }
   return gerepilecopy(av, y);
