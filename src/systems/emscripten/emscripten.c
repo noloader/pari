@@ -39,7 +39,7 @@ emscripten_base64(const char *s)
   GEN g = cgetg(1+n, t_STR);
   char *t = GSTR(g);
   g[n] = 0L;
-  for(i=0; i < ls; i+=3, j+=4)
+  for(i=j=0; i < ls; i+=3, j+=4)
   {
     char s0 = s[i], s1 = i+1<ls ? s[i+1]: 0, s2 = i+2<ls ? s[i+2]: 0;
     t[j] = base64[(s0 & 0xfc) >> 2];
