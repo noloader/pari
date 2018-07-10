@@ -136,5 +136,28 @@ Doc: Numerical summation of $f(n)$ at high accuracy using Euler-MacLaurin,
  %9 = 1.000[...] \\ perfect and instantaneous
  @eprog
 
+ \misctitle{Beware cancellation} The function $f(n)$ is evaluated for huge
+ values of $n$, so beware of cancellation in the evaluation:
+ \bprog
+ ? f(n) = 2 - 1/n - 2*n*log(1+1/n); \\ result is O(1/n^2)
+ ? z = -2 + log(2*Pi) - Euler;
+ ? sumnummonien(n=1, f(n)) - z
+ time = 149 ms.
+ %12 = 0.E-212  \\ perfect
+ ? sumnum(n=1, f(n)) - z
+ time = 116 ms.
+ %13 = -948.216[...] \\ junk
+ @eprog\noindent As \kbd{sumnum(n=1, print(n))} shows, we evaluate $f(n)$ for
+ $n > 1e233$ and our implementation of $f$ suffers from massive cancellation
+ since we are summing two terms of the order of $O(1)$ for a result in
+ $O(1/n^2)$. You can either rewrite your sum so that individual terms are
+ evaluated without cancellation or locally replace $f(n)$ by an accurate
+ asymptotic expansion:
+ \bprog
+ ? F = truncate( f(1/x + O(x^30)) );
+ ? sumnum(n=1, if(n > 1e7, subst(F,x,1/n), f(n))) - z
+ %15 = 1.1 E-212 \\ now perfect
+ @eprog
+
  \synt{sumnum}{(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)}
  where an omitted \var{tab} is coded as \kbd{NULL}.
