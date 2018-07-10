@@ -129,6 +129,8 @@ pari_close_compiler(void)
   pari_stack_delete(&s_operand);
   pari_stack_delete(&s_data);
   pari_stack_delete(&s_lvar);
+  pari_stack_delete(&s_dbginfo);
+  pari_stack_delete(&s_frame);
 }
 
 struct codepos
