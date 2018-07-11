@@ -160,8 +160,6 @@ pari_kill_plot_engine(void)
     pari_free((void*)rgb_colors->table);
     pari_free((void*)rgb_colors);
   }
-  if (GP_DATA->colormap) pari_free(GP_DATA->colormap);
-  if (GP_DATA->graphcolors) pari_free(GP_DATA->graphcolors);
 }
 
 static PariRect *
