@@ -956,7 +956,7 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
   {
     long i, s = (n+m-1)/m, r = m - (m*s-n), di = 0;
     struct pari_mt pt;
-    long pending;
+    long pending = 0;
     H = cgetg(m+1, t_VEC); P = cgetg(m+1, t_VEC);
     mt_queue_start_lim(&pt, worker, m);
     for (i=1; i<=m || pending; i++)
