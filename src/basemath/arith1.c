@@ -1921,32 +1921,45 @@ hilbert(GEN x, GEN y, GEN p)
 /*                       SQUARE ROOT MODULO p                      */
 /*                                                                 */
 /*******************************************************************/
-
+static void
+checkp(ulong q, ulong p)
+{ if (!q) pari_err_PRIME("Fl_nonsquare",utoipos(p)); }
+/* p = 1 (mod 4) prime, return the first quadratic non-residue, a prime */
 static ulong
-Fl_2gener_pre_all(long e, ulong p, ulong pi)
+nonsquare1_Fl(ulong p)
 {
-  ulong y, m;
-  long k, i;
-  ulong q = (p-1) >> e; /* q = (p-1)/2^oo is odd */
-  for (k=2; ; k++)
-  { /* loop terminates for k < p (even if p composite) */
-    i = krouu(k, p);
-    if (i >= 0)
-    {
-      if (i) continue;
-      pari_err_PRIME("Fl_sqrt [modulus]",utoi(p));
-    }
-    y = m = Fl_powu_pre(k, q, p, pi);
-    for (i=1; i<e; i++)
-      if ((m = Fl_sqr_pre(m, p, pi)) == 1) break;
-    if (i == e) break; /* success */
+  forprime_t S;
+  ulong q;
+  if ((p & 7UL) != 1) return 2UL;
+  q = p % 3; if (q == 2) return 3UL;
+  checkp(q, p);
+  q = p % 5; if (q == 2 || q == 3) return 5UL;
+  checkp(q, p);
+  q = p % 7; if (q != 4 && q >= 3) return 7UL;
+  checkp(q, p);
+  u_forprime_init(&S, 11, p);
+  while ((q = u_forprime_next(&S)))
+  {
+    long i = krouu(q, p);
+    if (i < 0) return q;
+    checkp(q, p);
   }
-  return y;
+  checkp(0, p);
+  return 0; /*LCOV_EXCL_LINE*/
 }
+/* p > 2 a prime */
+ulong
+nonsquare_Fl(ulong p)
+{ return ((p & 3UL) == 3)? p-1: nonsquare1_Fl(p); }
 
 ulong
 Fl_2gener_pre(ulong p, ulong pi)
-{ return Fl_2gener_pre_all(vals(p-1), p, pi); }
+{
+  ulong p1 = p-1;
+  long e = vals(p1);
+  if (e == 1) return p1;
+  return Fl_powu_pre(nonsquare1_Fl(p), p1 >> e, p, pi);
+}
 
 /* Tonelli-Shanks. Assume p is prime and (a,p) != -1. */
 ulong
@@ -1962,13 +1975,19 @@ Fl_sqrt_pre_i(ulong a, ulong y, ulong p, ulong pi)
     if (p != 2) pari_err_PRIME("Fl_sqrt [modulus]",utoi(p));
     return ((a & 1) == 0)? 0: 1;
   }
+  if (e == 1)
+  {
+    v = Fl_powu_pre(a, (p+1) >> 2, p, pi);
+    if (Fl_sqr_pre(v, p, pi) != a) return ~0UL;
+    p1 = p - v; if (v > p1) v = p1;
+    return v;
+  }
   q = p1 >> e; /* q = (p-1)/2^oo is odd */
-  if (e == 1)    y = p1;
-  else if (y==0) y = Fl_2gener_pre_all(e, p, pi);
   p1 = Fl_powu_pre(a, q >> 1, p, pi); /* a ^ [(q-1)/2] */
   if (!p1) return 0;
   v = Fl_mul_pre(a, p1, p, pi);
   w = Fl_mul_pre(v, p1, p, pi);
+  if (!y) y = Fl_powu_pre(nonsquare1_Fl(p), q, p, pi);
   while (w != 1)
   { /* a*w = v^2, y primitive 2^e-th root of 1
        a square --> w even power of y, hence w^(2^(e-1)) = 1 */

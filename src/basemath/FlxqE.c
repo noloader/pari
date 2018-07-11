@@ -68,16 +68,6 @@ FlxqE_changepointinv(GEN x, GEN ch, GEN T, ulong p)
   return z;
 }
 
-static ulong
-nonsquare_Fl(ulong p)
-{
-  ulong a;
-  do
-    a = random_Fl(p);
-  while (krouu(a, p) >= 0);
-  return a;
-}
-
 static GEN
 nonsquare_Flxq(GEN T, ulong p)
 {

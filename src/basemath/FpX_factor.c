@@ -98,18 +98,6 @@ Flx_Xn1(long sv, long n, ulong p)
   t[i] = 1; return t;
 }
 
-static ulong
-Fl_nonsquare(ulong p)
-{
-  long k = 2;
-  for (;; k++)
-  {
-    long i = krouu(k, p);
-    if (!i) pari_err_PRIME("Fl_nonsquare",utoipos(p));
-    if (i < 0) return k;
-  }
-}
-
 static GEN
 Flx_root_mod_2(GEN f)
 {
@@ -1313,7 +1301,7 @@ split_nonsquares(struct split_t *S, GEN g, ulong p, GEN xt)
   long d = degpol(a);
   if (d < 0)
   {
-    ulong i, z = Fl_nonsquare(p);
+    ulong i, z = nonsquare_Fl(p);
     split_add_done(S, (GEN)z);
     for (i = 2; i <= q; i++) split_add_done(S, (GEN)Fl_mul(z, Fl_sqr(i,p), p));
   } else {

@@ -2070,6 +2070,10 @@ $a^e \equiv g \pmod{p}$. If $e$ does not exist, the result is undefined.
 \fun{ulong}{random_Fl}{ulong p} returns a pseudo-random integer uniformly
 distributed in $0, 1, \dots p-1$.
 
+\fun{ulong}{nonsquare_Fl}{ulong p} return a quadratic non-residue modulo $p$,
+assuming $p$ is an odd prime. If $p$ is $3$ mod $4$, return $p-1$, else
+return the smallest (prime) non-residue.
+
 \fun{ulong}{pgener_Fl}{ulong p} returns the smallest \idx{primitive root}
 modulo \kbd{p}, assuming \kbd{p} is prime.
 
