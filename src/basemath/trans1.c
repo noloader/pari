@@ -3653,7 +3653,7 @@ gsinc(GEN x, long prec)
       if (gequal0(x)) return cvtop(gen_1, gel(x,2), valp(x));
       av = avma; y = sin_p(x);
       if (!y) pari_err_DOMAIN("gsinc(t_PADIC)","argument","",gen_0,x);
-      return gerepileuptoleaf(av,gdiv(y,x));
+      return gerepileupto(av,gdiv(y,x));
 
     default:
     {
