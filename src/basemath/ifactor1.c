@@ -1254,7 +1254,7 @@ PB_RETRY:
     if (DEBUGLEVEL >= 4 && (l>>7) > msg_mask)
       err_printf("Rho: time = %6ld ms,\t%3ld rounds, back to normal mode\n",
                  timer_delay(&T), c0-(c>>5));
-    affii(x,y); avma = av; x = y;
+    affii(x,y); P = gerepileuptoint(av, P); x = y;
   } /* forever */
 
 fin:
