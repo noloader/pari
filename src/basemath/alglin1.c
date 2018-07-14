@@ -3319,16 +3319,16 @@ Flm_adjoint(GEN A, ulong p)
     GEN X = Flm_gauss_from_CUP(matid_Flm(m), R, C, U, P, p, &D);
     return gerepileupto(av, Flm_Fl_mul(X, D, p));
   }
-  if (r < n-1) return zero_Flm(m, m);
-  for (q = m, i = 1; i < m; i++)
-   if (R[i] != i) { q = i; break; }
+  if (r < n-1) return zero_Flm(n, m);
+  for (q = n, i = 1; i < n; i++)
+    if (R[i] != i) { q = i; break; }
   C1 = matslice(C, 1, q-1, 1, q-1);
   c = vecslice(Flm_row(C, q), 1, q-1);
   c = Flm_lsolve_lower_unit(C1, Flm_transpose(mkmat(c)), p);
-  d = cgetg(n+1, t_VECSMALL);
+  d = cgetg(m+1, t_VECSMALL);
   for (i=1; i<q; i++)    uel(d,i) = ucoeff(c,1,i);
   uel(d,q) = p-1;
-  for (i=q+1; i<=n; i++) uel(d,i) = 0;
+  for (i=q+1; i<=m; i++) uel(d,i) = 0;
   U1 = vecslice(U, 1, n-1);
   v = gel(Flm_rsolve_upper(U1, mkmat(gel(U,n)), p),1);
   v = vecsmall_append(v, p-1);
