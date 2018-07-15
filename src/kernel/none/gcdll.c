@@ -566,8 +566,10 @@ lgcdii(ulong* d, ulong* d1,
   if (lz > 1) return 0;                /* rare, quick and desperate exit */
 
   d = int_MSW(d); d1 = int_MSW(d1);                /* point at the leading `digits' */
-  dm1 = *int_precW(d); d1m1 = *int_precW(d1);
-  dm2 = *int_precW(int_precW(d)); d1m2 = *int_precW(int_precW(d1));
+  dm1 = *int_precW(d);
+  dm2 = *int_precW(int_precW(d));
+  d1m1 = *int_precW(d1);
+  if (ld1 > 4) d1m2 = *int_precW(int_precW(d1));
   dd1lo = 0;                        /* unless we find something better */
   sh = bfffo(*d);                /* obtain dividend left shift count */
 
