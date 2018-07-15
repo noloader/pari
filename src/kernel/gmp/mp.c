@@ -1007,10 +1007,11 @@ red_montgomery(GEN T, GEN N, ulong inv)
   }
   if (carry)
   { /* Td > N overflows (k+1 words), set Td := Td - N */
+    GEN NE = N + k+2;
     Td = Te;
     Nd = Ne;
     t = subll(*++Td, *++Nd); *Td = t;
-    while (Nd < N+k) { t = subllx(*++Td, *++Nd); *Td = t; }
+    while (Nd < NE) { t = subllx(*++Td, *++Nd); *Td = t; }
   }
 
   /* copy result */
