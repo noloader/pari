@@ -2233,7 +2233,8 @@ static GEN
 F2xX_recipspec(GEN x, long l, long n, long vs)
 {
   long i;
-  GEN z=cgetg(n+2,t_POL)+2;
+  GEN z = cgetg(n+2,t_POL);
+  z[1] = 0; z += 2;
   for(i=0; i<l; i++)
     gel(z,n-i-1) = F2x_copy(gel(x,i));
   for(   ; i<n; i++)
