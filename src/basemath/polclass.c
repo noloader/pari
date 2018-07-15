@@ -1742,7 +1742,7 @@ polclass_roots_modp(
 {
   pari_sp av = avma;
   ulong j = 0;
-  long inv = G->inv, h = G->h, endo_tries = 0;
+  long inv = G->inv, endo_tries = 0, nr = G->enum_cnt;
   int endo_cert;
   GEN res, jdb, fdb;
 
@@ -1757,7 +1757,7 @@ polclass_roots_modp(
     res = enum_roots(j, ne, fdb, G);
     if ( ! res && endo_cert) pari_err_BUG("polclass_roots_modp");
     if (res && ! endo_cert
-        && carray_isin((ulong *)&res[2], h - 1, res[1]) < h - 1) {
+        && carray_isin((ulong *)&res[2], nr - 1, res[1]) < nr - 1) {
       avma = av;
       res = NULL;
     }
