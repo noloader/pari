@@ -3425,11 +3425,11 @@ Fp_powu(GEN A, ulong k, GEN N)
     if (k == 0) return gen_1;
   }
   av = avma; A = modii(A,N);
+  base_is_2 = 0;
   if (lgefint(A) == 3) switch(A[2])
   {
     case 1: avma = av; return gen_1;
     case 2:  base_is_2 = 1; break;
-    default: base_is_2 = 0;
   }
 
   /* TODO: Move this out of here and use for general modular computations */
