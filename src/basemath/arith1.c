@@ -3408,7 +3408,7 @@ Fp_select_red(GEN *y, ulong k, GEN N, long lN, muldata *D, void **pt_E)
 GEN
 Fp_powu(GEN A, ulong k, GEN N)
 {
-  long lN = lgefint(N), sA;
+  long lN = lgefint(N);
   int base_is_2, use_montgomery;
   muldata D;
   void *E;
@@ -3424,16 +3424,15 @@ Fp_powu(GEN A, ulong k, GEN N)
     if (k == 1) return A;
     if (k == 0) return gen_1;
   }
-  sA = signe(A)==-1 && odd(k);
-  base_is_2 = 0;
+  av = avma; A = modii(A,N);
   if (lgefint(A) == 3) switch(A[2])
   {
-    case 1: return sA ? gen_m1 : gen_1;
+    case 1: avma = av; return gen_1;
     case 2:  base_is_2 = 1; break;
+    default: base_is_2 = 0;
   }
 
   /* TODO: Move this out of here and use for general modular computations */
-  av = avma;
   use_montgomery = Fp_select_red(&A, k, N, lN, &D, &E);
   if (base_is_2)
     A = gen_powu_fold_i(A, k, E, D.sqr, D.mul2);
@@ -3443,7 +3442,6 @@ Fp_powu(GEN A, ulong k, GEN N)
   {
     A = red_montgomery(A, N, ((struct montred *) E)->inv);
     if (cmpii(A, N) >= 0) A = subii(A,N);
-    if (sA) A = subii(N, A);
   }
   return gerepileuptoint(av, A);
 }
