@@ -1617,12 +1617,12 @@ oneroot_of_classpoly(
 }
 
 INLINE long
-carray_isin(ulong *v, long n, ulong x)
+vecsmall_isin_skip(GEN v, ulong x, long k)
 {
-  long i;
-  for (i = 0; i < n; ++i)
-    if (v[i] == x) break;
-  return i;
+  long i, l = lg(v);
+  for (i = k; i < l; ++i)
+    if (v[i] == x) return i;
+  return 0;
 }
 
 INLINE ulong
@@ -1742,7 +1742,7 @@ polclass_roots_modp(
 {
   pari_sp av = avma;
   ulong j = 0;
-  long inv = G->inv, endo_tries = 0, nr = G->enum_cnt;
+  long inv = G->inv, endo_tries = 0;
   int endo_cert;
   GEN res, jdb, fdb;
 
@@ -1756,8 +1756,8 @@ polclass_roots_modp(
 
     res = enum_roots(j, ne, fdb, G);
     if ( ! res && endo_cert) pari_err_BUG("polclass_roots_modp");
-    if (res && ! endo_cert
-        && carray_isin((ulong *)&res[2], nr - 1, res[1]) < nr - 1) {
+    if (res && ! endo_cert && vecsmall_isin_skip(res, res[1], 2))
+    {
       avma = av;
       res = NULL;
     }
