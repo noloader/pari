@@ -1010,7 +1010,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
     Td = Te;
     Nd = Ne;
     t = subll(*++Td, *++Nd); *Td = t;
-    while (Td < (GEN)av) { t = subllx(*++Td, *++Nd); *Td = t; }
+    while (Nd < N+k) { t = subllx(*++Td, *++Nd); *Td = t; }
   }
 
   /* copy result */
