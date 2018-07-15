@@ -543,7 +543,7 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
   ulong dd,dd1,ddlo,dd1lo, sh,shc; /* `digits', shift count */
   ulong xu,xu1, xv,xv1, q,res; /* recurrences, partial quotient, count */
   ulong tmp0,tmp1,tmp2,tmpd,tmpu,tmpv; /* temps */
-  ulong dm1,dm2,d1m1;
+  ulong dm1, d1m1;
   long ld, ld1, lz;
   int skip = 0;
   LOCAL_OVERFLOW;
@@ -554,10 +554,8 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
   ld = lgefint(d); ld1 = lgefint(d1); lz = ld - ld1; /* >= 0 */
   if (lz > 1) return 0; /* rare */
 
-  d = int_MSW(d); d1 = int_MSW(d1); /* point at the leading word */
-  dm1 = *int_precW(d);
-  dm2 = *int_precW(int_precW(d));
-  d1m1 = *int_precW(d1);
+  d = int_MSW(d);  dm1  = *int_precW(d);
+  d1 = int_MSW(d1);d1m1 = *int_precW(d1);
   dd1lo = 0; /* unless we find something better */
   sh = bfffo(*d);
 
@@ -589,7 +587,7 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
     /* following lines assume d to have 2 or more significant words */
     dd = (*d << sh) + (dm1 >> shc);
     if (ld > 4)
-      ddlo = (dm1 << sh) + (dm2 >> shc);
+      ddlo = (dm1 << sh) + (*int_precW(int_precW(d)) >> shc);
     else
       ddlo = (dm1 << sh);
   }
