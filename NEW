@@ -2,7 +2,7 @@ This file highlights some of the novelties in PARI/GP 2.x compared to 1.39.15
 (last release in the 1.x series). The detailed Changelog is in CHANGES.
 Incompatible changes are described in COMPAT.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.10 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.11 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 [The GP language]
   - new iterators: forperm (over permutations), forsubset (over subsets),
@@ -62,7 +62,7 @@ Incompatible changes are described in COMPAT.
   - parallel znlog/fflog over large prime fields and fields of
     characteristic <= 5
 
-[Polynomials]
+[Polynomials, Rational functions & Power series]
   - new interface to factorization and root finding over finite fields;
     extend factormod(f, D) for general finite fields: D = p prime [over Fp],
     D = [T,p] (over Fp[x]/(T)) D a t_FFELT (over attached Fq), or omited
@@ -70,6 +70,19 @@ Incompatible changes are described in COMPAT.
   - new functions factormodSQF (squarefree factorization), factormodDDF
     (distinct degree factorization)
   - new function polrootsbound (sharp upper bound for complex roots)
+  - polcoeff is deprecated and renamed polcoef: it now only applies
+    to scalars, polynomials, series and rational functions; no longer to
+    vector/matrices or quadratic forms (use [], or "component", or
+    [a,b,c] = q for a binary quadratic form q).
+  - new function serchop(s,n): cut off all terms of degree < n in series 's'
+  - a new optional argument to denominator/content/numerator to allow better
+    control over semantic, e.g.,
+     No arg:  denominator([1/2, 1/x, 1/y]) -> 2*y*x
+              denominator([1/2, 1/x, x/y]) -> 2*x
+              denominator([x/2, 1/x, 1/y]) -> y*x
+     With arg: denominator(..., 1) is 2 in all 3 cases
+               denominator(..., x) is x in all 3 cases
+               denominator(..., y) is y in all 3 cases
 
 [Linear Algebra]
   - Linear algebra over Z/NZ: matdetmod, matimagemod, matinvmod, matkermod,
@@ -88,7 +101,7 @@ Incompatible changes are described in COMPAT.
     ellpointtoz, E.omega, E.eta, E.area, ellgroup(E, P) (P maximal ideal),
     ellisomat [E without CM].
   - new functions elltamagawa, ellbsd, ellpadicbsd, ellpadicregulator,
-    ellweilcurve, ellminimaldisc
+    ellweilcurve, ellminimaldisc, ellisotree
   - new functions ellratpoints and hyperellratpoints based on
     Michael Stoll 'ratpoints'.
 
@@ -140,6 +153,7 @@ Incompatible changes are described in COMPAT.
     galoisconjclasses (conjugacy classes of G), galoischartable (character
     table), galoischarpoly (characteristic polynomial of representation),
     galoischardet (determinant).
+  - new functions to query the GALPOL database: galoisgetgroup, galoisgetname
   - bnrinit(,,1) [include generators] is no longer necessary for bnrL1,
     bnrconductor, bnrrootnumber, bnrstark, rnfkummer, galoissubcyclo
   - faster nfgaloismatrix / nfgaloisapply(nf,s, ideal)
