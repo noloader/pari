@@ -1617,7 +1617,7 @@ oneroot_of_classpoly(
 }
 
 INLINE long
-vecsmall_isin_skip(GEN v, ulong x, long k)
+vecsmall_isin_skip(GEN v, long x, long k)
 {
   long i, l = lg(v);
   for (i = k; i < l; ++i)
