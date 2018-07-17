@@ -3575,7 +3575,7 @@ RgV_shimura(GEN V, long n, long D, long N4, long r, GEN CHI)
   GEN R, a0, Pn = mfcharpol(CHI);
   long m, Da, ND, ord = mfcharorder(CHI), vt = varn(Pn), d4 = D & 3L;
 
-  if (d4 == 2 || d4 == 3) D <<= 2;
+  if (d4 == 2 || d4 == 3) D *= 4;
   Da = labs(D); ND = N4*Da;
   R = cgetg(n + 2, t_VEC);
   a0 = gel(V, 1);
