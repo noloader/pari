@@ -927,7 +927,6 @@ pari_pthread_init_varstate(void)
   global_varpriority = varpriority;
 }
 
-/* must come before destruction of functions_hash */
 void
 pari_var_close(void)
 {
@@ -937,7 +936,7 @@ pari_var_close(void)
   {
     long v = h[i];
     entree *ep = varentries[v];
-    if (ep && !is_entry(ep->name)) pari_free(ep);
+    if (ep && v > nvar) pari_free(ep);
   }
   free((void*)varentries);
   free((void*)(varpriority-1));
