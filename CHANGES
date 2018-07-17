@@ -3,7 +3,8 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 Done for version 2.11.0 (released 18/07/2018):
   Fixed
       1- uninitialized memory reads in lgcdii and red_montgomery
-BA    2- memory leaks on pari_close [s_dbginfo, s_frame, colormap/graphcolor]
+BA    2- memory leaks on pari_close [s_dbginfo, s_frame, colormap/graphcolor,
+         varhigher/varlower]
 BA    3- disallow generic operations that end up producing t_POLMOD modulo 0
          e.g. matker( [Mod(1,2); Mod(1,2*x)] )
       4- Fp_powu(a,n,N) incorrect when a not reduced mod N

@@ -930,6 +930,14 @@ pari_pthread_init_varstate(void)
 void
 pari_var_close(void)
 {
+  GEN h = hash_values(h_polvar);
+  long i, l = lg(h);
+  for (i = 1; i < l; i++)
+  {
+    long v = h[i];
+    entree *ep = varentries[v];
+    if (ep && v > nvar) pari_free(ep);
+  }
   free((void*)varentries);
   free((void*)(varpriority-1));
   hash_destroy(h_polvar);
