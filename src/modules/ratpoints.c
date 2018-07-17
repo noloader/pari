@@ -543,11 +543,11 @@ _ratpoints_sift0(long b, long w_low, long w_high,
            /* a will be the numerator corresponding to the selected bit */
       if (which_bits == num_all)
       {
-        d = 1; a0 = i << RBA_SHIFT;
+        d = 1; a0 = i * RBA_LENGTH;
       }
       else
       {
-        d = 2; a0 = i << (RBA_SHIFT+1);
+        d = 2; a0 = i * 2 * RBA_LENGTH;
         if (which_bits == num_odd) a0++;
       }
       {
