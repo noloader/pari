@@ -997,6 +997,7 @@ pari_close_opts(ulong init_opts)
   if ((init_opts&INIT_SIGm)) pari_sig_init(SIG_DFL);
   if (!(init_opts&INIT_noIMTm)) pari_mt_close();
 
+  pari_var_close(); /* must come before destruction of functions_hash */
   for (i = 0; i < functions_tblsz; i++)
   {
     entree *ep = functions_hash[i];
@@ -1006,7 +1007,6 @@ pari_close_opts(ulong init_opts)
       ep = EP;
     }
   }
-  pari_var_close();
   pari_close_mf();
   pari_thread_close();
   pari_close_files();
