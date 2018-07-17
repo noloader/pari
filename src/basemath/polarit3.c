@@ -2559,7 +2559,7 @@ ffembed(GEN a, GEN b)
   Ta = FF_mod(a);
   Tb = FF_mod(b);
   if (degpol(Tb)%degpol(Ta)!=0)
-    pari_err_DOMAIN("ffembed",GENtostr(a),"is not a subfield of",b,a);
+    pari_err_DOMAIN("ffembed",GENtostr_raw(a),"is not a subfield of",b,a);
   r = gel(FFX_roots(Ta, b), 1);
   return gerepilecopy(av, mkvec2(g,r));
 }
