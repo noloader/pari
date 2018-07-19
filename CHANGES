@@ -2,8 +2,9 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 
 Done for version 2.12.0 (released ??/??/20??):
   Fixed
+     1- memory leaks due to the use of varhigher/varlower
 
   Changed
 
   Added
-     1- nonsquare_Fl
+     1- [libpari] nonsquare_Fl
