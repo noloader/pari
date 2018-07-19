@@ -7,7 +7,7 @@ Help: mfslashexpansion(mf,f,g,n,flrat,{&params}): g being in M_2^+(Q),
  the space mf. If params is given, it is set to the parameters [alpha,w,A].
  If flrat is 1, the program tries to rationalize the expression; if flag
  is 0, it does not.
-Doc: let \var{mf} be a modular form space in leven $N$, $f$ a modular form
+Doc: let \var{mf} be a modular form space in level $N$, $f$ a modular form
  belonging to \var{mf} and let $g$ be in $M_2^+(Q)$. This function
  computes the Fourier expansion of $f|_k g$ to $n$ terms. We first describe
  the behaviour when \kbd{flrat} is 0: the result is a
