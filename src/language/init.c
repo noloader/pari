@@ -1544,21 +1544,20 @@ pari_err_display(GEN err)
   }
   else
   {
-    char *s = pari_err2str(err);
+    char *s;
     closure_err(0);
     err_init_msg(numerr==e_USER);
-    pariErr->puts(s);
+    s = pari_err2str(err); pariErr->puts(s); pari_free(s);
     if (numerr==e_NOTFUNC)
     {
       GEN fun = gel(err,2);
       if (gequalX(fun))
       {
         entree *ep = varentries[varn(fun)];
-        const char *s = ep->name;
-        if (cb_pari_whatnow) cb_pari_whatnow(pariErr,s,1);
+        const char *t = ep->name;
+        if (cb_pari_whatnow) cb_pari_whatnow(pariErr,t,1);
       }
     }
-    pari_free(s);
   }
   out_term_color(pariErr, c_NONE);
   pariErr->flush(); return 0;
