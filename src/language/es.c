@@ -1147,10 +1147,12 @@ END:
 }
 
 static GEN
-v_get_arg(GEN arg_vector, int *index, const char *save_fmt)
+v_get_arg(pari_str *S, GEN arg_vector, int *index, const char *save_fmt)
 {
   if (*index >= lg(arg_vector))
-    pari_err(e_MISC, "missing arg %d for printf format '%s'", *index, save_fmt);
+  {
+    if (!S->use_stack) pari_free(S->string);
+    pari_err(e_MISC, "missing arg %d for printf format '%s'", *index, save_fmt);  }
   return gel(arg_vector, (*index)++);
 }
 
@@ -1257,7 +1259,10 @@ fmtreal(pari_str *S, GEN gvalue, int space, int signvalue, int FORMAT,
     sigd = get_sigd(gvalue, FORMAT, maxwidth);
     gvalue = gtofp(gvalue, ndec2prec(sigd));
     if (typ(gvalue) != t_REAL)
+    {
+      if (!S->use_stack) free(S->string);
       pari_err(e_MISC,"impossible conversion to t_REAL: %Ps",gvalue);
+    }
   }
   if ((FORMAT == 'f' || FORMAT == 'F') && maxwidth >= 0)
     buf = absrtostr_width_frac(gvalue, maxwidth);
@@ -1266,6 +1271,17 @@ fmtreal(pari_str *S, GEN gvalue, int space, int signvalue, int FORMAT,
   if (signe(gvalue) < 0) signvalue = '-';
   outpad(S, buf, strlen(buf), signvalue, ljust, len, zpad);
   if (!S->use_stack) avma = av;
+}
+static long
+gtolong_OK(GEN x)
+{
+  switch(typ(x))
+  {
+    case t_INT: case t_REAL: case t_FRAC: return 1;
+    case t_COMPLEX: return gequal0(gel(x,2)) && gtolong_OK(gel(x,1));
+    case t_QUAD: return gequal0(gel(x,3)) && gtolong_OK(gel(x,2));
+  }
+  return 0;
 }
 /* Format handling "inspired" by the standard draft at
 -- http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1124.pdf pages 274ff
@@ -1338,7 +1354,11 @@ nextch:
           {
             int *t = pointflag? &maxwidth: &len;
             if (arg_vector)
-              *t = (int)gtolong( v_get_arg(arg_vector, &index, save_fmt) );
+            {
+              gvalue = v_get_arg(S, arg_vector, &index, save_fmt);
+              if (!gtolong_OK(gvalue) && !S->use_stack) pari_free(S->string);
+              *t = (int)gtolong(gvalue);
+            }
             else
               *t = va_arg(args, int);
             goto nextch;
@@ -1376,7 +1396,7 @@ nextch:
 #define get_num_arg() \
   if (arg_vector) { \
     lvalue = 0; \
-    gvalue = v_get_arg(arg_vector, &index, save_fmt); \
+    gvalue = v_get_arg(S, arg_vector, &index, save_fmt); \
   } else { \
     if (GENflag) { \
       lvalue = 0; \
@@ -1402,7 +1422,7 @@ nextch:
           case 'p':
             str_putc(S, '0'); str_putc(S, 'x');
             if (arg_vector)
-              lvalue = (long)v_get_arg(arg_vector, &index, save_fmt);
+              lvalue = (long)v_get_arg(S, arg_vector, &index, save_fmt);
             else
               lvalue = (long)va_arg(args, void*);
             fmtnum(S, lvalue, NULL, 16, -1, ljust, len, zpad);
@@ -1423,7 +1443,7 @@ nextch:
             pari_sp av = avma;
 
             if (arg_vector) {
-              gvalue = v_get_arg(arg_vector, &index, save_fmt);
+              gvalue = v_get_arg(S, arg_vector, &index, save_fmt);
               strvalue = NULL;
             } else {
               if (GENflag) {
@@ -1440,16 +1460,18 @@ nextch:
             break;
           }
           case 'c':
-            if (arg_vector) {
-              gvalue = v_get_arg(arg_vector, &index, save_fmt);
-              ch = (int)gtolong(gvalue);
-            } else {
-              if (GENflag)
-                ch = (int)gtolong( va_arg(args,GEN) );
-              else
-                ch = va_arg(args, int);
+            gvalue = NULL;
+            if (arg_vector)
+              gvalue = v_get_arg(S, arg_vector, &index, save_fmt);
+            else if (GENflag)
+              gvalue = va_arg(args,GEN);
+            else
+            {
+              ch = va_arg(args, int);
+              str_putc(S, ch); break;
             }
-            str_putc(S, ch);
+            if (!gtolong_OK(gvalue) && !S->use_stack) free(S->string);
+            str_putc(S, (int)gtolong(gvalue));
             break;
 
           case '%':
@@ -1464,7 +1486,7 @@ nextch:
           {
             pari_sp av = avma;
             if (arg_vector)
-              gvalue = simplify_shallow( v_get_arg(arg_vector, &index, save_fmt) );
+              gvalue = simplify_shallow(v_get_arg(S, arg_vector, &index, save_fmt));
             else {
               if (GENflag)
                 gvalue = simplify_shallow( va_arg(args, GEN) );
@@ -1477,6 +1499,7 @@ nextch:
             break;
           }
           default:
+            if (!S->use_stack) free(S->string);
             pari_err(e_MISC, "invalid conversion or specification %c in format `%s'", ch, save_fmt);
         } /* second switch on ch */
         break;
