@@ -377,7 +377,8 @@ calls
 @eprog
 
 \fun{char*}{gp_filter}{const char *s} pre-processor for the GP
-parser: filter out whitespace and GP comments from $s$.
+parser: filter out whitespace and GP comments from $s$. The returned string
+is allocated on the PARI stack and must not be freed.
 
 \fun{GEN}{pari_compile_str}{const char *s} low-level form of
 \tet{compile_str}: assumes that $s$ does not contain spaces or GP comments and

@@ -1457,6 +1457,7 @@ sd_graphcolormap(const char *v, long flag)
 
   if (v)
   {
+    pari_sp av = avma;
     char *t = gp_filter(v);
     if (*t != '[' || t[strlen(t)-1] != ']')
       pari_err(e_SYNTAX, "incorrect value for graphcolormap", t, t);
@@ -1521,7 +1522,7 @@ sd_graphcolormap(const char *v, long flag)
       default:
         pari_err(e_SYNTAX, "incorrect value for graphcolormap", p, t);
       }
-    pari_free(t);
+    avma = av;
   }
   if (flag == d_RETURN || flag == d_ACKNOWLEDGE)
   {

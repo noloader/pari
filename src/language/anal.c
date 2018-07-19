@@ -195,32 +195,23 @@ fetch_entry(const char *s) { return fetch_entry_raw(s, strlen(s)); }
 /*                  SYNTACTICAL ANALYZER FOR GP                    */
 /*                                                                 */
 /*******************************************************************/
+static GEN
+readseq_i(char *t)
+{
+  if (gp_meta(t,0)) return gnil;
+  return closure_evalres(pari_compile_str(t));
+}
 GEN
 readseq(char *t)
-{
-  pari_sp av = avma;
-  GEN x;
-  if (gp_meta(t,0)) return gnil;
-  x = pari_compile_str(t);
-  return gerepileupto(av, closure_evalres(x));
-}
+{ pari_sp av = avma; return gerepileupto(av, readseq_i(t)); }
 
 /* filtered readseq = remove blanks and comments */
 GEN
 gp_read_str(const char *s)
-{
-  char *t = gp_filter(s);
-  GEN x = readseq(t);
-  pari_free(t); return x;
-}
+{ pari_sp av = avma; return gerepileupto(av, readseq_i(gp_filter(s))); }
 
 GEN
-compile_str(const char *s)
-{
-  char *t = gp_filter(s);
-  GEN x = pari_compile_str(t);
-  pari_free(t); return x;
-}
+compile_str(const char *s) { return pari_compile_str(gp_filter(s)); }
 
 static long
 check_proto(const char *code)

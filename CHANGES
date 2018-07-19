@@ -5,6 +5,8 @@ Done for version 2.12.0 (released ??/??/20??):
      1- memory leaks due to the use of varhigher/varlower
 
   Changed
+     1- [libpari] gp_filter return value is now allocated on the stack
+        [was undocumented, malloc'ed and resulted in memory leaks]
 
   Added
      1- [libpari] nonsquare_Fl

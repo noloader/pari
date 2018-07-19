@@ -274,18 +274,19 @@ sd_ulong(const char *v, long flag, const char *s, ulong *ptn, ulong Min, ulong M
 static void
 err_intarray(char *t, char *p, const char *s)
 {
-  char *b = stack_malloc(64 + strlen(s)), *T = stack_strdup(t);
+  char *b = stack_malloc(64 + strlen(s));
   sprintf(b, "incorrect value for %s", s);
-  pari_free(t); pari_err(e_SYNTAX, b, T + (p-t), T);
+  pari_err(e_SYNTAX, b, p, t);
 }
 static GEN
 parse_intarray(const char *v, const char *s)
 {
+  pari_sp av = avma;
   char *p, *t = gp_filter(v);
   long i, l;
   GEN w;
   if (*t != '[') err_intarray(t, t, s);
-  if (t[1] == ']') { pari_free(t); return cgetalloc(t_VECSMALL, 1); }
+  if (t[1] == ']') { avma = av; return cgetalloc(t_VECSMALL, 1); }
   for (p = t+1, l=2; *p; p++)
     if (*p == ',') l++;
     else if (*p < '0' || *p > '9') break;
@@ -297,7 +298,7 @@ parse_intarray(const char *v, const char *s)
     while (*p >= '0' && *p <= '9') n = 10*n + (*p++ -'0');
     w[++i] = n;
   }
-  pari_free(t); return w;
+  avma = av; return w;
 }
 GEN
 sd_intarray(const char *v, long flag, GEN *pz, const char *s)
@@ -413,7 +414,8 @@ sd_colors(const char *v, long flag)
   long c,l;
   if (v && !(GP_DATA->flags & (gpd_EMACS|gpd_TEXMACS)))
   {
-    char *v0, *s;
+    pari_sp av = avma;
+    char *s;
     disable_color=1;
     l = strlen(v);
     if (l <= 2 && strncmp(v, "no", l) == 0)
@@ -426,10 +428,9 @@ sd_colors(const char *v, long flag)
       v = "9, 13, 11, 15, 14, 10, 11";
     if (l <= 6 && strncmp(v, "boldfg", l) == 0)        /* Good for darkbg consoles */
       v = "[1,,1], [5,,1], [3,,1], [7,,1], [6,,1], , [2,,1]";
-    v0 = s = gp_filter(v);
-    for (c=c_ERR; c < c_LAST; c++)
-      gp_colors[c] = gp_get_color(&s);
-    pari_free(v0);
+    s = gp_filter(v);
+    for (c=c_ERR; c < c_LAST; c++) gp_colors[c] = gp_get_color(&s);
+    avma = av;
   }
   if (flag == d_ACKNOWLEDGE || flag == d_RETURN)
   {

@@ -92,11 +92,7 @@ static char *
 filtre0(filtre_t *F)
 {
   const char *s = F->s;
-  char *t;
-  char c;
-
-  if (!F->t) F->t = (char*)pari_malloc(strlen(s)+1);
-  t = F->t;
+  char c, *t = F->t;
 
   if (F->more_input == 1) F->more_input = 0;
   while ((c = *s++))
@@ -202,8 +198,10 @@ gp_filter(const char *s)
 {
   filtre_t T;
   T.buf = NULL;
-  T.s = s;    T.in_string = 0; T.more_input = 0;
-  T.t = NULL; T.in_comment= 0; T.wait_for_brace = 0;
+  T.s = s;
+  T.t = (char*)stack_malloc(strlen(s)+1);
+  T.in_string = 0; T.more_input = 0;
+  T.in_comment= 0; T.wait_for_brace = 0;
   return filtre0(&T);
 }
 
