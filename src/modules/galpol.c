@@ -47,7 +47,8 @@ galoisgetpol(long a, long b, long sig)
       pari_err_FLAG("galoisgetpol");
       return NULL;
   }
-  s = pari_sprintf("%s/galpol/%ld/%ld/%s", pari_datadir, a,b,si);
+  /* left on stack */
+  s = stack_sprintf("%s/galpol/%ld/%ld/%s", pari_datadir, a,b,si);
   F = pari_fopengz(s);
   if (!F)
   {
@@ -56,7 +57,6 @@ galoisgetpol(long a, long b, long sig)
       pari_err_DOMAIN("galoisgetpol", "group index", ">", stoi(n), stoi(b));
     else pari_err_FILE("galpol file", s);
   }
-  pari_free(s);
   V = gp_read_stream(F->file);
   if (!V || typ(V)!=t_VEC) pari_err_FILE("galpol file", F->name);
   pari_fclose(F); return V;
@@ -71,7 +71,8 @@ galoisgetgroup(long a, long b)
   if (a<=0) pari_err_DOMAIN("galoisgetgroup", "degree", "<=", gen_0, stoi(a));
   if (b<0) pari_err_DOMAIN("galoisgetgroup", "index", "<", gen_0, stoi(b));
   if (!b) return galoisnbpol(a);
-  s = pari_sprintf("%s/galpol/%ld/%ld/group", pari_datadir, a,b);
+  /* left on stack */
+  s = stack_sprintf("%s/galpol/%ld/%ld/group", pari_datadir, a,b);
   F = pari_fopengz(s);
   if (!F)
   {
@@ -80,7 +81,6 @@ galoisgetgroup(long a, long b)
       pari_err_DOMAIN("galoisgetgroup", "group index", ">", stoi(n), stoi(b));
     else pari_err_FILE("galpol file", s);
   }
-  pari_free(s);
   V = gp_read_stream(F->file);
   if (!V || typ(V)!=t_VEC) pari_err_FILE("galpol file", F->name);
   pari_fclose(F); return V;
@@ -94,7 +94,8 @@ galoisgetname(long a, long b)
   char *s;
   if (a<=0) pari_err_DOMAIN("galoisgetname", "degree", "<=", gen_0, stoi(a));
   if (b<0) pari_err_DOMAIN("galoisgetname", "index", "<", gen_0, stoi(b));
-  s = pari_sprintf("%s/galpol/%ld/%ld/name", pari_datadir, a,b);
+  /* left on stack */
+  s = stack_sprintf("%s/galpol/%ld/%ld/name", pari_datadir, a,b);
   F = pari_fopengz(s);
   if (!F)
   {
@@ -103,7 +104,6 @@ galoisgetname(long a, long b)
       pari_err_DOMAIN("galoisgetname", "group index", ">", stoi(n), stoi(b));
     else pari_err_FILE("galpol file", s);
   }
-  pari_free(s);
   V = gp_read_stream(F->file);
   if (!V || typ(V)!=t_STR) pari_err_FILE("galpol file", F->name);
   pari_fclose(F); return V;
