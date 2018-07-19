@@ -274,9 +274,9 @@ sd_ulong(const char *v, long flag, const char *s, ulong *ptn, ulong Min, ulong M
 static void
 err_intarray(char *t, char *p, const char *s)
 {
-  char *b = stack_malloc(64 + strlen(s));
+  char *b = stack_malloc(64 + strlen(s)), *T = stack_strdup(t);
   sprintf(b, "incorrect value for %s", s);
-  pari_err(e_SYNTAX, b, p, t);
+  pari_free(t); pari_err(e_SYNTAX, b, T + (p-t), T);
 }
 static GEN
 parse_intarray(const char *v, const char *s)
