@@ -372,9 +372,10 @@ dopsub(subgp_iter *T, GEN p, GEN indexsubq)
 }
 
 static void
-parse_bound(subgp_iter *T)
+set_bound(subgp_iter *T, GEN B)
 {
-  GEN b, B = T->bound;
+  GEN b;
+  T->bound = B;
   if (!B) { T->boundtype = b_NONE; return; }
   switch(typ(B))
   {
@@ -432,16 +433,7 @@ subgroup_engine(subgp_iter *T)
   GEN cyc = T->cyc;
   long i,j,k,imax,lprim, n = lg(cyc);
 
-  if (typ(cyc) != t_VEC)
-  {
-    if (typ(cyc) != t_MAT) pari_err_TYPE("forsubgroup",cyc);
-    cyc = RgM_diagonal_shallow(cyc);
-  }
-  for (i=1; i<n-1; i++)
-    if (!dvdii(gel(cyc,i), gel(cyc,i+1)))
-      pari_err_TYPE("forsubgroup [not a group]", cyc);
   if (n == 1) {
-    parse_bound(T);
     switch(T->boundtype)
     {
       case b_EXACT: if (!is_pm1(T->bound)) break;
@@ -470,8 +462,6 @@ subgroup_engine(subgp_iter *T)
   T->L = L;
   T->powlist = (GEN*)init_powlist(k, p);
   B = T->bound;
-  parse_bound(T);
-
   if (lprim == 2)
   {
     T->subq = NULL;
@@ -547,7 +537,8 @@ get_snf(GEN x, long *N)
   for ( ; n > 0; n--)
   {
     GEN c = gel(cyc,n);
-    if (typ(c) != t_INT || signe(c) <= 0) return NULL;
+    if (typ(c) != t_INT || signe(c) <= 0 ||
+        (n != *N && !dvdii(c, gel(cyc,n+1)))) return NULL;
   }
   return cyc;
 }
@@ -559,8 +550,9 @@ forsubgroup(void *E, long call(void*, GEN), GEN cyc, GEN bound)
   long N;
 
   T.fun = call;
-  T.cyc = get_snf(cyc,&N); if (!T.cyc) pari_err_TYPE("forsubgroup",cyc);
-  T.bound = bound;
+  T.cyc = get_snf(cyc,&N);
+  if (!T.cyc) pari_err_TYPE("forsubgroup [not a group]",cyc);
+  set_bound(&T, bound);
   T.fundata = E;
   T.stop = 0;
   subgroup_engine(&T);
@@ -600,9 +592,10 @@ subgrouplist_i(GEN CYC, GEN bound, GEN expoI, GEN gen)
   GEN z, H, cyc;
 
   cyc = get_snf(CYC, &N);
-  if (!cyc) pari_err_TYPE("subgrouplist",CYC);
+  if (!cyc) pari_err_TYPE("subgrouplist [not a group]",CYC);
   n = lg(cyc)-1; /* not necessarily = N */
 
+  set_bound(&T, bound);
   S.list = sublist = (slist*) pari_malloc(sizeof(slist));
   S.cyc = cyc;
   S.gen = gen;
@@ -610,11 +603,8 @@ subgrouplist_i(GEN CYC, GEN bound, GEN expoI, GEN gen)
   T.fun = &list_fun;
   T.fundata = (void*)&S;
   T.stop = 0;
-
   T.cyc = cyc;
-  T.bound = bound;
   T.expoI = expoI;
-
   subgroup_engine(&T);
 
   nbsub = (long)S.count;
@@ -640,12 +630,7 @@ subgrouplist_i(GEN CYC, GEN bound, GEN expoI, GEN gen)
 
 GEN
 subgrouplist(GEN cyc, GEN bound)
-{
-  return subgrouplist_i(cyc,bound,NULL,NULL);
-}
-
+{ return subgrouplist_i(cyc,bound,NULL,NULL); }
 GEN
 subgroupcondlist(GEN cyc, GEN bound, GEN L)
-{
-  return subgrouplist_i(cyc,bound,NULL,L);
-}
+{ return subgrouplist_i(cyc,bound,NULL,L); }
