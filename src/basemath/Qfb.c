@@ -119,7 +119,7 @@ Qfb0(GEN x, GEN y, GEN z, GEN d, long prec)
   if (typ(z)!=t_INT) pari_err_TYPE("Qfb",z);
   D = qfb_disc3(x,y,z);
   check_quaddisc(D, &s, &r, "Qfb");
-  avma = av;
+  set_avma(av);
   if (s < 0) return qfi(x, y, z);
 
   d = d? gtofp(d,prec): real_0(prec);
@@ -652,7 +652,7 @@ redimagsl2(GEN q, GEN *U)
     b = negi(b);
     z = u1; u1 = u2; u2 = negi(z);
   }
-  avma = av;
+  set_avma(av);
   a = icopy(a); gel(Q,1) = a;
   b = icopy(b); gel(Q,2) = b;
   c = icopy(c); gel(Q,3) = c;
@@ -665,7 +665,7 @@ redimagsl2(GEN q, GEN *U)
   v1 = subii(mulii(z, u1), mulii(a, u2)); v1 = diviiexact(v1, gel(q,3));
   z = subii(z, b);
   v2 = addii(mulii(z, u2), mulii(c, u1)); v2 = diviiexact(v2, gel(q,3));
-  avma = av;
+  set_avma(av);
   v1 = icopy(v1);
   v2 = icopy(v2);
   *U = mkmat2(mkcol2(u1,v1), mkcol2(u2,v2)); return Q;
@@ -698,7 +698,7 @@ redimag_1(pari_sp av, GEN a, GEN b, GEN c)
     if (uel(a,2) <= uel(c,2))
     { /* lg(b) <= 3 but may be too large for itos */
       long s = signe(b);
-      avma = av;
+      set_avma(av);
       if (!s) return redimag_1_b0(a[2], c[2]);
       if (a[2] == c[2]) s = 1;
       return setq(a[2], b[2], c[2], s);
@@ -706,7 +706,7 @@ redimag_1(pari_sp av, GEN a, GEN b, GEN c)
     swap(a,c); b = negi(b);
   }
   /* b != 0 */
-  avma = av;
+  set_avma(av);
   ua = a[2];
   ub = sb = b[2]; if (signe(b) < 0) sb = -sb;
   uc = c[2];
@@ -755,7 +755,7 @@ redimag_av(pari_sp av, GEN q)
   /* size of reduced Qfb(a,b,c) <= 3 lg(c) + 4 <= 4 lg(c) */
   (void)new_chunk(lc<<2);
   a = icopy(a); b = icopy(b); c = icopy(c);
-  avma = av;
+  set_avma(av);
   retmkqfi(icopy(a), icopy(b), icopy(c));
 }
 GEN
@@ -994,7 +994,7 @@ qfr5_init(GEN x, struct qfr_data *S)
     pari_sp av=avma;
     long e;
     S->isqrtD = gcvtoi(S->sqrtD,&e);
-    if (e>-2) { avma = av; S->isqrtD = sqrti(S->D); }
+    if (e>-2) { set_avma(av); S->isqrtD = sqrti(S->D); }
   }
   else if (typ(S->isqrtD) != t_INT) pari_err_TYPE("qfr_init",S->isqrtD);
   return x;
@@ -1283,7 +1283,7 @@ qfbsolve_cornacchia(GEN c, GEN p, int swap)
   pari_sp av = avma;
   GEN M, N;
   if (kronecker(negi(c), p) < 0 || !cornacchia(c, p, &M,&N)) {
-    avma = av; return gen_0;
+    set_avma(av); return gen_0;
   }
   return gerepilecopy(av, swap? mkvec2(N,M): mkvec2(M,N));
 }
@@ -1308,20 +1308,20 @@ qfisolvep(GEN Q, GEN p)
     if (!signe(gel(a,2)))
     {
       a = qfbsolve_cornacchia(gel(a,3), p, 0);
-      if (a == gen_0) { avma = av; return gen_0; }
+      if (a == gen_0) { set_avma(av); return gen_0; }
       a = ZM_ZC_mul(N, a);
       a[0] = evaltyp(t_VEC) | _evallg(3); /* transpose */
       return gerepileupto(av, a);
     }
     /* x^2 + xy + ((1-d)/4)y^2 = p <==> (2x + y)^2 - d y^2 = 4p */
-    if (!cornacchia2(negi(d), p, &x, &y)) { avma = av; return gen_0; }
-    x = divis_rem(subii(x,y), 2, &r); if (r) { avma = av; return gen_0; }
+    if (!cornacchia2(negi(d), p, &x, &y)) { set_avma(av); return gen_0; }
+    x = divis_rem(subii(x,y), 2, &r); if (r) { set_avma(av); return gen_0; }
     a = ZM_ZC_mul(N, mkvec2(x,y));
     a[0] = evaltyp(t_VEC) | _evallg(3); /* transpose */
     return gerepileupto(av, a);
   }
   b = redimagsl2(primeform(d, p, 0), &M);
-  if (!GL2_qfb_equal(a,b)) { avma = av; return gen_0; }
+  if (!GL2_qfb_equal(a,b)) { set_avma(av); return gen_0; }
   if (signe(gel(a,2))==signe(gel(b,2)))
     x = SL2_div_mul_e1(N,M);
   else
@@ -1417,7 +1417,7 @@ qfrsolvep(GEN Q, GEN p)
 {
   pari_sp ltop = avma, btop;
   GEN N, P, P1, P2, M, rd, d = qfb_disc(Q);
-  if (kronecker(d, p) < 0) { avma = ltop; return gen_0; }
+  if (kronecker(d, p) < 0) { set_avma(ltop); return gen_0; }
   rd = sqrti(d);
   M = N = redrealsl2(Q, d,rd);
   P = primeform(d, p, DEFAULTPREC);
@@ -1430,7 +1430,7 @@ qfrsolvep(GEN Q, GEN p)
     if (ZV_equal(gel(M,1), gel(P1,1))) { N = gel(P1,2); break; }
     if (ZV_equal(gel(M,1), gel(P2,1))) { N = gel(P2,2); break; }
     M = redrealsl2step(M, d,rd);
-    if (ZV_equal(gel(M,1), gel(N,1))) { avma = ltop; return gen_0; }
+    if (ZV_equal(gel(M,1), gel(N,1))) { set_avma(ltop); return gen_0; }
     if (gc_needed(btop, 1)) M = gerepileupto(btop, M);
   }
   return gerepilecopy(ltop, SL2_div_mul_e1(gel(M,2),N));
@@ -1463,9 +1463,9 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   *px = *py = gen_0;
   b = subii(p, d);
   if (signe(b) < 0) return 0;
-  if (signe(b) == 0) { avma = av; *py = gen_1; return 1; }
+  if (signe(b) == 0) { set_avma(av); *py = gen_1; return 1; }
   b = Fp_sqrt(b, p); /* sqrt(-d) */
-  if (!b) { avma = av; return 0; }
+  if (!b) { set_avma(av); return 0; }
   if (abscmpii(shifti(b,1), p) > 0) b = subii(b,p);
   a = p; L = sqrti(p);
   av2 = avma;
@@ -1479,8 +1479,8 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   }
   a = subii(p, sqri(b));
   c = dvmdii(a, d, &r);
-  if (r != gen_0 || !Z_issquareall(c, &c)) { avma = av; return 0; }
-  avma = av;
+  if (r != gen_0 || !Z_issquareall(c, &c)) { set_avma(av); return 0; }
+  set_avma(av);
   *px = icopy(b);
   *py = icopy(c); return 1;
 }
@@ -1492,7 +1492,7 @@ cornacchia2_helper(long av, GEN d, GEN p, GEN b, GEN px4, GEN *px, GEN *py)
   GEN a, c, r, L;
   long k = mod4(d);
   if (!signe(b)) { /* d = p,2p,3p,4p */
-    avma = av;
+    set_avma(av);
     if (absequalii(d, px4)){ *py = gen_1; return 1; }
     if (absequalii(d, p))  { *py = gen_2; return 1; }
     return 0;
@@ -1510,8 +1510,8 @@ cornacchia2_helper(long av, GEN d, GEN p, GEN b, GEN px4, GEN *px, GEN *py)
   }
   a = subii(px4, sqri(b));
   c = dvmdii(a, d, &r);
-  if (r != gen_0 || !Z_issquareall(c, &c)) { avma = av; return 0; }
-  avma = av;
+  if (r != gen_0 || !Z_issquareall(c, &c)) { set_avma(av); return 0; }
+  set_avma(av);
   *px = icopy(b);
   *py = icopy(c); return 1;
 }
@@ -1531,10 +1531,10 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
   k = mod4(d);
   if (k == 1 || k == 2) pari_err_DOMAIN("cornacchia2","-d mod 4", ">",gen_1,d);
   px4 = shifti(p,2);
-  if (abscmpii(px4, d) < 0) { avma = av; return 0; }
+  if (abscmpii(px4, d) < 0) { set_avma(av); return 0; }
   if (absequaliu(p, 2))
   {
-    avma = av;
+    set_avma(av);
     switch (itou_or_0(d)) {
       case 4: *px = gen_2; break;
       case 7: *px = gen_1; break;
@@ -1543,7 +1543,7 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
     *py = gen_1; return 1;
   }
   b = Fp_sqrt(negi(d), p);
-  if (!b) { avma = av; return 0; }
+  if (!b) { set_avma(av); return 0; }
   return cornacchia2_helper(av, d, p, b, px4, px, py);
 }
 
@@ -1555,6 +1555,6 @@ cornacchia2_sqrt(GEN d, GEN p, GEN b, GEN *px, GEN *py)
   GEN px4;
   *px = *py = gen_0;
   px4 = shifti(p,2);
-  if (abscmpii(px4, d) < 0) { avma = av; return 0; }
+  if (abscmpii(px4, d) < 0) { set_avma(av); return 0; }
   return cornacchia2_helper(av, d, p, b, px4, px, py);
 }

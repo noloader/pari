@@ -110,11 +110,11 @@ torsbound(GEN e)
     if (!umodiu(D, p)) continue;
 
     b = ugcd(b, p+1 - ellap_CM_fast(e,p,CM));
-    avma = av2;
+    set_avma(av2);
     if (b == 1) break;
     if (b == bold) m++; else { bold = b; m = 0; }
   }
-  avma = av; return b;
+  set_avma(av); return b;
 }
 
 /* return a rational point of order pk = p^k on E, or NULL if E(Q)[k] = O.
@@ -353,7 +353,7 @@ ellisdivisible(GEN E, GEN P, GEN n, GEN *pQ)
           long j, e = itos(gel(LE,i));
           GEN xp = ellxn(E,itos(gel(LP,i)),0);
           for (j = 1; j <= e; j++)
-            if (!ellisdivisible(E, P, xp, &P)) { avma = av; return 0; }
+            if (!ellisdivisible(E, P, xp, &P)) { set_avma(av); return 0; }
         }
         if (pQ)
         {
@@ -393,10 +393,10 @@ ellisdivisible(GEN E, GEN P, GEN n, GEN *pQ)
     y = gel(a,1);
     Q = mkvec2(x,y);
     if (!gequal(P,ellmul(E,Q,N))) Q = ellneg(E,Q); /* nQ = -P */
-    if (pQ) *pQ = gerepilecopy(av,Q); else avma = av;
+    if (pQ) *pQ = gerepilecopy(av,Q); else set_avma(av);
     return 1;
   }
-  avma = av; return 0;
+  set_avma(av); return 0;
 }
 
 /* 2-torsion point of abscissa x */
@@ -631,7 +631,7 @@ ellorder_Q(GEN E, GEN P)
     R = odd(k)? elladd(E, P,Q): Q;
     if (!gequal(Q, ellneg(E,R))) k = 0;
   }
-  avma = av; return k;
+  set_avma(av); return k;
 }
 /* E a t_ELL_NF */
 static GEN
@@ -673,7 +673,7 @@ ellorder_nf(GEN E, GEN P)
   /* transform E into short Weierstrass form Ep modulo p and P to Pp on Ep,
    * check whether the order of Pp on Ep divides B */
   Pp = point_to_a4a6_Fl(Ep, Pp, p, &a4);
-  if (!ell_is_inf(Fle_mul(Pp, B, a4, p))) { avma = av; return gen_0; }
+  if (!ell_is_inf(Fle_mul(Pp, B, a4, p))) { set_avma(av); return gen_0; }
   k = Fle_order(Pp, B, a4, p);
   { /* check whether [k]P = O over K. Save potentially costly last elladd */
     GEN R;

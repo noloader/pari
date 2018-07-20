@@ -74,7 +74,7 @@ lift_to_frac_tdenom(GEN t, GEN mod, GEN amax, GEN bmax, GEN denom, GEN tdenom)
       if (is_pm1(b)) { return gerepileuptoint(av, a); }
       return gerepilecopy(av, mkfrac(a, b));
     }
-    avma = av;
+    set_avma(av);
   }
   if (!Fp_ratlift(t, mod, amax,bmax, &a,&b)
      || (denom && !dvdii(denom,b))
@@ -106,7 +106,7 @@ FpC_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
   for (j = 1; j < l; ++j)
   {
     a = lift_to_frac_tdenom(gel(P,j), mod, amax, bmax, denom, tdenom);
-    if (!a) { avma = ltop; return NULL; }
+    if (!a) { set_avma(ltop); return NULL; }
     d = Q_denom(a);
     tdenom = tdenom ? cmpii(tdenom, d)<0? d: tdenom : d;
     gel(Q,j) = a;
@@ -124,7 +124,7 @@ FpM_ratlift(GEN M, GEN mod, GEN amax, GEN bmax, GEN denom)
   for (j = 1; j < l; ++j)
   {
     GEN a = FpC_ratlift(gel(M, j), mod, amax, bmax, denom);
-    if (!a) { avma = av; return NULL; }
+    if (!a) { set_avma(av); return NULL; }
     gel(N,j) = a;
   }
   return N;
@@ -140,7 +140,7 @@ FpX_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
   for (j = 2; j < l; ++j)
   {
     a = lift_to_frac(gel(P,j), mod, amax,bmax,denom);
-    if (!a) { avma = ltop; return NULL; }
+    if (!a) { set_avma(ltop); return NULL; }
     gel(Q,j) = a;
   }
   return Q;
@@ -202,7 +202,7 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
                            ZXX_to_FlxX(Q,p,vT),
                            Tp, p)) == NULL) continue;
     dR = degpol(R);
-    if (dR == 0) { avma = ltop; if (Pnew) *Pnew = P; return pol_1(vP); }
+    if (dR == 0) { set_avma(ltop); if (Pnew) *Pnew = P; return pol_1(vP); }
     if (mod && dR > dM) continue; /* p divides Res(P/gcd, Q/gcd). Discard. */
 
     R = FlxX_to_Flm(R, dT);
@@ -252,7 +252,7 @@ nfissquarefree(GEN nf, GEN x)
     y = Q_primpart( liftpol_shallow(y) );
     g = nfgcd(x, y, T, nf? nf_get_index(nf): NULL);
   }
-  avma = av; return (degpol(g) == 0);
+  set_avma(av); return (degpol(g) == 0);
 }
 
 /*******************************************************************/
@@ -495,7 +495,7 @@ nf_bestlift_to_pol(GEN elt, GEN bound, nflift_t *L)
   }
   else
   {
-    v = gclone(v); avma = av;
+    v = gclone(v); set_avma(av);
     u = RgV_dotproduct(L->topow, v);
     gunclone(v);
   }
@@ -556,7 +556,7 @@ fact_from_sqff(GEN rep, GEN A, GEN B, GEN y, GEN T, GEN bad)
       long j;
       forprime_t S;
       u_forprime_init(&S, degpol(T), ULONG_MAX);
-      for (; ; avma = av1)
+      for (; ; set_avma(av1))
       {
         pp = u_forprime_next(&S);
         if (! umodiu(bad,pp) || !umodiu(lb, pp)) continue;
@@ -909,7 +909,7 @@ init_trace(trace_data *T, GEN S, nflift_t *L, GEN q)
     pari_sp av = avma;
     T->PinvSdbl[j] = t;
     for (i=1; i < h; i++) t[i] = rtodbl(mulri(invd, gel(c,i)));
-    avma = av;
+    set_avma(av);
   }
 
   T->d  = L->pk;
@@ -1038,7 +1038,7 @@ nfcmbf(nfcmbf_t *T, long klim, long *pmaxK, int *done)
         t2 = Fq_Fp_mul(t2, lt2dn, Tpk, pk);
       }
       gel(trace1,i) = gclone( nf_bestlift(t1, NULL, T->L) );
-      gel(trace2,i) = gclone( nf_bestlift(t2, NULL, T->L) ); avma = av;
+      gel(trace2,i) = gclone( nf_bestlift(t2, NULL, T->L) ); set_avma(av);
     }
     T1 = init_trace(&_T1, trace1, T->L, q);
     T2 = init_trace(&_T2, trace2, T->L, q);
@@ -1076,7 +1076,7 @@ nextK:
         if (rtodbl(_norml2(t)) > Bhigh)
         {
           if (DEBUGLEVEL>6) err_printf(".");
-          avma = av; goto NEXT;
+          set_avma(av); goto NEXT;
         }
       }
       if (T2)
@@ -1085,10 +1085,10 @@ nextK:
         if (rtodbl(_norml2(t)) > Bhigh)
         {
           if (DEBUGLEVEL>3) err_printf("|");
-          avma = av; goto NEXT;
+          set_avma(av); goto NEXT;
         }
       }
-      avma = av;
+      set_avma(av);
       y = ltdn; /* full computation */
       for (i=1; i<=K; i++)
       {
@@ -1100,7 +1100,7 @@ nextK:
       if (!y)
       {
         if (DEBUGLEVEL>3) err_printf("@");
-        avma = av; goto NEXT;
+        set_avma(av); goto NEXT;
       }
       /* y = topowden*dn*lt*\prod_{i in ind} famod[i] is apparently in O_K[X],
        * in fact in (Z[Y]/nf.pol)[X] due to multiplication by C = topowden*dn.
@@ -1109,7 +1109,7 @@ nextK:
       if (!q)
       {
         if (DEBUGLEVEL>3) err_printf("*");
-        avma = av; goto NEXT;
+        set_avma(av); goto NEXT;
       }
       /* Original T->pol in O_K[X] with leading coeff lt in Z,
        * y = C*lt \prod famod[i] is in O_K[X] with leading coeff in Z
@@ -1345,7 +1345,7 @@ bestlift_init(long a, GEN nf, GEN C, nflift_t *L)
   }
   timer_start(&ti);
   if (!a) a = (long)bestlift_bound(C, d, alpha, p, f);
-  for (;; avma = av, a += (a==1)? 1: (a>>1)) /* roughly a *= 1.5 */
+  for (;; set_avma(av), a += (a==1)? 1: (a>>1)) /* roughly a *= 1.5 */
   {
     GEN B, q = powiu(p,a), Tq = FpXQ_powu(T, a, FpX_red(nf_get_pol(nf), q), q);
     if (DEBUGLEVEL>2) err_printf("exponent %ld\n",a);
@@ -1386,7 +1386,7 @@ get_V(GEN Tra, GEN M_L, GEN PRK, GEN PRKinv, GEN pk, long *eT2)
     av2 = avma;
     T2 = ZC_sub(T2, ZM_ZC_mul(PRK, v));
     e = gexpo(T2); if (e > *eT2) *eT2 = e;
-    avma = av2;
+    set_avma(av2);
     gel(V,i) = gerepileupto(av, v); /* small */
   }
   return V;
@@ -1513,7 +1513,7 @@ AGAIN:
     if (i == r && ZM_equal(CM_L, oldCM_L))
     {
       CM_L = oldCM_L;
-      avma = av2; continue;
+      set_avma(av2); continue;
     }
 
     CM_Lp = FpM_image(CM_L, utoipos(27449)); /* inexpensive test */
@@ -1599,7 +1599,7 @@ nf_DDF_roots(GEN pol, GEN polred, GEN nfpol, long fl, nflift_t *L)
     av = avma;
     gel(Cltx_r,2) = gneg(r); /* check P(r) == 0 */
     dvd = ZXQX_dvd(D.C2ltpol, Cltx_r, nfpol); /* integral */
-    avma = av;
+    set_avma(av);
     /* don't go on with q, usually much larger that C2ltpol */
     if (dvd) {
       if (D.Clt) r = gdiv(r, D.Clt);
@@ -1637,7 +1637,7 @@ get_good_factor(GEN T, ulong p, long maxf)
     }
     setlg(v,j); if (j > 1) return v;
   }
-  avma = av; return NULL; /* failure */
+  set_avma(av); return NULL; /* failure */
 }
 
 /* n = number of modular factors, f = residue degree; nold/fold current best
@@ -1718,14 +1718,14 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
       { /* degree 1 */
         red = FlxX_to_Flx(red);
         if (ltp) red = Flx_normalize(red, p);
-        if (!Flx_is_squarefree(red, p)) { avma = av2; continue; }
+        if (!Flx_is_squarefree(red, p)) { set_avma(av2); continue; }
         ok = 1;
         n = (fl == FACTORS)? Flx_nbfact(red,p): Flx_nbroots(red,p);
       }
       else
       {
         if (ltp) red = FlxqX_normalize(red, T, p);
-        if (!FlxqX_is_squarefree(red, T, p)) { avma = av2; continue; }
+        if (!FlxqX_is_squarefree(red, T, p)) { set_avma(av2); continue; }
         ok = 1;
         n = (fl == FACTORS)? FlxqX_nbfact(red,T,p): FlxqX_nbroots(red,T,p);
       }
@@ -1741,7 +1741,7 @@ nf_pick_prime(GEN nf, GEN pol, long fl, GEN *lt, GEN *Tp, ulong *pp)
 
       if (fl == ROOTS && f==nfdeg) { *Tp = T; *pp = p; return n; }
       if (record(nold, n, fold, f)) { nold = n; fold = f; *Tp = T; *pp = p; }
-      else avma = av2;
+      else set_avma(av2);
     }
     if (ok && --ct <= 0) break;
   }
@@ -1937,7 +1937,7 @@ nfroots_if_split(GEN *pnf, GEN pol)
   GEN T = get_nfpol(*pnf,pnf), den = fix_nf(pnf, &T, &pol);
   pari_sp av = avma;
   GEN z = nfsqff(*pnf, pol, ROOTS_SPLIT, den);
-  if (lg(z) == 1) { avma = av; return NULL; }
+  if (lg(z) == 1) { set_avma(av); return NULL; }
   return gerepilecopy(av, z);
 }
 
@@ -2064,7 +2064,7 @@ guess_roots(GEN nf)
   }
   if (!nbroots) pari_err_OVERFLOW("guess_roots [ran out of primes]");
   if (DEBUGLEVEL>5) err_printf("%ld loops\n",l);
-  avma = av; return itos(nbroots);
+  set_avma(av); return itos(nbroots);
 }
 
 /* T(x) an irreducible ZX. Is it of the form Phi_n(c \pm x) ?
@@ -2182,7 +2182,7 @@ rootsof1(GEN nf)
       z = nf_to_scalar_or_basis(nf,z);
       return gerepilecopy(av, mkvec2(utoipos(nbguessed), z));
     }
-    avma = av;
+    set_avma(av);
   }
 
   /* Step 2 : choose a prime ideal for local lifting */
@@ -2220,7 +2220,7 @@ rootsof1(GEN nf)
         else     { nbroots *= pk; z = nfmul(nf, z,r); }
         break;
       }
-      avma = av;
+      set_avma(av);
       if (DEBUGLEVEL) pari_warn(warner,"rootsof1: wrong guess");
     }
   }
@@ -2277,7 +2277,7 @@ rootsof1_kannan(GEN nf)
   }
   if (itos(ground(gel(y,2))) != N) pari_err_BUG("rootsof1 (bug1)");
   w = gel(y,1); ws = itos(w);
-  if (ws == 2) { avma = av; return trivroots(); }
+  if (ws == 2) { set_avma(av); return trivroots(); }
 
   d = Z_factor(w); list = gel(y,3); k = lg(list);
   for (i=1; i<k; i++)

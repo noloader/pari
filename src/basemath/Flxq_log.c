@@ -304,7 +304,7 @@ smooth_best(long p, long n, long *pt_r, long *pt_nb)
       {
         rels = itou_or_0(addui(rels, gceil(gmul(gdivgs(sqri(Nmax),6),pr))));
         if (!rels) rels = ULONG_MAX;
-        avma = av2;
+        set_avma(av2);
         continue;
       }
       c = gdivgs(addii(powuu(p,2*d),sqri(N)),6);
@@ -352,7 +352,7 @@ check_kernel(long r, GEN M, long nbi, long nbrow, GEN T, ulong p, GEN m)
     pari_sp av = avma;
     long t = signe(k) && Flx_equal(Flxq_pow_table(tab, k, T, p),
                                    Flxq_pow(cindex_Flx(i,r,p,T[1]), idx, T, p));
-    avma = av;
+    set_avma(av);
     if (!t)
       gel(K,i) = cgetineg(lm);
     else
@@ -401,7 +401,7 @@ Flxq_log_use_index_cubic(GEN m, GEN T0, ulong p)
   GEN cost = smooth_best(p, n, &r, &nb);
   GEN cost_rho = sqrti(shifti(m,2));
   int use = (cost && gcmp(cost,cost_rho)<0);
-  avma = av;
+  set_avma(av);
   return use;
 }
 
@@ -416,7 +416,7 @@ Flxq_log_index_cubic(GEN a0, GEN b0, GEN m, GEN T0, ulong p)
   pari_timer ti;
   GEN cost = smooth_best(p, n, &r, &nb);
   GEN cost_rho = sqrti(shifti(m,2));
-  if (!cost || gcmp(cost,cost_rho)>=0) { avma = av; return NULL; }
+  if (!cost || gcmp(cost,cost_rho)>=0) { set_avma(av); return NULL; }
   nbi = itos(ffsumnbirred(stoi(p), r));
   if (DEBUGLEVEL)
   {
@@ -494,7 +494,7 @@ Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R)
     Flx_cnext(v, p);
     Flx_renormalize_inplace(v, dT+2);
     lv = Flx_lead(v);
-    avma = av;
+    set_avma(av);
     if (lu != 1 && lv != 1) continue;
     if (degpol(Flx_gcd(u, v, p))!=0) continue;
     if (lu==1)
@@ -556,7 +556,7 @@ Flxq_log_Coppersmith(long nbrel, long r, GEN T, ulong p)
       }
       av = avma;
     }
-    else avma = av;
+    else set_avma(av);
     if (rel>nbrel) stop = 1;
     i++;
   }
@@ -614,7 +614,7 @@ Flxq_log_Coppersmith_d(GEN W, GEN g, long r, GEN T, ulong p, GEN mo)
   {
     GEN p0,q,qh,a,b;
     ulong el = i;
-    avma = av2;
+    set_avma(av2);
     q = pol0_Flx(T[1]);
     for (j=1; j<=k; j++)
     {
@@ -649,7 +649,7 @@ Flxq_log_Coppersmith_d(GEN W, GEN g, long r, GEN T, ulong p, GEN mo)
       return gerepileuptoint(av, l);
     }
   }
-  avma = av;
+  set_avma(av);
   return NULL;
 }
 

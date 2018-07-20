@@ -49,7 +49,7 @@ initprimes1(ulong size, long *lenp, ulong *lastp, byteptr p1)
   *r++ = 0;
   *lenp = r - p1;
   *lastp = ((s - p) << 1) + 1;
-  avma = av;
+  set_avma(av);
 }
 
 /*  Timing in ms (Athlon/850; reports 512K of secondary cache; looks
@@ -419,7 +419,7 @@ initprimes0(ulong maxnum, long *lenp, ulong *lastp, byteptr p1)
   *curdiff++ = 0; /* sentinel */
   *lenp = curdiff - p1;
   *lastp = last;
-  if (alloced) pari_free(p); else avma = av;
+  if (alloced) pari_free(p); else set_avma(av);
 }
 
 ulong
@@ -556,7 +556,7 @@ arith_set(forprime_t *T)
   if (T->c > r) d = subiu(d, T->q);
   /* d = c mod q,  d = c > r? p-r+c-q: p-r+c, so that
    *  d <= p  and  d+q = c>r? p-r+c  : p-r+c+q > p */
-  T->p = itou_or_0(d); avma = av; /* d = 0 is impossible */
+  T->p = itou_or_0(d); set_avma(av); /* d = 0 is impossible */
 }
 
 /* run through primes in arithmetic progression = c (mod q) */
@@ -944,8 +944,8 @@ forprime_next(forprime_t *T)
   }
   av = avma;
   p = nextprime(addiu(T->pp, T->q));
-  if (T->bb && abscmpii(p, T->bb) > 0) { avma = av; return NULL; }
-  affii(p, T->pp); avma = av; return T->pp;
+  if (T->bb && abscmpii(p, T->bb) > 0) { set_avma(av); return NULL; }
+  affii(p, T->pp); set_avma(av); return T->pp;
 }
 
 void
@@ -954,7 +954,7 @@ forprimestep(GEN a, GEN b, GEN q, GEN code)
   pari_sp av = avma;
   forprime_t T;
 
-  if (!forprimestep_init(&T, a,b,q)) { avma = av; return; }
+  if (!forprimestep_init(&T, a,b,q)) { set_avma(av); return; }
 
   push_lex(T.pp,code);
   while(forprime_next(&T))
@@ -964,7 +964,7 @@ forprimestep(GEN a, GEN b, GEN q, GEN code)
     if (get_lex(-1) != T.pp)
       pari_err(e_MISC,"prime index read-only: was changed to %Ps", get_lex(-1));
   }
-  pop_lex(1); avma = av;
+  pop_lex(1); set_avma(av);
 }
 void
 forprime(GEN a, GEN b, GEN code) { return forprimestep(a,b,NULL,code); }
@@ -984,7 +984,7 @@ forcomposite_init(forcomposite_t *C, GEN a, GEN b)
   {
     C->n = gen_1; /* in case caller forgets to check the return value */
     C->b = gen_0;
-    avma = av; return 0;
+    set_avma(av); return 0;
   }
   C->n = setloop(a);
   C->b = b;
@@ -1028,5 +1028,5 @@ forcomposite(GEN a, GEN b, GEN code)
     if (get_lex(-1) != n)
       pari_err(e_MISC,"index read-only: was changed to %Ps", get_lex(-1));
   }
-  pop_lex(1); avma = av;
+  pop_lex(1); set_avma(av);
 }

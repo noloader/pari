@@ -66,7 +66,7 @@ forperm(void *E, long call(void *, GEN), GEN k)
   forperm_init(&T, k);
   while ((v = forperm_next(&T)))
     if (call(E, v)) break;
-  avma = av;
+  set_avma(av);
 }
 
 void

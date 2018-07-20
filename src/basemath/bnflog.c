@@ -255,10 +255,10 @@ rnfislocalcyclo(GEN rnf)
       long iS = gen_search(SL2, gel(SL,j), 0, (void*)&cmp_prime_over_p,
                 &cmp_nodata);
       long eL = etilde(L, gel(SL,j), gel(TL,iS));
-      if (dvdui(eL/eK, ell)) { avma = av; return 0; }
+      if (dvdui(eL/eK, ell)) { set_avma(av); return 0; }
     }
   };
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 #if 0
@@ -314,7 +314,7 @@ nfislocalpower(GEN nf, GEN pr, GEN a, GEN n)
   nf = checknf(nf);
   checkprid(pr);
   r = nfislocalpower_i(nf, pr, a, n);
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 /* v_ell(  exponent(D) ) */
@@ -460,7 +460,7 @@ bnflogef(GEN nf, GEN pr)
     e = etilde(nf, pr, gel(T,j));
     f = ef / e;
   }
-  avma = av; return mkvec2s(e,f);
+  set_avma(av); return mkvec2s(e,f);
 }
 
 GEN

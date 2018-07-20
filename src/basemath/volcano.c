@@ -26,7 +26,7 @@ node_degree(GEN phi, long L, ulong j, ulong p, ulong pi)
 {
   pari_sp av = avma;
   long n = Flx_nbroots(Flm_Fl_polmodular_evalx(phi, L, j, p, pi), p);
-  avma = av; return n;
+  set_avma(av); return n;
 }
 
 /* Given an array path = [j0, j1] of length 2, return the polynomial
@@ -63,7 +63,7 @@ extend_path(ulong path[], GEN phi, ulong p, ulong pi, long L, long max_len)
   {
     GEN nhbr_pol = nhbr_polynomial(path + d, phi, p, pi, L);
     ulong nhbr = Flx_oneroot(nhbr_pol, p);
-    avma = av;
+    set_avma(av);
     if (nhbr == p) break; /* no root: we are on the floor. */
     path[d+1] = nhbr;
   }
@@ -114,13 +114,13 @@ ascend_volcano(GEN phi, ulong j, ulong p, ulong pi, long level, long L,
           /* Ended up on the surface */
           && (is_j_exceptional(last_j, p)
               || node_degree(phi, L, last_j, p, pi) > 1)) { j = next_j; break; }
-      avma = btop;
+      set_avma(btop);
     }
     path[1] = j; /* For nhbr_polynomial() at the top. */
 
-    max_len++; avma = av;
+    max_len++; set_avma(av);
   }
-  avma = ltop; return j;
+  set_avma(ltop); return j;
 }
 
 static void
@@ -136,7 +136,7 @@ random_distinct_neighbours_of(ulong *nhbr1, ulong *nhbr2,
   *nhbr2 = Flx_oneroot(modpol, p);
   if (must_have_two_neighbours && *nhbr2 == p)
     pari_err_BUG("random_distinct_neighbours_of [single neighbour]");
-  avma = av;
+  set_avma(av);
 }
 
 
@@ -190,7 +190,7 @@ descend_volcano(GEN phi, ulong j, ulong p, ulong pi,
       (void) extend_path(path, phi, p, pi, L, steps);
     }
   }
-  res = path[steps]; avma = ltop; return res;
+  res = path[steps]; set_avma(ltop); return res;
 }
 
 
@@ -220,7 +220,7 @@ j_level_in_volcano(
     long path2_len = extend_path(path2, phi, p, pi, L, path1_len);
     lvl = depth - path2_len;
   }
-  avma = av; return lvl;
+  set_avma(av); return lvl;
 }
 
 #define vecsmall_len(v) (lg(v) - 1)
@@ -278,7 +278,7 @@ surface_path(
     /* If volcano is not flat, then we must have more than one neighbour */
     if (h) pari_err_BUG("surface_path");
     W[1] = uel(v, 1);
-    avma = av;
+    set_avma(av);
     /* Check for bad endo ring */
     if (W[1] == W[0]) return 1;
     return 2;
@@ -293,7 +293,7 @@ surface_path(
       GEN u = get_nbrs(phi, L, uel(v, 1), &J, p, pi);
       long n = vecsmall_len(u) - !!vecsmall_isin(u, J);
       W[1] = n == 1 ? uel(v,1) : uel(v,2);
-      avma = av; return 2;
+      set_avma(av); return 2;
     }
     /* Volcano is not flat but found only 2 neighbours for the surface node J */
     if (h) pari_err_BUG("surface_path");
@@ -306,9 +306,9 @@ surface_path(
       if (vecsmall_len(v) != 1) pari_err_BUG("surface_path");
       W[w] = uel(v, 1);
       /* Detect cycle in case J doesn't have the right endo ring. */
-      avma = av; if (W[w] == W0) return w;
+      set_avma(av); if (W[w] == W0) return w;
     }
-    avma = av; return n;
+    set_avma(av); return n;
   }
   if (!h) pari_err_BUG("surface_path"); /* Can't have a flat volcano if k > 2 */
 
@@ -322,11 +322,11 @@ surface_path(
     W[w] = umael(T, ((w-1) % h) + 1, x + 1);
 
     /* Detect cycle in case the given J didn't have the right endo ring */
-    if (W[w] == W0) { avma = av; return w; }
+    if (W[w] == W0) { set_avma(av); return w; }
 
     /* If we have to test the last neighbour, we know it's on the
      * surface, and if we're done there's no need to extend. */
-    if (x == k-1 && w == n-1) { avma = av; return n; }
+    if (x == k-1 && w == n-1) { set_avma(av); return n; }
 
     /* Walk forward until we hit the floor or finish. */
     /* NB: We don't keep the stack clean here; usage is in the order of Lh,
@@ -352,10 +352,10 @@ surface_path(
       if (j == w + h) {
         ++w;
         /* Detect cycle in case the given J didn't have the right endo ring */
-        if (W[w] == W0) { avma = av; return w; }
+        if (W[w] == W0) { set_avma(av); return w; }
         x = 0; k = L;
       }
-      if (w == n) { avma = av; return w; }
+      if (w == n) { set_avma(av); return w; }
     }
   }
 }
@@ -373,8 +373,8 @@ next_surface_nbr(
   S = get_nbrs(phi, L, J, pJ, p, pi);
   k = vecsmall_len(S);
   /* If there is a double root and pJ is set, then k will be zero. */
-  if (!k) { avma = av; return 0; }
-  if (k == 1 || ( ! pJ && k == 2)) { *nJ = uel(S, 1); avma = av; return 1; }
+  if (!k) { set_avma(av); return 0; }
+  if (k == 1 || ( ! pJ && k == 2)) { *nJ = uel(S, 1); set_avma(av); return 1; }
   if (!h) pari_err_BUG("next_surface_nbr");
 
   P = (ulong *) new_chunk(h + 1); bv = avma;
@@ -390,13 +390,13 @@ next_surface_nbr(
       P[j + 1] = uel(T, 1);
     }
     if (j < h) pari_err_BUG("next_surface_nbr");
-    avma = bv; if (j > h) break;
+    set_avma(bv); if (j > h) break;
   }
   /* TODO: We could save one get_nbrs call by iterating from i up to k-1 and
    * assume that the last (kth) nbr is the one we want. For now we're careful
    * and check that this last nbr really is on the surface */
   if (i == k) pari_err_BUG("next_surf_nbr");
-  *nJ = uel(S, i+1); avma = av; return 1;
+  *nJ = uel(S, i+1); set_avma(av); return 1;
 }
 
 /* Return the number of distinct neighbours (1 or 2) */
@@ -412,14 +412,14 @@ common_nbr(ulong *nbr,
   g = Flm_Fl_polmodular_evalx(Phi1, L1, J1, p, pi);
   f = Flm_Fl_polmodular_evalx(Phi2, L2, J2, p, pi);
   d = Flx_gcd(f, g, p);
-  if (degpol(d) == 1) { *nbr = Flx_deg1_root(d, p); avma = av; return 1; }
+  if (degpol(d) == 1) { *nbr = Flx_deg1_root(d, p); set_avma(av); return 1; }
   if (degpol(d) != 2) pari_err_BUG("common_neighbour");
   r = Flx_roots(d, p);
   rlen = vecsmall_len(r);
   if (!rlen) pari_err_BUG("common_neighbour");
   /* rlen is 1 or 2 depending on whether the root is unique or not. */
   nbr[0] = uel(r, 1);
-  nbr[1] = uel(r, rlen); avma = av; return rlen;
+  nbr[1] = uel(r, rlen); set_avma(av); return rlen;
 }
 
 /* Return gcd(Phi1(X,J1)/(X - J0), Phi2(X,J2)). Not stack clean. */
@@ -447,7 +447,7 @@ common_nbr_pred(ulong *nbr,
   GEN d = common_nbr_pred_poly(J1, Phi1, L1, J2, Phi2, L2, J0, p, pi);
   int res = (degpol(d) == 1);
   if (res) *nbr = Flx_deg1_root(d, p);
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 INLINE long
@@ -458,10 +458,10 @@ common_nbr_verify(ulong *nbr,
   pari_sp av = avma;
   GEN d = common_nbr_pred_poly(J1, Phi1, L1, J2, Phi2, L2, J0, p, pi);
 
-  if (!degpol(d)) { avma = av; return 0; }
+  if (!degpol(d)) { set_avma(av); return 0; }
   if (degpol(d) > 1) pari_err_BUG("common_neighbour_verify");
   *nbr = Flx_deg1_root(d, p);
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 INLINE ulong
@@ -470,7 +470,7 @@ Flm_Fl_polmodular_evalxy(GEN Phi, long L, ulong x, ulong y, ulong p, ulong pi)
   pari_sp av = avma;
   GEN f = Flm_Fl_polmodular_evalx(Phi, L, x, p, pi);
   ulong r = Flx_eval_pre(f, y, p, pi);
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 /* Find a common L1-neighbor of J1 and L2-neighbor of J2, given J0 an
@@ -523,7 +523,7 @@ surface_gcd_cycle(
     h1 = Flx_gcd(f, g, p);
     if (degpol(h1) != 1) break; /* Error */
     h11 = Flx_coeff(h1, 1);
-    h10 = Flx_coeff(h1, 0); avma = av;
+    h10 = Flx_coeff(h1, 0); set_avma(av);
 
     f = Flm_Fl_polmodular_evalx(Phi2, L2, V[i2], p, pi);
     g = Flm_Fl_polmodular_evalx(Phi1, L1, W[j2], p, pi);
@@ -533,7 +533,7 @@ surface_gcd_cycle(
     h2 = Flx_gcd(f, g, p);
     if (degpol(h2) != 1) break; /* Error */
     h21 = Flx_coeff(h2, 1);
-    h20 = Flx_coeff(h2, 0); avma = av;
+    h20 = Flx_coeff(h2, 0); set_avma(av);
 
     i1++; i2--; if (i2 < 0) i2 = n-1;
     j1++; j2--; if (j2 < 0) j2 = n-1;
@@ -551,7 +551,7 @@ surface_gcd_cycle(
    * If we break early because of an error, then (j2 - (j1+1)) > 0 is the
    * number of elements we haven't calculated yet, and we return n minus that
    * quantity */
-  avma = av; return n - j2 + (j1 + 1);
+  set_avma(av); return n - j2 + (j1 + 1);
 }
 
 static long
@@ -576,9 +576,9 @@ surface_gcd_path(
     d = Flx_gcd(f, g, p);
     if (degpol(d) != 1) break; /* Error */
     W[j] = Flx_deg1_root(d, p);
-    i++; j++; avma = av;
+    i++; j++; set_avma(av);
   }
-  avma = av; return j;
+  set_avma(av); return j;
 }
 
 /* Given a path V of length n on an L1-volcano, and W[0] L2-isogenous to V[0],
@@ -653,8 +653,8 @@ enum_roots(ulong J0, norm_eqn_t ne, GEN fdb, classgp_pcp_t G)
 
   t = surface_path(roots, n[0], gel(Phi, 0), L[0], h[0], J0, NULL, p, pi);
   /* Error: J0 has bad endo ring */
-  if (t < n[0]) { avma = ltop; return NULL; }
-  if (k == 1) { avma = av; setlg(roots_, t + 1); return roots_; }
+  if (t < n[0]) { set_avma(ltop); return NULL; }
+  if (k == 1) { set_avma(av); setlg(roots_, t + 1); return roots_; }
 
   i = 1;
   while (i < k) {
@@ -693,6 +693,6 @@ enum_roots(ulong J0, norm_eqn_t ne, GEN fdb, classgp_pcp_t G)
     for (i = 1; i < k && e[i] == n[i]-1; i++);
   }
   /* Check if J0 had wrong endo ring */
-  if (t != N) { avma = ltop; return NULL; }
-  avma = av; setlg(roots_, t + 1); return roots_;
+  if (t != N) { set_avma(ltop); return NULL; }
+  set_avma(av); setlg(roots_, t + 1); return roots_;
 }

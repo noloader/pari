@@ -51,7 +51,7 @@ invmod(GEN a, GEN b, GEN *res)
         { *res = absi(b); return 0; }
     }
     g = xgcduu(uel(b,2), d1, 1, &xv, &xv1, &s);
-    avma = av;
+    set_avma(av);
     if (g != 1UL) { *res = utoipos(g); return 0; }
     xv = xv1 % uel(b,2); if (s < 0) xv = uel(b,2) - xv;
     *res = utoipos(xv); return 1;
@@ -113,7 +113,7 @@ invmod(GEN a, GEN b, GEN *res)
      * gcd(d,d1) is nonzero and fits into one word
      */
     g = xxgcduu(uel(d,2), uel(d1,2), 1, &xu, &xu1, &xv, &xv1, &s);
-    if (g != 1UL) { avma = av; *res = utoipos(g); return 0; }
+    if (g != 1UL) { set_avma(av); *res = utoipos(g); return 0; }
     /* (From the xgcduu() blurb:)
      * For finishing the multiword modinv, we now have to multiply the
      * returned matrix  (with properly adjusted signs)  onto the values
@@ -123,10 +123,10 @@ invmod(GEN a, GEN b, GEN *res)
      */
     v = subii(muliu(v,xu1),muliu(v1,xv1));
     if (s > 0) setsigne(v,-signe(v));
-    avma = av; *res = modii(v,b); return 1;
+    set_avma(av); *res = modii(v,b); return 1;
   }
   /* get here when the final sprint was skipped (d1 was zero already) */
-  avma = av;
+  set_avma(av);
   if (!equalii(d,gen_1)) { *res = icopy(d); return 0; }
   *res = modii(v,b); return 1;
 }

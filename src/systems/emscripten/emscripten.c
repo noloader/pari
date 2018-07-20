@@ -58,7 +58,7 @@ emscripten_draw(PARI_plot *T, GEN w, GEN x, GEN y)
   EM_ASM(rawPrint=true);(void)T;
   pari_printf("<img src=\"data:image/svg+xml;charset=utf-8;base64,%Ps\">\n", svg);
   EM_ASM(rawPrint=false);
-  avma = av;
+  set_avma(av);
 }
 
 static long plot_width, plot_height;

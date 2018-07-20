@@ -60,7 +60,7 @@ ZX_divides_i(GEN x, GEN y, GEN B)
     for (j=0; j<=i && j<=dz; j++)
       p1 = subii(p1, mulii(gel(z,j),gel(y,i-j)));
     if (signe(p1)) return NULL;
-    avma = av;
+    set_avma(av);
   }
   return z - 2;
 }
@@ -270,7 +270,7 @@ nextK:
       if (!signe(y) || !dvdii(constant_coeff(lcpol), y))
       {
         if (DEBUGLEVEL>3) err_printf("T");
-        avma = av; goto NEXT;
+        set_avma(av); goto NEXT;
       }
       y = lc; /* full computation */
       for (i=1; i<=K; i++)
@@ -284,7 +284,7 @@ nextK:
       if (! (q = ZX_divides_i(lcpol,y,bound)) )
       {
         if (DEBUGLEVEL>3) err_printf("*");
-        avma = av; goto NEXT;
+        set_avma(av); goto NEXT;
       }
       /* found a factor */
       list = cgetg(K+1, t_VEC);
@@ -378,7 +378,7 @@ root_bound(GEN P0)
     pari_sp av = avma;
     /* y = 2^k; Q(y) >= lP y^d ? */
     if (cmpii(shifteval(Q,k), shifti(lP, d*k)) >= 0) break;
-    avma = av;
+    set_avma(av);
   }
   if (k < 0) k = 0;
   x = int2n(k);
@@ -607,7 +607,7 @@ AGAIN:
     if (i == r && ZM_equal(CM_L, oldCM_L))
     {
       CM_L = oldCM_L;
-      avma = av2; continue;
+      set_avma(av2); continue;
     }
 
     CM_Lp = FpM_image(CM_L, utoipos(27449)); /* inexpensive test */
@@ -718,7 +718,7 @@ pick_prime(GEN a, long fl, pari_timer *T)
   if (equali1(lead)) lead = NULL;
   u_forprime_init(&S, 2, ULONG_MAX);
   av1 = avma;
-  for (np = 0; np < MAXNP; avma = av1)
+  for (np = 0; np < MAXNP; set_avma(av1))
   {
     ulong p = u_forprime_next(&S);
     long nfacp;
@@ -749,7 +749,7 @@ pick_prime(GEN a, long fl, pari_timer *T)
     }
     np++;
   }
-  avma = av; return chosenp;
+  set_avma(av); return chosenp;
 }
 
 /* Assume A a squarefree ZX; return the vector of its rational roots */
@@ -890,7 +890,7 @@ ZX_squff(GEN f, GEN *ex)
     if (dW == degpol(V)) /* V | T */
     {
       GEN U;
-      if (!dW) { avma = av; break; }
+      if (!dW) { set_avma(av); break; }
       while ( (U = ZX_divides(T, V)) ) { k++; T = U; }
       T = gerepileupto(av, T);
     }
@@ -969,7 +969,7 @@ ZX_is_irred(GEN x)
   if (l == 4) return 1; /* degree 1 */
   if (ZX_val(x)) return 0;
   if (!ZX_is_squarefree(x)) return 0;
-  y = ZX_DDF(x); avma = av;
+  y = ZX_DDF(x); set_avma(av);
   return (lg(y) == 2);
 }
 
@@ -1008,7 +1008,7 @@ ZX_is_squarefree(GEN x)
     x = RgX_deflate(x, m);
   }
   d = ZX_gcd(x,ZX_deriv(x));
-  r = (lg(d) == 3); avma = av; return r;
+  r = (lg(d) == 3); set_avma(av); return r;
 }
 
 #if 0
@@ -1069,7 +1069,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     b = ZX_to_Flx(B, p); Hp = Flx_gcd(a,b, p);
     m = degpol(Hp);
     if (m == 0) { /* coprime. DONE */
-      avma = ltop;
+      set_avma(ltop);
       if (Anew) {
         if (valA != valX) A = RgX_shift(A, valA - valX);
         *Anew = A;
@@ -1134,7 +1134,7 @@ QX_gcd(GEN A0, GEN B0)
 
   D = ZX_gcd(Q_primitive_part(A0, &a), Q_primitive_part(B0, &b));
   av2 = avma; a = _gcd(a,b);
-  if (isint1(a)) avma = av2; else D = ZX_Q_mul(D, a);
+  if (isint1(a)) set_avma(av2); else D = ZX_Q_mul(D, a);
   return gerepileupto(av, D);
 }
 
@@ -1255,7 +1255,7 @@ polcyclofactors(GEN f)
     f = BD(ZX_radical(f));
     if (f) return gerepilecopy(av, f);
   }
-  avma = av; return cgetg(1,t_VEC);
+  set_avma(av); return cgetg(1,t_VEC);
 }
 
 /* return t*x mod T(x), T a monic ZX. Assume deg(t) < deg(T) */
@@ -1325,7 +1325,7 @@ BD_iscyclo(GEN f)
   if (degpol(f) == 1) return isint1(gel(f,2))? 2: 1;
   f1 = ZX_graeffe(f);
   /* f = product of Phi_n, n odd */
-  if (ZX_equal(f, f1)) { avma = av; return BD_odd_iscyclo(f); }
+  if (ZX_equal(f, f1)) { set_avma(av); return BD_odd_iscyclo(f); }
 
   fn = ZX_z_unscale(f, -1); /* f(-x) */
   /* f = product of Phi_n, n = 2 mod 4 */
@@ -1339,7 +1339,7 @@ BD_iscyclo(GEN f)
     c = BD_iscyclo(f2);
     return odd(c)? 0: 2*c;
   }
-  avma = av; return 0;
+  set_avma(av); return 0;
 }
 long
 poliscyclo(GEN f)
@@ -1369,5 +1369,5 @@ poliscycloprod(GEN f)
   }
   f = BD(f); if (!f) return 0;
   for (i = lg(f)-1; i; i--) d -= degpol(gel(f,i));
-  avma = av; return d == 0;
+  set_avma(av); return d == 0;
 }

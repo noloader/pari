@@ -468,7 +468,7 @@ _ratpoints_check_point(long a, long b, ratpoints_args *args, int *quit,
     }
     return 1;
   }
-  avma = av;
+  set_avma(av);
   return 0;
 }
 
@@ -965,7 +965,7 @@ sieving_info(ratpoints_args *args,
     is_f_square[p] = odd(degree) || mael(squares,pn,coeffs_mod_p[degree]+1);
 
     /* check if there are no solutions mod p */
-    if (np == 0 && !is_f_square[p]) { avma = av; return p; }
+    if (np == 0 && !is_f_square[p]) { set_avma(av); return p; }
 
     /* Fill arrays with info for p */
     if (np < p)
@@ -1072,7 +1072,7 @@ sieving_info(ratpoints_args *args,
   }
 
   if (fba + fdc == 0) args->flags &= ~RATPOINTS_CHECK_DENOM;
-  avma = av; return 0;
+  set_avma(av); return 0;
 }
 
 /**************************************************************************
@@ -1208,7 +1208,7 @@ sift(long b, ratpoints_bit_array *survivors, ratpoints_args *args,
       }
     }
   }
-  if (nb==0) avma = av;
+  if (nb==0) set_avma(av);
 }
 
 /**************************************************************************

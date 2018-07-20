@@ -1017,7 +1017,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
   /* copy result */
   Td = (GEN)av - 1; /* *Td = high word of final result */
   while (*Td == 0 && Te < Td) Td--; /* strip leading 0s */
-  k = Td - Te; if (!k) { avma = av; return gen_0; }
+  k = Td - Te; if (!k) { set_avma(av); return gen_0; }
   Td = (GEN)av - k; /* will write mantissa there */
   (void)memmove(Td, Te+1, k*sizeof(long));
   Td -= 2;

@@ -80,7 +80,7 @@ forparii(GEN a, GEN b, GEN code)
       set_lex(-1,a);
     }
   }
-  pop_lex(1);  avma = av0;
+  pop_lex(1);  set_avma(av0);
 }
 
 void
@@ -102,7 +102,7 @@ forpari(GEN a, GEN b, GEN code)
     }
     set_lex(-1, a);
   }
-  pop_lex(1); avma = ltop;
+  pop_lex(1); set_avma(ltop);
 }
 
 /* 0 < a <= b. Using small consecutive chunks to 1) limit memory use, 2) allow
@@ -113,7 +113,7 @@ forfactoredpos(ulong a, ulong b, GEN code)
   const ulong step = 1024;
   pari_sp av = avma;
   ulong x1;
-  for(x1 = a;; x1 += step, avma = av)
+  for(x1 = a;; x1 += step, set_avma(av))
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, lv, x2 = (b >= 2*step && b - 2*step >= x1)? x1-1 + step: b;
     GEN v = vecfactoru(x1, x2);
@@ -152,7 +152,7 @@ forsquarefreepos(ulong a, ulong b, GEN code)
   const ulong step = 1024;
   pari_sp av = avma;
   ulong x1;
-  for(x1 = a;; x1 += step, avma = av)
+  for(x1 = a;; x1 += step, set_avma(av))
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, lv, x2 = (b >= 2*step && b - 2*step >= x1)? x1-1 + step: b;
     GEN v = vecfactorsquarefreeu(x1, x2);
@@ -174,7 +174,7 @@ forsquarefreeneg(ulong a, ulong b, GEN code)
   const ulong step = 1024;
   pari_sp av = avma;
   ulong x2;
-  for(x2 = b;; x2 -= step, avma = av)
+  for(x2 = b;; x2 -= step, set_avma(av))
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, x1 = (x2 >= 2*step && x2-2*step >= a)? x2+1 - step: a;
     GEN v = vecfactorsquarefreeu(x1, x2);
@@ -201,7 +201,7 @@ forsquarefree(GEN a, GEN b, GEN code)
   push_lex(NULL,code);
   if (s < 0) forsquarefreeneg(itou(b), itou(a), code);
   else       forsquarefreepos(itou(a), itou(b), code);
-  pop_lex(1); avma = av;
+  pop_lex(1); set_avma(av);
 }
 
 /* convert factoru(n) to factor(-n); M pre-allocated factorization matrix
@@ -232,7 +232,7 @@ forfactoredneg(ulong a, ulong b, GEN code)
   E = cgetg(18, t_COL); gel(E,1) = gen_1;
   M = mkmat2(P,E);
   av = avma;
-  for(x2 = b;; x2 -= step, avma = av)
+  for(x2 = b;; x2 -= step, set_avma(av))
   { /* beware overflow, fuse last two bins (avoid a tiny remainder) */
     ulong j, x1 = (x2 >= 2*step && x2-2*step >= a)? x2+1 - step: a;
     GEN v = vecfactoru(x1, x2);
@@ -253,7 +253,7 @@ eval0(GEN code)
 {
   pari_sp av = avma;
   set_lex(-1, mkvec2(gen_0, mkmat2(mkcol(gen_0),mkcol(gen_1))));
-  closure_evalvoid(code); avma = av;
+  closure_evalvoid(code); set_avma(av);
   return loop_break();
 }
 void
@@ -278,7 +278,7 @@ forfactored(GEN a, GEN b, GEN code)
     if (!sa) stop = eval0(code);
     if (!stop && sb) forfactoredpos(sa? a[2]: 1UL, itou(b), code);
   }
-  pop_lex(1); avma = av;
+  pop_lex(1); set_avma(av);
 }
 void
 whilepari(GEN a, GEN b)
@@ -288,10 +288,10 @@ whilepari(GEN a, GEN b)
   {
     GEN res = closure_evalnobrk(a);
     if (gequal0(res)) break;
-    avma = av;
+    set_avma(av);
     closure_evalvoid(b); if (loop_break()) break;
   }
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -304,9 +304,9 @@ untilpari(GEN a, GEN b)
     closure_evalvoid(b); if (loop_break()) break;
     res = closure_evalnobrk(a);
     if (!gequal0(res)) break;
-    avma = av;
+    set_avma(av);
   }
-  avma = av;
+  set_avma(av);
 }
 
 static int negcmp(GEN x, GEN y) { return gcmp(y,x); }
@@ -349,7 +349,7 @@ forstep(GEN a, GEN b, GEN s, GEN code)
     }
     set_lex(-1,a);
   }
-  pop_lex(1); avma = av0;
+  pop_lex(1); set_avma(av0);
 }
 
 static void
@@ -363,7 +363,7 @@ _fordiv(GEN a, GEN code, GEN (*D)(GEN))
   {
     set_lex(-1,gel(t,i));
     closure_evalvoid(code); if (loop_break()) break;
-    avma = av2;
+    set_avma(av2);
   }
   pop_lex(1); avma=av;
 }
@@ -480,7 +480,7 @@ _next_lt_i(forvec_t *d)
         /* M[i] > M[i-1] >= a[i-1] */
         t = addiu(d->a[i-1],1); if (cmpii(t, d->m[i]) < 0) t = d->m[i];
         d->a[i] = resetloop(d->a[i], t);/*a[i]:=max(a[i-1]+1,m[i]) <= M[i]*/
-        avma = av;
+        set_avma(av);
       }
       return (GEN)d->a;
     }
@@ -606,14 +606,14 @@ forvec(GEN x, GEN code, long flag)
   pari_sp av = avma;
   forvec_t T;
   GEN v;
-  if (!forvec_init(&T, x, flag)) { avma = av; return; }
+  if (!forvec_init(&T, x, flag)) { set_avma(av); return; }
   push_lex((GEN)T.a, code);
   while ((v = forvec_next(&T)))
   {
     closure_evalvoid(code);
     if (loop_break()) break;
   }
-  pop_lex(1); avma = av;
+  pop_lex(1); set_avma(av);
 }
 
 /********************************************************************/
@@ -723,7 +723,7 @@ sumdivmultexpr(GEN num, GEN code)
   long i, l = lg(P);
   GEN (*mul)(GEN,GEN);
 
-  if (l == 1) { avma = av; return gen_1; }
+  if (l == 1) { set_avma(av); return gen_1; }
   push_lex(gen_0, code);
   mul = isint? mulii: gmul;
   for (i=1; i<l; i++)
@@ -846,7 +846,7 @@ prodeuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec)
   forprime_t T;
 
   av = avma;
-  if (!forprime_init(&T, a,b)) { avma = av; return x; }
+  if (!forprime_init(&T, a,b)) { set_avma(av); return x; }
 
   av = avma;
   while ( (prime = forprime_next(&T)) )
@@ -949,7 +949,7 @@ vecteursmall(GEN nmax, GEN code)
   {
     c[2] = i;
     y[i] = gtos(closure_evalnobrk(code));
-    avma = av;
+    set_avma(av);
     set_lex(-1,c);
   }
   pop_lex(1); return y;
@@ -1683,10 +1683,10 @@ laurentseries(void *E, GEN (*f)(void*,GEN x, long), long M, long v, long prec)
     s = f(E, s, prec);
     if (typ(s) != t_SER || varn(s) != v) pari_err_TYPE("laurentseries", s);
     vr = valp(s);
-    if (M < vr) { avma = av; return zeroser(v, M); }
+    if (M < vr) { set_avma(av); return zeroser(v, M); }
     dr = lg(s) + vr - 3 - M;
     if (dr >= 0) return gerepileupto(av, s);
-    avma = av; d -= dr;
+    set_avma(av); d -= dr;
   }
 }
 static GEN

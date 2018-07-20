@@ -160,7 +160,7 @@ random_form(struct buch_quad *B, GEN ex,
   {
     for (i=1; i<l; i++) ex[i] = random_bits(RANDOM_BITS);
     if ((F = init_form(B, ex, comp))) return F;
-    avma = av;
+    set_avma(av);
   }
 }
 static GEN
@@ -358,7 +358,7 @@ is_bad(GEN D, ulong p)
     return (r < 4);
   }
   r = dvdii(D, sqru(p)); /* p^2 | D ? */
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 /* returns the n-th suitable ideal for the factorbase */
@@ -371,7 +371,7 @@ nthidealquad(GEN D, long n)
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)) && n > 0)
     if (!is_bad(D, p) && kroiu(D, p) >= 0) n--;
-  avma = av; return p;
+  set_avma(av); return p;
 }
 
 static int
@@ -453,7 +453,7 @@ FBquad(struct buch_quad *B, ulong C2, ulong C1, GRHcheck_t *S)
     B->badprim = gerepileuptoint(av, B->badprim);
   else
   {
-    B->badprim = NULL; avma = av;
+    B->badprim = NULL; set_avma(av);
   }
 }
 
@@ -485,7 +485,7 @@ subFBquad(struct buch_quad *B, GEN D, double PROD, long minSFB)
   for (j = 1; j < ino;i++,j++) B->vperm[i] = no[j];
   for (     ; i < lv; i++)     B->vperm[i] = i;
   no = gclone(vecslice(B->vperm, 1, lgsub-1));
-  avma = av; return no;
+  set_avma(av); return no;
 }
 
 /* assume n >= 1, x[i][j] = B->subFB[i]^j, for j = 1..n */
@@ -516,7 +516,7 @@ powsubFBquad(struct buch_quad *B, long n)
       for (j=2; j<=n; j++) gel(y,j) = qficomp(gel(y,j-1), F);
     }
   }
-  x = gclone(x); avma = av; return x;
+  x = gclone(x); set_avma(av); return x;
 }
 
 static void
@@ -623,7 +623,7 @@ imag_relations(struct buch_quad *B, long need, long *pc, ulong LIMC, GEN mat)
   for(;;)
   {
     if (s >= need) break;
-    avma = av;
+    set_avma(av);
     form = qfi_random(B,ex);
     form = qficomp(form, qfi_pf(B->QFR->D, B->FB[current]));
     nbtest++; fpc = factorquad(B,form,B->KC,LIMC);
@@ -693,7 +693,7 @@ imag_be_honest(struct buch_quad *B)
     if (fpc == 1) { nbtest=0; s++; }
     else
       if (++nbtest > 40) return 0;
-    avma = av;
+    set_avma(av);
   }
   return 1;
 }
@@ -723,7 +723,7 @@ real_relations(struct buch_quad *B, long need, long *pc, long lim, ulong LIMC, G
       first = 0;
       if (DEBUGLEVEL>2) dbg_all(&T, "initial", s, nbtest);
     }
-    avma = av; form = qfr3_random(B, ex);
+    set_avma(av); form = qfr3_random(B, ex);
     if (!first)
       form = QFR3_comp(form, qfr3_pf(B->QFR, B->FB[current]), B->QFR);
     av1 = avma;
@@ -878,7 +878,7 @@ real_be_honest(struct buch_quad *B)
       if (equalii(gel(F,1),gel(F0,1))
        && equalii(gel(F,2),gel(F0,2))) break;
     }
-    avma = av;
+    set_avma(av);
   }
   return 1;
 }
@@ -1037,7 +1037,7 @@ START:
     if (!FIRST) LIMC = bnf_increase_LIMC(LIMC,LIMCMAX);
     if (DEBUGLEVEL>2 && LIMC > LIMC0)
       err_printf("%s*** Bach constant: %f\n", FIRST?"":"\n", LIMC/LOGD2);
-    FIRST = 0; avma = av;
+    FIRST = 0; set_avma(av);
     if (BQ.subFB) gunclone(BQ.subFB);
     if (BQ.powsubFB) gunclone(BQ.powsubFB);
     clearhash(BQ.hashtab);

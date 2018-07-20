@@ -116,7 +116,7 @@ pariplot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
   {
     pari_sp av2 = avma;
     y[i] = gtodouble( READ_EXPR(code,x) );
-    avma = av2;
+    set_avma(av2);
     if (i == 1)
       ysml = ybig = y[1];
     else
@@ -126,7 +126,7 @@ pariplot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
     }
     x = addrr(x,dx);
   }
-  avma = av;
+  set_avma(av);
   if (ysmlu) ysml = gtodouble(ysmlu);
   if (ybigu) ybig = gtodouble(ybigu);
   diff = ybig - ysml;

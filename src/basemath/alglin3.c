@@ -350,12 +350,12 @@ extract0(GEN x, GEN l1, GEN l2)
   {
     if (typ(x) != t_MAT) pari_err_TYPE("extract",x);
     y = shallowextract(x,l2);
-    if (select_0(l1)) { avma = av; return zeromat(0, lg(y)-1); }
+    if (select_0(l1)) { set_avma(av); return zeromat(0, lg(y)-1); }
     if (lg(y) == 1 && lg(x) > 1)
     {
       if (!extract_selector_ok(lgcols(x), l1))
         pari_err_TYPE("vecextract [incorrect mask]", l1);
-      avma = av; return cgetg(1, t_MAT);
+      set_avma(av); return cgetg(1, t_MAT);
     }
     y = shallowextract(shallowtrans(y), l1);
     av2 = avma;
@@ -536,7 +536,7 @@ genindexselect(void *E, long (*f)(void* E, GEN x), GEN A)
   av = avma;
   for (i = lv = 1; i < l; i++) {
     if (f(E, gel(z,i))) v[lv++] = i;
-    avma = av;
+    set_avma(av);
   }
   clone_unlock_deep(A); fixlg(v, lv); return v;
 }
@@ -629,7 +629,7 @@ parselect(GEN C, GEN D, long flag)
   for (lv=1, i=1; i<l; i++)
     if (signe(gel(V,i))) W[lv++] = i;
   fixlg(W, lv);
-  avma = av;
+  set_avma(av);
   return flag? W: extract_copy(D, W);
 }
 

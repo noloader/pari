@@ -442,7 +442,7 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   }
   else
     get_cone_fuzz(tdom, &rho, &al);
-  A = gammavec_expo(d, gtodouble(vecsum(Vga))); avma = av;
+  A = gammavec_expo(d, gtodouble(vecsum(Vga))); set_avma(av);
   a = (A+k1+1) + (m-1)/c;
   if (fabs(a) < 1e-10) a = 0.;
   logC = c*M_LN2 - log(c)/2;
@@ -474,7 +474,7 @@ lfunthetacost0(GEN L, GEN tdom, long m, long bitprec)
     pari_sp av = avma;
     GEN ldata = lfunmisc_to_ldata_shallow(L);
     n = lfunthetacost(ldata, tdom? tdom: gen_1, m, bitprec);
-    avma = av;
+    set_avma(av);
   }
   return n;
 }
@@ -859,7 +859,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
     limt = minss(limt, lfunthetacost(ldata, t, m, bitprec));
   if (!limt)
   {
-    avma = ltop; S = real_0_bit(-bitprec);
+    set_avma(ltop); S = real_0_bit(-bitprec);
     if (!is_real_t(typ(t)) || !ldata_isreal(ldata))
       S = gerepilecopy(ltop, mkcomplex(S,S));
     return S;
@@ -1293,7 +1293,7 @@ lfuncost(GEN L, GEN dom, long der, long bitprec)
 
   parse_dom(k, dom, &S);
   lfunparams(ldata, der, bitprec, &S);
-  avma = av; return mkvecsmall2(S.nmax, S.Dmax);
+  set_avma(av); return mkvecsmall2(S.nmax, S.Dmax);
 }
 GEN
 lfuncost0(GEN L, GEN dom, long der, long bitprec)
@@ -1709,7 +1709,7 @@ lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
   else if (typ(res)==t_SER)
   {
     long v = valp(res);
-    if (v > m) { avma = ltop; return gen_0; }
+    if (v > m) { set_avma(ltop); return gen_0; }
     if (v >= 0)
       res = gmul(mysercoeff(res, m), mpfact(m));
     else
@@ -1854,7 +1854,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
         GEN T = gel(ldata_get_an(ldata), 2);
         GEN L = lfunzetakinit(T,zerovec(3),0,0,bitprec);
         long e = lfuncheckfeq(L,t0,bitprec);
-        avma = av; return e;
+        set_avma(av); return e;
       }
       v = lfunrootres(theta, bitprec);
       r = gel(v,1);
@@ -1870,7 +1870,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   w = gsub(w, eno);
   if (thetad) w = gdiv(w, eno); /* |eno| may be large in non-dual case */
   e = gexpo(w);
-  avma = av; return e;
+  set_avma(av); return e;
 }
 
 /*******************************************************************/
@@ -2000,7 +2000,7 @@ lfunrootno(GEN linit, long bitprec)
                   lfuntheta(thetad, t, 0, bitprec);
     vi= lfuntheta(linit, ginv(t), 0, bitprec);
     eno = get_eno(R,k,t,v,vi, vx, bitprec);
-    avma = av;
+    set_avma(av);
   }
   delete_var(); return ropm1(eno,prec);
 }
@@ -2140,7 +2140,7 @@ lfunorderzero(GEN lmisc, long m, long bitprec)
   k2 = gdivgs(stoi(k), 2);
   for (c = c0;; c += st)
     if (gexpo(lfun0(linit, k2, c, bitprec)) > G) break;
-  avma = ltop; return c;
+  set_avma(ltop); return c;
 }
 
 GEN
@@ -2468,11 +2468,11 @@ znchargauss(GEN G, GEN chi, GEN a, long bitprec)
     aF = gel(v,2);
     a1 = gel(v,3);
   }
-  if (!equalii(aF, bF)) { avma = av; return gen_0; }
+  if (!equalii(aF, bF)) { set_avma(av); return gen_0; }
   b0 = Z_radical(b1, &omb0);
   b2 = diviiexact(b1, b0);
   A = dvmdii(a1, b2, &r);
-  if (r != gen_0) { avma = av; return gen_0; }
+  if (r != gen_0) { set_avma(av); return gen_0; }
   B = gcdii(A,b0); faB = Z_factor(B); /* squarefree */
   S = eulerphi(mkvec2(B,faB));
   if (odd(omb0 + lg(gel(faB,1))-1)) S = negi(S); /* moebius(b0/B) * phi(B) */

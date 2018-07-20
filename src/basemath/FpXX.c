@@ -53,7 +53,7 @@ FpXX_red(GEN z, GEN p)
       pari_sp av = avma;
       c = FpX_red(zi,p);
       switch(lg(c)) {
-        case 2: avma = av; c = gen_0; break;
+        case 2: set_avma(av); c = gen_0; break;
         case 3: c = gerepilecopy(av, gel(c,2)); break;
       }
     }
@@ -436,7 +436,7 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
   }
   av0 = avma; dz = dx-dy;
   lead = gequal1(lead)? NULL: gclone(Fq_inv(lead,T,p));
-  avma = av0;
+  set_avma(av0);
   z = cgetg(dz+3,t_POL); z[1] = x[1];
   x += 2; y += 2; z += 2;
   for (dy1=dy-1; dy1>=0 && !signe(gel(y, dy1)); dy1--);
@@ -631,7 +631,7 @@ FpXQX_gcd_basecase(GEN a, GEN b, GEN T, GEN p)
     }
     av = avma; c = FpXQX_rem(a, b, T, p); a=b; b=c;
   }
-  avma = av; return a;
+  set_avma(av); return a;
 }
 
 GEN
@@ -977,7 +977,7 @@ FpXQX_divrem(GEN x, GEN S, GEN T, GEN p, GEN *pr)
     pari_sp tetpil, av = avma;
     ulong pp = to_FlxqX(x, y, T, p, &a, &b, &t);
     z = FlxqX_divrem(a, b, t, pp, pr);
-    if (pr == ONLY_DIVIDES && !z) { avma = av; return NULL; }
+    if (pr == ONLY_DIVIDES && !z) { set_avma(av); return NULL; }
     tetpil=avma;
     z = FlxX_to_ZXX(z);
     if (pr && pr != ONLY_DIVIDES && pr != ONLY_REM)

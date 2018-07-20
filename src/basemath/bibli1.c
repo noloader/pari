@@ -547,7 +547,7 @@ do_exhaustive(GEN P, GEN N, long x, GEN B)
   long j;
   RgX_even_odd(P, &Pe,&Po); av = avma;
   if (sol_OK(gel(P,2), N,B)) vecsmalltrunc_append(sol, 0);
-  for (j = 1; j <= x; j++, avma = av)
+  for (j = 1; j <= x; j++, set_avma(av))
   {
     GEN j2 = sqru(j), E = FpX_eval(Pe,j2,N), O = FpX_eval(Po,j2,N);
     if (sol_OK(addmuliu(E,O,j), N,B)) vecsmalltrunc_append(sol, j);
@@ -575,7 +575,7 @@ zncoppersmith(GEN P0, GEN N, GEN X, GEN B)
   }
   if (signe(X) < 0) pari_err_DOMAIN("zncoppersmith", "X", "<", gen_0, X);
   d = degpol(P0);
-  if (d == 0) { avma = av; return cgetg(1, t_VEC); }
+  if (d == 0) { set_avma(av); return cgetg(1, t_VEC); }
   if (d < 0) pari_err_ROOTS0("zncoppersmith");
   if (B && typ(B) != t_INT) B = gceil(B);
 
@@ -743,7 +743,7 @@ lindep_bit(GEN x, long bit)
 {
   pari_sp av = avma;
   GEN v, M = lindepfull_bit(x,bit);
-  if (!M) { avma = av; return cgetg(1, t_COL); }
+  if (!M) { set_avma(av); return cgetg(1, t_COL); }
   v = gel(M,1); setlg(v, lg(M));
   return gerepilecopy(av, v);
 }
@@ -943,7 +943,7 @@ seralgdep(GEN s, long p, long r)
       gel(v, r*n + m + 1) = c;
     }
   D = lindep_Xadic(v);
-  if (lg(D) == 1) { avma = av; return gen_0; }
+  if (lg(D) == 1) { set_avma(av); return gen_0; }
   v = cgetg(p+1, t_VEC);
   for (n = 0; n < p; n++)
     gel(v, n+1) = RgV_to_RgX(vecslice(D, r*n+1, r*n+r), vy);
@@ -1190,7 +1190,7 @@ forqfvec(void *E, long (*fun)(void *, GEN, GEN, double), GEN a, GEN BORNE)
   struct qfvec qv;
   forqfvec_init(&qv, a);
   forqfvec_i(E, fun, &qv, BORNE);
-  avma = av;
+  set_avma(av);
 }
 
 static long
@@ -1200,7 +1200,7 @@ _gp_forqf(void *E, GEN u, GEN x, double p/*unused*/)
   (void)p;
   set_lex(-1, ZM_zc_mul_canon(u, x));
   closure_evalvoid((GEN)E);
-  avma = av;
+  set_avma(av);
   return loop_break();
 }
 
@@ -1213,7 +1213,7 @@ forqfvec0(GEN a, GEN BORNE, GEN code)
   push_lex(gen_0, code);
   forqfvec_i((void*) code, &_gp_forqf, &qv, BORNE);
   pop_lex(1);
-  avma = av;
+  set_avma(av);
 }
 
 enum { min_ALL = 0, min_FIRST, min_VECSMALL, min_VECSMALL2 };
@@ -1249,7 +1249,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
     BORNE = gfloor(BORNE);
     if (typ(BORNE) != t_INT) pari_err_TYPE("minim0",BORNE);
     if (is_bigint(BORNE)) pari_err_PREC( "qfminim");
-    sBORNE = itos(BORNE); avma = av;
+    sBORNE = itos(BORNE); set_avma(av);
   }
   if (!STOCKMAX)
   {
@@ -1353,10 +1353,10 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
     { /* maxnorm < 0 : only look for minimal vectors */
       pari_sp av2 = avma;
       gnorme = roundr(dbltor(p));
-      if (cmpis(gnorme, sBORNE) >= 0) avma = av2;
+      if (cmpis(gnorme, sBORNE) >= 0) set_avma(av2);
       else
       {
-        sBORNE = itos(gnorme); avma = av1;
+        sBORNE = itos(gnorme); set_avma(av1);
         BOUND = sBORNE * (1+eps);
         L = new_chunk(maxrank+1);
         s = 0;
@@ -1394,7 +1394,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
   switch(flag)
   {
     case min_FIRST:
-      avma = av; return cgetg(1,t_VEC);
+      set_avma(av); return cgetg(1,t_VEC);
     case min_VECSMALL:
     case min_VECSMALL2:
       avma = (pari_sp)L; return L;
@@ -1505,7 +1505,7 @@ perf(GEN a)
   {
     GEN D, V, invp;
     L = gel(L, 3); l = lg(L);
-    if (l == 2) { avma = av; return gen_1; }
+    if (l == 2) { set_avma(av); return gen_1; }
 
     D = zero_zv(r);
     V = cgetg(r+1, t_VECSMALL);
@@ -1518,7 +1518,7 @@ perf(GEN a)
       long i, j, I;
       for (i = I = 1; i<=n; i++)
         for (j=i; j<=n; j++,I++) V[I] = x[i]*x[j];
-      if (!addcolumntomatrix(V,invp,D)) avma = av2;
+      if (!addcolumntomatrix(V,invp,D)) set_avma(av2);
       else if (++s == r) break;
     }
   }
@@ -1528,7 +1528,7 @@ perf(GEN a)
     L = fincke_pohst(a,NULL,-1, DEFAULTPREC, NULL);
     if (!L) pari_err_PREC("qfminim");
     L = gel(L, 3); l = lg(L);
-    if (l == 2) { avma = av; return gen_1; }
+    if (l == 2) { set_avma(av); return gen_1; }
     M = cgetg(l, t_MAT);
     for (k = 1; k < l; k++)
     {
@@ -1540,7 +1540,7 @@ perf(GEN a)
     }
     s = ZM_rank(M);
   }
- avma = av; return utoipos(s);
+ set_avma(av); return utoipos(s);
 }
 
 static GEN
@@ -1579,7 +1579,7 @@ mplessthan(GEN x, GEN y)
 {
   pari_sp av = avma;
   GEN z = mpsub(x, y);
-  avma = av;
+  set_avma(av);
   if (typ(z) == t_INT) return (signe(z) < 0);
   if (signe(z) >= 0) return 0;
   if (realprec(z) > LOWDEFAULTPREC) return 1;
@@ -1593,7 +1593,7 @@ mpgreaterthan(GEN x, GEN y)
 {
   pari_sp av = avma;
   GEN z = mpsub(x, y);
-  avma = av;
+  set_avma(av);
   if (typ(z) == t_INT) return (signe(z) > 0);
   if (signe(z) <= 0) return 0;
   if (realprec(z) > LOWDEFAULTPREC) return 1;
@@ -1634,7 +1634,7 @@ check_bound(GEN B, GEN xk, GEN yk, GEN zk, GEN vk)
 {
   pari_sp av = avma;
   int f = mpgreaterthan(norm_aux(xk,yk,zk,vk), B);
-  avma = av; return !f;
+  set_avma(av); return !f;
 }
 
 /* q(k-th canonical basis vector), where q is given in Cholesky form
@@ -1765,7 +1765,7 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
 
     av1 = avma;
     norme1 = norm_aux(gel(x,1),gel(y,1),gel(z,1),gel(v,1));
-    if (mpgreaterthan(norme1,borne1)) { avma = av1; continue; /* main */ }
+    if (mpgreaterthan(norme1,borne1)) { set_avma(av1); continue; /* main */ }
 
     norme1 = gerepileuptoleaf(av1,norme1);
     if (check)
@@ -1816,7 +1816,7 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
       imax = i;
       for (i=imin, s=0; i < imax; i++) gel(S2,++s) = gel(S,per[i]);
       for (i = 1; i <= s; i++) gel(S,i) = gel(S2,i);
-      avma = av2;
+      set_avma(av2);
       if (s) { borne2 = mulrr(borne1, alpha); checkcnt = 0; }
       if (!stockall) continue;
       if (s > stockmax/2) stockmax <<= 1;

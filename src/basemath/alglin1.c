@@ -171,7 +171,7 @@ gen_ker(GEN x, long deplin, void *E, const struct bb_field *ff)
       }
     }
   }
-  if (deplin) { avma = av0; return NULL; }
+  if (deplin) { set_avma(av0); return NULL; }
 
   tetpil=avma; y=cgetg(r+1,t_MAT);
   for (j=k=1; j<=r; j++,k++)
@@ -468,11 +468,11 @@ gen_matcolinvimage(GEN A, GEN y, void *E, const struct bb_field *ff)
 
   M = gen_ker(shallowconcat(A, y), 0, E, ff);
   i = lg(M) - 1;
-  if (!i) { avma = av; return NULL; }
+  if (!i) { set_avma(av); return NULL; }
 
   x = gel(M, i);
   t = gel(x, l);
-  if (ff->equal0(t)) { avma = av; return NULL; }
+  if (ff->equal0(t)) { set_avma(av); return NULL; }
 
   t = ff->neg(E, ff->inv(E, t));
   setlg(x, l);
@@ -494,14 +494,14 @@ gen_matinvimage(GEN A, GEN B, void *E, const struct bb_field *ff)
    * iff Y has at least nB columns and full rank. */
   nY = lg(x) - 1;
   nB = lg(B) - 1;
-  if (nY < nB) { avma = av; return NULL; }
+  if (nY < nB) { set_avma(av); return NULL; }
   nA = lg(A) - 1;
   Y = rowslice(x, nA + 1, nA + nB); /* nB rows */
   d = cgetg(nB + 1, t_VECSMALL);
   for (i = nB, j = nY; i >= 1; i--, j--) {
     for (; j >= 1; j--)
       if (!ff->equal0(gcoeff(Y, i, j))) { d[i] = j; break; }
-    if (!j) { avma = av; return NULL; }
+    if (!j) { set_avma(av); return NULL; }
   }
   /* reduce to the case Y square, upper triangular with 1s on diagonal */
   Y = vecpermute(Y, d);
@@ -1501,7 +1501,7 @@ Flm_deplin_echelon(GEN x, ulong p) {
   GEN R, Rc, C, C1, C2, s, v;
   long i, n = lg(x) - 1, r;
   r = Flm_echelon(Flm_transpose(x), &R, &C, p);
-  if (r == n) { avma = av; return NULL; }
+  if (r == n) { set_avma(av); return NULL; }
   Rc = indexcompl(R, n);
   i = Rc[1];
   C1 = rowpermute(C, R);
@@ -1546,7 +1546,7 @@ F2m_det(GEN x)
 {
   pari_sp av = avma;
   ulong d = F2m_det_sp(F2m_copy(x));
-  avma = av; return d;
+  set_avma(av); return d;
 }
 
 /* in place, destroy a, SMALL_ULONG(p) is TRUE */
@@ -1658,7 +1658,7 @@ Flm_det_i(GEN x, ulong p, long inplace) {
     d = Flm_det_CUP(x, p);
   else
     d = Flm_det_gauss(inplace? x: Flm_copy(x), p);
-  avma = av; return d;
+  set_avma(av); return d;
 }
 
 ulong
@@ -1711,7 +1711,7 @@ FpM_det(GEN a, GEN p)
   case 2: d = F2m_det_sp(a); break;
   default:d = Flm_det_sp(a,pp); break;
   }
-  avma = av; return utoi(d);
+  set_avma(av); return utoi(d);
 }
 
 /* Destroy x */
@@ -1799,7 +1799,7 @@ Flm_pivots_CUP(GEN x, ulong p, long *rr) {
   r = Flm_CUP(x, &R, &C, &U, &P, p);
   for(i = 1; i <= r; i++)
     d[P[i]] = R[i];
-  avma = av;
+  set_avma(av);
   *rr = n - r;
   return d;
 }
@@ -1862,7 +1862,7 @@ FpM_rank(GEN x, GEN p)
   pari_sp av = avma;
   long r;
   (void)FpM_gauss_pivot(x,p,&r);
-  avma = av; return lg(x)-1 - r;
+  set_avma(av); return lg(x)-1 - r;
 }
 
 long
@@ -1873,10 +1873,10 @@ Flm_rank(GEN x, ulong p)
   if (lg(x) - 1 >= Flm_CUP_LIMIT && nbrows(x) >= Flm_CUP_LIMIT) {
     GEN R, C;
     r = Flm_echelon(x, &R, &C, p);
-    avma = av; return r;
+    set_avma(av); return r;
   }
   (void) Flm_pivots(x, p, &r, 0);
-  avma = av; return lg(x)-1 - r;
+  set_avma(av); return lg(x)-1 - r;
 }
 
 long
@@ -1885,7 +1885,7 @@ F2m_rank(GEN x)
   pari_sp av = avma;
   long r;
   (void)F2m_gauss_pivot(F2m_copy(x),&r);
-  avma = av; return lg(x)-1 - r;
+  set_avma(av); return lg(x)-1 - r;
 }
 
 static GEN
@@ -1905,7 +1905,7 @@ FlxqM_pivots_CUP(GEN x, GEN T, ulong p, long *rr) {
   r = FlxqM_CUP(x, &R, &C, &U, &P, T, p);
   for(i = 1; i <= r; i++)
     d[P[i]] = R[i];
-  avma = av;
+  set_avma(av);
   *rr = n - r;
   return d;
 }
@@ -1933,10 +1933,10 @@ FlxqM_rank(GEN x, GEN T, ulong p)
   if (lg(x) - 1 >= FlxqM_CUP_LIMIT && nbrows(x) >= FlxqM_CUP_LIMIT) {
     GEN R, C;
     r = FlxqM_echelon(x, &R, &C, T, p);
-    avma = av; return r;
+    set_avma(av); return r;
   }
   (void) FlxqM_pivots(x, T, p, &r);
-  avma = av; return lg(x)-1 - r;
+  set_avma(av); return lg(x)-1 - r;
 }
 
 static GEN
@@ -2058,9 +2058,9 @@ F2xqM_gauss(GEN a, GEN b, GEN T)
   pari_sp av = avma;
   long n = lg(a)-1;
   GEN u;
-  if (!n || lg(b)==1) { avma = av; return cgetg(1, t_MAT); }
+  if (!n || lg(b)==1) { set_avma(av); return cgetg(1, t_MAT); }
   u = F2xqM_gauss_gen(a, b, T);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, u);
 }
 
@@ -2069,9 +2069,9 @@ F2xqM_inv(GEN a, GEN T)
 {
   pari_sp av = avma;
   GEN u;
-  if (lg(a) == 1) { avma = av; return cgetg(1, t_MAT); }
+  if (lg(a) == 1) { set_avma(av); return cgetg(1, t_MAT); }
   u = F2xqM_gauss_gen(a, matid_F2xqM(nbrows(a),T), T);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, u);
 }
 
@@ -2082,7 +2082,7 @@ F2xqM_F2xqC_gauss(GEN a, GEN b, GEN T)
   GEN u;
   if (lg(a) == 1) return cgetg(1, t_COL);
   u = F2xqM_gauss_gen(a, mkmat(b), T);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, gel(u,1));
 }
 
@@ -2151,7 +2151,7 @@ FqM_rank(GEN x, GEN T, GEN p)
   pari_sp av = avma;
   long r;
   (void)FqM_gauss_pivot(x,T,p,&r);
-  avma = av; return lg(x)-1 - r;
+  set_avma(av); return lg(x)-1 - r;
 }
 
 GEN
@@ -2305,7 +2305,7 @@ FlxqM_deplin_echelon(GEN x, GEN T, ulong p) {
   GEN R, Rc, C, C1, C2, s, v;
   long i, n = lg(x) - 1, r, sv = get_Flx_var(T);
   r = FlxqM_echelon(shallowtrans(x), &R, &C, T, p);
-  if (r == n) { avma = av; return NULL; }
+  if (r == n) { set_avma(av); return NULL; }
   Rc = indexcompl(R, n);
   i = Rc[1];
   C1 = rowpermute(C, R);
@@ -2379,7 +2379,7 @@ F2xqM_rank(GEN x, GEN T)
   pari_sp av = avma;
   long r;
   (void)F2xqM_gauss_pivot(x,T,&r);
-  avma = av; return lg(x)-1 - r;
+  set_avma(av); return lg(x)-1 - r;
 }
 /*******************************************************************/
 /*                                                                 */
@@ -2619,7 +2619,7 @@ RgM_inv_QM(GEN M)
   pari_sp av = avma;
   GEN den, cM, pM = Q_primitive_part(M, &cM);
   GEN b = ZM_inv(pM, &den);
-  if (!b) { avma = av; return NULL; }
+  if (!b) { set_avma(av); return NULL; }
   if (cM) den = gmul(den, cM);
   if (!gequal1(den)) b = ZM_Q_mul(b, ginv(den));
   return gerepileupto(av, b);
@@ -2654,7 +2654,7 @@ RgM_inv_FqM(GEN x, GEN pol, GEN p)
   GEN b, T = RgX_to_FpX(pol, p);
   if (signe(T) == 0) pari_err_OP("^",x,gen_m1);
   b = FqM_inv(RgM_to_FqM(x, T, p), T, p);
-  if (!b) { avma = av; return NULL; }
+  if (!b) { set_avma(av); return NULL; }
   return gerepileupto(av, FqM_to_mod(b, T, p));
 }
 
@@ -2744,7 +2744,7 @@ RgM_solve_basecase(GEN a, GEN b)
   pivot_fun pivot;
   GEN p, u, data;
 
-  avma = av;
+  set_avma(av);
 
   if (lg(a)-1 == 2 && nbrows(a) == 2) {
     /* 2x2 matrix, start by inverting a */
@@ -2840,7 +2840,7 @@ RgM_solve(GEN a, GEN b)
   GEN u;
   if (!b) return RgM_inv(a);
   u = typ(b)==t_MAT ? RgM_solve_fast(a, b): RgM_RgC_solve_fast(a, b);
-  if (!u) { avma = av; return u; }
+  if (!u) { set_avma(av); return u; }
   if (u != gen_0) return u;
   return RgM_solve_basecase(a, b);
 }
@@ -3085,8 +3085,8 @@ F2m_F2c_gauss(GEN a, GEN b)
 {
   pari_sp av = avma;
   GEN z = F2m_gauss(a, mkmat(b));
-  if (!z) { avma = av; return NULL; }
-  if (lg(z) == 1) { avma = av; return cgetg(1,t_VECSMALL); }
+  if (!z) { set_avma(av); return NULL; }
+  if (lg(z) == 1) { set_avma(av); return cgetg(1,t_VECSMALL); }
   return gerepileuptoleaf(av, gel(z,1));
 }
 
@@ -3263,7 +3263,7 @@ Flm_gauss(GEN a, GEN b, ulong p) {
     b = RgM_shallowcopy(b);
     x = Flm_gauss_sp(a, b, NULL, p);
   }
-  if (!x) { avma = av; return NULL; }
+  if (!x) { set_avma(av); return NULL; }
   return gerepileupto(av, x);
 }
 
@@ -3281,7 +3281,7 @@ Flm_inv_i(GEN a, ulong *detp, ulong p, long inplace) {
       a = RgM_shallowcopy(a);
     x = Flm_gauss_sp(a, b, detp, p);
   }
-  if (!x) { avma = av; return NULL; }
+  if (!x) { set_avma(av); return NULL; }
   return gerepileupto(av, x);
 }
 
@@ -3299,8 +3299,8 @@ GEN
 Flm_Flc_gauss(GEN a, GEN b, ulong p) {
   pari_sp av = avma;
   GEN z = Flm_gauss(a, mkmat(b), p);
-  if (!z) { avma = av; return NULL; }
-  if (lg(z) == 1) { avma = av; return cgetg(1,t_VECSMALL); }
+  if (!z) { set_avma(av); return NULL; }
+  if (lg(z) == 1) { set_avma(av); return cgetg(1,t_VECSMALL); }
   return gerepileuptoleaf(av, gel(z,1));
 }
 
@@ -3373,7 +3373,7 @@ FpM_gauss(GEN a, GEN b, GEN p)
   GEN u;
   if (lg(a) == 1 || lg(b)==1) return cgetg(1, t_MAT);
   u = FpM_gauss_i(a, b, p, &pp);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   switch(pp)
   {
   case 0: return gerepilecopy(av, u);
@@ -3390,7 +3390,7 @@ FpM_inv(GEN a, GEN p)
   GEN u;
   if (lg(a) == 1) return cgetg(1, t_MAT);
   u = FpM_gauss_i(a, NULL, p, &pp);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   switch(pp)
   {
   case 0: return gerepilecopy(av, u);
@@ -3408,7 +3408,7 @@ FpM_FpC_gauss(GEN a, GEN b, GEN p)
   GEN u;
   if (lg(a) == 1) return cgetg(1, t_COL);
   u = FpM_gauss_i(a, mkmat(b), p, &pp);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   switch(pp)
   {
   case 0: return gerepilecopy(av, gel(u,1));
@@ -3451,9 +3451,9 @@ FlxqM_gauss(GEN a, GEN b, GEN T, ulong p)
   pari_sp av = avma;
   long n = lg(a)-1;
   GEN u;
-  if (!n || lg(b)==1) { avma = av; return cgetg(1, t_MAT); }
+  if (!n || lg(b)==1) { set_avma(av); return cgetg(1, t_MAT); }
   u = FlxqM_gauss_i(a, b, T, p);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, u);
 }
 GEN
@@ -3461,9 +3461,9 @@ FlxqM_inv(GEN a, GEN T, ulong p)
 {
   pari_sp av = avma;
   GEN u;
-  if (lg(a) == 1) { avma = av; return cgetg(1, t_MAT); }
+  if (lg(a) == 1) { set_avma(av); return cgetg(1, t_MAT); }
   u = FlxqM_gauss_i(a, matid_FlxqM(nbrows(a),T,p), T,p);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, u);
 }
 GEN
@@ -3473,7 +3473,7 @@ FlxqM_FlxqC_gauss(GEN a, GEN b, GEN T, ulong p)
   GEN u;
   if (lg(a) == 1) return cgetg(1, t_COL);
   u = FlxqM_gauss_i(a, mkmat(b), T, p);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, gel(u,1));
 }
 
@@ -3493,7 +3493,7 @@ FqM_gauss(GEN a, GEN b, GEN T, GEN p)
   if (!T) return FpM_gauss(a,b,p);
   n = lg(a)-1; if (!n || lg(b)==1) return cgetg(1, t_MAT);
   u = FqM_gauss_gen(a,b,T,p);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, u);
 }
 GEN
@@ -3504,7 +3504,7 @@ FqM_inv(GEN a, GEN T, GEN p)
   if (!T) return FpM_inv(a,p);
   if (lg(a) == 1) return cgetg(1, t_MAT);
   u = FqM_gauss_gen(a,matid(nbrows(a)),T,p);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, u);
 }
 GEN
@@ -3515,7 +3515,7 @@ FqM_FqC_gauss(GEN a, GEN b, GEN T, GEN p)
   if (!T) return FpM_FpC_gauss(a,b,p);
   if (lg(a) == 1) return cgetg(1, t_COL);
   u = FqM_gauss_gen(a,mkmat(b),T,p);
-  if (!u) { avma = av; return NULL; }
+  if (!u) { set_avma(av); return NULL; }
   return gerepilecopy(av, gel(u,1));
 }
 
@@ -3585,7 +3585,7 @@ ZM_gauss(GEN a, GEN b0)
     GEN ni = gnorml2(gel(b, i));
     if (cmpii(nb, ni) < 0) nb = ni;
   }
-  if (!signe(nb)) { avma = av; return gcopy(b0); }
+  if (!signe(nb)) { set_avma(av); return gcopy(b0); }
   delta = gen_1; nmin = nb;
   for (i = 1; i <= n; i++)
   {
@@ -3608,7 +3608,7 @@ ZM_gauss(GEN a, GEN b0)
     if (C) break;
     elim -= expu(p);
     if (elim < 0) return NULL;
-    avma = av2;
+    set_avma(av2);
   }
   /* N.B. Our delta/lambda are SQUARES of those in the paper
    * log(delta lambda) / log p, where lambda is 3+sqrt(5) / 2,
@@ -3864,7 +3864,7 @@ QM_inv(GEN M)
   GEN den, cM, K;
   M = Q_primitive_part(M, &cM);
   K = ZM_inv(M, &den);
-  if (!K) { avma = av; return NULL; }
+  if (!K) { set_avma(av); return NULL; }
   cM = inv_content(mul_content(cM, den));
   if (cM) K = RgM_Rg_div(K, cM);
   return gerepileupto(av, K);
@@ -4006,7 +4006,7 @@ ZM_detmult(GEN A)
       gerepileall(av1, 2, &piv,&B); v = zerovec(m);
     }
   }
-  avma = av; return gen_0;
+  set_avma(av); return gen_0;
 }
 
 /* Reduce x modulo (invertible) y */
@@ -4068,8 +4068,8 @@ RgM_deplin_i(GEN x0)
     gel(d,k) = gel(ck,i);
     c[i] = k; l[k] = i; /* pivot d[k] in x[i,k] */
   }
-  if (k > nc) { avma = av; return NULL; }
-  if (k == 1) { avma = av; return scalarcol_shallow(gen_1,nc); }
+  if (k > nc) { set_avma(av); return NULL; }
+  if (k == 1) { set_avma(av); return scalarcol_shallow(gen_1,nc); }
   y = cgetg(nc+1,t_COL);
   gel(y,1) = gcopy(gel(ck, l[1]));
   for (D=gel(d,1),j=2; j<k; j++)
@@ -4113,16 +4113,16 @@ RgM_deplin_FpM(GEN x, GEN p)
   {
   case 0:
     x = FpM_ker_gen(x,p,1);
-    if (!x) { avma = av; return NULL; }
+    if (!x) { set_avma(av); return NULL; }
     x = FpC_center(x,p,shifti(p,-1));
     break;
   case 2:
     x = F2m_ker_sp(x,1);
-    if (!x) { avma = av; return NULL; }
+    if (!x) { set_avma(av); return NULL; }
     x = F2c_to_ZC(x); break;
   default:
     x = Flm_ker_sp(x,pp,1);
-    if (!x) { avma = av; return NULL; }
+    if (!x) { set_avma(av); return NULL; }
     x = Flv_center(x, pp, pp>>1);
     x = zc_to_ZC(x);
     break;
@@ -4141,7 +4141,7 @@ QM_deplin(GEN M)
   if (lgcols(M)==1) return col_ei(l, 1);
   M = shallowtrans(vec_Q_primpart(shallowtrans(M)));
   k = ZM_ker_i(M, 1);
-  if (lg(k)== 1) { avma = av; return NULL; }
+  if (lg(k)== 1) { set_avma(av); return NULL; }
   return gerepilecopy(av, gel(k,1));
 }
 
@@ -4334,7 +4334,7 @@ ZM_pivots(GEN M0, long *rr)
   {
     GEN row, col, M, KM, IM, RHS, X, cX;
     long rk;
-    for (av = avma, i = 0;; avma = av, i++)
+    for (av = avma, i = 0;; set_avma(av), i++)
     {
       ulong p = u_forprime_next(&S);
       long rp;
@@ -4366,7 +4366,7 @@ ZM_pivots(GEN M0, long *rr)
       d = vecsmall_copy(dbest);
       goto END;
     }
-    avma = av;
+    set_avma(av);
   }
 END:
   *rr = rbest; if (dbest) gunclone(dbest);
@@ -4549,7 +4549,7 @@ imagecompl_aux(GEN x, GEN(*PIVOT)(GEN,long*))
   if (typ(x)!=t_MAT) pari_err_TYPE("imagecompl",x);
   (void)new_chunk(lg(x) * 4 + 1); /* HACK */
   d = PIVOT(x,&r); /* if (!d) then r = 0 */
-  avma = av; y = cgetg(r+1,t_VECSMALL);
+  set_avma(av); y = cgetg(r+1,t_VECSMALL);
   for (i=j=1; j<=r; i++)
     if (!d[i]) y[j++] = i;
   return y;
@@ -4572,16 +4572,16 @@ FpM_FpC_invimage(GEN A, GEN y, GEN p)
     A = ZM_to_Flm(A, pp);
     y = ZV_to_Flv(y, pp);
     x = Flm_Flc_invimage(A,y,pp);
-    if (!x) { avma = av; return NULL; }
+    if (!x) { set_avma(av); return NULL; }
     return gerepileupto(av, Flc_to_ZC(x));
   }
   if (l==1) return NULL;
   if (lg(y) != lgcols(A)) pari_err_DIM("FpM_FpC_invimage");
   M = FpM_ker(shallowconcat(A,y),p);
-  i = lg(M)-1; if (!i) { avma = av; return NULL; }
+  i = lg(M)-1; if (!i) { set_avma(av); return NULL; }
 
   x = gel(M,i); t = gel(x,l);
-  if (!signe(t)) { avma = av; return NULL; }
+  if (!signe(t)) { set_avma(av); return NULL; }
 
   setlg(x,l); t = Fp_inv(negi(t),p);
   if (is_pm1(t)) return gerepilecopy(av, x);
@@ -4600,10 +4600,10 @@ Flm_Flc_invimage(GEN A, GEN y, ulong p)
   M = cgetg(l+1,t_MAT);
   for (i=1; i<l; i++) gel(M,i) = gel(A,i);
   gel(M,l) = y; M = Flm_ker(M,p);
-  i = lg(M)-1; if (!i) { avma = av; return NULL; }
+  i = lg(M)-1; if (!i) { set_avma(av); return NULL; }
 
   x = gel(M,i); t = x[l];
-  if (!t) { avma = av; return NULL; }
+  if (!t) { set_avma(av); return NULL; }
 
   setlg(x,l); t = Fl_inv(Fl_neg(t,p),p);
   if (t!=1) x = Flv_Fl_mul(x, t, p);
@@ -4621,10 +4621,10 @@ F2m_F2c_invimage(GEN A, GEN y)
   M = cgetg(l+1,t_MAT);
   for (i=1; i<l; i++) gel(M,i) = gel(A,i);
   gel(M,l) = y; M = F2m_ker(M);
-  i = lg(M)-1; if (!i) { avma = av; return NULL; }
+  i = lg(M)-1; if (!i) { set_avma(av); return NULL; }
 
   x = gel(M,i);
-  if (!F2v_coeff(x,l)) { avma = av; return NULL; }
+  if (!F2v_coeff(x,l)) { set_avma(av); return NULL; }
   F2v_clear(x, x[1]); x[1]--; /* remove last coord */
   return gerepileuptoleaf(av, x);
 }
@@ -4676,14 +4676,14 @@ RgM_RgC_invimage(GEN A, GEN y)
   if (l==1) return NULL;
   if (lg(y) != lgcols(A)) pari_err_DIM("inverseimage");
   M = RgM_RgC_invimage_fast(A, y);
-  if (!M) {avma = av; return NULL; }
+  if (!M) {set_avma(av); return NULL; }
   if (M != gen_0) return M;
   M = ker(shallowconcat(A, y));
   i = lg(M)-1;
-  if (!i) { avma = av; return NULL; }
+  if (!i) { set_avma(av); return NULL; }
 
   x = gel(M,i); t = gel(x,l);
-  if (gequal0(t)) { avma = av; return NULL; }
+  if (gequal0(t)) { set_avma(av); return NULL; }
 
   t = gneg_i(t); setlg(x,l);
   return gerepileupto(av, RgC_Rg_div(x, t));
@@ -4791,7 +4791,7 @@ Flm_invimage(GEN A, GEN B, ulong p)
 {
   pari_sp av = avma;
   GEN X = Flm_invimage_i(A,B,p);
-  if (!X) { avma = av; return NULL; }
+  if (!X) { set_avma(av); return NULL; }
   return gerepileupto(av, X);
 }
 GEN
@@ -4799,7 +4799,7 @@ F2m_invimage(GEN A, GEN B)
 {
   pari_sp av = avma;
   GEN X = F2m_invimage_i(A,B);
-  if (!X) { avma = av; return NULL; }
+  if (!X) { set_avma(av); return NULL; }
   return gerepileupto(av, X);
 }
 static GEN
@@ -4840,7 +4840,7 @@ FpM_invimage(GEN A, GEN B, GEN p)
 {
   pari_sp av = avma;
   GEN X = FpM_invimage_i(A,B,p);
-  if (!X) { avma = av; return NULL; }
+  if (!X) { set_avma(av); return NULL; }
   return gerepileupto(av, X);
 }
 
@@ -4890,21 +4890,21 @@ RgM_invimage(GEN A, GEN B)
   GEN d, x, X, Y;
   long i, j, nY, nA = lg(A)-1, nB = lg(B)-1;
   X = RgM_invimage_fast(A, B);
-  if (!X) {avma = av; return NULL; }
+  if (!X) {set_avma(av); return NULL; }
   if (X != gen_0) return X;
   x = ker(shallowconcat(RgM_neg(A), B));
   /* AX = BY, Y in strict upper echelon form with pivots = 1.
    * We must find T such that Y T = Id_nB then X T = Z. This exists iff
    * Y has at least nB columns and full rank */
   nY = lg(x)-1;
-  if (nY < nB) { avma = av; return NULL; }
+  if (nY < nB) { set_avma(av); return NULL; }
   Y = rowslice(x, nA+1, nA+nB); /* nB rows */
   d = cgetg(nB+1, t_VECSMALL);
   for (i = nB, j = nY; i >= 1; i--, j--)
   {
     for (; j>=1; j--)
       if (!gequal0(gcoeff(Y,i,j))) { d[i] = j; break; }
-    if (!j) { avma = av; return NULL; }
+    if (!j) { set_avma(av); return NULL; }
   }
   /* reduce to the case Y square, upper triangular with 1s on diagonal */
   Y = vecpermute(Y, d);
@@ -4930,7 +4930,7 @@ get_suppl(GEN x, GEN d, long n, long r, GEN(*ei)(long,long))
     if (d[j]) { c[ d[j] ] = 1; gel(y,k++) = gel(x,j); }
   for (j=1; j<=n; j++)
     if (!c[j]) gel(y,k++) = (GEN)j; /* HACK */
-  avma = av;
+  set_avma(av);
 
   rx -= r;
   for (j=1; j<=rx; j++) gel(y,j) = gcopy(gel(y,j));
@@ -5015,7 +5015,7 @@ suppl(GEN x)
   if (M) return M;
   init_suppl(x);
   d = gauss_pivot(x,&r);
-  avma = av; return get_suppl(x,d,nbrows(x),r,&col_ei);
+  set_avma(av); return get_suppl(x,d,nbrows(x),r,&col_ei);
 }
 /* variable number to be filled in later */
 static GEN
@@ -5037,7 +5037,7 @@ F2xqM_suppl(GEN x, GEN T)
 
   init_suppl(x);
   d = F2xqM_gauss_pivot(x, T, &r);
-  avma = av;
+  set_avma(av);
   y = get_suppl(x, d, n, r, &_FlxC_ei);
   if (sv) {
     long i, j;
@@ -5058,7 +5058,7 @@ FlxqM_suppl(GEN x, GEN T, ulong p)
 
   init_suppl(x);
   d = FlxqM_gauss_pivot(x, T, p, &r);
-  avma = av;
+  set_avma(av);
   y = get_suppl(x, d, n, r, &_FlxC_ei);
   if (sv) {
     long i, j;
@@ -5080,7 +5080,7 @@ FqM_suppl(GEN x, GEN T, GEN p)
   if (!T) return FpM_suppl(x,p);
   init_suppl(x);
   d = FqM_gauss_pivot(x,T,p,&r);
-  avma = av; return get_suppl(x,d,nbrows(x),r,&col_ei);
+  set_avma(av); return get_suppl(x,d,nbrows(x),r,&col_ei);
 }
 
 GEN
@@ -5093,7 +5093,7 @@ image2(GEN x)
   if (typ(x)!=t_MAT) pari_err_TYPE("image2",x);
   if (lg(x) == 1) return cgetg(1,t_MAT);
   A = ker(x); k = lg(A)-1;
-  if (!k) { avma = av; return gcopy(x); }
+  if (!k) { set_avma(av); return gcopy(x); }
   A = suppl(A); n = lg(A)-1;
   B = cgetg(n-k+1, t_MAT);
   for (i = k+1; i <= n; i++) gel(B,i-k) = RgM_RgC_mul(x, gel(A,i));
@@ -5125,7 +5125,7 @@ RgM_rank_FpM(GEN x, GEN p)
   case 2: r = F2m_rank(x); break;
   default:r = Flm_rank(x,pp); break;
   }
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 static long
@@ -5136,7 +5136,7 @@ RgM_rank_FqM(GEN x, GEN pol, GEN p)
   GEN T = RgX_to_FpX(pol, p);
   if (signe(T) == 0) pari_err_OP("rank",x,pol);
   r = FqM_rank(RgM_to_FqM(x, T, p), T, p);
-  avma = av;
+  set_avma(av);
   return r;
 }
 
@@ -5170,7 +5170,7 @@ rank(GEN x)
   r = RgM_rank_fast(x);
   if (r >= 0) return r;
   (void)gauss_pivot(x, &r);
-  avma = av; return lg(x)-1 - r;
+  set_avma(av); return lg(x)-1 - r;
 }
 
 /* d a t_VECSMALL of integers in 1..n. Return the vector of the d[i]
@@ -5185,7 +5185,7 @@ perm_complete(GEN d, long n)
   for (i = 1; i < l; i++) T[d[i]] = 1;
   for (i = 1; i <= n; i++)
     if (T[i]) y[j++] = i; else y[k--] = i;
-  avma = av; return y;
+  set_avma(av); return y;
 }
 
 /* n = dim x, r = dim Ker(x), d from gauss_pivot */
@@ -5290,7 +5290,7 @@ indexrank(GEN x)
   av = avma;
   init_indexrank(x);
   d = gauss_pivot(x, &r);
-  avma = av; return indexrank0(lg(x)-1, r, d);
+  set_avma(av); return indexrank0(lg(x)-1, r, d);
 }
 
 GEN
@@ -5300,7 +5300,7 @@ FpM_indexrank(GEN x, GEN p) {
   GEN d;
   init_indexrank(x);
   d = FpM_gauss_pivot(x,p,&r);
-  avma = av; return indexrank0(lg(x)-1, r, d);
+  set_avma(av); return indexrank0(lg(x)-1, r, d);
 }
 
 GEN
@@ -5310,7 +5310,7 @@ Flm_indexrank(GEN x, ulong p) {
   GEN d;
   init_indexrank(x);
   d = Flm_pivots(x, p, &r, 0);
-  avma = av; return indexrank0(lg(x)-1, r, d);
+  set_avma(av); return indexrank0(lg(x)-1, r, d);
 }
 
 GEN
@@ -5320,7 +5320,7 @@ F2m_indexrank(GEN x) {
   GEN d;
   init_indexrank(x);
   d = F2m_gauss_pivot(F2m_copy(x),&r);
-  avma = av; return indexrank0(lg(x)-1, r, d);
+  set_avma(av); return indexrank0(lg(x)-1, r, d);
 }
 
 GEN
@@ -5330,7 +5330,7 @@ F2xqM_indexrank(GEN x, GEN T) {
   GEN d;
   init_indexrank(x);
   d = F2xqM_gauss_pivot(x, T, &r);
-  avma = av; return indexrank0(lg(x) - 1, r, d);
+  set_avma(av); return indexrank0(lg(x) - 1, r, d);
 }
 
 GEN
@@ -5340,7 +5340,7 @@ FlxqM_indexrank(GEN x, GEN T, ulong p) {
   GEN d;
   init_indexrank(x);
   d = FlxqM_gauss_pivot(x, T, p, &r);
-  avma = av; return indexrank0(lg(x) - 1, r, d);
+  set_avma(av); return indexrank0(lg(x) - 1, r, d);
 }
 
 GEN
@@ -5350,7 +5350,7 @@ FqM_indexrank(GEN x, GEN T, GEN p) {
   GEN d;
   init_indexrank(x);
   d = FqM_gauss_pivot(x, T, p, &r);
-  avma = av; return indexrank0(lg(x) - 1, r, d);
+  set_avma(av); return indexrank0(lg(x) - 1, r, d);
 }
 
 GEN
@@ -5360,14 +5360,14 @@ ZM_indeximage(GEN x) {
   GEN d;
   init_indexrank(x);
   d = ZM_pivots(x,&r);
-  avma = av; return indeximage0(lg(x)-1, r, d);
+  set_avma(av); return indeximage0(lg(x)-1, r, d);
 }
 long
 ZM_rank(GEN x) {
   pari_sp av = avma;
   long r;
   (void)ZM_pivots(x,&r);
-  avma = av; return lg(x)-1-r;
+  set_avma(av); return lg(x)-1-r;
 }
 GEN
 ZM_indexrank(GEN x) {
@@ -5376,7 +5376,7 @@ ZM_indexrank(GEN x) {
   GEN d;
   init_indexrank(x);
   d = ZM_pivots(x,&r);
-  avma = av; return indexrank0(lg(x)-1, r, d);
+  set_avma(av); return indexrank0(lg(x)-1, r, d);
 }
 
 long
@@ -5384,7 +5384,7 @@ QM_rank(GEN x)
 {
   pari_sp av = avma;
   long r = ZM_rank(Q_primpart(x));
-  avma = av;
+  set_avma(av);
   return r;
 }
 
@@ -5863,7 +5863,7 @@ RgMs_structelim_col(GEN M, long nbcol, long nbrow, GEN A, GEN *p_col, GEN *p_row
     for (i = nbcol; i>=imin && wcol[per[i]]>=w && rcol>rrow; i--)
       rem_col(gmael(M, per[i], 1), per[i], iscol, Wrow, &rcol, &rrow);
     rem_singleton(M, iscol, Wrow, &rcol, &rrow);
-    avma = av2;
+    set_avma(av2);
   }
   for (j = 1, i = 1; i <= nbcol; ++i)
     if (iscol[i])
@@ -5871,7 +5871,7 @@ RgMs_structelim_col(GEN M, long nbcol, long nbrow, GEN A, GEN *p_col, GEN *p_row
   setlg(pcol,j);
   for (k = 1, i = 1; i <= nbrow; ++i)
     prow[i] = Wrow[i] ? k++: 0;
-  avma = av;
+  set_avma(av);
   *p_col = pcol; *p_row = prow;
 }
 
@@ -5897,9 +5897,9 @@ RgM_is_symmetric_cx(GEN x, long bit)
     for (j = 1; j < i; j++)
     {
       GEN a = gcoeff(x,i,j), b = gcoeff(x,j,i), c = gsub(a,b);
-      if (!gequal0(c) && gexpo(c) - gexpo(a) > -bit) { avma = av; return 0; }
+      if (!gequal0(c) && gexpo(c) - gexpo(a) > -bit) { set_avma(av); return 0; }
     }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 static GEN
 eigen_err(GEN x, long prec, long flag)
@@ -5970,12 +5970,12 @@ mateigen(GEN x, long flag, long prec)
   {
     GEN F = ker_aux(RgM_Rg_sub_shallow(x, gel(R,k)), x);
     long d = lg(F)-1;
-    if (!d) { avma = av; return eigen_err(x, prec, flag); }
+    if (!d) { set_avma(av); return eigen_err(x, prec, flag); }
     gel(y,k) = F;
     if (flag) gel(R,k) = const_vec(d, gel(R,k));
   }
   y = shallowconcat1(y);
-  if (lg(y) > n) { avma = av; return eigen_err(x, prec, flag); }
+  if (lg(y) > n) { set_avma(av); return eigen_err(x, prec, flag); }
   /* lg(y) < n if x is not diagonalizable */
   if (flag) y = mkvec2(shallowconcat1(R), y);
   return gerepilecopy(av,y);
@@ -6233,10 +6233,10 @@ det_develop(GEN M, long max, double bound)
     pari_sp av2 = avma;
     GEN v = col_count_non_zero(M, j, max);
     long lv;
-    if (!v || (lv = lg(v)) >= lbest) { avma = av2; continue; }
-    if (lv == 1) { avma = av; return gen_0; }
+    if (!v || (lv = lg(v)) >= lbest) { set_avma(av2); continue; }
+    if (lv == 1) { set_avma(av); return gen_0; }
     if (lv == 2) {
-      avma = av;
+      set_avma(av);
       return gerepileupto(av, coeff_det(M,v[1],j,max,bound));
     }
     best = v; lbest = lv; best_col = j;
@@ -6246,10 +6246,10 @@ det_develop(GEN M, long max, double bound)
     pari_sp av2 = avma;
     GEN v = row_count_non_zero(M, i, max);
     long lv;
-    if (!v || (lv = lg(v)) >= lbest) { avma = av2; continue; }
-    if (lv == 1) { avma = av; return gen_0; }
+    if (!v || (lv = lg(v)) >= lbest) { set_avma(av2); continue; }
+    if (lv == 1) { set_avma(av); return gen_0; }
     if (lv == 2) {
-      avma = av;
+      set_avma(av);
       return gerepileupto(av, coeff_det(M,i,v[1],max,bound));
     }
     best = v; lbest = lv; best_row = i;
@@ -6319,7 +6319,7 @@ ZM_det_slice(GEN A, GEN P, GEN *mod)
     ulong Hp, p = uel(P,1);
     GEN a = ZM_to_Flm(A, p);
     Hp = Flm_det_sp(a, p);
-    avma = av;
+    set_avma(av);
     *mod = utoi(p); return utoi(Hp);
   }
   T = ZV_producttree(P);
@@ -6361,19 +6361,19 @@ ZM_det_i(GEN M, long n)
   if (n == 3) return ZM_det3(M);
   if (DEBUGLEVEL >=4) timer_start(&ti);
   h = RgM_Hadamard(M);
-  if (!signe(h)) { avma = av; return gen_0; }
+  if (!signe(h)) { set_avma(av); return gen_0; }
   h = sqrti(h); q = gen_1;
   init_modular_big(&S);
   p = 0; /* -Wall */
   while( cmpii(q, h) <= 0 && (p = u_forprime_next(&S)) )
   {
     av2 = avma; Dp = Flm_det_sp(ZM_to_Flm(M, p), p);
-    avma = av2;
+    set_avma(av2);
     if (Dp) break;
     q = muliu(q, p);
   }
   if (!p) pari_err_OVERFLOW("ZM_det [ran out of primes]");
-  if (!Dp) { avma = av; return gen_0; }
+  if (!Dp) { set_avma(av); return gen_0; }
   if (n <= DIXON_THRESHOLD)
     D = q;
   else
@@ -6415,7 +6415,7 @@ RgM_det_FpM(GEN a, GEN p)
   case 2: d = F2m_det(a); break;
   default:d = Flm_det_sp(a, pp); break;
   }
-  avma = av; return mkintmodu(d, pp);
+  set_avma(av); return mkintmodu(d, pp);
 }
 
 static GEN
@@ -6425,7 +6425,7 @@ RgM_det_FqM(GEN x, GEN pol, GEN p)
   GEN b, T = RgX_to_FpX(pol, p);
   if (signe(T) == 0) pari_err_OP("%",x,pol);
   b = FqM_det(RgM_to_FqM(x, T, p), T, p);
-  if (!b) { avma = av; return NULL; }
+  if (!b) { set_avma(av); return NULL; }
   return gerepilecopy(av, mkpolmod(FpX_to_mod(b, p), FpX_to_mod(T, p)));
 }
 

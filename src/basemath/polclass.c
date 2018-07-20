@@ -90,7 +90,7 @@ test_curve_order(norm_eqn_t ne, ulong a4, ulong a6,
         swapspec(n0, n1, N0, N1);
         swapped = 1; continue;
       }
-      avma = ltop; return 0;
+      set_avma(ltop); return 0;
     }
 
     m0 *= n_s;
@@ -100,11 +100,11 @@ test_curve_order(norm_eqn_t ne, ulong a4, ulong a6,
     for ( ; x <= hasse_high; x += m0)
       if ((x % m1) == a1 && x != N0 && x != N1) break;
     /* every x in N was either N0 or N1, so we return true */
-    if (x > hasse_high) { avma = ltop; return 1; }
+    if (x > hasse_high) { set_avma(ltop); return 1; }
 
     lswap(a4, a4t);
     lswap(a6, a6t);
-    lswap(m0, m1); avma = av;
+    lswap(m0, m1); set_avma(av);
   }
 }
 
@@ -765,9 +765,9 @@ find_j_inv_with_given_trace(
         found = 1; break;
       }
     }
-    avma = av;
+    set_avma(av);
   }
-  avma = ltop; return curves_tested;
+  set_avma(ltop); return curves_tested;
 }
 
 /*
@@ -789,7 +789,7 @@ next_generator(GEN DD, long D, ulong u, long filter, GEN *genred, long *P)
       /* If gen is in the principal class, skip it */
       *genred = redimag(gen);
       if (!equali1(gel(*genred,1))) { *P = (long)p; return gen; }
-      avma = av;
+      set_avma(av);
     }
   }
 }
@@ -880,7 +880,7 @@ evec_inverse(long e2[], const long e1[], const long n[], const long r[], long k)
     evec_reduce(e3, n, r, k);
   }
   evec_copy(e2, e4, k);
-  avma = av;
+  set_avma(av);
 }
 
 /* e1 and e2 may overlap */
@@ -913,7 +913,7 @@ evec_order(const long e[], const long n[], const long r[], long k)
     evec_reduce(f, n, r, k);
     o *= m;
   }
-  avma = av; return o;
+  set_avma(av); return o;
 }
 
 /* Computes orders o[] for each generator using relative orders n[]
@@ -930,7 +930,7 @@ evec_orders(long o[], const long n[], const long r[], long k)
     if (i) e[i - 1] = 0;
     o[i] = evec_order(e, n, r, k);
   }
-  avma = av;
+  set_avma(av);
 }
 
 INLINE int
@@ -1006,7 +1006,7 @@ upper_bound_on_classpoly_coeffs(long D, long h, GEN qfinorms)
     log2Mk = dbllog2r(mpadd(mpexp(divru(tmp, ak)), C));
     res += log2Mk;
     if (ak > maxak) { maxak = ak; log2Mh = log2Mk; }
-    avma = btop;
+    set_avma(btop);
   }
 
   Mk = pow(2.0, log2Mh);
@@ -1017,7 +1017,7 @@ upper_bound_on_classpoly_coeffs(long D, long h, GEN qfinorms)
   logbinom = (m > 0 && m < h)
     ? LOG2E * (logfac(h) - logfac(m) - logfac(h - m))
     : 0;
-  avma = ltop;
+  set_avma(ltop);
   return res + logbinom - m * log2Mh + 2.0;
 }
 
@@ -1039,20 +1039,20 @@ distinct_inverses(const long f[], const long ef[], const long ei[],
   for (j = i + 1; j < k; ++j) e2[j] = 0;
   evec_reduce(e2, n, r, k);
 
-  if (evec_equal(ef, e2, k)) { avma = av; return 0; }
+  if (evec_equal(ef, e2, k)) { set_avma(av); return 0; }
 
   e3 = new_chunk(k);
   evec_inverse_o(e3, ef, n, o, r, k);
-  if (evec_equal(e2, e3, k)) { avma = av; return 0; }
+  if (evec_equal(e2, e3, k)) { set_avma(av); return 0; }
 
   if (f) {
     evec_compose(e3, f, ei, n, r, k);
-    if (evec_equal(e2, e3, k)) { avma = av; return 0; }
+    if (evec_equal(e2, e3, k)) { set_avma(av); return 0; }
 
     evec_inverse_o(e3, e3, n, o, r, k);
-    if (evec_equal(e2, e3, k)) { avma = av; return 0; }
+    if (evec_equal(e2, e3, k)) { set_avma(av); return 0; }
   }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 INLINE long
@@ -1075,7 +1075,7 @@ next_prime_evec(long *qq, long f[], const long m[], long k,
   if (!he) pari_err_BUG("next_prime_evec");
   idx = itos((GEN) he->val);
   index_to_evec(f, idx, m, k);
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 /* Return 1 on success, 0 on failure. */
@@ -1141,7 +1141,7 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
     if (!he) pari_err_BUG("orient_pcp");
     *ni = itos((GEN) he->val);
   }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 /* We must avoid situations where L_i^{+/-2} = L_j^2 (or = L_0*L_j^2
@@ -1186,7 +1186,7 @@ classgp_pcp_check_generators(const long *n, long *r, long k, long L0)
       if (j == i) return i;
     }
   }
-  avma = av; return -1;
+  set_avma(av); return -1;
 }
 
 static void
@@ -1249,7 +1249,7 @@ classgp_make_pcp(
     v = const_vecsmall(1, 1);
     *height = upper_bound_on_classpoly_coeffs(D, h, v);
     /* NB: No need to set *ni when h = 1 */
-    avma = av; return;
+    set_avma(av); return;
   }
 
   DD = stoi(D);
@@ -1325,7 +1325,7 @@ classgp_make_pcp(
       pari_err_IMPL("classgp_pcp");
     else
       G->Lfilter *= L[i];
-    avma = bv;
+    set_avma(bv);
   }
 
   v = cgetg(h + 1, t_VECSMALL);
@@ -1345,7 +1345,7 @@ classgp_make_pcp(
   if (G->L0 && (G->L[0] != G->L0 || G->o[0] != 2))
     pari_err_BUG("classgp_pcp");
 
-  avma = av; return;
+  set_avma(av); return;
 }
 
 INLINE ulong
@@ -1354,7 +1354,7 @@ classno_wrapper(long D)
   pari_sp av = avma;
   GEN clsgp = quadclassunit0(stoi(D), 0, NULL, DEFAULTPREC);
   ulong h = itou(gel(clsgp, 1));
-  avma = av; return h;
+  set_avma(av); return h;
 }
 
 /*
@@ -1398,7 +1398,7 @@ hclassno_wrapper(long D, long h)
     hurwitz = (double) h;
   else
     hurwitz = rtodbl(gtofp(hclassno(utoi(abs_D)), DEFAULTPREC));
-  avma = av; return hurwitz;
+  set_avma(av); return hurwitz;
 }
 
 
@@ -1602,9 +1602,9 @@ oneroot_of_classpoly(
     else if (lvl_diff > 0)
       /* otherwise j's level is greater than v(u) so we descend */
       j = descend_volcano(phi, j, p, pi, jlvl, L, depth, lvl_diff);
-    avma = bv;
+    set_avma(bv);
   }
-  avma = av;
+  set_avma(av);
   /* At this point the probability that j has the wrong endomorphism
    * ring is about \sum_{p|u_compl} 1/p (and u_compl must be bigger
    * than L_bound, so pretty big), so just return it and rely on
@@ -1758,7 +1758,7 @@ polclass_roots_modp(
     if ( ! res && endo_cert) pari_err_BUG("polclass_roots_modp");
     if (res && ! endo_cert && vecsmall_isin_skip(res, res[1], 2))
     {
-      avma = av;
+      set_avma(av);
       res = NULL;
     }
   } while (!res);
@@ -1788,7 +1788,7 @@ verify_edge(ulong j0, ulong j1, ulong p, ulong pi, long L, GEN fdb)
   GEN phi = polmodular_db_getp(fdb, L, p);
   GEN f = Flm_Fl_polmodular_evalx(phi, L, j1, p, pi);
   ulong r = Flx_eval_pre(f, j0, p, pi);
-  avma = av; return !r;
+  set_avma(av); return !r;
 }
 
 INLINE long
@@ -1803,7 +1803,7 @@ verify_2path(
   GEN d = Flx_gcd(f, g, p);
   long n = degpol(d);
   if (n >= 2) n = Flx_nbroots(d, p);
-  avma = av; return n;
+  set_avma(av); return n;
 }
 
 static long
@@ -1874,7 +1874,7 @@ oriented_n_action(
   /* Orient representation of [N] relative to the torsor <signs, rels> */
   for (i = 0; i < k; ++i) e[i] = (signs[i] < 0 ? o[i] - ni[i] : ni[i]);
   evec_reduce(e, n, rels, k);
-  avma = av; return evec_to_index(e, m, k);
+  set_avma(av); return evec_to_index(e, m, k);
 }
 
 /* F = double_eta_raw(inv) */

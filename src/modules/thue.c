@@ -635,7 +635,7 @@ MiddleSols(GEN *pS, GEN bound, GEN roo, GEN P, GEN rhs, long s, GEN c1)
       av = avma;
       z = poleval(ZX_rescale(P,q), p); /* = P(p/q) q^dep(P) */
       Q = dvmdii(rhs, z, &R);
-      if (R != gen_0) { avma = av; continue; }
+      if (R != gen_0) { set_avma(av); continue; }
       setabssign(Q);
       if (Z_ispowerall(Q, d, &Q))
       {
@@ -722,7 +722,7 @@ SmallSols(GEN S, GEN x3, GEN poly, GEN rhs)
     for (j = l-2; j >= 2; j -= 2) togglesign( gel(P,j) );
     if (j == 0) gel(P,2) = subii(gel(P,2), rhs2);
     check_y_root(&S, P, utoineg(y));
-    if (lS == lg(S)) { avma = av2; continue; } /* no solution found */
+    if (lS == lg(S)) { set_avma(av2); continue; } /* no solution found */
 
     if (gc_needed(av,1))
     {
@@ -828,7 +828,7 @@ thueinit(GEN pol, long flag, long prec)
       if (( tnf = inithue(pol, bnf, flag, PREC) )) break;
       PREC = precdbl(PREC);
       if (DEBUGLEVEL>1) pari_warn(warnprec,"thueinit",PREC);
-      bnf = NULL; avma = av;
+      bnf = NULL; set_avma(av);
     }
   }
   else
@@ -1149,7 +1149,7 @@ START:
             !TrySol(&S, B0, i1, Delta2, Lambda, ro, Lmu, NE,MatFU,prinfo,
                     P,rhs))
           goto START;
-        if (lg(S) == lS) avma = av2;
+        if (lg(S) == lS) set_avma(av2);
       }
       else
       {
@@ -1279,11 +1279,11 @@ thue(GEN tnf, GEN rhs, GEN ne)
   /* solve P(x,y) = rhs <=> POL(L x, y) = C rhs, with POL monic in Z[X] */
   POL = gel(tnf,1);
   C = gel(POL,2); rhs = gmul(C, rhs);
-  if (typ(rhs) != t_INT) { avma = av; return cgetg(1, t_VEC); }
+  if (typ(rhs) != t_INT) { set_avma(av); return cgetg(1, t_VEC); }
   if (!signe(rhs))
   {
     GEN v = gel(tnf,2);
-    avma = av;
+    set_avma(av);
     /* at least 2 irreducible factors, one of which has degree 1 */
     if (typ(v) == t_VECSMALL && v[1] ==1)
       pari_err_DOMAIN("thue","#sols","=",strtoGENstr("oo"),rhs);
@@ -1294,7 +1294,7 @@ thue(GEN tnf, GEN rhs, GEN ne)
   if (lg(tnf) == 8)
   {
     if (!ne) ne = get_ne(tnf_get_bnf(tnf), rhs, tnf_get_Ind(tnf));
-    if (lg(ne) == 1) { avma = av; return cgetg(1, t_VEC); }
+    if (lg(ne) == 1) { set_avma(av); return cgetg(1, t_VEC); }
     S = LargeSols(POL, tnf, rhs, ne);
   }
   else if (typ(gel(tnf,3)) == t_REAL)
@@ -1311,7 +1311,7 @@ thue(GEN tnf, GEN rhs, GEN ne)
     }
     if (ne)
     {
-      if (lg(ne) == 1) { avma = av; return cgetg(1,t_VEC); }
+      if (lg(ne) == 1) { set_avma(av); return cgetg(1,t_VEC); }
       if (degpol(POL) == 2) /* quadratic imaginary */
       {
         GEN u = NULL;
@@ -1352,7 +1352,7 @@ thue(GEN tnf, GEN rhs, GEN ne)
   {
     GEN bnf, ne1 = NULL, ne2 = NULL;
     long e = itos( gel(tnf,3) );
-    if (!Z_ispowerall(rhs, e, &rhs)) { avma = av; return cgetg(1, t_VEC); }
+    if (!Z_ispowerall(rhs, e, &rhs)) { set_avma(av); return cgetg(1, t_VEC); }
     tnf = gel(tnf,2);
     bnf = tnf_get_bnf(tnf);
     ne = get_neabs(bnf, rhs, lg(tnf)==8?tnf_get_Ind(tnf): gen_1);
@@ -1450,7 +1450,7 @@ fix_partrel(struct sol_abs *T, long i)
   long k, l = lg(part1);
   for (k=1; k < l; k++)
     affii(addii(gel(part0,k), muliu(gel(rel,k), u)), gel(part1,k));
-  avma = av;
+  set_avma(av);
 }
 
 /* Recursive loop. Suppose u[1..i] has been filled
@@ -1502,7 +1502,7 @@ isintnorm_loop(struct sol_abs *T, long i)
     if (T->partrel) {
       pari_sp av = avma;
       gaffect(ZC_add(gel(T->partrel,i), gel(T->rel,i)), gel(T->partrel,i));
-      avma = av;
+      set_avma(av);
     }
   }
 }

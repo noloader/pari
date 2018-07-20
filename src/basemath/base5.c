@@ -146,7 +146,7 @@ rnfeltabstorel(GEN rnf,GEN x)
   }
   switch(lg(x))
   {
-    case 2: avma = av; return gen_0;
+    case 2: set_avma(av); return gen_0;
     case 3: return gerepilecopy(av, gel(x,2));
   }
 END:
@@ -620,7 +620,7 @@ rnfidealdown(GEN rnf,GEN x)
         GEN z, proj = obj_check(rnf,rnf_MAPS), ZK = gel(proj,1);
         long i, lz, l;
         x = idealhnf(NF,x);
-        if (lg(x) == 1) { avma = av; return cgetg(1,t_MAT); }
+        if (lg(x) == 1) { set_avma(av); return cgetg(1,t_MAT); }
         z = ZM_lll(shallowconcat(ZK,x), 0.99, LLL_KER);
         lz = lg(z); l = lg(ZK);
         for (i = 1; i < lz; i++) setlg(gel(z,i), l);
@@ -631,7 +631,7 @@ rnfidealdown(GEN rnf,GEN x)
     }
   }
   x = rnfidealhnf(rnf,x); I = gel(x,2);
-  if (lg(I) == 1) { avma = av; return cgetg(1,t_MAT); }
+  if (lg(I) == 1) { set_avma(av); return cgetg(1,t_MAT); }
   return gerepilecopy(av, gel(I,1));
 }
 
@@ -699,7 +699,7 @@ rnfidealtwoelement(GEN rnf, GEN x)
   y = matalgtobasis(NF, y); settyp(y, t_MAT);
   y = Q_primitive_part(y, &cy);
   y = ZM_hnf(y);
-  if (lg(y) == 1) { avma = av; return mkvec2(gen_0, gen_0); }
+  if (lg(y) == 1) { set_avma(av); return mkvec2(gen_0, gen_0); }
   y = idealtwoelt(NF, y);
   if (cy) y = RgV_Rg_mul(y, cy);
   z = gel(y,2);
@@ -714,7 +714,7 @@ rnfidealmul(GEN rnf,GEN x,GEN y)
   GEN nf, z, x1, x2, p1, p2, bas;
 
   y = rnfidealtwoelement(rnf,y);
-  if (isintzero(gel(y,1))) { avma = av; return rnfideal0(); }
+  if (isintzero(gel(y,1))) { set_avma(av); return rnfideal0(); }
   nf = rnf_get_nf(rnf);
   bas = rnf_get_zk(rnf);
   x = rnfidealhnf(rnf,x);
@@ -1709,7 +1709,7 @@ nfdetint(GEN nf, GEN x)
       gerepileall(av1,6, &det1,&piv,&pivprec,&pass,&v,&idprod);
     }
   }
-  if (!cm) { avma = av; return cgetg(1,t_MAT); }
+  if (!cm) { set_avma(av); return cgetg(1,t_MAT); }
   return gerepileupto(av, idealmul(nf,idprod,det1));
 }
 

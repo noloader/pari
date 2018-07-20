@@ -1210,7 +1210,7 @@ Flx_resultant_set_dglist(GEN a, GEN b, GEN dglist, ulong p)
     db = dc; /* = degpol(b) */
   }
   if (ind+1 > lg(dglist)) setlg(dglist,ind+1);
-  avma = av; return;
+  set_avma(av); return;
 }
 /* assuming the PRS finishes on a degree 1 polynomial C0 + C1X, with
  * "generic" degree sequence as given by dglist, set *Ci and return
@@ -1244,7 +1244,7 @@ Flx_resultant_all(GEN a, GEN b, long *C0, long *C1, GEN dglist, ulong p)
     lb = Fl_mul(b[db+2], cb, p);
     a = b; b = c; dc = degpol(c);
     ind++;
-    if (dc != dglist[ind]) { avma = av; return 0; } /* degenerates */
+    if (dc != dglist[ind]) { set_avma(av); return 0; } /* degenerates */
     if (g == h)
     { /* frequent */
       ulong cc = Fl_mul(ca, Fl_powu(Fl_div(lb,g,p), delta+1, p), p);
@@ -1279,7 +1279,7 @@ Flx_resultant_all(GEN a, GEN b, long *C0, long *C1, GEN dglist, ulong p)
   *C1 = Fl_mul(ca, a[3], p);
   res = Fl_mul(cb, b[2], p);
   if (s == -1) res = p - res;
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 /* Q a vector of polynomials representing B in Fp[X][Y], evaluate at X = x,
@@ -1371,7 +1371,7 @@ ZX_ZXY_ResBound(GEN A, GEN B, GEN dB)
   loga = dbllog2(a);
   logb = dbllog2(b); if (dB) logb -= 2 * dbllog2(dB);
   i = (long)((degpol(B) * loga + degpol(A) * logb) / 2);
-  avma = av; return (i <= 0)? 1: 1 + (ulong)i;
+  set_avma(av); return (i <= 0)? 1: 1 + (ulong)i;
 }
 
 /* return Res(a(Y), b(n,Y)) over Fp. la = leading_coeff(a) [for efficiency] */
@@ -1479,7 +1479,7 @@ FlxX_resultant(GEN u, GEN v, ulong p, long sx)
   for(;;)
   {
     r = FlxX_pseudorem(u,v,p); dr = lg(r);
-    if (dr == 2) { avma = av; return zero_Flx(sx); }
+    if (dr == 2) { set_avma(av); return zero_Flx(sx); }
     du = degpol(u); dv = degpol(v); degq = du-dv;
     u = v; p1 = g; g = leading_coeff(u);
     switch(degq)
@@ -1691,7 +1691,7 @@ ZX_ZXY_resultant_LERS(GEN A, GEN B0, long *plambda, GEN *LERS)
   /* make sure p large enough */
 INIT:
   /* always except the first time */
-  if (av2) { avma = av2; lambda = next_lambda(lambda); }
+  if (av2) { set_avma(av2); lambda = next_lambda(lambda); }
   if (lambda) B = RgX_translate(B0, monomial(stoi(lambda), 1, vY));
   B = swap_vars(B, vY); setvarn(B,v);
   /* B0(lambda v + x, v) */
@@ -1881,7 +1881,7 @@ ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
   dropa = degA - degpol(a);
   dropb = degB - degpol(b);
   if (dropa && dropb) /* p | lc(A), p | lc(B) */
-  { avma = av; return 0; }
+  { set_avma(av); return 0; }
   H = Flx_resultant(a, b, p);
   if (dropa)
   { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
@@ -1897,7 +1897,7 @@ ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
     if (c != 1) H = Fl_mul(H, c, p);
   }
   if (dp != 1) H = Fl_mul(H, Fl_powu(Fl_inv(dp,p), degA, p), p);
-  avma = av; return H;
+  set_avma(av); return H;
 }
 
 /* If B=NULL, assume B=A' */
@@ -1916,7 +1916,7 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod)
     GEN a, b;
     a = ZX_to_Flx(A, p), b = B ? ZX_to_Flx(B, p): NULL;
     Hp = ZX_resultant_prime(a, b, dB, degA, degB, p);
-    avma = av;
+    set_avma(av);
     *mod = utoi(p); return utoi(Hp);
   }
   T = ZV_producttree(P);
@@ -1976,7 +1976,7 @@ QX_resultant(GEN A0, GEN B0)
   A = Q_primitive_part(A0, &a);
   B = Q_primitive_part(B0, &b);
   s = ZX_resultant(A, B);
-  if (!signe(s)) { avma = av; return gen_0; }
+  if (!signe(s)) { set_avma(av); return gen_0; }
   if (a) s = gmul(s, gpowgs(a,degpol(B)));
   if (b) s = gmul(s, gpowgs(b,degpol(A)));
   return gerepileupto(av, s);
@@ -2339,7 +2339,7 @@ INIT:
     if (dp != 1) Hp = Flx_Fl_mul(Hp, Fl_powu(Fl_inv(dp,p), degA, p), p);
     if (!Flx_is_squarefree(Hp, p)) { lambda = next_lambda(lambda); goto INIT; }
     if (DEBUGLEVEL>4) err_printf("Final lambda = %ld\n", lambda);
-    avma = av; (void)delete_var(); return lambda;
+    set_avma(av); (void)delete_var(); return lambda;
   }
 }
 
@@ -2368,7 +2368,7 @@ ffinit_rand(GEN p,long n)
     pari_sp av = avma;
     GEN pol = ZX_add(pol_xn(n, 0), random_FpX(n-1,0, p));
     if (FpX_is_irred(pol, p)) return pol;
-    avma = av;
+    set_avma(av);
   }
 }
 
@@ -2665,7 +2665,7 @@ ffmap(GEN m, GEN x)
   checkmap(m, "ffmap");
   y = ffmap_i(m, x);
   if (y) return y;
-  avma = ltop; return cgetg(1,t_VEC);
+  set_avma(ltop); return cgetg(1,t_VEC);
 }
 
 static void

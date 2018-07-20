@@ -310,7 +310,7 @@ ok_elt(GEN x, GEN xZ, GEN y)
 {
   pari_sp av = avma;
   int r = ZM_equal(x, ZM_hnfmodid(y, xZ));
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 static GEN
@@ -362,7 +362,7 @@ get_random_a(GEN nf, GEN x, GEN xZ)
   setlg(mul, lm);
   setlg(beta,lm);
   z = cgetg(lm, t_VECSMALL);
-  for(av = avma;; avma = av)
+  for(av = avma;; set_avma(av))
   {
     for (a=NULL,i=1; i<lm; i++)
     {
@@ -612,7 +612,7 @@ idealHNF_factor_i(GEN nf, GEN x, GEN cx, GEN FA)
       GEN P = gel(L,j);
       pari_sp av = avma;
       v = idealHNF_val(x, P, Nval, Zval);
-      avma = av;
+      set_avma(av);
       Nval -= v*pr_get_f(P);
       v += vc * pr_get_e(P); if (!v) continue;
       gel(vP,k) = P;
@@ -802,10 +802,10 @@ idealispower(GEN nf, GEN A, long n, GEN *pB)
   if (n <= 0) pari_err_DOMAIN("idealispower", "n", "<=", gen_0, stoi(n));
   if (n == 1) { if (pB) *pB = idealhnf(nf,A); return 1; }
   v = idealnumden(nf,A);
-  if (gequal0(gel(v,1))) { avma = av; if (pB) *pB = cgetg(1,t_MAT); return 1; }
+  if (gequal0(gel(v,1))) { set_avma(av); if (pB) *pB = cgetg(1,t_MAT); return 1; }
   if (!idealsqrtn_int(nf, gel(v,1), n, pB? &N: NULL)) return 0;
   if (!idealsqrtn_int(nf, gel(v,2), n, pB? &D: NULL)) return 0;
-  if (pB) *pB = gerepileupto(av, idealdiv(nf,N,D)); else avma = av;
+  if (pB) *pB = gerepileupto(av, idealdiv(nf,N,D)); else set_avma(av);
   return 1;
 }
 
@@ -853,7 +853,7 @@ idealredmodpower(GEN nf, GEN x, ulong n, ulong B)
   if (!n) pari_err_DOMAIN("idealredmodpower","n", "=", gen_0, gen_0);
   x = idealnumden(nf, x);
   a = gel(x,1);
-  if (isintzero(a)) { avma = av; return gen_1; }
+  if (isintzero(a)) { set_avma(av); return gen_1; }
   a = idealredmodpower_i(nf, gel(x,1), n, B);
   b = idealredmodpower_i(nf, gel(x,2), n, B);
   if (!isint1(b)) a = nf_to_scalar_or_basis(nf, nfdiv(nf, a, b));
@@ -876,7 +876,7 @@ idealval(GEN nf, GEN A, GEN P)
   A = Q_primitive_part(A, &cA);
   p = pr_get_p(P);
   vcA = cA? Q_pval(cA,p): 0;
-  if (pr_is_inert(P)) { avma = av; return vcA; }
+  if (pr_is_inert(P)) { set_avma(av); return vcA; }
   Zval = Z_pval(gcoeff(A,1,1), p);
   if (!Zval) v = 0;
   else
@@ -884,7 +884,7 @@ idealval(GEN nf, GEN A, GEN P)
     long Nval = idealHNF_norm_pval(A, p, Zval);
     v = idealHNF_val(A, P, Nval, Zval);
   }
-  avma = av; return vcA? v + vcA*pr_get_e(P): v;
+  set_avma(av); return vcA? v + vcA*pr_get_e(P): v;
 }
 GEN
 gpidealval(GEN nf, GEN ix, GEN P)
@@ -918,7 +918,7 @@ idealadd(GEN nf, GEN x, GEN y)
   if (is_pm1(a))
   {
     long N = lg(x)-1;
-    if (!dz) { avma = av; return matid(N); }
+    if (!dz) { set_avma(av); return matid(N); }
     return gerepileupto(av, scalarmat(ginv(dz), N));
   }
   z = ZM_hnfmodid(shallowconcat(x,y), a);
@@ -2093,10 +2093,10 @@ isideal(GEN nf,GEN x)
   if (!ZM_ishnf(x)) return 0;
   xZ = gcoeff(x,1,1);
   for (j=2; j<=N; j++)
-    if (!dvdii(xZ, gcoeff(x,j,j))) { avma = av; return 0; }
+    if (!dvdii(xZ, gcoeff(x,j,j))) { set_avma(av); return 0; }
   for (i=2; i<=N; i++)
     for (j=2; j<=N; j++)
-      if (! hnf_invimage(x, zk_ei_mul(nf,gel(x,i),j))) { avma = av; return 0; }
+      if (! hnf_invimage(x, zk_ei_mul(nf,gel(x,i),j))) { set_avma(av); return 0; }
   avma=av; return 1;
 }
 
@@ -2141,7 +2141,7 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
   x = idealhnf_shallow(nf, x0);
   y = idealhnf_shallow(nf, y0);
   if (lg(y) == 1) pari_err_INV("idealdivexact", y0);
-  if (lg(x) == 1) { avma = av; return cgetg(1, t_MAT); } /* numerator is zero */
+  if (lg(x) == 1) { set_avma(av); return cgetg(1, t_MAT); } /* numerator is zero */
   y = Q_primitive_part(y, &cy);
   if (cy) x = RgM_Rg_div(x,cy);
   xZ = gcoeff(x,1,1); if (typ(xZ) != t_INT) err_divexact(x,y);
@@ -2151,7 +2151,7 @@ idealdivexact(GEN nf, GEN x0, GEN y0)
   if (typ(Nx) != t_INT) err_divexact(x,y);
   q = dvmdii(Nx,Ny, &r);
   if (signe(r)) err_divexact(x,y);
-  if (is_pm1(q)) { avma = av; return matid(nf_get_degree(nf)); }
+  if (is_pm1(q)) { set_avma(av); return matid(nf_get_degree(nf)); }
   /* Find a norm Nz | Ny such that gcd(Nx/Nz, Nz) = 1 */
   for (Nz = Ny;;) /* q = Nx/Nz */
   {
@@ -2185,7 +2185,7 @@ idealintersect(GEN nf, GEN x, GEN y)
   nf = checknf(nf);
   x = idealhnf_shallow(nf,x);
   y = idealhnf_shallow(nf,y);
-  if (lg(x) == 1 || lg(y) == 1) { avma = av; return cgetg(1,t_MAT); }
+  if (lg(x) == 1 || lg(y) == 1) { set_avma(av); return cgetg(1,t_MAT); }
   x = Q_remove_denom(x, &dx);
   y = Q_remove_denom(y, &dy);
   if (dx) y = ZM_Z_mul(y, dx);
@@ -2283,7 +2283,7 @@ RM_round_maxrank(GEN G0)
   {
     GEN H = ground(G);
     if (ZM_rank(H) == r) return H; /* maximal rank ? */
-    avma = av;
+    set_avma(av);
     G = gmul2n(G0, e);
   }
 }
@@ -2303,7 +2303,7 @@ idealred0(GEN nf, GEN I, GEN vdir)
   {
     case id_PRIME:
       if (pr_is_inert(I)) {
-        if (!aI) { avma = av; return matid(N); }
+        if (!aI) { set_avma(av); return matid(N); }
         c1 = gel(I,1); I = matid(N);
         goto END;
       }
@@ -2316,7 +2316,7 @@ idealred0(GEN nf, GEN I, GEN vdir)
       IZ = gcoeff(I,1,1);
       if (is_pm1(IZ))
       {
-        if (!aI) { avma = av; return matid(N); }
+        if (!aI) { set_avma(av); return matid(N); }
         goto END;
       }
       J = idealHNF_inv_Z(nf, I);
@@ -2761,7 +2761,7 @@ idealtwoelt2(GEN nf, GEN x, GEN a)
   if (lg(x) == 1)
   {
     if (!isintzero(a)) not_in_ideal(a);
-    avma = av; return gen_0;
+    set_avma(av); return gen_0;
   }
   x = Q_primitive_part(x, &cx);
   if (cx) a = gdiv(a, cx);

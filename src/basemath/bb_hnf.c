@@ -1198,7 +1198,7 @@ msolvemod0(GEN M, GEN D, GEN Y, long flag)
   if (!flag) return gaussmoduloall(M,D,Y,NULL);
   y = cgetg(3,t_VEC);
   x = gaussmoduloall(M,D,Y,&U);
-  if (x == gen_0) { avma = av; return gen_0; }
+  if (x == gen_0) { set_avma(av); return gen_0; }
   gel(y,1) = x;
   gel(y,2) = U; return y;
 

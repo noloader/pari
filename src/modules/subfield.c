@@ -98,7 +98,7 @@ calc_block(blockdata *B, GEN Z, GEN Y, GEN SB)
     {
       gel(Yp,lY) = Z;
       SB = print_block_system(B, Yp, SB);
-      avma = av;
+      set_avma(av);
     }
   }
   gel(Yp,lY) = Zp;
@@ -149,7 +149,7 @@ calc_block(blockdata *B, GEN Z, GEN Y, GEN SB)
       SB = calc_block(B, Zpp, Yp, SB);
     }
   }
-  avma = av0; return SB;
+  set_avma(av0); return SB;
 }
 
 /* product of permutations. Put the result in perm1. */
@@ -161,7 +161,7 @@ perm_mul_i(GEN perm1, GEN perm2)
   GEN perm = new_chunk(N);
   for (i=1; i<N; i++) perm[i] = perm1[perm2[i]];
   for (i=1; i<N; i++) perm1[i]= perm[i];
-  avma = av;
+  set_avma(av);
 }
 
 /* cy is a cycle; compute cy^l as a permutation */
@@ -182,7 +182,7 @@ cycle_power_to_perm(GEN perm,GEN cy,long l)
     for (i=1; i<N; i++) p1[i] = perm[i];
 
     for (j=2; j<=lp; j++) perm_mul_i(perm,p1);
-    avma = av;
+    set_avma(av);
   }
   return perm;
 }
@@ -268,7 +268,7 @@ print_block_system(blockdata *B, GEN Y, GEN SB)
       for (v=1; v<=t[u]; v++)
         perm_mul_i(perm, cycle_power_to_perm(cyperm, gmael(Z,u,v), e[u][v]));
     SB = test_block(B, SB, im_block_by_perm(D,perm));
-    avma = av;
+    set_avma(av);
 
     /* i = 1..ns, j = 1..t[i], e[i][j] loop through 0..k[i].
      * TODO: flatten to 1-dimensional loop */
@@ -531,7 +531,7 @@ choose_prime(primedata *S, GEN pol, GEN dpol)
   oldlcm = 0;
   oldff = oldn = NULL; pp = 0; /* gcc -Wall */
   av = avma;
-  for(k = 1; k < 11 || !oldlcm; k++,avma = av)
+  for(k = 1; k < 11 || !oldlcm; k++,set_avma(av))
   {
     if (k > 5 * N) pari_err_OVERFLOW("choose_prime [too many block systems]");
     do p = u_forprime_next(&T); while (!umodiu(dpol, p));
@@ -774,7 +774,7 @@ test_block(blockdata *B, GEN L, GEN D)
     L = gclone( L? shallowconcat(L, sub): sub );
     if (old) gunclone(old);
   }
-  avma = av; return L;
+  set_avma(av); return L;
 }
 
 /* subfields of degree d */
@@ -790,7 +790,7 @@ subfields_of_given_degree(blockdata *B)
   if (DEBUGLEVEL>9)
     err_printf("\nSubfields of degree %ld: %Ps\n", B->d, L? L: cgetg(1,t_VEC));
   if (isclone(B->DATA)) gunclone(B->DATA);
-  avma = av; return L;
+  set_avma(av); return L;
 }
 
 static GEN
@@ -925,7 +925,7 @@ nfsubfields(GEN nf, long d)
   choose_prime(&S, PD.pol, PD.dis);
   LSB = subfields_of_given_degree(&B);
   (void)delete_var(); /* from choose_prime */
-  avma = av;
+  set_avma(av);
   if (!LSB) return cgetg(1, t_VEC);
   G = gcopy(LSB); gunclone(LSB);
   return fix_var(G, v0);

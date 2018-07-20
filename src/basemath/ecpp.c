@@ -893,7 +893,7 @@ Dmbatch_factor_Dmqvec(GEN N, long expiN, GEN* X0, GEN Dmbatch, GEN param)
   /* B2: For each batch, remove cardinalities lower than (N^(1/4)+1)^2
    *     and cardinalities in which we didn't win enough bits */
   Dmqvec = Dmqvec_slice(N, Dmqvec);
-  if (!Dmqvec) { avma = av; return NULL; } /* nothing is left */
+  if (!Dmqvec) { set_avma(av); return NULL; } /* nothing is left */
   return gerepilecopy(av, Dmqvec);
 }
 
@@ -1072,7 +1072,7 @@ ecpp_step1(GEN N, GEN param, GEN* X0)
   pari_sp av = avma;
   long depth = 0;
   GEN downrun = N_downrun(N, param, X0, &depth, 1);
-  if (downrun == NULL) { avma = av; return NULL; }
+  if (downrun == NULL) { set_avma(av); return NULL; }
   return gerepilecopy(av, ecpp_flattencert(downrun, depth));
 }
 
@@ -1098,8 +1098,8 @@ ecpp0(GEN N, GEN param)
   X0 = mkvec3(Tv, Cv, zero_zv(1));
 
   step1 = ecpp_step1(N, param, &X0);
-  if (step1 == NULL) { avma = av; return NULL; }
-  if (typ(step1) != t_VEC) { avma = av; return gen_0; }
+  if (step1 == NULL) { set_avma(av); return NULL; }
+  if (typ(step1) != t_VEC) { set_avma(av); return gen_0; }
 
   answer = ecpp_step2(step1, &X0, ecpp_param_get_primelist(param));
 
@@ -1185,7 +1185,7 @@ isprimeECPP(GEN N)
   GEN res;
   if (!BPSW_psp(N)) return 0;
   res = ecpp(N);
-  avma = av; return !isintzero(res);
+  set_avma(av); return !isintzero(res);
 }
 
 /* PARI ECPP Certificate -> Human-readable format */
@@ -1392,7 +1392,7 @@ ecppisvalid(GEN cert)
 {
   pari_sp av = avma;
   long v = ecppisvalid_i(cert);
-  avma = av; return v;
+  set_avma(av); return v;
 }
 
 GEN

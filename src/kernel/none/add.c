@@ -229,7 +229,7 @@ addrr_sign(GEN x, long sx, GEN y, long sy)
       GEN p1 = x; x = new_chunk(lx + lz + 1);
       shift_right(x,p1,2,lx, 0,m);
       if (extend) uel(x,lx) = uel(p1,lx-1) << sh;
-      avma = av; /* HACK: cgetr(lz) will not overwrite x */
+      set_avma(av); /* HACK: cgetr(lz) will not overwrite x */
     }
   }
   else

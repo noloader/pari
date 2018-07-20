@@ -108,7 +108,7 @@ decimal_len(GEN N)
 {
   pari_sp av = avma;
   long d = strlen(itostr(N));
-  avma = av; return d;
+  set_avma(av); return d;
 }
 
 /* To be called after choosing k and putting kN into the handle:
@@ -387,7 +387,7 @@ mpqs_find_k(mpqs_handle_t *h)
     double v = cache[0].value;
     for (i = 1; i < nbk; i++)
       if (cache[i].value > v) { best_i = i; v = cache[i].value; }
-    h->_k = cache[best_i]._k; avma = av; return 0;
+    h->_k = cache[best_i]._k; set_avma(av); return 0;
   }
 }
 
@@ -468,7 +468,7 @@ mpqs_create_FB(mpqs_handle_t *h, ulong *f)
       }
     }
   }
-  avma = av;
+  set_avma(av);
   if (MPQS_DEBUGLEVEL >= 7)
   {
     err_printf("MPQS: FB [-1,2");
@@ -890,7 +890,7 @@ mpqs_sort_lp_file(char *filename)
   if (fgets(cur_line, bufspace, TMP) == NULL)
   { /* file empty */
     pari_free(buf); pari_fclose(pTMP);
-    avma = av; return 0;
+    set_avma(av); return 0;
   }
   /* enter first buffer into buflist */
   *buflist++ = buf; /* can't overflow the buflist block */
@@ -1006,7 +1006,7 @@ mpqs_sort_lp_file(char *filename)
       buflist = buflist_head + buflist_size;
     }
   }
-  avma = av; return count;
+  set_avma(av); return count;
 }
 
 /* appends contents of file fp1 to f (auxiliary routine for merge sort) and
@@ -1548,7 +1548,7 @@ mpqs_self_init(mpqs_handle_t *h)
   ulong p;
 
 #ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: enter self init, avma = 0x%lX\n", (ulong)avma);
+  err_printf("MPQS DEBUG: enter self init, set_avma(0x)%lX\n", (ulong)avma);
 #endif
 
   /* when all of the B's have already been used, choose new A ;
@@ -1585,7 +1585,7 @@ mpqs_self_init(mpqs_handle_t *h)
       p = (ulong) MPQS_AP(i);
       p1 = p1 ? muliu(p1, p): utoipos(p);
     }
-    affii(p1, A); avma = av;
+    affii(p1, A); set_avma(av);
 
     /* Compute H[i], 0 <= i < omega_A.  Also compute the initial
      * B = sum(v_i*H[i]), by taking all v_i = +1 */
@@ -1602,7 +1602,7 @@ mpqs_self_init(mpqs_handle_t *h)
       p2 = p2 ? addii(p2, MPQS_H(i)) : MPQS_H(i);
     }
     affii(p2, B);
-    avma = av;                  /* must happen outside the loop */
+    set_avma(av);                  /* must happen outside the loop */
 
     /* ensure B = 1 mod 4 */
     if (mod2(B) == 0)
@@ -1689,7 +1689,7 @@ mpqs_self_init(mpqs_handle_t *h)
     }
     affii(p1, B);
   }
-  avma = av;
+  set_avma(av);
 
   /* p=2 is a special case.  start1[2], start2[2] are never looked at,
    * so don't bother setting them. */
@@ -1716,7 +1716,7 @@ mpqs_self_init(mpqs_handle_t *h)
                (long) h->index_j, h->A,
                signe(h->B) < 0? '-': '+', absi_shallow(h->B));
 
-  avma = av;
+  set_avma(av);
 
 #ifdef MPQS_DEBUG
   /* stash C into the handle.  Since check_root() is the only thing which
@@ -1726,14 +1726,14 @@ mpqs_self_init(mpqs_handle_t *h)
   for (j = 3; j <= size_of_FB; j++)
   {
     check_root(h, FB[j].fbe_p, FB[j].fbe_start1);
-    check_root(h, FB[j].fbe_p, FB[j].fbe_start2); avma = av;
+    check_root(h, FB[j].fbe_p, FB[j].fbe_start2); set_avma(av);
   }
   if (DEBUGLEVEL >= 6)
     PRINT_IF_VERBOSE("MPQS: checking of roots of Q(x) was successful\n");
 #endif
 
 #ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: leave self init, avma = 0x%lX\n", (ulong)avma);
+  err_printf("MPQS DEBUG: leave self init, set_avma(0x)%lX\n", (ulong)avma);
 #endif
 }
 
@@ -1890,9 +1890,9 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 
   av = avma;
 #ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: enter eval cand, avma = 0x%lX\n", (ulong)avma);
+  err_printf("MPQS DEBUG: enter eval cand, set_avma(0x)%lX\n", (ulong)avma);
 #endif
-  for (i = 0; i < (ulong)number_of_cand; i++, avma = av)
+  for (i = 0; i < (ulong)number_of_cand; i++, set_avma(av))
   {
     GEN Qx, Qx_part, A_2x_plus_B, Y;
     long powers_of_2, p;
@@ -1902,7 +1902,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     int relaprpos = 0;
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 1, avma = 0x%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop 1, set_avma(0x)%lX\n", (ulong)avma);
 #endif
 
     *relations_end = 0;
@@ -1917,7 +1917,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     Qx = subii(sqri(A_2x_plus_B), h->kN);
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 2, avma = 0x%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop 2, set_avma(0x)%lX\n", (ulong)avma);
 #endif
     /* When N is relatively small, it may happen that Qx is outright
      * divisible by N at this point.  In any case, when no extensive prior
@@ -1995,7 +1995,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     /* (ToDo: MPQS_DEBUG sanity check...) */
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 3, avma = 0x%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop 3, set_avma(0x)%lX\n", (ulong)avma);
 #endif
 
     /* second pass - deal with any repeated factors, and write out the string
@@ -2047,7 +2047,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     }
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 4, avma = 0x%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop 4, set_avma(0x)%lX\n", (ulong)avma);
 #endif
     PRINT_IF_VERBOSE("\bb");
     if (is_pm1(Qx))
@@ -2075,7 +2075,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
         }
         else
           PRINT_IF_VERBOSE("\b(:)");
-        avma = av1;
+        set_avma(av1);
       }
 #endif
     }
@@ -2112,18 +2112,18 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
         }
         else
           PRINT_IF_VERBOSE("\b(;)");
-        avma = av1;
+        set_avma(av1);
       }
 #endif
     }
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop end, avma = 0x%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop end, set_avma(0x)%lX\n", (ulong)avma);
 #endif
   } /* for */
   PRINT_IF_VERBOSE("\n");
 #ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: leave eval cand, avma = 0x%lX\n", (ulong)avma);
+  err_printf("MPQS DEBUG: leave eval cand, set_avma(0x)%lX\n", (ulong)avma);
 #endif
   return number_of_relations;
 }
@@ -2206,8 +2206,8 @@ mpqs_combine_large_primes(mpqs_handle_t *h,
 #ifdef MPQS_DEBUG
       err_printf("MPQS: skipping relation with non-invertible q\n");
 #endif
-      if (!fgets(buf, MPQS_STRING_LENGTH, COMB)) { avma = av0; return 0; }
-      avma = av;
+      if (!fgets(buf, MPQS_STRING_LENGTH, COMB)) { set_avma(av0); return 0; }
+      set_avma(av);
       set_lp_entry(&e[0], buf);
       old_q = e[0].q; continue;
     }
@@ -2224,7 +2224,7 @@ mpqs_combine_large_primes(mpqs_handle_t *h,
     {
       /* switch to combining a new bunch, swapping the rows */
       old_q = e[i].q;
-      avma = av; /* discard old inv_q and Y1 */
+      set_avma(av); /* discard old inv_q and Y1 */
       if (!invmod(utoipos(old_q), h->N, &inv_q)) /* can happen --GN */
       {
         inv_q = gcdii(inv_q, h->N);
@@ -2234,7 +2234,7 @@ mpqs_combine_large_primes(mpqs_handle_t *h,
           err_printf("MPQS: skipping relation with non-invertible q\n");
 #endif
           old_q = -1; /* sentinel */
-          av2 = avma = av;
+          set_avma(av2 = av);
           continue; /* discard this combination */
         }
         *f = gerepileuptoint(av0, inv_q);
@@ -2283,17 +2283,17 @@ mpqs_combine_large_primes(mpqs_handle_t *h,
       prod = mpqs_factorback(h, s);
       if (!equalii(Qx_2, prod))
         pari_err_BUG("MPQS: combined large prime relation is false");
-      avma = av1;
+      set_avma(av1);
     }
 #endif
 
     pari_fputs(new_relation, pFNEW);
-    avma = av2;
+    set_avma(av2);
   } /* while */
 
   if (DEBUGLEVEL >= 4)
     err_printf("MPQS: combined %ld full relation%s\n", c, (c!=1 ? "s" : ""));
-  avma = av0; return c;
+  set_avma(av0); return c;
 }
 
 /*********************************************************************/
@@ -2319,7 +2319,7 @@ stream_read_F2m(pariFILE *pFREL, long rows, long cols, long *fpos)
     m = gclone(zero_F2m(rows, cols));
     if (DEBUGLEVEL>=4)
       err_printf("MPQS: allocating %ld words for Gauss\n",space);
-    avma = av;
+    set_avma(av);
   }
   else
     m = zero_F2m_copy(rows, cols);
@@ -2457,7 +2457,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
     if (DEBUGLEVEL >= 3)
       pari_warn(warner, "MPQS: no solutions found from linear system solver");
     pari_free(fpos); /* ei not yet allocated */
-    avma = av; return NULL; /* no factors found */
+    set_avma(av); return NULL; /* no factors found */
   }
 
   /* If the rank is r, we can expect up to 2^r pairwise coprime factors,
@@ -2542,7 +2542,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
     { /* we still haven't decomposed the original N, and want both a gcd and
        * its cofactor. */
       D1 = gcdii(X_plus_Y, N);
-      if (is_pm1(D1) || equalii(D1,N)) { avma = av3; continue; }
+      if (is_pm1(D1) || equalii(D1,N)) { set_avma(av3); continue; }
       /* got something that works */
       if (DEBUGLEVEL >= 5)
         err_printf("MPQS: splitting N after %ld kernel vector%s\n",
@@ -2575,7 +2575,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
          * smaller than the original N, and should be easy to deal with later */
         av3 = avma;
         D1 = gcdii(X_plus_Y, gel(res,j));
-        if (is_pm1(D1) || equalii(D1, gel(res,j))) { avma = av3; continue; }
+        if (is_pm1(D1) || equalii(D1, gel(res,j))) { set_avma(av3); continue; }
         /* got one which splits this factor */
         if (DEBUGLEVEL >= 5)
           err_printf("MPQS: resplitting a factor after %ld kernel vectors\n",
@@ -2653,7 +2653,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
   } /* for (loop over kernel basis) */
 
   pari_free(ei); pari_free(fpos);
-  if (res_next < 3) { avma = av; return NULL; } /* no factors found */
+  if (res_next < 3) { set_avma(av); return NULL; } /* no factors found */
 
   /* normal case:  convert internal format to ifac format as described in
    * src/basemath/ifactor1.c  (triples of components: value, exponent, class
@@ -2758,7 +2758,7 @@ mpqs_i(mpqs_handle_t *handle)
                handle->digit_size_N);
 
   p = mpqs_find_k(handle);
-  if (p) { avma = av; return utoipos(p); }
+  if (p) { set_avma(av); return utoipos(p); }
   if (DEBUGLEVEL >= 5) err_printf("MPQS: found multiplier %ld for N\n",
                                   handle->_k->k);
   handle->kN = muliu(N, handle->_k->k);
@@ -2778,7 +2778,7 @@ mpqs_i(mpqs_handle_t *handle)
   if (DEBUGLEVEL >= 5)
     err_printf("MPQS: creating factor base and allocating arrays...\n");
   FB = mpqs_create_FB(handle, &p);
-  if (p) { avma = av; return utoipos(p); }
+  if (p) { set_avma(av); return utoipos(p); }
   mpqs_sieve_array_ctor(handle);
   mpqs_poly_ctor(handle);
 
@@ -2879,7 +2879,7 @@ mpqs_i(mpqs_handle_t *handle)
       pari_fclose(pFNEW);
       pari_fclose(pLPNEW);
       /* FREL, LPREL are closed at this point */
-      unlink_all(); avma = av; return NULL;
+      unlink_all(); set_avma(av); return NULL;
     }
 
     memset((void*)(handle->sieve_array), 0, (M << 1) * sizeof(unsigned char));
@@ -3121,7 +3121,7 @@ mpqs_i(mpqs_handle_t *handle)
       if (percentage > MPQS_ADMIT_DEFEAT)
       {
         pari_fclose(pLPNEW);
-        unlink_all(); avma = av; return NULL;
+        unlink_all(); set_avma(av); return NULL;
       }
       pFNEW = pari_fopen_or_fail(FNEW_str, WRITE);
     }

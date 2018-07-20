@@ -1137,7 +1137,7 @@ manually. It will either extend the stack or report an \kbd{e\_STACK} error.
 chars (\emph{not} $n$ \kbd{GEN}s). This is faster than using \kbd{malloc},
 and easier to use in most situations when temporary storage is needed. In
 particular there is no need to \kbd{free} individually all variables thus
-allocated: a simple \kbd{avma = oldavma} might be enough. On the other hand,
+allocated: a simple \kbd{set\_avma(oldavma)} might be enough. On the other hand,
 beware that this is not permanent independent storage, but part of the stack.
 The memory is aligned on \kbd{sizeof(long)} bytes boundaries.
 
@@ -1208,6 +1208,8 @@ value).
 \subsec{Garbage collection}
 See \secref{se:garbage} for a detailed explanation and many examples.
 
+\fun{void}{set_avma}{ulong av} reset \kbd{avma} to \kbd{av}.
+
 \fun{void}{cgiv}{GEN x} frees object \kbd{x}, assuming it is the last created
 on the stack.
 
@@ -1269,7 +1271,7 @@ and its two components. This is marginally more efficient than the standard
 \fun{GEN}{gerepileupto}{pari_sp av, GEN q} analogous to (but faster than)
 \kbd{gerepilecopy}. Assumes that \kbd{q} is connected and that its root was
 created before any component. If \kbd{q} is not on the stack, this is
-equivalent to \kbd{avma = av}; in particular, sentinels which are not even
+equivalent to \kbd{set\_avma(av)}; in particular, sentinels which are not even
 proper \kbd{GEN}s such as \kbd{q = NULL} are allowed.
 
 \fun{GEN}{gerepileuptoint}{pari_sp av, GEN q} analogous to (but faster than)

@@ -66,7 +66,7 @@ znstar_partial_coset_bits_inplace(long n, GEN H, GEN bits, long d, long c)
   pari_sp av = avma;
   znstar_partial_coset_func(n,H, (void (*)(void *,long)) &F2v_set,
       (void *) bits, d, c);
-  avma = av;
+  set_avma(av);
 }
 
 static void
@@ -185,7 +185,7 @@ znstar_conductor_bits(GEN bits)
     }
     if (e) f *= upowuu(p, e);
   }
-  avma = av; return f;
+  set_avma(av); return f;
 }
 long
 znstar_conductor(GEN H) { return znstar_conductor_bits(gel(H,3)); }
@@ -258,7 +258,7 @@ znstar_hnf_generators(GEN Z, GEN M)
       gen[j] = Fl_mul(uel(gen,j), Fl_powu(uel(zgen,h), u, n), n);
     }
   }
-  avma = ltop; return gen;
+  set_avma(ltop); return gen;
 }
 
 GEN
@@ -390,7 +390,7 @@ polsubcyclo_orbits(long n, GEN H, GEN O, GEN powz, GEN le)
     data.s     = &s;
     znstar_coset_func(n, H, (void (*)(void *,long)) _subcyclo_orbits,
       (void *) &data, O[i]);
-    avma = av; /* HACK */
+    set_avma(av); /* HACK */
     gel(V,i) = le? modii(s,le): gcopy(s);
   }
   return V;
@@ -413,7 +413,7 @@ polsubcyclo_start(long n, long d, long o, long e, GEN borne, long *ptr_val,long 
   }
   if (DEBUGLEVEL >= 4) err_printf("Subcyclo: bound=2^%ld\n",expi(borne));
   val = logint(shifti(borne,2), gl) + 1;
-  avma = av;
+  set_avma(av);
   if (DEBUGLEVEL >= 4) err_printf("Subcyclo: val=%ld\n",val);
   le = powiu(gl,val);
   z = utoipos( Fl_powu(pgener_Fl(l), e, l) );
@@ -454,7 +454,7 @@ muliimod_sz(GEN x, GEN y, GEN l, long siz)
   GEN p1;
   (void)new_chunk(siz); /* HACK */
   p1 = mulii(x,y);
-  avma = av; return modii(p1,l);
+  set_avma(av); return modii(p1,l);
 }
 
 static GEN
@@ -589,7 +589,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
   }
   if (n==1)
   {
-    avma = ltop;
+    set_avma(ltop);
     if (flag == 1) return gen_1;
     return gscycloconductor(deg1pol_shallow(gen_1, gen_m1, v), 1, flag);
   }
@@ -637,7 +637,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
   if (flag == 1)  { avma=ltop; return stoi(cnd); }
   if (cnd == 1)
   {
-    avma = ltop;
+    set_avma(ltop);
     return gscycloconductor(deg1pol_shallow(gen_1,gen_m1,v),1,flag);
   }
   if (n != cnd)
@@ -649,7 +649,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
   phi_n = eulerphiu(n);
   if (card == phi_n)
   {
-    avma = ltop;
+    set_avma(ltop);
     return gscycloconductor(polcyclo(n,v),n,flag);
   }
   O = znstar_cosets(n, phi_n, H);
@@ -716,10 +716,10 @@ polsubcyclo(long n, long d, long v)
   if (d<=0) pari_err_DOMAIN("polsubcyclo","d","<=",gen_0,stoi(d));
   if (n<=0) pari_err_DOMAIN("polsubcyclo","n","<=",gen_0,stoi(n));
   Z = znstar(stoi(n));
-  if (!dvdis(gel(Z,1), d)) { avma = ltop; return cgetg(1, t_VEC); }
+  if (!dvdis(gel(Z,1), d)) { set_avma(ltop); return cgetg(1, t_VEC); }
   if (lg(gel(Z,2)) == 2)
   { /* faster but Z must be cyclic */
-    avma = ltop;
+    set_avma(ltop);
     return polsubcyclo_g(n, d, Z, v);
   }
   L = subgrouplist(gel(Z,2), mkvec(stoi(d)));
@@ -945,7 +945,7 @@ factor_Aurifeuille(GEN a, long d)
   if (d <= 0)
     pari_err_DOMAIN("factor_Aurifeuille", "degre", "<=",gen_0,stoi(d));
   if ((d & 3) == 2) { d >>= 1; a = negi(a); }
-  if ((va & 1) == (d & 1)) { avma = av; return gen_1; }
+  if ((va & 1) == (d & 1)) { set_avma(av); return gen_1; }
   sa = signe(a);
   if (odd(d))
   {
@@ -957,13 +957,13 @@ factor_Aurifeuille(GEN a, long d)
     }
     A = va? shifti(a, -va): a;
     a4 = mod4(A); if (sa < 0) a4 = 4 - a4;
-    if (a4 != 1) { avma = av; return gen_1; }
+    if (a4 != 1) { set_avma(av); return gen_1; }
   }
   else if ((d & 7) == 4)
     A = shifti(a, -va);
   else
   {
-    avma = av; return gen_1;
+    set_avma(av); return gen_1;
   }
   /* v_2(d) = 0 or 2. Kill 2 from factorization (minor efficiency gain) */
   fd = factoru(odd(d)? d: d>>2); P = gel(fd,1); lP = lg(P);
@@ -976,7 +976,7 @@ factor_Aurifeuille(GEN a, long d)
     if (A == a) A = icopy(A);
     setabssign(A);
   }
-  if (!Z_issquare(A)) { avma = av; return gen_1; }
+  if (!Z_issquare(A)) { set_avma(av); return gen_1; }
 
   D = odd(d)? 1: 4;
   for (i = 1; i < lP; i++) D *= P[i];

@@ -283,7 +283,7 @@ FB_aut_perm(FB_t *F, GEN auts, GEN cyclic)
               seen[l] = 1; permk0[j] = l; break;
             }
         }
-        avma = av2;
+        set_avma(av2);
       }
       for (ppermk = permk0, i = 2; i < lg(thiscyc); i++)
       {
@@ -301,7 +301,7 @@ FB_aut_perm(FB_t *F, GEN auts, GEN cyclic)
   }
   F->minidx = gclone(minidx);
   F->idealperm = gclone(perm);
-  avma = av0;
+  set_avma(av0);
 }
 
 /* set subFB.
@@ -352,7 +352,7 @@ subFBgen(FB_t *F, GEN auts, GEN cyclic, double PROD, long minsFB)
   F->allsubFB = NULL;
   FB_aut_perm(F, auts, cyclic);
   if (iyes) assign_subFB(F, yes, iyes);
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 static int
 subFB_change(FB_t *F)
@@ -400,7 +400,7 @@ subFB_change(FB_t *F)
     assign_subFB(F, yes, iyes);
   }
   F->sfb_chg = 0;
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 static GEN
@@ -521,7 +521,7 @@ cache_prime_dec(GRHcheck_t *S, ulong LIM, GEN nf)
     pr->dec = gclone(get_fs(nf, P, index, p));
     S->nprimes++;
     pr++;
-    avma = av;
+    set_avma(av);
     /* store up to nextprime(LIM) included */
     if (p >= LIM) { S->limp = p; break; }
   }
@@ -754,7 +754,7 @@ nthideal(GRHcheck_t *S, GEN nf, long n)
     }
     if (p > vecN[n]) break;
   }
-  res = vecN[n]; avma = av; return res;
+  res = vecN[n]; set_avma(av); return res;
 }
 
 
@@ -1364,7 +1364,7 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
   av = avma;
   y = idealpseudomin_nonscalar(x, nf_get_roundG(nf));
   if (factorgen(F, nf, x, Nx, y, fact)) return y;
-  avma = av;
+  set_avma(av);
 
   /* reduce in various directions */
   ru = lg(nf_get_roots(nf));
@@ -1375,7 +1375,7 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
     av = avma;
     y = idealpseudomin_nonscalar(x, gel(vecG,j));
     if (factorgen(F, nf, x, Nx, y, fact)) return y;
-    avma = av;
+    set_avma(av);
   }
 
   /* tough case, multiply by random products */
@@ -1415,9 +1415,9 @@ SPLIT(FB_t *F, GEN nf, GEN x, GEN Vbase, FACT *fact)
           if (ex[i]) add_to_fact(Vbase_to_FB(F,gel(Vbase,i)), ex[i], fact);
         return famat_mul_shallow(gel(id,2), y);
       }
-      avma = av2;
+      set_avma(av2);
     }
-    avma = av;
+    set_avma(av);
     if (++nbtest > nbtest_lim)
     {
       nbtest = 0;
@@ -1751,7 +1751,7 @@ fact_ok(GEN nf, GEN y, GEN C, GEN g, GEN e)
     if (signe(gel(e,i))) z = idealmul(nf, z, idealpow(nf, gel(g,i), gel(e,i)));
   if (typ(z) != t_MAT) z = idealhnf_shallow(nf,z);
   if (typ(y) != t_MAT) y = idealhnf_shallow(nf,y);
-  i = ZM_equal(y, z); avma = av; return i;
+  i = ZM_equal(y, z); set_avma(av); return i;
 }
 
 /* assume x in HNF. cf class_group_gen for notations.
@@ -1884,7 +1884,7 @@ bnfisprincipal0(GEN bnf,GEN x,long flag)
     if (y) return gerepilecopy(av, y);
 
     if (DEBUGLEVEL) pari_warn(warnprec,"isprincipal",pr);
-    avma = av1; bnf = bnfnewprec_shallow(bnf,pr); setrand(c);
+    set_avma(av1); bnf = bnfnewprec_shallow(bnf,pr); setrand(c);
   }
 }
 GEN
@@ -2029,7 +2029,7 @@ isprincipalfact(GEN bnf, GEN C, GEN P, GEN e, long flag)
     {
       if (flag & nf_GEN_IF_PRINCIPAL)
       {
-        if (typ(y) == t_INT) { avma = av; return NULL; }
+        if (typ(y) == t_INT) { set_avma(av); return NULL; }
         y = add_principal_part(nf, y, Cext, flag);
       }
       else
@@ -2041,7 +2041,7 @@ isprincipalfact(GEN bnf, GEN C, GEN P, GEN e, long flag)
       return gerepilecopy(av, y);
     }
     if (DEBUGLEVEL) pari_warn(warnprec,"isprincipal",prec);
-    avma = av1; bnf = bnfnewprec_shallow(bnf,prec); setrand(c);
+    set_avma(av1); bnf = bnfnewprec_shallow(bnf,prec); setrand(c);
   }
 }
 GEN
@@ -2062,7 +2062,7 @@ isprincipalfact_or_fail(GEN bnf, GEN C, GEN P, GEN e)
   }
   prec = prec_arch(bnf);
   y = isprincipalall(bnf, C, &prec, flag);
-  if (!y) { avma = av; return utoipos(prec); }
+  if (!y) { set_avma(av); return utoipos(prec); }
   u = gel(y,2);
   if (lg(u) != 1) gel(y,2) = add_principal_part(nf, u, Cext, flag);
   return gerepilecopy(av, y);
@@ -2088,11 +2088,11 @@ bnfisunit(GEN bnf,GEN x)
     { /* rational unit ? */
       long s;
       if (typ(x) != t_INT || !is_pm1(x)) return cgetg(1,t_COL);
-      s = signe(x); avma = av; v = zerocol(RU);
+      s = signe(x); set_avma(av); v = zerocol(RU);
       gel(v,RU) = mkintmodu((s > 0)? 0: n>>1, n);
       return v;
     }
-    if (!isint1(Q_denom(x))) { avma = av; return cgetg(1,t_COL); }
+    if (!isint1(Q_denom(x))) { set_avma(av); return cgetg(1,t_COL); }
   }
 
   R1 = nf_get_r1(nf); v = cgetg(RU+1,t_COL);
@@ -2110,11 +2110,11 @@ bnfisunit(GEN bnf,GEN x)
       GEN logN = RgV_sum(rx); /* log(Nx), should be ~ 0 */
       if (gexpo(logN) > -20)
       { /* precision problem ? */
-        if (typ(logN) != t_REAL) { avma = av; return cgetg(1,t_COL); } /*no*/
+        if (typ(logN) != t_REAL) { set_avma(av); return cgetg(1,t_COL); } /*no*/
         if (i == 1)
         {
           GEN N = nfnorm(nf, x);
-          if (!is_pm1(N)) { avma = av; return cgetg(1, t_COL); }
+          if (!is_pm1(N)) { set_avma(av); return cgetg(1, t_COL); }
         }
       }
       else
@@ -2171,7 +2171,7 @@ nfsign_from_logarch(GEN LA, GEN invpi, GEN archp)
     GEN c = ground( gmul(imag_i(gel(LA,archp[i])), invpi) );
     y[i] = mpodd(c)? 1: 0;
   }
-  avma = av; return y;
+  set_avma(av); return y;
 }
 
 GEN
@@ -2211,7 +2211,7 @@ signunits(GEN bnf)
     GEN Sj = gel(S,j), yj = gel(y,j);
     for (i = 1; i <= r1; i++) gel(Sj,i) = yj[i]? gen_m1: gen_1;
   }
-  avma = av; return S;
+  set_avma(av); return S;
 }
 
 static GEN
@@ -2481,7 +2481,7 @@ powFBgen(RELCACHE_t *cache, FB_t *F, GEN nf, GEN auts)
         powPgen(nf, gel(F->LP, id), &id2, a);
       }
       gel(F->id2, id) = gclone(id2);
-      avma = av;
+      set_avma(av);
     }
   }
   F->sfb_chg = 0;
@@ -2534,7 +2534,7 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
   }
   BOUND *= 1 + 1e-6;
   k = N; fp->y[N] = fp->z[N] = 0; fp->x[N] = 0;
-  for (av = avma;; avma = av, step(fp->x,fp->y,inc,k))
+  for (av = avma;; set_avma(av), step(fp->x,fp->y,inc,k))
   {
     GEN R;
     long nz;
@@ -2641,7 +2641,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
   nbsmallnorm = nbfact = 0;
 
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
-  for (av = avma; --noideal; avma = av)
+  for (av = avma; --noideal; set_avma(av))
   {
     GEN ideal = gel(F->LP, L_jid[noideal]);
 
@@ -2722,7 +2722,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
   baseideal = get_random_ideal(F, nf, rr.ex);
   baseideal = red(nf, baseideal, F->G0, &rr.m1);
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
-  for (av = avma, jlist = 1; jlist < l_jid; jlist++, avma = av)
+  for (av = avma, jlist = 1; jlist < l_jid; jlist++, set_avma(av))
   {
     long j;
     GEN ideal;
@@ -2739,7 +2739,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
                            RND_REL_RELPID, &fp, &rr, prec, NULL, NULL))
       break;
     if (PREVENT_LLL_IN_RND_REL || cache->last != last) continue;
-    for (av1 = avma, j = 1; j <= nbG; j++, avma = av1)
+    for (av1 = avma, j = 1; j <= nbG; j++, set_avma(av1))
     { /* reduce along various directions */
       GEN m = idealpseudomin_nonscalar(ideal, gel(F->vecG,j));
       GEN R;
@@ -2758,7 +2758,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
       /* Need more, try next prime ideal */
       if (cache->last < cache->end) break;
       /* We have found enough. Return */
-      avma = av; return;
+      set_avma(av); return;
     }
   }
   if (DEBUGLEVEL)
@@ -2788,7 +2788,7 @@ automorphism_perms(GEN M, GEN auts, GEN cyclic, long N)
     GEN Nt = RgM_mul(shallowtrans(gel(auts, k)), Mt);
     GEN perm = gel(perms, k), permprec;
     pari_sp av2 = avma;
-    for (i = 1; i < r1plusr2; i++, avma = av2)
+    for (i = 1; i < r1plusr2; i++, set_avma(av2))
     {
       GEN vec = gel(Nt, i), minnorm;
       minnorm = gnorml2(gsub(vec, gel(Mt, 1)));
@@ -2814,7 +2814,7 @@ automorphism_perms(GEN M, GEN auts, GEN cyclic, long N)
       permprec = thisperm;
     }
   }
-  avma = av;
+  set_avma(av);
   return perms;
 }
 
@@ -2930,7 +2930,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
   minim_alloc(N+1, &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   if (lg(auts) == 1) auts = NULL;
   av = avma;
-  for (iz=F->KCZ+1; iz<=F->KCZ2; iz++, avma = av)
+  for (iz=F->KCZ+1; iz<=F->KCZ2; iz++, set_avma(av))
   {
     long p = F->FB[iz];
     GEN pr_orbit, P = F->LV[p];
@@ -2975,7 +2975,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
     }
     F->KCZ++; /* SUCCESS, "enlarge" factorbase */
   }
-  F->KCZ = KCZ0; avma = av; return 1;
+  F->KCZ = KCZ0; set_avma(av); return 1;
 }
 
 /* all primes with N(P) <= BOUND factor on factorbase ? */
@@ -3007,7 +3007,7 @@ bnftestprimes(GEN bnf, GEN BOUND)
       err_printf("passing p = %Ps / %Ps\n", p, BOUND);
       count = 0;
     }
-    avma = av;
+    set_avma(av);
     vP = idealprimedec_limit_norm(bnf, p, BOUND);
     J = lg(vP);
     /* if last is unramified, all P|p in subgroup generated by FB: skip last */
@@ -3034,7 +3034,7 @@ bnftestprimes(GEN bnf, GEN BOUND)
         (void)SPLIT(&F, nf, pr_hnf(nf,P), Vbase, fact);
     }
   }
-  avma = av0;
+  set_avma(av0);
 }
 
 /* A t_MAT of complex floats, in fact reals. Extract a submatrix B
@@ -3116,7 +3116,7 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
     if (DEBUGLEVEL)
       err_printf("Unit group rank = %ld < %ld\n",lg(mdet)-1 - r, RU);
     *pneed = RU - (lg(mdet)-1-r);
-    avma = av; return NULL;
+    set_avma(av); return NULL;
   }
 
   Im_mdet = cgetg(RU+1, t_MAT); /* extract independent columns */
@@ -3212,11 +3212,11 @@ compute_R(GEN lambda, long RU, GEN z, long bit, GEN *ptL, GEN *ptkR)
   /* R = tentative regulator; regulator > 0.2 uniformly */
   if (gexpo(R) < -3) {
     if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
-    avma = av; return fupb_PRECI;
+    set_avma(av); return fupb_PRECI;
   }
   c = gmul(R,z); /* should be n (= 1 if we are done) */
   if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
-  if ((reason = bad_check(c))) { avma = av; return reason; }
+  if ((reason = bad_check(c))) { set_avma(av); return reason; }
   *ptkR = R; *ptL = L; return fupb_NONE;
 }
 
@@ -3446,7 +3446,7 @@ makematal(GEN bnf)
     {
       long E = itos(y);
       if (DEBUGLEVEL>1) err_printf("\n%ld done later at prec %ld\n",j,E);
-      avma = av;
+      set_avma(av);
       vecsmalltrunc_append(retry, j);
       if (E > prec) prec = E;
     }
@@ -3560,7 +3560,7 @@ bnfnewprec_shallow(GEN bnf, long prec)
       gac = get_archclean(nf, matal, prec, 0);
       if (gac) break;
     }
-    avma = av; prec = precdbl(prec);
+    set_avma(av); prec = precdbl(prec);
     if (DEBUGLEVEL) pari_warn(warnprec,"bnfnewprec(extra)",prec);
   }
   y = leafcopy(bnf);
@@ -3767,7 +3767,7 @@ extract_full_lattice(GEN x)
     h2 = ZM_hnf(vecpermute(x, v));
     if (ZM_equal(h, h2))
     { /* these dj columns can be eliminated */
-      avma = av; setlg(v, lv);
+      set_avma(av); setlg(v, lv);
       j += dj;
       if (j >= l) break;
       dj <<= 1;
@@ -3775,7 +3775,7 @@ extract_full_lattice(GEN x)
     }
     else if (dj > 1)
     { /* at least one interesting column, try with first half of this set */
-      avma = av; setlg(v, lv);
+      set_avma(av); setlg(v, lv);
       dj >>= 1; /* > 0 */
     }
     else
@@ -3868,7 +3868,7 @@ add_cyclotomic_units(GEN nf, GEN zu, RELCACHE_t *cache, FB_t *F)
     GEN R = zero_Flv(F->KC);
     for(i = 1; i < l; i++) add_rel(cache, F, R, F->KC+1, gel(L,i), 0);
   }
-  avma = av;
+  set_avma(av);
 }
 
 static void
@@ -3955,7 +3955,7 @@ try_elt(RELCACHE_t *cache, FB_t *F, GEN nf, GEN x, FACT *fact)
   R = set_fact(F, fact, NULL, &nz);
   /* make sure we get maximal rank first, then allow all relations */
   (void) add_rel(cache, F, R, nz, x, 0);
-  avma = av;
+  set_avma(av);
 }
 
 
@@ -4120,7 +4120,7 @@ START:
     computed = gclone(computed);
     delete_cache(&cache);
   }
-  FIRST = 0; avma = av;
+  FIRST = 0; set_avma(av);
   if (F.LP) delete_FB(&F);
   if (LIMC2 < LIMC) LIMC2 = LIMC;
   if (DEBUGLEVEL) { err_printf("LIMC = %ld, LIMC2 = %ld\n",LIMC,LIMC2); }
@@ -4228,7 +4228,7 @@ START:
         }
         if (lg(F.L_jid) > 1)
           small_norm(&cache, &F, nf, nbrelpid, M_sn, fact, p0);
-        avma = av3;
+        set_avma(av3);
         if (!A && cache.last != last)
           small_fail = 0;
         else
@@ -4289,7 +4289,7 @@ START:
         for (i = 1; i < lg(PERM); i++) F.perm[i] = PERM[i];
         cache.chk = cache.base; W = NULL; /* recompute arch components+reduce */
       }
-      avma = av4;
+      set_avma(av4);
       if (cache.chk != cache.last)
       { /* Reduce relation matrices */
         long l = cache.last - cache.chk + 1, j;
@@ -4447,7 +4447,7 @@ START:
       { /* units not found but we want them */
         if (e > 0) pari_err_OVERFLOW("bnfinit [fundamental units too large]");
         if (e < 0) precadd = nbits2extraprec( (-e - (BITS_IN_LONG - 1)) + 64);
-        avma = av3; precpb = "getfu"; continue;
+        set_avma(av3); precpb = "getfu"; continue;
       }
     }
     /* class group generators */

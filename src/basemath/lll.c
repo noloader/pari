@@ -146,7 +146,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       affrr(divrr(gmael(r,kappa,j), gmael(r,j,j)), gmael(mu,kappa,j));
       if (abscmprr(maxmu, gmael(mu,kappa,j))<0)
         maxmu = gmael(mu,kappa,j);
-      avma = btop;
+      set_avma(btop);
     }
     maxmu = absr(maxmu);
     if (typ(max3mu)==t_REAL && abscmprr(max3mu, shiftr(max2mu, 5))<=0)
@@ -175,7 +175,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
           pari_sp btop = avma;
           for (k=zeros+1; k<j; k++)
             affrr(subrr(gmael(mu,kappa,k), gmael(mu,j,k)), gmael(mu,kappa,k));
-          avma = btop;
+          set_avma(btop);
 
           for (i=1; i<=n; i++)
             gmael(B,kappa,i) = subii(gmael(B,kappa,i), gmael(B,j,i));
@@ -195,7 +195,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
           pari_sp btop = avma;
           for (k=zeros+1; k<j; k++)
             affrr(addrr(gmael(mu,kappa,k), gmael(mu,j,k)), gmael(mu,kappa,k));
-          avma = btop;
+          set_avma(btop);
 
           for (i=1; i<=n; i++)
             gmael(B,kappa,i) = addii(gmael(B,kappa,i), gmael(B,j,i));
@@ -227,7 +227,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
             rtmp = subrr(gmael(mu,kappa,k), mulur(xx, gmael(mu,j,k)));
             affrr(rtmp, gmael(mu,kappa,k));
           }
-          avma = btop;
+          set_avma(btop);
           for (i=1; i<=n; i++)
             gmael(B,kappa,i) = submuliu_inplace(gmael(B,kappa,i), gmael(B,j,i), xx);
           for (i=1; i<=d; i++)
@@ -251,7 +251,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
             rtmp = addrr(gmael(mu,kappa,k), mulur(xx, gmael(mu,j,k)));
             affrr(rtmp, gmael(mu,kappa,k));
           }
-          avma = btop;
+          set_avma(btop);
           for (i=1; i<=n; i++)
             gmael(B,kappa,i) = addmuliu_inplace(gmael(B,kappa,i), gmael(B,j,i), xx);
           for (i=1; i<=d; i++)
@@ -281,7 +281,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
           rtmp = subrr(gmael(mu,kappa,k), mulir(ztmp, gmael(mu,j,k)));
           affrr(rtmp, gmael(mu,kappa,k));
         }
-        avma = btop;
+        set_avma(btop);
         for (i=1; i<=n; i++)
           gmael(B,kappa,i) = submulii(gmael(B,kappa,i), gmael(B,j,i), X);
         for (i=1; i<=d; i++)
@@ -311,7 +311,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
     tmp = subrr(gel(s,k), mulrr(gmael(mu,kappa,k), gmael(r,kappa,k)));
     affrr(tmp, gel(s,k+1));
   }
-  *pB = B; *pG = G; *pU = U; avma = av;
+  *pB = B; *pG = G; *pU = U; set_avma(av);
   return 0;
 }
 
@@ -324,7 +324,7 @@ rotate(GEN mu, long kappa2, long kappa, long d)
   for (i=kappa2; i>kappa; i--)
     for (j=1;j<=d;j++) gmael(mu,i,j) = gmael(mu,i-1,j);
   for (j=1;j<=d;j++)   gmael(mu,kappa,j) = gel(mutmp,j);
-  avma = av;
+  set_avma(av);
 }
 
 /* ****************** */
@@ -423,7 +423,7 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
       alpha[kappa] = kappa;
       tmp = mulrr(gmael(mu,kappa,kappa-1), gmael(r,kappa,kappa-1));
       affrr(subrr(gel(s,kappa-1), tmp), gmael(r,kappa,kappa));
-      avma = av2;
+      set_avma(av2);
     }
     else
     { /* Step5: Find the right insertion index kappa, kappa2 = initial kappa */
@@ -435,7 +435,7 @@ fplll(GEN *ptrB, GEN *ptrU, GEN *ptrr, double DELTA, double ETA, long flag, long
         if (kappa<zeros+2 + (keepfirst ? 1: 0)) break;
         tmp = mulrr(gmael(r,kappa-1,kappa-1), delta);
       } while (cmprr(gel(s,kappa-1), tmp) <=0 );
-      avma = av2;
+      set_avma(av2);
 
       for (i=kappa; i<kappa2; i++)
         if (kappa <= alpha[i]) alpha[i] = kappa;

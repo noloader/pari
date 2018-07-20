@@ -111,7 +111,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
     q = dvmdii(absi_shallow(a), d, &d1);
     if (!signe(d1))                /* a == qb */
     {
-      avma = av;
+      set_avma(av);
       if (pu) *pu = gen_0;
       if (pv) *pv = sb < 0 ? gen_m1 : gen_1;
       return icopy(d);
@@ -191,7 +191,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
     u = subii(muliu(u,xu), muliu(u1, xv));
     v = subii(muliu(v,xu), muliu(v1, xv));
     if (s < 0) { sa = -sa; sb = -sb; }
-    avma = av;
+    set_avma(av);
     if (pu) *pu = sa < 0 ? negi(u) : icopy(u);
     if (pv) *pv = sb < 0 ? negi(v) : icopy(v);
     if (g == 1) return gen_1;
@@ -201,7 +201,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
   /* get here when the final sprint was skipped (d1 was zero already).
    * Now the matrix is final, and d contains the gcd.
    */
-  avma = av;
+  set_avma(av);
   if (pu) *pu = sa < 0 ? negi(u) : icopy(u);
   if (pv) *pv = sb < 0 ? negi(v) : icopy(v);
   return icopy(d);

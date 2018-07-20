@@ -341,7 +341,7 @@ ncharvecexpo(GEN G, GEN nchi)
         *++e = Fl_add(*++u3, x, ord); v[*d] = *e;
       }
   }
-  avma = av; return v;
+  set_avma(av); return v;
 }
 
 /*****************************************************************************/
@@ -375,7 +375,7 @@ coprimes_zv(ulong N)
     ulong p = P[i], j;
     for (j = p; j <= N; j += p) v[j] = 0;
   }
-  avma = av; return v;
+  set_avma(av); return v;
 }
 /* cf zv_cyc_minimal: return k such that g*k is minimal (wrt lex) */
 long
@@ -407,7 +407,7 @@ zv_cyc_minimize(GEN cyc, GEN g, GEN coprime)
     gk = vecmoduu(gk, cyc);
     if (vecsmall_lexcmp(gk, best) < 0) { best = gk; bestk = k; }
   }
-  avma = av; return bestk == 1? k0: Fl_mul(k0, bestk, o);
+  set_avma(av); return bestk == 1? k0: Fl_mul(k0, bestk, o);
 }
 /* g of order o in abelian group G attached to cyc. Is g a minimal generator
  * [wrt lex order] of the cyclic subgroup it generates;
@@ -438,9 +438,9 @@ zv_cyc_minimal(GEN cyc, GEN g, GEN coprime)
     long ko = k % o;
     gk = Flv_add(gk, gd, e); if (!coprime[ko]) continue;
     gk = vecmoduu(gk, cyc);
-    if (vecsmall_lexcmp(gk, g) < 0) { avma = av; return 0; }
+    if (vecsmall_lexcmp(gk, g) < 0) { set_avma(av); return 0; }
   }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 static GEN
@@ -551,7 +551,7 @@ znstar0(GEN N, long flag)
   if (!signe(N))
   {
     if (flag) pari_err_IMPL("znstar(0,1)");
-    avma = av;
+    set_avma(av);
     retmkvec3(gen_2, mkvec(gen_2), mkvec(gen_m1));
   }
   N = absi_shallow(N);
@@ -955,7 +955,7 @@ znconreyconductor(GEN bid, GEN chi, GEN *pm)
   E = gel(F,2);
   if (l == 1)
   {
-    avma = av;
+    set_avma(av);
     if (pm) *pm = cgetg(1,t_COL);
     if (lg(P) == 1) return gen_1;
     retmkvec2(gen_1, trivial_fact());
@@ -1078,7 +1078,7 @@ zncharinduce(GEN G, GEN chi, GEN N)
   e2 = (E[1] >= 3 && absequaliu(gel(P,1),2)); /* 2 generators at 2 mod N */
   if (ZV_equal0(chi))
   {
-    avma = av;
+    set_avma(av);
     return equali1(N)? cgetg(1, t_COL): zerocol(l+e2 - 1);
   }
 
@@ -1187,7 +1187,7 @@ znchartokronecker(GEN G, GEN chi, long flag)
   s = zncharisodd(G, chi)? -1: 1;
   if (typ(chi) != t_COL) chi = znconreylog(G, chi);
   o = zncharorder(G, chi);
-  if (abscmpiu(o,2) > 0) { avma = av; return gen_0; }
+  if (abscmpiu(o,2) > 0) { set_avma(av); return gen_0; }
   F = znconreyconductor(G, chi, NULL);
   if (typ(F) == t_INT)
   {

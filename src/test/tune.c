@@ -280,7 +280,7 @@ dftmod(speed_param *s)
     int i;                               \
     speed_starttime();                   \
     i = (s)->reps;                       \
-    do { call; avma = av; } while (--i); \
+    do { call; set_avma(av); } while (--i); \
   }                                      \
   return speed_endtime();                \
 }
@@ -646,7 +646,7 @@ time_fun(speed_function_t fun, speed_param *s, long enabled)
     {
       qsort (t, i+1, sizeof(t[0]), (QSCOMP)double_cmp_ptr);
       for (j = e-1; j < i; j++)
-        if (t[j] <= t[j-e+1] * TOLERANCE) { avma = av; return t[j-e+1]; }
+        if (t[j] <= t[j-e+1] * TOLERANCE) { set_avma(av); return t[j-e+1]; }
     }
   }
   pari_err(e_MISC,"couldn't measure time");
@@ -767,7 +767,7 @@ Test(tune_param *param, long linear)
     s.y = rand_g(&s);
     t1 = time_fun(param->fun, &s, 0);
     t2 = time_fun(param->fun, &s, 1);
-    avma = av;
+    set_avma(av);
     if (t2 >= t1) d = (t2 - t1) / t2;
     else          d = (t2 - t1) / t1;
 
@@ -847,7 +847,7 @@ Test(tune_param *param, long linear)
   *(param->var) = thresh; /* set to optimal value for next tests */
   if (param->var_disable) *(param->var_disable) = save_var_disable;
   if (param->var_enable) *(param->var_enable) = s.var_enable_min;
-  avma = av;
+  set_avma(av);
 }
 
 void error(char **argv) {

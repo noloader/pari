@@ -1282,7 +1282,7 @@ ZV_content(GEN x)
   for (i = 2; i < l; i++)
   {
     c = gcdii(c, gel(x,i));
-    if (is_pm1(c)) { avma = av; return gen_1; }
+    if (is_pm1(c)) { set_avma(av); return gen_1; }
   }
   return gerepileuptoint(av, c);
 }

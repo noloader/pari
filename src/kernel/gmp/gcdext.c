@@ -30,7 +30,7 @@ invmod(GEN a, GEN b, GEN *res)
     long l, su, sa = signe(a), lb,lna;
     mp_size_t lu;
     GEN na;
-    if (!sa) { avma = av; *res = absi(b); return 0; }
+    if (!sa) { set_avma(av); *res = absi(b); return 0; }
     if (signe(b) < 0) b = negi(b);
     if (abscmpii(a, b) < 0)
       na = sa > 0? addii(a, b): subii(a, b);
@@ -159,7 +159,7 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
     d[1] = evalsigne(1)|evallgefint(l+2);
     u[1] = evalsigne(su)|evallgefint(lu+2);
     if (pv) v=diviiexact(subii(d,mulii(u,a)),b);
-    avma = av;
+    set_avma(av);
     if (pu) *pu=icopy(u);
     if (pv) *pv=icopy(v);
     return icopy(d);

@@ -580,7 +580,7 @@ maxlengthcoeffpol(ulong p, long n)
   pari_sp ltop = avma;
   GEN z = muliu(sqru(p-1), n);
   long l = lgefint(z);
-  avma = ltop;
+  set_avma(ltop);
   if (l==3 && HIGHWORD(z[2])==0)
   {
     if (HLQUARTWORD(z[2]) == 0) return -1;
@@ -1178,7 +1178,7 @@ Flx_invBarrett_Newton(GEN T, ulong p)
   else
     lx = 1;
   nold = 1;
-  for (; mask > 1; avma = av)
+  for (; mask > 1; set_avma(av))
   { /* set x -= x(x*q - 1) + O(t^(nnew + 1)), knowing x*q = 1 + O(t^(nold+1)) */
     long i, lnew, nnew = nold << 1;
 
@@ -1919,7 +1919,7 @@ Flx_is_squarefree(GEN z, ulong p)
   pari_sp av = avma;
   GEN d = Flx_gcd(z, Flx_deriv(z,p) , p);
   long res= (degpol(d) == 0);
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 static long
@@ -1930,10 +1930,10 @@ Flx_is_smooth_squarefree(GEN f, long r, ulong p)
   GEN sx = polx_Flx(f[1]), a = sx;
   for(i=1;;i++)
   {
-    if (degpol(f)<=r) {avma = av; return 1;}
+    if (degpol(f)<=r) {set_avma(av); return 1;}
     a = Flxq_powu(Flx_rem(a,f,p), p, f, p);
-    if (Flx_equal(a, sx)) {avma = av; return 1;}
-    if (i==r) {avma = av; return 0;}
+    if (Flx_equal(a, sx)) {set_avma(av); return 1;}
+    if (i==r) {set_avma(av); return 0;}
     f = Flx_div(f, Flx_gcd(Flx_sub(a,sx,p),f,p),p);
   }
 }
@@ -2049,7 +2049,7 @@ Flx_resultant(GEN a, GEN b, ulong p)
     lb = b[db+2];
     c = Flx_rem(a,b, p);
     a = b; b = c; dc = degpol(c);
-    if (dc < 0) { avma = av; return 0; }
+    if (dc < 0) { set_avma(av); return 0; }
 
     if (both_odd(da,db)) res = p - res;
     if (lb != 1) res = Fl_mul(res, Fl_powu(lb, da - dc, p), p);
@@ -2057,7 +2057,7 @@ Flx_resultant(GEN a, GEN b, ulong p)
     da = db; /* = degpol(a) */
     db = dc; /* = degpol(b) */
   }
-  avma = av; return Fl_mul(res, Fl_powu(b[2], da, p), p);
+  set_avma(av); return Fl_mul(res, Fl_powu(b[2], da, p), p);
 }
 
 /* If resultant is 0, *ptU and *ptU are not set */
@@ -2088,7 +2088,7 @@ Flx_extresultant(GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV)
     lb = y[dy+2];
     q = Flx_divrem(x,y, p, &z);
     x = y; y = z; /* (x,y) = (y, x - q y) */
-    dz = degpol(z); if (dz < 0) { avma = av; return 0; }
+    dz = degpol(z); if (dz < 0) { set_avma(av); return 0; }
     z = Flx_sub(u, Flx_mul(q,v, p), p);
     u = v; v = z; /* (u,v) = (v, u - q v) */
 
@@ -2147,7 +2147,7 @@ Flx_eval_pre(GEN x, ulong y, ulong p, ulong pi)
     pari_sp av = avma;
     GEN v = Fl_powers_pre(y, degpol(x), p, pi);
     ulong r =  Flx_eval_powers_pre(x, v, p, pi);
-    avma = av;
+    set_avma(av);
     return r;
   }
   else
@@ -2182,7 +2182,7 @@ Flv_prod_pre(GEN x, ulong p, ulong pi)
     if (i < lx) uel(v,k++) = uel(v,i);
   }
   r = uel(v,1);
-  avma = ltop; return r;
+  set_avma(ltop); return r;
 }
 
 ulong
@@ -2241,7 +2241,7 @@ Flv_inv_pre_indir(GEN w, GEN v, ulong p, ulong pi)
     v[i] = t;
   }
   v[1] = u;
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -2282,7 +2282,7 @@ Flv_inv_indir(GEN w, GEN v, ulong p)
     v[i] = t;
   }
   v[1] = u;
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -2836,7 +2836,7 @@ _Flxq_rand(void *data)
   GEN z;
   do
   {
-    avma = av;
+    set_avma(av);
     z = random_Flx(get_Flx_degree(D->T),get_Flx_var(D->T),D->p);
   } while (lgpol(z)==0);
   return z;
@@ -2978,7 +2978,7 @@ Flxq_is2npower(GEN x, long n, GEN T, ulong p)
   av = avma;
   m = shifti(subiu(powuu(p, get_Flx_degree(T)), 1), -n);
   z = Flx_equal1(Flxq_pow(x, m, T, p));
-  avma = av; return z;
+  set_avma(av); return z;
 }
 
 GEN
@@ -3226,7 +3226,7 @@ gener_Flxq(GEN T, ulong p, GEN *po)
   }
   setlg(L2, j);
   F = Flx_Frobenius(T, p);
-  for (av = avma;; avma = av)
+  for (av = avma;; set_avma(av))
   {
     GEN tt;
     g = random_Flx(f, vT, p);
@@ -4016,7 +4016,7 @@ FlxY_eval_powers_pre(GEN pol, GEN ypowers, GEN xpowers, ulong p, ulong pi)
   pari_sp av = avma;
   GEN t = FlxY_evalx_powers_pre(pol, ypowers, p, pi);
   ulong out = Flx_eval_powers_pre(t, xpowers, p, pi);
-  avma = av;
+  set_avma(av);
   return out;
 }
 
@@ -4264,7 +4264,7 @@ FlxqX_divrem_basecase(GEN x, GEN y, GEN T, ulong p, GEN *pr)
   }
   av0 = avma; dz = dx-dy;
   lead = Flx_equal1(lead)? NULL: gclone(Flxq_inv(lead,T,p));
-  avma = av0;
+  set_avma(av0);
   z = cgetg(dz+3,t_POL); z[1] = x[1];
   x += 2; y += 2; z += 2;
 
@@ -4692,7 +4692,7 @@ FlxqX_gcd_basecase(GEN a, GEN b, GEN T, ulong p)
     }
     av = avma; c = FlxqX_rem(a, b, T, p); a=b; b=c;
   }
-  avma = av; return a;
+  set_avma(av); return a;
 }
 
 GEN
@@ -4794,7 +4794,7 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
   for(;;)
   {
     U = Flxq_invsafe(leading_coeff(Q), T, p);
-    if (!U) { avma = av; return NULL; }
+    if (!U) { set_avma(av); return NULL; }
     Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
     P = FlxqX_rem(P,Q,T,p);
     if (!signe(P)) break;
@@ -4806,7 +4806,7 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
     swap(P, Q);
   }
   U = Flxq_invsafe(leading_coeff(Q), T, p);
-  if (!U) { avma = av; return NULL; }
+  if (!U) { set_avma(av); return NULL; }
   Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
   return gerepileupto(av, Q);
 }
@@ -5061,7 +5061,7 @@ FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p)
     if (nbits2lg(d*b) - 2 == d*l)
       b = l*BITS_IN_LONG;
   }
-  avma = av;
+  set_avma(av);
 
   switch (b) {
   case BITS_IN_HALFULONG:

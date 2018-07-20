@@ -238,7 +238,7 @@ nonsquare_Fp(GEN p)
   GEN a;
   do
   {
-    avma = av;
+    set_avma(av);
     a = randomi(p);
   } while (kronecker(a, p) >= 0);
   return a;
@@ -700,7 +700,7 @@ path_extends_to_floor(GEN j_prev, GEN j, GEN T, GEN p, GEN Phi2, ulong max_len)
     j_next = FqX_quad_root(Phi2_j, T, p);
     if (!j_next)
     { /* j is on the floor */
-      avma = ltop;
+      set_avma(ltop);
       return 1;
     }
 
@@ -713,7 +713,7 @@ path_extends_to_floor(GEN j_prev, GEN j, GEN T, GEN p, GEN Phi2, ulong max_len)
    * point to the last element in the path. */
   Phi2_j = FqX_div_by_X_x(FqXY_evalx(Phi2, j, T, p), j_prev, T, p, NULL);
   mult = FqX_nbroots(Phi2_j, T, p);
-  avma = ltop;
+  set_avma(ltop);
   return mult == 0;
 }
 
@@ -757,7 +757,7 @@ Fp_elljissupersingular(GEN j, GEN p)
   {
     GEN S = init_Fq(p, 2, fetch_var());
     int res = jissupersingular(j, S, p);
-    (void)delete_var(); avma = ltop; return res;
+    (void)delete_var(); set_avma(ltop); return res;
   }
 }
 
@@ -832,7 +832,7 @@ get_table_size(GEN pordmin, GEN B)
   GEN t = ceilr( sqrtr( divri(itor(pordmin, DEFAULTPREC), B) ) );
   if (is_bigint(t))
     pari_err_OVERFLOW("ellap [large prime: install the 'seadata' package]");
-  avma = av;
+  set_avma(av);
   return itos(t) >> 1;
 }
 
@@ -984,7 +984,7 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
         tx[i] = mod2BIL(gel(P,1));
         ty[i] = mod2BIL(gel(P,2));
       }
-      avma = av2;
+      set_avma(av2);
     }
     P = FpE_add(gel(pts,j-1),mfh,a4,p); /* = (s-1).F */
     if (ell_is_inf(P)) { h = mului(s-1,B); goto FOUND; }
@@ -1005,7 +1005,7 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
     for (i=1; i<=s; i++) { ty[i] = ti[i]; ti[i] = p1[i]; }
     /* ty is sorted. ti = permutation sorting tx */
     if (DEBUGLEVEL >= 6) timer_printf(&T, "[Fp_ellcard_Shanks] sorting");
-    avma = av2;
+    set_avma(av2);
 
     gaffect(fg, gel(pts,1));
     for (j=2; j<=nb; j++) /* pts[j] = j.fg = (s*j).F */
@@ -1015,7 +1015,7 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
       gaffect(P, gel(pts,j));
     }
     /* replace fg by nb.fg since we do nb points at a time */
-    avma = av2;
+    set_avma(av2);
     fg = gcopy(gel(pts,nb)); /* copy: we modify (temporarily) pts[nb] below */
     av2 = avma;
 
@@ -1025,7 +1025,7 @@ Fp_ellcard_Shanks(GEN c4, GEN c6, GEN p)
       long m, l = 1, r = s+1;
       long k, k2, j2;
 
-      avma = av2;
+      set_avma(av2);
       k = mod2BIL(gel(ftest,1));
       while (l < r)
       {
@@ -1144,7 +1144,7 @@ Fl_ellcard_Shanks(ulong c4, ulong c6, ulong p)
 
   if (!c6) {
     GEN ap = ap_j1728(utoi(c4), utoipos(p));
-    avma = av; return p+1 - itos(ap);
+    set_avma(av); return p+1 - itos(ap);
   }
 
   pordmin = (ulong)(1 + 4*sqrt((double)p));
@@ -1220,9 +1220,9 @@ FOUND:
       }
       B = itou(C);
     }
-    A = (p2p - A) % B; avma = av;
+    A = (p2p - A) % B; set_avma(av);
   }
-  avma = av; return KRO==1? h: p2p-h;
+  set_avma(av); return KRO==1? h: p2p-h;
 }
 
 /** ellap from CM (original code contributed by Mark Watkins) **/
@@ -1341,7 +1341,7 @@ Fp_ellcard_CM(GEN a4, GEN a6, GEN p)
   {
     GEN j = Fp_ellj_nodiv(a4, a6, p);
     long CM = Fp_ellj_get_CM(gel(j,1), gel(j,2), p);
-    if (!CM) { avma = av; return NULL; }
+    if (!CM) { set_avma(av); return NULL; }
     a = ec_ap_cm(CM,a4,a6,p);
   }
   return gerepileuptoint(av, subii(addiu(p,1),a));
@@ -1372,7 +1372,7 @@ Fl_elltrace(ulong a4, ulong a6, ulong p)
   lp = expu(p);
   if (lp <= minss(56, BITS_IN_LONG-2)) return p+1-Fl_ellcard_Shanks(a4, a6, p);
   av = avma; a = subui(p+1, Fp_ellcard(utoi(a4), utoi(a6), utoipos(p)));
-  avma = av; return itos(a);
+  set_avma(av); return itos(a);
 }
 long
 Fl_elltrace_CM(long CM, ulong a4, ulong a6, ulong p)
@@ -1382,7 +1382,7 @@ Fl_elltrace_CM(long CM, ulong a4, ulong a6, ulong p)
   if (!CM) return Fl_elltrace(a4,a6,p);
   if (p < (1<<11)) return Fl_elltrace_naive(a4, a6, p);
   av = avma; a = ec_ap_cm(CM, utoi(a4), utoi(a6), utoipos(p));
-  avma = av; return itos(a);
+  set_avma(av); return itos(a);
 }
 
 static GEN
@@ -1489,7 +1489,7 @@ nonsquare_FpXQ(GEN T, GEN p)
   }
   do
   {
-    avma = av;
+    set_avma(av);
     a = random_FpX(n, v, p);
   } while (FpXQ_issquare(a, T, p));
   return a;
@@ -1905,16 +1905,16 @@ FpXQ_elljissupersingular(GEN j, GEN T, GEN p)
     GEN j_pow_p = FpXQ_pow(j, p, T, p);
     GEN j_sum = FpX_add(j, j_pow_p, p), j_prod;
     long var = varn(T);
-    if (degpol(j_sum) > 0) { avma = ltop; return 0; /* j not in Fp^2 */ }
+    if (degpol(j_sum) > 0) { set_avma(ltop); return 0; /* j not in Fp^2 */ }
     j_prod = FpXQ_mul(j, j_pow_p, T, p);
-    if (degpol(j_prod) > 0 ) { avma = ltop; return 0; /* j not in Fp^2 */ }
+    if (degpol(j_prod) > 0 ) { set_avma(ltop); return 0; /* j not in Fp^2 */ }
     j_sum = constant_coeff(j_sum); j_prod = constant_coeff(j_prod);
     S = mkpoln(3, gen_1, Fp_neg(j_sum, p), j_prod);
     setvarn(S, var);
     j = pol_x(var);
   }
   res = jissupersingular(j, S, p);
-  avma = ltop;
+  set_avma(ltop);
   return res;
 }
 

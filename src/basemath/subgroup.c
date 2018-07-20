@@ -210,7 +210,7 @@ dogroup(subgp_iter *T)
         H[i][c[r]] = e;
       }
     }
-    treatsub(T, (GEN)H); avma = av;
+    treatsub(T, (GEN)H); set_avma(av);
   }
 }
 
@@ -221,7 +221,7 @@ loop(subgp_iter *T, long r)
   long j;
 
   if (r > len(T->M)) {
-    pari_sp av = avma; dogroup(T); avma = av;
+    pari_sp av = avma; dogroup(T); set_avma(av);
     return;
   }
 
@@ -240,11 +240,11 @@ dopsubtyp(subgp_iter *T)
   pari_sp av = avma;
   long i,r, l = len(T->L), t = len(T->M);
 
-  if (!t) { treatsub(T, mkmat( zerocol(l) )); avma = av; return; }
+  if (!t) { treatsub(T, mkmat( zerocol(l) )); set_avma(av); return; }
   if (l==1) /* imply t = 1 */
   {
     GEN p1 = gtomat(T->powlist[T->L[1]-T->M[1]]);
-    treatsub(T, p1); avma = av; return;
+    treatsub(T, p1); set_avma(av); return;
   }
   T->c         = new_chunk(l+1); setlen(T->c, l);
   T->maxc      = new_chunk(l+1);
@@ -266,7 +266,7 @@ dopsubtyp(subgp_iter *T)
   for (i=1; i<=l; i++) T->available[i]=1;
   for (i=1; i<=t; i++) T->c[i]=0;
   /* go through all column selections */
-  loop(T, 1); avma = av; return;
+  loop(T, 1); set_avma(av); return;
 }
 
 static long
@@ -331,7 +331,7 @@ dopsub(subgp_iter *T, GEN p, GEN indexsubq)
         for (i=1; i<lsubq; i++)
           if (cmpii(gel(indexsubq,i), B) <= 0)
             T->subqpart[k++] = T->subq[i];
-        setlg(T->subqpart, k); avma = av;
+        setlg(T->subqpart, k); set_avma(av);
       }
       if (DEBUGLEVEL>4)
       {
@@ -439,7 +439,7 @@ subgroup_engine(subgp_iter *T)
       case b_EXACT: if (!is_pm1(T->bound)) break;
       default: T->fun(T->fundata, cyc);
     }
-    avma = av; return;
+    set_avma(av); return;
   }
   if (!signe(gel(cyc,1))) pari_err_TYPE("forsubgroup [infinite group]", cyc);
   fa = Z_factor(gel(cyc,1)); primlist = gel(fa,1);
@@ -468,7 +468,7 @@ subgroup_engine(subgp_iter *T)
     if (T->boundtype == b_EXACT)
     {
       (void)Z_pvalrem(T->bound,p,&B);
-      if (!is_pm1(B)) { avma = av; return; }
+      if (!is_pm1(B)) { set_avma(av); return; }
     }
   }
   else
@@ -509,7 +509,7 @@ subgroup_engine(subgp_iter *T)
     err_printf("nb subgroup = %ld\n",T->count);
     err_flush();
   }
-  avma = av;
+  set_avma(av);
 }
 
 static GEN
@@ -608,7 +608,7 @@ subgrouplist_i(GEN CYC, GEN bound, GEN expoI, GEN gen)
   subgroup_engine(&T);
 
   nbsub = (long)S.count;
-  avma = av;
+  set_avma(av);
   z = cgetg(nbsub+1,t_VEC);
   for (ii=1; ii<=nbsub; ii++)
   {

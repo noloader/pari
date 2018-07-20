@@ -688,9 +688,9 @@ Flx_genus2charpoly_naive(GEN H, ulong p)
       if (i == p-1) break;
       V = Fl2V_next(V, p);
     }
-    avma = av2;
+    set_avma(av2);
   }
-  avma = av;
+  set_avma(av);
   return mkvecsmalln(6, 0UL, p*p, a*p, (b+2*c+a*a)>>1, a, 1UL);
 }
 
@@ -713,7 +713,7 @@ hyperell_Weil_bound(GEN q, long g, GEN p)
   pari_sp av = avma;
   GEN w = mulii(binomialuu(2*g,g),sqrtint(shifti(powiu(q, g),2)));
   long e = logint(w, p) + 1;
-  avma = av; return e;
+  set_avma(av); return e;
 }
 
 GEN

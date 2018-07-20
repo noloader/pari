@@ -47,7 +47,7 @@ bnfnarrow(GEN bnf)
   /* up to here */
 
   v = Flm_image(v, 2); t = lg(v)-1;
-  if (t == r1) { avma = av; return gcopy( bnf_get_clgp(bnf) ); }
+  if (t == r1) { set_avma(av); return gcopy( bnf_get_clgp(bnf) ); }
 
   v = Flm_suppl(v,2); /* v = (sgn(U)|H) in GL_r1(F_2) */
   H = zm_to_ZM( vecslice(v, t+1, r1) ); /* supplement H of sgn(U) */
@@ -156,9 +156,9 @@ idealmoddivisor_aux(GEN nf, GEN x, GEN f, GEN sarch)
     GEN D = idealaddtoone_i(nf, idealdiv(nf,G,x), f);
     A = nfdiv(nf,D,G);
   }
-  if (too_big(nf,A) > 0) { avma = av; return x; }
+  if (too_big(nf,A) > 0) { set_avma(av); return x; }
   a = set_sign_mod_divisor(nf, NULL, A, sarch);
-  if (a != A && too_big(nf,A) > 0) { avma = av; return x; }
+  if (a != A && too_big(nf,A) > 0) { set_avma(av); return x; }
   return idealmul(nf, a, x);
 }
 
@@ -180,7 +180,7 @@ fast_val(GEN L0, GEN cx, GEN pr)
     long w = Q_pval(cx, pr_get_p(pr));
     if (w) v += w * pr_get_e(pr);
   }
-  avma = av; return v;
+  set_avma(av); return v;
 }
 
 /* x coprime to fZ, return y = x mod fZ, y integral */
@@ -495,7 +495,7 @@ bnrclassno(GEN bnf,GEN ideal)
   bid = checkbid_i(ideal);
   if (!bid) bid = Idealstar(bnf, ideal, nf_INIT);
   cycbid = bid_get_cyc(bid);
-  if (lg(cycbid) == 1) { avma = av; return icopy(h); }
+  if (lg(cycbid) == 1) { set_avma(av); return icopy(h); }
   D = get_dataunit(bnf, bid); /* (Z_K/f)^* / units ~ Z^n / D */
   D = ZM_hnfmodid(D,cycbid);
   return gerepileuptoint(av, mulii(h, ZM_det_triangular(D)));
@@ -522,7 +522,7 @@ bnrclassno0(GEN A, GEN B, GEN C)
   else checkbnf(A);/*error*/
 
   H = check_subgroup(A, H, &h);
-  if (!H) { avma = av; return icopy(h); }
+  if (!H) { set_avma(av); return icopy(h); }
   return gerepileuptoint(av, h);
 }
 
@@ -742,7 +742,7 @@ is_unit(GEN M, long r1, GEN x)
   pari_sp av = avma;
   GEN Nx = ground( embed_norm(RgM_zc_mul(M,x), r1) );
   int ok = is_pm1(Nx);
-  avma = av; return ok;
+  set_avma(av); return ok;
 }
 
 /* FIXME: should use smallvectors */
@@ -817,7 +817,7 @@ minimforunits(GEN nf, long BORNE, ulong w)
     }
   }
   if (DEBUGLEVEL>=2){ err_printf("\n"); err_flush(); }
-  avma = av;
+  set_avma(av);
   return normin;
 }
 
@@ -964,7 +964,7 @@ compute_M0(GEN M_star,long N)
           }
         }
       }
-      if (!M0) avma = av; else M0 = gerepilecopy(av, M0);
+      if (!M0) set_avma(av); else M0 = gerepilecopy(av, M0);
     }
   }
   for (i=1;i<=4;i++) (void)delete_var();
@@ -1011,7 +1011,7 @@ bound_unit_index(GEN bnf, GEN units)
 {
   pari_sp av = avma;
   GEN x = lowerboundforregulator(bnf, units);
-  if (!x) { avma = av; x = regulatorbound(bnf); }
+  if (!x) { set_avma(av); x = regulatorbound(bnf); }
   return gerepileuptoint(av, ground(gdiv(bnf_get_reg(bnf), x)));
 }
 
@@ -1114,7 +1114,7 @@ check_prime(ulong p, GEN nf, struct check_pr *S)
   for (i=1; i<lf; i++) gel(beta,b++) = gel(S->fu,i);
   setlg(beta, b); /* beta = [cycgen[i] if p|cyc[i], tu if p|w, fu] */
   if (DEBUGLEVEL>3) {err_printf("     Beta list = %Ps\n",beta); err_flush();}
-  primecertify(nf, beta, p, S->bad); avma = av;
+  primecertify(nf, beta, p, S->bad); set_avma(av);
 }
 
 static void
@@ -1203,7 +1203,7 @@ bnfcertify0(GEN bnf, long flag)
       check_prime(p, nf, &S);
     }
   }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 long
 bnfcertify(GEN bnf) { return bnfcertify0(bnf, 0); }
@@ -1549,12 +1549,12 @@ bnrisconductor(GEN bnr, GEN H0)
   for (k = 1; k < l; k++)
   {
     j = itos(gel(e,k));
-    if (contains(H, bnr_log_gen_pr(bnr, &S, nf, j, k))) { avma = av; return 0; }
+    if (contains(H, bnr_log_gen_pr(bnr, &S, nf, j, k))) { set_avma(av); return 0; }
   }
   l = lg(archp);
   for (k = 1; k < l; k++)
-    if (contains(H, bnr_log_gen_arch(bnr, &S, k))) { avma = av; return 0; }
-  avma = av; return 1;
+    if (contains(H, bnr_log_gen_arch(bnr, &S, k))) { set_avma(av); return 0; }
+  set_avma(av); return 1;
 }
 
 /* return the norm group corresponding to the relative extension given by
@@ -1649,7 +1649,7 @@ rnfnormgroup(GEN bnr, GEN polrel)
 {
   pari_sp av = avma;
   GEN G = rnfnormgroup_i(bnr, polrel);
-  if (!G) { avma = av; return cgetg(1,t_MAT); }
+  if (!G) { set_avma(av); return cgetg(1,t_MAT); }
   return gerepileupto(av, G);
 }
 
@@ -1674,7 +1674,7 @@ nf_deg1_prime(GEN nf)
       z = deg1pol_shallow(gen_1, z, varn(T));
       return idealprimedec_kummer(nf, z, 1, utoipos(p));
     }
-    avma = av;
+    set_avma(av);
   }
   return NULL;
 }
@@ -1730,7 +1730,7 @@ rnfisabelian(GEN nf, GEN pol)
 {
   pari_sp av = avma;
   long t = rnfisabelian_i(nf, pol);
-  avma = av; return t;
+  set_avma(av); return t;
 }
 
 /* Given bnf and T defining an abelian relative extension, compute the
@@ -1778,7 +1778,7 @@ rnfconductor(GEN bnf, GEN T)
   }
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
   bnr = Buchray_i(bnf,module,nf_INIT|nf_GEN);
-  H = rnfnormgroup_i(bnr,T); if (!H) { avma = av; return gen_0; }
+  H = rnfnormgroup_i(bnr,T); if (!H) { set_avma(av); return gen_0; }
   return gerepilecopy(av, bnrconductor_i(bnr,H,2));
 }
 
@@ -1855,7 +1855,7 @@ bnrdisc(GEN bnr, GEN H, long flag)
 {
   pari_sp av = avma;
   GEN D = bnrdisc_i(bnr, H, flag);
-  if (!D) { avma = av; return gen_0; }
+  if (!D) { set_avma(av); return gen_0; }
   return gerepilecopy(av, D);
 }
 GEN
@@ -2187,7 +2187,7 @@ bnrclassno_1(GEN B, ulong h, GEN sgnU)
     cyc = shallowconcat(cyc, gel(sgnU,1));
     qm = vconcat(qm, gel(sgnU,2));
     z = itou( mului(h, ZM_det_triangular(ZM_hnfmodid(qm, cyc))) );
-    avma = av;
+    set_avma(av);
     gel(L,j) = mkvec2(gel(b,1), mkvecsmall(z));
   }
   return L;
@@ -2213,7 +2213,7 @@ hdet(ulong h, GEN m)
 {
   pari_sp av = avma;
   GEN z = mului(h, ZM_det_triangular(ZM_hnf(m)));
-  avma = av; return itou(z);
+  set_avma(av); return itou(z);
 }
 static GEN
 bnrclassno_all(GEN B, ulong h, GEN sgnU)
@@ -2279,7 +2279,7 @@ decodemodule(GEN nf, GEN fa)
     id = id? idealmulpowprime(nf,id, pr,e)
            : idealpow(nf, pr,e);
   }
-  if (!id) { avma = av; return matid(n); }
+  if (!id) { set_avma(av); return matid(n); }
   return gerepileupto(av,id);
 }
 
@@ -2668,8 +2668,8 @@ bnrisgalois(GEN bnr, GEN M, GEN H)
   for (i=1; i<l; i++)
   {
     long res = ZM_equal(bnrgaloisapply(bnr,gel(M,i), H), H);
-    if (!res) { avma = av; return 0; }
+    if (!res) { set_avma(av); return 0; }
   }
-  avma = av;
+  set_avma(av);
   return 1;
 }

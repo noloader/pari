@@ -59,7 +59,7 @@ send_GEN(GEN elt, int dest)
     MPI_Send(buf, size, MPI_CHAR, dest, 0, MPI_COMM_WORLD);
     BLOCK_SIGINT_END
   }
-  pari_free(buf); avma = av;
+  pari_free(buf); set_avma(av);
 }
 
 static void
@@ -185,7 +185,7 @@ pari_MPI_child(void)
       work = recvfrom_GEN(0);
       done = closure_callgenvec(worker, work);
       send_GEN(done, 0);
-      avma = av;
+      set_avma(av);
       break;
     case PMPI_parisizemax:
       vsize = recvfrom_long(0);
@@ -208,12 +208,12 @@ pari_MPI_child(void)
           primetab = t;
           gunclone_deep(old);
         }
-        avma = ltop;
+        set_avma(ltop);
       }
       break;
     case PMPI_eval:
       (void) closure_evalgen(recvfrom_GEN(0));
-      avma = av;
+      set_avma(av);
       break;
     case PMPI_close:
       MPI_Barrier(MPI_COMM_WORLD);

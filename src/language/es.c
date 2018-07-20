@@ -303,7 +303,7 @@ gp_read_file(const char *s)
     x = gnil;
     for (;;) {
       if (!gp_read_stream_buf(f, b)) break;
-      if (*(b->buf)) { avma = av; x = readseq(b->buf); }
+      if (*(b->buf)) { set_avma(av); x = readseq(b->buf); }
     }
     delete_buffer(b);
   }
@@ -621,7 +621,7 @@ ex10(long e) {
     av = avma; z = mulsr(e, log10_2());
     z = floorr(z); e = itos(z) - 1;
   }
-  avma = av; return e;
+  set_avma(av); return e;
 }
 
 static char *
@@ -895,7 +895,7 @@ str_alloc0(pari_str *S, long l, long L)
   S->size = L;
 }
 /* make sure S is large enough to write l further words (<= l * 20 chars).
- * To avoid automatic extension in between av = avma / avma = av pairs
+ * To avoid automatic extension in between av = avma / set_avma(av) pairs
  * [ would destroy S->string if (S->use_stack) ] */
 static void
 str_alloc(pari_str *S, long l)
@@ -1141,7 +1141,7 @@ fmtnum(pari_str *S, long lvalue, GEN gvalue, int base, int signvalue,
   lbuf = (buf0 - buf) - 1;
 END:
   outpad(S, buf, lbuf, signvalue, ljust, len, zpad);
-  if (!S->use_stack) avma = av;
+  if (!S->use_stack) set_avma(av);
 }
 
 static GEN
@@ -1268,7 +1268,7 @@ fmtreal(pari_str *S, GEN gvalue, int space, int signvalue, int FORMAT,
     buf = absrtostr(gvalue, space, FORMAT, sigd);
   if (signe(gvalue) < 0) signvalue = '-';
   outpad(S, buf, strlen(buf), signvalue, ljust, len, zpad);
-  if (!S->use_stack) avma = av;
+  if (!S->use_stack) set_avma(av);
 }
 static long
 gtolong_OK(GEN x)
@@ -1454,7 +1454,7 @@ nextch:
             }
             if (gvalue) strvalue = GENtostr_unquoted(gvalue);
             fmtstr(S, strvalue, ljust, len, maxwidth);
-            if (!S->use_stack) avma = av;
+            if (!S->use_stack) set_avma(av);
             break;
           }
           case 'c':
@@ -1493,7 +1493,7 @@ nextch:
             }
             fmtreal(S, gvalue, GP_DATA->fmt->sp, dosign(print_blank,print_plus),
                     ch, maxwidth, ljust, len, zpad);
-            if (!S->use_stack) avma = av;
+            if (!S->use_stack) set_avma(av);
             break;
           }
           default:
@@ -1694,7 +1694,7 @@ lim_lines_output(char *s, long n, long max_lin)
       if (c == '\n' || col >= width-5)
       {
         pari_sp av = avma;
-        normalOutS(term_get_color(NULL, c_ERR)); avma = av;
+        normalOutS(term_get_color(NULL, c_ERR)); set_avma(av);
         normalOutS("[+++]"); return;
       }
     if (c == '\n')         { col = -1; lin++; }
@@ -1888,7 +1888,7 @@ GENtostr_fun(GEN x, pariout_t *T, OUT_FUN out)
   pari_sp av = avma;
   pari_str S; str_init(&S, 0);
   out(x, T, &S); *S.cur = 0;
-  avma = av; return S.string;
+  set_avma(av); return S.string;
 }
 /* returns a malloc-ed string, which should be freed after usage */
 /* Returns pari_malloc()ed string */
@@ -1971,7 +1971,7 @@ str_absint(pari_str *S, GEN x)
   long l;
   str_alloc(S, lgefint(x)); /* careful ! */
   av = avma;
-  str_puts(S, itostr_sign(x, 1, &l)); avma = av;
+  str_puts(S, itostr_sign(x, 1, &l)); set_avma(av);
 }
 
 #define putsigne_nosp(S, x) str_putc(S, (x>0)? '+' : '-')
@@ -2425,7 +2425,7 @@ dbg_pari_heap(void)
   s = MAXVARN - pari_var_next_temp();
   pari_printf(" %ld variable names used (%ld user + %ld private) out of %d\n\n",
               u+s, u, s, MAXVARN);
-  avma = av;
+  set_avma(av);
 }
 
 /* is to be printed as '0' */
@@ -2813,7 +2813,7 @@ bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
       av = avma;
       if (addsign && signe(g) < 0) str_putc(S, '-');
       str_puts(S, absrtostr(g, T->sp, (char)toupper((int)T->format), T->sigd) );
-      avma = av; break;
+      set_avma(av); break;
     }
 
     case t_INTMOD: case t_POLMOD:
@@ -2903,7 +2903,7 @@ bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
         if ((i & 0xff) == 0) g = gerepileuptoint(av,g);
       }
       str_puts(S, "O("); VpowE(S, ev,i); str_putc(S, ')');
-      avma = av0; break;
+      set_avma(av0); break;
     }
 
     case t_QFR: case t_QFI: r = (tg == t_QFR);
@@ -2944,7 +2944,7 @@ bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
           str_puts(S, "Map(");
           av = avma;
           bruti(maptomat_shallow(g),T,S);
-          avma = av;
+          set_avma(av);
           str_puts(S, ")"); break;
         }
       }
@@ -3065,7 +3065,7 @@ matbruti(GEN g, pariout_t *T, pari_str *S)
       lgall += maxc + 1; /* column width, including separating space */
       if (lgall > w) { pad = NULL; break; } /* doesn't fit, abort padding */
     }
-    avma = av2;
+    set_avma(av2);
   }
   for (i=1; i<l; i++)
   {
@@ -3080,7 +3080,7 @@ matbruti(GEN g, pariout_t *T, pari_str *S)
     }
     if (i<l-1) str_puts(S, "]\n\n"); else str_puts(S, "]\n");
   }
-  if (!S->use_stack) avma = av;
+  if (!S->use_stack) set_avma(av);
 }
 
 /********************************************************************/
@@ -3188,7 +3188,7 @@ texi_sign(GEN g, pariout_t *T, pari_str *S, int addsign)
         }
       }
       str_puts(S, "O("); texVpowE(S, ev,i); str_putc(S, ')');
-      avma = av; break;
+      set_avma(av); break;
     }
 
     case t_VEC:
@@ -3215,7 +3215,7 @@ texi_sign(GEN g, pariout_t *T, pari_str *S, int addsign)
         {
           pari_sp av = avma;
           texi(maptomat_shallow(g),T,S);
-          avma = av;
+          set_avma(av);
           break;
         }
       }
@@ -3305,7 +3305,7 @@ _initout(pariout_t *T, char f, long sigd, long sp)
 
 static void
 gen_output_fun(GEN x, pariout_t *T, OUT_FUN out)
-{ pari_sp av = avma; pari_puts( stack_GENtostr_fun(x,T,out) ); avma = av; }
+{ pari_sp av = avma; pari_puts( stack_GENtostr_fun(x,T,out) ); set_avma(av); }
 
 void
 fputGEN_pariout(GEN x, pariout_t *T, FILE *out)
@@ -3313,7 +3313,7 @@ fputGEN_pariout(GEN x, pariout_t *T, FILE *out)
   pari_sp av = avma;
   char *s = stack_GENtostr_fun(x, T, get_fun(T->prettyp));
   if (*s) { set_last_newline(s[strlen(s)-1]); fputs(s, out); }
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -3670,7 +3670,7 @@ try_pipe(const char *cmd, int fl)
     s = stack_malloc(strlen(cmd)+strlen(f)+4);
     sprintf(s,"%s > %s",cmd,f);
     file = system(s)? NULL: fopen(f,"r");
-    flag |= mf_FALSE; pari_free(f); avma = av;
+    flag |= mf_FALSE; pari_free(f); set_avma(av);
   }
   else
 #  endif
@@ -3962,7 +3962,7 @@ pari_fopengz(const char *s)
   strcpy(name, s); (void)sprintf(name + l, ".gz");
   f = fopen(name, "r");
   pf = f ? pari_get_infile(name, f): NULL;
-  avma = av; return pf;
+  set_avma(av); return pf;
 }
 
 static FILE*
@@ -4018,7 +4018,7 @@ try_name(char *name)
     }
     file = pari_infile = pari_get_infile(s,file)->file;
   }
-  pari_free(name); avma = av;
+  pari_free(name); set_avma(av);
   return file;
 }
 static FILE *
@@ -4336,7 +4336,7 @@ is_magic_ok(FILE *f)
   size_t L = strlen(MAGIC);
   char *s = stack_malloc(L);
   int r = (fread(s,1,L, f) == L && strncmp(s,MAGIC,L) == 0);
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 static int
@@ -4425,7 +4425,7 @@ writebin(const char *name, GEN x)
       writenamedGEN((GEN)ep->value,ep->name,f);
     }
   }
-  avma = av; fclose(f);
+  set_avma(av); fclose(f);
 }
 
 /* read all objects in f. If f contains BIN_GEN that would be silently ignored
@@ -4487,7 +4487,7 @@ out_print0(PariOUT *out, const char *sep, GEN g, long flag)
   pari_sp av = avma;
   OUT_FUN f = get_fun(flag);
   long i, l = lg(g);
-  for (i = 1; i < l; i++, avma = av)
+  for (i = 1; i < l; i++, set_avma(av))
   {
     out_puts(out, stack_GENtostr_fun_unquoted(gel(g,i), GP_DATA->fmt, f));
     if (sep && i+1 < l) out_puts(out, sep);
@@ -4503,7 +4503,7 @@ str_print0(pari_str *S, GEN g, long flag)
   {
     GEN x = gel(g,i);
     if (typ(x) == t_STR) str_puts(S, GSTR(x)); else f(x, GP_DATA->fmt, S);
-    if (!S->use_stack) avma = av;
+    if (!S->use_stack) set_avma(av);
   }
   *(S->cur) = 0;
 }
@@ -4549,7 +4549,7 @@ print0_file(FILE *out, GEN g, long flag)
   pari_str S; str_init(&S, 1);
   str_print0(&S, g, flag);
   fputs(S.string, out);
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -5311,5 +5311,5 @@ gpinstall(const char *s, const char *code, const char *gpname, const char *lib)
   if (update_help || !ep->help) addhelp(gp, dft_help(gp,s,code));
   mt_broadcast(strtoclosure("install",4,strtoGENstr(s),strtoGENstr(code),
                                        strtoGENstr(gp),strtoGENstr(lib)));
-  avma = av;
+  set_avma(av);
 }

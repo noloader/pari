@@ -689,7 +689,7 @@ modrs(GEN x, long y)
 {
   pari_sp av = avma;
   GEN q = _quotrs(x,y);
-  if (!signe(q)) { avma = av; return rcopy(x); }
+  if (!signe(q)) { set_avma(av); return rcopy(x); }
   return gerepileuptoleaf(av, subri(x, mulis(q,y)));
 }
 static GEN
@@ -697,7 +697,7 @@ modsr(long x, GEN y)
 {
   pari_sp av = avma;
   GEN q = _quotsr(x,y);
-  if (!signe(q)) { avma = av; return stoi(x); }
+  if (!signe(q)) { set_avma(av); return stoi(x); }
   return gerepileuptoleaf(av, subsr(x, mulir(q,y)));
 }
 static GEN
@@ -831,7 +831,7 @@ int
 gdvd(GEN x, GEN y)
 {
   pari_sp av = avma;
-  int t = gequal0( gmod(x,y) ); avma = av; return t;
+  int t = gequal0( gmod(x,y) ); set_avma(av); return t;
 }
 
 GEN
@@ -1035,7 +1035,7 @@ diviiround(GEN x, GEN y)
   if (r==gen_0) return q;
   av1 = avma;
   fl = abscmpii(shifti(r,1),y);
-  avma = av1; cgiv(r);
+  set_avma(av1); cgiv(r);
   if (fl >= 0) /* If 2*|r| >= |y| */
   {
     long sz = signe(x)*signe(y);
@@ -1063,7 +1063,7 @@ gdivround(GEN x, GEN y)
     q = quotrem(x,y,&r);
     av1 = avma;
     fl = gcmp(gmul2n(R_abs_shallow(r),1), R_abs_shallow(y));
-    avma = av1; cgiv(r);
+    set_avma(av1); cgiv(r);
     if (fl >= 0) /* If 2*|r| >= |y| */
     {
       long sz = gsigne(y);
@@ -2245,7 +2245,7 @@ ground(GEN x)
     case t_COMPLEX:
       av = avma; y = cgetg(3, t_COMPLEX);
       gel(y,2) = ground(gel(x,2));
-      if (!signe(gel(y,2))) { avma = av; return ground(gel(x,1)); }
+      if (!signe(gel(y,2))) { set_avma(av); return ground(gel(x,1)); }
       gel(y,1) = ground(gel(x,1)); return y;
 
     case t_POL:
@@ -2293,7 +2293,7 @@ grndtoi(GEN x, long *e)
       av = avma; y = cgetg(3, t_COMPLEX);
       gel(y,2) = grndtoi(gel(x,2), e);
       if (!signe(gel(y,2))) {
-        avma = av;
+        set_avma(av);
         y = grndtoi(gel(x,1), &e1);
       }
       else
@@ -2389,7 +2389,7 @@ gcvtoi(GEN x, long *e)
     long ex = expo(x); if (ex < 0) { *e = ex; return gen_0; }
     e1 = ex - bit_prec(x) + 1;
     y = mantissa2nr(x, e1);
-    if (e1 <= 0) { pari_sp av = avma; e1 = expo(subri(x,y)); avma = av; }
+    if (e1 <= 0) { pari_sp av = avma; e1 = expo(subri(x,y)); set_avma(av); }
     *e = e1; return y;
   }
   *e = -(long)HIGHEXPOBIT;
@@ -2418,8 +2418,8 @@ isint(GEN n, GEN *ptk)
       GEN z = floorr(n);
       pari_sp av = avma;
       long s = signe(subri(n, z));
-      if (s) { avma = av0; return 0; }
-      *ptk = z; avma = av; return 1;
+      if (s) { set_avma(av0); return 0; }
+      *ptk = z; set_avma(av); return 1;
     }
     case t_FRAC:    return 0;
     case t_COMPLEX: return gequal0(gel(n,2)) && isint(gel(n,1),ptk);
@@ -2436,7 +2436,7 @@ issmall(GEN n, long *ptk)
   GEN z;
   long k;
   if (!isint(n, &z)) return 0;
-  k = itos_or_0(z); avma = av;
+  k = itos_or_0(z); set_avma(av);
   if (k || lgefint(z) == 2) { *ptk = k; return 1; }
   return 0;
 }
@@ -3318,7 +3318,7 @@ denominator(GEN x, GEN D)
   if (isint1(D))
   {
     d = Q_denom_safe(x);
-    if (!d) { avma = av; return gen_1; }
+    if (!d) { set_avma(av); return gen_1; }
     return gerepilecopy(av, d);
   }
   if (!gequalX(D)) pari_err_TYPE("denominator", D);
@@ -3570,7 +3570,7 @@ centerliftii(GEN x, GEN y)
 {
   pari_sp av = avma;
   long i = cmpii(shifti(x,1), y);
-  avma = av; return (i > 0)? subii(x,y): icopy(x);
+  set_avma(av); return (i > 0)? subii(x,y): icopy(x);
 }
 
 /* see lift0 */
@@ -3795,7 +3795,7 @@ _egal(GEN x, GEN y)
 {
   pari_sp av = avma;
   long r = _egal_i(x, y);
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 GEN

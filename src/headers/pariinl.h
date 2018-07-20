@@ -1126,7 +1126,7 @@ cgetalloc(long t, size_t l)
 /*                       GARBAGE COLLECTION                        */
 /*                                                                 */
 /*******************************************************************/
-/* copy integer x as if we had avma = av */
+/* copy integer x as if we had set_avma(av) */
 INLINE GEN
 icopy_avma(GEN x, pari_sp av)
 {
@@ -1136,7 +1136,7 @@ icopy_avma(GEN x, pari_sp av)
   y[0] = evaltyp(t_INT)|evallg(lx);
   return y;
 }
-/* copy leaf x as if we had avma = av */
+/* copy leaf x as if we had set_avma(av) */
 INLINE GEN
 leafcopy_avma(GEN x, pari_sp av)
 {
@@ -1152,7 +1152,7 @@ gerepileuptoleaf(pari_sp av, GEN x)
   long lx;
   GEN q;
 
-  if (!isonstack(x) || (GEN)av<=x) { avma = av; return x; }
+  if (!isonstack(x) || (GEN)av<=x) { set_avma(av); return x; }
   lx = lg(x);
   q = ((GEN)av) - lx;
   avma = (pari_sp)q;
@@ -1162,14 +1162,14 @@ gerepileuptoleaf(pari_sp av, GEN x)
 INLINE GEN
 gerepileuptoint(pari_sp av, GEN x)
 {
-  if (!isonstack(x) || (GEN)av<=x) { avma = av; return x; }
+  if (!isonstack(x) || (GEN)av<=x) { set_avma(av); return x; }
   avma = (pari_sp)icopy_avma(x, av);
   return (GEN)avma;
 }
 INLINE GEN
 gerepileupto(pari_sp av, GEN x)
 {
-  if (!isonstack(x) || (GEN)av<=x) { avma = av; return x; }
+  if (!isonstack(x) || (GEN)av<=x) { set_avma(av); return x; }
   switch(typ(x))
   { /* non-default = !is_recursive_t(tq) */
     case t_INT: return gerepileuptoint(av, x);
@@ -1189,11 +1189,11 @@ gerepilecopy(pari_sp av, GEN x)
   if (is_recursive_t(typ(x)))
   {
     GENbin *p = copy_bin(x);
-    avma = av; return bin_copy(p);
+    set_avma(av); return bin_copy(p);
   }
   else
   {
-    avma = av;
+    set_avma(av);
     if (x < (GEN)av) {
       if (x < (GEN)pari_mainstack->bot) new_chunk(lg(x));
       x = leafcopy_avma(x, av);
@@ -1212,7 +1212,7 @@ gerepilemany(pari_sp av, GEN* gptr[], int n)
 {
   int i;
   for (i=0; i<n; i++) *gptr[i] = (GEN)copy_bin(*gptr[i]);
-  avma = av;
+  set_avma(av);
   for (i=0; i<n; i++) *gptr[i] = bin_copy((GENbin*)*gptr[i]);
 }
 
@@ -1226,7 +1226,7 @@ gerepileall(pari_sp av, int n, ...)
     GEN *gptr[10];
     for (i=0; i<n; i++)
     { gptr[i] = va_arg(a,GEN*); *gptr[i] = (GEN)copy_bin(*gptr[i]); }
-    avma = av;
+    set_avma(av);
     for (--i; i>=0; i--) *gptr[i] = bin_copy((GENbin*)*gptr[i]);
 
   }
@@ -1235,7 +1235,7 @@ gerepileall(pari_sp av, int n, ...)
     GEN **gptr = (GEN**)  pari_malloc(n*sizeof(GEN*));
     for (i=0; i<n; i++)
     { gptr[i] = va_arg(a,GEN*); *gptr[i] = (GEN)copy_bin(*gptr[i]); }
-    avma = av;
+    set_avma(av);
     for (--i; i>=0; i--) *gptr[i] = bin_copy((GENbin*)*gptr[i]);
     pari_free(gptr);
   }
@@ -1247,7 +1247,7 @@ gerepilecoeffs(pari_sp av, GEN x, int n)
 {
   int i;
   for (i=0; i<n; i++) gel(x,i) = (GEN)copy_bin(gel(x,i));
-  avma = av;
+  set_avma(av);
   for (i=0; i<n; i++) gel(x,i) = bin_copy((GENbin*)x[i]);
 }
 
@@ -1274,7 +1274,7 @@ INLINE void
 cgiv(GEN x)
 {
   pari_sp av = (pari_sp)(x+lg(x));
-  if (isonstack((GEN)av)) avma = av;
+  if (isonstack((GEN)av)) set_avma(av);
 }
 
 INLINE void
@@ -1316,7 +1316,7 @@ gtodouble(GEN x)
     pari_sp av = avma;
     x = gtofp(x, DEFAULTPREC);
     if (typ(x)!=t_REAL) pari_err_TYPE("gtodouble [t_REAL expected]", x);
-    avma = av;
+    set_avma(av);
   }
   return rtodbl(x);
 }
@@ -1452,7 +1452,7 @@ affgr(GEN x, GEN y)
     case t_INT:  affir(x,y); break;
     case t_REAL: affrr(x,y); break;
     case t_FRAC: rdiviiz(gel(x,1),gel(x,2), y); break;
-    case t_QUAD: av = avma; affgr(quadtofp(x,realprec(y)), y); avma = av; break;
+    case t_QUAD: av = avma; affgr(quadtofp(x,realprec(y)), y); set_avma(av); break;
     default: pari_err_TYPE2("=",x,y);
   }
 }
@@ -1556,7 +1556,7 @@ Fp_add(GEN a, GEN b, GEN m)
   {
     GEN t = subii(p, m);
     s = signe(t);
-    if (!s) { avma = av; return gen_0; }
+    if (!s) { set_avma(av); return gen_0; }
     if (s < 0) { avma = (pari_sp)p; return p; }
     if (cmpii(t, m) < 0) return gerepileuptoint(av, t); /* general case ! */
     p = remii(t, m);
@@ -1580,7 +1580,7 @@ Fp_sub(GEN a, GEN b, GEN m)
   else
   {
     GEN t = addii(p, m);
-    if (!s) { avma = av; return gen_0; }
+    if (!s) { set_avma(av); return gen_0; }
     if (s > 0) return gerepileuptoint(av, t); /* general case ! */
     p = modii(t, m);
   }
@@ -1637,7 +1637,7 @@ Fp_mul(GEN a, GEN b, GEN m)
   GEN p; /*HACK: assume modii use <=lg(p)+(lg(m)<<1) space*/
   (void)new_chunk(lg(a)+lg(b)+(lg(m)<<1));
   p = mulii(a,b);
-  avma = av; return modii(p,m);
+  set_avma(av); return modii(p,m);
 }
 INLINE GEN
 Fp_sqr(GEN a, GEN m)
@@ -1646,7 +1646,7 @@ Fp_sqr(GEN a, GEN m)
   GEN p; /*HACK: assume modii use <=lg(p)+(lg(m)<<1) space*/
   (void)new_chunk((lg(a)+lg(m))<<1);
   p = sqri(a);
-  avma = av; return remii(p,m); /*Use remii: p >= 0 */
+  set_avma(av); return remii(p,m); /*Use remii: p >= 0 */
 }
 INLINE GEN
 Fp_mulu(GEN a, ulong b, GEN m)
@@ -1661,7 +1661,7 @@ Fp_mulu(GEN a, ulong b, GEN m)
     GEN p; /*HACK: assume modii use <=lg(p)+(lg(m)<<1) space*/
     (void)new_chunk(lg(a)+1+(l<<1));
     p = muliu(a,b);
-    avma = av; return modii(p,m);
+    set_avma(av); return modii(p,m);
   }
 }
 INLINE GEN
@@ -1683,7 +1683,7 @@ Fp_muls(GEN a, long b, GEN m)
     GEN p; /*HACK: assume modii use <=lg(p)+(lg(m)<<1) space*/
     (void)new_chunk(lg(a)+1+(l<<1));
     p = mulis(a,b);
-    avma = av; return modii(p,m);
+    set_avma(av); return modii(p,m);
   }
 }
 
@@ -1708,7 +1708,7 @@ Fp_div(GEN a, GEN b, GEN m)
   GEN p; /*HACK: assume modii use <=lg(p)+(lg(m)<<1) space*/
   (void)new_chunk(lg(a)+(lg(m)<<1));
   p = mulii(a, Fp_inv(b,m));
-  avma = av; return modii(p,m);
+  set_avma(av); return modii(p,m);
 }
 
 INLINE GEN
@@ -1786,7 +1786,7 @@ submulii(GEN x, GEN y, GEN z)
   lz = lgefint(z);
   av = avma; (void)new_chunk(lx+ly+lz); /* HACK */
   t = mulii(z, y);
-  avma = av; return subii(x,t);
+  set_avma(av); return subii(x,t);
 }
 /* y*z - x */
 INLINE GEN
@@ -1801,7 +1801,7 @@ mulsubii(GEN y, GEN z, GEN x)
   lz = lgefint(z);
   av = avma; (void)new_chunk(lx+ly+lz); /* HACK */
   t = mulii(z, y);
-  avma = av; return subii(t,x);
+  set_avma(av); return subii(t,x);
 }
 
 /* x - u*y */
@@ -1814,7 +1814,7 @@ submuliu(GEN x, GEN y, ulong u)
   av = avma;
   (void)new_chunk(3+ly+lgefint(x)); /* HACK */
   y = mului(u,y);
-  avma = av; return subii(x, y);
+  set_avma(av); return subii(x, y);
 }
 /* x + u*y */
 INLINE GEN
@@ -1826,7 +1826,7 @@ addmuliu(GEN x, GEN y, ulong u)
   av = avma;
   (void)new_chunk(3+ly+lgefint(x)); /* HACK */
   y = mului(u,y);
-  avma = av; return addii(x, y);
+  set_avma(av); return addii(x, y);
 }
 /* x - u*y */
 INLINE GEN
@@ -1838,7 +1838,7 @@ submuliu_inplace(GEN x, GEN y, ulong u)
   av = avma;
   (void)new_chunk(3+ly+lgefint(x)); /* HACK */
   y = mului(u,y);
-  avma = av; return subii(x, y);
+  set_avma(av); return subii(x, y);
 }
 /* x + u*y */
 INLINE GEN
@@ -1850,7 +1850,7 @@ addmuliu_inplace(GEN x, GEN y, ulong u)
   av = avma;
   (void)new_chunk(3+ly+lgefint(x)); /* HACK */
   y = mului(u,y);
-  avma = av; return addii(x, y);
+  set_avma(av); return addii(x, y);
 }
 /* ux + vy */
 INLINE GEN
@@ -1865,7 +1865,7 @@ lincombii(GEN u, GEN v, GEN x, GEN y)
   av = avma; (void)new_chunk(lx+ly+lgefint(u)+lgefint(v)); /* HACK */
   p1 = mulii(u,x);
   p2 = mulii(v,y);
-  avma = av; return addii(p1,p2);
+  set_avma(av); return addii(p1,p2);
 }
 
 /*******************************************************************/
@@ -2116,7 +2116,7 @@ INLINE long
 gval(GEN x, long v) {
   pari_sp av = avma;
   long n = gvaluation(x, pol_x(v));
-  avma = av; return n;
+  set_avma(av); return n;
 }
 
 INLINE void
@@ -2475,7 +2475,7 @@ quad_disc(GEN x)
   if (is_pm1(b))
   {
     pari_sp av = avma; (void)new_chunk(lgefint(c) + 1);
-    c4 = shifti(c,2); avma = av; return subsi(1, c4);
+    c4 = shifti(c,2); set_avma(av); return subsi(1, c4);
   }
   c4 = shifti(c,2); togglesign_safe(&c4); return c4;
 }
@@ -2530,33 +2530,33 @@ powIs(long n) {
 /*                                                                 */
 /*******************************************************************/
 INLINE void mpexpz(GEN x, GEN z)
-{ pari_sp av = avma; gaffect(mpexp(x), z); avma = av; }
+{ pari_sp av = avma; gaffect(mpexp(x), z); set_avma(av); }
 INLINE void mplogz(GEN x, GEN z)
-{ pari_sp av = avma; gaffect(mplog(x), z); avma = av; }
+{ pari_sp av = avma; gaffect(mplog(x), z); set_avma(av); }
 INLINE void mpcosz(GEN x, GEN z)
-{ pari_sp av = avma; gaffect(mpcos(x), z); avma = av; }
+{ pari_sp av = avma; gaffect(mpcos(x), z); set_avma(av); }
 INLINE void mpsinz(GEN x, GEN z)
-{ pari_sp av = avma; gaffect(mpsin(x), z); avma = av; }
+{ pari_sp av = avma; gaffect(mpsin(x), z); set_avma(av); }
 INLINE void gnegz(GEN x, GEN z)
-{ pari_sp av = avma; gaffect(gneg(x), z); avma = av; }
+{ pari_sp av = avma; gaffect(gneg(x), z); set_avma(av); }
 INLINE void gabsz(GEN x, long prec, GEN z)
-{ pari_sp av = avma; gaffect(gabs(x,prec), z); avma = av; }
+{ pari_sp av = avma; gaffect(gabs(x,prec), z); set_avma(av); }
 INLINE void gaddz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; gaffect(gadd(x,y), z); avma = av; }
+{ pari_sp av = avma; gaffect(gadd(x,y), z); set_avma(av); }
 INLINE void gsubz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; gaffect(gsub(x,y), z); avma = av; }
+{ pari_sp av = avma; gaffect(gsub(x,y), z); set_avma(av); }
 INLINE void gmulz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; gaffect(gmul(x,y), z); avma = av; }
+{ pari_sp av = avma; gaffect(gmul(x,y), z); set_avma(av); }
 INLINE void gdivz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; gaffect(gdiv(x,y), z); avma = av; }
+{ pari_sp av = avma; gaffect(gdiv(x,y), z); set_avma(av); }
 INLINE void gdiventz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; gaffect(gdivent(x,y), z); avma = av; }
+{ pari_sp av = avma; gaffect(gdivent(x,y), z); set_avma(av); }
 INLINE void gmodz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; gaffect(gmod(x,y), z); avma = av; }
+{ pari_sp av = avma; gaffect(gmod(x,y), z); set_avma(av); }
 INLINE void gmul2nz(GEN x, long s, GEN z)
-{ pari_sp av = avma; gaffect(gmul2n(x,s), z); avma = av; }
+{ pari_sp av = avma; gaffect(gmul2n(x,s), z); set_avma(av); }
 INLINE void gshiftz(GEN x, long s, GEN z)
-{ pari_sp av = avma; gaffect(gshift(x,s), z); avma = av; }
+{ pari_sp av = avma; gaffect(gshift(x,s), z); set_avma(av); }
 
 /*******************************************************************/
 /*                                                                 */

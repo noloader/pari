@@ -107,7 +107,7 @@ map_X1_points(
         ++i;
       }
     }
-    avma = av;
+    set_avma(av);
   }
 
   Flv_inv_pre_inplace(rd, p, pi);
@@ -117,7 +117,7 @@ map_X1_points(
     r[i] = Fl_addmul_pre(X1->rplus1, rn[i], rd[i], p, pi);
     s[i] = Fl_addmul_pre(X1->splus1, sn[i], sd[i], p, pi);
   }
-  avma = ltop;
+  set_avma(ltop);
 }
 
 /*
@@ -347,7 +347,7 @@ random_curves_with_general_X1(
     break;
   }
   }
-  avma = av;
+  set_avma(av);
 }
 
 
@@ -394,10 +394,10 @@ random_curves_with_11_torsion(
     r = Fl_mul_pre(Fl_add(Q[2], c_108, p), inv216, p, pi);
     s = Fl_add(1, Fl_div(Fl_sub(Q[2], c_108, p), den, p), p);
     rs_to_a4a6_and_tors(a4++, a6++, tx++, ty++, r, s, p, pi);
-    avma = av;
+    set_avma(av);
     --ncurves;
   }
-  avma = ltop;
+  set_avma(ltop);
 }
 
 
@@ -681,7 +681,7 @@ random_curves_with_any_torsion(
     P = random_Fle_pre(a4[i], a6[i], p, pi);
     px[i] = P[1];
     py[i] = P[2];
-    avma = av;
+    set_avma(av);
   }
 }
 

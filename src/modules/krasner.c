@@ -284,7 +284,7 @@ DivideByPi(FAD_t *fdata, GEN pp, GEN ppp, GEN pol)
   {
     GEN r;
     gel(P,i) = dvmdii(gel(P,i), fdata->p, &r);
-    if (r != gen_0) { avma = av; return NULL; }
+    if (r != gen_0) { set_avma(av); return NULL; }
   }
   return FpX_red(P, pp);
 }
@@ -438,11 +438,11 @@ IsIsomorphic(KRASNER_t *data, FAD_t *fdata, GEN pol)
   {
     GEN p1 = FqX_FpXQ_eval(pol, fdata->z, fdata->top, data->pr);
     nb = RootCountingAlgorithm(data, fdata, p1, 1);
-    if (nb) { avma = av; return nb; }
+    if (nb) { set_avma(av); return nb; }
     if (j < data->f)
       pol = FqX_FpXQ_eval(pol, data->frob, data->T, data->pr);
   }
-  avma = av; return 0;
+  set_avma(av); return 0;
 }
 
 /* Compute the number of conjugates fields of the field given by fdata */
@@ -455,7 +455,7 @@ NbConjugateFields(KRASNER_t *data, FAD_t *fdata)
 
   if (RgX_is_ZX(pol)) { /* split for efficiency; contains the case f = 1 */
     fdata->cj = data->e / RootCountingAlgorithm(data, fdata, pol, 0);
-    avma = av; return;
+    set_avma(av); return;
   }
 
   nb = 0;
@@ -467,7 +467,7 @@ NbConjugateFields(KRASNER_t *data, FAD_t *fdata)
     if (j < data->f)
       pol = FqX_FpXQ_eval(pol, data->frob, data->T, data->pr);
   }
-  avma = av;
+  set_avma(av);
   fdata->cj = data->e * data->f / nb;
   return;
 }
@@ -665,7 +665,7 @@ WildlyRamifiedCase(KRASNER_t *data)
         err_printf("%ld more extension%s\t(%ld/%ld, %ldms)\n",
                    nb, (nb == 1)? "": "s", fd, nbext, timer_delay(&T));
     }
-    avma = av2;
+    set_avma(av2);
   }
 
   rep = cgetg(ct+1, t_VEC);
@@ -890,7 +890,7 @@ pols_from_efj(pari_sp av, GEN EFJ, GEN p, long flag)
 {
   long i, l;
   GEN L = cgetg_copy(EFJ, &l);
-  if (l == 1) { avma = av; return flag == 2? gen_0: cgetg(1, t_VEC); }
+  if (l == 1) { set_avma(av); return flag == 2? gen_0: cgetg(1, t_VEC); }
   for (i = 1; i < l; i++)
   {
     gel(L,i) = GetRamifiedPol(p, gel(EFJ,i), flag);

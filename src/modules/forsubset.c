@@ -97,5 +97,5 @@ forsubset0(GEN nk, GEN code)
   forsubset_init(&T, nk);
   while ((v = forsubset_next(&T)))
     if (gp_evalvoid(E, v)) break;
-  pop_lex(1); avma = av;
+  pop_lex(1); set_avma(av);
 }

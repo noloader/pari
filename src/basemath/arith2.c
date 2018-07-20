@@ -72,7 +72,7 @@ factoru_pow(ulong n)
   F = factoru(n);
   P = gel(F,1);
   E = gel(F,2); l = lg(P);
-  avma = av;
+  set_avma(av);
   gel(f,1) = p = cgetg(l,t_VECSMALL);
   gel(f,2) = e = cgetg(l,t_VECSMALL);
   gel(f,3) = c = cgetg(l,t_VECSMALL);
@@ -158,7 +158,7 @@ factor_eulerphi(GEN n)
         B = to_mat(p, e-1);
     }
   }
-  avma = av;
+  set_avma(av);
   if (!B) return v? to_mat(gen_2, v): trivial_fact();
   A = cgetg(3, t_MAT);
   P = gel(B,1); E = gel(B,2); l = lg(P);
@@ -605,7 +605,7 @@ omegau(ulong n)
   GEN F;
   if (n == 1UL) return 0;
   av = avma; F = factoru(n);
-  avma = av; return lg(gel(F,1))-1;
+  set_avma(av); return lg(gel(F,1))-1;
 }
 long
 omega(GEN n)
@@ -621,7 +621,7 @@ omega(GEN n)
   if (lgefint(n) == 3) return omegau(n[2]);
   av = avma;
   F = absZ_factor(n);
-  P = gel(F,1); avma = av; return lg(P)-1;
+  P = gel(F,1); set_avma(av); return lg(P)-1;
 }
 
 long
@@ -631,7 +631,7 @@ bigomegau(ulong n)
   GEN F;
   if (n == 1) return 0;
   av = avma; F = factoru(n);
-  avma = av; return zv_sum(gel(F,2));
+  set_avma(av); return zv_sum(gel(F,2));
 }
 long
 bigomega(GEN n)
@@ -650,7 +650,7 @@ bigomega(GEN n)
   else
     E = gel(absZ_factor(n), 2);
   E = ZV_to_zv(E);
-  avma = av; return zv_sum(E);
+  set_avma(av); return zv_sum(E);
 }
 
 /* assume f = factoru(n), possibly with 0 exponents. Return phi(n) */
@@ -680,7 +680,7 @@ eulerphiu(ulong n)
   GEN F;
   if (!n) return 2;
   F = factoru(n);
-  avma = av; return eulerphiu_fact(F);
+  set_avma(av); return eulerphiu_fact(F);
 }
 GEN
 eulerphi(GEN n)
@@ -698,7 +698,7 @@ eulerphi(GEN n)
       ulong e;
       F = mkmat2(ZV_to_nv(gel(F,1)), ZV_to_nv(gel(F,2)));
       e = eulerphiu_fact(F);
-      avma = av; return utoipos(e);
+      set_avma(av); return utoipos(e);
     }
   }
   else if (lgefint(n) == 3) return utoipos(eulerphiu(uel(n,2)));
@@ -734,7 +734,7 @@ numdivu(long N)
   GEN fa;
   if (N == 1) return 1;
   av = avma; fa = factoru(N);
-  avma = av; return numdivu_fact(fa);
+  set_avma(av); return numdivu_fact(fa);
 }
 static GEN
 numdiv_aux(GEN F)
@@ -920,7 +920,7 @@ issquarefree(GEN x)
     case t_POL:
       if (!signe(x)) return 0;
       av = avma; d = RgX_gcd(x, RgX_deriv(x));
-      avma = av; return (lg(d) == 3);
+      set_avma(av); return (lg(d) == 3);
     case t_VEC:
     case t_MAT: return fa_issquarefree(check_arith_all(x,"issquarefree"));
     default: pari_err_TYPE("issquarefree",x);
@@ -1056,7 +1056,7 @@ digits_dacsmall(GEN x, GEN vB, long l, ulong* z)
   q = dvmdii(x, gel(vB,m), &r);
   digits_dacsmall(q,vB,l-m,z);
   digits_dacsmall(r,vB,m,z+l-m);
-  avma = av;
+  set_avma(av);
 }
 
 GEN
@@ -1068,8 +1068,8 @@ digits(GEN x, GEN B)
   if (typ(x)!=t_INT) pari_err_TYPE("digits",x);
   B = check_basis(B);
   if (signe(B)<0) pari_err_DOMAIN("digits","B","<",gen_0,B);
-  if (!signe(x))       {avma = av; return cgetg(1,t_VEC); }
-  if (abscmpii(x,B)<0) {avma = av; retmkvec(absi(x)); }
+  if (!signe(x))       {set_avma(av); return cgetg(1,t_VEC); }
+  if (abscmpii(x,B)<0) {set_avma(av); retmkvec(absi(x)); }
   if (Z_ispow2(B))
   {
     long k = expi(B);
@@ -1078,11 +1078,11 @@ digits(GEN x, GEN B)
     {
       (void)new_chunk(4*(expi(x) + 2)); /* HACK */
       z = binary_2k_nv(x, k);
-      avma = av; return Flv_to_ZV(z);
+      set_avma(av); return Flv_to_ZV(z);
     }
     else
     {
-      avma = av; return binary_2k(x, k);
+      set_avma(av); return binary_2k(x, k);
     }
   }
   x = absi_shallow(x);
@@ -1098,7 +1098,7 @@ digits(GEN x, GEN B)
     (void)new_chunk(3*lz); /* HACK */
     z = zero_zv(lz);
     digits_dacsmall(x,vB,lz,(ulong*)(z+1));
-    avma = av; return Flv_to_ZV(z);
+    set_avma(av); return Flv_to_ZV(z);
   }
 }
 
@@ -1228,7 +1228,7 @@ sumdigits(GEN n)
   if ((ulong)l < ULONG_MAX / 81)
   {
     s = sumdigits_block(res, l);
-    avma = av; return utoipos(s);
+    set_avma(av); return utoipos(s);
   }
   else /* Huge. Overflows ulong */
   {
@@ -1258,19 +1258,19 @@ sumdigits0(GEN x, GEN B)
   if (Z_ispow2(B))
   {
     long k = expi(B);
-    if (k == 1) { avma = av; return utoi(hammingweight(x)); }
+    if (k == 1) { set_avma(av); return utoi(hammingweight(x)); }
     if (k < BITS_IN_LONG)
     {
       GEN z = binary_2k_nv(x, k);
       if (lg(z)-1 > 1L<<(BITS_IN_LONG-k)) /* may overflow */
         return gerepileuptoint(av, ZV_sum(Flv_to_ZV(z)));
-      avma = av; return utoi(zv_sum(z));
+      set_avma(av); return utoi(zv_sum(z));
     }
     return gerepileuptoint(av, ZV_sum(binary_2k(x, k)));
   }
-  if (!signe(x))       { avma = av; return gen_0; }
-  if (abscmpii(x,B)<0) { avma = av; return absi(x); }
-  if (absequaliu(B,10))   { avma = av; return sumdigits(x); }
+  if (!signe(x))       { set_avma(av); return gen_0; }
+  if (abscmpii(x,B)<0) { set_avma(av); return absi(x); }
+  if (absequaliu(B,10))   { set_avma(av); return sumdigits(x); }
   lz = logint(x,B) + 1;
   z = gen_digits_i(x, B, lz, NULL, &Z_ring, _dvmdii);
   return gerepileuptoint(av, ZV_sum(z));

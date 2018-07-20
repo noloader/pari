@@ -205,7 +205,7 @@ p_mat(GEN mat, GEN perm, long k)
   err_printf("Permutation: %Ps\n",perm);
   if (DEBUGLEVEL > 6)
     err_printf("matgen = %Ps\n", zm_to_ZM( rowpermute(mat, perm) ));
-  avma = av;
+  set_avma(av);
 }
 
 static GEN
@@ -225,7 +225,7 @@ ZM_rowrankprofile(GEN x, long *nlze)
 
   x = shallowtrans(x); l = lg(x);
   (void)new_chunk(l); /* HACK */
-  d = ZM_pivots(x,&r); avma = av;
+  d = ZM_pivots(x,&r); set_avma(av);
   *nlze = r;
   if (!d) return identity_perm(l-1);
   y = cgetg(l,t_VECSMALL);
@@ -348,7 +348,7 @@ hnfspec_i(GEN mat0, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
     if (gc_needed(av,3))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[1]");
-      if (T) T = gerepilecopy(av, T); else avma = av;
+      if (T) T = gerepilecopy(av, T); else set_avma(av);
     }
   }
   /* As above with lines containing a +/- 1 (no other assumption).
@@ -1466,7 +1466,7 @@ ZM_hnfmodprime(GEN x, GEN p)
   l = lgcols(x);
   x = FpM_echelon(x, &P, p);
   lP = lg(P); /* rank = lP-1 */
-  if (lP == l) { avma = av; return matid(l-1); }
+  if (lP == l) { set_avma(av); return matid(l-1); }
   y = scalarmat_shallow(p, l-1);
   for (i = 1; i < lP; i++) gel(y,P[i]) = gel(x,i);
   return gerepilecopy(av, FpM_hnfend(av,y,p));
@@ -1661,7 +1661,7 @@ must_swap(long k, GEN lambda, GEN D)
   pari_sp av = avma;
   GEN z = addii(mulii(gel(D,k-2),gel(D,k)), sqri(gcoeff(lambda,k-1,k)));
   long s = cmpii(z, sqri(gel(D,k-1)));
-  avma = av; return s < 0;
+  set_avma(av); return s < 0;
 }
 
 GEN
@@ -2138,17 +2138,17 @@ hnfdivide(GEN A, GEN B)
     b = gel(B,k);
     m = gel(b,k);
     gel(u,k) = dvmdii(m, gcoeff(A,k,k), &r);
-    if (r != gen_0) { avma = av; return 0; }
+    if (r != gen_0) { set_avma(av); return 0; }
     for (i=k-1; i>0; i--)
     {
       m = gel(b,i);
       for (j=i+1; j<=k; j++) m = subii(m, mulii(gcoeff(A,i,j),gel(u,j)));
       m = dvmdii(m, gcoeff(A,i,i), &r);
-      if (r != gen_0) { avma = av; return 0; }
+      if (r != gen_0) { set_avma(av); return 0; }
       gel(u,i) = m;
     }
   }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 /* A upper HNF, b integral vector. Return A^(-1) b if integral,
@@ -2172,11 +2172,11 @@ hnf_invimage(GEN A, GEN b)
     for (j=i+1; j<=n; j++) t = subii(t, mulii(gcoeff(A,k,j),gel(u,j)));
     if (!signe(Aki))
     {
-      if (signe(t)) { avma = av;return NULL; }
-      avma = av2; gel(u,i) = gen_0; continue;
+      if (signe(t)) { set_avma(av);return NULL; }
+      set_avma(av2); gel(u,i) = gen_0; continue;
     }
     t = dvmdii(t, Aki, &r);
-    if (r != gen_0) { avma = av; return NULL; }
+    if (r != gen_0) { set_avma(av); return NULL; }
     gel(u,i) = gerepileuptoint(av2, t);
     if (--i == 0) break;
   }
@@ -2188,8 +2188,8 @@ hnf_invimage(GEN A, GEN b)
     GEN t = gel(b,k);
     if (typ(t) != t_INT) pari_err_TYPE("hnf_invimage",t);
     for (j=1; j<=n; j++) t = subii(t, mulii(gcoeff(A,k,j),gel(u,j)));
-    if (signe(t)) { avma = av;return NULL; }
-    avma = av2;
+    if (signe(t)) { set_avma(av);return NULL; }
+    set_avma(av2);
   }
   return u;
 }
@@ -2207,7 +2207,7 @@ hnf_solve(GEN A, GEN B)
   av = avma; C = cgetg_copy(B, &l);
   for (i = 1; i < l; i++) {
     GEN c = hnf_invimage(A, gel(B,i));
-    if (!c) { avma = av; return NULL; }
+    if (!c) { set_avma(av); return NULL; }
     gel(C,i) = c;
   }
   return C;

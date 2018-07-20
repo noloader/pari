@@ -240,7 +240,7 @@ fingerprint(struct fingerprint *fp, struct qfauto *qf)
     if (!fp->e[i])
       pari_err_BUG("qfisom, standard basis vector not found");
   }
-  avma = av;
+  set_avma(av);
 }
 
 /* The Bacher-polynomial for v[I] with scalar product S is
@@ -420,14 +420,14 @@ bachcomp(GEN pol, long I, GEN V, GEN W, GEN Fv)
        or if the coefficient of X^count becomes now larger than the one in pol,
        then the Bacher-polynomials can not be equal */
     {
-      avma = av;
+      set_avma(av);
       return 0;
     }
     else
       co[count-mind+1]++;
   }
   /* the Bacher-polynomials are equal */
-  avma = av;
+  set_avma(av);
   return 1;
 }
 
@@ -467,7 +467,7 @@ operate(long nr, GEN A, GEN V)
   if (nr < 0) eps = -eps; /* -w */
   im = vecvecsmall_search(V,w,0);
   if (!im) pari_err_BUG("qfauto, image of vector not found");
-  avma = av;
+  set_avma(av);
   return eps*im;
 }
 
@@ -525,7 +525,7 @@ orbitlen(long pt, long orblen, GEN G, long nG, GEN V)
         flag[im] = 1;
       }
     }
-  avma = av;
+  set_avma(av);
   return len;
 }
 
@@ -562,7 +562,7 @@ orbsubtract(GEN Cs, GEN pt, long ipt, long npt, GEN H, GEN V, long *len)
   GEN orb = orbit(pt, ipt, npt, H, V);
   if (len) *len = lg(orb)-1;
   nC = orbdelete(Cs, orb);
-  avma = av; return nC;
+  set_avma(av); return nC;
 }
 
 /* Generates the matrix X which has as row per[i] the vector nr. x[i] from the
@@ -820,7 +820,7 @@ qfisom_candidates_novec(GEN CI, long I, GEN x, struct qfauto *qf,
   }
   if (fail == 1)
     nr = 0;
-  avma = av;
+  set_avma(av);
   return nr;
 }
 
@@ -985,7 +985,7 @@ qfisom_candidates(GEN CI, long I, GEN x, struct qfauto *qf,
       }
     }
   }
-  avma = av;
+  set_avma(av);
   return nr;
 }
 
@@ -1892,7 +1892,7 @@ qforbits(GEN G, GEN V)
         GEN Vij = zm_zc_mul(gel(gen, j), gel(v, o[cnd]));
         (void) zv_canon(Vij);
         k = vecvecsmall_search(v, Vij, 0);
-        if (k == 0) { avma = av; return gen_0; }
+        if (k == 0) { set_avma(av); return gen_0; }
         if (w[k] == 0)
         {
           o[++no] = k;

@@ -66,7 +66,7 @@ partitions_galois(long n)
     case 10:p = 42; break;
     default:
       if (n < 0) pari_err_TYPE("partitions_galois", stoi(n));
-      av = avma; p = itos( numbpart(stoi(n)) ); avma = av; break;
+      av = avma; p = itos( numbpart(stoi(n)) ); set_avma(av); break;
   }
   T = new_chunk(p + 1); T[0] = 0;
   par_vec = cgetg(n+1, t_VECSMALL); /* not Garbage Collected later */
@@ -296,7 +296,7 @@ galopen(const char *pre, long n, long n1, long n2)
   (void)sprintf(s, "%s/galdata/%s%ld_%ld_%ld", pari_datadir, pre, n, n1, n2);
   f = pari_fopengz(s);
   if (!f) pari_err_FILE("galois file",s);
-  avma = av; return f;
+  set_avma(av); return f;
 }
 
 static char
@@ -765,7 +765,7 @@ moreprec(buildroot *BR)
     vectrunc_append(BR->r, gclone(ro));
     for (d = 2; d < l; d++)
       vectrunc_append(BR->r, new_pol(BR->N, ro, gel(BR->coef,d)));
-    avma = av;
+    set_avma(av);
   }
   fixprec(BR);
 }
@@ -861,7 +861,7 @@ check_isin(buildroot *BR, resolv *R, GROUP tau, GROUP ss)
       if (!init)
       {
         av2 = avma; nbrac = nbracint = 0;
-        for (nocos=1; nocos<=nbcos; nocos++, avma = av2)
+        for (nocos=1; nocos<=nbcos; nocos++, set_avma(av2))
         {
           roint = get_ro_perm(T, ss[nocos], d, R, BR);
           if (!roint) continue;
@@ -870,7 +870,7 @@ check_isin(buildroot *BR, resolv *R, GROUP tau, GROUP ss)
           if (nbrac >= M)
           {
             pari_warn(warner, "more than %ld rational integer roots\n", M);
-            avma = av1; goto NEXT;
+            set_avma(av1); goto NEXT;
           }
           for (j=1; j<=nbracint; j++)
             if (equalii(roint,racint[j])) { multi[j]++; break; }
@@ -889,7 +889,7 @@ check_isin(buildroot *BR, resolv *R, GROUP tau, GROUP ss)
       else
       {
         nbrac = nbracint = 0;
-        for (l=1; l<=lastnbri; l++, avma = av1)
+        for (l=1; l<=lastnbri; l++, set_avma(av1))
         {
           long nri = nbracint;
           av2 = avma;
@@ -898,7 +898,7 @@ check_isin(buildroot *BR, resolv *R, GROUP tau, GROUP ss)
             {
               nocos = lastnum[k];
               roint = get_ro_perm(T, ss[nocos], d, R, BR);
-              if (!roint) { avma = av2; continue; }
+              if (!roint) { set_avma(av2); continue; }
 
               nbrac++;
               for (j=nri+1; j<=nbracint; j++)
@@ -915,7 +915,7 @@ check_isin(buildroot *BR, resolv *R, GROUP tau, GROUP ss)
             if (multi[i]==1) return permmul(T, ss[numi[i]]);
         }
       }
-      avma = av1; if (!nbracint) break;
+      set_avma(av1); if (!nbracint) break;
 
       lastnbri = nbracint; lastnbrm = nbrac;
       for (j=1; j<=nbrac; j++) { lastnum[j] = numj[j]; lastnor[j] = norac[j]; }
@@ -2325,14 +2325,14 @@ isin_G_H(buildroot *BR, long n1, long n2)
       for (j=1; j<=N; j++) gel(z,j) = gel(p1,s0[j]);
       for (j=1; j<=N; j++) gel(p1,j) = gel(z,j);
     }
-    avma = av; return n2;
+    set_avma(av); return n2;
   }
   if (DEBUGLEVEL)
   {
     err_printf("    Output of isin_%ld_G_H(%ld,%ld): not included.\n",N,n1,n2);
     err_flush();
   }
-  avma = av; return 0;
+  set_avma(av); return 0;
 }
 
 static GEN
@@ -2413,7 +2413,7 @@ galoisbig(GEN pol, long prec)
     }
     for (i = 1; i < lg(BR.r); i++) gunclone(gel(BR.r,i));
   }
-  avma = av;
+  set_avma(av);
   res    = cgetg(5,t_VEC);
   gel(res,1) = stoi(tab[t]);
   gel(res,2) = stoi(EVEN? 1: -1);
@@ -2505,11 +2505,11 @@ polgalois(GEN x, long prec)
 
   if (n<4)
   {
-    if (n == 1) { avma = av; return galois_res(n,1, 1,1); }
-    if (n == 2) { avma = av; return galois_res(n,2,-1,1); }
+    if (n == 1) { set_avma(av); return galois_res(n,1, 1,1); }
+    if (n == 2) { set_avma(av); return galois_res(n,2,-1,1); }
     /* n = 3 */
     f = Z_issquare(ZX_disc(x));
-    avma = av;
+    set_avma(av);
     return f? galois_res(n,3,1,1):
               galois_res(n,6,-1,2);
   }
@@ -2538,12 +2538,12 @@ polgalois(GEN x, long prec)
         p2 = gel(ZX_factor(p5),1);
         switch(lg(p2)-1)
         {
-          case 1: f = Z_issquare(ZX_disc(x)); avma = av;
+          case 1: f = Z_issquare(ZX_disc(x)); set_avma(av);
             return f? galois_res(n,12,1,4): galois_res(n,24,-1,5);
 
-          case 2: avma = av; return galois_res(n,8,-1,3);
+          case 2: set_avma(av); return galois_res(n,8,-1,3);
 
-          case 3: avma = av;
+          case 3: set_avma(av);
             return (degpol(gel(p2,1))==2)? galois_res(n,4,1,2)
                                          : galois_res(n,4,-1,1);
 
@@ -2581,10 +2581,10 @@ polgalois(GEN x, long prec)
           f=Z_issquare(ZX_disc(x));
           if (lg(p3)-1==1)
           {
-            avma = av;
+            set_avma(av);
             return f? galois_res(n,60,1,4): galois_res(n,120,-1,5);
           }
-          if (!f) { avma = av; return galois_res(n,20,-1,3); }
+          if (!f) { set_avma(av); return galois_res(n,20,-1,3); }
 
           pr = - (prec2nbits(prec) >> 1);
           for (l=1; l<=6; l++)
@@ -2603,7 +2603,7 @@ polgalois(GEN x, long prec)
           if (e <= -10)
           {
             if (gequal0(p4)) goto tchi;
-            f = Z_issquare(p4); avma = av;
+            f = Z_issquare(p4); set_avma(av);
             return f? galois_res(n,5,1,1): galois_res(n,10,1,2);
           }
           prec = precdbl(prec);
@@ -2655,7 +2655,7 @@ polgalois(GEN x, long prec)
                 if (!ZX_is_squarefree(p5)) goto tchi;
                 p2 = gel(ZX_factor(p5),1);
                 f = Z_issquare(ZX_disc(x));
-                avma = av;
+                set_avma(av);
                 if (lg(p2)-1==1)
                   return f? galois_res(n,360,1,15): galois_res(n,720,-1,16);
                 else
@@ -2667,17 +2667,17 @@ polgalois(GEN x, long prec)
               switch(l2)
               {
                 case 1: f = Z_issquare(ZX_disc(x));
-                  avma = av;
+                  set_avma(av);
                   return f? galois_res(n,60,1,12): galois_res(n,120,-1,14);
                 case 2: f = Z_issquare(ZX_disc(x));
-                  if (f) { avma = av; return galois_res(n,24,1,7); }
+                  if (f) { set_avma(av); return galois_res(n,24,1,7); }
                   p3 = (degpol(gel(p2,1))==2)? gel(p2,2): gel(p2,1);
                   f = Z_issquare(ZX_disc(p3));
-                  avma = av;
+                  set_avma(av);
                   return f? galois_res(n,24,-1,6): galois_res(n,48,-1,11);
                 case 3: f = Z_issquare(ZX_disc(gel(p2,1)))
                          || Z_issquare(ZX_disc(gel(p2,2)));
-                  avma = av;
+                  set_avma(av);
                   return f? galois_res(n,18,-1,5): galois_res(n,36,-1,9);
               }
             case 3:
@@ -2685,15 +2685,15 @@ polgalois(GEN x, long prec)
                 if (degpol(gel(p2,l2)) >= 3) p3 = gel(p2,l2);
               if (degpol(p3) == 3)
               {
-                f = Z_issquare(ZX_disc(p3)); avma = av;
+                f = Z_issquare(ZX_disc(p3)); set_avma(av);
                 return f? galois_res(n,6,-1,1): galois_res(n,12,-1,3);
               }
               else
               {
-                f = Z_issquare(ZX_disc(x)); avma = av;
+                f = Z_issquare(ZX_disc(x)); set_avma(av);
                 return f? galois_res(n,12,1,4): galois_res(n,24,-1,8);
               }
-            case 4: avma = av; return galois_res(n,6,-1,2);
+            case 4: set_avma(av); return galois_res(n,6,-1,2);
             default: pari_err_BUG("galois (bug3)");
           }
         }
@@ -2716,16 +2716,16 @@ polgalois(GEN x, long prec)
         p2=gel(ZX_factor(p5),1);
         switch(lg(p2)-1)
         {
-          case 1: f = Z_issquare(ZX_disc(x)); avma = av;
+          case 1: f = Z_issquare(ZX_disc(x)); set_avma(av);
             return f? galois_res(n,2520,1,6): galois_res(n,5040,-1,7);
-          case 2: f = degpol(gel(p2,1)); avma = av;
+          case 2: f = degpol(gel(p2,1)); set_avma(av);
             return (f==7 || f==28)? galois_res(n,168,1,5): galois_res(n,42,-1,4);
-          case 3: avma = av; return galois_res(n,21,1,3);
-          case 4: avma = av; return galois_res(n,14,-1,2);
-          case 5: avma = av; return galois_res(n,7,1,1);
+          case 3: set_avma(av); return galois_res(n,21,1,3);
+          case 4: set_avma(av); return galois_res(n,14,-1,2);
+          case 5: set_avma(av); return galois_res(n,7,1,1);
           default: pari_err_BUG("galois (bug2)");
         }
     }
-    tchi: avma = av1; x = tschirnhaus(x1);
+    tchi: set_avma(av1); x = tschirnhaus(x1);
   }
 }

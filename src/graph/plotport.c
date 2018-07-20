@@ -89,7 +89,7 @@ _psdraw_scale(PARI_plot *T, GEN w, GEN x, GEN y)
   FILE *F = fopen(current_psfile, "a");
   if (!F) pari_err_FILE("postscript file",current_psfile);
   fputs(rect2ps(w,x,y,T), F);
-  fclose(F); avma = av;
+  fclose(F); set_avma(av);
 }
 static void
 _psdraw(PARI_plot *T, GEN w, GEN x, GEN y)
@@ -604,7 +604,7 @@ plotpoints(long ne, GEN X, GEN Y)
     px[i] = gtodouble(gel(X,i));
     py[i] = gtodouble(gel(Y,i));
   }
-  plotpoints0(ne,px,py,lx); avma = av;
+  plotpoints0(ne,px,py,lx); set_avma(av);
 }
 
 /* ROt_ML */
@@ -654,7 +654,7 @@ plotlines(long ne, GEN X, GEN Y, long flag)
     x[i] = gtodouble(gel(X,i));
     y[i] = gtodouble(gel(Y,i));
   }
-  rectlines0(ne,x,y,lx,flag); avma = av;
+  rectlines0(ne,x,y,lx,flag); set_avma(av);
 }
 
 /* ROt_ST */
@@ -1175,7 +1175,7 @@ single_recursion(void *E, GEN(*eval)(void*,GEN), dblPointList *pl,
   Appendx(&pl[0],&pl[0],rtodbl(xx));
   Appendy(&pl[0],&pl[1],yy);
   single_recursion(E,eval, pl,xx,yy, xright,yright, depth+1);
-  avma = av;
+  set_avma(av);
 }
 
 static void
@@ -1199,7 +1199,7 @@ param_recursion(void *E,GEN(*eval)(void*,GEN), long cplx, dblPointList *pl,
   Appendx(&pl[0],&pl[0],xx);
   Appendy(&pl[0],&pl[1],yy);
   param_recursion(E,eval,cplx, pl, tt,xx,yy, tright,xright,yright, depth+1);
-  avma = av;
+  set_avma(av);
 }
 
 /* Graph 'code' for parameter values in [a,b], using 'N' sample points
@@ -1240,7 +1240,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     nl = lg(t);
     nc = nl-1;
   }
-  if (!nc) { avma = av; return NULL; }
+  if (!nc) { set_avma(av); return NULL; }
   if (recur && nc > 1) pari_err_TYPE("ploth [multi-curves + recursive]",t);
 
   ncoords = cplx? 2*nl: nl;
@@ -1274,7 +1274,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       affgr(a,tleft);
       t = eval(E, tleft);
       get_xy(cplx,t, &xleft,&yleft);
-      for (i=0; i<N-1; i++, avma = av2)
+      for (i=0; i<N-1; i++, set_avma(av2))
       {
         if (i) { affrr(tright,tleft); xleft = xright; yleft = yright; }
         addrrz(tleft,dx,tright);
@@ -1293,7 +1293,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       pari_sp av2 = avma;
       affgr(a,xleft);
       yleft = gtodouble(eval(E,xleft));
-      for (i=0; i<N-1; i++, avma = av2)
+      for (i=0; i<N-1; i++, set_avma(av2))
       {
         addrrz(xleft,dx,xright);
         yright = gtodouble(eval(E,xright));
@@ -1323,7 +1323,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     av2 = avma;
     if (param)
     {
-      for (i=0; i<N || pending; i++, avma = av2)
+      for (i=0; i<N || pending; i++, set_avma(av2))
       {
         long k, nt;
         if (worker)
@@ -1357,7 +1357,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       }
     }
     else if (non_vec)
-      for (i=0; i<N || pending; i++, avma = av2)
+      for (i=0; i<N || pending; i++, set_avma(av2))
       {
         if (worker)
         {
@@ -1377,7 +1377,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
         }
       }
     else /* vector of non-parametric curves */
-      for (i=0; i<N || pending; i++, avma = av2)
+      for (i=0; i<N || pending; i++, set_avma(av2))
       {
         if (worker)
         {
@@ -1403,7 +1403,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       }
     if (worker) mt_queue_end(&pt);
   }
-  pl[0].nb = nc; avma = av; return pl;
+  pl[0].nb = nc; set_avma(av); return pl;
 }
 
 static GEN
@@ -1450,9 +1450,9 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
                i== 0 ? gel(tas,0) : gel(tas,1),
                i==lx-4 ? gel(tas,3) : gel(tas,2),
                fl, 2, DEFAULTPREC);
-    avma = av;
+    set_avma(av);
   }
-  avma = av0;
+  set_avma(av0);
 }
 
 static void
@@ -1628,7 +1628,7 @@ plotrecthrawin(GEN fmt, PARI_plot *W, long ne, dblPointList *data, long flags)
     plotkill(w[2]);
     if (fmt) return s;
   }
-  avma = av;
+  set_avma(av);
   retmkvec4(dbltor(xsml), dbltor(xbig), dbltor(ysml), dbltor(ybig));
 }
 

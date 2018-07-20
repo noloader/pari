@@ -421,7 +421,7 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
   { /* assume ab != 0 mod p */
     ulong pp = to_Flx(&x, &y, p);
     z = Flx_divrem(x, y, pp, pr);
-    avma = av0; /* HACK: assume pr last on stack, then z */
+    set_avma(av0); /* HACK: assume pr last on stack, then z */
     if (!z) return NULL;
     z = leafcopy(z);
     if (pr && pr != ONLY_DIVIDES && pr != ONLY_REM)
@@ -432,7 +432,7 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
     return Flx_to_ZX_inplace(z);
   }
   lead = equali1(lead)? NULL: gclone(Fp_inv(lead,p));
-  avma = av0;
+  set_avma(av0);
   z=cgetg(dz+3,t_POL); z[1] = x[1];
   x += 2; y += 2; z += 2;
   for (dy1=dy-1; dy1>=0 && !signe(gel(y, dy1)); dy1--);
@@ -695,7 +695,7 @@ FpX_gcd_basecase(GEN a, GEN b, GEN p)
     }
     av = avma; c = FpX_rem(a,b,p); a=b; b=c;
   }
-  avma = av; return a;
+  set_avma(av); return a;
 }
 
 GEN
@@ -708,7 +708,7 @@ FpX_gcd(GEN x, GEN y, GEN p)
     (void)new_chunk((lg(x) + lg(y)) << 2); /* scratch space */
     pp = to_Flx(&x, &y, p);
     x = Flx_gcd(x, y, pp);
-    avma = av; return Flx_to_ZX(x);
+    set_avma(av); return Flx_to_ZX(x);
   }
   x = FpX_red(x, p);
   y = FpX_red(y, p);
@@ -749,7 +749,7 @@ FpX_gcd_check(GEN x, GEN y, GEN p)
       gerepileall(av,2,&a,&b);
     }
   }
-  avma = av; return NULL;
+  set_avma(av); return NULL;
 }
 
 static GEN
@@ -919,7 +919,7 @@ FpX_is_squarefree(GEN f, GEN p)
 {
   pari_sp av = avma;
   GEN z = FpX_gcd(f,FpX_deriv(f,p),p);
-  avma = av;
+  set_avma(av);
   return degpol(z)==0;
 }
 
@@ -972,11 +972,11 @@ FpX_eval(GEN x,GEN y,GEN p)
       }
     r = (i==j)? y: Fp_powu(y,i-j+1,p);
     p1 = Fp_addmul(gel(x,j), p1, r, p);
-    if ((i & 7) == 0) { affii(p1, res); p1 = res; avma = av; }
+    if ((i & 7) == 0) { affii(p1, res); p1 = res; set_avma(av); }
   }
  fppoleval:
   modiiz(p1,p,res);
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 /* Tz=Tx*Ty where Tx and Ty coprime
@@ -1012,7 +1012,7 @@ FpX_resultant(GEN a, GEN b, GEN p)
     pari_sp av = avma;
     ulong pp = to_Flx(&a, &b, p);
     long r = Flx_resultant(a, b, pp);
-    avma = av;
+    set_avma(av);
     return utoi(r);
   }
 
@@ -1030,7 +1030,7 @@ FpX_resultant(GEN a, GEN b, GEN p)
     lb = gel(b,db+2);
     c = FpX_rem(a,b, p);
     a = b; b = c; dc = degpol(c);
-    if (dc < 0) { avma = av; return gen_0; }
+    if (dc < 0) { set_avma(av); return gen_0; }
 
     if (both_odd(da,db)) res = subii(p, res);
     if (!equali1(lb)) res = Fp_mul(res, Fp_powu(lb, da - dc, p), p);
@@ -1988,7 +1988,7 @@ FpXQ_issquare(GEN x, GEN T, GEN p)
   if (lg(x) == 3) return Fq_issquare(gel(x,2), T, p);
   /* Ng = g^((q-1)/(p-1)) */
   av = avma; res = kronecker(FpXQ_norm(x,T,p), p) == 1;
-  avma = av; return res;
+  set_avma(av); return res;
 }
 int
 Fp_issquare(GEN x, GEN p)
@@ -2016,7 +2016,7 @@ Fq_ispower(GEN x, GEN K, GEN T, GEN p)
   Q = subiu(powiu(p,d), 1);
   Q = diviiexact(Q, gcdii(Q, K));
   d = gequal1(Fq_pow(x, Q, T,p));
-  avma = av; return d;
+  set_avma(av); return d;
 }
 
 /* discrete log in FpXQ for a in Fp^*, g in FpXQ^* of order ord */
@@ -2222,7 +2222,7 @@ FpXQ_trace(GEN x, GEN TB, GEN p)
   GEN dT = FpX_deriv(T,p);
   long n = degpol(dT);
   GEN z = FpXQ_mul(x, dT, TB, p);
-  if (degpol(z)<n) { avma = av; return gen_0; }
+  if (degpol(z)<n) { set_avma(av); return gen_0; }
   return gerepileuptoint(av, Fp_div(gel(z,2+n), gel(T,3+n),p));
 }
 
@@ -2360,7 +2360,7 @@ gener_FpXQ_i(GEN T, GEN p, GEN p_1, GEN Lp, GEN Lq)
   long vT = varn(T), f = degpol(T), l = lg(Lq);
   GEN F = FpX_Frobenius(T, p);
   int p_is_2 = is_pm1(p_1);
-  for (av = avma;; avma = av)
+  for (av = avma;; set_avma(av))
   {
     GEN t, g = random_FpX(f, vT, p);
     long i;

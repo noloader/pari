@@ -433,7 +433,7 @@ member_no(GEN x) /* number of elements of a group (of type clgp) */
     case t_ELL_Fq: return ellcard(x, NULL);
   }
   x = _check_clgp(x,y,t);
-  avma = av; return gel(x,1);
+  set_avma(av); return gel(x,1);
 }
 
 GEN
@@ -447,7 +447,7 @@ member_cyc(GEN x) /* cyclic decomposition (SNF) of a group (of type clgp) */
     case t_ELL_Fq: return ellgroup(x, NULL);
   }
   x = _check_clgp(x,y,t);
-  avma = av; return gel(x,2);
+  set_avma(av); return gel(x,2);
 }
 
 /* SNF generators of a group (of type clgp), or generators of a prime
@@ -467,7 +467,7 @@ member_gen(GEN x)
   av = avma;
   x = _check_clgp(x,y,t);
   if (lg(x)!=4) member_err("gen",x);
-  avma = av; return gel(x,3);
+  set_avma(av); return gel(x,3);
 }
 GEN
 member_group(GEN x)

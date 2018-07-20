@@ -229,7 +229,7 @@ Flj_order_ufact(GEN P, ulong n, GEN F, ulong a4, ulong p, ulong pi)
       b = Flj_mulu_pre_naf(b, pp, a4, p, pi, &x);
     if (b[3] != 0) return 0;
     for (k = 0; k < j; ++k) res *= pp;
-    avma = av;
+    set_avma(av);
   }
   return res;
 }
@@ -645,7 +645,7 @@ FleV_mulu_pre_naf_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi, const naf_t
     else if (m & nbits)
       FleV_sub_pre_inplace(R, P, a4, p, pi);
   }
-  avma = av;
+  set_avma(av);
 }
 
 void

@@ -691,7 +691,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
     {
       pari_sp av = avma;
       GEN M, P = gel(LP,i), v = bnrisprincipal(bnr, P, 0);
-      if (!hnf_invimage(H, v)) { avma = av; continue; }
+      if (!hnf_invimage(H, v)) { set_avma(av); continue; }
       M = shallowconcat(Hsofar, v);
       M = ZM_hnfmodid(M, cyc);
       if (ZM_equal(M, Hsofar)) continue;
@@ -884,7 +884,7 @@ FOUND:  X = Flm_Flc_mul(K, y, ell);
               y = Flm_Flc_mul(mat, gel(Kgrp,1), ell);
               all = 0; goto FOUND;
             }
-            avma = av2;
+            set_avma(av2);
           }
           else
           {
@@ -894,13 +894,13 @@ FOUND:  X = Flm_Flc_mul(K, y, ell);
             else
             {
               if (ZM_equal(rnfnormgroup(bnr,P),subgroup)) return P; /*DONE*/
-              avma = av; continue;
+              set_avma(av); continue;
             }
           }
           if (all < 0 && rk == ncyc) return res;
           if (firstpass) break;
         }
-        else avma = av;
+        else set_avma(av);
       } while (increment(y, dK, ell));
       y[dK--] = 0;
     }
@@ -1318,7 +1318,7 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
           if (!all) {
             H = rnfnormgroup(bnr, P);
             if (ZM_equal(subgroup, H)) return P; /* DONE */
-            avma = av; continue;
+            set_avma(av); continue;
           } else {
             GEN P0 = Q_primpart(lift_shallow(P));
             GEN g = nfgcd(P0, RgX_deriv(P0), polnf, nf_get_index(nf));

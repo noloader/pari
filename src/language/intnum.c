@@ -59,7 +59,7 @@ interp(GEN h, GEN s, long L, long bit, long D)
     err_printf("romb: iteration %ld, guess: %Ps\n", L,ss);
     err_printf("romb: relative error < 2^-%ld [target %ld bits]\n",e1-e2,bit);
   }
-  if (e1-e2 <= bit && (L <= 10 || e1 >= -bit)) { avma = av; return NULL; }
+  if (e1-e2 <= bit && (L <= 10 || e1 >= -bit)) { set_avma(av); return NULL; }
   return cxtoreal(ss);
 }
 
@@ -2178,7 +2178,7 @@ sumnumrat(GEN F, GEN a, long prec)
         GEN F2 = gsubst(F, vx, RgX_neg(pol_x(vx)));
         vF = mkvec2(F,F2);
         F = gadd(F, F2);
-        if (gequal0(F)) { avma = av; return real_0(prec); }
+        if (gequal0(F)) { set_avma(av); return real_0(prec); }
         F0 = rfrac_eval0(gel(vF,1));
         break;
       }

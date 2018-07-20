@@ -1017,7 +1017,7 @@ F2xq_trace(GEN x, GEN T)
   GEN z = F2x_mul(x, F2x_deriv(T));
   z = F2x_rem(z, T);
   t = F2x_degree(z)<n ? 0 : 1;
-  avma = av; return t;
+  set_avma(av); return t;
 }
 
 GEN
@@ -1046,7 +1046,7 @@ _F2xq_rand(void *data)
   GEN z;
   do
   {
-    avma = av;
+    set_avma(av);
     z = random_F2x(d,pol[1]);
   } while (lgpol(z)==0);
   return z;
@@ -1071,8 +1071,8 @@ F2x_is_smooth_squarefree(GEN f, long r)
   for(i=1;  ;i++)
   {
     a = F2xq_sqr(F2x_rem(a,f),f);
-    if (F2x_equal(a, F2x_rem(sx,f))) {avma = av; return 1;}
-    if (i==r) {avma = av; return 0;}
+    if (F2x_equal(a, F2x_rem(sx,f))) {set_avma(av); return 1;}
+    if (i==r) {set_avma(av); return 0;}
     f = F2x_div(f, F2x_gcd(F2x_add(a,sx),f));
   }
 }
@@ -1159,7 +1159,7 @@ F2xq_log_Coppersmith_d(GEN W, GEN g, long r, long n, GEN T, GEN mo)
   for (i=1; i<N; i++)
   {
     GEN p,q,qh,a,b;
-    avma = av2;
+    set_avma(av2);
     q = pol0_F2x(T[1]);
     for(j=0; j<k; j++)
       if (i&(1UL<<j))
@@ -1189,7 +1189,7 @@ F2xq_log_Coppersmith_d(GEN W, GEN g, long r, long n, GEN T, GEN mo)
       return gerepileuptoint(av, l);
     }
   }
-  avma = av;
+  set_avma(av);
   return NULL;
 }
 
@@ -1302,7 +1302,7 @@ F2xq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R)
   for(j=1; j<=i; j++)
   {
     v[2] = j;
-    avma = av;
+    set_avma(av);
     if (F2x_degree(F2x_gcd(u,v))==0)
     {
       GEN z = rel_Coppersmith(u, v, h, R, r, n, d);
@@ -1525,7 +1525,7 @@ gener_F2xq(GEN T, GEN *po)
     gel(L2,j++) = diviiexact(q, gel(L2,i));
   }
   setlg(L2, j);
-  for (av = avma;; avma = av)
+  for (av = avma;; set_avma(av))
   {
     g = random_F2x(f, vT);
     if (F2x_degree(g) < 1) continue;
@@ -2178,7 +2178,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
   }
   av0 = avma; dz = dx-dy;
   lead = F2x_equal1(lead)? NULL: gclone(F2xq_inv(lead,T));
-  avma = av0;
+  set_avma(av0);
   z = cgetg(dz+3,t_POL); z[1] = x[1];
   x += 2; y += 2; z += 2;
 
@@ -2498,7 +2498,7 @@ F2xqX_gcd(GEN a, GEN b, GEN T)
     }
     av = avma; c = F2xqX_rem(a, b, T); a=b; b=c;
   }
-  avma = av; return a;
+  set_avma(av); return a;
 }
 
 GEN

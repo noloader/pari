@@ -42,7 +42,7 @@ kro_quad(GEN x, GEN y)
 {
   pari_sp av=avma;
   long k = kronecker(quad_disc(x), y);
-  avma = av; return k;
+  set_avma(av); return k;
 }
 
 /* is -1 not a square in Zp, assume p prime */
@@ -385,7 +385,7 @@ Qdivii(GEN x, GEN y)
   if (lgefint(r) == 3)
   {
     ulong t = r[2];
-    avma = av;
+    set_avma(av);
     if (t == 1) q = mkfraccopy(x,y);
     else
     {
@@ -592,7 +592,7 @@ addsub_pp(GEN x, GEN y, GEN (*op)(GEN,GEN))
     u = swap? op(gel(y,4), gel(x,4)): op(gel(x,4), gel(y,4));
     if (!signe(u) || (c = Z_pvalrem(u,p,&u)) >= r)
     {
-      avma = av; return zeropadic(p, e+r);
+      set_avma(av); return zeropadic(p, e+r);
     }
     if (c)
     {
@@ -602,7 +602,7 @@ addsub_pp(GEN x, GEN y, GEN (*op)(GEN,GEN))
     }
   }
   u = modii(u, mod);
-  avma = av; z = cgetg(5,t_PADIC);
+  set_avma(av); z = cgetg(5,t_PADIC);
   z[1] = evalprecp(r) | evalvalp(e);
   gel(z,2) = icopy(p);
   gel(z,3) = icopy(mod);
@@ -622,7 +622,7 @@ addQp(GEN x, GEN y)
 
   e = Q_pvalrem(x, p, &x);
   d = vy - e; r = d + py;
-  if (r <= 0) { avma = av; return gcopy(y); }
+  if (r <= 0) { set_avma(av); return gcopy(y); }
   mod = gel(y,3);
   u   = gel(y,4);
   (void)new_chunk(5 + ((lgefint(mod) + lgefint(p)*labs(d)) << 1));
@@ -648,7 +648,7 @@ addQp(GEN x, GEN y)
     u = addii(u, x);
     if (!signe(u) || (c = Z_pvalrem(u,p,&u)) >= r)
     {
-      avma = av; return zeropadic(p,e+r);
+      set_avma(av); return zeropadic(p,e+r);
     }
     if (c)
     {
@@ -657,7 +657,7 @@ addQp(GEN x, GEN y)
       e += c;
     }
   }
-  u = modii(u, mod); avma = av;
+  u = modii(u, mod); set_avma(av);
   z = cgetg(5,t_PADIC);
   z[1] = evalprecp(r) | evalvalp(e);
   gel(z,2) = icopy(p);
@@ -799,10 +799,10 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
   if (!s)
   { /* common denominator: (x1 op y1) / x2 */
     n = op(x1, y1);
-    if (!signe(n)) { avma = av; return gen_0; }
+    if (!signe(n)) { set_avma(av); return gen_0; }
     d = x2;
     q = dvmdii(n, d, &r);
-    if (r == gen_0) { avma = av; return icopy(q); }
+    if (r == gen_0) { set_avma(av); return icopy(q); }
     r = gcdii(d, r);
     if (!equali1(r)) { n = diviiexact(n, r); d = diviiexact(d, r); }
     gel(z,1) = icopy_avma(n, (pari_sp)z);
@@ -862,12 +862,12 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
   x2 = diviiexact(x2,delta);
   y2 = diviiexact(y2,delta);
   n = op(mulii(x1,y2), mulii(y1,x2));
-  if (!signe(n)) { avma = av; return gen_0; }
+  if (!signe(n)) { set_avma(av); return gen_0; }
   d = mulii(x2, y2);
   q = dvmdii(n, delta, &r);
   if (r == gen_0)
   {
-    if (equali1(d)) { avma = av; return icopy(q); }
+    if (equali1(d)) { set_avma(av); return icopy(q); }
     avma = (pari_sp)z;
     gel(z,2) = icopy(d);
     gel(z,1) = icopy(q); return z;
@@ -1161,7 +1161,7 @@ gadd(GEN x, GEN y)
         d = gel(y,2); vd = RgX_valrem(d, &d);
 
         l = lg(x) + valp(x) - (vn - vd);
-        if (l < 3) { avma = av; return gcopy(x); }
+        if (l < 3) { set_avma(av); return gcopy(x); }
 
         /* take advantage of y = t^n ! */
         if (degpol(d))
@@ -1696,7 +1696,7 @@ mulpp(GEN x, GEN y) {
   t = (precp(x) > precp(y))? y: x;
   z = cgetp(t); setvalp(z,l); av = avma;
   affii(remii(mulii(gel(x,4),gel(y,4)), gel(t,3)), gel(z,4));
-  avma = av; return z;
+  set_avma(av); return z;
 }
 /* x,y QUAD */
 static GEN
@@ -2048,7 +2048,7 @@ gmul(GEN x, GEN y)
             p2 = gmul(p1,y);
             settyp(p1, t_VECSMALL); /* p1 left on stack */
           } else {
-            avma = av;
+            set_avma(av);
             p2 = mul_ser_scal(y, gel(x,2));
           }
           setvalp(p2, valp(p2) + vn);
@@ -3161,7 +3161,7 @@ ginv(GEN x)
       n = simplify_shallow(n);
       if (typ(n) != t_POL || varn(n) != varn(d))
       {
-        if (gequal1(n)) { avma = av; return RgX_copy(d); }
+        if (gequal1(n)) { set_avma(av); return RgX_copy(d); }
         ltop = avma;
         z = RgX_Rg_div(d,n);
       } else {

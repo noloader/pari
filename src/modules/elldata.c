@@ -111,7 +111,7 @@ ellcondfile(long f)
   sprintf(s, "%s/elldata/ell%ld", pari_datadir, n);
   F = pari_fopengz(s);
   if (!F) pari_err_FILE("elldata file",s);
-  avma = av;
+  set_avma(av);
   V = gp_read_stream(F->file);
   if (!V || typ(V)!=t_VEC ) pari_err_FILE("elldata file [read]",s);
   pari_fclose(F); return V;
@@ -130,7 +130,7 @@ ellcondlist(long f)
     GEN v = gel(V,i);
     return vecslice(v,2, lg(v)-1);
   }
-  avma = av; return cgetg(1,t_VEC);
+  set_avma(av); return cgetg(1,t_VEC);
 }
 
 static GEN
@@ -260,7 +260,7 @@ forell(void *E, long call(void*, GEN), long a, long b, long flag)
         if (call(E, e)) return;
       }
     }
-    avma = ltop;
+    set_avma(ltop);
   }
 }
 

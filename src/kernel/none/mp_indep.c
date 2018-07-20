@@ -258,7 +258,7 @@ sqrz_i(GEN z, GEN x, long lz)
     pari_sp av = avma;
     GEN hi = sqrispec_mirror(x+2, lz-2);
     mulrrz_end(z, hi, lz, 1, ez, hi[lz]);
-    avma = av; return;
+    set_avma(av); return;
   }
   if (lz == 3)
   {
@@ -314,7 +314,7 @@ mulrrz_int(GEN z, GEN x, GEN y, long lz, long flag, long sz)
   pari_sp av = avma;
   GEN hi = muliispec_mirror(y+2, x+2, lz+flag-2, lz-2);
   mulrrz_end(z, hi, lz, sz, expo(x)+expo(y), hi[lz]);
-  avma = av;
+  set_avma(av);
 }
 
 /* lz = 3 */
@@ -442,7 +442,7 @@ mulir(GEN x, GEN y)
     }
     else /* dubious: complete x with 0s and call mulrr */
       mulrrz_i(z, itor(x,lz), y, lz, 0, sx);
-    avma = av; return z;
+    set_avma(av); return z;
   }
 }
 
@@ -458,7 +458,7 @@ addmulii_gen(GEN x, GEN y, GEN z, long lz)
   if (ly == 2) return icopy(x); /* y = 0, wasteful copy */
   av = avma; (void)new_chunk(lx+ly+lz); /*HACK*/
   t = mulii(z, y);
-  avma = av; return addii(t,x);
+  set_avma(av); return addii(t,x);
 }
 /* x + y*z, lgefint(z) == 3 */
 static GEN
@@ -483,7 +483,7 @@ addmulii_lg3(GEN x, GEN y, GEN z)
   t = muluispec(w, y+2, ly-2);
   if (signe(y) < 0) s = -s;
   setsigne(t, s);
-  avma = av; return addii(x,t);
+  set_avma(av); return addii(x,t);
 }
 /* x + y*z */
 GEN
@@ -566,7 +566,7 @@ divir(GEN x, GEN y)
   }
   z = cgetr(ly); av = avma;
   affrr(divrr(itor(x, ly+1), y), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 
 GEN
@@ -585,7 +585,7 @@ divur(ulong x, GEN y)
   }
   z = cgetr(ly); av = avma;
   affrr(divrr(utor(x,ly+1), y), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 
 GEN
@@ -605,7 +605,7 @@ divsr(long x, GEN y)
   }
   z = cgetr(ly); av = avma;
   affrr(divrr(stor(x,ly+1), y), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 
 /* returns 1/y, assume y != 0 */
@@ -616,7 +616,7 @@ invr_basecase(GEN y)
   GEN z = cgetr(ly);
   pari_sp av = avma;
   affrr(divrr(real_1(ly+1), y), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 /* returns 1/b, Newton iteration */
 GEN

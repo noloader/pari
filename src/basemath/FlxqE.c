@@ -78,7 +78,7 @@ nonsquare_Flxq(GEN T, ulong p)
     return mkvecsmall2(vs, nonsquare_Fl(p));
   do
   {
-    avma = av;
+    set_avma(av);
     a = random_Flx(n, vs, p);
   } while (Flxq_issquare(a, T, p));
   return a;
@@ -1357,7 +1357,7 @@ F3xq_ellcard_naive(GEN a2, GEN a6, GEN T)
     if (!lgpol(rhs)) a++; else if (Flxq_issquare(rhs, T, 3)) a+=2;
     Flx_next(x, 3);
   }
-  avma = av;
+  set_avma(av);
   return a;
 }
 
@@ -1377,7 +1377,7 @@ Flxq_ellcard_naive(GEN a4, GEN a6, GEN T, ulong p)
     if (!lgpol(rhs)) a++; else if (Flxq_issquare(rhs,T,p)) a+=2;
     Flx_next(x,p);
   }
-  avma = av;
+  set_avma(av);
   return a;
 }
 
@@ -1390,7 +1390,7 @@ Flxq_kronecker(GEN x, GEN m, GEN T, ulong p)
   if (lgpol(x) == 0) return 0;
   av = avma;
   z = Flxq_pow(x, m, T, p)[2];
-  avma = av; return krouu(z, p);
+  set_avma(av); return krouu(z, p);
 }
 
 /* Find x such that kronecker(u = x^3+a4x+a6, p) is KRO.

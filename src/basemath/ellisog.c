@@ -229,7 +229,7 @@ ellisogenyapply(GEN phi, GEN P)
   h = gel(phi, 3);
   get_isog_vars(phi, &vx, &vy);
   img_h = poleval(h, gel(P, 1));
-  if (gequal0(img_h)) { avma = ltop; return ellinf(); }
+  if (gequal0(img_h)) { set_avma(ltop); return ellinf(); }
 
   img_h2 = gsqr(img_h);
   img_h3 = gmul(img_h, img_h2);
@@ -1205,7 +1205,7 @@ ellQ_goodl(GEN E)
       if ((mask &_13) && kross(D,13)==-1) mask &= ~_13;
     }
   }
-  avma = av; return mask;
+  set_avma(av); return mask;
 }
 
 static long
@@ -1232,7 +1232,7 @@ ellQ_goodl_l(GEN E, long l)
         long D = t*t-4*p;
         if (kross(D,l)==-1) return 0;
       }
-      avma = av;
+      set_avma(av);
     }
   }
   return 1;
@@ -1276,7 +1276,7 @@ ellnf_goodl_l(GEN E, GEN v)
         }
       }
     }
-    avma = av;
+    set_avma(av);
   }
   return w^((1UL<<(lv-1))-1);
 }

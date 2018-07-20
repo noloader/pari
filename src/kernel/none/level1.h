@@ -98,6 +98,8 @@ affrr_fixlg(GEN y, GEN z) { fixlg(z, lg(y)); affrr(y, z); }
 /*                       ALLOCATE ON STACK                         */
 /*                                                                 */
 /*******************************************************************/
+INLINE void
+set_avma(ulong av) { avma = av; }
 INLINE GEN
 new_chunk(size_t x) /* x is a number of longs */
 {
@@ -821,7 +823,7 @@ smodis(GEN x, long y)
 {
   pari_sp av = avma;
   long r;
-  (void)divis_rem(x,y, &r); avma = av; return (r >= 0) ? r: labs(y) + r;
+  (void)divis_rem(x,y, &r); set_avma(av); return (r >= 0) ? r: labs(y) + r;
 }
 INLINE GEN
 modis(GEN x, long y) { return stoi(smodis(x,y)); }
@@ -853,7 +855,7 @@ remis(GEN x, long y)
 {
   pari_sp av = avma;
   long r;
-  (void)divis_rem(x,y, &r); avma = av; return stoi(r);
+  (void)divis_rem(x,y, &r); set_avma(av); return stoi(r);
 }
 
 INLINE GEN
@@ -862,7 +864,7 @@ rdivis(GEN x, long y, long prec)
   GEN z = cgetr(prec);
   pari_sp av = avma;
   affrr(divrs(itor(x,prec), y),z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 INLINE GEN
 rdivsi(long x, GEN y, long prec)
@@ -870,7 +872,7 @@ rdivsi(long x, GEN y, long prec)
   GEN z = cgetr(prec);
   pari_sp av = avma;
   affrr(divsr(x, itor(y,prec)), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 INLINE GEN
 rdivss(long x, long y, long prec)
@@ -878,7 +880,7 @@ rdivss(long x, long y, long prec)
   GEN z = cgetr(prec);
   pari_sp av = avma;
   affrr(divrs(stor(x, prec), y), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 
 INLINE void
@@ -893,7 +895,7 @@ rdiviiz(GEN x, GEN y, GEN z)
   }
   else
     affrr(divrr(z, itor(y,prec)), z);
-  avma = av;
+  set_avma(av);
 }
 INLINE GEN
 rdivii(GEN x, GEN y, long prec)
@@ -907,7 +909,7 @@ rdivii(GEN x, GEN y, long prec)
   }
   else
     affrr(divrr(z, itor(y,prec)), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 INLINE GEN
 fractor(GEN x, long prec) { return rdivii(gel(x,1), gel(x,2), prec); }
@@ -917,7 +919,7 @@ dvdii(GEN x, GEN y)
 {
   pari_sp av=avma;
   GEN r = remii(x,y);
-  avma = av; return r == gen_0;
+  set_avma(av); return r == gen_0;
 }
 INLINE int
 dvdsi(long x, GEN y)
@@ -946,7 +948,7 @@ dvdisz(GEN x, long y, GEN z)
   const pari_sp av = avma;
   long r;
   GEN p1 = divis_rem(x,y, &r);
-  avma = av; if (r) return 0;
+  set_avma(av); if (r) return 0;
   affii(p1,z); return 1;
 }
 INLINE int
@@ -955,7 +957,7 @@ dvdiuz(GEN x, ulong y, GEN z)
   const pari_sp av = avma;
   ulong r;
   GEN p1 = absdiviu_rem(x,y, &r);
-  avma = av; if (r) return 0;
+  set_avma(av); if (r) return 0;
   affii(p1,z); return 1;
 }
 INLINE int
@@ -1345,112 +1347,112 @@ mpaff(GEN x, GEN y) { if (typ(x)==t_INT) affiz(x, y); else affrr(x,y); }
 /*******************************************************************/
 
 INLINE void addiiz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affii(addii(x,y),z); avma = av; }
+{ pari_sp av = avma; affii(addii(x,y),z); set_avma(av); }
 INLINE void addirz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(addir(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(addir(x,y),z); set_avma(av); }
 INLINE void addriz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(addri(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(addri(x,y),z); set_avma(av); }
 INLINE void addrrz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(addrr(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(addrr(x,y),z); set_avma(av); }
 INLINE void addsiz(long s, GEN y, GEN z)
-{ pari_sp av = avma; affii(addsi(s,y),z); avma = av; }
+{ pari_sp av = avma; affii(addsi(s,y),z); set_avma(av); }
 INLINE void addsrz(long s, GEN y, GEN z)
-{ pari_sp av = avma; affrr(addsr(s,y),z); avma = av; }
+{ pari_sp av = avma; affrr(addsr(s,y),z); set_avma(av); }
 INLINE void addssz(long s, long y, GEN z)
-{ pari_sp av = avma; affii(addss(s,y),z); avma = av; }
+{ pari_sp av = avma; affii(addss(s,y),z); set_avma(av); }
 
 INLINE void diviiz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affii(divii(x,y),z); avma = av; }
+{ pari_sp av = avma; affii(divii(x,y),z); set_avma(av); }
 INLINE void divirz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; mpaff(divir(x,y),z); avma = av; }
+{ pari_sp av = avma; mpaff(divir(x,y),z); set_avma(av); }
 INLINE void divisz(GEN x, long y, GEN z)
-{ pari_sp av = avma; affii(divis(x,y),z); avma = av; }
+{ pari_sp av = avma; affii(divis(x,y),z); set_avma(av); }
 INLINE void divriz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(divri(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(divri(x,y),z); set_avma(av); }
 INLINE void divrrz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(divrr(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(divrr(x,y),z); set_avma(av); }
 INLINE void divrsz(GEN y, long s, GEN z)
-{ pari_sp av = avma; affrr(divrs(y,s),z); avma = av; }
+{ pari_sp av = avma; affrr(divrs(y,s),z); set_avma(av); }
 INLINE void divsiz(long x, GEN y, GEN z)
 { long junk; affsi(sdivsi_rem(x,y,&junk), z); }
 INLINE void divsrz(long s, GEN y, GEN z)
-{ pari_sp av = avma; mpaff(divsr(s,y),z); avma = av; }
+{ pari_sp av = avma; mpaff(divsr(s,y),z); set_avma(av); }
 INLINE void divssz(long x, long y, GEN z)
 { affsi(x/y, z); }
 
 INLINE void modisz(GEN y, long s, GEN z)
 { affsi(smodis(y,s),z); }
 INLINE void modsiz(long s, GEN y, GEN z)
-{ pari_sp av = avma; affii(modsi(s,y),z); avma = av; }
+{ pari_sp av = avma; affii(modsi(s,y),z); set_avma(av); }
 INLINE void modssz(long s, long y, GEN z)
 { affsi(smodss(s,y),z); }
 
 INLINE void mpaddz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; mpaff(mpadd(x,y),z); avma = av; }
+{ pari_sp av = avma; mpaff(mpadd(x,y),z); set_avma(av); }
 INLINE void mpsubz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; mpaff(mpsub(x,y),z); avma = av; }
+{ pari_sp av = avma; mpaff(mpsub(x,y),z); set_avma(av); }
 INLINE void mpmulz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; mpaff(mpmul(x,y),z); avma = av; }
+{ pari_sp av = avma; mpaff(mpmul(x,y),z); set_avma(av); }
 
 INLINE void muliiz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affii(mulii(x,y),z); avma = av; }
+{ pari_sp av = avma; affii(mulii(x,y),z); set_avma(av); }
 INLINE void mulirz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; mpaff(mulir(x,y),z); avma = av; }
+{ pari_sp av = avma; mpaff(mulir(x,y),z); set_avma(av); }
 INLINE void mulriz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; mpaff(mulri(x,y),z); avma = av; }
+{ pari_sp av = avma; mpaff(mulri(x,y),z); set_avma(av); }
 INLINE void mulrrz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(mulrr(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(mulrr(x,y),z); set_avma(av); }
 INLINE void mulsiz(long s, GEN y, GEN z)
-{ pari_sp av = avma; affii(mulsi(s,y),z); avma = av; }
+{ pari_sp av = avma; affii(mulsi(s,y),z); set_avma(av); }
 INLINE void mulsrz(long s, GEN y, GEN z)
-{ pari_sp av = avma; mpaff(mulsr(s,y),z); avma = av; }
+{ pari_sp av = avma; mpaff(mulsr(s,y),z); set_avma(av); }
 INLINE void mulssz(long s, long y, GEN z)
-{ pari_sp av = avma; affii(mulss(s,y),z); avma = av; }
+{ pari_sp av = avma; affii(mulss(s,y),z); set_avma(av); }
 
 INLINE void remiiz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affii(remii(x,y),z); avma = av; }
+{ pari_sp av = avma; affii(remii(x,y),z); set_avma(av); }
 INLINE void remisz(GEN y, long s, GEN z)
-{ pari_sp av = avma; affii(remis(y,s),z); avma = av; }
+{ pari_sp av = avma; affii(remis(y,s),z); set_avma(av); }
 INLINE void remsiz(long s, GEN y, GEN z)
-{ pari_sp av = avma; affii(remsi(s,y),z); avma = av; }
+{ pari_sp av = avma; affii(remsi(s,y),z); set_avma(av); }
 INLINE void remssz(long s, long y, GEN z)
-{ pari_sp av = avma; affii(remss(s,y),z); avma = av; }
+{ pari_sp av = avma; affii(remss(s,y),z); set_avma(av); }
 
 INLINE void subiiz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affii(subii(x,y),z); avma = av; }
+{ pari_sp av = avma; affii(subii(x,y),z); set_avma(av); }
 INLINE void subirz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(subir(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(subir(x,y),z); set_avma(av); }
 INLINE void subisz(GEN y, long s, GEN z)
-{ pari_sp av = avma; affii(addsi(-s,y),z); avma = av; }
+{ pari_sp av = avma; affii(addsi(-s,y),z); set_avma(av); }
 INLINE void subriz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(subri(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(subri(x,y),z); set_avma(av); }
 INLINE void subrrz(GEN x, GEN y, GEN z)
-{ pari_sp av = avma; affrr(subrr(x,y),z); avma = av; }
+{ pari_sp av = avma; affrr(subrr(x,y),z); set_avma(av); }
 INLINE void subrsz(GEN y, long s, GEN z)
-{ pari_sp av = avma; affrr(addsr(-s,y),z); avma = av; }
+{ pari_sp av = avma; affrr(addsr(-s,y),z); set_avma(av); }
 INLINE void subsiz(long s, GEN y, GEN z)
-{ pari_sp av = avma; affii(subsi(s,y),z); avma = av; }
+{ pari_sp av = avma; affii(subsi(s,y),z); set_avma(av); }
 INLINE void subsrz(long s, GEN y, GEN z)
-{ pari_sp av = avma; affrr(subsr(s,y),z); avma = av; }
+{ pari_sp av = avma; affrr(subsr(s,y),z); set_avma(av); }
 INLINE void subssz(long x, long y, GEN z) { addssz(x,-y,z); }
 
 INLINE void
 dvmdssz(long x, long y, GEN z, GEN t) {
   pari_sp av = avma;
   long r;
-  affii(divss_rem(x,y, &r), z); avma = av; affsi(r,t);
+  affii(divss_rem(x,y, &r), z); set_avma(av); affsi(r,t);
 }
 INLINE void
 dvmdsiz(long x, GEN y, GEN z, GEN t) {
   pari_sp av = avma;
   long r;
-  affii(divsi_rem(x,y, &r), z); avma = av; affsi(r,t);
+  affii(divsi_rem(x,y, &r), z); set_avma(av); affsi(r,t);
 }
 INLINE void
 dvmdisz(GEN x, long y, GEN z, GEN t) {
   pari_sp av = avma;
   long r;
-  affii(divis_rem(x,y, &r),z); avma = av; affsi(r,t);
+  affii(divis_rem(x,y, &r),z); set_avma(av); affsi(r,t);
 }
 INLINE void
 dvmdiiz(GEN x, GEN y, GEN z, GEN t) {

@@ -683,7 +683,7 @@ idealquasifrob(GEN nf, GEN gal, GEN grp, GEN pr, GEN subg, GEN *S, GEN aut)
     {
       *S = get_aut(nf, gal, aut, g);
       if (ZC_prdvd(ZC_galoisapply(nf, *S, pi), pr)) return g;
-      avma = av;
+      set_avma(av);
     }
   }
   pari_err_BUG("idealquasifrob [Frobenius not found]");
@@ -719,7 +719,7 @@ idealfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN aut)
   GEN T, p, a, b, modpr;
   long f, n, s;
   f = pr_get_f(pr); n = nf_get_degree(nf);
-  if (f==1) { avma = av; return identity_perm(n); }
+  if (f==1) { set_avma(av); return identity_perm(n); }
   g = idealquasifrob(nf, gal, gal_get_group(gal), pr, NULL, &S, aut);
   if (f==2) return gerepileuptoleaf(av, g);
   modpr = zk_to_Fq_init(nf,&pr,&T,&p);
@@ -755,7 +755,7 @@ idealramfrobenius_aut(GEN nf, GEN gal, GEN pr, GEN ram, GEN aut)
   GEN isog, deco;
   long f, n, s;
   f = pr_get_f(pr); n = nf_get_degree(nf);
-  if (f==1) { avma = av; return identity_perm(n); }
+  if (f==1) { set_avma(av); return identity_perm(n); }
   modpr = zk_to_Fq_init(nf,&pr,&T,&p);
   deco = group_elts(gel(ram,1), nf_get_degree(nf));
   isog = group_set(gel(ram,2),  nf_get_degree(nf));
@@ -792,7 +792,7 @@ idealinertiagroup(GEN nf, GEN gal, GEN aut, GEN pr)
       if (ZC_prdvd(ZC_galoisapply(nf, S, pi), pr)
           && (coprime || gequalX(nf_to_Fq(nf, galoisapply(nf,S,b), modpr))))
           return iso;
-      avma = ltop;
+      set_avma(ltop);
     }
   }
   pari_err_BUG("idealinertiagroup [no isotropic element]");
@@ -811,7 +811,7 @@ idealramgroupstame(GEN nf, GEN gal, GEN aut, GEN pr)
     if (f==1)
       return cgetg(1,t_VEC);
     frob = idealquasifrob(nf, gal, grp, pr, NULL, &S, aut);
-    avma = av;
+    set_avma(av);
     res = cgetg(2, t_VEC);
     gel(res, 1) = cyclicgroup(frob, f);
     return res;
@@ -819,7 +819,7 @@ idealramgroupstame(GEN nf, GEN gal, GEN aut, GEN pr)
   res = cgetg(3, t_VEC);
   av = avma;
   iso = idealinertiagroup(nf, gal, aut, pr);
-  avma = av;
+  set_avma(av);
   giso = cyclicgroup(iso, e);
   gel(res, 2) = giso;
   if (f==1)
@@ -830,7 +830,7 @@ idealramgroupstame(GEN nf, GEN gal, GEN aut, GEN pr)
   av = avma;
   isog = group_set(giso, nf_get_degree(nf));
   frob = idealquasifrob(nf, gal, grp, pr, isog, &S, aut);
-  avma = av;
+  set_avma(av);
   gel(res, 1) = dicyclicgroup(iso,frob,e,f);
   return res;
 }
@@ -903,7 +903,7 @@ idealramgroupswild(GEN nf, GEN gal, GEN aut, GEN pr)
       piso = perm_mul(piso,iso);
       if (ugcd(j,o)==1) idx[ piso[1] ] = idx[ix];
     }
-    avma = av2;
+    set_avma(av2);
   }
   return gerepileuptoleaf(av, idx);
 }
@@ -1070,7 +1070,7 @@ nfisisom(GEN a, GEN b)
   if (!nfa) { a = Q_primpart(a); RgX_check_ZX(a, "nfisisom"); }
   if (!nfb) { b = Q_primpart(b); RgX_check_ZX(b, "nfisisom"); }
   if (nfa && !nfb) { swap(a,b); nfb = nfa; nfa = NULL; sw = 1; }
-  if (!tests_OK(a, nfa, b, nfb, 1)) { avma = av; return gen_0; }
+  if (!tests_OK(a, nfa, b, nfb, 1)) { set_avma(av); return gen_0; }
 
   if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
   if (nfa) la = gen_1; else nfa = a = ZX_Q_normalize(a,&la);
@@ -1150,7 +1150,7 @@ nfisincl(GEN fa, GEN fb)
   if (da == db) return nfisisom(fa, fb);
   if (!nfa) { a = Q_primpart(a); RgX_check_ZX(a, "nsisincl"); }
   if (!nfb) { b = Q_primpart(b); RgX_check_ZX(b, "nsisincl"); }
-  if (!tests_OK(a, nfa, b, nfb, 0)) { avma = av; return gen_0; }
+  if (!tests_OK(a, nfa, b, nfb, 0)) { set_avma(av); return gen_0; }
 
   if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
   if (nfa) la = gen_1; else nfa = a = ZX_Q_normalize(a,&la);
@@ -1167,7 +1167,7 @@ nfisincl(GEN fa, GEN fb)
     gel(x, k++) = partmap_reverse(b, a, t, vb);
   }
   if (newvar) (void)delete_var();
-  if (k==1) { avma = av; return gen_0; }
+  if (k==1) { set_avma(av); return gen_0; }
   setlg(x, k);
   gen_sort_inplace(x, (void*)&cmp_RgX, &cmp_nodata, NULL);
   return gerepilecopy(av,x);
@@ -2048,15 +2048,15 @@ try_polmin(CG_data *d, nfmaxord_t *S, GEN v, long flag, GEN *ai)
   if (best)
   {
     ed = expo(embed_disc(v, d->r1, LOWDEFAULTPREC));
-    avma = av; if (d->expo_best_disc < ed) return NULL;
+    set_avma(av); if (d->expo_best_disc < ed) return NULL;
   }
   else
     ed = 0;
   g = get_pol(d, v);
   /* accuracy too low, compute algebraically */
-  if (!g) { avma = av; g = ZXQ_charpoly(*ai, S->T, varn(S->T)); }
+  if (!g) { set_avma(av); g = ZXQ_charpoly(*ai, S->T, varn(S->T)); }
   g = ZX_radical(g);
-  if (best && degpol(g) != degpol(S->T)) { avma = av; return NULL; }
+  if (best && degpol(g) != degpol(S->T)) { set_avma(av); return NULL; }
   g = gerepilecopy(av, g);
   d->expo_best_disc = ed;
   if (flag & nf_ORIG)
@@ -2079,9 +2079,9 @@ chk_gen(void *data, GEN x)
   if (!g) pari_err_PREC("chk_gen");
   av1 = avma;
   h = ZX_gcd(g, ZX_deriv(g));
-  if (degpol(h)) { avma = av; return NULL; }
+  if (degpol(h)) { set_avma(av); return NULL; }
   if (DEBUGLEVEL>3) err_printf("  generator: %Ps\n",g);
-  avma = av1; return gerepileupto(av, g);
+  set_avma(av1); return gerepileupto(av, g);
 }
 
 static long
@@ -2115,7 +2115,7 @@ remove_duplicates(GEN v)
     }
   l = k+1;
   gel(A,k) = a; setlg(A,l);
-  gel(P,k) = x; setlg(P,l); avma = av;
+  gel(P,k) = x; setlg(P,l); set_avma(av);
 }
 
 static void
@@ -2169,7 +2169,7 @@ filter(GEN y, GEN b, long n)
     {
       pari_sp av = avma;
       if (!dx) dx = ZX_disc(yi);
-      else if (!ZX_is_better(yi,x,&dx)) { avma = av; continue; }
+      else if (!ZX_is_better(yi,x,&dx)) { set_avma(av); continue; }
       x = yi; a = ai; continue;
     }
     gel(y,k) = yi;
@@ -2285,7 +2285,7 @@ polredbest_aux(nfmaxord_t *S, GEN *pro, GEN *px, GEN *pdx, GEN *pb)
     {
       GEN yi = gel(y,i);
       pari_sp av = avma;
-      if (ZX_is_better(yi,x,&dx)) { x = yi; b = gel(a,i); } else avma = av;
+      if (ZX_is_better(yi,x,&dx)) { x = yi; b = gel(a,i); } else set_avma(av);
     }
     *pb = b;
   }
@@ -2296,7 +2296,7 @@ polredbest_aux(nfmaxord_t *S, GEN *pro, GEN *px, GEN *pdx, GEN *pb)
     {
       GEN yi = gel(y,i);
       pari_sp av = avma;
-      if (ZX_is_better(yi,x,&dx)) x = yi; else avma = av;
+      if (ZX_is_better(yi,x,&dx)) x = yi; else set_avma(av);
     }
   }
   if (pdx) { if (!dx) dx = ZX_disc(x); *pdx = dx; }

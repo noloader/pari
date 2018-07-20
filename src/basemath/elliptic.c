@@ -503,7 +503,7 @@ ellprint(GEN e)
   vy = fetch_var(); name_var(vy, "Y"); z = mkvec2(pol_x(vx), pol_x(vy));
   err_printf("%Ps - (%Ps)\n", ec_LHS_evalQ(e, z), ec_f_evalx(e, pol_x(vx)));
   (void)delete_var();
-  (void)delete_var(); avma = av;
+  (void)delete_var(); set_avma(av);
 }
 
 /* compute a,b such that E1: y^2 = x(x-a)(x-b) ~ E */
@@ -834,7 +834,7 @@ ellinit(GEN x, GEN D, long prec)
     y = ellinit_Rg(x, 0, prec);
   }
 END:
-  if (!y) { avma = av; return cgetg(1,t_VEC); }
+  if (!y) { set_avma(av); return cgetg(1,t_VEC); }
   return gerepilecopy(av,y);
 }
 
@@ -1684,17 +1684,17 @@ oncurve(GEN e, GEN z)
   av = avma;
   LHS = ec_LHS_evalQ(e,z);
   RHS = ec_f_evalx(e,gel(z,1)); x = gsub(LHS,RHS);
-  if (gequal0(x)) { avma = av; return 1; }
+  if (gequal0(x)) { set_avma(av); return 1; }
   pl = precision(LHS);
   pr = precision(RHS);
-  if (!pl && !pr) { avma = av; return 0; } /* both of LHS, RHS are exact */
+  if (!pl && !pr) { set_avma(av); return 0; } /* both of LHS, RHS are exact */
   /* at least one of LHS,RHS is inexact */
   ex = pr? gexpo(RHS): gexpo(LHS); /* don't take exponent of exact 0 */
   if (!pr || (pl && pl < pr)) pr = pl; /* min among nonzero elts of {pl,pr} */
   expx = gexpo(x);
   pr = (expx < ex - prec2nbits(pr) + 15
      || expx < ellexpo(e) - prec2nbits(pr) + 5);
-  avma = av; return pr;
+  set_avma(av); return pr;
 }
 
 GEN
@@ -1759,7 +1759,7 @@ elladd(GEN e, GEN z1, GEN z2)
   if (cx_approx_equal(x1,x2))
   {
     s = slope_samex(e, x1, y1, y2);
-    if (!s) { avma = av; return ellinf(); }
+    if (!s) { set_avma(av); return ellinf(); }
   }
   else
     s = gdiv(gsub(y2,y1), gsub(x2,x1));
@@ -1841,21 +1841,21 @@ ellordinate_i(GEN E, GEN x, long prec)
     case t_ELL_Fp: /* imply p!=2 */
       p = ellff_get_p(E);
       D = gel(D,2);
-      if (kronecker(D, p) < 0) { avma = av; return cgetg(1,t_VEC); }
+      if (kronecker(D, p) < 0) { set_avma(av); return cgetg(1,t_VEC); }
       d = Fp_sqrt(D, p);
       break;
     case t_ELL_Fq:
       if (absequaliu(ellff_get_p(E),2))
       {
         GEN F = FFX_roots(mkpoln(3, gen_1, b, a), D);
-        if (lg(F) == 1) { avma = av; return cgetg(1,t_VEC); }
+        if (lg(F) == 1) { set_avma(av); return cgetg(1,t_VEC); }
         return gerepileupto(av, F);
       }
-      if (!FF_issquareall(D,&d)) { avma = av; return cgetg(1,t_VEC); }
+      if (!FF_issquareall(D,&d)) { set_avma(av); return cgetg(1,t_VEC); }
       break;
     case t_ELL_Q:
       if (typ(x) == t_COMPLEX) { d = gsqrt(D, prec); break; }
-      if (!issquareall(D,&d)) { avma = av; return cgetg(1,t_VEC); }
+      if (!issquareall(D,&d)) { set_avma(av); return cgetg(1,t_VEC); }
       break;
 
     case t_ELL_NF:
@@ -1864,7 +1864,7 @@ ellordinate_i(GEN E, GEN x, long prec)
       setvarn(T, fetch_var_higher());
       d = nfroots(nf, T);
       delete_var();
-      if (lg(d) == 1) { avma = av; return cgetg(1, t_VEC); }
+      if (lg(d) == 1) { set_avma(av); return cgetg(1, t_VEC); }
       d = gel(d,1);
       break;
     }
@@ -1872,7 +1872,7 @@ ellordinate_i(GEN E, GEN x, long prec)
     case t_ELL_Qp:
       p = ellQp_get_p(E);
       D = cvtop(D, p, ellQp_get_prec(E));
-      if (!issquare(D)) { avma = av; return cgetg(1,t_VEC); }
+      if (!issquare(D)) { set_avma(av); return cgetg(1,t_VEC); }
       d = Qp_sqrt(D);
       break;
 
@@ -2906,7 +2906,7 @@ ellwp0(GEN w, GEN z, long flag, long prec)
     if (!get_c4c6(w,&c4,&c6,prec)) pari_err_TYPE("ellwp",w);
     if (v <= 0) pari_err(e_IMPL,"ellwp(t_SER) away from 0");
     if (gequal0(y)) {
-      avma = av;
+      set_avma(av);
       if (!flag) return zeroser(vy, -2*v);
       retmkvec2(zeroser(vy, -2*v), zeroser(vy, -3*v));
     }
@@ -2941,7 +2941,7 @@ ellzeta(GEN w, GEN z, long prec0)
     GEN P, Q, c4,c6;
     if (!get_c4c6(w,&c4,&c6,prec0)) pari_err_TYPE("ellzeta",w);
     if (v <= 0) pari_err(e_IMPL,"ellzeta(t_SER) away from 0");
-    if (gequal0(y)) { avma = av; return zeroser(vy, -v); }
+    if (gequal0(y)) { set_avma(av); return zeroser(vy, -v); }
     P = ellwpseries_aux(c4,c6, vy, lg(y)-2);
     P = integser(gneg(P)); /* \zeta' = - \wp*/
     Q = gsubst(P, varn(P), y);
@@ -3017,7 +3017,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
     if (!get_c4c6(w,&c4,&c6,prec0)) pari_err_TYPE("ellsigma",w);
     if (v <= 0) pari_err_IMPL("ellsigma(t_SER) away from 0");
     if (flag) pari_err_TYPE("log(ellsigma)",y);
-    if (gequal0(y)) { avma = av; return zeroser(vy, -v); }
+    if (gequal0(y)) { set_avma(av); return zeroser(vy, -v); }
     P = ellwpseries_aux(c4,c6, vy, lg(y)-2);
     P = integser(gneg(P)); /* \zeta' = - \wp*/
     /* (log \sigma)' = \zeta; remove log-singularity first */
@@ -3113,7 +3113,7 @@ pointell(GEN e, GEN z, long prec)
     return ellQp_t2P(e, z, prec);
   }
   v = ellwpnum_all(e,z,1,prec);
-  if (!v) { avma = av; return ellinf(); }
+  if (!v) { set_avma(av); return ellinf(); }
   gel(v,1) = gsub(gel(v,1), gdivgs(ell_get_b2(e),12));
   gel(v,2) = gmul2n(gsub(gel(v,2), ec_h_evalx(e,gel(v,1))),-1);
   return gerepilecopy(av, v);
@@ -3422,7 +3422,7 @@ aux2(GEN ak, ulong p, GEN pl)
 {
   pari_sp av = avma;
   ulong res = umodiu(diviiexact(ak, pl), p);
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 /* number of distinct roots of X^3 + aX^2 + bX + c modulo p = 2 or 3
@@ -5116,7 +5116,7 @@ val_init(GEN e, long p, long pk,
   pari_sp av = avma;
   *v4 = val_aux(c4, p,pk, u);
   *v6 = val_aux(c6, p,pk, v);
-  *vD = val_aux(D , p,pk, d1); avma = av;
+  *vD = val_aux(D , p,pk, d1); set_avma(av);
 }
 
 static long
@@ -5455,7 +5455,7 @@ ellQ_rootno(GEN e, GEN p)
     default:
       s = ellrootno_p(e,p); break;
   }
-  avma = av; return s;
+  set_avma(av); return s;
 }
 
 /* global root number over number field
@@ -5540,7 +5540,7 @@ ellnf_rootno_global(GEN E)
       v = odd(v2+v3);
     }
   }
-  avma = av; return v ? -1: 1;
+  set_avma(av); return v ? -1: 1;
 }
 
 static GEN
@@ -5563,7 +5563,7 @@ ellrootno_global(GEN e)
     default:
       pari_err_TYPE("ellrootno", e); return 0; /*LCOV_EXCL_LINE*/
   }
-  avma = av; return itos(S);
+  set_avma(av); return itos(S);
 }
 
 long
@@ -5724,7 +5724,7 @@ ellanQ_zv(GEN e, long n0)
     an[p] = ellan_get_ap(p, &good_red, CM, e);
     sievep(p, an, n, SQRTn, good_red);
   }
-  avma = av; return an;
+  set_avma(av); return an;
 }
 
 static GEN
@@ -5754,7 +5754,7 @@ ellnflocal(void *S, GEN p, long n)
     if (f > 1) T2 = RgX_inflate(T2, f);
     T = T? ZX_mul(T, T2): T2;
   }
-  if (!T) { avma = av; return pol_1(0); }
+  if (!T) { set_avma(av); return pol_1(0); }
   return gerepileupto(av, RgXn_inv_i(T, n));
 }
 
@@ -5821,7 +5821,7 @@ akell(GEN e, GEN n)
       GEN ap = ellQap(e,p,&good_red);
       if (good_red) { y = mulii(y, apk_good(ap, p, ex)); continue; }
       j = signe(ap);
-      if (!j) { avma = av; return gen_0; }
+      if (!j) { set_avma(av); return gen_0; }
       if (odd(ex) && j < 0) s = -s;
     }
   }
@@ -5860,13 +5860,13 @@ elllseries(GEN e, GEN s, GEN A, long prec)
       pari_err_DOMAIN("elllseries", "cut-off point", "<=", gen_0,A);
     if (gcmpgs(A,1) < 0) A = ginv(A);
   }
-  if (isint(s, &s) && signe(s) <= 0) { avma = av; return gen_0; }
+  if (isint(s, &s) && signe(s) <= 0) { set_avma(av); return gen_0; }
   flun = gequal1(A) && gequal1(s);
   checkell_Q(e);
   e = ellanal_globalred(e, NULL);
   N = ellQ_get_N(e);
   eps = ellrootno_global(e);
-  if (flun && eps < 0) { avma = av; return real_0(prec); }
+  if (flun && eps < 0) { set_avma(av); return real_0(prec); }
 
   gs = ggamma(s, prec);
   cg = divrr(Pi2n(1, prec), gsqrt(N,prec));
@@ -6070,7 +6070,7 @@ ellnf_height(GEN E, GEN P, long prec)
   long i, n, l, r1;
   if (ell_is_inf(P)) return gen_0;
   x = gel(P,1);
-  if (gequal0(ec_2divpol_evalx(E, x))) { avma = av; return gen_0; }
+  if (gequal0(ec_2divpol_evalx(E, x))) { set_avma(av); return gen_0; }
   nf = ellnf_get_nf(E); r1 = nf_get_r1(nf);
   disc = ell_get_disc(E);
   d = idealnorm(nf, gel(idealnumden(nf, x), 2));
@@ -6122,7 +6122,7 @@ ellQ_height(GEN e, GEN a, long prec)
   if (!oncurve(e,a))
     pari_err_DOMAIN("ellheight", "point", "not on", strtoGENstr("E"),a);
   psi2 = Q_numer(ec_dmFdy_evalQ(e,a));
-  if (!signe(psi2)) { avma = av; return gen_0; }
+  if (!signe(psi2)) { set_avma(av); return gen_0; }
   x = gel(a,1);
   y = gel(a,2);
   b2 = ell_get_b2(e);
@@ -6766,7 +6766,7 @@ elljissupersingular(GEN x)
     pari_err_TYPE("elljissupersingular", x);
     return 0; /*LCOV_EXCL_LINE*/
   }
-  avma = av;
+  set_avma(av);
   return res;
 }
 
@@ -6789,7 +6789,7 @@ ellissupersingular(GEN E, GEN p)
     if (typ(j)==t_FRAC && dvdii(gel(j,2), p)) return 0;
     av = avma;
     res = Fp_elljissupersingular(Rg_to_Fp(j, p), p);
-    avma = av; return res;
+    set_avma(av); return res;
   case t_ELL_NF:
     {
       GEN modP, T, nf = ellnf_get_nf(E), pr = p;
@@ -6807,7 +6807,7 @@ ellissupersingular(GEN E, GEN p)
         res = Fp_elljissupersingular(j, p);
       else
         res = FpXQ_elljissupersingular(j, T, p);
-      avma = av; return res;
+      set_avma(av); return res;
     }
   default:
     pari_err_TYPE("ellissupersingular",E);

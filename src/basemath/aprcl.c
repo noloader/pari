@@ -501,7 +501,7 @@ compute_t(GEN N, GEN *e, GEN *faet)
       pari_sp av = avma;
       *e = compute_e(t, faet);
       if (cmpii(*e, B) > 0) break;
-      avma = av;
+      set_avma(av);
     }
 #else
     *e = NULL; /* LCOV_EXCL_LINE */
@@ -715,7 +715,7 @@ filltabs(GEN C, GEN Cp, Red *R, long p, long pk, long ltab)
   }
   setlg(taba, e); cache_aall(C) = taba;
   setlg(tabt, e); cache_tall(C) = tabt;
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 static GEN
@@ -943,7 +943,7 @@ step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
     else             fl = step4d(R, q);
     if (fl == -1) return _res(q,p);
     if (fl == 1) return NULL; /*OK*/
-    avma = av;
+    set_avma(av);
   }
   pari_err_BUG("aprcl test fails! This is highly improbable");
   return NULL;
@@ -1011,7 +1011,7 @@ aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v)
   R.N2= shifti(N, -1);
   R.k = v[1]; R.lv = v[2]; R.mask = uel(v,3); R.n = v[4];
   av2 = avma;
-  for (j=1, k=1; j<lfaq; j++, avma = av2)
+  for (j=1, k=1; j<lfaq; j++, set_avma(av2))
   {
     long p = P[j], e = E[j], pe = PE[j], fl;
     GEN C = gel(pC,pe);
@@ -1093,7 +1093,7 @@ aprcl(GEN N)
     long p = fat[i];
     GEN r;
     if (flaglp[i] && (r = step5(pC, &R, p, et, ltab, lpC))) return r;
-    avma = av;
+    set_avma(av);
   }
   if (DEBUGLEVEL>2)
     err_printf("Step6: testing potential divisors\n");
@@ -1105,7 +1105,7 @@ isprimeAPRCL(GEN N)
 {
   pari_sp av = avma;
   GEN res = aprcl(N);
-  avma = av; return (typ(res) == t_INT);
+  set_avma(av); return (typ(res) == t_INT);
 }
 
 /*******************************************************************/

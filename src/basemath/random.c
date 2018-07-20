@@ -260,7 +260,7 @@ randomr(long prec)
   y = randomi(int2n(b));
   if (!signe(y)) return real_0_bit(b);
   affir(y, x); shiftr_inplace(x, - b);
-  avma = av; return x;
+  set_avma(av); return x;
 }
 
 static GEN

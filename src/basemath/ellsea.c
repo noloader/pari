@@ -61,7 +61,7 @@ get_seadata(ulong ell)
   { /* table of polynomials of small level */
     eqn = gp_readvec_stream(F->file);
     modular_eqn = eqn = gclone(eqn);
-    avma = av;
+    set_avma(av);
   }
   pari_fclose(F);
   return eqn;
@@ -205,7 +205,7 @@ divpol(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
   }
   res = ff->red(E, res);
   gmael(t,1,n) = gclone(res);
-  avma = av;
+  set_avma(av);
   return gmael(t,1,n);
 }
 
@@ -590,7 +590,7 @@ find_eigen_value_oneroot(GEN a4, GEN a6, ulong ell, GEN tr, GEN h, GEN T, GEN p)
   Dy = FqXQ_mul(Gy, gel(f,2), h, T, p);
   if (!gequal(gel(f,1), Dy)) t = ell-t;
   Fq_elldivpolmod_close(&d);
-  avma = ltop; return t;
+  set_avma(ltop); return t;
 }
 
 static ulong
@@ -617,7 +617,7 @@ Flxq_find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda,
   }
   if (DEBUGLEVEL>2) err_printf(" (%ld ms)",timer_delay(&ti));
   Fq_elldivpolmod_close(&d);
-  avma = ltop; return t;
+  set_avma(ltop); return t;
 }
 
 /*Finds the eigenvalue of the Frobenius modulo ell^k given E, ell, k, h factor
@@ -645,7 +645,7 @@ Fq_find_eigen_value_power(GEN a4, GEN a6, ulong ell, long k, ulong lambda, GEN h
   }
   if (DEBUGLEVEL>2) err_printf(" (%ld ms)",timer_delay(&ti));
   Fq_elldivpolmod_close(&d);
-  avma = ltop; return t;
+  set_avma(ltop); return t;
 }
 
 static ulong
@@ -723,7 +723,7 @@ find_kernel(GEN a4, GEN a6, ulong ell, GEN a4t, GEN a6t, GEN pp1, GEN T, GEN p, 
     gel(tlist, dim-k-1) = gerepileupto(btop, Zq_Z_div_safe(s, stoi(-k), T, p, pp, e));
   }
   for (i = 1; i <= ext; i++)
-    if (signe(Fq_red(gel(tlist, i),T, pp))) { avma = ltop; return NULL; }
+    if (signe(Fq_red(gel(tlist, i),T, pp))) { set_avma(ltop); return NULL; }
   h = FqX_red(RgV_to_RgX(vecslice(tlist, ext+1, dim-1), 0),T,p);
   return signe(Fq_elldivpolmod(a4, a6, ell, h, T, pp)) ? NULL: h;
 }
@@ -775,7 +775,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
   if (!signe(Fq_red(dJ,T,pp)) || !signe(Fq_red(dx,T,pp)))
   {
     if (DEBUGLEVEL>0) err_printf("[A: d%c=0]",signe(dJ)? 'x': 'J');
-    avma = ltop; return NULL;
+    set_avma(ltop); return NULL;
   }
   a = Fq_mul(dJ, Fq_mul(g, E6, T, p), T, p);
   b = Fq_mul(E4, dx, T, p);
@@ -787,7 +787,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
   Roots = FqX_roots(meqnx, T, pp);
 
   btop = avma;
-  for (k = lg(Roots)-1; k >= 1; k--, avma = btop)
+  for (k = lg(Roots)-1; k >= 1; k--, set_avma(btop))
   {
     GEN jt = gel(Roots, k);
     if (signe(FqX_eval(Dmeqnx, jt, T, pp))==0)
@@ -797,7 +797,7 @@ find_isogenous_from_Atkin(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, G
     if (signe(Fq_red(jt, T, pp)) == 0 || signe(Fq_sub(jt, utoi(1728), T, pp)) == 0)
     {
       if (DEBUGLEVEL>0) err_printf("[A: jt=%ld]",signe(Fq_red(jt,T,p))? 1728: 0);
-      avma = ltop; return NULL;
+      set_avma(ltop); return NULL;
     }
     else
     {
@@ -857,7 +857,7 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN 
   if (signe(Fq_red(dx,T, pp))==0)
   {
     if (DEBUGLEVEL>0) err_printf("[C: dx=0]");
-    avma = ltop; return NULL;
+    set_avma(ltop); return NULL;
   }
   if (signe(Fq_red(dJ, T, pp))==0)
   {
@@ -885,7 +885,7 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN 
     if (signe(Fq_red(jl,T,pp))==0)
     {
       if (DEBUGLEVEL>0) err_printf("[C: jl=0]");
-      avma = ltop; return NULL;
+      set_avma(ltop); return NULL;
     }
     f =  Zq_div(powuu(ell, is), g, T, p, pp, e);
     fd = Fq_neg(Fq_mul(Fq_mul(E2s, f, T, p), itis, T, p), T, p);
@@ -1019,14 +1019,14 @@ find_isogenous_from_J(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T
   if (signe(g) == 0 || signe(Fq_sub(g, utoi(1728), T, p)) == 0)
   {
     if (DEBUGLEVEL>0) err_printf("[J: g=%ld]",signe(g)==0 ?0: 1728);
-    avma = ltop; return NULL;
+    set_avma(ltop); return NULL;
   }
   C4 = Fq_mul(a4, stoi(-48), T, p);
   C6 = Fq_mul(a6, stoi(-864), T, p);
   if (signe(C4)==0 || signe(C6)==0)
   {
     if (DEBUGLEVEL>0) err_printf("[J: C%ld=0]",signe(C4)==0 ?4: 6);
-    avma = ltop; return NULL;
+    set_avma(ltop); return NULL;
   }
   j = Zq_ellj(a4, a6, T, p, pp, e);
   jp = Fq_mul(j, Zq_div(C6, C4, T, p, pp, e), T, p);
@@ -1038,7 +1038,7 @@ find_isogenous_from_J(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T
   if (signe(Pxj)==0)
   {
     if (DEBUGLEVEL>0) err_printf("[J: Pxj=0]");
-    avma = ltop; return NULL;
+    set_avma(ltop); return NULL;
   }
   Pyj = FqX_eval(Py, g, T, p);
   Pxxj = FqX_eval(gel(meqn, 3), g, T, p);
@@ -1126,7 +1126,7 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
   {
     GEN h;
     GEN tmp = find_isogenous(Eca4, Eca6, ell, MEQN, gel(mroots, i), T, p);
-    if (!tmp) { avma = ltop; return NULL; }
+    if (!tmp) { set_avma(ltop); return NULL; }
     a4t =  gel(tmp, 1);
     a6t =  gel(tmp, 2);
     gtmp = gel(tmp, 3);
@@ -1139,9 +1139,9 @@ find_kernel_power(GEN Eba4, GEN Eba6, GEN Eca4, GEN Eca6, ulong ell, struct meqn
       GEN kpoly_new = FqX_homogenous_eval(gtmp,   numer_i(Ic),denom_i(Ic), T,p);
       return gerepilecopy(ltop, mkvecn(5, a4t, a6t, kpoly_new, gtmp, Ic));
     }
-    avma = btop;
+    set_avma(btop);
   }
-  avma = ltop; return NULL;
+  set_avma(ltop); return NULL;
 }
 
 /****************************************************************************/
@@ -1238,7 +1238,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long *pt_k, struct meqn *MEQN
   Eba4 = a4;
   Eba6 = a6;
   tmp = find_isogenous(a4,a6, ell, MEQN, g, T, p);
-  if (!tmp) { avma = ltop; return NULL; }
+  if (!tmp) { set_avma(ltop); return NULL; }
   Eca4 =  gel(tmp, 1);
   Eca6 =  gel(tmp, 2);
   kpoly = gel(tmp, 3);
@@ -1250,8 +1250,8 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long *pt_k, struct meqn *MEQN
   {
     ulong pell = pellk%ell;
     ulong ap = Fl_add(lambda, Fl_div(pell, lambda, ell), ell);
-    if (Fl_sub(pell, ap, ell)==ell-1) { avma = ltop; return mkvecsmall(ap); }
-    if (smallfact < 0 && Fl_add(pell, ap, ell)==ell-1) { avma = ltop; return mkvecsmall(ap); }
+    if (Fl_sub(pell, ap, ell)==ell-1) { set_avma(ltop); return mkvecsmall(ap); }
+    if (smallfact < 0 && Fl_add(pell, ap, ell)==ell-1) { set_avma(ltop); return mkvecsmall(ap); }
   }
   btop = avma;
   for (cnt = 2; cnt <= k; cnt++)
@@ -1273,7 +1273,7 @@ find_trace_Elkies_power(GEN a4, GEN a6, ulong ell, long *pt_k, struct meqn *MEQN
     }
     if (DEBUGLEVEL>1) err_printf(" [%ld ms]", timer_delay(ti));
   }
-  avma = ltop;
+  set_avma(ltop);
   ellk = upowuu(ell, k);
   pellk = umodiu(q, ellk);
   *pt_k = k;
@@ -1294,7 +1294,7 @@ find_trace_Atkin(ulong ell, long r, GEN q)
   pari_sp btop = avma;
   if (r==2 && krouu(ell-pell, ell) < 0)
     val_pos[++nval] = 0;
-  for (teta = 1; teta < ell; teta++, avma = btop)
+  for (teta = 1; teta < ell; teta++, set_avma(btop))
   {
     ulong disc = Fl_sub(Fl_sqr(teta,ell), Fl_mul(4UL,pell,ell), ell);
     GEN a;
@@ -1306,7 +1306,7 @@ find_trace_Atkin(ulong ell, long r, GEN q)
     {
       pari_sp av = avma;
       long i, l=lg(P);
-      for (i = 2; i < l; i++, avma = av)
+      for (i = 2; i < l; i++, set_avma(av))
         if (Flx_equal1(Flxq_powu(U, r/P[i], S, ell))) break;
       if (i==l) val_pos[++nval] = teta;
     }
@@ -1367,7 +1367,7 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
     if (!tr)
     {
       if (DEBUGLEVEL) err_printf("[fail]\n");
-      avma = ltop; return NULL;
+      set_avma(ltop); return NULL;
     }
     break;
   case MTroots:
@@ -1380,7 +1380,7 @@ find_trace(GEN a4, GEN a6, GEN j, ulong ell, GEN q, GEN T, GEN p, long *ptr_kt,
     kt = 1;
     break;
   default: /* case MTpathological: */
-    avma = ltop; return NULL;
+    set_avma(ltop); return NULL;
   }
   if (DEBUGLEVEL) {
     long n = lg(tr)-1;
@@ -1443,7 +1443,7 @@ multiple_crt(GEN x, GEN y, GEN q, GEN P)
   a1 = mulii(P,u);
   a2 = mulii(q,v); A2X = ZC_Z_mul(x, a2);
   av = avma; affii(mulii(P,q), P);
-  for (i = 1, k = 1; i <= lx; i++, avma = av)
+  for (i = 1, k = 1; i <= lx; i++, set_avma(av))
   {
     GEN a2x = gel(A2X,i);
     for (j = 1; j <= ly; ++j)
@@ -1452,7 +1452,7 @@ multiple_crt(GEN x, GEN y, GEN q, GEN P)
       affii(t, gel(x, k++));
     }
   }
-  setlg(x, k); avma = ltop;
+  setlg(x, k); set_avma(ltop);
 }
 
 /****************************************************************************/
@@ -1529,7 +1529,7 @@ set_cost(GEN B, long b, GEN cost_vec, long *pi)
   long i = *pi;
   while (cmpii(costb, cost(B[i], cost_vec)) < 0) --i;
   B[++i] = b;
-  *pi = i; avma = av;
+  *pi = i; set_avma(av);
 }
 
 static GEN
@@ -1565,7 +1565,7 @@ champion(GEN atkin, long k, GEN bound_champ)
       long b1 = Bp[i1], b2 = Bp[i2]|(1L<<(j-1));
       if (cmpii(value(b1, atkin, k), value(b2, atkin, k)) < 0)
         { b = b1; i1++; } else { b = b2; i2++; }
-      avma = av;
+      set_avma(av);
       set_cost(B, b, cost_vec, &i);
     }
     for ( ; i2 <= n; i2++)
@@ -1677,7 +1677,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   if (DEBUGLEVEL>=2) timer_start(&ti);
   av1 = avma;
   best_i = separation( get_lgatkin(compile_atkin, k) );
-  avma = av1;
+  set_avma(av1);
 
   baby  = possible_traces(compile_atkin, utoi(best_i), &Mb, 1);
   giant = possible_traces(compile_atkin, subiu(int2n(k), best_i+1), &Mg, 0);
@@ -1685,7 +1685,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   lgiant = lg(giant);
   den = Fp_inv(Fp_mul(Mu, Mb, Mg), Mg);
   av2 = avma;
-  for (i = 1; i < lgiant; i++, avma = av2)
+  for (i = 1; i < lgiant; i++, set_avma(av2))
     affii(Fp_mul(gel(giant,i), den, Mg), gel(giant,i));
   ZV_sort_inplace(giant);
   Sg = Fp_mul(negi(u), den, Mg);
@@ -1694,7 +1694,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
   togglesign(dec_inf); /* now, dec_inf = ceil(- (Mb/2 + Sg Mb/Mg) ) */
   div = mulii(truedivii(dec_inf, Mb), Mb);
   av2 = avma;
-  for (i = 1; i < lbaby; i++, avma = av2)
+  for (i = 1; i < lbaby; i++, set_avma(av2))
   {
     GEN b = addii(Fp_mul(Fp_sub(gel(baby,i), u, Mb), den, Mb), div);
     if (cmpii(b, dec_inf) < 0) b = addii(b, Mb);
@@ -1708,7 +1708,7 @@ match_and_sort(GEN compile_atkin, GEN Mu, GEN u, GEN q, void *E, const struct bb
 
   av2 = avma;
 MATCH_RESTART:
-  avma = av2;
+  set_avma(av2);
   nbcard = 0;
   P = grp->rand(E);
   point = grp->pow(E,P, Mu);
@@ -1735,7 +1735,7 @@ MATCH_RESTART:
       point = gerepileupto(av1, point);
     }
   }
-  avma = av1;
+  set_avma(av1);
   /* Precomputations for giants */
   pre = BSGS_pre(&diff, giant, Pg, E, grp);
 
@@ -1854,7 +1854,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
   if (odd(smallfact) && !mpodd(TR))
   {
     if (DEBUGLEVEL) err_printf("Aborting: #E(Fq) divisible by 2\n");
-    avma = ltop; return gen_0;
+    set_avma(ltop); return gen_0;
   }
   vy = fetch_var();
   vx = fetch_var_higher();
@@ -1893,7 +1893,7 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
                        tcard_mod_ell ? "" : "_twist", ell);
           delete_var();
           delete_var();
-          avma = ltop; return gen_0;
+          set_avma(ltop); return gen_0;
         }
       }
       (void)Z_incremental_CRT(&TR, t_mod_ellkt, &TR_mod, ellkt);

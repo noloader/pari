@@ -325,7 +325,7 @@ get_maxord(nfmaxord_t *S, GEN T0, long flag)
         { /* we're here because we failed BPSW_isprime(), no point in
            * reporting a possible counter-example to the BPSW test */
           GEN p = gel(P,i);
-          avma = av;
+          set_avma(av);
           if (DEBUGLEVEL)
             pari_warn(warner,"large composite in nfmaxord:loop(), %Ps", p);
           if (expi(p) < 100) /* factor should require ~20ms for this */
@@ -585,7 +585,7 @@ maxord(GEN p, GEN f, long mf)
   GEN res, g, k = ZX_Dedekind(f, &g, p);
   long dk = degpol(k);
   if (DEBUGLEVEL>2) err_printf("  ZX_dedekind: gcd has degree %ld\n", dk);
-  if (!dk) { avma = av; return gen_1; }
+  if (!dk) { set_avma(av); return gen_1; }
   if (mf < 0) mf = ZpX_disc_val(f, p);
   k = FpX_normalize(k, p);
   if (2*dk >= mf-1)
@@ -617,7 +617,7 @@ ZpX_primedec(GEN T, GEN p)
   if (!res)
   {
     long f = degpol(S.nu), e = degpol(T) / f;
-    avma = av; retmkmat2(mkcols(f), mkcols(e));
+    set_avma(av); retmkmat2(mkcols(f), mkcols(e));
   }
   return gerepilecopy(av,res);
 }
@@ -671,7 +671,7 @@ Zlx_gcd(GEN f1, GEN f2, ulong p, ulong pm)
       return gerepileupto(av, RgX_Rg_div(a, utoipos(t)));
     }
   }
-  avma = av;
+  set_avma(av);
   a = cgetg(2,t_POL); a[1] = sv; return a;
 }
 GEN
@@ -697,7 +697,7 @@ ZpX_gcd(GEN f1, GEN f2, GEN p, GEN pm)
       return gerepileupto(av, RgX_Rg_div(a, t));
     }
   }
-  avma = av; return pol_0(v);
+  set_avma(av); return pol_0(v);
 }
 
 /* Return m > 0, such that p^m ~ 2^16 for initial value of m; p > 1 */
@@ -721,7 +721,7 @@ ZpX_reduced_resultant(GEN x, GEN y, GEN p, GEN pm)
     if (lg(z) > 1)
     {
       ulong c = ucoeff(z,1,1);
-      if (c) { avma = av; return utoipos(c); }
+      if (c) { set_avma(av); return utoipos(c); }
     }
   }
   else
@@ -733,7 +733,7 @@ ZpX_reduced_resultant(GEN x, GEN y, GEN p, GEN pm)
       if (signe(c)) return gerepileuptoint(av, c);
     }
   }
-  avma = av; return gen_0;
+  set_avma(av); return gen_0;
 }
 /* Assume Res(f,g) divides p^M. Return Res(f, g), using dynamic p-adic
  * precision (until result is non-zero or p^M). */
@@ -763,14 +763,14 @@ ZpX_resultant_val_i(GEN x, GEN y, GEN p, GEN pm)
   {
     ulong q = pm[2], pp = p[2];
     z = Zlx_sylvester_echelon(ZX_to_Flx(x,q), ZX_to_Flx(y,q), 1, pp, q);
-    if (!z) { avma = av; return -1; } /* failure */
+    if (!z) { set_avma(av); return -1; } /* failure */
     v = 0; l = lg(z);
     for (i = 1; i < l; i++) v += u_lval(ucoeff(z,i,i), pp);
   }
   else
   {
     z = ZpX_sylvester_echelon(x, y, 1, p, pm);
-    if (!z) { avma = av; return -1; } /* failure */
+    if (!z) { set_avma(av); return -1; } /* failure */
     v = 0; l = lg(z);
     for (i = 1; i < l; i++) v += Z_pval(gcoeff(z,i,i), p);
   }
@@ -791,7 +791,7 @@ ZpX_resultant_val(GEN f, GEN g, GEN p, long M)
     v = ZpX_resultant_val_i(f,g, p, q); if (v >= 0) break;
     if (m == M) return M;
   }
-  avma = av; return v;
+  set_avma(av); return v;
 }
 
 /* assume f separable and (lc(f),p) = 1 */
@@ -802,7 +802,7 @@ ZpX_disc_val(GEN f, GEN p)
   long v;
   if (degpol(f) == 1) return 0;
   v = ZpX_resultant_val(f, ZX_deriv(f), p, LONG_MAX);
-  avma = av; return v;
+  set_avma(av); return v;
 }
 
 /* *e a ZX, *d, *z in Z, *d = p^(*vd). Simplify e / d by cancelling a
@@ -1723,7 +1723,7 @@ ZpX_monic_factor_squarefree(GEN f, GEN p, long prec)
   if (l == 2)
   {
     L = ZpX_round4(f,p,w,prec);
-    if (lg(L) == 2) { avma = av; return mkvec(f); }
+    if (lg(L) == 2) { set_avma(av); return mkvec(f); }
   }
   else
   { /* >= 2 factors mod p: partial Hensel lift */
@@ -2270,7 +2270,7 @@ ffdegree(GEN x, GEN frob, GEN p)
     y = FpM_FpC_mul(frob, y, p);
     if (ZV_equal(y, x)) break;
   }
-  avma = av; return d;
+  set_avma(av); return d;
 }
 
 static GEN
@@ -2673,7 +2673,7 @@ nfmodprlift(GEN nf, GEN x, GEN pr)
   }
   x = FF_to_FpXQ_i(x);
   d = degpol(x);
-  if (d <= 0) { avma = av; return d? gen_0: icopy(gel(x,2)); }
+  if (d <= 0) { set_avma(av); return d? gen_0: icopy(gel(x,2)); }
   modpr = nf_to_Fq_init(nf, &pr, &T, &p);
   return gerepilecopy(av, Fq_to_nf(x, modpr));
 }
@@ -3052,28 +3052,28 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
     GEN Q = gel(fa,1), E = gel(fa,2);
     pari_sp av2 = avma;
     long i, l = lg(Q);
-    for (i = 1; i < l; i++, avma = av2)
+    for (i = 1; i < l; i++, set_avma(av2))
     {
       v = itos(gel(E,i));
       if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { avma=av; return gen_0; }
-      avma = av2;
+      set_avma(av2);
     }
-    avma = av; return gen_1;
+    set_avma(av); return gen_1;
   }
   else if (typ(pr) == t_VEC)
   { /* flag = 1 is implicit */
-    if (lg(pr) == 1) { avma = av; return gen_1; }
+    if (lg(pr) == 1) { set_avma(av); return gen_1; }
     if (typ(gel(pr,1)) == t_VEC)
     { /* list of primes */
       GEN Q = pr;
       pari_sp av2 = avma;
       long i, l = lg(Q);
-      for (i = 1; i < l; i++, avma = av2)
+      for (i = 1; i < l; i++, set_avma(av2))
       {
         v = nfval(nf, dP, gel(Q,i));
         if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { avma=av; return gen_0; }
       }
-      avma = av; return gen_1;
+      set_avma(av); return gen_1;
     }
   }
   /* single prime */
@@ -3081,12 +3081,12 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
   z = rnfdedekind_i(nf, P, pr, v, flag);
   if (z)
   {
-    if (flag) { avma = av; return gen_0; }
+    if (flag) { set_avma(av); return gen_0; }
     z = gerepilecopy(av, z);
   }
   else
   {
-    avma = av; if (flag) return gen_1;
+    set_avma(av); if (flag) return gen_1;
     z = cgetg(4, t_VEC);
     gel(z,1) = gen_1;
     gel(z,2) = triv_order(degpol(P));
@@ -3127,7 +3127,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   modpr = nf_to_Fq_init(nf,&pr,&T,&p);
   av1 = avma;
   p1 = rnfdedekind_i(nf, pol, modpr, vdisc, 0);
-  if (!p1) { avma = av; return NULL; }
+  if (!p1) { set_avma(av); return NULL; }
   if (is_pm1(gel(p1,1))) return gerepilecopy(av,gel(p1,2));
   sep = itos(gel(p1,3));
   W = gmael(p1,2,1);
@@ -3511,7 +3511,7 @@ gen_if_principal(GEN bnf, GEN x)
 {
   pari_sp av = avma;
   GEN z = bnfisprincipal0(bnf,x, nf_GEN_IF_PRINCIPAL | nf_FORCE);
-  if (isintzero(z)) { avma = av; return NULL; }
+  if (isintzero(z)) { set_avma(av); return NULL; }
   return z;
 }
 
@@ -3710,7 +3710,7 @@ rnfhnfbasis(GEN bnf, GEN order)
   {
     if (ideal_is1(gel(I,j))) continue;
     a = gen_if_principal(bnf, gel(I,j));
-    if (!a) { avma = av; return gen_0; }
+    if (!a) { set_avma(av); return gen_0; }
     gel(A,j) = nfC_nf_mul(nf, gel(A,j), a);
   }
   return gerepilecopy(av,A);
@@ -3741,7 +3741,7 @@ rnfisfree(GEN bnf, GEN order)
 {
   pari_sp av = avma;
   long n = rnfisfree_aux(bnf, order);
-  avma = av; return n;
+  set_avma(av); return n;
 }
 
 /**********************************************************************/

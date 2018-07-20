@@ -312,7 +312,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
 
   p1 = InitQuotient(H);
   /* quotient is non cyclic */
-  if (!cyc_is_cyclic(gel(p1,2))) { avma = av; return 0; }
+  if (!cyc_is_cyclic(gel(p1,2))) { set_avma(av); return 0; }
 
   p2 = ZM_hnfall_i(shallowconcat(map,H), &U, 0);
   setlg(U, lg(H));
@@ -322,10 +322,10 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   mod  = bnr_get_mod(bnr);
 
   /* is the signature correct? */
-  if (!gequal(gel(modH,2), gel(mod,2))) { avma = av; return 0; }
+  if (!gequal(gel(modH,2), gel(mod,2))) { set_avma(av); return 0; }
 
   /* finite part are the same: OK */
-  if (gequal(gel(modH,1), gel(mod,1))) { avma = av; return 1; }
+  if (gequal(gel(modH,1), gel(mod,1))) { set_avma(av); return 1; }
 
   /* need to check the splitting of primes dividing mod but not modH */
   bnrH = Buchray(bnr, modH, nf_INIT);
@@ -343,9 +343,9 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
     /* inertia degree of pr in bnr(modH)/H is charorder(e, cycH) */
     e = ZM_ZC_mul(gel(qH,3), isprincipalray(bnrH, pr));
     e = vecmodii(e, gel(qH,2));
-    if (ZV_equal0(e)) { avma = av; return 0; } /* f = 1 */
+    if (ZV_equal0(e)) { set_avma(av); return 0; } /* f = 1 */
   }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 /* compute the list of characters to consider for AllStark and
@@ -399,7 +399,7 @@ CplxModulus(GEN data, long *newprec)
   GEN pol, listCR, cpl, bnr = gel(data,1), nf = checknf(bnr);
 
   listCR = get_listCR(bnr, gel(data,3));
-  for (av = avma;; avma = av)
+  for (av = avma;; set_avma(av))
   {
     gel(data,5) = InitChar(bnr, listCR, dprec);
     pol = AllStark(data, nf, -1, dprec);
@@ -413,7 +413,7 @@ CplxModulus(GEN data, long *newprec)
     }
     if (DEBUGLEVEL>1) pari_warn(warnprec, "CplxModulus", dprec);
   }
-  ex = gexpo(cpl); avma = av;
+  ex = gexpo(cpl); set_avma(av);
   if (DEBUGLEVEL>1) err_printf("cpl = 2^%ld\n", ex);
 
   gel(data,5) = listCR;
@@ -482,7 +482,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
   {
     GEN listid = ideallist0(nf, maxnorm, 4+8); /* ideals of norm <= maxnorm */
     pari_sp av1 = avma;
-    for (n = minnorm; n <= maxnorm; n++, avma = av1)
+    for (n = minnorm; n <= maxnorm; n++, set_avma(av1))
     {
       GEN idnormn = gel(listid,n);
       long nbidnn  = lg(idnormn) - 1;
@@ -1035,7 +1035,7 @@ InitReduction(long d, long deg)
     Polmod2Coeff(A[j], polmod, deg);
   }
 
-  avma = av; return A;
+  set_avma(av); return A;
 }
 
 #if 0
@@ -1116,7 +1116,7 @@ AddMulCoeff(int *c0, int *c1, int* c2, int** reduc, long deg)
     for (j = 0; j < deg; j++) c += reduc[j][i] * t[deg+j];
     c0[i] += c;
   }
-  avma = av;
+  set_avma(av);
 }
 
 /* evaluate the Coeff. No Garbage collector */
@@ -1214,9 +1214,9 @@ CorrectCoeff(GEN dtcr, int** an, int** reduc, long n, long deg)
     long Np = upr_norm(pr);
     GEN chi  = CHI_eval(&C, isprincipalray(bnrc, pr));
     an_AddMul(an,an2,Np,n,deg,chi,reduc);
-    avma = av1;
+    set_avma(av1);
   }
-  FreeMat(an2, n); avma = av;
+  FreeMat(an2, n); set_avma(av);
 }
 
 /* compute the coefficients an in the general case */
@@ -1236,7 +1236,7 @@ ComputeCoeff(GEN dtcr, LISTray *R, long n, long deg)
   av2 = avma;
 
   L = R->L1; l = lg(L);
-  for (i=1; i<l; i++, avma = av2)
+  for (i=1; i<l; i++, set_avma(av2))
   {
     long np = L[i];
     GEN chi  = CHI_eval(&C, gel(R->L1ray,i));
@@ -1246,7 +1246,7 @@ ComputeCoeff(GEN dtcr, LISTray *R, long n, long deg)
 
   CorrectCoeff(dtcr, an, reduc, n, deg);
   FreeMat(reduc, deg-1);
-  avma = av; return an;
+  set_avma(av); return an;
 }
 
 /********************************************************************/
@@ -1350,7 +1350,7 @@ InitPrimes(GEN bnr, ulong N0, LISTray *R)
       vecsmalltrunc_append(R->L1, upowuu(p, pr_get_f(pr)));
       gel(tmpray,j) = gclone( isprincipalray(bnr, pr) );
     }
-    avma = av;
+    set_avma(av);
     for (k = 1; k < j; k++)
     {
       if (!tmpray[k]) continue;
@@ -1477,7 +1477,7 @@ ppgamma(ST_t *T, long prec)
     cn_odd = gdiv(cn_odd, gpowgs(gsubgs(Y,i+1), s-t));
   }
   T->aij = aij;
-  T->bij = bij; avma = av;
+  T->bij = bij; set_avma(av);
 }
 
 static GEN
@@ -1699,7 +1699,7 @@ RecCoeff2(GEN nf,  RC_data *d,  long prec)
   min = (long)prec2nbits_mul(prec, 0.75);
   max = (long)prec2nbits_mul(prec, 0.98);
   av = avma;
-  for (bit = max; bit >= min; bit-=32, avma = av)
+  for (bit = max; bit >= min; bit-=32, set_avma(av))
   {
     long e;
     GEN v = lindep_bit(vec, bit), z = gel(v,1);
@@ -1765,7 +1765,7 @@ an_mul(int **an, long p, long q, long n, long deg, GEN chi, int **reduc)
   T = (int*)new_chunk(deg); Polmod2Coeff(T,chi, deg);
   for (c = 1, i = q; i <= n; i += q, c++)
     if (c == p) c = 0; else MulCoeff(an[i], T, reduc, deg);
-  avma = av;
+  set_avma(av);
 }
 /* an[q * i] = 0 for all (i,p)=1 */
 static void
@@ -1806,7 +1806,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
 
   /* 1 prime of degree 2 */
   L = R->L2; l = lg(L);
-  for (i=1; i<l; i++, avma = av2)
+  for (i=1; i<l; i++, set_avma(av2))
   {
     p = L[i];
     if (condZ == 1) chi = C.val[0]; /* 1 */
@@ -1825,7 +1825,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
 
   /* 1 prime of degree 1 */
   L = R->L1; l = lg(L);
-  for (i=1; i<l; i++, avma = av2)
+  for (i=1; i<l; i++, set_avma(av2))
   {
     p = L[i];
     chi = CHI_eval(&C, gel(R->L1ray,i));
@@ -1840,7 +1840,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
 
   /* 2 primes of degree 1 */
   L = R->L11; l = lg(L);
-  for (i=1; i<l; i++, avma = av2)
+  for (i=1; i<l; i++, set_avma(av2))
   {
     GEN ray1, ray2, chi11, chi12, chi2;
 
@@ -1865,7 +1865,7 @@ computean(GEN dtcr, LISTray *R, long n, long deg)
 
   CorrectCoeff(dtcr, an, reduc, n, deg);
   FreeMat(reduc, deg-1);
-  avma = av; return an;
+  set_avma(av); return an;
 }
 
 /* return the vector of A^i/i for i = 1...n */
@@ -1993,12 +1993,12 @@ QuadGetST(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
         }
       gaffect(gmul(cf0, p1), gel(S,t));
       gaffect(gmul(cf1,  conj_i(p2)), gel(T,t));
-      FreeMat(matan,NN); avma = av2;
+      FreeMat(matan,NN); set_avma(av2);
     }
     if (DEBUGLEVEL>1) err_printf("\n");
-    avma = av1;
+    set_avma(av1);
   }
-  avma = av;
+  set_avma(av);
 }
 
 /* s += t*u. All 3 of them t_REAL, except we allow s or u = NULL (for 0) */
@@ -2079,7 +2079,7 @@ get_cS_cT(ST_t *T, long n)
   if (!s) s = gen_0;
   if (!t) t = gen_0;
   gel(T->cS,n) = gclone(s);
-  gel(T->cT,n) = gclone(t); avma = av;
+  gel(T->cT,n) = gclone(t); set_avma(av);
 }
 
 static void
@@ -2137,7 +2137,7 @@ zeta_get_N0(GEN C,  GEN limx)
   if (e >= 0 || is_bigint(z))
     pari_err_OVERFLOW("zeta_get_N0 [need too many primes]");
   if (DEBUGLEVEL>1) err_printf("\ninitzeta: N0 = %Ps\n", z);
-  avma = av; return itos(z);
+  set_avma(av); return itos(z);
 }
 
 static GEN
@@ -2177,7 +2177,7 @@ zeta_get_i0(long r1, long r2, long bit, GEN limx)
                gmul2n(powuu(5, r1), bit + r2));
   long i0 = get_i0(r1, r2, B, limx);
   if (DEBUGLEVEL>1) { err_printf("i0 = %ld\n",i0); err_flush(); }
-  avma = av; return i0;
+  set_avma(av); return i0;
 }
 
 static void
@@ -2253,16 +2253,16 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
           }
         gaffect(p1,        gel(S,t));
         gaffect(conj_i(p2), gel(T,t));
-        FreeMat(matan, NN); avma = av2;
+        FreeMat(matan, NN); set_avma(av2);
       }
       else if (DEBUGLEVEL>1)
         err_printf("\t  no need to compute this character\n");
     }
     if (DEBUGLEVEL>1) err_printf("\n");
-    avma = av1;
+    set_avma(av1);
   }
   clear_cScT(&cScT, n0);
-  avma = av;
+  set_avma(av);
 }
 
 static void
@@ -2554,7 +2554,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
   p1     = bnrconductor_i(bnr, subgrp, 2);
   bnr    = gel(p1,2); cycbnr = bnr_get_cyc(bnr);
   subgrp = gel(p1,3);
-  if (gequal1( ZM_det_triangular(subgrp) )) { avma = av; return pol_x(0); }
+  if (gequal1( ZM_det_triangular(subgrp) )) { set_avma(av); return pol_x(0); }
 
   /* check the class field */
   if (!gequal0(gel(bnr_get_mod(bnr), 2)))
@@ -2795,7 +2795,7 @@ quadhilbertreal(GEN D, long prec)
                 * quadray_init call : discards qualifiers from pointer type */
   quadray_init(&D, NULL, &bnf, prec);
   cyc = bnf_get_cyc(bnf);
-  if (lg(cyc) == 1) { avma = av; return pol_x(0); }
+  if (lg(cyc) == 1) { set_avma(av); return pol_x(0); }
   /* if the exponent of the class group is 2, use Genus Theory */
   if (absequaliu(gel(cyc,1), 2)) return gerepileupto(av, GenusFieldQuadReal(D));
 
@@ -3150,7 +3150,7 @@ quadhilbertimag(GEN D)
     P = grndtoi(P,&exmax);
     if (DEBUGLEVEL>1) timer_printf(&ti,"product, error bits = %ld",exmax);
     if (exmax <= -10) break;
-    avma = av0; prec += nbits2extraprec(prec2nbits(DEFAULTPREC)+exmax);
+    set_avma(av0); prec += nbits2extraprec(prec2nbits(DEFAULTPREC)+exmax);
     if (DEBUGLEVEL) pari_warn(warnprec,"quadhilbertimag",prec);
   }
   return gerepileupto(av,P);
@@ -3548,7 +3548,7 @@ quadray(GEN D, GEN f, long prec)
   if (isint1(f)) return quadhilbert(D, prec);
   quadray_init(&D, f, &bnf, prec);
   bnr = Buchray(bnf, f, nf_INIT|nf_GEN);
-  if (is_pm1(bnr_get_no(bnr))) { avma = av; return pol_x(0); }
+  if (is_pm1(bnr_get_no(bnr))) { set_avma(av); return pol_x(0); }
   if (signe(D) > 0)
     y = bnrstark(bnr,NULL,prec);
   else

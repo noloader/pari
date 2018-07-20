@@ -446,7 +446,7 @@ chigeneval(GEN logx, GEN nchi, GEN z, long prec)
   else
   {
     ulong i = itou(e);
-    avma = av; return gel(z, i+1);
+    set_avma(av); return gel(z, i+1);
   }
 }
 
@@ -600,14 +600,14 @@ lfunchiZ(GEN G, GEN chi)
   N = znconreyconductor(G, chi, &chi);
   if (typ(N) != t_INT)
   {
-    if (equali1(gel(N,1))) { avma = av; return lfunzeta(); }
+    if (equali1(gel(N,1))) { set_avma(av); return lfunzeta(); }
     G = znstar0(N, 1);
     N = gel(N,1);
   }
   /* chi now primitive on G */
   switch(itou_or_0(zncharorder(G, chi)))
   {
-    case 1: avma = av; return lfunzeta();
+    case 1: set_avma(av); return lfunzeta();
     case 2: if (zncharisodd(G,chi)) N = negi(N);
             return gerepileupto(av, lfunchiquad(N));
   }
@@ -754,7 +754,7 @@ dirzetak0(GEN nf, ulong N)
   av2 = avma;
   while ( (p = u_forprime_next(&S)) )
   {
-    avma = av2;
+    set_avma(av2);
     if (umodiu(index, p)) /* p does not divide index */
       vect = gel(Flx_degfact(ZX_to_Flx(T,p), p),1);
     else
@@ -787,7 +787,7 @@ dirzetak0(GEN nf, ulong N)
         for (k = N/p, k2 = k*p; k > 0; k--, k2 -= p) c[k2] += c[k];
       }
   }
-  avma = av;
+  set_avma(av);
   pari_free(c2); return c;
 }
 
@@ -1534,7 +1534,7 @@ Flx_genus2trace_naive(GEN H, ulong p)
     a += k[1+uel(d,n+1)];
     Flv_diffnext(d, p);
   }
-  avma = av;
+  set_avma(av);
   return a;
 }
 
@@ -2067,7 +2067,7 @@ galois_get_conj(GEN G)
     {
       pari_sp av = avma;
       GEN F = galoisfixedfield(G, g, 1, -1);
-      if (ZX_sturmpart(F, NULL) > 0) { avma = av; return g; }
+      if (ZX_sturmpart(F, NULL) > 0) { set_avma(av); return g; }
       for (i = 1; i<=r; i++)
       {
         GEN h = gel(grp, i);
@@ -2075,7 +2075,7 @@ galois_get_conj(GEN G)
         while (h[t]!=1) t = h[t];
         F2v_set(b, h[g[t]]);
       }
-      avma = av;
+      set_avma(av);
     }
   }
   pari_err_BUG("galois_get_conj");
@@ -2197,7 +2197,7 @@ idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
     if (perm_order(g)==f)
     {
       GEN A = FpM_FpC_mul(DzkT, gel(aut,g[1]), p);
-      if (ZV_equal(A, DXp)) {avma = av; return g; }
+      if (ZV_equal(A, DXp)) {set_avma(av); return g; }
     }
   }
   return NULL; /* LCOV_EXCL_LINE */
@@ -2249,7 +2249,7 @@ dirartin(void *E, GEN p, long n)
     pr = idealprimedec_galois(nf,p);
     frob = idealfrobenius_hard(nf, d->G, d->aut, pr);
   }
-  avma = av; return RgXn_inv(gel(d->V, frob[1]), n);
+  set_avma(av); return RgXn_inv(gel(d->V, frob[1]), n);
 }
 
 static GEN
@@ -2298,7 +2298,7 @@ cyclo_is_real(GEN v, GEN ix)
 {
   pari_sp av = avma;
   int s = gequal(poleval(lift_shallow(v), ix), v);
-  avma = av; return s;
+  set_avma(av); return s;
 }
 
 static int

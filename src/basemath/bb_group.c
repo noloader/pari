@@ -518,7 +518,7 @@ gen_Shanks_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
   av1 = avma;
   for (p1=x, i=1;;i++)
   {
-    if (grp->equal1(p1)) { avma = av; return stoi(i-1); }
+    if (grp->equal1(p1)) { set_avma(av); return stoi(i-1); }
     table[i] = grp->hash(p1); if (i==lbaby) break;
     p1 = grp->mul(E,p1,ginv);
     if (gc_needed(av1,2))
@@ -552,7 +552,7 @@ gen_Shanks_log(GEN x, GEN g, GEN q, void *E, const struct bb_group *grp)
       p1 = gerepileupto(av1, p1);
     }
   }
-  avma = av; return cgetg(1, t_VEC); /* no solution */
+  set_avma(av); return cgetg(1, t_VEC); /* no solution */
 }
 
 /*Generic discrete logarithme in a group of prime order p*/
@@ -663,10 +663,10 @@ gen_PH_log(GEN a, GEN g, GEN ord, void *E, const struct bb_group *grp)
       b = grp->pow(E,a0, gel(qj,e-j));
       /* early abort: cheap and very effective */
       if (j == 0 && !grp->equal1(grp->pow(E,b,q))) {
-        avma = av; return cgetg(1, t_VEC);
+        set_avma(av); return cgetg(1, t_VEC);
       }
       b = gen_plog(b, g_q, q, E, grp);
-      if (typ(b) != t_INT) { avma = av; return cgetg(1, t_VEC); }
+      if (typ(b) != t_INT) { set_avma(av); return cgetg(1, t_VEC); }
       n_q = addii(n_q, mulii(b, gel(qj,j)));
       if (j == e) break;
 
@@ -800,7 +800,7 @@ gen_select_order(GEN o, void *E, const struct bb_group *grp)
       else
         lastgood = lasto;
     }
-    avma = btop;
+    set_avma(btop);
   }
 }
 
@@ -820,7 +820,7 @@ gen_lgener(GEN l, long e, GEN r,GEN *zeta, void *E, const struct bb_group *grp)
   const pari_sp av1 = avma;
   GEN m, m1;
   long i;
-  for (;; avma = av1)
+  for (;; set_avma(av1))
   {
     m1 = m = grp->pow(E, grp->rand(E), r);
     if (grp->equal1(m)) continue;
@@ -888,9 +888,9 @@ gen_Shanks_sqrtl(GEN a, GEN l, long e, GEN r, GEN y, GEN m,void *E,
       z = p1; p1 = grp->pow(E,p1,l);
       k++;
     } while(!grp->equal1(p1));
-    if (k==e) { avma = av; return NULL; }
+    if (k==e) { set_avma(av); return NULL; }
     dl = gen_plog(z,m,l,E,grp);
-    if (typ(dl) != t_INT) { avma = av; return NULL; }
+    if (typ(dl) != t_INT) { set_avma(av); return NULL; }
     dl = negi(dl);
     p1 = grp->pow(E, grp->pow(E,y, dl), powiu(l,e-k-1));
     m = grp->pow(E,m,dl);
@@ -948,7 +948,7 @@ gen_Shanks_sqrtn(GEN a, GEN n, GEN q, GEN *zetan, void *E, const struct bb_group
         do
         {
           a = gen_Shanks_sqrtl(a,l,e,r,y,zeta,E,grp);
-          if (!a) { avma = ltop; return NULL;}
+          if (!a) { set_avma(ltop); return NULL;}
         } while (--j);
       }
       if (gc_needed(ltop,1))
@@ -1005,7 +1005,7 @@ gen_ellgroup(GEN N, GEN d, GEN *pt_m, void *E, const struct bb_group *grp,
   if (pt_m) *pt_m = gen_1;
   if (is_pm1(N)) return cgetg(1,t_VEC);
   F = ellgroup_d2(N, d);
-  if (!F) {avma = av; return mkveccopy(N);}
+  if (!F) {set_avma(av); return mkveccopy(N);}
   N0 = gel(F,1); N1 = diviiexact(N, N0);
   while(1)
   {
@@ -1013,15 +1013,15 @@ gen_ellgroup(GEN N, GEN d, GEN *pt_m, void *E, const struct bb_group *grp,
     GEN P, Q, d, s, t, m;
 
     P = grp->pow(E,grp->rand(E), N1);
-    s = gen_order(P, F, E, grp); if (equalii(s, N0)) {avma = av; return mkveccopy(N);}
+    s = gen_order(P, F, E, grp); if (equalii(s, N0)) {set_avma(av); return mkveccopy(N);}
 
     Q = grp->pow(E,grp->rand(E), N1);
-    t = gen_order(Q, F, E, grp); if (equalii(t, N0)) {avma = av; return mkveccopy(N);}
+    t = gen_order(Q, F, E, grp); if (equalii(t, N0)) {set_avma(av); return mkveccopy(N);}
 
     m = lcmii(s, t);
     d = pairorder(E, P, Q, m, F);
     /* structure is [N/d, d] iff m d == N0. Note that N/d = N1 m */
-    if (is_pm1(d) && equalii(m, N0)) {avma = av; return mkveccopy(N);}
+    if (is_pm1(d) && equalii(m, N0)) {set_avma(av); return mkveccopy(N);}
     if (equalii(mulii(m, d), N0))
     {
       GEN g = mkvec2(mulii(N1,m), d);
@@ -1029,7 +1029,7 @@ gen_ellgroup(GEN N, GEN d, GEN *pt_m, void *E, const struct bb_group *grp,
       gerepileall(av,pt_m?2:1,&g,pt_m);
       return g;
     }
-    avma = av2;
+    set_avma(av2);
   }
 }
 
@@ -1045,14 +1045,14 @@ gen_ellgens(GEN D1, GEN d2, GEN m, void *E, const struct bb_group *grp,
   av = avma;
   do
   {
-    avma = av;
+    set_avma(av);
     P = grp->rand(E);
     s = gen_order(P, F, E, grp);
   } while (!equalii(s, d1));
   av = avma;
   do
   {
-    avma = av;
+    set_avma(av);
     Q = grp->rand(E);
     d = pairorder(E, grp->pow(E, P, dm), grp->pow(E, Q, dm), m, F);
   } while (!equalii(d, d2));

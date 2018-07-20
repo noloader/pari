@@ -1203,7 +1203,7 @@ RgX_is_irred(GEN x)
 {
   pari_sp av = avma;
   int r = RgX_is_irred_i(x);
-  avma = av; return r;
+  set_avma(av); return r;
 }
 long
 isirreducible(GEN x)
@@ -1518,7 +1518,7 @@ ggcd(GEN x, GEN y)
         switch(ty)
         {
           case t_FRAC:
-            av = avma; p1=gcdii(gel(x,1),gel(y,2)); avma = av;
+            av = avma; p1=gcdii(gel(x,1),gel(y,2)); set_avma(av);
             if (!equali1(p1)) pari_err_OP("gcd",x,y);
             return ggcd(gel(y,1), x);
 
@@ -1630,7 +1630,7 @@ ggcd(GEN x, GEN y)
         av = avma;
         p1 = ggcd(gel(x,1),gel(y,2));
         if (degpol(p1)) pari_err_OP("gcd",x,y);
-        avma = av; return gdiv(ggcd(gel(y,1),x), content(gel(y,2)));
+        set_avma(av); return gdiv(ggcd(gel(y,1),x), content(gel(y,2)));
     }
   }
 
@@ -1707,7 +1707,7 @@ glcm(GEN x, GEN y)
   av = avma; z = ggcd(x,y);
   if (!gequal1(z))
   {
-    if (gequal0(z)) { avma = av; return gmul(x,y); }
+    if (gequal0(z)) { set_avma(av); return gmul(x,y); }
     y = gdiv(y,z);
   }
   return gerepileupto(av, fix_lcm(gmul(x,y)));
@@ -1738,10 +1738,10 @@ RgX_gcd_simple(GEN x, GEN y)
     av1 = avma; r = RgX_rem(x,y);
     if (pol_approx0(r, x, exact))
     {
-      avma = av1;
+      set_avma(av1);
       if (y == yorig) return RgX_copy(y);
       y = normalizepol_approx(y, lg(y));
-      if (lg(y) == 3) { avma = av; return pol_1(varn(x)); }
+      if (lg(y) == 3) { set_avma(av); return pol_1(varn(x)); }
       return gerepileupto(av,y);
     }
     x = y; y = r;
@@ -1873,7 +1873,7 @@ primitive_part(GEN x, GEN *ptc)
 {
   pari_sp av = avma;
   GEN c = content(x);
-  if (gequal1(c)) { avma = av; c = NULL; }
+  if (gequal1(c)) { set_avma(av); c = NULL; }
   else if (!gequal0(c)) x = gdiv(x,c);
   if (ptc) *ptc = c;
   return x;
@@ -2264,7 +2264,7 @@ Q_primitive_part(GEN x, GEN *ptc)
   {
     if (typ(c) == t_INT)
     {
-      if (equali1(c)) { avma = av; c = NULL; }
+      if (equali1(c)) { set_avma(av); c = NULL; }
       else if (signe(c)) x = Q_divi_to_int(x, c);
     }
     else x = Q_divq_to_int(x, c);
@@ -2467,7 +2467,7 @@ subresext_i(GEN x, GEN y, GEN *U, GEN *V)
     }
   }
   /* uze an RgX */
-  if (!u) { *U = *V = gen_0; avma = av; return gen_0; }
+  if (!u) { *U = *V = gen_0; set_avma(av); return gen_0; }
   z = gel(v,2); du = degpol(u);
   if (du > 1)
   { /* z = gdivexact(gpowgs(z,du), gpowgs(h,du-1)); */
@@ -2624,7 +2624,7 @@ RgXQ_ratlift(GEN x, GEN T, long amax, long bmax, GEN *P, GEN *Q)
   }
   if (uze == gen_0)
   {
-    avma = av; *P = pol_0(vx); *Q = pol_1(vx);
+    set_avma(av); *P = pol_0(vx); *Q = pol_1(vx);
     return 1;
   }
   if (cu) uze = RgX_Rg_div(uze,cu);
@@ -2796,7 +2796,7 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
     }
     s = leading_coeff(P);
   }
-  if (!signe(Q)) { avma = av; return Rg_get_0(Q); }
+  if (!signe(Q)) { set_avma(av); return Rg_get_0(Q); }
   s = Lazard(leading_coeff(Q), s, degpol(P));
   if (sig == -1) s = gneg(s);
   if (cP) s = gmul(s, gpowgs(cP,dQ));
@@ -3140,7 +3140,7 @@ RgX_gcd(GEN x, GEN y)
       if (!signe(r)) break;
       if (dr <= 3)
       {
-        avma = av1; return gerepileupto(av, scalarpol(d, varn(x)));
+        set_avma(av1); return gerepileupto(av, scalarpol(d, varn(x)));
       }
       if (DEBUGLEVEL > 9) err_printf("RgX_gcd: dr = %ld\n", degpol(r));
       du = lg(u); dv = lg(v); degq = du-dv;
@@ -3338,14 +3338,14 @@ sturmpart(GEN x, GEN a, GEN b)
   if (!a) a = mkmoo();
   if (!b) b = mkoo();
   r = sturmpart_i(x, mkvec2(a, b));
-  avma = av; return r;
+  set_avma(av); return r;
 }
 long
 RgX_sturmpart(GEN x, GEN ab)
 {
   pari_sp av = avma;
   long r = sturmpart_i(x, ab);
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 /***********************************************************************/

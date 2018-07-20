@@ -210,7 +210,7 @@ pari_center(const char *s)
   for (i=0; i<pad; i++) *u++ = ' ';
   while (*s) *u++ = *s++;
   *u++ = '\n'; *u = 0;
-  pari_puts(buf); avma = av;
+  pari_puts(buf); set_avma(av);
 }
 
 static void
@@ -652,7 +652,7 @@ gp_help(const char *s, long flag)
   }
   term_color(c_HELP); help(s,flag); term_color(c_NONE);
   if ((flag & h_RL) == 0) pari_putc('\n');
-  avma = av;
+  set_avma(av);
 }
 
 /********************************************************************/
@@ -1130,7 +1130,7 @@ update_logfile(const char *prompt, const char *s)
                                           term_get_color(NULL,c_NONE));
       break;
   }
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -1414,7 +1414,7 @@ tex2mail_output(GEN z, long n)
         break;
       }
     }
-    avma = av;
+    set_avma(av);
   }
   /* output */
   fputGEN_pariout(z, &T, out);
@@ -1522,7 +1522,7 @@ sd_graphcolormap(const char *v, long flag)
       default:
         pari_err(e_SYNTAX, "incorrect value for graphcolormap", p, t);
       }
-    avma = av;
+    set_avma(av);
   }
   if (flag == d_RETURN || flag == d_ACKNOWLEDGE)
   {
@@ -1673,7 +1673,7 @@ pari_print_version(void)
   buf = stack_malloc(strlen(ver) + 64);
   (void)sprintf(buf, "(readline %s, extended help%s enabled)", ver,
                 has_ext_help()? "": " not");
-  pari_center(buf); avma = av;
+  pari_center(buf); set_avma(av);
 }
 
 static int
@@ -1719,7 +1719,7 @@ print_all_user_fun(int member)
       pari_printf("%s =\n  %Ps\n\n", ep->name, ep->value);
     }
   }
-  avma = av;
+  set_avma(av);
 }
 
 static char *

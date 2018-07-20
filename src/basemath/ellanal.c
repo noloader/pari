@@ -65,7 +65,7 @@ gen_BG_add(void *E, bg_fun *fun, struct bg_data *bg, GEN n, long i, GEN a, GEN l
     nexta = mulis(a, bg->an[p]);
     if (i == j && umodiu(bg->N, p)) nexta = subii(nexta, mului(p, lasta));
     gen_BG_add(E, fun, bg, pn, j, nexta, a);
-    avma = av;
+    set_avma(av);
   }
 }
 
@@ -97,7 +97,7 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
     ulong pp = bg->p[i];
     long ap = bg->an[pp];
     gen_BG_add(E, fun, bg, utoipos(pp), i, stoi(ap), gen_1);
-    avma = av2;
+    set_avma(av2);
   }
   if (DEBUGLEVEL) err_printf("2nd stage, looping for p <= %Ps\n", bndov2);
   while ( (p = forprime_next(&S)) )
@@ -117,9 +117,9 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
       a = mulis(ap, aj);
       n = muliu(p, j);
       fun(E, n, a);
-      avma = av3;
+      set_avma(av3);
     }
-    avma = av2;
+    set_avma(av2);
     if (abscmpii(p, bndov2) >= 0) break;
   }
   if (DEBUGLEVEL) err_printf("3nd stage, looping for p <= %Ps\n", bg->bnd);
@@ -128,9 +128,9 @@ gen_BG_rec(void *E, bg_fun *fun, struct bg_data *bg)
     GEN ap = ellap(bg->E, p);
     if (!signe(ap)) continue;
     fun(E, p, ap);
-    avma = av2;
+    set_avma(av2);
   }
-  avma = av;
+  set_avma(av);
 }
 
 /******************************************************************
@@ -214,7 +214,7 @@ vecF2_lk(GEN E, GEN K, GEN rbnd, GEN Q, GEN sleh, long prec)
       Sl = addrr(mulrr(Sl, zB), s);
     }
     affrr(mulrr(Sl, gel(sleh,l)), gel(S, l)); /* to avoid copying all S */
-    avma = av2;
+    set_avma(av2);
   }
   return gerepilecopy(av, S);
 }
@@ -269,7 +269,7 @@ ellL1_add(void *E, GEN n, GEN a)
       ulong r, q = uabsdiviu_rem(n, bb->rbnd[j], &r);
       GEN giant = gel(bb->giant, j), baby = gel(bb->baby, j);
       affrr(addrr(gel(giant, q+1), mulri(gel(baby, r+1), a)), gel(giant, q+1));
-      avma = av;
+      set_avma(av);
     } else break;
 }
 
@@ -401,7 +401,7 @@ ellL1_bitprec(GEN E, long r, long bitprec)
   if (r < 0)
     pari_err_DOMAIN("ellL1", "derivative order", "<", gen_0, stoi(r));
   e = ellanal_globalred(E, NULL);
-  if (r == 0 && ellrootno_global(e) < 0) { avma = av; return gen_0; }
+  if (r == 0 && ellrootno_global(e) < 0) { set_avma(av); return gen_0; }
   vec = Lpoints(&C, e, gen_0, bitprec);
   t = r ? scalarser(gen_1, 0, r):  zeroser(0, 0);
   setvalp(t, 1);
@@ -441,7 +441,7 @@ ellanalyticrank_bitprec(GEN E, GEN eps, long bitprec)
     if (DEBUGLEVEL) timer_printf(&ti, "L^(%ld)=%Ps", rk, Lrk);
     if (abscmprr(Lrk, eps) > 0)
       return gerepilecopy(av, mkvec2(stoi(rk), Lrk));
-    avma = av2;
+    set_avma(av2);
   }
 }
 
@@ -877,7 +877,7 @@ best_point(GEN Q, GEN NQ, GEN f, GEN *pu, GEN *pv)
           best = N; break;
         }
       }
-      avma = av2;
+      set_avma(av2);
     }
   }
 #ifdef DEBUG
@@ -1033,7 +1033,7 @@ heegner_find_point(GEN e, GEN om, GEN ht, GEN z1, long k, long prec)
       P = heegner_try_point(e, lambdas, ht, z2, prec);
       if (P) return P;
     }
-    avma = av;
+    set_avma(av);
   }
   pari_err_BUG("ellheegner, point not found");
   return NULL; /* LCOV_EXCL_LINE */
@@ -1110,9 +1110,9 @@ listDisc(GEN fa4N, GEN bad, long d)
       v[j++] = d;
       if (j > NDISC) break;
     }
-    avma = av;
+    set_avma(av);
   }
-  avma = av; return v;
+  set_avma(av); return v;
 }
 /* L = vector of [q1,q2] or [q1,q2,q2']
  * cd = (b^2 - D)/(4N) */
@@ -1250,7 +1250,7 @@ heegner_find_disc(GEN *points, GEN *coefs, long *pind, GEN E,
         }
       } while(0);
     }
-    d = listD[l-1]; avma = av;
+    d = listD[l-1]; set_avma(av);
   }
 }
 

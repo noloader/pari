@@ -350,7 +350,7 @@ polcyclo_eval(long n, GEN x)
   if (tx == t_INT) { /* shortcut */
     if (is_pm1(x))
     {
-      avma = av;
+      set_avma(av);
       if (signe(x) > 0 && l == 1) return utoipos(P[1]);
       return gen_1;
     }
@@ -812,7 +812,7 @@ binomial(GEN n, long k)
       GEN z = subiu(n,k);
       if (cmpis(z,k) < 0)
       {
-        k = itos(z); avma = av;
+        k = itos(z); set_avma(av);
         if (k <= 1)
         {
           if (k < 0) return gen_0;
@@ -1010,7 +1010,7 @@ RgV_polint(GEN X, GEN Y, long v)
       P = gerepileupto(av, P);
     }
   }
-  if (!P) { avma = av; return zeropol(v); }
+  if (!P) { set_avma(av); return zeropol(v); }
   return gerepileupto(av0, P);
 }
 /* X,Y are "spec" GEN vectors with n > 0 components ( at X[0], ... X[n-1] ) */
@@ -1277,7 +1277,7 @@ gen_sortspec_uniq(GEN v, long n, void *E, int (*cmp)(void*,GEN,GEN))
   }
   while (ix<=nx) w[m++] = x[ix++];
   while (iy<=ny) w[m++] = y[iy++]+NX;
-  avma = av;
+  set_avma(av);
   W = cgetg(m, t_VECSMALL);
   for (i = 1; i < m; i++) W[i] = w[i];
   return W;
@@ -1429,7 +1429,7 @@ gen_sort_inplace(GEN x, void *E, int (*cmp)(void*,GEN,GEN), GEN *perm)
   } else {
     for (i=1; i<lx; i++) gel(y,i) = gel(x,y[i]);
     for (i=1; i<lx; i++) gel(x,i) = gel(y,i);
-    avma = av;
+    set_avma(av);
   }
 }
 
@@ -1438,7 +1438,7 @@ closurecmp(void *data, GEN x, GEN y)
 {
   pari_sp av = avma;
   long s = gsigne(closure_callgen2((GEN)data, x,y));
-  avma = av; return s;
+  set_avma(av); return s;
 }
 static void
 check_positive_entries(GEN k)
@@ -1568,7 +1568,7 @@ vecsearch(GEN v, GEN x, GEN k)
     x = (GEN)itos(x);
   else if (!is_matvec_t(tv)) pari_err_TYPE("vecsearch", v);
   r = CMP? gen_search(v, x, 0, E, CMP): key_search(v, x, k);
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 GEN
@@ -1774,7 +1774,7 @@ sort_factor(GEN y, void *data, int (*cmp)(void *,GEN,GEN))
   w = gen_sortspec(a, n-1, data, cmp);
   for (i=1; i<n; i++) { long k=w[i]; gel(A,i) = gel(a,k); gel(B,i) = gel(b,k); }
   for (i=1; i<n; i++) { gel(a,i) = gel(A,i); gel(b,i) = gel(B,i); }
-  avma = av; return y;
+  set_avma(av); return y;
 }
 /* sort polynomial factorization, in place */
 GEN

@@ -538,7 +538,7 @@ real_read(pari_sp av, const char **s, GEN y, long prec)
       {
         if (**s == 'E' || **s == 'e') {
           n = exponent(s);
-          if (!signe(y)) { avma = av; return real_0_digits(n); }
+          if (!signe(y)) { set_avma(av); return real_0_digits(n); }
           break;
         }
         --*s; return y; /* member */
@@ -547,14 +547,14 @@ real_read(pari_sp av, const char **s, GEN y, long prec)
       n = old - *s;
       if (**s != 'E' && **s != 'e')
       {
-        if (!signe(y)) { avma = av; return real_0(prec); }
+        if (!signe(y)) { set_avma(av); return real_0(prec); }
         break;
       }
     }
     /* Fall through */
     case 'E': case 'e':
       n += exponent(s);
-      if (!signe(y)) { avma = av; return real_0_digits(n); }
+      if (!signe(y)) { set_avma(av); return real_0_digits(n); }
   }
   l = nbits2prec(bit_accuracy(lgefint(y)));
   if (l < prec) l = prec; else prec = l;

@@ -66,7 +66,7 @@ L(GEN n, ulong k, long bitprec)
     {
       GEN c = mpcos(divru(mulru(pi, 6*l+1), 6*k));
       if (odd(l)) subrrz(s, c, s); else addrrz(s, c, s);
-      avma = av;
+      set_avma(av);
     }
     m += r; if (m >= k) m -= k;
     r += 3; if (r >= k) r -= k;
@@ -357,7 +357,7 @@ countpart(long k, GEN abound, GEN nbound)
   if (k<0) return 0;
   forpart_init(&T, k, abound, nbound);
   for (n=0; forpart_next(&T); n++)
-  avma = av;
+  set_avma(av);
   return n;
 }
 

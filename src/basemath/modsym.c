@@ -280,7 +280,7 @@ gamma_equiv(GEN a, GEN b, ulong N)
   GEN n = path_to_zm(b);
   GEN d = subii(mulss(cc(m),dd(n)), mulss(dd(m),cc(n)));
   ulong res = umodiu(d, N);
-  avma = av; return res == 0;
+  set_avma(av); return res == 0;
 }
 /* Input: a,b = 2 paths that are \Gamma_0(N)-equivalent, N = integer
  * Output: M in \Gamma_0(N) such that Mb=a */
@@ -386,7 +386,7 @@ mfnumcuspsu(ulong n)
 {
   pari_sp av = avma;
   ulong t = mfnumcuspsu_fact( factoru(n) );
-  avma = av; return t;
+  set_avma(av); return t;
 }
 /* \sum_{d | N} \phi(gcd(d, N/d)), using multiplicativity. fa = factor(N) */
 GEN
@@ -638,7 +638,7 @@ mssplit_i(GEN W, GEN H, long deglim)
           first++;
         }
         else
-          avma = av;
+          set_avma(av);
       }
       else if (lF == 1) /* discard V[j] */
       { swap(gel(V,j), gel(V,lg(V)-1)); setlg(V, lg(V)-1); }
@@ -1263,7 +1263,7 @@ form_E_F_T(ulong N, GEN p1N, GEN *pC, PS_sets_t *S)
       pari_sp av = avma;
       GEN c2 = gel(cusp_list,s), path;
       GEN d = subii(mulss(c1[1],c2[2]), mulss(c1[2],c2[1]));
-      avma = av;
+      set_avma(av);
       if (!is_pm1(d)) continue;
 
       path = mkpath(c1,c2);
@@ -2063,7 +2063,7 @@ getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
     pari_sp av = avma;
     long l;
     for (l = 1; l < lv; l++) M2_log_trivial(t, W1, Gl2Q_act_path(gel(v,l), w));
-    gel(T,j) = t; avma = av;
+    gel(T,j) = t; set_avma(av);
   }
   return shallowtrans(zm_to_ZM(T));
 }
@@ -3165,14 +3165,14 @@ ell_get_Cw(GEN LE, GEN W, GEN xpm, long s)
       if ((s > 0 && o) || (s < 0 && !o)
           || itos(zncharconductor(G, chi)) != f) continue;
       S = seval(G, chi, vx);
-      if (!S) { avma = av2; continue; }
+      if (!S) { set_avma(av2); continue; }
 
       L = lfuntwist(LE, mkvec2(G, zncharconj(G,chi)));
       z = lfun(L, gen_1, bit);
       tau = znchargauss(G, chi, gen_1, bit);
       return gdiv(gmul(z, tau), S); /* C * w */
     }
-    avma = av;
+    set_avma(av);
   }
 }
 static GEN

@@ -352,7 +352,7 @@ Zp_appr(GEN f, GEN a)
   if (degpol(f) <= 0) pari_err_CONSTPOL("Zp_appr");
   f = ZX_radical(f);
   a = padic_to_Q(a);
-  if (signe(FpX_eval(f,a,p))) { avma = av; return cgetg(1,t_COL); }
+  if (signe(FpX_eval(f,a,p))) { set_avma(av); return cgetg(1,t_COL); }
   z = ZX_Zp_root(f, a, p, prec);
   return gerepilecopy(av, ZV_to_ZpV(z, p, prec));
 }
@@ -497,7 +497,7 @@ padicappr(GEN f, GEN a)
   a = ZpX_to_ZX(a,p);
   T = QpX_to_ZX(T,p);
   if (!gequal0(FqX_eval(FqX_red(f,T,p), a, T,p))) /* check f(a) = 0 (mod p,T) */
-  { avma = av; return cgetg(1,t_COL); }
+  { set_avma(av); return cgetg(1,t_COL); }
   z = ZXY_ZpQ_root(f, a, T, p, prec);
   return gerepilecopy(av, ZXV_to_ZpXQV(z, T, p, prec));
 }

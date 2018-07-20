@@ -247,7 +247,7 @@ checkvalueptr(entree *ep)
   return ep->valence==EpNEW? gen_0: (GEN)ep->value;
 }
 
-/* make GP variables safe for avma = top */
+/* make GP variables safe for set_avma(top) */
 static void
 lvar_make_safe(void)
 {
@@ -1070,7 +1070,7 @@ closure_eval(GEN C)
             pari_warn(warnmem,"eval: recovering %ld bytes", av - av2);
           x = gerepileupto(av, x);
         }
-      } else avma = av;
+      } else set_avma(av);
       gel(st,sp-1) = x;
       break;
     }
@@ -1522,7 +1522,7 @@ evalstate_save(struct pari_evalstate *state)
 void
 evalstate_restore(struct pari_evalstate *state)
 {
-  avma = state->avma;
+  set_avma(state->avma);
   mtstate_restore(&state->pending_threads);
   sp = state->sp;
   rp = state->rp;
@@ -1734,12 +1734,12 @@ parfor(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
         stop = gerepileuptoint(av2, gel(done,1));
       }
     gel(a,1) = incloop(gel(a,1));
-    if (!stop) avma = av2;
+    if (!stop) set_avma(av2);
   }
-  avma = av2;
+  set_avma(av2);
   mt_queue_end(&pt);
   br_status = status;
-  avma = av;
+  set_avma(av);
 }
 
 static long
@@ -1770,7 +1770,7 @@ parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
   struct pari_mt pt;
   forprime_t T;
 
-  if (!forprime_init(&T, a,b)) { avma = av; return; }
+  if (!forprime_init(&T, a,b)) { set_avma(av); return; }
   mt_queue_start(&pt, worker);
   v = mkvec(gen_0);
   av2 = avma;
@@ -1786,12 +1786,12 @@ parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
         br_status = br_NONE;
         stop = gerepileuptoint(av2, gel(done,1));
       }
-    if (!stop) avma = av2;
+    if (!stop) set_avma(av2);
   }
-  avma = av2;
+  set_avma(av2);
   mt_queue_end(&pt);
   br_status = status;
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -1812,7 +1812,7 @@ parforvec(GEN x, GEN code, long flag, void *E, long call(void*, GEN, GEN))
   forvec_t T;
   GEN a, v = gen_0;
 
-  if (!forvec_init(&T, x, flag)) { avma = av; return; }
+  if (!forvec_init(&T, x, flag)) { set_avma(av); return; }
   mt_queue_start(&pt, worker);
   a = mkvec(gen_0);
   av2 = avma;
@@ -1828,12 +1828,12 @@ parforvec(GEN x, GEN code, long flag, void *E, long call(void*, GEN, GEN))
         br_status = br_NONE;
         stop = gerepilecopy(av2, gel(done,1));
       }
-    if (!stop) avma = av2;
+    if (!stop) set_avma(av2);
   }
-  avma = av2;
+  set_avma(av2);
   mt_queue_end(&pt);
   br_status = status;
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -1953,7 +1953,7 @@ gp_evalbool(void *E, GEN x)
 {
   pari_sp av = avma;
   long res  = !gequal0(gp_eval(E,x));
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 long
@@ -1992,7 +1992,7 @@ gp_callbool(void *E, GEN x)
   pari_sp av = avma;
   GEN code = (GEN)E;
   long res  = !gequal0(closure_callgen1(code, x));
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 long
@@ -2483,5 +2483,5 @@ bincopy_relink(GEN C, GEN V)
   pari_sp av = avma;
   hashtable *table = hash_from_link(gel(V,1),gel(V,2),1);
   gen_relink(C, table);
-  avma = av;
+  set_avma(av);
 }

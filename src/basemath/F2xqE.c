@@ -80,7 +80,7 @@ nonzerotrace_F2xq(GEN T)
     return pol1_F2x(vs);
   do
   {
-    avma = av;
+    set_avma(av);
     a = random_F2x(n, vs);
   } while (F2xq_trace(a, T)==0);
   return a;

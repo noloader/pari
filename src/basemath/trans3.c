@@ -234,7 +234,7 @@ jbesselh(GEN n, GEN z, long prec)
         if (pr) z = gtofp(z, precnew);
       }
       p1 = gmul(_jbesselh(k,z,prec), gsqrt(gdiv(z,Pi2n(-1,prec)),prec));
-      avma = av; return affc_fixlg(p1, y);
+      set_avma(av); return affc_fixlg(p1, y);
     }
 
     case t_VEC: case t_COL: case t_MAT:
@@ -326,7 +326,7 @@ kbessel1(GEN nu, GEN gx, long prec)
     }
     mulrrz(zf, s, u); shiftr_inplace(t, -1);
     divrsz(addrr(mulrr(t,zf),mulrr(u,nu)),-n2,v);
-    for(;; avma = av1)
+    for(;; set_avma(av1))
     {
       GEN d = real_1(l1);
       c = divur(5,q); if (expo(c) >= -1) c = real2n(-1,l1);
@@ -366,7 +366,7 @@ kbessel1(GEN nu, GEN gx, long prec)
     u = mulrr(s, zf);
   }
   affrr(mulrr(u, mpexp(mpneg(x))), y);
-  avma = av; return y;
+  set_avma(av); return y;
 }
 
 /*   sum_{k=0}^m Z^k (H(k)+H(k+n)) / (k! (k+n)!)
@@ -610,7 +610,7 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
     }
     gmulz(zf, s, u);
     gmulz(zf, gdivgs(t,-n), v);
-    for(;; avma = av1)
+    for(;; set_avma(av1))
     {
       GEN d = real_1(l1), p3 = gadd(q,mb);
       c = divur(5,q); if (expo(c)>= -1) c = real2n(-1, l1);
@@ -618,7 +618,7 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
       togglesign(c);
       gaffect(u,e);
       gaffect(v,f); av2 = avma;
-      for(k=1;;k++, avma = av2)
+      for(k=1;;k++, set_avma(av2))
       {
         GEN w = gadd(gmul(gaddgs(a,k-1),u), gmul(gaddgs(p3,1-k),v));
         gmulz(divru(q,k),v, u);
@@ -650,7 +650,7 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
     }
     u = gmul(s,zf);
   }
-  gaffect(u,y); avma = av; return y;
+  gaffect(u,y); set_avma(av); return y;
 }
 
 /* incgam(0, x, prec) = eint1(x); typ(x) = t_REAL, x > 0 */
@@ -733,7 +733,7 @@ isgammapole(GEN s, long bitprec)
   if (gexpo(t) > - b) return 0;
   s = real_i(s);
   if (gsigne(s) > 0 && gexpo(s) > -b) return 0;
-  (void)grndtoi(s, &e); avma = av; return (e < -b);
+  (void)grndtoi(s, &e); set_avma(av); return (e < -b);
 }
 
 /* incgam using the continued fraction. x a t_REAL or t_COMPLEX, mx ~ |x|.
@@ -892,7 +892,7 @@ incgam_asymp(GEN s, GEN x, long prec)
     eq = gexpo(q); if (eq < esx) break;
     if (!flint && (j & 3) == 0)
     { /* guard against divergence */
-      if (eq > oldeq) { avma = av; return NULL; } /* regressing, abort */
+      if (eq > oldeq) { set_avma(av); return NULL; } /* regressing, abort */
       oldeq = eq;
     }
     q = gmul(q, gmul(gsubgs(s,j), invx));
@@ -1140,7 +1140,7 @@ mpeint1(GEN x, GEN expx)
   GEN z = cgetr(realprec(x));
   pari_sp av = avma;
   affrr(incgam_0(x, expx), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 
 static GEN
@@ -1290,9 +1290,9 @@ mpveceint1(GEN C, GEN eC, long N)
     en = mulrr(en,eC); /* exp(n C) */
     av2 = avma;
     affrr(incgam_0(mulru(C,n), en), gel(w,n));
-    avma = av2;
+    set_avma(av2);
   }
-  if (Nmin == N) { avma = av0; return w; }
+  if (Nmin == N) { set_avma(av0); return w; }
 
   DL = prec2nbits_mul(prec, M_LN2) + 5;
   jmin = ceil(DL/log((double)N)) + 1;
@@ -1312,11 +1312,11 @@ mpveceint1(GEN C, GEN eC, long N)
       GEN S = divri(mulrr(en, rX_s_eval(polsh, -n)), powuu(n,j));
       /* w[n+1] - exp(-n C) * polsh(-n) / (-n)^j */
       GEN c = odd(j)? addrr(gel(w,n+1), S) : subrr(gel(w,n+1), S);
-      affrr(c, gel(w,n)); avma = av2;
+      affrr(c, gel(w,n)); set_avma(av2);
       en = mulrr(en,eC); /* exp(-n C) */
     }
   }
-  avma = av0; return w;
+  set_avma(av0); return w;
 }
 
 /* erfc via numerical integration : assume real(x)>=1 */
@@ -1399,7 +1399,7 @@ gerfc(GEN x, long prec)
      * huge accuracy if re(x)>>1, rounded to 2 by subsequent affc_fixlg... */
     z = gsub(real2n(1,prec+EXTRAPREC), gerfc(gneg(x), prec));
   }
-  avma = av; return affc_fixlg(z, res);
+  set_avma(av); return affc_fixlg(z, res);
 }
 
 /***********************************************************************/
@@ -1524,7 +1524,7 @@ inv_szeta_euler(long n, double lba, long prec)
       z = gerepileuptoleaf(av2, z);
     }
   }
-  affrr(z, res); avma = av; return res;
+  affrr(z, res); set_avma(av); return res;
 }
 
 /* assume n even > 0, if iz != NULL, assume iz = 1/zeta(n) */
@@ -1810,7 +1810,7 @@ czeta(GEN s0, long prec)
     funeq_factor = gmul2n(gmul(t, gcos(gmul(Pi2n(-1,prec),s), prec)), 1);
   }
   if (gcmpgs(sig, prec2nbits(prec) + 1) > 0) { /* zeta(s) = 1 */
-    if (!funeq_factor) { avma = av0; return real_1(prec); }
+    if (!funeq_factor) { set_avma(av0); return real_1(prec); }
     return gerepileupto(av0, funeq_factor);
   }
   optim_zeta(s, prec, &lim, &nn);
@@ -1852,7 +1852,7 @@ czeta(GEN s0, long prec)
   /* y += tes n^(-s) / (s-1) */
   y = gadd(y, gmul(tes, gdiv(gel(Ns,nn), gsub(s, unr))));
   if (funeq_factor) y = gmul(y, funeq_factor);
-  avma = av; return affc_fixlg(y,res);
+  set_avma(av); return affc_fixlg(y,res);
 }
 
 #if 0
@@ -2526,7 +2526,7 @@ polylog(long m, GEN x, long prec)
   e = gexpo(gnorm(x));
   if (!e || e == -1) {
     y = cxpolylog(m,x,prec);
-    avma = av; return affc_fixlg(y, res);
+    set_avma(av); return affc_fixlg(y, res);
   }
   X = (e > 0)? ginv(x): x;
   G = -prec2nbits(l);
@@ -2544,7 +2544,7 @@ polylog(long m, GEN x, long prec)
       gerepileall(av1,2, &y, &Xn);
     }
   }
-  if (e < 0) { avma = av; return affc_fixlg(y, res); }
+  if (e < 0) { set_avma(av); return affc_fixlg(y, res); }
 
   sx = gsigne(imag_i(x));
   if (!sx)
@@ -2578,7 +2578,7 @@ polylog(long m, GEN x, long prec)
     if (typ(x) == t_REAL && signe(x) < 0) p1 = real_i(p1);
   }
   y = gadd(y,p1);
-  avma = av; return affc_fixlg(y, res);
+  set_avma(av); return affc_fixlg(y, res);
 }
 
 GEN
@@ -2714,7 +2714,7 @@ gpolylog(long m, GEN x, long prec)
       return polylogvec(m, x, prec);
     default:
       av = avma; if (!(y = toser_i(x))) break;
-      if (!m) { avma = av; return mkfrac(gen_m1,gen_2); }
+      if (!m) { set_avma(av); return mkfrac(gen_m1,gen_2); }
       if (m==1) return gerepileupto(av, gneg( glog(gsub(gen_1,y),prec) ));
       if (gequal0(y)) return gerepilecopy(av, y);
       v = valp(y);
@@ -3610,7 +3610,7 @@ thetanullk(GEN q, long k, long prec)
   if (l) prec = l;
   q = check_unit_disc("thetanullk", q, prec);
 
-  if (!(k&1)) { avma = av; return gen_0; }
+  if (!(k&1)) { set_avma(av); return gen_0; }
   qn = gen_1;
   ps2 = gsqr(q);
   ps = gneg_i(ps2);

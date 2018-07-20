@@ -467,7 +467,7 @@ newton_polygon(GEN p, long k)
   }
   h = k;   while (!vertex[h]) h++;
   l = k-1; while (!vertex[l]) l--;
-  avma = av;
+  set_avma(av);
   return (long)floor((logcoef[h]-logcoef[l])/(double)(h-l) + 0.5);
 }
 
@@ -640,7 +640,7 @@ lower_bound(GEN p, long *k, double eps)
     *k = (long)floor((rho/R + n) / (1 + exp(-eps)*cos(eps)));
   else
     *k = n;
-  avma = ltop; return R;
+  set_avma(ltop); return R;
 }
 
 /* return R such that exp(R - tau) <= rho_n(P) <= exp(R + tau)
@@ -684,9 +684,9 @@ logmax_modulus(GEN p, double tau)
     eps = -1/log(tau2); /* > 0 */
     e = findpower(q);
   }
-  if (!signe(r)) { avma = ltop; return 0.; }
+  if (!signe(r)) { set_avma(ltop); return 0.; }
   r = itor(r, DEFAULTPREC); shiftr_inplace(r, -M);
-  avma = ltop; return -rtodbl(r) * M_LN2; /* -log(2) sum e_i 2^-i */
+  set_avma(ltop); return -rtodbl(r) * M_LN2; /* -log(2) sum e_i 2^-i */
 }
 
 static GEN
@@ -714,7 +714,7 @@ polrootsbound_i(GEN P, double TAU)
   switch(degpol(P))
   {
     case -1: pari_err_ROOTS0("roots");
-    case 0:  avma = av; return gen_0;
+    case 0:  set_avma(av); return gen_0;
   }
   d = logmax_modulus(P, TAU) + TAU;
   /* not dblexp: result differs on ARM emulator */
@@ -737,7 +737,7 @@ logmin_modulus(GEN p, double tau)
 
   if (gequal0(gel(p,2))) return -pariINFINITY;
   r = - logmax_modulus(RgX_recip_shallow(p),tau);
-  avma = av; return r;
+  set_avma(av); return r;
 }
 
 /* return the log of the k-th modulus (ascending order) of p, rel. error tau*/
@@ -773,7 +773,7 @@ logmodulus(GEN p, long k, double tau)
     tau2 *= 1.5; if (tau2 > 1.) tau2 = 1.;
     bit = 1 + (long)(nn*(2. + log2(3.*nn/tau2)));
   }
-  avma = ltop; return -r * M_LN2;
+  set_avma(ltop); return -r * M_LN2;
 }
 
 /* return the log of the k-th modulus r_k of p, rel. error tau, knowing that
@@ -810,7 +810,7 @@ logpre_modulus(GEN p, long k, double tau, double lrmin, double lrmax)
   }
   aux = exp2((double)imax);
   aux = logmodulus(q,k, aux*tau/3.) / aux;
-  avma = ltop; return lrho + aux;
+  set_avma(ltop); return lrho + aux;
 }
 
 static double
@@ -854,7 +854,7 @@ dual_modulus(GEN p, double lrho, double tau, long l)
     tau2 *= 7./4.;
     bit = 6*nn - 5*ll + (long)(nn*(-log2(tau2) + tau2 * 8./7.));
   }
-  avma = av; return delta_k + (long)ind_maxlog2(q);
+  set_avma(av); return delta_k + (long)ind_maxlog2(q);
 }
 
 /********************************************************************/
@@ -1039,7 +1039,7 @@ parameters(GEN p, long *LMAX, double *mu, double *gamma,
     }
   }
   *gamma = mydbllog2r(divru(g,NN));
-  *LMAX = Lmax; avma = av;
+  *LMAX = Lmax; set_avma(av);
 }
 
 /* NN is a multiple of Lmax */
@@ -1233,7 +1233,7 @@ split_fromU(GEN p, long k, double delta, long bit,
     bit2 = (long)(((double)NN*delta-mu)/M_LN2) + gexpo(pp) + 8;
     dft(pp, k, NN, Lmax, bit2, FF, H, polreal);
     if (refine_F(pp,&FF,&GG,H,bit,gamma)) break;
-    NN <<= 1; avma = ltop;
+    NN <<= 1; set_avma(ltop);
   }
   *G = gmul(GG,gel(p,2+n)); *F = FF;
 }
@@ -1394,7 +1394,7 @@ conformal_mapping(double *radii, GEN ctr, GEN p, long k, long bit,
       /* 2(r^2 - 1) / (r^2 - 3(r-1)) */
       t = divrr(shiftr((subrs(r2,1)),1), subrr(r2, mulur(3,subrs(r,1))));
       radii[i] = mydbllogr(addsr(1,t)) / 2;
-      avma = av2;
+      set_avma(av2);
     }
   lrho = logradius(radii, q,k,aux/10., &delta);
   update_radius(n, radii, lrho, &param, &param2);
@@ -1735,7 +1735,7 @@ a_posteriori_errors(GEN p, GEN roots_pol, long err)
     pari_sp av = avma;
     GEN x = root_error(n,i,roots_pol,err,shatzle);
     long e = gexpo(x);
-    avma = av; if (e > e_max) e_max = e;
+    set_avma(av); if (e > e_max) e_max = e;
     gel(roots_pol,i) = mygprec_absolute(gel(roots_pol,i), -e);
   }
   return e_max;
@@ -1772,7 +1772,7 @@ split_complete(GEN p, long bit, GEN roots_pol)
     a = gneg_i(gmul(gadd(F,gel(p,3)), p1));
     b =        gmul(gsub(F,gel(p,3)), p1);
     a = append_clone(roots_pol,a);
-    b = append_clone(roots_pol,b); avma = ltop;
+    b = append_clone(roots_pol,b); set_avma(ltop);
     a = mygprec(a, 3*bit);
     b = mygprec(b, 3*bit);
     return gmul(gel(p,4), mkpoln(3, gen_1, gneg(gadd(a,b)), gmul(a,b)));
@@ -1830,7 +1830,7 @@ fujiwara_bound(GEN p)
     L = (mydbllog2r(quicktofp(y)) - loglc) / (n-i);
     if (L > Lmax) Lmax = L;
   }
-  avma = av; return Lmax + 1;
+  set_avma(av); return Lmax + 1;
 }
 
 /* Fujiwara's bound, real roots. Based on the following remark: if
@@ -1868,7 +1868,7 @@ fujiwara_bound_real(GEN p, long sign)
     }
   }
   fb = fujiwara_bound(x);
-  avma = av; return fb;
+  set_avma(av); return fb;
 }
 
 static GEN
@@ -2233,7 +2233,7 @@ X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
     }
     if (s == signe(gel(v, vlim)))
     {
-      if (++nb >= 2) { avma = av; return 2; }
+      if (++nb >= 2) { set_avma(av); return 2; }
       s = -s;
     }
     /* if flag is set there will be no further sign changes */
@@ -2248,7 +2248,7 @@ X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
   }
   if (vlim >= 2 && s == signe(gel(v, vlim))) nb++;
 END:
-  if (Premapped && nb == 1) *Premapped = v; else avma = av;
+  if (Premapped && nb == 1) *Premapped = v; else set_avma(av);
   return nb;
 }
 
@@ -2629,23 +2629,23 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
   }
   switch (gcmp(a, b))
   {
-    case 1: avma = av; return flag <= 1 ? cgetg(1, t_COL) : gen_0;
+    case 1: set_avma(av); return flag <= 1 ? cgetg(1, t_COL) : gen_0;
     case 0: return gerepilecopy(av, ZX_Uspensky_equal(P, a, flag));
   }
   nbz = ZX_valrem(P, &Pcur);
   deg -= nbz;
   if (!nbz) Pcur = P;
   if (nbz && (gsigne(a) > 0 || gsigne(b) < 0)) nbz = 0;
-  if (deg == 0) { avma = av; return ZX_Uspensky_cst_pol(nbz, flag, bitprec); }
+  if (deg == 0) { set_avma(av); return ZX_Uspensky_cst_pol(nbz, flag, bitprec); }
   if (deg == 1)
   {
     sol = gdiv(gneg(gel(Pcur, 2)), pollead(Pcur, -1));
     if (gcmp(a, sol) > 0 || gcmp(sol, b) > 0)
     {
-      avma = av;
+      set_avma(av);
       return ZX_Uspensky_cst_pol(nbz, flag, bitprec);
     }
-    if (flag >= 2) { avma = av; return utoi(nbz+1); }
+    if (flag >= 2) { set_avma(av); return utoi(nbz+1); }
     sol = gconcat(zerocol(nbz), mkcol(sol));
     if (flag == 1) sol = RgC_gtofp(sol, nbits2prec(bitprec));
     return gerepilecopy(av, sol);
@@ -2711,7 +2711,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
         nbz++;
     }
     else
-      avma = av1;
+      set_avma(av1);
     unscaledres = usp(Pcur, deg, flag, bitprec);
     if (flag <= 1)
     {
@@ -2864,7 +2864,7 @@ realroots(GEN P, GEN ab, long prec)
     sol = sol? shallowconcat(sol, soli): soli;
     nrr += ex[i]*nrri;
   }
-  if (!sol) { avma = av; return cgetg(1,t_COL); }
+  if (!sol) { set_avma(av); return cgetg(1,t_COL); }
 
   if (DEBUGLEVEL > 4)
   {
@@ -2885,7 +2885,7 @@ ZX_sturm(GEN P)
     r = itos(ZX_Uspensky(P, NULL, 2, 0));
   else
     r = 2*itos(ZX_Uspensky(P, gen_0, 2, 0));
-  avma = av; return r;
+  set_avma(av); return r;
 }
 /* P non-constant, squarefree ZX */
 long
@@ -2895,5 +2895,5 @@ ZX_sturmpart(GEN P, GEN ab)
   long r;
   if (!check_ab(ab)) return ZX_sturm(P);
   r = itos(ZX_Uspensky(P, ab, 2, 0));
-  avma = av; return r;
+  set_avma(av); return r;
 }

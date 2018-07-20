@@ -582,7 +582,7 @@ fetch_member_raw(const char *s, long len)
   entree *ep;
   t[0] = '_'; strncpy(t+1, s, len); t[++len] = 0; /* prepend '_' */
   ep = fetch_entry_raw(t, len);
-  avma = av; return ep;
+  set_avma(av); return ep;
 }
 static entree *
 getfunc(long n)
@@ -1929,7 +1929,7 @@ compileseq(long n, int mode, long flag)
   for(i = 1; i < l; i++)
     compilenode(L[i],Gvoid,0);
   compilenode(L[l],mode,flag&(FLreturn|FLsurvive));
-  avma = av;
+  set_avma(av);
 }
 
 static void
@@ -2239,7 +2239,7 @@ optimizevec(long n)
   long x = tree[n].x;
   GEN  arg = listtogen(x, Fmatrixelts);
   tree[n].flags = vec_optimize(arg);
-  avma = ltop;
+  set_avma(ltop);
 }
 
 static void
@@ -2440,7 +2440,7 @@ optimizeseq(long n)
     optimizenode(L[i]);
     flags &= tree[L[i]].flags;
   }
-  avma = av;
+  set_avma(av);
   tree[n].flags = flags;
 }
 

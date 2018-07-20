@@ -351,7 +351,7 @@ fillall(long k, long bitprec)
       pinit= gel(all, minit);
       pfin = gel(all, mfin);
       pmid = gel(all, mmid);
-      for (n = N-1; n > 1; n--, avma = av)
+      for (n = N-1; n > 1; n--, set_avma(av))
       {
         GEN t = mpmul(gel(pinit,n+1), gmael(pab, n, a+1));
         GEN u = mpmul(gel(pfin, n+1), gmael(pab, n, b+1));
@@ -367,7 +367,7 @@ fillall(long k, long bitprec)
         if (!signe(S)) S = gen_0;
         mpaff(S, k1 < k ? gel(p1,1) : p1);
         if (comp > 0 && k1 < k) mpaff(S, gel(p2, 1));
-        avma = av;
+        set_avma(av);
       }
       if (comp > 0 && k1 == k) mpaff(p1, p2);
     }

@@ -755,7 +755,7 @@ static void
 pari_mainstack_use(struct pari_mainstack *st)
 {
   pari_mainstack = st;
-  avma = st->top;
+  avma = st->top; /* don't use set_avma */
 }
 
 static void
@@ -1445,7 +1445,7 @@ pari_err2str(GEN e)
       default:  f = op; op = ","; break;
       }
       v = pari_sprintf("%s %s %s %s %s.", what,f,type_dim(x),op,type_dim(y));
-      avma = av; return v;
+      set_avma(av); return v;
     }
   case e_COMPONENT:
     {
@@ -2114,7 +2114,7 @@ shiftaddress_canon(GEN x, long dec)
         pari_sp av = avma;
         GEN L = (GEN)((long)Lx+dec);
         shiftaddress_canon(L, dec);
-        list_data(x) = list_internal_copy(L, lg(L)); avma = av;
+        list_data(x) = list_internal_copy(L, lg(L)); set_avma(av);
       }
       break;
     }
@@ -2184,7 +2184,7 @@ obj_checkbuild(GEN S, long tag, GEN (*build)(GEN))
 {
   GEN O = obj_check(S, tag);
   if (!O)
-  { pari_sp av = avma; O = obj_insert(S, tag, build(S)); avma = av; }
+  { pari_sp av = avma; O = obj_insert(S, tag, build(S)); set_avma(av); }
   return O;
 }
 
@@ -2195,7 +2195,7 @@ obj_checkbuild_prec(GEN S, long tag, GEN (*build)(GEN,long),
   pari_sp av = avma;
   GEN w = obj_check(S, tag);
   if (!w || pr(w) < prec) w = obj_insert(S, tag, build(S, prec));
-  avma = av; return gcopy(w);
+  set_avma(av); return gcopy(w);
 }
 GEN
 obj_checkbuild_realprec(GEN S, long tag, GEN (*build)(GEN,long), long prec)

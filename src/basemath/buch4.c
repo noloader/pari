@@ -28,13 +28,13 @@ lemma6(GEN T, GEN p, long nu, GEN x)
   pari_sp av = avma;
   GEN gpx, gx = poleval(T, x);
 
-  if (Zp_issquare(gx, p)) { avma = av; return 1; }
+  if (Zp_issquare(gx, p)) { set_avma(av); return 1; }
 
   la = Z_pval(gx, p);
   gpx = poleval(ZX_deriv(T), x);
   mu = signe(gpx)? Z_pval(gpx,p)
                  : la+nu+1; /* mu = +oo */
-  avma = av;
+  set_avma(av);
   if (la > mu<<1) return 1;
   if (la >= nu<<1 && mu >= nu) return 0;
   return -1;
@@ -51,7 +51,7 @@ lemma7(GEN T, long nu, GEN x)
 
   gpx = poleval(ZX_deriv(T), x);
   la = Z_lvalrem(gx, 2, &oddgx);
-  odd4 = umodiu(oddgx,4); avma = av;
+  odd4 = umodiu(oddgx,4); set_avma(av);
 
   mu = vali(gpx);
   if (mu < 0) mu = la+nu+1; /* mu = +oo */
@@ -89,14 +89,14 @@ zpsol(GEN T, GEN p, long nu, GEN pnu, GEN x0)
   for (i=0; i < itos(p); i++)
   {
     x = addii(x,pnu);
-    if (zpsol(T,p,nu+1,pnup,x)) { avma = av; return 1; }
+    if (zpsol(T,p,nu+1,pnup,x)) { set_avma(av); return 1; }
     if (gc_needed(btop, 2))
     {
       x = gerepileupto(btop, x);
       if (DEBUGMEM > 1) pari_warn(warnmem, "zpsol: %ld/%Ps",i,p);
     }
   }
-  avma = av; return 0;
+  set_avma(av); return 0;
 }
 
 /* return 1 if equation y^2=T(x) has a rational p-adic solution (possibly
@@ -110,7 +110,7 @@ hyperell_locally_soluble(GEN T,GEN p)
   if (typ(p)!=t_INT) pari_err_TYPE("zpsoluble",p);
   RgX_check_ZX(T, "zpsoluble");
   res = zpsol(T,p,0,gen_1,gen_0) || zpsol(RgX_recip_shallow(T), p, 1, p, gen_0);
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 /* is t a square in (O_K/pr) ? Assume v_pr(t) = 0 */
@@ -161,7 +161,7 @@ psquarenf(GEN nf,GEN x,GEN pr,GEN modpr)
     if (v&1) return 0;
     v = (quad_char(nf, x, modpr) == 1);
   }
-  avma = av; return v;
+  set_avma(av); return v;
 }
 
 /* Is  x a square in (ZK / pr^(1+2e))^* ?  pr | 2 */
@@ -188,7 +188,7 @@ psquare2nf(GEN nf,GEN x,GEN pr,GEN sprk)
 {
   pari_sp av = avma;
   long v = psquare2nf_i(nf,x,pr,sprk);
-  avma = av; return v;
+  set_avma(av); return v;
 }
 
 /* pr above an odd prime */
@@ -204,7 +204,7 @@ lemma6nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN modpr)
   la = nfval(nf,gx,pr);
   gpx = nfpoleval(nf, RgX_deriv(T), x);
   mu = gequal0(gpx)? la+nu+1: nfval(nf,gpx,pr);
-  avma = av;
+  set_avma(av);
   if (la > (mu<<1)) return 1;
   if (la >= (nu<<1)  && mu >= nu) return 0;
   return -1;
@@ -255,7 +255,7 @@ zpsolnf(GEN nf,GEN T,GEN pr,long nu,GEN pnu,GEN x0,GEN repr,GEN zinit)
 
   res = typ(zinit) == t_VEC? lemma7nf(nf,T,pr,nu,x0,zinit)
                            : lemma6nf(nf,T,pr,nu,x0,zinit);
-  avma = av;
+  set_avma(av);
   if (res== 1) return 1;
   if (res==-1) return 0;
   pnup = nfmul(nf, pnu, pr_get_gen(pr));
@@ -263,9 +263,9 @@ zpsolnf(GEN nf,GEN T,GEN pr,long nu,GEN pnu,GEN x0,GEN repr,GEN zinit)
   for (i=1; i<lg(repr); i++)
   {
     GEN x = nfadd(nf, x0, nfmul(nf,pnu,gel(repr,i)));
-    if (zpsolnf(nf,T,pr,nu,pnup,x,repr,zinit)) { avma = av; return 1; }
+    if (zpsolnf(nf,T,pr,nu,pnup,x,repr,zinit)) { set_avma(av); return 1; }
   }
-  avma = av; return 0;
+  set_avma(av); return 0;
 }
 
 /* Let y = copy(x); y[k] := j; return y */
@@ -320,7 +320,7 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
   p1 = pr_get_gen(pr);
   if (zpsolnf(nf,RgX_recip_shallow(T),pr,1,p1,gen_0,repr,zinit)) { avma=av; return 1; }
 
-  avma = av; return 0;
+  set_avma(av); return 0;
 }
 
 /* return a * denom(a)^2, as an 'liftalg' */
@@ -356,7 +356,7 @@ hilb2nf(GEN nf,GEN a,GEN b,GEN p)
    * But it is only used as a placeholder, hence it is not a problem */
 
   rep = nf_hyperell_locally_soluble(nf,pol,p)? 1: -1;
-  avma = av; return rep;
+  set_avma(av); return rep;
 }
 
 /* local quadratic Hilbert symbol (a,b)_pr, for a,b (non-zero) in nf */
@@ -372,7 +372,7 @@ nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
   /* pr not above 2, compute t = tame symbol */
   va = nfval(nf,a,pr);
   vb = nfval(nf,b,pr);
-  if (!odd(va) && !odd(vb)) { avma = av; return 1; }
+  if (!odd(va) && !odd(vb)) { set_avma(av); return 1; }
   /* Trick: pretend the exponent is 2, result is OK up to squares ! */
   t = famat_makecoprime(nf, mkvec2(a,b), mkvec2s(vb, -va),
                         pr, pr_hnf(nf, pr), gen_2);
@@ -392,7 +392,7 @@ nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
     rep = quad_char(nf, t, pr);
   }
   /* quad. symbol is image of t by the quadratic character  */
-  avma = av; return rep;
+  set_avma(av); return rep;
 }
 
 /* Global quadratic Hilbert symbol (a,b):
@@ -417,7 +417,7 @@ nfhilbert(GEN nf, GEN a, GEN b)
     {
       if (DEBUGLEVEL>3)
         err_printf("nfhilbert not soluble at real place %ld\n",i);
-      avma = av; return -1;
+      set_avma(av); return -1;
     }
 
   /* local solutions in finite completions ? (pr | 2ab)
@@ -434,9 +434,9 @@ nfhilbert(GEN nf, GEN a, GEN b)
     {
       if (DEBUGLEVEL>3)
         err_printf("nfhilbert not soluble at finite place %Ps\n",S[i]);
-      avma = av; return -1;
+      set_avma(av); return -1;
     }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 long
@@ -638,7 +638,7 @@ bnfissunit(GEN bnf,GEN bnfS,GEN x)
   x = nf_to_scalar_or_alg(nf,x);
   v = NULL;
   if ( (w = make_unit(nf, bnfS, &x)) ) v = bnfisunit(bnf, x);
-  if (!v || lg(v) == 1) { avma = av; return cgetg(1,t_COL); }
+  if (!v || lg(v) == 1) { set_avma(av); return cgetg(1,t_COL); }
   return gerepileupto(av, gconcat(v, w));
 }
 
@@ -785,12 +785,12 @@ rnfisnorm(GEN T, GEN x, long flag)
   rel = checkbnf(rel);
   nf = bnf_get_nf(bnf);
   x = nf_to_scalar_or_alg(nf,x);
-  if (gequal0(x)) { avma = av; return mkvec2(gen_0, gen_1); }
-  if (gequal1(x)) { avma = av; return mkvec2(gen_1, gen_1); }
+  if (gequal0(x)) { set_avma(av); return mkvec2(gen_0, gen_1); }
+  if (gequal1(x)) { set_avma(av); return mkvec2(gen_1, gen_1); }
   relpol = gel(T,3);
   rnfeq = gel(T,4);
   drel = degpol(relpol);
-  if (gequalm1(x) && odd(drel)) { avma = av; return mkvec2(gen_m1, gen_1); }
+  if (gequalm1(x) && odd(drel)) { set_avma(av); return mkvec2(gen_m1, gen_1); }
 
   /* build set T of ideals involved in the solutions */
   nfpol = nf_get_pol(nf);

@@ -742,8 +742,8 @@ ZC_prdvd(GEN x, GEN P)
   if (typ(mul) == t_INT) return ZV_Z_dvd(x, p);
   l = lg(x);
   for (i=1; i<l; i++)
-    if (!dvdii(ZMrow_ZC_mul(mul,x,i), p)) { avma = av; return 0; }
-  avma = av; return 1;
+    if (!dvdii(ZMrow_ZC_mul(mul,x,i), p)) { set_avma(av); return 0; }
+  set_avma(av); return 1;
 }
 
 int
@@ -775,7 +775,7 @@ nfval(GEN nf, GEN x, GEN pr)
   x = Q_primitive_part(x, &cx);
   w = ZC_nfval(x,pr);
   if (cx) w += e*Q_pval(cx,p);
-  avma = av; return w;
+  set_avma(av); return w;
 }
 
 /* want to write p^v = uniformizer^(e*v) * z^v, z coprime to pr */
@@ -1393,12 +1393,12 @@ nfchecksigns(GEN nf, GEN x, GEN pl)
   {
     long i, l = lg(pl), s = gsigne(x);
     for (i = 1; i < l; i++)
-      if (pl[i] && pl[i] != s) { avma = av; return 0; }
-    avma = av; return 1;
+      if (pl[i] && pl[i] != s) { set_avma(av); return 0; }
+    set_avma(av); return 1;
   }
   pl_convert(pl, &signs, &archp);
   res = nfchecksigns_i(nf, x, NULL, signs, archp);
-  avma = av; return res;
+  set_avma(av); return res;
 }
 
 /* signs = NULL: totally positive, else sign[i] = 0 (+) or 1 (-) */
@@ -1440,7 +1440,7 @@ nfsetsigns(GEN nf, GEN signs, GEN x, GEN sarch)
     GEN xp = Q_primitive_part(x,&cex);
     ex = cgetg(l,t_COL);
     for (i = 1; i < l; i++) gel(ex,i) = zk_embed(M,xp,archp[i]);
-    if (nfchecksigns_i(nf, xp, ex, signs, archp)) { ex = NULL; avma = av; }
+    if (nfchecksigns_i(nf, xp, ex, signs, archp)) { ex = NULL; set_avma(av); }
     else if (cex) ex = RgC_Rg_mul(ex, cex); /* put back content */
   }
   if (ex)
@@ -1764,10 +1764,10 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
     case t_INT:
       s = signe(x);
       if (!s) pari_err_DOMAIN("nfsign_arch","element","=",gen_0,x);
-      avma = av; return const_vecsmall(n, (s < 0)? 1: 0);
+      set_avma(av); return const_vecsmall(n, (s < 0)? 1: 0);
     case t_FRAC:
       s = signe(gel(x,1));
-      avma = av; return const_vecsmall(n, (s < 0)? 1: 0);
+      set_avma(av); return const_vecsmall(n, (s < 0)? 1: 0);
   }
   x = Q_primpart(x); M = nf_get_M(nf); sarch = NULL; np = -1;
   for (i = 1; i <= n; i++)
@@ -1780,15 +1780,15 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
       if (np < 0)
       {
         np = num_positive(nf, x);
-        if (np == 0) { avma = av; return const_vecsmall(n, 1); }
-        if (np == r1){ avma = av; return const_vecsmall(n, 0); }
+        if (np == 0) { set_avma(av); return const_vecsmall(n, 1); }
+        if (np == r1){ set_avma(av); return const_vecsmall(n, 0); }
         sarch = nfarchstar(nf, NULL, identity_perm(r1));
       }
       xi = set_sign_mod_divisor(nf, vecsmall_ei(r1, archp[i]), gen_1, sarch);
       xi = Q_primpart(xi);
       ni = num_positive(nf, nfmuli(nf,x,xi));
-      if (ni == 0) { avma = av; V = const_vecsmall(n, 1); V[i] = 0; return V; }
-      if (ni == r1){ avma = av; V = const_vecsmall(n, 0); V[i] = 1; return V; }
+      if (ni == 0) { set_avma(av); V = const_vecsmall(n, 1); V[i] = 0; return V; }
+      if (ni == r1){ set_avma(av); V = const_vecsmall(n, 0); V[i] = 1; return V; }
       s = ni < np? 0: 1;
     }
     V[i] = s;
@@ -1835,11 +1835,11 @@ nfeltsign(GEN nf, GEN x, GEN ind0)
       case 1: s = gen_1; break;
       default: s = gen_0; break;
     }
-    avma = av;
+    set_avma(av);
     return (ind0 && typ(ind0) == t_INT)? s: const_vec(l-1, s);
   }
   v = nfsign_arch(nf, x, ind);
-  if (ind0 && typ(ind0) == t_INT) { avma = av; return v[1]? gen_m1: gen_1; }
+  if (ind0 && typ(ind0) == t_INT) { set_avma(av); return v[1]? gen_m1: gen_1; }
   settyp(v, t_VEC);
   for (i = 1; i < l; i++) gel(v,i) = v[i]? gen_m1: gen_1;
   return gerepileupto(av, v);
@@ -1911,9 +1911,9 @@ nfpolsturm(GEN nf, GEN f, GEN ind0)
     (void)Rg_nffix("nfpolsturm", T, f, 0);
     f = NULL;
   }
-  if (!f) { avma = av; return single? gen_0: zerovec(l-1); }
+  if (!f) { set_avma(av); return single? gen_0: zerovec(l-1); }
   d = degpol(f);
-  if (d == 1) { avma = av; return single? gen_1: const_vec(l-1,gen_1); }
+  if (d == 1) { set_avma(av); return single? gen_1: const_vec(l-1,gen_1); }
 
   vr1 = const_vecsmall(l-1, 1);
   u = Q_primpart(f); s = ZV_to_zv(nfeltsign(nf, gel(u,d+2), ind));
@@ -1932,7 +1932,7 @@ nfpolsturm(GEN nf, GEN f, GEN ind0)
     if (!dr) break;
     u = v; v = r;
   }
-  if (single) { avma = av; return stoi(vr1[1]); }
+  if (single) { set_avma(av); return stoi(vr1[1]); }
   return gerepileupto(av, zv_to_ZV(vr1));
 }
 

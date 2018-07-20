@@ -485,7 +485,7 @@ minpoly_dvdslice(GEN M, long i, long j, long k)
   pari_sp av = avma;
   long r = signe(RgX_rem(minpoly_polslice(M, i, j-1, 0),
                         minpoly_polslice(M, j, k, 0)));
-  avma = av; return r==0;
+  set_avma(av); return r==0;
 }
 
 static void
@@ -722,7 +722,7 @@ minpoly(GEN x, long v)
   }
   P = easymin(x,v);
   if (P) return gerepileupto(av,P);
-  avma = av;
+  set_avma(av);
   if (typ(x) == t_POLMOD)
   {
     P = RgXQ_minpoly_naive(gel(x,2), gel(x,1));
@@ -931,7 +931,7 @@ charpoly_bound(GEN M, GEN dM)
     if (abscmprr(t, s) > 0) s = t;
     bin = diviuexact(muliu(bin, k), n-k+1);
   }
-  d = dbllog2(s); avma = av; return ceil(d);
+  d = dbllog2(s); set_avma(av); return ceil(d);
 }
 
 /* Return char_{M/d}(X) = d^(-n) char_M(dX) modulo p. Assume dp = d mod p. */
@@ -1361,7 +1361,7 @@ matcompanion(GEN x)
   { /* not monic. Hardly ever used */
     pari_sp av = avma;
     GEN d = gclone(gneg(gel(x,n+2)));
-    avma = av;
+    set_avma(av);
     for (j=1; j<=n; j++) gel(c,j) = gdiv(gel(x,j+1), d);
     gunclone(d);
   }
@@ -1459,7 +1459,7 @@ qfgaussred_positive(GEN a)
   for (k=1; k<n; k++)
   {
     GEN bk, p = gcoeff(b,k,k), invp;
-    if (gsigne(p)<=0) { avma = av; return NULL; } /* not positive definite */
+    if (gsigne(p)<=0) { set_avma(av); return NULL; } /* not positive definite */
     invp = ginv(p);
     bk = row(b, k);
     for (i=k+1; i<n; i++) gcoeff(b,k,i) = gmul(gel(bk,i), invp);
@@ -1600,7 +1600,7 @@ gaussred(GEN a, long signature)
     }
   }
   if (!signature) return gerepilecopy(av, a);
-  avma = av; return mkvec2s(sp, sn);
+  set_avma(av); return mkvec2s(sp, sn);
 }
 
 GEN
@@ -1714,13 +1714,13 @@ jacobi(GEN a, long prec)
         e = expo(z); if (e > e2) { e2=e; p=j; q=i; }
       }
     }
-    avma = av2;
+    set_avma(av2);
   }
   /* sort eigenvalues from smallest to largest */
   c = indexsort(L);
   r2 = vecpermute(r, c); for (i=1; i<l; i++) gel(r,i) = gel(r2,i);
   L2 = vecpermute(L, c); for (i=1; i<l; i++) gel(L,i) = gel(L2,i);
-  avma = av1; return ja;
+  set_avma(av1); return ja;
 }
 
 /*************************************************************************/
@@ -1764,14 +1764,14 @@ QM_minors_coprime(GEN x, GEN D)
   {
     if (gequal0(ZM_det(x)))
       pari_err_DOMAIN("QM_minors_coprime", "rank(A)", "<",stoi(n),x);
-    avma = av; return matid(n);
+    set_avma(av); return matid(n);
   }
   /* m > n */
   if (!D || gequal0(D))
   {
     pari_sp av2 = avma;
     D = ZM_detmult(shallowtrans(x));
-    if (is_pm1(D)) { avma = av2; return ZM_copy(x); }
+    if (is_pm1(D)) { set_avma(av2); return ZM_copy(x); }
   }
   P = gel(Z_factor(D), 1); lP = lg(P);
   av1 = avma;

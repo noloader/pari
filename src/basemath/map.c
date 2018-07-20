@@ -193,7 +193,7 @@ change_leaf(GEN T, GEN x, long p)
 {
   pari_sp av = avma;
   listput(T, mkvec2(x, gmael(list_data(T), p, 2)), p);
-  avma = av;
+  set_avma(av);
 }
 
 static long
@@ -201,7 +201,7 @@ new_leaf(GEN T, GEN x)
 {
   pari_sp av = avma;
   listput(T, mkvec2(x, mkvecsmall3(0,0,1)), 0);
-  avma = av;
+  set_avma(av);
   return lg(list_data(T))-1;
 }
 
@@ -398,7 +398,7 @@ mapput(GEN T, GEN a, GEN b)
   p = mkvec2(a, b);
   i = treeinsert(T, p, 1);
   if (i) change_leaf(T, p, i);
-  avma = av;
+  set_avma(av);
 }
 
 void
@@ -410,7 +410,7 @@ mapdelete(GEN T, GEN a)
     pari_err_TYPE("mapdelete",T);
   s = treedelete(T, a, 1);
   if (!s) pari_err_COMPONENT("mapdelete", "not in", strtoGENstr("map"), a);
-  avma = av;
+  set_avma(av);
 }
 
 GEN

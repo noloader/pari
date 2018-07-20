@@ -762,7 +762,7 @@ divri(GEN x, GEN y)
   }
   lx = lg(x); z = cgetr(lx); av = avma;
   affrr(divrr(x, itor(y, lx+1)), z);
-  avma = av; return z;
+  set_avma(av); return z;
 }
 
 /* Integer division x / y: such that sign(r) = sign(x)
@@ -896,7 +896,7 @@ DIVIDE: /* quotient is non-zero */
   lz = lx-j;
   if (z == ONLY_REM)
   {
-    if (lz==0) { avma = av; return gen_0; }
+    if (lz==0) { set_avma(av); return gen_0; }
     rd = (ulong*)av; lr = lz+2;
     xd = (ulong*)(x + lx);
     if (!sh) while (lz--) *--rd = *--xd;
@@ -1043,7 +1043,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
   Td = (GEN)av;
   while (*scratch == 0 && Te > scratch) scratch++; /* strip leading 0s */
   while (Te > scratch) *--Td = *--Te;
-  k = (GEN)av - Td; if (!k) { avma = av; return gen_0; }
+  k = (GEN)av - Td; if (!k) { set_avma(av); return gen_0; }
   k += 2;
   *--Td = evalsigne(1) | evallgefint(k);
   *--Td = evaltyp(t_INT) | evallg(k);
@@ -1132,16 +1132,16 @@ diviuexact(GEN x, ulong y)
   av = avma; (void)new_chunk(lx); vy = vals(y);
   if (vy) {
     y >>= vy;
-    if (y == 1) { avma = av; return shifti(x, -vy); }
+    if (y == 1) { set_avma(av); return shifti(x, -vy); }
     x = shifti(x, -vy);
     if (lx == 3) {
       ulong q = uel(x,2) / y;
-      avma = av;
+      set_avma(av);
       if (!q) pari_err_OP("exact division", x, utoi(y));
       return (s > 0)? utoipos(q): utoineg(q);
     }
   } else x = icopy(x);
-  avma = av;
+  set_avma(av);
   z = diviuexact_i(x, y);
   setsigne(z, s); return z;
 }
@@ -1173,7 +1173,7 @@ diviiexact(GEN x, GEN y)
     x = shifti(x,-vy); lx = lgefint(x);
   }
   else x = icopy(x); /* necessary because we destroy x */
-  avma = av; /* will erase our x,y when exiting */
+  set_avma(av); /* will erase our x,y when exiting */
   /* now y is odd */
   ly = lgefint(y);
   if (ly == 3)
@@ -1471,7 +1471,7 @@ muliifft_dit(ulong o, ulong ord, GEN M, GEN FFT, long d, long step)
     GEN b = Zf_mulsqrt2(Zf_sub(gel(FFT,i), gel(FFT,i+hstep), M), j, ord, M);
     affii(a,gel(FFT,i));
     affii(b,gel(FFT,i+hstep));
-    avma = av;
+    set_avma(av);
   }
   if (hstep>1)
   {
@@ -1500,7 +1500,7 @@ muliifft_dis(ulong o, ulong ord, GEN M, GEN FFT, long d, long step)
     GEN b = Zf_sub(gel(FFT,i), z, M);
     affii(a,gel(FFT,i));
     affii(b,gel(FFT,i+hstep));
-    avma = av;
+    set_avma(av);
   }
 }
 
@@ -2150,10 +2150,10 @@ sqrtr_abs(GEN x)
     setlg(a, l1 + 2);
     setlg(t, l1 + 2);
     affrr(addrr(t, divrr(a,t)), t); shiftr_inplace(t, -1);
-    avma = av;
+    set_avma(av);
   }
   affrr(t,y); shiftr_inplace(y, (ex>>1));
-  avma = av0; return y;
+  set_avma(av0); return y;
 }
 
 #endif

@@ -84,7 +84,7 @@ direuler_bad(void *E, GEN (*eval)(void *,GEN,long), GEN a,GEN b,GEN c, GEN Sbad)
   X = c ? direulertou(c, gfloor): bu;
   if (X == 0) return cgetg(1,t_VEC);
   if (bu > X) bu = X;
-  if (!u_forprime_init(&T, au, bu)) { avma = av0; return mkvec(gen_1); }
+  if (!u_forprime_init(&T, au, bu)) { set_avma(av0); return mkvec(gen_1); }
   v = vecsmall_ei(X, 1);
   V = vec_ei(X, 1);
   n = 1;

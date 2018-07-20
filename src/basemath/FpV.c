@@ -669,7 +669,7 @@ Flm_mul_sw(GEN A, GEN B, long m, long n, long p, ulong l, ulong li)
     gerepileall(av, 3, &M3, &M7, &V2);  /* destroy V1, M2 */
   add_slices_ip(m2, p1, V2, 0, m2, 0, p1, M7, 0, m2, 0, p1, C, m1, 0, l);
   add_slices_ip(m2, p2, V2, 0, m2, 0, p2, M3, 0, m2, 0, p2, C, m1, p1, l);
-  avma = av; return C;
+  set_avma(av); return C;
 }
 
 /* Strassen-Winograd used for dim >= ZM_sw_bound */
@@ -1004,7 +1004,7 @@ FpM_FpC_mul_FpX(GEN x, GEN y, GEN p, long v)
       gel(z,i+1) = gerepileuptoint(av, p1);
       break;
     }
-    avma = av;
+    set_avma(av);
   }
   if (!i) { avma = (pari_sp)(z + l+1); return pol_0(v); }
   z[0] = evaltyp(t_POL) | evallg(i+2);
@@ -1336,7 +1336,7 @@ gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p)
       }
     }
     b = FpX_renormalize(b, m+2);
-    if (lgpol(b)==0) {avma = btop; continue; }
+    if (lgpol(b)==0) {set_avma(btop); continue; }
     M = FpX_halfgcd(b, pol_xn(m, 0), p);
     Q = FpX_neg(FpX_normalize(gcoeff(M, 2, 1),p),p);
     W = B; lQ =lg(Q);
@@ -1365,7 +1365,7 @@ gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p)
         return gerepilecopy(ltop, shallowtrans(V));
       gerepileall(av, 2, &V, &W);
     }
-    avma = btop;
+    set_avma(btop);
   }
   return NULL;
 }
@@ -1538,7 +1538,7 @@ ZpMs_ZpCs_solve(GEN M, GEN A, long nbrow, GEN p, long e)
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
   RgMs_structelim(M, nbrow, gel(A, 1), &pcol, &prow);
-  if (!pcol) { avma = av; return NULL; }
+  if (!pcol) { set_avma(av); return NULL; }
   if (DEBUGLEVEL)
     timer_printf(&ti,"structured elimination (%ld -> %ld)",nbi,lg(pcol)-1);
   n = lg(pcol)-1;
@@ -1549,7 +1549,7 @@ ZpMs_ZpCs_solve(GEN M, GEN A, long nbrow, GEN p, long e)
   if (DEBUGLEVEL) timer_start(&ti);
   Rp = gen_ZpM_Dixon((void*)Mp,wrap_relcomb, Ap, p, e);
   if (DEBUGLEVEL) timer_printf(&ti,"linear algebra");
-  if (!Rp) { avma = av; return NULL; }
+  if (!Rp) { set_avma(av); return NULL; }
   lR = lg(Rp)-1;
   if (typ(Rp) == t_COL)
   {
@@ -1638,7 +1638,7 @@ FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p)
   struct wrapper_modp_s W;
   if (DEBUGLEVEL) timer_start(&ti);
   RgMs_structelim_col(M, nbcol, nbrow, cgetg(1,t_VECSMALL), &pcol, &prow);
-  if (!pcol) { avma = av; return NULL; }
+  if (!pcol) { set_avma(av); return NULL; }
   if (DEBUGLEVEL)
     timer_printf(&ti,"structured elimination (%ld -> %ld)",nbcol,lg(pcol)-1);
   n = lg(pcol)-1;
@@ -1651,7 +1651,7 @@ FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p)
   av2 = avma;
   for(;;)
   {
-    avma = av2;
+    set_avma(av2);
     B = random_FpV(n, p);
     MB = FpV_FpMs_mul(B, Mp, p);
     if (DEBUGLEVEL) timer_start(&ti);

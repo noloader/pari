@@ -317,10 +317,10 @@ isperm(GEN v)
   for (i=1; i<=n; i++)
   {
     long d = v[i];
-    if (d < 1 || d > n || w[d]) { avma = av; return 0; }
+    if (d < 1 || d > n || w[d]) { set_avma(av); return 0; }
     w[d] = 1;
   }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 /* Output the order of p */
@@ -331,7 +331,7 @@ perm_order(GEN v)
   GEN c = vecperm_orbits_i(mkvec(v), lg(v)-1);
   long i, d;
   for(i=1, d=1; i<lg(c); i++) d = ulcm(d, lg(gel(c,i))-1);
-  avma = ltop; return d;
+  set_avma(ltop); return d;
 }
 
 long
@@ -350,7 +350,7 @@ perm_sign(GEN v)
   long i, l = lg(c), s = 1;
   for (i = 1; i < l; i++)
     if (odd(lg(gel(c, i)))) s = -s;
-  avma = av; return s;
+  set_avma(av); return s;
 }
 
 long
@@ -377,7 +377,7 @@ Z_to_perm(long n, GEN x)
       if (uel(v,i) > a) uel(v,i)++;
     uel(v,r) = a+1;
   }
-  avma = av; return v;
+  set_avma(av); return v;
 }
 GEN
 numtoperm(long n, GEN x)
@@ -502,7 +502,7 @@ perm_pow(GEN perm, long exp)
       if (++l == n) l = 0;
     }
   }
-  avma = av; return p;
+  set_avma(av); return p;
 }
 
 static GEN
@@ -594,7 +594,7 @@ perm_relorder(GEN p, GEN set)
   long n = 1;
   long q = p[1];
   while (!F2v_coeff(set,q)) { q = p[q]; n++; }
-  avma = ltop; return n;
+  set_avma(ltop); return n;
 }
 
 GEN
@@ -694,7 +694,7 @@ group_set(GEN G, long n)
   long i, l = lg(elts);
   for(i=1; i<l; i++)
     F2v_set(res,mael(elts,i,1));
-  avma = av;
+  set_avma(av);
   return res;
 }
 
@@ -845,7 +845,7 @@ group_perm_normalize(GEN N, GEN g)
   pari_sp ltop = avma;
   long r = gequal(vecvecsmall_sort(group_leftcoset(N, g)),
                   vecvecsmall_sort(group_rightcoset(N, g)));
-  avma = ltop; return r;
+  set_avma(ltop); return r;
 }
 
 /* L is a list of subgroups, C is a coset and r a relative order.*/
@@ -1036,7 +1036,7 @@ group_abelianHNF(GEN G, GEN S)
     P = perm_pow(gel(g,i), o[i]);
     for(j=1; j<lg(S); j++)
       if (zv_equal(P, gel(S,j))) break;
-    avma = av;
+    set_avma(av);
     if (j==lg(S)) pari_err_BUG("galoisisabelian [inconsistent group]");
     j--;
     for(k=1; k<i; k++)
@@ -1147,7 +1147,7 @@ groupelts_conjclasses(GEN elts, long *pnbcl)
         GEN h = perm_conj(gel(elts,j), g);
         long i2 = gen_search(elts,h,0,(void*)&vecsmall_lexcmp,&cmp_nodata);
         c[i2] = cl;
-        avma = av;
+        set_avma(av);
       }
   }
   if (pnbcl) *pnbcl = cl;

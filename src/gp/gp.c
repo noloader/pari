@@ -346,7 +346,7 @@ gp_main_loop(long ismain)
       tmp_restore(rec.file.file);
       gp_context_save(&rec);
     }
-    avma = av = pari_mainstack->top;
+    set_avma(av = pari_mainstack->top);
     parivstack_reset();
     kill_buffers_upto(b);
     pari_alarm(0);
@@ -382,7 +382,7 @@ gp_main_loop(long ismain)
     if (GP_DATA->simplify) z = simplify_shallow(z);
     pari_add_hist(z, t);
     if (z != gnil && ! is_silent(b->buf) ) gp_output(z);
-    avma = av;
+    set_avma(av);
     parivstack_reset();
   }
 }
@@ -449,7 +449,7 @@ break_loop(int numerr)
   {
     GEN x;
     long er, br_status;
-    avma = av;
+    set_avma(av);
     gp_context_save(&rec2);
     if ((er=setjmp(env[nenv])))
     {

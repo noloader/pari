@@ -146,10 +146,10 @@ millerrabin(GEN n, long k)
   {
     do r = umodui(pari_rand(), n); while (!r);
     if (DEBUGLEVEL > 4) err_printf("Miller-Rabin: testing base %ld\n", r);
-    if (bad_for_base(&S, utoipos(r))) { avma = av; return 0; }
-    avma = av2;
+    if (bad_for_base(&S, utoipos(r))) { set_avma(av); return 0; }
+    set_avma(av2);
   }
-  avma = av; return 1;
+  set_avma(av); return 1;
 }
 
 GEN
@@ -229,9 +229,9 @@ MR_Jaeschke(GEN n)
   if (lgefint(n) == 3) return Fl_MR_Jaeschke(uel(n,2), 17);
   if (!mod2(n)) return 0;
   av = avma; init_MR_Jaeschke(&S, n);
-  if (bad_for_base(&S, utoipos(31))) { avma = av; return 0; }
-  if (bad_for_base(&S, utoipos(73))) { avma = av; return 0; }
-  avma = av; return 1;
+  if (bad_for_base(&S, utoipos(31))) { set_avma(av); return 0; }
+  if (bad_for_base(&S, utoipos(73))) { set_avma(av); return 0; }
+  set_avma(av); return 1;
 }
 
 /*********************************************************************/
@@ -568,7 +568,7 @@ BPSW_psp(GEN N)
   av = avma;
   init_MR_Jaeschke(&S, N);
   k = (!bad_for_base(&S, gen_2) && IsLucasPsP(N));
-  avma = av; return k;
+  set_avma(av); return k;
 }
 
 /* can we write n = x^k ? Assume N has no prime divisor <= 2^14.
@@ -603,11 +603,11 @@ BPSW_psp_nosmalldiv(GEN N)
    * compositeness test times */
   if (bit_accuracy(l) > 512 && isanypower_nosmalldiv(N, &N) != 1)
   {
-    avma = av; return 0;
+    set_avma(av); return 0;
   }
   init_MR_Jaeschke(&S, N);
   k = (!bad_for_base(&S, gen_2) && IsLucasPsP(N));
-  avma = av; return k;
+  set_avma(av); return k;
 }
 
 /***********************************************************************/
@@ -640,7 +640,7 @@ pl831(GEN N, GEN p)
   GEN b, c, g, Nmunp = diviiexact(subiu(N,1), p);
   pari_sp av = avma;
   ulong a;
-  for(a = 2;; a++, avma = av)
+  for(a = 2;; a++, set_avma(av))
   {
     b = Fp_pow(utoipos(a), Nmunp, N);
     if (!equali1(b)) break;
@@ -818,7 +818,7 @@ BPSW_isprime(GEN N)
     t = expi(N) < 768? isprimeAPRCL(N): isprimeECPP(N);
   else
     t = (typ(P) == t_INT)? 0: PL_certify(N,P);
-  avma = av; return t;
+  set_avma(av); return t;
 }
 
 static long
@@ -826,7 +826,7 @@ _isprimePL(GEN x)
 {
   pari_sp av = avma;
   if (!BPSW_psp(x)) return 0;
-  x = isprimePL(x); avma = av; return !isintzero(x);
+  x = isprimePL(x); set_avma(av); return !isintzero(x);
 }
 GEN
 gisprime(GEN x, long flag)
@@ -1084,7 +1084,7 @@ uprime(long N)
   if (N <= 0) pari_err_DOMAIN("prime", "n", "<=",gen_0, stoi(N));
   p = prime_table_find_n(N);
   if (lgefint(p) != 3) pari_err_OVERFLOW("uprime");
-  avma = av; return p[2];
+  set_avma(av); return p[2];
 }
 GEN
 prime(long N)
@@ -1094,7 +1094,7 @@ prime(long N)
   if (N <= 0) pari_err_DOMAIN("prime", "n", "<=",gen_0, stoi(N));
   new_chunk(4); /*HACK*/
   p = prime_table_find_n(N);
-  avma = av; return icopy(p);
+  set_avma(av); return icopy(p);
 }
 
 /* random b-bit prime */
@@ -1154,7 +1154,7 @@ randomprime(GEN N)
   {
     GEN p = addii(a, randomi(d));
     if (BPSW_psp(p)) return gerepileuptoint(av, p);
-    avma = av2;
+    set_avma(av2);
   }
 }
 
@@ -1230,7 +1230,7 @@ primepi(GEN x)
   long i, l;
   if (typ(N) != t_INT) pari_err_TYPE("primepi",N);
   if (signe(N) <= 0) return gen_0;
-  avma = av; l = lgefint(N);
+  set_avma(av); l = lgefint(N);
   if (l == 3) return utoi(uprimepi(N[2]));
   i = prime_table_len-1;
   p = prime_table[i].p;
@@ -1280,7 +1280,7 @@ gprimepi_upper_bound(GEN x)
   if (typ(x) != t_INT) x = gfloor(x);
   if (expi(x) <= 1022)
   {
-    avma = av;
+    set_avma(av);
     return dbltor(primepi_upper_bound(gtodouble(x)));
   }
   x = itor(x, LOWDEFAULTPREC);
@@ -1297,7 +1297,7 @@ gprimepi_lower_bound(GEN x)
   if (abscmpiu(x, 55) <= 0) return gen_0;
   if (expi(x) <= 1022)
   {
-    avma = av;
+    set_avma(av);
     return dbltor(primepi_lower_bound(gtodouble(x)));
   }
   x = itor(x, LOWDEFAULTPREC);
@@ -1364,10 +1364,10 @@ primes_interval(GEN a, GEN b)
   }
   if (signe(a) < 0) a = gen_2;
   d = subii(b, a);
-  if (signe(d) < 0 || signe(b) <= 0) { avma = av; return cgetg(1, t_VEC); }
+  if (signe(d) < 0 || signe(b) <= 0) { set_avma(av); return cgetg(1, t_VEC); }
   if (lgefint(b) == 3)
   {
-    avma = av;
+    set_avma(av);
     y = primes_interval_zv(itou(a), itou(b));
     n = lg(y); settyp(y, t_VEC);
     for (i = 1; i < n; i++) gel(y,i) = utoipos(y[i]);
@@ -1398,7 +1398,7 @@ primes_interval_i(ulong a, ulong b, ulong d)
   pari_sp av = avma;
   u_forprime_init(&S, a, b);
   while ((p = u_forprime_next(&S))) y[i++] = p;
-  avma = av; setlg(y, i); stackdummy((pari_sp)(y + i), (pari_sp)(y + n+1));
+  set_avma(av); setlg(y, i); stackdummy((pari_sp)(y + i), (pari_sp)(y + n+1));
   return y;
 }
 GEN
@@ -1518,7 +1518,7 @@ addp(GEN *T, GEN p)
     for (i = 1; i < l; i++) gel(t,i) = gel(p,i);
     *T = t; gunclone(old);
   }
-  avma = av; return *T;
+  set_avma(av); return *T;
 }
 GEN
 addprimes(GEN p) { return addp(&primetab, p); }

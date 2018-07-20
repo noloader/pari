@@ -106,7 +106,7 @@ mpatan(GEN x)
   {
     p5 = addsr(1, sqrr(p2)); setprec(p5,l2);
     p5 = addsr(1, sqrtr_abs(p5)); setprec(p5,l2);
-    affrr(divrr(p2,p5), p2); avma = av;
+    affrr(divrr(p2,p5), p2); set_avma(av);
   }
   p3 = sqrr(p2); l1 = minss(LOWDEFAULTPREC+EXTRAPRECWORD, l2); /* l1 increases to l2 */;
   unr = real_1(l2); setprec(unr,l1);
@@ -118,7 +118,7 @@ mpatan(GEN x)
     setprec(p3,l1); p5 = mulrr(p4,p3);
     l1 += dvmdsBIL(s - e, &s); if (l1 > l2) l1 = l2;
     setprec(unr,l1); p5 = subrr(divru(unr,2*i-1), p5);
-    setprec(p4,l1); affrr(p5,p4); avma = av;
+    setprec(p4,l1); affrr(p5,p4); set_avma(av);
   }
   setprec(p3, l2); p5 = mulrr(p4,p3); /* i = 1 */
   setprec(unr,l2); p4 = subrr(unr, p5);
@@ -126,7 +126,7 @@ mpatan(GEN x)
   p4 = mulrr(p2,p4); shiftr_inplace(p4, m);
   if (inv) p4 = subrr(Pi2n(-1, lp), p4);
   if (sx < 0) togglesign(p4);
-  affrr_fixlg(p4,y); avma = av0; return y;
+  affrr_fixlg(p4,y); set_avma(av0); return y;
 }
 
 GEN
@@ -271,7 +271,7 @@ gacos(GEN x, long prec)
       if (lg(y) > 2)
       {
         p1 = gsubsg(1,gsqr(y));
-        if (gequal0(p1)) { avma = av; return zeroser(varn(y), valp(p1)>>1); }
+        if (gequal0(p1)) { set_avma(av); return zeroser(varn(y), valp(p1)>>1); }
         p1 = integser(gdiv(gneg(derivser(y)), gsqrt(p1,prec)));
         /*y(t) = 1+O(t)*/
         if (gequal1(gel(y,2)) && !valp(y)) return gerepileupto(av, p1);
@@ -424,7 +424,7 @@ mpsinh(GEN x)
     z = subrr(z, invr(z));
   }
   shiftr_inplace(z, -1);
-  affrr(z, res); avma = av; return res;
+  affrr(z, res); set_avma(av); return res;
 }
 
 GEN
@@ -571,7 +571,7 @@ mpasinh(GEN x)
   if (ex < 1 - BITS_IN_LONG) x = rtor(x, lx + nbits2extraprec(-ex)-1);
   z = logr_abs( addrr_sign(x,1, sqrtr_abs( addrs(sqrr(x), 1) ), 1) );
   if (signe(x) < 0) togglesign(z);
-  affrr(z, res); avma = av; return res;
+  affrr(z, res); set_avma(av); return res;
 }
 
 GEN
@@ -671,7 +671,7 @@ gacosh(GEN x, long prec)
         return gerepileupto(av, gadd(y, PiI2n(-1, prec)));
       }
       p1 = gsubgs(gsqr(y),1);
-      if (gequal0(p1)) { avma = av; return zeroser(varn(y), valp(p1)>>1); }
+      if (gequal0(p1)) { set_avma(av); return zeroser(varn(y), valp(p1)>>1); }
       p1 = gdiv(derivser(y), gsqrt(p1,prec));
       a = integser(p1);
       if (v)
@@ -811,7 +811,7 @@ mpbern(long nb, long prec)
     gel(B,5) = gclone(mkfrac(utoipos(5), utoipos(66)));
     n = BERN_MINNB+1;
   }
-  avma = av;
+  set_avma(av);
   if (DEBUGLEVEL) {
     err_printf("caching Bernoulli numbers 2 to 2*%ld, prec = %ld\n",
                nb, prec == LONG_MAX? 0: prec);
@@ -821,7 +821,7 @@ mpbern(long nb, long prec)
   /* B_{2n} = (2n-1) / (4n+2) -
    * sum_{a = 1}^{n-1} (2n)...(2n+2-2a) / (2...(2a-1)2a) B_{2a} */
   n_is_small = 1;
-  for (; n <= nb; n++, avma = av)
+  for (; n <= nb; n++, set_avma(av))
   { /* compute and store B[n] = B_{2n} */
     GEN S;
     if (n < lbern)
@@ -870,7 +870,7 @@ mpbern(long nb, long prec)
     }
     killblock(B);
   }
-  avma = av;
+  set_avma(av);
 }
 
 GEN
@@ -1153,11 +1153,11 @@ cxgamma(GEN s0, int dolog, long prec)
       }
       else
       {
-        if (isint1(s0)) { avma = av; return dolog? real_0(prec): real_1(prec); }
+        if (isint1(s0)) { set_avma(av); return dolog? real_0(prec): real_1(prec); }
         y = lngamma1(gsubgs(s0,1),prec);
         if (!dolog) y = gexp(y,prec);
       }
-      avma = av; return affc_fixlg(y, res);
+      set_avma(av); return affc_fixlg(y, res);
     }
     dcxlog(ssig,st, &rlogs,&ilogs);
     /* Re (s - 1/2) log(s) */
@@ -1335,7 +1335,7 @@ cxgamma(GEN s0, int dolog, long prec)
       y = gdiv(sqrtpi2, y);
     y = gmul(gexp(p1, prec), y);
   }
-  avma = av; return affc_fixlg(y, res);
+  set_avma(av); return affc_fixlg(y, res);
 }
 
 /* Gamma((m+1) / 2) */
@@ -1350,7 +1350,7 @@ gammahs(long m, long prec)
   {
     z = stor(m + 1, prec); shiftr_inplace(z, -1);
     affrr(cxgamma(z,0,prec), y);
-    avma = av; return y;
+    set_avma(av); return y;
   }
   z = sqrtr( mppi(prec) );
   if (m)
@@ -1366,7 +1366,7 @@ gammahs(long m, long prec)
     }
     shiftr_inplace(z, v);
   }
-  affrr(z, y); avma = av; return y;
+  affrr(z, y); set_avma(av); return y;
 }
 GEN
 ggammah(GEN x, long prec)
@@ -1396,7 +1396,7 @@ nboft(long k, long p)
 
   if (k <= 0) return 0;
   k = itou( gceil(gdiv(mului(k, sqru(p)), sqru(p-1))) );
-  avma = av;
+  set_avma(av);
   for (s=0, n=0; n+s < k; n++, s += u_lval(n, p));
   return n;
 }
@@ -1625,7 +1625,7 @@ mpfactr(long n, long prec)
     affrr(cxgamma(stor(n+1, prec), 0, prec), f);
   else
     affir(mpfact(n), f);
-  avma = av; return f;
+  set_avma(av); return f;
 }
 
 GEN
@@ -1778,7 +1778,7 @@ cxpsi(GEN s0, long prec)
     GEN pi = mppi(prec);
     z = gadd(z, gmul(pi, gcotan(gmul(pi,s), prec)));
   }
-  avma = av; return affc_fixlg(z, res);
+  set_avma(av); return affc_fixlg(z, res);
 }
 
 /* n > 0; return psi(1+x) + O(x^n), x = pol_x(v) */

@@ -295,7 +295,7 @@ gprl_input(char **endp, int first, input_method *IM, filtre_t *F)
     p = F->in_comment ? GP_DATA->prompt_comment: IM->prompt_cont;
     p = gp_format_prompt(p);
   }
-  if (! (s = readline(p)) ) { avma = av; return NULL; } /* EOF */
+  if (! (s = readline(p)) ) { set_avma(av); return NULL; } /* EOF */
   gp_add_history(s); /* Makes a copy */
   l = strlen(s) + 1;
   /* put back \n that readline stripped. This is needed for
@@ -313,7 +313,7 @@ gprl_input(char **endp, int first, input_method *IM, filtre_t *F)
     fix_buffer(b, b->len + incr);
     *endp = b->buf + used;
   }
-  avma = av; return t;
+  set_avma(av); return t;
 }
 
 /* request one line interactively.

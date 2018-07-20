@@ -108,7 +108,7 @@ ZpX_HenselLift(GEN V, GEN W, long j, GEN f, GEN pd, GEN p0, GEN p1, int noinv)
   t = FpX_red(t, pd);
   t = ZX_Z_mul(t,p0);
   s = ZX_Z_mul(s,p0);
-  avma = av;
+  set_avma(av);
   a2 = ZX_add(a,s);
   b2 = ZX_add(b,t);
 
@@ -129,7 +129,7 @@ ZpX_HenselLift(GEN V, GEN W, long j, GEN f, GEN pd, GEN p0, GEN p1, int noinv)
   t = FpX_red(t, pd);
   t = ZX_Z_mul(t,p0);
   s = ZX_Z_mul(s,p0);
-  avma = av;
+  set_avma(av);
   gel(W,j)   = ZX_add(u,t);
   gel(W,j+1) = ZX_add(v,s);
 }
@@ -155,7 +155,7 @@ ZpXQ_HenselLift(GEN V, GEN W, long j, GEN f, GEN Td, GEN T1, GEN pd, GEN p0, GEN
   t = FpXQX_red(t, Td, pd);
   t = RgX_Rg_mul(t,p0);
   s = RgX_Rg_mul(s,p0);
-  avma = av;
+  set_avma(av);
 
   a2 = RgX_add(a,s);
   b2 = RgX_add(b,t);
@@ -178,7 +178,7 @@ ZpXQ_HenselLift(GEN V, GEN W, long j, GEN f, GEN Td, GEN T1, GEN pd, GEN p0, GEN
   t = FpXQX_red(t, Td, pd);
   t = RgX_Rg_mul(t,p0);
   s = RgX_Rg_mul(s,p0);
-  avma = av;
+  set_avma(av);
   gel(W,j)   = RgX_add(u,t);
   gel(W,j+1) = RgX_add(v,s);
 }
@@ -836,7 +836,7 @@ ZpXQX_divrem(GEN x, GEN Sp, GEN T, GEN q, GEN p, long e, GEN *pr)
   bi = ZpXQ_inv(b, T, p, e);
   S2 = FqX_Fq_mul_to_monic(S, bi, T, q);
   Q = FpXQX_divrem(x, S2, T, q, pr);
-  if (pr==ONLY_DIVIDES && !Q) { avma = av; return NULL; }
+  if (pr==ONLY_DIVIDES && !Q) { set_avma(av); return NULL; }
   if (pr==ONLY_REM || pr==ONLY_DIVIDES) return gerepileupto(av, Q);
   Q = FpXQX_FpXQ_mul(Q, bi, T, q);
   gerepileall(av, 2, &Q, pr);
