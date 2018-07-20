@@ -2240,34 +2240,38 @@ END:
 /*******************************************************************/
 struct huntcond_t {
   long k;
-  GEN data, thetad;
+  GEN theta, thetad;
   GEN *pM, *psqrtM, *pMd, *psqrtMd;
 };
+
+static void
+condset(struct huntcond_t *S, GEN M, long prec)
+{
+  *(S->pM) = M;
+  *(S->psqrtM) = gsqrt(M, prec);
+  if (S->thetad != S->theta)
+  {
+    *(S->pMd) = *(S->pM);
+    *(S->psqrtMd) = *(S->psqrtM);
+  }
+}
 
 /* M should eventually converge to N, the conductor. L has no pole. */
 static GEN
 wrap1(void *E, GEN M)
 {
   struct huntcond_t *S = (struct huntcond_t*)E;
-  GEN data = S->data, thetainit, tk, p1, p1inv;
+  GEN thetainit, tk, p1, p1inv;
   GEN t = mkfrac(stoi(11), stoi(10));
   long prec, bitprec;
 
-  thetainit = linit_get_tech(data);
+  thetainit = linit_get_tech(S->theta);
   bitprec = theta_get_bitprec(thetainit);
   prec = nbits2prec(bitprec);
-  *(S->pM) = M;
-  *(S->psqrtM) = gsqrt(M, prec);
+  condset(S, M, prec);
   tk = gpowgs(t, S->k);
-  if (S->thetad)
-  {
-    *(S->pMd) = M;
-    *(S->psqrtMd) = *(S->psqrtM);
-    p1 = lfuntheta(S->thetad, t, 0, bitprec);
-  }
-  else
-    p1 = lfuntheta(data, t, 0, bitprec);
-  p1inv = lfuntheta(data, ginv(t), 0, bitprec);
+  p1 = lfuntheta(S->thetad, t, 0, bitprec);
+  p1inv = lfuntheta(S->theta, ginv(t), 0, bitprec);
   return glog(gabs(gmul(tk, gdiv(p1, p1inv)), prec), prec);
 }
 
@@ -2276,23 +2280,21 @@ static GEN
 wrap2(void *E, GEN M)
 {
   struct huntcond_t *S = (struct huntcond_t*)E;
-  GEN data = S->data, t1k, t2k, p1, p1inv, p2, p2inv;
-  GEN thetainit, R;
+  GEN t1k, t2k, p1, p1inv, p2, p2inv, thetainit, R;
   GEN t1 = mkfrac(stoi(11), stoi(10)), t2 = mkfrac(stoi(13), stoi(11));
   GEN t1be, t2be, t1bemk, t2bemk, t1kmbe, t2kmbe;
   GEN F11, F12, F21, F22, P1, P2, res;
   long k = S->k, prec, bitprec;
 
-  thetainit = linit_get_tech(data);
+  thetainit = linit_get_tech(S->theta);
   bitprec = theta_get_bitprec(thetainit);
   prec = nbits2prec(bitprec);
-  *(S->pM) = M;
-  *(S->psqrtM) = gsqrt(M, prec);
+  condset(S, M, prec);
 
-  p1 = lfuntheta(data, t1, 0, bitprec);
-  p2 = lfuntheta(data, t2, 0, bitprec);
-  p1inv = lfuntheta(data, ginv(t1), 0, bitprec);
-  p2inv = lfuntheta(data, ginv(t2), 0, bitprec);
+  p1 = lfuntheta(S->thetad, t1, 0, bitprec);
+  p2 = lfuntheta(S->thetad, t2, 0, bitprec);
+  p1inv = lfuntheta(S->theta, ginv(t1), 0, bitprec);
+  p2inv = lfuntheta(S->theta, ginv(t2), 0, bitprec);
   t1k = gpowgs(t1, k);
   t2k = gpowgs(t2, k);
   R = theta_get_R(thetainit);
@@ -2387,8 +2389,8 @@ lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
   thetad = theta_dual(theta, ldata_get_dual(ldata));
   gel(theta,3) = shallowcopy(linit_get_tech(theta));
   S.k = ldata_get_k(ldata);
-  S.data = theta;
-  S.thetad = thetad;
+  S.theta = theta;
+  S.thetad = thetad? thetad: theta;
   S.pM = &gel(linit_get_ldata(theta),5);
   S.psqrtM = &gel(linit_get_tech(theta),7);
   if (thetad)
