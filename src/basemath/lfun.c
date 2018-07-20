@@ -872,7 +872,6 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
     if (theta_get_m(thetainit) > 0) vecan = antwist(vecan, Vga, prec);
     if (d == 1) S = theta1(vecan, limt, t, gel(Vga,1), prec);
     else        S = theta2(vecan, limt, t, vecmin(Vga), prec);
-    return gerepileupto(ltop, S);
   }
   else
   {
@@ -891,8 +890,8 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
       if ((n & 0x1ff) == 0) S = gerepileupto(av, S);
     }
     if (m) S = gdiv(S, gpowgs(sqN, m));
-    return gerepileupto(ltop, S);
   }
+  return gerepileupto(ltop, S);
 }
 
 /*******************************************************************/
@@ -1813,15 +1812,14 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   {
     GEN v = lfunprod_get_fact(linit_get_tech(lmisc)), F = gel(v,1);
     long i, b = -bitprec, l = lg(F);
-    for (i = 1; i < l; i++)
-      b = maxss(b, lfuncheckfeq(gel(F,i), t0, bitprec));
+    for (i = 1; i < l; i++) b = maxss(b, lfuncheckfeq(gel(F,i), t0, bitprec));
     return b;
   }
   av = avma;
   prec = nbits2prec(bitprec);
   if (!t0)
-  {
-    t0 = gadd(gdivgs(mppi(prec), 3), gdivgs(gen_I(), 7));
+  { /* Pi/3 + I/7, some random complex number */
+    t0 = mkcomplex(gdivgs(mppi(prec), 3), sstoQ(1,7));
     t0i = ginv(t0);
   }
   else if (gcmpgs(gnorm(t0), 1) < 0)
