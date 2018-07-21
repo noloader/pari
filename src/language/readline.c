@@ -118,7 +118,7 @@ init_prefix(const char *text, int *len, int *junk, char **TEXT)
 {
   long l = strlen(text), j = l-1;
   while (j >= 0 && is_keyword_char(text[j])) j--;
-  if (text[j] == '-' && j >= 7 && !strncmp(text+(j-7),"refcard",7)) j -= 8;
+  if (j >= 7 && text[j] == '-' && !strncmp(text+(j-7),"refcard",7)) j -= 8;
   j++;
   *TEXT = (char*)text + j;
   *junk = j;
