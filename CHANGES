@@ -3,6 +3,7 @@ Bug numbers refer to the BTS at http://pari.math.u-bordeaux.fr/Bugs/
 Done for version 2.12.0 (released ??/??/20??):
   Fixed
      1- memory leaks due to the use of varhigher/varlower
+     2- memory leak on error in plots
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

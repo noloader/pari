@@ -1770,19 +1770,24 @@ wxy_n(GEN wxy)
   return 0;/*LCOV_EXCL_LINE*/
 }
 static void
-wxy_init(GEN wxy, GEN W, GEN X, GEN Y, PARI_plot *T)
+wxy_init(GEN wxy, GEN *pW, GEN *pX, GEN *pY, PARI_plot *T)
 {
-  long i, l = lg(X);
+  long i, n = wxy_n(wxy);
+  GEN W, X, Y;
+  *pW = W = cgetg(n+1, t_VECSMALL); /* win number */
+  *pX = X = cgetg(n+1, t_VECSMALL);
+  *pY = Y = cgetg(n+1, t_VECSMALL); /* (x,y)-offset */
   if (typ(wxy) == t_INT)
   {
     W[1] = itos(wxy); check_rect_init(W[1]);
     X[1] = 0;
     Y[1] = 0; return;
   }
-  for (i = 1; i < l; i++)
+  for (i = 1; i <= n; i++)
   {
     GEN w = gel(wxy,3*i-2), x = gel(wxy,3*i-1), y = gel(wxy,3*i);
     if (typ(w) != t_INT) pari_err_TYPE("plotdraw",w);
+    W[i] = itos(w); check_rect_init(W[i]);
     if (T) {
       X[i] = DTOL(gtodouble(x)*(T->width - 1));
       Y[i] = DTOL(gtodouble(y)*(T->height - 1));
@@ -1790,23 +1795,24 @@ wxy_init(GEN wxy, GEN W, GEN X, GEN Y, PARI_plot *T)
       X[i] = gtos(x);
       Y[i] = gtos(y);
     }
-    W[i] = itos(w); check_rect_init(W[i]);
   }
 }
 /* if flag is set, rescale wrt T */
 static void
 gendraw(PARI_plot *T, GEN wxy, long flag)
 {
-  long n = wxy_n(wxy);
-  /* malloc mandatory in case draw() forks then pari_close() */
-  GEN W = cgetalloc(t_VECSMALL, n+1); /* win number */
-  GEN X = cgetalloc(t_VECSMALL, n+1);
-  GEN Y = cgetalloc(t_VECSMALL, n+1); /* (x,y)-offset */
-  wxy_init(wxy, W,X,Y, flag? T: NULL);
+  GEN w, x, y, W, X, Y;
+  long i, l;
+  wxy_init(wxy, &w,&x,&y, flag? T: NULL);
+  l = lg(w);
+  /* malloc mandatory in case draw() forks then pari_close(). Done after
+   * wxy_init to avoid leak on error */
+  W = cgetalloc(t_VECSMALL, l);
+  X = cgetalloc(t_VECSMALL, l);
+  Y = cgetalloc(t_VECSMALL, l);
+  for (i = 1; i < l; i++) { W[i] = w[i]; X[i] = x[i]; Y[i] = y[i]; }
   Draw(T,W,X,Y);
-  pari_free(W);
-  pari_free(X);
-  pari_free(Y);
+  pari_free(W); pari_free(X); pari_free(Y);
 }
 void
 psdraw(GEN wxy, long flag)
@@ -1819,13 +1825,10 @@ GEN
 plotexport(GEN fmt, GEN wxy, long flag)
 {
   pari_sp av = avma;
-  long n = wxy_n(wxy);
-  GEN w = cgetg(n+1, t_VECSMALL);
-  GEN x = cgetg(n+1, t_VECSMALL);
-  GEN y = cgetg(n+1, t_VECSMALL);
+  GEN w, x, y;
   PARI_plot _T, *T = flag? &_T: NULL;
   if (T) pari_get_plot(T);
-  wxy_init(wxy, w, x, y, T);
+  wxy_init(wxy, &w, &x, &y, T);
   return gerepileuptoleaf(av, fmt_convert(fmt, w, x, y, T));
 }
 
