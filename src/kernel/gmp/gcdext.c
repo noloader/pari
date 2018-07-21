@@ -48,11 +48,11 @@ invmod(GEN a, GEN b, GEN *res)
     /* na >= b */
     l = mpn_gcdext(LIMBS(d), LIMBS(u), &lu, LIMBS(ca), NLIMBS(ca), LIMBS(cb), NLIMBS(cb));
     d[1] = evalsigne(1)|evallgefint(l+2);
-    if (!is_pm1(d)) {avma=av; *res=icopy(d); return 0;}
+    if (!is_pm1(d)) {set_avma(av); *res=icopy(d); return 0;}
     su = lu?((sa ^ lu) < 0)? -1: 1: 0;
     u[1] = evalsigne(su) | evallgefint(labs(lu)+2);
     if (su < 0) u = addii(u, b);
-    avma=av; *res=icopy(u); return 1;
+    set_avma(av); *res=icopy(u); return 1;
   }
 }
 

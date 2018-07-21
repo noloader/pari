@@ -6132,7 +6132,7 @@ ellQ_height(GEN e, GEN a, long prec)
   psi3 = Q_numer( /* b8 + 3x b6 + 3x^2 b4 + x^3 b2 + 3 x^4 */
     poleval(mkvec5(b8, mului(3,b6), mului(3,b4), b2, utoipos(3)), x)
   );
-  if (!signe(psi3)) { avma=av; return gen_0; }
+  if (!signe(psi3)) { set_avma(av); return gen_0; }
   a1 = ell_get_a1(e);
   a2 = ell_get_a2(e);
   a4 = ell_get_a4(e);

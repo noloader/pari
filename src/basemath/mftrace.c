@@ -8298,7 +8298,7 @@ mfdim(GEN NK, long space)
     }
     else
     {
-      if (joker==2) { d = mfwtkdimsum(N,k,dk,space); avma=av; return utoi(d); }
+      if (joker==2) { d = mfwtkdimsum(N,k,dk,space); set_avma(av); return utoi(d); }
       D = mfwtkdims(N, k, dk, CHI, space);
     }
     if (!CHI) return gerepileupto(av, vecsort(D, mkvecsmall(1)));

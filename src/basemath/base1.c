@@ -294,7 +294,7 @@ tschirnhaus(GEN x)
   while (degpol(RgX_gcd(u,RgX_deriv(u)))); /* while u not separable */
   if (DEBUGLEVEL>1)
     err_printf("Tschirnhaus transform. New pol: %Ps",u);
-  avma=av2; return gerepileupto(av,u);
+  set_avma(av2); return gerepileupto(av,u);
 }
 
 /* Assume pol in Z[X], monic of degree n. Find L in Z such that
@@ -1078,7 +1078,7 @@ nfisisom(GEN a, GEN b)
   if (newvar) { a = leafcopy(a); setvarn(a, fetch_var_higher()); }
   y = lift_shallow(nfroots(nfb,a));
   if (newvar) (void)delete_var();
-  lx = lg(y); if (lx==1) { avma=av; return gen_0; }
+  lx = lg(y); if (lx==1) { set_avma(av); return gen_0; }
   if (sw) { vb = va; b = leafcopy(b); setvarn(b, vb); }
   for (i=1; i<lx; i++)
   {

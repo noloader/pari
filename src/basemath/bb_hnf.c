@@ -952,7 +952,7 @@ gen_solve_from_howell(GEN H, GEN ops, long m, long n, GEN Y, void* data, const s
   RgM_dimensions(H,&mH,&nH);
   n2 = maxss(n,m+1);
   Z = gen_reduce_mod_howell(H, Y, &X, data, R);
-  if (!gen_is_zerocol(Z,m,data,R)) { avma=av; return NULL; }
+  if (!gen_is_zerocol(Z,m,data,R)) { set_avma(av); return NULL; }
 
   X = shallowconcat(zerocol(n2-nH),X);
   for (i=lg(ops)-1; i>0; i--) gen_leftapply(X, gel(ops,i), data, R);

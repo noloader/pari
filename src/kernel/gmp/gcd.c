@@ -41,10 +41,10 @@ gcdii(GEN a, GEN b)
     if (!u) return absi(b);
     return igcduu((ulong)b[2], u);
   }
-  /* larger than gcd: "avma=av" gerepile (erasing t) is valid */
+  /* larger than gcd: "set_avma(av)" gerepile (erasing t) is valid */
   av = avma; (void)new_chunk(lgefint(b)+1); /* HACK */
   t = remii(a,b);
-  if (!signe(t)) { avma=av; return absi(b); }
+  if (!signe(t)) { set_avma(av); return absi(b); }
 
   a = b; b = t;
   v = vali(a); a = shifti(a,-v); setabssign(a);
@@ -52,10 +52,10 @@ gcdii(GEN a, GEN b)
   if (w < v) v = w;
   switch(abscmpii(a,b))
   {
-    case  0: avma=av; a=shifti(a,v); return a;
+    case  0: set_avma(av); a=shifti(a,v); return a;
     case -1: swap(a,b);
   }
-  if (is_pm1(b)) { avma=av; return int2n(v); }
+  if (is_pm1(b)) { set_avma(av); return int2n(v); }
  {
   /* general case */
   /*This serve two purposes: 1) mpn_gcd destroy its input and need an extra
@@ -67,7 +67,7 @@ gcdii(GEN a, GEN b)
   GEN cb = icopy_ef(b,lgefint(b)+1);
   long l = mpn_gcd(LIMBS(res), LIMBS(ca), NLIMBS(ca), LIMBS(cb), NLIMBS(cb));
   res[1] = evalsigne(1)|evallgefint(l+2);
-  avma=av;
+  set_avma(av);
   return shifti(res,v);
   }
 }

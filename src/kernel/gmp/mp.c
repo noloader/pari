@@ -889,7 +889,7 @@ DIVIDE: /* quotient is non-zero */
     if (q[lq - 1] == 0) lq--;
     if (z == ONLY_REM)
     {
-      avma=av; if (!si) return gen_0;
+      set_avma(av); if (!si) return gen_0;
       r=cgeti(3);
       r[1] = evalsigne(sx) | evallgefint(3);
       r[2] = si; return r;
@@ -911,7 +911,7 @@ DIVIDE: /* quotient is non-zero */
     if (!r[lr - 1])
     {
       while(lr>2 && !r[lr - 1]) lr--;
-      if (lr == 2) {avma=av; return gen_0;} /* exact division */
+      if (lr == 2) {set_avma(av); return gen_0;} /* exact division */
     }
     r[1] = evalsigne(sx) | evallgefint(lr);
     avma = (pari_sp) r; return r;

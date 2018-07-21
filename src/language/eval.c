@@ -616,7 +616,7 @@ closure_return(GEN C)
   if (br_status)
   {
     GEN z;
-    avma=ltop;
+    set_avma(ltop);
     z=br_res?gcopy(br_res):gnil;
     reset_break();
     return z;
@@ -1501,7 +1501,7 @@ closure_evalgen(GEN C)
 {
   pari_sp ltop=avma;
   closure_eval(C);
-  if (br_status) { avma=ltop; return NULL; }
+  if (br_status) { set_avma(ltop); return NULL; }
   return gerepileupto(ltop,gel(st,--sp));
 }
 
@@ -1595,7 +1595,7 @@ closure_evalvoid(GEN C)
 {
   pari_sp ltop=avma;
   closure_eval(C);
-  avma=ltop;
+  set_avma(ltop);
 }
 
 GEN

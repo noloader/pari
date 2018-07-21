@@ -662,7 +662,7 @@ modii(GEN x, GEN y)
     {
       pari_sp av = avma;
       (void)new_chunk(lgefint(y));
-      x = remii(x,y); avma=av;
+      x = remii(x,y); set_avma(av);
       if (x==gen_0) return x;
       return subiispec(y+2,x+2,lgefint(y)-2,lgefint(x)-2);
     }
@@ -673,7 +673,7 @@ void
 modiiz(GEN x, GEN y, GEN z)
 {
   const pari_sp av = avma;
-  affii(modii(x,y),z); avma=av;
+  affii(modii(x,y),z); set_avma(av);
 }
 
 GEN

@@ -2225,7 +2225,7 @@ idealfrobenius_hard(GEN nf, GEN gal, GEN aut, GEN pr)
       GEN A = nf_to_Fq(nf, zk_galoisapplymod(nf,X,S,p), modpr);
       /* sigma(X) = X^p (mod pr) and sigma(pi) in pr */
       if (ZX_equal(A, Xp) && (f == nf_get_degree(nf) ||
-          ZC_prdvd(zk_galoisapplymod(nf,pi,S,p),pr))) { avma=av; return g; }
+          ZC_prdvd(zk_galoisapplymod(nf,pi,S,p),pr))) { set_avma(av); return g; }
     }
   }
   return NULL; /* LCOV_EXCL_LINE */

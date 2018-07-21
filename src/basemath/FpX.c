@@ -398,7 +398,7 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
     if (pr)
     {
       av0 = avma; x = FpX_red(x, p);
-      if (pr == ONLY_DIVIDES) { avma=av0; return signe(x)? NULL: pol_0(vx); }
+      if (pr == ONLY_DIVIDES) { set_avma(av0); return signe(x)? NULL: pol_0(vx); }
       if (pr == ONLY_REM) return x;
       *pr = x;
     }
@@ -457,12 +457,12 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
       p1 = subii(p1, mulii(gel(z,j),gel(y,i-j)));
     p1 = modii(p1,p); if (signe(p1)) { sx = 1; break; }
     if (!i) break;
-    avma=av;
+    set_avma(av);
   }
   if (pr == ONLY_DIVIDES)
   {
     if (lead) gunclone(lead);
-    if (sx) { avma=av0; return NULL; }
+    if (sx) { set_avma(av0); return NULL; }
     avma = (pari_sp)rem; return z-2;
   }
   lr=i+3; rem -= lr;
@@ -1353,7 +1353,7 @@ FpX_divrem(GEN x, GEN T, GEN p, GEN *pr)
     pari_sp av=avma;
     GEN mg = B? B: FpX_invBarrett(y, p);
     GEN q1 = FpX_divrem_Barrett_noGC(x,mg,y,p,pr);
-    if (!q1) {avma=av; return NULL;}
+    if (!q1) {set_avma(av); return NULL;}
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q1);
     gerepileall(av,2,&q1,pr);
     return q1;
@@ -2067,7 +2067,7 @@ _FpXQ_rand(void *data)
   GEN z;
   do
   {
-    avma=av;
+    set_avma(av);
     z=random_FpX(get_FpX_degree(D->T),get_FpX_var(D->T),D->p);
   } while (!signe(z));
   return z;

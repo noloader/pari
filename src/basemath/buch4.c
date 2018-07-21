@@ -316,9 +316,9 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
     if (psquarenf(nf, leading_coeff(T),pr,zinit)) return 1;
   }
   repr = repres(nf,pr);
-  if (zpsolnf(nf,T,pr,0,gen_1,gen_0,repr,zinit)) { avma=av; return 1; }
+  if (zpsolnf(nf,T,pr,0,gen_1,gen_0,repr,zinit)) { set_avma(av); return 1; }
   p1 = pr_get_gen(pr);
-  if (zpsolnf(nf,RgX_recip_shallow(T),pr,1,p1,gen_0,repr,zinit)) { avma=av; return 1; }
+  if (zpsolnf(nf,RgX_recip_shallow(T),pr,1,p1,gen_0,repr,zinit)) { set_avma(av); return 1; }
 
   set_avma(av); return 0;
 }

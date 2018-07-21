@@ -4039,7 +4039,7 @@ RgM_deplin_i(GEN x0)
   long i, j, k, nl, nc = lg(x0)-1;
   GEN D, x, y, c, l, d, ck;
 
-  if (!nc) { avma=av; return NULL; }
+  if (!nc) { set_avma(av); return NULL; }
   nl = nbrows(x0);
   c = zero_zv(nl);
   l = cgetg(nc+1, t_VECSMALL); /* not initialized */
@@ -4391,7 +4391,7 @@ ker_aux(GEN x, GEN x0)
   long i,j,k,r,n;
 
   x = gauss_pivot_ker(x,x0,&d,&r);
-  if (!r) { avma=av; return cgetg(1,t_MAT); }
+  if (!r) { set_avma(av); return cgetg(1,t_MAT); }
   n = lg(x)-1; y=cgetg(r+1,t_MAT);
   for (j=k=1; j<=r; j++,k++)
   {
@@ -4942,7 +4942,7 @@ static void
 init_suppl(GEN x)
 {
   if (lg(x) == 1) pari_err_IMPL("suppl [empty matrix]");
-  /* HACK: avoid overwriting d from gauss_pivot() after avma=av */
+  /* HACK: avoid overwriting d from gauss_pivot() after set_avma(av) */
   (void)new_chunk(lgcols(x) * 2);
 }
 

@@ -1457,11 +1457,11 @@ ggcd(GEN x, GEN y)
         if (gequal0(gel(p1,3)))
         {
           p1=gel(p1,2);
-          if (typ(p1)==t_INT) { avma=av; return gcopy(y); }
+          if (typ(p1)==t_INT) { set_avma(av); return gcopy(y); }
           tetpil=avma; return gerepile(av,tetpil, gdiv(y,gel(p1,2)));
         }
-        if (typ(gel(p1,2))==t_INT && typ(gel(p1,3))==t_INT) {avma=av; return gcopy(y);}
-        p1 = ginv(p1); avma=av;
+        if (typ(gel(p1,2))==t_INT && typ(gel(p1,3))==t_INT) {set_avma(av); return gcopy(y);}
+        p1 = ginv(p1); set_avma(av);
         if (typ(gel(p1,2))==t_INT && typ(gel(p1,3))==t_INT) return gcopy(x);
         return triv_cont_gcd(y,x);
 
@@ -1819,7 +1819,7 @@ content(GEN x)
       c = content(gel(x,1));
       for (j=2; j<lx; j++)
         for (i=1; i<hx; i++) c = ggcd(c,gcoeff(x,i,j));
-      if (typ(c) == t_INTMOD || isinexact(c)) { avma=av; return gen_1; }
+      if (typ(c) == t_INTMOD || isinexact(c)) { set_avma(av); return gen_1; }
       return gerepileupto(av,c);
     }
 
@@ -1842,7 +1842,7 @@ content(GEN x)
     while (lx-- > lontyp[tx])
     {
       c = gcdii(c, gel(x,lx));
-      if (equali1(c)) { avma=av; return gen_1; }
+      if (equali1(c)) { set_avma(av); return gen_1; }
     }
   }
   else
@@ -1854,7 +1854,7 @@ content(GEN x)
       t = typ(d); if (is_matvec_t(t)) d = content(d);
       c = ggcd(c, d);
     }
-    if (isinexact(c)) { avma=av; return gen_1; }
+    if (isinexact(c)) { set_avma(av); return gen_1; }
   }
   switch(typ(c))
   {
@@ -2614,7 +2614,7 @@ RgXQ_ratlift(GEN x, GEN T, long amax, long bmax, GEN *P, GEN *Q)
   for(;;)
   {
     (void) subres_step(&u, &v, &g, &h, &uze, &um1, &signh);
-    if (!u || (typ(uze)==t_POL && degpol(uze)>bmax)) { avma=av; return 0; }
+    if (!u || (typ(uze)==t_POL && degpol(uze)>bmax)) { set_avma(av); return 0; }
     if (typ(v)!=t_POL || degpol(v)<=amax) break;
     if (gc_needed(av2,1))
     {

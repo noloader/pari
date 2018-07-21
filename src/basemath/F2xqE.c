@@ -258,7 +258,7 @@ random_F2xqE(GEN a, GEN a6, GEN T)
     {
       GEN a2 = a, x2;
       if (!lgpol(x))
-        { avma=ltop; retmkvec2(pol0_Flx(T[1]), F2xq_sqrt(a6,T)); }
+        { set_avma(ltop); retmkvec2(pol0_Flx(T[1]), F2xq_sqrt(a6,T)); }
       u = x; x2  = F2xq_sqr(x, T);
       rhs = F2x_add(F2xq_mul(x2,F2x_add(x,a2),T),a6);
       rhs = F2xq_div(rhs,x2,T);

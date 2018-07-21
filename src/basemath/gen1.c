@@ -2927,7 +2927,7 @@ gdivgs(GEN x, long s)
       if (!i) return z;
 
       i = cgcd(s, i);
-      avma=av; z = cgetg(3,t_FRAC);
+      set_avma(av); z = cgetg(3,t_FRAC);
       if (i == 1) y = icopy(x); else { s /= i; y = diviuexact(x, i); }
       gel(z,1) = y;
       gel(z,2) = stoi(s); normalize_frac(z); return z;

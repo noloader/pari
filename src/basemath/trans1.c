@@ -1975,7 +1975,7 @@ gsqrtn(GEN x, GEN n, GEN *zetan, long prec)
       if (zetan) { z = cgetg(3,t_INTMOD); gel(z,1) = gel(y,1); }
       s = Fp_sqrtn(gel(x,2),n,p,zetan);
       if (!s) {
-        if (zetan) {avma=av; return gen_0;}
+        if (zetan) {set_avma(av); return gen_0;}
         if (!BPSW_psp(p)) pari_err_PRIME("sqrtn [modulus]",p);
         pari_err_SQRTN("gsqrtn",x);
       }

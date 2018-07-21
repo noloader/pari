@@ -1957,7 +1957,7 @@ all_roots(GEN p, long bit)
   e = (fb < 0)? 0: (long)(2 * fb);
   bit0 = bit + gexpo(pd) - gexpo(lc) + (long)log2(n/h)+1+e;
   bit2 = bit0; e = 0;
-  for (av=avma,i=1;; i++,avma=av)
+  for (av=avma,i=1;; i++,set_avma(av))
   {
     roots_pol = vectrunc_init(n+1);
     bit2 += e + (n << i);

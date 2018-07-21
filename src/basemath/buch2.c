@@ -3129,7 +3129,7 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
    * index in the full lattice. First column is T */
   kR = divru(det2(Im_mdet), N);
   /* R > 0.2 uniformly */
-  if (!signe(kR) || expo(kR) < -3) { avma=av; *pneed = 0; return NULL; }
+  if (!signe(kR) || expo(kR) < -3) { set_avma(av); *pneed = 0; return NULL; }
 
   setabssign(kR);
   L = RgM_inv(Im_mdet);

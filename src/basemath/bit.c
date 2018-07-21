@@ -357,7 +357,7 @@ bittest(GEN x, long n)
   {
     pari_sp ltop=avma;
     long b = !int_bit(inegate(x),n);
-    avma=ltop;
+    set_avma(ltop);
     return b;
   }
   return int_bit(x, n);

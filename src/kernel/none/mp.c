@@ -1577,13 +1577,13 @@ sqrispec_fft(GEN a, long na)
   for(i=1; i<=n; i++)
   {
     affii(Zf_sqr(gel(FFT,i), M), gel(FFT,i));
-    avma=av;
+    set_avma(av);
   }
   muliifft_dis(ord-o, ord, M, FFT, 0, n);
   for(i=1; i<=n; i++)
   {
     affii(Zf_shift(gel(FFT,i), (ord>>1)-k, M), gel(FFT,i));
-    avma=av;
+    set_avma(av);
   }
   return gerepileuptoint(ltop, muliifft_unspliti(FFT,bs,2+len));
 }
@@ -1611,14 +1611,14 @@ muliispec_fft(GEN a, GEN b, long na, long nb)
   for(i=1; i<=n; i++)
   {
     affii(Zf_mul(gel(FFT,i), gel(FFTb,i), M), gel(FFT,i));
-    avma=av2;
+    set_avma(av2);
   }
-  avma=av;
+  set_avma(av);
   muliifft_dis(ord-o, ord, M, FFT, 0, n);
   for(i=1; i<=n; i++)
   {
     affii(Zf_shift(gel(FFT,i),(ord>>1)-k,M), gel(FFT,i));
-    avma=av;
+    set_avma(av);
   }
   return gerepileuptoint(ltop, muliifft_unspliti(FFT,bs,2+len));
 }
@@ -2175,7 +2175,7 @@ convi_dac(GEN x, ulong l, ulong *res)
   x1=dvmdii(x,powuu(1000000000UL,m),&x2);
   convi_dac(x1,l-m,res+m);
   convi_dac(x2,m,res);
-  avma=ltop;
+  set_avma(ltop);
 }
 
 /* convert integer --> base 10^9 [not memory clean] */

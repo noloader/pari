@@ -770,7 +770,7 @@ FpX_ddf_degree(GEN T, GEN XP, GEN p)
   for(i = 2; i <= m+1; i++)
   {
     g = FpX_FpXQV_eval(g, xq, T, p);
-    if (hash_haskey_long(&h, g, &j)) { avma=av; return l*i-j; }
+    if (hash_haskey_long(&h, g, &j)) { set_avma(av); return l*i-j; }
   }
   set_avma(av); return n;
 }
@@ -1567,7 +1567,7 @@ F2x_split_Berlekamp(GEN *t)
         pari_sp av = avma;
         long lb;
         b = F2x_rem(pol, a);
-        if (F2x_degree(b) <= 0) { avma=av; continue; }
+        if (F2x_degree(b) <= 0) { set_avma(av); continue; }
         b = F2x_gcd(a,b); lb = F2x_degree(b);
         if (lb && lb < la)
         {

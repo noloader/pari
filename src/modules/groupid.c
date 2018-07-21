@@ -64,7 +64,7 @@ indexgroupcentre(GEN G, GEN Z, const long *good, const long *bad)
       GEN Q = quotient_group(C,G);
       const long *p;
       long idx=group_ident(Q,NULL);
-      avma=btop;
+      set_avma(btop);
       for(p=good;*p;p++)
         if (*p==idx) return 1;
       for(p=bad;*p;p++)

@@ -2097,7 +2097,7 @@ isideal(GEN nf,GEN x)
   for (i=2; i<=N; i++)
     for (j=2; j<=N; j++)
       if (! hnf_invimage(x, zk_ei_mul(nf,gel(x,i),j))) { set_avma(av); return 0; }
-  avma=av; return 1;
+  set_avma(av); return 1;
 }
 
 GEN

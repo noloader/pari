@@ -125,7 +125,7 @@ numbpart(GEN n)
   /* Because N < 10^16 and q < sqrt(N), q fits into a long
    * In fact q < 2 LONG_MAX / 3 */
   av = avma; togglesign(est);
-  for (q = (ulong)(sqrt(gtodouble(n))*0.24 + 5); q >= 3; q--, avma=av)
+  for (q = (ulong)(sqrt(gtodouble(n))*0.24 + 5); q >= 3; q--, set_avma(av))
   {
     GEN t = L(n, q, bitprec);
     if (abscmprr(t, mpexp(divru(est,q))) < 0) continue;
@@ -384,7 +384,7 @@ forpart(void *E, long call(void*, GEN), long k, GEN abound, GEN nbound)
   forpart_init(&T, k, abound, nbound);
   while ((v=forpart_next(&T)))
     if (call(E, v)) break;
-  avma=av;
+  set_avma(av);
 }
 
 void
@@ -396,5 +396,5 @@ forpart0(GEN k, GEN code, GEN abound, GEN nbound)
   push_lex(gen_0, code);
   forpart((void*)code, &gp_evalvoid, itos(k), abound, nbound);
   pop_lex(1);
-  avma=av;
+  set_avma(av);
 }

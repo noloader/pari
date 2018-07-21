@@ -3415,7 +3415,7 @@ ispowerful(GEN n)
     set_avma(av); return res;
   }
 
-  if (ifac_isprime(n)) { avma=av; return 0; }
+  if (ifac_isprime(n)) { set_avma(av); return 0; }
   /* large composite without small factors */
   v = ifac_ispowerful(n);
   set_avma(av); return v;

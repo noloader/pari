@@ -209,7 +209,7 @@ znstar_cosets(long n, long phi_n, GEN H)
     cosets[k]=c;
     znstar_coset_bits_inplace(n, H, bits, c);
   }
-  avma=ltop;
+  set_avma(ltop);
   return cosets;
 }
 
@@ -634,7 +634,7 @@ galoissubcyclo(GEN N, GEN sg, long flag, long v)
   if (DEBUGLEVEL >= 1) timer_start(&ti);
   cnd = znstar_conductor(H);
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "znstar_conductor");
-  if (flag == 1)  { avma=ltop; return stoi(cnd); }
+  if (flag == 1)  { set_avma(ltop); return stoi(cnd); }
   if (cnd == 1)
   {
     set_avma(ltop);

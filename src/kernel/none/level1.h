@@ -439,7 +439,7 @@ cmpir(GEN x, GEN y)
     if (expo(y) >= expi(x)) return 0;
     return signe(x);
   }
-  av=avma; z = itor(x, realprec(y)); avma=av;
+  av=avma; z = itor(x, realprec(y)); set_avma(av);
   return cmprr(z,y); /* cmprr does no memory adjustment */
 }
 INLINE int
@@ -451,7 +451,7 @@ cmpsr(long x, GEN y)
   GEN z;
 
   if (!x) return -signe(y);
-  av=avma; z = stor(x, LOWDEFAULTPREC); avma=av;
+  av=avma; z = stor(x, LOWDEFAULTPREC); set_avma(av);
   return cmprr(z,y);
 }
 INLINE int
@@ -967,8 +967,8 @@ dvdiiz(GEN x, GEN y, GEN z)
   GEN p2;
   const GEN p1=dvmdii(x,y,&p2);
 
-  if (signe(p2)) { avma=av; return 0; }
-  affii(p1,z); avma=av; return 1;
+  if (signe(p2)) { set_avma(av); return 0; }
+  affii(p1,z); set_avma(av); return 1;
 }
 
 INLINE ulong
@@ -1458,5 +1458,5 @@ INLINE void
 dvmdiiz(GEN x, GEN y, GEN z, GEN t) {
   pari_sp av = avma;
   GEN r;
-  affii(dvmdii(x,y,&r),z); affii(r,t); avma=av;
+  affii(dvmdii(x,y,&r),z); affii(r,t); set_avma(av);
 }

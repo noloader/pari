@@ -605,7 +605,7 @@ ZX_rem(GEN x, GEN y)
       p1 = subii(p1, mulii(gel(z,j),gel(y,i-j)));
     if (signe(p1)) { sx = 1; break; }
     if (!i) break;
-    avma=av;
+    set_avma(av);
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);

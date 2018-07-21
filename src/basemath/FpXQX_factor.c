@@ -940,9 +940,9 @@ FlxqX_split_Berlekamp(GEN *t, GEN xp, GEN T, ulong p)
         pari_sp av = avma;
         GEN S = FlxqX_get_red(a, T, p);
         b = FlxqX_rem(pol, S, T,p);
-        if (degpol(b)<=0) { avma=av; continue; }
+        if (degpol(b)<=0) { set_avma(av); continue; }
         b = FlxqXQ_halfFrobenius_i(b, xp, FlxqX_rem(Xp, S, T, p), S, T, p);
-        if (degpol(b)<=0) { avma=av; continue; }
+        if (degpol(b)<=0) { set_avma(av); continue; }
         gel(b,2) = Flxq_sub(gel(b,2), gen_1,T,p);
         b = FlxqX_gcd(a,b, T,p); lb = degpol(b);
         if (lb && lb < la)
@@ -994,9 +994,9 @@ FpXQX_split_Berlekamp(GEN *t, GEN T, GEN p)
         pari_sp av = avma;
         GEN S = FpXQX_get_red(a, T, p);
         b = FqX_rem(pol, S, T,p);
-        if (degpol(b)<=0) { avma=av; continue; }
+        if (degpol(b)<=0) { set_avma(av); continue; }
         b = FpXQXQ_halfFrobenius_i(b, xp, FpXQX_rem(Xp, S, T, p), S, T, p);
-        if (degpol(b)<=0) { avma=av; continue; }
+        if (degpol(b)<=0) { set_avma(av); continue; }
         gel(b,2) = Fq_sub(gel(b,2), gen_1,T,p);
         b = FqX_gcd(a,b, T,p); lb = degpol(b);
         if (lb && lb < la)
@@ -2049,7 +2049,7 @@ FlxqX_ddf_degree(GEN S, GEN XP, GEN T, ulong p)
   for(i = 2; i <= m+1; i++)
   {
     g = FlxqX_FlxqXQV_eval(g, xq, S, T, p);
-    if (hash_haskey_long(&h, g, &j)) { avma=av; return l*i-j; }
+    if (hash_haskey_long(&h, g, &j)) { set_avma(av); return l*i-j; }
   }
   set_avma(av); return n;
 }
@@ -2401,7 +2401,7 @@ FpXQX_ddf_degree(GEN S, GEN XP, GEN T, GEN p)
   for(i = 2; i <= m+1; i++)
   {
     g = FpXQX_FpXQXQV_eval(g, xq, S, T, p);
-    if (hash_haskey_long(&h, simplify_shallow(g), &j)) { avma=av; return l*i-j; }
+    if (hash_haskey_long(&h, simplify_shallow(g), &j)) { set_avma(av); return l*i-j; }
   }
   set_avma(av); return n;
 }

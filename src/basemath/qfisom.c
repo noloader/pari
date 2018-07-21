@@ -382,9 +382,9 @@ bachcomp(GEN pol, long I, GEN V, GEN W, GEN Fv)
   if (nlist != sum)
   {
     /* the number of vectors with scalar product S is already different */
-    avma=av; return 0;
+    set_avma(av); return 0;
   }
-  if (nlist == 0) { avma=av; return 1; }
+  if (nlist == 0) { set_avma(av); return 1; }
   /* listxy is the list of the nxy vectors from list that have scalar product S
      with v[list[i]] */
   listxy = cgetg(nlist+1,t_VECSMALL);
@@ -1768,10 +1768,10 @@ qfisom(GEN F, GEN FF, GEN flags, GEN G)
   init_qfauto(FF, NULL, max, &qff, norm, NULL);
   if (lg(qf.W)!=lg(qff.W)
       || !zvV_equal(vecvecsmall_sort(qf.W), vecvecsmall_sort(qff.W)))
-    { avma=av; return gen_0; }
+    { set_avma(av); return gen_0; }
   if (!G) G = mkvec(scalar_Flm(-1, qff.dim));
   res = isometry(&qf, &qff, &fp, G, &cand);
-  if (!res) { avma=av; return gen_0; }
+  if (!res) { set_avma(av); return gen_0; }
   return gerepilecopy(av, zm_to_ZM(qf.U? zm_mul(res,gel(qf.U, 2)):res));
 }
 

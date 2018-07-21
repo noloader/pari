@@ -3055,7 +3055,7 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
     for (i = 1; i < l; i++, set_avma(av2))
     {
       v = itos(gel(E,i));
-      if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { avma=av; return gen_0; }
+      if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { set_avma(av); return gen_0; }
       set_avma(av2);
     }
     set_avma(av); return gen_1;
@@ -3071,7 +3071,7 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
       for (i = 1; i < l; i++, set_avma(av2))
       {
         v = nfval(nf, dP, gel(Q,i));
-        if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { avma=av; return gen_0; }
+        if (rnfdedekind_i(nf,P,gel(Q,i),v,1)) { set_avma(av); return gen_0; }
       }
       set_avma(av); return gen_1;
     }

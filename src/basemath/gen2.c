@@ -436,7 +436,7 @@ gequalm1(GEN x)
       return s < 0 ? absrnz_equal1(x): 0;
     }
     case t_INTMOD:
-      av=avma; y=equalii(addui(1,gel(x,2)), gel(x,1)); avma=av; return y;
+      av=avma; y=equalii(addui(1,gel(x,2)), gel(x,1)); set_avma(av); return y;
 
     case t_FRAC:
       return 0;
@@ -451,17 +451,17 @@ gequalm1(GEN x)
       return gequalm1(gel(x,2)) && gequal0(gel(x,3));
 
     case t_PADIC:
-      av=avma; y=equalii(addui(1,gel(x,4)), gel(x,3)); avma=av; return y;
+      av=avma; y=equalii(addui(1,gel(x,4)), gel(x,3)); set_avma(av); return y;
 
     case t_POLMOD:
       av=avma; p1 = gaddgs(gel(x,2), 1);
-      y = gequal0(p1) || gequal(p1,gel(x,1)); avma=av; return y;
+      y = gequal0(p1) || gequal(p1,gel(x,1)); set_avma(av); return y;
 
     case t_POL: return is_monomial_test(x, 0, &gequalm1);
     case t_SER: return is_monomial_test(x, valp(x), &gequalm1);
 
     case t_RFRAC:
-      av=avma; y=gequal(gel(x,1), gneg_i(gel(x,2))); avma=av; return y;
+      av=avma; y=gequal(gel(x,1), gneg_i(gel(x,2))); set_avma(av); return y;
     case t_COL: return col_test(x, &gequalm1);
     case t_MAT: return mat_test(x, &gequalm1);
   }

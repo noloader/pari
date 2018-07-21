@@ -1729,7 +1729,7 @@ RgX_divrem_i(GEN x, GEN y, GEN *pr)
     for (j=i-dy+1; j<=i && j<=dz; j++) p1 = gsub(p1, gmul(gel(z,j),gel(y,i-j)));
     if (y_lead) p1 = simplify(f(p1,y_lead));
 
-    if (isrationalzero(p1)) { avma=av1; p1 = gen_0; }
+    if (isrationalzero(p1)) { set_avma(av1); p1 = gen_0; }
     else
       p1 = avma==av1? gcopy(p1): gerepileupto(av1,p1);
     gel(z,i-dy) = p1;
@@ -1746,11 +1746,11 @@ RgX_divrem_i(GEN x, GEN y, GEN *pr)
     if (!gequal0(p1)) { sx = 1; break; } /* remainder is non-zero */
     if (!isexactzero(p1)) break;
     if (!i) break;
-    avma=av1;
+    set_avma(av1);
   }
   if (pr == ONLY_DIVIDES)
   {
-    if (sx) { avma=av; return NULL; }
+    if (sx) { set_avma(av); return NULL; }
     avma = (pari_sp)rem;
     return gerepileupto(av,z-2);
   }
@@ -1802,7 +1802,7 @@ RgXQX_divrem(GEN x, GEN y, GEN T, GEN *pr)
     if (pr)
     {
       av0 = avma; x = RgXQX_red(x, T);
-      if (pr == ONLY_DIVIDES) { avma=av0; return signe(x)? NULL: gen_0; }
+      if (pr == ONLY_DIVIDES) { set_avma(av0); return signe(x)? NULL: gen_0; }
       if (pr == ONLY_REM) return x;
       *pr = x;
     }
@@ -1844,12 +1844,12 @@ RgXQX_divrem(GEN x, GEN y, GEN T, GEN *pr)
     for (j=0; j<=i && j<=dz; j++) p1 = gsub(p1, gmul(gel(z,j),gel(y,i-j)));
     tetpil=avma; p1 = grem(p1, T); if (!gequal0(p1)) { sx = 1; break; }
     if (!i) break;
-    avma=av;
+    set_avma(av);
   }
   if (pr == ONLY_DIVIDES)
   {
     if (lead) gunclone(lead);
-    if (sx) { avma=av0; return NULL; }
+    if (sx) { set_avma(av0); return NULL; }
     avma = (pari_sp)rem; return z-2;
   }
   lr=i+3; rem -= lr;

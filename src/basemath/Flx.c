@@ -1318,7 +1318,7 @@ Flx_rem_basecase(GEN x, GEN y, ulong p)
     }
   }
   i = dy-1; while (i>=0 && !c[i]) i--;
-  avma=av;
+  set_avma(av);
   return Flx_renormalize(c-2, i+3);
 }
 
@@ -1514,7 +1514,7 @@ Flx_divrem(GEN x, GEN T, ulong p, GEN *pr)
     pari_sp av=avma;
     GEN mg = B? B: Flx_invBarrett(y, p);
     GEN q1 = Flx_divrem_Barrett_noGC(x,mg,y,p,pr);
-    if (!q1) {avma=av; return NULL;}
+    if (!q1) {set_avma(av); return NULL;}
     if (!pr || pr==ONLY_DIVIDES) return gerepileuptoleaf(av, q1);
     gerepileall(av,2,&q1,pr);
     return q1;
@@ -3026,7 +3026,7 @@ Flxq_trace(GEN x, GEN TB, ulong p)
   long n = degpol(T)-1;
   GEN z = Flxq_mul(x, Flx_deriv(T, p), TB, p);
   t = degpol(z)<n ? 0 : Fl_div(z[2+n],T[3+n],p);
-  avma=av;
+  set_avma(av);
   return t;
 }
 
@@ -4244,7 +4244,7 @@ FlxqX_divrem_basecase(GEN x, GEN y, GEN T, ulong p, GEN *pr)
     if (pr)
     {
       av0 = avma; x = FlxqX_red(x, T, p);
-      if (pr == ONLY_DIVIDES) { avma=av0; return signe(x)? NULL: pol_0(vx); }
+      if (pr == ONLY_DIVIDES) { set_avma(av0); return signe(x)? NULL: pol_0(vx); }
       if (pr == ONLY_REM) return x;
       *pr = x;
     }
@@ -4288,12 +4288,12 @@ FlxqX_divrem_basecase(GEN x, GEN y, GEN T, ulong p, GEN *pr)
       p1 = Flx_sub(p1, Flx_mul(gel(z,j),gel(y,i-j),p),p);
     tetpil=avma; p1 = Flx_rem(p1, T, p); if (lgpol(p1)) { sx = 1; break; }
     if (!i) break;
-    avma=av;
+    set_avma(av);
   }
   if (pr == ONLY_DIVIDES)
   {
     if (lead) gunclone(lead);
-    if (sx) { avma=av0; return NULL; }
+    if (sx) { set_avma(av0); return NULL; }
     avma = (pari_sp)rem; return z-2;
   }
   lr=i+3; rem -= lr;
@@ -4532,7 +4532,7 @@ FlxqX_divrem(GEN x, GEN S, GEN T, ulong p, GEN *pr)
     pari_sp av=avma;
     GEN mg = B? B: FlxqX_invBarrett(y, T, p);
     GEN q = FlxqX_divrem_Barrett_noGC(x,mg,y,T,p,pr);
-    if (!q) {avma=av; return NULL;}
+    if (!q) {set_avma(av); return NULL;}
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
     gerepileall(av,2,&q,pr);
     return q;

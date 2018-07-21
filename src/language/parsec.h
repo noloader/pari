@@ -114,7 +114,7 @@ pari_compile_str(const char *lex)
     else /* should not happen */
       compile_err("syntax error",lex-1);
   }
-  avma=ltop;
+  set_avma(ltop);
   optimizenode(s_node.n-1);
   code=gp_closure(s_node.n-1);
   parsestate_restore(&state);
@@ -188,7 +188,7 @@ newintnode(struct node_loc *loc)
     pari_sp ltop=avma;
     GEN g=strtoi(loc->start);
     long s;
-    avma=ltop;
+    set_avma(ltop);
     if (signe(g)==0)      return newnode(Fsmall,0,-1,loc);
     if ((s=itos_or_0(g))) return newnode(Fsmall,s,-1,loc);
   }

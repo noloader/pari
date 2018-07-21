@@ -794,7 +794,7 @@ gen_select_order(GEN o, void *E, const struct bb_group *grp)
       lasto = newo;
       if (!grp->equal1(t))
       {
-        if (--nbo == 1) { avma=ltop; return icopy(lastgood); }
+        if (--nbo == 1) { set_avma(ltop); return icopy(lastgood); }
         vo[i] = 1;
       }
       else

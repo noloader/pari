@@ -2158,7 +2158,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
     if (pr)
     {
       av0 = avma; x = F2xqX_red(x, T);
-      if (pr == ONLY_DIVIDES) { avma=av0; return signe(x)? NULL: pol_0(vx); }
+      if (pr == ONLY_DIVIDES) { set_avma(av0); return signe(x)? NULL: pol_0(vx); }
       if (pr == ONLY_REM) return x;
       *pr = x;
     }
@@ -2202,12 +2202,12 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
       p1 = F2x_add(p1, F2x_mul(gel(z,j),gel(y,i-j)));
     tetpil=avma; p1 = F2x_rem(p1, T); if (lgpol(p1)) { sx = 1; break; }
     if (!i) break;
-    avma=av;
+    set_avma(av);
   }
   if (pr == ONLY_DIVIDES)
   {
     if (lead) gunclone(lead);
-    if (sx) { avma=av0; return NULL; }
+    if (sx) { set_avma(av0); return NULL; }
     avma = (pari_sp)rem; return z-2;
   }
   lr=i+3; rem -= lr;
@@ -2460,7 +2460,7 @@ F2xqX_divrem(GEN x, GEN S, GEN T, GEN *pr)
     pari_sp av=avma;
     GEN mg = B? B: F2xqX_invBarrett(y, T);
     GEN q = F2xqX_divrem_Barrett_noGC(x,mg,y,T,pr);
-    if (!q) {avma=av; return NULL;}
+    if (!q) {set_avma(av); return NULL;}
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
     gerepileall(av,2,&q,pr);
     return q;

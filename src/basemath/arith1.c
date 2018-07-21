@@ -2327,7 +2327,7 @@ Fp_sqrt_i(GEN a, GEN y, GEN p)
        a square --> w even power of y, hence w^(2^(e-1)) = 1 */
     p1 = Fp_sqr(w,p);
     for (k=1; !equali1(p1) && k < e; k++) p1 = Fp_sqr(p1,p);
-    if (k == e) { avma=av; return NULL; } /* p composite or (a/p) != 1 */
+    if (k == e) { set_avma(av); return NULL; } /* p composite or (a/p) != 1 */
     /* w ^ (2^k) = 1 --> w = y ^ (u * 2^(e-k)), u odd */
     p1 = y;
     for (i=1; i < e-k; i++) p1 = Fp_sqr(p1,p);

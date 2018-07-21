@@ -334,7 +334,7 @@ kbessel1(GEN nu, GEN gx, long prec)
       togglesign(c);
       affrr(u,e);
       affrr(v,f); av2 = avma;
-      for (k=1;; k++, avma=av2)
+      for (k=1;; k++, set_avma(av2))
       {
         GEN w = addrr(gmul2n(mulur(2*k-1,u), -1), mulrr(subrs(q,k),v));
         w = addrr(w, mulrr(nu, subrr(u,gmul2n(v,1))));

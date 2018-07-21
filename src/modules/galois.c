@@ -1492,7 +1492,7 @@ galoismodulo8(long EVEN, GEN pol, GEN dpol)
   GR[48]= _gr( -8, 1,3,5,9,12,15,20,21);
 
   gr[0]=51; res = galmodp(EVEN,pol,dpol,TYP,gr,GR);
-  avma=av; if (!res) return 0;
+  set_avma(av); if (!res) return 0;
   return EVEN? 49: 50;
 }
 
@@ -1731,7 +1731,7 @@ galoismodulo9(long EVEN, GEN pol, GEN dpol)
   GR[32]= _gr( -7, 1,5,10,12,25,27,30);
 
   gr[0]=35; res = galmodp(EVEN,pol,dpol,TYP,gr,GR);
-  avma=av; if (!res) return 0;
+  set_avma(av); if (!res) return 0;
   return EVEN? 33: 34;
 }
 
@@ -2166,7 +2166,7 @@ galoismodulo10(long EVEN, GEN pol, GEN dpol)
   GR[44]= _gr(-22, 1,3,5,7,9,11,13,14,16,18,20,22,24,26,27,30,32,35,36,38,40,41);
 
   gr[0]=46; res = galmodp(EVEN,pol,dpol,TYP,gr,GR);
-  avma=av; if (!res) return 0;
+  set_avma(av); if (!res) return 0;
   return EVEN? 44: 45;
 }
 
@@ -2241,7 +2241,7 @@ galoismodulo11(long EVEN, GEN pol, GEN dpol)
     gel(TYP,5) = _typ(11, 1,1,1,1,1,1,1,1,1,1,1);
   }
   res = galmodp(EVEN,pol,dpol,TYP,gr,NULL);
-  avma=av; if (!res) return 0;
+  set_avma(av); if (!res) return 0;
   return EVEN? 7: 8;
 }
 

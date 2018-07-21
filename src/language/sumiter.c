@@ -365,7 +365,7 @@ _fordiv(GEN a, GEN code, GEN (*D)(GEN))
     closure_evalvoid(code); if (loop_break()) break;
     set_avma(av2);
   }
-  pop_lex(1); avma=av;
+  pop_lex(1); set_avma(av);
 }
 void
 fordiv(GEN a, GEN code) { return _fordiv(a, code, &divisors); }

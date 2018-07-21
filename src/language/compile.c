@@ -647,7 +647,7 @@ ctxmvar(void)
     if(localvars[i].type==Lmy)
       ctx[++n]=(long)localvars[i].ep;
   frame_push(ctx);
-  avma=av; return n;
+  set_avma(av); return n;
 }
 
 INLINE int
@@ -883,7 +883,7 @@ compilevec(long n, long mode, op_code op)
     compilenode(arg[i],Ggen,FLsurvive);
     op_push(OCstackgen,i,n);
   }
-  avma=ltop;
+  set_avma(ltop);
   op_push(OCpop,1,n);
   compilecast(n,Gvec,mode);
 }
@@ -918,7 +918,7 @@ compilemat(long n, long mode)
       op_push(OCstackgen,k,n);
     }
   }
-  avma=ltop;
+  set_avma(ltop);
   op_push(OCpop,1,n);
   compilecast(n,Gvec,mode);
 }
@@ -1002,7 +1002,7 @@ compilecall(long n, int mode, entree *ep)
   }
   op_push(OCcalluser,nb,x);
   compilecast(n,Ggen,mode);
-  avma=ltop;
+  set_avma(ltop);
 }
 
 static GEN
@@ -1245,35 +1245,35 @@ compilefunc(entree *ep, long n, int mode, long flag)
   {
     if (nb==0) op_push(OCpushgnil,0,n);
     else compilenode(arg[1],Ggen,FLsurvive|FLreturn);
-    avma=ltop;
+    set_avma(ltop);
     return;
   }
   else if (is_func_named(ep,"inline"))
   {
     compilemy(arg, str, 1);
     compilecast(n,Gvoid,mode);
-    avma=ltop;
+    set_avma(ltop);
     return;
   }
   else if (is_func_named(ep,"uninline"))
   {
     compileuninline(arg);
     compilecast(n,Gvoid,mode);
-    avma=ltop;
+    set_avma(ltop);
     return;
   }
   else if (is_func_named(ep,"my"))
   {
     compilemy(arg, str, 0);
     compilecast(n,Gvoid,mode);
-    avma=ltop;
+    set_avma(ltop);
     return;
   }
   else if (is_func_named(ep,"local"))
   {
     compilelocal(arg);
     compilecast(n,Gvoid,mode);
-    avma=ltop;
+    set_avma(ltop);
     return;
   }
   /*We generate dummy code for global() for compatibility with gp2c*/
@@ -1299,7 +1299,7 @@ compilefunc(entree *ep, long n, int mode, long flag)
       }
     }
     compilecast(n,Gvoid,mode);
-    avma=ltop;
+    set_avma(ltop);
     return;
   }
   else if (is_func_named(ep,"O"))
@@ -1317,13 +1317,13 @@ compilefunc(entree *ep, long n, int mode, long flag)
   }
   else if (x==OPn && tree[y].f==Fsmall)
   {
-    avma=ltop;
+    set_avma(ltop);
     compilesmall(y, -tree[y].x, mode);
     return;
   }
   else if (x==OPtrans && tree[y].f==Fvec)
   {
-    avma=ltop;
+    set_avma(ltop);
     compilevec(y, mode, OCcol);
     return;
   }
@@ -1634,7 +1634,7 @@ compilefunc(entree *ep, long n, int mode, long flag)
   }
   compilecast(n,ret_typ,mode);
   if (nbpointers) op_push_loc(OCendptr,nbpointers, str);
-  avma=ltop;
+  set_avma(ltop);
 }
 
 static void
@@ -1917,7 +1917,7 @@ closurefunc(entree *ep, long n, long mode)
   }
   op_push(OCpushgen, data_push(C), n);
   compilecast(n,Gclosure,mode);
-  avma=ltop;
+  set_avma(ltop);
 }
 
 static void
@@ -2034,7 +2034,7 @@ compilenode(long n, int mode, long flag)
       default:
         pari_err_BUG("compilenode, unsupported constant");
       }
-      avma=ltop;
+      set_avma(ltop);
       return;
     }
   case Fsmall:
@@ -2152,7 +2152,7 @@ compilenode(long n, int mode, long flag)
       op_push(OCpushgen, data_push(getfunction(&pos,nb,nbmvar,text,gap)),n);
       if (nbmvar) op_push(OCsaveframe,!!(flag&FLsurvive),n);
       compilecast(n, Gclosure, mode);
-      avma=ltop;
+      set_avma(ltop);
       return;
     }
   case Ftag:
@@ -2255,7 +2255,7 @@ optimizemat(long n)
     GEN col=listtogen(line[i],Fmatrixelts);
     fl &= vec_optimize(col);
   }
-  avma=ltop; tree[n].flags=fl;
+  set_avma(ltop); tree[n].flags=fl;
 }
 
 static void
@@ -2414,7 +2414,7 @@ optimizefunc(entree *ep, long n)
       compile_err("too many arguments",tree[arg[j]].str);
   }
   else (void)vec_optimize(arg);
-  avma=av; tree[n].flags=fl;
+  set_avma(av); tree[n].flags=fl;
 }
 
 static void
@@ -2426,7 +2426,7 @@ optimizecall(long n)
   GEN arg=listtogen(y,Flistarg);
   optimizenode(x);
   tree[n].flags = COsafelex&tree[x].flags&vec_optimize(arg);
-  avma=av;
+  set_avma(av);
 }
 
 static void

@@ -92,7 +92,7 @@ vecsmall_sortspec(GEN v, long n, GEN w)
       w[m++]=y[iy++];
   for(;ix<nx;) w[m++]=x[ix++];
   for(;iy<ny;) w[m++]=y[iy++];
-  avma=ltop;
+  set_avma(ltop);
 }
 
 /*in place sort.*/
@@ -191,7 +191,7 @@ vecsmall_duplicate(GEN x)
   if (l==1) return 0;
   for (k=x[p[1]],i=2; i<l; k=x[p[i++]])
     if (x[p[i]] == k) { r=p[i]; break; }
-  avma=av;
+  set_avma(av);
   return r;
 }
 
