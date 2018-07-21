@@ -1100,29 +1100,31 @@ gtodblList(GEN data, long flags)
   lx1 = lg(gel(data,1));
   if (!param && lx1 == 1) return NULL;
 
+  /* Check input first */
   if (nl == 1 && !cplx) pari_err_DIM("gtodblList");
-  /* Allocate memory, then convert coord. to double */
+  for (i = 0; i < nl; i += cplx? 1: 2)
+  {
+    GEN x = gel(data,i+1), y = cplx? NULL: gel(data,i+2);
+    long lx = lg(x);
+    if (!is_vec_t(typ(x))) pari_err_TYPE("gtodblList",x);
+    if (y)
+    {
+      if (!is_vec_t(typ(y))) pari_err_TYPE("gtodblList",y);
+      if (lg(y) != lx || (!param && lx != lx1)) pari_err_DIM("gtodblList");
+    }
+  }
+  /* Now allocate memory, then convert coord. to double */
   l = (dblPointList*)pari_malloc((cplx? 2*nl: nl)*sizeof(dblPointList));
   L = &l[0];
   for (i = 0; i < nl; i += cplx? 1: 2)
   {
-    GEN x = gel(data,i+1), y;
-    long lx = lg(x);
-    if (!is_vec_t(typ(x))) pari_err_TYPE("gtodblList",x);
-    if (cplx) y = NULL;
-    else
-    {
-      y = gel(data,i+2);
-      if (!is_vec_t(typ(y))) pari_err_TYPE("gtodblList",y);
-      if (lg(y) != lx || (!param && lx != lx1)) pari_err_DIM("gtodblList");
-    }
-    lx--;
+    GEN x = gel(data,i+1), y = cplx? NULL: gel(data,i+2);
+    long lx = lg(x)-1;
     l[i].d   = X = (double*)pari_malloc(lx*sizeof(double));
     l[i+1].d = Y = (double*)pari_malloc(lx*sizeof(double));
     for (j=1; j<=lx; j++) get_xy_from_vec2(cplx, x, y, j, X+(j-1), Y+(j-1));
     l[i].nb = l[i+1].nb = lx;
   }
-
   /* Compute extremas */
   if (param)
   {
