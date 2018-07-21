@@ -3463,35 +3463,37 @@ ginvmod(GEN x, GEN y)
 GEN
 newtonpoly(GEN x, GEN p)
 {
-  GEN y;
-  long n,ind,a,b,c,u1,u2,r1,r2;
-  long *vval, num[] = {evaltyp(t_INT) | _evallg(3), 0, 0};
+  pari_sp av = avma;
+  long n, ind, a, b;
+  GEN y, vval;
 
-  if (typ(x)!=t_POL) pari_err_TYPE("newtonpoly",x);
-  n=degpol(x); if (n<=0) return cgetg(1,t_VEC);
+  if (typ(x) != t_POL) pari_err_TYPE("newtonpoly",x);
+  n = degpol(x); if (n<=0) return cgetg(1,t_VEC);
+  vval = new_chunk(n+1);
   y = cgetg(n+1,t_VEC); x += 2; /* now x[i] = term of degree i */
-  vval = (long *) pari_malloc(sizeof(long)*(n+1));
-  for (a=0; a<=n; a++) vval[a] = gvaluation(gel(x,a),p);
-  for (a=0, ind=1; a<n; a++)
+  for (a = 0; a <= n; a++) vval[a] = gvaluation(gel(x,a),p);
+  for (a = 0, ind = 1; a < n; a++)
   {
     if (vval[a] != LONG_MAX) break;
     gel(y,ind++) = mkoo();
   }
-  for (b=a+1; b<=n; a=b, b=a+1)
+  for (b = a+1; b <= n; a = b, b = a+1)
   {
+    long u1, u2, c;
     while (vval[b] == LONG_MAX) b++;
-    u1 = vval[a]-vval[b];
-    u2 = b-a;
-    for (c=b+1; c<=n; c++)
+    u1 = vval[a] - vval[b];
+    u2 = b - a;
+    for (c = b+1; c <= n; c++)
     {
+      long r1, r2;
       if (vval[c] == LONG_MAX) continue;
-      r1 = vval[a]-vval[c];
-      r2 = c-a;
+      r1 = vval[a] - vval[c];
+      r2 = c - a;
       if (u1*r2 <= u2*r1) { u1 = r1; u2 = r2; b = c; }
     }
-    while (ind<=b) { affsi(u1,num); gel(y,ind++) = gdivgs(num,u2); }
+    while (ind <= b) gel(y,ind++) = sstoQ(u1,u2);
   }
-  pari_free(vval); return y;
+  stackdummy((pari_sp)vval, av); return y;
 }
 
 static GEN
