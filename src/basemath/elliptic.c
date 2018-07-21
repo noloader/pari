@@ -6777,8 +6777,8 @@ ellissupersingular(GEN E, GEN p)
   GEN j;
   int res;
   if (typ(E)!=t_VEC && !p) return elljissupersingular(E);
-  j = ell_get_j(E);
   p = checkellp(&E, p, NULL, "ellissupersingular");
+  j = ell_get_j(E);
   switch(ell_get_type(E))
   {
   case t_ELL_Fp:

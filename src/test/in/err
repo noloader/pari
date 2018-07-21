@@ -185,6 +185,7 @@ E=ellinit([1,1]);
 ellap(E)
 ellap(E,1)
 ellap(E,'x)
+ellissupersingular(x,1)
 elltaniyama(E,-1)
 ellheight(E,[2,2])
 Qfb(0,0,0)

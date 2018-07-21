@@ -410,6 +410,9 @@
   ***   at top-level: ellap(E,'x)
   ***                 ^-----------
   *** ellap: incorrect type in ellap (t_POL).
+  ***   at top-level: ellissupersingular(x,1)
+  ***                 ^-----------------------
+  *** ellissupersingular: incorrect type in checkell (t_POL).
   ***   at top-level: elltaniyama(E,-1)
   ***                 ^-----------------
   *** elltaniyama: domain error in elltaniyama: precision < 0
@@ -650,4 +653,4 @@ INFINITY
   ***                                   ^-
   ***   incorrect value for plothsizes: [2,
   ***                                      ^
-Total time spent: 8
+Total time spent: 4
