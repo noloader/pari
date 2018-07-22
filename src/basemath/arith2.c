@@ -677,10 +677,10 @@ ulong
 eulerphiu(ulong n)
 {
   pari_sp av = avma;
-  GEN F;
+  ulong e;
   if (!n) return 2;
-  F = factoru(n);
-  set_avma(av); return eulerphiu_fact(F);
+  e = eulerphiu_fact(factoru(n));
+  set_avma(av); return e;
 }
 GEN
 eulerphi(GEN n)
