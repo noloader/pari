@@ -187,10 +187,9 @@ newintnode(struct node_loc *loc)
   {
     pari_sp ltop=avma;
     GEN g=strtoi(loc->start);
-    long s;
+    long s = itos_or_0(g), sg = signe(g);
     set_avma(ltop);
-    if (signe(g)==0)      return newnode(Fsmall,0,-1,loc);
-    if ((s=itos_or_0(g))) return newnode(Fsmall,s,-1,loc);
+    if (sg==0 || s) return newnode(Fsmall,s,-1,loc);
   }
   return newconst(CSTint,loc);
 }
