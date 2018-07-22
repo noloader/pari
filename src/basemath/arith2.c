@@ -628,10 +628,10 @@ long
 bigomegau(ulong n)
 {
   pari_sp av;
-  GEN F;
+  long l;
   if (n == 1) return 0;
-  av = avma; F = factoru(n);
-  set_avma(av); return zv_sum(gel(F,2));
+  av = avma; l = zv_sum(gel(factoru(n),2));
+  set_avma(av); return l;
 }
 long
 bigomega(GEN n)
