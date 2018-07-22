@@ -602,10 +602,10 @@ long
 omegau(ulong n)
 {
   pari_sp av;
-  GEN F;
+  long l;
   if (n == 1UL) return 0;
-  av = avma; F = factoru(n);
-  set_avma(av); return lg(gel(F,1))-1;
+  av = avma; l = lg(gel(factoru(n),1))-1;
+  set_avma(av); return l;
 }
 long
 omega(GEN n)
