@@ -3636,6 +3636,10 @@ GEN     hyperellpadicfrobenius(GEN x, ulong p, long e);
 GEN     hyperellcharpoly(GEN x);
 GEN     nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);
 
+/* hypergeom.c */
+GEN     hypergeom(GEN vnum, GEN vden, GEN z, long prec);
+GEN     airy(GEN z, long prec);
+
 /* hnf_snf.c */
 
 GEN     RgM_hnfall(GEN A, GEN *pB, long remove);

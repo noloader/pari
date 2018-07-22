@@ -1,0 +1,1024 @@
+/* Copyright (C) 2017  The PARI group.
+
+This file is part of the PARI/GP package.
+
+PARI/GP is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation. It is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY WHATSOEVER.
+
+Check the License for details. You should have received a copy of it, along
+with the package; see the file 'COPYING'. If not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
+
+/********************************************************************/
+/**                                                                **/
+/**                   HYPERGEOMETRIC FUNCTIONS                     **/
+/**                                                                **/
+/********************************************************************/
+
+#include "pari.h"
+#include "paripriv.h"
+
+/* F10 function */
+static GEN
+F10(GEN a, GEN z, long prec)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, gpow(gtofp(gsubsg(1,z), prec), gneg(a), prec));
+}
+
+static int
+isnegint2(GEN a, long *pa)
+{
+  GEN b;
+  if (!gequal0(imag_i(a))) return 0;
+  a = real_i(a); if (gsigne(a) > 0) return 0;
+  b = ground(a); if (!gequal(a, b)) return 0;
+  if (pa) *pa = -itos(b);
+  return 1;
+}
+static int
+isnegint(GEN a) { return isnegint2(a, NULL); }
+static int
+is0(GEN a, long bit) { return gequal0(a) || gexpo(a) < -bit; }
+
+/* F01 function */
+static GEN
+F01(GEN a, GEN z, long prec)
+{
+  pari_sp av = avma;
+  GEN al, x, tmp;
+  if (is0(z, prec2nbits(prec)-5)) return real_1(prec);
+  al = gsubgs(a, 1); x = gsqrt(gmul2n(z, 2), prec);
+  tmp = gmul(ggamma(a, prec), gpow(gmul2n(x, -1), gneg(al), prec));
+  tmp = gmul(tmp, ibessel(al, x, prec));
+  if (gequal0(imag_i(z))) tmp = real_i(tmp);
+  return gerepilecopy(av, tmp);
+}
+
+/* Airy functions [Ai,Bi] */
+static GEN
+airy_i(GEN z, long prec)
+{
+  GEN z3 = gdivgs(gpowgs(z,3), 9), s6 = sqrtnr(utor(3,prec), 6), s3 = sqrr(s6);
+  /* g2 = Gamma(2/3) * 3^(1/6) */
+  GEN g1 = ggamma(sstoQ(1,3), prec), g2 = gdiv(Pi2n(1,prec), g1);
+  GEN F2 = F01(sstoQ(2,3), z3, prec), a1 = gdiv(F2, mulrr(s6,g2));
+  GEN F4 = F01(sstoQ(4,3), z3, prec), a2 = gdiv(gmul(F4,z), mulrr(s3,g1));
+  GEN A = gsub(a1,a2), B = gadd(a1,a2);
+  long bit = prec2nbits(prec) - gexpo(a1) - 16;
+  if (!is0(A, bit) && !is0(B, bit)) return mkvec2(A, gmul(B, mulrr(s6,s3)));
+  prec = precdbl(prec); z = gprec_wensure(z, prec); return airy_i(z, prec);
+}
+GEN
+airy(GEN z, long prec)
+{ pari_sp av = avma; return gerepilecopy(av, airy_i(z, prec)); }
+
+/* F20 function: F20(a,b;z)=\int_0^oo\exp(-t)t^{a-1}(1-zt)^{-b}/gamma(a) */
+static GEN
+fF20(void *E, GEN t)
+{
+  GEN a1 = gel(E,1), mb = gel(E,2), z = gel(E,3);
+  long prec = precision(t);
+  return gmul(gmul(gexp(gneg(t), prec), gpow(t, a1, prec)),
+              gpow(gsubsg(1, gmul(z, t)), mb, prec));
+}
+
+static GEN Ftaylorgen(GEN vnum, GEN vden, GEN z, long prec);
+/* Gamma(a)*Gamma(b) */
+static GEN
+mulgamma2(GEN a, GEN b, long prec)
+{ return gmul(ggamma(a, prec), ggamma(b, prec)); }
+/* Gamma(a)/Gamma(b) */
+static GEN
+divgamma2(GEN a, GEN b, long prec)
+{ return gdiv(ggamma(a, prec), ggamma(b, prec)); }
+/* Gamma(v[1])*Gamma(v[2]) */
+static GEN
+mulgammav2(GEN v, long prec)
+{ return mulgamma2(gel(v,1), gel(v,2), prec); }
+
+GEN
+hyperunew(GEN a, GEN b, GEN z, long prec)
+{
+  pari_sp ltop = avma;
+  GEN b1, ab1, S1, S2;
+  if (isint(b,&b)) return hyperu(a, b, z, prec);
+  b1 = gsubsg(1, b); ab1 = gadd(a, b1);
+  if (isnegint(ab1)) S1 = gen_0;
+  else
+  {
+    GEN tmp = Ftaylorgen(mkvec(a), mkvec(b), z, prec);
+    S1 = gmul(divgamma2(b1, ab1, prec), tmp);
+  }
+  if (isnegint(a)) S2 = gen_0;
+  else
+  {
+    GEN tmp = Ftaylorgen(mkvec(ab1), mkvec(gaddsg(1, b1)), z, prec);
+    S2 = gmul(divgamma2(gneg(b1), a, prec), tmp);
+    S2 = gmul(S2, gpow(z, b1, prec));
+  }
+  return gerepileupto(ltop, gadd(S1, S2));
+}
+
+static GEN
+mkendpt(GEN z, GEN a)
+{
+  a = real_i(a);
+  if (gcmpgs(a,-1) <= 0) pari_err_IMPL("hypergeom for these parameters");
+  return (gcmpgs(a,1) >= 1 || gequal0(a))? z: mkvec2(z, a);
+}
+
+static GEN
+intnumsplit(void *E, GEN (*f)(void*, GEN), GEN a, GEN b, GEN z, long prec)
+{
+  if (!z) return intnum(E, f, a, b, NULL, prec);
+  return gadd(intnum(E, f, a, z, NULL, prec),
+              intnum(E, f, z, b, NULL, prec));
+}
+/*z != 0 */
+static GEN
+F20(GEN a, GEN b, GEN z, long prec)
+{
+  pari_sp ltop = avma;
+  GEN res, p0, p2, pz, ab1, mb;
+  void *E;
+
+  if (gcmp(real_i(a), real_i(b)) < 0) swap(a,b);
+  ab1 = gadd(a, gsubsg(1, b));
+  if (!isint(ab1, &ab1))
+  {
+    res = hyperunew(a, ab1, gneg(ginv(z)), prec);
+    return gerepileupto(ltop, gmul(gpow(gneg(z), gneg(a), prec), res));
+  }
+  if (gequal0(imag_i(z)))
+  {
+    z = real_i(z);
+    res = hyperu(a, ab1, gneg(ginv(z)), prec);
+    return gerepileupto(ltop, gmul(gpow(gneg(z), gneg(a), prec), res));
+  }
+  mb = gneg(b);
+  E = (void*)mkvec3(gsubgs(a,1), mb, z);
+  p0 = mkendpt(gen_0, gel(E,1));
+  p2 = mkvec2(mkoo(), gen_1);
+  pz = is0(imag_i(z), 10)? real_i(ginv(z)): NULL;
+  if (pz && gsigne(pz) <= 0) pz = NULL;
+  if (pz) pz = mkendpt(pz, mb);
+  else if (gcmpgs(mb,-1) <= 0) prec += (gexpo(mb)+1)>>1;
+  res = intnumsplit(E, fF20, p0, p2, pz, prec);
+  return gerepileupto(ltop, gdiv(res, ggamma(a, prec)));
+}
+
+static GEN F21(GEN a, GEN b, GEN c, GEN z, long prec);
+
+static GEN
+fF31(void *E, GEN t)
+{
+  GEN a1 = gel(E,1), b = gel(E,2), c = gel(E,3), d = gel(E,4), z = gel(E,5);
+  long prec = precision(t);
+  return gmul(gmul(gexp(gneg(t), prec), gpow(t, a1, prec)),
+              F21(b, c, d, gmul(t, z), prec));
+}
+/* F31(a,b,c;d,z) = \int_0^oo\exp(-t)t^{a-1}F_{21}(b,c;d,tz) / gamma(a) */
+static GEN
+F31(GEN a, GEN b, GEN c, GEN d, GEN z, long prec)
+{
+  GEN p1, p2, a1;
+  if (gcmp(real_i(a), real_i(b)) < 0) swap(a,b);
+  if (gcmp(real_i(a), real_i(c)) < 0) swap(a,c);
+  if (gsigne(real_i(a)) <= 0) pari_err_IMPL("F31 with a, b, and c <= 0");
+  a1 = gsubgs(a,1);
+  p1 = mkendpt(gen_0, a1);
+  p2 = mkvec2(mkoo(), gen_1);
+  return gdiv(intnum(mkvecn(5, a1, b, c, d, z), fF31, p1, p2, NULL, prec),
+              ggamma(a, prec));
+}
+
+/* F32(a,b,c;d,e;z)=\int_0^1,x^{c-1}(1-x)^{e-c-1}F21(a,b,d,x*z)*gamma(e)/(gamma(c)*gamma(e-c)) */
+static GEN
+fF32(void *E, GEN x)
+{
+  GEN c1 = gel(E,1), ec = gel(E,2), a = gel(E,3), b = gel(E,4);
+  GEN d = gel(E,5), z = gel(E,6), T;
+  long prec = precision(x);
+  T = F21(a, b, d, gmul(x, z), prec);
+  if (!gequal0(c1)) T = gmul(T, gpow(x,c1,prec));
+  if (!gequal0(ec)) T = gmul(T, gpow(gsubsg(1,x),ec,prec));
+  return T;
+}
+
+static GEN
+myint32(GEN a, GEN b, GEN c, GEN d, GEN e, GEN z, long prec)
+{
+  GEN c1 = gsubgs(c,1), c2 = gsub(e, gaddgs(c,1));
+  GEN p0 = mkendpt(gen_0, c1);
+  GEN p1 = mkendpt(gen_1, c2);
+  return intnum(mkvecn(6, c1, c2, a,b,d, z), fF32, p0, p1, NULL, prec);
+}
+
+static void
+check_hyp1(GEN x)
+{
+  if (real_i(x) <= 0)
+    pari_err_DOMAIN("hypergeom","real(vecsum(D)-vecsum(N))", "<=", gen_0, x);
+}
+
+/* 0 < re(z) < e ? */
+static int
+ok_F32(GEN z, GEN e)
+{ GEN x = real_i(z); return gsigne(x) > 0 && gcmp(e, x) > 0; }
+
+/* |z| very close to 1 but z != 1 */
+static GEN
+F32(GEN vnum, GEN vden, GEN z, long prec)
+{
+  GEN tmp, a,b,c, d,e, re;
+  a = gel(vnum,1); d = gel(vden,1);
+  b = gel(vnum,2); e = gel(vden,2);
+  c = gel(vnum,3);
+  if (gcmp(real_i(e), real_i(d)) < 0) swap(e,d);
+  re = real_i(e);
+  if (!ok_F32(c, re))
+  {
+    if (ok_F32(b, re))  {swap(b,c);}
+    else if (ok_F32(a, re)) {swap(a,c);}
+    else pari_err_IMPL("3F2 for these arguments");
+  }
+  tmp = gdiv(ggamma(e, prec), mulgamma2(c, gsub(e,c), prec));
+  return gmul(tmp, myint32(a, b, c, d, e, z, prec));
+}
+
+static GEN
+posit(GEN z)
+{
+  GEN eps = ginv(shifti(gen_1, 30));
+  if (gcmp(gnorm(z), gsqr(eps)) < 0) return eps;
+  else return z;
+}
+
+static GEN
+poch(GEN a, long n, long prec)
+{
+  GEN S = real_1(prec);
+  long j;
+  for (j = 0; j < n; j++) S = gmul(S, gaddsg(j, a));
+  return S;
+}
+static GEN
+vpoch(GEN a, long n)
+{
+  GEN v = cgetg(n+1, t_VEC);
+  long j;
+  gel(v,1) = a;
+  for (j = 1; j < n; j++) gel(v,j+1) = gmul(gel(v,j), gaddsg(j, a));
+  return v;
+}
+
+static GEN
+lnpoch(GEN a, long n)
+{
+  return real_i(glog(posit(poch(a, n, LOWDEFAULTPREC)), LOWDEFAULTPREC));
+}
+
+static GEN
+lnpochden(GEN a, long n)
+{
+  GEN L = lnpoch(a, n), r = ground(real_i(a));
+  if (gsigne(r) <= 0)
+    L = gadd(L, glog(gmin(gen_1, posit(gabs(gsub(a, r), LOWDEFAULTPREC))), LOWDEFAULTPREC));
+  return real_i(L);
+}
+
+/* |x + z|^2 */
+static GEN
+normpol2(GEN z)
+{
+  GEN a = real_i(z), b = imag_i(z);
+  return deg2pol_shallow(gen_1, gmul2n(a,1), gadd(gsqr(a),gsqr(b)), 0);
+}
+/* \prod |x + v[i]|^2 */
+static GEN
+vnormpol2(GEN v)
+{
+  long i, l = lg(v);
+  GEN P;
+  if (l == 1) return pol_1(0);
+  P = normpol2(gel(v,1));
+  for (i = 2; i < l; i++) P = RgX_mul(P, normpol2(gel(v,i)));
+  return P;
+}
+
+static GEN
+findprecgen(GEN vnum, GEN vden, GEN z)
+{
+  GEN P, Q, v, w, ma;
+  double wma;
+  long mi, prec = precision(z);
+  long LD = LOWDEFAULTPREC, lnum = lg(vnum), lden = lg(vden), j, i, lv;
+
+  P = RgX_shift_shallow(vnormpol2(vden), 2);
+  Q = gnorm(z);
+  /* avoid almost cancellation of leading coeff if |z| ~ 1 */
+  if (prec && gexpo(gsubgs(Q,1)) < 5 - prec2nbits(prec)) Q = gen_1;
+  Q = RgX_Rg_mul(vnormpol2(vnum), Q);
+  for (j = 1, ma = NULL; j < lnum; ++j)
+    if (isnegint(gel(vnum,j)))
+    {
+      GEN t = gsubgs(gabs(gel(vnum,j), LD), 1);
+      ma = ma? gmin_shallow(ma,t): t;
+    }
+  /* FIXME: use fujiwara_bound_real(,1) */
+  v = ground(realroots(gsub(P,Q), mkvec2(gen_0,mkoo()), LD));
+  lv = lg(v);
+  if (ma)
+    for (i = 1; i < lv; ++i) gel(v,i) = gmax(gmin(ma, gel(v,i)), gen_1);
+  mi = 0;
+  w = cgetg(lv, t_VEC);
+  for (i = 1; i < lv; ++i)
+  {
+    GEN tmp = gen_0;
+    long vi = itos(gel(v, i));
+    mi = maxss(mi, vi);
+    for (j = 1; j < lnum; ++j)
+      tmp = gadd(tmp, lnpoch(gel(vnum, j), vi));
+    for (j = 1; j < lden; ++j)
+      tmp = gsub(tmp, lnpochden(gel(vden, j), vi));
+    tmp = gadd(tmp, gmulsg(vi, glog(gmax(gabs(z, LD), ginv(stoi(10000))), LD)));
+    tmp = gsub(tmp, glog(mpfact(vi), LD));
+    gel(w, i) = tmp;
+  }
+  wma = gtodouble(vecmax(w));
+  /* make up for exponential decrease in exp() */
+  if (gsigne(real_i(z)) < 0) wma -= gtodouble(real_i(z));
+  return mkvecsmall2(maxss(0, (long)(ceil(wma/(BITS_IN_LONG*LOG2)) + 1)), mi);
+}
+
+static GEN
+Ftaylorgen(GEN vnum, GEN vden, GEN z, long prec)
+{
+  pari_sp ltop = avma, av;
+  GEN C, S, prall;
+  long i, j, ct, lnum = lg(vnum) - 1, lden = lg(vden) - 1, precnew, mi;
+  long bitmin, tol;
+  prall = findprecgen(vnum, vden, z);
+  precnew = prec + prall[1]; mi = prall[2];
+  bitmin = -(prec2nbits(precnew) + 10);
+  if (precnew > prec)
+  {
+    vnum = gprec_wensure(vnum, precnew);
+    vden = gprec_wensure(vden, precnew);
+    z = gprec_wensure(z, precnew);
+  }
+  C = real_1(precnew); S = C; ct = 0; j = 0; tol = 0;
+  av = avma;
+  while (1)
+  {
+    GEN tmp1 = gen_1, tmp2 = gen_1;
+    for (i = 1; i <= lnum; ++i)
+      tmp1 = gmul(tmp1, gaddsg(j, gel(vnum, i)));
+    for (i = 1; i <= lden; ++i)
+      tmp2 = gmul(tmp2, gaddsg(j, gel(vden, i)));
+    C = gmul(C, gmul(gdiv(tmp1, tmp2), gdivgs(z, j + 1)));
+    if (gequal0(C)) break;
+    if (j > mi) tol = gequal0(S) ? 0: gexpo(C) - gexpo(S);
+    S = gadd(S, C); ++j;
+    if (j > mi)
+    {
+      if (tol > bitmin) ct = 0; else ct++;
+      if (ct == lnum + lden) break;
+    }
+    if (gc_needed(av, 1)) gerepileall(av, 2, &S, &C);
+  }
+  return gerepileupto(ltop, S);
+}
+
+static GEN
+bind(GEN a, GEN b, GEN c, long ind)
+{
+  switch(ind)
+  {
+    case 1: case 2: return gsub(c, b);
+    case 5: case 6: return gsub(gaddsg(1, a), c);
+    default: return b;
+  }
+}
+static GEN
+cind(GEN a, GEN b, GEN c, long ind)
+{
+  switch(ind)
+  {
+    case 1: case 6: return gaddsg(1, gsub(a,b));
+    case 4: case 5: return gsub(gaddsg(1, gadd(a,b)), c);
+    default: return c;
+  }
+}
+static GEN
+zind(GEN z, long ind)
+{
+  switch(ind)
+  {
+    case 1: return ginv(gsubsg(1, z));
+    case 2: return gdiv(z, gsubgs(z, 1));
+    case 4: return gsubsg(1, z);
+    case 5: return gsubsg(1, ginv(z));
+    case 6: return ginv(z);
+  }
+  return z;
+}
+
+/* z not 0 or 1, c not a non-positive integer */
+static long
+F21ind(GEN a, GEN b, GEN c, GEN z, long prec)
+{
+  GEN znewabs = gen_2, v = const_vec(6, gen_2);
+  long ind = 0;
+  const long LD = LOWDEFAULTPREC;
+  if (is0(imag_i(z), prec2nbits(prec))) z = real_i(z);
+  if (!isnegint(cind(a,b,c, 1))) gel(v,1) = gabs(zind(z,1), LD);
+  gel(v,2) = gabs(zind(z,2), LD);
+  gel(v,3) = gabs(z, LD);
+  if (!isnegint(cind(a,b,c, 4))) gel(v,4) = gabs(zind(z,4), LD);
+  if (!isnegint(cind(a,b,c, 5))) gel(v,5) = gabs(zind(z,5), LD);
+  if (!isnegint(cind(a,b,c, 6))) gel(v,6) = gabs(zind(z,6), LD);
+  ind = vecindexmin(v); znewabs = gel(v, ind);
+  if (znewabs == gen_2) ind = 0;
+  return (gcmp(znewabs, mkfracss(49,50)) <= 0)? -ind: ind;
+}
+static GEN
+mul4(GEN a, GEN b, GEN c, GEN d) { return gmul(a,gmul(b, gmul(c, d))); }
+static GEN
+mul3(GEN a, GEN b, GEN c) { return gmul(a,gmul(b, c)); }
+
+/* (1 - zt)^a t^b (1-t)^c */
+static GEN
+fF212(void *E, GEN t)
+{
+  GEN z = gel(E,1), a = gel(E,2), b = gel(E,3), c = gel(E,4);
+  GEN u = gsubsg(1, gmul(z, t));
+  long prec = precision(t);
+  return mul3(gpow(u, a, prec), gpow(t, b, prec), gpow(gsubsg(1,t), c, prec));
+}
+
+/* (1 - zt)^a T(1-zt) t^b (1-t)^c */
+static GEN
+fF21neg2(void *E, GEN t)
+{
+  GEN z = gel(E,1), a = gel(E,2), b = gel(E,3), c = gel(E,4), T = gel(E,5);
+  GEN u = gsubsg(1, gmul(z, t));
+  long prec = precision(t);
+  return mul4(gsubst(T, 0, u), gpow(u, a, prec), gpow(t, b, prec),
+              gpow(gsubsg(1,t), c, prec));
+}
+
+/* N >= 1 */
+static GEN
+F21lam(long N, GEN a, GEN b, GEN c)
+{
+  long i;
+  GEN C = vecbinomial(N), S = cgetg(N+2, t_VEC);
+  GEN vb = vpoch(gsub(c,a), N), va = vpoch(a, N);
+  gel(S,1) = gel(va,N);
+  for (i = 1; i < N; i++) gel(S,i+1) = mul3(gel(C,i+1), gel(vb,i), gel(va,N-i));
+  gel(S,i+1) = gel(vb,N); return RgV_to_RgX(S,0);
+}
+
+/* F21finite stuff: case where a or b is a nonpositive integer */
+static GEN
+F21finitetaylor(long m, GEN b, GEN c, GEN z, long prec)
+{
+  pari_sp av;
+  GEN C, S, prall;
+  long j, ct, mi, precnew, tol, bitmin, mb;
+  if (isnegint2(b, &mb) && mb < m) { b = stoi(-m); m = mb; }
+  prall = findprecgen(mkvec2(stoi(-m), b), mkvec(c), z);
+  precnew = prec + prall[1]; mi = prall[2];
+  if (precnew > prec)
+  {
+    b = gprec_wensure(b, precnew);
+    c = gprec_wensure(c, precnew);
+    z = gprec_wensure(z, precnew);
+    prec = precnew;
+  }
+  bitmin = -(prec2nbits(prec) + 10);
+  C = real_1(prec); S = C; ct = 0; tol = 0;
+  av = avma;
+  for(j = 0; j < m; ++j)
+  {
+    C = gmul(C, gdiv(gmulsg(-(m - j), gaddsg(j, b)), gaddsg(j, c)));
+    C = gmul(C, gdivgs(z, j + 1));
+    if (j > mi)
+      tol = gequal0(S) ? 0: gexpo(C) - gexpo(S);
+    S = gadd(S, C);
+    if (j > mi)
+    {
+      if (tol > bitmin) ct=0; else ct++;
+      if (ct == 3) break;
+    }
+    if (gc_needed(av, 1)) gerepileall(av, 2, &S, &C);
+  }
+  return S;
+}
+
+static GEN
+F21finiteaux(long m, GEN b, GEN c, GEN z, GEN numb, GEN numc, GEN coe, long prec)
+{
+  GEN C;
+  long j;
+  if (!isnegint2(c, &j) || j >= m) C = poch(numb, m, prec);
+  else
+  {
+    C = mulii(mpfact(j), mpfact(m-j-1));
+    if (odd(m-j-1)) togglesign(C);
+    c = gaddgs(c, j+1);
+  }
+  return mul3(C, gdiv(gpowgs(coe, m), poch(numc, m, prec)),
+              F21finitetaylor(m, b, c, z, prec));
+}
+
+static GEN
+F21finite(long m, GEN b, GEN c, GEN z, long prec)
+{
+  GEN a = stoi(-m), b1 = b, c1 = c, z1;
+  long ind = F21ind(a, b, c, z, prec), inda = labs(ind);
+  z1 = zind(z, inda);
+  if (ind < 0)
+  {
+    b1 = bind(a, b, c, inda);
+    c1 = cind(a, b, c, inda);
+  }
+  switch (inda)
+  {
+    case 1: return F21finiteaux(m, b1, c1, z1, b, c, gsubsg(1,z), prec);
+    case 2: return gmul(gpowgs(gsubsg(1,z), m),
+                        F21finitetaylor(m, b1, c, z1, prec));
+    case 4: return F21finiteaux(m, b, c1, z1, gsub(c,b), c, gen_1, prec);
+    case 5: return F21finiteaux(m, b1, c1, z1, gsub(c,b), c, z, prec);
+    case 6: return F21finiteaux(m, b1, c1, z1, b, c, gneg(z), prec);
+    default:return F21finitetaylor(m, b, c, z, prec);
+  }
+}
+
+/**********************************************************/
+
+static GEN
+multgam(GEN a, GEN b, GEN c, GEN d, long prec)
+{
+  if (isnegint(c) || isnegint(d)) return gen_0;
+  return gdiv(mulgamma2(a, b, prec), mulgamma2(c, d, prec));
+}
+
+const long EXTRAPREC = DEFAULTPREC-2;
+
+/* z != 1 */
+static GEN
+myint21(void *E, GEN (*f)(void*, GEN), long prec)
+{
+  GEN pz, z = gel(E,1), a = real_i(gel(E,2)), b = gel(E,3), c = gel(E,4);
+  GEN p0 = mkendpt(gen_0, b);
+  GEN p1 = mkendpt(gen_1, c);
+  pz = (gcmpgs(a, 1) <= 0 &&
+        typ(z) == t_COMPLEX && is0(imag_i(z), 10))? real_i(ginv(z)): NULL;
+  if (pz && (gsigne(pz) <= 0 || gcmp(pz, gen_1) >= 0)) pz = NULL;
+  if (pz) pz = mkendpt(pz,a);
+  else if (gcmpgs(a,-1) <= 0) prec += ((gexpo(a)+1)>>1) * EXTRAPREC;
+  return intnumsplit(E, f, p0, p1, pz, prec);
+}
+static GEN F21taylorind(GEN a, GEN b, GEN c, GEN z, long ind, long prec);
+static GEN
+F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
+{
+  GEN res, p1, p2, tmp;
+  long m, ind, prec2, bitprec = prec2nbits(prec);
+  if (is0(z, bitprec)) return real_1(prec);
+  if (gequal1(z))
+  {
+    tmp = gsub(c, gadd(a, b));
+    check_hyp1(tmp);
+    return multgam(c, tmp, gsub(c,a), gsub(c,b), prec);
+  }
+  if (isnegint2(b, &m)) return F21finite(m, a, c, z, prec);
+  if (isnegint2(a, &m)) return F21finite(m, b, c, z, prec);
+  if (isnegint(gsub(c, b))) swap(a, b);
+  if (isnegint2(gsub(c, a), &m))
+  {
+    tmp = gpow(gsubsg(1, z), gneg(gaddsg(m, b)), prec);
+    return gmul(tmp, F21finite(m, gsub(c, b), c, z, prec));
+  }
+  /* Here a, b, c, c-a, c-b are not non-positive integers */
+  if (is0(imag_i(z), bitprec)) z = real_i(z);
+  ind = F21ind(a, b, c, z, prec);
+  if (ind < 0) return gmul(ggamma(c, prec), F21taylorind(a,b,c, z, ind, prec));
+  if (gsigne(real_i(b)) <= 0)
+  {
+    if (gsigne(real_i(a)) <= 0)
+    {
+      if (gcmp(real_i(b), real_i(a)) < 0) swap(a,b);
+      /* FIXME: solve recursion as below with F21auxpol */
+      p1 = gmul(gsubsg(1, z), F21_i(a, gaddsg(1,b), c, z, prec));
+      p2 = gmul(gmul(gsubsg(1, gdiv(a,c)), z), F21_i(a, gaddsg(1,b), gaddsg(1,c), z, prec));
+      return gadd(p1, p2);
+    }
+    swap(a,b);
+  }
+  if (gcmp(real_i(a), real_i(b)) < 0 && gsigne(real_i(a)) > 0) swap(a,b);
+  /* Here real(b) > 0 and either real(a) <= 0 or real(a) > real(b) */
+  prec2 = prec + EXTRAPREC;
+  a = gprec_wensure(a,prec2);
+  b = gprec_wensure(b,prec2);
+  c = gprec_wensure(c,prec2);
+  z = gprec_wensure(z,prec2);
+  if (gcmp(real_i(c), real_i(b)) <= 0)
+  {
+    long N = 1 + itos(gfloor(gsub(real_i(b),real_i(c)))); /* >= 1 */
+    GEN T = F21lam(N, a, b, c), c0 = c;
+    void *E;
+    c = gaddsg(N,c);
+    E = (void*)mkvec5(z, gsubsg(-N,a), gsubgs(b,1), gsubgs(gsub(c,b),1), T);
+    res = gdiv(myint21(E, fF21neg2, prec2), poch(c0, N, prec));
+  }
+  else
+  {
+    void *E = (void*)mkvec4(z, gneg(a), gsubgs(b,1), gsubgs(gsub(c,b),1));
+    res = myint21(E, fF212, prec2);
+  }
+  return gmul(multgam(gen_1, c, b, gsub(c,b), prec), res);
+}
+
+static GEN
+F21(GEN a, GEN b, GEN c, GEN z, long prec)
+{
+  pari_sp ltop = avma;
+  GEN res = F21_i(a, b, c, z, prec);
+  long ex = labs(gexpo(res)), bitprec = prec2nbits(prec);
+  if (ex > bitprec)
+  {
+    prec = nbits2prec(ex + bitprec);
+    res = F21_i(gprec_wensure(a,prec), gprec_wensure(b,prec),
+                gprec_wensure(c,prec), gprec_wensure(z,prec), prec);
+  }
+  return gerepilecopy(ltop, res);
+}
+
+static GEN
+F21taylor(GEN a, GEN b, GEN c, GEN z, long prec)
+{ return gdiv(Ftaylorgen(mkvec2(a,b), mkvec(c), z, prec), ggamma(c, prec)); }
+
+static GEN
+F21taylorlim(GEN vnum, long m, GEN argz, long si, long prec)
+{
+  pari_sp av;
+  GEN C, P, S, prall, tmp;
+  long precnew, j, ct, mi, fl, bitmin, tol;
+  prall = findprecgen(vnum, mkvec(stoi(m + 1)), argz);
+  precnew = prec + prall[1]; mi = prall[2];
+  bitmin = -(prec2nbits(precnew) + 10);
+  if (precnew > prec)
+  {
+    prec = precnew;
+    vnum = gprec_wensure(vnum, prec);
+    argz = gprec_wensure(argz, prec);
+  }
+  P = gadd(gneg(glog(gmulsg(si, argz), prec)),
+           gsub(gpsi(stoi(m+1), prec), mpeuler(prec)));
+  tmp = gel(vnum, 2); if (si == -1) tmp = gsubsg(1, tmp);
+  P = gsub(P, gadd(gpsi(gel(vnum, 1), prec), gpsi(tmp, prec)));
+  C = real_1(prec); ct = 0; j = 0; tol = 0;
+  S = P; fl = 1;
+  av = avma;
+  while (1)
+  {
+    GEN vnj1 = gaddsg(j, gel(vnum, 1)), vnj2 = gaddsg(j, gel(vnum, 2));
+    long jB = (j + 1)*(j + 1 + m);
+    C = gdivgs(gmul(argz, gmul(C, vnj1)), jB);
+    if (!gequal0(vnj2)) C = gmul(C, vnj2); else { P = stor(si, prec); fl = 0; }
+    if (j > mi) tol = gequal0(S) ? 0 : gexpo(C) - gexpo(S);
+    if (fl)
+    {
+      P = gadd(P, gdivgs(stoi(2*j + 2 + m), jB));
+      P = gsub(P, gadd(ginv(vnj1), ginv(vnj2)));
+    }
+    S = gadd(S, gmul(C, P)); j++;
+    if (j > mi)
+    {
+      if (tol > bitmin) ct=0; else ct++;
+      if (ct == 3) break;
+    }
+    if (gc_needed(av, 1)) gerepileall(av, 3, &S, &C, &P);
+  }
+  return gdiv(S, mpfact(m));
+}
+
+static GEN
+F21finitelim(GEN vnum, long m, GEN argz, long prec)
+{
+  GEN C, S, a, b;
+  long j;
+  if (!m) return gen_0;
+  a = gel(vnum,1);
+  b = gel(vnum,2);
+  S = C = real_1(prec + EXTRAPRECWORD);
+  for (j = 1; j < m; ++j)
+  {
+    GEN vnj1 = gaddsg(j-1, a), vnj2 = gaddsg(j-1, b);
+    C = gdivgs(gmul(C, gmul(gmul(vnj1, vnj2), argz)), j*(j - m));
+    S = gadd(S, C);
+  }
+  return gmul(S, mpfact(m-1));
+}
+
+static GEN
+OK_gadd(GEN x, GEN y, long prec0, long *pprec,
+        GEN *d1,GEN *d2,GEN *d3,GEN *d4,GEN *d5,GEN *d6,GEN *d7,GEN *d8)
+{
+  long prec = *pprec;
+  GEN z = gadd(x,y);
+  if (!gequal0(z) && gexpo(z)-gexpo(x) >= prec2nbits(prec0) - prec2nbits(prec))
+    return z;
+  *pprec = prec = 2*prec - 2;
+  *d1 = gprec_wensure(*d1, prec); *d2 = gprec_wensure(*d2, prec);
+  *d3 = gprec_wensure(*d3, prec); *d4 = gprec_wensure(*d4, prec);
+  *d5 = gprec_wensure(*d5, prec); *d6 = gprec_wensure(*d6, prec);
+  *d7 = gprec_wensure(*d7, prec); *d8 = gprec_wensure(*d8, prec);
+  return NULL;
+}
+
+static GEN
+FBaux1(GEN v1, GEN vgam1, GEN coe1, GEN v2, GEN vgam2, GEN coe2, GEN z, GEN bma, long prec0, long prec)
+{
+  GEN res1, res2, res;
+  GEN tmp1 = gdiv(coe1, mulgammav2(vgam1, prec));
+  GEN tmp2 = gdiv(coe2, mulgammav2(vgam2, prec));
+  res1 = gmul(tmp1, F21taylor(gel(v1,1), gel(v1,2), gel(v1,3), z, prec));
+  res2 = gmul(tmp2, F21taylor(gel(v2,1), gel(v2,2), gel(v2,3), z, prec));
+  res = OK_gadd(res1, res2, prec0, &prec,
+                &coe1,&coe2, &vgam1,&vgam2, &v1,&v2, &z,&bma);
+  if (res)
+  {
+    GEN pi = mppi(prec);
+    return gmul(res, gdiv(pi, gsin(gmul(pi, bma), prec)));
+  }
+  return FBaux1(v1, vgam1, coe1, v2, vgam2, coe2, z, bma, prec0, prec);
+}
+
+static GEN
+FBaux2(GEN v1, GEN vgam1, GEN coe1, long m, GEN z1, GEN coe2, GEN vgam2, GEN v2, GEN z2, long si, long prec0, long prec)
+{
+  GEN res1, res2, res;
+  GEN tmp1 = gdiv(coe1, mulgammav2(vgam1, prec));
+  GEN tmp2 = gdiv(coe2, mulgammav2(vgam2, prec));
+  res1 = gmul(tmp1, F21finitelim(v1, m, z1, prec));
+  res2 = gmul(tmp2, F21taylorlim(v2, m, z2, si, prec));
+  res = OK_gadd(res1, res2, prec0,&prec,
+                &coe1,&coe2, &vgam1,&vgam2, &v1,&v2, &z1,&z2);
+  if (res) return res;
+  return FBaux2(v1, vgam1, coe1, m, z1, coe2, vgam2, v2, z2, si, prec0, prec);
+}
+
+static GEN
+F21taylor1(GEN a, GEN b, GEN c, GEN z, long prec)
+{
+  GEN bma = gsub(b, a), tmp, b1, c1, e1, coe1, b2, c2, e2, coe2, z1;
+  GEN vgam1, vgam2, v1, v2;
+  long m = itos(ground(real_i(bma)));
+  tmp = gsubgs(bma, m);
+  if (!is0(tmp, prec2nbits(prec)))
+  {
+    b1 = gsub(c, b); c1 = gaddgs(gneg(bma), 1);
+    e1 = gsub(c, a); coe1 = gpow(gsubsg(1, z), gneg(a), prec);
+    b2 = e1; c2 = gaddgs(bma, 1);
+    e2 = b1; coe2 = gneg(gpow(gsubsg(1, z), gneg(b), prec));
+    z1 = ginv(gsubsg(1, z));
+    return FBaux1(mkvec3(a,b1,c1), mkvec2(b,e1), coe1, mkvec3(b,b2,c2),
+                  mkvec2(a,e2), coe2, z1, bma, prec, prec);
+  }
+  if (m < 0) { swap(a,b); m = -m; }
+  coe1 = gpow(gsubsg(1, z), gneg(a), prec);
+  v2 = vgam1 = mkvec2(gaddgs(a, m), gsub(c, a));
+  v1 = mkvec2(a, gsub(c, gaddgs(a, m))); z1 = ginv(gsubsg(1, z));
+  coe2 = gmul(coe1, gpowgs(gsubsg(1, z), -m)); if (m & 1L) coe2 = gneg(coe2);
+  vgam2 = mkvec2(a, gsub(c, gaddgs(a, m)));
+  return FBaux2(v1, vgam1, coe1, m, z1, coe2, vgam2, v2, z1, 1, prec, prec);
+}
+
+static GEN
+F21taylor4(GEN a, GEN b, GEN c, GEN z, long prec)
+{
+  GEN bma = gsub(c, gadd(a, b)), tmp, c1, d1, e1, a2, b2, c2, coe2, z1, z2;
+  GEN vgam1, vgam2, v1, v2;
+  long m = itos(ground(real_i(bma)));
+  tmp = gsubgs(bma, m);
+  if (!is0(tmp, prec2nbits(prec)))
+  {
+    c1 = gsubsg(1, bma);
+    a2 = d1 = gsub(c, a);
+    b2 = e1 = gsub(c, b);
+    c2 = gaddsg(1, bma);
+    z1 = gsubsg(1, z); coe2 = gneg(gpow(z1, bma, prec));
+    return FBaux1(mkvec3(a,b,c1), mkvec2(d1,e1), gen_1, mkvec3(a2,b2,c2),
+                  mkvec2(a,b), coe2, z1, bma, prec, prec);
+  }
+  if (m < 0)
+  {
+    tmp = F21taylor4(gaddgs(a,m), gaddgs(b,m), gaddgs(gadd(a,b), m), z, prec);
+    return gmul(gpowgs(gsubsg(1, z), m), tmp);
+  }
+  v2 = vgam1 = mkvec2(gaddgs(a,m), gaddgs(b,m));
+  v1 = vgam2 = mkvec2(a, b);
+  z1 = gsubgs(z, 1);
+  z2 = gneg(z1); coe2 = gpowgs(z1, m);
+  return FBaux2(v1, vgam1, gen_1, m, z1, coe2, vgam2, v2, z2, 1, prec, prec);
+}
+
+static GEN
+F21taylor5(GEN a, GEN b, GEN c, GEN z, long prec)
+{
+  GEN bma = gsub(c, gadd(a,b)), tmp, b1, c1, d1, e1, coe1, a2, b2, c2, coe2, z1;
+  GEN vgam1, vgam2, v1, v2, z2;
+  long m = itos(ground(real_i(bma)));
+  tmp = gsubgs(bma, m);
+  if (!is0(tmp, prec2nbits(prec)))
+  {
+    b1 = gaddgs(gsub(a, c), 1);
+    c1 = gsubsg(1, bma);
+    a2 = d1 = gsub(c, a);
+    e1 = gsub(c, b);
+    b2 = gsubsg(1, a);
+    c2 = gaddsg(1, bma);
+    coe1 = gpow(z, gneg(a), prec);
+    coe2 = gneg(gmul(gpow(gsubsg(1, z), bma, prec), gpow(z, gneg(d1), prec)));
+    z1 = gsubsg(1, ginv(z));
+    return FBaux1(mkvec3(a, b1, c1), mkvec2(d1, e1), coe1, mkvec3(a2, b2, c2), mkvec2(a, b), coe2, z1, bma, prec, prec);
+  }
+  /* c - (a + b) ~ m */
+  if (m < 0)
+  {
+    tmp = F21taylor5(gaddgs(a,m), gaddgs(b,m), c, z, prec);
+    return gmul(gpowgs(gsubsg(1, z), m), tmp);
+  }
+  vgam1 = mkvec2(gaddgs(a,m), gaddgs(b,m));
+  v1 = mkvec2(a, gsubsg(1-m, b));
+  v2 = mkvec2(gaddgs(a,m), gsubsg(1,b));
+  z1 = gsubgs(ginv(z), 1);
+  z2 = gneg(z1);
+  vgam2 = mkvec2(a, b);
+  coe1 = gpow(z, gneg(a), prec);
+  coe2 = gmul(coe1, gpowgs(z2, m));
+  return FBaux2(v1, vgam1, coe1, m, z1, coe2, vgam2, v2, z2, -1, prec, prec);
+}
+
+static GEN
+F21taylor6(GEN a, GEN b, GEN c, GEN z, long prec)
+{
+  GEN bma = gsub(b, a), tmp, b1, c1, e1, coe1, b2, c2, e2, coe2, z1;
+  GEN vgam1, vgam2, v1, v2, z2;
+  long m = itos(ground(real_i(bma)));
+  tmp = gsubgs(bma, m);
+  if (!is0(tmp,prec2nbits(prec)))
+  {
+    b1 = gaddgs(gsub(a,c), 1);
+    c1 = gsubsg(1, bma);
+    e1 = gsub(c,a);
+    b2 = gaddgs(gsub(b,c), 1);
+    c2 = gaddgs(bma, 1);
+    e2 = gsub(c, b);
+    coe1 = gpow(gneg(z), gneg(a), prec);
+    coe2 = gneg(gpow(gneg(z), gneg(b), prec));
+    z1 = ginv(z);
+    return FBaux1(mkvec3(a, b1, c1), mkvec2(b, e1), coe1, mkvec3(b, b2, c2), mkvec2(a, e2), coe2, z1, bma, prec, prec);
+  }
+  /* b - a ~ m */
+  if (m < 0) { swap(a,b); m = -m; }
+  coe1 = gpow(gneg(z), gneg(a), prec);
+  coe2 = gmul(coe1, gpowgs(z, -m));
+  vgam1 = mkvec2(gaddgs(a,m), gsub(c,a));
+  v1 = mkvec2(a, gaddgs(gsub(a,c), 1));
+  vgam2 = mkvec2(a, gsub(c, gaddgs(a,m)));
+  v2 = mkvec2(gaddgs(a,m), gaddgs(gsub(a,c), m+1));
+  z2 = ginv(z);
+  z1 = gneg(z2);
+  return FBaux2(v1, vgam1, coe1, m, z1, coe2, vgam2, v2, z2, -1, prec, prec);
+}
+
+/* (new b, new c, new z): given by bind, cind, zind
+ * case 1: (c-b,1+a-b,1/(1-z))
+ * case 2: (c-b,c,z/(z-1))
+ * case 3: (b,c,z)
+ * case 4: (b,b-c+a+1,1-z)
+ * case 5: (1+a-c,b-c+a+1,1-1/z)
+ * case 6: (1+a-c,1+a-b,1/z) */
+static GEN
+F21taylorind(GEN a, GEN b, GEN c, GEN z, long ind, long prec)
+{
+  GEN res;
+  switch (labs(ind))
+  {
+    case 1: res = F21taylor1(a, b, c, z, prec); break;
+    case 2: res = F21taylor(a, gsub(c, b), c, gdiv(z, gsubgs(z, 1)), prec);
+            res = gmul(res, gpow(gsubsg(1,z), gneg(a), prec)); break;
+    case 3: res = F21taylor(a, b, c, z, prec); break;
+    case 4: res = F21taylor4(a, b, c, z, prec); break;
+    case 5: res = F21taylor5(a, b, c, z, prec); break;
+    default:res = F21taylor6(a, b, c, z, prec); break;
+  }
+  return gprec_wtrunc(res, prec);
+}
+
+static void
+hypersimplify(GEN *pn, GEN *pd)
+{
+  GEN n = *pn, d = *pd;
+  long j, ld = lg(d), ln = lg(n);
+  for (j = 1; j < ld; j++)
+  {
+    GEN t = gel(d, j);
+    long k;
+    for (k = 1; k < ln; k++)
+      if (gequal(t, gel(n, k)))
+      {
+        *pd = vecsplice(d, j);
+        *pn = vecsplice(n, k); return hypersimplify(pd, pn);
+      }
+  }
+  return;
+}
+
+static GEN
+f_pochall(void *E, GEN n)
+{
+  GEN S, a, tmp, N = gel(E,1), D = gel(E,2);
+  long j, prec = itou(gel(E,3));
+  S = gen_0;
+  for (j = 1; j < lg(N); j++)
+  {
+    a = gel(N, j);
+    tmp = gsub(glngamma(gadd(n, a), prec), glngamma(a, prec));
+    S = gadd(S, tmp);
+  }
+  for (j = 1; j < lg(D); j++)
+  {
+    a = gel(D, j);
+    tmp = gsub(glngamma(gadd(n, a), prec), glngamma(a, prec));
+    S = gsub(S, tmp);
+  }
+  return gexp(gsub(S, glngamma(gaddsg(1, n), prec)), prec);
+}
+static GEN
+f_pochall_alt(void *E, GEN n)
+{
+  GEN z = f_pochall(E,n);
+  return mpodd(n)? gneg(z): z;
+}
+/* z = \pm1 */
+static GEN
+sumz(GEN N, GEN D, long z, long prec)
+{
+  void *E = (void*)mkvec3(N, D, utoi(prec));
+  GEN tab, be;
+  if (z == -1) return sumalt(E, f_pochall_alt, gen_0, prec);
+  be = gsub(vecsum(D), vecsum(N)); check_hyp1(be);
+  tab = sumnummonieninit(be, NULL, gen_0, prec);
+  return sumnummonien(E, f_pochall, gen_0, tab, prec);
+}
+
+GEN
+hypergeom(GEN N, GEN D, GEN z, long prec)
+{
+  long nN, nD, j;
+  if (gequal0(z)) return gen_1;
+  if (typ(N) != t_VEC) N = mkvec(N);
+  if (typ(D) != t_VEC) D = mkvec(D);
+  hypersimplify(&N, &D);
+  nN = lg(N) - 1;
+  nD = lg(D) - 1;
+  for (j = 1; j <= nD; ++j)
+    if (isnegint(gel(D,j))) pari_err_TYPE("hypergeom", D);
+  if (nD >= (nN? nN: 2)) return Ftaylorgen(N, D, z, prec);
+  if (nD == nN - 1 && nN >= 3)
+  {
+    GEN d = gsubsg(1, gabs(z,LOWDEFAULTPREC));
+    long ed = gexpo(d);
+    /* z in unit disc but "away" from unit circle */
+    if (gsigne(d) > 0 && ed > -prec2nbits(prec)/4
+        && (nN != 3 || ed > -15)) /* For 3F2 we can use integral */
+      return Ftaylorgen(N, D, z, prec);
+    if (gequal1(z))  return sumz(N, D, 1, prec);
+    if (gequalm1(z)) return sumz(N, D,-1, prec);
+  }
+  switch (nN)
+  {
+    case 0:
+      if (nD == 0) return gexp(z, prec);
+      if (nD == 1) return F01(gel(D,1), z, prec);
+    case 1: return F10(gel(N, 1), z, prec);
+    case 2:
+      if (nD == 0) return F20(gel(N,1), gel(N,2), z, prec);
+      if (nD == 1) return F21(gel(N,1), gel(N,2), gel(D,1), z, prec);
+    case 3:
+      if (nD == 0) break;
+      if (nD == 1) return F31(gel(N,1), gel(N,2), gel(N,3), gel(D,1), z, prec);
+      if (nD == 2) return F32(N, D, z, prec);
+  }
+  pari_err_IMPL("this hypergeometric function");
+  return NULL;
+}

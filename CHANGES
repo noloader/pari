@@ -57,6 +57,7 @@ BA   3- [libpari] FpXC_FpXQ_eval
      5- new file src/basemath/bern.c
      6- [libpari] divisorsu_moebius
      7- [libpari] ZXQ_powu
+     8- new GP functions hypergen, airy
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
