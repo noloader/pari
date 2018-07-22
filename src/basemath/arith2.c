@@ -731,10 +731,10 @@ long
 numdivu(long N)
 {
   pari_sp av;
-  GEN fa;
+  long n;
   if (N == 1) return 1;
-  av = avma; fa = factoru(N);
-  set_avma(av); return numdivu_fact(fa);
+  av = avma; n = numdivu_fact(factoru(N));
+  set_avma(av); return n;
 }
 static GEN
 numdiv_aux(GEN F)
