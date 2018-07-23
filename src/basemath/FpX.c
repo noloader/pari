@@ -1774,23 +1774,13 @@ FpX_FpXQ_eval(GEN Q, GEN x, GEN T, GEN p)
 }
 
 GEN
-FpXC_FpXQV_eval(GEN P, GEN x, GEN T, GEN p)
-{
-  long i, l = lg(P);
-  GEN res = cgetg(l, t_COL);
-  for (i=1; i<l; i++)
-    gel(res,i) = FpX_FpXQV_eval(gel(P,i), x, T, p);
-  return res;
+FpXC_FpXQV_eval(GEN x, GEN v, GEN T, GEN p)
+{ pari_APPLY_type(t_COL, FpX_FpXQV_eval(gel(x,i), v, T, p))
 }
 
 GEN
-FpXM_FpXQV_eval(GEN Q, GEN x, GEN T, GEN p)
-{
-  long i, l = lg(Q);
-  GEN y = cgetg(l, t_MAT);
-  for (i=1; i<l; i++)
-    gel(y,i) = FpXC_FpXQV_eval(gel(Q,i), x, T, p);
-  return y;
+FpXM_FpXQV_eval(GEN x, GEN v, GEN T, GEN p)
+{ pari_APPLY_same(FpXC_FpXQV_eval(gel(x,i), v, T, p))
 }
 
 GEN
