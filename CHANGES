@@ -14,3 +14,4 @@ Done for version 2.12.0 (released ??/??/20??):
   Added
      1- [libpari] nonsquare_Fl
      2- [libpari] set_avma
+BA   3- [libpari] FpXC_FpXQ_eval

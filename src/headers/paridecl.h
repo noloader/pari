@@ -612,6 +612,7 @@ GEN     FpX_resultant(GEN a, GEN b, GEN p);
 GEN     FpX_sqr(GEN x, GEN p);
 GEN     FpX_sub(GEN x, GEN y, GEN p);
 long    FpX_valrem(GEN x0, GEN t, GEN p, GEN *py);
+GEN     FpXC_FpXQ_eval(GEN Q, GEN x, GEN T, GEN p);
 GEN     FpXC_FpXQV_eval(GEN Q, GEN x, GEN T, GEN p);
 GEN     FpXM_FpXQV_eval(GEN Q, GEN x, GEN T, GEN p);
 GEN     FpXQ_autpow(GEN x, ulong n, GEN T, GEN p);

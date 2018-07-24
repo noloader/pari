@@ -1784,6 +1784,14 @@ FpXM_FpXQV_eval(GEN x, GEN v, GEN T, GEN p)
 }
 
 GEN
+FpXC_FpXQ_eval(GEN x, GEN F, GEN T, GEN p)
+{
+  long d = brent_kung_optpow(degpol(T)-1,lg(x)-1,1);
+  GEN Fp = FpXQ_powers(F, d, T, p);
+  return FpXC_FpXQV_eval(x, Fp, T, p);
+}
+
+GEN
 FpXQ_autpowers(GEN aut, long f, GEN T, GEN p)
 {
   pari_sp av = avma;
