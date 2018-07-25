@@ -1091,7 +1091,7 @@ static GEN Flx_simplefact_Cantor(GEN T, ulong p);
 static GEN
 FpX_simplefact_Cantor(GEN T, GEN p)
 {
-  GEN V, XP;
+  GEN V;
   long i, l;
   if (lgefint(p) == 3)
   {
@@ -1099,9 +1099,9 @@ FpX_simplefact_Cantor(GEN T, GEN p)
     return Flx_simplefact_Cantor(ZX_to_Flx(T,pp), pp);
   }
   T = FpX_get_red(T, p);
-  XP = FpX_Frobenius(T, p);
   V = FpX_factor_Yun(get_FpX_mod(T), p); l = lg(V);
-  for (i=1; i < l; i++) gel(V,i) = FpX_ddf_Shoup(gel(V,i), XP, p);
+  for (i=1; i < l; i++)
+    gel(V,i) = FpX_ddf_Shoup(gel(V,i), FpX_Frobenius(gel(V,i), p), p);
   return vddf_to_simplefact(V, get_FpX_degree(T));
 }
 
@@ -2181,12 +2181,12 @@ Flx_ddf(GEN T, ulong p)
 static GEN
 Flx_simplefact_Cantor(GEN T, ulong p)
 {
-  GEN XP, V;
+  GEN V;
   long i, l;
   T = Flx_get_red(T, p);
-  XP = Flx_Frobenius(T, p);
   V = Flx_factor_squarefree(get_Flx_mod(T), p); l = lg(V);
-  for (i=1; i < l; i++) gel(V,i) = Flx_ddf_Shoup(gel(V,i), XP, p);
+  for (i=1; i < l; i++)
+    gel(V,i) = Flx_ddf_Shoup(gel(V,i), Flx_Frobenius(gel(V,i), p), p);
   return vddf_to_simplefact(V, get_Flx_degree(T));
 }
 
