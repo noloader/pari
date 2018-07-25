@@ -26,7 +26,12 @@ pari_emscripten_wget(const char *s)
 void
 pari_emscripten_help(const char *s)
 {
-  pari_err(e_MISC,"Help: http://pari.math.u-bordeaux.fr/dochtml/help/%s",s);
+  const char *url = "https://pari.math.u-bordeaux.fr/dochtml";
+#if ((PARI_VERSION_CODE>>PARI_VERSION_SHIFT)&1)
+  pari_err(e_MISC,"Help: %s/help-stable/%s",url,s);
+#else
+  pari_err(e_MISC,"Help: %s/help/%s",url,s);
+#endif
 }
 
 static GEN
