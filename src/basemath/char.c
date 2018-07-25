@@ -913,6 +913,7 @@ znconreychar(GEN bid, GEN m)
   pari_sp av = avma;
   GEN c, d, nchi;
 
+  if (!checkznstar_i(bid)) pari_err_TYPE("znconreychar", bid);
   switch(typ(m))
   {
     case t_COL:

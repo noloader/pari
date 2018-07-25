@@ -239,7 +239,10 @@ x^2
   *** znconreychar: elements not coprime in znconreylog:
     2
     8
+  ***   at top-level: znconreychar(znstar(8),2)
+  ***                 ^-------------------------
+  *** znconreychar: incorrect type in znconreychar (t_VEC).
   ***   at top-level: znconreyexp(znstar(192,1),[2,8,1,1]~)
   ***                 ^-------------------------------------
   *** znconreyexp: incorrect type in znconreyexp (t_COL).
-Total time spent: 1450
+Total time spent: 876

@@ -2,10 +2,10 @@ Function: znconreychar
 Section: number_theoretical
 C-Name: znconreychar
 Prototype: GG
-Help: znconreychar(bid,m): Dirichlet character attached to m in (Z/qZ)*
- in Conrey's notation, where bid is znstar(q,1).
-Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
- \kbd{bid = znstar(q,1)}), this function returns the Dirichlet character
+Help: znconreychar(G,m): Dirichlet character attached to m in (Z/qZ)*
+ in Conrey's notation, where G is znstar(q,1).
+Doc: Given a \var{znstar} $G$ attached to $(\Z/q\Z)^*$ (as per
+ \kbd{G = znstar(q,1)}), this function returns the Dirichlet character
  attached to $m \in (\Z/q\Z)^*$ via Conrey's logarithm, which
  establishes a ``canonical'' bijection between $(\Z/q\Z)^*$ and its dual.
 
@@ -43,7 +43,7 @@ Doc: Given a \var{bid} attached to $(\Z/q\Z)^*$ (as per
  $m$ mod $q$ maps
  each $g_p$, $p\in S_q$ to $e(m_p / o_p)$, where $e(x) = \exp(2i\pi x)$.
  This function returns the Conrey character expressed in the standard PARI
- way in terms of the SNF generators \kbd{bid.gen}.
+ way in terms of the SNF generators \kbd{G.gen}.
 
  \bprog
  ? G = znstar(8,1);
