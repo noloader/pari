@@ -63,6 +63,7 @@ N=5^3*13^3;mfdim([N,2,Mod(101,N)])
 N=5^3*17^3;mfdim([N,2,Mod(101,N)])
 
 mf=mfinit([155,2],0);
+mfsplit(mf,,1)
 mfsplit(mf, 1)[2]
 mfsplit(mf, 2)[2]
 mfsplit(mf, 3)[2]

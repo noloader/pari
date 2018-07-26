@@ -4668,9 +4668,9 @@ static GEN
 mfspclean(GEN mf, GEN mf0, GEN NF, long ord, GEN simplesp, long flag)
 {
   const long vz = 1;
-  long i, l = lg(simplesp);
+  long i, l = lg(simplesp), dim = MF_get_dim(mf);
   GEN res = cgetg(l, t_MAT), pols = cgetg(l, t_VEC);
-  GEN zeros = (mf == mf0)? NULL: zerocol(MF_get_dim(mf) - MF_get_dim(mf0));
+  GEN zeros = (mf == mf0)? NULL: zerocol(dim - MF_get_dim(mf0));
   for (i = 1; i < l; i++)
   {
     GEN ATP = gel(simplesp, i), A = gel(ATP,1), P = gel(ATP,3);
@@ -4700,6 +4700,8 @@ mfspclean(GEN mf, GEN mf0, GEN NF, long ord, GEN simplesp, long flag)
       v = mf_normalize(mf0, v); if (zeros) v = shallowconcat(zeros,v);
       gel(res,i) = v; if (flag) setlg(res,i+1);
     }
+    else
+      gel(res,i) = zerocol(dim);
     gel(pols,i) = P;
   }
   return mkvec2(res, pols);

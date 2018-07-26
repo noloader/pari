@@ -6,6 +6,7 @@ Done for version 2.12.0 (released ??/??/20??):
      2- memory leak on error in plots
      3- memory leak on error in newtoncharpoly
      4- heap-buffer-overflow in init_prefix [readline]
+     5- mfsplit(mf,,flag) could return uninitialized objects => SEGV
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
