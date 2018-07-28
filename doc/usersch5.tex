@@ -2990,6 +2990,10 @@ returns $x$ itself and not a copy if $yu = 0$. Not suitable for
 \fun{GEN}{mulu_interval}{ulong a, ulong b} returns $a(a+1)\cdots b$, assuming
 that $a \leq b$.
 
+\fun{GEN}{mulu_interval_step}{ulong a, ulong b, ulong s} returns the product
+of all integers in $[a,b]$ congruent to $a$ modulo $s$. Assume $a\leq b$ and
+$s > 0$;
+
 \fun{GEN}{muls_interval}{long a, long b} returns $a(a+1)\cdots b$, assuming
 that $a \leq b$.
 

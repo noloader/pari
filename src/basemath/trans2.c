@@ -1338,7 +1338,7 @@ cxgamma(GEN s0, int dolog, long prec)
   set_avma(av); return affc_fixlg(y, res);
 }
 
-/* Gamma((m+1) / 2) */
+/* m even, Gamma((m+1) / 2) */
 static GEN
 gammahs(long m, long prec)
 {
@@ -1355,16 +1355,14 @@ gammahs(long m, long prec)
   z = sqrtr( mppi(prec) );
   if (m)
   {
-    GEN p1 = mulu_interval(ma/2 + 1, ma);
-    long v = vali(p1);
-    p1 = shifti(p1, -v); v -= ma;
+    GEN p1 = mulu_interval_step(1, ma-1, 2);
     if (m >= 0) z = mulri(z,p1);
     else
     {
-      z = divri(z,p1); v = -v;
+      z = divri(z,p1);
       if ((m&3) == 2) setsigne(z,-1);
     }
-    shiftr_inplace(z, v);
+    shiftr_inplace(z, -m/2);
   }
   affrr(z, y); set_avma(av); return y;
 }

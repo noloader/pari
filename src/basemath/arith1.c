@@ -4436,6 +4436,37 @@ quaddisc(GEN x)
 /**                              FACTORIAL                          **/
 /**                                                                 **/
 /*********************************************************************/
+GEN
+mulu_interval_step(ulong a, ulong b, ulong step)
+{
+  pari_sp av = avma;
+  ulong k, l, N, n;
+  long lx;
+  GEN x;
+
+  if (!a) return gen_0;
+  if (step == 1) return mulu_interval(a, b);
+  n = 1 + (b-a) / step;
+  b -= (b-a) % step;
+  if (n < 61)
+  {
+    if (n == 1) return utoipos(a);
+    x = muluu(a,a+step); if (n == 2) return x;
+    for (k=a+2*step; k<=b; k+=step) x = mului(k,x);
+    return gerepileuptoint(av, x);
+  }
+  /* step | b-a */
+  lx = 1; x = cgetg(2 + n/2, t_VEC);
+  N = b + a;
+  for (k = a;; k += step)
+  {
+    l = N - k; if (l <= k) break;
+    gel(x,lx++) = muluu(k,l);
+  }
+  if (l == k) gel(x,lx++) = utoipos(k);
+  setlg(x, lx);
+  return gerepileuptoint(av, ZV_prod(x));
+}
 /* return a * (a+1) * ... * b. Assume a <= b  [ note: factoring out powers of 2
  * first is slower ... ] */
 GEN
@@ -4450,7 +4481,7 @@ mulu_interval(ulong a, ulong b)
   n = b - a + 1;
   if (n < 61)
   {
-    if (n == 1) return utoi(a);
+    if (n == 1) return utoipos(a);
     x = muluu(a,a+1); if (n == 2) return x;
     for (k=a+2; k<=b; k++) x = mului(k,x);
     return gerepileuptoint(av, x);
@@ -4495,12 +4526,38 @@ muls_interval(long a, long b)
 GEN
 mpfact(long n)
 {
-  if (n < 2)
+  pari_sp av = avma;
+  GEN a, v;
+  long k;
+  if (n <= 12) switch(n)
   {
-    if (n < 0) pari_err_DOMAIN("factorial", "argument","<",gen_0,stoi(n));
-    return gen_1;
+    case 0: case 1: return gen_1;
+    case 2: return gen_2;
+    case 3: return utoipos(6);
+    case 4: return utoipos(24);
+    case 5: return utoipos(120);
+    case 6: return utoipos(720);
+    case 7: return utoipos(5040);
+    case 8: return utoipos(40320);
+    case 9: return utoipos(362880);
+    case 10:return utoipos(3628800);
+    case 11:return utoipos(39916800);
+    case 12:return utoipos(479001600);
+    default: pari_err_DOMAIN("factorial", "argument","<",gen_0,stoi(n));
   }
-  return mulu_interval(2UL, (ulong)n);
+  v = cgetg(expu(n) + 2, t_VEC);
+  for (k = 1;; k++)
+  {
+    long m = n >> (k-1), l;
+    if (m <= 2) break;
+    l = (1 + (n >> k)) | 1;
+    /* product of odd numbers in ]n / 2^k, 2 / 2^(k-1)] */
+    a = mulu_interval_step(l, m, 2);
+    gel(v,k) = k == 1? a: powiu(a, k);
+  }
+  a = gel(v,--k); while (--k) a = mulii(a, gel(v,k));
+  a = shifti(a, factorial_lval(n, 2));
+  return gerepileuptoint(av, a);
 }
 
 /*******************************************************************/
