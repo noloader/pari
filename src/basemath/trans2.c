@@ -1375,9 +1375,9 @@ ggammah(GEN x, long prec)
   {
     case t_INT:
     {
-      long k = itos(x);
-      if (labs(k) > 962353) pari_err_OVERFLOW("gammah");
-      return gammahs(k<<1, prec);
+      long k = itos_or_0(x);
+      if (!k) pari_err_OVERFLOW("gamma");
+      return gammahs(k * 2, prec);
     }
     case t_REAL: case t_COMPLEX: case t_PADIC: case t_SER: {
       pari_sp av = avma;
@@ -1564,7 +1564,6 @@ ggamma(GEN x, long prec)
       if (signe(x) <= 0)
         pari_err_DOMAIN("gamma","argument", "=",
                          strtoGENstr("non-positive integer"), x);
-      if (abscmpiu(x,481177) > 0) pari_err_OVERFLOW("gamma");
       return mpfactr(itos(x) - 1, prec);
 
     case t_REAL: case t_COMPLEX:
@@ -1574,13 +1573,8 @@ ggamma(GEN x, long prec)
     {
       GEN a = gel(x,1), b = gel(x,2), c;
       long m;
-      if (absequaliu(b,2))
+      if (absequaliu(b,2) && (m = itos_or_0(a)))
       {
-        if (is_bigint(a) || labs(m = itos(a)) > 962354)
-        {
-          pari_err_OVERFLOW("gamma");
-          return NULL; /* LCOV_EXCL_LINE */
-        }
         return gammahs(m-1, prec);
       }
       av = avma; c = subii(a,b);
