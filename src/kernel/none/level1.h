@@ -900,9 +900,8 @@ rdiviiz(GEN x, GEN y, GEN z)
 INLINE GEN
 rdivii(GEN x, GEN y, long prec)
 {
-  GEN z = cgetr(prec);
+  GEN z = itor(x, prec);
   pari_sp av = avma;
-  affir(x, z);
   if (lg(y) == 3) {
     affrr(divru(z, y[2]), z);
     if (signe(y) < 0) togglesign(z);
