@@ -2697,9 +2697,9 @@ GEN
 Flxq_autpow(GEN x, ulong n, GEN T, ulong p)
 {
   struct _Flxq D;
+  if (n==0) return Flx_rem(polx_Flx(x[1]), T, p);
+  if (n==1) return Flx_rem(x, T, p);
   D.T = Flx_get_red(T, p); D.p = p;
-  if (n==0) return polx_Flx(T[1]);
-  if (n==1) return Flx_copy(x);
   return gen_powu(x,n,(void*)&D,Flxq_autpow_sqr,Flxq_autpow_mul);
 }
 

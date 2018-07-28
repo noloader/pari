@@ -1827,9 +1827,9 @@ GEN
 FpXQ_autpow(GEN x, ulong n, GEN T, GEN p)
 {
   struct _FpXQ D;
+  if (n==0) return FpX_rem(pol_x(varn(x)), T, p);
+  if (n==1) return FpX_rem(x, T, p);
   D.T = FpX_get_red(T, p); D.p = p;
-  if (n==0) return pol_x(varn(x));
-  if (n==1) return ZX_copy(x);
   return gen_powu(x,n,(void*)&D,FpXQ_autpow_sqr,FpXQ_autpow_mul);
 }
 

@@ -1005,6 +1005,8 @@ F2xq_autpow_mul(void * T, GEN x, GEN y) { return F2x_F2xq_eval(x, y, (GEN) T); }
 GEN
 F2xq_autpow(GEN x, long n, GEN T)
 {
+  if (n==0) return F2x_rem(polx_F2x(x[1]), T);
+  if (n==1) return F2x_rem(x, T);
   return gen_powu(x,n,(void*)T,F2xq_autpow_sqr,F2xq_autpow_mul);
 }
 
