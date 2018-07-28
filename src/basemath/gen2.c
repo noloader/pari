@@ -1519,7 +1519,9 @@ Z_pval(GEN x, GEN p) {
 long
 factorial_lval(ulong n, ulong p)
 {
-  ulong q = p, v = 0;
+  ulong q, v;
+  if (p == 2) return n - hammingl(n);
+  q = p; v = 0;
   do { v += n/q; q *= p; } while (n >= q);
   return (long)v;
 }
