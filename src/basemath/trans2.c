@@ -1374,7 +1374,7 @@ ggammah(GEN x, long prec)
     case t_INT:
     {
       long k = itos_or_0(x);
-      if (!k) pari_err_OVERFLOW("gamma");
+      if (!k && signe(x)) pari_err_OVERFLOW("gamma");
       return gammahs(k * 2, prec);
     }
     case t_REAL: case t_COMPLEX: case t_PADIC: case t_SER: {
