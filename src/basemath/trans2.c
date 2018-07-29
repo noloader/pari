@@ -1550,6 +1550,27 @@ serlngamma(GEN y, long prec)
   }
   return z;
 }
+
+/* If 0 < x < y
+gamma(x/y + m) = gamma(x/y) * mulu_interval_step(x, x+(m-1)*y, y) / y^m
+gamma(x/y - m) = gamma(x/y) / mulu_interval_step(y-x, y*m-x, y) * (-y)^m */
+static GEN
+gammafrac24(GEN a, GEN b, long prec)
+{
+  long A, B;
+  if (!(A = itos_or_0(a)) || !(B = itos_or_0(b)) || B > 24) return NULL;
+  switch(B)
+  {
+    case 2: return gammahs(A-1, prec);
+    case 3:
+    case 4:
+    case 6:
+    case 8:
+    case 12:
+    case 24: return NULL;
+  }
+  return NULL;
+}
 GEN
 ggamma(GEN x, long prec)
 {
@@ -1569,12 +1590,8 @@ ggamma(GEN x, long prec)
 
     case t_FRAC:
     {
-      GEN a = gel(x,1), b = gel(x,2), c;
-      long m;
-      if (absequaliu(b,2) && (m = itos_or_0(a)))
-      {
-        return gammahs(m-1, prec);
-      }
+      GEN a = gel(x,1), b = gel(x,2), c = gammafrac24(a, b, prec);
+      if (c) return c;
       av = avma; c = subii(a,b);
       if (expi(c) - expi(b) < -50)
       { /* x = 1 + c/b is close to 1 */
@@ -1607,17 +1624,114 @@ ggamma(GEN x, long prec)
   return trans_eval("gamma",ggamma,x,prec);
 }
 
+/* 0 < a < b */
+static GEN
+mulu_interval_step_i(ulong a, ulong b, ulong step)
+{
+  ulong k, l, N, n;
+  long lx;
+  GEN x;
+
+  n = 1 + (b-a) / step;
+  b -= (b-a) % step;
+  /* step | b-a */
+  lx = 1; x = cgetg(2 + n/2, t_VEC);
+  N = b + a;
+  for (k = a;; k += step)
+  {
+    l = N - k; if (l <= k) break;
+    gel(x,lx++) = muluu(k,l);
+  }
+  if (l == k) gel(x,lx++) = utoipos(k);
+  setlg(x, lx); return x;
+}
+
+static GEN
+_mul(void *data, GEN x, GEN y)
+{
+  long prec = (long)data;
+  /* switch to t_REAL ? */
+  if (typ(x) == t_INT && lgefint(x) > prec) x = itor(x, prec);
+  if (typ(y) == t_INT && lgefint(y) > prec) y = itor(y, prec);
+  return mpmul(x, y);
+}
+GEN
+mpfactr_basecase(long n, long prec)
+{
+  GEN v = cgetg(expu(n) + 2, t_VEC);
+  long k, prec2 = prec + EXTRAPRECWORD;
+  GEN a;
+  for (k = 1;; k++)
+  {
+    long m = n >> (k-1), l;
+    if (m <= 2) break;
+    l = (1 + (n >> k)) | 1;
+    /* product of odd numbers in ]n / 2^k, 2 / 2^(k-1)] */
+    a = mulu_interval_step_i(l, m, 2);
+    a = gen_product(a, (void*)prec2, &_mul);
+    gel(v,k) = k == 1? a: gpowgs(a, k);
+  }
+  a = gel(v,--k); while (--k) a = mpmul(a, gel(v,k));
+  if (typ(a) == t_INT) a = itor(a, prec); else a = gprec_wtrunc(a, prec);
+  shiftr_inplace(a, factorial_lval(n, 2));
+  return a;
+}
+/* Theory says n > C * b^1.5 / log(b). Timings:
+ * b = [64, 128, 192, 256, 512, 1024, 2048, 4096, 8192, 16384]
+ * n = [1930, 2650, 3300, 4270, 9000, 23000, 75000, 210000, 750000, 2400000] */
+static long
+mpfactr_n(long prec)
+{
+  long b = bit_accuracy(prec);
+  if (b <=  64) return 1930;
+  if (b <= 128) return 2650;
+  if (b <= 192) return 3300;
+  return b * sqrt(b);
+}
+static GEN
+mpfactr_small(long n, long prec)
+{
+  GEN f = cgetr(prec);
+  pari_sp av = avma;
+  if (n < 410)
+    affir(mpfact(n), f);
+  else
+    affrr(mpfactr_basecase(n, prec), f);
+  set_avma(av); return f;
+}
 GEN
 mpfactr(long n, long prec)
 {
   GEN f = cgetr(prec);
   pari_sp av = avma;
 
-  if (n+1 > 350 + 70*(prec-2)) /* heuristic */
-    affrr(cxgamma(stor(n+1, prec), 0, prec), f);
-  else
+  if (n < 410)
     affir(mpfact(n), f);
+  else
+  {
+    long N = mpfactr_n(prec);
+    GEN z = n <= N? mpfactr_basecase(n, prec)
+                  : cxgamma(stor(n+1, prec), 0, prec);
+    affrr(z, f);
+  }
   set_avma(av); return f;
+}
+
+/* originally a little worse than mpfactr_n because of the extra logarithm.
+ * Asymptotically same. */
+static long
+lngamma_n(long prec)
+{
+  long b = bit_accuracy(prec);
+  double N;
+  if (b <=  64) return 1450;
+  if (b <= 128) return 2010;
+  if (b <= 192) return 2870;
+  N = b * sqrt(b);
+  if (b <= 256) return N/1.25;
+  if (b <= 512) return N/1.2;
+  if (b <= 2048) return N/1.1;
+  return N;
 }
 
 GEN
@@ -1629,12 +1743,15 @@ glngamma(GEN x, long prec)
   switch(typ(x))
   {
     case t_INT:
+    {
+      ulong n;
       if (signe(x) <= 0)
         pari_err_DOMAIN("lngamma","argument", "=",
                          strtoGENstr("non-positive integer"), x);
-      if (abscmpiu(x,200 + 50*(prec-2)) > 0) /* heuristic */
-        return cxgamma(x, 1, prec);
-      return gerepileuptoleaf(av, logr_abs( itor(mpfact(itos(x) - 1), prec) ));
+      n = itou_or_0(x);
+      if (!n || n > lngamma_n(prec)) return cxgamma(x, 1, prec);
+      return gerepileuptoleaf(av, logr_abs( mpfactr_small(n-1, prec) ));
+    }
     case t_FRAC:
     {
       GEN a = gel(x,1), b = gel(x,2), c = subii(a,b);

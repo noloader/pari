@@ -11,7 +11,7 @@ Done for version 2.12.0 (released ??/??/20??):
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
         [was undocumented, malloc'ed and resulted in memory leaks]
-     2- improved n! for integral n
+     2- improved n!, factorial(n) and lngamma(n) for integral n
 
   Added
      1- [libpari] nonsquare_Fl
