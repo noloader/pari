@@ -1717,16 +1717,16 @@ mpfactr(long n, long prec)
   set_avma(av); return f;
 }
 
-/* originally a little worse than mpfactr_n because of the extra logarithm.
+/* First a little worse than mpfactr_n because of the extra logarithm.
  * Asymptotically same. */
-static long
+static ulong
 lngamma_n(long prec)
 {
   long b = bit_accuracy(prec);
   double N;
-  if (b <=  64) return 1450;
-  if (b <= 128) return 2010;
-  if (b <= 192) return 2870;
+  if (b <=  64) return 1450UL;
+  if (b <= 128) return 2010UL;
+  if (b <= 192) return 2870UL;
   N = b * sqrt(b);
   if (b <= 256) return N/1.25;
   if (b <= 512) return N/1.2;
