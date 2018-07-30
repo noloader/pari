@@ -1655,7 +1655,7 @@ _mul(void *data, GEN x, GEN y)
   if (typ(y) == t_INT && lgefint(y) > prec) y = itor(y, prec);
   return mpmul(x, y);
 }
-GEN
+static GEN
 mpfactr_basecase(long n, long prec)
 {
   GEN v = cgetg(expu(n) + 2, t_VEC);
