@@ -2,6 +2,20 @@ Function: bernvec
 Section: transcendental
 C-Name: bernvec
 Prototype: L
-Obsolete: 2007-03-30
-Help: bernvec(x): this routine is obsolete, use bernfrac repeatedly.
-Doc: This routine is obsolete, kept for backward compatibility only.
+Help: bernvec(x): returns a vector containing, as rational numbers,
+ the Bernoulli numbers B_0, B_2, ..., B_{2x}.
+Doc: returns a vector containing, as rational numbers,
+ the \idx{Bernoulli numbers} $B_0$, $B_2$,\dots, $B_{2x}$:
+ \bprog
+ ? bernvec(5) \\ B_0, B_2..., B_10
+ %1 = [1, 1/6, -1/30, 1/42, -1/30, 5/66]
+ ? bernfrac(10)
+ %2 = 5/66
+ @eprog\noindent This routine uses a lot of memory but is much faster than
+ repeated calls to \kbd{bernfrac}:
+ \bprog
+ ? bernvec(5000);
+ time = 7,593 ms.
+ ? forstep(n = 2, 10000, 2, bernfrac(n))
+ time = 32,700 ms.
+ @eprog

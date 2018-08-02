@@ -894,42 +894,112 @@ bernfrac(long n)
   return bernfrac_using_zeta(n);
 }
 
-/* mpbern as exact fractions */
+/* D = divisorsu(k). Return a/b = - {B_2k} = \sum_{p-1 | 2n} 1/p [Clausen-von
+ * Staudt] */
 static GEN
-bernvec_old(long nb)
+fracB2k(GEN D)
 {
-  long n, i;
-  GEN y;
-
-  if (nb < 0) return cgetg(1, t_VEC);
-  if (nb > 46340 && BITS_IN_LONG == 32) pari_err_IMPL( "bernvec for n > 46340");
-
-  y = cgetg(nb+2, t_VEC); gel(y,1) = gen_1;
-  for (n = 1; n <= nb; n++)
-  { /* compute y[n+1] = B_{2n} */
-    pari_sp av = avma;
-    GEN b = gmul2n(utoineg(2*n - 1), -1); /* 1 + (2n+1)B_1 = -(2n-1) /2 */
-    GEN c = gen_1;
-    ulong u1 = 2*n + 1, u2 = n, d1 = 1, d2 = 1;
-
-    for (i = 1; i < n; i++)
-    {
-      c = diviiexact(muliu(c, u1*u2), utoipos(d1*d2));/*= binomial(2n+1, 2*i) */
-      b = gadd(b, gmul(c, gel(y,i+1)));
-      u1 -= 2; u2--; d1++; d2 += 2;
-    }
-    gel(y,n+1) = gerepileupto(av, gdivgs(b, -(1+2*n)));
+  GEN a = utoipos(5), b = utoipos(6); /* 1/2 + 1/3 */
+  long i, l = lg(D);
+  for (i = 2; i < l; i++) /* skip 1 */
+  {
+    ulong p = 2*D[i] + 1;
+    if (uisprime(p)) { a = addii(muliu(a,p), b); b = muliu(b,p); } /* a/b += 1/p */
   }
-  return y;
+  return mkfrac(a,b);
+}
+/* precision needed to compute B_k for all k <= N */
+static long
+bernbitprec(long N)
+{
+  const double log2PI = 1.83787706641;
+  double t = (N + 0.5) * log((double)N) - N*(1 + log2PI) + 1.612086;
+  return (long)ceil(t / M_LN2) + 16;
+}
+static long
+bernprec(long N) { return nbits2prec(bernbitprec(N)); }
+/* \sum_{k > M} k^(-n) <= M^(1-n) / (n-1) < 2^-bit_accuracy(prec) */
+static long
+zetamaxpow(long n, long prec)
+{
+  long b = bit_accuracy(prec), M = (long)exp2((double)b/(n-1.0));
+  return M | 1; /* make it odd */
+}
+static void
+bern_small(GEN y, long n)
+{
+  switch(n)
+  {
+    default:gel(y,14)= mkfracss(8553103,6);
+    case 12:gel(y,13)= mkfracss(-236364091,2730);
+    case 11:gel(y,12)= mkfracss(854513,138);
+    case 10:gel(y,11)= mkfracss(-174611,330);
+    case 9: gel(y,10)= mkfracss(43867,798);
+    case 8: gel(y,9) = mkfracss(-3617,510);
+    case 7: gel(y,8) = mkfracss(7,6);
+    case 6: gel(y,7) = mkfracss(-691,2730);
+    case 5: gel(y,6) = mkfracss(5,66);
+    case 4: gel(y,5) = mkfracss(-1,30);
+    case 3: gel(y,4) = mkfracss(1,42);
+    case 2: gel(y,3) = mkfracss(-1,30);
+    case 1: gel(y,2) = mkfracss(1,6);
+    case 0: gel(y,1) = gen_1;
+  }
 }
 GEN
-bernvec(long nb)
+bernvec(long n)
 {
-  long i, l = nb+2;
-  GEN y = cgetg(l, t_VEC);
-  if (nb < 20) return bernvec_old(nb);
-  for (i = 1; i < l; i++) gel(y,i) = bernfrac((i-1) << 1);
-  return y;
+  long i, j, bit, prec, max, l = n+2, N = n << 1; /* up to B_N */
+  GEN y, A, C, pow;
+  pari_sp av = avma;
+  if (n < 0) return cgetg(1, t_VEC);
+  if (n <= 13) { y = cgetg(l, t_VEC); bern_small(y, n); return y; }
+
+  bit = bernbitprec(N);
+  prec = nbits2prec(bit);
+  A = sqrr(Pi2n(1, prec)); /* 1/(2Pi)^2 */
+  C = divrr(mpfactr(N, prec), powru(A, n)); shiftr_inplace(C,1);
+  max = zetamaxpow(N, prec);
+  pow = cgetg(max+1, t_VEC);
+  for (j = 3; j <= max; j+=2)
+  { /* fixed point */
+    long b = bit - N * log2(j), p = b <= 0? LOWDEFAULTPREC: nbits2prec(b);
+    gel(pow,j) = invr(rpowuu(j, N, p));
+  }
+  y = cgetg(l, t_VEC); /* y[i] = B_{2i-2} */
+  bern_small(y, n);
+  for (i = l-1, n = N;; i--, n -= 2)
+  { /* set B_n, n = 2(i-1) */
+    pari_sp av2 = avma;
+    GEN B, z = fracB2k(divisorsu(i-1)), s = gel(pow, max);
+    for (j = max - 2; j >= 3; j -= 2) s = addrr(s, gel(pow,j));
+    s = divrr(addrs(s,1), subsr(1, real2n(-n, prec)));
+    /* s = zeta(n), C = 2*n! / (2Pi)^n */
+    B = mulrr(s, C); if (odd(i)) setsigne(B, -1); /* B ~ B_n */
+    B = roundr(addrr(B, fractor(z,LOWDEFAULTPREC))); /* B - z = B_n */
+    gel(y,i) = gerepileupto(av2, gsub(B, z));
+    if (i == 15) break;
+    av2 = avma;
+    affrr(divrunu(mulrr(C,A), n-1), C);
+    for (j = max; j >= LOWMASK; j -= 2) /* avoid overflow */
+      affrr(mulru(mulru(gel(pow,j), j), j), gel(pow,j));
+    for (       ; j >= 3; j -= 2)
+      affrr(mulru(gel(pow,j), j*j), gel(pow,j));
+    set_avma(av2);
+    if ((n & 0x1f) == 0)
+    {
+      long p = bernprec(n-2);
+      max = zetamaxpow(n-2,p);
+      if (p < prec)
+      {
+        setlg(C, p);
+        for (j = max; j >= 3; j -= 2)
+          if (lg(gel(pow,j)) > p) setlg(gel(pow,j), p);
+        prec = p;
+      }
+    }
+  }
+  return gerepileupto(av, y);
 }
 
 /* x := pol_x(v); B_k(x) = \sum_{i=0}^k binomial(k, i) B_i x^{k-i} */
