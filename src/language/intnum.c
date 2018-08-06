@@ -1911,6 +1911,7 @@ intnumgauexpinit(long prec)
   n |= 1; /* make n odd */
   prec = nbits2prec(1.5*bit + 32);
   prec2 = maxss(prec0, nbits2prec(1.15*bit + 32));
+  constbern(n+3);
   V = cgetg(n + 4, t_VEC);
   for (k = 1; k <= n + 3; ++k)
     gel(V, k) = gtofp(gdivgs(bernfrac(2*k), odd(k)? 2*k: -2*k), prec);
@@ -2121,7 +2122,7 @@ get_kN(long r, long B, long *pk, long *pN)
   long k = maxss(50, (long)ceil(0.241*B));
   GEN z;
   if (k&1L) k++;
-  *pk = k;
+  *pk = k; constbern(k >> 1);
   z = sqrtnr_abs(gmul2n(gtofp(bernfrac(k), LOWDEFAULTPREC), B), k);
   *pN = maxss(2*r, r + 1 + itos(gceil(z)));
 }
