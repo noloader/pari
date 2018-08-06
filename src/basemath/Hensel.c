@@ -372,7 +372,7 @@ bezout_lift_fact(GEN pol, GEN Q, GEN p, long e)
   pari_sp av = avma;
   GEN E, link, v, w, pe;
   long i, k = lg(Q)-1;
-  if (k == 1) return mkvec(pol);
+  if (k == 1) retmkvec(pol_1(varn(pol)));
   pe = powiu(p, e);
   pol = FpX_normalize(pol, pe);
   E = MultiLift(pol, Q, NULL, p, e, 1);
