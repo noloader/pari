@@ -185,7 +185,7 @@ check all formats
 [1, -2, -3, 2, -2, 6, -1, 0, 6, 4]
 [1, -1, 1, 1, -1, -1, -1, -1, 1, 1]
 [1, -1, 0, 1, 1, 0, 0, -1, 0, -1]
-0.E-57
+-191
 1/240
 -1/504
 1/480
@@ -282,4 +282,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: localbitprec(16);lfun(Lt,12)
   ***                                  ^-----------
   *** lfun: incorrect type in vecan_closure (t_INT).
-Total time spent: 5360
+Total time spent: 5520

@@ -239,7 +239,7 @@ lfunan(2^64+5,10)
 
 \\ zeta(s)*zeta(s-(k-1)), single pole at k if k even >= 4
 f(k) = lfuncreate([n->vector(n,i,sigma(i,k-1)),0,[0,1],k,1,I^k,zeta(k)]);
-lfun(f(4),5)-zeta(5)*zeta(2)
+exponent(lfun(f(4),5)-zeta(5)*zeta(2))
 \\ bernfrac(2*k) / (4*k)
 forstep(k=4,18,2,print(bestappr(-lfun(f(k),0),10000000)))
 
