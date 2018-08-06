@@ -491,7 +491,6 @@ GEN   sqrispec(GEN x, long nx);
 ulong *convi(GEN x, long *l);
 
 int approx_0(GEN x, GEN y);
-GEN bernfrac_using_zeta(long n);
 
 /* powers */
 GEN    rpowuu(ulong a, ulong n, long prec);
@@ -642,6 +641,9 @@ GEN     factorbackprime(GEN nf, GEN L, GEN e);
 /* bb_group.c */
 
 GEN     producttree_scheme(long n);
+
+/* bern.c */
+int bernreal_use_zeta(long n, long prec);
 
 /* bibli2.c */
 
@@ -856,7 +858,7 @@ GEN     trans_fix_arg(long *prec, GEN *s0, GEN *sig, GEN *tau, pari_sp *av, GEN 
 /* trans3.c */
 
 GEN     double_eta_quotient(GEN a, GEN w, GEN D, long p, long q, GEN pq, GEN sqrtD);
-GEN     inv_szeta_euler(long n, double lba, long prec);
+GEN     inv_szeta_euler(long n, long prec);
 
 /* volcano.c */
 

@@ -1404,7 +1404,7 @@ gerfc(GEN x, long prec)
 
 /***********************************************************************/
 /**                                                                   **/
-/**                     FONCTION ZETA DE RIEMANN                      **/
+/**                      RIEMANN ZETA FUNCTION                        **/
 /**                                                                   **/
 /***********************************************************************/
 static const double log2PI = 1.83787706641;
@@ -1484,117 +1484,6 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
   *pp = p;
   *pn = (long)ceil(n);
   if (*pp < 0 || *pn < 0) pari_err_OVERFLOW("zeta");
-}
-
-/* 1/zeta(n) using Euler product. Assume n > 0.
- * if (lba != 0) it is log(prec2nbits) we _really_ require */
-GEN
-inv_szeta_euler(long n, double lba, long prec)
-{
-  GEN z, res;
-  pari_sp av, av2;
-  double A, D;
-  ulong p, lim;
-  forprime_t S;
-
-  if (n > prec2nbits(prec)) return real_1(prec);
-
-  if (!lba) lba = prec2nbits_mul(prec, M_LN2);
-  D = exp((lba - log((double)(n-1))) / (n-1));
-  lim = 1 + (ulong)ceil(D);
-  if (lim < 3) return subir(gen_1,real2n(-n,prec));
-  res = cgetr(prec); incrprec(prec);
-  av = avma;
-  z = subir(gen_1, real2n(-n, prec));
-
-  (void)u_forprime_init(&S, 3, lim);
-  av2 = avma; A = n / M_LN2;
-  while ((p = u_forprime_next(&S)))
-  {
-    long l = prec2nbits(prec) - (long)floor(A * log((double)p)) - BITS_IN_LONG;
-    GEN h;
-
-    if (l < BITS_IN_LONG) l = BITS_IN_LONG;
-    l = minss(prec, nbits2prec(l));
-    h = divrr(z, rpowuu(p, (ulong)n, l));
-    z = subrr(z, h);
-    if (gc_needed(av,1))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"inv_szeta_euler, p = %lu/%lu", p,lim);
-      z = gerepileuptoleaf(av2, z);
-    }
-  }
-  affrr(z, res); set_avma(av); return res;
-}
-
-/* assume n even > 0, if iz != NULL, assume iz = 1/zeta(n) */
-static GEN
-bernreal_using_zeta(long n, GEN iz, long prec)
-{
-  long l = prec+EXTRAPRECWORD;
-  GEN z;
-
-  if (!iz) iz = inv_szeta_euler(n, 0., l);
-  z = divrr(mpfactr(n, l), mulrr(powru(Pi2n(1, l), n), iz));
-  shiftr_inplace(z, 1); /* 2 * n! * zeta(n) / (2Pi)^n */
-  if ((n & 3) == 0) setsigne(z, -1);
-  return z;
-}
-
-/* assume n even > 0. Faster than standard bernfrac for n >= 6 */
-GEN
-bernfrac_using_zeta(long n)
-{
-  pari_sp av = avma;
-  GEN iz, a, d, D = divisorsu(n >> 1);
-  long i, prec, l = lg(D);
-  double t, u;
-
-  d = utoipos(6); /* 2 * 3 */
-  for (i = 2; i < l; i++) /* skip 1 */
-  { /* Clausen - von Staudt */
-    ulong p = 2*D[i] + 1;
-    if (uisprime(p)) d = muliu(d, p);
-  }
-  /* 1.612086 ~ log(8Pi) / 2 */
-  t = log(gtodouble(d)) + (n + 0.5) * log((double)n) - n*(1+log2PI) + 1.612086;
-  u = t / M_LN2; prec = nbits2prec((long)ceil(u) + BITS_IN_LONG);
-  iz = inv_szeta_euler(n, t, prec);
-  a = roundr( mulir(d, bernreal_using_zeta(n, iz, prec)) );
-  return gerepilecopy(av, mkfrac(a, d));
-}
-
-static int
-bernreal_use_zeta_i(long n, long prec)
-{
-  return (n+0.5) * log((double)n) -n*(1+log2PI) > prec2nbits_mul(prec, M_LN2);
-}
-static int
-bernreal_use_zeta(long n, long prec)
-{
-  if (bernzone && (n>>1)+1 < lg(bernzone)) return 0;
-  return bernreal_use_zeta_i(n, prec);
-}
-
-/* Return B_n */
-GEN
-bernreal(long n, long prec)
-{
-  GEN B;
-  long k;
-  if (n < 0) pari_err_DOMAIN("bernreal", "index", "<", gen_0, stoi(n));
-  if (n == 0) return real_1(prec);
-  if (n == 1) return real_m2n(-1,prec); /*-1/2*/
-  if (odd(n)) return real_0(prec);
-
-  k = n >> 1;
-  if (!bernzone) constbern(0);
-  if (k < lg(bernzone)) return fractor(gel(bernzone,k), prec);
-  if (bernreal_use_zeta_i(n, prec))
-    B = bernreal_using_zeta(n, NULL, prec);
-  else
-    B = fractor(bernfrac_using_zeta(n), prec);
-  return B;
 }
 
 /* zeta(a*j+b), j=0..N-1, b>1, using sumalt. Johansonn'b thesis, Algo 4.7.1 */
@@ -1727,10 +1616,10 @@ szeta(long k, long prec)
   if ((k&1) == 0)
   {
     if (bernreal_use_zeta(k, prec))
-      y = invr( inv_szeta_euler(k, 0, prec) );
+      y = invr( inv_szeta_euler(k, prec) );
     else
     {
-      y = mulrr(powru(Pi2n(1, prec), k), bernreal(k, prec));
+      y = mulrr(powru(Pi2n(1, prec + EXTRAPRECWORD), k), bernreal(k, prec));
       y = divrr(y, mpfactr(k,prec));
       setsigne(y, 1);
       shiftr_inplace(y, -1);
@@ -1740,7 +1629,7 @@ szeta(long k, long prec)
   /* k > 1 odd */
   p = prec2nbits_mul(prec,0.393); /* 0.393 ~ 1/log_2(3+sqrt(8)) */
   if (log2(p * log(p))*k > prec2nbits(prec))
-    return gerepileuptoleaf(av, invr( inv_szeta_euler(k, 0, prec) ));
+    return gerepileuptoleaf(av, invr( inv_szeta_euler(k, prec) ));
   return zetaBorwein(k, prec);
 }
 
@@ -2400,6 +2289,22 @@ Harmonic(long n)
   for (i=2; i<=n; i++) h = gadd(h, mkfrac(gen_1, utoipos(i)));
   return h;
 }
+/* smallish k such that bernreal_use_zeta(K, prec + K dz), K = 2k+4 */
+static long
+get_k(double dz, long prec)
+{
+  long a, b;
+  for (b = 128;; b <<= 1)
+    if (bernreal_use_zeta(b, prec + b*dz)) break;
+  if (b == 128) return 128;
+  a = b >> 1;
+  while (b - a > 64)
+  {
+    long c = (a+b) >> 1;
+    if (bernreal_use_zeta(c, prec + c*dz)) b = c; else a = c;
+  }
+  return b >> 1;
+}
 
 /* m >= 2. Validity domain |log x| < 2*Pi, contains log |x| < 5.44,
  * Li_m(x = e^z) = sum_{n >= 0} zeta(m-n) z^n / n!
@@ -2407,7 +2312,7 @@ Harmonic(long n)
 static GEN
 cxpolylog(long m, GEN x, long prec)
 {
-  long li, n, k, real;
+  long li, n, k, ksmall, real;
   GEN z, Z, h, q, s, S;
   pari_sp av;
   double dz;
@@ -2443,10 +2348,11 @@ cxpolylog(long m, GEN x, long prec)
   /* sum_{k >= 1} zeta(-1-2k) * z^(2k+m+1) / (2k+m+1)!
    * = 2 z^(m-1) sum_{k >= 1} (-1)^{k-1} zeta(2k+2) * (z/2Pi)^(2k+2)
    *                  / (2k+2)..(2k+1+m))
-   * Stop at k = (li - (m-1)*Lz - m) /  (2*Lz - log2(2*Pi)), Lz = log2 |z| */
+   * Stop at 2k = (li - (m-1)*Lz - m) /  dz, Lz = log2 |z| */
   /* We cut the sum in two: small values of k first */
-  Z = gsqr(z); av = avma;
-  for(k = 1;; k++)
+  ksmall = get_k(dz / BITS_IN_LONG, prec); Z = gsqr(z); av = avma;
+  constbern(ksmall);
+  for(k = 1; k < ksmall; k++)
   {
     GEN t = q = divgunu(gmul(q,Z), 2*k+m); /* z^(2k+m+1)/(2k+m+1)! */
     if (real) t = real_i(t);
@@ -2454,7 +2360,6 @@ cxpolylog(long m, GEN x, long prec)
     s = gsub(s, t);
     if (gexpo(t)  < li) return s;
     /* large values ? */
-    if (bernreal_use_zeta(2*k+4, prec + ((2*k+4)*dz) / BITS_IN_LONG)) break;
     if ((k & 0x1ff) == 0) gerepileall(av, 2, &s, &q);
   }
   if (DEBUGLEVEL>2) timer_printf(&T, "polylog: small k <= %ld", k);
@@ -2469,7 +2374,7 @@ cxpolylog(long m, GEN x, long prec)
     b = prec + gexpo(t) / BITS_IN_LONG; /* decrease accuracy */
     if (b == 2) break;
     /* t * zeta(2k+2) / (2k+2)..(2k+1+m) */
-    t = gdiv(t, mulri(inv_szeta_euler(2*k+2, 0, b),
+    t = gdiv(t, mulri(inv_szeta_euler(2*k+2, b),
                       mulu_interval(2*k+2, 2*k+1+m)));
     S = odd(k)? gadd(S, t): gsub(S, t);
     if (gexpo(t)  < li) break;

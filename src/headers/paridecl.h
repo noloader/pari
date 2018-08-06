@@ -2395,6 +2395,12 @@ GEN     matinvmod(GEN A, GEN d);
 GEN     matkermod(GEN A, GEN d, GEN* im);
 GEN     matsolvemod(GEN M, GEN D, GEN Y, long flag);
 
+/* bern.c */
+GEN     bernfrac(long n);
+GEN     bernpol(long k, long v);
+GEN     bernreal(long n, long prec);
+void    constbern(long n);
+
 /* bibli1.c */
 
 int     QR_init(GEN x, GEN *pB, GEN *pQ, GEN *pL, long prec);
@@ -4863,10 +4869,6 @@ ulong   usqrt(ulong a);
 /* trans2.c */
 
 GEN     Qp_gamma(GEN x);
-GEN     bernfrac(long n);
-GEN     bernpol(long k, long v);
-GEN     bernreal(long n, long prec);
-void    constbern(long n);
 GEN     gacosh(GEN x, long prec);
 GEN     gacos(GEN x, long prec);
 GEN     garg(GEN x, long prec);
