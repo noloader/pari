@@ -63,13 +63,13 @@ struct bb_ring
 };
 
 /* OBSOLETE */
-GEN     bernvec(long nomb);
 GEN     buchimag(GEN D, GEN c1, GEN c2, GEN gCO);
 GEN     buchreal(GEN D, GEN gsens, GEN c1, GEN c2, GEN gRELSUP, long prec);
 GEN     zidealstar(GEN nf, GEN x);
 GEN     zidealstarinit(GEN nf, GEN x);
 GEN     zidealstarinitgen(GEN nf, GEN x);
 GEN     factmod(GEN f, GEN p);
+void    mpbern(long n, long prec);
 GEN     simplefactmod(GEN f, GEN p);
 void    listkill(GEN list);
 GEN     isprincipalforce(GEN bnf,GEN x);
@@ -2396,9 +2396,11 @@ GEN     matkermod(GEN A, GEN d, GEN* im);
 GEN     matsolvemod(GEN M, GEN D, GEN Y, long flag);
 
 /* bern.c */
+
 GEN     bernfrac(long n);
 GEN     bernpol(long k, long v);
 GEN     bernreal(long n, long prec);
+GEN     bernvec(long nomb);
 void    constbern(long n);
 
 /* bibli1.c */
@@ -4884,7 +4886,6 @@ GEN     glngamma(GEN x, long prec);
 GEN     gpsi(GEN x, long prec);
 GEN     gsinh(GEN x, long prec);
 GEN     gtanh(GEN x, long prec);
-void    mpbern(long n, long prec);
 GEN     mpfactr(long n, long prec);
 GEN     sumformal(GEN T, long v);
 
