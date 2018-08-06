@@ -8839,23 +8839,18 @@ static GEN
 mfeisenstein_i(long k, GEN CHI1, GEN CHI2)
 {
   long s = 1, ord, vt;
-  GEN E0, NK, vchi, CHI, T;
+  GEN E0, NK, vchi, T;
   if (CHI2) { CHI2 = get_mfchar(CHI2); if (mfcharparity(CHI2) < 0) s = -s; }
   if (CHI1) { CHI1 = get_mfchar(CHI1); if (mfcharparity(CHI1) < 0) s = -s; }
   if (s != m1pk(k)) return mftrivial();
-  if (!CHI1)
-    CHI = CHI2? CHI2: mfchartrivial();
-  else if (!CHI2)
-    CHI = CHI1;
-  else
-    CHI = NULL;
-  if (CHI)
-  { /* E_k(chi) */
-    vt = varn(mfcharpol(CHI));
-    ord = mfcharorder(CHI);
-    NK = mkNK(mfcharmodulus(CHI), k, CHI);
-    E0 = charLFwtk(k, CHI, ord);
-    vchi = mkvec3(E0, mkvec(mfcharpol(CHI)), CHI);
+  if (!CHI1) CHI1 = mfchartrivial();
+  if (!CHI2)
+  { /* E_k(chi1) */
+    vt = varn(mfcharpol(CHI1));
+    ord = mfcharorder(CHI1);
+    NK = mkNK(mfcharmodulus(CHI1), k, CHI1);
+    E0 = charLFwtk(k, CHI1, ord);
+    vchi = mkvec3(E0, mkvec(mfcharpol(CHI1)), CHI1);
     return tag(t_MF_EISEN, NK, vchi);
   }
   /* E_k(chi1,chi2) */

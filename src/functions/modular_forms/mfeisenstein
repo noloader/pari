@@ -3,10 +3,10 @@ Section: modular_forms
 C-Name: mfeisenstein
 Prototype: LDGDG
 Help: mfeisenstein(k,{CHI1},{CHI2}): create the Eisenstein
- series E_k(CHI1) (trivial character if omitted) or E_k(CHI1,CHI2).
-Doc: create the Eisenstein series $E_k(\chi)$ (trivial
- character if omitted) or $E_k(\chi_1,\chi_2)$, where $k \geq 1$ and $\chi_i$
- are Dirichlet characters.
+ E_k(CHI1,CHI2), where an omitted character is considered as trivial.
+Doc: create the Eisenstein series $E_k(\chi_1,\chi_2)$, where $k \geq 1$,
+ $\chi_i$ are Dirichlet characters and an omitted character is considered as
+ trivial.
  \bprog
  ? CHI = Mod(3,4);
  ? E = mfeisenstein(3, CHI);
@@ -22,5 +22,5 @@ Doc: create the Eisenstein series $E_k(\chi)$ (trivial
  @eprog\noindent Note that \kbd{meisenstein}$(k)$ is 0 for $k$ odd and
  $-B_{k}/(2k) \cdot E_k$ for $k$ even, where
  $$E_k(q) = 1 - (2k/B_k)\sum_{n\geq 1} \sigma_{k-1}(n) q^n$$
- is the standard Eisenstein series. (Thus it is normalized so that its linear
- coefficient is $1$.)
+ is the standard Eisenstein series. In other words it is normalized so that its
+ linear coefficient is $1$.
