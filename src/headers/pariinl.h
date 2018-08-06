@@ -149,7 +149,7 @@ mkpolmod(GEN x, GEN y) { retmkpolmod(x,y); }
 INLINE GEN
 mkfrac(GEN x, GEN y) { retmkfrac(x,y); }
 INLINE GEN
-mkfracss(long x, long y) { retmkfrac(stoi(x),stoi(y)); }
+mkfracss(long x, long y) { retmkfrac(stoi(x),utoipos(y)); }
 /* q = n/d a t_FRAC or t_INT; recover (n,d) */
 INLINE void
 Qtoss(GEN q, long *n, long *d)

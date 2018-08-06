@@ -1572,15 +1572,7 @@ bernreal_use_zeta_i(long n, long prec)
 static int
 bernreal_use_zeta(long n, long prec)
 {
-  if (bernzone)
-  {
-    long k = n >> 1;
-    if (n+1 < lg(bernzone))
-    {
-      GEN B = gel(bernzone,k+1);
-      if (typ(B) != t_REAL || realprec(B) >= prec) return 0;
-    }
-  }
+  if (bernzone && (n>>1)+1 < lg(bernzone)) return 0;
   return bernreal_use_zeta_i(n, prec);
 }
 
@@ -1588,36 +1580,20 @@ bernreal_use_zeta(long n, long prec)
 GEN
 bernreal(long n, long prec)
 {
-  GEN B, storeB;
-  long k, lbern;
+  GEN B;
+  long k;
   if (n < 0) pari_err_DOMAIN("bernreal", "index", "<", gen_0, stoi(n));
   if (n == 0) return real_1(prec);
   if (n == 1) return real_m2n(-1,prec); /*-1/2*/
   if (odd(n)) return real_0(prec);
 
   k = n >> 1;
-  if (!bernzone && k < 100) mpbern(k, prec);
-  lbern = bernzone? lg(bernzone): 0;
-  if (k < lbern)
-  {
-    B = gel(bernzone,k);
-    if (typ(B) != t_REAL) return fractor(B, prec);
-    if (realprec(B) >= prec) return rtor(B, prec);
-  }
-  /* not cached, must compute */
+  if (!bernzone) constbern(0);
+  if (k < lg(bernzone)) return fractor(gel(bernzone,k), prec);
   if (bernreal_use_zeta_i(n, prec))
-    B = storeB = bernreal_using_zeta(n, NULL, prec);
+    B = bernreal_using_zeta(n, NULL, prec);
   else
-  {
-    storeB = bernfrac_using_zeta(n);
-    B = fractor(storeB, prec);
-  }
-  if (k < lbern)
-  {
-    GEN old = gel(bernzone, k);
-    gel(bernzone, k) = gclone(storeB);
-    gunclone(old);
-  }
+    B = fractor(bernfrac_using_zeta(n), prec);
   return B;
 }
 
@@ -1823,7 +1799,7 @@ czeta(GEN s0, long prec)
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 1 to N-1");
 
   invn2 = divri(unr, sqru(nn)); lim2 = lim<<1;
-  mpbern(lim,prec);
+  constbern(lim);
   tes = bernreal(lim2, prec);
   {
     GEN s1, s2, s3, s4, s5;
@@ -2383,7 +2359,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
   S1 = S3 = gpow(Nx, al, prec);
   for (m = N - 2; m >= 0; m--) S1 = gadd(S1, gpow(gaddsg(m,x), al, prec));
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
-  mpbern(k >> 1, prec);
+  constbern(k >> 1);
   N2 = ginv(gsqr(Nx));
   if (typ(s0) == t_INT)
   {
@@ -2669,7 +2645,7 @@ polylogP(long m, GEN x, long prec)
     {
       GEN p2;
       shiftr_inplace(p1, 1); /* p1 = 2log|x| <= 0 */
-      mpbern(m>>1, l);
+      constbern(m>>1);
       p1 = sqrr(p1);
       p2 = shiftr(p1,-1);
       for (k=2; k<m; k+=2)

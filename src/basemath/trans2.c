@@ -753,149 +753,29 @@ gatanh(GEN x, long prec)
 /**               CACHE BERNOULLI NUMBERS B_2k                     **/
 /**                                                                **/
 /********************************************************************/
+static const long BERN_MIN = 13;
 static GEN
-bern(GEN B, long pr)
+bern_small(long n)
 {
-  if (typ(B) != t_REAL) return fractor(B, pr);
-  if (realprec(B) < pr) return rtor(B,pr);
-  return B;
-}
-static const long BERN_MINNB = 5;
-/* need B[2..2*nb] at least prec accuracy. If prec = 0, compute exactly */
-void
-mpbern(long nb, long prec)
-{
-  const pari_sp av = avma;
-  long n, pr, n_is_small = 1, lbern = 0;
-  GEN B;
-  pari_timer T;
-
-  /* pr = accuracy for computation, prec = required accuracy for result */
-  if (prec)
-  {
-    pr = prec;
-    incrprec(pr);
-  }
-  else
-    pr = prec = LONG_MAX; /* oo */
-  if (nb < BERN_MINNB) nb = BERN_MINNB;
-  if (bernzone)
-  { /* don't recompute known Bernoulli */
-    long i, min, max;
-    lbern = lg(bernzone);
-    if (lbern-1 < nb)
-    { min = lbern-1; max = nb; }
-    else
-    { min = nb; max = lbern-1; }
-    /* skip B_2, ..., B_{2*MINNB}, always included as t_FRAC */
-    for (n = BERN_MINNB+1; n <= min; n++)
-    {
-      GEN c = gel(bernzone,n);
-      /* also stop if prec = 0 (compute exactly) */
-      if (typ(c) == t_REAL && realprec(c) < prec) break;
-    }
-    /* B[1..n-1] are OK */
-    if (n > nb) return;
-    B = cgetg_block(max+1, t_VEC);
-    for (i = 1; i < n; i++) gel(B,i) = gel(bernzone,i);
-    /* keep B[nb+1..max] */
-    for (i = nb+1; i <= max; i++) gel(B,i) = gel(bernzone,i);
-  }
-  else
-  {
-    B = cgetg_block(nb+1, t_VEC);
-    gel(B,1) = gclone(mkfrac(gen_1, utoipos(6)));
-    gel(B,2) = gclone(mkfrac(gen_m1, utoipos(30)));
-    gel(B,3) = gclone(mkfrac(gen_1, utoipos(42)));
-    gel(B,4) = gel(B,2);
-    gel(B,5) = gclone(mkfrac(utoipos(5), utoipos(66)));
-    n = BERN_MINNB+1;
-  }
-  set_avma(av);
-  if (DEBUGLEVEL) {
-    err_printf("caching Bernoulli numbers 2 to 2*%ld, prec = %ld\n",
-               nb, prec == LONG_MAX? 0: prec);
-    timer_start(&T);
-  }
-
-  /* B_{2n} = (2n-1) / (4n+2) -
-   * sum_{a = 1}^{n-1} (2n)...(2n+2-2a) / (2...(2a-1)2a) B_{2a} */
-  n_is_small = 1;
-  for (; n <= nb; n++, set_avma(av))
-  { /* compute and store B[n] = B_{2n} */
-    GEN S;
-    if (n < lbern)
-    {
-      GEN b = gel(bernzone,n);
-      if (typ(b)!=t_REAL || realprec(b)>=prec) { gel(B,n) = b; continue; }
-    }
-    /* Not cached, must compute */
-    /* huge accuracy ? May as well compute exactly */
-    if (n_is_small && (prec == LONG_MAX ||
-                       2*n * log((double)2*n) < prec2nbits_mul(prec, M_LN2)))
-      S = bernfrac_using_zeta(2*n);
-    else
-    {
-#ifdef LONG_IS_64BIT
-      const ulong mul_overflow = 3037000500UL;
-#else
-      const ulong mul_overflow = 46341UL;
-#endif
-      ulong u = 8, v = 5, a = n-1, b = 2*n-3;
-      n_is_small = 0;
-      S = bern(gel(B,a), pr); /* B_2a */
-      for (;;)
-      { /* b = 2a-1, u = 2v-2, 2a + v = 2n+3 */
-        if (a == 1) { S = mulri(S, muluu(u,v)); break; } /* a=b=1, v=2n+1, u=4n */
-        /* beware overflow */
-        S = (v <= mul_overflow)? mulru(S, u*v): mulri(S, muluu(u,v));
-        S = (a <= mul_overflow)? divru(S, a*b): divri(S, muluu(a,b));
-        u += 4; v += 2; a--; b -= 2;
-        S = addrr(bern(gel(B,a), pr), S);
-        if ((a & 127) == 0) S = gerepileuptoleaf(av, S);
-      }
-      S = divru(subsr(2*n, S), 2*n+1);
-      shiftr_inplace(S, -2*n);
-      if (realprec(S) != prec) S = rtor(S, prec);
-    }
-    gel(B,n) = gclone(S); /* S = B_2n */
-  }
-  if (DEBUGLEVEL) timer_printf(&T, "Bernoulli");
-  swap(B, bernzone);
-  if (B)
-  { /* kill old non-reused values */
-    for (n = lbern-1; n; n--)
-    {
-      if (gel(B,n) != gel(bernzone,n)) gunclone(gel(B,n));
-    }
-    killblock(B);
-  }
-  set_avma(av);
+  GEN y = cgetg_block(n+1, t_VEC);
+  gel(y,1) = gclone(mkfracss(1,6));
+  gel(y,2) = gclone(mkfracss(-1,30));
+  gel(y,3) = gclone(mkfracss(1,42));
+  gel(y,4) = gclone(mkfracss(-1,30));
+  gel(y,5) = gclone(mkfracss(5,66));
+  gel(y,6) = gclone(mkfracss(-691,2730));
+  gel(y,7) = gclone(mkfracss(7,6));
+  gel(y,8) = gclone(mkfracss(-3617,510));
+  gel(y,9) = gclone(mkfracss(43867,798));
+  gel(y,10)= gclone(mkfracss(-174611,330));
+  gel(y,11)= gclone(mkfracss(854513,138));
+  gel(y,12)= gclone(mkfracss(-236364091,2730));
+  gel(y,13)= gclone(mkfracss(8553103,6)); /* B_26 = B_{2*MINNB}*/
+  return y;
 }
 
-GEN
-bernfrac(long n)
-{
-  long k;
-  if (n < 0) pari_err_DOMAIN("bernfrac", "index", "<", gen_0, stoi(n));
-  if (n == 0) return gen_1;
-  if (n == 1) return mkfrac(gen_m1,gen_2);
-  if (odd(n)) return gen_0;
-  k = n >> 1;
-  if (!bernzone && k <= BERN_MINNB) mpbern(BERN_MINNB, 0);
-  if (bernzone && k < lg(bernzone))
-  {
-    GEN B = gel(bernzone, k), C;
-    if (typ(B) != t_REAL) return B;
-    C = bernfrac_using_zeta(n);
-    gel(bernzone, k) = gclone(C);
-    gunclone(B); return C;
-  }
-  return bernfrac_using_zeta(n);
-}
-
-/* D = divisorsu(k). Return a/b = - {B_2k} = \sum_{p-1 | 2n} 1/p [Clausen-von
- * Staudt] */
+/* D = divisorsu(n). Return a/b = \sum_{p-1 | 2n: p prime} 1/p
+ * B_2k + a/b in Z [Clausen-von Staudt] */
 static GEN
 fracB2k(GEN D)
 {
@@ -903,8 +783,8 @@ fracB2k(GEN D)
   long i, l = lg(D);
   for (i = 2; i < l; i++) /* skip 1 */
   {
-    ulong p = 2*D[i] + 1;
-    if (uisprime(p)) { a = addii(muliu(a,p), b); b = muliu(b,p); } /* a/b += 1/p */
+    ulong p = 2*D[i] + 1; /* a/b += 1/p */
+    if (uisprime(p)) { a = addii(muliu(a,p), b); b = muliu(b,p); }
   }
   return mkfrac(a,b);
 }
@@ -925,39 +805,29 @@ zetamaxpow(long n, long prec)
   long b = bit_accuracy(prec), M = (long)exp2((double)b/(n-1.0));
   return M | 1; /* make it odd */
 }
-static void
-bern_small(GEN y, long n)
+/* zeta(k) using 'max' precomputed odd powers */
+static GEN
+bern_zeta(long k, GEN pow, long max, long prec)
 {
-  switch(n)
-  {
-    default:gel(y,14)= mkfracss(8553103,6);
-    case 12:gel(y,13)= mkfracss(-236364091,2730);
-    case 11:gel(y,12)= mkfracss(854513,138);
-    case 10:gel(y,11)= mkfracss(-174611,330);
-    case 9: gel(y,10)= mkfracss(43867,798);
-    case 8: gel(y,9) = mkfracss(-3617,510);
-    case 7: gel(y,8) = mkfracss(7,6);
-    case 6: gel(y,7) = mkfracss(-691,2730);
-    case 5: gel(y,6) = mkfracss(5,66);
-    case 4: gel(y,5) = mkfracss(-1,30);
-    case 3: gel(y,4) = mkfracss(1,42);
-    case 2: gel(y,3) = mkfracss(-1,30);
-    case 1: gel(y,2) = mkfracss(1,6);
-    case 0: gel(y,1) = gen_1;
-  }
+  GEN s = gel(pow, max);
+  long j;
+  for (j = max - 2; j >= 3; j -= 2) s = addrr(s, gel(pow,j));
+  return divrr(addrs(s,1), subsr(1, real2n(-k, prec)));
 }
-GEN
-bernvec(long n)
+/* z * j^2 */
+static GEN
+mulru2(GEN z, ulong j)
+{ return (j | HIGHMASK)? mulru(mulru(z, j), j)
+                       : mulru(z, j*j); }
+/* 1 <= m <= n, set y[1] = B_{2m}, ... y[n-m+1] = B_{2n} in Q */
+static void
+bernset(GEN *y, long m, long n)
 {
-  long i, j, bit, prec, max, l = n+2, N = n << 1; /* up to B_N */
-  GEN y, A, C, pow;
-  pari_sp av = avma;
-  if (n < 0) return cgetg(1, t_VEC);
-  if (n <= 13) { y = cgetg(l, t_VEC); bern_small(y, n); return y; }
-
+  long i, j, k, bit, prec, max, N = n << 1; /* up to B_N */
+  GEN A, C, pow;
   bit = bernbitprec(N);
   prec = nbits2prec(bit);
-  A = sqrr(Pi2n(1, prec)); /* 1/(2Pi)^2 */
+  A = sqrr(Pi2n(1, prec)); /* (2Pi)^2 */
   C = divrr(mpfactr(N, prec), powru(A, n)); shiftr_inplace(C,1);
   max = zetamaxpow(N, prec);
   pow = cgetg(max+1, t_VEC);
@@ -966,40 +836,93 @@ bernvec(long n)
     long b = bit - N * log2(j), p = b <= 0? LOWDEFAULTPREC: nbits2prec(b);
     gel(pow,j) = invr(rpowuu(j, N, p));
   }
-  y = cgetg(l, t_VEC); /* y[i] = B_{2i-2} */
-  bern_small(y, n);
-  for (i = l-1, n = N;; i--, n -= 2)
-  { /* set B_n, n = 2(i-1) */
+  y += n - m;
+  for (i = n, k = N;; i--, k -= 2)
+  { /* set B_n, k = 2i */
     pari_sp av2 = avma;
-    GEN B, z = fracB2k(divisorsu(i-1)), s = gel(pow, max);
-    for (j = max - 2; j >= 3; j -= 2) s = addrr(s, gel(pow,j));
-    s = divrr(addrs(s,1), subsr(1, real2n(-n, prec)));
-    /* s = zeta(n), C = 2*n! / (2Pi)^n */
-    B = mulrr(s, C); if (odd(i)) setsigne(B, -1); /* B ~ B_n */
+    GEN B, z = fracB2k(divisorsu(i)), s = bern_zeta(k, pow, max, prec);
+    long j;
+    /* s = zeta(k), C = 2*k! / (2Pi)^k */
+    B = mulrr(s, C); if (!odd(i)) setsigne(B, -1); /* B ~ B_n */
     B = roundr(addrr(B, fractor(z,LOWDEFAULTPREC))); /* B - z = B_n */
-    gel(y,i) = gerepileupto(av2, gsub(B, z));
-    if (i == 15) break;
-    av2 = avma;
-    affrr(divrunu(mulrr(C,A), n-1), C);
-    for (j = max; j >= LOWMASK; j -= 2) /* avoid overflow */
-      affrr(mulru(mulru(gel(pow,j), j), j), gel(pow,j));
-    for (       ; j >= 3; j -= 2)
-      affrr(mulru(gel(pow,j), j*j), gel(pow,j));
-    set_avma(av2);
-    if ((n & 0x1f) == 0)
+    *y-- = gclone(gsub(B, z));
+    if (i == m) break;
+    affrr(divrunu(mulrr(C,A), k-1), C);
+    for (j = max; j >= 3; j -= 2) affrr(mulru2(gel(pow,j), j), gel(pow,j));
+    if ((k & 0x1f) == 0)
     {
-      long p = bernprec(n-2);
-      max = zetamaxpow(n-2,p);
-      if (p < prec)
+      long p = bernprec(k-2), max2 = zetamaxpow(k-2,p);
+      if (p < prec && max2 <= max)
       {
-        setlg(C, p);
+        setlg(C, p); max2 = max;
         for (j = max; j >= 3; j -= 2)
           if (lg(gel(pow,j)) > p) setlg(gel(pow,j), p);
         prec = p;
       }
     }
+    set_avma(av2);
   }
-  return gerepileupto(av, y);
+}
+/* need B[2..2*nb] as t_INT or t_FRAC */
+void
+constbern(long nb)
+{
+  const pari_sp av = avma;
+  long i, n;
+  GEN B;
+  pari_timer T;
+
+  if (nb < BERN_MIN) nb = BERN_MIN;
+  if (bernzone)
+  { /* don't recompute known Bernoulli */
+    n = lg(bernzone); if (n >= nb+1) return;
+    B = cgetg_block(nb+1, t_VEC);
+    for (i = 1; i < n; i++) gel(B,i) = gel(bernzone,i);
+  }
+  else
+  {
+    B = bern_small(nb);
+    n = BERN_MIN + 1;
+  }
+  set_avma(av);
+  if (DEBUGLEVEL) {
+    err_printf("caching Bernoulli numbers 2*%ld to 2*%ld\n", n, nb);
+    timer_start(&T);
+  }
+  if (n <= nb) bernset((GEN*)B + n, n, nb);
+  if (DEBUGLEVEL) timer_printf(&T, "Bernoulli");
+  swap(B, bernzone); if (B) killblock(B);
+  set_avma(av);
+}
+/* Obsolete, kept for backward compatibility */
+void
+mpbern(long n, long prec) { (void)prec; constbern(n); }
+
+GEN
+bernfrac(long n)
+{
+  long k;
+  if (n <= 1)
+  {
+    if (n < 0) pari_err_DOMAIN("bernfrac", "index", "<", gen_0, stoi(n));
+    return n? mkfrac(gen_m1,gen_2): gen_1;
+  }
+  if (odd(n)) return gen_0;
+  k = n >> 1;
+  if (!bernzone) constbern(0);
+  if (bernzone && k < lg(bernzone)) return gel(bernzone, k);
+  return bernfrac_using_zeta(n);
+}
+GEN
+bernvec(long n)
+{
+  long i, l;
+  GEN y;
+  if (n < 0) return cgetg(1, t_VEC);
+  constbern(n);
+  l = n+2; y = cgetg(l, t_VEC); gel(y,1) = gen_1;
+  for (i = 2; i < l; i++) gel(y,i) = gel(bernzone,i-1);
+  return y;
 }
 
 /* x := pol_x(v); B_k(x) = \sum_{i=0}^k binomial(k, i) B_i x^{k-i} */
@@ -1010,7 +933,7 @@ bernpol_i(long k, long v)
   long i;
   if (v < 0) v = 0;
   if (k < 0) pari_err_DOMAIN("bernpol", "index", "<", gen_0, stoi(k));
-  mpbern(k >> 1, 0); /* cache B_2, ..., B_2[k/2] */
+  constbern(k >> 1); /* cache B_2, ..., B_2[k/2] */
   C = vecbinomial(k);
   B = cgetg(k + 3, t_POL);
   for (i = 0; i <= k; ++i) gel(B, k-i+2) = gmul(gel(C,i+1), bernfrac(i));
@@ -1332,7 +1255,7 @@ cxgamma(GEN s0, int dolog, long prec)
   nnx = gaddgs(s, nn);
   a = ginv(nnx); invn2 = gsqr(a);
   av2 = avma;
-  mpbern(lim,prec);
+  constbern(lim);
   tes = divrunu(bernreal(2*lim,prec), 2*lim-1); /* B2l / (2l-1) 2l*/
   if (DEBUGLEVEL>5) timer_printf(&T,"Bernoullis");
   for (i = 2*lim-2; i > 1; i -= 2)
@@ -1943,7 +1866,7 @@ cxpsi(GEN s0, long prec)
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
 
   in2 = gsqr(a);
-  mpbern(lim,prec);
+  constbern(lim);
   av2 = avma; tes = divru(bernreal(2*lim, prec), 2*lim);
   for (k=2*lim-2; k>=2; k-=2)
   {

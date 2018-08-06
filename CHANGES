@@ -13,6 +13,10 @@ Done for version 2.12.0 (released ??/??/20??):
         [was undocumented, malloc'ed and resulted in memory leaks]
      2- improved n!, factorial(n) and lngamma(n) for integral n
      3- improved bernvec: no longer Obsolete
+     4- [libpari] mpbern is now obsolete: use constbern
+     5- rewrote the Bernoulli number cache (using zeta(2n) = * B_{2n})
+        and power recycling for zeta(2n) + additive Clausen von Staudt):
+        orders of magnitude faster and always store Bernoulli in rational form
 
   Added
      1- [libpari] nonsquare_Fl

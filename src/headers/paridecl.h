@@ -4866,6 +4866,7 @@ GEN     Qp_gamma(GEN x);
 GEN     bernfrac(long n);
 GEN     bernpol(long k, long v);
 GEN     bernreal(long n, long prec);
+void    constbern(long n);
 GEN     gacosh(GEN x, long prec);
 GEN     gacos(GEN x, long prec);
 GEN     garg(GEN x, long prec);
@@ -4881,7 +4882,7 @@ GEN     glngamma(GEN x, long prec);
 GEN     gpsi(GEN x, long prec);
 GEN     gsinh(GEN x, long prec);
 GEN     gtanh(GEN x, long prec);
-void    mpbern(long nomb, long prec);
+void    mpbern(long n, long prec);
 GEN     mpfactr(long n, long prec);
 GEN     sumformal(GEN T, long v);
 
