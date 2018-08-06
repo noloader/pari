@@ -1,4 +1,4 @@
-HEAP=[185, if(sizebyte(0)==16,4704,6777)];
+HEAP=[185, if(sizebyte(0)==16,4704,6958)];
 \\ A tres grande precision
 \p 2000
 \e
