@@ -2017,31 +2017,30 @@ sumnumap0(GEN a, GEN code, GEN tab, long prec)
 
 
 /* max (1, |zeros|), P a t_POL or scalar */
-static GEN
+static double
 polmax(GEN P)
 {
-  GEN r;
-  if (typ(P) != t_POL || degpol(P) <= 0) return gen_1;
-  r = polrootsbound(P, NULL);
-  if (gcmpgs(r, 1) <= 0) return gen_1;
-  return r;
+  double r;
+  if (typ(P) != t_POL || degpol(P) <= 0) return 1.0;
+  r = gtodouble(polrootsbound(P, NULL));
+  return maxdd(r, 1.0);
 }
 
 /* max (1, |poles|), F a t_POL or t_RFRAC or scalar */
-static GEN
+static double
 ratpolemax(GEN F)
 {
-  if (typ(F) == t_POL) return gen_1;
-  return polmax(gel(F, 2));
+  if (typ(F) == t_POL) return 1.0;
+  return polmax(gel(F,2));
 }
 /* max (1, |poles|, |zeros|), sets *p = max(1, |poles|)) */
-static GEN
-ratpolemax2(GEN F, GEN *p)
+static double
+ratpolemax2(GEN F, double *p)
 {
-  GEN t;
-  if (typ(F) == t_POL) { if (p) *p = gen_1; return polmax(F); }
+  double t;
+  if (typ(F) == t_POL) { if (p) *p = 1.0; return polmax(F); }
   t = polmax(gel(F,2)); if (p) *p = t;
-  return gmax_shallow(t, polmax(gel(F,1)));
+  return maxdd(t, polmax(gel(F,1)));
 }
 
 static GEN
@@ -2136,7 +2135,7 @@ sumnumrat_i(GEN F, GEN F0, GEN vF, long prec)
   double r;
   if (poldegree(F, -1) > -2) pari_err(e_MISC, "sum diverges in sumnumrat");
   vx = varn(gel(F,2));
-  r = gtodouble(ratpolemax(F));
+  r = ratpolemax(F);
   get_kN((long)ceil(r), B, &k,&N);
   intf = intnumainfrat(F, N, r, prec);
   /* N > ratpolemax(F) is not a pole */
@@ -2215,7 +2214,7 @@ prodnumrat(GEN F, long a, long prec)
   if (poldegree(F1,-1) > -2) pari_err(e_MISC, "product diverges in prodnumrat");
   vx = varn(gel(F,2));
   if (a) F = gsubst(F, vx, gaddgs(pol_x(vx), a));
-  r = gtodouble(ratpolemax2(F, NULL));
+  r = ratpolemax2(F, NULL);
   get_kN((long)ceil(r), B, &k,&N);
   G = gdiv(deriv(F, vx), F);
   intf = intnumainfrat(gmul(pol_x(vx),G), N, r, prec);
@@ -2274,8 +2273,8 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
 {
   pari_sp av = avma;
   forprime_t T;
-  GEN r, ser, res, rsg;
-  double rs, RS;
+  GEN ser, res;
+  double r, rs, RS;
   long B = prec2nbits(prec), vx, vF, p, N, lim;
 
   switch(typ(F))
@@ -2289,14 +2288,13 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   if (a < 2) a = 2;
   vx = varn(gel(F,2));
   vF = -poldegree(F, -1);
-  rsg = real_i(s);
-  rs = gtodouble(rsg);
+  rs = gtodouble(real_i(s));
   r = ratpolemax(F);
-  RS = maxdd(1./vF, dbllog2(r) / log2((double)a));
+  RS = maxdd(1./vF, log2(r) / log2((double)a));
   if (rs <= RS)
     pari_err_DOMAIN("sumeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
-  lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r)))+1;
+  N = maxss(maxss(30, a), (long)ceil(2*r));
+  lim = (long)ceil(B / (rs*log2((double)N) - log2(r))) + 1;
   ser = gmul(real_1(prec + EXTRAPREC), F);
   ser = rfracrecip_to_ser_absolute(ser, lim);
   res = sumlogzeta(ser, s, N, vF, lim, prec);
@@ -2312,8 +2310,8 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
 {
   pari_sp ltop = avma;
   forprime_t T;
-  GEN F1, r, r1, ser, res, rsg;
-  double rs, RS;
+  GEN F1, ser, res;
+  double r, r1, rs, RS;
   long B = prec2nbits(prec), vx = gvar(F), vF, p, N, lim;
 
   F1 = gsubgs(F, 1);
@@ -2326,14 +2324,13 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   }
   if (!s) s = gen_1;
   vF = -poldegree(F1, -1);
-  rsg = real_i(s);
-  rs = gtodouble(rsg);
+  rs = gtodouble(real_i(s));
   r = ratpolemax2(F, &r1);
-  RS = maxdd(1./vF, dbllog2(r1) / log2((double)a));
+  RS = maxdd(1./vF, log2(r1) / log2((double)a));
   if (rs <= RS)
     pari_err_DOMAIN("prodeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  N = maxss(maxss(30, a), (long)ceil(2*gtodouble(r)));
-  lim = (long)ceil(B / dbllog2(gdiv(gpow(stoi(N), rsg, LOWDEFAULTPREC), r)))+1;
+  N = maxss(maxss(30, a), (long)ceil(2*r));
+  lim = (long)ceil(B / (rs*log2((double)N) - log2(r))) + 1;
   ser = gmul(real_1(prec + EXTRAPREC), F1);
   ser = gaddsg(1, rfracrecip_to_ser_absolute(ser, lim));
   ser = glog(ser, 0);
