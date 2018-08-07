@@ -3634,6 +3634,10 @@ discriminant $D$ such that $d=D*f^2$ and set \kbd{*pt\_f} to $f$
 
 \fun{GEN}{divisorsu_fact}{GEN fa} same, where \kbd{fa} is \kbd{factoru(n)}.
 
+\fun{GEN}{divisorsu_P}{GEN P} returns the divisors of $n$ of the form
+$\prod_{p\in S} p$, $S\subset P$. In a \typ{VECSMALL}, sorted by increasing order.
+If $P$ is \kbd{factoru(n)[1]}, this returns the squarefree divisors of $n$.
+
 \fun{long}{numdivu}{ulong n}, returns the number of positive divisors of $n>0$.
 
 \fun{long}{numdivu_fact}{GEN fa} same, where \kbd{fa} is \kbd{factoru(n)}.

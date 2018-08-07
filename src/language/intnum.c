@@ -2230,42 +2230,46 @@ prodnumrat(GEN F, long a, long prec)
   return gerepileupto(ltop, gmul(S1, gexp(gsub(intf, S2), prec)));
 }
 
+/* fan = factoru(n) */
 static GEN
-sdmob(GEN ser, long n)
+sdmob(GEN ser, long n, GEN fan)
 {
-  GEN D = divisorsu(n), S = gen_0;
+  GEN D = divisorsu_P(gel(fan,1)), S = gen_0;
   long i, l = lg(D);
   for (i = 1; i < l; ++i)
   {
-    long d = D[i], mob = moebiusu(d);
-    if (mob) S = gadd(S, gdivgs(sercoeff(ser, n/d), mob*d));
+    long d = D[i]; /* FIXME: moebiusu(d) could be known from divisorsu_P */
+    S = gadd(S, gdivgs(sercoeff(ser, n/d), moebiusu(d) < 0? -d: d));
   }
   return S;
 }
+/* log (zeta(s) * prod_i (1 - P[i]^-s) */
 static GEN
 logzetan(GEN s, GEN P, long prec)
 {
-  GEN negs = gneg(s), Z = gzeta(gprec_w(s,prec), prec);
+  GEN negs = gneg(s), Z = gzeta(s, prec);
   long i, l = lg(P);
   for (i = 1; i < l; i++) Z = gmul(Z, gsubsg(1, gpow(gel(P,i), negs, prec)));
   return glog(Z, prec);
 }
 static GEN
-sumlogzeta(GEN ser, GEN s, long N, long vF, long lim, long prec)
+sumlogzeta(GEN ser, GEN s, double rs, long N, long vF, long lim, long prec)
 {
-  GEN z = gen_0, P = primes_interval(gen_2, utoipos(N));
-  long n;
-  for (n = lim; n >= vF; n--)
+  GEN z = gen_0, P = primes_interval(gen_2, utoipos(N)), v = vecfactoru(vF,lim);
+  double lN = log2((double)N);
+  long i, n;
+  for (n = lim, i = lg(v)-1; n >= vF; n--, i--)
   {
-    GEN t = sdmob(ser, n);
+    GEN t = sdmob(ser, n, gel(v,i));
     if (!gequal0(t))
     {
-      long e = gexpo(t), prec2 = e <= 0? prec: prec + nbits2prec(e);
-      z = gadd(z, gmul(logzetan(gmulsg(n,s), P, prec2), t));
-      z = gprec_w(z, prec);
+      long E = (n*rs-1) * lN, e = -E + gexpo(t); /* size of summand */
+      long prec2 = e <= 0? prec: prec + nbits2extraprec(e);
+      prec2 = maxss(prec2, prec + nbits2extraprec(E)); /*cancellation in logzetan*/
+      z = gadd(z, gmul(logzetan(gmulsg(n,gprec_w(s,prec2)), P, prec2), t));
     }
   }
-  return z;
+  return gprec_wtrunc(z, prec);
 }
 
 /* sum_{p prime, p >= a} F(p^s), F rational function */
@@ -2298,7 +2302,7 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   lim = (long)ceil(B / (rs*log2((double)N) - log2(r))) + 1;
   ser = gmul(real_1(prec + EXTRAPREC), F);
   ser = rfracrecip_to_ser_absolute(ser, lim);
-  res = sumlogzeta(ser, s, N, vF, lim, prec);
+  res = sumlogzeta(ser, s, rs, N, vF, lim, prec);
   u_forprime_init(&T, a, N);
   while ( (p = u_forprime_next(&T)) )
     res = gadd(res, gsubst(F, vx, gpow(utoipos(p), s, prec)));
@@ -2335,7 +2339,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   ser = gmul(real_1(prec + EXTRAPREC), F1);
   ser = gaddsg(1, rfracrecip_to_ser_absolute(ser, lim));
   ser = glog(ser, 0);
-  res = sumlogzeta(ser, s, N, vF, lim, prec);
+  res = sumlogzeta(ser, s, rs, N, vF, lim, prec);
   res = gexp(res, prec);
   u_forprime_init(&T, a, N);
   while ( (p = u_forprime_next(&T)) )

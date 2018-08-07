@@ -476,6 +476,17 @@ divisors0(GEN N, long flag)
 }
 
 GEN
+divisorsu_P(GEN P)
+{
+  GEN d, t, t2, t3;
+  long i, l = lg(P);
+  d = t = cgetg((1 << (l-1)) + 1, t_VECSMALL);
+  *++d = 1;
+  for (i=1; i<l; i++)
+    for (t2=d, t3=t; t3<t2; ) *(++d) = *(++t3) * P[i];
+  vecsmall_sort(t); return t;
+}
+GEN
 divisorsu_fact(GEN fa)
 {
   GEN d, t, t1, t2, t3, P = gel(fa,1), E = gel(fa,2);
