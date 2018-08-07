@@ -114,15 +114,15 @@ addqf(GEN x, GEN y, long prec) { pari_sp av = avma;
 static GEN
 mulrfrac(GEN x, GEN y)
 {
-  pari_sp av = avma;
+  pari_sp av;
   GEN z, a = gel(y,1), b = gel(y,2);
   if (is_pm1(a)) /* frequent special case */
   {
-    z = divri(x, b);
-    if (signe(a) < 0) togglesign(z);
+    z = divri(x, b); if (signe(a) < 0) togglesign(z);
     return z;
   }
-  return gerepileuptoleaf(av, divri(mulri(x,gel(y,1)), gel(y,2)));
+  av = avma;
+  return gerepileuptoleaf(av, divri(mulri(x,a), b));
 }
 static GEN
 mulqf(GEN x, GEN y, long prec) { pari_sp av = avma;
