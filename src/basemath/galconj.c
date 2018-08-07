@@ -373,55 +373,51 @@ poltopermtest(GEN f, struct galois_lift *gl, GEN pf)
   return 1;
 }
 
-struct monoratlift
+static long
+galoisfrobeniustest(GEN aut, struct galois_lift *gl, GEN frob)
 {
-  struct galois_lift *gl;
-  GEN frob;
-  long early;
-};
+  pari_sp av = avma;
+  GEN tlift = aut;
+  long res;
+  if (gl->den != gen_1) tlift = FpX_Fp_mul(tlift, gl->den, gl->Q);
+  tlift = FpX_center_i(tlift, gl->Q, shifti(gl->Q,-1));
+  res = poltopermtest(tlift, gl, frob);
+  set_avma(av); return res;
+}
 
 static GEN
 monoratlift(void *E, GEN S, GEN q)
 {
-  struct monoratlift *d = (struct monoratlift *) E;
-  struct galois_lift *gl = d->gl;
-  GEN qm1old = sqrti(shifti(q,-2));
-  GEN tlift = FpX_ratlift(S,q,qm1old,qm1old,gl->den);
+  pari_sp ltop = avma;
+  struct galois_lift *gl = (struct galois_lift *) E;
+  GEN qm1 = sqrti(shifti(q,-2)), N = gl->Q;
+  GEN tlift = FpX_ratlift(S, q, qm1, qm1, gl->den);
   if (tlift)
   {
     pari_sp ltop = avma;
+    GEN frob = cgetg(lg(gl->L), t_VECSMALL);
     if(DEBUGLEVEL>=4)
       err_printf("MonomorphismLift: trying early solution %Ps\n",tlift);
-    if (gl->den != gen_1) {
-      GEN N = gl->gb->ladicsol, N2 = shifti(N,-1);
-      tlift = FpX_center_i(FpX_red(Q_muli_to_int(tlift, gl->den), N), N,N2);
-    }
-    if (poltopermtest(tlift, gl, d->frob))
+    if (gl->den != gen_1)
+      tlift = FpX_Fp_mul(FpX_red(Q_muli_to_int(tlift, gl->den), N),
+                         Fp_inv(gl->den, N), N);
+    if (galoisfrobeniustest(tlift, gl, frob))
     {
       if(DEBUGLEVEL>=4) err_printf("MonomorphismLift: true early solution.\n");
-      d->early = 1;
-      set_avma(ltop); return gen_1;
+      return gerepilecopy(ltop, tlift);
     }
-    set_avma(ltop);
     if(DEBUGLEVEL>=4) err_printf("MonomorphismLift: false early solution.\n");
   }
+  set_avma(ltop);
   return NULL;
 }
 
 static GEN
-monomorphismratlift(GEN P, GEN S, struct galois_lift *gl, GEN frob)
+monomorphismratlift(GEN P, GEN S, struct galois_lift *gl)
 {
   pari_timer ti;
   if (DEBUGLEVEL >= 1) timer_start(&ti);
-  if (frob)
-  {
-    struct monoratlift d;
-    d.gl = gl; d.frob = frob; d.early = 0;
-    S = ZpX_ZpXQ_liftroot_ea(P,S,gl->T,gl->p, gl->e, (void*)&d, monoratlift);
-    S = d.early ? NULL: S;
-  }
-  else
-    S = ZpX_ZpXQ_liftroot(P,S,gl->T,gl->p, gl->e);
+  S = ZpX_ZpXQ_liftroot_ea(P,S,gl->T,gl->p, gl->e, (void*)gl, monoratlift);
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "monomorphismlift()");
   return S;
 }
@@ -430,18 +426,18 @@ monomorphismratlift(GEN P, GEN S, struct galois_lift *gl, GEN frob)
  * that T(S)=0 [p,T]. Lift S in S_0 so that T(S_0)=0 [T,p^e]
  * Unclean stack */
 static GEN
-automorphismlift(GEN S, struct galois_lift *gl, GEN frob)
+automorphismlift(GEN S, struct galois_lift *gl)
 {
-  return monomorphismratlift(gl->T, S, gl, frob);
+  return monomorphismratlift(gl->T, S, gl);
 }
 
 static GEN
-galoisdolift(struct galois_lift *gl, GEN frob)
+galoisdolift(struct galois_lift *gl)
 {
   pari_sp av = avma;
   GEN Tp = FpX_red(gl->T, gl->p);
   GEN S = FpX_Frobenius(Tp, gl->p);
-  return gerepileupto(av, automorphismlift(S, gl, frob));
+  return gerepileupto(av, automorphismlift(S, gl));
 }
 
 static void
@@ -1399,7 +1395,7 @@ a4galoisgen(struct galois_test *td)
 static void
 s4makelift(GEN u, struct galois_lift *gl, GEN liftpow)
 {
-  GEN s = automorphismlift(u, gl, NULL);
+  GEN s = automorphismlift(u, gl);
   long i;
   gel(liftpow,1) = s;
   for (i = 2; i < lg(liftpow); i++)
@@ -1493,7 +1489,7 @@ s4galoisgen(struct galois_lift *gl)
   isom    = cgetg(lg(Tmod), t_VEC);
   isominv = cgetg(lg(Tmod), t_VEC);
   misom   = cgetg(lg(Tmod), t_MAT);
-  aut = galoisdolift(gl, NULL);
+  aut = galoisdolift(gl);
   inittestlift(aut, Tmod, gl, &gt);
   Bcoeff = gt.bezoutcoeff;
   pauto = gt.pauto;
@@ -1649,18 +1645,6 @@ galoisfindgroups(GEN lo, GEN sg, long f)
   setlg(V,j); return gerepilecopy(ltop,V);
 }
 
-static long
-galoisfrobeniustest(GEN aut, struct galois_lift *gl, GEN frob)
-{
-  pari_sp av = avma;
-  GEN tlift = aut;
-  long res;
-  if (gl->den != gen_1) tlift = FpX_Fp_mul(tlift, gl->den, gl->Q);
-  tlift = FpX_center_i(tlift, gl->Q, shifti(gl->Q,-1));
-  res = poltopermtest(tlift, gl, frob);
-  set_avma(av); return res;
-}
-
 static GEN
 galoismakepsi(long g, GEN sg, GEN pf)
 {
@@ -1685,8 +1669,8 @@ galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
   if (DEBUGLEVEL >= 4)
     err_printf("GaloisConj: p=%ld e=%ld deg=%ld fp=%ld\n",
                             gf->p, gl.e, deg, gf->fp);
-  aut = galoisdolift(&gl, res);
-  if (!aut || galoisfrobeniustest(aut,&gl,res))
+  aut = galoisdolift(&gl);
+  if (galoisfrobeniustest(aut,&gl,res))
   {
     set_avma(av2); gf->deg = gf->fp; return res;
   }
