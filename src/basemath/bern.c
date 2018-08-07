@@ -76,13 +76,13 @@ bernset(GEN *y, long m, long n)
   C = divrr(mpfactr(N, prec), powru(A, n)); shiftr_inplace(C,1);
   max = zetamaxpow(N, prec);
   pow = cgetg(max+1, t_VEC);
-  for (j = 3; j <= max; j+=2)
-  { /* fixed point */
+  for (j = 3; j <= max; j += 2)
+  { /* fixed point, precision decreases with j */
     long b = bit - N * log2(j), p = b <= 0? LOWDEFAULTPREC: nbits2prec(b);
     gel(pow,j) = invr(rpowuu(j, N, p));
   }
   y += n - m;
-  for (i = n, k = N;; i--, k -= 2)
+  for (i = n, k = N;; i--)
   { /* set B_n, k = 2i */
     pari_sp av2 = avma;
     GEN B, z = fracB2k(divisorsu(i)), s = bern_zeta(k, pow, max, prec);
@@ -94,18 +94,25 @@ bernset(GEN *y, long m, long n)
     if (i == m) break;
     affrr(divrunu(mulrr(C,A), k-1), C);
     for (j = max; j >= 3; j -= 2) affrr(mulru2(gel(pow,j), j), gel(pow,j));
-    if ((k & 0x1f) == 0)
-    {
-      long p = bernprec(k-2), max2 = zetamaxpow(k-2,p);
-      if (p < prec && max2 <= max)
+    set_avma(av2);
+    k -= 2;
+    if ((k & 0xf) == 0)
+    { /* reduce precision if possible */
+      long bit2 = bernbitprec(k), prec2 = nbits2prec(bit2), max2;
+      if (prec2 == prec) continue;
+      prec = prec2;
+      max2 = zetamaxpow(k,prec);
+      if (max2 > max) continue;
+      bit = bit2;
+      max = max2;
+      setprec(C, prec);
+      for (j = 3; j <= max; j += 2)
       {
-        setlg(C, p); max2 = max;
-        for (j = max; j >= 3; j -= 2)
-          if (lg(gel(pow,j)) > p) setlg(gel(pow,j), p);
-        prec = p;
+        GEN P = gel(pow,j);
+        long b = bit + expo(P), p = b <= 0? LOWDEFAULTPREC: nbits2prec(b);
+        if (realprec(P) > p) setprec(P, p);
       }
     }
-    set_avma(av2);
   }
 }
 /* need B[2..2*nb] as t_INT or t_FRAC */
