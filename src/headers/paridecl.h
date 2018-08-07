@@ -920,7 +920,7 @@ GEN     Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e);
 GEN     ZpX_Frobenius(GEN T, GEN p, long e);
 GEN     ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long e);
 GEN     ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
-                     int early(void *E, GEN x, GEN q));
+                     GEN early(void *E, GEN x, GEN q));
 GEN     ZpX_liftfact(GEN pol, GEN Q, GEN pe, GEN p, long e);
 GEN     ZpX_liftroot(GEN f, GEN a, GEN p, long e);
 GEN     ZpX_liftroots(GEN f, GEN S, GEN p, long e);

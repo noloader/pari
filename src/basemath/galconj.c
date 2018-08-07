@@ -380,7 +380,7 @@ struct monoratlift
   long early;
 };
 
-static int
+static GEN
 monoratlift(void *E, GEN S, GEN q)
 {
   struct monoratlift *d = (struct monoratlift *) E;
@@ -400,12 +400,12 @@ monoratlift(void *E, GEN S, GEN q)
     {
       if(DEBUGLEVEL>=4) err_printf("MonomorphismLift: true early solution.\n");
       d->early = 1;
-      set_avma(ltop); return 1;
+      set_avma(ltop); return gen_1;
     }
     set_avma(ltop);
     if(DEBUGLEVEL>=4) err_printf("MonomorphismLift: false early solution.\n");
   }
-  return 0;
+  return NULL;
 }
 
 static GEN

@@ -7082,10 +7082,11 @@ returns $a$ such that $a^2 \equiv b \mod (p^e, T)$.
 as \tet{ZpXQX_liftroot}, but $f$ is a polynomial in $\Z[X]$.
 
 \fun{GEN}{ZpX_ZpXQ_liftroot_ea}{GEN f, GEN a, GEN T, GEN p, long e,
-                     void *E, int early(void *E, GEN x, GEN q)}
+                     void *E, GEN early(void *E, GEN x, GEN q)}
 as \tet{ZpX_ZpXQ_liftroot} with early abort: the function \kbd{early(E,x,q)}
 will be called with $x$ is a root of $f$ modulo $q=p^n$ for some $n$. If
-\kbd{early} returns a non-zero value, the function returns $x$ immediately.
+\kbd{early} returns a non-\kbd{NULL} value $z$, the function returns $z$
+immediately.
 
 \fun{GEN}{ZpXQ_log}{GEN a, GEN T, GEN p, long e} $T$ being a \kbd{ZpX}
 irreducible modulo $p$, return the logarithm of $a$ in $\Z_p[X]/(T)$ to

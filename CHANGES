@@ -20,6 +20,7 @@ Done for version 2.12.0 (released ??/??/20??):
      5- rewrote the Bernoulli number cache (using zeta(2n) = * B_{2n})
         and power recycling for zeta(2n) + additive Clausen von Staudt):
         orders of magnitude faster and always store Bernoulli in rational form
+BA   6- [libpari] ZpX_ZpXQ_liftroot_ea: change interface for 'early'
 
   Added
      1- [libpari] nonsquare_Fl

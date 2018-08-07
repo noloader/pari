@@ -916,7 +916,7 @@ ZpXQ_sqrt(GEN a, GEN T, GEN p, long e)
 
 GEN
 ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
-                     int early(void *E, GEN x, GEN q))
+                     GEN early(void *E, GEN x, GEN q))
 {
   pari_sp ltop = avma, av;
   long N, r;
@@ -944,8 +944,13 @@ ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
     Sq = FpX_sub(S, ZX_Z_mul(H, q2), q);
     if (DEBUGLEVEL > 3)
       timer_printf(&ti,"ZpX_ZpXQ_liftroot: reaching prec %ld",N);
-    if (mask==1 || (early && early(E, Sq, q)))
+    if (mask==1)
       return gerepileupto(ltop, Sq);
+    if (early)
+    {
+      GEN Se = early(E, Sq, q);
+      if (Se) return gerepileupto(ltop, Se);
+    }
     qq = sqri(q); N <<= 1;
     if (mask&1UL) { qq = diviiexact(qq, p); N--; }
     mask >>= 1;
