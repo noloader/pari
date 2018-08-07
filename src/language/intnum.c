@@ -2131,7 +2131,7 @@ static GEN
 sumnumrat_i(GEN F, GEN F0, GEN vF, long prec)
 {
   long B = prec2nbits(prec), vx, j, k, N;
-  GEN S, S1, S2, intf;
+  GEN S, S1, S2, intf, _1;
   double r;
   if (poldegree(F, -1) > -2) pari_err(e_MISC, "sum diverges in sumnumrat");
   vx = varn(gel(F,2));
@@ -2139,10 +2139,11 @@ sumnumrat_i(GEN F, GEN F0, GEN vF, long prec)
   get_kN((long)ceil(r), B, &k,&N);
   intf = intnumainfrat(F, N, r, prec);
   /* N > ratpolemax(F) is not a pole */
-  S1 = gmul2n(gtofp(poleval(F, utoipos(N)), prec), -1);
+  _1 = real_1(prec);
+  S1 = gmul2n(gmul(_1, gsubst(F, vx, utoipos(N))), -1);
   S1 = add_sumrfrac(S1, F, vF, N-1);
   if (F0) S1 = gadd(S1, F0);
-  S = gmul(real_1(prec), gsubst(F, vx, gaddgs(pol_x(vx), N)));
+  S = gmul(_1, gsubst(F, vx, gaddgs(pol_x(vx), N)));
   S = rfrac_to_ser(S, k + 2);
   S2 = gen_0;
   for (j = 2; j <= k; j += 2)

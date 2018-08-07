@@ -1,6 +1,7 @@
 \p115
 sumnumrat(1/x,-oo)
 sumnumrat(1/x^2,-oo)
+sumeulerrat(y/x^2,1)
 F=1/(x^2+1)^2; sumnumrat(F,1)
 F=1/((x+1)*(x^2+x+1)); sumnumrat(F,0)
 F=1+1/x^2; prodnumrat(F,1)
