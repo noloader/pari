@@ -8,6 +8,7 @@ Done for version 2.12.0 (released ??/??/20??):
      4- heap-buffer-overflow in init_prefix [readline]
      5- mfsplit(mf,,flag) could return uninitialized objects => SEGV
      6- mfeisenstein(k,,chi) was treated as E(k,chi) instead of E(k,1,chi)
+     7- poldegree(y/x) -> 0 [ instead of -1 ]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

@@ -406,8 +406,17 @@ poldegree(GEN x, long v)
       return d;
 
     case t_RFRAC:
-      if (gequal0(gel(x,1))) return DEGREE0;
-      return poldegree(gel(x,1),v) - poldegree(gel(x,2),v);
+    {
+      GEN a = gel(x,1), b = gel(x,2);
+      if (gequal0(a)) return DEGREE0;
+      if (v < 0)
+      {
+        v = varn(b); d = -degpol(b);
+        if (typ(a) == t_POL && varn(a) == v) d += degpol(a);
+        return d;
+      }
+      return poldegree(a,v) - poldegree(b,v);
+    }
   }
   pari_err_TYPE("degree",x);
   return 0; /* LCOV_EXCL_LINE  */

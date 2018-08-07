@@ -43,6 +43,7 @@ M = [ 1, 1, 1; 'a, 'b, 'c; 'a^2, 'b^2, 'c^2 ];
 X = A^2 + B^2 + C^2; Y = A*B + A*C + B*C; Z = 'u^2 - 2*Y;
 [X == Z,X - Z]
 
+poldegree(y/x)
 trace(I/x)
 default(realprecision,38);
 1./x-1/x
