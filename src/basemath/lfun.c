@@ -1711,6 +1711,35 @@ lfun(GEN lmisc, GEN s, long bitprec)
   GEN linit, dom, z;
   long der;
   s = get_domain(s, &dom, &der);
+  if (!der && typ(s) == t_INT && !is_bigint(s))
+  { /* special value ? */
+    GEN ldata;
+    long t, ss = itos(s);
+    if (is_linit(lmisc))
+      ldata = linit_get_ldata(lmisc);
+    else
+      lmisc = ldata = lfunmisc_to_ldata_shallow(lmisc);
+    t = ldata_get_type(ldata);
+    if (t == t_LFUN_KRONECKER)
+    {
+      long D = itos_or_0(gel(ldata_get_an(ldata), 2));
+      if (D)
+      {
+        if (ss <= 0) return lfunquadneg(D, ss);
+        /* ss > 0 */
+        if ((!odd(ss) && D > 0) || (odd(ss) && D < 0))
+        {
+          long prec = nbits2prec(bitprec), q = labs(D);
+          ss = 1 - ss; /* <= 0 */
+          z = mulrr(shiftr(powrs(divrs(mppi(prec), q), 1-ss), -ss),
+                    sqrtr_abs(utor(q, prec)));
+          z = gdiv(z, mpfactr(-ss, prec));
+          if (smodss(ss, 4) > 1) togglesign(z);
+          return gmul(z, lfunquadneg(D, ss));
+        }
+      }
+    }
+  }
   linit = lfuninit(lmisc, dom, der, bitprec);
   z = lfun_OK(linit, s, dom, bitprec);
   return gerepilecopy(av, z);

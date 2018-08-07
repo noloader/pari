@@ -1,0 +1,752 @@
+/* Copyright (C) 2018  The PARI group.
+
+This file is part of the PARI/GP package.
+
+PARI/GP is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation. It is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY WHATSOEVER.
+
+Check the License for details. You should have received a copy of it, along
+with the package; see the file 'COPYING'. If not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
+
+/********************************************************************/
+/**       L-functions: values at integers of L-functions           **/
+/**             of primitive quadratic characters                  **/
+/********************************************************************/
+#include "pari.h"
+#include "paripriv.h"
+
+/* 2^(2k) binomial(n/2, k), an integer */
+static GEN
+binom2(long n, long k)
+{
+  if (!k) return gen_1;
+  if (k == 1) return utoi(2*n);
+  return diviiexact(shifti(mulu_interval_step(n-2*k+2, n, 2), k), mpfact(k));
+}
+static GEN
+RCpol(long n, long t, long N)
+{
+  GEN P = cgetg(n+3, t_POL), c = binom2(t, n);
+  long l, s = N - 2*n;
+  if (s) c = shifti(c, s);
+  gel(P,n+2) = c;
+  for(l = 0; l < n; l++)
+  {
+    c = diviiexact(mulii(c, muluu(2*n-1 - 2*l, n-l)), mulss(l+1, 2*l-t));
+    gel(P,n-l+1) = c;
+  }
+  P[1] = evalsigne(1) | evalvarn(0); return P;
+}
+static GEN
+vecRCpol(long r, long dim)
+{
+  GEN v = cgetg(dim+1, t_VEC);
+  long i, N = 2*(dim-1), t = 2*r - 3;
+  for (i = 1; i <= dim; i++) gel(v,i) = RCpol(i-1, t, N);
+  return v;
+}
+/* D a t_INT */
+static GEN
+RgXV_rescale(GEN v, GEN D)
+{
+  long j, l;
+  GEN w;
+  if (equali1(D)) return v;
+  w = cgetg_copy(v, &l);
+  for (j = 1; j < l; j++) gel(w,j) = RgX_rescale(gel(v,j), D);
+  return w;
+}
+static GEN
+euler_sumdiv(GEN q, long v)
+{
+  GEN u = addui(1, q);
+  for (; v > 1; v--) u = addui(1, mulii(q, u));
+  return u;
+}
+
+/* [p^{k-1},p^{k-3},...,p^{k-2(d-1)-1}] * (s/p), s = 1 or -1 */
+static GEN
+vpowp(long k, long d, long p, long s)
+{
+  GEN v = cgetg(d + 1, t_VEC), p2 = sqru(p);
+  long j;
+  gel(v, d) = powuu(p, k - 2*d + 1);
+  if (s == -1 && (p & 3L) == 3) togglesign_safe(&gel(v,d));
+  for (j = d-1; j >= 1; j--) gel(v, j) = mulii(p2, gel(v, j+1));
+  return v;
+}
+static GEN
+usumdivk_0_all(long k, long dim)
+{
+  GEN v = cgetg(dim + 1, t_COL);
+  long j;
+  for (j = 1; j <= dim; j++)
+  {
+    long n = k + 2 - 2*j;
+    gel(v,j) = gdivgs(bernfrac(n), - (n << 1));
+  }
+  return v;
+}
+static GEN
+usumdivk_fact_all(GEN fa, long k, long dim)
+{
+  GEN res, P, E, pow;
+  long i, j, l;
+  res = cgetg(dim + 1, t_COL);
+  P = gel(fa, 1); l = lg(P);
+  E = gel(fa, 2); pow = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(pow, i) = vpowp(k, dim, P[i], 1);
+  for (j = 1; j <= dim; j++)
+  {
+    GEN v = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(v,i) = euler_sumdiv(gmael(pow,i,j), E[i]);
+    gel(res, j) = ZV_prod(v);
+  }
+  return res;
+}
+
+/* Hadamard product */
+static GEN
+RgV_mul(GEN a, GEN b)
+{
+  long j, l = lg(a);
+  GEN v = cgetg(l, t_COL);
+  for (j = 1; j < l; j++) gel(v,j) = gmul(gel(a,j), gel(b,j));
+  return v;
+}
+/* Hadamard product a o (b | b) */
+static GEN
+RgV_mul2(GEN a, GEN b)
+{
+  long j, l = lg(a), lb = lg(b);
+  GEN v = cgetg(l, t_COL);
+  for (j = 1; j < lb;j++) gel(v,j) = gmul(gel(a,j), gel(b,j));
+  b -= lb-1;
+  for (     ; j < l; j++) gel(v,j) = gmul(gel(a,j), gel(b,j));
+  return v;
+}
+
+/* r = k - 2*j, 0<=j<dim, factor s=an+b, 0<=s<lim. Check if n starts at 0 or 1
+ * P(D,(an+b)^2), (D-s^2)/N = (D-b^2)/N - 2abn/N - a^2n^2/N and guarantee
+ *  N | D-b^2, N | 2ab, and N | a^2 (except N=8, D odd):
+ * N=4: a=2, b=0,1\equiv D: D = 0,1 mod 4.
+ * N=8: a=4, b=2 if D/4 odd, 0 if D/4 even: D = 0 mod 4 or 1 mod 8
+ * N=12: a=6, b=3 if D odd, 0 if D even: D = 0,1 mod 4
+ * N=-12: a=6, b=5,1 if D odd, 4,2 if D even: D = 0,1 mod 4
+ * N=16: a=8, b=7,1 if D = 1 mod 16, 5,3 if D = 9 mod 16: D = 1 mod 8 */
+GEN
+sigsum(long k, long dim, long a, long b, long D, long N, GEN vs, GEN vP)
+{
+  pari_sp av;
+  GEN vPD, listS, keep0 = NULL;
+  long D2, n, c1, c2, s, lim = usqrt(labs(D));
+
+  if (!vP) vP = vecRCpol(k, dim);
+  vPD = RgXV_rescale(vP, stoi(D));
+  D2 = (D - b*b)/N; c1 = (2*a*b)/N; c2 = (a*a)/N;
+  av = avma; listS = zerocol(dim);
+  for (s = b, n = 0; s <= lim; s += a, n++)
+  {
+    long Ds = c2 ? D2 - n*(c2*n + c1) : D2 - ((n*(n+1)) >> 1);
+    GEN v, P = gsubst(vPD, 0, utoi(s*s));
+    if (vs)
+      v = gel(vs, Ds+1);
+    else
+      v = Ds? usumdivk_fact_all(factoru(Ds), k, dim)
+            : usumdivk_0_all(k,dim);
+    v = RgV_mul(v, P);
+    if (!s) keep0 = v; else listS = gadd(listS, v);
+    if (gc_needed(av, 1)) gerepileall(av, keep0? 2: 1, &listS, &keep0);
+  }
+  listS = gmul2n(listS, 1);
+  return keep0 ? gadd(keep0, listS): listS;
+}
+
+static GEN
+sigsum4(long k, long dim, long D, GEN vs, GEN vP)
+{ return sigsum(k, dim, 2, odd(D), D, 4, vs, vP); }
+
+/* D != 5 (mod 8) */
+static GEN
+sigsum8(long k, long dim, long D, GEN vs, GEN vP)
+{
+  if (D&1L) return gmul2n(sigsum(k, dim, 2, 1, D, 8, vs, vP), -1);
+  return sigsum(k, dim, 4, 2*odd(D >> 2), D, 8, vs, vP);
+}
+
+/* D = 0 (mod 3) */
+static GEN
+sigsum12(long k, long dim, long D, GEN vs, GEN vP)
+{ return sigsum(k, dim, 6, 3*odd(D), D, 12, vs, vP); }
+
+/* D = 1 (mod 3) */
+static GEN
+sigsumm12(long k, long dim, long D, GEN vs, GEN vP)
+{
+  long fl = odd(D);
+  GEN res = sigsum(k, dim, 6, 4 + fl, D, 12, vs, vP);
+  res = gadd(res, sigsum(k, dim, 6, 2 - fl, D, 12, vs, vP));
+  return gmul2n(res, -1);
+}
+
+/* D = 1 (mod 8) */
+static GEN
+sigsum16(long k, long dim, long D, GEN vs, GEN vP)
+{
+  long fl = (D&15L) == 1;
+  GEN res = sigsum(k, dim, 8, 5 + 2*fl, D, 16, vs, vP);
+  return gadd(res, sigsum(k, dim, 8, 3 - 2*fl, D, 16, vs, vP));
+}
+
+/* N = 4 (as above), 8 (factor (1+(D/2))), 12 (factor (1+(D/3))),
+   16 (only D=1 mod 8). */
+static GEN
+Dpos(long dim, long N, long B)
+{
+  GEN vD = cgetg(maxss(B, dim) + 1, t_VECSMALL);
+  long D, c;
+  for (D = 5, c = 1; c <= dim || D <= B; D += odd(D) ? 3 : 1)
+    if (!(N == 8 && (D&3L))
+        && !(N == 12 && D%3)
+        && !(N == -12 && D%3 != 1)
+        && !(N == 16 && (D&7L) != 1) && sisfundamental(D)) vD[c++] = D;
+  setlg(vD, c); return vD;
+}
+
+typedef GEN (*SIGMA_F)(long,long,long,GEN,GEN);
+static SIGMA_F
+get_S_even(long N)
+{
+  switch(N) {
+    case 4: return sigsum4;
+    case 8: return sigsum8;
+    case 12:return sigsum12;
+    case 16:return sigsum16;
+    default:return sigsumm12; /* -12 */
+  }
+}
+static GEN
+sigsumN(long r, long dim, GEN vD, long N)
+{
+  GEN V, M, vs, vP = vecRCpol(r, dim);
+  SIGMA_F S = get_S_even(N);
+  long B, n, i, l = lg(vD);
+
+  B = vD[l-1] / labs(N);
+  V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
+  gel(vs,1) = usumdivk_0_all(r, dim);
+  for (n = 1; n <= B; n++) gel(vs, n+1) = usumdivk_fact_all(gel(V,n), r, dim);
+  M = cgetg(l, t_MAT);
+  for (i = 1; i < l; i++)
+  {
+    pari_sp av = avma;
+    gel(M,i) = gerepileupto(av, S(r, dim, vD[i], vs, vP));
+  }
+  return shallowtrans(M);
+}
+
+static GEN lfunquadfeq(long D, long k);
+/* Euler numbers: 1, 0, -1, 0, 5, 0, -61,... */
+GEN
+Eulernumber(long k)
+{
+  pari_sp av = avma;
+  if (odd(k)) return gen_0;
+  switch(k)
+  {
+    case 0: return gen_1;
+    case 2: return gen_m1;
+    case 4: return utoipos(5);
+    case 6: return utoineg(61);
+    case 8: return utoipos(1385);
+    case 10:return utoineg(50521);
+    case 12:return utoipos(2702765);
+    case 14:return utoineg(199360981);
+  }
+  return gerepileuptoint(av, gmul2n(lfunquadfeq(-4, k+1), 1));
+}
+
+static GEN
+mfDcoefs(GEN F, GEN vD, long d)
+{
+  long l = lg(vD), i;
+  GEN V = mfcoefs(F, vD[l-1], d), W = cgetg(l, t_COL);
+  if (d == 1)
+    for (i = 1; i < l; i++) gel(W, i) = gel(V, vD[i]+1);
+  else
+    for (i = 1; i < l; i++) gel(W, i) = gel(V, vD[i]/d+1);
+  return W;
+}
+
+static GEN
+myinverseimage(GEN M, GEN R, GEN *pden)
+{
+  GEN c = Q_remove_denom(QM_gauss_i(M, R, 1), pden);/* M*res / den = R */
+  if (!c) pari_err_BUG("theta brackets");
+  return c;
+}
+
+static GEN
+cohenHcolgen(long r, GEN vD)
+{
+  long m, l = lg(vD);
+  GEN v = cgetg(l, t_COL);
+  for (m = 1; m < l; m++)
+  {
+    pari_sp av = avma;
+    long D = odd(r)? -vD[m]: vD[m]; /* fundamental */
+    gel(v, m) = gerepileupto(av, lfunquadfeq(D, r));
+  }
+  return v;
+}
+
+/***********************************************************/
+/*   Modular form method using Half-Integral Weight forms  */
+/*                      Case D > 0                         */
+/***********************************************************/
+
+static GEN
+thetabracketseven(GEN k, long N, GEN *pden)
+{
+  GEN T = mfTheta(NULL), R, M, vD;
+  static long di[] = {6, 4, 3, 4};
+  static long mul[] = {1, 2, 2, 2};
+  long km = itos(gsub(k, ghalf)), dim, N0, B;
+  if (!N) N = 4;
+  if ((N&3L) || (N <= 0 && N != -12) || N > 16)
+    pari_err_TYPE("thetabrackets [incorrect N]", stoi(N));
+  N0 = N; N = labs(N);
+  dim = km/di[(N - 4)/4] + 1;
+  B = mul[(N - 4)/4] * mfsturmNgk(N, k);
+  vD = Dpos(dim, N0, B);
+  M = sigsumN(km, dim, vD, N0);
+  if (km - 2*(dim - 1) == 2)
+  {
+    GEN v = mfDcoefs(mfderiv(T, dim+1), vD, 1);
+    gel(M, dim) = gadd(gel(M, dim), gdivgs(v, N*(2*dim - 1)));
+  }
+  if (km <= 40) R = mfDcoefs(mfEH(k),vD,1); else R = cohenHcolgen(km, vD);
+  if (N == 8 || N == 12)
+  {
+    long i, l = lg(vD), N2 = N/4;
+    for (i = 1; i < l; i++) gel(R,i) = gmulsg(1 + kross(vD[i], N2), gel(R,i));
+  }
+  return myinverseimage(M, R, pden);
+}
+
+/* L(\chi_D, 1-k) for D > 0 and k > 0 even. */
+static GEN
+lfunquadmodularhalfeven(long D, long k, long N)
+{
+  GEN C, S, gk = gaddsg(k, ghalf), den;
+  C = thetabracketseven(gk, labs(N), &den);
+  S = RgV_dotproduct(C, get_S_even(N)(k, lg(C)-1, D, NULL, NULL));
+  return den? gdiv(S, den): S;
+}
+
+/***********************************************************/
+/*   Modular form method using Half-Integral Weight forms  */
+/*                      Case D < 0                         */
+/***********************************************************/
+
+static long
+dimsmall(long r, long kro, long N)
+{
+  switch(N)
+  {
+    case 1: switch (kro)
+    {
+      case -1:return (r + 3) >> 2;
+      case 0: return (r + 2)/3;
+      case 1: return (r + 1) >> 2;
+    }
+    case 2: switch (kro)
+    {
+      case -1 : return (r + 3) >> 2;
+      case 0  : return (r + 1) >> 1;
+      case 1  : return (r + 1) >> 2;
+    }
+    case 3: return kro? (r + 1) >> 1: ((r << 1) + 2)/3;
+    case 5: switch (kro)
+    {
+      case -1:return (3*r + 2) >> 2;
+      case 0: return r;
+      case 1: return (3*r - 1) >> 2;
+    }
+    case 6: return kro == 1 ? (r + 1) >> 1 : r;
+    default: return r;
+  }
+}
+
+static GEN
+Dneg(long n, long kro, long dim, long N)
+{
+  GEN vD = cgetg(maxss(n, dim) + 1, t_VECSMALL);
+  long D, c;
+  for (D = -3, c = 1; D >= -n || c <= dim; D -= odd(D)? 1: 3)
+    if (D != -4 && kross(D, 2) == kro
+        && !(N == 6 && (D&7L) == 5)
+        && !(N == 7 && (D&7L) != 5) && sisfundamental(D)) vD[c++] = labs(D);
+  setlg(vD, c); return vD;
+}
+
+static GEN
+div4(GEN V)
+{
+  long l = lg(V), i;
+  GEN W = cgetg(l, t_VECSMALL);
+  for (i = 1; i < l; i++) W[i] = V[i] >> 2;
+  return W;
+}
+
+static GEN
+usumdivktwist_0_all(long k, long dim0, long two)
+{
+  long j, dim = two == 2 ? (dim0 + 1) >> 1 : dim0;
+  GEN v = cgetg(dim + 1, t_COL);
+  for (j = 1; j <= dim; j++) gel(v,j) = gmul2n(Eulernumber(k+2-2*j), -2);
+  return two == 1? v: mkvec2(v, zerocol(dim0 - dim));
+}
+/* fa = factoru(N) */
+static GEN
+usumdivktwist_fact_all(GEN fa, long N, long k, long dim0, long two)
+{
+  GEN res, P, E, pow;
+  long i, j, l, f2, v, Nmod4, dim = two == 2 ? (dim0 + 1) >> 1 : dim0;
+
+  res = cgetg(dim0 + 1, t_COL);
+  Nmod4 = (N >> vals(N)) & 3L; /* (N/2^oo) mod 4 */
+  P = gel(fa, 1); l = lg(P);
+  E = gel(fa, 2);
+  if (l == 1 || P[1] != 2) f2 = v = 0; else { f2 = 1; v = E[1]; }
+  pow = cgetg(l, t_VEC); /* pow[1] unused if f2 */
+  for (i = 1+f2; i < l; i++) gel(pow, i) = vpowp(k, dim, P[i], -1);
+  for (j = 1; j <= dim; j++)
+  {
+    GEN V = cgetg(l - f2, t_VEC), z;
+    for (i = 1+f2; i < l; i++) gel(V,i-f2) = euler_sumdiv(gmael(pow,i,j), E[i]);
+    gel(res, j) = z = ZV_prod(V);
+    if (two == 2 && j <= dim0 - dim)
+    {
+      if (Nmod4 == 3) z = negi(z);
+      if (v) z = shifti(z, (k - 2*j + 1)*v);
+      gel(res, j + dim) = z;
+    }
+  }
+  return res;
+}
+
+static long
+findmul(long N, long kro)
+{
+  if (N == 1 || N == 2) return 1;
+  if (kro != 1) return kro? 5: 7;
+  if (N == 3) return 4;
+  if (N == 5) return 5;
+  return 2;
+}
+
+static GEN sigsumtwist1N(long r, long dim, long kro, GEN vD, long N);
+
+static GEN
+thetabracketsodd(GEN k, long kro, long N, GEN *pden)
+{
+  GEN R, M, vD;
+  long r = itos(gsub(k, ghalf)), dim, B;
+  if (!N) N = 2;
+  if (N <= 0 || N >= 8 || N == 4 || (N == 6 && kro == -1) || (N == 7 && kro != -1))
+    pari_err_TYPE("thetabrackets [incorrect N]", stoi(N));
+  dim = dimsmall(r, kro, N);
+  B = findmul(N, kro) * mfsturmNgk(4*N, k);
+  vD = Dneg(B, kro, dim + 5, N);
+  M = sigsumtwist1N(r, dim, kro, vD, N);
+  if (r <= 40) R = mfDcoefs(mfEH(k), vD, kro?1:4); else R = cohenHcolgen(r, vD);
+  if (N > 2)
+  {
+    long i, l = lg(vD), N2 = N&1L ? N : N >> 1;
+    for (i = 1; i < l; i++) gel(R,i) = gmulsg(1 + kross(vD[i],N2), gel(R,i));
+  }
+  return myinverseimage(M, R, pden);
+}
+
+static GEN
+sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GEN vP)
+{
+  pari_sp btop;
+  GEN vPD, listS = zerocol(dim0), keep0 = NULL;
+  long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), two, dim;
+  long N2 = N == 6 ? 3 : N;
+  if (N0 == -2 || (N0 == -6 && (Da&7L) == 7))
+  { two = 1; dim = dim0; }
+  else
+  { two = 2; dim = (dim0 + 1) >> 1; }
+  if (N > 2 && kross(Da, N2) == -1) return listS;
+  if (!vP) vP = vecRCpol(k, dim);
+  vPD = RgXV_rescale(vP, stoi(Da));
+  D2 = (Da - b*b)/N; c1 = (2*a*b)/N; c2 = (a*a)/N;
+  btop = avma;
+  for (s = b, n = 0; s <= lim; s += a, n++)
+  {
+    long Ds = D2 - n*(c2*n + c1);
+    GEN v, P = gsubst(vPD, 0, utoi(s*s));
+    if (vstwist)
+      v = gel(vstwist, Ds+1);
+    else
+      v = Ds? usumdivktwist_fact_all(factoru(Ds), Ds, k, dim0, two)
+            : usumdivktwist_0_all(k, dim0, two);
+    v = (two == 1)? RgV_mul(v, P): RgV_mul2(v, P);
+    if (!s) keep0 = v; else listS = gadd(listS, v);
+    if (gc_needed(btop, 1)) gerepileall(btop, keep0? 2: 1, &listS,&keep0);
+  }
+  listS = gmul2n(listS, 1);
+  return gmul2n(keep0? gadd(keep0, listS): listS, -2*(dim-1));
+}
+
+/* Da = |D|; [sum sigma_r^(1)(Da-s^2), sum sigma_r^(2)(Da-s^2)], N = 1 */
+static GEN
+sigsumtwist11(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
+{ return sigsumtwist(k, dim, 1, 0, Da, N, vstwist, vP); }
+
+/* [sum sigma_r^(1)((Da-s^2)/2), sum sigma_r^(2)((Da-s^2)/2)], N = -2
+ * Here Da is odd. Only (1). */
+static GEN
+sigsumtwist122spec(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
+{ return sigsumtwist(k, dim, 2, 1, Da, N, vstwist, vP); }
+
+/* Here Da = |D|/4 can be odd or even. N = 2 */
+static GEN
+sigsumtwist122(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
+{ return sigsumtwist(k, dim, 2, odd(Da), Da, N, vstwist, vP); }
+
+/* Da = |D| or |D|/4 */
+/* [sum sigma_r^(1)((Da-s^2)/N), sum sigma_r^(2)((Da-s^2)/N)] */
+/* Case N|Da; N not necessarily prime. */
+static GEN
+sigsumtwist12p0(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
+{ return sigsumtwist(k, dim, N, 0, Da, N, vstwist, vP); }
+
+/* [sum sigma_r^(1)((Da-s^2)/p), sum sigma_r^(2)((Da-s^2)/p)] */
+/* Case p\nmid Da */
+/* p = 3: s = +-1 mod 3;
+ * p = 5: s = +-1 mod 5 if Da = 1 mod 5, s = +-2 mod 5 if Da = 2 mod 5;
+ * p = 7: s=+-1, +-2, +-3 if Da=1,4,2 mod 7;
+ * p = 6: s=+-1, +-2, +-3 if Da=1,4,3 mod 6 */
+static GEN
+sigsumtwist12pt(long k, long dim, long Da, long N0, GEN vstwist, GEN vP)
+{
+  GEN res;
+  long N = labs(N0), t = Da%N, e = 0;
+  if (t == 1) e = 1;
+  else if (t == 4) e = 2;
+  else if (t == 2 || t == 3) e = 3;
+  res = sigsumtwist(k, dim, N, N-e, Da, N0, vstwist, vP);
+  if (N-e != e) res = gadd(res, sigsumtwist(k, dim, N, e, Da, N0, vstwist, vP));
+  return res;
+}
+
+static GEN
+sigsumtwist12_6(long r, long dim, long Da, long N, GEN vstwist, GEN vP)
+{
+  if (Da%12 == 6) return sigsumtwist12p0(r, dim, Da, N, vstwist, vP);
+  return sigsumtwist12pt(r, dim, Da, N, vstwist, vP);
+}
+static GEN
+sigsumtwist12_N(long r, long dim, long Da, long N, GEN vstwist, GEN vP)
+{
+  if (N > 0 && Da%N == 0) return sigsumtwist12p0(r, dim, Da, N, vstwist, vP);
+  return sigsumtwist12pt(r, dim, Da, -N, vstwist, vP);
+}
+
+typedef GEN (*SIGMA_Fodd)(long,long,long,long,GEN,GEN);
+static SIGMA_Fodd
+get_S_odd(long N, long two)
+{
+  if (two == 1)
+  {
+    if (N == 2) return sigsumtwist122spec;
+    return sigsumtwist12pt;
+  }
+  if (N == 1) return sigsumtwist11;
+  if (N == 2) return sigsumtwist122;
+  if (N == 6) return sigsumtwist12_6;
+  return sigsumtwist12_N;
+}
+
+/* N > 0 */
+static GEN
+sigsumtwist1N(long r, long dim0, long kro, GEN vD, long N)
+{
+  GEN V, M, vs, vP, vD4 = kro ? vD : div4(vD);
+  long B, n, i, l, two, dim;
+  SIGMA_Fodd S;
+
+  if ((N == 2 && kro) || (N == 6 && kro == 1))
+  { two = 1; dim = dim0; }
+  else
+  { two = 2; dim = (dim0 + 1) >> 1; }
+  S = get_S_odd(N, two);
+  vP = vecRCpol(r, dim);
+  l = lg(vD4); M = cgetg(l, t_MAT);
+  B = vD4[l-1] / labs(N);
+  V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
+  gel(vs,1) = usumdivktwist_0_all(r, dim0, two);
+  for (n = 1; n <= B; n++)
+    gel(vs,n+1) = usumdivktwist_fact_all(gel(V,n), n, r, dim0, two);
+  if (two == 1) N = -N;
+  for (i = 1; i < l; i++)
+  {
+    pari_sp av = avma;
+    gel(M,i) = gerepileupto(av, S(r, dim0, vD4[i], N, vs, vP));
+  }
+  return shallowtrans(M);
+}
+
+/* L(\chi_D, 1-k) for D < 0 and k > 0 odd. */
+static GEN
+lfunquadmodularhalfodd(long D, long k, long N)
+{
+  GEN C, den, S, gk = gaddsg(k, ghalf);
+  long two, kro = kross(D, 2), Da = labs(D);
+  SIGMA_Fodd F;
+  C = thetabracketsodd(gk, kro, labs(N), &den);
+  two = ((N == 2 && kro) || (N == -6 && kro == 1))? 1: 2;
+  F = get_S_odd(N, two);
+  if (!kro) Da >>= 2;
+  S = RgV_dotproduct(C, F(k, lg(C)-1, Da, (two==1 && N==2)? -2: N, NULL, NULL));
+  if (N < 0 && (N != -6 || Da%3)) den = den? shifti(den,1): gen_2;
+  return den? gdiv(S, den): S;
+}
+
+/********************************************************/
+/*        Using the Full Functional Equation            */
+/********************************************************/
+static GEN
+LFEk(long D, long k, int prime)
+{
+  pari_sp av;
+  long bit, lim, Da = labs(D);
+  double B = (k-0.5)*log(k*Da/17.079)+12;
+  forprime_t iter;
+  ulong p;
+  GEN P;
+  if (prime) B += log(Da);
+  bit = maxss((long)ceil(B/M_LN2 * k/(k-1)), 32) + 32;
+  lim = (long)ceil(exp((B-log(k-1.))/(k-1)));
+  u_forprime_init(&iter, 2, lim);
+  av = avma; P = real_1(nbits2prec(bit));
+  while ((p = u_forprime_next(&iter)))
+  {
+    long s = kross(D, p), bitnew = (long)(bit - k * log2(p));
+    GEN Q;
+    if (!s) continue;
+    Q = divrr(P, rpowuu(p, k, nbits2prec(maxss(64, bitnew))));
+    P = s == 1? subrr(P, Q): addrr(P, Q);
+    if (gc_needed(av,1)) P = gerepileuptoleaf(av, P);
+  }
+  return P;
+}
+
+static GEN
+myround(GEN z, GEN d)
+{
+  long e;
+  if (d) z = mulri(z, d);
+  z = grndtoi(z, &e); if (e >= -4) pari_err_BUG("lquadfeq");
+  if (d) z = gdiv(z, d);
+  return z;
+}
+
+/* LFE = L Functional Equation; L(\chi_D, 1-k). */
+static GEN
+lfunquadfeq(long D, long k)
+{
+  GEN L, res, den;
+  long Da, prec;
+  int prime;
+  if (D == 1)
+  {
+    if (k == 1) return gneg(ghalf);
+    return gdivgs(bernfrac(k), -k);
+  }
+  if ((D > 0 && odd(k)) || (D < 0 && !odd(k))) return gen_0;
+  if (k == 2) pari_err_TYPE("lfunquadfeq [k = 2]", stoi(k));
+  Da = labs(D); prime = uisprime(Da);
+  L = LFEk(D, k, prime); prec = lg(L);
+  res = divrr(mulrr(mpfactr(k-1, prec), gpowgs(divur(Da, Pi2n(1, prec)), k)),
+              mulrr(L, sqrtr_abs(utor(Da,prec))));
+  shiftr_inplace(res,1); if (odd(k/2)) togglesign(res);
+  den = (prime || Da == 4)? utoi(k*Da): NULL;
+  return myround(res, den);
+}
+
+/* heuristic */
+static long
+usefeq(long D, long k, long N, double c)
+{
+  long e = expu(labs(D));
+  if (D < 0) k /= 2;
+  if (k > 30 * c)
+  {
+    if (k <= 60 * c)
+    {
+      if (e <= 20 + k/10) return 0;
+    }
+    else
+    {
+      if (e <= 14 + k/50) return 1;
+    }
+  }
+  return 0;
+}
+
+static long
+lfunquadfindNeven(long D, double *c)
+{
+  long r = D%3;
+  if (!r) { *c = 3; return 12; }
+  if ((D&7L) == 1) { *c = 2; return 16; }
+  if (!(D&1L)) { *c = 2; return 8; }
+  if (r == 1) { *c = 1.5; return -12; }
+  *c = 1; return 4;
+}
+static long
+lfunquadfindNodd(long D, double *c)
+{
+  long Dmod8 = D&7L, r;
+  if (D%7 == 0 && (Dmod8 == 5)) { *c = 3.5; return 7; }
+  if (D%6 == 0) { *c = 3; return 6; } /* no need to add (Dmod8 != 5) */
+  if (D%5 == 0) { *c = 2.5; return 5; }
+  if (D%3 == 0) { *c = 1.5; return 3; }
+  if (Dmod8 == 5)
+  {
+    r = smodss(D, 7);
+    if (r!=1 && r!=2 && r!=4) { *c = 7./6; return -7; }
+  }
+  if (smodss(D, 3) != 1 && Dmod8 != 5) { *c = 1.5; return -6; }
+  r = smodss(D, 5); if (r != 2 && r != 3) { *c = 5./4; return -5; }
+  *c = 1; return 2;
+}
+
+static GEN
+lfunquadneg_i(long D, long k)
+{
+  double c;
+  long N;
+
+  if (D == 1) return k == 0 ? gneg(ghalf) : gdivgs(bernfrac(1-k), k-1);
+  if (!sisfundamental(D)) pari_err_TYPE("lfunquad [D not fundamental]",stoi(D));
+  if (k == 0) return D < 0? hclassno(stoi(-D)): gen_0;
+  if ((D > 0 && !odd(k)) || (D < 0 && odd(k))) return gen_0;
+  if (D == -4) return gmul2n(Eulernumber(-k), -1);
+  N = D < 0? lfunquadfindNodd(D, &c): lfunquadfindNeven(D, &c);
+  k = 1 - k;
+  if (usefeq(D, k, N, c)) return lfunquadfeq(D, k);
+  return D < 0? lfunquadmodularhalfodd(D,k,N): lfunquadmodularhalfeven(D,k,N);
+}
+/* need k <= 0 and D fundamental */
+GEN
+lfunquadneg(long D, long k)
+{ pari_sp av = avma; return gerepileupto(av, lfunquadneg_i(D,k)); }

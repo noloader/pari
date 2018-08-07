@@ -2887,15 +2887,31 @@ ZM_gauss(GEN a, GEN b0)
   return gerepileupto(av, res);
 }
 
-/* same as above, M rational */
+static GEN
+RgC_inflate(GEN K, GEN v, long n)
+{
+  GEN c = zerocol(n);
+  long j, l = lg(K);
+  for (j = 1; j < l; j++) gel(c, v[j]) = gel(K, j);
+  return c;
+}
+/* same as above, M rational; if flag = 1, call indexrank and return 1 sol */
 GEN
-QM_gauss(GEN M, GEN B)
+QM_gauss_i(GEN M, GEN B, long flag)
 {
   pari_sp av = avma;
   long i, l = lg(M);
-  GEN K, cB, N = cgetg_copy(M, &l), v = cgetg(l, t_VEC);
+  GEN K, cB, N = cgetg_copy(M, &l), v = cgetg(l, t_VEC), z2 = NULL;
   for (i = 1; i < l; i++)
     gel(N,i) = Q_primitive_part(gel(M,i), &gel(v,i));
+  if (flag)
+  {
+    GEN z = ZM_indexrank(N), z1 = gel(z,1);
+    z2 = gel(z,2);
+    N = shallowmatextract(N, z1, z2);
+    B = typ(B) == t_MAT? rowpermute(B,z1): vecpermute(B,z1);
+    if (lg(z2) == l) z2 = NULL; else { v = vecpermute(v, z2); l = lg(v); }
+  }
   B = Q_primitive_part(B, &cB);
   K = ZM_gauss(N, B); if (!K) { set_avma(av); return NULL; }
   for (i = 1; i < l; i++)
@@ -2913,8 +2929,20 @@ QM_gauss(GEN M, GEN B)
     c = mul_content(cB, d);
     if (c) gel(K,i) = gmul(gel(K,i), c);
   }
+  if (z2)
+  {
+    long n = lg(M)-1;
+    if (typ(B) == t_COL) K = RgC_inflate(K, z2, n);
+    else
+    {
+      l = lg(B);
+      for (i = 1; i < l; i++) gel(B,i) = RgC_inflate(gel(B,i), z2, n);
+    }
+  }
   return gerepilecopy(av, K);
 }
+GEN
+QM_gauss(GEN M, GEN B) { return QM_gauss_i(M, B, 0); }
 
 static GEN
 ZM_inv_slice(GEN A, GEN P, GEN *mod)

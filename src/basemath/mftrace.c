@@ -1577,7 +1577,7 @@ c_mfeisen(long n, long d, GEN F)
 
 /* L(chi_D, 1-k) */
 static GEN
-lfunquadneg(long D, long k)
+lfunquadneg_naive(long D, long k)
 {
   GEN B, dS, S = gen_0;
   long r, N = labs(D);
@@ -10991,7 +10991,7 @@ mfEHcoef(long r, long N)
     GEN c = gmul(powuu(d, r-1), mysumdivku(f/d, 2*r-1));
     S = s > 0? addii(S, c): subii(S, c);
   }
-  return gmul(lfunquadneg(D0, r), S);
+  return gmul(lfunquadneg_naive(D0, r), S);
 }
 static GEN
 mfEHmat(long lim, long r)

@@ -1593,6 +1593,7 @@ GEN     FqM_mul(GEN a, GEN b, GEN T, GEN p);
 long    FqM_rank(GEN a, GEN T, GEN p);
 GEN     FqM_suppl(GEN x, GEN T, GEN p);
 GEN     QM_gauss(GEN a, GEN b);
+GEN     QM_gauss_i(GEN M, GEN B, long flag);
 GEN     QM_indexrank(GEN x);
 GEN     QM_inv(GEN M);
 long    QM_rank(GEN x);
@@ -4033,6 +4034,11 @@ GEN     lfunqf(GEN ldata, long prec);
 GEN     lfunsympow(GEN E, ulong m);
 GEN     lfunzetakinit(GEN pol, GEN dom, long der, long flag, long bitprec);
 long    qfiseven(GEN M);
+
+/* lfunquad */
+
+GEN lfunquadneg(long D, long k);
+GEN Eulernumber(long k);
 
 /* lll.c */
 

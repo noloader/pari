@@ -82,6 +82,7 @@ BA  17- [libpari] QM_sqr, FqC_to_mod, ZXQX_gcd, QXQX_gcd
     20- new GP function parplothexport
 BA  21- [libpari] gen_ZpM_Newton, ZpM_invlift
 BA  22- [libpari] F2xn_red, F2xn_inv
+HC  23- direct formulas for quadratic Dirichlet L-functions at integers
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
