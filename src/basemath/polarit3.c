@@ -2483,45 +2483,37 @@ GEN
 ffnbirred(GEN p, long n)
 {
   pari_sp av = avma;
-  long j, l;
-  GEN s = gen_0, dk, pd;
-  dk = divisorsu(n); l = lg(dk);
-  for (j = 1; j < l; j++)
+  GEN s = powiu(p,n), F = factoru(n), D = divisorsu_moebius(gel(F, 1));
+  long j, l = lg(D);
+  for (j = 2; j < l; j++) /* skip d = 1 */
   {
-    long d = dk[j], m = moebiusu(d);
-    if (!m) continue;
-    pd = powiu(p, dk[l-j]); /* p^{n/d} */
-    s = m>0? addii(s, pd): subii(s,pd);
+    long md = D[j]; /* mu(d) * d, d squarefree */
+    GEN pd = powiu(p, n / labs(md)); /* p^{n/d} */
+    s = md > 0? addii(s, pd): subii(s,pd);
   }
-  return gerepileuptoint(av, divis(s, n));
+  return gerepileuptoint(av, diviuexact(s, n));
 }
 
 GEN
 ffsumnbirred(GEN p, long n)
 {
-  pari_sp av = avma;
-  long i, j;
-  GEN v, q, t = gen_0;
-  v = cgetg(n+1,t_VECSMALL); v[1] = 1;
+  pari_sp av = avma, av2;
+  GEN q, t = p, v = vecfactoru(1, n);
+  long i;
   q = cgetg(n+1,t_VEC); gel(q,1) = p;
+  for (i=2; i<=n; i++) gel(q,i) = mulii(gel(q,i-1), p);
+  av2 = avma;
   for (i=2; i<=n; i++)
   {
-    v[i] = moebiusu(i);
-    gel(q,i) = mulii(gel(q,i-1), p);
-  }
-  for (i=1; i<=n; i++)
-  {
-    GEN s = gen_0, dk = divisorsu(i);
-    long l = lg(dk);
-    for (j = 1; j < l; j++)
+    GEN s = gel(q,i), F = gel(v,i), D = divisorsu_moebius(gel(F,1));
+    long j, l = lg(D);
+    for (j = 2; j < l; j++) /* skip 1 */
     {
-      long d = dk[j], m = v[d];
-      GEN pd;
-      if (!m) continue;
-      pd = gel(q, dk[l-j]); /* p^{n/d} */
-      s = m>0? addii(s, pd): subii(s, pd);
+      long md = D[j];
+      GEN pd = gel(q, i / labs(md)); /* p^{i/d} */
+      s = md > 0? addii(s, pd): subii(s, pd);
     }
-    t = addii(t, divis(s, i));
+    t = gerepileuptoint(av2, addii(t, diviuexact(s, i)));
   }
   return gerepileuptoint(av, t);
 }
