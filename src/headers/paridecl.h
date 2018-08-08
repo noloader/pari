@@ -1955,7 +1955,7 @@ GEN     divisors(GEN n);
 GEN     divisors_factored(GEN N);
 GEN     divisors0(GEN N, long flag);
 GEN     divisorsu(ulong n);
-GEN     divisorsu_P(GEN P);
+GEN     divisorsu_moebius(GEN P);
 GEN     divisorsu_fact(GEN fa);
 GEN     factor_pn_1(GEN p, ulong n);
 GEN     factor_pn_1_limit(GEN p, long n, ulong lim);

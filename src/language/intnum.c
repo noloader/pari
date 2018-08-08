@@ -2230,16 +2230,16 @@ prodnumrat(GEN F, long a, long prec)
   return gerepileupto(ltop, gmul(S1, gexp(gsub(intf, S2), prec)));
 }
 
-/* fan = factoru(n) */
+/* fan = factoru(n); sum_{d | n} mu(d)/d * s[n/d] */
 static GEN
-sdmob(GEN ser, long n, GEN fan)
+sdmob(GEN s, long n, GEN fan)
 {
-  GEN D = divisorsu_P(gel(fan,1)), S = gen_0;
+  GEN D = divisorsu_moebius(gel(fan,1)), S = sercoeff(s, n);
   long i, l = lg(D);
-  for (i = 1; i < l; ++i)
+  for (i = 2; i < l; i++) /* skip d = 1 */
   {
-    long d = D[i]; /* FIXME: moebiusu(d) could be known from divisorsu_P */
-    S = gadd(S, gdivgs(sercoeff(ser, n/d), moebiusu(d) < 0? -d: d));
+    long d = D[i];
+    S = gadd(S, gdivgs(sercoeff(s, n/labs(d)), d));
   }
   return S;
 }
@@ -2262,10 +2262,8 @@ sumlogzeta(GEN ser, GEN s, double rs, long N, long vF, long lim, long prec)
   {
     GEN t = sdmob(ser, n, gel(v,i));
     if (!gequal0(t))
-    {
-      long E = (n*rs-1) * lN, e = -E + gexpo(t); /* size of summand */
-      long prec2 = e <= 0? prec: prec + nbits2extraprec(e);
-      prec2 = maxss(prec2, prec + nbits2extraprec(E)); /*cancellation in logzetan*/
+    { /* E bits cancel in logzetan */
+      long E = (n*rs-1) * lN, prec2 = prec + nbits2extraprec(E);
       z = gadd(z, gmul(logzetan(gmulsg(n,gprec_w(s,prec2)), P, prec2), t));
     }
   }

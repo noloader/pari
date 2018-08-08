@@ -28,4 +28,4 @@ BA   6- [libpari] ZpX_ZpXQ_liftroot_ea: change interface for 'early'
 BA   3- [libpari] FpXC_FpXQ_eval
      4- [libpari] mulu_interval_step
      5- new file src/basemath/bern.c
-     6- [libpari] divisorsu_P
+     6- [libpari] divisorsu_moebius
