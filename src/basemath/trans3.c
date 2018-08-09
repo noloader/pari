@@ -1639,9 +1639,9 @@ szeta(long k, long prec)
 static GEN
 czeta(GEN s0, long prec)
 {
-  GEN s, u, y, res, tes, sig, tau, invn2, unr, Ns, funeq_factor = NULL;
+  GEN s, u, y, res, tes, sig, tau, invn2, ns, Ns, funeq_factor = NULL;
   long i, nn, lim, lim2;
-  pari_sp av0 = avma, av;
+  pari_sp av0 = avma, av, av2;
   pari_timer T;
 
   if (DEBUGLEVEL>2) timer_start(&T);
@@ -1680,23 +1680,24 @@ czeta(GEN s0, long prec)
   }
   optim_zeta(s, prec, &lim, &nn);
   if (DEBUGLEVEL>2) err_printf("lim, nn: [%ld, %ld]\n", lim, nn);
-  incrprec(prec); unr = real_1(prec); /* one extra word of precision */
+  incrprec(prec); /* one extra word of precision */
 
+  av2 = avma;
   Ns = vecpowug(nn, gneg(s), prec);
-  y = gmul2n(gel(Ns,nn), -1);
-  for (i = nn-1; i; i--) y = gadd(y, gel(Ns,i));
+  ns = gel(Ns,nn);
+  y = gmul2n(ns, -1); for (i = nn-1; i; i--) y = gadd(y, gel(Ns,i));
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 1 to N-1");
+  gerepileall(av2, 2, &y,&ns);
 
-  invn2 = divri(unr, sqru(nn)); lim2 = lim<<1;
+  invn2 = divri(real_1(prec), sqru(nn)); lim2 = lim<<1;
   constbern(lim);
   tes = bernfrac(lim2);
   {
     GEN s1, s2, s3, s4, s5;
-    pari_sp av2;
-    s1 = gsub(gmul2n(s,1), unr);
-    s2 = gmul(s, gsub(s,unr));
+    s2 = gmul(s, gsubgs(s,1));
     s3 = gmul2n(invn2,3);
     av2 = avma;
+    s1 = gsubgs(gmul2n(s,1), 1);
     s4 = gmul(invn2, gmul2n(gaddsg(4*lim-2,s1),1));
     s5 = gmul(invn2, gadd(s2, gmulsg(lim2, gaddgs(s1, lim2))));
     for (i = lim2-2; i>=2; i -= 2)
@@ -1706,7 +1707,7 @@ czeta(GEN s0, long prec)
       tes = gadd(bernfrac(i), divgunu(gmul(s5,tes), i+1));
       if (gc_needed(av2,3))
       {
-        if(DEBUGMEM>1) pari_warn(warnmem,"czeta");
+        if(DEBUGMEM>1) pari_warn(warnmem,"czeta i = %ld", i);
         gerepileall(av2,3, &tes,&s5,&s4);
       }
     }
@@ -1715,7 +1716,7 @@ czeta(GEN s0, long prec)
   }
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
   /* y += tes n^(-s) / (s-1) */
-  y = gadd(y, gmul(tes, gdiv(gel(Ns,nn), gsub(s, unr))));
+  y = gadd(y, gmul(tes, gdiv(ns, gsubgs(s,1))));
   if (funeq_factor) y = gmul(y, funeq_factor);
   set_avma(av); return affc_fixlg(y,res);
 }
