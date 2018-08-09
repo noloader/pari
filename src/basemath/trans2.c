@@ -754,14 +754,23 @@ gatanh(GEN x, long prec)
 /**                                                                **/
 /********************************************************************/
 
+/* x * (i*(i+1)) */
+static GEN
+muliunu(GEN x, ulong i)
+{
+  if (i & HIGHMASK) /* i(i+1) >= 2^BITS_IN_LONG*/
+    return muliu(muliu(x, i), i+1);
+  else
+    return muliu(x, i*(i+1));
+}
 /* x / (i*(i+1)) */
 GEN
 divrunu(GEN x, ulong i)
 {
-  if (i <= LOWMASK) /* i(i+1) < 2^BITS_IN_LONG*/
-    return divru(x, i*(i+1));
-  else
+  if (i & HIGHMASK) /* i(i+1) >= 2^BITS_IN_LONG*/
     return divru(divru(x, i), i+1);
+  else
+    return divru(x, i*(i+1));
 }
 /* x / (i*(i+1)) */
 GEN
@@ -833,11 +842,54 @@ lngamma1(GEN z, long prec)
   }
   return gmul(z, gadd(gmul(s,z), me));
 }
-
+/* B_i / (i(i-1)), i even. Sometimes NOT reduced (but gadd/gmul won't care)!*/
+static GEN
+bern_unu(long i)
+{ GEN B = bernfrac(i); return mkfrac(gel(B,1), muliunu(gel(B,2), i-1)); }
+/* B_i / i, i even. Sometimes NOT reduced (but gadd/gmul won't care)!*/
+static GEN
+bern_u(long i)
+{ GEN B = bernfrac(i); return mkfrac(gel(B,1), muliu(gel(B,2), i)); }
+/* sum_{i > 0} B_{2i}/(2i(2i-1)) * a^(i-1) */
+static GEN
+lngamma_sum(GEN a, long N)
+{
+  pari_sp av = avma;
+  GEN S = bern_unu(2*N);
+  long i;
+  for (i = 2*N-2; i > 0; i -= 2)
+  {
+    S = gadd(bern_unu(i), gmul(a,S));
+    if (gc_needed(av,3))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"gamma: i = %ld", i);
+      S = gerepileupto(av, S);
+    }
+  }
+  return S;
+}
+/* sum_{i > 0} B_{2i}/(2i) * a^i */
+static GEN
+psi_sum(GEN a, long N)
+{
+  pari_sp av = avma;
+  GEN S = bern_u(2*N);
+  long i;
+  for (i = 2*N-2; i > 0; i -= 2)
+  {
+    S = gadd(bern_u(i), gmul(a,S));
+    if (gc_needed(av,3))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"psi: i = %ld", i);
+      S = gerepileupto(av, S);
+    }
+  }
+  return gmul(a,S);
+}
 static GEN
 cxgamma(GEN s0, int dolog, long prec)
 {
-  GEN s, u, a, y, res, tes, sig, tau, invn2, p1, nnx, pi, pi2, sqrtpi2;
+  GEN s, a, y, res, sig, tau, p1, nnx, pi, pi2, sqrtpi2;
   long i, lim, nn, esig, et;
   pari_sp av, av2;
   int funeq = 0;
@@ -1013,27 +1065,12 @@ cxgamma(GEN s0, int dolog, long prec)
     }
   }
   if (DEBUGLEVEL>5) timer_printf(&T,"product from 0 to N-1");
-
-  nnx = gaddgs(s, nn);
-  a = ginv(nnx); invn2 = gsqr(a);
-  av2 = avma;
   constbern(lim);
-  tes = divrunu(bernreal(2*lim,prec), 2*lim-1); /* B2l / (2l-1) 2l*/
   if (DEBUGLEVEL>5) timer_printf(&T,"Bernoullis");
-  for (i = 2*lim-2; i > 1; i -= 2)
-  {
-    u = divrunu(bernreal(i,prec), i-1); /* Bi / i(i-1) */
-    tes = gadd(u, gmul(invn2,tes));
-    if (gc_needed(av2,3))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"gamma");
-      tes = gerepileupto(av2, tes);
-    }
-  }
-  if (DEBUGLEVEL>5) timer_printf(&T,"Bernoulli sum");
-
+  nnx = gaddgs(s, nn); a = ginv(nnx);
   p1 = gsub(gmul(gsub(nnx, ghalf), glog(nnx,prec)), nnx);
-  p1 = gadd(p1, gmul(tes, a));
+  p1 = gadd(p1, gmul(a, lngamma_sum(gsqr(a), lim)));
+  if (DEBUGLEVEL>5) timer_printf(&T,"Bernoulli sum");
 
   pi = mppi(prec); pi2 = shiftr(pi, 1); sqrtpi2 = sqrtr(pi2);
 
@@ -1560,8 +1597,8 @@ static GEN
 cxpsi(GEN s0, long prec)
 {
   pari_sp av, av2;
-  GEN sum,z,a,res,tes,in2,sig,tau,s,unr,s2,sq;
-  long lim,nn,k;
+  GEN sum, z, a, res, sig, tau, s, unr, s2, sq;
+  long lim, nn, k;
   const long la = 3;
   int funeq = 0;
   pari_timer T;
@@ -1626,17 +1663,8 @@ cxpsi(GEN s0, long prec)
   if (odd(nn)) sum = gadd(sum, gdiv(unr, gaddsg(nn - 1, s)));
   z = gsub(glog(gaddgs(s, nn), prec), sum);
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
-
-  in2 = gsqr(a);
-  constbern(lim);
-  av2 = avma; tes = divru(bernreal(2*lim, prec), 2*lim);
-  for (k=2*lim-2; k>=2; k-=2)
-  {
-    tes = gadd(gmul(in2,tes), divru(bernreal(k, prec), k));
-    if ((k & 255) == 0) tes = gerepileupto(av2, tes);
-  }
+  z = gsub(z, psi_sum(gsqr(a), lim));
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
-  z = gsub(z, gmul(in2,tes));
   if (funeq)
   {
     GEN pi = mppi(prec);

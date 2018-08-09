@@ -1689,7 +1689,7 @@ czeta(GEN s0, long prec)
 
   invn2 = divri(unr, sqru(nn)); lim2 = lim<<1;
   constbern(lim);
-  tes = bernreal(lim2, prec);
+  tes = bernfrac(lim2);
   {
     GEN s1, s2, s3, s4, s5;
     pari_sp av2;
@@ -1703,7 +1703,7 @@ czeta(GEN s0, long prec)
     {
       s5 = gsub(s5, s4);
       s4 = gsub(s4, s3);
-      tes = gadd(bernreal(i,prec), divgunu(gmul(s5,tes), i+1));
+      tes = gadd(bernfrac(i), divgunu(gmul(s5,tes), i+1));
       if (gc_needed(av2,3))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"czeta");
@@ -2257,7 +2257,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
     {
       GEN t = gsubgs(al, j), u = gmul(t, gaddgs(t, 1));
       u = gmul(gdivgs(u, j*(j+1)), gmul(S2, N2));
-      S2 = gadd(gdivgs(bernreal(j, prec), j), u);
+      S2 = gadd(gdivgs(bernfrac(j), j), u);
     }
     S2 = gmul(S2, gdiv(al, Nx));
   }
@@ -2558,8 +2558,8 @@ polylogP(long m, GEN x, long prec)
         if (k > 2) p2 = divgunu(gmul(p2,p1),k-1);
         /* p2 = 2^k/k! log^k |x|*/
         t = polylog(m-k,x,l);
-        u = gmul(p2, bernreal(k, prec));
-        y = gadd(y, gmul(u, m2?real_i(t):imag_i(t)));
+        u = gmul(p2, bernfrac(k));
+        y = gadd(y, gmul(u, m2? real_i(t): imag_i(t)));
       }
     }
   }
