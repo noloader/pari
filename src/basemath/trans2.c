@@ -1663,6 +1663,8 @@ cxpsi(GEN s0, long prec)
   if (odd(nn)) sum = gadd(sum, gdiv(unr, gaddsg(nn - 1, s)));
   z = gsub(glog(gaddgs(s, nn), prec), sum);
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
+  constbern(lim);
+  if (DEBUGLEVEL>2) timer_printf(&T,"Bernoullis");
   z = gsub(z, psi_sum(gsqr(a), lim));
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
   if (funeq)
