@@ -890,7 +890,7 @@ static GEN
 cxgamma(GEN s0, int dolog, long prec)
 {
   GEN s, a, y, res, sig, tau, p1, nnx, pi, pi2, sqrtpi2;
-  long i, lim, nn, esig, et;
+  long i, lim, N, esig, et;
   pari_sp av, av2;
   int funeq = 0;
   pari_timer T;
@@ -905,7 +905,7 @@ cxgamma(GEN s0, int dolog, long prec)
     funeq = 1; s = gsubsg(1, s); sig = real_i(s);
   }
 
-  /* find "optimal" parameters [lim, nn] */
+  /* find "optimal" parameters [lim, N] */
   if (esig > 300 || et > 300)
   { /* |s| is HUGE ! Play safe and avoid inf / NaN */
     GEN S, iS, l2, la, u;
@@ -938,10 +938,10 @@ cxgamma(GEN s0, int dolog, long prec)
     if (signe(l2) > 0)
     {
       l2 = gsub(gsqrt(l2,3), sig);
-      if (signe(l2) > 0) nn = itos( gceil(l2) ); else nn = 1;
+      if (signe(l2) > 0) N = itos( gceil(l2) ); else N = 1;
     }
     else
-      nn = 1;
+      N = 1;
   }
   else
   { /* |s| is moderate. Use floats  */
@@ -979,14 +979,15 @@ cxgamma(GEN s0, int dolog, long prec)
     l = (prec2nbits_mul(prec, M_LN2) - log(l2)/2) / 2.;
     if (l < 0) l = 0.;
 
-    la = 3.; /* FIXME: heuristic... */
     if (st > 1 && l > 0)
     {
       double t = st * M_PI / l;
       la = t * log(t);
-      if (la < 3) la = 3.;
+      if (la < 4.) la = 4.;
       if (la > 150) la = t;
     }
+    else
+      la = 4.; /* heuristic */
     lim = (long)ceil(l / (1.+ log(la)));
     if (lim == 0) lim = 1;
 
@@ -995,24 +996,25 @@ cxgamma(GEN s0, int dolog, long prec)
     if (l2 > 0)
     {
       double t = ceil(sqrt(l2) - ssig);
-      nn = (t < 1)? 1: (long)t;
-      if (nn < 1) nn = 1;
+      N = (t < 1)? 1: (long)t;
+      if (N < 1) N = 1;
     }
     else
-      nn = 1;
-    if (DEBUGLEVEL>5) err_printf("lim, nn: [%ld, %ld], la = %lf\n",lim,nn,la);
+      N = 1;
   }
+  if (DEBUGLEVEL>5) err_printf("lim, N: [%ld, %ld]\n",lim,N);
   incrprec(prec);
 
   av2 = avma;
   y = s;
   if (typ(s0) == t_INT)
   {
+    ulong ss = itou_or_0(s0);
     if (signe(s0) <= 0)
       pari_err_DOMAIN("gamma","argument", "=",
                        strtoGENstr("non-positive integer"), s0);
-    if (is_bigint(s0)) {
-      for (i=1; i < nn; i++)
+    if (!ss || ss + (ulong)N < ss) {
+      for (i=1; i < N; i++)
       {
         y = mulri(y, addiu(s0, i));
         if (gc_needed(av2,3))
@@ -1022,8 +1024,7 @@ cxgamma(GEN s0, int dolog, long prec)
         }
       }
     } else {
-      ulong ss = itou(s0);
-      for (i=1; i < nn; i++)
+      for (i=1; i < N; i++)
       {
         y = mulru(y, ss + i);
         if (gc_needed(av2,3))
@@ -1039,7 +1040,7 @@ cxgamma(GEN s0, int dolog, long prec)
   { /* Compute lngamma mod 2 I Pi */
     GEN sq = gsqr(s);
     pari_sp av3 = avma;
-    for (i = 1; i < nn - 1; i += 2)
+    for (i = 1; i < N - 1; i += 2)
     {
       y = gmul(y, gaddsg(i*(i + 1), gadd(gmulsg(2*i + 1, s), sq)));
       if (gc_needed(av2,3))
@@ -1048,7 +1049,7 @@ cxgamma(GEN s0, int dolog, long prec)
         y = gerepileupto(av3, y);
       }
     }
-    if (!odd(nn)) y = gmul(y, gaddsg(nn - 1, s));
+    if (!odd(N)) y = gmul(y, gaddsg(N - 1, s));
     if (dolog)
     {
       if (typ(s) == t_REAL) y = logr_abs(y);
@@ -1057,7 +1058,7 @@ cxgamma(GEN s0, int dolog, long prec)
         long prec0 = LOWDEFAULTPREC;
         GEN s0 = gprec_w(s, prec0), y0 = s0, k;
         y0 = garg(y0, prec0); /* Im log(s) at low accuracy */
-        for (i=1; i < nn; i++) y0 = gadd(y0, garg(gaddgs(s0,i), prec0));
+        for (i=1; i < N; i++) y0 = gadd(y0, garg(gaddgs(s0,i), prec0));
         y = glog(y, prec);
         k = ground( gdiv(gsub(y0, imag_i(y)), Pi2n(1,prec0)) );
         if (signe(k)) y = gadd(y, mulcxI(mulir(k, Pi2n(1, prec))));
@@ -1066,8 +1067,7 @@ cxgamma(GEN s0, int dolog, long prec)
   }
   if (DEBUGLEVEL>5) timer_printf(&T,"product from 0 to N-1");
   constbern(lim);
-  if (DEBUGLEVEL>5) timer_printf(&T,"Bernoullis");
-  nnx = gaddgs(s, nn); a = ginv(nnx);
+  nnx = gaddgs(s, N); a = ginv(nnx);
   p1 = gsub(gmul(gsub(nnx, ghalf), glog(nnx,prec)), nnx);
   p1 = gadd(p1, gmul(a, lngamma_sum(gsqr(a), lim)));
   if (DEBUGLEVEL>5) timer_printf(&T,"Bernoulli sum");
@@ -1664,7 +1664,6 @@ cxpsi(GEN s0, long prec)
   z = gsub(glog(gaddgs(s, nn), prec), sum);
   if (DEBUGLEVEL>2) timer_printf(&T,"sum from 0 to N - 1");
   constbern(lim);
-  if (DEBUGLEVEL>2) timer_printf(&T,"Bernoullis");
   z = gsub(z, psi_sum(gsqr(a), lim));
   if (DEBUGLEVEL>2) timer_printf(&T,"Bernoulli sum");
   if (funeq)
