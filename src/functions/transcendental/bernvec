@@ -25,4 +25,6 @@ Doc: returns a vector containing, as rational numbers,
  \bprog
  ? forstep(n = 2, 10000, 2, bernfrac(n))
  time = 1 ms.
- @eprog
+ @eprog\noindent The time and space complexity of this function are
+ $\tilde{O}(n^2)$; in the feasible range $n \leq 10^5$ (requires about 2 hours),
+ the practical time complexity is closer to $\tilde{O}(n^{\log_2 6})$.
