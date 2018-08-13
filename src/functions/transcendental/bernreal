@@ -2,8 +2,20 @@ Function: bernreal
 Section: transcendental
 C-Name: bernreal
 Prototype: Lp
-Help: bernreal(x): Bernoulli number B_x, as a real number with the current
+Help: bernreal(n): Bernoulli number B_n, as a real number with the current
  precision.
 Doc: Bernoulli number\sidx{Bernoulli numbers}
- $B_x$, as \kbd{bernfrac}, but $B_x$ is returned as a real number
- (with the current precision).
+ $B_n$, as \kbd{bernfrac}, but $B_n$ is returned as a real number
+ (with the current precision). The argument $n$ should be a non-negative
+ integer. The function slows down as the precision increases:
+ \bprog
+ ? \p1000
+ ? bernreal(200000);
+ time = 5 ms.
+ ? \p10000
+ ? bernreal(200000);
+ time = 18 ms.
+ ? \p100000
+ ? bernreal(200000);
+ time = 84 ms.
+ @eprog
