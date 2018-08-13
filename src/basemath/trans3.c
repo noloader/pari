@@ -1671,7 +1671,7 @@ czeta(GEN s0, long prec)
     GEN t;
     sig = real_i(s);
     /* Gamma(s) (2Pi)^-s 2 cos(Pi s/2) */
-    t = gmul(ggamma(gprec_w(s,prec),prec), gpow(Pi2n(1,prec), gneg(s), prec));
+    t = gmul(ggamma(s,prec), gpow(Pi2n(1,prec), gneg(s), prec));
     funeq_factor = gmul2n(gmul(t, gcos(gmul(Pi2n(-1,prec),s), prec)), 1);
   }
   if (gcmpgs(sig, prec2nbits(prec) + 1) > 0) { /* zeta(s) = 1 */
