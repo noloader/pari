@@ -10,6 +10,7 @@ Done for version 2.12.0 (released ??/??/20??):
      6- mfeisenstein(k,,chi) was treated as E(k,chi) instead of E(k,1,chi)
      7- poldegree(y/x) -> 0 [ instead of -1 ]
      8- sumeulerrat(y/x^2,1) -> junk
+HC   9- incgam(-1000.4,2) -> SEGV
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

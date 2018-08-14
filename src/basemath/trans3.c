@@ -929,19 +929,20 @@ incgam_asymp_partial(GEN s, GEN x, GEN gasx, long n, long prec)
   return gadd(gmul(cox, S), gmul(sprod, gasx));
 }
 
-/* assume s != 0 */
+/* Assume s != 0; called when Re(s) <= 1/2 */
 static GEN
 incgamspec(GEN s, GEN x, GEN g, long prec)
 {
   GEN q, S, cox = gen_0, P, sk, S1, S2, S3, F3, logx, mx;
-  long n, esk, k = itos(ground(gneg(real_i(s)))), E;
+  long n, esk, E, k = itos(ground(gneg(real_i(s)))); /* >= 0 */
 
   if (k && gexpo(x) > 0)
   {
     GEN xk = gdivgs(x, k);
     long bitprec = prec2nbits(prec);
-    double mx = (gexpo(xk) > bitprec)? bitprec*M_LN2: log(dblmodulus(xk));
-    prec += nbits2extraprec((long)k*(mx + 1)/M_LN2);
+    double d = (gexpo(xk) > bitprec)? bitprec*M_LN2: log(dblmodulus(xk));
+    d = k * (d + 1) / M_LN2;
+    if (d > 0) prec += nbits2extraprec((long)d);
     if (isinexactreal(s)) s = gtofp(s, prec);
   }
   x = gtofp(x, maxss(precision(x), prec) + EXTRAPREC);
