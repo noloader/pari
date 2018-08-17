@@ -753,6 +753,42 @@ gatanh(GEN x, long prec)
 /**                         EULER'S GAMMA                          **/
 /**                                                                **/
 /********************************************************************/
+/* 0 < a < b */
+static GEN
+mulu_interval_step_i(ulong a, ulong b, ulong step)
+{
+  ulong k, l, N, n;
+  long lx;
+  GEN x;
+
+  n = 1 + (b-a) / step;
+  b -= (b-a) % step;
+  /* step | b-a */
+  lx = 1; x = cgetg(2 + n/2, t_VEC);
+  N = b + a;
+  for (k = a;; k += step)
+  {
+    l = N - k; if (l <= k) break;
+    gel(x,lx++) = muluu(k,l);
+  }
+  if (l == k) gel(x,lx++) = utoipos(k);
+  setlg(x, lx); return x;
+}
+static GEN
+_mul(void *data, GEN x, GEN y)
+{
+  long prec = (long)data;
+  /* switch to t_REAL ? */
+  if (typ(x) == t_INT && lgefint(x) > prec) x = itor(x, prec);
+  if (typ(y) == t_INT && lgefint(y) > prec) y = itor(y, prec);
+  return mpmul(x, y);
+}
+static GEN
+mulu_interval_step_prec(long l, long m, long s, long prec)
+{
+  GEN v = mulu_interval_step_i(l, m, s);
+  return gen_product(v, (void*)prec, &_mul);
+}
 
 /* x * (i*(i+1)) */
 static GEN
@@ -1147,11 +1183,11 @@ gammahs(long m, long prec)
   z = sqrtr( mppi(prec) );
   if (m)
   {
-    GEN p1 = mulu_interval_step(1, ma-1, 2);
-    if (m >= 0) z = mulri(z,p1);
+    GEN t = mulu_interval_step_prec(1, ma-1, 2, prec + EXTRAPRECWORD);
+    if (m >= 0) z = mpmul(z,t);
     else
     {
-      z = divri(z,p1);
+      z = mpdiv(z,t);
       if ((m&3) == 2) setsigne(z,-1);
     }
     shiftr_inplace(z, -m/2);
@@ -1416,37 +1452,6 @@ ggamma(GEN x, long prec)
   return trans_eval("gamma",ggamma,x,prec);
 }
 
-/* 0 < a < b */
-static GEN
-mulu_interval_step_i(ulong a, ulong b, ulong step)
-{
-  ulong k, l, N, n;
-  long lx;
-  GEN x;
-
-  n = 1 + (b-a) / step;
-  b -= (b-a) % step;
-  /* step | b-a */
-  lx = 1; x = cgetg(2 + n/2, t_VEC);
-  N = b + a;
-  for (k = a;; k += step)
-  {
-    l = N - k; if (l <= k) break;
-    gel(x,lx++) = muluu(k,l);
-  }
-  if (l == k) gel(x,lx++) = utoipos(k);
-  setlg(x, lx); return x;
-}
-
-static GEN
-_mul(void *data, GEN x, GEN y)
-{
-  long prec = (long)data;
-  /* switch to t_REAL ? */
-  if (typ(x) == t_INT && lgefint(x) > prec) x = itor(x, prec);
-  if (typ(y) == t_INT && lgefint(y) > prec) y = itor(y, prec);
-  return mpmul(x, y);
-}
 static GEN
 mpfactr_basecase(long n, long prec)
 {
@@ -1459,8 +1464,7 @@ mpfactr_basecase(long n, long prec)
     if (m <= 2) break;
     l = (1 + (n >> k)) | 1;
     /* product of odd numbers in ]n / 2^k, 2 / 2^(k-1)] */
-    a = mulu_interval_step_i(l, m, 2);
-    a = gen_product(a, (void*)prec2, &_mul);
+    a = mulu_interval_step_prec(l, m, 2, prec2);
     gel(v,k) = k == 1? a: gpowgs(a, k);
   }
   a = gel(v,--k); while (--k) a = mpmul(a, gel(v,k));
