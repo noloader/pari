@@ -7959,7 +7959,7 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
       return mfgaexpansionatkin(mf, F, c, d, Q, n, prec);
   }
   Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
-  precnew = (lg(Mvecj) < 5)? prec + nbits2extraprec(n >> 1): prec;
+  precnew = (lg(Mvecj) < 5)? prec + nbits2extraprec(16 + (n >> 1)): prec;
   if (!EF) EF = mf_eisendec(mf, F, precnew);
   res = mfgaexpansion_i(mf, EF, ga, n, precnew);
   return precnew == prec ? res : gprec_wtrunc(res, prec);

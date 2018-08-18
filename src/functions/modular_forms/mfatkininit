@@ -30,7 +30,7 @@ Doc: given a modular form space with parameters $N,k,\chi$ and a
  coefficients in $\Q(\chi)$.
 
  \item \kbd{C} is the complex constant $C(k,\chi,Q)$. For $k$
- is integral, let $A(k,\chi, Q) = Q^{\varepsilon}/g(\chi_Q)$, where
+ integral, let $A(k,\chi, Q) = Q^{\varepsilon}/g(\chi_Q)$, where
  $\varepsilon = 0$ for $k$ even and $1/2$ for $k$ odd and
  where $g(\chi_Q)$ is the Gauss sum attached to $\chi_Q$). (A similar, more
  complicated, definition holds in half-integral weight depending on the parity
