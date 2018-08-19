@@ -7784,7 +7784,7 @@ mfgaexpansion_i(GEN mf, GEN B0, GEN ga, long n, long prec)
   long i, j, w, nw, l, N = MF_get_N(mf), bit = prec2nbits(prec) / 2;
   hashtable *H;
 
-  Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
+  Mvecj = obj_check(mf, MF_EISENSPACE);
   if (lg(Mvecj) < 5) { E = gel(Mvecj, 2); Mvecj = gel(Mvecj, 1); }
   vecj = gel(Mvecj, 3);
   l = lg(vecj);
@@ -7931,7 +7931,7 @@ static GEN
 mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
 {
   GEN v, EF = NULL, res, Mvecj, c, d;
-  long precnew;
+  long precnew, N;
 
   if (n < 0) pari_err_DOMAIN("mfgaexpansion", "n", "<", gen_0, stoi(n));
   if (typ(F) == t_COL && lg(F) == 3) { EF = gel(F,2); F = gel(F,1); }
@@ -7940,9 +7940,10 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
   if (typ(mf_get_gk(F)) != t_INT) return mf2gaexpansion(mf, F, ga, n, prec);
   c = gcoeff(ga,2,1);
   d = gcoeff(ga,2,2);
+  N = MF_get_N(mf);
   if (!umodiu(c, mf_get_N(F)))
   { /* trivial case: ga in Gamma_0(N) */
-    long N = MF_get_N(mf), w = mfcuspcanon_width(N, umodiu(c,N));
+    long w = mfcuspcanon_width(N, umodiu(c,N));
     GEN CHI = mf_get_CHI(F);
     GEN chid = mfcharcxeval(CHI, umodiu(d,mfcharmodulus(CHI)), prec);
     v = mfcoefs_i(F, n/w, 1); if (!isint1(chid)) v = RgV_Rg_mul(v,chid);
@@ -7951,7 +7952,7 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
   mf = MF_set_new(mf);
   if (MF_get_space(mf) == mf_NEW)
   {
-    long N = MF_get_N(mf), cN = umodiu(c,N), g = ugcd(cN,N), Q = N/g;
+    long cN = umodiu(c,N), g = ugcd(cN,N), Q = N/g;
     GEN CHI = MF_get_CHI(mf);
     if (ugcd(cN, Q)==1 && mfcharorder(CHI) <= 2
                        && g % mfcharconductor(CHI) == 0
@@ -7959,7 +7960,16 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
       return mfgaexpansionatkin(mf, F, c, d, Q, n, prec);
   }
   Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
-  precnew = (lg(Mvecj) < 5)? prec + nbits2extraprec(16 + (n >> 1)): prec;
+  precnew = prec;
+  if (lg(Mvecj) < 5)
+  {
+    long e, w = mfZC_width(N, gel(ga,1));
+    GEN v, E = gel(Mvecj,2);
+    v = mfeisensteingacx(E, w, ga, n, LOWDEFAULTPREC);
+    v = gel(v,2);
+    e = gexpo(RgXn_inv(RgV_to_RgX(v,0), n+1));
+    if (e > 0) precnew += nbits2extraprec(e);
+  }
   if (!EF) EF = mf_eisendec(mf, F, precnew);
   res = mfgaexpansion_i(mf, EF, ga, n, precnew);
   return precnew == prec ? res : gprec_wtrunc(res, prec);
