@@ -1166,6 +1166,24 @@ cxgamma(GEN s0, int dolog, long prec)
   set_avma(av); return affc_fixlg(y, res);
 }
 
+/* Theory says n > C * b^1.5 / log(b). Timings:
+ * b = 64*[1, 2, 3, 4, 5, 6, 7, 10, 20, 30, 50, 100, 200, 500];
+ * n = [1450, 1930, 2750, 3400, 4070, 5000, 6000, 8800, 26000, 50000, 130000,
+ *      380000, 1300000, 6000000]; */
+static long
+gammah_n(long prec)
+{
+  long b = bit_accuracy(prec);
+  if (b <=  64) return 1450;
+  if (b <= 128) return 1930;
+  if (b <= 192) return 2750;
+  if (b <= 256) return 3400;
+  if (b <= 320) return 4070;
+  if (b <= 384) return 5000;
+  if (b <= 448) return 6000;
+  return 10.0 * b * sqrt(b) / log(b);
+}
+
 /* m even, Gamma((m+1) / 2) */
 static GEN
 gammahs(long m, long prec)
@@ -1174,7 +1192,7 @@ gammahs(long m, long prec)
   pari_sp av = avma;
   long ma = labs(m);
 
-  if (ma > 200 + 50*(prec-2)) /* heuristic */
+  if (ma > gammah_n(prec))
   {
     z = stor(m + 1, prec); shiftr_inplace(z, -1);
     affrr(cxgamma(z,0,prec), y);
