@@ -917,7 +917,7 @@ NEXT_CHUNK:
     }
     else do {
       T->p += T->q;
-      if (T->p < T->q) { T->p = 0; break; } /* overflow */
+      if (T->p < T->q || T->p > T->b) { T->p = 0; break; } /* overflow */
     } while (!uisprime(T->p));
     if (T->p && T->p <= T->b) return T->p;
     /* overflow ulong, switch to GEN */
@@ -942,9 +942,15 @@ forprime_next(forprime_t *T)
     if (T->q > 1) u -= (ULONG_MAX-T->c) % T->q;
     affui(u, T->pp);
   }
-  av = avma;
-  p = nextprime(addiu(T->pp, T->q));
-  if (T->bb && abscmpii(p, T->bb) > 0) { set_avma(av); return NULL; }
+  av = avma; p = T->pp;
+  if (T->q == 1)
+  {
+    p = nextprime(addiu(p, 1));
+    if (T->bb && abscmpii(p, T->bb) > 0) { set_avma(av); return NULL; }
+  } else do {
+    p = addiu(p, T->q);
+    if (T->bb && abscmpii(p, T->bb) > 0) { set_avma(av); return NULL; }
+  } while (!BPSW_psp(p));
   affii(p, T->pp); set_avma(av); return T->pp;
 }
 
