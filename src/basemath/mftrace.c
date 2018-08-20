@@ -896,8 +896,9 @@ c_bracket(long n, long d, GEN F, GEN G, GEN gm)
     for (i = 1; i <= nd; i++) gel(c,i) = muliu(gcoeff(mpow,i,j), i);
   }
   C = binomial(gaddgs(gk, m-1), m);
+  if (odd(m)) C = gneg(C);
   for (j = 0; j <= m; j++)
-  { /* C = (-1)^j binom(m+l-1, j) binom(m+k-1,m-j) */
+  { /* C = (-1)^(m-j) binom(m+l-1, j) binom(m+k-1,m-j) */
     GEN c;
     gel(tF,1) = j == 0? gel(VF,1): gen_0;
     gel(tG,1) = j == m? gel(VG,1): gen_0;
