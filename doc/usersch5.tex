@@ -9134,6 +9134,9 @@ that all inputs are \kbd{ZX}s and that $T$ is monic.
 \fun{GEN}{ZXQ_sqr}{GEN x,GEN T} returns $x^2$ mod $T$, assuming
 that all inputs are \kbd{ZX}s and that $T$ is monic.
 
+\fun{GEN}{ZXQ_powu}{GEN x,ulong n,GEN T} returns $x^n$ mod $T$, assuming
+that all inputs are \kbd{ZX}s and that $T$ is monic.
+
 \fun{GEN}{ZXQ_charpoly}{GEN A, GEN T, long v}: let \kbd{T} and \kbd{A} be
 \kbd{ZX}s, returns the characteristic polynomial of \kbd{Mod(A, T)}.
 More generally, \kbd{A} is allowed to be a \kbd{QX}, hence possibly has

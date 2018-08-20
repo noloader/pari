@@ -33,3 +33,4 @@ BA   3- [libpari] FpXC_FpXQ_eval
      4- [libpari] mulu_interval_step
      5- new file src/basemath/bern.c
      6- [libpari] divisorsu_moebius
+     7- [libpari] ZXQ_powu

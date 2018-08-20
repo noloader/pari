@@ -2494,8 +2494,7 @@ RgXQ_powu(GEN x, ulong n, GEN T)
 
   if (!n) return pol_1(varn(x));
   if (n == 1) return RgX_copy(x);
-  av = avma;
-  y = gen_powu(x, n, (void*)T, &_sqr, &_mul);
+  av = avma; y = gen_powu(x, n, (void*)T, &_sqr, &_mul);
   return gerepileupto(av, y);
 }
 /* x,T in Rg[X], n in N, compute lift(x^n mod T)) */
@@ -2512,6 +2511,22 @@ RgXQ_pow(GEN x, GEN n, GEN T)
   av = avma;
   if (s < 0) x = RgXQ_inv(x, T);
   y = gen_pow(x, n, (void*)T, &_sqr, &_mul);
+  return gerepileupto(av, y);
+}
+static GEN
+_ZXQsqr(void *data, GEN x) { return ZXQ_sqr(x, (GEN)data); }
+static GEN
+_ZXQmul(void *data, GEN x, GEN y) { return ZXQ_mul(x,y, (GEN)data); }
+/* x,T in Z[X], n in N, compute lift(x^n mod T)) */
+GEN
+ZXQ_powu(GEN x, ulong n, GEN T)
+{
+  pari_sp av;
+  GEN y;
+
+  if (!n) return pol_1(varn(x));
+  if (n == 1) return ZX_copy(x);
+  av = avma; y = gen_powu(x, n, (void*)T, &_ZXQsqr, &_ZXQmul);
   return gerepileupto(av, y);
 }
 

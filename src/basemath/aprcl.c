@@ -104,53 +104,33 @@ red_cyclo2n_ip(GEN x, long n)
 static GEN
 red_cyclo2n(GEN x, long n) { return red_cyclo2n_ip(leafcopy(x), n); }
 
-/* x a non-zero VECSMALL */
-static GEN
-smallpolrev(GEN x)
-{
-  long i,j, lx = lg(x);
-  GEN y;
-
-  while (lx-- && x[lx]==0) /* empty */;
-  i = lx+2; y = cgetg(i,t_POL);
-  y[1] = evalsigne(1);
-  for (j=2; j<i; j++) gel(y,j) = stoi(x[j-1]);
-  return y;
-}
-
-/* x polynomial in t_VECSMALL form, T t_POL return x mod T */
-static GEN
-u_red(GEN x, GEN T) {
-  return RgX_rem(smallpolrev(x), T);
-}
-
 /* special case R->C = polcyclo(2^n) */
 static GEN
-_red_cyclo2n(GEN x, Red *R) {
-  return centermod_i(red_cyclo2n(x, R->n), R->N, R->N2);
-}
+_red_cyclo2n(GEN x, Red *R)
+{ return centermod_i(red_cyclo2n(x, R->n), R->N, R->N2); }
 /* special case R->C = polcyclo(p) */
 static GEN
-_red_cyclop(GEN x, Red *R) {
-  return centermod_i(red_cyclop(x, R->n), R->N, R->N2);
-}
+_red_cyclop(GEN x, Red *R)
+{ return centermod_i(red_cyclop(x, R->n), R->N, R->N2); }
 static GEN
-_red(GEN x, Red *R) {
-  return centermod_i(grem(x, R->C), R->N, R->N2);
-}
+_red(GEN x, Red *R)
+{ return centermod_i(ZX_rem(x, R->C), R->N, R->N2); }
 static GEN
-_redsimple(GEN x, Red *R) { return centermodii(x, R->N, R->N2); }
-
+modZ(GEN x, Red *R) { return centermodii(x, R->N, R->N2); }
 static GEN
-sqrmod(GEN x, Red *R) {
-  return R->red(gsqr(x), R);
-}
+sqrmodZ(GEN x, Red *R) { return modZ(sqri(x), R); }
+static GEN
+sqrmod(GEN x, Red *R) { return R->red(ZX_sqr(x), R); }
+static GEN
+_mul(GEN x, GEN y, Red *R)
+{ return typ(x) == t_INT? modZ(mulii(x,y), R)
+                        : R->red(ZX_mul(x,y), R); }
 
 static GEN
 sqrconst(GEN pol, Red *R)
 {
   GEN z = cgetg(3,t_POL);
-  gel(z,2) = centermodii(sqri(gel(pol,2)), R->N, R->N2);
+  gel(z,2) = modZ(sqri(gel(pol,2)), R);
   z[1] = pol[1]; return z;
 }
 
@@ -165,9 +145,8 @@ sqrmod3(GEN pol, Red *R)
   if (lv==3) return sqrconst(pol, R);
   a = gel(pol,3);
   b = gel(pol,2); bma = subii(b,a);
-  A = centermodii(mulii(a,addii(b,bma)), R->N, R->N2);
-  B = centermodii(mulii(bma,addii(a,b)), R->N, R->N2);
-  return makepoldeg1(A,B);
+  A = modZ(mulii(a,addii(b,bma)), R);
+  B = modZ(mulii(bma,addii(a,b)), R); return makepoldeg1(A,B);
 }
 
 /* pol^2 mod (x^2+1,N) */
@@ -181,9 +160,8 @@ sqrmod4(GEN pol, Red *R)
   if (lv==3) return sqrconst(pol, R);
   a = gel(pol,3);
   b = gel(pol,2);
-  A = centermodii(mulii(a, shifti(b,1)), R->N, R->N2);
-  B = centermodii(mulii(subii(b,a),addii(b,a)), R->N, R->N2);
-  return makepoldeg1(A,B);
+  A = modZ(mulii(a, shifti(b,1)), R);
+  B = modZ(mulii(subii(b,a),addii(b,a)), R); return makepoldeg1(A,B);
 }
 
 /* pol^2 mod (polcyclo(5),N) */
@@ -199,12 +177,9 @@ sqrmod5(GEN pol, Red *R)
   d = gel(pol,2);
   if (lv==4)
   {
-    A = sqri(d);
-    B = mulii(c2, d);
-    C = sqri(c);
-    A = centermodii(A, R->N, R->N2);
-    B = centermodii(B, R->N, R->N2);
-    C = centermodii(C, R->N, R->N2); return mkpoln(3,A,B,C);
+    A = modZ(sqri(d), R);
+    B = modZ(mulii(c2, d), R);
+    C = modZ(sqri(c), R); return mkpoln(3,A,B,C);
   }
   b = gel(pol,4);
   if (lv==5)
@@ -226,14 +201,11 @@ sqrmod5(GEN pol, Red *R)
     /* 2a(b - c) + (d-b)(d+b) */
     D = addii(mulii(a2, subii(b,c)), mulii(subii(d,b), addii(d,b)));
   }
-  A = centermodii(A, R->N, R->N2);
-  B = centermodii(B, R->N, R->N2);
-  C = centermodii(C, R->N, R->N2);
-  D = centermodii(D, R->N, R->N2); return mkpoln(4,A,B,C,D);
+  A = modZ(A, R);
+  B = modZ(B, R);
+  C = modZ(C, R);
+  D = modZ(D, R); return mkpoln(4,A,B,C,D);
 }
-
-static GEN
-_mul(GEN x, GEN y, Red *R) { return R->red(gmul(x,y), R); }
 
 /* jac^floor(N/pk) mod (N, polcyclo(pk)), flexible window */
 static GEN
@@ -272,10 +244,9 @@ _powpolmodsimple(GEN C, Red *R, GEN jac)
   GEN w = ZM_ZX_mul(cache_matvite(C), jac);
   long j, ph = lg(w);
 
-  R->red = &_redsimple;
-  for (j=1; j<ph; j++)
-    gel(w,j) = _powpolmod(C, centermodii(gel(w,j), R->N, R->N2), R, &sqrmod);
-  w = centermod_i( gmul(cache_matinvvite(C), w), R->N, R->N2 );
+  R->red = &modZ;
+  for (j=1; j<ph; j++) gel(w,j) = _powpolmod(C, modZ(gel(w,j), R), R, &sqrmodZ);
+  w = centermod_i( ZM_ZC_mul(cache_matinvvite(C), w), R->N, R->N2);
   w = gerepileupto(av, w);
   return RgV_to_RgX(w, 0);
 }
@@ -546,6 +517,18 @@ compute_g(ulong q)
   return T;
 }
 
+/* x a non-zero VECSMALL with >= 0 entries */
+static GEN
+zv_to_ZX(GEN x)
+{
+  long i,j, lx = lg(x);
+  GEN y;
+
+  while (lx-- && x[lx]==0) /* empty */;
+  i = lx+2; y = cgetg(i,t_POL); y[1] = evalsigne(1);
+  for (j=2; j<i; j++) gel(y,j) = utoi(x[j-1]);
+  return y;
+}
 /* p odd prime */
 static GEN
 get_jac(GEN C, ulong q, long pk, GEN tabg)
@@ -555,7 +538,7 @@ get_jac(GEN C, ulong q, long pk, GEN tabg)
 
   for (x=2; x<=qs2; x++) vpk[ tabg[x]%pk + 1 ] += 2;
   vpk[ tabg[x]%pk + 1 ]++; /* x = (q+1)/2 */
-  return u_red(vpk, cache_cyc(C));
+  return ZX_rem(zv_to_ZX(vpk), cache_cyc(C));
 }
 
 /* p = 2 */
@@ -680,14 +663,14 @@ filltabs(GEN C, GEN Cp, Red *R, long p, long pk, long ltab)
     if (!a) return 0;
     ph = pk - pk/p;
     vpa = cgetg(ph+1,t_COL); gel(vpa,1) = a;
-    if (pk > p) a2 = centermodii(sqri(a), R->N, R->N2);
+    if (pk > p) a2 = modZ(sqri(a), R);
     jj = 1;
     for (i=2; i<pk; i++) /* vpa = { a^i, (i,p) = 1 } */
       if (i%p) {
         GEN z = mulii((i%p==1) ? a2 : a, gel(vpa,jj));
-        gel(vpa,++jj) = centermodii(z , R->N, R->N2);
+        gel(vpa,++jj) = modZ(z , R);
       }
-    if (!gequal1( centermodii( mulii(a, gel(vpa,ph)), R->N, R->N2) )) return 0;
+    if (!gequal1( modZ( mulii(a, gel(vpa,ph)), R) )) return 0;
     p1 = cgetg(ph+1,t_MAT);
     p2 = cgetg(ph+1,t_COL); gel(p1,1) = p2;
     for (i=1; i<=ph; i++) gel(p2,i) = gen_1;
@@ -696,7 +679,7 @@ filltabs(GEN C, GEN Cp, Red *R, long p, long pk, long ltab)
     {
       p2 = cgetg(ph+1,t_COL); gel(p1,j) = p2;
       for (i=1; i<=ph; i++)
-        gel(p2,i) = centermodii(mulii(gel(vpa,i),gel(p3,i)), R->N, R->N2);
+        gel(p2,i) = modZ(mulii(gel(vpa,i),gel(p3,i)), R);
       p3 = p2;
     }
     cache_matvite(C) = p1;
@@ -761,9 +744,7 @@ aut(long pk, GEN z, long a)
   GEN v;
   long b, i, dz = degpol(z);
   if (a == 1 || dz < 0) return z;
-  v = cgetg(pk+2,t_POL);
-  v[1] = evalvarn(0);
-  b = 0;
+  v = cgetg(pk+2,t_POL); v[1] = evalvarn(0); b = 0;
   gel(v,2) = gel(z,2); /* i = 0 */
   for (i = 1; i < pk; i++)
   {
@@ -777,28 +758,30 @@ aut(long pk, GEN z, long a)
 static GEN
 autvec_TH(long pk, GEN z, GEN v, GEN C)
 {
+  pari_sp av = avma;
   long i, lv = lg(v);
   GEN s = pol_1(varn(C));
   for (i=1; i<lv; i++)
   {
     long y = v[i];
-    if (y) s = RgXQ_mul(s, RgXQ_powu(aut(pk,z, y), y, C), C);
+    if (y) s = ZXQ_mul(s, ZXQ_powu(aut(pk,z, y), y, C), C);
   }
-  return s;
+  return gerepileupto(av,s);
 }
 
 static GEN
 autvec_AL(long pk, GEN z, GEN v, Red *R)
 {
+  pari_sp av = avma;
   const long r = umodiu(R->N, pk);
   GEN s = pol_1(varn(R->C));
   long i, lv = lg(v);
   for (i=1; i<lv; i++)
   {
     long y = (r*v[i]) / pk;
-    if (y) s = RgXQ_mul(s, RgXQ_powu(aut(pk,z, v[i]), y, R->C), R->C);
+    if (y) s = RgXQ_mul(s, ZXQ_powu(aut(pk,z, v[i]), y, R->C), R->C);
   }
-  return s;
+  return gerepileupto(av,s);
 }
 
 /* 0 <= i < pk, such that x^i = z mod polcyclo(pk),  -1 if no such i exist */

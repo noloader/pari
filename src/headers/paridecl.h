@@ -1152,6 +1152,7 @@ GEN     ZX_unscale2n(GEN P, long n);
 GEN     ZX_unscale(GEN P, GEN h);
 GEN     ZX_unscale_div(GEN P, GEN h);
 GEN     ZX_z_unscale(GEN P, long h);
+GEN     ZXQ_powu(GEN x, ulong n, GEN T);
 int     ZXQX_dvd(GEN x, GEN y, GEN T);
 long    brent_kung_optpow(long d, long n, long m);
 GEN     gen_bkeval(GEN Q, long d, GEN x, int use_sqr, void *E,
