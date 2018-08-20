@@ -902,7 +902,9 @@ c_bracket(long n, long d, GEN F, GEN G, GEN gm)
     GEN c;
     gel(tF,1) = j == 0? gel(VF,1): gen_0;
     gel(tG,1) = j == m? gel(VG,1): gen_0;
-    for (i = 1; i <= nd; i++)
+    gel(tF,2) = gel(VF,2);
+    gel(tG,2) = gel(VG,2);
+    for (i = 2; i <= nd; i++)
     {
       gel(tF, i+1) = gmul(gcoeff(mpow,i,j+1),   gel(VF, i+1));
       gel(tG, i+1) = gmul(gcoeff(mpow,i,m-j+1), gel(VG, i+1));
