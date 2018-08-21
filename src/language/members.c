@@ -350,7 +350,7 @@ member_reg(GEN x) /* regulator */
 GEN
 member_fu(GEN x) /* fundamental units */
 {
-  long t; GEN y = get_bnf(x,&t);
+  long t; GEN fu, y = get_bnf(x,&t);
   if (!y)
   {
     switch(t)
@@ -362,7 +362,9 @@ member_fu(GEN x) /* fundamental units */
     member_err("fu",x);
   }
   if (t == typ_BNR) pari_err_IMPL("ray units");
-  return matbasistoalg(y, bnf_get_fu(y));
+  fu = bnf_get_fu_nocheck(y);
+  if (typ(fu) == t_MAT) return gen_0; /*missing units*/
+  return matbasistoalg(y, fu);
 }
 
 /* torsion units. return [w,e] where w is the number of roots of 1, and e a
@@ -389,18 +391,6 @@ member_tu(GEN x)
     gel(res,2) = typ(z)==t_INT? gen_m1: basistoalg(bnf,z);
   }
   return res;
-}
-
-GEN
-member_futu(GEN x) /*  concatenation of fu and tu, w is lost */
-{
-  return shallowconcat(member_fu(x), gel(member_tu(x),2));
-}
-
-GEN
-member_tufu(GEN x) /*  concatenation of tu and fu, w is lost */
-{
-  return shallowconcat(gel(member_tu(x),2), member_fu(x));
 }
 
 /* structure of (Z_K/m)^*, where x is an idealstarinit (with or without gen)

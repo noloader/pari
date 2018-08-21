@@ -352,7 +352,7 @@ cyc  : cyclic decomposition (SNF)    bid,     clgp,ell,   bnf,bnr\n\
 diff, codiff: different and codifferent                nf,bnf,bnr\n\
 disc : discriminant                                ell,nf,bnf,bnr,rnf\n\
 e, f : inertia/residue  degree           prid\n\
-fu   : fundamental units                                  bnf,bnr\n\
+fu   : fundamental units                                  bnf\n\
 gen  : generators                    bid,prid,clgp,ell,   bnf,bnr,    gal\n\
 group: group                                       ell,               gal\n\
 index: index                                           nf,bnf,bnr\n\
@@ -367,12 +367,12 @@ orders: relative orders of generators                                 gal\n\
 p    : rational prime                    prid,     ell,           rnf,gal\n\
 pol  : defining polynomial                             nf,bnf,bnr,    gal\n\
 polabs: defining polynomial over Q                                rnf\n\
-reg  : regulator                                          bnf,bnr\n\
+reg  : regulator                                          bnf\n\
 roots: roots                                       ell,nf,bnf,bnr,    gal\n\
 sign,r1,r2 : signature                                 nf,bnf,bnr\n\
 t2   : t2 matrix                                       nf,bnf,bnr\n\
 tate : Tate's [u^2, u, q, [a,b], L, Ei]            ell\n\
-tu   : torsion unit and its order                         bnf,bnr\n\
+tu   : torsion unit and its order                         bnf\n\
 zk   : integral basis                                  nf,bnf,bnr,rnf\n\
 zkst : structure of (Z_K/m)*         bid,                     bnr\n");
 }

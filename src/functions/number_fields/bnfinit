@@ -75,7 +75,9 @@ Doc: initializes a
  $\var{bnf}[8]$ is a vector containing the classgroup \kbd{\var{bnf}.clgp}
  as a finite abelian group, the regulator \kbd{\var{bnf}.reg}, a $1$ (used to
  contain an obsolete ``check number''), the number of roots of unity and a
- generator \kbd{\var{bnf}.tu}, the fundamental units \kbd{\var{bnf}.fu}.
+ generator \kbd{\var{bnf}.tu}, the fundamental units \kbd{\var{bnf}.fu}. If
+ the fundamental units were omitted in the \var{bnf}, \kbd{\var{bnf}.fu} returns
+ the sentinel value $0$.
 
  $\var{bnf}[9]$ is a 3-element row vector used in \tet{bnfisprincipal} only
  and obtained as follows. Let $D = U W V$ obtained by applying the

@@ -25,6 +25,8 @@ HC   9- incgam(-1000.4,2) -> SEGV
         and power recycling for zeta(2n) + additive Clausen von Staudt):
         orders of magnitude faster and always store Bernoulli in rational form
 BA   6- [libpari] ZpX_ZpXQ_liftroot_ea: change interface for 'early'
+     7- bnf.fu: return '0' if bnf does not contain the fundamental units (was an
+        error)
 
   Added
      1- [libpari] nonsquare_Fl
@@ -34,3 +36,6 @@ BA   3- [libpari] FpXC_FpXQ_eval
      5- new file src/basemath/bern.c
      6- [libpari] divisorsu_moebius
      7- [libpari] ZXQ_powu
+
+  Removed
+     1- member functions .futu and .tufu [deprecated since 2.2]

@@ -22,7 +22,9 @@ Doc: computes the list
  \quad 2: in this case, \var{nf} must be a \var{bnf} with units. Each
  component is of the form $[\var{bid},U]$, where \var{bid} is as case 0
  and $U$ is a vector of discrete logarithms of the units. More precisely, it
- gives the \kbd{ideallog}s with respect to \var{bid} of \kbd{bnf.tufu}.
+ gives the \kbd{ideallog}s with respect to \var{bid} of $(\zeta,u_1,\dots,u_r)$
+ where $\zeta$ is the torsion unit generator \kbd{bnf.tu[2]} and $(u_i)$
+ are the fundamental units in \kbd{bnf.fu}.
  This structure is technical, and only meant to be used in conjunction with
  \tet{bnrclassnolist} or \tet{bnrdisclist}.
 
