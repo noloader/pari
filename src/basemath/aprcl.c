@@ -888,11 +888,8 @@ step4d(Red *R, ulong q)
   return -1;
 }
 
-static GEN
-_res(long a, long b) { return b? mkvec2s(a, b): mkvecs(a); }
-
-/* return 1 [OK so far] or <= 0 [not a prime] */
-static GEN
+/* return 1 [OK so far] or 0 [not a prime] */
+static long
 step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
 {
   pari_sp av;
@@ -905,7 +902,7 @@ step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
   while( (q = u_forprime_next(&T)) )
   { /* q = 1 (mod p) */
     if (umodiu(et,q) == 0) continue;
-    if (umodiu(R->N,q) == 0) return _res(1,p);
+    if (umodiu(R->N,q) == 0) return 0;
     k = u_lval(q-1, p);
     pk = upowuu(p,k);
     if (pk <= lpC && !isintzero(gel(pC,pk))) {
@@ -916,20 +913,19 @@ step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
       Cp = NULL;
       cache_matvite(C) = gen_0; /* re-init */
     }
-
     av = avma;
-    if (!filltabs(C, Cp, R, p, pk, ltab)) return _res(1,0);
+    if (!filltabs(C, Cp, R, p, pk, ltab)) return 0;
     R->C = cache_cyc(C);
     if (p >= 3)      fl = step4a(C,R, q,p,k, NULL);
     else if (k >= 3) fl = step4b(C,R, q,k);
     else if (k == 2) fl = step4c(C,R, q);
     else             fl = step4d(R, q);
-    if (fl == -1) return _res(q,p);
-    if (fl == 1) return NULL; /*OK*/
+    if (fl == -1) return 0;
+    if (fl == 1) return 1; /*OK*/
     set_avma(av);
   }
   pari_err_BUG("aprcl test fails! This is highly improbable");
-  return NULL;
+  return 0;/*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -941,20 +937,20 @@ aprcl_step6_worker(GEN r, long t, GEN N, GEN N1, GEN et)
   {
     r = remii(mulii(r,N1), et);
     if (equali1(r)) break;
-    if (dvdii(N,r) && !equalii(r,N)) return mkvec2(r, gen_0);
+    if (dvdii(N,r) && !equalii(r,N)) return gen_0; /* not prime */
     if ((i & 0x1f) == 0) r = gerepileuptoint(av, r);
   }
-  return gen_0;
+  return cgetg(1,t_VECSMALL);
 }
 
-static GEN
+/* return 1 if N prime, else 0 */
+static long
 step6(GEN N, ulong t, GEN et)
 {
-  GEN r, rk, N1 = remii(N, et);
+  GEN worker, r, rk, N1 = remii(N, et);
   ulong k = 10000;
   ulong i;
-  GEN worker, res = NULL;
-  long pending = 0;
+  long pending = 0, res = 1;
   struct pari_mt pt;
   pari_sp btop;
   worker = strtoclosure("_aprcl_step6_worker", 3, N, N1, et);
@@ -962,12 +958,12 @@ step6(GEN N, ulong t, GEN et)
   rk = Fp_powu(N1, k, et);
   mt_queue_start_lim(&pt, worker, (t-1+k-1)/k);
   btop = avma;
-  for (i=1; (i<t && !res) || pending; i+=k)
+  for (i=1; (i<t && res) || pending; i+=k)
   {
     GEN done;
-    mt_queue_submit(&pt, i, (i<t && !res) ? mkvec2(r, utoi(minss(k,t-i))): NULL);
+    mt_queue_submit(&pt, i, (i<t && res)? mkvec2(r, utoi(minss(k,t-i))): NULL);
     done = mt_queue_get(&pt, NULL, &pending);
-    if (done && !isintzero(done)) res = done;
+    if (res && done && typ(done) != t_VECSMALL) res = 0; /* not a prime */
     r = Fp_mul(r, rk, et);
     if (gc_needed(btop, 2))
     {
@@ -976,8 +972,7 @@ step6(GEN N, ulong t, GEN et)
     }
   }
   mt_queue_end(&pt);
-  if (res) return res;
-  return gen_1;
+  return res;
 }
 
 GEN
@@ -1003,42 +998,40 @@ aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v)
     else if (e >= 3) fl = step4b(C,&R, q,e);
     else if (e == 2) fl = step4c(C,&R, q);
     else             fl = step4d(&R, q);
-    if (fl == -1) return _res(q,p);
-    if (fl == 1)  flags[k++] = p;
+    if (fl == -1) return gen_0; /* not prime */
+    if (fl == 1) flags[k++] = p;
   }
   setlg(flags, k);
-  return gerepileuptoleaf(av1, flags);
+  return gerepileuptoleaf(av1, flags); /* OK so far */
 }
 
-static GEN
+/* return 1 if prime, else 0 */
+static long
 aprcl(GEN N)
 {
-  GEN et, fat, flaglp, faet = NULL; /*-Wall*/
-  long i, j, l, ltab, lfat, lpC;
+  GEN pC, worker, et, fat, flaglp, faet = NULL; /*-Wall*/
+  long i, j, l, ltab, lfat, lpC, workid, pending = 0, res = 1;
   ulong t;
   Red R;
-  GEN pC;
-  GEN worker, res = NULL;
-  long pending = 0, workid;
   struct pari_mt pt;
 
   if (typ(N) != t_INT) pari_err_TYPE("aprcl",N);
   if (cmpis(N,12) <= 0)
     switch(itos(N))
     {
-      case 2: case 3: case 5: case 7: case 11: return gen_1;
-      default: return _res(0,0);
+      case 2: case 3: case 5: case 7: case 11: return 1;
+      default: return 0;
     }
-  if (Z_issquare(N)) return _res(0,0);
+  if (Z_issquare(N)) return 0;
   t = compute_t(N, &et, &faet);
   if (DEBUGLEVEL) err_printf("Starting APRCL with t = %ld\n",t);
   if (cmpii(sqri(et),N) < 0) pari_err_BUG("aprcl: e(t) too small");
-  if (!equali1(gcdii(N,mului(t,et)))) return _res(1,0);
+  if (!equali1(gcdii(N,mului(t,et)))) return 0;
 
   R.N = N;
   R.N2= shifti(N, -1);
   pC = calcglobs(&R, t, &lpC, &ltab, &fat);
-  if (!pC) return _res(1,0);
+  if (!pC) return 0;
   lfat = lg(fat);
   flaglp = cgetg(lfat, t_VECSMALL);
   flaglp[1] = 0;
@@ -1053,29 +1046,28 @@ aprcl(GEN N)
                         pC, N, mkvecsmall4(R.k, R.lv, R.mask, R.n));
   if (DEBUGLEVEL>2) err_printf("Step4: %ld q-values\n", l-1);
   mt_queue_start_lim(&pt, worker, l-1);
-  for (i=l-1; (i>0 && !res) || pending; i--)
+  for (i=l-1; (i>0 && res) || pending; i--)
   {
     GEN done;
     ulong q = i>0 ? faet[i]: 0;
     mt_queue_submit(&pt, q, q>0? mkvec(utoi(q)): NULL);
     done = mt_queue_get(&pt, &workid, &pending);
-    if (done)
+    if (res && done)
     {
       long lf = lg(done);
-      if (typ(done) == t_VEC) res = done;
+      if (typ(done) != t_VECSMALL) { res = 0; continue; } /* not prime */
       for (j=1; j<lf; j++) flaglp[ zv_search(fat, done[j]) ] = 0;
       if (DEBUGLEVEL>2) err_printf("testing Jacobi sums for q = %ld...OK\n", workid);
     }
   }
   mt_queue_end(&pt);
-  if (res) return res;
+  if (!res) return 0;
   if (DEBUGLEVEL>2) err_printf("Step5: testing conditions lp\n");
   for (i=2; i<lfat; i++) /*skip fat[1] = 2*/
   {
     pari_sp av = avma;
     long p = fat[i];
-    GEN r;
-    if (flaglp[i] && (r = step5(pC, &R, p, et, ltab, lpC))) return r;
+    if (flaglp[i] && !step5(pC, &R, p, et, ltab, lpC)) return 0;
     set_avma(av);
   }
   if (DEBUGLEVEL>2)
@@ -1087,8 +1079,8 @@ long
 isprimeAPRCL(GEN N)
 {
   pari_sp av = avma;
-  GEN res = aprcl(N);
-  set_avma(av); return (typ(res) == t_INT);
+  long z = aprcl(N);
+  set_avma(av); return z;
 }
 
 /*******************************************************************/
