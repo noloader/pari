@@ -35,10 +35,11 @@ typedef struct Red {
 #define cache_cyc(C)  (gel((C),3))
 #define cache_E(C)  (gel((C),4))
 #define cache_eta(C)  (gel((C),5))
-#define cache_matvite(C)  (gel((C),6))
-#define cache_matinvvite(C)  (gel((C),7))
-#define cache_avite(C)  (gel((C),8))
-#define cache_pkvite(C)  (gel((C),9))
+/* the last 4 only when N = 1 mod p^k */
+#define cache_mat(C)  (gel((C),6))
+#define cache_matinv(C)  (gel((C),7))
+#define cache_a(C)  (gel((C),8)) /* a has order p^k in (Z/NZ)^* */
+#define cache_pk(C)  (gel((C),9)) /* p^k */
 
 static GEN
 makepoldeg1(GEN c, GEN d)
@@ -241,12 +242,12 @@ static GEN
 _powpolmodsimple(GEN C, Red *R, GEN jac)
 {
   pari_sp av = avma;
-  GEN w = ZM_ZX_mul(cache_matvite(C), jac);
+  GEN w = ZM_ZX_mul(cache_mat(C), jac);
   long j, ph = lg(w);
 
   R->red = &modZ;
   for (j=1; j<ph; j++) gel(w,j) = _powpolmod(C, modZ(gel(w,j), R), R, &sqrmodZ);
-  w = centermod_i( ZM_ZC_mul(cache_matinvvite(C), w), R->N, R->N2);
+  w = centermod_i( ZM_ZC_mul(cache_matinv(C), w), R->N, R->N2);
   w = gerepileupto(av, w);
   return RgV_to_RgX(w, 0);
 }
@@ -256,7 +257,7 @@ powpolmod(GEN C, Red *R, long p, long k, GEN jac)
 {
   GEN (*_sqr)(GEN, Red *);
 
-  if (!isintzero(cache_matvite(C))) return _powpolmodsimple(C, R, jac);
+  if (!isintzero(cache_mat(C))) return _powpolmodsimple(C, R, jac);
   if (p == 2) /* p = 2 */
   {
     if (k == 2) _sqr = &sqrmod4;
@@ -583,9 +584,9 @@ static GEN
 finda(GEN Cp, GEN N, long pk, long p)
 {
   GEN a, pv;
-  if (Cp && !isintzero(cache_avite(Cp))) {
-    a  = cache_avite(Cp);
-    pv = cache_pkvite(Cp);
+  if (Cp && !isintzero(cache_a(Cp))) {
+    a  = cache_a(Cp);
+    pv = cache_pk(Cp);
   }
   else
   {
@@ -613,8 +614,8 @@ finda(GEN Cp, GEN N, long pk, long p)
     if (!gequal1(b)) return NULL;
 
     if (Cp) {
-      cache_avite(Cp)  = a; /* a has order p^v */
-      cache_pkvite(Cp) = pv;
+      cache_a(Cp)  = a; /* a has order p^v */
+      cache_pk(Cp) = pv;
     }
   }
   return Fp_pow(a, divis(pv, pk), N);
@@ -682,8 +683,8 @@ filltabs(GEN C, GEN Cp, Red *R, long p, long pk, long ltab)
         gel(p2,i) = modZ(mulii(gel(vpa,i),gel(p3,i)), R);
       p3 = p2;
     }
-    cache_matvite(C) = p1;
-    cache_matinvvite(C) = FpM_inv(p1, R->N);
+    cache_mat(C) = p1;
+    cache_matinv(C) = FpM_inv(p1, R->N);
   }
 
   tabt = cgetg(ltab+1, t_VECSMALL);
@@ -911,7 +912,7 @@ step5(GEN pC, Red *R, long p, GEN et, ulong ltab, long lpC)
     } else {
       C = gel(pC,1);
       Cp = NULL;
-      cache_matvite(C) = gen_0; /* re-init */
+      cache_mat(C) = gen_0; /* re-init */
     }
     av = avma;
     if (!filltabs(C, Cp, R, p, pk, ltab)) return 0;
