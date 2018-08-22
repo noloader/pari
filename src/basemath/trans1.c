@@ -208,19 +208,6 @@ pi_brent_salamin(long prec)
   shiftr_inplace(C, 2);
   return divrr(sqrr(addrr(A,B)), C);
 }
-GEN
-constpi(long prec)
-{
-  pari_sp av;
-  GEN tmp;
-  if (gpi && realprec(gpi) >= prec) return gpi;
-
-  tmp = cgetr_block(prec);
-  av = avma;
-  affrr(pi_brent_salamin(prec), tmp);
-  swap_clone(&gpi, tmp);
-  set_avma(av);  return gpi;
-}
 #endif
 
 GEN
