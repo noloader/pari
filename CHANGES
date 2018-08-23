@@ -14,6 +14,8 @@ HC   9- incgam(-1000.4,2) -> SEGV
     10- mfatkininit(mfinit([366,2]),2) -> precision error
     11- forprimestep: wrong when wrapping word boundary (2^32 or 64) [#2071]
     12- mfbracket: [f,g]_m was multiplied by (-1)^m
+    13- wrong results in mfatkininit / mfatkineigenvalues due to insufficient
+        precision [#2073/#2074]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

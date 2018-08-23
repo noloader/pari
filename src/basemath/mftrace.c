@@ -6884,9 +6884,13 @@ mfchiembed(GEN mf, long prec)
 static GEN
 mfeigenembed(GEN mf, long prec)
 {
-  GEN vP = MF_get_fields(mf), CHI = MF_get_CHI(mf), P = mfcharpol(CHI);
+  GEN vP = MF_get_fields(mf), vF = MF_get_newforms(mf);
+  GEN zcyclo, vE, CHI = MF_get_CHI(mf), P = mfcharpol(CHI);
   long i, l = lg(vP);
-  GEN zcyclo = grootsof1_CHI(CHI, prec), vE = cgetg(l, t_VEC);
+  vF = Q_remove_denom(liftpol_shallow(vF), NULL);
+  prec += nbits2extraprec(gexpo(vF));
+  zcyclo = grootsof1_CHI(CHI, prec);
+  vE = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(vE,i) = getembed(P, gel(vP,i), zcyclo, prec);
   return vE;
 }
@@ -7273,7 +7277,7 @@ START:
       }
       if (m > LIM) { LIM <<= 1; goto START; }
       C = mulcxpowIs(gdiv(v,conj_i(v)), 2*m - k);
-      C0 = grndtoi(C, &e); if (e < 5-bit) C = C0;
+      C0 = grndtoi(C, &e); if (e < 5-bit_accuracy(precision(C))) C = C0;
       gel(z,j) = C;
     }
   }
@@ -7588,8 +7592,9 @@ mfatkineigenvalues(GEN mf, long Q, long prec)
   GEN vF, L, CHI, M, mfatk, C, MQ, vE, mfB;
   long N, NQ, l, i;
 
-  mf = checkMF(mf); N = MF_get_N(mf); CHI = MF_get_CHI(mf);
+  mf = checkMF(mf); N = MF_get_N(mf);
   vF = MF_get_newforms(mf); l = lg(vF);
+  /* N.B. k is integral */
   if (l == 1) { set_avma(av); return cgetg(1, t_VEC); }
   L = cgetg(l, t_VEC);
   if (Q == 1)
@@ -7601,7 +7606,7 @@ mfatkineigenvalues(GEN mf, long Q, long prec)
   vE = mfeigenembed(mf,prec);
   if (Q == N) return gerepileupto(av, mffrickeeigen(mf, vE, prec));
   Q = labs(Q);
-  NQ = atkin_get_NQ(N, Q, "mfatkineigenvalues");
+  NQ = atkin_get_NQ(N, Q, "mfatkineigenvalues"); /* != 1 */
   mfatk = mfatkininit(mf, Q, prec);
   mfB= gel(mfatk,1); if (typ(mfB) != t_VEC) mfB = mf;
   MQ = gel(mfatk,2);
@@ -7613,10 +7618,8 @@ mfatkineigenvalues(GEN mf, long Q, long prec)
     gel(L,i) = Rg_embedall_i(c, gel(vE,i));
   }
   if (!gequal1(C)) L = gdiv(L, C);
-  mf = MF_set_new(mf);
-  if (MF_get_space(mf) == mf_NEW && mfcharorder(CHI) <= 2
-      && (NQ==1 || NQ % mfcharconductor(CHI) == 0)
-      && typ(MF_get_gk(mf)) == t_INT) L = ground(L);
+  CHI = MF_get_CHI(mf);
+  if (mfcharorder(CHI) <= 2 && NQ % mfcharconductor(CHI) == 0) L = ground(L);
   return gerepilecopy(av, L);
 }
 

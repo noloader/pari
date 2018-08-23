@@ -236,6 +236,7 @@ factor(charpoly(mfa[2]))
 mfa[3]
 mf=mfinit([12,7,Mod(3,4)],0); mfatkineigenvalues(mf,3)
 mf=mfinit([24,3,-3],0); mfatkineigenvalues(mf,24)
+mf=mfinit([5,60],0); mfatkineigenvalues(mf,5)
 
 E4=mfEk(4); mf=mfinit([2,4]);
 mfslashexpansion(mf,E4,[0,-1;1,0],10,0)
