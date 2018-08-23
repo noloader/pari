@@ -16,6 +16,7 @@ HC   9- incgam(-1000.4,2) -> SEGV
     12- mfbracket: [f,g]_m was multiplied by (-1)^m
     13- wrong results in mfatkininit / mfatkineigenvalues due to insufficient
         precision [#2073/#2074]
+    14- issquare(Mod(x,ffinit(3,2))) -> wrong result [broken Fq_ispower]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

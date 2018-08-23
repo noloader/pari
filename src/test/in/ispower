@@ -108,6 +108,7 @@ if (issquare((x+1/2)^2,&z),z)
 if (issquare(x^0/4,&z),z)
 issquare(Mod(1,4)*x^2)
 issquare(Mod(1,4)*(x+1)^2)
+issquare(Mod(x,Mod(x^2+x+2,3)))
 
 ispower(-8,4)
 if(ispower(-8,3,&z),z)

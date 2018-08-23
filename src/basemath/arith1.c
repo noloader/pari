@@ -813,6 +813,7 @@ polmodispower(GEN x, GEN K, GEN *pt)
   if (Rg_is_FpXQ(x, &T,&p) && p)
   {
     x = liftall_shallow(x);
+    if (T) T = liftall_shallow(T);
     if (!Fq_ispower(x, K, T, p)) { set_avma(av); return 0; }
     if (!pt) { set_avma(av); return 1; }
     x = Fq_sqrtn(x, K, T,p, NULL);

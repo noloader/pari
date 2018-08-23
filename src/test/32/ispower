@@ -1187,6 +1187,7 @@ x + 1/2
   ***                 ^--------------------------
   *** issquare: sorry, issquare for even characteristic != 2 is not yet implemented.
 0
+0
 -2
 1
 -2/3
@@ -1227,4 +1228,4 @@ x + 2
 29
 101
 1
-Total time spent: 2396
+Total time spent: 3426
