@@ -4961,7 +4961,7 @@ or as a pair $[N,\var{faN}]$. The parameter may be omitted by setting it to
 \kbd{NULL} (the value is then $p^d-1$, $d = \deg T$).
 
 \fun{GEN}{FpXQ_log}{GEN a, GEN g, GEN ord, GEN T, GEN p} Let \kbd{g} be of
-order \kbd{ord} in the finite field $\F_p[X]/(T)$, return $e$ such that
+order dividing \kbd{ord} in the finite field $\F_p[X]/(T)$, return $e$ such that
 $a^e=g$. If $e$ does not exists, the result is undefined. Assumes
 that \kbd{T} is irreducible mod \kbd{p}.
 
@@ -9965,12 +9965,11 @@ black box cyclic group of order $N$. Return \kbd{NULL} if no solution exists.
 If \kbd{zetan} is not \kbd{NULL} it is set to an element of exact order $n$.
 This function uses \kbd{gen\_plog} for all prime divisors of $\gcd(n,N)$.
 
-\fun{GEN}{gen_PH_log}{GEN a, GEN g, GEN N, void *E, const struct bb_group
-*grp}
-returns an integer $k$ such that $g^k = x$, assuming that $g$ has order $N$,
-by Pohlig-Hellman algorithm. Return \kbd{cgetg(1, t\_VEC)} if there are no
-solutions. This calls \tet{gen_plog} repeatedly for all prime divisors $p$ of
-$N$.
+\fun{GEN}{gen_PH_log}{GEN a, GEN g, GEN N, void *E, const struct bb_group *grp}
+returns an integer $k$ such that $g^k = x$, assuming that the order of $g$
+divides $N$, using Pohlig-Hellman algorithm. Return \kbd{cgetg(1, t\_VEC)} if
+there are no solutions. This calls \tet{gen_plog} repeatedly for all prime
+divisors $p$ of $N$.
 
 In the following functions the integer parameter \kbd{ord} can be given
 in all the formats recognized for the argument of arithmetic functions,

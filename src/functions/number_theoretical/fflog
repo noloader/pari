@@ -11,9 +11,7 @@ Doc: discrete logarithm of the finite field element $x$ in base $g$, i.e.~
  \secref{se:DLfun}; the preferred format for
  this parameter is \kbd{[ord, factor(ord)]}, where \kbd{ord} is the
  order of $g$. It may be set as a side effect of calling \tet{ffprimroot}.
-
- If no $o$ is given, assume that $g$ is a primitive root. The result is
- undefined if $e$ does not exist. This function uses
+ The result is undefined if $e$ does not exist. This function uses
 
  \item a combination of generic discrete log algorithms (see \tet{znlog})
 

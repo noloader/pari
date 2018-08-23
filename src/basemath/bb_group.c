@@ -613,13 +613,13 @@ get_arith_Z(GEN o)
 }
 
 /* Generic Pohlig-Hellman discrete logarithm: smallest integer n >= 0 such that
- * g^n=a. Assume ord(g) = ord; grp->easylog() is an optional trapdoor
+ * g^n=a. Assume ord(g) | ord; grp->easylog() is an optional trapdoor
  * function that catches easy logarithms */
 GEN
 gen_PH_log(GEN a, GEN g, GEN ord, void *E, const struct bb_group *grp)
 {
   pari_sp av = avma;
-  GEN v, ginv0, ginv, fa, ex;
+  GEN v, ginv, fa, ex;
   long i, j, l;
 
   if (grp->equal(g, a)) /* frequent special case */
@@ -638,7 +638,7 @@ gen_PH_log(GEN a, GEN g, GEN ord, void *E, const struct bb_group *grp)
   v = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
   {
-    GEN q = gel(fa,i), qj, gq, nq, a0, t0;
+    GEN q = gel(fa,i), qj, gq, nq, ginv0, a0, t0;
     long e = itos(gel(ex,i));
     if (DEBUGLEVEL>5)
       err_printf("Pohlig-Hellman: DL mod %Ps^%ld\n",q,e);
@@ -648,7 +648,7 @@ gen_PH_log(GEN a, GEN g, GEN ord, void *E, const struct bb_group *grp)
     for (j = 2; j <= e; j++) gel(qj,j) = mulii(gel(qj,j-1), q);
     t0 = diviiexact(ord, gel(qj,e));
     a0 = grp->pow(E, a, t0);
-    ginv0 = grp->pow(E, ginv, t0); /* ord(ginv0) = q^e */
+    ginv0 = grp->pow(E, ginv, t0); /* ord(ginv0) | q^e */
     if (grp->equal1(ginv0)) { gel(v,i) = mkintmod(gen_0, gen_1); continue; }
     do gq = grp->pow(E,g, mulii(t0, gel(qj,--e))); while (grp->equal1(gq));
     /* ord(gq) = q */
