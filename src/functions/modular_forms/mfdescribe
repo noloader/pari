@@ -7,7 +7,7 @@ Help: mfdescribe(F,{&G}): gives a human-readable description of F, which is
  puts into G the vector of parameters of the outmost operator defining F
  (the empty vector if F is a leaf or a modular form space).
 Doc: gives a human-readable description of $F$, which is either a modular
- form space or a modular form. If the address of $G$ is given,
+ form space or a generalized modular form. If the address of $G$ is given,
  puts into $G$ the vector of parameters of the outmost operator defining $F$
  (the empty vector if $F$ is a leaf or a modular form space).
  \bprog

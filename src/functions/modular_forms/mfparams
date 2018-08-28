@@ -8,8 +8,8 @@ Help: mfparams(F): If F is a modular form space, returns [N,k,CHI,space]:
  definition of F: in that case the level N may be a multiple of the level of F
  and the polynomial P may define a larger field than Q(F).
 Doc: If $F$ is a modular form space, returns \kbd{[N,k,CHI,space]}, level,
- weight, character, and space code. If $F$ is a modular form, returns
- \kbd{[N,k,CHI,P]}, where $P$ is the (polynomial giving the) field of
+ weight, character, and space code. If $F$ is a generalized modular form,
+ returns \kbd{[N,k,CHI,P]}, where $P$ is the (polynomial giving the) field of
  definition of $F$: in that case the level $N$ may be a multiple of the
  level of $F$ and the polynomial $P$ may define a larger field than $\Q(F)$.
  If you want the true level of $F$ from this result, use

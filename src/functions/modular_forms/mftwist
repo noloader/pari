@@ -5,7 +5,7 @@ Prototype: GG
 Help: mftwist(F,D): returns the twist of the form F by the
  integer D, i.e., the form G such that mfcoef(G,n)=(D/n)mfcoef(F,n),
  where (D/n) is the Kronecker symbol.
-Doc: $F$ being a modular form, returns the twist of $F$ by the
+Doc: $F$ being a generalized modular form, returns the twist of $F$ by the
  integer $D$, i.e., the form $G$ such that
  \kbd{mfcoef(G,n)=}$(D/n)$\kbd{mfcoef(F,n)}, where $(D/n)$ is the Kronecker
  symbol.

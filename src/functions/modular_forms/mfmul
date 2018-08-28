@@ -3,7 +3,7 @@ Section: modular_forms
 C-Name: mfmul
 Prototype: GG
 Help: mfmul(F,G): Multiply the two forms F and G.
-Doc: Multiply the two forms $F$ and $G$.
+Doc: Multiply the two generalized modular forms $F$ and $G$.
  \bprog
  ? E4 = mfEk(4); G = mfmul(mfmul(E4,E4),E4);
  ? mfcoefs(G, 4)

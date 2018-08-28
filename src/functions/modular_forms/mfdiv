@@ -5,7 +5,7 @@ Prototype: GG
 Help: mfdiv(F,G): compute F/G for two modular forms F and G assuming
  that the quotient will not have poles at infinity. If this is the
  case, use mfshift before doing the division.
-Doc: Given two modular forms $F$ and $G$, compute $F/G$ assuming
+Doc: Given two generalized modular forms $F$ and $G$, compute $F/G$ assuming
  that the quotient will not have poles at infinity. If this is the
  case, use \kbd{mfshift} before doing the division.
  \bprog

@@ -48,8 +48,8 @@ Doc:
  at infinity $[a(0),a(1),...,a(n)]$ using the function \kbd{mfcoefs}. These
  coefficients are given algebraically, as rational numbers or \typ{POLMOD}s.
  The member function \kbd{f.mod} recovers the modulus used in the
- coefficients of $f$, which will be the same as for $\Q(chi)$ (a cyclotomic
- polynomial), or define a number field extension.
+ coefficients of $f$, which will be the same as for $k = \Q(chi)$ (a cyclotomic
+ polynomial), or define a number field extension $K/k$.
 
  Modular forms are obtained either directly from other mathematical objects,
  e.g., elliptic curves, or by a specific formula, e.g., Eisenstein series or
@@ -65,4 +65,6 @@ Doc:
  quotients, or quotients of modular forms. These objects are nonetheless very
  important in the theory, so are not considered as errors; however the user must
  be aware that no attempt is made to check that the objects that he handles are
- really modular.
+ really modular. When the documentation of a function does not state that it
+ applies to generalized modular forms, then the output is undefined if the
+ input is not a true modular form.

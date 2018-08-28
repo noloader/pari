@@ -3,10 +3,10 @@ Section: modular_forms
 C-Name: mfderiv
 Prototype: GD1,L,
 Help: mfderiv(F,{m=1}): m-th formal derivative of the power series
- corresponding to the modular form F, with respect to the differential operator
- q.d/dq (default m=1).
+ corresponding to the generalized modular form F, with respect to the
+ differential operator q.d/dq (default m=1).
 Doc:  $m$-th formal derivative of the power series corresponding to
- the modular form $F$, with respect to the differential operator
+ the generalized modular form $F$, with respect to the differential operator
  $qd/dq$ (default $m=1$).
  \bprog
  ? D=mfDelta();

@@ -2,10 +2,10 @@ Function: mfbracket
 Section: modular_forms
 C-Name: mfbracket
 Prototype: GGD0,L,
-Help: mfbracket(F,G,{m=0}): F and G being modular forms, compute the
- m-th Rankin-Cohen bracket of F and G.
-Doc: $F$ and $G$ being modular forms, compute the $m$-th Rankin--Cohen
- bracket of $F$ and $G$.
+Help: mfbracket(F,G,{m=0}): compute the
+ m-th Rankin-Cohen bracket of the generalized modular forms F and G.
+Doc: compute the $m$-th Rankin--Cohen bracket of the generalized modular
+ forms $F$ and $G$.
  \bprog
  ? E4 = mfEk(4); E6 = mfEk(6);
  ? D1 = mfbracket(E4,E4,2); mfcoefs(D1,5)/4800

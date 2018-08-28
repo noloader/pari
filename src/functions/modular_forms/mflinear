@@ -5,7 +5,7 @@ Prototype: GG
 Help: mflinear(vF,v): vF being a vector of modular forms and v
  a vector of coefficients of same length, compute the linear
  combination of the entries of vF with coefficients v.
-Doc: \kbd{vF} being a vector of modular forms and \kbd{v}
+Doc: \kbd{vF} being a vector of generalized modular forms and \kbd{v}
  a vector of coefficients of same length, compute the linear
  combination of the entries of \kbd{vF} with coefficients \kbd{v}.
  \misctitle{Note} Use this in particular to subtract two forms $F$ and $G$
