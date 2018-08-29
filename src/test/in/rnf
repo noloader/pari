@@ -191,6 +191,10 @@ rnfdedekind(nf, P, [pr2,pr3])
 P = (y+1)*x^4 + x^2 + x + 2;
 rnfdedekind(nf, P, pr3, 1)
 
+t = 't; T = polcyclo(9,t);
+pol = y^2 + Mod(t^5+t^2+t-1, T)*y + Mod(1-t, T);
+Qchi=nfinit([T,10^6]);
+rnfinit(Qchi,[pol,10^6]); \\ segv in 2.11
 
 \\ Errors, keep at end of file
 rnfdedekind(nf, P, pr2, 1)

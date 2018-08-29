@@ -3380,7 +3380,7 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
         if (rU == N) break;
       }
     }
-    for(;;)
+    if (dB) for(;;)
     {
       GEN c = gen_1, H = ZM_hnfmodid(U, dB);
       long ic = 0;
