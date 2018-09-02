@@ -18,6 +18,11 @@ HC   9- incgam(-1000.4,2) -> SEGV
         precision [#2073/#2074]
     14- issquare(Mod(x,ffinit(3,2))) -> wrong result [broken Fq_ispower]
     15- possible SEGV in rnfpseudobasis(, [pol,lim])
+    16- wrong result in elllog over F_p, p in [2^63,2^64[
+        p=13824553909862352061; A=8953655473130154624; B=9775907253961339458;
+        P=[6444058885176327583,7963649599850249187];
+        E=ellinit([A,B],p); Q=ellmul(E,P,2);
+        elllog(E,Q,P) -> 0 [ Flj_mulu_pre would not accept n >= 2^63 ]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

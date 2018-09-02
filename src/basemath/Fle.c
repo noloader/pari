@@ -124,22 +124,19 @@ Flj_neg(GEN Q, ulong p)
 { return mkvecsmall3(Q[1], Fl_neg(Q[2], p), Q[3]); }
 
 typedef struct {
-  ulong n; /* The number being represented */
   ulong pbits, nbits;  /* Positive bits and negative bits */
   ulong lnzb; /* Leading non-zero bit */
 } naf_t;
 
 /* Return the signed binary representation (i.e. the Non-Adjacent Form
- * in base 2) of 0 <= a < 2^63 */
+ * in base 2) of 0 <= a < 2^64; a = x.pbits - x.nbits (+ 2^64 if < 0; this
+ * exceptional case can happen if a > 2^63) */
 static void
 naf_repr(naf_t *x, ulong a)
 {
+  ulong pbits = 0, nbits = 0, c0 = 0, c1, a0;
   long t, i;
-  ulong pbits, nbits;
-  ulong c0 = 0, c1, a0;
 
-  x->n = a;
-  pbits = nbits = 0;
   for (i = 0; a; a >>= 1, ++i) {
     a0 = a & 1;
     c1 = (c0 + a0 + ((a & 2) >> 1)) >> 1;
@@ -152,25 +149,19 @@ naf_repr(naf_t *x, ulong a)
   }
   c1 = c0 >> 1;
   t = c0 - (c1 << 1);
-  /* Note that we don't need to check whether t < 0, since a >= 0 implies
-   * that this most significant signed bit must be non-negative. */
-  if (t > 0) pbits |= (1UL << i);
-
+  /* since a >= 0, we have t >= 0; if i = 64, pbits (virtually) overflows */
+  if (t > 0 && i != 64) pbits |= (1UL << i);
   x->pbits = pbits;
   x->nbits = nbits;
-  /* Note that expu returns the least nonzero bit in the argument,
-   * like the bit-scan-rev instruction on Intel architectures. */
-  /* Using pbits here is justified by the fact that a >= 0, so the
-   * most significant bit must be positive. */
-  x->lnzb = expu(pbits) - 2;
+  x->lnzb = t? i-2: i-3;
 }
 
 /* Standard left-to-right signed double-and-add to compute [n]P. */
 static GEN
 Flj_mulu_pre_naf(GEN P, ulong n, ulong a4, ulong p, ulong pi, const naf_t *x)
 {
-  GEN R, Pinv;
-  ulong pbits, nbits, lnzb;
+  GEN R, Pi;
+  ulong pbits, nbits;
   ulong m;
 
   if (n == 0) return mkvecsmall3(1, 1, 0);
@@ -181,16 +172,14 @@ Flj_mulu_pre_naf(GEN P, ulong n, ulong a4, ulong p, ulong pi, const naf_t *x)
 
   pbits = x->pbits;
   nbits = x->nbits;
-  lnzb = x->lnzb;
-
-  Pinv = Flj_neg(P, p);
-  m = (1UL << lnzb);
+  Pi = nbits? Flj_neg(P, p): NULL;
+  m = (1UL << x->lnzb);
   for ( ; m; m >>= 1) {
     Flj_dbl_pre_inplace(R, a4, p, pi);
     if (m & pbits)
       Flj_add_pre_inplace(R, P, a4, p, pi);
     else if (m & nbits)
-      Flj_add_pre_inplace(R, Pinv, a4, p, pi);
+      Flj_add_pre_inplace(R, Pi, a4, p, pi);
   }
   avma = (pari_sp)R; return R;
 }
@@ -198,8 +187,7 @@ Flj_mulu_pre_naf(GEN P, ulong n, ulong a4, ulong p, ulong pi, const naf_t *x)
 GEN
 Flj_mulu_pre(GEN P, ulong n, ulong a4, ulong p, ulong pi)
 {
-  naf_t x;
-  naf_repr(&x, n);
+  naf_t x; naf_repr(&x, n);
   return Flj_mulu_pre_naf(P, n, a4, p, pi, &x);
 }
 
@@ -225,9 +213,9 @@ Flj_order_ufact(GEN P, ulong n, GEN F, ulong a4, ulong p, ulong pi)
     b = Flj_mulu_pre(P, n / q, a4, p, pi);
 
     naf_repr(&x, pp);
-    for (j = 0; j < ei && b[3] != 0; ++j)
+    for (j = 0; j < ei && b[3]; ++j)
       b = Flj_mulu_pre_naf(b, pp, a4, p, pi, &x);
-    if (b[3] != 0) return 0;
+    if (b[3]) return 0;
     for (k = 0; k < j; ++k) res *= pp;
     set_avma(av);
   }
@@ -625,7 +613,7 @@ static void
 FleV_mulu_pre_naf_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi, const naf_t *x)
 {
   pari_sp av = avma;
-  ulong pbits, nbits, lnzb, m;
+  ulong pbits, nbits, m;
   GEN R;
   if (n == 1) return;
 
@@ -635,9 +623,7 @@ FleV_mulu_pre_naf_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi, const naf_t
 
   pbits = x->pbits;
   nbits = x->nbits;
-  lnzb = x->lnzb;
-
-  m = (1UL << lnzb);
+  m = (1UL << x->lnzb);
   for ( ; m; m >>= 1) {
     FleV_dbl_pre_inplace(R, a4, p, pi);
     if (m & pbits)
@@ -651,7 +637,6 @@ FleV_mulu_pre_naf_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi, const naf_t
 void
 FleV_mulu_pre_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi)
 {
-  naf_t x;
-  naf_repr(&x, n);
+  naf_t x; naf_repr(&x, n);
   FleV_mulu_pre_naf_inplace(P, n, a4, p, pi, &x);
 }
