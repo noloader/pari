@@ -11867,11 +11867,10 @@ mfsymbolevalpartial(GEN fs, GEN A, GEN ga, long bit)
   P = get_P(k, fetch_var(), prec);
   if (lg(fs) != 3 && gtodouble(Y)*(2*N) < 1)
   { /* true symbol + low imaginary part: use GL_2 action to improve */
-    GEN U, Ui, ga2, czd, A2 = cxredga0N(N, A, &U, &czd, 1), oo = mkoo();
-    Ui = ZM_inv(U, NULL);
-    ga2 = ZM_mul(ga, Ui);
+    GEN U, ga2, czd, A2 = cxredga0N(N, A, &U, &czd, 1), oo = mkoo();
+    ga2 = ZM_mul(ga, U);
     S = intAoo0(fs, A2, ga2, P, bit);
-    S = gsub(S, mfsymboleval(fs, mkvec2(mat2cusp(Ui), oo), ga2, bit));
+    S = gsub(S, mfsymboleval(fs, mkvec2(mat2cusp(U), oo), ga2, bit));
     S = act_GL2(S, U, k);
   }
   else

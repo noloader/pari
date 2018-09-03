@@ -23,6 +23,8 @@ HC   9- incgam(-1000.4,2) -> SEGV
         P=[6444058885176327583,7963649599850249187];
         E=ellinit([A,B],p); Q=ellmul(E,P,2);
         elllog(E,Q,P) -> 0 [ Flj_mulu_pre would not accept n >= 2^63 ]
+    17- wrong result in mfsymboleval when path extremities are close to real
+        axis (cusps were OK)
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
