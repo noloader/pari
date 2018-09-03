@@ -129,8 +129,8 @@ typedef struct {
 } naf_t;
 
 /* Return the signed binary representation (i.e. the Non-Adjacent Form
- * in base 2) of 0 <= a < 2^64; a = x.pbits - x.nbits (+ 2^64 if < 0; this
- * exceptional case can happen if a > 2^63) */
+ * in base 2) of a; a = x.pbits - x.nbits (+ 2^BILif < 0; this
+ * exceptional case can happen if a > 2^(BIL-1)) */
 static void
 naf_repr(naf_t *x, ulong a)
 {
@@ -149,8 +149,9 @@ naf_repr(naf_t *x, ulong a)
   }
   c1 = c0 >> 1;
   t = c0 - (c1 << 1);
-  /* since a >= 0, we have t >= 0; if i = 64, pbits (virtually) overflows */
-  if (t > 0 && i != 64) pbits |= (1UL << i);
+  /* since a >= 0, we have t >= 0; if i = BIL, pbits (virtually) overflows;
+   * that leading overflowed bit is implied and not recorded in pbits */
+  if (t > 0 && i != BITS_IN_LONG) pbits |= (1UL << i);
   x->pbits = pbits;
   x->nbits = nbits;
   x->lnzb = t? i-2: i-3;
