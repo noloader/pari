@@ -1402,7 +1402,7 @@ hclassno_wrapper(long D, long h)
 /* This is Sutherland 2009, Algorithm 2.1 (p8); delta > 0 */
 static GEN
 select_classpoly_prime_pool(double min_bits, double delta, classgp_pcp_t G)
-{ /* Sutherland defines V_MAX to be 1200 with saying why. */
+{ /* Sutherland defines V_MAX to be 1200 without saying why */
   const long V_MAX = 1200;
   pari_sp av = avma;
   double bits = 0.0, hurwitz, z;
