@@ -1965,17 +1965,13 @@ polmodular_ZM(long L, long inv)
   if (L < 2)
     pari_err_DOMAIN("polmodular_ZM", "L", "<", gen_2, stoi(L));
 
-  /* TODO: Handle non-prime L.  This is Algorithm 1.1 and Corollary
-   * 3.4 in Sutherland, "Class polynomials for nonholomorphic modular
-   * functions". */
-  if ( ! uisprime(L))
-    pari_err_IMPL("composite level");
+  /* TODO: Handle non-prime L. Algorithm 1.1 and Corollary 3.4 in Sutherland,
+   * "Class polynomials for nonholomorphic modular functions" */
+  if (! uisprime(L)) pari_err_IMPL("composite level");
 
   db = polmodular_db_init(inv);
   Phi = polmodular0_ZM(L, inv, NULL, NULL, 0, &db);
-  gunclone_deep(db);
-
-  return Phi;
+  gunclone_deep(db); return Phi;
 }
 
 GEN
@@ -1996,15 +1992,12 @@ FpV_deriv(GEN v, long deg, GEN P)
 {
   long i, ln = lg(v);
   GEN dv = cgetg(ln, t_VEC);
-  for (i = ln - 1; i > 1; --i, --deg)
-    gel(dv, i) = Fp_mulu(gel(v, i - 1), deg, P);
-  gel(dv, 1) = gen_0;
-  return dv;
+  for (i = ln-1; i > 1; i--, deg--) gel(dv, i) = Fp_mulu(gel(v, i-1), deg, P);
+  gel(dv, 1) = gen_0; return dv;
 }
 
 GEN
-Fp_polmodular_evalx(
-  long L, long inv, GEN J, GEN P, long v, int compute_derivs)
+Fp_polmodular_evalx(long L, long inv, GEN J, GEN P, long v, int compute_derivs)
 {
   pari_sp av = avma;
   GEN db, phi;
@@ -2030,7 +2023,7 @@ Fp_polmodular_evalx(
   phi = polmodular0_ZM(L, inv, J, P, compute_derivs, &db);
   phi = RgM_to_RgXV(phi, v);
   gunclone_deep(db);
-  return gerepilecopy(av, compute_derivs ? phi : gel(phi, 1));
+  return gerepilecopy(av, compute_derivs? phi: gel(phi, 1));
 }
 
 GEN
@@ -2041,7 +2034,7 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
   GEN J = NULL, P = NULL, res = NULL, one = NULL;
 
   check_modinv(inv);
-  if ( ! x || gequalX(x)) {
+  if (!x || gequalX(x)) {
     long xv = 0;
     if (x) xv = varn(x);
     if (compute_derivs) pari_err_FLAG("polmodular");
@@ -2060,34 +2053,29 @@ polmodular(long L, long inv, GEN x, long v, long compute_derivs)
     J = constant_coeff(J);
     P = FF_p_i(x);
     one = p_to_FF(P, 0);
-  } else {
+  } else
     pari_err_TYPE("polmodular", x);
-  }
 
   if (v < 0) v = 1;
   res = Fp_polmodular_evalx(L, inv, J, P, v, compute_derivs);
-  res = gmul(res, one);
-  return gerepileupto(av, res);
+  return gerepileupto(av, gmul(res, one));
 }
 
 /**
  * SECTION: Modular polynomials of level <= MAX_INTERNAL_MODPOLY_LEVEL.
  */
 
-/* These functions return a vector of unique coefficients of classical
- * modular polynomials \Phi_L(X, Y) of small level L.  The number of
- * such coefficients is (L + 1)(L + 2)/2 since \Phi is symmetric.
- * (Note that we omit the common coefficient of X^{L + 1} and Y^{L + 1} since
- * it is always 1.)  See sympol_to_ZM() for how to interpret the coefficients,
- * and use that function to get the corresponding full (desymmetrised) matrix
- * of coefficients. */
+/* These functions return a vector of coefficients of classical modular
+ * polynomials Phi_L(X,Y) of small level L.  The number of such coefficients is
+ * (L+1)(L+2)/2 since Phi is symmetric. We omit the common coefficient of
+ * X^{L+1} and Y^{L+1} since it is always 1. Use sympol_to_ZM() to get the
+ * corresponding desymmetrised matrix of coefficients */
 
 /*  Phi2, the modular polynomial of level 2:
  *
- *  X^3
- *  + X^2 * (-Y^2 + 1488*Y - 162000)
- *  + X * (1488*Y^2 + 40773375*Y + 8748000000)
- *  + Y^3 - 162000*Y^2 + 8748000000*Y - 157464000000000
+ *  X^3 + X^2 * (-Y^2 + 1488*Y - 162000)
+ *      + X * (1488*Y^2 + 40773375*Y + 8748000000)
+ *      + Y^3 - 162000*Y^2 + 8748000000*Y - 157464000000000
  *
  *  [[3, 0, 1],
  *   [2, 2, -1],
@@ -2124,13 +2112,7 @@ phi2_ZV(void)
  * [1, 0, 1855425871872000000000]
  * [0, 0, 0]
  *
- * X^4
- * + X^3 (-Y^3 + 2232*Y^2 - 1069956*Y + 36864000)
- * + X^2 (2232*Y^3 + 2587918086*Y^2 + 8900222976000*Y + 452984832000000)
- * + X (-1069956*Y^3 + 8900222976000*Y^2 - 770845966336000000*Y + 1855425871872000000000)
- * + Y^4 + 36864000*Y^3 + 452984832000000*Y^2 + 1855425871872000000000*Y
- *
- * 1855425871872000000000 == 2^32 * (100 * 2^32 + 2503270400) */
+ * 1855425871872000000000 = 2^32 * (100 * 2^32 + 2503270400) */
 static GEN
 phi3_ZV(void)
 {
