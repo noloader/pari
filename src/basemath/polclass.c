@@ -1361,9 +1361,6 @@ classno_wrapper(long D)
  * SECTION: Functions for calculating class polynomials.
  */
 
-/* NB: Sutherland defines V_MAX to be 1200 with saying why. */
-#define V_MAX 1200
-
 #define NSMALL_PRIMES 11
 static const long SMALL_PRIMES[11] = {
   2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31
@@ -1402,89 +1399,71 @@ hclassno_wrapper(long D, long h)
 }
 
 
-/* This is Sutherland 2009, Algorithm 2.1 (p8).
- * NB: This function is not gerepileupto-safe. */
+/* This is Sutherland 2009, Algorithm 2.1 (p8); delta > 0 */
 static GEN
-select_classpoly_prime_pool(
-  double min_prime_bits, double delta, classgp_pcp_t G)
-{
-  pari_sp av;
-  double prime_bits = 0.0, hurwitz, z;
-  ulong i;
-  /* t_min[v] will hold the lower bound of the t we need to look at
-   * for a given v. */
-  ulong t_min[V_MAX], t_size_lim;
-  GEN res;
-  long D = G->D, inv = G->inv;
+select_classpoly_prime_pool(double min_bits, double delta, classgp_pcp_t G)
+{ /* Sutherland defines V_MAX to be 1200 with saying why. */
+  const long V_MAX = 1200;
+  pari_sp av = avma;
+  double bits = 0.0, hurwitz, z;
+  ulong t_size_lim;
+  long ires, D = G->D, inv = G->inv;
+  GEN res, t_min; /* t_min[v] = lower bound for the t we look at for that v */
 
-  if (delta <= 0) pari_err_BUG("select_suitable_primes");
   hurwitz = hclassno_wrapper(D, G->h);
 
-  res = cgetg(1, t_VEC);
+  res = cgetg(128+1, t_VEC);
+  ires = 1;
   /* Initialise t_min to be all 2's.  This avoids trace 0 and trace 1 curves */
-  for (i = 0; i < V_MAX; ++i) t_min[i] = 2;
+  t_min = const_vecsmall(V_MAX-1, 2);
 
   /* maximum possible trace = sqrt(2^BIL - D) */
   t_size_lim = 2.0 * sqrt((double)((1UL << (BITS_IN_LONG - 2)) - (((ulong)-D) >> 2)));
 
-  av = avma;
-  for (z = -D / (2.0 * hurwitz); ; z *= delta + 1.0) {
-    /* v_bound_aux = -4 z H(-D). */
+  for (z = -D / (2.0 * hurwitz); ; z *= delta + 1.0)
+  { /* v_bound_aux = -4 z H(-D) */
     double v_bound_aux = -4.0 * z * hurwitz;
     ulong v;
     dbg_printf(1)("z = %.2f\n", z);
-    for (v = 1; ; ++v) {
-      ulong pcount = 0, t, t_max, vfactors;
-      ulong m_vsqr_D = v * v * (ulong)(-D);
+    for (v = 1; v < V_MAX; v++)
+    {
+      ulong p, t, t_max, vfactors, m_vsqr_D = v * v * (ulong)(-D);
       /* hurwitz_ratio_bound = 11 * log(log(v + 4))^2 */
       double hurwitz_ratio_bound = log(log(v + 4.0)), max_p, H;
+      long ires0;
       hurwitz_ratio_bound *= 11.0 * hurwitz_ratio_bound;
 
-      if (v >= v_bound_aux * hurwitz_ratio_bound / D || v >= V_MAX) break;
-
-      if ( ! is_smooth_enough(&vfactors, v)) continue;
+      if (v >= v_bound_aux * hurwitz_ratio_bound / D) break;
+      if (!is_smooth_enough(&vfactors, v)) continue;
       H = hclassno_wrapper(m_vsqr_D, 0);
 
       /* t <= 2 sqrt(p) and p <= z H(-v^2 D) and
-       *
        *   H(-v^2 D) < vH(-D) (11 log(log(v + 4))^2)
-       *
        * This last term is v * hurwitz * hurwitz_ratio_bound. */
       max_p = z * v * hurwitz * hurwitz_ratio_bound;
-      t_max = 2.0 * mindd(sqrt((double)((1UL << (BITS_IN_LONG - 2)) - (m_vsqr_D >> 2))),
-                          sqrt(max_p));
-      for (t = t_min[v]; t <= t_max; ++t) {
-        ulong possible_4p = t * t + m_vsqr_D;
-        if (possible_4p % 4 == 0) {
-          ulong possible_p = possible_4p / 4;
-          if (uisprime(possible_p) && modinv_good_prime(inv, possible_p)) {
-            long p = possible_p;
-            double rho_inv = p / H;
-            GEN hit;
-
-            hit = mkvecsmall5(p, t, v, (long)rho_inv, vfactors);
-            /* FIXME: Avoid doing GC for every prime as here. */
-            res = gerepileupto(av, gconcat(res, hit));
-            prime_bits += log2(p);
-            ++pcount;
-          }
+      t_max = 2.0 * sqrt(mindd((1UL<<(BITS_IN_LONG-2)) - (m_vsqr_D>>2), max_p));
+      t = t_min[v]; if ((t & 1) != (m_vsqr_D & 1)) t++;
+      p = (t * t + m_vsqr_D) >> 2;
+      ires0 = ires;
+      for (; t <= t_max; p += t+1, t += 2) /* 4p = t^2 - v^2*D */
+        if (modinv_good_prime(inv,p) && uisprime(p))
+        {
+          if (ires == lg(res)) res = vec_lengthen(res, lg(res) << 1);
+          gel(res, ires++) = mkvecsmall5(p, t, v, (long)(p / H), vfactors);
+          bits += log2(p);
         }
-      }
-      t_min[v] = t_max + 1;
+      t_min[v] = t;
 
-      if (pcount) {
-        dbg_printf(2)("  Found %lu primes for v = %lu.\n", pcount, v);
-        if (gc_needed(av, 2))
-          res = gerepilecopy(av, res);
+      if (ires - ires0) {
+        dbg_printf(2)("  Found %lu primes for v = %lu.\n", ires - ires0, v);
       }
-      if (prime_bits > min_prime_bits) {
-        dbg_printf(1)("Found %ld primes; total size %.2f bits.\n",
-                    glength(res), prime_bits);
-        return gerepilecopy(av, res);
+      if (bits > min_bits) {
+        dbg_printf(1)("Found %ld primes; total size %.2f bits.\n", ires-1,bits);
+        setlg(res, ires); return gerepilecopy(av, res);
       }
     }
-    /* Have we exhausted all possible solutions that fit in machine words? */
     if (t_min[1] >= t_size_lim) {
+      /* exhausted all solutions that fit in ulong */
       char *err = stack_sprintf("class polynomial of discriminant %ld", D);
       pari_err(e_ARCH, err);
     }
