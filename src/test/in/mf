@@ -165,6 +165,7 @@ mfcuspval(mf23,F,1/2)
 round(mfeval(mf23,F,I/50) * 1e35)
 round(mfslashexpansion(mf23,F,[1,0;1,1],2,0) * 1e35)
 vec(mfdiv(mfpow(D,3),mfpow(D,2)))
+mfcoefs(D,0) \\ #2078
 
 mfa = mfatkininit(mf,32);
 mfa[2]

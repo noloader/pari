@@ -1273,6 +1273,7 @@ c_const(long n, long d, GEN C)
   return V;
 }
 
+/* m > 0 */
 static GEN
 eta3_ZXn(long m)
 {
@@ -1294,7 +1295,9 @@ c_delta(long n, long d)
 {
   pari_sp ltop = avma;
   long N = n*d;
-  GEN e = eta3_ZXn(N);
+  GEN e;
+  if (!N) return mkvec(gen_0);
+  e = eta3_ZXn(N);
   e = ZXn_sqr(e,N);
   e = ZXn_sqr(e,N);
   e = ZXn_sqr(e,N); /* eta(x)^24 */
