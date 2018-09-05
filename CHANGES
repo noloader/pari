@@ -39,6 +39,8 @@ HC   9- incgam(-1000.4,2) -> SEGV
 BA   6- [libpari] ZpX_ZpXQ_liftroot_ea: change interface for 'early'
      7- bnf.fu: return '0' if bnf does not contain the fundamental units (was an
         error)
+     8- support ?? _+_ and friends [extended help for specific operators
+        instead of redirecting to "GP operators"]
 
   Added
      1- [libpari] nonsquare_Fl

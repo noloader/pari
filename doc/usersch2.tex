@@ -2746,9 +2746,28 @@ obtained by simply typing \kbd{?}). \label{se:exthelp}
 
 These names are in general not informative enough. More details can be
 obtained by typing \kbd{?\var{function}}, which gives a short explanation of
-the function's calling convention and effects. Of course, to have complete
-information, read Chapter 3 of this manual (the source code is at your
-disposal as well, though a trifle less readable).
+the function's calling convention and effects. A help string is also attached
+to a symbolic operator, where arguments are replaced by a placeholder
+character \kbd{\_}
+
+\bprog
+ ?  ?sin
+ sin(x): sine of x.
+
+ ?  ?_*_
+ x*y: product of x and y.
+
+ ?  ?!_
+ !a: boolean operator "not".
+
+ ?  ?_!
+ n!: factorial of n.
+
+ ?  ? _^_
+ x^y: compute x to the power y.
+ @eprog\noindent Of course, to have complete information, read Chapter 3 of
+this manual. The source code is at your disposal as well, though a trifle
+less readable.
 
 If the line before the copyright message indicates that extended help is
 available (this means \kbd{perl} is present on your system and the PARI

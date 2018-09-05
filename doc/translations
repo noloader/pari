@@ -30,6 +30,16 @@ edit            @se:readline@2
 \y              @\b{y}@2
 #               @\#@2
 ##              @\#\#@2
++_              @+$/$-
+-_              @+$/$-
+_+_             @+
+_-_             @-
+_*_             @*
+_/_             @/
+_\_             @\bs
+_\/_            @\bs/
+_%_             @\%
+_^_             @\pow
 operator        @GP operators@2
 and             @GP operators@2
 or              @GP operators@2

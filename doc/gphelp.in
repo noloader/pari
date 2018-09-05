@@ -1,4 +1,7 @@
 #!@runtime_perl@
+$version= "@version@";
+$datadir= "@datadir@";
+# no expanded material (@key@) below
 # Copyright (C) 2000  The PARI group.
 #
 # This file is part of the PARI/GP package.
@@ -14,9 +17,7 @@
 
 # Output extended help corresponding to a given GP command. By default,
 # extract relevant information from  from the PARI manual, run TeX, then open
-# an xdvi display.
-#
-# The manual can be compressed.
+# an xdvi display. The manual can be compressed.
 #
 # Usage: gphelp keyword
 #
@@ -40,9 +41,6 @@
 #  GPDOCDIR: where is manual (by default, where make install will put it).
 #  GPXDVI: which 'xdvi' program to call (xdvi by default)
 #
-$version= "@version@";
-$datadir= "@datadir@";
-# no expanded material (@key@) below
 $wwwsite= "http://pari.math.u-bordeaux.fr/";
 
 $xdvi = $ENV{GPXDVI} || "xdvi";
@@ -174,15 +172,13 @@ sub choose_chap {
   else
   {
     die "Cannot find $docfile"
-      if (! -f "$docfile.z" &&
-          ! -f "$docfile.gz" &&
-          ! -f "$docfile.Z" &&
-          ! -f "$docfile.bz2");
+      if (! -f "$docfile.z" && ! -f "$docfile.gz" &&
+          ! -f "$docfile.Z" && ! -f "$docfile.bz2");
     if (-f "$docfile.bz2") {
-        $pipe = $bzcat;
-        $docfile = "$docfile.bz2";
+      $pipe = $bzcat;
+      $docfile = "$docfile.bz2";
     } else {
-        $pipe = $zcat;
+      $pipe = $zcat;
     }
   }
 }
@@ -251,6 +247,11 @@ sub open_viewer_then_quit {
   cleanexit();
 }
 
+sub is_op
+{
+  if (/^[^a-zA-Z0-9]*$/) { $_ = 'GP operators@2'; &choose_chap; }
+}
+
 sub treat {
   my($help);
   $_ = $_[0];
@@ -281,14 +282,14 @@ sub treat {
   }
   &choose_chap;
 
-  if (!$apropos)
+  if ($apropos) { &is_op; }
+  else
   {
     $_ = "users" if (/^$/);
     open_viewer_then_quit($_) if (/^(users|tutorial|refcard|libpari)$/
                                   || /^refcard-/ || /^tutorial-mf$/);
-    if ($transl{$_}) { $_ = $transl{$_}; &choose_chap; }
+    if ($transl{$_}) { $_ = $transl{$_}; &choose_chap; } else { &is_op; }
   }
-  if (/^[^a-zA-Z0-9]*$/) { $_ = 'GP operators@2'; &choose_chap; }
 
   s/(\W)/\\$1/g;
   s/_/\\\\_/g if (!/^se\\:/);
