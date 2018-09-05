@@ -1462,7 +1462,7 @@ select_classpoly_prime_pool(double min_bits, double delta, classgp_pcp_t G)
         setlg(res, ires); return gerepilecopy(av, res);
       }
     }
-    if (t_min[1] >= t_size_lim) {
+    if (uel(t_min,1) >= t_size_lim) {
       /* exhausted all solutions that fit in ulong */
       char *err = stack_sprintf("class polynomial of discriminant %ld", D);
       pari_err(e_ARCH, err);
