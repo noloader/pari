@@ -565,7 +565,8 @@ help(const char *s0, int flag)
   if (isdigit((int)*s)) { digit_help(s,flag); return; }
   if (flag & h_APROPOS) { external_help(s,-1); return; }
   /* Get meaningful answer on '\ps 5' (e.g. from <F1>) */
-  if (*s == '\\') { char *t = s+1; pari_skip_alpha(&t); *t = '\0'; }
+  if (*s == '\\' && isalpha((int)*(s+1)))
+  { char *t = s+1; pari_skip_alpha(&t); *t = '\0'; }
   if (isalpha((int)*s))
   {
     char *t = s;
