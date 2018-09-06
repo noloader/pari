@@ -26,10 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * a projective point (x : y : z) on E by [z*x , z^2*y , z].  This is
  * probably not the fastest representation available for the given
  * problem, but they're easy to implement and up to 60% faster than
- * the school-book method used in Fle_mulu(). */
+ * the school-book method. */
 
 /* Cost: 1M + 8S + 1*a + 10add + 1*8 + 2*2 + 1*3.
- * Source: http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl */
+ * http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl */
 INLINE void
 Flj_dbl_indir_pre(GEN P, GEN Q, ulong a4, ulong p, ulong pi)
 {
@@ -70,7 +70,7 @@ Flj_dbl_pre(GEN P, ulong a4, ulong p, ulong pi)
 }
 
 /* Cost: 11M + 5S + 9add + 4*2.
- * Source: http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-2007-bl */
+ * http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#addition-add-2007-bl */
 INLINE void
 Flj_add_indir_pre(GEN P, GEN Q, GEN R, ulong a4, ulong p, ulong pi)
 {
@@ -92,8 +92,8 @@ Flj_add_indir_pre(GEN P, GEN Q, GEN R, ulong a4, ulong p, ulong pi)
   r = Fl_double(Fl_sub(S2, S1, p), p);
 
   if (H == 0) {
-    if (r == 0) Flj_dbl_indir_pre(P, R, a4, p, pi); /*Points are equal, double*/
-    else { R[1] = R[2] = 1; R[3] = 0; } /* Points are opposite, return zero */
+    if (r == 0) Flj_dbl_indir_pre(P, R, a4, p, pi); /* P = Q */
+    else { R[1] = R[2] = 1; R[3] = 0; } /* P = -Q */
     return;
   }
   I = Fl_sqr_pre(Fl_double(H, p), p, pi);
