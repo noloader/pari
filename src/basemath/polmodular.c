@@ -954,8 +954,7 @@ polmodular_db_add_levels(GEN *db, long *levels, long k, long inv)
 }
 
 GEN
-polmodular_db_for_inv(GEN db, long inv)
-{ return (inv == INV_J)? gel(db,1): gel(db,2); }
+polmodular_db_for_inv(GEN db, long inv) { return gel(db, (inv==INV_J)? 1: 2); }
 
 /* TODO: Also cache modpoly mod p for most recent p (avoid repeated
  * reductions in, for example, polclass.c:oneroot_of_classpoly(). */
