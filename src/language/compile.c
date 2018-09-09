@@ -1651,7 +1651,7 @@ genclosurectx(const char *loc, long nbdata)
 }
 
 static GEN
-genclosure(entree *ep, const char *loc, long  nbdata, int check)
+genclosure(entree *ep, const char *loc, long nbdata, int check)
 {
   pari_sp av = avma;
   struct codepos pos;
