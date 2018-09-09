@@ -71,7 +71,7 @@ Doc:
  Do not mistake \kbd{=} for \kbd{==}: it is the assignment statement.
 
  \subseckbd{+$/$-} The expressions \kbd{+}$x$ and \kbd{-}$x$ refer
- to monadic operators (the first does nothing, the second negates $x$).
+ to monadic operators: the first does nothing, the second negates $x$.
 
  The library syntax is \fun{GEN}{gneg}{GEN x} for \kbd{-}$x$.
 
@@ -184,6 +184,18 @@ Doc:
 
  The library syntax is \fun{GEN}{gmod}{GEN x, GEN y}
  for $x$ \kbd{\%} $y$.
+
+ \subseckbd{\var{op}=} When \var{op} is a binary arithmetic operator among
+ \kbd{+}, \kbd{-}, \kbd{\%}, \kbd{/}, \kbd{\bs} or \kbd{\bs/}, the construct
+ $x \var{op}= y$ is a shortcut for $x = x \var{op} y$.
+ \bprog
+ ? v[1] += 10  \\ increment v[1] by 10
+ ? a /= 2 \\ divide a by 2
+ @eprog
+
+ \subseckbd{++} \kbd{$x$++} is a shortcut for \kbd{$x$ = $x$ + 1}.
+
+ \subseckbd{--} \kbd{$x$--} is a shortcut for \kbd{$x$ = $x$ - 1}.
 
  \subseckbd{\pow} The expression $x\hbox{\kbd{\pow}}n$ is \idx{powering}.
 
