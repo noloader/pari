@@ -40,6 +40,29 @@ _\_             @\bs
 _\/_            @\bs/
 _%_             @\%
 _^_             @\pow
+&&              @Boolean operators
+||              @Boolean operators
+_&&_            @Boolean operators
+_||_            @Boolean operators
+!_              @Boolean operators
+<               @Comparison
+_<_             @Comparison
+>               @Comparison
+_>_             @Comparison
+>=              @Comparison
+_>=_            @Comparison
+_<=_            @Comparison
+==              @Equality
+!==             @Equality
+<>              @Equality
+_<>_            @Equality
+===             @Equality
+_==_            @Equality
+_!=_            @Equality
+_===_           @Equality
+!==             @Equality
+_!==_           @Equality
+_!              @factorial
 operator        @GP operators@2
 and             @GP operators@2
 or              @GP operators@2

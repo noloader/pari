@@ -2748,8 +2748,7 @@ These names are in general not informative enough. More details can be
 obtained by typing \kbd{?\var{function}}, which gives a short explanation of
 the function's calling convention and effects. A help string is also attached
 to a symbolic operator, where arguments are replaced by a placeholder
-character \kbd{\_}
-
+character \kbd{\_}:
 \bprog
  ?  ?sin
  sin(x): sine of x.
@@ -2786,10 +2785,9 @@ e.g.~\kbd{readline} (the line editor), \kbd{integer}, \kbd{nf} (``number
 field'' as used in most algebraic number theory computations), \kbd{ell}
 (elliptic curves), etc.
 
-In case of conflicts between \emph{function} and \emph{default} names
-(e.g \tet{log},
-\tet{simplify}), the function has higher priority. To get the \emph{default}
-help, use
+In case of conflicts between \emph{function} and \emph{default} names (e.g
+\tet{log}, \tet{simplify}), the function has higher priority. To get the
+\emph{default} help, use
 \bprog
   ?? default(log)
   ?? default(simplify)

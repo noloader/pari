@@ -161,4 +161,8 @@ f =
 g =
   ()->0
 
+a&&b: boolean operator "and".
+
+x==y: return 1 if x and y are equal, 0 otherwise.
+
 Total time spent: 0
