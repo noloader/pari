@@ -914,35 +914,18 @@ Fl_addmul5(
 GEN
 polmodular_db_init(long inv)
 {
-  GEN res, jdb, fdb;
-  enum { DEFAULT_MODPOL_DB_LEN = 32 };
-
-  res = cgetg_block(2 + 1, t_VEC);
-  jdb = zerovec_block(DEFAULT_MODPOL_DB_LEN);
-  gel(res, 1) = jdb;
-  if (inv != INV_J) {
-    fdb = zerovec_block(DEFAULT_MODPOL_DB_LEN);
-    gel(res, 2) = fdb;
-  } else {
-    gel(res, 2) = gen_0;
-  }
+  const long LEN = 32;
+  GEN res = cgetg_block(3, t_VEC);
+  gel(res, 1) = zerovec_block(LEN);
+  gel(res, 2) = (inv == INV_J)? gen_0: zerovec_block(LEN);
   return res;
 }
 
 void
 polmodular_db_add_level(GEN *DB, long L, long inv)
 {
-  long max_L;
-  GEN db;
-
-  if (inv == INV_J) {
-    db = gel(*DB, 1);
-  } else {
-    db = gel(*DB, 2);
-    if ( isintzero(db)) pari_err_BUG("polmodular_db_add_level");
-  }
-
-  max_L = lg(db) - 1;
+  GEN db = gel(*DB, (inv == INV_J)? 1: 2);
+  long max_L = lg(db) - 1;
   if (L > max_L) {
     GEN newdb;
     long i, newlen = 2 * L;
