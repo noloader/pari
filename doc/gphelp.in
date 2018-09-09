@@ -249,7 +249,8 @@ sub open_viewer_then_quit {
 
 sub is_op
 {
-  if (/^[^a-zA-Z0-9]*$/) { $_ = 'GP operators@2'; &choose_chap; }
+  return if (/^ $/ || !/^[^a-zA-Z0-9]*$/);
+  $_ = 'GP operators@2'; &choose_chap;
 }
 
 sub treat {
@@ -288,7 +289,12 @@ sub treat {
     $_ = "users" if (/^$/);
     open_viewer_then_quit($_) if (/^(users|tutorial|refcard|libpari)$/
                                   || /^refcard-/ || /^tutorial-mf$/);
-    if ($transl{$_}) { $_ = $transl{$_}; &choose_chap; } else { &is_op; }
+    if ($transl{$_}) { $_ = $transl{$_}; &choose_chap; }
+    else {
+      my ($s) = $_;
+      if ($s =~ s/=(_?)$/$1/ && $transl{$s}) { $_ = $transl{$s}; &choose_chap; }
+      else { &is_op; }
+    }
   }
 
   s/(\W)/\\$1/g;

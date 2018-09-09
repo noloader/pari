@@ -41,6 +41,7 @@ BA   6- [libpari] ZpX_ZpXQ_liftroot_ea: change interface for 'early'
         error)
      8- support ?? _+_ and friends [extended help for specific operators
         instead of redirecting to "GP operators"]
+     9- support ?? _op=_ and ?? op= [ return help for 'op' ]
 
   Added
      1- [libpari] nonsquare_Fl
