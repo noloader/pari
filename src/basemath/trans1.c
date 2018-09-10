@@ -1114,10 +1114,14 @@ gpow(GEN x, GEN n, long prec)
   if (gequal0(x)) return gpow0(x, n, prec);
   if (tn == t_FRAC)
   {
-    GEN z, d = gel(n,2), a = gel(n,1);
+    GEN z, a = gel(n,1), d = gel(n,2);
     long D;
     switch (tx)
     {
+    case t_INT:
+    case t_FRAC:
+      if (ispower(x, d, &z)) return powgi(z, a);
+      break;
     case t_INTMOD:
       {
         GEN p = gel(x,1);

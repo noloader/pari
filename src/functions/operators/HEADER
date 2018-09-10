@@ -200,49 +200,71 @@ Doc:
  \subseckbd{\pow} The expression $x\hbox{\kbd{\pow}}n$ is \idx{powering}.
 
  \item If the exponent $n$ is an integer, then exact operations are performed
- using binary (left-shift) powering techniques. If $x$ is a $p$-adic number, its
- precision will increase if $v_p(n) > 0$. Powering a binary quadratic form
- (types \typ{QFI} and \typ{QFR}) returns a representative of the class, which is
- always reduced if the input was. (In particular, \kbd{x \pow 1} returns $x$
- itself, whether it is reduced or not.)
-
- PARI is able to rewrite the multiplication $x * x$ of two \emph{identical}
- objects as $x^2$, or $\kbd{sqr}(x)$. Here, identical means the operands are
- two different labels referencing the same chunk of memory; no equality test
- is performed. This is no longer true when more than two arguments are
- involved.
-
- \item If the exponent $n$ is not an integer, powering is treated as the
- transcendental function $\exp(n\log x)$, and in particular acts
- componentwise on vector or matrices, even square matrices ! (See
- \secref{se:trans}.)
-
- \item As an exception, if the exponent is a rational number $p/q$ and $x$ an
- integer modulo a prime or a $p$-adic number, return a solution $y$ of
- $y^q=x^p$ if it exists. Currently, $q$ must not have large prime factors.
- Beware that
+ using binary (left-shift) powering techniques. By definition, $x^0$ is
+ (an empty product interpreted as) an exact $1$ in the underlying prime
+ ring:
  \bprog
- ? Mod(7,19)^(1/2)
- %1 = Mod(11, 19) /* is any square root */
- ? sqrt(Mod(7,19))
- %2 = Mod(8, 19)  /* is the smallest square root */
- ? Mod(7,19)^(3/5)
- %3 = Mod(1, 19)
- ? %3^(5/3)
- %4 = Mod(1, 19)  /* Mod(7,19) is just another cubic root */
+ ? 0.0 ^ 0
+ %1 = 1
+ ? (1 + O(2^3)) ^ 0
+ %2 = 1
+ ? (1 + O(x)) ^ 0
+ %3 = 1
+ ? Mod(2,4)^0
+ %4 = Mod(1,4)
+ ? Mod(x,x^2)^0
+ %5 = Mod(1, x^2)
+ @eprog\noindent
+ If $x$ is a $p$-adic number, its precision will increase if $v_p(n) > 0$ and
+ $n \neq 0$. Powering a binary quadratic form (types \typ{QFI} and
+ \typ{QFR}) returns a representative of the class, which is reduced if the
+ input was. (In particular, \kbd{x \pow 1} returns $x$ itself, whether it is
+ reduced or not.)
+
+ PARI rewrites the multiplication $x * x$ of two \emph{identical}
+ objects as $x^2$. Here, identical means the operands are reference the same
+ chunk of memory; no equality test is performed. This is no longer true when
+ more than two arguments are involved.
+ \bprog
+ ? a = 1 + O(2); b = a;
+ ? a * a  \\ = a^2, precision increases
+ %2 = 1 + O(2^3)
+ ? a * b \\ not rewritten as a^2
+ %3 = 1 + O(2)
+ ? a*a*a \\ not rewritten as a^3
+ %4 = 1 + O(2)
  @eprog
 
- \item If the exponent is a negative integer, an \idx{inverse} must be computed.
- For non-invertible \typ{INTMOD} $x$, this will fail and implicitly exhibit a
- non trivial factor of the modulus:
+ \item If the exponent is a rational number $p/q$, return a solution $y$ of
+ $y^q = x^p$ if it exists. Beware that this is defined up to $q$-th roots of 1
+ in the base field. Intmods modulo composite numbers are not supported.
+ \bprog
+ ? 4^(1/2)  \\ 4 being a square, this is exact
+ %1 = 2
+ ? 2^(1/2)  \\ now inexact
+ %2 = 1.4142135623730950488016887242096980786
+ ? Mod(7,19)^(1/2)
+ %3 = Mod(11, 19) \\ is any square root
+ ? sqrt(Mod(7,19))
+ %4 = Mod(8, 19)  \\ is the smallest square root
+
+ ? Mod(1,4)^(1/2)
+  ***   at top-level: Mod(1,4)^(1/2)
+  ***                         ^------
+  *** _^_: not a prime number in gpow: 4.
+ @eprog
+
+ \item If the exponent is a negative integer or rational number,
+ an \idx{inverse} must be computed. For non-invertible \typ{INTMOD} $x$, this
+ will fail and (for $n$ an integer) implicitly exhibit a factor of the modulus:
  \bprog
  ? Mod(4,6)^(-1)
    ***   at top-level: Mod(4,6)^(-1)
    ***                         ^-----
    *** _^_: impossible inverse modulo: Mod(2, 6).
  @eprog\noindent
- (Here, a factor 2 is obtained directly. In general, take the gcd of the
- representative and the modulus.) This is most useful when performing
+ Here, a factor 2 is obtained directly. In general, take the gcd of the
+ representative and the modulus. This is most useful when performing
  complicated operations modulo an integer $N$ whose factorization is
  unknown. Either the computation succeeds and all is well, or a factor $d$
  is discovered and the computation may be restarted modulo $d$ or $N/d$.
@@ -254,7 +276,7 @@ Doc:
    ***                               ^-----
    *** _^_: impossible inverse in RgXQ_inv: Mod(x^2, x^3 - x).
  @eprog\noindent Note that the underlying algorihm (subresultant) assumes
- the base ring is a domain:
+ that the base ring is a domain:
  \bprog
  ? a = Mod(3*y^3+1, 4); b = y^6+y^5+y^4+y^3+y^2+y+1; c = Mod(a,b);
  ? c^(-1)
@@ -264,7 +286,7 @@ Doc:
  @eprog\noindent
  In fact $c$ is invertible, but $\Z/4\Z$ is not a domain and the algorithm
  fails. It is possible for the algorithm to succeed in such situations
- and any returned result will be correct, but chances are an error
+ and any returned result will be correct, but chances are that an error
  will occur first. In this specific case, one should work with $2$-adics.
  In general, one can also try the following approach
  \bprog
@@ -293,6 +315,20 @@ Doc:
  ? x^(-1)
  %2 =
  [1 0]
+ @eprog
+
+ \item Finally, if the exponent $n$ is not an rational number, powering is
+ treated as the transcendental function $\exp(n\log x)$, and in particular acts
+ componentwise on vector or matrices, even square matrices ! (See
+ \secref{se:trans}.) If $x$ is $0$ and $n$ is an inexact $0$, this will raise
+ an exception:
+ \bprog
+ ? 4 ^ 1.0
+ %1 = 4.0000000000000000000000000000000000000
+ ? 0^ 0.0
+  ***   at top-level: 0^0.0
+  ***                  ^----
+  *** _^_: domain error in gpow(0,n): n <= 0
  @eprog
 
  The library syntax is \fun{GEN}{gpow}{GEN x, GEN n, long prec}
