@@ -891,19 +891,16 @@ static GEN
 lfunellnf(GEN e)
 {
   pari_sp av = avma;
-  GEN ldata;
-  GEN nf = ellnf_get_nf(e);
-  GEN g = ellglobalred(e);
-  GEN N = idealnorm(nf,gel(g,1)), d2 = sqri(nf_get_disc(nf));
+  GEN ldata = cgetg(7, t_VEC), nf = ellnf_get_nf(e);
+  GEN N = gel(ellglobalred(e), 1);
   long n = nf_get_degree(nf);
-  ldata = cgetg(7, t_VEC);
   gel(ldata, 1) = tag(e, t_LFUN_ELL);
   gel(ldata, 2) = gen_0;
   gel(ldata, 3) = vec01(n, n);
   gel(ldata, 4) = gen_2;
-  gel(ldata, 5) = mulii(d2,N);
+  gel(ldata, 5) = mulii(idealnorm(nf,N), sqri(nf_get_disc(nf)));
   gel(ldata, 6) = stoi(ellrootno_global(e));
-  return gerepileupto(av, ldata);
+  return gerepilecopy(av, ldata);
 }
 
 static GEN
@@ -915,7 +912,7 @@ lfunellQ(GEN e)
   gel(ldata, 2) = gen_0;
   gel(ldata, 3) = mkvec2(gen_0, gen_1);
   gel(ldata, 4) = gen_2;
-  gel(ldata, 5) = icopy(ellQ_get_N(e));
+  gel(ldata, 5) = ellQ_get_N(e);
   gel(ldata, 6) = stoi(ellrootno_global(e));
   return gerepilecopy(av, ldata); /* ellanal_globalred not gerepile-safe */
 }

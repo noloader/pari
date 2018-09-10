@@ -26,6 +26,7 @@ HC   9- incgam(-1000.4,2) -> SEGV
     17- wrong result in mfsymboleval when path extremities are close to real
         axis (cusps were OK) [#2075]
     18- mfcoefs(mfDelta(),0) -> SEGV [#2078]
+    19- GC error in lfuncreate(elliptic curve over number field) [#2080]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
