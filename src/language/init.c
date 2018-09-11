@@ -77,13 +77,11 @@ static const ulong readonly_constants[] = {
   evaltyp(t_INT) | _evallg(3),  /* gen_m2 */
   evalsigne(-1) | evallgefint(3),
   2,
+  evaltyp(t_ERROR) | _evallg(2), /* err_e_STACK */
+  e_STACK,
   evaltyp(t_FRAC) | _evallg(3), /* ghalf */
   (ulong)(readonly_constants+4),
   (ulong)(readonly_constants+7)
-};
-static const ulong readonly_err_STACK[] = {
-  evaltyp(t_ERROR) | _evallg(2),
-  e_STACK
 };
 THREAD GEN bernzone, primetab;
 byteptr diffptr;
@@ -506,8 +504,8 @@ init_universal_constants(void)
   gen_2  = (GEN)readonly_constants+7;
   gen_m1 = (GEN)readonly_constants+10;
   gen_m2 = (GEN)readonly_constants+13;
-  ghalf  = (GEN)readonly_constants+16;
-  err_e_STACK = (GEN)readonly_err_STACK;
+  err_e_STACK = (GEN)readonly_constants+16;
+  ghalf  = (GEN)readonly_constants+18;
 }
 
 static void
