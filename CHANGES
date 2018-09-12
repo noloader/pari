@@ -28,6 +28,7 @@ HC   9- incgam(-1000.4,2) -> SEGV
     18- mfcoefs(mfDelta(),0) -> SEGV [#2078]
     19- GC error in lfuncreate(elliptic curve over number field) [#2080]
     20- X11 and Qt graphic engine: pari_close called too soon => crash
+    21- pariold.h: mix up with obsoleted  taille / taille2
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

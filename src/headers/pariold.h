@@ -96,8 +96,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define greffe(x,y,z) (RgX_to_ser(x,y))
 #define newbloc newblock
 #define killbloc killblock
-#define taille2 gsizeword
-#define taille gsizebyte
+#define taille2 gsizebyte
+#define taille gsizeword
 #define polymodrecip modreverse
 #define primedec idealprimedec
 #define initalg nfinit
