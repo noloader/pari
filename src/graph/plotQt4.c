@@ -386,7 +386,6 @@ static void
 draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
   if (pari_daemon()) return;  // parent process returns
-  pari_close();
 
   // launch Qt window
   int argc = 1;                         // set argc = 2 for cross
@@ -394,7 +393,8 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   QApplication a(argc, (char**) argv);
   PlotWindow *win = new PlotWindow(T, w, x, y);
   win->show();
-  a.exec(); exit(0);
+  a.exec();
+  pari_close(); exit(0);
 }
 
 INLINE void

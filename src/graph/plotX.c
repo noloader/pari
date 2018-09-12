@@ -177,7 +177,6 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   Atom wm_delete_window, wm_protocols;
 
   if (pari_daemon()) return;  /* parent process returns */
-  pari_close();
 
   display = XOpenDisplay(NULL);
   if (!display) exiterr("cannot open Display");
@@ -236,6 +235,7 @@ draw(PARI_plot *T, GEN w, GEN x, GEN y)
   plotX.pl = T;
   plotX.data = (void*)&dx;
 
+  pari_close();
   for(;;)
   {
     XNextEvent(display, &event);
