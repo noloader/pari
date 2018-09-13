@@ -1477,7 +1477,7 @@ cos12(GEN s3)
 static GEN
 gammafrac24_s(long n, long d, long prec)
 {
-  GEN A, B, C, s2, s3, pi = mppi(prec);
+  GEN A, B, s2, s3, pi = mppi(prec);
   s2 = sqrtu(2, prec);
   s3 = d % 3? NULL: sqrtu(3, prec);
   switch(d)
@@ -1532,7 +1532,7 @@ gammafrac24_s(long n, long d, long prec)
       }
     default: /* n = 24 */
       if (n > 12)
-      { /* FIXME */
+      {
         GEN t;
         n = 24 - n;
         A = Gn24(n, s2,s3, prec);
@@ -1541,7 +1541,7 @@ gammafrac24_s(long n, long d, long prec)
           case 1: t = cos12(s3); t = sinx2(t); break;
           case 5: t = sin12(s3); t = sinx2(t); break;
           case 7: t = sin12(s3); togglesign(t); t = sinx2(t); break;
-          case 11:t = cos12(s3); togglesign(t); t = sinx2(t); break;
+          default:t = cos12(s3); togglesign(t); t = sinx2(t); break; /* n=11 */
         }
         return divrr(pi, mulrr(A, t));
       }
