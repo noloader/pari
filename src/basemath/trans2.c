@@ -1171,7 +1171,7 @@ cxgamma(GEN s0, int dolog, long prec)
  * n = [1450, 1930, 2750, 3400, 4070, 5000, 6000, 8800, 26000, 50000, 130000,
  *      380000, 1300000, 6000000]; */
 static long
-gammah_n(long prec)
+gamma2_n(long prec)
 {
   long b = bit_accuracy(prec);
   if (b <=  64) return 1450;
@@ -1192,7 +1192,7 @@ gammahs(long m, long prec)
   pari_sp av = avma;
   long ma = labs(m);
 
-  if (ma > gammah_n(prec))
+  if (ma > gamma2_n(prec))
   {
     z = stor(m + 1, prec); shiftr_inplace(z, -1);
     affrr(cxgamma(z,0,prec), y);
@@ -1397,23 +1397,195 @@ serlngamma(GEN y, long prec)
   return z;
 }
 
-/* If 0 < x < y
-gamma(x/y + m) = gamma(x/y) * mulu_interval_step(x, x+(m-1)*y, y) / y^m
-gamma(x/y - m) = gamma(x/y) / mulu_interval_step(y-x, y*m-x, y) * (-y)^m */
+static GEN
+sqrtu(ulong a, long prec) { return sqrtr_abs(utor(a, prec)); }
+static GEN
+cbrtu(ulong a, long prec) { return sqrtnr_abs(utor(a, prec), 3); }
+/* N | 6 */
+static GEN
+ellkprime(long N, GEN s2, GEN s3, long prec)
+{
+  GEN z;
+  switch(N)
+  {
+    case 1: return shiftr(s2, -1);
+    case 2: return sqrtr_abs(shiftr(subrs(s2,1), 1));
+    case 3: return shiftr(mulrr(s2, addrs(s3, 1)), -2);
+    default: /* 6 */
+      z = mulrr(subrr(s3,s2), subsr(2,s3));
+      return mulrr(addsr(2,s2), sqrtr_abs(z));
+  }
+}
+
+static GEN
+ellKk(long N, GEN s2, GEN s3, long prec)
+{ return gdiv(Pi2n(-1,prec), agm(ellkprime(N,s2,s3,prec), gen_1, prec)); }
+
+/* Gamma(1/3) */
+static GEN
+G3(GEN s2, GEN s3, long prec)
+{
+  GEN A = ellKk(3, s2,s3, prec), pi = mppi(prec);
+  A = shiftr(divrs(powrs(mulrr(pi, A), 12), 27), 28);
+  return sqrtnr_abs(A, 36);
+}
+/* Gamma(1/4) */
+static GEN
+G4(GEN s2, long prec)
+{
+  GEN A = ellKk(1, s2,NULL, prec), pi = mppi(prec);
+  return shiftr(sqrtr_abs(mulrr(sqrtr_abs(pi), A)), 1);
+}
+
+/* Gamma(n / 24), n = 1,5,7,11 */
+static GEN
+Gn24(long n, GEN s2, GEN s3, long prec)
+{
+  GEN A, B, C, t, t1, t2, t3, t4, pi = mppi(prec);
+  A = ellKk(1, s2,s3, prec);
+  B = ellKk(3, s2,s3, prec);
+  C = ellKk(6, s2,s3, prec);
+  t1 = sqrtr_abs(mulur(3, addsr(2, s3)));
+  t2 = sqrtr_abs(divrr(s3, pi));
+  t2 = mulrr(t2, shiftr(mulrr(addrr(s2,s3), A), 2));
+  t3 = mulrr(divur(3,pi), sqrr(B));
+  t3 = mulrr(addsr(2,s2), sqrtnr_abs(shiftr(powrs(t3, 3), 8), 9));
+  t4 = mulrr(mulrr(addsr(1, s2), subrr(s3, s2)), subsr(2, s3));
+  t4 = mulrr(mulrr(mulur(384, t4), pi), sqrr(C));
+  switch (n)
+  {
+    case 1: t = mulrr(mulrr(t1, t2), mulrr(t3, t4)); break;
+    case 5: t = divrr(mulrr(t2, t4), mulrr(t1, t3)); break;
+    case 7: t = divrr(mulrr(t3, t4), mulrr(t1, t2)); break;
+    default:t = divrr(mulrr(t1, t4), mulrr(t2, t3)); break;
+  }
+  return sqrtnr_abs(t, 4);
+}
+/* sin(x/2) = sqrt((1-c) / 2) > 0 given c = cos(x) */
+static GEN
+sinx2(GEN c)
+{ c = subsr(1, c); shiftr_inplace(c,-1); return sqrtr_abs(c); }
+/* sin(Pi/12), given sqrt(3) */
+static GEN
+sin12(GEN s3)
+{ GEN t = subsr(2, s3); shiftr_inplace(t, -2); return sqrtr_abs(t); }
+/* cos(Pi/12) = sin(5Pi/12), given sqrt(3) */
+static GEN
+cos12(GEN s3)
+{ GEN t = addsr(2, s3); shiftr_inplace(t, -2); return sqrtr_abs(t); }
+/* 0 < n < d, (n, d) = 1, 2 < d | 24 */
+static GEN
+gammafrac24_s(long n, long d, long prec)
+{
+  GEN A, B, C, s2, s3, pi = mppi(prec);
+  s2 = sqrtu(2, prec);
+  s3 = d % 3? NULL: sqrtu(3, prec);
+  switch(d)
+  {
+    case 3:
+      A = G3(s2,s3,prec);
+      if (n == 1) return A;
+      return divrr(Pi2n(1, prec), mulrr(s3, A));
+    case 4:
+      A = G4(s2,prec);
+      if (n == 1) return A;
+      return divrr(mulrr(pi, s2), A);
+    case 6:
+      A = sqrr(G3(s2,s3,prec));
+      A = mulrr(A, sqrtr_abs(divsr(3, pi)));
+      A = divrr(A, cbrtu(2, prec));
+      if (n == 1) return A;
+      return divrr(Pi2n(1, prec), A);
+    case 8:
+      A = ellKk(1, s2,s3, prec);
+      B = ellKk(2, s2,s3, prec);
+      A = shiftr(sqrtr_abs(divrr(mulrr(addsr(1, s2), A), sqrtr_abs(pi))), 1);
+      B = shiftr(mulrr(sqrtr_abs(gmul(subrs(s2, 1), mulrr(s2, pi))), B), 3);
+      switch (n)
+      {
+        GEN t;
+        case 1: return sqrtr_abs(mulrr(A, B));
+        case 3: return sqrtr_abs(divrr(B, A));
+        case 5: A = sqrtr_abs(divrr(B, A));
+          t = sqrtr_abs(shiftr(addsr(1, shiftr(s2, -1)), -1)); /*sin(3Pi/8)*/
+          return divrr(pi, mulrr(t, A));
+        default: A = sqrtr_abs(mulrr(A, B));
+          t = sqrtr_abs(shiftr(subsr(1, shiftr(s2, -1)), -1)); /*sin(Pi/8)*/
+          return divrr(pi, mulrr(t, A));
+      }
+    case 12:
+      A = G3(s2,s3,prec);
+      B = G4(s2,prec);
+      switch (n)
+      {
+        GEN t2;
+        case 1: case 11:
+          t2 = shiftr(mulur(27, powrs(divrr(addsr(1,s3), pi), 4)), -2);
+          t2 = mulrr(sqrtnr_abs(t2, 8), mulrr(A, B));
+          if (n == 1) return t2;
+          return divrr(pi, mulrr(sin12(s3), t2));
+        case 5: case 7:
+          t2 = shiftr(divrs(powrs(mulrr(subrs(s3,1), pi), 4), 3), 2);
+          t2 = mulrr(sqrtnr_abs(t2, 8), divrr(B, A));
+          if (n == 5) return t2;
+          return divrr(pi, mulrr(cos12(s3), t2));
+      }
+    default: /* n = 24 */
+      if (n > 12)
+      { /* FIXME */
+        GEN t;
+        n = 24 - n;
+        A = Gn24(n, s2,s3, prec);
+        switch(n)
+        { /* t = sin(n*Pi/24) */
+          case 1: t = cos12(s3); t = sinx2(t); break;
+          case 5: t = sin12(s3); t = sinx2(t); break;
+          case 7: t = sin12(s3); togglesign(t); t = sinx2(t); break;
+          case 11:t = cos12(s3); togglesign(t); t = sinx2(t); break;
+        }
+        return divrr(pi, mulrr(A, t));
+      }
+      return Gn24(n, s2,s3, prec);
+  }
+}
+
+/* (a,b) = 1. If 0 < x < b, m >= 0
+gamma(x/b + m) = gamma(x/b) * mulu_interval_step(x, x+(m-1)*b, b) / b^m
+gamma(x/b - m) = gamma(x/b) / mulu_interval_step(b-x, b*m-x, b) * (-b)^m */
 static GEN
 gammafrac24(GEN a, GEN b, long prec)
 {
-  long A, B;
+  pari_sp av;
+  long A, B, m, x, bit;
+  GEN z0, z, t;
   if (!(A = itos_or_0(a)) || !(B = itos_or_0(b)) || B > 24) return NULL;
   switch(B)
   {
     case 2: return gammahs(A-1, prec);
-    case 3:
-    case 4:
-    case 6:
-    case 8:
-    case 12:
-    case 24: return NULL;
+    case 3: case 4: case 6: case 8: case 12: case 24:
+      m = A / B;
+      x = A % B; /* = A - m*B */
+      if (x < 0) { x += B; m--; } /* now 0 < x < B, A/B = x/B + m */
+      bit = bit_accuracy(prec);
+      /* Depending on B and prec, we must experimentally replace the 0.5
+       * by 0.4 to 2.0 for optimal value. Play safe. */
+      if (labs(m) > 0.5 * bit * sqrt(bit) / log(bit)) return NULL;
+      z0 = cgetr(prec); av = avma;
+      prec += EXTRAPRECWORD;
+      z = gammafrac24_s(x, B, prec);
+      if (m)
+      {
+        if (m > 0)
+          t = mpdiv(mulu_interval_step(x, (m-1)*B + x, B), rpowuu(B,m,prec));
+        else
+        {
+          m = -m;
+          t = mpdiv(rpowuu(B,m,prec), mulu_interval_step(B-x, m*B - x, B));
+          if (odd(m)) togglesign(t);
+        }
+        z = mpmul(z,t);
+      }
+      affrr(z, z0); set_avma(av); return z0;
   }
   return NULL;
 }

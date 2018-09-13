@@ -46,6 +46,7 @@ BA   6- [libpari] ZpX_ZpXQ_liftroot_ea: change interface for 'early'
         instead of redirecting to "GP operators"]
      9- support ?? _op=_ and ?? op=; support ?? _++ and friends
     10- x ^ t_FRAC: return an exact result if possible; e.g. 4^(1/2) is now 2
+HC  11- gamma(t_FRAC) use direct formula when denom | 24
 
   Added
      1- [libpari] nonsquare_Fl
