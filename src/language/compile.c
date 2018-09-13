@@ -849,6 +849,7 @@ compilematcoeff(long n, int mode)
       compilenode(tree[yy].y,Gsmall,0);
       op_push(OCcallgen,(long)is_entry("_[_.._,_.._]"),n);
     }
+    compilecast(n,Gvec,mode);
     return;
   default:
     pari_err_BUG("compilematcoeff");
