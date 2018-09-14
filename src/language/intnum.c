@@ -217,7 +217,7 @@ intnumgaussinit(long n, long prec)
 {
   pari_sp ltop = avma;
   GEN L, dp1, p1, p2, R, W;
-  long prec0 = prec + EXTRAPRECWORD;
+  long prec0 = prec + EXTRAPREC;
   long bitprec = prec2nbits(prec), i, d1;
   if (n <= 0) n = (long)(bitprec*0.2258);
   if (odd(n)) n++;
@@ -1645,7 +1645,7 @@ sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
   double bit = 2*prec2nbits(prec) / gtodouble(ga), D = bit*M_LN2;
   double da = maxdd(1., gtodouble(a));
   long n = (long)ceil(D / (da*(log(D)-1)));
-  long j, prec2, prec0 = prec + EXTRAPRECWORD;
+  long j, prec2, prec0 = prec + EXTRAPREC;
   double bit0 = ceil((2*n+1)*LOG2_10);
   int neg = 1;
   struct mon_w S;
@@ -1800,7 +1800,7 @@ sumnuminit(GEN fast, long prec)
   N = (long)ceil(M_LN2*bitprec/(w*(1+w))+5);
   k = (long)ceil(N*w); if (k&1) k--;
 
-  prec += EXTRAPRECWORD;
+  prec += EXTRAPREC;
   k2 = k/2;
   s = RgX_to_ser(monomial(real_1(prec),1,0), k+3);
   s = gmul2n(gasinh(s, prec), 2); /* asinh(x)/d, d = 1/4 */
@@ -1827,7 +1827,7 @@ sumnuminit(GEN fast, long prec)
   gel(res, 2) = utoi(N);
   gel(res, 3) = utoi(k);
   if (!fast) fast = get_oo(gen_0);
-  gel(res, 5) = intnuminit(gel(res,2), fast, 0, prec - EXTRAPRECWORD);
+  gel(res, 5) = intnuminit(gel(res,2), fast, 0, prec - EXTRAPREC);
   return res;
 }
 
@@ -1862,7 +1862,7 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
   k = itos(gel(tab,3));
   v = gel(tab,4);
   tabint = gel(tab,5);
-  prec2 = prec+EXTRAPRECWORD;
+  prec2 = prec+EXTRAPREC;
   av2 = avma;
   S = gmul(eval(E, stoi(N)), real2n(-1,prec2));
   for (m = as; m < N; m++)
@@ -1905,7 +1905,7 @@ intnumgauexpinit(long prec)
 {
   pari_sp ltop = avma;
   GEN V, N, E, P, Q, R, vabs, vwt;
-  long l, n, k, j, prec2, prec0 = prec + EXTRAPRECWORD, bit = prec2nbits(prec);
+  long l, n, k, j, prec2, prec0 = prec + EXTRAPREC, bit = prec2nbits(prec);
 
   n = (long)ceil(bit*0.226);
   n |= 1; /* make n odd */
