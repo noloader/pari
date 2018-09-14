@@ -1403,7 +1403,7 @@ static GEN
 cbrtu(ulong a, long prec) { return sqrtnr_abs(utor(a, prec), 3); }
 /* N | 6 */
 static GEN
-ellkprime(long N, GEN s2, GEN s3, long prec)
+ellkprime(long N, GEN s2, GEN s3)
 {
   GEN z;
   switch(N)
@@ -1419,7 +1419,7 @@ ellkprime(long N, GEN s2, GEN s3, long prec)
 
 static GEN
 ellKk(long N, GEN s2, GEN s3, long prec)
-{ return gdiv(Pi2n(-1,prec), agm(ellkprime(N,s2,s3,prec), gen_1, prec)); }
+{ return gdiv(Pi2n(-1,prec), agm(ellkprime(N,s2,s3), gen_1, prec)); }
 
 /* Gamma(1/3) */
 static GEN
