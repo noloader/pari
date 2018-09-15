@@ -146,10 +146,10 @@ millerrabin(GEN n, long k)
   {
     do r = umodui(pari_rand(), n); while (!r);
     if (DEBUGLEVEL > 4) err_printf("Miller-Rabin: testing base %ld\n", r);
-    if (bad_for_base(&S, utoipos(r))) { set_avma(av); return 0; }
+    if (bad_for_base(&S, utoipos(r))) return gc_long(av,0);
     set_avma(av2);
   }
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 
 GEN
@@ -229,9 +229,9 @@ MR_Jaeschke(GEN n)
   if (lgefint(n) == 3) return Fl_MR_Jaeschke(uel(n,2), 17);
   if (!mod2(n)) return 0;
   av = avma; init_MR_Jaeschke(&S, n);
-  if (bad_for_base(&S, utoipos(31))) { set_avma(av); return 0; }
-  if (bad_for_base(&S, utoipos(73))) { set_avma(av); return 0; }
-  set_avma(av); return 1;
+  if (bad_for_base(&S, utoipos(31)) || bad_for_base(&S, utoipos(73)))
+    return gc_bool(av,0);
+  return gc_bool(av,1);
 }
 
 /*********************************************************************/
@@ -565,10 +565,8 @@ BPSW_psp(GEN N)
       !iu_coprime(N, 4269855901UL)) return 0;
 #endif
   /* no prime divisor < 103 */
-  av = avma;
-  init_MR_Jaeschke(&S, N);
-  k = (!bad_for_base(&S, gen_2) && IsLucasPsP(N));
-  set_avma(av); return k;
+  av = avma; init_MR_Jaeschke(&S, N);
+  return gc_long(av, (!bad_for_base(&S, gen_2) && IsLucasPsP(N)));
 }
 
 /* can we write n = x^k ? Assume N has no prime divisor <= 2^14.
@@ -601,13 +599,10 @@ BPSW_psp_nosmalldiv(GEN N)
   av = avma;
   /* N large: test for pure power, rarely succeeds, but requires < 1% of
    * compositeness test times */
-  if (bit_accuracy(l) > 512 && isanypower_nosmalldiv(N, &N) != 1)
-  {
-    set_avma(av); return 0;
-  }
+  if (bit_accuracy(l) > 512 && isanypower_nosmalldiv(N,&N) != 1)
+    return gc_long(av,0);
   init_MR_Jaeschke(&S, N);
-  k = (!bad_for_base(&S, gen_2) && IsLucasPsP(N));
-  set_avma(av); return k;
+  return gc_long(av, !bad_for_base(&S, gen_2) && IsLucasPsP(N));
 }
 
 /***********************************************************************/
@@ -818,7 +813,7 @@ BPSW_isprime(GEN N)
     t = expi(N) < 768? isprimeAPRCL(N): isprimeECPP(N);
   else
     t = (typ(P) == t_INT)? 0: PL_certify(N,P);
-  set_avma(av); return t;
+  return gc_long(av,t);
 }
 
 static long
@@ -826,7 +821,7 @@ _isprimePL(GEN x)
 {
   pari_sp av = avma;
   if (!BPSW_psp(x)) return 0;
-  x = isprimePL(x); set_avma(av); return !isintzero(x);
+  return gc_long(av, !isintzero(isprimePL(x)));
 }
 GEN
 gisprime(GEN x, long flag)
@@ -1084,7 +1079,7 @@ uprime(long N)
   if (N <= 0) pari_err_DOMAIN("prime", "n", "<=",gen_0, stoi(N));
   p = prime_table_find_n(N);
   if (lgefint(p) != 3) pari_err_OVERFLOW("uprime");
-  set_avma(av); return p[2];
+  return gc_ulong(av, p[2]);
 }
 GEN
 prime(long N)

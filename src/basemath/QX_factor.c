@@ -749,7 +749,7 @@ pick_prime(GEN a, long fl, pari_timer *T)
     }
     np++;
   }
-  set_avma(av); return chosenp;
+  return gc_ulong(av, chosenp);
 }
 
 /* Assume A a squarefree ZX; return the vector of its rational roots */
@@ -999,7 +999,6 @@ ZX_is_squarefree(GEN x)
   pari_sp av = avma;
   GEN d;
   long m;
-  int r;
   if (lg(x) == 2) return 0;
   m = ZX_deflate_order(x);
   if (m > 1)
@@ -1008,7 +1007,7 @@ ZX_is_squarefree(GEN x)
     x = RgX_deflate(x, m);
   }
   d = ZX_gcd(x,ZX_deriv(x));
-  r = (lg(d) == 3); set_avma(av); return r;
+  return gc_bool(av, lg(d) == 3);
 }
 
 #if 0
@@ -1325,11 +1324,11 @@ BD_iscyclo(GEN f)
   if (degpol(f) == 1) return isint1(gel(f,2))? 2: 1;
   f1 = ZX_graeffe(f);
   /* f = product of Phi_n, n odd */
-  if (ZX_equal(f, f1)) { set_avma(av); return BD_odd_iscyclo(f); }
+  if (ZX_equal(f, f1)) return gc_long(av, BD_odd_iscyclo(f));
 
   fn = ZX_z_unscale(f, -1); /* f(-x) */
   /* f = product of Phi_n, n = 2 mod 4 */
-  if (ZX_equal(f1, fn)) return 2*BD_odd_iscyclo(fn);
+  if (ZX_equal(f1, fn)) return gc_long(av, 2*BD_odd_iscyclo(fn));
 
   if (issquareall(f1, &f2))
   {
@@ -1339,7 +1338,7 @@ BD_iscyclo(GEN f)
     c = BD_iscyclo(f2);
     return odd(c)? 0: 2*c;
   }
-  set_avma(av); return 0;
+  return gc_long(av, 0);
 }
 long
 poliscyclo(GEN f)
@@ -1369,5 +1368,5 @@ poliscycloprod(GEN f)
   }
   f = BD(f); if (!f) return 0;
   for (i = lg(f)-1; i; i--) d -= degpol(gel(f,i));
-  set_avma(av); return d == 0;
+  return gc_long(av, d == 0);
 }

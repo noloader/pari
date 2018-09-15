@@ -1382,15 +1382,14 @@ Flxq_ellcard_naive(GEN a4, GEN a6, GEN T, ulong p)
 }
 
 /* assume T irreducible mod p, m = (q-1)/(p-1) */
-static int
+static long
 Flxq_kronecker(GEN x, GEN m, GEN T, ulong p)
 {
   pari_sp av;
   ulong z;
   if (lgpol(x) == 0) return 0;
-  av = avma;
-  z = Flxq_pow(x, m, T, p)[2];
-  set_avma(av); return krouu(z, p);
+  av = avma; z = Flxq_pow(x, m, T, p)[2];
+  return gc_long(av, krouu(z, p));
 }
 
 /* Find x such that kronecker(u = x^3+a4x+a6, p) is KRO.

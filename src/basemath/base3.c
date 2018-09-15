@@ -742,8 +742,8 @@ ZC_prdvd(GEN x, GEN P)
   if (typ(mul) == t_INT) return ZV_Z_dvd(x, p);
   l = lg(x);
   for (i=1; i<l; i++)
-    if (!dvdii(ZMrow_ZC_mul(mul,x,i), p)) { set_avma(av); return 0; }
-  set_avma(av); return 1;
+    if (!dvdii(ZMrow_ZC_mul(mul,x,i), p)) return gc_bool(av,0);
+  return gc_bool(av,1);
 }
 
 int
@@ -775,7 +775,7 @@ nfval(GEN nf, GEN x, GEN pr)
   x = Q_primitive_part(x, &cx);
   w = ZC_nfval(x,pr);
   if (cx) w += e*Q_pval(cx,p);
-  set_avma(av); return w;
+  return gc_long(av,w);
 }
 
 /* want to write p^v = uniformizer^(e*v) * z^v, z coprime to pr */
@@ -1386,19 +1386,17 @@ nfchecksigns(GEN nf, GEN x, GEN pl)
 {
   pari_sp av = avma;
   GEN signs, archp;
-  int res;
   nf = checknf(nf);
   x = nf_to_scalar_or_basis(nf,x);
   if (typ(x) != t_COL)
   {
     long i, l = lg(pl), s = gsigne(x);
     for (i = 1; i < l; i++)
-      if (pl[i] && pl[i] != s) { set_avma(av); return 0; }
-    set_avma(av); return 1;
+      if (pl[i] && pl[i] != s) return gc_bool(av,0);
+    return gc_bool(av,1);
   }
   pl_convert(pl, &signs, &archp);
-  res = nfchecksigns_i(nf, x, NULL, signs, archp);
-  set_avma(av); return res;
+  return gc_bool(av, nfchecksigns_i(nf, x, NULL, signs, archp));
 }
 
 /* signs = NULL: totally positive, else sign[i] = 0 (+) or 1 (-) */

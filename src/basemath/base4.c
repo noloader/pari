@@ -309,8 +309,7 @@ static int
 ok_elt(GEN x, GEN xZ, GEN y)
 {
   pari_sp av = avma;
-  int r = ZM_equal(x, ZM_hnfmodid(y, xZ));
-  set_avma(av); return r;
+  return gc_bool(av, ZM_equal(x, ZM_hnfmodid(y, xZ)));
 }
 
 static GEN
@@ -876,7 +875,7 @@ idealval(GEN nf, GEN A, GEN P)
   A = Q_primitive_part(A, &cA);
   p = pr_get_p(P);
   vcA = cA? Q_pval(cA,p): 0;
-  if (pr_is_inert(P)) { set_avma(av); return vcA; }
+  if (pr_is_inert(P)) return gc_long(av,vcA);
   Zval = Z_pval(gcoeff(A,1,1), p);
   if (!Zval) v = 0;
   else
@@ -884,7 +883,7 @@ idealval(GEN nf, GEN A, GEN P)
     long Nval = idealHNF_norm_pval(A, p, Zval);
     v = idealHNF_val(A, P, Nval, Zval);
   }
-  set_avma(av); return vcA? v + vcA*pr_get_e(P): v;
+  return gc_long(av, vcA? v + vcA*pr_get_e(P): v);
 }
 GEN
 gpidealval(GEN nf, GEN ix, GEN P)
@@ -2093,11 +2092,11 @@ isideal(GEN nf,GEN x)
   if (!ZM_ishnf(x)) return 0;
   xZ = gcoeff(x,1,1);
   for (j=2; j<=N; j++)
-    if (!dvdii(xZ, gcoeff(x,j,j))) { set_avma(av); return 0; }
+    if (!dvdii(xZ, gcoeff(x,j,j))) return gc_long(av,0);
   for (i=2; i<=N; i++)
     for (j=2; j<=N; j++)
-      if (! hnf_invimage(x, zk_ei_mul(nf,gel(x,i),j))) { set_avma(av); return 0; }
-  set_avma(av); return 1;
+       if (! hnf_invimage(x, zk_ei_mul(nf,gel(x,i),j))) return gc_long(av,0);
+  return gc_long(av,1);
 }
 
 GEN

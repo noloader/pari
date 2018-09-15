@@ -279,8 +279,7 @@ gamma_equiv(GEN a, GEN b, ulong N)
   GEN m = path_to_zm(a);
   GEN n = path_to_zm(b);
   GEN d = subii(mulss(cc(m),dd(n)), mulss(dd(m),cc(n)));
-  ulong res = umodiu(d, N);
-  set_avma(av); return res == 0;
+  return gc_bool(av, umodiu(d, N) == 0);
 }
 /* Input: a,b = 2 paths that are \Gamma_0(N)-equivalent, N = integer
  * Output: M in \Gamma_0(N) such that Mb=a */
@@ -383,11 +382,7 @@ mfnumcuspsu_fact(GEN fa)
 }
 ulong
 mfnumcuspsu(ulong n)
-{
-  pari_sp av = avma;
-  ulong t = mfnumcuspsu_fact( factoru(n) );
-  set_avma(av); return t;
-}
+{ pari_sp av = avma; return gc_ulong(av, mfnumcuspsu_fact( factoru(n) )); }
 /* \sum_{d | N} \phi(gcd(d, N/d)), using multiplicativity. fa = factor(N) */
 GEN
 mfnumcusps_fact(GEN fa)

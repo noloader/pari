@@ -307,7 +307,7 @@ FB_aut_perm(FB_t *F, GEN auts, GEN cyclic)
 /* set subFB.
  * Fill F->perm (if != NULL): primes ideals sorted by increasing norm (except
  * the ones in subFB come first [dense rows for hnfspec]) */
-static int
+static void
 subFBgen(FB_t *F, GEN auts, GEN cyclic, double PROD, long minsFB)
 {
   GEN y, perm, yes, no;
@@ -352,7 +352,7 @@ subFBgen(FB_t *F, GEN auts, GEN cyclic, double PROD, long minsFB)
   F->allsubFB = NULL;
   FB_aut_perm(F, auts, cyclic);
   if (iyes) assign_subFB(F, yes, iyes);
-  set_avma(av); return 1;
+  set_avma(av);
 }
 static int
 subFB_change(FB_t *F)
@@ -399,8 +399,7 @@ subFB_change(FB_t *F)
     if (DEBUGLEVEL) err_printf("\n*** Changing sub factor base\n");
     assign_subFB(F, yes, iyes);
   }
-  F->sfb_chg = 0;
-  set_avma(av); return 1;
+  F->sfb_chg = 0; return gc_bool(av, 1);
 }
 
 static GEN
@@ -725,7 +724,7 @@ nthideal(GRHcheck_t *S, GEN nf, long n)
   pari_sp av = avma;
   GEN P = nf_get_pol(nf);
   ulong p = 0, *vecN = (ulong*)const_vecsmall(n, LONG_MAX);
-  long i, res, N = poldegree(P, -1);
+  long i, N = poldegree(P, -1);
   for (i = 0; ; i++)
   {
     GRHprime_t *pr;
@@ -754,7 +753,7 @@ nthideal(GRHcheck_t *S, GEN nf, long n)
     }
     if (p > vecN[n]) break;
   }
-  res = vecN[n]; set_avma(av); return res;
+  return gc_long(av, vecN[n]);
 }
 
 
@@ -1751,7 +1750,7 @@ fact_ok(GEN nf, GEN y, GEN C, GEN g, GEN e)
     if (signe(gel(e,i))) z = idealmul(nf, z, idealpow(nf, gel(g,i), gel(e,i)));
   if (typ(z) != t_MAT) z = idealhnf_shallow(nf,z);
   if (typ(y) != t_MAT) y = idealhnf_shallow(nf,y);
-  i = ZM_equal(y, z); set_avma(av); return i;
+  return gc_bool(av, ZM_equal(y,z));
 }
 
 /* assume x in HNF. cf class_group_gen for notations.
@@ -2029,7 +2028,7 @@ isprincipalfact(GEN bnf, GEN C, GEN P, GEN e, long flag)
     {
       if (flag & nf_GEN_IF_PRINCIPAL)
       {
-        if (typ(y) == t_INT) { set_avma(av); return NULL; }
+        if (typ(y) == t_INT) return gc_NULL(av);
         y = add_principal_part(nf, y, Cext, flag);
       }
       else
@@ -2975,7 +2974,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
     }
     F->KCZ++; /* SUCCESS, "enlarge" factorbase */
   }
-  F->KCZ = KCZ0; set_avma(av); return 1;
+  F->KCZ = KCZ0; return gc_bool(av,1);
 }
 
 /* all primes with N(P) <= BOUND factor on factorbase ? */
@@ -3115,8 +3114,7 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
   {
     if (DEBUGLEVEL)
       err_printf("Unit group rank = %ld < %ld\n",lg(mdet)-1 - r, RU);
-    *pneed = RU - (lg(mdet)-1-r);
-    set_avma(av); return NULL;
+    *pneed = RU - (lg(mdet)-1-r); return gc_NULL(av);
   }
 
   Im_mdet = cgetg(RU+1, t_MAT); /* extract independent columns */
@@ -3129,7 +3127,7 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
    * index in the full lattice. First column is T */
   kR = divru(det2(Im_mdet), N);
   /* R > 0.2 uniformly */
-  if (!signe(kR) || expo(kR) < -3) { set_avma(av); *pneed = 0; return NULL; }
+  if (!signe(kR) || expo(kR) < -3) { *pneed = 0; return gc_NULL(av); }
 
   setabssign(kR);
   L = RgM_inv(Im_mdet);
@@ -3172,7 +3170,7 @@ bad_check(GEN c)
  * bit is an estimate for the actual accuracy of lambda
  *
  * Output: *ptkR = R, *ptU = basis of fundamental units (in terms lambda) */
-static int
+static long
 compute_R(GEN lambda, long RU, GEN z, long bit, GEN *ptL, GEN *ptkR)
 {
   pari_sp av = avma;
@@ -3212,11 +3210,11 @@ compute_R(GEN lambda, long RU, GEN z, long bit, GEN *ptL, GEN *ptkR)
   /* R = tentative regulator; regulator > 0.2 uniformly */
   if (gexpo(R) < -3) {
     if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
-    set_avma(av); return fupb_PRECI;
+    return gc_long(av, fupb_PRECI);
   }
   c = gmul(R,z); /* should be n (= 1 if we are done) */
   if (DEBUGLEVEL) err_printf("\n#### Tentative regulator: %.28Pg\n", R);
-  if ((reason = bad_check(c))) { set_avma(av); return reason; }
+  if ((reason = bad_check(c))) return gc_long(av, reason);
   *ptkR = R; *ptL = L; return fupb_NONE;
 }
 

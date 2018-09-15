@@ -1634,7 +1634,7 @@ check_bound(GEN B, GEN xk, GEN yk, GEN zk, GEN vk)
 {
   pari_sp av = avma;
   int f = mpgreaterthan(norm_aux(xk,yk,zk,vk), B);
-  set_avma(av); return !f;
+  return gc_bool(av, !f);
 }
 
 /* q(k-th canonical basis vector), where q is given in Cholesky form

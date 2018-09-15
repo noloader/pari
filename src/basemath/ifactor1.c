@@ -389,7 +389,7 @@ ecm_elladd0(GEN N, GEN *gl, long nbc, long nbc1,
     if (!equalii(N,*gl)) return 2;
     ZV_aff(nbc, X2,X3);
     if (Y3) ZV_aff(nbc, Y2,Y3);
-    set_avma(av); return 1;
+    return gc_int(av,1);
   }
 
   while (i--) /* nbc times */
@@ -401,7 +401,7 @@ ecm_elladd0(GEN N, GEN *gl, long nbc, long nbc1,
     if (!i) break;
     set_avma(av2); *gl = modii(mulii(*gl, A[i]), N);
   }
-  set_avma(av); return 0;
+  return gc_int(av,0);
 }
 
 /* Shortcut, for use in cases where Y coordinates follow their corresponding
@@ -441,7 +441,7 @@ ecm_elladd2(GEN N, GEN *gl, long nbc,
     if (!equalii(N,*gl)) return 2;
     ZV_aff(2*nbc, X2,X3); /* hack: 2*nbc => copy Y2->Y3 */
     ZV_aff(2*nbc, X5,X6); /* also copy Y5->Y6 */
-    set_avma(av); return 1;
+    return gc_int(av,1);
   }
 
   while (j--) /* nbc times */
@@ -461,7 +461,7 @@ ecm_elladd2(GEN N, GEN *gl, long nbc,
     if (!i) break;
     set_avma(av2); *gl = modii(mulii(*gl, A[i]), N);
   }
-  set_avma(av); return 0;
+  return gc_int(av,0);
 }
 
 /* Parallel doubling on nbc curves, assigning the result to locations at
@@ -481,7 +481,7 @@ elldouble(GEN N, GEN *gl, long nbc, GEN *X1, GEN *X2)
   {
     if (!equalii(N,*gl)) return 2;
     ZV_aff(2*nbc,X1,X2); /* also copies Y1->Y2 */
-    set_avma(av); return 1;
+    return gc_int(av,1);
   }
   while (i--) /* nbc times */
   {
@@ -498,7 +498,7 @@ elldouble(GEN N, GEN *gl, long nbc, GEN *X1, GEN *X2)
     affii(w, Y2[i]);
     set_avma(av2);
   }
-  set_avma(av); return 0;
+  return gc_int(av,0);
 }
 
 /* Parallel multiplication by an odd prime k on nbc curves, storing the
@@ -1084,7 +1084,7 @@ ellfacteur(GEN N, int insist)
       if (DEBUGLEVEL >= 4)
         err_printf("ECM: time = %6ld ms,\tellfacteur giving up.\n",
                    timer_delay(&E.T));
-      set_avma(av); return NULL;
+      return gc_NULL(av);
     }
   }
 }
@@ -1103,7 +1103,7 @@ Z_ECM(GEN N, long rounds, long seed, ulong B1)
     GEN g = ECM_loop(&E, N, B1);
     if (g) return gerepilecopy(av, g);
   }
-  set_avma(av); return NULL;
+  return gc_NULL(av);
 }
 
 /***********************************************************************/
@@ -1675,7 +1675,7 @@ squfof(GEN n)
 
   /* both discriminants turned out to be useless. */
   if (DEBUGLEVEL>=4) err_printf("SQUFOF: giving up\n");
-  set_avma(av); return NULL;
+  return gc_NULL(av);
 }
 
 /***********************************************************************/
@@ -1953,7 +1953,7 @@ is_357_power(GEN x, GEN *pt, ulong *mask)
     y = mpround( sqrtnr(itor(x, nbits2prec(64 + bit_accuracy(lx) / e)), e) );
     if (equalii(powiu(y,e), x))
     {
-      if (!pt) { set_avma(av); return e; }
+      if (!pt) return gc_int(av,e);
       avma = (pari_sp)y; *pt = gerepileuptoint(av, y);
       return e;
     }
@@ -2002,11 +2002,11 @@ is_kth_power(GEN x, ulong n, GEN *pt)
     residue = umodiu(x, q);
     if (residue == 0)
     {
-      if (Z_lval(x,q) % n) { set_avma(av); return 0; }
+      if (Z_lval(x,q) % n) return gc_ulong(av,0);
       continue;
     }
     /* n-th power mod q ? */
-    if (Fl_powu(residue, (q-1)/n, q) != 1) { set_avma(av); return 0; }
+    if (Fl_powu(residue, (q-1)/n, q) != 1) return gc_ulong(av,0);
   }
   set_avma(av);
 
@@ -2015,9 +2015,9 @@ is_kth_power(GEN x, ulong n, GEN *pt)
   y = roundr( sqrtnr(itor(x, nbits2prec((expi(x)+16*n)/n)), n) );
   if (!equalii(powiu(y, n), x)) {
     if (DEBUGLEVEL>4) err_printf("\tBut it wasn't a pure power.\n");
-    set_avma(av); return 0;
+    return gc_ulong(av,0);
   }
-  if (!pt) set_avma(av); else { avma = (pari_sp)y; *pt = gerepileuptoint(av, y); }
+  if (!pt) set_avma(av); else { avma=(pari_sp)y; *pt = gerepileuptoint(av,y); }
   return 1;
 }
 
@@ -2051,7 +2051,7 @@ is_pth_power(GEN x, GEN *pt, forprime_t *T, ulong cutoffbits)
     }
   }
   if (DEBUGLEVEL>5) err_printf("\nOddPwrs: not a power\n",p);
-  set_avma(av); return 0; /* give up */
+  return gc_int(av,0); /* give up */
 }
 
 /***********************************************************************/
@@ -3286,15 +3286,15 @@ moebiusu(ulong n)
     if (p == 673)
     {
       test_prime = 0;
-      if (uisprime_661(n)) { set_avma(av); return -s; }
+      if (uisprime_661(n)) return gc_long(av,-s);
     }
     v = u_lvalrem_stop(&n, p, &stop);
     if (v) {
-      if (v > 1) { set_avma(av); return 0; }
+      if (v > 1) return gc_long(av,0);
       test_prime = 1;
       s = -s;
     }
-    if (stop) { set_avma(av); return n == 1? s: -s; }
+    if (stop) return gc_long(av, n==1? s: -s);
   }
   set_avma(av);
   if (test_prime && uisprime_661(n)) return -s;
@@ -3323,8 +3323,8 @@ moebius(GEN n)
     E = gel(F,2);
     l = lg(E);
     for(i = 1; i < l; i++)
-      if (!equali1(gel(E,i))) { set_avma(av); return 0; }
-    set_avma(av); return odd(l)? 1: -1;
+      if (!equali1(gel(E,i))) return gc_long(av,0);
+    return gc_long(av, odd(l)? 1: -1);
   }
   if (lgefint(n) == 3) return moebiusu(uel(n,2));
   p = mod4(n); if (!p) return 0;
@@ -3338,9 +3338,9 @@ moebius(GEN n)
     v = Z_lvalrem_stop(&n, p, &stop);
     if (v)
     {
-      if (v > 1) { set_avma(av); return 0; }
+      if (v > 1) return gc_long(av,0);
       s = -s;
-      if (stop) { set_avma(av); return is_pm1(n)? s: -s; }
+      if (stop) return gc_long(av, is_pm1(n)? s: -s);
     }
   }
   l = lg(primetab);
@@ -3349,15 +3349,15 @@ moebius(GEN n)
     v = Z_pvalrem(n, gel(primetab,i), &n);
     if (v)
     {
-      if (v > 1) { set_avma(av); return 0; }
+      if (v > 1) return gc_long(av,0);
       s = -s;
-      if (is_pm1(n)) { set_avma(av); return s; }
+      if (is_pm1(n)) return gc_long(av,s);
     }
   }
-  if (ifac_isprime(n)) { set_avma(av); return -s; }
+  if (ifac_isprime(n)) return gc_long(av,-s);
   /* large composite without small factors */
   v = ifac_moebius(n);
-  set_avma(av); return (s<0 ? -v : v); /* correct also if v==0 */
+  return gc_long(av, s < 0? -v: v); /* correct also if v==0 */
 }
 
 long
@@ -3395,8 +3395,8 @@ ispowerful(GEN n)
     v = Z_lvalrem_stop(&n, p, &stop);
     if (v)
     {
-      if (v == 1) { set_avma(av); return 0; }
-      if (stop) { set_avma(av); return is_pm1(n); }
+      if (v == 1) return gc_long(av,0);
+      if (stop) return gc_long(av, is_pm1(n));
     }
   }
   l = lg(primetab);
@@ -3405,20 +3405,16 @@ ispowerful(GEN n)
     v = Z_pvalrem(n, gel(primetab,i), &n);
     if (v)
     {
-      if (v == 1) { set_avma(av); return 0; }
-      if (is_pm1(n)) { set_avma(av); return 1; }
+      if (v == 1) return gc_long(av,0);
+      if (is_pm1(n)) return gc_long(av,1);
     }
   }
   /* no need to factor: must be p^2 or not powerful */
-  if(cmpii(powuu(bound+1, 3), n) > 0) {
-    long res = Z_issquare(n);
-    set_avma(av); return res;
-  }
+  if (cmpii(powuu(bound+1, 3), n) > 0) return gc_long(av,  Z_issquare(n));
 
-  if (ifac_isprime(n)) { set_avma(av); return 0; }
+  if (ifac_isprime(n)) return gc_long(av,0);
   /* large composite without small factors */
-  v = ifac_ispowerful(n);
-  set_avma(av); return v;
+  return gc_long(av, ifac_ispowerful(n));
 }
 
 ulong
@@ -3436,13 +3432,9 @@ coreu_fact(GEN f)
 ulong
 coreu(ulong n)
 {
+  pari_sp av;
   if (n == 0) return 0;
-  else
-  {
-    pari_sp av = avma;
-    long m = coreu_fact(factoru(n));
-    set_avma(av); return m;
-  }
+  av = avma; return gc_ulong(av, coreu_fact(factoru(n)));
 }
 GEN
 core(GEN n)
@@ -3509,7 +3501,7 @@ core(GEN n)
 long
 Z_issmooth(GEN m, ulong lim)
 {
-  pari_sp av=avma;
+  pari_sp av = avma;
   ulong p = 2;
   forprime_t S;
   u_forprime_init(&S, 2, lim);
@@ -3517,15 +3509,15 @@ Z_issmooth(GEN m, ulong lim)
   {
     int stop;
     (void)Z_lvalrem_stop(&m, p, &stop);
-    if (stop) { set_avma(av); return abscmpiu(m,lim)<=0; }
+    if (stop) return gc_long(av, abscmpiu(m,lim) <= 0);
   }
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 
 GEN
 Z_issmooth_fact(GEN m, ulong lim)
 {
-  pari_sp av=avma;
+  pari_sp av = avma;
   GEN F, P, E;
   ulong p;
   long i = 1, l = expi(m)+1;
@@ -3552,7 +3544,7 @@ Z_issmooth_fact(GEN m, ulong lim)
       }
     }
   }
-  set_avma(av); return NULL;
+  return gc_NULL(av);
 }
 
 /***********************************************************************/

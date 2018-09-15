@@ -254,29 +254,23 @@ static ulong
 myeulerphiu(ulong n)
 {
   pari_sp av;
-  GEN fa;
   if (n == 1) return 1;
-  av = avma; fa = myfactoru(n);
-  set_avma(av); return eulerphiu_fact(fa);
+  av = avma; return gc_ulong(av, eulerphiu_fact(myfactoru(n)));
 }
 static long
 mymoebiusu(ulong n)
 {
   pari_sp av;
-  GEN fa;
   if (n == 1) return 1;
-  av = avma; fa = myfactoru(n);
-  set_avma(av); return moebiusu_fact(fa);
+  av = avma; return gc_long(av, moebiusu_fact(myfactoru(n)));
 }
 
 static long
 mynumdivu(long N)
 {
   pari_sp av;
-  GEN fa;
   if (N == 1) return 1;
-  av = avma; fa = myfactoru(N);
-  set_avma(av); return numdivu_fact(fa);
+  av = avma; return gc_long(av, numdivu_fact(myfactoru(N)));
 }
 
 /* N\prod_{p|N} (1+1/p) */
@@ -287,7 +281,7 @@ mypsiu(ulong N)
   GEN P = gel(myfactoru(N), 1);
   long j, l = lg(P), res = N;
   for (j = 1; j < l; j++) res += res/P[j];
-  set_avma(av); return res;
+  return gc_long(av,res);
 }
 /* write n = mf^2. Return m, set f. */
 static ulong
@@ -302,7 +296,7 @@ mycore(ulong n, long *pf)
     if (e & 1) m *= p;
     for (j = 2; j <= e; j+=2) f *= p;
   }
-  set_avma(av); *pf = f; return m;
+  *pf = f; return gc_long(av,m);
 }
 
 /* fa = factorization of -D > 0, return -D0 > 0 (where D0 is fundamental) */
@@ -328,10 +322,10 @@ mubeta(long n)
   for (i = 1; i < l; i++)
   {
     long e = E[i];
-    if (e >= 3) { set_avma(av); return 0; }
+    if (e >= 3) return gc_long(av,0);
     if (e == 1) s *= -2;
   }
-  set_avma(av); return s;
+  return gc_long(av,s);
 }
 
 /* n = n1*n2, n1 = ppo(n, m); return mubeta(n1)*moebiusu(n2).
@@ -347,16 +341,16 @@ mubeta2(long n, long m)
     long p = P[i], e = E[i];
     if (m % p)
     { /* p^e in n1 */
-      if (e >= 3) { set_avma(av); return 0; }
+      if (e >= 3) return gc_long(av,0);
       if (e == 1) s *= -2;
     }
     else
     { /* in n2 */
-      if (e >= 2) { set_avma(av); return 0; }
+      if (e >= 2) return gc_long(av,0);
       s = -s;
     }
   }
-  set_avma(av); return s;
+  return gc_long(av,s);
 }
 
 /* write N = prod p^{ep} and n = df^2, d squarefree.
@@ -709,11 +703,10 @@ mfchartoprimitive(GEN CHI, long *pF)
 static long
 mfcharconductor(GEN CHI)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   GEN res = znconreyconductor(gel(CHI,1), gel(CHI,2), NULL);
-  long FC;
   if (typ(res) == t_VEC) res = gel(res, 1);
-  FC = itos(res); set_avma(ltop); return FC;
+  return gc_long(av, itos(res));
 }
 
 /* n coprime with the modulus of CHI */
@@ -1990,10 +1983,10 @@ mfval(GEN F)
     if (n > 0.5*sb) n = sb+1;
     v = mfcoefs_i(F, n, 1);
     for (; i <= n; i++)
-      if (!gequal0(gel(v, i+1))) { set_avma(av); return i; }
+      if (!gequal0(gel(v, i+1))) return gc_long(av,i);
     n <<= 1;
   }
-  set_avma(av); return -1;
+  return gc_long(av,-1);
 }
 
 GEN
@@ -2490,7 +2483,7 @@ hfromH(long D)
     }
     nd <<= 1;
   }
-  set_avma(ltop); return S/6;
+  return gc_long(ltop, S/6);
 }
 #endif
 /* D < -4 fundamental, h(D), ordinary class number */
@@ -3309,7 +3302,7 @@ mfcuspdim(long N, long k, GEN CHI)
   if (FC == 1) CHI = NULL;
   s = gsub(A1(N, k), gadd(A21(N, k, CHI), A22(N, k, CHI)));
   s = gadd(s, gsubsg(A4(k, FC), A3(N, FC)));
-  set_avma(av); return itos(s);
+  return gc_long(av, itos(s));
 }
 
 /* dimension of whole space M_k(\G_0(N),CHI)
@@ -3321,15 +3314,11 @@ mffulldim(long N, long k, GEN CHI)
   long FC = CHI? mfcharconductor(CHI): 1;
   GEN s;
   if (k <= 0) return (k == 0 && FC == 1)? 1: 0;
-  if (k == 1)
-  {
-    long dim = itos(A3(N, FC));
-    set_avma(av); return dim + mfwt1cuspdim(N, CHI);
-  }
+  if (k == 1) return gc_long(av, itos(A3(N, FC)) + mfwt1cuspdim(N, CHI));
   if (FC == 1) CHI = NULL;
   s = gsub(A1(N, k), gadd(A21(N, k, CHI), A22(N, k, CHI)));
   s = gadd(s, A3(N, FC));
-  set_avma(av); return itos(s);
+  return gc_long(av, itos(s));
 }
 
 /* Dimension of the space of Eisenstein series */
@@ -3340,9 +3329,8 @@ mfeisensteindim(long N, long k, GEN CHI)
   long s, FC = CHI? mfcharconductor(CHI): 1;
   if (k <= 0) return (k == 0 && FC == 1)? 1: 0;
   s = itos(gmul2n(A3(N, FC), 1));
-  if (k > 1) s -= A4(k, FC);
-  else s >>= 1;
-  set_avma(av); return s;
+  if (k > 1) s -= A4(k, FC); else s >>= 1;
+  return gc_long(av,s);
 }
 
 enum { _SQRTS = 1, _MUP, _GCD, _VCHIP, _BEZ, _NEWLZ, _TRCONJ };
@@ -3458,19 +3446,17 @@ mfolddim(long N, long k, GEN CHI)
 {
   pari_sp av = avma;
   GEN CHIP = mfchartoprimitive(CHI, NULL);
-  long S = mfolddim_i(N, k, CHIP);
-  set_avma(av); return S;
+  return gc_long(av, mfolddim_i(N, k, CHIP));
 }
 /* Only depends on CHIP the primitive char attached to CHI; assumes !badchar */
 long
 mfnewdim(long N, long k, GEN CHI)
 {
-  pari_sp av = avma;
+  pari_sp av;
   long S;
   GEN CHIP = mfchartoprimitive(CHI, NULL);
   S = mfcuspdim(N, k, CHIP); if (!S) return 0;
-  S -= mfolddim_i(N, k, CHIP);
-  set_avma(av); return S;
+  av = avma; return gc_long(av, S - mfolddim_i(N, k, CHIP));
 }
 
 /* trace form, given as closure */
@@ -4108,7 +4094,7 @@ long
 mfisequal(GEN F, GEN G, long lim)
 {
   pari_sp av = avma;
-  long t, sb;
+  long sb;
   if (!checkmf_i(F)) pari_err_TYPE("mfisequal",F);
   if (!checkmf_i(G)) pari_err_TYPE("mfisequal",G);
   if (lim) sb = lim;
@@ -4120,8 +4106,7 @@ mfisequal(GEN F, GEN G, long lim)
     gN = mf_get_gN(G); gk = mf_get_gk(G);
     sb = maxss(sb, mfsturmNgk(itou(gN), gk));
   }
-  t = gequal(mfcoefs_i(F, sb+1, 1), mfcoefs_i(G, sb+1, 1));
-  set_avma(av); return t;
+  return gc_long(av, gequal(mfcoefs_i(F, sb+1, 1), mfcoefs_i(G, sb+1, 1)));
 }
 
 GEN
@@ -5623,7 +5608,7 @@ mfwt1cuspdim_i(long N, GEN CHI, GEN TMP, long *dih)
 {
   pari_sp av = avma;
   GEN b = mfwt1basis(N, CHI, TMP, NULL, dih);
-  set_avma(av); return b? lg(b)-1: 0;
+  return gc_long(av, b? lg(b)-1: 0);
 }
 static long
 mfwt1cuspdim(long N, GEN CHI) { return mfwt1cuspdim_i(N, CHI, NULL, NULL); }
@@ -5661,7 +5646,7 @@ mfwt1cuspdimsum(long N)
     GEN w = gel(v,i); /* [ord(CHI),*,dim,*] */
     ct += itou(gel(w,3))*myeulerphiu(itou(gel(w,1)));
   }
-  set_avma(av); return ct;
+  return gc_long(av,ct);
 }
 
 static GEN
@@ -5872,7 +5857,7 @@ mffindrootof1(GEN u1)
     u2 = gsub(gmul(u1k, u1), u0);
     u0 = u1; u1 = u2; c++;
   }
-  set_avma(av); return c;
+  return gc_long(av,c);
 }
 
 /* we known that F is not dihedral */
@@ -6431,8 +6416,7 @@ mfdihedralnewdim(long N, GEN CHI)
 {
   pari_sp av = avma;
   GEN S = mfdihedralnew_i(N, CHI);
-  long d = S ? lg(gel(S,2))-1: 0;
-  set_avma(av); return d;
+  return gc_long(av, S? lg(gel(S,2))-1: 0);
 }
 static GEN
 mfdihedralnew(long N, GEN CHI)
@@ -6458,7 +6442,7 @@ mfdihedralcuspdim(long N, GEN CHI)
     long d = D[i], M = N/d, a = mfdihedralnewdim(M, CHIP);
     if (a) dim += a * mynumdivu(d);
   }
-  set_avma(av); return dim;
+  return gc_long(av,dim);
 }
 
 static GEN
@@ -7240,9 +7224,8 @@ mfiscuspidal(GEN mf, GEN F)
   if (space_is_cusp(MF_get_space(mf))) return 1;
   if (typ(mf_get_gk(F)) == t_INT)
   {
-    GEN v = mftobasis(mf, F, 0);
-    long s = gequal0(vecslice(v, 1, lg(MF_get_E(mf)) - 1));
-    set_avma(av); return s;
+    GEN v = mftobasis(mf,F,0), vE = vecslice(v, 1, lg(MF_get_E(mf))-1);
+    return gc_long(av, gequal0(vE));
   }
   if (!gequal0(mfak_i(F, 0))) return 0;
   mf2 = obj_checkbuild(mf, MF_MF2INIT, &mf2init);
@@ -8076,7 +8059,7 @@ search_from_split(GEN mf, GEN vap, GEN vlp)
 
   S1 = gel(split_i(mf, 1, 0), 1); /* rational newforms */
   l1 = lg(S1);
-  if (l1 == 1) { set_avma(av); return NULL; }
+  if (l1 == 1) return gc_NULL(av);
   v = cgetg(l1, t_VEC);
   S = MF_get_S(mf);
   NK = mf_get_NK(gel(S,1));
@@ -8092,7 +8075,7 @@ search_from_split(GEN mf, GEN vap, GEN vlp)
     }
     if (!t) gel(v,jv++) = mflinear_i(NK,S,vF);
   }
-  if (jv == 1) { set_avma(av); return NULL; }
+  if (jv == 1) return gc_NULL(av);
   setlg(v,jv); return v;
 }
 GEN
@@ -8502,12 +8485,12 @@ polishomogeneous(GEN P)
 }
 
 /* P a t_POL, 1 if spherical, 0 otherwise */
-static long
+static int
 RgX_isspherical(GEN Qi, GEN P)
 {
   pari_sp av = avma;
   GEN va, S;
-  long lva, i, j, r;
+  long lva, i, j;
   if (degpol(P) <= 1) return 1;
   va = variables_vecsmall(P); lva = lg(va);
   if (lva > lg(Qi)) pari_err(e_MISC, "too many variables in mffromqf");
@@ -8522,7 +8505,7 @@ RgX_isspherical(GEN Qi, GEN P)
       if (!gequal0(coe)) S = gadd(S, gmul(coe, deriv(Pj, va[i])));
     }
   }
-  r = gequal0(S); set_avma(av); return r;
+  return gc_bool(av, gequal0(S));
 }
 
 static GEN
@@ -8737,7 +8720,7 @@ sigchi2_Fl(long k, GEN CHI1vec, GEN CHI2vec, long n, GEN vz, ulong p)
   long ordz = lg(vz)-2, i, l, n1, n2;
   ulong S = 0;
   GEN D = sigchi2_dec(n, CHIvec_N(CHI1vec), CHIvec_N(CHI2vec), &n1, &n2);
-  if (!D) { set_avma(av); return S; }
+  if (!D) return gc_ulong(av,S);
   D = divisorsu_fact(D);
   l = lg(D);
   for (i = 1; i < l; i++)
@@ -8747,7 +8730,7 @@ sigchi2_Fl(long k, GEN CHI1vec, GEN CHI2vec, long n, GEN vz, ulong p)
     if (a >= ordz) a -= ordz;
     S = Fl_add(S, mygmodulo_Fl(a, vz, Fl_powu(d,k-1,p), p), p);
   }
-  set_avma(av); return S;
+  return gc_ulong(av,S);
 }
 
 /**********************************************************************/
@@ -10136,11 +10119,7 @@ mfspace_i(GEN mf, GEN F)
 }
 long
 mfspace(GEN mf, GEN F)
-{
-  pari_sp av = avma;
-  long s = mfspace_i(mf,F);
-  set_avma(av); return s;
-}
+{ pari_sp av = avma; return gc_long(av, mfspace_i(mf,F)); }
 static GEN
 lfunfindchi(GEN ldata, GEN van, long prec)
 {
@@ -10258,7 +10237,7 @@ dim22(long N, long F, long k)
   for (i = 1; i < l; i++) vF[i] = u_lval(F, P[i]);
   D = zeta2CO(faN, vF, E[1], vF[1], k);
   for (i = 2; i < l; i++) D *= lamCO(E[i], vF[i], P[i]);
-  set_avma(av); return D;
+  return gc_long(av,D);
 }
 
 /* PSI not necessarily primitive, of conductor F */
@@ -10272,9 +10251,9 @@ charistotallyeven(GEN PSI, long F)
   for (i = 1; i < lg(P); i++)
   {
     GEN psip = znchardecompose(G, psi, utoipos(P[i]));
-    if (zncharisodd(G, psip)) { set_avma(av); return 0; }
+    if (zncharisodd(G, psip)) return gc_bool(av,0);
   }
-  set_avma(av); return 1;
+  return gc_bool(av,1);
 }
 
 static GEN
@@ -11361,7 +11340,7 @@ mfconductor(GEN mf, GEN F)
       N = ugcd(N, wt1mulcond(F,-3,s));
       if (!wt1newlevel(N)) N = ugcd(N, wt1mulcond(F,-4,s));
     }
-    set_avma(av); return N;
+    return gc_long(av,N);
   }
   if (typ(gk) != t_INT)
   {
@@ -11383,7 +11362,7 @@ mfconductor(GEN mf, GEN F)
     F = gel(EF,2);
   }
   (void)mftonew_i(mf, F, &M); /* M = conductor of cuspidal part */
-  set_avma(av); return ulcm(M, N);
+  return gc_long(av, ulcm(M, N));
 }
 
 static GEN
@@ -11494,7 +11473,7 @@ mftocoset_i(ulong N, GEN M, GEN cosets)
   ga = coset_complete(c, smodss(v*D, Nc), Nc);
   i = gen_search(cosets, ga, 0, (void*)N, &cmp_coset);
   if (!i) pari_err_BUG("mftocoset [no coset found]");
-  set_avma(av); return i;
+  return gc_long(av,i);
 }
 /* (M * N^(-1))[2,2], assuming N in SL2(Z) */
 static long

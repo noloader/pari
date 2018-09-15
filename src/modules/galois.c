@@ -2325,14 +2325,14 @@ isin_G_H(buildroot *BR, long n1, long n2)
       for (j=1; j<=N; j++) gel(z,j) = gel(p1,s0[j]);
       for (j=1; j<=N; j++) gel(p1,j) = gel(z,j);
     }
-    set_avma(av); return n2;
+    return gc_long(av, n2);
   }
   if (DEBUGLEVEL)
   {
     err_printf("    Output of isin_%ld_G_H(%ld,%ld): not included.\n",N,n1,n2);
     err_flush();
   }
-  set_avma(av); return 0;
+  return gc_long(av, 0);
 }
 
 static GEN

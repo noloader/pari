@@ -378,11 +378,9 @@ galoisfrobeniustest(GEN aut, struct galois_lift *gl, GEN frob)
 {
   pari_sp av = avma;
   GEN tlift = aut;
-  long res;
   if (gl->den != gen_1) tlift = FpX_Fp_mul(tlift, gl->den, gl->Q);
   tlift = FpX_center_i(tlift, gl->Q, shifti(gl->Q,-1));
-  res = poltopermtest(tlift, gl, frob);
-  set_avma(av); return res;
+  return gc_long(av, poltopermtest(tlift, gl, frob));
 }
 
 static GEN
@@ -470,7 +468,7 @@ intheadlong(GEN x, GEN mod)
 {
   pari_sp av = avma;
   long res = (long) itou(divii(shifti(x,BITS_IN_LONG),mod));
-  set_avma(av); return res;
+  return gc_long(av,res);
 }
 static GEN
 vecheadlong(GEN W, GEN mod)
@@ -520,7 +518,7 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
   {
     pari_warn(warner,"Combinatorics too hard : would need %Ps tests!\n"
         "I will skip it, but it may induce an infinite loop",NN);
-    set_avma(ltop); *psi = NULL; return 0;
+    *psi = NULL; return gc_long(ltop,0);
   }
   N2=itos(NQ); if(!N2) N1=R1;
   if (DEBUGLEVEL>=4) timer_start(&ti);
@@ -567,7 +565,7 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
             timer_printf(&ti, "");
             err_printf("GaloisConj: %d hops on %Ps tests\n",hop,addis(mulss(Ni,N1),i));
           }
-          set_avma(ltop2); return 1;
+          return gc_long(ltop2,1);
         }
         if (DEBUGLEVEL >= 4) err_printf("M");
       }
@@ -591,7 +589,7 @@ frobeniusliftall(GEN sg, long el, GEN *psi, struct galois_lift *gl,
     lswap(pf[j], pf[k]); c_idx = j;
   }
   if (DEBUGLEVEL>=4) err_printf("GaloisConj: not found, %d hops \n",hop);
-  *psi = NULL; set_avma(ltop); return 0;
+  *psi = NULL; return gc_long(ltop,0);
 }
 
 /* Compute the test matrix for the i-th line of V. Clone. */
@@ -640,7 +638,7 @@ padicisint(GEN P, struct galois_test *td)
   pari_sp ltop = avma;
   GEN U  = modii(P, td->ladic);
   long r = cmpii(U, td->borne) <= 0 || cmpii(U, td->lborne) >= 0;
-  set_avma(ltop); return r;
+  return gc_long(ltop, r);
 }
 
 /* Check if the permutation pf is valid according to td.
@@ -671,7 +669,7 @@ galois_test_perm(struct galois_test *td, GEN pf)
       }
     }
   }
-  if (i == n) { set_avma(av); return 1; }
+  if (i == n) return gc_long(av,1);
   if (DEBUGLEVEL >= 4) err_printf("%d.", i);
   if (i > 1)
   {
@@ -680,7 +678,7 @@ galois_test_perm(struct galois_test *td, GEN pf)
     td->order[1] = z;
     if (DEBUGLEVEL >= 8) err_printf("%Ps", td->order);
   }
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 /*Compute a*b/c when a*b will overflow*/
 static long
@@ -808,7 +806,7 @@ testpermutation(GEN F, GEN B, GEN x, long s, long e, long cut,
     if (DEBUGLEVEL >= 2 && hop)
       err_printf("GaloisConj: %d hop over %Ps iterations\n", hop, NN);
   }
-  set_avma(avm); return NULL;
+  return gc_NULL(avm);
 }
 
 /* List of subgroups of (Z/mZ)^* whose order divide o, and return the list
@@ -1111,7 +1109,7 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l)
 
     D = Flx_nbfact_by_degree(Tp, &d, p);
     o = n / d; /* d factors, all should have degree o */
-    if (D[o] != d) { notgalois(p, ga); set_avma(ltop); return 0; }
+    if (D[o] != d) { notgalois(p, ga); return gc_bool(ltop,0); }
 
     if (!O[o]) O[o] = p;
     if (o % deg) goto ga_end; /* NB: deg > 1 */
@@ -1167,10 +1165,7 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l)
       GEN Tp = ZX_to_Flx(T, p);
       long nb = Flx_nbroots(Tp, p);
       if (nb == n) { O[1] = p; break; }
-      if (nb && Flx_is_squarefree(Tp,p)) {
-        notgalois(p,ga);
-        set_avma(ltop); return 0;
-      }
+      if (nb && Flx_is_squarefree(Tp,p)) { notgalois(p,ga); return gc_bool(ltop,0); }
       set_avma(av2);
     }
     if (!p) pari_err_OVERFLOW("galoisanalysis [ran out of primes]");
@@ -1185,7 +1180,7 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l)
     err_printf("GaloisAnalysis:p=%ld l=%ld group=%ld deg=%ld ord=%ld\n",
                plift, O[1], group, deg, order);
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "galoisanalysis()");
-  set_avma(ltop); return 1;
+  return gc_bool(ltop,1);
 }
 
 static GEN
@@ -1418,7 +1413,7 @@ s4test(GEN u, GEN liftpow, struct galois_lift *gl, GEN phi)
   res = remii(res,Q);
   if (gl->den != gen_1) res = mulii(res, gl->den);
   res = centermodii(res, Q,Q2);
-  if (abscmpii(res, gl->gb->bornesol) > 0) { set_avma(av); return 0; }
+  if (abscmpii(res, gl->gb->bornesol) > 0) return gc_long(av,0);
   res = scalar_ZX_shallow(gel(u,2),varn(u));
   for (i = 1; i < d ; i++)
     if (lg(gel(liftpow,i))>2)
@@ -1428,7 +1423,7 @@ s4test(GEN u, GEN liftpow, struct galois_lift *gl, GEN phi)
   res = FpX_center_i(res, Q, shifti(Q,-1));
   bl = poltopermtest(res, gl, phi);
   if (DEBUGLEVEL >= 6) timer_printf(&ti, "s4test()");
-  set_avma(av); return bl;
+  return gc_long(av,bl);
 }
 
 static GEN
@@ -1733,7 +1728,7 @@ galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
     for (j = 1; j <= gt.g; j++)
       if (mael(gt.C,i,j)) gunclone(gmael(gt.C,i,j));
   if (DEBUGLEVEL>=4 && res) err_printf("Best lift: %d\n",deg);
-  if (deg==1) { set_avma(ltop); return NULL; }
+  if (deg==1) return gc_NULL(ltop);
   else
   {
     /* Normalize result so that psi[g]=1 */
@@ -1768,7 +1763,7 @@ galoisfindfrobenius(GEN T, GEN L, GEN den, struct galois_frobenius *gf,
     if (!Flx_is_squarefree(Tp, gf->p)) continue;
     Ti = gel(Flx_factor(Tp, gf->p), 1);
     nb = lg(Ti)-1; d = degpol(gel(Ti,1));
-    if (nb > 1 && degpol(gel(Ti,nb)) != d) { set_avma(ltop); return NULL; }
+    if (nb > 1 && degpol(gel(Ti,nb)) != d) return gc_NULL(ltop);
     if (((gmask&1)==0 || d % deg) && ((gmask&2)==0 || odd(d))) continue;
     if (DEBUGLEVEL >= 1) err_printf("GaloisConj: Trying p=%ld\n", gf->p);
     FlxV_to_ZXV_inplace(Ti);
@@ -1792,7 +1787,7 @@ galoisfindfrobenius(GEN T, GEN L, GEN den, struct galois_frobenius *gf,
     if ((ga->group&ga_all_normal) && d % deg == 0) gmask &= ~1;
     /* The first prime degree is always divisible by deg, so we don't
      * have to worry about ext_2 being used before regular supersolvable*/
-    if (!gmask) { set_avma(ltop); return NULL; }
+    if (!gmask) return gc_NULL(ltop);
     if ((ga->group&ga_non_wss) && ++Try > ((3*n)>>1))
     {
       pari_warn(warner,"Galois group probably not weakly super solvable");
@@ -1814,8 +1809,8 @@ get_image(GEN tau, GEN P, GEN Pmod, GEN p)
   tau = FpX_FpXQ_eval(gel(Pmod, gp), tau, P, p);
   tau = FpX_normalize(FpX_gcd(P, tau, p), p);
   for (g = 1; g <= gp; g++)
-    if (ZX_equal(tau, gel(Pmod,g))) { set_avma(av); return g; }
-  set_avma(av); return 0;
+    if (ZX_equal(tau, gel(Pmod,g))) return gc_long(av,g);
+  return gc_long(av,0);
 }
 
 static GEN
@@ -2182,7 +2177,7 @@ numberofconjugates(GEN T, long pinit)
     set_avma(av);
   }
   if (DEBUGLEVEL >= 2) err_printf("NumberOfConjugates:c=%ld,p=%ld\n", c, p);
-  set_avma(av); return c;
+  return gc_long(av,c);
 }
 static GEN
 galoisconj4(GEN nf, GEN d)
@@ -2732,7 +2727,7 @@ galoischar_dim(GEN ch)
 {
   pari_sp av = avma;
   long d = gtos(simplify_shallow(lift_shallow(gel(ch,1))));
-  set_avma(av); return d;
+  return gc_long(av,d);
 }
 
 static GEN

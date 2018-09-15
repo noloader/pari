@@ -322,10 +322,10 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
   mod  = bnr_get_mod(bnr);
 
   /* is the signature correct? */
-  if (!gequal(gel(modH,2), gel(mod,2))) { set_avma(av); return 0; }
+  if (!gequal(gel(modH,2), gel(mod,2))) return gc_long(av, 0);
 
   /* finite part are the same: OK */
-  if (gequal(gel(modH,1), gel(mod,1))) { set_avma(av); return 1; }
+  if (gequal(gel(modH,1), gel(mod,1))) return gc_long(av, 1);
 
   /* need to check the splitting of primes dividing mod but not modH */
   bnrH = Buchray(bnr, modH, nf_INIT);
@@ -343,9 +343,9 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
     /* inertia degree of pr in bnr(modH)/H is charorder(e, cycH) */
     e = ZM_ZC_mul(gel(qH,3), isprincipalray(bnrH, pr));
     e = vecmodii(e, gel(qH,2));
-    if (ZV_equal0(e)) { set_avma(av); return 0; } /* f = 1 */
+    if (ZV_equal0(e)) return gc_long(av,0); /* f = 1 */
   }
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 
 /* compute the list of characters to consider for AllStark and
@@ -2137,7 +2137,7 @@ zeta_get_N0(GEN C,  GEN limx)
   if (e >= 0 || is_bigint(z))
     pari_err_OVERFLOW("zeta_get_N0 [need too many primes]");
   if (DEBUGLEVEL>1) err_printf("\ninitzeta: N0 = %Ps\n", z);
-  set_avma(av); return itos(z);
+  return gc_long(av, itos(z));
 }
 
 static GEN
@@ -2177,7 +2177,7 @@ zeta_get_i0(long r1, long r2, long bit, GEN limx)
                gmul2n(powuu(5, r1), bit + r2));
   long i0 = get_i0(r1, r2, B, limx);
   if (DEBUGLEVEL>1) { err_printf("i0 = %ld\n",i0); err_flush(); }
-  set_avma(av); return i0;
+  return gc_long(av, i0);
 }
 
 static void

@@ -379,12 +379,9 @@ bachcomp(GEN pol, long I, GEN V, GEN W, GEN Fv)
       }
     }
   }
-  if (nlist != sum)
-  {
-    /* the number of vectors with scalar product S is already different */
-    set_avma(av); return 0;
-  }
-  if (nlist == 0) { set_avma(av); return 1; }
+  /* the number of vectors with scalar product S is already different */
+  if (nlist != sum) return gc_long(av,0);
+  if (nlist == 0) return gc_long(av,1);
   /* listxy is the list of the nxy vectors from list that have scalar product S
      with v[list[i]] */
   listxy = cgetg(nlist+1,t_VECSMALL);
@@ -558,16 +555,13 @@ static long
 orbsubtract(GEN Cs, GEN pt, long ipt, long npt, GEN H, GEN V, long *len)
 {
   pari_sp av = avma;
-  long nC;
   GEN orb = orbit(pt, ipt, npt, H, V);
   if (len) *len = lg(orb)-1;
-  nC = orbdelete(Cs, orb);
-  set_avma(av); return nC;
+  return gc_long(av, orbdelete(Cs, orb));
 }
 
 /* Generates the matrix X which has as row per[i] the vector nr. x[i] from the
  * list V */
-
 static GEN
 matgen(GEN x, GEN per, GEN V)
 {

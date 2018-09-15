@@ -485,7 +485,7 @@ minpoly_dvdslice(GEN M, long i, long j, long k)
   pari_sp av = avma;
   long r = signe(RgX_rem(minpoly_polslice(M, i, j-1, 0),
                         minpoly_polslice(M, j, k, 0)));
-  set_avma(av); return r==0;
+  return gc_bool(av, r == 0);
 }
 
 static void
@@ -914,14 +914,13 @@ carhess(GEN x, long v)
 /* Bound for sup norm of charpoly(M/dM), M integral: let B = |M|oo / |dM|,
  *   s = max_k binomial(n,k) (kB^2)^(k/2),
  * return ceil(log2(s)) */
-static double
+static long
 charpoly_bound(GEN M, GEN dM)
 {
   pari_sp av = avma;
   GEN B = itor(ZM_supnorm(M), LOWDEFAULTPREC);
   GEN s = real_0(LOWDEFAULTPREC), bin, B2;
   long n = lg(M)-1, k;
-  double d;
   bin = gen_1;
   if (dM) B = divri(B, dM);
   B2 = sqrr(B);
@@ -931,7 +930,7 @@ charpoly_bound(GEN M, GEN dM)
     if (abscmprr(t, s) > 0) s = t;
     bin = diviuexact(muliu(bin, k), n-k+1);
   }
-  d = dbllog2(s); set_avma(av); return ceil(d);
+  return gc_long(av, ceil(dbllog2(s)));
 }
 
 /* Return char_{M/d}(X) = d^(-n) char_M(dX) modulo p. Assume dp = d mod p. */
@@ -976,7 +975,7 @@ QM_charpoly_ZX_i(GEN M, GEN dM, long bit)
   ulong p;
   if (!n) return pol_1(0);
 
-  if (bit < 0) bit = (long)charpoly_bound(M, dM) + 1;
+  if (bit < 0) bit = charpoly_bound(M, dM) + 1;
   if (DEBUGLEVEL>5) err_printf("ZM_charpoly: bit-bound 2^%ld\n", bit);
   init_modular_big(&S);
   while ((p = u_forprime_next(&S)))
@@ -1459,7 +1458,7 @@ qfgaussred_positive(GEN a)
   for (k=1; k<n; k++)
   {
     GEN bk, p = gcoeff(b,k,k), invp;
-    if (gsigne(p)<=0) { set_avma(av); return NULL; } /* not positive definite */
+    if (gsigne(p)<=0) return gc_NULL(av); /* not positive definite */
     invp = ginv(p);
     bk = row(b, k);
     for (i=k+1; i<n; i++) gcoeff(b,k,i) = gmul(gel(bk,i), invp);

@@ -500,11 +500,11 @@ Flx_oneroot(GEN f, ulong p)
   switch(lg(f))
   {
     case 2: return 0;
-    case 3: set_avma(av); return p;
+    case 3: return p;
   }
   if (p == 2) return Flx_oneroot_mod_2(f);
   r = Flx_oneroot_i(Flx_normalize(f, p), p, 0);
-  set_avma(av); return r;
+  return gc_ulong(av,r);
 }
 
 ulong
@@ -515,11 +515,11 @@ Flx_oneroot_split(GEN f, ulong p)
   switch(lg(f))
   {
     case 2: return 0;
-    case 3: set_avma(av); return p;
+    case 3: return p;
   }
   if (p == 2) return Flx_oneroot_mod_2(f);
   r = Flx_oneroot_i(Flx_normalize(f, p), p, 1);
-  set_avma(av); return r;
+  return gc_ulong(av,r);
 }
 
 /* assume that p is prime */
@@ -530,7 +530,7 @@ FpX_oneroot(GEN f, GEN pp) {
   switch(lg(f))
   {
     case 2: set_avma(av); return gen_0;
-    case 3: set_avma(av); return NULL;
+    case 3: return gc_NULL(av);
   }
   if (typ(f) == t_VECSMALL)
   {
@@ -543,7 +543,7 @@ FpX_oneroot(GEN f, GEN pp) {
     return (r == p)? NULL: utoi(r);
   }
   f = FpX_oneroot_i(f, pp);
-  if (!f) { set_avma(av); return NULL; }
+  if (!f) return gc_NULL(av);
   return gerepileuptoint(av, f);
 }
 
@@ -701,7 +701,7 @@ FpX_nbroots(GEN f, GEN p)
 {
   pari_sp av = avma;
   GEN z = FpX_split_part(f, p);
-  set_avma(av); return degpol(z);
+  return gc_long(av, degpol(z));
 }
 
 int
@@ -712,7 +712,7 @@ FpX_is_totally_split(GEN f, GEN p)
   if (n <= 1) return 1;
   if (abscmpui(n, p) > 0) return 0;
   f = FpX_red(f, p);
-  set_avma(av); return gequalX(FpX_Frobenius(f, p));
+  return gc_bool(av, gequalX(FpX_Frobenius(f, p)));
 }
 
 long
@@ -731,7 +731,7 @@ Flx_nbroots(GEN f, ulong p)
   }
   z = Flx_sub(Flx_Frobenius(f, p), polx_Flx(f[1]), p);
   z = Flx_gcd(z, f, p);
-  set_avma(av); return degpol(z);
+  return gc_long(av, degpol(z));
 }
 
 long
@@ -760,7 +760,7 @@ FpX_ddf_degree(GEN T, GEN XP, GEN p)
   for (i = 3; i <= l+1; i++)
   {
     b = FpX_FpXQV_eval(b, xq, T, p);
-    if (gequalX(b)) { set_avma(av); return i-1; }
+    if (gequalX(b)) return gc_long(av,i-1);
     hash_insert_long(&h, b, i-1);
   }
   if (DEBUGLEVEL>=7) timer_printf(&ti,"FpX_ddf_degree: baby");
@@ -770,9 +770,9 @@ FpX_ddf_degree(GEN T, GEN XP, GEN p)
   for(i = 2; i <= m+1; i++)
   {
     g = FpX_FpXQV_eval(g, xq, T, p);
-    if (hash_haskey_long(&h, g, &j)) { set_avma(av); return l*i-j; }
+    if (hash_haskey_long(&h, g, &j)) return gc_long(av, l*i-j);
   }
-  set_avma(av); return n;
+  return gc_long(av,n);
 }
 
 /* See <http://www.shoup.net/papers/factorimpl.pdf> */
@@ -1021,7 +1021,7 @@ FpX_ispower(GEN f, ulong k, GEN p, GEN *pt_r)
   {
     ulong pp = p[2];
     GEN fp = ZX_to_Flx(f, pp);
-    if (!Flx_ispower(fp, k, pp, pt_r)) { set_avma(av); return 0; }
+    if (!Flx_ispower(fp, k, pp, pt_r)) return gc_long(av,0);
     if (pt_r) *pt_r = gerepileupto(av, Flx_to_ZX(*pt_r)); else set_avma(av);
     return 1;
   }
@@ -1029,7 +1029,7 @@ FpX_ispower(GEN f, ulong k, GEN p, GEN *pt_r)
   if (!lc) { av = avma; return 0; }
   F = FpX_factor_Yun(f, p); l = lg(F)-1;
   for(i=1; i <= l; i++)
-    if (i%k && degpol(gel(F,i))) { set_avma(av); return 0; }
+    if (i%k && degpol(gel(F,i))) return gc_long(av,0);
   if (pt_r)
   {
     GEN r = scalarpol(lc, v), s = pol_1(v);
@@ -1110,11 +1110,11 @@ FpX_isirred_Cantor(GEN Tp, GEN p)
 {
   pari_sp av = avma;
   pari_timer ti;
-  long n, d;
+  long n;
   GEN T = get_FpX_mod(Tp);
   GEN dT = FpX_deriv(T, p);
   GEN XP, D;
-  if (degpol(FpX_gcd(T, dT, p)) != 0) { set_avma(av); return 0; }
+  if (degpol(FpX_gcd(T, dT, p)) != 0) return gc_bool(av,0);
   n = get_FpX_degree(T);
   T = FpX_get_red(Tp, p);
   if (DEBUGLEVEL>=6) timer_start(&ti);
@@ -1122,8 +1122,7 @@ FpX_isirred_Cantor(GEN Tp, GEN p)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_Frobenius");
   D = FpX_ddf_Shoup(T, XP, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"FpX_ddf_Shoup");
-  d = degpol(gel(D, n));
-  set_avma(av); return d==n;
+  return gc_bool(av, degpol(gel(D,n)) == n);
 }
 
 static GEN FpX_factor_deg2(GEN f, GEN p, long d, long flag);
@@ -1147,7 +1146,7 @@ FpX_nbfact_Frobenius(GEN T, GEN XP, GEN p)
 {
   pari_sp av = avma;
   long s = ddf_to_nbfact(FpX_ddf_Shoup(T, XP, p));
-  set_avma(av); return s;
+  return gc_long(av,s);
 }
 
 long
@@ -1156,7 +1155,7 @@ FpX_nbfact(GEN T, GEN p)
   pari_sp av = avma;
   GEN XP = FpX_Frobenius(T, p);
   long n = FpX_nbfact_Frobenius(T, XP, p);
-  set_avma(av); return n;
+  return gc_long(av,n);
 }
 
 /* p > 2 */
@@ -1825,18 +1824,17 @@ F2x_isirred_Cantor(GEN T)
 {
   pari_sp av = avma;
   pari_timer ti;
-  long n, d;
+  long n;
   GEN dT = F2x_deriv(T);
   GEN XP, D;
-  if (F2x_degree(F2x_gcd(T, dT)) != 0) { set_avma(av); return 0; }
+  if (F2x_degree(F2x_gcd(T, dT)) != 0) return gc_bool(av,0);
   n = F2x_degree(T);
   if (DEBUGLEVEL>=6) timer_start(&ti);
   XP = F2x_Frobenius(T);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_Frobenius");
   D = F2x_ddf_simple(T, XP);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"F2x_ddf_simple");
-  d = F2x_degree(gel(D, n));
-  set_avma(av); return d==n;
+  return gc_bool(av, F2x_degree(gel(D,n)) == n);
 }
 #endif
 
@@ -1919,7 +1917,7 @@ Flx_ispower(GEN f, ulong k, ulong p, GEN *pt_r)
   if (lc == ULONG_MAX) { av = avma; return 0; }
   F = Flx_factor_squarefree(f, p); l = lg(F)-1;
   for (i = 1; i <= l; i++)
-    if (i%k && degpol(gel(F,i))) { set_avma(av); return 0; }
+    if (i%k && degpol(gel(F,i))) return gc_long(av,0);
   if (pt_r)
   {
     GEN r = Fl_to_Flx(lc, v), s = pol1_Flx(v);
@@ -1930,7 +1928,7 @@ Flx_ispower(GEN f, ulong k, ulong p, GEN *pt_r)
       r = Flx_mul(r, s, p);
     }
     *pt_r = gerepileuptoleaf(av, r);
-  } else av = avma;
+  } else set_avma(av);
   return 1;
 }
 
@@ -2195,11 +2193,9 @@ Flx_isirred_Cantor(GEN Tp, ulong p)
 {
   pari_sp av = avma;
   pari_timer ti;
-  long n, d;
-  GEN T = get_Flx_mod(Tp);
-  GEN dT = Flx_deriv(T, p);
-  GEN XP, D;
-  if (degpol(Flx_gcd(T, dT, p)) != 0) { set_avma(av); return 0; }
+  long n;
+  GEN T = get_Flx_mod(Tp), dT = Flx_deriv(T, p), XP, D;
+  if (degpol(Flx_gcd(T, dT, p)) != 0) return gc_bool(av,0);
   n = get_Flx_degree(T);
   T = Flx_get_red(Tp, p);
   if (DEBUGLEVEL>=6) timer_start(&ti);
@@ -2207,8 +2203,7 @@ Flx_isirred_Cantor(GEN Tp, ulong p)
   if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_Frobenius");
   D = Flx_ddf_Shoup(T, XP, p);
   if (DEBUGLEVEL>=6) timer_printf(&ti,"Flx_ddf_Shoup");
-  d = degpol(gel(D, n));
-  set_avma(av); return d==n;
+  return gc_bool(av, degpol(gel(D,n)) == n);
 }
 
 /* f monic */
@@ -2268,7 +2263,7 @@ Flx_nbfact_Frobenius(GEN T, GEN XP, ulong p)
 {
   pari_sp av = avma;
   long s = ddf_to_nbfact(Flx_ddf_Shoup(T, XP, p));
-  set_avma(av); return s;
+  return gc_long(av,s);
 }
 
 /* T must be squarefree mod p*/
@@ -2278,15 +2273,15 @@ Flx_nbfact(GEN T, ulong p)
   pari_sp av = avma;
   GEN XP = Flx_Frobenius(T, p);
   long n = Flx_nbfact_Frobenius(T, XP, p);
-  set_avma(av); return n;
+  return gc_long(av,n);
 }
 
 int
 Flx_is_irred(GEN f, ulong p)
 {
   pari_sp av = avma;
-  int z = !!Flx_factor_i(Flx_normalize(f,p),p,2);
-  set_avma(av); return z;
+  f = Flx_normalize(f,p);
+  return gc_bool(av, !!Flx_factor_i(f,p,2));
 }
 
 /* Use this function when you think f is reducible, and that there are lots of
@@ -2302,7 +2297,7 @@ FpX_is_irred(GEN f, GEN p)
     case 1:  z = !!Flx_factor_i(f,p[2],2); break;
     default: z = !!FpX_factor_i(f,p,2); break;
   }
-  set_avma(av); return z;
+  return gc_bool(av,z);
 }
 GEN
 FpX_degfact(GEN f, GEN p) {

@@ -1282,9 +1282,8 @@ qfbsolve_cornacchia(GEN c, GEN p, int swap)
 {
   pari_sp av = avma;
   GEN M, N;
-  if (kronecker(negi(c), p) < 0 || !cornacchia(c, p, &M,&N)) {
-    set_avma(av); return gen_0;
-  }
+  if (kronecker(negi(c), p) < 0 || !cornacchia(c, p, &M,&N))
+  { set_avma(av); return gen_0; }
   return gerepilecopy(av, swap? mkvec2(N,M): mkvec2(M,N));
 }
 
@@ -1463,9 +1462,9 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   *px = *py = gen_0;
   b = subii(p, d);
   if (signe(b) < 0) return 0;
-  if (signe(b) == 0) { set_avma(av); *py = gen_1; return 1; }
+  if (signe(b) == 0) { *py = gen_1; return gc_long(av,1); }
   b = Fp_sqrt(b, p); /* sqrt(-d) */
-  if (!b) { set_avma(av); return 0; }
+  if (!b) return gc_long(av,0);
   if (abscmpii(shifti(b,1), p) > 0) b = subii(b,p);
   a = p; L = sqrti(p);
   av2 = avma;
@@ -1479,7 +1478,7 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   }
   a = subii(p, sqri(b));
   c = dvmdii(a, d, &r);
-  if (r != gen_0 || !Z_issquareall(c, &c)) { set_avma(av); return 0; }
+  if (r != gen_0 || !Z_issquareall(c, &c)) return gc_long(av,0);
   set_avma(av);
   *px = icopy(b);
   *py = icopy(c); return 1;
@@ -1510,7 +1509,7 @@ cornacchia2_helper(long av, GEN d, GEN p, GEN b, GEN px4, GEN *px, GEN *py)
   }
   a = subii(px4, sqri(b));
   c = dvmdii(a, d, &r);
-  if (r != gen_0 || !Z_issquareall(c, &c)) { set_avma(av); return 0; }
+  if (r != gen_0 || !Z_issquareall(c, &c)) return gc_long(av,0);
   set_avma(av);
   *px = icopy(b);
   *py = icopy(c); return 1;
@@ -1531,7 +1530,7 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
   k = mod4(d);
   if (k == 1 || k == 2) pari_err_DOMAIN("cornacchia2","-d mod 4", ">",gen_1,d);
   px4 = shifti(p,2);
-  if (abscmpii(px4, d) < 0) { set_avma(av); return 0; }
+  if (abscmpii(px4, d) < 0) return gc_long(av,0);
   if (absequaliu(p, 2))
   {
     set_avma(av);
@@ -1543,7 +1542,7 @@ cornacchia2(GEN d, GEN p, GEN *px, GEN *py)
     *py = gen_1; return 1;
   }
   b = Fp_sqrt(negi(d), p);
-  if (!b) { set_avma(av); return 0; }
+  if (!b) return gc_long(av,0);
   return cornacchia2_helper(av, d, p, b, px4, px, py);
 }
 
@@ -1555,6 +1554,6 @@ cornacchia2_sqrt(GEN d, GEN p, GEN b, GEN *px, GEN *py)
   GEN px4;
   *px = *py = gen_0;
   px4 = shifti(p,2);
-  if (abscmpii(px4, d) < 0) { set_avma(av); return 0; }
+  if (abscmpii(px4, d) < 0) return gc_long(av,0);
   return cornacchia2_helper(av, d, p, b, px4, px, py);
 }

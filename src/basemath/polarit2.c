@@ -1200,11 +1200,7 @@ RgX_is_irred_i(GEN x)
 }
 static int
 RgX_is_irred(GEN x)
-{
-  pari_sp av = avma;
-  int r = RgX_is_irred_i(x);
-  set_avma(av); return r;
-}
+{ pari_sp av = avma; return gc_bool(av, RgX_is_irred_i(x)); }
 long
 isirreducible(GEN x)
 {
@@ -2614,7 +2610,7 @@ RgXQ_ratlift(GEN x, GEN T, long amax, long bmax, GEN *P, GEN *Q)
   for(;;)
   {
     (void) subres_step(&u, &v, &g, &h, &uze, &um1, &signh);
-    if (!u || (typ(uze)==t_POL && degpol(uze)>bmax)) { set_avma(av); return 0; }
+    if (!u || (typ(uze)==t_POL && degpol(uze)>bmax)) return gc_bool(av,0);
     if (typ(v)!=t_POL || degpol(v)<=amax) break;
     if (gc_needed(av2,1))
     {
@@ -3333,20 +3329,14 @@ long
 sturmpart(GEN x, GEN a, GEN b)
 {
   pari_sp av = avma;
-  long r;
   if (!b && a && typ(a) == t_VEC) return RgX_sturmpart(x, a);
   if (!a) a = mkmoo();
   if (!b) b = mkoo();
-  r = sturmpart_i(x, mkvec2(a, b));
-  set_avma(av); return r;
+  return gc_long(av, sturmpart_i(x, mkvec2(a,b)));
 }
 long
 RgX_sturmpart(GEN x, GEN ab)
-{
-  pari_sp av = avma;
-  long r = sturmpart_i(x, ab);
-  set_avma(av); return r;
-}
+{ pari_sp av = avma; return gc_long(av, sturmpart_i(x, ab)); }
 
 /***********************************************************************/
 /**                                                                   **/

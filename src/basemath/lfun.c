@@ -1805,7 +1805,7 @@ long
 lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
 {
   GEN ldata, theta, thetad, t0i, S0, S0i, w, eno;
-  long e, prec;
+  long prec;
   pari_sp av;
 
   if (is_linit(lmisc) && linit_get_type(lmisc)==t_LDESC_PRODUCT)
@@ -1851,8 +1851,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
            (artificial) query [e.g. lfuncheckfeq(t_POL)] */
         GEN T = gel(ldata_get_an(ldata), 2);
         GEN L = lfunzetakinit(T,zerovec(3),0,0,bitprec);
-        long e = lfuncheckfeq(L,t0,bitprec);
-        set_avma(av); return e;
+        return gc_long(av, lfuncheckfeq(L,t0,bitprec));
       }
       v = lfunrootres(theta, bitprec);
       r = gel(v,1);
@@ -1867,8 +1866,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   if (gequal0(eno)) eno = lfunrootno(theta, bitprec);
   w = gsub(w, eno);
   if (thetad) w = gdiv(w, eno); /* |eno| may be large in non-dual case */
-  e = gexpo(w);
-  set_avma(av); return e;
+  return gc_long(av, gexpo(w));
 }
 
 /*******************************************************************/
@@ -2137,8 +2135,7 @@ lfunorderzero(GEN lmisc, long m, long bitprec)
   k = ldata_get_k(ldata);
   k2 = gdivgs(stoi(k), 2);
   for (c = c0;; c += st)
-    if (gexpo(lfun0(linit, k2, c, bitprec)) > G) break;
-  set_avma(ltop); return c;
+    if (gexpo(lfun0(linit, k2, c, bitprec)) > G) return gc_long(ltop, c);
 }
 
 GEN

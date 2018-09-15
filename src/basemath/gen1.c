@@ -39,11 +39,7 @@ warn_coercion(GEN x, GEN y, GEN z)
 
 static long
 kro_quad(GEN x, GEN y)
-{
-  pari_sp av=avma;
-  long k = kronecker(quad_disc(x), y);
-  set_avma(av); return k;
-}
+{ pari_sp av=avma; return gc_long(av, kronecker(quad_disc(x), y)); }
 
 /* is -1 not a square in Zp, assume p prime */
 INLINE int

@@ -306,7 +306,7 @@ perm_cycles(GEN v)
   return gerepilecopy(av, vecperm_orbits_i(mkvec(v), lg(v)-1));
 }
 
-static long
+static int
 isperm(GEN v)
 {
   pari_sp av = avma;
@@ -317,21 +317,21 @@ isperm(GEN v)
   for (i=1; i<=n; i++)
   {
     long d = v[i];
-    if (d < 1 || d > n || w[d]) { set_avma(av); return 0; }
+    if (d < 1 || d > n || w[d]) return gc_bool(av,0);
     w[d] = 1;
   }
-  set_avma(av); return 1;
+  return gc_bool(av,1);
 }
 
 /* Output the order of p */
 long
 perm_order(GEN v)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   GEN c = vecperm_orbits_i(mkvec(v), lg(v)-1);
   long i, d;
   for(i=1, d=1; i<lg(c); i++) d = ulcm(d, lg(gel(c,i))-1);
-  set_avma(ltop); return d;
+  return gc_long(av,d);
 }
 
 long
@@ -350,7 +350,7 @@ perm_sign(GEN v)
   long i, l = lg(c), s = 1;
   for (i = 1; i < l; i++)
     if (odd(lg(gel(c, i)))) s = -s;
-  set_avma(av); return s;
+  return gc_long(av,s);
 }
 
 long
@@ -591,10 +591,9 @@ long
 perm_relorder(GEN p, GEN set)
 {
   pari_sp ltop = avma;
-  long n = 1;
-  long q = p[1];
+  long n = 1, q = p[1];
   while (!F2v_coeff(set,q)) { q = p[q]; n++; }
-  set_avma(ltop); return n;
+  return gc_long(ltop,n);
 }
 
 GEN
@@ -845,7 +844,7 @@ group_perm_normalize(GEN N, GEN g)
   pari_sp ltop = avma;
   long r = gequal(vecvecsmall_sort(group_leftcoset(N, g)),
                   vecvecsmall_sort(group_rightcoset(N, g)));
-  set_avma(ltop); return r;
+  return gc_long(ltop, r);
 }
 
 /* L is a list of subgroups, C is a coset and r a relative order.*/

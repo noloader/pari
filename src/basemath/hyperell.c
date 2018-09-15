@@ -712,8 +712,7 @@ hyperell_Weil_bound(GEN q, long g, GEN p)
 {
   pari_sp av = avma;
   GEN w = mulii(binomialuu(2*g,g),sqrtint(shifti(powiu(q, g),2)));
-  long e = logint(w, p) + 1;
-  set_avma(av); return e;
+  return gc_long(av, logint(w,p) + 1);
 }
 
 GEN

@@ -462,7 +462,7 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
   if (pr == ONLY_DIVIDES)
   {
     if (lead) gunclone(lead);
-    if (sx) { set_avma(av0); return NULL; }
+    if (sx) return gc_NULL(av0);
     avma = (pari_sp)rem; return z-2;
   }
   lr=i+3; rem -= lr;
@@ -749,7 +749,7 @@ FpX_gcd_check(GEN x, GEN y, GEN p)
       gerepileall(av,2,&a,&b);
     }
   }
-  set_avma(av); return NULL;
+  return gc_NULL(av);
 }
 
 static GEN
@@ -1353,7 +1353,7 @@ FpX_divrem(GEN x, GEN T, GEN p, GEN *pr)
     pari_sp av=avma;
     GEN mg = B? B: FpX_invBarrett(y, p);
     GEN q1 = FpX_divrem_Barrett_noGC(x,mg,y,p,pr);
-    if (!q1) {set_avma(av); return NULL;}
+    if (!q1) return gc_NULL(av);
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q1);
     gerepileall(av,2,&q1,pr);
     return q1;
@@ -1981,12 +1981,10 @@ int
 FpXQ_issquare(GEN x, GEN T, GEN p)
 {
   pari_sp av;
-  long res;
   if (lg(x) == 2 || absequalui(2, p)) return 1;
   if (lg(x) == 3) return Fq_issquare(gel(x,2), T, p);
-  /* Ng = g^((q-1)/(p-1)) */
-  av = avma; res = kronecker(FpXQ_norm(x,T,p), p) == 1;
-  set_avma(av); return res;
+  av = avma; /* Ng = g^((q-1)/(p-1)) */
+  return gc_bool(av, kronecker(FpXQ_norm(x,T,p), p) == 1);
 }
 int
 Fp_issquare(GEN x, GEN p)
@@ -2015,7 +2013,7 @@ Fq_ispower(GEN x, GEN K, GEN T, GEN p)
   Q = subiu(powiu(p,d), 1);
   Q = diviiexact(Q, gcdii(Q, K));
   d = gequal1(Fq_pow(x, Q, T,p));
-  set_avma(av); return d;
+  return gc_long(av, d);
 }
 
 /* discrete log in FpXQ for a in Fp^*, g in FpXQ^* of order ord */

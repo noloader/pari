@@ -613,10 +613,8 @@ long
 omegau(ulong n)
 {
   pari_sp av;
-  long l;
   if (n == 1UL) return 0;
-  av = avma; l = lg(gel(factoru(n),1))-1;
-  set_avma(av); return l;
+  av = avma; return gc_long(av, nbrows(factoru(n)));
 }
 long
 omega(GEN n)
@@ -632,17 +630,15 @@ omega(GEN n)
   if (lgefint(n) == 3) return omegau(n[2]);
   av = avma;
   F = absZ_factor(n);
-  P = gel(F,1); set_avma(av); return lg(P)-1;
+  return gc_long(av, nbrows(F));
 }
 
 long
 bigomegau(ulong n)
 {
   pari_sp av;
-  long l;
   if (n == 1) return 0;
-  av = avma; l = zv_sum(gel(factoru(n),2));
-  set_avma(av); return l;
+  av = avma; return gc_long(av, zv_sum(gel(factoru(n),2)));
 }
 long
 bigomega(GEN n)
@@ -661,7 +657,7 @@ bigomega(GEN n)
   else
     E = gel(absZ_factor(n), 2);
   E = ZV_to_zv(E);
-  set_avma(av); return zv_sum(E);
+  return gc_long(av, zv_sum(E));
 }
 
 /* assume f = factoru(n), possibly with 0 exponents. Return phi(n) */
@@ -687,11 +683,9 @@ eulerphiu_fact(GEN f)
 ulong
 eulerphiu(ulong n)
 {
-  pari_sp av = avma;
-  ulong e;
+  pari_sp av;
   if (!n) return 2;
-  e = eulerphiu_fact(factoru(n));
-  set_avma(av); return e;
+  av = avma; return gc_long(av, eulerphiu_fact(factoru(n)));
 }
 GEN
 eulerphi(GEN n)
@@ -742,10 +736,8 @@ long
 numdivu(long N)
 {
   pari_sp av;
-  long n;
   if (N == 1) return 1;
-  av = avma; n = numdivu_fact(factoru(N));
-  set_avma(av); return n;
+  av = avma; return gc_long(av, numdivu_fact(factoru(N)));
 }
 static GEN
 numdiv_aux(GEN F)
@@ -931,7 +923,7 @@ issquarefree(GEN x)
     case t_POL:
       if (!signe(x)) return 0;
       av = avma; d = RgX_gcd(x, RgX_deriv(x));
-      set_avma(av); return (lg(d) == 3);
+      return gc_long(av, lg(d)==3);
     case t_VEC:
     case t_MAT: return fa_issquarefree(check_arith_all(x,"issquarefree"));
     default: pari_err_TYPE("issquarefree",x);

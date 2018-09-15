@@ -883,9 +883,9 @@ gen_Shanks_sqrtl(GEN a, GEN l, long e, GEN r, GEN y, GEN m,void *E,
       z = p1; p1 = grp->pow(E,p1,l);
       k++;
     } while(!grp->equal1(p1));
-    if (k==e) { set_avma(av); return NULL; }
+    if (k==e) return gc_NULL(av);
     dl = gen_plog(z,m,l,E,grp);
-    if (typ(dl) != t_INT) { set_avma(av); return NULL; }
+    if (typ(dl) != t_INT) return gc_NULL(av);
     dl = negi(dl);
     p1 = grp->pow(E, grp->pow(E,y, dl), powiu(l,e-k-1));
     m = grp->pow(E,m,dl);
@@ -943,7 +943,7 @@ gen_Shanks_sqrtn(GEN a, GEN n, GEN q, GEN *zetan, void *E, const struct bb_group
         do
         {
           a = gen_Shanks_sqrtl(a,l,e,r,y,zeta,E,grp);
-          if (!a) { set_avma(ltop); return NULL;}
+          if (!a) return gc_NULL(ltop);
         } while (--j);
       }
       if (gc_needed(ltop,1))

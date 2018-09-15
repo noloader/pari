@@ -265,7 +265,7 @@ qfb_nform(long D, long n)
   {
     long j, e;
     GEN Q = red_primeform(D, P[i]);
-    if (!Q) { set_avma(av); return NULL; }
+    if (!Q) return gc_NULL(av);
     e = E[i];
     if (i == 1) { N = Q; j = 1; } else j = 0;
     for (; j < e; ++j) N = qficomp(Q, N);
@@ -322,27 +322,25 @@ modinv_double_eta_good_disc(long D, long inv)
   P = red_primeform(D, p1);
   if (!P || gequal1(gel(P,1)) /* don't allow p1 to be principal */
       /* if p1 is unramified, require it to have order > 2 */
-      || (i1 && qfb_is_two_torsion(P))) { set_avma(av); return 0; }
-  if (p1 == p2)
-  { /* if p1=p2 we need p1*p1 to be distinct from its inverse */
-    int ok = ! qfb_is_two_torsion(qfisqr(P));
-    set_avma(av); return ok;
-  }
+      || (i1 && qfb_is_two_torsion(P))) return gc_bool(av,0);
+  if (p1 == p2) /* if p1=p2 we need p1*p1 to be distinct from its inverse */
+    return gc_bool(av, !qfb_is_two_torsion(qfisqr(P)));
+
   /* this also verifies that p2 is prime to the conductor */
   P = red_primeform(D, p2);
   if (!P || gequal1(gel(P,1)) /* don't allow p2 to be principal */
       /* if p2 is unramified, require it to have order > 2 */
-      || (i2 && qfb_is_two_torsion(P))) { set_avma(av); return 0; }
+      || (i2 && qfb_is_two_torsion(P))) return gc_bool(av,0);
   set_avma(av);
 
   /* if p1 and p2 are split, we also require p1*p2, p1*p2^-1, p1^-1*p2,
    * and p1^-1*p2^-1 to be distinct */
-  if (i1>0 && i2>0 && !qfb_distinct_prods(D, p1, p2)) { set_avma(av); return 0; }
+  if (i1>0 && i2>0 && !qfb_distinct_prods(D, p1, p2)) return gc_bool(av,0);
   if (!i1 && !i2) {
     /* if both p1 and p2 are ramified, make sure their product is not
      * principal */
     P = qfb_nform(D, N);
-    if (equali1(gel(P,1))) { set_avma(av); return 0; }
+    if (equali1(gel(P,1))) return gc_bool(av,0);
     set_avma(av);
   }
   return 1;
@@ -470,8 +468,9 @@ modinv_f_from_j(ulong j, ulong p, ulong pi, ulong s2, long only_residue)
   pol = mkvecsmall5(0UL, Fl_neg(16 % p, p), Fl_neg(g2, p), 0UL, 1UL);
   r = Flx_roots(pol, p);
   for (i = 1; i < lg(r); ++i)
-    if (only_residue) { if (krouu(r[i], p) != -1) { set_avma(av); return r[i]; } }
-    else if (eighth_root(&f, r[i], p, pi, s2)) { set_avma(av); return f; }
+    if (only_residue)
+    { if (krouu(r[i], p) != -1) return gc_ulong(av,r[i]); }
+    else if (eighth_root(&f, r[i], p, pi, s2)) return gc_ulong(av,f);
   pari_err_BUG("modinv_f_from_j");
   return 0;/*LCOV_EXCL_LINE*/
 }
@@ -488,7 +487,7 @@ modinv_f3_from_j(ulong j, ulong p, ulong pi, ulong s2)
       Fl_neg(4096 % p, p), Fl_sub(768 % p, j, p), Fl_neg(48 % p, p), 1UL);
   r = Flx_roots(pol, p);
   for (i = 1; i < lg(r); ++i)
-    if (eighth_root(&f, r[i], p, pi, s2)) { set_avma(av); return f; }
+    if (eighth_root(&f, r[i], p, pi, s2)) return gc_ulong(av,f);
   pari_err_BUG("modinv_f3_from_j");
   return 0;/*LCOV_EXCL_LINE*/
 }
@@ -693,7 +692,7 @@ modinv_double_eta_from_j(GEN F, long inv, ulong j, ulong p, ulong pi, ulong s2)
   for (i = 1; i < lg(a); ++i)
     if (double_eta_root(inv, &f, uel(a, i), p, pi, s2)) break;
   if (i == lg(a)) pari_err_BUG("modinv_double_eta_from_j");
-  set_avma(av); return f;
+  return gc_ulong(av,f);
 }
 
 /* assume j1 != j2 */
@@ -719,7 +718,7 @@ modinv_double_eta_from_2j(
   if (degpol(d) > 2
       || (*r = Flx_oneroot(d, p)) == p
       || ! double_eta_root(inv, r, *r, p, pi, s2)) return 0;
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 
 long
@@ -770,7 +769,7 @@ modfn_root(ulong j, norm_eqn_t ne, long inv)
   {
     pari_sp av = avma;
     ulong f = modinv_double_eta_from_j(double_eta_Fl(inv,p), inv, j, p, pi, s2);
-    set_avma(av); return f;
+    return gc_ulong(av,f);
   }
   pari_err_BUG("modfn_root"); return ULONG_MAX;/*LCOV_EXCL_LINE*/
 }
@@ -1286,7 +1285,7 @@ verify_L_sylow_is_cyclic(long e, ulong a4, ulong a6, ulong p, ulong pi)
     P = Flj_mulu_pre(P, e, a4, p, pi);
     if (P[3] != 0) { res = 1; break; }
   }
-  set_avma(av); return res;
+  return gc_long(av,res);
 }
 
 static ulong
@@ -1318,7 +1317,7 @@ find_noniso_L_isogenous_curve(
     set_avma(av);
     pt = find_L_tors_point(NULL, a4, a6, p, pi, n, L, val);
   }
-  set_avma(ltop); return j_res;
+  return gc_ulong(ltop, j_res);
 }
 
 /* Given a prime L and a j-invariant j (mod p), return the j-invariant
@@ -1370,8 +1369,7 @@ update_Lsqr_cycle(GEN cyc, const disc_info *dinfo)
 }
 
 static ulong
-oneroot_of_classpoly(
-  GEN hilb, GEN factu, norm_eqn_t ne, GEN jdb)
+oneroot_of_classpoly(GEN hilb, GEN factu, norm_eqn_t ne, GEN jdb)
 {
   pari_sp av = avma;
   ulong j0, p = ne->p, pi = ne->pi;
@@ -1392,7 +1390,7 @@ oneroot_of_classpoly(
     j0 = descend_volcano(phi, j0, p, pi, 0, L, val, val);
     set_avma(av);
   }
-  set_avma(av); return j0;
+  return gc_ulong(av, j0);
 }
 
 /* TODO: Precompute the classgp_pcp_t structs and link them to dinfo */
@@ -3241,7 +3239,7 @@ qform_primeform2(long p, long D)
     }
     set_avma(av);
   }
-  set_avma(ltop); return NULL;
+  return gc_NULL(ltop);
 }
 
 /* Let n = #cl(D); return x such that [L0]^x = [L] in cl(D), or -1 if x was
@@ -3254,7 +3252,7 @@ primeform_discrete_log(long L0, long L, long n, long D)
   Q = primeform_u(DD, L0);
   R = primeform_u(DD, L);
   X = qfi_Shanks(R, Q, n);
-  set_avma(av); return X? itos(X): -1;
+  return gc_long(av, X? itos(X): -1);
 }
 
 /* Return the norm of a class group generator appropriate for a discriminant
@@ -3311,7 +3309,7 @@ primeform_exp_order(long L, long n, long D, long ord)
   pari_sp av = avma;
   GEN Q = gpowgs(primeform_u(stoi(D), L), n);
   long m = itos(qfi_order(Q, Z_factor(stoi(ord))));
-  set_avma(av); return m;
+  return gc_long(av,m);
 }
 
 /* If an ideal of norm modinv_deg is equivalent to an ideal of norm L0, we
@@ -3359,7 +3357,7 @@ orientation_ambiguity(long D1, long L0, long modinv_p1, long modinv_p2, long mod
       ambiguity = 1;
     }
   }
-  set_avma(av); return ambiguity;
+  return gc_long(av, ambiguity);
 }
 
 static long
@@ -3579,7 +3577,7 @@ calc_primes_for_discriminants(disc_info Ds[], long Dcnt, long L, long minbits)
     for (i = 0; i < Dcnt; i++) killblock((GEN)Ds[i].primes);
     Dcnt = 0;
   }
-  set_avma(av); return Dcnt;
+  return gc_long(av, Dcnt);
 }
 
 /* Select discriminant(s) to use when calculating the modular
@@ -3877,7 +3875,7 @@ modpoly_pickD(disc_info Ds[MODPOLY_MAX_DCNT], long L, long inv,
       err_printf (" %ld primes, %ld bits\n", Ds[i].nprimes, Ds[i].bits);
     }
   }
-  set_avma(ltop); return Dcnt;
+  return gc_long(ltop, Dcnt);
 }
 
 static int

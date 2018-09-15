@@ -180,7 +180,7 @@ fast_val(GEN L0, GEN cx, GEN pr)
     long w = Q_pval(cx, pr_get_p(pr));
     if (w) v += w * pr_get_e(pr);
   }
-  set_avma(av); return v;
+  return gc_long(av,v);
 }
 
 /* x coprime to fZ, return y = x mod fZ, y integral */
@@ -741,8 +741,7 @@ is_unit(GEN M, long r1, GEN x)
 {
   pari_sp av = avma;
   GEN Nx = ground( embed_norm(RgM_zc_mul(M,x), r1) );
-  int ok = is_pm1(Nx);
-  set_avma(av); return ok;
+  return gc_bool(av, is_pm1(Nx));
 }
 
 /* FIXME: should use smallvectors */
@@ -1203,7 +1202,7 @@ bnfcertify0(GEN bnf, long flag)
       check_prime(p, nf, &S);
     }
   }
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 long
 bnfcertify(GEN bnf) { return bnfcertify0(bnf, 0); }
@@ -1549,12 +1548,12 @@ bnrisconductor(GEN bnr, GEN H0)
   for (k = 1; k < l; k++)
   {
     j = itos(gel(e,k));
-    if (contains(H, bnr_log_gen_pr(bnr, &S, nf, j, k))) { set_avma(av); return 0; }
+    if (contains(H, bnr_log_gen_pr(bnr, &S, nf, j, k))) return gc_long(av,0);
   }
   l = lg(archp);
   for (k = 1; k < l; k++)
-    if (contains(H, bnr_log_gen_arch(bnr, &S, k))) { set_avma(av); return 0; }
-  set_avma(av); return 1;
+    if (contains(H, bnr_log_gen_arch(bnr, &S, k))) return gc_long(av,0);
+  return gc_long(av,1);
 }
 
 /* return the norm group corresponding to the relative extension given by
@@ -1727,11 +1726,7 @@ rnfisabelian_i(GEN nf, GEN pol)
 }
 long
 rnfisabelian(GEN nf, GEN pol)
-{
-  pari_sp av = avma;
-  long t = rnfisabelian_i(nf, pol);
-  set_avma(av); return t;
-}
+{ pari_sp av = avma; return gc_long(av, rnfisabelian_i(nf, pol)); }
 
 /* Given bnf and T defining an abelian relative extension, compute the
  * corresponding conductor and congruence subgroup. Return
@@ -2213,7 +2208,7 @@ hdet(ulong h, GEN m)
 {
   pari_sp av = avma;
   GEN z = mului(h, ZM_det_triangular(ZM_hnf(m)));
-  set_avma(av); return itou(z);
+  return gc_ulong(av, itou(z));
 }
 static GEN
 bnrclassno_all(GEN B, ulong h, GEN sgnU)
@@ -2668,8 +2663,7 @@ bnrisgalois(GEN bnr, GEN M, GEN H)
   for (i=1; i<l; i++)
   {
     long res = ZM_equal(bnrgaloisapply(bnr,gel(M,i), H), H);
-    if (!res) { set_avma(av); return 0; }
+    if (!res) return gc_long(av,0);
   }
-  set_avma(av);
-  return 1;
+  return gc_long(av,1);
 }

@@ -2294,8 +2294,8 @@ static int
 cyclo_is_real(GEN v, GEN ix)
 {
   pari_sp av = avma;
-  int s = gequal(poleval(lift_shallow(v), ix), v);
-  set_avma(av); return s;
+  GEN w = poleval(lift_shallow(v), ix);
+  return gc_bool(av, gequal(w, v));
 }
 
 static int
@@ -2304,8 +2304,7 @@ char_is_real(GEN ch, GEN mod)
   long i, l = lg(ch);
   GEN ix = QXQ_inv(pol_x(varn(mod)), mod);
   for (i=1; i<l; i++)
-    if (!cyclo_is_real(gel(ch,i), ix))
-      return 0;
+    if (!cyclo_is_real(gel(ch,i), ix)) return 0;
   return 1;
 }
 

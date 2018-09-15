@@ -114,7 +114,7 @@ torsbound(GEN e)
     if (b == 1) break;
     if (b == bold) m++; else { bold = b; m = 0; }
   }
-  set_avma(av); return b;
+  return gc_long(av,b);
 }
 
 /* return a rational point of order pk = p^k on E, or NULL if E(Q)[k] = O.
@@ -353,7 +353,7 @@ ellisdivisible(GEN E, GEN P, GEN n, GEN *pQ)
           long j, e = itos(gel(LE,i));
           GEN xp = ellxn(E,itos(gel(LP,i)),0);
           for (j = 1; j <= e; j++)
-            if (!ellisdivisible(E, P, xp, &P)) { set_avma(av); return 0; }
+            if (!ellisdivisible(E, P, xp, &P)) return gc_long(av,0);
         }
         if (pQ)
         {
@@ -396,7 +396,7 @@ ellisdivisible(GEN E, GEN P, GEN n, GEN *pQ)
     if (pQ) *pQ = gerepilecopy(av,Q); else set_avma(av);
     return 1;
   }
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 
 /* 2-torsion point of abscissa x */
@@ -631,7 +631,7 @@ ellorder_Q(GEN E, GEN P)
     R = odd(k)? elladd(E, P,Q): Q;
     if (!gequal(Q, ellneg(E,R))) k = 0;
   }
-  set_avma(av); return k;
+  return gc_long(av,k);
 }
 /* E a t_ELL_NF */
 static GEN

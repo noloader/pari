@@ -1205,7 +1205,7 @@ ellQ_goodl(GEN E)
       if ((mask &_13) && kross(D,13)==-1) mask &= ~_13;
     }
   }
-  set_avma(av); return mask;
+  return gc_ulong(av, mask);
 }
 
 static long

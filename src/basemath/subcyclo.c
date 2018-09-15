@@ -185,7 +185,7 @@ znstar_conductor_bits(GEN bits)
     }
     if (e) f *= upowuu(p, e);
   }
-  set_avma(av); return f;
+  return gc_long(av,f);
 }
 long
 znstar_conductor(GEN H) { return znstar_conductor_bits(gel(H,3)); }

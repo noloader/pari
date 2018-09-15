@@ -1014,12 +1014,10 @@ ulong
 F2xq_trace(GEN x, GEN T)
 {
   pari_sp av = avma;
-  ulong t;
   long n = F2x_degree(T)-1;
   GEN z = F2x_mul(x, F2x_deriv(T));
   z = F2x_rem(z, T);
-  t = F2x_degree(z)<n ? 0 : 1;
-  set_avma(av); return t;
+  return gc_ulong(av, F2x_degree(z) < n ? 0 : 1);
 }
 
 GEN
@@ -1073,8 +1071,8 @@ F2x_is_smooth_squarefree(GEN f, long r)
   for(i=1;  ;i++)
   {
     a = F2xq_sqr(F2x_rem(a,f),f);
-    if (F2x_equal(a, F2x_rem(sx,f))) {set_avma(av); return 1;}
-    if (i==r) {set_avma(av); return 0;}
+    if (F2x_equal(a, F2x_rem(sx,f))) return gc_long(av,1);
+    if (i==r) return gc_long(av,0);
     f = F2x_div(f, F2x_gcd(F2x_add(a,sx),f));
   }
 }
@@ -1191,8 +1189,7 @@ F2xq_log_Coppersmith_d(GEN W, GEN g, long r, long n, GEN T, GEN mo)
       return gerepileuptoint(av, l);
     }
   }
-  set_avma(av);
-  return NULL;
+  return gc_NULL(av);
 }
 
 static GEN
@@ -2209,7 +2206,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
   if (pr == ONLY_DIVIDES)
   {
     if (lead) gunclone(lead);
-    if (sx) { set_avma(av0); return NULL; }
+    if (sx) return gc_NULL(av0);
     avma = (pari_sp)rem; return z-2;
   }
   lr=i+3; rem -= lr;
@@ -2462,7 +2459,7 @@ F2xqX_divrem(GEN x, GEN S, GEN T, GEN *pr)
     pari_sp av=avma;
     GEN mg = B? B: F2xqX_invBarrett(y, T);
     GEN q = F2xqX_divrem_Barrett_noGC(x,mg,y,T,pr);
-    if (!q) {set_avma(av); return NULL;}
+    if (!q) return gc_NULL(av);
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
     gerepileall(av,2,&q,pr);
     return q;

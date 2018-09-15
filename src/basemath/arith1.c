@@ -95,8 +95,8 @@ pgener_Fl_local(ulong p, GEN L0)
     default: return 2;
   }
   L = u_is_gener_expo(p,L0);
-  for (x=2;;x++) { if (is_gener_Fl(x,p,p_1,L)) break; }
-  set_avma(av); return x;
+  for (x = 2;; x++)
+    if (is_gener_Fl(x,p,p_1,L)) return gc_ulong(av, x);
 }
 ulong
 pgener_Fl(ulong p) { return pgener_Fl_local(p, NULL); }
@@ -156,8 +156,8 @@ pgener_Zl(ulong p)
     long x ;
     GEN p2 = sqru(p), L = u_is_gener_expo(p, NULL);
     for (x=2;;x++)
-      if (is_gener_Fl(x,p,p_1,L) && !is_pm1(Fp_powu(utoipos(x),p_1,p2))) break;
-    set_avma(av); return x;
+      if (is_gener_Fl(x,p,p_1,L) && !is_pm1(Fp_powu(utoipos(x),p_1,p2)))
+        return gc_ulong(av, x);
   }
 #endif
 }
@@ -258,7 +258,7 @@ rootsof1_Fl(ulong n, ulong p)
   GEN L = u_odd_prime_divisors(n); /* 2 implicit in pgener_Fl_local */
   ulong z = pgener_Fl_local(p, L);
   z = Fl_powu(z, (p-1) / n, p); /* prim. n-th root of 1 */
-  set_avma(av); return z;
+  return gc_ulong(av,z);
 }
 
 /*********************************************************************/
@@ -336,7 +336,7 @@ istotient_i(GEN n, GEN m, GEN L, GEN *px)
     }
     set_avma(av2);
   }
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 
 /* find x such that phi(x) = n */
@@ -359,7 +359,7 @@ istotient(GEN n, GEN *px)
       *px = gerepileuptoint(av, *px);
     return 1;
   }
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 
 /*********************************************************************/
@@ -584,7 +584,7 @@ Z_issquareall(GEN x, GEN *pt)
   }
   if (!carremod(umodiu(x, 64*63*65*11))) return 0;
   av = avma; y = sqrtremi(x, &r);
-  if (r != gen_0) { set_avma(av); return 0; }
+  if (r != gen_0) return gc_long(av,0);
   if (pt) { *pt = y; avma = (pari_sp)y; } else set_avma(av);
   return 1;
 }
@@ -618,14 +618,14 @@ polissquareall(GEN x, GEN *pt)
   if (odd(degpol(x))) return 0; /* odd degree */
   av = avma;
   v = RgX_valrem(x, &x);
-  if (v & 1) { set_avma(av); return 0; }
+  if (v & 1) return gc_long(av,0);
   a = gel(x,2); /* test constant coeff */
   if (!pt)
-  { if (!issquare(a)) { set_avma(av); return 0; } }
+  { if (!issquare(a)) return gc_long(av,0); }
   else
-  { if (!issquareall(a,&b)) { set_avma(av); return 0; } }
+  { if (!issquareall(a,&b)) return gc_long(av,0); }
   if (!degpol(x)) { /* constant polynomial */
-    if (!pt) { set_avma(av); return 1; }
+    if (!pt) return gc_long(av,1);
     y = scalarpol(b, varn(x)); goto END;
   }
   p = characteristic(x);
@@ -635,19 +635,19 @@ polissquareall(GEN x, GEN *pt)
     if (!absequaliu(p,2)) pari_err_IMPL("issquare for even characteristic != 2");
     x = gmul(x, mkintmod(gen_1, gen_2));
     lx = lg(x);
-    if ((lx-3) & 1) { set_avma(av); return 0; }
+    if ((lx-3) & 1) return gc_long(av,0);
     for (i = 3; i < lx; i+=2)
-      if (!gequal0(gel(x,i))) { set_avma(av); return 0; }
+      if (!gequal0(gel(x,i))) return gc_long(av,0);
     if (pt) {
       y = cgetg((lx+3) / 2, t_POL);
       for (i = 2; i < lx; i+=2)
-        if (!issquareall(gel(x,i), &gel(y, (i+2)>>1))) { set_avma(av); return 0; }
+        if (!issquareall(gel(x,i), &gel(y, (i+2)>>1))) return gc_long(av,0);
       y[1] = evalsigne(1) | evalvarn(varn(x));
       goto END;
     } else {
       for (i = 2; i < lx; i+=2)
-        if (!issquare(gel(x,i))) { set_avma(av); return 0; }
-      set_avma(av); return 1;
+        if (!issquare(gel(x,i))) return gc_long(av,0);
+      return gc_long(av,1);
     }
   }
   else
@@ -657,8 +657,8 @@ polissquareall(GEN x, GEN *pt)
     /* a(x^m) = B^2 => B = b(x^m) provided a(0) != 0 */
     if (!signe(p)) x = RgX_deflate_max(x,&m);
     y = ser2rfrac_i(gsqrt(RgX_to_ser(x,lg(x)-1),0));
-    if (!RgX_equal(RgX_sqr(y), x)) { set_avma(av); return 0; }
-    if (!pt) { set_avma(av); return 1; }
+    if (!RgX_equal(RgX_sqr(y), x)) return gc_long(av,0);
+    if (!pt) return gc_long(av,1);
     if (!gequal1(a)) y = gmul(b, y);
     if (m != 1) y = RgX_inflate(y,m);
   }
@@ -732,12 +732,12 @@ Zn_ispower(GEN a, GEN q, GEN K, GEN *pt)
     {
       GEN p = gel(P,i);
       long e = itos(gel(E,i));
-      if (!handle_pe(&a, NULL, L, K, p, e)) { set_avma(av); return 0; }
+      if (!handle_pe(&a, NULL, L, K, p, e)) return gc_long(av,0);
     }
     goto END;
   }
   if (!mod2(K)
-      && kronecker(a, shifti(q,-vali(q))) == -1) { set_avma(av); return 0; }
+      && kronecker(a, shifti(q,-vali(q))) == -1) return gc_long(av,0);
   L = pt? vectrunc_init(expi(q)+1): NULL;
   u_forprime_init(&S, 2, tridiv_bound(q));
   while ((pp = u_forprime_next(&S)))
@@ -745,10 +745,10 @@ Zn_ispower(GEN a, GEN q, GEN K, GEN *pt)
     int stop;
     e = Z_lvalrem_stop(&q, pp, &stop);
     if (!e) continue;
-    if (!handle_pe(&a, q, L, K, utoipos(pp), e)) { set_avma(av); return 0; }
+    if (!handle_pe(&a, q, L, K, utoipos(pp), e)) return gc_long(av,0);
     if (stop)
     {
-      if (!is_pm1(q) && !handle_pe(&a, q, L, K, q, 1)) { set_avma(av); return 0; }
+      if (!is_pm1(q) && !handle_pe(&a, q, L, K, q, 1)) return gc_long(av,0);
       goto END;
     }
   }
@@ -758,7 +758,7 @@ Zn_ispower(GEN a, GEN q, GEN K, GEN *pt)
     GEN p = gel(primetab,i);
     e = Z_pvalrem(q, p, &q);
     if (!e) continue;
-    if (!handle_pe(&a, q, L, K, p, e)) { set_avma(av); return 0; }
+    if (!handle_pe(&a, q, L, K, p, e)) return gc_long(av,0);
     if (is_pm1(q)) goto END;
   }
   N = gcdii(a,q);
@@ -767,7 +767,7 @@ Zn_ispower(GEN a, GEN q, GEN K, GEN *pt)
     if (ifac_isprime(N))
     {
       e = Z_pvalrem(q, N, &q);
-      if (!handle_pe(&a, q, L, K, N, e)) { set_avma(av); return 0; }
+      if (!handle_pe(&a, q, L, K, N, e)) return gc_long(av,0);
     }
     else
     {
@@ -778,7 +778,7 @@ Zn_ispower(GEN a, GEN q, GEN K, GEN *pt)
         GEN p;
         if (!ifac_next(&part, &p, &e)) break;
         e = Z_pvalrem(q, p, &q);
-        if (!handle_pe(&a, q, L, K, p, e)) { set_avma(av); return 0; }
+        if (!handle_pe(&a, q, L, K, p, e)) return gc_long(av,0);
       }
     }
   }
@@ -786,7 +786,7 @@ Zn_ispower(GEN a, GEN q, GEN K, GEN *pt)
   {
     if (ifac_isprime(q))
     {
-      if (!handle_pe(&a, q, L, K, q, 1)) { set_avma(av); return 0; }
+      if (!handle_pe(&a, q, L, K, q, 1)) return gc_long(av,0);
     }
     else
     {
@@ -796,7 +796,7 @@ Zn_ispower(GEN a, GEN q, GEN K, GEN *pt)
         long e;
         GEN p;
         if (!ifac_next(&part, &p, &e)) break;
-        if (!handle_pe(&a, q, L, K, p, e)) { set_avma(av); return 0; }
+        if (!handle_pe(&a, q, L, K, p, e)) return gc_long(av,0);
       }
     }
   }
@@ -814,8 +814,8 @@ polmodispower(GEN x, GEN K, GEN *pt)
   {
     x = liftall_shallow(x);
     if (T) T = liftall_shallow(T);
-    if (!Fq_ispower(x, K, T, p)) { set_avma(av); return 0; }
-    if (!pt) { set_avma(av); return 1; }
+    if (!Fq_ispower(x, K, T, p)) return gc_long(av,0);
+    if (!pt) return gc_long(av,1);
     x = Fq_sqrtn(x, K, T,p, NULL);
     if (typ(x) == t_INT)
       x = Fp_to_mod(x,p);
@@ -841,7 +841,7 @@ issquareall(GEN x, GEN *pt)
     case t_FRAC: av = avma;
       F = cgetg(3, t_FRAC);
       if (   !Z_issquareall(gel(x,1), &gel(F,1))
-          || !Z_issquareall(gel(x,2), &gel(F,2))) { set_avma(av); return 0; }
+          || !Z_issquareall(gel(x,2), &gel(F,2))) return gc_long(av,0);
       *pt = F; return 1;
 
     case t_POLMOD:
@@ -850,7 +850,7 @@ issquareall(GEN x, GEN *pt)
     case t_RFRAC: av = avma;
       F = cgetg(3, t_RFRAC);
       if (   !issquareall(gel(x,1), &gel(F,1))
-          || !polissquareall(gel(x,2), &gel(F,2))) { set_avma(av); return 0; }
+          || !polissquareall(gel(x,2), &gel(F,2))) return gc_long(av,0);
       *pt = F; return 1;
 
     case t_REAL: case t_COMPLEX: case t_PADIC: case t_SER:
@@ -872,7 +872,7 @@ issquare(GEN x)
 {
   pari_sp av;
   GEN a, p;
-  long i, v;
+  long v;
 
   switch(typ(x))
   {
@@ -916,8 +916,7 @@ issquare(GEN x)
       return issquare(gel(x,2));
 
     case t_RFRAC:
-      av = avma; i = issquare(gmul(gel(x,1),gel(x,2)));
-      set_avma(av); return i;
+      av = avma; return gc_long(av, issquare(gmul(gel(x,1),gel(x,2))));
   }
   pari_err_TYPE("issquare",x);
   return 0; /* LCOV_EXCL_LINE */
@@ -945,22 +944,22 @@ ispolygonal(GEN x, GEN S, GEN *N)
       D = addiu(shifti(x, 3), 1);
     else
       D = addiu(mului(8*s - 16, x), (s-4)*(s-4));
-    if (!Z_issquareall(D, &d)) { set_avma(av); return 0; }
+    if (!Z_issquareall(D, &d)) return gc_long(av,0);
     if (s == 3)
       d = subiu(d, 1);
     else
       d = addiu(d, s - 4);
     n = absdiviu_rem(d, 2*s - 4, &r);
-    if (r) { set_avma(av); return 0; }
+    if (r) return gc_long(av,0);
   }
   else
   {
     GEN r, S_2 = subiu(S,2), S_4 = subiu(S,4);
     D = addii(mulii(shifti(S_2,3), x), sqri(S_4));
-    if (!Z_issquareall(D, &d)) { set_avma(av); return 0; }
+    if (!Z_issquareall(D, &d)) return gc_long(av,0);
     d = addii(d, S_4);
     n = dvmdii(shifti(d,-1), S_2, &r);
-    if (r != gen_0) { set_avma(av); return 0; }
+    if (r != gen_0) return gc_long(av,0);
   }
   if (N) *N = gerepileuptoint(av, n); else set_avma(av);
   return 1;
@@ -991,30 +990,29 @@ polispower(GEN x, GEN K, GEN *pt)
   { /* over Fq */
     if (T && typ(T) == t_FFELT)
     {
-      if (!FFX_ispower(x, k, T, pt)) { set_avma(av); return 0; }
+      if (!FFX_ispower(x, k, T, pt)) return gc_long(av,0);
       return 1;
     }
     x = RgX_to_FqX(x,T,p);
-    if (!FqX_ispower(x, k, T,p, pt)) { set_avma(av); return 0; }
-    if (pt)
-      *pt = gerepileupto(av, FqX_to_mod(*pt, T, p));
+    if (!FqX_ispower(x, k, T,p, pt)) return gc_long(av,0);
+    if (pt) *pt = gerepileupto(av, FqX_to_mod(*pt, T, p));
     return 1;
   }
   v = RgX_valrem(x, &x);
   if (v % k) return 0;
   v /= k;
   a = gel(x,2); b = NULL;
-  if (!ispower(a, K, &b)) { set_avma(av); return 0; }
+  if (!ispower(a, K, &b)) return gc_long(av,0);
   if (d)
   {
     GEN p = characteristic(x);
     a = leading_coeff(x);
-    if (!ispower(a, K, &b)) { set_avma(av); return 0; }
+    if (!ispower(a, K, &b)) return gc_long(av,0);
     x = RgX_normalize(x);
     if (signe(p) && cmpii(p,K) <= 0)
       pari_err_IMPL("ispower(general t_POL) in small characteristic");
     y = gtrunc(gsqrtn(RgX_to_ser(x,lg(x)), K, NULL, 0));
-    if (!RgX_equal(powgi(y, K), x)) { set_avma(av); return 0; }
+    if (!RgX_equal(powgi(y, K), x)) return gc_long(av,0);
   }
   else
     y = pol_1(varn(x));
@@ -1060,15 +1058,14 @@ Fp_ispower(GEN x, GEN K, GEN p)
 {
   pari_sp av = avma;
   GEN p_1;
-  long r;
   x = modii(x, p);
-  if (!signe(x) || equali1(x)) { set_avma(av); return 1; }
+  if (!signe(x) || equali1(x)) return gc_bool(av,1);
   /* implies p > 2 */
   p_1 = subiu(p,1);
   K = gcdii(K, p_1);
-  if (absequaliu(K, 2)) { r = kronecker(x,p); set_avma(av); return (r > 0); }
+  if (absequaliu(K, 2)) return gc_bool(av, kronecker(x,p) > 0);
   x = Fp_pow(x, diviiexact(p_1,K), p);
-  set_avma(av); return equali1(x);
+  return gc_bool(av, equali1(x));
 }
 
 /* x unit defined modulo 2^e, e > 0, p prime */
@@ -1108,7 +1105,7 @@ Qp_ispower(GEN x, GEN K, GEN *pt)
 {
   pari_sp av = avma;
   GEN z = Qp_sqrtn(x, K, NULL);
-  if (!z) { set_avma(av); return 0; }
+  if (!z) return gc_long(av,0);
   if (pt) *pt = z;
   return 1;
 }
@@ -1193,10 +1190,10 @@ gisanypower(GEN x, GEN *pty)
     k = Z_isanypower(a, pty? &a: NULL);
     if (!k)
     { /* a = -1,1 or not a pure power */
-      if (!is_pm1(a)) { set_avma(av); return 0; }
+      if (!is_pm1(a)) return gc_long(av,0);
       if (signe(a) < 0) b = negi(b);
       k = Z_isanypower(b, pty? &b: NULL);
-      if (!k || !pty) { set_avma(av); return k; }
+      if (!k || !pty) return gc_long(av,k);
       *pty = gerepileupto(av, ginv(b));
       return k;
     }
@@ -1211,8 +1208,8 @@ gisanypower(GEN x, GEN *pty)
         if (!is_kth_power(b, p, &b)) break;
       if (j < e) k /= upowuu(p, e - j);
     }
-    if (k == 1) { set_avma(av); return 0; }
-    if (!pty) { set_avma(av); return k; }
+    if (k == 1) return gc_long(av,0);
+    if (!pty) return gc_long(av,k);
     if (k != h) a = powiu(a, h/k);
     *pty = gerepilecopy(av, mkfrac(a, b));
     return k;
@@ -1394,7 +1391,7 @@ Z_isanypower(GEN x, GEN *pty)
 {
   pari_sp av = avma;
   long k = Z_isanypower_aux(x, pty);
-  if (!k) { set_avma(av); return 0; }
+  if (!k) return gc_long(av,0);
   if (signe(x) < 0)
   {
     long v = vals(k);
@@ -1402,8 +1399,8 @@ Z_isanypower(GEN x, GEN *pty)
     {
       GEN y;
       k >>= v;
-      if (k == 1) { set_avma(av); return 0; }
-      if (!pty) { set_avma(av); return k; }
+      if (k == 1) return gc_long(av,0);
+      if (!pty) return gc_long(av,k);
       y = *pty;
       y = powiu(y, 1<<v);
       togglesign(y);
@@ -1476,7 +1473,7 @@ isprimepower_i(GEN n, GEN *pt, long flag)
   }
   /* p | n => p >= 103 */
   v = Z_isanypower_nosmalldiv(&n); /* expensive */
-  if (!(flag? isprime(n): BPSW_psp(n))) { set_avma(av); return 0; }
+  if (!(flag? isprime(n): BPSW_psp(n))) return gc_long(av,0);
   if (pt) *pt = gerepilecopy(av, n); else set_avma(av);
   return v;
 }
@@ -1608,7 +1605,7 @@ kronecker(GEN x, GEN y)
 {
   pari_sp av = avma;
   long s = 1, r;
-  ulong xu, yu;
+  ulong xu;
 
   if (typ(x) != t_INT) pari_err_TYPE("kronecker",x);
   if (typ(y) != t_INT) pari_err_TYPE("kronecker",y);
@@ -1620,7 +1617,7 @@ kronecker(GEN x, GEN y)
   r = vali(y);
   if (r)
   {
-    if (!mpodd(x)) { set_avma(av); return 0; }
+    if (!mpodd(x)) return gc_long(av,0);
     if (odd(r) && gome(x)) s = -s;
     y = shifti(y,-r);
   }
@@ -1653,8 +1650,7 @@ kronecker(GEN x, GEN y)
   }
   /* x=3 mod 4 && y=3 mod 4 ? (both are odd here) */
   if (xu & mod2BIL(y) & 2) s = -s;
-  yu = umodiu(y, xu);
-  set_avma(av); return krouu_s(yu, xu, s);
+  return gc_long(av, krouu_s(umodiu(y,xu), xu, s));
 }
 
 long
@@ -1721,13 +1717,12 @@ krosi(long x, GEN y)
   r = vali(y);
   if (r)
   {
-    if (!odd(x)) { set_avma(av); return 0; }
+    if (!odd(x)) return gc_long(av,0);
     if (odd(r) && ome(x)) s = -s;
     y = shifti(y,-r);
   }
   if (x < 0) { x = -x; if (mod4(y) == 3) s = -s; }
-  s = krouodd((ulong)x, y, s);
-  set_avma(av); return s;
+  return gc_long(av, krouodd((ulong)x, y, s));
 }
 
 long
@@ -1743,12 +1738,11 @@ kroui(ulong x, GEN y)
   r = vali(y);
   if (r)
   {
-    if (!odd(x)) { set_avma(av); return 0; }
+    if (!odd(x)) return gc_long(av,0);
     if (odd(r) && ome(x)) s = -s;
     y = shifti(y,-r);
   }
-  s = krouodd(x, y, s);
-  set_avma(av); return s;
+  return gc_long(av,  krouodd(x, y, s));
 }
 
 long
@@ -1824,7 +1818,7 @@ hilbertii(GEN x, GEN y, GEN p)
     if (oddvx && kronecker(y,p) < 0) z = -z;
     if (oddvy && kronecker(x,p) < 0) z = -z;
   }
-  set_avma(av); return z;
+  return gc_long(av, z);
 }
 
 static void
@@ -1878,7 +1872,7 @@ long
 hilbert(GEN x, GEN y, GEN p)
 {
   pari_sp av = avma;
-  long tx = typ(x), ty = typ(y), z;
+  long tx = typ(x), ty = typ(y);
 
   if (p && typ(p) != t_INT) pari_err_TYPE("hilbert",p);
   if (tx == t_REAL)
@@ -1914,7 +1908,7 @@ hilbert(GEN x, GEN y, GEN p)
 
   if (tx != t_INT || ty != t_INT) pari_err_TYPE2("hilbert",x,y);
   if (p && !signe(p)) p = NULL;
-  z = hilbertii(x,y,p); set_avma(av); return z;
+  return gc_long(av, hilbertii(x,y,p));
 }
 
 /*******************************************************************/
@@ -2311,7 +2305,7 @@ Fp_sqrt_i(GEN a, GEN y, GEN p)
    * e(e-1) > 8*log2(n)+20, see LNCS 2286 pp 430 [GTL] */
   if (e*(e-1) > 20 + 8 * expi(p))
   {
-    v = sqrt_Cipolla(a,p); if (!v) { set_avma(av); return NULL; }
+    v = sqrt_Cipolla(a,p); if (!v) return gc_NULL(av);
     return gerepileuptoint(av,v);
   }
   if (!y)
@@ -2328,7 +2322,7 @@ Fp_sqrt_i(GEN a, GEN y, GEN p)
        a square --> w even power of y, hence w^(2^(e-1)) = 1 */
     p1 = Fp_sqr(w,p);
     for (k=1; !equali1(p1) && k < e; k++) p1 = Fp_sqr(p1,p);
-    if (k == e) { set_avma(av); return NULL; } /* p composite or (a/p) != 1 */
+    if (k == e) return gc_NULL(av); /* p composite or (a/p) != 1 */
     /* w ^ (2^k) = 1 --> w = y ^ (u * 2^(e-k)), u odd */
     p1 = y;
     for (i=1; i < e-k; i++) p1 = Fp_sqr(p1,p);
@@ -3629,7 +3623,7 @@ Fl_order(ulong a, ulong o, ulong p)
       if (y == 1) { o = t *  upowuu(l, j); break; }
     }
   }
-  set_avma(av); return o;
+  return gc_ulong(av, o);
 }
 
 /*Find the exact order of a assuming a^o==1*/
@@ -3714,7 +3708,7 @@ Fp_log_halfgcd(ulong bnd, GEN C, GEN g, GEN p)
 {
   pari_sp av = avma;
   GEN h1, h2, F, G;
-  if (!Fp_ratlift(g,p,C,shifti(C,-1),&h1,&h2)) return NULL;
+  if (!Fp_ratlift(g,p,C,shifti(C,-1),&h1,&h2)) return gc_NULL(av);
   if ((F = Z_issmooth_fact(h1, bnd)) && (G = Z_issmooth_fact(h2, bnd)))
   {
     GEN M = cgetg(3, t_MAT);
@@ -3722,7 +3716,7 @@ Fp_log_halfgcd(ulong bnd, GEN C, GEN g, GEN p)
     gel(M,2) = vecsmall_concat(gel(F, 2),zv_neg_inplace(gel(G, 2)));
     return gerepileupto(av, M);
   }
-  set_avma(av); return NULL;
+  return gc_NULL(av);
 }
 
 static GEN
@@ -4086,7 +4080,7 @@ Fp_easylog(void *E, GEN a, GEN g, GEN ord)
   }
   if (typ(ord)==t_INT && BPSW_psp(p) && Fp_log_use_index(expi(ord),expi(p)))
     return Fp_log_index(a, g, ord, p);
-  set_avma(av); return NULL; /* not easy */
+  return gc_NULL(av); /* not easy */
 }
 
 GEN
@@ -4125,8 +4119,7 @@ Fl_log_Fp(ulong a, ulong g, ulong ord, ulong p)
 {
   pari_sp av = avma;
   GEN r = Fp_log(utoi(a),utoi(g),utoi(ord),utoi(p));
-  ulong z = typ(r)==t_INT ? itou(r): ~0L;
-  set_avma(av); return z;
+  return gc_ulong(av, typ(r)==t_INT ? itou(r): ~0UL);
 }
 
 ulong
@@ -4313,7 +4306,7 @@ Fp_sqrtn(GEN a, GEN n, GEN p, GEN *zeta)
 /**                    FUNDAMENTAL DISCRIMINANTS                    **/
 /**                                                                 **/
 /*********************************************************************/
-static int
+static long
 fa_isfundamental(GEN F)
 {
   GEN P = gel(F,1), E = gel(F,2);
@@ -4349,8 +4342,8 @@ isfundamental(GEN x)
   if (typ(x) != t_INT)
   {
     pari_sp av = avma;
-    int v = fa_isfundamental(check_arith_all(x,"isfundamental"));
-    set_avma(av); return v;
+    long v = fa_isfundamental(check_arith_all(x,"isfundamental"));
+    return gc_long(av,v);
   }
   return Z_isfundamental(x);
 }
@@ -4405,7 +4398,7 @@ Z_isfundamental(GEN x)
     if (r == 1) return 0;
     av = avma;
     r = Z_issquarefree( shifti(x,-2) );
-    set_avma(av); return r;
+    return gc_long(av, r);
   }
   r &= 3; /* |x| mod 4 */
   if (signe(x) < 0) r = 4-r;

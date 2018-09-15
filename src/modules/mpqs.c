@@ -105,11 +105,7 @@ paristrtok_r(char *str, const char *delim, char **saveptr)
  * diagnostics */
 static long
 decimal_len(GEN N)
-{
-  pari_sp av = avma;
-  long d = strlen(itostr(N));
-  set_avma(av); return d;
-}
+{ pari_sp av = avma; return gc_long(av, strlen(itostr(N))); }
 
 /* To be called after choosing k and putting kN into the handle:
  * Pick up the requested parameter set for the given size of kN in decimal
@@ -387,7 +383,7 @@ mpqs_find_k(mpqs_handle_t *h)
     double v = cache[0].value;
     for (i = 1; i < nbk; i++)
       if (cache[i].value > v) { best_i = i; v = cache[i].value; }
-    h->_k = cache[best_i]._k; set_avma(av); return 0;
+    h->_k = cache[best_i]._k; return gc_ulong(av,0);
   }
 }
 
@@ -890,7 +886,7 @@ mpqs_sort_lp_file(char *filename)
   if (fgets(cur_line, bufspace, TMP) == NULL)
   { /* file empty */
     pari_free(buf); pari_fclose(pTMP);
-    set_avma(av); return 0;
+    return gc_ulong(av, 0);
   }
   /* enter first buffer into buflist */
   *buflist++ = buf; /* can't overflow the buflist block */
@@ -1006,7 +1002,7 @@ mpqs_sort_lp_file(char *filename)
       buflist = buflist_head + buflist_size;
     }
   }
-  set_avma(av); return count;
+  return gc_long(av,count);
 }
 
 /* appends contents of file fp1 to f (auxiliary routine for merge sort) and
@@ -2206,7 +2202,7 @@ mpqs_combine_large_primes(mpqs_handle_t *h,
 #ifdef MPQS_DEBUG
       err_printf("MPQS: skipping relation with non-invertible q\n");
 #endif
-      if (!fgets(buf, MPQS_STRING_LENGTH, COMB)) { set_avma(av0); return 0; }
+      if (!fgets(buf, MPQS_STRING_LENGTH, COMB)) return gc_long(av0,0);
       set_avma(av);
       set_lp_entry(&e[0], buf);
       old_q = e[0].q; continue;
@@ -2293,7 +2289,7 @@ mpqs_combine_large_primes(mpqs_handle_t *h,
 
   if (DEBUGLEVEL >= 4)
     err_printf("MPQS: combined %ld full relation%s\n", c, (c!=1 ? "s" : ""));
-  set_avma(av0); return c;
+  return gc_long(av0,c);
 }
 
 /*********************************************************************/
@@ -2457,7 +2453,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
     if (DEBUGLEVEL >= 3)
       pari_warn(warner, "MPQS: no solutions found from linear system solver");
     pari_free(fpos); /* ei not yet allocated */
-    set_avma(av); return NULL; /* no factors found */
+    return gc_NULL(av); /* no factors found */
   }
 
   /* If the rank is r, we can expect up to 2^r pairwise coprime factors,
@@ -2653,7 +2649,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
   } /* for (loop over kernel basis) */
 
   pari_free(ei); pari_free(fpos);
-  if (res_next < 3) { set_avma(av); return NULL; } /* no factors found */
+  if (res_next < 3) return gc_NULL(av); /* no factors found */
 
   /* normal case:  convert internal format to ifac format as described in
    * src/basemath/ifactor1.c  (triples of components: value, exponent, class
@@ -2879,7 +2875,7 @@ mpqs_i(mpqs_handle_t *handle)
       pari_fclose(pFNEW);
       pari_fclose(pLPNEW);
       /* FREL, LPREL are closed at this point */
-      unlink_all(); set_avma(av); return NULL;
+      unlink_all(); return gc_NULL(av);
     }
 
     memset((void*)(handle->sieve_array), 0, (M << 1) * sizeof(unsigned char));
@@ -3121,7 +3117,7 @@ mpqs_i(mpqs_handle_t *handle)
       if (percentage > MPQS_ADMIT_DEFEAT)
       {
         pari_fclose(pLPNEW);
-        unlink_all(); set_avma(av); return NULL;
+        unlink_all(); return gc_NULL(av);
       }
       pFNEW = pari_fopen_or_fail(FNEW_str, WRITE);
     }

@@ -946,10 +946,10 @@ forprime_next(forprime_t *T)
   if (T->q == 1)
   {
     p = nextprime(addiu(p, 1));
-    if (T->bb && abscmpii(p, T->bb) > 0) { set_avma(av); return NULL; }
+    if (T->bb && abscmpii(p, T->bb) > 0) return gc_NULL(av);
   } else do {
     p = addiu(p, T->q);
-    if (T->bb && abscmpii(p, T->bb) > 0) { set_avma(av); return NULL; }
+    if (T->bb && abscmpii(p, T->bb) > 0) return gc_NULL(av);
   } while (!BPSW_psp(p));
   affii(p, T->pp); set_avma(av); return T->pp;
 }
@@ -989,8 +989,7 @@ forcomposite_init(forcomposite_t *C, GEN a, GEN b)
   if (!forprime_init(&C->T, a,b))
   {
     C->n = gen_1; /* in case caller forgets to check the return value */
-    C->b = gen_0;
-    set_avma(av); return 0;
+    C->b = gen_0; return gc_bool(av,0);
   }
   C->n = setloop(a);
   C->b = b;

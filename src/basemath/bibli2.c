@@ -1568,7 +1568,7 @@ vecsearch(GEN v, GEN x, GEN k)
     x = (GEN)itos(x);
   else if (!is_matvec_t(tv)) pari_err_TYPE("vecsearch", v);
   r = CMP? gen_search(v, x, 0, E, CMP): key_search(v, x, k);
-  set_avma(av); return r;
+  return gc_long(av, r);
 }
 
 GEN

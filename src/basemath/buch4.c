@@ -28,7 +28,7 @@ lemma6(GEN T, GEN p, long nu, GEN x)
   pari_sp av = avma;
   GEN gpx, gx = poleval(T, x);
 
-  if (Zp_issquare(gx, p)) { set_avma(av); return 1; }
+  if (Zp_issquare(gx, p)) return gc_long(av,1);
 
   la = Z_pval(gx, p);
   gpx = poleval(ZX_deriv(T), x);
@@ -89,14 +89,14 @@ zpsol(GEN T, GEN p, long nu, GEN pnu, GEN x0)
   for (i=0; i < itos(p); i++)
   {
     x = addii(x,pnu);
-    if (zpsol(T,p,nu+1,pnup,x)) { set_avma(av); return 1; }
+    if (zpsol(T,p,nu+1,pnup,x)) return gc_long(av,1);
     if (gc_needed(btop, 2))
     {
       x = gerepileupto(btop, x);
       if (DEBUGMEM > 1) pari_warn(warnmem, "zpsol: %ld/%Ps",i,p);
     }
   }
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 
 /* return 1 if equation y^2=T(x) has a rational p-adic solution (possibly
@@ -110,7 +110,7 @@ hyperell_locally_soluble(GEN T,GEN p)
   if (typ(p)!=t_INT) pari_err_TYPE("zpsoluble",p);
   RgX_check_ZX(T, "zpsoluble");
   res = zpsol(T,p,0,gen_1,gen_0) || zpsol(RgX_recip_shallow(T), p, 1, p, gen_0);
-  set_avma(av); return res;
+  return gc_long(av, res);
 }
 
 /* is t a square in (O_K/pr) ? Assume v_pr(t) = 0 */
@@ -161,7 +161,7 @@ psquarenf(GEN nf,GEN x,GEN pr,GEN modpr)
     if (v&1) return 0;
     v = (quad_char(nf, x, modpr) == 1);
   }
-  set_avma(av); return v;
+  return gc_long(av,v);
 }
 
 /* Is  x a square in (ZK / pr^(1+2e))^* ?  pr | 2 */
@@ -187,8 +187,7 @@ static int
 psquare2nf(GEN nf,GEN x,GEN pr,GEN sprk)
 {
   pari_sp av = avma;
-  long v = psquare2nf_i(nf,x,pr,sprk);
-  set_avma(av); return v;
+  return gc_long(av, psquare2nf_i(nf,x,pr,sprk));
 }
 
 /* pr above an odd prime */
@@ -263,9 +262,9 @@ zpsolnf(GEN nf,GEN T,GEN pr,long nu,GEN pnu,GEN x0,GEN repr,GEN zinit)
   for (i=1; i<lg(repr); i++)
   {
     GEN x = nfadd(nf, x0, nfmul(nf,pnu,gel(repr,i)));
-    if (zpsolnf(nf,T,pr,nu,pnup,x,repr,zinit)) { set_avma(av); return 1; }
+    if (zpsolnf(nf,T,pr,nu,pnup,x,repr,zinit)) return gc_long(av,1);
   }
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 
 /* Let y = copy(x); y[k] := j; return y */
@@ -316,11 +315,11 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
     if (psquarenf(nf, leading_coeff(T),pr,zinit)) return 1;
   }
   repr = repres(nf,pr);
-  if (zpsolnf(nf,T,pr,0,gen_1,gen_0,repr,zinit)) { set_avma(av); return 1; }
+  if (zpsolnf(nf,T,pr,0,gen_1,gen_0,repr,zinit)) return gc_long(av,1);
   p1 = pr_get_gen(pr);
-  if (zpsolnf(nf,RgX_recip_shallow(T),pr,1,p1,gen_0,repr,zinit)) { set_avma(av); return 1; }
-
-  set_avma(av); return 0;
+  if (zpsolnf(nf,RgX_recip_shallow(T),pr,1,p1,gen_0,repr,zinit))
+    return gc_long(av,1);
+  return gc_long(av,0);
 }
 
 /* return a * denom(a)^2, as an 'liftalg' */
@@ -346,17 +345,13 @@ static long
 hilb2nf(GEN nf,GEN a,GEN b,GEN p)
 {
   pari_sp av = avma;
-  long rep;
   GEN pol;
-
   a = den_remove(nf, a);
   b = den_remove(nf, b);
   pol = mkpoln(3, a, gen_0, b);
   /* varn(nf.pol) = 0, pol is not a valid GEN  [as in Pol([x,x], x)].
    * But it is only used as a placeholder, hence it is not a problem */
-
-  rep = nf_hyperell_locally_soluble(nf,pol,p)? 1: -1;
-  set_avma(av); return rep;
+  return gc_long(av, nf_hyperell_locally_soluble(nf,pol,p)? 1: -1);
 }
 
 /* local quadratic Hilbert symbol (a,b)_pr, for a,b (non-zero) in nf */
@@ -372,7 +367,7 @@ nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
   /* pr not above 2, compute t = tame symbol */
   va = nfval(nf,a,pr);
   vb = nfval(nf,b,pr);
-  if (!odd(va) && !odd(vb)) { set_avma(av); return 1; }
+  if (!odd(va) && !odd(vb)) return gc_long(av,1);
   /* Trick: pretend the exponent is 2, result is OK up to squares ! */
   t = famat_makecoprime(nf, mkvec2(a,b), mkvec2s(vb, -va),
                         pr, pr_hnf(nf, pr), gen_2);
@@ -392,7 +387,7 @@ nfhilbertp(GEN nf, GEN a, GEN b, GEN pr)
     rep = quad_char(nf, t, pr);
   }
   /* quad. symbol is image of t by the quadratic character  */
-  set_avma(av); return rep;
+  return gc_long(av,rep);
 }
 
 /* Global quadratic Hilbert symbol (a,b):
@@ -417,7 +412,7 @@ nfhilbert(GEN nf, GEN a, GEN b)
     {
       if (DEBUGLEVEL>3)
         err_printf("nfhilbert not soluble at real place %ld\n",i);
-      set_avma(av); return -1;
+      return gc_long(av,-1);
     }
 
   /* local solutions in finite completions ? (pr | 2ab)
@@ -434,9 +429,9 @@ nfhilbert(GEN nf, GEN a, GEN b)
     {
       if (DEBUGLEVEL>3)
         err_printf("nfhilbert not soluble at finite place %Ps\n",S[i]);
-      set_avma(av); return -1;
+      return gc_long(av,-1);
     }
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 
 long

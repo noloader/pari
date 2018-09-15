@@ -1636,7 +1636,7 @@ RgX_divrem_i(GEN x, GEN y, GEN *pr)
   if (RgX_is_FpX(x, &p) && RgX_is_FpX(y, &p) && p)
   {
     z = FpX_divrem(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p, pr);
-    if (!z) { set_avma(av); return NULL; }
+    if (!z) return gc_NULL(av);
     z = FpX_to_mod(z, p);
     if (!pr || pr == ONLY_REM || pr == ONLY_DIVIDES)
       return gerepileupto(av, z);
@@ -1750,7 +1750,7 @@ RgX_divrem_i(GEN x, GEN y, GEN *pr)
   }
   if (pr == ONLY_DIVIDES)
   {
-    if (sx) { set_avma(av); return NULL; }
+    if (sx) return gc_NULL(av);
     avma = (pari_sp)rem;
     return gerepileupto(av,z-2);
   }
@@ -1849,7 +1849,7 @@ RgXQX_divrem(GEN x, GEN y, GEN T, GEN *pr)
   if (pr == ONLY_DIVIDES)
   {
     if (lead) gunclone(lead);
-    if (sx) { set_avma(av0); return NULL; }
+    if (sx) return gc_NULL(av0);
     avma = (pari_sp)rem; return z-2;
   }
   lr=i+3; rem -= lr;
@@ -1939,7 +1939,7 @@ ZXQX_dvd(GEN x, GEN y, GEN T)
       gerepilecoeffs(av2,x,dx+1);
     }
   }
-  set_avma(av); return (dx < 0);
+  return gc_bool(av, dx < 0);
 }
 
 /* T either NULL or a t_POL. */
@@ -2726,8 +2726,7 @@ RgX_mul_FpX(GEN x, GEN y, GEN p)
   }
   else
     r = FpX_mul(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
-  if (signe(r)==0)
-  { set_avma(av); return zero_FpX_mod(p, varn(x)); }
+  if (signe(r)==0) { set_avma(av); return zero_FpX_mod(p, varn(x)); }
   return gerepileupto(av, FpX_to_mod(r, p));
 }
 
@@ -2752,8 +2751,7 @@ RgX_mul_FpXQX(GEN x, GEN y, GEN pol, GEN p)
   kx = ZXX_to_Kronecker(RgX_to_FpXQX(x, T, p), dT);
   ky = ZXX_to_Kronecker(RgX_to_FpXQX(y, T, p), dT);
   r = FpX_mul(kx, ky, p);
-  if (signe(r)==0)
-  { set_avma(av); return zero_FpXQX_mod(pol, p, varn(x)); }
+  if (signe(r)==0) { set_avma(av); return zero_FpXQX_mod(pol, p, varn(x)); }
   return gerepileupto(av, Kronecker_to_mod(FpX_to_mod(r, p), pol));
 }
 
@@ -2783,8 +2781,7 @@ RgX_sqr_FpX(GEN x, GEN p)
   }
   else
     r = FpX_sqr(RgX_to_FpX(x, p), p);
-  if (signe(r)==0)
-  { set_avma(av); return zero_FpX_mod(p, varn(x)); }
+  if (signe(r)==0) { set_avma(av); return zero_FpX_mod(p, varn(x)); }
   return gerepileupto(av, FpX_to_mod(r, p));
 }
 
@@ -2798,8 +2795,7 @@ RgX_sqr_FpXQX(GEN x, GEN pol, GEN p)
   dT = degpol(T);
   kx = ZXX_to_Kronecker(RgX_to_FpXQX(x, T, p), dT);
   r = FpX_sqr(kx, p);
-  if (signe(r)==0)
-  { set_avma(av); return zero_FpXQX_mod(pol, p, varn(x)); }
+  if (signe(r)==0) { set_avma(av); return zero_FpXQX_mod(pol, p, varn(x)); }
   return gerepileupto(av, Kronecker_to_mod(FpX_to_mod(r, p), pol));
 }
 
@@ -2825,8 +2821,7 @@ RgX_rem_FpX(GEN x, GEN y, GEN p)
   }
   else
     r = FpX_rem(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
-  if (signe(r)==0)
-  { set_avma(av); return zero_FpX_mod(p, varn(x)); }
+  if (signe(r)==0) { set_avma(av); return zero_FpX_mod(p, varn(x)); }
   return gerepileupto(av, FpX_to_mod(r, p));
 }
 
@@ -2854,8 +2849,7 @@ RgX_rem_FpXQX(GEN x, GEN y, GEN pol, GEN p)
   }
   else
     r = FpXQX_rem(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p), T, p);
-  if (signe(r)==0)
-  { set_avma(av); return zero_FpXQX_mod(pol, p, varn(x)); }
+  if (signe(r)==0) { set_avma(av); return zero_FpXQX_mod(pol, p, varn(x)); }
   return gerepileupto(av, FpXQX_to_mod(r, T, p));
 }
 

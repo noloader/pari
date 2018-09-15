@@ -106,7 +106,7 @@ FpC_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
   for (j = 1; j < l; ++j)
   {
     a = lift_to_frac_tdenom(gel(P,j), mod, amax, bmax, denom, tdenom);
-    if (!a) { set_avma(ltop); return NULL; }
+    if (!a) return gc_NULL(ltop);
     d = Q_denom(a);
     tdenom = tdenom ? cmpii(tdenom, d)<0? d: tdenom : d;
     gel(Q,j) = a;
@@ -124,7 +124,7 @@ FpM_ratlift(GEN M, GEN mod, GEN amax, GEN bmax, GEN denom)
   for (j = 1; j < l; ++j)
   {
     GEN a = FpC_ratlift(gel(M, j), mod, amax, bmax, denom);
-    if (!a) { set_avma(av); return NULL; }
+    if (!a) return gc_NULL(av);
     gel(N,j) = a;
   }
   return N;
@@ -140,7 +140,7 @@ FpX_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
   for (j = 2; j < l; ++j)
   {
     a = lift_to_frac(gel(P,j), mod, amax,bmax,denom);
-    if (!a) { set_avma(ltop); return NULL; }
+    if (!a) return gc_NULL(ltop);
     gel(Q,j) = a;
   }
   return Q;
@@ -243,8 +243,7 @@ nfissquarefree(GEN nf, GEN x)
 {
   pari_sp av = avma;
   GEN g, y = RgX_deriv(x);
-  if (RgX_is_rational(x))
-    g = QX_gcd(x, y);
+  if (RgX_is_rational(x)) g = QX_gcd(x, y);
   else
   {
     GEN T = get_nfpol(nf,&nf);
@@ -252,7 +251,7 @@ nfissquarefree(GEN nf, GEN x)
     y = Q_primpart( liftpol_shallow(y) );
     g = nfgcd(x, y, T, nf? nf_get_index(nf): NULL);
   }
-  set_avma(av); return (degpol(g) == 0);
+  return gc_bool(av, degpol(g) == 0);
 }
 
 /*******************************************************************/
@@ -1637,7 +1636,7 @@ get_good_factor(GEN T, ulong p, long maxf)
     }
     setlg(v,j); if (j > 1) return v;
   }
-  set_avma(av); return NULL; /* failure */
+  return gc_NULL(av); /* failure */
 }
 
 /* n = number of modular factors, f = residue degree; nold/fold current best
@@ -1937,7 +1936,7 @@ nfroots_if_split(GEN *pnf, GEN pol)
   GEN T = get_nfpol(*pnf,pnf), den = fix_nf(pnf, &T, &pol);
   pari_sp av = avma;
   GEN z = nfsqff(*pnf, pol, ROOTS_SPLIT, den);
-  if (lg(z) == 1) { set_avma(av); return NULL; }
+  if (lg(z) == 1) return gc_NULL(av);
   return gerepilecopy(av, z);
 }
 
@@ -2064,7 +2063,7 @@ guess_roots(GEN nf)
   }
   if (!nbroots) pari_err_OVERFLOW("guess_roots [ran out of primes]");
   if (DEBUGLEVEL>5) err_printf("%ld loops\n",l);
-  set_avma(av); return itos(nbroots);
+  return gc_long(av, itos(nbroots));
 }
 
 /* T(x) an irreducible ZX. Is it of the form Phi_n(c \pm x) ?

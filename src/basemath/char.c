@@ -407,7 +407,7 @@ zv_cyc_minimize(GEN cyc, GEN g, GEN coprime)
     gk = vecmoduu(gk, cyc);
     if (vecsmall_lexcmp(gk, best) < 0) { best = gk; bestk = k; }
   }
-  set_avma(av); return bestk == 1? k0: Fl_mul(k0, bestk, o);
+  return gc_long(av, bestk == 1? k0: Fl_mul(k0, bestk, o));
 }
 /* g of order o in abelian group G attached to cyc. Is g a minimal generator
  * [wrt lex order] of the cyclic subgroup it generates;
@@ -438,9 +438,9 @@ zv_cyc_minimal(GEN cyc, GEN g, GEN coprime)
     long ko = k % o;
     gk = Flv_add(gk, gd, e); if (!coprime[ko]) continue;
     gk = vecmoduu(gk, cyc);
-    if (vecsmall_lexcmp(gk, g) < 0) { set_avma(av); return 0; }
+    if (vecsmall_lexcmp(gk, g) < 0) return gc_long(av,0);
   }
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 
 static GEN

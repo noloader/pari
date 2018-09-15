@@ -350,15 +350,13 @@ static int
 is_bad(GEN D, ulong p)
 {
   pari_sp av = avma;
-  int r;
   if (p == 2)
   {
-    r = mod16(D) >> 1;
+    long r = mod16(D) >> 1;
     if (r && signe(D) < 0) r = 8-r;
     return (r < 4);
   }
-  r = dvdii(D, sqru(p)); /* p^2 | D ? */
-  set_avma(av); return r;
+  return gc_bool(av, dvdii(D, sqru(p))); /* p^2 | D ? */
 }
 
 /* returns the n-th suitable ideal for the factorbase */
@@ -371,7 +369,7 @@ nthidealquad(GEN D, long n)
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   while ((p = u_forprime_next(&S)) && n > 0)
     if (!is_bad(D, p) && kroiu(D, p) >= 0) n--;
-  set_avma(av); return p;
+  return gc_long(av, p);
 }
 
 static int

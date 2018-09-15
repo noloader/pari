@@ -307,8 +307,8 @@ static long
 rnfrealdec(GEN rnf, long k)
 {
   pari_sp av = avma;
-  long r = itos(nfpolsturm(rnf_get_nf(rnf), rnf_get_pol(rnf), stoi(k)));
-  set_avma(av); return r;
+  GEN r = nfpolsturm(rnf_get_nf(rnf), rnf_get_pol(rnf), stoi(k));
+  return gc_long(av, itou(r));
 }
 
 /* no garbage collection */
@@ -1460,11 +1460,11 @@ algisassociative(GEN mt0, GEN p)
           y = RgM_RgC_mul(mi,gcoeff(M,j,k));
         }
         /* not cmp_universal: must not fail on 0 == Mod(0,2) for instance */
-        if (!gequal(x,y)) { set_avma(av); return 0; }
+        if (!gequal(x,y)) return gc_bool(av,0);
       }
     }
   }
-  set_avma(av); return 1;
+  return gc_bool(av,1);
 }
 
 int
@@ -2461,7 +2461,7 @@ algdivl_i(GEN al, GEN x, GEN y, long tx, long ty) {
     else                    mtx = algleftmultable(al,x);
     res = inverseimage(mtx,y);
   }
-  if (!res || lg(res)==1) { set_avma(av); return NULL; }
+  if (!res || lg(res)==1) return gc_NULL(av);
   if (tx == al_MATRIX) {
     res = algbasis2mat(al, res, lg(x)-1);
     return gerepilecopy(av,res);
@@ -2498,9 +2498,8 @@ int
 algisdivl(GEN al, GEN x, GEN y, GEN* ptz)
 {
   pari_sp av = avma;
-  GEN z;
-  z = algdivl_i2(al,x,y);
-  if (!z) { set_avma(av); return 0; }
+  GEN z = algdivl_i2(al,x,y);
+  if (!z) return gc_bool(av,0);
   if (ptz != NULL) *ptz = z;
   return 1;
 }
@@ -2531,7 +2530,7 @@ alginv_i(GEN al, GEN x)
       res = algdivl_i(al, x, col_ei(n*n*alg_get_absdim(al),1), tx, al_BASIS);
         /* cheat on type because wrong dimension */
   }
-  if (!res) { set_avma(av); return NULL; }
+  if (!res) return gc_NULL(av);
   return gerepilecopy(av,res);
 }
 GEN
@@ -2551,7 +2550,7 @@ algisinv(GEN al, GEN x, GEN* ptix)
   GEN ix;
   checkalg(al);
   ix = alginv_i(al,x);
-  if (!ix) { set_avma(av); return 0; }
+  if (!ix) return gc_bool(av,0);
   if (ptix != NULL) *ptix = ix;
   return 1;
 }
@@ -2776,7 +2775,7 @@ algtracei(GEN mt, ulong p, ulong expo, ulong modu)
   ulong tr = 0;
   mt = Flm_powu(mt,expo,modu);
   for (j=1; j<l; j++) tr += ucoeff(mt,j,j);
-  set_avma(av); return (tr/expo) % p;
+  return gc_ulong(av, (tr/expo) % p);
 }
 
 GEN
@@ -5059,16 +5058,11 @@ alglatcontains(GEN al, GEN lat, GEN x, GEN *ptc)
   m = alglat_get_primbasis(lat);
   t = alglat_get_scalar(lat);
   x = RgC_Rg_div(x,t);
-  if (!RgV_is_ZV(x)) { set_avma(av); return 0; }
+  if (!RgV_is_ZV(x)) return gc_bool(av,0);
   sol = hnf_solve(m,x);
-  if (!sol) { set_avma(av); return 0; }
-  if (ptc)
-  {
-    *ptc = sol;
-    gerepileall(av,1,ptc);
-  }
-  else set_avma(av);
-  return 1;
+  if (!sol) return gc_bool(av,0);
+  if (!ptc) return gc_bool(av,1);
+  *ptc = sol; gerepileall(av,1,ptc); return 1;
 }
 
 GEN

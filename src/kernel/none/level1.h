@@ -822,15 +822,14 @@ INLINE long
 smodis(GEN x, long y)
 {
   pari_sp av = avma;
-  long r;
-  (void)divis_rem(x,y, &r); set_avma(av); return (r >= 0) ? r: labs(y) + r;
+  long r; (void)divis_rem(x,y, &r);
+  return gc_long(av, (r >= 0)? r: labs(y) + r);
 }
 INLINE GEN
 modis(GEN x, long y) { return stoi(smodis(x,y)); }
 INLINE GEN
 modsi(long x, GEN y) {
-  long r;
-  (void)sdivsi_rem(x, y, &r);
+  long r; (void)sdivsi_rem(x, y, &r);
   return (r >= 0)? stoi(r): addsi_sign(r, y, 1);
 }
 
@@ -916,9 +915,9 @@ fractor(GEN x, long prec) { return rdivii(gel(x,1), gel(x,2), prec); }
 INLINE int
 dvdii(GEN x, GEN y)
 {
-  pari_sp av=avma;
+  pari_sp av = avma;
   GEN r = remii(x,y);
-  set_avma(av); return r == gen_0;
+  return gc_bool(av, r == gen_0);
 }
 INLINE int
 dvdsi(long x, GEN y)
@@ -963,11 +962,9 @@ INLINE int
 dvdiiz(GEN x, GEN y, GEN z)
 {
   const pari_sp av=avma;
-  GEN p2;
-  const GEN p1=dvmdii(x,y,&p2);
-
-  if (signe(p2)) { set_avma(av); return 0; }
-  affii(p1,z); set_avma(av); return 1;
+  GEN p2, p1 = dvmdii(x,y,&p2);
+  if (signe(p2)) return gc_bool(av,0);
+  affii(p1,z); return gc_bool(av,1);
 }
 
 INLINE ulong

@@ -965,7 +965,7 @@ sieving_info(ratpoints_args *args,
     is_f_square[p] = odd(degree) || mael(squares,pn,coeffs_mod_p[degree]+1);
 
     /* check if there are no solutions mod p */
-    if (np == 0 && !is_f_square[p]) { set_avma(av); return p; }
+    if (np == 0 && !is_f_square[p]) return gc_long(av,p);
 
     /* Fill arrays with info for p */
     if (np < p)
@@ -1072,7 +1072,7 @@ sieving_info(ratpoints_args *args,
   }
 
   if (fba + fdc == 0) args->flags &= ~RATPOINTS_CHECK_DENOM;
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 
 /**************************************************************************

@@ -699,7 +699,7 @@ filltabs(GEN C, GEN Cp, Red *R, long p, long pk, long ltab)
   }
   setlg(taba, e); cache_aall(C) = taba;
   setlg(tabt, e); cache_tall(C) = tabt;
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 
 static GEN
@@ -1078,11 +1078,7 @@ aprcl(GEN N)
 
 long
 isprimeAPRCL(GEN N)
-{
-  pari_sp av = avma;
-  long z = aprcl(N);
-  set_avma(av); return z;
-}
+{ pari_sp av = avma; return gc_long(av, aprcl(N)); }
 
 /*******************************************************************/
 /*              DIVISORS IN RESIDUE CLASSES (LENSTRA)              */

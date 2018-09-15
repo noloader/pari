@@ -763,14 +763,14 @@ ZpX_resultant_val_i(GEN x, GEN y, GEN p, GEN pm)
   {
     ulong q = pm[2], pp = p[2];
     z = Zlx_sylvester_echelon(ZX_to_Flx(x,q), ZX_to_Flx(y,q), 1, pp, q);
-    if (!z) { set_avma(av); return -1; } /* failure */
+    if (!z) return gc_long(av,-1); /* failure */
     v = 0; l = lg(z);
     for (i = 1; i < l; i++) v += u_lval(ucoeff(z,i,i), pp);
   }
   else
   {
     z = ZpX_sylvester_echelon(x, y, 1, p, pm);
-    if (!z) { set_avma(av); return -1; } /* failure */
+    if (!z) return gc_long(av,-1); /* failure */
     v = 0; l = lg(z);
     for (i = 1; i < l; i++) v += Z_pval(gcoeff(z,i,i), p);
   }
@@ -788,10 +788,9 @@ ZpX_resultant_val(GEN f, GEN g, GEN p, long M)
   for(;; m <<= 1) {
     if (m > M) m = M;
     q = q? sqri(q): powiu(p, m); /* p^m */
-    v = ZpX_resultant_val_i(f,g, p, q); if (v >= 0) break;
-    if (m == M) return M;
+    v = ZpX_resultant_val_i(f,g, p, q); if (v >= 0) return gc_long(av,v);
+    if (m == M) return gc_long(av,M);
   }
-  set_avma(av); return v;
 }
 
 /* assume f separable and (lc(f),p) = 1 */
@@ -802,7 +801,7 @@ ZpX_disc_val(GEN f, GEN p)
   long v;
   if (degpol(f) == 1) return 0;
   v = ZpX_resultant_val(f, ZX_deriv(f), p, LONG_MAX);
-  set_avma(av); return v;
+  return gc_long(av,v);
 }
 
 /* *e a ZX, *d, *z in Z, *d = p^(*vd). Simplify e / d by cancelling a
@@ -2270,7 +2269,7 @@ ffdegree(GEN x, GEN frob, GEN p)
     y = FpM_FpC_mul(frob, y, p);
     if (ZV_equal(y, x)) break;
   }
-  set_avma(av); return d;
+  return gc_long(av,d);
 }
 
 static GEN
@@ -3127,7 +3126,7 @@ rnfmaxord(GEN nf, GEN pol, GEN pr, long vdisc)
   modpr = nf_to_Fq_init(nf,&pr,&T,&p);
   av1 = avma;
   p1 = rnfdedekind_i(nf, pol, modpr, vdisc, 0);
-  if (!p1) { set_avma(av); return NULL; }
+  if (!p1) return gc_NULL(av);
   if (is_pm1(gel(p1,1))) return gerepilecopy(av,gel(p1,2));
   sep = itos(gel(p1,3));
   W = gmael(p1,2,1);
@@ -3511,8 +3510,7 @@ gen_if_principal(GEN bnf, GEN x)
 {
   pari_sp av = avma;
   GEN z = bnfisprincipal0(bnf,x, nf_GEN_IF_PRINCIPAL | nf_FORCE);
-  if (isintzero(z)) { set_avma(av); return NULL; }
-  return z;
+  return isintzero(z)? gc_NULL(av): z;
 }
 
 static int
@@ -3738,11 +3736,7 @@ rnfisfree_aux(GEN bnf, GEN order)
 
 long
 rnfisfree(GEN bnf, GEN order)
-{
-  pari_sp av = avma;
-  long n = rnfisfree_aux(bnf, order);
-  set_avma(av); return n;
-}
+{ pari_sp av = avma; return gc_long(av, rnfisfree_aux(bnf,order)); }
 
 /**********************************************************************/
 /**                                                                  **/

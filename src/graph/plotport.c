@@ -1242,7 +1242,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     nl = lg(t);
     nc = nl-1;
   }
-  if (!nc) { set_avma(av); return NULL; }
+  if (!nc) return gc_NULL(av);
   if (recur && nc > 1) pari_err_TYPE("ploth [multi-curves + recursive]",t);
 
   ncoords = cplx? 2*nl: nl;

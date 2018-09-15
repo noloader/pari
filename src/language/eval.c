@@ -1501,7 +1501,7 @@ closure_evalgen(GEN C)
 {
   pari_sp ltop=avma;
   closure_eval(C);
-  if (br_status) { set_avma(ltop); return NULL; }
+  if (br_status) return gc_NULL(ltop);
   return gerepileupto(ltop,gel(st,--sp));
 }
 
@@ -1950,11 +1950,7 @@ gp_evalprec(void *E, GEN x, long prec)
 
 long
 gp_evalbool(void *E, GEN x)
-{
-  pari_sp av = avma;
-  long res  = !gequal0(gp_eval(E,x));
-  set_avma(av); return res;
-}
+{ pari_sp av = avma; return gc_long(av, !gequal0(gp_eval(E,x))); }
 
 long
 gp_evalvoid(void *E, GEN x)
@@ -1991,8 +1987,7 @@ gp_callbool(void *E, GEN x)
 {
   pari_sp av = avma;
   GEN code = (GEN)E;
-  long res  = !gequal0(closure_callgen1(code, x));
-  set_avma(av); return res;
+  return gc_long(av, !gequal0(closure_callgen1(code, x)));
 }
 
 long

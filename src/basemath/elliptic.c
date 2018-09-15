@@ -1684,17 +1684,17 @@ oncurve(GEN e, GEN z)
   av = avma;
   LHS = ec_LHS_evalQ(e,z);
   RHS = ec_f_evalx(e,gel(z,1)); x = gsub(LHS,RHS);
-  if (gequal0(x)) { set_avma(av); return 1; }
+  if (gequal0(x)) return gc_bool(av,1);
   pl = precision(LHS);
   pr = precision(RHS);
-  if (!pl && !pr) { set_avma(av); return 0; } /* both of LHS, RHS are exact */
+  if (!pl && !pr) return gc_bool(av,0); /* both of LHS, RHS are exact */
   /* at least one of LHS,RHS is inexact */
   ex = pr? gexpo(RHS): gexpo(LHS); /* don't take exponent of exact 0 */
   if (!pr || (pl && pl < pr)) pr = pl; /* min among nonzero elts of {pl,pr} */
   expx = gexpo(x);
   pr = (expx < ex - prec2nbits(pr) + 15
      || expx < ellexpo(e) - prec2nbits(pr) + 5);
-  set_avma(av); return pr;
+  return gc_bool(av,pr);
 }
 
 GEN
@@ -3419,11 +3419,7 @@ aux(GEN ak, ulong q, ulong pl)
 
 static ulong
 aux2(GEN ak, ulong p, GEN pl)
-{
-  pari_sp av = avma;
-  ulong res = umodiu(diviiexact(ak, pl), p);
-  set_avma(av); return res;
-}
+{ pari_sp av = avma; return gc_ulong(av, umodiu(diviiexact(ak, pl), p)); }
 
 /* number of distinct roots of X^3 + aX^2 + bX + c modulo p = 2 or 3
  * assume a,b,c in {0, 1} [ p = 2 ] or {0, 1, 2} [ p = 3 ]
@@ -5455,7 +5451,7 @@ ellQ_rootno(GEN e, GEN p)
     default:
       s = ellrootno_p(e,p); break;
   }
-  set_avma(av); return s;
+  return gc_long(av, s);
 }
 
 /* global root number over number field
@@ -5540,7 +5536,7 @@ ellnf_rootno_global(GEN E)
       v = odd(v2+v3);
     }
   }
-  set_avma(av); return v ? -1: 1;
+  return gc_long(av, v? -1: 1);
 }
 
 static GEN
@@ -5563,7 +5559,7 @@ ellrootno_global(GEN e)
     default:
       pari_err_TYPE("ellrootno", e); return 0; /*LCOV_EXCL_LINE*/
   }
-  set_avma(av); return itos(S);
+  return gc_long(av, itos(S));
 }
 
 long
@@ -6775,7 +6771,6 @@ ellissupersingular(GEN E, GEN p)
 {
   pari_sp av;
   GEN j;
-  int res;
   if (typ(E)!=t_VEC && !p) return elljissupersingular(E);
   p = checkellp(&E, p, NULL, "ellissupersingular");
   j = ell_get_j(E);
@@ -6788,11 +6783,11 @@ ellissupersingular(GEN E, GEN p)
   case t_ELL_Q:
     if (typ(j)==t_FRAC && dvdii(gel(j,2), p)) return 0;
     av = avma;
-    res = Fp_elljissupersingular(Rg_to_Fp(j, p), p);
-    set_avma(av); return res;
+    return gc_bool(av, Fp_elljissupersingular(Rg_to_Fp(j,p), p));
   case t_ELL_NF:
     {
       GEN modP, T, nf = ellnf_get_nf(E), pr = p;
+      int res;
       av = avma;
       j = nf_to_scalar_or_basis(nf, j);
       if (dvdii(Q_denom(j), pr_get_p(pr)))
@@ -6807,7 +6802,7 @@ ellissupersingular(GEN E, GEN p)
         res = Fp_elljissupersingular(j, p);
       else
         res = FpXQ_elljissupersingular(j, T, p);
-      set_avma(av); return res;
+      return gc_bool(av, res);
     }
   default:
     pari_err_TYPE("ellissupersingular",E);

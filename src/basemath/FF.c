@@ -239,11 +239,7 @@ FF_equal1(GEN x)
 
 static int
 Fp_cmp_1(GEN x, GEN p)
-{
-  pari_sp av = avma;
-  int b = equalii(x, addis(p,-1));
-  set_avma(av); return b;
-}
+{ pari_sp av = avma; return gc_bool(av, equalii(x, addis(p,-1))); }
 
 int
 FF_equalm1(GEN x)
@@ -914,7 +910,7 @@ FF_ispower(GEN x, GEN K, GEN *pt)
     r = Flxq_sqrtn(gel(x,2),K,T,pp,NULL);
     break;
   }
-  if (!r) { set_avma(av); return 0; }
+  if (!r) return gc_long(av,0);
   if (pt) { (void)_mkFF(x,*pt,r); }
   return 1;
 }
@@ -1746,7 +1742,7 @@ FFX_ispower(GEN Pf, long k, GEN ff, GEN *pt_r)
   default:
     s = FlxqX_ispower(P, k, T, pp, pt_r);
   }
-  if (s==0) { set_avma(av); return 0; }
+  if (s==0) return gc_long(av,0);
   if (pt_r)
     *pt_r = gerepilecopy(av, raw_to_FFX(*pt_r, ff));
   else set_avma(av);
@@ -2105,7 +2101,7 @@ FFM_wrap(GEN M, GEN ff, GEN (*Fq)(GEN,GEN,GEN),
   case t_FF_F2xq: M = F2xq(M,T); break;
   default: M = Flxq(M,T,pp); break;
   }
-  if (!M) { set_avma(av); return NULL; }
+  if (!M) return gc_NULL(av);
   return gerepilecopy(av, raw_to_FFM(M, ff));
 }
 
@@ -2130,7 +2126,7 @@ FFM_FFM_wrap(GEN M, GEN N, GEN ff,
   case t_FF_F2xq: M = F2xq(M, N, T); break;
   default: M = Flxq(M, N, T, pp); break;
   }
-  if (!M) { set_avma(av); return NULL; }
+  if (!M) return gc_NULL(av);
   return gerepilecopy(av, raw_to_FFM(M, ff));
 }
 
@@ -2154,7 +2150,7 @@ FFM_FFC_wrap(GEN M, GEN C, GEN ff,
   case t_FF_F2xq: C = F2xq(M, C, T); break;
   default: C = Flxq(M, C, T, pp); break;
   }
-  if (!C) { set_avma(av); return NULL; }
+  if (!C) return gc_NULL(av);
   return gerepilecopy(av, raw_to_FFC(C, ff));
 }
 
@@ -2184,7 +2180,7 @@ FFM_deplin(GEN M, GEN ff)
   case t_FF_F2xq: C = F2xqM_deplin(M, T); break;
   default: C = FlxqM_deplin(M, T, pp); break;
   }
-  if (!C) { set_avma(av); return NULL; }
+  if (!C) return gc_NULL(av);
   return gerepilecopy(av, raw_to_FFC(C, ff));
 }
 
@@ -2217,7 +2213,7 @@ FFM_rank(GEN M, GEN ff)
   case t_FF_F2xq: r = F2xqM_rank(M,T); break;
   default: r = FlxqM_rank(M,T,pp); break;
   }
-  set_avma(av); return r;
+  return gc_long(av,r);
 }
 GEN
 FFM_det(GEN M, GEN ff)

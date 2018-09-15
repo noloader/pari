@@ -1660,8 +1660,7 @@ must_swap(long k, GEN lambda, GEN D)
 {
   pari_sp av = avma;
   GEN z = addii(mulii(gel(D,k-2),gel(D,k)), sqri(gcoeff(lambda,k-1,k)));
-  long s = cmpii(z, sqri(gel(D,k-1)));
-  set_avma(av); return s < 0;
+  return gc_bool(av, cmpii(z, sqri(gel(D,k-1))) < 0);
 }
 
 GEN
@@ -2138,17 +2137,17 @@ hnfdivide(GEN A, GEN B)
     b = gel(B,k);
     m = gel(b,k);
     gel(u,k) = dvmdii(m, gcoeff(A,k,k), &r);
-    if (r != gen_0) { set_avma(av); return 0; }
+    if (r != gen_0) return gc_long(av, 0);
     for (i=k-1; i>0; i--)
     {
       m = gel(b,i);
       for (j=i+1; j<=k; j++) m = subii(m, mulii(gcoeff(A,i,j),gel(u,j)));
       m = dvmdii(m, gcoeff(A,i,i), &r);
-      if (r != gen_0) { set_avma(av); return 0; }
+      if (r != gen_0) return gc_long(av, 0);
       gel(u,i) = m;
     }
   }
-  set_avma(av); return 1;
+  return gc_long(av, 1);
 }
 
 /* A upper HNF, b integral vector. Return A^(-1) b if integral,
@@ -2172,11 +2171,11 @@ hnf_invimage(GEN A, GEN b)
     for (j=i+1; j<=n; j++) t = subii(t, mulii(gcoeff(A,k,j),gel(u,j)));
     if (!signe(Aki))
     {
-      if (signe(t)) { set_avma(av);return NULL; }
+      if (signe(t)) return gc_NULL(av);
       set_avma(av2); gel(u,i) = gen_0; continue;
     }
     t = dvmdii(t, Aki, &r);
-    if (r != gen_0) { set_avma(av); return NULL; }
+    if (r != gen_0) return gc_NULL(av);
     gel(u,i) = gerepileuptoint(av2, t);
     if (--i == 0) break;
   }
@@ -2188,7 +2187,7 @@ hnf_invimage(GEN A, GEN b)
     GEN t = gel(b,k);
     if (typ(t) != t_INT) pari_err_TYPE("hnf_invimage",t);
     for (j=1; j<=n; j++) t = subii(t, mulii(gcoeff(A,k,j),gel(u,j)));
-    if (signe(t)) { set_avma(av);return NULL; }
+    if (signe(t)) return gc_NULL(av);
     set_avma(av2);
   }
   return u;
@@ -2205,9 +2204,10 @@ hnf_solve(GEN A, GEN B)
 
   if (typ(B) == t_COL) return hnf_invimage(A, B);
   av = avma; C = cgetg_copy(B, &l);
-  for (i = 1; i < l; i++) {
+  for (i = 1; i < l; i++)
+  {
     GEN c = hnf_invimage(A, gel(B,i));
-    if (!c) { set_avma(av); return NULL; }
+    if (!c) return gc_NULL(av);
     gel(C,i) = c;
   }
   return C;

@@ -757,7 +757,7 @@ Fp_elljissupersingular(GEN j, GEN p)
   {
     GEN S = init_Fq(p, 2, fetch_var());
     int res = jissupersingular(j, S, p);
-    (void)delete_var(); set_avma(ltop); return res;
+    (void)delete_var(); return gc_bool(ltop, res);
   }
 }
 
@@ -1144,7 +1144,7 @@ Fl_ellcard_Shanks(ulong c4, ulong c6, ulong p)
 
   if (!c6) {
     GEN ap = ap_j1728(utoi(c4), utoipos(p));
-    set_avma(av); return p+1 - itos(ap);
+    return gc_long(av, p+1 - itos(ap));
   }
 
   pordmin = (ulong)(1 + 4*sqrt((double)p));
@@ -1222,7 +1222,7 @@ FOUND:
     }
     A = (p2p - A) % B; set_avma(av);
   }
-  set_avma(av); return KRO==1? h: p2p-h;
+  return gc_long(av, KRO==1? h: p2p-h);
 }
 
 /** ellap from CM (original code contributed by Mark Watkins) **/
@@ -1341,7 +1341,7 @@ Fp_ellcard_CM(GEN a4, GEN a6, GEN p)
   {
     GEN j = Fp_ellj_nodiv(a4, a6, p);
     long CM = Fp_ellj_get_CM(gel(j,1), gel(j,2), p);
-    if (!CM) { set_avma(av); return NULL; }
+    if (!CM) return gc_NULL(av);
     a = ec_ap_cm(CM,a4,a6,p);
   }
   return gerepileuptoint(av, subii(addiu(p,1),a));
@@ -1372,7 +1372,7 @@ Fl_elltrace(ulong a4, ulong a6, ulong p)
   lp = expu(p);
   if (lp <= minss(56, BITS_IN_LONG-2)) return p+1-Fl_ellcard_Shanks(a4, a6, p);
   av = avma; a = subui(p+1, Fp_ellcard(utoi(a4), utoi(a6), utoipos(p)));
-  set_avma(av); return itos(a);
+  return gc_long(av, itos(a));
 }
 long
 Fl_elltrace_CM(long CM, ulong a4, ulong a6, ulong p)
@@ -1382,7 +1382,7 @@ Fl_elltrace_CM(long CM, ulong a4, ulong a6, ulong p)
   if (!CM) return Fl_elltrace(a4,a6,p);
   if (p < (1<<11)) return Fl_elltrace_naive(a4, a6, p);
   av = avma; a = ec_ap_cm(CM, utoi(a4), utoi(a6), utoipos(p));
-  set_avma(av); return itos(a);
+  return gc_long(av, itos(a));
 }
 
 static GEN
@@ -1891,7 +1891,6 @@ FpXQ_elljissupersingular(GEN j, GEN T, GEN p)
    * the j-invariants are in FF_{p^{2 - e}}. */
   ulong d = get_FpX_degree(T);
   GEN S;
-  int res;
 
   if (degpol(j) <= 0) return Fp_elljissupersingular(constant_coeff(j), p);
   if (abscmpiu(p, 5) <= 0) return 0; /* j != 0*/
@@ -1905,17 +1904,15 @@ FpXQ_elljissupersingular(GEN j, GEN T, GEN p)
     GEN j_pow_p = FpXQ_pow(j, p, T, p);
     GEN j_sum = FpX_add(j, j_pow_p, p), j_prod;
     long var = varn(T);
-    if (degpol(j_sum) > 0) { set_avma(ltop); return 0; /* j not in Fp^2 */ }
+    if (degpol(j_sum) > 0) return gc_bool(ltop,0); /* j not in Fp^2 */
     j_prod = FpXQ_mul(j, j_pow_p, T, p);
-    if (degpol(j_prod) > 0 ) { set_avma(ltop); return 0; /* j not in Fp^2 */ }
+    if (degpol(j_prod) > 0 ) return gc_bool(ltop,0); /* j not in Fp^2 */
     j_sum = constant_coeff(j_sum); j_prod = constant_coeff(j_prod);
     S = mkpoln(3, gen_1, Fp_neg(j_sum, p), j_prod);
     setvarn(S, var);
     j = pol_x(var);
   }
-  res = jissupersingular(j, S, p);
-  set_avma(ltop);
-  return res;
+  return gc_bool(ltop, jissupersingular(j,S,p));
 }
 
 /***********************************************************************/

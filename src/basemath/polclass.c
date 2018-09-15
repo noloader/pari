@@ -90,7 +90,7 @@ test_curve_order(norm_eqn_t ne, ulong a4, ulong a6,
         swapspec(n0, n1, N0, N1);
         swapped = 1; continue;
       }
-      set_avma(ltop); return 0;
+      return gc_long(ltop,0);
     }
 
     m0 *= n_s;
@@ -100,7 +100,7 @@ test_curve_order(norm_eqn_t ne, ulong a4, ulong a6,
     for ( ; x <= hasse_high; x += m0)
       if ((x % m1) == a1 && x != N0 && x != N1) break;
     /* every x in N was either N0 or N1, so we return true */
-    if (x > hasse_high) { set_avma(ltop); return 1; }
+    if (x > hasse_high) return gc_long(ltop,1);
 
     lswap(a4, a4t);
     lswap(a6, a6t);
@@ -767,7 +767,7 @@ find_j_inv_with_given_trace(
     }
     set_avma(av);
   }
-  set_avma(ltop); return curves_tested;
+  return gc_long(ltop, curves_tested);
 }
 
 /*
@@ -913,7 +913,7 @@ evec_order(const long e[], const long n[], const long r[], long k)
     evec_reduce(f, n, r, k);
     o *= m;
   }
-  set_avma(av); return o;
+  return gc_long(av,o);
 }
 
 /* Computes orders o[] for each generator using relative orders n[]
@@ -1039,20 +1039,20 @@ distinct_inverses(const long f[], const long ef[], const long ei[],
   for (j = i + 1; j < k; ++j) e2[j] = 0;
   evec_reduce(e2, n, r, k);
 
-  if (evec_equal(ef, e2, k)) { set_avma(av); return 0; }
+  if (evec_equal(ef, e2, k)) return gc_long(av,0);
 
   e3 = new_chunk(k);
   evec_inverse_o(e3, ef, n, o, r, k);
-  if (evec_equal(e2, e3, k)) { set_avma(av); return 0; }
+  if (evec_equal(e2, e3, k)) return gc_long(av,0);
 
   if (f) {
     evec_compose(e3, f, ei, n, r, k);
-    if (evec_equal(e2, e3, k)) { set_avma(av); return 0; }
+    if (evec_equal(e2, e3, k)) return gc_long(av,0);
 
     evec_inverse_o(e3, e3, n, o, r, k);
-    if (evec_equal(e2, e3, k)) { set_avma(av); return 0; }
+    if (evec_equal(e2, e3, k)) return gc_long(av,0);
   }
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 
 INLINE long
@@ -1075,7 +1075,7 @@ next_prime_evec(long *qq, long f[], const long m[], long k,
   if (!he) pari_err_BUG("next_prime_evec");
   idx = itos((GEN) he->val);
   index_to_evec(f, idx, m, k);
-  set_avma(av); return 1;
+  return gc_long(av,1);
 }
 
 /* Return 1 on success, 0 on failure. */
@@ -1141,7 +1141,7 @@ orient_pcp(classgp_pcp_t G, long *ni, long D, long u, hashtable *tbl)
     if (!he) pari_err_BUG("orient_pcp");
     *ni = itos((GEN) he->val);
   }
-  set_avma(av); return 1;
+  return gc_bool(av,1);
 }
 
 /* We must avoid situations where L_i^{+/-2} = L_j^2 (or = L_0*L_j^2
@@ -1186,7 +1186,7 @@ classgp_pcp_check_generators(const long *n, long *r, long k, long L0)
       if (j == i) return i;
     }
   }
-  set_avma(av); return -1;
+  return gc_long(av,-1);
 }
 
 static void
@@ -1352,9 +1352,8 @@ INLINE ulong
 classno_wrapper(long D)
 {
   pari_sp av = avma;
-  GEN clsgp = quadclassunit0(stoi(D), 0, NULL, DEFAULTPREC);
-  ulong h = itou(gel(clsgp, 1));
-  set_avma(av); return h;
+  GEN G = quadclassunit0(stoi(D), 0, NULL, DEFAULTPREC);
+  return gc_ulong(av, itou(abgrp_get_no(G)));
 }
 
 /*
@@ -1766,8 +1765,7 @@ verify_edge(ulong j0, ulong j1, ulong p, ulong pi, long L, GEN fdb)
   pari_sp av = avma;
   GEN phi = polmodular_db_getp(fdb, L, p);
   GEN f = Flm_Fl_polmodular_evalx(phi, L, j1, p, pi);
-  ulong r = Flx_eval_pre(f, j0, p, pi);
-  set_avma(av); return !r;
+  return gc_long(av, Flx_eval_pre(f, j0, p, pi) == 0);
 }
 
 INLINE long
@@ -1782,7 +1780,7 @@ verify_2path(
   GEN d = Flx_gcd(f, g, p);
   long n = degpol(d);
   if (n >= 2) n = Flx_nbroots(d, p);
-  set_avma(av); return n;
+  return gc_long(av, n);
 }
 
 static long
@@ -1853,7 +1851,7 @@ oriented_n_action(
   /* Orient representation of [N] relative to the torsor <signs, rels> */
   for (i = 0; i < k; ++i) e[i] = (signs[i] < 0 ? o[i] - ni[i] : ni[i]);
   evec_reduce(e, n, rels, k);
-  set_avma(av); return evec_to_index(e, m, k);
+  return gc_long(av, evec_to_index(e,m,k));
 }
 
 /* F = double_eta_raw(inv) */

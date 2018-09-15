@@ -1210,7 +1210,7 @@ Flx_resultant_set_dglist(GEN a, GEN b, GEN dglist, ulong p)
     db = dc; /* = degpol(b) */
   }
   if (ind+1 > lg(dglist)) setlg(dglist,ind+1);
-  set_avma(av); return;
+  set_avma(av);
 }
 /* assuming the PRS finishes on a degree 1 polynomial C0 + C1X, with
  * "generic" degree sequence as given by dglist, set *Ci and return
@@ -1244,7 +1244,7 @@ Flx_resultant_all(GEN a, GEN b, long *C0, long *C1, GEN dglist, ulong p)
     lb = Fl_mul(b[db+2], cb, p);
     a = b; b = c; dc = degpol(c);
     ind++;
-    if (dc != dglist[ind]) { set_avma(av); return 0; } /* degenerates */
+    if (dc != dglist[ind]) return gc_ulong(av,0); /* degenerates */
     if (g == h)
     { /* frequent */
       ulong cc = Fl_mul(ca, Fl_powu(Fl_div(lb,g,p), delta+1, p), p);
@@ -1279,7 +1279,7 @@ Flx_resultant_all(GEN a, GEN b, long *C0, long *C1, GEN dglist, ulong p)
   *C1 = Fl_mul(ca, a[3], p);
   res = Fl_mul(cb, b[2], p);
   if (s == -1) res = p - res;
-  set_avma(av); return res;
+  return gc_ulong(av,res);
 }
 
 /* Q a vector of polynomials representing B in Fp[X][Y], evaluate at X = x,
@@ -1371,7 +1371,7 @@ ZX_ZXY_ResBound(GEN A, GEN B, GEN dB)
   loga = dbllog2(a);
   logb = dbllog2(b); if (dB) logb -= 2 * dbllog2(dB);
   i = (long)((degpol(B) * loga + degpol(A) * logb) / 2);
-  set_avma(av); return (i <= 0)? 1: 1 + (ulong)i;
+  return gc_ulong(av, (i <= 0)? 1: 1 + (ulong)i);
 }
 
 /* return Res(a(Y), b(n,Y)) over Fp. la = leading_coeff(a) [for efficiency] */
@@ -1880,8 +1880,7 @@ ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
   if (!b) b = Flx_deriv(a, p);
   dropa = degA - degpol(a);
   dropb = degB - degpol(b);
-  if (dropa && dropb) /* p | lc(A), p | lc(B) */
-  { set_avma(av); return 0; }
+  if (dropa && dropb) return gc_ulong(av,0); /* p | lc(A), p | lc(B) */
   H = Flx_resultant(a, b, p);
   if (dropa)
   { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
@@ -1897,7 +1896,7 @@ ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
     if (c != 1) H = Fl_mul(H, c, p);
   }
   if (dp != 1) H = Fl_mul(H, Fl_powu(Fl_inv(dp,p), degA, p), p);
-  set_avma(av); return H;
+  return gc_ulong(av,H);
 }
 
 /* If B=NULL, assume B=A' */
@@ -2339,7 +2338,7 @@ INIT:
     if (dp != 1) Hp = Flx_Fl_mul(Hp, Fl_powu(Fl_inv(dp,p), degA, p), p);
     if (!Flx_is_squarefree(Hp, p)) { lambda = next_lambda(lambda); goto INIT; }
     if (DEBUGLEVEL>4) err_printf("Final lambda = %ld\n", lambda);
-    set_avma(av); (void)delete_var(); return lambda;
+    (void)delete_var(); return gc_long(av,lambda);
   }
 }
 

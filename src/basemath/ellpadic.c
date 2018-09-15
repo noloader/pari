@@ -612,14 +612,14 @@ FpE_issingular(GEN E, GEN P, GEN d, GEN p)
   a1 = ell_get_a1(E);
   a3 = ell_get_a3(E);
   t = addii(shifti(y,1), addii(mulii(a1,x), mulii(a3,d)));
-  if (!dvdii(t,p)) { set_avma(av); return 0; }
+  if (!dvdii(t,p)) return gc_bool(av, 0);
   a2 = ell_get_a2(E);
   a4 = ell_get_a4(E);
   d = Fp_inv(d, p);
   x = Fp_mul(x,d,p);
   y = Fp_mul(y,d,p);
   t = subii(mulii(a1,y), addii(a4, mulii(x, addii(gmul2n(a2,1), muliu(x,3)))));
-  set_avma(av); return dvdii(t,p);
+  return gc_bool(av, dvdii(t,p));
 }
 /* E/Q, P on E(Q). Let g > 0 minimal such that the image of R = [g]P in a
  * minimal model is everywhere non-singular; return [R,g] */

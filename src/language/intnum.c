@@ -59,7 +59,7 @@ interp(GEN h, GEN s, long L, long bit, long D)
     err_printf("romb: iteration %ld, guess: %Ps\n", L,ss);
     err_printf("romb: relative error < 2^-%ld [target %ld bits]\n",e1-e2,bit);
   }
-  if (e1-e2 <= bit && (L <= 10 || e1 >= -bit)) { set_avma(av); return NULL; }
+  if (e1-e2 <= bit && (L <= 10 || e1 >= -bit)) return gc_NULL(av);
   return cxtoreal(ss);
 }
 

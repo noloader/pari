@@ -1511,10 +1511,10 @@ Flx_divrem(GEN x, GEN T, ulong p, GEN *pr)
     return Flx_divrem_basecase(x,y,p,pr);
   else
   {
-    pari_sp av=avma;
+    pari_sp av = avma;
     GEN mg = B? B: Flx_invBarrett(y, p);
     GEN q1 = Flx_divrem_Barrett_noGC(x,mg,y,p,pr);
-    if (!q1) {set_avma(av); return NULL;}
+    if (!q1) return gc_NULL(av);
     if (!pr || pr==ONLY_DIVIDES) return gerepileuptoleaf(av, q1);
     gerepileall(av,2,&q1,pr);
     return q1;
@@ -1918,8 +1918,7 @@ Flx_is_squarefree(GEN z, ulong p)
 {
   pari_sp av = avma;
   GEN d = Flx_gcd(z, Flx_deriv(z,p) , p);
-  long res= (degpol(d) == 0);
-  set_avma(av); return res;
+  return gc_bool(av, degpol(d) == 0);
 }
 
 static long
@@ -1930,10 +1929,10 @@ Flx_is_smooth_squarefree(GEN f, long r, ulong p)
   GEN sx = polx_Flx(f[1]), a = sx;
   for(i=1;;i++)
   {
-    if (degpol(f)<=r) {set_avma(av); return 1;}
+    if (degpol(f)<=r) return gc_long(av,1);
     a = Flxq_powu(Flx_rem(a,f,p), p, f, p);
-    if (Flx_equal(a, sx)) {set_avma(av); return 1;}
-    if (i==r) {set_avma(av); return 0;}
+    if (Flx_equal(a, sx)) return gc_long(av,1);
+    if (i==r) return gc_long(av,0);
     f = Flx_div(f, Flx_gcd(Flx_sub(a,sx,p),f,p),p);
   }
 }
@@ -2049,7 +2048,7 @@ Flx_resultant(GEN a, GEN b, ulong p)
     lb = b[db+2];
     c = Flx_rem(a,b, p);
     a = b; b = c; dc = degpol(c);
-    if (dc < 0) { set_avma(av); return 0; }
+    if (dc < 0) return gc_long(av,0);
 
     if (both_odd(da,db)) res = p - res;
     if (lb != 1) res = Fl_mul(res, Fl_powu(lb, da - dc, p), p);
@@ -2057,7 +2056,7 @@ Flx_resultant(GEN a, GEN b, ulong p)
     da = db; /* = degpol(a) */
     db = dc; /* = degpol(b) */
   }
-  set_avma(av); return Fl_mul(res, Fl_powu(b[2], da, p), p);
+  return gc_ulong(av, Fl_mul(res, Fl_powu(b[2], da, p), p));
 }
 
 /* If resultant is 0, *ptU and *ptU are not set */
@@ -2088,7 +2087,7 @@ Flx_extresultant(GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV)
     lb = y[dy+2];
     q = Flx_divrem(x,y, p, &z);
     x = y; y = z; /* (x,y) = (y, x - q y) */
-    dz = degpol(z); if (dz < 0) { set_avma(av); return 0; }
+    dz = degpol(z); if (dz < 0) return gc_ulong(av,0);
     z = Flx_sub(u, Flx_mul(q,v, p), p);
     u = v; v = z; /* (u,v) = (v, u - q v) */
 
@@ -2147,8 +2146,7 @@ Flx_eval_pre(GEN x, ulong y, ulong p, ulong pi)
     pari_sp av = avma;
     GEN v = Fl_powers_pre(y, degpol(x), p, pi);
     ulong r =  Flx_eval_powers_pre(x, v, p, pi);
-    set_avma(av);
-    return r;
+    return gc_ulong(av,r);
   }
   else
     return Flx_eval_pre_i(x, y, p, pi);
@@ -2166,7 +2164,6 @@ Flv_prod_pre(GEN x, ulong p, ulong pi)
   pari_sp ltop = avma;
   GEN v;
   long i,k,lx = lg(x);
-  ulong r;
   if (lx == 1) return 1UL;
   if (lx == 2) return uel(x,1);
   v = cgetg(1+(lx << 1), t_VECSMALL);
@@ -2181,8 +2178,7 @@ Flv_prod_pre(GEN x, ulong p, ulong pi)
       uel(v,k++) = Fl_mul_pre(uel(v,i), uel(v,i+1), p, pi);
     if (i < lx) uel(v,k++) = uel(v,i);
   }
-  r = uel(v,1);
-  set_avma(ltop); return r;
+  return gc_ulong(ltop, uel(v,1));
 }
 
 ulong
@@ -3032,13 +3028,11 @@ Flxq_is2npower(GEN x, long n, GEN T, ulong p)
 {
   pari_sp av;
   GEN m;
-  int z;
   if (n==1) return Flxq_issquare(x, T, p);
   if (lgpol(x) == 0 || p == 2) return 1;
   av = avma;
   m = shifti(subiu(powuu(p, get_Flx_degree(T)), 1), -n);
-  z = Flx_equal1(Flxq_pow(x, m, T, p));
-  set_avma(av); return z;
+  return gc_bool(av, Flx_equal1(Flxq_pow(x, m, T, p)));
 }
 
 GEN
@@ -3086,8 +3080,7 @@ Flxq_trace(GEN x, GEN TB, ulong p)
   long n = degpol(T)-1;
   GEN z = Flxq_mul(x, Flx_deriv(T, p), TB, p);
   t = degpol(z)<n ? 0 : Fl_div(z[2+n],T[3+n],p);
-  set_avma(av);
-  return t;
+  return gc_ulong(av, t);
 }
 
 /*x must be reduced*/
@@ -4075,9 +4068,7 @@ FlxY_eval_powers_pre(GEN pol, GEN ypowers, GEN xpowers, ulong p, ulong pi)
 {
   pari_sp av = avma;
   GEN t = FlxY_evalx_powers_pre(pol, ypowers, p, pi);
-  ulong out = Flx_eval_powers_pre(t, xpowers, p, pi);
-  set_avma(av);
-  return out;
+  return gc_ulong(av, Flx_eval_powers_pre(t, xpowers, p, pi));
 }
 
 GEN
@@ -4353,7 +4344,7 @@ FlxqX_divrem_basecase(GEN x, GEN y, GEN T, ulong p, GEN *pr)
   if (pr == ONLY_DIVIDES)
   {
     if (lead) gunclone(lead);
-    if (sx) { set_avma(av0); return NULL; }
+    if (sx) return gc_NULL(av0);
     avma = (pari_sp)rem; return z-2;
   }
   lr=i+3; rem -= lr;
@@ -4589,10 +4580,10 @@ FlxqX_divrem(GEN x, GEN S, GEN T, ulong p, GEN *pr)
     return FlxqX_divrem_basecase(x,y,T,p,pr);
   else
   {
-    pari_sp av=avma;
+    pari_sp av = avma;
     GEN mg = B? B: FlxqX_invBarrett(y, T, p);
     GEN q = FlxqX_divrem_Barrett_noGC(x,mg,y,T,p,pr);
-    if (!q) {set_avma(av); return NULL;}
+    if (!q) return gc_NULL(av);
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
     gerepileall(av,2,&q,pr);
     return q;
@@ -4854,7 +4845,7 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
   for(;;)
   {
     U = Flxq_invsafe(leading_coeff(Q), T, p);
-    if (!U) { set_avma(av); return NULL; }
+    if (!U) return gc_NULL(av);
     Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
     P = FlxqX_rem(P,Q,T,p);
     if (!signe(P)) break;
@@ -4866,7 +4857,7 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
     swap(P, Q);
   }
   U = Flxq_invsafe(leading_coeff(Q), T, p);
-  if (!U) { set_avma(av); return NULL; }
+  if (!U) return gc_NULL(av);
   Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
   return gerepileupto(av, Q);
 }

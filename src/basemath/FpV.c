@@ -1538,7 +1538,7 @@ ZpMs_ZpCs_solve(GEN M, GEN A, long nbrow, GEN p, long e)
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
   RgMs_structelim(M, nbrow, gel(A, 1), &pcol, &prow);
-  if (!pcol) { set_avma(av); return NULL; }
+  if (!pcol) return gc_NULL(av);
   if (DEBUGLEVEL)
     timer_printf(&ti,"structured elimination (%ld -> %ld)",nbi,lg(pcol)-1);
   n = lg(pcol)-1;
@@ -1549,7 +1549,7 @@ ZpMs_ZpCs_solve(GEN M, GEN A, long nbrow, GEN p, long e)
   if (DEBUGLEVEL) timer_start(&ti);
   Rp = gen_ZpM_Dixon((void*)Mp,wrap_relcomb, Ap, p, e);
   if (DEBUGLEVEL) timer_printf(&ti,"linear algebra");
-  if (!Rp) { set_avma(av); return NULL; }
+  if (!Rp) return gc_NULL(av);
   lR = lg(Rp)-1;
   if (typ(Rp) == t_COL)
   {
@@ -1638,7 +1638,7 @@ FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p)
   struct wrapper_modp_s W;
   if (DEBUGLEVEL) timer_start(&ti);
   RgMs_structelim_col(M, nbcol, nbrow, cgetg(1,t_VECSMALL), &pcol, &prow);
-  if (!pcol) { set_avma(av); return NULL; }
+  if (!pcol) return gc_NULL(av);
   if (DEBUGLEVEL)
     timer_printf(&ti,"structured elimination (%ld -> %ld)",nbcol,lg(pcol)-1);
   n = lg(pcol)-1;

@@ -840,7 +840,7 @@ int
 gdvd(GEN x, GEN y)
 {
   pari_sp av = avma;
-  int t = gequal0( gmod(x,y) ); set_avma(av); return t;
+  return gc_bool(av, gequal0( gmod(x,y) ));
 }
 
 GEN
@@ -2427,8 +2427,8 @@ isint(GEN n, GEN *ptk)
       GEN z = floorr(n);
       pari_sp av = avma;
       long s = signe(subri(n, z));
-      if (s) { set_avma(av0); return 0; }
-      *ptk = z; set_avma(av); return 1;
+      if (s) return gc_bool(av0,0);
+      *ptk = z; return gc_bool(av,1);
     }
     case t_FRAC:    return 0;
     case t_COMPLEX: return gequal0(gel(n,2)) && isint(gel(n,1),ptk);
@@ -3801,11 +3801,7 @@ _egal_i(GEN x, GEN y)
 }
 static long
 _egal(GEN x, GEN y)
-{
-  pari_sp av = avma;
-  long r = _egal_i(x, y);
-  set_avma(av); return r;
-}
+{ pari_sp av = avma; return gc_long(av, _egal_i(x, y)); }
 
 GEN
 glt(GEN x, GEN y) { return gcmp(x,y)<0? gen_1: gen_0; }

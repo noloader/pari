@@ -640,7 +640,7 @@ lower_bound(GEN p, long *k, double eps)
     *k = (long)floor((rho/R + n) / (1 + exp(-eps)*cos(eps)));
   else
     *k = n;
-  set_avma(ltop); return R;
+  return gc_double(ltop, R);
 }
 
 /* return R such that exp(R - tau) <= rho_n(P) <= exp(R + tau)
@@ -684,9 +684,9 @@ logmax_modulus(GEN p, double tau)
     eps = -1/log(tau2); /* > 0 */
     e = findpower(q);
   }
-  if (!signe(r)) { set_avma(ltop); return 0.; }
+  if (!signe(r)) return gc_double(ltop,0.);
   r = itor(r, DEFAULTPREC); shiftr_inplace(r, -M);
-  set_avma(ltop); return -rtodbl(r) * M_LN2; /* -log(2) sum e_i 2^-i */
+  return gc_double(ltop, -rtodbl(r) * M_LN2); /* -log(2) sum e_i 2^-i */
 }
 
 static GEN
@@ -733,11 +733,8 @@ static double
 logmin_modulus(GEN p, double tau)
 {
   pari_sp av = avma;
-  double r;
-
   if (gequal0(gel(p,2))) return -pariINFINITY;
-  r = - logmax_modulus(RgX_recip_shallow(p),tau);
-  set_avma(av); return r;
+  return gc_double(av, - logmax_modulus(RgX_recip_shallow(p),tau));
 }
 
 /* return the log of the k-th modulus (ascending order) of p, rel. error tau*/
@@ -773,7 +770,7 @@ logmodulus(GEN p, long k, double tau)
     tau2 *= 1.5; if (tau2 > 1.) tau2 = 1.;
     bit = 1 + (long)(nn*(2. + log2(3.*nn/tau2)));
   }
-  set_avma(ltop); return -r * M_LN2;
+  return gc_double(ltop, -r * M_LN2);
 }
 
 /* return the log of the k-th modulus r_k of p, rel. error tau, knowing that
@@ -809,8 +806,7 @@ logpre_modulus(GEN p, long k, double tau, double lrmin, double lrmax)
     q = RgX_gtofp_bit(q, bit);
   }
   aux = exp2((double)imax);
-  aux = logmodulus(q,k, aux*tau/3.) / aux;
-  set_avma(ltop); return lrho + aux;
+  return gc_double(ltop, lrho + logmodulus(q,k, aux*tau/3.) / aux);
 }
 
 static double
@@ -854,7 +850,7 @@ dual_modulus(GEN p, double lrho, double tau, long l)
     tau2 *= 7./4.;
     bit = 6*nn - 5*ll + (long)(nn*(-log2(tau2) + tau2 * 8./7.));
   }
-  set_avma(av); return delta_k + (long)ind_maxlog2(q);
+  return gc_long(av, delta_k + (long)ind_maxlog2(q));
 }
 
 /********************************************************************/
@@ -1830,7 +1826,7 @@ fujiwara_bound(GEN p)
     L = (mydbllog2r(quicktofp(y)) - loglc) / (n-i);
     if (L > Lmax) Lmax = L;
   }
-  set_avma(av); return Lmax + 1;
+  return gc_double(av, Lmax+1);
 }
 
 /* Fujiwara's bound, real roots. Based on the following remark: if
@@ -1843,32 +1839,20 @@ fujiwara_bound_real(GEN p, long sign)
   pari_sp av = avma;
   GEN x;
   long n = degpol(p), i, signodd, signeven;
-  double fb;
   if (n <= 0) pari_err_CONSTPOL("fujiwara_bound");
   x = shallowcopy(p);
   if (gsigne(gel(x, n+2)) > 0)
-  {
-    signeven = 1;
-    signodd = sign;
-  }
+  { signeven = 1; signodd = sign; }
   else
-  {
-    signeven = -1;
-    signodd = -sign;
-  }
+  { signeven = -1; signodd = -sign; }
   for (i = 0; i < n; i++)
   {
     if ((n - i) % 2)
-    {
-      if (gsigne(gel(x, i+2)) == signodd ) gel(x, i+2) = gen_0;
-    }
+    { if (gsigne(gel(x, i+2)) == signodd ) gel(x, i+2) = gen_0; }
     else
-    {
-      if (gsigne(gel(x, i+2)) == signeven) gel(x, i+2) = gen_0;
-    }
+    { if (gsigne(gel(x, i+2)) == signeven) gel(x, i+2) = gen_0; }
   }
-  fb = fujiwara_bound(x);
-  set_avma(av); return fb;
+  return gc_double(av, fujiwara_bound(x));
 }
 
 static GEN
@@ -2233,7 +2217,7 @@ X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
     }
     if (s == signe(gel(v, vlim)))
     {
-      if (++nb >= 2) { set_avma(av); return 2; }
+      if (++nb >= 2) return gc_long(av,2);
       s = -s;
     }
     /* if flag is set there will be no further sign changes */
@@ -2885,15 +2869,13 @@ ZX_sturm(GEN P)
     r = itos(ZX_Uspensky(P, NULL, 2, 0));
   else
     r = 2*itos(ZX_Uspensky(P, gen_0, 2, 0));
-  set_avma(av); return r;
+  return gc_long(av,r);
 }
 /* P non-constant, squarefree ZX */
 long
 ZX_sturmpart(GEN P, GEN ab)
 {
   pari_sp av = avma;
-  long r;
   if (!check_ab(ab)) return ZX_sturm(P);
-  r = itos(ZX_Uspensky(P, ab, 2, 0));
-  set_avma(av); return r;
+  return gc_long(av, itou(ZX_Uspensky(P, ab, 2, 0)));
 }

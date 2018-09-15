@@ -158,11 +158,8 @@ gtolong(GEN x)
       return itos(x);
     case t_REAL:
       return (long)(rtodbl(x) + 0.5);
-    case t_FRAC: {
-      pari_sp av = avma;
-      long y = itos(ground(x));
-      set_avma(av); return y;
-    }
+    case t_FRAC:
+    { pari_sp av = avma; return gc_long(av, itos(ground(x))); }
     case t_COMPLEX:
       if (gequal0(gel(x,2))) return gtolong(gel(x,1)); break;
     case t_QUAD:
@@ -421,7 +418,6 @@ int
 gequalm1(GEN x)
 {
   pari_sp av;
-  long y;
   GEN p1;
 
   switch(typ(x))
@@ -436,7 +432,7 @@ gequalm1(GEN x)
       return s < 0 ? absrnz_equal1(x): 0;
     }
     case t_INTMOD:
-      av=avma; y=equalii(addui(1,gel(x,2)), gel(x,1)); set_avma(av); return y;
+      av = avma; return gc_bool(av, equalii(addui(1,gel(x,2)), gel(x,1)));
 
     case t_FRAC:
       return 0;
@@ -451,17 +447,17 @@ gequalm1(GEN x)
       return gequalm1(gel(x,2)) && gequal0(gel(x,3));
 
     case t_PADIC:
-      av=avma; y=equalii(addui(1,gel(x,4)), gel(x,3)); set_avma(av); return y;
+      av = avma; return gc_bool(av, equalii(addui(1,gel(x,4)), gel(x,3)));
 
     case t_POLMOD:
-      av=avma; p1 = gaddgs(gel(x,2), 1);
-      y = gequal0(p1) || gequal(p1,gel(x,1)); set_avma(av); return y;
+      av = avma; p1 = gaddgs(gel(x,2), 1);
+      return gc_bool(av, gequal0(p1) || gequal(p1,gel(x,1)));
 
     case t_POL: return is_monomial_test(x, 0, &gequalm1);
     case t_SER: return is_monomial_test(x, valp(x), &gequalm1);
 
     case t_RFRAC:
-      av=avma; y=gequal(gel(x,1), gneg_i(gel(x,2))); set_avma(av); return y;
+      av = avma; return gc_bool(av, gequal(gel(x,1), gneg_i(gel(x,2))));
     case t_COL: return col_test(x, &gequalm1);
     case t_MAT: return mat_test(x, &gequalm1);
   }
@@ -531,23 +527,20 @@ cmp_universal(GEN x, GEN y)
       {
         long tx = list_typ(x), ty = list_typ(y);
         GEN vx, vy;
+        pari_sp av;
         if (tx < ty) return -1;
         if (tx > ty) return 1;
         vx = list_data(x);
         vy = list_data(y);
         if (!vx) return vy? -1: 0;
         if (!vy) return 1;
-        switch (tx)
+        av = avma;
+        if (tx == t_LIST_MAP)
         {
-        case t_LIST_MAP:
-          {
-            pari_sp av = avma;
-            int ret = cmp_universal_rec(maptomat_shallow(x), maptomat_shallow(y),1);
-            set_avma(av); return ret;
-          }
-        default:
-          return cmp_universal_rec(vx, vy, 1);
+          vx = maptomat_shallow(x);
+          vy = maptomat_shallow(y);
         }
+        return gc_int(av, cmp_universal_rec(vx, vy, 1));
       }
     default:
       return cmp_universal_rec(x, y, lontyp[tx]);
@@ -560,31 +553,27 @@ cmpfrac(GEN x, GEN y)
   pari_sp av = avma;
   GEN a = gel(x,1), b = gel(x,2);
   GEN c = gel(y,1), d = gel(y,2);
-  int r = cmpii(mulii(a, d), mulii(b, c));
-  set_avma(av); return r;
+  return gc_bool(av, cmpii(mulii(a, d), mulii(b, c)));
 }
 static int
 cmpifrac(GEN a, GEN y)
 {
   pari_sp av = avma;
   GEN c = gel(y,1), d = gel(y,2);
-  int r = cmpii(mulii(a, d), c);
-  set_avma(av); return r;
+  return gc_int(av, cmpii(mulii(a, d), c));
 }
 static int
 cmprfrac(GEN a, GEN y)
 {
   pari_sp av = avma;
   GEN c = gel(y,1), d = gel(y,2);
-  int r = cmpri(mulri(a, d), c);
-  set_avma(av); return r;
+  return gc_int(av, cmpri(mulri(a, d), c));
 }
 static int
 cmpgen(GEN x, GEN y)
 {
   pari_sp av = avma;
-  int s = gsigne(gsub(x,y));
-  set_avma(av); return s;
+  return gc_int(av, gsigne(gsub(x,y)));
 }
 
 /* returns the sign of x - y when it makes sense. 0 otherwise */
@@ -653,12 +642,11 @@ gcmpsg(long s, GEN y)
     case t_REAL: return cmpsr(s,y);
     case t_FRAC: {
       pari_sp av = avma;
-      GEN n = gel(y,1), d = gel(y,2);
-      int f = cmpii(mulsi(s,d), n); set_avma(av); return f;
+      return gc_int(av, cmpii(mulsi(s,gel(y,2)), gel(y,1)));
     }
     case t_QUAD: {
       pari_sp av = avma;
-      int f = gsigne(gsubsg(s, y)); set_avma(av); return f;
+      return gc_int(av, gsigne(gsubsg(s, y)));
     }
     case t_INFINITY: return -inf_get_sign(y);
   }
@@ -882,7 +870,7 @@ list_cmp(GEN x, GEN y, int cmp(GEN x, GEN y))
       pari_sp av = avma;
       GEN mx  = maptomat_shallow(x), my = maptomat_shallow(y);
       int ret = gidentical(gel(mx, 1), gel(my, 1)) && cmp(gel(mx, 2), gel(my, 2));
-      set_avma(av); return ret;
+      return gc_bool(av, ret);
     }
   default:
     return cmp(vx, vy);
@@ -1068,8 +1056,9 @@ gequal(GEN x, GEN y)
         GEN a = gel(x,1), b = gel(x,2), c = gel(y,1), d = gel(y,2);
         if (gequal(b,d)) return gequal(a,c); /* simple case */
         av = avma;
-        i = gequal(simplify_shallow(gmul(a,d)), simplify_shallow(gmul(b,c)));
-        set_avma(av); return i;
+        a = simplify_shallow(gmul(a,d));
+        b = simplify_shallow(gmul(b,c));
+        return gc_bool(av, gequal(a,b));
       }
 
       case t_STR:
@@ -1085,18 +1074,13 @@ gequal(GEN x, GEN y)
       case t_INFINITY:
         return gequal(gel(x,1),gel(y,1));
     }
-  (void)&av; /* emulate volatile */
-  av = avma; i = gequal_try(x, y);
-  set_avma(av); return i;
+  (void)&av; av = avma; /* emulate volatile */
+  return gc_bool(av, gequal_try(x, y));
 }
 
 int
 gequalsg(long s, GEN x)
-{
-  pari_sp av = avma;
-  int f = gequal(stoi(s), x);
-  set_avma(av); return f;
-}
+{ pari_sp av = avma; return gc_bool(av, gequal(stoi(s), x)); }
 
 /* a and b are t_INT, t_FRAC, t_REAL or t_COMPLEX of those. Check whether
  * a-b is invertible */
@@ -1105,11 +1089,9 @@ cx_approx_equal(GEN a, GEN b)
 {
   pari_sp av = avma;
   GEN d;
-  int r;
   if (a == b) return 1;
   d = gsub(a,b);
-  r = (gequal0(d) || (typ(d) == t_COMPLEX && gequal0(cxnorm(d))));
-  set_avma(av); return r;
+  return gc_bool(av, gequal0(d) || (typ(d)==t_COMPLEX && gequal0(cxnorm(d))));
 }
 /*******************************************************************/
 /*                                                                 */
@@ -1199,9 +1181,9 @@ gvaluation(GEN x, GEN p)
       if (tp == t_POL) return signe(b)? 0: LONG_MAX;
       av = avma;
       if (!intdvd(a, p, &a)) break;
-      if (!intdvd(b, p, &b)) { set_avma(av); return 0; }
+      if (!intdvd(b, p, &b)) return gc_long(av,0);
       val = 1; while (intdvd(a,p,&a) && intdvd(b,p,&b)) val++;
-      set_avma(av); return val;
+      return gc_long(av,val);
     }
 
     case t_FRAC:
@@ -1223,11 +1205,11 @@ gvaluation(GEN x, GEN p)
       a = RgX_divrem(a, p, ONLY_DIVIDES);
       if (!a) break;
       if (typ(b) != t_POL || varn(b) != v ||
-          !(b = RgX_divrem(b, p, ONLY_DIVIDES)) ) { set_avma(av); return 0; }
+          !(b = RgX_divrem(b, p, ONLY_DIVIDES)) ) return gc_long(av,0);
       val = 1;
       while ((a = RgX_divrem(a, p, ONLY_DIVIDES)) &&
              (b = RgX_divrem(b, p, ONLY_DIVIDES)) ) val++;
-      set_avma(av); return val;
+      return gc_long(av,val);
     }
     case t_POL: {
       if (tp == t_POL) {
@@ -1240,7 +1222,7 @@ gvaluation(GEN x, GEN p)
           for (val=0; ; val++)
           {
             x = RgX_divrem(x,p,ONLY_DIVIDES);
-            if (!x) { set_avma(av); return val; }
+            if (!x) return gc_long(av,val);
             if (gc_needed(av,1))
             {
               if(DEBUGMEM>1) pari_warn(warnmem,"gvaluation");
@@ -1383,7 +1365,7 @@ Z_lval(GEN x, ulong p)
       break;
     }
   }
-  set_avma(av); return vx;
+  return gc_long(av,vx);
 }
 long
 Z_lvalrem(GEN x, ulong p, GEN *py)
@@ -1510,7 +1492,7 @@ Z_pval(GEN x, GEN p) {
   for(;;)
   {
     GEN r, q = dvmdii(x,p,&r);
-    if (r != gen_0) { set_avma(av); return vx; }
+    if (r != gen_0) return gc_long(av,vx);
     vx++; x = q;
   }
 }
@@ -1582,7 +1564,7 @@ gen_pvalrem_DC(GEN x, GEN q, GEN *py, long imin)
     GEN r, xi = gel(x,i);
     if (!signe(xi)) { gel(y,i) = xi; continue; }
     gel(y,i) = dvmdii(xi, q, &r);
-    if (r != gen_0) { set_avma(av); *py = x; return 0; }
+    if (r != gen_0) { *py = x; return gc_long(av,0); }
     lz = minss(lz, lgefint(gel(y,i)));
   }
   if (2 * lgefint(q) <= lz+3) /* avoid squaring if pointless */
@@ -1621,8 +1603,9 @@ gen_lval(GEN x, ulong p, long imin)
   for(v = 0;; v++)
     for (i = imin; i < lx; i++)
     {
-      ulong r; gel(y,i) = absdiviu_rem(gel(y,i), p, &r);
-      if (r) { set_avma(av); return v; }
+      ulong r;
+      gel(y,i) = absdiviu_rem(gel(y,i), p, &r);
+      if (r) return gc_long(av,v);
     }
 }
 long
@@ -1645,13 +1628,13 @@ gen_pval(GEN x, GEN p, long imin)
     {
       if (is_pm1(p)) pari_err_DOMAIN("gen_pval", "p", "=", p, p);
       v += gen_pvalrem_DC(y, p, &y, imin);
-      set_avma(av); return v;
+      return gc_long(av,v);
     }
 
     for (i = imin; i < lx; i++)
     {
       GEN r; gel(y,i) = dvmdii(gel(y,i), p, &r);
-      if (r != gen_0) { set_avma(av); return v; }
+      if (r != gen_0) return gc_long(av,v);
     }
   }
 }
@@ -1666,8 +1649,8 @@ ZV_Z_dvd(GEN v, GEN p)
   pari_sp av = avma;
   long i, l = lg(v);
   for (i=1; i<l; i++)
-    if (!dvdii(gel(v,i), p)) { set_avma(av); return 0; }
-  set_avma(av); return 1;
+    if (!dvdii(gel(v,i), p)) return gc_long(av,0);
+  return gc_long(av,1);
 }
 
 static long
@@ -2667,12 +2650,12 @@ gsigne(GEN x)
       if (signe(gel(T,3))) a = gadd(a,b);
       /* a + b sqrt(D) > 0 ? */
       sa = gsigne(a);
-      sb = gsigne(b); if (sa == sb) { set_avma(av); return sa; }
-      if (sa == 0) { set_avma(av); return sb; }
-      if (sb == 0) { set_avma(av); return sa; }
+      sb = gsigne(b); if (sa == sb) return gc_int(av,sa);
+      if (sa == 0) return gc_int(av,sb);
+      if (sb == 0) return gc_int(av,sa);
       /* different signs, take conjugate expression */
       sb = gsigne(gsub(gsqr(a), gmul(quad_disc(x), gsqr(b))));
-      set_avma(av); return sb * sa;
+      return gc_int(av, sb*sa);
     }
     case t_INFINITY: return inf_get_sign(x);
   }

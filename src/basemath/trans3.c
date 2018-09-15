@@ -733,7 +733,7 @@ isgammapole(GEN s, long bitprec)
   if (gexpo(t) > - b) return 0;
   s = real_i(s);
   if (gsigne(s) > 0 && gexpo(s) > -b) return 0;
-  (void)grndtoi(s, &e); set_avma(av); return (e < -b);
+  (void)grndtoi(s, &e); return gc_bool(av, e < -b);
 }
 
 /* incgam using the continued fraction. x a t_REAL or t_COMPLEX, mx ~ |x|.
@@ -892,7 +892,7 @@ incgam_asymp(GEN s, GEN x, long prec)
     eq = gexpo(q); if (eq < esx) break;
     if (!flint && (j & 3) == 0)
     { /* guard against divergence */
-      if (eq > oldeq) { set_avma(av); return NULL; } /* regressing, abort */
+      if (eq > oldeq) return gc_NULL(av); /* regressing, abort */
       oldeq = eq;
     }
     q = gmul(q, gmul(gsubgs(s,j), invx));

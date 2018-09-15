@@ -2056,7 +2056,7 @@ try_polmin(CG_data *d, nfmaxord_t *S, GEN v, long flag, GEN *ai)
   /* accuracy too low, compute algebraically */
   if (!g) { set_avma(av); g = ZXQ_charpoly(*ai, S->T, varn(S->T)); }
   g = ZX_radical(g);
-  if (best && degpol(g) != degpol(S->T)) { set_avma(av); return NULL; }
+  if (best && degpol(g) != degpol(S->T)) return gc_NULL(av);
   g = gerepilecopy(av, g);
   d->expo_best_disc = ed;
   if (flag & nf_ORIG)
@@ -2079,7 +2079,7 @@ chk_gen(void *data, GEN x)
   if (!g) pari_err_PREC("chk_gen");
   av1 = avma;
   h = ZX_gcd(g, ZX_deriv(g));
-  if (degpol(h)) { set_avma(av); return NULL; }
+  if (degpol(h)) return gc_NULL(av);
   if (DEBUGLEVEL>3) err_printf("  generator: %Ps\n",g);
   set_avma(av1); return gerepileupto(av, g);
 }

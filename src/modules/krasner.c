@@ -284,7 +284,7 @@ DivideByPi(FAD_t *fdata, GEN pp, GEN ppp, GEN pol)
   {
     GEN r;
     gel(P,i) = dvmdii(gel(P,i), fdata->p, &r);
-    if (r != gen_0) { set_avma(av); return NULL; }
+    if (r != gen_0) return gc_NULL(av);
   }
   return FpX_red(P, pp);
 }
@@ -438,11 +438,11 @@ IsIsomorphic(KRASNER_t *data, FAD_t *fdata, GEN pol)
   {
     GEN p1 = FqX_FpXQ_eval(pol, fdata->z, fdata->top, data->pr);
     nb = RootCountingAlgorithm(data, fdata, p1, 1);
-    if (nb) { set_avma(av); return nb; }
+    if (nb) return gc_long(av, nb);
     if (j < data->f)
       pol = FqX_FpXQ_eval(pol, data->frob, data->T, data->pr);
   }
-  set_avma(av); return 0;
+  return gc_long(av,0);
 }
 
 /* Compute the number of conjugates fields of the field given by fdata */

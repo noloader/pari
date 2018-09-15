@@ -416,7 +416,7 @@ Flxq_log_index_cubic(GEN a0, GEN b0, GEN m, GEN T0, ulong p)
   pari_timer ti;
   GEN cost = smooth_best(p, n, &r, &nb);
   GEN cost_rho = sqrti(shifti(m,2));
-  if (!cost || gcmp(cost,cost_rho)>=0) { set_avma(av); return NULL; }
+  if (!cost || gcmp(cost,cost_rho)>=0) return gc_NULL(av);
   nbi = itos(ffsumnbirred(stoi(p), r));
   if (DEBUGLEVEL)
   {
