@@ -47,13 +47,13 @@ Doc: general hypergeometric function, where \kbd{N} and \kbd{D} are
 
  \kbd{F32}: \kbd{hypergeom([a,b,c],[d,e],z)}. $R=1$, extended by
  $$\dfrac{\Gamma(e)}{\Gamma(c)\Gamma(e-c)}
-    \int_0^1t^{c-1}(1-t)^{e-c-1}_2F_1(a,b;d;tz)\,dt\;.$$
+    \int_0^1t^{c-1}(1-t)^{e-c-1}{}_2F_1(a,b;d;tz)\,dt\;.$$
 
  \kbd{F20}: \kbd{hypergeom([a,b],[],z)}. $R=0$, computed as
  $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}(1-zt)^{-b}e^{-t}\,dt\;.$$
 
  \kbd{F31}: \kbd{hypergeom([a,b,c],[d],z)}. $R=0$, computed as
- $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}e^{-t}_2F_1(b,c;d;tz)\,dt\;.$$
+ $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}e^{-t}{}_2F_1(b,c;d;tz)\,dt\;.$$
 
  For other inputs: if $R=\infty$ or $R=1$ and $|z| < 1- \varepsilon$ is not
  too close to the circle of convergence, we simply sum the series.
