@@ -1181,6 +1181,18 @@ gerepileupto(pari_sp av, GEN x)
       return gerepile(av, (pari_sp) (x+lg(x)), x);
   }
 }
+INLINE double
+gc_double(pari_sp av, double d) { set_avma(av); return d; }
+INLINE long
+gc_long(pari_sp av, long s) { set_avma(av); return s; }
+INLINE ulong
+gc_ulong(pari_sp av, ulong s) { set_avma(av); return s; }
+INLINE int
+gc_bool(pari_sp av, int s) { set_avma(av); return s; }
+INLINE int
+gc_int(pari_sp av, int s) { set_avma(av); return s; }
+INLINE GEN
+gc_NULL(pari_sp av) { set_avma(av); return NULL; }
 
 /* gerepileupto(av, gcopy(x)) */
 INLINE GEN

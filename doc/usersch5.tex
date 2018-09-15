@@ -1210,6 +1210,29 @@ See \secref{se:garbage} for a detailed explanation and many examples.
 
 \fun{void}{set_avma}{ulong av} reset \kbd{avma} to \kbd{av}.
 
+\fun{GEN}{gc_NULL}{pari_sp av} reset \kbd{avma} to \kbd{av} and return
+\kbd{NULL}.
+
+The following 5 functions reset \kbd{avma} to \kb{av} and return $x$:
+
+\fun{int}{gc_bool}{pari_sp av, int x}
+
+\fun{double}{gc_double}{pari_sp av, double x}
+
+\fun{int}{gc_int}{pari_sp av, int x}
+
+\fun{long}{gc_long}{pari_sp av, long x}
+
+\fun{ulong}{gc_ulong}{pari_sp av, ulong x} This allows for instance 
+to return \kbd{gc\_ulong(av, itou(z))}, whereas
+\bprog
+  pari_sp av = avma;
+  GEN z = ...
+  set_avma(av);
+  return itou(z);
+@eprog should be frowned upon since \kbd{set\_avma(av)} conceptually
+destroys everything from the reference point on, including $z$.
+
 \fun{void}{cgiv}{GEN x} frees object \kbd{x}, assuming it is the last created
 on the stack.
 
