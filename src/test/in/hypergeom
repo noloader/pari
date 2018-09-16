@@ -101,8 +101,9 @@ print("3F2");
 testF(v32, 128, 128)
 
 hypergeom([1,1],2,-1.000000000000001)
-f(a,c)=exponent( hypergeom([a,2],c,(c-2)/(a-1))-(a-1)*(c-1)/(a+1-c) );
+f(a,c)=exponent( hypergeom([a,2],c,(c-2)/(a-1)) - (a-1)*(c-1)/(a+1-c) );
 for(j=28,32,print(j/5,": ",f(3,j/5)));
+f(4,1/5)
 hypergeom([3,2],3.4,0.7)
 hypergeom([1.5,2.1],[-3.5,1.1],1)
 a=sqrt(Pi)*(1-erfc(sqrt(2)))/sqrt(2)+exp(-2)/2-1/2;
