@@ -82,9 +82,9 @@ _===_           @Equality
 _!==_           @Equality
 _!              @factorial
 operator        @GP operators@2
-and             @GP operators@2
-or              @GP operators@2
-not             @GP operators@2
+and             @Boolean operators
+or              @Boolean operators
+not             @Boolean operators
 INT             @Integers@2
 integer         @Integers@2
 REAL            @Real numbers@2
