@@ -1219,7 +1219,6 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
   GEN t,dx,x;
   dblPointList *pl;
   long tx, i, j, sig, nc, nl, ncoords, nbpoints, non_vec = 0;
-  pari_sp av = avma;
 
   sig = gcmp(b,a); if (!sig) return NULL;
   if (sig < 0) swap(a, b);
@@ -1242,7 +1241,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     nl = lg(t);
     nc = nl-1;
   }
-  if (!nc) return gc_NULL(av);
+  if (!nc) return NULL;
   if (recur && nc > 1) pari_err_TYPE("ploth [multi-curves + recursive]",t);
 
   ncoords = cplx? 2*nl: nl;
@@ -1405,7 +1404,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       }
     if (worker) mt_queue_end(&pt);
   }
-  pl[0].nb = nc; set_avma(av); return pl;
+  pl[0].nb = nc; return pl;
 }
 
 static GEN
@@ -1646,8 +1645,9 @@ static GEN
 plotrecth_i(GEN fmt, void *E, GEN(*f)(void*,GEN), PARI_plot *T, long ne,
             GEN a,GEN b, ulong flags,long n, long prec)
 {
+  pari_sp av = avma;
   dblPointList *pl = plotrecthin(E,f, a,b, flags, n, prec);
-  return plotrecthrawin(fmt, T, ne, pl, flags);
+  set_avma(av); return plotrecthrawin(fmt, T, ne, pl, flags);
 }
 GEN
 plotrecth(void *E, GEN(*f)(void*,GEN), long ne, GEN a,GEN b,
