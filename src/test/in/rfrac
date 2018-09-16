@@ -48,3 +48,6 @@ trace(I/x)
 default(realprecision,38);
 1./x-1/x
 type(1/x-1/x)
+
+type(Pol(0)/x)
+Pol(0)/(Mod(1,2)*x)

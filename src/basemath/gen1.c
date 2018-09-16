@@ -326,7 +326,7 @@ gred_rfrac2(GEN n, GEN d)
   long v, vd, vn;
 
   n = simplify_shallow(n);
-  if (isrationalzero(n)) return gcopy(n);
+  if (isintzero(n)) return scalarpol(Rg_get_0(d), varn(d));
   d = simplify_shallow(d);
   if (typ(d) != t_POL) return gdiv(n,d);
   vd = varn(d);
