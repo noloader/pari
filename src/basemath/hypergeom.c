@@ -61,8 +61,9 @@ F01(GEN a, GEN z, long prec)
 static GEN
 airy_i(GEN x, long prec)
 {
-  long bit = prec2nbits(prec);
+  long bit = prec2nbits(prec), tx = typ(x);
   GEN a, b, A, B, z, z2;
+  if (!is_scalar_t(tx)) pari_err_TYPE("airy",x);
   if (is0(x, bit))
   {
     GEN s = sqrtnr_abs(utor(3,prec), 6), s3 = powrs(s,3), s4 = mulrr(s,s3);
@@ -70,7 +71,7 @@ airy_i(GEN x, long prec)
     B = mulrr(A, s3); return mkvec2(A, B);
   }
   z = gsqrt(gpowgs(x,3), prec); z2 = gdivgs(gmul2n(z,1),3);
-  if (is_real_t(typ(x)) && gsigne(x) > 0)
+  if (is_real_t(tx) && gsigne(x) > 0)
     a = b = gsqrt(x, prec); /* expression simplifies */
   else
   {
@@ -168,9 +169,8 @@ F20(GEN a, GEN b, GEN z, long prec)
     res = hyperunew(a, ab1, gneg(ginv(z)), prec);
     return gerepileupto(ltop, gmul(gpow(gneg(z), gneg(a), prec), res));
   }
-  if (isexactzero(imag_i(z)))
+  if (isexactzero(imag_i(z)) && gsigne(z = real_i(z)) < 0)
   {
-    z = real_i(z);
     res = hyperu(a, ab1, gneg(ginv(z)), prec);
     return gerepileupto(ltop, gmul(gpow(gneg(z), gneg(a), prec), res));
   }
@@ -1001,6 +1001,7 @@ GEN
 hypergeom(GEN N, GEN D, GEN z, long prec)
 {
   long nN, nD, j;
+  if (!is_scalar_t(typ(z))) pari_err_TYPE("hypergeom",z);
   if (gequal0(z)) return gen_1;
   if (typ(N) != t_VEC) N = mkvec(N);
   if (typ(D) != t_VEC) D = mkvec(D);

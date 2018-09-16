@@ -41,7 +41,7 @@ hypergeom(-0.5,[],3)
 hypergeom([],2.5,15)
 hypergeom([],2.5,-15)
 hypergeom([],2.5,15*I)
-v20=[[[1,1],[],-3], [[1,1],[],-3+10^-20*I]];
+v20=[[[1,1],[],-3], [[1,1],[],-3+10^-20*I], [[1,3/2],[],-3], [[1,-1],[],10^-4]];
 print("2F0");
 testF(v20, 128, 128)
 
@@ -103,6 +103,8 @@ T2=hypergeom([2,1,1],[a+1,a+1],1)
 T3=hypergeom([2*a-1,1,1],[a+1,a+1],1)
 b=T1+(a-1)^2/(a^2*(2*a-3))*(T2-2*(a-1)*T3)-gamma(a)^2/((2*a-3)*gamma(2*a-2));
 exponent(b) <= -122
+airy(0)
+airy(I)
 airy(1)
 airy(100)[1]
 airy(-100)[2]
@@ -111,3 +113,7 @@ hypergeom([1,2,1,1,1,1/2],[1,2,3/4,3/2,3/2],1)
 F(k,a)=Pi^(k-1/2)*gamma(a)/(2^(3*k-1)*gamma(a+1/2))*hypergeom(concat(vector(k,j,1),1/2),concat(a+1/2,vector(k-1,j,3/2)),1);
 L=lfuninit(lfunetaquo([4,2;8,2]),[1,6,1],2);
 lindep([lfun(L,3),F(3,5/4),F(3,3/4),F(3,1/4)])
+
+\\ Errors, keep at end
+airy(O(x))
+hypergeom([],[],O(x))
