@@ -2364,8 +2364,8 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
       for (l = 1;; l++) /* Q <= bound */
       {
         ulong iQ;
-        GEN sprk = zlog_pr_init(nf, pr, l);
-        GEN U_pr = vzlog_pr(nf, U, sprk);
+        GEN sprk = log_prk_init(nf, pr, l);
+        GEN U_pr = veclog_prk(nf, U, sprk);
         for (iQ = Q, i = 1; iQ <= bound; iQ += Q, i++)
         {
           GEN pz, p2, p1 = gel(Z,i);

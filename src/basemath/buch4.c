@@ -168,7 +168,7 @@ psquarenf(GEN nf,GEN x,GEN pr,GEN modpr)
 static long
 check2(GEN nf, GEN x, GEN sprk)
 {
-  GEN zlog = zlog_pr(nf, x, sprk);
+  GEN zlog = log_prk(nf, x, sprk);
   long i, l = lg(zlog);
   for (i=1; i<l; i++) /* all elementary divisors are even (1+2e > 1) */
     if (mpodd(gel(zlog,i))) return 0;
@@ -239,7 +239,7 @@ lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN sprk)
   if (q == 1) return res;
 
   /* is gx a square mod pi^q ? FIXME : highly inefficient */
-  sprk = zlog_pr_init(nf, pr, q);
+  sprk = log_prk_init(nf, pr, q);
   if (!check2(nf, gx, sprk)) res = -1;
   return res;
 }
@@ -304,7 +304,7 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
   checkprid(pr); nf = checknf(nf);
   if (absequaliu(pr_get_p(pr), 2))
   { /* tough case */
-    zinit = zlog_pr_init(nf, pr, 1+2*pr_get_e(pr));
+    zinit = log_prk_init(nf, pr, 1+2*pr_get_e(pr));
     if (psquare2nf(nf,constant_coeff(T),pr,zinit)) return 1;
     if (psquare2nf(nf, leading_coeff(T),pr,zinit)) return 1;
   }

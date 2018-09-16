@@ -399,14 +399,14 @@ build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, GEN gell, tau_s *tau)
 static GEN
 logall(GEN nf, GEN vec, long lW, long mginv, long ell, GEN pr, long ex)
 {
-  GEN m, M, sprk = zlog_pr_init(nf, pr, ex);
+  GEN m, M, sprk = log_prk_init(nf, pr, ex);
   long ellrank, i, l = lg(vec);
 
   ellrank = prank(gel(sprk,1), ell);
   M = cgetg(l,t_MAT);
   for (i=1; i<l; i++)
   {
-    m = zlog_pr(nf, gel(vec,i), sprk);
+    m = log_prk(nf, gel(vec,i), sprk);
     setlg(m, ellrank+1);
     if (i < lW) m = gmulsg(mginv, m);
     gel(M,i) = ZV_to_Flv(m, ell);

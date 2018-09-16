@@ -630,9 +630,9 @@ GEN     nfbasis_gp(GEN T);
 
 void    check_nfelt(GEN x, GEN *den);
 GEN     zk_ei_mul(GEN nf, GEN x, long i);
-GEN     zlog_pr(GEN nf, GEN a, GEN sprk);
-GEN     vzlog_pr(GEN nf, GEN v, GEN sprk);
-GEN     zlog_pr_init(GEN nf, GEN pr, long k);
+GEN     log_prk(GEN nf, GEN a, GEN sprk);
+GEN     veclog_prk(GEN nf, GEN v, GEN sprk);
+GEN     log_prk_init(GEN nf, GEN pr, long k);
 
 /* base4.c */
 

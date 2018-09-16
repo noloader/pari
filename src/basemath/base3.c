@@ -2407,7 +2407,7 @@ famat_zlog_pr(GEN nf, GEN g, GEN e, GEN sprk)
   GEN pr = sprk_get_pr(sprk);
   GEN prk = sprk_get_prk(sprk);
   GEN x = famat_makecoprime(nf, g, e, pr, prk, sprk_get_expo(sprk));
-  return zlog_pr(nf, x, sprk);
+  return log_prk(nf, x, sprk);
 }
 /* log_g(a) in (Z_K/pr)^* */
 static GEN
@@ -2420,7 +2420,7 @@ nf_log(GEN nf, GEN a, GEN ff)
 /* a in Z_K (t_COL or t_INT), pr prime ideal, sprk = sprkinit(nf,pr,k,x).
  * return log(a) on SNF-generators of (Z_K/pr^k)^**/
 GEN
-zlog_pr(GEN nf, GEN a, GEN sprk)
+log_prk(GEN nf, GEN a, GEN sprk)
 {
   GEN e, prk, A, g, L2, U1, U2, y;
 
@@ -2441,14 +2441,14 @@ zlog_pr(GEN nf, GEN a, GEN sprk)
   return vecmodii(y, sprk_get_cyc(sprk));
 }
 GEN
-zlog_pr_init(GEN nf, GEN pr, long k)
+log_prk_init(GEN nf, GEN pr, long k)
 { return sprkinit(checknf(nf),pr,utoipos(k),NULL);}
 GEN
-vzlog_pr(GEN nf, GEN v, GEN sprk)
+veclog_prk(GEN nf, GEN v, GEN sprk)
 {
   long l = lg(v), i;
   GEN w = cgetg(l, t_MAT);
-  for (i = 1; i < l; i++) gel(w,i) = zlog_pr(nf, gel(v,i), sprk);
+  for (i = 1; i < l; i++) gel(w,i) = log_prk(nf, gel(v,i), sprk);
   return w;
 }
 
@@ -2545,7 +2545,7 @@ zlog(GEN nf, GEN a, GEN sgn, zlog_S *S)
   for (k = 1; k < l; k++)
   {
     GEN sprk = gel(S->sprk,k);
-    gel(y,k) = zlog_pr(nf, a, sprk);
+    gel(y,k) = log_prk(nf, a, sprk);
   }
   if (sgn) gel(y,l) = Flc_to_ZC(sgn);
   return y;
@@ -2636,7 +2636,7 @@ log_gen_pr(zlog_S *S, long ind, GEN nf, long e)
     }
     A = cgetg(l, t_MAT);
     for (i = 1; i < l; i++)
-      gel(A,i) = ZM_ZC_mul(Uind, zlog_pr(nf, gel(G,i), sprk));
+      gel(A,i) = ZM_ZC_mul(Uind, log_prk(nf, gel(G,i), sprk));
     return A;
   }
 }
@@ -3052,7 +3052,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
           {
             GEN sprk = bid_get_sprk(ID.prL);
             ID.emb = lg(sprk) == 1? cgetg(1,t_VEC)
-                                  : vzlog_pr(nf, U, gel(sprk,1));
+                                  : veclog_prk(nf, U, gel(sprk,1));
           }
         }
         for (iQ = Q,i = 1; iQ <= bound; iQ += Q,i++)
