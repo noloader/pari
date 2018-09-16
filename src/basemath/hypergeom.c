@@ -489,7 +489,7 @@ fF21neg2(void *E, GEN t)
 
 /* N >= 1 */
 static GEN
-F21lam(long N, GEN a, GEN b, GEN c)
+F21lam(long N, GEN a, GEN c)
 {
   long i;
   GEN C = vecbinomial(N), S = cgetg(N+2, t_VEC);
@@ -647,7 +647,7 @@ F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
   if (gcmp(real_i(c), real_i(b)) <= 0)
   {
     long N = 1 + itos(gfloor(gsub(real_i(b),real_i(c)))); /* >= 1 */
-    GEN T = F21lam(N, a, b, c), c0 = c;
+    GEN T = F21lam(N, a, c), c0 = c;
     void *E;
     c = gaddsg(N,c);
     E = (void*)mkvec5(z, gsubsg(-N,a), gsubgs(b,1), gsubgs(gsub(c,b),1), T);
