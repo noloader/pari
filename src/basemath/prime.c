@@ -543,7 +543,6 @@ BPSW_psp(GEN N)
 {
   pari_sp av;
   MR_Jaeschke_t S;
-  int k;
 
   if (typ(N) != t_INT) pari_err_TYPE("BPSW_psp",N);
   if (signe(N) <= 0) return 0;
@@ -593,7 +592,6 @@ BPSW_psp_nosmalldiv(GEN N)
   pari_sp av;
   MR_Jaeschke_t S;
   long l = lgefint(N);
-  int k;
 
   if (l == 3) return uisprime_661(uel(N,2));
   av = avma;
