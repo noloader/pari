@@ -57,4 +57,10 @@
   ***   at top-level: hypergeom([],[],O(x))
   ***                 ^---------------------
   *** hypergeom: incorrect type in hypergeom (t_SER).
-Total time spent: 3568
+  ***   at top-level: hypergeom([2,1],0,1)
+  ***                 ^--------------------
+  *** hypergeom: incorrect type in hypergeom (t_VEC).
+  ***   at top-level: hypergeom([2,3],1,1)
+  ***                 ^--------------------
+  *** hypergeom: domain error in hypergeom: real(vecsum(D)-vecsum(N)) <= 0
+Total time spent: 3512

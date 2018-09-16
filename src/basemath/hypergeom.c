@@ -236,7 +236,7 @@ myint32(GEN a, GEN b, GEN c, GEN d, GEN e, GEN z, long prec)
 static void
 check_hyp1(GEN x)
 {
-  if (real_i(x) <= 0)
+  if (gsigne(real_i(x)) <= 0)
     pari_err_DOMAIN("hypergeom","real(vecsum(D)-vecsum(N))", "<=", gen_0, x);
 }
 
