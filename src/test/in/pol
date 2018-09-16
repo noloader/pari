@@ -24,6 +24,7 @@ trace(I*x+1)
 matcompanion(2*x^2+1)
 serlaplace(1+x+x^2)
 serlaplace(x^2+x^3)
+serlaplace(1)
 
 test()=
 {

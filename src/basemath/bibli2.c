@@ -632,7 +632,8 @@ laplace(GEN x)
   {
     case t_POL: x = pollaplace(x); break;
     case t_SER: x = serlaplace(x); break;
-    default: pari_err_TYPE("laplace",x);
+    default: if (is_scalar_t(typ(x))) return gcopy(x);
+             pari_err_TYPE("laplace",x);
   }
   return gerepilecopy(av, x);
 }
