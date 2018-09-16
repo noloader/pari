@@ -48,28 +48,44 @@ static GEN
 F01(GEN a, GEN z, long prec)
 {
   pari_sp av = avma;
-  GEN al, x, tmp;
+  GEN al, sz, tmp;
   if (is0(z, prec2nbits(prec)-5)) return real_1(prec);
-  al = gsubgs(a, 1); x = gsqrt(gmul2n(z, 2), prec);
-  tmp = gmul(ggamma(a, prec), gpow(gmul2n(x, -1), gneg(al), prec));
-  tmp = gmul(tmp, ibessel(al, x, prec));
-  if (gequal0(imag_i(z))) tmp = real_i(tmp);
+  sz = gsqrt(z, prec); al = gsubgs(a, 1);
+  tmp = gmul(ggamma(a, prec), gpow(sz, gneg(al), prec));
+  tmp = gmul(tmp, ibessel(al, gmul2n(sz,1), prec));
+  if (isexactzero(imag_i(z))) tmp = real_i(tmp);
   return gerepilecopy(av, tmp);
 }
 
 /* Airy functions [Ai,Bi] */
 static GEN
-airy_i(GEN z, long prec)
+airy_i(GEN x, long prec)
 {
-  GEN z3 = gdivgs(gpowgs(z,3), 9), s6 = sqrtnr(utor(3,prec), 6), s3 = sqrr(s6);
-  /* g2 = Gamma(2/3) * 3^(1/6) */
-  GEN g1 = ggamma(sstoQ(1,3), prec), g2 = gdiv(Pi2n(1,prec), g1);
-  GEN F2 = F01(sstoQ(2,3), z3, prec), a1 = gdiv(F2, mulrr(s6,g2));
-  GEN F4 = F01(sstoQ(4,3), z3, prec), a2 = gdiv(gmul(F4,z), mulrr(s3,g1));
-  GEN A = gsub(a1,a2), B = gadd(a1,a2);
-  long bit = prec2nbits(prec) - gexpo(a1) - 16;
-  if (!is0(A, bit) && !is0(B, bit)) return mkvec2(A, gmul(B, mulrr(s6,s3)));
-  prec = precdbl(prec); z = gprec_wensure(z, prec); return airy_i(z, prec);
+  long bit = prec2nbits(prec);
+  GEN a, b, A, B, z, z2;
+  if (is0(x, bit))
+  {
+    GEN s = sqrtnr_abs(utor(3,prec), 6), s3 = powrs(s,3), s4 = mulrr(s,s3);
+    A = invr(mulrr(s4, ggamma(sstoQ(2,3), prec)));
+    B = mulrr(A, s3); return mkvec2(A, B);
+  }
+  z = gsqrt(gpowgs(x,3), prec); z2 = gdivgs(gmul2n(z,1),3);
+  if (is_real_t(typ(x)) && gsigne(x) > 0)
+    a = b = gsqrt(x, prec); /* expression simplifies */
+  else
+  {
+    a = gsqrtn(z, utoipos(3), NULL, prec);
+    b = gdiv(x, a);
+  }
+  a = gmul(a, ibessel(sstoQ(-1,3),z2, prec));
+  b = gmul(b, ibessel(sstoQ(1,3), z2, prec));
+  if (isexactzero(imag_i(x))) { a = real_i(a); b = real_i(b); }
+  A = gdivgs(gsub(a,b), 3);
+  B = gdiv(gadd(a,b), sqrtr_abs(utor(3, prec)));
+
+  bit -= gexpo(a) + 16;
+  if (!is0(A, bit) && !is0(B, bit)) return mkvec2(A, B);
+  prec = precdbl(prec); x = gprec_wensure(x, prec); return airy_i(x, prec);
 }
 GEN
 airy(GEN z, long prec)
@@ -152,7 +168,7 @@ F20(GEN a, GEN b, GEN z, long prec)
     res = hyperunew(a, ab1, gneg(ginv(z)), prec);
     return gerepileupto(ltop, gmul(gpow(gneg(z), gneg(a), prec), res));
   }
-  if (gequal0(imag_i(z)))
+  if (isexactzero(imag_i(z)))
   {
     z = real_i(z);
     res = hyperu(a, ab1, gneg(ginv(z)), prec);
