@@ -2164,14 +2164,14 @@ compilenode(long n, int mode, long flag)
         long i;
         for(i=1;i<=nb;i++)
         {
-          long a=arg[i];
-          if (i==nb && tree[a].f==Fvararg)
+          long a = arg[i], f = tree[a].f;
+          if (i==nb && f==Fvararg)
           {
             dovararg=1;
             vep[i]=(long)getvar(tree[a].x);
           }
           else
-            vep[i]=(long)getvar(tree[a].f==Fassign?tree[a].x:a);
+            vep[i]=(long)getvar(f==Fassign||f==Findarg?tree[a].x:a);
           var_push(NULL,Lmy);
         }
         checkdups(arg,vep);
@@ -2179,9 +2179,9 @@ compilenode(long n, int mode, long flag)
         frame_push(vep);
         for (i=1;i<=nb;i++)
         {
-          long a=arg[i];
+          long a = arg[i], f = tree[a].f;
           long y = tree[a].y;
-          if (tree[a].f==Fassign && (strict || !is_node_zero(y)))
+          if (f==Fassign && (strict || !is_node_zero(y)))
           {
             if (tree[y].f==Fsmall)
               compilenode(y, Ggen, 0);
@@ -2193,7 +2193,8 @@ compilenode(long n, int mode, long flag)
               op_push(OCpushgen, data_push(getclosure(&lpos)),a);
             }
             op_push(OCdefaultarg,-nb+i-1,a);
-          }
+          } else if (f==Findarg)
+            op_push(OCsetref, -nb+i-1, a);
           localvars[s_lvar.n-nb+i-1].ep=(entree*)vep[i];
         }
       }

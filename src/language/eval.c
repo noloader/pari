@@ -87,7 +87,7 @@ break0(long n)
  * functions for use in sumiter: we want a temporary ep->value, which is NOT
  * a clone (PUSH), to avoid unnecessary copies. */
 
-enum {PUSH_VAL = 0, COPY_VAL = 1, DEFAULT_VAL = 2};
+enum {PUSH_VAL = 0, COPY_VAL = 1, DEFAULT_VAL = 2, REF_VAL = 3};
 
 /* ep->args is the stack of old values (INITIAL if initial value, from
  * installep) */
@@ -403,12 +403,19 @@ INLINE GEN
 copylex(long vn)
 {
   struct var_lex *v = var+s_var.n+vn;
-  if (v->flag!=COPY_VAL)
+  if (v->flag!=COPY_VAL && v->flag!=REF_VAL)
   {
     v->value = gclone(v->value);
     v->flag  = COPY_VAL;
   }
   return v->value;
+}
+
+INLINE void
+setreflex(long vn)
+{
+  struct var_lex *v = var+s_var.n+vn;
+  v->flag  = REF_VAL;
 }
 
 INLINE void
@@ -1079,6 +1086,9 @@ closure_eval(GEN C)
       }
     case OCcowvarlex:
       (void)copylex(operand);
+      break;
+    case OCsetref:
+      setreflex(operand);
       break;
     case OCstoi:
       gel(st,sp-1)=stoi(st[sp-1]);
@@ -2338,6 +2348,9 @@ closure_disassemble(GEN C)
     case OCcowvarlex:
       pari_printf("cowvarlex\t%ld\n",operand);
       break;
+    case OCsetref:
+      pari_printf("setref\t\t%ld\n",operand);
+      break;
     }
   }
 }
@@ -2398,6 +2411,7 @@ opcode_need_relink(op_code opcode)
   case OCavma:
   case OCgerepile:
   case OCcowvarlex:
+  case OCsetref:
     break;
   case OCpushvar:
   case OCpushdyn:
