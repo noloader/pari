@@ -597,13 +597,12 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
   if (cmprs(x,n) < 0)
   {
     pari_sp av2 = avma;
-    GEN q, v, c, s = gen_1, t = gen_0;
-
+    GEN q, v, c, s = real_1(l), t = real_0(l);
     for (k = n-1; k >= 0; k--)
     { /* T = (a+k)*(a1+k) = a*a1 + k(a+a1) + k^2 = previous(T) - S - 2k + 1 */
       GEN p1 = gdiv(T, mulss(-n, k+1));
-      s = gaddgs(gmul(p1,s), 1);
-      t = gadd(gmul(p1,t), gaddgs(a,k));
+      s = gprec_wtrunc(gaddgs(gmul(p1,s), 1), l);
+      t = gprec_wtrunc(gadd(gmul(p1,t), gaddgs(a,k)), l);
       if (!k) break;
       T = gsubgs(gsub(T, S), 2*k-1);
       if (gc_needed(av2,3)) gerepileall(av2, 3, &s,&t,&T);
