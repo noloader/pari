@@ -286,10 +286,11 @@ kbessel2(GEN nu, GEN x, long prec)
   return gerepileupto(av, gmul(p1,gexp(gneg(x),prec)));
 }
 
+/* special case of hypery */
 static GEN
 kbessel1(GEN nu, GEN gx, long prec)
 {
-  GEN x, y, p1, zf, zz, r, s, t, u, ak, pitemp, nu2;
+  GEN x, y, zf, r, s, t, u, pi, nu2;
   long l, lnew, k, k2, l1, n2, n, ex;
   pari_sp av;
 
@@ -302,67 +303,72 @@ kbessel1(GEN nu, GEN gx, long prec)
     lnew = l + rab; prec += rab;
   }
   else lnew = l;
-  y = cgetr(l); l1=lnew+1;
-  av = avma; x = gtofp(gx, lnew); nu = gtofp(nu, lnew);
-  nu2 = gmul2n(sqrr(nu), 2); togglesign(nu2);
+  y = cgetr(l); l1 = lnew + EXTRAPRECWORD;
+  av = avma;
+  x = gtofp(gx, lnew);
+  nu = gtofp(nu,lnew); nu2 = gmul2n(sqrr(nu), 2); togglesign(nu2);
   n = (long) (prec2nbits_mul(l,M_LN2) + M_PI*fabs(rtodbl(nu))) / 2;
-  n2 = n<<1; pitemp=mppi(l1);
+  n2 = n<<1; pi = mppi(l1);
   r = gmul2n(x,1);
   if (cmprs(x, n) < 0)
   {
-    GEN q = utor(n2, l1), v, c, e, f;
-    pari_sp av1, av2;
-    u=cgetr(l1); v=cgetr(l1); e=cgetr(l1); f=cgetr(l1);
-    av1 = avma;
-    zf = sqrtr(divru(pitemp,n2));
-    zz = invr(utor(n2<<2, prec));
-    s = real_1(prec); t = real_0(prec);
+    GEN q, v, c;
+    pari_sp av2 = avma;
+    s = real_1(prec);
+    t = real_0(prec);
     for (k=n2,k2=2*n2-1; k > 0; k--,k2-=2)
     {
-      p1 = addri(nu2, sqrs(k2));
-      ak = divrs(mulrr(p1,zz),-k);
+      GEN ak = divri(addri(nu2, sqru(k2)), mulss(n2<<2, -k));
       s = addsr(1, mulrr(ak,s));
       t = addsr(k2,mulrr(ak,t));
+      if (gc_needed(av2,3)) gerepileall(av2, 2, &s,&t);
     }
-    mulrrz(zf, s, u); shiftr_inplace(t, -1);
-    divrsz(addrr(mulrr(t,zf),mulrr(u,nu)),-n2,v);
-    for(;; set_avma(av1))
+    shiftr_inplace(t, -1);
+    q = utor(n2, l1);
+    zf = sqrtr(divru(pi,n2));
+    u = gprec_wensure(mulrr(zf, s), l1);
+    v = gprec_wensure(divrs(addrr(mulrr(t,zf),mulrr(u,nu)),-n2), l1);
+    for(;;)
     {
-      GEN d = real_1(l1);
+      GEN p1, e, f, d = real_1(l1);
+      pari_sp av3;
       c = divur(5,q); if (expo(c) >= -1) c = real2n(-1,l1);
       p1 = subsr(1,divrr(r,q)); if (cmprr(c,p1)>0) c = p1;
-      togglesign(c);
-      affrr(u,e);
-      affrr(v,f); av2 = avma;
-      for (k=1;; k++, set_avma(av2))
+      togglesign(c); av3 = avma;
+      e = u;
+      f = v;
+      for (k=1;; k++)
       {
         GEN w = addrr(gmul2n(mulur(2*k-1,u), -1), mulrr(subrs(q,k),v));
         w = addrr(w, mulrr(nu, subrr(u,gmul2n(v,1))));
-        divrsz(mulrr(q,v),k,u);
-        divrsz(w,k,v);
-        mulrrz(d,c,d);
-        addrrz(e,mulrr(d,u),e); p1=mulrr(d,v);
-        addrrz(f,p1,f);
-        if (gexpo(p1) - gexpo(f) <= 1-prec2nbits(precision(p1))) break;
-
+        u = divru(mulrr(q,v), k);
+        v = divru(w,k);
+        d = mulrr(d,c);
+        e = addrr(e, mulrr(d,u));
+        f = addrr(f, p1 = mulrr(d,v));
+        if (expo(p1) - expo(f) <= 1-prec2nbits(realprec(p1))) break;
+        if (gc_needed(av3,3)) gerepileall(av3,5,&u,&v,&d,&e,&f);
       }
-      swap(e, u);
-      swap(f, v);
-      affrr(mulrr(q,addrs(c,1)), q);
+      u = e;
+      v = f;
+      q = mulrr(q, addrs(c,1));
       if (expo(subrr(q,r)) - expo(r) <= 1-prec2nbits(lnew)) break;
+      gerepileall(av2, 3, &u,&v,&q);
     }
     u = mulrr(u, gpow(divru(x,n),nu,prec));
   }
   else
   {
-    zf = sqrtr(divrr(pitemp,r));
-    zz = ginv(gmul2n(r,2)); s = real_1(prec);
-    for (k=n2,k2=2*n2-1; k > 0; k--,k2-=2)
+    GEN zz = ginv(gmul2n(r,2));
+    pari_sp av2 = avma;
+    s = real_1(prec);
+    for (k = n2, k2 = 2*n2-1; k > 0; k--, k2-=2)
     {
-      p1 = addri(nu2, sqrs(k2));
-      ak = divru(mulrr(p1,zz), k);
+      GEN ak = divru(mulrr(addri(nu2, sqru(k2)), zz), k);
       s = subsr(1, mulrr(ak,s));
+      if (gc_needed(av2,3)) s = gerepileuptoleaf(av2, s);
     }
+    zf = sqrtr(divrr(pi,r));
     u = mulrr(s, zf);
   }
   affrr(mulrr(u, mpexp(mpneg(x))), y);
