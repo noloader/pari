@@ -570,85 +570,82 @@ hbessel2(GEN n, GEN z, long prec)
 /**                         ET CAS PARTICULIERS                       **/
 /**                                                                   **/
 /***********************************************************************/
-/* Assume gx > 0 and a,b complex */
-/* This might one day be extended to handle complex gx */
-/* see Temme, N. M. "The numerical computation of the confluent        */
-/* hypergeometric function U(a,b,z)" in Numer. Math. 41 (1983),        */
-/* no. 1, 63--82.                                                      */
+/* Assume gx > 0 and a,b complex; this might one day be extended to handle
+ * complex gx; see Temme, "The numerical computation of the confluent
+ * hypergeometric function U(a,b,z)", Numer. Math. 41 (1983), no. 1, 63-82. */
 GEN
 hyperu(GEN a, GEN b, GEN gx, long prec)
 {
-  GEN S, P, T, x, p1, zf, u, a1, mb = gneg(b);
-  const int ex = iscomplex(a) || iscomplex(b);
+  GEN u, S, P, T, x, zf, a1, mb = gneg(b);
   long k, n, l = (typ(gx)==t_REAL)? realprec(gx): prec, l1 = l+EXTRAPRECWORD;
-  GEN y = ex? cgetc(l): cgetr(l);
+  GEN y = (iscomplex(a) || iscomplex(b))? cgetc(l): cgetr(l);
   pari_sp av = avma;
 
   if (gsigne(gx) <= 0) pari_err_IMPL("non-positive third argument in hyperu");
-  x = gtofp(gx, l);
-  a1 = gaddsg(1, gadd(a,mb)); P = gmul(a1, a);
-  n = (long)(prec2nbits_mul(l, M_LN2) + M_PI*sqrt(dblmodulus(P)));
+  a1 = gaddsg(1, gadd(a,mb));
+  P = gmul(a1, a);
   S = gadd(a1, a);
+  n = (long)(prec2nbits_mul(l, M_LN2) + M_PI*sqrt(dblmodulus(P)));
+  T = gadd(gadd(P, gmulsg(n-1, S)), sqru(n-1));
+  x = gtofp(gx, l1);
   if (cmprs(x,n) < 0)
   {
-    GEN q = stor(n, l1), s = gen_1, t = gen_0, v, c, e, f;
-    pari_sp av1, av2;
+    pari_sp av2 = avma;
+    GEN q, v, c, s = gen_1, t = gen_0;
 
-    if (ex) { u=cgetc(l1); v=cgetc(l1); e=cgetc(l1); f=cgetc(l1); }
-    else    { u=cgetr(l1); v=cgetr(l1); e=cgetr(l1); f=cgetr(l1); }
-    av1 = avma;
-    zf = gpow(stoi(n),gneg_i(a),l1);
-    T = gadd(gadd(P, gmulsg(n-1, S)), sqrs(n-1));
-    for (k=n-1; k>=0; k--)
-    {
-      /* T = (a+k)*(a1+k) = a*a1 + k(a+a1) + k^2 = previous(T) - S - 2k + 1 */
-      p1 = gdiv(T, mulss(-n, k+1));
+    for (k = n-1; k >= 0; k--)
+    { /* T = (a+k)*(a1+k) = a*a1 + k(a+a1) + k^2 = previous(T) - S - 2k + 1 */
+      GEN p1 = gdiv(T, mulss(-n, k+1));
       s = gaddgs(gmul(p1,s), 1);
-      t = gadd(  gmul(p1,t), gaddgs(a,k));
+      t = gadd(gmul(p1,t), gaddgs(a,k));
       if (!k) break;
       T = gsubgs(gsub(T, S), 2*k-1);
+      if (gc_needed(av2,3)) gerepileall(av2, 3, &s,&t,&T);
     }
-    gmulz(zf, s, u);
-    gmulz(zf, gdivgs(t,-n), v);
-    for(;; set_avma(av1))
+    q = utor(n, l1);
+    zf = gpow(utoi(n), gneg_i(a), l1);
+    u = gprec_wensure(gmul(zf, s), l1);
+    v = gprec_wensure(gmul(zf, gdivgs(t,-n)), l1);
+    for(;;)
     {
-      GEN d = real_1(l1), p3 = gadd(q,mb);
-      c = divur(5,q); if (expo(c)>= -1) c = real2n(-1, l1);
-      p1 = subsr(1,divrr(x,q)); if (cmprr(c,p1)>0) c = p1;
-      togglesign(c);
-      gaffect(u,e);
-      gaffect(v,f); av2 = avma;
-      for(k=1;;k++, set_avma(av2))
+      GEN p1, e, f, d = real_1(l1), qmb = gadd(q,mb);
+      pari_sp av3;
+      c = divur(5,q); if (expo(c) >= -1) c = real2n(-1, l1);
+      p1 = subsr(1, divrr(x,q)); if (cmprr(c,p1) > 0) c = p1;
+      togglesign(c); av3 = avma;
+      e = u;
+      f = v;
+      for(k = 1;; k++)
       {
-        GEN w = gadd(gmul(gaddgs(a,k-1),u), gmul(gaddgs(p3,1-k),v));
-        gmulz(divru(q,k),v, u);
-        gaffect(gdivgs(w,k), v);
-        mulrrz(d,c,d);
-        gaddz(e,gmul(d,u),e); p1=gmul(d,v);
-        gaddz(f,p1,f);
+        GEN w = gadd(gmul(gaddgs(a,k-1),u), gmul(gaddgs(qmb,1-k),v));
+        u = gmul(divru(q,k),v);
+        v = gdivgs(w, k);
+        d = mulrr(d, c);
+        e = gadd(e, gmul(d,u));
+        f = gadd(f, p1 = gmul(d,v));
         if (gequal0(p1) || gexpo(p1) - gexpo(f) <= 1-prec2nbits(precision(p1)))
           break;
+        if (gc_needed(av3,3)) gerepileall(av3,5,&u,&v,&d,&e,&f);
       }
-      swap(e, u);
-      swap(f, v);
-      affrr(mulrr(q, addrs(c,1)), q);
+      u = e;
+      v = f;
+      q = mulrr(q, addrs(c,1));
       if (expo(subrr(q,x)) - expo(x) <= 1-prec2nbits(l)) break;
+      gerepileall(av2, 3, &u,&v,&q);
     }
   }
   else
   {
     GEN zz = invr(x), s = gen_1;
     togglesign(zz); /* -1/x */
-    zf = gpow(x,gneg_i(a),l1);
-    T = gadd(gadd(P, gmulsg(n-1, S)), sqrs(n-1));
-    for (k=n-1; k>=0; k--)
+    zf = gpow(x, gneg_i(a), l1);
+    for (k = n-1; k >= 0; k--)
     {
-      p1 = gmul(T,divru(zz,k+1));
-      s = gaddsg(1, gmul(p1,s));
+      s = gaddsg(1, gmul(gmul(T, divru(zz,k+1)), s));
       if (!k) break;
       T = gsubgs(gsub(T, S), 2*k-1);
     }
-    u = gmul(s,zf);
+    u = gmul(s, zf);
   }
   gaffect(u,y); set_avma(av); return y;
 }
@@ -999,17 +996,6 @@ incgamspec(GEN s, GEN x, GEN g, long prec)
   S2 = gadd(gadd(S1, S3), gmul(F3, S3));
   return gadd(S, gdiv(S2, P));
 }
-
-#if 0
-static long
-precision2(GEN x, GEN y)
-{
-  long px = precision(x), py = precision(y);
-  if (!px) return py;
-  if (!py) return px;
-  return minss(px, py);
-}
-#endif
 
 /* return |x| */
 double
