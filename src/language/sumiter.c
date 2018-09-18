@@ -1082,7 +1082,7 @@ sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
   N = (ulong)(0.39322*(prec2nbits(prec) + 7)); /*0.39322 > 1/log_2(3+sqrt(8))*/
-  d = powru(addsr(3, sqrtr(stor(8,prec))), N);
+  d = powru(addsr(3, sqrtr(utor(8,prec))), N);
   d = shiftr(addrr(d, invr(d)),-1);
   a = setloop(a);
   az = gen_m1; c = d;
@@ -1204,7 +1204,7 @@ sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   a = subiu(a,1);
   N = (ulong)(0.4*(prec2nbits(prec) + 7));
   if (odd(N)) N++; /* extra precision for free */
-  d = powru(addsr(3, sqrtr(stor(8,prec))), N);
+  d = powru(addsr(3, sqrtr(utor(8,prec))), N);
   d = shiftr(addrr(d, invr(d)),-1);
   az = gen_m1; c = d;
 

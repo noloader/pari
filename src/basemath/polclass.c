@@ -981,7 +981,7 @@ upper_bound_on_classpoly_coeffs(long D, long h, GEN qfinorms)
   pari_sp ltop = avma;
   GEN C = dbltor(2114.567);
   double Mk, m, logbinom;
-  GEN tmp = mulrr(mppi(LOWDEFAULTPREC), sqrtr(stor(-D, LOWDEFAULTPREC)));
+  GEN tmp = mulrr(mppi(LOWDEFAULTPREC), sqrtr(utor(-D, LOWDEFAULTPREC)));
   /* We treat this case separately since the table is not initialised when
    * h = 1. This is the same as in the for loop below but with ak = 1. */
   double log2Mk = dbllog2r(mpadd(mpexp(tmp), C));

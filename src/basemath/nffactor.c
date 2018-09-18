@@ -745,7 +745,7 @@ PRECPB:
   }
   lt = leading_coeff(polbase);
   s = mulri(s, muliu(sqri(lt), n));
-  C = powruhalf(stor(3,DEFAULTPREC), 3 + 2*d); /* 3^{3/2 + d} */
+  C = powruhalf(utor(3,DEFAULTPREC), 3 + 2*d); /* 3^{3/2 + d} */
   return divrr(mulrr(C, s), mulur(d, mppi(DEFAULTPREC)));
 }
 

@@ -310,12 +310,12 @@ kbessel1(GEN nu, GEN gx, long prec)
   r = gmul2n(x,1);
   if (cmprs(x, n) < 0)
   {
-    GEN q = stor(n2, l1), v, c, e, f;
+    GEN q = utor(n2, l1), v, c, e, f;
     pari_sp av1, av2;
     u=cgetr(l1); v=cgetr(l1); e=cgetr(l1); f=cgetr(l1);
     av1 = avma;
     zf = sqrtr(divru(pitemp,n2));
-    zz = invr(stor(n2<<2, prec));
+    zz = invr(utor(n2<<2, prec));
     s = real_1(prec); t = real_0(prec);
     for (k=n2,k2=2*n2-1; k > 0; k--,k2-=2)
     {
@@ -2640,7 +2640,7 @@ upper_to_cx(GEN x, long *prec)
 
 /* sqrt(3)/2 */
 static GEN
-sqrt32(long prec) { GEN z = sqrtr_abs(stor(3,prec)); setexpo(z, -1); return z; }
+sqrt32(long prec) { GEN z = sqrtr_abs(utor(3,prec)); setexpo(z, -1); return z; }
 /* exp(i x), x = k pi/12 */
 static GEN
 e12(ulong k, long prec)

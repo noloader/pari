@@ -464,7 +464,7 @@ mptanh(GEN x)
 
   if (!s) return real_0_bit(expo(x));
   lx = realprec(x);
-  if (abscmprr(x, stor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
+  if (abscmprr(x, utor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
     y = real_1(lx);
   } else {
     pari_sp av = avma;
@@ -514,7 +514,7 @@ mpcotanh(GEN x)
   if (!s) pari_err_DOMAIN("cotan", "argument", "=", gen_0, x);
 
   lx = realprec(x);
-  if (abscmprr(x, stor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
+  if (abscmprr(x, utor(prec2nbits(lx), LOWDEFAULTPREC)) >= 0) {
     y = real_1(lx);
   } else {
     pari_sp av = avma;
@@ -1697,7 +1697,7 @@ mpfactr(long n, long prec)
   {
     long N = mpfactr_n(prec);
     GEN z = n <= N? mpfactr_basecase(n, prec)
-                  : cxgamma(stor(n+1, prec), 0, prec);
+                  : cxgamma(utor(n+1, prec), 0, prec);
     affrr(z, f);
   }
   set_avma(av); return f;

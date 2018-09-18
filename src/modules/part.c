@@ -45,7 +45,7 @@ psi(GEN c, ulong q, long prec)
   GEN a = divru(c, q), ea = mpexp(a), invea = invr(ea);
   GEN cha = shiftr(addrr(ea, invea), -1);  /* ch(a) */
   GEN sha = shiftr(subrr(ea, invea), -1);  /* sh(a) */
-  return mulrr(sqrtr(stor(q,prec)), subrr(mulrr(a,cha), sha));
+  return mulrr(sqrtr(utor(q,prec)), subrr(mulrr(a,cha), sha));
 }
 
 /* L(n,q)=sqrt(k/3)*sum(l=0,2*k-1,
@@ -56,7 +56,7 @@ L(GEN n, ulong k, long bitprec)
 {
   ulong r, l, m;
   long pr = nbits2prec(bitprec / k + k);
-  GEN s = stor(0,pr), pi = mppi(pr);
+  GEN s = utor(0,pr), pi = mppi(pr);
   pari_sp av = avma;
 
   r = 2; m = umodiu(n,k);
@@ -85,7 +85,7 @@ estim(GEN n)
   p1 = divru( itor(shifti(n,1), DEFAULTPREC), 3 );
   p1 = mpexp( mulrr(pi, sqrtr(p1)) ); /* exp(Pi * sqrt(2N/3)) */
   p1 = divri (shiftr(p1,-2), n);
-  p1 = divrr(p1, sqrtr( stor(3,DEFAULTPREC) ));
+  p1 = divrr(p1, sqrtr( utor(3,DEFAULTPREC) ));
   return gerepileupto(av, mplog(p1));
 }
 
@@ -97,8 +97,8 @@ pinit(GEN n, GEN *c, GEN *d, ulong prec)
   GEN sqrtb = sqrtr(b), Pi = mppi(prec), pi2sqrt2, pisqrt2d3;
 
 
-  pisqrt2d3 = mulrr(Pi, sqrtr( divru(stor(2, prec), 3) ));
-  pi2sqrt2  = mulrr(Pi, sqrtr( stor(8, prec) ));
+  pisqrt2d3 = mulrr(Pi, sqrtr( divru(utor(2, prec), 3) ));
+  pi2sqrt2  = mulrr(Pi, sqrtr( utor(8, prec) ));
   *c = mulrr(pisqrt2d3, sqrtb);
   *d = invr( mulrr(pi2sqrt2, mulrr(b,sqrtb)) );
 }
