@@ -116,8 +116,7 @@ lfun_get_factgammavec(GEN tech) { return gmael(tech, 3, 4); }
 
 /* Handle complex Vga whose sum is real */
 static GEN
-sumVga(GEN Vga)
-{ return real_i(vecsum(Vga)); }
+sumVga(GEN Vga) { return real_i(vecsum(Vga)); }
 
 static long
 vgaell(GEN Vga)

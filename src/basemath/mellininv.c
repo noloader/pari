@@ -24,8 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* Handle complex Vga whose sum is real */
 static GEN
-sumVga(GEN Vga)
-{ return real_i(vecsum(Vga)); }
+sumVga(GEN Vga) { return real_i(vecsum(Vga)); }
 
 /* rough approximation to W0(a > -1/e), < 1% relative error */
 double
@@ -282,7 +281,7 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   long prec, d, N, j, k, limn, m = GMi_get_m(K);
   double Ed, xd, Wd;
 
-  N = lg(lj)-1; d = lg(Vga)-1; A = sumVga(Vga);
+  N = lg(lj)-1; d = lg(Vga)-1;
   Ed = M_LN2*bitprec / d;
   xd = maxdd(M_PI*dblmodulus(x2d), 1E-13); /* pi |x|^2/d unless x tiny */
   if (xd > Ed) pari_err_BUG("Kderivsmall (x2d too large)");
@@ -310,8 +309,8 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
       s = gadd(s, gmul(gel(Lx,k), evalvec(gmael(mat,j,k), limn, x2, x2i)));
     S = gadd(S, gmul(gpow(x, gel(mj,j), prec), s));
   }
-  A = gsubsg(m*d, A);
-  if (!gequal0(A)) S = gmul(S, gsqrt(gpow(pi, A, prec), prec));
+  A = gsubsg(m*d, sumVga(Vga));
+  if (!gequal0(A)) S = gmul(S, gpow(pi, gmul2n(A,-1), prec));
   return gerepileupto(ltop, gtofp(S, nbits2prec(bitprec)));
 }
 
