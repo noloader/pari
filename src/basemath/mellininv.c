@@ -22,6 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define M_E 2.7182818284590452354
 #endif
 
+/* Handle complex Vga whose sum is real */
+static GEN
+sumVga(GEN Vga)
+{ return real_i(vecsum(Vga)); }
+
 /* rough approximation to W0(a > -1/e), < 1% relative error */
 double
 dbllambertW0(double a)
@@ -277,7 +282,7 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   long prec, d, N, j, k, limn, m = GMi_get_m(K);
   double Ed, xd, Wd;
 
-  N = lg(lj)-1; d = lg(Vga)-1; A = vecsum(Vga);
+  N = lg(lj)-1; d = lg(Vga)-1; A = sumVga(Vga);
   Ed = M_LN2*bitprec / d;
   xd = maxdd(M_PI*dblmodulus(x2d), 1E-13); /* pi |x|^2/d unless x tiny */
   if (xd > Ed) pari_err_BUG("Kderivsmall (x2d too large)");
@@ -510,7 +515,7 @@ gammamellininvasymp_i(GEN Vga, long nlimmax, long m, long *status)
   if (!m) return gerepilecopy(ltop, M);
   d = lg(Vga)-1;
   /* half the exponent of t in asymptotic expansion. */
-  A = gdivgs(gaddsg(1-d, vecsum(Vga)), 2*d);
+  A = gdivgs(gaddsg(1-d, sumVga(Vga)), 2*d);
   if (*status == 2) M = shallowconcat(M, zerovec(m));
   nlim = lg(M)-1;
   Aadd = gdivgs(stoi(2-d), 2*d); /* (1/d) - (1/2) */
@@ -561,7 +566,7 @@ gammamellininvinit(GEN Vga, long m, long bitprec)
   const long nlimmax = ceil(E*log2(1+M_PI*tmax)*C2/D);
 
   if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);
-  A2 = gaddsg(m*(2-d) + 1-d, vecsum(Vga));
+  A2 = gaddsg(m*(2-d) + 1-d, sumVga(Vga));
   cd = (d <= 2)? gen_2: gsqrt(gdivgs(int2n(d+1), d), nbits2prec(bitprec));
   /* if in Klarge, we have |t| > tmax = E/C2, thus nlim < E*C2/D. */
   M = gammamellininvasymp_i(Vga, nlimmax, m, &status);

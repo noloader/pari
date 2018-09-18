@@ -114,6 +114,11 @@ lfun_get_expot(GEN tech) { return gmael(tech, 3, 3);}
 GEN
 lfun_get_factgammavec(GEN tech) { return gmael(tech, 3, 4); }
 
+/* Handle complex Vga whose sum is real */
+static GEN
+sumVga(GEN Vga)
+{ return real_i(vecsum(Vga)); }
+
 static long
 vgaell(GEN Vga)
 {
@@ -442,7 +447,7 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   }
   else
     get_cone_fuzz(tdom, &rho, &al);
-  A = gammavec_expo(d, gtodouble(vecsum(Vga))); set_avma(av);
+  A = gammavec_expo(d, gtodouble(sumVga(Vga))); set_avma(av);
   a = (A+k1+1) + (m-1)/c;
   if (fabs(a) < 1e-10) a = 0.;
   logC = c*M_LN2 - log(c)/2;
@@ -914,7 +919,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
 
   Vga = ldata_get_gammavec(ldata);
   S->d = d = lg(Vga)-1; d2 = d/2.;
-  suma = gtodouble(vecsum(Vga));
+  suma = gtodouble(sumVga(Vga));
   k = ldata_get_k(ldata);
   N = ldata_get_conductor(ldata);
   S->logN2 = log(gtodouble(N)) / 2;
@@ -1177,7 +1182,7 @@ lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
   long d = lg(Vga)-1;
   long k = ldata_get_k(ldata);
   GEN k2 = gdivgs(stoi(k), 2);
-  GEN expot = gdivgs(gadd(gmulsg(d, gsubgs(k2, 1)), vecsum(Vga)), 4);
+  GEN expot = gdivgs(gadd(gmulsg(d, gsubgs(k2, 1)), sumVga(Vga)), 4);
   GEN eno = ldata_get_rootno(ldata);
   long prec = nbits2prec( domain_get_bitprec(domain) );
   GEN w2 = ginv(gsqrt(eno, prec));
