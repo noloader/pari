@@ -144,7 +144,7 @@ mkendpt(GEN z, GEN a)
 {
   a = real_i(a);
   if (gcmpgs(a,-1) <= 0) pari_err_IMPL("hypergeom for these parameters");
-  return (gcmpgs(a,1) >= 1 || gequal0(a))? z: mkvec2(z, a);
+  return (gcmpgs(a,1) >= 0 || gequal0(a))? z: mkvec2(z, a);
 }
 
 static GEN
@@ -163,6 +163,7 @@ F20(GEN a, GEN b, GEN z, long prec)
   void *E;
 
   if (gcmp(real_i(a), real_i(b)) < 0) swap(a,b);
+  /* Re(b) <= Re(a) */
   ab1 = gadd(a, gsubsg(1, b));
   if (!isint(ab1, &ab1))
   {
@@ -180,8 +181,8 @@ F20(GEN a, GEN b, GEN z, long prec)
   p2 = mkvec2(mkoo(), gen_1);
   pz = is0(imag_i(z), 10)? real_i(ginv(z)): NULL;
   if (pz && gsigne(pz) <= 0) pz = NULL;
-  if (pz) pz = mkendpt(pz, mb);
-  else if (gcmpgs(mb,-1) <= 0) prec += (gexpo(mb)+1)>>1;
+  if (pz) { pz = mkendpt(pz, mb); if (typ(pz) != t_VEC) pz = NULL; }
+  if (gcmpgs(mb,-1) <= 0) prec += (gexpo(mb)+1)>>1;
   res = intnumsplit(E, fF20, p0, p2, pz, prec);
   return gerepileupto(ltop, gdiv(res, ggamma(a, prec)));
 }
