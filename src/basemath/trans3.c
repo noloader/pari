@@ -286,37 +286,29 @@ kbessel2(GEN nu, GEN x, long prec)
   return gerepileupto(av, gmul(p1,gexp(gneg(x),prec)));
 }
 
-/* special case of hypery */
+/* special case of hyperu */
 static GEN
 kbessel1(GEN nu, GEN gx, long prec)
 {
-  GEN x, y, zf, r, s, t, u, pi, nu2;
-  long l, lnew, k, k2, l1, n2, n, ex;
+  GEN x, y, zf, r, u, pi, nu2;
+  long bit, l, k, k2, n2, n, ex;
   pari_sp av;
 
   if (typ(nu)==t_COMPLEX) return kbessel2(nu,gx,prec);
   l = (typ(gx)==t_REAL)? realprec(gx): prec;
-  ex = gexpo(gx);
-  if (ex < 0)
-  {
-    long rab = nbits2extraprec(-ex);
-    lnew = l + rab; prec += rab;
-  }
-  else lnew = l;
-  y = cgetr(l); l1 = lnew + EXTRAPRECWORD;
-  av = avma;
-  x = gtofp(gx, lnew);
-  nu = gtofp(nu,lnew); nu2 = gmul2n(sqrr(nu), 2); togglesign(nu2);
+  y = cgetr(l); ex = gexpo(gx); av = avma;
+  x = gtofp(gx, l);
+  nu = gtofp(nu,l); nu2 = sqrr(nu);
+  shiftr_inplace(nu2,2); togglesign(nu2); /* nu2 = -4nu^2 */
   n = (long) (prec2nbits_mul(l,M_LN2) + M_PI*fabs(rtodbl(nu))) / 2;
-  n2 = n<<1; pi = mppi(l1);
-  r = gmul2n(x,1);
+  bit = prec2nbits(l) - 1;
+  l += EXTRAPRECWORD;
+  pi = mppi(l); n2 = n<<1; r = gmul2n(x,1);
   if (cmprs(x, n) < 0)
   {
-    GEN q, v, c;
     pari_sp av2 = avma;
-    s = real_1(prec);
-    t = real_0(prec);
-    for (k=n2,k2=2*n2-1; k > 0; k--,k2-=2)
+    GEN q, v, c, s = real_1(l), t = real_0(l);
+    for (k = n2, k2 = 2*n2-1; k > 0; k--, k2 -= 2)
     {
       GEN ak = divri(addri(nu2, sqru(k2)), mulss(n2<<2, -k));
       s = addsr(1, mulrr(ak,s));
@@ -324,20 +316,20 @@ kbessel1(GEN nu, GEN gx, long prec)
       if (gc_needed(av2,3)) gerepileall(av2, 2, &s,&t);
     }
     shiftr_inplace(t, -1);
-    q = utor(n2, l1);
+    q = utor(n2, l);
     zf = sqrtr(divru(pi,n2));
-    u = gprec_wensure(mulrr(zf, s), l1);
-    v = gprec_wensure(divrs(addrr(mulrr(t,zf),mulrr(u,nu)),-n2), l1);
+    u = gprec_wensure(mulrr(zf, s), l);
+    v = gprec_wensure(divrs(addrr(mulrr(t,zf),mulrr(u,nu)),-n2), l);
     for(;;)
     {
-      GEN p1, e, f, d = real_1(l1);
+      GEN p1, e, f, d = real_1(l);
       pari_sp av3;
-      c = divur(5,q); if (expo(c) >= -1) c = real2n(-1,l1);
-      p1 = subsr(1,divrr(r,q)); if (cmprr(c,p1)>0) c = p1;
+      c = divur(5,q); if (expo(c) >= -1) c = real2n(-1,l);
+      p1 = subsr(1, divrr(r,q)); if (cmprr(c,p1)>0) c = p1;
       togglesign(c); av3 = avma;
       e = u;
       f = v;
-      for (k=1;; k++)
+      for (k = 1;; k++)
       {
         GEN w = addrr(gmul2n(mulur(2*k-1,u), -1), mulrr(subrs(q,k),v));
         w = addrr(w, mulrr(nu, subrr(u,gmul2n(v,1))));
@@ -352,17 +344,17 @@ kbessel1(GEN nu, GEN gx, long prec)
       u = e;
       v = f;
       q = mulrr(q, addrs(c,1));
-      if (expo(subrr(q,r)) - expo(r) <= 1-prec2nbits(lnew)) break;
+      if (expo(r) - expo(subrr(q,r)) >= bit) break;
       gerepileall(av2, 3, &u,&v,&q);
     }
     u = mulrr(u, gpow(divru(x,n),nu,prec));
   }
   else
   {
-    GEN zz = ginv(gmul2n(r,2));
+    GEN s, zz = ginv(gmul2n(r,2));
     pari_sp av2 = avma;
-    s = real_1(prec);
-    for (k = n2, k2 = 2*n2-1; k > 0; k--, k2-=2)
+    s = real_1(l);
+    for (k = n2, k2 = 2*n2-1; k > 0; k--, k2 -= 2)
     {
       GEN ak = divru(mulrr(addri(nu2, sqru(k2)), zz), k);
       s = subsr(1, mulrr(ak,s));
@@ -371,7 +363,7 @@ kbessel1(GEN nu, GEN gx, long prec)
     zf = sqrtr(divrr(pi,r));
     u = mulrr(s, zf);
   }
-  affrr(mulrr(u, mpexp(mpneg(x))), y);
+  affrr(mulrr(u, mpexp(negr(x))), y);
   set_avma(av); return y;
 }
 
@@ -453,7 +445,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
       i = precision(z); if (i) prec = i;
       i = precision(n); if (i && prec > i) prec = i;
       ex = gexpo(z);
-      /* experimental */
+      /* heuristic threshold */
       if (!flag && !gequal0(n) && ex > prec2nbits(prec)/16 + gexpo(n))
         return kbessel1(n,z,prec);
       L = HALF_E * gtodouble(gabs(z,prec));
@@ -583,7 +575,7 @@ GEN
 hyperu(GEN a, GEN b, GEN gx, long prec)
 {
   GEN u, S, P, T, x, zf, a1, mb = gneg(b);
-  long k, n, l = (typ(gx)==t_REAL)? realprec(gx): prec, l1 = l+EXTRAPRECWORD;
+  long k, n, bit, l = (typ(gx)==t_REAL)? realprec(gx): prec;
   GEN y = (iscomplex(a) || iscomplex(b))? cgetc(l): cgetr(l);
   pari_sp av = avma;
 
@@ -592,8 +584,10 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
   P = gmul(a1, a);
   S = gadd(a1, a);
   n = (long)(prec2nbits_mul(l, M_LN2) + M_PI*sqrt(dblmodulus(P)));
+  bit = prec2nbits(l)-1;
+  l += EXTRAPRECWORD;
   T = gadd(gadd(P, gmulsg(n-1, S)), sqru(n-1));
-  x = gtofp(gx, l1);
+  x = gtofp(gx, l);
   if (cmprs(x,n) < 0)
   {
     pari_sp av2 = avma;
@@ -607,15 +601,15 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
       T = gsubgs(gsub(T, S), 2*k-1);
       if (gc_needed(av2,3)) gerepileall(av2, 3, &s,&t,&T);
     }
-    q = utor(n, l1);
-    zf = gpow(utoi(n), gneg_i(a), l1);
-    u = gprec_wensure(gmul(zf, s), l1);
-    v = gprec_wensure(gmul(zf, gdivgs(t,-n)), l1);
+    q = utor(n, l);
+    zf = gpow(utoi(n), gneg_i(a), l);
+    u = gprec_wensure(gmul(zf, s), l);
+    v = gprec_wensure(gmul(zf, gdivgs(t,-n)), l);
     for(;;)
     {
-      GEN p1, e, f, d = real_1(l1), qmb = gadd(q,mb);
+      GEN p1, e, f, d = real_1(l), qmb = gadd(q,mb);
       pari_sp av3;
-      c = divur(5,q); if (expo(c) >= -1) c = real2n(-1, l1);
+      c = divur(5,q); if (expo(c) >= -1) c = real2n(-1, l);
       p1 = subsr(1, divrr(x,q)); if (cmprr(c,p1) > 0) c = p1;
       togglesign(c); av3 = avma;
       e = u;
@@ -635,7 +629,7 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
       u = e;
       v = f;
       q = mulrr(q, addrs(c,1));
-      if (expo(subrr(q,x)) - expo(x) <= 1-prec2nbits(l)) break;
+      if (expo(x) - expo(subrr(q,x)) >= bit) break;
       gerepileall(av2, 3, &u,&v,&q);
     }
   }
@@ -643,7 +637,7 @@ hyperu(GEN a, GEN b, GEN gx, long prec)
   {
     GEN zz = invr(x), s = gen_1;
     togglesign(zz); /* -1/x */
-    zf = gpow(x, gneg_i(a), l1);
+    zf = gpow(x, gneg_i(a), l);
     for (k = n-1; k >= 0; k--)
     {
       s = gaddsg(1, gmul(gmul(T, divru(zz,k+1)), s));
