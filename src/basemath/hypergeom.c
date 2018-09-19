@@ -1038,5 +1038,5 @@ hypergeom(GEN N, GEN D, GEN z, long prec)
       if (nD == 2) return F32(N, D, z, prec);
   }
   pari_err_IMPL("this hypergeometric function");
-  return NULL;
+  return NULL; /*LCOV_EXCL_LINE*/
 }
