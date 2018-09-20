@@ -120,7 +120,7 @@ dblcoro526(double a, double c, double B)
 static const double MELLININV_CUTOFF = 121.; /* C*C */
 
 static GEN
-MOD2(GEN x) { GEN q = gdivent(x,gen_2); return gsub(x,gmul2n(q,1)); }
+MOD2(GEN x) { GEN q = gdivent(real_i(x),gen_2); return gsub(x,gmul2n(q,1)); }
 static GEN
 RgV_MOD2(GEN v)
 {
@@ -136,7 +136,7 @@ gammapoles(GEN Vga)
 {
   long i, m, d = lg(Vga)-1;
   GEN P, V, B = RgV_MOD2(Vga);
-  P = gen_indexsort(B, (void*)gcmp, cmp_nodata);
+  P = gen_indexsort(real_i(B), (void*)gcmp, cmp_nodata);
   V = cgetg(d+1, t_VEC);
   for (i = 1, m = 1; i <= d;)
   {
