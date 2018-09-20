@@ -291,12 +291,12 @@ static GEN
 kbessel1(GEN nu, GEN gx, long prec)
 {
   GEN x, y, zf, r, u, pi, nu2;
-  long bit, l, k, k2, n2, n, ex;
+  long bit, l, k, k2, n2, n;
   pari_sp av;
 
   if (typ(nu)==t_COMPLEX) return kbessel2(nu,gx,prec);
   l = (typ(gx)==t_REAL)? realprec(gx): prec;
-  y = cgetr(l); ex = gexpo(gx); av = avma;
+  y = cgetr(l); av = avma;
   x = gtofp(gx, l);
   nu = gtofp(nu,l); nu2 = sqrr(nu);
   shiftr_inplace(nu2,2); togglesign(nu2); /* nu2 = -4nu^2 */
