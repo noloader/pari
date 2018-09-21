@@ -63,14 +63,23 @@ M
 mapisdefined(M,2)
 mapput(~M,2,3);M
 
+bagput(~M,k,v)=my(z=List());mapisdefined(M,k,&z);listput(~z,v);mapput(~M,k,z);
+get(N,q)=
+{
+  my(M=Map());
+  forprime(p=2,N,bagput(~M,p%q,p));
+  Mat(M);
+}
+get(100,10)
+
 M=Map([1,2;3,4;5,6]);
 mapget(M,7)
 mapdelete(~M,7)
 Vec(M,1)
 Vec(M,-1)
-Map([1,2;2,3;1,3;1,4])
 
 \\ Errors, keep at end
+Map([1,2;2,3;1,3;1,4])
 L=List();
 mapdelete(1,1)
 mapdelete(~L,1)

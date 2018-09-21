@@ -17,6 +17,19 @@ Map([1, -2; 3, -4; 5, -6])
 Map([;])
 0
 Map(Mat([2, 3]))
+
+[1        List([11, 31, 41, 61, 71])]
+
+[2                         List([2])]
+
+[3 List([3, 13, 23, 43, 53, 73, 83])]
+
+[5                         List([5])]
+
+[7     List([7, 17, 37, 47, 67, 97])]
+
+[9        List([19, 29, 59, 79, 89])]
+
   ***   at top-level: mapget(M,7)
   ***                 ^-----------
   *** mapget: non-existent component in mapget: index not in map

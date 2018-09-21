@@ -997,6 +997,8 @@ compilecall(long n, int mode, entree *ep)
     long x = tree[arg[j]].x, f = tree[arg[j]].f;
     if (f==Fseq)
       compile_err("unexpected ';'", tree[x].str+tree[x].len);
+    else if (f==Findarg)
+      compilenode(tree[arg[j]].x, Ggen,FLnocopy);
     else if (f!=Fnoarg)
       compilenode(arg[j], Ggen,j>=lnl?FLnocopylex:0);
     else
@@ -2567,7 +2569,6 @@ optimizenode(long n)
     compile_err("unexpected character '&'",tree[n].str);
     return;
   case Findarg:
-    compile_err("unexpected character '~'",tree[n].str);
     return;
   case Fvararg:
     compile_err("unexpected characters '..'",tree[n].str);
