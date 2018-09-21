@@ -1027,6 +1027,7 @@ algtobasis(GEN nf, GEN x)
       return gerepileupto(av,poltobasis(nf,x));
 
     case t_COL:
+      if (!RgV_is_QV(x)) pari_err_TYPE("nfalgtobasis",x);
       if (lg(x)-1 != nf_get_degree(nf)) pari_err_DIM("nfalgtobasis");
       return gcopy(x);
 

@@ -548,7 +548,10 @@ Mod(-6/5, x)
   ***   at top-level: nfisisom(x,x^0)
   ***                 ^---------------
   *** nfisisom: not an irreducible polynomial in nfisincl: 1.
-  ***   at top-level: idealhnf(nfinit(a^2+1),3,(a^2+1)*Mod(1,3))
-  ***                          ^---------------------------------
-  *** nfinit: incorrect type in checknf [please apply nfinit()] (t_POLMOD).
-Total time spent: 8260
+  ***   at top-level: idealhnf(nf,3,('a^2+1)*Mod(1,3))
+  ***                 ^--------------------------------
+  *** idealhnf: incorrect type in nf_to_scalar_or_basis (t_INTMOD).
+  ***   at top-level: nfalgtobasis(nf,['a,'a]~)
+  ***                 ^-------------------------
+  *** nfalgtobasis: incorrect type in nfalgtobasis (t_COL).
+Total time spent: 8280
