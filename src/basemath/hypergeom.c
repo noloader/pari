@@ -92,16 +92,6 @@ GEN
 airy(GEN z, long prec)
 { pari_sp av = avma; return gerepilecopy(av, airy_i(z, prec)); }
 
-/* F20 function: F20(a,b;z)=\int_0^oo\exp(-t)t^{a-1}(1-zt)^{-b}/gamma(a) */
-static GEN
-fF20(void *E, GEN t)
-{
-  GEN a1 = gel(E,1), mb = gel(E,2), z = gel(E,3);
-  long prec = precision(t);
-  return gmul(gmul(gexp(gneg(t), prec), gpow(t, a1, prec)),
-              gpow(gsubsg(1, gmul(z, t)), mb, prec));
-}
-
 static GEN Ftaylorgen(GEN vnum, GEN vden, GEN z, long prec);
 /* Gamma(a)*Gamma(b) */
 static GEN
@@ -116,13 +106,14 @@ static GEN
 mulgammav2(GEN v, long prec)
 { return mulgamma2(gel(v,1), gel(v,2), prec); }
 
-GEN
-hyperunew(GEN a, GEN b, GEN z, long prec)
+/***********************************************************************/
+/**                 CONFLUENT HYPERGEOMETRIC U(a,b,z)                 **/
+/***********************************************************************/
+/* b not integral; use 1F1 */
+static GEN
+hyperu_F11(GEN a, GEN b, GEN z, long prec)
 {
-  pari_sp ltop = avma;
-  GEN b1, ab1, S1, S2;
-  if (isint(b,&b)) return hyperu(a, b, z, prec);
-  b1 = gsubsg(1, b); ab1 = gadd(a, b1);
+  GEN S1, S2, b1 = gsubsg(1, b), ab1 = gadd(a, b1);
   if (isnegint(ab1)) S1 = gen_0;
   else
   {
@@ -136,8 +127,102 @@ hyperunew(GEN a, GEN b, GEN z, long prec)
     S2 = gmul(divgamma2(gneg(b1), a, prec), tmp);
     S2 = gmul(S2, gpow(z, b1, prec));
   }
-  return gerepileupto(ltop, gadd(S1, S2));
+  return gadd(S1, S2);
 }
+/* one branch of this must assume x > 0 (a,b complex); see Temme, The
+ * numerical computation of the confluent hypergeometric function U(a,b,z),
+ * Numer. Math. 41 (1983), no. 1, 63-82. */
+static GEN
+hyperu_i(GEN a, GEN b, GEN x, long prec)
+{
+  GEN u, S, P, T, zf, a1;
+  long k, n, bit, l, bigx;
+
+  if (gequal0(imag_i(x))) x = real_i(x);
+  l = precision(x); if (!l) l = prec;
+  prec = l;
+  a1 = gaddsg(1, gsub(a,b));
+  P = gmul(a1, a);
+  S = gadd(a1, a);
+  n = (long)(prec2nbits_mul(l, M_LN2) + M_PI*sqrt(dblmodulus(P)));
+  bigx = dbllog2(x) >= log2((double)n);
+  if (!bigx && (!isint(b,&b) || typ(x) == t_COMPLEX || gsigne(x) <= 0))
+  {
+    if (typ(b) == t_INT)
+    {
+      bit = prec2nbits(l); l += l-2;
+      b = gadd(b, real2n(-bit, l));
+      a = gprec_wensure(a, l);
+      x = gprec_wensure(x, l);
+    }
+    return hyperu_F11(a, b, x, l);
+  }
+  bit = prec2nbits(l)-1;
+  l += EXTRAPRECWORD;
+  T = gadd(gadd(P, gmulsg(n-1, S)), sqru(n-1));
+  x = gtofp(x, l);
+  if (!bigx)
+  { /* this part only works if x is real and positive; only used with b t_INT */
+    pari_sp av2 = avma;
+    GEN q, v, c, s = real_1(l), t = real_0(l);
+    for (k = n-1; k >= 0; k--)
+    { /* T = (a+k)*(a1+k) = a*a1 + k(a+a1) + k^2 = previous(T) - S - 2k + 1 */
+      GEN p1 = gdiv(T, mulss(-n, k+1));
+      s = gprec_wtrunc(gaddgs(gmul(p1,s), 1), l);
+      t = gprec_wtrunc(gadd(gmul(p1,t), gaddgs(a,k)), l);
+      if (!k) break;
+      T = gsubgs(gsub(T, S), 2*k-1);
+      if (gc_needed(av2,3)) gerepileall(av2, 3, &s,&t,&T);
+    }
+    q = utor(n, l);
+    zf = gpow(utoi(n), gneg_i(a), l);
+    u = gprec_wensure(gmul(zf, s), l);
+    v = gprec_wensure(gmul(zf, gdivgs(t,-n)), l);
+    for(;;)
+    {
+      GEN p1, e, f, d = real_1(l), qmb = gsub(q,b);
+      pari_sp av3;
+      c = divur(5,q); if (expo(c) >= -1) c = real2n(-1, l);
+      p1 = subsr(1, divrr(x,q)); if (cmprr(c,p1) > 0) c = p1;
+      togglesign(c); av3 = avma;
+      e = u;
+      f = v;
+      for(k = 1;; k++)
+      {
+        GEN w = gadd(gmul(gaddgs(a,k-1),u), gmul(gaddgs(qmb,1-k),v));
+        u = gmul(divru(q,k),v);
+        v = gdivgs(w, k);
+        d = mulrr(d, c);
+        e = gadd(e, gmul(d,u));
+        f = gadd(f, p1 = gmul(d,v));
+        if (gequal0(p1) || gexpo(p1) - gexpo(f) <= 1-prec2nbits(precision(p1)))
+          break;
+        if (gc_needed(av3,3)) gerepileall(av3,5,&u,&v,&d,&e,&f);
+      }
+      u = e;
+      v = f;
+      q = mulrr(q, addrs(c,1));
+      if (expo(x) - expo(subrr(q,x)) >= bit) break;
+      gerepileall(av2, 3, &u,&v,&q);
+    }
+  }
+  else
+  { /* this part works for large complex x */
+    GEN zz = gneg_i(ginv(x)), s = gen_1;
+    zf = gpow(x, gneg_i(a), l);
+    for (k = n-1; k >= 0; k--)
+    {
+      s = gaddsg(1, gmul(gmul(T, gdivgs(zz,k+1)), s));
+      if (!k) break;
+      T = gsubgs(gsub(T, S), 2*k-1);
+    }
+    u = gmul(s, zf);
+  }
+  return gprec_wtrunc(u, prec);
+}
+GEN
+hyperu(GEN a, GEN b, GEN x, long prec)
+{ pari_sp av = avma; return gerepilecopy(av, hyperu_i(a,b,x,prec)); }
 
 static GEN
 mkendpt(GEN z, GEN a)
@@ -158,33 +243,13 @@ intnumsplit(void *E, GEN (*f)(void*, GEN), GEN a, GEN b, GEN z, long prec)
 static GEN
 F20(GEN a, GEN b, GEN z, long prec)
 {
-  pari_sp ltop = avma;
-  GEN res, p0, p2, pz, ab1, mb;
-  void *E;
+  pari_sp av = avma;
+  GEN U;
 
   if (gcmp(real_i(a), real_i(b)) < 0) swap(a,b);
   /* Re(b) <= Re(a) */
-  ab1 = gadd(a, gsubsg(1, b));
-  if (!isint(ab1, &ab1))
-  {
-    res = hyperunew(a, ab1, gneg(ginv(z)), prec);
-    return gerepileupto(ltop, gmul(gpow(gneg(z), gneg(a), prec), res));
-  }
-  if (isexactzero(imag_i(z)) && gsigne(z = real_i(z)) < 0)
-  {
-    res = hyperu(a, ab1, gneg(ginv(z)), prec);
-    return gerepileupto(ltop, gmul(gpow(gneg(z), gneg(a), prec), res));
-  }
-  mb = gneg(b);
-  E = (void*)mkvec3(gsubgs(a,1), mb, z);
-  p0 = mkendpt(gen_0, gel(E,1));
-  p2 = mkvec2(mkoo(), gen_1);
-  pz = is0(imag_i(z), 10)? real_i(ginv(z)): NULL;
-  if (pz && gsigne(pz) <= 0) pz = NULL;
-  if (pz) { pz = mkendpt(pz, mb); if (typ(pz) != t_VEC) pz = NULL; }
-  if (gcmpgs(mb,-1) <= 0) prec += (gexpo(mb)+1)>>1;
-  res = intnumsplit(E, fF20, p0, p2, pz, prec);
-  return gerepileupto(ltop, gdiv(res, ggamma(a, prec)));
+  z = gneg_i(z); U = hyperu_i(a, gadd(a, gsubsg(1, b)), ginv(z), prec);
+  return gerepileupto(av, gmul(U, gpow(z, gneg(a), prec)));
 }
 
 static GEN F21(GEN a, GEN b, GEN c, GEN z, long prec);

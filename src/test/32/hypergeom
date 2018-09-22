@@ -69,4 +69,4 @@
   ***   at top-level: hypergeom([1,2,3,4],[],1/2)
   ***                 ^---------------------------
   *** hypergeom: sorry, this hypergeometric function is not yet implemented.
-Total time spent: 3525
+Total time spent: 3991

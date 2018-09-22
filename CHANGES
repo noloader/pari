@@ -53,6 +53,7 @@ BA   6- [libpari] ZpX_ZpXQ_liftroot_ea: change interface for 'early'
 HC  11- gamma(t_FRAC) use direct formula when denom | 24
     12- serlaplace(scalar) -> return the scalar (understood as a constant
         polynomial) instead of raising an exception [#2082]
+    13- implement hyperu for arbitrary complex parameters
 
   Added
      1- [libpari] nonsquare_Fl
