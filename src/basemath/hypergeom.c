@@ -108,7 +108,7 @@ mulgammav2(GEN v, long prec)
 /***********************************************************************/
 /**                 CONFLUENT HYPERGEOMETRIC U(a,b,z)                 **/
 /***********************************************************************/
-static GEN Ftaylor(GEN vnum, GEN vden, GEN z, long prec);
+static GEN Ftaylor(GEN N, GEN D, GEN z, long prec);
 /* b not integral; use 1F1 */
 static GEN
 hyperu_F11(GEN a, GEN b, GEN z, long prec)
@@ -310,12 +310,12 @@ ok_F32(GEN z, GEN e)
 
 /* |z| very close to 1 but z != 1 */
 static GEN
-F32(GEN vnum, GEN vden, GEN z, long prec)
+F32(GEN N, GEN D, GEN z, long prec)
 {
   GEN tmp, a,b,c, d,e, re;
-  a = gel(vnum,1); d = gel(vden,1);
-  b = gel(vnum,2); e = gel(vden,2);
-  c = gel(vnum,3);
+  a = gel(N,1); d = gel(D,1);
+  b = gel(N,2); e = gel(D,2);
+  c = gel(N,3);
   if (gcmp(real_i(e), real_i(d)) < 0) swap(e,d);
   re = real_i(e);
   if (!ok_F32(c, re))
@@ -389,26 +389,29 @@ vnormpol2(GEN v)
 }
 
 static long
-findprecgen(GEN vnum, GEN vden, GEN z, long *pmi)
+findprecgen(GEN N, GEN D, GEN z, long *pmi)
 {
   GEN P, Q, v, w, ma;
   double wma;
-  long mi, prec = precision(z);
-  long LD = LOWDEFAULTPREC, lnum = lg(vnum), lden = lg(vden), j, i, lv;
+  long pr = LOWDEFAULTPREC, prec = precision(z);
+  long lN = lg(N), lD = lg(D), mi, j, i, lv;
 
-  P = RgX_shift_shallow(vnormpol2(vden), 2);
+  P = RgX_shift_shallow(vnormpol2(D), 2);
   Q = gnorm(z);
   /* avoid almost cancellation of leading coeff if |z| ~ 1 */
   if (prec && gexpo(gsubgs(Q,1)) < 5 - prec2nbits(prec)) Q = gen_1;
-  Q = RgX_Rg_mul(vnormpol2(vnum), Q);
-  for (j = 1, ma = NULL; j < lnum; ++j)
-    if (isnegint(gel(vnum,j)))
+  Q = RgX_Rg_mul(vnormpol2(N), Q);
+  for (j = 1, ma = NULL; j < lN; ++j)
+  {
+    GEN Nj = gel(N,j);
+    if (isint(Nj,&Nj) && signe(Nj) <= 0)
     {
-      GEN t = gsubgs(gabs(gel(vnum,j), LD), 1);
-      ma = ma? gmin_shallow(ma,t): t;
+      GEN t = subis(absi(Nj), 1);
+      if (!ma || cmpii(ma,t) < 0) ma = t;
     }
+  }
   /* FIXME: use fujiwara_bound_real(,1) */
-  v = ground(realroots(gsub(P,Q), mkvec2(gen_0,mkoo()), LD));
+  v = ground(realroots(gsub(P,Q), mkvec2(gen_0,mkoo()), pr));
   lv = lg(v);
   if (ma)
     for (i = 1; i < lv; ++i) gel(v,i) = gmax(gmin(ma, gel(v,i)), gen_1);
@@ -419,12 +422,12 @@ findprecgen(GEN vnum, GEN vden, GEN z, long *pmi)
     GEN tmp = gen_0;
     long vi = itos(gel(v, i));
     mi = maxss(mi, vi);
-    for (j = 1; j < lnum; ++j)
-      tmp = gadd(tmp, lnpoch(gel(vnum, j), vi));
-    for (j = 1; j < lden; ++j)
-      tmp = gsub(tmp, lnpochden(gel(vden, j), vi));
-    tmp = gadd(tmp, gmulsg(vi, glog(gmax(gabs(z, LD), ginv(stoi(10000))), LD)));
-    tmp = gsub(tmp, glog(mpfact(vi), LD));
+    for (j = 1; j < lN; ++j)
+      tmp = gadd(tmp, lnpoch(gel(N, j), vi));
+    for (j = 1; j < lD; ++j)
+      tmp = gsub(tmp, lnpochden(gel(D, j), vi));
+    tmp = gadd(tmp, gmulsg(vi, glog(gmax(gabs(z, pr), ginv(stoi(10000))), pr)));
+    tmp = gsub(tmp, glog(mpfact(vi), pr));
     gel(w, i) = tmp;
   }
   wma = gtodouble(vecmax(w));
@@ -774,13 +777,13 @@ F21taylorlim(GEN N, long m, GEN z, long si, long prec)
 }
 
 static GEN
-F21finitelim(GEN vnum, long m, GEN z, long prec)
+F21finitelim(GEN N, long m, GEN z, long prec)
 {
   GEN C, S, a, b;
   long j;
   if (!m) return gen_0;
-  a = gel(vnum,1);
-  b = gel(vnum,2);
+  a = gel(N,1);
+  b = gel(N,2);
   S = C = real_1(prec + EXTRAPRECWORD);
   for (j = 1; j < m; ++j)
   {
