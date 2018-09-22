@@ -733,20 +733,20 @@ F21taylor(GEN a, GEN b, GEN c, GEN z, long prec)
 { return gdiv(Ftaylor(mkvec2(a,b), mkvec(c), z, prec), ggamma(c, prec)); }
 
 static GEN
-F21taylorlim(GEN N, long m, GEN argz, long si, long prec)
+F21taylorlim(GEN N, long m, GEN z, long si, long prec)
 {
   pari_sp av;
   GEN C, P, S, tmp;
   long j, ct, pradd, mi, fl, bitmin, tol;
-  pradd = findprecgen(N, mkvec(stoi(m + 1)), argz, &mi);
+  pradd = findprecgen(N, mkvec(stoi(m + 1)), z, &mi);
   if (pradd)
   {
     prec += pradd;
     N = gprec_wensure(N, prec);
-    argz = gprec_wensure(argz, prec);
+    z = gprec_wensure(z, prec);
   }
   bitmin = -(prec2nbits(prec) + 10);
-  P = gadd(gneg(glog(gmulsg(si, argz), prec)),
+  P = gadd(gneg(glog(gmulsg(si, z), prec)),
            gsub(gpsi(stoi(m+1), prec), mpeuler(prec)));
   tmp = gel(N, 2); if (si == -1) tmp = gsubsg(1, tmp);
   P = gsub(P, gadd(gpsi(gel(N, 1), prec), gpsi(tmp, prec)));
@@ -757,7 +757,7 @@ F21taylorlim(GEN N, long m, GEN argz, long si, long prec)
   {
     GEN vnj1 = gaddsg(j, gel(N,1)), vnj2 = gaddsg(j, gel(N,2));
     long jB = (j + 1)*(j + 1 + m);
-    C = gdivgs(gmul(argz, gmul(C, vnj1)), jB);
+    C = gdivgs(gmul(z, gmul(C, vnj1)), jB);
     if (!gequal0(vnj2)) C = gmul(C, vnj2); else { P = stor(si, prec); fl = 0; }
     if (j > mi) tol = gequal0(S) ? 0 : gexpo(C) - gexpo(S);
     if (fl)
@@ -774,7 +774,7 @@ F21taylorlim(GEN N, long m, GEN argz, long si, long prec)
 }
 
 static GEN
-F21finitelim(GEN vnum, long m, GEN argz, long prec)
+F21finitelim(GEN vnum, long m, GEN z, long prec)
 {
   GEN C, S, a, b;
   long j;
@@ -785,7 +785,7 @@ F21finitelim(GEN vnum, long m, GEN argz, long prec)
   for (j = 1; j < m; ++j)
   {
     GEN vnj1 = gaddsg(j-1, a), vnj2 = gaddsg(j-1, b);
-    C = gdivgs(gmul(C, gmul(gmul(vnj1, vnj2), argz)), j*(j - m));
+    C = gdivgs(gmul(C, gmul(gmul(vnj1, vnj2), z)), j*(j - m));
     S = gadd(S, C);
   }
   return gmul(S, mpfact(m-1));
