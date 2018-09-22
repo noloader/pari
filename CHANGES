@@ -33,6 +33,7 @@ BA  22- foo(n)=vector(n)[1..n];123; would corrupt the GP interpreter [#2081]
     23- Pol(0)/'x -> t_INT 0 (instead of 0*x^0)
         Pol(0)/(Mod(1,2)*'x) -> t_INT 0 (instead of Mod(0,2)*x^0)
     24- missing typecheck in nfalgtobasis [#2084]
+    25- dbllog2(t_COMPLEX of t_FRAC) => junk
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

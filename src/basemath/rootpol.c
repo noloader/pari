@@ -394,8 +394,6 @@ mydbllog2r(GEN x) {
   if (!signe(x)) return -pariINFINITY;
   return dbllog2r(x);
 }
-static double
-dbllog2mp(GEN x) { return typ(x) == t_INT? mydbllog2i(x): mydbllog2r(x); }
 double
 dbllog2(GEN z)
 {
@@ -406,8 +404,8 @@ dbllog2(GEN z)
     case t_FRAC: return mydbllog2i(gel(z,1))-mydbllog2i(gel(z,2));
     case t_REAL: return mydbllog2r(z);
     default: /*t_COMPLEX*/
-      x = dbllog2mp(gel(z,1));
-      y = dbllog2mp(gel(z,2));
+      x = dbllog2(gel(z,1));
+      y = dbllog2(gel(z,2));
       if (x == -pariINFINITY) return y;
       if (y == -pariINFINITY) return x;
       if (fabs(x-y) > 10) return maxdd(x,y);
