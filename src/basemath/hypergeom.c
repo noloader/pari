@@ -245,9 +245,6 @@ F20(GEN a, GEN b, GEN z, long prec)
 {
   pari_sp av = avma;
   GEN U;
-
-  if (gcmp(real_i(a), real_i(b)) < 0) swap(a,b);
-  /* Re(b) <= Re(a) */
   z = gneg_i(z); U = hyperu_i(a, gadd(a, gsubsg(1, b)), ginv(z), prec);
   return gerepileupto(av, gmul(U, gpow(z, gneg(a), prec)));
 }
