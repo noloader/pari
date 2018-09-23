@@ -409,7 +409,7 @@ sub apropos {
   {
     if (/^\\(subsubsec[a-z]*|subsec[a-z]*|section|chapter)\{/)
     {
-      $new = &get_match($_,'{','}');
+      $new = &get_match($_,'\\{','\\}');
       &apropos_check($line, $current);
       $current = $new; $line = "";
     }
@@ -662,7 +662,7 @@ sub get_match {
 sub detex {
   my($fun);
 # 1: get the function "prototype"
-  $fun = &get_match($_,'{','}');
+  $fun = &get_match($_,'\\{','\\}');
   $fun = &basic_subst($fun);
   $_ = $remainder;
   $_ = <DOC> if (!&basic_subst($_));
