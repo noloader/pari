@@ -1544,7 +1544,7 @@ mpqs_self_init(mpqs_handle_t *h)
   ulong p;
 
 #ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: enter self init, set_avma(0x)%lX\n", (ulong)avma);
+  err_printf("MPQS DEBUG: enter self init, avma = 0x%lX\n", (ulong)avma);
 #endif
 
   /* when all of the B's have already been used, choose new A ;
@@ -1729,7 +1729,7 @@ mpqs_self_init(mpqs_handle_t *h)
 #endif
 
 #ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: leave self init, set_avma(0x)%lX\n", (ulong)avma);
+  err_printf("MPQS DEBUG: leave self init, avma = 0x%lX\n", (ulong)avma);
 #endif
 }
 
@@ -1886,7 +1886,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 
   av = avma;
 #ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: enter eval cand, set_avma(0x)%lX\n", (ulong)avma);
+  err_printf("MPQS DEBUG: enter eval cand, avma = 0x%lX\n", (ulong)avma);
 #endif
   for (i = 0; i < (ulong)number_of_cand; i++, set_avma(av))
   {
@@ -1898,7 +1898,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     int relaprpos = 0;
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 1, set_avma(0x)%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop 1, avma = 0x%lX\n", (ulong)avma);
 #endif
 
     *relations_end = 0;
@@ -1913,7 +1913,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     Qx = subii(sqri(A_2x_plus_B), h->kN);
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 2, set_avma(0x)%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop 2, avma = 0x%lX\n", (ulong)avma);
 #endif
     /* When N is relatively small, it may happen that Qx is outright
      * divisible by N at this point.  In any case, when no extensive prior
@@ -1991,7 +1991,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     /* (ToDo: MPQS_DEBUG sanity check...) */
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 3, set_avma(0x)%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop 3, avma = 0x%lX\n", (ulong)avma);
 #endif
 
     /* second pass - deal with any repeated factors, and write out the string
@@ -2043,7 +2043,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     }
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 4, set_avma(0x)%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop 4, avma = 0x%lX\n", (ulong)avma);
 #endif
     PRINT_IF_VERBOSE("\bb");
     if (is_pm1(Qx))
@@ -2114,12 +2114,12 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     }
 
 #ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop end, set_avma(0x)%lX\n", (ulong)avma);
+    err_printf("MPQS DEBUG: eval loop end, avma = 0x%lX\n", (ulong)avma);
 #endif
   } /* for */
   PRINT_IF_VERBOSE("\n");
 #ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: leave eval cand, set_avma(0x)%lX\n", (ulong)avma);
+  err_printf("MPQS DEBUG: leave eval cand, avma = 0x%lX\n", (ulong)avma);
 #endif
   return number_of_relations;
 }
