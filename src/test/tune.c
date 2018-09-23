@@ -646,7 +646,7 @@ time_fun(speed_function_t fun, speed_param *s, long enabled)
     {
       qsort (t, i+1, sizeof(t[0]), (QSCOMP)double_cmp_ptr);
       for (j = e-1; j < i; j++)
-        if (t[j] <= t[j-e+1] * TOLERANCE) { set_avma(av); return t[j-e+1]; }
+        if (t[j] <= t[j-e+1] * TOLERANCE) return gc_double(av, t[j-e+1]);
     }
   }
   pari_err(e_MISC,"couldn't measure time");
