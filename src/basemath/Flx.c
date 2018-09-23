@@ -2213,93 +2213,65 @@ Flv_roots_to_pol(GEN a, ulong p, long vs)
   setlg(p1, k); return gen_product(p1, (void *)&D, _Flx_mul);
 }
 
+/* set v[i] = w[i]^{-1}; may be called with w = v, suitable for "large" p */
 INLINE void
 Flv_inv_pre_indir(GEN w, GEN v, ulong p, ulong pi)
 {
   pari_sp av = avma;
+  long n = lg(w), i;
+  ulong u;
   GEN c;
-  register ulong u;
-  register long n = lg(w), i;
 
-  if (n == 1)
-    return;
-
-  c = cgetg(n, t_VECSMALL);
-  c[1] = w[1];
-  for (i = 2; i < n; ++i)
-    c[i] = Fl_mul_pre(w[i], c[i - 1], p, pi);
-
-  i = n - 1;
-  u = Fl_inv(c[i], p);
-  for ( ; i > 1; --i) {
-    ulong t = Fl_mul_pre(u, c[i - 1], p, pi);
-    u = Fl_mul_pre(u, w[i], p, pi);
-    v[i] = t;
+  if (n == 1) return;
+  c = cgetg(n, t_VECSMALL); c[1] = w[1];
+  for (i = 2; i < n; ++i) c[i] = Fl_mul_pre(w[i], c[i-1], p, pi);
+  i = n-1; u = Fl_inv(c[i], p);
+  for ( ; i > 1; --i)
+  {
+    ulong t = Fl_mul_pre(u, c[i-1], p, pi);
+    u = Fl_mul_pre(u, w[i], p, pi); v[i] = t;
   }
-  v[1] = u;
-  set_avma(av);
+  v[1] = u; set_avma(av);
 }
 
 void
-Flv_inv_pre_inplace(GEN v, ulong p, ulong pi)
-{
-  Flv_inv_pre_indir(v, v, p, pi);
-}
+Flv_inv_pre_inplace(GEN v, ulong p, ulong pi) { Flv_inv_pre_indir(v,v, p, pi); }
 
 GEN
 Flv_inv_pre(GEN w, ulong p, ulong pi)
-{
-  GEN v = cgetg(lg(w), t_VECSMALL);
-  Flv_inv_pre_indir(w, v, p, pi);
-  return v;
-}
+{ GEN v = cgetg(lg(w), t_VECSMALL); Flv_inv_pre_indir(w, v, p, pi); return v; }
 
+/* set v[i] = w[i]^{-1}; may be called with w = v, suitable for SMALL_ULONG p */
 INLINE void
 Flv_inv_indir(GEN w, GEN v, ulong p)
 {
   pari_sp av = avma;
+  long n = lg(w), i;
+  ulong u;
   GEN c;
-  register ulong u;
-  register long n = lg(w), i;
 
-  if (n == 1)
-    return;
-
-  c = cgetg(n, t_VECSMALL);
-  c[1] = w[1];
-  for (i = 2; i < n; ++i)
-    c[i] = Fl_mul(w[i], c[i - 1], p);
-
-  i = n - 1;
-  u = Fl_inv(c[i], p);
-  for ( ; i > 1; --i) {
-    ulong t = Fl_mul(u, c[i - 1], p);
-    u = Fl_mul(u, w[i], p);
-    v[i] = t;
+  if (n == 1) return;
+  c = cgetg(n, t_VECSMALL); c[1] = w[1];
+  for (i = 2; i < n; ++i) c[i] = Fl_mul(w[i], c[i-1], p);
+  i = n-1; u = Fl_inv(c[i], p);
+  for ( ; i > 1; --i)
+  {
+    ulong t = Fl_mul(u, c[i-1], p);
+    u = Fl_mul(u, w[i], p); v[i] = t;
   }
-  v[1] = u;
-  set_avma(av);
+  v[1] = u; set_avma(av);
 }
-
-void
-Flv_inv_inplace(GEN v, ulong p)
+static void
+Flv_inv_i(GEN v, GEN w, ulong p)
 {
-  if (SMALL_ULONG(p))
-    Flv_inv_indir(v, v, p);
-  else
-    Flv_inv_pre_indir(v, v, p, get_Fl_red(p));
+  if (SMALL_ULONG(p)) Flv_inv_indir(w, v, p);
+  else Flv_inv_pre_indir(w, v, p, get_Fl_red(p));
 }
-
+void
+Flv_inv_inplace(GEN v, ulong p) { Flv_inv_i(v, v, p); }
 GEN
 Flv_inv(GEN w, ulong p)
-{
-  GEN v = cgetg(lg(w), t_VECSMALL);
-  if (SMALL_ULONG(p))
-    Flv_inv_indir(w, v, p);
-  else
-    Flv_inv_pre_indir(w, v, p, get_Fl_red(p));
-  return v;
-}
+{ GEN v = cgetg(lg(w), t_VECSMALL); Flv_inv_i(v, w, p); return v; }
 
 GEN
 Flx_div_by_X_x(GEN a, ulong x, ulong p, ulong *rem)
