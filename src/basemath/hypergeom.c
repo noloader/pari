@@ -329,14 +329,6 @@ F32(GEN N, GEN D, GEN z, long prec)
 }
 
 static GEN
-posit(GEN z)
-{
-  GEN eps = ginv(shifti(gen_1, 30));
-  if (gcmp(gnorm(z), gsqr(eps)) < 0) return eps;
-  else return z;
-}
-
-static GEN
 poch(GEN a, long n, long prec)
 {
   GEN S = real_1(prec);
@@ -355,18 +347,17 @@ vpoch(GEN a, long n)
 }
 
 static GEN
-lnpoch(GEN a, long n)
-{
-  return real_i(glog(posit(poch(a, n, LOWDEFAULTPREC)), LOWDEFAULTPREC));
-}
-
+Npoch(GEN a, long n) { return gnorm(poch(a, n, LOWDEFAULTPREC)); }
 static GEN
-lnpochden(GEN a, long n)
+Npochden(GEN a, long n)
 {
-  GEN L = lnpoch(a, n), r = ground(real_i(a));
-  if (gsigne(r) <= 0)
-    L = gadd(L, glog(gmin(gen_1, posit(gabs(gsub(a, r), LOWDEFAULTPREC))), LOWDEFAULTPREC));
-  return real_i(L);
+  GEN L = Npoch(a, n), r = ground(real_i(a));
+  if (signe(r) <= 0)
+  {
+    GEN t = gnorm(gsub(a, r));
+    if (gcmpgs(t,1) > 0) L = gmul(L, t);
+  }
+  return L;
 }
 
 /* |x + z|^2 */
@@ -389,51 +380,44 @@ vnormpol2(GEN v)
 }
 
 static long
-findprecgen(GEN N, GEN D, GEN z, long *pmi)
+precFtaylor(GEN N, GEN D, GEN z, long *pmi)
 {
-  GEN P, Q, v, w, ma;
-  double wma;
+  GEN v, ma, P = vnormpol2(D), Q = vnormpol2(N), Nz = gnorm(z);
+  double wma, logNz = (gexpo(Nz) < -27)? -27: dbllog2(Nz) / 2;
   long pr = LOWDEFAULTPREC, prec = precision(z);
   long lN = lg(N), lD = lg(D), mi, j, i, lv;
 
-  P = RgX_shift_shallow(vnormpol2(D), 2);
-  Q = gnorm(z);
+  P = RgX_shift_shallow(P, 2);
   /* avoid almost cancellation of leading coeff if |z| ~ 1 */
-  if (prec && gexpo(gsubgs(Q,1)) < 5 - prec2nbits(prec)) Q = gen_1;
-  Q = RgX_Rg_mul(vnormpol2(N), Q);
+  if (!prec || fabs(logNz) > 1e-38) Q = RgX_Rg_mul(Q,Nz);
   for (j = 1, ma = NULL; j < lN; ++j)
   {
     GEN Nj = gel(N,j);
-    if (isint(Nj,&Nj) && signe(Nj) <= 0)
-    {
-      GEN t = subis(absi(Nj), 1);
-      if (!ma || cmpii(ma,t) < 0) ma = t;
-    }
+    if (isint(Nj,&Nj) && signe(Nj) <= 0
+        && (!ma || absi_cmp(ma, Nj) < 0)) ma = Nj;
   }
-  /* FIXME: use fujiwara_bound_real(,1) */
+  /* use less sharp fujiwara_bound_real(,1) ? */
   v = ground(realroots(gsub(P,Q), mkvec2(gen_0,mkoo()), pr));
-  lv = lg(v);
+  v = ZV_to_zv(v); lv = lg(v);
   if (ma)
-    for (i = 1; i < lv; ++i) gel(v,i) = gmax(gmin(ma, gel(v,i)), gen_1);
-  mi = 0;
-  w = cgetg(lv, t_VEC);
-  for (i = 1; i < lv; ++i)
   {
-    GEN tmp = gen_0;
-    long vi = itos(gel(v, i));
-    mi = maxss(mi, vi);
-    for (j = 1; j < lN; ++j)
-      tmp = gadd(tmp, lnpoch(gel(N, j), vi));
-    for (j = 1; j < lD; ++j)
-      tmp = gsub(tmp, lnpochden(gel(D, j), vi));
-    tmp = gadd(tmp, gmulsg(vi, glog(gmax(gabs(z, pr), ginv(stoi(10000))), pr)));
-    tmp = gsub(tmp, glog(mpfact(vi), pr));
-    gel(w, i) = tmp;
+    long sma = is_bigint(ma)? LONG_MAX: maxss(labs(itos(ma))-1, 1);
+    for (i = 1; i < lv; ++i) v[i] = maxss(minss(sma, v[i]), 1);
   }
-  wma = gtodouble(vecmax(w));
+  for (i = 1, wma = 0., mi = 0; i < lv; ++i)
+  {
+    GEN t1 = gen_1, t2 = gen_1;
+    long u = v[i];
+    double t;
+    mi = maxss(mi, u);
+    for (j = 1; j < lN; j++) t1 = gmul(t1, Npoch(gel(N,j), u));
+    for (j = 1; j < lD; j++) t2 = gmul(t2, Npochden(gel(D,j), u));
+    t = dbllog2(gdiv(t1,t2)) / 2 + u * logNz - dbllog2(mpfactr(u,pr));
+    wma = maxdd(wma, t); /* t ~ log2 | N(u)/D(u) z^u/u! | */
+  }
   /* make up for exponential decrease in exp() */
-  if (gsigne(real_i(z)) < 0) wma -= gtodouble(real_i(z));
-  *pmi = mi; return ceil(wma/(BITS_IN_LONG*LOG2)) + 1;
+  if (gsigne(real_i(z)) < 0) wma -= gtodouble(real_i(z)) / M_LN2;
+  *pmi = mi; return ceil(wma/BITS_IN_LONG) + 1;
 }
 
 static GEN
@@ -442,7 +426,7 @@ Ftaylor(GEN N, GEN D, GEN z, long prec)
   pari_sp ltop = avma, av;
   GEN C, S;
   long i, j, ct, lN = lg(N), lD = lg(D), pradd, mi, bitmin, tol;
-  pradd = findprecgen(N, D, z, &mi);
+  pradd = precFtaylor(N, D, z, &mi);
   if (pradd > 0)
   {
     prec += pradd;
@@ -567,7 +551,7 @@ F21finitetaylor(long m, GEN b, GEN c, GEN z, long prec)
   GEN C, S;
   long j, ct, pradd, mi, tol, bitmin, mb;
   if (isnegint2(b, &mb) && mb < m) { b = stoi(-m); m = mb; }
-  pradd = findprecgen(mkvec2(stoi(-m), b), mkvec(c), z, &mi);
+  pradd = precFtaylor(mkvec2(stoi(-m), b), mkvec(c), z, &mi);
   if (pradd > 0)
   {
     prec += pradd;
@@ -741,7 +725,7 @@ F21taylorlim(GEN N, long m, GEN z, long si, long prec)
   pari_sp av;
   GEN C, P, S, tmp;
   long j, ct, pradd, mi, fl, bitmin, tol;
-  pradd = findprecgen(N, mkvec(stoi(m + 1)), z, &mi);
+  pradd = precFtaylor(N, mkvec(stoi(m + 1)), z, &mi);
   if (pradd)
   {
     prec += pradd;
