@@ -1419,9 +1419,8 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
   ZERO = zeromat(n0, dnf);
 
   av = avma;
-  TT = cgetg(n0+1, t_VEC);
+  TT = const_vec(n0, NULL);
   Tra  = cgetg(n0+1, t_MAT);
-  for (i=1; i<=n0; i++) TT[i] = 0;
   CM_L = scalarmat_s(C, n0);
   /* tmax = current number of traces used (and computed so far) */
   for(tmax = 0;; tmax++)
@@ -1445,7 +1444,7 @@ nf_LLL_cmbf(nfcmbf_t *T, long rec)
       bestlift_init((L->k)<<1, T->nf, Btra, L);
       polred = ZqX_normalize(T->polbase, lP, L);
       famod = ZqX_liftfact(polred, famod, L->Tpk, L->pk, L->p, L->k);
-      for (i=1; i<=n0; i++) TT[i] = 0;
+      for (i=1; i<=n0; i++) gel(TT,i) = NULL;
     }
     for (i=1; i<=n0; i++)
     {
