@@ -206,7 +206,6 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     {
       mjj = gsubgs(mjj, 2);
       for (i = 1; i <= m; i++, mjj = gaddgs(mjj, 1))
-      {
         for (k = 1; k <= ljj; k++)
         {
           GEN c = gel(C,k), d = RgX_shift_shallow(gmul2n(RgX_deriv(c),1), 1);
@@ -214,7 +213,6 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
           if (k < ljj) c = RgX_add(c, gel(C,k+1));
           gel(C,k) = RgX_sub(d, c);
         }
-      }
       gel(mj,j) = gaddgs(mjj,2);
     }
     for (k = 1; k <= ljj; k++)
