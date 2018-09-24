@@ -1134,7 +1134,7 @@ nextK:
       i = 1; curdeg = deg[ind[1]];
       if (DEBUGLEVEL > 2)
       {
-        err_printf("\n"); timer_printf(&ti, "to find factor %Ps",y);
+        err_printf("\n"); timer_printf(&ti, "to find factor %Ps",gel(fa,cnt-1));
         err_printf("remaining modular factor(s): %ld\n", lfamod);
       }
       continue;
