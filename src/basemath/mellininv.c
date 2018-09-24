@@ -134,15 +134,14 @@ RgV_MOD2(GEN v)
 static GEN
 gammapoles(GEN Vga)
 {
-  long i, m, d = lg(Vga)-1;
-  GEN P, V, B = RgV_MOD2(Vga);
+  long i, m, l = lg(Vga);
+  GEN P, B = RgV_MOD2(Vga), V = cgetg(l, t_VEC);
   P = gen_indexsort(real_i(B), (void*)gcmp, cmp_nodata);
-  V = cgetg(d+1, t_VEC);
-  for (i = 1, m = 1; i <= d;)
+  for (i = m = 1; i < l;)
   {
     GEN u = gel(B, P[i]);
     long k;
-    for(k = i+1; k <= d; ++k)
+    for(k = i+1; k < l; k++)
       if (!gequal(gel(B, P[k]), u)) break;
     gel(V, m++) = vecpermute(Vga, vecslice(P,i,k-1));
     i = k;
@@ -162,13 +161,12 @@ sercoeff(GEN x, long n, long prec)
 static GEN
 Kderivsmallinit(GEN Vga, long m, long bitprec)
 {
-  pari_sp av = avma;
-  long d = lg(Vga)-1, N, j, l, limn, prec;
-  GEN LA, lj, mj, mat;
   double C2 = MELLININV_CUTOFF;
+  long N, j, l, d = lg(Vga)-1, limn, prec = nbits2prec(1+bitprec*(1+M_PI*d/C2));
+  GEN LA, lj, mj, mat;
 
-  LA = gammapoles(Vga);
-  N = lg(LA)-1;
+  Vga = gprec_wensure(Vga, prec);
+  LA = gammapoles(Vga); N = lg(LA)-1;
   lj = cgetg(N+1, t_VECSMALL);
   mj = cgetg(N+1, t_VEC);
   for (j = 1; j <= N; ++j)
@@ -177,7 +175,6 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     lj[j] = lg(L)-1;
     gel(mj,j) = gsubsg(2, vecmin(L));
   }
-  prec = nbits2prec((long)(1+bitprec*(1+M_PI*d/C2)));
   limn = ceil(2*M_LN2*bitprec/(d*dbllambertW0(C2/(M_PI*M_E))));
   mat = cgetg(N+1, t_VEC);
   l = limn + 2;
@@ -192,8 +189,7 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
       pr = gmul(pr, ggamma(RgX_to_ser(u, lprecdl), prec));
       t = gmul(t, u);
     }
-    c = cgetg(limn+2,t_COL);
-    gel(c,1) = pr;
+    c = cgetg(limn+2,t_COL); gel(c,1) = pr;
     for (n=1; n <= limn; n++)
       gel(c,n+1) = gdiv(gel(c,n), RgX_translate(t, stoi(-2*n)));
 
@@ -201,9 +197,8 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     for (k = 1; k <= ljj; k++)
     {
       GEN L = cgetg(l, t_POL);
-      L[1] = evalsigne(1)|evalvarn(0);
       for (n = 2; n < l; n++) gel(L,n) = sercoeff(gel(c,n), -k, prec);
-      gel(C,k) = L;
+      L[1] = evalsigne(1)|evalvarn(0); gel(C,k) = L;
     }
     /* C[k] = \sum_n c_{j,k} t^n =: C_k(t) in Dokchitser's Algo 3.3 */
     /* Take m-th derivative of t^(-mj+2) sum_k (-ln t)^k/k! C_k(t^2) */
@@ -230,7 +225,7 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     }
   }
   /* Algo 3.3: * \phi^(m)(t) = sum_j t^m_j sum_k (-ln t)^k mat[j,k](t^2) */
-  return gerepilecopy(av, mkvec3(lj,RgV_neg(mj),mat));
+  return mkvec3(lj, RgV_neg(mj), mat);
 }
 
 /* Evaluate a vector considered as a polynomial using Horner. Unstable!
