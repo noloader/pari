@@ -13,10 +13,10 @@ Doc: finds a polynomial with reasonably
 
  This routine computes an LLL-reduced basis for an order in $\Q[X]/(T)$, then
  examines small linear combinations of the basis vectors, computing their
- characteristic polynomials. It returns the \emph{separable} $P$ polynomial of
- smallest discriminant (the one with lexicographically smallest
- \kbd{abs(Vec(P))} in case of ties). This is a good candidate for subsequent
- number field computations, since it guarantees that the denominators of
+ characteristic polynomials. It returns the \emph{separable} polynomial $P$ of
+ smallest discriminant, the one with lexicographically smallest
+ \kbd{abs(Vec(P))} in case of ties. This is a good candidate for subsequent
+ number field computations since it guarantees that the denominators of
  algebraic integers, when expressed in the power basis, are reasonably small.
  With no claim of minimality, though.
 
