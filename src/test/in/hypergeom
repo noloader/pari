@@ -110,6 +110,7 @@ a=sqrt(Pi)*(1-erfc(sqrt(2)))/sqrt(2)+exp(-2)/2-1/2;
 b=hypergeom([1/2,1],[3/2,2],-2); exponent(a-b)
 a=5/3;
 T1=hypergeom([1,1,1],[a,a],1);
+hypergeom([1,1,1],[a,a],-1)
 T2=hypergeom([2,1,1],[a+1,a+1],1)
 T3=hypergeom([2*a-1,1,1],[a+1,a+1],1)
 b=T1+(a-1)^2/(a^2*(2*a-3))*(T2-2*(a-1)*T3)-gamma(a)^2/((2*a-3)*gamma(2*a-2));
