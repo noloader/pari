@@ -1563,8 +1563,10 @@ nf_combine_factors(nfcmbf_t *T, GEN polred, long klim)
     GEN v;
     if (l > 1)
     {
+      GEN den;
       T->pol = gel(res,l);
-      T->polbase = RgX_to_nfX(T->nf, T->pol);
+      T->polbase = Q_remove_denom(RgX_to_nfX(T->nf, T->pol), &den);
+      if (den) { T->Br = gmul(T->Br, den); T->pol = RgX_Rg_mul(T->pol, den); }
     }
     v = nf_LLL_cmbf(T, maxK);
     /* remove last elt, possibly unfactored. Add all new ones. */
