@@ -130,13 +130,21 @@ RgV_MOD2(GEN v)
   return w;
 }
 
+static int
+gcmp_cpx(GEN a, GEN b)
+{
+  int s = gcmp(real_i(a), real_i(b));
+  if (s==0) s = gcmp(imag_i(a), imag_i(b));
+  return s;
+}
+
 /* poles of the gamma factor */
 static GEN
 gammapoles(GEN Vga)
 {
   long i, m, l = lg(Vga);
   GEN P, B = RgV_MOD2(Vga), V = cgetg(l, t_VEC);
-  P = gen_indexsort(real_i(B), (void*)gcmp, cmp_nodata);
+  P = gen_indexsort(B, (void*)gcmp_cpx, cmp_nodata);
   for (i = m = 1; i < l;)
   {
     GEN u = gel(B, P[i]);
