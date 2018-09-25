@@ -232,13 +232,6 @@ mkendpt(GEN z, GEN a)
   return (gcmpgs(a,1) >= 0 || gequal0(a))? z: mkvec2(z, a);
 }
 
-static GEN
-intnumsplit(void *E, GEN (*f)(void*, GEN), GEN a, GEN b, GEN z, long prec)
-{
-  if (!z) return intnum(E, f, a, b, NULL, prec);
-  return gadd(intnum(E, f, a, z, NULL, prec),
-              intnum(E, f, z, b, NULL, prec));
-}
 /*z != 0 */
 static GEN
 F20(GEN a, GEN b, GEN z, long prec)
@@ -625,6 +618,13 @@ multgam(GEN a, GEN b, GEN c, GEN d, long prec)
 
 const long EXTRAPREC = DEFAULTPREC-2;
 
+static GEN
+intnumsplit(void *E, GEN (*f)(void*, GEN), GEN a, GEN b, GEN z, long prec)
+{
+  if (!z) return intnum(E, f, a, b, NULL, prec);
+  return gadd(intnum(E, f, a, z, NULL, prec),
+              intnum(E, f, z, b, NULL, prec));
+}
 /* z != 1 */
 static GEN
 myint21(void *E, GEN (*f)(void*, GEN), long prec)
