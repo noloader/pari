@@ -181,7 +181,7 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
   {
     GEN L = gel(LA,j);
     lj[j] = lg(L)-1;
-    gel(mj,j) = gsubsg(2, vecmin(L));
+    gel(mj,j) = gsubsg(2, gel(L, vecindexmin(real_i(L))));
   }
   limn = ceil(2*M_LN2*bitprec/(d*dbllambertW0(C2/(M_PI*M_E))));
   mat = cgetg(N+1, t_VEC);
