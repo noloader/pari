@@ -88,6 +88,7 @@ bnrdisc(bnr,,,1)
 bnrdisc(bnr,,,2)
 bnrdisc(K,[1,[1,0]],,2)
 bnrdisc(K,[1,[0,0]],,2)
+ideallog(K,1/2,idealstar(K,[1,[1,1]]))
 
 setrand(1);
 F = bnfinit(x^3-3);

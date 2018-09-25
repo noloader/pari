@@ -2511,7 +2511,7 @@ Q_mod_bid(GEN bid, GEN a)
   GEN xZ = gcoeff(bid_get_ideal(bid),1,1);
   GEN b = Rg_to_Fp(a, xZ);
   if (gsigne(a) < 0) b = subii(b, xZ);
-  return b;
+  return signe(b)? b: xZ;
 }
 /* Return decomposition of a on the CRT generators blocks attached to the
  * S->sprk and sarch; sgn = sign(a, S->arch), NULL if unknown */
