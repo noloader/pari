@@ -56,6 +56,7 @@ HC  11- gamma(t_FRAC) use direct formula when denom | 24
     12- serlaplace(scalar) -> return the scalar (understood as a constant
         polynomial) instead of raising an exception [#2082]
     13- implement hyperu for arbitrary complex parameters
+    14- extend lex() to allow complex numbers
 
   Added
      1- [libpari] nonsquare_Fl

@@ -778,8 +778,8 @@ lexcmpsg(long x, GEN y)
 }
 
 /* as gcmp for vector/matrices, using lexicographic ordering on components */
-int
-lexcmp(GEN x, GEN y)
+static int
+lexcmp_i(GEN x, GEN y)
 {
   const long tx = roughtype(x), ty = roughtype(y);
   if (tx == ty)
@@ -801,6 +801,23 @@ lexcmp(GEN x, GEN y)
 
   if (ty==t_MAT) return  lexcmp_vec_mat(x,y);
   /*tx==t_MAT*/  return -lexcmp_vec_mat(y,x);
+}
+int
+lexcmp(GEN x, GEN y)
+{
+  pari_sp av = avma;
+  if (typ(x) == t_COMPLEX)
+  {
+    x = mkvec2(gel(x,1), gel(x,2));
+    if (typ(y) == t_COMPLEX) y = mkvec2(gel(y,1), gel(y,2));
+    else y = mkvec2(y, gen_0);
+  }
+  else if (typ(y) == t_COMPLEX)
+  {
+    x = mkvec2(x, gen_0);
+    y = mkvec2(gel(y,1), gel(y,2));
+  }
+  return gc_int(av, lexcmp_i(x, y));
 }
 
 /*****************************************************************/
