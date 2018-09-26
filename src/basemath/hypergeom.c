@@ -25,7 +25,7 @@ static GEN
 F10(GEN a, GEN z, long prec)
 {
   pari_sp av = avma;
-  return gerepileupto(av, gpow(gtofp(gsubsg(1,z), prec), gneg(a), prec));
+  return gerepileupto(av, gpow(gsubsg(1,z), gneg(a), prec));
 }
 
 static int
