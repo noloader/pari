@@ -42,6 +42,13 @@ static int
 isnegint(GEN a) { return isnegint2(a, NULL); }
 static int
 is0(GEN a, long bit) { return gequal0(a) || gexpo(a) < -bit; }
+static int
+islong(GEN a, long *m, long prec)
+{
+  *m = itos(ground(real_i(a)));
+  if (is0(gsubgs(a, *m), prec2nbits(prec))) return 1;
+  return 0;
+}
 
 /* F01 function */
 static GEN
@@ -826,19 +833,20 @@ FBaux2(GEN v1, GEN g1, GEN c1, long m, GEN z1, GEN c2, GEN g2, GEN v2, GEN z2, l
 static GEN
 F21taylor1(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN bma = gsub(b, a), tmp, b1, c1, e1, coe1, b2, c2, e2, coe2, z1;
-  GEN g1, g2, v1, v2;
-  long m = itos(ground(real_i(bma)));
-  tmp = gsubgs(bma, m);
-  if (!is0(tmp, prec2nbits(prec)))
+  GEN bma = gsub(b, a), coe1, coe2, z1, g1, g2, v1, v2;
+  long m;
+  if (!islong(bma,&m, prec))
   {
-    b1 = gsub(c, b); c1 = gaddgs(gneg(bma), 1);
-    e1 = gsub(c, a); coe1 = gpow(gsubsg(1, z), gneg(a), prec);
-    b2 = e1; c2 = gaddgs(bma, 1);
-    e2 = b1; coe2 = gneg(gpow(gsubsg(1, z), gneg(b), prec));
+    GEN b1, c1, e1, c2;
+    b1 = gsub(c, b);
+    c1 = gsubsg(1, bma);
+    e1 = gsub(c, a);
+    coe1 = gpow(gsubsg(1, z), gneg(a), prec);
+    c2 = gaddgs(bma, 1);
+    coe2 = gneg(gpow(gsubsg(1, z), gneg(b), prec));
     z1 = ginv(gsubsg(1, z));
-    return FBaux1(mkvec3(a,b1,c1), mkvec2(b,e1), coe1, mkvec3(b,b2,c2),
-                  mkvec2(a,e2), coe2, z1, bma, prec, prec);
+    return FBaux1(mkvec3(a,b1,c1), mkvec2(b,e1), coe1, mkvec3(b,e1,c2),
+                  mkvec2(a,b1), coe2, z1, bma, prec, prec);
   }
   if (m < 0) { swap(a,b); m = -m; }
   coe1 = gpow(gsubsg(1, z), gneg(a), prec);
@@ -852,11 +860,9 @@ F21taylor1(GEN a, GEN b, GEN c, GEN z, long prec)
 static GEN
 F21taylor4(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN bma = gsub(c, gadd(a, b)), tmp, coe2, z1, z2;
-  GEN g1, g2, v1, v2;
-  long m = itos(ground(real_i(bma)));
-  tmp = gsubgs(bma, m);
-  if (!is0(tmp, prec2nbits(prec)))
+  GEN bma = gsub(c, gadd(a, b)), coe2, z1, z2, g1, g2, v1, v2;
+  long m;
+  if (!islong(bma,&m, prec))
   {
     GEN c1, a2, b2, c2;
     c1 = gsubsg(1, bma);
@@ -869,8 +875,8 @@ F21taylor4(GEN a, GEN b, GEN c, GEN z, long prec)
   }
   if (m < 0)
   {
-    tmp = F21taylor4(gaddgs(a,m), gaddgs(b,m), gaddgs(gadd(a,b), m), z, prec);
-    return gmul(gpowgs(gsubsg(1, z), m), tmp);
+    GEN F = F21taylor4(gaddgs(a,m), gaddgs(b,m), gaddgs(gadd(a,b), m), z, prec);
+    return gmul(gpowgs(gsubsg(1,z), m), F);
   }
   v2 = g1 = mkvec2(gaddgs(a,m), gaddgs(b,m));
   v1 = g2 = mkvec2(a, b);
@@ -882,11 +888,9 @@ F21taylor4(GEN a, GEN b, GEN c, GEN z, long prec)
 static GEN
 F21taylor5(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN bma = gsub(c, gadd(a,b)), tmp, coe1, coe2, z1;
-  GEN g1, g2, v1, v2, z2;
-  long m = itos(ground(real_i(bma)));
-  tmp = gsubgs(bma, m);
-  if (!is0(tmp, prec2nbits(prec)))
+  GEN bma = gsub(c, gadd(a,b)), tmp, coe1, coe2, z1, g1, g2, v1, v2, z2;
+  long m;
+  if (!islong(bma,&m, prec))
   {
     GEN b1, c1, d1, e1, b2, c2;
     d1 = gsub(c, a);
@@ -920,11 +924,9 @@ F21taylor5(GEN a, GEN b, GEN c, GEN z, long prec)
 static GEN
 F21taylor6(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN bma = gsub(b, a), tmp, coe1, coe2, z1;
-  GEN g1, g2, v1, v2, z2;
-  long m = itos(ground(real_i(bma)));
-  tmp = gsubgs(bma, m);
-  if (!is0(tmp,prec2nbits(prec)))
+  GEN bma = gsub(b, a), coe1, coe2, z1, g1, g2, v1, v2, z2;
+  long m;
+  if (!islong(bma,&m, prec))
   {
     GEN e1, e2, b1, b2, c1, c2;
     b1 = gaddgs(gsub(a,c), 1);
