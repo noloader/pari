@@ -55,13 +55,12 @@ static GEN
 F01(GEN a, GEN z, long prec)
 {
   pari_sp av = avma;
-  GEN al, sz, tmp;
+  GEN A, B, al, sz;
   if (is0(z, prec2nbits(prec)-5)) return real_1(prec);
   sz = gsqrt(z, prec); al = gsubgs(a, 1);
-  tmp = gmul(ggamma(a, prec), gpow(sz, gneg(al), prec));
-  tmp = gmul(tmp, ibessel(al, gmul2n(sz,1), prec));
-  if (isexactzero(imag_i(z))) tmp = real_i(tmp);
-  return gerepilecopy(av, tmp);
+  A = gmul(ggamma(a, prec), gpow(sz, gneg(al), prec));
+  B = ibessel(al, gmul2n(sz,1), prec);
+  return gerepileupto(av, isexactzero(imag_i(z))? mulreal(A,B): gmul(A,B));
 }
 
 /* Airy functions [Ai,Bi] */
