@@ -786,7 +786,7 @@ OK_gadd(GEN x, GEN y, long prec0, long *pprec,
   GEN z = gadd(x,y);
   if (!gequal0(z) && gexpo(z)-gexpo(x) >= prec2nbits(prec0) - prec2nbits(prec))
     return z;
-  *pprec = prec = 2*prec - 2;
+  *pprec = prec = precdbl(prec);
   *d1 = gprec_wensure(*d1, prec); *d2 = gprec_wensure(*d2, prec);
   *d3 = gprec_wensure(*d3, prec); *d4 = gprec_wensure(*d4, prec);
   *d5 = gprec_wensure(*d5, prec); *d6 = gprec_wensure(*d6, prec);
@@ -795,35 +795,32 @@ OK_gadd(GEN x, GEN y, long prec0, long *pprec,
 }
 
 static GEN
-FBaux1(GEN v1, GEN vgam1, GEN coe1, GEN v2, GEN vgam2, GEN coe2, GEN z, GEN bma, long prec0, long prec)
+FBaux1(GEN v1, GEN g1, GEN c1, GEN v2, GEN g2, GEN c2, GEN z, GEN bma, long prec0, long prec)
 {
-  GEN res1, res2, res;
-  GEN tmp1 = gdiv(coe1, mulgammav2(vgam1, prec));
-  GEN tmp2 = gdiv(coe2, mulgammav2(vgam2, prec));
-  res1 = gmul(tmp1, F21taylor(gel(v1,1), gel(v1,2), gel(v1,3), z, prec));
-  res2 = gmul(tmp2, F21taylor(gel(v2,1), gel(v2,2), gel(v2,3), z, prec));
-  res = OK_gadd(res1, res2, prec0, &prec,
-                &coe1,&coe2, &vgam1,&vgam2, &v1,&v2, &z,&bma);
-  if (res)
+  GEN pi = mppi(prec);
+  for (;;)
   {
-    GEN pi = mppi(prec);
-    return gmul(res, gdiv(pi, gsin(gmul(pi, bma), prec)));
+    GEN t1 = gdiv(c1, mulgammav2(g1, prec)), r1;
+    GEN t2 = gdiv(c2, mulgammav2(g2, prec)), r2, F;
+    r1 = gmul(t1, F21taylor(gel(v1,1), gel(v1,2), gel(v1,3), z, prec));
+    r2 = gmul(t2, F21taylor(gel(v2,1), gel(v2,2), gel(v2,3), z, prec));
+    F = OK_gadd(r1, r2, prec0, &prec, &c1,&c2, &g1,&g2, &v1,&v2, &z,&bma);
+    if (F) return gmul(F, gdiv(pi, gsin(gmul(pi, bma), prec)));
   }
-  return FBaux1(v1, vgam1, coe1, v2, vgam2, coe2, z, bma, prec0, prec);
 }
 
 static GEN
-FBaux2(GEN v1, GEN vgam1, GEN coe1, long m, GEN z1, GEN coe2, GEN vgam2, GEN v2, GEN z2, long si, long prec0, long prec)
+FBaux2(GEN v1, GEN g1, GEN c1, long m, GEN z1, GEN c2, GEN g2, GEN v2, GEN z2, long si, long prec0, long prec)
 {
-  GEN res1, res2, res;
-  GEN tmp1 = gdiv(coe1, mulgammav2(vgam1, prec));
-  GEN tmp2 = gdiv(coe2, mulgammav2(vgam2, prec));
-  res1 = gmul(tmp1, F21finitelim(v1, m, z1, prec));
-  res2 = gmul(tmp2, F21taylorlim(v2, m, z2, si, prec));
-  res = OK_gadd(res1, res2, prec0,&prec,
-                &coe1,&coe2, &vgam1,&vgam2, &v1,&v2, &z1,&z2);
-  if (res) return res;
-  return FBaux2(v1, vgam1, coe1, m, z1, coe2, vgam2, v2, z2, si, prec0, prec);
+  for (;;)
+  {
+    GEN t1 = gdiv(c1, mulgammav2(g1, prec)), r1;
+    GEN t2 = gdiv(c2, mulgammav2(g2, prec)), r2, F;
+    r1 = gmul(t1, F21finitelim(v1, m, z1, prec));
+    r2 = gmul(t2, F21taylorlim(v2, m, z2, si, prec));
+    F = OK_gadd(r1, r2, prec0,&prec, &c1,&c2, &g1,&g2, &v1,&v2, &z1,&z2);
+    if (F) return F;
+  }
 }
 
 static GEN
