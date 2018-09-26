@@ -130,27 +130,19 @@ RgV_MOD2(GEN v)
   return w;
 }
 
-static int
-gcmp_cpx(GEN a, GEN b)
-{
-  int s = gcmp(real_i(a), real_i(b));
-  if (s==0) s = gcmp(imag_i(a), imag_i(b));
-  return s;
-}
-
 /* poles of the gamma factor */
 static GEN
 gammapoles(GEN Vga)
 {
   long i, m, l = lg(Vga);
   GEN P, B = RgV_MOD2(Vga), V = cgetg(l, t_VEC);
-  P = gen_indexsort(B, (void*)gcmp_cpx, cmp_nodata);
+  P = gen_indexsort(B, (void*)lexcmp, cmp_nodata);
   for (i = m = 1; i < l;)
   {
     GEN u = gel(B, P[i]);
     long k;
     for(k = i+1; k < l; k++)
-      if (!gequal(gel(B, P[k]), u)) break;
+      if (gexpo(gsub(u, gel(B, P[k]))) > -32) break;
     gel(V, m++) = vecpermute(Vga, vecslice(P,i,k-1));
     i = k;
   }
@@ -171,59 +163,63 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
 {
   double C2 = MELLININV_CUTOFF;
   long N, j, l, d = lg(Vga)-1, limn, prec = nbits2prec(1+bitprec*(1+M_PI*d/C2));
-  GEN LA, lj, mj, mat;
+  GEN LA, L, M, mat;
 
   Vga = gprec_wensure(Vga, prec);
   LA = gammapoles(Vga); N = lg(LA)-1;
-  lj = cgetg(N+1, t_VECSMALL);
-  mj = cgetg(N+1, t_VEC);
+  L = cgetg(N+1, t_VECSMALL);
+  M = cgetg(N+1, t_VEC);
   for (j = 1; j <= N; ++j)
   {
-    GEN L = gel(LA,j);
-    lj[j] = lg(L)-1;
-    gel(mj,j) = gsubsg(2, gel(L, vecindexmin(real_i(L))));
+    GEN S = gel(LA,j);
+    L[j] = lg(S)-1;
+    gel(M,j) = gsubsg(2, gel(S, vecindexmin(real_i(S))));
   }
   limn = ceil(2*M_LN2*bitprec/(d*dbllambertW0(C2/(M_PI*M_E))));
   mat = cgetg(N+1, t_VEC);
   l = limn + 2;
   for (j=1; j <= N; j++)
   {
-    GEN C, c, mjj = gel(mj,j), pr = gen_1, t = gen_1;
-    long i, k, n, ljj = lj[j], lprecdl = ljj+3;
-    for (i=1; i <= d; i++)
+    GEN C, c, mj = gel(M,j), pr = gen_1, t = gen_1;
+    long i, k, n, lj = L[j], lprecdl = lj+3;
+    for (i = 1; i <= d; i++)
     {
-      GEN a = gmul2n(gadd(mjj, gel(Vga,i)), -1);
+      GEN a = gmul2n(gadd(mj, gel(Vga,i)), -1);
       GEN u = deg1pol_shallow(ghalf, a, 0);
       pr = gmul(pr, ggamma(RgX_to_ser(u, lprecdl), prec));
       t = gmul(t, u);
     }
     c = cgetg(limn+2,t_COL); gel(c,1) = pr;
     for (n=1; n <= limn; n++)
-      gel(c,n+1) = gdiv(gel(c,n), RgX_translate(t, stoi(-2*n)));
+    {
+      GEN T = RgX_translate(t, stoi(-2*n));
+      if (n == 1) gel(T,2) = gen_0; /* in case t inexact */
+      gel(c,n+1) = gdiv(gel(c,n), T);
+    }
 
-    gel(mat, j) = C = cgetg(ljj+1, t_COL);
-    for (k = 1; k <= ljj; k++)
+    gel(mat, j) = C = cgetg(lj+1, t_COL);
+    for (k = 1; k <= lj; k++)
     {
       GEN L = cgetg(l, t_POL);
       for (n = 2; n < l; n++) gel(L,n) = sercoeff(gel(c,n), -k, prec);
       L[1] = evalsigne(1)|evalvarn(0); gel(C,k) = L;
     }
     /* C[k] = \sum_n c_{j,k} t^n =: C_k(t) in Dokchitser's Algo 3.3 */
-    /* Take m-th derivative of t^(-mj+2) sum_k (-ln t)^k/k! C_k(t^2) */
+    /* Take m-th derivative of t^(-M+2) sum_k (-ln t)^k/k! C_k(t^2) */
     if (m)
     {
-      mjj = gsubgs(mjj, 2);
-      for (i = 1; i <= m; i++, mjj = gaddgs(mjj, 1))
-        for (k = 1; k <= ljj; k++)
+      mj = gsubgs(mj, 2);
+      for (i = 1; i <= m; i++, mj = gaddgs(mj,1))
+        for (k = 1; k <= lj; k++)
         {
           GEN c = gel(C,k), d = RgX_shift_shallow(gmul2n(RgX_deriv(c),1), 1);
-          c = RgX_Rg_mul(c, mjj);
-          if (k < ljj) c = RgX_add(c, gel(C,k+1));
+          c = RgX_Rg_mul(c, mj);
+          if (k < lj) c = RgX_add(c, gel(C,k+1));
           gel(C,k) = RgX_sub(d, c);
         }
-      gel(mj,j) = gaddgs(mjj,2);
+      gel(M,j) = gaddgs(mj,2);
     }
-    for (k = 1; k <= ljj; k++)
+    for (k = 1; k <= lj; k++)
     {
       GEN c = gel(C,k);
       if (k > 2) c = RgX_Rg_div(c, mpfact(k-1));
@@ -231,7 +227,7 @@ Kderivsmallinit(GEN Vga, long m, long bitprec)
     }
   }
   /* Algo 3.3: * \phi^(m)(t) = sum_j t^m_j sum_k (-ln t)^k mat[j,k](t^2) */
-  return mkvec3(lj, RgV_neg(mj), mat);
+  return mkvec3(L, RgV_neg(M), mat);
 }
 
 /* Evaluate a vector considered as a polynomial using Horner. Unstable!
@@ -277,13 +273,11 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
 {
   pari_sp ltop = avma;
   GEN Vga = GMi_get_Vga(K), VS = GMi_get_VS(K);
-  GEN lj = gel(VS,1), mj = gel(VS,2), mat = gel(VS,3);
+  GEN L = gel(VS,1), M = gel(VS,2), mat = gel(VS,3);
   GEN d2, Lx, x2, x2i, A, S, pi;
-  long prec, d, N, j, k, limn, m = GMi_get_m(K);
-  double Ed, xd, Wd;
+  long prec, j, k, limn, m = GMi_get_m(K), N = lg(L)-1, d = lg(Vga)-1;
+  double xd, Wd, Ed = M_LN2*bitprec / d;
 
-  N = lg(lj)-1; d = lg(Vga)-1;
-  Ed = M_LN2*bitprec / d;
   xd = maxdd(M_PI*dblmodulus(x2d), 1E-13); /* pi |x|^2/d unless x tiny */
   if (xd > Ed) pari_err_BUG("Kderivsmall (x2d too large)");
   /* Lemma 5.2.6 (2), a = 1 + log(Pi x^(2/d)) = log(e / xd),
@@ -299,16 +293,16 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
     x = gpow(gmul(gtofp(x2d,prec),pi), d2, prec);
   /* at this stage, x has been replaced by pi^(d/2) x */
   x2 = gsqr(x);
-  Lx = gpowers(gneg(glog(x,prec)), vecsmall_max(lj));
+  Lx = gpowers(gneg(glog(x,prec)), vecsmall_max(L));
   x2i = (gcmp(gnorml2(x2), gen_1) <= 0)? NULL: ginv(x2);
   S = gen_0;
   for (j = 1; j <= N; ++j)
   {
-    long ljj = lj[j];
+    long lj = L[j];
     GEN s = gen_0;
-    for (k = 1; k <= ljj; k++)
+    for (k = 1; k <= lj; k++)
       s = gadd(s, gmul(gel(Lx,k), evalvec(gmael(mat,j,k), limn, x2, x2i)));
-    S = gadd(S, gmul(gpow(x, gel(mj,j), prec), s));
+    S = gadd(S, gmul(gpow(x, gel(M,j), prec), s));
   }
   A = gsubsg(m*d, sumVga(Vga));
   if (!gequal0(A)) S = gmul(S, gpow(pi, gmul2n(A,-1), prec));
