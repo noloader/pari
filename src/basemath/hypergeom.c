@@ -742,14 +742,14 @@ F21taylorlim(GEN N, long m, GEN z, long si, long prec)
   av = avma;
   for(;;)
   {
-    GEN vnj1 = gaddsg(j, gel(N,1)), vnj2 = gaddsg(j, gel(N,2));
+    GEN v1 = gaddsg(j, gel(N,1)), v2 = gaddsg(j, gel(N,2));
     long jB = (j+1) * (j+1+m);
-    C = gdivgs(gmul(z, gmul(C, vnj1)), jB);
-    if (gequal0(vnj2)) fl = 0; else C = gmul(C, vnj2);
+    C = gdivgs(gmul(z, gmul(C, v1)), jB);
+    if (gequal0(v2)) fl = 0; else C = gmul(C, v2);
     if (j > mi) tol = gequal0(S) ? 0 : gexpo(C) - gexpo(S);
     if (fl)
     {
-      P = gadd(P, gsub(sstoQ(2*j+2+m, jB), gadd(ginv(vnj1), ginv(vnj2))));
+      P = gadd(P, gsub(sstoQ(2*j+2+m, jB), gadd(ginv(v1), ginv(v2))));
       S = gadd(S, gmul(C, P));
     }
     else S = (si == 1)? gadd(S, C): gsub(S, C);
@@ -771,8 +771,8 @@ F21finitelim(GEN N, long m, GEN z, long prec)
   S = C = real_1(prec + EXTRAPRECWORD);
   for (j = 1; j < m; ++j)
   {
-    GEN vnj1 = gaddsg(j-1, a), vnj2 = gaddsg(j-1, b);
-    C = gdivgs(gmul(C, gmul(gmul(vnj1, vnj2), z)), j*(j-m));
+    GEN v1 = gaddsg(j-1, a), v2 = gaddsg(j-1, b);
+    C = gdivgs(gmul(C, gmul(gmul(v1, v2), z)), j*(j-m));
     S = gadd(S, C);
   }
   return gmul(S, mpfact(m-1));
@@ -827,7 +827,7 @@ static GEN
 F21taylor1(GEN a, GEN b, GEN c, GEN z, long prec)
 {
   GEN bma = gsub(b, a), tmp, b1, c1, e1, coe1, b2, c2, e2, coe2, z1;
-  GEN vgam1, vgam2, v1, v2;
+  GEN g1, g2, v1, v2;
   long m = itos(ground(real_i(bma)));
   tmp = gsubgs(bma, m);
   if (!is0(tmp, prec2nbits(prec)))
@@ -842,28 +842,29 @@ F21taylor1(GEN a, GEN b, GEN c, GEN z, long prec)
   }
   if (m < 0) { swap(a,b); m = -m; }
   coe1 = gpow(gsubsg(1, z), gneg(a), prec);
-  v2 = vgam1 = mkvec2(gaddgs(a, m), gsub(c, a));
+  v2 = g1 = mkvec2(gaddgs(a, m), gsub(c, a));
   v1 = mkvec2(a, gsub(c, gaddgs(a, m))); z1 = ginv(gsubsg(1, z));
   coe2 = gmul(coe1, gpowgs(gsubsg(1, z), -m)); if (m & 1L) coe2 = gneg(coe2);
-  vgam2 = mkvec2(a, gsub(c, gaddgs(a, m)));
-  return FBaux2(v1, vgam1, coe1, m, z1, coe2, vgam2, v2, z1, 1, prec, prec);
+  g2 = mkvec2(a, gsub(c, gaddgs(a, m)));
+  return FBaux2(v1, g1, coe1, m, z1, coe2, g2, v2, z1, 1, prec, prec);
 }
 
 static GEN
 F21taylor4(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN bma = gsub(c, gadd(a, b)), tmp, c1, d1, e1, a2, b2, c2, coe2, z1, z2;
-  GEN vgam1, vgam2, v1, v2;
+  GEN bma = gsub(c, gadd(a, b)), tmp, coe2, z1, z2;
+  GEN g1, g2, v1, v2;
   long m = itos(ground(real_i(bma)));
   tmp = gsubgs(bma, m);
   if (!is0(tmp, prec2nbits(prec)))
   {
+    GEN c1, a2, b2, c2;
     c1 = gsubsg(1, bma);
-    a2 = d1 = gsub(c, a);
-    b2 = e1 = gsub(c, b);
+    a2 = gsub(c, a);
+    b2 = gsub(c, b);
     c2 = gaddsg(1, bma);
     z1 = gsubsg(1, z); coe2 = gneg(gpow(z1, bma, prec));
-    return FBaux1(mkvec3(a,b,c1), mkvec2(d1,e1), gen_1, mkvec3(a2,b2,c2),
+    return FBaux1(mkvec3(a,b,c1), mkvec2(a2,b2), gen_1, mkvec3(a2,b2,c2),
                   mkvec2(a,b), coe2, z1, bma, prec, prec);
   }
   if (m < 0)
@@ -871,32 +872,33 @@ F21taylor4(GEN a, GEN b, GEN c, GEN z, long prec)
     tmp = F21taylor4(gaddgs(a,m), gaddgs(b,m), gaddgs(gadd(a,b), m), z, prec);
     return gmul(gpowgs(gsubsg(1, z), m), tmp);
   }
-  v2 = vgam1 = mkvec2(gaddgs(a,m), gaddgs(b,m));
-  v1 = vgam2 = mkvec2(a, b);
+  v2 = g1 = mkvec2(gaddgs(a,m), gaddgs(b,m));
+  v1 = g2 = mkvec2(a, b);
   z1 = gsubgs(z, 1);
   z2 = gneg(z1); coe2 = gpowgs(z1, m);
-  return FBaux2(v1, vgam1, gen_1, m, z1, coe2, vgam2, v2, z2, 1, prec, prec);
+  return FBaux2(v1, g1, gen_1, m, z1, coe2, g2, v2, z2, 1, prec, prec);
 }
 
 static GEN
 F21taylor5(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN bma = gsub(c, gadd(a,b)), tmp, b1, c1, d1, e1, coe1, a2, b2, c2, coe2, z1;
-  GEN vgam1, vgam2, v1, v2, z2;
+  GEN bma = gsub(c, gadd(a,b)), tmp, coe1, coe2, z1;
+  GEN g1, g2, v1, v2, z2;
   long m = itos(ground(real_i(bma)));
   tmp = gsubgs(bma, m);
   if (!is0(tmp, prec2nbits(prec)))
   {
-    b1 = gaddgs(gsub(a, c), 1);
+    GEN b1, c1, d1, e1, b2, c2;
+    d1 = gsub(c, a);
+    b1 = gsubsg(1, d1);
     c1 = gsubsg(1, bma);
-    a2 = d1 = gsub(c, a);
     e1 = gsub(c, b);
     b2 = gsubsg(1, a);
     c2 = gaddsg(1, bma);
     coe1 = gpow(z, gneg(a), prec);
     coe2 = gneg(gmul(gpow(gsubsg(1, z), bma, prec), gpow(z, gneg(d1), prec)));
     z1 = gsubsg(1, ginv(z));
-    return FBaux1(mkvec3(a, b1, c1), mkvec2(d1, e1), coe1, mkvec3(a2, b2, c2), mkvec2(a, b), coe2, z1, bma, prec, prec);
+    return FBaux1(mkvec3(a, b1, c1), mkvec2(d1, e1), coe1, mkvec3(d1, b2, c2), mkvec2(a, b), coe2, z1, bma, prec, prec);
   }
   /* c - (a + b) ~ m */
   if (m < 0)
@@ -904,26 +906,27 @@ F21taylor5(GEN a, GEN b, GEN c, GEN z, long prec)
     tmp = F21taylor5(gaddgs(a,m), gaddgs(b,m), c, z, prec);
     return gmul(gpowgs(gsubsg(1, z), m), tmp);
   }
-  vgam1 = mkvec2(gaddgs(a,m), gaddgs(b,m));
+  g1 = mkvec2(gaddgs(a,m), gaddgs(b,m));
   v1 = mkvec2(a, gsubsg(1-m, b));
   v2 = mkvec2(gaddgs(a,m), gsubsg(1,b));
   z1 = gsubgs(ginv(z), 1);
   z2 = gneg(z1);
-  vgam2 = mkvec2(a, b);
+  g2 = mkvec2(a, b);
   coe1 = gpow(z, gneg(a), prec);
   coe2 = gmul(coe1, gpowgs(z2, m));
-  return FBaux2(v1, vgam1, coe1, m, z1, coe2, vgam2, v2, z2, -1, prec, prec);
+  return FBaux2(v1, g1, coe1, m, z1, coe2, g2, v2, z2, -1, prec, prec);
 }
 
 static GEN
 F21taylor6(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN bma = gsub(b, a), tmp, b1, c1, e1, coe1, b2, c2, e2, coe2, z1;
-  GEN vgam1, vgam2, v1, v2, z2;
+  GEN bma = gsub(b, a), tmp, coe1, coe2, z1;
+  GEN g1, g2, v1, v2, z2;
   long m = itos(ground(real_i(bma)));
   tmp = gsubgs(bma, m);
   if (!is0(tmp,prec2nbits(prec)))
   {
+    GEN e1, e2, b1, b2, c1, c2;
     b1 = gaddgs(gsub(a,c), 1);
     c1 = gsubsg(1, bma);
     e1 = gsub(c,a);
@@ -939,13 +942,13 @@ F21taylor6(GEN a, GEN b, GEN c, GEN z, long prec)
   if (m < 0) { swap(a,b); m = -m; }
   coe1 = gpow(gneg(z), gneg(a), prec);
   coe2 = gmul(coe1, gpowgs(z, -m));
-  vgam1 = mkvec2(gaddgs(a,m), gsub(c,a));
+  g1 = mkvec2(gaddgs(a,m), gsub(c,a));
   v1 = mkvec2(a, gaddgs(gsub(a,c), 1));
-  vgam2 = mkvec2(a, gsub(c, gaddgs(a,m)));
+  g2 = mkvec2(a, gsub(c, gaddgs(a,m)));
   v2 = mkvec2(gaddgs(a,m), gaddgs(gsub(a,c), m+1));
   z2 = ginv(z);
   z1 = gneg(z2);
-  return FBaux2(v1, vgam1, coe1, m, z1, coe2, vgam2, v2, z2, -1, prec, prec);
+  return FBaux2(v1, g1, coe1, m, z1, coe2, g2, v2, z2, -1, prec, prec);
 }
 
 /* (new b, new c, new z): given by bind, cind, zind
