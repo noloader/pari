@@ -4125,6 +4125,7 @@ GEN   mffrometaquo(GEN eta, long flag);
 GEN   mffromlfun(GEN L, long prec);
 GEN   mffromqf(GEN Q, GEN P);
 long  mffulldim(long N, long k, GEN CHI);
+GEN   mfgaloisprojrep(GEN mf, GEN F, long prec);
 GEN   mfgaloistype(GEN NK, GEN F);
 GEN   mfhecke(GEN mf, GEN F, long n);
 GEN   mfheckemat(GEN mf, GEN vecn);

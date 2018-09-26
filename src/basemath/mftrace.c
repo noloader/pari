@@ -12545,3 +12545,138 @@ mfpetersson(GEN F, GEN G)
   }
   return (tF == 1)? mfpetersson_i(F, G): mfpetersson2(F, G);
 }
+
+/****************************************************************/
+/*         projective Galois representation, weight 1           */
+/****************************************************************/
+static void
+moreorders(long N, GEN CHI, GEN F, GEN *pP, GEN *pO, ulong *bound)
+{
+  pari_sp av = avma;
+  forprime_t iter;
+  ulong a = *bound+1, b = 2*(*bound), p;
+  long i = 1;
+  GEN P, O, V = mfcoefs_i(F, b, 1);
+  *bound = b;
+  P = cgetg(b-a+2, t_VECSMALL);
+  O = cgetg(b-a+2, t_VECSMALL);
+  u_forprime_init(&iter, a, b);
+  while((p = u_forprime_next(&iter)))
+  {
+    GEN ap;
+    if (N%p == 0) continue;
+    ap = gel(V,p+1);
+    P[i] = p;
+    if (gequal0(ap)) O[i] = 2;
+    else
+    {
+      GEN u = gdiv(gsqr(ap), mfchareval_i(CHI,p));
+      O[i] = mffindrootof1(gsubgs(u,2));
+    }
+    i++;
+  }
+  setlg(P, i); *pP = shallowconcat(*pP, P);
+  setlg(O, i); *pO = shallowconcat(*pO, O);
+  gerepileall(av, 2, pP, pO);
+}
+
+static GEN
+search_abelian(GEN nf, long n, long k, GEN N, GEN Nfa, GEN mf, GEN CHI, GEN F,
+               GEN *pP, GEN *pO, ulong *bound, long prec)
+{
+  pari_sp av = avma;
+  GEN bnr, cond, H, cyc, gn, T, Bquo;
+  long sN = itos(N), r1 = nf_get_r1(nf), i, j, d;
+
+  cond = idealfactor(nf, N);
+  for (i=1; i < lg(gel(cond,1)); i++)
+  {
+    GEN pr = gcoeff(cond,i,1), p = pr_get_p(pr);
+    if (equalui(n,p))
+    {
+      long e = pr_get_e(pr); /* 1 + [e*p/(p-1)] */
+      gcoeff(cond,i,2) = addiu(divii(mulsi(e,p),subis(p,1)), 1);
+    }
+    else
+    {
+      long f = pr_get_f(pr), q = umodiu(p,n);
+      q = Fl_powu(q,f,n);
+      gcoeff(cond,i,2) = stoi(q==1);
+    }
+  }
+  cond = idealfactorback(nf, cond, NULL, 0);
+  cond = mkvec2(cond, const_vec(r1, gen_1));
+  bnr = bnrinit0(Buchall(nf, 0, prec), cond, 0);
+  cyc = bnr_get_cyc(bnr);
+  d = lg(cyc)-1;
+  H = zv_diagonal(ZV_to_Flv(cyc, n));
+  gn = utoi(n);
+  for (i = 1;;)
+  {
+    for(j = 2; i < lg(*pO); i++)
+    {
+      long o, q = (*pP)[i];
+      GEN pr = idealprimedec_galois(nf, stoi(q));
+      o = ((*pO)[i] / pr_get_f(pr)) % n;
+      if (o)
+      {
+        GEN v = ZV_to_Flv(isprincipalray(bnr, pr), n);
+        H = vec_append(H, Flv_Fl_mul(v, o, n));
+      }
+    }
+    H = Flm_image(H, n); if (lg(cyc)-lg(H) <= k) break;
+    moreorders(sN, CHI, F, pP, pO, bound);
+  }
+  H = hnfmodid(shallowconcat(zm_to_ZM(H), diagonal_shallow(cyc)), gn);
+
+  Bquo = cgetg(k+1, t_MAT);
+  for (i = j = 1; i <= d; i++)
+    if (!equali1(gcoeff(H,i,i))) gel(Bquo,j++) = col_ei(d,i);
+
+  for (i = 1, T = NULL; i<=k; i++)
+  {
+    GEN Hi = hnfmodid(shallowconcat(H, vecsplice(Bquo,i)), gn);
+    GEN pol = rnfkummer(bnr, Hi, 0, prec);
+    T = T? nfcompositum(nf, T, pol, 2): pol;
+  }
+  T = rnfequation(nf, T);
+  gerepileall(av, 3, pP, pO, &T);
+  return T;
+}
+
+static GEN
+search_solvable(GEN LG, GEN mf, GEN F, long prec)
+{
+  GEN N = MF_get_gN(mf), CHI = MF_get_CHI(mf), pol, O, P, nf, Nfa;
+  long i, l = lg(LG), v = fetch_var();
+  ulong bound = 1;
+  O = cgetg(1, t_VECSMALL); /* projective order of rho(Frob_p) */
+  P = cgetg(1, t_VECSMALL);
+  Nfa = Z_factor(N);
+  pol = pol_x(v);
+  for (i = 1; i < l; i++)
+  { /* n prime, find a (Z/nZ)^k - extension */
+    GEN G = gel(LG,i);
+    long n = G[1], k = G[2];
+    nf = nfinit0(mkvec2(pol,Nfa), 2, prec);
+    pol = search_abelian(nf, n, k, N, Nfa, mf, CHI, F, &P, &O, &bound, prec);
+    setvarn(pol,v);
+  }
+  delete_var(); setvarn(pol,0); return pol;
+}
+
+GEN
+mfgaloisprojrep(GEN mf, GEN F, long prec)
+{
+  pari_sp av = avma;
+  GEN LG = NULL;
+  long mft;
+  if (!checkMF_i(mf) && !checkmf_i(F)) pari_err_TYPE("mfgaloisrep", F);
+  mft = itos(mfgaloistype(mf,F));
+  if (mft == -12)
+    LG = mkvec2(mkvecsmall2(3,1), mkvecsmall2(2,2));
+  else if (mft == -24)
+    LG = mkvec3(mkvecsmall2(2,1), mkvecsmall2(3,1), mkvecsmall2(2,2));
+  else pari_err_IMPL("mfgaloisprojrep for types other than A4 and S4");
+  return gerepilecopy(av, search_solvable(LG, mf, F, prec));
+}
