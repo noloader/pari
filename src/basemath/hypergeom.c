@@ -490,7 +490,7 @@ zind(GEN z, long ind)
 static long
 F21ind(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN znewabs = gen_2, v = const_vec(6, gen_2);
+  GEN v = const_vec(6, mkoo());
   long ind = 0;
   const long LD = LOWDEFAULTPREC;
   if (is0(imag_i(z), prec2nbits(prec))) z = real_i(z);
@@ -500,9 +500,8 @@ F21ind(GEN a, GEN b, GEN c, GEN z, long prec)
   if (!isnegint(cind(a,b,c, 4))) gel(v,4) = gabs(zind(z,4), LD);
   if (!isnegint(cind(a,b,c, 5))) gel(v,5) = gabs(zind(z,5), LD);
   if (!isnegint(cind(a,b,c, 6))) gel(v,6) = gabs(zind(z,6), LD);
-  ind = vecindexmin(v); znewabs = gel(v, ind);
-  if (znewabs == gen_2) ind = 0;
-  return (gcmp(znewabs, mkfracss(49,50)) <= 0)? -ind: ind;
+  ind = vecindexmin(v); /* |znew| close to 1 ? */
+  return (gcmp(gel(v,ind), mkfracss(49,50)) <= 0)? -ind: ind;
 }
 static GEN
 mul4(GEN a, GEN b, GEN c, GEN d) { return gmul(a,gmul(b, gmul(c, d))); }
