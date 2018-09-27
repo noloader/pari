@@ -11,8 +11,8 @@ Doc: general hypergeometric function, where \kbd{N} and \kbd{D} are
 
  This function implements hypergeometric functions
  $$_pF_q((a_i)_{1\le i\le p},(b_j)_{1\le j\le q};z)
-    = \sum_{n\ge0}\dfrac{\prod_{1\le i\le p}(a_i)_n}
-                        {\prod_{1\le j\le q}(b_j)_n} \dfrac{z^n}{n!}\;,$$
+    = \sum_{n\ge0}\dfrac{\prod_{1\le i\le p}(a_i)_n}{\prod_{1\le j\le q}(b_j)_n}
+       \dfrac{z^n}{n!}\;,$$
  where $(a)_n=a(a+1)\cdots(a+n-1)$ is the rising Pochammer symbol. For this
  to make sense, none of the $b_j$ must be a negative or zero integer. The
  corresponding general GP command is
