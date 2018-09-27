@@ -816,19 +816,14 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
     M = vconcat(M, M2);
   }
   K = Flm_ker(M, ell);
+  if (all < 0) K = fix_kernel(K, M, vecMsup, lW, ell);
   dK = lg(K)-1;
-
-  if (all < 0)
-    K = fix_kernel(K, M, vecMsup, lW, ell);
-
   y = cgetg(dK+1,t_VECSMALL);
   if (all) res = cgetg(1,t_VEC); /* in case all = 1 */
   if (all < 0)
   {
-    ncyc = dK;
-    mat = Flm_init(dK, ncyc);
+    ncyc = dK; rk = 0; mat = Flm_init(dK, ncyc);
     if (all == -1) matgrp = Flm_init(lg(bnr_get_cyc(bnr)), ncyc+1);
-    rk = 0;
   }
   xell = pol_xn(ell, 0);
   do {
@@ -1285,8 +1280,7 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
   long firstpass = all<0;
   long rk=0;
   K = Flm_ker(M, ell);
-  if (all < 0)
-    K = fix_kernel(K, M, vecMsup, lW, ell);
+  if (all < 0) K = fix_kernel(K, M, vecMsup, lW, ell);
   if (DEBUGLEVEL>2) err_printf("Step 18\n");
   dK = lg(K)-1;
   y = cgetg(dK+1,t_VECSMALL);
