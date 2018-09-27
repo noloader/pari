@@ -48,4 +48,8 @@ L
 \\ Errors, keep at end of file
 listpop(1)
 L='L; listpop(L)
+listput(L,1)
+listinsert(L,1,1)
 L=Map(); listpop(L)
+listput(L,1)
+listinsert(L,1,1)
