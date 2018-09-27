@@ -66,10 +66,10 @@ static int
 ok_congruence(GEN X, ulong ell, long lW, GEN vecMsup)
 {
   long i, l;
-  if (zv_equal0(X)) return 0;
   l = lg(X);
   for (i=lW; i<l; i++)
     if (X[i] == 0) return 0;
+  if (lW >= l && zv_equal0(X)) return 0;
   l = lg(vecMsup);
   for (i=1; i<l; i++)
     if (zv_equal0(Flm_Flc_mul(gel(vecMsup,i),X, ell))) return 0;
@@ -83,25 +83,6 @@ ok_sign(GEN X, GEN msign, GEN arch)
 }
 
 /* REDUCTION MOD ell-TH POWERS */
-
-#if 0
-static GEN
-logarch2arch(GEN x, long r1, long prec)
-{
-  long i, lx;
-  GEN y = cgetg_copy(x, &lx);
-  if (typ(x) == t_MAT)
-  {
-    for (i=1; i<lx; i++) gel(y,i) = logarch2arch(gel(x,i), r1, prec);
-  }
-  else
-  {
-    for (i=1; i<=r1;i++) gel(y,i) = gexp(gel(x,i),prec);
-    for (   ; i<lx; i++) gel(y,i) = gexp(gmul2n(gel(x,i),-1),prec);
-  }
-  return y;
-}
-#endif
 
 /* make be integral by multiplying by t in (Q^*)^ell */
 static GEN
@@ -537,10 +518,10 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
   long i, j, idx, ffree, dK = lg(K)-1;
   GEN Ki, Kidx = cgetg(dK+1, t_VECSMALL);
 
-  /* First step: Gauss elimination on vectors lW...lg(M) */
-  for (idx = lg(K), i=lg(M); --i >= lW; )
+  /* First step: Gauss elimination on vectors lW...lg(M)-1 */
+  for (idx = lg(K), i = lg(M)-1; i >= lW; i--)
   {
-    for (j=dK; j > 0; j--) if (coeff(K, i, j)) break;
+    for (j = dK; j > 0; j--) if (coeff(K, i, j)) break;
     if (!j)
     { /* Do our best to ensure that K[dK,i] != 0 */
       if (coeff(K, i, dK)) continue;
@@ -548,7 +529,8 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
         if (coeff(K, i, j) && coeff(K, Kidx[j], dK) != ell - 1)
           Flv_add_inplace(gel(K,dK), gel(K,j), ell);
     }
-    if (j != --idx) swap(gel(K, j), gel(K, idx));
+    idx--;
+    if (j != idx) swap(gel(K, j), gel(K, idx));
     Kidx[idx] = i;
     if (coeff(K,i,idx) != 1)
       Flv_Fl_div_inplace(gel(K,idx), coeff(K,i,idx), ell);
@@ -575,7 +557,7 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
     ulong dotprod;
     if (lgcols(Msup) != 2) continue;
     Msup = zm_row(Msup, 1);
-    for (j=ffree; --j > 0; )
+    for (j=ffree; j > 0; j--)
     {
       dotprod = Flv_dotproduct(Msup, gel(K,j), ell);
       if (dotprod)
@@ -603,7 +585,7 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
       ulong t = Fl_sub(dotprod,1,ell);
       Flv_sub_inplace(gel(K,dK), Flv_Fl_mul(Ki,t,ell), ell);
     }
-    for (j = dK; --j > 0; )
+    for (j = dK; j > 0; j--)
     {
       if (j == ffree) continue;
       dotprod = Flv_dotproduct(Msup, gel(K,j), ell);
