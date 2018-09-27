@@ -30,4 +30,12 @@ List([1, 2, 3])
 List([2, 2, 3])
 3
 List([3, 2, 3])
-Total time spent: 8
+  ***   variable name expected: listpop(1)
+  ***                                   ^--
+  ***   at top-level: L='L;listpop(L)
+  ***                      ^----------
+  *** listpop: incorrect type in listpop (t_POL).
+  ***   at top-level: L=Map();listpop(L)
+  ***                         ^----------
+  *** listpop: incorrect type in listpop (t_LIST).
+Total time spent: 12
