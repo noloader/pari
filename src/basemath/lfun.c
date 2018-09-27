@@ -1953,15 +1953,14 @@ Rtor(GEN a, GEN R, GEN ldata, long prec)
 
 /* v = theta~(t), vi = theta(1/t) */
 static GEN
-get_eno(GEN R, long k, GEN t, GEN v, GEN vi, long vx, long bitprec)
+get_eno(GEN R, long k, GEN t, GEN v, GEN vi, long vx, long bitprec, long force)
 {
+  GEN a0, a1, S = deg1pol(gmul(gpowgs(t,k), gneg(v)), vi, vx);
   long prec = nbits2prec(bitprec);
-  GEN a0, a1;
-  GEN S = deg1pol(gmul(gpowgs(t,k), gneg(v)), vi, vx);
 
   S = theta_add_polar_part(S, R, t, prec);
   if (typ(S) != t_POL || degpol(S) != 1) return NULL;
-  a1 = gel(S,3); if (gexpo(a1) < -bitprec/4) return NULL;
+  a1 = gel(S,3); if (!force && gexpo(a1) < -bitprec/4) return NULL;
   a0 = gel(S,2);
   return gdiv(a0, gneg(a1));
 
@@ -1972,7 +1971,7 @@ GEN
 lfunrootno(GEN linit, long bitprec)
 {
   GEN ldata, t, eno, v, vi, R, thetad;
-  long k, prec = nbits2prec(bitprec), vx = fetch_var();
+  long k, c = 0, prec = nbits2prec(bitprec), vx = fetch_var();
   pari_sp av;
 
   /* initialize for t > 1/sqrt(2) */
@@ -1985,21 +1984,22 @@ lfunrootno(GEN linit, long bitprec)
   v = lfuntheta(linit, t, 0, bitprec);
   thetad = theta_dual(linit, ldata_get_dual(ldata));
   vi = !thetad ? conj_i(v): lfuntheta(thetad, t, 0, bitprec);
-  eno = get_eno(R,k,t,vi,v, vx, bitprec);
+  eno = get_eno(R,k,t,vi,v, vx, bitprec, 0);
   if (!eno && !thetad)
   { /* t = sqrt(2), vi = theta(1/t), v = theta(t) */
     lfunthetaspec(linit, bitprec, &vi, &v);
     t = sqrtr(utor(2, prec));
-    eno = get_eno(R,k,t,conj_i(v),vi, vx, bitprec);
+    eno = get_eno(R,k,t,conj_i(v),vi, vx, bitprec, 0);
   }
   av = avma;
   while (!eno)
   {
-    t = addsr(1, shiftr(utor(pari_rand(), prec), -66)); /* in [1,1.25[ */
-    v = !thetad ? conj_i(lfuntheta(linit, t, 0, bitprec)):
-                  lfuntheta(thetad, t, 0, bitprec);
-    vi= lfuntheta(linit, ginv(t), 0, bitprec);
-    eno = get_eno(R,k,t,v,vi, vx, bitprec);
+    t = addsr(1, shiftr(utor(pari_rand(), prec), -2-BITS_IN_LONG));
+    /* t in [1,1.25[ */
+    v = thetad? lfuntheta(thetad, t, 0, bitprec)
+              : conj_i(lfuntheta(linit, t, 0, bitprec));
+    vi = lfuntheta(linit, ginv(t), 0, bitprec);
+    eno = get_eno(R,k,t,v,vi, vx, bitprec, c++ == 5);
     set_avma(av);
   }
   delete_var(); return ropm1(eno,prec);
