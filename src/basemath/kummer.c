@@ -720,7 +720,7 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
   return M;
 }
 
-/* if all!=0, give all equations of degree 'all'. Assume bnr modulus is the
+/* if all>0, give all equations of degree 'all'. Assume bnr modulus is the
  * conductor */
 static GEN
 rnfkummersimple(GEN bnr, GEN subgroup, long ell, long all)
@@ -807,7 +807,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell, long all)
     while (dK)
     {
       for (i=1; i<dK; i++) y[i] = 0;
-      y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at dK'th position */
+      y[i] = 1; /* y = [0,...,0,1,0,...,0], 1 at i'th position */
       do
       {
         pari_sp av = avma;
