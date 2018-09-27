@@ -9,4 +9,5 @@ bernvec(30)
 default(realprecision,38);
 bernreal(30)
 bernreal(202)
+bernreal(1024)
 localprec(57); bernreal(30)
