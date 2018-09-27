@@ -325,10 +325,10 @@ typedef struct {
 } primlist;
 
 static int
-build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, GEN gell, tau_s *tau)
+build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, long ell, tau_s *tau)
 {
   GEN listpr, listex, pr, factell;
-  long vp, i, l, ell = itos(gell), degKz = nf_get_degree(nfz);
+  long vp, i, l, degKz = nf_get_degree(nfz);
 
   if (!fa) fa = idealfactor(nfz, gothf);
   listpr = gel(fa,1);
@@ -342,7 +342,7 @@ build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, GEN gell, tau_s *tau)
   {
     pr = gel(listpr,i);
     vp = itos(gel(listex,i));
-    if (!equalii(pr_get_p(pr), gell))
+    if (!equaliu(pr_get_p(pr), ell))
     {
       if (vp != 1) return 1;
       if (!isconjinprimelist(L->Sm,pr,tau)) vectrunc_append(L->Sm,pr);
@@ -366,7 +366,7 @@ build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, GEN gell, tau_s *tau)
       }
     }
   }
-  factell = idealprimedec(nfz,gell); l = lg(factell);
+  factell = idealprimedec(nfz,utoipos(ell)); l = lg(factell);
   for (i=1; i<l; i++)
   {
     pr = gel(factell,i);
@@ -723,19 +723,13 @@ subgroup_info(GEN bnfz, GEN Lprz, long ell, GEN vecWA)
 /* if all!=0, give all equations of degree 'all'. Assume bnr modulus is the
  * conductor */
 static GEN
-rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
+rnfkummersimple(GEN bnr, GEN subgroup, long ell, long all)
 {
-  long ell, i, j, degK, dK;
-  long lSml2, lSl2, lSp, rc, lW;
-  long prec;
-  long rk=0, ncyc=0;
-  GEN mat=NULL, matgrp=NULL, xell, be1 = NULL;
+  long i, j, degK, dK, lSml2, lSl2, lSp, rc, lW, prec, rk = 0, ncyc = 0;
   long firstpass = all<0;
-
-  GEN bnf,nf,bid,ideal,arch,cycgen;
-  GEN cyc;
-  GEN Sp,listprSp,matP;
-  GEN res=NULL,u,M,K,y,vecMsup,vecW,vecWB,vecBp,msign;
+  GEN bnf, nf,bid, ideal, arch, cycgen, cyc, Sp, prSp, matP;
+  GEN gell, xell, u, M, K, y, vecMsup, vecW, vecWB, vecBp, msign;
+  GEN mat = NULL, matgrp = NULL, be1 = NULL, res = NULL;
   primlist L;
 
   bnf = bnr_get_bnf(bnr); (void)bnf_build_units(bnf);
@@ -745,13 +739,12 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   bid = bnr_get_bid(bnr);
   ideal= bid_get_ideal(bid);
   arch = bid_get_arch(bid); /* this is the conductor */
-  ell = itos(gell);
-  i = build_list_Hecke(&L, nf, bid_get_fact2(bid), ideal, gell, NULL);
+  i = build_list_Hecke(&L, nf, bid_get_fact2(bid), ideal, ell, NULL);
   if (i) return no_sol(all,i);
 
   lSml2 = lg(L.Sml2);
   Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
-  listprSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(listprSp);
+  prSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(prSp);
 
   cycgen = bnf_build_cycgen(bnf);
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
@@ -779,7 +772,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
   M = NULL;
   for (i = 1; i < lSl2; i++)
   {
-    GEN pr = gel(listprSp,i);
+    GEN pr = gel(prSp,i);
     long e = pr_get_e(pr), z = ell * (e / (ell-1));
 
     if (i < lSml2)
@@ -808,6 +801,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, GEN gell, long all)
     if (all == -1) matgrp = Flm_init(lg(bnr_get_cyc(bnr)), ncyc+1);
   }
   xell = pol_xn(ell, 0);
+  gell = utoipos(ell);
   do {
     dK = lg(K)-1;
     while (dK)
@@ -889,8 +883,7 @@ FOUND:  X = Flm_Flc_mul(K, y, ell);
 static GEN
 isvirtualunit(GEN bnf, GEN v, GEN cycgen, GEN cyc, GEN gell, long rc)
 {
-  GEN L, b, eps, y, q, nf = bnf_get_nf(bnf);
-  GEN w = idealsqrtn(nf, v, gell, 1);
+  GEN L, b, eps, y, q, nf = bnf_get_nf(bnf), w = idealsqrtn(nf, v, gell, 1);
   long i, l = lg(cycgen);
 
   L = bnfisprincipal0(bnf, w, nf_GENMAT|nf_FORCE);
@@ -1192,10 +1185,8 @@ static GEN
 _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, ulong ell, long rc,
                  long d, long m, long g, tau_s *tau)
 {
+  GEN Q, vecC, vecB = cgetg(rc+1,t_VEC), Tc = cgetg(rc+1,t_MAT);
   long i, j;
-  GEN vecB, vecC, Tc, Q;
-  vecB=cgetg(rc+1,t_VEC);
-  Tc=cgetg(rc+1,t_MAT);
   for (j=1; j<=rc; j++)
   {
     GEN p1 = tauofideal(gel(gen,j), tau);
@@ -1229,10 +1220,9 @@ static GEN
 _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
                  long rv, long g, tau_s *tau)
 {
-  GEN Tv, P, vecW;
+  GEN Tv, P, vecW, cyc = bnf_get_cyc(bnfz);
   long j, lW;
   ulong ell = itou(gell);
-  GEN cyc = bnf_get_cyc(bnfz);
   Tv = cgetg(rv+1,t_MAT);
   for (j=1; j<=rv; j++)
   {
@@ -1250,17 +1240,13 @@ _rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
 
 static GEN
 _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
-     GEN vecWB, GEN vecMsup, ulong g, GEN gell, long lW, long all)
+     GEN vecWB, GEN vecMsup, ulong g, ulong ell, long lW, long all)
 {
-  GEN K, y, res = NULL, mat = NULL;
   long i, dK, ncyc = 0;
-  ulong ell = itou(gell);
-  GEN bnf = bnr_get_bnf(bnr);
-  GEN nf  = bnf_get_nf(bnf);
-  GEN polnf = nf_get_pol(nf);
-  GEN nfz = bnf_get_nf(bnfz);
-  long firstpass = all<0;
-  long rk=0;
+  GEN bnf = bnr_get_bnf(bnr), nf  = bnf_get_nf(bnf), polnf = nf_get_pol(nf);
+  GEN nfz = bnf_get_nf(bnfz), gell = utoipos(ell);
+  GEN K, y, res = NULL, mat = NULL;
+  long firstpass = all < 0, rk = 0;
   K = Flm_ker(M, ell);
   if (all < 0) K = fix_kernel(K, M, vecMsup, lW, ell);
   if (DEBUGLEVEL>2) err_printf("Step 18\n");
@@ -1311,6 +1297,7 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
       y[dK--] = 0;
     }
   } while (firstpass--);
+  if (!res) pari_err_BUG("kummer [no solution]");
   return res;
 }
 
@@ -1325,23 +1312,16 @@ struct rnfkummer
 };
 
 static void
-rnfkummer_init(struct rnfkummer *kum, GEN bnr, ulong ell, long prec)
+rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
 {
   compo_s *COMPO = &kum->COMPO;
   tau_s *tau = &kum->tau;
   toK_s *T = &kum->T;
-  GEN bnf = bnr_get_bnf(bnr);
-  GEN nf  = bnf_get_nf(bnf);
-  GEN polnf = nf_get_pol(nf);
-  long vnf = varn(polnf);
-  long degK, degKz, m, d;
+  GEN nf  = bnf_get_nf(bnf), polnf = nf_get_pol(nf), gell = utoi(ell);
+  GEN vselmer, bnfz, nfz, cyc, gen, cycgen, step4, u, vecC, vecW, Q;
+  long vnf = varn(polnf), rc, ru, rv, degK, degKz, m, d;
   ulong g;
-  GEN gell = utoi(ell);
-  GEN bnfz, nfz, cyc, gen, cycgen;
-  long rc, ru, rv;
-  GEN step4, u, vecC, vecW, Q;
   pari_timer ti;
-  GEN vselmer, p1;
   /* step 1 of alg 5.3.5. */
   if (DEBUGLEVEL>2) err_printf("Step 1\n");
   compositum_red(COMPO, polnf, polcyclo(ell,vnf));
@@ -1382,8 +1362,8 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnr, ulong ell, long prec)
   vecW = _rnfkummer_step5(bnfz, vselmer, cycgen, gell, rc, rv, g, tau);
   /* step 8 */
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
-  p1 = RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R);
-  T->invexpoteta1 = RgM_inv(p1); /* left inverse */
+  /* left inverse */
+  T->invexpoteta1 = RgM_inv(RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R));
   T->polnf = polnf;
   T->tau = tau;
   T->m = m;
@@ -1402,20 +1382,14 @@ static GEN
 rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
 {
   ulong ell = kum->ell, mginv;
-  GEN gell = utoi(ell);
-  GEN bnfz = kum->bnfz;
-  GEN nfz = bnf_get_nf(bnfz);
-  GEN nf = bnr_get_nf(bnr);
-  GEN bid = bnr_get_bid(bnr);
-  GEN ideal = bid_get_ideal(bid);
-  GEN cycgen = bnf_build_cycgen(bnfz);
-  GEN vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q =kum->Q;
-  long lW = lg(vecW), rc = kum->rc;
+  GEN bnfz = kum->bnfz, nfz = bnf_get_nf(bnfz), cycgen = bnf_build_cycgen(bnfz);
+  GEN nf = bnr_get_nf(bnr), bid = bnr_get_bid(bnr), ideal = bid_get_ideal(bid);
+  GEN vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q = kum->Q;
+  long lW = lg(vecW), rc = kum->rc, i, j, lSml2, lSp, lSl2, dc;
   toK_s *T = &kum->T;
   ulong g = kum->g;
-  long i, j, lSml2, lSp, lSl2, dc;
   primlist L;
-  GEN gothf, idealz, Sp, listprSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup;
+  GEN gothf, idealz, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup;
   GEN M;
   idealz = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
   if (umodiu(gcoeff(ideal,1,1), ell)) gothf = idealz;
@@ -1427,12 +1401,12 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   }
   /* step 9, 10, 11 */
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
-  i = build_list_Hecke(&L, nfz, NULL, gothf, gell, T->tau);
+  i = build_list_Hecke(&L, nfz, NULL, gothf, ell, T->tau);
   if (i) return no_sol(all,i);
 
   lSml2 = lg(L.Sml2);
   Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
-  listprSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(listprSp);
+  prSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(prSp);
 
   /* step 12 */
   if (DEBUGLEVEL>2) err_printf("Step 12\n");
@@ -1461,7 +1435,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   M = NULL;
   for (i = 1; i < lSl2; i++)
   {
-    GEN pr = gel(listprSp,i);
+    GEN pr = gel(prSp,i);
     long e = pr_get_e(pr), z = ell * (e / (ell-1));
 
     if (i < lSml2)
@@ -1489,7 +1463,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   }
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
   /* step 16 && 18 & ff */
-  return _rnfkummer_step18(T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, gell, lW, all);
+  return _rnfkummer_step18(T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, ell, lW, all);
 }
 
 static GEN
@@ -1497,8 +1471,7 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 {
   long vnf;
   ulong ell;
-  GEN polnf,bnf,nf,gell,p1;
-  GEN res;
+  GEN polnf, bnf, nf, gell, p1;
   struct rnfkummer kum;
   pari_timer t;
 
@@ -1520,12 +1493,11 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   if (all && all != -1 && umodiu(bnr_get_no(bnr), ell))
     return cgetg(1, t_VEC);
   if (bnf_get_tuN(bnf) % ell == 0)
-    return rnfkummersimple(bnr, subgroup, gell, all);
+    return rnfkummersimple(bnr, subgroup, ell, all);
 
   if (all == -1) all = 0;
-  rnfkummer_init(&kum, bnr, ell, prec);
-  res = rnfkummer_ell(&kum, bnr, subgroup, all);
-  return res? res: gen_0;
+  rnfkummer_init(&kum, bnr_get_bnf(bnr), ell, prec);
+  return rnfkummer_ell(&kum, bnr, subgroup, all);
 }
 
 GEN
