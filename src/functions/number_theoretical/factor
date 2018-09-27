@@ -188,8 +188,8 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  case): $D$ a \typ{QUAD},
 
  \item $K = \R$ : $D$ a real number (\typ{REAL}); truncate the factorization
- at accuracy \kbd{precision}$(D), possibly less if $x$ is inexact and
- \kbd{precision}$(x)$ is less that \kbd{precision}$(D),
+ at accuracy \kbd{precision}$(D)$. If $x$ is inexact and \kbd{precision}$(x)$
+ is less than \kbd{precision}$(D)$, then the precision of $x$ is used instead.
 
  \item $K = \C$ : $D$ a complex number with a \typ{REAL} component, e.g.
  \kbd{I * 1.}; truncate the factorization as for $K = \R$,
