@@ -912,13 +912,15 @@ static void
 lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
 {
   const long derprec = (der > 1)? dbllog2(mpfact(der)): 0; /* log2(der!) */
-  GEN Vga, N, L;
+  GEN Vga, sVga, N, L;
   long k, k1, d, m, M, flag, nmax;
   double a, E, hd, Ep, d2, suma, maxs, mins, sub, B0,B1, Lestimate, Mestimate;
 
   Vga = ldata_get_gammavec(ldata);
   S->d = d = lg(Vga)-1; d2 = d/2.;
-  suma = gtodouble(sumVga(Vga));
+
+  sVga = vecsum(Vga);
+  suma = gtodouble(real_i(sVga));
   k = ldata_get_k(ldata);
   N = ldata_get_conductor(ldata);
   S->logN2 = log(gtodouble(N)) / 2;
@@ -927,8 +929,9 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   S->MAXs = maxss(maxs, k-mins);
 
   /* we compute Lambda^(der)(s) / der!; need to compensate for L^(der)(s)
-   * ln |gamma(s)| ~ (pi/4) d |t|; max with 1: fudge factor */
-  S->D = (long)ceil(bitprec + derprec + maxdd((M_PI/(4*M_LN2))*d*S->dh, 1));
+   * ln |gamma(s)| ~ -(pi/4) \sum_i |Im(s + a_i)|; max with 1: fudge factor */
+  a = (M_PI/(4*M_LN2))*(d*S->dh + gtodouble(imag_i(sVga)));
+  S->D = (long)ceil(bitprec + derprec + maxdd(a, 1));
   S->E = E = M_LN2*S->D; /* D:= required absolute bitprec */
 
   Ep = E + maxdd(M_PI * S->dh * d2, (d*S->MAXs + suma - 1) * log(E));
