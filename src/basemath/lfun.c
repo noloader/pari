@@ -1858,13 +1858,6 @@ lfuncheckfeq_i(GEN theta, GEN thetad, GEN t0, GEN t0i, long bitprec)
   if (thetad) w = gdiv(w, eno); /* |eno| may be large in non-dual case */
   return gexpo(w);
 }
-/* Pi/3 + I/7, some random complex number */
-static void
-lfuncheckfeq_t0(GEN *t0, GEN *t0i, long prec)
-{
-  *t0 = mkcomplex(gdivgs(mppi(prec), 3), sstoQ(1,7));
-  *t0i = ginv(*t0);
-}
 
 /* Check whether the coefficients, conductor, weight, polar part and root
  * number are compatible with the functional equation at t0 and 1/t0.
@@ -1883,7 +1876,12 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
     return b;
   }
   av = avma;
-  if (!t0) lfuncheckfeq_t0(&t0, &t0i, nbits2prec(bitprec));
+  if (!t0)
+  { /* Pi/3 + I/7, some random complex number */
+    long prec = nbits2prec(bitprec);
+    t0 = mkcomplex(gdivgs(mppi(prec), 3), sstoQ(1,7));
+    t0i = ginv(t0);
+  }
   else if (gcmpgs(gnorm(t0), 1) < 0) { t0i = t0; t0 = ginv(t0); }
   else t0i = ginv(t0);
   /* |t0| >= 1 */
@@ -2383,13 +2381,13 @@ lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
   struct huntcond_t S;
   pari_sp av = avma;
   GEN ldata = lfunmisc_to_ldata_shallow(data);
-  GEN ld, r, v, theta, thetad, M, tdom;
+  GEN ld, r, v, theta, thetad, M, tdom, t0 = NULL, t0i = NULL;
   GEN (*eval)(void *, GEN);
   long prec;
   M = parse_maxcond(maxcond);
   r = ldata_get_residue(ldata);
   if (typ(M) == t_VEC) /* select in list */
-  { eval = NULL; tdom = sstoQ(5,4); }
+  { eval = NULL; tdom = dbltor(0.7); }
   else if (!r) { eval = wrap1; tdom = sstoQ(10,11); }
   else
   {
@@ -2417,8 +2415,7 @@ lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
   if (!eval)
   {
     long i, besti = 0, beste = -10, l = lg(M);
-    GEN t0, t0i;
-    lfuncheckfeq_t0(&t0, &t0i, prec);
+    t0 = sstoQ(11,10); t0i = sstoQ(10,11);
     for (i = 1; i < l; i++)
     {
       pari_sp av2 = avma;
