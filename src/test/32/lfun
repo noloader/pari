@@ -239,7 +239,7 @@ zeta(s)*zeta(s-a)
 1
 5077
 725.0000000000000000
-[725, -53]
+[725, -52]
 24217.00000000000000
 28614069.00000000000
 -64
@@ -283,4 +283,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: localbitprec(16);lfun(Lt,12)
   ***                                  ^-----------
   *** lfun: incorrect type in vecan_closure (t_INT).
-Total time spent: 10205
+Total time spent: 8987
