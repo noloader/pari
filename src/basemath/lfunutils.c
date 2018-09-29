@@ -1986,7 +1986,13 @@ lfunetaquo(GEN eta0)
 
 static GEN
 vecan_qf(GEN Q, long L)
-{ return gmul2n(gtovec(qfrep0(Q, utoi(L), 1)), 1); }
+{
+  GEN v, w = qfrep0(Q, utoi(L), 1);
+  long i;
+  v = cgetg(L+1, t_VEC);
+  for (i = 1; i <= L; i++) gel(v,i) = utoi(2 * w[i]);
+  return v;
+}
 
 long
 qf_iseven(GEN M)
