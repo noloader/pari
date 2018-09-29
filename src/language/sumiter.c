@@ -1338,21 +1338,14 @@ GEN
 zbrent0(GEN a, GEN b, GEN code, long prec)
 { EXPR_WRAP(code, zbrent(EXPR_ARG, a, b, prec)); }
 
-/* x = solve_start(&D, a, b, prec)
- * while (x) {
- *   y = ...(x);
- *   x = solve_next(&D, y);
- * }
- * return D.res; */
-
 /* Find zeros of a function in the real interval [a,b] by interval splitting */
 GEN
 solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long prec)
 {
   const long ITMAX = 10;
   pari_sp av = avma;
-  GEN fa, ainit, binit;
-  long sainit, it, bit = prec2nbits(prec) / 2, ct = 0, s = gcmp(a,b);
+  GEN fa, a0, b0;
+  long sa0, it, bit = prec2nbits(prec) / 2, ct = 0, s = gcmp(a,b);
 
   if (!s) return gequal0(f(E, a)) ? gcopy(mkvec(a)): cgetg(1,t_VEC);
   if (s > 0) swap(a, b);
@@ -1363,35 +1356,31 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
   }
   else if (gsigne(step) <= 0)
     pari_err_DOMAIN("solvestep","step","<=",gen_0,step);
-  ainit = a = gtofp(a, prec); fa = f(E, a);
-  binit = b = gtofp(b, prec); step = gtofp(step, prec);
-  sainit = gsigne(fa);
-  if (gexpo(fa) < -bit) sainit = 0;
+  a0 = a = gtofp(a, prec); fa = f(E, a);
+  b0 = b = gtofp(b, prec); step = gtofp(step, prec);
+  sa0 = gsigne(fa);
+  if (gexpo(fa) < -bit) sa0 = 0;
   for (it = 0; it < ITMAX; it++)
   {
     pari_sp av2 = avma;
     GEN v = cgetg(1, t_VEC);
-    long sa;
-    a = ainit;
-    b = binit;
-    sa = sainit;
+    long sa = sa0;
+    a = a0; b = b0;
     while (gcmp(a,b) < 0)
     {
       GEN fc, c = (flag&4)? gmul(a, step): gadd(a, step);
       long sc;
       if (gcmp(c,b) > 0) c = b;
-      fc = f(E, c);
-      sc = gsigne(fc);
+      fc = f(E, c); sc = gsigne(fc);
       if (gexpo(fc) < -bit) sc = 0;
       if (!sc || sa*sc < 0)
       {
+        GEN z = sc? zbrent(E, f, a, c, prec): c;
         long e;
-        GEN z;
-        z = sc? zbrent(E, f, a, c, prec): c;
         (void)grndtoi(z, &e);
-        if (e  <= -bit) ct = 1;
+        if (e <= -bit) ct = 1;
         if ((flag&1) && ((!(flag&8)) || ct)) return gerepileupto(av, z);
-        v = gconcat(v, z);
+        v = shallowconcat(v, z);
       }
       a = c; fa = fc; sa = sc;
     }
@@ -1400,8 +1389,8 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
     step = (flag&4)? sqrtr(sqrtr(step)): gmul2n(step, -2);
     gerepileall(av2, 2, &fa, &step);
   }
-  if (it == ITMAX) pari_err_IMPL("solvestep recovery [too many iterations]");
-  return NULL;
+  pari_err_IMPL("solvestep recovery [too many iterations]");
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN
