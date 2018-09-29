@@ -84,4 +84,5 @@
   ***   at top-level: contfracinit(1)
   ***                 ^---------------
   *** contfracinit: incorrect type in contfracinit (t_INT).
-Total time spent: 0
+[[2, 0], [3]]
+Total time spent: 1

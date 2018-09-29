@@ -31,3 +31,5 @@ contfraceval(e,1)
 contfracinit([1,2,3])
 contfracinit(Pol(0))
 contfracinit(1);
+
+contfracinit(x/(3*x^2+2*x+1),3)

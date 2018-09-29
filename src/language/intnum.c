@@ -1442,9 +1442,9 @@ contfracinit(GEN M, long lim)
   {
     case t_RFRAC:
       if (lim < 0) pari_err_TYPE("contfracinit",M);
-      M = gadd(M, zeroser(gvar(M), lim + 2)); /*fall through*/
+      M = gtoser(M, varn(gel(M,2)), lim+3); /*fall through*/
     case t_SER: M = gtovec(M); break;
-    case t_POL: M = gtovecrev(M); break;
+    case t_POL: M = RgX_to_RgC(M, degpol(M)+1); break;
     case t_VEC: case t_COL: break;
     default: pari_err_TYPE("contfracinit", M);
   }
