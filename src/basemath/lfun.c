@@ -1817,41 +1817,12 @@ theta_add_polar_part(GEN S, GEN R, GEN t, long prec)
   return S;
 }
 
-/* Check whether the coefficients, conductor, weight, polar part and root
- * number are compatible with the functional equation at t0 and 1/t0.
- * Different from lfunrootres. */
-long
-lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
+static long
+lfuncheckfeq_i(GEN theta, GEN thetad, GEN t0, GEN t0i, long bitprec)
 {
-  GEN ldata, theta, thetad, t0i, S0, S0i, w, eno;
-  long prec;
-  pari_sp av;
-
-  if (is_linit(lmisc) && linit_get_type(lmisc)==t_LDESC_PRODUCT)
-  {
-    GEN v = lfunprod_get_fact(linit_get_tech(lmisc)), F = gel(v,1);
-    long i, b = -bitprec, l = lg(F);
-    for (i = 1; i < l; i++) b = maxss(b, lfuncheckfeq(gel(F,i), t0, bitprec));
-    return b;
-  }
-  av = avma;
-  prec = nbits2prec(bitprec);
-  if (!t0)
-  { /* Pi/3 + I/7, some random complex number */
-    t0 = mkcomplex(gdivgs(mppi(prec), 3), sstoQ(1,7));
-    t0i = ginv(t0);
-  }
-  else if (gcmpgs(gnorm(t0), 1) < 0)
-  {
-    t0i = t0;
-    t0 = ginv(t0);
-  }
-  else
-    t0i = ginv(t0);
-  /* |t0| >= 1 */
-  theta = lfunthetacheckinit(lmisc, t0i, 0, bitprec);
-  ldata = linit_get_ldata(theta);
-  thetad = theta_dual(theta, ldata_get_dual(ldata));
+  GEN ldata = linit_get_ldata(theta);
+  GEN S0, S0i, w, eno;
+  long prec = nbits2prec(bitprec);
   if (thetad)
     S0 = lfuntheta(thetad, t0, 0, bitprec);
   else
@@ -1870,7 +1841,7 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
            (artificial) query [e.g. lfuncheckfeq(t_POL)] */
         GEN T = gel(ldata_get_an(ldata), 2);
         GEN L = lfunzetakinit(T,zerovec(3),0,0,bitprec);
-        return gc_long(av, lfuncheckfeq(L,t0,bitprec));
+        return lfuncheckfeq(L,t0,bitprec);
       }
       v = lfunrootres(theta, bitprec);
       r = gel(v,1);
@@ -1885,7 +1856,41 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   if (gequal0(eno)) eno = lfunrootno(theta, bitprec);
   w = gsub(w, eno);
   if (thetad) w = gdiv(w, eno); /* |eno| may be large in non-dual case */
-  return gc_long(av, gexpo(w));
+  return gexpo(w);
+}
+/* Pi/3 + I/7, some random complex number */
+static void
+lfuncheckfeq_t0(GEN *t0, GEN *t0i, long prec)
+{
+  *t0 = mkcomplex(gdivgs(mppi(prec), 3), sstoQ(1,7));
+  *t0i = ginv(*t0);
+}
+
+/* Check whether the coefficients, conductor, weight, polar part and root
+ * number are compatible with the functional equation at t0 and 1/t0.
+ * Different from lfunrootres. */
+long
+lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
+{
+  GEN ldata, theta, thetad, t0i;
+  pari_sp av;
+
+  if (is_linit(lmisc) && linit_get_type(lmisc)==t_LDESC_PRODUCT)
+  {
+    GEN v = lfunprod_get_fact(linit_get_tech(lmisc)), F = gel(v,1);
+    long i, b = -bitprec, l = lg(F);
+    for (i = 1; i < l; i++) b = maxss(b, lfuncheckfeq(gel(F,i), t0, bitprec));
+    return b;
+  }
+  av = avma;
+  if (!t0) lfuncheckfeq_t0(&t0, &t0i, nbits2prec(bitprec));
+  else if (gcmpgs(gnorm(t0), 1) < 0) { t0i = t0; t0 = ginv(t0); }
+  else t0i = ginv(t0);
+  /* |t0| >= 1 */
+  theta = lfunthetacheckinit(lmisc, t0i, 0, bitprec);
+  ldata = linit_get_ldata(theta);
+  thetad = theta_dual(theta, ldata_get_dual(ldata));
+  return gc_long(av, lfuncheckfeq_i(theta, thetad, t0, t0i, bitprec));
 }
 
 /*******************************************************************/
@@ -2356,49 +2361,46 @@ checkconductor(GEN v, long bit, long flag)
   setlg(w,k); return w;
 }
 
-static void
-parse_maxcond(GEN maxcond, GEN *pm, GEN *pM)
+static GEN
+parse_maxcond(GEN maxN)
 {
-  GEN m = gen_1, M;
-  if (!maxcond)
+  GEN M;
+  if (!maxN)
     M = utoipos(10000);
-  else if (typ(maxcond) == t_VEC)
+  else if (typ(maxN) == t_VEC)
   {
-    if (lg(maxcond) != 3) pari_err_TYPE("lfunconductor", maxcond);
-    m = gel(maxcond,1);
-    M = gel(maxcond,2);
+    if (!RgV_is_ZV(maxN)) pari_err_TYPE("lfunconductor",maxN);
+    return ZV_sort(maxN);
   }
   else
-    M = maxcond;
-  m = (typ(m) == t_INT)? gsub(m,ghalf): gfloor(m);
-  if (signe(m) <= 0) m = ghalf;
-  M = (typ(M) == t_INT)? addiu(M, 1): gceil(M);
-  *pm = m;
-  *pM = M;
+    M = maxN;
+  return (typ(M) == t_INT)? addiu(M, 1): gceil(M);
 }
 
 GEN
 lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
 {
   struct huntcond_t S;
-  pari_sp ltop = avma;
-  GEN ld, r, v, ldata, theta, thetad, m, M, tdom;
+  pari_sp av = avma;
+  GEN ldata = lfunmisc_to_ldata_shallow(data);
+  GEN ld, r, v, theta, thetad, M, tdom;
   GEN (*eval)(void *, GEN);
-  bitprec = 3*bitprec/2;
-  ldata = lfunmisc_to_ldata_shallow(data);
-  parse_maxcond(maxcond, &m,&M);
+  long prec;
+  M = parse_maxcond(maxcond);
   r = ldata_get_residue(ldata);
-  if (r && typ(r) == t_VEC)
-  {
-    if (lg(r) > 2) pari_err_IMPL("multiple poles in lfunconductor");
-    r = gmael(r,1,2);
-  }
-  if (!r)
-  { eval = wrap1; tdom = mkfrac(stoi(10), stoi(11)); }
+  if (typ(M) == t_VEC) /* select in list */
+  { eval = NULL; tdom = sstoQ(5,4); }
+  else if (!r) { eval = wrap1; tdom = sstoQ(10,11); }
   else
-  { eval = wrap2; tdom = mkfrac(stoi(11), stoi(13)); }
+  {
+    if (typ(r) == t_VEC && lg(r) > 2)
+      pari_err_IMPL("multiple poles in lfunconductor");
+    eval = wrap2; tdom = sstoQ(11,13);
+  }
+  if (eval) bitprec += bitprec/2;
+  prec = nbits2prec(bitprec);
   ld = shallowcopy(ldata);
-  gel(ld, 5) = M;
+  gel(ld, 5) = eval? M: gel(M,lg(M)-1);
   theta = lfunthetainit_i(ld, tdom, 0, bitprec);
   thetad = theta_dual(theta, ldata_get_dual(ldata));
   gel(theta,3) = shallowcopy(linit_get_tech(theta));
@@ -2412,8 +2414,26 @@ lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
     S.pMd = &gel(linit_get_ldata(thetad),5);
     S.psqrtMd = &gel(linit_get_tech(thetad),7);
   }
-  v = solvestep((void*)&S, eval, m, M, gen_2, 14, nbits2prec(bitprec));
-  return gerepilecopy(ltop, checkconductor(v, bitprec/2, flag));
+  if (!eval)
+  {
+    long i, besti = 0, beste = -10, l = lg(M);
+    GEN t0, t0i;
+    lfuncheckfeq_t0(&t0, &t0i, prec);
+    for (i = 1; i < l; i++)
+    {
+      pari_sp av2 = avma;
+      long e;
+      condset(&S, gel(M,i), prec);
+      e = lfuncheckfeq_i(theta, thetad, t0, t0i, bitprec);
+      set_avma(av2);
+      if (e < beste) { beste = e; besti = i; }
+      else if (e == beste) beste = besti = 0; /* tie: forget */
+    }
+    if (!besti) { set_avma(av); return cgetg(1,t_VEC); }
+    return gerepilecopy(av, mkvec2(gel(M,besti), stoi(beste)));
+  }
+  v = solvestep((void*)&S, eval, ghalf, M, gen_2, 14, prec);
+  return gerepilecopy(av, checkconductor(v, bitprec/2, flag));
 }
 
 /* assume chi primitive */

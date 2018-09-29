@@ -316,13 +316,14 @@ lfunconductor(2108)
 lfunrootres(x^3+x^2-3*x-1)
 
 default(realprecision,19)
-lfunconductor(1,[1/2,10])
+lfunconductor(1,10)
 /* guess small conductor */
 e1=ellinit([0, 0, 1, -7, 6]);
 lfunconductor(e1)
 
 lnf725=lfundiv(x^4-x^3-3*x^2+x+1,1);
 lfunconductor(lnf725,,1)
+lfunconductor(lnf725, divisors(725))
 
 /* bigger one.
  * remark: should be able to search in a big range
