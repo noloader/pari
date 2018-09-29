@@ -117,6 +117,19 @@ lfun_get_factgammavec(GEN tech) { return gmael(tech, 3, 4); }
 /* Handle complex Vga whose sum is real */
 static GEN
 sumVga(GEN Vga) { return real_i(vecsum(Vga)); }
+/* sum_i max (Im v[i],0) */
+static double
+sumVgaimpos(GEN v)
+{
+  double d = 0.;
+  long i, l = lg(v);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = imag_i(gel(v,i));
+    if (gsigne(c) > 0) d += gtodouble(c);
+  }
+  return d;
+}
 
 static long
 vgaell(GEN Vga)
@@ -912,15 +925,14 @@ static void
 lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
 {
   const long derprec = (der > 1)? dbllog2(mpfact(der)): 0; /* log2(der!) */
-  GEN Vga, sVga, N, L;
+  GEN Vga, N, L;
   long k, k1, d, m, M, flag, nmax;
   double a, E, hd, Ep, d2, suma, maxs, mins, sub, B0,B1, Lestimate, Mestimate;
 
   Vga = ldata_get_gammavec(ldata);
   S->d = d = lg(Vga)-1; d2 = d/2.;
 
-  sVga = vecsum(Vga);
-  suma = gtodouble(real_i(sVga));
+  suma = gtodouble(sumVga(Vga));
   k = ldata_get_k(ldata);
   N = ldata_get_conductor(ldata);
   S->logN2 = log(gtodouble(N)) / 2;
@@ -930,7 +942,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
 
   /* we compute Lambda^(der)(s) / der!; need to compensate for L^(der)(s)
    * ln |gamma(s)| ~ -(pi/4) \sum_i |Im(s + a_i)|; max with 1: fudge factor */
-  a = (M_PI/(4*M_LN2))*(d*S->dh + gtodouble(imag_i(sVga)));
+  a = (M_PI/(4*M_LN2))*(d*S->dh + sumVgaimpos(Vga));
   S->D = (long)ceil(bitprec + derprec + maxdd(a, 1));
   S->E = E = M_LN2*S->D; /* D:= required absolute bitprec */
 
