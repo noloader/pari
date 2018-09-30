@@ -7,6 +7,13 @@ Str(1/2)
 Str("a","b",1)
 v = Vecsmall([1..255]);
 Vecsmall(Strchr(v)) == v
+strsplit("::a::b::::", "::")
+strsplit("a:b::::cc", ":")
+strjoin(["a", "b", "cc"], "/")
 
 \\ Errors, keep at end of file
 Strchr(-1)
+strsplit(1,1)
+strsplit("1",'x)
+strjoin(1, "/")
+strjoin([],1)

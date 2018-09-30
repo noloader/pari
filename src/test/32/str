@@ -7,7 +7,22 @@ Vecsmall([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
 "1/2"
 "ab1"
 1
+["", "a", "b", "", ""]
+["a", "b", "", "", "", "cc"]
+"a/b/cc"
   ***   at top-level: Strchr(-1)
   ***                 ^----------
   *** Strchr: out of range in integer -> character conversion (-1).
+  ***   at top-level: strsplit(1,1)
+  ***                 ^-------------
+  *** strsplit: incorrect type in strsplit (t_INT).
+  ***   at top-level: strsplit("1",'x)
+  ***                 ^----------------
+  *** strsplit: incorrect type in strsplit (t_POL).
+  ***   at top-level: strjoin(1,"/")
+  ***                 ^--------------
+  *** strjoin: incorrect type in strjoin (t_INT).
+  ***   at top-level: strjoin([],1)
+  ***                 ^-------------
+  *** strjoin: incorrect type in strjoin (t_INT).
 Total time spent: 0

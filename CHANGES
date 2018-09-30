@@ -72,6 +72,7 @@ BA   3- [libpari] FpXC_FpXQ_eval
      7- [libpari] ZXQ_powu
      8- new GP functions hypergen, airy
      9- [libpari] gc_bool, gc_double, gc_int, gc_long, gc_ulong, gc_NULL
+    10- new GP functions strsplit, strjoin
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

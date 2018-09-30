@@ -1952,6 +1952,46 @@ Strchr(GEN g)
   *s = 0; return x;
 }
 
+GEN
+strsplit(GEN x, GEN p)
+{
+  long i0, i, iv, ls, lt;
+  char *s, *t;
+  GEN v;
+  if (typ(x) != t_STR) pari_err_TYPE("strsplit",x);
+  if (typ(p) != t_STR) pari_err_TYPE("strsplit",p);
+  s = GSTR(x); ls = strlen(s); v = cgetg(ls, t_VEC);
+  t = GSTR(p); lt = strlen(t); iv = 1;
+  for (i = i0 = 0; i < ls; i++)
+    while (!strncmp(s + i, t, lt))
+    {
+      gel(v, iv++) = strntoGENstr(s + i0, i - i0);
+      i += lt; i0 = i;
+    }
+  gel(v, iv++) = strntoGENstr(s + i0, i - i0);
+  stackdummy((pari_sp)(v + iv), (pari_sp)(v + ls));
+  setlg(v, iv); return v;
+}
+
+GEN
+strjoin(GEN v, GEN p)
+{
+  pari_sp av = avma;
+  long i, l;
+  GEN w;
+  if (!is_vec_t(typ(v))) pari_err_TYPE("strjoin",v);
+  if (typ(p) != t_STR) pari_err_TYPE("strjoin",p);
+  l = lg(v); if (l == 1) return strtoGENstr("");
+  w = cgetg(2*l - 2, t_VEC);
+  gel(w, 1) = gel(v, 1);
+  for (i = 2; i < l; i++)
+  {
+    gel(w, 2*i-2) = p;
+    gel(w, 2*i-1) = gel(v, i);
+  }
+  return gerepileuptoleaf(av, shallowconcat1(w));
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                         WRITE AN INTEGER                       **/
