@@ -1334,8 +1334,14 @@ Fp_ellj_nodiv(GEN a4, GEN a6, GEN p)
 GEN
 Fp_ellj(GEN a4, GEN a6, GEN p)
 {
-  pari_sp av=avma;
-  GEN z = Fp_ellj_nodiv(a4, a6, p);
+  pari_sp av = avma;
+  GEN z;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    return utoi(Fl_ellj(umodiu(a4,pp), umodiu(a6,pp), pp));
+  }
+  z = Fp_ellj_nodiv(a4, a6, p);
   return gerepileuptoint(av,Fp_div(gel(z,1),gel(z,2),p));
 }
 
