@@ -49,21 +49,12 @@ treeparent_r(GEN t, GEN x, long i, long parent)
 }
 
 static void
-treekeys_r(GEN t, long i, GEN V, long *n)
+treekeys(GEN t, long i, GEN V, long *n)
 {
   if (i==0) return;
-  treekeys_r(t, tleft(i), V, n);
-  gel(V, ++*n) = gcopy(gel(tvalue(i),1));
-  treekeys_r(t, tright(i), V, n);
-}
-
-static void
-treekeys_i_r(GEN t, long i, GEN V, long *n)
-{
-  if (i==0) return;
-  treekeys_i_r(t, tleft(i), V, n);
+  treekeys(t, tleft(i), V, n);
   gel(V, ++*n) = gel(tvalue(i),1);
-  treekeys_r(t, tright(i), V, n);
+  treekeys(t, tright(i), V, n);
 }
 
 GEN
@@ -72,7 +63,7 @@ mapdomain_shallow(GEN T)
   GEN V, t = list_data(T);
   long n = 0;
   if (!t || lg(t)==1) return cgetg(1, t_VEC);
-  V = cgetg(lg(t), t_VEC); treekeys_i_r(t, 1, V, &n); return V;
+  V = cgetg(lg(t), t_VEC); treekeys(t, 1, V, &n); return V;
 }
 
 static void
@@ -362,12 +353,12 @@ mapisdefined(GEN T, GEN a, GEN *pt_z)
 GEN
 mapdomain(GEN T)
 {
-  long n = 0;
-  GEN V, t;
+  long i, l;
+  GEN V;
   if (!ismap(T)) pari_err_TYPE("mapdomain",T);
-  t = list_data(T);
-  if (!t || lg(t)==1) return cgetg(1, t_VEC);
-  V = cgetg(lg(t), t_VEC); treekeys_r(t, 1, V, &n); return V;
+  V = mapdomain_shallow(T); l = lg(V);
+  for (i = 1; i < l; i++) gel(V,i) = gcopy(gel(V,i));
+  return V;
 }
 
 GEN
