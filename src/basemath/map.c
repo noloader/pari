@@ -20,85 +20,59 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define theight(i) mael3(t,(i),2,3)
 
 static GEN
-treesearch(GEN T, GEN x, long mode)
+treesearch(GEN T, GEN x)
 {
   long i = 1;
   GEN t = list_data(T);
   if (!t || lg(t)==1) return NULL;
   while(i)
   {
-    long c = mode == 0 ? cmp_universal(x, tvalue(i)):
-                         cmp_universal(x, gel(tvalue(i),1));
-    if (c)
-      i = c < 0 ? tleft(i): tright(i);
-    else
-      return tvalue(i);
+    long c = cmp_universal(x, gel(tvalue(i),1));
+    if (!c) return tvalue(i);
+    i = c < 0 ? tleft(i): tright(i);
   }
   return NULL;
 }
 
 static long
-treeparent_r(GEN t, GEN x, long i, long mode, long parent)
+treeparent_r(GEN t, GEN x, long i, long parent)
 {
   long c;
   if (i==0) return parent;
-  c = mode == 0 ? cmp_universal(x, tvalue(i)):
-                  cmp_universal(x, gel(tvalue(i),1));
+  c = cmp_universal(x, gel(tvalue(i),1));
   if (c < 0)
-    return treeparent_r(t,x,tleft(i),mode,i);
+    return treeparent_r(t,x,tleft(i),i);
   else if (c > 0)
-    return treeparent_r(t,x,tright(i),mode,i);
+    return treeparent_r(t,x,tright(i),i);
   else
     return parent;
 }
 
-static long
-treeparent(GEN T, GEN x, long mode)
+static void
+treekeys_r(GEN t, long i, GEN V, long *n)
 {
-  GEN t = list_data(T);
-  return t ? treeparent_r(t, x, 1, mode, 0): 0;
+  if (i==0) return;
+  treekeys_r(t, tleft(i), V, n);
+  gel(V, ++*n) = gcopy(gel(tvalue(i),1));
+  treekeys_r(t, tright(i), V, n);
 }
 
 static void
-treekeys_r(GEN t, long i, GEN V, long *n, long mode)
+treekeys_i_r(GEN t, long i, GEN V, long *n)
 {
   if (i==0) return;
-  treekeys_r(t, tleft(i), V, n, mode);
-  gel(V, ++*n) = gcopy(mode == 0 ? tvalue(i): gel(tvalue(i),1));
-  treekeys_r(t, tright(i), V, n, mode);
+  treekeys_i_r(t, tleft(i), V, n);
+  gel(V, ++*n) = gel(tvalue(i),1);
+  treekeys_r(t, tright(i), V, n);
 }
 
-static GEN
-treekeys(GEN T, long mode)
+GEN
+mapdomain_shallow(GEN T)
 {
+  GEN V, t = list_data(T);
   long n = 0;
-  GEN t = list_data(T);
-  GEN V;
   if (!t || lg(t)==1) return cgetg(1, t_VEC);
-  V = cgetg(lg(t), t_VEC);
-  treekeys_r(t, 1, V, &n, mode);
-  return V;
-}
-
-static void
-treekeys_i_r(GEN t, long i, GEN V, long *n, long mode)
-{
-  if (i==0) return;
-  treekeys_i_r(t, tleft(i), V, n, mode);
-  gel(V, ++*n) = mode == 0 ? tvalue(i): gel(tvalue(i),1);
-  treekeys_r(t, tright(i), V, n, mode);
-}
-
-static GEN
-treekeys_i(GEN T, long mode)
-{
-  long n = 0;
-  GEN t = list_data(T);
-  GEN V;
-  if (!t || lg(t)==1) return cgetg(1, t_VEC);
-  V = cgetg(lg(t), t_VEC);
-  treekeys_i_r(t, 1, V, &n, mode);
-  return V;
+  V = cgetg(lg(t), t_VEC); treekeys_i_r(t, 1, V, &n); return V;
 }
 
 static void
@@ -112,20 +86,6 @@ treemat_r(GEN t, long i, GEN V, long *n)
   treemat_r(t, tright(i), V, n);
 }
 
-static GEN
-treemat(GEN T)
-{
-  long n = 0;
-  GEN t = list_data(T);
-  GEN V;
-  if (!t || lg(t)==1) return cgetg(1, t_MAT);
-  V = cgetg(3, t_MAT);
-  gel(V,1) = cgetg(lg(t), t_COL);
-  gel(V,2) = cgetg(lg(t), t_COL);
-  treemat_r(t, 1, V, &n);
-  return V;
-}
-
 static void
 treemat_i_r(GEN t, long i, GEN V, long *n)
 {
@@ -137,12 +97,11 @@ treemat_i_r(GEN t, long i, GEN V, long *n)
   treemat_r(t, tright(i), V, n);
 }
 
-static GEN
-treemat_i(GEN T)
+GEN
+maptomat_shallow(GEN T)
 {
+  GEN V, t = list_data(T);
   long n = 0;
-  GEN t = list_data(T);
-  GEN V;
   if (!t || lg(t)==1) return cgetg(1, t_MAT);
   V = cgetg(3, t_MAT);
   gel(V,1) = cgetg(lg(t), t_COL);
@@ -241,22 +200,21 @@ rotleft(GEN T, long x)
 }
 
 static long
-treeinsert_r(GEN T, GEN x, long i, long *d, long mode)
+treeinsert_r(GEN T, GEN x, long i, long *d)
 {
   long b, c;
   if (i==0 || !list_data(T) || lg(list_data(T))==1)
     return new_leaf(T, x);
-  c = mode == 0 ? cmp_universal(x, value(i)):
-                  cmp_universal(gel(x,1), gel(value(i),1));
+  c = cmp_universal(gel(x,1), gel(value(i),1));
   if (c < 0)
   {
-    long s = treeinsert_r(T, x, left(i), d, mode);
+    long s = treeinsert_r(T, x, left(i), d);
     if (s < 0) return s;
     left(i) = s;
   }
   else if (c > 0)
   {
-    long s = treeinsert_r(T, x, right(i), d, mode);
+    long s = treeinsert_r(T, x, right(i), d);
     if (s < 0) return s;
     right(i) = s;
   }
@@ -275,16 +233,15 @@ treeinsert_r(GEN T, GEN x, long i, long *d, long mode)
       right(i) = rotright(T, right(i));
     return rotleft(T, i);
   }
-  *d = c;
-  return i;
+  *d = c; return i;
 }
 
 static long
-treeinsert(GEN T, GEN x, long mode)
+treeinsert(GEN T, GEN x)
 {
   GEN d;
   long c = 0;
-  long r = treeinsert_r(T, x, 1, &c, mode);
+  long r = treeinsert_r(T, x, 1, &c);
   if (r < 0) return -r;
   if (r == 1) return 0;
   d = list_data(T);
@@ -297,22 +254,20 @@ treeinsert(GEN T, GEN x, long mode)
 }
 
 static long
-treedelete_r(GEN T, GEN x, long i, long mode, long *dead)
+treedelete_r(GEN T, GEN x, long i, long *dead)
 {
   long b, c;
-  if (i==0 || !list_data(T) || lg(list_data(T))==1)
-    return -1;
-  c = mode == 0 ? cmp_universal(x, value(i)):
-                  cmp_universal(x, gel(value(i),1));
+  if (i==0 || !list_data(T) || lg(list_data(T))==1) return -1;
+  c = cmp_universal(x, gel(value(i),1));
   if (c < 0)
   {
-    long s = treedelete_r(T, x, left(i), mode, dead);
+    long s = treedelete_r(T, x, left(i), dead);
     if (s < 0) return s;
     left(i) = s;
   }
   else if (c > 0)
   {
-    long s = treedelete_r(T, x, right(i), mode, dead);
+    long s = treedelete_r(T, x, right(i), dead);
     if (s < 0) return s;
     right(i) = s;
   }
@@ -327,12 +282,11 @@ treedelete_r(GEN T, GEN x, long i, long mode, long *dead)
       return left(i);
     else
     {
-      GEN v;
-      GEN d = list_data(T);
+      GEN v, d = list_data(T);
       long j = right(i);
       while (left(j)) j = left(j);
-      v = mode == 0 ? value(j): gel(value(j), 1);
-      right(i) = treedelete_r(T, v, right(i), mode, dead);
+      v = gel(value(j), 1);
+      right(i) = treedelete_r(T, v, right(i), dead);
       swap(gel(d,i), gel(d,j));
       lswap(left(i),left(j));
       lswap(right(i),right(j));
@@ -359,15 +313,14 @@ treedelete_r(GEN T, GEN x, long i, long mode, long *dead)
 }
 
 static long
-treedelete(GEN T, GEN x, long mode)
+treedelete(GEN T, GEN x)
 {
-  GEN  d = list_data(T);
-  long dead, l;
-  long r = treedelete_r(T, x, 1, mode, &dead);
+  long dead, l, r = treedelete_r(T, x, 1, &dead);
+  GEN d;
   if (r < 0) return 0;
+  d = list_data(T); /* != NULL and non-empty */
   if (r > 1)
-  {
-    /* By convention we want the root to be 1 */
+  { /* By convention we want the root to be 1 */
     swap(gel(d,1), gel(d,r));
     if (left(1) == 1) left(1) = r;
     else if (right(1) == 1) right(1) = r;
@@ -377,27 +330,26 @@ treedelete(GEN T, GEN x, long mode)
   l = lg(d)-1;
   if (dead != l)
   {
-    long p = treeparent(T, gel(value(l), 1), mode);
+    long p = treeparent_r(d, gel(value(l),1), 1, 0);
     if (left(p) == l) left(p) = dead;
     else if (right(p) == l) right(p) = dead;
     else pari_err_BUG("treedelete2");
     swap(gel(d, dead),gel(d, l));
   }
-  listpop(T, 0);
-  return 1;
+  listpop(T,0); return 1;
 }
+
+static int
+ismap(GEN T) { return typ(T) == t_LIST && list_typ(T) == t_LIST_MAP; }
 
 void
 mapput(GEN T, GEN a, GEN b)
 {
   pari_sp av = avma;
+  GEN p = mkvec2(a, b);
   long i;
-  GEN p;
-  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("mapput",T);
-  p = mkvec2(a, b);
-  i = treeinsert(T, p, 1);
-  if (i) change_leaf(T, p, i);
+  if (!ismap(T)) pari_err_TYPE("mapput",T);
+  i = treeinsert(T, p); if (i) change_leaf(T, p, i);
   set_avma(av);
 }
 
@@ -406,20 +358,17 @@ mapdelete(GEN T, GEN a)
 {
   pari_sp av = avma;
   long s;
-  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("mapdelete",T);
-  s = treedelete(T, a, 1);
+  if (!ismap(T)) pari_err_TYPE("mapdelete",T);
+  s = treedelete(T, a); set_avma(av);
   if (!s) pari_err_COMPONENT("mapdelete", "not in", strtoGENstr("map"), a);
-  set_avma(av);
 }
 
 GEN
 mapget(GEN T, GEN a)
 {
   GEN x;
-  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("mapget",T);
-  x = treesearch(T, a, 1);
+  if (!ismap(T)) pari_err_TYPE("mapget",T);
+  x = treesearch(T, a);
   if (!x) pari_err_COMPONENT("mapget", "not in", strtoGENstr("map"), a);
   return gcopy(gel(x, 2));
 }
@@ -428,10 +377,8 @@ int
 mapisdefined(GEN T, GEN a, GEN *pt_z)
 {
   GEN x;
-  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("mapisdefined",T);
-  x = treesearch(T, a, 1);
-  if (!x) return 0;
+  if (!ismap(T)) pari_err_TYPE("mapisdefined",T);
+  x = treesearch(T, a); if (!x) return 0;
   if (pt_z) *pt_z = gcopy(gel(x, 2));
   return 1;
 }
@@ -439,33 +386,26 @@ mapisdefined(GEN T, GEN a, GEN *pt_z)
 GEN
 mapdomain(GEN T)
 {
-  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("mapdomain",T);
-  return treekeys(T,1);
-}
-
-GEN
-mapdomain_shallow(GEN T)
-{
-  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("mapdomain_shallow",T);
-  return treekeys_i(T,1);
+  long n = 0;
+  GEN V, t;
+  if (!ismap(T)) pari_err_TYPE("mapdomain",T);
+  t = list_data(T);
+  if (!t || lg(t)==1) return cgetg(1, t_VEC);
+  V = cgetg(lg(t), t_VEC); treekeys_r(t, 1, V, &n); return V;
 }
 
 GEN
 maptomat(GEN T)
 {
-  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("maptomat",T);
-  return treemat(T);
-}
-
-GEN
-maptomat_shallow(GEN T)
-{
-  if (typ(T)!=t_LIST || list_typ(T)!=t_LIST_MAP)
-    pari_err_TYPE("maptomap_shallow",T);
-  return treemat_i(T);
+  long n = 0;
+  GEN V, t;
+  if (!ismap(T)) pari_err_TYPE("maptomat",T);
+  t = list_data(T);
+  if (!t || lg(t)==1) return cgetg(1, t_MAT);
+  V = cgetg(3, t_MAT);
+  gel(V,1) = cgetg(lg(t), t_COL);
+  gel(V,2) = cgetg(lg(t), t_COL);
+  treemat_r(t, 1, V, &n); return V;
 }
 
 GEN
