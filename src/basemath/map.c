@@ -25,7 +25,7 @@ treesearch(GEN T, GEN x)
   long i = 1;
   GEN t = list_data(T);
   if (!t || lg(t)==1) return NULL;
-  while(i)
+  while (i)
   {
     long c = cmp_universal(x, gel(tvalue(i),1));
     if (!c) return tvalue(i);
@@ -106,8 +106,7 @@ maptomat_shallow(GEN T)
   V = cgetg(3, t_MAT);
   gel(V,1) = cgetg(lg(t), t_COL);
   gel(V,2) = cgetg(lg(t), t_COL);
-  treemat_i_r(t, 1, V, &n);
-  return V;
+  treemat_i_r(t, 1, V, &n); return V;
 }
 
 static void
@@ -133,10 +132,7 @@ treemap_i_r(GEN t, long i, long a, long c, GEN p, GEN M)
 }
 
 static void
-treemap_i(GEN t, GEN p, GEN M)
-{
-  treemap_i_r(t, 1, 1, lg(p)-1, p, M);
-}
+treemap_i(GEN t, GEN p, GEN M) { treemap_i_r(t, 1, 1, lg(p)-1, p, M); }
 
 #define value(i)  gmael(list_data(T),(i),1)
 #define left(i)   mael3(list_data(T),(i),2,1)
@@ -144,8 +140,7 @@ treemap_i(GEN t, GEN p, GEN M)
 #define height(i) mael3(list_data(T),(i),2,3)
 
 static long
-treeheight(GEN T, long i)
-{ return i? height(i): 0; }
+treeheight(GEN T, long i) { return i? height(i): 0; }
 
 static void
 change_leaf(GEN T, GEN x, long p)
@@ -160,20 +155,15 @@ new_leaf(GEN T, GEN x)
 {
   pari_sp av = avma;
   listput(T, mkvec2(x, mkvecsmall3(0,0,1)), 0);
-  set_avma(av);
-  return lg(list_data(T))-1;
+  return gc_long(av, lg(list_data(T))-1);
 }
 
 static void
 fix_height(GEN T, long x)
-{
-  height(x) = maxss(treeheight(T,left(x)), treeheight(T,right(x)))+1;
-}
+{ height(x) = maxss(treeheight(T,left(x)), treeheight(T,right(x)))+1; }
 static long
 treebalance(GEN T, long i)
-{
-  return i ? treeheight(T,left(i)) - treeheight(T,right(i)): 0;
-}
+{ return i ? treeheight(T,left(i)) - treeheight(T,right(i)): 0; }
 
 static long
 rotright(GEN T, long y)
@@ -223,14 +213,12 @@ treeinsert_r(GEN T, GEN x, long i, long *d)
   b = treebalance(T, i);
   if (b > 1)
   {
-    if (*d > 0)
-      left(i) = rotleft(T, left(i));
+    if (*d > 0) left(i) = rotleft(T, left(i));
     return rotright(T, i);
   }
   if (b < -1)
   {
-    if (*d < 0)
-      right(i) = rotright(T, right(i));
+    if (*d < 0) right(i) = rotright(T, right(i));
     return rotleft(T, i);
   }
   *d = c; return i;
@@ -239,16 +227,15 @@ treeinsert_r(GEN T, GEN x, long i, long *d)
 static long
 treeinsert(GEN T, GEN x)
 {
+  long c = 0, r = treeinsert_r(T, x, 1, &c);
   GEN d;
-  long c = 0;
-  long r = treeinsert_r(T, x, 1, &c);
   if (r < 0) return -r;
   if (r == 1) return 0;
   d = list_data(T);
   /* By convention we want the root to be 1 */
   swap(gel(d,1), gel(d,r));
-  if (left(1) == 1) left(1)=r;
-  else if (right(1) == 1) right(1)=r;
+  if (left(1) == 1) left(1) = r;
+  else if (right(1) == 1) right(1) = r;
   else pari_err_BUG("treeadd");
   return 0;
 }
@@ -274,12 +261,9 @@ treedelete_r(GEN T, GEN x, long i, long *dead)
   else
   {
     *dead = i;
-    if (left(i)==0 && right(i)==0)
-      return 0;
-    else if (left(i)==0)
-      return right(i);
-    else if (right(i)==0)
-      return left(i);
+    if (left(i)==0 && right(i)==0) return 0;
+    else if (left(i)==0) return right(i);
+    else if (right(i)==0) return left(i);
     else
     {
       GEN v, d = list_data(T);
@@ -295,20 +279,12 @@ treedelete_r(GEN T, GEN x, long i, long *dead)
   }
   fix_height(T, i);
   b = treebalance(T, i);
-  if (b > 1 && treebalance(T, left(i)) >= 0)
-    return rotright(T, i);
+  if (b > 1 && treebalance(T, left(i)) >= 0) return rotright(T, i);
   if (b > 1 && treebalance(T, left(i)) < 0)
-  {
-    left(i) = rotleft(T, left(i));
-    return rotright(T, i);
-  }
-  if (b < -1 && treebalance(T, right(i)) <= 0)
-    return rotleft(T,i);
+  { left(i) = rotleft(T, left(i)); return rotright(T, i); }
+  if (b < -1 && treebalance(T, right(i)) <= 0) return rotleft(T,i);
   if (b < -1 && treebalance(T, right(i)) > 0)
-  {
-    right(i) = rotright(T, right(i));
-    return rotleft(T, i);
-  }
+  { right(i) = rotright(T, right(i)); return rotleft(T, i); }
   return i;
 }
 
