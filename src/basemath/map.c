@@ -148,8 +148,7 @@ treebalance(GEN T, long i)
 static long
 rotright(GEN T, long y)
 {
-  long x = left(y);
-  long t = right(x);
+  long x = left(y), t = right(x);
   right(x) = y;
   left(y)  = t;
   fix_height(T, y);
@@ -160,8 +159,7 @@ rotright(GEN T, long y)
 static long
 rotleft(GEN T, long x)
 {
-  long y = right(x);
-  long t = left(y);
+  long y = right(x), t = left(y);
   left(y)  = x;
   right(x) = t;
   fix_height(T, x);
@@ -173,8 +171,7 @@ static long
 treeinsert_r(GEN T, GEN x, long i, long *d)
 {
   long b, c;
-  if (i==0 || !list_data(T) || lg(list_data(T))==1)
-    return new_leaf(T, x);
+  if (i==0 || !list_data(T) || lg(list_data(T))==1) return new_leaf(T, x);
   c = cmp_universal(gel(x,1), gel(value(i),1));
   if (c < 0)
   {
@@ -374,17 +371,17 @@ gtomap(GEN x)
   {
   case t_MAT:
     {
-      long n, l = lg(x);
+      long l = lg(x);
       GEN M, p;
       if (l == 1 || lgcols(x)==1) return mkmap();
       if (l != 3) pari_err_TYPE("Map",x);
       p = gen_indexsort_uniq(gel(x,1),(void*)&cmp_universal, cmp_nodata);
-      if (lg(p) != lgcols(x))
+      l = lgcols(x);
+      if (lg(p) != l)
         pari_err_DOMAIN("Map","x","is not",strtoGENstr("one-to-one"),x);
-      n = lg(p)-1;
       M = cgetg(3, t_LIST);
-      M[1] = evaltyp(t_LIST_MAP)|evallg(n);
-      list_data(M) = cgetg(n+1, t_VEC);
+      M[1] = evaltyp(t_LIST_MAP)|evallg(l-1);
+      list_data(M) = cgetg(l, t_VEC);
       treemap_i(list_data(M), p, x);
       return M;
     }
