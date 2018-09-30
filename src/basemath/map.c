@@ -67,25 +67,14 @@ mapdomain_shallow(GEN T)
 }
 
 static void
-treemat_r(GEN t, long i, GEN V, long *n)
+treemat(GEN t, long i, GEN V, long *n)
 {
   if (i==0) return;
-  treemat_r(t, tleft(i), V, n);
-  ++*n;
-  gmael(V, 1, *n) = gcopy(gel(tvalue(i), 1));
-  gmael(V, 2, *n) = gcopy(gel(tvalue(i), 2));
-  treemat_r(t, tright(i), V, n);
-}
-
-static void
-treemat_i_r(GEN t, long i, GEN V, long *n)
-{
-  if (i==0) return;
-  treemat_i_r(t, tleft(i), V, n);
+  treemat(t, tleft(i), V, n);
   ++*n;
   gmael(V, 1, *n) = gel(tvalue(i), 1);
   gmael(V, 2, *n) = gel(tvalue(i), 2);
-  treemat_r(t, tright(i), V, n);
+  treemat(t, tright(i), V, n);
 }
 
 GEN
@@ -97,7 +86,7 @@ maptomat_shallow(GEN T)
   V = cgetg(3, t_MAT);
   gel(V,1) = cgetg(lg(t), t_COL);
   gel(V,2) = cgetg(lg(t), t_COL);
-  treemat_i_r(t, 1, V, &n); return V;
+  treemat(t, 1, V, &n); return V;
 }
 
 static void
@@ -364,15 +353,17 @@ mapdomain(GEN T)
 GEN
 maptomat(GEN T)
 {
-  long n = 0;
-  GEN V, t;
+  long i, l;
+  GEN V;
   if (!ismap(T)) pari_err_TYPE("maptomat",T);
-  t = list_data(T);
-  if (!t || lg(t)==1) return cgetg(1, t_MAT);
-  V = cgetg(3, t_MAT);
-  gel(V,1) = cgetg(lg(t), t_COL);
-  gel(V,2) = cgetg(lg(t), t_COL);
-  treemat_r(t, 1, V, &n); return V;
+  V = maptomat_shallow(T); if (lg(V) == 1) return V;
+  l = lgcols(V);
+  for (i = 1; i < l; i++)
+  {
+    gcoeff(V,i,1) = gcopy(gcoeff(V,i,1));
+    gcoeff(V,i,2) = gcopy(gcoeff(V,i,2));
+  }
+  return V;
 }
 
 GEN
