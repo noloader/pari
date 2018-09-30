@@ -200,34 +200,43 @@ FpE_to_mod(GEN x, GEN p)
 }
 
 GEN
-FpE_changepoint(GEN x, GEN ch, GEN p)
+FpE_changepoint(GEN P, GEN ch, GEN p)
 {
   pari_sp av = avma;
-  GEN p1,z,u,r,s,t,v,v2,v3;
-  if (ell_is_inf(x)) return x;
-  u = gel(ch,1); r = gel(ch,2);
-  s = gel(ch,3); t = gel(ch,4);
+  GEN c, z, u, r, s, t, v, v2, v3;
+  if (ell_is_inf(P)) return P;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    z = Fle_changepoint(ZV_to_Flv(P, pp), ZV_to_Flv(ch, pp), pp);
+    return gerepileupto(av, Flv_to_ZV(z));
+  }
+  u = gel(ch,1); r = gel(ch,2); s = gel(ch,3); t = gel(ch,4);
   v = Fp_inv(u, p); v2 = Fp_sqr(v,p); v3 = Fp_mul(v,v2,p);
-  p1 = Fp_sub(gel(x,1),r,p);
+  c = Fp_sub(gel(P,1),r,p);
   z = cgetg(3,t_VEC);
-  gel(z,1) = Fp_mul(v2, p1, p);
-  gel(z,2) = Fp_mul(v3, Fp_sub(gel(x,2), Fp_add(Fp_mul(s,p1, p),t, p),p),p);
+  gel(z,1) = Fp_mul(v2, c, p);
+  gel(z,2) = Fp_mul(v3, Fp_sub(gel(P,2), Fp_add(Fp_mul(s,c, p),t, p),p),p);
   return gerepileupto(av, z);
 }
 
 GEN
-FpE_changepointinv(GEN x, GEN ch, GEN p)
+FpE_changepointinv(GEN P, GEN ch, GEN p)
 {
-  GEN u, r, s, t, X, Y, u2, u3, u2X, z;
-  if (ell_is_inf(x)) return x;
-  X = gel(x,1); Y = gel(x,2);
-  u = gel(ch,1); r = gel(ch,2);
-  s = gel(ch,3); t = gel(ch,4);
+  GEN u, r, s, t, u2, u3, c, z;
+  if (ell_is_inf(P)) return P;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    z = Fle_changepointinv(ZV_to_Flv(P, pp), ZV_to_Flv(ch, pp), pp);
+    return Flv_to_ZV(z);
+  }
+  u = gel(ch,1); r = gel(ch,2); s = gel(ch,3); t = gel(ch,4);
   u2 = Fp_sqr(u, p); u3 = Fp_mul(u,u2,p);
-  u2X = Fp_mul(u2,X, p);
+  c = Fp_mul(u2, gel(P,1), p);
   z = cgetg(3, t_VEC);
-  gel(z,1) = Fp_add(u2X,r,p);
-  gel(z,2) = Fp_add(Fp_mul(u3,Y,p), Fp_add(Fp_mul(s,u2X,p), t, p), p);
+  gel(z,1) = Fp_add(c,r,p);
+  gel(z,2) = Fp_add(Fp_mul(u3,gel(P,2),p), Fp_add(Fp_mul(s,c,p), t, p), p);
   return z;
 }
 

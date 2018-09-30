@@ -272,35 +272,34 @@ random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi)
 /**                                                                   **/
 /***********************************************************************/
 GEN
-Fle_changepoint(GEN x, GEN ch, ulong p)
+Fle_changepoint(GEN P, GEN ch, ulong p)
 {
-  ulong p1,u,r,s,t,v,v2,v3;
+  ulong c, u, r, s, t, v, v2, v3;
   GEN z;
-  if (ell_is_inf(x)) return x;
+  if (ell_is_inf(P)) return P;
   u = ch[1]; r = ch[2];
   s = ch[3]; t = ch[4];
   v = Fl_inv(u, p); v2 = Fl_sqr(v,p); v3 = Fl_mul(v,v2,p);
-  p1 = Fl_sub(x[1],r,p);
+  c = Fl_sub(P[1],r,p);
   z = cgetg(3,t_VECSMALL);
-  z[1] = Fl_mul(v2, p1, p);
-  z[2] = Fl_mul(v3, Fl_sub(x[2], Fl_add(Fl_mul(s,p1, p),t, p),p),p);
+  z[1] = Fl_mul(v2, c, p);
+  z[2] = Fl_mul(v3, Fl_sub(P[2], Fl_add(Fl_mul(s,c, p),t, p),p),p);
   return z;
 }
 
 GEN
-Fle_changepointinv(GEN x, GEN ch, ulong p)
+Fle_changepointinv(GEN P, GEN ch, ulong p)
 {
-  ulong u, r, s, t, X, Y, u2, u3, u2X;
+  ulong c, u, r, s, t, u2, u3;
   GEN z;
-  if (ell_is_inf(x)) return x;
-  X = x[1]; Y = x[2];
+  if (ell_is_inf(P)) return P;
   u = ch[1]; r = ch[2];
   s = ch[3]; t = ch[4];
   u2 = Fl_sqr(u, p); u3 = Fl_mul(u,u2,p);
-  u2X = Fl_mul(u2,X, p);
+  c = Fl_mul(u2,P[1], p);
   z = cgetg(3, t_VECSMALL);
-  z[1] = Fl_add(u2X,r,p);
-  z[2] = Fl_add(Fl_mul(u3,Y,p), Fl_add(Fl_mul(s,u2X,p), t, p), p);
+  z[1] = Fl_add(c,r,p);
+  z[2] = Fl_add(Fl_mul(u3,P[2],p), Fl_add(Fl_mul(s,c,p), t, p), p);
   return z;
 }
 static GEN
