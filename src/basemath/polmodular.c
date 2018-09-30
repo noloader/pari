@@ -755,8 +755,7 @@ modinv_j_from_f(ulong x, ulong n, ulong p, ulong pi)
   return Fl_div(Fl_powu_pre(Fl_sub(x24, 16 % p, p), 3, p, pi), x24, p);
 }
 
-/* TODO: Check whether I can use this to refactor something
- * F = double_eta_raw(inv) */
+/* F = double_eta_raw(inv) */
 long
 modinv_j_from_2double_eta(
   GEN F, long inv, ulong *j, ulong x0, ulong x1, ulong p, ulong pi)
@@ -769,10 +768,8 @@ modinv_j_from_2double_eta(
   f = Flx_double_eta_jpoly(F, x0, p, pi);
   g = Flx_double_eta_jpoly(F, x1, p, pi);
   d = Flx_gcd(f, g, p);
-  if (degpol(d) > 1)
-    pari_err_BUG("modinv_j_from_2double_eta");
-  else if (degpol(d) < 1)
-    return 0;
+  if (degpol(d) > 1) pari_err_BUG("modinv_j_from_2double_eta");
+  if (degpol(d) < 1) return 0;
   if (j) *j = Flx_deg1_root(d, p);
   return 1;
 }
