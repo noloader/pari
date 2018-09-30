@@ -32,4 +32,29 @@ Map(Mat([2, 3]))
   ***   at top-level: Map([1,2;2,3;1,3;1,4])
   ***                 ^----------------------
   *** Map: domain error in Map: x is not one-to-one
-Total time spent: 16
+  ***   at top-level: mapdelete(1,1)
+  ***                 ^--------------
+  *** mapdelete: incorrect type in mapdelete (t_INT).
+  ***   at top-level: mapdelete(L,1)
+  ***                 ^--------------
+  *** mapdelete: incorrect type in mapdelete (t_LIST).
+  ***   at top-level: mapget(1,1)
+  ***                 ^-----------
+  *** mapget: incorrect type in mapget (t_INT).
+  ***   at top-level: mapget(L,1)
+  ***                 ^-----------
+  *** mapget: incorrect type in mapget (t_LIST).
+  ***   at top-level: mapisdefined(1,1)
+  ***                 ^-----------------
+  *** mapisdefined: incorrect type in mapisdefined (t_INT).
+  ***   at top-level: mapisdefined(L,1)
+  ***                 ^-----------------
+  *** mapisdefined: incorrect type in mapisdefined (t_LIST).
+  ***   too few arguments: mapput(1,1)
+  ***                                ^-
+  ***   too few arguments: mapput(L,1)
+  ***                                ^-
+  ***   at top-level: Map(1)
+  ***                 ^------
+  *** Map: incorrect type in Map (t_INT).
+Total time spent: 25
