@@ -1,0 +1,12 @@
+Function: strsplit
+Section: conversions
+C-Name: strsplit
+Prototype: GG
+Help: strsplit(s,p): splits the string s into a vector of strings, with
+ p acting as a delimiter between successive fields.
+Doc: splits the string $s$ into a vector into a vector of strings, with $p$
+ acting as a delimiter:
+ \bprog
+ ? strsplit("abc::def::ghi", "::")
+ %1 = ["abc", "def", "ghi"]
+ @eprog

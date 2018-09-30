@@ -1,0 +1,12 @@
+Function: strjoin
+Section: conversions
+C-Name: strjoin
+Prototype: GG
+Help: strjoin(v,p): joins the strings in vector v, separating them with
+ delimiter p.
+Doc: joins the strings in vector $v$, separating them with delimiter $p$:
+ \bprog
+ ? v = strsplit("abc::def::ghi", "::")
+ %1 = ["abc", "def", "ghi"]
+ ? strjoin(v, "/")
+ @eprog
