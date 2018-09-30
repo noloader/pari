@@ -500,24 +500,18 @@ INLINE ulong
 double_eta_exponent(long inv)
 {
   switch (inv) {
-  case INV_W2W3:
-    return 12;
+  case INV_W2W3: return 12;
   case INV_W2W3E2:
   case INV_W2W5:
-  case INV_W3W3:
-    return 6;
-  case INV_W2W7:
-    return 4;
+  case INV_W3W3: return 6;
+  case INV_W2W7: return 4;
   case INV_W3W5:
   case INV_W2W5E2:
-  case INV_W3W3E2:
-    return 3;
+  case INV_W3W3E2: return 3;
   case INV_W2W7E2:
   case INV_W2W13:
-  case INV_W3W7:
-    return 2;
-  default:
-    return 1;
+  case INV_W3W7: return 2;
+  default: return 1;
   }
 }
 
@@ -586,11 +580,8 @@ Fp_modinv_to_j(GEN x, long inv, GEN p)
 INLINE int
 twelth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
-  register ulong t;
-
-  t = Fl_sqrtl_pre(x, 3, p, pi);
-  if (krouu(t, p) == -1)
-    return 0;
+  ulong t = Fl_sqrtl_pre(x, 3, p, pi);
+  if (krouu(t, p) == -1) return 0;
   t = Fl_sqrt_pre_i(t, s2, p, pi);
   return safe_abs_sqrt(r, t, p, pi, s2);
 }
@@ -598,11 +589,8 @@ twelth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 INLINE int
 sixth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
-  register ulong t;
-
-  t = Fl_sqrtl_pre(x, 3, p, pi);
-  if (krouu(t, p) == -1)
-    return 0;
+  ulong t = Fl_sqrtl_pre(x, 3, p, pi);
+  if (krouu(t, p) == -1) return 0;
   *r = Fl_sqrt_pre_i(t, s2, p, pi);
   return 1;
 }
@@ -610,9 +598,8 @@ sixth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 INLINE int
 fourth_root(ulong *r, ulong x, ulong p, ulong pi, ulong s2)
 {
-  register ulong s;
-  if (krouu(x, p) == -1)
-    return 0;
+  ulong s;
+  if (krouu(x, p) == -1) return 0;
   s = Fl_sqrt_pre_i(x, s2, p, pi);
   return safe_abs_sqrt(r, s, p, pi, s2);
 }
@@ -626,9 +613,8 @@ double_eta_root(long inv, ulong *r, ulong w, ulong p, ulong pi, ulong s2)
   case 4: return fourth_root(r, w, p, pi, s2);
   case 3: *r = Fl_sqrtl_pre(w, 3, p, pi); return 1;
   case 2: return krouu(w, p) != -1 && !!(*r = Fl_sqrt_pre_i(w, s2, p, pi));
-  case 1: *r = w; return 1;
+  default: *r = w; return 1; /* case 1 */
   }
-  pari_err_BUG("double_eta_root"); return 0;/*LCOV_EXCL_LINE*/
 }
 
 /* F = double_eta_Fl(inv, p) */
@@ -640,11 +626,9 @@ Flx_double_eta_xpoly(GEN F, ulong j, ulong p, ulong pi)
 
   w = cgetg(lw, t_VECSMALL); /* lu >= max(lv,k) */
   w[1] = 0; /* variable number */
-  for (i = 1; i < lv; i++)
-    uel(w, i + 1) = Fl_add(uel(u, i), Fl_mul_pre(j, uel(v, i), p, pi), p);
-  for (     ; i < lu; i++)
-    uel(w, i + 1) = uel(u, i);
-  uel(w, k + 2) = Fl_add(uel(w, k + 2), Fl_sqr_pre(j, p, pi), p);
+  for (i = 1; i < lv; i++) uel(w, i+1) = Fl_add(uel(u,i), Fl_mul_pre(j, uel(v,i), p, pi), p);
+  for (     ; i < lu; i++) uel(w, i+1) = uel(u,i);
+  uel(w, k+2) = Fl_add(uel(w, k+2), Fl_sqr_pre(j, p, pi), p);
   return Flx_renormalize(w, lw);
 }
 
