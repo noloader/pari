@@ -700,25 +700,14 @@ static long
 modinv_double_eta_from_2j(
   ulong *r, long inv, ulong j1, ulong j2, ulong p, ulong pi, ulong s2)
 {
-  pari_sp av = avma;
   GEN f, g, d, F = double_eta_Fl(inv, p);
-
   f = Flx_double_eta_xpoly(F, j1, p, pi);
   g = Flx_double_eta_xpoly(F, j2, p, pi);
   d = Flx_gcd(f, g, p);
-  /* NB: Morally the next conditional should be written as follows, but,
-   * because of the case when j1 or j2 may not have the correct endomorphism
-   * ring, we need to use the less strict conditional underneath */
-#if 0
-  if (degpol(d) != 1
-      || (*r = Flx_oneroot(d, p)) == p
-      || ! double_eta_root(inv, r, *r, p, pi, s2))
-    pari_err_BUG("modinv_double_eta_from_2j");
-#endif
-  if (degpol(d) > 2
-      || (*r = Flx_oneroot(d, p)) == p
-      || ! double_eta_root(inv, r, *r, p, pi, s2)) return 0;
-  return gc_long(av,1);
+  /* we should have deg(d) = 1, but because j1 or j2 may not have the correct
+   * endomorphism ring, we use the less strict conditional underneath */
+  return (degpol(d) > 2 || (*r = Flx_oneroot(d, p)) == p
+          || ! double_eta_root(inv, r, *r, p, pi, s2));
 }
 
 long
@@ -744,8 +733,8 @@ modfn_unambiguous_root(ulong *r, long inv, ulong j0, norm_eqn_t ne, GEN jdb)
     if (!next_surface_nbr(&j1, phi, p2, p2_depth, j1, NULL, p, pi))
       pari_err_BUG("modfn_unambiguous_root");
   }
-  set_avma(av);
-  return j1 != j0 && modinv_double_eta_from_2j(r, inv, j0, j1, p, pi, s2);
+  return gc_long(av, j1 != j0
+                     && !modinv_double_eta_from_2j(r, inv, j0, j1, p, pi, s2));
 }
 
 ulong
