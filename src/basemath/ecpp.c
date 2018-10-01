@@ -522,7 +522,9 @@ static GEN
 D_polclass(long D, long inv, GEN *db)
 {
   GEN HD, t = mkvec2(gel(*db, 1), inv == 0? gen_0: gmael(*db, 2, inv));
+  GEN rnd = getrand();
   HD = polclass0(D, inv, 0, &t);
+  setrand(rnd);
   gel(*db, 1) = gel(t,1);
   if (inv != 0) gmael(*db, 2, inv) = gel(t,2);
   return HD;
