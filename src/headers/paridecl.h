@@ -4759,7 +4759,7 @@ char*   pari_strdup(const char *s);
 char*   pari_strndup(const char *s, long n);
 char*   stack_strcat(const char *s, const char *t);
 char*   stack_strdup(const char *s);
-GEN     Strchr(GEN g);
+GEN     pari_strchr(GEN g);
 GEN     strjoin(GEN v, GEN p);
 GEN     strntoGENstr(const char *s, long n0);
 GEN     strsplit(GEN x, GEN p);

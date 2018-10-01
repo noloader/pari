@@ -126,7 +126,7 @@ static char
 itoc(GEN x) { return ltoc(gtos(x)); }
 
 GEN
-Strchr(GEN g)
+pari_strchr(GEN g)
 {
   long i, l, len, t = typ(g);
   char *s;

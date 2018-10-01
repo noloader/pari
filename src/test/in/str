@@ -1,5 +1,5 @@
 v=Vecsmall("hello world!")
-Strchr(v)
+strchr(v)
 Strtex((x+y)^3/(x-y)^2)
 Strtex(Mod(1,2))
 Strtex(ffgen(2^3,'t))
@@ -22,13 +22,13 @@ Str(x)
 Str(1/2)
 Str("a","b",1)
 v = Vecsmall([1..255]);
-Vecsmall(Strchr(v)) == v
+Vecsmall(strchr(v)) == v
 strsplit("::a::b::::", "::")
 strsplit("a:b::::cc", ":")
 strjoin(["a", "b", "cc"], "/")
 
 \\ Errors, keep at end of file
-Strchr(-1)
+strchr(-1)
 strsplit(1,1)
 strsplit("1",'x)
 strjoin(1, "/")
