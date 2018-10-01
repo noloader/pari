@@ -2503,7 +2503,7 @@ Z_chinese_pre(GEN A, GEN B, GEN *pC, GEN *pU, GEN *pd)
 }
 /* Assume C = lcm(A, B), U = 0 mod (A/d), U = 1 mod (B/d), a = b mod d,
  * where d = gcd(A,B) or NULL, return x = a (mod A), b (mod B).
- * If d not NULL, check wether a = b mod d. */
+ * If d not NULL, check whether a = b mod d. */
 GEN
 Z_chinese_post(GEN a, GEN b, GEN C, GEN U, GEN d)
 {
