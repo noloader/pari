@@ -23,8 +23,8 @@ Doc: Given the data attached to an $L$-function (\kbd{Lmath}, \kbd{Ldata}
  $[1, 1.25]$. Of course, a large negative value of the order of
  \kbd{realbitprecision} is expected but if $\overline{\theta}$ is very small
  all over the sampled segment, you should first increase
- \kbd{realbitprecision} by $\log_2 |\overline{\theta}(t)|$ to get a
- meaningful result.
+ \kbd{realbitprecision} by $-\log_2 |\overline{\theta}(t)|$ (which is
+ positive if $\theta$ is small) to get a meaningful result.
 
  If $t$ is given, it should be close to the unit disc for efficiency and
  such that $\overline{\theta}(t) \neq 0$. We then check the functional
