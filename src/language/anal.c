@@ -790,34 +790,6 @@ pari_lex(union token_value *yylval, struct node_loc *yylloc, char **lex)
 }
 
 /********************************************************************/
-/**                                                                **/
-/**                            STRINGS                             **/
-/**                                                                **/
-/********************************************************************/
-
-/* return the first n0 chars of s as a GEN [s may not be 0-terminated] */
-GEN
-strntoGENstr(const char *s, long n0)
-{
-  long n = nchar2nlong(n0+1);
-  GEN x = cgetg(n+1, t_STR);
-  char *t = GSTR(x);
-  x[n] = 0;
-  strncpy(t, s, n0); t[n0] = 0; return x;
-}
-
-GEN
-strtoGENstr(const char *s) { return strntoGENstr(s, strlen(s)); }
-
-GEN
-chartoGENstr(char c)
-{
-  GEN x = cgetg(2, t_STR);
-  char *t = GSTR(x);
-  t[0] = c; t[1] = 0; return x;
-}
-
-/********************************************************************/
 /*                                                                  */
 /*                Formal variables management                       */
 /*                                                                  */
