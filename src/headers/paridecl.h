@@ -2983,7 +2983,7 @@ char*   GENtostr(GEN x);
 char*   GENtostr_raw(GEN x);
 char*   GENtostr_unquoted(GEN x);
 GEN     Str(GEN g);
-GEN     Strexpand(GEN g);
+GEN     strexpand(GEN g);
 GEN     Strtex(GEN g);
 void    brute(GEN g, char format, long dec);
 void    dbgGEN(GEN x, long nb);

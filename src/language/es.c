@@ -4428,7 +4428,7 @@ Str_fun(GEN g, long flag) {
 GEN Str(GEN g)    { return Str_fun(g, f_RAW); }
 GEN Strtex(GEN g) { return Str_fun(g, f_TEX); }
 GEN
-Strexpand(GEN g) {
+strexpand(GEN g) {
   char *s = RgV_to_str(g, f_RAW), *t = path_expand(s);
   GEN z = strtoGENstr(t);
   pari_free(t); pari_free(s); return z;

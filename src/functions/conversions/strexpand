@@ -1,8 +1,8 @@
-Function: Strexpand
+Function: strexpand
 Section: conversions
-C-Name: Strexpand
+C-Name: strexpand
 Prototype: s*
-Help: Strexpand({x}*): concatenates its (string) argument into a single
+Help: strexpand({x}*): concatenates its (string) argument into a single
  string, performing tilde expansion.
 Doc:
  converts its argument list into a
@@ -10,9 +10,17 @@ Doc:
  Then perform \idx{environment expansion}, see \secref{se:envir}.
  This feature can be used to read \idx{environment variable} values.
  \bprog
- ? Strexpand("$HOME/doc")
+ ? strexpand("$HOME/doc")
  %1 = "/home/pari/doc"
  @eprog
 
  The individual arguments are read in string context, see \secref{se:strings}.
  %\syn{NO}
+
+Function: Strexpand
+Section: conversions
+C-Name: strexpand
+Prototype: s*
+Obsolete: 2018-10-01
+Help: Strexpand({x}*): deprecated alias for strexpand
+Doc: deprecated alias for strexpand

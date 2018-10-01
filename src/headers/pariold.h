@@ -13,6 +13,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* For compatibility with older PARI versions */
 #define Strchr pari_strchr
+#define Strexpand strexpand
 #define LOG2 M_LN2
 #define truecoeff truecoef
 #define polcoeff0 polcoef
