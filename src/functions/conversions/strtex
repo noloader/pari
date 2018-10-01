@@ -1,0 +1,20 @@
+Function: strtex
+Section: conversions
+C-Name: strtex
+Prototype: s*
+Help: strtex({x}*): translates its (string) arguments to TeX format and
+ returns the resulting string.
+Doc:
+ translates its arguments to TeX format, and concatenates the results into a
+ single character string (type \typ{STR}, the empty string if $x$ is omitted).
+
+ The individual arguments are read in string context, see \secref{se:strings}.
+ %\syn{NO}
+
+Function: Strtex
+Section: conversions
+C-Name: strtex
+Prototype: s*
+Obsolete: 2018-10-01
+Help: Strtex({x}*): deprecated alias for strtex.
+Doc: deprecated alias for strtex.

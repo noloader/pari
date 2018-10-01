@@ -62,7 +62,7 @@ HC  11- gamma(t_FRAC) use direct formula when denom | 24
     15- lfunconductor(L, [a,b]) no longer supported to look for conductor in
         interval [a,b]; implement lfunconductor(L, list of potential N) instead
     16- renamed GP functions Strchr -> strchr (pari_strchr in libpari),
-        Strexpand -> strexpand, Strprintf -> strprintf
+        Strexpand -> strexpand, Strprintf -> strprintf, Strtex -> strtex
 
   Added
      1- [libpari] nonsquare_Fl
