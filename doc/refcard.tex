@@ -112,7 +112,7 @@ To exit \kbd{gp}, type \kbd{quit}, \kbd{\\q}, or \kbd{<C-D>} at prompt.\hfill
 
 \section{Operators}
 \li{basic operations}{+{\rm,} - {\rm,} *{\rm,} /{\rm,} \pow{\rm,} sqr}
-\li{\kbd{i=i+1}, \kbd{i=i-1}, \kbd{i=i*j}, \dots}
+\li{\kbd{i$\leftarrow$i+1}, \kbd{i$\leftarrow$i-1}, \kbd{i$\leftarrow$i*j}, \dots}
   {i++{\rm,} i--{\rm,} i*=j{\rm,}\dots}
 \li{euclidean quotient, remainder}{$x$\bs/$y${\rm,} $x$\bs$y${\rm,}
 $x$\%$y${\rm,} divrem$(x,y)$}
@@ -147,18 +147,22 @@ $x$\%$y${\rm,} divrem$(x,y)$}
 \section{Conversions}
 \li{to vector, matrix, vec. of small ints}{Col{\rm/}Vec{\rm,}Mat{\rm,}Vecsmall}
 \li{to list, set, map, string}{List{\rm,} Set{\rm,} Map{\rm,} Str}
-\li{create PARI object $(x\mod y)$}{Mod$(x,y)$}
+\li{create $(x\mod y)$}{Mod$(x,y)$}
 \li{make $x$ a polynomial of $v$}{Pol$(x,\{v\})$}
 \li{as \kbd{Pol}, etc., starting with constant term}
    {Polrev{\rm, }Vecrev{\rm, }Colrev}
 \li{make $x$ a power series of $v$}{Ser$(x,\{v\})$}
-\li{string from bytes / from format+args}{strchr{\rm, }strprintf}
-\li{TeX string}{strtex$(x)$}
 \li{convert $x$ to simplest possible type}{simplify$(x)$}
 \li{object $x$ with real precision $n$}{precision$(x,n)$}
 \li{object $x$ with bit precision $n$}{bitprecision$(x,n)$}
 \li{set precision to $p$ digits in dynamic scope}{localprec$(p)$}
 \li{set precision to $p$ bits in dynamic scope}{localbitprec$(p)$}
+
+\subsec{Character strings}
+
+\li{convert to TeX representation}{strtex$(x)$}
+\li{string from bytes / from format+args}{strchr{\rm, }strprintf}
+\li{split string / join strings}{strsplit{\rm, }strjoin}
 
 \subsec{Conjugates and Lifts}
 \li{conjugate of a number $x$}{conj$(x)$}
@@ -222,14 +226,13 @@ $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \li{\dots $k$-subsets of $\{1,\ldots,n\}$}{forsubset$([n,k], p,\seq)$}
 \li{\dots vectors $v$, $q(v)\leq B$; $q > 0$}{forqfvec$(v, q, b, \seq)$}
 \li{\dots $H < G$ finite abelian group}{forsubgroup$(H=G)$}
-\smallskip
+\newcolumn
 
 \li{evaluate \seq\ until $a\ne0$}{until$(a,\seq)$}
 \li{while $a\ne0$, evaluate \seq}{while$(a,\seq)$}
 \li{exit $n$ innermost enclosing loops}{break$(\{n\})$}
 \li{start new iteration of $n$-th enclosing loop}{next$(\{n\})$}
 \li{return $x$ from current subroutine}{return$(\{x\})$}
-\newcolumn
 
 \subsec{Exceptions, warnings}
 \li{raise an exception / warn}{error$()$, warning$()$}
@@ -292,6 +295,9 @@ mode.\hfil\break
 \li{CPU time in \var{ms} since gp startup}{getabstime$()$}
 \li{time in \var{ms} since UNIX Epoch}{getwalltime$()$}
 \li{timeout command after $s$ seconds}{alarm$(s, \expr)$}
+\newcolumn
+\title{\TITLE}
+\centerline{(PARI-GP version \PARIversion)}
 
 \subsec{Interface with system}
 \li{allocates a new stack of $s$ bytes}{allocatemem$(\{s\})$}
@@ -300,9 +306,6 @@ mode.\hfil\break
 \li{execute system command $a$}{system$(a)$}
 \li{\dots and feed result to GP}{extern$(a)$}
 \li{\dots returning GP string}{externstr$(a)$}
-\newcolumn
-\title{\TITLE}
-\centerline{(PARI-GP version \PARIversion)}
 
 \li{get \kbd{\$VAR} from environment}{getenv$($\kbd{"VAR"}$)$}
 \li{expand env. variable in string}{strexpand$(x)$}
@@ -333,7 +336,7 @@ header.
 \li{\dots assuming result is diagonal}{matmultodiagonal$(x,y)$}
 \li{concatenation of $x$ and $y$}{concat$(x,\{y\})$}
 \li{extract components of $x$}{vecextract$(x,y,\{z\})$}
-\li{transpose of vector or matrix $x$}{mattranspose$(x)$ {\rm or} $x$\til}
+\li{transpose of vector or matrix $x$}{$x$\til, mattranspose$(x)$}
 \li{adjoint of the matrix $x$}{matadjoint$(x)$}
 \li{eigenvectors/values of matrix $x$}{mateigen$(x)$}
 \li{characteristic/minimal polynomial of $x$}{charpoly$(x)${\rm, }minpoly}
@@ -358,6 +361,8 @@ header.
 \li{$x\,\cdot\, $\kbd{matdiagonal}$(d)$}{matmuldiagonal$(x,d)$}
 \li{$n\times n$ identity matrix}{matid$(n)$}
 \li{Hessenberg form of square matrix $x$}{mathess$(x)$}
+\newcolumn
+
 \li{$n\times n$ Hilbert matrix $H_{ij}=(i+j-1)^{-1}$}{mathilbert$(n)$}
 \li{$n\times n$ Pascal triangle}{matpascal$(n-1)$}
 \li{companion matrix to polynomial $x$}{matcompanion$(x)$}
