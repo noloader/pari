@@ -3071,7 +3071,7 @@ void    str_printf(pari_str *S, const char *fmt, ...);
 void    str_putc(pari_str *S, char c);
 void    str_puts(pari_str *S, const char *s);
 void    strftime_expand(const char *s, char *buf, long max);
-GEN     Strprintf(const char *fmt, GEN args);
+GEN     strprintf(const char *fmt, GEN args);
 FILE*   switchin(const char *name);
 void    switchout(const char *name);
 void    term_color(long c);

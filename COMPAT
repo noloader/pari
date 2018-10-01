@@ -5,7 +5,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - lfunconductor(L, [a,b]) no longer supported to look for conductor in
     interval [a,b]; implement lfunconductor(L, list of potential N) instead
   - renamed GP functions Strchr -> strchr (pari_strchr in libpari),
-    Strexpand -> strexpand
+    Strexpand -> strexpand, Strprintf -> strprintf
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.10 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - the bid struct from idealstar has changed, the new format is not

@@ -1805,7 +1805,7 @@ specification \kbd{fmt}.
 
 \fun{char*}{pari_sprintf}{const char *fmt, ...} produces a string from the
 remaining arguments, according to the PARI format \kbd{fmt} (see \tet{printf}).
-This is the \kbd{libpari} equivalent of \tet{Strprintf}, and returns a
+This is the \kbd{libpari} equivalent of \tet{strprintf}, and returns a
 \kbd{malloc}'ed string, which must be freed by the caller. Note that contrary
 to the analogous \tet{sprintf} in the \kbd{libc} you do not provide a buffer
 (leading to all kinds of buffer overflow concerns); the function provided is

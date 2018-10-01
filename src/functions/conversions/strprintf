@@ -1,0 +1,18 @@
+Function: strprintf
+Section: programming/specific
+C-Name: strprintf
+Prototype: ss*
+Help: strprintf(fmt,{x}*): returns a string built from the remaining
+ arguments according to the format fmt.
+Doc: returns a string built from the remaining arguments according to the
+ format fmt. The format consists of ordinary characters (not \%), printed
+ unchanged, and conversions specifications. See \kbd{printf}.
+ %\syn{NO}
+
+Function: Strprintf
+Section: programming/specific
+C-Name: Strprintf
+Prototype: ss*
+Obsolete: 2018-10-01
+Help: Strprintf(fmt,{x}*): deprecated alias for strprintf.
+Doc: deprecated alias for strprintf.

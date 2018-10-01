@@ -21,4 +21,4 @@ printfnl(format,args[..]) = call(printf,[format,args]);print();
 printfnl("%s: %s, %s",1,2,3)
 call("_*_",[3,5])
 \\errors
-call(Strprintf, ["%d", 10])
+call(strprintf, ["%d", 10])

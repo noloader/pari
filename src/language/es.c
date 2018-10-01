@@ -4491,7 +4491,7 @@ printf0(const char *fmt, GEN args)
   pari_puts(s); pari_free(s); pari_flush(); }
 /* GP only */
 GEN
-Strprintf(const char *fmt, GEN args)
+strprintf(const char *fmt, GEN args)
 { char *s = dopr_arg_vector(args, fmt);
   GEN z = strtoGENstr(s); pari_free(s); return z; }
 
@@ -4534,7 +4534,7 @@ gvsprintf(const char *fmt, va_list ap)
 }
 
 char *
-pari_sprintf(const char *fmt, ...) /* variadic version of Strprintf */
+pari_sprintf(const char *fmt, ...) /* variadic version of strprintf */
 {
   char *s;
   va_list ap;

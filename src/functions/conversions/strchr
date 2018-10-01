@@ -4,9 +4,7 @@ C-Name: pari_strchr
 Prototype: G
 Help: strchr(x): converts x to a string, translating each integer into a
  character.
-Doc:
- converts $x$ to a string, translating each integer
- into a character.
+Doc: converts $x$ to a string, translating each integer into a character.
  \bprog
  ? strchr(97)
  %1 = "a"
@@ -21,5 +19,5 @@ Section: conversions
 C-Name: pari_strchr
 Prototype: G
 Obsolete: 2018-10-01
-Help: Strchr(x): deprecated alias for strchr
-Doc: deprecated alias for strchr
+Help: Strchr(x): deprecated alias for strchr.
+Doc: deprecated alias for strchr.

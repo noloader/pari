@@ -27,7 +27,7 @@ printf("%%s for aa : %s\n", aa) /* same as %Z */
 printf("%%s for 4/3 : %s\n", 4/3)
 printf("%%s inter %%.2s %%4.2f for aa, bb, aa : %4s inter %.2s %4.2f\n", aa, bb, aa)
 
-Strprintf("%%s inter %%.2s %%4.2f for aa, bb, aa : %4s inter %.2s %4.2f\n", aa, bb, aa)
+strprintf("%%s inter %%.2s %%4.2f for aa, bb, aa : %4s inter %.2s %4.2f\n", aa, bb, aa)
 
 printf("%%10.5s for 3.5 : %10.5s", 3.5)
 

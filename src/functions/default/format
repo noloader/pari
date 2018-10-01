@@ -27,7 +27,7 @@ Doc: of the form x$.n$, where x (conversion style)
  The precision $n$ is the number of significant digits printed for real
  numbers, except if $n<0$ where all the significant digits will be printed
  (initial default 28, or 38 for 64-bit machines). For more powerful formatting
- possibilities, see \tet{printf} and \tet{Strprintf}.
+ possibilities, see \tet{printf} and \tet{strprintf}.
 
  The default value is \kbd{"g.28"} and \kbd{"g.38"} on 32-bit and
  64-bit machines, respectively.

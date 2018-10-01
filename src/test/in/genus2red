@@ -65,129 +65,129 @@ do(P0, "[IX-4], p. 158")
 \\ m > 0 FIXME: changed !
 m = 10;
 P0=(x^3+a*x+1)*(x^3+b*t^(4*m)*x+t^(6*m)) ;
-do(substvec(P0, [a,b], [3,10]), Strprintf("[I{0}-I{0}-%ld], p. 158", m))
+do(substvec(P0, [a,b], [3,10]), strprintf("[I{0}-I{0}-%ld], p. 158", m))
 \\ misprint in N-U: m+1 must be m.
 genus2red(substvec(P0,['a,'b,'t],[-1,1,3]),3)
 
 \\ m >= 0
 m = 10;
 P0=((x-1)^3+a*t^2*(x-1)+t^3)*(x^3+b*t^(4*m+2)*x+t^(6*m+3));
-do(substvec(P0, [a,b], [3,10]), Strprintf("[I{0}*-I{0}*-%ld], p. 158", m))
+do(substvec(P0, [a,b], [3,10]), strprintf("[I{0}*-I{0}*-%ld], p. 158", m))
 genus2red(substvec(P0,['a,'b,'t],[-1,1,3]),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^3+a*x+1)*(x^3+b*t^(4*m+2)*x+t^(6*m+3));
-do(substvec(P0, [a,b], [3,10]), Strprintf("[I{0}-I{0}*-%ld], p. 159", m))
+do(substvec(P0, [a,b], [3,10]), strprintf("[I{0}-I{0}*-%ld], p. 159", m))
 genus2red(substvec(P0,['a,'b,'t],[-1,1,3]),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)^3+a*t^(2*m+4)*(x^2-t)+t^(3*m+6);
-do(subst(P0, 'a, 3), Strprintf("[2I{0}-%ld], p. 159",m+1))
+do(subst(P0, 'a, 3), strprintf("[2I{0}-%ld], p. 159",m+1))
 genus2red(substvec(P0,['a,'t],[-1,3]),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)^3+a*t^(2*m+3)*(x^2-t)+t^(3*m+4)*x;
-do(subst(P0, 'a, 3), Strprintf("[2I{0}*-%ld], p. 159",m))
+do(subst(P0, 'a, 3), strprintf("[2I{0}*-%ld], p. 159",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)^3+a*t^(2*m+3)*(x^2-t)+t^(3*m+4)*x;
-do(subst(P0, 'a, 3), Strprintf("[2I{0}*-%ld], p. 159",m))
+do(subst(P0, 'a, 3), strprintf("[2I{0}*-%ld], p. 159",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+1))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}-II-%ld], p. 159",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}-II-%ld], p. 159",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+5))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}-II*-%ld], p. 160",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}-II*-%ld], p. 160",m))
 genus2red(substvec(P0,['a,'t],[3,3]),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+2))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}-IV-%ld], p. 160",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}-IV-%ld], p. 160",m))
 genus2red(substvec(P0,['a,'t],[3,3]),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+4))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}-IV*-%ld], p. 160",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}-IV*-%ld], p. 160",m))
 genus2red(substvec(P0,['a,'t],[3,3]),3)
 
 \\ m >= 0
 m = 10;
 P0=t*(x^3+t^(6*m+4))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}*-II-%ld], p. 160",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}*-II-%ld], p. 160",m))
 genus2red(substvec(P0,['a,'t],[3,3]),3)
 
 \\ m >= -1
 m = 10;
 P0=t*(x^3+t^(6*m+8))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}*-II*-%ld], p. 160-161",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}*-II*-%ld], p. 160-161",m))
 genus2red(substvec(P0,['a,'t],[3,3]),3)
 
 \\ m >= 0
 m = 10;
 P0=t*(x^3+t^(6*m+5))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}*-IV-%ld], p. 161",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}*-IV-%ld], p. 161",m))
 
 \\ m >= -1
 m = 10;
 P0=t*(x^3+t^(6*m+7))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}*-IV*-%ld], p. 161",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}*-IV*-%ld], p. 161",m))
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+1))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}-III-%ld], p. 161",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}-III-%ld], p. 161",m))
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+3))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}-III*-%ld], p. 162",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}-III*-%ld], p. 162",m))
 
 \\ m >= 0
 m = 10;
 P0=t*x*(x^2+t^(4*m+3))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}*-III-%ld], p. 162",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}*-III-%ld], p. 162",m))
 
 \\ m >= -1
 m = 10;
 P0=t*x*(x^2+t^(4*m+5))*(x^2+a*x+1);
-do(subst(P0, 'a, 3), Strprintf("[I{0}*-III*-%ld], p. 162",m))
+do(subst(P0, 'a, 3), strprintf("[I{0}*-III*-%ld], p. 162",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)^3+t^(3*m+3)*x;
-do(P0, Strprintf("[2II-%ld], p. 162",m))
+do(P0, strprintf("[2II-%ld], p. 162",m))
 genus2red(subst(P0,'t,3),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)^3+t^(3*m+5)*x;
-do(P0, Strprintf("[2II*-%ld], p. 163",m))
+do(P0, strprintf("[2II*-%ld], p. 163",m))
 genus2red(subst(P0,'t,3),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+1))*((x-1)^3+t);
-do(P0, Strprintf("[II-II-%ld], p. 163",m))
+do(P0, strprintf("[II-II-%ld], p. 163",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+1))*((x-1)^3+t^5);
-do(P0, Strprintf("[II-II*-%ld], p. 163",m))
+do(P0, strprintf("[II-II*-%ld], p. 163",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+5))*((x-1)^3+t^5);
-do(P0, Strprintf("[II*-II*-%ld], p. 163",m))
+do(P0, strprintf("[II*-II*-%ld], p. 163",m))
 
 \\ m = -1
 P0=t*(x^3+t^2)*((x-1)^3+t^2);
@@ -196,17 +196,17 @@ do(P0, "[II*-II*-(-1)], p. 163")
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+1))*((x-1)^3+t^2);
-do(P0, Strprintf("[II-IV-%ld], p. 164",m))
+do(P0, strprintf("[II-IV-%ld], p. 164",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+1))*((x-1)^3+t^4);
-do(P0, Strprintf("[II-IV*-%ld], p. 164",m))
+do(P0, strprintf("[II-IV*-%ld], p. 164",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+5))*((x-1)^3+t^2);
-do(P0, Strprintf("[II*-IV-%ld], p. 164",m))
+do(P0, strprintf("[II*-IV-%ld], p. 164",m))
 
 \\ m = -1
 P0=(x^3+t^2)*(x^3+t);
@@ -215,49 +215,49 @@ do(P0, "[II*-IV-(-1)], p. 164")
 \\ m bigger or equal -1
 m = 10;
 P0=t*(x^3+t^(6*m+7))*((x-1)^3+t^2);
-do(P0, Strprintf("[II*-IV*-%ld], p. 164-165",m))
+do(P0, strprintf("[II*-IV*-%ld], p. 164-165",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)^3+t^(3*m+4);
-do(P0, Strprintf("[2IV-%ld], p. 165",m))
+do(P0, strprintf("[2IV-%ld], p. 165",m))
 genus2red(subst(P0,'t,3),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)^3+t^(3*m+5);
-do(P0, Strprintf("[2IV*-%ld], p. 165",m))
+do(P0, strprintf("[2IV*-%ld], p. 165",m))
 genus2red(subst(P0,'t,3),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+2))*((x-1)^3+t^2);
-do(P0, Strprintf("[IV-IV-%ld], p. 165",m))
+do(P0, strprintf("[IV-IV-%ld], p. 165",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^3+t^(6*m+2))*((x-1)^3+t^4);
-do(P0, Strprintf("[IV-IV*-%ld], p. 165",m))
+do(P0, strprintf("[IV-IV*-%ld], p. 165",m))
 
 \\ m >= -1
 m = 10;
 P0=t*(x^3+t^(6*m+7))*((x-1)^3+t);
-do(P0, Strprintf("[IV*-IV*-%ld], p. 166",m))
+do(P0, strprintf("[IV*-IV*-%ld], p. 166",m))
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+1))*((x-1)^3+t);
-do(P0, Strprintf("[II-III-%ld], p. 166",m))
+do(P0, strprintf("[II-III-%ld], p. 166",m))
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+3))*((x-1)^3+t);
-do(P0, Strprintf("[II-III*-%ld], p. 166",m))
+do(P0, strprintf("[II-III*-%ld], p. 166",m))
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+1))*((x-1)^3+t^5);
-do(P0, Strprintf("[II*-III-%ld], p. 166",m))
+do(P0, strprintf("[II*-III-%ld], p. 166",m))
 
 \\ m = -1
 P0=(x^2+t)*(x^3+t^2);
@@ -266,18 +266,18 @@ do(P0, "[II*-III-(-1)], p. 167")
 \\ m at least -1
 m = 10;
 P0=t*x*(x^2+t^(4*m+5))*((x-1)^3+t^2);
-do(P0, Strprintf("[II*-III*-%ld], p. 167",m))
+do(P0, strprintf("[II*-III*-%ld], p. 167",m))
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+1))*((x-1)^3+t^2);
-do(P0, Strprintf("[IV-III-%ld], p. 167",m))
+do(P0, strprintf("[IV-III-%ld], p. 167",m))
 genus2red(subst(P0,'t,3),3)
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+3))*((x-1)^3+t^2);
-do(P0, Strprintf("[IV-III*-%ld], p. 167",m))
+do(P0, strprintf("[IV-III*-%ld], p. 167",m))
 genus2red(subst(P0,'t,3),3)
 
 \\ m = -1
@@ -288,144 +288,144 @@ do(P0, "[IV-III*-(-1)], p. 167")
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+1))*((x-1)^3+t^4);
-do(P0, Strprintf("[IV*-III-%ld], p. 168",m))
+do(P0, strprintf("[IV*-III-%ld], p. 168",m))
 
 \\ m at least -1
 m = 10;
 P0=t*x*(x^2+t^(4*m+5))*((x-1)^3+t);
-do(P0, Strprintf("[IV*-III*-%ld], p. 168",m))
+do(P0, strprintf("[IV*-III*-%ld], p. 168",m))
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)*((x^2-t)^2+t^(2*m+2)*x);
-do(P0, Strprintf("[2III-%ld], p. 168",m))
+do(P0, strprintf("[2III-%ld], p. 168",m))
 genus2red(subst(P0,'t,3),3)
 
 \\ m >= 0
 m = 10;
 P0=(x^2-t)*((x^2-t)^2+t^(2*m+3)*x);
-do(P0, Strprintf("[2III*-%ld], p. 168",m))
+do(P0, strprintf("[2III*-%ld], p. 168",m))
 genus2red(subst(P0,'t,3),3)
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+1))*(x-1)*((x-1)^2+t);
-do(P0, Strprintf("[III-III-%ld], p. 169",m))
+do(P0, strprintf("[III-III-%ld], p. 169",m))
 
 \\ m >= 0
 m = 10;
 P0=x*(x^2+t^(4*m+1))*(x-1)*((x-1)^2+t^3);
-do(P0, Strprintf("[III-III*-%ld], p. 169",m))
+do(P0, strprintf("[III-III*-%ld], p. 169",m))
 
 \\ m >= -1
 m = 10;
 P0=t*x*(x^2+t^(4*m+5))*(x-1)*((x-1)^2+t);
-do(P0, Strprintf("[III*-III*-{%ld}], p. 169",m))
+do(P0, strprintf("[III*-III*-{%ld}], p. 169",m))
 
 \\ Parabolic type
 \\ n > 0
 n = 9;
 P0=(x^3+a*x+1)*(x^2+t^n);
-do(subst(P0, 'a, 3), Strprintf("[I{%ld-0-0}], p. 170",n))
+do(subst(P0, 'a, 3), strprintf("[I{%ld-0-0}], p. 170",n))
 
 \\ n, m > 0
 n = 9; m = 10;
 P0=(x^3+a*t^(4*m)*x+t^(6*m))*((x-1)^2+t^n);
-do(subst(P0, 'a, 3), Strprintf("[I{%ld}-I{0}-%ld], p. 170",n, m))
+do(subst(P0, 'a, 3), strprintf("[I{%ld}-I{0}-%ld], p. 170",n, m))
 genus2red(substvec(P0,['a,'t],[-1,3]),3)
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x+t)*(x^2+t^(n+2))*((x-1)^3+a*t^(4*m)*(x-1)+t^(6*m));
-do(subst(P0, 'a, 3), Strprintf("[I{0}-I*{%ld}-%ld], p. 170",n, m))
+do(subst(P0, 'a, 3), strprintf("[I{0}-I*{%ld}-%ld], p. 170",n, m))
 genus2red(substvec(P0,['a,'t],[-1,3]),3)
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x^3+a*t^(4*m+2)*x+t^(6*m+3))*((x-1)^2+t^n);
-do(subst(P0, 'a, 3), Strprintf("[I{%ld}-I{0}*-%ld], p. 171",n, m))
+do(subst(P0, 'a, 3), strprintf("[I{%ld}-I{0}*-%ld], p. 171",n, m))
 
 \\ n > 0
 n = 9;
 P0=t*(x^3+a*x+1)*(x^2+t^n);
-do(subst(P0, 'a, 3), Strprintf("[I*{%ld-0-0}], p. 171",n))
+do(subst(P0, 'a, 3), strprintf("[I*{%ld-0-0}], p. 171",n))
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x+t)*(x^2+t^(n+2))*((x-1)^3+a*t^(4*m+2)*(x-1)+t^(6*m+3));
-do(subst(P0, 'a, 3), Strprintf("[I*{%ld}-I{0}*-%ld], p. 171",n, m))
+do(subst(P0, 'a, 3), strprintf("[I*{%ld}-I{0}*-%ld], p. 171",n, m))
 
 \\ n > 0
 n = 9;
 P0=(x^4+a*t*x^2+t^2)*((x-1)^2+t^(n-1));
-do(subst(P0, 'a, 3), Strprintf("[II{%ld-0}], p. 171",n))
+do(subst(P0, 'a, 3), strprintf("[II{%ld-0}], p. 171",n))
 
 \\ n > 0
 n = 9;
 P0=t*(x^4+a*t*x^2+t^2)*((x-1)^2+t^(n-1));
-do(subst(P0, 'a, 3), Strprintf("[II*{%ld-0}], p. 172",n))
+do(subst(P0, 'a, 3), strprintf("[II*{%ld-0}], p. 172",n))
 
 \\ n > 0, m >= 0
 n = 9; m = 10;
 P0=(x^3+t^(6*m+1))*((x-1)^2+t^n);
-do(P0, Strprintf("[II-I{%ld}-%ld], p. 172",n, m))
+do(P0, strprintf("[II-I{%ld}-%ld], p. 172",n, m))
 
 \\ n > 0, m >= 0
 n = 9; m = 10;
 P0=(x^3+t^(6*m+5))*((x-1)^2+t^n);
-do(P0, Strprintf("[II*-I{%ld}-%ld], p. 172",n, m))
+do(P0, strprintf("[II*-I{%ld}-%ld], p. 172",n, m))
 
 \\ n > 0, m >= 0
 n = 9; m = 10;
 P0=(x^3+t^(6*m+2))*((x-1)^2+t^n);
-do(P0, Strprintf("[IV-I{%ld}-%ld], p. 173",n, m))
+do(P0, strprintf("[IV-I{%ld}-%ld], p. 173",n, m))
 
 \\ n > 0, m >= 0
 n = 9; m = 10;
 P0=(x^3+t^(6*m+4))*((x-1)^2+t^n);
-do(P0, Strprintf("[IV*-I{%ld}-%ld], p. 173",n, m))
+do(P0, strprintf("[IV*-I{%ld}-%ld], p. 173",n, m))
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x-1+t)*((x-1)^2+t^(n+2))*(x^3+t^(6*m+1));
-do(P0, Strprintf("[II-I*{%ld}-%ld], p. 173",n, m))
+do(P0, strprintf("[II-I*{%ld}-%ld], p. 173",n, m))
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x-1+t)*((x-1)^2+t^(n+2))*(x^3+t^(6*m+5));
-do(P0, Strprintf("[II*-I*{%ld}-%ld], p. 174",n, m))
+do(P0, strprintf("[II*-I*{%ld}-%ld], p. 174",n, m))
 
 \\ n >= 0, m = -1
 n = 9;
 P0=t*((x-1)^2+t^n)*(x^3+t^2);
-do(P0, Strprintf("[II*-I*{%ld}-(-1)], p. 174",n))
+do(P0, strprintf("[II*-I*{%ld}-(-1)], p. 174",n))
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x-1+t)*((x-1)^2+t^(n+2))*(x^3+t^(6*m+2));
-do(P0, Strprintf("[IV-I*{%ld}-%ld], p. 174",n, m))
+do(P0, strprintf("[IV-I*{%ld}-%ld], p. 174",n, m))
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x-1+t)*((x-1)^2+t^(n+2))*(x^3+t^(6*m+4));
-do(P0, Strprintf("[IV*-I*{%ld}-%ld], p. 174",n, m))
+do(P0, strprintf("[IV*-I*{%ld}-%ld], p. 174",n, m))
 
 \\ n >= 0, m = -1
 n = 9;
 P0=t*((x-1)^2+t^n)*(x^3+t);
-do(P0, Strprintf("[IV*-I*{%ld}-(-1)], p. 175",n))
+do(P0, strprintf("[IV*-I*{%ld}-(-1)], p. 175",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n >= 0
 n = 9;
 P0=x*(x^3+t)*((x-1)^2+t^n);
-do(P0, Strprintf("[IV-II{%ld}], p. 175",n))
+do(P0, strprintf("[IV-II{%ld}], p. 175",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0
 n = 9;
 P0=x*(x^3+t^2)*((x-1)^2+t^(n-1));
-do(P0, Strprintf("[IV*-II{%ld}], p. 175",n))
+do(P0, strprintf("[IV*-II{%ld}], p. 175",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n = 0
@@ -436,54 +436,54 @@ genus2red(subst(P0,'t,3),3)
 \\ n >= 0
 n = 9;
 P0=(x^3+t)*(x^2+t^(n+1));
-do(P0, Strprintf("[II-II*{%ld}], p. 176",n))
+do(P0, strprintf("[II-II*{%ld}], p. 176",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n >= 0
 n = 9;
 P0=t*x*(x^3+t)*((x-1)^2+t^n);
-do(P0, Strprintf("[II*-II*{%ld}], p. 176",n))
+do(P0, strprintf("[II*-II*{%ld}], p. 176",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0, m >= 0
 n = 9; m = 10;
 P0=x*(x^2+t^(4*m+1))*((x-1)^2+t^n);
-do(P0, Strprintf("[III-I{%ld}-%ld], p. 176",n,m))
+do(P0, strprintf("[III-I{%ld}-%ld], p. 176",n,m))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0, m >= 0
 n = 9; m = 10;
 P0=x*(x^2+t^(4*m+3))*((x-1)^2+t^n);
-do(P0, Strprintf("[III*-I{%ld}-%ld], p. 176",n,m))
+do(P0, strprintf("[III*-I{%ld}-%ld], p. 176",n,m))
 genus2red(subst(P0,'t,3),3)
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x+t)*(x^2+t^(n+2))*(x-1)*((x-1)^2+t^(4*m+1));
-do(P0, Strprintf("[III-I*{%ld}-%ld], p. 177",n,m))
+do(P0, strprintf("[III-I*{%ld}-%ld], p. 177",n,m))
 genus2red(subst(P0,'t,3),3)
 
 \\ n, m >= 0
 n = 9; m = 10;
 P0=(x+t)*(x^2+t^(n+2))*(x-1)*((x-1)^2+t^(4*m+3));
-do(P0, Strprintf("[III*-I*{%ld}-%ld], p. 177",n,m))
+do(P0, strprintf("[III*-I*{%ld}-%ld], p. 177",n,m))
 genus2red(subst(P0,'t,3),3)
 
 \\ n >= 0, m = -1
 n = 9;
 P0=t*x*(x^2+t)*((x-1)^2+t^n);
-do(P0, Strprintf("[III*-I*{%ld}-(-1)], p. 177",n))
+do(P0, strprintf("[III*-I*{%ld}-(-1)], p. 177",n))
 \\ attach one more projective line of mult. 1 to the component 2B
 
 \\ n >= 0
 n = 9;
 P0=(x^4+t)*((x-1)^2+t^n);
-do(P0, Strprintf("[III-II{%ld}], p. 177",n))
+do(P0, strprintf("[III-II{%ld}], p. 177",n))
 
 \\ n > 0
 n = 9;
 P0=(x^4+t^3)*((x-1)^2+t^(n-1));
-do(P0, Strprintf("[III*-II{%ld}], p. 178",n))
+do(P0, strprintf("[III*-II{%ld}], p. 178",n))
 
 \\ n = 0
 P0=t*(x^2+t)*(x^4+t);
@@ -492,156 +492,156 @@ do(P0, "[III*-II{0}], p. 178")
 \\ n >= 0
 n = 9;
 P0=(x^4+t)*(x^2+t^(n+1));
-do(P0, Strprintf("[III-II*{%ld}], p. 178",n))
+do(P0, strprintf("[III-II*{%ld}], p. 178",n))
 
 \\ n >= 0
 n = 9;
 P0=(x^4+t^3)*(x^2+t^(n+2));
-do(P0, Strprintf("[III*-II*{%ld}], p. 178",n))
+do(P0, strprintf("[III*-II*{%ld}], p. 178",n))
 
 \\ Parabolic type continued
 
 \\ n, p > 0
 n = 9; p = 8;
 P0=(x^2+t^n)*((x+1)^2+t^p)*(x-1);
-do(P0, Strprintf("[I{%ld-%ld-0}], p. 179",n,p))
+do(P0, strprintf("[I{%ld-%ld-0}], p. 179",n,p))
 
 \\ n, p, m > 0
 n = 9; p = 8; m = 10;
 P0=(x+t^(2*m))*(x^2+t^(4*m+n))*((x-1)^2+t^p);
-do(P0, Strprintf("[I{%ld}-I{%ld}-%ld}], p. 179",n,p,m))
+do(P0, strprintf("[I{%ld}-I{%ld}-%ld}], p. 179",n,p,m))
 
 \\ n, p > 0
 n = 9; p = 8;
 P0=t*(x^2+t^n)*((x+1)^2+t^p)*(x-1);
-do(P0, Strprintf("[I*{%ld-%ld-0}], p. 180",n,p))
+do(P0, strprintf("[I*{%ld-%ld-0}], p. 180",n,p))
 genus2red(subst(P0,'t,3),3)
 
 \\ n, p > 0, m >= 0
 n = 9; p = 8; m = 10;
 P0=(x+t^(2*m+1))*(x^2+t^(4*m+n+2))*(x-1+t)*((x-1)^2+t^(p+2));
-do(P0, Strprintf("[I*{%ld}-I*{%ld}-%ld], p. 180",n,p,m))
+do(P0, strprintf("[I*{%ld}-I*{%ld}-%ld], p. 180",n,p,m))
 
 \\ n, p > 0, m >= 0
 n = 9; p = 8; m = 10;
 P0=(x+t^(2*m+1))*(x^2+t^(4*m+p+2))*((x-1)^2+t^n);
-do(P0, Strprintf("[I{%ld}-I*{%ld}-%ld], p. 180",n,p,m))
+do(P0, strprintf("[I{%ld}-I*{%ld}-%ld], p. 180",n,p,m))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0 even, m > 0
 k = 4; m = 10; n=2*k;
 P0=((x^2-t)+t^(m+1))*((x^2-t)^2+t^(2*m+k+2));
-do(P0, Strprintf("[2I{%ld}-%ld], p. 181",n,m))
+do(P0, strprintf("[2I{%ld}-%ld], p. 181",n,m))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0 odd, m > 0
 k = 4; m = 10; n=2*k+1;
 P0=((x^2-t)+t^(m+1))*((x^2-t)^2+t^(2*m+k+2)*x);
-do(P0, Strprintf("[2I{%ld}-%ld}], p. 181",n,m))
+do(P0, strprintf("[2I{%ld}-%ld}], p. 181",n,m))
 
 \\ n > 0 even, m=0
 k = 4; n=2*k;
 P0=((x^2-t)+a*t)*((x^2-t)^2+t^(k+2));
-do(subst(P0, 'a, 2), Strprintf("[2I{%ld}-0], p. 181",n))
+do(subst(P0, 'a, 2), strprintf("[2I{%ld}-0], p. 181",n))
 
 \\ n > 0 odd, m=0
 k = 4; n=2*k+1;
 P0=((x^2-t)+a*t)*((x^2-t)^2+t^(k+2)*x);
-do(subst(P0, 'a, 2), Strprintf("[2I{%ld}-0], p. 181",n))
+do(subst(P0, 'a, 2), strprintf("[2I{%ld}-0], p. 181",n))
 
 \\ n > 0 even, m >= 0
 k = 4; m = 10; n=2*k;
 P0=((x^2-t)+t^(m+1)*x)*((x^2-t)^2+t^(2*m+k+3));
-do(P0, Strprintf("[2I*{%ld}-%ld}], p. 181",n,m))
+do(P0, strprintf("[2I*{%ld}-%ld}], p. 181",n,m))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0 odd, m
 k = 4; m = 10; n=2*k+1;
 P0=((x^2-t)+t^(m+1)*x)*((x^2-t)^2+t^(2*m+k+3)*x);
-do(P0, Strprintf("[2I*{%ld}-%ld}], p. 181",n,m))
+do(P0, strprintf("[2I*{%ld}-%ld}], p. 181",n,m))
 
 \\ n, p > 0
 n = 9; p = 8;
 P0=(x^2+t)*(x^2+t^(p+1))*((x-1)^2+t^(n-1));
-do(P0, Strprintf("[II{%ld-%ld}], p. 182",n,p))
+do(P0, strprintf("[II{%ld-%ld}], p. 182",n,p))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0 even
 k = 4; n=2*k;
 P0=x*((x^2-t^3)^2+t^(k+6));
-do(P0, Strprintf("[III{%ld}], p. 182",n))
+do(P0, strprintf("[III{%ld}], p. 182",n))
 
 \\ n > 0 odd
 k = 4; n=2*k+1;
 P0=x*((x^2-t^3)^2+t^(k+5)*x);
-do(P0, Strprintf("[III{%ld}], p. 182",n))
+do(P0, strprintf("[III{%ld}], p. 182",n))
 
 \\ n, p, q > 0
 n = 9; p = 8; q = 5;
 P0=(x^2+t^n)*((x-1)^2+t^p)*((x-2)^2+t^q);
-do(P0, Strprintf("[I{%ld-%ld-%ld}], pp. 182-183",n,p,q))
+do(P0, strprintf("[I{%ld-%ld-%ld}], pp. 182-183",n,p,q))
 
 \\ n, p, q > 0
 n = 9; p = 8; q = 5;
 P0=t*(x^2+t^n)*((x-1)^2+t^p)*((x-2)^2+t^q);
-do(P0, Strprintf("[I*{%ld-%ld-%ld}], pp. 183",n,p,q))
+do(P0, strprintf("[I*{%ld-%ld-%ld}], pp. 183",n,p,q))
 
 \\ n, p > 0, p even
 n = 9; k = 4; p=2*k;
 P0=((x^2-t)^2+t^(k+2))*((x-1)^2+t^(n-1));
-do(P0, Strprintf("[II{%ld-%ld}], p. 183",n,p))
+do(P0, strprintf("[II{%ld-%ld}], p. 183",n,p))
 genus2red(subst(P0,'t,3),3)
 
 \\ n, p > 0, p odd
 n = 9; k = 4; p=2*k+1;
 P0=((x^2-t)^2+t^(k+2)*x)*((x-1)^2+t^(n-1));
-do(P0, Strprintf("[II{%ld-%ld}], p. 183",n,p))
+do(P0, strprintf("[II{%ld-%ld}], p. 183",n,p))
 genus2red(subst(P0,'t,3),3)
 
 \\ n, p > 0
 n = 9; k = 4; l = 0; p=2*k+l;
 P0=t*((x^2-t)^2+t^(k+2)*x^l)*((x-1)^2+t^(n-1));
-do(P0, Strprintf("[II*{%ld-%ld}], p. 184",n,p))
+do(P0, strprintf("[II*{%ld-%ld}], p. 184",n,p))
 
 \\ n, p > 0
 n = 9; k = 4; l = 1; p=2*k+l;
 P0=t*((x^2-t)^2+t^(k+2)*x^l)*((x-1)^2+t^(n-1));
-do(P0, Strprintf("[II*{%ld-%ld}], p. 184",n,p))
+do(P0, strprintf("[II*{%ld-%ld}], p. 184",n,p))
 
 \\ n > 0
 k = 4; l = 0; n=3*k+l;
 P0=(x^3-t)^2+t^(k+2)*x^l;
-do(P0, Strprintf("[III{%ld}], p. 184",n))
+do(P0, strprintf("[III{%ld}], p. 184",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0
 k = 4; l = 1; n=3*k+l;
 P0=(x^3-t)^2+t^(k+2)*x^l;
-do(P0, Strprintf("[III{%ld}], p. 184",n))
+do(P0, strprintf("[III{%ld}], p. 184",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0
 k = 4; l = 2; n=3*k+l;
 P0=(x^3-t)^2+t^(k+2)*x^l;
-do(P0, Strprintf("[III{%ld}], p. 184",n))
+do(P0, strprintf("[III{%ld}], p. 184",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0
 k = 2; l = 0; n=3*k+l;
 P0=t*((x^3-t)^2+t^(k+2)*x^l);
-do(P0, Strprintf("[III*{%ld}], p. 184",n))
+do(P0, strprintf("[III*{%ld}], p. 184",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0
 k = 2; l = 1; n=3*k+l;
 P0=t*((x^3-t)^2+t^(k+2)*x^l);
-do(P0, Strprintf("[III*{%ld}], p. 184",n))
+do(P0, strprintf("[III*{%ld}], p. 184",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ n > 0
 k = 2; l = 2; n=3*k+l;
 P0=(x^3-t)^2+t^(k+2)*x^l;
-do(P0, Strprintf("[III{%ld}], p. 184",n))
+do(P0, strprintf("[III{%ld}], p. 184",n))
 genus2red(subst(P0,'t,3),3)
 
 \\ Extras : p = 3
