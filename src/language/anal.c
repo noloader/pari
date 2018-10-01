@@ -328,13 +328,6 @@ addhelp(const char *e, char *s)
   if (f && !EpSTATIC(ep)) pari_free(f);
 }
 
-GEN
-type0(GEN x)
-{
-  const char *s = type_name(typ(x));
-  return strtoGENstr(s);
-}
-
 /*******************************************************************/
 /*                                                                 */
 /*                              PARSER                             */

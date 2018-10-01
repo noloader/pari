@@ -1710,7 +1710,6 @@ GEN*    safelistel(GEN x, long l);
 GEN*    safegcoeff(GEN x, long a, long b);
 GEN     strtoi(const char *s);
 GEN     strtor(const char *s, long prec);
-GEN     type0(GEN x);
 GEN     varhigher(const char *s, long v);
 GEN     varlower(const char *s, long v);
 
@@ -3078,7 +3077,6 @@ void    switchout(const char *name);
 void    term_color(long c);
 char*   term_get_color(char *s, long c);
 void    texe(GEN g, char format, long dec);
-const char* type_name(long t);
 void    warning0(GEN g);
 void    write0(const char *s, GEN g);
 void    write1(const char *s, GEN g);
@@ -4766,6 +4764,8 @@ GEN     strjoin(GEN v, GEN p);
 GEN     strntoGENstr(const char *s, long n0);
 GEN     strsplit(GEN x, GEN p);
 GEN     strtoGENstr(const char *s);
+const char* type_name(long t);
+GEN     type0(GEN x);
 
 /* sumiter.c */
 

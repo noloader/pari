@@ -1979,41 +1979,6 @@ uordinal(ulong i)
   sprintf(s, "%lu%s", i, suff[k]); return s;
 }
 
-const char *
-type_name(long t)
-{
-  const char *s;
-  switch(t)
-  {
-    case t_INT    : s="t_INT";     break;
-    case t_REAL   : s="t_REAL";    break;
-    case t_INTMOD : s="t_INTMOD";  break;
-    case t_FRAC   : s="t_FRAC";    break;
-    case t_FFELT  : s="t_FFELT";   break;
-    case t_COMPLEX: s="t_COMPLEX"; break;
-    case t_PADIC  : s="t_PADIC";   break;
-    case t_QUAD   : s="t_QUAD";    break;
-    case t_POLMOD : s="t_POLMOD";  break;
-    case t_POL    : s="t_POL";     break;
-    case t_SER    : s="t_SER";     break;
-    case t_RFRAC  : s="t_RFRAC";   break;
-    case t_QFR    : s="t_QFR";     break;
-    case t_QFI    : s="t_QFI";     break;
-    case t_VEC    : s="t_VEC";     break;
-    case t_COL    : s="t_COL";     break;
-    case t_MAT    : s="t_MAT";     break;
-    case t_LIST   : s="t_LIST";    break;
-    case t_STR    : s="t_STR";     break;
-    case t_VECSMALL:s="t_VECSMALL";break;
-    case t_CLOSURE: s="t_CLOSURE"; break;
-    case t_ERROR:   s="t_ERROR";   break;
-    case t_INFINITY:s="t_INFINITY";break;
-    default: pari_err(e_MISC,"unknown type %ld",t);
-      s = NULL; /* LCOV_EXCL_LINE */
-  }
-  return s;
-}
-
 static char
 vsigne(GEN x)
 {
