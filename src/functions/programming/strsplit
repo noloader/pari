@@ -1,5 +1,5 @@
 Function: strsplit
-Section: conversions
+Section: programming/specific
 C-Name: strsplit
 Prototype: GG
 Help: strsplit(s,p): splits the string s into a vector of strings, with

@@ -63,6 +63,7 @@ HC  11- gamma(t_FRAC) use direct formula when denom | 24
         interval [a,b]; implement lfunconductor(L, list of potential N) instead
     16- renamed GP functions Strchr -> strchr (pari_strchr in libpari),
         Strexpand -> strexpand, Strprintf -> strprintf, Strtex -> strtex
+    17- [help] move str* functions from "conversions" to "programming" section
 
   Added
      1- [libpari] nonsquare_Fl

@@ -1,5 +1,5 @@
 Function: strjoin
-Section: conversions
+Section: programming/specific
 C-Name: strjoin
 Prototype: GG
 Help: strjoin(v,p): joins the strings in vector v, separating them with

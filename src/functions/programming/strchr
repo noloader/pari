@@ -1,5 +1,5 @@
 Function: strchr
-Section: conversions
+Section: programming/specific
 C-Name: pari_strchr
 Prototype: G
 Help: strchr(x): converts x to a string, translating each integer into a
@@ -15,7 +15,7 @@ Doc: converts $x$ to a string, translating each integer into a character.
  @eprog
 
 Function: Strchr
-Section: conversions
+Section: programming/specific
 C-Name: pari_strchr
 Prototype: G
 Obsolete: 2018-10-01

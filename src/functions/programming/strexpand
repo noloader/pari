@@ -1,5 +1,5 @@
 Function: strexpand
-Section: conversions
+Section: programming/specific
 C-Name: strexpand
 Prototype: s*
 Help: strexpand({x}*): concatenates its (string) argument into a single
@@ -18,7 +18,7 @@ Doc:
  %\syn{NO}
 
 Function: Strexpand
-Section: conversions
+Section: programming/specific
 C-Name: strexpand
 Prototype: s*
 Obsolete: 2018-10-01

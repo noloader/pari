@@ -1,5 +1,5 @@
 Function: strtex
-Section: conversions
+Section: programming/specific
 C-Name: strtex
 Prototype: s*
 Help: strtex({x}*): translates its (string) arguments to TeX format and
@@ -12,7 +12,7 @@ Doc:
  %\syn{NO}
 
 Function: Strtex
-Section: conversions
+Section: programming/specific
 C-Name: strtex
 Prototype: s*
 Obsolete: 2018-10-01
