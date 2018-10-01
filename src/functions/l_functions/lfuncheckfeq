@@ -28,7 +28,7 @@ Doc: Given the data attached to an $L$-function (\kbd{Lmath}, \kbd{Ldata}
 
  If $t$ is given, it should be close to the unit disc for efficiency and
  such that $\overline{\theta}(t) \neq 0$. We then check the functional
- equation at that $t$. Again, is $\overline{\theta}(t)$ is very small, you
+ equation at that $t$. Again, if $\overline{\theta}(t)$ is very small, you
  should first increase \kbd{realbitprecision} to get a useful result.
  \bprog
  ? \pb 128       \\ 128 bits of accuracy
