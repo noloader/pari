@@ -30,6 +30,8 @@ variable(a)
 variable(b)
 
 derivnum(x=0,1/(x^2+1),2)
+derivnum(x=2.0,1/(x^2+1),2)
+derivnum(x=1+I,1/(x^2+1),2)
 derivnum(x=t,1/(x^2+1),2)
 derivnum(x=1/t,1/(x^2+1),2)
 derivnum(x=0,exp(sin(x)),16)
