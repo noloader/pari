@@ -644,6 +644,48 @@ myint21(void *E, GEN (*f)(void*, GEN), long prec)
   else if (gcmpgs(a,-1) <= 0) prec += ((gexpo(a)+1)>>1) * EXTRAPREC;
   return intnumsplit(E, f, p0, p1, pz, prec);
 }
+
+/* Algorithm used for F21(a,b;c;z)
+Basic transforms:
+  1: (c-b,1+a-b,1/(1-z))
+  2: (c-b,c,z/(z-1))
+  3: (b,c,z)
+  4: (b,b-c+a+1,1-z)
+  5: (1+a-c,b-c+a+1,1-1/z)
+  6: (1+a-c,1+a-b,1/z)
+
+F21: calls F21_i and increase accuracy if too much cancellation
+F21_i:
+- z approx 0: return 1.
+- z=1: return Gauss multgam
+- a (or b) negative integer: call F21finite(-a,b)
+- c-a negative integer: call F21finite(a-c,c-b)
+- compute index, value of z
+   If |z|<=0.98 call F21taylorind
+   else: if R(b)<=0, swap and/or recurse so may assume
+   R(b)>0 and R(a)>=R(b) and integrate.
+
+F21finite:
+- compute index, value of z
+- if index=2, call F21finitetaylor, else F21finiteaux
+
+F21ind: find best index (1 to 6, -1 to -6 if |z| < 0.98)
+F21finitetaylor: a or b in Z_{<=0}; calls precFtaylor
+F21finiteaux: computes a poch(prec) THEN F21finitetaylor, probable bug,
+  should do reverse.
+
+F21taylorind: in case 2, may lose accuracy, possible bug.
+- calls F21taylor[1456] or F21taylor
+
+F21taylor: calls Ftaylor / gamma: may lose accuracy
+
+FBaux1: F21taylor twice
+FBaux2: F21finitelim + F21taylorlim
+F21taylor[45]: if c-(a+b) integer, calls FBaux1, else calls FBaux2
+F21taylor[16]: if b-a integer, calls FBaux1, else calls FBaux2
+
+F21taylorlim: calls precFtaylor then compute
+F21finitelim: direct */
 static GEN F21taylorind(GEN a, GEN b, GEN c, GEN z, long ind, long prec);
 static GEN
 F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
