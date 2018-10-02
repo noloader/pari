@@ -3616,8 +3616,6 @@ hashentry *hash_select(hashtable *h, void *k, void *E,int(*select)(void *,hashen
 hashentry *hash_remove(hashtable *h, void *k);
 hashentry *hash_remove_select(hashtable *h, void *k, void *E, int (*select)(void*,hashentry*));
 void hash_destroy(hashtable *h);
-ulong hash_str(const char *str);
-ulong hash_str_len(const char *s, long len);
 ulong hash_GEN(GEN x);
 
 /* hyperell.c */
@@ -5342,6 +5340,8 @@ INLINE GEN    gal_get_den(GEN gal);
 INLINE GEN    gal_get_group(GEN gal);
 INLINE GEN    gal_get_gen(GEN gal);
 INLINE GEN    gal_get_orders(GEN gal);
+INLINE ulong  hash_str(const char *str);
+INLINE ulong  hash_str_len(const char *s, long len);
 INLINE GEN    idealchineseinit(GEN nf, GEN x);
 INLINE GEN    idealpseudomin(GEN I, GEN G);
 INLINE GEN    idealpseudomin_nonscalar(GEN I, GEN G);

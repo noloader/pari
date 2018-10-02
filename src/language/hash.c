@@ -331,37 +331,3 @@ hash_GEN(GEN x)
       return h;
   }
 }
-
-/* djb's hash */
-ulong
-hash_str(const char *str)
-{
-  ulong hash = 5381UL, c;
-  while ( (c = (ulong)*str++) )
-    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-  return hash;
-}
-
-ulong
-hash_str_len(const char *str, long len)
-{
-  ulong hash = 5381UL;
-  long i;
-  for (i = 0; i < len; i++)
-  {
-    ulong c = (ulong)*str++;
-    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-  }
-  return hash;
-}
-
-#if 0
-/* hashvalue's underlying hash function */
-ulong
-hash_str2(const char *s)
-{
-  ulong n = 0, c;
-  while ( (c = (ulong)*s++) ) n = (n<<1) ^ c;
-  return n;
-}
-#endif

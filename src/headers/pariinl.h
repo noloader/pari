@@ -540,6 +540,32 @@ vecsmalltrunc_append(GEN x, long t) { x[ lg(x) ] = t; lg_increase(x); }
 
 /*******************************************************************/
 /*                                                                 */
+/*                    STRING HASH FUNCTIONS                        */
+/*                                                                 */
+/*******************************************************************/
+INLINE ulong
+hash_str(const char *str)
+{
+  ulong hash = 5381UL, c;
+  while ( (c = (ulong)*str++) )
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  return hash;
+}
+INLINE ulong
+hash_str_len(const char *str, long len)
+{
+  ulong hash = 5381UL;
+  long i;
+  for (i = 0; i < len; i++)
+  {
+    ulong c = (ulong)*str++;
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  }
+  return hash;
+}
+
+/*******************************************************************/
+/*                                                                 */
 /*                        VEC / COL / VECSMALL                     */
 /*                                                                 */
 /*******************************************************************/
