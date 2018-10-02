@@ -21,3 +21,6 @@ sumdiv(8!,x,x)
 suminf(n=1,2.^-n)
 6/Pi^2*sumpos(n=1,n^-2)
 if (getheap()!=HEAP, getheap())
+
+\\ Errors, keep at end
+prodinf(n=0,1+2^-n,2)
