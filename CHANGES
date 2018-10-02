@@ -65,6 +65,7 @@ HC  11- gamma(t_FRAC) use direct formula when denom | 24
     16- renamed GP functions Strchr -> strchr (pari_strchr in libpari),
         Strexpand -> strexpand, Strprintf -> strprintf, Strtex -> strtex
     17- [help] move str* functions from "conversions" to "programming" section
+BA  18- qfbsolve now returns a vector of solutions.
 
   Added
      1- [libpari] nonsquare_Fl
@@ -79,6 +80,7 @@ BA   3- [libpari] FpXC_FpXQ_eval
     10- new GP functions strsplit, strjoin
     11- new file src/basemath/str.c
     12- [libpari] has_str_len
+BA  13- qfbsolve(Q,n) now support arbitrary integer n.
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

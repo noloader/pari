@@ -1249,6 +1249,42 @@ primeform(GEN x, GEN p, long prec)
   return y;
 }
 
+static GEN
+normforms(GEN D, GEN fa, long prec)
+{
+  pari_sp av = avma;
+  long i, j, k, l, aN;
+  GEN a, L, V, B, N, N2;
+  int sa, D_odd = mpodd(D);
+  a = typ(fa) == t_INT ? fa: typ(fa) == t_VEC? gel(fa,1): factorback(fa);
+  sa = signe(a);
+  if (sa==0 || (signe(D)<0 && sa<0)) { avma = av; return cgetg(1, t_VEC); }
+  if (D_odd)
+    V = Zn_quad_roots(fa, gen_1, shifti(subsi(1, D), -2));
+  else
+    V = Zn_quad_roots(fa, gen_0, negi(shifti(D, -2)));
+  if (!V) { avma = av; return cgetg(1, t_VEC); }
+  a = typ(fa) == t_INT ? fa: typ(fa) == t_VEC? gel(fa,1): factorback(fa);
+  if (signe(D)<0 && signe(a)<0) { set_avma(av); return cgetg(1, t_VEC); }
+  N = gel(V,1); B = gel(V,2);
+  N2 = shifti(N,1);
+  aN = itos(diviiexact(absi(a),N));
+  l = lg(B)-1;
+  L = cgetg(l*aN+1, t_VEC);
+  for (k = 1, i = 1; i <= l; i++)
+  {
+    GEN b = shifti(gel(B,i), 1);
+    if (D_odd) b = addis(b , 1);
+    for (j = 0; j < aN; j++)
+    {
+      GEN c = diviiexact(shifti(subii(sqri(b), D), -2), a);
+      gel(L, k++) = signe(D)<0? qfi(a,b,c): qfr(a,b,c,real_0(prec));
+      b = addii(b, N2);
+    }
+  }
+  return gerepilecopy(av, L);
+}
+
 /* Let M and N in SL2(Z), return (N*M^-1)[,1] */
 static GEN
 SL2_div_mul_e1(GEN N, GEN M)
@@ -1258,6 +1294,7 @@ SL2_div_mul_e1(GEN N, GEN M)
   GEN q = subii(mulii(gcoeff(N,2,1), d), mulii(gcoeff(N,2,2), b));
   return mkvec2(p,q);
 }
+
 /* Let M and N in SL2(Z), return (N*[1,0;0,-1]*M^-1)[,1] */
 static GEN
 SL2_swap_div_mul_e1(GEN N, GEN M)
@@ -1275,6 +1312,16 @@ GL2_qfb_equal(GEN a, GEN b)
   return equalii(gel(a,1),gel(b,1))
    && absequalii(gel(a,2),gel(b,2))
    &&    equalii(gel(a,3),gel(b,3));
+}
+
+static GEN
+qfisolve_normform(GEN Q, GEN P)
+{
+  GEN a = gel(Q,1), N = gel(Q,2);
+  GEN M, b = redimagsl2(P, &M);
+  if (!GL2_qfb_equal(a,b) || signe(gel(a,2))!=signe(gel(b,2)))
+    return NULL;
+  return SL2_div_mul_e1(N,M);
 }
 
 static GEN
@@ -1411,38 +1458,77 @@ qfbredsl2(GEN q, GEN S)
   }
 }
 
-GEN
-qfrsolvep(GEN Q, GEN p)
+static GEN
+qfrsolve_normform(GEN N, GEN P, GEN P2)
 {
   pari_sp ltop = avma, btop;
-  GEN N, P, P1, P2, M, rd, d = qfb_disc(Q);
-  if (kronecker(d, p) < 0) { set_avma(ltop); return gen_0; }
-  rd = sqrti(d);
-  M = N = redrealsl2(Q, d,rd);
-  P = primeform(d, p, DEFAULTPREC);
+  GEN P1, M, d = qfb_disc(P), rd = sqrti(d);
+  M = N;
   P1 = redrealsl2(P, d,rd);
-  togglesign( gel(P,2) );
-  P2 = redrealsl2(P, d,rd);
   btop = avma;
   for(;;)
   {
     if (ZV_equal(gel(M,1), gel(P1,1))) { N = gel(P1,2); break; }
-    if (ZV_equal(gel(M,1), gel(P2,1))) { N = gel(P2,2); break; }
+    if (P2 && ZV_equal(gel(M,1), gel(P2,1))) { N = gel(P2,2); break; }
     M = redrealsl2step(M, d,rd);
-    if (ZV_equal(gel(M,1), gel(N,1))) { set_avma(ltop); return gen_0; }
+    if (ZV_equal(gel(M,1), gel(N,1))) { set_avma(ltop); return NULL; }
     if (gc_needed(btop, 1)) M = gerepileupto(btop, M);
   }
   return gerepilecopy(ltop, SL2_div_mul_e1(gel(M,2),N));
 }
 
 GEN
+qfrsolvep(GEN Q, GEN p)
+{
+  pari_sp ltop = avma;
+  GEN P, P2, N, d = qfb_disc(Q), rd, x;
+  if (kronecker(d, p) < 0) { set_avma(ltop); return gen_0; }
+  P = primeform(d, p, DEFAULTPREC);
+  rd = sqrti(d);
+  N = redrealsl2(Q, d, rd);
+  P2 = invraw(P);
+  x = qfrsolve_normform(N, P, P2);
+  if (!x) { set_avma(ltop); return gen_0; }
+  return gerepileupto(ltop, x);
+}
+
+static GEN
+redsl2(GEN Q, GEN d)
+{
+  GEN P, U;
+  if( signe(d)>0) return redrealsl2(Q, d, sqrti(d));
+  P = redimagsl2(Q, &U);
+  return mkvec2(P,U);
+}
+
+static GEN
+qfbsolven(GEN Q, GEN fa)
+{
+  pari_sp av = avma;
+  GEN d, F, Qr, W;
+  long i, j, l, sD;
+  d = qfb_disc(Q); sD = signe(d);
+  F = normforms(d, fa, DEFAULTPREC); l = lg(F);
+  if (l==1) { avma = av; return cgetg(1,t_VEC); }
+  Qr = redsl2(Q, d);
+  W = cgetg(l, t_VEC);
+  for (j=1, i=1; i<l; i++)
+  {
+    GEN x = sD < 0 ? qfisolve_normform(Qr, gel(F,i))
+                   : qfrsolve_normform(Qr, gel(F,i), NULL);
+    if (x) gel(W,j++) = x;
+  }
+  setlg(W,j);
+  return gerepilecopy(av,W);
+}
+
+GEN
 qfbsolve(GEN Q,GEN n)
 {
-  if (typ(n)!=t_INT) pari_err_TYPE("qfbsolve",n);
   switch(typ(Q))
   {
-  case t_QFI: return qfisolvep(Q,n);
-  case t_QFR: return qfrsolvep(Q,n);
+  case t_QFI: return qfbsolven(Q,n);
+  case t_QFR: return qfbsolven(Q,n);
   default:
     pari_err_TYPE("qfbsolve",Q);
     return NULL; /* LCOV_EXCL_LINE */

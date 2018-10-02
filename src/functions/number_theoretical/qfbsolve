@@ -2,16 +2,23 @@ Function: qfbsolve
 Section: number_theoretical
 C-Name: qfbsolve
 Prototype: GG
-Help: qfbsolve(Q,p): return [x,y] so that Q(x,y)=p where Q is a binary
- quadratic form and p a prime number, or 0 if there is no solution.
-Doc: Solve the equation $Q(x,y)=p$ over the integers,
- where $Q$ is a binary quadratic form and $p$ a prime number.
+Help: qfbsolve(Q,n): return the list of solutions [x,y] of the equation
+ Q(x,y)=n in coprime integers x and y where Q is a binary quadratic form,
+ up to the action of the special orthogonal group of Q over the integers.
+Doc: Return the list of solutions $[x,y]$ of the equation $Q(x,y)=n$ in
+ coprime integers $x$ and $y$, where $Q$ is a binary quadratic form and
+ $n$ an integer, up to the action of the special orthogonal group
+ $S=SO(Q,\Z)$, which is isomorphic to the group of units of positive norm
+ of the quadratic order of discriminant $D = \disc Q$.
 
- Return $[x,y]$ as a two-components vector, or zero if there is no solution.
- Note that this function returns only one solution and not all the solutions.
+ The result is a vector of two-components vectors $[x,y]$.
 
- Let $D = \disc Q$. The algorithm used runs in probabilistic polynomial time
- in $p$ (through the computation of a square root of $D$ modulo $p$); it is
+ If $D>0$, $S$ is infinite. If $D<-4$, $S$ is of order $2$, if $D=-3$, $S$ is
+ of order $6$ and if $D=-4$, $S$ is of order $4$.
+
+ Assuming the factorisation of $n$ is given, for each prime factor $p$ of $n$,
+ the algorithm used runs in probabilistic polynomial time
+ in $p$ (through the computation of square roots of $D$ modulo $4\*p$); it is
  polynomial time in $D$ if $Q$ is imaginary, but exponential time if $Q$ is
  real (through the computation of a full cycle of reduced forms). In the
  latter case, note that \tet{bnfisprincipal} provides a solution in heuristic
