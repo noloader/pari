@@ -3617,7 +3617,7 @@ hashentry *hash_remove(hashtable *h, void *k);
 hashentry *hash_remove_select(hashtable *h, void *k, void *E, int (*select)(void*,hashentry*));
 void hash_destroy(hashtable *h);
 ulong hash_str(const char *str);
-ulong hash_str2(const char *s);
+ulong hash_str_len(const char *s, long len);
 ulong hash_GEN(GEN x);
 
 /* hyperell.c */

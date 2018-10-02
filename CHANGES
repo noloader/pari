@@ -77,6 +77,8 @@ BA   3- [libpari] FpXC_FpXQ_eval
      9- [libpari] gc_bool, gc_double, gc_int, gc_long, gc_ulong, gc_NULL
     10- new GP functions strsplit, strjoin
     11- new file src/basemath/str.c
+    12- [libpari] has_str_len
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
+     2- inferior hash function hash_str2: use hash_str

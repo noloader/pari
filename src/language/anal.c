@@ -118,23 +118,6 @@ FIND:
 /**                   HASH TABLE MANIPULATIONS                     **/
 /**                                                                **/
 /********************************************************************/
-/* return hashing value for identifier s */
-static ulong
-hashvalue(const char *s)
-{
-  ulong n = 0, c;
-  while ( (c = (ulong)*s++) ) n = (n<<1) ^ c;
-  return n;
-}
-
-static ulong
-hashvalue_raw(const char *s, long len)
-{
-  long n = 0, i;
-  for(i=0; i<len; i++) { n = (n<<1) ^ *s; s++; }
-  return n;
-}
-
 static void
 insertep(entree *ep, entree **table, ulong hash)
 {
@@ -166,7 +149,7 @@ initep(const char *name, long len)
 static entree *
 findentry(const char *s, long len, entree **T, int insert)
 {
-  ulong hash = hashvalue_raw(s, len);
+  ulong hash = hash_str_len(s, len);
   entree *ep;
   for (ep = T[hash % functions_tblsz]; ep; ep = ep->next)
     if (ep->hash == hash)
@@ -1085,7 +1068,7 @@ static void
 fill_hashtable_single(entree **table, entree *ep)
 {
   EpSETSTATIC(ep);
-  insertep(ep, table,  hashvalue(ep->name));
+  insertep(ep, table, hash_str(ep->name));
   if (ep->code) ep->arity = check_proto(ep->code);
   ep->pvalue = NULL;
 }

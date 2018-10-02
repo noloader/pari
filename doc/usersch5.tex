@@ -13668,8 +13668,9 @@ Some interesting hash functions are available:
 
 \fun{ulong}{hash_str}{const char *s}
 
-\fun{ulong}{hash_str2}{const char *s} is the historical PARI string hashing
-function and seems to be generally inferior to \kbd{hash\_str}.
+\fun{ulong}{hash_str_len}{const char *s, long len} hash the prefix string
+containing the first \kbd{len} characters (assume $\kbd{strlen}(s) \geq
+\kbd{len}$).
 
 \fun{ulong}{hash_GEN}{GEN x}
 
