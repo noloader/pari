@@ -92,4 +92,13 @@
   ***   at top-level: sumnumlagrangeinit(x)
   ***                 ^---------------------
   *** sumnumlagrangeinit: incorrect type in sumnumlagrangeinit (t_POL).
-Total time spent: 3939
+  ***   at top-level: prodinf(n=0,1+2^-n,2)
+  ***                 ^---------------------
+  *** prodinf: invalid flag in prodinf.
+  ***   at top-level: sumalt(n=0,1,2)
+  ***                 ^---------------
+  *** sumalt: invalid flag in sumalt.
+  ***   at top-level: sumpos(n=0,1,2)
+  ***                 ^---------------
+  *** sumpos: invalid flag in sumpos.
+Total time spent: 3685

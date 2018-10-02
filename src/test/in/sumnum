@@ -132,3 +132,6 @@ sumnummonieninit([1,-1]);
 sumnummonieninit(,[n->2^-n,oo]);
 sumnumlagrangeinit([1/5,0])
 sumnumlagrangeinit(x)
+prodinf(n=0,1+2^-n,2)
+sumalt(n=0,1,2)
+sumpos(n=0,1,2)
