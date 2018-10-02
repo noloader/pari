@@ -103,8 +103,7 @@ type_name(long t)
     case t_CLOSURE: s="t_CLOSURE"; break;
     case t_ERROR:   s="t_ERROR";   break;
     case t_INFINITY:s="t_INFINITY";break;
-    default: pari_err(e_MISC,"unknown type %ld",t);
-      s = NULL; /* LCOV_EXCL_LINE */
+    default: pari_err_BUG("type"); s = NULL; /* LCOV_EXCL_LINE */
   }
   return s;
 }

@@ -1,5 +1,6 @@
 Vecsmall([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
 "hello world!"
+"hello world!"
 "\\frac{x^3\n + 3\\*y\\*x^2\n + 3\\*y^2\\*x\n + y^3}{x^2\n - 2\\*y\\*x\n + y
 ^2}"
 "1 mod 2"
@@ -41,4 +42,4 @@ Vecsmall([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
   ***   at top-level: strjoin([],1)
   ***                 ^-------------
   *** strjoin: incorrect type in strjoin (t_INT).
-Total time spent: 0
+Total time spent: 1
