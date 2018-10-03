@@ -16,8 +16,10 @@
 2F1
 20: -120
 21: -119
+44: -43
 20: -249
 21: -248
+44: -55
 3F1
 1: -127
 2: -127
@@ -69,4 +71,4 @@
   ***   at top-level: hypergeom([1,2,3,4],[],1/2)
   ***                 ^---------------------------
   *** hypergeom: sorry, this hypergeometric function is not yet implemented.
-Total time spent: 3975
+Total time spent: 2356

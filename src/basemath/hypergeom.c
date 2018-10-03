@@ -493,7 +493,6 @@ F21ind(GEN a, GEN b, GEN c, GEN z, long prec)
   GEN v = const_vec(6, mkoo());
   long ind = 0;
   const long LD = LOWDEFAULTPREC;
-  if (is0(imag_i(z), prec2nbits(prec))) z = real_i(z);
   if (!isnegint(cind(a,b,c, 1))) gel(v,1) = gabs(zind(z,1), LD);
   gel(v,2) = gabs(zind(z,2), LD);
   gel(v,3) = gabs(z, LD);
@@ -690,13 +689,13 @@ static GEN F21taylorind(GEN a, GEN b, GEN c, GEN z, long ind, long prec);
 static GEN
 F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  GEN res, p1, p2, tmp;
+  GEN res;
   long m, ind, prec2, bitprec = prec2nbits(prec);
+  if (is0(imag_i(z), bitprec)) z = real_i(z);
   if (is0(z, bitprec)) return real_1(prec);
   if (gequal1(z))
   {
-    tmp = gsub(c, gadd(a, b));
-    check_hyp1(tmp);
+    GEN tmp = gsub(c, gadd(a, b)); check_hyp1(tmp);
     return multgam(c, tmp, gsub(c,a), gsub(c,b), prec);
   }
   if (isnegint2(b, &m)) return F21finite(m, a, c, z, prec);
@@ -704,21 +703,22 @@ F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
   if (isnegint(gsub(c, b))) swap(a, b);
   if (isnegint2(gsub(c, a), &m))
   {
-    tmp = gpow(gsubsg(1, z), gneg(gaddsg(m, b)), prec);
+    GEN tmp = gpow(gsubsg(1, z), gneg(gaddsg(m, b)), prec);
     return gmul(tmp, F21finite(m, gsub(c, b), c, z, prec));
   }
   /* Here a, b, c, c-a, c-b are not non-positive integers */
-  if (is0(imag_i(z), bitprec)) z = real_i(z);
   ind = F21ind(a, b, c, z, prec);
   if (ind < 0) return gmul(ggamma(c, prec), F21taylorind(a,b,c, z, ind, prec));
   if (gsigne(real_i(b)) <= 0)
   {
     if (gsigne(real_i(a)) <= 0)
     {
+      GEN p1,p2;
       if (gcmp(real_i(b), real_i(a)) < 0) swap(a,b);
       /* FIXME: solve recursion as below with F21auxpol */
       p1 = gmul(gsubsg(1, z), F21_i(a, gaddsg(1,b), c, z, prec));
-      p2 = gmul(gmul(gsubsg(1, gdiv(a,c)), z), F21_i(a, gaddsg(1,b), gaddsg(1,c), z, prec));
+      p2 = gmul(gmul(gsubsg(1, gdiv(a,c)), z),
+                F21_i(a, gaddsg(1,b), gaddsg(1,c), z, prec));
       return gadd(p1, p2);
     }
     swap(a,b);
