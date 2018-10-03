@@ -488,7 +488,7 @@ zind(GEN z, long ind)
 
 /* z not 0 or 1, c not a non-positive integer */
 static long
-F21ind(GEN a, GEN b, GEN c, GEN z, long prec)
+F21ind(GEN a, GEN b, GEN c, GEN z)
 {
   GEN v = const_vec(6, mkoo());
   long ind = 0;
@@ -592,7 +592,7 @@ static GEN
 F21finite(long m, GEN b, GEN c, GEN z, long prec)
 {
   GEN a = stoi(-m), b1 = b, c1 = c, z1;
-  long ind = F21ind(a, b, c, z, prec), inda = labs(ind);
+  long ind = F21ind(a, b, c, z), inda = labs(ind);
   z1 = zind(z, inda);
   if (ind < 0)
   {
@@ -707,7 +707,7 @@ F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
     return gmul(tmp, F21finite(m, gsub(c, b), c, z, prec));
   }
   /* Here a, b, c, c-a, c-b are not non-positive integers */
-  ind = F21ind(a, b, c, z, prec);
+  ind = F21ind(a, b, c, z);
   if (ind < 0) return gmul(ggamma(c, prec), F21taylorind(a,b,c, z, ind, prec));
   if (gsigne(real_i(b)) <= 0)
   {
