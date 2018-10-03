@@ -2472,19 +2472,12 @@ GEN
 ZM_snfall(GEN x, GEN *U, GEN *V) { return ZM_snfall_i(x, U, V, 0); }
 GEN
 ZM_snf(GEN x) { return ZM_snfall_i(x, NULL,NULL, 1); }
-
 GEN
-smith(GEN x) {
-  if (typ(x)!=t_MAT) pari_err_TYPE("smith",x);
-  RgM_check_ZM(x, "smith");
-  return ZM_snfall_i(x, NULL,NULL, 1);
-}
+smith(GEN x) { return ZM_snfall_i(x, NULL,NULL, 1); }
 GEN
 smithall(GEN x)
 {
   GEN z = cgetg(4, t_VEC);
-  if (typ(x)!=t_MAT) pari_err_TYPE("smithall",x);
-  RgM_check_ZM(x, "smithall");
   gel(z,3) = ZM_snfall_i(x, (GEN*)(z+1),(GEN*)(z+2), 0);
   return z;
 }
@@ -2660,16 +2653,14 @@ RgM_hnfall(GEN A, GEN *pB, long remove)
 }
 
 static GEN
-gsmithall_i(GEN x,long all)
+RgXM_snf(GEN x,long all)
 {
   pari_sp av;
   long i, j, k, n;
   GEN z, u, v, U, V;
   long vx = gvar(x);
-  if (typ(x)!=t_MAT) pari_err_TYPE("gsmithall",x);
-  if (vx==NO_VARIABLE) return all? smithall(x): smith(x);
-  n = lg(x)-1;
-  if (!n) return trivsmith(all);
+  n = lg(x)-1; if (!n) return trivsmith(all);
+  if (vx==NO_VARIABLE) pari_err_TYPE("RgXM_snf",x);
   if (lgcols(x) != n+1) pari_err_DIM("gsmithall");
   av = avma;
   x = RgM_shallowcopy(x);
@@ -2744,17 +2735,16 @@ matsnf0(GEN x,long flag)
   pari_sp av = avma;
   if (flag > 7) pari_err_FLAG("matsnf");
   if (typ(x) == t_VEC && flag & 4) return smithclean(x);
-  if (flag & 2) x = flag&1 ? gsmithall(x): gsmith(x);
-  else          x = flag&1 ?  smithall(x):  smith(x);
+  if (typ(x)!=t_MAT) pari_err_TYPE("matsnf",x);
+  if (RgM_is_ZM(x)) x = flag&1 ? smithall(x): smith(x);
+  else              x = RgXM_snf(x, flag&1);
   if (flag & 4) x = gerepileupto(av, smithclean(x));
   return x;
 }
-
 GEN
-gsmith(GEN x) { return gsmithall_i(x,0); }
-
+gsmith(GEN x) { return RgXM_snf(x,0); }
 GEN
-gsmithall(GEN x) { return gsmithall_i(x,1); }
+gsmithall(GEN x) { return RgXM_snf(x,1); }
 
 /* H is a relation matrix, either in HNF or a t_VEC (diagonal HNF) */
 static GEN

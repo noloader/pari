@@ -82,3 +82,4 @@ BA   3- [libpari] FpXC_FpXQ_eval
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
      2- inferior hash function hash_str2: use hash_str
+     3- matsnf: remove obsolete binary flag '2' [make it a no no-op] (cf mathnf)

@@ -3741,10 +3741,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: smith(x) ===> matsnf(x)
 
 matsnf(X,{flag=0}): Smith normal form (i.e. elementary divisors) of the matrix 
-X, expressed as a vector d. Binary digits of flag mean 1: returns [u,v,d] where 
-d=u*X*v, otherwise only the diagonal d is returned, 2: allow polynomial 
-entries, otherwise assume X is integral, 4: removes all information 
-corresponding to entries equal to 1 in d.
+X, expressed as a vector d; X must have integer or polynomial entries. Binary 
+digits of flag mean 1: returns [u,v,d] where d=u*X*v, otherwise only the 
+diagonal d is returned, 4: removes all information corresponding to entries 
+equal to 1 in d.
 
 
   ***   at top-level: smith2()
@@ -3755,10 +3755,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: smith2(x) ===> matsnf(x,1)
 
 matsnf(X,{flag=0}): Smith normal form (i.e. elementary divisors) of the matrix 
-X, expressed as a vector d. Binary digits of flag mean 1: returns [u,v,d] where 
-d=u*X*v, otherwise only the diagonal d is returned, 2: allow polynomial 
-entries, otherwise assume X is integral, 4: removes all information 
-corresponding to entries equal to 1 in d.
+X, expressed as a vector d; X must have integer or polynomial entries. Binary 
+digits of flag mean 1: returns [u,v,d] where d=u*X*v, otherwise only the 
+diagonal d is returned, 4: removes all information corresponding to entries 
+equal to 1 in d.
 
 
   ***   at top-level: smithclean()
@@ -3769,10 +3769,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: smithclean(x) ===> matsnf(x,4)
 
 matsnf(X,{flag=0}): Smith normal form (i.e. elementary divisors) of the matrix 
-X, expressed as a vector d. Binary digits of flag mean 1: returns [u,v,d] where 
-d=u*X*v, otherwise only the diagonal d is returned, 2: allow polynomial 
-entries, otherwise assume X is integral, 4: removes all information 
-corresponding to entries equal to 1 in d.
+X, expressed as a vector d; X must have integer or polynomial entries. Binary 
+digits of flag mean 1: returns [u,v,d] where d=u*X*v, otherwise only the 
+diagonal d is returned, 4: removes all information corresponding to entries 
+equal to 1 in d.
 
 
   ***   at top-level: smithpol()
@@ -3783,10 +3783,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 New syntax: smithpol(x) ===> matsnf(x,2)
 
 matsnf(X,{flag=0}): Smith normal form (i.e. elementary divisors) of the matrix 
-X, expressed as a vector d. Binary digits of flag mean 1: returns [u,v,d] where 
-d=u*X*v, otherwise only the diagonal d is returned, 2: allow polynomial 
-entries, otherwise assume X is integral, 4: removes all information 
-corresponding to entries equal to 1 in d.
+X, expressed as a vector d; X must have integer or polynomial entries. Binary 
+digits of flag mean 1: returns [u,v,d] where d=u*X*v, otherwise only the 
+diagonal d is returned, 4: removes all information corresponding to entries 
+equal to 1 in d.
 
 
   ***   at top-level: sort()
@@ -4517,4 +4517,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 0
+Total time spent: 4
