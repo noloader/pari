@@ -4456,6 +4456,7 @@ START:
       if (precadd <= 0) precadd = 1;
       precpb = "cleanarch";
     }
+    if (DEBUGLEVEL) timer_printf(&T, "cleanarch");
   } while (need || precpb);
 
   delete_cache(&cache); delete_FB(&F); free_GRHcheck(&GRHcheck);
