@@ -5849,7 +5849,6 @@ mfisnotA5(GEN F)
 static long
 mffindrootof1(GEN u1)
 {
-  pari_sp av = avma;
   GEN u0 = gen_2, u1k = u1, u2;
   long c = 1;
   while (!gequalsg(2, liftpol_shallow(u1))) /* u1 = z^c + z^-c */
@@ -5857,7 +5856,7 @@ mffindrootof1(GEN u1)
     u2 = gsub(gmul(u1k, u1), u0);
     u0 = u1; u1 = u2; c++;
   }
-  return gc_long(av,c);
+  return c;
 }
 
 /* we known that F is not dihedral */
@@ -5866,20 +5865,24 @@ mfgaloistype_i(long N, GEN CHI, GEN F, long lim)
 {
   forprime_t iter;
   GEN v = mfcoefs_i(F,lim,1), w = zero_zv(lim);
+  pari_sp av;
   ulong p;
   u_forprime_init(&iter, 2, lim);
+  av = avma;
   while((p = u_forprime_next(&iter)))
   {
     GEN u;
     long n;
     if (!(N%p)) continue;
-    u = gdiv(gsqr(gel(v, p+1)), mfchareval_i(CHI, p));
+    u = gel(v, p+1); if (gequal0(u)) continue;
+    u = gdiv(gsqr(u), mfchareval_i(CHI, p));
     n = mffindrootof1(gsubgs(u,2));
     if (n == 3) w[p] = 1;
     if (n == 4) return -24; /* S4 */
     if (n == 5) return -60; /* A5 */
     if (n > 5) pari_err_DOMAIN("mfgaloistype", "form", "not a",
                                strtoGENstr("cuspidal eigenform"), F);
+    set_avma(av);
   }
   if (mfisnotS4(N,w) && mfisnotA5(F)) return -12; /* A4 */
   return 0; /* FAILURE */
