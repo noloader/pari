@@ -5738,13 +5738,13 @@ mfwt1newdimsum(long N)
 }
 
 static long
-mfisdihedral(GEN F, GEN DIH)
+mfisdihedral(GEN F, GEN vF, GEN DIH)
 {
   GEN vG = gel(DIH,1), M = gel(DIH,2), v, G, bnr, w, gen, cyc, D, f, nf, con;
   GEN f0, f0b, xin;
   long i, l, e, j, L, n;
   if (lg(M) == 1) return 0;
-  v = RgM_RgC_invimage(M, mftocol(F, nbrows(M)-1, 1));
+  v = RgM_RgC_invimage(M, vF);
   if (!v) return 0;
   l = lg(v);
   for (i = 1; i < l; i++)
@@ -5859,10 +5859,11 @@ mffindrootof1(GEN u1)
 
 /* we known that F is not dihedral */
 static long
-mfgaloistype_i(long N, GEN CHI, GEN F, long lim)
+mfgaloistype_i(long N, GEN CHI, GEN F, GEN v)
 {
   forprime_t iter;
-  GEN v = mfcoefs_i(F,lim,1), w = zero_zv(lim);
+  long lim = lg(v)-2;
+  GEN w = zero_zv(lim);
   pari_sp av;
   ulong p;
   u_forprime_init(&iter, 2, lim);
@@ -5890,14 +5891,14 @@ static GEN
 mfgaloistype0(long N, GEN CHI, GEN F, GEN DIH, long lim)
 {
   pari_sp av = avma;
-  long t = mfisdihedral(F, DIH);
-  set_avma(av);
-  if (t) return stoi(t);
+  GEN vF = mftocol(F, lim, 1);
+  long t = mfisdihedral(F, vF, DIH);
+  if (t) { set_avma(av); return stoi(t); }
   for(;;)
   {
-    t = mfgaloistype_i(N, CHI, F, lim);
+    t = mfgaloistype_i(N, CHI, F, vF);
     set_avma(av); if (t) return stoi(t);
-    lim += lim >> 1;
+    lim += lim >> 1; vF = mfcoefs_i(F,lim,1);
   }
 }
 
@@ -5922,14 +5923,15 @@ mfgaloistype(GEN NK, GEN f)
     mf = f? NULL: mfinit_i(NK, mf_NEW);
   }
   if (k != 1) pari_err_DOMAIN("mfgaloistype", "k", "!=", gen_1, stoi(k));
-  SB = mfsturmNk(N,1) + 1;
-  lim = maxss(200, 3*SB);
+  SB = mf? mfsturm_mf(mf): mfsturmNk(N,1);
   DIH = mfdihedralnew(N,CHI);
+  lim = lg(DIH) == 1? 200: SB;
   DIH = mkvec2(DIH, mfvectomat(DIH,SB,1));
   if (f) return gerepileuptoint(av, mfgaloistype0(N,CHI, f, DIH, lim));
   F = mfeigenbasis(mf); lL = lg(F);
   T = cgetg(lL, t_VEC);
-  for (i=1; i < lL; i++) gel(T,i) = mfgaloistype0(N,CHI, gel(F,i), DIH, lim);
+  for (i=1; i < lL; i++)
+    gel(T,i) = mfgaloistype0(N, CHI, gel(F,i), DIH, lim);
   return gerepileupto(av, T);
 }
 
