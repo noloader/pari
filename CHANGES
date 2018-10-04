@@ -37,6 +37,7 @@ BA  22- foo(n)=vector(n)[1..n];123; would corrupt the GP interpreter [#2081]
     26- nffactor(t_POL, t_POL) => bug in LLL_cmbf [#2083]
     27- ideallog(pure archimedean conductor, t_FRAC) -> log(0) error
     28- lfunrootres: avoid oo-loop
+    29- mfgaloistype: dihedral forms possibly incorrect for N > 3000
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

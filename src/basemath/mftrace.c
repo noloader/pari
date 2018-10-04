@@ -6224,28 +6224,24 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
   return res;
 }
 
-/* Append to v all dihedral weight 1 forms coming from D, if fundamental. */
-/* B a t_VECSMALL: if #B=1, only that level; if B=[Bmin,Bmax], Bmin <= Bmax:
- * between those levels. */
+/* Append to v all dihedral weight 1 forms coming from D, if fundamental.
+ * level in [l1, l2] */
 static void
-append_dihedral(GEN v, long D, GEN B)
+append_dihedral(GEN v, long D, long l1, long l2)
 {
   long Da = labs(D), no, N, i, numi, ct, min, max;
   GEN bnf, con, LI, resall, varch;
   pari_sp av;
 
-  if (lg(B) == 2)
-  {
-    long b = B[1], m = D > 0? 3: 1;
-    min = b / Da;
-    if (b % Da || min < m) return;
-    max = min;
+  /* min <= Nf <= max */
+  max = l2 / Da;
+  if (l1 == l2)
+  { /* assume Da | l2 */
+    min = max;
+    if (D > 0 && min < 3) return;
   }
-  else
-  { /* assume B[1] < B[2] */
-    min = (B[1] + Da-1)/Da;
-    max = B[2]/Da;
-  }
+  else /* assume l1 < l2 */
+    min = (l1 + Da-1)/Da;
   if (!sisfundamental(D)) return;
 
   av = avma;
@@ -6285,7 +6281,7 @@ append_dihedral(GEN v, long D, GEN B)
       idcon = galoisapply(bnf, con, id);
       conk = (D < 0 && gequal(idcon, id)) ? con : NULL;
       for (j = i; j < lglis; j++)
-        if (gequal(idcon, gel(LIs, j))) gel(LIs, j) = gen_0;
+        if (gequal(idcon, gel(LIs, j))) { gel(LIs, j) = gen_0; break; }
       maxinf = (D < 0 || gequal(idcon,id))? 1: 2;
       for (inf = 1; inf <= maxinf; inf++)
       {
@@ -6321,24 +6317,25 @@ mfdihedralall(GEN LIM)
     GEN D = mydivisorsu(l1);
     long l = lg(D), j;
     for (j = 2; j < l; j++)
-    {
+    { /* skip d = 1 */
       long d = D[j];
-      append_dihedral(res, -d, LIM);
-      if (d >= 5 && D[l-j] >= 3) append_dihedral(res, d, LIM);
+      if (d == 2) continue;
+      append_dihedral(res, -d, l1,l2);
+      if (d >= 5 && D[l-j] >= 3) append_dihedral(res, d, l1,l2); /* Nf >= 3 */
     }
   }
   else
   {
     long D;
-    for (D = -3; D >= -limD; D--) append_dihedral(res, D, LIM);
-    limD /= 3;
-    for (D = 5; D <= limD;   D++) append_dihedral(res, D, LIM);
+    for (D = -3; D >= -limD; D--) append_dihedral(res, D, l1,l2);
+    limD /= 3; /* Nf >= 3 (GTM 193, prop 3.3.18) */
+    for (D = 5; D <= limD;   D++) append_dihedral(res, D, l1,l2);
   }
-  if (l1 == l2) return gel(res,1); /* single level */
   ct = lg(res);
+  if (ct > 1) res = shallowconcat1(res);
+  if (l1 == l2) return res; /* single level */
   if (ct > 1)
-  { /* concat and sort wrt N */
-    res = shallowconcat1(res);
+  { /* sort wrt N */
     res = vecpermute(res, indexvecsort(res, mkvecsmall(1)));
     ct = lg(res);
   }
