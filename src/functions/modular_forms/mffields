@@ -23,7 +23,7 @@ Doc: Given \kbd{mf} as output by \kbd{mfinit} with parameters
  ? mf = mfinit([35, 2, [G,chi]],0); mffields(mf)
  %4 = [y, y]
  @eprog Here the character is primitive of order 12 and the two newforms are
- defined over $\Q(\chi) = \Q(\zeta_12)$.
+ defined over $\Q(\chi) = \Q(\zeta_{12})$.
 
  \bprog
  ? mf = mfinit([35, 2, Mod(13,35)],0); mffields(mf)
