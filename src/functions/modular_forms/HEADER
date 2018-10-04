@@ -48,7 +48,7 @@ Doc:
  at infinity $[a(0),a(1),...,a(n)]$ using the function \kbd{mfcoefs}. These
  coefficients are given algebraically, as rational numbers or \typ{POLMOD}s.
  The member function \kbd{f.mod} recovers the modulus used in the
- coefficients of $f$, which will be the same as for $k = \Q(chi)$ (a cyclotomic
+ coefficients of $f$, which will be the same as for $k = \Q(\chi)$ (a cyclotomic
  polynomial), or define a number field extension $K/k$.
 
  Modular forms are obtained either directly from other mathematical objects,
