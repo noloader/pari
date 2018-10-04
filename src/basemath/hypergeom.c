@@ -633,12 +633,14 @@ intnumsplit(void *E, GEN (*f)(void*, GEN), GEN a, GEN b, GEN z, long prec)
 static GEN
 myint21(void *E, GEN (*f)(void*, GEN), long prec)
 {
-  GEN pz, z = gel(E,1), a = real_i(gel(E,2)), b = gel(E,3), c = gel(E,4);
-  GEN p0 = mkendpt(gen_0, b);
-  GEN p1 = mkendpt(gen_1, c);
-  pz = (gcmpgs(a, 1) <= 0 &&
-        (typ(z) != t_COMPLEX || is0(imag_i(z), 10)))? real_i(ginv(z)): NULL;
-  if (pz && (gsigne(pz) <= 0 || gcmp(pz, gen_1) >= 0)) pz = NULL;
+  GEN z = gel(E,1), a = real_i(gel(E,2)), b = gel(E,3), c = gel(E,4);
+  GEN pz = NULL, p0 = mkendpt(gen_0, b), p1 = mkendpt(gen_1, c);
+  if (gcmpgs(a, 1) <= 0 && is0(imag_i(z), 10))
+  {
+    GEN r;
+    pz = ginv(z); r = real_i(pz);
+    if (gsigne(r) <= 0 || gcmp(r, gen_1) >= 0) pz = NULL;
+  }
   if (pz) pz = mkendpt(pz,a);
   else if (gcmpgs(a,-1) <= 0) prec += ((gexpo(a)+1)>>1) * EXTRAPREC;
   return intnumsplit(E, f, p0, p1, pz, prec);
