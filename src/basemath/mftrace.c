@@ -5753,7 +5753,8 @@ mfisdihedral(GEN F, GEN DIH)
   G = gel(vG,i);
   bnr = gel(G,2); cyc = bnr_get_cyc(bnr); D = gel(cyc,1);
   w = gel(G,3);
-  f = bnr_get_mod(bnr), nf = bnr_get_nf(bnr);
+  f = bnr_get_mod(bnr);
+  nf = bnr_get_nf(bnr);
   con = gel(galoisconj(nf,gen_1), 2);
   f0 = gel(f,1); f0b = galoisapply(nf, con, f0);
   xin = zv_to_ZV(gel(w,2)); /* xi(bnr.gen[i]) = e(xin[i] / D) */
