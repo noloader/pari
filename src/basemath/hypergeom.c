@@ -637,7 +637,7 @@ myint21(void *E, GEN (*f)(void*, GEN), long prec)
   GEN p0 = mkendpt(gen_0, b);
   GEN p1 = mkendpt(gen_1, c);
   pz = (gcmpgs(a, 1) <= 0 &&
-        typ(z) == t_COMPLEX && is0(imag_i(z), 10))? real_i(ginv(z)): NULL;
+        (typ(z) != t_COMPLEX || is0(imag_i(z), 10)))? real_i(ginv(z)): NULL;
   if (pz && (gsigne(pz) <= 0 || gcmp(pz, gen_1) >= 0)) pz = NULL;
   if (pz) pz = mkendpt(pz,a);
   else if (gcmpgs(a,-1) <= 0) prec += ((gexpo(a)+1)>>1) * EXTRAPREC;
