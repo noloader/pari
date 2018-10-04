@@ -4332,6 +4332,7 @@ GEN     groupelts_set(GEN G, long n);
 GEN     numtoperm(long n, GEN x);
 GEN     perm_cycles(GEN v);
 GEN     perm_pow(GEN perm, long exp);
+GEN     perm_to_GAP(GEN v);
 GEN     perm_to_Z(GEN v);
 GEN     permtonum(GEN x);
 GEN     quotient_group(GEN C, GEN G);

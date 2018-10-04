@@ -505,7 +505,7 @@ perm_pow(GEN perm, long exp)
   set_avma(av); return p;
 }
 
-static GEN
+GEN
 perm_to_GAP(GEN p)
 {
   pari_sp ltop=avma;
