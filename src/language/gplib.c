@@ -1811,6 +1811,7 @@ escape(const char *tch, int ismain)
       switchin(s);
       if (file_is_binary(pari_infile))
       {
+        pari_sp av = avma;
         int vector;
         GEN x = readbin(s,pari_infile, &vector);
         popinfile();
@@ -1821,6 +1822,7 @@ escape(const char *tch, int ismain)
           pari_warn(warner,"setting %ld history entries", l-1);
           for (i=1; i<l; i++) pari_add_hist(gel(x,i), 0);
         }
+        set_avma(av);
       }
       break;
     case 's': dbg_pari_heap(); break;
