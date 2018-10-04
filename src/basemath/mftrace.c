@@ -5737,48 +5737,45 @@ mfwt1newdimsum(long N)
   return S? S - mfwt1olddimsum(N): 0;
 }
 
-/* Guess Galois type of wt1 eigenforms. */
-/* NK can be mf or [N,1,CHI] */
 static long
 mfisdihedral(GEN F, GEN DIH)
 {
-  GEN vG = gel(DIH,1), M = gel(DIH,2), v;
-  long i, l;
+  GEN vG = gel(DIH,1), M = gel(DIH,2), v, G, bnr, w, gen, cyc, D, f, nf, con;
+  GEN f0, f0b, xin;
+  long i, l, e, j, L, n;
   if (lg(M) == 1) return 0;
   v = RgM_RgC_invimage(M, mftocol(F, nbrows(M)-1, 1));
   if (!v) return 0;
   l = lg(v);
   for (i = 1; i < l; i++)
-    if (!gequal0(gel(v,i)))
-    {
-      GEN G = gel(vG,i), bnr = gel(G,2), w = gel(G,3);
-      GEN gen, cyc = bnr_get_cyc(bnr), D = gel(cyc,1);
-      GEN f = bnr_get_mod(bnr), nf = bnr_get_nf(bnr);
-      GEN con = gel(galoisconj(nf,gen_1), 2);
-      GEN f0 = gel(f,1), f0b = galoisapply(nf, con, f0);
-      GEN xin = zv_to_ZV(gel(w,2)); /* xi(bnr.gen[i]) = e(xin[i] / D) */
-      long e, j, L, n;
-      if (!gequal(f0,f0b))
-      { /* finite part of conductor not ambiguous */
-        GEN a = idealmul(nf, f0, idealdivexact(nf, f0b, idealadd(nf, f0, f0b)));
-        GEN bnr0 = bnr;
-        bnr = bnrinit0(bnr_get_bnf(bnr), mkvec2(a, gel(f,2)), 1);
-        xin = RgV_RgM_mul(xin, bnrsurjection(bnr, bnr0));
-        /* still xi(gen[i]) = e(xin[i] / D), for the new generators */
-      }
-      gen = bnr_get_gen(bnr); L = lg(gen);
-      for (j = 1, e = itou(D); j < L; j++)
-      {
-        GEN Ng = idealnorm(nf, gel(gen,j));
-        GEN a = shifti(gel(xin,j), 1); /* xi(g_j^2) = e(a/D) */
-        GEN b = FpV_dotproduct(xin, isprincipalray(bnr,Ng), D);
-        GEN m = Fp_sub(a, b, D); /* xi(g_j/\bar{g_j}) = e(m/D) */
-        e = ugcd(e, itou(m)); if (e == 1) break;
-      }
-      n = itou(D) / e;
-      return n == 1? 4: 2*n;
-    }
-  return 0;
+    if (!gequal0(gel(v,i))) break;
+  if (i == l) return 0;
+  G = gel(vG,i);
+  bnr = gel(G,2); cyc = bnr_get_cyc(bnr); D = gel(cyc,1);
+  w = gel(G,3);
+  f = bnr_get_mod(bnr), nf = bnr_get_nf(bnr);
+  con = gel(galoisconj(nf,gen_1), 2);
+  f0 = gel(f,1); f0b = galoisapply(nf, con, f0);
+  xin = zv_to_ZV(gel(w,2)); /* xi(bnr.gen[i]) = e(xin[i] / D) */
+  if (!gequal(f0,f0b))
+  { /* finite part of conductor not ambiguous */
+    GEN a = idealmul(nf, f0, idealdivexact(nf, f0b, idealadd(nf, f0, f0b)));
+    GEN bnr0 = bnr;
+    bnr = bnrinit0(bnr_get_bnf(bnr), mkvec2(a, gel(f,2)), 1);
+    xin = RgV_RgM_mul(xin, bnrsurjection(bnr, bnr0));
+    /* still xi(gen[i]) = e(xin[i] / D), for the new generators */
+  }
+  gen = bnr_get_gen(bnr); L = lg(gen);
+  for (j = 1, e = itou(D); j < L; j++)
+  {
+    GEN Ng = idealnorm(nf, gel(gen,j));
+    GEN a = shifti(gel(xin,j), 1); /* xi(g_j^2) = e(a/D) */
+    GEN b = FpV_dotproduct(xin, isprincipalray(bnr,Ng), D);
+    GEN m = Fp_sub(a, b, D); /* xi(g_j/\bar{g_j}) = e(m/D) */
+    e = ugcd(e, itou(m)); if (e == 1) break;
+  }
+  n = itou(D) / e;
+  return n == 1? 4: 2*n;
 }
 
 static ulong
