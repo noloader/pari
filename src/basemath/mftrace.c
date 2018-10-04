@@ -1866,15 +1866,15 @@ mflinear_linear(GEN F, GEN L, int strip)
 {
   long l = lg(F), j;
   GEN vF, M = cgetg(l, t_MAT);
+  L = shallowcopy(L);
   for (j = 1; j < l; j++)
   {
     GEN f = gel(F,j), c = gel(f,3), d = gel(f,4);
     if (typ(c) == t_VEC) c = shallowtrans(c);
-    if (!isint1(d)) c = RgC_Rg_div(c, d);
+    if (!isint1(d)) gel(L,j) = gdiv(gel(L,j),d);
     gel(M,j) = c;
   }
-  vF = gmael(F,1,2);
-  L = RgM_RgC_mul(M,L);
+  vF = gmael(F,1,2); L = RgM_RgC_mul(M,L);
   if (strip && !mflinear_strip(&vF,&L)) return mftrivial();
   return taglinear(vecmfNK(vF), vF, L);
 }
