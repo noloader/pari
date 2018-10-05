@@ -11475,19 +11475,19 @@ mftocoset_i(ulong N, GEN M, GEN cosets)
   if (!i) pari_err_BUG("mftocoset [no coset found]");
   return gc_long(av,i);
 }
-/* (M * N^(-1))[2,2], assuming N in SL2(Z) */
+/* (U * V^(-1))[2,2] mod N, assuming V in SL2(Z) */
 static long
-SL2_div_D(GEN M, GEN N)
+SL2_div_D(ulong N, GEN U, GEN V)
 {
-  long c = itos(gcoeff(M,2,1)), d = itos(gcoeff(M,2,2));
-  long a2 = itos(gcoeff(N,1,1)), b2 = itos(gcoeff(N,1,2));
-  return a2*d - b2*c;
+  long c = umodiu(gcoeff(U,2,1), N), d = umodiu(gcoeff(U,2,2), N);
+  long a2 = umodiu(gcoeff(V,1,1), N), b2 = umodiu(gcoeff(V,1,2), N);
+  return (a2*d - b2*c) % (long)N;
 }
 static long
 mftocoset_iD(ulong N, GEN M, GEN cosets, long *D)
 {
   long i = mftocoset_i(N, M, cosets);
-  *D = SL2_div_D(M, gel(cosets,i)); return i;
+  *D = SL2_div_D(N, M, gel(cosets,i)); return i;
 }
 GEN
 mftocoset(ulong N, GEN M, GEN cosets)
@@ -11789,11 +11789,18 @@ mfgetvan(GEN fs, GEN ga, GEN *pal, long nlim, long prec)
   get_mf_F(fs, &mf, &F);
   if (!F)
   {
-    GEN vanall = fs_get_expan(fs);
-    long jga = mftocoset_i(MF_get_N(mf), ga, fs_get_cosets(fs));
+    GEN vanall = fs_get_expan(fs), cosets = fs_get_cosets(fs);
+    long D, jga = mftocoset_iD(MF_get_N(mf), ga, cosets, &D);
     van = gmael(vanall, 1, jga);
     W   = gmael(vanall, 2, jga);
-    if (lg(van) >= nlim + 2) { *pal = gel(W,1); return van; }
+    if (lg(van) >= nlim + 2)
+    {
+      GEN z, CHI = MF_get_CHI(mf);
+      long N = mfcharmodulus(CHI);
+      z = mfcharcxeval(CHI, D, prec);
+      if (!gequal1(z)) van = RgV_Rg_mul(van, z);
+      *pal = gel(W,1); return van;
+    }
     F = gel(fs_get_EF(fs), 1);
   }
   PREC = prec + EXTRAPRECWORD;
@@ -11850,7 +11857,7 @@ mfsymbolevalpartial(GEN fs, GEN A, GEN ga, long bit)
   if (lg(fs) != 3 && gtodouble(Y)*(2*N) < 1)
   { /* true symbol + low imaginary part: use GL_2 action to improve */
     GEN U, ga2, czd, A2 = cxredga0N(N, A, &U, &czd, 1), oo = mkoo();
-    ga2 = ZM_mul(ga, U);
+    ga2 = ZM_mul(ga, ZM_inv(U, NULL));
     S = intAoo0(fs, A2, ga2, P, bit);
     S = gsub(S, mfsymboleval(fs, mkvec2(mat2cusp(U), oo), ga2, bit));
     S = act_GL2(S, U, k);
