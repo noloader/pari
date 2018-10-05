@@ -5738,7 +5738,7 @@ mfwt1newdimsum(long N)
 }
 
 static long
-mfisdihedral(GEN F, GEN vF, GEN DIH)
+mfisdihedral(GEN vF, GEN DIH)
 {
   GEN vG = gel(DIH,1), M = gel(DIH,2), v, G, bnr, w, gen, cyc, D, f, nf, con;
   GEN f0, f0b, xin;
@@ -5892,7 +5892,7 @@ mfgaloistype0(long N, GEN CHI, GEN F, GEN DIH, long lim)
 {
   pari_sp av = avma;
   GEN vF = mftocol(F, lim, 1);
-  long t = mfisdihedral(F, vF, DIH);
+  long t = mfisdihedral(vF, DIH);
   if (t) { set_avma(av); return stoi(t); }
   for(;;)
   {
