@@ -572,22 +572,15 @@ F21finitetaylor(long m, GEN b, GEN c, GEN z, long prec)
   return S;
 }
 
+/* c not a non-positive integer */
 static GEN
-F21finiteaux(long m, GEN b, GEN c, GEN z, GEN numb, GEN numc, GEN coe, long prec)
+F21finite_i(long m, GEN b, GEN c, GEN z, GEN B, GEN C, GEN coe, long prec)
 {
-  GEN C;
-  long j;
-  if (!isnegint2(c, &j) || j >= m) C = poch(numb, m, prec);
-  else
-  {
-    C = mulii(mpfact(j), mpfact(m-j-1));
-    if (odd(m-j-1)) togglesign(C);
-    c = gaddgs(c, j+1);
-  }
-  return mul3(C, gdiv(gpowgs(coe, m), poch(numc, m, prec)),
+  return mul3(poch(B, m, prec), gdiv(gpowgs(coe, m), poch(C, m, prec)),
               F21finitetaylor(m, b, c, z, prec));
 }
 
+/* c not a non-positive integer */
 static GEN
 F21finite(long m, GEN b, GEN c, GEN z, long prec)
 {
@@ -597,16 +590,16 @@ F21finite(long m, GEN b, GEN c, GEN z, long prec)
   if (ind < 0)
   {
     b1 = bind(a, b, c, inda);
-    c1 = cind(a, b, c, inda);
+    c1 = cind(a, b, c, inda); /* not a non-positive integer */
   }
   switch (inda)
   {
-    case 1: return F21finiteaux(m, b1, c1, z1, b, c, gsubsg(1,z), prec);
+    case 1: return F21finite_i(m, b1, c1, z1, b, c, gsubsg(1,z), prec);
     case 2: return gmul(gpowgs(gsubsg(1,z), m),
                         F21finitetaylor(m, b1, c, z1, prec));
-    case 4: return F21finiteaux(m, b, c1, z1, gsub(c,b), c, gen_1, prec);
-    case 5: return F21finiteaux(m, b1, c1, z1, gsub(c,b), c, z, prec);
-    case 6: return F21finiteaux(m, b1, c1, z1, b, c, gneg(z), prec);
+    case 4: return F21finite_i(m, b, c1, z1, gsub(c,b), c, gen_1, prec);
+    case 5: return F21finite_i(m, b1, c1, z1, gsub(c,b), c, z, prec);
+    case 6: return F21finite_i(m, b1, c1, z1, b, c, gneg(z), prec);
     default:return F21finitetaylor(m, b, c, z, prec);
   }
 }
@@ -668,12 +661,10 @@ F21_i:
 
 F21finite:
 - compute index, value of z
-- if index=2, call F21finitetaylor, else F21finiteaux
+- call F21finitetaylor
 
 F21ind: find best index (1 to 6, -1 to -6 if |z| < 0.98)
 F21finitetaylor: a or b in Z_{<=0}; calls precFtaylor
-F21finiteaux: computes a poch(prec) THEN F21finitetaylor, probable bug,
-  should do reverse.
 
 F21taylorind: in case 2, may lose accuracy, possible bug.
 - calls F21taylor[1456] or F21taylor
@@ -688,6 +679,7 @@ F21taylor[16]: if b-a integer, calls FBaux1, else calls FBaux2
 F21taylorlim: calls precFtaylor then compute
 F21finitelim: direct */
 static GEN F21taylorind(GEN a, GEN b, GEN c, GEN z, long ind, long prec);
+/* c not a non-positive integer */
 static GEN
 F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
 {
