@@ -11795,9 +11795,7 @@ mfgetvan(GEN fs, GEN ga, GEN *pal, long nlim, long prec)
     W   = gmael(vanall, 2, jga);
     if (lg(van) >= nlim + 2)
     {
-      GEN z, CHI = MF_get_CHI(mf);
-      long N = mfcharmodulus(CHI);
-      z = mfcharcxeval(CHI, D, prec);
+      GEN z = mfcharcxeval(MF_get_CHI(mf), D, prec);
       if (!gequal1(z)) van = RgV_Rg_mul(van, z);
       *pal = gel(W,1); return van;
     }
