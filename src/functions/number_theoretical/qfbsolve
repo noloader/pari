@@ -16,6 +16,18 @@ Doc: Return the list of solutions $[x,y]$ of the equation $Q(x,y)=n$ in
  If $D>0$, $S$ is infinite. If $D<-4$, $S$ is of order $2$, if $D=-3$, $S$ is
  of order $6$ and if $D=-4$, $S$ is of order $4$.
 
+ The integer $n$ can be given by its factorization matrix.
+
+ \bprog
+ ? qfbsolve(Qfb(1,0,2),201)
+ %1 = [[-13,-4],[-1,10],[-1,-10],[-13,4]]
+ ? N=2^128+1;F=factor(N);
+ ? qfbsolve(Qfb(1,0,1),[N,F])
+ %3 = [[-16382350221535464479,8479443857936402504],
+       [18446744073709551616,-1],[-18446744073709551616,-1],
+       [16382350221535464479,8479443857936402504]]
+ @eprog
+
  Assuming the factorisation of $n$ is given, for each prime factor $p$ of $n$,
  the algorithm used runs in probabilistic polynomial time
  in $p$ (through the computation of square roots of $D$ modulo $4\*p$); it is
