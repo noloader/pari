@@ -399,7 +399,7 @@ zv_cyc_minimize(GEN cyc, GEN g, GEN coprime)
   g   = vecslice(g,  i,l-1);
   e = cyc[1];
   gd = Flv_Fl_mul(g, d, e);
-  bestk = 1; best = g; maxi = ugcd(d,e);
+  bestk = 1; best = g; maxi = e/ugcd(d,e);
   for (gk = g, k = d+1, i = 1; i < maxi; k += d, i++)
   {
     long ko = k % o;
@@ -432,7 +432,7 @@ zv_cyc_minimal(GEN cyc, GEN g, GEN coprime)
   e = cyc[1];
   /* find k in (Z/e)^* such that g*k mod cyc is lexicographically minimal,
    * k = 1 mod d to fix the first non-zero entry */
-  gd = Flv_Fl_mul(g, d, e); maxi = ugcd(d,e);
+  gd = Flv_Fl_mul(g, d, e); maxi = e/ugcd(d,e);
   for (gk = g, k = d+1, i = 1; i < maxi; i++, k += d)
   {
     long ko = k % o;

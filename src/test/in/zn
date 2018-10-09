@@ -157,6 +157,7 @@ chargalois(G)
 chargalois(G,4)
 chargalois(G,[1,4])
 chargalois([60,4], [12])
+chargalois([180,6], [30])
 
 G = znstar(126000,1);
 zncharconductor(G,11)
