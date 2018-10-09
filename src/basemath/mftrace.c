@@ -5930,8 +5930,7 @@ mfgaloistype(GEN NK, GEN f)
   if (f) return gerepileuptoint(av, mfgaloistype0(N,CHI, f, DIH, lim));
   F = mfeigenbasis(mf); lL = lg(F);
   T = cgetg(lL, t_VEC);
-  for (i=1; i < lL; i++)
-    gel(T,i) = mfgaloistype0(N, CHI, gel(F,i), DIH, lim);
+  for (i=1; i < lL; i++) gel(T,i) = mfgaloistype0(N, CHI, gel(F,i), DIH, lim);
   return gerepileupto(av, T);
 }
 
