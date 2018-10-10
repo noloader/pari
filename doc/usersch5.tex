@@ -3665,6 +3665,10 @@ discriminant $D$ such that $d=D*f^2$ and set \kbd{*pt\_f} to $f$
 
 \fun{GEN}{divisorsu_fact}{GEN fa} same, where \kbd{fa} is \kbd{factoru(n)}.
 
+\fun{GEN}{divisorsu_fact_factored}{GEN fa} where \kbd{fa} is \kbd{factoru(n)}.
+Return a vector $[D,F]$, where $D$ is a a \typ{VECSMALL} containing the
+divisors of $u$ and $F[i]$ contains \kbd{factoru}$(D[i])$.
+
 \fun{GEN}{divisorsu_moebius}{GEN P} returns the divisors of $n$ of the form
 $\prod_{p\in S} (-p)$, $S\subset P$ in a \typ{VECSMALL}. The vector is not
 sorted but its first element is guaranteed to be $1$. If $P$ is

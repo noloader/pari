@@ -451,6 +451,48 @@ divisors_factored(GEN N)
   for (i = 1; i <= n; i++) gmael(D,i,2) = fa_clean(P, gmael(D,i,2));
   return gerepilecopy(av, D);
 }
+static int
+cmpu1(void *E, GEN va, GEN vb)
+{ long a = va[1], b = vb[1]; (void)E; return a>b? 1: (a<b? -1: 0); }
+static GEN
+fa_clean_u(GEN P, GEN E)
+{
+  long i, j, l = lg(E);
+  GEN Q = cgetg(l, t_VECSMALL);
+  for (i = j = 1; i < l; i++)
+    if (E[i]) { Q[j] = P[i]; E[j] = E[i]; j++; }
+  setlg(Q,j);
+  setlg(E,j); return mkmat2(Q,E);
+}
+GEN
+divisorsu_fact_factored(GEN fa)
+{
+  pari_sp av = avma;
+  GEN *d, *t1, *t2, *t3, vD, D, P = gel(fa,1), E = gel(fa,2);
+  long i, j, l, n = ndiv(E);
+
+  D = cgetg(n+1,t_VEC); d = (GEN*)D;
+  l = lg(E);
+  *++d = mkvec2((GEN)1, const_vecsmall(l-1,0));
+  for (i=1; i<l; i++)
+    for (t1=(GEN*)D,j=E[i]; j; j--,t1=t2)
+      for (t2=d, t3=t1; t3<t2; )
+      {
+        ulong a;
+        GEN b;
+        a = (*++t3)[1] * P[i];
+        b = leafcopy(gel(*t3,2)); b[i]++;
+        *++d = mkvec2((GEN)a,b);
+      }
+  gen_sort_inplace(D,NULL,&cmpu1,NULL);
+  vD = cgetg(n+1, t_VECSMALL);
+  for (i = 1; i <= n; i++)
+  {
+    vD[i] = umael(D,i,1);
+    gel(D,i) = fa_clean_u(P, gmael(D,i,2));
+  }
+  return gerepilecopy(av, mkvec2(vD,D));
+}
 GEN
 divisors(GEN N)
 {
