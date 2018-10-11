@@ -1859,7 +1859,7 @@ sqrtnof1(ulong n, long prec)
     z = gdiv(y, gaddgs(gmulsg(n1, y), n2));
     shiftc_inplace(z,1);
     x = gmul(x, gsubsg(1, z));
-    if (mask == 1) return gerepileupto(av, gprec_w(x,prec));
+    if (mask == 1) return gerepilecopy(av, gprec_w(x,prec));
     eold = enew;
   }
 }

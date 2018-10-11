@@ -1571,7 +1571,7 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
     gel(F,i) = t;
   }
   if (typ(ind0) == t_INT) F = gel(F,1);
-  return gerepileupto(av, gprec_w(F, nbits2prec(fpr)));
+  return gerepilecopy(av, gprec_w(F, nbits2prec(fpr)));
 }
 /* v(t') */
 static long

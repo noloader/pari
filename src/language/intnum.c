@@ -1780,7 +1780,7 @@ sumnummonien(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
     S = gadd(S, gmul(gel(vwt,i), eval(E, gel(vabs,i))));
     S = gprec_wensure(S, prec);
   }
-  return gerepileupto(av, gprec_w(S, prec));
+  return gerepilecopy(av, gprec_w(S, prec));
 }
 
 static GEN
@@ -1951,7 +1951,7 @@ intnumgauexp(void *E, GEN (*eval)(void*,GEN), GEN gN, GEN tab, long prec)
     S = gadd(S, gmul(gdiv(w,x), cxtoreal(t)));
     S = gprec_wensure(S, prec);
   }
-  return gerepileupto(av, gprec_w(S, prec));
+  return gerepilecopy(av, gprec_w(S, prec));
 }
 
 GEN
@@ -2068,7 +2068,7 @@ intnumainfrat(GEN F, long N, double r, long prec)
   for (k = lim; k >= v; k--) /* S <- (S + coeff(ser,k)/(k-1)) / N */
     S = gdivgs(gadd(S, gdivgs(sercoeff(ser,k), k-1)), N);
   if (v-2) S = gdiv(S, powuu(N, v-2));
-  return gerepileupto(av, gprec_w(S, prec));
+  return gerepilecopy(av, gprec_w(S, prec));
 }
 
 static GEN
@@ -2304,7 +2304,7 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   u_forprime_init(&T, a, N);
   while ( (p = u_forprime_next(&T)) )
     res = gadd(res, gsubst(F, vx, gpow(utoipos(p), s, prec)));
-  return gerepileupto(av, gprec_w(res, prec));
+  return gerepilecopy(av, gprec_w(res, prec));
 }
 
 /* prod_{p prime, p >= a} F(p^s), F rational function */
@@ -2342,7 +2342,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   u_forprime_init(&T, a, N);
   while ( (p = u_forprime_next(&T)) )
     res = gmul(res, gsubst(F, vx, gpow(utoipos(p), s, prec)));
-  return gerepileupto(ltop, gprec_w(res, prec));
+  return gerepilecopy(ltop, gprec_w(res, prec));
 }
 
 /* Compute $\sum_{n\ge a}c(n)$ using Lagrange extrapolation.
@@ -2546,7 +2546,7 @@ sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
     s = gprec_wensure(s, prec);
   }
   if (!gequal1(S)) s = gdiv(s,S);
-  return gerepileupto(av, gprec_w(s, prec));
+  return gerepilecopy(av, gprec_w(s, prec));
 }
 
 GEN
