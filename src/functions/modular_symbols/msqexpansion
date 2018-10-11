@@ -26,9 +26,11 @@ Doc:
  a symbol $s$, provided it is a Hecke eigenvector:
  \bprog
  ? E = ellinit("11a1");
- ? [M,s]=msfromell(E);
- ? msqexpansion(M,s,10)
+ ? [M,S] = msfromell(E); [sp,sm] = S;
+ ? msqexpansion(M,sp,10) \\ in the + eigenspace
  %3 = [1, -2, -1, 2, 1, 2, -2, 0, -2, -2]
- ? ellan(E, 10)
+ ? msqexpansion(M,sm,10) \\ in the - eigenspace
  %4 = [1, -2, -1, 2, 1, 2, -2, 0, -2, -2]
+ ? ellan(E, 10)
+ %5 = [1, -2, -1, 2, 1, 2, -2, 0, -2, -2]
  @eprog
