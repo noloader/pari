@@ -87,6 +87,6 @@ Doc: let $f$ be a generalized modular form with parameters $[N,k,\chi,P]$ (see
 
  [-0.3625... - 0.5450...*I -0.6294... + 0.4186...*I]
 
- ? exponent(M*conj(M) - 1)   \\ Μ * conj(M) is close to 1
+ ? exponent(M*conj(M) - 1)   \\ M * conj(M) is close to 1
  %16 = -126
  @eprog

@@ -1,4 +1,5 @@
 #! /bin/sh
+unset LANG LC_ALL LC_COLLATE LC_CTYPE
 srcbase="`echo src/*/*.[chy] | sed -e 's,src/language/parse\.[ch],,g'`"
 CFILES="$srcbase src/*/*/*.[ch] examples/*.c examples/*.gp"
 docbase="`echo doc/*.tex doc/*.1 | sed -e 's,doc/usersch3.tex,,'`"
