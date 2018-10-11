@@ -6619,8 +6619,12 @@ mfinit_i(GEN NK, long space)
       TMP = mfwt1_pre(N); gN = utoipos(N); gs = utoi(space);
       for (i = j = 1; i < l; i++)
       {
+        pari_sp av = avma;
         GEN c = gel(vCHI,i), z = mfwt1init(N, c, TMP, space, 0);
-        if (CHI && !z) z = mfEMPTY(mkvec4(gN,gen_1,c,gs));
+        if (!z) {
+          set_avma(av);
+          if (CHI) z = mfEMPTY(mkvec4(gN,gen_1,c,gs));
+        }
         if (z) gel(mf, j++) = z;
       }
     }
@@ -6630,8 +6634,9 @@ mfinit_i(GEN NK, long space)
       l = lg(vCHI); mf = cgetg(l, t_VEC);
       for (i = j = 1; i < l; i++)
       {
+        pari_sp av = avma;
         GEN v = mfinit_Nndkchi(N, k, dk, gel(vCHI,i), space, 0);
-        if (MF_get_dim(v) || CHI) gel(mf, j++) = v;
+        if (MF_get_dim(v) || CHI) gel(mf, j++) = v; else set_avma(av);
       }
     }
     setlg(mf,j);
