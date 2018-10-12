@@ -20,13 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-/* F10 function */
 static GEN
 F10(GEN a, GEN z, long prec)
-{
-  pari_sp av = avma;
-  return gerepileupto(av, gpow(gsubsg(1,z), gneg(a), prec));
-}
+{ return gpow(gsubsg(1,z), gneg(a), prec); }
 
 static int
 isnegint2(GEN a, long *pa)
@@ -50,17 +46,15 @@ islong(GEN a, long *m, long prec)
   return 0;
 }
 
-/* F01 function */
 static GEN
 F01(GEN a, GEN z, long prec)
 {
-  pari_sp av = avma;
   GEN A, B, al, sz;
   if (is0(z, prec2nbits(prec)-5)) return real_1(prec);
   sz = gsqrt(z, prec); al = gsubgs(a, 1);
   A = gmul(ggamma(a, prec), gpow(sz, gneg(al), prec));
   B = ibessel(al, gmul2n(sz,1), prec);
-  return gerepileupto(av, isexactzero(imag_i(z))? mulreal(A,B): gmul(A,B));
+  return isexactzero(imag_i(z))? mulreal(A,B): gmul(A,B);
 }
 
 /* Airy functions [Ai,Bi] */
@@ -242,10 +236,9 @@ mkendpt(GEN z, GEN a)
 static GEN
 F20(GEN a, GEN b, GEN z, long prec)
 {
-  pari_sp av = avma;
   GEN U;
   z = gneg_i(z); U = hyperu_i(a, gadd(a, gsubsg(1, b)), ginv(z), prec);
-  return gerepileupto(av, gmul(U, gpow(z, gneg(a), prec)));
+  return gmul(U, gpow(z, gneg(a), prec));
 }
 
 static GEN F21(GEN a, GEN b, GEN c, GEN z, long prec);
@@ -253,10 +246,11 @@ static GEN F21(GEN a, GEN b, GEN c, GEN z, long prec);
 static GEN
 fF31(void *E, GEN t)
 {
+  pari_sp av = avma;
   GEN a1 = gel(E,1), b = gel(E,2), c = gel(E,3), d = gel(E,4), z = gel(E,5);
   long prec = precision(t);
-  return gmul(gmul(gexp(gneg(t), prec), gpow(t, a1, prec)),
-              F21(b, c, d, gmul(t, z), prec));
+  return gerepileupto(av, gmul(gmul(gexp(gneg(t), prec), gpow(t, a1, prec)),
+                               F21(b, c, d, gmul(t, z), prec)));
 }
 /* F31(a,b,c;d,z) = \int_0^oo\exp(-t)t^{a-1}F_{21}(b,c;d,tz) / gamma(a) */
 static GEN
@@ -277,13 +271,14 @@ F31(GEN a, GEN b, GEN c, GEN d, GEN z, long prec)
 static GEN
 fF32(void *E, GEN x)
 {
+  pari_sp av = avma;
   GEN c1 = gel(E,1), ec = gel(E,2), a = gel(E,3), b = gel(E,4);
   GEN d = gel(E,5), z = gel(E,6), T;
   long prec = precision(x);
   T = F21(a, b, d, gmul(x, z), prec);
   if (!gequal0(c1)) T = gmul(T, gpow(x,c1,prec));
   if (!gequal0(ec)) T = gmul(T, gpow(gsubsg(1,x),ec,prec));
-  return T;
+  return gerepileupto(av,T);
 }
 
 static GEN
@@ -422,7 +417,7 @@ precFtaylor(GEN N, GEN D, GEN z, long *pmi)
 static GEN
 Ftaylor(GEN N, GEN D, GEN z, long prec)
 {
-  pari_sp ltop = avma, av;
+  pari_sp av;
   GEN C, S;
   long i, j, ct, lN = lg(N), lD = lg(D), pradd, mi, bitmin, tol;
   pradd = precFtaylor(N, D, z, &mi);
@@ -449,7 +444,7 @@ Ftaylor(GEN N, GEN D, GEN z, long prec)
     { if (tol > bitmin) ct = 0; else if (++ct >= lN+lD-2) break; }
     if (gc_needed(av, 1)) gerepileall(av, 2, &S, &C);
   }
-  return gerepileupto(ltop, S);
+  return S;
 }
 
 static GEN
@@ -744,7 +739,6 @@ F21_i(GEN a, GEN b, GEN c, GEN z, long prec)
 static GEN
 F21(GEN a, GEN b, GEN c, GEN z, long prec)
 {
-  pari_sp ltop = avma;
   GEN res = F21_i(a, b, c, z, prec);
   long ex = labs(gexpo(res)), bitprec = prec2nbits(prec);
   if (ex > bitprec)
@@ -753,7 +747,7 @@ F21(GEN a, GEN b, GEN c, GEN z, long prec)
     res = F21_i(gprec_wensure(a,prec), gprec_wensure(b,prec),
                 gprec_wensure(c,prec), gprec_wensure(z,prec), prec);
   }
-  return gerepilecopy(ltop, res);
+  return res;
 }
 
 static GEN
@@ -1068,8 +1062,8 @@ sumz(GEN N, GEN D, long z, long prec)
   return sumnummonien(E, f_pochall, gen_0, tab, prec);
 }
 
-GEN
-hypergeom(GEN N, GEN D, GEN z, long prec)
+static GEN
+hypergeom_i(GEN N, GEN D, GEN z, long prec)
 {
   long nN, nD, j;
   if (!is_scalar_t(typ(z))) pari_err_TYPE("hypergeom",z);
@@ -1110,3 +1104,6 @@ hypergeom(GEN N, GEN D, GEN z, long prec)
   pari_err_IMPL("this hypergeometric function");
   return NULL; /*LCOV_EXCL_LINE*/
 }
+GEN
+hypergeom(GEN N, GEN D, GEN z, long prec)
+{ pari_sp av = avma; return gerepilecopy(av, hypergeom_i(N,D,z,prec)); }
