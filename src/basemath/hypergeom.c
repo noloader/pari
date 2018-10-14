@@ -849,15 +849,11 @@ static GEN
 FBaux2(GEN v1, GEN g1, GEN c1, long m, GEN z1, GEN c2, GEN g2, GEN v2, GEN z2,
        long si, long prec0, long prec)
 {
-  for (;;)
-  {
-    GEN t1 = gdiv(c1, mulgammav2(g1, prec)), r1;
-    GEN t2 = gdiv(c2, mulgammav2(g2, prec)), r2, F;
-    r1 = gmul(t1, F21finitelim(v1, m, z1, prec));
-    r2 = gmul(t2, F21taylorlim(v2, m, z2, si, prec));
-    F = OK_gadd(r1, r2, prec0,&prec, &c1,&c2, &g1,&g2, &v1,&v2, &z1,&z2);
-    if (F) return F;
-  }
+  GEN t1 = gdiv(c1, mulgammav2(g1, prec)), r1;
+  GEN t2 = gdiv(c2, mulgammav2(g2, prec)), r2, F;
+  r1 = gmul(t1, F21finitelim(v1, m, z1, prec));
+  r2 = gmul(t2, F21taylorlim(v2, m, z2, si, prec));
+  return gadd(r1, r2);
 }
 
 static GEN
