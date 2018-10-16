@@ -8558,12 +8558,12 @@ mffromqf(GEN Q, GEN P)
   GEN G, Qi, F, D, N, mf, v, gk, gwt, chi;
   long m, d, space;
   if (typ(Q) != t_MAT) pari_err_TYPE("mffromqf", Q);
-  if (!RgM_is_ZM(Q) || !qf_iseven(Q))
+  if (!RgM_is_ZM(Q) || !qfiseven(Q))
     pari_err_TYPE("mffromqf [not integral or even]", Q);
   m = lg(Q)-1;
   gk = sstoQ(m, 2);
   Qi = ZM_inv(Q, &N);
-  if (!qf_iseven(Qi)) N = shifti(N, 1);
+  if (!qfiseven(Qi)) N = shifti(N, 1);
   d = 0;
   if (!P || gequal1(P)) P = NULL;
   else

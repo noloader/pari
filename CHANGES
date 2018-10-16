@@ -86,6 +86,7 @@ BA   3- [libpari] FpXC_FpXQ_eval
     12- [libpari] has_str_len
 BA  13- qfbsolve(Q,n) now support arbitrary integer n.
     14- [libpari] divisorsu_fact_factored
+    15- [libpari] qfiseven
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

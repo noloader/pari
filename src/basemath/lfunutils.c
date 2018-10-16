@@ -1995,7 +1995,7 @@ vecan_qf(GEN Q, long L)
 }
 
 long
-qf_iseven(GEN M)
+qfiseven(GEN M)
 {
   long i, l = lg(M);
   for (i=1; i<l; i++)
@@ -2017,8 +2017,8 @@ lfunqf(GEN M, long prec)
   k = n >> 1;
   M = Q_primpart(M);
   Mi = ZM_inv(M, &d); /* d M^(-1) */
-  if (!qf_iseven(M)) { M = gmul2n(M, 1); d = shifti(d,1); }
-  if (!qf_iseven(Mi)){ Mi= gmul2n(Mi,1); d = shifti(d,1); }
+  if (!qfiseven(M)) { M = gmul2n(M, 1); d = shifti(d,1); }
+  if (!qfiseven(Mi)){ Mi= gmul2n(Mi,1); d = shifti(d,1); }
   /* det(Mi) = d^n/det(M), D^2 = det(Mi)/det(M) */
   D = gdiv(powiu(d,k), ZM_det(M));
   if (!issquareall(D, &eno)) eno = gsqrt(D, prec);
