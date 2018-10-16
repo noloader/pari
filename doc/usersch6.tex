@@ -2753,8 +2753,23 @@ compatible with cyclic factors \kbd{cyc}, and $0$ otherwise.
 
 \fun{GEN}{cyc2elts}{GEN d} given a \typ{VEC} $d = (d_1,\dots,d_n)$
 of non-negative integers, return the vector of all \typ{VECSMALL}s of length
-$n$ whose $i$-th entry lies in $[0,d_i]$. Assumes that the product
+$n$ whose $i$-th entry lies in $[0,d_i[$. Assumes that the product
 of the $d_i$ fits in a \kbd{long}.
+
+\fun{long}{zv_cyc_minimize}{GEN d, GEN c, GEN coprime} given $d =
+(d_1,\dots,d_n)$, $d_n \mid \dots \mid d_1 \neq 0$ a list of elementary
+divisors for a finite abelian group as a \typ{VECSMALL}, given $c =
+[g_1,\dots,g_n]$ representing an element in the group, and given a mask
+\kbd{coprime} (as from \kbd{coprimes\_zv}$(o)$) representing a list of
+forbidden congruence classes modulo $o$, return an integer $k$ such that
+\kbd{coprime}$[k \% o]$ is non-zero and $k \cdot c$ is lexicographically
+minimal. For instance, if $c$ is attached to a Dirichlet character $\chi$ of
+order $o$ via the usual identification $\chi(g_i) = \zeta_{g_i}^{c_i}$, then
+$\chi^k$ is a ``canonical'' representative in the Galois orbit of $\chi$.
+
+\fun{long}{zv_cyc_minimal}{GEN d, GEN c, GEN coprime} return $1$ if
+\tet{zv_cyc_minimize} would return $k = 1$, i.e. $c$ is already the canonical
+representative for the attached character orbit.
 
 \subsec{Dirichlet characters}
 
