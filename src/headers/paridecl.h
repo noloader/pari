@@ -4770,7 +4770,7 @@ GEN     type0(GEN x);
 
 /* sumiter.c */
 
-GEN     asympnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
+GEN     asympnum(void *E, GEN (*f)(void *,GEN,long), GEN alpha, long flag, long prec);
 GEN     derivnum(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
 GEN     derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec);
 GEN     derivfun(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
@@ -4778,7 +4778,7 @@ GEN     derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long
 int     forvec_init(forvec_t *T, GEN x, long flag);
 GEN     forvec_next(forvec_t *T);
 GEN     laurentseries(void *E, GEN (*f)(void*,GEN x, long), long M, long v, long prec);
-GEN     limitnum(void *E, GEN (*f)(void *,GEN,long), long muli, GEN alpha, long prec);
+GEN     limitnum(void *E, GEN (*f)(void *,GEN,long), GEN alpha, long flag, long prec);
 GEN     polzag(long n, long m);
 GEN     prodeuler(void *E, GEN (*eval)(void *, GEN), GEN ga, GEN gb, long prec);
 GEN     prodinf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);

@@ -1709,49 +1709,22 @@ derivfun0(GEN code, GEN args, long prec)
 /********************************************************************/
 /**                   Numerical extrapolation                      **/
 /********************************************************************/
-/* for t_CLOSURE */
-static double
-fun_getmf(long mul)
-{
-  const double A[] = {0,
-    0.331,0.260,0.228,0.210,0.198,
-    0.188,0.181,0.175,0.170,0.166 };
-  const double B[] = {0,
-    0.166,0.142,0.132,0.125,0.120,
-    0.116,0.113,0.111,0.109,0.107 };
-  if (mul <=  10) return A[mul];
-  if (mul <= 109) return B[mul/10]; else return 0.105;
-}
-/* for t_VEC */
-static double
-vec_getmf(long mul)
-{
-  const double A[] = {0,
-    0.2062, 0.1760, 0.1613, 0.1519, 0.1459,
-    0.1401, 0.1360, 0.1327, 0.1299, 0.1280 };
-  const double B[] = {0,
-    0.1280, 0.1133, 0.1064, 0.1019, 0.0987,
-    0.0962, 0.0942, 0.0925, 0.0911, 0.0899 };
-  if (mul <=  10) return A[mul];
-  if (mul <= 109) return B[mul/10]; else return 0.0899;
-}
-
-/* [u(n*muli), u <= N], muli = 1 unless f!=NULL */
+/* [u(n), u <= N] */
 static GEN
-get_u(void *E, GEN (*f)(void *, GEN, long), long N, long muli, long prec)
+get_u(void *E, GEN (*f)(void *, GEN, long), long N, long prec)
 {
   long n;
-  GEN u = cgetg(N+1, t_VEC);
+  GEN u;
   if (f)
   {
-    for (n = 1; n <= N; n++) gel(u,n) = f(E, stoi(muli*n), prec);
-  }
+    u = cgetg(N+1, t_VEC);
+    for (n = 1; n <= N; n++) gel(u,n) = f(E, utoipos(n), prec); }
   else
   {
     GEN v = (GEN)E;
     long t = lg(v)-1;
-    if (t < N*muli) pari_err_COMPONENT("limitnum","<",stoi(N), stoi(t));
-    for (n = 1; n <= N; n++) gel(u,n) = gel(v, muli*n);
+    if (t < N) pari_err_COMPONENT("limitnum","<",stoi(N), stoi(t));
+    u = vecslice(v, 1, N);
   }
   for (n = 1; n <= N; n++)
   {
@@ -1772,18 +1745,37 @@ struct limit
   GEN coef; /* or NULL (alpha != 1) */
 };
 
+static GEN
+_f(void *E, GEN x)
+{
+  GEN b = (GEN)E;
+  return gsub(glngamma(gaddgs(x,1), LOWDEFAULTPREC), b);
+}
+
+/* solve N! >= 2^bit */
+static long
+get_N(long bit)
+{
+  long T[] = { 21, 35, 47, 58, 68, 79, 89, 99 };
+  double b;
+  GEN z, B;
+  if (bit <= 512) return T[(bit-1) >> 6];
+  b = M_LN2 * bit; B = dbltor(b);
+  z = zbrent((void*)B, &_f, dbltor(b / log(b)), B, LOWDEFAULTPREC);
+  return ceil(rtodbl(z));
+}
+
 static void
 limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
-           long muli, GEN alpha, long prec)
+           GEN alpha, long flag, long prec)
 {
   long bitprec = prec2nbits(prec), n, N;
   GEN na;
 
-  if (muli <= 0) muli = 20;
-  L->N = N = (long)ceil((f? fun_getmf(muli): vec_getmf(muli)) * bitprec);
-  L->prec = nbits2prec(bitprec + (long)ceil(1.844*N));
+  L->N = N = flag? ceil(0.3317 * bitprec) : get_N(bitprec);
+  L->prec = nbits2prec(bitprec + (long)ceil(1.8444*N));
   L->prec0 = prec;
-  L->u = get_u(E, f, N, muli, L->prec);
+  L->u = get_u(E, f, N, L->prec);
   if (alpha && !gequal1(alpha))
   {
     long prec2 = gprecision(alpha);
@@ -1793,7 +1785,6 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
     L->coef = NULL;
     L->nma = nma = cgetg(N+1, t_VEC);
     for (n = 1; n <= N; n++) gel(nma, n) = ginv(gel(na, n));
-    if (muli != 1) na = gmul(na, gpow(utor(muli,prec2), alpha, prec2));
   }
   else
   {
@@ -1806,7 +1797,7 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
       GEN c = mulii(gel(C,n+1), gel(T,n));
       if (odd(N-n)) togglesign_safe(&c);
       gel(coef, n) = c;
-      gel(na, n) = utoipos(n*muli);
+      gel(na, n) = utoipos(n);
     }
   }
   L->na = na;
@@ -1825,17 +1816,18 @@ limitnum_i(struct limit *L)
   return gerepilecopy(av, gprec_w(S, L->prec0));
 }
 GEN
-limitnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
+limitnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long flag, long prec)
 {
   struct limit L;
-  limit_init(&L, E,f, muli, alpha, prec);
+  limit_init(&L, E,f, alpha, flag, prec);
   return limitnum_i(&L);
 }
 GEN
-limitnum0(GEN u, long muli, GEN alpha, long prec)
+limitnum0(GEN u, GEN alpha, long flag, long prec)
 {
   void *E = (void*)u;
   GEN (*f)(void*,GEN,long) = NULL;
+  if (flag < 0 || flag > 1) pari_err_FLAG("limitnum");
   switch(typ(u))
   {
     case t_COL:
@@ -1843,11 +1835,11 @@ limitnum0(GEN u, long muli, GEN alpha, long prec)
     case t_CLOSURE: f = gp_callprec; break;
     default: pari_err_TYPE("limitnum", u);
   }
-  return limitnum(E,f, muli,alpha, prec);
+  return limitnum(E,f, alpha, flag, prec);
 }
 
 GEN
-asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
+asympnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long flag, long prec)
 {
   const long MAX = 100;
   pari_sp av = avma;
@@ -1855,7 +1847,7 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
   long i, B = prec2nbits(prec);
   double LB = 0.9*expu(B); /* 0.9 and 0.95 below are heuristic */
   struct limit L;
-  limit_init(&L, E,f, muli, alpha, prec);
+  limit_init(&L, E,f, alpha, flag, prec);
   if (alpha) LB *= gtodouble(alpha);
   u = L.u;
   for(i = 1; i <= MAX; i++)
@@ -1879,10 +1871,11 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), long muli, GEN alpha, long prec)
   return gerepilecopy(av, vres);
 }
 GEN
-asympnum0(GEN u, long muli, GEN alpha, long prec)
+asympnum0(GEN u, GEN alpha, long flag, long prec)
 {
   void *E = (void*)u;
   GEN (*f)(void*,GEN,long) = NULL;
+  if (flag < 0 || flag > 1) pari_err_FLAG("asympnum");
   switch(typ(u))
   {
     case t_COL:
@@ -1890,5 +1883,5 @@ asympnum0(GEN u, long muli, GEN alpha, long prec)
     case t_CLOSURE: f = gp_callprec; break;
     default: pari_err_TYPE("asympnum", u);
   }
-  return asympnum(E,f, muli,alpha, prec);
+  return asympnum(E,f, alpha, flag, prec);
 }

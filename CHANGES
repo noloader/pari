@@ -67,6 +67,9 @@ HC  11- gamma(t_FRAC) use direct formula when denom | 24
         Strexpand -> strexpand, Strprintf -> strprintf, Strtex -> strtex
     17- [help] move str* functions from "conversions" to "programming" section
 BA  18- qfbsolve now returns a vector of solutions.
+    19- limitnum / asympnum: remove useless optional parameter 'muli/k'
+        [now implicitly set to 1, not to 20]: just extrapolate u(muli*n).
+    20- limitnum / asympnum: add optional flag
 
   Added
      1- [libpari] nonsquare_Fl
