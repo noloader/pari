@@ -2645,15 +2645,6 @@ polredabs(GEN x) { return polredabs0(x,0); }
 GEN
 polredabs2(GEN x) { return polredabs0(x,nf_ORIG); }
 
-/* true nf, partial nf_rnfeq */
-GEN
-nf_rnfeq_partial(GEN nf, GEN R)
-{
-  long sa;
-  GEN T = nf_get_pol(nf), pol = rnfequationall(nf, R, &sa, NULL);
-  return mkvec5(pol,gen_0,stoi(sa),T,liftpol_shallow(R));
-}
-
 /* relative polredabs/best. Returns relative polynomial by default (flag = 0)
  * flag & nf_ORIG: + element (base change)
  * flag & nf_ABSOLUTE: absolute polynomial */
@@ -2676,7 +2667,7 @@ rnfpolred_i(GEN nf, GEN R, long flag, long best)
   R = RgX_nffix(f, T, R, 0);
   if (best || (flag & nf_PARTIALFACT))
   {
-    rnfeq = abs? nf_rnfeq(nf, R): nf_rnfeq_partial(nf, R);
+    rnfeq = abs? nf_rnfeq(nf, R): nf_rnfeqsimple(nf, R);
     pol = gel(rnfeq,1);
     if (listP) pol = mkvec2(pol, listP);
     red = best? polredbest_i(pol, abs? 1: 2)

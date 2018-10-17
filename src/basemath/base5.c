@@ -82,21 +82,21 @@ rnfeltreltoabs(GEN rnf,GEN x)
 GEN
 eltabstorel_lift(GEN rnfeq, GEN P)
 {
-  GEN k, T = gel(rnfeq,4), relpol = gel(rnfeq,5);
+  GEN k, T = gel(rnfeq,4), R = gel(rnfeq,5);
   if (is_scalar_t(typ(P))) return P;
   k = gel(rnfeq,3);
   P = lift_shallow(P);
   if (signe(k)) P = RgXQX_translate(P, deg1pol_shallow(k, gen_0, varn(T)), T);
-  P = RgXQX_rem(P, relpol, T);
+  P = RgXQX_rem(P, R, T);
   return QXQX_to_mod_shallow(P, T);
 }
-/* rnfeq = [pol,a,k,T,relpol], P a t_POL or scalar
+/* rnfeq = [pol,a,k,T,R], P a t_POL or scalar
  * Return Mod(P(x + k Mod(y, T(y))), pol(x)) */
 GEN
 eltabstorel(GEN rnfeq, GEN P)
 {
-  GEN T = gel(rnfeq,4), relpol = gel(rnfeq,5);
-  return mkpolmod(eltabstorel_lift(rnfeq,P), QXQX_to_mod_shallow(relpol,T));
+  GEN T = gel(rnfeq,4), R = gel(rnfeq,5);
+  return mkpolmod(eltabstorel_lift(rnfeq,P), QXQX_to_mod_shallow(R,T));
 }
 GEN
 rnfeltabstorel(GEN rnf,GEN x)
@@ -827,25 +827,25 @@ rnfequation(GEN nf, GEN pol) { return rnfequation0(nf,pol,0); }
 GEN
 rnfequation2(GEN nf, GEN pol) { return rnfequation0(nf,pol,1); }
 GEN
-nf_rnfeq(GEN nf, GEN relpol)
+nf_rnfeq(GEN nf, GEN R)
 {
   GEN pol, a, k, junk, eq;
-  relpol = liftpol_shallow(relpol);
-  eq = rnfequation2(nf, relpol);
+  R = liftpol_shallow(R);
+  eq = rnfequation2(nf, R);
   pol = gel(eq,1);
   a = gel(eq,2); if (typ(a) == t_POLMOD) a = gel(a,2);
   k = gel(eq,3);
-  return mkvec5(pol,a,k,get_nfpol(nf, &junk),relpol);
+  return mkvec5(pol,a,k,get_nfpol(nf, &junk),R);
 }
 /* only allow abstorel */
 GEN
-nf_rnfeqsimple(GEN nf, GEN relpol)
+nf_rnfeqsimple(GEN nf, GEN R)
 {
   long sa;
   GEN junk, pol;
-  relpol = liftpol_shallow(relpol);
-  pol = rnfequationall(nf, relpol, &sa, NULL);
-  return mkvec5(pol,gen_0/*dummy*/,stoi(sa),get_nfpol(nf, &junk),relpol);
+  R = liftpol_shallow(R);
+  pol = rnfequationall(nf, R, &sa, NULL);
+  return mkvec5(pol,gen_0/*dummy*/,stoi(sa),get_nfpol(nf, &junk),R);
 }
 
 /*******************************************************************/
