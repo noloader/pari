@@ -2735,11 +2735,11 @@ rnfpolred_i(GEN nf, GEN R, long flag, long best)
   return gerepilecopy(av, P);
 }
 GEN
-rnfpolredabs(GEN nf, GEN relpol, long flag)
-{ return rnfpolred_i(nf,relpol,flag, 0); }
+rnfpolredabs(GEN nf, GEN R, long flag)
+{ return rnfpolred_i(nf,R,flag, 0); }
 GEN
-rnfpolredbest(GEN nf, GEN relpol, long flag)
+rnfpolredbest(GEN nf, GEN R, long flag)
 {
   if (flag < 0 || flag > 3) pari_err_FLAG("rnfpolredbest");
-  return rnfpolred_i(nf,relpol,flag, 1);
+  return rnfpolred_i(nf,R,flag, 1);
 }

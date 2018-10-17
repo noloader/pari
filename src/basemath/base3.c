@@ -1044,12 +1044,12 @@ rnfbasistoalg(GEN rnf,GEN x)
   const char *f = "rnfbasistoalg";
   long lx, i;
   pari_sp av = avma;
-  GEN z, nf, relpol, T;
+  GEN z, nf, R, T;
 
   checkrnf(rnf);
   nf = rnf_get_nf(rnf);
   T = nf_get_pol(nf);
-  relpol = QXQX_to_mod_shallow(rnf_get_pol(rnf), T);
+  R = QXQX_to_mod_shallow(rnf_get_pol(rnf), T);
   switch(typ(x))
   {
     case t_COL:
@@ -1061,22 +1061,22 @@ rnfbasistoalg(GEN rnf,GEN x)
         gel(z,i) = c;
       }
       z = RgV_RgC_mul(gel(rnf_get_zk(rnf),1), z);
-      return gerepileupto(av, gmodulo(z,relpol));
+      return gerepileupto(av, gmodulo(z,R));
 
     case t_POLMOD:
       x = polmod_nffix(f, rnf, x, 0);
       if (typ(x) != t_POL) break;
-      retmkpolmod(RgX_copy(x), RgX_copy(relpol));
+      retmkpolmod(RgX_copy(x), RgX_copy(R));
     case t_POL:
       if (varn(x) == varn(T)) { RgX_check_QX(x,f); x = gmodulo(x,T); break; }
-      if (varn(x) == varn(relpol))
+      if (varn(x) == varn(R))
       {
         x = RgX_nffix(f,nf_get_pol(nf),x,0);
-        return gmodulo(x, relpol);
+        return gmodulo(x, R);
       }
-      pari_err_VAR(f, x,relpol);
+      pari_err_VAR(f, x,R);
   }
-  retmkpolmod(scalarpol(x, varn(relpol)), RgX_copy(relpol));
+  retmkpolmod(scalarpol(x, varn(R)), RgX_copy(R));
 }
 
 GEN
@@ -1153,12 +1153,12 @@ GEN
 polmod_nffix(const char *f, GEN rnf, GEN x, int lift)
 { return polmod_nffix2(f, rnf_get_nfpol(rnf), rnf_get_pol(rnf), x,lift); }
 GEN
-polmod_nffix2(const char *f, GEN T, GEN relpol, GEN x, int lift)
+polmod_nffix2(const char *f, GEN T, GEN R, GEN x, int lift)
 {
-  if (RgX_equal_var(gel(x,1),relpol))
+  if (RgX_equal_var(gel(x,1), R))
   {
     x = gel(x,2);
-    if (typ(x) == t_POL && varn(x) == varn(relpol))
+    if (typ(x) == t_POL && varn(x) == varn(R))
     {
       x = RgX_nffix(f, T, x, lift);
       switch(lg(x))
@@ -1176,10 +1176,10 @@ rnfalgtobasis(GEN rnf,GEN x)
 {
   const char *f = "rnfalgtobasis";
   pari_sp av = avma;
-  GEN T, relpol;
+  GEN T, R;
 
   checkrnf(rnf);
-  relpol = rnf_get_pol(rnf);
+  R = rnf_get_pol(rnf);
   T = rnf_get_nfpol(rnf);
   switch(typ(x))
   {
@@ -1200,7 +1200,7 @@ rnfalgtobasis(GEN rnf,GEN x)
         x = mkpolmod(x,T); break;
       }
       x = RgX_nffix(f, T, x, 0);
-      if (degpol(x) >= degpol(relpol)) x = RgX_rem(x,relpol);
+      if (degpol(x) >= degpol(R)) x = RgX_rem(x, R);
       return gerepileupto(av, RgM_RgX_mul(rnf_get_invzk(rnf), x));
   }
   return gerepileupto(av, scalarcol(x, rnf_get_degree(rnf)));

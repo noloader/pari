@@ -694,10 +694,10 @@ hash_create_INT(ulong s)
 { return hash_create(s, (ulong(*)(void*))&hash_GEN,
                         (int(*)(void*,void*))&equalii, 1); }
 GEN
-rnfisnorminit(GEN T, GEN relpol, int galois)
+rnfisnorminit(GEN T, GEN R, int galois)
 {
   pari_sp av = avma;
-  long i, l, drel;
+  long i, l, dR;
   GEN S, gen, cyc, bnf, nf, nfabs, rnfeq, bnfabs, k, polabs;
   GEN y = cgetg(9, t_VEC);
   hashtable *H = hash_create_INT(100UL);
@@ -707,18 +707,18 @@ rnfisnorminit(GEN T, GEN relpol, int galois)
   if (!bnf) bnf = Buchall(nf? nf: T, nf_FORCE, DEFAULTPREC);
   if (!nf) nf = bnf_get_nf(bnf);
 
-  relpol = get_bnfpol(relpol, &bnfabs, &nfabs);
-  if (!gequal1(leading_coeff(relpol))) pari_err_IMPL("non monic relative equation");
-  drel = degpol(relpol);
-  if (drel <= 2) galois = 1;
+  R = get_bnfpol(R, &bnfabs, &nfabs);
+  if (!gequal1(leading_coeff(R))) pari_err_IMPL("non monic relative equation");
+  dR = degpol(R);
+  if (dR <= 2) galois = 1;
 
-  relpol = RgX_nffix("rnfisnorminit", T, relpol, 1);
+  R = RgX_nffix("rnfisnorminit", T, R, 1);
   if (nf_get_degree(nf) == 1) /* over Q */
-    rnfeq = mkvec5(relpol,gen_0,gen_0,T,relpol);
+    rnfeq = mkvec5(R,gen_0,gen_0,T,R);
   else if (galois == 2) /* needs eltup+abstorel */
-    rnfeq = nf_rnfeq(nf, relpol);
+    rnfeq = nf_rnfeq(nf, R);
   else /* needs abstorel */
-    rnfeq = nf_rnfeqsimple(nf, relpol);
+    rnfeq = nf_rnfeqsimple(nf, R);
   polabs = gel(rnfeq,1);
   k = gel(rnfeq,3);
   if (!bnfabs || !gequal0(k))
@@ -727,7 +727,7 @@ rnfisnorminit(GEN T, GEN relpol, int galois)
 
   if (galois == 2)
   {
-    GEN P = polabs==relpol? leafcopy(relpol): nfX_eltup(nf, rnfeq, relpol);
+    GEN P = polabs==R? leafcopy(R): nfX_eltup(nf, rnfeq, R);
     setvarn(P, fetch_var_higher());
     galois = !!nfroots_if_split(&nfabs, P);
     (void)delete_var();
@@ -738,18 +738,18 @@ rnfisnorminit(GEN T, GEN relpol, int galois)
   for(i=1; i<l; i++)
   {
     GEN g = gel(gen,i);
-    if (ugcdiu(gel(cyc,i), drel) == 1) break;
+    if (ugcdiu(gel(cyc,i), dR) == 1) break;
     Zfa_append(gcoeff(g,1,1), H, NULL);
   }
   if (!galois)
   {
-    GEN Ndiscrel = diviiexact(nf_get_disc(nfabs), powiu(nf_get_disc(nf), drel));
+    GEN Ndiscrel = diviiexact(nf_get_disc(nfabs), powiu(nf_get_disc(nf), dR));
     Zfa_append(Ndiscrel, H, NULL);
   }
   S = hash_keys(H); settyp(S,t_VEC);
   gel(y,1) = bnf;
   gel(y,2) = bnfabs;
-  gel(y,3) = relpol;
+  gel(y,3) = R;
   gel(y,4) = rnfeq;
   gel(y,5) = S;
   gel(y,6) = nf_pV_to_prV(nf, S);
@@ -768,9 +768,9 @@ GEN
 rnfisnorm(GEN T, GEN x, long flag)
 {
   pari_sp av = avma;
-  GEN bnf, rel, relpol, rnfeq, nfpol;
+  GEN bnf, rel, R, rnfeq, nfpol;
   GEN nf, aux, H, U, Y, M, A, bnfS, sunitrel, futu, S, S1, S2, Sx;
-  long L, i, drel, itu;
+  long L, i, itu;
   hashtable *H0, *H2;
   if (typ(T) != t_VEC || lg(T) != 9)
     pari_err_TYPE("rnfisnorm [please apply rnfisnorminit()]", T);
@@ -782,10 +782,10 @@ rnfisnorm(GEN T, GEN x, long flag)
   x = nf_to_scalar_or_alg(nf,x);
   if (gequal0(x)) { set_avma(av); return mkvec2(gen_0, gen_1); }
   if (gequal1(x)) { set_avma(av); return mkvec2(gen_1, gen_1); }
-  relpol = gel(T,3);
+  R = gel(T,3);
   rnfeq = gel(T,4);
-  drel = degpol(relpol);
-  if (gequalm1(x) && odd(drel)) { set_avma(av); return mkvec2(gen_m1, gen_1); }
+  if (gequalm1(x) && odd(degpol(R)))
+  { set_avma(av); return mkvec2(gen_m1, gen_1); }
 
   /* build set T of ideals involved in the solutions */
   nfpol = nf_get_pol(nf);
