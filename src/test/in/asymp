@@ -21,6 +21,7 @@ asympnum(v)
 
 \p38
 log(limitnum(n->(1+1/n)^n))
+limitnum(n->sum(j=1,n,sqrt(j)/j^2),1/2) - zeta(3/2)
 
 h(n)=
 {

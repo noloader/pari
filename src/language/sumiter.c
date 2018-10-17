@@ -1806,6 +1806,19 @@ get_accu(GEN a)
   return gc_double(av, -dbllog2r(b));
 }
 
+static double
+get_c(GEN a)
+{
+  if (!a || typ(a) == t_INT) return 0.3317;
+  if (typ(a) == t_FRAC) switch(itos_or_0(gel(a,2)))
+  {
+    case 2: return 0.620;
+    case 3: return 1.18;
+    case 4: return 2.97;
+  }
+  return gexpo(a) >= 0? 0.3317: 3;
+}
+
 static void
 limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
            GEN alpha, long flag, long prec)
@@ -1813,7 +1826,7 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
   long bitprec = prec2nbits(prec), n, N;
   GEN na;
 
-  L->N = N = flag? ceil(0.3317 * bitprec) : get_N(bitprec);
+  L->N = N = flag? ceil(get_c(alpha) * bitprec) : get_N(bitprec);
   L->prec = nbits2prec(bitprec + (long)ceil(get_accu(alpha) * N));
   L->prec0 = prec;
   L->u = get_u(E, f, N, L->prec);
