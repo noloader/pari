@@ -4239,6 +4239,7 @@ gauss_pivot_ker(GEN x, GEN x0, GEN *dd, long *rr)
         if (t!=j)
         { /* x[t,] -= 1 / x[j,k] x[j,] */
           p = gcoeff(x,t,k); gcoeff(x,t,k) = gen_0;
+          if (gequal0(p)) continue;
           for (i=k+1; i<=n; i++)
             gcoeff(x,t,i) = gadd(gcoeff(x,t,i),gmul(p,gcoeff(x,j,i)));
           if (gc_needed(av,1)) gerepile_gauss_ker(x,k,t,av);
