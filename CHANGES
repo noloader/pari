@@ -39,6 +39,7 @@ BA  22- foo(n)=vector(n)[1..n];123; would corrupt the GP interpreter [#2081]
     28- lfunrootres: avoid oo-loop
     29- mfgaloistype: dihedral forms possibly incorrect for N > 3000
     30- mfgaloistype: error on mf=mfinit([1159,1,Mod(930,1159)],0);
+    31- incorrect accuracy in limitnum / asympnum for alpha != 1
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

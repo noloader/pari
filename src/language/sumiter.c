@@ -1764,6 +1764,47 @@ get_N(long bit)
   z = zbrent((void*)B, &_f, dbltor(b / log(b)), B, LOWDEFAULTPREC);
   return ceil(rtodbl(z));
 }
+static GEN
+_gi(void *E, GEN x)
+{
+  GEN A = (GEN)E, y = gsubgs(x, 1);
+  if (gequal0(y)) return A;
+  return gdiv(gsubgs(gpow(x, A, LOWDEFAULTPREC), 1), y);
+}
+static GEN
+_g(void *E, GEN x)
+{
+  GEN D = (GEN)E, A = gel(D,1), T = gel(D,2);
+  const long prec = LOWDEFAULTPREC;
+  return gadd(glog(x,prec), intnum((void*)A, _gi, gen_0, gaddgs(x,1), T, prec));
+}
+
+/* solve log(b) + int_0^{b+1} (x^(1/a)-1) / (x-1) dx = 0, b in [0,1]
+ * return -log_2(b), rounded up */
+static double
+get_accu(GEN a)
+{
+  pari_sp av = avma;
+  const long prec = LOWDEFAULTPREC;
+  const double We2 = 1.844434455794; /* (W(1/e) + 1) / log(2) */
+  GEN b, T;
+  if (!a) return We2;
+  if (typ(a) == t_INT) switch(itos_or_0(a))
+  {
+    case 1: return We2;
+    case 2: return 1.186955309668;
+    case 3: return 0.883182331990;
+  }
+  else if (typ(a) == t_FRAC && equali1(gel(a,1))) switch(itos_or_0(gel(a,2)))
+  {
+    case 2: return 2.644090500290;
+    case 3: return 3.157759214459;
+    case 4: return 3.536383237500;
+  }
+  T = intnuminit(gen_0, gen_1, 0, prec);
+  b = zbrent((void*)mkvec2(ginv(a), T), &_g, dbltor(1E-5), gen_1, prec);
+  return gc_double(av, -dbllog2r(b));
+}
 
 static void
 limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
@@ -1773,7 +1814,7 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
   GEN na;
 
   L->N = N = flag? ceil(0.3317 * bitprec) : get_N(bitprec);
-  L->prec = nbits2prec(bitprec + (long)ceil(1.8444*N));
+  L->prec = nbits2prec(bitprec + (long)ceil(get_accu(alpha) * N));
   L->prec0 = prec;
   L->u = get_u(E, f, N, L->prec);
   if (alpha && !gequal1(alpha))
