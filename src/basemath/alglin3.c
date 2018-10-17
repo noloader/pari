@@ -917,6 +917,20 @@ diagonal_shallow(GEN x)
   return y;
 }
 
+GEN
+zv_diagonal(GEN x)
+{
+  long j, l = lg(x), n = l-1;
+  GEN y = cgetg(l,t_MAT);
+
+  for (j = 1; j < l; j++)
+  {
+    gel(y,j) = zero_Flv(n);
+    ucoeff(y,j,j) = uel(x,j);
+  }
+  return y;
+}
+
 /* compute m*diagonal(d) */
 GEN
 matmuldiagonal(GEN m, GEN d)
