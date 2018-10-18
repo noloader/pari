@@ -556,22 +556,13 @@ void
 push_localprec(long p) { push_localbitprec(prec2nbits(p)); }
 
 void
-pop_localprec(void)
-{
-  s_prec.n--;
-}
+pop_localprec(void) { s_prec.n--; }
 
 long
-get_localbitprec(void)
-{
-  return s_prec.n? precs[s_prec.n-1]: precreal;
-}
+get_localbitprec(void) { return s_prec.n? precs[s_prec.n-1]: precreal; }
 
 long
-get_localprec(void)
-{
-  return nbits2prec(get_localbitprec());
-}
+get_localprec(void) { return nbits2prec(get_localbitprec()); }
 
 static void
 checkprec(const char *f, long p, long M)
