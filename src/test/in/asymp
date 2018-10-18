@@ -24,8 +24,8 @@ log(limitnum(n->(1+1/n)^n))
 limitnum(n->sum(j=1,n,sqrt(j)/j^2),1/2) - zeta(3/2)
 
 h(n)=
-{
-  localbitprec(ceil(bitprecision(1.) * 1.612));
+{ \\ 1.612 makes a difference between 32-bit/64-bit archs
+  localbitprec(ceil(bitprecision(1.) * 1.8));
   my(a=1,A=1,B=1.);
   vector(n, i, a=B/i; A+=a; B+=A; a);
 }
@@ -33,7 +33,7 @@ H=h(1849);
 b(n)=log(H[n])-(2*sqrt(n)-3/4*log(n));
 localprec(57); C=-1/2-log(2*sqrt(Pi));
 check(limitnum(n->b(n^2)), C)
-check(limitnum(n->b(n), 1/2), C)
+check(limitnum(n->b(20*n), 1/2), C)
 asympnum(n->b(n^2)-C)
 asympnum(n->lngamma(n+1)-(n+1/2)*log(n)+n-1/2*log(2*Pi))
 asympnum(a->a^(-5/2)*if(a%40==0,I,0))
