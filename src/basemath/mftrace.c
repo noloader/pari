@@ -4346,23 +4346,31 @@ mfvec_first_cusp(GEN v)
 static GEN
 mflineardivtomat(long N, GEN vF, long n)
 {
-  GEN F, M, f, fc, V, ME, B, a0;
-  long lM, lF = lg(vF), i, j;
+  GEN F, M, f, fc, ME, dB, B, a0;
+  long lM, lF = lg(vF), j;
 
   if (lF == 1) return cgetg(1,t_MAT);
   F = gel(vF,1);
   M = gmael(F,2,2); /* BAS */
   lM = lg(M);
-  i = mfvec_first_cusp(M);
-  if (i == 1) ME = NULL;
+  j = mfvec_first_cusp(M);
+  if (j == 1) ME = NULL;
   else
   { /* BAS starts by Eisenstein */
-    ME = mfvectomat(vecslice(M,1,i-1), n, 1);
-    M = vecslice(M, i,lM-1);
+    ME = mfvectomat(vecslice(M,1,j-1), n, 1);
+    M = vecslice(M, j,lM-1);
   }
   M = bhnmat_extend_nocache(NULL, N, n, 1, M);
   if (ME) M = shallowconcat(ME,M);
   /* M = mfcoefs of BAS */
+  B = cgetg(lF, t_MAT);
+  dB= cgetg(lF, t_VEC);
+  for (j = 1; j < lF; j++)
+  {
+    GEN g = gel(vF, j); /* t_MF_DIV */
+    gel(B,j) = RgM_RgC_mul(M, gmael(g,2,3));
+    gel(dB,j)= gmael(g,2,4);
+  }
   f = mfcoefsser(gel(F,3),n);
   a0 = polcoef_i(f, 0, -1);
   if (gequal0(a0) || gequal1(a0))
@@ -4370,30 +4378,16 @@ mflineardivtomat(long N, GEN vF, long n)
   else
     f = gdiv(ser_unscale(f, a0), a0);
   fc = ginv(f);
-  V = cgetg(lM, t_VEC);
-  for (i = 1; i < lM; i++)
+  for (j = 1; j < lF; j++)
   {
     pari_sp av = avma;
-    GEN LISer = RgV_to_ser_full(gel(M,i)), f;
+    GEN LISer = RgV_to_ser_full(gel(B,j)), f;
     if (a0) LISer = gdiv(ser_unscale(LISer, a0), a0);
     f = gmul(LISer, fc);
     if (a0) f = ser_unscale(f, ginv(a0));
     f = sertocol(f); setlg(f, n+2);
-    gel(V,i) = gerepileupto(av,f);
-  }
-  B = cgetg(lF, t_MAT);
-  for (j = 1; j < lF; j++)
-  {
-    pari_sp av = avma;
-    GEN S = gen_0, coe;
-    F = gel(vF, j); /* t_MF_DIV */
-    coe = gdiv(gmael(F,2,3), gmael(F,2,4));
-    for (i = 1; i < lM; i++)
-    {
-      GEN co = gel(coe, i);
-      if (!gequal0(co)) S = gadd(S, gmul(co, gel(V, i)));
-    }
-    gel(B,j) = gerepileupto(av, S);
+    if (!gequal1(gel(dB,j))) f = RgC_Rg_div(f, gel(dB,j));
+    gel(B,j) = gerepileupto(av,f);
   }
   return B;
 }
