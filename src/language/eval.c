@@ -547,18 +547,13 @@ new_ptr(void)
 }
 
 void
-push_localprec(long p)
-{
-  long n = pari_stack_new(&s_prec);
-  precs[n] = prec2nbits(p);
-}
-
-void
 push_localbitprec(long p)
 {
   long n = pari_stack_new(&s_prec);
   precs[n] = p;
 }
+void
+push_localprec(long p) { push_localbitprec(prec2nbits(p)); }
 
 void
 pop_localprec(void)
@@ -578,22 +573,22 @@ get_localprec(void)
   return nbits2prec(get_localbitprec());
 }
 
+static void
+checkprec(const char *f, long p, long M)
+{
+  if (p < 1) pari_err_DOMAIN(f, "p", "<", gen_1, stoi(p));
+  if (p > M) pari_err_DOMAIN(f, "p", ">", utoipos(M), utoi(p));
+}
 void
 localprec(long p)
 {
-  long pmax = prec2ndec(LGBITS);
-  if (p < 1) pari_err_DOMAIN("localprec", "p", "<", gen_1, stoi(p));
-  if (p > pmax)
-    pari_err_DOMAIN("localprec", "p", ">", utoi(pmax), stoi(p));
-  push_localprec(ndec2prec(p));
+  checkprec("localprec", p, prec2ndec(LGBITS));
+  push_localbitprec(ndec2nbits(p));
 }
-
 void
 localbitprec(long p)
 {
-  if (p < 1) pari_err_DOMAIN("localprec", "p", "<", gen_1, stoi(p));
-  if (p > (long)LGBITS)
-    pari_err_DOMAIN("localbitprec", "p", ">", utoi(LGBITS), stoi(p));
+  checkprec("localbitprec", p, (long)LGBITS);
   push_localbitprec(p);
 }
 
