@@ -1114,7 +1114,7 @@ gpow(GEN x, GEN n, long prec)
   if (gequal0(x)) return gpow0(x, n, prec);
   if (tn == t_FRAC)
   {
-    GEN z, a = gel(n,1), d = gel(n,2);
+    GEN p, z, a = gel(n,1), d = gel(n,2);
     long D;
     switch (tx)
     {
@@ -1122,17 +1122,16 @@ gpow(GEN x, GEN n, long prec)
     case t_FRAC:
       if (ispower(x, d, &z)) return powgi(z, a);
       break;
+
     case t_INTMOD:
-      {
-        GEN p = gel(x,1);
-        if (!BPSW_psp(p)) pari_err_PRIME("gpow",p);
-        y = cgetg(3,t_INTMOD); gel(y,1) = icopy(p);
-        av = avma;
-        z = Fp_sqrtn(gel(x,2), d, p, NULL);
-        if (!z) pari_err_SQRTN("gpow",x);
-        gel(y,2) = gerepileuptoint(av, Fp_pow(z, a, p));
-        return y;
-      }
+      p = gel(x,1);
+      if (!BPSW_psp(p)) pari_err_PRIME("gpow",p);
+      y = cgetg(3,t_INTMOD); gel(y,1) = icopy(p);
+      av = avma;
+      z = Fp_sqrtn(gel(x,2), d, p, NULL);
+      if (!z) pari_err_SQRTN("gpow",x);
+      gel(y,2) = gerepileuptoint(av, Fp_pow(z, a, p));
+      return y;
 
     case t_PADIC:
       z = Qp_sqrtn(x, d, NULL); if (!z) pari_err_SQRTN("gpow",x);
@@ -1140,23 +1139,22 @@ gpow(GEN x, GEN n, long prec)
 
     case t_FFELT:
       return gerepileupto(av,FF_pow(FF_sqrtn(x,d,NULL),a));
-    default:
-      D = itos_or_0(d);
-      if (!D) break;
-      if (D == 2)
-      {
-        GEN y = gsqrt(x,prec), t = shifti(subiu(a,1), -1);
-        if (signe(t)) y = gmul(y, powgi(x,t));
-        return gerepileupto(av, y);
-      }
-      if (is_real_t(tx) && gsigne(x) > 0)
-      {
-        prec += nbits2extraprec(expi(a));
-        if (tx != t_REAL) x = gtofp(x, prec);
-        z = sqrtnr(x, D);
-        if (!equali1(a)) z = powgi(z, a);
-        return gerepileuptoleaf(av, z);
-      }
+    }
+    D = itos_or_0(d);
+    if (D == 2)
+    {
+      GEN y = gsqrt(x,prec);
+      if (!equali1(a))
+        y = gerepileupto(av, gmul(y, powgi(x, shifti(subiu(a,1), -1))));
+      return y;
+    }
+    if (D && (is_real_t(tx) && gsigne(x) > 0))
+    {
+      prec += nbits2extraprec(expi(a));
+      if (tx != t_REAL) x = gtofp(x, prec);
+      z = sqrtnr(x, D);
+      if (!equali1(a)) z = powgi(z, a);
+      return gerepileuptoleaf(av, z);
     }
   }
   i = precision(n);
