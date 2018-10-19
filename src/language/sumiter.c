@@ -896,6 +896,9 @@ vecexpr0(GEN vec, GEN code, GEN pred)
       if (!vec) return cgetg(1, t_VEC);
       break;
     }
+    case t_VECSMALL:
+      vec = vecsmall_to_vec(vec);
+      break;
     case t_VEC: case t_COL: case t_MAT: break;
     default: pari_err_TYPE("[_|_<-_,_]",vec);
   }
