@@ -1812,14 +1812,20 @@ get_accu(GEN a)
 static double
 get_c(GEN a)
 {
-  if (!a || typ(a) == t_INT) return 0.3317;
-  if (typ(a) == t_FRAC) switch(itos_or_0(gel(a,2)))
+  if (!a) return 0.3317;
+  if (gsigne(a) <= 0) pari_err_DOMAIN("limitnum","alpha","<=",gen_0, a);
+  if (typ(a) == t_INT)
   {
-    case 2: return 0.620;
+    if (equali1(a)) return 0.3318;
+    return 0.227;
+  }
+  if (typ(a) == t_FRAC && equali1(gel(a,1))) switch(itos_or_0(gel(a,2)))
+  {
+    case 2: return 0.6212;
     case 3: return 1.18;
     case 4: return 2.97;
   }
-  return gexpo(a) >= 0? 0.3317: 3;
+  return gexpo(a) >= 0? 0.3318: 3;
 }
 
 static void
