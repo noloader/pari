@@ -1,10 +1,9 @@
 Function: limitnum
 Section: sums
 C-Name: limitnum0
-Prototype: GDGD1,L,p
-Help: limitnum(expr,{alpha=1},{flag=1}): numerical limit of sequence expr
+Prototype: GDGp
+Help: limitnum(expr,{alpha=1}): numerical limit of sequence expr
  using Lagrange-Zagier extrapolation; assume u(n) ~ sum a_i n^(-alpha*i).
- If flag = 0, further assume that the a_i have polynomial growth in i.
 Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to
  a sequence $u_n$, either given by a closure \kbd{n->u(n)}. I.e., assuming
  that $u_n$ tends to a finite limit $\ell$, try to determine $\ell$.
@@ -12,10 +11,7 @@ Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to
  The routine assume that $u_n$ has an asymptotic expansion in $n^{-\alpha}$ :
  $$u_n = \ell + \sum_{i\geq 1} a_i n^{-i\alpha}$$
  for some $a_i$. It is purely numerical and heuristic, thus may or may not
- work on your examples. If \fl is set to $0$ the routine further assumes
- that the $a_i$ have polynomial growth and uses more optimistic bound:
- it will be faster (by a rough factor of $\log(B)$ in bit precision $B$) but
- possibly less accurate. The expression will be evaluated for $n = 1, 2,
+ work on your examples. The expression will be evaluated for $n = 1, 2,
  \dots, N$ for an $N = O(B)$ at a bit accuracy bounded by $1.612 B$.
 
  \bprog
@@ -81,7 +77,7 @@ Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to
  %13 = 4.79... E-67
  @eprog
 
- \synt{limitnum}{void *E, GEN (*u)(void *,GEN,long), GEN alpha, long flag, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
+ \synt{limitnum}{void *E, GEN (*u)(void *,GEN,long), GEN alpha, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
  Also available is
- \fun{GEN}{limitnum0}{GEN u, GEN alpha, long flag long prec}, where $u$
+ \fun{GEN}{limitnum0}{GEN u, GEN alpha, long prec}, where $u$
  must be a vector of sufficient length as above.

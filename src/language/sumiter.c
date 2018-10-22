@@ -1749,25 +1749,6 @@ struct limit
 };
 
 static GEN
-_f(void *E, GEN x)
-{
-  GEN b = (GEN)E;
-  return gsub(glngamma(gaddgs(x,1), LOWDEFAULTPREC), b);
-}
-
-/* solve N! >= 2^bit */
-static long
-get_N(long bit)
-{
-  long T[] = { 21, 35, 47, 58, 68, 79, 89, 99 };
-  double b;
-  GEN z, B;
-  if (bit <= 512) return T[(bit-1) >> 6];
-  b = M_LN2 * bit; B = dbltor(b);
-  z = zbrent((void*)B, &_f, dbltor(b / log(b)), B, LOWDEFAULTPREC);
-  return ceil(rtodbl(z));
-}
-static GEN
 _gi(void *E, GEN x)
 {
   GEN A = (GEN)E, y = gsubgs(x, 1);
@@ -1830,12 +1811,12 @@ get_c(GEN a)
 
 static void
 limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
-           GEN alpha, long flag, long prec)
+           GEN alpha, long prec)
 {
   long bitprec = prec2nbits(prec), n, N;
   GEN na;
 
-  L->N = N = flag? ceil(get_c(alpha) * bitprec) : get_N(bitprec);
+  L->N = N = ceil(get_c(alpha) * bitprec);
   L->prec = nbits2prec(bitprec + (long)ceil(get_accu(alpha) * N));
   L->prec0 = prec;
   L->u = get_u(E, f, N, L->prec);
@@ -1879,18 +1860,17 @@ limitnum_i(struct limit *L)
   return gerepilecopy(av, gprec_w(S, L->prec0));
 }
 GEN
-limitnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long flag, long prec)
+limitnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long prec)
 {
   struct limit L;
-  limit_init(&L, E,f, alpha, flag, prec);
+  limit_init(&L, E,f, alpha, prec);
   return limitnum_i(&L);
 }
 GEN
-limitnum0(GEN u, GEN alpha, long flag, long prec)
+limitnum0(GEN u, GEN alpha, long prec)
 {
   void *E = (void*)u;
   GEN (*f)(void*,GEN,long) = NULL;
-  if (flag < 0 || flag > 1) pari_err_FLAG("limitnum");
   switch(typ(u))
   {
     case t_COL:
@@ -1898,11 +1878,11 @@ limitnum0(GEN u, GEN alpha, long flag, long prec)
     case t_CLOSURE: f = gp_callprec; break;
     default: pari_err_TYPE("limitnum", u);
   }
-  return limitnum(E,f, alpha, flag, prec);
+  return limitnum(E,f, alpha, prec);
 }
 
 GEN
-asympnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long flag, long prec)
+asympnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long prec)
 {
   const long MAX = 100;
   pari_sp av = avma;
@@ -1910,7 +1890,7 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long flag, long prec)
   long i, B = prec2nbits(prec);
   double LB = 0.9*expu(B); /* 0.9 and 0.95 below are heuristic */
   struct limit L;
-  limit_init(&L, E,f, alpha, flag, prec);
+  limit_init(&L, E,f, alpha, prec);
   if (alpha) LB *= gtodouble(alpha);
   u = L.u;
   for(i = 1; i <= MAX; i++)
@@ -1934,11 +1914,10 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long flag, long prec)
   return gerepilecopy(av, vres);
 }
 GEN
-asympnum0(GEN u, GEN alpha, long flag, long prec)
+asympnum0(GEN u, GEN alpha, long prec)
 {
   void *E = (void*)u;
   GEN (*f)(void*,GEN,long) = NULL;
-  if (flag < 0 || flag > 1) pari_err_FLAG("asympnum");
   switch(typ(u))
   {
     case t_COL:
@@ -1946,5 +1925,5 @@ asympnum0(GEN u, GEN alpha, long flag, long prec)
     case t_CLOSURE: f = gp_callprec; break;
     default: pari_err_TYPE("asympnum", u);
   }
-  return asympnum(E,f, alpha, flag, prec);
+  return asympnum(E,f, alpha, prec);
 }

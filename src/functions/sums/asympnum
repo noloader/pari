@@ -1,16 +1,16 @@
 Function: asympnum
 Section: sums
 C-Name: asympnum0
-Prototype: GDGD1,L,p
-Help: asympnum(expr,{alpha = 1},{flag = 1}): asymptotic expansion of expr
- assuming it has rational coefficients with reasonable height; alpha and
- flag are as in limitnum.
+Prototype: GDGp
+Help: asympnum(expr,{alpha = 1}): asymptotic expansion of expr
+ assuming it has rational coefficients with reasonable height; alpha is
+ as in limitnum.
 Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  assuming it has the shape
  $$u(n) \approx \sum_{i \geq 0} a_i n^{-i\alpha}$$
  with rational coefficients $a_i$ with reasonable height; the algorithm
  is heuristic and performs repeated calls to limitnum, with
- \kbd{alpha} and \kbd{flag} as in \kbd{limitnum}.
+ \kbd{alpha} is as in \kbd{limitnum}.
  \bprog
  ? f(n) = n! / (n^n*exp(-n)*sqrt(n));
  ? asympnum(f)
@@ -54,7 +54,7 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  %6 = [0, 1, -1/2, 1/3, -1/4, ...]
  @eprog
 
- \synt{asympnum}{void *E, GEN (*u)(void *,GEN,long), GEN alpha, long flag, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
+ \synt{asympnum}{void *E, GEN (*u)(void *,GEN,long), GEN alpha, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
  Also available is
- \fun{GEN}{asympnum0}{GEN u, GEN alpha, long flag, long prec}, where $u$
+ \fun{GEN}{asympnum0}{GEN u, GEN alpha, long prec}, where $u$
  must be a vector of sufficient length as above.
