@@ -3608,6 +3608,7 @@ hashtable *hash_create_ulong(ulong s, long stack);
 hashtable *hash_create_str(ulong s, long stack);
 hashtable *hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*), int use_stack);
 void hash_dbg(hashtable *h);
+GEN  hash_haskey_GEN(hashtable *h, void *k);
 int  hash_haskey_long(hashtable *h, void *k, long *v);
 void hash_init_GEN(hashtable *h, ulong minsize, int (*eq)(GEN,GEN), int use_stack);
 void hash_insert(hashtable *h, void *k, void *v);

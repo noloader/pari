@@ -13660,6 +13660,10 @@ with key $k$ in $h$. Return it if it one exists, and \kbd{NULL} if not.
 \fun{hashentry*}{hash_search2}{hashtable *h, void *k, ulong hash} as
 \kbd{hash\_search} assuming \kbd{h->hash(k)} is \kbd{hash}.
 
+\fun{GEN}{hash_haskey_GEN}{hashtable *h, void *k}
+returns the associate value if the key $k$ belongs to the hash,
+otherwise returns \kbd{NULL}.
+
 \fun{int}{hash_haskey_long}{hashtable *h, void *k, long *v}
 returns $1$ if the key $k$ belongs to the hash and set $v$ to its value,
 otherwise returns 0.

@@ -209,6 +209,13 @@ hash_haskey_long(hashtable *h, void *k, long *v)
   else return 0;
 }
 
+GEN
+hash_haskey_GEN(hashtable *h, void *k)
+{
+  hashentry * e = hash_search(h, k);
+  return e ? (GEN) e->val: NULL;
+}
+
 hashentry *
 hash_remove_select(hashtable *h, void *k, void *E,
   int (*select)(void*,hashentry*))
