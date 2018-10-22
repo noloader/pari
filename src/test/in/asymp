@@ -23,6 +23,8 @@ asympnum(v)
 log(limitnum(n->(1+1/n)^n))
 limitnum(n->sum(j=1,n,sqrt(j)/j^2),1/2) - zeta(3/2)
 
+limitnum(n->n^2*(1-cos(1/n)),2)
+
 h(n)=
 { \\ 1.612 makes a difference between 32-bit/64-bit archs
   localbitprec(ceil(bitprecision(1.) * 1.8));
@@ -41,3 +43,4 @@ asympnum(a->a^(-5/2)*if(a%40==0,I,0))
 \\ Errors, keep at end
 asympnum(1)
 limitnum(1)
+limitnum(n->1,-1)
