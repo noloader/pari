@@ -90,8 +90,11 @@ make test-parallel RUNTEST="mpirun -np 3"
 
 \section{Concept}
 
-GP provides functions that allows parallel execution of GP code, subject to
-the following limitations: the parallel code
+In a GP program, the \emph{main thread} executes instructions sequentially
+(one after the other) and GP provides function, sharing the prefix \kbd{par},
+that allow to execute subtasks in \emph{secondary threads} in parallel (at
+the same time). The subtasks are subject to the following limitations: the
+parallel code
 
 \item must not access global variables or local variables declared with
   \kbd{local()},
@@ -120,7 +123,6 @@ not work (MPI does not allow to span new threads at run time).
 
 PARI requires at least $3$ nodes to work properly.
 
-
 The PARI stack size in secondary threads is controlled by
 \kbd{default(threadsize)}, so the total memory allocated is equal to
 $\kbd{parisize}+\kbd{nbthreads}\times\kbd{threadsize}$.  By default,
@@ -144,6 +146,8 @@ GP provides the following functions for parallel operations:
 
 \item \tet{parforvec}: parallel version of \kbd{forvec}
 
+\item \tet{parploth}: parallel version of \kbd{ploth}
+
 Please see the documentation of each function for details.
 
 \subsec{PARI functions}
@@ -152,158 +156,109 @@ in the \emph{Developer's guide to the PARI library}.
 
 \chapter{Writing code suitable for parallel execution}
 
-\section{Avoiding global variables}
+\section{Exporting global variables}
 
-When parallel execution encounters a global variable \kbd{var},
+When parallel execution encounters a global variable, say $V$,
 the following error is reported:
 \bprog
-  *** parapply: mt: global variable not supported: var.
-@eprog
-
-From a user perspective, global variables fall in three categories:
-data, functions, and polynomial variables. We give some examples.
+  *** parapply: mt: please use export(V)
+@eprog\noindent A global variable is not visible in the parallel execution
+unless it is explicitly exported. This may occur in the following contexts:
 
 \subsec{Example 1: data}
+
 \bprog
-? V=[2^256 + 1, 2^193 - 1];
+? V = [2^256 + 1, 2^193 - 1];
 ? parvector(#V,i,factor(V[i]))
-  *** parvector: mt: global variable not supported: V.
-@eprog\noindent
-fails because \kbd{V} is a global variable in the expression
-\kbd{factor(V[i])}; the variable \kbd{V} must first be converted to a local
-variable. There are several ways to achieve this:
-
-\item use \kbd{parapply} instead of \kbd{parvector}:
+  *** parvector: mt: please use export(V).
+@eprog\noindent The problem is fixed as follows:
 \bprog
-? V=[2^256 + 1, 2^193 - 1];
-? parapply(factor,V)
-@eprog
-
-Here \kbd{V} is not part of the parallel section of the code.
-
-\item use a wrapper function, and pass data as function arguments:
-\bprog
-? V=[2^256 + 1, 2^193 - 1];
-? fun(z)=parvector(#z,i,factor(z[i]));
-? fun(V)
-@eprog
-
-\item define \kbd{V} as a local variable:
-\bprog
-? my(V=[2^256 + 1, 2^193 - 1]); parvector(#V,i,factor(V[i]))
-@eprog
-
-\item redefine \kbd{V} as a local variable:
-\bprog
-? V=[2^256 + 1, 2^193 - 1];
-? my(V=V); parvector(#V,i,factor(V[i]))
-@eprog
-
-\item use \kbd{inline}, that replaces later occurences of that variable name
-  by the variable content (inlining):
-\bprog
-? inline(V);
-? V=[2^256 + 1, 2^193 - 1];
+? V = [2^256 + 1, 2^193 - 1];
+? export(V)
 ? parvector(#V,i,factor(V[i]))
-@eprog
-
-Here \kbd{V} is inlined inside the function \kbd{i->factor(V[i])}.
+@eprog The following short form is also available
+\bprog
+? export(V = [2^256 + 1, 2^193 - 1]);
+? parvector(#V,i,factor(V[i]))
+@eprog\noindent with a different semantic: in the latter case the variable
+$V$ does not exist in the main thread, only in parallel threads.
 
 \subsec{Example 2: polynomial variable}
 
 \bprog
 ? fun(n)=bnfinit(x^n-2).no;
 ? parapply(fun,[1..50])
-  *** parapply: mt: global variable not supported: x.
-@eprog
-
-The function \kbd{fun} should use the polynomial indeterminate \kbd{'x}
+  *** parapply: mt: please use export(x).
+@eprog\noindent You may fix this as above using \kbd{export} but here there
+is a more natural solution: use the polynomial indeterminate \kbd{'x}
 instead the global variable \kbd{x} (whose value is \kbd{'x} on startup, but
 may or may no longer be \kbd{'x} at this point):
 
 \bprog
-? fun(n)=bnfinit('x^n-2).no;
-@eprog
-
-or alternatively
-
+? fun(n) = bnfinit('x^n-2).no;
+@eprog\noindent or alternatively
 \bprog
-? fun(n)=my(x='x);bnfinit(x^n-2).no;
+? fun(n) = my(x='x); bnfinit(x^n-2).no;
 @eprog
 which is more readable if the same polynomial variable is used several times.
 
 \subsec{Example 3: function}
-\bprog
-f(a) = bnfinit('x^8-a).no;
-g(a,b) = parsum(i=a,b,f(i));
-? g(37,48)
-  *** parsum: mt: global variable not supported: f.
-@eprog\noindent
-fails because the function \kbd{f} is a global variable (whose value is a
-function).  This is identical to the first example, and all solutions given
-there apply here:
 
-\item use \kbd{inline}
-\bprog
-inline(f);
-f(a) = bnfinit('x^8-a).no;
-g(a,b) = parsum(i=a,b,f(i));
-? g(37,48)
-@eprog
-
-\item make \kbd{f} a parameter of \kbd{g}:
-\bprog
-f(a) = bnfinit('x^8-a).no;
-g(a,b,f) = parsum(i=a,b,f(i));
-? g(37,48,f)
-@eprog
-
-\item define \kbd{f} as a local variable:
-
-\bprog
-{
-  my(f(a) = bnfinit('x^8-a).no);
-  g(a,b) = parsum(i=a,b,f(i));
-}
-? g(37,48)
-@eprog
-
-\item redefine \kbd{f} as a local variable:
 \bprog
 ? f(a) = bnfinit('x^8-a).no;
-? my(f=f); g(a,b) = parsum(i=a,b,f(i));
+? g(a,b) = parsum(i=a,b, f(i));
 ? g(37,48)
-@eprog
+  *** parsum: mt: please use export(f).
+? export(f)
+? g(37,48)
+%4 = 81
+@eprog\noindent Note that \kbd{export}$(v)$ freezes the value of $v$
+for parallel execution at the time of the export: you may certainly modify
+its value later in the main thread but you need to re-export $v$ if you want
+the new value to be used in parallel threads. You may export more than one
+variable at once, e.g. \kbd{export}$(a,b,c)$ is accepted. You may also
+export \emph{all} variables with dynamic scope (all global variables
+and all variables declared with \kbd{local}) using \kbd{exportall()}.
+Although convenient, this may be wasteful if most variables are not meant to
+be used from parallel threads. It is recomended to use
 
-\subsec{Example 4: recursive function}
-\bprog
-? inline(fact);
-? fact(n)=if(n==0,1,n*fact(n-1))
-? parapply(fact,[1..10])
-@eprog
-is not valid because the actual value of \kbd{fact} which is inlined inside
-\kbd{fact} is $0$.  To avoid this problem, you can use the function
-\kbd{self()}:
-\bprog
-? inline(fact);
-? fact(n)=if(n==0,1,n*self()(n-1))
-? parapply(fact,[1..10])
-@eprog
+\item \kbd{exportall} in the \kbd{gp} interpreter interactively, while
+  developping code;
 
-\section{Input and output}
-If your parallel code needs to write data to files, we recommend to split
-the output in as many files as the number of parallel computations, to avoid
-concurrent writes to the same file.
+\item \kbd{export} explicitly a function (meant to be called from parallel
+  threads) just after its definition;
+
+\item $v = \var{value}$; \kbd{export}$(v)$ when the value and the variable $v$
+  will be needed both in the main thread and in secondary threads;
+
+\item \kbd{export}($v = \var{value}$) when the value and the variable $v$
+  are not needed in the main thread.
+
+In the two latter forms, $v$ should be considered read-only. It is
+read-only in secondary threads, trying to change it will raise an exception:
+\bprog
+  ***   mt: attempt to change exported variable 'v'.
+@eprog\noindent You \emph{can} modify it in the main thread, but it must be
+exported again so that the new value is accessible to secondary threads:
+barring a new \kbd{export}, secondary threads continue to access the old value.
+
+\section{Input and output} If your parallel code needs to write data to
+files, we recommend to split the output in as many files as the number of
+parallel computations, to avoid concurrent writes to the same file, with a
+high risk of data corruption.
 
 For example a parallel version of
 \bprog
 ? f(a) = write("bnf",bnfinit('x^8-a));
-? apply(f,[37..48])
+? for (a = 37, 48, f(a))
 @eprog\noindent could be
 \bprog
-? f(a) = write(Str("bnf/bnf-",a), bnfinit('x^8-a).no); 0
-? parapply(f,[37..48])
-@eprog\noindent which creates the files \kbd{bnf/bnf-37} to \kbd{bnf/bnf-48}.
+? f(a) = write(Str("bnf-",a), bnfinit('x^8-a).no);
+? export(f);
+? parfor(i = 37, 48, f(i))
+@eprog\noindent which creates the files \kbd{bnf-37} to \kbd{bnf-48}. Of
+course you may want to group these file in a subdirectory (which must be
+created first).
 
 \section{Using \kbd{parfor} and \kbd{parforprime}}
 \kbd{parfor} and \kbd{parforprime} are the most powerful of all parallel GP
@@ -335,10 +290,14 @@ parfirst(pred,V)=
   parfor(i=1, #V,
     pred(V[i]),
     cond,
-    if(cond, return(i));
-  0
+    if (cond, return(i)));
+  return(0);
 }
-@eprog
+@eprog\noindent This works because, if the second expression
+in \kbd{parfor} exits the loop via \kbd{break} / \kbd{return} at index~$i$,
+it is guaranteed that all indexes $< i$ are also evaluated and the one with
+smallest index is the one that triggers the exit. See \kbd{??parfor} for
+details.
 
 The following function is similar to \kbd{parsum}:
 \bprog
@@ -349,7 +308,7 @@ myparsum(a,b,expr)=
     expr(i),
     val,
     s += val);
-  val
+  return(s);
 }
 @eprog
 
@@ -359,22 +318,25 @@ Dispatching tasks to parallel threads takes time. To limit overhead, we
 recommend to split the computation in tasks so that each parallel task
 requires at least a few seconds. Consider the following example:
 \bprog
-  thuemorse(n)= my(V=binary(n)); (-1)^n*sum(i=1,#V,V[i]);
-  sum(n=1,2*10^6, thuemorse(n)/n*1.)
+  thuemorse(n)= (-1)^n * hammingweight(n);
+  sum(n=1, 2*10^6, thuemorse(n)/n*1.)
 @eprog\noindent
 It is natural to try
 \bprog
-  inline(thuemorse);
-  thuemorse(n)= my(V=binary(n)); (-1)^n*sum(i=1,#V,V[i]);
+  export(thuemorse);
   parsum(n=1,2*10^6, thuemorse(n)/n*1.)
 @eprog\noindent
 However, due to the overhead, this will not be much faster than the
-sequential version. To limit overhead, we group the summation by blocks:
+sequential version; in fact it will likely be \emph{slower}. To limit overhead,
+we group the summation by blocks:
 \bprog
   parsum(N=1,20, sum(n=1+(N-1)*10^5, N*10^5, thuemorse(n)/n*1.))
 @eprog\noindent
 Try to create at least as many groups as the number of available threads,
-to take full advantage of parallelism.
+to take full advantage of parallelism. Since some of the floating point
+addition are done in random order (the ones in a given block occur
+successively, in deterministic order), it is possible that some of the
+results will differ slightly from one run to the next.
 
 \section{Load balancing}
 
@@ -387,7 +349,6 @@ parallel threads. Instead of
 \bprog
   parvector(36,i,bnfinit('x^(37-i)-2).no)
 @eprog\noindent will be faster if you have fewer than $36$ threads.
-
 Indeed, \kbd{parvector} schedules tasks by increasing $i$ values, and the
 computation time increases steeply with $i$. With $18$ threads, say:
 

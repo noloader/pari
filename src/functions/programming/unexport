@@ -1,0 +1,7 @@
+Function: unexport
+Section: programming/specific
+Help: unexport(x,...,z): remove x,...,z from the list of variables exported to
+ the parallel world. [EXPERIMENTAL].
+Doc: (Experimental) remove $x,\ldots, z$ from the list of variables exported
+ to the parallel world.  Such variables are visible inside parallel sections in
+ place of global variables.

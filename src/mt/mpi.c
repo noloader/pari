@@ -13,13 +13,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include <mpi.h>
 #include "pari.h"
 #include "paripriv.h"
+#include "../src/language/anal.h"
 #include "mt.h"
 
 static THREAD int pari_MPI_size, pari_MPI_rank;
 static THREAD long nbreq = 0;
 
 enum PMPI_cmd { PMPI_close, PMPI_worker, PMPI_work, PMPI_parisizemax,
-                PMPI_parisize, PMPI_precreal, PMPI_primetab, PMPI_eval };
+                PMPI_parisize, PMPI_precreal, PMPI_primetab, PMPI_eval,
+                PMPI_exportadd, PMPI_exportdel};
 
 struct mt_mstate
 {
@@ -216,6 +218,23 @@ pari_MPI_child(void)
       (void) closure_evalgen(recvfrom_GEN(0));
       set_avma(av);
       break;
+    case PMPI_exportadd:
+    {
+      GEN str = recvfrom_GEN(0);
+      GEN val = recvfrom_GEN(0);
+      entree *ep = fetch_entry(GSTR(str));
+      export_add(ep->name, val);
+      set_avma(av);
+      break;
+    }
+    case PMPI_exportdel:
+    {
+      GEN str = recvfrom_GEN(0);
+      entree *ep = fetch_entry(GSTR(str));
+      export_del(ep->name);
+      set_avma(av);
+      break;
+    }
     case PMPI_close:
       MPI_Barrier(MPI_COMM_WORLD);
       MPI_Finalize();
@@ -243,6 +262,36 @@ int
 mt_is_thread(void)
 {
   return pari_MPI_rank;
+}
+
+void
+mt_export_add(const char *str, GEN val)
+{
+  long i, n = pari_MPI_size-1;
+  GEN s;
+  if (pari_mt || pari_MPI_rank)
+    pari_err(e_MISC,"export not allowed during parallel sections");
+  export_add(str, val);
+  s = strtoGENstr(str);
+  for (i=1; i <= n; i++)
+  {
+    send_request(PMPI_exportadd, i);
+    send_GEN(s, i);
+    send_GEN(val, i);
+  }
+}
+
+void
+mt_export_del(const char *str)
+{
+  long i, n = pari_MPI_size-1;
+  GEN s;
+  if (pari_MPI_rank)
+    pari_err(e_MISC,"unexport not allowed during parallel sections");
+  export_del(str);
+  s = strtoGENstr(str);
+  for (i=1; i <= n; i++)
+    send_request_GEN(PMPI_exportdel, s, i);
 }
 
 void

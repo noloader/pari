@@ -100,6 +100,22 @@ mt_is_thread(void)
   return mt_thread_no>=0;
 }
 
+void
+mt_export_add(const char *str, GEN val)
+{
+  if (pari_mt)
+    pari_err(e_MISC,"export() not allowed during parallel sections");
+  export_add(str, val);
+}
+
+void
+mt_export_del(const char *str)
+{
+  if (pari_mt)
+    pari_err(e_MISC,"unexport() not allowed during parallel sections");
+  export_del(str);
+}
+
 void mt_broadcast(GEN code) {(void) code;}
 
 void pari_mt_init(void)

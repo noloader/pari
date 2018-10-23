@@ -148,8 +148,11 @@ GEN  listcreate_gp(long n);
 /* mt */
 void mt_sigint(void);
 void mt_err_recover(long er);
+void mt_export_add(const char *str, GEN val);
+void mt_export_del(const char *str);
 void mt_init_stack(size_t s);
 int  mt_is_thread(void);
+
 GEN  pareval_worker(GEN code);
 GEN  parselect_worker(GEN d, GEN code);
 void parfor0(GEN a, GEN b, GEN code, GEN code2);
@@ -579,6 +582,12 @@ void pari_thread_close_files(void);
 void pari_thread_init_primetab(void);
 void pari_thread_init_seadata(void);
 void pari_thread_init_varstate(void);
+
+void export_add(const char *str, GEN val);
+void export_del(const char *str);
+GEN  export_get(const char *str);
+void exportall(void);
+void unexportall(void);
 
 /* BY FILES */
 

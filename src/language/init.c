@@ -248,6 +248,86 @@ pop_entree_block(entree *ep, long loc)
   gunclone_deep(x); return 1;
 }
 
+/***************************************************************************
+ **                                                                       **
+ **                           Export                                      **
+ **                                                                       **
+ ***************************************************************************/
+
+static hashtable *export_hash;
+static void
+pari_init_export(void)
+{
+  export_hash = hash_create_str(1,0);
+}
+static void
+pari_close_export(void)
+{
+  hash_destroy(export_hash);
+}
+
+/* Exported values are blocks, but do not have the clone bit set so that they
+ * are not affected by clone_lock and ensure_nb, etc. */
+
+void
+export_add(const char *str, GEN val)
+{
+  hashentry *h;
+  val = gclone(val); unsetisclone(val);
+  h = hash_search(export_hash, (void*) str);
+  if (h)
+  {
+    GEN v = h->val;
+    h->val = val;
+    setisclone(v); gunclone(v);
+  }
+  else
+    hash_insert(export_hash,(void*)str, (void*) val);
+}
+
+void
+export_del(const char *str)
+{
+  hashentry *h = hash_remove(export_hash,(void*)str);
+  GEN v = h->val;
+  setisclone(v); gunclone(v);
+}
+
+GEN
+export_get(const char *str)
+{
+  return hash_haskey_GEN(export_hash,(void*)str);
+}
+
+void
+unexportall(void)
+{
+  GEN keys = hash_keys(export_hash);
+  long i, l = lg(keys);
+  for(i=1; i<l; i++)
+  {
+    const char *s = (const char *) keys[i];
+    mt_export_del(s);
+  }
+}
+
+void
+exportall(void)
+{
+  long i;
+  for (i = 0; i < functions_tblsz; i++)
+  {
+    entree *ep = functions_hash[i];
+    while (ep)
+    {
+      entree *EP = ep->next;
+      if (EpVALENCE(ep)==EpVAR)
+        mt_export_add(ep->name, (GEN) ep->value);
+      ep = EP;
+    }
+  }
+}
+
 /*********************************************************************/
 /*                                                                   */
 /*                       C STACK SIZE CONTROL                        */
@@ -973,6 +1053,7 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   pari_init_seadata();
   pari_thread_init();
   pari_init_functions();
+  pari_init_export();
   pari_var_init();
   pari_init_timer();
   pari_init_buffers();
@@ -1007,6 +1088,7 @@ pari_close_opts(ulong init_opts)
   }
   pari_close_mf();
   pari_thread_close();
+  pari_close_export();
   pari_close_files();
   pari_close_homedir();
   if (!(init_opts&INIT_noINTGMPm)) pari_kernel_close();

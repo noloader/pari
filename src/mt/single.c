@@ -37,6 +37,22 @@ mt_is_thread(void)
 }
 
 void
+mt_export_add(const char *str, GEN val)
+{
+  if (mtsingle_is_thread())
+    pari_err(e_MISC,"export not allowed during parallel sections");
+  export_add(str, val);
+}
+
+void
+mt_export_del(const char *str)
+{
+  if (mtsingle_is_thread())
+    pari_err(e_MISC,"unexport not allowed during parallel sections");
+  export_del(str);
+}
+
+void
 pari_mt_init(void)
 {
   pari_mt_nbthreads = 1;

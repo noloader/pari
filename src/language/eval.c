@@ -221,7 +221,7 @@ INLINE void
 checkvalue(entree *ep, enum chk_VALUE flag)
 {
   if (mt_is_thread())
-    pari_err(e_MISC,"mt: global variable not supported: %s",ep->name);
+    pari_err(e_MISC,"mt: attempt to change exported variable '%s'",ep->name);
   if (ep->valence==EpNEW)
     switch(flag)
     {
@@ -886,8 +886,17 @@ closure_eval(GEN C)
     case OCpushdyn:
       {
         entree *ep = (entree *)operand;
-        checkvalue(ep, chk_CREATE);
-        gel(st,sp++)=(GEN)ep->value;
+        if (!mt_is_thread())
+        {
+          checkvalue(ep, chk_CREATE);
+          gel(st,sp++)=(GEN)ep->value;
+        } else
+        {
+          GEN val = export_get(ep->name);
+          if (!val)
+            pari_err(e_MISC,"mt: please use export(%s)", ep->name);
+          gel(st,sp++)=val;
+        }
         break;
       }
     case OCpushlex:
@@ -1245,6 +1254,18 @@ closure_eval(GEN C)
         lvars[n] = ep;
         nblvar++;
         zerovalue(ep);
+        break;
+      }
+    case OCexportvar:
+      {
+        entree *ep = (entree *)operand;
+        mt_export_add(ep->name, gel(st,--sp));
+        break;
+      }
+    case OCunexportvar:
+      {
+        entree *ep = (entree *)operand;
+        mt_export_del(ep->name);
         break;
       }
 
@@ -2180,6 +2201,18 @@ closure_disassemble(GEN C)
         pari_printf("localvar0\t%s\n",ep->name);
         break;
       }
+    case OCexportvar:
+      {
+        entree *ep = (entree *)operand;
+        pari_printf("exportvar\t%s\n",ep->name);
+        break;
+      }
+    case OCunexportvar:
+      {
+        entree *ep = (entree *)operand;
+        pari_printf("unexportvar\t%s\n",ep->name);
+        break;
+      }
     case OCcallgen:
       {
         entree *ep = (entree *)operand;
@@ -2317,6 +2350,8 @@ opcode_need_relink(op_code opcode)
   case OCnewptrdyn:
   case OClocalvar:
   case OClocalvar0:
+  case OCexportvar:
+  case OCunexportvar:
   case OCcallgen:
   case OCcallgen2:
   case OCcalllong:

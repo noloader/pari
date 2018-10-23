@@ -1201,6 +1201,42 @@ compilelocal(GEN arg)
 }
 
 static void
+compileexport(GEN arg)
+{
+  long i, l = lg(arg);
+  for (i=1; i<l; i++)
+  {
+    long a=arg[i];
+    if (tree[a].f==Fassign)
+    {
+      long x = detag(tree[a].x);
+      long v = (long) getvar(x);
+      compilenode(tree[a].y,Ggen,FLnocopy);
+      op_push(OCexportvar,v,x);
+    } else
+    {
+      long x = detag(a);
+      long v = (long) getvar(x);
+      op_push(OCpushdyn,v,x);
+      op_push(OCexportvar,v,x);
+    }
+  }
+}
+
+static void
+compileunexport(GEN arg)
+{
+  long i, l = lg(arg);
+  for (i=1; i<l; i++)
+  {
+    long a = arg[i];
+    long x = detag(a);
+    long v = (long) getvar(x);
+    op_push(OCunexportvar,v,x);
+  }
+}
+
+static void
 compilefunc(entree *ep, long n, int mode, long flag)
 {
   pari_sp ltop=avma;
@@ -1274,6 +1310,20 @@ compilefunc(entree *ep, long n, int mode, long flag)
   else if (is_func_named(ep,"local"))
   {
     compilelocal(arg);
+    compilecast(n,Gvoid,mode);
+    set_avma(ltop);
+    return;
+  }
+  else if (is_func_named(ep,"export"))
+  {
+    compileexport(arg);
+    compilecast(n,Gvoid,mode);
+    set_avma(ltop);
+    return;
+  }
+  else if (is_func_named(ep,"unexport"))
+  {
+    compileunexport(arg);
     compilecast(n,Gvoid,mode);
     set_avma(ltop);
     return;
