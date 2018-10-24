@@ -304,7 +304,7 @@ glue(ulong h, ulong a) { return 404936533*h + a; }
 ulong
 hash_GEN(GEN x)
 {
-  ulong h = x[0];
+  ulong h = x[0] & ~CLONEBIT;
   long tx = typ(x), lx, i;
   switch(tx)
   { /* non recursive types */

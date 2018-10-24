@@ -41,6 +41,7 @@ BA  22- foo(n)=vector(n)[1..n];123; would corrupt the GP interpreter [#2081]
     30- mfgaloistype: error on mf=mfinit([1159,1,Mod(930,1159)],0);
     31- incorrect accuracy in limitnum / asympnum for alpha != 1
     32- missing GC in polint_i
+    33- hash_GEN(x) returned different values depending on whether x was a clone
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
