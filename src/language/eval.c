@@ -220,7 +220,7 @@ enum chk_VALUE { chk_ERROR, chk_NOCREATE, chk_CREATE };
 INLINE void
 checkvalue(entree *ep, enum chk_VALUE flag)
 {
-  if (MT_IS_THREAD)
+  if (mt_is_thread())
     pari_err(e_MISC,"mt: global variable not supported: %s",ep->name);
   if (ep->valence==EpNEW)
     switch(flag)

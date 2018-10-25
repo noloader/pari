@@ -33,7 +33,7 @@ mt_is_parallel(void)
 int
 mt_is_thread(void)
 {
-  return 0;
+  return mtsingle_is_thread();
 }
 
 void

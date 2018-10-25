@@ -173,6 +173,7 @@ struct pari_compilestate
 struct pari_mtstate
 {
   long pending_threads;
+  long is_thread;
 };
 
 struct pari_evalstate

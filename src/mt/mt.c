@@ -25,15 +25,22 @@ mtsingle_queue_get(struct mt_state *mt, long *workid, long *pending)
   return done;
 }
 
+static int single_is_thread = 0;
+
 static void
 mtsingle_queue_submit(struct mt_state *mt, long workid, GEN work)
 {
+  single_is_thread = 1;
   mt->pending = work? closure_callgenvec(mt->worker, work): NULL;
+  single_is_thread = 0;
   mt->workid = workid;
 }
 
 static void
 mtsingle_queue_end(void) {  }
+
+int
+mtsingle_is_thread(void) { return single_is_thread; }
 
 void
 mtsingle_queue_start(struct pari_mt *pt, GEN worker)
@@ -63,12 +70,14 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
 void
 mtstate_save(struct pari_mtstate *mt)
 {
+  mt->is_thread = single_is_thread;
   mt->pending_threads = mt_is_parallel();
 }
 
 void
 mtstate_restore(struct pari_mtstate *mt)
 {
+  single_is_thread = mt->is_thread;
   if (!mt->pending_threads && mt_is_parallel())
     mt_queue_reset();
 }
@@ -76,6 +85,7 @@ mtstate_restore(struct pari_mtstate *mt)
 void
 mtstate_reset(void)
 {
+  single_is_thread = 0;
   if (mt_is_parallel())
     mt_queue_reset();
 }
