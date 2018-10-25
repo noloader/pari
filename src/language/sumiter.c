@@ -1793,7 +1793,7 @@ get_accu(GEN a)
 static double
 get_c(GEN a)
 {
-  if (!a) return 0.3317;
+  if (!a) return 0.3318;
   if (gsigne(a) <= 0) pari_err_DOMAIN("limitnum","alpha","<=",gen_0, a);
   if (typ(a) == t_INT)
   {
