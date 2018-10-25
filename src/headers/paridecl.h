@@ -3607,22 +3607,22 @@ long    group_ident_trans(GEN G, GEN S);
 hashtable *hash_create_ulong(ulong s, long stack);
 hashtable *hash_create_str(ulong s, long stack);
 hashtable *hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*), int use_stack);
-void hash_dbg(hashtable *h);
-GEN  hash_haskey_GEN(hashtable *h, void *k);
-int  hash_haskey_long(hashtable *h, void *k, long *v);
-void hash_init_GEN(hashtable *h, ulong minsize, int (*eq)(GEN,GEN), int use_stack);
-void hash_insert(hashtable *h, void *k, void *v);
-void hash_insert_long(hashtable *h, void *k, long v);
-void hash_insert2(hashtable *h, void *k, void *v, ulong hash);
-GEN hash_keys(hashtable *h);
-GEN hash_values(hashtable *h);
+void    hash_dbg(hashtable *h);
+GEN     hash_haskey_GEN(hashtable *h, void *k);
+int     hash_haskey_long(hashtable *h, void *k, long *v);
+void    hash_init_GEN(hashtable *h, ulong minsize, int (*eq)(GEN,GEN), int use_stack);
+void    hash_insert(hashtable *h, void *k, void *v);
+void    hash_insert_long(hashtable *h, void *k, long v);
+void    hash_insert2(hashtable *h, void *k, void *v, ulong hash);
+GEN     hash_keys(hashtable *h);
+GEN     hash_values(hashtable *h);
 hashentry *hash_search(hashtable *h, void *k);
 hashentry *hash_search2(hashtable *h, void *k, ulong hash);
 hashentry *hash_select(hashtable *h, void *k, void *E,int(*select)(void *,hashentry *));
 hashentry *hash_remove(hashtable *h, void *k);
 hashentry *hash_remove_select(hashtable *h, void *k, void *E, int (*select)(void*,hashentry*));
-void hash_destroy(hashtable *h);
-ulong hash_GEN(GEN x);
+void    hash_destroy(hashtable *h);
+ulong   hash_GEN(GEN x);
 
 /* hyperell.c */
 
