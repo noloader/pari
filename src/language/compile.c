@@ -963,6 +963,7 @@ compilelambda(long n, long y, GEN vep, struct codepos *pos)
   GEN text=cgetg(3,t_VEC);
   gel(text,1)=strtoGENstr(lev? ((entree*) vep[1])->name: "");
   gel(text,2)=strntoGENstr(tree[y].str,tree[y].len);
+  dbgstart = tree[y].str;
   nbmvar=ctxmvar()-lev;
   if (lev) op_push(OCgetargs,lev,n);
   compilenode(y,Ggen,FLsurvive|FLreturn);
