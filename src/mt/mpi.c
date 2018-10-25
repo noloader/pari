@@ -166,6 +166,7 @@ pari_MPI_child(void)
   ulong rsize = 0, vsize = 0;
   GEN worker = NULL, work, done;
   struct gp_context rec;
+  pari_mt_nbthreads = 1;
   gp_context_save(&rec);
   if (setjmp(child_env))
   {
@@ -332,7 +333,7 @@ mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
 {
   if (lim==0) lim = pari_mt_nbthreads;
   else        lim = minss(pari_mt_nbthreads, lim);
-  if (pari_mt || pari_MPI_size <= 2 || lim <= 1)
+  if (pari_mt || pari_MPI_rank || pari_MPI_size <= 2 || lim <= 1)
     mtsingle_queue_start(pt, worker);
   else
   {
