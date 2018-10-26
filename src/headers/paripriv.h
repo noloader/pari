@@ -351,9 +351,9 @@ void evalstate_save(struct pari_evalstate *state);
 void varstate_save(struct pari_varstate *s);
 void varstate_restore(struct pari_varstate *s);
 
-void mtstate_save(long *pending);
+void mtstate_save(struct pari_mtstate *s);
 void mtstate_reset(void);
-void mtstate_restore(long *pending);
+void mtstate_restore(struct pari_mtstate *s);
 
 void debug_context(void);
 

@@ -61,15 +61,15 @@ mt_queue_start(struct pari_mt *pt, GEN worker)
 { return mt_queue_start_lim(pt, worker, 0); }
 
 void
-mtstate_save(long *pending)
+mtstate_save(struct pari_mtstate *mt)
 {
-  *pending = mt_is_parallel();
+  mt->pending_threads = mt_is_parallel();
 }
 
 void
-mtstate_restore(long *pending)
+mtstate_restore(struct pari_mtstate *mt)
 {
-  if (!*pending && mt_is_parallel())
+  if (!mt->pending_threads && mt_is_parallel())
     mt_queue_reset();
 }
 

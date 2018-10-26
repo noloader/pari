@@ -170,6 +170,11 @@ struct pari_compilestate
   const char *dbgstart;
 };
 
+struct pari_mtstate
+{
+  long pending_threads;
+};
+
 struct pari_evalstate
 {
   pari_sp avma;
@@ -179,7 +184,7 @@ struct pari_evalstate
   long lvars;
   long prec;
   long trace;
-  long pending_threads;
+  struct pari_mtstate mt;
   struct pari_compilestate comp;
 };
 

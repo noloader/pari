@@ -1502,14 +1502,14 @@ evalstate_save(struct pari_evalstate *state)
   state->lvars= s_lvars.n;
   state->trace= s_trace.n;
   compilestate_save(&state->comp);
-  mtstate_save(&state->pending_threads);
+  mtstate_save(&state->mt);
 }
 
 void
 evalstate_restore(struct pari_evalstate *state)
 {
   set_avma(state->avma);
-  mtstate_restore(&state->pending_threads);
+  mtstate_restore(&state->mt);
   sp = state->sp;
   rp = state->rp;
   s_prec.n = state->prec;
