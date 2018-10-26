@@ -91,6 +91,9 @@ BA  13- qfbsolve(Q,n) now support arbitrary integer n.
     14- [libpari] divisorsu_fact_factored
     15- [libpari] qfiseven
     16- [libpari] zv_cyc_minimize, zv_cyc_minimal
+    17- limitnum/asympnum: allow closures of the form N->[u(1),...,u(N)],
+        which allows to handle efficiently sums, recursions, continued
+        fractions, etc.
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

@@ -10,7 +10,9 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  $$u(n) \approx \sum_{i \geq 0} a_i n^{-i\alpha}$$
  with rational coefficients $a_i$ with reasonable height; the algorithm
  is heuristic and performs repeated calls to limitnum, with
- \kbd{alpha} is as in \kbd{limitnum}.
+ \kbd{alpha} is as in \kbd{limitnum}. As in \kbd{limitnum}, $u(n)$ may be
+ given either by a closure $u\mapsto u(n)$ or as a closure $N\mapsto
+ [u(1),\dots,u(N)]$, the latter being often more efficient.
  \bprog
  ? f(n) = n! / (n^n*exp(-n)*sqrt(n));
  ? asympnum(f)
@@ -27,7 +29,26 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  ? l = limitnum(f)
  ? asympnum(n->f(n) / l) \\ failure again !!!
  %6 = []
- @eprog\noindent If \kbd{alpha} is not a rational number, loss of accuracy is
+ @eprog\noindent We treat again the example of the Motzkin numbers $M_n$ given
+ in \kbd{limitnum}:
+ \bprog
+ \\ [M_k, M_{k*2}, ..., M_{k*N}] / (3^n / n^(3/2))
+ ? vM(N, k = 1) =
+ { my(q = k*N, V);
+    if (q == 1, return ([1/3]));
+    V = vector(q); V[1] = V[2] = 1;
+    for(n = 2, q - 1,
+      V[n+1] = ((2*n + 1)*V[n] + 3*(n - 1)*V[n-1]) / (n + 2));
+    f = (n -> 3^n / n^(3/2));
+    return (vector(N, n, V[n*k] / f(n*k)));
+ }
+ ? localprec(100); l = limitnum(n->vM(n,10)); \\ 3/sqrt(12*Pi)
+ ? \p38
+ ? asympnum(n->vM(n,10)/l)
+ %2 = [1, -3/32, 101/10240, -1617/1638400, 505659/5242880000, ...]
+ @eprog
+
+ If \kbd{alpha} is not a rational number, loss of accuracy is
  expected, so it should be precomputed to double accuracy, say:
  \bprog
  ? \p38
@@ -52,7 +73,7 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  %5 = [0, 1/2, 1/8, 1/24, ...]
  ? asympnum(n->-log(1-1/(n+1)))
  %6 = [0, 1, -1/2, 1/3, -1/4, ...]
- @eprog
+ @eprog\noindent
 
  \synt{asympnum}{void *E, GEN (*u)(void *,GEN,long), GEN alpha, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
  Also available is

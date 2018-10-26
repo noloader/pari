@@ -1720,8 +1720,18 @@ get_u(void *E, GEN (*f)(void *, GEN, long), long N, long prec)
   GEN u;
   if (f)
   {
+    GEN v = f(E, utoipos(N), prec);
     u = cgetg(N+1, t_VEC);
-    for (n = 1; n <= N; n++) gel(u,n) = f(E, utoipos(n), prec); }
+    if (typ(v) != t_VEC || lg(v) != N+1) { gel(u,N) = v; v = NULL; }
+    else
+    {
+      GEN w = f(E, gen_1, LOWDEFAULTPREC);
+      if (typ(w) != t_VEC || lg(w) != 2) { gel(u,N) = v; v = NULL; }
+    }
+    if (v) u = v;
+    else
+      for (n = 1; n < N; n++) gel(u,n) = f(E, utoipos(n), prec);
+  }
   else
   {
     GEN v = (GEN)E;
