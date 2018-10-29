@@ -1803,20 +1803,13 @@ get_accu(GEN a)
 static double
 get_c(GEN a)
 {
-  if (!a) return 0.3318;
-  if (gsigne(a) <= 0) pari_err_DOMAIN("limitnum","alpha","<=",gen_0, a);
-  if (typ(a) == t_INT)
-  {
-    if (equali1(a)) return 0.3318;
-    return 0.227;
-  }
-  if (typ(a) == t_FRAC && equali1(gel(a,1))) switch(itos_or_0(gel(a,2)))
-  {
-    case 2: return 0.6212;
-    case 3: return 1.18;
-    case 4: return 2.97;
-  }
-  return gexpo(a) >= 0? 0.3318: 3;
+  double A = a? gtodouble(a): 1.0;
+  if (A <= 0) pari_err_DOMAIN("limitnum","alpha","<=",gen_0, a);
+  if (A >= 2) return 0.2270;
+  if (A >= 1) return 0.3318;
+  if (A >= 0.5) return 0.6212;
+  if (A >= 0.3333) return 1.2;
+  return 3; /* only tested for A >= 0.25 */
 }
 
 /* #u > 1, prod_{j != i} u[i] - u[j] */
