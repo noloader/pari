@@ -1536,10 +1536,9 @@ Flx_genus2trace_naive(GEN H, ulong p)
 }
 
 static GEN
-dirgenus2(void *E, GEN p, long n)
+dirgenus2(GEN Q, GEN p, long n)
 {
   pari_sp av = avma;
-  GEN Q = (GEN) E;
   GEN f;
   if (n > 2)
     f = RgX_recip(hyperellcharpoly(gmul(Q,gmodulo(gen_1, p))));
@@ -1553,11 +1552,27 @@ dirgenus2(void *E, GEN p, long n)
   return gerepileupto(av, RgXn_inv_i(f, n));
 }
 
+GEN
+dirgenus2_worker(GEN P, long X, GEN Q)
+{
+  pari_sp av = avma;
+  long i, l = lg(P);
+  GEN V = cgetg(l, t_VEC);
+  for(i = 1; i < l; i++)
+  {
+    ulong p = uel(P,i);
+    long d = ulogint(X, p) + 1; /* minimal d such that p^d > X */
+    gel(V,i) = dirgenus2(Q, utoi(uel(P,i)), d);
+  }
+  return gerepilecopy(av, mkvec2(P,V));
+}
+
 static GEN
 vecan_genus2(GEN an, long L)
 {
   GEN Q = gel(an,1), bad = gel(an, 2);
-  return direuler_bad((void*)Q, dirgenus2, gen_2, stoi(L), NULL, bad);
+  GEN worker = strtoclosure("_dirgenus2_worker", 1, Q);
+  return pardireuler(worker, gen_2, stoi(L), NULL, bad);
 }
 
 static GEN

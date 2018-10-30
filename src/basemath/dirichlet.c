@@ -71,6 +71,29 @@ direulertou(GEN a, GEN fl(GEN))
   return signe(a)<=0 ? 0: itou(a);
 }
 
+static GEN
+direuler_Sbad(GEN V, GEN v, GEN Sbad, ulong X, ulong *n)
+{
+  long i, l = lg(Sbad);
+  GEN pbad = gen_1;
+  for (i = 1; i < l; i++)
+  {
+    GEN ai = gel(Sbad,i);
+    ulong q;
+    if (typ(ai) != t_VEC || lg(ai) != 3)
+      pari_err_TYPE("direuler [bad primes]",ai);
+    q = gtou(gel(ai,1));
+    if (q <= X)
+    {
+      long d = ulogint(X, q) + 1;
+      GEN s = direuler_factor(gel(ai,2), d);
+      *n = dirmuleuler_small(V, v, *n, q, s, d);
+      pbad = muliu(pbad, q);
+    }
+  }
+  return pbad;
+}
+
 GEN
 direuler_bad(void *E, GEN (*eval)(void *,GEN,long), GEN a,GEN b,GEN c, GEN Sbad)
 {
@@ -78,7 +101,6 @@ direuler_bad(void *E, GEN (*eval)(void *,GEN,long), GEN a,GEN b,GEN c, GEN Sbad)
   pari_sp av0 = avma;
   GEN gp, v, V;
   forprime_t T;
-  long i;
   au = direulertou(a, gceil);
   bu = direulertou(b, gfloor);
   X = c ? direulertou(c, gfloor): bu;
@@ -88,27 +110,7 @@ direuler_bad(void *E, GEN (*eval)(void *,GEN,long), GEN a,GEN b,GEN c, GEN Sbad)
   v = vecsmall_ei(X, 1);
   V = vec_ei(X, 1);
   n = 1;
-  if (Sbad)
-  {
-    long l = lg(Sbad);
-    GEN pbad = gen_1;
-    for (i = 1; i < l; i++)
-    {
-      GEN ai = gel(Sbad,i);
-      ulong q;
-      if (typ(ai) != t_VEC || lg(ai) != 3)
-        pari_err_TYPE("direuler [bad primes]",ai);
-      q = gtou(gel(ai,1));
-      if (q <= X)
-      {
-        long d = ulogint(X, q) + 1;
-        GEN s = direuler_factor(gel(ai,2), d);
-        n = dirmuleuler_small(V, v, n, q, s, d);
-        pbad = muliu(pbad, q);
-      }
-    }
-    Sbad = pbad;
-  }
+  if (Sbad) Sbad = direuler_Sbad(V, v, Sbad, X, &n);
   p = 1; gp = cgetipos(3); sqrtX = usqrt(X);
   while (p <= sqrtX && (p = u_forprime_next(&T)))
     if (!Sbad || umodiu(Sbad, p))
@@ -181,4 +183,74 @@ direuler(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN c)
   struct eval_bad d;
   d.E= E; d.eval = eval;
   return direuler_bad((void*)&d, eval_bad, a, b, c, NULL);
+}
+
+static GEN
+primelist(forprime_t *T, GEN Sbad, long n, long *running)
+{
+  GEN P = cgetg(n+1, t_VECSMALL);
+  long i, j;
+  for (i = 1, j = 1; i <= n; i++)
+  {
+    ulong p = u_forprime_next(T);
+    if (!p) { *running = 0; break; }
+    if (Sbad && umodiu(Sbad, p)==0) continue;
+    uel(P,j++) = p;
+  }
+  setlg(P, j);
+  return P;
+}
+
+GEN
+pardireuler(GEN worker, GEN a, GEN b, GEN c, GEN Sbad)
+{
+  ulong au, bu, X, sqrtX, n, snX, nX;
+  pari_sp av0 = avma;
+  GEN v, V;
+  forprime_t T;
+  struct pari_mt pt;
+  long running = 1, pending = 0;
+  au = direulertou(a, gceil);
+  bu = direulertou(b, gfloor);
+  X = c ? direulertou(c, gfloor): bu;
+  if (X == 0) return cgetg(1,t_VEC);
+  if (bu > X) bu = X;
+  if (!u_forprime_init(&T, au, bu)) { set_avma(av0); return mkvec(gen_1); }
+  v = vecsmall_ei(X, 1);
+  V = vec_ei(X, 1);
+  n = 1;
+  if (Sbad) Sbad = direuler_Sbad(V, v, Sbad, X, &n);
+  sqrtX = usqrt(X); snX = uprimepi(sqrtX); nX = uprimepi(X);
+  if (snX)
+  {
+    GEN P = primelist(&T, Sbad, snX, &running);
+    GEN R = gel(closure_callgenvec(worker, mkvec2(P, utoi(X))), 2);
+    long i, l = lg(P);
+    for (i = 1; i < l; i++)
+    {
+      GEN s = gel(R,i);
+      n = dirmuleuler_small(V, v, n, uel(P,i), s, lg(s));
+    }
+  } else snX = 1;
+  mt_queue_start_lim(&pt, worker, (nX+snX-1)/snX);
+  while (running || pending)
+  {
+    GEN done;
+    GEN P = running? primelist(&T, Sbad, snX, &running): NULL;
+    mt_queue_submit(&pt, 0, P ? mkvec2(P, utoi(X)): NULL);
+    done = mt_queue_get(&pt, NULL, &pending);
+    if (done)
+    {
+      GEN P = gel(done,1), R = gel(done,2);
+      long j, l = lg(P);
+      for (j=1; j<l; j++)
+      {
+        GEN F = gel(R,j);
+        if (degpol(F) && !gequal0(gel(F,3)))
+          dirmuleuler_large(V, uel(P,j), gel(F,3));
+      }
+    }
+  }
+  mt_queue_end(&pt);
+  return gerepilecopy(av0,V);
 }

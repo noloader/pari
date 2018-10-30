@@ -13,3 +13,8 @@ Doc: returns the \kbd{Ldata} structure attached to the $L$ function
  Currently, the model needs to be minimal at 2, and if the conductor
  is even, its valuation at $2$ might be incorrect (a warning is issued).
 
+Function: _dirgenus2_worker
+Section: l_functions
+C-Name: dirgenus2_worker
+Prototype: GLG
+Help: lfungenus2 worker

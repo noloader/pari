@@ -179,6 +179,8 @@ GEN  gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *p
 void gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
            ulong *p, GEN *pt_H, GEN *pt_mod, GEN crt(GEN, GEN, GEN*),
            GEN center(GEN, GEN, GEN));
+GEN  dirgenus2_worker(GEN p, long l, GEN Q);
+GEN  pardireuler(GEN worker, GEN a, GEN b, GEN c, GEN Sbad);
 
 /* Relative number fields */
 enum { rnf_NFABS = 1, rnf_MAPS };
