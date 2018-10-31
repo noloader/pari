@@ -15,3 +15,9 @@ Doc: computes the vector of the first $n$ Fourier coefficients $a_k$
 
 Variant: Also available is \fun{GEN}{ellanQ_zv}{GEN e, long n}, which
  returns a \typ{VECSMALL} instead of a \typ{VEC}, saving on memory.
+
+Function: _direllnf_worker
+Section: programming/internals
+C-Name: direllnf_worker
+Prototype: GUG
+Help: ellan worker

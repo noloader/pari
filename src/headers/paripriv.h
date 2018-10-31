@@ -179,6 +179,7 @@ GEN  gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *p
 void gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
            ulong *p, GEN *pt_H, GEN *pt_mod, GEN crt(GEN, GEN, GEN*),
            GEN center(GEN, GEN, GEN));
+GEN  direllnf_worker(GEN P, ulong X, GEN E);
 GEN  dirartin_worker(GEN P, ulong X, GEN nf, GEN G, GEN V, GEN aut);
 GEN  direllsympow_worker(GEN P, ulong X, GEN E, ulong m);
 GEN  dirgenus2_worker(GEN P, ulong X, GEN Q);
