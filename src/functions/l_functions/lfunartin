@@ -76,3 +76,9 @@ Doc: returns the \kbd{Ldata} structure attached to the
  $D_{10}$; the third is the factorization of the natural representation of
  $D_{10}\subset S_5$; and the final four are the expressions of the degree $2$
  representations as induced from degree $1$ representations.
+
+Function: _dirartin_worker
+Section: programming/internals
+C-Name: dirartin_worker
+Prototype: GLGGGG
+Help: lfunartin worker

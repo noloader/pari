@@ -14,7 +14,7 @@ Doc: returns the \kbd{Ldata} structure attached to the $L$ function
  is even, its valuation at $2$ might be incorrect (a warning is issued).
 
 Function: _dirgenus2_worker
-Section: l_functions
+Section: programming/internals
 C-Name: dirgenus2_worker
 Prototype: GLG
 Help: lfungenus2 worker

@@ -2191,11 +2191,6 @@ artin_badprimes(GEN N, GEN G, GEN aut, GEN ch)
   return gerepilecopy(av, mkvec2(ZV_prod(C), B));
 }
 
-struct dir_artin
-{
-  GEN nf, G, V, aut;
-};
-
 /* p does not divide nf.index */
 static GEN
 idealfrobenius_easy(GEN nf, GEN gal, GEN aut, GEN T, GEN p)
@@ -2250,34 +2245,47 @@ idealfrobenius_hard(GEN nf, GEN gal, GEN aut, GEN pr)
 }
 
 static GEN
-dirartin(void *E, GEN p, long n)
+dirartin(GEN nf, GEN G, GEN V, GEN aut, GEN p, long n)
 {
   pari_sp av = avma;
-  struct dir_artin *d = (struct dir_artin *) E;
-  GEN nf = d->nf, pr, frob;
+  GEN pr, frob;
   /* pick one maximal ideal in the conjugacy class above p */
   GEN T = nf_get_pol(nf);
   if (!dvdii(nf_get_index(nf), p))
   { /* simple case */
     GEN F = FpX_factor(T, p), P = gmael(F,1,1);
-    frob = idealfrobenius_easy(nf, d->G, d->aut, P, p);
+    frob = idealfrobenius_easy(nf, G, aut, P, p);
   }
   else
   {
     pr = idealprimedec_galois(nf,p);
-    frob = idealfrobenius_hard(nf, d->G, d->aut, pr);
+    frob = idealfrobenius_hard(nf, G, aut, pr);
   }
-  set_avma(av); return RgXn_inv(gel(d->V, frob[1]), n);
+  set_avma(av); return RgXn_inv(gel(V, frob[1]), n);
+}
+
+GEN
+dirartin_worker(GEN P, long X, GEN nf, GEN G, GEN V, GEN aut)
+{
+  pari_sp av = avma;
+  long i, l = lg(P);
+  GEN W = cgetg(l, t_VEC);
+  for(i = 1; i < l; i++)
+  {
+    ulong p = uel(P,i);
+    long d = ulogint(X, p) + 1; /* minimal d such that p^d > X */
+    gel(W,i) = dirartin(nf, G, V, aut, utoi(uel(P,i)), d);
+  }
+  return gerepilecopy(av, mkvec2(P,W));
 }
 
 static GEN
 vecan_artin(GEN an, long L, long prec)
 {
-  struct dir_artin d;
   GEN A, Sbad = gel(an,5);
   long n = itos(gel(an,6)), isreal = lg(an)<8 ? 0: !itos(gel(an,7));
-  d.nf = gel(an,1); d.G = gel(an,2); d.V = gel(an,3); d.aut = gel(an,4);
-  A = lift_shallow(direuler_bad(&d, dirartin, gen_2, stoi(L), NULL, Sbad));
+  GEN worker = strtoclosure("_dirartin_worker", 4, gel(an,1), gel(an,2), gel(an,3), gel(an,4));
+  A = lift_shallow(pardireuler(worker, gen_2, stoi(L), NULL, Sbad));
   A = RgXV_RgV_eval(A, grootsof1(n, prec));
   if (isreal) A = real_i(A);
   return A;
