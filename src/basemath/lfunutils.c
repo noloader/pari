@@ -992,11 +992,10 @@ ellsympow_abelian(GEN p, GEN ap, long m, long o)
 }
 
 static GEN
-ellsympow(void *E, GEN p, long n)
+ellsympow(GEN E, ulong m, GEN p, long n)
 {
   pari_sp av = avma;
-  GEN v =(GEN) E, ap = ellap(gel(v,1), p);
-  ulong m = itou(gel(v,2));
+  GEN ap = ellap(E, p);
   if (n <= 2)
   {
     GEN t = ellsympow_trace(p, ap, m);
@@ -1006,11 +1005,27 @@ ellsympow(void *E, GEN p, long n)
     return gerepileupto(av, RgXn_inv_i(ellsympow_abelian(p, ap, m, 1), n));
 }
 
+GEN
+direllsympow_worker(GEN P, ulong X, GEN E, ulong m)
+{
+  pari_sp av = avma;
+  long i, l = lg(P);
+  GEN W = cgetg(l, t_VEC);
+  for(i = 1; i < l; i++)
+  {
+    ulong p = uel(P,i);
+    long d = ulogint(X, p) + 1; /* minimal d such that p^d > X */
+    gel(W,i) = ellsympow(E, m, utoi(uel(P,i)), d);
+  }
+  return gerepilecopy(av, mkvec2(P,W));
+}
+
 static GEN
 vecan_ellsympow(GEN an, long n)
 {
   GEN nn = utoi(n), crvm = gel(an,1), bad = gel(an,2);
-  return direuler_bad((void*)crvm, &ellsympow, gen_2, nn, nn, bad);
+  GEN worker = strtoclosure("_direllsympow_worker",2, gel(crvm,1), gel(crvm,2));
+  return pardireuler(worker, gen_2, nn, nn, bad);
 }
 
 static long
@@ -1553,7 +1568,7 @@ dirgenus2(GEN Q, GEN p, long n)
 }
 
 GEN
-dirgenus2_worker(GEN P, long X, GEN Q)
+dirgenus2_worker(GEN P, ulong X, GEN Q)
 {
   pari_sp av = avma;
   long i, l = lg(P);
@@ -2265,7 +2280,7 @@ dirartin(GEN nf, GEN G, GEN V, GEN aut, GEN p, long n)
 }
 
 GEN
-dirartin_worker(GEN P, long X, GEN nf, GEN G, GEN V, GEN aut)
+dirartin_worker(GEN P, ulong X, GEN nf, GEN G, GEN V, GEN aut)
 {
   pari_sp av = avma;
   long i, l = lg(P);
