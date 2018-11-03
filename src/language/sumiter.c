@@ -1417,39 +1417,33 @@ static GEN deriv_eval(void *E, GEN x, long prec)
  return closure_callgenvecprec(data->code, data->args, prec);
 }
 
-/* Rationale: (f(2^-e) - f(-2^-e) + O(2^-pr)) / (2 * 2^-e) = f'(0) + O(2^-2e)
+/* Rationale: (f(2^-e) - f(-2^-e) + O(2^-b)) / (2 * 2^-e) = f'(0) + O(2^-2e)
  * since 2nd derivatives cancel.
- *   prec(LHS) = pr - e
- *   prec(RHS) = 2e, equal when  pr = 3e = 3/2 fpr (fpr = required final prec)
+ *   prec(LHS) = b - e
+ *   prec(RHS) = 2e, equal when  b = 3e = 3/2 b0 (b0 = required final bitprec)
  *
- * For f'(x), x far from 0: prec(LHS) = pr - e - expo(x)
- * --> pr = 3/2 fpr + expo(x) */
+ * For f'(x), x far from 0: prec(LHS) = b - e - expo(x)
+ * --> pr = 3/2 b0 + expo(x) */
 GEN
 derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 {
-  GEN eps,a,b, y;
-  long pr, l, e, ex, newprec;
+  long newprec, e, ex = maxss(0, gexpo(x)), p = precision(x);
+  long b0 = prec2nbits(p ? p: prec), b = (long)ceil(b0 * 1.5 + ex);
+  GEN eps, u, v, y;
   pari_sp av = avma;
-  long p = precision(x);
-  long fpr = p ? prec2nbits(p): prec2nbits(prec);
-  ex = gexpo(x);
-  if (ex < 0) ex = 0; /* near 0 */
-  pr = (long)ceil(fpr * 1.5 + ex);
-  l = nbits2prec(pr);
-  newprec = nbits2prec(pr + ex + BITS_IN_LONG);
+  newprec = nbits2prec(b + BITS_IN_LONG);
   switch(typ(x))
   {
     case t_REAL:
     case t_COMPLEX:
       x = gprec_w(x, newprec);
   }
-
-  e = fpr/2; /* 1/2 required prec (in sig. bits) */
-  eps = real2n(-e, l);
-  a = eval(E, gsub(x, eps), newprec);
-  b = eval(E, gadd(x, eps), newprec);
-  y = gmul2n(gsub(b,a), e-1);
-  return gerepilecopy(av, gprec_w(y, nbits2prec(fpr)));
+  e = b0/2; /* 1/2 required prec (in sig. bits) */
+  eps = real2n(-e, nbits2prec(b-e));
+  u = eval(E, gsub(x, eps), newprec);
+  v = eval(E, gadd(x, eps), newprec);
+  y = gmul2n(gsub(v,u), e-1);
+  return gerepilecopy(av, gprec_w(y, nbits2prec(b0)));
 }
 
 /* Fornberg interpolation algorithm for finite differences coefficients

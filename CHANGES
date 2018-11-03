@@ -43,6 +43,7 @@ BA  22- foo(n)=vector(n)[1..n];123; would corrupt the GP interpreter [#2081]
     32- missing GC in polint_i
     33- hash_GEN(x) returned different values depending on whether x was a clone
 BA  34- [mpi] setting nbthreads in .gprc could lead to crashes.
+    35- accuracy too large in derivnum => slowdown
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
