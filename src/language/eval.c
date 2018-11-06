@@ -1095,6 +1095,18 @@ closure_eval(GEN C)
     case OCsetref:
       setreflex(operand);
       break;
+    case OClock:
+    {
+      GEN v = gel(st,sp-1);
+      if (isclone(v))
+      {
+        long n = pari_stack_new(&s_locks);
+        locks[n] = v;
+        nblock++;
+        ++bl_refc(v);
+      }
+      break;
+    }
     case OCstoi:
       gel(st,sp-1)=stoi(st[sp-1]);
       break;
@@ -2358,6 +2370,9 @@ closure_disassemble(GEN C)
     case OCsetref:
       pari_printf("setref\t\t%ld\n",operand);
       break;
+    case OClock:
+      pari_printf("lock\t\t%ld\n",operand);
+      break;
     }
   }
 }
@@ -2419,6 +2434,7 @@ opcode_need_relink(op_code opcode)
   case OCgerepile:
   case OCcowvarlex:
   case OCsetref:
+  case OClock:
     break;
   case OCpushvar:
   case OCpushdyn:

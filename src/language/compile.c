@@ -998,7 +998,10 @@ compilecall(long n, int mode, entree *ep)
     if (f==Fseq)
       compile_err("unexpected ';'", tree[x].str+tree[x].len);
     else if (f==Findarg)
+    {
       compilenode(tree[arg[j]].x, Ggen,FLnocopy);
+      op_push(OClock,0,n);
+    }
     else if (f!=Fnoarg)
       compilenode(arg[j], Ggen,j>=lnl?FLnocopylex:0);
     else
