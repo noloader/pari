@@ -411,6 +411,7 @@ x^16 + 1180785226777964111519743237847228/2099046671299559859076390314304898
 0990466712995598590763903143048989]
 0
 [-z^2, z^2]
+0
 [-1/2*x, 1/2*x]
 [-2*x, 2*x]
 [-z, z]
@@ -554,4 +555,4 @@ Mod(-6/5, x)
   ***   at top-level: nfalgtobasis(nf,['a,'a]~)
   ***                 ^-------------------------
   *** nfalgtobasis: incorrect type in nfalgtobasis (t_COL).
-Total time spent: 8280
+Total time spent: 13920

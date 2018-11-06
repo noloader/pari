@@ -92,6 +92,7 @@ nfisincl(x^3-11*x^2+42*x-49,polcompositum(x^3-x-1,x^7-x-1)[1])
 nfisincl(x^3-11*x^2+42*x-49,x^6+12*x^5+60*x^4+80*x^3-1860*x^2-12108*x-18821)
 \\#2041
 nfisincl(y^2 + 1, z^4 + 1)
+nfisincl(x^5-x^4+x^3-2*x^2+3*x-1,x^20+x^15+x^10+x^5+1)
 \\#2022
 nfisisom(K,x^2-8)
 nfisisom(x^2-8,K)

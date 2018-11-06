@@ -1031,6 +1031,7 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
     if (!Z_issquare(da2)) return 0;
     da = diviiexact(da, da2);
   }
+  if (is_pm1(da)) return 1;
   fa = absZ_factor_limit(da, 0);
   P = gel(fa,1);
   E = gel(fa,2); nP = lg(P) - 1;
