@@ -233,7 +233,7 @@ memberid: expr '.' KENTRY {$$=newnode(Ffunction,newconst(CSTmember,&@3),$1,&@$);
 definition: KENTRY '(' listarg ')' '=' seq %prec DEFFUNC
                                    {$$=newfunc(CSTentry,&@1,$3,$6,&@$);}
           | expr '.' KENTRY '=' seq %prec DEFFUNC
-                                   {$$=newfunc(CSTmember,&@3,$1,$5,&@$);}
+                                   {$$=newfunc(CSTmember,&@3,newnode(Findarg,$1,-1,&@1),$5,&@$);}
           | lvalue "->" seq              {$$=newnode(Flambda, $1,$3,&@$);}
           | '(' listarg ")->" seq        {$$=newnode(Flambda, $2,$4,&@$);}
 ;

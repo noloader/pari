@@ -975,7 +975,7 @@ compilecall(long n, int mode, entree *ep)
 {
   pari_sp ltop=avma;
   long j;
-  long x=tree[n].x;
+  long x=tree[n].x, tx = tree[x].x;
   long y=tree[n].y;
   GEN arg=listtogen(y,Flistarg);
   long nb=lg(arg)-1;
@@ -1000,6 +1000,10 @@ compilecall(long n, int mode, entree *ep)
     else if (f==Findarg)
     {
       compilenode(tree[arg[j]].x, Ggen,FLnocopy);
+      op_push(OClock,0,n);
+    } else if (tx==CSTmember)
+    {
+      compilenode(arg[j], Ggen,FLnocopy);
       op_push(OClock,0,n);
     }
     else if (f!=Fnoarg)

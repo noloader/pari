@@ -153,6 +153,7 @@ BA  41- # and ## now also display the realtime when nbthreads is not 1
     42- gp_format_time: remove trailing ".\n" from formatted string
 BA  43- GP: arguments of the parser code W can start with ~ for clarity, e.g.
         listput(~L,x), mapput(~M,x)
+BA  44- GP: the argument of a user member function is now a reference
 
   Added
      1- [libpari] nonsquare_Fl
