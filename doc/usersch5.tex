@@ -5909,6 +5909,10 @@ irreducible factors (the sum of the $D[i]$).
 MA,GEN MB},\hfil\break
 as \kbd{FpX\_ffintersect}
 
+\fun{GEN}{Flx_Teichmuller}{GEN P, ulong p, long n}
+Return a \kbd{ZX} $Q$ such that $P\equiv Q\pmod{p}$ and
+$Q(X^p)=0\pmod{Q,p^n}$.
+
 \fun{GEN}{Flv_polint}{GEN x, GEN y, ulong p, long sv} as \kbd{FpV\_polint},
 returning an \kbd{Flx} in variable $v$.
 

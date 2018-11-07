@@ -86,3 +86,11 @@ T = y^32 - 8*y^31 + 132*y^30 - 872*y^29 + 7978*y^28 - 43984*y^27 + 278592*y^26 -
 fa=factorpadic(T,2,1); [poldegree(P) | P <- fa[,1]]
 fa=factorpadic(T,2,15); [poldegree(P) | P <- fa[,1]]
 
+polteichmuller(3*x-2,5,10)
+checkfrob(P,p,e)=
+{
+  my(Q=polteichmuller(P,p,e));
+  if(valuation(content(minpoly(Mod(x,Q)^p)-Q),p)<e,error([P,p,e]));
+}
+checkfrob(x^7+x+3,5,10)
+checkfrob(ffinit(2,8),2,10)

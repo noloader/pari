@@ -535,134 +535,6 @@ Flxq_ellgens(GEN a4, GEN a6, GEN ch, GEN D, GEN m, GEN T, ulong p)
 /**                                                                   **/
 /***********************************************************************/
 
-static GEN _can_invl(void *E, GEN V) {(void) E; return V; }
-
-static GEN _can_lin(void *E, GEN F, GEN V, GEN q)
-{
-  GEN v = RgX_splitting(V, 3);
-  (void) E;
-  return FpX_sub(V,ZXV_dotproduct(v, F), q);
-}
-
-static GEN
-_can_iter(void *E, GEN f, GEN q)
-{
-  GEN h = RgX_splitting(f,3);
-  GEN h1s = ZX_sqr(gel(h,1)), h2s = ZX_sqr(gel(h,2)), h3s = ZX_sqr(gel(h,3));
-  GEN h12 = ZX_mul(gel(h,1), gel(h,2));
-  GEN h13 = ZX_mul(gel(h,1), gel(h,3));
-  GEN h23 = ZX_mul(gel(h,2), gel(h,3));
-  GEN h1c = ZX_mul(gel(h,1), h1s);
-  GEN h3c = ZX_mul(gel(h,3), h3s);
-  GEN th = ZX_mul(ZX_sub(h2s,ZX_mulu(h13,3)),gel(h,2));
-  GEN y = FpX_sub(f,ZX_add(RgX_shift_shallow(h3c,2),ZX_add(RgX_shift_shallow(th,1),h1c)),q);
-  (void) E;
-  return mkvecn(7,y,h1s,h2s,h3s,h12,h13,h23);
-}
-
-static GEN
-_can_invd(void *E, GEN V, GEN v, GEN qM, long M)
-{
-  GEN h1s=gel(v,2), h2s=gel(v,3), h3s=gel(v,4);
-  GEN h12=gel(v,5), h13=gel(v,6), h23=gel(v,7);
-  GEN F = mkvec3(ZX_sub(h1s,RgX_shift_shallow(h23,1)),RgX_shift_shallow(ZX_sub(h2s,h13),1),
-                 ZX_sub(RgX_shift_shallow(h3s,2),RgX_shift_shallow(h12,1)));
-  (void)E;
-  return gen_ZpX_Dixon(ZXV_Z_mul(F, utoi(3)), V, qM, utoi(3), M, NULL,
-                                                 _can_lin, _can_invl);
-}
-
-static GEN
-F3x_canonlift(GEN P, long n)
-{ return gen_ZpX_Newton(Flx_to_ZX(P),utoi(3), n, NULL, _can_iter, _can_invd); }
-
-static GEN _can5_invl(void *E, GEN V) {(void) E; return V; }
-
-static GEN _can5_lin(void *E, GEN F, GEN V, GEN q)
-{
-  ulong p = *(ulong*)E;
-  GEN v = RgX_splitting(V, p);
-  return FpX_sub(V,ZXV_dotproduct(v, F), q);
-}
-
-/* P(X,t) -> P(X*t^n,t) mod (t^p-1) */
-static GEN
-_shift(GEN P, long n, ulong p, long v)
-{
-  long i, l=lg(P);
-  GEN r = cgetg(l,t_POL); r[1] = P[1];
-  for(i=2;i<l;i++)
-  {
-    long s = n*(i-2)%p;
-    GEN ci = gel(P,i);
-    if (typ(ci)==t_INT)
-      gel(r,i) = monomial(ci, s, v);
-    else
-      gel(r,i) = RgX_rotate_shallow(ci, s, p);
-  }
-  return FpXX_renormalize(r, l);
-}
-
-struct _can_mul
-{
-  GEN T, q;
-  ulong p;
-};
-
-static GEN
-_can5_mul(void *E, GEN A, GEN B)
-{
-  struct _can_mul *d = (struct _can_mul *)E;
-  GEN a = gel(A,1), b = gel(B,1);
-  long n = itos(gel(A,2));
-  GEN bn = _shift(b, n, d->p, get_FpX_var(d->T));
-  GEN c = FpXQX_mul(a, bn, d->T, d->q);
-  return mkvec2(c, addii(gel(A,2), gel(B,2)));
-}
-
-static GEN
-_can5_sqr(void *E, GEN A)
-{
-  return _can5_mul(E,A,A);
-}
-
-static GEN
-_can5_iter(void *E, GEN f, GEN q)
-{
-  pari_sp av = avma;
-  struct _can_mul D;
-  ulong p = *(ulong*)E;
-  long i, vT = fetch_var();
-  GEN N, P, d, V, fs;
-  D.q = q; D.T = ZX_Z_sub(pol_xn(p,vT),gen_1);
-  D.p = p;
-  fs = mkvec2(_shift(f, 1, p, vT), gen_1);
-  N = gel(gen_powu(fs,p-1,(void*)&D,_can5_sqr,_can5_mul),1);
-  N = simplify_shallow(FpXQX_red(N,polcyclo(p,vT),q));
-  P = FpX_mul(N,f,q);
-  P = RgX_deflate(P, p);
-  d = RgX_splitting(N, p);
-  V = cgetg(p+1,t_VEC);
-  gel(V,1) = ZX_mulu(gel(d,1), p);
-  for(i=2; i<= (long)p; i++)
-    gel(V,i) = ZX_mulu(RgX_shift_shallow(gel(d,p+2-i), 1), p);
-  (void)delete_var(); return gerepilecopy(av, mkvec2(ZX_sub(f,P),V));
-}
-
-static GEN
-_can5_invd(void *E, GEN H, GEN v, GEN qM, long M)
-{
-  ulong p = *(long*)E;
-  return gen_ZpX_Dixon(gel(v,2), H, qM, utoi(p), M, E, _can5_lin, _can5_invl);
-}
-
-static GEN
-Flx_canonlift(GEN P, long n, ulong p)
-{
-  return p==3 ? F3x_canonlift(P,n):
-         gen_ZpX_Newton(Flx_to_ZX(P),utoi(p), n, &p, _can5_iter, _can5_invd);
-}
-
 /* assume a and n  are coprime */
 static GEN
 RgX_circular_shallow(GEN P, long a, long n)
@@ -1040,7 +912,7 @@ Flxq_ellcard_Kohel(GEN a4, GEN a6, GEN T, ulong p)
   timer_start(&ti);
   if (!ispcyc)
   {
-    T2 = Flx_canonlift(get_Flx_mod(T),N,p);
+    T2 = Flx_Teichmuller(get_Flx_mod(T),p,N);
     if (DEBUGLEVEL) timer_printf(&ti,"Teich");
   } else
     T2 = Flx_to_ZX(get_Flx_mod(T));
@@ -1178,7 +1050,7 @@ Flxq_ellcard_Harley(GEN a4, GEN a6, GEN T, ulong p)
   timer_start(&ti);
   if (!ispcyc)
   {
-    T2 = Flx_canonlift(get_Flx_mod(T),N,p);
+    T2 = Flx_Teichmuller(get_Flx_mod(T),p,N);
     if (DEBUGLEVEL) timer_printf(&ti,"Teich");
   } else
     T2 = Flx_to_ZX(get_Flx_mod(T));

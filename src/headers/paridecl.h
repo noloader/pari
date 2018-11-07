@@ -914,6 +914,7 @@ GEN     ZMV_to_FlmV(GEN z, ulong m);
 
 /* Hensel.c */
 
+GEN     Flx_Teichmuller(GEN P, ulong p, long n);
 GEN     Z2_sqrt(GEN x, long e);
 GEN     Zp_sqrt(GEN x, GEN p, long e);
 GEN     Zp_sqrtlift(GEN b, GEN a, GEN p, long e);
@@ -949,6 +950,7 @@ GEN     gen_ZpX_Dixon(GEN F, GEN V, GEN q, GEN p, long N, void *E,
 GEN     gen_ZpX_Newton(GEN x, GEN p, long n, void *E,
                               GEN eval(void *E, GEN f, GEN q),
                               GEN invd(void *E, GEN V, GEN v, GEN q, long M));
+GEN     polteichmuller(GEN P, ulong p, long n);
 GEN     polhensellift(GEN pol, GEN fct, GEN p, long exp);
 ulong   quadratic_prec_mask(long n);
 
