@@ -2570,9 +2570,9 @@ chinese(GEN x, GEN y)
       Z_chinese_pre(A, B, &C, &U, &d);
       c = Z_chinese_post(a, b, C, U, d);
       if (!c) pari_err_OP("chinese", x,y);
-      gel(z,1) = icopy_avma(C, (pari_sp)z);
-      gel(z,2) = icopy_avma(c, (pari_sp)gel(z,1));
-      avma = (pari_sp)gel(z,2); return z;
+      set_avma((pari_sp)z);
+      gel(z,1) = icopy(C);
+      gel(z,2) = icopy(c); return z;
     }
     case t_POL:
     {
