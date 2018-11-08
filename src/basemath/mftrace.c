@@ -5837,12 +5837,15 @@ mfisnotA5(GEN F)
   return (typ(nfisincl(Q, T)) == t_INT);
 }
 
-/* Given x = z + 1/z with z prim. root of unity of order n, find n */
+/* Given v[p+1]^2 / chi(p) - 2 = z + 1/z with z primitive root of unity of order n,
+ * return n */
 static long
-mffindrootof1(GEN u1)
+mffindrootof1(GEN v, long p, GEN CHI)
 {
-  GEN u0 = gen_2, u1k = u1, u2;
+  GEN ap = gel(v,p+1), u0, u1, u1k, u2;
   long c = 1;
+  if (gequal0(ap)) return 2;
+  u0 = gen_2; u1k = u1 = gsubgs(gdiv(gsqr(ap), mfchareval_i(CHI, p)), 2);
   while (!gequalsg(2, liftpol_shallow(u1))) /* u1 = z^c + z^-c */
   {
     u2 = gsub(gmul(u1k, u1), u0);
@@ -5862,19 +5865,14 @@ mfgaloistype_i(long N, GEN CHI, GEN F, GEN v)
   ulong p;
   u_forprime_init(&iter, 2, lim);
   av = avma;
-  while((p = u_forprime_next(&iter)))
+  while((p = u_forprime_next(&iter))) if (N%p) switch(mffindrootof1(v, p, CHI))
   {
-    GEN u;
-    long n;
-    if (!(N%p)) continue;
-    u = gel(v, p+1); if (gequal0(u)) continue;
-    u = gdiv(gsqr(u), mfchareval_i(CHI, p));
-    n = mffindrootof1(gsubgs(u,2));
-    if (n == 3) w[p] = 1;
-    if (n == 4) return -24; /* S4 */
-    if (n == 5) return -60; /* A5 */
-    if (n > 5) pari_err_DOMAIN("mfgaloistype", "form", "not a",
-                               strtoGENstr("cuspidal eigenform"), F);
+    case 1: case 2: continue;
+    case 3: w[p] = 1; break;
+    case 4: return -24; /* S4 */
+    case 5: return -60; /* A5 */
+    default: pari_err_DOMAIN("mfgaloistype", "form", "not a",
+                             strtoGENstr("cuspidal eigenform"), F);
     set_avma(av);
   }
   if (mfisnotS4(N,w) && mfisnotA5(F)) return -12; /* A4 */
@@ -12561,19 +12559,10 @@ moreorders(long N, GEN CHI, GEN F, GEN *pP, GEN *pO, ulong *bound)
   P = cgetg(b-a+2, t_VECSMALL);
   O = cgetg(b-a+2, t_VECSMALL);
   u_forprime_init(&iter, a, b);
-  while((p = u_forprime_next(&iter)))
+  while((p = u_forprime_next(&iter))) if (N % p)
   {
-    GEN ap;
-    if (N%p == 0) continue;
-    ap = gel(V,p+1);
-    P[i] = p;
-    if (gequal0(ap)) O[i] = 2;
-    else
-    {
-      GEN u = gdiv(gsqr(ap), mfchareval_i(CHI,p));
-      O[i] = mffindrootof1(gsubgs(u,2));
-    }
-    i++;
+    O[i] = mffindrootof1(V, p, CHI);
+    P[i++] = p;
   }
   setlg(P, i); *pP = shallowconcat(*pP, P);
   setlg(O, i); *pO = shallowconcat(*pO, O);
