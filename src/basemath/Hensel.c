@@ -1086,6 +1086,19 @@ _can5_sqr(void *E, GEN A)
 }
 
 static GEN
+ZXX_evalx0(GEN y)
+{
+  long i, l = lg(y);
+  GEN z = cgetg(l,t_POL); z[1] = y[1];
+  for(i=2; i<l; i++)
+  {
+    GEN yi = gel(y,i);
+    gel(z,i) = typ(yi)==t_INT? yi: constant_coeff(yi);
+  }
+  return ZX_renormalize(z,l);
+}
+
+static GEN
 _can5_iter(void *E, GEN f, GEN q)
 {
   pari_sp av = avma;
@@ -1097,7 +1110,7 @@ _can5_iter(void *E, GEN f, GEN q)
   D.p = p;
   fs = mkvec2(_shift(f, 1, p, vT), gen_1);
   N = gel(gen_powu(fs,p-1,(void*)&D,_can5_sqr,_can5_mul),1);
-  N = simplify_shallow(FpXQX_red(N,polcyclo(p,vT),q));
+  N = ZXX_evalx0(FpXQX_red(N,polcyclo(p,vT),q));
   P = FpX_mul(N,f,q);
   P = RgX_deflate(P, p);
   d = RgX_splitting(N, p);
