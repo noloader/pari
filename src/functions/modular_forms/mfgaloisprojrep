@@ -11,42 +11,39 @@ Doc: \var{mf} being an \kbd{mf} output by \kbd{mfinit} in weight $1$,
  Currently only implemented for projective image~$A_4$ and~$S_4$.
 
  \bprog
+ \\ A4 example
  ? mf = mfinit([4*31,1,Mod(87,124)],0);
  ? F = mfeigenbasis(mf)[1];
  ? mfgaloistype(mf,F)
  %3 = -12
  ? pol = mfgaloisprojrep(mf,F)
- %4 = x^12 + 196*x^10 + 14376*x^8 + 469152*x^6 + 5836432*x^4 + 3505728*x^2 +
- 984064
- ? gal = galoisinit(pol);
- ? galoisidentify(gal)
- %6 = [12,3] \\A4
- ? pol4 = polredbest(galoisfixedfield(gal,gal.gen[3])[1])
- %7 = x^4 + 7*x^2 - 2*x + 14
+ %4 = x^12 + 196*x^10 + ... + 984064
+ ? G = galoisinit(pol); galoisidentify(G)
+ %5 = [12,3] \\A4
+ ? pol4 = polredbest(galoisfixedfield(G,G.gen[3], 1))
+ %6 = x^4 + 7*x^2 - 2*x + 14
  ? polgalois(pol4)
- %8 = [12, 1, 1, "A4"]
+ %7 = [12, 1, 1, "A4"]
  ? factor(nfdisc(pol4))
- %9 =
+ %8 =
  [ 2 4]
  [31 2]
 
+ \\ S4 example
  ? mf = mfinit([4*37,1,Mod(105,148)],0);
  ? F = mfeigenbasis(mf)[1];
  ? mfgaloistype(mf,F)
- %12 = -24
+ %11 = -24
  ? pol = mfgaloisprojrep(mf,F)
- %13 = x^24 + 66*x^22 + 849*x^20 - 15490*x^18 - 216918*x^16 + 2619978*x^14 +
- 53980233*x^12 - 6892790*x^10 - 3809310934*x^8 + 32183077966*x^6 -
- 83753033167*x^4 + 40435115298*x^2 + 357375600481
- ? gal = galoisinit(pol);
- ? galoisidentify(gal)
- %15 = [24, 12] \\S4
- ? pol4 = polredbest(galoisfixedfield(gal,gal.gen[3..4])[1])
- %16 = x^4 - x^3 + 5*x^2 - 7*x + 12
+ %12 = x^24 + 66*x^22 + 849*x^20 + ... + 357375600481
+ ? G = galoisinit(pol); galoisidentify(G)
+ %13 = [24, 12] \\S4
+ ? pol4 = polredbest(galoisfixedfield(G,G.gen[3..4])[1])
+ %14 = x^4 - x^3 + 5*x^2 - 7*x + 12
  ? polgalois(pol4)
- %17 = [24, -1, 1, "S4"]
+ %15 = [24, -1, 1, "S4"]
  ? factor(nfdisc(pol4))
- %18 =
+ %16 =
  [ 2 2]
  [37 3]
  @eprog
