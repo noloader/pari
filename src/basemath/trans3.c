@@ -2250,9 +2250,8 @@ cxpolylog(long m, GEN x, long prec)
   if (DEBUGLEVEL) timer_start(&T);
   dz = dbllog2(z) - log2PI; /*  ~ log2(|z|/2Pi) */
   /* sum_{k >= 1} zeta(-1-2k) * z^(2k+m+1) / (2k+m+1)!
-   * = 2 z^(m-1) sum_{k >= 1} (-1)^{k-1} zeta(2k+2) * (z/2Pi)^(2k+2)
-   *                  / (2k+2)..(2k+1+m))
-   * Stop at 2k = (li - (m-1)*Lz - m) /  dz, Lz = log2 |z| */
+   * = 2 z^(m-1) sum_{k >= 1} zeta(2k+2) * Z^(k+1) / (2k+2)..(2k+1+m)),
+   * where Z = -(z/2Pi)^2. Stop at 2k = (li - (m-1)*Lz - m) /  dz, Lz = log2 |z| */
   /* We cut the sum in two: small values of k first */
   Z = gsqr(z); av = avma;
   ksmall = get_k(dz, prec2nbits(prec));
@@ -2268,12 +2267,12 @@ cxpolylog(long m, GEN x, long prec)
     if ((k & 0x1ff) == 0) gerepileall(av, 2, &s, &q);
   }
   if (DEBUGLEVEL>2) timer_printf(&T, "polylog: small k <= %ld", k);
-  Z = gsqr(gdiv(z, Pi2n(1,prec)));
-  q = gmul(gpowgs(z, m-1), gpowgs(Z, k+1)); /* (z/2Pi)^(2k+2) * z^(m-1) */
+  Z = gneg(gsqr(gdiv(z, Pi2n(1,prec))));
+  q = gmul(gpowgs(z, m-1), gpowgs(Z, k+1)); /* Z^(k+1) * z^(m-1) */
   S = gen_0; av = avma;
-  for(k++;; k++)
+  for(;; k++)
   {
-    GEN t = q = gmul(q,Z);
+    GEN t = q;
     long b;
     if (real) t = real_i(t);
     b = prec + gexpo(t) / BITS_IN_LONG; /* decrease accuracy */
@@ -2281,8 +2280,8 @@ cxpolylog(long m, GEN x, long prec)
     /* t * zeta(2k+2) / (2k+2)..(2k+1+m) */
     t = gdiv(t, mulri(inv_szeta_euler(2*k+2, b),
                       mulu_interval(2*k+2, 2*k+1+m)));
-    S = odd(k)? gadd(S, t): gsub(S, t);
-    if (gexpo(t)  < li) break;
+    S = gadd(S, t); if (gexpo(t)  < li) break;
+    q = gmul(q, Z);
     if ((k & 0x1ff) == 0) gerepileall(av, 2, &S, &q);
   }
   if (DEBUGLEVEL>2) timer_printf(&T, "polylog: large k <= %ld", k);
