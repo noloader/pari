@@ -1539,7 +1539,7 @@ evalstate_reset(void)
   reset_break();
   compilestate_reset();
   parsestate_reset();
-  avma = pari_mainstack->top;
+  set_avma(pari_mainstack->top);
 }
 
 void

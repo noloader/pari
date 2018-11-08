@@ -371,7 +371,7 @@ shiftispec(GEN x, long nx, long n)
       mpn_rshift((mp_limb_t *) yd, (mp_limb_t *) (x + d), nx - d, m);
       if (yd[ny - 1] == 0)
       {
-        if (ny == 1) { avma = (pari_sp)(yd + 1); return gen_0; }
+        if (ny == 1) { set_avma((pari_sp)(yd + 1)); return gen_0; }
         ny--;
       }
     }
@@ -419,8 +419,8 @@ mantissa2nr(GEN x, long n)
       shift_right(y,x, 2,ly, 0,m);
       if (y[2] == 0)
       {
-        if (ly==3) { avma = (pari_sp)(y+3); return gen_0; }
-        ly--; avma = (pari_sp)(++y);
+        if (ly==3) { set_avma((pari_sp)(y+3)); return gen_0; }
+        ly--; set_avma((pari_sp)(++y));
       }
     } else {
       for (i=2; i<ly; i++) y[i]=x[i];
@@ -448,7 +448,7 @@ truncr(GEN x)
     GEN z=cgeti(d);
     for (i=2; i<d; i++) z[d-i+1]=x[i];
     mpn_rshift(LIMBS(y),LIMBS(z),d-2,BITS_IN_LONG-m);
-    avma=(pari_sp)y;
+    set_avma((pari_sp)y);
   }
   return y;
 }
@@ -540,7 +540,7 @@ addumului(ulong a, ulong b, GEN y)
   hi=mpn_addmul_1(LIMBS(z), LIMBS(y), NLIMBS(y), b);
   if (hi) z[lz-1]=hi; else lz--;
   z[1] = evalsigne(1) | evallgefint(lz);
-  avma=(pari_sp)z; return z;
+  set_avma((pari_sp)z); return z;
 }
 
 /***********************************************************************/
@@ -656,8 +656,7 @@ divrr_with_gmp(GEN x, GEN y)
   else { w[2] = HIGHBIT; e++; }
   if (sy < 0) sx = -sx;
   w[1] = evalsigne(sx) | evalexpo(e);
-  avma=(pari_sp) w;
-  return w;
+  set_avma((pari_sp)w); return w;
 }
 
 /* We keep llx bits of x and lly bits of y*/
@@ -694,8 +693,7 @@ divri_with_gmp(GEN x, GEN y)
   else { w[2] = HIGHBIT; e++; }
   if (sy < 0) sx = -sx;
   w[1] = evalsigne(sx) | evalexpo(e);
-  avma=(pari_sp) w;
-  return w;
+  set_avma((pari_sp)w); return w;
 }
 
 GEN
@@ -914,7 +912,7 @@ DIVIDE: /* quotient is non-zero */
       if (lr == 2) {set_avma(av); return gen_0;} /* exact division */
     }
     r[1] = evalsigne(sx) | evallgefint(lr);
-    avma = (pari_sp) r; return r;
+    set_avma((pari_sp)r); return r;
   }
   else
   {
@@ -925,14 +923,14 @@ DIVIDE: /* quotient is non-zero */
     mpn_tdiv_qr(LIMBS(q), LIMBS(r),0, LIMBS(x), NLIMBS(x), LIMBS(y), NLIMBS(y));
     if (q[lq - 1] == 0) lq--;
     q[1] = evalsigne(sy) | evallgefint(lq);
-    if (!z) { avma = (pari_sp)q; return q; }
+    if (!z) { set_avma((pari_sp)q); return q; }
     if (!r[lr - 1])
     {
       while(lr>2 && !r[lr - 1]) lr--;
-      if (lr == 2) {avma=(pari_sp) q; *z=gen_0; return q;} /* exact division */
+      if (lr == 2) { set_avma((pari_sp)q); *z=gen_0; return q; } /* exact division */
     }
     r[1] = evalsigne(sx) | evallgefint(lr);
-    avma = (pari_sp) r; *z = r; return q;
+    set_avma((pari_sp)r); *z = r; return q;
   }
 }
 
@@ -1033,7 +1031,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
     || cmpii(Td, addii(shifti(T, -s), N)) >= 0) pari_err_BUG("red_montgomery");
 }
 #endif
-  avma = (pari_sp)Td; return Td;
+  set_avma((pari_sp)Td); return Td;
 }
 
 /* EXACT INTEGER DIVISION */
@@ -1311,7 +1309,7 @@ sqrtremi(GEN a, GEN *r)
     GEN R = cgeti(2 + na);
     nr = mpn_sqrtrem(LIMBS(S), LIMBS(R), LIMBS(a), na);
     if (nr) R[1] = evalsigne(1) | evallgefint(nr+2);
-    else    { avma = (pari_sp)S; R = gen_0; }
+    else    { set_avma((pari_sp)S); R = gen_0; }
     *r = R;
   }
   else
@@ -1353,7 +1351,7 @@ sqrtr_abs(GEN a)
       mpn_add_1(c,c,l,1);
   }
   xmpn_mirrorcopy(RLIMBS(res),c,l);
-  avma = (pari_sp)res; return res;
+  set_avma((pari_sp)res); return res;
 }
 
 /* Normalize a non-negative integer */

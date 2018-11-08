@@ -63,7 +63,7 @@ Z_to_FpX(GEN a, GEN p, long v)
   pari_sp av = avma;
   GEN z = cgetg(3, t_POL);
   GEN x = modii(a, p);
-  if (!signe(x)) { avma =av; return pol_0(v); }
+  if (!signe(x)) { set_avma(av); return pol_0(v); }
   z[1] = evalsigne(1) | evalvarn(v);
   gel(z,2) = x; return z;
 }
@@ -126,7 +126,7 @@ FpX_add(GEN x,GEN y,GEN p)
   for (i=2; i<ly; i++) gel(z,i) = Fp_add(gel(x,i),gel(y,i), p);
   for (   ; i<lx; i++) gel(z,i) = modii(gel(x,i), p);
   z = ZX_renormalize(z, lx);
-  if (!lgpol(z)) { avma = (pari_sp)(z + lx); return pol_0(varn(x)); }
+  if (!lgpol(z)) { set_avma((pari_sp)(z + lx)); return pol_0(varn(x)); }
   return z;
 }
 
@@ -235,7 +235,7 @@ FpX_subspec(GEN x,GEN y,GEN p, long nx, long ny)
     for (   ; i<ny; i++) gel(z,i) = Fp_neg(gel(y,i), p);
   }
   z = FpX_renormalize(z-2, lz);
-  if (!lgpol(z)) { avma = (pari_sp)(z + lz); return pol_0(0); }
+  if (!lgpol(z)) { set_avma((pari_sp)(z + lz)); return pol_0(0); }
   return z;
 }
 
@@ -255,14 +255,14 @@ Fp_FpX_sub(GEN x, GEN y, GEN p)
   if (ly <= 3) {
     z = cgetg(3, t_POL);
     x = (ly == 3)? Fp_sub(x, gel(y,2), p): modii(x, p);
-    if (!signe(x)) { avma = (pari_sp)(z + 3); return pol_0(varn(y)); }
+    if (!signe(x)) { set_avma((pari_sp)(z + 3)); return pol_0(varn(y)); }
     z[1] = evalsigne(1)|y[1]; gel(z,2) = x; return z;
   }
   z = cgetg(ly,t_POL);
   gel(z,2) = Fp_sub(x, gel(y,2), p);
   for (i = 3; i < ly; i++) gel(z,i) = Fp_neg(gel(y,i), p);
   z = ZX_renormalize(z, ly);
-  if (!lgpol(z)) { avma = (pari_sp)(z + ly); return pol_0(varn(x)); }
+  if (!lgpol(z)) { set_avma((pari_sp)(z + ly)); return pol_0(varn(x)); }
   z[1] = y[1]; return z;
 }
 
@@ -276,7 +276,7 @@ FpX_convol(GEN x, GEN y, GEN p)
   for (i=2; i<ly; i++) gel(z,i) = Fp_mul(gel(x,i),gel(y,i), p);
   for (   ; i<lx; i++) gel(z,i) = modii(gel(x,i), p);
   z = ZX_renormalize(z, lx);
-  if (!lgpol(z)) { avma = (pari_sp)(z + lx); return pol_0(varn(x)); }
+  if (!lgpol(z)) { set_avma((pari_sp)(z + lx)); return pol_0(varn(x)); }
   return z;
 }
 
@@ -463,7 +463,7 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
   {
     if (lead) gunclone(lead);
     if (sx) return gc_NULL(av0);
-    avma = (pari_sp)rem; return z-2;
+    set_avma((pari_sp)rem); return z-2;
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);

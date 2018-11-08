@@ -1324,7 +1324,7 @@ gen_sortspec(GEN v, long n, void *E, int (*cmp)(void*,GEN,GEN))
       w[m++] = y[iy++]+nx;
   while (ix<=nx) w[m++] = x[ix++];
   while (iy<=ny) w[m++] = y[iy++]+nx;
-  avma = (pari_sp)w; return w;
+  set_avma((pari_sp)w); return w;
 }
 
 static void
@@ -1429,7 +1429,7 @@ gen_sort_inplace(GEN x, void *E, int (*cmp)(void*,GEN,GEN), GEN *perm)
     for (i=1; i<lx; i++) gel(z,i) = gel(x,y[i]);
     for (i=1; i<lx; i++) gel(x,i) = gel(z,i);
     *perm = y;
-    avma = (pari_sp)y;
+    set_avma((pari_sp)y);
   } else {
     for (i=1; i<lx; i++) gel(y,i) = gel(x,y[i]);
     for (i=1; i<lx; i++) gel(x,i) = gel(y,i);

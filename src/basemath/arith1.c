@@ -585,7 +585,7 @@ Z_issquareall(GEN x, GEN *pt)
   if (!carremod(umodiu(x, 64*63*65*11))) return 0;
   av = avma; y = sqrtremi(x, &r);
   if (r != gen_0) return gc_long(av,0);
-  if (pt) { *pt = y; avma = (pari_sp)y; } else set_avma(av);
+  if (pt) { *pt = y; set_avma((pari_sp)y); } else set_avma(av);
   return 1;
 }
 
@@ -1239,7 +1239,7 @@ ispower(GEN x, GEN K, GEN *pt)
         if (Z_ispowerall(a, k, &a) && Z_ispowerall(b, k, &b)) {
           *pt = z; gel(z,1) = a; gel(z,2) = b; return 1;
         }
-        avma = (pari_sp)(z + 3); return 0;
+        set_avma((pari_sp)(z + 3)); return 0;
       }
       return Z_ispower(a, k) && Z_ispower(b, k);
     }
@@ -1261,7 +1261,7 @@ ispower(GEN x, GEN K, GEN *pt)
         if (ispower(a, K, &a) && polispower(b, K, &b)) {
           *pt = z; gel(z,1) = a; gel(z,2) = b; return 1;
         }
-        avma = (pari_sp)(z + 3); return 0;
+        set_avma((pari_sp)(z + 3)); return 0;
       }
       return (ispower(a, K, NULL) && polispower(b, K, NULL));
     }

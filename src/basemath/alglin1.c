@@ -236,7 +236,7 @@ gen_Gauss_pivot(GEN x, long *rr, void *E, const struct bb_field *ff)
       for (i=k; i<=n; i++) gcoeff(x,j,i) = g0; /* dummy */
     }
   }
-  *rr = r; avma = (pari_sp)d; return d;
+  *rr = r; set_avma((pari_sp)d); return d;
 }
 
 GEN
@@ -1737,7 +1737,7 @@ F2m_gauss_pivot(GEN x, long *rr)
     }
   }
 
-  *rr = r; avma = (pari_sp)d; return d;
+  *rr = r; set_avma((pari_sp)d); return d;
 }
 
 /* Destroy x */
@@ -1782,7 +1782,7 @@ Flm_gauss_pivot(GEN x, ulong p, long *rr)
       for (i=k; i<=n; i++) ucoeff(x,j,i) = 0; /* dummy */
     }
   }
-  *rr = r; avma = (pari_sp)d; return d;
+  *rr = r; set_avma((pari_sp)d); return d;
 }
 
 static GEN
@@ -4292,7 +4292,7 @@ RgM_pivots(GEN x0, GEN data, long *rr, pivot_fun pivot)
       for (i=k; i<=n; i++) gcoeff(x,j,i) = gen_0; /* dummy */
     }
   }
-  *rr = r; avma = (pari_sp)d; return d;
+  *rr = r; set_avma((pari_sp)d); return d;
 }
 
 static long

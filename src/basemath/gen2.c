@@ -1541,7 +1541,7 @@ gen_Z_divides(GEN x, GEN q, long imin)
     GEN r, xi = gel(x,i);
     if (!signe(xi)) { gel(y,i) = xi; continue; }
     gel(y,i) = dvmdii(xi, q, &r);
-    if (r != gen_0) { avma = (pari_sp)(y+l); return NULL; }
+    if (r != gen_0) { set_avma((pari_sp)(y+l)); return NULL; }
   }
   return y;
 }
@@ -1560,7 +1560,7 @@ gen_z_divides(GEN x, ulong q, long imin)
     GEN xi = gel(x,i);
     if (!signe(xi)) { gel(y,i) = xi; continue; }
     gel(y,i) = absdiviu_rem(xi, q, &r);
-    if (r) { avma = (pari_sp)(y+l); return NULL; }
+    if (r) { set_avma((pari_sp)(y+l)); return NULL; }
     affectsign_safe(xi, &gel(y,i));
   }
   return y;

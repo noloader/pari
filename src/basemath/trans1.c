@@ -2218,7 +2218,7 @@ mpexp(GEN x)
   }
   z = cgetr(l); /* room for result */
   x = modlog2(x, &sh);
-  if (!x) { avma = (pari_sp)(z+lg(z)); return real2n(sh, l); }
+  if (!x) { set_avma((pari_sp)(z+lg(z))); return real2n(sh, l); }
   constpi(l); /* precompute for later logr_abs() */
   mask = quadratic_prec_mask(prec2nbits(l)+BITS_IN_LONG);
   for(i=0, p=1; i<s+TWOPOTBITS_IN_LONG; i++) { p <<= 1; if (mask & 1) p-=1; mask >>= 1; }
@@ -2235,11 +2235,11 @@ mpexp(GEN x)
     setprec(a, nbits2prec(p));
     t = mulrr(a, subrr(x, logr_abs(a))); /* a (x - log(a)) */
     if (mask == 1) break;
-    affrr(t, a); avma = (pari_sp)a;
+    affrr(t, a); set_avma((pari_sp)a);
   }
   affrr(t,z);
   if (sh) shiftr_inplace(z, sh);
-  avma = (pari_sp)z; return z;
+  set_avma((pari_sp)z); return z;
 }
 
 static long
@@ -2824,7 +2824,7 @@ logr_abs(GEN X)
   y = logr_aux(y); /* log(1+y) - log(1-y) = log(x) */
   shiftr_inplace(y, m + 1);
   if (EX) y = addrr(y, mulsr(EX, mplog2(l+1)));
-  affrr_fixlg(y, z); avma = (pari_sp)z; return z;
+  affrr_fixlg(y, z); set_avma((pari_sp)z); return z;
 }
 
 /* assume Im(q) != 0 and precision(q) >= prec. Compute log(q) with accuracy

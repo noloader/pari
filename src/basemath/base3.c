@@ -1707,7 +1707,7 @@ vecsmall01_to_indices(GEN v)
   for (k=1, i=l-1; i; i--)
     if (v[i]) { *--p = i; k++; }
   *--p = evallg(k) | evaltyp(t_VECSMALL);
-  avma = (pari_sp)p; return p;
+  set_avma((pari_sp)p); return p;
 }
 GEN
 vec01_to_indices(GEN v)
@@ -1726,7 +1726,7 @@ vec01_to_indices(GEN v)
   for (k=1, i=l-1; i; i--)
     if (signe(gel(v,i))) { *--p = i; k++; }
   *--p = evallg(k) | evaltyp(t_VECSMALL);
-  avma = (pari_sp)p; return p;
+  set_avma((pari_sp)p); return p;
 }
 GEN
 indices_to_vec01(GEN p, long r)
@@ -1754,7 +1754,7 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
     for (i=1; i<lg(g); i++)
       if (mpodd(gel(e,i)))
         Flv_add_inplace(V, nfsign_arch(nf,gel(g,i),archp), 2);
-    avma = (pari_sp)V; return V;
+    set_avma((pari_sp)V); return V;
   }
   av = avma; V = cgetg(n+1,t_VECSMALL);
   x = nf_to_scalar_or_basis(nf, x);
@@ -1792,7 +1792,7 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
     }
     V[i] = s;
   }
-  avma = (pari_sp)V; return V;
+  set_avma((pari_sp)V); return V;
 }
 static void
 chk_ind(const char *s, long i, long r1)

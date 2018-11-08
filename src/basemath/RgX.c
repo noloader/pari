@@ -1751,11 +1751,10 @@ RgX_divrem_i(GEN x, GEN y, GEN *pr)
   if (pr == ONLY_DIVIDES)
   {
     if (sx) return gc_NULL(av);
-    avma = (pari_sp)rem;
-    return gerepileupto(av,z-2);
+    set_avma((pari_sp)rem); return gerepileupto(av,z-2);
   }
   lr=i+3; rem -= lr;
-  if (avma==av1) { avma = (pari_sp)rem; p1 = gcopy(p1); }
+  if (avma==av1) { set_avma((pari_sp)rem); p1 = gcopy(p1); }
   else p1 = gerepileupto((pari_sp)rem,p1);
   rem[0] = evaltyp(t_POL) | evallg(lr);
   rem[1] = z[-1];
@@ -1850,7 +1849,7 @@ RgXQX_divrem(GEN x, GEN y, GEN T, GEN *pr)
   {
     if (lead) gunclone(lead);
     if (sx) return gc_NULL(av0);
-    avma = (pari_sp)rem; return z-2;
+    set_avma((pari_sp)rem); return z-2;
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);

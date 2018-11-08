@@ -2353,7 +2353,7 @@ gerepile(pari_sp av, pari_sp tetpil, GEN q)
     q = (GEN) (((pari_sp)q) + dec);
 
   for (x = (GEN)av, a = (GEN)tetpil; a > (GEN)av0; ) *--x = *--a;
-  avma = (pari_sp)x;
+  set_avma((pari_sp)x);
   while (x < (GEN)av)
   {
     const long tx = typ(x), lx = lg(x);

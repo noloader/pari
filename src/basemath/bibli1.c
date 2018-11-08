@@ -1397,7 +1397,7 @@ minim0_dolll(GEN a, GEN BORNE, GEN STOCKMAX, long flag, long dolll)
       set_avma(av); return cgetg(1,t_VEC);
     case min_VECSMALL:
     case min_VECSMALL2:
-      avma = (pari_sp)L; return L;
+      set_avma((pari_sp)L); return L;
   }
   r = (maxnorm >= 0) ? roundr(dbltor(maxnorm)): stoi(sBORNE);
   k = minss(s,maxrank);

@@ -142,7 +142,7 @@ Flx_addifsmooth3(pari_sp *av, struct Flxq_log_rel *r, GEN h, long u, long v, lon
     if (DEBUGLEVEL && (r->nbrel&511UL)==0)
       err_printf("%ld%% ",r->nbrel*100/r->nbexp);
     *av = avma;
-  } else avma = *av;
+  } else set_avma(*av);
   return r->nbrel==r->nb || r->nbrel==r->nbmax;
 }
 

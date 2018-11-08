@@ -418,7 +418,7 @@ F2x_shiftip(pari_sp av, GEN x, long v)
   for (i = 2; i<lx; i++) *--y = *--x;
   for (i = 0; i< v; i++) *--y = 0;
   y -= 2; y[0] = evaltyp(t_VECSMALL) | evallg(ly);
-  avma = (pari_sp)y; return y;
+  set_avma((pari_sp)y); return y;
 }
 
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
@@ -672,7 +672,7 @@ F2x_divrem(GEN x, GEN y, GEN *pr)
   x = F2x_renormalize(x, lx);
   if (pr == ONLY_DIVIDES) {
     if (lg(x) == 2) { cgiv(x); return z; }
-    avma = (pari_sp)(z + lg(z)); return NULL;
+    set_avma((pari_sp)(z + lg(z))); return NULL;
   }
   *pr = x; return z;
 }
@@ -2207,7 +2207,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
   {
     if (lead) gunclone(lead);
     if (sx) return gc_NULL(av0);
-    avma = (pari_sp)rem; return z-2;
+    set_avma((pari_sp)rem); return z-2;
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);

@@ -777,7 +777,7 @@ rhoimag(GEN x)
   x = cgetg(4, t_QFI);
   (void)new_chunk(lgefint(a) + lgefint(b) + lgefint(c) + 3);
   swap(a,c); b = negi(b);
-  REDB(a, &b, &c); avma = (pari_sp)x;
+  REDB(a, &b, &c); set_avma((pari_sp)x);
   gel(x,1) = icopy(a);
   gel(x,2) = icopy(b);
   gel(x,3) = icopy(c); return x;
@@ -1258,12 +1258,12 @@ normforms(GEN D, GEN fa, long prec)
   int sa, D_odd = mpodd(D);
   a = typ(fa) == t_INT ? fa: typ(fa) == t_VEC? gel(fa,1): factorback(fa);
   sa = signe(a);
-  if (sa==0 || (signe(D)<0 && sa<0)) { avma = av; return cgetg(1, t_VEC); }
+  if (sa==0 || (signe(D)<0 && sa<0)) { set_avma(av); return cgetg(1, t_VEC); }
   if (D_odd)
     V = Zn_quad_roots(fa, gen_1, shifti(subsi(1, D), -2));
   else
     V = Zn_quad_roots(fa, gen_0, negi(shifti(D, -2)));
-  if (!V) { avma = av; return cgetg(1, t_VEC); }
+  if (!V) { set_avma(av); return cgetg(1, t_VEC); }
   a = typ(fa) == t_INT ? fa: typ(fa) == t_VEC? gel(fa,1): factorback(fa);
   if (signe(D)<0 && signe(a)<0) { set_avma(av); return cgetg(1, t_VEC); }
   N = gel(V,1); B = gel(V,2);
@@ -1509,7 +1509,7 @@ qfbsolven(GEN Q, GEN fa)
   long i, j, l, sD;
   d = qfb_disc(Q); sD = signe(d);
   F = normforms(d, fa, DEFAULTPREC); l = lg(F);
-  if (l==1) { avma = av; return cgetg(1,t_VEC); }
+  if (l==1) { set_avma(av); return cgetg(1,t_VEC); }
   Qr = redsl2(Q, d);
   W = cgetg(l, t_VEC);
   for (j=1, i=1; i<l; i++)

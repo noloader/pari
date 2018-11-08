@@ -252,7 +252,7 @@ random_F2xqE(GEN a, GEN a6, GEN T)
   GEN x, y, rhs, u;
   do
   {
-    avma= ltop;
+    set_avma(ltop);
     x   = random_F2x(F2x_degree(T),T[1]);
     if (typ(a) == t_VECSMALL)
     {

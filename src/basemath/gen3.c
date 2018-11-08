@@ -2376,7 +2376,7 @@ gtrunc2n(GEN x, long s)
       z = cgetg(3, t_COMPLEX);
       gel(z,2) = gtrunc2n(gel(x,2), s);
       if (!signe(gel(z,2))) {
-        avma = (pari_sp)(z + 3);
+        set_avma((pari_sp)(z + 3));
         return gtrunc2n(gel(x,1), s);
       }
       gel(z,1) = gtrunc2n(gel(x,1), s);

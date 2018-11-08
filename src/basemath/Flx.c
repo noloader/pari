@@ -565,7 +565,7 @@ Flx_shiftip(pari_sp av, GEN x, long v)
   for (i = 2; i<lx; i++) *--y = *--x;
   for (i = 0; i< v; i++) *--y = 0;
   y -= 2; y[0] = evaltyp(t_VECSMALL) | evallg(ly);
-  avma = (pari_sp)y; return y;
+  set_avma((pari_sp)y); return y;
 }
 
 #define BITS_IN_QUARTULONG (BITS_IN_HALFULONG >> 1)
@@ -2362,8 +2362,7 @@ Flx_Flv_multieval_tree(GEN P, GEN xa, GEN T, ulong p)
       for (c=1; c<=d; c++, k++)
         R[k] = Flx_eval(gel(v, j), xa[k], p);
     }
-    avma = (pari_sp) R;
-    return R;
+    set_avma((pari_sp)R); return R;
   }
 }
 
@@ -3272,7 +3271,7 @@ gener_Flxq(GEN T, ulong p, GEN *po)
   }
   if (!po)
   {
-    avma = (pari_sp)g;
+    set_avma((pari_sp)g);
     g = gerepileuptoleaf(av0, g);
   }
   else {
@@ -3976,7 +3975,7 @@ FlxX_sub(GEN x, GEN y, ulong p)
     for (i=2; i<lx; i++) gel(z,i) = Flx_sub(gel(x,i),gel(y,i),p);
     for (   ; i<ly; i++) gel(z,i) = Flx_neg(gel(y,i),p);
   }
-  if (!lgpol(z)) { avma = (pari_sp)(z + lz); z = pol_0(varn(x)); }
+  if (!lgpol(z)) { set_avma((pari_sp)(z + lz)); z = pol_0(varn(x)); }
   return z;
 }
 
@@ -4317,7 +4316,7 @@ FlxqX_divrem_basecase(GEN x, GEN y, GEN T, ulong p, GEN *pr)
   {
     if (lead) gunclone(lead);
     if (sx) return gc_NULL(av0);
-    avma = (pari_sp)rem; return z-2;
+    set_avma((pari_sp)rem); return z-2;
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);

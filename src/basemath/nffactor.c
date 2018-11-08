@@ -609,7 +609,7 @@ nffactor(GEN nf,GEN pol)
   A = RgX_nffix("nffactor",T,pol,1);
   dA = degpol(A);
   if (dA <= 0) {
-    avma = (pari_sp)(rep + 3);
+    set_avma((pari_sp)(rep + 3));
     return (dA == 0)? trivial_fact(): zerofact(varn(pol));
   }
   if (dA == 1) {
@@ -1798,7 +1798,7 @@ polfnf(GEN a, GEN T)
   dA = degpol(A);
   if (dA <= 0)
   {
-    avma = (pari_sp)(rep + 3);
+    set_avma((pari_sp)(rep + 3));
     return (dA == 0)? trivial_fact(): zerofact(varn(A));
   }
   bad = dent = ZX_disc(T);

@@ -381,7 +381,7 @@ random_FpE(GEN a4, GEN a6, GEN p)
   GEN x, x2, y, rhs;
   do
   {
-    avma= ltop;
+    set_avma(ltop);
     x   = randomi(p); /*  x^3+a4*x+a6 = x*(x^2+a4)+a6  */
     x2  = Fp_sqr(x, p);
     rhs = Fp_add(Fp_mul(x, Fp_add(x2, a4, p), p), a6, p);
@@ -1644,7 +1644,7 @@ random_FpXQE(GEN a4, GEN a6, GEN T, GEN p)
   long v = get_FpX_var(T), d = get_FpX_degree(T);
   do
   {
-    avma= ltop;
+    set_avma(ltop);
     x   = random_FpX(d,v,p); /*  x^3+a4*x+a6 = x*(x^2+a4)+a6  */
     x2  = FpXQ_sqr(x, T, p);
     rhs = FpX_add(FpXQ_mul(x, FpX_add(x2, a4, p), T, p), a6, p);

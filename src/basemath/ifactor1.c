@@ -1954,7 +1954,7 @@ is_357_power(GEN x, GEN *pt, ulong *mask)
     if (equalii(powiu(y,e), x))
     {
       if (!pt) return gc_int(av,e);
-      avma = (pari_sp)y; *pt = gerepileuptoint(av, y);
+      set_avma((pari_sp)y); *pt = gerepileuptoint(av, y);
       return e;
     }
     *mask &= ~b; /* turn the bit off */
@@ -2017,7 +2017,7 @@ is_kth_power(GEN x, ulong n, GEN *pt)
     if (DEBUGLEVEL>4) err_printf("\tBut it wasn't a pure power.\n");
     return gc_ulong(av,0);
   }
-  if (!pt) set_avma(av); else { avma=(pari_sp)y; *pt = gerepileuptoint(av,y); }
+  if (!pt) set_avma(av); else { set_avma((pari_sp)y); *pt = gerepileuptoint(av,y); }
   return 1;
 }
 
@@ -2613,7 +2613,7 @@ update_pow(GEN where, GEN factor, long exp, pari_sp *av)
   GEN ex = EXPON(where);
   if (DEBUGLEVEL>3)
     err_printf("IFAC: found %Ps =\n\t%Ps ^%ld\n", *where, factor, exp);
-  affii(factor, VALUE(where)); avma = *av;
+  affii(factor, VALUE(where)); set_avma(*av);
   if (ex == gen_1)
   { EXPON(where) = exp == 2? gen_2: utoipos(exp); *av = avma; }
   else if (ex == gen_2)
@@ -3008,7 +3008,7 @@ ifac_decomp(GEN n, long hint)
     pairs = icopy_avma(EXPON(here), (pari_sp)pairs);
     ifac_delete(here);
   }
-  avma = (pari_sp)pairs;
+  set_avma((pari_sp)pairs);
   if (DEBUGLEVEL >= 3)
     err_printf("IFAC: found %ld large prime (power) factor%s.\n",
                nb, (nb>1? "s": ""));
@@ -3540,7 +3540,7 @@ Z_issmooth_fact(GEN m, ulong lim)
         P[i] = m[2];
         E[i] = 1; i++;
         setlg(P, i);
-        setlg(E, i); avma = (pari_sp)F; return F;
+        setlg(E, i); set_avma((pari_sp)F); return F;
       }
     }
   }

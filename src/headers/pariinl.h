@@ -1181,7 +1181,7 @@ gerepileuptoleaf(pari_sp av, GEN x)
   if (!isonstack(x) || (GEN)av<=x) { set_avma(av); return x; }
   lx = lg(x);
   q = ((GEN)av) - lx;
-  avma = (pari_sp)q;
+  set_avma((pari_sp)q);
   while (--lx >= 0) q[lx] = x[lx];
   return q;
 }
@@ -1189,7 +1189,7 @@ INLINE GEN
 gerepileuptoint(pari_sp av, GEN x)
 {
   if (!isonstack(x) || (GEN)av<=x) { set_avma(av); return x; }
-  avma = (pari_sp)icopy_avma(x, av);
+  set_avma((pari_sp)icopy_avma(x, av));
   return (GEN)avma;
 }
 INLINE GEN
@@ -1235,7 +1235,7 @@ gerepilecopy(pari_sp av, GEN x)
     if (x < (GEN)av) {
       if (x < (GEN)pari_mainstack->bot) new_chunk(lg(x));
       x = leafcopy_avma(x, av);
-      avma = (pari_sp)x;
+      set_avma((pari_sp)x);
     } else
       x = leafcopy(x);
     return x;
@@ -1505,7 +1505,7 @@ affc_fixlg(GEN x, GEN res)
   }
   else
   {
-    avma = (pari_sp)(res+3);
+    set_avma((pari_sp)(res+3));
     res = cgetr(realprec(gel(res,1)));
     affrr_fixlg(x, res);
   }
@@ -1595,7 +1595,7 @@ Fp_add(GEN a, GEN b, GEN m)
     GEN t = subii(p, m);
     s = signe(t);
     if (!s) { set_avma(av); return gen_0; }
-    if (s < 0) { avma = (pari_sp)p; return p; }
+    if (s < 0) { set_avma((pari_sp)p); return p; }
     if (cmpii(t, m) < 0) return gerepileuptoint(av, t); /* general case ! */
     p = remii(t, m);
   }

@@ -44,7 +44,7 @@ ZX_add(GEN x, GEN y)
   for (i=2; i<ly; i++) gel(z,i) = addii(gel(x,i),gel(y,i));
   for (   ; i<lx; i++) gel(z,i) = icopy(gel(x,i));
   if (lx == ly) z = ZX_renormalize(z, lx);
-  if (!lgpol(z)) { avma = (pari_sp)(z + lx); return pol_0(varn(x)); }
+  if (!lgpol(z)) { set_avma((pari_sp)(z + lx)); return pol_0(varn(x)); }
   return z;
 }
 
@@ -60,7 +60,7 @@ ZX_sub(GEN x,GEN y)
     if (lx == ly)
     {
       z = ZX_renormalize(z, lx);
-      if (!lgpol(z)) { avma = (pari_sp)(z + lx); z = pol_0(varn(x)); }
+      if (!lgpol(z)) { set_avma((pari_sp)(z + lx)); z = pol_0(varn(x)); }
     }
     else
       for (   ; i<lx; i++) gel(z,i) = icopy(gel(x,i));
@@ -121,7 +121,7 @@ ZX_Z_add(GEN y, GEN x)
 {
   long lz, i;
   GEN z = cgetg_copy(y, &lz);
-  if (lz == 2) { avma = (pari_sp)(z + 2); return scalar_ZX(x,varn(y)); }
+  if (lz == 2) { set_avma((pari_sp)(z + 2)); return scalar_ZX(x,varn(y)); }
   z[1] = y[1];
   gel(z,2) = addii(gel(y,2),x);
   for(i=3; i<lz; i++) gel(z,i) = icopy(gel(y,i));
@@ -133,7 +133,7 @@ ZX_Z_add_shallow(GEN y, GEN x)
 {
   long lz, i;
   GEN z = cgetg_copy(y, &lz);
-  if (lz == 2) { avma = (pari_sp)(z + 2); return scalar_ZX_shallow(x,varn(y)); }
+  if (lz == 2) { set_avma((pari_sp)(z + 2)); return scalar_ZX_shallow(x,varn(y)); }
   z[1] = y[1];
   gel(z,2) = addii(gel(y,2),x);
   for(i=3; i<lz; i++) gel(z,i) = gel(y,i);
@@ -149,7 +149,7 @@ ZX_Z_sub(GEN y, GEN x)
   if (lz == 2)
   { /* scalarpol(negi(x), v) */
     long v = varn(y);
-    avma = (pari_sp)(z + 2);
+    set_avma((pari_sp)(z + 2));
     if (!signe(x)) return pol_0(v);
     z = cgetg(3,t_POL);
     z[1] = evalvarn(v) | evalsigne(1);
@@ -167,7 +167,7 @@ Z_ZX_sub(GEN x, GEN y)
 {
   long lz, i;
   GEN z = cgetg_copy(y, &lz);
-  if (lz == 2) { avma = (pari_sp)(z + 2); return scalar_ZX(x,varn(y)); }
+  if (lz == 2) { set_avma((pari_sp)(z + 2)); return scalar_ZX(x,varn(y)); }
   z[1] = y[1];
   gel(z,2) = subii(x, gel(y,2));
   for(i=3; i<lz; i++) gel(z,i) = negi(gel(y,i));

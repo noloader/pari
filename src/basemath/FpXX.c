@@ -467,7 +467,7 @@ FpXQX_divrem_basecase(GEN x, GEN y, GEN T, GEN p, GEN *pr)
   {
     if (lead) gunclone(lead);
     if (sx) return gc_NULL(av0);
-    avma = (pari_sp)rem; return z-2;
+    set_avma((pari_sp)rem); return z-2;
   }
   lr=i+3; rem -= lr;
   rem[0] = evaltyp(t_POL) | evallg(lr);

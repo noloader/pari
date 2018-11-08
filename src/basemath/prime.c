@@ -1309,7 +1309,7 @@ primes(long n)
   y = cgetg(n+1, t_VEC);
   (void)new_chunk(3*n); /*HACK*/
   u_forprime_init(&S, 2, ULONG_MAX);
-  avma = (pari_sp)y;
+  set_avma((pari_sp)y);
   for (i = 1; i <= n; i++) gel(y, i) = utoipos( u_forprime_next(&S) );
   return y;
 }
@@ -1323,7 +1323,7 @@ primes_zv(long n)
   y = cgetg(n+1,t_VECSMALL);
   u_forprime_init(&S, 2, ULONG_MAX);
   for (i = 1; i <= n; i++) y[i] =  u_forprime_next(&S);
-  avma = (pari_sp)y; return y;
+  set_avma((pari_sp)y); return y;
 }
 GEN
 primes0(GEN N)

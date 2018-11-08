@@ -380,7 +380,7 @@ gp_embedded(const char *s)
       res = stack_sprintf("%stime = %s", res, gp_format_time(t));
   } pari_ENDCATCH;
   if (!pari_last_was_newline()) pari_putc('\n');
-  avma = pari_mainstack->top;
+  set_avma(pari_mainstack->top);
   return res;
 }
 

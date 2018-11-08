@@ -645,10 +645,10 @@ invr(GEN b)
     /* TODO: mulrr(a,x) should be a half product (the higher half is known).
      * mulrr(x, ) already is */
     affrr(addrr(x, mulrr(x, subsr(1, mulrr(a,x)))), x);
-    avma = (pari_sp)a;
+    set_avma((pari_sp)a);
   }
   x[1] = (b[1] & SIGNBITS) | evalexpo(expo(x)-expo(b));
-  avma = (pari_sp)x; return x;
+  set_avma((pari_sp)x); return x;
 }
 
 GEN

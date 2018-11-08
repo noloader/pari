@@ -232,10 +232,10 @@ random_F3xqE(GEN a2, GEN a6, GEN T)
 {
   pari_sp ltop = avma;
   GEN x, y, rhs;
-  const ulong p=3;
+  const ulong p = 3;
   do
   {
-    avma= ltop;
+    set_avma(ltop);
     x   = random_Flx(get_Flx_degree(T),get_Flx_var(T),p);
     rhs = Flx_add(Flxq_mul(Flxq_sqr(x, T, p), Flx_add(x, a2, p), T, p), a6, p);
   } while ((!lgpol(rhs) && !lgpol(x)) || !Flxq_issquare(rhs, T, p));
@@ -254,7 +254,7 @@ random_FlxqE(GEN a4, GEN a6, GEN T, ulong p)
     return random_F3xqE(gel(a4,1), a6, T);
   do
   {
-    avma= ltop;
+    set_avma(ltop);
     x   = random_Flx(get_Flx_degree(T),get_Flx_var(T),p);
     x2  = Flxq_sqr(x, T, p); /*  x^3+a4*x+a6 = x*(x^2+a4)+a6  */
     rhs = Flx_add(Flxq_mul(x, Flx_add(x2, a4, p), T, p), a6, p);

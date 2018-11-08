@@ -136,7 +136,7 @@ vecsmall_indexsortspec(GEN v, long n)
       w[m++] = y[iy++]+nx;
   for(;ix<=nx;) w[m++] = x[ix++];
   for(;iy<=ny;) w[m++] = y[iy++]+nx;
-  avma = (pari_sp)w; return w;
+  set_avma((pari_sp)w); return w;
 }
 
 /*indirect sort.*/

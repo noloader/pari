@@ -350,9 +350,7 @@ producttree_scheme(long n)
     }
     swap(v,w); l<<=1;
   }
-  fixlg(v, l+1);
-  avma = (pari_sp) v;
-  return v;
+  fixlg(v, l+1); set_avma((pari_sp)v); return v;
 }
 
 GEN

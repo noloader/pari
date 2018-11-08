@@ -138,7 +138,7 @@ addir_sign(GEN x, long sx, GEN y, long sy)
   z = (GEN)avma;
   y = addrr_sign(itor(x,l), sx, y, sy);
   ly = lg(y); while (ly--) *--z = y[ly];
-  avma = (pari_sp)z; return z;
+  set_avma((pari_sp)z); return z;
 }
 
 static GEN
@@ -167,7 +167,7 @@ addsr_sign(long x, GEN y, long sy)
   z = (GEN)avma;
   y = addrr_sign(stor(x,l), sx, y, sy);
   ly = lg(y); while (ly--) *--z = y[ly];
-  avma = (pari_sp)z; return z;
+  set_avma((pari_sp)z); return z;
 }
 
 GEN
@@ -335,5 +335,5 @@ addrr_sign(GEN x, long sx, GEN y, long sy)
   else if (j) shift_left(z,z,2,lz-1, 0,j);
   z[1] = evalsigne(sx) | evalexpo(ez);
   z[0] = evaltyp(t_REAL) | evallg(lz);
-  avma = (pari_sp)z; return z;
+  set_avma((pari_sp)z); return z;
 }
