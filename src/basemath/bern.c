@@ -34,7 +34,7 @@ fracB2k(GEN D)
   return mkfrac(a,b);
 }
 /* precision needed to compute B_k for all k <= N */
-static long
+long
 bernbitprec(long N)
 { /* 1.612086 ~ log(8Pi) / 2 */
   const double log2PI = 1.83787706641;
@@ -309,13 +309,6 @@ inv_szeta_euler(long n, long prec)
     }
   }
   affrr(z, res); set_avma(av); return res;
-}
-
-int
-bernreal_use_zeta(long n, long prec)
-{
-  if (!bernzone) constbern(0);
-  return ((n>>1)+1 >= lg(bernzone) && bernbitprec(n) > prec2nbits(prec));
 }
 
 /* Return B_n */

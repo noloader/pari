@@ -1518,14 +1518,14 @@ szeta(long k, long prec)
   if (k > prec2nbits(prec)+1) return real_1(prec);
   if ((k&1) == 0)
   {
-    if (bernreal_use_zeta(k, prec))
+    if (!bernzone) constbern(0);
+    if (k >= lg(bernzone))
       y = invr( inv_szeta_euler(k, prec) );
     else
     {
-      y = mulrr(powru(Pi2n(1, prec + EXTRAPRECWORD), k), bernreal(k, prec));
+      y = gmul(powru(Pi2n(1, prec + EXTRAPRECWORD), k), gel(bernzone,k>>1));
       y = divrr(y, mpfactr(k,prec));
-      setsigne(y, 1);
-      shiftr_inplace(y, -1);
+      setsigne(y, 1); shiftr_inplace(y, -1);
     }
     return gerepileuptoleaf(av, y);
   }
@@ -2193,19 +2193,19 @@ Harmonic(long n)
   for (i=2; i<=n; i++) h = gadd(h, mkfrac(gen_1, utoipos(i)));
   return h;
 }
-/* smallish k such that bernreal_use_zeta(K, prec + K dz), K = 2k+4 */
+/* smallish k such that bernbitprec(K) > bit + Kdz, K = 2k+4 */
 static long
-get_k(double dz, long prec)
+get_k(double dz, long bit)
 {
   long a, b;
   for (b = 128;; b <<= 1)
-    if (bernreal_use_zeta(b, prec + b*dz)) break;
+    if (bernbitprec(b) > bit + b*dz) break;
   if (b == 128) return 128;
   a = b >> 1;
   while (b - a > 64)
   {
     long c = (a+b) >> 1;
-    if (bernreal_use_zeta(c, prec + c*dz)) b = c; else a = c;
+    if (bernbitprec(c) > bit + c*dz) b = c; else a = c;
   }
   return b >> 1;
 }
@@ -2254,7 +2254,8 @@ cxpolylog(long m, GEN x, long prec)
    *                  / (2k+2)..(2k+1+m))
    * Stop at 2k = (li - (m-1)*Lz - m) /  dz, Lz = log2 |z| */
   /* We cut the sum in two: small values of k first */
-  ksmall = get_k(dz / BITS_IN_LONG, prec); Z = gsqr(z); av = avma;
+  Z = gsqr(z); av = avma;
+  ksmall = get_k(dz, prec2nbits(prec));
   constbern(ksmall);
   for(k = 1; k < ksmall; k++)
   {

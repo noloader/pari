@@ -648,7 +648,7 @@ GEN     factorbackprime(GEN nf, GEN L, GEN e);
 GEN     producttree_scheme(long n);
 
 /* bern.c */
-int bernreal_use_zeta(long n, long prec);
+long bernbitprec(long N);
 
 /* bibli2.c */
 
