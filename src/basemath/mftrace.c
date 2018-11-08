@@ -12581,30 +12581,35 @@ moreorders(long N, GEN CHI, GEN F, GEN *pP, GEN *pO, ulong *bound)
 }
 
 static GEN
-search_abelian(GEN nf, long n, long k, GEN N, GEN Nfa, GEN mf, GEN CHI, GEN F,
+search_abelian(GEN nf, long n, long k, GEN N, GEN CHI, GEN F,
                GEN *pP, GEN *pO, ulong *bound, long prec)
 {
   pari_sp av = avma;
-  GEN bnr, cond, H, cyc, gn, T, Bquo;
+  GEN bnr, cond, H, cyc, gn, T, Bquo, P, E;
   long sN = itos(N), r1 = nf_get_r1(nf), i, j, d;
 
   cond = idealfactor(nf, N);
-  for (i=1; i < lg(gel(cond,1)); i++)
+  P = gel(cond,1);
+  E = gel(cond,2);
+  for (i = j = 1; i < lg(P); i++)
   {
-    GEN pr = gcoeff(cond,i,1), p = pr_get_p(pr);
-    if (equalui(n,p))
+    GEN pr = gel(P,i), Ej = gen_1;
+    long p = itos(pr_get_p(pr));
+    if (p == n)
     {
       long e = pr_get_e(pr); /* 1 + [e*p/(p-1)] */
-      gcoeff(cond,i,2) = addiu(divii(mulsi(e,p),subis(p,1)), 1);
+      Ej = utoipos(1 + (e*p) / (p-1));
     }
     else
     {
-      long f = pr_get_f(pr), q = umodiu(p,n);
-      q = Fl_powu(q,f,n);
-      gcoeff(cond,i,2) = stoi(q==1);
+      long f = pr_get_f(pr);
+      if (Fl_powu(p % n, f, n) != 1) continue;
     }
+    gel(P,j) = pr;
+    gel(E,j) = Ej; j++;
   }
-  cond = idealfactorback(nf, cond, NULL, 0);
+  setlg(P,j);
+  setlg(E,j);
   cond = mkvec2(cond, const_vec(r1, gen_1));
   bnr = bnrinit0(Buchall(nf, 0, prec), cond, 0);
   cyc = bnr_get_cyc(bnr);
@@ -12659,7 +12664,7 @@ search_solvable(GEN LG, GEN mf, GEN F, long prec)
     GEN G = gel(LG,i);
     long n = G[1], k = G[2];
     nf = nfinit0(mkvec2(pol,Nfa), 2, prec);
-    pol = search_abelian(nf, n, k, N, Nfa, mf, CHI, F, &P, &O, &bound, prec);
+    pol = search_abelian(nf, n, k, N, CHI, F, &P, &O, &bound, prec);
     setvarn(pol,v);
   }
   delete_var(); setvarn(pol,0); return pol;
