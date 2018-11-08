@@ -787,8 +787,7 @@ add_scal(GEN y, GEN x, long ty)
 static GEN
 addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
 {
-  pari_sp av = avma;
-  set_avma(av);
+  pari_sp av0 = avma;
   GEN x1 = gel(x,1), x2 = gel(x,2), z = cgetg(3,t_FRAC);
   GEN y1 = gel(y,1), y2 = gel(y,2), q, r, n, d, delta;
   int s = cmpii(x2, y2);
@@ -796,15 +795,15 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
   if (!s)
   { /* common denominator: (x1 op y1) / x2 */
     n = op(x1, y1);
-    if (!signe(n)) { set_avma(av); return gen_0; }
+    if (!signe(n)) { set_avma(av0); return gen_0; }
     d = x2;
     q = dvmdii(n, d, &r);
-    if (r == gen_0) { set_avma(av); return icopy(q); }
+    if (r == gen_0) { set_avma(av0); return icopy(q); }
     r = gcdii(d, r);
     if (!equali1(r)) { n = diviiexact(n, r); d = diviiexact(d, r); }
-    gel(z,1) = icopy_avma(n, (pari_sp)z);
-    gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
-    set_avma((pari_sp)gel(z,2)); return z;
+    set_avma((pari_sp)z);
+    gel(z,1) = icopy(n);
+    gel(z,2) = icopy(d); return z;
   }
   if (s < 0)
   {
@@ -821,10 +820,9 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
       }
       r = gcdii(x2, r);
       if (!equali1(r)) { n = diviiexact(n, r); x2 = diviiexact(x2, r); }
-      d = mulii(x2,Q);
-      gel(z,1) = icopy_avma(n, (pari_sp)z);
-      gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
-      set_avma((pari_sp)gel(z,2)); return z;
+      d = mulii(x2,Q); set_avma((pari_sp)z);
+      gel(z,1) = icopy(n);
+      gel(z,2) = icopy(d); return z;
     }
     delta = gcdii(x2,r);
   }
@@ -843,10 +841,9 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
       }
       r = gcdii(y2, r);
       if (!equali1(r)) { n = diviiexact(n, r); y2 = diviiexact(y2, r); }
-      d = mulii(y2,Q);
-      gel(z,1) = icopy_avma(n, (pari_sp)z);
-      gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
-      set_avma((pari_sp)gel(z,2)); return z;
+      d = mulii(y2,Q); set_avma((pari_sp)z);
+      gel(z,1) = icopy(n);
+      gel(z,2) = icopy(d); return z;
     }
     delta = gcdii(y2,r);
   }
@@ -859,12 +856,12 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
   x2 = diviiexact(x2,delta);
   y2 = diviiexact(y2,delta);
   n = op(mulii(x1,y2), mulii(y1,x2));
-  if (!signe(n)) { set_avma(av); return gen_0; }
+  if (!signe(n)) { set_avma(av0); return gen_0; }
   d = mulii(x2, y2);
   q = dvmdii(n, delta, &r);
   if (r == gen_0)
   {
-    if (equali1(d)) { set_avma(av); return icopy(q); }
+    if (equali1(d)) { set_avma(av0); return icopy(q); }
     set_avma((pari_sp)z);
     gel(z,2) = icopy(d);
     gel(z,1) = icopy(q); return z;
