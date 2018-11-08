@@ -30,11 +30,9 @@ ell2(a,B,N)=iferr(ell(a,B,N),err,return(gcd(lift(component(err,2)),N)),errname(e
 ecm2(N,t,B)=my(z);parfirst(a->ell2(a,B,N),[1..t])[2];
 ecm2(2^101-1,500,600!)
 uninline();
-inline(chkell);
 chkell(n)=a->my(E=ellinit([1,0,0,0,ffgen(2^n)^a]),N=ellcard(E)/4);if(isprime(N),N);
 ellp(n)=parfirst(chkell(n),[1..10000]);
 ellp(128)
-uninline();
 
 my(N=1);until(type(A)=="t_ERROR",A=alarm(1,parfor(i=1,10,for(i=1,N,isprime(i))));N*=2);
 
