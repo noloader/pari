@@ -27,6 +27,7 @@ Doc: \var{mf} being an \kbd{mf} output by \kbd{mfinit} in weight $1$,
  ? factor(nfdisc(pol4))
  %8 =
  [ 2 4]
+
  [31 2]
 
  \\ S4 example
@@ -38,12 +39,13 @@ Doc: \var{mf} being an \kbd{mf} output by \kbd{mfinit} in weight $1$,
  %12 = x^24 + 66*x^22 + 849*x^20 + ... + 357375600481
  ? G = galoisinit(pol); galoisidentify(G)
  %13 = [24, 12] \\S4
- ? pol4 = polredbest(galoisfixedfield(G,G.gen[3..4])[1])
+ ? pol4 = polredbest(galoisfixedfield(G,G.gen[3..4], 1))
  %14 = x^4 - x^3 + 5*x^2 - 7*x + 12
  ? polgalois(pol4)
  %15 = [24, -1, 1, "S4"]
  ? factor(nfdisc(pol4))
  %16 =
  [ 2 2]
+
  [37 3]
  @eprog
