@@ -46,6 +46,7 @@ BA  34- [mpi] setting nbthreads in .gprc could lead to crashes.
     35- accuracy too large in derivnum => slowdown
     36- nfisincl(x^5-x^4+x^3-2*x^2+3*x-1,x^20+x^15+x^10+x^5+1) -> SEGV
     37- stack corruption in addsub_frac
+    38- polylog computed result with lower accuracy than requested
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
