@@ -403,7 +403,7 @@ read_main(const char *s)
     else z = gp_main_loop(0);
   }
   if (!z) err_printf("... skipping file '%s'\n", s);
-  avma = pari_mainstack->top;
+  set_avma(pari_mainstack->top);
 }
 
 static const char *
@@ -427,7 +427,7 @@ break_loop(int numerr)
   pari_sp av;
 
   if (numerr == e_SYNTAX) return 0;
-  if (numerr == e_STACK) { evalstate_clone(); avma = pari_mainstack->top; }
+  if (numerr == e_STACK) { evalstate_clone(); set_avma(pari_mainstack->top); }
   gp_context_save(&rec1);
 
   b = filtered_buffer(&F);
