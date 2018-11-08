@@ -166,7 +166,7 @@ static GEN
 add_intmod_same(GEN z, GEN X, GEN x, GEN y) {
   if (lgefint(X) == 3) {
     ulong u = Fl_add(itou(x),itou(y), X[2]);
-    avma = (pari_sp)z; gel(z,2) = utoi(u);
+    set_avma((pari_sp)z); gel(z,2) = utoi(u);
   }
   else {
     GEN u = addii(x,y); if (cmpii(u, X) >= 0) u = subii(u, X);
@@ -178,7 +178,7 @@ static GEN
 sub_intmod_same(GEN z, GEN X, GEN x, GEN y) {
   if (lgefint(X) == 3) {
     ulong u = Fl_sub(itou(x),itou(y), X[2]);
-    avma = (pari_sp)z; gel(z,2) = utoi(u);
+    set_avma((pari_sp)z); gel(z,2) = utoi(u);
   }
   else {
     GEN u = subii(x,y); if (signe(u) < 0) u = addii(u, X);
@@ -191,7 +191,7 @@ static GEN
 mul_intmod_same(GEN z, GEN X, GEN x, GEN y) {
   if (lgefint(X) == 3) {
     ulong u = Fl_mul(itou(x),itou(y), X[2]);
-    avma = (pari_sp)z; gel(z,2) = utoi(u);
+    set_avma((pari_sp)z); gel(z,2) = utoi(u);
   }
   else
     gel(z,2) = gerepileuptoint((pari_sp)z, remii(mulii(x,y), X) );
@@ -203,7 +203,7 @@ div_intmod_same(GEN z, GEN X, GEN x, GEN y)
 {
   if (lgefint(X) == 3) {
     ulong m = uel(X,2), u = Fl_div(itou(x), itou(y), m);
-    avma = (pari_sp)z; gel(z,2) = utoi(u);
+    set_avma((pari_sp)z); gel(z,2) = utoi(u);
   }
   else
     gel(z,2) = gerepileuptoint((pari_sp)z, remii(mulii(x, Fp_inv(y,X)), X) );
@@ -788,6 +788,7 @@ static GEN
 addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
 {
   pari_sp av = avma;
+  set_avma(av);
   GEN x1 = gel(x,1), x2 = gel(x,2), z = cgetg(3,t_FRAC);
   GEN y1 = gel(y,1), y2 = gel(y,2), q, r, n, d, delta;
   int s = cmpii(x2, y2);
@@ -803,7 +804,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
     if (!equali1(r)) { n = diviiexact(n, r); d = diviiexact(d, r); }
     gel(z,1) = icopy_avma(n, (pari_sp)z);
     gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
-    avma = (pari_sp)gel(z,2); return z;
+    set_avma((pari_sp)gel(z,2)); return z;
   }
   if (s < 0)
   {
@@ -823,7 +824,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
       d = mulii(x2,Q);
       gel(z,1) = icopy_avma(n, (pari_sp)z);
       gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
-      avma = (pari_sp)gel(z,2); return z;
+      set_avma((pari_sp)gel(z,2)); return z;
     }
     delta = gcdii(x2,r);
   }
@@ -845,7 +846,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
       d = mulii(y2,Q);
       gel(z,1) = icopy_avma(n, (pari_sp)z);
       gel(z,2) = icopy_avma(d, (pari_sp)gel(z,1));
-      avma = (pari_sp)gel(z,2); return z;
+      set_avma((pari_sp)gel(z,2)); return z;
     }
     delta = gcdii(y2,r);
   }
@@ -864,7 +865,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
   if (r == gen_0)
   {
     if (equali1(d)) { set_avma(av); return icopy(q); }
-    avma = (pari_sp)z;
+    set_avma((pari_sp)z);
     gel(z,2) = icopy(d);
     gel(z,1) = icopy(q); return z;
   }
@@ -874,7 +875,7 @@ addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN))
     n     = diviiexact(n, r);
     delta = diviiexact(delta, r);
   }
-  d = mulii(d,delta); avma = (pari_sp)z;
+  d = mulii(d,delta); set_avma((pari_sp)z);
   gel(z,1) = icopy(n);
   gel(z,2) = icopy(d); return z;
 }
@@ -950,7 +951,7 @@ gadd(GEN x, GEN y)
       gel(z,2) = gadd(gel(x,2),gel(y,2));
       if (isintzero(gel(z,2)))
       {
-        avma = (pari_sp)(z+3);
+        set_avma((pari_sp)(z+3));
         return gadd(gel(x,1),gel(y,1));
       }
       gel(z,1) = gadd(gel(x,1),gel(y,1));
@@ -1255,7 +1256,7 @@ gsub(GEN x, GEN y)
       gel(z,2) = gsub(gel(x,2),gel(y,2));
       if (isintzero(gel(z,2)))
       {
-        avma = (pari_sp)(z+3);
+        set_avma((pari_sp)(z+3));
         return gsub(gel(x,1),gel(y,1));
       }
       gel(z,1) = gsub(gel(x,1),gel(y,1));
@@ -1888,7 +1889,7 @@ gmul(GEN x, GEN y)
           p1 = gcdii(x,gel(y,2));
           if (equali1(p1))
           {
-            avma = (pari_sp)z;
+            set_avma((pari_sp)z);
             gel(z,2) = icopy(gel(y,2));
             gel(z,1) = mulii(gel(y,1), x);
           }
@@ -2540,7 +2541,7 @@ gdiv(GEN x, GEN y)
         z = cgetg(3,t_FRAC); p1 = gcdii(x,gel(y,1));
         if (equali1(p1))
         {
-          avma = (pari_sp)z;
+          set_avma((pari_sp)z);
           gel(z,2) = icopy(gel(y,1));
           gel(z,1) = mulii(gel(y,2), x);
           normalize_frac(z);
@@ -2621,7 +2622,7 @@ gdiv(GEN x, GEN y)
         p1 = gcdii(y,gel(x,1));
         if (equali1(p1))
         {
-          avma = (pari_sp)z; tetpil = 0;
+          set_avma((pari_sp)z); tetpil = 0;
           gel(z,1) = icopy(gel(x,1));
         }
         else
