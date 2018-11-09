@@ -622,10 +622,10 @@ _can_invd(void *E, GEN V, GEN v, GEN q, long M)
 }
 
 /* Lift P to Q such that Q(x^2)=Q(x)*Q(-x) mod 2^n
-   if Q = Q0(X^2)+X*Q1(X^2), solve Q(x^2) = Q0^2-X*Q1^2
+   if Q = Q0(X^2)+X*Q1(X^2), solve Q(X^2) = Q0^2-X*Q1^2
 */
-static GEN
-F2x_canonlift(GEN P, long n)
+GEN
+F2x_Teichmuller(GEN P, long n)
 { return gen_ZpX_Newton(F2x_to_ZX(P),gen_2, n, NULL, _can_iter, _can_invd); }
 
 static GEN
@@ -774,7 +774,7 @@ F2xq_elltrace_Harley(GEN a6, GEN T2)
   sqx = mkvec2(F2xq_sqrt(polx_F2x(T2[1]),T2), T2);
   if (DEBUGLEVEL>1) timer_printf(&ti,"Sqrtx");
   ispcyc = zx_is_pcyc(F2x_to_Flx(T2));
-  T = ispcyc? F2x_to_ZX(T2): F2x_canonlift(T2, N-2);
+  T = ispcyc? F2x_to_ZX(T2): F2x_Teichmuller(T2, N-2);
   if (DEBUGLEVEL>1) timer_printf(&ti,"Teich");
   T = FpX_get_red(T, int2n(N));
   if (DEBUGLEVEL>1) timer_printf(&ti,"Barrett");

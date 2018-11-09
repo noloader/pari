@@ -202,6 +202,7 @@ GEN     random_F2xqX(long d1, long v, GEN T);
 
 /* F2xqE.c */
 
+GEN     F2x_Teichmuller(GEN P, long n);
 GEN     F2xq_ellcard(GEN a2, GEN a6, GEN T);
 GEN     F2xq_ellgens(GEN a2, GEN a6, GEN ch, GEN D, GEN m, GEN T);
 GEN     F2xq_ellgroup(GEN a2, GEN a6, GEN N, GEN T, GEN *pt_m);
