@@ -680,7 +680,7 @@ rnfidealup0(GEN rnf,GEN x, long flag)
   (void)idealtyp(&x, &d); /* d is junk */
   x2 = idealtwoelt(nf,x);
   x2 = Q_remove_denom(x2,&d);
-  gel(x2,2) = ZM_ZC_mul(gel(proj,1),gel(x2,2));
+  if(!isintzero(gel(x2,2))) gel(x2,2) = ZM_ZC_mul(gel(proj,1),gel(x2,2));
   x2 = idealhnf_two(NF, x2);
   if (d) x2 = gdiv(x2,d);
   return gerepileupto(av, x2);

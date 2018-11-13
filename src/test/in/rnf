@@ -205,3 +205,9 @@ rnfislocalcyclo(rnfinit(K, x^6-y+1))
 \\#1530
 L=rnfinit(nfinit(y^2-3),x^2+23);
 rnfidealtwoelt(L, [[1;0], [1/104]])
+
+\\#2093
+nf = nfinit(y);
+rnf = rnfinit(nf,x^2+5);
+rnfidealup(rnf,Mat(3),1);
+
