@@ -797,11 +797,19 @@ rnfequationall(GEN A, GEN B, long *pk, GEN *pLPRS)
   B = RgX_nffix("rnfequation", A,B,1); lB = lg(B);
   if (lB<=3) pari_err_CONSTPOL("rnfequation");
   B = Q_primpart(B);
-
+  *pk = 0;
+  if (degpol(B) == 1)
+  { /* make sure we return C = A, else polabs and in nf.pol can't be
+     * distinguished in rnf structures (same degree). Not a problem if they
+     * are equal */
+    long v = varn(B);
+    if (pLPRS) { *pLPRS = mkvec2(pol_x(v), scalarpol_shallow(gen_m1,v)); }
+    C = leafcopy(A); setvarn(C, v); return C;
+  }
   if (!nfissquarefree(A,B))
     pari_err_DOMAIN("rnfequation","issquarefree(B)","=",gen_0,B);
 
-  *pk = 0; C = ZX_ZXY_resultant_all(A, B, pk, pLPRS);
+  C = ZX_ZXY_resultant_all(A, B, pk, pLPRS);
   if (signe(leading_coeff(C)) < 0) C = ZX_neg(C);
   *pk = -*pk; return Q_primpart(C);
 }

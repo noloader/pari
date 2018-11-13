@@ -463,6 +463,7 @@ Mod(1, x^2 - 2)
 1
 [[3, [0, 1, 0, 0, 0, 0]~, 6, 1]]
 [[[7, [0, 1, 0]~, 3, 1]], [[7, [0, 1, 0, 0, 0, 0]~, 6, 1]]]
+[[89, [21, 1, 0]~, 1, 1, [17, -1, 22; -21, -4, -1; 1, -21, 17]]]
 
 [[7, [0, 1, 0, 0, 0, 0]~, 6, 1] 6]
 
@@ -833,4 +834,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfidealtwoelt(L,[[1;0],[1/104]])
   ***                 ^---------------------------------
   *** rnfidealtwoelt: incorrect type in idealtyp [non-square t_MAT] (t_MAT).
-Total time spent: 782
+Total time spent: 733
