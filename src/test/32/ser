@@ -65,6 +65,11 @@ O(x^3)
 x + O(x^4)
 O(x^3)
 x + x^2 + O(x^3)
+O(x^2)
+O(x^0)
+O(x^0)
+O(x^-1)
+O(x^0)
 y + x + O(x^2)
 (y + O(y^17)) + (1 + O(y^16))*x + O(x^2)
 Mod(0, 7)*x^15 + O(x^16)
@@ -159,4 +164,4 @@ O(x^18)
   ***   at top-level: laurentseries((x,y)->1)
   ***                 ^-----------------------
   *** laurentseries: incorrect type in laurentseries (t_CLOSURE).
-Total time spent: 11
+Total time spent: 16

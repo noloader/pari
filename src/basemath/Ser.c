@@ -24,7 +24,7 @@ RgX_to_ser_i(GEN x, long l, long lx, long v, int copy)
   GEN y;
   long i;
   if (lx == 2) return zeroser(varn(x), l-2);
-  if (l <= 2) pari_err_BUG("RgX_to_ser (l <= 2)");
+  if (l < 2) pari_err_BUG("RgX_to_ser (l < 2)");
   y = cgetg(l,t_SER); y[1] = x[1];
   /* e.g. Mod(0,3) * x^0 */
   if (v == LONG_MAX) { v = 1; lx = 3; } else { x += v; lx = minss(lx-v, l); }
@@ -54,7 +54,15 @@ RgX_to_ser_inexact(GEN x, long l)
 }
 GEN
 rfrac_to_ser(GEN x, long l)
-{ return gdiv(gel(x,1), RgX_to_ser(gel(x,2), l)); }
+{
+  GEN d = gel(x,2);
+  if (l == 2)
+  {
+    long v = varn(d);
+    return zeroser(varn(d), gvaluation(x, pol_x(v)));
+  }
+  return gdiv(gel(x,1), RgX_to_ser(d, l));
+}
 
 static GEN
 RgV_to_ser_i(GEN x, long v, long l, int copy)

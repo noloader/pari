@@ -48,6 +48,7 @@ BA  34- [mpi] setting nbthreads in .gprc could lead to crashes.
     37- stack corruption in addsub_frac
     38- polylog computed result with lower accuracy than requested
     39- rnfinit(K, pol. of degree 1) was not properly supported
+    40- Ser(x,x,0) -> error instead of O(x) [#2092]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
