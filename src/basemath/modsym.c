@@ -4616,8 +4616,19 @@ Ast2v(GEN Ast)
 static GEN
 M2Q(GEN p) { GEN c = gel(p,1); return gdiv(gel(c,1), gel(c,2)); }
 
+static void
+maybe_decorate(pari_str *s, GEN Ast, GEN G, long k, double c)
+{
+  GEN g;
+  if (Ast[k] != k) return;
+  g = ZM_sqr(gel(G,k));
+  if (gequal1(g) || gequalm1(g)) /* \pm Id */
+    str_printf(s, " node [midway] {$\\circ$}\n");
+  else
+    str_printf(s, ";\n \\draw (start) arc (180:60:%.4f) node {$\\bullet$} arc (120:0:%.4f)\n",2*c/3,2*c/3);
+}
 static GEN
-polygon2tex(GEN V, GEN Ast)
+polygon2tex(GEN V, GEN Ast, GEN G)
 {
   pari_sp av = avma;
   GEN v = Ast2v(Ast);
@@ -4633,19 +4644,20 @@ polygon2tex(GEN V, GEN Ast)
     GEN a = M2Q(gel(V,j-1)), b = M2Q(gel(V,j));
     c = gtodouble(gsub(b,a)) / 2;
 
-    str_printf(&s, "arc (180:0:%.4f)\n", c);
+    str_printf(&s, "node (start) {} arc (180:0:%.4f)\n", c);
     if (flag)
     {
       long sb = itos(numer_i(b));
       long sa = itos(denom_i(a));
-      str_printf(&s,
-        "node [midway, above] {%s} node [below]{$\\frac{%ld}{%ld}$}\n",
-        (char*)gel(v,j-1), sb, sa);
+      str_printf(&s, "node [midway, above] {%s} node [below]{$\\frac{%ld}{%ld}$}\n",
+                 (char*)gel(v,j-1), sb, sa);
     }
+    maybe_decorate(&s,Ast,G,j-1,c);
   }
   c = (1- gtodouble(M2Q(gel(V,l-1)))) / 2;
-  str_printf(&s, "arc (180:0:%.4f)\n", c);
+  str_printf(&s, "node (start) {} arc (180:0:%.4f)\n", c);
   if (flag) str_printf(&s, "node [midway, above] {%s}", (char*)gel(v,l-1));
+  maybe_decorate(&s,Ast,G,l-1,c);
   str_printf(&s,"node [below] {$1$} -- (1,0.5) node [very near end, left] {$1$};");
   str_printf(&s, "\n\\end{tikzpicture}");
   return gerepileuptoleaf(av, strtoGENstr(s.string));
@@ -4735,7 +4747,7 @@ mspolygon(GEN M, long flag)
     for (i = 1; i < l; i++) gel(G,i) = get_g(&T, i);
   }
   if (flag & 2)
-    v = mkvec5(T.V, T.Ast, G, polygon2tex(T.V,T.Ast), circle2tex(T.Ast,G));
+    v = mkvec5(T.V, T.Ast, G, polygon2tex(T.V,T.Ast,G), circle2tex(T.Ast,G));
   else
     v = mkvec3(T.V, T.Ast, G);
   return gerepilecopy(av, v);
