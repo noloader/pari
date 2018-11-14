@@ -241,10 +241,19 @@ static GEN
 RgXY_factor_squarefree(GEN f, GEN dom)
 {
   pari_sp av = avma;
-  GEN Lfac, Lmod, F = NULL, BLOC = NULL;
-  long vy = gvar2(f), n = RgXY_degreex(f);
   ulong i, c = itou_or_0(residual_characteristic(f));
-  long val = RgX_valrem(f, &f);
+  long vy = gvar2(f), val = RgX_valrem(f, &f), n = RgXY_degreex(f);
+  GEN Lmod, F = NULL, BLOC = NULL, Lfac = coltrunc_init(degpol(f)+2);
+  if (val)
+  {
+    GEN x = pol_x(varn(f));
+    if (dom)
+    {
+      GEN c = Rg_get_1(dom);
+      if (typ(c) != t_INT) x = RgX_Rg_mul(x, c);
+    }
+    vectrunc_append(Lfac, x); if (!degpol(f)) return Lfac;
+  }
   for(;;)
   {
     for (i = 0; !c || i < c; i++)
@@ -261,17 +270,8 @@ RgXY_factor_squarefree(GEN f, GEN dom)
   Lmod = gel(factor_domain(F,dom),1);
   if (DEBUGLEVEL >= 2)
     err_printf("bifactor: %ld local factors\n",lg(Lmod)-1);
-  Lfac = vectrunc_init(lg(Lmod)+1);
-  settyp(Lfac, t_COL);
   (void)RgX_cmbf(NULL, 1, BLOC, Lmod, Lfac, &f);
   if (degpol(f)) vectrunc_append(Lfac, f);
-  if (val)
-  {
-    GEN x = pol_x(varn(f)), c = NULL;
-    if (dom) { c = Rg_get_1(dom); if (typ(c) == t_INT) c = NULL; }
-    if (c) x = RgX_Rg_mul(x, c);
-    vectrunc_append(Lfac, x);
-  }
   return gerepilecopy(av, Lfac);
 }
 
