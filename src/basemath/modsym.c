@@ -4648,7 +4648,7 @@ polygon2tex(GEN V, GEN Ast, GEN G)
     if (flag)
     {
       long sb = itos(numer_i(b));
-      long sa = itos(denom_i(a));
+      long sa = itos(denom_i(b));
       str_printf(&s, "node [midway, above] {%s} node [below]{$\\frac{%ld}{%ld}$}\n",
                  (char*)gel(v,j-1), sb, sa);
     }
