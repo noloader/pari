@@ -2035,12 +2035,10 @@ ratpolemax(GEN F)
 }
 /* max (1, |poles|, |zeros|), sets *p = max(1, |poles|)) */
 static double
-ratpolemax2(GEN F, double *p)
+ratpolemax2(GEN F)
 {
-  double t;
-  if (typ(F) == t_POL) { if (p) *p = 1.0; return polmax(F); }
-  t = polmax(gel(F,2)); if (p) *p = t;
-  return maxdd(t, polmax(gel(F,1)));
+  if (typ(F) == t_POL) return polmax(F);
+  return maxdd(polmax(gel(F,1)), polmax(gel(F,2)));
 }
 
 static GEN
@@ -2215,7 +2213,7 @@ prodnumrat(GEN F, long a, long prec)
   if (poldegree(F1,-1) > -2) pari_err(e_MISC, "product diverges in prodnumrat");
   vx = varn(gel(F,2));
   if (a) F = gsubst(F, vx, gaddgs(pol_x(vx), a));
-  r = ratpolemax2(F, NULL);
+  r = ratpolemax2(F);
   get_kN((long)ceil(r), B, &k,&N);
   G = gdiv(deriv(F, vx), F);
   intf = intnumainfrat(gmul(pol_x(vx),G), N, r, prec);
@@ -2287,17 +2285,18 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
       if (gequal0(F)) return real_0(prec);
     default: pari_err_TYPE("sumeulerrat",F);
   }
+  /* F t_RFRAC */
   if (!s) s = gen_1;
   if (a < 2) a = 2;
   vx = varn(gel(F,2));
   vF = -poldegree(F, -1);
   rs = gtodouble(real_i(s));
-  r = ratpolemax(F);
-  RS = maxdd(1./vF, log2(r) / log2((double)a));
+  r = 1 / polmax(gel(F,2));
+  N = maxss(30, a);
+  RS = maxdd(1./vF, -log2(r) / log2((double)N));
   if (rs <= RS)
     pari_err_DOMAIN("sumeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  N = maxss(maxss(30, a), (long)ceil(2*r));
-  lim = (long)ceil(B / (rs*log2((double)N) - log2(r))) + 1;
+  lim = (long)ceil(B / (rs*log2((double)N) + log2(r))) + 1;
   ser = gmul(real_1(prec + EXTRAPREC), F);
   ser = rfracrecip_to_ser_absolute(ser, lim);
   res = sumlogzeta(ser, s, rs, N, vF, lim, prec);
@@ -2314,7 +2313,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   pari_sp ltop = avma;
   forprime_t T;
   GEN F1, ser, res;
-  double r, r1, rs, RS;
+  double r, rs, RS;
   long B = prec2nbits(prec), vx = gvar(F), vF, p, N, lim;
 
   F1 = gsubgs(F, 1);
@@ -2325,15 +2324,16 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
       if (gequal0(F1)) return real_1(prec);
     default: pari_err_TYPE("prodeulerrat",F);
   }
+  /* F t_RFRAC */
   if (!s) s = gen_1;
   vF = -poldegree(F1, -1);
   rs = gtodouble(real_i(s));
-  r = ratpolemax2(F, &r1);
-  RS = maxdd(1./vF, log2(r1) / log2((double)a));
+  r = 1 / maxdd(polmax(gel(F,1)), polmax(gel(F,2)));
+  N = maxss(30, a);
+  RS = maxdd(1./vF, -log2(r) / log2((double)N));
   if (rs <= RS)
     pari_err_DOMAIN("prodeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  N = maxss(maxss(30, a), (long)ceil(2*r));
-  lim = (long)ceil(B / (rs*log2((double)N) - log2(r))) + 1;
+  lim = (long)ceil(B / (rs*log2((double)N) + log2(r))) + 1;
   ser = gmul(real_1(prec + EXTRAPREC), F1);
   ser = gaddsg(1, rfracrecip_to_ser_absolute(ser, lim));
   ser = glog(ser, 0);
