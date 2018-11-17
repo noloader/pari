@@ -58,7 +58,7 @@ checkbnf_i(GEN X)
         if (typ(gel(X,6)) != t_INT) return NULL; /* pre-2.2.4 format */
         if (lg(gel(X,10)) != 4) return NULL; /* pre-2.8.1 format */
         return X;
-      case 7:  return checkbnf_i(bnr_get_bnf(X));
+      case 7: return checkbnf_i(bnr_get_bnf(X));
     }
   return NULL;
 }
