@@ -49,7 +49,7 @@ checkalg_i(GEN al)
   rnf = alg_get_splittingfield(al);
   if (isintzero(rnf) || !gequal0(alg_get_char(al))) return 1;
   if (typ(gel(al,2)) != t_VEC || lg(gel(al,2)) == 1) return 0;
-/* return checkrnf_i(rnf); broken: FIXME !!! */
+  /* not checkrnf_i: beware placeholder from alg_csa_table */
   return typ(rnf)==t_VEC && lg(rnf)==13;
 }
 void
