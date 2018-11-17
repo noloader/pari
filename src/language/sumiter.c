@@ -1901,10 +1901,7 @@ limit_init(struct limit *L, void *E, GEN (*f)(void*,GEN,long),
 /* Zagier/Lagrange extrapolation */
 static GEN
 limitnum_i(struct limit *L)
-{
-  GEN S = RgV_dotproduct(L->u,L->coef);
-  return gprec_w(S, L->prec0);
-}
+{ return gprec_w(RgV_dotproduct(L->u,L->coef), L->prec0); }
 GEN
 limitnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long prec)
 {
@@ -1943,9 +1940,8 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long prec)
   u = L.u;
   for(i = 1; i <= MAX; i++)
   {
-    GEN a, s, v, q;
+    GEN a, v, q, s = limitnum_i(&L);
     long n;
-    s = limitnum_i(&L);
     /* NOT bestappr: lindep properly ignores the lower bits */
     v = lindep_bit(mkvec2(gen_1, s), maxss((long)(0.95*floor(B - i*LB)), 32));
     if (lg(v) == 1) break;
