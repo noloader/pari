@@ -4737,7 +4737,7 @@ algcenter_p_projs(GEN al, GEN p, GEN pre)
 
 /* al is assumed to be simple */
 static GEN
-alg_pmaximal_i(GEN al, GEN p)
+alg_pmaximal(GEN al, GEN p)
 {
   GEN al2, prad, lord = gen_0, I, id, dec, zprad, projs, pre;
   long n, i;
@@ -4776,12 +4776,6 @@ alg_pmaximal_i(GEN al, GEN p)
   }
   return al2;
 }
-static GEN
-alg_pmaximal(GEN al, GEN p)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, alg_pmaximal_i(al, p));
-}
 
 static GEN
 algtracematrix(GEN al)
@@ -4799,19 +4793,19 @@ algtracematrix(GEN al)
   }
   return M;
 }
+static GEN
+algdisc_i(GEN al) { return ZM_det(algtracematrix(al)); }
 GEN
 algdisc(GEN al)
 {
   pari_sp av = avma;
-  checkalg(al);
-  return gerepileuptoint(av, ZM_det(algtracematrix(al)));
+  checkalg(al); return gerepileuptoint(av, algdisc_i(al));
 }
 static GEN
 alg_maximal(GEN al)
 {
-  pari_sp av = avma;
-  GEN fa = absZ_factor(algdisc(al));
-  return gerepilecopy(av, alg_maximal_primes(al, gel(fa,1)));
+  GEN fa = absZ_factor(algdisc_i(al));
+  return alg_maximal_primes(al, gel(fa,1));
 }
 
 /** LATTICES **/
