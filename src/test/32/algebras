@@ -1889,13 +1889,13 @@ testing simplify: quatalg csa over Q
   *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
   ***   at top-level: algsqr([[],[0],0,0,0,0,0,0,[[;]],0,0],[]~)
   ***                 ^------------------------------------------
-  *** algsqr: incorrect type in checkrnf (t_VEC).
+  *** algsqr: incorrect type in checkalg [please apply alginit()] (t_VEC).
   ***   at top-level: algdim([[],[0],0,0,0,0,0,0,[[;]],0,0])
   ***                 ^--------------------------------------
-  *** algdim: incorrect type in checkrnf (t_VEC).
+  *** algdim: incorrect type in checkalg [please apply alginit()] (t_VEC).
   ***   at top-level: algdegree([[],[0],0,0,0,0,0,0,[[;]],0,0])
   ***                 ^-----------------------------------------
-  *** algdegree: incorrect type in checkrnf (t_VEC).
+  *** algdegree: incorrect type in checkalg [please apply alginit()] (t_VEC).
   ***   at top-level: algdegree([rnfinit(nfinit(y),x),[[]],0,0,0,0,0
   ***                 ^----------------------------------------------
   *** algdegree: incorrect type in alg_get_degree [use alginit] (t_VEC).
@@ -2424,4 +2424,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
   *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-Total time spent: 1951
+Total time spent: 1957

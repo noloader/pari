@@ -212,4 +212,5 @@ rnfidealtwoelt(L, [[1;0], [1/104]])
 nf = nfinit(y);
 rnf = rnfinit(nf,x^2+5);
 rnfidealup(rnf,Mat(3),1);
-
+bnfinit(rnf)
+k=bnfcompress(bnfinit(x));rnfeltup(k,x,0)

@@ -50,6 +50,7 @@ BA  34- [mpi] setting nbthreads in .gprc could lead to crashes.
     39- rnfinit(K, pol. of degree 1) was not properly supported
     40- Ser(x,x,0) -> error instead of O(x) [#2092]
     41- factor(3/(x^5+3*y*x^4+3*y^2*x^3+y^3*x^2)) -> SEGV
+    42- output from bnfcompress() mistaken for rnf and vice-versa
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

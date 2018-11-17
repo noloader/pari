@@ -3700,7 +3700,8 @@ bnfinit0(GEN P, long flag, GEN data, long prec)
   double c1 = BNF_C1, c2 = BNF_C2;
   long fl, relpid = BNF_RELPID;
 
-  if (typ(P) == t_VEC && lg(P) == 13) return sbnf2bnf(P, prec); /* sbnf */
+  if (typ(P) == t_VEC && lg(P) == 13 && typ(gel(P,3)) == t_INT)
+    return sbnf2bnf(P, prec); /* sbnf (FIXME: obsolete) */
   if (data)
   {
     long lx = lg(data);

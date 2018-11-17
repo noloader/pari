@@ -42,15 +42,15 @@ static GEN algbasismultable_Flm(GEN mt, GEN x, ulong m);
 static int
 checkalg_i(GEN al)
 {
-  GEN mt;
+  GEN mt, rnf;
   if (typ(al) != t_VEC || lg(al) != 12) return 0;
   mt = alg_get_multable(al);
   if (typ(mt) != t_VEC || lg(mt) == 1 || typ(gel(mt,1)) != t_MAT) return 0;
-  if (!isintzero(alg_get_splittingfield(al)) && gequal0(alg_get_char(al))) {
-    if (typ(gel(al,2)) != t_VEC || lg(gel(al,2)) == 1) return 0;
-    checkrnf(alg_get_splittingfield(al));
-  }
-  return 1;
+  rnf = alg_get_splittingfield(al);
+  if (isintzero(rnf) || !gequal0(alg_get_char(al))) return 1;
+  if (typ(gel(al,2)) != t_VEC || lg(gel(al,2)) == 1) return 0;
+/* return checkrnf_i(rnf); broken: FIXME !!! */
+  return typ(rnf)==t_VEC && lg(rnf)==13;
 }
 void
 checkalg(GEN al)
@@ -4337,10 +4337,8 @@ alg_csa_table(GEN nf, GEN mt0, long v, long maxord)
   gel(al,8) = matid(D);
   gel(al,9) = algnatmultable(al,D);
   gel(al,11)= algtracebasis(al);
-
   if (maxord) al = alg_maximal(al);
   computesplitting(al, d, v);
-
   return gerepilecopy(av, al);
 }
 

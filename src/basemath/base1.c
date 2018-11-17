@@ -21,9 +21,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 int new_galois_format = 0;
 
+/* v a t_VEC, lg(v) = 13, sanity check for true rnf */
+static int
+v13checkrnf(GEN v)
+{ return typ(gel(v,6)) == t_VEC; } /* false for sbnf from bnfcompress */
+static int
+rawcheckbnf(GEN v) { return typ(v)==t_VEC && lg(v)==11; }
+static int
+rawchecknf(GEN v) { return typ(v)==t_VEC && lg(v)==10; }
+/* v a t_VEC, lg(v) = 11, sanity check for true bnf */
+static int
+v11checkbnf(GEN v) { return rawchecknf(bnf_get_nf(v)); }
+/* v a t_VEC, lg(v) = 10, sanity check for true nf */
+static int
+v10checknf(GEN v) { return typ(gel(v,1))==t_POL; }
+/* v a t_VEC, lg(v) = 9, sanity check for true gal */
+static int
+v9checkgal(GEN v)
+{ GEN x = gel(v,2); return typ(x) == t_VEC && lg(x) == 4; }
+
 int
 checkrnf_i(GEN rnf)
-{ return (typ(rnf)==t_VEC && lg(rnf)==13); }
+{ return (typ(rnf)==t_VEC && lg(rnf)==13 && v13checkrnf(rnf)); }
 
 void
 checkrnf(GEN rnf)
@@ -176,15 +195,21 @@ get_bnf(GEN x, long *t)
                 *t = typ_QUA; return NULL;
         case 6: *t = typv6(x); return NULL;
         case 7:  *t = typ_BNR;
-          x = bnr_get_bnf(x); if (typ(x)!=t_VEC || lg(x)!=11) break;
+          x = bnr_get_bnf(x);
+          if (!rawcheckbnf(x)) break;
           return x;
         case 9:
-          x = gel(x,2);
-          if (typ(x) == t_VEC && lg(x) == 4) *t = typ_GAL;
-          return NULL;
-        case 10: *t = typ_NF; return NULL;
-        case 11: *t = typ_BNF; return x;
-        case 13: *t = typ_RNF; return NULL;
+          if (!v9checkgal(x)) break;
+          *t = typ_GAL; return NULL;
+        case 10:
+          if (!v10checknf(x)) break;
+          *t = typ_NF; return NULL;
+        case 11:
+          if (!v11checkbnf(x)) break;
+          *t = typ_BNF; return x;
+        case 13:
+          if (!v13checkrnf(x)) break;
+          *t = typ_RNF; return NULL;
         case 17: *t = typ_ELL; return NULL;
       }
       break;
@@ -212,19 +237,22 @@ get_nf(GEN x, long *t)
           if (typ(gel(x,1)) != t_INT) break;
           *t = typ_QUA; return NULL;
         case 6: *t = typv6(x); return NULL;
-        case 7: *t = typ_BNR;
-          x = bnr_get_bnf(x); if (typ(x)!=t_VEC || lg(x)!=11) break;
-          x = bnf_get_nf(x);  if (typ(x)!=t_VEC || lg(x)!=10) break;
-          return x;
+        case 7:
+          x = bnr_get_bnf(x);
+          if (!rawcheckbnf(x) || !rawchecknf(x = bnf_get_nf(x))) break;
+          *t = typ_BNR; return x;
         case 9:
-          x = gel(x,2);
-          if (typ(x) == t_VEC && lg(x) == 4) *t = typ_GAL;
-          return NULL;
-        case 10: *t = typ_NF; return x;
-        case 11: *t = typ_BNF;
-          x = bnf_get_nf(x); if (typ(x)!=t_VEC || lg(x)!=10) break;
-          return x;
-        case 13: *t = typ_RNF; return NULL;
+          if (!v9checkgal(x)) break;
+          *t = typ_GAL; return NULL;
+        case 10:
+          if (!v10checknf(x)) break;
+          *t = typ_NF; return x;
+        case 11:
+          if (!rawchecknf(x = bnf_get_nf(x))) break;
+          *t = typ_BNF; return x;
+        case 13:
+          if (!v13checkrnf(x)) break;
+          *t = typ_RNF; return NULL;
         case 17: *t = typ_ELL; return NULL;
       }
       break;
@@ -245,22 +273,24 @@ nftyp(GEN x)
     case t_VEC:
       switch(lg(x))
       {
-        case 13: return typ_RNF;
+        case 13:
+          if (!v13checkrnf(x)) break;
+          return typ_RNF;
         case 10:
-          if (typ(gel(x,1))!=t_POL) break;
+          if (!v10checknf(x)) break;
           return typ_NF;
         case 11:
-          x = bnf_get_nf(x); if (typ(x)!=t_VEC || lg(x)!=10) break;
+          if (!v11checkbnf(x)) break;
           return typ_BNF;
         case 7:
-          x = bnr_get_bnf(x); if (typ(x)!=t_VEC || lg(x)!=11) break;
-          x = bnf_get_nf(x);  if (typ(x)!=t_VEC || lg(x)!=10) break;
+          x = bnr_get_bnf(x);
+          if (!rawcheckbnf(x) || !v11checkbnf(x)) break;
           return typ_BNR;
         case 6:
           return typv6(x);
         case 9:
-          x = gel(x,2);
-          if (typ(x) == t_VEC && lg(x) == 4) return typ_GAL;
+          if (!v9checkgal(x)) break;
+          return typ_GAL;
         case 17: return typ_ELL;
       }
   }
