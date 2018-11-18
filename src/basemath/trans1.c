@@ -1433,7 +1433,8 @@ gsqrt(GEN x, long prec)
       y = cgetg(3,t_COMPLEX); av = avma;
 
       r = cxnorm(x);
-      if (typ(r) == t_INTMOD) pari_err_IMPL("sqrt(complex of t_INTMODs)");
+      if (typ(r) == t_INTMOD || typ(r) == t_PADIC)
+        pari_err_IMPL("sqrt(complex of t_INTMODs)");
       r = gsqrt(r, prec); /* t_REAL, |a+Ib| */
       if (!signe(r))
         u = v = gerepileuptoleaf(av, sqrtr(r));

@@ -586,14 +586,22 @@ gasinh(GEN x, long prec)
       if (!signe(x)) return rcopy(x);
       return mpasinh(x);
 
-    case t_COMPLEX:
+    case t_COMPLEX: {
+      GEN a, b, d;
       if (ismpzero(gel(x,2))) return gasinh(gel(x,1), prec);
       av = avma;
       if (ismpzero(gel(x,1))) /* avoid cancellation */
         return gerepilecopy(av, mulcxI(gasin(gel(x,2), prec)));
-      p1 = gadd(x, gsqrt(gaddsg(1,gsqr(x)), prec));
-      y = glog(p1,prec); /* log (x + sqrt(1+x^2)) */
-      return gerepileupto(av, y);
+      d = gsqrt(gaddsg(1,gsqr(x)), prec); /* Re(d) >= 0 */
+      a = gadd(d, x);
+      b = gsub(d, x);
+      /* avoid cancellation as much as possible */
+      if (gprecision(a) < gprecision(b))
+        y = gneg(glog(b,prec));
+      else
+        y = glog(a,prec);
+      return gerepileupto(av, y); /* log (x + sqrt(1+x^2)) */
+    }
     default:
       av = avma; if (!(y = toser_i(x))) break;
       if (gequal0(y)) return gerepilecopy(av, y);
@@ -633,7 +641,7 @@ GEN
 gacosh(GEN x, long prec)
 {
   pari_sp av;
-  GEN y, p1;
+  GEN y;
 
   switch(typ(x))
   {
@@ -652,15 +660,24 @@ gacosh(GEN x, long prec)
       gel(y,1) = a;
       gel(y,2) = b; return y;
     }
-    case t_COMPLEX:
+    case t_COMPLEX: {
+      GEN a, b, d;
       if (ismpzero(gel(x,2))) return gacosh(gel(x,1), prec);
       av = avma;
-      p1 = gadd(x, gsqrt(gaddsg(-1,gsqr(x)), prec));
-      y = glog(p1,prec); /* log(x + sqrt(x^2-1)) */
-      if (signe(real_i(y)) < 0) y = gneg(y);
+      d = gsqrt(gaddsg(-1,gsqr(x)), prec); /* Re(d) >= 0 */
+      a = gadd(x, d);
+      b = gsub(x, d);
+      /* avoid cancellation as much as possible */
+      if (gprecision(a) < gprecision(b))
+        y = glog(b,prec);
+      else
+        y = glog(a,prec);
+      /* y = \pm log(x + sqrt(x^2-1)) */
+      if (gsigne(real_i(y)) < 0) y = gneg(y);
       return gerepileupto(av, y);
+    }
     default: {
-      GEN a;
+      GEN a, d;
       long v;
       av = avma; if (!(y = toser_i(x))) break;
       v = valp(y);
@@ -670,18 +687,18 @@ gacosh(GEN x, long prec)
         if (!v) return gerepilecopy(av, y);
         return gerepileupto(av, gadd(y, PiI2n(-1, prec)));
       }
-      p1 = gsubgs(gsqr(y),1);
-      if (gequal0(p1)) { set_avma(av); return zeroser(varn(y), valp(p1)>>1); }
-      p1 = gdiv(derivser(y), gsqrt(p1,prec));
-      a = integser(p1);
+      d = gsubgs(gsqr(y),1);
+      if (gequal0(d)) { set_avma(av); return zeroser(varn(y), valp(d)>>1); }
+      d = gdiv(derivser(y), gsqrt(d,prec));
+      a = integser(d);
       if (v)
-        p1 = PiI2n(-1, prec); /* I Pi/2 */
+        d = PiI2n(-1, prec); /* I Pi/2 */
       else
       {
-        p1 = gel(y,2); if (gequal1(p1)) return gerepileupto(av,a);
-        p1 = gacosh(p1, prec);
+        d = gel(y,2); if (gequal1(d)) return gerepileupto(av,a);
+        d = gacosh(d, prec);
       }
-      return gerepileupto(av, gadd(p1,a));
+      return gerepileupto(av, gadd(d,a));
     }
   }
   return trans_eval("acosh",gacosh,x,prec);
