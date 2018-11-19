@@ -25,8 +25,8 @@ Doc: We first describe the default behavior, when $\fl$ is 0 or omitted.
  selects columns instead of entries, and returns the matrix whose columns are
  the selected ones.
 
- \misctitle{Remark} For $v$ a \typ{VEC}, \typ{COL}, \typ{LIST} or \typ{MAT},
- the alternative set-notations
+ \misctitle{Remark} For $v$ a \typ{VEC}, \typ{COL}, \typ{VECSMALL},
+ \typ{LIST} or \typ{MAT}, the alternative set-notations
  \bprog
  [g(x) | x <- v, f(x)]
  [x | x <- v, f(x)]
