@@ -49,9 +49,10 @@ BA  34- [mpi] setting nbthreads in .gprc could lead to crashes.
 AP  38- segfault in rnfidealup [#2093]
     39- rnfinit(K, pol. of degree 1) was not properly supported
     40- Ser(x,x,0) -> error instead of O(x) [#2092]
-    41- factor(3/(x^5+3*y*x^4+3*y^2*x^3+y^3*x^2)) -> SEGV
-    42- output from bnfcompress() mistaken for rnf and vice-versa
-    43- catastrophic cancellation in acosh / asinh for large t_COMPLEX
+    41- fix mspolygon(,2) [add 1/3rd hyperbolic triangles + fix labels]
+    42- factor(3/(x^5+3*y*x^4+3*y^2*x^3+y^3*x^2)) -> SEGV
+    43- output from bnfcompress() mistaken for rnf and vice-versa
+    44- catastrophic cancellation in acosh / asinh for large t_COMPLEX
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
@@ -82,7 +83,6 @@ HC  11- gamma(t_FRAC) use direct formula when denom | 24
 BA  18- qfbsolve now returns a vector of solutions.
     19- limitnum / asympnum: remove useless optional parameter 'muli/k'
         [now implicitly set to 1, not to 20]: just extrapolate u(muli*n).
-    20- improved mspolygon(,2) [add 1/3rd hyperbolic triangles + fix labels]
 
   Added
      1- [libpari] nonsquare_Fl
