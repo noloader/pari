@@ -105,7 +105,7 @@ BA  13- qfbsolve(Q,n) now support arbitrary integer n.
         which allows to handle efficiently sums, recursions, continued
         fractions, etc.
 BA  18- new GP functions polteichmuller
-BA  19- [ibpari] Flx_Teichmuller, F2x_Teichmuller
+BA  19- [libpari] Flx_Teichmuller, F2x_Teichmuller
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
