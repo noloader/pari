@@ -52,6 +52,7 @@ AP  38- segfault in rnfidealup [#2093]
     41- factor(3/(x^5+3*y*x^4+3*y^2*x^3+y^3*x^2)) -> SEGV
     42- output from bnfcompress() mistaken for rnf and vice-versa
     43- catastrophic cancellation in acosh / asinh for large t_COMPLEX
+    44- zeta(1/2 + I*t) => internal error
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

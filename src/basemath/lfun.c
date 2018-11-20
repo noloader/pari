@@ -1556,7 +1556,7 @@ lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec)
     S0 = lfunsumcoth(R, s, h, prec);
   }
   k2 = lfun_get_k2(tech);
-  if (typ(pol)==t_POL && gequal(real_i(s), k2))
+  if (typ(pol)==t_POL && typ(s) != t_SER && gequal(real_i(s), k2))
   { /* on critical line: shortcut */
     GEN polz, b = imag_i(s);
     polz = gequal0(b)? poleval(pol,gen_1): poleval(pol, expIr(gmul(h,b)));
