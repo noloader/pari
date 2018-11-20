@@ -4261,22 +4261,12 @@ frobeniusform(GEN al, GEN x)
 static void
 computesplitting(GEN al, long d, long v)
 {
-  GEN x, pol, polabs, basis, P, Pi, nf = alg_get_center(al), rnf, Lbasis, Lbasisinv, Q, pows;
+  GEN subf, x, pol, polabs, basis, P, Pi, nf = alg_get_center(al), rnf, Lbasis, Lbasisinv, Q, pows;
   long i, n = nf_get_degree(nf), nd = n*d, N = alg_get_absdim(al), j, j2;
 
-  if (d > 1)
-  {
-    GEN subf = findmaximalsubfield(al, utoipos(d), v);
-    x = gel(subf, 1);
-    polabs = gel(subf, 2);
-  }
-  else
-  { /* must special case to guarantee polabs = rnfinit.polabs */
-    long v2;
-    polabs = nf_get_pol(nf); v2 = varn(polabs);
-    if (v2 != v) { polabs = leafcopy(polabs); setvarn(polabs,v); }
-    x = algtobasis(nf, pol_x(v2));
-  }
+  subf = findmaximalsubfield(al, utoipos(d), v);
+  x = gel(subf, 1);
+  polabs = gel(subf, 2);
 
   /* Frobenius form to obtain L-vector space structure */
   basis = frobeniusform(al, x);

@@ -126,8 +126,6 @@ strip5(pr)=pr[1..4];
 apply(strip5, rnfidealprimedec(L, P3[1]))
 my(v=rnfidealprimedec(L,7)); [apply(strip5, v[1]), apply(strip5, v[2][1])]
 
-my(k=nfinit(y^3-y^2+1)); rnfidealprimedec(rnfinit(k,x),idealprimedec(k,89)[1])
-
 rnffa(rnf,id)=my(fa=rnfidealfactor(rnf,id)); fa[,1] = apply(strip5,fa[,1]); fa;
 rnffa(L,7)
 rnffa(L,x)
