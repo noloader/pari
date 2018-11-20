@@ -886,28 +886,30 @@ INLINE void
 rdiviiz(GEN x, GEN y, GEN z)
 {
   pari_sp av = avma;
-  long prec = realprec(z);
   affir(x, z);
-  if (!is_bigint(y)) {
-    affrr(divrs(z, y[2]), z);
+  if (lg(y) == 3) {
     if (signe(y) < 0) togglesign(z);
+    affrr(divru(z, y[2]), z);
   }
   else
-    affrr(divrr(z, itor(y,prec)), z);
+    affrr(divri(z, y), z);
   set_avma(av);
 }
 INLINE GEN
 rdivii(GEN x, GEN y, long prec)
 {
-  GEN z = itor(x, prec);
-  pari_sp av = avma;
-  if (lg(y) == 3) {
-    affrr(divru(z, y[2]), z);
-    if (signe(y) < 0) togglesign(z);
+  GEN z;
+  if (lg(y) == 3)
+  {
+    z = itor(x, prec); if (signe(y) < 0) togglesign(z);
+    affrr(divru(z, y[2]), z); set_avma((ulong)z);
   }
   else
-    affrr(divrr(z, itor(y,prec)), z);
-  set_avma(av); return z;
+  {
+    pari_sp av = avma;
+    z = gerepileuptoleaf(av, divri(itor(x, prec), y));
+  }
+  return z;
 }
 INLINE GEN
 fractor(GEN x, long prec) { return rdivii(gel(x,1), gel(x,2), prec); }

@@ -83,6 +83,7 @@ HC  11- gamma(t_FRAC) use direct formula when denom | 24
 BA  18- qfbsolve now returns a vector of solutions.
     19- limitnum / asympnum: remove useless optional parameter 'muli/k'
         [now implicitly set to 1, not to 20]: just extrapolate u(muli*n).
+    20- improve rdivii / rdiviiz [ use divri which may use divri_with_gmp ]
 
   Added
      1- [libpari] nonsquare_Fl
