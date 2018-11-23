@@ -15,11 +15,11 @@ Doc: Computes the numerical value of the modular form $F$, belonging
  the $d$ results is returned.
  \bprog
  ? mf = mfinit([11,2],0); F = mfbasis(mf)[1]; mfparams(F)
- %1 = [11, 2, 1, y]  \\ Q(F) = Q(chi) = Q
+ %1 = [11, 2, 1, y, t-1]  \\ Q(F) = Q(chi) = Q
  ? mfeval(mf,F,I/2)
  %2 = 0.039405471130100890402470386372028382117
  ? mf = mfinit([35,2],0); F = mfeigenbasis(mf)[2]; mfparams(F)
- %3 = [35, 2, 1, y^2 - y - 4] \\ [Q(F) : Q(chi)] = 2
+ %3 = [35, 2, 1, y^2 - y - 4, t - 1] \\ [Q(F) : Q(chi)] = 2
  ? mfeval(mf,F,I/2)
  %4 = [0.045..., 0.0385...] \\ sigma_1(F) and sigma_2(F) at I/2
  ? mf = mfinit([12,4],1); F = mfbasis(mf)[1];

@@ -25,7 +25,7 @@ Doc:  valuation of modular form $F$ in the space \kbd{mf} at
  %6 = [1/12, 1/6, 1/4, 2/3, 1/2, 1]
 
  ? mf = mfinit([625,2],0); [F] = mfeigenbasis(mf); mfparams(F)
- %7 = [625, 2, 1, y^2 - y - 1] \\ [Q(F):Q(chi)] = poldegree(y^2-y-1)
+ %7 = [625, 2, 1, y^2 - y - 1, t - 1] \\ [Q(F):Q(chi)] = 2
  ? mfcuspval(mf, F, 1/25)
  %8 = [1, 2] \\ one conjugate has valuation 1, and the other is 2
  ? mfcuspval(mf, F, 1/5)

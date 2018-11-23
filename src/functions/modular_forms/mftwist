@@ -22,5 +22,5 @@ Doc: $F$ being a generalized modular form, returns the twist of $F$ by the
  ? H = mftwist(G,-3); mfcoefs(H, 5)
  %4 = [0, 1, -2, 0, 2, 1]
  ? mfparams(G)
- %5 = [99, 2, 1, y]
+ %5 = [99, 2, 1, y, t - 1]
  @eprog

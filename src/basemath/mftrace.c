@@ -10039,17 +10039,18 @@ GEN
 mfparams(GEN F)
 {
   pari_sp av = avma;
-  GEN z, mf;
+  GEN z, mf, CHI;
   if ((mf = checkMF_i(F)))
   {
     long N = MF_get_N(mf);
     GEN gk = MF_get_gk(mf);
-    z = mkvec4(utoi(N), gk, MF_get_CHI(mf), utoi(MF_get_space(mf)));
+    CHI = MF_get_CHI(mf);
+    z = mkvec5(utoi(N), gk, CHI, utoi(MF_get_space(mf)), mfcharpol(CHI));
   }
   else
   {
     if (!checkmf_i(F)) pari_err_TYPE("mfparams", F);
-    z = shallowcopy( mf_get_NK(F) );
+    z = vec_append(mf_get_NK(F), mfcharpol(mf_get_CHI(F)));
   }
   gel(z,3) = mfchisimpl(gel(z,3));
   return gerepilecopy(av, z);

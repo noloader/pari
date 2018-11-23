@@ -16,7 +16,7 @@ Doc: If $F$ is a modular form in \kbd{mf}, output the L-functions
  ? mf = mfinit([35,2],0);mffields(mf)
  %1 = [y, y^2 - y - 4]
  ? f = mfeigenbasis(mf)[2]; mfparams(f) \\ orbit of dimension two
- %2 = [35, 2, 1, y^2 - y - 4]
+ %2 = [35, 2, 1, y^2 - y - 4, t - 1]
  ? [L1,L2] = lfunmf(mf, f); \\ Two L-functions
  ? lfun(L1,1)
  %4 = 0.81018461849460161754947375433874745585

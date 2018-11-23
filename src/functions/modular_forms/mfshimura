@@ -25,9 +25,9 @@ Doc: $F$ being a modular form of half-integral weight $k\geq 3/2$ and $D$ a
  ? [mf2, G, v] = mfshimura(mf, F, -3); mfcoefs(G,5)
  %2 = [-5/9, 280, 9240, 68320, 295960, 875280]
  ? mfparams(G)
- %3 = [1, 6, 1, y]
+ %3 = [1, 6, 1, y, t - 1]
  ? mfparams(mf2)
- %4 = [2, 6, 1, 4] \\ it may happen that G has lower level than expected
+ %4 = [2, 6, 1, 4, t - 1] \\ G may have lower level than expected
  ? v
  %5 = [280, 0]~
  ? mfcoefs(mf2, 5)
@@ -45,7 +45,7 @@ Doc: $F$ being a modular form of half-integral weight $k\geq 3/2$ and $D$ a
  [  3126      0]
  ? mf = mfinit([60,5/2],1); F = mflinear(mf,mfkohnenbasis(mf)[,1]);
  ? mfparams(mfshimura(mf,F,1)[2])
- %8 = [15, 4, 1, y]
+ %8 = [15, 4, 1, y, t - 1]
  ? mfparams(mfshimura(mf,F,6)[2])
- %9 = [30, 4, 1, y]
+ %9 = [30, 4, 1, y, t - 1]
  @eprog
