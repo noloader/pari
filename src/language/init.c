@@ -289,8 +289,11 @@ void
 export_del(const char *str)
 {
   hashentry *h = hash_remove(export_hash,(void*)str);
-  GEN v = h->val;
-  setisclone(v); gunclone(v);
+  if (h)
+  {
+    GEN v = h->val;
+    setisclone(v); gunclone(v);
+  }
 }
 
 GEN
