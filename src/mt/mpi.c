@@ -267,6 +267,7 @@ mt_is_thread(void)
 void
 mt_export_add(const char *str, GEN val)
 {
+  pari_sp av = avma;
   long i, n = pari_MPI_size-1;
   GEN s;
   if (pari_mt || pari_MPI_rank)
@@ -279,11 +280,13 @@ mt_export_add(const char *str, GEN val)
     send_GEN(s, i);
     send_GEN(val, i);
   }
+  set_avma(av);
 }
 
 void
 mt_export_del(const char *str)
 {
+  pari_sp av = avma;
   long i, n = pari_MPI_size-1;
   GEN s;
   if (pari_MPI_rank)
@@ -292,6 +295,7 @@ mt_export_del(const char *str)
   s = strtoGENstr(str);
   for (i=1; i <= n; i++)
     send_request_GEN(PMPI_exportdel, s, i);
+  set_avma(av);
 }
 
 void
