@@ -277,7 +277,7 @@ export_add(const char *str, GEN val)
   h = hash_search(export_hash, (void*) str);
   if (h)
   {
-    GEN v = h->val;
+    GEN v = (GEN)h->val;
     h->val = val;
     setisclone(v); gunclone(v);
   }
@@ -291,7 +291,7 @@ export_del(const char *str)
   hashentry *h = hash_remove(export_hash,(void*)str);
   if (h)
   {
-    GEN v = h->val;
+    GEN v = (GEN)h->val;
     setisclone(v); gunclone(v);
   }
 }
