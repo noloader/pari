@@ -21,9 +21,9 @@ Doc: If $F$ is a modular form space, returns \kbd{[N,k,CHI,space,$\Phi$]},
  $\Q(\chi) = \Q[t]/(\Phi(t))$; it has coefficients in that number field
  (polmods in $t$).
 
- In contrast with \kbd{mfparams(f)[4]} which always gives the polynomial
- $P$ defining the relative extension $\Q(f)/\Q(\chi)$, the member function
- \kbd{$f$.mod} returns the polynomial used to define $\Q(f)$ over $\Q$
+ In contrast with \kbd{mfparams(F)[4]} which always gives the polynomial
+ $P$ defining the relative extension $\Q(F)/\Q(\chi)$, the member function
+ \kbd{$F$.mod} returns the polynomial used to define $\Q(F)$ over $\Q$
  (either a cyclotomic polynomial or a polynomial with cyclotomic
  coefficients).
 
