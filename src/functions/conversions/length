@@ -16,6 +16,8 @@ Doc: length of $x$; \kbd{\#}$x$ is a shortcut for \kbd{length}$(x)$.
 
  \item lists: number of entries (0 for empty lists),
 
+ \item maps: number of entries (0 for empty maps),
+
  \item matrices: number of columns,
 
  \item character strings: number of actual characters (without
@@ -31,6 +33,8 @@ Doc: length of $x$; \kbd{\#}$x$ is a shortcut for \kbd{length}$(x)$.
   %4 = 5
   ? L = List([1,2,3,4]); #L
   %5 = 4
+  ? M = Map([a,b; c,d; e,f]); #M
+  %6 = 3
  @eprog
 
  The routine is in fact defined for arbitrary GP types, but is awkward and
