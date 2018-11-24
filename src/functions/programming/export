@@ -1,13 +1,13 @@
 Function: export
 Section: programming/specific
-Help: export(x{=...},...,z{x=...): export the variables x,...,z to the parallel world. [EXPERIMENTAL].
+Help: export(x{=...},...,z{=...}): export the variables x,...,z to the parallel world. [EXPERIMENTAL].
 Doc: (Experimental)
  Export the variables $x,\ldots, z$ to the parallel world.
  Such variables are visible inside parallel sections in place of global
  variables, but cannot be modified inside a parallel section.
  \kbd{export(a)} set the variable $a$ in the parallel world to current value of $a$.
- \kbd{export(a=z)} set the variable $a$ in the parallel world to $z$, without affecting
- the current value of $a$.
+ \kbd{export(a=z)} set the variable $a$ in the parallel world to $z$, without
+ affecting the current value of $a$.
  \bprog
  ? fun(x)=x^2+1;
  ? parvector(10,i,fun(i))
