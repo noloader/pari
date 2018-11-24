@@ -293,6 +293,7 @@ export_del(const char *str)
   {
     GEN v = (GEN)h->val;
     setisclone(v); gunclone(v);
+    pari_free(h);
   }
 }
 
