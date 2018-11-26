@@ -42,6 +42,10 @@ checkfeq(P,q)=
     if(ellap(E)!=-polcoeff(H,1),error(H)));
 }
 
+P=hyperellcharpoly(Mod(1,3)*(x^10+x^4+x^3+2*x^2+x));checkfeq(P,3)
+P=hyperellcharpoly(Mod(1,3)*(x^12+x^4+1));checkfeq(P,3)
+P=hyperellcharpoly(Mod(1,3)*(x^14+x^4+2));checkfeq(P,3)
+
 g=ffgen(ffinit(79,2),'g);
 P=hyperellcharpoly(x^5+g*x^3+2*x+5);checkfeq(P,79^2)
 P=hyperellcharpoly(g*(x^5+g*x^3+2*x+5));checkfeq(P,79^2)

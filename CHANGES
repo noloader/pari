@@ -54,6 +54,7 @@ AP  38- segfault in rnfidealup [#2093]
     43- catastrophic cancellation in acosh / asinh for large t_COMPLEX
     44- zeta(1/2 + I*t) => internal error
     45- cos(z) and sin(z) imprecise when Im(z) is nonzero but tiny
+BA  46- hyperellcharpoly: wrong results over Z/3Z
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
