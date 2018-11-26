@@ -358,17 +358,16 @@ garg(GEN x, long prec)
 /**                      HYPERBOLIC COSINE                         **/
 /**                                                                **/
 /********************************************************************/
-
+/* 1 + x */
+static GEN
+mpcosh0(long e) { return e >= 0? real_0_bit(e): real_1_bit(-e); }
 static GEN
 mpcosh(GEN x)
 {
   pari_sp av;
   GEN z;
 
-  if (!signe(x)) { /* 1 + x */
-    long e = expo(x);
-    return e >= 0? real_0_bit(e): real_1_bit(-e);
-  }
+  if (!signe(x)) return mpcosh0(expo(x));
   av = avma;
   z = mpexp(x); z = addrr(z, invr(z)); shiftr_inplace(z, -1);
   return gerepileuptoleaf(av, z);
@@ -402,7 +401,8 @@ gcosh(GEN x, long prec)
 /**                       HYPERBOLIC SINE                          **/
 /**                                                                **/
 /********************************************************************/
-
+static GEN
+mpsinh0(long e) { return real_0_bit(e); }
 static GEN
 mpsinh(GEN x)
 {
@@ -410,12 +410,12 @@ mpsinh(GEN x)
   long ex = expo(x), lx;
   GEN z, res;
 
-  if (!signe(x)) return real_0_bit(ex);
+  if (!signe(x)) return mpsinh0(ex);
   lx = realprec(x); res = cgetr(lx); av = avma;
   if (ex < 1 - BITS_IN_LONG)
   { /* y = e^x-1; e^x - e^(-x) = y(1 + 1/(y+1)) */
     GEN y = mpexpm1(x);
-    z = addrs(y,1); if (lg(z) > lx+1) z = rtor(z,lx+1); /* e^x */
+    z = addrs(y,1); if (realprec(z) > lx+1) z = rtor(z,lx+1); /* e^x */
     z = mulrr(y, addsr(1,invr(z)));
   }
   else
@@ -425,6 +425,38 @@ mpsinh(GEN x)
   }
   shiftr_inplace(z, -1);
   affrr(z, res); set_avma(av); return res;
+}
+
+void
+mpsinhcosh(GEN x, GEN *s, GEN *c)
+{
+  pari_sp av;
+  long lx, ex = expo(x);
+  GEN z, zi, S, C;
+  if (!signe(x))
+  {
+    *c = mpcosh0(ex);
+    *s = mpsinh0(ex); return;
+  }
+  lx = realprec(x);
+  *c = cgetr(lx);
+  *s = cgetr(lx); av = avma;
+  if (ex < 1 - BITS_IN_LONG)
+  { /* y = e^x-1; e^x - e^(-x) = y(1 + 1/(y+1)) */
+    GEN y = mpexpm1(x);
+    z = addrs(y,1); if (realprec(z) > lx+1) z = rtor(z,lx+1); /* e^x */
+    zi = invr(z); /* z = exp(x), zi = exp(-x) */
+    S = mulrr(y, addsr(1,zi));
+  }
+  else
+  {
+    z = mpexp(x);
+    zi = invr(z);
+    S = subrr(z, zi);
+  }
+  C = addrr(z, zi);
+  shiftr_inplace(S, -1); affrr(S, *s);
+  shiftr_inplace(C, -1); affrr(C, *c); set_avma(av);
 }
 
 GEN

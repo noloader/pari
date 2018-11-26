@@ -12544,6 +12544,9 @@ $|x| < 1$. Guard against cancellation when $x$ is small.
 \fun{void}{mpsincos}{GEN x, GEN *s, GEN *c} sets $s$ and $c$ to
 $\sin(x)$ and $\cos(x)$ respectively, where $x$ is a \typ{REAL}
 
+\fun{void}{mpsinhcosh}{GEN x, GEN *s, GEN *c} sets $s$ and $c$ to
+$\sinh(x)$ and $\cosh(x)$ respectively, where $x$ is a \typ{REAL}
+
 \fun{GEN}{expIr}{GEN x} returns $\exp(ix)$, where $x$ is a \typ{REAL}.
 The return type is \typ{COMPLEX} unless the imaginary part is equal to $0$
 to the current accuracy (its sign is $0$).

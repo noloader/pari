@@ -53,6 +53,7 @@ AP  38- segfault in rnfidealup [#2093]
     42- output from bnfcompress() mistaken for rnf and vice-versa
     43- catastrophic cancellation in acosh / asinh for large t_COMPLEX
     44- zeta(1/2 + I*t) => internal error
+    45- cos(z) and sin(z) imprecise when Im(z) is nonzero but tiny
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
@@ -109,6 +110,7 @@ BA  13- qfbsolve(Q,n) now support arbitrary integer n.
         fractions, etc.
 BA  18- new GP functions polteichmuller
 BA  19- [libpari] Flx_Teichmuller, F2x_Teichmuller
+    20- [libpari] mpsinhcosh
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

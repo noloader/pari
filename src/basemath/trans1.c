@@ -3287,20 +3287,22 @@ GEN
 gcos(GEN x, long prec)
 {
   pari_sp av;
-  GEN r, u, v, y, u1, v1;
+  GEN a, b, u, v, y, u1, v1;
   long i;
 
   switch(typ(x))
   {
     case t_REAL: return mpcos(x);
     case t_COMPLEX:
-      if (isintzero(gel(x,1))) return gcosh(gel(x,2), prec);
+      a = gel(x,1);
+      b = gel(x,2);
+      if (isintzero(a)) return gcosh(b, prec);
       i = precision(x); if (i) prec = i;
       y = cgetc(prec); av = avma;
-      r = gexp(gel(x,2),prec);
-      v1 = gmul2n(addrr(invr(r),r), -1); /* = cos(I*Im(x)) */
-      u1 = subrr(v1, r); /* = - I*sin(I*Im(x)) */
-      gsincos(gel(x,1),&u,&v,prec);
+      if (typ(b) != t_REAL) b = gtofp(b, prec);
+      mpsinhcosh(b, &u1, &v1); u1 = mpneg(u1);
+      if (typ(a) != t_REAL) a = gtofp(a, prec);
+      mpsincos(a, &u, &v);
       affrr_fixlg(gmul(v1,v), gel(y,1));
       affrr_fixlg(gmul(u1,u), gel(y,2)); set_avma(av); return y;
 
@@ -3350,20 +3352,22 @@ GEN
 gsin(GEN x, long prec)
 {
   pari_sp av;
-  GEN r, u, v, y, v1, u1;
+  GEN a, b, u, v, y, v1, u1;
   long i;
 
   switch(typ(x))
   {
     case t_REAL: return mpsin(x);
     case t_COMPLEX:
-      if (isintzero(gel(x,1))) retmkcomplex(gen_0,gsinh(gel(x,2),prec));
+      a = gel(x,1);
+      b = gel(x,2);
+      if (isintzero(a)) retmkcomplex(gen_0,gsinh(b,prec));
       i = precision(x); if (i) prec = i;
       y = cgetc(prec); av = avma;
-      r = gexp(gel(x,2),prec);
-      v1 = gmul2n(addrr(invr(r),r), -1); /* = cos(I*Im(x)) */
-      u1 = subrr(r, v1); /* = I*sin(I*Im(x)) */
-      gsincos(gel(x,1),&u,&v,prec);
+      if (typ(b) != t_REAL) b = gtofp(b, prec);
+      mpsinhcosh(b, &u1, &v1);
+      if (typ(a) != t_REAL) a = gtofp(a, prec);
+      mpsincos(a, &u, &v);
       affrr_fixlg(gmul(v1,u), gel(y,1));
       affrr_fixlg(gmul(u1,v), gel(y,2)); set_avma(av); return y;
 
