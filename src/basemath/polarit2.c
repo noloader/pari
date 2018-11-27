@@ -3202,6 +3202,15 @@ RgX_disc_FpX(GEN x, GEN p)
 }
 
 static GEN
+RgX_disc_FpXQX(GEN x, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN r, T = RgX_to_FpX(pol, p);
+  r = FpXQX_disc(RgX_to_FpXQX(x, T, p), T, p);
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
 RgX_disc_fast(GEN x)
 {
   GEN p, pol;
@@ -3211,7 +3220,10 @@ RgX_disc_fast(GEN x)
   {
     case t_INT:    return ZX_disc(x);
     case t_FRAC:   return QX_disc(x);
+    case t_FFELT:  return FFX_disc(x, pol);
     case t_INTMOD: return RgX_disc_FpX(x, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_disc_FpXQX(x, pol, p);
     default:       return NULL;
   }
 }
