@@ -90,6 +90,7 @@ BA  18- qfbsolve now returns a vector of solutions.
     20- improve rdivii / rdiviiz [ use divri which may use divri_with_gmp ]
     21- mfparams now returns [N,k,CHI,space or P, Phi] where Phi is the
         cyclotomic polynomials defining the field of values of CHI
+    22- inline / unline are now obsolete, use export/unexport
 
   Added
      1- [libpari] nonsquare_Fl

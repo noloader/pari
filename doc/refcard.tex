@@ -312,9 +312,9 @@ mode.\hfil\break
 
 \section{Parallel evaluation}
 These functions evaluate their arguments in parallel (pthreads or MPI);
-args.~must not access global variables and must be free of side
-effects. Enabled if threading engine is not \emph{single} in gp
-header.
+args.~must not access global variables (use \kbd{export} for this) and
+must be free of side effects. Enabled if threading engine is not \emph{single}
+in gp header.\hfil\break
 \li{evaluate $f$ on $x[1],\dots,x[n]$}{parapply$(f,x)$}
 \li{evaluate closures $f[1],\dots,f[n]$}{pareval$(f)$}
 \li{as \kbd{select}}{parselect$(f,A,\{\fl\})$}
@@ -326,8 +326,10 @@ header.
    {parforprime$(p = a, \{b\}, f,\{r\}, \{f_2\})$}
 \li{\dots multivariate}
    {parforvec$(X = v, f,\{r\}, \{f_2\}, \{\fl\})$}
-\li{declare $x$ as inline (allows to use as global)}{inline$(x)$}
-\li{stop inlining}{uninline$()$}
+\li{export $x$ to parallel world}{export$(x)$}
+\li{\dots all dynamic variables}{exportall$()$}
+\li{frees exported value $x$}{unexport$(x)$}
+\li{\dots all exported values}{unexportall$()$}
 
 \section{Linear Algebra}
 %
