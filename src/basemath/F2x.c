@@ -2538,6 +2538,58 @@ F2xqX_powu(GEN x, ulong n, GEN T)
   return gen_powu(x, n, (void*)T, &_F2xqX_sqr, &_F2xqX_mul);
 }
 
+/* Res(A,B) = Res(B,R) * lc(B)^(a-r) * (-1)^(ab), with R=A%B, a=deg(A) ...*/
+GEN
+F2xqX_resultant(GEN a, GEN b, GEN T)
+{
+  long vT = get_F2x_var(T);
+  long da,db,dc;
+  pari_sp av;
+  GEN c,lb, res = pol1_F2x(vT);
+
+  if (!signe(a) || !signe(b)) return pol0_F2x(vT);
+
+  da = degpol(a);
+  db = degpol(b);
+  if (db > da)
+    swapspec(a,b, da,db);
+  if (!da) return pol1_F2x(vT); /* = res * a[2] ^ db, since 0 <= db <= da = 0 */
+  av = avma;
+  while (db)
+  {
+    lb = gel(b,db+2);
+    c = F2xqX_rem(a,b, T);
+    a = b; b = c; dc = degpol(c);
+    if (dc < 0) { set_avma(av); return pol0_F2x(vT); }
+
+    if (!equali1(lb)) res = F2xq_mul(res, F2xq_powu(lb, da - dc, T), T);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"F2xqX_resultant (da = %ld)",da);
+      gerepileall(av,3, &a,&b,&res);
+    }
+    da = db; /* = degpol(a) */
+    db = dc; /* = degpol(b) */
+  }
+  res = F2xq_mul(res, F2xq_powu(gel(b,2), da, T), T);
+  return gerepileupto(av, res);
+}
+
+/* disc P = (-1)^(n(n-1)/2) lc(P)^(n - deg P' - 2) Res(P,P'), n = deg P */
+GEN
+F2xqX_disc(GEN P, GEN T)
+{
+  pari_sp av = avma;
+  GEN L, dP = F2xX_deriv(P), D = F2xqX_resultant(P, dP, T);
+  long dd;
+  if (!lgpol(D)) return pol_0(get_F2x_var(T));
+  dd = degpol(P) - 2 - degpol(dP); /* >= -1; > -1 iff p | deg(P) */
+  L = leading_coeff(P);
+  if (dd && !F2x_equal1(L))
+    D = (dd == -1)? F2xq_div(D,L,T): F2xq_mul(D, F2xq_powu(L, dd, T), T);
+  return gerepileupto(av, D);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                             F2xqXQ                                **/
