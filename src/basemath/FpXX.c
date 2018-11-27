@@ -803,6 +803,22 @@ FpXQX_resultant(GEN a, GEN b, GEN T, GEN p)
   return gerepileupto(av, res);
 }
 
+/* disc P = (-1)^(n(n-1)/2) lc(P)^(n - deg P' - 2) Res(P,P'), n = deg P */
+GEN
+FpXQX_disc(GEN P, GEN T, GEN p)
+{
+  pari_sp av = avma;
+  GEN L, dP = FpXX_deriv(P, p), D = FpXQX_resultant(P, dP, T, p);
+  long dd;
+  if (!signe(D)) return pol_0(get_FpX_var(T));
+  dd = degpol(P) - 2 - degpol(dP); /* >= -1; > -1 iff p | deg(P) */
+  L = leading_coeff(P);
+  if (dd && !gequal1(L))
+    D = (dd == -1)? FpXQ_div(D,L,T,p): FpXQ_mul(D, FpXQ_powu(L, dd, T, p), T, p);
+  if (degpol(P) & 2) D = FpX_neg(D, p);
+  return gerepileupto(av, D);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                       Barrett reduction                           **/

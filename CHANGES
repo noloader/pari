@@ -117,7 +117,7 @@ BA  19- [libpari] Flx_Teichmuller, F2x_Teichmuller
     20- [libpari] mpsinhcosh
     21- new GP function dirpowers
 BA  22- [libpari] F2xqX_resultant, F2xqX_disc, FlxqX_resultant, FlxqX_disc,
-        FpXQX_resultant
+        FpXQX_resultant, FpXQX_disc
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
