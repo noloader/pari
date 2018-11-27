@@ -327,8 +327,7 @@ static long RgX_settype(GEN x, long *t, GEN *p, GEN *pol, long *pa, GEN *ff, lon
 #define update_prec(x,y) { long __x = x; if (__x < *y) *y=__x; }
 
 static const long tsh = 6;
-static long
-code(long t1, long t2) { return (t1 << tsh) | t2; }
+#define code(t1,t2) ((t1 << 6) | t2)
 void
 RgX_type_decode(long x, long *t1, long *t2)
 {
@@ -3593,7 +3592,6 @@ RgXQ_inv_FpXQXQ(GEN x, GEN y, GEN pol, GEN p)
   return gerepileupto(av, FpXQX_to_mod(r, T, p));
 }
 
-#define code(t1,t2) ((t1 << 6) | t2)
 static GEN
 RgXQ_mul_fast(GEN x, GEN y, GEN T)
 {
@@ -3663,7 +3661,6 @@ RgXQ_inv_fast(GEN x, GEN y)
     default:       return NULL;
   }
 }
-#undef code
 
 GEN
 RgXQ_inv(GEN x, GEN y)
