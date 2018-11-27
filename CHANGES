@@ -55,6 +55,8 @@ AP  38- segfault in rnfidealup [#2093]
     44- zeta(1/2 + I*t) => internal error
     45- cos(z) and sin(z) imprecise when Im(z) is nonzero but tiny
 BA  46- hyperellcharpoly: wrong results over Z/3Z
+    47- gmp kernel: off-by-1 error in red_mongomery [read uninitialized
+        memory, then ignores result]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

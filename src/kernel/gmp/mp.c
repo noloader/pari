@@ -1005,7 +1005,7 @@ red_montgomery(GEN T, GEN N, ulong inv)
   }
   if (carry)
   { /* Td > N overflows (k+1 words), set Td := Td - N */
-    GEN NE = N + k+2;
+    GEN NE = N + k+1;
     Td = Te;
     Nd = Ne;
     t = subll(*++Td, *++Nd); *Td = t;

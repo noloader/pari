@@ -31,6 +31,9 @@ isprime(18446744073709551557, 3)
 isprime(437256732647720373392867051041, 3)
 isprime(10^472+69169)
 
+\\ would trigger umr in 2.2.11: red_montgomery()
+isprime(85070591730234615857870057863360474949);
+
 stripgit(c) = strjoin(strsplit(c, "\n")[^6], "\n");
 primecert(1)
 primecert(2)
