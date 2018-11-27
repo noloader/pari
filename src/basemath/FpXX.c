@@ -754,6 +754,55 @@ FpXQX_dotproduct(GEN x, GEN y, GEN T, GEN p)
   return gerepileupto(av, Fq_red(c,T,p));
 }
 
+/* Res(A,B) = Res(B,R) * lc(B)^(a-r) * (-1)^(ab), with R=A%B, a=deg(A) ...*/
+GEN
+FpXQX_resultant(GEN a, GEN b, GEN T, GEN p)
+{
+  long da,db,dc;
+  pari_sp av;
+  long vT = get_FpX_var(T);
+  GEN c,lb, res = pol_1(vT);
+
+  if (!signe(a) || !signe(b)) return pol_0(vT);
+  if (lgefint(p) == 3)
+  {
+    pari_sp av = avma;
+    GEN Pl, Ql, Tl, R;
+    ulong pp = to_FlxqX(a, b, T, p, &Pl, &Ql, &Tl);
+    R = FlxqX_resultant(Pl, Ql, Tl, pp);
+    return gerepileupto(av, Flx_to_ZX(R));
+  }
+
+  da = degpol(a);
+  db = degpol(b);
+  if (db > da)
+  {
+    swapspec(a,b, da,db);
+    if (both_odd(da,db)) res = FpX_neg(res, p);
+  }
+  if (!da) return pol_1(vT); /* = res * a[2] ^ db, since 0 <= db <= da = 0 */
+  av = avma;
+  while (db)
+  {
+    lb = gel(b,db+2);
+    c = FpXQX_rem(a,b, T,p);
+    a = b; b = c; dc = degpol(c);
+    if (dc < 0) { set_avma(av); return pol_0(vT); }
+
+    if (both_odd(da,db)) res = FpX_neg(res, p);
+    if (!equali1(lb)) res = FpXQ_mul(res, FpXQ_powu(lb, da - dc, T, p), T, p);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpXQX_resultant (da = %ld)",da);
+      gerepileall(av,3, &a,&b,&res);
+    }
+    da = db; /* = degpol(a) */
+    db = dc; /* = degpol(b) */
+  }
+  res = FpXQ_mul(res, FpXQ_powu(gel(b,2), da, T, p), T, p);
+  return gerepileupto(av, res);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                       Barrett reduction                           **/
