@@ -71,7 +71,7 @@ a=-1633048355459347662258066616498.+ 107206003159399666971219664801296.*I;
 acosh(a)
 asinh(a)
 
-localprec(1300); precision(imag(cos(Pi*(1+I/2^2048))))
+localprec(1300); precision(imag(cos(Pi*(1+I/2^2048)))) > 1300
 
 localprec(1000); abs(sinh(1e-500)-1e-500) < 2e-1500
 
