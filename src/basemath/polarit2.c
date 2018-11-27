@@ -2339,28 +2339,6 @@ init_resultant(GEN x, GEN y)
   return (varncmp(vx,vy) < 0)? gpowgs(y,degpol(x)): gpowgs(x,degpol(y));
 }
 
-static long
-RgX_simpletype(GEN x)
-{
-  long T = t_INT, i, lx = lg(x);
-  for (i = 2; i < lx; i++)
-  {
-    GEN c = gel(x,i);
-    long tc = typ(c);
-    switch(tc) {
-      case t_INT:
-        break;
-      case t_FRAC:
-        if (T == t_INT) T = t_FRAC;
-        break;
-      default:
-        if (isinexact(c)) return t_REAL;
-        T = 0; break;
-    }
-  }
-  return T;
-}
-
 /* x an RgX, y a scalar */
 static GEN
 scalar_res(GEN x, GEN y, GEN *U, GEN *V)
@@ -2799,6 +2777,37 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
   if (sol) { *sol = P; gerepileall(av, 2, &s, sol); return s; }
   return gerepilecopy(av, s);
 }
+
+static GEN
+RgX_resultant_FpX(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = utoi(Flx_resultant(RgX_to_Flx(x, pp), RgX_to_Flx(y, pp), pp));
+  }
+  else
+    r = FpX_resultant(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  return gerepileupto(av, Fp_to_mod(r, p));
+}
+
+static GEN
+resultant_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type2(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZX_resultant(x,y);
+    case t_FRAC:   return QX_resultant(x,y);
+    case t_INTMOD: return RgX_resultant_FpX(x, y, p);
+    default:       return NULL;
+  }
+}
+
 /* Return resultant(P,Q).
  * Uses Sylvester's matrix if P or Q inexact, a modular algorithm if they
  * are in Q[X], and Ducos/Lazard optimization of the subresultant algorithm
@@ -2806,23 +2815,10 @@ RgX_resultant_all(GEN P, GEN Q, GEN *sol)
 GEN
 resultant(GEN P, GEN Q)
 {
-  long TP, TQ;
-  GEN s, p = NULL;
-
-  if ((s = init_resultant(P,Q))) return s;
-  if ((TP = RgX_simpletype(P)) == t_REAL || (TQ = RgX_simpletype(Q)) == t_REAL)
+  GEN z = resultant_fast(P, Q);
+  if (z) return z;
+  if (isinexact(P) || isinexact(Q))
     return resultant2(P,Q); /* inexact */
-  if (TP && TQ) /* rational */
-  {
-    if (TP == t_INT && TQ == t_INT) return ZX_resultant(P,Q);
-    return QX_resultant(P,Q);
-  }
-  if (RgX_is_FpX(P, &p) && RgX_is_FpX(Q, &p) && p)
-  {
-    pari_sp av = avma;
-    GEN r = FpX_resultant(RgX_to_FpX(P, p), RgX_to_FpX(Q, p), p);
-    return gerepileupto(av, Fp_to_mod(r, p));
-  }
   return RgX_resultant_all(P, Q, NULL);
 }
 
@@ -3164,27 +3160,20 @@ RgX_gcd(GEN x, GEN y)
 
 /* disc P = (-1)^(n(n-1)/2) lc(P)^(n - deg P' - 2) Res(P,P'), n = deg P */
 static GEN
-RgX_disc_aux(GEN P)
+RgX_disc_i(GEN P)
 {
-  long n = degpol(P), TP, dd;
-  GEN D, L, y, p;
+  long n = degpol(P), dd;
+  GEN D, L, y;
   if (!signe(P) || !n) return Rg_get_0(P);
   if (n == 1) return Rg_get_1(P);
   if (n == 2) {
     GEN a = gel(P,4), b = gel(P,3), c = gel(P,2);
     return gsub(gsqr(b), gmul2n(gmul(a,c),2));
   }
-  TP = RgX_simpletype(P);
-  if (TP == t_INT) return ZX_disc(P);
-  if (TP == t_FRAC) return QX_disc(P);
-  p = NULL;
-  if (RgX_is_FpX(P, &p) && p)
-    return Fp_to_mod(FpX_disc(RgX_to_FpX(P,p), p), p);
-
   y = RgX_deriv(P);
   if (!signe(y)) return Rg_get_0(y);
   dd = degpol(P)-2 - degpol(y);
-  if (TP == t_REAL)
+  if (isinexact(P))
     D = resultant2(P,y);
   else
   {
@@ -3196,8 +3185,39 @@ RgX_disc_aux(GEN P)
   if (n & 2) D = gneg(D);
   return D;
 }
+
+static GEN
+RgX_disc_FpX(GEN x, GEN p)
+{
+  pari_sp av = avma;
+  GEN r = FpX_disc(RgX_to_FpX(x, p), p);
+  return gerepileupto(av, Fp_to_mod(r, p));
+}
+
+static GEN
+RgX_disc_fast(GEN x)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type(x, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZX_disc(x);
+    case t_FRAC:   return QX_disc(x);
+    case t_INTMOD: return RgX_disc_FpX(x, p);
+    default:       return NULL;
+  }
+}
+
 GEN
-RgX_disc(GEN x) { pari_sp av = avma; return gerepileupto(av, RgX_disc_aux(x)); }
+RgX_disc(GEN x)
+{
+  pari_sp av;
+  GEN z = RgX_disc_fast(x);
+  if (z) return z;
+  av = avma;
+  return gerepileupto(av, RgX_disc_i(x));
+}
 
 GEN
 poldisc0(GEN x, long v)
@@ -3215,7 +3235,7 @@ poldisc0(GEN x, long v)
         v0 = fetch_var_higher();
         x = fix_pol(x,v, v0);
       }
-      D = RgX_disc_aux(x);
+      D = RgX_disc(x);
       if (v0 >= 0) (void)delete_var();
       return gerepileupto(av, D);
     }
