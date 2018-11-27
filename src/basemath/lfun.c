@@ -748,6 +748,22 @@ vecpowug(long N, GEN B, long prec)
   return v;
 }
 
+GEN
+dirpowers(long n, GEN x, long prec)
+{
+  pari_sp av = avma;
+  GEN v;
+  if (n <= 0) return cgetg(1, t_VEC);
+  if (typ(x) == t_INT && lgefint(x) <= 3 && signe(x) >= 0)
+  {
+    ulong B = itou(x);
+    GEN v = vecpowuu(n, B);
+    if (B <= 2) return v;
+  }
+  else v = vecpowug(n, x, prec);
+  return gerepilecopy(av, v);
+}
+
 /* return [1^(2/d), 2^(2/d),...,lim^(2/d)] */
 static GEN
 mkvroots(long d, long lim, long prec)

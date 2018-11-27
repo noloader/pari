@@ -3846,8 +3846,6 @@ GEN     sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, lon
 GEN     sumnummonien(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec);
 GEN     sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec);
 GEN     sumnumrat(GEN F, GEN a, long prec);
-GEN     vecpowuu(long N, ulong B);
-GEN     vecpowug(long N, GEN B, long prec);
 
 /* krasner.c */
 
@@ -3860,6 +3858,7 @@ GEN     rnfkummer(GEN bnr, GEN subgroup, long all, long prec);
 
 /* lfun.c */
 
+GEN     dirpowers(long n, GEN x, long prec);
 long    is_linit(GEN data);
 GEN     ldata_get_an(GEN ldata);
 GEN     ldata_get_dual(GEN ldata);
@@ -3922,6 +3921,8 @@ long    theta_get_bitprec(GEN tdata);
 long    theta_get_m(GEN tdata);
 GEN     theta_get_tdom(GEN tdata);
 GEN     theta_get_sqrtN(GEN tdata);
+GEN     vecpowuu(long N, ulong B);
+GEN     vecpowug(long N, GEN B, long prec);
 GEN     znchargauss(GEN G, GEN chi, GEN a, long bitprec);
 
 /* lfunutils.c */
