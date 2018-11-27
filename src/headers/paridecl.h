@@ -430,6 +430,7 @@ GEN     FlxqX_normalize(GEN z, GEN T, ulong p);
 GEN     FlxqX_powu(GEN V, ulong n, GEN T, ulong p);
 GEN     FlxqX_red(GEN z, GEN T, ulong p);
 GEN     FlxqX_rem(GEN x, GEN y, GEN T, ulong p);
+GEN     FlxqX_resultant(GEN x, GEN y, GEN T, ulong p);
 GEN     FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p);
 GEN     FlxqX_sqr(GEN x, GEN T, ulong p);
 GEN     FlxqXQ_div(GEN x, GEN y, GEN S, GEN T, ulong p);

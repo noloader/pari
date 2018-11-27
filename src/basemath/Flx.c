@@ -4852,6 +4852,47 @@ FlxqX_powu(GEN V, ulong n, GEN T, ulong p)
   return gen_powu(V, n, (void*)&d, &_FlxqX_sqr, &_FlxqX_mul);
 }
 
+/* Res(A,B) = Res(B,R) * lc(B)^(a-r) * (-1)^(ab), with R=A%B, a=deg(A) ...*/
+GEN
+FlxqX_resultant(GEN a, GEN b, GEN T, ulong p)
+{
+  long vT = get_Flx_var(T);
+  long da,db,dc;
+  pari_sp av;
+  GEN c,lb, res = pol1_Flx(vT);
+
+  if (!signe(a) || !signe(b)) return pol0_Flx(vT);
+
+  da = degpol(a);
+  db = degpol(b);
+  if (db > da)
+  {
+    swapspec(a,b, da,db);
+    if (both_odd(da,db)) res = Flx_neg(res, p);
+  }
+  if (!da) return pol1_Flx(vT); /* = res * a[2] ^ db, since 0 <= db <= da = 0 */
+  av = avma;
+  while (db)
+  {
+    lb = gel(b,db+2);
+    c = FlxqX_rem(a,b, T,p);
+    a = b; b = c; dc = degpol(c);
+    if (dc < 0) { set_avma(av); return pol0_Flx(vT); }
+
+    if (both_odd(da,db)) res = Flx_neg(res, p);
+    if (!equali1(lb)) res = Flxq_mul(res, Flxq_powu(lb, da - dc, T, p), T, p);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FlxqX_resultant (da = %ld)",da);
+      gerepileall(av,3, &a,&b,&res);
+    }
+    da = db; /* = degpol(a) */
+    db = dc; /* = degpol(b) */
+  }
+  res = Flxq_mul(res, Flxq_powu(gel(b,2), da, T, p), T, p);
+  return gerepileupto(av, res);
+}
+
 GEN
 FlxqXV_prod(GEN V, GEN T, ulong p)
 {
