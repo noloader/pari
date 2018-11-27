@@ -4893,6 +4893,22 @@ FlxqX_resultant(GEN a, GEN b, GEN T, ulong p)
   return gerepileupto(av, res);
 }
 
+/* disc P = (-1)^(n(n-1)/2) lc(P)^(n - deg P' - 2) Res(P,P'), n = deg P */
+GEN
+FlxqX_disc(GEN P, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  GEN L, dP = FlxX_deriv(P, p), D = FlxqX_resultant(P, dP, T, p);
+  long dd;
+  if (!lgpol(D)) return pol0_Flx(get_Flx_var(T));
+  dd = degpol(P) - 2 - degpol(dP); /* >= -1; > -1 iff p | deg(P) */
+  L = leading_coeff(P);
+  if (dd && !Flx_equal1(L))
+    D = (dd == -1)? Flxq_div(D,L,T,p): Flxq_mul(D, Flxq_powu(L, dd, T, p), T, p);
+  if (degpol(P) & 2) D = Flx_neg(D, p);
+  return gerepileupto(av, D);
+}
+
 GEN
 FlxqXV_prod(GEN V, GEN T, ulong p)
 {
