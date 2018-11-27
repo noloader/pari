@@ -59,8 +59,16 @@ BA  46- hyperellcharpoly: wrong results over Z/3Z
         memory, then ignores result]
     48- intnuminit([-1,-1/2],[1,-1/2]) twice slower than it should
     49- forcomposite(n=2,4,print(n)) -> empty [#2096]
-    50- relative extension of degree 1 was not properly supported in rnfidealprimedec
-        and rnfidealup
+    50- relative extension of degree 1 was not properly supported in
+        rnfidealprimedec and rnfidealup
+    51- mfmul(f,g) created invalid forms when f (resp. g) had Nebentypus chi
+        (resp. chi') and Q(chi * chi') != Q(chi) or != Q(chi')
+        [analogously for mfpow, mfdiv, mfbracket]
+    52- let [N,k,chi] = mfparams(f); f had coefficients in Q(chi)
+        [or an extension thereof for eigenforms] but the values obtained
+        from znchar(chi) and chareval were incompatible with mfcoefs when
+        order(chi) = 2 (mod 4) [same cyclotomic field but different
+        cyclotomic polynomial]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

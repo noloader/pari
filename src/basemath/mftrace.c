@@ -36,7 +36,7 @@ static void init_cachenew(cachenew_t *c, long n, long N, GEN f);
 static GEN mfinit_i(GEN NK, long space);
 static GEN mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw);
 static GEN mf2init_Nkchi(long N, long k, GEN CHI, long space, long flraw);
-static GEN mf2basis(long N, long r, GEN CHI, long space);
+static GEN mf2basis(long N, long r, GEN CHI, GEN *pCHI1, long space);
 static GEN mfeisensteinbasis(long N, long k, GEN CHI);
 static GEN mfeisensteindec(GEN mf, GEN F);
 static GEN initwt1newtrace(GEN mf);
@@ -208,9 +208,9 @@ QabM_ker(GEN M, GEN P, long n)
     B = ZabM_ker(Q_primpart(liftpol_shallow(M)), P, n);
   return B;
 }
-/* pseudo-inverse of M */
+/* pseudo-inverse of M. FIXME: should replace QabM_pseudoinv */
 static GEN
-QabM_pseudoinv(GEN M, GEN P, long n, GEN *pv, GEN *pden)
+QabM_pseudoinv_i(GEN M, GEN P, long n, GEN *pv, GEN *pden)
 {
   GEN cM, Mi;
   if (n <= 2)
@@ -222,10 +222,16 @@ QabM_pseudoinv(GEN M, GEN P, long n, GEN *pv, GEN *pden)
   {
     M = Q_primitive_part(liftpol_shallow(M), &cM);
     Mi = ZabM_pseudoinv(M, P, n, pv, pden);
-    Mi = gmodulo(Mi, P);
   }
   *pden = mul_content(*pden, cM);
   return Mi;
+}
+/* FIXME: delete */
+static GEN
+QabM_pseudoinv(GEN M, GEN P, long n, GEN *pv, GEN *pden)
+{
+  GEN Mi = QabM_pseudoinv_i(M, P, n, pv, pden);
+  return P? gmodulo(Mi, P): Mi;
 }
 
 static GEN
@@ -413,40 +419,57 @@ phipart(long g, long q)
   }
   return g;
 }
-/* Trace(zeta_n^k) from Q(\zeta_n) to Q(\zeta_m) with n = m*d; k > 0 */
+/* Trace(zeta_N^k) from Q(zeta_N) to Q(\zeta_N), reduced mod t^m-1.
+ * With k > 0, N = M*d and N, M != 2 mod 4 and m = M or 2M. */
 static GEN
-tracerelz(long d, long m, long k, long vt)
+tracerelz(long d, long m, long M, long k, long vt)
 {
-  long s, v, g = ugcd(k, d), q = d / g, muq = mymoebiusu(q);
+  long s, v, g, q, muq;
+  if (d == 1)
+  {
+    v = k; if (m != M) v *= 2;
+    return mygmodulo_lift(v, m, gen_1, vt);
+  }
+  g = ugcd(k, d); q = d / g; muq = mymoebiusu(q);
   if (!muq) return gen_0;
-  if (m == 1)
+  if (M == 1)
   {
     s = phipart(g, q); if (muq < 0) s = -s;
     return stoi(s);
   }
-  if (ugcd(q, m) > 1) return gen_0;
-  s = phipart(g, m*q); if (muq < 0) s = -s;
-  v = Fl_inv(q % m, m);
-  v = (v*(k/g)) % m;
+  if (ugcd(q, M) > 1) return gen_0;
+  s = phipart(g, M*q); if (muq < 0) s = -s;
+  v = Fl_inv(q % M, M);
+  v = (v*(k/g)) % M; /* Tr = s * zeta_M^v */
+  if (m != M) v *= 2;/* Tr = s * zeta_m^v */
   return mygmodulo_lift(v, m, stoi(s), vt);
 }
-/* m | n, both not 2 mod 4. Pn = polcyclo(n) */
+/* Pn = polcyclo(n) */
 GEN
 Qab_trace_init(GEN Pn, long n, long m)
 {
   GEN T, Pm;
-  long a, i, d, vt;
+  long a, i, d, vt, N, M;
   if (m == n) return mkvec(Pn);
   d = degpol(Pn);
   vt = varn(Pn);
   Pm = polcyclo(m, vt);
   T = cgetg(d+1, t_VEC);
   gel(T,1) = utoipos(d / degpol(Pm)); /* Tr 1 */
-  a = n / m;
-  for (i = 1; i < d; i++) gel(T,i+1) = tracerelz(a, m, i, vt);
+  /* if (N != n) zeta_N = zeta_n^2 and zeta_n = - zeta_N^{(N+1)/2} */
+  N = ((n & 3) == 2)? n >> 1: n;
+  M = ((m & 3) == 2)? m >> 1: m;
+  a = N / M;
+  for (i = 1; i < d; i++)
+  { /* if n = 2N, zeta_n^i = (-1)^i zeta_N^k */
+    long k = (N == n)? i: ((odd(i)? i + N: i) >> 1);
+    GEN t = tracerelz(a, m, M, k, vt);
+    if (N != n && odd(i)) t = gneg(t);
+    gel(T,i+1) = t;
+  }
   return mkvec3(Pm, Pn, T);
 }
-/* x a t_POL modulo Phi_n; n, m not 2 mod 4, degrel != 1*/
+/* x a t_POL modulo Phi_n */
 static GEN
 tracerel_i(GEN T, GEN x)
 {
@@ -482,6 +505,16 @@ QabV_tracerel(GEN v, long t, GEN x)
   }
   return y;
 }
+GEN
+QabM_tracerel(GEN v, long t, GEN x)
+{
+  long j, l;
+  GEN y;
+  if (lg(v) != 4) return x;
+  y = cgetg_copy(x, &l);
+  for (j = 1; j < l; j++) gel(y,j) = QabV_tracerel(v, t, gel(x,j));
+  return y;
+}
 
 /*              Operations on Dirichlet characters                       */
 
@@ -502,34 +535,18 @@ long
 mfcharmodulus(GEN CHI) { return itou(gmfcharmodulus(CHI)); }
 GEN
 mfcharpol(GEN CHI) { return gel(CHI,4); }
-static long
-ord_canon(long ord)
-{
-  if ((ord & 3L) == 2) ord >>= 1;
-  return ord;
-}
-static long
-mfcharorder_canon(GEN CHI) { return ord_canon(mfcharorder(CHI)); }
 
 /* t^k mod polcyclo(ord), ord = order(CHI) > 1 */
 static GEN
 mygmodulo(GEN CHI, long k)
 {
-  GEN C, Pn;
+  GEN Pn;
   long ord;
   if (!k) return gen_1;
   ord = mfcharorder(CHI);
   if ((k << 1) == ord) return gen_m1;
   Pn = mfcharpol(CHI);
-  if ((ord&3L) != 2)
-    C = gen_1;
-  else
-  {
-    ord >>= 1;
-    if (odd(k)) { C = gen_m1; k += ord; } else C = gen_1;
-    k >>= 1;
-  }
-  return gmodulo(monomial(C, k, varn(Pn)), Pn);
+  return gmodulo(monomial(gen_1, k, varn(Pn)), Pn);
 }
 /* C*zeta_ord^k */
 static GEN
@@ -537,11 +554,6 @@ mygmodulo_lift(long k, long ord, GEN C, long vt)
 {
   if (!k) return C;
   if ((k << 1) == ord) return gneg(C);
-  if ((ord&3L) == 2)
-  {
-    if (odd(k)) { C = gneg(C); k += ord >> 1; }
-    k >>= 1;
-  }
   return monomial(C, k, vt);
 }
 /* vz[i+1] = image of (zeta_ord)^i in Fp */
@@ -552,11 +564,6 @@ mygmodulo_Fl(long k, GEN vz, ulong C, ulong p)
   if (!k) return C;
   ord = lg(vz)-2;
   if ((k << 1) == ord) return Fl_neg(C,p);
-  if ((ord&3L) == 2)
-  {
-    if (odd(k)) { C = Fl_neg(C,p); k += ord >> 1; }
-    k >>= 1;
-  }
   return Fl_mul(C, vz[k+1], p);
 }
 
@@ -569,7 +576,7 @@ static GEN
 mfcharGL(GEN G, GEN L)
 {
   GEN o = zncharorder(G,L);
-  long ord = ord_canon(itou(o)), vt = fetch_user_var("t");
+  long ord = itou(o), vt = fetch_user_var("t");
   return mkvec4(G, L, o, polcyclo(ord,vt));
 }
 static GEN
@@ -739,6 +746,9 @@ static GEN
 tag2(long t, GEN NK, GEN x, GEN y) { retmkvec3(tagparams(t,NK), x,y); }
 static GEN
 tag3(long t, GEN NK, GEN x,GEN y,GEN z) { retmkvec4(tagparams(t,NK), x,y,z); }
+static GEN
+tag4(long t, GEN NK, GEN x,GEN y,GEN z,GEN a)
+{ retmkvec5(tagparams(t,NK), x,y,z,a); }
 /* is F a "modular form" ? */
 int
 checkmf_i(GEN F)
@@ -840,22 +850,88 @@ c_deflate(long n, long d, GEN v)
   for (i = id = 1; i < l; i++, id += d) gel(w, i) = gel(v, id);
   return w;
 }
+
+static void
+err_cyclo(void)
+{ pari_err_IMPL("changing cyclotomic fields in mf"); }
+/* Q(zeta_a) = Q(zeta_b) ? */
+static int
+same_cyc(long a, long b)
+{ return (a == b) || (odd(a) && b == (a<<1)) || (odd(b) && a == (b<<1)); }
+/* need to combine elements in Q(CHI1) and Q(CHI2) with result in Q(CHI),
+ * CHI = CHI1 * CHI2 or CHI / CHI2 times some character of order 2 */
 static GEN
-c_mul(long n, long d, GEN F, GEN G)
+chicompat(GEN CHI, GEN CHI1, GEN CHI2)
 {
-  pari_sp av = avma;
-  long nd = n*d;
-  GEN VF = mfcoefs_i(F, nd, 1);
-  GEN VG = mfcoefs_i(G, nd, 1);
-  return gerepilecopy(av, c_deflate(n, d, RgV_mul_RgXn(VF,VG)));
+  long o1 = mfcharorder(CHI1);
+  long o2 = mfcharorder(CHI2), O, o;
+  GEN T1, T2, P;
+  if (o1 <= 2 && o2 <= 2) return NULL;
+  o = mfcharorder(CHI);
+  P = mfcharpol(CHI1);
+  if (o1 == o2)
+  {
+    if (o1 == o) return NULL;
+    if (!same_cyc(o1,o)) err_cyclo();
+    return mkvec4(P, gen_1,gen_1, Qab_trace_init(P, o1, o));
+  }
+  O = ulcm(o1, o2);
+  if (!same_cyc(O,o)) err_cyclo();
+  if (O != o1) P = polcyclo(O, varn(P));
+  T1 = o1 <= 2? gen_1: utoipos(O / o1);
+  T2 = o2 <= 2? gen_1: utoipos(O / o2);
+  return mkvec4(P, T1, T2, O == o? gen_1: Qab_trace_init(P, O, o));
+}
+/* *F a vector of cyclotomic numbers */
+static void
+compatlift(GEN *F, long o, GEN P)
+{
+  long i, l;
+  GEN f = *F, g = cgetg_copy(f,&l);
+  for (i = 1; i < l; i++)
+    gel(g,i) = gmodulo(RgX_inflate(lift_shallow(gel(f,i)), o), P);
+  *F = g;
+}
+static void
+chicompatlift(GEN T, GEN *F, GEN *G)
+{
+  long o1 = itou(gel(T,2)), o2 = itou(gel(T,3));
+  GEN P = gel(T,1);
+  if (o1 != 1) compatlift(F, o1, P);
+  if (o2 != 1 && G) compatlift(G, o2, P);
 }
 static GEN
-c_pow(long n, long d, GEN F, GEN a)
+chicompatfix(GEN T, GEN F)
+{
+  GEN V = gel(T,4);
+  if (typ(V) == t_VEC) F = gmodulo(QabV_tracerel(V, 0, F), gel(V,1));
+  return F;
+}
+
+static GEN
+c_mul(long n, long d, GEN S)
 {
   pari_sp av = avma;
   long nd = n*d;
-  GEN f = RgV_pows_RgXn(mfcoefs_i(F,nd,1), itos(a));
-  return gerepilecopy(av, c_deflate(n, d, f));
+  GEN F = gel(S,2), G = gel(S,3);
+  F = mfcoefs_i(F, nd, 1);
+  G = mfcoefs_i(G, nd, 1);
+  if (lg(S) == 5) chicompatlift(gel(S,4),&F,&G);
+  F = c_deflate(n, d, RgV_mul_RgXn(F,G));
+  if (lg(S) == 5) F = chicompatfix(gel(S,4), F);
+  return gerepilecopy(av, F);
+}
+static GEN
+c_pow(long n, long d, GEN S)
+{
+  pari_sp av = avma;
+  long nd = n*d;
+  GEN F = gel(S,2), a = gel(S,3), f = mfcoefs_i(F,nd,1);
+  if (lg(S) == 5) chicompatlift(gel(S,4),&F, NULL);
+  f = RgV_pows_RgXn(f, itos(a));
+  f = c_deflate(n, d, f);
+  if (lg(S) == 5) f = chicompatfix(gel(S,4), f);
+  return gerepilecopy(av, f);
 }
 
 /* F * Theta */
@@ -871,15 +947,17 @@ mfmultheta(GEN F)
 }
 
 static GEN
-c_bracket(long n, long d, GEN F, GEN G, GEN gm)
+c_bracket(long n, long d, GEN S)
 {
   pari_sp av = avma;
   long i, nd = n*d;
+  GEN F = gel(S,2), G = gel(S,3);
   GEN VF = mfcoefs_i(F, nd, 1), tF = cgetg(nd+2, t_VEC);
   GEN VG = mfcoefs_i(G, nd, 1), tG = cgetg(nd+2, t_VEC);
   GEN C, mpow, res = NULL, gk = mf_get_gk(F), gl = mf_get_gk(G);
-  ulong j, m = itou(gm);
+  ulong j, m = itou(gel(S,4));
   /* pow[i,j+1] = i^j */
+  if (lg(S) == 6) chicompatlift(gel(S,5),&VF,&VG);
   mpow = cgetg(m+2, t_MAT);
   gel(mpow,1) = const_col(nd, gen_1);
   for (j = 1; j <= m; j++)
@@ -908,6 +986,7 @@ c_bracket(long n, long d, GEN F, GEN G, GEN gm)
       C = gdiv(gmul(C, gmulsg(m-j, gaddgs(gl,m-j-1))),
                gmulsg(-(j+1), gaddgs(gk,j)));
   }
+  if (lg(S) == 6) res = chicompatfix(gel(S,5), res);
   return gerepileupto(av, res);
 }
 /* linear combination \sum L[j] vecF[j] */
@@ -1155,27 +1234,34 @@ Rg_embedall(GEN v, GEN vE)
 { return (lg(vE) == 2)? mfembed(gel(vE,1), v): Rg_embedall_i(v, vE); }
 
 static GEN
-c_div_i(long n, GEN F, GEN G)
+c_div_i(long n, GEN S)
 {
-  GEN VF, VG, a0, a0i, H;
-  VF = mfcoefsser(F, n); VG = mfcoefsser(G, n);
-  a0 = polcoef_i(VG, 0, -1);
-  if (gequal0(a0) || gequal1(a0)) a0 = a0i = NULL;
+  GEN F = gel(S,2), G = gel(S,3);
+  GEN a0, a0i, H;
+  F = mfcoefs_i(F, n, 1);
+  G = mfcoefs_i(G, n, 1);
+  if (lg(S) == 5) chicompatlift(gel(S,4),&F,&G);
+  F = RgV_to_ser_full(F);
+  G = RgV_to_ser_full(G);
+  a0 = polcoef_i(G, 0, -1); /* != 0 */
+  if (gequal1(a0)) a0 = a0i = NULL;
   else
   {
     a0i = ginv(a0);
-    VG = gmul(ser_unscale(VG,a0), a0i);
-    VF = gmul(ser_unscale(VF,a0), a0i);
+    G = gmul(ser_unscale(G,a0), a0i);
+    F = gmul(ser_unscale(F,a0), a0i);
   }
-  H = gdiv(VF, VG);
+  H = gdiv(F, G);
   if (a0) H = ser_unscale(H,a0i);
-  return sertovecslice(H, n);
+  H = sertovecslice(H, n);
+  if (lg(S) == 5) H = chicompatfix(gel(S,4), H);
+  return H;
 }
 static GEN
-c_div(long n, long d, GEN F, GEN G)
+c_div(long n, long d, GEN S)
 {
   pari_sp av = avma;
-  GEN D = (d==1)? c_div_i(n, F,G): c_deflate(n, d, c_div_i(n*d, F,G));
+  GEN D = (d==1)? c_div_i(n, S): c_deflate(n, d, c_div_i(n*d, S));
   return gerepilecopy(av, D);
 }
 
@@ -1494,12 +1580,12 @@ mfcoefs_i(GEN F, long n, long d)
     case t_MF_THETA: return c_theta(n, d, gel(F,2));
     case t_MF_ETAQUO: return c_etaquo(n, d, gel(F,2), gel(F,3));
     case t_MF_ELL: return c_ell(n, d, gel(F,2));
-    case t_MF_MUL: return c_mul(n, d, gel(F,2), gel(F,3));
-    case t_MF_POW: return c_pow(n, d, gel(F,2), gel(F,3));
-    case t_MF_BRACKET: return c_bracket(n, d, gel(F,2), gel(F,3), gel(F,4));
+    case t_MF_MUL: return c_mul(n, d, F);
+    case t_MF_POW: return c_pow(n, d, F);
+    case t_MF_BRACKET: return c_bracket(n, d, F);
     case t_MF_LINEAR: return c_linear(n, d, gel(F,2), gel(F,3), gel(F,4));
     case t_MF_LINEAR_BHN: return c_linear_bhn(n, d, F);
-    case t_MF_DIV: return c_div(n, d, gel(F,2), gel(F,3));
+    case t_MF_DIV: return c_div(n, d, F);
     case t_MF_SHIFT: return c_shift(n, d, gel(F,2), gel(F,3));
     case t_MF_DERIV: return c_deriv(n, d, gel(F,2), gel(F,3));
     case t_MF_DERIVE2: return c_derivE2(n, d, gel(F,2), gel(F,3));
@@ -1711,11 +1797,12 @@ mfchiadjust(GEN CHI, GEN gk, long N)
 }
 
 static GEN
-mfsamefield(GEN P, GEN Q)
+mfsamefield(GEN T, GEN P, GEN Q)
 {
   if (degpol(P) == 1) return Q;
   if (degpol(Q) == 1) return P;
   if (!gequal(P,Q)) pari_err_TYPE("mfsamefield [different fields]",mkvec2(P,Q));
+  if (T) err_cyclo();
   return P;
 }
 
@@ -1723,46 +1810,53 @@ GEN
 mfmul(GEN f, GEN g)
 {
   pari_sp av = avma;
-  GEN N, K, NK, CHI;
+  GEN T, N, K, NK, CHI, CHIf, CHIg;
   if (!checkmf_i(f)) pari_err_TYPE("mfmul",f);
   if (!checkmf_i(g)) pari_err_TYPE("mfmul",g);
   N = lcmii(mf_get_gN(f), mf_get_gN(g));
   K = gadd(mf_get_gk(f), mf_get_gk(g));
-  CHI = mfcharmul(mf_get_CHI(f), mf_get_CHI(g));
-  CHI = mfchiadjust(CHI, K, itos(N));
-  NK = mkgNK(N, K, CHI, mfsamefield(mf_get_field(f), mf_get_field(g)));
-  return gerepilecopy(av, tag2(t_MF_MUL, NK, f, g));
+  CHIf = mf_get_CHI(f);
+  CHIg = mf_get_CHI(g);
+  CHI = mfchiadjust(mfcharmul(CHIf,CHIg), K, itos(N));
+  T = chicompat(CHI, CHIf, CHIg);
+  NK = mkgNK(N, K, CHI, mfsamefield(T, mf_get_field(f), mf_get_field(g)));
+  return gerepilecopy(av, T? tag3(t_MF_MUL,NK,f,g,T): tag2(t_MF_MUL,NK,f,g));
 }
 GEN
 mfpow(GEN f, long n)
 {
   pari_sp av = avma;
-  GEN KK, NK, gn, CHI;
+  GEN T, KK, NK, gn, CHI, CHIf;
   if (!checkmf_i(f)) pari_err_TYPE("mfpow",f);
   if (!n) return mf1();
   if (n == 1) return gcopy(f);
   KK = gmulsg(n,mf_get_gk(f));
   gn = stoi(n);
-  CHI = mfcharpow(mf_get_CHI(f), gn);
-  CHI = mfchiadjust(CHI, KK, mf_get_N(f));
+  CHIf = mf_get_CHI(f);
+  CHI = mfchiadjust(mfcharpow(CHIf,gn), KK, mf_get_N(f));
+  T = chicompat(CHI, CHIf, CHIf);
   NK = mkgNK(mf_get_gN(f), KK, CHI, mf_get_field(f));
-  return gerepilecopy(av, tag2(t_MF_POW, NK, f, gn));
+  return gerepilecopy(av, T? tag3(t_MF_POW,NK,f,gn,T): tag2(t_MF_POW,NK,f,gn));
 }
 GEN
 mfbracket(GEN f, GEN g, long m)
 {
   pari_sp av = avma;
-  GEN N, K, NK, CHI;
+  GEN T, N, K, NK, CHI, CHIf, CHIg;
   if (!checkmf_i(f)) pari_err_TYPE("mfbracket",f);
   if (!checkmf_i(g)) pari_err_TYPE("mfbracket",g);
   if (m < 0) pari_err_TYPE("mfbracket [m<0]",stoi(m));
   K = gaddgs(gadd(mf_get_gk(f), mf_get_gk(g)), 2*m);
   if (gsigne(K) < 0) pari_err_IMPL("mfbracket for this form");
   N = lcmii(mf_get_gN(f), mf_get_gN(g));
-  CHI = mfcharmul(mf_get_CHI(f), mf_get_CHI(g));
+  CHIf = mf_get_CHI(f);
+  CHIg = mf_get_CHI(g);
+  CHI = mfcharmul(CHIf, CHIg);
   CHI = mfchiadjust(CHI, K, itou(N));
-  NK = mkgNK(N, K, CHI, mfsamefield(mf_get_field(f), mf_get_field(g)));
-  return gerepilecopy(av, tag3(t_MF_BRACKET, NK, f, g, utoi(m)));
+  T = chicompat(CHI, CHIf, CHIg);
+  NK = mkgNK(N, K, CHI, mfsamefield(T, mf_get_field(f), mf_get_field(g)));
+  return gerepilecopy(av, T? tag4(t_MF_BRACKET, NK, f, g, utoi(m), T)
+                           : tag3(t_MF_BRACKET, NK, f, g, utoi(m)));
 }
 
 /* remove 0 entries in L */
@@ -1817,7 +1911,8 @@ mflinear_bhn(GEN mf, GEN L)
   for (i = 1; i < l; i++)
   {
     GEN c = gel(L,i);
-    if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1) P = mfsamefield(P,gel(c,1));
+    if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1)
+      P = mfsamefield(NULL, P, gel(c,1));
   }
   NK = mkgNK(MF_get_gN(mf), MF_get_gk(mf), MF_get_CHI(mf), P);
   return taglinear_i(t_MF_LINEAR_BHN,  NK, F,L);
@@ -1855,7 +1950,14 @@ vecmflineardiv0(GEN F, GEN C, GEN E)
 {
   GEN v = vecmflinear(F, C);
   long i, l = lg(v);
-  for (i = 1; i < l; i++) gel(v,i) = mfdiv_val(gel(v,i), E, 0);
+  if (l == 1) return v;
+  gel(v,1) = mfdiv_val(gel(v,1), E, 0);
+  for (i = 2; i < l; i++)
+  { /* v[i] /= E */
+    GEN f = shallowcopy(gel(v,1));
+    gel(f,2) = gel(v,i);
+    gel(v,i) = f;
+  }
   return v;
 }
 
@@ -1944,8 +2046,9 @@ mflinear(GEN F, GEN L)
     if (!K) K = Ki;
     else if (!gequal(K, Ki))
       pari_err_TYPE("mflinear [different weights]", mkvec2(K,Ki));
-    P = mfsamefield(P, mf_get_field(f));
-    if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1) P = mfsamefield(P, gel(c,1));
+    P = mfsamefield(NULL, P, mf_get_field(f));
+    if (typ(c) == t_POLMOD && varn(gel(c,1)) == 1)
+      P = mfsamefield(NULL, P, gel(c,1));
   }
   G = znstar0(N,1);
   for (i = 1; i < l; i++)
@@ -1992,14 +2095,16 @@ mfval(GEN F)
 GEN
 mfdiv_val(GEN f, GEN g, long vg)
 {
-  GEN N, K, NK, CHI;
+  GEN T, N, K, NK, CHI, CHIf, CHIg;
   if (vg) { f = mfshift(f,vg); g = mfshift(g,vg); }
   N = lcmii(mf_get_gN(f), mf_get_gN(g));
   K = gsub(mf_get_gk(f), mf_get_gk(g));
-  CHI = mfchardiv(mf_get_CHI(f), mf_get_CHI(g));
-  CHI = mfchiadjust(CHI, K, itos(N));
-  NK = mkgNK(N, K, CHI, mfsamefield(mf_get_field(f), mf_get_field(g)));
-  return tag2(t_MF_DIV, NK, f, g);
+  CHIf = mf_get_CHI(f);
+  CHIg = mf_get_CHI(g);
+  CHI = mfchiadjust(mfchardiv(CHIf, CHIg), K, itos(N));
+  T = chicompat(CHI, CHIf, CHIg);
+  NK = mkgNK(N, K, CHI, mfsamefield(T, mf_get_field(f), mf_get_field(g)));
+  return T? tag3(t_MF_DIV, NK, f, g, T): tag2(t_MF_DIV, NK, f, g);
 }
 GEN
 mfdiv(GEN F, GEN G)
@@ -3714,12 +3819,12 @@ mfclean2(GEN M, GEN z, GEN P, long n)
 }
 /* M QabM, lg(M)>1 and [y,z] its rank profile. Let Minv be the inverse of the
  * invertible square matrix in mkMinv format. Return [y,Minv, M[..y[#y],]]
- * P cyclotomic polynomial of order n != 2 mod 4 or NULL */
+ * P cyclotomic polynomial of order n > 2 or NULL */
 static GEN
 mfclean(GEN M, GEN P, long n, int ratlift)
 {
   GEN W, v, y, z, d, Minv, dM, MdM = Q_remove_denom(M, &dM);
-  if (n == 1)
+  if (n <= 2)
     W = ZM_pseudoinv(MdM, &v, &d);
   else
     W = ZabM_pseudoinv_i(liftpol_shallow(MdM), P, n, &v, &d, ratlift);
@@ -3734,8 +3839,8 @@ mfclean(GEN M, GEN P, long n, int ratlift)
 static GEN
 mfcleanCHI(GEN M, GEN CHI, int ratlift)
 {
-  long n = mfcharorder_canon(CHI);
-  GEN P = (n == 1)? NULL: mfcharpol(CHI);
+  long n = mfcharorder(CHI);
+  GEN P = (n <= 2)? NULL: mfcharpol(CHI);
   return mfclean(M, P, n, ratlift);
 }
 
@@ -3932,8 +4037,8 @@ mfnewinit(long N, long k, GEN CHI, cachenew_t *cache, long init)
   else
     reset_cachenew(cache, N, tf);
   /* cache.DATA is not NULL */
-  ord = mfcharorder_canon(CHIP);
-  P = ord == 1? NULL: mfcharpol(CHIP);
+  ord = mfcharorder(CHIP);
+  P = ord <= 2? NULL: mfcharpol(CHIP);
   vj = cgetg(dim+1, t_VECSMALL);
   M = cgetg(dim+1, t_MAT);
   for (two = 1, ct = 0, jin = 1; two <= 2; two++)
@@ -4341,16 +4446,21 @@ mfvec_first_cusp(GEN v)
   return i;
 }
 /* vF a vector of mf F of type DIV(LINEAR(BAS,L), f) in (lcm) level N,
- * F[2]=LINEAR(BAS,L), F[2][2]=BAS=fixed basis (Eisentstein or bhn type),
+ * F[2]=LINEAR(BAS,L), F[2][2]=BAS=fixed basis (Eisenstein or bhn type),
  * F[2][3]=L, F[3]=f; mfvectomat(vF, n) */
 static GEN
 mflineardivtomat(long N, GEN vF, long n)
 {
-  GEN F, M, f, fc, ME, dB, B, a0;
+  GEN F, M, f, fc, ME, dB, B, a0, V = NULL;
   long lM, lF = lg(vF), j;
 
   if (lF == 1) return cgetg(1,t_MAT);
   F = gel(vF,1);
+  if (lg(F) == 5)
+  { /* chicompat */
+    V = gmael(F,4,4);
+    if (typ(V) == t_INT) V = NULL;
+  }
   M = gmael(F,2,2); /* BAS */
   lM = lg(M);
   j = mfvec_first_cusp(M);
@@ -4389,6 +4499,7 @@ mflineardivtomat(long N, GEN vF, long n)
     if (!gequal1(gel(dB,j))) f = RgC_Rg_div(f, gel(dB,j));
     gel(B,j) = gerepileupto(av,f);
   }
+  if (V) B = gmodulo(QabM_tracerel(V, 0, B), gel(V,1));
   return B;
 }
 
@@ -4876,8 +4987,8 @@ split_ii(GEN mf, long dimlim, long flag, long *pnewd)
   todosp = mkvec( split_starting_space(mf0) );
   simplesp = empty;
   FC = mfcharconductor(CHI);
-  ord = mfcharorder_canon(CHI);
-  if (ord == 1) NF = POLCYC = NULL;
+  ord = mfcharorder(CHI);
+  if (ord <= 2) NF = POLCYC = NULL;
   else
   {
     POLCYC = mfcharpol(CHI);
@@ -5241,7 +5352,6 @@ RgV_normalize(GEN v, GEN *pc)
   }
   return v;
 }
-/* ordchi != 2 mod 4 */
 static GEN
 mftreatdihedral(GEN DIH, GEN POLCYC, long ordchi, long biglim, GEN *pS)
 {
@@ -5279,7 +5389,7 @@ mfstabiter(GEN M, GEN A2, GEN E1inv, long lim, GEN P, long ordchi)
     if (lB == 1) return NULL;
     if (lB == lA) return mkvec2(A, VC);
     B = rowslice(B, 1, lA-1);
-    if (ordchi != 1) B = gmodulo(B, P);
+    if (ordchi > 2) B = gmodulo(B, P);
     A = Q_primitive_part(RgM_mul(A,B), &con);
     VC = gmul(VC,B); /* first VC is a scalar, then a RgM */
     if (con) VC = RgM_Rg_div(VC, con);
@@ -5308,7 +5418,7 @@ mfintereis(GEN A, GEN M2, GEN y, GEN den, GEN E2, GEN P, long ordchi)
   GEN z, M1 = mfmatsermul(A,E2), M1den = is_pm1(den)? M1: RgM_Rg_mul(M1,den);
   M2 = RgM_mul(M2, rowpermute(M1, y));
   z = QabM_ker(RgM_sub(M2,M1den), P, ordchi);
-  if (ordchi != 1) z = gmodulo(z, P);
+  if (ordchi > 2) z = gmodulo(z, P);
   return mkvec2(RgM_mul(A,z), z);
 }
 static GEN
@@ -5374,7 +5484,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
   if (ptdimdih) *ptdimdih = 0;
   if (pS) *pS = NULL;
   if (wt1empty(N) || mfcharparity(CHI) != -1) return NULL;
-  ordchi = mfcharorder_canon(CHI);
+  ordchi = mfcharorder(CHI);
   if (uisprime(N) && ordchi > 4) return NULL;
   if (!pS)
   {
@@ -5386,7 +5496,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
     DIH = mfdihedralcusp(N, CHI);
     dih = lg(DIH) - 1;
   }
-  POLCYC = (ordchi == 1)? NULL: mfcharpol(CHI);
+  POLCYC = (ordchi <= 2)? NULL: mfcharpol(CHI);
   if (ptdimdih) *ptdimdih = dih;
   biglim = mfsturmNk(N, 2);
   if (N <= 600) switch(N)
@@ -6189,7 +6299,7 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
   cycn = cyc_normalize_zv(cyc);
   cycN = ZV_to_zv(znstar_get_cyc(znN));
   ordmax = cyc[1];
-  P = polcyclo(ord_canon(ordmax), fetch_user_var("t"));
+  P = polcyclo(ordmax, fetch_user_var("t"));
   deghecke = myeulerphiu(ordmax);
   Lvchi = mklvchi(bnr, con, cycn); l = lg(Lvchi);
   if (l == 1) return NULL;
@@ -6201,7 +6311,7 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
     long ordw, vnum, k0;
     v = bnrchartwist2conrey(chin, cycn, bnrconreyN, kroconreyN);
     ordw = itou(Q_denom(v));
-    Tinit = Qab_trace_init(P, ord_canon(ordmax), ord_canon(ordw));
+    Tinit = Qab_trace_init(P, ordmax, ordw);
     chi = conreydenormalize(znN, v);
     vnum = itou(znconreyexp(znN, chi));
     chi = ZV_to_zv(znconreychar(znN,chi));
@@ -6399,7 +6509,7 @@ mfdihedralnew_i(long N, GEN CHI)
     }
   }
   Tinit = gmael3(V,1,3,3); Pm = gel(Tinit,1);
-  V = QabM_indexrank(M, degpol(Pm)==1? NULL: Pm, ord_canon(ordw));
+  V = QabM_indexrank(M, degpol(Pm)==1? NULL: Pm, ordw);
   return mkvec2(vf,gel(V,2));
 }
 static long
@@ -6517,8 +6627,8 @@ mfinit_Nkchi(long N, long k, GEN CHI, long space, long flraw)
   }
   else /* k >= 2 */
   {
-    long ord = mfcharorder_canon(CHI);
-    GEN z = NULL, P = (ord == 1)? NULL: mfcharpol(CHI);
+    long ord = mfcharorder(CHI);
+    GEN z = NULL, P = (ord <= 2)? NULL: mfcharpol(CHI);
     switch(space)
     {
       case mf_EISEN:
@@ -6849,7 +6959,7 @@ getembed(GEN P, GEN T, GEN zcyclo, long prec)
 }
 static GEN
 grootsof1_CHI(GEN CHI, long prec)
-{ return grootsof1(mfcharorder_canon(CHI), prec); }
+{ return grootsof1(mfcharorder(CHI), prec); }
 /* return the [Q(F):Q(chi)] embeddings of F */
 static GEN
 mfgetembed(GEN F, long prec)
@@ -7478,9 +7588,9 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   NQ = atkin_get_NQ(N, Q, "mfatkininit");
   CHI = MF_get_CHI(mf);
   CHI = mfchartoprimitive(CHI, &FC);
-  ord = mfcharorder_canon(CHI);
+  ord = mfcharorder(CHI);
   mf = MF_set_new(mf);
-  if (MF_get_space(mf) == mf_NEW && ord == 1 && NQ % FC == 0 && dk == 1)
+  if (MF_get_space(mf) == mf_NEW && ord <= 2 && NQ % FC == 0 && dk == 1)
     return mfatkinmatnewquad(mf, CHI, Q, flag, prec);
   /* now flag != 0 */
   G   = gel(CHI,1);
@@ -7521,7 +7631,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   Mindex = MF_get_Mindex(mfB);
   Minv = MF_get_Minv(mfB);
   P = z = NULL;
-  if (ord != 1) { P = mfcharpol(CHI); z = rootsof1u_cx(ord, prec); }
+  if (ord > 2) { P = mfcharpol(CHI); z = rootsof1u_cx(ord, prec); }
   lim = maxss(mfsturm(mfB), mfsturm(mf)) + 1;
   for (j = 1; j < l; j++)
   {
@@ -8315,7 +8425,7 @@ mfbasis(GEN NK, long space)
   GEN mf, CHI;
   if ((mf = checkMF_i(NK))) return concat(gel(mf,2), gel(mf,3));
   checkNK2(NK, &N, &k, &dk, &CHI, 0);
-  if (dk == 2) return gerepilecopy(av, mf2basis(N, k>>1, CHI, space));
+  if (dk == 2) return gerepilecopy(av, mf2basis(N, k>>1, CHI, NULL, space));
   mf = mfinit_Nkchi(N, k, CHI, space, 1);
   return gerepilecopy(av, MF_get_basis(mf));
 }
@@ -8856,7 +8966,7 @@ mfeisenstein_i(long k, GEN CHI1, GEN CHI2)
   NK = NK_eisen2(k, CHI1, CHI2);
   ord = ulcm(mfcharorder(CHI1), mfcharorder(CHI2));
   E0 = mfeisenstein2_0(k, CHI1, CHI2, ord);
-  T = mkvec(polcyclo(ord_canon(ord), vt));
+  T = mkvec(polcyclo(ord, vt));
   vchi = mkvec4(E0, T, CHI1, CHI2);
   return tag2(t_MF_EISEN, NK, vchi, mkvecsmall2(ord,0));
 }
@@ -8906,12 +9016,12 @@ mfeisensteinbasis_i(long N0, long k, GEN CHI)
 {
   GEN G = gel(CHI,1), chi = gel(CHI,2), vT = const_vec(myeulerphiu(N0), NULL);
   GEN CHI0, GN, chiN, Lchi, LG, V, RES, NK, T;
-  long i, j, l, n, n1, N, ord = mfcharorder(CHI), OC = ord_canon(ord);
+  long i, j, l, n, n1, N, ord = mfcharorder(CHI);
   long F = mfcharmodulus(CHI), vt = varn(mfcharpol(CHI));
 
   CHI0 = (F == 1)? CHI: mfchartrivial();
   j = 1; RES = cgetg(N0+1, t_VEC);
-  T = gel(vT,OC) = Qab_trace_init(polcyclo(OC,vt), OC, OC);
+  T = gel(vT,ord) = Qab_trace_init(polcyclo(ord,vt), ord, ord);
   if (F != 1 || k != 2)
   { /* N1 = 1 */
     NK = mkNK(F, k, CHI);
@@ -8949,7 +9059,7 @@ mfeisensteinbasis_i(long N0, long k, GEN CHI)
   for (n1 = 2; n1 < l; n1++) /* skip 1 (trivial char) */
   {
     GEN v = gel(V,n1), w, chi1, chi2, G1, G2, CHI1, CHI2;
-    long N12, N1, N2, no, oc, o12, t, m;
+    long N12, N1, N2, no, o12, t, m;
     if (!Lchi[n1]) continue;
     chi1 = gel(v,2); N1 = itou(gel(v,1)); /* conductor of chi1 */
     w = gel(V, Fl_div(n,n1,N));
@@ -8970,8 +9080,8 @@ mfeisensteinbasis_i(long N0, long k, GEN CHI)
       m = Fl_mul(m, no, N); if (!m) break;
       if (ugcd(t, o12) == 1) Lchi[m] = 0;
     }
-    oc = ord_canon(o12); T = gel(vT,oc);
-    if (!T) T = gel(vT,oc) = Qab_trace_init(polcyclo(oc,vt), oc, OC);
+    T = gel(vT,o12);
+    if (!T) T = gel(vT,o12) = Qab_trace_init(polcyclo(o12,vt), o12, ord);
     NK = mkNK(N12, k, CHI);
     gel(RES, j++) = mfeisenstein2all(N0, NK, k, CHI1, CHI2, T, o12);
   }
@@ -9564,7 +9674,7 @@ static GEN
 mfeisensteinspaceinit_i(long N, long k, GEN CHI)
 {
   GEN M, Minv, vj, vG, GN, allN, P, vz, z = NULL;
-  long nCHI, lim, ell, ord, pn, dim = mffulldim(N, k, CHI);
+  long nCHI, lim, ell, ord, dim = mffulldim(N, k, CHI);
   ulong r, p;
 
   if (!dim) retmkvec3(cgetg(1,t_VECSMALL),
@@ -9573,19 +9683,18 @@ mfeisensteinspaceinit_i(long N, long k, GEN CHI)
   allN = charsmodN(N);
   vG = gel(allN,3);
   GN = gel(vG,N);
-  pn = znstar_get_expo(GN);
-  ord = ord_canon(pn);
-  P = ord == 1? NULL: polcyclo(ord, varn(mfcharpol(CHI)));
+  ord = znstar_get_expo(GN);
+  P = ord <= 2? NULL: polcyclo(ord, varn(mfcharpol(CHI)));
   CHI = induce(GN, CHI); /* lift CHI mod N before mfcharno*/
   nCHI = mfcharno(CHI);
   r = QabM_init(ord, &p);
-  vz = Fl_powers(r, pn, p);
+  vz = Fl_powers(r, ord, p);
   getcols(&M, &vj, k, nCHI, allN, vz, p, lim);
   for (ell = k>>1; ell >= 1; ell--)
     if (getcolsgen(dim, &M, &vj, &z, k, ell, nCHI, allN, vz, p, lim)) break;
   if (!z) update_Mj(&M, &vj, &z, p);
   if (lg(vj) - 1 < dim) return NULL;
-  M = mkM(vj, pn, P, lim);
+  M = mkM(vj, ord, P, lim);
   Minv = QabM_Minv(rowpermute(M, gel(z,1)), P, ord);
   return mkvec4(gel(z,1), Minv, vj, utoi(ord));
 }
@@ -9637,8 +9746,8 @@ mfeisensteindec(GEN mf, GEN F)
   ord = itou(gel(Mvecj,4));
   V = mfcoefs(F, Mindex[lg(Mindex)-1]-1, 1); settyp(V, t_COL);
   CHI = mf_get_CHI(F);
-  o = mfcharorder_canon(CHI);
-  if (o > 1 && o != ord)
+  o = mfcharorder(CHI);
+  if (o > 2 && o != ord)
   { /* convert Mod(.,polcyclo(o)) to Mod(., polcyclo(N)) for o | N,
      * o and N both != 2 (mod 4) */
     GEN z, P = gel(M,4); /* polcyclo(ord) */
@@ -10345,20 +10454,27 @@ mf2dim_Nkchi(long N, long r, GEN CHI, ulong space)
 static GEN
 mf2init_Nkchi(long N, long r, GEN CHI, long space, long flraw)
 {
-  GEN Minv, Minvmat, B, M, gk = gaddsg(r,ghalf);
+  GEN CHI1, Minv, Minvmat, B, M, gk = gaddsg(r,ghalf);
   GEN mf1 = mkvec4(utoi(N),gk,CHI,utoi(space));
   long L;
   if (!checkmf2(N, r, CHI, mfcharconductor(CHI), space)) return mfEMPTY(mf1);
   if (space==mf_EISEN) pari_err_IMPL("half-integral weight Eisenstein space");
   L = mfsturmNgk(N, gk) + 1;
-  B = mf2basis(N, r, CHI, space);
-  M = mflineardivtomat(N,B,L);
+  B = mf2basis(N, r, CHI, &CHI1, space);
+  M = mflineardivtomat(N,B,L); /* defined modulo T = charpol(CHI) */
   if (flraw) M = mkvec3(gen_0,gen_0,M);
   else
   {
+    long o1 = mfcharorder(CHI1), o = mfcharorder(CHI);
     M = mfcleanCHI(M, CHI, 0);
     Minv = gel(M,2);
-    Minvmat = RgM_Minv_mul(NULL, Minv);
+    Minvmat = RgM_Minv_mul(NULL, Minv); /* mod T */
+    if (o1 != o)
+    {
+      GEN tr = Qab_trace_init(mfcharpol(CHI), o, o1);
+      Minvmat = QabM_tracerel(tr, 0, Minvmat);
+    }
+    /* Minvmat mod T1 = charpol(CHI1) */
     B = vecmflineardiv_linear(B, Minvmat);
     gel(M,3) = RgM_Minv_mul(gel(M,3), Minv);
     gel(M,2) = mkMinv(matid(lg(B)-1), NULL,NULL,NULL);
@@ -10382,8 +10498,8 @@ mfkohnenbasis_i(GEN mf, GEN CHIP, long eps, long sb)
     if (j == 2 || j == 2 + eps) gel(ME, c++) = gel(M, i+1);
   }
   setlg(ME, c); ME = shallowtrans(Q_primpart(ME));
-  n = mfcharorder_canon(CHIP);
-  return n == 1? ZM_ker(ME): ZabM_ker(liftpol_shallow(ME), mfcharpol(CHIP), n);
+  n = mfcharorder(CHIP);
+  return n <= 2? ZM_ker(ME): ZabM_ker(liftpol_shallow(ME), mfcharpol(CHIP), n);
 }
 GEN
 mfkohnenbasis(GEN mf)
@@ -10431,8 +10547,8 @@ mfkohnenbijection_i(GEN mf)
   if (lK == 1) return mkvec4(mf3, cgetg(1, t_MAT), K, cgetg(1, t_VEC));
   CHI = mfcharchiliftprim(CHI, N4);
   if (!CHI) pari_err_TYPE("mfkohnenbijection [incorrect CHI]", CHI);
-  n = mfcharorder_canon(CHI);
-  P = n==1? NULL: mfcharpol(CHI);
+  n = mfcharorder(CHI);
+  P = n<=2? NULL: mfcharpol(CHI);
   SHI = cgetg(nbD+1, t_VEC);
   sb3 = mfsturm(mf3);
   vB = RgM_mul(mfcoefs_mf(mf, labs(D[nbD-1])*sb3*sb3, 1), K);
@@ -10932,7 +11048,7 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
   {
     GEN CHI = MF_get_CHI(mf);
     long N = MF_get_N(mf), F = mfcharconductor(CHI);
-    long ord = mfcharorder_canon(CHI), k, deg;
+    long ord = mfcharorder(CHI), k, deg;
     long B = umodiu(gcoeff(M,1,2), N);
     long C = umodiu(gcoeff(M,2,1), N);
     long D = umodiu(gcoeff(M,2,2), N);
@@ -10992,12 +11108,11 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
 /*         Alternative method for 1/2-integral weight         */
 /**************************************************************/
 static GEN
-mf2basis(long N, long r, GEN CHI, long space)
+mf2basis(long N, long r, GEN CHI, GEN *pCHI1, long space)
 {
-  GEN CHI1, CHI2, mf1, mf2, B1, B2, BT1, BT2, M1, M2, M, T1, T2;
-  GEN M2I, K, POLCYC, v, den;
-  long sb, k1, N2, ordchi;
-  k1 = r + 1;
+  GEN CHI1, CHI2, mf1, mf2, B1, B2, BT, M1, M2, M, M2I, T, Th, v, den;
+  long sb, N2, o1, o2, k1 = r + 1;
+
   if (odd(k1))
   {
     CHI1 = mfcharmul(CHI, get_mfchar(stoi(-4)));
@@ -11009,6 +11124,7 @@ mf2basis(long N, long r, GEN CHI, long space)
     CHI2 = mfcharmul(CHI, get_mfchar(utoi(8)));
   }
   mf1 = mfinit_Nkchi(N, k1, CHI1, space, 1);
+  if (pCHI1) *pCHI1 = CHI1;
   B1 = MF_get_basis(mf1); if (lg(B1) == 1) return cgetg(1,t_VEC);
   N2 = ulcm(8, N);
   mf2 = mfinit_Nkchi(N2, k1, CHI2, space, 1);
@@ -11016,56 +11132,31 @@ mf2basis(long N, long r, GEN CHI, long space)
   sb = mfsturmNgk(N2, gaddsg(k1, ghalf));
   M1 = mfcoefs_mf(mf1, sb, 1);
   M2 = mfcoefs_mf(mf2, sb, 1);
-  T1 = mfTheta(NULL); BT1 = RgV_to_RgX(mfcoefs_i(T1, sb, 1), 0);
-  T2 = mfbd_i(T1, 2); BT2 = RgV_to_RgX(mfcoefs_i(T2, sb, 1), 0);
-  M1 = mfmatsermul(M1, BT2);
-  M2 = mfmatsermul(M2, BT1);
-  ordchi = mfcharorder_canon(CHI);
-  POLCYC = (ordchi == 1)? NULL: mfcharpol(CHI);
-  M2I = QabM_pseudoinv(M2, POLCYC, ordchi, &v, &den);
-  M = RgM_mul(M2, RgM_mul(M2I, rowpermute(M1, gel(v,1))));
-  M = gsub(RgM_Rg_mul(M1, den), M);
-  K = QabM_ker(M, POLCYC, ordchi);
-  return vecmflineardiv0(B1, K, T1);
+  Th = mfTheta(NULL);
+  BT = mfcoefs_i(Th, sb, 1);
+  M1 = mfmatsermul(M1, RgV_to_RgX(expandbd(BT,2),0));
+  M2 = mfmatsermul(M2, RgV_to_RgX(BT,0));
+  o1= mfcharorder(CHI1);
+  T = (o1 <= 2)? NULL: mfcharpol(CHI1);
+  if (o1 > 2) M1 = liftpol_shallow(M1);
+  o2= mfcharorder(CHI2);
+  if (T)
+  {
+    if (o2 == o1) M2 = liftpol_shallow(M2);
+    else
+    {
+      GEN tr = Qab_trace_init(mfcharpol(CHI2), o2, o1);
+      M2 = QabM_tracerel(tr, 0, M2);
+    }
+  }
+  /* now everything is defined mod T = mfcharpol(CHI1) */
+  M2I = QabM_pseudoinv_i(M2, T, o1, &v, &den);
+  M = RgM_mul(M2I, rowpermute(M1, gel(v,1)));
+  M = RgM_mul(M2, M);
+  M1 = RgM_Rg_mul(M1, den);
+  M = RgM_sub(M1, M); if (T) M = RgXQM_red(M, T);
+  return vecmflineardiv0(B1, QabM_ker(M, T, o1), Th);
 }
-
-#if 0
-/* alternative method for weight 1 */
-GEN
-mfwt1basisalt(long N, GEN CHI, long space)
-{
-  pari_sp ltop = avma;
-  GEN CHI1, mf1, mf2, B1, B2, BT1, BT2, M1, M2, M, T1, T2;
-  GEN M2I, K, POLCYC, v, den;
-  long sb, N1, N2, ordchi;
-
-  CHI = get_mfchar(CHI);
-  CHI1 = mfcharmul(CHI, get_mfchar(stoi(-4)));
-  N1 = ulcm(4, N);
-  mf1 = mfinit_Nkchi(N1, 2, CHI1, space, 1);
-  B1 = MF_get_basis(mf1);
-  if (lg(B1) == 1) { set_avma(ltop); return cgetg(1,t_VEC); }
-  N2 = ulcm(8, N);
-  mf2 = mfinit_Nkchi(N2, 2, CHI1, space, 1);
-  B2 = MF_get_basis(mf2);
-  if (lg(B2) == 1) { set_avma(ltop); return cgetg(1,t_VEC); }
-  sb = mfsturmNk(N2, 3);
-  M1 = mfcoefs_mf(mf1, sb, 1);
-  M2 = mfcoefs_mf(mf2, sb, 1);
-  T1 = mfTheta(NULL); T1 = mfmul(T1, T1);
-  BT1 = RgV_to_RgX(mfcoefs_i(T1, sb, 1), 0);
-  T2 = mfbd_i(T1, 2); BT2 = RgV_to_RgX(mfcoefs_i(T2, sb, 1), 0);
-  M1 = mfmatsermul(M1, BT2);
-  M2 = mfmatsermul(M2, BT1);
-  ordchi = mfcharorder_canon(CHI);
-  POLCYC = (ordchi == 1)? NULL: mfcharpol(CHI);
-  M2I = QabM_pseudoinv(M2, POLCYC, ordchi, &v, &den);
-  M = RgM_mul(M2, RgM_mul(M2I, rowpermute(M1, gel(v,1))));
-  M = gsub(RgM_Rg_mul(M1, den), M);
-  K = QabM_ker(M, POLCYC, ordchi);
-  return gerepilecopy(ltop, vecmflineardiv0(B1, K, T1));
-}
-#endif
 
 /*******************************************************************/
 /*                         Integration                             */
@@ -11074,9 +11165,9 @@ static GEN
 vanembed(GEN F, GEN v, long prec)
 {
   GEN CHI = mf_get_CHI(F);
-  long o = mfcharorder_canon(CHI);
-  if (o > 1 || degpol(mf_get_field(F)) > 1) v = liftpol_shallow(v);
-  if (o > 1) v = gsubst(v, varn(mfcharpol(CHI)), rootsof1u_cx(o, prec));
+  long o = mfcharorder(CHI);
+  if (o > 2 || degpol(mf_get_field(F)) > 1) v = liftpol_shallow(v);
+  if (o > 2) v = gsubst(v, varn(mfcharpol(CHI)), rootsof1u_cx(o, prec));
   return v;
 }
 

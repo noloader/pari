@@ -324,6 +324,8 @@ vec(N)
 mfcoefs(mfderiv(E6),6)
 mfcoefs(mfderiv(E6,-1),6)
 mfcoefs(mfderivE2(E6),6)
+N=19; f=mfeisenstein(2,Mod(6,N)); g=mfeisenstein(2,Mod(11,N)); E=mfmul(f,g);
+mfcoefs(E,6)
 
 f = mfbracket(mfbd(E4,4), mfTheta(), 1); vec(f)
 mfcoefs(mfbracket(E4,E6,1),10)/(-3456)
@@ -751,3 +753,7 @@ mf=mfinit([12,5/2],1); F=mfbasis(mf)[1];
 mfmanin(FSbug)
 mfsymboleval(FSbug,[0,1])
 mfgaloistype([4,1,-4],x)
+
+N=19; f=mfeisenstein(2,Mod(6,N)); g=mfeisenstein(2,Mod(11,N)); E=mfmul(f,g);
+mfdiv(E,f);
+mf=mfinit([7, 6, Mod(2,7)],0); [F] = mfeigenbasis(mf); mfpow(F,3)
