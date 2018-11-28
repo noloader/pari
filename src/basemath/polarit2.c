@@ -2914,12 +2914,11 @@ fix_pol(GEN x, long v, long v0)
 GEN
 polresultant0(GEN x, GEN y, long v, long flag)
 {
-  long v0 = 0;
   pari_sp av = avma;
 
   if (v >= 0)
   {
-    v0 = fetch_var_higher();
+    long v0 = fetch_var_higher();
     x = fix_pol(x,v, v0);
     y = fix_pol(y,v, v0);
   }
@@ -2937,12 +2936,11 @@ GEN
 polresultantext0(GEN x, GEN y, long v)
 {
   GEN R, U, V;
-  long v0 = 0;
   pari_sp av = avma;
 
   if (v >= 0)
   {
-    v0 = fetch_var_higher();
+    long v0 = fetch_var_higher();
     x = fix_pol(x,v, v0);
     y = fix_pol(y,v, v0);
   }
