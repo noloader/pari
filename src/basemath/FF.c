@@ -1662,6 +1662,10 @@ FFX_mul(GEN Pf, GEN Qf, GEN ff)
 { return FFX_wrap2(Pf, Qf, ff, FpXQX_mul, F2xqX_mul, FlxqX_mul); }
 
 GEN
+FFX_gcd(GEN Pf, GEN Qf, GEN ff)
+{ return FFX_wrap2(Pf, Qf, ff, FpXQX_gcd, F2xqX_gcd, FlxqX_gcd); }
+
+GEN
 FFX_sqr(GEN Pf, GEN ff)
 {
   pari_sp av = avma;
