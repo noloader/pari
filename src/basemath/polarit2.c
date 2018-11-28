@@ -2797,8 +2797,10 @@ static GEN
 resultant_fast(GEN x, GEN y)
 {
   GEN p, pol;
-  long pa;
-  long t = RgX_type2(x,y, &p,&pol,&pa);
+  long pa, t;
+  p = init_resultant(x,y);
+  if (p) return p;
+  t = RgX_type2(x,y, &p,&pol,&pa);
   switch(t)
   {
     case t_INT:    return ZX_resultant(x,y);
@@ -2822,9 +2824,7 @@ RgX_resultant_sylvester(GEN x, GEN y)
 GEN
 resultant(GEN P, GEN Q)
 {
-  GEN z = init_resultant(P,Q);
-  if (z) return z;
-  z = resultant_fast(P,Q);
+  GEN z = resultant_fast(P,Q);
   if (z) return z;
   if (isinexact(P) || isinexact(Q)) return RgX_resultant_sylvester(P,Q);
   return RgX_resultant_all(P, Q, NULL);
