@@ -49,6 +49,8 @@ test()=
     if((R+1)^2%R!=1,error(R));
     if(R^2%R!=0,error(R));
     if(Mod(R,R2+R-1)^-1*R!=1,error(R));
+    my(U=gcd(R2,R*(R+1)));if(U!=R*pollead(U),error([R,U]));
+    if(poldisc(R)*'z^12!=poldisc(subst(R,x,x/'z)*z^4),error(R));
     print(i,":" R2));
   print("done");
 }

@@ -3036,18 +3036,18 @@ rnfcharpoly(GEN nf, GEN Q, GEN x, long v)
 /*                  GCD USING SUBRESULTANT                         */
 /*                                                                 */
 /*******************************************************************/
-static int inexact(GEN x, int *simple, int *rational);
+static int inexact(GEN x, int *simple);
 static int
-isinexactall(GEN x, int *simple, int *rational)
+isinexactall(GEN x, int *simple)
 {
   long i, lx = lg(x);
   for (i=2; i<lx; i++)
-    if (inexact(gel(x,i), simple, rational)) return 1;
+    if (inexact(gel(x,i), simple)) return 1;
   return 0;
 }
 /* return 1 if coeff explosion is not possible */
 static int
-inexact(GEN x, int *simple, int *rational)
+inexact(GEN x, int *simple)
 {
   int junk = 0;
   switch(typ(x))
@@ -3058,33 +3058,27 @@ inexact(GEN x, int *simple, int *rational)
 
     case t_INTMOD:
     case t_FFELT:
-      *rational = 0;
       if (!*simple) *simple = 1;
       return 0;
 
     case t_COMPLEX:
-      *rational = 0;
-      return inexact(gel(x,1), simple, rational)
-          || inexact(gel(x,2), simple, rational);
+      return inexact(gel(x,1), simple)
+          || inexact(gel(x,2), simple);
     case t_QUAD:
-      *rational = *simple = 0;
-      return inexact(gel(x,2), &junk, rational)
-          || inexact(gel(x,3), &junk, rational);
+      *simple = 0;
+      return inexact(gel(x,2), &junk)
+          || inexact(gel(x,3), &junk);
 
     case t_POLMOD:
-      *rational = 0;
-      return isinexactall(gel(x,1), simple, rational);
+      return isinexactall(gel(x,1), simple);
     case t_POL:
-      *rational = 0;
       *simple = -1;
-      return isinexactall(x, &junk, rational);
+      return isinexactall(x, &junk);
     case t_RFRAC:
-      *rational = 0;
       *simple = -1;
-      return inexact(gel(x,1), &junk, rational)
-          || inexact(gel(x,2), &junk, rational);
+      return inexact(gel(x,1), &junk)
+          || inexact(gel(x,2), &junk);
   }
-  *rational = 0;
   *simple = -1; return 0;
 }
 
@@ -3104,6 +3098,49 @@ gcdmonome(GEN x, GEN y)
   return gerepileupto(av, monomialcopy(t, e, varn(x)));
 }
 
+static GEN
+RgX_gcd_FpX(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flx_gcd(RgX_to_Flx(x, pp),
+                                  RgX_to_Flx(y, pp), pp));
+  }
+  else
+    r = FpX_gcd(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgX_gcd_FpXQX(GEN x, GEN y, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN r, T = RgX_to_FpX(pol, p);
+  if (signe(T)==0) pari_err_OP("gcd", x, y);
+  r = FpXQX_gcd(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p), T, p);
+  return gerepileupto(av, FpXQX_to_mod(r, T, p));
+}
+
+static GEN
+RgX_gcd_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type2(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZX_gcd(x,y);
+    case t_FRAC:   return QX_gcd(x,y);
+    case t_INTMOD: return RgX_gcd_FpX(x, y, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_gcd_FpXQX(x, y, pol, p);
+    default:       return NULL;
+  }
+}
+
 /* x, y are t_POL in the same variable */
 GEN
 RgX_gcd(GEN x, GEN y)
@@ -3111,18 +3148,18 @@ RgX_gcd(GEN x, GEN y)
   long dx, dy;
   pari_sp av, av1;
   GEN d, g, h, p1, p2, u, v;
-  int simple = 0, rational = 1;
-
+  int simple = 0;
+  GEN z = RgX_gcd_fast(x, y);
+  if (z) return z;
   if (isexactzero(y)) return RgX_copy(x);
   if (isexactzero(x)) return RgX_copy(y);
   if (RgX_is_monomial(x)) return gcdmonome(x,y);
   if (RgX_is_monomial(y)) return gcdmonome(y,x);
-  if (isinexactall(x,&simple,&rational) || isinexactall(y,&simple,&rational))
+  if (isinexactall(x,&simple) || isinexactall(y,&simple))
   {
     av = avma; u = ggcd(content(x), content(y));
     return gerepileupto(av, scalarpol(u, varn(x)));
   }
-  if (rational) return QX_gcd(x,y); /* Q[X] */
 
   av = avma;
   if (simple > 0) x = RgX_gcd_simple(x,y);
