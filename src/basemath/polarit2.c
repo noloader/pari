@@ -2331,8 +2331,8 @@ init_resultant(GEN x, GEN y)
     if (ty==t_POL) return gpowgs(x, degpol(y));
     return gen_1;
   }
-  if (tx!=t_POL) pari_err_TYPE("resultant_all",x);
-  if (ty!=t_POL) pari_err_TYPE("resultant_all",y);
+  if (tx!=t_POL) pari_err_TYPE("resultant",x);
+  if (ty!=t_POL) pari_err_TYPE("resultant",y);
   if (!signe(x) || !signe(y)) return gmul(Rg_get_0(x),Rg_get_0(y)); /*type*/
   vx = varn(x);
   vy = varn(y); if (vx == vy) return NULL;
@@ -2808,6 +2808,13 @@ resultant_fast(GEN x, GEN y)
   }
 }
 
+static GEN
+RgX_resultant_sylvester(GEN x, GEN y)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, det(RgX_sylvestermatrix(x,y)));
+}
+
 /* Return resultant(P,Q).
  * Uses Sylvester's matrix if P or Q inexact, a modular algorithm if they
  * are in Q[X], and Ducos/Lazard optimization of the subresultant algorithm
@@ -2815,10 +2822,11 @@ resultant_fast(GEN x, GEN y)
 GEN
 resultant(GEN P, GEN Q)
 {
-  GEN z = resultant_fast(P, Q);
+  GEN z = init_resultant(P,Q);
   if (z) return z;
-  if (isinexact(P) || isinexact(Q))
-    return resultant2(P,Q); /* inexact */
+  z = resultant_fast(P,Q);
+  if (z) return z;
+  if (isinexact(P) || isinexact(Q)) return RgX_resultant_sylvester(P,Q);
   return RgX_resultant_all(P, Q, NULL);
 }
 
@@ -2863,9 +2871,8 @@ sylvestermatrix(GEN x, GEN y)
 GEN
 resultant2(GEN x, GEN y)
 {
-  pari_sp av = avma;
   GEN r = init_resultant(x,y);
-  return r? r: gerepileupto(av, det(RgX_sylvestermatrix(x,y)));
+  return r? r: RgX_resultant_sylvester(x,y);
 }
 
 /* If x a t_POL, let vx = main variable of x; return a t_POL in variable v0:
