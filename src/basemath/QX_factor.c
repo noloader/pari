@@ -1113,7 +1113,12 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   return valX ? RgX_shift(H, valX): H;
 }
 GEN
-ZX_gcd(GEN A, GEN B) { return ZX_gcd_all(A,B,NULL); }
+ZX_gcd(GEN A, GEN B)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, ZX_gcd_all(A,B,NULL));
+}
+
 GEN
 ZX_radical(GEN A) { GEN B; (void)ZX_gcd_all(A,ZX_deriv(A),&B); return B; }
 
