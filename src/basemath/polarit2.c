@@ -2794,6 +2794,15 @@ RgX_resultant_FpX(GEN x, GEN y, GEN p)
 }
 
 static GEN
+RgX_resultant_FpXQX(GEN x, GEN y, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN r, T = RgX_to_FpX(pol, p);
+  r = FpXQX_resultant(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p), T, p);
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
 resultant_fast(GEN x, GEN y)
 {
   GEN p, pol;
@@ -2805,7 +2814,10 @@ resultant_fast(GEN x, GEN y)
   {
     case t_INT:    return ZX_resultant(x,y);
     case t_FRAC:   return QX_resultant(x,y);
+    case t_FFELT:  return FFX_resultant(x,y,pol);
     case t_INTMOD: return RgX_resultant_FpX(x, y, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_resultant_FpXQX(x, y, pol, p);
     default:       return NULL;
   }
 }
