@@ -1689,6 +1689,29 @@ FFX_rem(GEN Pf, GEN Qf, GEN ff)
 { return FFX_wrap2(Pf, Qf, ff, FpXQX_rem, F2xqX_rem, FlxqX_rem); }
 
 GEN
+FFX_resultant(GEN Pf, GEN Qf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  GEN Q = FFX_to_raw(Qf, ff);
+  GEN z = _initFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_resultant(P, Q, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_resultant(P, Q, T);
+    break;
+  default:
+    r = FlxqX_resultant(P, Q, T, pp);
+  }
+  return gerepileupto(av, _mkFF(ff,z,r));
+}
+
+GEN
 FFXQ_sqr(GEN Pf, GEN Qf, GEN ff)
 { return FFX_wrap2(Pf, Qf, ff, FpXQXQ_sqr, F2xqXQ_sqr, FlxqXQ_sqr); }
 
