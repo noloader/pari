@@ -1080,11 +1080,10 @@ F2x_is_smooth_squarefree(GEN f, long r)
 static long
 F2x_is_smooth(GEN g, long r)
 {
-  GEN f = gen_0;
   if (lgpol(g)==0) return 0;
   while (1)
   {
-    f = F2x_gcd(g, F2x_deriv(g));
+    GEN f = F2x_gcd(g, F2x_deriv(g));
     if (!F2x_is_smooth_squarefree(F2x_div(g, f), r))
       return 0;
     if (F2x_degree(f)==0) return 1;

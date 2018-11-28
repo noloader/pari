@@ -1949,10 +1949,9 @@ Flx_is_l_pow(GEN x, ulong p)
 int
 Flx_is_smooth(GEN g, long r, ulong p)
 {
-  GEN f = gen_0;
   while (1)
   {
-    f = Flx_gcd(g, Flx_deriv(g, p), p);
+    GEN f = Flx_gcd(g, Flx_deriv(g, p), p);
     if (!Flx_is_smooth_squarefree(Flx_div(g, f, p), r, p))
       return 0;
     if (degpol(f)==0) return 1;
