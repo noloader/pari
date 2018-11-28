@@ -2351,7 +2351,7 @@ RgXn_inv_FpXQX(GEN x, long n, GEN pol, GEN p)
   GEN r, T = RgX_to_FpX(pol, p);
   if (signe(T) == 0) pari_err_OP("/", gen_1, x);
   r = FpXQXn_inv(RgX_to_FpXQX(x, T, p), n, T, p);
-  return gerepileupto(av, FpXQX_to_mod(r, pol, p));
+  return gerepileupto(av, FpXQX_to_mod(r, T, p));
 }
 
 #define code(t1,t2) ((t1 << 6) | t2)
