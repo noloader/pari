@@ -757,7 +757,7 @@ dirpowers(long n, GEN x, long prec)
   if (typ(x) == t_INT && lgefint(x) <= 3 && signe(x) >= 0)
   {
     ulong B = itou(x);
-    GEN v = vecpowuu(n, B);
+    v = vecpowuu(n, B);
     if (B <= 2) return v;
   }
   else v = vecpowug(n, x, prec);
