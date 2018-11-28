@@ -1,5 +1,5 @@
 Function: powers
-Section: operators
+Section: linear_algebra
 C-Name: gpowers0
 Prototype: GLDG
 Description:
