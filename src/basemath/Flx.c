@@ -3520,7 +3520,7 @@ FlxqV_dotproduct(GEN x, GEN y, GEN T, ulong p)
   long i, lx = lg(x);
   pari_sp av;
   GEN c;
-  if (lx == 1) return gen_0;
+  if (lx == 1) return pol0_Flx(get_Flx_var(T));
   av = avma; c = Flx_mul(gel(x,1),gel(y,1), p);
   for (i=2; i<lx; i++) c = Flx_add(c, Flx_mul(gel(x,i),gel(y,i), p), p);
   return gerepileuptoleaf(av, Flx_rem(c,T,p));
