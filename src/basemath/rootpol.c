@@ -2182,7 +2182,7 @@ QX_complex_roots(GEN p, long l)
 /* Count sign changes in the coefficients of (x+1)^deg(P)*P(1/(x+1))
  * The inversion is implicit (we take coefficients backwards). Roots of P
  * at 0 and 1 (mapped to oo and 0) are ignored here and must be dealt with
- * by the caller */
+ * by the caller. Set root1 if P(1) = 0 */
 static long
 X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
 {
@@ -2223,9 +2223,9 @@ X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
     vlim--;
     if (gc_needed(av, 3))
     {
+      if (DEBUGMEM>1) pari_warn(warnmem, "X2XP1, i = %ld/%ld", i, deg-1);
       if (!Premapped) setlg(v, vlim + 2);
-      v = gerepileupto(av, v);
-      if (DEBUGMEM > 1) pari_warn(warnmem, "X2XP1");
+      v = gerepilecopy(av, v);
     }
   }
   if (vlim >= 2 && s == signe(gel(v, vlim))) nb++;

@@ -497,7 +497,7 @@ ZX_translate(GEN P, GEN c)
   {
     for (i=1; i<=n; i++)
     {
-      for (k=n-i; k<n; k++) R[k] = addii(R[k], mulii(c, R[k+1]));
+      for (k=n-i; k<n; k++) R[k] = addmulii_inplace(R[k], c, R[k+1]);
       if (gc_needed(av,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"ZX_translate, i = %ld/%ld", i,n);
