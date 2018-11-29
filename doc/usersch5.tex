@@ -12361,6 +12361,12 @@ of the polynomial \kbd{P} modulo the polynomial \kbd{Q}, where \kbd{P} and
 \kbd{P} and \kbd{Q} defined over the definition field of the \typ{FFELT}
 \kbd{a}.
 
+\fun{GEN}{FFX_extgcd}{GEN P, GEN Q, GEN a, GEN *U, GEN *V}
+returns the GCD of the polynomials \kbd{P} and \kbd{Q} defined over
+the definition field of the \typ{FFELT} \kbd{a} and sets \kbd{*U}, \kbd{*V} to
+the Bezout coefficients such that $\kbd{*UP} + \kbd{*VQ} = d$.  If \kbd{*U} is
+set to \kbd{NULL}, it is not computed which is a bit faster.
+
 \fun{GEN}{FFX_resultant}{GEN P, GEN Q, GEN a} returns the resultant of the polynomials
 \kbd{P} and \kbd{Q} where \kbd{P} and \kbd{Q} are defined over the definition
 field of the \typ{FFELT} \kbd{a}.

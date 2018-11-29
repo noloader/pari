@@ -3246,6 +3246,7 @@ GEN     FFM_suppl(GEN M, GEN ff);
 GEN     FFX_ddf(GEN f, GEN x);
 GEN     FFX_degfact(GEN Pf, GEN ff);
 GEN     FFX_disc(GEN Pf, GEN ff);
+GEN     FFX_extgcd(GEN Pf, GEN Qf, GEN ff, GEN *pt_Uf, GEN *pt_Vf);
 GEN     FFX_factor(GEN f, GEN x);
 GEN     FFX_factor_squarefree(GEN f, GEN x);
 GEN     FFX_gcd(GEN Pf, GEN Qf, GEN ff);
