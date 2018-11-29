@@ -979,7 +979,7 @@ intnuminit_i(GEN a, GEN b, long m, long prec)
   if (codea == f_SING)
   {
     T = init_fin(b,codeb, m,l,prec);
-    T = mkvec2(inittanhsinh(m,l), T);
+    T = mkvec2(labs(codeb) == f_SING? T: inittanhsinh(m,l), T);
     return T;
   }
   /* now a and b are infinite */
