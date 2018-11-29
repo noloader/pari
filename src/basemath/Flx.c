@@ -3070,13 +3070,6 @@ Flxq_charpoly(GEN x, GEN TB, ulong p)
 /* cf Shoup 'Efficient Computation of Minimal Polynomials */
 /*          in Algebraic Extensions of Finite Fields'     */
 
-GEN
-Flxn_mul(GEN a, GEN b, long n, ulong p)
-{
-  GEN c = Flx_mul(a, b, p);
-  return vecsmall_shorten(c, minss(lg(c)-1,n+1));
-}
-
 /* Let v a linear form, return the linear form z->v(tau*z)
    that is, v*(M_tau) */
 
@@ -3155,47 +3148,6 @@ Flxq_minpoly(GEN x, GEN T, ulong p)
   }
   g = Flx_normalize(g,p);
   return gerepileuptoleaf(ltop,g);
-}
-
-/* return (x % X^n). Shallow */
-static GEN
-Flxn_red_shallow(GEN a, long n)
-{
-  long i, L, l = lg(a);
-  GEN  b;
-  if (l == 2 || !n) return zero_Flx(a[1]);
-  L = n+2; if (L > l) L = l;
-  b = cgetg(L, t_VECSMALL); b[1] = a[1];
-  for (i=2; i<L; i++) b[i] = a[i];
-  return Flx_renormalize(b,L);
-}
-GEN
-Flxn_inv(GEN f, long e, ulong p)
-{
-  pari_sp av = avma, av2;
-  ulong mask;
-  GEN W;
-  long n=1;
-  if (lg(f)==2) pari_err_INV("Flxn_inv",f);
-  W = Fl_to_Flx(Fl_inv(f[2],p), f[1]);
-  mask = quadratic_prec_mask(e);
-  av2 = avma;
-  for (;mask>1;)
-  {
-    GEN u, fr;
-    long n2 = n;
-    n<<=1; if (mask & 1) n--;
-    mask >>= 1;
-    fr = Flxn_red_shallow(f, n);
-    u = Flx_shift(Flxn_mul(W, fr, n, p), -n2);
-    W = Flx_sub(W, Flx_shift(Flxn_mul(u, W, n-n2, p), n2), p);
-    if (gc_needed(av2,2))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_inv, e = %ld", n);
-      W = gerepileupto(av2, W);
-    }
-  }
-  return gerepileupto(av, W);
 }
 
 GEN
@@ -3315,6 +3267,62 @@ const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p)
   e->T = Flx_get_red(T, p); e->p  = p; *E = (void*)e;
   return &Flxq_field;
 }
+
+/***********************************************************************/
+/**                                                                   **/
+/**                               Flxn                                **/
+/**                                                                   **/
+/***********************************************************************/
+
+GEN
+Flxn_mul(GEN a, GEN b, long n, ulong p)
+{
+  GEN c = Flx_mul(a, b, p);
+  return vecsmall_shorten(c, minss(lg(c)-1,n+1));
+}
+
+/* return (x % X^n). Shallow */
+static GEN
+Flxn_red_shallow(GEN a, long n)
+{
+  long i, L, l = lg(a);
+  GEN  b;
+  if (l == 2 || !n) return zero_Flx(a[1]);
+  L = n+2; if (L > l) L = l;
+  b = cgetg(L, t_VECSMALL); b[1] = a[1];
+  for (i=2; i<L; i++) b[i] = a[i];
+  return Flx_renormalize(b,L);
+}
+
+GEN
+Flxn_inv(GEN f, long e, ulong p)
+{
+  pari_sp av = avma, av2;
+  ulong mask;
+  GEN W;
+  long n=1;
+  if (lg(f)==2) pari_err_INV("Flxn_inv",f);
+  W = Fl_to_Flx(Fl_inv(f[2],p), f[1]);
+  mask = quadratic_prec_mask(e);
+  av2 = avma;
+  for (;mask>1;)
+  {
+    GEN u, fr;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    fr = Flxn_red_shallow(f, n);
+    u = Flx_shift(Flxn_mul(W, fr, n, p), -n2);
+    W = Flx_sub(W, Flx_shift(Flxn_mul(u, W, n-n2, p), n2), p);
+    if (gc_needed(av2,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_inv, e = %ld", n);
+      W = gerepileupto(av2, W);
+    }
+  }
+  return gerepileupto(av, W);
+}
+
 
 /***********************************************************************/
 /**                                                                   **/
