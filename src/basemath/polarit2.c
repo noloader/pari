@@ -2493,6 +2493,50 @@ must_negate(GEN x)
   return 0;
 }
 
+static GEN
+gc_gcdext(pari_sp av, GEN r, GEN *u, GEN *v)
+{
+  if (!u && !v) return gerepileupto(av, r);
+  if (u  &&  v) gerepileall(av, 3, &r, u, v);
+  else          gerepileall(av, 2, &r, u ? u: v);
+  return r;
+}
+
+static GEN
+RgX_extgcd_FpX(GEN x, GEN y, GEN p, GEN *u, GEN *v)
+{
+  pari_sp av = avma;
+  GEN r = FpX_extgcd(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p, u, v);
+  if (u) *u = FpX_to_mod(*u, p);
+  if (v) *v = FpX_to_mod(*v, p);
+  return gc_gcdext(av, FpX_to_mod(r, p), u, v);
+}
+
+static GEN
+RgX_extgcd_FpXQX(GEN x, GEN y, GEN pol, GEN p, GEN *U, GEN *V)
+{
+  pari_sp av = avma;
+  GEN r, T = RgX_to_FpX(pol, p);
+  r = FpXQX_extgcd(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(y, T, p), T, p, U, V);
+  return gc_gcdext(av, FpXQX_to_mod(r, T, p), U, V);
+}
+
+GEN
+RgX_extgcd_fast(GEN x, GEN y, GEN *U, GEN *V)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type(x, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_FFELT:  return FFX_extgcd(x, y, pol, U, V);
+    case t_INTMOD: return RgX_extgcd_FpX(x, y, p, U, V);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgX_extgcd_FpXQX(x, y, pol, p, U, V);
+    default:       return NULL;
+  }
+}
+
 /* compute U, V s.t Ux + Vy = GCD(x,y) using subresultant */
 GEN
 RgX_extgcd(GEN x, GEN y, GEN *U, GEN *V)
@@ -2500,7 +2544,7 @@ RgX_extgcd(GEN x, GEN y, GEN *U, GEN *V)
   pari_sp av, av2, tetpil;
   long signh; /* junk */
   long dx, dy, vx, tx = typ(x), ty = typ(y);
-  GEN z, g, h, p1, cu, cv, u, v, um1, uze, vze, *gptr[3];
+  GEN r, z, g, h, p1, cu, cv, u, v, um1, uze, vze, *gptr[3];
 
   if (tx!=t_POL) pari_err_TYPE("RgX_extgcd",x);
   if (ty!=t_POL) pari_err_TYPE("RgX_extgcd",y);
@@ -2513,6 +2557,8 @@ RgX_extgcd(GEN x, GEN y, GEN *U, GEN *V)
     return pol_0(vx);
   }
   if (!signe(y)) return zero_extgcd(x,V,U,vx);
+  r = RgX_extgcd_fast(x, y, U, V);
+  if (r) return r;
   dx = degpol(x); dy = degpol(y);
   if (dx < dy) { pswap(U,V); lswap(dx,dy); swap(x,y); }
   if (dy==0) { *U=pol_0(vx); *V=ginv(y); return pol_1(vx); }
