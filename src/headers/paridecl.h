@@ -2498,6 +2498,8 @@ GEN     merge_sort_uniq(GEN x, GEN y, void *data, int (*cmp)(void *,GEN,GEN));
 GEN     modreverse(GEN x);
 GEN     polhermite(long n, long v);
 GEN     polhermite_eval(long n, GEN x);
+GEN     pollaguerre_eval(long n, GEN a, GEN x);
+GEN     pollaguerre_eval0(long n, GEN a, GEN x, long flag);
 GEN     pollegendre(long n, long v);
 GEN     pollegendre_eval(long n, GEN x);
 GEN     pollegendre_eval0(long n, GEN x, long flag);

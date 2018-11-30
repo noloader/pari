@@ -183,7 +183,6 @@ polhermite(long n, long v)
   GEN q,a,r;
 
   if (v<0) v = 0;
-  if (n < 0) pari_err_DOMAIN("polhermite", "degree", "<", gen_0, stoi(n));
   if (n==0) return pol_1(v);
 
   q = cgetg(n+3, t_POL); r = q + n+2;
@@ -208,6 +207,7 @@ polhermite_eval(long n, GEN x)
   pari_sp av, av2;
   GEN x2, u, v;
 
+  if (n < 0) pari_err_DOMAIN("polhermite", "degree", "<", gen_0, stoi(n));
   if (!x) return polhermite(n, 0);
   if (gequalX(x)) return polhermite(n, varn(x));
   if (n==0) return gen_1;
@@ -295,6 +295,72 @@ pollegendre_eval0(long n, GEN x, long flag)
   if (flag) return gerepilecopy(av, mkvec2(v, u));
   return gerepileupto(av, u);
 }
+GEN
+pollegendre_eval(long n, GEN x) { return pollegendre_eval0(n, x, 0); }
+
+/* Laguerre polynomial
+ * L0^a = 1; L1^a = -X+a+1;
+ * (n+1)*L^a(n+1) = (-X+(2*n+a+1))*L^a(n) - (n+a)*L^a(n-1)
+ * L^a(n) = sum_{k=0}^n (-1)^k * binom(n+a,n-k) * x^k/k! */
+GEN
+pollaguerre(long n, GEN a, long v)
+{
+  pari_sp av = avma;
+  GEN L = cgetg(n+3, t_POL), c1 = gen_1, c2 = mpfact(n);
+  long i;
+
+  L[1] = evalsigne(1) | evalvarn(v);
+  if (odd(n)) togglesign_safe(&c2);
+  for (i = n; i >= 0; i--)
+  {
+    gel(L, i+2) = gdiv(c1, c2);
+    if (i)
+    {
+      c2 = divis(c2,-i);
+      c1 = gdivgs(gmul(c1, gaddsg(i,a)), n+1-i);
+    }
+  }
+  return gerepilecopy(av, L);
+}
+GEN
+pollaguerre_eval0(long n, GEN a, GEN x, long flag)
+{
+  pari_sp av = avma;
+  long i;
+  GEN v, u;
+
+  if (n < 0) pari_err_DOMAIN("pollaguerre", "degree", "<", gen_0, stoi(n));
+  if (flag && flag != 1) pari_err_FLAG("pollaguerre");
+  if (!a) a = gen_0;
+  if (!x || gequalX(x))
+  {
+    long v = x? varn(x): 0;
+    if (flag) retmkvec2(pollaguerre(n-1,a,v), pollaguerre(n,a,v));
+    return pollaguerre(n,a,v);
+  }
+  if (n==0)
+  {
+    if (flag) retmkvec2(gen_1, gcopy(gsub(gaddgs(a,1),x)));
+    return gen_1;
+  }
+  if (n==1)
+  {
+    if (flag) retmkvec2(gsub(gaddgs(a,1),x), gen_1);
+    return gsub(gaddgs(a,1),x);
+  }
+  av = avma; v = gen_1; u = gsub(gaddgs(a,1),x);
+  for (i=1; i<n; i++)
+  { /* u = P_i(x), v = P_{i-1}(x), compute t = P_{i+1}(x) */
+    GEN t;
+    if ((i & 0xff) == 0) gerepileall(av,2,&u, &v);
+    t = gdivgs(gsub(gmul(gsub(gaddsg(2*i+1,a),x), u), gmul(gaddsg(i,a),v)), i+1);
+    v = u; u = t;
+  }
+  if (flag) return gerepilecopy(av, mkvec2(v, u));
+  return gerepileupto(av, u);
+}
+GEN
+pollaguerre_eval(long n, GEN x, GEN a) { return pollaguerre_eval0(n, x, a, 0); }
 
 /* polcyclo(p) = X^(p-1) + ... + 1 */
 static GEN
