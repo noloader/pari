@@ -2521,7 +2521,7 @@ RgX_extgcd_FpXQX(GEN x, GEN y, GEN pol, GEN p, GEN *U, GEN *V)
   return gc_gcdext(av, FpXQX_to_mod(r, T, p), U, V);
 }
 
-GEN
+static GEN
 RgX_extgcd_fast(GEN x, GEN y, GEN *U, GEN *V)
 {
   GEN p, pol;
