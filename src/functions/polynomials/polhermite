@@ -1,14 +1,16 @@
 Function: polhermite
 Section: polynomials
-C-Name: polhermite_eval
-Prototype: LDG
-Help: polhermite(n,{a='x}): Hermite polynomial H(n,v) of degree n, evaluated
- at a.
+C-Name: polhermite_eval0
+Prototype: LDGD0,L,
+Help: polhermite(n,{a='x},{flag=0}): Hermite polynomial H(n,v) of degree n,
+ evaluated at a. If flag is 1, return [H_{n-1}(a), H_n(a)].
 Description:
   (small,?var):gen    polhermite($1,$2)
   (small,gen):gen     polhermite_eval($1,$2)
 Doc: $n^{\text{th}}$ \idx{Hermite} polynomial $H_n$ evaluated at $a$
  (\kbd{'x} by default), i.e.
  $$ H_n(x) = (-1)^n\*e^{x^2} \dfrac{d^n}{dx^n}e^{-x^2}.$$
+ If flag is 1, return $[H_{n-1}(a), H_n(a)]$.
 Variant: The variant \fun{GEN}{polhermite}{long n, long v} returns the $n$-th
- Hermite polynomial in variable $v$.
+ Hermite polynomial in variable $v$. To obtain $H_n(a)$,
+ use \fun{GEN}{polhermite_eval}{long n, GEN a}.

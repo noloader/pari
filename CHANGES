@@ -120,7 +120,7 @@ BA  19- [libpari] Flx_Teichmuller, F2x_Teichmuller
 BA  22- [libpari] F2xqX_resultant, F2xqX_disc, FlxqX_resultant, FlxqX_disc,
         FpXQX_resultant, FpXQX_disc, FFX_resultant, FFX_disc
 BA  23- FFX_gcd, FFX_extgcd
-    24- optional flag to pollegendre
+    24- optional flag to pollegendre and polhermite
     25- new GP function pollaguerre
 
   Removed

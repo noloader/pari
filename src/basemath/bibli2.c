@@ -200,18 +200,37 @@ polhermite(long n, long v)
   q[1] = evalsigne(1) | evalvarn(v);
   return q;
 }
+static void
+err_hermite(long n)
+{ pari_err_DOMAIN("polhermite", "degree", "<", gen_0, stoi(n)); }
 GEN
-polhermite_eval(long n, GEN x)
+polhermite_eval0(long n, GEN x, long flag)
 {
   long i;
   pari_sp av, av2;
   GEN x2, u, v;
 
-  if (n < 0) pari_err_DOMAIN("polhermite", "degree", "<", gen_0, stoi(n));
-  if (!x) return polhermite(n, 0);
-  if (gequalX(x)) return polhermite(n, varn(x));
-  if (n==0) return gen_1;
-  if (n==1) return gmul2n(x,1);
+  if (n < 0) err_hermite(n);
+  if (!x || gequalX(x))
+  {
+    long v = x? varn(x): 0;
+    if (flag)
+    {
+      if (!n) err_hermite(-1);
+      retmkvec2(polhermite(n-1,v),polhermite(n,v));
+    }
+    return polhermite(n, v);
+  }
+  if (n==0)
+  {
+    if (flag) err_hermite(-1);
+    return gen_1;
+  }
+  if (n==1)
+  {
+    if (flag) retmkvec2(gen_1, gmul2n(x,1));
+    return gmul2n(x,1);
+  }
   av = avma; x2 = gmul2n(x,1); v = gen_1; u = x2;
   av2= avma;
   for (i=1; i<n; i++)
@@ -221,8 +240,11 @@ polhermite_eval(long n, GEN x)
     t = gsub(gmul(x2, u), gmulsg(2*i,v));
     v = u; u = t;
   }
+  if (flag) return gerepilecopy(av, mkvec2(v, u));
   return gerepileupto(av, u);
 }
+GEN
+polhermite_eval(long n, GEN x) { return polhermite_eval0(n, x, 0); }
 
 /* Legendre polynomial
  * L0=1; L1=X; (n+1)*L(n+1)=(2*n+1)*X*L(n)-n*L(n-1)
@@ -322,6 +344,9 @@ pollaguerre(long n, GEN a, long v)
   }
   return gerepilecopy(av, L);
 }
+static void
+err_lag(long n)
+{ pari_err_DOMAIN("pollaguerre", "degree", "<", gen_0, stoi(n)); }
 GEN
 pollaguerre_eval0(long n, GEN a, GEN x, long flag)
 {
@@ -329,18 +354,22 @@ pollaguerre_eval0(long n, GEN a, GEN x, long flag)
   long i;
   GEN v, u;
 
-  if (n < 0) pari_err_DOMAIN("pollaguerre", "degree", "<", gen_0, stoi(n));
+  if (n < 0) err_lag(n);
   if (flag && flag != 1) pari_err_FLAG("pollaguerre");
   if (!a) a = gen_0;
   if (!x || gequalX(x))
   {
     long v = x? varn(x): 0;
-    if (flag) retmkvec2(pollaguerre(n-1,a,v), pollaguerre(n,a,v));
+    if (flag)
+    {
+      if (!n) err_lag(-1);
+      retmkvec2(pollaguerre(n-1,a,v), pollaguerre(n,a,v));
+    }
     return pollaguerre(n,a,v);
   }
   if (n==0)
   {
-    if (flag) retmkvec2(gen_1, gcopy(gsub(gaddgs(a,1),x)));
+    if (flag) err_lag(-1);
     return gen_1;
   }
   if (n==1)

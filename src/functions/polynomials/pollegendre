@@ -2,8 +2,8 @@ Function: pollegendre
 Section: polynomials
 C-Name: pollegendre_eval0
 Prototype: LDGD0,L,
-Help: pollegendre(n,{a='x},{flag=0}): legendre polynomial of degree n evaluated at a.
- If flag is 1, return [L_{n-1}(a), L_n(a)].
+Help: pollegendre(n,{a='x},{flag=0}): legendre polynomial of degree n evaluated
+ at a. If flag is 1, return [L_{n-1}(a), L_n(a)].
 Description:
   (small,?var):gen    pollegendre($1,$2)
   (small,gen):gen     pollegendre_eval($1,$2)
