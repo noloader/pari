@@ -10,4 +10,4 @@ Doc: $n^{\text{th}}$ \idx{Laguerre polynomial} $L^{(a)}_n$ of degree $n$ and
  return $[L^{(a)}_{n-1}(b), L_n^{(a)}(b)]$.
 Variant: To obtain the $n$-th Laguerre polynomial in variable $v$,
  use \fun{GEN}{pollaguerre}{long n, GEN a, GEN b, long v}. To obtain
- $L^{(a)_n(b)$, use \fun{GEN}{pollaguerre_eval}{long n, GEN a, GEN b}.
+ $L^{(a)}_n(b)$, use \fun{GEN}{pollaguerre_eval}{long n, GEN a, GEN b}.
