@@ -2500,6 +2500,7 @@ GEN     polhermite(long n, long v);
 GEN     polhermite_eval(long n, GEN x);
 GEN     pollegendre(long n, long v);
 GEN     pollegendre_eval(long n, GEN x);
+GEN     pollegendre_eval0(long n, GEN x, long flag);
 GEN     polint(GEN xa, GEN ya, GEN x, GEN *dy);
 GEN     polchebyshev(long n, long kind, long v);
 GEN     polchebyshev_eval(long n, long kind, GEN x);

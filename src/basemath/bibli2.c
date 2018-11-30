@@ -259,18 +259,31 @@ pollegendre(long n, long v)
 }
 
 GEN
-pollegendre_eval(long n, GEN x)
+pollegendre_eval0(long n, GEN x, long flag)
 {
-  long i;
   pari_sp av;
   GEN u, v;
+  long i;
 
-  if (!x) return pollegendre(n, 0);
-  if (gequalX(x)) return pollegendre(n, varn(x));
-  /* pollegendre(-n) = pollegendre(n-1) */
-  if (n < 0) n = -n-1;
-  if (n==0) return gen_1;
-  if (n==1) return gcopy(x);
+  if (n < 0) n = -n-1; /* L(-n) = L(n-1) */
+  /* n >= 0 */
+  if (flag && flag != 1) pari_err_FLAG("pollegendre");
+  if (!x || gequalX(x))
+  {
+    long v = x? varn(x): 0;
+    if (flag) retmkvec2(pollegendre(n-1,v), pollegendre(n,v));
+    return pollegendre(n, v);
+  }
+  if (n==0)
+  {
+    if (flag) retmkvec2(gen_1, gcopy(x));
+    return gen_1;
+  }
+  if (n==1)
+  {
+    if (flag) retmkvec2(gcopy(x), gen_1);
+    return gcopy(x);
+  }
   av = avma; v = gen_1; u = x;
   for (i=1; i<n; i++)
   { /* u = P_i(x), v = P_{i-1}(x), compute t = P_{i+1}(x) */
@@ -279,6 +292,7 @@ pollegendre_eval(long n, GEN x)
     t = gdivgs(gsub(gmul(gmulsg(2*i+1,x), u), gmulsg(i,v)), i+1);
     v = u; u = t;
   }
+  if (flag) return gerepilecopy(av, mkvec2(v, u));
   return gerepileupto(av, u);
 }
 
