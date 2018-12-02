@@ -2499,6 +2499,7 @@ GEN     modreverse(GEN x);
 GEN     polhermite(long n, long v);
 GEN     polhermite_eval0(long n, GEN x, long flag);
 GEN     polhermite_eval(long n, GEN x);
+GEN     pollaguerre(long n, GEN a, long v);
 GEN     pollaguerre_eval(long n, GEN a, GEN x);
 GEN     pollaguerre_eval0(long n, GEN a, GEN x, long flag);
 GEN     pollegendre(long n, long v);
