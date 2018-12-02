@@ -3275,13 +3275,6 @@ const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p)
 /***********************************************************************/
 
 GEN
-Flxn_mul(GEN a, GEN b, long n, ulong p)
-{
-  GEN c = Flx_mul(a, b, p);
-  return vecsmall_shorten(c, minss(lg(c)-1,n+1));
-}
-
-GEN
 Flxn_red(GEN a, long n)
 {
   long i, L, l = lg(a);
@@ -3292,6 +3285,14 @@ Flxn_red(GEN a, long n)
   for (i=2; i<L; i++) b[i] = a[i];
   return Flx_renormalize(b,L);
 }
+
+GEN
+Flxn_mul(GEN a, GEN b, long n, ulong p)
+{ return Flxn_red(Flx_mul(a, b, p), n); }
+
+GEN
+Flxn_sqr(GEN a, long n, ulong p)
+{ return Flxn_red(Flx_sqr(a, p), n); }
 
 GEN
 Flxn_inv(GEN f, long e, ulong p)
