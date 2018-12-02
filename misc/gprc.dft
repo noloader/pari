@@ -15,6 +15,19 @@
 \\ needed, up to parisizemax)
 \\ parisize = 40M
 
+/* Parallelism */
+
+\\ number of threads: (0: use all available CPU threads)
+\\ nbthreads = 0
+
+\\ Limit PARI threads stack size to 100 Mbytes = 10^8 bytes
+\\ threadsizemax = 100M
+
+\\ Set PARI typical threads stack size to 10 Mbytes = 10^7 bytes (will grow as
+\\ needed, up to threadsizemax). Beware that the memory usage is multiplied
+\\ by the number of threads.
+\\ threadsize = 10M
+
 /* Important options */
 
 \\ Save a history of all input commands in this file, and load it in each
