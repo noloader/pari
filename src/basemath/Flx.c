@@ -1657,6 +1657,19 @@ Flx_deriv(GEN z, ulong p)
 }
 
 GEN
+Flx_integ(GEN x, ulong p)
+{
+  long i, lx = lg(x);
+  GEN y;
+  if (lx == 2) return Flx_copy(x);
+  y = cgetg(lx+1, t_POL); y[1] = x[1];
+  uel(y,2) = 0;
+  for (i=3; i<=lx; i++)
+    uel(y,i) = uel(x,i-1) ? Fl_div(uel(x,i-1), (i-2)%p, p): 0UL;
+  return Flx_renormalize(y, lx+1);;
+}
+
+GEN
 Flx_translate1(GEN P, ulong p)
 {
   long i, k, n = degpol(P);
