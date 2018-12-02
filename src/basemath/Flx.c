@@ -3365,6 +3365,32 @@ Flxn_exp(GEN h, long e, ulong p)
   return gerepileuptoleaf(av, f);
 }
 
+INLINE GEN
+Flxn_recip(GEN x, long n)
+{
+  GEN z=Flx_recipspec(x+2,lgpol(x),n);
+  z[1]=x[1];
+  return z;
+}
+
+GEN
+Flx_Newton(GEN P, long n, ulong p)
+{
+  pari_sp av = avma;
+  GEN dP = Flx_deriv(P, p);
+  GEN Q = Flxn_recip(Flx_div(Flx_shift(dP, n), P, p), n);
+  return gerepileuptoleaf(av, Q);
+}
+
+GEN
+Flx_fromNewton(GEN P, ulong p)
+{
+  pari_sp av = avma;
+  ulong n = Flx_constant(P)+1;
+  GEN z = Flx_neg(Flx_integ(Flx_shift(P, -1), p), p);
+  GEN Q = Flxn_recip(Flxn_exp(z, n, p), n);
+  return gerepileuptoleaf(av, Q);
+}
 
 /***********************************************************************/
 /**                                                                   **/
