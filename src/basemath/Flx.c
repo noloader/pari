@@ -3336,6 +3336,35 @@ Flxn_inv(GEN f, long e, ulong p)
   return gerepileupto(av, W);
 }
 
+GEN
+Flxn_exp(GEN h, long e, ulong p)
+{
+  pari_sp av = avma, av2;
+  long v = h[1], n=1;
+  GEN f = pol1_Flx(v), g = pol1_Flx(v);
+  ulong mask = quadratic_prec_mask(e);
+  av2 = avma;
+  if (degpol(h)<1 || uel(h,2)!=0)
+    pari_err_DOMAIN("Flxn_exp","valuation", "<", gen_1, h);
+  for (;mask>1;)
+  {
+    GEN q, w;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    g = Flx_sub(Flx_double(g,p), Flxn_mul(f, Flxn_sqr(g, n2, p), n2, p), p);
+    q = Flx_deriv(Flxn_red(h,n2), p);
+    w = Flx_add(q, Flxn_mul(g, Flx_sub(Flx_deriv(f, p), Flxn_mul(f,q,n-1, p), p),n-1, p), p);
+    f = Flx_add(f, Flxn_mul(f, Flx_sub(Flxn_red(h, n), Flx_integ(w,p), p), n, p), p);
+    if (gc_needed(av2,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"Flxn_exp, e = %ld", n);
+      gerepileall(av2, 2, &f, &g);
+    }
+  }
+  return gerepileuptoleaf(av, f);
+}
+
 
 /***********************************************************************/
 /**                                                                   **/
