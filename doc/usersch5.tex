@@ -5721,12 +5721,6 @@ $p$ assuming such $z$ exists.
 
 \fun{GEN}{Flx_mul}{GEN x, GEN y, ulong p}
 
-\fun{GEN}{Flxn_mul}{GEN a, GEN b, long n, ulong p}
-returns $a b$ modulo $X^n$.
-
-\fun{GEN}{Flxn_inv}{GEN a, long n, ulong p}
-returns $1/a$ modulo $X^n$.
-
 \fun{GEN}{Flx_Fl_mul}{GEN y, ulong x, ulong p}
 
 \fun{GEN}{Flx_double}{GEN y, ulong p} returns $2\*y$.
@@ -5968,6 +5962,17 @@ this function applies \kbd{FlxC\_eval\_powers\_pre} to all entries of \kbd{M}.
 \subsec{\kbd{FlxT}} See \kbd{FpXT} operations.
 
 \fun{GEN}{FlxT_red}{GEN V, ulong p} reduces each leaf with \kbd{Flx\_red}.
+
+\subsec{\kbd{Flxn}} See \kbd{FpXn} operations.
+
+\fun{GEN}{Flxn_inv}{GEN a, long n, ulong p}
+returns $1/a$ modulo $X^n$.
+
+\fun{GEN}{Flxn_mul}{GEN a, GEN b, long n, ulong p}
+returns $a\*b$ modulo $X^n$.
+
+\fun{GEN}{Flxn_red}{GEN a, long n}
+returns $a$ modulo $X^n$.
 
 \subsec{\kbd{Flxq}} See \kbd{FpXQ} operations.
 

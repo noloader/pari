@@ -3281,9 +3281,8 @@ Flxn_mul(GEN a, GEN b, long n, ulong p)
   return vecsmall_shorten(c, minss(lg(c)-1,n+1));
 }
 
-/* return (x % X^n). Shallow */
-static GEN
-Flxn_red_shallow(GEN a, long n)
+GEN
+Flxn_red(GEN a, long n)
 {
   long i, L, l = lg(a);
   GEN  b;
@@ -3311,7 +3310,7 @@ Flxn_inv(GEN f, long e, ulong p)
     long n2 = n;
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
-    fr = Flxn_red_shallow(f, n);
+    fr = Flxn_red(f, n);
     u = Flx_shift(Flxn_mul(W, fr, n, p), -n2);
     W = Flx_sub(W, Flx_shift(Flxn_mul(u, W, n-n2, p), n2), p);
     if (gc_needed(av2,2))

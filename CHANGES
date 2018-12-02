@@ -122,6 +122,7 @@ BA  22- [libpari] F2xqX_resultant, F2xqX_disc, FlxqX_resultant, FlxqX_disc,
 BA  23- FFX_gcd, FFX_extgcd
     24- optional flag to pollegendre and polhermite
     25- new GP function pollaguerre
+BA  26- [libpari] Flxn_red
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
