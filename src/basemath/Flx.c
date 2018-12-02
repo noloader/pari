@@ -3165,7 +3165,7 @@ Flxn_red_shallow(GEN a, long n)
   GEN  b;
   if (l == 2 || !n) return zero_Flx(a[1]);
   L = n+2; if (L > l) L = l;
-  b = cgetg(L, t_POL); b[1] = a[1];
+  b = cgetg(L, t_VECSMALL); b[1] = a[1];
   for (i=2; i<L; i++) b[i] = a[i];
   return Flx_renormalize(b,L);
 }
