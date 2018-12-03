@@ -3288,6 +3288,38 @@ const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p)
 /***********************************************************************/
 
 GEN
+Flx_invLaplace(GEN x, ulong p)
+{
+  pari_sp av = avma;
+  long i, e = 0, l = lg(x);
+  GEN y = cgetg(l,t_POL);
+  ulong t = 1;
+  y[1] = x[1];
+  for (i=2; i<l; i++)
+  {
+    uel(y,i) = Fl_div(uel(x,i), t, p);
+    e++; t = Fl_mul(t,e%p,p);
+  }
+  return gerepileuptoleaf(av, y);
+}
+
+GEN
+Flx_Laplace(GEN x, ulong p)
+{
+  pari_sp av = avma;
+  long i, e = 0, l = lg(x);
+  GEN y = cgetg(l,t_POL);
+  ulong t = 1;
+  y[1] = x[1];
+  for (i=2; i<l; i++)
+  {
+    uel(y,i) = Fl_mul(uel(x,i), t, p);
+    e++; t = Fl_mul(t,e%p,p);
+  }
+  return gerepileuptoleaf(av, y);
+}
+
+GEN
 Flxn_red(GEN a, long n)
 {
   long i, L, l = lg(a);
