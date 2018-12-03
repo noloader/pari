@@ -1670,17 +1670,6 @@ Flx_integ(GEN x, ulong p)
 }
 
 GEN
-Flx_translate1(GEN P, ulong p)
-{
-  long i, k, n = degpol(P);
-  GEN R = Flx_copy(P);
-  for (i=1; i<=n; i++)
-    for (k=n-i; k<n; k++)
-      uel(R,k+2) = Fl_add(uel(R,k+2), uel(R,k+3), p);
-  return R;
-}
-
-GEN
 Flx_diff1(GEN P, ulong p)
 {
   return Flx_sub(Flx_translate1(P, p), P, p);
@@ -3422,6 +3411,36 @@ Flx_fromNewton(GEN P, ulong p)
   GEN z = Flx_neg(Flx_integ(Flx_shift(P, -1), p), p);
   GEN Q = Flxn_recip(Flxn_exp(z, n, p), n);
   return gerepileuptoleaf(av, Q);
+}
+
+static GEN
+Flx_diamondsum(GEN P, GEN Q, ulong p)
+{
+  long n = 1+ degpol(P)*degpol(Q);
+  GEN Pl = Flx_invLaplace(Flx_Newton(P,n,p), p);
+  GEN Ql = Flx_invLaplace(Flx_Newton(Q,n,p), p);
+  GEN L = Flx_Laplace(Flxn_mul(Pl, Ql, n, p), p);
+  return Flx_fromNewton(L, p);
+}
+
+GEN
+Flx_translate1(GEN P, ulong p)
+{
+  long i, k, n = degpol(P);
+  if (n>=18000 && p>=n)
+  {
+    pari_sp av = avma;
+    ulong l = Flx_lead(P);
+    GEN s = Flx_diamondsum(P, mkvecsmall3(P[1],1,1), p);
+    return gerepileuptoleaf(av, l==1 ? s : Flx_Fl_mul(s, l, p));
+  } else
+  {
+    GEN R = Flx_copy(P);
+    for (i=1; i<=n; i++)
+      for (k=n-i; k<n; k++)
+        uel(R,k+2) = Fl_add(uel(R,k+2), uel(R,k+3), p);
+    return R;
+  }
 }
 
 /***********************************************************************/
