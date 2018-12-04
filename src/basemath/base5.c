@@ -318,13 +318,13 @@ rnfeltup0(GEN rnf, GEN x, long flag)
     if (flag) x = nf_to_scalar_or_basis(NF,x);
     return gerepilecopy(av, x);
   }
-  if (NF && tx == t_COL && lg(x)-1 == nf_get_degree(NF))
+  nf = rnf_get_nf(rnf);
+  if (NF && tx == t_COL && lg(x)-1 == degpol(POL) && nf_get_degree(rnf) > 1)
   {
     x = flag? nf_to_scalar_or_basis(NF,x)
             : mkpolmod(nf_to_scalar_or_alg(NF,x), POL);
     return gerepilecopy(av, x);
   }
-  nf = rnf_get_nf(rnf);
   if (NF)
   {
     GEN d, proj;
@@ -726,12 +726,14 @@ rnfidealmul(GEN rnf,GEN x,GEN y)
   return gerepileupto(av, nfhnf(nf,z));
 }
 
+/* prK wrt NF ~ Q[x]/(polabs) */
 static GEN
 rnfidealprimedec_1(GEN rnf, GEN SL, GEN prK)
 {
-  GEN v, piL = rnfeltup0(rnf, pr_get_gen(prK), 1);
+  GEN v, piL, piK = pr_get_gen(prK);
   long i, c, l;
-  if (typ(piL) != t_COL) return SL; /* p inert in K/Q */
+  if (pr_is_inert(prK)) return SL;
+  piL = rnfeltup0(rnf, piK, 1);
   v = cgetg_copy(SL, &l);
   for (i = c = 1; i < l; i++)
   {
