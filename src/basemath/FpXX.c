@@ -195,8 +195,12 @@ FpXX_integ(GEN P, GEN p)
   for (i=3; i<=l ; i++)
   {
     GEN x = gel(P,i-1);
-    GEN i1 = Fp_inv(utoi(i-2), p);
-    gel(res,i) = typ(x)==t_INT? Fp_mul(x,i1,p): FpX_Fp_mul(x,i1,p);
+    if (signe(x))
+    {
+      GEN i1 = Fp_inv(utoi(i-2), p);
+      gel(res,i) = typ(x)==t_INT? Fp_mul(x,i1,p): FpX_Fp_mul(x,i1,p);
+    } else
+      gel(res,i) = gen_0;
   }
   return FpXX_renormalize(res, l+1);
 }
