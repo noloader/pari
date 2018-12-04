@@ -69,6 +69,8 @@
   ***                                   ^--
   ***   prime index read-only: was changed to 4.
 4
+10
+4
 6
 8
 9
@@ -157,4 +159,4 @@
 [-100001, [-1, 1; 11, 1; 9091, 1]]
 607926
 607926
-Total time spent: 5207
+Total time spent: 2328

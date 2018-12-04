@@ -58,6 +58,7 @@ BA  46- hyperellcharpoly: wrong results over Z/3Z
     47- gmp kernel: off-by-1 error in red_mongomery [read uninitialized
         memory, then ignores result]
     48- intnuminit([-1,-1/2],[1,-1/2]) twice slower than it should
+    49- forcomposite(n=2,4,print(n)) -> empty [#2096]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

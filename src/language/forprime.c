@@ -986,7 +986,7 @@ forcomposite_init(forcomposite_t *C, GEN a, GEN b)
   if (signe(a) < 0) pari_err_DOMAIN("forcomposite", "a", "<", gen_0, a);
   if (abscmpiu(a, 4) < 0) a = utoipos(4);
   C->first = 1;
-  if (!forprime_init(&C->T, a,b))
+  if (!forprime_init(&C->T, a,b) && cmpii(a,b) > 0)
   {
     C->n = gen_1; /* in case caller forgets to check the return value */
     C->b = gen_0; return gc_bool(av,0);

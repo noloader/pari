@@ -34,6 +34,8 @@ my(s=1,a=0);forstep(i=1,20,s,s++;a+=i);a
 
 forprime(p=2,10,p=4)
 
+forcomposite(a=2,4,print(a))
+forcomposite(a=10,10,print(a))
 forcomposite(a=2,10,print(a))
 forcomposite(a=5,11,print(a))
 forcomposite(a=6,12,print(a))
