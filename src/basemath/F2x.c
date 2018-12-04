@@ -2384,15 +2384,15 @@ F2xqX_divrem_Barrettspec(GEN x, long l, GEN mg, GEN S, GEN T, GEN *pr)
 static GEN
 F2xqX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, GEN *pr)
 {
-  long l = lgpol(x), lt = degpol(S), lm = 2*lt-1;
-  GEN q = NULL, r;
+  GEN q = NULL, r = F2xqX_red(x, T);
+  long l = lgpol(r), lt = degpol(S), lm = 2*lt-1, v = varn(S);
   long i;
   if (l <= lt)
   {
-    if (pr == ONLY_REM) return RgX_copy(x);
-    if (pr == ONLY_DIVIDES) return signe(x)? NULL: pol_0(varn(x));
-    if (pr) *pr =  RgX_copy(x);
-    return pol_0(varn(x));
+    if (pr == ONLY_REM) return r;
+    if (pr == ONLY_DIVIDES) return signe(r)? NULL: pol_0(v);
+    if (pr) *pr = r;
+    return pol_0(v);
   }
   if (lt <= 1)
     return F2xqX_divrem_basecase(x,S,T,pr);
@@ -2402,7 +2402,6 @@ F2xqX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, GEN *pr)
     q = cgetg(l-lt+2, t_POL);
     for (i=0;i<l-lt;i++) gel(q+2,i) = pol0_F2x(vT);
   }
-  r = l>lm ? shallowcopy(x): x;
   while (l>lm)
   {
     GEN zr, zq = F2xqX_divrem_Barrettspec(r+2+l-lm,lm,mg,S,T,&zr);
@@ -2415,33 +2414,29 @@ F2xqX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, GEN *pr)
     for(i=0; i<lz; i++) gel(r+2+l-lm,i) = gel(zr,2+i);
     l = l-lm+lz;
   }
-  if (pr != ONLY_REM)
+  if (pr == ONLY_REM)
   {
     if (l > lt)
-    {
-      GEN zq = F2xqX_divrem_Barrettspec(r+2,l,mg,S,T,&r);
-      if (!q) q = zq;
-      else
-      {
-        long lq = lgpol(zq);
-        for(i=0; i<lq; i++) gel(q+2,i) = gel(zq,2+i);
-      }
-    }
+      r = F2xqX_divrem_Barrettspec(r+2,l,mg,S,T,ONLY_REM);
     else
-    { setlg(r, l+2); r = RgX_copy(r); }
+      r = F2xX_renormalize(r, lg(r));
+    setvarn(r, v); return F2xX_renormalize(r, lg(r));
+  }
+  if (l > lt)
+  {
+    GEN zq = F2xqX_divrem_Barrettspec(r+2,l,mg,S,T,&r);
+    if (!q) q = zq;
+    else
+    {
+      long lq = lgpol(zq);
+      for(i=0; i<lq; i++) gel(q+2,i) = gel(zq,2+i);
+    }
   }
   else
-  {
-    if (l > lt)
-      (void) F2xqX_divrem_Barrettspec(r+2,l,mg,S,T,&r);
-    else
-    { setlg(r, l+2); r = RgX_copy(r); }
-    r[1] = x[1]; return F2xX_renormalize(r, lg(r));
-  }
-  if (pr) { r[1] = x[1]; r = F2xX_renormalize(r, lg(r)); }
-  q[1] = x[1]; q = F2xX_renormalize(q, lg(q));
+    r = F2xX_renormalize(r, l+2);
+  setvarn(q, v); q = F2xX_renormalize(q, lg(q));
   if (pr == ONLY_DIVIDES) return signe(r)? NULL: q;
-  if (pr) *pr = r;
+  if (pr) { setvarn(r, v); *pr = r; }
   return q;
 }
 

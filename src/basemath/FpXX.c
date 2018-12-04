@@ -970,24 +970,23 @@ FpXQX_divrem_Barrettspec(GEN x, long l, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
 static GEN
 FpXQX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
 {
-  long l = lgpol(x), lt = degpol(S), lm = 2*lt-1;
-  GEN q = NULL, r;
+  GEN q = NULL, r = FpXQX_red(x, T, p);
+  long l = lgpol(r), lt = degpol(S), lm = 2*lt-1, v = varn(S);
   long i;
   if (l <= lt)
   {
-    if (pr == ONLY_REM) return ZXX_copy(x);
-    if (pr == ONLY_DIVIDES) return signe(x)? NULL: pol_0(varn(x));
-    if (pr) *pr =  ZXX_copy(x);
-    return pol_0(varn(x));
+    if (pr == ONLY_REM) return r;
+    if (pr == ONLY_DIVIDES) return signe(r)? NULL: pol_0(v);
+    if (pr) *pr = r;
+    return pol_0(v);
   }
   if (lt <= 1)
-    return FpXQX_divrem_basecase(x,S,T,p,pr);
+    return FpXQX_divrem_basecase(r,S,T,p,pr);
   if (pr != ONLY_REM && l>lm)
   {
     q = cgetg(l-lt+2, t_POL);
     for (i=0;i<l-lt;i++) gel(q+2,i) = gen_0;
   }
-  r = l>lm ? shallowcopy(x): x;
   while (l>lm)
   {
     GEN zr, zq = FpXQX_divrem_Barrettspec(r+2+l-lm,lm,mg,S,T,p,&zr);
@@ -1000,33 +999,29 @@ FpXQX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
     for(i=0; i<lz; i++) gel(r+2+l-lm,i) = gel(zr,2+i);
     l = l-lm+lz;
   }
-  if (pr != ONLY_REM)
+  if (pr == ONLY_REM)
   {
     if (l > lt)
-    {
-      GEN zq = FpXQX_divrem_Barrettspec(r+2,l,mg,S,T,p,&r);
-      if (!q) q = zq;
-      else
-      {
-        long lq = lgpol(zq);
-        for(i=0; i<lq; i++) gel(q+2,i) = gel(zq,2+i);
-      }
-    }
+      r = FpXQX_divrem_Barrettspec(r+2,l,mg,S,T,p,ONLY_REM);
     else
-    { setlg(r, l+2); r = ZXX_copy(r); }
+      r = FpXQX_renormalize(r, l+2);
+    setvarn(r, v); return r;
+  }
+  if (l > lt)
+  {
+    GEN zq = FpXQX_divrem_Barrettspec(r+2,l,mg,S,T,p,&r);
+    if (!q) q = zq;
+    else
+    {
+      long lq = lgpol(zq);
+      for(i=0; i<lq; i++) gel(q+2,i) = gel(zq,2+i);
+    }
   }
   else
-  {
-    if (l > lt)
-      (void) FpXQX_divrem_Barrettspec(r+2,l,mg,S,T,p,&r);
-    else
-    { setlg(r, l+2); r = ZXX_copy(r); }
-    r[1] = x[1]; return FpXQX_renormalize(r, lg(r));
-  }
-  if (pr) { r[1] = x[1]; r = FpXQX_renormalize(r, lg(r)); }
-  q[1] = x[1]; q = FpXQX_renormalize(q, lg(q));
+    r = FpX_renormalize(r, l+2);
+  setvarn(q, v); q = FpXQX_renormalize(q, lg(q));
   if (pr == ONLY_DIVIDES) return signe(r)? NULL: q;
-  if (pr) *pr = r;
+  if (pr) { setvarn(r, v); *pr = r; }
   return q;
 }
 
