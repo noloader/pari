@@ -146,6 +146,41 @@ Doc:
  \item An arbitrary $\Z_K$ modules of finite type in $K^m$, with non-trivial
  torsion, is given by an integral pseudo-matrix $(A,I,J)$
 
+ \subsubsec{Algebraic numbers in relative extension}
+
+ We are given a number field $K = \kbd{nfinit}(T)$, attached to $K = \Q[Y]/(T)$,
+ $T \in \Q[Y]$, and a relative extension $L = \kbd{rnfinit}(K, P)$, attached
+ to $L = K[X]/(P)$, $P \in K[X]$.
+ In all contexts (except \kbd{rnfeltabstorel}, see below), an \tev{algebraic
+ number} is given as
+
+ \item a \typ{INT}, \typ{FRAC} or \typ{POL} in $\Q[Y]$ (implicitly modulo $T$)
+ or a \typ{POL} in $K[X]$ (implicitly modulo $P$),
+
+ \item a \typ{POLMOD} (modulo $T$ or $P$), or
+
+ \item a \typ{COL}~\kbd{v} of dimension $m = [K:\Q]$, representing
+ the element in terms of the integral basis \kbd{K.zk};
+
+ \item if an absolute \kbd{nf} structure \kbd{Labs} was attached to $L$, via
+ \kbd{Labs = nfinit}$(L)$, then we can also use a \typ{COL}~\kbd{v} of
+ dimension $[L:\Q]$, representing the element in terms of the computed integral
+ basis \kbd{Labs.zk}. Be careful that in the degenerate case
+ $L = K$, then the previous interpretation (with respect to \kbd{$K$.zk})
+ takes precedence. This is no concern when $K = \Q$ or if $P = X - Y$
+ (because in that case the primitive
+ polynomial \kbd{Labs.pol} defining $L$ of $\Q$ is \kbd{nf.pol} and the
+ computation of \kbd{nf.zk} is deterministic); but in other cases, the
+ integer bases attached to $K$ and \kbd{Labs} may differ.
+
+ \misctitle{Special case: \kbd{rnfabstorel}} This function assumes
+ that elements are given in absolute representation (with respect to
+ \kbd{Labs.zk} or modulo \kbd{Labs.pol} and converts them to relative
+ representation modulo \kbd{$L$.pol}. In that function (only), a \typ{POL} in
+ $X$ is implicitly understood modulo \kbd{Labs.pol} and a \typ{COL}
+ of length $[L:\Q]$ refers to the integral basis \kbd{Labs.zk} in all cases,
+ including $L = K$.
+
  \subsubsec{Pseudo-bases, determinant} %GPHELPskip
 
  \item The pair $(A,I)$ is a \tev{pseudo-basis} of the module it
