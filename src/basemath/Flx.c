@@ -3302,7 +3302,7 @@ Flxn_inv(GEN f, long e, ulong p)
   GEN W;
   long n=1;
   if (lg(f)==2) pari_err_INV("Flxn_inv",f);
-  W = Fl_to_Flx(Fl_inv(f[2],p), f[1]);
+  W = Fl_to_Flx(Fl_inv(uel(f,2),p), f[1]);
   mask = quadratic_prec_mask(e);
   av2 = avma;
   for (;mask>1;)
@@ -3316,7 +3316,7 @@ Flxn_inv(GEN f, long e, ulong p)
     W = Flx_sub(W, Flx_shift(Flxn_mul(u, W, n-n2, p), n2), p);
     if (gc_needed(av2,2))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"RgXn_inv, e = %ld", n);
+      if(DEBUGMEM>1) pari_warn(warnmem,"Flxn_inv, e = %ld", n);
       W = gerepileupto(av2, W);
     }
   }
