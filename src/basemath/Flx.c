@@ -1442,7 +1442,7 @@ Flx_divrem_Barrettspec(GEN x, long l, GEN mg, GEN T, ulong p, GEN *pr)
 }
 
 static GEN
-Flx_divrem_Barrett_noGC(GEN x, GEN mg, GEN T, ulong p, GEN *pr)
+Flx_divrem_Barrett(GEN x, GEN mg, GEN T, ulong p, GEN *pr)
 {
   GEN q = NULL, r = Flx_copy(x);
   long l = lgpol(x), lt = degpol(T), lm = 2*lt-1, v = T[1];
@@ -1508,7 +1508,7 @@ Flx_divrem(GEN x, GEN T, ulong p, GEN *pr)
   {
     pari_sp av = avma;
     GEN mg = B? B: Flx_invBarrett(y, p);
-    GEN q1 = Flx_divrem_Barrett_noGC(x,mg,y,p,pr);
+    GEN q1 = Flx_divrem_Barrett(x,mg,y,p,pr);
     if (!q1) return gc_NULL(av);
     if (!pr || pr==ONLY_DIVIDES) return gerepileuptoleaf(av, q1);
     gerepileall(av,2,&q1,pr);
@@ -1528,7 +1528,7 @@ Flx_rem(GEN x, GEN T, ulong p)
   {
     pari_sp av=avma;
     GEN mg = B ? B: Flx_invBarrett(y, p);
-    GEN r  = Flx_divrem_Barrett_noGC(x, mg, y, p, ONLY_REM);
+    GEN r  = Flx_divrem_Barrett(x, mg, y, p, ONLY_REM);
     return gerepileuptoleaf(av, r);
   }
 }
@@ -4480,7 +4480,7 @@ FlxqX_divrem_Barrettspec(GEN x, long l, GEN mg, GEN S, GEN T, ulong p, GEN *pr)
 }
 
 static GEN
-FlxqX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, ulong p, GEN *pr)
+FlxqX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, ulong p, GEN *pr)
 {
   GEN q = NULL, r = FlxqX_red(x, T, p);
   long l = lgpol(r), lt = degpol(S), lm = 2*lt-1, v = varn(S);
@@ -4550,7 +4550,7 @@ FlxqX_divrem(GEN x, GEN S, GEN T, ulong p, GEN *pr)
   {
     pari_sp av = avma;
     GEN mg = B? B: FlxqX_invBarrett(y, T, p);
-    GEN q = FlxqX_divrem_Barrett_noGC(x,mg,y,T,p,pr);
+    GEN q = FlxqX_divrem_Barrett(x,mg,y,T,p,pr);
     if (!q) return gc_NULL(av);
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
     gerepileall(av,2,&q,pr);
@@ -4570,7 +4570,7 @@ FlxqX_rem(GEN x, GEN S, GEN T, ulong p)
   {
     pari_sp av=avma;
     GEN mg = B? B: FlxqX_invBarrett(y, T, p);
-    GEN r = FlxqX_divrem_Barrett_noGC(x, mg, y, T, p, ONLY_REM);
+    GEN r = FlxqX_divrem_Barrett(x, mg, y, T, p, ONLY_REM);
     return gerepileupto(av, r);
   }
 }

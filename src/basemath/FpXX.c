@@ -968,7 +968,7 @@ FpXQX_divrem_Barrettspec(GEN x, long l, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
 }
 
 static GEN
-FpXQX_divrem_Barrett_noGC(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
+FpXQX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
 {
   GEN q = NULL, r = FpXQX_red(x, T, p);
   long l = lgpol(r), lt = degpol(S), lm = 2*lt-1, v = varn(S);
@@ -1052,7 +1052,7 @@ FpXQX_divrem(GEN x, GEN S, GEN T, GEN p, GEN *pr)
   {
     pari_sp av=avma;
     GEN mg = B? B: FpXQX_invBarrett(y, T, p);
-    GEN q = FpXQX_divrem_Barrett_noGC(x,mg,y,T,p,pr);
+    GEN q = FpXQX_divrem_Barrett(x,mg,y,T,p,pr);
     if (!q) return gc_NULL(av);
     if (!pr || pr==ONLY_DIVIDES) return gerepilecopy(av, q);
     gerepileall(av,2,&q,pr);
@@ -1081,7 +1081,7 @@ FpXQX_rem(GEN x, GEN S, GEN T, GEN p)
   {
     pari_sp av=avma;
     GEN mg = B? B: FpXQX_invBarrett(y, T, p);
-    GEN r = FpXQX_divrem_Barrett_noGC(x, mg, y, T, p, ONLY_REM);
+    GEN r = FpXQX_divrem_Barrett(x, mg, y, T, p, ONLY_REM);
     return gerepileupto(av, r);
   }
 }
