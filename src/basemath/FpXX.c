@@ -1009,7 +1009,7 @@ FpXQX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
   }
   if (l > lt)
   {
-    GEN zq = FpXQX_divrem_Barrettspec(r+2,l,mg,S,T,p,&r);
+    GEN zq = FpXQX_divrem_Barrettspec(r+2,l,mg,S,T,p,pr ? &r: NULL);
     if (!q) q = zq;
     else
     {
@@ -1017,7 +1017,7 @@ FpXQX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
       for(i=0; i<lq; i++) gel(q+2,i) = gel(zq,2+i);
     }
   }
-  else
+  else if (pr)
     r = FpX_renormalize(r, l+2);
   setvarn(q, v); q = FpXQX_renormalize(q, lg(q));
   if (pr == ONLY_DIVIDES) return signe(r)? NULL: q;
