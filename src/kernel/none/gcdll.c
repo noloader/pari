@@ -119,32 +119,25 @@ clcm(long a,long b) { return ulcm(labs(a), labs(b)); }
 /**               INTEGER EXTENDED GCD  (AND INVMOD)               **/
 /**                                                                **/
 /********************************************************************/
-
-/* GN 1998Oct25, originally developed in January 1998 under 2.0.4.alpha,
- * in the context of trying to improve elliptic curve cryptosystem attacking
- * algorithms.  2001Jan02 -- added bezout() functionality.
+/* Two basic ideas - (1) avoid many integer divisions, especially when the
+ * quotient is 1 which happens ~ 40% of the time.  (2) Use Lehmer's trick as
+ * modified by Jebelean of extracting a couple of words' worth of leading bits
+ * from both operands, and compute partial quotients from them as long as we
+ * can be sure of their values.  Jebelean's modifications consist in
+ * inequalities from which we can quickly decide whether to carry on or to
+ * return to the outer loop, and in re-shifting after the first word's worth of
+ * bits has been used up.  All of this is described in R. Lercier's thesis
+ * [pp148-153 & 163f.], except his outer loop isn't quite right: the catch-up
+ * divisions needed when one partial quotient is larger than a word are missing.
  *
- * Two basic ideas - (1) avoid many integer divisions, especially when the
- * quotient is 1 (which happens more than 40% of the time).  (2) Use Lehmer's
- * trick as modified by Jebelean of extracting a couple of words' worth of
- * leading bits from both operands, and compute partial quotients from them
- * as long as we can be sure of their values.  The Jebelean modifications
- * consist in reliable inequalities from which we can decide fast whether
- * to carry on or to return to the outer loop, and in re-shifting after the
- * first word's worth of bits has been used up.  All of this is described
- * in R. Lercier's these [pp148-153 & 163f.], except his outer loop isn't
- * quite right  (the catch-up divisions needed when one partial quotient is
- * larger than a word are missing).
- *
- * The API consists of invmod() and bezout() below;  the single-word routines
- * xgcduu and xxgcduu may be called directly if desired;  lgcdii() probably
+ * The API consists of invmod() and bezout() below; the single-word routines
+ * xgcduu and xxgcduu may be called directly if desired; lgcdii() probably
  * doesn't make much sense out of context.
  *
  * The whole lot is a factor 6 .. 8 faster on word-sized operands, and asym-
  * ptotically about a factor 2.5 .. 3, depending on processor architecture,
  * than the naive continued-division code.  Unfortunately, thanks to the
- * unrolled loops and all, the code is a bit lengthy.
- */
+ * unrolled loops and all, the code is lengthy. */
 
 /*==================================
  * xgcduu(d,d1,f,v,v1,s)
@@ -185,8 +178,6 @@ clcm(long a,long b) { return ulcm(labs(a), labs(b)); }
  * step had been carried out, it would be [-u,v], and s would also change.)
  * For reducing a rational number to lowest terms, pass f=0 to xgcduu().
  * Finally, f=0 with xxgcduu() is useful for Bezout computations.
- * [Harrumph.  In the above prescription, the sign turns out to be precisely
- * wrong.]
  * (It is safe for invmod() to call xgcduu() with f=1, because f&1 doesn't
  * make a difference when gcd(d,d1)>1.  The speedup is negligible.)
  *
@@ -194,18 +185,13 @@ clcm(long a,long b) { return ulcm(labs(a), labs(b)); }
  * recover the final u,u1 given only v,v1 and s.  However, it probably isn't
  * worthwhile, as it trades a few multiplications for a division.
  *
- * Note that these routines do not know and do not need to know about the
- * PARI stack.
- *
- * Added 2001Jan15:
  * rgcduu() is a variant of xxgcduu() which does not have f  (the effect is
  * that of f=0),  but instead has a ulong vmax parameter, for use in rational
  * reconstruction below.  It returns when v1 exceeds vmax;  v will never
  * exceed vmax.  (vmax=0 is taken as a synonym of ULONG_MAX i.e. unlimited,
  * in which case rgcduu behaves exactly like xxgcduu with f=0.)  The return
  * value of rgcduu() is typically meaningless;  the interesting part is the
- * matrix.
- */
+ * matrix. */
 
 ulong
 xgcduu(ulong d, ulong d1, int f, ulong* v, ulong* v1, long *s)
@@ -218,7 +204,7 @@ xgcduu(ulong d, ulong d1, int f, ulong* v, ulong* v1, long *s)
    * the final `division' of d by 1 `by hand' as it were.
    *
    * The loop has already been unrolled once.  Aggressive optimization could
-   * well lead to a totally unrolled assembler version...
+   * well lead to a totally unrolled assembler version.
    *
    * On modern x86 architectures, this loop is a pig anyway.  The division
    * instruction always puts its result into the same pair of registers, and
@@ -228,13 +214,12 @@ xgcduu(ulong d, ulong d1, int f, ulong* v, ulong* v1, long *s)
    * advance -- and then assembling the matrix in a second pass.  On other
    * architectures where we can cycle through four or so groups of registers
    * and exploit a fast ALU result-to-operand feedback path, this is much less
-   * of an issue.  (Intel sucks.  See http://www.x86.org/ ...)
-   */
+   * of an issue. */
   xs = res = 0;
   xv = 0UL; xv1 = 1UL;
   while (d1 > 1UL)
   {
-    d -= d1;                        /* no need to use subll */
+    d -= d1; /* no need to use subll */
     if (d >= d1)
     {
       hiremainder = 0; q = 1 + divll(d,d1); d = hiremainder;
@@ -242,9 +227,8 @@ xgcduu(ulong d, ulong d1, int f, ulong* v, ulong* v1, long *s)
     }
     else
       xv += xv1;
-                                /* possible loop exit */
-    if (d <= 1UL) { xs=1; break; }
-                                /* repeat with inverted roles */
+    if (d <= 1UL) { xs=1; break; } /* possible loop exit */
+    /* repeat with inverted roles */
     d1 -= d;
     if (d1 >= d)
     {
@@ -253,10 +237,10 @@ xgcduu(ulong d, ulong d1, int f, ulong* v, ulong* v1, long *s)
     }
     else
       xv1 += xv;
-  } /* while */
+  }
 
-  if (!(f&1))                        /* division by 1 postprocessing if needed */
-  {
+  if (!(f&1))
+  { /* division by 1 postprocessing if needed */
     if (xs && d==1)
     { xv1 += d1 * xv; xs = 0; res = 1UL; }
     else if (!xs && d1==1)
@@ -275,7 +259,6 @@ xgcduu(ulong d, ulong d1, int f, ulong* v, ulong* v1, long *s)
   }
 }
 
-
 ulong
 xxgcduu(ulong d, ulong d1, int f,
         ulong* u, ulong* u1, ulong* v, ulong* v1, long *s)
@@ -288,7 +271,8 @@ xxgcduu(ulong d, ulong d1, int f,
   xu1 = xv = 0UL;
   while (d1 > 1UL)
   {
-    d -= d1;                        /* no need to use subll */
+    /* no need to use subll */
+    d -= d1;
     if (d >= d1)
     {
       hiremainder = 0; q = 1 + divll(d,d1); d = hiremainder;
@@ -297,9 +281,8 @@ xxgcduu(ulong d, ulong d1, int f,
     }
     else
     { xv += xv1; xu += xu1; }
-                                /* possible loop exit */
-    if (d <= 1UL) { xs=1; break; }
-                                /* repeat with inverted roles */
+    if (d <= 1UL) { xs=1; break; } /* possible loop exit */
+    /* repeat with inverted roles */
     d1 -= d;
     if (d1 >= d)
     {
@@ -309,10 +292,10 @@ xxgcduu(ulong d, ulong d1, int f,
     }
     else
     { xv1 += xv; xu1 += xu; }
-  } /* while */
+  }
 
-  if (!(f&1))                        /* division by 1 postprocessing if needed */
-  {
+  if (!(f&1))
+  { /* division by 1 postprocessing if needed */
     if (xs && d==1)
     {
       xv1 += d1 * xv;
@@ -353,7 +336,7 @@ rgcduu(ulong d, ulong d1, ulong vmax,
   xu1 = xv = 0UL;
   while (d1 > 1UL)
   {
-    d -= d1;                        /* no need to use subll */
+    d -= d1; /* no need to use subll */
     if (d >= d1)
     {
       hiremainder = 0; q = 1 + divll(d,d1); d = hiremainder;
@@ -362,10 +345,10 @@ rgcduu(ulong d, ulong d1, ulong vmax,
     }
     else
     { xv += xv1; xu += xu1; }
-                                /* possible loop exit */
+    /* possible loop exit */
     if (xv > vmax) { f=xs=1; break; }
     if (d <= 1UL) { xs=1; break; }
-                                /* repeat with inverted roles */
+    /* repeat with inverted roles */
     d1 -= d;
     if (d1 >= d)
     {
@@ -375,12 +358,12 @@ rgcduu(ulong d, ulong d1, ulong vmax,
     }
     else
     { xv1 += xv; xu1 += xu; }
-                                /* possible loop exit */
+    /* possible loop exit */
     if (xv1 > vmax) { f=1; break; }
-  } /* while */
+  }
 
-  if (!(f&1))                        /* division by 1 postprocessing if needed */
-  {
+  if (!(f&1))
+  { /* division by 1 postprocessing if needed */
     if (xs && d==1)
     {
       xv1 += d1 * xv;
@@ -414,13 +397,11 @@ rgcduu(ulong d, ulong d1, ulong vmax,
  *    Return g = gcd(a,b) >= 0, and assign longs u,v through pointers uu,vv
  *    such that g = u*a + v*b.
  * Special cases:
- *    a == b == 0 ==> pick u=1, v=0 (and return 1, surprisingly)
- *    a != 0 == b ==> keep v=0
- *    a == 0 != b ==> keep u=0
- *    |a| == |b| != 0 ==> keep u=0, set v=+-1
- * Assignments through uu,vv happen unconditionally;  non-NULL pointers
- * _must_ be used.
- */
+ *    a = b = 0 ==> pick u=1, v=0 (and return 1, surprisingly)
+ *    a != 0 = b ==> keep v=0
+ *    a = 0 != b ==> keep u=0
+ *    |a| = |b| != 0 ==> keep u=0, set v=+-1
+ * Assignments through uu,vv happen unconditionally. */
 long
 cbezout(long a,long b,long *uu,long *vv)
 {
@@ -440,7 +421,7 @@ cbezout(long a,long b,long *uu,long *vv)
     *uu = 0L; *vv = b < 0 ? -1L : 1L;
     return (long)d1;
   }
-  else if (d == 1)                /* frequently used by nfinit */
+  else if (d == 1) /* frequently used by nfinit */
   {
     *uu = a; *vv = 0L;
     return 1L;
@@ -449,7 +430,7 @@ cbezout(long a,long b,long *uu,long *vv)
   {
 /* bug in gcc-2.95.3:
  * s = a; a = b; b = s; produces wrong result a = b. This is OK:  */
-    { long _x = a; a = b; b = _x; }        /* in order to keep the right signs */
+    { long _x = a; a = b; b = _x; } /* in order to keep the right signs */
     r = d; d = d1; d1 = r;
     t = uu; uu = vv; vv = t;
   }
@@ -495,11 +476,11 @@ cbezout(long a,long b,long *uu,long *vv)
  * stage will end up needing a full division.  After a negative return value,
  * however, this is certain, and should be acted upon.)
  *
- * (The sign information, for which xgcduu() has its return argument s, is now
+ * The sign information, for which xgcduu() has its return argument s, is now
  * implicit in the LSB of our return value, and the caller may take advantage
  * of the fact that a return value of +-1 implies u==0,u1==v==1  [only v1 pro-
  * vides interesting information in this case].  One might also use the fact
- * that if the return value is +-2, then u==1, but this is rather marginal.)
+ * that if the return value is +-2, then u==1, but this is rather marginal.
  *
  * If it was not possible to determine even the first quotient, either because
  * we're too close to an integer quotient or because the quotient would be
@@ -565,7 +546,7 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
     if (lz)
     { /* dividend longer than divisor */
       dd1 = (*d1 >> shc);
-      if (!(HIGHMASK & dd1)) return 0;  /* overflow detected */
+      if (!(HIGHMASK & dd1)) return 0; /* overflow detected */
       if (ld1 > 3)
         dd1lo = (*d1 << sh) + (d1m1 >> shc);
       else
@@ -600,21 +581,19 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
     /* assume again that d has another significant word */
     dd = *d; ddlo = dm1;
   }
-
   /* First subtraction/division stage.  (If a subtraction initially suffices,
    * we don't divide at all.)  If a Jebelean condition is violated, and we
    * can't fix it even by looking at the low-order bits in ddlo,dd1lo, we
    * give up and ask for a full division.  Otherwise we commit the result,
-   * possibly deciding to re-shift immediately afterwards.
-   */
+   * possibly deciding to re-shift immediately afterwards. */
   dd -= dd1;
   if (dd < dd1)
   { /* first quotient known to be == 1 */
     xv1 = 1UL;
     if (!dd) /* !(Jebelean condition), extraspecial case */
-    { /* note this can actually happen...  Now q==1 is known, but we underflow
-       * already. OTOH we've just shortened d by a whole word. Thus we are
-       * happy and return. */
+    { /* This actually happens. Now q==1 is known, but we underflow already.
+       * OTOH we've just shortened d by a whole word. Thus we are happy and
+       * return. */
       *u = 0; *v = *u1 = *v1 = 1UL;
       return -1; /* Next step will be a full division. */
     }
@@ -686,7 +665,6 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
    *
    * Note that after the 1st division, even an a priori quotient of 1 cannot be
    * trusted until we've checked Jebelean's condition: it might be too small */
-
   if (!skip)
   {
     for(;;)
@@ -781,23 +759,22 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
   } /* end of skip-pable section:  get here also, with res==1, when there
      * was a problem immediately after the very first division. */
 
-  /* Re-shift.  Note:  the shift count _can_ be zero, viz. under the following
+  /* Re-shift.  Note: the shift count _can_ be zero, viz. under the following
    * precise conditions:  The original dd1 had its topmost bit set, so the 1st
-   * q was 1, and after subtraction, dd had its topmost bit unset.  If now
-   * dd==0, we'd have taken the return exit already, so we couldn't have got
-   * here.  If not, then it must have been the second division which has gone
-   * amiss  (because dd1 was very close to an exact multiple of the remainder
-   * dd value, so this will be very rare).  At this point, we'd have a fairly
-   * slim chance of fixing things by re-examining dd1:dd1lo vs. dd:ddlo, but
-   * this is not guaranteed to work.  Instead of trying, we return at once.
-   * The caller will see to it that the initial subtraction is re-done using
-   * _all_ the bits of both operands, which already helps, and the next round
-   * will either be a full division  (if dd occupied a halfword or less),  or
-   * another llgcdii() first step.  In the latter case, since we try a little
-   * harder during our first step, we may actually be able to fix the problem,
-   * and get here again with improved low-order bits and with another step
-   * under our belt.  Otherwise we'll have given up above and forced a full-
-   * blown division.
+   * q was 1, and after subtraction, dd had its topmost bit unset.  If now dd=0,
+   * we'd have taken the return exit already, so we couldn't have got here.
+   * If not, then it must have been the second division which has gone amiss
+   * (because dd1 was very close to an exact multiple of the remainder dd value,
+   * so this will be very rare).  At this point, we'd have a fairly slim chance
+   * of fixing things by re-examining dd1:dd1lo vs. dd:ddlo, but this is not
+   * guaranteed to work. Instead of trying, we return at once and let caller
+   * see to it that the initial subtraction is re-done usingall the bits of
+   * both operands, which already helps, and the next round will either be a
+   * full division  (if dd occupied a halfword or less), or another llgcdii()
+   * first step.  In the latter case, since we try a little harder during our
+   * first step, we may actually be able to fix the problem, and get here again
+   * with improved low-order bits and with another step under our belt.
+   * Otherwise we'll have given up above and forced a full division.
    *
    * If res is even, the shift count _cannot_ be zero.  (The first step forces
    * a zero into the remainder's MSB, and all subsequent remainders will have
@@ -810,7 +787,7 @@ lgcdii(ulong* d, ulong* d1, ulong* u, ulong* u1, ulong* v, ulong* v1,
    * as the first -- beginning with the division of dd into dd1, as if res
    * was odd.  To cater for this, if res is actually even, we swap things
    * around during reshifting.  (During the second loop, the parity of res
-   * does not matter;  we know in which half of the loop we are when we decide
+   * does not matter; we know in which half of the loop we are when we decide
    * to return.) */
   if (res&1)
   { /* after odd number of division(s) */
