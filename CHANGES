@@ -69,6 +69,7 @@ BA  46- hyperellcharpoly: wrong results over Z/3Z
         from znchar(chi) and chareval were incompatible with mfcoefs when
         order(chi) = 2 (mod 4) [same cyclotomic field but different
         cyclotomic polynomial]
+FB  53- [Configure] library not found despite --with-readline-lib [#2097]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

@@ -29,7 +29,8 @@ cmd0="$CC $CFLAGS $extraflag $RLINCLUDE -o $exe rl_version.c"
 try() { RLLIBS=$1; cmd="$cmd0 $1"; . log_cmd; }
 
 if test -n "$with_readline_lib"; then
-  rl="-L$with_readline_lib -lreadline"
+  readline=$with_readline_lib
+  rl="-L$readline -lreadline"
 else
   rl="-lreadline"
 fi
