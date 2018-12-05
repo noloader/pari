@@ -1606,8 +1606,7 @@ FpMs_structelim_back(GEN M, GEN V, GEN prow, GEN p)
         GEN C = gel(M,i), F = gel(C,1), E = gel(C,2);
         long c=0, cj=0, lF = lg(F);
         for(j=1; j<lF; j++)
-          if (!gel(R,F[j]))
-          { c++; cj=j; }
+          if (!gel(R,F[j])) { c++; cj=j; }
         if (c>=2) continue;
         if (c==1)
         {
@@ -1615,7 +1614,9 @@ FpMs_structelim_back(GEN M, GEN V, GEN prow, GEN p)
           GEN s = gen_0;
           for(j=1; j<lF; j++)
             if (j!=cj) s = Fp_add(s, mulis(gel(R,F[j]), E[j]), p);
-          gel(R,F[cj]) = gerepileupto(av, Fp_div(Fp_neg(s, p), stoi(E[cj]), p));
+          /* s /= -E[cj] mod p */
+          s = E[cj] < 0? Fp_divu(s, -E[cj], p): Fp_divu(Fp_neg(s,p), E[cj], p);
+          gel(R,F[cj]) = gerepileuptoint(av, s);
           f++;
         }
         W[i]=0;

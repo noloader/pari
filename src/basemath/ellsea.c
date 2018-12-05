@@ -907,7 +907,7 @@ corr(GEN c4, GEN c6, GEN T, GEN p, GEN pp, long e)
 {
   GEN c46 = Zq_div(Fq_sqr(c4, T, p), c6, T, p, pp, e);
   GEN c64 = Zq_div(c6, c4, T, p, pp, e);
-  GEN a = Fp_div(gen_2, utoi(3), p);
+  GEN a = Fp_divu(gen_2, 3, p);
   return Fq_add(Fq_halve(c46, T, p), Fq_mul(a, c64, T, p), T, p);
 }
 

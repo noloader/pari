@@ -639,7 +639,7 @@ Flxq_log_Coppersmith_d(GEN W, GEN g, long r, GEN T, ulong p, GEN mo)
       GEN R  = famatsmall_reduce(mkmat2(FG, E));
       GEN l  = Flxq_log_from_rel(W, R, r, T, p, mo);
       if (!l) continue;
-      l = Fp_div(l,utoi(p),mo);
+      l = Fp_divu(l,p,mo);
       if (dg <= r)
       {
         long idx = Flx_cindex(g, p);

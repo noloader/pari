@@ -695,7 +695,7 @@ ZpXQ_log(GEN a, GEN T, GEN p, long N)
       g = powuu(pp,2*i*k-w);
     }
     else g = powiu(p,2*i*k);
-    gel(pol,i+2) = Fp_div(g, utoi(z),pe);
+    gel(pol,i+2) = Fp_divu(g, z,pe);
   }
   if( DEBUGLEVEL>=3) timer_printf(&ti,"pol(%ld)",l);
   s = FpX_FpXQ_eval(pol, FpXQ_sqr(b, T, pe), T,  pe);

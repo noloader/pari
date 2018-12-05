@@ -163,7 +163,7 @@ ZpXXQ_frob(GEN S, GEN U, GEN V, long k, GEN T, ulong p, long e)
     A = FpX_add(FpX_mul(U,M,q), FpX_mul(H, Tp, q),q);
     v = u_lvalrem(2*i+1,p,&r);
     Bc = ZX_deriv(B);
-    Bc = FpX_Fp_mul(ZX_Z_divexact(Bc,powuu(p,v)),Fp_div(gen_2, utoi(r), q), q);
+    Bc = FpX_Fp_mul(ZX_Z_divexact(Bc,powuu(p,v)),Fp_divu(gen_2, r, q), q);
     M = FpX_add(to_ZX(gel(S,i+2),vT), FpX_add(A, Bc, q), q);
     if (gc_needed(av2,1))
     {
@@ -455,7 +455,7 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
     A = FpXX_add(FpXQX_mul(U, M, T, q), FpXQX_mul(H, Sp, T, q),q);
     v = u_lvalrem(2*i+1,p,&r);
     Bc = RgX_deriv(B);
-    Bc = FpXX_Fp_mul(ZXX_Z_divexact(Bc,powuu(p,v)), Fp_div(gen_2, utoi(r), q), q);
+    Bc = FpXX_Fp_mul(ZXX_Z_divexact(Bc,powuu(p,v)), Fp_divu(gen_2, r, q), q);
     M = FpXX_add(gel(F,i+2), FpXX_add(A, Bc, q), q);
     if (gc_needed(av2,1))
     {

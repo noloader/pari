@@ -857,7 +857,7 @@ FpX_integ(GEN x, GEN p)
   y = cgetg(lx+1, t_POL); y[1] = x[1];
   gel(y,2) = gen_0;
   for (i=3; i<=lx; i++)
-    gel(y,i) = signe(gel(x,i-1))? Fp_div(gel(x,i-1), utoipos(i-2), p): gen_0;
+    gel(y,i) = signe(gel(x,i-1))? Fp_divu(gel(x,i-1), i-2, p): gen_0;
   return ZX_renormalize(y, lx+1);;
 }
 

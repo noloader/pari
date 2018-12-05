@@ -4079,7 +4079,7 @@ Fp_log_find_ind(GEN a, GEN K, long prmax, GEN C, GEN p, GEN m)
       if (signe(Ki)<0) break;
       Ao = addii(Ao, mulis(Ki, E[i]));
     }
-    if (i==l) return Fp_div(Ao, utoi(AV), m);
+    if (i==l) return Fp_divu(Ao, AV, m);
     aa = gerepileuptoint(av, aa);
   }
 }
