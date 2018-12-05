@@ -5554,6 +5554,7 @@ INLINE GEN    Flx_copy(GEN x);
 INLINE GEN    Flx_div(GEN x, GEN y, ulong p);
 INLINE ulong  Flx_lead(GEN x);
 INLINE GEN    Flx_mulu(GEN x, ulong a, ulong p);
+INLINE GEN    Fp_divu(GEN x, ulong a, GEN p);
 INLINE GEN    FpV_FpC_mul(GEN x, GEN y, GEN p);
 INLINE GEN    FpXQX_renormalize(GEN x, long lx);
 INLINE GEN    FpXX_renormalize(GEN x, long lx);

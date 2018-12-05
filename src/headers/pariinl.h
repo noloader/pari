@@ -1742,11 +1742,32 @@ Fp_invsafe(GEN a, GEN m)
 INLINE GEN
 Fp_div(GEN a, GEN b, GEN m)
 {
-  pari_sp av=avma;
-  GEN p; /*HACK: assume modii use <=lg(p)+(lg(m)<<1) space*/
+  pari_sp av = avma;
+  GEN p;
+  if (lgefint(b) == 3)
+  {
+    a = Fp_divu(a, b[2], m);
+    if (signe(b) < 0) a = Fp_neg(a, m);
+    return a;
+  }
+  /*HACK: assume modii use <=lg(p)+(lg(m)<<1) space*/
   (void)new_chunk(lg(a)+(lg(m)<<1));
   p = mulii(a, Fp_inv(b,m));
   set_avma(av); return modii(p,m);
+}
+INLINE GEN
+Fp_divu(GEN x, ulong a, GEN p)
+{
+  pari_sp av = avma;
+  ulong b;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2], xp = umodiu(x, pp);
+    return xp? utoipos(Fl_div(xp, a % pp, pp)): gen_0;
+  }
+  x = Fp_red(x, p);
+  b = Fl_neg(Fl_div(umodiu(x,a), umodiu(p,a), a), a); /* x + pb = 0 (mod a) */
+  return gerepileuptoint(av, diviuexact(addmuliu(x, p, b), a));
 }
 
 INLINE GEN

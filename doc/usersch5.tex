@@ -3489,6 +3489,10 @@ are left on stack, besides the $N$ in the result.
 \kbd{b} modulo \kbd{m} (smallest non-negative residue). Raise an error if
 \kbd{b} is not invertible.
 
+\fun{GEN}{Fp_divu}{GEN a, ulong b, GEN m} returns the quotient of \kbd{a} by
+\kbd{b} modulo \kbd{m} (smallest non-negative residue). Raise an error if
+\kbd{b} is not invertible.
+
 \fun{int}{invmod}{GEN a, GEN m, GEN *g},  return $1$ if \kbd{a}
 modulo \kbd{m} is invertible, else return $0$ and set
 $\kbd{g} = \gcd(\kbd{a},\kbd{m})$.
