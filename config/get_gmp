@@ -1,3 +1,4 @@
+#exported variables
 _gmp_list="gmp GMPLIBS GMPINCLUDE"
 gmp=
 case "$with_gmp" in

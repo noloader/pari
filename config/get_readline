@@ -1,6 +1,5 @@
 #exported variables
 _readline_list="readline readline_version RLINCLUDE RLLIBS"
-
 readline=
 case "$with_readline" in
   yes|"");;
@@ -13,7 +12,6 @@ case "$with_readline" in
   fi;;
 esac
 
-# Readline -- Headers
 pth="$with_readline_include"
 x=`./locate 'readline/readline.h' '' $pth`
 case $x in
