@@ -575,6 +575,18 @@ ZpXQX_liftroot_vald(GEN f, GEN a, long v, GEN T, GEN p, long e)
 GEN
 ZpXQX_liftroot(GEN f, GEN a, GEN T, GEN p, long e) { return ZpXQX_liftroot_vald(f,a,0,T,p,e); }
 
+GEN
+ZpXQX_liftroots(GEN f, GEN S, GEN T, GEN p, long e)
+{
+  long i, n = lg(S)-1, d = degpol(f);
+  GEN r;
+  if (n == d) return ZpXQX_liftroots_full(f, S, T, powiu(p, e), p, e);
+  r = cgetg(n+1, typ(S));
+  for (i=1; i <= n; i++)
+    gel(r,i) = ZpXQX_liftroot(f, gel(S,i), T, p, e);
+  return r;
+}
+
 /* Same as ZpX_liftroot for the polynomial X^n-b*/
 GEN
 Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e)

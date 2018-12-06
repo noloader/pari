@@ -141,6 +141,7 @@ BA  23- FFX_gcd, FFX_extgcd
 BA  26- [libpari] Flxn_red, Flxn_sqr
 BA  27- new GP functions export, unexport, exportall, unexportall
     28- [libpari] Fp_divu
+BA  29- [libpari] ZpXQX_liftroots
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
