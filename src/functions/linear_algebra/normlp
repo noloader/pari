@@ -3,6 +3,10 @@ Section: linear_algebra
 C-Name: gnormlp
 Prototype: GDGp
 Help: normlp(x,{p=oo}): Lp-norm of x; sup norm if p is omitted.
+Description:
+  (gen):gen:prec           gsupnorm($1, $prec)
+  (gen,):gen:prec          gsupnorm($1, $prec)
+  (gen,1):gen:prec         gnorml1($1, $prec)
 Doc:
  $L^p$-norm of $x$; sup norm if $p$ is omitted or \kbd{+oo}. More precisely,
  if $x$ is a scalar, \kbd{normlp}$(x, p)$ is defined to be \kbd{abs}$(x)$.
