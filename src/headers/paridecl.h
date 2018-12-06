@@ -4527,7 +4527,8 @@ GEN     factorback(GEN fa);
 GEN     factorback2(GEN fa,GEN e);
 GEN     gbezout(GEN x, GEN y, GEN *u, GEN *v);
 GEN     gdivexact(GEN x, GEN y);
-GEN     gen_factorback(GEN L, GEN e, GEN (*_mul)(void*,GEN,GEN), GEN (*_pow)(void*,GEN,GEN), void *data);
+GEN     gen_factorback(GEN L, GEN e, void *E, GEN (*_mul)(void*,GEN,GEN),
+                                              GEN (*_pow)(void*,GEN,GEN));
 GEN     ggcd(GEN x, GEN y);
 GEN     ggcd0(GEN x, GEN y);
 GEN     ginvmod(GEN x, GEN y);

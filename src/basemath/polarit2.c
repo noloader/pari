@@ -1093,8 +1093,8 @@ Fppow(void *a, GEN x, GEN n) { return Fp_pow(x,n,(GEN)a); }
 
 /* [L,e] = [fa, NULL] or [elts, NULL] or [elts, exponents] */
 GEN
-gen_factorback(GEN L, GEN e, GEN (*_mul)(void*,GEN,GEN),
-               GEN (*_pow)(void*,GEN,GEN), void *data)
+gen_factorback(GEN L, GEN e, void *data, GEN (*_mul)(void*,GEN,GEN),
+               GEN (*_pow)(void*,GEN,GEN))
 {
   pari_sp av = avma;
   long k, l, lx;
@@ -1151,20 +1151,20 @@ GEN
 idealfactorback(GEN nf, GEN L, GEN e, int red)
 {
   nf = checknf(nf);
-  if (red) return gen_factorback(L, e, &idmulred, &idpowred, (void*)nf);
-  else     return gen_factorback(L, e, &idmul, &idpow, (void*)nf);
+  if (red) return gen_factorback(L, e, (void*)nf, &idmulred, &idpowred);
+  else     return gen_factorback(L, e, (void*)nf, &idmul, &idpow);
 }
 
 GEN
 nffactorback(GEN nf, GEN L, GEN e)
-{ return gen_factorback(L, e, &eltmul, &eltpow, (void*)checknf(nf)); }
+{ return gen_factorback(L, e, (void*)checknf(nf), &eltmul, &eltpow); }
 
 GEN
 FpV_factorback(GEN L, GEN e, GEN p)
-{ return gen_factorback(L, e, &Fpmul, &Fppow, (void*)p); }
+{ return gen_factorback(L, e, (void*)p, &Fpmul, &Fppow); }
 
 GEN
-factorback2(GEN L, GEN e) { return gen_factorback(L, e, &mul, &powi, NULL); }
+factorback2(GEN L, GEN e) { return gen_factorback(L, e, NULL, &mul, &powi); }
 GEN
 factorback(GEN fa) { return factorback2(fa, NULL); }
 

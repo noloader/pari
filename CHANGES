@@ -135,6 +135,7 @@ BA  18- qfbsolve now returns a vector of solutions.
     32- allow listinsert(L, x, n) for n > #L, like listput
     33- allow forsquarefree(n = a, b) with a*b < 0
     34- allow L[a..b] and L[^i] for t_LISTs
+BA  35- gen_factorback: change argument order to match other functions
 
   Added
      1- [libpari] nonsquare_Fl

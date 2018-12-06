@@ -11891,7 +11891,7 @@ is a (presumably optimized) shortcut for \kbd{mul(D, $x$, $x$)}; \kbd{one}
 returns the monoid unit. The flag \kbd{usesqr} should be set to $1$ if
 squaring are faster than multiplication by $x$.
 
-\fun{GEN}{gen_factorback}{GEN L, GEN e, F2 mul, F2 pow, void *D} generic form
+\fun{GEN}{gen_factorback}{GEN L, GEN e, void *D, F2 mul, F2 pow} generic form
 of \tet{factorback}. The pair $[L,e]$ is of the form
 
 \item \kbd{[fa, NULL]}, \kbd{fa} a two-column factorization matrix: expand it.

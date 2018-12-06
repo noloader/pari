@@ -760,7 +760,7 @@ _FpX_pow(void* D, GEN x, GEN n) { return FpX_powu(x,itos(n),(GEN)D); }
 static GEN
 FpX_factorback(GEN fa, GEN p)
 {
-  return gen_factorback(gel(fa,1), zv_to_ZV(gel(fa,2)), &_FpX_mul, &_FpX_pow, (void*)p);
+  return gen_factorback(gel(fa,1), zv_to_ZV(gel(fa,2)), (void *)p, &_FpX_mul, &_FpX_pow);
 }
 
 static GEN
