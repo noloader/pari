@@ -3865,8 +3865,12 @@ vecfactoru_i(ulong a, ulong b)
       ulong j, t = a / pk, ap = t * pk;
       if (ap < a) { ap += pk; t++; }
       /* t = (j+a-1) \ pk */
-      for (j = ap-a+1; j <= n; j += pk, t++)
-        if (t % p) { v[j] *= pk; matsmalltrunc_append(gel(L,j), p,k); }
+      t %= p;
+      for (j = ap-a+1; j <= n; j += pk)
+      {
+        if (t) { v[j] *= pk; matsmalltrunc_append(gel(L,j), p,k); }
+        if (++t == p) t = 0;
+      }
       pk *= p;
     }
   }
@@ -3915,8 +3919,12 @@ vecfactoroddu_i(ulong a, ulong b)
       /* t and ap are odd, ap multiple of pk = p^k */
       if (ap < a) { ap += pk<<1; t+=2; }
       /* c=t*p^k by steps of 2*p^k; factorization of c*=p^k if (t,p)=1 */
-      for (j = ((ap-a)>>1)+1; j <= n; j += pk, t+=2)
-        if (t % p) { v[j] *= pk; matsmalltrunc_append(gel(L,j), p,k); }
+      t %= p;
+      for (j = ((ap-a)>>1)+1; j <= n; j += pk)
+      {
+        if (t) { v[j] *= pk; matsmalltrunc_append(gel(L,j), p,k); }
+        t += 2; if (t >= p) t -= p;
+      }
       pk *= p;
     }
   }
