@@ -8,6 +8,8 @@ I
 1 + O(3^5)
 1
 38
+38
+64
 +oo
 3
 +oo
@@ -35,4 +37,7 @@ I
   *** localbitprec: domain error in localbitprec: p < 1
 0
 0
-Total time spent: 1
+  ***   at top-level: localprec('x)
+  ***                 ^-------------
+  *** localprec: incorrect type in localprec (t_POL).
+Total time spent: 0

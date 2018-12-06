@@ -1,7 +1,7 @@
 Function: localprec
 Section: programming/specific
 C-Name: localprec
-Prototype: vL
+Prototype: vG
 Help: localprec(p): set the real precision to p in the dynamic scope.
 Doc: set the real precision to $p$ in the dynamic scope. All computations
  are performed as if \tet{realprecision} was $p$:

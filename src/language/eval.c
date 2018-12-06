@@ -570,15 +570,26 @@ checkprec(const char *f, long p, long M)
   if (p < 1) pari_err_DOMAIN(f, "p", "<", gen_1, stoi(p));
   if (p > M) pari_err_DOMAIN(f, "p", ">", utoipos(M), utoi(p));
 }
-void
-localprec(long p)
+static long
+_prec(GEN p)
 {
+  pari_sp av = avma;
+  if (typ(p) == t_INT) return itos(p);
+  p = gceil(p);
+  if (typ(p) != t_INT) pari_err_TYPE("localprec", p);
+  return gc_long(av, itos(p));
+}
+void
+localprec(GEN pp)
+{
+  long p = _prec(pp);
   checkprec("localprec", p, prec2ndec(LGBITS));
   push_localbitprec(ndec2nbits(p));
 }
 void
-localbitprec(long p)
+localbitprec(GEN pp)
 {
+  long p = _prec(pp);
   checkprec("localbitprec", p, (long)LGBITS);
   push_localbitprec(p);
 }

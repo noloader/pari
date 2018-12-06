@@ -104,6 +104,8 @@ BA  18- qfbsolve now returns a vector of solutions.
     21- mfparams now returns [N,k,CHI,space or P, Phi] where Phi is the
         cyclotomic polynomials defining the field of values of CHI
     22- inline / unline are now obsolete, use export/unexport
+    23- let localprec(p) accept non integral real p [replace by ceil(p)];
+        same for localbitprec.
 
   Added
      1- [libpari] nonsquare_Fl

@@ -11,6 +11,8 @@ bitprecision(1 + O(3^5), 10)
 bitprecision(1, 10)
 precision(1./t)
 precision(Qfb(1,0,-2));
+localprec(37.5); precision(1.)
+localbitprec(127/2); bitprecision(1.)
 
 serprec(1,x)
 serprec(x+O(x^3),x)
@@ -35,3 +37,4 @@ localprec(-1)
 localbitprec(-1)
 iferr(localbitprec(2^63-1),E,0) \\ to avoid != results depending on arch
 iferr(localprec(2^63-1),E,0)
+localprec('x)

@@ -1,7 +1,7 @@
 Function: localbitprec
 Section: programming/specific
 C-Name: localbitprec
-Prototype: vL
+Prototype: vG
 Help: localbitprec(p): set the real precision to p bits in the dynamic scope.
 Doc: set the real precision to $p$ bits in the dynamic scope. All computations
  are performed as if \tet{realbitprecision} was $p$:
