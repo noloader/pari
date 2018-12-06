@@ -240,30 +240,6 @@ gprecision(GEN x)
   return 0;
 }
 
-GEN
-precision0(GEN x, long n)
-{
-  long a;
-  if (n) return gprec(x,n);
-  a = gprecision(x);
-  return a? utoi(prec2ndec(a)): mkoo();
-}
-
-GEN
-bitprecision0(GEN x, long n)
-{
-  long a;
-  if (n < 0)
-    pari_err_DOMAIN("bitprecision", "bitprecision", "<", gen_0, stoi(n));
-  if (n) {
-    pari_sp av = avma;
-    GEN y = gprec_w(x, nbits2prec(n));
-    return gerepilecopy(av, y);
-  }
-  a = gprecision(x);
-  return a? utoi(prec2nbits(a)): mkoo();
-}
-
 static long
 vec_padicprec_relative(GEN x, long imin)
 {

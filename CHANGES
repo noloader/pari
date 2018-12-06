@@ -106,6 +106,8 @@ BA  18- qfbsolve now returns a vector of solutions.
     22- inline / unline are now obsolete, use export/unexport
     23- let localprec(p) accept non integral real p [replace by ceil(p)];
         same for localbitprec.
+    24- let precision(x,p) accept non integral real p [replace by ceil(p)];
+        same for bitprecision.
 
   Added
      1- [libpari] nonsquare_Fl

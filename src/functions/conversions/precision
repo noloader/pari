@@ -1,25 +1,13 @@
 Function: precision
 Section: conversions
-C-Name: precision0
-Prototype: GD0,L,
+C-Name: precision00
+Prototype: GDG
 Help: precision(x,{n}): if n is present, return x at precision n. If n is
  omitted, return real precision of object x.
-Description:
- (real):small          prec2ndec(gprecision($1))
- (gen):int             precision0($1, 0)
- (real,0):small        prec2ndec(gprecision($1))
- (gen,0):int           precision0($1, 0)
- (real,#small):real    rtor($1, ndec2prec($2))
- (gen,#small):gen      gprec($1, $2)
- (real,small):real     precision0($1, $2)
- (mp,small):mp         precision0($1, $2)
- (gen,small):gen       precision0($1, $2)
-
 Doc: the function behaves differently according to whether $n$ is
  present and positive or not. If $n$ is missing, the function returns the
  floating point precision in decimal digits of the PARI object $x$. If $x$
  has no floating point component, the function returns \kbd{+oo}.
-
  \bprog
  ? precision(exp(1e-100))
  %1 = 154                \\ 154 significant decimal digits

@@ -13,6 +13,8 @@ precision(1./t)
 precision(Qfb(1,0,-2));
 localprec(37.5); precision(1.)
 localbitprec(127/2); bitprecision(1.)
+precision(precision(1.,37.5))
+bitprecision(bitprecision(1.,127/2))
 
 serprec(1,x)
 serprec(x+O(x^3),x)

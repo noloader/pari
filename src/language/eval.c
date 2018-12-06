@@ -571,27 +571,67 @@ checkprec(const char *f, long p, long M)
   if (p > M) pari_err_DOMAIN(f, "p", ">", utoipos(M), utoi(p));
 }
 static long
-_prec(GEN p)
+_prec(GEN p, const char *f)
 {
   pari_sp av = avma;
   if (typ(p) == t_INT) return itos(p);
   p = gceil(p);
-  if (typ(p) != t_INT) pari_err_TYPE("localprec", p);
+  if (typ(p) != t_INT) pari_err_TYPE(f, p);
   return gc_long(av, itos(p));
 }
 void
 localprec(GEN pp)
 {
-  long p = _prec(pp);
+  long p = _prec(pp, "localprec");
   checkprec("localprec", p, prec2ndec(LGBITS));
   push_localbitprec(ndec2nbits(p));
 }
 void
 localbitprec(GEN pp)
 {
-  long p = _prec(pp);
+  long p = _prec(pp, "localbitprec");
   checkprec("localbitprec", p, (long)LGBITS);
   push_localbitprec(p);
+}
+
+static GEN
+_precision0(GEN x)
+{
+  long a = gprecision(x);
+  return a? utoi(prec2ndec(a)): mkoo();
+}
+GEN
+precision0(GEN x, long n)
+{ return n? gprec(x,n): _precision0(x); }
+static GEN
+_bitprecision0(GEN x)
+{
+  long a = gprecision(x);
+  return a? utoi(prec2nbits(a)): mkoo();
+}
+GEN
+bitprecision0(GEN x, long n)
+{
+  if (n < 0)
+    pari_err_DOMAIN("bitprecision", "bitprecision", "<", gen_0, stoi(n));
+  if (n) {
+    pari_sp av = avma;
+    GEN y = gprec_w(x, nbits2prec(n));
+    return gerepilecopy(av, y);
+  }
+  return _bitprecision0(x);
+}
+GEN
+precision00(GEN x, GEN n)
+{
+  if (!n) return _precision0(x);
+  return precision0(x, _prec(n, "precision"));
+}
+GEN
+bitprecision00(GEN x, GEN n)
+{
+  if (!n) return _bitprecision0(x);
+  return bitprecision0(x, _prec(n, "bitprecision"));
 }
 
 INLINE GEN

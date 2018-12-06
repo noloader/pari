@@ -1,7 +1,7 @@
 Function: bitprecision
 Section: conversions
-C-Name: bitprecision0
-Prototype: GD0,L,
+C-Name: bitprecision00
+Prototype: GDG
 Help: bitprecision(x,{n}): if n is present and positive, return x at precision
  n bits. If n is omitted, return real precision of object x in bits.
 
