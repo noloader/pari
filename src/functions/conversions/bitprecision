@@ -6,8 +6,8 @@ Help: bitprecision(x,{n}): if n is present and positive, return x at precision
  n bits. If n is omitted, return real precision of object x in bits.
 
 Doc: the function behaves differently according to whether $n$ is
- present and positive or not. If $n$ is missing, the function returns the
- (floating point) precision in bits of the PARI object $x$. If $x$ is an
+ present or not. If $n$ is missing, the function returns the (floating point)
+ precision in bits of the PARI object $x$. If $x$ is an
  exact object, the function returns \kbd{+oo}.
  \bprog
  ? bitprecision(exp(1e-100))
@@ -16,7 +16,9 @@ Doc: the function behaves differently according to whether $n$ is
  %2 = 128                 \\ minimal accuracy among components
  ? bitprecision(2 + x)
  %3 = +oo                  \\ exact object
- @eprog
+ @eprog\noindent The idiom \kbd{bitprecision(0.)} is the best way to retrieve
+ the working bit precision (as modified by possible \kbd{localbitprec}
+ statements).
 
  If $n$ is present and positive, the function creates a new object equal to $x$
  with the new bit-precision roughly $n$. In fact, the smallest multiple of 64
