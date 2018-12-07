@@ -7756,9 +7756,10 @@ check_SL2Z(GEN g) { return check_M2Z(g) && equali1(ZM_det(g)); }
 static GEN
 mfcharcxeval(GEN CHI, long n, long prec)
 {
+  ulong ord, N = mfcharmodulus(CHI);
   GEN ordg;
-  ulong ord;
-  if (ugcd(mfcharmodulus(CHI), labs(n)) > 1) return gen_0;
+  if (N == 1) return gen_1;
+  if (ugcd(N, labs(n)) > 1) return gen_0;
   ordg = gmfcharorder(CHI);
   ord = itou(ordg);
   return rootsof1q_cx(znchareval_i(CHI,n,ordg), ord, prec);
@@ -9903,8 +9904,10 @@ fg1g2n(long n, long k, GEN CHI1vec, GEN CHI2vec, GEN data, GEN z1, GEN z2)
 static GEN
 gausssumcx(GEN CHIvec, long prec)
 {
-  GEN z, S, V = CHIvec_val(CHIvec);
+  GEN z, S, V;
   long m, N = CHIvec_N(CHIvec);
+  if (N == 1) return gen_1;
+  V = CHIvec_val(CHIvec);
   z = rootsof1u_cx(N, prec);
   S = gmul(z, gel(V, N));
   for (m = N-1; m >= 1; m--) S = gmul(z, gadd(gel(V, m), S));
