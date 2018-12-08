@@ -8,7 +8,7 @@ I
 1 + O(3^5)
 1
 38
-38
+128
 64
 38
 64
@@ -42,4 +42,4 @@ I
   ***   at top-level: localprec('x)
   ***                 ^-------------
   *** localprec: incorrect type in localprec (t_POL).
-Total time spent: 0
+Total time spent: 1

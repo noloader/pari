@@ -16,9 +16,9 @@ Doc: the function behaves differently according to whether $n$ is
  %2 = 128                 \\ minimal accuracy among components
  ? bitprecision(2 + x)
  %3 = +oo                  \\ exact object
- @eprog\noindent The idiom \kbd{bitprecision(0.)} is the best way to retrieve
+ @eprog\noindent The idiom \kbd{bitprecision(0.)} is a way to retrieve
  the working bit precision (as modified by possible \kbd{localbitprec}
- statements).
+ statements), which should give the same result as \kbd{localbitprec()}.
 
  If $n$ is present and positive, the function creates a new object equal to $x$
  with the new bit-precision roughly $n$. In fact, the smallest multiple of 64

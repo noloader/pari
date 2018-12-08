@@ -579,19 +579,24 @@ _prec(GEN p, const char *f)
   if (typ(p) != t_INT) pari_err_TYPE(f, p);
   return gc_long(av, itos(p));
 }
-void
+long
 localprec(GEN pp)
 {
-  long p = _prec(pp, "localprec");
+  long p;
+  if (!pp) return get_localprec();
+  p = _prec(pp, "localprec");
   checkprec("localprec", p, prec2ndec(LGBITS));
-  push_localbitprec(ndec2nbits(p));
+  p = ndec2nbits(p);
+  push_localbitprec(p); return p;
 }
-void
+long
 localbitprec(GEN pp)
 {
-  long p = _prec(pp, "localbitprec");
+  long p;
+  if (!pp) return get_localbitprec();
+  p = _prec(pp, "localbitprec");
   checkprec("localbitprec", p, (long)LGBITS);
-  push_localbitprec(p);
+  push_localbitprec(p); return p;
 }
 
 static GEN
