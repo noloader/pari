@@ -583,7 +583,7 @@ long
 localprec(GEN pp)
 {
   long p;
-  if (!pp) return get_localprec();
+  if (!pp) return prec2ndec(get_localprec());
   p = _prec(pp, "localprec");
   checkprec("localprec", p, prec2ndec(LGBITS));
   p = ndec2nbits(p);
@@ -629,12 +629,22 @@ bitprecision0(GEN x, long n)
 GEN
 precision00(GEN x, GEN n)
 {
+  if (!x)
+  {
+    if (n) pari_err(e_MISC, "omitting x with n present");
+    return utoipos(prec2ndec(get_localprec()));
+  }
   if (!n) return _precision0(x);
   return precision0(x, _prec(n, "precision"));
 }
 GEN
 bitprecision00(GEN x, GEN n)
 {
+  if (!x)
+  {
+    if (n) pari_err(e_MISC, "omitting x with n present");
+    return utoipos(get_localbitprec());
+  }
   if (!n) return _bitprecision0(x);
   return bitprecision0(x, _prec(n, "bitprecision"));
 }

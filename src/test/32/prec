@@ -12,6 +12,8 @@ I
 64
 38
 64
+38
+128
 +oo
 3
 +oo
@@ -42,4 +44,10 @@ I
   ***   at top-level: localprec('x)
   ***                 ^-------------
   *** localprec: incorrect type in localprec (t_POL).
+  ***   at top-level: precision(,1)
+  ***                 ^-------------
+  *** precision: omitting x with n present.
+  ***   at top-level: bitprecision(,1)
+  ***                 ^----------------
+  *** bitprecision: omitting x with n present.
 Total time spent: 1
