@@ -7250,7 +7250,12 @@ mf_eisendec(GEN mf, GEN F, long prec)
   if (lg(Mvecj) < 5) Mvecj = gel(Mvecj,1);
   ord = itou(gel(Mvecj,4));
   for (i = 1; i < l; i++)
-    if (v[i] != 1) { B = gsubst(B, v[i], rootsof1u_cx(ord, prec)); break; }
+    if (v[i] != 1)
+    {
+      long e = gexpo(B);
+      if (e > 0) prec += nbits2prec(e);
+      B = gsubst(B, v[i], rootsof1u_cx(ord, prec)); break;
+    }
   return B;
 }
 
