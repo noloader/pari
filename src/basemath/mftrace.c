@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
+static const long EXTRAPREC = DEFAULTPREC-2;
+
 enum {
   MF_SPLIT = 1,
   MF_EISENSPACE,
@@ -7635,7 +7637,7 @@ mfatkininit_i(GEN mf, long Q, long flag, long prec)
   lim = maxss(mfsturm(mfB), mfsturm(mf)) + 1;
   for (j = 1; j < l; j++)
   {
-    GEN v = mfslashexpansion(mf, gel(B,j), g, lim, 0, NULL, prec+1);
+    GEN v = mfslashexpansion(mf, gel(B,j), g, lim, 0, NULL, prec+EXTRAPREC);
     long junk;
     if (!isint1(C)) v = RgV_Rg_mul(v, C);
     v = bestapprnf(v, P, z, prec);
@@ -11376,7 +11378,7 @@ intAoowithvanall(GEN mf, GEN vanall, GEN P, GEN cosets, long bitprec)
       }
     }
     setlg(M,c); VAN = shallowmatconcat(M);
-    AR = mkcomplex(gen_0, sqrtr_abs(divru(utor(w1, prec+1), w2)));
+    AR = mkcomplex(gen_0, sqrtr_abs(divru(utor(w1, prec+EXTRAPREC), w2)));
     w = itos(gel(alj,2));
     RES = intAoo(VAN, lg(VAN)-2, gel(alj,1),w, P, AR, k, prec);
     for (jq = 1; jq < c; jq++) gel(resall, Q[jq]) = gel(RES, jq);
@@ -11627,14 +11629,14 @@ mfgaexpansionall(GEN mf, GEN FE, GEN cosets, double height, long prec)
     long nlim, nlim2, daw, da, na, i;
     double sqNinvdbl = height ? height/w1 : 1./sqrt((double)w1*N);
     nlim = mfperiod_prelim_double(sqNinvdbl, k, bitprec + 32);
-    van = mfslashexpansion(mf, FE, ga, nlim, 0, &aw, prec + 1);
-    van = vanembed(gel(FE, 1), van, prec + 1);
+    van = mfslashexpansion(mf, FE, ga, nlim, 0, &aw, prec + EXTRAPREC);
+    van = vanembed(gel(FE, 1), van, prec + EXTRAPREC);
     al = gel(aw, 1);
     nlim2 = height? nlim: getnlim2(N, w1, w2, nlim, k, bitprec);
     gel(vres, j) = vecslice(van, 1, nlim2 + 1);
     gel(vresaw, j) = aw;
     Qtoss(al, &na, &da); daw = da*w1;
-    z = rootsof1powinit(1, daw, prec + 1);
+    z = rootsof1powinit(1, daw, prec + EXTRAPREC);
     gai = ga;
     for (i = 1; i < w1; i++)
     {
@@ -11648,7 +11650,7 @@ mfgaexpansionall(GEN mf, GEN FE, GEN cosets, double height, long prec)
       V = cgetg(nlim2 + 2, t_VEC);
       for (n = 0; n <= nlim2; n++, s = Fl_add(s, t, daw))
         gel(V, n+1) = gmul(gel(van, n+1), rootsof1pow(z, s));
-      coe = mfcharcxeval(CHI, Di, prec + 1);
+      coe = mfcharcxeval(CHI, Di, prec + EXTRAPREC);
       if (!gequal1(coe)) V = RgV_Rg_mul(V, conj_i(coe));
       gel(vres, ind) = V;
     }
@@ -11671,7 +11673,7 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
   P = get_P(k, fetch_var(), prec);
   if (!cosets)
   { /* ga = id */
-    long nlim, PREC = prec + EXTRAPRECWORD;
+    long nlim, PREC = prec + EXTRAPREC;
     GEN F = gel(FE,1), sqNinv = invr(sqrtr_abs(utor(N, PREC))); /* A/w */
     GEN AR, v, van, T1, T2;
 
@@ -11707,7 +11709,7 @@ mfperiodpols_i(GEN mf, GEN FE, GEN cosets, GEN *pvan, long bit)
       if (gel(vP,i)) continue;
       P1 = gel(intall, i);
       iS = mftocoset_iD(N, ZM_mulS(ga), cosets, &DS);
-      c = mfcharcxeval(CHI, DS, prec + EXTRAPRECWORD);
+      c = mfcharcxeval(CHI, DS, prec + EXTRAPREC);
       P2 = gel(intall, iS);
 
       P = act_S(isint1(c)? P2: gmul(c, P2), k);
@@ -11892,7 +11894,7 @@ mfgetvan(GEN fs, GEN ga, GEN *pal, long nlim, long prec)
     }
     F = gel(fs_get_EF(fs), 1);
   }
-  PREC = prec + EXTRAPRECWORD;
+  PREC = prec + EXTRAPREC;
   van = mfslashexpansion(mf, F, ga, nlim, 0, &W, PREC);
   van = vanembed(F, van, PREC);
   *pal = gel(W,1); return van;
@@ -12282,7 +12284,7 @@ mfpeterssonnoncusp(GEN F1S, GEN F2S)
   vE2 = fs_get_vE(F2S);
   I = gen_I();
   IP1 = mkcomplex(gen_1,gen_1);
-  RHO = rootsof1u_cx(3, prec+1);
+  RHO = rootsof1u_cx(3, prec+EXTRAPREC);
   RHOP1 = gaddsg(1, RHO);
   INF = mkoo();
   mffvanish(mf, F1, F2, cosets, &res, &ress);
