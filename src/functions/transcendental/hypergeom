@@ -1,8 +1,8 @@
 Function: hypergeom
 Section: transcendental
 C-Name: hypergeom
-Prototype: GGGp
-Help: hypergeom(N,D,z): general hypergeometric function, where
+Prototype: DGDGGp
+Help: hypergeom({N},{D},z): general hypergeometric function, where
  N and D are the vector of parameters in the numerator and denominator
  respectively, evaluated at the complex argument z.
 Doc: general hypergeometric function, where \kbd{N} and \kbd{D} are
@@ -19,9 +19,10 @@ Doc: general hypergeometric function, where \kbd{N} and \kbd{D} are
  \bprog
    hypergeom([a1,a2,...,ap], [b1,b2,...,bq], z)
  @eprog\noindent Whenever $p = 1$ or $q = 1$, a one-element vector can be
- replaced by the element it contains.
+ replaced by the element it contains. Whenever $p = 0$ or $q = 0$, an empty
+ vector can be omitted. For instance hypergeom(,b,z) computes $_0F_1(;b;z)$.
 
- We can distinguish three kinds of such functions according to their radius
+ We distinguish three kinds of such functions according to their radius
  of convergence $R$:
 
  \item $q\ge p$: $R = \infty$.
@@ -32,10 +33,10 @@ Doc: general hypergeometric function, where \kbd{N} and \kbd{D} are
  \item $q\le p-2$: $R=0$. By integral representations, one can make sense of
  the function in a suitable domain.
 
- We give the list of implemented functions and their domain of validity in
- our implementation:
+ The list of implemented functions and their domain of validity in
+ our implementation is as follows:
 
- \kbd{F01}: \kbd{hypergeom([],a,z)} (or \kbd{[a]}).
+ \kbd{F01}: \kbd{hypergeom(,a,z)} (or \kbd{[a]}).
  This is essentially a Bessel function and computed as such. $R=\infty$.
 
  \kbd{F21}: \kbd{hypergeom([a,b],c,z)} (or \kbd{[c]}).
@@ -49,10 +50,10 @@ Doc: general hypergeometric function, where \kbd{N} and \kbd{D} are
  $$\dfrac{\Gamma(e)}{\Gamma(c)\Gamma(e-c)}
     \int_0^1t^{c-1}(1-t)^{e-c-1}{}_2F_1(a,b;d;tz)\,dt\;.$$
 
- \kbd{F20}: \kbd{hypergeom([a,b],[],z)}. $R=0$, computed as
+ \kbd{F20}: \kbd{hypergeom([a,b],,z)}. $R=0$, computed as
  $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}(1-zt)^{-b}e^{-t}\,dt\;.$$
 
- \kbd{F31}: \kbd{hypergeom([a,b,c],[d],z)}. $R=0$, computed as
+ \kbd{F31}: \kbd{hypergeom([a,b,c],d,z)} (or \kbd{[d]}). $R=0$, computed as
  $$\dfrac{1}{\Gamma(a)}\int_0^\infty t^{a-1}e^{-t}{}_2F_1(b,c;d;tz)\,dt\;.$$
 
  For other inputs: if $R=\infty$ or $R=1$ and $|z| < 1- \varepsilon$ is not

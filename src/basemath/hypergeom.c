@@ -1065,13 +1065,19 @@ sumz(GEN N, GEN D, long z, long prec)
 }
 
 static GEN
+hypergeom_arg(GEN x)
+{
+  if (!x) return cgetg(1,t_VEC);
+  return (typ(x) == t_VEC)? x: mkvec(x);
+}
+static GEN
 hypergeom_i(GEN N, GEN D, GEN z, long prec)
 {
   long nN, nD, j;
   if (!is_scalar_t(typ(z))) pari_err_TYPE("hypergeom",z);
   if (gequal0(z)) return gen_1;
-  if (typ(N) != t_VEC) N = mkvec(N);
-  if (typ(D) != t_VEC) D = mkvec(D);
+  N = hypergeom_arg(N);
+  D = hypergeom_arg(D);
   hypersimplify(&N, &D);
   nN = lg(N) - 1;
   nD = lg(D) - 1;
