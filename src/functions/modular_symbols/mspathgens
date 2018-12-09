@@ -6,15 +6,15 @@ Help: mspathgens(M): M being a full modular symbol space, as given by
  msinit, return a set of Z[G]-generators for Div^0(P^1 Q). The output
  is [g,R], where g is a minimal system of generators and R the vector of
  Z[G]-relations between the given generators.
-Doc: Let $\Delta:=\text{Div}^0(\P^1(\Q))$.
+Doc: Let $\Delta_0:=\text{Div}^0(\P^1(\Q))$.
  Let $M$ being a full modular symbol space, as given by \kbd{msinit},
- return a set of $\Z[G]$-generators for $\Delta$. The output
+ return a set of $\Z[G]$-generators for $\Delta_0$. The output
  is $[g,R]$, where $g$ is a minimal system of generators and $R$
  the vector of $\Z[G]$-relations between the given generators. A
  relation is coded by a vector of pairs $[a_i,i]$ with $a_i\in \Z[G]$
  and $i$ the index of a generator, so that $\sum_i a_i g[i] = 0$.
 
- An element $[v]-[u]$ in $\Delta$ is coded by the ``path'' $[u,v]$,
+ An element $[v]-[u]$ in $\Delta_0$ is coded by the ``path'' $[u,v]$,
  where \kbd{oo} denotes the point at infinity $(1:0)$ on the projective
  line.
  An element of $\Z[G]$ is either an integer $n$ ($= n [\text{id}_2]$) or a

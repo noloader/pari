@@ -10,12 +10,12 @@ Help: ellweilcurve(E, {&ms}): let E be an elliptic curve over Q given by
  it contains the output of msfromell(Emin,0) where Emin is the list of minimal
  models attached to the curves in the isogeny class.
 Doc: If $E'$ is an elliptic curve over $\Q$, let $L_{E'}$ be the
- sub-$\Z$-module of $\Hom_{\Gamma_0(N)}(\Delta,\Q)$ attached to $E'$
+ sub-$\Z$-module of $\Hom_{\Gamma_0(N)}(\Delta_0,\Q)$ attached to $E'$
  (It is given by $x[3]$ if $[M,x] = \kbd{msfromell}(E')$.)
 
  On the other hand, if $N$ is the conductor of $E$ and $f$ is the modular form
  for $\Gamma_0(N)$ attached to $E$, let $L_f$ be the lattice of the
- $f$-component of $\Hom_{\Gamma_0(N)}(\Delta,\Q)$ given by the elements
+ $f$-component of $\Hom_{\Gamma_0(N)}(\Delta_0,\Q)$ given by the elements
  $\phi$ such that $\phi(\{0,\gamma^{-1} 0\}) \in \Z$ for all
  $\gamma \in \Gamma_0(N)$ (see \tet{mslattice}).
 

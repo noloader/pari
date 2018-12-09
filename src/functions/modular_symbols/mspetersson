@@ -8,7 +8,7 @@ Help: mspetersson(M, {F}, {G=F}): M being a full modular symbol space,
 Doc: $M$ being a full modular symbol space for $\Gamma = \Gamma_0(N)$,
  as given by \kbd{msinit},
  calculate the intersection product $\{F, G\}$ of modular symbols $F$ and $G$
- on $M=\Hom_{\Gamma}(\Delta, V_k)$ extended to an hermitian bilinear
+ on $M=\Hom_{\Gamma}(\Delta_0, V_k)$ extended to an hermitian bilinear
  form on $M \otimes \C$ whose radical is the Eisenstein subspace of $M$.
 
  Suppose that $f_1$ and $f_2$ are two parabolic forms. Let $F_1$
