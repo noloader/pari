@@ -2444,11 +2444,11 @@ static GEN
 usp(GEN Q0, long deg, long flag, long bitprec)
 {
   const pari_sp av = avma;
-  GEN Q, sol, c, Lc, Lk;
+  GEN Qremapped, Q, c, Lc, Lk, sol = zerocol(deg);
+  GEN *pQremapped = flag == 1? &Qremapped: NULL;
+  const long prec = nbits2prec(bitprec);
   long listsize = 64, nbr = 0, nb_todo, ind, deg0, indf, i, k, nb;
 
-
-  sol = zerocol(deg);
   deg0 = deg;
   Lc = zerovec(listsize);
   Lk = cgetg(listsize+1, t_VECSMALL);
@@ -2460,7 +2460,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
   nb_todo = 1;
   while (nb_todo)
   {
-    GEN nc = gel(Lc, ind), Qremapped;
+    GEN nc = gel(Lc, ind);
     pari_sp av2;
     int root1;
     if (Lk[ind] == k + 1)
@@ -2471,9 +2471,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
       Q = Q_primpart(Q0);
       c = gen_0;
     }
-
     if (!equalii(nc, c)) Q = ZX_translate(Q, subii(nc, c));
-
     k = Lk[ind];
     c = nc;
     ind++;
@@ -2493,9 +2491,9 @@ usp(GEN Q0, long deg, long flag, long bitprec)
     }
 
     av2 = avma;
-    nb = X2XP1(Q, deg0, &root1, flag == 1 ? &Qremapped : NULL);
+    nb = X2XP1(Q, deg0, &root1, pQremapped);
 
-    if      (nb == 0) /* no root in this open interval */;
+    if      (nb == 0) set_avma(av2);/* no root in this open interval */
     else if (nb == 1) /* exactly one root */
     {
       GEN s = gen_0;
@@ -2503,10 +2501,10 @@ usp(GEN Q0, long deg, long flag, long bitprec)
         s = mkvec2(gmul2n(c,-k), gmul2n(addiu(c,1),-k));
       else if (flag == 1) /* Caveat: Qremapped is the reciprocal polynomial */
       {
-        s = polsolve(Qremapped, bitprec+1);
-        s = divrr(s, addsr(1, s));
-        s = gmul2n(addir(c, s), -k);
-        s = rtor(s, nbits2prec(bitprec));
+        s = polsolve(*pQremapped, bitprec+1);
+        s = addir(c, divrr(s, addsr(1, s)));
+        shiftr_inplace(s, -k);
+        if (realprec(s) != prec) s = rtor(s, prec);
       }
       gel(sol, ++nbr) = gerepileupto(av2, s);
     }
