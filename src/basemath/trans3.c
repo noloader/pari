@@ -129,36 +129,16 @@ static GEN jbesselintern(GEN n, GEN z, long flag, long prec);
 static GEN kbesselintern(GEN n, GEN z, long flag, long prec);
 static GEN
 jbesselvec(GEN n, GEN x, long fl, long prec)
-{
-  long i, l;
-  GEN y = cgetg_copy(x, &l);
-  for (i=1; i<l; i++) gel(y,i) = jbesselintern(n,gel(x,i),fl,prec);
-  return y;
-}
+{ pari_APPLY_same(jbesselintern(n,gel(x,i),fl,prec)) }
 static GEN
 jbesselhvec(GEN n, GEN x, long prec)
-{
-  long i, l;
-  GEN y = cgetg_copy(x, &l);
-  for (i=1; i<l; i++) gel(y,i) = jbesselh(n,gel(x,i),prec);
-  return y;
-}
+{ pari_APPLY_same(jbesselh(n,gel(x,i),prec)) }
 static GEN
 polylogvec(long m, GEN x, long prec)
-{
-  long l, i;
-  GEN y = cgetg_copy(x, &l);
-  for (i=1; i<l; i++) gel(y,i) = gpolylog(m,gel(x,i),prec);
-  return y;
-}
+{ pari_APPLY_same(gpolylog(m,gel(x,i),prec)) }
 static GEN
 kbesselvec(GEN n, GEN x, long fl, long prec)
-{
-  long i, l;
-  GEN y = cgetg_copy(x, &l);
-  for (i=1; i<l; i++) gel(y,i) = kbesselintern(n,gel(x,i),fl,prec);
-  return y;
-}
+{ pari_APPLY_same(kbesselintern(n,gel(x,i),fl,prec)) }
 
 /* flag = 0: I, flag = 1 : J */
 static GEN
@@ -497,7 +477,7 @@ _kbessel1(long n, GEN z, long flag, long m, long prec)
   return s;
 }
 
-/* flag = 0: K / flag = 1: N */
+/* flag = 0: K / flag = 1: Y */
 static GEN
 kbesselintern(GEN n, GEN z, long flag, long prec)
 {
