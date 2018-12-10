@@ -21,12 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "paripriv.h"
 
 #define HALF_E 1.3591409 /* Exponential / 2 */
-static const long EXTRAPREC =
-#ifdef LONG_IS_64BIT
-  1;
-#else
-  2;
-#endif
+static const long EXTRAPREC = DEFAULTPREC-2;
 
 /***********************************************************************/
 /**                                                                   **/
@@ -148,7 +143,7 @@ jbesselintern(GEN n, GEN z, long flag, long prec)
       int flz0 = gequal0(z);
       long lim, k, precnew, bit;
       GEN p1, p2;
-      double B, L;
+      double az, B, L;
 
       i = precision(z); if (i) prec = i;
       if (flz0 && gequal0(n)) return real_1(prec);
@@ -179,10 +174,9 @@ jbesselintern(GEN n, GEN z, long flag, long prec)
       p2 = gpow(gmul2n(z,-1),n,prec);
       p2 = gdiv(p2, ggamma(gaddgs(n,1),prec));
       if (flz0) return gerepileupto(av, p2);
-      L = HALF_E * gtodouble(gabs(gtofp(z,LOWDEFAULTPREC),prec));
+      az = dblmodulus(z); L = HALF_E * az;
       precnew = prec;
-      if (L >= 1.0)
-        precnew += nbits2extraprec((long)(L/(HALF_E*M_LN2) + BITS_IN_LONG));
+      if (az >= 1.0) precnew += 1 + nbits2extraprec((long)(az/M_LN2));
       if (issmall(n,&ki)) {
         k = labs(ki);
         n = utoi(k);
@@ -478,7 +472,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
   long i, k, ki, lim, precnew, fl2, ex, bit;
   pari_sp av = avma;
   GEN p1, p2, y, p3, pp, pm, s, c;
-  double B, L;
+  double az;
 
   switch(typ(z))
   {
@@ -488,7 +482,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
       i = precision(z); if (i) prec = i;
       i = precision(n); if (i && prec > i) prec = i;
       bit = prec2nbits(prec);
-      if (flag == 0)
+      if (flK)
       {
         GEN P = ikbesselasymp(n, z, bit);
         if (P)
@@ -511,21 +505,16 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
           return gerepileupto(av, gmul(sq, P));
         }
       }
-      ex = gexpo(z);
       /* heuristic threshold */
-      if (!flag && !gequal0(n) && ex > bit/16 + gexpo(n))
+      if (flK && !gequal0(n) && gexpo(z) > bit/16 + gexpo(n))
         return kbessel1(n,z,prec);
-      L = HALF_E * gtodouble(gabs(z,prec));
-      precnew = prec;
-      if (L >= HALF_E) {
-        long rab = nbits2extraprec((long) (L/(HALF_E*M_LN2)));
-        if (flK) rab *= 2;
-         precnew += 1 + rab;
-      }
+      az = dblmodulus(z); precnew = prec;
+      if (az >= 1) precnew += 1 + nbits2extraprec((long)((flK?2*az:az)/M_LN2));
       z = gtofp(z, precnew);
       if (issmall(n,&ki))
       {
         GEN z2 = gmul2n(z, -1);
+        double B, L = HALF_E * az;
         k = labs(ki);
         B = prec2nbits_mul(prec,M_LN2/2) / L;
         if (flK) B += 0.367879;
