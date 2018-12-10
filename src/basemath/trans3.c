@@ -112,18 +112,10 @@ _jbessel(GEN n, GEN z, long flag, long m)
   return s;
 }
 
-/* return L * approximate solution to x log x = B */
+/* max(2, L * approximate solution to x log x = B) */
 static long
 bessel_get_lim(double B, double L)
-{
-  long lim;
-  double x = 1 + B; /* 3 iterations are enough except in pathological cases */
-  x = (x + B)/(log(x)+1);
-  x = (x + B)/(log(x)+1);
-  x = (x + B)/(log(x)+1); x = L*x;
-  lim = (long)x; if (lim < 2) lim = 2;
-  return lim;
-}
+{ return maxss(2, L * exp(dbllambertW0(B))); }
 
 static GEN jbesselintern(GEN n, GEN z, long flag, long prec);
 static GEN kbesselintern(GEN n, GEN z, long flag, long prec);
