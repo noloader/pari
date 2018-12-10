@@ -109,6 +109,7 @@ BA  18- qfbsolve now returns a vector of solutions.
         [return current precision]. Same for localbitprec.
     24- let precision(x,p) accept non integral real p [replace by ceil(p)].
         The argument can be omitted. Same for bitprecision.
+    25- improve besseli, besselj, besselk, besseln(nu, z) for large z
 
   Added
      1- [libpari] nonsquare_Fl

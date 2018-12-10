@@ -34,6 +34,52 @@ static const long EXTRAPREC =
 /**                                                                   **/
 /***********************************************************************/
 
+static GEN
+_abs(GEN x)
+{ return gabs(gtofp(x,LOWDEFAULTPREC), LOWDEFAULTPREC); }
+
+static GEN
+ikbesselasymp(GEN n, GEN z, long bit)
+{
+  GEN P, C, zi, n2, K;
+  long m, B = bit + 4;
+  if (gcmpgs(_abs(z), B/2) < 0) return NULL;
+  P = C = real_1_bit(bit);
+  K = gaddgs(_abs(n), 1);
+  zi = ginv(gmul2n(z,3));
+  n2 = gmul2n(gsqr(n),2);
+  for (m = 1;; m++)
+  {
+    C = gmul(C, gdivgs(gmul(gsub(n2, sqru(2*m - 1)), zi), m));
+    P = gadd(P, C);
+    if (gexpo(C) < -B && gcmpgs(K, m) <= 0) break;
+  }
+  return P;
+}
+
+static GEN
+jybesselasymp(GEN n, GEN z, long bit)
+{
+  GEN P, Q, C, zi, n2, K;
+  long s, m, B = bit + 4;
+  if (gcmpgs(_abs(z), B/2) < 0) return NULL;
+  s = 1;
+  P = C = real_1_bit(bit);
+  Q = gen_0;
+  K = gaddgs(_abs(n), 1);
+  zi = ginv(gmul2n(z,3));
+  n2 = gmul2n(gsqr(n),2);
+  for (m = 1;; m += 2, s = -s)
+  {
+    C = gmul(C, gdivgs(gmul(gsub(n2, sqru(2*m - 1)), zi), m));
+    Q = s == 1? gadd(Q, C): gsub(Q, C);
+    C = gmul(C, gdivgs(gmul(gsub(n2, sqru(2*m + 1)), zi), m + 1));
+    P = s == 1? gsub(P, C): gadd(P, C);
+    if (gexpo(C) < -B && gcmpgs(K, m) <= 0) break;
+  }
+  return mkvec2(P,Q);
+}
+
 /* n! sum_{k=0}^m Z^k / (k!*(k+n)!), with Z := (-1)^flag*z^2/4 */
 static GEN
 _jbessel(GEN n, GEN z, long flag, long m)
@@ -114,6 +160,7 @@ kbesselvec(GEN n, GEN x, long fl, long prec)
   return y;
 }
 
+/* flag = 0: I, flag = 1 : J */
 static GEN
 jbesselintern(GEN n, GEN z, long flag, long prec)
 {
@@ -127,12 +174,36 @@ jbesselintern(GEN n, GEN z, long flag, long prec)
     case t_REAL: case t_COMPLEX:
     {
       int flz0 = gequal0(z);
-      long lim, k, precnew;
+      long lim, k, precnew, bit;
       GEN p1, p2;
       double B, L;
 
       i = precision(z); if (i) prec = i;
       if (flz0 && gequal0(n)) return real_1(prec);
+      bit = prec2nbits(prec);
+      if (flag == 0)
+      {
+        GEN P = ikbesselasymp(n, gneg(z), bit);
+        if (P)
+        {
+          P = gmul(P, gdiv(gexp(z, prec),
+                           gsqrt(gmul(Pi2n(1,prec), z), prec)));
+          return gerepileupto(av, P);
+        }
+      }
+      else
+      {
+        GEN PQ = jybesselasymp(n, z, bit);
+        if (PQ)
+        {
+          GEN P = gel(PQ,1), Q = gel(PQ,2), sq, si, co;
+          gsincos(gsub(z, gmul(Pi2n(-2,prec), gaddgs(gmul2n(n,1), 1))),
+                  &si,&co, prec);
+          sq = gsqrt(ginv(gmul(Pi2n(-1,prec), z)), prec);
+          P = gsub(gmul(P,co), gmul(Q,si));
+          return gerepileupto(av, gmul(sq, P));
+        }
+      }
       p2 = gpow(gmul2n(z,-1),n,prec);
       p2 = gdiv(p2, ggamma(gaddgs(n,1),prec));
       if (flz0) return gerepileupto(av, p2);
@@ -432,7 +503,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
 {
   const char *f = flag? "besseln": "besselk";
   const long flK = (flag == 0);
-  long i, k, ki, lim, precnew, fl2, ex;
+  long i, k, ki, lim, precnew, fl2, ex, bit;
   pari_sp av = avma;
   GEN p1, p2, y, p3, pp, pm, s, c;
   double B, L;
@@ -444,9 +515,33 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
       if (gequal0(z)) pari_err_DOMAIN(f, "argument", "=", gen_0, z);
       i = precision(z); if (i) prec = i;
       i = precision(n); if (i && prec > i) prec = i;
+      bit = prec2nbits(prec);
+      if (flag == 0)
+      {
+        GEN P = ikbesselasymp(n, z, bit);
+        if (P)
+        {
+          P = gmul(P, gmul(gexp(gneg(z), prec),
+                           gsqrt(gdiv(Pi2n(-1,prec), z), prec)));
+          return gerepileupto(av, P);
+        }
+      }
+      else
+      {
+        GEN PQ = jybesselasymp(n, z, bit);
+        if (PQ)
+        {
+          GEN P = gel(PQ,1), Q = gel(PQ,2), sq, si, co;
+          gsincos(gsub(z, gmul(Pi2n(-2,prec), gaddgs(gmul2n(n,1), 1))),
+                  &si,&co, prec);
+          sq = gsqrt(ginv(gmul(Pi2n(-1,prec), z)), prec);
+          P = gadd(gmul(P,si), gmul(Q,co));
+          return gerepileupto(av, gmul(sq, P));
+        }
+      }
       ex = gexpo(z);
       /* heuristic threshold */
-      if (!flag && !gequal0(n) && ex > prec2nbits(prec)/16 + gexpo(n))
+      if (!flag && !gequal0(n) && ex > bit/16 + gexpo(n))
         return kbessel1(n,z,prec);
       L = HALF_E * gtodouble(gabs(z,prec));
       precnew = prec;
