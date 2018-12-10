@@ -538,12 +538,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
       n = gtofp(n, precnew);
       gsincos(gmul(n,mppi(precnew)), &s,&c,precnew);
       ex = gexpo(s);
-      if (ex < 0)
-      {
-        long rab = nbits2extraprec(-ex);
-        if (flK) rab *= 2;
-        precnew += rab;
-      }
+      if (ex < 0) precnew += nbits2extraprec(flK? -2*ex: -ex);
       if (i && i < precnew) {
         n = gtofp(n,precnew);
         z = gtofp(z,precnew);
