@@ -249,7 +249,7 @@ besselk
 288497987441031*I
 [7, 4]: 0.31594457269950863123935043154373419884 - 0.40665811731437652111601
 397817696670098*I
-besseln
+bessely
 [1, 1]: error("incorrect type in isint (t_POL).")
 [1, 2]: error("incorrect type in isint (t_POL).")
 [1, 3]: error("incorrect type in isint (t_POL).")
@@ -372,4 +372,4 @@ error("incorrect type in jbessel (t_STR).")
 error("incorrect type in besseljh (t_STR).")
 error("incorrect type in besselk (t_STR).")
 error("incorrect type in besseln (t_STR).")
-Total time spent: 28
+Total time spent: 32
