@@ -70,6 +70,8 @@ BA  46- hyperellcharpoly: wrong results over Z/3Z
         order(chi) = 2 (mod 4) [same cyclotomic field but different
         cyclotomic polynomial]
 FB  53- [Configure] library not found despite --with-readline-lib [#2097]
+    54- besseli, besselj, besselk, besseln(nu, z): use asymptotic expansion
+        for large z [#2006]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
@@ -109,8 +111,7 @@ BA  18- qfbsolve now returns a vector of solutions.
         [return current precision]. Same for localbitprec.
     24- let precision(x,p) accept non integral real p [replace by ceil(p)].
         The argument can be omitted. Same for bitprecision.
-    25- improve besseli, besselj, besselk, besseln(nu, z) for large z
-    26- besseln is now obsolete, use bessely
+    25- besseln is now obsolete, use bessely
 
   Added
      1- [libpari] nonsquare_Fl
