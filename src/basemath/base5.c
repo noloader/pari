@@ -19,30 +19,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-/* must return a t_POL */
+/* eq is an rnfeq; must return a t_POL */
 GEN
-eltreltoabs(GEN rnfeq, GEN x)
+eltreltoabs(GEN eq, GEN x)
 {
-  long i, k, v;
+  GEN Pabs = gel(eq,1), a = gel(eq,2), k = gel(eq,3), T = gel(eq,4), b, s;
+  long i, v = varn(Pabs);
   pari_sp av = avma;
-  GEN T, pol, teta, a, s;
 
-  pol = gel(rnfeq,1);
-  a = gel(rnfeq,2);
-  k = itos(gel(rnfeq,3));
-  T = gel(rnfeq,4);
-
-  v = varn(pol);
   if (varncmp(gvar(x), v) > 0) x = scalarpol(x,v);
   x = RgX_nffix("eltreltoabs", T, x, 1);
-  /* Mod(X - k a, pol(X)), a root of the polynomial defining base */
-  teta = gadd(pol_x(v), gmulsg(-k,a));
+  /* Mod(X - k a, Pabs(X)) is a root of the relative polynomial */
+  if (signe(k))
+    x = RgXQX_translate(x, deg1pol_shallow(negi(k), gen_0, varn(T)), T);
+  b = pol_x(v);
   s = gen_0;
   for (i=lg(x)-1; i>1; i--)
   {
     GEN c = gel(x,i);
-    if (typ(c) == t_POL) c = RgX_RgXQ_eval(c, a, pol);
-    s = RgX_rem(gadd(c, gmul(teta,s)), pol);
+    if (typ(c) == t_POL) c = RgX_RgXQ_eval(c, a, Pabs);
+    s = RgX_rem(gadd(c, gmul(b,s)), Pabs);
   }
   return gerepileupto(av, s);
 }
@@ -86,7 +82,8 @@ eltabstorel_lift(GEN rnfeq, GEN P)
   if (is_scalar_t(typ(P))) return P;
   k = gel(rnfeq,3);
   P = lift_shallow(P);
-  if (signe(k)) P = RgXQX_translate(P, deg1pol_shallow(k, gen_0, varn(T)), T);
+  if (signe(k))
+    P = RgXQX_translate(P, deg1pol_shallow(k, gen_0, varn(T)), T);
   P = RgXQX_rem(P, R, T);
   return QXQX_to_mod_shallow(P, T);
 }
