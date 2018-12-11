@@ -109,9 +109,9 @@ mulgammav2(GEN v, long prec)
 /**                 CONFLUENT HYPERGEOMETRIC U(a,b,z)                 **/
 /***********************************************************************/
 static GEN Ftaylor(GEN N, GEN D, GEN z, long prec);
-/* b not integral; use 1F1 */
+/* b not integral; use 1F1; prec0 is precision we really want */
 static GEN
-hyperu_F11(GEN a, GEN b, GEN z, long prec)
+hyperu_F11(GEN a, GEN b, GEN z, long prec0, long prec)
 {
   GEN S1, S2, b1 = gsubsg(1, b), ab1 = gadd(a, b1);
   if (isnegint(ab1)) S1 = gen_0;
@@ -127,7 +127,14 @@ hyperu_F11(GEN a, GEN b, GEN z, long prec)
     S2 = gmul(divgamma2(gneg(b1), a, prec), tmp);
     S2 = gmul(S2, gpow(z, b1, prec));
   }
-  return gadd(S1, S2);
+  S1 = gadd(S1, S2);
+  if (gexpo(S1)-gexpo(S2) >= prec2nbits(prec0) - prec2nbits(prec))
+    return S1;
+  prec = precdbl(prec);
+  a = gprec_wensure(a, prec);
+  b = gprec_wensure(b, prec);
+  z = gprec_wensure(z, prec);
+  return hyperu_F11(a, b, z, prec0, prec);
 }
 /* one branch of this must assume x > 0 (a,b complex); see Temme, The
  * numerical computation of the confluent hypergeometric function U(a,b,z),
@@ -155,7 +162,7 @@ hyperu_i(GEN a, GEN b, GEN x, long prec)
       a = gprec_wensure(a, l);
       x = gprec_wensure(x, l);
     }
-    return hyperu_F11(a, b, x, l);
+    return hyperu_F11(a, b, x, l, l);
   }
   bit = prec2nbits(l)-1;
   l += EXTRAPRECWORD;
