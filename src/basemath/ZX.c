@@ -871,7 +871,7 @@ static GEN
 Z_mod2BIL_Fq(GEN x, long bs, GEN T, GEN p)
 {
   pari_sp av = avma;
-  long v = varn(T), d = 2*(degpol(T)-1);
+  long v = get_FpX_var(T), d = 2*(get_FpX_degree(T)-1);
   GEN z = Z_mod2BIL_ZX(x, bs, d, 0);
   setvarn(z, v);
   return gerepileupto(av, FpX_rem(z, T, p));
