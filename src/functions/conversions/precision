@@ -1,13 +1,11 @@
 Function: precision
 Section: conversions
 C-Name: precision00
-Prototype: DGDG
-Help: precision({x},{n}): if n is present, return x at precision n. If n is
- omitted, return real precision of object x. If both n and x are omitted,
- return current dynamic precision.
+Prototype: GDG
+Help: precision(x,{n}): if n is present, return x at precision n. If n is
+ omitted, return real precision of object x.
 Doc: the function behaves differently according to whether $n$ is
- present or not. If both $n$ and $x$ are omitted, return current dynamic
- precision, as \kbd{localprec()}. If $n$ is missing, the function returns
+ present or not. If $n$ is missing, the function returns
  the floating point precision in decimal digits of the PARI object $x$. If $x$
  has no floating point component, the function returns \kbd{+oo}.
  \bprog
@@ -19,7 +17,7 @@ Doc: the function behaves differently according to whether $n$ is
  %3 = 38                 \\ floating point accuracy, NOT series precision
  ? precision( [ exp(1e-100), 0.5 ] )
  %4 = 38                 \\ minimal accuracy among components
- @eprog\noindent The idiom \kbd{precision(0.)} is the best way to retrieve
+ @eprog\noindent Using \kbd{getlocalprec()} allows to retrieve
  the working precision (as modified by possible \kbd{localprec}
  statements).
 

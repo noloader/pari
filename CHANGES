@@ -107,10 +107,9 @@ BA  18- qfbsolve now returns a vector of solutions.
         cyclotomic polynomials defining the field of values of CHI
     22- inline / unline are now obsolete, use export/unexport
     23- let localprec(p) accept non integral real p [replace by ceil(p)];
-        and return the actual accuracy used. The argument can be omitted
-        [return current precision]. Same for localbitprec.
-    24- let precision(x,p) accept non integral real p [replace by ceil(p)].
-        The argument can be omitted. Same for bitprecision.
+        same for localbitprec.
+    24- let precision(x,p) accept non integral real p [replace by ceil(p)];
+        same for bitprecision.
     25- besseln is now obsolete, use bessely
 
   Added
@@ -146,6 +145,7 @@ BA  26- [libpari] Flxn_red, Flxn_sqr, Flx_integ
 BA  27- new GP functions export, unexport, exportall, unexportall
     28- [libpari] Fp_divu
 BA  29- [libpari] ZpXQX_liftroots
+    30- new GP functions getlocalprec, getlocalbitprec
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

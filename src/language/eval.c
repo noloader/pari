@@ -579,25 +579,24 @@ _prec(GEN p, const char *f)
   if (typ(p) != t_INT) pari_err_TYPE(f, p);
   return gc_long(av, itos(p));
 }
-long
+void
 localprec(GEN pp)
 {
-  long p;
-  if (!pp) return prec2ndec(get_localprec());
-  p = _prec(pp, "localprec");
+  long p = _prec(pp, "localprec");
   checkprec("localprec", p, prec2ndec(LGBITS));
-  p = ndec2nbits(p);
-  push_localbitprec(p); return p;
+  p = ndec2nbits(p); push_localbitprec(p);
 }
-long
+void
 localbitprec(GEN pp)
 {
-  long p;
-  if (!pp) return get_localbitprec();
-  p = _prec(pp, "localbitprec");
+  long p = _prec(pp, "localbitprec");
   checkprec("localbitprec", p, (long)LGBITS);
-  push_localbitprec(p); return p;
+  push_localbitprec(p);
 }
+long
+getlocalprec(long prec) { return prec2ndec(prec); }
+long
+getlocalbitprec(long bit) { return bit; }
 
 static GEN
 _precision0(GEN x)
@@ -629,22 +628,12 @@ bitprecision0(GEN x, long n)
 GEN
 precision00(GEN x, GEN n)
 {
-  if (!x)
-  {
-    if (n) pari_err(e_MISC, "omitting x with n present");
-    return utoipos(prec2ndec(get_localprec()));
-  }
   if (!n) return _precision0(x);
   return precision0(x, _prec(n, "precision"));
 }
 GEN
 bitprecision00(GEN x, GEN n)
 {
-  if (!x)
-  {
-    if (n) pari_err(e_MISC, "omitting x with n present");
-    return utoipos(get_localbitprec());
-  }
   if (!n) return _bitprecision0(x);
   return bitprecision0(x, _prec(n, "bitprecision"));
 }

@@ -1,12 +1,9 @@
 Function: localbitprec
 Section: programming/specific
 C-Name: localbitprec
-Prototype: lDG
-Help: localbitprec({p}): set the real precision to p bits in the dynamic scope
- and return p. If p is omitted, return the current bit precision.
-Doc: set the real precision to $p$ bits in the dynamic scope and return $p$.
- (If $p$ is omitted, return the current dynamic bit precision.)
-
+Prototype: vG
+Help: localbitprec(p): set the real precision to p bits in the dynamic scope.
+Doc: set the real precision to $p$ bits in the dynamic scope.
  All computations are performed as if \tet{realbitprecision} was $p$:
  transcendental constants (e.g.~\kbd{Pi}) and
  conversions from exact to floating point inexact data use $p$ bits, as well as

@@ -1,7 +1,7 @@
 Function: localprec
 Section: programming/specific
 C-Name: localprec
-Prototype: lDG
+Prototype: vDG
 Help: localprec({p}): set the real precision to p in the dynamic scope
  and return p. If p is omitted, return current real precision.
 Doc: set the real precision to $p$ in the dynamic scope and return $p$.

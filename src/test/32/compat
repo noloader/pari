@@ -3178,9 +3178,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: prec(x,n) ===> precision(x,n)
 
-precision({x},{n}): if n is present, return x at precision n. If n is omitted, 
-return real precision of object x. If both n and x are omitted, return current 
-dynamic precision.
+precision(x,{n}): if n is present, return x at precision n. If n is omitted, 
+return real precision of object x.
 
 
   ***   at top-level: primedec()
@@ -4519,4 +4518,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 11
+Total time spent: 10

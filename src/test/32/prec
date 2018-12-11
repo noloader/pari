@@ -8,7 +8,8 @@ I
 1 + O(3^5)
 1
 38
-128
+38
+38
 64
 38
 64
@@ -44,10 +45,4 @@ I
   ***   at top-level: localprec('x)
   ***                 ^-------------
   *** localprec: incorrect type in localprec (t_POL).
-  ***   at top-level: precision(,1)
-  ***                 ^-------------
-  *** precision: omitting x with n present.
-  ***   at top-level: bitprecision(,1)
-  ***                 ^----------------
-  *** bitprecision: omitting x with n present.
 Total time spent: 1

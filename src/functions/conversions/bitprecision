@@ -1,13 +1,11 @@
 Function: bitprecision
 Section: conversions
 C-Name: bitprecision00
-Prototype: DGDG
-Help: bitprecision({x},{n}): if n is present and positive, return x at precision
+Prototype: GDG
+Help: bitprecision(x,{n}): if n is present and positive, return x at precision
  n bits. If n is omitted, return real precision of object x in bits.
- If both n and x are omitted, return current dynamic bit precision.
 Doc: the function behaves differently according to whether $n$ is
- present or not. If both $n$ and $x$ are omitted, return current dynamic
- bit precision, as \kbd{localbitprec()}. If $n$ is missing, the function returns
+ present or not. If $n$ is missing, the function returns
  the (floating point) precision in bits of the PARI object $x$.
 
  If $x$ is an exact object, the function returns \kbd{+oo}.
@@ -18,9 +16,9 @@ Doc: the function behaves differently according to whether $n$ is
  %2 = 128                 \\ minimal accuracy among components
  ? bitprecision(2 + x)
  %3 = +oo                  \\ exact object
- @eprog\noindent The idiom \kbd{bitprecision(0.)} is a way to retrieve
- the working bit precision (as modified by possible \kbd{localbitprec}
- statements), which should give the same result as \kbd{localbitprec()}.
+ @eprog\noindent Use \kbd{getlocalbitprec()} to retrieve the
+ working bit precision (as modified by possible \kbd{localbitprec}
+ statements).
 
  If $n$ is present and positive, the function creates a new object equal to $x$
  with the new bit-precision roughly $n$. In fact, the smallest multiple of 64
