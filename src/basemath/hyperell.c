@@ -708,7 +708,7 @@ charpoly_funceq(GEN P, GEN q)
 }
 
 static long
-hyperell_Weil_bound(GEN q, long g, GEN p)
+hyperell_Weil_bound(GEN q, ulong g, GEN p)
 {
   pari_sp av = avma;
   GEN w = mulii(binomialuu(2*g,g),sqrtint(shifti(powiu(q, g),2)));
@@ -720,7 +720,7 @@ hyperellcharpoly(GEN PQ)
 {
   pari_sp av = avma;
   GEN H, M, R, T=NULL, pp=NULL, q;
-  long d, g, n, eps = 0;
+  long d, n, eps = 0;
   ulong p;
   if (is_vec_t(typ(PQ)) && lg(PQ)==3)
     H = gadd(gsqr(gel(PQ, 2)), gmul2n(gel(PQ, 1), 2));
@@ -750,7 +750,8 @@ hyperellcharpoly(GEN PQ)
       }
     }
     H = RgX_to_FpX(H, pp);
-    d = degpol(H); g = (d-1)>>1;
+    d = degpol(H);
+    if (d <= 0) is_sing(H, p);
     if (p > 2 && ((d == 5 && p < 17500) || (d == 6 && p < 24500)))
     {
       GEN Hp = ZX_to_Flx(H, p);
@@ -758,7 +759,7 @@ hyperellcharpoly(GEN PQ)
       R = zx_to_ZX(Flx_genus2charpoly_naive(Hp, p));
       return gerepileupto(av, R);
     }
-    n = hyperell_Weil_bound(pp, g, pp);
+    n = hyperell_Weil_bound(pp, (d-1)>>1, pp);
     eps = odd(d)? 0: Fp_issquare(leading_coeff(H), pp);
     M = hyperellpadicfrobenius(H, p, n);
     R = centerlift(carberkowitz(M, 0));
@@ -772,9 +773,10 @@ hyperellcharpoly(GEN PQ)
     fixvar = (varncmp(varn(T),varn(H)) <= 0);
     if (fixvar) setvarn(T, fetch_var());
     H = RgX_to_FpXQX(H, T, pp);
-    d = degpol(H); eps = odd(d)? 0: Fq_issquare(leading_coeff(H), T, pp);
-    g = (d-1)>>1;
-    n = hyperell_Weil_bound(q, g, pp);
+    d = degpol(H);
+    if (d <= 0) is_sing(H, p);
+    eps = odd(d)? 0: Fq_issquare(leading_coeff(H), T, pp);
+    n = hyperell_Weil_bound(q, (d-1)>>1, pp);
     M = nfhyperellpadicfrobenius(H, T, p, n);
     R = simplify_shallow(centerlift(liftpol_shallow(carberkowitz(M, 0))));
     if (fixvar) (void)delete_var();
