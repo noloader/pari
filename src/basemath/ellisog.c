@@ -1591,6 +1591,7 @@ get_isomat(GEN v)
   if (typ(v) != t_VEC) return NULL;
   if (checkell_i(v))
   {
+    if (ell_get_type(v) != t_ELL_Q) return NULL;
     v = ellisomat(v,0,1);
     wE = gel(v,1); l = lg(wE);
     M  = gel(v,2);
