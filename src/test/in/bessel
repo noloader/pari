@@ -30,6 +30,31 @@ besselk(I,1000)
 besseli(I,1000)
 besselj(I,1000)
 besseln(I,1000)
+
+v = powers(exp(I*Pi/4),7); v[3] = I; v[5] = -1; v[7] = -I;
+NU = v / 7;
+ARG = v * 1000;
+F=[besseli,besselj,besselk,bessely];
+clean(z) =
+{ my([x,y]=[abs(real(z)),abs(imag(z))]);
+  if (!x || !y, return(z));
+  x = exponent(x);
+  y = exponent(y);
+  if (x < y - 127, return (I*imag(z)));
+  if (y < x - 127, return (real(z)));
+  return (z);
+}
+test(f)=
+{
+print(f);
+for (i=1,#NU,
+  for (j=1,#ARG,
+    print([i,j],": ", clean(f(NU[i],ARG[j])));
+  )
+);
+}
+for(i=1,#F,test(F[i]))
+
 besselk(1e-20,1e-5)
 \\ errors
 for(i=1,#F,print(iferr(F[i](O(2),1),E,E)));
