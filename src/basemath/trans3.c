@@ -44,12 +44,16 @@ bessel_asymp(GEN z, long bit)
  * w = z - (2n+1)*Pi/4. For |Arg z| < Pi - E [ we take Pi/2 for simplicity ]
  * J = sqrt(1/2Pi z) (exp(iw)*P(z/i) + exp(-iw)*Q(z/i))
  * Y = -i/sqrt(2Pi z)(exp(iw)*P(z/i) - exp(-iw)*Q(z/i)) */
+
+/* hankel_ABr(nu,z) outputs
+   [exp(-z)*(P+Q)(z),exp(z)*(P-Q)(z),exp((2*nu+1)*I*Pi/4)] */
 static void
-hankel_PQ(GEN *pP, GEN *pQ, GEN n, GEN z, long bit)
+hankel_ABr(GEN *pA, GEN *pB, GEN *pr, GEN n, GEN z, long bit)
 {
-  GEN P, C, Q = gen_0, K = gaddgs(_abs(n), 1), n2 = gmul2n(gsqr(n),2);
-  GEN zi = ginv(gmul2n(z,3));
-  long m, B = bit + 4;
+  GEN E, P, C, Q = gen_0, zi = ginv(gmul2n(z, 3));
+  GEN K = gaddgs(_abs(n), 1), n2 = gmul2n(gsqr(n),2);
+  long prec = nbits2prec(bit), B = bit + 4, m;
+
   P = C = real_1_bit(bit);
   for (m = 1;; m += 2)
   {
@@ -59,20 +63,76 @@ hankel_PQ(GEN *pP, GEN *pQ, GEN n, GEN z, long bit)
     P = gadd(P, C);
     if (gexpo(C) < -B && gcmpgs(K, m) <= 0) break;
   }
-  *pP = gadd(P, Q);
-  *pQ = gsub(P, Q);
+  E = gexp(z, prec);
+  *pA = gdiv(gadd(P, Q), E);
+  *pB = gmul(gsub(P, Q), E);
+  *pr = gexp(gmul(gaddgs(gmul2n(n,1), 1), mulcxI(Pi2n(-2, prec))), prec);
 }
-/* exp(x), exp(-x) */
-static void
-hankel_exp2(GEN *ep, GEN *em, GEN x, long prec)
-{ *ep = gexp(x, prec); *em = ginv(*ep); }
 
-/* set exp(iw) and exp(-iw) */
-static void
-hankel_expIw(GEN *ep, GEN *em, GEN n, GEN z, long prec)
+static int
+regI(GEN z)
 {
-  GEN w = gsub(z, gmul(Pi2n(-2,prec), gaddgs(gmul2n(n,1), 1)));
-  hankel_exp2(ep, em, mulcxI(w), prec);
+  long s = gsigne(imag_i(z));
+  return (s > 0 || (s == 0 && gsigne(real_i(z)) < 0)) ? 1 : 2;
+}
+static int
+regJ(GEN z)
+{
+  if (gsigne(real_i(z)) >= 0) return 1;
+  else return gsigne(imag_i(z)) >= 0 ? 2 : 3;
+}
+
+/* sqrt(2*Pi*z) */
+static GEN
+sqz(GEN z, long bit)
+{
+  long prec = nbits2prec(bit);
+  return gsqrt(gmul(Pi2n(1, prec), z), prec);
+}
+
+static GEN
+besskasymp(GEN nu, GEN z, long bit)
+{
+  GEN A, B, r;
+  long prec = nbits2prec(bit);
+  hankel_ABr(&A,&B,&r, nu, z, bit);
+  return gdiv(gmul(A, mppi(prec)), sqz(z, bit));
+}
+
+static GEN
+bessiasymp(GEN nu, GEN z, long bit)
+{
+  GEN A, B, r, R, r2;
+  hankel_ABr(&A,&B,&r, nu, z, bit);
+  r2 = gsqr(r);
+  R = regI(z) == 1 ? gmul(A, r2) : gdiv(A, r2);
+  return gdiv(gadd(B, R), sqz(z, bit));
+}
+
+static GEN
+bessjasymp(GEN nu, GEN z, long bit)
+{
+  GEN A, B, r, R;
+  long reg = regJ(z);
+  hankel_ABr(&A,&B,&r, nu, mulcxmI(z), bit);
+  if (reg == 1) R = gadd(gdiv(A, r), gmul(B, r));
+  else if (reg == 2) R = gadd(gmul(A, gpowgs(r, 3)), gmul(B, r));
+  else R = gadd(gdiv(A, r), gdiv(B, gpowgs(r, 3)));
+  return gdiv(R, sqz(z, bit));
+}
+
+static GEN
+bessyasymp(GEN nu, GEN z, long bit)
+{
+  GEN A, B, r, R;
+  long reg = regJ(z);
+  hankel_ABr(&A,&B,&r, nu, mulcxmI(z), bit);
+  if (reg == 1) R = gsub(gmul(B, r), gdiv(A, r));
+  else if (reg == 2)
+    R = gadd(gmul(A, gsub(gpowgs(r, 3), gmul2n(ginv(r), 1))), gmul(B, r));
+  else
+    R = gsub(gmul(B, gsub(gmul2n(r, 1), ginv(gpowgs(r, 3)))), gdiv(A, r));
+  return gdiv(mulcxI(R), sqz(z, bit));
 }
 
 /* n! sum_{k=0}^m Z^k / (k!*(k+n)!), with Z := (-1)^flag*z^2/4 */
@@ -150,40 +210,9 @@ jbesselintern(GEN n, GEN z, long flag, long prec)
       bit = prec2nbits(prec);
       if (bessel_asymp(z, bit))
       {
-        GEN A, B, R, P, Q, ep, em, r;
-        long s, fl = gsigne(real_i(z)) < 0;
-        if (flag == 0)
-        { /* I */
-          /* don't set z <- -z if (fl = 1) */
-          r = mulcxI(gexp(gmul(mulcxI(n), mppi(prec)), prec));
-          hankel_PQ(&P,&Q, n, z, bit);
-          hankel_exp2(&ep,&em, z, prec);
-          A = gmul(ep, Q);
-          B = gmul(em, P);
-          s = gsigne(imag_i(z));
-          if (s > 0 || (s == 0 && gsigne(imag_i(z)) < 0))
-            R = gadd(A, gmul(B,r));
-          else
-            R = gadd(A, gdiv(B,r));
-        }
-        else
-        { /* J */
-          if (fl) z = gneg(z);
-          hankel_PQ(&P,&Q, n, mulcxmI(z), bit);
-          hankel_expIw(&ep,&em, n, z, prec);
-          A = gmul(ep, P);
-          B = gmul(em, Q);
-          R = gadd(A, B);
-          if (fl)
-          { /* J(-z) = (-z)^n / z^n * J(z) */
-            r = (gsigne(imag_i(z)) <= 0)? mulcxI(n): mulcxmI(n);
-            r = gexp(gmul(r, mppi(prec)), prec);
-            R = gmul(R, r);
-          }
-        }
-        R = gdiv(R, gsqrt(gmul(Pi2n(1,prec), z), prec));
-        if (typ(R) == t_COMPLEX && !fl
-                                && isexactzero(imag_i(n))
+        GEN R = (flag == 0)? bessiasymp(n, z, bit): bessjasymp(n, z, bit);
+        if (typ(R) == t_COMPLEX && isexactzero(imag_i(n))
+                                && gsigne(real_i(z)) > 0
                                 && isexactzero(imag_i(z))) R = gcopy(gel(R,1));
         return gerepileupto(av, R);
       }
@@ -499,49 +528,9 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
       bit = prec2nbits(prec);
       if (bessel_asymp(z, bit))
       {
-        GEN A, B, R, P, Q, ep, em;
-        long fl = gsigne(real_i(z)) < 0;
-        if (fl) z = gneg(z);
-        if (flK)
-        { /* K */
-          hankel_PQ(&P,&Q, n, z, bit);
-          if (!fl)
-            R = gmul(gexp(gneg(z), prec), P);
-          else
-          {
-            if (gsigne(imag_i(z)) >= 0)
-            {
-              GEN r, ir, co;
-              hankel_exp2(&r,&ir, z, prec);
-              co = gmul2n(gcos(gmul(mppi(prec), n), prec), 1);
-              R = gadd(gmul(mulcxmI(r), Q), gmul(gmul(co,ir), P));
-            }
-            else
-              R = mulcxmI(gmul(gexp(z,prec), Q));
-          }
-          R = gmul(R, gsqrt(gdiv(Pi2n(-1,prec), z), prec));
-        }
-        else
-        { /* Y */
-          hankel_PQ(&P,&Q, n, mulcxmI(z), bit);
-          hankel_expIw(&ep,&em, n, z, prec);
-          A = gmul(ep, P);
-          B = gmul(em, Q);
-          if (!fl)
-            R = mulcxmI(gsub(A,B));
-          else
-          {
-            GEN r, ir;
-            hankel_exp2(&r, &ir, mulcxI(gmul(mppi(prec), n)), prec);
-            if (gsigne(imag_i(z)) <= 0)
-              R = mulcxI(gadd(gmul(r, A), gmul(gadd(r, gmul2n(ir,1)), B)));
-            else
-              R = mulcxmI(gadd(gmul(ir, B), gmul(gadd(ir, gmul2n(r,1)), A)));
-          }
-          R = gdiv(R, gsqrt(gmul(Pi2n(1,prec), z), prec));
-        }
-        if (typ(R) == t_COMPLEX && !fl
-                                && isexactzero(imag_i(n))
+        GEN R = flK? besskasymp(n, z, bit): bessyasymp(n, z, bit);
+        if (typ(R) == t_COMPLEX && isexactzero(imag_i(n))
+                                && gsigne(real_i(z)) > 0
                                 && isexactzero(imag_i(z))) R = gcopy(gel(R,1));
         return gerepileupto(av, R);
       }
