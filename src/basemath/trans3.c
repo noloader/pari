@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-#define HALF_E 1.3591409 /* Exponential / 2 */
+#define HALF_E 1.3591409 /* exp(1) / 2 */
 static const long EXTRAPREC = DEFAULTPREC-2;
 
 /***********************************************************************/
@@ -37,16 +37,37 @@ static int
 bessel_asymp(GEN z, long bit)
 { return gcmpgs(_abs(z), (bit+4)/2) >= 0; }
 
+/* Region I: 0 < Arg z <= Pi, II: -Pi < Arg z <= 0 */
+static int
+regI(GEN z)
+{
+  long s = gsigne(imag_i(z));
+  return (s > 0 || (s == 0 && gsigne(real_i(z)) < 0)) ? 1 : 2;
+}
+/* Region 1: Re(z) >= 0, 2: Re(z) < 0, Im(z) >= 0, 3: Re(z) < 0, Im(z) < 0 */
+static int
+regJ(GEN z)
+{
+  if (gsigne(real_i(z)) >= 0) return 1;
+  return gsigne(imag_i(z)) >= 0 ? 2 : 3;
+}
+
 /* Hankel's expansions:
  * a_k(n) = \prod_{0 <= j < k} (4n^2 - (2j+1)^2)
  * C(k)[n,z] = a_k(n) / (k! (8 z)^k)
- * P = sum_{k >= 0} C(k), Q = sum_{k >= 0} (-1)^k C(k),
- * w = z - (2n+1)*Pi/4. For |Arg z| < Pi - E [ we take Pi/2 for simplicity ]
- * J = sqrt(1/2Pi z) (exp(iw)*P(z/i) + exp(-iw)*Q(z/i))
- * Y = -i/sqrt(2Pi z)(exp(iw)*P(z/i) - exp(-iw)*Q(z/i)) */
+ * A(z)  = exp(-z) sum_{k >= 0} C(k)
+ * A(-z) = exp(z) sum_{k >= 0} (-1)^k C(k)
+ * J_n(z) ~ [1] (A(z/i) / r + A(-z/i) r) / sqrt(2Pi z)
+ *          [2] (A(z/i) r^3 + A(-z/i) r) / sqrt(2Pi z)
+ *          [3] (A(z/i) / r + A(-z/i) / r^3) / sqrt(2Pi z)
+ * Y_n(z) ~ [1] i(A(z/i) / r + A(-z/i) r) / sqrt(2Pi z)
+ *          [2] i(A(z/i) (r^3-2/r) + A(-z/i) r) / sqrt(2Pi z)
+ *          [3] i(-A(z/i)/r + A(-z/i)(2r-1/r^3)) / sqrt(2Pi z)
+ * K_n(z) ~ A(z) Pi / sqrt(2 Pi z)
+ * I_n(z) ~ [I] (A(-z) + r^2 A(z)) / sqrt(2 Pi z)
+ *          [II](A(-z) + r^(-2) A(z)) / sqrt(2 Pi z) */
 
-/* hankel_ABr(nu,z) outputs
-   [exp(-z)*(P+Q)(z),exp(z)*(P-Q)(z),exp((2*nu+1)*I*Pi/4)] */
+/* set [A(z), A(-z), exp((2*nu+1)*I*Pi/4)] */
 static void
 hankel_ABr(GEN *pA, GEN *pB, GEN *pr, GEN n, GEN z, long bit)
 {
@@ -66,20 +87,7 @@ hankel_ABr(GEN *pA, GEN *pB, GEN *pr, GEN n, GEN z, long bit)
   E = gexp(z, prec);
   *pA = gdiv(gadd(P, Q), E);
   *pB = gmul(gsub(P, Q), E);
-  *pr = gexp(gmul(gaddgs(gmul2n(n,1), 1), mulcxI(Pi2n(-2, prec))), prec);
-}
-
-static int
-regI(GEN z)
-{
-  long s = gsigne(imag_i(z));
-  return (s > 0 || (s == 0 && gsigne(real_i(z)) < 0)) ? 1 : 2;
-}
-static int
-regJ(GEN z)
-{
-  if (gsigne(real_i(z)) >= 0) return 1;
-  else return gsigne(imag_i(z)) >= 0 ? 2 : 3;
+  *pr = gexp(mulcxI(gmul(gaddgs(gmul2n(n,1), 1), Pi2n(-2, prec))), prec);
 }
 
 /* sqrt(2*Pi*z) */
@@ -546,7 +554,7 @@ kbesselintern(GEN n, GEN z, long flag, long prec)
         double B, L = HALF_E * az;
         k = labs(ki);
         B = prec2nbits_mul(prec,M_LN2/2) / L;
-        if (flK) B += 0.367879;
+        if (flK) B += 0.367879; /* exp(-1) */
         lim = bessel_get_lim(B, L);
         p1 = gmul(gpowgs(z2,k), _kbessel1(k,z,flag,lim,precnew));
         p2 = gadd(mpeuler(precnew), glog(z2,precnew));
