@@ -468,6 +468,16 @@ Use \kbd{push\_localprec}.
  trivial wrapper around \kbd{push\_localbitprec}
 (sanity checks). Use \kbd{push\_localbitprec}.
 
+These two function are used to implement \kbd{getlocalprec} and
+\kbd{getlocalbitprec} for the GP interpreter and essentially return their
+argument (the current dynamic precision, respectively in bits or as a
+\kbd{prec} word count):
+
+\fun{long}{getlocalbitprec}{long bit}
+
+\fun{long}{getlocalprec}{long prec}
+
+
 \subsec{Functions related to the GP evaluator}
 
 The prototype code \kbd{C} instructs the GP compiler to save the current
