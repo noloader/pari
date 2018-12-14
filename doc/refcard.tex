@@ -99,16 +99,16 @@ To exit \kbd{gp}, type \kbd{quit}, \kbd{\\q}, or \kbd{<C-D>} at prompt.\hfill
 \li{\typ{INFINITY}. $\pm\infty$}{+oo, -oo}
 
 \section{Reserved Variable Names}
-\li{$\pi=3.14\dots$, $\gamma=0.57\dots$, $C=0.91\dots$}{Pi{\rm, }Euler{\rm, }Catalan}
-\li{square root of $-1$}{I}
+\li{$\pi\approx3.14$, $\gamma\approx0.57$, $C\approx0.91$, $I = \sqrt{-1}$}
+{Pi{\rm, }Euler{\rm, }Catalan{\rm, }I}
 \li{Landau's big-oh notation}{O}
 
-
-\section{Information about an Object}
+\section{Information about an Object, Precision}
 \li{PARI type of object $x$}{type$(x)$}
 \li{length of $x$ / size of $x$ in memory}{\#$x${\rm, }sizebyte$(x)$}
 \li{real precision / bit precision of $x$}{precision$(x)${\rm, }bitprecision}
 \li{$p$-adic, series prec. of $x$}{padicprec$(x)${\rm, }serprec}
+\li{current dynamic precision}{getlocalprec{\rm, }getlocalbitprec}
 
 \section{Operators}
 \li{basic operations}{+{\rm,} - {\rm,} *{\rm,} /{\rm,} \pow{\rm,} sqr}
@@ -450,7 +450,8 @@ in gp header.\hfil\break
 
 \subsec{Constructors \& Special Polynomials}
 \li{interpolating pol.~eval.~at $a$}{polinterpolate$(X,\{Y\},\{a\})$}
-\li{$P_n$, $T_n/U_n$, $H_n$}{pollegendre{\rm, }polchebyshev{\rm, }polhermite}
+\li{$T_n/U_n$, $H_n$}{polchebyshev{\rm, }polhermite}
+\li{$P_n$, $L_n^{(\alpha)}$}{pollegendre{\rm, }pollaguerre}
 \li{$n$-th cyclotomic polynomial $\Phi_n$}{polcyclo$(n,\{v\})$}
 \li{return $n$ if $f=\Phi_n$, else $0$}{poliscyclo$(f)$}
 \li{is $f$ a product of cyclotomic polynomials?}{poliscycloprod$(f)$}
@@ -550,8 +551,8 @@ A finite field is encoded by any element (\typ{FFELT}).\hfil\break
 \li{$U$-confluent hypergeometric function}{hyperu$(a,b,u)$}
 \li{Hypergeometric $_pF_q(A,B;z)$}{hypergeom$(A, B, z)$}
 \li{Bessel $J_n(x)$, $J_{n+1/2}(x)$}{besselj$(n,x)$, besseljh$(n,x)$}
-\li{Bessel $I_\nu$, $K_\nu$, $H^1_\nu$, $H^2_\nu$, $N_\nu$}
-{(bessel)i{\rm, }k{\rm, }h1{\rm, }h2{\rm, }n}
+\li{Bessel $I_\nu$, $K_\nu$, $H^1_\nu$, $H^2_\nu$, $Y_\nu$}
+{(bessel)i{\rm, }k{\rm, }h1{\rm, }h2{\rm, }y}
 \li{Airy functions $A_i(x)$, $B_i(x)$}{airy$(x)$}
 \li{Lambert $W$: $x$ s.t. $xe^x =y$}{lambertw$(y)$}
 \li{Teichmuller character of $p$-adic $x$}{teichmuller$(x)$}
