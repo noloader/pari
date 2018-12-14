@@ -61,7 +61,7 @@ F01(GEN a, GEN z, long prec)
 static GEN
 airy_i(GEN x, long prec)
 {
-  long bit = prec2nbits(prec), tx = typ(x);
+  long bit = prec2nbits(prec), tx = typ(x), prec2;
   GEN a, b, A, B, z, z2;
   if (!is_scalar_t(tx)) pari_err_TYPE("airy",x);
   if (is0(x, bit))
@@ -70,12 +70,14 @@ airy_i(GEN x, long prec)
     A = invr(mulrr(s4, ggamma(sstoQ(2,3), prec)));
     B = mulrr(A, s3); return mkvec2(A, B);
   }
-  z = gsqrt(gpowgs(x,3), prec); z2 = gdivgs(gmul2n(z,1),3);
+  prec2 = prec + EXTRAPRECWORD;
+  x = gprec_wensure(x, prec2);
+  z = gsqrt(gpowgs(x,3), prec2); z2 = gdivgs(gmul2n(z,1),3);
   if (is_real_t(tx) && gsigne(x) > 0)
-    a = b = gsqrt(x, prec); /* expression simplifies */
+    a = b = gsqrt(x, prec2); /* expression simplifies */
   else
   {
-    a = gsqrtn(z, utoipos(3), NULL, prec);
+    a = gsqrtn(z, utoipos(3), NULL, prec2);
     b = gdiv(x, a);
   }
   a = gmul(a, ibessel(sstoQ(-1,3),z2, prec));
