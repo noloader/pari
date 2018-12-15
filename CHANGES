@@ -111,6 +111,10 @@ BA  18- qfbsolve now returns a vector of solutions.
     24- let precision(x,p) accept non integral real p [replace by ceil(p)];
         same for bitprecision.
     25- besseln is now obsolete, use bessely
+    26- [libpari] precision0 / bitprecision0 (meant to implement GP-specific
+        commands, not for library use) are now obsolete. The new equivalent
+        commands (still not meant for library use) are precision00 and
+        bitprecision00.
 
   Added
      1- [libpari] nonsquare_Fl
