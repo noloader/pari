@@ -948,7 +948,7 @@ ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,
   Q  = ZX_Z_divexact(FpX_FpXQ_eval(Pq, S, Tq, q), q2);
   r = brent_kung_optpow(degpol(P), 4, 3);
   if (DEBUGLEVEL > 3)
-    err_printf("ZpX_ZpXQ_liftroot: lifting to prec %ld\n",N);
+    err_printf("ZpX_ZpXQ_liftroot: lifting to prec %ld\n",n);
   for (;;)
   {
     GEN H, Sq, Wq, Spow, dP, qq, Pqq, Tqq;
