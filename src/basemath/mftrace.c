@@ -452,7 +452,7 @@ Qab_trace_init(GEN Pn, long n, long m)
 {
   GEN T, Pm;
   long a, i, d, vt, N, M;
-  if (m == n) return mkvec(Pn);
+  if (m == n || n <= 2) return mkvec(Pn);
   d = degpol(Pn);
   vt = varn(Pn);
   Pm = polcyclo(m, vt);
@@ -510,12 +510,8 @@ QabV_tracerel(GEN v, long t, GEN x)
 GEN
 QabM_tracerel(GEN v, long t, GEN x)
 {
-  long j, l;
-  GEN y;
   if (lg(v) != 4) return x;
-  y = cgetg_copy(x, &l);
-  for (j = 1; j < l; j++) gel(y,j) = QabV_tracerel(v, t, gel(x,j));
-  return y;
+  pari_APPLY_same(QabV_tracerel(v, t, gel(x,i)));
 }
 
 /*              Operations on Dirichlet characters                       */
