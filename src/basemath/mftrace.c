@@ -45,7 +45,7 @@ static GEN initwt1newtrace(GEN mf);
 static GEN initwt1trace(GEN mf);
 static GEN myfactoru(long N);
 static GEN mydivisorsu(long N);
-static GEN mygmodulo_lift(long k, long ord, GEN C, long vt);
+static GEN Qab_Czeta(long k, long ord, GEN C, long vt);
 static GEN mfcoefs_i(GEN F, long n, long d);
 static GEN bhnmat_extend(GEN M, long m,long l, GEN S, cachenew_t *cache);
 static GEN initnewtrace(long N, GEN CHI);
@@ -464,7 +464,7 @@ Qab_trace_init(long n, long m, GEN Pn, GEN Pm)
     {
       if (m != M) v *= 2;/* Tr = s * zeta_m^v */
       if (n != N && odd(i)) s = -s;
-      t = mygmodulo_lift(v, m, stoi(s), vt);
+      t = Qab_Czeta(v, m, stoi(s), vt);
     }
     gel(T,i+1) = t; /* Tr_{Kn/Km} zeta_n^i */
   }
@@ -516,6 +516,22 @@ QabM_tracerel(GEN v, long t, GEN x)
   pari_APPLY_same(QabV_tracerel(v, t, gel(x,i)));
 }
 
+/* C*zeta_o^k mod X^o - 1 */
+static GEN
+Qab_Czeta(long k, long o, GEN C, long vt)
+{
+  if (!k) return C;
+  if (!odd(o))
+  { /* optimization: reduce max degree by a factor 2 for free */
+    o >>= 1;
+    if (k >= o) { k -= o; C = gneg(C); if (!k) return C; }
+  }
+  return monomial(C, k, vt);
+}
+/* zeta_o^k */
+static GEN
+Qab_zeta(long k, long o, long vt) { return Qab_Czeta(k, o, gen_1, vt); }
+
 /*              Operations on Dirichlet characters                       */
 
 /* A Dirichlet character can be given in GP in different formats, but in this
@@ -536,45 +552,42 @@ mfcharmodulus(GEN CHI) { return itou(gmfcharmodulus(CHI)); }
 GEN
 mfcharpol(GEN CHI) { return gel(CHI,4); }
 
-/* t^k mod polcyclo(ord), ord = order(CHI) > 1 */
-static GEN
-mygmodulo(GEN CHI, long k)
-{
-  GEN Pn;
-  long ord;
-  if (!k) return gen_1;
-  ord = mfcharorder(CHI);
-  if ((k << 1) == ord) return gen_m1;
-  Pn = mfcharpol(CHI);
-  return gmodulo(monomial(gen_1, k, varn(Pn)), Pn);
-}
-/* C*zeta_ord^k */
-static GEN
-mygmodulo_lift(long k, long ord, GEN C, long vt)
-{
-  if (!k) return C;
-  if (!odd(ord))
-  { /* optimization: reduce max degree by a factor 2 for free */
-    ord >>= 1;
-    if (k >= ord) { k -= ord; C = gneg(C); }
-    if (!k) return C;
-  }
-  return monomial(C, k, vt);
-}
-/* vz[i+1] = image of (zeta_ord)^i in Fp */
+/* vz[i+1] = image of (zeta_o)^i in Fp */
 static ulong
-mygmodulo_Fl(long k, GEN vz, ulong C, ulong p)
+Qab_Czeta_Fl(long k, GEN vz, ulong C, ulong p)
 {
-  long ord;
+  long o;
   if (!k) return C;
-  ord = lg(vz)-2;
-  if ((k << 1) == ord) return Fl_neg(C,p);
+  o = lg(vz)-2;
+  if ((k << 1) == o) return Fl_neg(C,p);
   return Fl_mul(C, vz[k+1], p);
 }
 
 static long
 znchareval_i(GEN CHI, long n, GEN ord)
 { return itos(znchareval(gel(CHI,1), gel(CHI,2), stoi(n), ord)); }
+
+/* n coprime with the modulus of CHI */
+static GEN
+mfchareval(GEN CHI, long n)
+{
+  GEN Pn, C, go = gmfcharorder(CHI);
+  long k, o = go[2];
+  if (o == 1) return gen_1;
+  k = znchareval_i(CHI, n, go);
+  Pn = mfcharpol(CHI);
+  C = Qab_zeta(k, o, varn(Pn));
+  if (typ(C) != t_POL) return C;
+  return gmodulo(C, Pn);
+}
+/* d a multiple of ord(CHI); n coprime with char modulus;
+ * return x s.t. CHI(n) = \zeta_d^x] */
+static long
+mfcharevalord(GEN CHI, long n, long d)
+{
+  if (mfcharorder(CHI) == 1) return 0;
+  return znchareval_i(CHI, n, utoi(d));
+}
 
 /* G a znstar, L a Conrey log: return a 'mfchar' */
 static GEN
@@ -719,23 +732,6 @@ mfcharconductor(GEN CHI)
   GEN res = znconreyconductor(gel(CHI,1), gel(CHI,2), NULL);
   if (typ(res) == t_VEC) res = gel(res, 1);
   return gc_long(av, itos(res));
-}
-
-/* n coprime with the modulus of CHI */
-static GEN
-mfchareval_i(GEN CHI, long n)
-{
-  GEN ord = gmfcharorder(CHI);
-  if (equali1(ord)) return gen_1;
-  return mygmodulo(CHI, znchareval_i(CHI, n, ord));
-}
-/* d a multiple of ord(CHI); n coprime with char modulus;
- * return x s.t. CHI(n) = \zeta_d^x] */
-static long
-mfcharevalord(GEN CHI, long n, long d)
-{
-  if (mfcharorder(CHI) == 1) return 0;
-  return znchareval_i(CHI, n, utoi(d));
 }
 
 /*                      Operations on mf closures                    */
@@ -1410,7 +1406,7 @@ c_theta(long n, long d, GEN psi)
     if (ugcd(F, f) == 1)
     {
       pari_sp av = avma;
-      GEN c = mfchareval_i(psi, f);
+      GEN c = mfchareval(psi, f);
       gel(V, f*f/d + 1) = gerepileupto(av, par < 0 ? gmulgs(c,2*f) : gmul2n(c,1));
     }
   if (F == 1) gel(V, 1) = gen_1;
@@ -2635,7 +2631,7 @@ mfcharinit(GEN CHIP)
       if (v[n] < 0) c = gen_0;
       else
       {
-        c = mygmodulo_lift(v[n], o, gen_1, vt);
+        c = Qab_zeta(v[n], o, vt);
         if (typ(c) == t_POL && lg(c) >= lg(Pn)) c = RgX_rem(c, Pn);
       }
       gel(V,n) = c;
@@ -3701,7 +3697,7 @@ RgV_shimura(GEN V, long n, long D, long N4, long r, GEN CHI)
       long a = mfcharevalord(CHI, e, ord);
       GEN c, C = powuu(e, r - 1);
       if (kross(D, e) == -1) C = negi(C);
-      c = mygmodulo_lift(a, ord, C, vt);
+      c = Qab_Czeta(a, ord, C, vt);
       S = gadd(S, gmul(c, gel(V, me*me + 1)));
     }
     gel(R, m+1) = S;
@@ -3977,7 +3973,7 @@ hecke_i(long m, long l, GEN V, GEN F, GEN DATA)
   for (a = 2; a < lD; a++)
   { /* d > 1, (d, NBIG) = 1 */
     long d = D[a], c = ugcd(l, d), dl = d/c, i, idl;
-    GEN C = gmul(mfchareval_i(CHI, d), powuu(d, k-1));
+    GEN C = gmul(mfchareval(CHI, d), powuu(d, k-1));
     GEN w = anextract(V, m/dl, t/(d*c)); /* mfcoefs(F, m/dl, nl/(d*c)) */
     for (i = idl = 1; idl <= M; i++, idl += dl)
       gel(v,idl) = gadd(gel(v,idl), gmul(C, gel(w,i)));
@@ -4552,7 +4548,7 @@ mfheckemat_mfcoefs_p(GEN mf, long p, GEN B)
 
   if (N % p == 0) return Minv_RgM_mul(Minv, rowpermute(B, MF_get_Mindex(mf)));
   k = MF_get_k(mf);
-  C = gmul(mfchareval_i(MF_get_CHI(mf), p), powuu(p, k-1));
+  C = gmul(mfchareval(MF_get_CHI(mf), p), powuu(p, k-1));
   vm = Mindex_as_coef(mf); lm = lg(vm);
   Q = cgetg(l, t_MAT);
   for (j = 1; j < l; j++) gel(Q,j) = cgetg(lm, t_COL);
@@ -4590,7 +4586,7 @@ mfnewmathecke_p(GEN mf, long p)
   long N = MF_get_N(mf), k = MF_get_k(mf);
   long i, j, lvj = lg(vj), lim = vj[lvj-1] * p;
   GEN M, perm, V, need = zero_zv(lim);
-  GEN C = (N % p)? gmul(mfchareval_i(CHI,p), powuu(p,k-1)): NULL;
+  GEN C = (N % p)? gmul(mfchareval(CHI,p), powuu(p,k-1)): NULL;
   tf = mftraceform_new(N, k, CHI);
   for (i = 1; i < lvj; i++)
   {
@@ -4670,11 +4666,11 @@ mfheckemat(GEN mf, GEN vn)
     u0 = gen_1;
     if (dk == 2)
     {
-      C = N % p? gmul(mfchareval_i(CHI,p*p), powuu(p, nk-2)): NULL;
+      C = N % p? gmul(mfchareval(CHI,p*p), powuu(p, nk-2)): NULL;
       if (e == 2) u0 = sstoQ(p+1,p); /* special case T_{p^4} */
     }
     else
-      C = N % p? gmul(mfchareval_i(CHI,p),   powuu(p, nk-1)): NULL;
+      C = N % p? gmul(mfchareval(CHI,p),   powuu(p, nk-1)): NULL;
     for (u1=Tp, q=p, l=2; l <= e; l++)
     { /* u0 = T_{p^{l-2}}, u1 = T_{p^{l-1}} for l > 2 */
       GEN v = gmul(Tp, u1);
@@ -5217,7 +5213,7 @@ initwt1newtrace(GEN mf)
     for (j = 1; j < lg(listd); j++)
     {
       long d = listd[j], d2 = d*d; /* coprime to FC */
-      GEN dk = mfchareval_i(CHI, d);
+      GEN dk = mfchareval(CHI, d);
       long NMd = N/(M*d), m;
       for (m = 1; m <= sb/d2; m++)
       {
@@ -5241,7 +5237,7 @@ initwt1newtrace(GEN mf)
 static GEN
 Tpmat(long p, long lim, GEN CHI)
 {
-  GEN M = zeromatcopy(lim, p*lim), chip = mfchareval_i(CHI, p); /* != 0 */
+  GEN M = zeromatcopy(lim, p*lim), chip = mfchareval(CHI, p); /* != 0 */
   long i, j, pi, pj;
   gcoeff(M, 1, 1) = gaddsg(1, chip);
   for (i = 1, pi = p; i < lim; i++,  pi += p) gcoeff(M, i+1, pi+1) = gen_1;
@@ -5961,7 +5957,7 @@ mffindrootof1(GEN v, long p, GEN CHI)
   GEN ap = gel(v,p+1), u0, u1, u1k, u2;
   long c = 1;
   if (gequal0(ap)) return 2;
-  u0 = gen_2; u1k = u1 = gsubgs(gdiv(gsqr(ap), mfchareval_i(CHI, p)), 2);
+  u0 = gen_2; u1k = u1 = gsubgs(gdiv(gsqr(ap), mfchareval(CHI, p)), 2);
   while (!gequalsg(2, liftpol_shallow(u1))) /* u1 = z^c + z^-c */
   {
     u2 = gsub(gmul(u1k, u1), u0);
@@ -6132,7 +6128,7 @@ dihan(GEN bnr, GEN w, GEN k0j, ulong lim)
       long s, s0 = vchiP[1];
       for (qk=q, s = s0;; s = Fl_add(s,s0,ordmax))
       {
-        S = mygmodulo_lift(s, ordmax, gen_1, vt);
+        S = Qab_zeta(s, ordmax, vt);
         gel(v, qk+1) = fix_pol(S, Pn, &trace);
         if (!(qk = umuluu_le(qk,q,lim))) break;
       }
@@ -6147,7 +6143,7 @@ dihan(GEN bnr, GEN w, GEN k0j, ulong lim)
         for (a = 0; a <= k; a++)
         {
           s = Fl_add(Fl_mul(a, s0, ordmax), Fl_mul(k-a, s1, ordmax), ordmax);
-          S = gadd(S, mygmodulo_lift(s, ordmax, gen_1, vt));
+          S = gadd(S, Qab_zeta(s, ordmax, vt));
         }
         gel(v, qk+1) = fix_pol(S, Pn, &trace);
         if (!(qk = umuluu_le(qk,q,lim))) break;
@@ -7450,7 +7446,7 @@ mfatkineigenquad(GEN mf, GEN CHIP, long Q, GEN MF, long bitprec)
     }
     return Z;
   }
-  la2 = mfchareval_i(CHIP, Q); /* 1 or -1 */
+  la2 = mfchareval(CHIP, Q); /* 1 or -1 */
   (void)cbezout(Q, NQ, &x, &yq);
   sqrtQ = sqrtr_abs(utor(Q,prec));
   tau = mkcomplex(gadd(sstoQ(-1, NQ), ginv(utoi(1000))),
@@ -8048,7 +8044,7 @@ mfgaexpansionatkin(GEN mf, GEN F, GEN C, GEN D, long Q, long n, long prec)
   /* V = mfcoefs(F | w_Q, n), can't use mfatkin because MQ non-rational */
   V = RgM_RgC_mul(mfcoefs_mf(mf,n,1), RgM_RgC_mul(MQ, mftobasis_i(mf,F)));
   (void)bezout(utoipos(Q), C, &x, &v);
-  s = mfchareval_i(CHI, (umodiu(x, FC) * umodiu(D, FC)) % FC);
+  s = mfchareval(CHI, (umodiu(x, FC) * umodiu(D, FC)) % FC);
   s = gdiv(s, gpow(utoipos(Q), sstoQ(k,2), prec));
   V = RgV_Rg_mul(V, s);
   z = rootsof1powinit(umodiu(D,Q)*umodiu(v,Q) % Q, Q, prec);
@@ -8745,7 +8741,7 @@ sigchi(long k, GEN CHI, long n)
   for (i = 2; i < l; i++) /* skip D[1] = 1 */
   {
     long d = D[i], a = mfcharevalord(CHI, d, ord);
-    S = gadd(S, mygmodulo_lift(a, ord, powuu(d, k-1), vt));
+    S = gadd(S, Qab_Czeta(a, ord, powuu(d, k-1), vt));
   }
   return gerepileupto(av,S);
 }
@@ -8795,7 +8791,7 @@ sigchi2(long k, GEN CHI1, GEN CHI2, long n, long ord)
     long a, d = n2*D[i], nd = n1*D[l-i]; /* (d,N1)=1; (n/d,N2) = 1 */
     a = mfcharevalord(CHI1, d, ord) + mfcharevalord(CHI2, nd, ord);
     if (a >= ord) a -= ord;
-    S = gadd(S, mygmodulo_lift(a, ord, powuu(d, k-1), vt));
+    S = gadd(S, Qab_Czeta(a, ord, powuu(d, k-1), vt));
   }
   return gerepileupto(av, S);
 }
@@ -8866,7 +8862,7 @@ sigchi2_Fl(long k, GEN CHI1vec, GEN CHI2vec, long n, GEN vz, ulong p)
     long a, d = n2*D[i], nd = n1*D[l-i]; /* (d,N1)=1, (n/d,N2)=1 */
     a = mycharexpo(CHI2vec, nd) + mycharexpo(CHI1vec, d);
     if (a >= ordz) a -= ordz;
-    S = Fl_add(S, mygmodulo_Fl(a, vz, Fl_powu(d,k-1,p), p), p);
+    S = Fl_add(S, Qab_Czeta_Fl(a, vz, Fl_powu(d,k-1,p), p), p);
   }
   return gc_ulong(av,S);
 }
@@ -8888,7 +8884,7 @@ charLFwt1(GEN CHI, long ord)
     long a;
     if (ugcd(m,r) != 1) continue;
     a = mfcharevalord(CHI,r,ord);
-    S = gadd(S, mygmodulo_lift(a, ord, utoi(r), vt));
+    S = gadd(S, Qab_Czeta(a, ord, utoi(r), vt));
   }
   return gdivgs(S, -2*m);
 }
@@ -8904,7 +8900,7 @@ charLFwt1_Fl(GEN CHIvec, GEN vz, ulong p)
   { /* S += r*chi(r) */
     long a = mycharexpo(CHIvec,r);
     if (a < 0) continue;
-    S = Fl_add(S, mygmodulo_Fl(a, vz, r, p), p);
+    S = Fl_add(S, Qab_Czeta_Fl(a, vz, r, p), p);
   }
   return Fl_div(Fl_neg(S,p), 2*m, p);
 }
@@ -8926,7 +8922,7 @@ charLFwtk(long k, GEN CHI, long ord)
     long a;
     if (ugcd(r,m) != 1) continue;
     a = mfcharevalord(CHI,r,ord);
-    S = gadd(S, mygmodulo_lift(a, ord, poleval(P, utoi(r)), vt));
+    S = gadd(S, Qab_Czeta(a, ord, poleval(P, utoi(r)), vt));
   }
   return gdiv(S, dS);
 }
@@ -8946,7 +8942,7 @@ charLFwtk_Fl(long k, GEN CHIvec, GEN vz, ulong p)
   { /* S += P(r)*chi(r) */
     long a = mycharexpo(CHIvec,r);
     if (a < 0) continue;
-    S = Fl_add(S, mygmodulo_Fl(a, vz, Flx_eval(P,r,p), p), p);
+    S = Fl_add(S, Qab_Czeta_Fl(a, vz, Flx_eval(P,r,p), p), p);
   }
   return Fl_div(Fl_neg(S,p), 2*k*m, p);
 }
@@ -10983,7 +10979,7 @@ RgV_heckef2(long n, long d, GEN V, GEN F, GEN DATA)
   for (i = 1; i < l; i++)
   { /* p does not divide N */
     long p = P[i], e = E[i], p2 = p*p;
-    GEN c1, c2, a, b, q = NULL, C = mfchareval_i(CHI,p), C2 = gsqr(C);
+    GEN c1, c2, a, b, q = NULL, C = mfchareval(CHI,p), C2 = gsqr(C);
     a = r? powuu(p,r-1): mkfrac(gen_1,utoipos(p)); /* p^(r-1) = p^(k-3/2) */
     b = r? mulii(powuu(p,r), a): a; /* p^(2r-1) = p^(2k-2) */
     c1 = gmul(C, gmulsg(kross(s4,p),a));
