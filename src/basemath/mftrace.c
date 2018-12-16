@@ -6321,7 +6321,7 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
     k0 = zv_cyc_minimize(cycN, chi, coprimes_zv(o));
     vnum = Fl_powu(vnum, k0, N);
     /* encodes degrel forms: jdeg = 0..degrel-1 */
-    gel(res,j) = mkvec3(mkvecsmalln(6, N, k0, vnum, D, ordmax, degrel),
+    gel(res,j) = mkvec3(mkvecsmalln(5, N, k0, vnum, D, degrel),
                         id, mkvec3(cycn,chin,T));
   }
   return res;
@@ -6478,12 +6478,12 @@ mfdihedralnew_i(long N, GEN CHI)
   {
     GEN sp = gel(SP,i), T = gel(sp,1);
     if (T[3] != chino) continue;
-    d += T[6];
+    d += T[5];
     if (k1 != 1)
     {
       GEN t = leafcopy(T);
       t[3] = chinoorig;
-      t[2] = (t[2]*k1)%ordw;
+      t[2] = (t[2]*k1) % ordw;
       sp = mkvec4(t, gel(sp,2), gel(sp,3), gel(sp,4));
     }
     gel(V, l++) = sp;
@@ -6497,9 +6497,9 @@ mfdihedralnew_i(long N, GEN CHI)
   NK = mkNK(N, 1, CHI);
   bnf = NULL; Dold = 0;
   for (i = c = 1; i < l; i++)
-  { /* T = [N, k0, conreyno, D, ordmax, degrel] */
+  { /* T = [N, k0, conreyno, D, degrel] */
     GEN bnr, Vi = gel(V,i), T = gel(Vi,1), id = gel(Vi,2), w = gel(Vi,3);
-    long jdeg, k0i = T[2], D = T[4], degrel = T[6];
+    long jdeg, k0i = T[2], D = T[4], degrel = T[5];
 
     if (D != Dold) { Dold = D; bnf = dihan_bnf(D); }
     bnr = dihan_bnr(bnf, id);
