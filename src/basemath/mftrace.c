@@ -439,9 +439,8 @@ tracerelz(long d, long m, long M, long k, long vt)
     s = phipart(g, q); if (muq < 0) s = -s;
     return stoi(s);
   }
-  if (ugcd(q, M) > 1) return gen_0;
+  v = Fl_invsafe(q % M, M); if (!v) return gen_0;
   s = phipart(g, M*q); if (muq < 0) s = -s;
-  v = Fl_inv(q % M, M);
   v = (v*(k/g)) % M; /* Tr = s * zeta_M^v */
   if (m != M) v *= 2;/* Tr = s * zeta_m^v */
   return mygmodulo_lift(v, m, stoi(s), vt);
@@ -476,23 +475,24 @@ static GEN
 tracerel_i(GEN T, GEN x)
 {
   long k, l = lg(x);
-  GEN S = gen_0;
-  for (k = 2; k < l; k++) S = gadd(S, gmul(gel(T,k-1), gel(x,k)));
+  GEN S;
+  if (l == 2) return gen_0;
+  S = gmul(gel(T,1), gel(x,2));
+  for (k = 3; k < l; k++) S = gadd(S, gmul(gel(T,k-1), gel(x,k)));
   return S;
 }
-/* v = Qab_trace_init(n,m); x is a t_VEC of polmodulo Phi_n
- * Tr_{Q(zeta_n)/Q(zeta_m)} (zeta_n^t * x) */
+/* v = Qab_trace_init(n,m); x is a t_VEC of polmodulo Phi_n; Kn = Q(zeta_n)
+ * [Kn:Km]^(-1) Tr_{Kn/Km} (zeta_n^t * x); 0 <= t < [Kn:Km] */
 GEN
 QabV_tracerel(GEN v, long t, GEN x)
 {
   long l, j, degrel;
   GEN y, z, Pm, Pn, T;
-  if (lg(v) != 4) return x;
+  if (lg(v) != 4) return x; /* => t = 0 */
   y = cgetg_copy(x, &l);
   Pm = gel(v,1);
   Pn = gel(v,2);
-  T  = gel(v,3);
-  degrel = degpol(Pn) / degpol(Pm);
+  T  = gel(v,3); degrel = itou(gel(T,1));
   z = t? RgX_rem(pol_xn(t, varn(Pn)), Pn): NULL;
   for (j = 1; j < l; j++)
   {
@@ -501,7 +501,8 @@ QabV_tracerel(GEN v, long t, GEN x)
     a = simplify_shallow(a);
     if (typ(a) == t_POL)
     {
-      a = gdivgs(tracerel_i(T, RgX_rem(a, Pn)), degrel);
+      a = tracerel_i(T, RgX_rem(a, Pn));
+      if (degrel != 1) a = gdivgs(a, degrel);
       if (typ(a) == t_POL) a = RgX_rem(a, Pm);
     }
     gel(y,j) = a;
@@ -552,7 +553,12 @@ static GEN
 mygmodulo_lift(long k, long ord, GEN C, long vt)
 {
   if (!k) return C;
-  if ((k << 1) == ord) return gneg(C);
+  if (!odd(ord))
+  { /* optimization: reduce max degree by a factor 2 for free */
+    ord >>= 1;
+    if (k >= ord) { k -= ord; C = gneg(C); }
+    if (!k) return C;
+  }
   return monomial(C, k, vt);
 }
 /* vz[i+1] = image of (zeta_ord)^i in Fp */
@@ -1531,7 +1537,7 @@ c_mfeisen(long n, long d, GEN F)
     GEN CHI2 = gel(vchi,4), F3 = gel(F,3);
     long ord = F3[1], j = F3[2];
     for (i = 1; i <= n; i++) gel(v, i+1) = sigchi2(k, CHI, CHI2, i*d, ord);
-    if (lg(T) == 4) v = QabV_tracerel(T, j, v);
+    v = QabV_tracerel(T, j, v);
   }
   else
   { /* E_k(chi) */
@@ -6161,7 +6167,7 @@ dihan(GEN bnr, GEN w, GEN k0j, ulong lim)
   }
   if (trace)
   {
-    if (lg(Tinit) == 4) v = QabV_tracerel(Tinit, jdeg, v);
+    v = QabV_tracerel(Tinit, jdeg, v);
     /* Apply Galois Mod(k0, ordw) */
     if (k0 > 1) { GEN Pm = gel(Tinit,1); v = vecGalois(v, k0, Pm); }
   }
