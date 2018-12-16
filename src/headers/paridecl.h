@@ -4097,7 +4097,7 @@ GEN   MFcusp_get_vMjd(GEN mf);
 GEN   MFnew_get_vj(GEN mf);
 GEN   QabM_tracerel(GEN v, long t, GEN x);
 GEN   QabV_tracerel(GEN v, long t, GEN x);
-GEN   Qab_trace_init(GEN Pn, long n, long m);
+GEN   Qab_trace_init(long n, long m, GEN Pn, GEN Pm);
 GEN   checkMF(GEN mf);
 GEN   checkMF_i(GEN mf);
 int   checkmf_i(GEN mf);

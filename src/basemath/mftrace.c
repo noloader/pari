@@ -446,16 +446,16 @@ tracerelz(long d, long m, long M, long k, long vt)
   if (m != M) v *= 2;/* Tr = s * zeta_m^v */
   return mygmodulo_lift(v, m, stoi(s), vt);
 }
-/* Pn = polcyclo(n) */
+/* Pn = polcyclo(n), Pm = polcyclo(m) */
 GEN
-Qab_trace_init(GEN Pn, long n, long m)
+Qab_trace_init(long n, long m, GEN Pn, GEN Pm)
 {
-  GEN T, Pm;
-  long a, i, d, vt, N, M;
-  if (m == n || n <= 2) return mkvec(Pn);
-  d = degpol(Pn);
+  long a, i, N, M, vt, d;
+  GEN T;
+
+  if (m == n || n <= 2) return mkvec(Pm);
   vt = varn(Pn);
-  Pm = polcyclo(m, vt);
+  d = degpol(Pn);
   T = cgetg(d+1, t_VEC);
   gel(T,1) = utoipos(d / degpol(Pm)); /* Tr 1 */
   /* if (N != n) zeta_N = zeta_n^2 and zeta_n = - zeta_N^{(N+1)/2} */
@@ -493,11 +493,12 @@ QabV_tracerel(GEN v, long t, GEN x)
   Pn = gel(v,2);
   T  = gel(v,3);
   degrel = degpol(Pn) / degpol(Pm);
-  z = RgX_rem(pol_xn(t, varn(Pn)), Pn);
+  z = t? RgX_rem(pol_xn(t, varn(Pn)), Pn): NULL;
   for (j = 1; j < l; j++)
   {
     GEN a = liftpol_shallow(gel(x,j));
-    a = simplify_shallow( gmul(a, z) );
+    if (z) a = gmul(a, z);
+    a = simplify_shallow(a);
     if (typ(a) == t_POL)
     {
       a = gdivgs(tracerel_i(T, RgX_rem(a, Pn)), degrel);
@@ -863,22 +864,23 @@ chicompat(GEN CHI, GEN CHI1, GEN CHI2)
 {
   long o1 = mfcharorder(CHI1);
   long o2 = mfcharorder(CHI2), O, o;
-  GEN T1, T2, P;
+  GEN T1, T2, P, Po;
   if (o1 <= 2 && o2 <= 2) return NULL;
   o = mfcharorder(CHI);
+  Po = mfcharpol(CHI);
   P = mfcharpol(CHI1);
   if (o1 == o2)
   {
     if (o1 == o) return NULL;
     if (!same_cyc(o1,o)) err_cyclo();
-    return mkvec4(P, gen_1,gen_1, Qab_trace_init(P, o1, o));
+    return mkvec4(P, gen_1,gen_1, Qab_trace_init(o1, o, P, Po));
   }
   O = ulcm(o1, o2);
   if (!same_cyc(O,o)) err_cyclo();
-  if (O != o1) P = polcyclo(O, varn(P));
+  if (O != o1) P = (O == o2)? mfcharpol(CHI2): polcyclo(O, varn(P));
   T1 = o1 <= 2? gen_1: utoipos(O / o1);
   T2 = o2 <= 2? gen_1: utoipos(O / o2);
-  return mkvec4(P, T1, T2, O == o? gen_1: Qab_trace_init(P, O, o));
+  return mkvec4(P, T1, T2, O == o? gen_1: Qab_trace_init(O, o, P, Po));
 }
 /* *F a vector of cyclotomic numbers */
 static void
@@ -6282,13 +6284,11 @@ mklvchi(GEN bnr, GEN con, GEN cycn)
 static GEN
 mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN con)
 {
-  GEN bnr, bnrconreyN, cyc, cycn, cycN, Lvchi, res, g, P;
-  long i, j, ordmax, l, lc, deghecke, degrel;
+  GEN bnr = dihan_bnr(bnf, id), cyc = ZV_to_zv( bnr_get_cyc(bnr) );
+  GEN bnrconreyN, cycn, cycN, Lvchi, res, g, P, vT;
+  long i, j, ordmax, l, lc, deghecke, degrel, vt;
 
-  bnr = dihan_bnr(bnf, id);
-  cyc = ZV_to_zv( bnr_get_cyc(bnr) );
   lc = lg(cyc); if (lc == 1) return NULL;
-
   g = znstar_get_conreygen(znN); l = lg(g);
   bnrconreyN = cgetg(l, t_VEC);
   for (i = 1; i < l; i++)
@@ -6297,28 +6297,32 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
   cycn = cyc_normalize_zv(cyc);
   cycN = ZV_to_zv(znstar_get_cyc(znN));
   ordmax = cyc[1];
-  P = polcyclo(ordmax, fetch_user_var("t"));
+  vT = const_vec(odd(ordmax)? ordmax << 1: ordmax, NULL);
+  vt = fetch_user_var("t");
+  P = polcyclo(ordmax, vt);
+  gel(vT,ordmax) = Qab_trace_init(ordmax, ordmax, P, P);
   deghecke = myeulerphiu(ordmax);
   Lvchi = mklvchi(bnr, con, cycn); l = lg(Lvchi);
   if (l == 1) return NULL;
   res = cgetg(l, t_VEC);
   for (j = 1; j < l; j++)
   {
-    GEN T, Tinit, v, vchi = ZV_to_zv(gel(Lvchi,j));
+    GEN T, v, vchi = ZV_to_zv(gel(Lvchi,j));
     GEN chi, chin = char_normalize_zv(vchi, cycn);
-    long ordw, vnum, k0;
+    long o, vnum, k0;
     v = bnrchartwist2conrey(chin, cycn, bnrconreyN, kroconreyN);
-    ordw = itou(Q_denom(v));
-    Tinit = Qab_trace_init(P, ordmax, ordw);
+    o = itou(Q_denom(v));
+    T = gel(vT, o);
+    if (!T) gel(vT,o) = T = Qab_trace_init(ordmax, o, P, polcyclo(o,vt));
     chi = conreydenormalize(znN, v);
     vnum = itou(znconreyexp(znN, chi));
     chi = ZV_to_zv(znconreychar(znN,chi));
-    degrel = deghecke / myeulerphiu(ordw);
-    k0 = zv_cyc_minimize(cycN, chi, coprimes_zv(ordw));
+    degrel = deghecke / degpol(gel(T,1));
+    k0 = zv_cyc_minimize(cycN, chi, coprimes_zv(o));
     vnum = Fl_powu(vnum, k0, N);
     /* encodes degrel forms: jdeg = 0..degrel-1 */
-    T = mkvecsmalln(6, N, k0, vnum, D, ordmax, degrel);
-    gel(res,j) = mkvec3(T, id, mkvec3(cycn,chin,Tinit));
+    gel(res,j) = mkvec3(mkvecsmalln(6, N, k0, vnum, D, ordmax, degrel),
+                        id, mkvec3(cycn,chin,T));
   }
   return res;
 }
@@ -9019,13 +9023,13 @@ static GEN
 mfeisensteinbasis_i(long N0, long k, GEN CHI)
 {
   GEN G = gel(CHI,1), chi = gel(CHI,2), vT = const_vec(myeulerphiu(N0), NULL);
-  GEN CHI0, GN, chiN, Lchi, LG, V, RES, NK, T;
+  GEN CHI0, GN, chiN, Lchi, LG, V, RES, NK, T, C = mfcharpol(CHI);
   long i, j, l, n, n1, N, ord = mfcharorder(CHI);
   long F = mfcharmodulus(CHI), vt = varn(mfcharpol(CHI));
 
   CHI0 = (F == 1)? CHI: mfchartrivial();
   j = 1; RES = cgetg(N0+1, t_VEC);
-  T = gel(vT,ord) = Qab_trace_init(polcyclo(ord,vt), ord, ord);
+  T = gel(vT,ord) = Qab_trace_init(ord, ord, C, C);
   if (F != 1 || k != 2)
   { /* N1 = 1 */
     NK = mkNK(F, k, CHI);
@@ -9085,7 +9089,7 @@ mfeisensteinbasis_i(long N0, long k, GEN CHI)
       if (ugcd(t, o12) == 1) Lchi[m] = 0;
     }
     T = gel(vT,o12);
-    if (!T) T = gel(vT,o12) = Qab_trace_init(polcyclo(o12,vt), o12, ord);
+    if (!T) T = gel(vT,o12) = Qab_trace_init(o12, ord, polcyclo(o12,vt), C);
     NK = mkNK(N12, k, CHI);
     gel(RES, j++) = mfeisenstein2all(N0, NK, k, CHI1, CHI2, T, o12);
   }
@@ -10477,7 +10481,7 @@ mf2init_Nkchi(long N, long r, GEN CHI, long space, long flraw)
     Minvmat = RgM_Minv_mul(NULL, Minv); /* mod T */
     if (o1 != o)
     {
-      GEN tr = Qab_trace_init(mfcharpol(CHI), o, o1);
+      GEN tr = Qab_trace_init(o, o1, mfcharpol(CHI), mfcharpol(CHI1));
       Minvmat = QabM_tracerel(tr, 0, Minvmat);
     }
     /* Minvmat mod T1 = charpol(CHI1) */
@@ -11026,8 +11030,8 @@ bestapprnf2(GEN V, long m, GEN D, long prec)
   f = znstar_conductor_bits(Flv_to_F2v(H));
   if (f == 1) return gdiv(V, D);
   if (f == m) return gmodulo(gdiv(V, D), P);
-  Tinit = Qab_trace_init(P, m, f);
-  Pf = gel(Tinit,1);
+  Pf = polcyclo(f, vt);
+  Tinit = Qab_trace_init(m, f, P, Pf);
   Vl = QabV_tracerel(Tinit, 0, Vl);
   return gmodulo(gdiv(Vl, muliu(D, degpol(P)/degpol(Pf))), Pf);
 }
@@ -11151,7 +11155,7 @@ mf2basis(long N, long r, GEN CHI, GEN *pCHI1, long space)
     if (o2 == o1) M2 = liftpol_shallow(M2);
     else
     {
-      GEN tr = Qab_trace_init(mfcharpol(CHI2), o2, o1);
+      GEN tr = Qab_trace_init(o2, o1, mfcharpol(CHI2), mfcharpol(CHI1));
       M2 = QabM_tracerel(tr, 0, M2);
     }
   }
