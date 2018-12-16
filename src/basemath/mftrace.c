@@ -6238,24 +6238,16 @@ Miyake(GEN vchi, GEN gb, GEN cycn)
 /* list of Hecke characters not induced by a Dirichlet character up to Galois
  * conjugation, whose conductor is bnr.cond; cycn = cyc_normalize(bnr.cyc)*/
 static GEN
-mklvchi(GEN bnr, GEN con, GEN cycn)
+mklvchi(GEN bnr, GEN cycn, GEN gb)
 {
-  GEN gb = NULL, cyc = bnr_get_cyc(bnr), cycsmall = ZV_to_zv(cyc);
+  GEN cyc = bnr_get_cyc(bnr), cycsmall = ZV_to_zv(cyc);
   GEN vchi = cyc2elts(cycsmall);
   long ordmax = cycsmall[1], c, i, l;
-  if (con)
-  {
-    GEN g = bnr_get_gen(bnr), nf = bnr_get_nf(bnr);
-    long lg = lg(g);
-    gb = cgetg(lg, t_VEC);
-    for (i = 1; i < lg; i++)
-      gel(gb,i) = ZV_to_zv(isprincipalray(bnr, galoisapply(nf, con, gel(g,i))));
-  }
   l = lg(vchi);
   for (i = c = 1; i < l; i++)
   {
     GEN chi = gel(vchi,i);
-    if (!con || Miyake(chi, gb, cycn)) gel(vchi, c++) = Flv_to_ZV(chi);
+    if (!gb || Miyake(chi, gb, cycn)) gel(vchi, c++) = Flv_to_ZV(chi);
   }
   setlg(vchi, c); l = c;
   for (i = 1; i < l; i++)
@@ -6280,21 +6272,40 @@ mklvchi(GEN bnr, GEN con, GEN cycn)
   setlg(vchi, c); return vchi;
 }
 
+static GEN
+get_gb(GEN bnr, GEN con)
+{
+  GEN gb, g = bnr_get_gen(bnr), nf = bnr_get_nf(bnr);
+  long i, l = lg(g);
+  gb = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+    gel(gb,i) = ZV_to_zv(isprincipalray(bnr, galoisapply(nf, con, gel(g,i))));
+  return gb;
+}
+static GEN
+get_bnrconreyN(GEN bnr, GEN znN)
+{
+  GEN z, g = znstar_get_conreygen(znN);
+  long i, l = lg(g);
+  z = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(z,i) = ZV_to_zv(isprincipalray(bnr,gel(g,i)));
+  return z;
+}
 /* con = NULL if D > 0 or if D < 0 and id != idcon. */
 static GEN
 mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN con)
 {
   GEN bnr = dihan_bnr(bnf, id), cyc = ZV_to_zv( bnr_get_cyc(bnr) );
-  GEN bnrconreyN, cycn, cycN, Lvchi, res, g, P, vT;
-  long i, j, ordmax, l, lc, deghecke, degrel, vt;
+  GEN bnrconreyN, cycn, cycN, Lvchi, res, P, vT;
+  long j, ordmax, l, lc, deghecke, degrel, vt;
 
   lc = lg(cyc); if (lc == 1) return NULL;
-  g = znstar_get_conreygen(znN); l = lg(g);
-  bnrconreyN = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-    gel(bnrconreyN,i) = ZV_to_zv(isprincipalray(bnr,gel(g,i)));
-
   cycn = cyc_normalize_zv(cyc);
+  Lvchi = mklvchi(bnr, cycn, con? get_gb(bnr, con): NULL);
+  l = lg(Lvchi);
+  if (l == 1) return NULL;
+
+  bnrconreyN = get_bnrconreyN(bnr, znN);
   cycN = ZV_to_zv(znstar_get_cyc(znN));
   ordmax = cyc[1];
   vT = const_vec(odd(ordmax)? ordmax << 1: ordmax, NULL);
@@ -6302,8 +6313,6 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
   P = polcyclo(ordmax, vt);
   gel(vT,ordmax) = Qab_trace_init(ordmax, ordmax, P, P);
   deghecke = myeulerphiu(ordmax);
-  Lvchi = mklvchi(bnr, con, cycn); l = lg(Lvchi);
-  if (l == 1) return NULL;
   res = cgetg(l, t_VEC);
   for (j = 1; j < l; j++)
   {
@@ -6327,13 +6336,19 @@ mfdihedralcommon(GEN bnf, GEN id, GEN znN, GEN kroconreyN, long N, long D, GEN c
   return res;
 }
 
+static long
+not_cond(long D, long n)
+{
+  if (D > 0) return n == 4 && (D&7L) != 1;
+  return n == 2 || n == 3 || (n == 4 && (D&7L)==1);
+}
 /* Append to v all dihedral weight 1 forms coming from D, if fundamental.
  * level in [l1, l2] */
 static void
 append_dihedral(GEN v, long D, long l1, long l2)
 {
-  long Da = labs(D), no, N, i, numi, ct, min, max;
-  GEN bnf, con, LI, resall, varch;
+  long Da = labs(D), no, i, numi, ct, min, max;
+  GEN bnf, con, LI, resall, arch1, arch2;
   pari_sp av;
 
   /* min <= Nf <= max */
@@ -6355,42 +6370,45 @@ append_dihedral(GEN v, long D, long l1, long l2)
   if (D > 0)
   {
     numi <<= 1;
-    varch = mkvec2(mkvec2(gen_1,gen_0), mkvec2(gen_0,gen_1));
+    arch1 = mkvec2(gen_1,gen_0);
+    arch2 = mkvec2(gen_0,gen_1);
   }
   else
-    varch = NULL;
+    arch1 = arch2 = NULL;
   resall = cgetg(numi+1, t_VEC); ct = 1;
-  for (no = min; no <= max; no++)
+  for (no = min; no <= max; no++) if (!not_cond(D, no))
   {
-    GEN LIs, znN, conreyN, kroconreyN;
-    long flcond, lgc, lglis;
-    if (D < 0)
-      flcond = (no == 2 || no == 3 || (no == 4 && (D&7L)==1));
-    else
-      flcond = (no == 4 && (D&7L) != 1);
-    if (flcond) continue;
-    LIs = gel(LI, no);
-    N = Da*no;
-    znN = znstar0(utoi(N), 1);
+    long N = Da*no, lgc, lglis;
+    GEN LIs = gel(LI, no), znN = znstar0(utoipos(N), 1), conreyN, kroconreyN;
+
     conreyN = znstar_get_conreygen(znN); lgc = lg(conreyN);
     kroconreyN = cgetg(lgc, t_VECSMALL);
     for (i = 1; i < lgc; i++) kroconreyN[i] = krosi(D, gel(conreyN, i));
     lglis = lg(LIs);
     for (i = 1; i < lglis; i++)
     {
-      GEN id = gel(LIs, i), idcon, conk;
-      long j, inf, maxinf;
+      GEN id = gel(LIs, i), idcon, z;
+      long j;
       if (typ(id) == t_INT) continue;
       idcon = galoisapply(bnf, con, id);
-      conk = (D < 0 && gequal(idcon, id)) ? con : NULL;
       for (j = i; j < lglis; j++)
         if (gequal(idcon, gel(LIs, j))) { gel(LIs, j) = gen_0; break; }
-      maxinf = (D < 0 || gequal(idcon,id))? 1: 2;
-      for (inf = 1; inf <= maxinf; inf++)
+      if (D < 0)
       {
-        GEN ide = (D > 0)? mkvec2(id, gel(varch,inf)): id;
-        GEN res = mfdihedralcommon(bnf, ide, znN, kroconreyN, N, D, conk);
-        if (res) gel(resall, ct++) = res;
+        GEN conk = i == j ? con : NULL;
+        z = mfdihedralcommon(bnf, id, znN, kroconreyN, N, D, conk);
+        if (z) gel(resall, ct++) = z;
+      }
+      else
+      {
+        GEN ide;
+        ide = mkvec2(id, arch1);
+        z = mfdihedralcommon(bnf, ide, znN, kroconreyN, N, D, NULL);
+        if (z) gel(resall, ct++) = z;
+        if (gequal(idcon,id)) continue;
+        ide = mkvec2(id, arch2);
+        z = mfdihedralcommon(bnf, ide, znN, kroconreyN, N, D, NULL);
+        if (z) gel(resall, ct++) = z;
       }
     }
   }
