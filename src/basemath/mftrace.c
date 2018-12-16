@@ -421,31 +421,25 @@ phipart(long g, long q)
   }
   return g;
 }
-/* Trace(zeta_N^k) from Q(zeta_N) to Q(\zeta_N), reduced mod t^m-1.
- * With k > 0, N = M*d and N, M != 2 mod 4 and m = M or 2M. */
-static GEN
-tracerelz(long d, long m, long M, long k, long vt)
+/* Set s,v s.t. Trace(zeta_N^k) from Q(zeta_N) to Q(\zeta_N) = s * zeta_M^v
+ * With k > 0, N = M*d and N, M != 2 mod 4 */
+static long
+tracerelz(long *pv, long d, long M, long k)
 {
-  long s, v, g, q, muq;
-  if (d == 1)
+  long s, g, q, muq;
+  if (d == 1) { *pv = k; return 1; }
+  *pv = 0; g = ugcd(k, d); q = d / g;
+  muq = mymoebiusu(q); if (!muq) return 0;
+  if (M != 1)
   {
-    v = k; if (m != M) v *= 2;
-    return mygmodulo_lift(v, m, gen_1, vt);
+    long v = Fl_invsafe(q % M, M);
+    if (!v) return 0;
+    *pv = (v * (k/g)) % M;
   }
-  g = ugcd(k, d); q = d / g; muq = mymoebiusu(q);
-  if (!muq) return gen_0;
-  if (M == 1)
-  {
-    s = phipart(g, q); if (muq < 0) s = -s;
-    return stoi(s);
-  }
-  v = Fl_invsafe(q % M, M); if (!v) return gen_0;
   s = phipart(g, M*q); if (muq < 0) s = -s;
-  v = (v*(k/g)) % M; /* Tr = s * zeta_M^v */
-  if (m != M) v *= 2;/* Tr = s * zeta_m^v */
-  return mygmodulo_lift(v, m, stoi(s), vt);
+  return s;
 }
-/* Pn = polcyclo(n), Pm = polcyclo(m) */
+/* Pi = polcyclo(i), i = m or n. Let Ki = Q(zeta_i), initialize Tr_{Kn/Km} */
 GEN
 Qab_trace_init(long n, long m, GEN Pn, GEN Pm)
 {
@@ -463,10 +457,16 @@ Qab_trace_init(long n, long m, GEN Pn, GEN Pm)
   a = N / M;
   for (i = 1; i < d; i++)
   { /* if n = 2N, zeta_n^i = (-1)^i zeta_N^k */
-    long k = (N == n)? i: ((odd(i)? i + N: i) >> 1);
-    GEN t = tracerelz(a, m, M, k, vt);
-    if (N != n && odd(i)) t = gneg(t);
-    gel(T,i+1) = t;
+    long s, v, k;
+    GEN t = gen_0;
+    k = (N == n)? i: ((odd(i)? i + N: i) >> 1);
+    if ((s = tracerelz(&v, a, M, k)))
+    {
+      if (m != M) v *= 2;/* Tr = s * zeta_m^v */
+      if (n != N && odd(i)) s = -s;
+      t = mygmodulo_lift(v, m, stoi(s), vt);
+    }
+    gel(T,i+1) = t; /* Tr_{Kn/Km} zeta_n^i */
   }
   return mkvec3(Pm, Pn, T);
 }
