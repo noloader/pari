@@ -150,6 +150,7 @@ BA  27- new GP functions export, unexport, exportall, unexportall
     28- [libpari] Fp_divu
 BA  29- [libpari] ZpXQX_liftroots
     30- new GP functions getlocalprec, getlocalbitprec
+    31- [libpari] guncloneNULL, gluncloneNULL_deep
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

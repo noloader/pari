@@ -4159,7 +4159,7 @@ START:
   {
     for (i = 1; i < lg(computed); i++)
       try_elt(&cache, &F, nf, gel(computed, i), fact);
-    if (isclone(computed)) gunclone(computed);
+    clone_unlock(computed);
     if (DEBUGLEVEL && i > 1)
     {
       err_printf("\n");

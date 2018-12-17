@@ -361,8 +361,7 @@ FreeRootTable(GEN T)
   if (T)
   {
     long j, l = lg(T);
-    for (j = 1; j < l; j++)
-      if (gel(T,j)) gunclone(gel(T,j));
+    for (j = 1; j < l; j++) guncloneNULL(gel(T,j));
   }
 }
 

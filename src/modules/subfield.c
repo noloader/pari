@@ -695,7 +695,7 @@ compute_data(blockdata *B)
   }
   if (B->DATA) {
     DATA = gclone(DATA);
-    if (isclone(B->DATA)) gunclone(B->DATA);
+    guncloneNULL(B->DATA);
   }
   B->DATA = DATA;
 }
@@ -772,7 +772,7 @@ test_block(blockdata *B, GEN L, GEN D)
   if (sub) {
     GEN old = L;
     L = gclone( L? shallowconcat(L, sub): sub );
-    if (old) gunclone(old);
+    guncloneNULL(old);
   }
   set_avma(av); return L;
 }
@@ -789,8 +789,7 @@ subfields_of_given_degree(blockdata *B)
   L = calc_block(B, B->S->Z, cgetg(1,t_VEC), NULL);
   if (DEBUGLEVEL>9)
     err_printf("\nSubfields of degree %ld: %Ps\n", B->d, L? L: cgetg(1,t_VEC));
-  if (isclone(B->DATA)) gunclone(B->DATA);
-  set_avma(av); return L;
+  clone_unlock(B->DATA); set_avma(av); return L;
 }
 
 static GEN

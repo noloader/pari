@@ -547,7 +547,7 @@ FindModulus(GEN bnr, GEN dtQ, long *newprec)
             if (oldcpl < 0 || cpl < oldcpl)
             {
               *newprec = pr;
-              if (rep) gunclone(rep);
+              guncloneNULL(rep);
               rep    = gclone(p2);
               oldcpl = cpl;
             }

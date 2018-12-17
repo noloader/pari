@@ -2433,7 +2433,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
     err_printf("\\\\ MATRIX READ BY MPQS\nFREL=%Ps\n",m);
 
   ker_m = F2m_ker_sp(m,0); rank = lg(ker_m)-1;
-  if (isclone(m)) gunclone(m);
+  clone_unlock(m);
 
   if (DEBUGLEVEL >= 4)
   {

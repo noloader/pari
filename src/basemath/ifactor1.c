@@ -3558,7 +3558,7 @@ aux_end(GEN M, GEN n, long nb)
   GEN P,E, z = (GEN)avma;
   long i;
 
-  if (n) gunclone(n);
+  guncloneNULL(n);
   P = cgetg(nb+1,t_COL);
   E = cgetg(nb+1,t_COL);
   for (i=nb; i; i--)

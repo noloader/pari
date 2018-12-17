@@ -35,11 +35,11 @@ pari_init_floats(void)
 void
 pari_close_floats(void)
 {
-  if (gcatalan) gunclone(gcatalan);
-  if (geuler) gunclone(geuler);
-  if (gpi) gunclone(gpi);
-  if (bernzone) gunclone(bernzone);
-  if (glog2) gunclone(glog2);
+  guncloneNULL(gcatalan);
+  guncloneNULL(geuler);
+  guncloneNULL(gpi);
+  guncloneNULL(bernzone);
+  guncloneNULL(glog2);
 }
 
 /********************************************************************/
@@ -133,11 +133,7 @@ abpq_sum(struct abpq_res *r, long n1, long n2, struct abpq *A)
 /* replace *old clone by c. Protect against SIGINT */
 static void
 swap_clone(GEN *old, GEN c)
-{
-  GEN tmp = *old;
-  *old = c;
-  if (tmp) gunclone(tmp);
-}
+{ GEN tmp = *old; *old = c; guncloneNULL(tmp); }
 
 /*                         ----
  *  53360 (640320)^(1/2)   \    (6n)! (545140134 n + 13591409)

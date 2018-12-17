@@ -52,7 +52,7 @@ return0(GEN x)
 {
   GEN y = br_res;
   br_res = (x && x != gnil)? gcloneref(x): NULL;
-  if (y) gunclone_deep(y);
+  guncloneNULL_deep(y);
   br_status = br_RETURN; return NULL;
 }
 
@@ -349,7 +349,7 @@ change_compo(matcomp *c, GEN res)
     {
       GEN p1 = gcoeff(p,c->full_row,i); /* Protect against SIGINT */
       gcoeff(p,c->full_row,i) = gclone(gel(res,i));
-      if (isclone(p1)) gunclone_deep(p1);
+      clone_unlock_deep(p1);
     }
     return;
   }
@@ -444,7 +444,7 @@ restore_trace(long nbtrace)
   for(j=1;j<=nbtrace;j++)
   {
     GEN C = trace[s_trace.n-j].closure;
-    if (isclone(C)) gunclone(C);
+    clone_unlock(C);
   }
   s_trace.n-=nbtrace;
 }

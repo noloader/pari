@@ -1725,8 +1725,7 @@ galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
     deg = pr; set_avma(btop);
   }
   for (i = 1; i <= gf->fp; i++)
-    for (j = 1; j <= gt.g; j++)
-      if (mael(gt.C,i,j)) gunclone(gmael(gt.C,i,j));
+    for (j = 1; j <= gt.g; j++) guncloneNULL(gmael(gt.C,i,j));
   if (DEBUGLEVEL>=4 && res) err_printf("Best lift: %d\n",deg);
   if (deg==1) return gc_NULL(ltop);
   else

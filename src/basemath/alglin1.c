@@ -4338,7 +4338,7 @@ ZM_pivots(GEN M0, long *rr)
       if (rp == rmin) { rbest = rp; goto END; } /* maximal rank, return */
       if (rp < rbest) { /* save best r so far */
         rbest = rp;
-        if (dbest) gunclone(dbest);
+        guncloneNULL(dbest);
         dbest = gclone(d);
         if (beenthere) break;
       }
@@ -4364,7 +4364,7 @@ ZM_pivots(GEN M0, long *rr)
     set_avma(av);
   }
 END:
-  *rr = rbest; if (dbest) gunclone(dbest);
+  *rr = rbest; guncloneNULL(dbest);
   return gerepileuptoleaf(av0, d);
 }
 

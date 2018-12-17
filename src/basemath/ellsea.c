@@ -216,9 +216,9 @@ divpol_free(GEN t)
   long i, l = lg(gel(t,1));
   for (i=1; i<l; i++)
   {
-    if (gmael(t,1,i)) gunclone(gmael(t,1,i));
-    if (gmael(t,2,i)) gunclone(gmael(t,2,i));
-    if (gmael(t,3,i)) gunclone(gmael(t,3,i));
+    guncloneNULL(gmael(t,1,i));
+    guncloneNULL(gmael(t,2,i));
+    guncloneNULL(gmael(t,3,i));
   }
 }
 

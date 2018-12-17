@@ -1036,8 +1036,8 @@ START:
     if (DEBUGLEVEL>2 && LIMC > LIMC0)
       err_printf("%s*** Bach constant: %f\n", FIRST?"":"\n", LIMC/LOGD2);
     FIRST = 0; set_avma(av);
-    if (BQ.subFB) gunclone(BQ.subFB);
-    if (BQ.powsubFB) gunclone(BQ.powsubFB);
+    guncloneNULL(BQ.subFB);
+    guncloneNULL(BQ.powsubFB);
     clearhash(BQ.hashtab);
     if (LIMC < cp) LIMC = cp;
     if (LIMC2 < LIMC) LIMC2 = LIMC;

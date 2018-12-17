@@ -4671,7 +4671,7 @@ pari_add_hist(GEN x, long time)
   gp_hist *H = GP_DATA->hist;
   ulong i = H->total % H->size;
   H->total++;
-  if (H->v[i].z) gunclone(H->v[i].z);
+  guncloneNULL(H->v[i].z);
   H->v[i].t = time;
   H->v[i].z = gclone(x);
 }

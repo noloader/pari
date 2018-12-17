@@ -1448,12 +1448,18 @@ current implementation, this is an alias for \kbd{killblock}, but it is cleaner
 to kill clones (valid \kbd{GEN}s) using this function, and other blocks using
 \kbd{killblock}.
 
+\fun{void}{guncloneNULL}{GEN x} same as \kbd{gunclone}, first checking
+whether $x$ is \kbd{NULL} (and doing nothing in this case).
+
 \fun{void}{gunclone_deep}{GEN x} is only useful in the context of the GP
 interpreter which may replace arbitrary components of container types
 (\typ{VEC}, \typ{COL}, \typ{MAT}, \typ{LIST}) by clones. If $x$ is such
 a container, the function recursively deletes all clones among the components
 of $x$, then unclones $x$. Useless in library mode: simply use
 \kbd{gunclone}.
+
+\fun{void}{guncloneNULL_deep}{GEN x} same as \kbd{gunclone\_deep}, first
+checking whether $x$ is \kbd{NULL} (and doing nothing in this case).
 
 \fun{void}{traverseheap}{void(*f)(GEN, void *), void *data} this applies
 \kbd{f($x$, data)} to each object $x$ on the PARI heap, most recent

@@ -1834,7 +1834,7 @@ RgXQX_divrem(GEN x, GEN y, GEN T, GEN *pr)
     if (lead) p1 = gmul(grem(p1, T), lead);
     tetpil=avma; gel(z,i-dy) = gerepile(av,tetpil, grem(p1, T));
   }
-  if (!pr) { if (lead) gunclone(lead); return z-2; }
+  if (!pr) { guncloneNULL(lead); return z-2; }
 
   rem = (GEN)avma; av = (pari_sp)new_chunk(dx+3);
   for (sx=0; ; i--)
@@ -1847,7 +1847,7 @@ RgXQX_divrem(GEN x, GEN y, GEN T, GEN *pr)
   }
   if (pr == ONLY_DIVIDES)
   {
-    if (lead) gunclone(lead);
+    guncloneNULL(lead);
     if (sx) return gc_NULL(av0);
     set_avma((pari_sp)rem); return z-2;
   }
@@ -1864,7 +1864,7 @@ RgXQX_divrem(GEN x, GEN y, GEN T, GEN *pr)
     tetpil=avma; gel(rem,i) = gerepile(av,tetpil, grem(p1, T));
   }
   rem -= 2;
-  if (lead) gunclone(lead);
+  guncloneNULL(lead);
   if (!sx) (void)normalizepol_lg(rem, lr);
   if (pr == ONLY_REM) return gerepileupto(av0,rem);
   *pr = rem; return z-2;

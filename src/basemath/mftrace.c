@@ -2186,13 +2186,13 @@ static THREAD cache caches[] = {
 static void
 cache_reset(long id) { caches[id].miss = caches[id].maxmiss = 0; }
 static void
-cache_delete(long id) { if (caches[id].cache) gunclone(caches[id].cache); }
+cache_delete(long id) { guncloneNULL(caches[id].cache); }
 static void
 cache_set(long id, GEN S)
 {
   GEN old = caches[id].cache;
   caches[id].cache = gclone(S);
-  if (old) gunclone(old);
+  guncloneNULL(old);
 }
 
 /* handle a cache miss: store stats, possibly reset table; return value

@@ -1242,6 +1242,11 @@ gerepilecopy(pari_sp av, GEN x)
   }
 }
 
+INLINE void
+guncloneNULL(GEN x) { if (x) gunclone(x); }
+INLINE void
+guncloneNULL_deep(GEN x) { if (x) gunclone_deep(x); }
+
 /* Takes an array of pointers to GENs, of length n. Copies all
  * objects to contiguous locations and cleans up the stack between
  * av and avma. */

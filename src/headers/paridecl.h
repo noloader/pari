@@ -5692,6 +5692,8 @@ INLINE double gtodouble(GEN x);
 INLINE GEN    gtofp(GEN z, long prec);
 INLINE GEN    gtomp(GEN z, long prec);
 INLINE long   gtos(GEN x);
+INLINE void   guncloneNULL(GEN x);
+INLINE void   guncloneNULL_deep(GEN x);
 INLINE long   gval(GEN x, long v);
 INLINE GEN    identity_perm(long l);
 INLINE int    equali1(GEN n);

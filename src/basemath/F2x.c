@@ -2190,7 +2190,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
     if (lead) p1 = F2x_mul(p1, lead);
     tetpil=avma; gel(z,i-dy) = gerepile(av,tetpil,F2x_rem(p1,T));
   }
-  if (!pr) { if (lead) gunclone(lead); return z-2; }
+  if (!pr) { guncloneNULL(lead); return z-2; }
 
   rem = (GEN)avma; av = (pari_sp)new_chunk(dx+3);
   for (sx=0; ; i--)
@@ -2204,7 +2204,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
   }
   if (pr == ONLY_DIVIDES)
   {
-    if (lead) gunclone(lead);
+    guncloneNULL(lead);
     if (sx) return gc_NULL(av0);
     set_avma((pari_sp)rem); return z-2;
   }
@@ -2221,7 +2221,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
     tetpil=avma; gel(rem,i) = gerepile(av,tetpil, F2x_rem(p1, T));
   }
   rem -= 2;
-  if (lead) gunclone(lead);
+  guncloneNULL(lead);
   if (!sx) (void)F2xX_renormalize(rem, lr);
   if (pr == ONLY_REM) return gerepileupto(av0,rem);
   *pr = rem; return z-2;
