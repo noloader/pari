@@ -288,16 +288,14 @@ static GEN
 rhs(GEN a4, GEN a6, long v)
 {
   GEN RHS = mkpoln(4, gen_1, gen_0, a4, a6);
-  setvarn(RHS, v);
-  return RHS;
+  setvarn(RHS, v); return RHS;
 }
 
 static GEN
 Flxq_rhs(GEN a4, GEN a6, long v, long vs)
 {
   GEN RHS = mkpoln(4, pol1_Flx(vs),  pol0_Flx(vs), a4, a6);
-  setvarn(RHS, v);
-  return RHS;
+  setvarn(RHS, v); return RHS;
 }
 
 struct divpolmod_red
@@ -365,15 +363,11 @@ Fq_elldivpolmod(GEN a4, GEN a6, long n, GEN h, GEN T, GEN p)
 
 GEN
 FpXQ_elldivpol(GEN a4, GEN a6, long n, GEN T, GEN p)
-{
-  return Fq_elldivpolmod(a4,a6,n,NULL,T,p);
-}
+{ return Fq_elldivpolmod(a4,a6,n,NULL,T,p); }
 
 GEN
 Fp_elldivpol(GEN a4, GEN a6, long n, GEN p)
-{
-  return Fq_elldivpolmod(a4,a6,n,NULL,NULL,p);
-}
+{ return Fq_elldivpolmod(a4,a6,n,NULL,NULL,p); }
 
 static GEN
 Fq_ellyn(struct divpolmod_red *d, long k)
@@ -400,20 +394,14 @@ Fq_ellyn(struct divpolmod_red *d, long k)
 
 static void
 Fq_elldivpolmod_close(struct divpolmod_red *d)
-{
-  divpol_free(d->t);
-}
+{ divpol_free(d->t); }
 static GEN
 Fq_elldivpol2(GEN a4, GEN a6, GEN T, GEN p)
-{
-  return mkpoln(4, utoi(4), gen_0, Fq_mulu(a4, 4, T, p), Fq_mulu(a6, 4, T, p));
-}
+{ return mkpoln(4, utoi(4), gen_0, Fq_mulu(a4, 4, T, p), Fq_mulu(a6, 4, T, p)); }
 
 static GEN
 Fq_elldivpol2d(GEN a4, GEN T, GEN p)
-{
-  return mkpoln(3, utoi(6), gen_0, Fq_mulu(a4, 2, T, p));
-}
+{ return mkpoln(3, utoi(6), gen_0, Fq_mulu(a4, 2, T, p)); }
 
 static GEN
 FqX_numer_isog_abscissa(GEN h, GEN a4, GEN a6, GEN T, GEN p, long vx)
@@ -457,15 +445,11 @@ Zq_sqrt(GEN b, GEN T, GEN q, GEN p, long e)
 
 static GEN
 Zq_divexact(GEN a, GEN b)
-{
-  return typ(a)==t_INT ? diviiexact(a, b): ZX_Z_divexact(a, b);
-}
+{ return typ(a)==t_INT ? diviiexact(a, b): ZX_Z_divexact(a, b); }
 
 static long
 Zq_pval(GEN a, GEN p)
-{
-  return typ(a)==t_INT ? Z_pval(a, p): ZX_pval(a, p);
-}
+{ return typ(a)==t_INT ? Z_pval(a, p): ZX_pval(a, p); }
 
 static GEN
 Zq_Z_div_safe(GEN a, GEN b, GEN T, GEN q, GEN p, long e)
@@ -551,9 +535,7 @@ Zq_ellj(GEN a4, GEN a6, GEN T, GEN p, GEN pp, long e)
 
 static GEN
 Fq_to_Flx(GEN a4, GEN T, ulong p)
-{
-  return typ(a4)==t_INT ? Z_to_Flx(a4, p, get_Flx_var(T)): ZX_to_Flx(a4, p);
-}
+{ return typ(a4)==t_INT ? Z_to_Flx(a4, p, get_Flx_var(T)): ZX_to_Flx(a4, p); }
 
 static GEN
 Flxq_find_eigen_Frobenius(GEN a4, GEN a6, GEN h, GEN T, ulong p)
@@ -1952,6 +1934,4 @@ Fq_ellcard_SEA(GEN a4, GEN a6, GEN q, GEN T, GEN p, long smallfact)
 
 GEN
 Fp_ellcard_SEA(GEN a4, GEN a6, GEN p, long smallfact)
-{
-  return Fq_ellcard_SEA(a4, a6, p, NULL, p, smallfact);
-}
+{ return Fq_ellcard_SEA(a4, a6, p, NULL, p, smallfact); }
