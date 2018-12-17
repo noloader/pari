@@ -5948,7 +5948,7 @@ mfisnotA5(GEN F)
   return (typ(nfisincl(Q, T)) == t_INT);
 }
 
-/* Given v[p+1]^2 / chi(p) - 2 = z + 1/z with z primitive root of unity of order n,
+/* v[p+1]^2 / chi(p) - 2 = z + 1/z with z primitive root of unity of order n,
  * return n */
 static long
 mffindrootof1(GEN v, long p, GEN CHI)
