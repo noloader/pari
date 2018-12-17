@@ -3172,8 +3172,7 @@ Flxq_conjvec(GEN x, GEN T, ulong p)
 GEN
 gener_Flxq(GEN T, ulong p, GEN *po)
 {
-  long i, j;
-  long vT = get_Flx_var(T), f =get_Flx_degree(T);
+  long i, j, vT = get_Flx_var(T), f = get_Flx_degree(T);
   ulong p_1;
   GEN g, L, L2, o, q, F;
   pari_sp av0, av;
@@ -3195,10 +3194,10 @@ gener_Flxq(GEN T, ulong p, GEN *po)
   L = cgetg(1, t_VECSMALL);
   if (p > 3)
   {
-    ulong t;
-    (void)u_lvalrem(p_1, 2, &t);
-    L = gel(factoru(t),1);
-    for (i=lg(L)-1; i; i--) L[i] = p_1 / L[i];
+    ulong t = p_1 >> vals(p_1);
+    GEN P = gel(factoru(t), 1);
+    L = cgetg_copy(P, &i);
+    while (--i) L[i] = p_1 / P[i];
   }
   o = factor_pn_1(utoipos(p),f);
   L2 = leafcopy( gel(o, 1) );

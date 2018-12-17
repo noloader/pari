@@ -54,16 +54,11 @@ static GEN
 u_is_gener_expo(ulong p, GEN L0)
 {
   const ulong q = p >> 1;
-  long i, l;
+  long i;
   GEN L;
-  if (L0) {
-    l = lg(L0);
-    L = cgetg(l, t_VECSMALL);
-  } else {
-    L0 = L = u_odd_prime_divisors(q);
-    l = lg(L);
-  }
-  for (i=1; i<l; i++) L[i] = q / uel(L0,i);
+  if (!L0) L0 = u_odd_prime_divisors(q);
+  L = cgetg_copy(L0,&i);
+  while (--i) L[i] = q / uel(L0,i);
   return L;
 }
 
