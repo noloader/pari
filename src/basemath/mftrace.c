@@ -2266,10 +2266,11 @@ getcache(void)
 void
 pari_close_mf(void)
 {
-  cache_delete(cache_DIH);
-  cache_delete(cache_DIV);
   cache_delete(cache_FACT);
+  cache_delete(cache_DIV);
   cache_delete(cache_H);
+  cache_delete(cache_D);
+  cache_delete(cache_DIH);
 }
 
 /*************************************************************************/
