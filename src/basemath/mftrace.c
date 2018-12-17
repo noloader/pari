@@ -2196,7 +2196,7 @@ cache_set(long id, GEN S)
 
 /* handle a cache miss: store stats, possibly reset table; return value
  * if (now) cached; return NULL on failure. HACK: some caches contain an
- * ulong where the 0 value is impossible, and return it (typecase to GEN) */
+ * ulong where the 0 value is impossible, and return it (typecast to GEN) */
 static GEN
 cache_get(long id, ulong D)
 {
