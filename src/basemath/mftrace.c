@@ -2163,11 +2163,10 @@ enum { cache_FACT, cache_DIV, cache_H, cache_D, cache_DIH };
 typedef struct {
   const char *name;
   GEN cache;
-  ulong minself;
-  ulong maxself;
+  ulong minself, maxself;
   void (*init)(long);
-  ulong miss;
-  ulong maxmiss;
+  ulong miss, maxmiss;
+  long compressed;
 } cache;
 
 static void constfact(long lim);
@@ -2176,11 +2175,11 @@ static void consttabh(long lim);
 static void consttabdihedral(long lim);
 static void constcoredisc(long lim);
 static THREAD cache caches[] = {
-{ "Factors",  NULL,  50000,    50000, &constfact, 0, 0 },
-{ "Divisors", NULL,  50000,    50000, &constdiv, 0, 0 },
-{ "H",        NULL, 100000, 10000000, &consttabh, 0, 0 },
-{ "CorediscF",NULL, 100000, 10000000, &constcoredisc, 0, 0 },
-{ "Dihedral", NULL,   1000,     3000, &consttabdihedral, 0, 0 },
+{ "Factors",  NULL,  50000,    50000, &constfact, 0, 0, 0 },
+{ "Divisors", NULL,  50000,    50000, &constdiv, 0, 0, 0 },
+{ "H",        NULL, 100000, 10000000, &consttabh, 0, 0, 1 },
+{ "CorediscF",NULL, 100000, 10000000, &constcoredisc, 0, 0, 0 },
+{ "Dihedral", NULL,   1000,     3000, &consttabdihedral, 0, 0, 0 },
 };
 
 static void
@@ -2202,8 +2201,7 @@ static GEN
 cache_get(long id, ulong D)
 {
   cache *S = &caches[id];
-  /* cache_H is compressed: D=0,1 mod 4 */
-  const ulong d = (id == cache_H)? D>>1: D;
+  const ulong d = S->compressed? D>>1: D;
   ulong max, l;
 
   if (!S->cache)
