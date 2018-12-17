@@ -149,6 +149,7 @@ ellmodulareqn(long ell, long vx, long vy)
 
 static GEN divpol(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff);
 
+/* f_n^2, return ff->(zero|one) or a clone */
 static GEN
 divpol_f2(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
 {
@@ -159,6 +160,7 @@ divpol_f2(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
   return gmael(t,2,n);
 }
 
+/* f_n f_{n-2}, return ff->zero or a clone */
 static GEN
 divpol_ff(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
 {
@@ -169,44 +171,43 @@ divpol_ff(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
   return gmael(t,3,n);
 }
 
+/* f_n, return ff->zero or a clone */
 static GEN
 divpol(GEN t, GEN r2, long n, void *E, const struct bb_algebra *ff)
 {
   long m = n/2;
   pari_sp av = avma;
-  GEN res;
+  GEN f;
   if (n==0) return ff->zero(E);
   if (gmael(t,1,n)) return gmael(t,1,n);
   switch(n)
   {
   case 1:
   case 2:
-    res = ff->one(E);
+    f = ff->one(E);
     break;
   default:
     if (odd(n))
       if (odd(m))
-        res = ff->sub(E, ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
-                                    divpol_f2(t,r2,m,E,ff)),
-                         ff->mul(E, r2,
-                                    ff->mul(E,divpol_ff(t,r2,m+1,E,ff),
-                                              divpol_f2(t,r2,m+1,E,ff))));
+        f = ff->sub(E, ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
+                                  divpol_f2(t,r2,m,E,ff)),
+                       ff->mul(E, r2,
+                                  ff->mul(E,divpol_ff(t,r2,m+1,E,ff),
+                                            divpol_f2(t,r2,m+1,E,ff))));
       else
-        res = ff->sub(E, ff->mul(E, r2,
-                                    ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
-                                               divpol_f2(t,r2,m,E,ff))),
-                         ff->mul(E, divpol_ff(t,r2,m+1,E,ff),
-                                    divpol_f2(t,r2,m+1,E,ff)));
-    else
-      res = ff->sub(E, ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
-                                  divpol_f2(t,r2,m-1,E,ff)),
-                       ff->mul(E, divpol_ff(t,r2,m,E,ff),
+        f = ff->sub(E, ff->mul(E, r2,
+                                  ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
+                                             divpol_f2(t,r2,m,E,ff))),
+                       ff->mul(E, divpol_ff(t,r2,m+1,E,ff),
                                   divpol_f2(t,r2,m+1,E,ff)));
+    else
+      f = ff->sub(E, ff->mul(E, divpol_ff(t,r2,m+2,E,ff),
+                                divpol_f2(t,r2,m-1,E,ff)),
+                     ff->mul(E, divpol_ff(t,r2,m,E,ff),
+                                divpol_f2(t,r2,m+1,E,ff)));
   }
-  res = ff->red(E, res);
-  gmael(t,1,n) = gclone(res);
-  set_avma(av);
-  return gmael(t,1,n);
+  gmael(t,1,n) = f = gclone( ff->red(E, f) );
+  set_avma(av); return f;
 }
 
 static void
