@@ -155,7 +155,7 @@ constbern(long nb)
   }
   bernset((GEN*)B + l, l, nb);
   if (DEBUGLEVEL) timer_printf(&T, "Bernoulli");
-  swap(B, bernzone); if (B) killblock(B);
+  swap(B, bernzone); guncloneNULL(B);
   set_avma(av);
 }
 /* Obsolete, kept for backward compatibility */

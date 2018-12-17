@@ -38,8 +38,8 @@ pari_close_floats(void)
   guncloneNULL(gcatalan);
   guncloneNULL(geuler);
   guncloneNULL(gpi);
-  guncloneNULL(bernzone);
   guncloneNULL(glog2);
+  guncloneNULL_deep(bernzone);
 }
 
 /********************************************************************/
