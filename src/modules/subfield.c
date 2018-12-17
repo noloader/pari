@@ -693,10 +693,7 @@ compute_data(blockdata *B)
     err_printf("2 * Hadamard bound * ind = %Ps\n",DATA[7]);
     err_printf("2 * M = %Ps\n",DATA[8]);
   }
-  if (B->DATA) {
-    DATA = gclone(DATA);
-    guncloneNULL(B->DATA);
-  }
+  if (B->DATA) { DATA = gclone(DATA); clone_unlock(B->DATA); }
   B->DATA = DATA;
 }
 
