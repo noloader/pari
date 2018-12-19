@@ -1339,6 +1339,10 @@ serequalXk(GEN x)
   return 1;
 }
 
+static GEN
+gsubst_v(GEN e, long v, GEN x)
+{ pari_APPLY_same(gsubst(e, v, gel(x,i))); }
+
 GEN
 gsubst(GEN x, long v, GEN y)
 {
@@ -1349,11 +1353,13 @@ gsubst(GEN x, long v, GEN y)
 
   switch(ty)
   {
+    case t_VEC: case t_COL:
+      return gsubst_v(x, v, y);
     case t_MAT:
       if (ly==1) return cgetg(1,t_MAT);
       if (ly == lgcols(y)) break;
       /* fall through */
-    case t_QFR: case t_QFI: case t_VEC: case t_COL:
+    case t_QFR: case t_QFI:
       pari_err_TYPE2("substitution",x,y);
       break; /* LCOV_EXCL_LINE */
   }

@@ -151,6 +151,7 @@ BA  27- new GP functions export, unexport, exportall, unexportall
 BA  29- [libpari] ZpXQX_liftroots
     30- new GP functions getlocalprec, getlocalbitprec
     31- [libpari] guncloneNULL, gluncloneNULL_deep
+    32- allow subst(e, x, vector v) for vector(subst(e, x, v[i]))
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
