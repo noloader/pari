@@ -72,6 +72,7 @@ BA  46- hyperellcharpoly: wrong results over Z/3Z
 FB  53- [Configure] library not found despite --with-readline-lib [#2097]
     54- besseli, besselj, besselk, besseln(nu, z): use asymptotic expansion
         for large z [#2006]
+    55- minpoly(Mod(1,t^2)) -> SEGV [#2102]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

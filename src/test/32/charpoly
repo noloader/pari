@@ -68,6 +68,7 @@ x^4 - 4*x^3 + 6*x^2 - 4*x + 2
 x^2
 x - 1
 x - 1
+x - 1
 []
 [[], [;]]
 
@@ -103,4 +104,7 @@ x - 1
   ***   at top-level: charpoly(Mod('b,'b^2+Mod('a,'a^2+1)),'newvar)
   ***                 ^---------------------------------------------
   *** charpoly: incorrect priority in RgXQ_charpoly: variable newvar < a
+  ***   at top-level: minpoly(Mod(y,x),'y)
+  ***                 ^--------------------
+  *** minpoly: incorrect priority in minpoly: variable x < y
 Total time spent: 4

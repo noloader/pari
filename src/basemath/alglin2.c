@@ -625,6 +625,7 @@ RgM_minpoly(GEN M, long v)
 {
   pari_sp av = avma;
   GEN V, W;
+  if (lg(M) == 1) return pol_1(v);
   M = RgM_Frobenius(M, 1, NULL, &V);
   W = minpoly_listpolslice(M, V, v);
   if (varncmp(v,gvar2(W)) >= 0)
@@ -691,23 +692,40 @@ matfrobenius(GEN M, long flag, long v)
 /*******************************************************************/
 
 static GEN
-easymin(GEN x, long v)
-{
-  GEN G, R, dR;
-  if (typ(x)==t_POLMOD && !issquarefree(gel(x,1))) return NULL;
-  R = easychar(x, v);
-  if (!R) return NULL;
-  dR = RgX_deriv(R);
-  if (!lgpol(dR)) return NULL;
-  G = RgX_normalize(RgX_gcd(R,dR));
-  return RgX_div(R,G);
-}
-static GEN
 RgXQ_minpoly_naive(GEN y, GEN P)
 {
   long n = lgpol(P);
   GEN M = ker(RgXQ_matrix_pow(y,n,n,P));
   return content(RgM_to_RgXV(M,varn(P)));
+}
+static GEN
+easymin(GEN x, long v)
+{
+  GEN G, R, dR;
+  long tx = typ(x);
+  if (tx == t_FFELT)
+  {
+    R = FpX_to_mod(FF_minpoly(x), FF_p_i(x));
+    setvarn(R,v); return R;
+  }
+  if (tx == t_POLMOD)
+  {
+    GEN a = gel(x,2), b = gel(x,1);
+    if (typ(a) != t_POL || varn(a) != varn(b))
+    {
+      if (varncmp(gvar(a), v) <= 0) pari_err_PRIORITY("minpoly", x, "<", v);
+      return deg1pol(gen_1, gneg_i(a), v);
+    }
+    if (!issquarefree(b))
+    {
+      R = RgXQ_minpoly_naive(a, b);
+      setvarn(R,v); return R;
+    }
+  }
+  R = easychar(x, v); if (!R) return NULL;
+  dR = RgX_deriv(R);  if (!lgpol(dR)) return NULL;
+  G = RgX_normalize(RgX_gcd(R,dR));
+  return RgX_div(R,G);
 }
 GEN
 minpoly(GEN x, long v)
@@ -715,22 +733,10 @@ minpoly(GEN x, long v)
   pari_sp av = avma;
   GEN P;
   if (v < 0) v = 0;
-  if (typ(x) == t_FFELT)
-  {
-    P = FpX_to_mod(FF_minpoly(x), FF_p_i(x));
-    setvarn(P,v); return gerepileupto(av,P);
-  }
   P = easymin(x,v);
   if (P) return gerepileupto(av,P);
-  set_avma(av);
-  if (typ(x) == t_POLMOD)
-  {
-    P = RgXQ_minpoly_naive(gel(x,2), gel(x,1));
-    setvarn(P,v); return gerepileupto(av,P);
-  }
-  if (typ(x) != t_MAT) pari_err_TYPE("minpoly",x);
-  if (lg(x) == 1) return pol_1(v);
-  return RgM_minpoly(x,v);
+  /* typ(x) = t_MAT */
+  set_avma(av); return RgM_minpoly(x,v);
 }
 
 /*******************************************************************/
