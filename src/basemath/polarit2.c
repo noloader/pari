@@ -3278,7 +3278,7 @@ static GEN
 RgX_disc_i(GEN P)
 {
   long n = degpol(P), dd;
-  GEN D, L, y;
+  GEN N, D, L, y;
   if (!signe(P) || !n) return Rg_get_0(P);
   if (n == 1) return Rg_get_1(P);
   if (n == 2) {
@@ -3286,8 +3286,10 @@ RgX_disc_i(GEN P)
     return gsub(gsqr(b), gmul2n(gmul(a,c),2));
   }
   y = RgX_deriv(P);
+  N = characteristic(P);
+  if (signe(N)) y = gmul(y, mkintmod(gen_1,N));
   if (!signe(y)) return Rg_get_0(y);
-  dd = degpol(P)-2 - degpol(y);
+  dd = n - 2 - degpol(y);
   if (isinexact(P))
     D = resultant2(P,y);
   else

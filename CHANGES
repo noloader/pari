@@ -73,6 +73,8 @@ FB  53- [Configure] library not found despite --with-readline-lib [#2097]
     54- besseli, besselj, besselk, besseln(nu, z): use asymptotic expansion
         for large z [#2006]
     55- minpoly(Mod(1,t^2)) -> SEGV [#2102]
+    56- ffgen(3^2,'a);poldisc(x^6+a*x+y) -> division by 0 [ positive
+        characteristic with a few t_INT coefficients ]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
