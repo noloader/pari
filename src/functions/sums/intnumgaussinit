@@ -5,7 +5,7 @@ Prototype: D0,L,p
 Help: intnumgaussinit({n}): initialize tables for n-point Gauss-Legendre
  integration on a compact interval.
 Doc: initialize tables for $n$-point Gauss-Legendre integration of
- a smooth function $f$ lon a compact
+ a smooth function $f$ on a compact
  interval $[a,b]$ at current \kbd{realprecision}. If $n$ is omitted, make a
  default choice $n \approx \kbd{realprecision}$, suitable for analytic
  functions on $[-1,1]$. The error is bounded by
