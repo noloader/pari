@@ -290,7 +290,7 @@ pollegendre_reduced(long n, long v)
   if (v<0) v = 0;
   /* pollegendre(-n) = pollegendre(n-1) */
   if (n < 0) n = -n-1;
-  if (n<=1) return pol_1(v);
+  if (n<=1) return n? scalarpol_shallow(gen_2,v): pol_1(v);
 
   N = n >> 1;
   q = cgetg(N+3, t_POL); r = q + N+2;

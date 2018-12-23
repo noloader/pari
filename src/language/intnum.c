@@ -231,7 +231,7 @@ intnumgaussinit(long n, long prec)
    * 2^n L_n' = 2 x dq(x^2), or q(x^2) + 2 x^2 dq(x^2) */
   q = pollegendre_reduced(n, 0); dq = ZX_deriv(q);
   R = ZX_Uspensky(q, gen_0, 1, 3*bitprec/2 + 32); /* positive roots of q */
-  m = (n + 1) >> 1;
+  settyp(R, t_VEC); m = (n + 1) >> 1;
   W = cgetg(m+1, t_VEC); /* W(r) = 2/(1-r^2)[L_n'(r)]^2 */
   if (nodd)
   { /* add middle node r = 0, W(0) =  2^(2n+1)/[q(0)]^2 */
@@ -272,7 +272,10 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     tab = intnumgaussinit(0,prec);
   else if (typ(tab) != t_INT)
   {
-    if (typ(tab) != t_VEC || lg(tab) != 3)
+    if (typ(tab) != t_VEC || lg(tab) != 3
+        || typ(gel(tab,1)) != t_VEC
+        || typ(gel(tab,2)) != t_VEC
+        || lg(gel(tab,1)) != lg(gel(tab,2)))
       pari_err_TYPE("intnumgauss",tab);
   }
   else
@@ -284,7 +287,7 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   b = gprec_w(b, prec2);
   bma = gmul2n(gsub(b,a), -1); /* (b-a)/2 */
   bpa = gadd(bma, a); /* (b+a)/2 */
-  if (odd(n))
+  if (!signe(gel(R,1)))
   { /* R[1] = 0, use middle node only once */
     S = gmul(gel(W,1), eval(E, bpa));
     i = 2;
@@ -296,9 +299,9 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   }
   for (; i <= n; ++i)
   {
-    GEN r = gel(R,i); /* != 0 */
-    GEN P = eval(E, gadd(bpa, gmul(bma, r)));
-    GEN M = eval(E, gsub(bpa, gmul(bma, r)));
+    GEN h = gmul(bma, gel(R,i)); /* != 0 */
+    GEN P = eval(E, gadd(bpa, h));
+    GEN M = eval(E, gsub(bpa, h));
     S = gadd(S, gmul(gel(W,i), gadd(P,M)));
     S = gprec_wensure(S, prec2);
   }
