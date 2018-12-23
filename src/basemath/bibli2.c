@@ -279,6 +279,32 @@ pollegendre(long n, long v)
   q[1] = evalsigne(1) | evalvarn(v);
   return gerepileupto(av, gmul2n(q,-n));
 }
+/* q such that Ln * 2^n = q(x^2) [n even] or x q(x^2) [n odd] */
+GEN
+pollegendre_reduced(long n, long v)
+{
+  long k, l, N;
+  pari_sp av;
+  GEN a, r, q;
+
+  if (v<0) v = 0;
+  /* pollegendre(-n) = pollegendre(n-1) */
+  if (n < 0) n = -n-1;
+  if (n<=1) return pol_1(v);
+
+  N = n >> 1;
+  q = cgetg(N+3, t_POL); r = q + N+2;
+  gel(r--,0) = a = binomialuu(n<<1,n);
+  for (k=1,l=n; l>1; k++,l-=2)
+  { /* l = n-2*k+2 */
+    av = avma;
+    a = diviuuexact(muluui(l, l-1, a), 2*k, n+l-1);
+    togglesign(a);
+    gel(r--,0) = a = gerepileuptoint(av, a);
+  }
+  q[1] = evalsigne(1) | evalvarn(v);
+  return q;
+}
 
 GEN
 pollegendre_eval0(long n, GEN x, long flag)

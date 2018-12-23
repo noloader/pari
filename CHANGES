@@ -75,6 +75,7 @@ FB  53- [Configure] library not found despite --with-readline-lib [#2097]
     55- minpoly(Mod(1,t^2)) -> SEGV [#2102]
     56- ffgen(3^2,'a);poldisc(x^6+a*x+y) -> division by 0 [ positive
         characteristic with a few t_INT coefficients ]
+    57- intnumgaussinit(n) actually used 2*ceil(max(4,n/2)) quadrature points
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
@@ -155,6 +156,7 @@ BA  29- [libpari] ZpXQX_liftroots
     30- new GP functions getlocalprec, getlocalbitprec
     31- [libpari] guncloneNULL, gluncloneNULL_deep
     32- allow subst(e, x, vector v) for vector(subst(e, x, v[i]))
+    33- [libpari] pollegendre_reduced
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

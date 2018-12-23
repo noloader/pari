@@ -216,33 +216,49 @@ GEN
 intnumgaussinit(long n, long prec)
 {
   pari_sp ltop = avma;
-  GEN L, dp1, p1, p2, R, W;
-  long prec0 = prec + EXTRAPREC;
-  long bitprec = prec2nbits(prec), i, d1;
-  if (n <= 0) n = (long)(bitprec*0.2258);
-  if (odd(n)) n++;
-  if (n == 2) n = 4;
-  /* n even >= 4, p1 is even */
+  GEN q, dq, R, W;
+  long prec0 = prec + EXTRAPREC, bitprec = prec2nbits(prec), i, nodd, m;
   prec = nbits2prec(3*bitprec/2 + 32);
-  L = pollegendre(n, 0); /* L_n = p1(x^2) */
-  p1 = Q_remove_denom(RgX_deflate(L, 2), &dp1);
-  d1 = vali(dp1);
-  p2 = ZX_deriv(p1); /* L_n' = 2x p2(x^2) / 2^d1 */
-  R = ZX_Uspensky(p1, gen_0, 1, 3*bitprec/2 + 32); /* positive roots of p1 */
-  n >>= 1;
-  W = cgetg(n+1, t_VEC);
-  for (i = 1; i <= n; ++i)
+  if (n <= 0)
   {
+    n = (long)(bitprec*0.2258);
+    if (odd(n)) n++;
+    nodd = 0;
+  }
+  else
+    nodd = odd(n);
+  /* 2^n L_n = q(x^2) [n even] or x*q(x^2) [n odd]
+   * 2^n L_n' = 2 x dq(x^2), or q(x^2) + 2 x^2 dq(x^2) */
+  q = pollegendre_reduced(n, 0); dq = ZX_deriv(q);
+  R = ZX_Uspensky(q, gen_0, 1, 3*bitprec/2 + 32); /* positive roots of q */
+  m = (n + 1) >> 1;
+  W = cgetg(m+1, t_VEC); /* W(r) = 2/(1-r^2)[L_n'(r)]^2 */
+  if (nodd)
+  { /* add middle node r = 0, W(0) =  2^(2n+1)/[q(0)]^2 */
+    GEN t = gtofp(sqri(gel(q,2)), prec0);
+    R = vec_prepend(R, gen_0);
+    shiftr_inplace(t,-1-2*n);
+    gel(W,1) = invr(t);
+    i = 2;
+  }
+  else
+    i = 1;
+  for (; i <= m; ++i)
+  { /* W(r) = 2^(2n-1)/r2(1-r2)*[dq(r2)]^2 [n even]
+              2^(2n-1)/(1-r2)*[r2*dq(r2)]^2 [n odd] */
     GEN t, r2 = gel(R,i);
     if (typ(r2) != t_REAL) r2 = gtofp(r2, prec);
-    gel(R,i) = sqrtr_abs(r2); /* positive root of L_n */
-    /* 2 / (L'(r)^2(1-r^2)) =  2^(2d1 - 1) / (1-r2)r2 (p2(r2))^2 */
-    t = mulrr(subrr(r2, sqrr(r2)), sqrr(poleval(p2, r2)));
-    shiftr_inplace(t,1-2*d1);
-    gel(W,i) = invr(t);
+    /* positive root of L_n */
+    gel(R,i) = gprec_wtrunc(sqrtr_abs(r2), prec0);
+    t = poleval(dq, r2);
+    if (typ(t) != t_REAL) t = gtofp(t, prec);
+    if (nodd)
+      t = mulrr(subsr(1, r2), sqrr(mulrr(t, r2)));
+    else
+      t = mulrr(subrr(r2, sqrr(r2)), sqrr(t));
+    shiftr_inplace(t, 1-2*n);
+    gel(W,i) = gprec_wtrunc(invr(t), prec0);
   }
-  R = gprec_wtrunc(R,prec0);
-  W = gprec_wtrunc(W,prec0);
   return gerepilecopy(ltop, mkvec2(R,W));
 }
 
@@ -268,10 +284,19 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   b = gprec_w(b, prec2);
   bma = gmul2n(gsub(b,a), -1); /* (b-a)/2 */
   bpa = gadd(bma, a); /* (b+a)/2 */
-  S = gen_0;
-  for (i = 1; i <= n; ++i)
+  if (odd(n))
+  { /* R[1] = 0, use middle node only once */
+    S = gmul(gel(W,1), eval(E, bpa));
+    i = 2;
+  }
+  else
   {
-    GEN r = gel(R,i);
+    S = gen_0;
+    i = 1;
+  }
+  for (; i <= n; ++i)
+  {
+    GEN r = gel(R,i); /* != 0 */
     GEN P = eval(E, gadd(bpa, gmul(bma, r)));
     GEN M = eval(E, gsub(bpa, gmul(bma, r)));
     S = gadd(S, gmul(gel(W,i), gadd(P,M)));

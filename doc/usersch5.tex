@@ -12136,6 +12136,10 @@ coefficients).
 embeddings of the \typ{POLMOD} $x$ (with complex coefficients). Shallow
 function, simple complex variant of \tet{conjvec}.
 
+\fun{GEN}{pollegendre_reduced}{long n, long v} let $P_n(t)\in \Q[t]$
+be the $n$-th Legendre polynomial in variable $v$. Return $p\in \Z[t]$
+such that $2^n P_n(t) = p(t^2)$ ($n$ even) or $t p(t^2)$ ($n$ odd).
+
 \section{Power series}
 
 \fun{GEN}{sertoser}{GEN x, long prec} return the \typ{SER} $x$ truncated

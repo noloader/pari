@@ -2507,6 +2507,7 @@ GEN     pollaguerre(long n, GEN a, long v);
 GEN     pollaguerre_eval(long n, GEN a, GEN x);
 GEN     pollaguerre_eval0(long n, GEN a, GEN x, long flag);
 GEN     pollegendre(long n, long v);
+GEN     pollegendre_reduced(long n, long v);
 GEN     pollegendre_eval(long n, GEN x);
 GEN     pollegendre_eval0(long n, GEN x, long flag);
 GEN     polint(GEN xa, GEN ya, GEN x, GEN *dy);
