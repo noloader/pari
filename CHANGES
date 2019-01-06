@@ -76,6 +76,7 @@ FB  53- [Configure] library not found despite --with-readline-lib [#2097]
     56- ffgen(3^2,'a);poldisc(x^6+a*x+y) -> division by 0 [ positive
         characteristic with a few t_INT coefficients ]
     57- intnumgaussinit(n) actually used 2*ceil(max(4,n/2)) quadrature points
+BA  58- [pthread] parapply could crash
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

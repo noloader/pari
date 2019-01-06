@@ -324,6 +324,8 @@ mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
     long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: pari_mainstack->rsize;
     long mtparisizemax = GP_DATA->threadsizemax;
     long i;
+    if (isclone(worker))
+      worker = gcopy(worker); /* to avoid clone_lock race */
     mt->mq  = (struct mt_queue *) pari_malloc(sizeof(*mt->mq)*lim);
     mt->th  = (pthread_t *) pari_malloc(sizeof(*mt->th)*lim);
     mt->pth = (struct pari_thread *) pari_malloc(sizeof(*mt->pth)*lim);

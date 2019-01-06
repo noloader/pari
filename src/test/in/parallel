@@ -7,6 +7,12 @@ parfirst(fun,V)=parfor(i=1,#V,fun(V[i]),j,if(j,return([i,j])));
 parfirst(isprime, [2^600..2^600+1000])[1]
 parselect(isprime, [2^600..2^600+1000],1)
 parselect(isprime, [2^600..2^600+1000])
+isfermatprime(p)=Mod(2,p)^(p-1)==1;
+select(x->x==1,parapply(isfermatprime,[2^600..2^600+1000]),1)
+parselect(isfermatprime,[2^600..2^600+1000],1)
+select(isfermatprime,[2^600..2^600+1000])
+parfirst(isfermatprime,[2^600..2^600+1000])
+parselect(isfermatprime,[2^600..2^600+1000])
 
 /* Disable tests that depends on ellsea
 findp(E,n)=
