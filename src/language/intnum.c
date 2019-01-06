@@ -212,54 +212,81 @@ intnumromb0_bitprec(GEN a, GEN b, GEN code, long flag, long bit)
 /********************************************************************/
 /**             NUMERICAL INTEGRATION (Gauss-Legendre)             **/
 /********************************************************************/
-GEN
-intnumgaussinit(long n, long prec)
+/* P_N(z) / P'_N(z) if flag = 0, else N! P_N(z) */
+static GEN
+Legendreeval(long N, GEN z, GEN z2, long flag)
 {
-  pari_sp ltop = avma;
-  GEN q, dq, R, W;
-  long prec0 = prec + EXTRAPREC, bitprec = prec2nbits(prec), i, nodd, m;
-  prec = nbits2prec(3*bitprec/2 + 32);
-  if (n <= 0)
+  GEN u0 = z, u1 = subrs(mulur(3, z2), 1), u2;
+  long n;
+  for (n = 2; n < N; n++)
   {
-    n = (long)(bitprec*0.2258);
-    if (odd(n)) n++;
-    nodd = 0;
+    u2 = subrr(mulrr(mulur(2*n+1, z), u1), mulir(sqru(n), u0));
+    u0 = u1; u1 = u2;
   }
+  if (flag) return u1;
+  return divrr(mulrr(subrs(z2, 1), u1),
+               mulur(N, subrr(mulrr(z, u1), mulur(N, u0))));
+}
+
+/* Roots of Legendre Polynomials. */
+static GEN
+Legendreroot(long N, double dz, long bit)
+{
+  GEN Z = cgetr(nbits2prec(bit)), z = dbltor(dz), z2;
+  pari_sp av = avma;
+  long pr, j, e = - dblexpo(1 - dz*dz), n = 1 + expu(bit + 32 - e);
+
+  pr = 1 + e + ((bit - e) >> n);
+  for (j = 1; j <= n; j++)
+  {
+    pr = 2 * pr - e;
+    z = rtor(z, nbits2prec(pr));
+    z2 = sqrr(z);
+    z = subrr(z, Legendreeval(N, z, z2, 0));
+  }
+  affrr(z, Z); set_avma(av); return Z;
+}
+GEN
+intnumgaussinit(long N, long prec)
+{
+  pari_sp av = avma;
+  long N2, j, k, l, bit;
+  GEN V, W, F;
+
+  prec += EXTRAPREC;
+  bit = prec2nbits(prec);
+  if (N <= 0)
+  {
+    N = (long)(bit * 0.2258);
+    if (odd(N)) N++;
+  }
+  if (N == 1) retmkvec2(mkvec(gen_0), mkvec(gen_2));
+  if (N == 2)
+  {
+    V = mkvec(divru(sqrtr(utor(3,prec)), 3));
+    W = mkvec(gen_1); return gerepilecopy(av, mkvec2(V, W));
+  }
+  N2 = N >> 1; l = (N+3)>> 1;
+  V = cgetg(l, t_VEC);
+  W = cgetg(l, t_VEC); F = sqrr(mpfactr(N-1, prec));
+  if (!odd(N)) k = 1;
   else
-    nodd = odd(n);
-  /* 2^n L_n = q(x^2) [n even] or x*q(x^2) [n odd]
-   * 2^n L_n' = 2 x dq(x^2), or q(x^2) + 2 x^2 dq(x^2) */
-  q = pollegendre_reduced(n, 0); dq = ZX_deriv(q);
-  R = ZX_Uspensky(q, gen_0, 1, 3*bitprec/2 + 32); /* positive roots of q */
-  settyp(R, t_VEC); m = (n + 1) >> 1;
-  W = cgetg(m+1, t_VEC); /* W(r) = 2/(1-r^2)[L_n'(r)]^2 */
-  if (nodd)
-  { /* add middle node r = 0, W(0) =  2^(2n+1)/[q(0)]^2 */
-    GEN t = gtofp(sqri(gel(q,2)), prec0);
-    R = vec_prepend(R, gen_0);
-    shiftr_inplace(t,-1-2*n);
-    gel(W,1) = invr(t);
-    i = 2;
+  {
+    GEN c = sqrr(divrr(sqrr(mpfactr(N2, prec)), F));
+    shiftr_inplace(c, 2*(N-1));
+    gel(V, 1) = gen_0;
+    gel(W, 1) = c; k = 2;
   }
-  else
-    i = 1;
-  for (; i <= m; ++i)
-  { /* W(r) = 2^(2n-1)/r2(1-r2)*[dq(r2)]^2 [n even]
-              2^(2n-1)/(1-r2)*[r2*dq(r2)]^2 [n odd] */
-    GEN t, r2 = gel(R,i);
-    if (typ(r2) != t_REAL) r2 = gtofp(r2, prec);
-    /* positive root of L_n */
-    gel(R,i) = gprec_wtrunc(sqrtr_abs(r2), prec0);
-    t = poleval(dq, r2);
-    if (typ(t) != t_REAL) t = gtofp(t, prec);
-    if (nodd)
-      t = mulrr(subsr(1, r2), sqrr(mulrr(t, r2)));
-    else
-      t = mulrr(subrr(r2, sqrr(r2)), sqrr(t));
-    shiftr_inplace(t, 1-2*n);
-    gel(W,i) = gprec_wtrunc(invr(t), prec0);
+  for (j = 4*N2-1; j >= 3; k++, j -= 4)
+  {
+    GEN w, z2, z = Legendreroot(N, cos(M_PI * j / (4*N+2)), bit);
+    pari_sp av = avma;
+    gel(V, k) = z; z2 = sqrr(z);
+    w = divrr(subsr(1, z2), sqrr(Legendreeval(N-1, z, z2, 1)));
+    gel(W, k) = gerepileuptoleaf(av, w);
   }
-  return gerepilecopy(ltop, mkvec2(R,W));
+  W = RgV_Rg_mul(W, divri(shiftr(F, 1), sqru(N)));
+  return gerepilecopy(av, mkvec2(V, W));
 }
 
 GEN

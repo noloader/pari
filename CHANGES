@@ -119,6 +119,7 @@ BA  18- qfbsolve now returns a vector of solutions.
         commands, not for library use) are now obsolete. The new equivalent
         commands (still not meant for library use) are precision00 and
         bitprecision00.
+    27- improve intnumgaussinit (use direct Newton instead of polrootsreal)
 
   Added
      1- [libpari] nonsquare_Fl
