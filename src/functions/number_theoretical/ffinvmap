@@ -15,4 +15,6 @@ Doc: $m$ being a map from $K$ to $L$ two finite fields, return the partial map
  ? v = ffmap(m, u);
  ? ffmap(p, v^2+v+2) == u^2+u+2
  %7 = 1
+ ? ffmap(p, b)
+ %8 = []
  @eprog
