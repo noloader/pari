@@ -22,14 +22,14 @@ Doc: return a generator for the finite field $k$ as a \typ{FFELT}.
  \item a \typ{FFELT} belonging to $k$.
 
  If \kbd{v} is given, the variable name is used to display $g$, else the
- variable of the polynomial or the \typ{FFELT} is used , else $x$ is used.
+ variable of the polynomial or the \typ{FFELT} is used, else $x$ is used.
 
  When only the order is specified, the function uses the polynomial generated
  by \kbd{ffinit} and is deterministic: two calls to the function with the
  same parameters will always give the same generator.
 
- For efficiency, the characteristic is not checked to be prime, nor
- If a polynomial is given it is not checked whether it is irreducible.
+ For efficiency, the characteristic is not checked to be prime; similarly
+ if a polynomial is given, we do not check whether it is irreducible.
 
  To obtain a multiplicative generator, call \kbd{ffprimroot} on the result.
 
