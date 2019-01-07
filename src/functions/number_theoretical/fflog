@@ -5,8 +5,8 @@ Prototype: GGDG
 Help: fflog(x,g,{o}): return the discrete logarithm of the finite field
  element x in base g. If present, o must represents the multiplicative
  order of g. If no o is given, assume that g is a primitive root.
-Doc: discrete logarithm of the finite field element $x$ in base $g$, i.e.~
- an $e$ in $\Z$ such that $g^e = o$. If
+Doc: discrete logarithm of the finite field element $x$ in base $g$,
+ i.e.~an $e$ in $\Z$ such that $g^e = o$. If
  present, $o$ represents the multiplicative order of $g$, see
  \secref{se:DLfun}; the preferred format for
  this parameter is \kbd{[ord, factor(ord)]}, where \kbd{ord} is the
