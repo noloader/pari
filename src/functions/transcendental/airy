@@ -5,7 +5,7 @@ Prototype: Gp
 Help: airy(z): Airy [Ai,Bi] function of argument z.
 Doc: airy $[Ai,Bi]$ functions of argument $z$.
  \bprog
- ? [A,B] = airyA(1);
+ ? [A,B] = airy(1);
  ? A
  %2 = 0.13529241631288141552414742351546630617
  ? B
