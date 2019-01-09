@@ -77,6 +77,7 @@ FB  53- [Configure] library not found despite --with-readline-lib [#2097]
         characteristic with a few t_INT coefficients ]
     57- intnumgaussinit(n) actually used 2*ceil(max(4,n/2)) quadrature points
 BA  58- [pthread] parapply could crash
+BA  59- ffinvmap(m) could SEGV on bad input
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

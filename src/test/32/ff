@@ -358,5 +358,9 @@ error("incorrect type in ffextend (t_POL).")
   ***   at top-level: ffembed(ffgen([3,5],'b),ffgen([3,6],'a))
   ***                 ^----------------------------------------
   *** ffembed: domain error in ffembed: b is not a subfield of a
+? a=ffgen(3^3,'a);ffinvmap(ffextend(a,x^2+x+a));
+  ***   at top-level: a=ffgen(3^3,'a);ffinvmap(ffextend(a,x^2+x+a))
+  ***                                 ^-----------------------------
+  *** ffinvmap: incorrect type in ffinvmap (t_VEC).
 ? print("Total time spent: ",gettime);
-Total time spent: 1561
+Total time spent: 1040

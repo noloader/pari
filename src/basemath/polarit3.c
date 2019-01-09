@@ -2588,6 +2588,8 @@ ffinvmap(GEN m)
   GEN T, F, a, g, r, f = NULL;
   checkmap(m, "ffinvmap");
   a = gel(m,1); r = gel(m,2);
+  if (typ(r) != t_FFELT)
+   pari_err_TYPE("ffinvmap", m);
   g = FF_gen(a);
   T = FF_mod(r);
   F = gel(FFX_factor(T, a), 1);
