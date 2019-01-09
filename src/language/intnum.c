@@ -2311,13 +2311,16 @@ sumlogzeta(GEN ser, GEN s, double rs, long N, long vF, long lim, long prec)
   GEN z = gen_0, P = primes_interval(gen_2, utoipos(N)), v = vecfactoru(vF,lim);
   double lN = log2((double)N);
   long i, n;
+  if (typ(s) == t_INT) constbern((itos(s) * lim + 1) >> 1);
   for (n = lim, i = lg(v)-1; n >= vF; n--, i--)
   {
+    pari_sp av = avma;
     GEN t = sdmob(ser, n, gel(v,i));
     if (!gequal0(t))
     { /* E bits cancel in logzetan */
       long E = (n*rs-1) * lN, prec2 = prec + nbits2extraprec(E);
       z = gadd(z, gmul(logzetan(gmulsg(n,gprec_w(s,prec2)), P, prec2), t));
+      z = gerepileupto(av, z);
     }
   }
   return gprec_wtrunc(z, prec);
