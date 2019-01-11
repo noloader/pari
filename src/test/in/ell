@@ -147,6 +147,15 @@ if (ellisdivisible(e,Q,22,&A), A)
 e = ellinit([0,1]);
 elldivpol(e,8)
 
+\\ #2106
+e = ellinit([0,0,1,-1,0]); P = [0,0];
+K = nfinit(nfsplitting(elldivpol(e, 3)));
+eK = ellinit([0,0,1,-1,0], K);
+ellisdivisible(eK, P, 3)
+P6 = ellmul(eK, P, 6);
+if (ellisdivisible(eK, P6, 3, &Q), Q)
+if (ellisdivisible(eK, P6, 2, &Q), Q)
+
 e = ellinit([1.,2,3,4,5]);
 e.eta
 E = ellchangecurve(e, [2,3,4,5]);
