@@ -27,4 +27,6 @@ error("overflow in zeta [large negative argument].")
 08240243104 + O(x)
 -1.4603545088095868128894991525152980125 - 3.9226461392091517274715314467145
 995137*I*x + O(x^2)
-Total time spent: 15
+-125
+-127
+Total time spent: 20

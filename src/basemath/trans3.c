@@ -1556,6 +1556,18 @@ veczeta(GEN a, GEN b, long N, long prec)
   }
   return gerepilecopy(av, z);
 }
+GEN
+veczeta0(GEN s, GEN aN, long prec)
+{
+  GEN a, N;
+  if (!aN) return gzeta(s, prec);
+  if (typ(aN) != t_VEC || lg(aN) != 3) pari_err_TYPE("zeta", aN);
+  a = gel(aN,1);
+  N = gel(aN,2);
+  if (typ(N) != t_INT || signe(N) <= 0 || !is_real_t(typ(s)))
+    pari_err_TYPE("zeta", aN);
+  return veczeta(a, s, itou(N), prec);
+}
 
 /* zeta(s) using sumalt, case h=0,N=1. Assume s > 1 */
 static GEN

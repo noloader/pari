@@ -4971,6 +4971,7 @@ GEN     veceint1(GEN nmax, GEN C, long prec);
 GEN     vecthetanullk(GEN q, long k, long prec);
 GEN     vecthetanullk_tau(GEN tau, long k, long prec);
 GEN     veczeta(GEN a, GEN b, long N, long prec);
+GEN     veczeta0(GEN s, GEN aN, long prec);
 GEN     weber0(GEN x, long flag,long prec);
 GEN     weberf(GEN x, long prec);
 GEN     weberf1(GEN x, long prec);
