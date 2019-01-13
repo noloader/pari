@@ -38,21 +38,20 @@ gp_ask_confirm(const char *s)
   pari_hit_return();
 }
 
-/* numerr < 0: from SIGINT */
+/* numerr < 0: after changing PARI stack size
+ * numerr > 0: normal error, including SIGINT */
 static void
 gp_err_recover(long numerr)
 {
   longjmp(env[s_env.n-1], numerr);
 }
-/* numerr < 0: from SIGINT */
+
+/* numerr >= 0 */
 static void
 gp_pre_recover(long numerr)
 {
-  if (numerr>=0)
-  {
-    out_puts(pariErr, "\n"); pariErr->flush();
-  }
-  longjmp(env[s_env.n-1], numerr);
+  out_puts(pariErr, "\n"); pariErr->flush();
+  gp_err_recover(numerr);
 }
 
 static void

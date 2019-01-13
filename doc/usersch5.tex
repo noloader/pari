@@ -341,8 +341,7 @@ Function called when we receive \kbd{SIGINT}. By default, raises
 \doc{cb_pari_pre_recover}{void (*cb_pari_pre_recover)(long)}
 initialized to \kbd{NULL}. If not \kbd{NULL}, this routine is called just
 before PARI cleans up from an error. It is not required to return.  The error
-number is passed as argument, unless the PARI stack has been destroyed
-(\kbd{allocatemem}), in which case $-1$ is passed.
+number is passed as argument.
 
 \doc{cb_pari_err_recover}{void (*cb_pari_err_recover)(long)}
 initialized to \kbd{pari\_exit()}. This callback must not return.
