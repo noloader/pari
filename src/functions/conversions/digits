@@ -6,9 +6,8 @@ Help: digits(x,{b=10}): gives the vector formed by the digits of x in base b (x 
  integers).
 Doc:
  outputs the vector of the digits of $|x|$ in base $b$, where $x$ and $b$ are
- integers ($b = 10$ by default). See \kbd{fromdigits} for the reverse
- operation.
-
+ integers ($b = 10$ by default). For $x\ge1$, the number of digits is
+ $\kbd{logint}(x,b) + 1$. See \kbd{fromdigits} for the reverse operation.
  \bprog
  ? digits(123)
  %1 = [1, 2, 3, 0]

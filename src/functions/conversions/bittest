@@ -11,7 +11,8 @@ Description:
 Doc:
  outputs the $n^{\text{th}}$ bit of $x$ starting
  from the right (i.e.~the coefficient of $2^n$ in the binary expansion of $x$).
- The result is 0 or 1.
+ The result is 0 or 1. For $x\ge1$, the highest 1-bit is at $n =
+ \kbd{logint}(x)$ (and bigger $n$ gives $0$).
  \bprog
  ? bittest(7, 0)
  %1 = 1 \\ the bit 0 is 1
