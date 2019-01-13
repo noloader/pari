@@ -745,25 +745,60 @@ gpidealfactor(GEN nf, GEN x, GEN lim)
   return idealfactor_limit(nf, x, L);
 }
 
+static GEN
+ramified_root(GEN nf, GEN R, GEN A, long n)
+{
+  GEN v, P = gel(idealfactor(nf, R), 1);
+  long i, l = lg(P);
+  v = cgetg(l, t_VECSMALL);
+  for (i = 1; i < l; i++)
+  {
+    long w = idealval(nf, A, gel(P,i));
+    if (w % n) return NULL;
+    v[i] = w / n;
+  }
+  return idealfactorback(nf, P, v, 0);
+}
+static int
+ramified_root_simple(GEN nf, long n, GEN P, GEN v)
+{
+  long i, l = lg(v);
+  for (i = 1; i < l; i++) if (v[i])
+  {
+    GEN vpr = idealprimedec(nf, gel(P,i));
+    long lpr = lg(vpr), j;
+    for (j = 1; j < lpr; j++)
+    {
+      long e = pr_get_e(gel(vpr,j));
+      if ((e * v[i]) % n) return 0;
+    }
+  }
+  return 1;
+}
 /* true nf; A is assumed to be the n-th power of an integral ideal,
  * return its n-th root; n > 1 */
 static long
 idealsqrtn_int(GEN nf, GEN A, long n, GEN *pB)
 {
-  GEN C, ram, vram, root;
+  GEN C, root;
   long i, l;
 
-  if (typ(A) == t_INT) return Z_ispowerall(A, n, pB);
-  /* compute valuations at ramified primes */
-  ram = gel(idealfactor(nf, idealadd(nf, nf_get_diff(nf),A)), 1);
-  l = lg(ram); vram = cgetg(l, t_VECSMALL);
-  for (i = 1; i < l; i++)
+  if (typ(A) == t_INT) /* > 0 */
   {
-    long v = idealval(nf,A,gel(ram,i));
-    if (v % n) return 0;
-    vram[i] = v / n;
+    GEN P = nf_get_ramified_primes(nf), v, q;
+    l = lg(P); v = cgetg(l, t_VECSMALL);
+    for (i = 1; i < l; i++) v[i] = Z_pvalrem(A, gel(P,i), &A);
+    C = gen_1;
+    if (!isint1(A) && !Z_ispowerall(A, n, pB? &C: NULL)) return 0;
+    if (!pB) return ramified_root_simple(nf, n, P, v);
+    q = factorback2(P, v);
+    root = ramified_root(nf, q, q, n);
+    if (!root) return 0;
+    if (!equali1(C)) root = isint1(root)? C: ZM_Z_mul(root, C);
+    *pB = root; return 1;
   }
-  root = idealfactorback(nf, ram, vram, 0);
+  /* compute valuations at ramified primes */
+  root = ramified_root(nf, idealadd(nf, nf_get_diff(nf), A), A, n);
   /* remove ramified primes */
   if (isint1(root))
     root = matid(nf_get_degree(nf));

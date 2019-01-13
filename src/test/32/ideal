@@ -262,6 +262,14 @@ matrix(0,2)
 
 [2]
 
+1
+
+[10 0 0]
+
+[ 0 5 0]
+
+[ 0 0 5]
+
 []
   *** nfinit: Warning: non-monic polynomial. Result of the form [nf,c].
 [[2, [0, 1]~, 2, 1, [0, -2; 1, 0]]]
@@ -277,4 +285,4 @@ matrix(0,2)
   ***   at top-level: idealred(nf,[2,Mat(1)])
   ***                 ^-----------------------
   *** idealred: incorrect type in idealtyp [extended ideal] (t_VEC).
-Total time spent: 104
+Total time spent: 154

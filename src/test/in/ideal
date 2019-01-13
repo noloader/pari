@@ -132,6 +132,10 @@ idealispower(K, A, 1)
 idealispower(nfinit('y), 4, 2, &A)
 A
 
+K = nfinit(x^3 - 2);
+idealispower(K,2*5^3,3, &A)
+A
+
 \\ #1643
 K=nfinit(x^8-1310*x^6+575380*x^4-93689568*x^2+3644295424);
 idealprimedec(K,17,1)
