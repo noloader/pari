@@ -165,7 +165,6 @@ BA  29- [libpari] ZpXQX_liftroots
     32- allow subst(e, x, vector v) for vector(subst(e, x, v[i]))
     33- [libpari] pollegendre_reduced
 AP  34- new GP function mfgaloisprojrep
-    35- zeta(s, [a,N]) for [zeta(s), zeta(s+a), ..., zeta(s+(N-1)*a)]
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

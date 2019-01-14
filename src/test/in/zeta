@@ -22,6 +22,3 @@ zeta(O(x))
 default(seriesprecision,3)
 zeta(1+x)
 zeta(1/2+I*x+O(x^2))
-exponent(zeta(3, [2,100]) - vector(100, i, zeta(2*i+1)))
-exponent(zeta(Pi, [2,100]) - vector(100, i, zeta(Pi+2*i-2)))
-
