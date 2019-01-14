@@ -192,56 +192,56 @@ compilestate_restore(struct pari_compilestate *comp)
 }
 
 static GEN
-getfunction(const struct codepos *pos, long arity, long nbmvar, GEN text, long gap)
+gcopyunclone(GEN x) { GEN y = gcopy(x); gunclone(x); return y; }
+
+static GEN
+getfunction(const struct codepos *pos, long arity, long nbmvar, GEN text,
+            long gap)
 {
-  long lop =s_opcode.n+1-pos->opcode;
-  long ldat=s_data.n+1-pos->data;
-  long lfram=s_frame.n+1-pos->frames;
-  GEN cl=cgetg(nbmvar?8:(text?7:6),t_CLOSURE);
-  GEN frpc, fram, dbg;
+  long lop  = s_opcode.n+1 - pos->opcode;
+  long ldat = s_data.n+1 - pos->data;
+  long lfram = s_frame.n+1 - pos->frames;
+  GEN cl = cgetg(nbmvar? 8: (text? 7: 6), t_CLOSURE);
+  GEN frpc, fram, dbg, op, dat;
   char *s;
   long i;
+
   cl[1] = arity;
   gel(cl,2) = cgetg(nchar2nlong(lop)+1, t_STR);
-  gel(cl,3) = cgetg(lop,  t_VECSMALL);
-  gel(cl,4) = cgetg(ldat, t_VEC);
+  gel(cl,3) = op = cgetg(lop, t_VECSMALL);
+  gel(cl,4) = dat = cgetg(ldat, t_VEC);
   dbg = cgetg(lop,  t_VECSMALL);
   frpc = cgetg(lfram,  t_VECSMALL);
   fram = cgetg(lfram,  t_VEC);
   gel(cl,5) = mkvec3(dbg, frpc, fram);
   if (text) gel(cl,6) = text;
   if (nbmvar) gel(cl,7) = zerovec(nbmvar);
-  s=GSTR(gel(cl,2))-1;
-  for(i=1;i<lop;i++)
+  s = GSTR(gel(cl,2)) - 1;
+  for (i = 1; i < lop; i++)
   {
-    s[i] = opcode[i+pos->opcode-1];
-    mael(cl, 3, i) = operand[i+pos->opcode-1];
-    dbg[i] = dbginfo[i+pos->opcode-1]-dbgstart;
-    if (dbg[i]<0) dbg[i]+=gap;
+    long j = i+pos->opcode-1;
+    s[i] = opcode[j];
+    op[i] = operand[j];
+    dbg[i] = dbginfo[j] - dbgstart;
+    if (dbg[i] < 0) dbg[i] += gap;
   }
-  s[i]=0;
-  s_opcode.n=pos->opcode;
-  s_operand.n=pos->opcode;
-  s_dbginfo.n=pos->opcode;
-  for(i=1;i<ldat;i++)
-    if(data[i+pos->data-1])
-    {
-      gmael(cl, 4, i) = gcopy(data[i+pos->data-1]);
-      gunclone(data[i+pos->data-1]);
-    }
-  s_data.n=pos->data;
-  while (s_lvar.n>pos->localvars && !localvars[s_lvar.n-1].inl)
-    s_lvar.n--;
-  for(i=1;i<lfram;i++)
+  s[i] = 0;
+  s_opcode.n = pos->opcode;
+  s_operand.n = pos->opcode;
+  s_dbginfo.n = pos->opcode;
+  for (i = 1; i < ldat; i++)
+    if (data[i+pos->data-1]) gel(dat,i) = gcopyunclone(data[i+pos->data-1]);
+  s_data.n = pos->data;
+  while (s_lvar.n > pos->localvars && !localvars[s_lvar.n-1].inl) s_lvar.n--;
+  for (i = 1; i < lfram; i++)
   {
-    long j=i+pos->frames-1;
-    frpc[i] = frames[j].pc-pos->opcode+1;
-    gel(fram, i) = gcopy(frames[j].frame);
-    gunclone(frames[j].frame);
+    long j = i+pos->frames-1;
+    frpc[i] = frames[j].pc - pos->opcode+1;
+    gel(fram, i) = gcopyunclone(frames[j].frame);
   }
-  s_frame.n=pos->frames;
-  offset=pos->offset;
-  dbgstart=pos->dbgstart;
+  s_frame.n = pos->frames;
+  offset = pos->offset;
+  dbgstart = pos->dbgstart;
   return cl;
 }
 
