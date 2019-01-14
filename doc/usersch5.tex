@@ -2028,20 +2028,20 @@ and 0 otherwise.
 positive representative of $x^{-1}$ mod $2^\B$, assuming $x$ is odd.
 
 \fun{ulong}{Fl_add}{ulong x, ulong y, ulong m} returns the smallest
-positive representative of $x + y$ modulo $m$.
+non-negative representative of $x + y$ modulo $m$.
 
 \fun{ulong}{Fl_neg}{ulong x, ulong m} returns the smallest
-positive representative of $-x$ modulo $m$.
+non-negative representative of $-x$ modulo $m$.
 
 \fun{ulong}{Fl_sub}{ulong x, ulong y, ulong m} returns the smallest
-positive representative of $x - y$ modulo $m$.
+non-negative representative of $x - y$ modulo $m$.
 
 \fun{long}{Fl_center}{ulong x, ulong m, ulong mo2} returns the representative
 in $]-m/2,m/2]$ of $x$ modulo $m$. Assume $0 \leq x < m$ and
 $\kbd{mo2}  = m >> 1$.
 
-\fun{ulong}{Fl_mul}{ulong x, ulong y, ulong m} returns the smallest positive
-representative of $x y$ modulo $m$.
+\fun{ulong}{Fl_mul}{ulong x, ulong y, ulong m} returns the smallest
+non-negative representative of $x y$ modulo $m$.
 
 \fun{ulong}{Fl_double}{ulong x, ulong m} returns $2x$ modulo $m$.
 
@@ -2050,7 +2050,7 @@ representative of $x y$ modulo $m$.
 \fun{ulong}{Fl_halve}{ulong x, ulong m} returns $z$ such that $2\*z = x$ modulo
 $m$ assuming such $z$ exists.
 
-\fun{ulong}{Fl_sqr}{ulong x, ulong m} returns the smallest positive
+\fun{ulong}{Fl_sqr}{ulong x, ulong m} returns the smallest non-negative
 representative of $x^2$ modulo $m$.
 
 \fun{ulong}{Fl_inv}{ulong x, ulong m} returns the smallest
@@ -2067,17 +2067,17 @@ We have $g = 1$ if and only if $x$ is invertible, and in this case $u$
 is its inverse.
 
 \fun{ulong}{Fl_div}{ulong x, ulong y, ulong m} returns the smallest
-positive representative of $x y^{-1}$ modulo $m$. If $y$ is not invertible
+non-negative representative of $x y^{-1}$ modulo $m$. If $y$ is not invertible
 mod $m$, raise an exception.
 
 \fun{ulong}{Fl_powu}{ulong x, ulong n, ulong m} returns the smallest
-positive representative of $x^n$ modulo $m$.
+non-negative representative of $x^n$ modulo $m$.
 
 \fun{GEN}{Fl_powers}{ulong x, long n, ulong p} returns
 $[\kbd{x}^0, \dots, \kbd{x}^\kbd{n}]$ modulo $m$, as a \typ{VECSMALL}.
 
 \fun{ulong}{Fl_sqrt}{ulong x, ulong p} returns the square root of \kbd{x}
-modulo \kbd{p} (smallest positive representative). Assumes \kbd{p} to be
+modulo \kbd{p} (smallest non-negative representative). Assumes \kbd{p} to be
 prime, and \kbd{x} to be a square modulo \kbd{p}.
 
 \fun{ulong}{Fl_sqrtl}{ulong x, ulong l, ulong p} returns a $l$-the root of \kbd{x}
