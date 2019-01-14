@@ -1427,8 +1427,8 @@ static GEN deriv_eval(void *E, GEN x, long prec)
 GEN
 derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 {
-  long newprec, e, ex = maxss(0, gexpo(x)), p = precision(x);
-  long b0 = prec2nbits(p ? p: prec), b = (long)ceil(b0 * 1.5 + ex);
+  long newprec, e, ex = gexpo(x), p = precision(x);
+  long b0 = prec2nbits(p? p: prec), b = (long)ceil(b0 * 1.5 + maxss(0,ex));
   GEN eps, u, v, y;
   pari_sp av = avma;
   newprec = nbits2prec(b + BITS_IN_LONG);
@@ -1439,11 +1439,12 @@ derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
       x = gprec_w(x, newprec);
   }
   e = b0/2; /* 1/2 required prec (in sig. bits) */
-  eps = real2n(-e, nbits2prec(b-e));
+  b -= e; /* >= b0 */
+  eps = real2n(-e, ex < -e? newprec: nbits2prec(b));
   u = eval(E, gsub(x, eps), newprec);
   v = eval(E, gadd(x, eps), newprec);
   y = gmul2n(gsub(v,u), e-1);
-  return gerepilecopy(av, gprec_w(y, nbits2prec(b0)));
+  return gerepilecopy(av, gprec_wtrunc(y, nbits2prec(b0)));
 }
 
 /* Fornberg interpolation algorithm for finite differences coefficients
