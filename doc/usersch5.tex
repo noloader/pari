@@ -5664,13 +5664,14 @@ the polynomial $S$ over the finite field $\F_q$ defined by $T$ and $p$.
 $X^{q}\pmod{S(X)}$ over the finite field $\F_q$ defined by $T$ and $p$, thus
 $q=p^n$ where $n$ is the degree of $T$.
 
-\subsec{\kbd{Flx}} Let \kbd{p} an understood \kbd{ulong}, assumed to be
-prime, to be given the function arguments; an \kbd{Fl} is an \kbd{ulong}
-belonging to $[0,\kbd{p}-1]$, an \kbd{Flx}~\kbd{z} is a \typ{VECSMALL}
-representing a polynomial with small integer coefficients. Specifically
-\kbd{z[0]} is the usual codeword, \kbd{z[1] = evalvarn($v$)} for some
-variable $v$, then the coefficients by increasing degree. An \kbd{FlxX} is a
-\typ{POL} whose coefficients are \kbd{Flx}s.
+\subsec{\kbd{Flx}} Let \kbd{p} be an \kbd{ulong}, not assumed to be
+prime unless mentioned otherwise (e.g., all functions involving Euclidean
+divisions and factorizations), to be given the function arguments; an
+\kbd{Fl} is an \kbd{ulong} belonging to $[0,\kbd{p}-1]$, an \kbd{Flx}~\kbd{z}
+is a \typ{VECSMALL} representing a polynomial with small integer
+coefficients. Specifically \kbd{z[0]} is the usual codeword, \kbd{z[1] =
+evalvarn($v$)} for some variable $v$, then the coefficients by increasing
+degree. An \kbd{FlxX} is a \typ{POL} whose coefficients are \kbd{Flx}s.
 
 \noindent In the following, an argument called \kbd{sv} is of the form
 \kbd{evalvarn}$(v)$ for some variable number~$v$.
@@ -5747,15 +5748,19 @@ assuming the result is monic of the same degree as $y$ (in particular $x\neq
 
 \fun{GEN}{Flx_powu}{GEN x, ulong n, ulong p} return $x^n$.
 
-\fun{GEN}{Flx_divrem}{GEN x, GEN y, ulong p, GEN *pr}
+\fun{GEN}{Flx_divrem}{GEN x, GEN y, ulong p, GEN *pr},
+here $p$ must be prime.
 
-\fun{GEN}{Flx_div}{GEN x, GEN y, ulong p}
+\fun{GEN}{Flx_div}{GEN x, GEN y, ulong p},
+here $p$ must be prime.
 
-\fun{GEN}{Flx_rem}{GEN x, GEN y, ulong p}
+\fun{GEN}{Flx_rem}{GEN x, GEN y, ulong p},
+here $p$ must be prime.
 
 \fun{GEN}{Flx_deriv}{GEN z, ulong p}
 
-\fun{GEN}{Flx_integ}{GEN z, ulong p}
+\fun{GEN}{Flx_integ}{GEN z, ulong p},
+here $p$ must be prime.
 
 \fun{GEN}{Flx_translate1}{GEN P, ulong p} return $P(x+1)$
 
@@ -5769,41 +5774,45 @@ $x=\sum_{i=0}^{n}{c_i\*B^i}$.
 is a vector of \kbd{Flx}, returns $\sum_{i=0}^{n}{c_i\*B^i}$.
 
 \fun{GEN}{Flx_Frobenius}{GEN T, ulong p}
+here $p$ must be prime.
 
 \fun{GEN}{Flx_matFrobenius}{GEN T, ulong p}
+here $p$ must be prime.
 
 \fun{GEN}{Flx_gcd}{GEN a, GEN b, ulong p} returns a (not necessarily monic)
-greatest common divisor of $x$  and $y$.
+greatest common divisor of $x$  and $y$. Here $p$ must be prime.
 
 \fun{GEN}{Flx_halfgcd}{GEN x, GEN y, ulong p} returns a two-by-two \kbd{FlxM}
 $M$ with determinant $\pm 1$ such that the image $(a,b)$ of $(x,y)$ by $M$
 has the property that $\deg a \geq {\deg x \over 2} > \deg b$.
+Assumes that $p$ is prime.
 
-\fun{GEN}{Flx_extgcd}{GEN a, GEN b, ulong p, GEN *ptu, GEN *ptv}
+\fun{GEN}{Flx_extgcd}{GEN a, GEN b, ulong p, GEN *ptu, GEN *ptv},
+here $p$ must be prime.
 
 \fun{GEN}{Flx_roots}{GEN f, ulong p} returns the vector of roots
 of $f$ (without multiplicity, as a \typ{VECSMALL}). Assumes that $p$ is
 prime.
 
 \fun{ulong}{Flx_oneroot}{GEN f, ulong p} returns one root $0 \leq r < p$ of
-the \kbd{Flx}~\kbd{f} in \kbd{\Z/p\Z}. Return $p$ if no root exists. Assumes
-that \kbd{p} is prime.
+the \kbd{Flx}~\kbd{f} in \kbd{\Z/p\Z}. Return $p$ if no root exists.
+Assumes that $p$ is prime.
 
 \fun{ulong}{Flx_oneroot_split}{GEN f, ulong p} as \kbd{Flx\_oneroot} but
-assume $f$ is totally split.
+assume $f$ is totally split. Assumes that $p$ is prime.
 
 \fun{long}{Flx_ispower}{GEN f, ulong k, ulong p, GEN *pt}
 return $1$ if the \kbd{Flx} $f$ is a $k$-th power, $0$ otherwise.
 If \kbd{pt} is not \kbd{NULL}, set it to $g$ such that $g^k = f$.
 
-\fun{GEN}{Flx_factor}{GEN f, ulong p}
+\fun{GEN}{Flx_factor}{GEN f, ulong p} Assumes that $p$ is prime.
 
-\fun{GEN}{Flx_ddf}{GEN f, ulong p}
+\fun{GEN}{Flx_ddf}{GEN f, ulong p} Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_factor_squarefree}{GEN f, ulong p} returns the squarefree
 factorization of $f$ modulo $p$. This is a vector $[u_1,\dots,u_k]$
 of pairwise coprime \kbd{Flx} such that $u_k \neq 1$ and $f = \prod u_i^i$.
-Shallow function.
+Shallow function. Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_mod_Xn1}{GEN T, ulong n, ulong p} return $T$ modulo
 $(X^n + 1, p)$. Shallow function.
@@ -5811,14 +5820,17 @@ $(X^n + 1, p)$. Shallow function.
 \fun{GEN}{Flx_mod_Xnm1}{GEN T, ulong n, ulong p} return $T$ modulo
 $(X^n - 1, p)$. Shallow function.
 
-\fun{GEN}{Flx_degfact}{GEN f, ulong p} as \tet{FpX_degfact}.
+\fun{GEN}{Flx_degfact}{GEN f, ulong p} as \tet{FpX_degfact}. Assumes that $p$
+is prime.
 
 \fun{GEN}{Flx_factorff_irred}{GEN P, GEN Q, ulong p} as
-\tet{FpX_factorff_irred}.
+\tet{FpX_factorff_irred}. Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_rootsff}{GEN P, GEN T, ulong p} as \tet{FpX_rootsff}.
+Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_ffisom}{GEN P,GEN Q,ulong l} as \tet{FpX_ffisom}.
+Assumes that $p$ is prime.
 
 \subsubsec{Miscellaneous operations}
 
@@ -5844,16 +5856,16 @@ in variable \kbd{v}, of degree less than~\kbd{d}.
 \fun{GEN}{Flx_recip}{GEN x}, returns the reciprocal polynomial
 
 \fun{ulong}{Flx_resultant}{GEN a, GEN b, ulong p}, returns the resultant
-of \kbd{a} and \kbd{b}
+of \kbd{a} and \kbd{b}. Assumes that $p$ is prime.
 
 \fun{ulong}{Flx_extresultant}{GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV}
 given two \kbd{Flx} \kbd{a} and \kbd{b},
 returns their resultant and sets Bezout coefficients (if the resultant is 0,
-the latter are not set).
+the latter are not set). Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_invBarrett}{GEN T, ulong p}, returns the Barrett inverse
 $M$ of $T$ defined by $M(x)\*x^n\*T(1/x)\equiv 1\pmod{x^{n-1}}$ where $n$ is
-the degree of $T$.
+the degree of $T$. Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_renormalize}{GEN x, long l}, as \kbd{FpX\_renormalize}, where
 $\kbd{l} = \kbd{lg(x)}$, in place.
@@ -5894,49 +5906,55 @@ form $Q(X^d)$, return $Q$.
 
 \fun{GEN}{Flx_inflate}{GEN P, long d} returns $P(X^d)$.
 
-\fun{int}{Flx_is_squarefree}{GEN z, ulong p}
+\fun{int}{Flx_is_squarefree}{GEN z, ulong p}. Assumes that $p$ is prime.
 
 \fun{int}{Flx_is_irred}{GEN f, ulong p}, as \kbd{FpX\_is\_irred}.
+Assumes that $p$ is prime.
 
 \fun{int}{Flx_is_smooth}{GEN f, long r, ulong p} return $1$ if all
 irreducible factors of $f$ are of degree at most $r$, $0$ otherwise.
+Assumes that $p$ is prime.
 
 \fun{long}{Flx_nbroots}{GEN f, ulong p}, as \kbd{FpX\_nbroots}.
+Assumes that $p$ is prime.
 
 \fun{long}{Flx_nbfact}{GEN z, ulong p}, as \kbd{FpX\_nbfact}.
+Assumes that $p$ is prime.
 
 \fun{long}{Flx_nbfact_Frobenius}{GEN f, GEN XP, ulong p},
-as \kbd{FpX\_nbfact\_Frobenius}.
+as \kbd{FpX\_nbfact\_Frobenius}. Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_degfact}{GEN f, ulong p}, as \kbd{FpX\_degfact}.
+Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_nbfact_by_degree}{GEN z, long *nb, ulong p} Assume
 that the \kbd{Flx} $z$ is squarefree mod the prime $p$. Returns a
 \typ{VECSMALL} $D$ with $\deg z$ entries, such that $D[i]$ is the number of
 irreducible factors of degree $i$. Set \kbd{nb} to the total number of
 irreducible factors (the sum of the $D[i]$).
+Assumes that $p$ is prime.
 
 \fun{void}{Flx_ffintersect}{GEN P,GEN Q, long n, ulong p, GEN*SP, GEN*SQ, GEN
 MA,GEN MB},\hfil\break
-as \kbd{FpX\_ffintersect}
+as \kbd{FpX\_ffintersect}. Assumes that $p$ is prime.
 
 \fun{GEN}{Flx_Teichmuller}{GEN P, ulong p, long n}
 Return a \kbd{ZX} $Q$ such that $P\equiv Q\pmod{p}$ and
-$Q(X^p)=0\pmod{Q,p^n}$.
+$Q(X^p)=0\pmod{Q,p^n}$. Assumes that $p$ is prime.
 
 \fun{GEN}{Flv_polint}{GEN x, GEN y, ulong p, long sv} as \kbd{FpV\_polint},
-returning an \kbd{Flx} in variable $v$.
+returning an \kbd{Flx} in variable $v$. Assumes that $p$ is prime.
 
 \fun{GEN}{Flv_Flm_polint}{GEN x, GEN V, ulong p, long sv} equivalent (but
 faster) to applying \kbd{Flv\_polint(x,$\ldots$)} to all the elements of the
-vector $V$ (thus, returns a \kbd{FlxV}).
+vector $V$ (thus, returns a \kbd{FlxV}). Assumes that $p$ is prime.
 
 \fun{GEN}{Flv_invVandermonde}{GEN L, ulong d, ulong p} $L$ being a \kbd{Flv}
 of length $n$, return the inverse $M$ of the Vandermonde matrix attached to
 the elements of $L$, multiplied by \kbd{d}.
 If $A$ is a \kbd{Flv} and $B=M\*A$, then the polynomial
 $P=\sum_{i=1}^n B[i]\*X^{i-1}$ verifies $P(L[i])=d\*A[i]$ for
-$1 \leq i \leq n$.
+$1 \leq i \leq n$. Assumes that $p$ is prime.
 
 \fun{GEN}{Flv_roots_to_pol}{GEN a, ulong p, long sv} as
 \kbd{FpV\_roots\_to\_pol} returning an \kbd{Flx} in variable $v$.
