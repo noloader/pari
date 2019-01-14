@@ -1,12 +1,16 @@
 Function: strsplit
 Section: programming/specific
 C-Name: strsplit
-Prototype: GG
-Help: strsplit(s,p): splits the string s into a vector of strings, with
- p acting as a delimiter between successive fields.
+Prototype: GDG
+Help: strsplit(s,{p = ""}): splits the string s into a vector of strings, with
+ p acting as a delimiter between successive fields; if p is empty or omitted,
+ split into characters.
 Doc: splits the string $s$ into a vector into a vector of strings, with $p$
- acting as a delimiter:
+ acting as a delimiter. If $p$ is empty or omitted, split the string into
+ characters.
  \bprog
  ? strsplit("abc::def::ghi", "::")
  %1 = ["abc", "def", "ghi"]
+
+ ? strsplit("abc", "")
  @eprog

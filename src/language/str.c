@@ -153,9 +153,20 @@ strsplit(GEN x, GEN p)
   char *s, *t;
   GEN v;
   if (typ(x) != t_STR) pari_err_TYPE("strsplit",x);
-  if (typ(p) != t_STR) pari_err_TYPE("strsplit",p);
-  s = GSTR(x); ls = strlen(s); v = cgetg(ls, t_VEC);
-  t = GSTR(p); lt = strlen(t); iv = 1;
+  s = GSTR(x); ls = strlen(s);
+  if (!p) lt = 0;
+  else
+  {
+    if (typ(p) != t_STR) pari_err_TYPE("strsplit",p);
+    t = GSTR(p); lt = strlen(t);
+  }
+  if (!lt) /* empty separator: split by char */
+  {
+    v = cgetg(ls+1, t_VEC);
+    for (i = 1; i <= ls; i++) gel(v,i) = chartoGENstr(s[i-1]);
+    return v;
+  }
+  v = cgetg(ls, t_VEC); iv = 1;
   for (i = i0 = 0; i < ls; i++)
     while (!strncmp(s + i, t, lt))
     {

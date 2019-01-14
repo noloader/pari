@@ -26,6 +26,8 @@ v = Vecsmall([1..255]);
 Vecsmall(strchr(v)) == v
 strsplit("::a::b::::", "::")
 strsplit("a:b::::cc", ":")
+strsplit("abc", "")
+strsplit("abc")
 strjoin(["a", "b", "cc"], "/")
 
 \\ Errors, keep at end of file

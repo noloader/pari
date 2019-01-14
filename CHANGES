@@ -82,6 +82,7 @@ BA  59- ffinvmap(m) could SEGV on bad input
     61- idealispower(nf, t_INT n) possibly wrong if (n, nf.disc) > 1
     62- zeta''(0): all precision lost [more generally f'...'(n quotes)
         imprecise in the neighbourhood of 0, while derivnum(,n) was OK]
+    63- strsplit("abc", "") -> SEGV
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
@@ -128,6 +129,7 @@ BA  18- qfbsolve now returns a vector of solutions.
     27- improve intnumgaussinit (use direct Newton instead of polrootsreal)
     28- improve sumeulerrat / prodeulerrat
     29- factor(x, D), D now encodes the domain over which to factor
+    30- allow strsplit(str) [split into characters]
 
   Added
      1- [libpari] nonsquare_Fl
