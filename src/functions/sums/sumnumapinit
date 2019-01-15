@@ -18,7 +18,7 @@ Doc: initialize tables for Abel--Plana summation of a series $\sum f(n)$,
  time = 163 ms.
  ? tab = sumnumapinit();
  time = 160 ms.
- ? sumnum(n=1, n^-2, tab); \\ faster
+ ? sumnumap(n=1, n^-2, tab); \\ faster
  time = 7 ms.
 
  ? tab = sumnumapinit([+oo, log(2)]); \\ decrease like 2^-n
