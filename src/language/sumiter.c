@@ -1707,11 +1707,14 @@ derivnum0(GEN a, GEN code, GEN ind, long prec)
 { EXPR_WRAP(code, derivfunk(EXPR_ARGPREC,a,ind,prec)); }
 
 GEN
-derivfun0(GEN code, GEN args, long prec)
+derivfun0(GEN code, GEN args, long k, long prec)
 {
+  pari_sp av = avma;
   struct deriv_data E;
+  GEN z;
   E.code=code; E.args=args;
-  return derivfun((void*)&E, deriv_eval, gel(args,1), prec);
+  z = gel(derivfunk((void*)&E, deriv_eval, gel(args,1), mkvecs(k), prec),1);
+  return gerepilecopy(av, z);
 }
 
 /********************************************************************/

@@ -193,6 +193,7 @@ AP  34- new GP function mfgaloisprojrep
     38- [libpari] polintspec, polint_i
 BA  39- [libpari] FF_var, FF_preimagerel
 BA  40- new GP function ffmaprel
+BA  41- [libpari] closure_derivn
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

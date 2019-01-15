@@ -2232,8 +2232,18 @@ gp_closure(long n)
   return getfunction(&pos,0,0,strntoGENstr(tree[n].str,tree[n].len),0);
 }
 
+static char*
+quotes(long n)
+{
+  char* s = stack_malloc(n+1);
+  long i;
+  for (i=0; i<n; i++) s[i] = '\'';
+  s[i] = 0;
+  return s;
+}
+
 GEN
-closure_deriv(GEN G)
+closure_derivn(GEN G, long n)
 {
   pari_sp ltop=avma;
   long i;
@@ -2246,14 +2256,14 @@ closure_deriv(GEN G)
   if (typ(gel(G,6))==t_STR)
   {
     code = GSTR(gel(G,6));
-    text = cgetg(1+nchar2nlong(2+strlen(code)),t_STR);
-    sprintf(GSTR(text),"%s'",code);
+    text = cgetg(1+nchar2nlong(1+strlen(code)+n),t_STR);
+    sprintf(GSTR(text),"%s%s",code,quotes(n));
   }
   else
   {
     code = GSTR(GENtoGENstr(G));
-    text = cgetg(1+nchar2nlong(4+strlen(code)),t_STR);
-    sprintf(GSTR(text),"(%s)'",code);
+    text = cgetg(1+nchar2nlong(3+strlen(code)+n),t_STR);
+    sprintf(GSTR(text),"(%s)%s",code,quotes(n));
   }
   getcodepos(&pos);
   dbgstart=code;
@@ -2266,10 +2276,15 @@ closure_deriv(GEN G)
     op_push_loc(OCstackgen,i,code);
   }
   op_push_loc(OCpop,1,code);
+  op_push_loc(OCpushlong,n,code);
   op_push_loc(OCprecreal,0,code);
   op_push_loc(OCcallgen,(long)is_entry("_derivfun"),code);
   return gerepilecopy(ltop, getfunction(&pos,arity,0,text,0));
 }
+
+GEN
+closure_deriv(GEN G)
+{ return closure_derivn(G, 1); }
 
 static long
 vec_optimize(GEN arg)

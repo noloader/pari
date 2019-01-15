@@ -2710,6 +2710,7 @@ long    zv_cyc_minimize(GEN cyc, GEN g, GEN coprime);
 /* compile.c */
 
 GEN     closure_deriv(GEN G);
+GEN     closure_derivn(GEN G, long k);
 long    localvars_find(GEN pack, entree *ep);
 GEN     localvars_read_str(const char *str, GEN pack);
 GEN     snm_closure(entree *ep, GEN data);
