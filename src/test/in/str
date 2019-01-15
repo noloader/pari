@@ -28,6 +28,7 @@ strsplit("::a::b::::", "::")
 strsplit("a:b::::cc", ":")
 strsplit("abc", "")
 strsplit("abc")
+strsplit("aba", "a")
 strjoin(["a", 1, "cc"], "/")
 strjoin(["a", 1, "cc"])
 

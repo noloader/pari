@@ -11,6 +11,11 @@ Doc: splits the string $s$ into a vector into a vector of strings, with $p$
  \bprog
  ? strsplit("abc::def::ghi", "::")
  %1 = ["abc", "def", "ghi"]
-
  ? strsplit("abc", "")
- @eprog
+ %2 = ["a", "b", "c"]
+ ? strsplit("aba", "a")
+ @eprog\noindent If $s$ starts (resp.~ends) with the pattern $p$, then the
+ first (resp.~last) entry in the vector is the empty string:
+ \bprog
+ ? strsplit("aba", "a")
+ %3 = ["", "b", ""]

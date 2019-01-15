@@ -166,7 +166,7 @@ strsplit(GEN x, GEN p)
     for (i = 1; i <= ls; i++) gel(v,i) = chartoGENstr(s[i-1]);
     return v;
   }
-  v = cgetg(ls, t_VEC); iv = 1;
+  v = cgetg(ls + 1, t_VEC); iv = 1;
   for (i = i0 = 0; i < ls; i++)
     while (!strncmp(s + i, t, lt))
     {
@@ -174,7 +174,7 @@ strsplit(GEN x, GEN p)
       i += lt; i0 = i;
     }
   gel(v, iv++) = strntoGENstr(s + i0, i - i0);
-  stackdummy((pari_sp)(v + iv), (pari_sp)(v + ls));
+  stackdummy((pari_sp)(v + iv), (pari_sp)(v + ls + 1));
   setlg(v, iv); return v;
 }
 
