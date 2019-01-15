@@ -131,6 +131,7 @@ BA  18- qfbsolve now returns a vector of solutions.
     29- factor(x, D), D now encodes the domain over which to factor
     30- allow strsplit(str) [split into characters]
     31- allow strjoin(str) [default value for p = ""]
+    32- allow listinsert(L, x, n) for n > #L, like listput
 
   Added
      1- [libpari] nonsquare_Fl

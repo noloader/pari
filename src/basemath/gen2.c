@@ -2807,7 +2807,7 @@ listinsert(GEN L, GEN x, long index)
     pari_err_TYPE("listinsert",L);
   z = list_data(L); l = z? lg(z): 1;
   if (index <= 0) pari_err_COMPONENT("listinsert", "<=", gen_0, stoi(index));
-  if (index > l) pari_err_COMPONENT("listinsert", ">", stoi(l), stoi(index));
+  if (index > l) index = l;
   ensure_nb(L, l);
   BLOCK_SIGINT_START
   z = list_data(L);

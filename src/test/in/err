@@ -129,7 +129,6 @@ vecmax(matrix(0,2))
 L=List();
 listput(L, x, -1)
 listinsert(L,x,-1)
-listinsert(L,x,10)
 listpop(L)
 ellj(Mod(1,2))
 ellj(Qfb(1,1,1))
