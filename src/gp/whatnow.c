@@ -41,7 +41,7 @@ whatnow(PariOUT *out, const char *s, int flag)
    * whatnow() is never used in a case where speed would be necessary */
   if (!wp->old)
   {
-    if (!flag) msg(out, "This function did not exit in Pari 1.39");
+    if (!flag) msg(out, "This function did not exist in Pari 1.39");
     return 0;
   }
   def = wp->name;

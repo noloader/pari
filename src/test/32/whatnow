@@ -15,7 +15,7 @@ n is the dimension of the matrix.
 
 This function did not change
 
-This function did not exit in Pari 1.39
+This function did not exist in Pari 1.39
 
 New syntax: compimag(x,y) ===> x*y
 
