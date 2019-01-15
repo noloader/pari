@@ -28,7 +28,8 @@ Vecsmall([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
 ["a", "b", "", "", "", "cc"]
 ["a", "b", "c"]
 ["a", "b", "c"]
-"a/b/cc"
+"a/1/cc"
+"a1cc"
   ***   at top-level: strchr(-1)
   ***                 ^----------
   *** strchr: out of range in integer -> character conversion (-1).

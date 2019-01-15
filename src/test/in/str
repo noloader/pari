@@ -28,7 +28,8 @@ strsplit("::a::b::::", "::")
 strsplit("a:b::::cc", ":")
 strsplit("abc", "")
 strsplit("abc")
-strjoin(["a", "b", "cc"], "/")
+strjoin(["a", 1, "cc"], "/")
+strjoin(["a", 1, "cc"])
 
 \\ Errors, keep at end of file
 strchr(-1)

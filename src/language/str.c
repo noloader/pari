@@ -185,6 +185,7 @@ strjoin(GEN v, GEN p)
   long i, l;
   GEN w;
   if (!is_vec_t(typ(v))) pari_err_TYPE("strjoin",v);
+  if (!p) p = strtoGENstr("");
   if (typ(p) != t_STR) pari_err_TYPE("strjoin",p);
   l = lg(v); if (l == 1) return strtoGENstr("");
   w = cgetg(2*l - 2, t_VEC);
