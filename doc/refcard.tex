@@ -191,21 +191,21 @@ $x$\%$y${\rm,} divrem$(x,y)$}
 \li{insert $x$ in list $L$ at position $i$}{listinsert$(L,x,i)$}
 \li{sort the list $L$ in place}{listsort$(L,\{\fl\})$}
 
-\subsec{Maps. {\rm create empty dictionnary: $M$ = \kbd{Map}$()$}}
+\subsec{Maps. {\rm create empty dictionary: $M$ = \kbd{Map}$()$}}
 \li{attach value $v$ to key $k$}{mapput$(M,k,v)$}
 \li{recover value attach to key $k$ or error}{mapget$(M,k)$}
-\li{is key $k$ in the dict ? (set $v$ to $M(k)$)}
+\li{is key $k$ in the dict? (set $v$ to $M(k)$)}
    {mapisdefined$(M,k,\{\&v\})$}
 \li{remove $k$ from map domain}{mapdelete$(M,k)$}
 
 \section{GP Programming}
 \subsec{User functions and closures}
-$x,y$ are formal parameters; $y$ defaults to \kbd{Pi} if parameter opitted;
+$x,y$ are formal parameters; $y$ defaults to \kbd{Pi} if parameter omitted;
 $z,t$ are local variables (lexical scope), $z$ initialized to 1.
 \hfil\break
  {\tt fun(x, y=Pi) = my(z=1, t); \var{seq}\hfil\break}
  {\tt fun = (x, y=Pi) -> my(z=1, t); \var{seq}\hfill\break}
-\li{attach a help message to $f$}{addhelp$(f)$}
+\li{attach help message $h$ to $s$}{addhelp$(s,h)$}
 \li{undefine symbol $s$ (also kills help)}{kill$(s)$}
 \subsec{Control Statements {\rm ($X$: formal parameter in expression \seq)}}
 \li{if $a\ne0$, evaluate $\seq_1$, else $\seq_2$}{if$(a,\{\seq_1\},\{\seq_2\})$}
