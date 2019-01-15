@@ -154,7 +154,7 @@ Doc:
  except for scalar division: the quotient is such that the corresponding
  remainder is smallest in absolute value and in case of a tie the quotient
  closest to $+\infty$ is chosen (hence the remainder would belong to
- $]{-}|y|/2, |y|/2]$).
+ $[{-}|y|/2, |y|/2[$).
 
  When $x$ is a vector or matrix, the operator is applied componentwise.
 
