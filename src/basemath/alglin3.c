@@ -442,16 +442,27 @@ GEN
 vecslice0(GEN A, long y1, long y2)
 {
   long skip, lB, t = typ(A);
-  lB = vecslice_parse_arg(lg(A), &y1, &y2, &skip);
   switch(t)
   {
     case t_VEC: case t_COL:
+      lB = vecslice_parse_arg(lg(A), &y1, &y2, &skip);
       return vecslice_i(A, t,lB,y1,skip);
     case t_VECSMALL:
+      lB = vecslice_parse_arg(lg(A), &y1, &y2, &skip);
       return vecsmallslice_i(A, t,lB,y1,skip);
+    case t_LIST:
+      if (list_typ(A) == t_LIST_RAW)
+      {
+        GEN y, z = list_data(A);
+        long l = z? lg(z): 1;
+        lB = vecslice_parse_arg(l, &y1, &y2, &skip);
+        y = mklist(); if (!z) return y;
+        list_data(y) = vecslice_i(z, t_VEC,lB,y1,skip);
+        return y;
+      }
     default:
       pari_err_TYPE("_[_.._]",A);
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 
