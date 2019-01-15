@@ -2,8 +2,7 @@ Function: liftint
 Section: conversions
 C-Name: liftint
 Prototype: G
-Help: liftint(x): lifts every element of Z/nZ to Z, of Qp to Q, and of
- K[x]/(P) to K[x].
+Help: liftint(x): lifts every element of Z/nZ to Z and of Qp to Q.
 Description:
  (pol):pol        liftint($1)
  (vec):vec        liftint($1)
