@@ -196,11 +196,19 @@ forsquarefree(GEN a, GEN b, GEN code)
   if (typ(a) != t_INT) pari_err_TYPE("forsquarefree", a);
   if (typ(b) != t_INT) pari_err_TYPE("forsquarefree", b);
   if (cmpii(a,b) > 0) return;
-  s = signe(a);
-  if (s * signe(b) < 0) pari_err_TYPE("forsquarefree [!= signs]", mkvec2(a,b));
-  push_lex(NULL,code);
-  if (s < 0) forsquarefreeneg(itou(b), itou(a), code);
-  else       forsquarefreepos(itou(a), itou(b), code);
+  s = signe(a); push_lex(NULL,code);
+  if (s < 0)
+  {
+    if (signe(b) <= 0)
+      forsquarefreeneg(itou(b), itou(a), code);
+    else
+    {
+      forsquarefreeneg(1, itou(a), code);
+      forsquarefreepos(1, itou(b), code);
+    }
+  }
+  else
+    forsquarefreepos(itou(a), itou(b), code);
   pop_lex(1); set_avma(av);
 }
 

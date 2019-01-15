@@ -67,6 +67,7 @@ forfactored(x=0,2, if (x[1]==0, break);print(x))
 forfactored(x=0,2, if (x[1]==1, break);print(x))
 forfactored(x=1,-1,print(x))
 
+forsquarefree(N=-5,5,print(N))
 forsquarefree(N=10^5,10^5+10,print(N))
 forsquarefree(N=-10^5-10,-10^5,print(N))
 c=0;forsquarefree(N=1,10^6, my([n,f]=N); if (factorback(f)!=n,error(N)); c++);c
