@@ -2,9 +2,10 @@ Function: strchr
 Section: programming/specific
 C-Name: pari_strchr
 Prototype: G
-Help: strchr(x): converts x to a string, translating each integer into a
- character.
-Doc: converts $x$ to a string, translating each integer into a character.
+Help: strchr(x): converts integer or vector of integers x to a string,
+ translating each integer into a character using ASCII encoding.
+Doc: converts integer or vector of integers $x$ to a string, translating each
+ integer into a character using ASCII encoding.
  \bprog
  ? strchr(97)
  %1 = "a"

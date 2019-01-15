@@ -78,7 +78,7 @@ To exit \kbd{gp}, type \kbd{quit}, \kbd{\\q}, or \kbd{<C-D>} at prompt.\hfill
 \li{\typ{FFELT}. Elt in finite field $\FF_q$}{ffgen($q$,\text{'t})}
 \li{\typ{COMPLEX}. Complex Numbers}{$x +y\,*\;$I}
 \li{\typ{PADIC}. $p$-adic Numbers}{$x\;+\;$O$(p$\pow$k)$}
-\li{\typ{QUAD}. Quadratic Numbers}{$x + y\,*\;$quadgen($D$,'w)}
+\li{\typ{QUAD}. Quadratic Numbers}{$x + y\,*\;$quadgen($D$,\{'w\})}
 \li{\typ{POLMOD}. Polynomials modulo $g$}{Mod$(f,g)$}
 \li{\typ{POL}. Polynomials}{$a*x$\pow$n+\cdots+b$}
 \li{\typ{SER}. Power Series}{$f\;+\;$O$(x$\pow$k)$}
@@ -106,15 +106,15 @@ To exit \kbd{gp}, type \kbd{quit}, \kbd{\\q}, or \kbd{<C-D>} at prompt.\hfill
 \section{Information about an Object, Precision}
 \li{PARI type of object $x$}{type$(x)$}
 \li{length of $x$ / size of $x$ in memory}{\#$x${\rm, }sizebyte$(x)$}
-\li{real precision / bit precision of $x$}{precision$(x)${\rm, }bitprecision}
-\li{$p$-adic, series prec. of $x$}{padicprec$(x)${\rm, }serprec}
+\li{real precision / bit precision of $x$}{precision$(x)${\rm, }bitprecision$(x)$}
+\li{$p$-adic, series prec. of $x$}{padicprec$(x,p)${\rm, }serprec$(x,v)$}
 \li{current dynamic precision}{getlocalprec{\rm, }getlocalbitprec}
 
 \section{Operators}
 \li{basic operations}{+{\rm,} - {\rm,} *{\rm,} /{\rm,} \pow{\rm,} sqr}
 \li{\kbd{i$\leftarrow$i+1}, \kbd{i$\leftarrow$i-1}, \kbd{i$\leftarrow$i*j}, \dots}
   {i++{\rm,} i--{\rm,} i*=j{\rm,}\dots}
-\li{euclidean quotient, remainder}{$x$\bs/$y${\rm,} $x$\bs$y${\rm,}
+\li{Euclidean quotient, remainder}{$x$\bs/$y${\rm,} $x$\bs$y${\rm,}
 $x$\%$y${\rm,} divrem$(x,y)$}
 \li{shift $x$ left or right $n$ bits}{ $x$<<$n$, $x$>>$n$
   {\rm or} shift$(x,\pm n)$}
@@ -124,24 +124,25 @@ $x$\%$y${\rm,} divrem$(x,y)$}
 \li{boolean operators (or, and, not)}{||{\rm, } \&\&{\rm ,} !}
 \li{bit operations}
    {bitand{\rm, }bitneg{\rm, }bitor{\rm, }bitxor{\rm, }bitnegimply}
-\li{maximum/minimum of $x$ and $y$}{max{\rm,} min$(x,y)$}
-\li{sign of $x=-1,0,1$}{sign$(x)$}
+\li{maximum/minimum of $x$ and $y$}{max$(x,y)${\rm,} min$(x,y)$}
+\li{sign of $x$ (gives $-1,0,1$)}{sign$(x)$}
 \li{binary exponent of $x$}{exponent$(x)$}
 \li{derivative of $f$}{$f$'}
 \li{differential operator}{diffop$(f,v,d,\{n=1\})$}
 \li{quote operator (formal variable)}{'x}
 \li{assignment}{x = \var{value}}
-\li{simultaneous assignment $x\leftarrow v_1$, $y\leftarrow v_2$}{[x,y] = v}
+\li{simultaneous assignment $x\leftarrow v[1]$, $y\leftarrow v[2]$}{[x,y] = v}
 \section{Select Components}
+\emph{Caveat:} components start at index $n = 1$.\hfil\break
 \li{$n$-th component of $x$}{component$(x,n)$}
 \li{$n$-th component of vector/list $x$}{$x$[$n$]}
 \li{components $a,a+1,\dots,b$ of vector $x$}{$x$[$a$..$b$]}
 \li{$(m,n)$-th component of matrix $x$}{$x$[$m,n$]}
 \li{row $m$ or column $n$ of matrix $x$}{$x$[$m,$]{\rm,} $x$[$,n$]}
-\li{numerator/denominator of $x$}{numerator$(x)${\rm, }denominator}
+\li{numerator/denominator of $x$}{numerator$(x)${\rm, }denominator$(x)$}
 
 \section{Random Numbers}
-\li{random integer/prime in $[0,N[$}{random$(N)${\rm, }randomprime}
+\li{random integer/prime in $[0,N[$}{random$(N)${\rm, }randomprime$(N)$}
 \li{get/set random seed}{getrand{\rm, }setrand$(s)$}
 
 \section{Conversions}
@@ -149,7 +150,7 @@ $x$\%$y${\rm,} divrem$(x,y)$}
 \li{to list, set, map, string}{List{\rm,} Set{\rm,} Map{\rm,} Str}
 \li{create $(x\mod y)$}{Mod$(x,y)$}
 \li{make $x$ a polynomial of $v$}{Pol$(x,\{v\})$}
-\li{as \kbd{Pol}, etc., starting with constant term}
+\li{variants of \kbd{Pol} \emph{et al.}, in reverse order}
    {Polrev{\rm, }Vecrev{\rm, }Colrev}
 \li{make $x$ a power series of $v$}{Ser$(x,\{v\})$}
 \li{convert $x$ to simplest possible type}{simplify$(x)$}
