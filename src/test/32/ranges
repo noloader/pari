@@ -27,6 +27,15 @@
 []
 []
 []
+List([2, 3])
+List([1, 2, 3, 4])
+List([3, 4, 5])
+List([1, 2, 4, 5])
+List([])
+List([])
+List([])
+List([])
+List([])
 Vecsmall([2, 3])
 Vecsmall([1, 2, 3, 4])
 Vecsmall([3, 4, 5])
@@ -151,4 +160,4 @@ Vecsmall([1, 2, 4, 5])
 123
   ***   this should be a small integer: vector(3)[1..2]!
   ***                                   ^----------------
-Total time spent: 0
+Total time spent: 1
