@@ -1208,15 +1208,17 @@ matsolvemod(GEN M, GEN D, GEN Y, long flag)
 {
   pari_sp av = avma;
   long m, n, i, char0 = 0;
-  if (typ(M)!=t_MAT) pari_err_TYPE("matsolvemod (M)",M);
+  if (typ(M)!=t_MAT || !RgM_is_ZM(M)) pari_err_TYPE("matsolvemod (M)",M);
   RgM_dimensions(M,&m,&n);
-  if (typ(D)!=t_COL && typ(D)!=t_INT) pari_err_TYPE("matsolvemod (D)",D);
+  if (typ(D)!=t_INT && (typ(D)!=t_COL || !RgV_is_ZV(D)))
+    pari_err_TYPE("matsolvemod (D)",D);
   if (n)
     { if (typ(D)==t_COL && lg(D)!=m+1) pari_err_DIM("matsolvemod [1]"); }
   else
     { if (typ(D)==t_COL) m = lg(D)-1; }
-  if (typ(Y)==t_INT) Y = const_col(m,Y);
-  if (typ(Y)!=t_COL) pari_err_TYPE("matsolvemod (Y)",Y);
+  if (typ(Y)==t_INT)
+    Y = const_col(m,Y);
+  else if (typ(Y)!=t_COL || !RgV_is_ZV(Y)) pari_err_TYPE("matsolvemod (Y)",Y);
   if (!n && !m) m = lg(Y)-1;
   else if (m != lg(Y)-1) pari_err_DIM("matsolvemod [2]");
   if (typ(D)==t_INT)
