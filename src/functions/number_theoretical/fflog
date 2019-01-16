@@ -3,7 +3,7 @@ Section: number_theoretical
 C-Name: fflog
 Prototype: GGDG
 Help: fflog(x,g,{o}): return the discrete logarithm of the finite field
- element x in base g. If present, o must represents the multiplicative
+ element x in base g. If present, o must represent the multiplicative
  order of g. If no o is given, assume that g is a primitive root.
 Doc: discrete logarithm of the finite field element $x$ in base $g$,
  i.e.~an $e$ in $\Z$ such that $g^e = o$. If
