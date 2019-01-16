@@ -1315,6 +1315,7 @@ FpXYQQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
     ulong pp = to_FlxqX(x, NULL, T, p, &x, NULL, &T);
     S = ZX_to_Flx(S, pp);
     y = FlxX_to_ZXX( FlxYqq_pow(x, n, S, T, pp) );
+    y = gerepileupto(av, y);
   }
   else
   {
@@ -1323,7 +1324,7 @@ FpXYQQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
     D.p = p;
     y = gen_pow(x, n, (void*)&D, &FpXYQQ_sqr, &FpXYQQ_mul);
   }
-  return gerepileupto(av, y);
+  return y;
 }
 
 GEN
@@ -1444,6 +1445,7 @@ FpXQXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
     ulong pp = to_FlxqX(x, S, T, p, &x, &S, &T);
     GEN z = FlxqXQ_pow(x, n, S, T, pp);
     y = FlxX_to_ZXX(z);
+    return gerepileupto(ltop, y);
   }
   else
   {
@@ -1451,9 +1453,9 @@ FpXQXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
     S = FpXQX_get_red(S, T, p);
     D.S = S; D.T = T; D.p = p;
     if (s < 0) x = FpXQXQ_inv(x,S,T,p);
-    y = gen_pow(x, n, (void*)&D,&_FpXQXQ_sqr,&_FpXQXQ_mul);
+    y = gen_pow_i(x, n, (void*)&D,&_FpXQXQ_sqr,&_FpXQXQ_mul);
+    return gerepilecopy(ltop, y);
   }
-  return gerepileupto(ltop, y);
 }
 
 /* generates the list of powers of x of degree 0,1,2,...,l*/

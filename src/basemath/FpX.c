@@ -1684,8 +1684,8 @@ FpXQ_pow(GEN x, GEN n, GEN T, GEN p)
   }
   if (s < 0) x = FpXQ_inv(x,T,p);
   D.p = p; D.T = FpX_get_red(T,p);
-  y = gen_pow(x, n, (void*)&D, &_FpXQ_sqr, &_FpXQ_mul);
-  return gerepileupto(av, y);
+  y = gen_pow_i(x, n, (void*)&D, &_FpXQ_sqr, &_FpXQ_mul);
+  return gerepilecopy(av, y);
 }
 
 GEN /*Assume n is very small*/

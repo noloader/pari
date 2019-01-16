@@ -213,7 +213,7 @@ _FlxqE_mul(void *E, GEN P, GEN n)
   if (!s || ell_is_inf(P)) return ellinf();
   if (s<0) P = FlxqE_neg(P, e->T, e->p);
   if (is_pm1(n)) return s>0? gcopy(P): P;
-  return gerepileupto(av, gen_pow(P, n, e, &_FlxqE_dbl, &_FlxqE_add));
+  return gerepilecopy(av, gen_pow_i(P, n, e, &_FlxqE_dbl, &_FlxqE_add));
 }
 
 GEN
@@ -462,7 +462,7 @@ FlxqE_Miller(GEN Q, GEN P, GEN m, GEN a4, GEN T, ulong p)
 
   d.a4 = a4; d.T = T; d.p = p; d.P = P;
   g1 = pol1_Flx(get_Flx_var(T));
-  v = gen_pow(mkvec3(g1,g1,Q), m, (void*)&d, FlxqE_Miller_dbl, FlxqE_Miller_add);
+  v = gen_pow_i(mkvec3(g1,g1,Q), m, (void*)&d, FlxqE_Miller_dbl, FlxqE_Miller_add);
   num = gel(v,1); denom = gel(v,2);
   return gerepileupto(ltop, Flxq_div(num, denom, T, p));
 }

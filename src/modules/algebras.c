@@ -2584,15 +2584,18 @@ algpow(GEN al, GEN x, GEN n)
   GEN res;
   checkalg(al);
   switch(signe(n)) {
-    case 0 :
+    case 0:
       if (alg_model(al,x) == al_MATRIX)
-                        res = algmatid(al,lg(x)-1);
-      else              res = col_ei(alg_get_absdim(al),1);
-      break;
-    case 1 :            res = gen_pow(x, n, (void*)al, _sqr, _mul); break;
-    default : /* -1 */  res = gen_pow(alginv(al,x), gneg(n), (void*)al, _sqr, _mul);
+        res = algmatid(al,lg(x)-1);
+      else
+        res = col_ei(alg_get_absdim(al),1);
+      return res;
+    case 1:
+      res = gen_pow_i(x, n, (void*)al, _sqr, _mul); break;
+    default: /* -1 */
+      res = gen_pow_i(alginv(al,x), gneg(n), (void*)al, _sqr, _mul);
   }
-  return gerepileupto(av,res);
+  return gerepilecopy(av,res);
 }
 
 static GEN

@@ -2081,17 +2081,17 @@ _sqr(void *data, GEN x) { return _idealsqrred((GEN)data, x); }
 GEN
 idealpowred(GEN nf, GEN x, GEN n)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   long s;
   GEN y;
 
   if (typ(n) != t_INT) pari_err_TYPE("idealpowred",n);
   s = signe(n); if (s == 0) return idealpow(nf,x,n);
-  y = gen_pow(x, n, (void*)nf, &_sqr, &_mul);
-
+  y = gen_pow_i(x, n, (void*)nf, &_sqr, &_mul);
+  av2 = avma;
   if (s < 0) y = idealinv(nf,y);
   if (s < 0 || is_pm1(n)) y = idealred(nf,y);
-  return gerepileupto(av,y);
+  return avma == av2? gerepilecopy(av,y): gerepileupto(av,y);
 }
 
 GEN

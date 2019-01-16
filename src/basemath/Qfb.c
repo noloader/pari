@@ -521,11 +521,11 @@ nupow(GEN x, GEN n, GEN L)
   y = qfi_1_by_disc(D);
   if (!signe(n)) return y;
   if (!L) L = sqrtnint(absi_shallow(D), 4);
-  y = gen_pow(x, n, (void*)L, &mul_nudupl, &mul_nucomp);
+  y = gen_pow_i(x, n, (void*)L, &mul_nudupl, &mul_nucomp);
   if (signe(n) < 0
   && !absequalii(gel(y,1),gel(y,2))
   && !absequalii(gel(y,1),gel(y,3))) togglesign(gel(y,2));
-  return gerepileupto(av, y);
+  return gerepilecopy(av, y);
 }
 
 /* Reduction */

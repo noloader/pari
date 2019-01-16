@@ -5287,6 +5287,7 @@ get_FlxqXQ_algebra(void **E, GEN S, GEN T, ulong p)
 GEN
 FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
 {
+  pari_sp av = avma;
   struct _FlxqXQ D;
   long s = signe(n);
   if (!s) return pol1_FlxX(get_FlxqX_var(S),get_Flx_var(T));
@@ -5298,7 +5299,8 @@ FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
   D.S = S;
   D.T = T;
   D.p = p;
-  return gen_pow(x, n, (void*)&D, &_FlxqXQ_sqr, &_FlxqXQ_mul);
+  x = gen_pow_i(x, n, (void*)&D, &_FlxqXQ_sqr, &_FlxqXQ_mul);
+  return gerepilecopy(av, x);
 }
 
 /* x over Fq, return lift(x^n) mod S */
@@ -5607,12 +5609,9 @@ FlxYqq_mul(void *data, GEN x, GEN y)
 GEN
 FlxYqq_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
 {
-  pari_sp av = avma;
   FlxYqq_muldata D;
-  GEN y;
   D.S = S;
   D.T = T;
   D.p = p;
-  y = gen_pow(x, n, (void*)&D, &FlxYqq_sqr, &FlxYqq_mul);
-  return gerepileupto(av, y);
+  return gen_pow(x, n, (void*)&D, &FlxYqq_sqr, &FlxYqq_mul);
 }

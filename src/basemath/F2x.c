@@ -920,8 +920,8 @@ F2xq_pow(GEN x, GEN n, GEN pol)
     return (signe(n) < 0)? F2xq_inv(x,pol): F2x_copy(x);
 
   if (signe(n) < 0) x = F2xq_inv(x,pol);
-  y = gen_pow(x, n, (void*)pol, &_F2xq_sqr, &_F2xq_mul);
-  return gerepileupto(av, y);
+  y = gen_pow_i(x, n, (void*)pol, &_F2xq_sqr, &_F2xq_mul);
+  return gerepilecopy(av, y);
 }
 
 GEN

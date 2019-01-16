@@ -162,7 +162,7 @@ _FpJ_mul(void *E, GEN P, GEN n)
   if (!s || ell_is_inf(P)) return ellinf();
   if (s<0) P = FpJ_neg(P, e->p);
   if (is_pm1(n)) return s>0? gcopy(P): P;
-  return gerepilecopy(av, gen_pow(P, n, e, &_FpJ_dbl, &_FpJ_add));
+  return gerepilecopy(av, gen_pow_i(P, n, e, &_FpJ_dbl, &_FpJ_add));
 }
 
 GEN
@@ -360,7 +360,7 @@ _FpE_mul(void *E, GEN P, GEN n)
   if (s<0) P = FpE_neg(P, e->p);
   if (is_pm1(n)) return s>0? gcopy(P): P;
   if (equalis(n,2)) return _FpE_dbl(E, P);
-  Q = gen_pow(FpE_to_FpJ(P), n, e, &_FpJ_dbl, &_FpJ_add);
+  Q = gen_pow_i(FpE_to_FpJ(P), n, e, &_FpJ_dbl, &_FpJ_add);
   return gerepileupto(av, FpJ_to_FpE(Q, e->p));
 }
 
@@ -596,7 +596,8 @@ FpE_Miller(GEN Q, GEN P, GEN m, GEN a4, GEN p)
   GEN v, num, denom;
 
   d.a4 = a4; d.p = p; d.P = P;
-  v = gen_pow(mkvec3(gen_1,gen_1,Q), m, (void*)&d, FpE_Miller_dbl, FpE_Miller_add);
+  v = gen_pow_i(mkvec3(gen_1,gen_1,Q), m, (void*)&d,
+                FpE_Miller_dbl, FpE_Miller_add);
   num = gel(v,1); denom = gel(v,2);
   return gerepileupto(ltop, Fp_div(num, denom, p));
 }
@@ -1623,7 +1624,7 @@ _FpXQE_mul(void *E, GEN P, GEN n)
   if (!s || ell_is_inf(P)) return ellinf();
   if (s<0) P = FpXQE_neg(P, e->T, e->p);
   if (is_pm1(n)) return s>0? gcopy(P): P;
-  return gerepileupto(av, gen_pow(P, n, e, &_FpXQE_dbl, &_FpXQE_add));
+  return gerepilecopy(av, gen_pow_i(P, n, e, &_FpXQE_dbl, &_FpXQE_add));
 }
 
 GEN
@@ -1846,7 +1847,8 @@ FpXQE_Miller(GEN Q, GEN P, GEN m, GEN a4, GEN T, GEN p)
 
   d.a4 = a4; d.T = T; d.p = p; d.P = P;
   g1 = pol_1(get_FpX_var(T));
-  v = gen_pow(mkvec3(g1,g1,Q), m, (void*)&d, FpXQE_Miller_dbl, FpXQE_Miller_add);
+  v = gen_pow_i(mkvec3(g1,g1,Q), m, (void*)&d,
+                FpXQE_Miller_dbl, FpXQE_Miller_add);
   num = gel(v,1); denom = gel(v,2);
   return gerepileupto(ltop, FpXQ_div(num, denom, T, p));
 }
