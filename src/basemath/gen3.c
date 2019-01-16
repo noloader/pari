@@ -1734,7 +1734,11 @@ deriv(GEN x, long v)
       case t_FFELT: return FF_zero(x);
       default: return gen_0;
     }
-  if (v < 0 && tx!=t_CLOSURE) v = gvar9(x);
+  if (v < 0)
+  {
+    if (tx == t_CLOSURE) return closure_deriv(x);
+    v = gvar9(x);
+  }
   switch(tx)
   {
     case t_POLMOD:
@@ -1791,9 +1795,6 @@ deriv(GEN x, long v)
       y = cgetg_copy(x, &lx);
       for (i=1; i<lx; i++) gel(y,i) = deriv(gel(x,i),v);
       return y;
-
-    case t_CLOSURE:
-      if (v==-1) return closure_deriv(x);
   }
   pari_err_TYPE("deriv",x);
   return NULL; /* LCOV_EXCL_LINE */
