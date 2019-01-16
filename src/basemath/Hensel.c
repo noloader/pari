@@ -1121,7 +1121,7 @@ _can5_iter(void *E, GEN f, GEN q)
   D.q = q; D.T = ZX_Z_sub(pol_xn(p,vT),gen_1);
   D.p = p;
   fs = mkvec2(_shift(f, 1, p, vT), gen_1);
-  N = gel(gen_powu(fs,p-1,(void*)&D,_can5_sqr,_can5_mul),1);
+  N = gel(gen_powu_i(fs,p-1,(void*)&D,_can5_sqr,_can5_mul),1);
   N = ZXX_evalx0(FpXQX_red(N,polcyclo(p,vT),q));
   P = FpX_mul(N,f,q);
   P = RgX_deflate(P, p);

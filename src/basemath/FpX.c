@@ -1704,8 +1704,8 @@ FpXQ_powu(GEN x, ulong n, GEN T, GEN p)
     return Flx_to_ZX_inplace(gerepileuptoleaf(av, y));
   }
   D.T = FpX_get_red(T, p); D.p = p;
-  y = gen_powu(x, n, (void*)&D, &_FpXQ_sqr, &_FpXQ_mul);
-  return gerepileupto(av, y);
+  y = gen_powu_i(x, n, (void*)&D, &_FpXQ_sqr, &_FpXQ_mul);
+  return gerepilecopy(av, y);
 }
 
 /* generates the list of powers of x of degree 0,1,2,...,l*/
@@ -1822,11 +1822,13 @@ FpXQ_autpow_mul(void *E, GEN x, GEN y)
 GEN
 FpXQ_autpow(GEN x, ulong n, GEN T, GEN p)
 {
+  pari_sp av = avma;
   struct _FpXQ D;
   if (n==0) return FpX_rem(pol_x(varn(x)), T, p);
   if (n==1) return FpX_rem(x, T, p);
   D.T = FpX_get_red(T, p); D.p = p;
-  return gen_powu(x,n,(void*)&D,FpXQ_autpow_sqr,FpXQ_autpow_mul);
+  x = gen_powu_i(x,n,(void*)&D,FpXQ_autpow_sqr,FpXQ_autpow_mul);
+  return gerepilecopy(av, x);
 }
 
 static GEN
@@ -1851,9 +1853,11 @@ FpXQ_auttrace_sqr(void *E, GEN x)
 GEN
 FpXQ_auttrace(GEN x, ulong n, GEN T, GEN p)
 {
+  pari_sp av = avma;
   struct _FpXQ D;
   D.T = FpX_get_red(T, p); D.p = p;
-  return gen_powu(x,n,(void*)&D,FpXQ_auttrace_sqr,FpXQ_auttrace_mul);
+  x = gen_powu_i(x,n,(void*)&D,FpXQ_auttrace_sqr,FpXQ_auttrace_mul);
+  return gerepilecopy(av, x);
 }
 
 static GEN
@@ -1877,9 +1881,11 @@ FpXQ_autsum_sqr(void *E, GEN x)
 GEN
 FpXQ_autsum(GEN x, ulong n, GEN T, GEN p)
 {
+  pari_sp av = avma;
   struct _FpXQ D;
   D.T = FpX_get_red(T, p); D.p = p;
-  return gen_powu(x,n,(void*)&D,FpXQ_autsum_sqr,FpXQ_autsum_mul);
+  x = gen_powu_i(x,n,(void*)&D,FpXQ_autsum_sqr,FpXQ_autsum_mul);
+  return gerepilecopy(av, x);
 }
 
 static GEN
@@ -1904,9 +1910,11 @@ FpXQM_autsum_sqr(void *E, GEN x)
 GEN
 FpXQM_autsum(GEN x, ulong n, GEN T, GEN p)
 {
+  pari_sp av = avma;
   struct _FpXQ D;
   D.T = FpX_get_red(T, p); D.p = p;
-  return gen_powu(x, n, (void*)&D, FpXQM_autsum_sqr, FpXQM_autsum_mul);
+  x = gen_powu_i(x, n, (void*)&D, FpXQM_autsum_sqr, FpXQM_autsum_mul);
+  return gerepilecopy(av, x);
 }
 
 static long

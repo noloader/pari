@@ -935,8 +935,8 @@ F2xq_powu(GEN x, ulong n, GEN pol)
     case 1: return F2x_copy(x);
     case 2: return F2xq_sqr(x,pol);
   }
-  y = gen_powu(x, n, (void*)pol, &_F2xq_sqr, &_F2xq_mul);
-  return gerepileupto(av, y);
+  y = gen_powu_i(x, n, (void*)pol, &_F2xq_sqr, &_F2xq_mul);
+  return gerepilecopy(av, y);
 }
 
 GEN

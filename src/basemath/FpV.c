@@ -732,21 +732,19 @@ _Flm_one(void *E)
 GEN
 Flm_powu(GEN x, ulong n, ulong p)
 {
-  pari_sp av = avma;
   struct _Flm d;
   if (!n) return matid(lg(x)-1);
   d.p = p;
-  return gerepileupto(av, gen_powu(x, n, (void*)&d, &_Flm_sqr, &_Flm_mul));
+  return gen_powu(x, n, (void*)&d, &_Flm_sqr, &_Flm_mul);
 }
 GEN
 Flm_powers(GEN x, ulong n, ulong p)
 {
-  pari_sp av = avma;
   struct _Flm d;
   d.p = p;
   d.n = lg(x)-1;
-  return gerepileupto(av, gen_powers(x, n, 1, (void*)&d,
-                          &_Flm_sqr, &_Flm_mul, &_Flm_one));
+  return gen_powers(x, n, 1, (void*)&d,
+                    &_Flm_sqr, &_Flm_mul, &_Flm_one);
 }
 
 static GEN
@@ -758,9 +756,8 @@ _F2m_sqr(void *data, GEN x)
 GEN
 F2m_powu(GEN x, ulong n)
 {
-  pari_sp av = avma;
   if (!n) return matid(lg(x)-1);
-  return gerepileupto(av, gen_powu(x, n,NULL, &_F2m_sqr, &_F2m_mul));
+  return gen_powu(x, n,NULL, &_F2m_sqr, &_F2m_mul);
 }
 static GEN
 _FpM_mul(void *p , GEN x, GEN y)
@@ -771,7 +768,6 @@ _FpM_sqr(void *p, GEN x)
 GEN
 FpM_powu(GEN x, ulong n, GEN p)
 {
-  pari_sp av = avma;
   if (!n) return matid(lg(x)-1);
   if (lgefint(p) == 3)
   {
@@ -784,7 +780,7 @@ FpM_powu(GEN x, ulong n, GEN p)
       z = Flm_to_ZM(Flm_powu(ZM_to_Flm(x, pp), n, pp));
     return gerepileupto(av, z);
   }
-  return gerepileupto(av, gen_powu(x, n, (void*)p, &_FpM_sqr, &_FpM_mul));
+  return gen_powu(x, n, (void*)p, &_FpM_sqr, &_FpM_mul);
 }
 
 /*Multiple a column vector by a line vector to make a matrix*/

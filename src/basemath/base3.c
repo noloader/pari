@@ -652,9 +652,13 @@ nfpow_u(GEN nf, GEN z, ulong n)
   x = nf_to_scalar_or_basis(nf, z);
   if (typ(x) != t_COL) return gpowgs(x,n);
   x = primitive_part(x, &cx);
-  x = gen_powu(x, n, (void*)nf, _sqr, _mul);
-  if (cx) x = gmul(x, powgi(cx, utoipos(n)));
-  return av==avma? gcopy(x): gerepileupto(av,x);
+  x = gen_powu_i(x, n, (void*)nf, _sqr, _mul);
+  if (cx)
+  {
+    x = gmul(x, powgi(cx, utoipos(n)));
+    return gerepileupto(av,x);
+  }
+  return gerepilecopy(av, x);
 }
 
 static GEN

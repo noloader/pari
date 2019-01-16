@@ -1631,11 +1631,13 @@ FpXQXQ_autpow_mul(void * E, GEN x, GEN y)
 GEN
 FpXQXQ_autpow(GEN aut, long n, GEN S, GEN T, GEN p)
 {
+  pari_sp av = avma;
   struct _FpXQXQ D;
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
-  return gen_powu(aut,n,&D,FpXQXQ_autpow_sqr,FpXQXQ_autpow_mul);
+  aut = gen_powu_i(aut,n,&D,FpXQXQ_autpow_sqr,FpXQXQ_autpow_mul);
+  return gerepilecopy(av, aut);
 }
 
 static GEN
@@ -1661,11 +1663,13 @@ FpXQXQ_auttrace_sqr(void *E, GEN x)
 GEN
 FpXQXQ_auttrace(GEN aut, long n, GEN S, GEN T, GEN p)
 {
+  pari_sp av = avma;
   struct _FpXQXQ D;
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
-  return gen_powu(aut,n,&D,FpXQXQ_auttrace_sqr,FpXQXQ_auttrace_mul);
+  aut = gen_powu_i(aut,n,&D,FpXQXQ_auttrace_sqr,FpXQXQ_auttrace_mul);
+  return gerepilecopy(av, aut);
 }
 
 static GEN
@@ -1695,11 +1699,13 @@ FpXQXQ_autsum_sqr(void * T, GEN x)
 GEN
 FpXQXQ_autsum(GEN aut, long n, GEN S, GEN T, GEN p)
 {
+  pari_sp av = avma;
   struct _FpXQXQ D;
   T = FpX_get_red(T, p);
   S = FpXQX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
-  return gen_powu(aut,n,&D,FpXQXQ_autsum_sqr,FpXQXQ_autsum_mul);
+  aut = gen_powu_i(aut,n,&D,FpXQXQ_autsum_sqr,FpXQXQ_autsum_mul);
+  return gerepilecopy(av, aut);
 }
 
 GEN

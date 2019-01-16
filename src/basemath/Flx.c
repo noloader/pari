@@ -2730,11 +2730,13 @@ Flxq_autpow_mul(void *E, GEN x, GEN y)
 GEN
 Flxq_autpow(GEN x, ulong n, GEN T, ulong p)
 {
+  pari_sp av = avma;
   struct _Flxq D;
   if (n==0) return Flx_rem(polx_Flx(x[1]), T, p);
   if (n==1) return Flx_rem(x, T, p);
   D.T = Flx_get_red(T, p); D.p = p;
-  return gen_powu(x,n,(void*)&D,Flxq_autpow_sqr,Flxq_autpow_mul);
+  x = gen_powu_i(x,n,(void*)&D,Flxq_autpow_sqr,Flxq_autpow_mul);
+  return gerepilecopy(av, x);
 }
 
 static GEN
@@ -2759,9 +2761,11 @@ Flxq_autsum_sqr(void *E, GEN x)
 GEN
 Flxq_autsum(GEN x, ulong n, GEN T, ulong p)
 {
+  pari_sp av = avma;
   struct _Flxq D;
   D.T = Flx_get_red(T, p); D.p = p;
-  return gen_powu(x,n,(void*)&D,Flxq_autsum_sqr,Flxq_autsum_mul);
+  x = gen_powu_i(x,n,(void*)&D,Flxq_autsum_sqr,Flxq_autsum_mul);
+  return gerepilecopy(av, x);
 }
 
 static GEN
@@ -2787,9 +2791,11 @@ Flxq_auttrace_sqr(void *E, GEN x)
 GEN
 Flxq_auttrace(GEN x, ulong n, GEN T, ulong p)
 {
+  pari_sp av = avma;
   struct _Flxq D;
   D.T = Flx_get_red(T, p); D.p = p;
-  return gen_powu(x,n,(void*)&D,Flxq_auttrace_sqr,Flxq_auttrace_mul);
+  x = gen_powu_i(x,n,(void*)&D,Flxq_auttrace_sqr,Flxq_auttrace_mul);
+  return gerepilecopy(av, x);
 }
 
 static long
@@ -5307,6 +5313,7 @@ FlxqXQ_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
 GEN
 FlxqXQ_powu(GEN x, ulong n, GEN S, GEN T, ulong p)
 {
+  pari_sp av = avma;
   struct _FlxqXQ D;
   switch(n)
   {
@@ -5317,7 +5324,8 @@ FlxqXQ_powu(GEN x, ulong n, GEN S, GEN T, ulong p)
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S = S; D.T = T; D.p = p;
-  return gen_powu(x, n, (void*)&D, &_FlxqXQ_sqr, &_FlxqXQ_mul);
+  x = gen_powu_i(x, n, (void*)&D, &_FlxqXQ_sqr, &_FlxqXQ_mul);
+  return gerepilecopy(av, x);
 }
 
 GEN
@@ -5494,11 +5502,13 @@ FlxqXQ_autpow_mul(void * E, GEN x, GEN y)
 GEN
 FlxqXQ_autpow(GEN aut, long n, GEN S, GEN T, ulong p)
 {
+  pari_sp av = avma;
   struct _FlxqXQ D;
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
-  return gen_powu(aut,n,&D,FlxqXQ_autpow_sqr,FlxqXQ_autpow_mul);
+  aut = gen_powu_i(aut,n,&D,FlxqXQ_autpow_sqr,FlxqXQ_autpow_mul);
+  return gerepilecopy(av, aut);
 }
 
 static GEN
@@ -5529,11 +5539,13 @@ FlxqXQ_autsum_sqr(void * T, GEN x)
 GEN
 FlxqXQ_autsum(GEN aut, long n, GEN S, GEN T, ulong p)
 {
+  pari_sp av = avma;
   struct _FlxqXQ D;
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
-  return gen_powu(aut,n,&D,FlxqXQ_autsum_sqr,FlxqXQ_autsum_mul);
+  aut = gen_powu_i(aut,n,&D,FlxqXQ_autsum_sqr,FlxqXQ_autsum_mul);
+  return gerepilecopy(av, aut);
 }
 
 static GEN
@@ -5559,11 +5571,13 @@ FlxqXQ_auttrace_sqr(void *E, GEN x)
 GEN
 FlxqXQ_auttrace(GEN x, ulong n, GEN S, GEN T, ulong p)
 {
+  pari_sp av = avma;
   struct _FlxqXQ D;
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
   D.S=S; D.T=T; D.p=p;
-  return gen_powu(x,n,(void*)&D,FlxqXQ_auttrace_sqr,FlxqXQ_auttrace_mul);
+  x = gen_powu_i(x,n,(void*)&D,FlxqXQ_auttrace_sqr,FlxqXQ_auttrace_mul);
+  return gerepilecopy(av, x);
 }
 
 /*******************************************************************/

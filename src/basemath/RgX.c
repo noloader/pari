@@ -2488,13 +2488,12 @@ RgXn_sqrt(GEN h, long e)
 GEN
 RgXQ_powu(GEN x, ulong n, GEN T)
 {
-  pari_sp av;
-  GEN y;
+  pari_sp av = avma;
 
   if (!n) return pol_1(varn(x));
   if (n == 1) return RgX_copy(x);
-  av = avma; y = gen_powu(x, n, (void*)T, &_sqr, &_mul);
-  return gerepileupto(av, y);
+  x = gen_powu_i(x, n, (void*)T, &_sqr, &_mul);
+  return gerepilecopy(av, x);
 }
 /* x,T in Rg[X], n in N, compute lift(x^n mod T)) */
 GEN
@@ -2502,15 +2501,14 @@ RgXQ_pow(GEN x, GEN n, GEN T)
 {
   pari_sp av;
   long s = signe(n);
-  GEN y;
 
   if (!s) return pol_1(varn(x));
   if (is_pm1(n) == 1)
     return (s < 0)? RgXQ_inv(x, T): RgX_copy(x);
   av = avma;
   if (s < 0) x = RgXQ_inv(x, T);
-  y = gen_pow_i(x, n, (void*)T, &_sqr, &_mul);
-  return gerepilecopy(av, y);
+  x = gen_pow_i(x, n, (void*)T, &_sqr, &_mul);
+  return gerepilecopy(av, x);
 }
 static GEN
 _ZXQsqr(void *data, GEN x) { return ZXQ_sqr(x, (GEN)data); }
@@ -2520,13 +2518,12 @@ _ZXQmul(void *data, GEN x, GEN y) { return ZXQ_mul(x,y, (GEN)data); }
 GEN
 ZXQ_powu(GEN x, ulong n, GEN T)
 {
-  pari_sp av;
-  GEN y;
+  pari_sp av = avma;
 
   if (!n) return pol_1(varn(x));
   if (n == 1) return ZX_copy(x);
-  av = avma; y = gen_powu(x, n, (void*)T, &_ZXQsqr, &_ZXQmul);
-  return gerepileupto(av, y);
+  x = gen_powu_i(x, n, (void*)T, &_ZXQsqr, &_ZXQmul);
+  return gerepilecopy(av, x);
 }
 
 /* generates the list of powers of x of degree 0,1,2,...,l*/

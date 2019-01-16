@@ -718,7 +718,7 @@ ZpXQ_norm_pcyc(GEN x, GEN T, GEN q, GEN p)
   D.T = T; D.p = q; D.n = d+1;
   if (d==1) return ZX_copy(x);
   z = mkvec2(x,mkvecsmall(p[2]));
-  z = gen_powu(z,d,(void*)&D,ZpXQ_norm_sqr,ZpXQ_norm_mul);
+  z = gen_powu_i(z,d,(void*)&D,ZpXQ_norm_sqr,ZpXQ_norm_mul);
   return gmael(z,1,2);
 }
 
