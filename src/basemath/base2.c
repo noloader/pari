@@ -2362,15 +2362,16 @@ QXQV_to_FpM(GEN basis, GEN T, GEN p)
 
 /* initialize reduction mod pr; if zk = 1, will only init data required to
  * reduce *integral* element.  Realize (O_K/pr) as Fp[X] / (T), for a
- * *monic* T */
+ * *monic* T; use variable vT for varn(T) */
 static GEN
-modprinit(GEN nf, GEN pr, int zk)
+modprinit(GEN nf, GEN pr, int zk, long vT)
 {
   pari_sp av = avma;
   GEN res, tau, mul, x, p, T, pow, ffproj, nfproj, prh, c;
   long N, i, k, f;
 
   nf = checknf(nf); checkprid(pr);
+  if (vT < 0) vT = nf_get_varn(nf);
   f = pr_get_f(pr);
   N = nf_get_degree(nf);
   prh = pr_hnf(nf, pr);
@@ -2412,6 +2413,7 @@ modprinit(GEN nf, GEN pr, int zk)
       basis = RgV_to_RgM(basis, lg(basis)-1);
       ffproj = ZM_mul(basis, ffproj);
     }
+    setvarn(T, vT);
     ffproj = FpM_red(ffproj, p);
     if (!equali1(D))
     {
@@ -2468,7 +2470,7 @@ modprinit(GEN nf, GEN pr, int zk)
   mul = FpM_mul(ffproj, mul, p);
 
   pow = get_powers(mul, p);
-  T = RgV_to_RgX(FpM_deplin(pow, p), nf_get_varn(nf));
+  T = RgV_to_RgX(FpM_deplin(pow, p), vT);
   nfproj = cgetg(f+1, t_MAT);
   for (i=1; i<=f; i++) gel(nfproj,i) = lift_to_zk(gel(pow,i), c, N);
 
@@ -2484,9 +2486,11 @@ modprinit(GEN nf, GEN pr, int zk)
 }
 
 GEN
-nfmodprinit(GEN nf, GEN pr) { return modprinit(nf, pr, 0); }
+nfmodprinit(GEN nf, GEN pr) { return modprinit(nf, pr, 0, -1); }
 GEN
-zkmodprinit(GEN nf, GEN pr) { return modprinit(nf, pr, 1); }
+zkmodprinit(GEN nf, GEN pr) { return modprinit(nf, pr, 1, -1); }
+GEN
+nfmodprinit0(GEN nf, GEN pr, long v) { return modprinit(nf, pr, 0, v); }
 
 /* x may be a modpr */
 static int
@@ -2528,7 +2532,7 @@ get_prid(GEN x)
 static GEN
 to_ff_init(GEN nf, GEN *pr, GEN *T, GEN *p, int zk)
 {
-  GEN modpr = ok_modpr(*pr)? *pr: modprinit(nf, *pr, zk);
+  GEN modpr = ok_modpr(*pr)? *pr: modprinit(nf, *pr, zk, -1);
   *T = modpr_get_T(modpr);
   *pr = modpr_get_pr(modpr);
   *p = pr_get_p(*pr); return modpr;

@@ -2099,6 +2099,7 @@ GEN     nfcompositum(GEN nf, GEN A, GEN B, long flag);
 void    nfmaxord(nfmaxord_t *S, GEN T, long flag);
 GEN     nfmodpr(GEN nf, GEN x, GEN pr);
 GEN     nfmodprinit(GEN nf, GEN pr);
+GEN     nfmodprinit0(GEN nf, GEN pr, long v);
 GEN     nfmodprlift(GEN nf, GEN x, GEN pr);
 GEN     nfreducemodpr(GEN nf, GEN x, GEN modpr);
 GEN     nfsplitting(GEN T, GEN D);
