@@ -1755,15 +1755,15 @@ lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
 GEN
 lfunlambda0(GEN lmisc, GEN s, long der, long bitprec)
 {
-  return der ? lfunderiv(lmisc, der, s, 1, bitprec):
-               lfunlambda(lmisc, s, bitprec);
+  return der? lfunderiv(lmisc, der, s, 1, bitprec)
+            : lfunlambda(lmisc, s, bitprec);
 }
 
 GEN
 lfun0(GEN lmisc, GEN s, long der, long bitprec)
 {
-  return der ? lfunderiv(lmisc, der, s, 0, bitprec):
-               lfun(lmisc, s, bitprec);
+  return der? lfunderiv(lmisc, der, s, 0, bitprec)
+            : lfun(lmisc, s, bitprec);
 }
 
 GEN
