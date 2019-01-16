@@ -2,8 +2,8 @@ Function: bnfisprincipal
 Section: number_fields
 C-Name: bnfisprincipal0
 Prototype: GGD1,L,
-Help: bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit (with
- flag<=2), gives [v,alpha], where v is the vector of exponents on
+Help: bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives
+ [v,alpha], where v is the vector of exponents on
  the class group generators and alpha is the generator of the resulting
  principal ideal. In particular x is principal if and only if v is the zero
  vector. flag is optional, whose binary digits mean 1: output [v,alpha] (only v

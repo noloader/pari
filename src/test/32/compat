@@ -1973,12 +1973,12 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isprincipal(bnf,x) ===> bnfisprincipal(bnf,x,0)
 
-bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit (with flag<=2), 
-gives [v,alpha], where v is the vector of exponents on the class group 
-generators and alpha is the generator of the resulting principal ideal. In 
-particular x is principal if and only if v is the zero vector. flag is 
-optional, whose binary digits mean 1: output [v,alpha] (only v if unset); 2: 
-increase precision until alpha can be computed (do not insist if unset).
+bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [v,alpha], 
+where v is the vector of exponents on the class group generators and alpha is 
+the generator of the resulting principal ideal. In particular x is principal if 
+and only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+output [v,alpha] (only v if unset); 2: increase precision until alpha can be 
+computed (do not insist if unset).
 
 
   ***   at top-level: isprincipalforce()
@@ -1988,12 +1988,12 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isprincipalforce(bnf,x) ===> bnfisprincipal(bnf,x,2)
 
-bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit (with flag<=2), 
-gives [v,alpha], where v is the vector of exponents on the class group 
-generators and alpha is the generator of the resulting principal ideal. In 
-particular x is principal if and only if v is the zero vector. flag is 
-optional, whose binary digits mean 1: output [v,alpha] (only v if unset); 2: 
-increase precision until alpha can be computed (do not insist if unset).
+bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [v,alpha], 
+where v is the vector of exponents on the class group generators and alpha is 
+the generator of the resulting principal ideal. In particular x is principal if 
+and only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+output [v,alpha] (only v if unset); 2: increase precision until alpha can be 
+computed (do not insist if unset).
 
 
   ***   at top-level: isprincipalgen()
@@ -2003,12 +2003,12 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isprincipalgen(bnf,x) ===> bnfisprincipal(bnf,x)
 
-bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit (with flag<=2), 
-gives [v,alpha], where v is the vector of exponents on the class group 
-generators and alpha is the generator of the resulting principal ideal. In 
-particular x is principal if and only if v is the zero vector. flag is 
-optional, whose binary digits mean 1: output [v,alpha] (only v if unset); 2: 
-increase precision until alpha can be computed (do not insist if unset).
+bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [v,alpha], 
+where v is the vector of exponents on the class group generators and alpha is 
+the generator of the resulting principal ideal. In particular x is principal if 
+and only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+output [v,alpha] (only v if unset); 2: increase precision until alpha can be 
+computed (do not insist if unset).
 
 
   ***   at top-level: isprincipalgenforce()
@@ -2018,12 +2018,12 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isprincipalgenforce(bnf,x) ===> bnfisprincipal(bnf,x,3)
 
-bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit (with flag<=2), 
-gives [v,alpha], where v is the vector of exponents on the class group 
-generators and alpha is the generator of the resulting principal ideal. In 
-particular x is principal if and only if v is the zero vector. flag is 
-optional, whose binary digits mean 1: output [v,alpha] (only v if unset); 2: 
-increase precision until alpha can be computed (do not insist if unset).
+bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [v,alpha], 
+where v is the vector of exponents on the class group generators and alpha is 
+the generator of the resulting principal ideal. In particular x is principal if 
+and only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+output [v,alpha] (only v if unset); 2: increase precision until alpha can be 
+computed (do not insist if unset).
 
 
   ***   at top-level: isprincipalray()
