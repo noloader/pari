@@ -1050,7 +1050,11 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   paristack_alloc(parisize, 0);
   init_universal_constants();
   diffptr = NULL;
-  if (!(init_opts&INIT_noPRIMEm))  pari_init_primes(maxprime);
+  if (!(init_opts&INIT_noPRIMEm))
+  {
+    GP_DATA->primelimit = maxprime;
+    pari_init_primes(GP_DATA->primelimit);
+  }
   if (!(init_opts&INIT_noINTGMPm)) pari_kernel_init();
   pari_init_graphics();
   pari_init_primetab();
