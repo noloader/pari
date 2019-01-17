@@ -3045,7 +3045,6 @@ ZXM_nv_mod_tree(GEN M, GEN xa, GEN T, long w)
   return gerepilecopy(av, V);
 }
 
-/* B a ZX, T = ZV_producttree(P) */
 GEN
 ZV_nv_mod_tree(GEN B, GEN A, GEN T)
 {
