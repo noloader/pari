@@ -9,6 +9,12 @@ Doc:
  single character string (type \typ{STR}, the empty string if $x$ is omitted).
 
  The individual arguments are read in string context, see \secref{se:strings}.
+ \bprog
+ ? v = [1, 2, 3]
+ %1 [1, 2, 3]
+ ? strtex(v)
+ %2 = "\\pmatrix{ 1&2&3\\cr}\n"
+ @eprog
  %\syn{NO}
 
 Function: Strtex

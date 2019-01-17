@@ -5,7 +5,7 @@ Prototype: G
 Help: strchr(x): converts integer or vector of integers x to a string,
  translating each integer into a character using ASCII encoding.
 Doc: converts integer or vector of integers $x$ to a string, translating each
- integer into a character using ASCII encoding.
+ integer (in the range $[1,255]$) into a character using ASCII encoding.
  \bprog
  ? strchr(97)
  %1 = "a"

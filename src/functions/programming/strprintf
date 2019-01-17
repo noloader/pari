@@ -7,6 +7,11 @@ Help: strprintf(fmt,{x}*): returns a string built from the remaining
 Doc: returns a string built from the remaining arguments according to the
  format fmt. The format consists of ordinary characters (not \%), printed
  unchanged, and conversions specifications. See \kbd{printf}.
+ \bprog
+ ? dir = "/home/pari"; file = "aprcl"; n = 10;
+ ? strprintf("%s/%s%ld.tex", dir, file, n)
+ %2 = "/home/pari/aprcl10.tex"
+ @eprog
  %\syn{NO}
 
 Function: Strprintf
