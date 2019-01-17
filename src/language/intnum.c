@@ -2306,10 +2306,10 @@ logzetan(GEN s, GEN P, long prec)
   return glog(Z, prec);
 }
 static GEN
-sumlogzeta(GEN ser, GEN s, double rs, long N, long vF, long lim, long prec)
+sumlogzeta(GEN ser, GEN s, GEN P, double rs, double lN, long vF, long lim,
+           long prec)
 {
-  GEN z = gen_0, P = primes_interval(gen_2, utoipos(N)), v = vecfactoru(vF,lim);
-  double lN = log2((double)N);
+  GEN z = gen_0, v = vecfactoru(vF,lim);
   long i, n;
   if (typ(s) == t_INT) constbern((itos(s) * lim + 1) >> 1);
   for (n = lim, i = lg(v)-1; n >= vF; n--, i--)
@@ -2326,15 +2326,28 @@ sumlogzeta(GEN ser, GEN s, double rs, long N, long vF, long lim, long prec)
   return gprec_wtrunc(z, prec);
 }
 
+/* { F(p^s): p in P, p >= a }, F t_RFRAC */
+static GEN
+vFps(GEN P, long a, GEN F, GEN s, long prec)
+{
+  long i, j, l = lg(P), vx = varn(gel(F,2));
+  GEN v = cgetg(l, t_VEC);
+  for (i = j = 1; i < l; i++)
+  {
+    GEN p = gel(P,i); if (cmpiu(p, a) < 0) continue;
+    gel(v, j++) = gsubst(F, vx, gpow(p, s, prec));
+  }
+  setlg(v, j); return v;
+}
+
 /* sum_{p prime, p >= a} F(p^s), F rational function */
 GEN
 sumeulerrat(GEN F, GEN s, long a, long prec)
 {
   pari_sp av = avma;
-  forprime_t T;
-  GEN ser, res;
-  double r, rs, RS;
-  long B = prec2nbits(prec), vx, vF, p, N, lim;
+  GEN ser, z, P;
+  double r, rs, RS, lN;
+  long B = prec2nbits(prec), prec2 = prec + EXTRAPREC, vF, N, lim;
 
   switch(typ(F))
   {
@@ -2346,22 +2359,20 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   /* F t_RFRAC */
   if (!s) s = gen_1;
   if (a < 2) a = 2;
-  vx = varn(gel(F,2));
   vF = -poldegree(F, -1);
   rs = gtodouble(real_i(s));
   r = 1 / polmax(gel(F,2));
-  N = maxss(30, a);
-  RS = maxdd(1./vF, -log2(r) / log2((double)N));
+  N = maxss(30, a); lN = log2((double)N);
+  RS = maxdd(1./vF, -log2(r) / lN);
   if (rs <= RS)
     pari_err_DOMAIN("sumeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  lim = (long)ceil(B / (rs*log2((double)N) + log2(r))) + 1;
-  ser = gmul(real_1(prec + EXTRAPREC), F);
+  lim = (long)ceil(B / (rs*lN + log2(r))) + 1;
+  ser = gmul(real_1(prec2), F);
   ser = rfracrecip_to_ser_absolute(ser, lim);
-  res = sumlogzeta(ser, s, rs, N, vF, lim, prec);
-  u_forprime_init(&T, a, N);
-  while ( (p = u_forprime_next(&T)) )
-    res = gadd(res, gsubst(F, vx, gpow(utoipos(p), s, prec)));
-  return gerepilecopy(av, gprec_w(res, prec));
+  P = primes_interval(gen_2, utoipos(N));
+  z = sumlogzeta(ser, s, P, rs, lN, vF, lim, prec);
+  z = gadd(z, vecsum(vFps(P, a, F, s, prec)));
+  return gerepilecopy(av, gprec_w(z, prec));
 }
 
 /* prod_{p prime, p >= a} F(p^s), F rational function */
@@ -2369,10 +2380,9 @@ GEN
 prodeulerrat(GEN F, GEN s, long a, long prec)
 {
   pari_sp ltop = avma;
-  forprime_t T;
-  GEN F1, ser, res;
-  double r, rs, RS;
-  long B = prec2nbits(prec), vx = gvar(F), vF, p, N, lim;
+  GEN F1, ser, P, z;
+  double r, rs, RS, lN;
+  long B = prec2nbits(prec), prec2 = prec + EXTRAPREC, vF, N, lim;
 
   F1 = gsubgs(F, 1);
   switch(typ(F))
@@ -2387,20 +2397,17 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   vF = -poldegree(F1, -1);
   rs = gtodouble(real_i(s));
   r = 1 / maxdd(polmax(gel(F,1)), polmax(gel(F,2)));
-  N = maxss(30, a);
-  RS = maxdd(1./vF, -log2(r) / log2((double)N));
+  N = maxss(30, a); lN = log2((double)N);
+  RS = maxdd(1./vF, -log2(r) / lN);
   if (rs <= RS)
     pari_err_DOMAIN("prodeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  lim = (long)ceil(B / (rs*log2((double)N) + log2(r))) + 1;
-  ser = gmul(real_1(prec + EXTRAPREC), F1);
-  ser = gaddsg(1, rfracrecip_to_ser_absolute(ser, lim));
-  ser = glog(ser, 0);
-  res = sumlogzeta(ser, s, rs, N, vF, lim, prec);
-  res = gexp(res, prec);
-  u_forprime_init(&T, a, N);
-  while ( (p = u_forprime_next(&T)) )
-    res = gmul(res, gsubst(F, vx, gpow(utoipos(p), s, prec)));
-  return gerepilecopy(ltop, gprec_w(res, prec));
+  lim = (long)ceil(B / (rs*lN + log2(r))) + 1;
+  ser = gmul(real_1(prec2), F1);
+  ser = glog(gaddsg(1, rfracrecip_to_ser_absolute(ser, lim)), prec2);
+  P = primes_interval(gen_2, utoipos(N));
+  z = gexp(sumlogzeta(ser, s, P, rs, lN, vF, lim, prec), prec);
+  z = gmul(z, vecprod(vFps(P, a, F, s, prec)));
+  return gerepilecopy(ltop, gprec_w(z, prec));
 }
 
 /* Compute $\sum_{n\ge a}c(n)$ using Lagrange extrapolation.
