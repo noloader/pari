@@ -1173,6 +1173,9 @@ GEN     gen_bkeval(GEN Q, long d, GEN x, int use_sqr, void *E,
 GEN     gen_bkeval_powers(GEN P, long d, GEN V, void *E,
           const struct bb_algebra *ff, GEN cmul(void *E, GEN P, long a, GEN x));
 const struct bb_algebra * get_Rg_algebra(void);
+long    rfrac_deflate_order(GEN F);
+GEN     rfrac_deflate_max(GEN F, long *m);
+GEN     rfrac_deflate(GEN F, long m);
 
 /* ZG.c */
 void    ZGC_G_mul_inplace(GEN v, GEN x);

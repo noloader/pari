@@ -393,6 +393,35 @@ RgX_deflate(GEN x0, long d)
   return y;
 }
 
+/* F a t_RFRAC */
+long
+rfrac_deflate_order(GEN F)
+{
+  GEN N = gel(F,1), D = gel(F,2);
+  long m = (degpol(D) <= 0)? 0: RgX_deflate_order(D);
+  if (m == 1) return 1;
+  if (typ(N) == t_POL && varn(N) == varn(D))
+    m = cgcd(m, RgX_deflate_order(N));
+  return m;
+}
+/* F a t_RFRAC */
+GEN
+rfrac_deflate_max(GEN F, long *m)
+{
+  *m = rfrac_deflate_order(F);
+  return rfrac_deflate(F, *m);
+}
+/* F a t_RFRAC */
+GEN
+rfrac_deflate(GEN F, long m)
+{
+  GEN N = gel(F,1), D = gel(F,2);
+  if (m == 1) return F;
+  if (typ(N) == t_POL && varn(N) == varn(D)) N = RgX_deflate(N, m);
+  D = RgX_deflate(D, m); return mkrfrac(N, D);
+}
+
+
 /* return x0(X^d) */
 GEN
 RgX_inflate(GEN x0, long d)

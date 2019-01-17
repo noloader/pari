@@ -9529,6 +9529,15 @@ $P$, returns the largest exponent $d$ such that $P$ is of the form $P(x^d)$
 $P$, sets \kbd{d} to \kbd{RgX\_deflate\_order(P)} and
 returns \kbd{RgX\_deflate(P,d)}. Shallow function.
 
+\fun{long}{rfrac_deflate_order}{GEN F}
+as \kbd{RgX\_deflate\_order} where $F$ is a non-constant \typ{RFRAC}.
+
+\fun{long}{rfrac_deflate_max}{GEN F, long *d}
+as \kbd{RgX\_deflate\_max} where $F$ is a non-constant \typ{RFRAC}.
+
+\fun{GEN}{rfrac_deflate}{GEN F, long m}
+as \kbd{RgX\_deflate} where $F$ is a \typ{RFRAC}.
+
 \fun{GEN}{RgX_inflate}{GEN P, long d} return $P(X^d)$. Shallow function, not
 suitable for \kbd{gerepileupto}.
 

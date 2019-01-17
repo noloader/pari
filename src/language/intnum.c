@@ -2340,6 +2340,17 @@ vFps(GEN P, long a, GEN F, GEN s, long prec)
   setlg(v, j); return v;
 }
 
+static void
+euler_set_Fs(GEN *F, GEN *s)
+{
+  if (!*s) *s = gen_1;
+  if (typ(*F) == t_RFRAC)
+  {
+    long m;
+    *F = rfrac_deflate_max(*F, &m);
+    if (m != 1) *s = gmulgs(*s, m);
+  }
+}
 /* sum_{p prime, p >= a} F(p^s), F rational function */
 GEN
 sumeulerrat(GEN F, GEN s, long a, long prec)
@@ -2349,6 +2360,7 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   double r, rs, RS, lN;
   long B = prec2nbits(prec), prec2 = prec + EXTRAPREC, vF, N, lim;
 
+  euler_set_Fs(&F, &s);
   switch(typ(F))
   {
     case t_RFRAC: break;
@@ -2357,7 +2369,6 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
     default: pari_err_TYPE("sumeulerrat",F);
   }
   /* F t_RFRAC */
-  if (!s) s = gen_1;
   if (a < 2) a = 2;
   vF = -poldegree(F, -1);
   rs = gtodouble(real_i(s));
@@ -2384,6 +2395,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   double r, rs, RS, lN;
   long B = prec2nbits(prec), prec2 = prec + EXTRAPREC, vF, N, lim;
 
+  euler_set_Fs(&F, &s);
   F1 = gsubgs(F, 1);
   switch(typ(F))
   {
@@ -2393,7 +2405,6 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
     default: pari_err_TYPE("prodeulerrat",F);
   }
   /* F t_RFRAC */
-  if (!s) s = gen_1;
   vF = -poldegree(F1, -1);
   rs = gtodouble(real_i(s));
   r = 1 / maxdd(polmax(gel(F,1)), polmax(gel(F,2)));
