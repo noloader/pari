@@ -8,7 +8,7 @@ Description:
   (small,?var):gen    pollegendre($1,$2)
   (small,gen):gen     pollegendre_eval($1,$2)
 Doc: $n^{\text{th}}$ \idx{Legendre polynomial} $L_n$ evaluated at $a$ (\kbd{'x}
- by default). If flag is 1, return $[L_{n-1}(a), L_n(a)]$.
+ by default). If \fl\ is 1, return $[L_{n-1}(a), L_n(a)]$.
 Variant: To obtain the $n$-th Legendre polynomial $L_n$ in variable $v$,
  use \fun{GEN}{pollegendre}{long n, long v}. To obtain $L_n(a)$,
  use \fun{GEN}{pollegendre_eval}{long n, GEN a}.

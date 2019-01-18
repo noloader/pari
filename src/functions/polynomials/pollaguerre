@@ -6,7 +6,9 @@ Help: pollaguerre(n,{a=0},{b='x},{flag=0}): Laguerre polynomial of degree n
  and parameter a evaluated at b. If flag is 1, return [L^{(a)_{n-1}(b),
  L^{(a)}_n(b)].
 Doc: $n^{\text{th}}$ \idx{Laguerre polynomial} $L^{(a)}_n$ of degree $n$ and
- parameter $a$ evaluated at $a$ (\kbd{'x} by default). If \fl is $1$,
+ parameter $a$ evaluated at $b$ (\kbd{'x} by default), i.e.
+ $$ H_n(x) = \dfrac{x^{-a}e^x}{n!} \dfrac{d^n}{dx^n}\big(e^{-x}x^{n+a}\big).$$
+ If \fl\ is $1$,
  return $[L^{(a)}_{n-1}(b), L_n^{(a)}(b)]$.
 Variant: To obtain the $n$-th Laguerre polynomial in variable $v$,
  use \fun{GEN}{pollaguerre}{long n, GEN a, GEN b, long v}. To obtain
