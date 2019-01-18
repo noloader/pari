@@ -1418,12 +1418,13 @@ compilefunc(entree *ep, long n, int mode, long flag)
           break;
         case 'W':
           {
-            long a = arg[j];
+            long a = tree[arg[j]].f==Findarg ? tree[arg[j]].x: arg[j];
             entree *ep = getlvalue(a);
             long vn = getmvar(ep);
             if (vn) op_push(OCcowvarlex, vn, a);
             else op_push(OCcowvardyn, (long)ep, a);
-            compilenode(arg[j++],Ggen,FLnocopy);
+            compilenode(a, Ggen,FLnocopy);
+            j++;
             break;
           }
         case 'M':
@@ -2101,6 +2102,9 @@ compilenode(long n, int mode, long flag)
   case Frefarg:
     compile_err("unexpected character '&':",tree[n].str);
     return;
+  case Findarg:
+    compile_err("unexpected character '~':",tree[n].str);
+    return;
   case Fentry:
     {
       entree *ep=getentry(n);
@@ -2413,9 +2417,12 @@ optimizefunc(entree *ep, long n)
             break;
           }
         case 'W':
-          optimizenode(arg[j++]);
-          fl=0;
+        {
+          long a = tree[arg[j]].f==Findarg ? tree[arg[j]].x: arg[j];
+          optimizenode(a);
+          fl=0; j++;
           break;
+        }
         case 'V':
         case 'r':
           tree[arg[j++]].flags=COsafelex|COsafedyn;
@@ -2557,6 +2564,9 @@ optimizenode(long n)
     return;
   case Frefarg:
     compile_err("unexpected character '&'",tree[n].str);
+    return;
+  case Findarg:
+    compile_err("unexpected character '~'",tree[n].str);
     return;
   case Fvararg:
     compile_err("unexpected characters '..'",tree[n].str);

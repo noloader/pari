@@ -20,7 +20,7 @@ typedef enum {Fseq,
               Fmatrixelts,Fmatrixlines,
               Fmat,Fvec,Fnoarg,Fnorange,
               Flistarg,
-              Frefarg, Fvararg,
+              Frefarg, Findarg, Fvararg,
               Fconst,Fsmall,
               Ftag,
               Fentry,Fcall,Ffunction,Flambda
