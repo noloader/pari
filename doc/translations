@@ -81,6 +81,8 @@ _===_           @Equality
 !==             @Equality
 _!==_           @Equality
 _!              @factorial
+_.._            @Row and column vectors@2
+[]              @Row and column vectors@2
 operator        @GP operators@2
 and             @Boolean operators
 or              @Boolean operators
