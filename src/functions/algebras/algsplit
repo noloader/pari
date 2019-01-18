@@ -18,7 +18,8 @@ Doc: If \var{al} is a table algebra over~$\F_p$ output by \tet{algtableinit}
   over~$\F_p$) defined as follows:
   let~$E_{i,j}$ be the matrix having all coefficients~$0$ except the~$(i,j)$-th
   coefficient equal to~$1$, and define
-  $$b_i = E_{((i-1)/nd)+1, ((i-1)/n \mod d)+1} \alpha^{(i-1)\mod n}.$$
+  $$b_{i_3+n(i_2+di_1)+1} = E_{i_1+1,i_2+1} \alpha^{i_3},$$
+  where~$0\le i_1,i_2<d$ and~$0\le i_3<n$.
 
  Example:
  \bprog
