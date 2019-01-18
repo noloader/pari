@@ -3294,6 +3294,7 @@ GEN     ffgen(GEN T, long v);
 GEN     ffinvmap(GEN m);
 GEN     fflog(GEN x, GEN g, GEN o);
 GEN     ffmap(GEN m, GEN x);
+GEN     ffmaprel(GEN m, GEN x);
 GEN     ffcompomap(GEN m, GEN n);
 GEN     fforder(GEN x, GEN o);
 GEN     ffprimroot(GEN x, GEN *o);

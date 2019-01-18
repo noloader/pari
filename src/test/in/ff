@@ -144,6 +144,9 @@ test(p=3,f=10,d=2,e=2)=
   if(subst(ffmap(l,R),'b,d),error("ffextend"));
   if(minpoly(ffmap(l,a))!=minpoly(a),error("ffextend"));
   iferr(ffextend(a,x^2+b*x+1),E,print(E));
+  if (ffmaprel(m,Pa).pol!=Pb, error("ffmaprel"));
+  if (ffmaprel(rm,Pb).pol!=Pa, error("ffmaprel"));
+  if (ffmaprel(rm,b).pol!='b, error("ffmaprel"));
 }
 default(echo,1);
 test(2,1,5,3)

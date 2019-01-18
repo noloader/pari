@@ -2661,6 +2661,45 @@ ffmap(GEN m, GEN x)
   set_avma(ltop); return cgetg(1,t_VEC);
 }
 
+static GEN
+ffeltmaprel_i(GEN m, GEN x)
+{
+   GEN g = gel(m,1), r = gel(m,2);
+   if (!FF_samefield(x, g))
+     pari_err_DOMAIN("ffmap","m","domain does not contain", x, r);
+   if (typ(r)==t_FFELT)
+     retmkpolmod(FF_map(r, x), pol_x(FF_var(g)));
+   else
+     retmkpolmod(FFX_preimagerel(x, r, ffpartmapimage("ffmap", r)), gcopy(r));
+}
+
+static GEN
+ffmaprel_i(GEN m, GEN x)
+{
+  GEN y;
+  long i, lx, tx = typ(x);
+  switch(tx)
+  {
+    case t_FFELT:
+      return ffeltmaprel_i(m, x);
+    case t_POL: case t_RFRAC: case t_SER:
+    case t_VEC: case t_COL: case t_MAT:
+      y = cgetg_copy(x, &lx);
+      for (i=1; i<lontyp[tx]; i++) y[i] = x[1];
+      for (i=lontyp[tx]; i<lx; i++)
+        gel(y,i) = ffmaprel_i(m, gel(x,i));
+      return y;
+  }
+  return gcopy(x);
+}
+
+GEN
+ffmaprel(GEN m, GEN x)
+{
+  checkmap(m, "ffmaprel");
+  return ffmaprel_i(m, x);
+}
+
 static void
 err_compo(GEN m, GEN n)
 { pari_err_DOMAIN("ffcompomap","m","domain does not contain codomain of",n,m); }
