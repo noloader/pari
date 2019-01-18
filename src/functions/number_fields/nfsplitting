@@ -6,12 +6,12 @@ Help: nfsplitting(P,{d}): defining polynomial over Q for the splitting field of
  P, that is the smallest field over which P is totally split. P can also be
  given by a nf structure. If d is given, it must be a multiple of the splitting
  field degree.
-Doc: defining polynomial over~$\Q$ for the splitting field of \var{P},
- that is the smallest field over which $P$ is totally split. If $P$
- can also be given by a~\kbd{nf} structure, which is more efficient.
- If $d$ is given, it must be a multiple of the splitting field degree.
- Note that if $P$ is reducible the splitting field degree can be smaller
- than the degree of $P$.
+Doc: defining polynomial over~$\Q$ for the splitting field of
+ $\var{P}\in\Q[x]$, that is the smallest field over which $P$ is totally split.
+ If irreducible, the polynomial $P$ can also be given by a~\kbd{nf} structure,
+ which is more efficient. If $d$ is given, it must be a multiple of the
+ splitting field degree. Note that if $P$ is reducible the splitting field
+ degree can be smaller than the degree of $P$.
  \bprog
  ? K = nfinit(x^3-2);
  ? nfsplitting(K)
