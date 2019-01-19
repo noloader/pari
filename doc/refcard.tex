@@ -504,8 +504,8 @@ $e$ \hfil \kbd{polinterpolate}$(x,\{y\},\{t\},\{\&e\})$\break
 \section{Finite Fields}
 A finite field is encoded by any element (\typ{FFELT}).\hfil\break
 \li{find irreducible $T\in \FF_p[x]$, $\deg T = n$}{ffinit$(p,n,\{x\})$}
-\li{Create $t$ in $\FF_q\simeq\FF_p[t]/(T)$}{t = ffgen$(T,\text{'t})$}
-\li{\dots indirectly, with implicit $T$}{t = ffgen$(q,\text{'t})$; T = t.mod}
+\li{Create $t$ in $\FF_q\simeq\FF_p[t]/(T)$}{t = ffgen($T$,'t)}
+\li{\dots indirectly, with implicit $T$}{t = ffgen($q$,'t); T = t.mod}
 \li{map $m$ from $\FF_q\ni a$ to $\FF_{q^k} \ni b$}{m = ffembed$(a,b)$}
 \li{build $K=\FF_q[x]/(P)$ extending $\FF_q\ni a$, }{ffextend$(a, P)$}
 \li{evaluate map $m$ on $x$}{ffmap$(m,x)$}
