@@ -4,13 +4,19 @@ C-Name: roots
 Prototype: Gp
 Help: polroots(T): complex roots of the polynomial T using
  Schonhage's method, as modified by Gourdon.
-Doc: complex roots of the polynomial
- $T$, given as a column vector where each root is repeated according to
- its multiplicity. The precision is given as for transcendental functions: in
- GP it is kept in the variable \kbd{realprecision} and is transparent to the
- user, but it must be explicitly given as a second argument in library mode.
+Doc: complex roots of the polynomial $T$, given as a column vector where each
+ root is repeated according to its multiplicity and given as floating point
+ complex numbers at the current \kbd{realprecision}:
+ \bprog
+ ? polroots(x^2)
+ %1 = [0.E-38 + 0.E-38*I, 0.E-38 + 0.E-38*I]~
+
+ ? polroots(x^3+1)
+ %2 = [-1.00... + 0.E-38*I, 0.50... - 0.866...*I, 0.50... + 0.866...*I]~
+ @eprog
 
  The algorithm used is a modification of Sch\"onhage\sidx{Sch\"onage}'s
  root-finding algorithm, due to and originally implemented by Gourdon.
- It is guaranteed to converge; if furthermore $T$ has rational coefficients,
- roots are guaranteed to the required relative accuracy.
+ It runs in polynomial time in $\text{deg}(T)$ and the precision.
+ If furthermore $T$ has rational coefficients, roots are guaranteed to the
+ required relative accuracy.
