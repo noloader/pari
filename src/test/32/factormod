@@ -290,4 +290,10 @@ matrix(0,2)
   ***   at top-level: factormod(x,0)
   ***                 ^--------------
   *** factormod: not a prime number in factormod: 0.
-Total time spent: 40
+  ***   at top-level: factormod(x^3+1,[y^2+1,2])
+  ***                 ^--------------------------
+  *** factormod: not an irreducible polynomial in FpX_ffintersect: y^2 + 1.
+  ***   at top-level: factormod(x^3+1,[y^2+1,5])
+  ***                 ^--------------------------
+  *** factormod: not an irreducible polynomial in FpX_ffintersect: y^2 + 1.
+Total time spent: 81

@@ -20,6 +20,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**           Isomorphisms between finite fields                  **/
 /**                                                               **/
 /*******************************************************************/
+static void
+err_Flxq(const char *s, GEN P, ulong l)
+{
+  if (!uisprime(l)) pari_err_PRIME(s, utoi(l));
+  pari_err_IRREDPOL(s, Flx_to_ZX(get_Flx_mod(P)));
+}
+static void
+err_FpXQ(const char *s, GEN P, GEN l)
+{
+  if (!BPSW_psp(l)) pari_err_PRIME(s, l);
+  pari_err_IRREDPOL(s, get_FpX_mod(P));
+}
 
 /* compute the reciprocical isomorphism of S mod T,p, i.e. V such that
    V(S)=X  mod T,p*/
@@ -30,6 +42,7 @@ Flxq_ffisom_inv(GEN S,GEN T, ulong p)
   long n = get_Flx_degree(T);
   GEN M = Flxq_matrix_pow(S,n,n,T,p);
   GEN V = Flm_Flc_invimage(M, vecsmall_ei(n, 2), p);
+  if (!V) err_Flxq("Flxq_ffisom_inv", T, p);
   return gerepileupto(ltop, Flv_to_Flx(V, get_Flx_var(T)));
 }
 
@@ -38,8 +51,9 @@ FpXQ_ffisom_inv(GEN S,GEN T, GEN p)
 {
   pari_sp ltop = avma;
   long n = get_FpX_degree(T);
-  GEN V, M = FpXQ_matrix_pow(S,n,n,T,p);
-  V = FpM_FpC_invimage(M, col_ei(n, 2), p);
+  GEN M = FpXQ_matrix_pow(S,n,n,T,p);
+  GEN V = FpM_FpC_invimage(M, col_ei(n, 2), p);
+  if (!V) err_FpXQ("Flxq_ffisom_inv", T, p);
   return gerepilecopy(ltop, RgV_to_RgX(V, get_FpX_var(T)));
 }
 
@@ -178,18 +192,16 @@ Flx_ffintersect(GEN P, GEN Q, long n, ulong l,GEN *SP, GEN *SQ, GEN MA, GEN MB)
     pari_timer T;
     GEN ipg = utoipos(pg);
     if (l%pg == 1)
-    /* No need to use relative extension, so don't. (Well, now we don't
-     * in the other case either, but this special case is more efficient) */
-    {
+    { /* more efficient special case */
       ulong L, z, An, Bn;
       z = Fl_neg(rootsof1_Fl(pg, l), l);
       if (DEBUGLEVEL>=4) timer_start(&T);
       A = Flm_ker(Flm_Fl_add(MA, z, l),l);
-      if (lg(A)!=2) pari_err_IRREDPOL("FpX_ffintersect",P);
+      if (lg(A)!=2) err_Flxq("FpX_ffintersect",P,l);
       A = Flv_to_Flx(gel(A,1),vp);
 
       B = Flm_ker(Flm_Fl_add(MB, z, l),l);
-      if (lg(B)!=2) pari_err_IRREDPOL("FpX_ffintersect",Q);
+      if (lg(B)!=2) err_Flxq("FpX_ffintersect",Q,l);
       B = Flv_to_Flx(gel(B,1),vq);
 
       if (DEBUGLEVEL>=4) timer_printf(&T, "FpM_ker");
@@ -241,6 +253,7 @@ Flx_ffintersect(GEN P, GEN Q, long n, ulong l,GEN *SP, GEN *SQ, GEN MA, GEN MB)
         VP = Flx_to_Flv(Ay,np);
       }
       Ap = Flm_Flc_invimage(MA,VP,l);
+      if (!Ap) err_Flxq("FpX_ffintersect",P,l);
       Ap = Flv_to_Flx(Ap,vp);
 
       if (j)
@@ -249,6 +262,7 @@ Flx_ffintersect(GEN P, GEN Q, long n, ulong l,GEN *SP, GEN *SQ, GEN MA, GEN MB)
         VQ = Flx_to_Flv(By,nq);
       }
       Bp = Flm_Flc_invimage(MB,VQ,l);
+      if (!Bp) err_Flxq("FpX_ffintersect",Q,l);
       Bp = Flv_to_Flx(Bp,vq);
     }
   }
@@ -312,11 +326,11 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
       z = negi( rootsof1u_Fp(pg, l) );
       if (DEBUGLEVEL>=4) timer_start(&T);
       A = FpM_ker(RgM_Rg_add_shallow(MA, z),l);
-      if (lg(A)!=2) pari_err_IRREDPOL("FpX_ffintersect",P);
+      if (lg(A)!=2) err_FpXQ("FpX_ffintersect",P,l);
       A = RgV_to_RgX(gel(A,1),vp);
 
       B = FpM_ker(RgM_Rg_add_shallow(MB, z),l);
-      if (lg(B)!=2) pari_err_IRREDPOL("FpX_ffintersect",Q);
+      if (lg(B)!=2) err_FpXQ("FpX_ffintersect",Q,l);
       B = RgV_to_RgX(gel(B,1),vq);
 
       if (DEBUGLEVEL>=4) timer_printf(&T, "FpM_ker");
@@ -368,6 +382,7 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
         VP = RgX_to_RgC(Ay,np);
       }
       Ap = FpM_FpC_invimage(MA,VP,l);
+      if (!Ap) err_FpXQ("FpX_ffintersect",P,l);
       Ap = RgV_to_RgX(Ap,vp);
 
       if (j)
@@ -376,6 +391,7 @@ FpX_ffintersect(GEN P, GEN Q, long n, GEN l, GEN *SP, GEN *SQ, GEN MA, GEN MB)
         VQ = RgX_to_RgC(By,nq);
       }
       Bp = FpM_FpC_invimage(MB,VQ,l);
+      if (!Bp) err_FpXQ("FpX_ffintersect",Q,l);
       Bp = RgV_to_RgX(Bp,vq);
     }
   }
