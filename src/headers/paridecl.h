@@ -3770,9 +3770,6 @@ GEN     vecsquarefreeu(ulong a, ulong b);
 
 /* init.c */
 
-long    timer_delay(pari_timer *T);
-long    timer_get(pari_timer *T);
-void    timer_start(pari_timer *T);
 int     chk_gerepileupto(GEN x);
 GENbin* copy_bin(GEN x);
 GENbin* copy_bin_canon(GEN x);
@@ -3798,7 +3795,6 @@ void    gunclone(GEN x);
 void    gunclone_deep(GEN x);
 GEN     listcopy(GEN x);
 GEN     listinit(GEN x);
-void    timer_printf(pari_timer *T, const char *format, ...);
 void    msgtimer(const char *format, ...);
 long    name_numerr(const char *s);
 void    new_chunk_resize(size_t x);
@@ -3844,11 +3840,15 @@ void    paristack_resize(ulong newsize);
 void    paristack_setsize(size_t rsize, size_t vsize);
 void    parivstack_resize(ulong newsize);
 void    parivstack_reset(void);
-GEN     trap0(const char *e, GEN f, GEN r);
 void    shiftaddress(GEN x, long dec);
 void    shiftaddress_canon(GEN x, long dec);
 long    timer(void);
+long    timer_delay(pari_timer *T);
+long    timer_get(pari_timer *T);
+void    timer_printf(pari_timer *T, const char *format, ...);
+void    timer_start(pari_timer *T);
 long    timer2(void);
+GEN     trap0(const char *e, GEN f, GEN r);
 void    traverseheap( void(*f)(GEN, void *), void *data );
 
 /* intnum.c */
