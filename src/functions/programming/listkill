@@ -1,7 +1,7 @@
 Function: listkill
 Section: programming/specific
 C-Name: listkill
-Prototype: vG
+Prototype: vW
 Obsolete: 2007-08-10
 Help: listkill(L): obsolete, retained for backward compatibility.
 Doc: obsolete, retained for backward compatibility. Just use \kbd{L = List()}

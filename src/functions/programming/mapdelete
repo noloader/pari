@@ -1,7 +1,7 @@
 Function: mapdelete
 Section: programming/specific
 C-Name: mapdelete
-Prototype: vGG
+Prototype: vWG
 Help: mapdelete(M,x): removes x from the domain of the map M.
 Doc: removes $x$ from the domain of the map $M$.
  \bprog
