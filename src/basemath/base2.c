@@ -101,6 +101,7 @@ set_disc(nfmaxord_t *S)
   return S->dT = dT;
 }
 
+/* dT != 0 */
 static GEN
 poldiscfactors_i(GEN T, GEN dT, long flag)
 {
@@ -141,6 +142,7 @@ poldiscfactors(GEN T, long flag)
   if (typ(T) != t_POL || !RgX_is_ZX(T)) pari_err_TYPE("poldiscfactors",T);
   if (flag < 0 || flag > 1) pari_err_FLAG("poldiscfactors");
   dT = ZX_disc(T);
+  if (!signe(dT)) retmkvec2(gen_0, Z_factor(gen_0));
   return gerepilecopy(av, mkvec2(dT, poldiscfactors_i(T, dT, flag)));
 }
 

@@ -84,6 +84,7 @@ BA  59- ffinvmap(m) could SEGV on bad input
         imprecise in the neighbourhood of 0, while derivnum(,n) was OK]
     63- strsplit("abc", "") -> SEGV
     64- strsplit("aa", "a") -> gc error
+    65- poldiscfactors(x^0) -> division by 0
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
