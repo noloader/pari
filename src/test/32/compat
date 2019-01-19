@@ -2660,7 +2660,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: mod(x,y) ===> Mod(x,y)
 
-Mod(a,b): creates 'a modulo b'.
+Mod(a,b): create 'a modulo b'.
 
 
   ***   at top-level: modp()
@@ -2670,7 +2670,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: modp(x,y,p) ===> Mod(x,y)
 
-Mod(a,b): creates 'a modulo b'.
+Mod(a,b): create 'a modulo b'.
 
 
   ***   at top-level: modulargcd()
@@ -3937,7 +3937,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: tchebi(n) ===> polchebyshev(n)
 
-polchebyshev(n,{flag=1},{a='x}): Chebychev polynomial of the first (flag = 1) 
+polchebyshev(n,{flag=1},{a='x}): Chebyshev polynomial of the first (flag = 1) 
 or second (flag = 2) kind, of degree n, evaluated at a.
 
 
@@ -4519,4 +4519,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 13
