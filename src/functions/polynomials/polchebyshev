@@ -2,7 +2,7 @@ Function: polchebyshev
 Section: polynomials
 C-Name: polchebyshev_eval
 Prototype: LD1,L,DG
-Help: polchebyshev(n,{flag=1},{a='x}): Chebychev polynomial of the first (flag
+Help: polchebyshev(n,{flag=1},{a='x}): Chebyshev polynomial of the first (flag
  = 1) or second (flag = 2) kind, of degree n, evaluated at a.
 Description:
  (small,?1,?var):gen polchebyshev1($1,$3)

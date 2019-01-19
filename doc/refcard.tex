@@ -451,10 +451,12 @@ in gp header.\hfil\break
 \li{formal sum of $f$ w.r.t. $x$}{sumformal$(f,\{x\})$}
 
 \subsec{Constructors \& Special Polynomials}
-\li{interpolating pol.~eval.~at $a$}{polinterpolate$(X,\{Y\},\{a\})$}
-\li{$T_n/U_n$, $H_n$}{polchebyshev{\rm, }polhermite}
-\li{$P_n$, $L_n^{(\alpha)}$}{pollegendre{\rm, }pollaguerre}
-\li{$n$-th cyclotomic polynomial $\Phi_n$}{polcyclo$(n,\{v\})$}
+interpolation polynomial at $(x[1],y[1]),\dots, (x[n],y[n])$,
+evaluated at $t$, with error estimate
+$e$ \hfil \kbd{polinterpolate}$(x,\{y\},\{t\},\{\&e\})$\break
+\li{$T_n/U_n$, $H_n$}{polchebyshev$(n)${\rm, }polhermite$(n)$}
+\li{$P_n$, $L_n^{(\alpha)}$}{pollegendre$(n)${\rm, }pollaguerre$(n,a)$}
+\li{$n$-th cyclotomic polynomial $\Phi_n$}{polcyclo$(n)$}
 \li{return $n$ if $f=\Phi_n$, else $0$}{poliscyclo$(f)$}
 \li{is $f$ a product of cyclotomic polynomials?}{poliscycloprod$(f)$}
 \li{Zagier's polynomial of index $(n,m)$}{polzagier$(n,m)$}
