@@ -26,19 +26,24 @@ Doc:
  \item Divisors of small integers up to $N$, computed in time
  $O(N^{1+\varepsilon})$ using $O(N\log N)$ space.
 
+ \item Coredisc's of negative integers down to $-N$, computed in time
+ $O(N^{1+\varepsilon})$ using $O(N)$ space.
+
  \item Primitive dihedral forms of weight $1$ and level up to $N$,
  computed in time $O(N^{2+\varepsilon})$ and space $O(N^2)$.
 
  \bprog
  ? getcache()  \\ on startup, all caches are empty
  %1 =
- [ "Factors" 0 0 0 0]
+ [  "Factors" 0 0 0 0]
 
- ["Divisors" 0 0 0 0]
+ [ "Divisors" 0 0 0 0]
 
- [       "H" 0 0 0 0]
+ [        "H" 0 0 0 0]
 
- ["Dihedral" 0 0 0 0]
+ ["CorediscF" 0 0 0 0]
+
+ [ "Dihedral" 0 0 0 0]
  ? mfdim([500,1,0],0); \\ non-trivial computation
  time = 540 ms.
  ? getcache()
