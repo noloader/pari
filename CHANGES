@@ -176,7 +176,8 @@ BA  29- [libpari] ZpXQX_liftroots
     33- [libpari] pollegendre_reduced
 AP  34- new GP function mfgaloisprojrep
     35- optional v argument to nfmodprinit
-    36- rfrac_deflate, rfrac_deflate_order, rfrac_deflate_max
+    36- [libpari] rfrac_deflate, rfrac_deflate_order, rfrac_deflate_max
+    37- [libpari] identity_zv, identity_ZV
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

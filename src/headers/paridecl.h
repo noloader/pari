@@ -5702,6 +5702,8 @@ INLINE void   guncloneNULL(GEN x);
 INLINE void   guncloneNULL_deep(GEN x);
 INLINE long   gval(GEN x, long v);
 INLINE GEN    identity_perm(long l);
+INLINE GEN    identity_zv(long n);
+INLINE GEN    identity_ZV(long n);
 INLINE int    equali1(GEN n);
 INLINE int    equalim1(GEN n);
 INLINE long   inf_get_sign(GEN x);

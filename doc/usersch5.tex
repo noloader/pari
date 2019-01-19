@@ -8129,6 +8129,8 @@ the same length (lexicographic order).
 and $0$ otherwise. A \typ{COL} and a \typ{VEC} with the same entries are
 declared equal.
 
+\fun{GEN}{identity_ZV}{long n} return the \typ{VEC} $[1, 2, \dots, n]$.
+
 \fun{GEN}{ZC_add}{GEN x, GEN y} adds \kbd{x} and \kbd{y}.
 
 \fun{GEN}{ZC_sub}{GEN x, GEN y} subtracts \kbd{x} and \kbd{y}.
@@ -8429,6 +8431,8 @@ $T$ representing an element (resp.~a vector of elements) in the subspace $V$
 return a \kbd{QC} (resp.~a \kbd{QM}) $U$ such that $T = MU$.
 
 \subsec{\kbd{zv}, \kbd{zm}}
+
+\fun{GEN}{identity_zv}{long n} return the \typ{VECSMALL} $[1, 2, \dots, n]$.
 
 \fun{GEN}{zv_neg}{GEN x} return $-x$. No check for overflow is done, which
 occurs in the fringe case where an entry is equal to $2^{\B-1}$.

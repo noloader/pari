@@ -1030,15 +1030,25 @@ rowpermute(GEN x, GEN p)
 /*                          PERMUTATIONS                           */
 /*                                                                 */
 /*******************************************************************/
+INLINE GEN
+identity_zv(long n)
+{
+  GEN v = cgetg(n+1, t_VECSMALL);
+  long i;
+  for (i = 1; i <= n; i++) v[i] = i;
+  return v;
+}
+INLINE GEN
+identity_ZV(long n)
+{
+  GEN v = cgetg(n+1, t_VEC);
+  long i;
+  for (i = 1; i <= n; i++) gel(v,i) = utoipols(i);
+  return v;
+}
 /* identity permutation */
 INLINE GEN
-identity_perm(long n)
-{
-  GEN perm = cgetg(n+1, t_VECSMALL);
-  long i;
-  for (i = 1; i <= n; i++) perm[i] = i;
-  return perm;
-}
+identity_perm(long n) { return identity_zv(n); }
 
 /* assume d <= n */
 INLINE GEN
