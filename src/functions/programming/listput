@@ -2,7 +2,7 @@ Function: listput
 Section: programming/specific
 C-Name: listput0
 Prototype: WGD0,L,
-Help: listput(list,x,{n}): sets n-th element of list equal to x. If n is
+Help: listput(~list,x,{n}): sets n-th element of list equal to x. If n is
  omitted or greater than the current list length, appends x.
 Description:
  (list, gen, small):gen        listput($1, $2, $3)
@@ -13,9 +13,9 @@ Doc:
  inserted element.
  \bprog
  ? L = List();
- ? listput(L, 1)
+ ? listput(~L, 1)
  %2 = 1
- ? listput(L, 2)
+ ? listput(~L, 2)
  %3 = 2
  ? L
  %4 = List([1, 2])
@@ -25,7 +25,7 @@ Doc:
  list length), but it is easier to use the standard \kbd{list[n] = x}
  construct.
  \bprog
- ? listput(L, 3, 1) \\ insert at position 1
+ ? listput(~L, 3, 1) \\ insert at position 1
  %5 = 3
  ? L
  %6 = List([3, 2])
