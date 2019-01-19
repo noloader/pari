@@ -41,13 +41,13 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  primes. Use \kbd{isprime} to prove primality of these factors, as in
  \bprog
  ? fa = factor(2^2^7 + 1)
- %1 =
+ %2 =
  [59649589127497217 1]
 
  [5704689200685129054721 1]
 
  ? isprime( fa[,1] )
- %2 = [1, 1]~   \\ both entries are proven primes
+ %3 = [1, 1]~   \\ both entries are proven primes
  @eprog\noindent
  Another possibility is to globally set the default \tet{factor_proven}, which
  will perform a rigorous primality proof for each pseudoprime factor but will
@@ -60,7 +60,7 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  than $D^2$, then it is prime.
  \bprog
  ? factor(2^2^7 +1, 10^5)
- %3 =
+ %4 =
  [340282366920938463463374607431768211457 1]
  @eprog\noindent
  \misctitle{Deprecated feature} Setting $D=0$ is the same
@@ -75,7 +75,7 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  \bprog
  ? F = (2^2^7 + 1) * 1009 * (10^5+3); factor(F, 10^5)  \\ fast, incomplete
  time = 0 ms.
- %4 =
+ %5 =
  [1009 1]
 
  [34029257539194609161727850866999116450334371 1]
@@ -124,7 +124,7 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  irrational one if its norm is less than $2^{64}$.
  \bprog
  ? factor(5*I)
- %1 =
+ %9 =
  [  2 + I 1]
 
  [1 + 2*I 1]
@@ -132,14 +132,14 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  by setting the domain $D = I$:
  \bprog
  ? factor(-5, I)
- %2 =
+ %10 =
  [      I 1]
 
  [  2 + I 1]
 
  [1 + 2*I 1]
  ? factorback(%)
- %3 = -5
+ %11 = -5
  @eprog
 
  \misctitle{Univariate polynomials and rational functions}
@@ -157,16 +157,16 @@ Doc: factor $x$ over domain $D$; if $D$ is omitted, it is determined from $x$.
  you can either ask for the $\Q$-content explicitly of use factorback:
  \bprog
  ? P = t^2 + 5*t/2 + 1; F = factor(P)
- %1 =
+ %12 =
  [t + 2 1]
 
  [2*t + 1 1]
 
  ? content(P, 1) \\ Q-content
- %2 = 1/2
+ %13 = 1/2
 
  ? pollead(factorback(F)) / pollead(P)
- %3 = 2
+ %14 = 2
  @eprog
 
  You can specify $K$ using the optional ``domain'' argument $D$ as follows
