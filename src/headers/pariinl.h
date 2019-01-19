@@ -1043,7 +1043,7 @@ identity_ZV(long n)
 {
   GEN v = cgetg(n+1, t_VEC);
   long i;
-  for (i = 1; i <= n; i++) gel(v,i) = utoipols(i);
+  for (i = 1; i <= n; i++) gel(v,i) = utoipos(i);
   return v;
 }
 /* identity permutation */
