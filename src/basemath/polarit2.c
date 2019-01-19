@@ -521,18 +521,26 @@ long
 Rg_type(GEN x, GEN *p, GEN *pol, long *pa)
 {
   long t[] = {0,0,0,0,0,0,0,0,0,0,0};
-  long tx = typ(x), t2 = 0, var = NO_VARIABLE;
+  long t2 = 0, var = NO_VARIABLE;
   GEN ff = NULL;
   *p = *pol = NULL; *pa = LONG_MAX;
-  if (is_scalar_t(tx))
+  switch(typ(x))
   {
-    if (tx == t_POLMOD) return 0;
-    if (!settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
+    case t_INT: case t_REAL: case t_INTMOD: case t_FRAC: case t_FFELT:
+    case t_COMPLEX: case t_PADIC: case t_QUAD:
+      if (!settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
+      break;
+    case t_POL: case t_SER:
+      if (!RgX_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
+      break;
+    case t_VEC: case t_COL:
+      if(!RgC_settype(x, t, p, pol, pa, &ff, &t2, &var)) return 0;
+      break;
+    case t_MAT:
+      if(!RgM_settype(x, t, p, pol, pa, &ff, &t2, &var)) return 0;
+      break;
+    default: return 0;
   }
-  else if (tx == t_MAT)
-  { if(!RgM_settype(x, t, p, pol, pa, &ff, &t2, &var)) return 0; }
-  else /* t_POL, t_SER */
-    if (!RgX_settype(x,t,p,pol,pa,&ff,&t2,&var)) return 0;
   return choosetype(t,t2,ff,pol,var);
 }
 
