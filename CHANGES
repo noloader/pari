@@ -136,6 +136,9 @@ BA  18- qfbsolve now returns a vector of solutions.
     33- allow forsquarefree(n = a, b) with a*b < 0
     34- allow L[a..b] and L[^i] for t_LISTs
 BA  35- gen_factorback: change argument order to match other functions
+    36- polinterpolate(X,Y,t,&e): e is now more precisely defined and the
+        error estimate is given as a binary exponent; compared to the value
+        dy returned up to this change, we have e = exponent(dy).
 
   Added
      1- [libpari] nonsquare_Fl
@@ -178,6 +181,7 @@ AP  34- new GP function mfgaloisprojrep
     35- optional v argument to nfmodprinit
     36- [libpari] rfrac_deflate, rfrac_deflate_order, rfrac_deflate_max
     37- [libpari] identity_zv, identity_ZV
+    38- [libpari] polintspec
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

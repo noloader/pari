@@ -1440,10 +1440,10 @@ rectsplines(long ne, double *x, double *y, long lx, long flag)
 
     xa++; ya++;
     if (param) {
-      gel(pol3,1) = polint_i(tas, xa, X, 4, NULL);
-      gel(pol3,2) = polint_i(tas, ya, X, 4, NULL);
+      gel(pol3,1) = polintspec(tas, xa, X, 4, NULL);
+      gel(pol3,2) = polintspec(tas, ya, X, 4, NULL);
     } else {
-      pol3 = polint_i(xa, ya, X, 4, NULL);
+      pol3 = polintspec(xa, ya, X, 4, NULL);
       tas = xa;
     }
     /* Start with 3 points */

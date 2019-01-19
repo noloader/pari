@@ -8660,6 +8660,16 @@ the same length, returns the polynomial $T$ in variable $v$ such that
 $T(X[i]) = Y[i]$ for all $i$. The special case $X = \kbd{NULL}$
 corresponds to $X = [1,2,\dots,n]$, where $n$ is the length of $Y$.
 
+\fun{GEN}{polintspec}{GEN X, GEN Y, GEN t, long n, long *pe}
+return $P(t)$ where $P$ is the Lagrange interpolation polynomial
+attached to the $n$ points $(X[0],Y[0]), \dots, (X[n-1],Y[n-1])$.
+If \kbd{pe} is not \kbd{NULL} and $t$ is a complex numeric value, \kbd{*pe}
+contains an error estimate for the returned value (Neville's algorithm, see
+\kbd{polinterpolate}). In extrapolation algorithms, e.g., Romberg
+integration, this function is usually called on actual \kbd{GEN} vectors
+with offsets: $x + k$ and $y + k$ so as to interpolate on $x[k..k+n-1]$
+without having to use \kbd{vecslice}.
+
 \subsubsec{Special shapes}
 
 The following routines check whether matrices or vectors have a special

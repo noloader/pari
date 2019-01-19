@@ -1142,7 +1142,7 @@ RgV_polint(GEN X, GEN Y, long v)
     P = P? RgX_add(P, dP): dP;
     if (gc_needed(av,2))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"FpV_polint");
+      if (DEBUGMEM>1) pari_warn(warnmem,"RgV_polint i = %ld/%ld", i, l-1);
       P = gerepileupto(av, P);
     }
   }
@@ -1175,22 +1175,17 @@ check_dy(GEN X, GEN x, long n)
 }
 /* X,Y are "spec" GEN vectors with n > 0 components ( at X[0], ... X[n-1] ) */
 GEN
-polint_i(GEN X, GEN Y, GEN x, long n, GEN *ptdy)
+polintspec(GEN X, GEN Y, GEN x, long n, long *pe)
 {
   long i, m, ns;
   pari_sp av = avma, av2;
   GEN y, c, d, dy = NULL; /* gcc -Wall */
 
-  if (ptdy) *ptdy = gen_0;
+  if (pe) *pe = -HIGHEXPOBIT;
   if (n == 1) return gmul(gel(Y,0), Rg_get_1(x));
-  if (!X)
-  {
-    X = cgetg(n+1, t_VEC);
-    for (i=1; i<=n; i++) gel(X,i) = utoipos(i);
-    X++;
-  }
+  if (!X) X = identity_ZV(n) + 1;
   av2 = avma;
-  ns = check_dy(X, x, n); if (ns < 0) { ns = 0; if (ptdy) ptdy = NULL; }
+  ns = check_dy(X, x, n); if (ns < 0) { pe = NULL; ns = 0; }
   c = cgetg(n+1, t_VEC);
   d = cgetg(n+1, t_VEC); for (i=0; i<n; i++) gel(c,i+1) = gel(d,i+1) = gel(Y,i);
   y = gel(d,ns+1);
@@ -1218,13 +1213,12 @@ polint_i(GEN X, GEN Y, GEN x, long n, GEN *ptdy)
       gerepileall(av2, 4, &y, &c, &d, &dy);
     }
   }
-  if (!ptdy) return gerepileupto(av, y);
-  gerepileall(av, 2, &y, &dy);
-  *ptdy = dy; return y;
+  if (pe && inC(dy)) *pe = gexpo(dy);
+  return gerepileupto(av, y);
 }
 
 GEN
-polint(GEN X, GEN Y, GEN t, GEN *ptdy)
+polint_i(GEN X, GEN Y, GEN t, long *pe)
 {
   long lx = lg(X), vt;
 
@@ -1239,7 +1233,7 @@ polint(GEN X, GEN Y, GEN t, GEN *ptdy)
     Y = X;
     X = NULL;
   }
-  if (ptdy) *ptdy = gen_0;
+  if (pe) *pe = -HIGHEXPOBIT;
   vt = t? gvar(t): 0;
   if (vt != NO_VARIABLE)
   { /* formal interpolation */
@@ -1259,7 +1253,15 @@ polint(GEN X, GEN Y, GEN t, GEN *ptdy)
   }
   /* numerical interpolation */
   if (lx == 1) return Rg_get_0(t);
-  return polint_i(X? X+1: NULL,Y+1,t,lx-1,ptdy);
+  return polintspec(X? X+1: NULL,Y+1,t,lx-1, pe);
+}
+GEN
+polint(GEN X, GEN Y, GEN t, GEN *pe)
+{
+  long e;
+  GEN p = polint_i(X, Y, t, &e);
+  if (pe) *pe = stoi(e);
+  return p;
 }
 
 /********************************************************************/

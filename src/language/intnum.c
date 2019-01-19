@@ -50,10 +50,9 @@ interp(GEN h, GEN s, long L, long bit, long D)
 {
   pari_sp av = avma;
   long e1,e2;
-  GEN dss, ss = polint_i(h + L-D,s + L-D, gen_0, D+1, &dss);
+  GEN ss = polintspec(h + L-D, s + L-D, gen_0, D+1, &e2);
 
   e1 = gexpo(ss);
-  e2 = gexpo(dss);
   if (DEBUGLEVEL>2)
   {
     err_printf("romb: iteration %ld, guess: %Ps\n", L,ss);
