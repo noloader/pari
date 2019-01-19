@@ -3,9 +3,10 @@ Section: modular_forms
 C-Name: mfEk
 Prototype: L
 Help: mfEk(k): mf corresponding to the standard Eisenstein series
- E_k.
-Doc: mf structure corresponding to the standard Eisenstein series $E_k$.
+ E_k for non-negative even integer k.
+Doc: k being an even non-negative integer, return the mf structure
+ corresponding to the standard Eisenstein series $E_k$.
  \bprog
- ? mfcoefs(mfEk(8),4)
+ ? mfcoefs(mfEk(8), 4)
  %1 = [1, 480, 61920, 1050240, 7926240]
  @eprog
