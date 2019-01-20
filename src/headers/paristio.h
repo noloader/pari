@@ -298,7 +298,7 @@ typedef struct {
   GEN colormap, graphcolors, plothsizes;
 
   int secure, simplify, strictmatch, strictargs, chrono;
-  pari_timer *T;
+  pari_timer *T, *Tw;
   ulong primelimit; /* deprecated */
   ulong threadsizemax, threadsize;
 } gp_data;

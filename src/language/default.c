@@ -977,7 +977,7 @@ default_gp_data(void)
   static gp_hist __HIST;
   static gp_pp   __PP;
   static gp_path __PATH, __SOPATH;
-  static pari_timer __T;
+  static pari_timer __T, __Tw;
 
   D->flags       = 0;
   D->primelimit  = 500000;
@@ -996,6 +996,7 @@ default_gp_data(void)
   D->secure      = 0;
   D->use_readline= 0;
   D->T    = &__T;
+  D->Tw   = &__Tw;
   D->hist = &__HIST;
   D->pp   = &__PP;
   D->path = &__PATH;
