@@ -2,9 +2,9 @@ Function: sumdigits
 Section: number_theoretical
 C-Name: sumdigits0
 Prototype: GDG
-Help: sumdigits(n,{B=10}): sum of digits in the integer n, when written in
+Help: sumdigits(n,{B=10}): sum of digits in the integer |n|, when written in
  base B.
-Doc: sum of digits in the integer $n$, when written in base $B > 1$.
+Doc: sum of digits in the integer $|n|$, when written in base $B > 1$.
  \bprog
  ? sumdigits(123456789)
  %1 = 45

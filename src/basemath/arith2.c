@@ -1316,7 +1316,7 @@ sumdigits0(GEN x, GEN B)
   if (!signe(x))       { set_avma(av); return gen_0; }
   if (abscmpii(x,B)<0) { set_avma(av); return absi(x); }
   if (absequaliu(B,10))   { set_avma(av); return sumdigits(x); }
-  lz = logint(x,B) + 1;
+  x = absi_shallow(x); lz = logint(x,B) + 1;
   z = gen_digits_i(x, B, lz, NULL, &Z_ring, _dvmdii);
   return gerepileuptoint(av, ZV_sum(z));
 }

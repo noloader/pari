@@ -146,6 +146,7 @@ BA  35- gen_factorback: change argument order to match other functions
     37- suminf is now sensitive to bit precision. In library mode, use
         suminf_bitprec (precision in bits) rather than the historical suminf
         (precision in words)
+    38- sumdigits(negative number, B) sometimes negative
 
   Added
      1- [libpari] nonsquare_Fl

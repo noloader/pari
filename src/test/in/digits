@@ -24,6 +24,9 @@ vector(10, i, sumdigits(123456789, i+1))
 digits(2^128+3, 2^64)
 digits(999999999999999,4294967295)
 sumdigits(2^128+3, 2^64)
+sumdigits(-3,3)
+sumdigits(-3,10)
+sumdigits(-3,2)
 
 0x12345
 0x1234567890ABCDEF987654321
