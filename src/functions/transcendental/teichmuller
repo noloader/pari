@@ -2,7 +2,7 @@ Function: teichmuller
 Section: transcendental
 C-Name: teichmuller
 Prototype: GDG
-Help: teichmuller(x,{tab}): teichmuller character of p-adic number x. If
+Help: teichmuller(x,{tab}): Teichmuller character of p-adic number x. If
  x = [p,n], return the lifts of all teichmuller(i + O(p^n)) for
  i = 1, ..., p-1. Such a vector can be fed back to teichmuller, as the
  optional argument tab, to speed up later computations.
