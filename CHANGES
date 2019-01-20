@@ -188,7 +188,7 @@ AP  34- new GP function mfgaloisprojrep
     35- optional v argument to nfmodprinit
     36- [libpari] rfrac_deflate, rfrac_deflate_order, rfrac_deflate_max
     37- [libpari] identity_zv, identity_ZV
-    38- [libpari] polintspec
+    38- [libpari] polintspec, polint_i
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

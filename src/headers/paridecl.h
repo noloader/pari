@@ -2515,6 +2515,7 @@ GEN     pollegendre_reduced(long n, long v);
 GEN     pollegendre_eval(long n, GEN x);
 GEN     pollegendre_eval0(long n, GEN x, long flag);
 GEN     polint(GEN xa, GEN ya, GEN x, GEN *pe);
+GEN     polint_i(GEN X, GEN Y, GEN t, long *pe);
 GEN     polintspec(GEN xa, GEN ya, GEN x, long n, long *pe);
 GEN     polchebyshev(long n, long kind, long v);
 GEN     polchebyshev_eval(long n, long kind, GEN x);

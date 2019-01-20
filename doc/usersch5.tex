@@ -8670,6 +8670,9 @@ integration, this function is usually called on actual \kbd{GEN} vectors
 with offsets: $x + k$ and $y + k$ so as to interpolate on $x[k..k+n-1]$
 without having to use \kbd{vecslice}.
 
+\fun{GEN}{polint_i}{GEN X, GEN Y, GEN t, long *pe} as \kbd{polintspec},
+where $X$ and $Y$ are actual \kbd{GEN} vectors.
+
 \subsubsec{Special shapes}
 
 The following routines check whether matrices or vectors have a special
