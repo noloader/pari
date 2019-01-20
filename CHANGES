@@ -194,7 +194,7 @@ AP  34- new GP function mfgaloisprojrep
 BA  39- [libpari] FF_var, FF_preimagerel
 BA  40- new GP function ffmaprel
 BA  41- [libpari] closure_derivn
-BA  42- [libpari] walltimer_start, walltimer_delay
+BA  42- [libpari] walltimer_start, walltimer_delay, gp_format_time1
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

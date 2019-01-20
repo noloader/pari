@@ -724,20 +724,38 @@ convert_time(char *s, long delay)
 }
 
 /* Format a time of 'delay' ms */
-const char *
-gp_format_time(long delay)
+static const char *
+gp_format_time_postfix(char *buf, long delay, long nl)
 {
-  static char buf[64];
   char *s = buf;
-
   term_get_color(s, c_TIME);
   convert_time(s + strlen(s), delay);
   s+=strlen(s);
   term_get_color(s, c_NONE);
   s+=strlen(s);
-  s[0] = '.';
-  s[1] = '\n';
-  s[2] = 0; return buf;
+  if (nl)
+  {
+    s[0] = '.';
+    s[1] = '\n';
+    s[2] = 0;
+  } else
+    s[0] = 0;
+  return buf;
+}
+
+/* Format a time of 'delay' ms */
+const char *
+gp_format_time(long delay)
+{
+  static char buf[64];
+  return gp_format_time_postfix(buf, delay, 1);
+}
+
+const char *
+gp_format_time1(long delay)
+{
+  static char buf[64];
+  return gp_format_time_postfix(buf, delay, 0);
 }
 
 /********************************************************************/

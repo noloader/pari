@@ -408,6 +408,10 @@ n the help.
 \fun{const char*}{gp_format_time}{long t} format a delay of $t$ ms
 suitable for \kbd{gp} output, with \kbd{timer} set.
 
+\fun{const char*}{gp_format_time1}{long t} format a delay of $t$ ms
+suitable for \kbd{gp} output, with \kbd{timer} set, without a trailing
+dot and newline.
+
 \fun{const char*}{gp_format_prompt}{const char *p} format a prompt $p$
 suitable for \kbd{gp} prompting (includes colors and protecting ANSI escape
 sequences for readline).
