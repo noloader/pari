@@ -1805,6 +1805,127 @@ deriv(GEN x, long v)
   return NULL; /* LCOV_EXCL_LINE */
 }
 
+/* n-th derivative of t_SER x, n > 0 */
+static GEN
+derivnser(GEN x, long n)
+{
+  long i, vx = varn(x), e = valp(x), lx = lg(x);
+  GEN y;
+  if (ser_isexactzero(x))
+  {
+    x = gcopy(x);
+    if (e) setvalp(x,e-n);
+    return x;
+  }
+  if (e < 0 || e >= n)
+  {
+    y = cgetg(lx,t_SER);
+    y[1] = evalsigne(1)| evalvalp(e-n) | evalvarn(vx);
+    for (i=0; i<lx-2; i++)
+      gel(y,i+2) = gmul(muls_interval(i+e-n+1,i+e), gel(x,i+2));
+  } else {
+    if (lx <= n+2) return zeroser(vx, 0);
+    lx -= n;
+    y = cgetg(lx,t_SER);
+    y[1] = evalsigne(1)|_evalvalp(0) | evalvarn(vx);
+    for (i=0; i<lx-2; i++)
+      gel(y,i+2) = gmul(muls_interval(i+1,i+n),gel(x,i+2+n-e));
+  }
+  return normalize(y);
+}
+
+/* n-th derivative of t_POL x, n > 0 */
+static GEN
+RgX_derivn(GEN x, long n)
+{
+  long i, vx = varn(x), lx = lg(x);
+  GEN y;
+  if (lx <= n+2) return pol_0(vx);
+  lx -= n;
+  y = cgetg(lx,t_POL);
+  y[1] = evalsigne(1)| evalvarn(vx);
+  for (i=0; i<lx-2; i++)
+    gel(y,i+2) = gmul(muls_interval(i+1,i+n),gel(x,i+2+n));
+  return normalizepol_lg(y, lx);
+}
+
+static GEN
+rfrac_derivn(GEN x, long n, long vs)
+{
+  pari_sp av = avma;
+  GEN u  = gel(x,1), v = gel(x,2);
+  GEN dv = deriv(v, vs);
+  long i;
+  for (i=1; i<=n; i++)
+  {
+    GEN du = deriv(u, vs);
+    u = gadd(gmul(du, v), gmulsg (-i, gmul(dv, u)));
+  }
+  v = gpowgs(v, n+1);
+  return gerepileupto(av, gdiv(u, v));
+}
+
+GEN
+derivn(GEN x, long n, long v)
+{
+  long lx, tx, i, j;
+  GEN y;
+  if (n < 0)  pari_err_DOMAIN("derivn","n","<", gen_0, stoi(n));
+  if (n == 0) return gcopy(x);
+  tx = typ(x);
+  if (is_const_t(tx))
+    switch(tx)
+    {
+      case t_INTMOD: retmkintmod(gen_0, icopy(gel(x,1)));
+      case t_FFELT: return FF_zero(x);
+      default: return gen_0;
+    }
+  if (v < 0)
+  {
+    if (tx == t_CLOSURE) return closure_derivn(x, n);
+    v = gvar9(x);
+  }
+  switch(tx)
+  {
+    case t_POLMOD:
+    {
+      GEN a = gel(x,2), b = gel(x,1);
+      if (v == varn(b)) return Rg_get_0(b);
+      retmkpolmod(derivn(a,n,v), RgX_copy(b));
+    }
+    case t_POL:
+      switch(varncmp(varn(x), v))
+      {
+        case 1: return Rg_get_0(x);
+        case 0: return RgX_derivn(x,n);
+      }
+      y = cgetg_copy(x, &lx); y[1] = x[1];
+      for (i=2; i<lx; i++) gel(y,i) = derivn(gel(x,i),n,v);
+      return normalizepol_lg(y,i);
+
+    case t_SER:
+      switch(varncmp(varn(x), v))
+      {
+        case 1: return Rg_get_0(x);
+        case 0: return derivnser(x, n);
+      }
+      if (ser_isexactzero(x)) return gcopy(x);
+      y = cgetg_copy(x, &lx); y[1] = x[1];
+      for (j=2; j<lx; j++) gel(y,j) = derivn(gel(x,j),n,v);
+      return normalize(y);
+
+    case t_RFRAC:
+      return rfrac_derivn(x, n, v);
+
+    case t_VEC: case t_COL: case t_MAT:
+      y = cgetg_copy(x, &lx);
+      for (i=1; i<lx; i++) gel(y,i) = derivn(gel(x,i),n,v);
+      return y;
+  }
+  pari_err_TYPE("derivn",x);
+  return NULL; /* LCOV_EXCL_LINE */
+}
+
 static long
 lookup(GEN v, long vx)
 {

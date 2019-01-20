@@ -1659,35 +1659,6 @@ sersplit1(GEN s, GEN *head)
   return normalize(y);
 }
 
-/* n-th derivative of t_SER x, n > 0 */
-static GEN
-derivnser(GEN x, long n)
-{
-  long i, vx = varn(x), e = valp(x), lx = lg(x);
-  GEN y;
-  if (ser_isexactzero(x))
-  {
-    x = gcopy(x);
-    if (e) setvalp(x,e-n);
-    return x;
-  }
-  if (e < 0 || e >= n)
-  {
-    y = cgetg(lx,t_SER);
-    y[1] = evalsigne(1)| evalvalp(e-n) | evalvarn(vx);
-    for (i=0; i<lx-2; i++)
-      gel(y,i+2) = gmul(muls_interval(i+e-n+1,i+e), gel(x,i+2));
-  } else {
-    if (lx <= n+2) return zeroser(vx, 0);
-    lx -= n;
-    y = cgetg(lx,t_SER);
-    y[1] = evalsigne(1)|_evalvalp(0) | evalvarn(vx);
-    for (i=0; i<lx-2; i++)
-      gel(y,i+2) = gmul(muls_interval(i+1,i+n),gel(x,i+2+n-e));
-  }
-  return normalize(y);
-}
-
 /* order of pole of Lambda at s (0 if regular point) */
 static long
 lfunlambdaord(GEN linit, GEN s)
@@ -1738,7 +1709,7 @@ lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
   res = flag ? lfunlambda_OK(linit, s, dom, bitprec):
                lfun_OK(linit, s, dom, bitprec);
   if (S)
-    res = gsubst(derivnser(res, m), varn(S), S);
+    res = gsubst(derivn(res, m, -1), varn(S), S);
   else if (typ(res)==t_SER)
   {
     long v = valp(res);
@@ -1746,7 +1717,7 @@ lfunderiv(GEN lmisc, long m, GEN s, long flag, long bitprec)
     if (v >= 0)
       res = gmul(mysercoeff(res, m), mpfact(m));
     else
-      res = derivnser(res, m);
+      res = derivn(res, m, -1);
   }
   return gerepilecopy(ltop, gprec_w(res, prec));
 }

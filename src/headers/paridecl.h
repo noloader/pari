@@ -3496,6 +3496,7 @@ GEN     denom(GEN x);
 GEN     denom_i(GEN x);
 GEN     denominator(GEN x, GEN D);
 GEN     deriv(GEN x, long v);
+GEN     derivn(GEN x, long n, long v);
 GEN     derivser(GEN x);
 GEN     diffop(GEN x, GEN v, GEN dv);
 GEN     diffop0(GEN x, GEN v, GEN dv, long n);
