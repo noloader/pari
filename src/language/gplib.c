@@ -1838,7 +1838,7 @@ escape(const char *tch, int ismain)
         {
           long i, l = lg(x);
           pari_warn(warner,"setting %ld history entries", l-1);
-          for (i=1; i<l; i++) pari_add_hist(gel(x,i), 0);
+          for (i=1; i<l; i++) pari_add_hist(gel(x,i), 0, 0);
         }
         set_avma(av);
       }
@@ -1862,11 +1862,19 @@ chron(const char *s)
 {
   if (*s)
   { /* if "#" or "##" timer metacommand. Otherwise let the parser get it */
-    const char *t;
+    const char *t, *r;
     if (*s == '#') s++;
     if (*s) return 0;
-    t = gp_format_time(pari_get_histtime(0));
-    pari_printf("  ***   last result computed in %s", t);
+    if (pari_mt_nbthreads==1)
+    {
+      t = gp_format_time(pari_get_histtime(0));
+      pari_printf("  ***   last result computed in %s", t);
+    } else
+    {
+      t = gp_format_time1(pari_get_histtime(0));
+      r = gp_format_time(pari_get_histrtime(0));
+      pari_printf("  ***   last result: cpu time %s, real time %s", t,r);
+    }
   }
   else { GP_DATA->chrono ^= 1; (void)sd_timer(NULL,d_ACKNOWLEDGE); }
   return 1;

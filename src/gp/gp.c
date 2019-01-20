@@ -328,7 +328,7 @@ static GEN
 gp_main_loop(long ismain)
 {
   VOLATILE GEN z = gnil;
-  VOLATILE long t = 0;
+  VOLATILE long t = 0, r = 0;
   VOLATILE pari_sp av = avma;
   filtre_t F;
   Buffer *b = filtered_buffer(&F);
@@ -363,6 +363,7 @@ gp_main_loop(long ismain)
     {
       reset_ctrlc();
       timer_start(GP_DATA->T);
+      walltimer_start(GP_DATA->Tw);
       pari_set_last_newline(1);
     }
     if (gp_meta(b->buf,ismain)) continue;
@@ -371,15 +372,26 @@ gp_main_loop(long ismain)
     if (!ismain) continue;
 
     t = timer_delay(GP_DATA->T);
+    r = walltimer_delay(GP_DATA->Tw);
     if (!pari_last_was_newline()) pari_putc('\n');
     pari_alarm(0);
     if (t && GP_DATA->chrono)
     {
-      pari_puts("time = ");
-      pari_puts(gp_format_time(t));
+      if (pari_mt_nbthreads==1)
+      {
+        pari_puts("time = ");
+        pari_puts(gp_format_time(t));
+      }
+      else
+      {
+        pari_puts("cpu time = ");
+        pari_puts(gp_format_time1(t));
+        pari_puts(", real time = ");
+        pari_puts(gp_format_time(r));
+      }
     }
     if (GP_DATA->simplify) z = simplify_shallow(z);
-    pari_add_hist(z, t);
+    pari_add_hist(z, t, r);
     if (z != gnil && ! is_silent(b->buf) ) gp_output(z);
     set_avma(av);
     parivstack_reset();

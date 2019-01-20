@@ -357,9 +357,10 @@ gp_embedded(const char *s)
 {
   char last, *res;
   struct gp_context state;
-  VOLATILE long t = 0;
+  VOLATILE long t = 0, r = 0;
   gp_context_save(&state);
   timer_start(GP_DATA->T);
+  timer_start(GP_DATA->Tw);
   pari_set_last_newline(1);
   pari_CATCH(CATCH_ALL)
   {
@@ -370,8 +371,9 @@ gp_embedded(const char *s)
     GEN z = gp_read_str_multiline(s, &last);
     ulong n;
     t = timer_delay(GP_DATA->T);
+    r = walltimer_delay(GP_DATA->Tw);
     if (GP_DATA->simplify) z = simplify_shallow(z);
-    pari_add_hist(z, t);
+    pari_add_hist(z, t, r);
     n = pari_nb_hist();
     parivstack_reset();
     res = (z==gnil || last==';') ? stack_strdup("\n"):

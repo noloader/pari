@@ -149,6 +149,7 @@ BA  35- gen_factorback: change argument order to match other functions
     38- sumdigits(negative number, B) sometimes negative
     39- RgV_polint: use (asymptotically fast) FpV_polint over Fp
 BA  40- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
+BA  41- # and ## now also display the realtime when nbthreads is not 1
 
   Added
      1- [libpari] nonsquare_Fl

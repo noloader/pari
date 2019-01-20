@@ -32,16 +32,18 @@ int main(int argc, char **argv)
     GEN z;
     const char *prompt = gp_format_prompt(GP_DATA->prompt);
     char *in = readline(prompt);
-    pari_timer T;
-    long time;
+    pari_timer T, Tw;
+    long time, rtime;
 
     if (!in) break;
     if (!*in) continue;
 
     add_history(in);
     gp_echo_and_log(prompt,in);
-    timer_start(&T); z = gp_read_str(in); time = timer_delay(&T);
-    pari_add_hist(z, time);
+    timer_start(&T); walltimer_start(&Tw);
+    z = gp_read_str(in);
+    time = timer_delay(&T); rtime = walltimer_delay(&T);
+    pari_add_hist(z, time, rtime);
     if (z != gnil && in[strlen(in)-1] != ';')
     {
       pari_printf("%s%%%lu = %s",col(c_HIST),pari_nb_hist(),col(c_OUTPUT));
