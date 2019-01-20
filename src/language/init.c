@@ -2635,8 +2635,37 @@ msgtimer(const char *format, ...)
 }
 long
 getabstime(void)  { return timer_get(&abstimer_T);}
-#if defined(USE_CLOCK_GETTIME) || defined(USE_GETTIMEOFDAY) \
- || defined(USE_FTIMEFORWALLTIME)
+
+void
+walltimer_start(pari_timer *ti)
+{
+#if defined(USE_CLOCK_GETTIME)
+  struct timespec t;
+  if (!clock_gettime(CLOCK_REALTIME,&t))
+  { ti->s = t.tv_sec, ti->us = (t.tv_nsec + 500)/1000;
+#elif defined(USE_GETTIMEOFDAY)
+  struct timeval tv;
+  if (!gettimeofday(&tv, NULL))
+  {  ti->s = tv.tv_sec, ti->us = tv.tv_usec;
+#elif defined(USE_FTIMEFORWALLTIME)
+  struct timeb tp;
+  if (!ftime(&tp))
+  { ti->s = tp.time, ti->us = tp.millitm*1000;
+#endif
+  } else
+    timer_start(ti);
+}
+
+static long
+walltimer_aux(pari_timer *T, pari_timer *U)
+{
+  long s = T->s, us = T->us; walltimer_start(U);
+  return 1000 * (U->s - s) + (U->us - us + 500) / 1000;
+}
+/* return delay, reset timer */
+long
+walltimer_delay(pari_timer *T) { return walltimer_aux(T, T); }
+
 static GEN
 timetoi(ulong s, ulong m)
 {
@@ -2644,23 +2673,12 @@ timetoi(ulong s, ulong m)
   GEN r = addiu(muliu(utoi(s), 1000), m);
   return gerepileuptoint(av, r);
 }
-#endif
 GEN
 getwalltime(void)
 {
-#if defined(USE_CLOCK_GETTIME)
-  struct timespec t;
-  if (!clock_gettime(CLOCK_REALTIME,&t))
-    return timetoi(t.tv_sec, (t.tv_nsec + 500000)/1000000);
-#elif defined(USE_GETTIMEOFDAY)
-  struct timeval tv;
-  if (!gettimeofday(&tv, NULL))
-    return timetoi(tv.tv_sec, (tv.tv_usec + 500)/1000);
-#elif defined(USE_FTIMEFORWALLTIME)
-  struct timeb tp;
-  ftime(&tp); return timetoi(tp.time, tp.millitm);
-#endif
-  return utoi(getabstime());
+  pari_timer ti;
+  walltimer_start(&ti);
+  return timetoi(ti.s, (ti.us+500)/1000);
 }
 
 /*******************************************************************/

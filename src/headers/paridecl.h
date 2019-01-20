@@ -3856,6 +3856,8 @@ void    timer_start(pari_timer *T);
 long    timer2(void);
 GEN     trap0(const char *e, GEN f, GEN r);
 void    traverseheap( void(*f)(GEN, void *), void *data );
+void    walltimer_start(pari_timer *ti);
+long    walltimer_delay(pari_timer *ti);
 
 /* intnum.c */
 
