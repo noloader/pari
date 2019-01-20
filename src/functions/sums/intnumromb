@@ -48,9 +48,9 @@ Doc: numerical integration of \var{expr} (smooth in $]a,b[$), with respect to
  compute the $\int_0^\infty e^{-x^2}\,dx$ to 28 decimal digits, then one can
  set infinity equal to 10 for example, and certainly not to \kbd{1e1000}.
 
- \synt{intnumromb_bitprec}{void *E, GEN (*eval)(void*,GEN), GEN a, GEN b, long flag, long bitprec},
- where $\kbd{eval}(x, E)$ returns the value of the function at $x$.
- You may store any additional information required by \kbd{eval} in $E$, or set
- it to \kbd{NULL}. The historical variant
- \fun{intnumromb}{\dots, long prec}, where \kbd{prec} is expressed in words,
- not bits, is obsolete and should no longer be used.
+ \synt{intnumromb_bitprec}{void *E, GEN (*eval)(void*,GEN), GEN a, GEN b,
+ long flag, long bitprec}, where \kbd{eval}$(x, E)$ returns the value of the
+ function at $x$. You may store any additional information required by
+ \kbd{eval} in $E$, or set it to \kbd{NULL}. The historical variant
+ \fun{GEN}{intnumromb}{\dots, long prec}, where \kbd{prec} is expressed in
+ words, not bits, is obsolete and should no longer be used.

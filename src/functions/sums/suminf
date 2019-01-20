@@ -57,5 +57,5 @@ Doc: Naive summation of expression \var{expr}, the formal parameter $X$
  @eprog
 
  \synt{suminf_bitprec}{void *E, GEN (*eval)(void*,GEN), GEN a, long prec}.
- The historical variant \fun{suminf}{\dots, long prec}, where \kbd{prec} is
+ The historical variant \fun{GEN}{suminf}{\dots, long prec}, where \kbd{prec} is
  expressed in words, not bits, is obsolete and should no longer be used.
