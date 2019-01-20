@@ -1457,7 +1457,7 @@ rmprime(GEN T, GEN p)
   if (typ(p) != t_INT) pari_err_TYPE("removeprimes",p);
   i = ZV_search(T, p);
   if (!i)
-    pari_err_DOMAIN("removeprime","prime","not in",
+    pari_err_DOMAIN("removeprimes","prime","not in",
                     strtoGENstr("primetable"), p);
   gunclone(gel(T,i)); gel(T,i) = NULL;
   cleanprimetab(T);
