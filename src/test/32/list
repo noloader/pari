@@ -34,22 +34,22 @@ List([3, 2, 3])
 List([3, 2, 3, 4])
   ***   variable name expected: listpop(1)
   ***                                   ^--
-  ***   at top-level: L='L;listpop(L)
-  ***                      ^----------
+  ***   at top-level: L='L;listpop(~L)
+  ***                      ^-----------
   *** listpop: incorrect type in listpop (t_POL).
   ***   at top-level: listput(L,1)
   ***                 ^------------
   *** listput: incorrect type in listput (t_POL).
-  ***   at top-level: listinsert(L,1,1)
-  ***                 ^-----------------
+  ***   at top-level: listinsert(~L,1,1)
+  ***                 ^------------------
   *** listinsert: incorrect type in listinsert (t_POL).
-  ***   at top-level: L=Map();listpop(L)
-  ***                         ^----------
+  ***   at top-level: L=Map();listpop(~L)
+  ***                         ^-----------
   *** listpop: incorrect type in listpop (t_LIST).
-  ***   at top-level: listput(L,1)
-  ***                 ^------------
+  ***   at top-level: listput(~L,1)
+  ***                 ^-------------
   *** listput: incorrect type in listput (t_POL).
-  ***   at top-level: listinsert(L,1,1)
-  ***                 ^-----------------
+  ***   at top-level: listinsert(~L,1,1)
+  ***                 ^------------------
   *** listinsert: incorrect type in listinsert (t_POL).
-Total time spent: 43
+Total time spent: 16
