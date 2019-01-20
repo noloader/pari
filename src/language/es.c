@@ -4664,15 +4664,18 @@ GEN
 pari_get_hist(long p) { return history(p)->z; }
 long
 pari_get_histtime(long p) { return history(p)->t; }
+long
+pari_get_histrtime(long p) { return history(p)->r; }
 
 void
-pari_add_hist(GEN x, long time)
+pari_add_hist(GEN x, long time, long rtime)
 {
   gp_hist *H = GP_DATA->hist;
   ulong i = H->total % H->size;
   H->total++;
   guncloneNULL(H->v[i].z);
   H->v[i].t = time;
+  H->v[i].r = rtime;
   H->v[i].z = gclone(x);
 }
 

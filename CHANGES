@@ -148,6 +148,7 @@ BA  35- gen_factorback: change argument order to match other functions
         (precision in words)
     38- sumdigits(negative number, B) sometimes negative
     39- RgV_polint: use (asymptotically fast) FpV_polint over Fp
+BA  40- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
 
   Added
      1- [libpari] nonsquare_Fl
@@ -194,7 +195,8 @@ AP  34- new GP function mfgaloisprojrep
 BA  39- [libpari] FF_var, FF_preimagerel
 BA  40- new GP function ffmaprel
 BA  41- [libpari] closure_derivn
-BA  42- [libpari] walltimer_start, walltimer_delay, gp_format_time1
+BA  42- [libpari] walltimer_start, walltimer_delay, gp_format_time1,
+        pari_get_histrtime
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

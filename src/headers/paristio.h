@@ -261,6 +261,7 @@ typedef struct {
 typedef struct {
   GEN z; /* result */
   time_t t; /* time to obtain result */
+  time_t r; /* realtime to obtain result */
 } gp_hist_cell;
 typedef struct {
   gp_hist_cell *v; /* array of previous results, FIFO */
