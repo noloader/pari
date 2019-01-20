@@ -86,6 +86,9 @@
   ***   at top-level: sumnummonieninit(,[n->2^-n,oo])
   ***                 ^-------------------------------
   *** sumnummonieninit: forbidden addition t_INT + t_INFINITY.
+  ***   at top-level: sumnummonieninit(oo)
+  ***                 ^--------------------
+  *** sumnummonieninit: incorrect type in sumnummonieninit (t_INFINITY).
   ***   at top-level: sumnumlagrangeinit([1/5,0])
   ***                 ^---------------------------
   *** sumnumlagrangeinit: sorry, sumnumlagrange for this alpha is not yet implemented.
@@ -101,4 +104,4 @@
   ***   at top-level: sumpos(n=0,1,2)
   ***                 ^---------------
   *** sumpos: invalid flag in sumpos.
-Total time spent: 3303
+Total time spent: 3796

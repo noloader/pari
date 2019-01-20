@@ -1793,6 +1793,7 @@ sumnummonieninit(GEN asymp, GEN w, GEN n0, long prec)
       b = asymp;
     }
     if (gsigne(a) <= 0) pari_err_DOMAIN(fun, "a", "<=", gen_0, a);
+    if (!isinR(b)) pari_err_TYPE(fun, b);
     if (gcmpgs(gadd(a,b), 1) <= 0)
       pari_err_DOMAIN(fun, "a+b", "<=", gen_1, mkvec2(a,b));
   }
