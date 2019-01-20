@@ -238,23 +238,19 @@ assign_subFB(FB_t *F, GEN yes, long iyes)
   F->newpow = 1;
 }
 
-/*
- * Determine the permutation of the ideals made by each field automorphism.
- */
+/* Determine the permutation of the ideals made by each field automorphism */
 static void
 FB_aut_perm(FB_t *F, GEN auts, GEN cyclic)
 {
   pari_sp av0 = avma;
   long i, KC = F->KC, nauts = lg(auts);
-  GEN minidx = zero_Flv(KC), perm = zero_Flm_copy(KC, nauts-1);
+  GEN minidx, perm = zero_Flm_copy(KC, nauts-1);
 
-  if (nauts == 1)
-  {
-    for (i = 1; i <= KC; i++) minidx[i] = i;
-  }
+  if (nauts == 1) minidx = identity_zv(KC);
   else
   {
     long j, m;
+    minidx = zero_Flv(KC);
     for (m = 1; m < lg(cyclic); m++)
     {
       GEN thiscyc = gel(cyclic, m);

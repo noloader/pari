@@ -9945,22 +9945,20 @@ gausssumcx(GEN CHIvec, long prec)
 static GEN
 mfqk(long k, long N)
 {
-  GEN X = pol_x(0), P = gsubgs(gpowgs(X,N), 1), ZI, Q, Xm1, invden;
+  GEN X, P, ZI, Q, Xm1, invden;
   long i;
-  ZI = cgetg(N, t_VEC);
-  for (i = 1; i < N; i++) gel(ZI, i) = utoi(i);
-  ZI = gdivgs(gmul(X, gtopolyrev(ZI, 0)), N);
+  ZI = gdivgs(RgX_shift_shallow(RgV_to_RgX(identity_ZV(N-1), 0), 1), N);
   if (k == 1) return ZI;
+  P = gsubgs(pol_xn(N,0), 1);
   invden = RgXQ_powu(ZI, k, P);
-  Q = gneg(X); Xm1 = gsubgs(X, 1);
+  X = pol_x(0); Q = gneg(X); Xm1 = gsubgs(X, 1);
   for (i = 2; i < k; i++)
-    Q = gmul(X, ZX_add(gmul(Xm1, ZX_deriv(Q)), gmulsg(-i, Q)));
+    Q = RgX_shift_shallow(ZX_add(gmul(Xm1, ZX_deriv(Q)), gmulsg(-i, Q)), 1);
   return RgXQ_mul(Q, invden, P);
 }
-/* CHI mfchar */
-/* Warning: M is a multiple of the conductor of CHI, but is NOT
-   necessarily its modulus */
 
+/* CHI mfchar; M is a multiple of the conductor of CHI, but is NOT
+ * necessarily its modulus */
 static GEN
 mfskcx(long k, GEN CHI, long M, long prec)
 {
