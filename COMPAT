@@ -13,6 +13,9 @@ This file lists the incompatible changes between Version 2.x and older versions
   - polinterpolate(X,Y,t,&e): e is now more precisely defined and the
     error estimate is given as a binary exponent; compared to the value
     dy returned up to this change, we have e = exponent(dy).
+  - suminf is now sensitive to bit precision. In library mode, use
+    suminf_bitprec (precision in bits) rather than the historical suminf
+    (precision in words)
 
 * Specific to the PARI library:
 ===============================

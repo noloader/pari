@@ -52,5 +52,5 @@ Doc: numerical integration of \var{expr} (smooth in $]a,b[$), with respect to
  where $\kbd{eval}(x, E)$ returns the value of the function at $x$.
  You may store any additional information required by \kbd{eval} in $E$, or set
  it to \kbd{NULL}. The historical variant
- \synt{intnumromb}{\dots, long prec}, where \kbd{prec} is expressed in words,
+ \fun{intnumromb}{\dots, long prec}, where \kbd{prec} is expressed in words,
  not bits, is obsolete and should no longer be used.

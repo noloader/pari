@@ -4824,7 +4824,7 @@ GEN     sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     sumalt2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
-GEN     suminf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
+GEN     suminf(void *E, GEN (*eval)(void *, GEN), GEN a, long bit);
 GEN     zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec);
 GEN     solvestep(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN step, long flag, long prec);
 
