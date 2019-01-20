@@ -575,7 +575,7 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \endindentedkeys
 \li{numerical integration}{intnum$(x=a,b,f,\{T\})$}
 \li{weights $T$ for \kbd{intnum}}{intnuminit$(a,b,\{m\})$}
-\li{weights $T$ incl.~kernel $K$}{intfuncinit$(a,b,K,\{m\})$}
+\li{weights $T$ incl.~kernel $K$}{intfuncinit$(t=a,b,K,\{m\})$}
 \li{integrate $(2i\pi)^{-1}f$ on circle $|z - a| = R$}
    {intcirc$(x=a,R,f,\{T\})$}
 
@@ -590,7 +590,6 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{sum of series using Euler-Maclaurin}{sumnum$(n=a,f,\{T\})$}
 
 \li{$\sum_{n\geq a} F(n)$, $F$ rational function}{sumnumrat$(F,a)$}
-\li{\dots $\sum_{n\geq a} (-1)^n F(n)$}{sumaltrat$(F,a)$}
 \li{\dots $\sum_{p\geq a} F(p^s)$}{sumeulerrat$(F, \{s = 1\}, \{a = 2\})$}
 \li{weights for \kbd{sumnum}, $a$ as in DE}
    {sumnuminit$(\{\infty, a\})$}
