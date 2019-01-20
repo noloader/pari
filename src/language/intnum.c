@@ -1461,8 +1461,7 @@ contfracinit_i(GEN M, long lim)
 {
   pari_sp av;
   GEN e, q, c;
-  long lim2;
-  long j, k;
+  long lim2, j, k;
   e = zerovec(lim);
   c = zerovec(lim+1); gel(c, 1) = gel(M, 1);
   q = cgetg(lim+1, t_VEC);
@@ -1503,10 +1502,12 @@ contfracinit(GEN M, long lim)
     default: pari_err_TYPE("contfracinit", M);
   }
   if (lim < 0)
+  {
     lim = lg(M)-2;
+    if (lim < 0) retmkvec2(cgetg(1,t_VEC),cgetg(1,t_VEC));
+  }
   else if (lg(M)-1 <= lim)
     pari_err_COMPONENT("contfracinit", "<", stoi(lg(M)-1), stoi(lim));
-  if (lim < 0) retmkvec2(cgetg(1,t_VEC),cgetg(1,t_VEC));
   c = contfracinit_i(M, lim);
   return gerepilecopy(ltop, contfrac_Euler(c));
 }
