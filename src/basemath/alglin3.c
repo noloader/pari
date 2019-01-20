@@ -504,8 +504,7 @@ vecrange(GEN a, GEN b)
   l = itos(subii(b,a))+1;
   a = setloop(a);
   y = cgetg(l+1, t_VEC);
-  for (i=1; i<=l; a = incloop(a), i++)
-    gel(y,i) = icopy(a);
+  for (i=1; i<=l; a = incloop(a), i++) gel(y,i) = icopy(a);
   return y;
 }
 
@@ -517,8 +516,7 @@ vecrangess(long a, long b)
   if (a>b) return cgetg(1,t_VEC);
   l = b-a+1;
   y = cgetg(l+1, t_VEC);
-  for (i=1; i<=l; a++, i++)
-    gel(y,i) = stoi(a);
+  for (i=1; i<=l; a++, i++) gel(y,i) = stoi(a);
   return y;
 }
 
