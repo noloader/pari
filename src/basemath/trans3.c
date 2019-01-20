@@ -264,22 +264,20 @@ jbessel(GEN n, GEN z, long prec) { return jbesselintern(n,z,1,prec); }
 GEN
 ibessel(GEN n, GEN z, long prec) { return jbesselintern(n,z,0,prec); }
 
+/* k > 0 */
 static GEN
 _jbesselh(long k, GEN z, long prec)
 {
-  GEN s,c,p0,p1,p2, zinv = ginv(z);
+  GEN s, c, p0, p1, zinv = ginv(z);
   long i;
 
   gsincos(z,&s,&c,prec);
   p1 = gmul(zinv,s);
-  if (k)
+  p0 = p1; p1 = gmul(zinv,gsub(p0,c));
+  for (i = 2; i <= k; i++)
   {
-    p0 = p1; p1 = gmul(zinv,gsub(p0,c));
-    for (i=2; i<=k; i++)
-    {
-      p2 = gsub(gmul(gmulsg(2*i-1,zinv),p1), p0);
-      p0 = p1; p1 = p2;
-    }
+    GEN p2 = gsub(gmul(gmulsg(2*i-1,zinv), p1), p0);
+    p0 = p1; p1 = p2;
   }
   return p1;
 }
@@ -298,10 +296,10 @@ jbesselh(GEN n, GEN z, long prec)
 
   switch(typ(z))
   {
-    case t_INT: case t_FRAC: case t_QUAD:
-    case t_REAL: case t_COMPLEX:
+    case t_QUAD: z = gtofp(z, prec); /* don't bother */
+    case t_INT: case t_FRAC: case t_REAL: case t_COMPLEX:
     {
-      long bits, precnew, gz, pr;
+      long pr;
       GEN p1;
       if (gequal0(z))
       {
@@ -310,19 +308,23 @@ jbesselh(GEN n, GEN z, long prec)
         p1 = gdiv(p1, mulu_interval(k+1, 2*k+1)); /* x k! / (2k+1)! */
         return gerepileupto(av, gmul2n(p1,2*k));
       }
-      gz = gexpo(z);
       if ( (pr = precision(z)) ) prec = pr;
-      y = cgetc(prec);
-      bits = -2*k*gz + BITS_IN_LONG;
-      av = avma;
-      if (bits <= 0)
-        precnew = prec;
+      if (bessel_asymp(z, prec2nbits(prec)))
+        return jbessel(gadd(ghalf,n), z, prec);
+      y = cgetc(prec); av = avma;
+      p1 = gsqrt(gdiv(z, Pi2n(-1,prec)), prec);
+      if (!k)
+        p1 = gmul(p1, gsinc(z, prec));
       else
       {
-        precnew = prec + nbits2extraprec(bits);
-        if (pr) z = gtofp(z, precnew);
+        long bits = BITS_IN_LONG + 2*k * (log2(k) -  dbllog2(z));
+        if (bits > 0)
+        {
+          prec += nbits2extraprec(bits);
+          if (pr) z = gtofp(z, prec);
+        }
+        p1 = gmul(p1, _jbesselh(k,z,prec));
       }
-      p1 = gmul(_jbesselh(k,z,prec), gsqrt(gdiv(z,Pi2n(-1,prec)),prec));
       set_avma(av); return affc_fixlg(p1, y);
     }
 
@@ -344,7 +346,7 @@ jbesselh(GEN n, GEN z, long prec)
       t = lg(y)-2;
       if (v) y = sertoser(y, t + (2*k+1)*v);
       if (!k)
-        y = gdiv(gsin(y,prec), y);
+        y = gsinc(y,prec);
       else
       {
         GEN T, a = _jbesselh(k, y, prec);
