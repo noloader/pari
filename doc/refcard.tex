@@ -673,7 +673,7 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{Stirling numbers $s(n,k)$ and $S(n,k)$}{stirling$(n,k,\{\fl\})$}
 \li{number of partitions of $n$}{numbpart$(n)$}
 \li{$k$-th permutation on $n$ letters}{numtoperm$(n,k)$}
-\li{convert permutation to $(n,k)$ form}{permtonum$(v)$}
+\li{\dots index $k$ of permutation $v$}{permtonum$(v)$}
 \li{order of permutation $p$}{permorder$(p)$}
 \li{signature of permutation $p$}{permsign$(p)$}
 
@@ -694,7 +694,7 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{minimal $u,v$ so $xu+yv=\gcd(x,y)$}{gcdext$(x,y)$}
 \li{continued fraction of $x$}{contfrac$(x,\{b\},\{lmax\})$}
 \li{last convergent of continued fraction $x$}{contfracpnqn$(x)$}
-\li{rational approximation to $x$ (den. $\leq B$)}{bestappr$(x,\{B\}k)$}
+\li{rational approximation to $x$ (den. $\leq B$)}{bestappr$(x,\{B\})$}
 \li{recognize $x\in\CC$ as polmod mod $T\in\ZZ[X]$}{bestapprnf$(x,T)$}
 
 \section{Characters}
@@ -705,7 +705,7 @@ for Dirichlet characters. A character $\chi$ is coded by
 $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 \hfil\break
 \li{$\chi\cdot \psi$; $\chi^{-1}$; $\chi\cdot \psi^{-1}$; $\chi^k$}
-   {charmul{\rm, }charconj{\rm, }chardiv,{\rm, }charpow}
+   {charmul{\rm, }charconj{\rm, }chardiv{\rm, }charpow}
 \li{order of $\chi$}{charorder$(\var{cyc}, \chi)$}
 \li{kernel of $\chi$}{charker$(\var{cyc},\chi)$}
 \li{$\chi(x)$, $G$ a GP group structure}{chareval$(G, \chi, x, \{z\})$}
@@ -777,7 +777,6 @@ $[c_1,\dots,c_k]$ such that $\chi(g_j) = e(n_j/d_j)$.
 \li{draw polygon}{plotlines$(w,lx,ly,\{\fl\})$}
 \li{draw points}{plotpoints$(w,lx,ly)$}
 \li{draw line to $(x+dx,y+dy)$}{plotrline$(w,dx,dy)$}
-\li{draw point $(x+dx,y+dy)$}{plotrpoint$(w,dx,dy)$}
 \li{draw point $(x+dx,y+dy)$}{plotrpoint$(w,dx,dy)$}
 %
 \subsec{Convert to Postscript or Scalable Vector Graphics}
