@@ -1119,6 +1119,18 @@ polrecip(GEN x)
 /**                  POLYNOMIAL INTERPOLATION                      **/
 /**                                                                **/
 /********************************************************************/
+static GEN
+RgV_polint_fast(GEN X, GEN Y, long v)
+{
+  GEN p, pol;
+  long t, pa;
+  if (X) t = RgM_type(mkmat2(X,Y), &p, &pol, &pa);
+  else   t = Rg_type(Y, &p, &pol, &pa);
+  if (t != t_INTMOD) return NULL;
+  Y = RgC_to_FpC(Y, p);
+  X = X? RgC_to_FpC(X, p): identity_ZV(lg(Y)-1);
+  return FpX_to_mod(FpV_polint(X, Y, p, v), p);
+}
 /* allow X = NULL for [1,...,n] */
 GEN
 RgV_polint(GEN X, GEN Y, long v)
@@ -1126,11 +1138,8 @@ RgV_polint(GEN X, GEN Y, long v)
   pari_sp av0 = avma, av;
   GEN Q, P = NULL;
   long i, l = lg(Y);
-  if (!X)
-  {
-    X = cgetg(l, t_VEC);
-    for (i=1; i<l; i++) gel(X,i) = utoipos(i);
-  }
+  if ((Q = RgV_polint_fast(X,Y,v))) return Q;
+  if (!X) X = identity_ZV(l-1);
   Q = roots_to_pol(X, v); av = avma;
   for (i=1; i<l; i++)
   {

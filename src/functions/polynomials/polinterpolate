@@ -46,15 +46,43 @@ Doc: given the data vectors $X$ and $Y$ of the same length $n$
  time = 3,035 ms.
  ? for(i=1,10^3, polinterpolate(v,, x0))
  time = 436 ms.
- @eprog\noindent The threshold depends on the base field: over finite fields,
- interpolating formally first is more efficient whenever more than one value
- is needed.
+ @eprog\noindent The threshold depends on the base field. Over small prime
+ finite fields, interpolating formally first is more efficient
  \bprog
- ? x0 = Mod(3, 101); v = vector(40, i,random(Mod(0,101)));
- ? for(i=1,10^3, polinterpolate(v,, x0))
- time = 331 ms.
- ? for(i=1,10^3, subst(polinterpolate(v), 'x, x0))
- time = 391 ms.
+ ? bench(p, N, T = 10^3) =
+   { my (v = vector(N, i, random(Mod(0,p))));
+     my (x0 = Mod(3, p), t1, t2);
+     gettime();
+     for(i=1, T, subst(polinterpolate(v), 'x, x0));
+     t1 = gettime();
+     for(i=1, T, polinterpolate(v,, x0));
+     t2 = gettime(); [t1, t2];
+   }
+ ? p = 101;
+ ? bench(p, 4, 10^4) \\ both methods are equivalent
+ %3 = [39, 40]
+ ? bench(p, 40) \\ with 40 points formal is much faster
+ %4 = [45, 355]
+ @eprog\noindent As the cardinality increases, formal interpolation requires
+ more points to become interesting:
+ \bprog
+ ? p = nextprime(2^128);
+ ? bench(p, 4) \\ formal is slower
+ %3 = [16, 9]
+ ? bench(p, 10) \\ formal has become faster
+ %4 = [61, 70]
+ ? bench(p, 100) \\ formal is much faster
+ %5 = [1682, 9081]
+
+ ? p = nextprime(10^500);
+ ? bench(p, 4) \\ formal is slower
+ %7 = [72, 354]
+ ? bench(p, 20) \\ formal is still slower
+ %8 = [1287, 962]
+ ? bench(p, 40) \\ formal has become faster
+ %9 = [3717, 4227]
+ ? bench(p, 100) \\ faster but relatively less impressive
+ %10 = [16237, 32335]
  @eprog
 
  If $t$ is a complex numeric value and $e$ is present, $e$ will contain an

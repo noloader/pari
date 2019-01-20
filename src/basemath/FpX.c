@@ -1488,11 +1488,19 @@ GEN
 FpV_polint(GEN xa, GEN ya, GEN p, long vs)
 {
   pari_sp av = avma;
-  GEN s = producttree_scheme(lg(xa)-1);
-  GEN T = FpV_producttree(xa, s, p, vs);
-  long m = lg(T)-1;
-  GEN P = FpX_deriv(gmael(T, m, 1), p);
-  GEN R = FpV_inv(FpX_FpV_multieval_tree(P, xa, T, p), p);
+  GEN s, T, P, R;
+  long m;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = p[2];
+    P = Flv_polint(ZV_to_Flv(xa, pp), ZV_to_Flv(ya, pp), pp, vs);
+    return gerepileupto(av, Flv_to_ZV(P));
+  }
+  s = producttree_scheme(lg(xa)-1);
+  T = FpV_producttree(xa, s, p, vs);
+  m = lg(T)-1;
+  P = FpX_deriv(gmael(T, m, 1), p);
+  R = FpV_inv(FpX_FpV_multieval_tree(P, xa, T, p), p);
   return gerepileupto(av, FpVV_polint_tree(T, R, s, xa, ya, p, vs));
 }
 

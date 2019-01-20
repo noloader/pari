@@ -147,6 +147,7 @@ BA  35- gen_factorback: change argument order to match other functions
         suminf_bitprec (precision in bits) rather than the historical suminf
         (precision in words)
     38- sumdigits(negative number, B) sometimes negative
+    39- RgV_polint: use (asymptotically fast) FpV_polint over Fp
 
   Added
      1- [libpari] nonsquare_Fl
