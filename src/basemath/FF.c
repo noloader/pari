@@ -361,6 +361,19 @@ FF_mod(GEN x)
 }
 
 long
+FF_var(GEN x)
+{
+  switch(x[1])
+  {
+  case t_FF_FpXQ:
+    return varn(gel(x,3));
+  case t_FF_F2xq:
+  default:
+    return gel(x,3)[1]>>VARNSHIFT;
+  }
+}
+
+long
 FF_f(GEN x)
 {
   switch(x[1])

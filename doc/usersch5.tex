@@ -12234,6 +12234,8 @@ its prime field; the cardinality of the dimension field is thus $p^f$.
 \fun{GEN}{FF_mod}{GEN a} returns the polynomial (with reduced \typ{INT}
 coefficients) defining the finite field, in the variable used to display $a$.
 
+\fun{long}{FF_var}{GEN a} returns the variable used to display $a$.
+
 \fun{GEN}{FF_gen}{GEN a} returns the standard generator of the definition field
 of the \typ{FFELT} element \kbd{a}, see \kbd{ffgen}, that is $x\pmod{T}$ where
 $T$ is the polynomial over the prime field that define the finite field.

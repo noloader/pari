@@ -3250,6 +3250,7 @@ GEN     FF_to_Flxq_i(GEN x);
 GEN     FF_to_FpXQ(GEN x);
 GEN     FF_to_FpXQ_i(GEN x);
 GEN     FF_trace(GEN x);
+long    FF_var(GEN x);
 GEN     FF_zero(GEN a);
 GEN     FFM_FFC_invimage(GEN M, GEN C, GEN ff);
 GEN     FFM_FFC_gauss(GEN M, GEN C, GEN ff);
