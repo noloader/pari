@@ -1494,7 +1494,7 @@ FpV_polint(GEN xa, GEN ya, GEN p, long vs)
   {
     ulong pp = p[2];
     P = Flv_polint(ZV_to_Flv(xa, pp), ZV_to_Flv(ya, pp), pp, evalvarn(vs));
-    return gerepileupto(av, Flv_to_ZV(P));
+    return gerepileupto(av, Flx_to_ZX(P));
   }
   s = producttree_scheme(lg(xa)-1);
   T = FpV_producttree(xa, s, p, vs);
