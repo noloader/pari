@@ -2005,10 +2005,10 @@ non-zero value.
 
 \item \tet{forcomposite}, we provide an iterator over composite integers:
 
-\fun{int}{forcomposite}{forcomposite_t *T, GEN a, GEN b} initialize an
+\fun{int}{forcomposite_init}{forcomposite_t *T, GEN a, GEN b} initialize an
 iterator $T$ over composite integers in $[a,b]$; over composites $\geq a$ if
-$b = \kbd{NULL}$. Return $0$ if the range is known to be empty from the start
-(as if $b < a$ or $b < 0$), and return $1$ otherwise.
+$b = \kbd{NULL}$. We must have $a\geq 0$. Return $0$ if the range is known to
+be empty from the start (as if $b < a$ or $b < 0$), and return $1$ otherwise.
 
 \fun{GEN}{forcomposite_next}{forcomposite_t *T} returns the next composite in
 the range, assuming that $T$ was initialized by \tet{forcomposite_init}.
