@@ -34,7 +34,7 @@ Doc: Lagrange-Zagier numerical extrapolation of \var{expr}, corresponding to
  %4 = 0.E-1001
  ? limitnum(n->(1+1/n^2)^(n^2), 2) - exp(1)
  time = 27,271 ms.
- %5 = 0.E-1001 \\still perfect, 4 times faster
+ %5 = 0.E-1001 \\ still perfect, 4 times faster
  @eprog\noindent
  When $u_n$ has an asymptotic expansion in $n^{-\alpha}$ with $\alpha$ not an
  integer, leaving $\alpha$ unspecified will bring an inexact limit. Giving a

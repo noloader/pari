@@ -18,3 +18,4 @@ Doc: splits the string $s$ into a vector of strings, with $p$ acting as a
  \bprog
  ? strsplit("aba", "a")
  %3 = ["", "b", ""]
+ @eprog
