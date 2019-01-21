@@ -4393,12 +4393,19 @@ ZM_det2(GEN u, GEN v)
 }
 static GEN
 ZM2_det(GEN T) { return ZM_det2(gel(T,1),gel(T,2)); }
+static long
+ZM_det2_sign(GEN u, GEN v)
+{
+  pari_sp av = avma;
+  long s = signe(ZM_det2(u, v));
+  return gc_long(av, s);
+}
 static void
 fill1(GEN V, long a)
 {
   long p = prev(V,a), n = next(V,a);
   GEN u = gmael(V,p,2), v = gmael(V,n,1);
-  if (signe(ZM_det2(u,v)) < 0) v = ZC_neg(v);
+  if (ZM_det2_sign(u,v) < 0) v = ZC_neg(v);
   gel(V,a) = mkmat2(u, v);
 }
 /* a1 < a2 */
@@ -4406,13 +4413,15 @@ static void
 fill2(GEN V, long a1, long a2)
 {
   if (a2 != a1+1) { fill1(V,a1); fill1(V,a2); } /* non adjacent, reconnect */
-  else /* parabolic */
-  {
+  else
+  { /* parabolic */
     long p = prev(V,a1), n = next(V,a2);
-    GEN u, v, C = gmael(V,a1,2), mC = ZC_neg(C); /* = \pm V[a2][1] */
-    u = gmael(V,p,2); v = (signe(ZM_det2(u,C)) < 0)? mC: C;
+    GEN u, v, C = gmael(V,a1,2), mC = NULL; /* = \pm V[a2][1] */
+    u = gmael(V,p,2); v = C;
+    if (ZM_det2_sign(u,v) < 0) v = mC = ZC_neg(C);
     gel(V,a1) = mkmat2(u,v);
-    v = gmael(V,n,1); u = (signe(ZM_det2(C,v)) < 0)? mC: C;
+    v = gmael(V,n,1); u = C;
+    if (ZM_det2_sign(u,v) < 0) u = mC? mC: ZC_neg(C);
     gel(V,a2) = mkmat2(u,v);
   }
 }
