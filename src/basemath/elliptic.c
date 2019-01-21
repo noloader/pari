@@ -6062,14 +6062,14 @@ ellnf_localheight(GEN e, GEN P, GEN pr)
     v = gen_0;
   else if (cmpis(k,5) >= 0)
   {
-    GEN a = gdivsg(minss(2*v2,vD),mulss(2,vD));
-    v = gmul(gsub(gsqr(a),a),gdivgs(stoi(vD),2));
+    GEN a = sstoQ(minss(2*v2,vD), 2*vD);
+    v = gmul(gsub(gsqr(a),a), sstoQ(vD,2));
   }
   else
   {
     long v3 = nfval(nf, ec_3divpol_evalx(E, gel(Q,1)), pr);
-    v = (v2<LONG_MAX && v3>=3*v2) ? gdivgs(stoi(v2),-3):
-                                    gdivgs(stoi(v3),-8);
+    v = (v2<LONG_MAX && v3>=3*v2) ? sstoQ(-v2,3):
+                                    sstoQ(-v3,8);
   }
   return gsubgs(v,vu);
 }

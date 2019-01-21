@@ -673,7 +673,7 @@ hermiteconstant(long n)
   }
   av = avma;
   h  = powru(divur(2,mppi(DEFAULTPREC)), n);
-  h1 = sqrr(ggamma(gdivgs(utoipos(n+4),2),DEFAULTPREC));
+  h1 = sqrr(ggamma(sstoQ(n+4,2),DEFAULTPREC));
   return gerepileuptoleaf(av, mulrr(h,h1));
 }
 
@@ -892,7 +892,7 @@ compute_M0(GEN M_star,long N)
           if (gsigne(v) <= 0) continue;
 
           u = gmul2n(addrr(S,p6),-1);
-          w = gpow(P, gdivgs(utoineg(n2),k), 0);
+          w = gpow(P, sstoQ(-n2,k), 0);
           p6 = mulur(n2, addrr(sqrr(logr_abs(u)), sqrr(logr_abs(v))));
           M0_pro = gmul2n(addrr(p6, mulur(k, sqrr(logr_abs(w)))),-2);
           if (DEBUGLEVEL>2)

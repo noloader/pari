@@ -512,11 +512,11 @@ gammamellininvasymp_i(GEN Vga, long nlimmax, long m, long *status)
   A = gdivgs(gaddsg(1-d, sumVga(Vga)), 2*d);
   if (*status == 2) M = shallowconcat(M, zerovec(m));
   nlim = lg(M)-1;
-  Aadd = gdivgs(stoi(2-d), 2*d); /* (1/d) - (1/2) */
+  Aadd = sstoQ(2-d, 2*d); /* (1/d) - (1/2) */
   for (i = 1; i <= m; i++, A = gadd(A,Aadd))
     for (n = nlim-1; n >= 1; --n)
       gel(M, n+1) = gsub(gel(M, n+1),
-                         gmul(gel(M, n), gsub(A, gdivgs(stoi(n-1), d))));
+                         gmul(gel(M, n), gsub(A, sstoQ(n-1, d))));
   stripzeros(M);
   return gerepilecopy(ltop, M);
 }

@@ -1210,8 +1210,7 @@ lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
 {
   GEN Vga = ldata_get_gammavec(ldata);
   long d = lg(Vga)-1;
-  long k = ldata_get_k(ldata);
-  GEN k2 = gdivgs(stoi(k), 2);
+  GEN k2 = sstoQ(ldata_get_k(ldata), 2);
   GEN expot = gdivgs(gadd(gmulsg(d, gsubgs(k2, 1)), sumVga(Vga)), 4);
   GEN eno = ldata_get_rootno(ldata);
   long prec = nbits2prec( domain_get_bitprec(domain) );
@@ -2151,7 +2150,7 @@ lfunorderzero(GEN lmisc, long m, long bitprec)
 {
   pari_sp ltop = avma;
   GEN eno, ldata, linit, k2;
-  long G, c0, c, st, k;
+  long G, c0, c, st;
 
   if (is_linit(lmisc) && linit_get_type(lmisc) == t_LDESC_PRODUCT)
   {
@@ -2170,8 +2169,7 @@ lfunorderzero(GEN lmisc, long m, long bitprec)
     if (!gequal1(eno)) c0 = 1;
     st = 2;
   }
-  k = ldata_get_k(ldata);
-  k2 = gdivgs(stoi(k), 2);
+  k2 = sstoQ(ldata_get_k(ldata), 2);
   for (c = c0;; c += st)
     if (gexpo(lfun0(linit, k2, c, bitprec)) > G) return gc_long(ltop, c);
 }

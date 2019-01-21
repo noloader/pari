@@ -1552,7 +1552,7 @@ msinit_N(ulong N)
   return W;
 }
 static GEN
-cusp_to_P1Q(GEN c) { return c[2]? gdivgs(stoi(c[1]), c[2]): mkoo(); }
+cusp_to_P1Q(GEN c) { return c[2]? sstoQ(c[1], c[2]): mkoo(); }
 static GEN
 mspathgens_i(GEN W)
 {
@@ -4275,7 +4275,7 @@ siegel_init(struct siegel *C, GEN M)
     c22 = ucoeff(c,2,2);
     if (!c22) { gel(MM,i) = gen_m1; continue; }
     c12 = ucoeff(c,1,2);
-    gel(MM,i) = gdivgs(stoi(c12), c22); /* right extremity > 0 */
+    gel(MM,i) = sstoQ(c12, c22); /* right extremity > 0 */
   }
   CP = indexsort(MM);
   CPI = cgetg(l, t_VECSMALL);
