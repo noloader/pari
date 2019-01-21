@@ -191,6 +191,7 @@ AP  34- new GP function mfgaloisprojrep
     36- [libpari] rfrac_deflate, rfrac_deflate_order, rfrac_deflate_max
     37- [libpari] identity_zv, identity_ZV
     38- [libpari] polintspec, polint_i
+BA  39- [libpari] FF_var, FF_preimagerel
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

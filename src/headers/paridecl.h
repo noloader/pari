@@ -3276,6 +3276,7 @@ GEN     FFX_gcd(GEN Pf, GEN Qf, GEN ff);
 long    FFX_ispower(GEN Pf, long k, GEN ff, GEN *pt_r);
 GEN     FFX_mul(GEN Pf, GEN Qf, GEN ff);
 GEN     FFX_preimage(GEN x, GEN F, GEN y);
+GEN     FFX_preimagerel(GEN x, GEN F, GEN y);
 GEN     FFX_rem(GEN Pf, GEN Qf, GEN ff);
 GEN     FFX_resultant(GEN Pf, GEN Qf, GEN ff);
 GEN     FFX_roots(GEN f, GEN x);

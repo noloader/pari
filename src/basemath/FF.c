@@ -634,12 +634,9 @@ FF_Frobenius(GEN x, long e)
 }
 
 GEN
-FFX_preimage(GEN x, GEN F, GEN y)
+FFX_preimage_i(GEN x, GEN y, GEN F, GEN T, GEN p, long pp)
 {
-  GEN r, T, p, z;
-  ulong pp;
-  if (FF_equal0(x)) return FF_zero(y);
-  z=_initFF(y,&T,&p,&pp);
+  GEN r;
   F = FFX_to_raw(F, y);
   switch(y[1])
   {
@@ -652,9 +649,32 @@ FFX_preimage(GEN x, GEN F, GEN y)
   default:
     r = FlxqX_rem(Flx_to_FlxX(gel(x,2),T[1]), F, T, pp);
   }
+  return r;
+}
+
+GEN
+FFX_preimage(GEN x, GEN F, GEN y)
+{
+  GEN r, T, p, z;
+  ulong pp;
+  if (FF_equal0(x)) return FF_zero(y);
+  z = _initFF(y,&T,&p,&pp);
+  r = FFX_preimage_i(x, y, F, T, p, pp);
   if (degpol(r) > 0) return NULL;
   r = (y[1] == t_FF_FpXQ)? Fq_to_FpXQ(gel(r,2),T, p): gel(r,2);
   return _mkFF(y,z,r);
+}
+
+GEN
+FFX_preimagerel(GEN x, GEN F, GEN y)
+{
+  pari_sp av = avma;
+  GEN r, T, p;
+  ulong pp;
+  if (FF_equal0(x)) return FF_zero(y);
+  _getFF(y,&T,&p,&pp);
+  r = FFX_preimage_i(x, y, F, T, p, pp);
+  return gerepilecopy(av, raw_to_FFX(r, y));
 }
 
 GEN
