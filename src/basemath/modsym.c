@@ -4307,15 +4307,15 @@ ZMV_size(GEN v)
 static void
 siegel_perm0(struct siegel *S, GEN perm)
 {
+  pari_sp av = avma;
   long i, l = lg(S->V);
   GEN V2 = cgetg(l, t_VEC), Ast2 = cgetg(l, t_VECSMALL);
   GEN V = S->V, Ast = S->Ast;
 
   for (i = 1; i < l; i++) gel(V2,perm[i]) = gel(V,i);
   for (i = 1; i < l; i++) Ast2[perm[i]] = perm[Ast[i]];
-  S->oo = perm[S->oo];
-  S->Ast = Ast2;
-  S->V = V2;
+  for (i = 1; i < l; i++) { S->Ast[i] = Ast2[i]; gel(V,i) = gel(V2,i); }
+  set_avma(av); S->oo = perm[S->oo];
 }
 /* apply permutation perm to full struct S */
 static void
@@ -4449,6 +4449,7 @@ ZM2_div(GEN T, GEN U, GEN DU, long N)
 static GEN
 get_g(struct siegel *S, long a1)
 {
+  pari_sp av = avma;
   long a2 = S->Ast[a1];
   GEN a = gel(S->V,a1), ar = ZM2_rev(gel(S->V,a2)), Dar = ZM2_det(ar);
   GEN g = ZM2_div(a, ar, Dar, S->N);
@@ -4457,7 +4458,7 @@ get_g(struct siegel *S, long a1)
     GEN tau = mkmat22(gen_0,gen_m1, gen_1,gen_m1); /*[0,-1;1,-1]*/
     g = ZM2_div(ZM_mul(ar, tau), ar, Dar, 0);
   }
-  return g;
+  return gerepilecopy(av, g);
 }
 /* input V = (X1 a X2 | X3 a^* X4) + Ast
  * a1 = index of a
@@ -4469,6 +4470,7 @@ get_g(struct siegel *S, long a1)
 static void
 basic_op(struct siegel *S, long a1, long c1, long c2)
 {
+  pari_sp av;
   long l = lg(S->V), a2 = S->Ast[a1];
   GEN g;
 
@@ -4476,9 +4478,10 @@ basic_op(struct siegel *S, long a1, long c1, long c2)
   { /* a = a^* */
     g = get_g(S, a1);
     path_vec_mul(S->V, a1+1, l, g);
+    av = avma;
     siegel_perm(S, basic_op_perm_elliptic(l, a1));
     /* fill the hole left at a1, reconnect the path */
-    fill1(S->V, a1); return;
+    set_avma(av); fill1(S->V, a1); return;
   }
 
   /* Paranoia: (a,a^*) conjugate, call 'a' the first one */
@@ -4488,12 +4491,13 @@ basic_op(struct siegel *S, long a1, long c1, long c2)
   if (c2 < a1)
   { /* if cut c2 is in X1 = X11|X12, rotate to obtain
        (a X2 | X3 a^* X4 X11|X12): then a1 = 1 */
-    GEN p = rotate_perm(l, a1);
+    GEN p;
+    av = avma; p = rotate_perm(l, a1);
     siegel_perm(S, p);
     a1 = 1; /* = p[a1] */
     a2 = S->Ast[1]; /* > a1 */
     c1 = p[c1];
-    c2 = p[c2];
+    c2 = p[c2]; set_avma(av);
   }
   /* Now a1 < c1 <= a2 < c2; a != a^* */
   g = get_g(S, a1);
@@ -4509,7 +4513,9 @@ basic_op(struct siegel *S, long a1, long c1, long c2)
     path_vec_mul(S->V, c1, a2, g);
     path_vec_mul(S->V, a2+1, c2, g);
   }
+  av = avma;
   siegel_perm(S, basic_op_perm(l, a1,a2, c1,c2));
+  set_avma(av);
   /* fill the holes left at a1,a2, reconnect the path */
   fill2(S->V, a1, a2);
 }
@@ -4517,12 +4523,13 @@ basic_op(struct siegel *S, long a1, long c1, long c2)
 static void
 basic_op_elliptic(struct siegel *S, long a1)
 {
+  pari_sp av;
   long l = lg(S->V);
   GEN g = get_g(S, a1);
   path_vec_mul(S->V, a1+1, l, g);
-  siegel_perm(S, basic_op_perm_elliptic(l, a1));
+  av = avma; siegel_perm(S, basic_op_perm_elliptic(l, a1));
   /* fill the hole left at a1 (now at 1), reconnect the path */
-  fill1(S->V, 1);
+  set_avma(av); fill1(S->V, 1);
 }
 
 /* input V = W X a b Y a^* Z b^* T, W already normalized
@@ -4579,7 +4586,12 @@ mssiegel(struct siegel *S)
       if (S->Ast[k] == k-2 && S->Ast[k-1] == k-3) { k -= 4; continue; }
       break;
     }
-    if (k != nv) { siegel_perm0(S, rotate_perm(nv+1, k+1)); S->n += nv-k; }
+    if (k != nv)
+    {
+      pari_sp av2 = avma;
+      siegel_perm0(S, rotate_perm(nv+1, k+1));
+      set_avma(av2); S->n += nv-k;
+    }
 
     for (k = S->n+1; k <= nv; k++)
       if (S->Ast[k] <= k) { t = S->Ast[k]; break; }
@@ -4743,6 +4755,7 @@ mspolygon(GEN M, long flag)
     if (flag & 1)
     {
       long oo2 = 0;
+      pari_sp av;
       mssiegel(&T);
       for (i = 1; i < l; i++)
       {
@@ -4750,7 +4763,8 @@ mspolygon(GEN M, long flag)
         GEN c22 = gcoeff(c,2,2); if (!signe(c22)) { oo2 = i; break; }
       }
       if (!oo2) pari_err_BUG("mspolygon");
-      siegel_perm0(&T, rotate_perm(l, oo2));
+      av = avma; siegel_perm0(&T, rotate_perm(l, oo2));
+      set_avma(av);
     }
     G = cgetg(l, t_VEC);
     for (i = 1; i < l; i++) gel(G,i) = get_g(&T, i);
