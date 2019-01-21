@@ -1719,11 +1719,36 @@ derivser(GEN x)
   return normalize(y);
 }
 
+static GEN
+rfrac_deriv(GEN x, long v)
+{
+  GEN a = gel(x,1), b = gel(x,2), bp, b0, d, t;
+  GEN y = cgetg(3,t_RFRAC);
+  pari_sp av = avma;
+
+  bp = deriv(b, v);
+  d = RgX_gcd(bp, b);
+  if (gequal1(d)) {
+    d = gsub(gmul(b, deriv(a,v)), gmul(a, bp));
+    if (isexactzero(d)) return gerepileupto((pari_sp)(y+3), d);
+    gel(y,1) = gerepileupto(av, d);
+    gel(y,2) = gsqr(b); return y;
+  }
+  b0 = gdivexact(b, d);
+  bp = gdivexact(bp,d);
+  a = gsub(gmul(b0, deriv(a,v)), gmul(a, bp));
+  if (isexactzero(a)) return gerepileupto((pari_sp)(y+3), a);
+  t = ggcd(a, d);
+  if (!gequal1(t)) { a = gdivexact(a, t); d = gdivexact(d, t); }
+  gel(y,1) = a;
+  gel(y,2) = gmul(d, gsqr(b0));
+  return gerepilecopy((pari_sp)(y+3), y);
+}
+
 GEN
 deriv(GEN x, long v)
 {
   long lx, tx, i, j;
-  pari_sp av;
   GEN y;
 
   tx = typ(x);
@@ -1768,28 +1793,8 @@ deriv(GEN x, long v)
       for (j=2; j<lx; j++) gel(y,j) = deriv(gel(x,j),v);
       return normalize(y);
 
-    case t_RFRAC: {
-      GEN a = gel(x,1), b = gel(x,2), bp, b0, d, t;
-      y = cgetg(3,t_RFRAC); av = avma;
-
-      bp = deriv(b, v);
-      d = RgX_gcd(bp, b);
-      if (gequal1(d)) {
-        d = gsub(gmul(b, deriv(a,v)), gmul(a, bp));
-        if (isexactzero(d)) return gerepileupto((pari_sp)(y+3), d);
-        gel(y,1) = gerepileupto(av, d);
-        gel(y,2) = gsqr(b); return y;
-      }
-      b0 = gdivexact(b, d);
-      bp = gdivexact(bp,d);
-      a = gsub(gmul(b0, deriv(a,v)), gmul(a, bp));
-      if (isexactzero(a)) return gerepileupto((pari_sp)(y+3), a);
-      t = ggcd(a, d);
-      if (!gequal1(t)) { a = gdivexact(a, t); d = gdivexact(d, t); }
-      gel(y,1) = a;
-      gel(y,2) = gmul(d, gsqr(b0));
-      return gerepilecopy((pari_sp)(y+3), y);
-    }
+    case t_RFRAC:
+      return rfrac_deriv(x,v);
 
     case t_VEC: case t_COL: case t_MAT:
       y = cgetg_copy(x, &lx);
