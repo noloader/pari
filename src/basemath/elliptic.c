@@ -4892,11 +4892,28 @@ ellanal_globalred(GEN e, GEN *ch)
   return E;
 }
 
+static long
+nb_real_components(GEN E) { return signe(ell_get_disc(E)) > 0? 2: 1; }
+/* E minimal, \Omega_E^s in "La constante de Manin et le degre modulaire
+ * d'une courbe elliptique" */
+GEN
+ellQtwist_bsdperiod(GEN E, long s)
+{
+  GEN w = ellR_omega(E,DEFAULTPREC);
+  if (s == 1)
+    w = gel(w,1);
+  else if (nb_real_components(E) == 2)
+    w = gneg(gel(w,2));
+  else
+    w = mkcomplex(gen_0, gneg(gmul2n(imag_i(gel(w,2)), 1)));
+  return w;
+}
+
 static GEN
 ellQ_tamagawa(GEN e)
 {
   GEN red = ellglobalred(e), tam = gel(red,3);
-  return (signe(ell_get_disc(e)) > 0)? shifti(tam,1): icopy(tam);
+  return muliu(tam, nb_real_components(e));
 }
 
 static GEN

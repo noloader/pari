@@ -2947,8 +2947,8 @@ msinit(GEN N, GEN K, long sign)
 
 /* W = msinit, xpm integral modular symbol of weight 2, c t_FRAC
  * Return image of <oo->c> */
-static GEN
-Q_xpm(GEN W, GEN xpm, GEN c)
+GEN
+mseval2_ooQ(GEN W, GEN xpm, GEN c)
 {
   pari_sp av = avma;
   GEN v;
@@ -3094,7 +3094,7 @@ allxpm(GEN W, GEN xpm, long f)
   {
     GEN c;
     if (!L[a]) continue;
-    c = Q_xpm(W, xpm, sstoQ(a, f));
+    c = mseval2_ooQ(W, xpm, sstoQ(a, f));
     if (!gequal0(c)) { gel(v,a) = c; nonzero = 1; }
   }
   return nonzero? v: NULL;
@@ -3115,26 +3115,10 @@ seval(GEN G, GEN chi, GEN vx)
   return gequal0(s)? NULL: poleval(s, rootsof1u_cx(o, DEFAULTPREC));
 }
 
-static long
-nb_components(GEN E) { return signe(ell_get_disc(E)) > 0? 2: 1; }
-/* E minimal */
-static GEN
-ellperiod(GEN E, long s)
-{
-  GEN w = ellR_omega(E,DEFAULTPREC);
-  if (s == 1)
-    w = gel(w,1);
-  else if (nb_components(E) == 2)
-    w = gneg(gel(w,2));
-  else
-    w = mkcomplex(gen_0, gneg(gmul2n(imag_i(gel(w,2)), 1)));
-  return w;
-}
-
 /* Let W = msinit(conductor(E), 2), xpm an integral modular symbol with the same
  * eigenvalues as L_E. There exist a unique C such that
  *   C*L(E,(D/.),1)_{xpm} = L(E,(D/.),1) / w1(E_D) != 0, for all D fundamental,
- * sign(D) = s, and such that E_D has rank 0. Return C * ellperiod(E,s) */
+ * sign(D) = s, and such that E_D has rank 0. Return C * ellQtwist_bsdperiod(E,s) */
 static GEN
 ell_get_Cw(GEN LE, GEN W, GEN xpm, long s)
 {
@@ -3188,13 +3172,13 @@ msfromell_scale(GEN x, GEN Cw, GEN E, long s)
   GEN B = int2n(32);
   if (s)
   {
-    GEN C = gdiv(Cw, ellperiod(E,s));
+    GEN C = gdiv(Cw, ellQtwist_bsdperiod(E,s));
     return ZC_Q_mul(gel(x,1), bestappr(C,B));
   }
   else
   {
-    GEN xp = gel(x,1), Cp = gdiv(gel(Cw,1), ellperiod(E, 1)), L;
-    GEN xm = gel(x,2), Cm = gdiv(gel(Cw,2), ellperiod(E,-1));
+    GEN xp = gel(x,1), Cp = gdiv(gel(Cw,1), ellQtwist_bsdperiod(E, 1)), L;
+    GEN xm = gel(x,2), Cm = gdiv(gel(Cw,2), ellQtwist_bsdperiod(E,-1));
     xp = ZC_Q_mul(xp, bestappr(Cp,B));
     xm = ZC_Q_mul(xm, bestappr(Cm,B));
     if (signe(ell_get_disc(E)) > 0)
