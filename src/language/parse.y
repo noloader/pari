@@ -68,19 +68,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 %left SIGN
 %right '^'
 %left '#'
-%left '!' '~' '[' '\''
+%left '!' '~' '[' DERIV
+%left '\''
 %left '.'
 %left "++" "--"
 %left '('
 %left ':'
 %type <val> seq sequence
 %type <val> range matrix matrix_index expr
-%type <val> lvalue
+%type <val> lvalue deriv
 %type <val> matrixelts matrixlines arg listarg definition
 %type <val> funcid memberid
 %type <val> backticks history
 %type <val> compr in inseq
-%destructor { pari_discarded++; } seq matrix range matrix_index expr lvalue matrixelts matrixlines arg listarg definition funcid memberid backticks history compr in inseq
+%destructor { pari_discarded++; } seq matrix range matrix_index expr lvalue matrixelts matrixlines arg listarg definition funcid memberid backticks history compr in inseq deriv
 %%
 
 sequence: seq        {$$=$1;} /* skip the destructor */
@@ -112,6 +113,10 @@ history: '%'           {$$=newopcall(OPhist,-1,-1,&@$);}
        | '%' '#'          {$$=newopcall(OPhisttime,-1,-1,&@$);}
        | '%' '#' KINTEGER {$$=newopcall(OPhisttime,newintnode(&@3),-1,&@$);}
        | '%' '#' backticks{$$=newopcall(OPhisttime,newnode(Fsmall,-$3,-1,&@$),-1,&@$);}
+;
+
+deriv: '\'' {$$ = 1;}
+     | deriv '\'' {$$ = $1+1;}
 ;
 
 expr: KINTEGER %prec INT  {$$=newintnode(&@1);}
@@ -166,7 +171,7 @@ expr: KINTEGER %prec INT  {$$=newintnode(&@1);}
     | '-' expr %prec SIGN {$$=newopcall(OPn,$2,-1,&@$);}
     | expr '^' expr {$$=newopcall(OPpow,$1,$3,&@$);}
     | expr '~' {$$=newopcall(OPtrans,$1,-1,&@$);}
-    | expr '\'' {$$=newopcall(OPderiv,$1,-1,&@$);}
+    | expr deriv %prec DERIV {$$=newopcall(OPderivn,$1, newnode(Fsmall,$2,-1,&@$),&@$);}
     | expr '!'  {$$=newopcall(OPfact,$1,-1,&@$);}
     | expr matrix_index {$$=newnode(Fmatcoeff,$1,$2,&@$);}
     | memberid {$$=$1;}

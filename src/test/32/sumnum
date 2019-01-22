@@ -27,7 +27,7 @@
 -36
 2.3979771206715998375659850036324914715
 2.3979771206715998375659850036324914714
--37
++oo
 -38
   ***   at top-level: sumnummonien(n=1,1/n^2,tab)
   ***                                  ^----------
@@ -104,4 +104,4 @@
   ***   at top-level: sumpos(n=0,1,2)
   ***                 ^---------------
   *** sumpos: invalid flag in sumpos.
-Total time spent: 3796
+Total time spent: 2308
