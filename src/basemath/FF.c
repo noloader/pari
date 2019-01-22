@@ -633,7 +633,7 @@ FF_Frobenius(GEN x, long e)
   return _mkFF(x,z,r);
 }
 
-GEN
+static GEN
 FFX_preimage_i(GEN x, GEN y, GEN F, GEN T, GEN p, long pp)
 {
   GEN r;
