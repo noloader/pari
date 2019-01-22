@@ -8,6 +8,6 @@ Doc: returns the CPU time (in milliseconds) elapsed since \kbd{gp} startup.
  \bprog
  my (t = getabstime());
  ...
- print("Time: ", getabstime() - t);
+ print("Time: ", strtime(getabstime() - t));
  @eprog
  For a version giving wall-clock time, see \tet{getwalltime}.

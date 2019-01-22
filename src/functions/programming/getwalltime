@@ -8,5 +8,5 @@ Doc: returns the time (in milliseconds) elapsed since
  \bprog
  my (t = getwalltime());
  ...
- print("Time: ", getwalltime() - t);
+ print("Time: ", strtime(getwalltime() - t));
  @eprog

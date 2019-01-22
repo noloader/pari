@@ -725,13 +725,14 @@ convert_time(char *s, long delay)
 
 /* Format a time of 'delay' ms */
 static const char *
-gp_format_time_postfix(char *buf, long delay, long nl)
+gp_format_time_postfix(char *buf, long delay, long nl, long color)
 {
   char *s = buf;
-  term_get_color(s, c_TIME);
+  s[0] = 0;
+  if (color) term_get_color(s, c_TIME);
   convert_time(s + strlen(s), delay);
   s+=strlen(s);
-  term_get_color(s, c_NONE);
+  if(color) term_get_color(s, c_NONE);
   s+=strlen(s);
   if (nl)
   {
@@ -748,14 +749,26 @@ const char *
 gp_format_time(long delay)
 {
   static char buf[64];
-  return gp_format_time_postfix(buf, delay, 1);
+  return gp_format_time_postfix(buf, delay, 1, 1);
 }
 
 const char *
 gp_format_time1(long delay)
 {
   static char buf[64];
-  return gp_format_time_postfix(buf, delay, 0);
+  return gp_format_time_postfix(buf, delay, 0, 1);
+}
+
+GEN
+strtime(long delay)
+{
+  long i, l, n = nchar2nlong(64);
+  GEN x = cgetg(n+1, t_STR);
+  char *buf = GSTR(x);
+  (void) gp_format_time_postfix(buf, delay, 0, 0);
+  l = strlen(buf);
+  for (i=l+1;i<64;i++) buf[i]=0;
+  return x;
 }
 
 /********************************************************************/

@@ -2814,6 +2814,7 @@ enum { h_REGULAR=0, h_LONG=1, h_APROPOS=2, h_RL=4 };
 void gp_help(const char *s, long flag);
 void gp_echo_and_log(const char *prompt, const char *s);
 void print_fun_list(char **list, long nbli);
+GEN  strtime(long t);
 
 /* dirichlet.c */
 

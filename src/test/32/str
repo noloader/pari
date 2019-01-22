@@ -32,6 +32,7 @@ Vecsmall([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
 ["", "", ""]
 "a/1/cc"
 "a1cc"
+"3h, 25min, 45,678 ms"
   ***   at top-level: strchr(-1)
   ***                 ^----------
   *** strchr: out of range in integer -> character conversion (-1).
@@ -47,4 +48,4 @@ Vecsmall([104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
   ***   at top-level: strjoin([],1)
   ***                 ^-------------
   *** strjoin: incorrect type in strjoin (t_INT).
-Total time spent: 1
+Total time spent: 0

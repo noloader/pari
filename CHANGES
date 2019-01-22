@@ -198,6 +198,7 @@ BA  40- new GP function ffmaprel
 BA  41- [libpari] closure_derivn
 BA  42- [libpari] walltimer_start, walltimer_delay, gp_format_time1,
         pari_get_histrtime
+BA  43- new GP function strtime
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]
