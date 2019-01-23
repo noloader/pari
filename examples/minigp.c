@@ -51,7 +51,13 @@ int main(int argc, char **argv)
       pari_puts(col(c_NONE));
     }
     if (GP_DATA->chrono && time)
-      pari_printf("time = %s\n", gp_format_time(time) );
+    {
+      if (pari_mt_nbthreads==1)
+        pari_printf("time = %s\n", gp_format_time(time));
+      else
+        pari_printf("cpu time = %s, real time = %s\n",
+          gp_format_time1(time), gp_format_time(rtime));
+    }
     free(in); avma = pari_mainstack->top;
   }
   return 0;
