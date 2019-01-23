@@ -385,10 +385,11 @@ gp_main_loop(long ismain)
       else
       {
         pari_puts("cpu time = ");
-        pari_puts(gp_format_time1(t));
+        pari_puts(gp_format_time(t));
         pari_puts(", real time = ");
         pari_puts(gp_format_time(r));
       }
+      pari_puts(".\n");
     }
     if (GP_DATA->simplify) z = simplify_shallow(z);
     pari_add_hist(z, t, r);

@@ -379,7 +379,7 @@ gp_embedded(const char *s)
     res = (z==gnil || last==';') ? stack_strdup("\n"):
           stack_sprintf("%%%lu = %Ps\n", n, pari_get_hist(n));
     if (t && GP_DATA->chrono)
-      res = stack_sprintf("%stime = %s", res, gp_format_time(t));
+      res = stack_sprintf("%stime = %s.\n", res, gp_format_time(t));
   } pari_ENDCATCH;
   if (!pari_last_was_newline()) pari_putc('\n');
   set_avma(pari_mainstack->top);

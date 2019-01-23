@@ -697,7 +697,7 @@ what_cc(void)
   return s;
 }
 
-static void
+static char *
 convert_time(char *s, long delay)
 {
   if (delay >= 3600000)
@@ -721,53 +721,26 @@ convert_time(char *s, long delay)
     }
   }
   sprintf(s, "%ld ms", delay); s+=strlen(s);
-}
-
-/* Format a time of 'delay' ms */
-static const char *
-gp_format_time_postfix(char *buf, long delay, long nl, long color)
-{
-  char *s = buf;
-  s[0] = 0;
-  if (color) term_get_color(s, c_TIME);
-  convert_time(s + strlen(s), delay);
-  s+=strlen(s);
-  if(color) term_get_color(s, c_NONE);
-  s+=strlen(s);
-  if (nl)
-  {
-    s[0] = '.';
-    s[1] = '\n';
-    s[2] = 0;
-  } else
-    s[0] = 0;
-  return buf;
+  return s;
 }
 
 /* Format a time of 'delay' ms */
 const char *
 gp_format_time(long delay)
 {
-  static char buf[64];
-  return gp_format_time_postfix(buf, delay, 1, 1);
-}
-
-const char *
-gp_format_time1(long delay)
-{
-  static char buf[64];
-  return gp_format_time_postfix(buf, delay, 0, 1);
+  char *buf = stack_malloc(64), *s = buf;
+  term_get_color(s, c_TIME);
+  s = convert_time(s + strlen(s), delay);
+  term_get_color(s, c_NONE); return buf;
 }
 
 GEN
 strtime(long delay)
 {
-  long i, l, n = nchar2nlong(64);
+  long n = nchar2nlong(64);
   GEN x = cgetg(n+1, t_STR);
-  char *buf = GSTR(x);
-  (void) gp_format_time_postfix(buf, delay, 0, 0);
-  l = strlen(buf);
-  for (i=l+1;i<64;i++) buf[i]=0;
+  char *buf = GSTR(x), *t = buf + 64, *s = convert_time(buf, delay);
+  s++; while (s < t) *s++ = 0; /* pacify valgrind */
   return x;
 }
 
@@ -1881,12 +1854,12 @@ chron(const char *s)
     if (pari_mt_nbthreads==1)
     {
       t = gp_format_time(pari_get_histtime(0));
-      pari_printf("  ***   last result computed in %s", t);
+      pari_printf("  ***   last result computed in %s.\n", t);
     } else
     {
-      t = gp_format_time1(pari_get_histtime(0));
+      t = gp_format_time(pari_get_histtime(0));
       r = gp_format_time(pari_get_histrtime(0));
-      pari_printf("  ***   last result: cpu time %s, real time %s", t,r);
+      pari_printf("  ***   last result: cpu time %s, real time %s.\n", t,r);
     }
   }
   else { GP_DATA->chrono ^= 1; (void)sd_timer(NULL,d_ACKNOWLEDGE); }

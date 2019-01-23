@@ -150,6 +150,7 @@ BA  35- gen_factorback: change argument order to match other functions
     39- RgV_polint: use (asymptotically fast) FpV_polint over Fp
 BA  40- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
 BA  41- # and ## now also display the realtime when nbthreads is not 1
+    42- gp_format_time: remove trailing ".\n" from formatted string
 
   Added
      1- [libpari] nonsquare_Fl
@@ -196,8 +197,7 @@ AP  34- new GP function mfgaloisprojrep
 BA  39- [libpari] FF_var, FF_preimagerel
 BA  40- new GP function ffmaprel
 BA  41- [libpari] closure_derivn
-BA  42- [libpari] walltimer_start, walltimer_delay, gp_format_time1,
-        pari_get_histrtime
+BA  42- [libpari] walltimer_start, walltimer_delay, pari_get_histrtime
 BA  43- new GP function strtime
 
   Removed

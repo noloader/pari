@@ -2801,7 +2801,6 @@ void pari_center(const char *s);
 long pari_community(void);
 void pari_print_version(void);
 const char *gp_format_time(long delay);
-const char *gp_format_time1(long delay);
 const char *gp_format_prompt(const char *p);
 void pari_alarm(long s);
 GEN  gp_alarm(long s, GEN code);
