@@ -2642,15 +2642,17 @@ walltimer_start(pari_timer *ti)
 #if defined(USE_CLOCK_GETTIME)
   struct timespec t;
   if (!clock_gettime(CLOCK_REALTIME,&t))
-  { ti->s = t.tv_sec, ti->us = (t.tv_nsec + 500)/1000;
+  { ti->s = t.tv_sec; ti->us = (t.tv_nsec + 500)/1000;
 #elif defined(USE_GETTIMEOFDAY)
   struct timeval tv;
   if (!gettimeofday(&tv, NULL))
-  {  ti->s = tv.tv_sec, ti->us = tv.tv_usec;
+  {  ti->s = tv.tv_sec; ti->us = tv.tv_usec;
 #elif defined(USE_FTIMEFORWALLTIME)
   struct timeb tp;
   if (!ftime(&tp))
-  { ti->s = tp.time, ti->us = tp.millitm*1000;
+  { ti->s = tp.time; ti->us = tp.millitm*1000;
+#else
+  if (0) {
 #endif
   } else
     timer_start(ti);
