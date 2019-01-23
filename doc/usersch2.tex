@@ -202,7 +202,9 @@ recompute what its number is. Of course, on the next line, you may just use
 The time used to compute that history entry is also stored as part of the entry
 and can be recovered using the \kbd{\%\#} operator: \kbd{\%\#1}, \kbd{\%\#2},
 \kbd{\%\#`}; \kbd{\%\#} by itself returns the time needed to compute the last
-result (the one returned by \kbd{\%}).
+result (the one returned by \kbd{\%}). The output is a vector with two
+components \kbd{[cpu, real]} where \kbd{cpu} is the CPU time and \kbd{real} is
+the wall clock time.
 
 \misctitle{Remark}
 The history ``array'' is in fact better thought of as a queue: its size is

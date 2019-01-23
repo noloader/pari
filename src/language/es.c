@@ -4668,6 +4668,8 @@ long
 pari_get_histtime(long p) { return history(p)->t; }
 long
 pari_get_histrtime(long p) { return history(p)->r; }
+GEN
+pari_histtime(long p) { return mkvec2s(history(p)->t, history(p)->r); }
 
 void
 pari_add_hist(GEN x, long time, long rtime)

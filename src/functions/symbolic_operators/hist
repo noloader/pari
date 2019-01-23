@@ -5,7 +5,7 @@ Section: symbolic_operators
 Help: last history item.
 
 Function: %#
-C-Name: pari_get_histtime
-Prototype: lD0,L,
+C-Name: pari_histtime
+Prototype: D0,L,
 Section: symbolic_operators
 Help: time to compute last history item.

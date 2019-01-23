@@ -3060,6 +3060,7 @@ GEN     pari_get_hist(long p);
 long    pari_get_histrtime(long p);
 long    pari_get_histtime(long p);
 char*   pari_get_homedir(const char *user);
+GEN     pari_histtime(long p);
 int     pari_is_dir(const char *name);
 int     pari_is_file(const char *name);
 int     pari_last_was_newline(void);
