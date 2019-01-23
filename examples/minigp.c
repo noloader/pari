@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     gp_echo_and_log(prompt,in);
     timer_start(&T); walltimer_start(&Tw);
     z = gp_read_str(in);
-    time = timer_delay(&T); rtime = walltimer_delay(&T);
+    time = timer_delay(&T); rtime = walltimer_delay(&Tw);
     pari_add_hist(z, time, rtime);
     if (z != gnil && in[strlen(in)-1] != ';')
     {
