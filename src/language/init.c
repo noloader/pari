@@ -970,9 +970,15 @@ pari_thread_init(void)
   pari_thread_init_seadata();
 }
 
+static struct
+{
+  long bitprec;
+} global_state;
+
 void
 pari_thread_sync(void)
 {
+  global_state.bitprec = get_localbitprec();
   pari_pthread_init_primetab();
   pari_pthread_init_seadata();
   pari_pthread_init_varstate();
@@ -995,6 +1001,7 @@ pari_thread_start(struct pari_thread *t)
   pari_mainstack_use(&t->st);
   pari_thread_init();
   pari_thread_init_varstate();
+  push_localbitprec(global_state.bitprec);
   return t->data;
 }
 

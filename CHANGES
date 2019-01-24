@@ -88,6 +88,7 @@ BA  59- ffinvmap(m) could SEGV on bad input
     66- factormod(x^3+1,[y^2+1,2]) -> SEGV
     67- factormod(x^3+1,[y^2+1,5]) -> weird error message
     68- besseljh(huge n, z) -> junk
+BA  69- [pthread] localbitprec was not exported to threads
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
