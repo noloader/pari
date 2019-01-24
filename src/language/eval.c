@@ -1764,7 +1764,7 @@ void
 parfor(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
 {
   pari_sp av = avma, av2;
-  long running, pending = 0;
+  long running, pending = 0, lim;
   long status = br_NONE;
   GEN worker = snm_closure(is_entry("_parfor_worker"), mkvec(code));
   GEN done, stop = NULL;
@@ -1781,7 +1781,8 @@ parfor(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
     else
       b = gfloor(b);
   }
-  mt_queue_start(&pt, worker);
+  lim = b ? itos_or_0(subii(addis(b,1),a)): 0;
+  mt_queue_start_lim(&pt, worker, lim);
   a = mkvec(setloop(a));
   av2 = avma;
   while ((running = (!stop && (!b || cmpii(gel(a,1),b) <= 0))) || pending)
