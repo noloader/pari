@@ -608,24 +608,6 @@ gp_completion(char *text, int START, int END)
 
 \section{Constructors and destructors used by the \kbd{pthreads} interface}
 
-\item Called by \tet{pari_thread_sync}
-
-\fun{void}{pari_pthread_init_primetab}{}
-
-\fun{void}{pari_pthread_init_seadata}{}
-
-\fun{void}{pari_pthread_init_varstate}{}
-
-
-\item Called by \tet{pari_thread_start}
-
-\fun{void}{pari_thread_init_primetab}{}
-
-\fun{void}{pari_thread_init_seadata}{}
-
-\fun{void}{pari_thread_init_varstate}{}
-
-
 \item Called by \tet{pari_thread_close}
 
 \fun{void}{pari_thread_close_files}{}

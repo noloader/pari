@@ -123,14 +123,6 @@ struct pari_mainstack
   size_t size, rsize, vsize, memused;
 };
 
-extern THREAD struct pari_mainstack *pari_mainstack;
-
-struct pari_thread
-{
-  struct pari_mainstack st;
-  GEN data;
-};
-
 typedef struct pariFILE {
   FILE *file;
   int type;
@@ -210,6 +202,24 @@ struct gp_context
   struct pari_filestate file;
   jmp_buf *iferr_env;
   GEN err_data;
+};
+
+extern THREAD struct pari_mainstack *pari_mainstack;
+
+struct pari_global_state
+{
+  long bitprec;
+  GEN primetab;
+  GEN seadata;
+  long *varpriority;
+  struct pari_varstate varstate;
+};
+
+struct pari_thread
+{
+  struct pari_mainstack st;
+  struct pari_global_state gs;
+  GEN data;
 };
 
 struct mt_state

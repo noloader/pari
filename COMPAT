@@ -28,6 +28,10 @@ This file lists the incompatible changes between Version 2.x and older versions
   - pari_add_hist now take 3 arguments (data, cpu time, real time)
   - gp_format_time: remove trailing ".\n" from formatted string
 
+* Specific to the pthread interface
+===================================
+  - pari_thread_sync is not needed anymore and has been removed.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% VERSION 2.10 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   - the bid struct from idealstar has changed, the new format is not
     compatible with pari-2.9

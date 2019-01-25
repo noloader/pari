@@ -1423,13 +1423,8 @@ primes_upto_zv(ulong b)
 /**                                                                   **/
 /***********************************************************************/
 
-static GEN global_primetab;
 void
-pari_init_primetab(void)  { global_primetab = NULL; }
-void
-pari_pthread_init_primetab(void) { global_primetab = primetab; }
-void
-pari_thread_init_primetab(void)
+pari_set_primetab(GEN global_primetab)
 {
   if (global_primetab)
   {

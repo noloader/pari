@@ -774,8 +774,6 @@ static THREAD long max_priority, min_priority;
 static THREAD long max_avail; /* max variable not yet used */
 static THREAD long nvar; /* first GP free variable */
 static hashtable *h_polvar;
-static struct pari_varstate global_varstate;
-static long *global_varpriority;
 
 void
 varstate_save(struct pari_varstate *s)
@@ -850,20 +848,13 @@ varstate_restore(struct pari_varstate *s)
 }
 
 void
-pari_thread_init_varstate(void)
+pari_set_varstate(long *vp, struct pari_varstate *vs)
 {
   long i;
-  var_restore(&global_varstate);
+  var_restore(vs);
   varpriority = (long*)newblock((MAXVARN+2)) + 1;
   varpriority[-1] = 1-LONG_MAX;
-  for (i = 0; i < max_avail; i++) varpriority[i] = global_varpriority[i];
-}
-
-void
-pari_pthread_init_varstate(void)
-{
-  varstate_save(&global_varstate);
-  global_varpriority = varpriority;
+  for (i = 0; i < max_avail; i++) varpriority[i] = vp[i];
 }
 
 /* must come before destruction of functions_hash */

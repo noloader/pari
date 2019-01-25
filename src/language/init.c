@@ -930,6 +930,36 @@ new_chunk_resize(size_t x)
 /*                       PARI THREAD                                 */
 /*********************************************************************/
 
+/* Initial PARI thread structure t with a stack of size s and
+ * argument arg */
+
+static void
+pari_thread_set_global(struct pari_global_state *gs)
+{
+  push_localbitprec(gs->bitprec);
+  pari_set_primetab(gs->primetab);
+  pari_set_seadata(gs->seadata);
+  pari_set_varstate(gs->varpriority, &gs->varstate);
+}
+
+static void
+pari_thread_get_global(struct pari_global_state *gs)
+{
+  gs->bitprec = get_localbitprec();
+  gs->primetab = primetab;
+  gs->seadata = pari_get_seadata();
+  varstate_save(&gs->varstate);
+  gs->varpriority = varpriority;
+}
+
+void
+pari_thread_alloc(struct pari_thread *t, size_t s, GEN arg)
+{
+  pari_mainstack_alloc(warnstackthread, &t->st,s,0);
+  pari_thread_get_global(&t->gs);
+  t->data = arg;
+}
+
 /* Initial PARI thread structure t with a stack of size s and virtual size v
  * and argument arg */
 
@@ -937,16 +967,7 @@ void
 pari_thread_valloc(struct pari_thread *t, size_t s, size_t v, GEN arg)
 {
   pari_mainstack_alloc(warnstackthread, &t->st,s,v);
-  t->data = arg;
-}
-
-/* Initial PARI thread structure t with a stack of size s and
- * argument arg */
-
-void
-pari_thread_alloc(struct pari_thread *t, size_t s, GEN arg)
-{
-  pari_mainstack_alloc(warnstackthread, &t->st,s,0);
+  pari_thread_get_global(&t->gs);
   t->data = arg;
 }
 
@@ -967,22 +988,6 @@ pari_thread_init(void)
   pari_init_compiler();
   pari_init_evaluator();
   pari_init_files();
-  pari_thread_init_primetab();
-  pari_thread_init_seadata();
-}
-
-static struct
-{
-  long bitprec;
-} global_state;
-
-void
-pari_thread_sync(void)
-{
-  global_state.bitprec = get_localbitprec();
-  pari_pthread_init_primetab();
-  pari_pthread_init_seadata();
-  pari_pthread_init_varstate();
 }
 
 void
@@ -1001,8 +1006,7 @@ pari_thread_start(struct pari_thread *t)
 {
   pari_mainstack_use(&t->st);
   pari_thread_init();
-  pari_thread_init_varstate();
-  push_localbitprec(global_state.bitprec);
+  pari_thread_set_global(&t->gs);
   return t->data;
 }
 
@@ -1065,9 +1069,9 @@ pari_init_opts(size_t parisize, ulong maxprime, ulong init_opts)
   }
   if (!(init_opts&INIT_noINTGMPm)) pari_kernel_init();
   pari_init_graphics();
-  pari_init_primetab();
-  pari_init_seadata();
   pari_thread_init();
+  pari_set_primetab(NULL);
+  pari_set_seadata(NULL);
   pari_init_functions();
   pari_init_export();
   pari_var_init();

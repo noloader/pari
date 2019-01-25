@@ -335,7 +335,6 @@ mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
     mt->last = 0;
     pthread_cond_init(&mt->pcond,NULL);
     pthread_mutex_init(&mt->pmut,NULL);
-    pari_thread_sync();
     for (i=0;i<lim;i++)
     {
       struct mt_queue *mq = mt->mq+i;

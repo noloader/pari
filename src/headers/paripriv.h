@@ -574,13 +574,11 @@ void pari_init_rand(void);
 void pari_init_paths(void);
 void pari_init_primetab(void);
 void pari_init_seadata(void);
-void pari_pthread_init_primetab(void);
-void pari_pthread_init_seadata(void);
-void pari_pthread_init_varstate(void);
+GEN pari_get_seadata(void);
+void pari_set_primetab(GEN global_primetab);
+void pari_set_seadata(GEN seadata);
+void pari_set_varstate(long *vp, struct pari_varstate *vs);
 void pari_thread_close_files(void);
-void pari_thread_init_primetab(void);
-void pari_thread_init_seadata(void);
-void pari_thread_init_varstate(void);
 
 void export_add(const char *str, GEN val);
 void export_del(const char *str);

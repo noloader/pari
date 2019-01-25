@@ -33,15 +33,12 @@ ANY WARRANTY WHATSOEVER. */
 #include "pari.h"
 #include "paripriv.h"
 
-static GEN global_modular_eqn;
 static THREAD GEN modular_eqn;
 
 void
-pari_init_seadata(void)  { global_modular_eqn = NULL; }
-void
-pari_thread_init_seadata(void)  { modular_eqn = global_modular_eqn; }
-void
-pari_pthread_init_seadata(void)  { global_modular_eqn = modular_eqn; }
+pari_set_seadata(GEN mod)  { modular_eqn = mod; }
+GEN
+pari_get_seadata(void)  { return modular_eqn; }
 
 static char *
 seadata_filename(ulong ell)
