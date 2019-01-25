@@ -68,6 +68,24 @@ lll_finish(GEN h, long k, long flag)
   return mkvec2(g, lll_get_im(h, k));
 }
 
+INLINE GEN
+submulshift(GEN x, GEN y, GEN z, long e)
+{
+  long lx = lgefint(x), ly;
+  pari_sp av = avma;
+  GEN t;
+  if (lx == 2)
+  {
+    t = shifti(mulii(z,y), e); togglesign(t);
+    return gerepileuptoint(av, t);
+  }
+  ly = lgefint(y);
+  if (ly == 2) return icopy(x);
+  t = mulii(z, y);
+  if (e) t = shifti(t, e);
+  return gerepileuptoint(av, subii(x,t));
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                   FPLLL (adapted from D. Stehle's code)        **/
@@ -273,7 +291,8 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       {
         GEN tmp2  = itor(ztmp,prec);
         long e = expo(tmp2)-prec2nbits(prec);
-        GEN X = shifti(trunc2nr(tmp2, -e), e);
+        GEN X = trunc2nr(tmp2, -e);
+        if (e < 0) { X = shifti(X,e); e = 0; }
         pari_sp btop = avma;
 
         for (k=zeros+1; k<j; k++)
@@ -283,20 +302,20 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
         }
         set_avma(btop);
         for (i=1; i<=n; i++)
-          gmael(B,kappa,i) = submulii(gmael(B,kappa,i), gmael(B,j,i), X);
+          gmael(B,kappa,i) = submulshift(gmael(B,kappa,i), gmael(B,j,i), X, e);
         for (i=1; i<=d; i++)
-          gmael(U,kappa,i) = submulii(gmael(U,kappa,i), gmael(U,j,i), X);
+          gmael(U,kappa,i) = submulshift(gmael(U,kappa,i), gmael(U,j,i), X, e);
         btop = avma;
-        ztmp = shifti(mulii(gmael(G,kappa,j), X), 1);
-        ztmp = subii(mulii(gmael(G,j,j), sqri(X)), ztmp);
+        ztmp = shifti(mulii(gmael(G,kappa,j), X), e+1);
+        ztmp = subii(shifti(mulii(gmael(G,j,j), sqri(X)), 2*e), ztmp);
         ztmp = addii(gmael(G,kappa,kappa), ztmp);
         gmael(G,kappa,kappa) = gerepileuptoint(btop, ztmp);
         for (i=1; i<=j; i++)
-          gmael(G,kappa,i) = submulii(gmael(G,kappa,i), gmael(G,j,i), X);
+          gmael(G,kappa,i) = submulshift(gmael(G,kappa,i), gmael(G,j,i), X, e);
         for (   ; i<kappa; i++)
-          gmael(G,kappa,i) = submulii(gmael(G,kappa,i), gmael(G,i,j), X);
+          gmael(G,kappa,i) = submulshift(gmael(G,kappa,i), gmael(G,i,j), X, e);
         for (i=kappa+1; i<=maxG; i++)
-          gmael(G,i,kappa) = submulii(gmael(G,i,kappa), gmael(G,i,j), X);
+          gmael(G,i,kappa) = submulshift(gmael(G,i,kappa), gmael(G,i,j), X, e);
       }
     }
     if (!go_on) break; /* Anything happened? */
