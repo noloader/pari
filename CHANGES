@@ -82,13 +82,11 @@ BA  59- ffinvmap(m) could SEGV on bad input
     61- idealispower(nf, t_INT n) possibly wrong if (n, nf.disc) > 1
     62- zeta''(0): all precision lost [more generally f'...'(n quotes)
         imprecise in the neighbourhood of 0, while derivnum(,n) was OK]
-    63- strsplit("abc", "") -> SEGV
-    64- strsplit("aa", "a") -> gc error
-    65- poldiscfactors(x^0) -> division by 0
-    66- factormod(x^3+1,[y^2+1,2]) -> SEGV
-    67- factormod(x^3+1,[y^2+1,5]) -> weird error message
-    68- besseljh(huge n, z) -> junk
-BA  69- [pthread] localbitprec was not exported to threads
+    64- poldiscfactors(x^0) -> division by 0
+    65- factormod(x^3+1,[y^2+1,2]) -> SEGV
+    66- factormod(x^3+1,[y^2+1,5]) -> weird error message
+    67- besseljh(huge n, z) -> junk
+BA  68- [pthread] localbitprec was not exported to threads
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
