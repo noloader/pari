@@ -74,6 +74,7 @@ submulshift(GEN x, GEN y, GEN z, long e)
   long lx = lgefint(x), ly;
   pari_sp av = avma;
   GEN t;
+  if (!e) return submulii(x, y, z);
   if (lx == 2)
   {
     t = shifti(mulii(z,y), e); togglesign(t);
@@ -81,8 +82,7 @@ submulshift(GEN x, GEN y, GEN z, long e)
   }
   ly = lgefint(y);
   if (ly == 2) return icopy(x);
-  t = mulii(z, y);
-  if (e) t = shifti(t, e);
+  t = shifti(mulii(z, y), e);
   return gerepileuptoint(av, subii(x,t));
 }
 
