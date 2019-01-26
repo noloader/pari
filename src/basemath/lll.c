@@ -289,12 +289,12 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
       }
       else
       {
-        GEN tmp2  = itor(ztmp,prec);
-        long e = expo(tmp2)-prec2nbits(prec);
-        GEN X = trunc2nr(tmp2, -e);
-        if (e < 0) { X = shifti(X,e); e = 0; }
-        pari_sp btop = avma;
+        pari_sp btop;
+        GEN X, tmp2  = itor(ztmp,prec);
+        long e = expo(tmp2) - prec2nbits(prec);
 
+        X = trunc2nr(tmp2, -e); if (e < 0) { X = shifti(X,e); e = 0; }
+        btop = avma;
         for (k=zeros+1; k<j; k++)
         {
           rtmp = subrr(gmael(mu,kappa,k), mulir(ztmp, gmael(mu,j,k)));
