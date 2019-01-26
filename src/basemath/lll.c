@@ -69,21 +69,32 @@ lll_finish(GEN h, long k, long flag)
 }
 
 INLINE GEN
+mulshift(GEN y, GEN z, long e)
+{
+  long ly = lgefint(y), lz;
+  pari_sp av;
+  GEN t;
+  if (ly == 2) return gen_0;
+  lz = lgefint(z);
+  av = avma; (void)new_chunk(ly+lz+nbits2lg(e)); /* HACK */
+  t = mulii(z, y);
+  set_avma(av); return shifti(t, e);
+}
+
+INLINE GEN
 submulshift(GEN x, GEN y, GEN z, long e)
 {
-  long lx = lgefint(x), ly;
-  pari_sp av = avma;
+  long lx = lgefint(x), ly, lz;
+  pari_sp av;
   GEN t;
   if (!e) return submulii(x, y, z);
-  if (lx == 2)
-  {
-    t = shifti(mulii(z,y), e); togglesign(t);
-    return gerepileuptoint(av, t);
-  }
+  if (lx == 2) { t = mulshift(y, z, e); togglesign(t); return t; }
   ly = lgefint(y);
   if (ly == 2) return icopy(x);
+  lz = lgefint(z);
+  av = avma; (void)new_chunk(lx+ly+lz+nbits2lg(e)); /* HACK */
   t = shifti(mulii(z, y), e);
-  return gerepileuptoint(av, subii(x,t));
+  set_avma(av); return subii(x, t);
 }
 
 /********************************************************************/
