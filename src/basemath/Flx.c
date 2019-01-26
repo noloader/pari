@@ -3427,7 +3427,7 @@ GEN
 Flx_translate1(GEN P, ulong p)
 {
   long i, k, n = degpol(P);
-  if (n>=18000 && p>=n)
+  if (n >= 18000 && p >= (ulong)n)
   {
     pari_sp av = avma;
     ulong l = Flx_lead(P);
