@@ -317,13 +317,15 @@ ZX_div_by_X_1(GEN a, GEN *r)
   return z;
 }
 
-/* Return 2^(n degpol(P))  P(x >> n), not memory clean if P is a ZX */
+/* Return 2^(n degpol(P))  P(x >> n) */
 GEN
 ZX_rescale2n(GEN P, long n)
 {
   long i, l = lg(P), ni = n;
-  GEN Q = cgetg(l,t_POL);
-  Q[l-1] = P[l-1];
+  GEN Q;
+  if (l==2) return pol_0(varn(P));
+  Q = cgetg(l,t_POL);
+  gel(Q,l-1) = icopy(gel(P,l-1));
   for (i=l-2; i>=2; i--)
   {
     gel(Q,i) = shifti(gel(P,i), ni);
