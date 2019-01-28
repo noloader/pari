@@ -492,7 +492,7 @@ install-data:
 link-data:
 	-if test -d $data; then cd $data; \
 	   for d in \`ls\`; do \
-	     ln -sf  \$(TOPDIR)/$data/\$\$d \$(DATADIR)/; \
+	     ln -sf  \$(TOPDIR)/$data_dir/\$\$d \$(DATADIR)/; \
 	   done; \
 	 fi
 
