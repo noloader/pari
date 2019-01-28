@@ -489,6 +489,13 @@ install-data:
 	   done; \
 	 fi
 
+link-data:
+	-if test -d $data; then cd $data; \
+	   for d in \`ls\`; do \
+	     ln -sf  \$(TOPDIR)/$data/\$\$d \$(DATADIR)/; \
+	   done; \
+	 fi
+
 install-lib-sta: \$(LIBPARI_STA)
 	-mkdir -p \$(LIBDIR)
 	-\$(RM) \$(LIBDIR)/\$(LIBPARI_STA)
