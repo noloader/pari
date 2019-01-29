@@ -1,0 +1,79 @@
+default(realprecision,38);
+count = 0;
+do(nf,f = 1, H = 0, flag = 0) =
+  setrand(1); print(count++); lift(bnrclassfield(bnrinit(bnfinit(nf),f), H, flag));
+
+do(y^2+6) \\1
+do(y^2+30)
+do(y^2-y+10)
+do(y^2-y+22)
+do(y^2-y+22,,,1) \\5
+do(y^2-y+24)
+do(y^2-y+30)
+do(y^2-y+30,,,1)
+do(y^2-y+50)
+do(y^2-y+58) \\10
+do(y^2-y+58,,,1)
+do(y^2-y+595)
+do(y^2-y+174)
+do(y^2-y+1007)
+do(y^2+105) \\15
+do(y^2-y+825)
+do(y^2-y+102)
+do(y^2+974)
+do(y,[15,[1]])
+do(y,[97,[1]]) \\20
+do(y^3-y^2+3*y+6)
+do(y^3-y^2+1,[6545,1333,2018;0,1,0;0,0,1])
+
+\\do(y^2-y+33515) \\~4 seconds
+\\do(y^2-y+246) \\~9 seconds
+
+\\Bill's bug (internal rnfkummer needs optimal conductor)
+do(a^4+392*a^2+64*a+37456,[31,8,5,29;0,1,0,0;0,0,1,0;0,0,0,1],Mat(4)) \\23
+do(y,[19*7,[1]])
+
+print("sanitize");
+do(a^4+392*a^2+64*a+37456,[31,8,5,29;0,1,0,0;0,0,1,0;0,0,0,1],Mat(3)) \\25
+bnrclassfield(bnfinit(y^2+6),Mat(2))
+
+\\large compositum
+do(y,[vecprod(primes(8)),[1]],2,1)
+
+\\flag 2
+do(y^2+6,,,2)
+do(y^2-y+22,,,2)
+do(y^2-y+58,,,2)
+do(y^2-y+10,,,2) \\30
+do(y^2-y+24,,,2)
+do(y^2-y+50,,,2)
+
+\\bug: correct absolute field, wrong extension
+print("correct absolute, incorrect relative extension");
+setrand(1);
+bnf = bnfinit(y^2+7);
+dec = idealprimedec(bnf,37);
+bnr = bnrinit(bnf,dec[1]);
+pol1 = bnrclassfield(bnr,9)[1]
+idealval(bnf,rnfdisc(bnf,pol1)[1],dec[1])
+bnr = bnrinit(bnf,dec[2]);
+pol2 = bnrclassfield(bnr,9)[1]
+idealval(bnf,rnfdisc(bnf,pol2)[1],dec[2])
+pol1 != pol2
+
+print("examples from doc");
+bnf = bnfinit(y^3+14*y-1); bnf.cyc
+pol = bnrclassfield(bnf,,1) \\Hilbert class field
+rnfdisc(bnf,pol)[1]
+bnr = bnrinit(bnf,3*5*7); bnr.cyc
+bnrclassfield(bnr,2) \\maximal 2-elementary subextension
+
+print("bad inputs");
+bnrclassfield(y^2+6,Mat(2))
+bnrclassfield(bnfinit(y^2+6),Mat(1/2))
+bnrclassfield(bnfinit(y^2+6),1/2)
+bnrclassfield(bnfinit(y^2+6),matid(2))
+bnrclassfield(bnfinit(y^2+6),Mat(2),3)
+bnrclassfield(bnfinit(y^2+6),Mat(2),-1)
+bnrclassfield(vector(6),Mat(2))
+bnrclassfield(bnrinit(bnfinit(y,1),[73786976294838212093,[1]]))

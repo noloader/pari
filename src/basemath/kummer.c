@@ -1504,3 +1504,369 @@ rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   pari_sp av = avma;
   return gerepilecopy(av, _rnfkummer(bnr, subgroup, all, prec));
 }
+
+/*******************************************************************/
+/*                        bnrclassfield                            */
+/*******************************************************************/
+
+/* TODO: could be exported */
+static void
+gsetvarn(GEN x, long v)
+{
+  long i;
+  switch(typ(x))
+  {
+    case t_POL: case t_SER:
+      setvarn(x, v); return;
+    case t_LIST:
+      x = list_data(x); if (!x) return;
+      /* fall through t_VEC */
+    case t_VEC: case t_COL: case t_MAT:
+      for (i = lg(x)-1; i > 0; i--) gsetvarn(gel(x,i), v);
+  }
+}
+
+/* emb root of pol as polmod modulo pol2, return relative polynomial */
+static GEN
+relative_pol(GEN pol, GEN emb, GEN pol2)
+{
+  GEN eqn, polrel;
+  if (degree(pol)==1) return pol2;
+  emb = liftpol(emb);
+  eqn = gsub(emb, pol_x(varn(pol)));
+  eqn = Q_remove_denom(eqn, NULL);
+  polrel = nfgcd(pol2, eqn, pol, NULL);
+  polrel = RgX_Rg_div(polrel, leading_coeff(polrel));
+  return polrel;
+}
+
+/* pol defines K/nf */
+static GEN
+bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN listP, long absolute, long prec)
+{
+  pari_sp av = avma;
+  GEN nf, nf2, rnf, bnf, bnf2, bnr2, pr, q, H, dec, cyc, dec2, Pr, vpr, vPr, pk, sgpk, pol2, emb, emb2, famod, fa, Lbad;
+  long i, r1, ell, f, sp, spk, last;
+  forprime_t iter;
+
+  bnf = bnr_get_bnf(bnr);
+  nf = bnf_get_nf(bnf);
+  rnf = rnfinit0(nf, pol, 1); /* TODO give listP argument */
+  nf2 = rnf_build_nfabs(rnf, prec);
+  gsetvarn(nf2, varn(nf_get_pol(nf)));
+  r1 = nf_get_r1(nf2);
+  bnf2 = Buchall(nf2, 0, prec);
+
+  sp = itos(p);
+  spk = sp*degree(pol);
+  pk = stoi(spk);
+  sgpk = hnfmodid(subgroup,pk);
+  last = spk==finaldeg;
+
+  /* compute conductor */
+  famod = gel(bid_get_fact2(bnr_get_bid(bnr)),1);
+  if (lg(famod)==1)
+  {
+    fa = trivial_fact();
+    Lbad = cgetg(1, t_VECSMALL);
+  }
+  else
+  {
+    fa = cgetg(3, t_MAT);
+    gel(fa,1) = cgetg(lg(famod), t_VEC);
+    Lbad = cgetg(lg(famod), t_VEC);
+    long j=1;
+    for(i=1; i<lg(famod); i++)
+    {
+      pr = gel(famod,i);
+      gmael(fa,1,i) = rnfidealprimedec(rnf, pr);
+      q = pr_get_p(pr);
+      if (lgefint(q) == 3) gel(Lbad,j++) = q;
+    }
+    setlg(Lbad,j);
+    Lbad = ZV_to_zv(ZV_sort_uniq(Lbad));
+    gel(fa,1) = shallowconcat1(gel(fa,1));
+    settyp(gel(fa,1), t_COL);
+    gel(fa,2) = cgetg(lg(gel(fa,1)), t_COL);
+    for (i=1; i<lg(gel(fa,1)); i++)
+    {
+      pr = gcoeff(fa,i,1);
+      q = pr_get_p(pr);
+      if (equalii(p,q))
+      {
+        long e = pr_get_e(pr);
+        gcoeff(fa,i,2) = stoi(1 + (e*sp) / (sp-1));
+      }
+      else gcoeff(fa,i,2) = gen_1;
+    }
+  }
+  bnr2 = bnrinit0(bnf2, mkvec2(fa, const_vec(r1,gen_1)), 0);
+
+  /* compute subgroup */
+  cyc = bnr_get_cyc(bnr2);
+  H = Flm_image(zv_diagonal(ZV_to_Flv(cyc,sp)), sp);
+  u_forprime_init(&iter, 2, ULONG_MAX);
+  while ((ell = u_forprime_next(&iter))) if (!zv_search(Lbad, ell))
+  {
+    dec = idealprimedec_limit_f(nf, stoi(ell), 1);
+    for (i=1; i<lg(dec); i++)
+    {
+      pr = gel(dec,i);
+      dec2 = rnfidealprimedec(rnf, pr);
+      Pr = gel(dec2,1);
+      f = pr_get_f(Pr) / pr_get_f(pr);
+      vpr = FpC_Fp_mul(isprincipalray(bnr, pr), stoi(f), pk);
+      if (gequal0(ZC_hnfrem(vpr,sgpk)))
+      {
+        vPr = ZV_to_Flv(isprincipalray(bnr2, Pr), sp);
+        H = vec_append(H, vPr);
+      }
+    }
+    if (lg(H) > lg(cyc)+3)
+    {
+      H = Flm_image(H, sp);
+      if (lg(cyc)-lg(H) == 1) break;
+    }
+  }
+  H = hnfmodid(shallowconcat(zm_to_ZM(H), diagonal_shallow(cyc)), p);
+
+  /* polynomial over nf2 */
+  pol2 = _rnfkummer(bnr2, H, 0, prec);
+  /* absolute polynomial */
+  pol2 = rnfequation2(nf2, pol2);
+  emb2 = gel(pol2,2); /* generator of nf2 as polmod modulo pol2 */
+  pol2 = gel(pol2,1);
+  /* polynomial over nf */
+  if (!absolute || !last)
+  {
+    emb = gmael(rnf,11,2); /* generator of nf as polynomial in nf2 */
+    emb = poleval(emb, emb2); /* generator of nf as polmod modulo pol2 */
+    pol2 = relative_pol(nf_get_pol(nf), emb, pol2);
+  }
+  if (!last) pol2 = rnfpolredbest(nf, pol2, 0);
+
+  obj_free(rnf);
+  pol2 = gerepilecopy(av, pol2);
+  if (last) return pol2;
+  return bnrclassfield_tower(bnr, subgroup, pol2, p, finaldeg, listP, absolute, prec);
+}
+
+/* subgroups H_i of bnr s.t. bnr/H_i is cyclic and inter_i H_i = subgroup */
+static GEN
+cyclic_compos(GEN bnr, GEN subgroup)
+{
+  pari_sp av = avma;
+  GEN D, U, res, pe, v, zero;
+  long i, count, j;
+
+  D = ZM_snfall_i(subgroup, &U, NULL, 1);
+  pe = vecmax(D);
+  U = matinvmod(U, pe);
+  count = 0;
+  for (i=1; i<lg(D); i++) if (!equali1(gel(D,i))) count++;
+  zero = zerocol(lg(gel(U,1))-1);
+  res = cgetg(count+1, t_VEC);
+  for (i=1, j=1; i<lg(D); i++)
+  {
+    if (equali1(gel(D,i))) continue;
+    v = gel(U,i);
+    gel(U,i) = zero;
+    gel(res,j) = hnfmodid(shallowmatconcat(mkvec2(subgroup,U)),pe);
+    j++;
+    gel(U,i) = v;
+  }
+  return gerepilecopy(av,res);
+}
+
+/* set kum=NULL if roots of unity already in base field */
+/* absolute=1 allowed if extension is cyclic with exponent>1 */
+static GEN
+bnrclassfield_primepower(struct rnfkummer *ptkum, GEN bnr, GEN subgroup, GEN p, GEN listP, long absolute, long prec)
+{
+  GEN subs, res, pol, H, Hp, pe, cnd, bnr2;
+  long i;
+
+  subs = cyclic_compos(bnr, subgroup);
+  res = cgetg(lg(subs),t_VEC);
+  for (i=1; i<lg(subs); i++)
+  {
+    H = gel(subs,i);
+    Hp = hnfmodid(H,p);
+    cnd = bnrconductor_i(bnr, Hp, 2);
+    bnr2 = gel(cnd,2);
+    Hp = gel(cnd,3);
+    if (ptkum)  pol = rnfkummer_ell(ptkum, bnr2, Hp, 0);
+    else        pol = rnfkummersimple(bnr2, Hp, itos(p), 0);
+    pe = ZM_det_triangular(H);
+    if (!equalii(p,pe)) pol = bnrclassfield_tower(bnr, H, pol, p, itos(pe), listP, absolute, prec);
+    gel(res,i) = pol;
+  }
+  return res;
+}
+
+static GEN
+bnrclassfield_sanitize(GEN bnr, GEN subgroup, long flag)
+{
+  GEN cyc, cnd;
+  if (flag<0 || flag>2) pari_err_FLAG("bnrclassfield [must be 0,1 or 2]");
+  if (nftyp(bnr)==typ_BNF) bnr = bnrinit0(bnr, gen_1, 0);
+  checkbnr(bnr);
+  cyc = bnr_get_cyc(bnr);
+  if (!subgroup) subgroup = gen_0;
+  switch(typ(subgroup))
+  {
+    case t_INT: subgroup = scalarmat(subgroup, lg(cyc)-1);
+    case t_MAT: subgroup = hnfmodid(subgroup, cyc); break;
+    default: pari_err_TYPE("bnrclassfield [subgroup]", subgroup);
+  }
+  cnd = bnrconductor_i(bnr, subgroup, 2);
+  bnr = gel(cnd,2);
+  subgroup = gel(cnd,3);
+  return mkvec2(bnr,subgroup);
+}
+
+static GEN
+/* partition of v into two subsets whose products are as balanced as possible */
+/* assume v sorted */
+vecsmall_balance(GEN v)
+{
+  forvec_t T;
+  GEN xbounds, x, vuniq, mult, ind, prod, prodbest = gen_0, bound,
+      xbest = NULL, res1, res2;
+  long i=1, j, k1, k2;
+  if (lg(v) == 3) return mkvec2(mkvecsmall(1), mkvecsmall(2));
+  vuniq = cgetg(lg(v), t_VECSMALL);
+  mult = cgetg(lg(v), t_VECSMALL);
+  ind = cgetg(lg(v), t_VECSMALL);
+  vuniq[1] = v[1];
+  mult[1] = 1;
+  ind[1] = 1;
+  for (j=2; j<lg(v); j++)
+  {
+    if (v[j] == vuniq[i]) mult[i]++;
+    else
+    {
+      i++;
+      vuniq[i] = v[j];
+      mult[i] = 1;
+      ind[i] = j;
+    }
+  }
+  setlg(vuniq, ++i);
+  setlg(mult, i);
+  setlg(ind, i);
+
+  vuniq = zv_to_ZV(vuniq);
+  prod = factorback2(vuniq, mult);
+  bound = sqrti(prod);
+  xbounds = cgetg(lg(mult), t_VEC);
+  for (i=1; i<lg(mult); i++) gel(xbounds,i) = mkvec2(gen_0,stoi(mult[i]));
+
+  forvec_init(&T, xbounds, 0);
+  while ((x = forvec_next(&T)))
+  {
+    prod = factorback2(vuniq, x);
+    if (cmpii(prod,bound)<=0 && cmpii(prod,prodbest)>0)
+    {
+      prodbest = prod;
+      xbest = gcopy(x);
+    }
+  }
+  res1 = cgetg(lg(v), t_VECSMALL);
+  res2 = cgetg(lg(v), t_VECSMALL);
+  for (i=1,k1=1,k2=1; i<lg(xbest); i++)
+  {
+    for (j=0; j<itos(gel(xbest,i)); j++) res1[k1++] = ind[i]+j;
+    for (; j<mult[i]; j++)               res2[k2++] = ind[i]+j;
+  }
+  setlg(res1, k1);
+  setlg(res2, k2);
+  return mkvec2(res1, res2);
+}
+
+/* TODO nfcompositum should accept vectors of pols */
+/* assume all fields are linearly disjoint */
+/* assume the polynomials are sorted by degree */
+static GEN
+nfcompositumall(GEN nf, GEN L)
+{
+  GEN pol, vdeg, part, L2;
+  long i;
+  if (lg(L)==2) return gel(L,1);
+  vdeg = cgetg(lg(L), t_VECSMALL);
+  for (i=1; i<lg(L); i++)
+    vdeg[i] = degree(gel(L,i));
+  part = vecsmall_balance(vdeg);
+  pol = cgetg(3, t_VEC);
+  for (i=1; i<3; i++)
+  {
+    L2 = vecpermute(L, gel(part,i));
+    gel(pol,i) = nfcompositumall(nf, L2);
+    gel(pol,i) = rnfpolredbest(nf,gel(pol,i),0);
+  }
+  pol = nfcompositum(nf, gel(pol,1), gel(pol,2), 2);
+  return pol;
+}
+
+static GEN
+bnrclassfield_i(GEN bnr, GEN subgroup, long flag, long prec)
+{
+  GEN N, fa, res, p, pe, H, bnf, data, listP, listPmod;
+  long i, sp, absolute;
+  struct rnfkummer kum;
+  data = bnrclassfield_sanitize(bnr, subgroup, flag);
+  bnr = gel(data,1);
+  subgroup = gel(data,2);
+
+  N = ZM_det_triangular(subgroup);
+  if (equali1(N)) return pol_x(0);
+  fa = Z_factor(N);
+  for (i=1; i<lg(gel(fa,1)); i++)
+    if (lgefint(gcoeff(fa,i,1)) > 3)
+      pari_err_OVERFLOW("bnrclassfield [extension of too large degree]");
+  bnf = bnr_get_bnf(bnr);
+  res = cgetg(lg(gel(fa,1)), t_VEC);
+
+  /* one prime, exponent>1 */
+  absolute = flag==2 && lg(res)==2 && !equali1(gcoeff(fa,1,2));
+
+  listP = gel(Z_factor(nf_get_disc(bnf_get_nf(bnf))),1);
+  listPmod = gel(bid_get_fact(bnr_get_bid(bnr)),1);
+  for (i=1; i<lg(listPmod); i++)
+    gel(listPmod,i) = pr_get_p(gel(listPmod,i));
+  listP = shallowconcat(listP, listPmod);
+  listP = ZV_sort_uniq(listP);
+
+  for (i=1; i<lg(res); i++)
+  {
+    p = gcoeff(fa,i,1);
+    sp = itos(p);
+    pe = powii(p,gcoeff(fa,i,2));
+    H = hnfmodid(subgroup, pe);
+    absolute = absolute && (lg(H)==2 || equali1(gcoeff(H,2,2))); /* cyclic */
+    if (bnf_get_tuN(bnf) % sp == 0)
+      gel(res,i) = bnrclassfield_primepower(NULL, bnr, H, p, listP, absolute, prec);
+    else
+    {
+      rnfkummer_init(&kum, bnf, sp, prec);
+      gel(res,i) = bnrclassfield_primepower(&kum, bnr, H, p, listP, absolute, prec);
+    }
+  }
+  res = shallowconcat1(res);
+  res = liftpol(res);
+  res = gen_sort(res, (void*)cmp_RgX, gen_cmp_RgX);
+  if (flag) res = nfcompositumall(bnf_get_nf(bnf), res);
+  if (flag==2 && !absolute) res = rnfequation(bnf, res);
+  return res;
+}
+
+/* flag:
+ * 0 list of polynomials whose compositum is the extension
+ * 1 single polynomial
+ * 2 single absolute polynomial */
+GEN
+bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, bnrclassfield_i(bnr, subgroup, flag, prec));
+}

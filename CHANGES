@@ -229,6 +229,7 @@ BA  48- new GP function derivn
 BA  49- new GP function arity
     50- new GP functions idealdown, idealismaximal
     51- [libpari] bid_get_fact2
+AP  52- new GP function bnrclassfield
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

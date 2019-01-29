@@ -3912,6 +3912,7 @@ GEN     padicfields(GEN p, long m, long d, long flag);
 
 /* kummer.c */
 
+GEN     bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec);
 GEN     rnfkummer(GEN bnr, GEN subgroup, long all, long prec);
 
 /* lfun.c */
