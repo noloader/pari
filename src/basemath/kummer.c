@@ -522,13 +522,11 @@ fix_kernel(GEN K, GEN M, GEN vecMsup, long lW, long ell)
   for (idx = lg(K), i = lg(M)-1; i >= lW; i--)
   {
     for (j = dK; j > 0; j--) if (coeff(K, i, j)) break;
-    if (!j)
-    { /* Do our best to ensure that K[dK,i] != 0 */
-      if (coeff(K, i, dK)) continue;
-      for (j = idx; j < dK; j++)
-        if (coeff(K, i, j) && coeff(K, Kidx[j], dK) != ell - 1)
-          Flv_add_inplace(gel(K,dK), gel(K,j), ell);
-    }
+    if (!j || j == dK) continue;
+    /* ensure that K[i,dK] != 0 */
+    for (j = idx; j < dK; j++)
+      if (coeff(K, i, j) && coeff(K, Kidx[j], dK) != ell - 1)
+        Flv_add_inplace(gel(K,dK), gel(K,j), ell);
     idx--;
     if (j != idx) swap(gel(K, j), gel(K, idx));
     Kidx[idx] = i;
