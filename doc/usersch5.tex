@@ -4760,6 +4760,7 @@ the degree of $T$.
 \fun{GEN}{FpX_rescale}{GEN P, GEN h, GEN p} returns $h^{\deg(P)} P(x/h)$.
 \kbd{P} is an \kbd{FpX} and \kbd{h} is a non-zero \kbd{Fp} (the routine would
 work with any non-zero \typ{INT} but is not efficient in this case).
+Neither memory-clean nor suitable for \kbd{gerepileupto}.
 
 \fun{GEN}{FpX_eval}{GEN x, GEN y, GEN p} evaluates the \kbd{FpX}~\kbd{x}
 at the \kbd{Fp}~\kbd{y}. The result is an~\kbd{Fp}.
