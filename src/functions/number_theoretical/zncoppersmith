@@ -8,14 +8,14 @@ Help: zncoppersmith(P, N, X, {B=N}): finds all integers x
 Doc: $N$ being an integer and $P\in \Z[X]$, finds all integers $x$ with
  $|x| \leq X$ such that
  $$\gcd(N, P(x)) \geq B,$$
- using \idx{Coppersmith}'s algorithm (a famous application of the \idx{LLL}
- algorithm). $X$ must be smaller than $\exp(\log^2 B / (\deg(P) \log N))$:
- for $B = N$, this means $X < N^{1/\deg(P)}$. Some $x$ larger than $X$ may
- be returned if you are very lucky. The smaller $B$ (or the larger $X$), the
- slower the routine will be. The strength of Coppersmith method is the
- ability to find roots modulo a general \emph{composite} $N$: if $N$ is a prime
- or a prime power, \tet{polrootsmod} or \tet{polrootspadic} will be much
- faster.
+ using \idx{Coppersmith}'s algorithm, a famous application of the \idx{LLL}
+ algorithm. The parameter $X$ must be smaller than
+ $\exp(\log^2 B / (\deg(P) \log N))$: for $B = N$, this means
+ $X < N^{1/\deg(P)}$. Some $x$ larger than $X$ may be returned if you are
+ very lucky. The smaller $B$ (or the larger $X$), the slower the routine will
+ be. The strength of Coppersmith method is the ability to find roots modulo a
+ general \emph{composite} $N$: if $N$ is a prime or a prime power,
+ \tet{polrootsmod} or \tet{polrootspadic} will be much faster.
 
  We shall now present two simple applications. The first one is
  finding non-trivial factors of $N$, given some partial information on the
@@ -23,18 +23,19 @@ Doc: $N$ being an integer and $P\in \Z[X]$, finds all integers $x$ with
  non-trivial divisor of $N$.
  \bprog
  setrand(1); \\ to make the example reproducible
- interval = [10^30, 10^31];
- p = randomprime(interval);
- q = randomprime(interval); N = p*q;
- p0 = p % 10^20; \\ assume we know 1) p > 10^29, 2) the last 19 digits of p
- L = zncoppersmith(10^19*x + p0, N, 10^12, 10^29)
+ [a,b] = [10^30, 10^31]; D = 20;
+ p = randomprime([a,b]);
+ q = randomprime([a,b]); N = p*q;
+ \\ assume we know 0) p | N; 1) p in [a,b]; 2) the last D digits of p
+ p0 = p % 10^D;
 
- \\ result in 10ms.
+ ? L = zncoppersmith(10^D*x + p0, N, b \ 10^D, a)
+ time = 1ms.
  %6 = [738281386540]
- ? gcd(L[1] * 10^19 + p0, N) == p
+ ? gcd(L[1] * 10^D + p0, N) == p
  %7 = 1
  @eprog\noindent and we recovered $p$, faster than by trying all
- possibilities $ < 10^{12}$.
+ possibilities $ x < 10^{11}$.
 
  The second application is an attack on RSA with low exponent, when the
  message $x$ is short and the padding $P$ is known to the attacker. We use
