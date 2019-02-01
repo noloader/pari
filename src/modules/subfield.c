@@ -499,7 +499,6 @@ init_primedata(primedata *S)
   }
   else
     T = init_Fq(p, S->lcm, v);
-  name_var(v,"y");
   S->T = T;
   S->firstroot = cgetg(lff, t_VECSMALL);
   S->interp = cgetg(lff, t_VEC);
