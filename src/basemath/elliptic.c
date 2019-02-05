@@ -6080,7 +6080,7 @@ ellnf_height(GEN E, GEN P, long prec)
   pari_sp av = avma;
   GEN x, nf, disc, d, F, Ee, Pe, s;
   long i, n, l, r1;
-  if (ell_is_inf(P)) return gen_0;
+  if (signe(ellorder(E, P, NULL))) return gen_0;
   x = gel(P,1);
   if (gequal0(ec_2divpol_evalx(E, x))) { set_avma(av); return gen_0; }
   nf = ellnf_get_nf(E); r1 = nf_get_r1(nf);
@@ -6109,14 +6109,13 @@ static GEN
 ellQ_height(GEN e, GEN a, long prec)
 {
   long i, lx;
-  pari_sp av = avma;
+  pari_sp av;
   GEN Lp, x, y, z, phi2, psi2, psi3;
   GEN v, S, b2, b4, b6, b8, a1, a2, a4, c4, D;
 
-  checkell_Q(e);
-  checkellpt(a);
-  if (ell_is_inf(a)) return gen_0;
   if (!RgV_is_QV(a)) pari_err_TYPE("ellheight [not a rational point]",a);
+  if (ellorder_Q(e, a)) return gen_0;
+  av = avma;
   if ((S = obj_check(e, Q_MINIMALMODEL)))
   { /* switch to minimal model if needed */
     if (lg(S) != 2)
@@ -6184,9 +6183,7 @@ ellQ_height(GEN e, GEN a, long prec)
 GEN
 ellheight(GEN e, GEN a, long prec)
 {
-  checkell(e);
-  checkellpt(a);
-  if (ell_is_inf(a)) return gen_0;
+  checkell(e); checkellpt(a);
   switch(ell_get_type(e))
   {
     case t_ELL_Q:

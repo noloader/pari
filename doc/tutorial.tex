@@ -1552,8 +1552,8 @@ Ok, let's try another curve. Type
 @eprog\noindent This corresponds to the equation $y^2+y = x^3-x^2$ and an
 obvious rational point on it. Again from the discriminant we see that the
 conductor is equal to 11, and if you type \kbd{ellminimalmodel(E)} you will
-see that the equation  for \kbd{E} is minimal. This time the height is very
-close to zero, hence \kbd{q} must be a torsion point. Indeed, typing
+see that the equation  for \kbd{E} is minimal. This time the height is
+exactly zero, hence \kbd{q} must be a torsion point. Indeed, typing
 \bprog
   for(k=1, 5, print(ellmul(E, q,k)))
   ellorder(E, q)   \\@com simpler

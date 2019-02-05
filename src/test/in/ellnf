@@ -35,11 +35,11 @@ ellinit(e, idealprimedec(K,5)[1])
 e = ellchangecurve(ellinit([1,0],K),[17^2,0,0,0]);
 P = idealprimedec(K,17)[1]; elllocalred(e,P)
 
-K=nfinit(a^2+1);
-P17 = idealprimedec(K,17)[1];
-P13 = idealprimedec(K,13)[1];
-P5 = idealprimedec(K,5)[1];
-E=ellinit([1+a,0,1,0,0],K);
+nf4=nfinit(a^2+1);
+P17 = idealprimedec(nf4,17)[1];
+P13 = idealprimedec(nf4,13)[1];
+P5 = idealprimedec(nf4,5)[1];
+E=ellinit([1+a,0,1,0,0],nf4);
 E2 = ellchangecurve(E, [17,0,0,0]);
 [ellap(E2, P5), ellap(E2, P13), ellap(E2, P17)]
 [ellcard(E2, P5), ellcard(E2, P13), ellcard(E2, P17)]
@@ -161,69 +161,58 @@ ellminimaldisc(E)
 E = ellinit([1,2,3,4,5]);
 ellminimaldisc(E)
 
-nf2=nfinit(a^2-a-1);
-E=ellinit([0, 0, 0, -3/2*a - 3/16, 7/8*a + 7/32],nf2);
+nf2=nfinit(a^2-2);
+nf3=nfinit(a^2-a-1);
+E=ellinit([0, 0, 0, -3/2*a - 3/16, 7/8*a + 7/32],nf3);
 ellminimaldisc(E)
+ellheight(E,[-a+11/4,3*a-9/2])
 
-E=ellinit([0,0,1,-5*a-25,-15*a-49], nf2);
-P=[-4*a+3,-a+1];
-ellheight(E,P)
+E=ellinit([0,0,1,-5*a-25,-15*a-49], nf3);
+ellheight(E,[-4*a+3,-a+1])
 ellrootno(E)
 
-E=ellinit([a+1,a-1,a,6*a+2,14*a+34],nfinit(a^2-2));
-P=[-3/2*a+1/2,-9/4*a-3/2];
-ellheight(E,P)
+E=ellinit([a+1,a-1,a,6*a+2,14*a+34],nf2);
+ellheight(E,[-3/2*a+1/2,-9/4*a-3/2])
+ellheight(E,[-a+1,-3*a-3]);
 ellrootno(E)
 
-E=ellinit([0,a+1,0,18*a-27,-55*a+78],nfinit(a^2-2));
-P=[2*a-5,-2*a+5];
-ellheight(E,P)
+E=ellinit([0,a+1,0,18*a-27,-55*a+78],nf2);
+ellheight(E,[2*a-5,-2*a+5])
 ellrootno(E)
 
-E=ellinit([0,a+a^2,0,a^3,(a+1)^2],nf2);
-P1=[-a,a+1];
-P2=[-a^2,a+1];
-ellheight(E,P1)
-ellheight(E,P2)
+E=ellinit([0,a+a^2,0,a^3,(a+1)^2],nf3);
+ellheight(E,[-a,a+1])
+ellheight(E,[-a^2,a+1])
 ellrootno(E)
 
 E=ellinit([0,a+a^2,0,a^3,(a+1)^2],nfinit(a^2-a-3));
-P1=[-a,a+1];
-P2=[-a^2,a+1];
-ellheight(E,P1)
-ellheight(E,P2)
+ellheight(E,[-a,a+1])
+ellheight(E,[-a^2,a+1])
 ellrootno(E)
 
-E=ellinit([0,1,0,a*(1-a),(a+1)^2],nf2);
-P1=[-a,a+1];
-P2=[a-1,a+1];
-ellheight(E,P1)
-ellheight(E,P2)
+E=ellinit([0,1,0,a*(1-a),(a+1)^2],nf3);
+ellheight(E,[-a,a+1])
+ellheight(E,[a-1,a+1])
 ellrootno(E)
 
-E=ellinit([0,a,1,a+1,0],nfinit(a^2+1));
-P=[0,0];
-ellheight(E,P)
+E=ellinit([0,a,1,a+1,0],nf4);
+ellheight(E,[0,0])
 ellrootno(E)
 
-E=ellinit([1,a+1,0,-2*a-1,1],nfinit(a^2+1));
-P=[-2*a,-2*a-1];
-ellheight(E,P)
+E=ellinit([1,a+1,0,-2*a-1,1],nf4);
+ellheight(E,[-2*a,-2*a-1])
 ellrootno(E)
 
 E = ellinit([a+1,-a+1,0,7*a-46,-22*a+118], nfinit(a^2-a+3));
-P = [3,-2*a+2];
-ellheight(E,P)
+ellheight(E,[3,-2*a+2])
 ellrootno(E)
 
 E = ellinit([a+1,-1,a,-a^2,0], nfinit(a^3-a^2+1));
-P = [0,-a];
-ellheight(E,P)
+ellheight(E,[0,-a])
 ellrootno(E)
 
-E = ellinit([-22032-15552*a,0],nfinit(a^2-2));
-P = [-72*a-108,0];
-ellheight(E,P)
+E = ellinit([-22032-15552*a,0],nf2);
+ellheight(E,[-72*a-108,0])
 
 \\#2001
 E=ellinit([0,-1,0,-49,141]);
@@ -234,4 +223,3 @@ Emin=ellchangecurve(EK,Mod(v,K.pol)); u=nfeltembed(K,v[1]);
 A1 = Emin.area;
 A2 = apply(x->abs(x)^2,u) * E.area;
 exponent(vector(3,i,(A1[i]-A2[i])/A2[i]))
-

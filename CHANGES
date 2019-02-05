@@ -154,6 +154,7 @@ BA  41- # and ## now also display the realtime when nbthreads is not 1
 BA  43- GP: arguments of the parser code W can start with ~ for clarity, e.g.
         listput(~L,x), mapput(~M,x)
 BA  44- GP: the argument of a user member function is now a reference
+    45- make ellheight(E, torsion point) return an exact 0 [#2109]
 
   Added
      1- [libpari] nonsquare_Fl
