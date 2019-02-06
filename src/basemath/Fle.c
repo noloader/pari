@@ -276,14 +276,14 @@ Fle_changepoint(GEN P, GEN ch, ulong p)
 {
   ulong c, u, r, s, t, v, v2, v3;
   GEN z;
-  if (ell_is_inf(P)) return P;
+  if (ell_is_inf(P)) return ellinf();
   u = ch[1]; r = ch[2];
   s = ch[3]; t = ch[4];
   v = Fl_inv(u, p); v2 = Fl_sqr(v,p); v3 = Fl_mul(v,v2,p);
-  c = Fl_sub(P[1],r,p);
+  c = Fl_sub(uel(P,1),r,p);
   z = cgetg(3,t_VECSMALL);
   z[1] = Fl_mul(v2, c, p);
-  z[2] = Fl_mul(v3, Fl_sub(P[2], Fl_add(Fl_mul(s,c, p),t, p),p),p);
+  z[2] = Fl_mul(v3, Fl_sub(uel(P,2), Fl_add(Fl_mul(s,c, p),t, p),p),p);
   return z;
 }
 
@@ -292,14 +292,14 @@ Fle_changepointinv(GEN P, GEN ch, ulong p)
 {
   ulong c, u, r, s, t, u2, u3;
   GEN z;
-  if (ell_is_inf(P)) return P;
+  if (ell_is_inf(P)) return ellinf();
   u = ch[1]; r = ch[2];
   s = ch[3]; t = ch[4];
   u2 = Fl_sqr(u, p); u3 = Fl_mul(u,u2,p);
-  c = Fl_mul(u2,P[1], p);
+  c = Fl_mul(u2,uel(P,1), p);
   z = cgetg(3, t_VECSMALL);
   z[1] = Fl_add(c,r,p);
-  z[2] = Fl_add(Fl_mul(u3,P[2],p), Fl_add(Fl_mul(s,c,p), t, p), p);
+  z[2] = Fl_add(Fl_mul(u3,uel(P,2),p), Fl_add(Fl_mul(s,c,p), t, p), p);
   return z;
 }
 static GEN
