@@ -11,3 +11,11 @@ Doc:
  \var{list} (which must be of type \typ{LIST}). If $n$ is omitted,
  or greater than the list current length, removes the last element.
  If the list is already empty, do nothing. This runs in time $O(\#L - n + 1)$.
+ \bprog
+ ? L = List([1,2,3,4]);
+ ? listpop(~L); L  \\ remove last entry
+ %2 = List([1, 2, 3])
+ ? listpop(~L, 1); L \\ remove first entry
+ %3 = List([2, 3])
+ @eprog\noindent Note the \kbd{\til L}: this means that the function is
+ called with a \emph{reference} to \kbd{L} and changes \kbd{L} in place.

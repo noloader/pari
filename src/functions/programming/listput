@@ -19,7 +19,8 @@ Doc:
  %3 = 2
  ? L
  %4 = List([1, 2])
- @eprog
+ @eprog\noindent Note the \kbd{\til L}: this means that the function is
+ called with a \emph{reference} to \kbd{L} and changes \kbd{L} in place.
 
  You may put an element into an occupied cell (not changing the
  list length), but it is easier to use the standard \kbd{list[n] = x}

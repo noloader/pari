@@ -934,15 +934,17 @@ the other using \tet{Vec} / \tet{Mat}, though:
 Lists can be input directly, as in \kbd{List([1,2,3,4])}; but in most cases,
 one creates an empty list, then appends elements using \kbd{listput}:
 \bprog
-  ? a = List(); listput(a,1); listput(a,2);
-  ? a
+  ? L = List(); listput(~L,1); listput(~L,2);
+  ? L
   %2 = List([1, 2])
 @eprog\noindent
-Elements can be accessed directly as with the vector types described above.
+Note the \kbd{\til L}: this means that the function is called with a
+\emph{reference} to \kbd{L} and changes \kbd{L} in place. Elements can be
+accessed directly as with the vector types described above.
 
 \subsec{Strings (\typ{STR})}%
 \sidx{string}\sidx{character string}\kbdsidx{t_STR}
-To enter a string, enclose it between double quotes \kbd{"}, like this:
+To enter a string, enclose it between double quotes \kbd{"}, as in:
 \kbd{"this is a string"}. The function \kbd{Str} can be used to transform any
 object into a string.
 
@@ -1609,9 +1611,8 @@ want.
 \section{User defined functions}\sidx{user defined functions}
 \label{se:user_defined}
 
-The most important thing to understand about user-defined functions is
-that they are ordinary GP objects, bound to variables just like any
-other object. Those variables are subject to scoping rules as any other:
+User-defined functions are ordinary GP objects, bound to variables just like
+any other object. Those variables are subject to scoping rules as any other:
 while you can define all your functions in global scope, it is usually
 possible and cleaner to lexically scope your private helper functions to the
 block of text where they will be needed.
@@ -1622,6 +1623,15 @@ and the expression \kbd{expr} evaluates to a function (an object of type
 instance, constructions like \kbd{funcs[i](x)} are perfectly valid,
 assuming \kbd{funcs} is an array of functions.
 
+As regards argument passing conventions, GP functions support both
+
+\item \idx{call by value}: the function operates on a copy of a variable,
+changes made to the argument in the function do not affect the original
+variable;
+
+\item and \idx{call by reference}: the function receives a reference to the
+variable and original data is affected.
+
 \subsec{Defining a function}\label{se:userfundef}
 
 A user function is defined as follows:
@@ -1631,14 +1641,17 @@ A user function is defined as follows:
 \noindent The list of formal variables is a comma-separated list of
 \emph{distinct} variable names and allowed to be empty. It there is a single
 formal variable, the parentheses are optional. This list corresponds to the
-list of parameters you will supply to your function when calling it.
+list of parameters you will supply to your function when calling it. By
+default, GP functions use call by value to pass arguments; a variable
+name may be prefixed by a tilde \kbd{\til} to use instead a call by
+reference.
 
 In most cases you want to assign a function to a variable immediately, as in
 \bprog
 R = (x,y) -> sqrt( x^2+y^2 );
 sq = x -> x^2;  \\@com or equivalently \kbd{(x) -> x\pow2}
 @eprog\noindent
-but it is quite possible to define (a priori short-lived) anonymous functions.
+but it is quite possible to define short-lived anonymous functions.
 The trailing semicolon is not part of the definition, but as usual prevents
 \kbd{gp} from printing the result of the evaluation, i.e. the function
 object. The construction
@@ -1683,18 +1696,58 @@ others because of the enclosing braces). The \tet{my} statements can actually
 occur anywhere within the function body, scoping the variables to more
 restricted blocks than the whole function body.
 
-Arguments are passed by value, not as variables: modifying a function's
-argument in the function body is allowed, but does not modify its value in the
-calling scope. In fact, a \emph{copy} of the actual parameter is assigned to
-the formal parameter when the function is called. (This is not litteraly
-true: a form of copy-on-write is implemented so an object is not duplicated
-unless modified in the function.) Formal parameters are lexically scoped
-to the function body. It is not allowed to use the same variable name for
-different parameters of your function:
+Formal parameters are lexically scoped to the function body. It is not
+allowed to use the same variable name for different parameters of your
+function:
 \bprog
 ? f(x,x) = 1
   ***   variable declared twice: f(x,x)=1
   ***                                ^----
+@eprog
+
+By default, arguments are passed by value, not as variables: modifying a
+function's argument in the function body is allowed, but does not modify its
+value in the calling scope. In fact, a \emph{copy} of the actual parameter is
+assigned to the formal parameter when the function is called. (This is not
+litterally true: a form of copy-on-write is implemented so an object is not
+duplicated unless modified in the function.) If an argument is prefixed by a
+tilde \kbd{\til} in the function declaration \emph{and} the call, it is
+passed by reference. (If either the declaration or the call is missing
+a tilde, we revert to a call by value.)
+
+\bprog
+  ? x = [1];
+  ? f(v)  = v[1]++;
+  ? F(~v) = v[1]++;
+
+  ? f(x)
+  %4 = 2
+  ? x      \\ unchanged
+  %5 = [1]
+  ? F(~x)
+  %6 = 2
+  ? x      \\ incremented
+  %7 = [2]
+  ? F(x)   \\ forgot the ~: call by value
+  %8 = 3
+  ? x      \\ => contents of x did not change
+  %9 = [2]
+  ? f(~x)  \\ adding a ~ in call, missing in declaration
+  %10 = 3
+  ? x      \\ => call by value
+  %11 = [2]
+@eprog
+\misctitle{Caveat} In GP, a call by reference means that the function
+accesses the value and may change the original variable content, but only if
+it is a container type (a vector, list or matrice), as shown above with the
+vector $x$. It will not alter its value in other cases !
+\bprog
+  ? v = 1  \\ not a container
+  ? F(~v) = v++
+  ? F(~v)
+  %3 = 2
+  ? v \\ components of v could be altered, not v itself
+  %4 = 1
 @eprog
 
 \misctitle{Functions taking an unlimited number of arguments}
@@ -1705,7 +1758,8 @@ To create such a function, use the syntax
   \kbd{(\var{list of formal variables}, \var{var}[..]) -> \var{seq}}
 
 \noindent The parameter \var{var} is replaced by a vector containing all the
-remaining arguments.
+remaining arguments. The name may not be prefixed by a tilde to (absurdly)
+indicate a call by reference.
 
 \bprog
 ? f(c[..]) = sum(i=1,#c,c[i]);
@@ -2103,6 +2157,9 @@ simply by typing new definitions. On the other hand, as a safety measure, you
 cannot redefine the built-in member functions, so attempting to redefine
 \kbd{x.j} as above would in fact produce an error; you would have to call it
 e.g.~\kbd{x.myj} in order for \kbd{gp} to accept it.
+
+Member functions use call by reference to pass arguments, your function
+may modify in place the contents of a variable (of container type).
 
 \misctitle{Rationale} In most cases, member functions are simple accessors
 of the form
