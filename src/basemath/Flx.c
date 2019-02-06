@@ -3886,14 +3886,18 @@ FlxX_to_FlxC(GEN x, long N, long sv)
   return z;
 }
 
-GEN
-FlxXV_to_FlxM(GEN v, long n, long sv)
+static GEN
+FlxXV_to_FlxM_lg(GEN x, long m, long n, long sv)
 {
-  long j, N = lg(v);
-  GEN y = cgetg(N, t_MAT);
-  for (j=1; j<N; j++) gel(y,j) = FlxX_to_FlxC(gel(v,j), n, sv);
+  long i;
+  GEN y = cgetg(n+1, t_MAT);
+  for (i=1; i<=n; i++) gel(y,i) = FlxX_to_FlxC(gel(x,i), m, sv);
   return y;
 }
+
+GEN
+FlxXV_to_FlxM(GEN v, long n, long sv)
+{ return FlxXV_to_FlxM_lg(v, n, lg(v)-1, sv); }
 
 /* matrix whose entries are given by the coeffs of the polynomial v in
  * two variables (considered as degree n polynomials) */
@@ -5359,11 +5363,13 @@ _FlxqXQ_sub(void *data, GEN x, GEN y) {
   struct _FlxqXQ *d = (struct _FlxqXQ*) data;
   return FlxX_sub(x,y, d->p);
 }
+#if 0
 static GEN
 _FlxqXQ_cmul(void *data, GEN P, long a, GEN x) {
   struct _FlxqXQ *d = (struct _FlxqXQ*) data;
   return FlxX_Flx_mul(x,gel(P,a+2), d->p);
 }
+#endif
 static GEN
 _FlxqXQ_red(void *data, GEN x) {
   struct _FlxqXQ *d = (struct _FlxqXQ*) data;
@@ -5562,27 +5568,69 @@ FlxqXQ_matrix_pow(GEN y, long n, long m, GEN S, GEN T, ulong p)
   return FlxXV_to_FlxM(FlxqXQ_powers(y,m-1,S,T,p), n, T[1]);
 }
 
-GEN
-FlxqX_FlxqXQV_eval(GEN P, GEN V, GEN S, GEN T, ulong p)
+static GEN
+FlxX_blocks_FlxM(GEN P, long n, long m, long v)
 {
-  struct _FlxqXQ D;
+  GEN z = cgetg(m+1,t_MAT);
+  long i,j, k=2, l = lg(P);
+  for(i=1; i<=m; i++)
+  {
+    GEN zi = cgetg(n+1,t_COL);
+    gel(z,i) = zi;
+    for(j=1; j<=n; j++)
+      gel(zi, j) = k==l ? pol0_Flx(v) : gel(P,k++);
+  }
+  return z;
+}
+
+GEN
+FlxqX_FlxqXQV_eval(GEN Q, GEN x, GEN S, GEN T, ulong p)
+{
+  pari_sp btop, av = avma;
+  long v = get_FlxqX_var(S), m = get_FlxqX_degree(S);
+  long i, l = lg(x)-1, lQ = lgpol(Q), n,  d;
+  GEN A, B, C, R, g;
+  if (lQ == 0) return pol_0(v);
+  if (lQ <= l)
+  {
+    n = l;
+    d = 1;
+  }
+  else
+  {
+    n = l-1;
+    d = (lQ+n-1)/n;
+  }
+  A = FlxXV_to_FlxM_lg(x, m, n, T[1]);
+  B = FlxX_blocks_FlxM(Q, n, d, T[1]);
+  C = gerepileupto(av, FlxqM_mul(A, B, T, p));
+  g = gel(x, l);
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
-  D.S=S; D.T=T; D.p=p;
-  return gen_bkeval_powers(P, degpol(P), V, (void*)&D, &FlxqXQ_algebra,
-                                                   _FlxqXQ_cmul);
+  btop = avma;
+  R = FlxV_to_FlxX(gel(C, d), v);
+  for (i = d-1; i>0; i--)
+  {
+    R = FlxX_add(FlxqXQ_mul(R, g, S, T, p), FlxV_to_FlxX(gel(C,i), v), p);
+    if (gc_needed(btop,1))
+      R = gerepileupto(btop, R);
+  }
+  return gerepilecopy(av, R);
 }
 
 GEN
 FlxqX_FlxqXQ_eval(GEN Q, GEN x, GEN S, GEN T, ulong p)
 {
-  struct _FlxqXQ D;
-  int use_sqr = 2*degpol(x) >= get_FlxqX_degree(S);
+  pari_sp av = avma;
+  GEN z, V;
+  long d = degpol(Q), rtd;
+  if (d < 0) return pol_0(get_FlxqX_var(S));
+  rtd = (long) sqrt((double)d);
   T = Flx_get_red(T, p);
   S = FlxqX_get_red(S, T, p);
-  D.S=S; D.T=T; D.p=p;
-  return gen_bkeval(Q, degpol(Q), x, use_sqr, (void*)&D, &FlxqXQ_algebra,
-                                                    _FlxqXQ_cmul);
+  V = FlxqXQ_powers(x, rtd, S, T, p);
+  z = FlxqX_FlxqXQV_eval(Q, V, S, T, p);
+  return gerepileupto(av, z);
 }
 
 static GEN
