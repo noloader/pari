@@ -103,17 +103,17 @@ FpXX_subspec(GEN x, GEN y, GEN p, long nx, long ny)
   GEN z;
   if (ny <= nx)
   {
-    lz = nx+2; z = cgetg(lz, t_POL)+2;
-    for (i=0; i<ny; i++) gel(z,i) = Fq_sub(gel(x,i), gel(y,i), NULL, p);
-    for (   ; i<nx; i++) gel(z,i) = gcopy(gel(x,i));
+    lz = nx+2; z = cgetg(lz, t_POL);
+    for (i=0; i<ny; i++) gel(z,i+2) = Fq_sub(gel(x,i), gel(y,i), NULL, p);
+    for (   ; i<nx; i++) gel(z,i+2) = gcopy(gel(x,i));
   }
   else
   {
-    lz = ny+2; z = cgetg(lz, t_POL)+2;
-    for (i=0; i<nx; i++) gel(z,i) = Fq_sub(gel(x,i), gel(y,i), NULL, p);
-    for (   ; i<ny; i++) gel(z,i) = Fq_neg(gel(y,i), NULL, p);
+    lz = ny+2; z = cgetg(lz, t_POL);
+    for (i=0; i<nx; i++) gel(z,i+2) = Fq_sub(gel(x,i), gel(y,i), NULL, p);
+    for (   ; i<ny; i++) gel(z,i+2) = Fq_neg(gel(y,i), NULL, p);
   }
-  return FpXX_renormalize(z-2, lz);
+  z[1] = 0; return FpXX_renormalize(z, lz);
 }
 
 GEN
