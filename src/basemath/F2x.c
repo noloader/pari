@@ -2399,7 +2399,7 @@ F2xqX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, GEN *pr)
   if (pr != ONLY_REM && l>lm)
   {
     long vT = get_F2x_var(T);
-    q = cgetg(l-lt+2, t_POL);
+    q = cgetg(l-lt+2, t_POL); q[1] = S[1];
     for (i=0;i<l-lt;i++) gel(q+2,i) = pol0_F2x(vT);
   }
   while (l>lm)

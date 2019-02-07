@@ -1457,7 +1457,7 @@ Flx_divrem_Barrett(GEN x, GEN mg, GEN T, ulong p, GEN *pr)
   if (lt <= 1)
     return Flx_divrem_basecase(x,T,p,pr);
   if (pr != ONLY_REM && l>lm)
-    q = zero_zv(l-lt+1);
+  { q = zero_zv(l-lt+1); q[1] = T[1]; }
   while (l>lm)
   {
     GEN zr, zq = Flx_divrem_Barrettspec(r+2+l-lm,lm,mg,T,p,&zr);
@@ -4621,7 +4621,7 @@ FlxqX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, ulong p, GEN *pr)
   if (pr != ONLY_REM && l>lm)
   {
     long vT = get_Flx_var(T);
-    q = cgetg(l-lt+2, t_POL);
+    q = cgetg(l-lt+2, t_POL); q[1] = S[1];
     for (i=0;i<l-lt;i++) gel(q+2,i) = pol0_Flx(vT);
   }
   while (l>lm)

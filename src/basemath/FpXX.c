@@ -988,7 +988,7 @@ FpXQX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
     return FpXQX_divrem_basecase(r,S,T,p,pr);
   if (pr != ONLY_REM && l>lm)
   {
-    q = cgetg(l-lt+2, t_POL);
+    q = cgetg(l-lt+2, t_POL); q[1] = S[1];
     for (i=0;i<l-lt;i++) gel(q+2,i) = gen_0;
   }
   while (l>lm)
