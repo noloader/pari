@@ -2673,6 +2673,7 @@ Flx_FlxqV_eval(GEN Q, GEN x, GEN T, ulong p)
   B = Flx_blocks_Flm(Q, n, d);
   C = gerepileupto(av, Flm_mul(A, B, p));
   g = gel(x, l);
+  T = Flx_get_red(T, p);
   btop = avma;
   S = Flv_to_Flx(gel(C, d), sv);
   for (i = d-1; i>0; i--)
