@@ -256,7 +256,7 @@ F2x_addspec(GEN x, GEN y, long lx, long ly)
   for (; i<ly; i++)
     z[i] = x[i]^y[i];
   for (   ; i<lx; i++) z[i] = x[i];
-  z -= 2; return F2x_renormalize(z, lz);
+  z -= 2; z[1] = 0; return F2x_renormalize(z, lz);
 }
 
 GEN
@@ -1876,7 +1876,7 @@ F2xX_addspec(GEN x, GEN y, long lx, long ly)
   lz = lx+2; z = cgetg(lz, t_POL);
   for (i=0; i<ly; i++) gel(z,i+2) = F2x_add(gel(x,i), gel(y,i));
   for (   ; i<lx; i++) gel(z,i+2) = F2x_copy(gel(x,i));
-  return F2xX_renormalize(z, lz);
+  z[1] = 0; return F2xX_renormalize(z, lz);
 }
 
 GEN

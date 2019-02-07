@@ -345,10 +345,10 @@ Flx_addspec(GEN x, GEN y, ulong p, long lx, long ly)
   GEN z;
 
   if (ly>lx) swapspec(x,y, lx,ly);
-  lz = lx+2; z = cgetg(lz, t_VECSMALL) + 2;
-  for (i=0; i<ly; i++) z[i] = Fl_add(x[i], y[i], p);
-  for (   ; i<lx; i++) z[i] = x[i];
-  z -= 2; return Flx_renormalize(z, lz);
+  lz = lx+2; z = cgetg(lz, t_VECSMALL);
+  for (i=0; i<ly; i++) z[i+2] = Fl_add(x[i], y[i], p);
+  for (   ; i<lx; i++) z[i+2] = x[i];
+  z[1] = 0; return Flx_renormalize(z, lz);
 }
 
 GEN
