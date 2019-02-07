@@ -144,6 +144,16 @@ FlxM_to_ZXM(GEN x)
 { pari_APPLY_same(FlxC_to_ZXC(gel(x,i))) }
 
 GEN
+FlxV_to_FlxX(GEN x, long v)
+{
+  long i, l = lg(x)+1;
+  GEN z = cgetg(l,t_POL); z[1] = evalvarn(v);
+  x--;
+  for (i=2; i<l ; i++) gel(z,i) = gel(x,i);
+  return FlxX_renormalize(z,l);
+}
+
+GEN
 FlxM_Flx_add_shallow(GEN x, GEN y, ulong p)
 {
   long l = lg(x), i, j;

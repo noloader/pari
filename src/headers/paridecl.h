@@ -356,6 +356,7 @@ GEN     FlxV_Flx_fromdigits(GEN x, GEN T, ulong p);
 GEN     FlxV_prod(GEN V, ulong p);
 GEN     FlxV_red(GEN z, ulong p);
 GEN     FlxV_to_Flm(GEN v, long n);
+GEN     FlxV_to_FlxX(GEN x, long v);
 GEN     FlxV_to_ZXV(GEN x);
 GEN     FlxX_Fl_mul(GEN x, ulong y, ulong p);
 GEN     FlxX_Flx_add(GEN y, GEN x, ulong p);
