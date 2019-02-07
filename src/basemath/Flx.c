@@ -4067,17 +4067,17 @@ FlxX_subspec(GEN x, GEN y, ulong p, long lx, long ly)
 
   if (ly <= lx)
   {
-    lz = lx+2; z = cgetg(lz, t_POL)+2;
-    for (i=0; i<ly; i++) gel(z,i) = Flx_sub(gel(x,i),gel(y,i),p);
-    for (   ; i<lx; i++) gel(z,i) = Flx_copy(gel(x,i));
+    lz = lx+2; z = cgetg(lz, t_POL);
+    for (i=0; i<ly; i++) gel(z,i+2) = Flx_sub(gel(x,i),gel(y,i),p);
+    for (   ; i<lx; i++) gel(z,i+2) = Flx_copy(gel(x,i));
   }
   else
   {
-    lz = ly+2; z = cgetg(lz, t_POL)+2;
-    for (i=0; i<lx; i++) gel(z,i) = Flx_sub(gel(x,i),gel(y,i),p);
-    for (   ; i<ly; i++) gel(z,i) = Flx_neg(gel(y,i),p);
+    lz = ly+2; z = cgetg(lz, t_POL);
+    for (i=0; i<lx; i++) gel(z,i+2) = Flx_sub(gel(x,i),gel(y,i),p);
+    for (   ; i<ly; i++) gel(z,i+2) = Flx_neg(gel(y,i),p);
   }
- return FlxX_renormalize(z-2, lz);
+  z[1] = 0; return FlxX_renormalize(z, lz);
 }
 
 GEN
