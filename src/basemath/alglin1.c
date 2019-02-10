@@ -1086,7 +1086,7 @@ FlxqM_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p)
 
 static const long FlxqM_CUP_LIMIT = 5;
 
-static ulong
+static long
 FlxqM_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p)
 {
   long m = nbrows(A), m1, n = lg(A) - 1, i, r1, r2, r, sv;
@@ -1139,12 +1139,12 @@ FlxqM_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p)
   return r;
 }
 
-static ulong
+static long
 FlxqM_echelon_gauss(GEN A, GEN *R, GEN *C, GEN T, ulong p)
 { return FlxqM_CUP_gauss(A, R, C, NULL, NULL, T, p); }
 
 /* column echelon form */
-static ulong
+static long
 FlxqM_echelon(GEN A, GEN *R, GEN *C, GEN T, ulong p)
 {
   long j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
