@@ -727,7 +727,8 @@ Flm_lsolve_lower_unit(GEN L, GEN A, ulong p)
 static long
 Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p)
 {
-  long i, j, k, m = nbrows(A), n = lg(A) - 1, pr, pc, u, v;
+  long i, j, k, m = nbrows(A), n = lg(A) - 1, pr, pc;
+  ulong u, v;
 
   if (P) *P = identity_perm(n);
   *R = cgetg(m + 1, t_VECSMALL);
@@ -763,7 +764,7 @@ Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p)
 
 static const long Flm_CUP_LIMIT = 8;
 
-static ulong
+static long
 Flm_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p)
 {
   long m = nbrows(A), m1, n = lg(A) - 1, i, r1, r2, r;
@@ -815,12 +816,12 @@ Flm_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p)
   return r;
 }
 
-static ulong
+static long
 Flm_echelon_gauss(GEN A, GEN *R, GEN *C, ulong p)
 { return Flm_CUP_gauss(A, R, C, NULL, NULL, p); }
 
 /* column echelon form */
-static ulong
+static long
 Flm_echelon(GEN A, GEN *R, GEN *C, ulong p)
 {
   long j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
