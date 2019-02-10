@@ -987,8 +987,8 @@ FlxqM_rsolve_lower_unit(GEN L, GEN A, GEN T, ulong p)
   L11 = rowslice(L1, 1, m1);
   L21 = rowslice(L1, m1 + 1, n);
   A1 = rowslice(A, 1, m1);
-  A2 = rowslice(A, m1 + 1, n);
   X1 = FlxqM_rsolve_lower_unit(L11, A1, T, p);
+  A2 = rowslice(A, m1 + 1, n);
   A2 = FlxM_sub(A2, FlxqM_mul(L21, X1, T, p), p);
   if (gc_needed(av, 1)) gerepileall(av, 2, &A2, &X1);
   L22 = matslice(L, m1+1,n, m1+1,m);
@@ -1018,15 +1018,16 @@ FlxqM_lsolve_lower_unit(GEN L, GEN A, GEN T, ulong p)
   if (m <= 1) return A;
   if (m == 2) return FlxqM_lsolve_lower_unit_2(L, A, T, p);
   m1 = (m + 1)/2;
-  L1 = vecslice(L, 1, m1);
   L2 = vecslice(L, m1 + 1, m);
-  L11 = rowslice(L1, 1, m1);
-  L21 = rowslice(L1, m1 + 1, m);
   L22 = rowslice(L2, m1 + 1, m);
-  A1 = vecslice(A, 1, m1);
   A2 = vecslice(A, m1 + 1, m);
   X2 = FlxqM_lsolve_lower_unit(L22, A2, T, p);
+  if (gc_needed(av, 1)) X2 = gerepilecopy(av, X2);
+  L1 = vecslice(L, 1, m1);
+  L21 = rowslice(L1, m1 + 1, m);
+  A1 = vecslice(A, 1, m1);
   A1 = FlxM_sub(A1, FlxqM_mul(X2, L21, T, p), p);
+  L11 = rowslice(L1, 1, m1);
   if (gc_needed(av, 1)) gerepileall(av, 3, &A1, &L11, &X2);
   X1 = FlxqM_lsolve_lower_unit(L11, A1, T, p);
   X = shallowconcat(X1, X2);
@@ -1176,7 +1177,6 @@ FlxqM_echelon(GEN A, GEN *R, GEN *C, GEN T, ulong p)
     *R = cgetg(r + 1, t_VECSMALL);
     *C = cgetg(r + 1, t_MAT);
     for (j = j1 = j2 = 1; j <= r; j++)
-    {
       if (j2 > r2 || (j1 <= r1 && R1[j1] < R2[j2]))
       {
         gel(*C, j) = gel(C1, j1);
@@ -1187,7 +1187,6 @@ FlxqM_echelon(GEN A, GEN *R, GEN *C, GEN T, ulong p)
         gel(*C, j) = gel(C2, j2);
         (*R)[j] = R2[j2++];
       }
-    }
   }
   if (gc_needed(av, 1)) gerepileall(av, 2, R, C);
   return r;
