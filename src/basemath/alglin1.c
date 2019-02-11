@@ -1117,10 +1117,10 @@ FlxqM_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, GEN T, ulong p)
     *R = cgetg(r + 1, t_VECSMALL);
     for (i = 1; i <= r1; i++) (*R)[i] = R1[i];
     for (     ; i <= r; i++)  (*R)[i] = R2[i - r1] + m1;
-    *C = shallowmatconcat(mkmat2(mkcol2(C1, C21),
-                                 mkcol2(zero_FlxM(m1, r2, sv), C2)));
-    *U = shallowmatconcat(mkmat2(mkcol2(U11, zero_FlxM(r2, r1, sv)),
-                                 mkcol2(vecpermute(U12, P2), U2)));
+    *C = shallowconcat(vconcat(C1, C21),
+                       vconcat(zero_FlxM(m1, r2, sv), C2));
+    *U = shallowconcat(vconcat(U11, zero_FlxM(r2, r1, sv)),
+                       vconcat(vecpermute(U12, P2), U2));
     *P = cgetg(n + 1, t_VECSMALL);
     for (i = 1; i <= r1; i++) (*P)[i] = P1[i];
     for (     ; i <= n; i++)  (*P)[i] = P1[P2[i - r1] + r1];
