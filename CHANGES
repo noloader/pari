@@ -88,6 +88,8 @@ BA  59- ffinvmap(m) could SEGV on bad input
     67- besseljh(huge n, z) -> junk
 BA  68- [pthread] localbitprec was not exported to threads
 BA  69- fix inefficiency in fplll not present in original code
+    70- polrootsreal(x^4+2*x^3+x^2/3+x/100-1/2000,[1/100,oo]): no root [#2112]
+    71- polrootsreal(x^4+2*x^3+x^2/3+x/100-1/1000,[1/10,oo]): extra root [#2112]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

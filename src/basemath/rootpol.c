@@ -2644,12 +2644,16 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
   if (typ(a) == t_INFINITY && typ(b) != t_INFINITY && gsigne(b))
   {
     fb = fujiwara_bound_real(Pcur, -1);
-    if (fb > -pariINFINITY) a = negi(int2n((long)ceil(fb))); else a = gen_0;
+    if (fb <= -pariINFINITY) a = gen_0;
+    else if (fb < 0) a = gen_m1;
+    else a = negi(int2n((long)ceil(fb)));
   }
   if (typ(b) == t_INFINITY && typ(a) != t_INFINITY && gsigne(a))
   {
     fb = fujiwara_bound_real(Pcur, 1);
-    if (fb > -pariINFINITY) b = int2n((long)ceil(fb)); else b = gen_0;
+    if (fb <= -pariINFINITY) b = gen_0;
+    else if (fb < 0) b = gen_1;
+    else b = int2n((long)ceil(fb));
   }
 
   if (typ(a) != t_INFINITY && typ(b) != t_INFINITY)
