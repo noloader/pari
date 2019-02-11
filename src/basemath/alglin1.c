@@ -1635,7 +1635,8 @@ Flm_det_gauss(GEN a, ulong p)
 static ulong
 Flm_det_CUP(GEN a, ulong p) {
   GEN R, C, U, P;
-  long d, i, n = lg(a) - 1, r;
+  long i, n = lg(a) - 1, r;
+  ulong d;
   r = Flm_CUP(a, &R, &C, &U, &P, p);
   if (r < n)
     d = 0;
