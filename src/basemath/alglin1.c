@@ -2257,7 +2257,7 @@ GEN
 FqM_deplin(GEN x, GEN T, GEN p) { return FqM_ker_i(x,T,p,1); }
 
 static GEN
-FlxqM_ker_gen(GEN x, GEN T, ulong p, long deplin)
+FlxqM_ker_Gauss(GEN x, GEN T, ulong p, long deplin)
 {
   const struct bb_field *ff;
   void *E;
@@ -2312,7 +2312,7 @@ static GEN
 FlxqM_ker_i(GEN x, GEN T, ulong p, long deplin) {
   if (lg(x) - 1 >= FlxqM_CUP_LIMIT && nbrows(x) >= FlxqM_CUP_LIMIT)
     return deplin? FlxqM_deplin_echelon(x, T, p): FlxqM_ker_echelon(x, T, p);
-  return FlxqM_ker_gen(x, T, p, deplin);
+  return FlxqM_ker_Gauss(x, T, p, deplin);
 }
 
 GEN
