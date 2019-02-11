@@ -271,13 +271,11 @@ gen_det(GEN a, void *E, const struct bb_field *ff)
 
       m = ff->neg(E, ff->mul(E,m, q));
       for (j=i+1; j<=nbco; j++)
-      {
         gcoeff(a,j,k) = ff->add(E, gcoeff(a,j,k), ff->mul(E,m,gcoeff(a,j,i)));
-        if (gc_needed(av,1))
-        {
-          if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
-          gerepileall(av,4, &a,&x,&q,&m);
-        }
+      if (gc_needed(av,1))
+      {
+        if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
+        gerepileall(av,4, &a,&x,&q,&m);
       }
     }
   }
