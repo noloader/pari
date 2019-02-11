@@ -556,7 +556,7 @@ indexcompl(GEN v, long n)
 }
 
 static GEN
-Flm_rsolve_upper_1(GEN U, GEN B, ulong p)
+Flm_solve_upper_1(GEN U, GEN B, ulong p)
 { return Flm_Fl_mul(B, Fl_inv(ucoeff(U, 1, 1), p), p); }
 
 static GEN
@@ -582,7 +582,7 @@ Flm_rsolve_upper(GEN U, GEN B, ulong p)
   pari_sp av = avma;
 
   if (n == 0) return B;
-  if (n == 1) return Flm_rsolve_upper_1(U, B, p);
+  if (n == 1) return Flm_solve_upper_1(U, B, p);
   if (n == 2) return Flm_rsolve_upper_2(U, B, p);
   n1 = (n + 1)/2;
   U2 = vecslice(U, n1 + 1, n);
@@ -599,10 +599,6 @@ Flm_rsolve_upper(GEN U, GEN B, ulong p)
   if (gc_needed(av, 1)) X = gerepilecopy(av, X);
   return X;
 }
-
-static GEN
-Flm_lsolve_upper_1(GEN U, GEN B, ulong p)
-{ return Flm_Fl_mul(B, Fl_inv(ucoeff(U, 1, 1), p), p); }
 
 static GEN
 Flm_lsolve_upper_2(GEN U, GEN B, ulong p)
@@ -627,7 +623,7 @@ Flm_lsolve_upper(GEN U, GEN B, ulong p)
   pari_sp av = avma;
 
   if (n == 0) return B;
-  if (n == 1) return Flm_lsolve_upper_1(U, B, p);
+  if (n == 1) return Flm_solve_upper_1(U, B, p);
   if (n == 2) return Flm_lsolve_upper_2(U, B, p);
   n1 = (n + 1)/2;
   U2 = vecslice(U, n1 + 1, n);
@@ -870,7 +866,7 @@ Flm_echelon(GEN A, GEN *R, GEN *C, ulong p)
 }
 
 static GEN
-FlxqM_rsolve_upper_1(GEN U, GEN B, GEN T, ulong p)
+FlxqM_solve_upper_1(GEN U, GEN B, GEN T, ulong p)
 { return FlxqM_Flxq_mul(B, Flxq_inv(gcoeff(U, 1, 1), T, p), T, p);
 }
 
@@ -897,7 +893,7 @@ FlxqM_rsolve_upper(GEN U, GEN B, GEN T, ulong p)
   pari_sp av = avma;
 
   if (n == 0) return B;
-  if (n == 1) return FlxqM_rsolve_upper_1(U, B, T, p);
+  if (n == 1) return FlxqM_solve_upper_1(U, B, T, p);
   if (n == 2) return FlxqM_rsolve_upper_2(U, B, T, p);
   n1 = (n + 1)/2;
   U2 = vecslice(U, n1 + 1, n);
@@ -914,10 +910,6 @@ FlxqM_rsolve_upper(GEN U, GEN B, GEN T, ulong p)
   if (gc_needed(av, 1)) X = gerepilecopy(av, X);
   return X;
 }
-
-static GEN
-FlxqM_lsolve_upper_1(GEN U, GEN B, GEN T, ulong p)
-{ return FlxqM_Flxq_mul(B, Flxq_inv(gcoeff(U, 1, 1), T, p), T, p); }
 
 static GEN
 FlxqM_lsolve_upper_2(GEN U, GEN B, GEN T, ulong p)
@@ -942,7 +934,7 @@ FlxqM_lsolve_upper(GEN U, GEN B, GEN T, ulong p)
   pari_sp av = avma;
 
   if (n == 0) return B;
-  if (n == 1) return FlxqM_lsolve_upper_1(U, B, T, p);
+  if (n == 1) return FlxqM_solve_upper_1(U, B, T, p);
   if (n == 2) return FlxqM_lsolve_upper_2(U, B, T, p);
   n1 = (n + 1)/2;
   U2 = vecslice(U, n1 + 1, n);
