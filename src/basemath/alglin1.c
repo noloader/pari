@@ -244,11 +244,12 @@ gen_det(GEN a, void *E, const struct bb_field *ff)
 {
   pari_sp av = avma;
   long i,j,k, s = 1, nbco = lg(a)-1;
-  GEN q, x = ff->s(E,1);
+  GEN x = ff->s(E,1);
   if (!nbco) return x;
   a = RgM_shallowcopy(a);
   for (i=1; i<nbco; i++)
   {
+    GEN q;
     for(k=i; k<=nbco; k++)
     {
       gcoeff(a,k,i) = ff->red(E,gcoeff(a,k,i));
@@ -261,22 +262,20 @@ gen_det(GEN a, void *E, const struct bb_field *ff)
       s = -s;
     }
     q = gcoeff(a,i,i);
-
     x = ff->red(E,ff->mul(E,x,q));
     q = ff->inv(E,q);
     for (k=i+1; k<=nbco; k++)
     {
       GEN m = ff->red(E,gcoeff(a,i,k));
       if (ff->equal0(m)) continue;
-
       m = ff->neg(E, ff->mul(E,m, q));
       for (j=i+1; j<=nbco; j++)
         gcoeff(a,j,k) = ff->add(E, gcoeff(a,j,k), ff->mul(E,m,gcoeff(a,j,i)));
-      if (gc_needed(av,1))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
-        gerepileall(av,4, &a,&x,&q,&m);
-      }
+    }
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"det. col = %ld",i);
+      gerepileall(av,2, &a,&x);
     }
   }
   if (s < 0) x = ff->neg(E,x);

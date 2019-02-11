@@ -562,7 +562,7 @@ Vecsmall([2, 2, 0, -4, -10])
 [;]
 [;]
 [;]
-  ***   Warning: new stack size = 8000000 (7.629 Mbytes).
+  ***   Warning: new stack size = 16000000 (15.259 Mbytes).
 
 [0 -1 0]
 
@@ -583,4 +583,4 @@ Vecsmall([2, 2, 0, -4, -10])
   ***   at top-level: 1/Mat([0,0]~)
   ***                  ^------------
   *** _/_: impossible inverse in ZM_inv: [0; 0].
-Total time spent: 962
+Total time spent: 831

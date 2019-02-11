@@ -202,7 +202,7 @@ test(x,u=1) =
 p=nextprime(2^65);
 test(Mod(1, 8161));
 test(Mod(1, p));
-default(parisize,8*10^6);
+default(parisize,16*10^6);
 test(ffgen([2017,3]));
 test(ffgen([p,2]));
 test(x^3*Mod(1,17),Mod(1,ffinit(17,4)));
