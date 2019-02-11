@@ -1926,7 +1926,7 @@ FlxqM_rank(GEN x, GEN T, ulong p)
     GEN R, C;
     return gc_long(av, FlxqM_echelon(x, &R, &C, T, p));
   }
-  (void) FlxqM_pivots(x, T, p, &r);
+  (void) FlxqM_gauss_pivot(x, T, p, &r);
   return gc_long(av, lg(x)-1 - r);
 }
 
