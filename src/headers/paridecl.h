@@ -269,6 +269,22 @@ GEN     random_Fle(ulong a4, ulong a6, ulong p);
 GEN     random_Fle_pre(ulong a4, ulong a6, ulong p, ulong pi);
 GEN     random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi);
 
+/* Flv.c */
+
+GEN     Flm_Flc_gauss(GEN a, GEN b, ulong p);
+GEN     Flm_Flc_invimage(GEN mat, GEN y, ulong p);
+GEN     Flm_adjoint(GEN A, ulong p);
+GEN     Flm_deplin(GEN x, ulong p);
+ulong   Flm_det(GEN x, ulong p);
+ulong   Flm_det_sp(GEN x, ulong p);
+GEN     Flm_gauss(GEN a, GEN b, ulong p);
+GEN     Flm_intersect(GEN x, GEN y, ulong p);
+GEN     Flm_inv(GEN x, ulong p);
+GEN     Flm_invimage(GEN m, GEN v, ulong p);
+GEN     Flm_ker(GEN x, ulong p);
+GEN     Flm_ker_sp(GEN x, ulong p, long deplin);
+long    Flm_rank(GEN x, ulong p);
+
 /* Flx.c */
 
 GEN     Fl_to_Flx(ulong x, long sv);
@@ -1510,21 +1526,8 @@ GEN     F2xqM_invimage(GEN a, GEN b, GEN T);
 GEN     F2xqM_mul(GEN a, GEN b, GEN T);
 long    F2xqM_rank(GEN x, GEN T);
 GEN     F2xqM_suppl(GEN x, GEN T);
-GEN     Flm_Flc_gauss(GEN a, GEN b, ulong p);
-GEN     Flm_Flc_invimage(GEN mat, GEN y, ulong p);
-GEN     Flm_adjoint(GEN A, ulong p);
-GEN     Flm_deplin(GEN x, ulong p);
-ulong   Flm_det(GEN x, ulong p);
-ulong   Flm_det_sp(GEN x, ulong p);
-GEN     Flm_gauss(GEN a, GEN b, ulong p);
 GEN     Flm_image(GEN x, ulong p);
-GEN     Flm_invimage(GEN m, GEN v, ulong p);
 GEN     Flm_indexrank(GEN x, ulong p);
-GEN     Flm_intersect(GEN x, GEN y, ulong p);
-GEN     Flm_inv(GEN x, ulong p);
-GEN     Flm_ker(GEN x, ulong p);
-GEN     Flm_ker_sp(GEN x, ulong p, long deplin);
-long    Flm_rank(GEN x, ulong p);
 GEN     Flm_suppl(GEN x, ulong p);
 GEN     FlxqM_FlxqC_gauss(GEN a, GEN b, GEN T, ulong p);
 GEN     FlxqM_FlxqC_invimage(GEN a, GEN b, GEN T, ulong p);

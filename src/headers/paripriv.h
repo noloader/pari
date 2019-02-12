@@ -719,6 +719,13 @@ void    FleV_dbl_pre_inplace(GEN P, GEN a4, ulong p, ulong pi);
 void    FleV_mulu_pre_inplace(GEN P, ulong n, GEN a4, ulong p, ulong pi);
 void    FleV_sub_pre_inplace(GEN P, GEN Q, GEN a4, ulong p, ulong pi);
 
+/* Flv.c */
+
+GEN     Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p);
+GEN     Flm_invimage_i(GEN A, GEN B, ulong p);
+GEN     Flm_inv_sp(GEN a, ulong *detp, ulong p);
+GEN     Flm_pivots(GEN x, ulong p, long *rr, long inplace);
+
 /* Flxq_log.c */
 
 GEN Flxq_log_index(GEN a0, GEN b0, GEN m, GEN T0, ulong p);
