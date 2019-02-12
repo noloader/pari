@@ -268,7 +268,7 @@ gen_det(GEN a, void *E, const struct bb_field *ff)
     {
       GEN m = ff->red(E,gcoeff(a,i,k));
       if (ff->equal0(m)) continue;
-      m = ff->neg(E, ff->mul(E,m, q));
+      m = ff->neg(E, ff->red(E,ff->mul(E,m, q)));
       for (j=i+1; j<=nbco; j++)
         gcoeff(a,j,k) = ff->add(E, gcoeff(a,j,k), ff->mul(E,m,gcoeff(a,j,i)));
     }
