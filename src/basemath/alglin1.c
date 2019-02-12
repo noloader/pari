@@ -6396,7 +6396,7 @@ RgM_det_FpM(GEN a, GEN p)
   switch(pp)
   {
   case 0: return gerepileupto(av, Fp_to_mod(FpM_det(a,p),p)); break;
-  case 2: d = F2m_det(a); break;
+  case 2: d = F2m_det_sp(a); break;
   default:d = Flm_det_sp(a, pp); break;
   }
   set_avma(av); return mkintmodu(d, pp);
