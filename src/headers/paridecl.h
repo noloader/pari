@@ -76,6 +76,20 @@ GEN     isprincipalforce(GEN bnf,GEN x);
 GEN     isprincipalgen(GEN bnf, GEN x);
 GEN     isprincipalgenforce(GEN bnf,GEN x);
 
+/* F2v.c */
+
+GEN     F2m_F2c_gauss(GEN a, GEN b);
+GEN     F2m_F2c_invimage(GEN A, GEN y);
+GEN     F2m_deplin(GEN x);
+ulong   F2m_det(GEN x);
+ulong   F2m_det_sp(GEN x);
+GEN     F2m_gauss(GEN a, GEN b);
+GEN     F2m_inv(GEN x);
+GEN     F2m_invimage(GEN A, GEN B);
+GEN     F2m_ker(GEN x);
+GEN     F2m_ker_sp(GEN x, long deplin);
+long    F2m_rank(GEN x);
+
 /* F2x.c */
 
 GEN     F2c_to_ZC(GEN x);
@@ -1479,19 +1493,8 @@ GEN     nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var);
 
 /* alglin1.c */
 
-GEN     F2m_F2c_gauss(GEN a, GEN b);
-GEN     F2m_F2c_invimage(GEN A, GEN y);
-GEN     F2m_deplin(GEN x);
-ulong   F2m_det(GEN x);
-ulong   F2m_det_sp(GEN x);
-GEN     F2m_gauss(GEN a, GEN b);
 GEN     F2m_image(GEN x);
 GEN     F2m_indexrank(GEN x);
-GEN     F2m_inv(GEN x);
-GEN     F2m_invimage(GEN A, GEN B);
-GEN     F2m_ker(GEN x);
-GEN     F2m_ker_sp(GEN x, long deplin);
-long    F2m_rank(GEN x);
 GEN     F2m_suppl(GEN x);
 GEN     F2xqM_F2xqC_gauss(GEN a, GEN b, GEN T);
 GEN     F2xqM_F2xqC_invimage(GEN a, GEN b, GEN T);

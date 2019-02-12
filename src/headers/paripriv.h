@@ -706,6 +706,12 @@ pariFILE* newfile(FILE *f, const char *name, int type);
 int     popinfile(void);
 pariFILE* try_pipe(const char *cmd, int flag);
 
+/* F2m.c */
+
+GEN     F2m_gauss_pivot(GEN x, long *rr);
+GEN     F2m_gauss_sp(GEN a, GEN b);
+GEN     F2m_invimage_i(GEN A, GEN B);
+
 /* Fle.c */
 
 void    FleV_add_pre_inplace(GEN P, GEN Q, GEN a4, ulong p, ulong pi);
