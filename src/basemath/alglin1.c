@@ -1189,6 +1189,10 @@ _FlxqM_mul(void *E, GEN A, GEN B)
   return FlxqM_mul(A, B, D->T, D->p);
 }
 
+static GEN
+_FpM_mul(void *E, GEN A, GEN B)
+{ return FpM_mul(A, B, (GEN) E); }
+
 GEN
 FpM_intersect(GEN x, GEN y, GEN p)
 {
@@ -1227,7 +1231,7 @@ FpM_det_gen(GEN a, GEN p)
 {
   void *E;
   const struct bb_field *S = get_Fp_field(&E,p);
-  return gen_det(a, E, S);
+  return gen_det_i(a, E, S, _FpM_mul);
 }
 GEN
 FpM_det(GEN a, GEN p)
@@ -1249,8 +1253,9 @@ FpM_gauss_pivot_gen(GEN x, GEN p, long *rr)
 {
   void *E;
   const struct bb_field *S = get_Fp_field(&E,p);
-  return gen_Gauss_pivot(x, rr, E, S);
+  return gen_pivots(x, rr, E, S, _FpM_mul);
 }
+
 static GEN
 FpM_gauss_pivot(GEN x, GEN p, long *rr)
 {
@@ -1528,7 +1533,7 @@ FpM_ker_gen(GEN x, GEN p, long deplin)
 {
   void *E;
   const struct bb_field *S = get_Fp_field(&E,p);
-  return gen_ker(x, deplin, E, S);
+  return gen_ker_i(x, deplin, E, S, _FpM_mul);
 }
 static GEN
 FpM_ker_i(GEN x, GEN p, long deplin)
@@ -2168,7 +2173,7 @@ FpM_gauss_gen(GEN a, GEN b, GEN p)
 {
   void *E;
   const struct bb_field *S = get_Fp_field(&E,p);
-  return gen_Gauss(a,b, E, S);
+  return gen_gauss(a,b, E, S, _FpM_mul);
 }
 /* a an FpM, lg(a)>1; b an FpM or NULL (replace by identity) */
 static GEN
@@ -3365,7 +3370,7 @@ FpM_FpC_invimage_gen(GEN A, GEN y, GEN p)
 {
   void *E;
   const struct bb_field *ff = get_Fp_field(&E, p);
-  return gen_matcolinvimage(A, y, E, ff);
+  return gen_matcolinvimage_i(A, y, E, ff, _FpM_mul);
 }
 
 GEN
@@ -3477,7 +3482,7 @@ FpM_invimage_gen(GEN A, GEN B, GEN p)
 {
   void *E;
   const struct bb_field *ff = get_Fp_field(&E, p);
-  return gen_matinvimage(A, B, E, ff);
+  return gen_invimage(A, B, E, ff, _FpM_mul);
 }
 
 GEN
