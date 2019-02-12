@@ -990,7 +990,7 @@ FpM_rank(GEN x, GEN p)
 }
 
 static GEN
-FlxqM_gauss_pivot(GEN x, GEN T, ulong p, long *rr)
+FlxqM_pivots_Gauss(GEN x, GEN T, ulong p, long *rr)
 {
   void *E;
   const struct bb_field *S = get_Flxq_field(&E, T, p);
@@ -1012,17 +1012,17 @@ FlxqM_pivots_CUP(GEN x, GEN T, ulong p, long *rr) {
 }
 
 static GEN
-FlxqM_pivots(GEN x, GEN T, ulong p, long *rr) {
+FlxqM_gauss_pivot(GEN x, GEN T, ulong p, long *rr) {
   if (lg(x) - 1 >= FlxqM_CUP_LIMIT && nbrows(x) >= FlxqM_CUP_LIMIT)
     return FlxqM_pivots_CUP(x, T, p, rr);
-  return FlxqM_gauss_pivot(x, T, p, rr);
+  return FlxqM_pivots_Gauss(x, T, p, rr);
 }
 
 GEN
 FlxqM_image(GEN x, GEN T, ulong p)
 {
   long r;
-  GEN d = FlxqM_pivots(x, T, p, &r); /* d left on stack for efficiency */
+  GEN d = FlxqM_gauss_pivot(x, T, p, &r); /* d left on stack for efficiency */
   return image_from_pivot(x,d,r);
 }
 
