@@ -31,3 +31,6 @@ precprime(2.5)
 primes([1,Pol(2)]);
 nextprime(x)
 precprime(x)
+\\#2113 Cannot test: the test would not finish before end of universe.
+\\\p520
+\\primepi(Pi*10^100)

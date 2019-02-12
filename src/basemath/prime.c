@@ -1220,11 +1220,10 @@ primepi(GEN x)
   GEN pp, nn, N = typ(x) == t_INT? x: gfloor(x);
   forprime_t S;
   ulong n, p;
-  long i, l;
+  long i;
   if (typ(N) != t_INT) pari_err_TYPE("primepi",N);
   if (signe(N) <= 0) return gen_0;
-  set_avma(av); l = lgefint(N);
-  if (l == 3) return utoi(uprimepi(N[2]));
+  if (lgefint(N) == 3) { set_avma(av); return utoi(uprimepi(N[2])); }
   i = prime_table_len-1;
   p = prime_table[i].p;
   n = prime_table[i].n;
