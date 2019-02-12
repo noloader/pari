@@ -15,6 +15,90 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
+ulong
+F2v_dotproduct(GEN x, GEN y)
+{
+  long i, lx = lg(x);
+  ulong c;
+  if (lx <= 2) return 0;
+  c = uel(x,2) & uel(y,2);
+  for (i=3; i<lx; i++) c ^= uel(x,i) & uel(y,i);
+#ifdef LONG_IS_64BIT
+  c ^= c >> 32;
+#endif
+  c ^= c >> 16;
+  c ^= c >>  8;
+  c ^= c >>  4;
+  c ^= c >>  2;
+  c ^= c >>  1;
+  return c & 1;
+}
+
+GEN
+matid_F2m(long n)
+{
+  GEN y = cgetg(n+1,t_MAT);
+  long i;
+  if (n < 0) pari_err_DOMAIN("matid_F2m", "dimension","<",gen_0,stoi(n));
+  for (i=1; i<=n; i++) { gel(y,i) = zero_F2v(n); F2v_set(gel(y,i),i); }
+  return y;
+}
+
+INLINE GEN
+F2m_F2c_mul_i(GEN x, GEN y, long lx, long l)
+{
+  long j;
+  GEN z = NULL;
+
+  for (j=1; j<lx; j++)
+  {
+    if (!F2v_coeff(y,j)) continue;
+    if (!z) z = vecsmall_copy(gel(x,j));
+    else F2v_add_inplace(z,gel(x,j));
+  }
+  if (!z) z = zero_F2v(l);
+  return z;
+}
+
+GEN
+F2m_mul(GEN x, GEN y)
+{
+  long i,j,l,lx=lg(x), ly=lg(y);
+  GEN z;
+  if (ly==1) return cgetg(1,t_MAT);
+  z = cgetg(ly,t_MAT);
+  if (lx==1)
+  {
+    for (i=1; i<ly; i++) gel(z,i) = mkvecsmall(0);
+    return z;
+  }
+  l = coeff(x,1,1);
+  for (j=1; j<ly; j++) gel(z,j) = F2m_F2c_mul_i(x, gel(y,j), lx, l);
+  return z;
+}
+
+GEN
+F2m_F2c_mul(GEN x, GEN y)
+{
+  long l, lx = lg(x);
+  if (lx==1) return cgetg(1,t_VECSMALL);
+  l = coeff(x,1,1);
+  return F2m_F2c_mul_i(x, y, lx, l);
+}
+
+static GEN
+_F2m_mul(void *data, GEN x, GEN y)
+{ (void) data; return F2m_mul(x,y); }
+static GEN
+_F2m_sqr(void *data, GEN x)
+{ (void) data; return F2m_mul(x,x); }
+GEN
+F2m_powu(GEN x, ulong n)
+{
+  if (!n) return matid(lg(x)-1);
+  return gen_powu(x, n,NULL, &_F2m_sqr, &_F2m_mul);
+}
+
 static long
 F2v_find_nonzero(GEN x0, GEN mask0, long m)
 {

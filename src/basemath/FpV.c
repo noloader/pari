@@ -433,22 +433,6 @@ Flm_Flc_mul_i(GEN x, GEN y, long lx, long l, ulong p, ulong pi)
   return z;
 }
 
-INLINE GEN
-F2m_F2c_mul_i(GEN x, GEN y, long lx, long l)
-{
-  long j;
-  GEN z = NULL;
-
-  for (j=1; j<lx; j++)
-  {
-    if (!F2v_coeff(y,j)) continue;
-    if (!z) z = vecsmall_copy(gel(x,j));
-    else F2v_add_inplace(z,gel(x,j));
-  }
-  if (!z) z = zero_F2v(l);
-  return z;
-}
-
 GEN
 FpM_mul(GEN x, GEN y, GEN p)
 {
@@ -697,23 +681,6 @@ Flm_mul(GEN x, GEN y, ulong p)
   return Flm_mul_i(x, y, lgcols(x), lx, ly, p, get_Fl_red(p));
 }
 
-GEN
-F2m_mul(GEN x, GEN y)
-{
-  long i,j,l,lx=lg(x), ly=lg(y);
-  GEN z;
-  if (ly==1) return cgetg(1,t_MAT);
-  z = cgetg(ly,t_MAT);
-  if (lx==1)
-  {
-    for (i=1; i<ly; i++) gel(z,i) = mkvecsmall(0);
-    return z;
-  }
-  l = coeff(x,1,1);
-  for (j=1; j<ly; j++) gel(z,j) = F2m_F2c_mul_i(x, gel(y,j), lx, l);
-  return z;
-}
-
 struct _Flm
 {
   ulong p;
@@ -747,18 +714,6 @@ Flm_powers(GEN x, ulong n, ulong p)
                     &_Flm_sqr, &_Flm_mul, &_Flm_one);
 }
 
-static GEN
-_F2m_mul(void *data, GEN x, GEN y)
-{ (void) data; return F2m_mul(x,y); }
-static GEN
-_F2m_sqr(void *data, GEN x)
-{ (void) data; return F2m_mul(x,x); }
-GEN
-F2m_powu(GEN x, ulong n)
-{
-  if (!n) return matid(lg(x)-1);
-  return gen_powu(x, n,NULL, &_F2m_sqr, &_F2m_mul);
-}
 static GEN
 _FpM_mul(void *p , GEN x, GEN y)
 { return FpM_mul(x,y,(GEN)p); }
@@ -903,25 +858,6 @@ Flx_dotproduct(GEN x, GEN y, ulong p)
     return Flv_dotproductspec_i(x+2, y+2, p, get_Fl_red(p), lx);
 }
 
-ulong
-F2v_dotproduct(GEN x, GEN y)
-{
-  long i, lx = lg(x);
-  ulong c;
-  if (lx <= 2) return 0;
-  c = uel(x,2) & uel(y,2);
-  for (i=3; i<lx; i++) c ^= uel(x,i) & uel(y,i);
-#ifdef LONG_IS_64BIT
-  c ^= c >> 32;
-#endif
-  c ^= c >> 16;
-  c ^= c >>  8;
-  c ^= c >>  4;
-  c ^= c >>  2;
-  c ^= c >>  1;
-  return c & 1;
-}
-
 GEN
 FpM_FpC_mul(GEN x, GEN y, GEN p)
 {
@@ -972,14 +908,6 @@ Flm_Flc_mul_pre_Flx(GEN x, GEN y, ulong p, ulong pi, long sv)
   return Flx_renormalize(z, l + 1);
 }
 
-GEN
-F2m_F2c_mul(GEN x, GEN y)
-{
-  long l, lx = lg(x);
-  if (lx==1) return cgetg(1,t_VECSMALL);
-  l = coeff(x,1,1);
-  return F2m_F2c_mul_i(x, y, lx, l);
-}
 /* RgV_to_RgX(FpM_FpC_mul(x,y,p), v), p != NULL, memory clean */
 GEN
 FpM_FpC_mul_FpX(GEN x, GEN y, GEN p, long v)
@@ -1051,16 +979,6 @@ gen_matid(long n, void *E, const struct bb_field *S)
     GEN z = const_col(n, _0); gel(z,i) = _1;
     gel(y, i) = z;
   }
-  return y;
-}
-
-GEN
-matid_F2m(long n)
-{
-  GEN y = cgetg(n+1,t_MAT);
-  long i;
-  if (n < 0) pari_err_DOMAIN("matid_F2m", "dimension","<",gen_0,stoi(n));
-  for (i=1; i<=n; i++) { gel(y,i) = zero_F2v(n); F2v_set(gel(y,i),i); }
   return y;
 }
 

@@ -80,15 +80,20 @@ GEN     isprincipalgenforce(GEN bnf,GEN x);
 
 GEN     F2m_F2c_gauss(GEN a, GEN b);
 GEN     F2m_F2c_invimage(GEN A, GEN y);
+GEN     F2m_F2c_mul(GEN x, GEN y);
 GEN     F2m_deplin(GEN x);
 ulong   F2m_det(GEN x);
 ulong   F2m_det_sp(GEN x);
+ulong   F2v_dotproduct(GEN x, GEN y);
 GEN     F2m_gauss(GEN a, GEN b);
 GEN     F2m_inv(GEN x);
 GEN     F2m_invimage(GEN A, GEN B);
 GEN     F2m_ker(GEN x);
 GEN     F2m_ker_sp(GEN x, long deplin);
+GEN     F2m_mul(GEN x, GEN y);
+GEN     F2m_powu(GEN x, ulong n);
 long    F2m_rank(GEN x);
+GEN     matid_F2m(long n);
 
 /* F2x.c */
 
@@ -99,7 +104,6 @@ GEN     F2m_to_Flm(GEN z);
 GEN     F2m_to_ZM(GEN z);
 GEN     F2m_to_mod(GEN z);
 void    F2v_add_inplace(GEN x, GEN y);
-ulong   F2v_dotproduct(GEN x, GEN y);
 GEN     F2v_slice(GEN x, long a, long b);
 GEN     F2v_to_Flv(GEN x);
 GEN     F2x_F2xq_eval(GEN Q, GEN x, GEN T);
@@ -849,9 +853,6 @@ GEN     random_FpXQX(long d1, long v, GEN T, GEN p);
 
 /* FpV.c */
 
-GEN     F2m_F2c_mul(GEN x, GEN y);
-GEN     F2m_mul(GEN x, GEN y);
-GEN     F2m_powu(GEN x, ulong n);
 GEN     Flc_Flv_mul(GEN x, GEN y, ulong p);
 GEN     Flc_to_mod(GEN z, ulong pp);
 GEN     Flm_Fl_add(GEN x, ulong y, ulong p);
@@ -928,7 +929,6 @@ GEN     ZpMs_ZpCs_solve(GEN M, GEN B, long nbrow, GEN p, long e);
 GEN     gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p);
 GEN     gen_ZpM_Dixon(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e);
 GEN     gen_matid(long n, void *E, const struct bb_field *S);
-GEN     matid_F2m(long n);
 GEN     matid_Flm(long n);
 GEN     matid_F2xqM(long n, GEN T);
 GEN     matid_FlxqM(long n, GEN T, ulong p);
