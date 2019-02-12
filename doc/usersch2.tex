@@ -631,15 +631,16 @@ time = 124ms
 time = 3,985ms
 @eprog
 
-Polynomials are always printed as \emph{univariate} polynomials, with
-monomials sorted by decreasing degree:
+Polynomials are always printed as \emph{univariate} polynomials over a
+commutative base ring, with monomials sorted by decreasing degree:
 \bprog
 ? (x+y+1)^2
 %1 = x^2 + (2*y + 2)*x + (y^2 + 2*y + 1)
 @eprog\noindent
 (Univariate polynomial in \kbd{x} whose coefficients are polynomials in
 \kbd{y}.) See \secref{se:varsymb} for valid variable names, and a discussion
-of multivariate polynomial rings.
+of multivariate polynomial rings. Polynomials over non-commutative rings
+are not supported.
 
 \subsec{Power series (\typ{SER})}%
 \sidx{power series}\kbdsidx{t_SER}\label{se:series}
@@ -649,7 +650,8 @@ $\geq k$. Of course, \kbd{X} can be replaced by any other variable name! To
 input a general non-0 power series, type in a polynomial or rational
 function (in \kbd{X}, say), and add \kbd{O(X\pow $k$)} to it. The discussion
 in the \typ{POL} section about variables remains valid; a constructor
-\tet{Ser} replaces \tet{Pol} and \tet{Polrev}.
+\tet{Ser} replaces \tet{Pol} and \tet{Polrev}. Power series over
+non-commutative rings are not supported.
 
 \misctitle{Caveat} Power series with inexact coefficients sometimes have a
 non-intuitive behavior: if $k$ significant terms are requested, an inexact
@@ -818,7 +820,8 @@ creates matrices whose $(i,j)$-th entry is described by a function $f(i,j)$:
 [3 4]
 
 [5 6]
-@eprog
+@eprog\noindent Matrix multiplication assumes that the base ring containing
+the matrix entries is commutative.
 
 \noindent Let the variable $M$ contain a matrix, and let $i,j,k,l$ denote
 four

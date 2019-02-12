@@ -270,12 +270,13 @@ one explicitly uses a complex $p$-adic type. Quadratic numbers are more
 restricted: their components may be as above, except that \typ{REAL} is not
 allowed.
 
-\subsec{Polynomials, power series, vectors, matrices and lists}
+\subsec{Polynomials, power series, vectors, matrices}
 \sidx{polynomial}\sidx{power series}\sidx{vector}\sidx{matrix}
-They are completely recursive: their components can be of any type, and types
-can be mixed (however beware when doing operations). Note in particular that
-a polynomial in two variables is simply a polynomial with polynomial
-coefficients.
+They are completely recursive, over a commutative base ring: their components
+can be of any type, and types can be mixed (however beware when doing
+operations). Note in particular that a polynomial in two variables is simply
+a polynomial with polynomial coefficients. Polynomials or matrices over
+non-commutative rings are not supported.
 
 In the present version \vers{} of PARI, it is not possible to handle
 conveniently power series of power series, i.e.~power series in several
