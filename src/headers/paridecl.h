@@ -78,6 +78,8 @@ GEN     isprincipalgenforce(GEN bnf,GEN x);
 
 /* F2v.c */
 
+GEN     F2c_to_ZC(GEN x);
+GEN     F2c_to_mod(GEN x);
 GEN     F2m_F2c_gauss(GEN a, GEN b);
 GEN     F2m_F2c_invimage(GEN A, GEN y);
 GEN     F2m_F2c_mul(GEN x, GEN y);
@@ -93,12 +95,6 @@ GEN     F2m_ker_sp(GEN x, long deplin);
 GEN     F2m_mul(GEN x, GEN y);
 GEN     F2m_powu(GEN x, ulong n);
 long    F2m_rank(GEN x);
-GEN     matid_F2m(long n);
-
-/* F2x.c */
-
-GEN     F2c_to_ZC(GEN x);
-GEN     F2c_to_mod(GEN x);
 GEN     F2m_rowslice(GEN x, long a, long b);
 GEN     F2m_to_Flm(GEN z);
 GEN     F2m_to_ZM(GEN z);
@@ -106,6 +102,10 @@ GEN     F2m_to_mod(GEN z);
 void    F2v_add_inplace(GEN x, GEN y);
 GEN     F2v_slice(GEN x, long a, long b);
 GEN     F2v_to_Flv(GEN x);
+GEN     matid_F2m(long n);
+
+/* F2x.c */
+
 GEN     F2x_F2xq_eval(GEN Q, GEN x, GEN T);
 GEN     F2x_F2xqV_eval(GEN P, GEN V, GEN T);
 GEN     F2x_Frobenius(GEN T);
