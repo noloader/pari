@@ -1937,30 +1937,6 @@ RgM_inv_upper(GEN A)
   return B;
 }
 
-/* assume dim A >= 1, A invertible + upper triangular, 1s on diagonal  */
-static GEN
-FpM_inv_upper_1_ind(GEN A, long index, GEN p)
-{
-  long n = lg(A)-1, i = index, j;
-  GEN u = zerocol(n);
-  gel(u,i) = gen_1;
-  for (i--; i>0; i--)
-  {
-    pari_sp av = avma;
-    GEN m = negi(mulii(gcoeff(A,i,i+1),gel(u,i+1))); /* j = i+1 */
-    for (j=i+2; j<=n; j++) m = subii(m, mulii(gcoeff(A,i,j),gel(u,j)));
-    gel(u,i) = gerepileuptoint(av, modii(m,p));
-  }
-  return u;
-}
-static GEN
-FpM_inv_upper_1(GEN A, GEN p)
-{
-  long i, l;
-  GEN B = cgetg_copy(A, &l);
-  for (i = 1; i < l; i++) gel(B,i) = FpM_inv_upper_1_ind(A, i, p);
-  return B;
-}
 static GEN
 split_realimag_col(GEN z, long r1, long r2)
 {
@@ -3346,45 +3322,35 @@ inverseimage(GEN m, GEN v)
 }
 
 static GEN
-FpM_invimage_i(GEN A, GEN B, GEN p)
+FpM_invimage_gen(GEN A, GEN B, GEN p)
 {
-  GEN d, x, X, Y;
-  long i, j, nY, nA = lg(A)-1, nB = lg(B)-1;
-  if (lgefint(p) == 3)
-  {
-    ulong pp = p[2];
-    A = ZM_to_Flm(A, pp);
-    B = ZM_to_Flm(B, pp);
-    x = Flm_invimage_i(A, B, pp);
-    return x? Flm_to_ZM(x): NULL;
-  }
-  x = FpM_ker(shallowconcat(ZM_neg(A), B), p);
-  /* AX = BY, Y in strict upper echelon form with pivots = 1.
-   * We must find T such that Y T = Id_nB then X T = Z. This exists iff
-   * Y has at least nB columns and full rank */
-  nY = lg(x)-1;
-  if (nY < nB) return NULL;
-  Y = rowslice(x, nA+1, nA+nB); /* nB rows */
-  d = cgetg(nB+1, t_VECSMALL);
-  for (i = nB, j = nY; i >= 1; i--, j--)
-  {
-    for (; j>=1; j--)
-      if (signe(gcoeff(Y,i,j))) { d[i] = j; break; }
-    if (!j) return NULL;
-  }
-  /* reduce to the case Y square, upper triangular with 1s on diagonal */
-  Y = vecpermute(Y, d);
-  x = vecpermute(x, d);
-  X = rowslice(x, 1, nA);
-  return FpM_mul(X, FpM_inv_upper_1(Y,p), p);
+  void *E;
+  const struct bb_field *ff = get_Fp_field(&E, p);
+  return gen_matinvimage(A, B, E, ff);
 }
+
 GEN
 FpM_invimage(GEN A, GEN B, GEN p)
 {
   pari_sp av = avma;
-  GEN X = FpM_invimage_i(A,B,p);
-  if (!X) return gc_NULL(av);
-  return gerepileupto(av, X);
+  ulong pp;
+  GEN y;
+
+  A = FpM_init(A, p, &pp);
+  switch(pp)
+  {
+  case 0: return FpM_invimage_gen(A, B, p);
+  case 2:
+    y = F2m_invimage(A, ZM_to_F2m(B));
+    if (!y) return gc_NULL(av);
+    y = F2m_to_ZM(y);
+    return gerepileupto(av, y);
+  default:
+    y = Flm_invimage(A, ZM_to_Flm(B, pp), pp);
+    if (!y) return gc_NULL(av);
+    y = Flm_to_ZM(y);
+    return gerepileupto(av, y);
+  }
 }
 
 static GEN
@@ -3398,7 +3364,7 @@ RgM_invimage_FpM(GEN A, GEN B, GEN p)
   {
   case 0:
     B = RgM_to_FpM(B,p);
-    x = FpM_invimage_i(A, B, p);
+    x = FpM_invimage_gen(A, B, p);
     return x ? gerepileupto(av, FpM_to_mod(x, p)): x;
   case 2:
     B = RgM_to_F2m(B);
