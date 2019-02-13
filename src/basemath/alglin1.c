@@ -3233,33 +3233,36 @@ imagecompl(GEN x) { return imagecompl_aux(x, &gauss_pivot); }
 GEN
 ZM_imagecompl(GEN x) { return imagecompl_aux(x, &ZM_pivots); }
 
+static GEN
+FpM_FpC_invimage_gen(GEN A, GEN y, GEN p)
+{
+  void *E;
+  const struct bb_field *ff = get_Fp_field(&E, p);
+  return gen_matcolinvimage(A, y, E, ff);
+}
+
 GEN
-FpM_FpC_invimage(GEN A, GEN y, GEN p)
+FpM_FpC_invimage(GEN A, GEN x, GEN p)
 {
   pari_sp av = avma;
-  long i, l = lg(A);
-  GEN M, x, t;
+  ulong pp;
+  GEN y;
 
-  if (lgefint(p) == 3)
+  A = FpM_init(A, p, &pp);
+  switch(pp)
   {
-    ulong pp = p[2];
-    A = ZM_to_Flm(A, pp);
-    y = ZV_to_Flv(y, pp);
-    x = Flm_Flc_invimage(A,y,pp);
-    if (!x) return gc_NULL(av);
-    return gerepileupto(av, Flc_to_ZC(x));
+  case 0: return FpM_FpC_invimage_gen(A, x, p);
+  case 2:
+    y = F2m_F2c_invimage(A, ZV_to_F2v(x));
+    if (!y) return y;
+    y = F2c_to_ZC(y);
+    return gerepileupto(av, y);
+  default:
+    y = Flm_Flc_invimage(A, ZV_to_Flv(x, pp), pp);
+    if (!y) return y;
+    y = Flc_to_ZC(y);
+    return gerepileupto(av, y);
   }
-  if (l==1) return NULL;
-  if (lg(y) != lgcols(A)) pari_err_DIM("FpM_FpC_invimage");
-  M = FpM_ker(shallowconcat(A,y),p);
-  i = lg(M)-1; if (!i) return gc_NULL(av);
-
-  x = gel(M,i); t = gel(x,l);
-  if (!signe(t)) return gc_NULL(av);
-
-  setlg(x,l); t = Fp_inv(negi(t),p);
-  if (is_pm1(t)) return gerepilecopy(av, x);
-  return gerepileupto(av, FpC_Fp_mul(x, t, p));
 }
 
 static GEN
