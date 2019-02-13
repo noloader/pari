@@ -2905,9 +2905,6 @@ gauss_pivot_ker(GEN x, GEN x0, GEN *dd, long *rr)
   *dd=d; *rr=r; return x;
 }
 
-static GEN FpM_gauss_pivot(GEN x, GEN p, long *rr);
-static GEN FqM_gauss_pivot(GEN x, GEN T, GEN p, long *rr);
-
 /* r = dim ker(x).
  * Returns d:
  *   d[k] != 0 contains the index of a non-zero pivot in column k
