@@ -208,6 +208,7 @@ BA  43- new GP function strtime
 BA  44- [libpari] Flxn_exp, Flx_Newton, Flx_fromNewton, Flx_Laplace,
         Flx_invLaplace
 BA  45- Support call by reference in GP function: f(~L,x)=listput(~L,x+1)
+BA  46- Generic fast linear algebra using CUP decomposition
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

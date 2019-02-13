@@ -1176,6 +1176,10 @@ gen_suppl(GEN x, void *E, const struct bb_field *ff,
 /*                                                                 */
 /*******************************************************************/
 
+static GEN
+_F2xqM_mul(void *E, GEN A, GEN B)
+{ return F2xqM_mul(A, B, (GEN) E); }
+
 struct _Flxq {
   GEN aut;
   GEN T;
@@ -1385,7 +1389,7 @@ F2xqM_det(GEN a, GEN T)
 {
   void *E;
   const struct bb_field *S = get_F2xq_field(&E, T);
-  return gen_det(a, E, S);
+  return gen_det_i(a, E, S, _F2xqM_mul);
 }
 
 static GEN
@@ -1393,7 +1397,7 @@ F2xqM_gauss_gen(GEN a, GEN b, GEN T)
 {
   void *E;
   const struct bb_field *S = get_F2xq_field(&E, T);
-  return gen_Gauss(a, b, E, S);
+  return gen_gauss(a, b, E, S, _F2xqM_mul);
 }
 
 GEN
@@ -1434,7 +1438,7 @@ GEN
 F2xqM_F2xqC_invimage(GEN A, GEN B, GEN T) {
   void *E;
   const struct bb_field *ff = get_F2xq_field(&E, T);
-  return gen_matcolinvimage(A, B, E, ff);
+  return gen_matcolinvimage_i(A, B, E, ff, _F2xqM_mul);
 }
 
 GEN
@@ -1455,7 +1459,7 @@ GEN
 F2xqM_invimage(GEN A, GEN B, GEN T) {
   void *E;
   const struct bb_field *ff = get_F2xq_field(&E, T);
-  return gen_matinvimage(A, B, E, ff);
+  return gen_invimage(A, B, E, ff, _F2xqM_mul);
 }
 
 static GEN
@@ -1636,7 +1640,7 @@ F2xqM_ker_i(GEN x, GEN T, long deplin)
 
   if (lg(x)==1) return cgetg(1,t_MAT);
   ff = get_F2xq_field(&E,T);
-  return gen_ker(x,deplin, E, ff);
+  return gen_ker_i(x,deplin, E, ff, _F2xqM_mul);
 }
 
 GEN
@@ -1656,7 +1660,7 @@ F2xqM_gauss_pivot(GEN x, GEN T, long *rr)
 {
   void *E;
   const struct bb_field *S = get_F2xq_field(&E,T);
-  return gen_Gauss_pivot(x, rr, E, S);
+  return gen_pivots(x, rr, E, S, _F2xqM_mul);
 }
 GEN
 F2xqM_image(GEN x, GEN T)
@@ -3694,36 +3698,13 @@ suppl(GEN x)
   d = gauss_pivot(x,&r);
   set_avma(av); return get_suppl(x,d,nbrows(x),r,&col_ei);
 }
-/* variable number to be filled in later */
-static GEN
-_FlxC_ei(long n, long i)
-{
-  GEN x = cgetg(n + 1, t_COL);
-  long j;
-  for (j = 1; j <= n; j++)
-    gel(x, j) = (j == i)? pol1_Flx(0): pol0_Flx(0);
-  return x;
-}
 
 GEN
 F2xqM_suppl(GEN x, GEN T)
 {
-  pari_sp av = avma;
-  GEN d, y;
-  long n = nbrows(x), r, sv = get_Flx_var(T);
-
-  init_suppl(x);
-  d = F2xqM_gauss_pivot(x, T, &r);
-  set_avma(av);
-  y = get_suppl(x, d, n, r, &_FlxC_ei);
-  if (sv) {
-    long i, j;
-    for (j = r + 1; j <= n; j++) {
-      for (i = 1; i <= n; i++)
-        gcoeff(y, i, j)[1] = sv;
-    }
-  }
-  return y;
+  void *E;
+  const struct bb_field *S = get_F2xq_field(&E, T);
+  return gen_suppl(x, E, S, _F2xqM_mul);
 }
 
 GEN
