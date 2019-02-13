@@ -757,10 +757,15 @@ static const struct bb_field Fq_field={_Fq_red,_Fq_add,_Fq_mul,_Fq_neg,
 
 const struct bb_field *get_Fq_field(void **E, GEN T, GEN p)
 {
-  GEN z = new_chunk(sizeof(struct _Fq_field));
-  struct _Fq_field *e = (struct _Fq_field *) z;
-  e->T = T; e->p  = p; *E = (void*)e;
-  return &Fq_field;
+  if (!T)
+    return get_Fp_field(E, p);
+  else
+  {
+    GEN z = new_chunk(sizeof(struct _Fq_field));
+    struct _Fq_field *e = (struct _Fq_field *) z;
+    e->T = T; e->p  = p; *E = (void*)e;
+    return &Fq_field;
+  }
 }
 
 /*******************************************************************/
