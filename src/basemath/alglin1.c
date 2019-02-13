@@ -1318,12 +1318,12 @@ FpM_ker_i(GEN x, GEN p, long deplin)
   case 0: return FpM_ker_gen(x,p,deplin);
   case 2:
     y = F2m_ker_sp(x, deplin);
-    if (!y) return y;
+    if (!y) return gc_NULL(av);
     y = deplin? F2c_to_ZC(y): F2m_to_ZM(y);
     return gerepileupto(av, y);
   default:
     y = Flm_ker_sp(x, pp, deplin);
-    if (!y) return y;
+    if (!y) return gc_NULL(av);
     y = deplin? Flc_to_ZC(y): Flm_to_ZM(y);
     return gerepileupto(av, y);
   }
