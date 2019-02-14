@@ -61,35 +61,6 @@ Flx_to_FlxX(GEN z, long sv)
   x[1] = evalsigne(l-2!=0)| z[1]; return x;
 }
 
-GEN
-Flv_to_ZV(GEN x)
-{ pari_APPLY_type(t_VEC, utoi(x[i])) }
-
-GEN
-Flc_to_ZC(GEN x)
-{ pari_APPLY_type(t_COL, utoi(x[i])) }
-
-GEN
-Flm_to_ZM(GEN x)
-{ pari_APPLY_type(t_MAT, Flc_to_ZC(gel(x,i))) }
-
-GEN
-Flc_to_ZC_inplace(GEN z)
-{
-  long i, l = lg(z);
-  for (i=1; i<l; i++) gel(z,i) = utoi(z[i]);
-  settyp(z, t_COL);
-  return z;
-}
-
-GEN
-Flm_to_ZM_inplace(GEN z)
-{
-  long i, l = lg(z);
-  for (i=1; i<l; i++) Flc_to_ZC_inplace(gel(z, i));
-  return z;
-}
-
 /* same as Flx_to_ZX, in place */
 GEN
 Flx_to_ZX_inplace(GEN z)

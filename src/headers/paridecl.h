@@ -271,6 +271,8 @@ GEN     random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi);
 
 /* Flv.c */
 
+GEN     Flc_to_ZC(GEN z);
+GEN     Flc_to_ZC_inplace(GEN z);
 GEN     Flm_Flc_gauss(GEN a, GEN b, ulong p);
 GEN     Flm_Flc_invimage(GEN mat, GEN y, ulong p);
 GEN     Flm_adjoint(GEN A, ulong p);
@@ -284,6 +286,9 @@ GEN     Flm_invimage(GEN m, GEN v, ulong p);
 GEN     Flm_ker(GEN x, ulong p);
 GEN     Flm_ker_sp(GEN x, ulong p, long deplin);
 long    Flm_rank(GEN x, ulong p);
+GEN     Flm_to_ZM(GEN z);
+GEN     Flm_to_ZM_inplace(GEN z);
+GEN     Flv_to_ZV(GEN z);
 
 /* Flx.c */
 
@@ -295,12 +300,8 @@ ulong   Fl2_norm_pre(GEN x, ulong D, ulong p, ulong pi);
 GEN     Fl2_pow_pre(GEN x, GEN n, ulong D, ulong p, ulong pi);
 GEN     Fl2_sqr_pre(GEN x, ulong D, ulong p, ulong pi);
 GEN     Fl2_sqrtn_pre(GEN a, GEN n, ulong D, ulong p, ulong pi, GEN *zeta);
-GEN     Flc_to_ZC(GEN z);
-GEN     Flc_to_ZC_inplace(GEN z);
 GEN     Flm_to_FlxV(GEN x, long sv);
 GEN     Flm_to_FlxX(GEN x, long v,long w);
-GEN     Flm_to_ZM(GEN z);
-GEN     Flm_to_ZM_inplace(GEN z);
 GEN     Flv_Flm_polint(GEN xa, GEN ya, ulong p, long vs);
 GEN     Flv_inv(GEN x, ulong p);
 void    Flv_inv_inplace(GEN x, ulong p);
@@ -313,7 +314,6 @@ ulong   Flv_prod_pre(GEN x, ulong p, ulong pi);
 GEN     Flv_roots_to_pol(GEN a, ulong p, long vs);
 GEN     Flv_to_Flx(GEN x, long vs);
 GEN     Fly_to_FlxY(GEN B, long v);
-GEN     Flv_to_ZV(GEN z);
 GEN     Flx_Fl_add(GEN y, ulong x, ulong p);
 GEN     Flx_Fl_mul(GEN y, ulong x, ulong p);
 GEN     Flx_Fl_mul_to_monic(GEN y, ulong x, ulong p);
