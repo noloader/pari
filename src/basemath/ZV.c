@@ -358,8 +358,8 @@ ZM_mul_sw(GEN A, GEN B, long m, long n, long p)
   C22 = add_slices(m2, p2, V2, 0, m2, 0, p2, M3, 0, m2, 0, p2);
   if (gc_needed(av, 1))
     gerepileall(av, 4, &C11, &C12, &C21, &C22);  /* destroy V2, M3 */
-  C = mkmat2(mkcol2(C11, C21), mkcol2(C12, C22));
-  return gerepilecopy(av, shallowmatconcat(C));
+  C = shallowconcat(vconcat(C11, C21), vconcat(C12, C22));
+  return gerepilecopy(av, C);
 }
 
 /* x[i,]*y. Assume lg(x) > 1 and 0 < i < lgcols(x) */
