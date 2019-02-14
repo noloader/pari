@@ -1829,7 +1829,7 @@ FqM_gauss_gen(GEN a, GEN b, GEN T, GEN p)
 {
   void *E;
   const struct bb_field *S = get_Fq_field(&E,T,p);
-  return gen_Gauss(a,b,E,S);
+  return gen_gauss(a,b,E,S,_FqM_mul);
 }
 GEN
 FqM_gauss(GEN a, GEN b, GEN T, GEN p)
