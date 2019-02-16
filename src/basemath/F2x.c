@@ -1560,7 +1560,8 @@ _F2xq_equal0(GEN x) { return lgpol(x)==0; }
 static GEN
 _F2xq_s(void *E, long x)
 { GEN T = (GEN) E;
-  return odd(x)? pol1_F2x(T[1]): pol0_F2x(T[0]);
+  long v = get_F2x_var(T);
+  return odd(x)? pol1_F2x(v): pol0_F2x(v);
 }
 
 static const struct bb_field F2xq_field={_F2xq_red,_F2xq_add,_F2xq_rmul,_F2xq_neg,
