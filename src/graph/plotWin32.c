@@ -83,7 +83,7 @@ static void DrawString(void *data, long x, long y, char *text, long numtext)
 static void
 draw(PARI_plot *T, GEN w, GEN x, GEN y)
 {
-  char tmppath[MAX_PATH], fname[MAX_PATH];
+  char tmppath[MAX_PATH], fname[2 * MAX_PATH];
   struct plot_eng plotWin32;
   HDC hEmf;
   int r, g, b;
