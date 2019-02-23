@@ -510,7 +510,8 @@ Flx_radical(GEN f, ulong p)
       f = Flx_div(f, u, p);
       if (p <= du)
       {
-        GEN w = (degpol(f) >= degpol(u))? Flx_rem(f, u, p): f;
+        GEN w = f;
+        if (degpol(f) >= degpol(u)) w = Flx_rem(w, u, p);
         w = Flxq_powu(w, du, u, p);
         w = Flx_div(u, Flx_gcd(w,u,p), p); /* u / gcd(u, v^(deg u-1)) */
         f = Flx_mul(f, Flx_radical(Flx_deflate(w,p), p), p);
