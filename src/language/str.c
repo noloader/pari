@@ -56,15 +56,22 @@ pari_strndup(const char *s, long n)
 GEN
 strntoGENstr(const char *s, long n0)
 {
-  long n = nchar2nlong(n0+1);
+  long n = nchar2nlong(n0+1); /* +1 for trailing 0 */
   GEN x = cgetg(n+1, t_STR);
   char *t = GSTR(x);
-  x[n] = 0;
+  x[n] = 0; /* avoid uninitialized memory */
   strncpy(t, s, n0); t[n0] = 0; return x;
 }
 
+/* strntoGENstr would trigger gcc-8 stringop-truncation warning */
 GEN
-strtoGENstr(const char *s) { return strntoGENstr(s, strlen(s)); }
+strtoGENstr(const char *s)
+{
+  long n0 = strlen(s) + 1, n = nchar2nlong(n0);
+  GEN x = cgetg(n+1, t_STR);
+  char *t = GSTR(x);
+  x[n] = 0; strncpy(t, s, n0); return x;
+}
 
 GEN
 chartoGENstr(char c)
