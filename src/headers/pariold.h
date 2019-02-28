@@ -121,7 +121,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define minideal(x,y,z,t) idealmin(x,y,z)
 #define idealhermite idealhnf
 #define srgcd(x) RgX_gcd(x)
-#define nfdiscf0(x) nfdisc0(x)
 #define discf(x) nfdisc(x)
 #define discsr(x) poldisc0((x),-1)
 #define factorpadic4 factorpadic
