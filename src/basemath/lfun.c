@@ -1025,17 +1025,6 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
                S->Dmax,S->D,S->M,S->nmax, S->m0);
 }
 
-/* x0 * [1,x,..., x^n] */
-static GEN
-powersshift(GEN x, long n, GEN x0)
-{
-  long i, l = n+2;
-  GEN V = cgetg(l, t_VEC);
-  gel(V,1) = x0;
-  for(i = 2; i < l; i++) gel(V,i) = gmul(gel(V,i-1),x);
-  return V;
-}
-
 static GEN
 lfuninit_pol(GEN vecc, GEN poqk, long M, long prec)
 {
@@ -1104,7 +1093,7 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
   { /* d=2 and Vga = [a,a+1] */
     GEN ldata = linit_get_ldata(theta);
     GEN a = vecmin(ldata_get_gammavec(ldata));
-    GEN qk = powersshift(mpexp(h), M, ginv(sqN));
+    GEN qk = gpowers0(mpexp(h), M, ginv(sqN));
     va = lfuninit_vecc2_sum(an, qk, a, S, poqk);
     return bn? mkvec2(va, lfuninit_vecc2_sum(bn, qk, a, S, poqk)): va;
   }
