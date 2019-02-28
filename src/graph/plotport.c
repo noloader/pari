@@ -194,8 +194,12 @@ rgb_to_long(long r, long g, long b)
 static long
 colormap_to_color(long i)
 {
-  GEN c = gel(GP_DATA->colormap,i+1);
-  int r, g, b; color_to_rgb(c, &r,&g,&b);
+  GEN c = GP_DATA->colormap;
+  long k = i+1, l = lg(c)-1;
+  int r, g, b;
+  if (k > l)
+    pari_err_COMPONENT("graphcolormap",">", stoi(l), stoi(k));
+  color_to_rgb(gel(c, k), &r,&g,&b);
   return rgb_to_long(r, g, b);
 }
 

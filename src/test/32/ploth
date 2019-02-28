@@ -220,5 +220,11 @@
   ***   at top-level: ploth(x=0,1,x,,1)
   ***                             ^-----
   ***   domain error in ploth: #points < 2
+? default(graphcolormap,["white","black","gray","violetred","red","green","blue","gainsboro","purple"])
+? default(graphcolors,[7,4,9,8,5,6])
+? ploth(X=-1,9,vector(6,k,sin(X+k)))
+  ***   at top-level: ploth(X=-1,9,vector(6,k,sin(X+k)))
+  ***                                     ^--------------
+  ***   non-existent component in graphcolormap: index > 9
 ? print("Total time spent: ",gettime);
-Total time spent: 149
+Total time spent: 100
