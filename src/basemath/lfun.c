@@ -1066,18 +1066,18 @@ lfuninit_vecc2_sum(GEN an, GEN qk, GEN a, struct lfunp *Q, GEN poqk)
 
 /* theta(exp(mh)) ~ sum_{n <= L[m]} a(n) k[m,n] */
 static GEN
-lfuninit_vecc_sum(GEN L, long M, GEN vecan, GEN vK, GEN pokq, long prec)
+lfuninit_vecc_sum(GEN L, long M, GEN an, GEN vK, GEN pokq, long prec)
 {
-  long m;
+  long m, L0 = lg(an)-1;
   GEN vecc = cgetg(M+2, t_VEC);
   for (m = 0; m <= M; ++m)
   {
     pari_sp av = avma;
     GEN s = gen_0, vKm = gel(vK,m+1);
-    long n;
-    for (n = 1; n <= L[m+1]; n++)
+    long n, N = minss(L0, L[m+1]);
+    for (n = 1; n <= N; n++)
     {
-      GEN c = mul_an(vecan, n, gel(vKm,n));
+      GEN c = mul_an(an, n, gel(vKm,n));
       if (c)
       {
         s = gadd(s, c);
