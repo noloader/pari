@@ -198,6 +198,10 @@ pol = y^2 + Mod(t^5+t^2+t-1, T)*y + Mod(1-t, T);
 Qchi=nfinit([T,10^6]);
 rnfinit(Qchi,[pol,10^6]); \\ segv in 2.11
 
+k = nfinit(y^4 + 10*y^2 + 17);
+rnfdisc(k, x^2 - x + 1/Mod(y,k.pol))
+rnfdisc(k, x^2 - x + 1/2)
+
 \\ Errors, keep at end of file
 rnfdedekind(nf, P, pr2, 1)
 rnfdedekind(nf, P)

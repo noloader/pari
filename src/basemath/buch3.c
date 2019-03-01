@@ -1739,7 +1739,7 @@ rnfconductor(GEN bnf, GEN T)
   ulong lim;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
-  T = check_polrel(nf, T, &lim);
+  T = check_polrel_monic(nf, T, &lim);
   dT = Q_denom( RgX_to_nfX(nf, T) );
   if (!is_pm1(dT)) T = RgX_rescale(T, dT);
   if (!lim)

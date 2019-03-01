@@ -3470,9 +3470,48 @@ rnfpseudobasis(GEN nf, GEN pol)
   GEN D, z;
   ulong lim;
   nf = checknf(nf);
-  pol = check_polrel(nf, pol, &lim);
+  pol = check_polrel_monic(nf, pol, &lim);
   z = rnfallbase(nf, pol, lim, NULL, &D, NULL);
   return gerepilecopy(av, shallowconcat(z,D));
+}
+
+static GEN
+RgX_to_algX(GEN nf, GEN x)
+{
+  long i, l;
+  GEN y = cgetg_copy(x, &l); y[1] = x[1];
+  for (i=2; i<l; i++) gel(y,i) = nf_to_scalar_or_alg(nf, gel(x,i));
+  return y;
+}
+
+static GEN
+nfX_to_monic(GEN nf, GEN T)
+{
+  GEN lT, g, a;
+  long i, l = lg(T);
+  if (l == 2) return pol_0(varn(T));
+  if (l == 3) return pol_1(varn(T));
+  T = Q_primpart(RgX_to_nfX(nf, T));
+  lT = leading_coeff(T); if (isint1(T)) return T;
+  g = cgetg_copy(T, &l); g[1] = T[1]; a = lT;
+  gel(g, l-1) = gen_1;
+  gel(g, l-2) = gel(T,l-2);
+  if (l == 4) return g;
+  if (typ(lT) == t_INT)
+  {
+    gel(g, l-3) = gmul(a, gel(T,l-3));
+    for (i = l-4; i > 1; i--) { a = mulii(a,lT); gel(g,i) = gmul(a, gel(T,i)); }
+  }
+  else
+  {
+    gel(g, l-3) = nfmul(nf, a, gel(T,l-3));
+    for (i = l-3; i > 1; i--)
+    {
+      a = nfmul(nf,a,lT);
+      gel(g,i) = nfmul(nf, a, gel(T,i));
+    }
+  }
+  return RgX_to_algX(nf, g);
 }
 
 GEN
@@ -3484,6 +3523,8 @@ rnfdisc_factored(GEN nf, GEN pol, GEN *pd)
 
   nf = checknf(nf);
   pol = check_polrel(nf, pol, &lim);
+  pol = nfX_to_monic(nf, pol);
+
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   pol = lift_shallow(pol);
   fa = idealfactor_limit(nf, disc, lim);

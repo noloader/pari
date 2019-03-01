@@ -819,6 +819,9 @@ error("inconsistent dimensions in idealtwoelt.")
 0
 0
 1
+[[7361, 3786, 318, 5823; 0, 1, 0, 0; 0, 0, 1, 0; 0, 0, 0, 1], [-19, 0, -8, -
+16]~]
+[2, -1]
   ***   at top-level: rnfdedekind(nf,P,pr2,1)
   ***                 ^-----------------------
   *** rnfdedekind: sorry, Dedekind in the difficult case is not yet implemented.
@@ -840,4 +843,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: ...=bnfcompress(bnfinit(x));rnfeltup(k,x,0)
   ***                                             ^---------------
   *** rnfeltup: incorrect type in checkrnf (t_VEC).
-Total time spent: 500
+Total time spent: 809
