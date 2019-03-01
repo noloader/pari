@@ -9111,24 +9111,24 @@ coefficients.
 \fun{GEN}{ZX_to_monic}{GEN q GEN *L} given $q$ a non-zero \kbd{ZX},
 returns a monic integral polynomial $Q$ such that $Q(x) = C q(x/L)$, for some
 rational $C$ and positive integer $L > 0$. If $\kbd{L}$ is not \kbd{NULL},
-set \kbd{*L} to $L$; if $L = 1$, \kbd{*L} is set to \kbd{gen\_1}. Not
-suitable for gerepileupto.
+set \kbd{*L} to $L$; if $L = 1$, \kbd{*L} is set to \kbd{gen\_1}. Shallow
+function.
 
 \fun{GEN}{ZX_primitive_to_monic}{GEN q, GEN *L} as \tet{ZX_to_monic} except
 $q$ is assumed to have trivial content, which avoids recomputing it.
 The result is suboptimal if $q$ is not primitive ($L$ larger than
-necessary), but remains correct.
+necessary), but remains correct. Shallow function.
 
 \fun{GEN}{ZX_Z_normalize}{GEN q, GEN *L} a restricted version of
 \kbd{ZX\_primitive\_to\_monic}, where $q$ is a \emph{monic} \kbd{ZX}
 of degree $> 0$. Finds the largest integer $L > 0$ such that
 $Q(X) := L^{-\deg q} q(Lx)$ is integral and return $Q$; this is not
 well-defined if $q$ is a monomial, in that case, set $L=1$ and $Q = q$. If
-\kbd{L} is not \kbd{NULL}, set \kbd{*L} to $L$.
+\kbd{L} is not \kbd{NULL}, set \kbd{*L} to $L$. Shallow function.
 
 \fun{GEN}{ZX_Q_normalize}{GEN q, GEN *L} a variant of \tet{ZX_Z_normalize}
 where $L > 0$ is allowed to be rational, the monic $Q\in \Z[X]$ has possibly
-smaller coefficients.
+smaller coefficients. Shallow function.
 
 \fun{GEN}{ZX_Q_mul}{GEN x, GEN y} returns $x*y$, where $y$ is a rational number
 and the resulting \typ{POL} has rational entries.
