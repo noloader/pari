@@ -833,6 +833,12 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: rnfdedekind(nf,P,[pr2,pr3])
   ***                 ^---------------------------
   *** rnfdedekind: sorry, Dedekind in the difficult case is not yet implemented.
+  ***   at top-level: rnfpseudobasis(nf,x^2/2+1)
+  ***                 ^--------------------------
+  *** rnfpseudobasis: sorry, non-monic relative polynomials in rnfallbase is not yet implemented.
+  ***   at top-level: rnfpseudobasis(nf,x^2+1/2)
+  ***                 ^--------------------------
+  *** rnfpseudobasis: impossible inverse in Fl_inv: Mod(0, 2).
   ***   at top-level: rnfislocalcyclo(rnfinit(K,x^6-y+1))
   ***                 ^-----------------------------------
   *** rnfislocalcyclo: sorry, rnfislocalcyclo for non-l-extensions is not yet implemented.
@@ -845,4 +851,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: ...=bnfcompress(bnfinit(x));rnfeltup(k,x,0)
   ***                                             ^---------------
   *** rnfeltup: incorrect type in checkrnf (t_VEC).
-Total time spent: 806
+Total time spent: 881

@@ -260,19 +260,22 @@ nf_nfzk(GEN nf, GEN rnfeq)
 GEN
 check_polrel(GEN nf, GEN P, ulong *lim)
 {
-  if (typ(P) != t_VEC || lg(P) != 3) *lim = 0;
-  else { *lim = gtou(gel(P,2)); P = gel(P,1); }
+  *lim = 0;
+  if (typ(P) == t_VEC && lg(P) == 3) { *lim = gtou(gel(P,2)); P = gel(P,1); }
   if (typ(P) != t_POL) pari_err_TYPE("rnfinit",P);
   return RgX_nffix("rnfinit", nf_get_pol(nf), P, 0);
 }
-/* true nf */
+
 GEN
-check_polrel_monic(GEN nf, GEN P, ulong *lim)
+rnfpseudobasis(GEN nf, GEN pol)
 {
-  P = check_polrel(nf, P, lim);
-  if (!gequal1(leading_coeff(P)))
-    pari_err_IMPL("non-monic relative polynomials");
-  return P;
+  pari_sp av = avma;
+  GEN D, z;
+  ulong lim;
+  nf = checknf(nf);
+  pol = check_polrel(nf, pol, &lim);
+  z = rnfallbase(nf, pol, lim, NULL, &D, NULL);
+  return gerepilecopy(av, shallowconcat(z,D));
 }
 
 GEN
@@ -282,7 +285,7 @@ rnfinit0(GEN nf, GEN T, long flag)
   GEN bas, D, f, B, T0, rnfeq, rnf = obj_init(11, 2);
   ulong lim;
   nf = checknf(nf);
-  T0 = check_polrel_monic(nf, T, &lim);
+  T0 = check_polrel(nf, T, &lim);
   T = lift_shallow(T0);
   gel(rnf,11) = rnfeq = nf_rnfeq(nf,T);
   gel(rnf,2) = nf_nfzk(nf, rnfeq);

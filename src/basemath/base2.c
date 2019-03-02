@@ -3326,6 +3326,8 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
   GEN fa, E, P, Ef, Pf, z, disc;
 
   nf = checknf(nf);
+  if (!gequal1(leading_coeff(pol)))
+    pari_err_IMPL("non-monic relative polynomials in rnfallbase");
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   if (lim)
   {
@@ -3461,18 +3463,6 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
   }
   *pD = mkvec2(pr_factorback_scal(nf,fa), get_d(nf, disc));
   return z? z: triv_order(degpol(pol));
-}
-
-GEN
-rnfpseudobasis(GEN nf, GEN pol)
-{
-  pari_sp av = avma;
-  GEN D, z;
-  ulong lim;
-  nf = checknf(nf);
-  pol = check_polrel_monic(nf, pol, &lim);
-  z = rnfallbase(nf, pol, lim, NULL, &D, NULL);
-  return gerepilecopy(av, shallowconcat(z,D));
 }
 
 static GEN
