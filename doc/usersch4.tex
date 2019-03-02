@@ -1938,6 +1938,13 @@ type, \tet{pari_timer}, together with the following methods:
 \fun{long}{timer_delay}{pari_timer *T} returns the number of milliseconds
 elapsed since the timer was last reset. Resets the timer as a side effect.
 
+\fun{void}{walltimer_start}{pari_timer *T} start a timer, as if it
+had been started at the Unix epoch (see \kbd{getwalltime}).
+
+\fun{long}{walltimer_delay}{pari_timer *T} returns the number of milliseconds
+elapsed since the timer was last checked. Assume $T$ was started by
+\kbd{walltimer\_start}.
+
 \fun{long}{timer_get}{pari_timer *T} returns the number of milliseconds
 elapsed since the timer was last reset. Does \emph{not} reset the timer.
 

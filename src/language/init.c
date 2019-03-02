@@ -2601,18 +2601,22 @@ timer_start(pari_timer *T)
 # endif
 #endif
 
+/* round microseconds to milliseconds */
 static long
-timer_aux(pari_timer *T, pari_timer *U)
+rndus(ulong x) { return (x + 500) / 1000; }
+static long
+timer_aux(pari_timer *T, pari_timer *U, void (*settime)(pari_timer *))
 {
-  long s = T->s, us = T->us; timer_start(U);
-  return 1000 * (U->s - s) + (U->us - us + 500) / 1000;
+  long s = T->s, us = T->us;
+  settime(U); return 1000 * (U->s - s) + rndus(U->us - us);
 }
-/* return delay, reset timer */
+
+/* return delay, set timer checkpoint */
 long
-timer_delay(pari_timer *T) { return timer_aux(T, T); }
-/* return delay, don't reset timer */
+timer_delay(pari_timer *T) { return timer_aux(T, T, &timer_start); }
+/* return delay, don't set checkpoint */
 long
-timer_get(pari_timer *T) { pari_timer t; return timer_aux(T, &t); }
+timer_get(pari_timer *T) {pari_timer t; return timer_aux(T, &t, &timer_start);}
 
 static void
 timer_vprintf(pari_timer *T, const char *format, va_list args)
@@ -2654,45 +2658,34 @@ walltimer_start(pari_timer *ti)
 #if defined(USE_CLOCK_GETTIME)
   struct timespec t;
   if (!clock_gettime(CLOCK_REALTIME,&t))
-  { ti->s = t.tv_sec; ti->us = (t.tv_nsec + 500)/1000;
+  { ti->s = t.tv_sec; ti->us = rndus(t.tv_nsec); return; }
 #elif defined(USE_GETTIMEOFDAY)
   struct timeval tv;
   if (!gettimeofday(&tv, NULL))
-  {  ti->s = tv.tv_sec; ti->us = tv.tv_usec;
+  {  ti->s = tv.tv_sec; ti->us = tv.tv_usec; return; }
 #elif defined(USE_FTIMEFORWALLTIME)
   struct timeb tp;
   if (!ftime(&tp))
-  { ti->s = tp.time; ti->us = tp.millitm*1000;
-#else
-  if (0) {
+  { ti->s = tp.time; ti->us = tp.millitm*1000; return; }
 #endif
-  } else
-    timer_start(ti);
+  timer_start(ti);
 }
-
-static long
-walltimer_aux(pari_timer *T, pari_timer *U)
-{
-  long s = T->s, us = T->us; walltimer_start(U);
-  return 1000 * (U->s - s) + (U->us - us + 500) / 1000;
-}
-/* return delay, reset timer */
+/* return delay, set timer checkpoint */
 long
-walltimer_delay(pari_timer *T) { return walltimer_aux(T, T); }
+walltimer_delay(pari_timer *T) { return timer_aux(T, T, &walltimer_start); }
 
 static GEN
 timetoi(ulong s, ulong m)
 {
   pari_sp av = avma;
-  GEN r = addiu(muliu(utoi(s), 1000), m);
-  return gerepileuptoint(av, r);
+  return gerepileuptoint(av, addiu(muluu(s, 1000), m));
 }
 GEN
 getwalltime(void)
 {
   pari_timer ti;
   walltimer_start(&ti);
-  return timetoi(ti.s, (ti.us+500)/1000);
+  return timetoi(ti.s, rndus(ti.us));
 }
 
 /*******************************************************************/
