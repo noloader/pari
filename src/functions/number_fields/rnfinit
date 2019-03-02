@@ -7,7 +7,7 @@ Help: rnfinit(nf,T,{flag=0}): T being an irreducible polynomial
  working in relative number fields (rnf functions). See manual for technical
  details.
 Doc: given an \var{nf} structure attached to a number field $K$, as output by
- \kbd{nfinit}, and a monic irreducible polynomial $T$ in $K[x]$ defining a
+ \kbd{nfinit}, and a monic irreducible polynomial $T$ in $\Z_K[x]$ defining a
  relative extension $L = K[x]/(T)$, this computes data to work in $L/K$
  The main variable of $T$ must be of higher priority
  (see \secref{se:priority}) than that of $\var{nf}$, and the coefficients of

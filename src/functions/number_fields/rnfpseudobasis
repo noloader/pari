@@ -7,7 +7,7 @@ Help: rnfpseudobasis(nf,T): given an irreducible polynomial T with
  maximal order of the extension, D is the relative ideal discriminant, and d
  is the relative discriminant in nf^*/nf*^2.
 Doc: given an \var{nf} structure attached to a number field $K$, as output by
- \kbd{nfinit}, and a monic irreducible polynomial $T$ in $K[x]$ defining a
+ \kbd{nfinit}, and a monic irreducible polynomial $T$ in $\Z_K[x]$ defining a
  relative extension $L = K[x]/(T)$, computes the relative discriminant of $L$
  and a pseudo-basis $(A,J)$ for the maximal order $\Z_L$ viewed as a
  $\Z_K$-module. This is output as a vector $[A,J,D,d]$, where $D$ is the
