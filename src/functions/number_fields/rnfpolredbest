@@ -8,7 +8,7 @@ Help: rnfpolredbest(nf,pol,{flag=0}): given a pol with coefficients in nf,
  can be 0: default, 1: return [P,a], where a is a root of pol
  2: return an absolute polynomial Pabs, 3:
  return [Pabs, a,b], where a is a root of nf.pol and b is a root of pol.
-Doc: relative version of \kbd{polredbest}. Given a monic polynomial \var{pol}
+Doc: relative version of \kbd{polredbest}. Given a polynomial \var{pol}
  with coefficients in $\var{nf}$, finds a simpler relative polynomial $P$
  defining the same field. As opposed to \tet{rnfpolredabs} this function does
  not return a \emph{smallest} (canonical) polynomial with respect to some

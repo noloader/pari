@@ -8,7 +8,8 @@ Help: rnfpolredabs(nf,pol,{flag=0}): given an irreducible pol with coefficients
  polynomial is the given polynomial, 2: return an absolute polynomial,
  16: partial reduction.
 Doc: Relative version of \kbd{polredabs}. Given an irreducible monic polynomial
- \var{pol} with coefficients in $\var{nf}$, finds a canonical relative
+ \var{pol} with coefficients in the maximal order of $\var{nf}$, finds a
+ canonical relative
  polynomial defining the same field, hopefully with small coefficients.
  Note that the equation is only canonical for a fixed \var{nf}, using a
  different defining polynomial in the \var{nf} structure will produce a
@@ -41,4 +42,5 @@ Doc: Relative version of \kbd{polredabs}. Given an irreducible monic polynomial
  \misctitle{Warning} The complexity of \kbd{rnfpolredabs}
  is exponential in the absolute degree. The function \tet{rnfpolredbest} runs
  in polynomial time, and  tends  to return polynomials with smaller
- discriminants.
+ discriminants. It also supports polynomials with arbitrary coefficients in
+ \var{nf}, neither integral nor necessarily monic.
