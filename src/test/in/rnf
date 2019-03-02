@@ -168,6 +168,8 @@ K=nfinit(y); L=rnfinit(K,x^3-2); rnfeltdown(L,Mod(Mod(1,K.pol),L.polabs))
 k1=bnfinit(y^3+y^2-2*y-1);
 u=x^3+y*x^2+(y-2)*x+(y^2-y-1);
 rnfconductor(k1,u)
+rnfconductor(k1,u / Mod(y,k1.pol))
+rnfconductor(k1, y*x^2+(y-2)*x+(y^2-y-1))[^2]
 
 K = nfinit(y^2+y+1);
 rnfislocalcyclo(rnfinit(K, x^3-2))

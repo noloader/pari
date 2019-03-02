@@ -620,6 +620,13 @@ coefficient and return the resulting new matrix. Shallow function.
 are number field elements; apply \kbd{nf\_to\_scalar\_or\_basis} to each
 coefficient and return the resulting new \typ{COL}. Shallow function.
 
+\fun{GEN}{nfX_to_monic}{GEN nf, GEN T, GEN *pL} given a non-zero \typ{POL} $T$
+with coefficients in \var{nf}, return a monic polynomial $f$ with integral
+coefficients such that $f(x) = C T(x/L)$ for some integral $L$ and some $C$
+in \var{nf}. The function allows coefficients in basis form; if $L \neq 1$,
+it will return them in algebraic form. If \kbd{pL} is not \kbd{NULL},
+\kbd{*pL} is set to $L$. Shallow function.
+
 \misctitle{Unsafe routines} The following routines assume that their \kbd{nf}
 argument is a true \var{nf} (e.g.~a \var{bnf} is not allowed) and their
 argument are restricted in various ways, see the precise description below.

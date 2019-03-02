@@ -160,6 +160,7 @@ BA  43- GP: arguments of the parser code W can start with ~ for clarity, e.g.
 BA  44- GP: the argument of a user member function is now a reference
     45- make ellheight(E, torsion point) return an exact 0 [#2109]
     46- allow rnfdisc(k, polynomial with non-integral coeffs)
+    47- allow rnfconductor(k, non-monic polynomial)
 
   Added
      1- [libpari] nonsquare_Fl
@@ -212,6 +213,7 @@ BA  44- [libpari] Flxn_exp, Flx_Newton, Flx_fromNewton, Flx_Laplace,
         Flx_invLaplace
 BA  45- Support call by reference in GP function: f(~L,x)=listput(~L,x+1)
 BA  46- Generic fast linear algebra using CUP decomposition
+    47- [libpari] nfX_to_monic
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

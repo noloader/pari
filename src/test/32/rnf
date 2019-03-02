@@ -808,6 +808,8 @@ error("inconsistent dimensions in idealtwoelt.")
 1
 0
 0
+[[[1163, 141, 1055; 0, 1, 0; 0, 0, 1], [1, 0, 0]], Mat(2)]
+0
 1
 1
 1
@@ -843,4 +845,4 @@ error("inconsistent dimensions in idealtwoelt.")
   ***   at top-level: ...=bnfcompress(bnfinit(x));rnfeltup(k,x,0)
   ***                                             ^---------------
   *** rnfeltup: incorrect type in checkrnf (t_VEC).
-Total time spent: 809
+Total time spent: 806

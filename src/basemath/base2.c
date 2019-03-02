@@ -3484,15 +3484,17 @@ RgX_to_algX(GEN nf, GEN x)
   return y;
 }
 
-static GEN
-nfX_to_monic(GEN nf, GEN T)
+GEN
+nfX_to_monic(GEN nf, GEN T, GEN *pL)
 {
   GEN lT, g, a;
   long i, l = lg(T);
   if (l == 2) return pol_0(varn(T));
   if (l == 3) return pol_1(varn(T));
+  nf = checknf(nf);
   T = Q_primpart(RgX_to_nfX(nf, T));
-  lT = leading_coeff(T); if (isint1(T)) return T;
+  lT = leading_coeff(T); if (pL) *pL = lT;
+  if (isint1(T)) return T;
   g = cgetg_copy(T, &l); g[1] = T[1]; a = lT;
   gel(g, l-1) = gen_1;
   gel(g, l-2) = gel(T,l-2);
@@ -3523,7 +3525,7 @@ rnfdisc_factored(GEN nf, GEN pol, GEN *pd)
 
   nf = checknf(nf);
   pol = check_polrel(nf, pol, &lim);
-  pol = nfX_to_monic(nf, pol);
+  pol = nfX_to_monic(nf, pol, NULL);
 
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   pol = lift_shallow(pol);
