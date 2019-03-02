@@ -1829,7 +1829,7 @@ derivnser(GEN x, long n)
     y = cgetg(lx,t_SER);
     y[1] = evalsigne(1)|_evalvalp(0) | evalvarn(vx);
     for (i=0; i<lx-2; i++)
-      gel(y,i+2) = gmul(muls_interval(i+1,i+n),gel(x,i+2+n-e));
+      gel(y,i+2) = gmul(mulu_interval(i+1,i+n),gel(x,i+2+n-e));
   }
   return normalize(y);
 }
@@ -1845,7 +1845,7 @@ RgX_derivn(GEN x, long n)
   y = cgetg(lx,t_POL);
   y[1] = evalsigne(1)| evalvarn(vx);
   for (i=0; i<lx-2; i++)
-    gel(y,i+2) = gmul(muls_interval(i+1,i+n),gel(x,i+2+n));
+    gel(y,i+2) = gmul(mulu_interval(i+1,i+n),gel(x,i+2+n));
   return normalizepol_lg(y, lx);
 }
 
