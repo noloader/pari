@@ -25,9 +25,13 @@
 3.5962749997291581980860017516463603814
 0
 Mod(x, x^2 + 1)
+0
 Mod(x, x^2 + 1)
+Mod(0, x^2 + 1)
 error("incorrect priority in intformal: variable x = x")
 Mod(1/2*y^2*x + y, x^2 + 1)
+Mod(0, 3)
+Mod(0, 3)
 Mod(0, 3)
 Mod(0, 3)
 Mod(0, 3)
@@ -36,31 +40,43 @@ Mod(1, 3)*y
 0
 0
 0
+0
+0
 t*x
 t*y
 y + O(x^2)
 y + O(x^2)
+O(x)
 x + O(x^3)
+O(x^3)
 x + 1/2*y*x^2 + O(x^4)
 y + 1/2*y^2*x + O(x^3)
 y/(x^2 + 2*y*x + y^2)
 y/(x^2 + 2*y*x + y^2)
+-2*y/(x^3 + 3*y*x^2 + 3*y^2*x + y^3)
 -x/(x^2 + 2*y*x + y^2)
+2*x/(x^3 + 3*y*x^2 + 3*y^2*x + y^3)
 error("domain error in intformal: residue(series, pole) != 0")
 error("domain error in intformal: residue(series, pole) != 0")
 (-x^4 - 6*x^2 - 12*x + 3)/(3*x^6 + 9*x^4 + 9*x^2 + 3)
 (-x^4 - 6*x^2 - 12*x + 3)/(3*x^6 + 9*x^4 + 9*x^2 + 3)
+(2*x^5 + 20*x^3 + 60*x^2 - 30*x - 12)/(3*x^8 + 12*x^6 + 18*x^4 + 12*x^2 + 3)
+0
 0
 error("domain error in intformal: residue(series, pole) != 0")
 (y*x^3 + 3*y*x + 3*y)/(3*x^4 + 6*x^2 + 3)
 [y]
 [y]
+[0]
 [x]
+[0]
 [1/2*y*x^2]
 [1/2*y^2*x]
 Mat(y)
 Mat(y)
+Mat(0)
 Mat(x)
+Mat(0)
 Mat(1/2*y*x^2)
 Mat(1/2*y^2*x)
 -Y*A + Y
@@ -91,4 +107,10 @@ x
   ***   at top-level: derivnum(z=0,0,[1,-1])
   ***                              ^---------
   ***   domain error in derivnumk: derivation order < 0
-Total time spent: 4
+  ***   at top-level: derivn(cos,-1)
+  ***                 ^--------------
+  *** derivn: domain error in derivn: n < 0
+  ***   at top-level: derivn(cos,1,'x)
+  ***                 ^----------------
+  *** derivn: incorrect type in derivn (t_CLOSURE).
+Total time spent: 5

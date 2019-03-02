@@ -14,7 +14,9 @@ for (i=1,#v,
   my(u=v[i]);
   print(deriv(u,'x));
   print(u');
+  print(derivn(u,2,'x));
   print(deriv(u,'y));
+  print(derivn(u,2,'y));
   iferr(print(intformal(u,'x)),E,print(E));
   iferr(print(intformal(u,'y)),E,print(E));
 )
@@ -39,5 +41,9 @@ round( derivnum(x=0,exp(sin(x)),[0..13]) )
 derivnum(t=x^2,exp(t),4)
 derivnum(t=x^2+O(x^20),exp(t),4)
 derivnum(z=0,0,0)
+
+\\ ERORS
 derivnum(z=0,0,[0,-1])
 derivnum(z=0,0,[1,-1])
+derivn(cos,-1)
+derivn(cos,1,'x)
