@@ -2383,37 +2383,6 @@ msissymbol(GEN W, GEN s)
   }
   return checksymbol(W,s)? gen_1: gen_0;
 }
-#if DEBUG
-/* phi is a sparse symbol from msk_get_basis, return phi(G_j) */
-static GEN
-phi_Gj(GEN W, GEN phi, long j)
-{
-  GEN ind = gel(phi,2), pols = gel(phi,3);
-  long i = vecsmall_isin(ind,j);
-  return i? gel(pols,i): NULL;
-}
-/* check that \sum d_i phi_i(G_j)  = T_j for all j */
-static void
-checkdec(GEN W, GEN D, GEN T)
-{
-  GEN B = msk_get_basis(W);
-  long i, j;
-  if (!checksymbol(W,T)) pari_err_BUG("checkdec");
-  for (j = 1; j < lg(T); j++)
-  {
-    GEN S = gen_0;
-    for (i = 1; i < lg(D); i++)
-    {
-      GEN d = gel(D,i), v = phi_Gj(W, gel(B,i), j);
-      if (!v || gequal0(d)) continue;
-      S = gadd(S, gmul(d, v));
-    }
-    /* S = \sum_i d_i phi_i(G_j) */
-    if (!gequal(S, gel(T,j)))
-      pari_warn(warner, "checkdec j = %ld\n\tS = %Ps\n\tT = %Ps", j,S,gel(T,j));
-  }
-}
-#endif
 
 /* map op: W1 = Hom(Delta_0(N1),V) -> W2 = Hom(Delta_0(N2),V), given by
  * \sum v[i], v[i] in Gl2(Q) */
@@ -2435,9 +2404,6 @@ getMorphism(GEN W1, GEN W2, GEN v)
     pari_sp av = avma;
     GEN phi = dual_act(S.dim, act, gel(B1,a));
     GEN D = getMorphism_basis(W2, phi);
-#if DEBUG
-    checkdec(W2,D,T);
-#endif
     gel(M,a) = gerepilecopy(av, D);
   }
   return M;
