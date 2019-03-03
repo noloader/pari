@@ -190,7 +190,6 @@ nfmaxord_check_args(nfmaxord_t *S, GEN T, long flag)
       case t_INT:
         fa = absZ_factor_limit(dT, (signe(fa) <= 0)? 1: maxuu(itou(fa), MIN));
         break;
-        /*fall through*/
       default:
         pari_err_TYPE("nfmaxord",fa);
     }
