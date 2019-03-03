@@ -12,9 +12,9 @@ Check the License for details. You should have received a copy of it, along
 with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#define YYSIZE_T size_t
-#define YYSTYPE union token_value
-#define YYLTYPE struct node_loc
+#define PARI_SIZE_T size_t
+#define PARI_STYPE union token_value
+#define PARI_LTYPE struct node_loc
 #define YYLLOC_DEFAULT(Current, Rhs, N)     \
         ((Current).start  = ((N)?(Rhs)[1].start:(Rhs)[0].end),  \
          (Current).end    = (Rhs)[N].end)
@@ -22,8 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define NOARG(x) newnode(Fnoarg,-1,-1,&(x))
 #define NORANGE(x) newnode(Fnorange,-1,-1,&(x))
 %}
-%error-verbose
-%name-prefix "pari_"
+%define parse.error verbose
+%define api.prefix {pari_}
 %pure-parser
 %parse-param {char **lex}
 %lex-param {char **lex}
