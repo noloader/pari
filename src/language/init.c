@@ -2603,7 +2603,7 @@ timer_start(pari_timer *T)
 
 /* round microseconds to milliseconds */
 static long
-rndus(ulong x) { return (x + 500) / 1000; }
+rndus(long x) { return (x + 500) / 1000; }
 static long
 timer_aux(pari_timer *T, pari_timer *U, void (*settime)(pari_timer *))
 {
