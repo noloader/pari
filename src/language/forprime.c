@@ -979,9 +979,15 @@ int
 forcomposite_init(forcomposite_t *C, GEN a, GEN b)
 {
   pari_sp av = avma;
-  a = gceil(a); if (typ(a)!=t_INT) pari_err_TYPE("forcomposite",a);
+  a = gceil(a);
+  if (typ(a)!=t_INT) pari_err_TYPE("forcomposite",a);
   if (b) {
-    b = gfloor(b);if (typ(b)!=t_INT) pari_err_TYPE("forcomposite",b);
+    if (typ(b) == t_INFINITY) b = NULL;
+    else
+    {
+      b = gfloor(b);
+      if (typ(b)!=t_INT) pari_err_TYPE("forcomposite",b);
+    }
   }
   if (signe(a) < 0) pari_err_DOMAIN("forcomposite", "a", "<", gen_0, a);
   if (abscmpiu(a, 4) < 0) a = utoipos(4);
