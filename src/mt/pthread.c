@@ -310,6 +310,20 @@ mt_queue_reset(void)
   pari_free(mt);
 }
 
+static long
+closure_has_clone(GEN fun)
+{
+  if (isclone(fun)) return 1;
+  if (lg(fun) >= 8)
+  {
+    GEN f = closure_get_frame(fun);
+    long i, l = lg(f);
+    for (i = 1; i < l; i++)
+      if (isclone(gel(f,i))) return 1;
+  }
+  return 0;
+}
+
 void
 mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
 {
@@ -324,7 +338,7 @@ mt_queue_start_lim(struct pari_mt *pt, GEN worker, long lim)
     long mtparisize = GP_DATA->threadsize? GP_DATA->threadsize: pari_mainstack->rsize;
     long mtparisizemax = GP_DATA->threadsizemax;
     long i;
-    if (isclone(worker))
+    if (closure_has_clone(worker))
       worker = gcopy(worker); /* to avoid clone_lock race */
     mt->mq  = (struct mt_queue *) pari_malloc(sizeof(*mt->mq)*lim);
     mt->th  = (pthread_t *) pari_malloc(sizeof(*mt->th)*lim);
