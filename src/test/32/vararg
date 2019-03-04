@@ -2,6 +2,7 @@
 myprintsep =
   (s,v[..])->if(#v>0,print1(v[1]);for(i=2,#v,print1(s,v[i])));print()
 
+2
 :
 :
 a, b, c, d
@@ -10,6 +11,9 @@ a0b0c0d
 x=5
 x=5 y=7
 x=5 y=7 z=9
+2
+0
+2
 :
   ***   at top-level: print1(":");myprintsep()
   ***                             ^------------

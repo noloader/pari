@@ -1713,6 +1713,7 @@ GEN     zv_diagonal(GEN x);
 /* anal.c */
 
 void    addhelp(const char *e, char *s);
+GEN     arity0(GEN C);
 void    alias0(const char *s, const char *old);
 GEN     compile_str(const char *s);
 long    delete_var(void);

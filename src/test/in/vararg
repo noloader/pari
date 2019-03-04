@@ -1,6 +1,7 @@
 myprintsep(s,v[..])=if(#v>0,print1(v[1]);for(i=2,#v,print1(s,v[i])));print();
 print(myprintsep)
 ?myprintsep
+arity(myprintsep)
 print1(":");myprintsep()
 print1(":");myprintsep(", ")
 myprintsep(", ",a,b,c,d)
@@ -12,8 +13,13 @@ myprintf("x=%d\n",5)
 myprintf("x=%d y=%d\n",5,7)
 myprintf("x=%d y=%d z=%d\n",5,7,9)
 
+f1(x,y=0)=x+y;
+arity(f1)
+arity(()->1)
+
 default(strictargs,1)
 myprintsep(s,v[..])=if(#v>0,print1(v[1]);for(i=2,#v,print1(s,v[i])));print();
+arity(myprintsep)
 print1(":");myprintsep()
 print1(":");myprintsep(", ")
 myprintsep(", ",a,b,c,d)
