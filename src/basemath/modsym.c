@@ -4604,47 +4604,53 @@ static GEN
 M2Q(GEN p) { GEN c = gel(p,1); return gdiv(gel(c,1), gel(c,2)); }
 
 static void
-maybe_decorate(pari_str *s, GEN Ast, GEN G, long k, double c)
+decorate(pari_str *s, GEN g, GEN T1, GEN T2)
 {
-  GEN g;
-  if (Ast[k] != k) return;
-  g = ZM_sqr(gel(G,k));
-  if (gequal1(g) || gequalm1(g)) /* \pm Id */
-    str_printf(s, " node [midway] {$\\circ$}\n");
+  double a = gtodouble(gcoeff(g,1,1)), t1 = gtodouble(T1), t2 = gtodouble(T2);
+  double c = gtodouble(gcoeff(g,2,1)), d = gtodouble(gcoeff(g,2,2));
+  if (a + d)
+  {
+    double x, y, u1, u2, C = 360 / (2*M_PI);
+    x = (a - d) / (2 * c);
+    y = 0.8660254 / fabs(c); /* sqrt(3)/ (2 |c|) > 0 */
+    u1 = (x*x + y*y - t1*t1)/(x-t1)/2;
+    u2 = (x*x + y*y - t2*t2)/(x-t2)/2;
+    str_printf(s, ";\n \\draw (start) arc (180:%.4f:%.4f) node {$\\bullet$} arc (%.4f:0:%.4f)", C*atan2(y,x-u1), fabs(t1-u1), C*atan2(y,x-u2), fabs(t2-u2));
+  }
   else
-    str_printf(s, ";\n \\draw (start) arc (180:60:%.4f) node {$\\bullet$} arc (120:0:%.4f)\n",2*c/3,2*c/3);
+    str_printf(s, " node (start) {} (%.4f,%.4f) node {$\\circ$};\n \\draw (start) node{}",a/c,fabs(1/c));
 }
+
 static GEN
 polygon2tex(GEN V, GEN Ast, GEN G)
 {
   pari_sp av = avma;
-  GEN v = Ast2v(Ast);
+  GEN v = Ast2v(Ast), a, b;
   pari_str s;
-  long j, l = lg(V), flag;
+  long j, k, l = lg(V), flag = (l <= 16);
   double c;
   str_init(&s, 1);
-  flag = (l <= 16);
   str_puts(&s, "\n\\begin{tikzpicture}[scale=10]\n");
   str_puts(&s, "\\draw (0,0.5)--(0,0) node [very near start, right] {$1^*$} node [below] {$0$}");
-  for (j=4; j < l; j++)
+  k = minss(3, l-1); a = M2Q(gel(V,k));
+  for (j = 4; j < l; k = j, a = b, j++)
   {
-    GEN a = M2Q(gel(V,j-1)), b = M2Q(gel(V,j));
+    b = M2Q(gel(V,j)); /* next vertex */
     c = gtodouble(gsub(b,a)) / 2;
 
     str_printf(&s, "node (start) {} arc (180:0:%.4f)\n", c);
     if (flag)
     {
-      long sb = itos(numer_i(b));
-      long sa = itos(denom_i(b));
+      long sb = itos(numer_i(b)), sa = itos(denom_i(b));
       str_printf(&s, "node [midway, above] {%s} node [below]{$\\frac{%ld}{%ld}$}\n",
-                 (char*)gel(v,j-1), sb, sa);
+                 (char*)gel(v,k), sb, sa);
     }
-    maybe_decorate(&s,Ast,G,j-1,c);
+    if (Ast[k] == k) decorate(&s, gel(G,k), a, b);
   }
-  c = (1- gtodouble(M2Q(gel(V,l-1)))) / 2;
+  c = (1 - gtodouble(a)) / 2;
   str_printf(&s, "node (start) {} arc (180:0:%.4f)\n", c);
   if (flag) str_printf(&s, "node [midway, above] {%s}", (char*)gel(v,l-1));
-  maybe_decorate(&s,Ast,G,l-1,c);
+  if (Ast[k] == k) decorate(&s, gel(G,k), a, gen_1);
   str_printf(&s,"node [below] {$1$} -- (1,0.5) node [very near end, left] {$1$};");
   str_printf(&s, "\n\\end{tikzpicture}");
   return gerepileuptoleaf(av, strtoGENstr(s.string));
