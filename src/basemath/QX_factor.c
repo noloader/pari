@@ -872,34 +872,34 @@ GEN
 ZX_squff(GEN f, GEN *ex)
 {
   GEN T, V, P, e;
-  long i, k, n, val;
+  long i, k, val = ZX_valrem(f, &f), n = 2 + degpol(f);
 
-  if (signe(leading_coeff(f)) < 0) f = gneg_i(f);
-  val = ZX_valrem(f, &f);
-  n = 1 + degpol(f); if (val) n++;
+  if (signe(leading_coeff(f)) < 0) f = ZX_neg(f);
   e = cgetg(n,t_VECSMALL);
   P = cgetg(n,t_COL);
-
   T = ZX_gcd_all(f, ZX_deriv(f), &V);
-  for (k=i=1;; k++)
+  for (k = i = 1;; k++)
   {
-    pari_sp av = avma;
-    GEN W = ZX_gcd_all(T,V, &T);
-    long dW = degpol(W);
-    /* W = prod P^e, e > k; V = prod P^e, e >= k */
-    if (dW == degpol(V)) /* V | T */
+    GEN W = ZX_gcd_all(T,V, &T); /* V and W are squarefree */
+    long dW = degpol(W), dV = degpol(V);
+    /* f = prod_i T_i^{e_i}
+     * W = prod_{i: e_i > k} T_i,
+     * V = prod_{i: e_i >= k} T_i,
+     * T = prod_{i: e_i > k} T_i^{e_i - k} */
+    if (!dW)
+    {
+      if (dV) { gel(P,i) = Q_primpart(V); e[i] = k; i++; }
+      break;
+    }
+    if (dW == dV)
     {
       GEN U;
-      if (!dW) { set_avma(av); break; }
       while ( (U = ZX_divides(T, V)) ) { k++; T = U; }
-      T = gerepilecopy(av, T);
     }
     else
     {
       gel(P,i) = Q_primpart(RgX_div(V,W));
-      e[i] = k; i++;
-      if (!dW) break;
-      V = W;
+      e[i] = k; i++; V = W;
     }
   }
   if (val) { gel(P,i) = pol_x(varn(f)); e[i] = val; i++;}
