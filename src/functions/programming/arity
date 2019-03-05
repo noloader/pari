@@ -3,7 +3,7 @@ Section: programming/specific
 C-Name: arity0
 Prototype: G
 Help: arity(C): return the arity of the closure C.
-Doc: return the arity of the closure $C$.
+Doc: return the arity of the closure $C$, i.e., the number of its arguments.
  \bprog
  ? f1(x,y=0)=x+y;
  ? arity(f1)
@@ -11,4 +11,5 @@ Doc: return the arity of the closure $C$.
  ? f2(t,s[..])=print(t,":",s);
  ? arity(f2)
  %2 = 2
- @eprog
+ @eprog\noindent Note that a variadic argument, such as $s$ in \kbd{f2} above,
+ is counted as a single argument.

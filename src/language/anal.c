@@ -1086,7 +1086,7 @@ GEN
 arity0(GEN C)
 {
   if (typ(C)!=t_CLOSURE) pari_err_TYPE("arity", C);
-  return stoi(closure_arity(C));
+  return utoi(closure_arity(C));
 }
 
 #define ALIAS(ep) (entree *) ((GEN)ep->value)[1]
