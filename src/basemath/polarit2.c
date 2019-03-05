@@ -3377,9 +3377,6 @@ poldisc0(GEN x, long v)
       return gerepileupto(av, D);
     }
 
-    case t_COMPLEX:
-      return utoineg(4);
-
     case t_QUAD:
       return quad_disc(x);
     case t_POLMOD:

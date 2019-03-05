@@ -164,6 +164,7 @@ BA  44- GP: the argument of a user member function is now a reference
     45- make ellheight(E, torsion point) return an exact 0 [#2109]
     46- allow rnfdisc(k, polynomial with non-integral coeffs)
     47- allow rnfconductor(k, non-monic polynomial)
+    48- poldisc(t_COMPLEX) now raises an exception (used to return -4)
 
   Added
      1- [libpari] nonsquare_Fl
