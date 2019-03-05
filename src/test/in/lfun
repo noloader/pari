@@ -345,6 +345,10 @@ L=lfunartin(N,G,[1,-y+1,y,-y+1,-1,y,-y,1,y-1,-y,y-1,-1]~,6);
 if(round(lfunan(L,100)-lfunan([znstar(28,1),[5,1]],100),&e),error("lfunartin"));
 e
 
+K=nfinit(polcyclo(4,a));G=galoisinit(K);[T,o]=galoischartable(G);
+L=lfunartin(K,G,T[,1]+T[,2],o);
+localbitprec(50);lfuncheckfeq(L)
+
 localbitprec(20); #lfunzeros('x^2-2,6)
 
 lfuncost(1, [100], 5)

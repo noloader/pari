@@ -2369,16 +2369,14 @@ lfunartin(GEN nf, GEN gal, GEN ch, long o, long bitprec)
   repr = gel(cc,3);
   mod = mkpolmod(gen_1, polcyclo(o, var));
   if (lg(ch)>1 && typ(gel(ch,1))==t_MAT)
-  {
     chx = artin_charfromgens(gal, gmul(ch,mod));
-    ch = shallowextract(chx, repr);
-  }
   else
   {
     if (lg(repr) != lg(ch)) pari_err_DIM("lfunartin");
     chx = char_expand(conj, gmul(ch,mod));
   }
   chx = handle_zeta(nf_get_degree(nf), chx, &tmult);
+  ch = shallowextract(chx, repr);
   if (!gequal0(chx))
   {
     GEN real = char_is_real(chx, gel(mod,1))? gen_0: gen_1;
