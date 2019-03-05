@@ -892,7 +892,7 @@ ZX_squff(GEN f, GEN *ex)
       GEN U;
       if (!dW) { set_avma(av); break; }
       while ( (U = ZX_divides(T, V)) ) { k++; T = U; }
-      T = gerepileupto(av, T);
+      T = gerepilecopy(av, T);
     }
     else
     {

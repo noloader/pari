@@ -32,6 +32,10 @@ factor((x+1)^2/(x^2-4))
 factor((x^2+1)/x)
 factor(x^2+a^3*x-Mod(6,a^2-2))
 
+p1 = (289*x^4 + 1)^8; p2 = (19*x^2 + 1)^16;
+factor(p1)
+factor(p2)
+
 factor(x^2-1/y^2)
 factor(y/x)
 factor((x^3+y^3)^2*(x^4+y^4))
