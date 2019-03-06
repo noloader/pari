@@ -702,6 +702,15 @@ Flm_mul_i(GEN x, GEN y, long l, long lx, long ly, ulong p, ulong pi)
 }
 
 GEN
+Flm_mul_pre(GEN x, GEN y, ulong p, ulong pi)
+{
+  long lx=lg(x), ly=lg(y);
+  if (ly==1) return cgetg(1,t_MAT);
+  if (lx==1) return zero_Flm(0, ly-1);
+  return Flm_mul_i(x, y, lgcols(x), lx, ly, p, pi);
+}
+
+GEN
 Flm_mul(GEN x, GEN y, ulong p)
 {
   long lx=lg(x), ly=lg(y);
