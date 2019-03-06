@@ -46,7 +46,6 @@ INLINE int
 Zp_nosquare_m1(GEN p) { return (mod4(p) & 2); /* 2 or 3 mod 4 */ }
 
 static GEN addsub_pp(GEN x, GEN y, GEN(*op)(GEN,GEN));
-static GEN addsub_frac(GEN x, GEN y, GEN (*op)(GEN,GEN));
 static GEN mulpp(GEN x, GEN y);
 static GEN divpp(GEN x, GEN y);
 /* Argument codes for inline routines
