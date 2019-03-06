@@ -258,24 +258,53 @@ Flm_Fl_mul_inplace(GEN y, ulong x, ulong p)
 }
 
 /* return x * y */
-GEN
-Flm_Fl_mul(GEN y, ulong x, ulong p)
+static GEN
+Flm_Fl_mul_pre_i(GEN y, ulong x, ulong p, ulong pi)
 {
   long i, j, m, l = lg(y);
   GEN z = cgetg(l, t_MAT);
   if (l == 1) return z;
   m = lgcols(y);
-  if (HIGHWORD(x | p))
-    for(j=1; j<l; j++) {
-      GEN c = cgetg(m, t_VECSMALL); gel(z,j) = c;
-      for(i=1; i<m; i++) c[i] = Fl_mul(ucoeff(y,i,j), x, p);
-    }
-  else
-    for(j=1; j<l; j++) {
-      GEN c = cgetg(m, t_VECSMALL); gel(z,j) = c;
-      for(i=1; i<m; i++) c[i] = (ucoeff(y,i,j) * x) % p;
-    }
+  for(j=1; j<l; j++) {
+    GEN c = cgetg(m, t_VECSMALL); gel(z,j) = c;
+    for(i=1; i<m; i++) uel(c,i) = Fl_mul_pre(ucoeff(y,i,j), x, p, pi);
+  }
   return z;
+}
+
+/* return x * y */
+static GEN
+Flm_Fl_mul_OK(GEN y, ulong x, ulong p)
+{
+  long i, j, m, l = lg(y);
+  GEN z = cgetg(l, t_MAT);
+  if (l == 1) return z;
+  m = lgcols(y);
+  for(j=1; j<l; j++) {
+    GEN c = cgetg(m, t_VECSMALL); gel(z,j) = c;
+    for(i=1; i<m; i++) uel(c,i) = (ucoeff(y,i,j) * x) % p;
+  }
+  return z;
+}
+
+/* return x * y */
+GEN
+Flm_Fl_mul_pre(GEN y, ulong x, ulong p, ulong pi)
+{
+  if (HIGHWORD(p))
+    return Flm_Fl_mul_pre_i(y, x, p, pi);
+  else
+    return Flm_Fl_mul_OK(y, x, p);
+}
+
+/* return x * y */
+GEN
+Flm_Fl_mul(GEN y, ulong x, ulong p)
+{
+  if (HIGHWORD(p))
+    return Flm_Fl_mul_pre_i(y, x, p, get_Fl_red(p));
+  else
+    return Flm_Fl_mul_OK(y, x, p);
 }
 
 GEN

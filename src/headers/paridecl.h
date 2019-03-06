@@ -874,6 +874,7 @@ GEN     Flc_to_mod(GEN z, ulong pp);
 GEN     Flm_Fl_add(GEN x, ulong y, ulong p);
 GEN     Flm_Fl_mul(GEN y, ulong x, ulong p);
 void    Flm_Fl_mul_inplace(GEN y, ulong x, ulong p);
+GEN     Flm_Fl_mul_pre(GEN y, ulong x, ulong p, ulong pi);
 GEN     Flm_Flc_mul(GEN x, GEN y, ulong p);
 GEN     Flm_Flc_mul_pre(GEN x, GEN y, ulong p, ulong pi);
 GEN     Flm_Flc_mul_pre_Flx(GEN x, GEN y, ulong p, ulong pi, long sv);
