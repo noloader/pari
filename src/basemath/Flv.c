@@ -234,9 +234,10 @@ Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p, ulong pi)
     {
       v = Fl_mul_pre(ucoeff(A, i, j), u, p, pi);
       ucoeff(A, i, j) = v;
+      v = Fl_neg(v, p);
       for (k = j + 1; k <= n; k++)
-        ucoeff(A, i, k) = Fl_sub(ucoeff(A, i, k),
-                                 Fl_mul_pre(ucoeff(A, pr, k), v, p, pi), p);
+        ucoeff(A, i, k) = Fl_addmul_pre(ucoeff(A, i, k),
+                                        ucoeff(A, pr, k), v, p, pi);
     }
   }
   setlg(*R, j);
