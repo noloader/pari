@@ -270,7 +270,7 @@ gen_det(GEN a, void *E, const struct bb_field *ff)
       if (ff->equal0(m)) continue;
       m = ff->neg(E, ff->red(E,ff->mul(E,m, q)));
       for (j=i+1; j<=nbco; j++)
-        gcoeff(a,j,k) = ff->add(E, gcoeff(a,j,k), ff->mul(E,m,gcoeff(a,j,i)));
+        gcoeff(a,j,k) = ff->add(E, gcoeff(a,j,k), ff->red(E,ff->mul(E,m,gcoeff(a,j,i))));
     }
     if (gc_needed(av,2))
     {
@@ -873,7 +873,7 @@ gen_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, void *E, const struct bb_fi
       v = ff->neg(E, v);
       for (k = j + 1; k <= n; k++)
         gcoeff(A, i, k) = ff->add(E, gcoeff(A, i, k),
-                                  ff->mul(E, gcoeff(A, pr, k), v));
+                                  ff->red(E, ff->mul(E, gcoeff(A, pr, k), v)));
     }
     if (gc_needed(av, 2)) A = gerepilecopy(av, A);
   }
