@@ -942,7 +942,7 @@ gen_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, void *E, const struct bb_field *f
 /* column echelon form */
 static long
 gen_echelon(GEN A, GEN *R, GEN *C, void *E, const struct bb_field *ff,
-                        GEN (*mul)(void *E, GEN a, GEN b))
+                        GEN (*mul)(void*, GEN, GEN))
 {
   long j, j1, j2, m = nbrows(A), n = lg(A) - 1, n1, r, r1, r2;
   GEN A1, A2, R1, R1c, C1, R2, C2;
@@ -993,7 +993,7 @@ gen_echelon(GEN A, GEN *R, GEN *C, void *E, const struct bb_field *ff,
 
 static GEN
 gen_pivots_CUP(GEN x, long *rr, void *E, const struct bb_field *ff,
-                        GEN (*mul)(void *E, GEN a, GEN b))
+                        GEN (*mul)(void*, GEN, GEN))
 {
   pari_sp av;
   long i, n = lg(x) - 1, r;
@@ -1009,7 +1009,7 @@ gen_pivots_CUP(GEN x, long *rr, void *E, const struct bb_field *ff,
 
 static GEN
 gen_det_CUP(GEN a, void *E, const struct bb_field *ff,
-                   GEN (*mul)(void *E, GEN a, GEN b))
+                   GEN (*mul)(void*, GEN, GEN))
 {
   pari_sp av = avma;
   GEN R, C, U, P, d;
@@ -1027,7 +1027,7 @@ gen_det_CUP(GEN a, void *E, const struct bb_field *ff,
 
 static long
 gen_matrank(GEN x, void *E, const struct bb_field *ff,
-                   GEN (*mul)(void *E, GEN a, GEN b))
+                   GEN (*mul)(void*, GEN, GEN))
 {
   pari_sp av = avma;
   long r;
@@ -1042,7 +1042,7 @@ gen_matrank(GEN x, void *E, const struct bb_field *ff,
 
 static GEN
 gen_invimage_CUP(GEN A, GEN B, void *E, const struct bb_field *ff,
-                        GEN (*mul)(void *E, GEN a, GEN b))
+                        GEN (*mul)(void*, GEN, GEN))
 {
   pari_sp av = avma;
   GEN R, Rc, C, U, P, B1, B2, C1, C2, X, Y, Z;
@@ -1063,7 +1063,7 @@ gen_invimage_CUP(GEN A, GEN B, void *E, const struct bb_field *ff,
 
 static GEN
 gen_ker_echelon(GEN x, void *E, const struct bb_field *ff,
-                GEN (*mul)(void *E, GEN a, GEN b))
+                GEN (*mul)(void*, GEN, GEN))
 {
   pari_sp av = avma;
   GEN R, Rc, C, C1, C2, S, K;
@@ -1081,7 +1081,7 @@ gen_ker_echelon(GEN x, void *E, const struct bb_field *ff,
 
 static GEN
 gen_deplin_echelon(GEN x, void *E, const struct bb_field *ff,
-                GEN (*mul)(void *E, GEN a, GEN b))
+                GEN (*mul)(void*, GEN, GEN))
 {
   pari_sp av = avma;
   GEN R, Rc, C, C1, C2, s, v;
@@ -1101,7 +1101,7 @@ gen_deplin_echelon(GEN x, void *E, const struct bb_field *ff,
 
 static GEN
 gen_gauss_CUP(GEN a, GEN b, void *E, const struct bb_field *ff,
-            GEN (*mul)(void *E, GEN a, GEN b))
+            GEN (*mul)(void*, GEN, GEN))
 {
   GEN R, C, U, P, Y;
   long n = lg(a) - 1, r;
@@ -1113,7 +1113,7 @@ gen_gauss_CUP(GEN a, GEN b, void *E, const struct bb_field *ff,
 
 static GEN
 gen_gauss(GEN a, GEN b, void *E, const struct bb_field *ff,
-            GEN (*mul)(void *E, GEN a, GEN b))
+            GEN (*mul)(void*, GEN, GEN))
 {
   if (lg(a) - 1 >= gen_CUP_LIMIT)
     return gen_gauss_CUP(a, b, E, ff, mul);
@@ -1122,7 +1122,7 @@ gen_gauss(GEN a, GEN b, void *E, const struct bb_field *ff,
 
 static GEN
 gen_ker_i(GEN x, long deplin, void *E, const struct bb_field *ff,
-            GEN (*mul)(void *E, GEN a, GEN b)) {
+            GEN (*mul)(void*, GEN, GEN)) {
   if (lg(x) - 1 >= gen_CUP_LIMIT && nbrows(x) >= gen_CUP_LIMIT)
     return deplin? gen_deplin_echelon(x, E, ff, mul): gen_ker_echelon(x, E, ff, mul);
   return gen_ker(x, deplin, E, ff);
@@ -1130,7 +1130,7 @@ gen_ker_i(GEN x, long deplin, void *E, const struct bb_field *ff,
 
 static GEN
 gen_invimage(GEN A, GEN B, void *E, const struct bb_field *ff,
-            GEN (*mul)(void *E, GEN a, GEN b))
+            GEN (*mul)(void*, GEN, GEN))
 {
   long nA = lg(A)-1, nB = lg(B)-1;
 
@@ -1143,7 +1143,7 @@ gen_invimage(GEN A, GEN B, void *E, const struct bb_field *ff,
 /* find z such that A z = y. Return NULL if no solution */
 static GEN
 gen_matcolinvimage_i(GEN A, GEN y, void *E, const struct bb_field *ff,
-   GEN (*mul)(void *E, GEN a, GEN b))
+   GEN (*mul)(void*, GEN, GEN))
 {
   pari_sp av = avma;
   long i, l = lg(A);
@@ -1166,7 +1166,7 @@ gen_matcolinvimage_i(GEN A, GEN y, void *E, const struct bb_field *ff,
 
 static GEN
 gen_det_i(GEN a, void *E, const struct bb_field *ff,
-            GEN (*mul)(void *E, GEN a, GEN b))
+            GEN (*mul)(void*, GEN, GEN))
 {
   if (lg(a) - 1 >= gen_CUP_LIMIT)
     return gen_det_CUP(a, E, ff, mul);
@@ -1176,7 +1176,7 @@ gen_det_i(GEN a, void *E, const struct bb_field *ff,
 
 static GEN
 gen_pivots(GEN x, long *rr, void *E, const struct bb_field *ff,
-            GEN (*mul)(void *E, GEN a, GEN b))
+            GEN (*mul)(void*, GEN, GEN))
 {
   if (lg(x) - 1 >= gen_CUP_LIMIT && nbrows(x) >= gen_CUP_LIMIT)
     return gen_pivots_CUP(x, rr, E, ff, mul);
@@ -1204,7 +1204,7 @@ gen_get_suppl(GEN x, GEN d, long n, long r, void *E, const struct bb_field *ff)
 
 static GEN
 gen_suppl(GEN x, void *E, const struct bb_field *ff,
-            GEN (*mul)(void *E, GEN a, GEN b))
+            GEN (*mul)(void*, GEN, GEN))
 {
   GEN d;
   long n = nbrows(x), r;
