@@ -165,7 +165,8 @@ gen_ker(GEN x, long deplin, void *E, const struct bb_field *ff)
 
         gcoeff(x,t,k) = ff->s(E,0);
         for (i=k+1; i<=n; i++)
-           gcoeff(x,t,i) = ff->add(E, gcoeff(x,t,i), ff->mul(E,piv,gcoeff(x,j,i)));
+           gcoeff(x,t,i) = ff->red(E, ff->add(E, gcoeff(x,t,i),
+                                      ff->mul(E,piv,gcoeff(x,j,i))));
         if (gc_needed(av,1))
           gen_gerepile_gauss_ker(x,k,t,av,E,ff->red);
       }
