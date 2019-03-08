@@ -5,12 +5,12 @@ Prototype: vDG
 Help: allocatemem({s=0}): allocates a new stack of s bytes. doubles the
  stack if s is omitted.
 Doc: this special operation changes the stack size \emph{after}
- initialization. $x$ must be a non-negative integer. If $x > 0$, a new stack
- of at least $x$ bytes is allocated. We may allocate more than $x$ bytes if
- $x$ is way too small, or for alignment reasons: the current formula is
- $\max(16*\ceil{x/16}, 500032)$ bytes.
+ initialization. The argument $s$ must be a non-negative integer.
+ If $s > 0$, a new stack of at least $s$ bytes is allocated. We may allocate
+ more than $s$ bytes if $s$ is way too small, or for alignment reasons: the
+ current formula is $\max(16*\ceil{s/16}, 500032)$ bytes.
 
- If $x=0$, the size of the new stack is twice the size of the old one.
+ If $s=0$, the size of the new stack is twice the size of the old one.
 
  This command is much more useful if \tet{parisizemax} is non-zero, and we
  describe this case first. With \kbd{parisizemax} enabled, there are three
