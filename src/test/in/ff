@@ -1,3 +1,4 @@
+default(parisize,"10M")
 jell(x)=if(#x,x.j,[]);
 {
 test(p,f) = setrand(1); a = ffgen([p,f], 'a); [
@@ -96,15 +97,21 @@ test(7^5)
 test((2^64+13)^5)
 
 default(echo,0);
-test(q)={
-  my(t = ffgen(q, 't), M = matrix(10, 10, i, j, random(t)));
-  subst(charpoly(M), 'x, M) == 0;
+test(q, n=10)={
+  my(t = ffgen(q, 't), M = matrix(n, n, i, j, random(t)));
+  if(subst(charpoly(M), 'x, M) != 0, error("test:",[q,n]));
 }
 default(echo,1);
 test(nextprime(2^7)^5)
 test(nextprime(2^15)^5)
 test(nextprime(2^31)^5)
 test(nextprime(2^63)^5)
+test(nextprime(2^80)^5)
+test(nextprime(2^7)^5, 27)
+test(nextprime(2^15)^5, 27)
+test(nextprime(2^31)^5, 27)
+test(nextprime(2^63)^5, 27)
+test(nextprime(2^80)^2, 27)
 
 my(a=ffgen([2,100]));(0*a*x)*x
 

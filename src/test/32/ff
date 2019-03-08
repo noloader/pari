@@ -1,3 +1,4 @@
+  ***   Warning: new stack size = 10000000 (9.537 Mbytes).
 ? test(2,20)
 [a, a^2 + a + 1, a^19 + a^18 + a^17 + a^15 + a^14 + a^13 + a^12 + a^8 + a^7 
 + a^6 + a^4 + a^2 + 1, 0, a + 1, 0, 0, 0, 0, a^19 + a^16 + a^15 + a^11 + a^8
@@ -243,13 +244,15 @@ t^4 + t^2
 [18446744073709551628, 1]~
 ? default(echo,0);
 ? test(nextprime(2^7)^5)
-1
 ? test(nextprime(2^15)^5)
-1
 ? test(nextprime(2^31)^5)
-1
 ? test(nextprime(2^63)^5)
-1
+? test(nextprime(2^80)^5)
+? test(nextprime(2^7)^5,27)
+? test(nextprime(2^15)^5,27)
+? test(nextprime(2^31)^5,27)
+? test(nextprime(2^63)^5,27)
+? test(nextprime(2^80)^2,27)
 ? my(a=ffgen([2,100]));(0*a*x)*x
 0
 ? default(echo,0);
@@ -363,4 +366,4 @@ error("incorrect type in ffextend (t_POL).")
   ***                                 ^-----------------------------
   *** ffinvmap: incorrect type in ffinvmap (t_VEC).
 ? print("Total time spent: ",gettime);
-Total time spent: 1040
+Total time spent: 1676
