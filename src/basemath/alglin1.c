@@ -837,7 +837,7 @@ gen_lsolve_lower_unit(GEN L, GEN A, void *E, const struct bb_field *ff,
 
 /* destroy A */
 static long
-gen_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, void *E, const struct bb_field *ff)
+gen_CUP_basecase(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, void *E, const struct bb_field *ff)
 {
   long i, j, k, m = nbrows(A), n = lg(A) - 1, pr, pc;
   pari_sp av;
@@ -896,7 +896,7 @@ gen_CUP(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, void *E, const struct bb_field *f
 
   if (m < gen_CUP_LIMIT || n < gen_CUP_LIMIT)
     /* destroy A; not called at the outermost recursion level */
-    return gen_CUP_gauss(A, R, C, U, P, E, ff);
+    return gen_CUP_basecase(A, R, C, U, P, E, ff);
   m1 = (minss(m, n) + 1)/2;
   A1 = rowslice(A, 1, m1);
   A2 = rowslice(A, m1 + 1, m);
@@ -950,7 +950,7 @@ gen_echelon(GEN A, GEN *R, GEN *C, void *E, const struct bb_field *ff,
   pari_sp av = avma;
 
   if (m < gen_CUP_LIMIT || n < gen_CUP_LIMIT)
-    return gen_CUP_gauss(shallowcopy(A), R, C, NULL, NULL, E, ff);
+    return gen_CUP_basecase(shallowcopy(A), R, C, NULL, NULL, E, ff);
 
   n1 = (n + 1)/2;
   A1 = vecslice(A, 1, n1);

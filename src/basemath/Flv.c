@@ -208,7 +208,7 @@ Flm_lsolve_lower_unit_pre(GEN L, GEN A, ulong p, ulong pi)
 
 /* destroy A */
 static long
-Flm_CUP_gauss(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p, ulong pi)
+Flm_CUP_basecase(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p, ulong pi)
 {
   long i, j, k, m = nbrows(A), n = lg(A) - 1, pr, pc;
   ulong u, v;
@@ -258,7 +258,7 @@ Flm_CUP_pre(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p, ulong pi)
 
   if (m < Flm_CUP_LIMIT || n < Flm_CUP_LIMIT)
     /* destroy A; not called at the outermost recursion level */
-    return Flm_CUP_gauss(A, R, C, U, P, p, pi);
+    return Flm_CUP_basecase(A, R, C, U, P, p, pi);
   m1 = (minss(m, n) + 1)/2;
   A1 = rowslice(A, 1, m1);
   A2 = rowslice(A, m1 + 1, m);
@@ -302,7 +302,7 @@ Flm_CUP_pre(GEN A, GEN *R, GEN *C, GEN *U, GEN *P, ulong p, ulong pi)
 
 static long
 Flm_echelon_gauss(GEN A, GEN *R, GEN *C, ulong p, ulong pi)
-{ return Flm_CUP_gauss(A, R, C, NULL, NULL, p, pi); }
+{ return Flm_CUP_basecase(A, R, C, NULL, NULL, p, pi); }
 
 /* complement of a strictly increasing subsequence of (1, 2, ..., n) */
 static GEN
