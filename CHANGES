@@ -95,6 +95,7 @@ BA  73- incorrect use of graphcolors -> SEGV
     74- forcomposite(..., oo, ) was not supported
 BA  75- lfunartin with poles: incorrect result
 JD  76- factor: significant pointers lost [#2125]
+BA  77- matdet/matrank over large fields was inefficient
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

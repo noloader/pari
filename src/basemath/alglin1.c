@@ -229,7 +229,7 @@ gen_Gauss_pivot(GEN x, long *rr, void *E, const struct bb_field *ff)
         if (ff->equal0(piv)) continue;
         gcoeff(x,t,k) = g0;
         for (i=k+1; i<=n; i++)
-          gcoeff(x,t,i) = ff->add(E,gcoeff(x,t,i), ff->mul(E,piv,gcoeff(x,j,i)));
+          gcoeff(x,t,i) = ff->red(E, ff->add(E,gcoeff(x,t,i), ff->mul(E,piv,gcoeff(x,j,i))));
         if (gc_needed(av,1))
           gerepile_gauss(x,k,t,av,j,c);
       }
