@@ -5496,16 +5496,23 @@ static long
 rootnovalp(GEN z, ulong p, long prec)
 { return mpodd(ground(gdiv(glog(z, prec), glog(utoi(p),prec)))); }
 
+static GEN
+ec_bmodel_var(GEN E, long v)
+{
+  GEN P = ec_bmodel(E);
+  setvarn(P,v); return P;
+}
+
 static long
 ellnf_rootno_global(GEN E)
 {
   pari_sp av = avma;
   GEN nf = ellnf_get_nf(E);
   long prec = nf_get_prec(nf);
-  long v;
+  long v, var = fetch_var_higher();
   GEN F;
   E = ellintegralmodel_i(E, NULL);
-  F = nfroots(nf, ec_bmodel(E));
+  F = nfroots(nf, ec_bmodel_var(E, var));
   if (lg(F)>1)
   {
     GEN Et = ellnf2isog(E, gel(F,1));
@@ -5514,9 +5521,9 @@ ellnf_rootno_global(GEN E)
     v = rootnovalp(divrr(cK,cKt), 2, prec);
   } else
   {
-    GEN D = deg2pol_shallow(gen_1, gen_0, gneg(ell_get_disc(E)), 0);
-    GEN P = RgX_divs(RgX_rescale(ec_bmodel(E), utoi(4)), 4);
-    GEN c = ellnf_reladelicvolume(E, P, gmul2n(pol_x(0),-2), prec);
+    GEN D = deg2pol_shallow(gen_1, gen_0, gneg(ell_get_disc(E)), var);
+    GEN P = RgX_divs(RgX_rescale(ec_bmodel_var(E, var), utoi(4)), 4);
+    GEN c = ellnf_reladelicvolume(E, P, gmul2n(pol_x(var),-2), prec);
     GEN cL = gel(c,1), cLt = gel(c,2);
     GEN F = nfroots(nf, D);
     if (lg(F)>1)
@@ -5536,6 +5543,7 @@ ellnf_rootno_global(GEN E)
       v = odd(v2+v3);
     }
   }
+  delete_var();
   return gc_long(av, v? -1: 1);
 }
 

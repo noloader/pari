@@ -203,12 +203,12 @@ E=ellinit([1,a+1,0,-2*a-1,1],nf4);
 ellheight(E,[-2*a,-2*a-1])
 ellrootno(E)
 
-E = ellinit([a+1,-a+1,0,7*a-46,-22*a+118], nfinit(a^2-a+3));
-ellheight(E,[3,-2*a+2])
+E = ellinit([x+1,-x+1,0,7*x-46,-22*x+118], nfinit(x^2-x+3));
+ellheight(E,[3,-2*x+2])
 ellrootno(E)
 
-E = ellinit([a+1,-1,a,-a^2,0], nfinit(a^3-a^2+1));
-ellheight(E,[0,-a])
+E = ellinit([x+1,-1,x,-x^2,0], nfinit(x^3-x^2+1));
+ellheight(E,[0,-x])
 ellrootno(E)
 
 E = ellinit([-22032-15552*a,0],nf2);
