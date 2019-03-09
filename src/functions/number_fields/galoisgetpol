@@ -13,9 +13,11 @@ Help: galoisgetpol(a,{b},{s}): query the galpol package for a polynomial with
  polynomial and den is the common denominator of the conjugates expressed
  as a polynomial in a root of pol. If b and s are omitted, return the number of
  isomorphism classes of groups of order a.
-Doc: Query the galpol package for a polynomial with Galois group isomorphic to
- GAP4(a,b), totally real if $s=1$ (default) and totally complex if $s=2$. The
- output is a vector [\kbd{pol}, \kbd{den}] where
+Doc: Query the \kbd{galpol} package for a polynomial with Galois group
+ isomorphic to
+ GAP4(a,b), totally real if $s=1$ (default) and totally complex if $s=2$.
+ The current version of \kbd{galpol} supports groups of order $a\leq 143$.
+ The output is a vector [\kbd{pol}, \kbd{den}] where
 
  \item  \kbd{pol} is the polynomial of degree $a$
 
