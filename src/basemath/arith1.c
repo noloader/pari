@@ -1224,11 +1224,14 @@ ispower(GEN x, GEN K, GEN *pt)
   if (equali1(K)) { if (pt) *pt = gcopy(x); return 1; }
   switch(typ(x)) {
     case t_INT:
+      if (lgefint(K) != 3) return 0;
       return Z_ispowerall(x, itou(K), pt);
     case t_FRAC:
     {
       GEN a = gel(x,1), b = gel(x,2);
-      ulong k = itou(K);
+      ulong k;
+      if (lgefint(K) != 3) return 0;
+      k = itou(K);
       if (pt) {
         z = cgetg(3, t_FRAC);
         if (Z_ispowerall(a, k, &a) && Z_ispowerall(b, k, &b)) {
