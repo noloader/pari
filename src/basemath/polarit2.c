@@ -2941,25 +2941,36 @@ resultant2(GEN x, GEN y)
   return r? r: RgX_resultant_sylvester(x,y);
 }
 
-/* If x a t_POL, let vx = main variable of x; return a t_POL in variable v0:
+/* let vx = main variable of x, v0 a variable of highest priority;
+ * return a t_POL in variable v0:
  * if vx <= v, return subst(x, v, pol_x(v0))
  * if vx >  v, return scalarpol(x, v0) */
 static GEN
 fix_pol(GEN x, long v, long v0)
 {
-  long vx;
-  if (typ(x) != t_POL) return x;
-  vx = varn(x);
-  if (v == vx)
-  {
-    if (v0 != v) { x = leafcopy(x); setvarn(x, v0); }
-    return x;
+  long vx, tx = typ(x);
+  if (tx != t_POL)
+    vx = gvar(x);
+  else
+  { /* shortcut: almost nothing to do */
+    vx = varn(x);
+    if (v == vx)
+    {
+      if (v0 != v) { x = leafcopy(x); setvarn(x, v0); }
+      return x;
+    }
   }
   if (varncmp(v, vx) > 0)
   {
-    x = gsubst(x,v,pol_x(v0));
-    if (typ(x) == t_POL && varn(x) == v0) return x;
+    x = gsubst(x, v, pol_x(v0));
+    if (typ(x) != t_POL) vx = gvar(x);
+    else
+    {
+      vx = varn(x);
+      if (vx == v0) return x;
+    }
   }
+  if (varncmp(vx, v0) <= 0) pari_err_TYPE("polresultant", x);
   return scalarpol_shallow(x, v0);
 }
 
@@ -3359,32 +3370,19 @@ RgX_disc(GEN x)
 GEN
 poldisc0(GEN x, long v)
 {
+  long v0, tx = typ(x);
   pari_sp av;
-  switch(typ(x))
+  GEN D;
+  if (tx == t_POL && (v < 0 || v == varn(x))) return RgX_disc(x);
+  switch(tx)
   {
-    case t_POL:
-    {
-      GEN D;
-      long v0 = -1;
-      av = avma;
-      if (v >= 0 && v != varn(x))
-      {
-        v0 = fetch_var_higher();
-        x = fix_pol(x,v, v0);
-      }
-      D = RgX_disc(x);
-      if (v0 >= 0) (void)delete_var();
-      return gerepileupto(av, D);
-    }
-
     case t_QUAD:
       return quad_disc(x);
     case t_POLMOD:
-      return poldisc0(gel(x,1), v);
-
+      if (v >= 0 && varn(gel(x,1)) != v) break;
+      return RgX_disc(gel(x,1));
     case t_QFR: case t_QFI:
       av = avma; return gerepileuptoint(av, qfb_disc(x));
-
     case t_VEC: case t_COL: case t_MAT:
     {
       long i;
@@ -3393,8 +3391,11 @@ poldisc0(GEN x, long v)
       return z;
     }
   }
-  pari_err_TYPE("poldisc",x);
-  return NULL; /* LCOV_EXCL_LINE */
+  if (v < 0) pari_err_TYPE("poldisc",x);
+  av = avma; v0 = fetch_var_higher();
+  x = fix_pol(x,v, v0);
+  D = RgX_disc(x); (void)delete_var();
+  return gerepileupto(av, D);
 }
 
 GEN

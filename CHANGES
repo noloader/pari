@@ -96,6 +96,8 @@ BA  73- incorrect use of graphcolors -> SEGV
 BA  75- lfunartin with poles: incorrect result
 JD  76- factor: significant pointers lost [#2125]
 BA  77- matdet/matrank over large fields was inefficient
+    78- poldisc(y^2/x + 1, y) -> error [also affects polresultant]
+    79- poldisc(x^2/y + 1, y) -> 0 [also affects polresultant]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

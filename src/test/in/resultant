@@ -96,6 +96,8 @@ polresultant(x,2)
 polresultant(x^2,2)
 polresultant(x^2,y)
 
+polresultant(y^2+1/x, y/x+1, y)
+
 check(P,Q)=
 {
   my(d=poldegree(P),e=poldegree(Q));
