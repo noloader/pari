@@ -1566,7 +1566,8 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   for (i = allodd? 2: 1; i < lA; i++)
   {
     GEN t = eval(E, gadd(x, gmul2n(gel(A,i), -e)), newprec);
-    if (!gprecision(t)) t = gtofp(t, newprec);
+    if (!gprecision(t))
+      t = is_scalar_t(typ(t))? gtofp(t, newprec): gmul(t, real_1(newprec));
     gel(X, i) = t;
   }
 

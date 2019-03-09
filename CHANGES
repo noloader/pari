@@ -99,6 +99,7 @@ BA  77- matdet/matrank over large fields was inefficient
     78- poldisc(y^2/x + 1, y) -> error [also affects polresultant]
     79- poldisc(x^2/y + 1, y) -> 0 [also affects polresultant]
     80- ispower(2, 2^64) -> error
+    81- (f(x) = x*'y); f'(1) -> error
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

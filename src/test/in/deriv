@@ -31,6 +31,11 @@ b=intformal(O(y), x)
 variable(a)
 variable(b)
 
+f(x) = (x^2+x)*'y;
+f'(1)
+f''(1)
+derivn(f,2)(1)
+
 derivnum(x=0,1/(x^2+1),2)
 derivnum(x=2.0,1/(x^2+1),2)
 derivnum(x=1+I,1/(x^2+1),2)
