@@ -385,6 +385,11 @@ see~\secref{se:signatures}.
 \fun{GEN}{bid_get_fact}{GEN bid} returns the ideal factorization
 $I_0 = \prod_i \goth{p}_i^{e_i}$.
 
+\fun{GEN}{bid_get_fact2}{GEN bid} as \kbd{bid\_get\_fact} with all prime
+ideals of norm $2$ removed from the factorization. (They play no role in the
+structure of $(\Z_K/I)^*$, except that the generators must be made coprime to
+them.)
+
 \tet{bid_get_ideal}$(\var{bid})$, via \kbd{idealfactor}.
 
 \fun{GEN}{bid_get_no}{GEN bid} returns the cardinality of the
