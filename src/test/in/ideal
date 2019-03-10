@@ -65,6 +65,13 @@ idealdown(K, -2/3*(11*x+7))
 idealdown(K, [2, 11, 5]~)
 idealdown(K, idealprimedec(K, 2)[1])
 idealdown(nf, idealhnf(K, -2/3*(11*x+7)))
+idealismaximal(K,2)
+idealismaximal(K,5)
+idealismaximal(K,7).p
+idealismaximal(K,-7).p
+pr=idealprimedec(K,5)[1];
+idealismaximal(K,pr) == pr
+idealismaximal(K,idealhnf(K,pr)) == pr
 
 k=nfinit(polcyclo(5));
 idealfactor(k,101,100)

@@ -1788,6 +1788,89 @@ idealdown(GEN nf, GEN x)
   return gerepilecopy(av, mul_content(c, y));
 }
 
+/* true nf */
+static GEN
+idealismaximal_int(GEN nf, GEN p)
+{
+  GEN L;
+  if (!BPSW_psp(p)) return NULL;
+  if (!dvdii(nf_get_index(nf), p) &&
+      !FpX_is_irred(FpX_red(nf_get_pol(nf),p), p)) return NULL;
+  L = idealprimedec(nf, p);
+  return lg(L) == 2? gel(L,1): NULL;
+}
+/* true nf */
+static GEN
+idealismaximal_mat(GEN nf, GEN x)
+{
+  GEN p, c, L;
+  long i, l, f;
+  x = Q_primitive_part(x, &c);
+  p = gcoeff(x,1,1);
+  if (c)
+  {
+    if (typ(c) == t_FRAC || !equali1(p)) return NULL;
+    return idealismaximal_int(nf, p);
+  }
+  if (!BPSW_psp(p)) return NULL;
+  l = lg(x); f = 1;
+  for (i = 2; i < l; i++)
+  {
+    c = gcoeff(x,i,i);
+    if (equalii(c, p)) f++; else if (!equali1(c)) return NULL;
+  }
+  L = idealprimedec_limit_f(nf, p, f); l = lg(L);
+  for (i = 1; i < l; i++)
+  {
+    GEN pr = gel(L,i);
+    long v;
+    if (pr_get_f(pr) != f) continue;
+    v = idealval(nf, x, pr);
+    if (v == 1) return pr;
+    if (!v) break;
+  }
+  return NULL;
+}
+/* true nf */
+static GEN
+idealismaximal_i(GEN nf, GEN x)
+{
+  GEN L, p, pr, c;
+  long i, l;
+  switch(idealtyp(&x,&c))
+  {
+    case id_PRIME: return x;
+    case id_MAT: return idealismaximal_mat(nf, x);
+  }
+  /* id_PRINCIPAL */
+  nf = checknf(nf);
+  x = nf_to_scalar_or_basis(nf, x);
+  switch(typ(x))
+  {
+    case t_INT: return idealismaximal_int(nf, absi_shallow(x));
+    case t_FRAC: return NULL;
+  }
+  x = Q_primitive_part(x, &c);
+  if (c) return NULL;
+  p = zkmultable_capZ(zk_multable(nf, x));
+  L = idealprimedec(nf, p); l = lg(L); pr = NULL;
+  for (i = 1; i < l; i++)
+  {
+    long v = ZC_nfval(x, gel(L,i));
+    if (v > 1 || (v && pr)) return NULL;
+    pr = gel(L,i);
+  }
+  return pr;
+}
+GEN
+idealismaximal(GEN nf, GEN x)
+{
+  pari_sp av = avma;
+  x = idealismaximal_i(checknf(nf), x);
+  if (!x) { set_avma(av); return gen_0; }
+  return gerepilecopy(av, x);
+}
+
 /* I^(-1) = { x \in K, Tr(x D^(-1) I) \in Z }, D different of K/Q
  *
  * nf[5][6] = pp( D^(-1) ) = pp( HNF( T^(-1) ) ), T = (Tr(wi wj))
