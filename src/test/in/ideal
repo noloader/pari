@@ -60,6 +60,11 @@ for(i=1,#v, if(!nfisideal(K,v[i]),print(i)))
 idealred(K,2)
 idealred(K,[2,[;]])
 idealred(K,[2,factor(1)])
+idealdown(K, -1/2)
+idealdown(K, -2/3*(11*x+7))
+idealdown(K, [2, 11, 5]~)
+idealdown(K, idealprimedec(K, 2)[1])
+idealdown(nf, idealhnf(K, -2/3*(11*x+7)))
 
 k=nfinit(polcyclo(5));
 idealfactor(k,101,100)

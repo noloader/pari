@@ -2293,6 +2293,7 @@ GEN     idealdiv(GEN nf, GEN x, GEN y);
 GEN     idealdiv0(GEN nf, GEN x, GEN y,long flag);
 GEN     idealdivexact(GEN nf, GEN x, GEN y);
 GEN     idealdivpowprime(GEN nf, GEN x, GEN vp, GEN n);
+GEN     idealdown(GEN nf, GEN x);
 GEN     idealmulpowprime(GEN nf, GEN x, GEN vp, GEN n);
 GEN     idealfactor(GEN nf, GEN x);
 GEN     idealfactor_limit(GEN nf, GEN x, ulong lim);

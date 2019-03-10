@@ -1768,6 +1768,26 @@ idealnorm(GEN nf, GEN x)
   return gerepileupto(av, Q_abs(x));
 }
 
+/* x \cap Z */
+GEN
+idealdown(GEN nf, GEN x)
+{
+  pari_sp av = avma;
+  GEN y, c;
+  switch(idealtyp(&x,&y))
+  {
+    case id_PRIME: return icopy(pr_get_p(x));
+    case id_MAT: return gcopy(gcoeff(x,1,1));
+  }
+  /* id_PRINCIPAL */
+  nf = checknf(nf); av = avma;
+  x = nf_to_scalar_or_basis(nf, x);
+  if (is_rational_t(typ(x))) return Q_abs(x);
+  x = Q_primitive_part(x, &c);
+  y = zkmultable_capZ(zk_multable(nf, x));
+  return gerepilecopy(av, mul_content(c, y));
+}
+
 /* I^(-1) = { x \in K, Tr(x D^(-1) I) \in Z }, D different of K/Q
  *
  * nf[5][6] = pp( D^(-1) ) = pp( HNF( T^(-1) ) ), T = (Tr(wi wj))

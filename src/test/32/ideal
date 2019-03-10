@@ -181,6 +181,11 @@
 
 [[1, 0, 0; 0, 1, 0; 0, 0, 1], Mat([2, 1])]
 [[1, 0, 0; 0, 1, 0; 0, 0, 1], Mat([2, 1])]
+1/2
+6010/3
+2510
+2
+6010/3
 matrix(0,2)
 
 [[2, [2, 0, 0, 0]~, 1, 4, 1] 1]
@@ -285,4 +290,4 @@ matrix(0,2)
   ***   at top-level: idealred(nf,[2,Mat(1)])
   ***                 ^-----------------------
   *** idealred: incorrect type in idealtyp [extended ideal] (t_VEC).
-Total time spent: 154
+Total time spent: 170
