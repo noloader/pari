@@ -1,4 +1,4 @@
-  ***   Warning: new stack size = 20000000 (19.073 Mbytes).
+  ***   Warning: new stack size = 40000000 (38.147 Mbytes).
 
 [  "Factors" 0 0 0 0]
 
@@ -1462,6 +1462,7 @@ t, -6*t - 4, t + 2]
 +oo
 0
 [1, 24, 324, 3200, 25650, 176256, 1073720]
+0.0067751374633700320670755869090304807506
 
 [  "Factors"  50000 13 1000000000]
 
@@ -1576,4 +1577,4 @@ t, -6*t - 4, t + 2]
   ***   at top-level: ...,0);[F]=mfeigenbasis(mf);mfpow(F,3)
   ***                                             ^----------
   *** mfpow: sorry, changing cyclotomic fields in mf is not yet implemented.
-Total time spent: 6716
+Total time spent: 19502

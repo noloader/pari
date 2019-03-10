@@ -1,4 +1,4 @@
-default(parisize, "20M");
+default(parisize, "40M");
 default(realprecision, 38);
 getcache()
 Z4=znstar(4,1);
@@ -707,6 +707,10 @@ mfcuspval(mf,E,1/2)
 
 mffrometaquo([1,-24])
 mfcoefs(mffrometaquo([1,-24],1),6)
+
+mf=mfinit([53,2]);
+F=mfeigenbasis(mf)[1];
+ms=mfsymbol(mf,F);mfpetersson(ms)
 
 getcache()[,1..4]
 

@@ -7271,9 +7271,14 @@ mf_eisendec(GEN mf, GEN F, long prec)
   for (i = 1; i < l; i++)
     if (v[i] != 1)
     {
-      long e = gexpo(B);
+      GEN d;
+      long e;
+      B = Q_remove_denom(B, &d);
+      e = gexpo(B);
       if (e > 0) prec += nbits2prec(e);
-      B = gsubst(B, v[i], rootsof1u_cx(ord, prec)); break;
+      B = gsubst(B, v[i], rootsof1u_cx(ord, prec));
+      if (d) B = gdiv(B, d);
+      break;
     }
   return B;
 }
@@ -8090,7 +8095,7 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
   {
     long e, w = mfZC_width(N, gel(ga,1));
     GEN v, E = gel(Mvecj,2);
-    v = mfeisensteingacx(E, w, ga, n, LOWDEFAULTPREC);
+    v = mfeisensteingacx(E, w, ga, n, 10);
     v = gel(v,2);
     e = gexpo(RgXn_inv(RgV_to_RgX(v,0), n+1));
     if (e > 0) precnew += nbits2extraprec(e);
