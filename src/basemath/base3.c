@@ -391,11 +391,8 @@ tablemulvec(GEN M, GEN x, GEN v)
 
 GEN
 zkmultable_capZ(GEN mx) { return Q_denom(zkmultable_inv(mx)); }
-
 GEN
-zkmultable_inv(GEN mx)
-{ return ZM_gauss(mx, col_ei(lg(mx)-1,1)); }
-
+zkmultable_inv(GEN mx) { return ZM_gauss(mx, col_ei(lg(mx)-1,1)); }
 /* nf a true nf, x a ZC */
 GEN
 zk_inv(GEN nf, GEN x) { return zkmultable_inv(zk_multable(nf,x)); }
