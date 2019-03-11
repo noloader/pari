@@ -32,27 +32,26 @@ Doc: given an \var{nf} structure attached to a number field $K$, as output by
 
  \misctitle{Huge discriminants, helping rnfdisc} the format $[T,B]$ is
  also accepted instead of $T$ and produce an order which is maximal at all
- primes $p < B$, see \kbd{??rnfinit}.
+ prime ideals specified by $B$, see \kbd{??rnfinit}.
  \bprog
  ? p = 585403248812100232206609398101;
  ? q = 711171340236468512951957953369;
  ? T = x^2 + 3*(p*q)^2;
  ? [A,J,D,d] = V = rnfpseudobasis(K, T); D
  time = 22,178 ms.
- %10 =
- [3 0]
-
- [0 3]
+ %10 = 3
  ? [A,J,D,d] = W = rnfpseudobasis(K, [T,100]); D
  time = 5 ms.
- %11 =
- [3 0]
-
- [0 3]
+ %11 = 3
  ? V == W
  %12 = 1
+ ? [A,J,D,d] = W = rnfpseudobasis(K, [T, [3]]); D
+ %13 = 3
+ ? V == W
+ %14 = 1
  @eprog\noindent In this example, the results are identical since $D \cap \Z$
- factors over primes less than $100$. Had it not been the case, the
- order would have been guaranteed maximal at primes $\goth{p} | p $ for $p
- \leq 100$ only (and might not have been maximal at any maximal ideal
- $\goth{p}$ such that $\goth{p}^2$ dividing $D$.
+ factors over primes less than $100$ (and in fact, over $3$). Had it not been
+ the case, the order would have been guaranteed maximal at primes
+ $\goth{p} | p $ for $p \leq 100$ only (resp.~$\goth{p} | 3$).
+ And might have been non-maximal at any other prime ideal $\goth{p}$ such
+ that $\goth{p}^2$ divided $D$.
