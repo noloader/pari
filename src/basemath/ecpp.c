@@ -1207,7 +1207,7 @@ cert_out(GEN x)
     str_printf(&str, " N = %Ps\n", cert_get_N(xi));
     str_printf(&str, " t = %Ps\n", cert_get_t(xi));
     str_printf(&str, " s = %Ps\n", cert_get_s(xi));
-    str_printf(&str, "a4 = %Ps\n", cert_get_a4(xi));
+    str_printf(&str, "a = %Ps\n", cert_get_a4(xi));
     str_printf(&str, "D = %Ps\n", cert_get_D(xi));
     str_printf(&str, "m = %Ps\n", cert_get_m(xi));
     str_printf(&str, "q = %Ps\n", cert_get_q(xi));

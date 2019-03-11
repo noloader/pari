@@ -8,7 +8,9 @@ Doc:
  Returns a string suitable for print/write to display a primality certificate
  from \tet{primecert}, the format of which depends on the value of \kbd{format}:
 
- \item 0 (default): Human-readable format.
+ \item 0 (default): Human-readable format. See \kbd{??primecert} for the
+ meaning of the successive $N, t, s, a, m, q, E, P$. The integer $D$ is the
+ negative fundamental discriminant \kbd{coredisc}$(t^2 - 4N)$.
 
  \item 1: Primo format 4.
 
@@ -24,7 +26,7 @@ Doc:
   N = 100000000000000000000000000000000069
   t = 546867911035452074
   s = 2963504668391148
- a4 = 0
+ a = 0
  D = -3
  m = 99999999999999999453132088964547996
  q = 33743830764501150277
@@ -35,7 +37,7 @@ Doc:
   N = 33743830764501150277
   t = -11610830419
   s = 734208843
- a4 = 0
+ a = 0
  D = -3
  m = 33743830776111980697
  q = 45959444779
@@ -49,6 +51,7 @@ Doc:
  ? s = primecertexport(cert,2); write("cert.m", s);
 
  ? cert = primecert(10^35+69, 1); \\ N-1 certificate
+ ? primecertexport(cert)
   ***   at top-level: primecertexport(cert)
   ***                 ^---------------------
   *** primecertexport: sorry, N-1 certificate is not yet implemented.
