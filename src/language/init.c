@@ -425,7 +425,7 @@ pari_daemon(void)
         return 1;
   }
   /* grandson */
-  freopen("/dev/null","r",stdin);
+  (void)!freopen("/dev/null","r",stdin);
   return 0;
 }
 #else
