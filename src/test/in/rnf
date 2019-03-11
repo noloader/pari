@@ -7,16 +7,21 @@ rnflllgram(nf,x^3+2,rnfpseudobasis(nf,x^3+2))
 nf=nfinit(y^2-y-4);T=x^11-11*x^10+31*x^9-26*x^8+36*x^7+7*x^6+15*x^5-27*x^4+26*x^3+20*x^2-33*x+42;
 rnfpseudobasis(nf,T)
 rnfpseudobasis(nf,[T,10^3])
+rnfpseudobasis(nf,[T, [3, 79, 269, 1361, 2789]])
 T = x^2+1009^3*(10^6+3)^2*y;
 rnfpseudobasis(nf,T)
 rnfpseudobasis(nf,[T,100])
 rnfpseudobasis(nf,[T,1010])
+rnfpseudobasis(nf,[T, [idealprimedec(nf,2)[1], 1009]])
 rnfdisc(nf,T)
 rnfdisc(nf,[T,100])
 rnfdisc(nf,[T,1010])
+rnfpseudobasis(nf,[T, [idealprimedec(nf,2)[1], 1009]])
+rnfpseudobasis(nf,[T, [2, 1009]])
 Q = bnfinit(y); T=x^4+x^3-71*x^2+72*x+5184;
 rnfconductor(Q,T)
 rnfconductor(Q,[T,10^3])
+rnfconductor(Q,[T, [2,3,7,41]])
 rnfconductor(Q,galoissubcyclo(117,116))[1]
 K=bnfinit(quadpoly(1596,y),1); rnfbasis(K,rnfsteinitz(K,rnfpseudobasis(K,quadray(K,1))));
 

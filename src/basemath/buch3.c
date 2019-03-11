@@ -1735,11 +1735,10 @@ GEN
 rnfconductor(GEN bnf, GEN T)
 {
   pari_sp av = avma;
-  GEN D, nf, module, bnr, H;
-  ulong lim;
+  GEN D, nf, module, bnr, H, lim;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
-  T = check_polrel(nf, T, &lim);
+  T = rnfdisc_get_T(nf, T, &lim);
   T = nfX_to_monic(nf, T, NULL);
   if (!lim)
     D = rnfdisc_factored(nf, T, NULL);
@@ -1747,7 +1746,7 @@ rnfconductor(GEN bnf, GEN T)
   {
     GEN P, E, Ez;
     long i, l, degT = degpol(T);
-    D = idealfactor_limit(nf, RgX_disc(T), lim);
+    D = idealfactor_partial(nf, RgX_disc(T), lim);
     P = gel(D,1); l = lg(P);
     E = gel(D,2); Ez = ZV_to_zv(E);
     if (l > 1 && vecsmall_max(Ez) > 1)

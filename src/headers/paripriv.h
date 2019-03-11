@@ -597,10 +597,10 @@ GEN  log_gen_pr(zlog_S *S, long index, GEN nf, long e);
 GEN    poltobasis(GEN nf,GEN x);
 GEN    coltoalg(GEN nf,GEN x);
 
-GEN    check_polrel(GEN nf, GEN P, ulong *lim);
-GEN    get_arch_real(GEN nf,GEN x,GEN *emb,long prec);
+GEN    rnfdisc_get_T(GEN nf, GEN P, GEN *lim);
+GEN    get_arch_real(GEN nf, GEN x, GEN *emb, long prec);
 GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
-GEN    rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnfeq, GEN *pD, GEN *pfi);
+GEN    rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnfeq, GEN *pD, GEN *pfi);
 GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
 GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
 

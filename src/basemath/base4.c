@@ -707,6 +707,31 @@ Q_nffactor(GEN nf, GEN y, ulong lim)
 }
 
 GEN
+idealfactor_partial(GEN nf, GEN x, GEN L)
+{
+  long i, j, l;
+  GEN P, E;
+  if (!L) return idealfactor(nf, x);
+  if (typ(L) == t_INT) return idealfactor_limit(nf, x, itou(L));
+  P = cgetg_copy(L, &l);
+  for (i = 1; i < l; i++)
+  {
+    GEN p = gel(L,i);
+    gel(P,i) = typ(p) == t_INT? idealprimedec(nf, p): mkvec(p);
+  }
+  settyp(P, t_VEC); P = shallowconcat1(P);
+  settyp(P, t_COL);
+  P = gen_sort_uniq(P, (void*)&cmp_prime_over_p, &cmp_nodata);
+  E = cgetg_copy(P, &l);
+  for (i = j = 1; i < l; i++)
+  {
+    long v = idealval(nf, x, gel(P,i));
+    if (v) { gel(P,j) = gel(P,i); gel(E,j) = stoi(v); j++; }
+  }
+  setlg(P,j);
+  setlg(E,j); return mkmat2(P, E);
+}
+GEN
 idealfactor_limit(GEN nf, GEN x, ulong lim)
 {
   pari_sp av = avma;

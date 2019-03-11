@@ -19,7 +19,6 @@ Doc: given a \var{bnf} structure attached to a number field $K$, as produced
 
  \misctitle{Huge discriminants, helping rnfdisc} the format $[T,B]$ is
  also accepted instead of $T$ and computes the conductor of the extension
- provided it factors completely over prime divisors of rational primes $p < B$,
- see \kbd{??rnfinit}: the valuation of $f_0$ is then correct at all prime
- ideals $\goth{p}$ above a rational prime $p < B$ but may be incorrect at other
- primes.
+ provided it factors completely over the maximal ideals specified by $B$,
+ see \kbd{??rnfinit}: the valuation of $f_0$ is then correct at all such
+ maximal ideals but may be incorrect at other primes.

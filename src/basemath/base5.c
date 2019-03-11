@@ -256,24 +256,52 @@ nf_nfzk(GEN nf, GEN rnfeq)
   return Q_primpart(QXV_QXQ_eval(nf_get_zkprimpart(nf), a, pol));
 }
 
+static GEN
+rnfdisc_get_T_i(GEN nf, GEN P, GEN *lim)
+{
+  *lim = NULL;
+  if (typ(P) == t_VEC && lg(P) == 3)
+  {
+    GEN L = gel(P,2);
+    long i, l;
+    *lim = L;
+    switch(typ(L))
+    {
+      case t_INT:
+        if (signe(L) <= 0) return NULL;
+        break;
+      case t_VEC: case t_COL:
+        l = lg(L);
+        for (i = 1; i < l; i++)
+        {
+          GEN p = gel(L,i);
+          if (typ(p) == t_INT)
+          { if (signe(p) <= 0) return NULL; }
+          else checkprid(p);
+        }
+        break;
+      default: return NULL;
+    }
+    P = gel(P,1);
+  }
+  return (typ(P) == t_POL)? P: NULL;
+}
 /* true nf */
 GEN
-check_polrel(GEN nf, GEN P, ulong *lim)
+rnfdisc_get_T(GEN nf, GEN P, GEN *lim)
 {
-  *lim = 0;
-  if (typ(P) == t_VEC && lg(P) == 3) { *lim = gtou(gel(P,2)); P = gel(P,1); }
-  if (typ(P) != t_POL) pari_err_TYPE("rnfinit",P);
-  return RgX_nffix("rnfinit", nf_get_pol(nf), P, 0);
+  GEN T = rnfdisc_get_T_i(nf, P, lim);
+  if (!T) pari_err_TYPE("rnfdisc",P);
+  return RgX_nffix("rnfdisc", nf_get_pol(nf), T, 0);
 }
 
 GEN
 rnfpseudobasis(GEN nf, GEN pol)
 {
   pari_sp av = avma;
-  GEN D, z;
-  ulong lim;
+  GEN D, z, lim;
   nf = checknf(nf);
-  pol = check_polrel(nf, pol, &lim);
+  pol = rnfdisc_get_T(nf, pol, &lim);
   z = rnfallbase(nf, pol, lim, NULL, &D, NULL);
   return gerepilecopy(av, shallowconcat(z,D));
 }
@@ -282,10 +310,9 @@ GEN
 rnfinit0(GEN nf, GEN T, long flag)
 {
   pari_sp av = avma;
-  GEN bas, D, f, B, T0, rnfeq, rnf = obj_init(11, 2);
-  ulong lim;
+  GEN lim, bas, D, f, B, T0, rnfeq, rnf = obj_init(11, 2);
   nf = checknf(nf);
-  T0 = check_polrel(nf, T, &lim);
+  T0 = rnfdisc_get_T(nf, T, &lim);
   T = lift_shallow(T0);
   gel(rnf,11) = rnfeq = nf_rnfeq(nf,T);
   gel(rnf,2) = nf_nfzk(nf, rnfeq);

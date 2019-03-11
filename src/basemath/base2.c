@@ -3319,7 +3319,7 @@ pr_factorback_scal(GEN nf, GEN fa)
  * Returns a pseudo-basis [A,I] of Z_L, set *pD to [D,d] and *pf to the
  * index-ideal; rnf is used when lim != 0 and may be NULL */
 GEN
-rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
+rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf)
 {
   long i, j, jf, l;
   GEN fa, E, P, Ef, Pf, z, disc;
@@ -3334,8 +3334,20 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
     GEN D = idealhnf(nf, disc);
     long rU, m = nf_get_degree(nf), n = degpol(pol), N = n*m;
 
-    P = ZV_union_shallow(nf_get_ramified_primes(nf),
-                         gel(Z_factor_limit(gcoeff(D,1,1), lim), 1));
+    if (typ(lim) == t_INT)
+      P = ZV_union_shallow(nf_get_ramified_primes(nf),
+                           gel(Z_factor_limit(gcoeff(D,1,1), itou(lim)), 1));
+    else
+    {
+      P = cgetg_copy(lim, &l);
+      for (i = 1; i < l; i++)
+      {
+        GEN p = gel(lim,i);
+        if (typ(p) != t_INT) p = pr_get_p(p);
+        gel(P,i) = p;
+      }
+      P = ZV_sort_uniq(P);
+    }
     if (rnf)
     {
       rnfeq = rnf_get_map(rnf);
@@ -3431,7 +3443,7 @@ rnfallbase(GEN nf, GEN pol, ulong lim, GEN rnf, GEN *pD, GEN *pf)
     *pD = mkvec2(D, get_d(nf, disc)); return z;
   }
   pol = lift_shallow(pol);
-  fa = idealfactor_limit(nf, disc, lim);
+  fa = idealfactor(nf, disc);
   P = gel(fa,1); l = lg(P); z = NULL;
   E = gel(fa,2);
   Pf = cgetg(l, t_COL);
@@ -3509,16 +3521,15 @@ GEN
 rnfdisc_factored(GEN nf, GEN pol, GEN *pd)
 {
   long i, j, l;
-  ulong lim;
-  GEN fa, E, P, disc;
+  GEN fa, E, P, disc, lim;
 
   nf = checknf(nf);
-  pol = check_polrel(nf, pol, &lim);
+  pol = rnfdisc_get_T(nf, pol, &lim);
   pol = nfX_to_monic(nf, pol, NULL);
 
   disc = nf_to_scalar_or_basis(nf, RgX_disc(pol));
   pol = lift_shallow(pol);
-  fa = idealfactor_limit(nf, disc, lim);
+  fa = idealfactor_partial(nf, disc, lim);
   P = gel(fa,1); l = lg(P);
   E = gel(fa,2);
   for (i = j = 1; i < l; i++)

@@ -2298,6 +2298,7 @@ GEN     idealismaximal(GEN nf, GEN x);
 GEN     idealmulpowprime(GEN nf, GEN x, GEN vp, GEN n);
 GEN     idealfactor(GEN nf, GEN x);
 GEN     idealfactor_limit(GEN nf, GEN x, ulong lim);
+GEN     idealfactor_partial(GEN nf, GEN x, GEN L);
 GEN     idealhnf(GEN nf, GEN x);
 GEN     idealhnf_principal(GEN nf, GEN x);
 GEN     idealhnf_shallow(GEN nf, GEN x);
