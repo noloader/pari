@@ -8056,6 +8056,15 @@ mfgaexpansionatkin(GEN mf, GEN F, GEN C, GEN D, long Q, long n, long prec)
   return mkvec3(gen_0, utoipos(Q), V);
 }
 
+static long
+inveis_extraprec(long N, GEN ga, GEN Mvecj, long n)
+{
+  long e, w = mfZC_width(N, gel(ga,1));
+  GEN E = gel(Mvecj,2), v = mfeisensteingacx(E, w, ga, n, DEFAULTPREC);
+  v = gel(v,2);
+  e = gexpo(RgXn_inv(RgV_to_RgX(v,0), n+1));
+  return (e > 0)? nbits2extraprec(e): 0;
+}
 /* allow F of the form [F, mf_eisendec(F)]~ */
 static GEN
 mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
@@ -8091,15 +8100,7 @@ mfgaexpansion(GEN mf, GEN F, GEN ga, long n, long prec)
   }
   Mvecj = obj_checkbuild(mf, MF_EISENSPACE, &mfeisensteinspaceinit);
   precnew = prec;
-  if (lg(Mvecj) < 5)
-  {
-    long e, w = mfZC_width(N, gel(ga,1));
-    GEN v, E = gel(Mvecj,2);
-    v = mfeisensteingacx(E, w, ga, n, 10);
-    v = gel(v,2);
-    e = gexpo(RgXn_inv(RgV_to_RgX(v,0), n+1));
-    if (e > 0) precnew += nbits2extraprec(e);
-  }
+  if (lg(Mvecj) < 5) precnew += inveis_extraprec(N, ga, Mvecj, n);
   if (!EF) EF = mf_eisendec(mf, F, precnew);
   res = mfgaexpansion_i(mf, EF, ga, n, precnew);
   return precnew == prec ? res : gprec_wtrunc(res, prec);
@@ -11764,8 +11765,8 @@ mfsymbol_i(GEN mf, GEN F, GEN cosets, long bit)
   if (lg(Mvecj) >= 5) precnew = prec;
   else
   {
-    long n = mfperiod_prelim_double(1/(double)MF_get_N(mf), k, bit + 32);
-    precnew = prec + nbits2extraprec(n >> 1);
+    long N = MF_get_N(mf), n = mfperiod_prelim_double(1/(double)N, k, bit + 32);
+    precnew = prec + inveis_extraprec(N, mkS(), Mvecj, n);
   }
   FE = mkcol2(F, mf_eisendec(mf,F,precnew));
   vP = mfperiodpols_i(mf, FE, cosets, &van, bit);
