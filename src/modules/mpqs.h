@@ -57,20 +57,6 @@
 
 #define MPQS_CANDIDATE_ARRAY_SIZE  2000 /* max. this many cand's per poly */
 
-#ifdef MPQS_USE_HISTOGRAMS
-/* histogram evaluation/feedback available when size_of_FB exceeds this: */
-#  define MPQS_MIN_SIZE_FB_FOR_HISTO 600
-/* min number of candidates to look at before evaluating histograms */
-#  define MPQS_MIN_CANDS_FOR_HISTO   4000
-/* min number of full relations to have been created before etc. */
-#  define MPQS_MIN_FRELS_FOR_HISTO   110
-
-/* see mpqs_eval_histograms() for explanation of the following */
-#  define MPQS_HISTO_FREL_QUANTILE   2.4
-#  define MPQS_HISTO_DROP_LIMIT      3.6
-#  define MPQS_HISTO_LPREL_BASEFLOW  1.4
-#endif
-
 /* give up when nothing found after ~1.5 times the required number of
  * relations has been computed  (N might be a prime power or the
  * parameters might be exceptionally unfortunate for it) */
@@ -282,15 +268,6 @@ typedef struct mpqs_handle {
   mpqs_int32_t index2_FB;       /* primes for A are chosen relative to this */
   unsigned char index2_moved;   /* true when we're starved for small A's */
   unsigned char sieve_threshold; /* distinguishes candidates in sieve */
-#ifdef MPQS_USE_HISTOGRAMS
-  /* histogram feedback */
-  unsigned char do_histograms;  /* (boolean) enable histogram updating */
-  unsigned char done_histograms; /* histos have been eval'd for feedback */
-  /* more pari_malloc()d memory here: */
-  long *histo_full;             /* distribution of full rels from sieve */
-  long *histo_lprl;             /* - of LP rels from sieve */
-  long *histo_drop;             /* - of useless candidates */
-#endif
   GEN N;                        /* given number to be factored */
   GEN kN;                       /* N with multiplier (on PARI stack) */
   /* quantities attached to the current polynomial; all these also

@@ -91,8 +91,6 @@ paristrtok_r(char *str, const char *delim, char **saveptr)
 
 /** DEBUG **/
 /* #define MPQS_DEBUG_VERBOSE 1 */
-/* histograms are pretty, but don't help performance after all (see below) */
-/* #define MPQS_USE_HISTOGRAMS */
 
 #include "mpqs.h"
 
@@ -222,8 +220,8 @@ mpqs_FB_ctor(mpqs_handle_t *h)
   return (mpqs_FB_entry_t *)fbl;
 }
 
-/* sieve array constructor;  also allocates the candidates array, the
- * histograms, and temporary storage for relations under construction */
+/* sieve array constructor;  also allocates the candidates array
+ * and temporary storage for relations under construction */
 static void
 mpqs_sieve_array_ctor(mpqs_handle_t *h)
 {
@@ -255,15 +253,6 @@ mpqs_sieve_array_ctor(mpqs_handle_t *h)
   /* and for tracking which primes occur in the current relation: */
   h->relaprimes = (long *) pari_malloc((size_of_FB << 1) * sizeof(long));
 
-#ifdef MPQS_USE_HISTOGRAMS
-  /* histograms to be used only when kN isn't very small */
-  if (h->size_of_FB > MPQS_MIN_SIZE_FB_FOR_HISTO) {
-    h->do_histograms = 1;
-    h->histo_full = (long *) pari_calloc(128 * sizeof(long));
-    h->histo_lprl = (long *) pari_calloc(128 * sizeof(long));
-    h->histo_drop = (long *) pari_calloc(128 * sizeof(long));
-  }
-#endif
 }
 
 /* mpqs() calls the following (after recording avma) to allocate GENs for
@@ -306,12 +295,6 @@ mpqs_handle_dtor(mpqs_handle_t *h)
   myfree((h->per_A_pr));
   myfree((h->relaprimes));
   myfree(h->relations);
-
-#ifdef MPQS_USE_HISTOGRAMS
-  myfree((h->histo_drop));
-  myfree((h->histo_lprl));
-  myfree((h->histo_full));
-#endif
 
   myfree((h->candidates));
   myfree((h->sieve_array));
@@ -618,192 +601,6 @@ mpqs_locate_A_range(mpqs_handle_t *h)
 
   return 1;
 }
-
-
-/*********************************************************************/
-/**                                                                 **/
-/**                HISTOGRAMS AND THRESHOLD FEEDBACK                **/
-/**                                                                 **/
-/*********************************************************************/
-
-#ifdef MPQS_USE_HISTOGRAMS
-
-/* The histogram-related code is left in this file, but all under the
- * above #ifdef, and disabled by default.  I'm finding that:
- * - merely keeping the numbers updated in mpqs_eval_cand() below  (and
- *   keeping the "negligible" 1.5 or 3KBys' worth of extra arrays in use)
- *   causes us to run quite noticeably slower: 8-10% for a 73-digit number,
- * - mpqs_eval_cand() has already become so much faster than it used to be
- *   that raising the threshold to get rid of many low-valued unpromising
- *   candidates does not save any significant time, and even losing a pretty
- *   small number of additional LP relations actually harms us by lowering
- *   the efficiency of LP relation combining.
- * (The first point might be due merely to code bloat and less effective
- * compiler optimizations - I'm not sure about that.)
- * Just for getting a visual impression of how the sieve is performing,
- * however, this is nice to have available.  Just turn on the #define at
- * the top of the file and recompile with it. --GN2005-02-03
- */
-
-/* histogram evaluation happens very infrequently if at all.  So we'll do
- * all the adding and putting-into-relation-with here, while mpqs_eval_cand()
- * merely bumps one cell at a time and doesn't keep running totals. */
-
-static void
-mpqs_print_histo(mpqs_handle_t *h)
-{
-  long i, tot = 0;
-
-  if (!h->do_histograms) return;
-
-  err_printf("\nMPQS: values from sieve vs. distribution of evaluated candidates:\n");
-  err_printf("   val  ___full __lprel ___none ___total\n");
-  for (i = 127; i >= 0; i--)
-  {
-    long rowtot = h->histo_full[i] + h->histo_lprl[i] + h->histo_drop[i];
-    tot += rowtot;
-    if ((rowtot > 0) || (i == h->sieve_threshold))
-      err_printf("%s[%3d] %7ld %7ld %7ld %8ld\n",
-                 i + 128 == h->sieve_threshold ? "^-" : "  ", i + 128,
-                 h->histo_full[i], h->histo_lprl[i], h->histo_drop[i],
-                 rowtot);
-  }
-  err_printf("        (total evaluated candidates: %ld)\n", tot);
-}
-
-/* evaluation/feedback heuristics:
- * First of all, refuse to draw any conclusions unless and until there's
- * enough material to be statistically significant.
- * Second, after sifting through the histo arrays, the new threshold is
- * set to the minimum of the following three quantities:
- * - the position where going down from the top value the histo_full
- *   totals first exceed 100 - MPQS_HISTO_FREL_QUANTILE percent of all
- *   full relations found so far by direct sieving.  (I.e. if the quantile
- *   is 4, we want to keep all rows which account for 96% of all frels
- *   obtained from the sieve.  Note that once we increase the threshold,
- *   further counts will be biased against smaller values;  but we normally
- *   don't expect to do many adjustments.)
- * - the position where, going down from the top towards smaller values,
- *   the cumulative number of useless candidates in histo_drop first exceeds
- *   MPQS_HISTO_DROP_LIMIT times the number of useful ones.  I.e. when that
- *   limit is 2, we're aiming for at least about 1/3 of all candidates coming
- *   from the sieve to result in usable relations.
- * - one less than the position where the histo_lprl count first falls below
- *   MPQS_HISTO_LPREL_BASEFLOW times the number of useless candidates.  This
- *   one will be capable of lowering the current threshold  (but never below
- *   128).
- * FIXME: For Double Large Prime mode, this will need to be seriously reworked.
- */
-
-/* This function returns 1 when it actually did something and decided on a
- * good threshold  (although possibly the same as it was before),  -1 when
- * there was nothing to do and never will be ("don't call us again"), 0
- * when the caller should retry somewhat later.  Note that mpqs() already
- * knows the total number of candidates generated so far  (from the return
- * values of mpqs_eval_sieve()),  and won't call us too early;  but we also
- * insist on minimal standards for the column sums.  Conversely when we ever
- * lower the threshold, we ask for a re-evaluation later on.
- * NB With the present accounting, once the threshold has been raised, it
- * won't ever be lowered again, since the increasing counts above it will
- * totally swamp the few earlier measurements below which can no longer
- * grow.  So we might chop off those accumulating loops at the current sieve
- * threshold. */
-static int
-mpqs_eval_histograms(mpqs_handle_t *h)
-{
-  long tot_full = 0, tot_lprl = 0, tot_drop = 0, total = 0;
-  long target_full, i;
-  int th_full, th_base, th_drop;
-  int th = h->sieve_threshold - 128;
-
-  if (!h->do_histograms) return -1;
-
-  /* first compute column sums */
-  for (i = 127; i >= 0; i--)
-  {
-    tot_full += h->histo_full[i];
-    tot_lprl += h->histo_lprl[i];
-    tot_drop += h->histo_drop[i];
-  }
-  total = tot_full + tot_lprl + tot_drop;
-  if ((total < MPQS_MIN_CANDS_FOR_HISTO) ||
-      (tot_full < MPQS_MIN_FRELS_FOR_HISTO))
-    return 0;                   /* too early to call the race */
-
-  th_full = th_drop = th_base = -1;
-  /* find the full relations quantile point */
-  target_full = tot_full - (tot_full * MPQS_HISTO_FREL_QUANTILE) / 100.;
-
-  tot_full = 0;
-  for (i = 127; i >= th; i--)
-  {
-    if ((tot_full += h->histo_full[i]) >= target_full)
-    {
-      th_full = i; break;
-    }
-  }
-
-  /* find the "lp relations baseflow" point */
-  for (i = 127; i >= th; i--)
-  {
-    if (h->histo_lprl[i] + 1 <
-        MPQS_HISTO_LPREL_BASEFLOW * h->histo_drop[i])
-    {
-      th_base = i; break;
-    }
-  }
-
-  /* find the wastefulness point */
-  tot_lprl = 0; tot_drop = 0;
-  for (i = 127; i >= th; i--)
-  {
-    tot_lprl += h->histo_full[i] + h->histo_lprl[i];
-    tot_drop += h->histo_drop[i];
-    if (tot_drop >
-        MPQS_HISTO_DROP_LIMIT * (tot_lprl + 1))
-    {
-      th_drop = i; break;
-    }
-  }
-  /* if these loops found nothing, then th_(full|base|drop) will still be -1.
-   * We won't tighten the sieve, but th_base would tell us we should loosen
-   * it  (reluctantly). */
-
-  if (MPQS_DEBUGLEVEL >= 5)
-  {
-    mpqs_print_histo(h);
-    if (th_full >= 0)
-      err_printf("MPQS: threshold estimate for full rels: %d\n",
-                 th_full + 128);
-    if (th_drop >= 0)
-      err_printf("MPQS: threshold estimate for useful candidates: %d\n",
-                 th_drop + 128);
-  }
-
-  /* any reason to open up the sieve?  wait until a minimal number of lprels
-   * at the threshold has been seen before going down... */
-  if ((th > 0) && (th_base <= th) &&
-      (h->histo_lprl[th] > (MPQS_MIN_FRELS_FOR_HISTO * 3.5)) )
-  {
-    h->sieve_threshold = th + 127;
-    if (MPQS_DEBUGLEVEL >= 4)
-      err_printf("MPQS: loosening sieve tolerance, new threshold %d\n",
-                 h->sieve_threshold);
-    return 0;                   /* this should be re-examined after a bit */
-  }
-  /* otherwise, any reason to tighten it? */
-  th = (th_full < th_drop ? th_full : th_drop) + 128;
-  if (th > h->sieve_threshold)
-  {
-    h->sieve_threshold = th;
-    if (MPQS_DEBUGLEVEL >= 4)
-      err_printf("MPQS: tightening sieve tolerance, new threshold %d\n",
-                 h->sieve_threshold);
-  }
-  /* maybe also loosen it if th_drop persistently stays below th... */
-  return 1;                     /* wait a good while before rechecking */
-}
-#endif
 
 /*********************************************************************/
 /**                                                                 **/
@@ -1801,8 +1598,6 @@ static long
 mpqs_eval_sieve(mpqs_handle_t *h)
 {
   long x = 0, count = 0, M_2 = h->M << 1;
-  /* TODO: replace the following by an auto-adjusting threshold driven
-   * by histogram yield measurements */
   unsigned char th = h->sieve_threshold;
   unsigned char *sieve_array = h->sieve_array;
   long *candidates = h->candidates;
@@ -2051,10 +1846,6 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
       mpqs_add_0(&relations_end);
       fprintf(FREL, "%s :%s\n", itostr(Y), relations);
       number_of_relations++;
-#ifdef MPQS_USE_HISTOGRAMS
-      /* bump full relations counter at candidate's value */
-      if (h->do_histograms) h->histo_full[sa[x]-128]++;
-#endif
 
 #ifdef MPQS_DEBUG
       {
@@ -2077,20 +1868,12 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     }
     else if (cmpis(Qx, h->lp_bound) > 0)
     { /* TODO: check for double large prime */
-#ifdef MPQS_USE_HISTOGRAMS
-      /* bump useless-candidates counter at candidate's value */
-      if (h->do_histograms) h->histo_drop[sa[x]-128]++;
-#endif
       PRINT_IF_VERBOSE("\b.");
     }
     else
     { /* if (mpqs_isprime(itos(Qx))) */
       mpqs_add_0(&relations_end);
       fprintf(LPREL, "%s @ %s :%s\n", itostr(Qx), itostr(Y), relations);
-#ifdef MPQS_USE_HISTOGRAMS
-      /* bump LP relations counter at candidate's value */
-      if (h->do_histograms) h->histo_lprl[sa[x]-128]++;
-#endif
 #ifdef MPQS_DEBUG
       {
         pari_sp av1 = avma;
@@ -2722,9 +2505,6 @@ mpqs_i(mpqs_handle_t *handle)
   double net_yield;
   long total_full_relations = 0, total_partial_relations = 0, total_no_cand = 0;
   long vain_iterations = 0, good_iterations = 0, iterations = 0;
-#ifdef MPQS_USE_HISTOGRAMS
-  long histo_checkpoint = MPQS_MIN_CANDS_FOR_HISTO;
-#endif
 
   pariFILE *pFNEW, *pLPNEW, *pCOMB, *pFREL, *pLPREL;
   char *dir, *COMB_str, *FREL_str, *FNEW_str, *LPREL_str, *LPNEW_str, *TMP_str;
@@ -2893,25 +2673,6 @@ mpqs_i(mpqs_handle_t *handle)
       tff += t;
       good_iterations++;
     }
-
-#ifdef MPQS_USE_HISTOGRAMS
-    if (handle->do_histograms && !handle->done_histograms &&
-        total_no_cand >= histo_checkpoint)
-    {
-      int res = mpqs_eval_histograms(handle);
-      if (res >= 0)
-      {
-        /* retry later */
-        if (res > 0)
-          /* histo_checkpoint *= 2.6; */
-          handle->do_histograms = 0; /* no, don't retry later */
-        else
-          histo_checkpoint += (MPQS_MIN_CANDS_FOR_HISTO /* >> 1 */);
-      }
-      else
-        handle->done_histograms = 1;
-    }
-#endif
 
     percentage =
       (long)((1000.0 * total_full_relations) / handle->target_no_rels);
