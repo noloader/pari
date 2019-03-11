@@ -1653,7 +1653,7 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN li
 
 /* subgroups H_i of bnr s.t. bnr/H_i is cyclic and inter_i H_i = subgroup */
 static GEN
-cyclic_compos(GEN bnr, GEN subgroup)
+cyclic_compos(GEN subgroup)
 {
   pari_sp av = avma;
   GEN D, U, res, pe, v, zero;
@@ -1686,7 +1686,7 @@ bnrclassfield_primepower(struct rnfkummer *ptkum, GEN bnr, GEN subgroup, GEN p, 
   GEN subs, res, pol, H, Hp, pe, cnd, bnr2;
   long i;
 
-  subs = cyclic_compos(bnr, subgroup);
+  subs = cyclic_compos(subgroup);
   res = cgetg(lg(subs),t_VEC);
   for (i=1; i<lg(subs); i++)
   {

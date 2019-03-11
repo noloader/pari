@@ -257,7 +257,7 @@ nf_nfzk(GEN nf, GEN rnfeq)
 }
 
 static GEN
-rnfdisc_get_T_i(GEN nf, GEN P, GEN *lim)
+rnfdisc_get_T_i(GEN P, GEN *lim)
 {
   *lim = NULL;
   if (typ(P) == t_VEC && lg(P) == 3)
@@ -290,7 +290,7 @@ rnfdisc_get_T_i(GEN nf, GEN P, GEN *lim)
 GEN
 rnfdisc_get_T(GEN nf, GEN P, GEN *lim)
 {
-  GEN T = rnfdisc_get_T_i(nf, P, lim);
+  GEN T = rnfdisc_get_T_i(P, lim);
   if (!T) pari_err_TYPE("rnfdisc",P);
   return RgX_nffix("rnfdisc", nf_get_pol(nf), T, 0);
 }
