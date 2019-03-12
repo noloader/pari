@@ -56,6 +56,7 @@ iferr(sqrtn(Mod(2,7),3),E,E)
 iferr(sqrtn(Mod(2,21),3),E,E)
 iferr(sqrtn(Mod(6,35),6),E,E)
 [sqrtn(Mod(64,101),6,&z),z]
+iferr(sqrtn(Mod(3,19),4),E,E)
 sqrtn(0,3)
 check(a)=
 {

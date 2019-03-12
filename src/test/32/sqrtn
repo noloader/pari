@@ -55,7 +55,8 @@ error("not a prime number in Fl_nonsquare: 33.")
 error("not an n-th power residue in gsqrtn: Mod(2, 7).")
 [0, 0]
 Mod(2, 21)
-Mod(15, 35)
+error("not a prime number in sqrtn [modulus]: 35.")
 [Mod(99, 101), Mod(100, 101)]
+error("not an n-th power residue in gsqrtn: Mod(3, 19).")
 0.E-38
-Total time spent: 135
+Total time spent: 100

@@ -2235,7 +2235,7 @@ Fl_sqrtn_pre(ulong a, long n, ulong p, ulong pi, ulong *zetan)
         do
         {
           a = Fl_sqrtl_raw(a, l, e, r, p, pi, y, zeta);
-          if (!a) return ULONG_MAX;
+          if (a==ULONG_MAX) return ULONG_MAX;
         } while (--j);
     }
   }
