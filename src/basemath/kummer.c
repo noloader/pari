@@ -1572,10 +1572,10 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN li
   }
   else
   {
+    long j=1;
     fa = cgetg(3, t_MAT);
     gel(fa,1) = cgetg(lg(famod), t_VEC);
     Lbad = cgetg(lg(famod), t_VEC);
-    long j=1;
     for(i=1; i<lg(famod); i++)
     {
       pr = gel(famod,i);
