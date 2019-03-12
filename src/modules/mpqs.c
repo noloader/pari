@@ -1253,7 +1253,7 @@ static void
 check_root(mpqs_handle_t *h, long p, long start)
 {
   long z = start - ((long)(h->M) % p);
-  if (smodis(addii(h->C, mului(z, addii(h->B, mului(z, h->A)))), p))
+  if (smodis(addii(h->C, mulsi(z, addii(h->B, mulsi(z, h->A)))), p))
   {
     err_printf("MPQS: p = %ld\n", p);
     err_printf("MPQS: A = %Ps\n", h->A);
