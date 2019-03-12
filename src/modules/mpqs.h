@@ -21,23 +21,6 @@
 #  define MPQS_DEBUGLEVEL DEBUGLEVEL
 #endif
 
-/* - string and external file stuff for the relations "database" */
-
-#ifndef SEEK_SET
-#  define SEEK_SET 0
-#endif
-
-#ifdef __CYGWIN32__
-/* otherwise fseek() goes crazy due to silent \n <--> LF translations */
-#  define WRITE "wb"
-#  define READ "rb"
-#else
-#  define WRITE "w"
-#  define READ "r"
-#endif
-
-#define MPQS_STRING_LENGTH         (4 * 1024UL)
-
 /* - non-configurable sizing parameters */
 
 #define MPQS_POSSIBLE_MULTIPLIERS  5 /* how many values for k we'll try */
@@ -252,7 +235,6 @@ typedef struct mpqs_handle {
   unsigned char *sieve_array_end; /* points at sieve_array[M-1] */
   mpqs_FB_entry_t *FB;          /* (aligned) FB array itself */
   long *candidates;             /* collects promising sieve subscripts */
-  char *relations;              /* freshly found relations (strings) */
   long *relaprimes;             /* prime/exponent pairs in a relation */
   mpqs_inv_A_H_t *inv_A_H;      /* self-init: (aligned) stepping array, and */
   mpqs_per_A_prime_t *per_A_pr; /* FB subscripts of primes in A etc. */

@@ -70,29 +70,54 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * common with k;  we don't sieve on these either but can easily recognize
  * them in a candidate.
  */
-
-#include <errno.h>
 #include "pari.h"
 #include "paripriv.h"
 
-static char *
-paristrtok_r(char *str, const char *delim, char **saveptr)
-{
-  char *res;
-  if (!str) str = *saveptr;
-  str += strspn(str, delim);
-  if (!*str) return NULL;
-  res = str;
-  str += strcspn(str, delim);
-  if (*str) *str++ = 0;
-  *saveptr = str;
-  return res;
-}
-
 /** DEBUG **/
 /* #define MPQS_DEBUG_VERBOSE 1 */
-
 #include "mpqs.h"
+
+#define REL_OFFSET 20
+#define REL_MASK ((1UL<<REL_OFFSET)-1)
+#define MAX_PE_PAIR 60
+#define DEFAULT_VEC_LEN 17
+
+
+static GEN
+rel_q(GEN c) { return gel(c,1); }
+static GEN
+rel_Y(GEN c) { return gel(c,2); }
+static GEN
+rel_p(GEN c) { return gel(c,3); }
+
+static void
+frel_add(hashtable *frel, GEN R)
+{
+  ulong hash = hash_GEN(R);
+  if (!hash_search2(frel, (void*)R, hash))
+    hash_insert2(frel, (void*)R, (void*)1, hash);
+}
+static void
+vec_frel_add(hashtable *frel, GEN V)
+{
+  long i, l = lg(V);
+  for (i = 1; i<l ; i++)
+    frel_add(frel, gel(V,i));
+}
+
+static GEN
+vec_extend(GEN frel, GEN rel, long nfrel)
+{
+  long lfrel = lg(frel)-1;
+  if (nfrel > lfrel)
+  {
+    lfrel *= 2;
+    frel = vec_lengthen(frel, lfrel);
+    if (DEBUGLEVEL >= 4) err_printf("MPQS: extending store to %ld\n",lfrel);
+  }
+  gel(frel, nfrel) = rel;
+  return frel;
+}
 
 /*********************************************************************/
 /**                                                                 **/
@@ -103,7 +128,7 @@ paristrtok_r(char *str, const char *delim, char **saveptr)
  * diagnostics */
 static long
 decimal_len(GEN N)
-{ pari_sp av = avma; return gc_long(av, strlen(itostr(N))); }
+{ pari_sp av = avma; return gc_long(av, 1+logint(N,stoi(10))); }
 
 /* To be called after choosing k and putting kN into the handle:
  * Pick up the requested parameter set for the given size of kN in decimal
@@ -173,24 +198,6 @@ mpqs_set_parameters(mpqs_handle_t *h)
 /**                                                                 **/
 /*********************************************************************/
 
-/* The sub-constructors for the pieces of the handle will be called in the
- * same order as their appearance here, and the later ones in part rely on
- * the earlier ones having filled in some fields.
- * There's a single destructor to handle all cleanup at the end  (except
- * for mpqs() itself resetting avma). */
-
-/* main handle constructor */
-static mpqs_handle_t *
-mpqs_handle_ctor(GEN N)
-{
-  mpqs_handle_t *h = (mpqs_handle_t *) pari_calloc(sizeof(mpqs_handle_t));
-  h->N = N;
-#ifdef MPQS_DEBUG_VERBOSE
-  err_printf("MPQS DEBUG: created handle @0x%p\n", (void *)h);
-#endif
-  return h;
-}
-
 /* factor base constructor. Really a home-grown memalign(3c) underneath.
  * We don't want FB entries to straddle L1 cache line boundaries, and
  * malloc(3c) only guarantees alignment adequate for all primitive data
@@ -204,8 +211,8 @@ mpqs_FB_ctor(mpqs_handle_t *h)
   long size_FB_chunk = (h->size_of_FB + 3) * sizeof(mpqs_FB_entry_t);
   /* like FB, except this one does not have a sentinel slot at the end */
   long size_IAH_chunk = (h->size_of_FB + 2) * sizeof(mpqs_inv_A_H_t);
-  char *fbp = (char*)pari_malloc(size_FB_chunk + 64);
-  char *iahp = (char*)pari_malloc(size_IAH_chunk + 64);
+  char *fbp = (char*)stack_malloc(size_FB_chunk + 64);
+  char *iahp = (char*)stack_malloc(size_IAH_chunk + 64);
   long fbl, iahl;
 
   h->FB_chunk = (void *)fbp;
@@ -228,31 +235,15 @@ mpqs_sieve_array_ctor(mpqs_handle_t *h)
   long size = (h->M << 1) + 1;
   mpqs_int32_t size_of_FB = h->size_of_FB;
 
-  h->sieve_array = (unsigned char *) pari_malloc(size * sizeof(unsigned char));
+  h->sieve_array = (unsigned char *) stack_malloc(size * sizeof(unsigned char));
   h->sieve_array_end = h->sieve_array + size - 2;
   h->sieve_array_end[1] = 255; /* sentinel */
-  h->candidates = (long *)pari_malloc(MPQS_CANDIDATE_ARRAY_SIZE * sizeof(long));
-
-  /* Room needed for string representation of a relation - worst case:
-   * + leading " 1 1"
-   * + trailing " 0\n" with final NUL character
-   * + in between up to size_of_FB pairs each consisting of an exponent, a
-   *   subscript into FB, and two spaces.
-   * Subscripts into FB fit into 5 digits, and exponents fit into 3 digits
-   * with room to spare -- anything needing 3 or more digits for the
-   * subscript must come with an exponent of at most 2 digits. Moreover the
-   * product of the first 58 primes is larger than 10^110  (and the righthand
-   * sides of proto-relations are much smaller than kN: on the order of
-   * M*sqrt(kN)),  so there cannot be more than 60 pairs in all, even if
-   * size_of_FB > 10^5. --GN */
-
+  h->candidates = (long *)stack_malloc(MPQS_CANDIDATE_ARRAY_SIZE * sizeof(long));
   /* whereas mpqs_self_init() uses size_of_FB+1, we just use the size as
    * it is, not counting FB[1], to start off the following estimate */
-  if (size_of_FB > 60) size_of_FB = 60;
-  h->relations = (char *) pari_malloc((8 + size_of_FB * 9) * sizeof(char));
+  if (size_of_FB > MAX_PE_PAIR) size_of_FB = MAX_PE_PAIR;
   /* and for tracking which primes occur in the current relation: */
-  h->relaprimes = (long *) pari_malloc((size_of_FB << 1) * sizeof(long));
-
+  h->relaprimes = (long *) stack_malloc((size_of_FB << 1) * sizeof(long));
 }
 
 /* mpqs() calls the following (after recording avma) to allocate GENs for
@@ -264,7 +255,7 @@ mpqs_poly_ctor(mpqs_handle_t *h)
   mpqs_int32_t i;
   long size_per = h->omega_A * sizeof(mpqs_per_A_prime_t);
 
-  h->per_A_pr = (mpqs_per_A_prime_t *) pari_calloc(size_per);
+  h->per_A_pr = (mpqs_per_A_prime_t *) stack_calloc(size_per);
   /* Sizing:  A is the product of omega_A primes, each well below word
    * size.
    * |B| is bounded by (omega_A + 4) * A, so can have at most one word
@@ -283,24 +274,6 @@ mpqs_poly_ctor(mpqs_handle_t *h)
    * are initially 0.
    * TODO: index_j currently initialized in mqps() but this is going to
    * change. */
-}
-
-/* main handle destructor, also cleans up all other allocated pieces
- * (except for stuff created on the PARI stack which the caller should
- * deal with by resetting avma) */
-static void
-mpqs_handle_dtor(mpqs_handle_t *h)
-{
-#define myfree(x) if(x) pari_free((void*)x)
-  myfree((h->per_A_pr));
-  myfree((h->relaprimes));
-  myfree(h->relations);
-
-  myfree((h->candidates));
-  myfree((h->sieve_array));
-  myfree((h->invAH_chunk));
-  myfree((h->FB_chunk));
-  myfree(h);
 }
 
 /* TODO: relationsdb handle */
@@ -398,14 +371,12 @@ mpqs_find_k(mpqs_handle_t *h)
 static mpqs_FB_entry_t *
 mpqs_create_FB(mpqs_handle_t *h, ulong *f)
 {
+  mpqs_FB_entry_t *FB = mpqs_FB_ctor(h);
   const pari_sp av = avma;
   mpqs_int32_t size = h->size_of_FB;
   long i;
   mpqs_uint32_t k = h->_k->k;
-  mpqs_FB_entry_t *FB;
   forprime_t S;
-
-  FB = mpqs_FB_ctor(h);
 
   FB[2].fbe_p = 2;
   /* the fbe_logval and the fbe_sqrt_kN for 2 are never used */
@@ -601,440 +572,6 @@ mpqs_locate_A_range(mpqs_handle_t *h)
 
   return 1;
 }
-
-/*********************************************************************/
-/**                                                                 **/
-/**           RELATIONS AS STRINGS AND RELATIONS DATABASE           **/
-/**                                                                 **/
-/*********************************************************************/
-
-/* determines a unique name for a file based on a short nickname
- * name is allocated on the stack */
-static char *
-mpqs_get_filename(char *dir, const char *s)
-{
-  char *buf = stack_malloc(strlen(dir) + strlen(s) + 2);
-#if defined(__EMX__)
-  sprintf(buf, "%s\\%s", dir,s);
-#else
-  sprintf(buf, "%s/%s", dir,s);
-#endif
-  return buf;
-}
-
-/* compares two `large prime' relations according to their first element
- * (the large prime itself). */
-static int
-mpqs_relations_cmp(const void *a, const void *b)
-{
-  char **sa = (char**) a;
-  char **sb = (char**) b;
-  long qa = strtol(*sa, NULL, 10);
-  long qb = strtol(*sb, NULL, 10);
-  /* atol() isn't entirely portable for the Full Relations case where the
-     strings of digits are too long to fit into a long --GN */
-  if (qa < qb) return -1;
-  else if (qa > qb) return 1;
-  else return strcmp(*sa, *sb);
-}
-
-static void
-pari_fputs(char *s, pariFILE *f)
-{
-  if (fputs(s, f->file) < 0) pari_err_FILE("output file [fputs]", f->name);
-}
-#define min_bufspace 120UL /* use new buffer when < min_bufspace left */
-#define buflist_size 1024  /* size of list-of-buffers blocks */
-
-/* Given a file "filename" containing full or `large prime' relations,
- * rearrange the file so that relations are sorted by their first elements.
- * Works also for sorting full relations. Works in memory, discards duplicate
- * lines, and overwrites the original file. */
-static long
-mpqs_sort_lp_file(char *filename)
-{
-  pariFILE *pTMP;
-  FILE *TMP;
-  char *old_s, *buf, *cur_line;
-  char **sort_table, **buflist, **next_buflist, **buflist_head;
-  long i, j, count;
-  size_t length, bufspace;
-  pari_sp av=avma;
-
-  buflist_head = (char**) stack_malloc(buflist_size * sizeof(char*));
-  buflist = buflist_head;
-  *buflist++ = NULL; /* flag this as last and only buflist block */
-  /* extra blocks may be allocated as needed and linked ahead of
-   * buflist_head.  NB: whilst extra buflist blocks might have been
-   * needed when we were still sorting entire FREL files (more than 1023
-   * buffers, corresponding to about 20000 lines of ~200 characters), they
-   * should never be touched now that we only sort LPNEW and FNEW files, which
-   * are rather shorter. But the code might as well stay around for future
-   * upgrades to handling even larger numbers (and factor bases and thus
-   * relations files).  It costs one comparison per buffer allocation. --GN */
-
-  pTMP = pari_fopen_or_fail(filename, READ);
-  TMP = pTMP->file;
-  /* get first buffer and read first line, if any, into it */
-  buf = (char*) pari_malloc(MPQS_STRING_LENGTH * sizeof(char));
-  cur_line = buf;
-  bufspace = MPQS_STRING_LENGTH;
-
-  if (fgets(cur_line, bufspace, TMP) == NULL)
-  { /* file empty */
-    pari_free(buf); pari_fclose(pTMP);
-    return gc_ulong(av, 0);
-  }
-  /* enter first buffer into buflist */
-  *buflist++ = buf; /* can't overflow the buflist block */
-  length = strlen(cur_line) + 1; /* count the \0 byte as well */
-  bufspace -= length;
-
-  sort_table = (char**)avma;
-  /* at start of loop, one line from the file is sitting in cur_line inside buf,
-   * the next will go into cur_line + length, and there's room for bufspace
-   * further characters in buf. The loop reads another line if one exists, and
-   * if this overruns the current buffer, it allocates a fresh one --GN */
-  for (i=0, sort_table--; /* until end of file */; i++, sort_table--)
-  { /* sort_table is allocated on the stack, 0x100 cells at a time. Hence the
-     * stack must be left alone in the rest of the loop to keep the array
-     * connected. In particular, buffers can't be new_chunk'ed */
-    if ((i & 0xff) == 0) (void)new_chunk(0x100);
-    *sort_table = cur_line;
-    cur_line += length;
-
-    /* if little room is left, allocate a fresh buffer before attempting to
-     * read a line, and remember to free it if no further line is forthcoming.
-     * This avoids some copying of partial lines --GN */
-    if (bufspace < min_bufspace)
-    {
-      if (MPQS_DEBUGLEVEL >= 7)
-        err_printf("MQPS: short of space -- another buffer for sorting\n");
-      buf = (char*) pari_malloc(MPQS_STRING_LENGTH * sizeof(char));
-      cur_line = buf;
-      bufspace = MPQS_STRING_LENGTH;
-      if (fgets(cur_line, bufspace, TMP) == NULL) { pari_free(buf); break; }
-
-      /* remember buffer for later deallocation */
-      if (buflist - buflist_head >= buflist_size)
-      { /* need another buflist block */
-        next_buflist = (char**) pari_malloc(buflist_size * sizeof(char*));
-        *next_buflist = (char*)buflist_head; /* link */
-        buflist_head = next_buflist;
-        buflist = buflist_head + 1;
-      }
-      *buflist++ = buf;
-      length = strlen(cur_line) + 1;
-      bufspace -= length; continue;
-    }
-
-    /* normal case:  try fitting another line into the current buffer */
-    if (fgets(cur_line, bufspace, TMP) == NULL) break; /* none exists */
-    length = strlen(cur_line) + 1;
-    bufspace -= length;
-
-    /* check whether we got the entire line or only part of it */
-    if (bufspace == 0 && cur_line[length-2] != '\n')
-    {
-      size_t lg1;
-      if (MPQS_DEBUGLEVEL >= 7)
-        err_printf("MQPS: line wrap -- another buffer for sorting\n");
-      buf = (char*) pari_malloc(MPQS_STRING_LENGTH * sizeof(char));
-      /* remember buffer for later deallocation */
-      if (buflist - buflist_head >= buflist_size)
-      { /* need another buflist block */
-        next_buflist = (char**)pari_malloc(buflist_size * sizeof(char*));
-        *next_buflist = (char*)buflist_head; /* link */
-        buflist_head = next_buflist;
-        buflist = buflist_head + 1;
-      }
-      *buflist++ = buf;
-
-      /* copy what we've got to the new buffer */
-      (void)strcpy(buf, cur_line); /* cannot overflow */
-      cur_line = buf + length - 1; /* point at the \0 byte */
-      bufspace = MPQS_STRING_LENGTH - length + 1;
-      /* read remainder of line */
-      if (fgets(cur_line, bufspace, TMP) == NULL)
-        pari_err_FILE("TMP file [fgets]", pTMP->name);
-      lg1 = strlen(cur_line);
-      length += lg1; /* we already counted the \0 once */
-      bufspace -= (lg1 + 1); /* but here we must take it into account */
-      cur_line = buf; /* back up to the beginning of the line */
-    }
-  } /* for */
-
-  pari_fclose(pTMP);
-
-  /* sort the whole lot in place by swapping pointers */
-  qsort(sort_table, i, sizeof(char*), mpqs_relations_cmp);
-
-  /* copy results back to the original file, skipping exact duplicates */
-  pTMP = pari_fopen_or_fail(filename, WRITE);
-  old_s = sort_table[0];
-  pari_fputs(sort_table[0], pTMP);
-  count = 1;
-  for(j = 1; j < i; j++)
-  {
-    if (strcmp(old_s, sort_table[j]))
-    {
-      pari_fputs(sort_table[j], pTMP);
-      count++;
-    }
-    old_s = sort_table[j];
-  }
-  pari_fclose(pTMP);
-  if (MPQS_DEBUGLEVEL >= 6) err_printf("MPQS: done sorting one file.\n");
-
-  /* deallocate buffers and any extraneous buflist blocks except the first */
-  while (*--buflist)
-  {
-    if (buflist != buflist_head) /* not a linkage pointer */
-      pari_free((void*) *buflist);   /* free a buffer */
-    else
-    { /* linkage pointer */
-      next_buflist = (char**)(*buflist);
-      pari_free((void*)buflist_head); /* free a buflist block */
-      buflist_head = next_buflist;
-      buflist = buflist_head + buflist_size;
-    }
-  }
-  return gc_long(av,count);
-}
-
-/* appends contents of file fp1 to f (auxiliary routine for merge sort) and
- * returns number of lines copied. Close f afterwards */
-static long
-mpqs_append_file(pariFILE *f, FILE *fp1)
-{
-  FILE *fp = f->file;
-  char line[MPQS_STRING_LENGTH];
-  long c = 0;
-  while (fgets(line, MPQS_STRING_LENGTH, fp1)) { pari_fputs(line, f); c++; }
-  if (fflush(fp)) pari_warn(warner, "error whilst flushing file %s", f->name);
-  pari_fclose(f); return c;
-}
-
-/* Merge-sort on the files LPREL and LPNEW; assumes that LPREL and LPNEW are
- * already sorted. Creates/truncates the TMP file, writes result to it and
- * closes it (via mpqs_append_file()). Instead of LPREL, LPNEW we may also call
- * this with FREL, FNEW. In the latter case pCOMB should be NULL (and we
- * return the count of all full relations), in the former non-NULL (and we
- * return the count of frels we expect to be able to combine out of the
- * present lprels). If pCOMB is non-NULL, the combinable lprels are written
- * out to this separate file.
- * We keep only one occurrence of each `large prime' in TMP (i.e. in the
- * future LPREL file). --GN */
-
-#define swap_lines() { char *line_tmp;\
-  line_tmp = line_new_old; \
-  line_new_old = line_new; \
-  line_new = line_tmp; }
-
-static long
-mpqs_mergesort_lp_file0(FILE *LPREL, FILE *LPNEW, pariFILE *pCOMB,
-                        pariFILE *pTMP)
-{
-  char line1[MPQS_STRING_LENGTH], line2[MPQS_STRING_LENGTH];
-  char line[MPQS_STRING_LENGTH];
-  char *line_new = line1, *line_new_old = line2;
-  long q_new, q_new_old = -1, q, i = 0, c = 0;
-  long comb_in_progress;
-
-  if ( !fgets(line_new, MPQS_STRING_LENGTH, LPNEW) )
-  { /* LPNEW is empty: copy LPREL to TMP. Could be done by a rename if we
-     * didn't want to count the lines (again)... however, this case will not
-     * normally happen */
-    i = mpqs_append_file(pTMP, LPREL);
-    return pCOMB ? 0 : i;
-  }
-  /* we now have a line_new from LPNEW */
-
-  if (!fgets(line, MPQS_STRING_LENGTH, LPREL))
-  { /* LPREL is empty: copy LPNEW to TMP... almost. */
-    pari_fputs(line_new, pTMP);
-    if (!pCOMB)
-    { /* full relations mode */
-      i = mpqs_append_file(pTMP, LPNEW);
-      return i + 1;
-    }
-
-    /* LP mode:  check for combinable relations */
-    q_new_old = atol(line_new);
-    /* we need to retain a copy of the old line just for a moment, because we
-     * may yet have to write it to pCOMB. Do this by swapping the two buffers */
-    swap_lines();
-    comb_in_progress = 0;
-    i = 0;
-
-    while (fgets(line_new, MPQS_STRING_LENGTH, LPNEW))
-    {
-      q_new = atol(line_new);
-      if (q_new_old == q_new)
-      { /* found combinables, check whether we're already busy on this
-           particular `large prime' */
-        if (!comb_in_progress)
-        { /* if not, write first line to pCOMB, creating and opening the
-           * file first if it isn't open yet */
-          pari_fputs(line_new_old, pCOMB);
-          comb_in_progress = 1;
-        }
-        /* in any case, write the current line, and count it */
-        pari_fputs(line_new, pCOMB);
-        i++;
-      }
-      else
-      { /* not combinable */
-        q_new_old = q_new;
-        comb_in_progress = 0;
-        /* and dump it to the TMP file */
-        pari_fputs(line_new, pTMP);
-        /* and stash it away for a moment */
-        swap_lines();
-      }
-    } /* while */
-    pari_fclose(pTMP); return i;
-  }
-
-  /* normal case: both LPNEW and LPREL are not empty */
-  q_new = atol(line_new);
-  q = atol(line);
-
-  for(;;)
-  { /* main merging loop */
-    i = comb_in_progress = 0;
-
-    /* first the harder case:  let LPNEW catch up with LPREL, and possibly
-       overtake it, checking for combinables coming from LPNEW alone */
-    while (q > q_new)
-    {
-      if (!pCOMB || !comb_in_progress) pari_fputs(line_new, pTMP);
-      if (!pCOMB) c++; /* in FREL mode, count lines written */
-      else if (!comb_in_progress)
-      {
-        q_new_old = q_new;
-        swap_lines();
-      }
-      if (!fgets(line_new, MPQS_STRING_LENGTH, LPNEW))
-      {
-        pari_fputs(line, pTMP);
-        if (!pCOMB) c++; else c += i;
-        i = mpqs_append_file(pTMP, LPREL);
-        return pCOMB? c: c + i;
-      }
-      q_new = atol(line_new);
-      if (!pCOMB) continue;
-
-      /* LP mode only: */
-      if (q_new_old != q_new) /* not combinable */
-        comb_in_progress = 0; /* next loop will deal with it, or loop may end */
-      else
-      { /* found combinables, check whether we're already busy on this
-           `large prime' */
-        if (!comb_in_progress)
-        {
-          pari_fputs(line_new_old, pCOMB);
-          comb_in_progress = 1;
-        }
-        /* in any case, write the current line, and count it */
-        pari_fputs(line_new, pCOMB);
-        i++;
-      }
-    } /* while q > q_new */
-
-    /* q <= q_new */
-
-    if (pCOMB) c += i;   /* accumulate count of combinables */
-    i = 0;               /* and clear it */
-    comb_in_progress = 0;/* redundant */
-
-    /* now let LPREL catch up with LPNEW, and possibly overtake it */
-    while (q < q_new)
-    {
-      pari_fputs(line, pTMP);
-      if (!pCOMB) c++;
-      if (!fgets(line, MPQS_STRING_LENGTH, LPREL))
-      {
-        pari_fputs(line_new, pTMP);
-        i = mpqs_append_file(pTMP, LPNEW);
-        return pCOMB? c: c + i + 1;
-      }
-      else
-        q = atol(line);
-    }
-
-    /* q >= q_new */
-
-    /* Finally, it may happen that q == q_new, indicating combinables whose
-     * `large prime' is already in LPREL, and appears now once or more often in
-     * LPNEW. Thus in this sub-loop we advance LPNEW. The `line' from LPREL is
-     * left alone, and will be written to TMP the next time around the main for
-     * loop; we only write it to pCOMB here -- unless all we find is an exact
-     * duplicate of the line we already have, that is. (There can be at most
-     * one such, and if so it is simply discarded.) */
-    while (q == q_new)
-    {
-      if (!strcmp(line_new, line))
-      { /* duplicate -- move right ahead to the next LPNEW line */
-        ;/* do nothing here */
-      }
-      else if (!pCOMB)
-      { /* full relations mode: write line_new out first, keep line */
-        pari_fputs(line_new, pTMP);
-        c++;
-      }
-      else
-      { /* LP mode, and combinable relation */
-        if (!comb_in_progress)
-        {
-          pari_fputs(line, pCOMB);
-          comb_in_progress = 1;
-        }
-        pari_fputs(line_new, pCOMB);
-        i++;
-      }
-      /* NB comb_in_progress is cleared by q_new becoming bigger than q, thus
-       * the current while loop terminating, the next time through the main for
-       * loop */
-
-      /* common ending: get another line_new, if any */
-      if (!fgets(line_new, MPQS_STRING_LENGTH, LPNEW))
-      {
-        pari_fputs(line, pTMP);
-        if (!pCOMB) c++; else c += i;
-        i = mpqs_append_file(pTMP, LPREL);
-        return pCOMB? c: c + i;
-      }
-      else
-        q_new = atol(line_new);
-    } /* while */
-
-    if (pCOMB) c += i; /* accumulate count of combinables */
-  }
-}
-
-static long
-mpqs_mergesort_lp_file(char *REL_str, char *NEW_str, char *TMP_str, pariFILE *pCOMB)
-{
-  pariFILE *pREL = pari_fopen_or_fail(REL_str, READ);
-  pariFILE *pNEW = pari_fopen_or_fail(NEW_str, READ);
-  pariFILE *pTMP = pari_fopen_or_fail(TMP_str, WRITE);
-  long tp;
-
-  tp = mpqs_mergesort_lp_file0(pREL->file, pNEW->file, pCOMB, pTMP);
-  pari_fclose(pREL);
-  pari_fclose(pNEW);
-  pari_unlink(REL_str);
-  while (rename(TMP_str,REL_str))
-  {
-    if (errno != EEXIST)
-      pari_err_FILE("output file [rename]", REL_str);
-  }
-  if (MPQS_DEBUGLEVEL >= 6)
-    err_printf("MPQS: renamed file %s to %s\n", TMP_str, REL_str);
-  return tp;
-}
-
 
 /*********************************************************************/
 /**                                                                 **/
@@ -1625,39 +1162,43 @@ mpqs_eval_sieve(mpqs_handle_t *h)
 
 /* Main relation routine */
 static void
-mpqs_add_factor(char **last, ulong ei, ulong pi) {
-  sprintf(*last, " %lu %lu", ei, pi);
-  *last += strlen(*last);
+mpqs_add_factor(GEN relp, long *i, ulong ei, ulong pi)
+{
+  ++*i;
+  relp[*i]=pi | (ei<<REL_OFFSET);
 }
 
-/* concatenate " 0" */
+/* only used for debugging */
 static void
-mpqs_add_0(char **last) {
-  char *s = *last;
-  *s++ = ' ';
-  *s++ = '0';
-  *s++ = 0; *last = s;
+split_relp(GEN rel, GEN *pt_relp, GEN *pt_relc)
+{
+  long j, l = lg(rel);
+  GEN relp = cgetg(l, t_VECSMALL);
+  GEN relc = cgetg(l, t_VECSMALL);
+  for(j=1; j<l; j++)
+  {
+    relc[j] = rel[j]>>REL_OFFSET;
+    relp[j] = rel[j]&REL_MASK;
+  }
+  *pt_relp = relp;
+  *pt_relc = relc;
 }
 
 #ifdef MPQS_DEBUG
 static GEN
-mpqs_factorback(mpqs_handle_t *h, char *relations)
+mpqs_factorback(mpqs_handle_t *h, GEN relp)
 {
-  char *s, *t = stack_strdup(relations), *tok;
   GEN N = h->N, prod = gen_1;
-  long i;
+  long i, j, l = lg(relp);
   mpqs_FB_entry_t *FB = h->FB;
 
-  s = paristrtok_r(t, " \n", &tok);
-  while (s != NULL)
+  for (j=1; j<l; j++)
   {
-    long e = atol(s); if (!e) break;
-    s = paristrtok_r(NULL, " \n", &tok);
-    i = atol(s);
+    long e = relp[j]>>REL_OFFSET;
+    i = relp[j]&REL_MASK;
     /* special case -1 */
-    if (i == 1) { prod = Fp_neg(prod,N); s = paristrtok_r(NULL, " \n", &tok); continue; }
-    prod = Fp_mul(prod, Fp_powu(utoipos(FB[i].fbe_p), e, N), N);
-    s = paristrtok_r(NULL, " \n", &tok);
+    if (i == 1) prod = Fp_neg(prod,N);
+    else prod = Fp_mul(prod, Fp_powu(utoipos(FB[i].fbe_p), e, N), N);
   }
   return prod;
 }
@@ -1666,11 +1207,10 @@ mpqs_factorback(mpqs_handle_t *h, char *relations)
 /* NB FREL, LPREL are actually FNEW, LPNEW when we get called */
 static long
 mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
-               FILE *FREL, FILE *LPREL)
+               GEN *FREL, GEN *LPREL)
 {
-  pari_sp av;
+  pari_sp av = avma;
   long number_of_relations = 0;
-  char *relations = h->relations;
   long *relaprimes = h->relaprimes;
   ulong i, pi;
   mpqs_FB_entry_t *FB = h->FB;
@@ -1678,25 +1218,23 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
   GEN B = h->B;                 /* we don't need coefficient C here */
   int pii;
   long *candidates = h->candidates;
-
-  av = avma;
-#ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: enter eval cand, avma = 0x%lX\n", (ulong)avma);
-#endif
-  for (i = 0; i < (ulong)number_of_cand; i++, set_avma(av))
+  long nb;
+  GEN frel, lprel;
+  long nfrel = 1, nlprel = 1;
+  frel = cgetg(DEFAULT_VEC_LEN, t_VEC);
+  lprel = cgetg(DEFAULT_VEC_LEN, t_VEC);
+  for (i = 0; i < (ulong)number_of_cand; i++)
   {
+    pari_sp btop = avma;
     GEN Qx, Qx_part, A_2x_plus_B, Y;
     long powers_of_2, p;
     long x = candidates[i];
     long x_minus_M = x - h->M;
-    char *relations_end = relations;
     int relaprpos = 0;
+    GEN relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
 
-#ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 1, avma = 0x%lX\n", (ulong)avma);
-#endif
+    nb=0;
 
-    *relations_end = 0;
 #ifdef MPQS_DEBUG_VERYVERBOSE
     err_printf("%c", (char)('0' + i%10));
 #endif
@@ -1707,9 +1245,6 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 
     Qx = subii(sqri(A_2x_plus_B), h->kN);
 
-#ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop 2, avma = 0x%lX\n", (ulong)avma);
-#endif
     /* When N is relatively small, it may happen that Qx is outright
      * divisible by N at this point.  In any case, when no extensive prior
      * trial division / Rho / ECM had been attempted, gcd(Qx,N) may turn
@@ -1723,14 +1258,14 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     if (!signe(Qx)) { PRINT_IF_VERBOSE("<+>"); continue; }
     else if (signe(Qx) < 0) {
       setabssign(Qx);
-      mpqs_add_factor(&relations_end, 1, 1); /* i = 1, ei = 1, pi */
+      mpqs_add_factor(relp, &nb, 1, 1); /* i = 1, ei = 1, pi */
     }
 
     /* divide by powers of 2;  we're really dealing with 4*A*Q(x), so we
      * always have at least 2^2 here, and at least 2^3 when kN is 1 mod 4 */
     powers_of_2 = vali(Qx);
     Qx = shifti(Qx, -powers_of_2);
-    mpqs_add_factor(&relations_end, powers_of_2, 2);
+    mpqs_add_factor(relp, &nb, powers_of_2, 2); /* i = 1, ei = 1, pi */
 
     /* That has dealt with a possible -1 and the power of 2.  First pass
      * over odd primes in FB: pick up all possible divisors of Qx including
@@ -1809,12 +1344,12 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 #ifdef MPQS_DEBUG
         PRINT_IF_VERBOSE("\bk!");
 #endif
-        mpqs_add_factor(&relations_end, 1, pi);
+        mpqs_add_factor(relp, &nb, 1, pi);
         continue;
       }
       if (ei == 0) /* p divides A and that was it */
       {
-        mpqs_add_factor(&relations_end, 1, pi);
+        mpqs_add_factor(relp, &nb, 1, pi);
         continue;
       }
       p = FB[pi].fbe_p;
@@ -1834,7 +1369,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
         ei++; Qx = Qx_div_p;
         Qx_div_p = divis_rem(Qx, p, &remd_p);
       }
-      mpqs_add_factor(&relations_end, ei, pi);
+      mpqs_add_factor(relp, &nb, ei, pi);
     }
 
 #ifdef MPQS_DEBUG_AVMA
@@ -1843,19 +1378,24 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     PRINT_IF_VERBOSE("\bb");
     if (is_pm1(Qx))
     {
-      mpqs_add_0(&relations_end);
-      fprintf(FREL, "%s :%s\n", itostr(Y), relations);
+      GEN rel;
+      setlg(relp, nb+1);
+      rel = gerepilecopy(btop, mkvec2(Y, relp));
+      frel = vec_extend(frel, rel, nfrel++);
       number_of_relations++;
 
 #ifdef MPQS_DEBUG
       {
         pari_sp av1 = avma;
-        GEN rhs = mpqs_factorback(h, relations);
+        GEN rhs = mpqs_factorback(h, relp);
+        GEN Y = gel(rel,1);
         GEN Qx_2 = remii(sqri(Y), h->N);
+        GEN relpp, relpc;
+        split_relp(relp,&relpp,&relpc);
         if (!equalii(Qx_2, rhs))
         {
           PRINT_IF_VERBOSE("\b(!)\n");
-          err_printf("MPQS: %Ps @ %Ps :%s\n", Y, Qx, relations);
+          err_printf("MPQS: %Ps @ %Ps : %Ps %Ps\n", Y, Qx,relpp,relpc);
           err_printf("\tQx_2 = %Ps\n", Qx_2);
           err_printf("\t rhs = %Ps\n", rhs);
           pari_err_BUG("MPQS: wrong full relation found");
@@ -1869,22 +1409,27 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     else if (cmpis(Qx, h->lp_bound) > 0)
     { /* TODO: check for double large prime */
       PRINT_IF_VERBOSE("\b.");
+      set_avma(btop);
     }
     else
     { /* if (mpqs_isprime(itos(Qx))) */
-      mpqs_add_0(&relations_end);
-      fprintf(LPREL, "%s @ %s :%s\n", itostr(Qx), itostr(Y), relations);
+      GEN rel;
+      setlg(relp, nb+1);
+      rel = gerepilecopy(btop, mkvec3(Qx,Y,relp));
+      lprel = vec_extend(lprel, rel, nlprel++);
 #ifdef MPQS_DEBUG
       {
         pari_sp av1 = avma;
-        GEN rhs = mpqs_factorback(h, relations);
+        GEN rhs = mpqs_factorback(h, relp);
+        GEN Qx = gel(rel,1), Y = gel(rel,2);
         GEN Qx_2 = remii(sqri(Y), h->N);
+        split_relp(relp,&relpp,&relpc);
 
         rhs = modii(mulii(rhs, Qx), h->N);
         if (!equalii(Qx_2, rhs))
         {
           PRINT_IF_VERBOSE("\b(!)\n");
-          err_printf("MPQS: %Ps @ %Ps :%s\n", Y, Qx, relations);
+          err_printf("MPQS: %Ps @ %Ps :%s %Ps %Ps\n", Y, Qx, relpp, relpc);
           err_printf("\tQx_2 = %Ps\n", Qx_2);
           err_printf("\t rhs = %Ps\n", rhs);
           pari_err_BUG("MPQS: wrong large prime relation found");
@@ -1896,14 +1441,14 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 #endif
     }
 
-#ifdef MPQS_DEBUG_AVMA
-    err_printf("MPQS DEBUG: eval loop end, avma = 0x%lX\n", (ulong)avma);
-#endif
   } /* for */
   PRINT_IF_VERBOSE("\n");
-#ifdef MPQS_DEBUG_AVMA
-  err_printf("MPQS DEBUG: leave eval cand, avma = 0x%lX\n", (ulong)avma);
-#endif
+  if (nfrel==1) frel=NULL;   else setlg(frel, nfrel);
+  if (nlprel==1) lprel=NULL; else setlg(lprel, nlprel);
+  *FREL = frel; *LPREL = lprel;
+  if (!frel && !lprel) { set_avma(av); return 0; }
+  if (!frel) *LPREL = gerepilecopy(av, lprel);
+  else gerepileall(av, lprel ? 2: 1, FREL, LPREL);
   return number_of_relations;
 }
 
@@ -1913,166 +1458,104 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 /**                                                                 **/
 /*********************************************************************/
 
-/* combines the large prime relations in COMB to full relations in FNEW.
- * FNEW is assumed to be open for writing / appending. */
-
-typedef struct {
-  long q;
-  char Y[MPQS_STRING_LENGTH];
-  char E[MPQS_STRING_LENGTH];
-} mpqs_lp_entry;
+/* combines the large prime relations in COMB to full relations in FNEW.*/
 
 static void
-mpqs_set_exponents(long *ei, char *r)
+rel_to_ei(GEN ei, GEN relp)
 {
-  char *s, b[MPQS_STRING_LENGTH], *tok;
-  long e;
-
-  strcpy(b, r);
-  s = paristrtok_r(b, " \n", &tok);
-  while (s != NULL)
+  long j, l = lg(relp);
+  for(j=1; j<l; j++)
   {
-    e = atol(s); if (!e) break;
-    s = paristrtok_r(NULL, " \n", &tok);
-    ei[ atol(s) ] += e;
-    s = paristrtok_r(NULL, " \n", &tok);
+    long e = relp[j]>>REL_OFFSET;
+    long i = relp[j]&REL_MASK;
+    ei[i] += e;
   }
 }
 
-static void
-set_lp_entry(mpqs_lp_entry *e, char *buf)
+static GEN
+combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
 {
-  char *s1, *s2;
-  s1 = buf; s2 = strchr(s1, ' '); *s2 = '\0';
-  e->q = atol(s1);
-  s1 = s2 + 3; s2 = strchr(s1, ' '); *s2 = '\0';
-  strcpy(e->Y, s1);
-  s1 = s2 + 3; s2 = strchr(s1, '\n'); *s2 = '\0';
-  strcpy(e->E, s1);
-}
+  pari_sp av = avma;
+  GEN new_Y, new_Y1;
+  GEN Y1 = rel_Y(rel1), Y2 = rel_Y(rel2);
+  long l, lei = h->size_of_FB + 1, nb = 0;
+  GEN ei, relp, inv_q, q = rel_q(rel1);
 
-static long
-mpqs_combine_large_primes(mpqs_handle_t *h,
-                          FILE *COMB, pariFILE *pFNEW, GEN *f)
-{
-  pari_sp av0 = avma, av, av2;
-  char new_relation[MPQS_STRING_LENGTH], buf[MPQS_STRING_LENGTH];
-  mpqs_lp_entry e[2]; /* we'll use the two alternatingly */
-  long *ei, ei_size = h->size_of_FB + 2;
-  long old_q;
-  GEN inv_q, Y1, Y2, new_Y, new_Y1;
-  long i, l, c = 0;
-
-  *f = NULL;
-  if (!fgets(buf, MPQS_STRING_LENGTH, COMB)) return 0; /* should not happen */
-
-  ei = (long *) new_chunk(ei_size);
-  av = avma;
-  /* put first lp relation in row 0 of e */
-  set_lp_entry(&e[0], buf);
-
-  i = 1; /* second relation will go into row 1 */
-  old_q = e[0].q;
-  while (!invmod(utoipos(old_q), h->N, &inv_q)) /* can happen */
+  if (!invmod(q, h->N, &inv_q)) /* can happen --GN */
   {
     inv_q = gcdii(inv_q, h->N);
-    /* inv_q can no longer be 1 here (it could while we were doing this mod
-     * kN instead of mod N), but never mind - we're not in the fast path
-     * at this point.  It could be N when N is quite small;  or we might
-     * just have found a divisor by sheer luck. */
     if (is_pm1(inv_q) || equalii(inv_q, h->N)) /* pity */
     {
 #ifdef MPQS_DEBUG
       err_printf("MPQS: skipping relation with non-invertible q\n");
 #endif
-      if (!fgets(buf, MPQS_STRING_LENGTH, COMB)) return gc_long(av0,0);
-      set_avma(av);
-      set_lp_entry(&e[0], buf);
-      old_q = e[0].q; continue;
+      set_avma(av); return NULL;
     }
-    *f = gerepileuptoint(av0, inv_q);
-    return c;
+    return inv_q;
   }
-  Y1 = strtoi(e[0].Y);
-  av2 = avma; /* preserve inv_q and Y1 */
+  ei = zero_zv(lei);
+  relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
 
-  while (fgets(buf, MPQS_STRING_LENGTH, COMB))
+  rel_to_ei(ei, rel_p(rel1));
+  rel_to_ei(ei, rel_p(rel2));
+  new_Y = modii(mulii(mulii(Y1, Y2), inv_q), h->N);
+  new_Y1 = subii(h->N, new_Y);
+  if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
+  if (odd(ei[1]))
+    mpqs_add_factor(relp, &nb, 1, 1);
+  for (l = 2; l <= lei; l++)
+    if (ei[l])
+      mpqs_add_factor(relp, &nb, ei[l],l);
+  if (DEBUGLEVEL >= 6)
   {
-    set_lp_entry(&e[i], buf);
-    if (e[i].q != old_q)
-    {
-      /* switch to combining a new bunch, swapping the rows */
-      old_q = e[i].q;
-      set_avma(av); /* discard old inv_q and Y1 */
-      if (!invmod(utoipos(old_q), h->N, &inv_q)) /* can happen --GN */
-      {
-        inv_q = gcdii(inv_q, h->N);
-        if (is_pm1(inv_q) || equalii(inv_q, h->N)) /* pity */
-        {
-#ifdef MPQS_DEBUG
-          err_printf("MPQS: skipping relation with non-invertible q\n");
-#endif
-          old_q = -1; /* sentinel */
-          set_avma(av2 = av);
-          continue; /* discard this combination */
-        }
-        *f = gerepileuptoint(av0, inv_q);
-        return c;
-      }
-      Y1 = strtoi(e[i].Y);
-      i = 1 - i; /* subsequent relations go to other row */
-      av2 = avma; /* preserve inv_q and Y1 */
-      continue;
-    }
-    /* count and combine the two we've got, and continue in the same row */
-    c++;
-    memset((void *)ei, 0, ei_size * sizeof(long));
-    mpqs_set_exponents(ei, e[0].E);
-    mpqs_set_exponents(ei, e[1].E);
-    Y2 = strtoi(e[i].Y);
-    new_Y = modii(mulii(mulii(Y1, Y2), inv_q), h->N);
-    new_Y1 = subii(h->N, new_Y);
-    if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
-    strcpy(new_relation, itostr(new_Y));
-    strcat(new_relation, " :");
-    if (ei[1] & 1) strcat(new_relation, " 1 1");
-    for (l = 2; l < ei_size; l++)
-      if (ei[l])
-      {
-        sprintf(buf, " %ld %ld", ei[l], l);
-        strcat(new_relation, buf);
-      }
-    strcat(new_relation, " 0");
-    if (DEBUGLEVEL >= 6)
-    {
-      err_printf("MPQS: combining\n");
-      err_printf("    {%ld @ %s : %s}\n", old_q, e[1-i].Y, e[1-i].E);
-      err_printf("  * {%ld @ %s : %s}\n", e[i].q, e[i].Y, e[i].E);
-      err_printf(" == {%s}\n", new_relation);
-    }
-    strcat(new_relation, "\n");
+    GEN relpp, relpc;
+    GEN rel1p, rel1c;
+    GEN rel2p, rel2c;
+    split_relp(relp,&relpp,&relpc);
+    split_relp(rel1,&rel1p,&rel1c);
+    split_relp(rel2,&rel2p,&rel2c);
+    err_printf("MPQS: combining\n");
+    err_printf("    {%Ps @ %Ps : %Ps}\n", rel_q(rel1), Y1, rel1p, rel1c);
+    err_printf("  * {%Ps @ %Ps : %Ps}\n", rel_q(rel2), Y2, rel2p, rel2c);
+    err_printf(" == {%Ps, %Ps}\n", relpp, relpc);
+  }
+  setlg(relp, nb+1);
 
 #ifdef MPQS_DEBUG
-    {
-      GEN Qx_2, prod;
-      char *s = strchr(new_relation, ':') + 2;
-      pari_sp av1 = avma;
+  {
+    GEN Qx_2, prod;
+    pari_sp av1 = avma;
 
-      Qx_2 = modii(sqri(new_Y), h->N);
-      prod = mpqs_factorback(h, s);
-      if (!equalii(Qx_2, prod))
-        pari_err_BUG("MPQS: combined large prime relation is false");
-      set_avma(av1);
-    }
+    Qx_2 = modii(sqri(new_Y), h->N);
+    prod = mpqs_factorback(h, relp);
+    if (!equalii(Qx_2, prod))
+      pari_err_BUG("MPQS: combined large prime relation is false");
+    set_avma(av1);
+  }
 #endif
+  return gerepilecopy(av, mkvec2(new_Y, relp));
+}
 
-    pari_fputs(new_relation, pFNEW);
-    set_avma(av2);
-  } /* while */
-
-  if (DEBUGLEVEL >= 4)
-    err_printf("MPQS: combined %ld full relation%s\n", c, (c!=1 ? "s" : ""));
-  return gc_long(av0,c);
+static GEN
+mpqs_combine_large_primes(mpqs_handle_t *h, hashtable *lprel, GEN LPNEW, hashtable *frel)
+{
+  long j, lpnew = lg(LPNEW);
+  for(j = 1; j < lpnew; j++)
+  {
+    GEN rel = gel(LPNEW,j);
+    ulong q = itou(rel_q(rel));
+    GEN col = hash_haskey_GEN(lprel, (void*)q);
+    if (!col)
+      hash_insert(lprel, (void*)q, (void*)rel);
+    else
+    {
+      GEN f = combine_large_primes(h, rel, col);
+      if (!f) continue;
+      if (typ(f)==t_INT) return f;
+      else frel_add(frel, f);
+    }
+  }
+  return NULL;
 }
 
 /*********************************************************************/
@@ -2085,11 +1568,9 @@ mpqs_combine_large_primes(mpqs_handle_t *h,
  * Also record the position of each relation in the file for later use
  * rows = size_of_FB+1, cols = rel */
 static GEN
-stream_read_F2m(pariFILE *pFREL, long rows, long cols, long *fpos)
+stream_read_F2m(GEN rel, long rows, long cols)
 {
-  FILE *FREL = pFREL->file;
-  long i, e, p;
-  char buf[MPQS_STRING_LENGTH], *s;
+  long i, lr = lg(rel);
   GEN m;
   long space = 2*((nbits2nlong(rows)+3)*cols+1);
   if ((long)((GEN)avma - (GEN)pari_mainstack->bot) < space)
@@ -2102,67 +1583,27 @@ stream_read_F2m(pariFILE *pFREL, long rows, long cols, long *fpos)
   }
   else
     m = zero_F2m_copy(rows, cols);
-  for (i = 0;; i++)
+  for (i = 1; i < lr; i++)
   {
-    char *tok=NULL;
-    if (i < cols && (fpos[i] = ftell(FREL)) < 0)
-      pari_err_FILE("full relations file [ftell]", pFREL->name);
-    if (!fgets(buf, MPQS_STRING_LENGTH, FREL)) break;
-    s = strchr(buf, ':');
-    if (!s) pari_err_FILE("full relations file [strchr]", pFREL->name);
-    s = paristrtok_r(s+2, " \n", &tok);
-    while (s != NULL)
-    {
-      e = atol(s); if (!e) break;
-      s = paristrtok_r(NULL, " \n", &tok);
-      p = atol(s);
-      if (e & 1) F2m_set(m, p, i+1);
-      s = paristrtok_r(NULL, " \n", &tok);
-    }
+    GEN relp = gmael(rel,i,2);
+    long j, l = lg(relp);
+    for (j = 1; j < l; j++)
+      if (odd(relp[j]>>REL_OFFSET))
+         F2m_set(m, relp[j]&REL_MASK, i);
   }
-  if (i != cols)
-  {
-    err_printf("MPQS: full relations file %s than expected",
-               i > cols ? "longer" : "shorter");
-    pari_err(e_BUG, "MPQS [panicking]");
-  }
+  if (i-1 != cols)
+    pari_err_BUG(stack_sprintf("MPQS: full relations %s than expected",
+               i > cols ? "longer" : "shorter"));
   return m;
 }
 
-/* NB: overwrites rel */
 static GEN
-mpqs_add_relation(GEN Y_prod, GEN N, long *ei, char *rel)
+mpqs_add_relation(GEN Y_prod, GEN N, GEN ei, GEN r)
 {
   pari_sp av = avma;
-  GEN res;
-  char *s, *tok=NULL;
-
-  s = strchr(rel, ':') - 1;
-  *s = '\0';
-
-  res = remii(mulii(Y_prod, strtoi(rel)), N);
-
-  s = paristrtok_r(s + 3, " \n", &tok);
-  while (s != NULL)
-  {
-    long e = atol(s), i;
-    if (!e) break;
-    s = paristrtok_r(NULL, " \n", &tok);
-    i = atol(s); /* bug in g++-3.4.1: miscompiles ei[ atol(s) ] */
-    ei[i] += e;
-    s = paristrtok_r(NULL, " \n", &tok);
-  }
+  GEN res = remii(mulii(Y_prod, gel(r,1)), N);
+  rel_to_ei(ei, gel(r,2));
   return gerepileuptoint(av, res);
-}
-
-static char*
-mpqs_get_relation(char *buf, long pos, pariFILE *pFREL)
-{
-  if (fseek(pFREL->file, pos, SEEK_SET))
-    pari_err_FILE("FREL file [fseek]", pFREL->name);
-  if (!fgets(buf, MPQS_STRING_LENGTH, pFREL->file))
-    pari_err_FILE("FREL file [fgets]", pFREL->name);
-  return buf;
 }
 
 static int
@@ -2197,21 +1638,18 @@ split(GEN N, GEN *e, GEN *res)
 }
 
 static GEN
-mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
+mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel, long rel)
 {
   GEN N = h->N, X, Y_prod, X_plus_Y, D1, res, new_res;
   mpqs_FB_entry_t *FB = h->FB;
   pari_sp av=avma, av2, av3;
-  long *fpos, *ei;
+  GEN ei;
   long i, j, H_cols, H_rows;
   long res_last, res_next, res_size, res_max;
   GEN  m, ker_m;
   long done, rank;
-  char buf[MPQS_STRING_LENGTH];
 
-  fpos = (long *) pari_malloc(rel * sizeof(long));
-
-  m = stream_read_F2m(pFREL, h->size_of_FB+1, rel, fpos);
+  m = stream_read_F2m(frel, h->size_of_FB+1, rel);
   if (DEBUGLEVEL >= 7)
     err_printf("\\\\ MATRIX READ BY MPQS\nFREL=%Ps\n",m);
 
@@ -2235,7 +1673,6 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
   { /* trivial kernel. Fail gracefully: main loop may look for more relations */
     if (DEBUGLEVEL >= 3)
       pari_warn(warner, "MPQS: no solutions found from linear system solver");
-    pari_free(fpos); /* ei not yet allocated */
     return gc_NULL(av); /* no factors found */
   }
 
@@ -2258,19 +1695,18 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
   for (i=2*res_size; i; i--) res[i] = 0;
   res_next = res_last = 1;
 
-  ei = (long *) pari_malloc((h->size_of_FB + 2) * sizeof(long));
+  ei = cgetg(h->size_of_FB + 2, t_VECSMALL);
 
   for (i = 1; i <= H_cols; i++)
   { /* loop over kernel basis */
     X = Y_prod = gen_1;
-    memset((void *)ei, 0, (h->size_of_FB + 2) * sizeof(long));
+    memset((void *)(ei+1), 0, (h->size_of_FB + 1) * sizeof(long));
 
     av3 = avma;
     for (j = 1; j <= H_rows; j++)
     {
       if (F2m_coeff(ker_m, j, i))
-        Y_prod = mpqs_add_relation(Y_prod, N, ei,
-                                   mpqs_get_relation(buf, fpos[j-1], pFREL));
+        Y_prod = mpqs_add_relation(Y_prod, N, ei, gel(frel,j));
       if (gc_needed(av3,1))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"[1]: mpqs_solve_linear_system");
@@ -2431,7 +1867,6 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
     }
   } /* for (loop over kernel basis) */
 
-  pari_free(ei); pari_free(fpos);
   if (res_next < 3) return gc_NULL(av); /* no factors found */
 
   /* normal case:  convert internal format to ifac format as described in
@@ -2479,9 +1914,9 @@ mpqs_solve_linear_system(mpqs_handle_t *h, pariFILE *pFREL, long rel)
  * with mpqs() as a wrapper for the standard case, so we can do partial runs
  * across several machines etc.  (from gp or a dedicated C program). --GN */
 static GEN
-mpqs_i(mpqs_handle_t *handle)
+mpqs_i(mpqs_handle_t *handle, GEN N)
 {
-  GEN N = handle->N, fact; /* will in the end hold our factor(s) */
+  GEN fact; /* will in the end hold our factor(s) */
   mpqs_int32_t size_of_FB; /* size of the factor base */
   mpqs_FB_entry_t *FB; /* factor base */
   mpqs_int32_t M;               /* sieve interval size [-M, M] */
@@ -2495,7 +1930,6 @@ mpqs_i(mpqs_handle_t *handle)
 
   /* bookkeeping */
   long tc;                      /* # of candidates found in one iteration */
-  long tp;                      /* # of recently sorted LP rels */
   long tff = 0;                 /* # recently found full rels from sieving */
   long tfc;                     /* # full rels recently combined from LPs */
   double tfc_ratio = 0;         /* recent (tfc + tff) / tff */
@@ -2506,14 +1940,10 @@ mpqs_i(mpqs_handle_t *handle)
   long total_full_relations = 0, total_partial_relations = 0, total_no_cand = 0;
   long vain_iterations = 0, good_iterations = 0, iterations = 0;
 
-  pariFILE *pFNEW, *pLPNEW, *pCOMB, *pFREL, *pLPREL;
-  char *dir, *COMB_str, *FREL_str, *FNEW_str, *LPREL_str, *LPNEW_str, *TMP_str;
   pari_timer T;
-
-/* END: global variables to disappear as soon as possible */
-
-/******************************/
-
+  GEN fnew, vnew;
+  long nvnew;
+  hashtable lprel, frel;
   pari_sp av = avma;
 
   if (DEBUGLEVEL >= 4)
@@ -2521,6 +1951,12 @@ mpqs_i(mpqs_handle_t *handle)
     timer_start(&T);
     err_printf("MPQS: number to factor N = %Ps\n", N);
   }
+
+  handle->N = N;
+  handle->bin_index = 0;
+  handle->index_i = 0;
+  handle->index_j = 0;
+  handle->index2_moved = 0;
 
   handle->digit_size_N = decimal_len(N);
   if (handle->digit_size_N > MPQS_MAX_DIGIT_SIZE_KN)
@@ -2618,32 +2054,14 @@ mpqs_i(mpqs_handle_t *handle)
   handle->index_j = (mpqs_uint32_t)-1;  /* increment below will have it start at 0 */
 
   if (DEBUGLEVEL >= 5) err_printf("MPQS: starting main loop\n");
-  /* compute names for the temp files we'll need */
-  dir = pari_unique_dir("MPQS");
-  TMP_str   = mpqs_get_filename(dir, "LPTMP");
-  FREL_str  = mpqs_get_filename(dir, "FREL");
-  FNEW_str  = mpqs_get_filename(dir, "FNEW");
-  LPREL_str = mpqs_get_filename(dir, "LPREL");
-  LPNEW_str = mpqs_get_filename(dir, "LPNEW");
-  COMB_str  = mpqs_get_filename(dir, "COMB");
-#define unlink_all()\
-      pari_unlink(FREL_str);\
-      pari_unlink(FNEW_str);\
-      pari_unlink(LPREL_str);\
-      pari_unlink(LPNEW_str);\
-      if (pCOMB) pari_unlink(COMB_str);\
-      while(rmdir(dir)) \
-      { if (errno != ENOTEMPTY && errno != EEXIST) break; } \
-      pari_free(dir);
 
-  pFREL = pari_fopen_or_fail(FREL_str,  WRITE); pari_fclose(pFREL);
-  pLPREL = pari_fopen_or_fail(LPREL_str,  WRITE); pari_fclose(pLPREL);
-  pFNEW = pari_fopen_or_fail(FNEW_str,  WRITE);
-  pLPNEW= pari_fopen_or_fail(LPNEW_str, WRITE);
-  pCOMB = NULL;
-
+  hash_init_GEN(&frel, handle->target_no_rels, gequal, 1);
+  hash_init_ulong(&lprel,handle->target_no_rels, 1);
+  vnew = cgetg((long)(sort_interval * (handle->target_no_rels/1000.))+2, t_VEC);
+  nvnew = 1;
   for(;;)
-  { /* FNEW and LPNEW are open for writing */
+  {
+    long i, fnb;
     iterations++;
     /* self initialization: compute polynomial and its zeros */
     mpqs_self_init(handle);
@@ -2652,10 +2070,7 @@ mpqs_i(mpqs_handle_t *handle)
       /* We might change some parameters.  For the moment, simply give up */
       if (DEBUGLEVEL >= 2)
         err_printf("MPQS: Ran out of primes for A, giving up.\n");
-      pari_fclose(pFNEW);
-      pari_fclose(pLPNEW);
-      /* FREL, LPREL are closed at this point */
-      unlink_all(); return gc_NULL(av);
+      return gc_NULL(av);
     }
 
     memset((void*)(handle->sieve_array), 0, (M << 1) * sizeof(unsigned char));
@@ -2668,10 +2083,13 @@ mpqs_i(mpqs_handle_t *handle)
 
     if (tc)
     {
-      long t = mpqs_eval_cand(handle, tc, pFNEW->file, pLPNEW->file);
+      GEN lpnew;
+      long t = mpqs_eval_cand(handle, tc, &fnew, &lpnew);
       total_full_relations += t;
       tff += t;
       good_iterations++;
+      if (fnew) vec_frel_add(&frel, fnew);
+      if (lpnew) vnew = vec_extend(vnew, lpnew, nvnew++);
     }
 
     percentage =
@@ -2691,45 +2109,32 @@ mpqs_i(mpqs_handle_t *handle)
                    sort_interval/10.);
     }
 
-    /* sort LPNEW and merge it into LPREL, diverting combinables into COMB */
-    pari_fclose(pLPNEW);
-    (void)mpqs_sort_lp_file(LPNEW_str);
-    pCOMB = pari_fopen_or_fail(COMB_str, WRITE);
-    tp = mpqs_mergesort_lp_file(LPREL_str, LPNEW_str, TMP_str, pCOMB);
-    pari_fclose(pCOMB);
-    pLPNEW = pari_fopen_or_fail(LPNEW_str, WRITE);
-
     /* combine whatever there is to be combined */
     tfc = 0;
-    if (tp > 0)
+    /* build full relations out of large prime relations */
+    fnb = frel.nb;
+    for (i=1; i<nvnew; i++)
     {
-      /* build full relations out of large prime relations */
-      pCOMB = pari_fopen_or_fail(COMB_str, READ);
-      tfc = mpqs_combine_large_primes(handle, pCOMB->file, pFNEW, &fact);
-      pari_fclose(pCOMB);
-      /* now FREL, LPREL are closed and FNEW, LPNEW are still open */
+      GEN fact = mpqs_combine_large_primes(handle, &lprel, gel(vnew,i) , &frel);
       if (fact)
       { /* factor found during combining */
         if (DEBUGLEVEL >= 4)
         {
           err_printf("\nMPQS: split N whilst combining, time = %ld ms\n",
-                     timer_delay(&T));
+              timer_delay(&T));
           err_printf("MPQS: found factor = %Ps\n", fact);
         }
-        pari_fclose(pLPNEW);
-        pari_fclose(pFNEW);
-        unlink_all();
         return gerepileupto(av, fact);
       }
-      total_partial_relations += tp;
     }
+    nvnew = 1;
+    tfc = frel.nb - fnb;
+    if (DEBUGLEVEL >= 4)
+      err_printf("MPQS: combined %ld full relation%s\n", tfc, (tfc!=1 ? "s" : ""));
+    total_partial_relations += tfc;
 
-    /* sort FNEW and merge it into FREL */
-    pari_fclose(pFNEW);
-    (void)mpqs_sort_lp_file(FNEW_str);
-    /* definitive count (combinables combined, and duplicates removed) */
-    total_full_relations = mpqs_mergesort_lp_file(FREL_str, FNEW_str, TMP_str, NULL);
-    /* FNEW stays closed until we need to reopen it for another iteration */
+    /* sort FNEW and merge it into frel */
+    total_full_relations = frel.nb;
 
     /* Due to the removal of duplicates, percentage may actually decrease at
      * this point.  Looks funny in the diagnostics but is nothing to worry
@@ -2788,7 +2193,7 @@ mpqs_i(mpqs_handle_t *handle)
     if (DEBUGLEVEL >= 4)
     {
       err_printf("MPQS: done sorting%s, time = %ld ms\n",
-                 tp > 0 ? " and combining" : "", timer_delay(&T));
+                 " and combining", timer_delay(&T));
       err_printf("MPQS: found %3.1f%% of the required relations\n",
                  percentage/10.);
       if (DEBUGLEVEL >= 5)
@@ -2811,24 +2216,16 @@ mpqs_i(mpqs_handle_t *handle)
     }
 
     if (percentage < 1000)
-    {
-      pFNEW = pari_fopen_or_fail(FNEW_str, WRITE);
-      /* LPNEW and FNEW are again open for writing */
       continue; /* main loop */
-    }
 
     /* percentage >= 1000, which implies total_full_relations > size_of_FB:
        try finishing it off */
 
     /* solve the system over F_2 */
-    /* present code does NOT in fact guarantee absence of dup FRELs,
-     * therefore removing the adjective "distinct" for the time being */
     if (DEBUGLEVEL >= 4)
-      err_printf("\nMPQS: starting Gauss over F_2 on %ld relations\n",
+      err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
                  total_full_relations);
-    pFREL = pari_fopen_or_fail(FREL_str, READ);
-    fact = mpqs_solve_linear_system(handle, pFREL, total_full_relations);
-    pari_fclose(pFREL);
+    fact = mpqs_solve_linear_system(handle, hash_keys(&frel), total_full_relations);
 
     if (fact)
     { /* solution found */
@@ -2856,8 +2253,6 @@ mpqs_i(mpqs_handle_t *handle)
           }
         }
       }
-      pari_fclose(pLPNEW);
-      unlink_all();
       /* fact not safe for a gerepilecopy(): segfaults on one of the NULL
        * markers. However, it is a nice connected object, and it resides
        * already the top of the stack, so... --GN */
@@ -2875,18 +2270,14 @@ mpqs_i(mpqs_handle_t *handle)
           err_printf("\nMPQS: giving up.\n");
       }
       if (percentage > MPQS_ADMIT_DEFEAT)
-      {
-        pari_fclose(pLPNEW);
-        unlink_all(); return gc_NULL(av);
-      }
-      pFNEW = pari_fopen_or_fail(FNEW_str, WRITE);
+        return gc_NULL(av);
     }
   } /* main loop */
 }
+
 GEN
 mpqs(GEN N)
 {
-  mpqs_handle_t *handle = mpqs_handle_ctor(N);
-  GEN fact = mpqs_i(handle);
-  mpqs_handle_dtor(handle); return fact;
+  mpqs_handle_t handle;
+  return mpqs_i(&handle, N);
 }
