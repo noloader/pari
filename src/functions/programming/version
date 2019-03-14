@@ -2,7 +2,7 @@ Function: version
 Section: programming/specific
 C-Name: pari_version
 Prototype:
-Help: version(): returns the PARI version as [major,minor,patch] or [major,minor,patch,VCSversion].
+Help: version(): returns the PARI version as [major,minor,patch] or [major,minor,patch,GITversion].
 Doc: returns the current version number as a \typ{VEC} with three integer
  components (major version number, minor version number and patchlevel);
  if your sources were obtained through our version control system, this will
