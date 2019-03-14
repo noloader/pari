@@ -1752,24 +1752,24 @@ nfdetint(GEN nf, GEN x)
 static void
 nfcleanmod(GEN nf, GEN x, long lim, GEN D)
 {
-  long i;
   GEN DZ, DZ2, dD;
+  long i;
   D = Q_remove_denom(D, &dD);
-  if (dD) x = RgC_Rg_mul(x, dD);
-  DZ = gcoeff(D,1,1);
-  DZ2 = shifti(DZ,-1);
-  for (i=1; i<=lim; i++) {
-    GEN c = gel(x,i);
-    c = nf_to_scalar_or_basis(nf, c);
+  DZ = gcoeff(D,1,1); DZ2 = shifti(DZ, -1);
+  for (i = 1; i <= lim; i++)
+  {
+    GEN c = nf_to_scalar_or_basis(nf, gel(x,i));
     switch(typ(c)) /* c = centermod(c, D) */
     {
       case t_INT:
         if (!signe(c)) break;
+        if (dD) c = mulii(c, dD);
         c = centermodii(c, DZ, DZ2);
         if (dD) c = Qdivii(c,dD);
         break;
       case t_FRAC: {
         GEN dc = gel(c,2), nc = gel(c,1), N = mulii(DZ, dc);
+        if (dD) nc = mulii(nc, dD);
         c = centermodii(nc, N, shifti(N,-1));
         c = Qdivii(c, dD ? mulii(dc,dD): dc);
         break;
@@ -1777,14 +1777,16 @@ nfcleanmod(GEN nf, GEN x, long lim, GEN D)
       case t_COL: {
         GEN dc;
         c = Q_remove_denom(c, &dc);
+        if (dD) c = ZC_Z_mul(c, dD);
         c = ZC_hnfrem(c, dc? ZM_Z_mul(D,dc): D);
+        dc = mul_content(dc, dD);
         if (ZV_isscalar(c))
         {
           c = gel(c,1);
-          if (dD) c = Qdivii(c,dD);
+          if (dc) c = Qdivii(c,dc);
         }
         else
-          if (dD) c = RgC_Rg_div(c, dD);
+          if (dc) c = RgC_Rg_div(c, dc);
         break;
       }
     }
