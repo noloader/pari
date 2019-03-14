@@ -1891,7 +1891,7 @@ merge_sort_uniq(GEN x, GEN y, void *data, int (*cmp)(void *,GEN,GEN))
   long ix, iy, m, lx = lg(x), ly = lg(y), l = lx+ly-1;
   GEN M;
 
-  M = cgetg(l, t_COL);
+  M = cgetg(l, typ(x));
   m = ix = iy = 1;
   while (ix<lx && iy<ly)
   {
@@ -1993,26 +1993,10 @@ GEN
 setunion(GEN x, GEN y)
 {
   pari_sp av = avma;
-  long i, j, k, lx = lg(x), ly = lg(y);
-  GEN z = cgetg(lx + ly - 1, t_VEC);
+  GEN z;
   if (typ(x) != t_VEC) pari_err_TYPE("setunion",x);
   if (typ(y) != t_VEC) pari_err_TYPE("setunion",y);
-  i = j = k = 1;
-  while (i<lx && j<ly)
-  {
-    int s = cmp_universal(gel(x,i), gel(y,j));
-    if (s < 0)
-      z[k++] = x[i++];
-    else if (s > 0)
-      z[k++] = y[j++];
-    else {
-      z[k++] = x[i++];
-      j++;
-    }
-  }
-  while (i<lx) z[k++] = x[i++];
-  while (j<ly) z[k++] = y[j++];
-  setlg(z, k);
+  z = merge_sort_uniq(x,y, cmp_universal, cmp_nodata);
   return gerepilecopy(av, z);
 }
 /* in case of equal keys in x,y, take the key from x */
