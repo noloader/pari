@@ -1536,29 +1536,28 @@ relative_pol(GEN pol, GEN emb, GEN pol2)
   eqn = gsub(emb, pol_x(varn(pol)));
   eqn = Q_remove_denom(eqn, NULL);
   polrel = nfgcd(pol2, eqn, pol, NULL);
-  polrel = RgX_Rg_div(polrel, leading_coeff(polrel));
-  return polrel;
+  return RgX_Rg_div(polrel, leading_coeff(polrel));
 }
 
 /* pol defines K/nf */
 static GEN
-bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN listP, long absolute, long prec)
+bnrclassfield_tower(GEN bnr, GEN subgroup, GEN TB, GEN p, long finaldeg, long absolute, long prec)
 {
   pari_sp av = avma;
-  GEN nf, nf2, rnf, bnf, bnf2, bnr2, pr, q, H, dec, cyc, dec2, Pr, vpr, vPr, pk, sgpk, pol2, emb, emb2, famod, fa, Lbad;
-  long i, r1, ell, f, sp, spk, last;
+  GEN nf, nf2, rnf, bnf, bnf2, bnr2, q, H, dec, cyc, pk, sgpk, pol2, emb, emb2, famod, fa, Lbad;
+  long i, r1, ell, sp, spk, last;
   forprime_t iter;
 
   bnf = bnr_get_bnf(bnr);
   nf = bnf_get_nf(bnf);
-  rnf = rnfinit0(nf, mkvec2(pol, listP), 1);
+  rnf = rnfinit0(nf, TB, 1);
   nf2 = rnf_build_nfabs(rnf, prec);
   gsetvarn(nf2, varn(nf_get_pol(nf)));
   r1 = nf_get_r1(nf2);
   bnf2 = Buchall(nf2, 0, prec);
 
   sp = itos(p);
-  spk = sp*degree(pol);
+  spk = sp * rnf_get_degree(rnf);
   pk = stoi(spk);
   sgpk = hnfmodid(subgroup,pk);
   last = spk==finaldeg;
@@ -1578,7 +1577,7 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN li
     Lbad = cgetg(lg(famod), t_VEC);
     for(i=1; i<lg(famod); i++)
     {
-      pr = gel(famod,i);
+      GEN pr = gel(famod,i);
       gmael(fa,1,i) = rnfidealprimedec(rnf, pr);
       q = pr_get_p(pr);
       if (lgefint(q) == 3) gel(Lbad,j++) = q;
@@ -1590,14 +1589,9 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN li
     gel(fa,2) = cgetg(lg(gel(fa,1)), t_COL);
     for (i=1; i<lg(gel(fa,1)); i++)
     {
-      pr = gcoeff(fa,i,1);
-      q = pr_get_p(pr);
-      if (equalii(p,q))
-      {
-        long e = pr_get_e(pr);
-        gcoeff(fa,i,2) = stoi(1 + (e*sp) / (sp-1));
-      }
-      else gcoeff(fa,i,2) = gen_1;
+      GEN pr = gcoeff(fa,i,1);
+      long e = equalii(p, pr_get_p(pr))? 1 + (pr_get_e(pr)*sp) / (sp-1): 1;
+      gcoeff(fa,i,2) = utoipos(e);
     }
   }
   bnr2 = bnrinit0(bnf2, mkvec2(fa, const_vec(r1,gen_1)), 0);
@@ -1608,19 +1602,14 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN li
   u_forprime_init(&iter, 2, ULONG_MAX);
   while ((ell = u_forprime_next(&iter))) if (!zv_search(Lbad, ell))
   {
-    dec = idealprimedec_limit_f(nf, stoi(ell), 1);
+    dec = idealprimedec_limit_f(nf, utoi(ell), 1);
     for (i=1; i<lg(dec); i++)
     {
-      pr = gel(dec,i);
-      dec2 = rnfidealprimedec(rnf, pr);
-      Pr = gel(dec2,1);
-      f = pr_get_f(Pr) / pr_get_f(pr);
-      vpr = FpC_Fp_mul(isprincipalray(bnr, pr), stoi(f), pk);
+      GEN pr = gel(dec,i), Pr = gel(rnfidealprimedec(rnf, pr), 1);
+      long f = pr_get_f(Pr) / pr_get_f(pr);
+      GEN vpr = FpC_Fp_mul(isprincipalray(bnr, pr), utoi(f), pk);
       if (gequal0(ZC_hnfrem(vpr,sgpk)))
-      {
-        vPr = ZV_to_Flv(isprincipalray(bnr2, Pr), sp);
-        H = vec_append(H, vPr);
-      }
+        H = vec_append(H, ZV_to_Flv(isprincipalray(bnr2, Pr), sp));
     }
     if (lg(H) > lg(cyc)+3)
     {
@@ -1639,7 +1628,7 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN li
   /* polynomial over nf */
   if (!absolute || !last)
   {
-    emb = gmael(rnf,11,2); /* generator of nf as polynomial in nf2 */
+    emb = rnf_get_alpha(rnf); /* generator of nf as polynomial in nf2 */
     emb = poleval(emb, emb2); /* generator of nf as polmod modulo pol2 */
     pol2 = relative_pol(nf_get_pol(nf), emb, pol2);
   }
@@ -1648,7 +1637,8 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN li
   obj_free(rnf);
   pol2 = gerepilecopy(av, pol2);
   if (last) return pol2;
-  return bnrclassfield_tower(bnr, subgroup, pol2, p, finaldeg, listP, absolute, prec);
+  TB = mkvec2(pol2, gel(TB,2));
+  return bnrclassfield_tower(bnr, subgroup, TB, p, finaldeg, absolute, prec);
 }
 
 /* subgroups H_i of bnr s.t. bnr/H_i is cyclic and inter_i H_i = subgroup */
@@ -1656,78 +1646,62 @@ static GEN
 cyclic_compos(GEN subgroup)
 {
   pari_sp av = avma;
-  GEN D, U, res, pe, v, zero;
-  long i, count, j;
+  GEN U, L, pe, D = smithclean( ZM_snfall_i(subgroup, &U, NULL, 1) );
+  long i, l = lg(D);
 
-  D = ZM_snfall_i(subgroup, &U, NULL, 1);
-  pe = vecmax(D);
-  U = matinvmod(U, pe);
-  count = 0;
-  for (i=1; i<lg(D); i++) if (!equali1(gel(D,i))) count++;
-  zero = zerocol(lg(gel(U,1))-1);
-  res = cgetg(count+1, t_VEC);
-  for (i=1, j=1; i<lg(D); i++)
-  {
-    if (equali1(gel(D,i))) continue;
-    v = gel(U,i);
-    gel(U,i) = zero;
-    gel(res,j) = hnfmodid(shallowmatconcat(mkvec2(subgroup,U)),pe);
-    j++;
-    gel(U,i) = v;
-  }
-  return gerepilecopy(av,res);
+  L = cgetg(l, t_VEC);
+  if (l == 1) return L;
+  pe = gel(D,1); U = matinvmod(U, pe);
+  for (i = 1; i < l; i++)
+    gel(L,i) = hnfmodid(shallowconcat(subgroup, vecsplice(U,i)),pe);
+  return gerepilecopy(av, L);
 }
 
 /* set kum=NULL if roots of unity already in base field */
 /* absolute=1 allowed if extension is cyclic with exponent>1 */
 static GEN
-bnrclassfield_primepower(struct rnfkummer *ptkum, GEN bnr, GEN subgroup, GEN p, GEN listP, long absolute, long prec)
+bnrclassfield_primepower(struct rnfkummer *ptkum, GEN bnr, GEN subgroup, GEN p,
+  GEN P, long absolute, long prec)
 {
-  GEN subs, res, pol, H, Hp, pe, cnd, bnr2;
-  long i;
+  GEN res, subs = cyclic_compos(subgroup);
+  long i, l = lg(subs);
 
-  subs = cyclic_compos(subgroup);
-  res = cgetg(lg(subs),t_VEC);
-  for (i=1; i<lg(subs); i++)
+  res = cgetg(l,t_VEC);
+  for (i = 1; i < l; i++)
   {
-    H = gel(subs,i);
-    Hp = hnfmodid(H,p);
-    cnd = bnrconductor_i(bnr, Hp, 2);
-    bnr2 = gel(cnd,2);
-    Hp = gel(cnd,3);
+    GEN H = gel(subs,i), cnd = bnrconductor_i(bnr, hnfmodid(H,p), 2);
+    GEN pol, pe, bnr2 = gel(cnd,2), Hp = gel(cnd,3);
     if (ptkum)  pol = rnfkummer_ell(ptkum, bnr2, Hp, 0);
     else        pol = rnfkummersimple(bnr2, Hp, itos(p), 0);
     pe = ZM_det_triangular(H);
-    if (!equalii(p,pe)) pol = bnrclassfield_tower(bnr, H, pol, p, itos(pe), listP, absolute, prec);
+    if (!equalii(p,pe))
+      pol = bnrclassfield_tower(bnr, H, mkvec2(pol,P), p, itos(pe), absolute, prec);
     gel(res,i) = pol;
   }
   return res;
 }
 
-static GEN
-bnrclassfield_sanitize(GEN bnr, GEN subgroup, long flag)
+static void
+bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
 {
-  GEN cyc, cnd;
-  if (flag<0 || flag>2) pari_err_FLAG("bnrclassfield [must be 0,1 or 2]");
-  if (nftyp(bnr)==typ_BNF) bnr = bnrinit0(bnr, gen_1, 0);
-  checkbnr(bnr);
+  GEN cyc, cnd, bnr = *pbnr, H = *pH;
+  if (nftyp(bnr)==typ_BNF) bnr = bnrinit0(bnr, gen_1, 0); else checkbnr(bnr);
   cyc = bnr_get_cyc(bnr);
-  if (!subgroup) subgroup = gen_0;
-  switch(typ(subgroup))
+  if (!H) H = gen_0;
+  switch(typ(H))
   {
-    case t_INT: subgroup = scalarmat(subgroup, lg(cyc)-1);
-    case t_MAT: subgroup = hnfmodid(subgroup, cyc); break;
-    default: pari_err_TYPE("bnrclassfield [subgroup]", subgroup);
+    case t_INT: H = scalarmat_shallow(H, lg(cyc)-1);
+    case t_MAT: H = hnfmodid(H, cyc); break;
+    default: pari_err_TYPE("bnrclassfield [subgroup]", H);
   }
-  cnd = bnrconductor_i(bnr, subgroup, 2);
-  bnr = gel(cnd,2);
-  subgroup = gel(cnd,3);
-  return mkvec2(bnr,subgroup);
+  cnd = bnrconductor_i(bnr, H, 2);
+  *pbnr = gel(cnd,2);
+  *pH = gel(cnd,3);
 }
 
-static GEN
 /* partition of v into two subsets whose products are as balanced as possible */
 /* assume v sorted */
+static GEN
 vecsmall_balance(GEN v)
 {
   forvec_t T;
@@ -1760,7 +1734,7 @@ vecsmall_balance(GEN v)
   prod = factorback2(vuniq, mult);
   bound = sqrti(prod);
   xbounds = cgetg(lg(mult), t_VEC);
-  for (i=1; i<lg(mult); i++) gel(xbounds,i) = mkvec2(gen_0,stoi(mult[i]));
+  for (i=1; i<lg(mult); i++) gel(xbounds,i) = mkvec2s(0,mult[i]);
 
   forvec_init(&T, xbounds, 0);
   while ((x = forvec_next(&T)))
@@ -1780,8 +1754,7 @@ vecsmall_balance(GEN v)
     for (; j<mult[i]; j++)               res2[k2++] = ind[i]+j;
   }
   setlg(res1, k1);
-  setlg(res2, k2);
-  return mkvec2(res1, res2);
+  setlg(res2, k2); return mkvec2(res1, res2);
 }
 
 /* TODO nfcompositum should accept vectors of pols */
@@ -1790,71 +1763,70 @@ vecsmall_balance(GEN v)
 static GEN
 nfcompositumall(GEN nf, GEN L)
 {
-  GEN pol, vdeg, part, L2;
+  GEN pol, vdeg, part;
   long i;
   if (lg(L)==2) return gel(L,1);
   vdeg = cgetg(lg(L), t_VECSMALL);
-  for (i=1; i<lg(L); i++)
-    vdeg[i] = degree(gel(L,i));
+  for (i=1; i<lg(L); i++) vdeg[i] = degree(gel(L,i));
   part = vecsmall_balance(vdeg);
   pol = cgetg(3, t_VEC);
-  for (i=1; i<3; i++)
+  for (i = 1; i < 3; i++)
   {
-    L2 = vecpermute(L, gel(part,i));
-    gel(pol,i) = nfcompositumall(nf, L2);
-    gel(pol,i) = rnfpolredbest(nf,gel(pol,i),0);
+    GEN L2 = vecpermute(L, gel(part,i)), T = nfcompositumall(nf, L2);
+    gel(pol,i) = rnfpolredbest(nf, T, 0);
   }
-  pol = nfcompositum(nf, gel(pol,1), gel(pol,2), 2);
-  return pol;
+  return nfcompositum(nf, gel(pol,1), gel(pol,2), 2);
 }
 
 static GEN
 bnrclassfield_i(GEN bnr, GEN subgroup, long flag, long prec)
 {
-  GEN N, fa, res, p, pe, H, bnf, data, listP, listPmod;
-  long i, sp, absolute;
+  GEN N, fa, res, bnf, nf, P, PN, Pmod, EN;
+  long i, absolute, lPN;
   struct rnfkummer kum;
-  data = bnrclassfield_sanitize(bnr, subgroup, flag);
-  bnr = gel(data,1);
-  subgroup = gel(data,2);
+  if (flag<0 || flag>2) pari_err_FLAG("bnrclassfield [must be 0,1 or 2]");
+  bnrclassfield_sanitize(&bnr, &subgroup);
 
   N = ZM_det_triangular(subgroup);
   if (equali1(N)) return pol_x(0);
   fa = Z_factor(N);
-  for (i=1; i<lg(gel(fa,1)); i++)
-    if (lgefint(gcoeff(fa,i,1)) > 3)
+  PN = gel(fa,1); lPN = lg(PN);
+  EN = gel(fa,2);
+  for (i = 1; i < lPN; i++)
+    if (lgefint(gel(PN,i)) > 3)
       pari_err_OVERFLOW("bnrclassfield [extension of too large degree]");
   bnf = bnr_get_bnf(bnr);
-  res = cgetg(lg(gel(fa,1)), t_VEC);
+  nf = bnf_get_nf(bnf);
+  res = cgetg(lPN, t_VEC);
 
-  /* one prime, exponent>1 */
-  absolute = flag==2 && lg(res)==2 && !equali1(gcoeff(fa,1,2));
+  /* one prime, exponent > 1 */
+  absolute = flag==2 && lPN==2 && !equali1(gel(EN,1));
 
-  listP = gel(absZ_factor(nf_get_disc(bnf_get_nf(bnf))),1);
-  listPmod = gel(bid_get_fact(bnr_get_bid(bnr)),1);
-  for (i=1; i<lg(listPmod); i++) gel(listPmod,i) = pr_get_p(gel(listPmod,i));
-  listP = ZV_sort_uniq(shallowconcat(listP, listPmod));
+  P = gel(absZ_factor(nf_get_disc(nf)),1);
+  Pmod = gel(bid_get_fact(bnr_get_bid(bnr)),1);
+  for (i=1; i<lg(Pmod); i++) gel(Pmod,i) = pr_get_p(gel(Pmod,i));
+  P = ZV_sort_uniq(shallowconcat(P, Pmod));
 
   for (i=1; i<lg(res); i++)
   {
     struct rnfkummer *pkum = NULL;
-    p = gcoeff(fa,i,1);
-    sp = itos(p);
-    pe = powii(p,gcoeff(fa,i,2));
-    H = hnfmodid(subgroup, pe);
-    absolute = absolute && (lg(H)==2 || equali1(gcoeff(H,2,2))); /* cyclic */
+    GEN p = gel(PN,i), H = hnfmodid(subgroup, powii(p, gel(EN,i)));
+    long sp = itos(p);
+    absolute &= (lg(H)==2 || equali1(gcoeff(H,2,2))); /* cyclic */
     if (bnf_get_tuN(bnf) % sp)
     {
       pkum = &kum;
       rnfkummer_init(pkum, bnf, sp, prec);
     }
-    gel(res,i) = bnrclassfield_primepower(pkum, bnr, H, p, listP, absolute, prec);
+    gel(res,i) = bnrclassfield_primepower(pkum, bnr, H, p, P, absolute, prec);
   }
-  res = shallowconcat1(res);
-  res = liftpol(res);
+  res = liftpol_shallow(shallowconcat1(res));
   res = gen_sort(res, (void*)cmp_RgX, gen_cmp_RgX);
-  if (flag) res = nfcompositumall(bnf_get_nf(bnf), res);
-  if (flag==2 && !absolute) res = rnfequation(bnf, res);
+  if (flag)
+  {
+    res = nfcompositumall(nf, res);
+    if (flag==2 && !absolute) res = rnfequation(nf, res);
+  }
   return res;
 }
 
