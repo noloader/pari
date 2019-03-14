@@ -21,12 +21,12 @@ Doc: \var{bnr} being as output by \kbd{bnrinit}, returns a relative equation
  \bprog
  ? bnf = bnfinit(y^3+14*y-1); bnf.cyc
  %1 = [4, 2]
- ? pol = bnrclassfield(bnf,,1) \\Hilbert class field
+ ? pol = bnrclassfield(bnf,,1) \\ Hilbert class field
  %2 = x^8 - 2*x^7 + ... + Mod(11*y^2 - 82*y + 116, y^3 + 14*y - 1)
  ? rnfdisc(bnf,pol)[1]
  %3 = 1
  ? bnr = bnrinit(bnf,3*5*7); bnr.cyc
  %4 = [24, 12, 12, 2]
- ? bnrclassfield(bnr,2) \\maximal 2-elementary subextension
+ ? bnrclassfield(bnr,2) \\ maximal 2-elementary subextension
  %5 = [x^2 + (-21*y - 105), x^2 + (-5*y - 25), x^2 + (-y - 5), x^2 + (-y - 1)]
  @eprog
