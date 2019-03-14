@@ -1551,7 +1551,7 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN pol, GEN p, long finaldeg, GEN li
 
   bnf = bnr_get_bnf(bnr);
   nf = bnf_get_nf(bnf);
-  rnf = rnfinit0(nf, pol, 1); /* TODO give listP argument */
+  rnf = rnfinit0(nf, mkvec2(pol, listP), 1);
   nf2 = rnf_build_nfabs(rnf, prec);
   gsetvarn(nf2, varn(nf_get_pol(nf)));
   r1 = nf_get_r1(nf2);
@@ -1830,27 +1830,25 @@ bnrclassfield_i(GEN bnr, GEN subgroup, long flag, long prec)
   /* one prime, exponent>1 */
   absolute = flag==2 && lg(res)==2 && !equali1(gcoeff(fa,1,2));
 
-  listP = gel(Z_factor(nf_get_disc(bnf_get_nf(bnf))),1);
+  listP = gel(absZ_factor(nf_get_disc(bnf_get_nf(bnf))),1);
   listPmod = gel(bid_get_fact(bnr_get_bid(bnr)),1);
-  for (i=1; i<lg(listPmod); i++)
-    gel(listPmod,i) = pr_get_p(gel(listPmod,i));
-  listP = shallowconcat(listP, listPmod);
-  listP = ZV_sort_uniq(listP);
+  for (i=1; i<lg(listPmod); i++) gel(listPmod,i) = pr_get_p(gel(listPmod,i));
+  listP = ZV_sort_uniq(shallowconcat(listP, listPmod));
 
   for (i=1; i<lg(res); i++)
   {
+    struct rnfkummer *pkum = NULL;
     p = gcoeff(fa,i,1);
     sp = itos(p);
     pe = powii(p,gcoeff(fa,i,2));
     H = hnfmodid(subgroup, pe);
     absolute = absolute && (lg(H)==2 || equali1(gcoeff(H,2,2))); /* cyclic */
-    if (bnf_get_tuN(bnf) % sp == 0)
-      gel(res,i) = bnrclassfield_primepower(NULL, bnr, H, p, listP, absolute, prec);
-    else
+    if (bnf_get_tuN(bnf) % sp)
     {
-      rnfkummer_init(&kum, bnf, sp, prec);
-      gel(res,i) = bnrclassfield_primepower(&kum, bnr, H, p, listP, absolute, prec);
+      pkum = &kum;
+      rnfkummer_init(pkum, bnf, sp, prec);
     }
+    gel(res,i) = bnrclassfield_primepower(pkum, bnr, H, p, listP, absolute, prec);
   }
   res = shallowconcat1(res);
   res = liftpol(res);
