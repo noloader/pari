@@ -67,6 +67,12 @@ pol2 = bnrclassfield(bnr,9)[1]
 idealval(bnf,rnfdisc(bnf,pol2)[1],dec[2])
 pol1 != pol2
 
+\\bug: corrupted bnr
+bnf = bnfinit(y^3-y^2+1);
+bnr = bnrinit(bnf,[6545,1333,2018;0,1,0;0,0,1]);
+bnrclassfield(bnr,[2,0;0,2])
+bnrclassfield(bnr,[2,1;0,1])
+
 print("examples from doc");
 bnf = bnfinit(y^3+14*y-1); bnf.cyc
 pol = bnrclassfield(bnf,,1) \\Hilbert class field

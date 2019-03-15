@@ -1803,7 +1803,7 @@ bnrclassfield_i(GEN bnr, GEN subgroup, long flag, long prec)
   absolute = flag==2 && lPN==2 && !equali1(gel(EN,1));
 
   P = gel(absZ_factor(nf_get_disc(nf)),1);
-  Pmod = gel(bid_get_fact(bnr_get_bid(bnr)),1);
+  Pmod = shallowcopy(gel(bid_get_fact(bnr_get_bid(bnr)),1));
   for (i=1; i<lg(Pmod); i++) gel(Pmod,i) = pr_get_p(gel(Pmod,i));
   P = ZV_sort_uniq(shallowconcat(P, Pmod));
 
