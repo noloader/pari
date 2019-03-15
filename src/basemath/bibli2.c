@@ -1996,7 +1996,7 @@ setunion(GEN x, GEN y)
   GEN z;
   if (typ(x) != t_VEC) pari_err_TYPE("setunion",x);
   if (typ(y) != t_VEC) pari_err_TYPE("setunion",y);
-  z = merge_sort_uniq(x,y, cmp_universal, cmp_nodata);
+  z = merge_sort_uniq(x,y, (void*)cmp_universal, cmp_nodata);
   return gerepilecopy(av, z);
 }
 /* in case of equal keys in x,y, take the key from x */
