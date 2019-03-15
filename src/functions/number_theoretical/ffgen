@@ -37,14 +37,16 @@ Doc: return a generator for the finite field $k$ as a \typ{FFELT}.
  ? g = ffgen(16, 't);
  ? g.mod \\ recover the underlying polynomial.
  %2 = t^4+t^3+t^2+t+1
+ ? g.pol \\ lift g as a t_POL
+ %3 = t
  ? g.p \\ recover the characteristic
- %3 = 2
+ %4 = 2
  ? fforder(g) \\ g is not a multiplicative generator
- %4 = 5
+ %5 = 5
  ? a = ffprimroot(g) \\ recover a multiplicative generator
- %5 = t^3+t^2+t
+ %6 = t^3+t^2+t
  ? fforder(a)
- %6 = 15
+ %7 = 15
  @eprog
 
 Variant:
