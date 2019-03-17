@@ -334,7 +334,11 @@ sub apropos_print_list {
   for (@_)
   {
     next if ($_ eq $current);
-    $current = $_; print "$indent$_\n";
+    $current = $_;
+    if (/ /)
+    { print "$indent\"$_\"\n"; }
+    else
+    { print "$indent$_\n"; }
   }
 }
 

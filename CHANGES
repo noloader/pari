@@ -175,6 +175,7 @@ BA  44- GP: the argument of a user member function is now a reference
     48- poldisc(t_COMPLEX) now raises an exception (used to return -4)
     49- rnfdisc(nf, [T,B]) allow B a list of primes and maximal ideals
         (same for rnfbasis, rnfinit, rnfconductor, rnfpseudobasis)
+    50- ??? include double quotes when needed (e.g. ???conductor) [#2122]
 
   Added
      1- [libpari] nonsquare_Fl
