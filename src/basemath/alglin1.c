@@ -4955,14 +4955,6 @@ det2(GEN a)
   return det_simple_gauss(a, data, pivot);
 }
 
-static GEN
-mydiv(GEN x, GEN y)
-{
-  long tx = typ(x), ty = typ(y);
-  if (tx == ty && tx == t_POL && varn(x) == varn(y)) return RgX_div(x,y);
-  return gdiv(x,y);
-}
-
 /* Assumes a a square t_MAT of dimension n > 0. Returns det(a) using
  * Gauss-Bareiss. */
 static GEN
@@ -4975,8 +4967,8 @@ det_bareiss(GEN a)
   a = RgM_shallowcopy(a);
   for (pprec=gen_1,i=1; i<nbco; i++,pprec=p)
   {
-    GEN ci;
     int diveuc = (gequal1(pprec)==0);
+    GEN ci;
 
     p = gcoeff(a,i,i);
     if (gequal0(p))
@@ -4995,13 +4987,13 @@ det_bareiss(GEN a)
         if (gequal1(p))
         {
           if (diveuc)
-            gel(a,k) = mydiv(gel(a,k), pprec);
+            gel(a,k) = gdiv(gel(a,k), pprec);
         }
         else
           for (j=i+1; j<=nbco; j++)
           {
             GEN p1 = gmul(p, gel(ck,j));
-            if (diveuc) p1 = mydiv(p1,pprec);
+            if (diveuc) p1 = gdiv(p1,pprec);
             gel(ck,j) = p1;
           }
       }
@@ -5010,7 +5002,7 @@ det_bareiss(GEN a)
         {
           pari_sp av2 = avma;
           GEN p1 = gsub(gmul(p,gel(ck,j)), gmul(m,gel(ci,j)));
-          if (diveuc) p1 = mydiv(p1,pprec);
+          if (diveuc) p1 = gdiv(p1,pprec);
           gel(ck,j) = gerepileupto(av2, p1);
         }
       if (gc_needed(av,2))
