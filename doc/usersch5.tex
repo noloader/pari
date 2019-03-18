@@ -8389,7 +8389,7 @@ denominator of $M^{-1}$ is much smaller than $\det M$ else use \kbd{ZM\_inv}.
 \fun{GEN}{ZM_pseudoinv}{GEN M, GEN *pv, GEN *pd} if \kbd{M} is a non-empty
 \kbd{ZM}, let $v = [y,z]$ returned by \kbd{indexrank} and
 let $M_1$ be the corresponding square invertible matrix.
-Return a primitive left-inverse $H$ such that $H M$ is
+Return a primitive left-inverse $H$ such that $H M_1$ is
 $d$ times the identity and set \kbd{*pd} to $d$. If \kbd{pv} is not
 \kbd{NULL}, set \kbd{*pv} to $v$. Not gerepile-safe.
 
