@@ -2160,7 +2160,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       GEN sser;
       if (gequal1(s)) pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
       sser = gadd(gadd(s, pol_x(0)), zeroser(0, der + 2));
-      z = zetahurwitz(sser, x, 0, bitprec);
+      z = zetahurwitz(sser, x, 0, bitprec + der * log2(der));
       z = gmul(mpfact(der), polcoeff0(z, der, -1));
     }
     return gerepileupto(av,z);
@@ -2194,7 +2194,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       }
       sch = gequal0(s0)? y: serchop0(y);
       v = valp(sch);
-      prpr = (precdl + v + 1)/v; if (gequal1(s0)) prpr += v;
+      prpr = (lg(y) + v + 1)/v; if (gequal1(s0)) prpr += v;
       s = gadd(gadd(s0, pol_x(0)), zeroser(0, prpr));
     }
   al = gneg(s0); ral = real_i(al); ral0 = ground(ral);
