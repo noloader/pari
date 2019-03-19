@@ -10263,7 +10263,7 @@ static GEN
 lfunfindchi(GEN ldata, GEN van, long prec)
 {
   GEN gN = ldata_get_conductor(ldata), G = znstar0(gN,1), L, go, vz;
-  long k = ldata_get_k(ldata), N = itou(gN), bit = 10 - prec2nbits(prec);
+  long k = gtos(ldata_get_k(ldata)), N = itou(gN), bit = 10 - prec2nbits(prec);
   long i, j, o, l, odd = k & 1, B0 = 2, B = lg(van)-1;
 
   van = shallowcopy(van);
@@ -10311,7 +10311,7 @@ mffromlfun(GEN L, long prec)
   GEN van, a0, CHI, NK;
   long k, N, space;
   if (!gequal(Vga, mkvec2(gen_0, gen_1))) pari_err_TYPE("mffromlfun", L);
-  k = ldata_get_k(ldata);
+  k = gtos(ldata_get_k(ldata));
   N = itou(ldata_get_conductor(ldata));
   van = ldata_vecan(ldata_get_an(ldata), mfsturmNk(N,k) + 2, prec);
   CHI = lfunfindchi(ldata, van, prec);

@@ -45,6 +45,7 @@ checkldata(GEN ldata)
   switch(typ(w))
   {
     case t_INT: break;
+    case t_FRAC: break;
     case t_VEC: if (lg(w) == 3 && typ(gel(w,1)) == t_INT) break;
     default: pari_err_TYPE("checkldata [weight]",w);
   }
@@ -150,12 +151,13 @@ vecan_twist(GEN an, long n, long prec)
 static GEN
 lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
-  long k = ldata_get_k(ldata1), l, j;
+  long l, j;
+  GEN k = ldata_get_k(ldata1);
   GEN r1 = ldata_get_residue(ldata1);
   GEN r2 = ldata_get_residue(ldata2), r;
 
-  if (r1 && typ(r1) != t_VEC) r1 = mkvec(mkvec2(stoi(k), r1));
-  if (r2 && typ(r2) != t_VEC) r2 = mkvec(mkvec2(stoi(k), r2));
+  if (r1 && typ(r1) != t_VEC) r1 = mkvec(mkvec2(k, r1));
+  if (r2 && typ(r2) != t_VEC) r2 = mkvec(mkvec2(k, r2));
   if (!r1)
   {
     if (!r2) return NULL;
@@ -187,12 +189,11 @@ GEN
 lfunmul(GEN ldata1, GEN ldata2, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN r, N, Vga, eno, a1a2, b1b2, LD;
-  long k;
+  GEN k, r, N, Vga, eno, a1a2, b1b2, LD;
   ldata1 = lfunmisc_to_ldata_shallow(ldata1);
   ldata2 = lfunmisc_to_ldata_shallow(ldata2);
   k = ldata_get_k(ldata1);
-  if (ldata_get_k(ldata2) != k)
+  if (!gequal(ldata_get_k(ldata2),k))
     pari_err_OP("lfunmul [weight]",ldata1, ldata2);
   r = lfunmulpoles(ldata1, ldata2, bitprec);
   N = gmul(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
@@ -201,7 +202,7 @@ lfunmul(GEN ldata1, GEN ldata2, long bitprec)
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
   a1a2 = lfunconvol(ldata_get_an(ldata1), ldata_get_an(ldata2));
   b1b2 = lfuncombdual(lfunconvol, ldata1, ldata2);
-  LD = mkvecn(7, a1a2, b1b2, Vga, stoi(k), N, eno, r);
+  LD = mkvecn(7, a1a2, b1b2, Vga, k, N, eno, r);
   if (!r) setlg(LD,7);
   return gerepilecopy(ltop, LD);
 }
@@ -209,12 +210,13 @@ lfunmul(GEN ldata1, GEN ldata2, long bitprec)
 static GEN
 lfundivpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
-  long k = ldata_get_k(ldata1), i, j, l;
+  long i, j, l;
+  GEN k  = ldata_get_k(ldata1);
   GEN r1 = ldata_get_residue(ldata1);
   GEN r2 = ldata_get_residue(ldata2), r;
 
-  if (r1 && typ(r1) != t_VEC) r1 = mkvec(mkvec2(stoi(k), r1));
-  if (r2 && typ(r2) != t_VEC) r2 = mkvec(mkvec2(stoi(k), r2));
+  if (r1 && typ(r1) != t_VEC) r1 = mkvec(mkvec2(k, r1));
+  if (r2 && typ(r2) != t_VEC) r2 = mkvec(mkvec2(k, r2));
   if (!r1) return NULL;
   r1 = lfunrtopoles(r1);
   l = lg(r1); r = cgetg(l, t_VEC);
@@ -232,12 +234,12 @@ GEN
 lfundiv(GEN ldata1, GEN ldata2, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN r, N, v, v1, v2, eno, a1a2, b1b2, LD, eno2;
-  long k, j, j1, j2, l1, l2;
+  GEN k, r, N, v, v1, v2, eno, a1a2, b1b2, LD, eno2;
+  long j, j1, j2, l1, l2;
   ldata1 = lfunmisc_to_ldata_shallow(ldata1);
   ldata2 = lfunmisc_to_ldata_shallow(ldata2);
   k = ldata_get_k(ldata1);
-  if (ldata_get_k(ldata2) != k)
+  if (!gequal(ldata_get_k(ldata2),k))
     pari_err_OP("lfundiv [weight]",ldata1, ldata2);
   r = lfundivpoles(ldata1, ldata2, bitprec);
   N = gdiv(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
@@ -262,13 +264,13 @@ lfundiv(GEN ldata1, GEN ldata2, long bitprec)
   for (j1 = j = 1; j1 < l1; j1++)
     if (gel(v1, j1)) gel(v,j++) = gel(v1,j1);
 
-  LD = mkvecn(7, a1a2, b1b2, v, stoi(k), N, eno, r);
+  LD = mkvecn(7, a1a2, b1b2, v, k, N, eno, r);
   if (!r) setlg(LD,7);
   return gerepilecopy(ltop, LD);
 }
 
 static GEN
-gamma_imagchi(GEN gam, long w)
+gamma_imagchi(GEN gam, GEN w)
 {
   long i, j, k=1, l;
   GEN g = cgetg_copy(gam, &l);
@@ -278,7 +280,7 @@ gamma_imagchi(GEN gam, long w)
     GEN al = gel(gam, i);
     if (al)
     {
-      GEN N = gaddsg(w,gmul2n(real_i(al),1));
+      GEN N = gadd(w,gmul2n(real_i(al),1));
       if (gcmpgs(N,2) > 0)
       {
         GEN bl = gsubgs(al, 1);
@@ -302,9 +304,9 @@ GEN
 lfuntwist(GEN ldata1, GEN chi)
 {
   pari_sp ltop = avma;
-  GEN L, N, N1, N2, a, a1, a2, b, b1, b2, gam, gam1, gam2;
+  GEN k, L, N, N1, N2, a, a1, a2, b, b1, b2, gam, gam1, gam2;
   GEN ldata2;
-  long d1, k, t;
+  long d1, t;
   ldata1 = lfunmisc_to_ldata_shallow(ldata1);
   ldata2 = lfunmisc_to_ldata_shallow(chi);
   t = ldata_get_type(ldata2);
@@ -324,7 +326,7 @@ lfuntwist(GEN ldata1, GEN chi)
   if (gequal0(gel(gam2, 1)))
     gam = gam1;
   else
-    gam = gamma_imagchi(ldata_get_gammavec(ldata1), k-1);
+    gam = gamma_imagchi(ldata_get_gammavec(ldata1), gaddgs(k,-1));
   if (!gam) pari_err_IMPL("lfuntwist (gammafactors)");
   a1 = ldata_get_an(ldata1);
   a2 = ldata_get_an(ldata2);
@@ -335,7 +337,7 @@ lfuntwist(GEN ldata1, GEN chi)
     b = signe(b1) && signe(b2) ? gen_0: gen_1;
   else
     b = tag(mkvec2(b1,lfunconj(a2)), t_LFUN_TWIST);
-  L = mkvecn(6, a, b, gam, stoi(k), N, gen_0);
+  L = mkvecn(6, a, b, gam, k, N, gen_0);
   return gerepilecopy(ltop, L);
 }
 
@@ -1319,10 +1321,10 @@ lfunmfspec(GEN lmisc, long bitprec)
   long k, k2, j;
 
   ldataf = lfunmisc_to_ldata_shallow(lmisc);
-  k = ldata_get_k(ldataf);
+  k = gtos(ldata_get_k(ldataf));
   dom = mkvec3(dbltor(k/2.), dbltor((k-2)/2.), gen_0);
   if (is_linit(lmisc) && linit_get_type(lmisc) == t_LDESC_INIT
-      && sdomain_isincl(k, dom, lfun_get_dom(linit_get_tech(lmisc))))
+      && sdomain_isincl((double)k, dom, lfun_get_dom(linit_get_tech(lmisc))))
     linit = lmisc;
   else
     linit = lfuninit(ldataf, dom, 0, bitprec);
@@ -2037,29 +2039,28 @@ GEN
 lfunqf(GEN M, long prec)
 {
   pari_sp ltop = avma;
-  long n, k;
-  GEN D, d, Mi, Ldata, poles, res0, res2, eno, dual;
+  long n;
+  GEN k, D, d, Mi, Ldata, poles, res0, res2, eno, dual;
 
   if (typ(M) != t_MAT) pari_err_TYPE("lfunqf", M);
   if (!RgM_is_ZM(M))   pari_err_TYPE("lfunqf [not integral]", M);
   n = lg(M)-1;
-  if (odd(n)) pari_err_TYPE("lfunqf [odd dimension]", M);
-  k = n >> 1;
+  k = sstoQ(n,2);
   M = Q_primpart(M);
   Mi = ZM_inv(M, &d); /* d M^(-1) */
   if (!qfiseven(M)) { M = gmul2n(M, 1); d = shifti(d,1); }
   if (!qfiseven(Mi)){ Mi= gmul2n(Mi,1); d = shifti(d,1); }
   /* det(Mi) = d^n/det(M), D^2 = det(Mi)/det(M) */
-  D = gdiv(powiu(d,k), ZM_det(M));
+  D = gdiv(gpow(d,k,prec), ZM_det(M));
   if (!issquareall(D, &eno)) eno = gsqrt(D, prec);
   dual = gequal1(D) ? gen_0: tag(Mi, t_LFUN_QF);
   res0 = RgX_to_ser(deg1pol_shallow(gen_m2, gen_0, 0), 3);
   setvalp(res0, -1);
   res2 = RgX_to_ser(deg1pol_shallow(gmulgs(eno,2), gen_0, 0), 3);
   setvalp(res2, -1);
-  poles = mkcol2(mkvec2(stoi(k),res2), mkvec2(gen_0,res0));
+  poles = mkcol2(mkvec2(k,res2), mkvec2(gen_0,res0));
   Ldata = mkvecn(7, tag(M, t_LFUN_QF), dual,
-       mkvec2(gen_0, gen_1), stoi(k), d, eno, poles);
+       mkvec2(gen_0, gen_1), k, d, eno, poles);
   return gerepilecopy(ltop, Ldata);
 }
 
