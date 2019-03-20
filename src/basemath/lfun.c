@@ -2147,7 +2147,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
   if (typ(lim) == t_VEC)
   {
     if (lg(lim) != 3 || gcmp(gel(lim,1),gel(lim,2)) >= 0
-                     || gcmp(gel(lim,1),gen_0) <= 0)
+                     || gcmp(gel(lim,1),gen_0) < 0)
       pari_err_TYPE("lfunzeros",lim);
     h1 = gel(lim,1); h2 = gel(lim,2);
   }

@@ -57,6 +57,7 @@ lfun(Mod(8,13), 1)
 /* EC */
 e = ellinit([0, 0, 1, -7, 6]);
 lfunzeros(e,20)
+lfunzeros(e,[0,3])
 /* Ramanujan */
 ltau=lfunetaquo(Mat([1,24]));
 lfunmfspec(ltau)

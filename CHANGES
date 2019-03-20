@@ -105,6 +105,7 @@ BA  82- sqrtn(Mod(3,19),4) -> no error [#2127]
     84- matdet(mat with t_RFRAC entries): wrong result [#2128]
     85- n-th derivative of zetahurwitz used 'seriesprecision' instead of n
         + imprecise value when n large [#2130]
+    86- lfunzeros(f, [0, b]) wasn't allowed
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
