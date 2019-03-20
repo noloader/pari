@@ -586,7 +586,7 @@ maxord(GEN p, GEN f, long mf)
   const pari_sp av = avma;
   GEN res, g, k = ZX_Dedekind(f, &g, p);
   long dk = degpol(k);
-  if (DEBUGLEVEL>2) err_printf("  ZX_dedekind: gcd has degree %ld\n", dk);
+  if (DEBUGLEVEL>2) err_printf("  ZX_Dedekind: gcd has degree %ld\n", dk);
   if (!dk) { set_avma(av); return gen_1; }
   if (mf < 0) mf = ZpX_disc_val(f, p);
   k = FpX_normalize(k, p);
