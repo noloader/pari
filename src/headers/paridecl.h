@@ -3146,6 +3146,8 @@ GEN     closure_callgen1prec(GEN C, GEN x, long prec);
 GEN     closure_callgen2(GEN C, GEN x, GEN y);
 GEN     closure_callgenall(GEN C, long n, ...);
 GEN     closure_callgenvec(GEN C, GEN args);
+GEN     closure_callgenvecdef(GEN C, GEN args, GEN def);
+GEN     closure_callgenvecdefprec(GEN C, GEN args, GEN def, long prec);
 GEN     closure_callgenvecprec(GEN C, GEN args, long prec);
 void    closure_callvoid1(GEN C, GEN x);
 long    closure_context(long start, long level);

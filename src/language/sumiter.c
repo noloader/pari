@@ -1418,13 +1418,15 @@ struct deriv_data
 {
   GEN code;
   GEN args;
+  GEN def;
 };
 
 static GEN deriv_eval(void *E, GEN x, long prec)
 {
  struct deriv_data *data=(struct deriv_data *)E;
  gel(data->args,1)=x;
- return closure_callgenvecprec(data->code, data->args, prec);
+ uel(data->def,1)=1;
+ return closure_callgenvecdefprec(data->code, data->args, data->def, prec);
 }
 
 /* Rationale: (f(2^-e) - f(-2^-e) + O(2^-b)) / (2 * 2^-e) = f'(0) + O(2^-2e)
@@ -1708,12 +1710,12 @@ derivnum0(GEN a, GEN code, GEN ind, long prec)
 { EXPR_WRAP(code, derivfunk(EXPR_ARGPREC,a,ind,prec)); }
 
 GEN
-derivfun0(GEN code, GEN args, long k, long prec)
+derivfun0(GEN args, GEN def, GEN code, long k, long prec)
 {
   pari_sp av = avma;
   struct deriv_data E;
   GEN z;
-  E.code=code; E.args=args;
+  E.code=code; E.args=args; E.def=def;
   z = gel(derivfunk((void*)&E, deriv_eval, gel(args,1), mkvecs(k), prec),1);
   return gerepilecopy(av, z);
 }

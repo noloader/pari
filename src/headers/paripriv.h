@@ -93,7 +93,7 @@ GEN  gshift_right(GEN x, long n);
 
 GEN  asympnum0(GEN u, GEN alpha, long prec);
 GEN  derivnum0(GEN a, GEN code, GEN ind, long prec);
-GEN  derivfun0(GEN code, GEN args, long k, long prec);
+GEN  derivfun0(GEN args, GEN def, GEN code, long k, long prec);
 GEN  direuler0(GEN a, GEN b, GEN code, GEN c);
 GEN  direuler_bad(void *E, GEN (*eval)(void *, GEN, long), GEN a, GEN b, GEN c, GEN Sbad);
 void forcomposite(GEN a, GEN b, GEN code);

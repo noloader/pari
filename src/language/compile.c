@@ -2251,7 +2251,7 @@ closure_derivn(GEN G, long n)
 {
   pari_sp ltop = avma;
   struct codepos pos;
-  long i, arity = closure_arity(G);
+  long arity = closure_arity(G);
   const char *code;
   GEN t, text;
 
@@ -2270,15 +2270,8 @@ closure_derivn(GEN G, long n)
   }
   getcodepos(&pos);
   dbgstart = code;
-  op_push_loc(OCgetargs, arity,code);
-  op_push_loc(OCpushgen,data_push(G),code);
-  op_push_loc(OCvec,arity+1,code);
-  for (i = 1; i <= arity; i++)
-  {
-    op_push_loc(OCpushlex, i-arity-1, code);
-    op_push_loc(OCstackgen, i, code);
-  }
-  op_push_loc(OCpop, 1, code);
+  op_push_loc(OCpackargs, arity, code);
+  op_push_loc(OCpushgen, data_push(G), code);
   op_push_loc(OCpushlong, n, code);
   op_push_loc(OCprecreal, 0, code);
   op_push_loc(OCcallgen, (long)is_entry("_derivfun"), code);

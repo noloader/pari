@@ -63,6 +63,6 @@ Doc: numerical derivation of \var{expr} with respect to $X$ at $X=a$. The
 Function: _derivfun
 Section: programming/internals
 C-Name: derivfun0
-Prototype: GGD1,L,p
-Help: _derivfun(closure,[args]) numerical derivation of closure with respect to
- the first variable at (args).
+Prototype: GGGD1,L,p
+Help: _derivfun(args,def,closure,k) numerical kth-derivation of closure with respect to
+ the first variable at args

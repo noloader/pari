@@ -14260,6 +14260,14 @@ has arity $\geq \kbd{lg(args)-1}$.
 \fun{GEN}{closure_callgenvecprec}{GEN C, GEN args, long prec} as
 \kbd{closure\_callgenvec} but set the precision locally to \kbd{prec}.
 
+\fun{GEN}{closure_callgenvecdef}{GEN C, GEN args, GEN def} evaluate the \typ{CLOSURE}
+\kbd{C} with the arguments supplied in the vector \kbd{args}, where the \typ{VECSMALL}
+\kbd{def} indicates which arguments are actually present.
+Assumes \kbd{C} has arity $\geq \kbd{lg(args)-1}$.
+
+\fun{GEN}{closure_callgenvecdefprec}{GEN C, GEN args, GEN def, long prec} as
+\kbd{closure\_callgenvecdef} but set the precision locally to \kbd{prec}.
+
 \fun{GEN}{closure_callgen1}{GEN C, GEN x} evaluate the \typ{CLOSURE}
 \kbd{C} with argument \kbd{x}. Assumes \kbd{C} has arity $\geq 1$.
 

@@ -1486,6 +1486,29 @@ closure_eval(GEN C)
         gel(st,sp-1) = cl;
       }
       break;
+    case OCpackargs:
+    {
+      GEN def = cgetg(operand+1, t_VECSMALL);
+      GEN args = cgetg(operand+1, t_VEC);
+      pari_stack_alloc(&s_var,operand);
+      sp-=operand;
+      for (j=0;j<operand;j++)
+      {
+        if (gel(st,sp+j))
+        {
+          gel(args,j+1) = gel(st,sp+j);
+          uel(def ,j+1) = 1;
+        }
+        else
+        {
+          gel(args,j+1) = gen_0;
+          uel(def ,j+1) = 0;
+        }
+      }
+      gel(st, sp++) = args;
+      gel(st, sp++) = def;
+      break;
+    }
     case OCgetargs:
       pari_stack_alloc(&s_var,operand);
       s_var.n+=operand;
@@ -2001,6 +2024,29 @@ closure_callgenvecprec(GEN C, GEN args, long prec)
 }
 
 GEN
+closure_callgenvecdef(GEN C, GEN args, GEN def)
+{
+  long i, l = lg(args)-1, ar = closure_arity(C);
+  st_alloc(ar);
+  if (l > ar)
+    pari_err(e_MISC,"too many parameters in user-defined function call");
+  if (closure_is_variadic(C) && l==ar && typ(gel(args,l))!=t_VEC)
+    pari_err_TYPE("call", gel(args,l));
+  for (i = 1; i <= l;  i++) gel(st,sp++) = def[i] ? gel(args,i): NULL;
+  for(      ; i <= ar; i++) gel(st,sp++) = NULL;
+  return closure_returnupto(C);
+}
+
+GEN
+closure_callgenvecdefprec(GEN C, GEN args, GEN def, long prec)
+{
+  GEN z;
+  push_localprec(prec);
+  z = closure_callgenvecdef(C, args, def);
+  pop_localprec();
+  return z;
+}
+GEN
 closure_callgenall(GEN C, long n, ...)
 {
   va_list ap;
@@ -2268,6 +2314,9 @@ closure_disassemble(GEN C)
     case OCdefaultgen:
       pari_printf("defaultgen\t%ld\n",operand);
       break;
+    case OCpackargs:
+      pari_printf("packargs\t%ld\n",operand);
+      break;
     case OCgetargs:
       pari_printf("getargs\t\t%ld\n",operand);
       break;
@@ -2417,6 +2466,7 @@ opcode_need_relink(op_code opcode)
   case OCcheckargs:
   case OCcheckargs0:
   case OCcheckuserargs:
+  case OCpackargs:
   case OCgetargs:
   case OCdefaultarg:
   case OCdefaultgen:
