@@ -954,7 +954,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   S->logN2 = log(gtodouble(N)) / 2;
   maxs = S->dc + S->dw;
   mins = S->dc - S->dw;
-  S->MAXs = maxss(maxs, k-mins);
+  S->MAXs = maxdd(maxs, k-mins);
 
   /* we compute Lambda^(der)(s) / der!; need to compensate for L^(der)(s)
    * ln |gamma(s)| ~ -(pi/4) \sum_i |Im(s + a_i)|; max with 1: fudge factor */
