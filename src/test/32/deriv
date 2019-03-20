@@ -3,11 +3,6 @@
 8618864*I
 1 - 1/2*x^2 + 1/24*x^4 - 1/720*x^6 + 1/40320*x^8 - 1/3628800*x^10 + 1/479001
 600*x^12 - 1/87178291200*x^14 + 1/20922789888000*x^16 + O(x^17)
-  ***   at top-level: sin'("")
-  ***                 ^--------
-  ***   in function sin: sin'
-  ***                    ^----
-  *** _derivfun: incorrect type in numerical derivation (t_STR).
 -0.65364362086361191463916818309775038142
 1 + O(t^2)
 1 - 1/2*t^2 + 1/24*t^4 - 1/720*t^6 + 1/40320*t^8 - 1/3628800*t^10 + 1/479001
@@ -116,4 +111,24 @@ x
   ***   at top-level: derivn(cos,1,'x)
   ***                 ^----------------
   *** derivn: incorrect type in derivn (t_CLOSURE).
-Total time spent: 5
+  ***   at top-level: sin'("")
+  ***                 ^--------
+  ***   in function sin: sin'
+  ***                    ^----
+  *** _derivfun: incorrect type in numerical derivation (t_STR).
+  ***   at top-level: sin''("")
+  ***                 ^---------
+  ***   in function sin: derivn(sin,2)
+  ***                    ^-------------
+  *** _derivfun: incorrect type in numerical derivation (t_STR).
+  ***   at top-level: (x->x)'("")
+  ***                 ^-----------
+  ***   in anonymous function: ((x)->x)'
+  ***                          ^---------
+  *** _derivfun: incorrect type in numerical derivation (t_STR).
+  ***   at top-level: (x->x)''("")
+  ***                 ^------------
+  ***   in anonymous function: derivn((x)->x,2)
+  ***                          ^----------------
+  *** _derivfun: incorrect type in numerical derivation (t_STR).
+Total time spent: 0

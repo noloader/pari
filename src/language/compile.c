@@ -2246,54 +2246,43 @@ gp_closure(long n)
   return getfunction(&pos,0,0,strntoGENstr(tree[n].str,tree[n].len),0);
 }
 
-static char*
-quotes(long n)
-{
-  char* s = stack_malloc(n+1);
-  long i;
-  for (i=0; i<n; i++) s[i] = '\'';
-  s[i] = 0;
-  return s;
-}
-
 GEN
 closure_derivn(GEN G, long n)
 {
-  pari_sp ltop=avma;
-  long i;
+  pari_sp ltop = avma;
   struct codepos pos;
+  long i, arity = closure_arity(G);
   const char *code;
-  GEN text;
-  long arity=closure_arity(G);
-  if (arity==0 || closure_is_variadic(G))
-    pari_err_TYPE("derivfun",G);
-  if (typ(gel(G,6))==t_STR)
+  GEN t, text;
+
+  if (arity == 0 || closure_is_variadic(G)) pari_err_TYPE("derivfun",G);
+  t = closure_get_text(G);
+  code = GSTR((typ(t) == t_STR)? t: GENtoGENstr(G));
+  if (n > 1)
   {
-    code = GSTR(gel(G,6));
-    text = cgetg(1+nchar2nlong(1+strlen(code)+n),t_STR);
-    sprintf(GSTR(text),"%s%s",code,quotes(n));
+    text = cgetg(1+nchar2nlong(9+strlen(code)+n),t_STR);
+    sprintf(GSTR(text), "derivn(%s,%ld)", code, n);
   }
   else
   {
-    code = GSTR(GENtoGENstr(G));
-    text = cgetg(1+nchar2nlong(3+strlen(code)+n),t_STR);
-    sprintf(GSTR(text),"(%s)%s",code,quotes(n));
+    text = cgetg(1+nchar2nlong(4+strlen(code)),t_STR);
+    sprintf(GSTR(text), (typ(t) == t_STR)? "%s'": "(%s)'",code);
   }
   getcodepos(&pos);
-  dbgstart=code;
+  dbgstart = code;
   op_push_loc(OCgetargs, arity,code);
   op_push_loc(OCpushgen,data_push(G),code);
   op_push_loc(OCvec,arity+1,code);
-  for (i=1;i<=arity;i++)
+  for (i = 1; i <= arity; i++)
   {
-    op_push_loc(OCpushlex,i-arity-1,code);
-    op_push_loc(OCstackgen,i,code);
+    op_push_loc(OCpushlex, i-arity-1, code);
+    op_push_loc(OCstackgen, i, code);
   }
-  op_push_loc(OCpop,1,code);
-  op_push_loc(OCpushlong,n,code);
-  op_push_loc(OCprecreal,0,code);
-  op_push_loc(OCcallgen,(long)is_entry("_derivfun"),code);
-  return gerepilecopy(ltop, getfunction(&pos,arity,0,text,0));
+  op_push_loc(OCpop, 1, code);
+  op_push_loc(OCpushlong, n, code);
+  op_push_loc(OCprecreal, 0, code);
+  op_push_loc(OCcallgen, (long)is_entry("_derivfun"), code);
+  return gerepilecopy(ltop, getfunction(&pos, arity, 0, text, 0));
 }
 
 GEN
