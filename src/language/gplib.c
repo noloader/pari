@@ -1248,12 +1248,19 @@ gp_alarm_fun(void) {
 
 void
 gp_sigint_fun(void) {
-  char buf[64];
+  char buf[150];
 #if defined(_WIN32)
   if (win32alrm) { win32alrm = 0; gp_alarm_fun(); return;}
 #endif
   if (cb_pari_start_output) cb_pari_start_output();
-  convert_time(buf, timer_get(GP_DATA->T));
+  if (pari_mt_nbthreads == 1)
+    convert_time(buf, timer_get(GP_DATA->T));
+  else {
+    convert_time(buf, timer_get(GP_DATA->T));
+    sprintf(buf + strlen(buf), " cpu time, ");
+    convert_time(buf + strlen(buf), walltimer_get(GP_DATA->Tw));
+    sprintf(buf + strlen(buf), " real time");
+  }
   pari_sigint(buf);
 }
 

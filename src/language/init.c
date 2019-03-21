@@ -2673,6 +2673,13 @@ walltimer_start(pari_timer *ti)
 /* return delay, set timer checkpoint */
 long
 walltimer_delay(pari_timer *T) { return timer_aux(T, T, &walltimer_start); }
+/* return delay, don't set checkpoint */
+long
+walltimer_get(pari_timer *T)
+{
+  pari_timer t;
+  return timer_aux(T, &t, &walltimer_start);
+}
 
 static GEN
 timetoi(ulong s, ulong m)
