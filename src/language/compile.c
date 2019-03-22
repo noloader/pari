@@ -376,6 +376,7 @@ debug_context(void)
 GEN
 localvars_read_str(const char *x, GEN pack)
 {
+  pari_sp av = avma;
   GEN code;
   long l=0;
   if (pack)
@@ -389,7 +390,7 @@ localvars_read_str(const char *x, GEN pack)
   }
   code = compile_str(x);
   s_lvar.n -= l;
-  return closure_evalres(code);
+  return gerepileupto(av, closure_evalres(code));
 }
 
 long
