@@ -252,6 +252,10 @@ for (i = 1, #v,
   )
 )
 }
+ellK(1/3)
+ellE(1/3)
+ellK(1/3+I)
+ellE(1/3+I)
 elleta(e)
 elleta([1,I])
 v = [x->elleisnum(x,2),x->real(elleisnum(x,4,1)),x->real(elleisnum(x,6,1)),x->real(elleisnum(x,10))];
@@ -428,3 +432,6 @@ ellpointtoz(E,P)
 E=ellinit([134199387,91266697],3031140653);
 P = [911071793,1086747416]; Q = ellmul(E,P,2);
 elllog(E,Q,P)
+
+\\ ERRORS, keep at end of file
+ellK(1)

@@ -238,6 +238,7 @@ BA  49- new GP function arity
     51- [libpari] bid_get_fact2
 AP  52- new GP function bnrclassfield
 HC  53- implement lfunmfspec in odd weight
+HC  54- new GP functions ellE and ellK
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

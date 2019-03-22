@@ -4887,6 +4887,8 @@ GEN     consteuler(long prec);
 GEN     constlog2(long prec);
 GEN     constpi(long prec);
 GEN     cxexpm1(GEN z, long prec);
+GEN     ellE(GEN k, long prec);
+GEN     ellK(GEN k, long prec);
 GEN     expIr(GEN x);
 GEN     exp1r_abs(GEN x);
 GEN     gcos(GEN x, long prec);

@@ -2650,6 +2650,49 @@ agm(GEN x, GEN y, long prec)
   return gerepileupto(av, gmul(y, agm1(gdiv(x,y), prec)));
 }
 
+static GEN
+ellK_i(GEN b2, long prec)
+{
+  GEN b = gsqrt(b2, prec);
+  if (gequal0(b)) pari_err_DOMAIN("ellK", "k^2", "=", gen_1, gsubsg(1,b2));
+  return gdiv(Pi2n(-1, prec), agm1(b, prec));
+}
+GEN
+ellK(GEN k, long prec)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, ellK_i(gsubsg(1, gsqr(k)), prec));
+}
+
+static int
+magm_gap(GEN a, GEN b, long L)
+{
+  GEN d = gsub(b, a);
+  return !gequal0(d) && gexpo(d) - gexpo(b) >= L;
+}
+
+static GEN
+magm(GEN a, GEN b, long prec)
+{
+  long L = -prec2nbits(prec) + 16;
+  GEN c = gen_0;
+  while (magm_gap(a, b, L))
+  {
+    GEN u = gsqrt(gmul(gsub(a, c), gsub(b, c)), prec);
+    a = gmul2n(gadd(a, b), -1);
+    b = gadd(c, u); c = gsub(c, u);
+  }
+  return gmul2n(gadd(a, b), -1);
+}
+
+GEN
+ellE(GEN k, long prec)
+{
+  pari_sp av = avma;
+  GEN b2 = gsubsg(1, gsqr(k));
+  return gerepileupto(av, gmul(ellK_i(b2, prec), magm(gen_1, b2, prec)));
+}
+
 /********************************************************************/
 /**                                                                **/
 /**                             LOG(X)                             **/
