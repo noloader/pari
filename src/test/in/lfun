@@ -61,6 +61,8 @@ lfunzeros(e,[0,3])
 /* Ramanujan */
 ltau=lfunetaquo(Mat([1,24]));
 lfunmfspec(ltau)
+mf=mfinit([4,9,-4],0);
+F=mfeigenbasis(mf)[1];L=lfunmf(mf,F);lfunmfspec(L)
 
 /* other functions */
 t = 4+I/5;
