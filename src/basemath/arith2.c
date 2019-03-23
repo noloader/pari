@@ -1246,11 +1246,11 @@ sumdigitsu(ulong n)
   return s;
 }
 
-/* res=array of 9-digits integers, return \sum_{0 <= i < l} sumdigits(res[i]) */
+/* res=array of 9-digits integers, return sum_{0 <= i < l} sumdigits(res[i]) */
 static ulong
 sumdigits_block(ulong *res, long l)
 {
-  long s = sumdigitsu(*--res);
+  ulong s = sumdigitsu(*--res);
   while (--l > 0) s += sumdigitsu(*--res);
   return s;
 }
@@ -1258,26 +1258,25 @@ sumdigits_block(ulong *res, long l)
 GEN
 sumdigits(GEN n)
 {
+  const long L = (long)(ULONG_MAX / 81);
   pari_sp av = avma;
-  ulong s, *res;
+  ulong *res;
   long l;
 
   if (typ(n) != t_INT) pari_err_TYPE("sumdigits", n);
-  l = lgefint(n);
-  switch(l)
+  switch(lgefint(n))
   {
     case 2: return gen_0;
     case 3: return utoipos(sumdigitsu(n[2]));
   }
   res = convi(n, &l);
-  if ((ulong)l < ULONG_MAX / 81)
+  if (l < L)
   {
-    s = sumdigits_block(res, l);
+    ulong s = sumdigits_block(res, l);
     set_avma(av); return utoipos(s);
   }
   else /* Huge. Overflows ulong */
   {
-    const long L = (long)(ULONG_MAX / 81);
     GEN S = gen_0;
     while (l > L)
     {
