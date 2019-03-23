@@ -181,6 +181,7 @@ BA  44- GP: the argument of a user member function is now a reference
     49- rnfdisc(nf, [T,B]) allow B a list of primes and maximal ideals
         (same for rnfbasis, rnfinit, rnfconductor, rnfpseudobasis)
     50- ??? include double quotes when needed (e.g. ???conductor) [#2122]
+    51- improved the prime() function
 
   Added
      1- [libpari] nonsquare_Fl
@@ -241,6 +242,7 @@ BA  49- new GP function arity
 AP  52- new GP function bnrclassfield
 HC  53- implement lfunmfspec in odd weight
 HC  54- new GP functions ellE and ellK
+    55- [libpari] maxprimeN
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

@@ -4,6 +4,7 @@ test(N)=
   for (b=10, 20, print1(prime(2^b), " "));
   for (b=10, 26, print1(primepi(2^b), " "));
 }
+prime(41539)
 
 test(10^6);
 test(10^8);

@@ -424,6 +424,8 @@ initprimes0(ulong maxnum, long *lenp, ulong *lastp, byteptr p1)
 
 ulong
 maxprime(void) { return diffptr ? _maxprime : 0; }
+ulong
+maxprimeN(void) { return diffptr ? diffptrlen-1: 0; }
 
 void
 maxprime_check(ulong c) { if (_maxprime < c) pari_err_MAXPRIME(c); }

@@ -3208,6 +3208,7 @@ ulong   init_primepointer_gt(ulong a, byteptr *pd);
 ulong   init_primepointer_leq(ulong a, byteptr *pd);
 ulong   init_primepointer_lt(ulong a, byteptr *pd);
 ulong   maxprime(void);
+ulong   maxprimeN(void);
 void    maxprime_check(ulong c);
 void    pari_init_primes(ulong maxprime);
 ulong   u_forprime_next(forprime_t *T);

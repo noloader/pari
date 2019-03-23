@@ -1036,6 +1036,9 @@ in the \kbd{pari\_init} call.
 
 \fun{ulong}{maxprime}{} the largest prime computable using our prime table.
 
+\fun{ulong}{maxprimeN}{} the index $N$ of the largest prime computable using
+the prime table. I.e., $p_N = \kbd{maxprime()}$.
+
 \fun{void}{maxprime_check}{ulong B} raise an error if \kbd{maxprime()} is $< B$.
 
 After the following initializations (the names $p$ and \var{ptr} are

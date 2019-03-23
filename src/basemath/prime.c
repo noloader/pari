@@ -1014,15 +1014,27 @@ prime_table_closest_p(ulong n)
   return i;
 }
 
-/* return the n-th successor of prime p > 2 */
+/* return the n-th successor of prime p > 2; n > 0 */
 static GEN
 prime_successor(ulong p, ulong n)
 {
-  forprime_t S;
+  GEN Q = utoipos(p);
   ulong i;
-  forprime_init(&S, utoipos(p+1), NULL);
-  for (i = 1; i < n; i++) (void)forprime_next(&S);
-  return forprime_next(&S);
+RESET:
+  for(;;)
+  {
+    forprime_t S;
+    GEN P, L = dbltor(4*n * log(gtodouble(Q) + 1)), R = addii(Q, ceil_safe(L));
+
+    forprime_init(&S, addiu(Q, 1), R);
+    Q = R;
+    for (i = 1; i <= n; i++)
+    {
+      P = forprime_next(&S);
+      if (!P) { n -= i-1; goto RESET; }
+    }
+    return P;
+  }
 }
 /* find the N-th prime */
 static GEN
@@ -1059,12 +1071,16 @@ prime_table_find_n(ulong N)
   }
   else if (n < N)
   {
-    n = N-n;
-    if (p > maxp) return prime_successor(p, n);
-    do {
-      if (!*d) return prime_successor(p, n);
-      n--; NEXT_PRIME_VIADIFF(p,d);
-    } while (n) ;
+    ulong maxpN = maxprimeN();
+    if (N >= maxpN)
+    {
+      if (N == maxpN) return utoipos(maxp);
+      if (p < maxp) { p = maxp; n = maxpN; }
+      return prime_successor(p, N - n);
+    }
+    /* can find prime(N) in table */
+    n = N - n;
+    do { n--; NEXT_PRIME_VIADIFF(p,d); } while (n) ;
   }
   return utoipos(p);
 }
