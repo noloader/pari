@@ -4762,10 +4762,15 @@ RgM_is_symmetric_cx(GEN x, long bit)
   return gc_long(av,1);
 }
 static GEN
-eigen_err(GEN x, long prec, long flag)
+eigen_err(int exact, GEN x, long flag, long prec)
 {
   pari_sp av = avma;
-  if (!RgM_is_symmetric_cx(x, 10-prec2nbits(prec))) pari_err_PREC("mateigen");
+  if (exact)
+  {
+    GEN y = mateigen(x, flag, precdbl(prec));
+    return gerepilecopy(av, gprec_wtrunc(y, prec));
+  }
+  if (!RgM_is_symmetric_cx(x, prec2nbits(prec) - 10)) pari_err_PREC("mateigen");
   /* approximately symmetric: recover */
   x = jacobi(x, prec); if (flag) return x;
   return gerepilecopy(av, gel(x,1));
@@ -4775,6 +4780,7 @@ mateigen(GEN x, long flag, long prec)
 {
   GEN y, R, T;
   long k, l, ex, n = lg(x);
+  int exact;
   pari_sp av = avma;
 
   if (typ(x)!=t_MAT) pari_err_TYPE("eigen",x);
@@ -4793,7 +4799,8 @@ mateigen(GEN x, long flag, long prec)
 
   ex = 16 - prec2nbits(prec);
   T = charpoly(x,0);
-  if (RgX_is_QX(T))
+  exact = RgX_is_QX(T);
+  if (exact)
   {
     T = ZX_radical( Q_primpart(T) );
     R = nfrootsQ(T);
@@ -4830,12 +4837,12 @@ mateigen(GEN x, long flag, long prec)
   {
     GEN F = ker_aux(RgM_Rg_sub_shallow(x, gel(R,k)), x);
     long d = lg(F)-1;
-    if (!d) { set_avma(av); return eigen_err(x, prec, flag); }
+    if (!d) { set_avma(av); return eigen_err(exact, x, flag, prec); }
     gel(y,k) = F;
     if (flag) gel(R,k) = const_vec(d, gel(R,k));
   }
   y = shallowconcat1(y);
-  if (lg(y) > n) { set_avma(av); return eigen_err(x, prec, flag); }
+  if (lg(y) > n) { set_avma(av); return eigen_err(exact, x, flag, prec); }
   /* lg(y) < n if x is not diagonalizable */
   if (flag) y = mkvec2(shallowconcat1(R), y);
   return gerepilecopy(av,y);
