@@ -556,7 +556,7 @@ ZX_Dedekind(GEN F, GEN *pg, GEN p)
   ulong q = p[2];
   if (lgefint(p) == 3 && q < (1UL << BITS_IN_HALFULONG))
   {
-    ulong q = p[2], q2 = q*q;
+    ulong q2 = q*q;
     f2 = ZX_to_Flx(F, q2);
     f = Flx_red(f2, q);
     g = Flx_radical(f, q);
