@@ -1313,11 +1313,10 @@ lfunsympow(GEN ldata, ulong m)
   return lfunellsympow(gel(ldata_get_an(ldata), 2), m);
 }
 
-GEN
-lfunmfspec(GEN lmisc, long bitprec)
+static GEN
+lfunmfspec_i(GEN lmisc, long bit)
 {
-  pari_sp ltop = avma;
-  GEN Vga, linit, ldataf, veven, vodd, om, op, eps, dom;
+  GEN Vga, linit, ldataf, v, ve, vo, om, op, B, dom;
   long k, k2, j;
 
   ldataf = lfunmisc_to_ldata_shallow(lmisc);
@@ -1327,34 +1326,39 @@ lfunmfspec(GEN lmisc, long bitprec)
       && sdomain_isincl((double)k, dom, lfun_get_dom(linit_get_tech(lmisc))))
     linit = lmisc;
   else
-    linit = lfuninit(ldataf, dom, 0, bitprec);
+    linit = lfuninit(ldataf, dom, 0, bit);
   Vga = ldata_get_gammavec(ldataf);
   if (!gequal(Vga, mkvec2(gen_0,gen_1)))
     pari_err_TYPE("lfunmfspec", lmisc);
-  if (odd(k)) pari_err_IMPL("odd weight in lfunmfspec");
+  if (k == 1) return mkvec2(cgetg(1, t_VEC), gen_1);
+  B = int2n(bit/4);
+  v = cgetg(k, t_VEC);
+  for (j = 1; j < k; j++) gel(v,j) = lfunlambda(linit, utoi(j), bit);
+  om = gel(v,1);
+  if (odd(k)) return mkvec2(bestappr(gdiv(v, om), B), om);
+
   k2 = k/2;
-  vodd = cgetg(k2+1, t_VEC);
-  veven = cgetg(k2, t_VEC);
-  for (j=1; j <= k2; ++j) gel(vodd,j) = lfunlambda(linit, stoi(2*j-1), bitprec);
-  for (j=1; j < k2; ++j) gel(veven,j) = lfunlambda(linit, stoi(2*j), bitprec);
-  if (k > 2)
+  ve = cgetg(k2, t_VEC);
+  vo = cgetg(k2+1, t_VEC);
+  gel(vo,1) = om;
+  for (j = 1; j < k2; j++)
   {
-    om = gel(veven,1);
-    veven = gdiv(veven, om);
-    op = gel(vodd,2);
+    gel(ve,j) = gel(v,2*j);
+    gel(vo,j+1) = gel(v,2*j+1);
   }
-  else
-  { /* veven empty */
-    om = gen_1;
-    op = gel(vodd,1);
-  }
-  if (maxss(gexpo(imag_i(om)), gexpo(imag_i(op))) > -bitprec/2)
+  if (k2 == 1) { om = gen_1;    op = gel(v,1); }
+  else         { om = gel(v,2); op = gel(v,3); }
+  if (maxss(gexpo(imag_i(om)), gexpo(imag_i(op))) > -bit/2)
     pari_err_TYPE("lfunmfspec", lmisc);
-  vodd = gdiv(vodd, op);
-  eps = int2n(bitprec/4);
-  veven= bestappr(veven, eps);
-  vodd = bestappr(vodd, eps);
-  return gerepilecopy(ltop, mkvec4(veven, vodd, om, op));
+  ve = gdiv(ve, om);
+  vo = gdiv(vo, op);
+  return mkvec4(bestappr(ve,B), bestappr(vo,B), om, op);
+}
+GEN
+lfunmfspec(GEN lmisc, long bit)
+{
+  pari_sp av = avma;
+  return gerepilecopy(av, lfunmfspec_i(lmisc, bit));
 }
 
 static long
