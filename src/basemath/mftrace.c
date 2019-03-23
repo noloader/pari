@@ -8650,7 +8650,6 @@ RgX_isspherical(GEN Qi, GEN P)
 static GEN
 c_QFsimple_i(long n, GEN Q, GEN P)
 {
-  pari_sp av = avma;
   GEN V, v = qfrep0(Q, utoi(n), 1);
   long i, l = lg(v);
   V = cgetg(l+1, t_VEC);
@@ -8664,7 +8663,7 @@ c_QFsimple_i(long n, GEN Q, GEN P)
     gel(V,1) = gcopy(P);
     for (i = 2; i <= l; i++) gel(V,i) = gmulgs(P, v[i-1] << 1);
   }
-  return gerepileupto(av, V);
+  return V;
 }
 static GEN
 c_QF_i(long n, GEN Q, GEN P)
@@ -8672,7 +8671,7 @@ c_QF_i(long n, GEN Q, GEN P)
   pari_sp av = avma;
   GEN V, v, va;
   long i, lva, lq, l;
-  if (!P || typ(P) != t_POL) return c_QFsimple_i(n, Q, P);
+  if (!P || typ(P) != t_POL) return gerepileupto(av, c_QFsimple_i(n, Q, P));
   v = gel(minim(Q, utoi(2*n), NULL), 3);
   va = variables_vec(P); lq = lg(Q) - 1; lva = lg(va) - 1;
   V = zerovec(n + 1); l = lg(v);
