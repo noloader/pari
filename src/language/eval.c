@@ -662,34 +662,27 @@ copyupto(GEN z, GEN t)
 static void closure_eval(GEN C);
 
 INLINE GEN
+get_and_reset_break(void)
+{
+  GEN z = br_res? gcopy(br_res): gnil;
+  reset_break(); return z;
+}
+
+INLINE GEN
 closure_return(GEN C)
 {
-  pari_sp ltop=avma;
+  pari_sp av = avma;
   closure_eval(C);
-  if (br_status)
-  {
-    GEN z;
-    set_avma(ltop);
-    z=br_res?gcopy(br_res):gnil;
-    reset_break();
-    return z;
-  }
-  return gerepileupto(ltop,gel(st,--sp));
+  if (br_status) { set_avma(av); return get_and_reset_break(); }
+  return gerepileupto(av, gel(st,--sp));
 }
 
 /* for the break_loop debugger. Not memory clean */
 GEN
 closure_evalbrk(GEN C, long *status)
 {
-  closure_eval(C);
-  *status = br_status;
-  if (br_status)
-  {
-    GEN z = br_res? gcopy(br_res): gnil;
-    reset_break();
-    return z;
-  }
-  return gel(st,--sp);
+  closure_eval(C); *status = br_status;
+  return br_status? get_and_reset_break(): gel(st,--sp);
 }
 
 INLINE long
