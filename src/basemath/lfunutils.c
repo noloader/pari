@@ -1316,21 +1316,20 @@ lfunsympow(GEN ldata, ulong m)
 static GEN
 lfunmfspec_i(GEN lmisc, long bit)
 {
-  GEN Vga, linit, ldataf, v, ve, vo, om, op, B, dom;
+  GEN linit, ldataf, v, ve, vo, om, op, B, dom;
   long k, k2, j;
 
   ldataf = lfunmisc_to_ldata_shallow(lmisc);
+  if (!gequal(ldata_get_gammavec(ldataf), mkvec2(gen_0,gen_1)))
+    pari_err_TYPE("lfunmfspec", lmisc);
   k = gtos(ldata_get_k(ldataf));
+  if (k == 1) return mkvec2(cgetg(1, t_VEC), gen_1);
   dom = mkvec3(dbltor(k/2.), dbltor((k-2)/2.), gen_0);
   if (is_linit(lmisc) && linit_get_type(lmisc) == t_LDESC_INIT
       && sdomain_isincl((double)k, dom, lfun_get_dom(linit_get_tech(lmisc))))
     linit = lmisc;
   else
     linit = lfuninit(ldataf, dom, 0, bit);
-  Vga = ldata_get_gammavec(ldataf);
-  if (!gequal(Vga, mkvec2(gen_0,gen_1)))
-    pari_err_TYPE("lfunmfspec", lmisc);
-  if (k == 1) return mkvec2(cgetg(1, t_VEC), gen_1);
   B = int2n(bit/4);
   v = cgetg(k, t_VEC);
   for (j = 1; j < k; j++) gel(v,j) = lfunlambda(linit, utoi(j), bit);
