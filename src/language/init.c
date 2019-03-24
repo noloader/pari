@@ -424,7 +424,7 @@ pari_daemon(void)
         (void)waitpid(pid,NULL,0); /* wait for son to exit, immediate */
         return 1;
   }
-  /* grandson */
+  /* grandson. The silly '!' avoids a gcc-8 warning (unused value) */
   (void)!freopen("/dev/null","r",stdin);
   return 0;
 }
