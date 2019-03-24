@@ -1185,23 +1185,22 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   if (is_fin_f(codea))
   { /* either codea == f_SING  or codea == f_REG and codeb = f_YOSCC
      * or (codeb == f_YOSCS and !gequal0(a)) */
-    GEN c;
-    GEN pi2p = gmul(Pi2n(1,prec), f_getycplx(b, prec));
-    GEN pis2p = gmul2n(pi2p, -2);
-    c = real_i(codea == f_SING ? gel(a,1) : a);
+    GEN c = real_i(codea == f_SING? gel(a,1): a);
     switch(codeb)
     {
       case f_YOSCC: case f_YOSCS:
+      {
+        GEN pi2p = gmul(Pi2n(1,prec), f_getycplx(b, prec));
+        GEN pis2p = gmul2n(pi2p, -2);
         if (codeb == f_YOSCC) c = gadd(c, pis2p);
         c = gdiv(c, pi2p);
-        if (sb > 0)
-          c = addui(1, gceil(c));
-        else
-          c = subiu(gfloor(c), 1);
+        c = sb > 0? addiu(gceil(c), 1): subiu(gfloor(c), 1);
         c = gmul(pi2p, c);
         if (codeb == f_YOSCC) c = gsub(c, pis2p);
         break;
-      default: c = addui(1, gceil(c));
+      }
+      default:
+        c = sb > 0? addiu(gceil(c), 1): subiu(gfloor(c), 1);
         break;
     }
     res1 = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1))

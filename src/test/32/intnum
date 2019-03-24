@@ -150,6 +150,10 @@
 ? f(t)=(t^2*(1-t))^(1/3);
 ? checkps(intnum(t=[x^3,-1/3],[1-x^3,-2/3],(2/3*t-t^2)/(t^2*(1-t))^(2/3)),f(1-x^3)-f(x^3))
 -77
+? \p38
+   realprecision = 38 significant digits
+? intnum(x=-oo,[0,-1/2],1/sqrt(-x*(x^4+1)))
+2.5189270468096534385807611189769924243
 ? \pb20
    realbitprecision = 20 significant bits (6 decimal digits displayed)
 ? intnumromb(x=0,1,sin(x))
@@ -208,4 +212,4 @@
   ***                                             ^--
   ***   sorry, intfuncinit with hard endpoint behavior is not yet implemented.
 ? print("Total time spent: ",gettime);
-Total time spent: 1895
+Total time spent: 2055

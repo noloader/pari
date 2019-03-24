@@ -108,6 +108,7 @@ BA  82- sqrtn(Mod(3,19),4) -> no error [#2127]
     86- lfunzeros(f, [0, b]) wasn't allowed
     87- mateigen(): typo causing wrong results when correct results were
         achievable [#2131]
+    88- intnum(x=-oo,[0,-1/2],1/sqrt(-x*(x^4+1))) -> division by 0
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
