@@ -309,8 +309,8 @@ intnumgauss(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 
   R = gel(tab,1); n = lg(R)-1;
   W = gel(tab,2);
-  a = gprec_w(a, prec2);
-  b = gprec_w(b, prec2);
+  a = gprec_wensure(a, prec2);
+  b = gprec_wensure(b, prec2);
   bma = gmul2n(gsub(b,a), -1); /* (b-a)/2 */
   bpa = gadd(bma, a); /* (b+a)/2 */
   if (!signe(gel(R,1)))
@@ -850,16 +850,14 @@ intninfinf(void *E, GEN (*eval)(void*, GEN), GEN tab)
 static GEN
 f_getycplx(GEN a, long prec)
 {
+  GEN a2R, a2I;
   long s;
-  GEN tmp, a2R, a2I;
 
   if (lg(a) == 2 || gequal0(gel(a,2))) return gen_1;
   a2R = real_i(gel(a,2));
   a2I = imag_i(gel(a,2));
   s = gsigne(a2I); if (s < 0) a2I = gneg(a2I);
-  tmp = s ? ginv(a2I) : ginv(a2R);
-  if (gprecision(tmp) < prec) tmp = gprec_w(tmp, prec);
-  return tmp;
+  return ginv(gprec_wensure(s ? a2I : a2R, prec));
 }
 
 static void
@@ -1281,7 +1279,7 @@ intnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     return gerepilecopy(ltop, S);
   }
   tab = intnuminit0(a, b, tab, prec);
-  S = intnum_i(E, eval, gprec_w(a, l), gprec_w(b, l), tab, prec);
+  S = intnum_i(E, eval, gprec_wensure(a, l), gprec_wensure(b, l), tab, prec);
   return gerepilecopy(ltop, gprec_wtrunc(S, prec));
 }
 
@@ -1578,7 +1576,7 @@ monrefine(GEN Q, GEN QP, GEN z, long prec)
     if (gcmp(gabs(prnew, prec), gabs(pr, prec)) >= 0) break;
     pr = prnew;
   }
-  z = gprec_w(z, 2*prec-2);
+  z = gprec_wensure(z, 2*prec-2);
   z = gsub(z, gdiv(poleval(Q, z), poleval(QP, z)));
   return gerepileupto(av, z);
 }
@@ -1629,8 +1627,8 @@ veczetaprime(GEN a, GEN b, long N, long prec)
   long l = nbits2prec(pr), e = fpr / 2;
   GEN eps, A, B;
   newprec = nbits2prec(pr + BITS_IN_LONG);
-  a = gprec_w(a, newprec);
-  b = gprec_w(b, newprec);
+  a = gprec_wensure(a, newprec);
+  b = gprec_wensure(b, newprec);
   eps = real2n(-e, l);
   A = veczeta(a, gsub(b, eps), N, newprec);
   B = veczeta(a, gadd(b, eps), N, newprec);
@@ -1708,8 +1706,8 @@ sumnummonieninit_i(GEN a, GEN b, GEN w, GEN n0, long prec)
   prec = nbits2prec(maxdd(2.05*da*bit, bit0));
   prec2 = nbits2prec(maxdd(1.3*da*bit, bit0));
   S.w = w;
-  S.a = a = gprec_w(a, 2*prec-2);
-  S.b = b = gprec_w(b, 2*prec-2);
+  S.a = a = gprec_wensure(a, 2*prec-2);
+  S.b = b = gprec_wensure(b, 2*prec-2);
   S.n = n;
   S.j = 1;
   S.prec = prec;
@@ -1834,7 +1832,7 @@ sumnummonien(void *E, GEN (*eval)(void*,GEN), GEN n0, GEN tab, long prec)
     S = gadd(S, gmul(gel(vwt,i), eval(E, gel(vabs,i))));
     S = gprec_wensure(S, prec);
   }
-  return gerepilecopy(av, gprec_w(S, prec));
+  return gerepilecopy(av, gprec_wtrunc(S, prec));
 }
 
 static GEN
@@ -1942,7 +1940,7 @@ sumnum(void *E, GEN (*eval)(void*, GEN), GEN a, GEN tab, long prec)
     S = gprec_wensure(S, prec2);
   }
   S = gadd(S, intnum(E, eval,stoi(N), fast, tabint, prec2));
-  return gerepilecopy(av, gprec_w(S, prec));
+  return gerepilecopy(av, gprec_wtrunc(S, prec));
 }
 
 GEN
@@ -2005,7 +2003,7 @@ intnumgauexp(void *E, GEN (*eval)(void*,GEN), GEN gN, GEN tab, long prec)
     S = gadd(S, gmul(gdiv(w,x), cxtoreal(t)));
     S = gprec_wensure(S, prec);
   }
-  return gerepilecopy(av, gprec_w(S, prec));
+  return gerepilecopy(av, gprec_wtrunc(S, prec));
 }
 
 GEN
@@ -2120,7 +2118,7 @@ intnumainfrat(GEN F, long N, double r, long prec)
   for (k = lim; k >= v; k--) /* S <- (S + coeff(ser,k)/(k-1)) / N */
     S = gdivgs(gadd(S, gdivgs(sercoeff(ser,k), k-1)), N);
   if (v-2) S = gdiv(S, powuu(N, v-2));
-  return gerepilecopy(av, gprec_w(S, prec));
+  return gerepilecopy(av, gprec_wtrunc(S, prec));
 }
 
 static GEN
@@ -2318,8 +2316,8 @@ sumlogzeta(GEN ser, GEN s, GEN P, double rs, double lN, long vF, long lim,
     if (!gequal0(t))
     { /* E bits cancel in logzetan */
       long E = (n*rs-1) * lN, prec2 = prec + nbits2extraprec(E);
-      z = gadd(z, gmul(logzetan(gmulsg(n,gprec_w(s,prec2)), P, prec2), t));
-      z = gerepileupto(av, z);
+      GEN L = logzetan(gmulsg(n,gprec_wensure(s,prec2)), P, prec2);
+      z = gerepileupto(av, gadd(z, gmul(L, t)));
     }
   }
   return gprec_wtrunc(z, prec);
@@ -2382,7 +2380,7 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   P = primes_interval(gen_2, utoipos(N));
   z = sumlogzeta(ser, s, P, rs, lN, vF, lim, prec);
   z = gadd(z, vecsum(vFps(P, a, F, s, prec)));
-  return gerepilecopy(av, gprec_w(z, prec));
+  return gerepilecopy(av, gprec_wtrunc(z, prec));
 }
 
 /* prod_{p prime, p >= a} F(p^s), F rational function */
@@ -2417,7 +2415,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   P = primes_interval(gen_2, utoipos(N));
   z = gexp(sumlogzeta(ser, s, P, rs, lN, vF, lim, prec), prec);
   z = gmul(z, vecprod(vFps(P, a, F, s, prec)));
-  return gerepilecopy(ltop, gprec_w(z, prec));
+  return gerepilecopy(ltop, gprec_wtrunc(z, prec));
 }
 
 /* Compute $\sum_{n\ge a}c(n)$ using Lagrange extrapolation.
@@ -2621,7 +2619,7 @@ sumnumlagrange(void *E, GEN (*eval)(void*,GEN,long), GEN a, GEN tab, long prec)
     s = gprec_wensure(s, prec);
   }
   if (!gequal1(S)) s = gdiv(s,S);
-  return gerepilecopy(av, gprec_w(s, prec));
+  return gerepilecopy(av, gprec_wtrunc(s, prec));
 }
 
 GEN
