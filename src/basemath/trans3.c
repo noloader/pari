@@ -655,48 +655,100 @@ hbessel2(GEN n, GEN z, long prec)
 /***********************************************************************/
 /**                    INCOMPLETE GAMMA FUNCTION                      **/
 /***********************************************************************/
+/* mx ~ |x|, b = bit accuracy */
+static int
+gamma_use_asymp(GEN x, long b)
+{
+  long e;
+  if (is_real_t(typ(x)))
+  {
+    pari_sp av = avma;
+    return gc_int(av, gcmpgs(R_abs_shallow(x), 3*b / 4) >= 0);
+  }
+  e = gexpo(x); return e >= b || dblmodulus(x) >= 3*b / 4;
+}
+/* x a t_REAL */
+static GEN
+eint1r_asymp(GEN x, GEN expx, long prec)
+{
+  pari_sp av = avma, av2;
+  GEN S, q, z, ix;
+  long oldeq = LONG_MAX, esx = -prec2nbits(prec), j;
+
+  if (realprec(x) < prec + EXTRAPREC) x = rtor(x, prec+EXTRAPREC);
+  ix = invr(x); q = z = negr(ix);
+  av2 = avma; S = addrs(q, 1);
+  for (j = 2;; j++)
+  {
+    long eq = expo(q); if (eq < esx) break;
+    if ((j & 3) == 0)
+    { /* guard against divergence */
+      if (eq > oldeq) return gc_NULL(av); /* regressing, abort */
+      oldeq = eq;
+    }
+    q = mulrr(q, mulru(z, j)); S = addrr(S, q);
+    if (gc_needed(av2, 1)) gerepileall(av2, 2, &S, &q);
+  }
+  if (DEBUGLEVEL > 2) err_printf("eint1: using asymp\n");
+  S = expx? divrr(S, expx): mulrr(S, mpexp(negr(x)));
+  return gerepileuptoleaf(av, mulrr(S, ix));
+}
+/* cf incgam_asymp(0, x); z = -1/x
+ *   exp(-x)/x * (1 + z + 2! z^2 + ...) */
+static GEN
+eint1_asymp(GEN x, GEN expx, long prec)
+{
+  pari_sp av = avma, av2;
+  GEN S, q, z, ix;
+  long oldeq = LONG_MAX, esx = -prec2nbits(prec), j;
+
+  if (typ(x) == t_REAL) return eint1r_asymp(x, expx, prec);
+  x = gtofp(x, prec+EXTRAPREC);
+  if (typ(x) == t_REAL) return eint1r_asymp(x, expx, prec);
+  ix = ginv(x); q = z = gneg_i(ix);
+  av2 = avma; S = gaddgs(q, 1);
+  for (j = 2;; j++)
+  {
+    long eq = gexpo(q); if (eq < esx) break;
+    if ((j & 3) == 0)
+    { /* guard against divergence */
+      if (eq > oldeq) return gc_NULL(av); /* regressing, abort */
+      oldeq = eq;
+    }
+    q = gmul(q, gmulgs(z, j)); S = gadd(S, q);
+    if (gc_needed(av2, 1)) gerepileall(av2, 2, &S, &q);
+  }
+  if (DEBUGLEVEL > 2) err_printf("eint1: using asymp\n");
+  S = expx? gdiv(S, expx): gmul(S, gexp(gneg(x), prec));
+  return gerepileupto(av, gmul(S, ix));
+}
 
 /* incgam(0, x, prec) = eint1(x); typ(x) = t_REAL, x > 0 */
 static GEN
 incgam_0(GEN x, GEN expx)
 {
   pari_sp av;
-  long l = realprec(x), n, i;
-  double mx = rtodbl(x), L = prec2nbits_mul(l,M_LN2);
-  GEN z;
+  long l = realprec(x), bit = prec2nbits(l), prec, i;
+  double mx;
+  GEN z, S, t, H, run;
 
-  if (!mx) pari_err_DOMAIN("eint1", "x","=",gen_0, x);
-  if (mx > L)
+  if (gequal0(x)) pari_err_DOMAIN("eint1", "x","=",gen_0, x);
+  if (gamma_use_asymp(x, bit)
+      && (z = eint1r_asymp(x, expx, l))) return z;
+  mx = rtodbl(x);
+  prec = l + nbits2extraprec((mx+log(mx))/M_LN2 + 10);
+  bit = prec2nbits(prec);
+  run = real_1(prec); x = rtor(x, prec);
+  av = avma; S = z = t = H = run;
+  for (i = 2; expo(S) - expo(t) <= bit; i++)
   {
-    double m = (L + mx)/4;
-    n = (long)(1+m*m/mx);
-    av = avma;
-    z = divsr(-n, addsr(n<<1,x));
-    for (i=n-1; i >= 1; i--)
-    {
-      z = divsr(-i, addrr(addsr(i<<1,x), mulur(i,z))); /* -1 / (2 + z + x/i) */
-      if ((i & 0x1ff) == 0) z = gerepileuptoleaf(av, z);
-    }
-    return divrr(addrr(real_1(l),z), mulrr(expx? expx: mpexp(x), x));
+    H = addrr(H, divru(run,i)); /* H = sum_{k<=i} 1/k */
+    z = divru(mulrr(x,z), i);   /* z = x^(i-1)/i! */
+    t = mulrr(z, H); S = addrr(S, t);
+    if ((i & 0x1ff) == 0) gerepileall(av, 4, &z,&t,&S,&H);
   }
-  else
-  {
-    long prec = l + nbits2extraprec((mx+log(mx))/M_LN2 + 10);
-    GEN S, t, H, run = real_1(prec);
-    n = -prec2nbits(prec);
-    x = rtor(x, prec);
-    av = avma;
-    S = z = t = H = run;
-    for (i = 2; expo(t) - expo(S) >= n; i++)
-    {
-      H = addrr(H, divru(run,i)); /* H = sum_{k<=i} 1/k */
-      z = divru(mulrr(x,z), i);   /* z = x^(i-1)/i! */
-      t = mulrr(z, H); S = addrr(S, t);
-      if ((i & 0x1ff) == 0) gerepileall(av, 4, &z,&t,&S,&H);
-    }
-    return subrr(mulrr(x, divrr(S,expx? expx: mpexp(x))),
-                 addrr(mplog(x), mpeuler(prec)));
-  }
+  return subrr(mulrr(x, divrr(S,expx? expx: mpexp(x))),
+               addrr(mplog(x), mpeuler(prec)));
 }
 
 /* real(z*log(z)-z), z = x+iy */
@@ -1022,24 +1074,17 @@ GEN
 incgam0(GEN s, GEN x, GEN g, long prec)
 {
   pari_sp av;
-  long E, l, ex;
-  double mx;
+  long E, l;
   GEN z, rs, is;
 
   if (gequal0(x)) return g? gcopy(g): ggamma(s,prec);
   if (gequal0(s)) return eint1(x, prec);
-  av = avma;
-  l = precision(s);
-  if (!l) l = prec;
-  E = prec2nbits(l) + 1;
-  ex = gexpo(x);
-  mx = ex > E? E: dblmodulus(x); /* avoid overflow in dblmodulus */
-  /* use asymptotic expansion */
-  if (4*mx > 3*E || (typ(s) == t_INT && signe(s) > 0 && ex >= expi(s)))
-  {
-    z = incgam_asymp(s, x, l);
-    if (z) return z;
-  }
+  l = precision(s); if (!l) l = prec;
+  E = prec2nbits(l);
+  if (gamma_use_asymp(x, E) ||
+      (typ(s) == t_INT && signe(s) > 0 && gexpo(x) >= expi(s)))
+    if ((z = incgam_asymp(s, x, l))) return z;
+  av = avma; E++;
   rs = real_i(s);
   is = imag_i(s);
 #ifdef INCGAM_CF
@@ -1139,13 +1184,12 @@ static GEN
 cxeint1(GEN x, long prec)
 {
   pari_sp av = avma, av2;
-  GEN q, S3;
-  GEN run, z, H;
-  long n, E = prec2nbits(prec) + 1, ex = gexpo(x);
+  GEN q, S3, run, z, H;
+  long n, E = prec2nbits(prec);
 
-  if ((ex > E || 4*dblmodulus(x) > 3*E)
-      && (z = incgam_asymp(gen_0, x, prec))) return z;
-  if (ex > 0)
+  if (gamma_use_asymp(x, E) && (z = eint1_asymp(x, NULL, prec))) return z;
+  E++;
+  if (gexpo(x) > 0)
   { /* take cancellation into account, log2(\sum |x|^n / n!) = |x| / log(2) */
     double dbx = dblmodulus(x);
     long X = (long)((dbx + log(dbx))/M_LN2 + 10);
@@ -1187,7 +1231,17 @@ eint1(GEN x, long prec)
   n  = prec2nbits(l);
   y  = rtor(x, l + EXTRAPREC);
   setsigne(y,1);
-  if (cmprs(y, (3*n)/4) < 0) {
+  if (gamma_use_asymp(y, n))
+  { /* ~eint1_asymp: asymptotic expansion */
+    p1 = t = invr(y); S = addrs(t, 1);
+    for (i = 2; expo(t) >= -n; i++) {
+      t = mulrr(p1, mulru(t, i));
+      S = addrr(S, t);
+    }
+    y  = mulrr(S, mulrr(p1, mpexp(y)));
+  }
+  else
+  {
     p1 = t = S = y;
     for (i = 2; expo(t) - expo(S) >= -n; i++) {
       p1 = mulrr(y, divru(p1, i)); /* (-x)^i/i! */
@@ -1195,16 +1249,9 @@ eint1(GEN x, long prec)
       S = addrr(S, t);
     }
     y  = addrr(S, addrr(logr_abs(x), mpeuler(l)));
-  } else { /* ~incgam_asymp: asymptotic expansion */
-    p1 = t = invr(y);
-    S = addrs(t, 1);
-    for (i = 2; expo(t) >= -n; i++) {
-      t = mulrr(p1, mulru(t, i));
-      S = addrr(S, t);
-    }
-    y  = mulrr(S, mulrr(p1, mpexp(y)));
   }
-  gel(res, 1) = gerepileuptoleaf(av, negr(y));
+  togglesign(y);
+  gel(res, 1) = gerepileuptoleaf(av, y);
   y = mppi(prec); setsigne(y, -1);
   gel(res, 2) = y; return res;
 }
