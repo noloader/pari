@@ -1018,13 +1018,13 @@ prime_table_closest_p(ulong n)
 static GEN
 prime_successor(ulong p, ulong n)
 {
-  GEN Q = utoipos(p);
+  GEN Q = utoipos(p), P = NULL;
   ulong i;
 RESET:
   for(;;)
   {
     forprime_t S;
-    GEN P, L = dbltor(4*n * log(gtodouble(Q) + 1)), R = addii(Q, ceil_safe(L));
+    GEN L = dbltor(4*n * log(gtodouble(Q) + 1)), R = addii(Q, ceil_safe(L));
 
     forprime_init(&S, addiu(Q, 1), R);
     Q = R;
