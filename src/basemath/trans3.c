@@ -1032,9 +1032,8 @@ incgam0(GEN s, GEN x, GEN g, long prec)
   l = precision(s);
   if (!l) l = prec;
   E = prec2nbits(l) + 1;
-  /* avoid overflow in dblmodulus */
   ex = gexpo(x);
-  if (ex > E) mx = E; else mx = dblmodulus(x);
+  mx = ex > E? E: dblmodulus(x); /* avoid overflow in dblmodulus */
   /* use asymptotic expansion */
   if (4*mx > 3*E || (typ(s) == t_INT && signe(s) > 0 && ex >= expi(s)))
   {
