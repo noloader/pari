@@ -2582,11 +2582,7 @@ ser_agm1(GEN y, long prec)
       if (e < l2 || e >= eold) break;
       eold = e;
     }
-    else
-    {
-      long ep = valp(p1)-valp(b1);
-      if (ep >= l && gequal0(p1)) break;
-    }
+    else if (valp(p1)-valp(b1) >= l || gequal0(p1)) break;
   }
   return a1;
 }
