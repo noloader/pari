@@ -30,6 +30,8 @@ Doc: returns the (complex) eigenvectors of $x$ as columns of a matrix.
  [-1/2 2/5]
 
  [   1   1]
+ ? A * H == H * matdiagonal(L)
+ %5 = 1
  @eprog\noindent
  For symmetric matrices, use \tet{qfjacobi} instead; for Hermitian matrices,
  compute
