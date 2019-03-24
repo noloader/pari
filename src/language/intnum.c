@@ -1151,7 +1151,7 @@ intfuncinit(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long m, long prec)
 static GEN
 intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
 {
-  GEN S = gen_0, res1, res2, kma, kmb;
+  GEN S = gen_0, kma, kmb;
   long sb, sgns = 1, codea = transcode(a, "a"), codeb = transcode(b, "b");
 
   if (codea == f_REG && typ(a) == t_VEC) a = gel(a,1);
@@ -1167,9 +1167,8 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
     else
     {
       GEN c = gmul2n(gadd(gel(a,1), gel(b,1)), -1);
-      res1 = intnsing(E, eval, a, c, gel(tab,1));
-      res2 = intnsing(E, eval, b, c, gel(tab,2));
-      S = gsub(res1, res2);
+      S = gsub(intnsing(E, eval, a, c, gel(tab,1)),
+               intnsing(E, eval, b, c, gel(tab,2)));
     }
     return (sgns < 0) ? gneg(S) : S;
   }
@@ -1185,7 +1184,7 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
   if (is_fin_f(codea))
   { /* either codea == f_SING  or codea == f_REG and codeb = f_YOSCC
      * or (codeb == f_YOSCS and !gequal0(a)) */
-    GEN c = real_i(codea == f_SING? gel(a,1): a);
+    GEN S2, c = real_i(codea == f_SING? gel(a,1): a);
     switch(codeb)
     {
       case f_YOSCC: case f_YOSCS:
@@ -1203,12 +1202,12 @@ intnum_i(void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, GEN tab, long prec)
         c = sb > 0? addiu(gceil(c), 1): subiu(gfloor(c), 1);
         break;
     }
-    res1 = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1))
-                        : intn    (E, eval, a, c, gel(tab,1));
-    res2 = intninfpm(E, eval, c, sb*codeb, gel(tab,2));
-    if (sb < 0) res2 = gneg(res2);
-    res1 = gadd(res1, res2);
-    return sgns < 0 ? gneg(res1) : res1;
+    S = codea==f_SING? intnsing(E, eval, a, c, gel(tab,1))
+                     : intn    (E, eval, a, c, gel(tab,1));
+    S2 = intninfpm(E, eval, c, sb*codeb, gel(tab,2));
+    if (sb < 0) S2 = gneg(S2);
+    S = gadd(S, S2);
+    return sgns < 0 ? gneg(S) : S;
   }
   /* now a and b are infinite */
   if (codea * sb > 0)
