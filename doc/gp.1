@@ -80,14 +80,25 @@ exception. If this occurs frequently, start with a bigger stack. The stack
 size can also be
 increased from within gp, using
 .BR default(parisize, limit) ";"
-it may be convenient to set
-.B stacksize
+it is convenient to set
+.B parisize
 from your
-.B .gprc.
+.B .gprc
+to that the setting is persistent across sessions; a value of 80MB is sensible.
+We strongly advise to also set
+.B parisizemax
+to a positive, much larger, value in your
+.B .gprc
+(about what you believe your machine can stand, usually half the available
+RAM or so): this strives to fit computation in the parisize range but allows
+it to temporarily go beyond it (up to parisizemax).
 Note that computations with a
 .B smaller
-stack may be more efficient due to better data locality. Most computations
-should need less than 20MB.
+stack may be more efficient due to better data locality. Finally,
+.B threadsize
+and
+.B threadsizemax
+play analogous roles in the parallel version of gp.
 
 .TP
 .B \--emacs
@@ -154,6 +165,10 @@ The following material is included in the standard distribution (originally
 in TeX format) and can also be downloaded at
 .RS
 .I http://pari.math.u-bordeaux.fr/doc.html
+.RE
+or viewed online at
+.RS
+.I http://pari.math.u-bordeaux.fr/dochtml/html/
 .RE
 
 .TP
@@ -309,8 +324,8 @@ Further instructions can be found on that page.
 
 .SH TRIVIA
 Despite the leading G, GP has nothing to do with GNU. The first version was
-originally called GPC, for Great Programmable Calculator. For some reason,
-the trailing C was eventually dropped.
+originally called GPC, for Great Programmable Calculator. When people started
+calling it "the GPC Calculator", the trailing C was dropped.
 
 PARI has nothing to do with the French capital. The name is a pun about the
 project's early stages when the authors started to implement a library for
