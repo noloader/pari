@@ -702,8 +702,7 @@ eint1_asymp(GEN x, GEN expx, long prec)
   GEN S, q, z, ix;
   long oldeq = LONG_MAX, esx = -prec2nbits(prec), j;
 
-  if (typ(x) == t_REAL) return eint1r_asymp(x, expx, prec);
-  x = gtofp(x, prec+EXTRAPREC);
+  if (typ(x) != t_REAL) x = gtofp(x, prec+EXTRAPREC);
   if (typ(x) == t_REAL) return eint1r_asymp(x, expx, prec);
   ix = ginv(x); q = z = gneg_i(ix);
   av2 = avma; S = gaddgs(q, 1);
@@ -719,7 +718,7 @@ eint1_asymp(GEN x, GEN expx, long prec)
     if (gc_needed(av2, 1)) gerepileall(av2, 2, &S, &q);
   }
   if (DEBUGLEVEL > 2) err_printf("eint1: using asymp\n");
-  S = expx? gdiv(S, expx): gmul(S, gexp(gneg(x), prec));
+  S = expx? gdiv(S, expx): gmul(S, gexp(gneg_i(x), prec));
   return gerepileupto(av, gmul(S, ix));
 }
 
@@ -754,27 +753,27 @@ eint1p(GEN x, GEN expx)
 static GEN
 eint1m(GEN x, GEN expx)
 {
-  GEN p1, t, S, y, z = cgetg(3, t_COMPLEX);
-  long l  = realprec(x), n  = prec2nbits(l), i;
+  GEN p1, q, S, y, z = cgetg(3, t_COMPLEX);
+  long l  = realprec(x), n  = prec2nbits(l), j;
   pari_sp av = avma;
 
   y  = rtor(x, l + EXTRAPREC); setsigne(y,1); /* |x| */
   if (gamma_use_asymp(y, n))
   { /* ~eint1_asymp: asymptotic expansion */
-    p1 = t = invr(y); S = addrs(t, 1);
-    for (i = 2; expo(t) >= -n; i++) {
-      t = mulrr(p1, mulru(t, i));
-      S = addrr(S, t);
+    p1 = q = invr(y); S = addrs(q, 1);
+    for (j = 2; expo(q) >= -n; j++) {
+      q = mulrr(q, mulru(p1, j));
+      S = addrr(S, q);
     }
-    y  = mulrr(S, expx? divrr(p1, expx): mulrr(p1, mpexp(y)));
+    y  = mulrr(p1, expx? divrr(S, expx): mulrr(S, mpexp(y)));
   }
   else
   {
-    p1 = t = S = y;
-    for (i = 2; expo(t) - expo(S) >= -n; i++) {
-      p1 = mulrr(y, divru(p1, i)); /* (-x)^i/i! */
-      t = divru(p1, i);
-      S = addrr(S, t);
+    p1 = q = S = y;
+    for (j = 2; expo(q) - expo(S) >= -n; j++) {
+      p1 = mulrr(y, divru(p1, j)); /* (-x)^j/j! */
+      q = divru(p1, j);
+      S = addrr(S, q);
     }
     y  = addrr(S, addrr(logr_abs(x), mpeuler(l)));
   }
@@ -1221,7 +1220,7 @@ static GEN
 cxeint1(GEN x, long prec)
 {
   pari_sp av = avma, av2;
-  GEN q, S3, run, z, H;
+  GEN q, S, run, z, H;
   long n, E = prec2nbits(prec);
 
   if (gamma_use_asymp(x, E) && (z = eint1_asymp(x, NULL, prec))) return z;
@@ -1236,15 +1235,16 @@ cxeint1(GEN x, long prec)
   if (DEBUGLEVEL > 2) err_printf("eint1: using power series\n");
   run = real_1(prec);
   av2 = avma;
-  S3 = z = q = H = run;
-  for (n = 2; gexpo(q) - gexpo(S3) >= -E; n++)
+  S = z = q = H = run;
+  for (n = 2; gexpo(q) - gexpo(S) >= -E; n++)
   {
     H = addrr(H, divru(run, n)); /* H = sum_{k<=n} 1/k */
     z = gdivgs(gmul(x,z), n);   /* z = x^(n-1)/n! */
-    q = gmul(z, H); S3 = gadd(S3, q);
-    if ((n & 0x1ff) == 0) gerepileall(av2, 4, &z, &q, &S3, &H);
+    q = gmul(z, H); S = gadd(S, q);
+    if ((n & 0x1ff) == 0) gerepileall(av2, 4, &z, &q, &S, &H);
   }
-  return gerepileupto(av, gsub(gmul(x, gdiv(S3, gexp(x, prec))), gadd(glog(x, prec), mpeuler(prec))));
+  S = gmul(gmul(x, S), gexp(gneg_i(x), prec));
+  return gerepileupto(av, gsub(S, gadd(glog(x, prec), mpeuler(prec))));
 }
 
 GEN
