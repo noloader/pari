@@ -185,6 +185,7 @@ BA  44- GP: the argument of a user member function is now a reference
     50- ??? include double quotes when needed (e.g. ???conductor) [#2122]
     51- improved the prime() function
     52- mpeint1: supposrt all t_REAL x != 0 (was x > 0)
+LGr 53- nffactor now supports rational functions
 
   Added
      1- [libpari] nonsquare_Fl

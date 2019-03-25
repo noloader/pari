@@ -4,9 +4,10 @@ C-Name: nffactor
 Prototype: GG
 Help: nffactor(nf,T): factor polynomial T in number field nf.
 Doc: factorization of the univariate
- polynomial $T$ over the number field $\var{nf}$ given by \kbd{nfinit}; $T$
- has coefficients in $\var{nf}$ (i.e.~either scalar, polmod, polynomial or
- column vector). The factors are sorted by increasing degree.
+ polynomial (or rational function) $T$ over the number field $\var{nf}$ given
+ by \kbd{nfinit}; $T$ has coefficients in $\var{nf}$ (i.e.~either scalar,
+ polmod, polynomial or column vector). The factors are sorted by increasing
+ degree.
 
  The main variable of $\var{nf}$ must be of \emph{lower}
  priority than that of $T$, see \secref{se:priority}. However if

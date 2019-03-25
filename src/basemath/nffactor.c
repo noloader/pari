@@ -594,18 +594,16 @@ fact_from_sqff(GEN rep, GEN A, GEN B, GEN y, GEN T, GEN bad)
   gel(rep,2) = ex;
 }
 
-/* return the factorization of x in nf */
-GEN
-nffactor(GEN nf,GEN pol)
+/* return the factorization of polynomial pol in nf */
+static GEN
+nffactor_i(GEN nf,GEN T,GEN pol)
 {
-  GEN bad, A, B, y, T, den, rep = cgetg(3, t_MAT);
+  GEN bad, A, B, y, den, rep = cgetg(3, t_MAT);
   pari_sp av = avma;
   long dA;
   pari_timer ti;
 
   if (DEBUGLEVEL>2) { timer_start(&ti); err_printf("\nEntering nffactor:\n"); }
-  T = get_nfpol(nf, &nf);
-  RgX_check_ZX(T,"nffactor");
   A = RgX_nffix("nffactor",T,pol,1);
   dA = degpol(A);
   if (dA <= 0) {
@@ -640,7 +638,27 @@ nffactor(GEN nf,GEN pol)
   if (DEBUGLEVEL>3) err_printf("number of factor(s) found: %ld\n", lg(y)-1);
 
   fact_from_sqff(rep, A, B, y, T, bad);
-  return sort_factor_pol(rep, cmp_RgX);
+  return rep;
+}
+
+/* return the factorization of P in nf */
+GEN
+nffactor(GEN nf, GEN P)
+{
+  GEN y, T = get_nfpol(nf, &nf);
+  if (!nf) RgX_check_ZX(T,"nffactor");
+  if (typ(P) == t_RFRAC)
+  {
+    pari_sp av = avma;
+    GEN a = gel(P, 1), b = gel(P, 2);
+    y = famat_inv_shallow(nffactor_i(nf, T, b));
+    if (typ(a) == t_POL && varn(a) == varn(b))
+      y = famat_mul_shallow(nffactor_i(nf, T, a), y);
+    y = gerepilecopy(av, y);
+  }
+  else
+    y = nffactor_i(nf, T, P);
+  return sort_factor_pol(y, cmp_RgX);
 }
 
 /* assume x scalar or t_COL, G t_MAT */
