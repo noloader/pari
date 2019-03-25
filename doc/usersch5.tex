@@ -12654,7 +12654,7 @@ catastrophic cancellation if $|x|$ is very small.
 that $C > 0$ is a \typ{REAL} and that \kbd{eC} is \kbd{NULL} or \kbd{mpexp(C)}.
 
 \fun{GEN}{mpeint1}{GEN x, GEN expx} returns \kbd{eint1}$(x)$, for a \typ{REAL}
-$x\geq 0$, assuming that \kbd{expx} is \kbd{mpexp}$(x)$.
+$x\neq 0$, assuming that \kbd{expx} is \kbd{mpexp}$(x)$.
 
 \fun{GEN}{mplambertW}{GEN y} solution $x$ of the implicit equation
 $x \exp(x) = y$, for $y > 0$ a \typ{REAL}.

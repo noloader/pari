@@ -723,16 +723,15 @@ eint1_asymp(GEN x, GEN expx, long prec)
   return gerepileupto(av, gmul(S, ix));
 }
 
-/* incgam(0, x, prec) = eint1(x); typ(x) = t_REAL, x > 0 */
+/* eint1(x) = incgam(0, x); typ(x) = t_REAL, x > 0 */
 static GEN
-incgam_0(GEN x, GEN expx)
+eint1p(GEN x, GEN expx)
 {
   pari_sp av;
   long l = realprec(x), bit = prec2nbits(l), prec, i;
   double mx;
   GEN z, S, t, H, run;
 
-  if (gequal0(x)) pari_err_DOMAIN("eint1", "x","=",gen_0, x);
   if (gamma_use_asymp(x, bit)
       && (z = eint1r_asymp(x, expx, l))) return z;
   mx = rtodbl(x);
@@ -749,6 +748,40 @@ incgam_0(GEN x, GEN expx)
   }
   return subrr(mulrr(x, divrr(S,expx? expx: mpexp(x))),
                addrr(mplog(x), mpeuler(prec)));
+}
+/* eint1(x) = incgam(0, x); typ(x) = t_REAL, x < 0
+ * rewritten from code contributed by Manfred Radimersky */
+static GEN
+eint1m(GEN x, GEN expx)
+{
+  GEN p1, t, S, y, z = cgetg(3, t_COMPLEX);
+  long l  = realprec(x), n  = prec2nbits(l), i;
+  pari_sp av = avma;
+
+  y  = rtor(x, l + EXTRAPREC); setsigne(y,1); /* |x| */
+  if (gamma_use_asymp(y, n))
+  { /* ~eint1_asymp: asymptotic expansion */
+    p1 = t = invr(y); S = addrs(t, 1);
+    for (i = 2; expo(t) >= -n; i++) {
+      t = mulrr(p1, mulru(t, i));
+      S = addrr(S, t);
+    }
+    y  = mulrr(S, expx? divrr(p1, expx): mulrr(p1, mpexp(y)));
+  }
+  else
+  {
+    p1 = t = S = y;
+    for (i = 2; expo(t) - expo(S) >= -n; i++) {
+      p1 = mulrr(y, divru(p1, i)); /* (-x)^i/i! */
+      t = divru(p1, i);
+      S = addrr(S, t);
+    }
+    y  = addrr(S, addrr(logr_abs(x), mpeuler(l)));
+  }
+  y = gerepileuptoleaf(av, y); togglesign(y);
+  gel(z, 1) = y;
+  y = mppi(l); setsigne(y, -1);
+  gel(z, 2) = y; return z;
 }
 
 /* real(z*log(z)-z), z = x+iy */
@@ -1170,13 +1203,17 @@ incgam0(GEN s, GEN x, GEN g, long prec)
 GEN
 incgam(GEN s, GEN x, long prec) { return incgam0(s, x, NULL, prec); }
 
-/* x >= 0 a t_REAL */
+/* x a t_REAL */
 GEN
 mpeint1(GEN x, GEN expx)
 {
-  GEN z = cgetr(realprec(x));
-  pari_sp av = avma;
-  affrr(incgam_0(x, expx), z);
+  long s = signe(x);
+  pari_sp av;
+  GEN z;
+  if (!s) pari_err_DOMAIN("eint1", "x","=",gen_0, x);
+  if (s < 0) return eint1m(x, expx);
+  z = cgetr(realprec(x));
+  av = avma; affrr(eint1p(x, expx), z);
   set_avma(av); return z;
 }
 
@@ -1213,47 +1250,13 @@ cxeint1(GEN x, long prec)
 GEN
 eint1(GEN x, long prec)
 {
-  long l, n, i;
-  pari_sp av;
-  GEN p1, t, S, y, res;
-
   switch(typ(x))
   {
     case t_COMPLEX: return cxeint1(x, prec);
     case t_REAL: break;
     default: x = gtofp(x, prec);
   }
-  if (signe(x) >= 0) return mpeint1(x,NULL);
-  /* rewritten from code contributed by Manfred Radimersky */
-  res = cgetg(3, t_COMPLEX);
-  av = avma;
-  l  = realprec(x);
-  n  = prec2nbits(l);
-  y  = rtor(x, l + EXTRAPREC);
-  setsigne(y,1);
-  if (gamma_use_asymp(y, n))
-  { /* ~eint1_asymp: asymptotic expansion */
-    p1 = t = invr(y); S = addrs(t, 1);
-    for (i = 2; expo(t) >= -n; i++) {
-      t = mulrr(p1, mulru(t, i));
-      S = addrr(S, t);
-    }
-    y  = mulrr(S, mulrr(p1, mpexp(y)));
-  }
-  else
-  {
-    p1 = t = S = y;
-    for (i = 2; expo(t) - expo(S) >= -n; i++) {
-      p1 = mulrr(y, divru(p1, i)); /* (-x)^i/i! */
-      t = divru(p1, i);
-      S = addrr(S, t);
-    }
-    y  = addrr(S, addrr(logr_abs(x), mpeuler(l)));
-  }
-  togglesign(y);
-  gel(res, 1) = gerepileuptoleaf(av, y);
-  y = mppi(prec); setsigne(y, -1);
-  gel(res, 2) = y; return res;
+  return mpeint1(x,NULL);
 }
 
 GEN
@@ -1322,13 +1325,13 @@ mpveceint1(GEN C, GEN eC, long N)
   av0 = avma;
   if (N < Nmin) Nmin = N;
   if (!eC) eC = mpexp(C);
-  en = eC; affrr(incgam_0(C, en), gel(w,1));
+  en = eC; affrr(eint1p(C, en), gel(w,1));
   for (n = 2; n <= Nmin; n++)
   {
     pari_sp av2;
     en = mulrr(en,eC); /* exp(n C) */
     av2 = avma;
-    affrr(incgam_0(mulru(C,n), en), gel(w,n));
+    affrr(eint1p(mulru(C,n), en), gel(w,n));
     set_avma(av2);
   }
   if (Nmin == N) { set_avma(av0); return w; }
@@ -1338,7 +1341,7 @@ mpveceint1(GEN C, GEN eC, long N)
   jmax = ceil(DL/log((double)Nmin)) + 1;
   v = sum_jall(C, jmax, prec);
   en = powrs(eC, -N); /* exp(-N C) */
-  affrr(incgam_0(mulru(C,N), invr(en)), gel(w,N));
+  affrr(eint1p(mulru(C,N), invr(en)), gel(w,N));
   for (j = jmin, n = N-1; j <= jmax; j++)
   {
     long limN = maxss((long)ceil(exp(DL/j)), Nmin);
