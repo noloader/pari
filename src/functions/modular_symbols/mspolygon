@@ -2,12 +2,15 @@ Function: mspolygon
 Section: modular_symbols
 C-Name: mspolygon
 Prototype: GD0,L,
-Help: mspolygon(M, {flag = 0}): M being a full modular symbol space, as given
- by msinit or an integer > 1, return an hyperbolic polygon (Farey symbol)
- attached to the group Gamma_0(N). Binary digits of flag mean: 1=normalized
+Help: mspolygon(M, {flag = 0}): M being a full modular symbol space
+ attached to a group G, as given by msinit, or a positive integer N
+ (encoding the group G = Gamma0(N)), return an hyperbolic polygon
+ (Farey symbol) attached to G. Binary digits of flag mean: 1=normalized
  polygon, 2=also add graphical representations.
-Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
- attached to the group $\Gamma_0(N)$. More precisely,
+Doc: $M$ being a full modular symbol space attached to the group
+ as given by \kbd{msinit} attached to a group $G$ or a positive integer $N$
+ (encoding the group $G = \Gamma_0(N)$), return an hyperbolic polygon
+ (Farey symbol) attached to $G$. More precisely,
 
  \item its vertices are an ordered list in $\P^{1}(\Q)$, forming a system of
  representatives of cusps,
@@ -16,8 +19,8 @@ Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
 
  \item given a path $(a,b)$ between two elements of $\P^{1}(\Q)$, let
  $\overline{(a,b)} = (b,a)$ be the opposite path. There is an involution $e
- \to e^*$ on the edges, where $e^*$ is $\Gamma_0(N)$ equivalent to
- $\overline{e}$, i.e. there exist $\gamma_e \in \Gamma_0(N)$ such that $e =
+ \to e^*$ on the edges, where $e^*$ is $G$ equivalent to
+ $\overline{e}$, i.e. there exist $\gamma_e \in G$ such that $e =
  \gamma_e \overline{e^*}$.
 
  The polygon is given by
@@ -28,14 +31,14 @@ Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
  \kbd{A[i]} is the index of $e^*$ in $E$ if $e = E[i]$ is the $i$-th edge;
 
  \item the list $G$ of pairing matrices between $e$ and
- $\overline{e^*}$, i.e. the matrices $\gamma_e\in \Gamma_0(N)$ such that $e =
+ $\overline{e^*}$, i.e. the matrices $\gamma_e\in G$ such that $e =
  \gamma_e \overline{e^*}$. If $e = E[i]$, then $\gamma_e = G[i]$.
  Remark that $\gamma_{e^*}=\gamma_e^{-1}$ if $e \neq e^*$; modulo these
  trivial relations, the pairing matrices form a system of independant
- generators of $\Gamma_0(N)/\{1,-1\}$. Note that $\gamma_e$ is elliptic if and only if
- $e^* = e$.
+ generators of $G$ modulo $\{1,-1\}$. Note that $\gamma_e$ is elliptic if and
+ only if $e^* = e$.
 
- The above data yields a fundamental domain for $\Gamma_0(N)$ acting
+ The above data yields a fundamental domain for $G$ acting
  on Poincar\'e's half-plane: take the convex hull of the polygon defined by
 
  \item the edges in $E$ such that $e \neq e^*$ or $e^*=e$, where the pairing
@@ -56,14 +59,14 @@ Doc: given an integer $N > 1$, return an hyperbolic polygon (Farey symbol)
  ($a$, $b$, $a^*$ et $b^*$ appear consecutively in $E$ up to cyclic
  permutation). In particular, the vertices of all edges such that that
  $d(a,a^*) \neq 1$ (distance is 0 or 2) are all equivalent to $0$ modulo
- $\Gamma_0(N)$. The external vertices of $a a^*$ such that $d(a,a^*) = 1$ are
+ $G$. The external vertices of $a a^*$ such that $d(a,a^*) = 1$ are
  also equivalent to $0$; the internal vertices $a\cap a^*$ (a single point),
  together with $0$, form a system of representatives of the cusps of
- $\Gamma_0(N)\bs \P^{1}(\Q)$. This is useful to compute the homology group
- $H_1(X_0(N),\Z)$ as it gives a symplectic basis for the intersection pairing.
+ $G\bs \P^{1}(\Q)$. This is useful to compute the homology group
+ $H_1(G,\Z)$ as it gives a symplectic basis for the intersection pairing.
  In this case, the number of parabolic matrices (trace 2) in the system of
  generators $G$ is $2(t-1)$, where $t$ is the number of non equivalent cusps
- for $\Gamma_0(N)$.
+ for $G$.
 
  2: add graphical representations (in LaTeX form) for the hyperbolic polygon
  in Poincar\'e's half-space and the involution $a\to a^*$ of the Farey symbol.
