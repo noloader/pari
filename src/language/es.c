@@ -2697,6 +2697,14 @@ static void
 mat0n(pari_str *S, long n)
 { str_puts(S, "matrix(0,"); str_long(S, n); str_putc(S, ')'); }
 
+static const char *
+cxq_init(GEN g, long tg, GEN *a, GEN *b, char *buf)
+{
+  int r = (tg==t_QUAD);
+  *a = gel(g,r+1);
+  *b = gel(g,r+2); return r? get_var(varn(gel(g,1)), buf): "I";
+}
+
 static void
 bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
 {
@@ -2740,8 +2748,7 @@ bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
       break;
 
     case t_COMPLEX: case t_QUAD: r = (tg==t_QUAD);
-      a = gel(g,r+1); b = gel(g,r+2);
-      v = r ? get_var(varn(gel(g,1)), buf): "I";
+      v = cxq_init(g, tg, &a, &b, buf);
       if (isnull(a))
       {
         wr_lead_monome(T,S,b,v,1,addsign);
@@ -3033,7 +3040,7 @@ texi_sign(GEN g, pariout_t *T, pari_str *S, int addsign)
       break;
 
     case t_COMPLEX: case t_QUAD: r = (tg==t_QUAD);
-      a = gel(g,r+1); b = gel(g,r+2); v = r? "w": "I";
+      v = cxq_init(g, tg, &a, &b, buf);
       if (isnull(a))
       {
         wr_lead_texnome(T,S,b,v,1,addsign);
