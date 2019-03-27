@@ -2,7 +2,7 @@ Function: ellratpoints
 Section: elliptic_curves
 C-Name: ellratpoints
 Prototype: GGD0,L,
-Help: ellratpoints(E,h,{flag=0}): E being an integral model of an
+Help: ellratpoints(E,h,{flag=0}): E being an rational model of an
  elliptic curve, return a vector containing the affine rational points on the curve
  of naive height less than h.
  If fl=1, stop as soon as a point is found.

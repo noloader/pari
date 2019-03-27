@@ -1647,6 +1647,16 @@ ZX_hyperellratpoints(GEN P, GEN h, long flag)
   return gerepilecopy(av, data.z);
 }
 
+/* The ordinates of the points returned need to be divided by den
+ * by the caller to get the actual solutions */
+static GEN
+QX_hyperellratpoints(GEN P, GEN h, long flag, GEN *den)
+{
+  GEN Q = Q_remove_denom(P, den);
+  if (*den) Q = ZX_Z_mul(Q, *den);
+  return ZX_hyperellratpoints(Q, h, flag);
+}
+
 static GEN
 ZX_homogenous_evalpow(GEN Q, GEN A, GEN B)
 {
@@ -1659,7 +1669,7 @@ ZX_homogenous_evalpow(GEN Q, GEN A, GEN B)
 }
 
 static GEN
-to_ZX(GEN a, long v) { return typ(a)==t_INT? scalarpol(a,v): a; }
+to_RgX(GEN a, long v) { return typ(a)==t_POL? a: scalarpol(a,v); }
 
 static int
 hyperell_check(GEN PQ, GEN *P, GEN *Q)
@@ -1667,15 +1677,15 @@ hyperell_check(GEN PQ, GEN *P, GEN *Q)
   *P = *Q = NULL;
   if (typ(PQ) == t_POL)
   {
-    if (!RgX_is_ZX(PQ)) return 0;
+    if (!RgX_is_QX(PQ)) return 0;
     *P = PQ;
   }
   else
   {
     long v = gvar(PQ);
     if (v == NO_VARIABLE || typ(PQ) != t_VEC || lg(PQ) != 3) return 0;
-    *P = to_ZX(gel(PQ,1), v); if (!RgX_is_ZX(*P)) return 0;
-    *Q = to_ZX(gel(PQ,2), v); if (!RgX_is_ZX(*Q)) return 0;
+    *P = to_RgX(gel(PQ,1), v); if (!RgX_is_QX(*P)) return 0;
+    *Q = to_RgX(gel(PQ,2), v); if (!RgX_is_QX(*Q)) return 0;
     if (!signe(*Q)) *Q = NULL;
   }
   return 1;
@@ -1685,33 +1695,37 @@ GEN
 hyperellratpoints(GEN PQ, GEN h, long flag)
 {
   pari_sp av = avma;
-  GEN P, Q, H, L;
+  GEN P, Q, H, L, den;
   long i, l, dy, dQ;
 
   if (flag<0 || flag>1) pari_err_FLAG("ellratpoints");
   if (!hyperell_check(PQ, &P, &Q)) pari_err_TYPE("hyperellratpoints",PQ);
   if (!Q)
   {
-    L = ZX_hyperellratpoints(P, h, flag|2L);
+    L = QX_hyperellratpoints(P, h, flag|2L, &den);
     dy = (degpol(P)+1)>>1;
     l = lg(L);
     for (i = 1; i < l; i++)
     {
       GEN Li = gel(L,i), x = gel(Li,1), y = gel(Li,2), z = gel(Li,3);
-      gel(L,i) = mkvec2(gdiv(x,z), gdiv(y, powiu(z, dy)));
+      GEN zdy = powiu(z, dy);
+      if (den) zdy = mulii(zdy, den);
+      gel(L,i) = mkvec2(gdiv(x,z), gdiv(y, zdy));
     }
     return gerepilecopy(av, L);
   }
-  H = ZX_add(ZX_shifti(P,2), ZX_sqr(Q));
+  H = RgX_add(RgX_muls(P,4), RgX_sqr(Q));
   dy = (degpol(H)+1)>>1; dQ = degpol(Q);
-  L = ZX_hyperellratpoints(H, h, flag|2L);
+  L = QX_hyperellratpoints(H, h, flag|2L, &den);
   l = lg(L);
   for (i = 1; i < l; i++)
   {
     GEN Li = gel(L,i), x = gel(Li,1), y = gel(Li,2), z = gel(Li,3);
     GEN B = gpowers(z, dQ);
     GEN Qx = gdiv(ZX_homogenous_evalpow(Q, x, B), gel(B, dQ+1));
-    gel(L,i) = mkvec2(gdiv(x,z), gmul2n(gsub(gdiv(y,powiu(z, dy)),Qx),-1));
+    GEN zdy = powiu(z, dy);
+    if (den) zdy = mulii(zdy, den);
+    gel(L,i) = mkvec2(gdiv(x,z), gmul2n(gsub(gdiv(y,zdy),Qx),-1));
   }
   return gerepilecopy(av, L);
 }
@@ -1720,14 +1734,14 @@ GEN
 ellratpoints(GEN E, GEN h, long flag)
 {
   pari_sp av = avma;
-  GEN L, a1, a3;
+  GEN L, a1, a3, den;
   long i, l;
   checkell_Q(E);
   if (flag<0 || flag>1) pari_err_FLAG("ellratpoints");
-  if (!RgV_is_ZV(vecslice(E,1,5))) pari_err_TYPE("ellratpoints",E);
+  if (!RgV_is_QV(vecslice(E,1,5))) pari_err_TYPE("ellratpoints",E);
   a1 = ell_get_a1(E);
   a3 = ell_get_a3(E);
-  L = ZX_hyperellratpoints(ec_bmodel(E), h, flag|2L);
+  L = QX_hyperellratpoints(ec_bmodel(E), h, flag|2L, &den);
   l = lg(L);
   for (i = 1; i < l; i++)
   {
@@ -1737,7 +1751,8 @@ ellratpoints(GEN E, GEN h, long flag)
     else
     {
       GEN z2 = sqri(z);
-      y = subii(y, addii(mulii(a1, mulii(x,z)), mulii(a3,z2)));
+      if (den) y = gdiv(y, den);
+      y = gsub(y, gadd(gmul(a1, mulii(x,z)), gmul(a3,z2)));
       P = mkvec2(gdiv(x,z), gdiv(y,shifti(z2,1)));
     }
     gel(L,i) = P;

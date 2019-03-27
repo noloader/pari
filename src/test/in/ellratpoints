@@ -20,6 +20,7 @@ check(E)=
   #L+1;
 }
 for(i=1,#W,print(check(W[i])))
+check([0,0,1/7^3,-7/7^4,6/7^6])
 
 E=ellinit([-25,1]);ellratpoints(E,10,1)
 E=ellinit([-25,2]);ellratpoints(E,10,1)
@@ -39,5 +40,6 @@ P=82342800 *x^6 - 470135160 *x^5 + 52485681 *x^4 + 2396040466 *x^3 + 567207969 *
 hyperellratpoints(P,[10,1])
 checkhyp(P,0)
 checkhyp(-x^6+x^3+x+1,2*x^3)
-
+checkhyp((-x^6+x^3+x+1)/4,x^3)
+checkhyp(x^6+4*x+1/7)
 E=ellinit([0,0,1,-7,6]);ellratpoints(E,[10^5,[5]])
