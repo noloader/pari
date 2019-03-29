@@ -2901,10 +2901,28 @@ GEN
 QM_gauss(GEN M, GEN B)
 {
   pari_sp av = avma;
-  GEN K, MB;
-  MB = Q_primitive_part(mkvec2(M,B), NULL);
-  K = ZM_gauss(gel(MB,1), gel(MB,2));
-  return gerepileupto(av, K);
+  long i, l = lg(M);
+  GEN K, cB, N = cgetg_copy(M, &l), v = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+    gel(N,i) = Q_primitive_part(gel(M,i), &gel(v,i));
+  B = Q_primitive_part(B, &cB);
+  K = ZM_gauss(N, B); if (!K) { set_avma(av); return NULL; }
+  for (i = 1; i < l; i++)
+  {
+    GEN c, k = gel(K,i), d = gel(v,i);
+    if (d)
+    {
+      if (isintzero(d))
+      {
+        if (gequal0(k)) continue;
+        return NULL;
+      }
+      d = inv_content(d);
+    }
+    c = mul_content(cB, d);
+    if (c) gel(K,i) = gmul(gel(K,i), c);
+  }
+  return gerepilecopy(av, K);
 }
 
 static GEN
