@@ -912,13 +912,15 @@ static GEN
 mpveczeta(long n, long prec)
 {
   GEN z, o = zetazone;
+  pari_sp av;
   if (o)
   {
     long p = realprec(gel(o,1));
     if (p >= prec && lg(o) > n) return o;
   }
-  z = veczeta(gen_1, gen_2, n, prec);
-  zetazone = gclone(z); guncloneNULL(o); return zetazone;
+  av = avma; z = veczeta(gen_1, gen_2, n, prec);
+  zetazone = gclone(z); set_avma(av);
+  guncloneNULL(o); return zetazone;
 }
 static GEN
 negeuler(long prec) { GEN g = mpeuler(prec); setsigne(g, -1); return g; }
