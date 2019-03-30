@@ -1909,8 +1909,11 @@ the leaves (non-recursive components) are truncated to \kbd{nb} words.
 them knows how to print PARI objects by default. Seasoned PARI developers
 add the following \kbd{gdb} macro to their \kbd{.gdbinit}:
 \bprog
-  define i
+  define oo
     call output((GEN)$arg0)
+  end
+  define xx
+    call dbgGEN($arg0,-1)
   end
 @eprog\noindent
 Typing \kbd{i x} at a breakpoint in \kbd{gdb} then prints the value of the
