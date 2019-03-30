@@ -32,7 +32,7 @@
   ***   at top-level: sumnummonien(n=1,1/n^2,tab)
   ***                                  ^----------
   ***   incompatible initial value 2 != 1.
--38
++oo
 +oo
 +oo
 +oo
@@ -43,7 +43,7 @@
 +oo
 +oo
 +oo
--115
++oo
 -115
 +oo
 +oo
@@ -104,4 +104,4 @@
   ***   at top-level: sumpos(n=0,1,2)
   ***                 ^---------------
   *** sumpos: invalid flag in sumpos.
-Total time spent: 5112
+Total time spent: 3323
