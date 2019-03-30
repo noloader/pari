@@ -920,6 +920,8 @@ veczetaodd(long n, long prec)
   z = veczeta(gen_1, gen_2, n, prec);
   zetazone = gclone(z); guncloneNULL(o); return zetazone;
 }
+static GEN
+negeuler(long prec) { GEN g = mpeuler(prec); setsigne(g, -1); return g; }
 /* lngamma(1+z) = -Euler*z + sum_{i > 1} zeta(i)/i (-z)^i
  * at relative precision prec, |z| < 1 is small */
 static GEN
@@ -927,11 +929,11 @@ lngamma1(GEN z, long prec)
 { /* sum_{i > l} |z|^(i-1) = |z|^l / (1-|z|) < 2^-B
    * for l > (B+1) / |log2(|z|)| */
   long i, l = ceil((bit_accuracy(prec) + 1) / - dbllog2(z));
-  GEN vz, me = mpeuler(prec), s = gen_0;
-  setsigne(me, -1); /* -Euler */
+  GEN s, vz, me = negeuler(prec);
+
   if (l <= 1) return gmul(me, z);
   vz = veczetaodd(l - 1, prec); /* vz[i] = zeta(i+1) */
-  for (i = l; i > 1; i--)
+  for (i = l, s = gen_0; i > 1; i--)
   {
     GEN c = divru(gel(vz,i-1), i);
     if (odd(i)) setsigne(c, -1);
@@ -1934,16 +1936,14 @@ static GEN
 serpsi1(long n, long v, long prec)
 {
   long i, l = n+3;
-  GEN z, g, s = cgetg(l, t_SER);
+  GEN s = cgetg(l, t_SER), z = veczetaodd(n, prec); /* z[i] = zeta(i+1) */
+
   s[1] = evalsigne(1)|evalvalp(0)|evalvarn(v);
-  g = mpeuler(prec); setsigne(g, -1);
-  z = veczetaodd(n, prec); /* z[i] = zeta(i+1) */
-  gel(s,2) = g;
+  gel(s,2) = negeuler(prec);
   for (i = 2; i < l-1; i++)
   {
     GEN c = gel(z,i-1); /* zeta(i) */
-    if (odd(i)) setsigne(c, -1);
-    gel(s,i+1) = c;
+    gel(s,i+1) = odd(i)? negr(c): c;
   }
   return s;
 }
@@ -2012,7 +2012,7 @@ serpsiz0(GEN z0, long L, long v, long prec)
   }
   Q = gmul(Q, gmul2n(gsubsg(1, ginv(tr(pol_x(v),z0, L))), 1));
   setvarn(Q, v);
-  return gadd(negr(mpeuler(prec)), Q);
+  return gadd(negeuler(prec), Q);
 }
 /* sum (-1)^k*H(m,k)x^k + O(x^L); L > 0;
  * H(m,k) = (-1)^{k * \delta_{m > 0}} sum_{1<=i<m} 1/i^(k+1) */
