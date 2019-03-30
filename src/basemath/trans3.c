@@ -1630,8 +1630,7 @@ zetaBorwein(long s, long prec)
       gerepileall(av, 3, &c,&d,&z);
     }
   }
-  z = rdivii(shifti(z, s-1), subii(shifti(d,s-1), d), prec);
-  return gerepileuptoleaf(av, z);
+  return rdivii(shifti(z, s-1), subii(shifti(d,s-1), d), prec);
 }
 
 /* assume k != 1 */
@@ -1639,11 +1638,9 @@ GEN
 szeta(long k, long prec)
 {
   pari_sp av = avma;
-  GEN y;
-  double p;
+  GEN z;
 
-  /* treat trivial cases */
-  if (!k) { y = real2n(-1, prec); setsigne(y,-1); return y; }
+  if (!k) { z = real2n(-1, prec); setsigne(z,-1); return z; }
   if (k < 0)
   {
     if ((k&1) == 0) return gen_0;
@@ -1651,28 +1648,33 @@ szeta(long k, long prec)
     if ((ulong)k == (HIGHBIT | 1))
       pari_err_OVERFLOW("zeta [large negative argument]");
     k = 1-k;
-    y = bernreal(k, prec); togglesign(y);
-    return gerepileuptoleaf(av, divru(y, k));
+    z = bernreal(k, prec); togglesign(z);
+    return gerepileuptoleaf(av, divru(z, k));
   }
+  /* k > 1 */
   if (k > prec2nbits(prec)+1) return real_1(prec);
-  if ((k&1) == 0)
+  if (zetazone && realprec(gel(zetazone,1)) >= prec && lg(zetazone) >= k)
+    return rtor(gel(zetazone, k-1), prec);
+  if (!odd(k))
   {
     if (!bernzone) constbern(0);
     if (k >= lg(bernzone))
-      y = invr( inv_szeta_euler(k, prec) );
+      z = invr(inv_szeta_euler(k, prec));
     else
     {
-      y = gmul(powru(Pi2n(1, prec + EXTRAPRECWORD), k), gel(bernzone,k>>1));
-      y = divrr(y, mpfactr(k,prec));
-      setsigne(y, 1); shiftr_inplace(y, -1);
+      z = gmul(powru(Pi2n(1, prec + EXTRAPRECWORD), k), gel(bernzone,k>>1));
+      z = divrr(z, mpfactr(k,prec));
+      setsigne(z, 1); shiftr_inplace(z, -1);
     }
-    return gerepileuptoleaf(av, y);
   }
-  /* k > 1 odd */
-  p = prec2nbits_mul(prec,0.393); /* 0.393 ~ 1/log_2(3+sqrt(8)) */
-  if (log2(p * log(p))*k > prec2nbits(prec))
-    return gerepileuptoleaf(av, invr( inv_szeta_euler(k, prec) ));
-  return zetaBorwein(k, prec);
+  else
+  {
+    double p = prec2nbits_mul(prec,0.393); /* bit / log_2(3+sqrt(8)) */
+    p = log2(p * log(p));
+    z = (p * k > prec2nbits(prec))? invr(inv_szeta_euler(k, prec))
+                                  : zetaBorwein(k, prec);
+  }
+  return gerepileuptoleaf(av, z);
 }
 
 /* s0 a t_INT, t_REAL or t_COMPLEX.

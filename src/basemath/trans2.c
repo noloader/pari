@@ -909,7 +909,7 @@ red_mod_2z(GEN x, GEN z)
 #endif
 
 static GEN
-veczetaodd(long n, long prec)
+mpveczeta(long n, long prec)
 {
   GEN z, o = zetazone;
   if (o)
@@ -932,7 +932,7 @@ lngamma1(GEN z, long prec)
   GEN s, vz, me = negeuler(prec);
 
   if (l <= 1) return gmul(me, z);
-  vz = veczetaodd(l - 1, prec); /* vz[i] = zeta(i+1) */
+  vz = mpveczeta(l - 1, prec); /* vz[i] = zeta(i+1) */
   for (i = l, s = gen_0; i > 1; i--)
   {
     GEN c = divru(gel(vz,i-1), i);
@@ -1936,7 +1936,7 @@ static GEN
 serpsi1(long n, long v, long prec)
 {
   long i, l = n+3;
-  GEN s = cgetg(l, t_SER), z = veczetaodd(n, prec); /* z[i] = zeta(i+1) */
+  GEN s = cgetg(l, t_SER), z = mpveczeta(n, prec); /* z[i] = zeta(i+1) */
 
   s[1] = evalsigne(1)|evalvalp(0)|evalvarn(v);
   gel(s,2) = negeuler(prec);
