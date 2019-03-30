@@ -1368,10 +1368,11 @@ _sercoeff(GEN x, long n)
 }
 
 static void
-affect_coeff(GEN q, long n, GEN y)
+affect_coeff(GEN q, long n, GEN y, long t)
 {
   GEN x = _sercoeff(q,-n);
-  if (x == gen_0) gel(y,n) = NULL; else affgr(x, gel(y,n));
+  if (x == gen_0) gel(y,n) = NULL;
+  else { affgr(x, gel(y,n)); shiftr_inplace(gel(y,n), t); }
 }
 
 typedef struct {
@@ -1403,11 +1404,10 @@ ppgamma(ST_t *T, long prec)
   G = shallowcopy(G1); setvalp(G,-1); /* Gamma(x) */
 
   /* expansion of log(Gamma(u) / Gamma(1/2)) at u = 1/2 */
-  G2 = cgetg(r+3, t_SER);
-  G2[1] = evalsigne(1) | _evalvalp(0) | evalvarn(0);
-  gel(G2,2) = gen_0;
-  gel(G2,3) = gneg(gadd(gmul2n(mplog2(prec), 1), mpeuler(prec)));
-  for (i = 2; i <= r; i++) gel(G2,i+2) = mulri(gel(G1,i+2), int2um1(i));
+  G2 = cgetg(r+2, t_SER);
+  G2[1] = evalsigne(1) | _evalvalp(1) | evalvarn(0);
+  gel(G2,2) = gneg(gadd(gmul2n(mplog2(prec), 1), mpeuler(prec)));
+  for (i = 1; i < r; i++) gel(G2,i+2) = mulri(gel(G1,i+2), int2um1(i));
   G2 = gmul(sqpi, gexp(G2, prec)); /* Gamma(1/2 + x) */
 
  /* We simplify to get one of the following two expressions
@@ -1426,34 +1426,31 @@ ppgamma(ST_t *T, long prec)
     p2 = ser_unscale(G,ghalf);
   }
   /* (sqrt(Pi) 2^{1-x})^t */
-  an = gmul(powru(gmul2n(sqpi,1), t), gpow(gen_2, gmulgs(x,-t), prec));
-  bn = gpowgs(G, t+c); /* Gamma(x)^{t+c} */
+  an = gmul(powru(gmul2n(sqpi,1), t),
+            gpow(gen_2, RgX_to_ser(gmulgs(x,-t), r+2), prec));
+  bn = gmul(an, gpowgs(G, t+c)); /* Gamma(x)^{t+c} */
   cen = gpowgs(p1, s-t); /* Gamma(X)^{s-t} */
   con = gpowgs(p2, s-t); /* Gamma(Y)^{s-t} */
   for (i = 0; i < i0/2; i++)
-  {
+  { /* bn(x-u-1) = bn(x-u) 2^t / (x-u-1)^{t+c} */
     GEN C1,q1, A1 = gel(aij,2*i+1), B1 = gel(bij,2*i+1);
     GEN C2,q2, A2 = gel(aij,2*i+2), B2 = gel(bij,2*i+2);
+    long t1 = 2*i * t, t2 = t1 + t;
 
-    C1 = gmul(bn, gmul(an, cen));
+    C1 = gmul(bn, cen);
     p1 = gdiv(C1, gsubgs(x, 2*i));
     q1 = gdiv(C1, gsubgs(x, 2*i+1));
 
-    /* an(x-u-1) = 2^t an(x-u) */
-    an = gmul2n(an, t);
-    /* bn(x-u-1) = bn(x-u) / (x-u-1)^{t+c} */
     bn = gdiv(bn, gpowgs(gsubgs(x, 2*i+1), t+c));
-
-    C2 = gmul(bn, gmul(an, con));
+    C2 = gmul(bn, con);
     p2 = gdiv(C2, gsubgs(x, 2*i+1));
     q2 = gdiv(C2, gsubgs(x, 2*i+2));
     for (j = 1; j <= r; j++)
     {
-      affect_coeff(p1, j, A1); affect_coeff(q1, j, B1);
-      affect_coeff(p2, j, A2); affect_coeff(q2, j, B2);
+      affect_coeff(p1, j, A1, t1); affect_coeff(q1, j, B1, t1);
+      affect_coeff(p2, j, A2, t2); affect_coeff(q2, j, B2, t2);
     }
 
-    an = gmul2n(an, t);
     bn = gdiv(bn, gpowgs(gsubgs(x, 2*i+2), t+c));
     /* cen(x-2i-2) = cen(x-2i)  / (X - (i+1))^{s-t} */
     /* con(x-2i-3) = con(x-2i-1)/ (Y - (i+1))^{s-t} */
