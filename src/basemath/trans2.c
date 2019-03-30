@@ -1933,12 +1933,12 @@ cxpsi(GEN s0, long prec)
   set_avma(av); return affc_fixlg(z, res);
 }
 
-/* n > 0; return psi(1+x) + O(x^n), x = pol_x(v) */
+/* n >= 0; return psi(1+x) + O(x^n), x = pol_x(v) */
 GEN
 psi1series(long n, long v, long prec)
 {
   long i, l = n+3;
-  GEN s = cgetg(l, t_SER), z = mpveczeta(n, prec); /* z[i] = zeta(i+1) */
+  GEN s = cgetg(l, t_SER), z = n? mpveczeta(n, prec): NULL;/* z_i = zeta(i+1) */
 
   s[1] = evalsigne(1)|evalvalp(0)|evalvarn(v);
   gel(s,2) = negeuler(prec);
