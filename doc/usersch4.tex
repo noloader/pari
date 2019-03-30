@@ -1937,6 +1937,11 @@ type, \tet{pari_timer}, together with the following methods:
 
 \fun{long}{timer_delay}{pari_timer *T} returns the number of milliseconds
 elapsed since the timer was last reset. Resets the timer as a side effect.
+Assume $T$ was started by \kbd{timer\_start}.
+
+\fun{long}{timer_get}{pari_timer *T} returns the number of milliseconds
+elapsed since the timer was last reset. Does \emph{not} reset the timer.
+Assume $T$ was started by \kbd{timer\_start}.
 
 \fun{void}{walltimer_start}{pari_timer *T} start a timer, as if it
 had been started at the Unix epoch (see \kbd{getwalltime}).
@@ -1945,8 +1950,9 @@ had been started at the Unix epoch (see \kbd{getwalltime}).
 elapsed since the timer was last checked. Assume $T$ was started by
 \kbd{walltimer\_start}.
 
-\fun{long}{timer_get}{pari_timer *T} returns the number of milliseconds
+\fun{long}{walltimer_get}{pari_timer *T} returns the number of milliseconds
 elapsed since the timer was last reset. Does \emph{not} reset the timer.
+Assume $T$ was started by \kbd{walltimer\_start}.
 
 \fun{long}{timer_printf}{pari_timer *T, char *format,...} This diagnostics
 function is equivalent to the following code
