@@ -1380,78 +1380,62 @@ typedef struct {
 } ST_t;
 
 /* compute the principal part at the integers s = 0, -1, -2, ..., -i0
-   of Gamma((s+1)/2)^a Gamma(s/2)^b Gamma(s)^c / (s - z) with z = 0 and 1 */
-/* NOTE: surely not the best way to do this, but it's fast enough! */
+ * of Gamma((s+1)/2)^a Gamma(s/2)^b Gamma(s)^c / (s - z) with z = 0 and 1 */
 static void
 ppgamma(ST_t *T, long prec)
 {
-  GEN eul, gam,gamun,gamdm, an,bn,cn_evn,cn_odd, x,x2,X,Y, cf, sqpi;
-  GEN p1, p2, aij, bij;
-  long a = T->a;
-  long b = T->b;
-  long c = T->c, r = T->r, i0 = T->i0;
-  long i,j, s,t;
+  GEN G, G1, G2, an, bn, cen, con, x, x2, X, Y, sqpi, p1, p2, aij, bij;
+  long a = T->a, b = T->b, c = T->c, r = T->r, i0 = T->i0, i, j, s, t;
   pari_sp av;
 
-  aij = cgetg(i0+1, t_VEC);
-  bij = cgetg(i0+1, t_VEC);
+  T->aij = aij = cgetg(i0+1, t_VEC);
+  T->bij = bij = cgetg(i0+1, t_VEC);
   for (i = 1; i <= i0; i++)
   {
     gel(aij,i) = p1 = cgetg(r+1, t_VEC);
     gel(bij,i) = p2 = cgetg(r+1, t_VEC);
     for (j=1; j<=r; j++) { gel(p1,j) = cgetr(prec); gel(p2,j) = cgetr(prec); }
   }
-  av = avma;
+  av = avma; x = pol_x(0); x2 = gmul2n(x, -1);
+  sqpi = sqrtr_abs(mppi(prec)); /* Gamma(1/2) */
 
-  x   = pol_x(0);
-  x2  = gmul2n(x, -1); /* x/2 */
-  eul = mpeuler(prec);
-  sqpi= sqrtr_abs(mppi(prec)); /* Gamma(1/2) */
-
-  /* expansion of log(Gamma(u)) at u = 1 */
-  gamun = cgetg(r+3, t_SER);
-  gamun[1] = evalsigne(1) | _evalvalp(0) | evalvarn(0);
-  gel(gamun,2) = gen_0;
-  gel(gamun,3) = gneg(eul);
-  for (i = 2; i <= r; i++)
-    gel(gamun,i+2) = divrs(szeta(i,prec), odd(i)? -i: i);
-  gamun = gexp(gamun, prec); /* Gamma(1 + x) */
-  gam = gdiv(gamun,x); /* Gamma(x) */
+  G1 = gexp(integser(psi1series(r-1, 0, prec)), prec); /* Gamma(1 + x) */
+  G = shallowcopy(G1); setvalp(G,-1); /* Gamma(x) */
 
   /* expansion of log(Gamma(u) / Gamma(1/2)) at u = 1/2 */
-  gamdm = cgetg(r+3, t_SER);
-  gamdm[1] = evalsigne(1) | _evalvalp(0) | evalvarn(0);
-  gel(gamdm,2) = gen_0;
-  gel(gamdm,3) = gneg(gadd(gmul2n(mplog2(prec), 1), eul));
-  for (i = 2; i <= r; i++) gel(gamdm,i+2) = mulri(gel(gamun,i+2), int2um1(i));
-  gamdm = gmul(sqpi, gexp(gamdm, prec)); /* Gamma(1/2 + x) */
+  G2 = cgetg(r+3, t_SER);
+  G2[1] = evalsigne(1) | _evalvalp(0) | evalvarn(0);
+  gel(G2,2) = gen_0;
+  gel(G2,3) = gneg(gadd(gmul2n(mplog2(prec), 1), mpeuler(prec)));
+  for (i = 2; i <= r; i++) gel(G2,i+2) = mulri(gel(G1,i+2), int2um1(i));
+  G2 = gmul(sqpi, gexp(G2, prec)); /* Gamma(1/2 + x) */
 
  /* We simplify to get one of the following two expressions
-  * if (b > a) : sqrt{Pi}^a 2^{a-au} Gamma(u)^{a+c} Gamma(  u/2  )^{|b-a|}
-  * if (b <= a): sqrt{Pi}^b 2^{b-bu} Gamma(u)^{b+c} Gamma((u+1)/2)^{|b-a|} */
+  * if (b > a) : sqrt(Pi)^a 2^{a-au} Gamma(u)^{a+c} Gamma(  u/2  )^{|b-a|}
+  * if (b <= a): sqrt(Pi)^b 2^{b-bu} Gamma(u)^{b+c} Gamma((u+1)/2)^{|b-a|} */
   if (b > a)
   {
     t = a; s = b; X = x2; Y = gsub(x2,ghalf);
-    p1 = ser_unscale(gam, ghalf);
-    p2 = gdiv(ser_unscale(gamdm,ghalf), Y); /* Gamma((x-1)/2) */
+    p1 = ser_unscale(G, ghalf);
+    p2 = gdiv(ser_unscale(G2,ghalf), Y); /* Gamma((x-1)/2) */
   }
   else
   {
     t = b; s = a; X = gadd(x2,ghalf); Y = x2;
-    p1 = ser_unscale(gamdm,ghalf);
-    p2 = ser_unscale(gam,ghalf);
+    p1 = ser_unscale(G2,ghalf);
+    p2 = ser_unscale(G,ghalf);
   }
-  cf = powru(sqpi, t);
-  an = gpowgs(gpow(gen_2, gsubsg(1,x), prec), t); /* 2^{t-tx} */
-  bn = gpowgs(gam, t+c); /* Gamma(x)^{t+c} */
-  cn_evn = gpowgs(p1, s-t); /* Gamma(X)^{s-t} */
-  cn_odd = gpowgs(p2, s-t); /* Gamma(Y)^{s-t} */
+  /* (sqrt(Pi) 2^{1-x})^t */
+  an = gmul(powru(gmul2n(sqpi,1), t), gpow(gen_2, gmulgs(x,-t), prec));
+  bn = gpowgs(G, t+c); /* Gamma(x)^{t+c} */
+  cen = gpowgs(p1, s-t); /* Gamma(X)^{s-t} */
+  con = gpowgs(p2, s-t); /* Gamma(Y)^{s-t} */
   for (i = 0; i < i0/2; i++)
   {
     GEN C1,q1, A1 = gel(aij,2*i+1), B1 = gel(bij,2*i+1);
     GEN C2,q2, A2 = gel(aij,2*i+2), B2 = gel(bij,2*i+2);
 
-    C1 = gmul(cf, gmul(bn, gmul(an, cn_evn)));
+    C1 = gmul(bn, gmul(an, cen));
     p1 = gdiv(C1, gsubgs(x, 2*i));
     q1 = gdiv(C1, gsubgs(x, 2*i+1));
 
@@ -1460,7 +1444,7 @@ ppgamma(ST_t *T, long prec)
     /* bn(x-u-1) = bn(x-u) / (x-u-1)^{t+c} */
     bn = gdiv(bn, gpowgs(gsubgs(x, 2*i+1), t+c));
 
-    C2 = gmul(cf, gmul(bn, gmul(an, cn_odd)));
+    C2 = gmul(bn, gmul(an, con));
     p2 = gdiv(C2, gsubgs(x, 2*i+1));
     q2 = gdiv(C2, gsubgs(x, 2*i+2));
     for (j = 1; j <= r; j++)
@@ -1471,13 +1455,12 @@ ppgamma(ST_t *T, long prec)
 
     an = gmul2n(an, t);
     bn = gdiv(bn, gpowgs(gsubgs(x, 2*i+2), t+c));
-    /* cn_evn(x-2i-2) = cn_evn(x-2i)  / (X - (i+1))^{s-t} */
-    /* cn_odd(x-2i-3) = cn_odd(x-2i-1)/ (Y - (i+1))^{s-t} */
-    cn_evn = gdiv(cn_evn, gpowgs(gsubgs(X,i+1), s-t));
-    cn_odd = gdiv(cn_odd, gpowgs(gsubgs(Y,i+1), s-t));
+    /* cen(x-2i-2) = cen(x-2i)  / (X - (i+1))^{s-t} */
+    /* con(x-2i-3) = con(x-2i-1)/ (Y - (i+1))^{s-t} */
+    cen = gdiv(cen, gpowgs(gsubgs(X,i+1), s-t));
+    con = gdiv(con, gpowgs(gsubgs(Y,i+1), s-t));
   }
-  T->aij = aij;
-  T->bij = bij; set_avma(av);
+  set_avma(av);
 }
 
 static GEN

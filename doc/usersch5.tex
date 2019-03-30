@@ -12246,6 +12246,9 @@ Newton iteration. This is in general slower than \kbd{ginv} unless the
 precision is huge (hundreds of terms, where the threshold depends strongly
 on the base field).
 
+\fun{GEN}{psi1series}{long n, long v, long prec} creates the \typ{SER}
+$\psi(1 + x + O(x^n))$ in variable $v$.
+
 \section{Functions to handle \typ{FFELT}}
 These functions define the public interface of the \typ{FFELT} type to use in
 generic functions.  However, in specific functions, it is better to use the

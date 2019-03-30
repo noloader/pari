@@ -4971,6 +4971,7 @@ GEN     gsinh(GEN x, long prec);
 GEN     gtanh(GEN x, long prec);
 GEN     mpfactr(long n, long prec);
 void    mpsinhcosh(GEN x, GEN *s, GEN *c);
+GEN     psi1series(long n, long v, long prec);
 GEN     sumformal(GEN T, long v);
 
 /* trans3.c */
