@@ -908,6 +908,18 @@ red_mod_2z(GEN x, GEN z)
 }
 #endif
 
+static GEN
+veczetaodd(long n, long prec)
+{
+  GEN z, o = zetazone;
+  if (o)
+  {
+    long p = realprec(gel(o,1));
+    if (p >= prec && lg(o) > n) return o;
+  }
+  z = veczeta(gen_1, gen_2, n, prec);
+  zetazone = gclone(z); guncloneNULL(o); return zetazone;
+}
 /* lngamma(1+z) = -Euler*z + sum_{i > 1} zeta(i)/i (-z)^i
  * at relative precision prec, |z| < 1 is small */
 static GEN
@@ -915,13 +927,13 @@ lngamma1(GEN z, long prec)
 { /* sum_{i > l} |z|^(i-1) = |z|^l / (1-|z|) < 2^-B
    * for l > (B+1) / |log2(|z|)| */
   long i, l = ceil((bit_accuracy(prec) + 1) / - dbllog2(z));
-  GEN zet, me = mpeuler(prec), s = gen_0;
+  GEN vz, me = mpeuler(prec), s = gen_0;
   setsigne(me, -1); /* -Euler */
   if (l <= 1) return gmul(me, z);
-  zet = veczeta(gen_1, gen_2, l-1, prec); /* z[i] = zeta(i+1) */
+  vz = veczetaodd(l - 1, prec); /* vz[i] = zeta(i+1) */
   for (i = l; i > 1; i--)
   {
-    GEN c = divru(gel(zet,i-1), i);
+    GEN c = divru(gel(vz,i-1), i);
     if (odd(i)) setsigne(c, -1);
     s = gadd(gmul(s,z), c);
   }
@@ -1925,7 +1937,7 @@ serpsi1(long n, long v, long prec)
   GEN z, g, s = cgetg(l, t_SER);
   s[1] = evalsigne(1)|evalvalp(0)|evalvarn(v);
   g = mpeuler(prec); setsigne(g, -1);
-  z = veczeta(gen_1, gen_2, n, prec); /* zeta(2..n) */
+  z = veczetaodd(n, prec); /* z[i] = zeta(i+1) */
   gel(s,2) = g;
   for (i = 2; i < l-1; i++)
   {

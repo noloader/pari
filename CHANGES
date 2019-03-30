@@ -188,6 +188,7 @@ BA  44- GP: the argument of a user member function is now a reference
     52- mpeint1: supposrt all t_REAL x != 0 (was x > 0)
 LGr 53- nffactor now supports rational functions
     54- improve QM_gauss [treat contents sensibly]
+    55- lngamma and psi near 1: cache values of zeta(odd integers)
 
   Added
      1- [libpari] nonsquare_Fl
