@@ -52,10 +52,10 @@
 +oo
 -115
    realprecision = 308 significant digits
+-308
 -307
 -307
--307
--307
++oo
 -307
 -307
 -307
@@ -104,4 +104,4 @@
   ***   at top-level: sumpos(n=0,1,2)
   ***                 ^---------------
   *** sumpos: invalid flag in sumpos.
-Total time spent: 2308
+Total time spent: 5112
