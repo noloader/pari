@@ -1086,6 +1086,11 @@ polzag(long n, long m)
   return gerepileupto(av, RgX_Rg_div(g,gel(g,2)));
 }
 
+/*0.39322 > 1/log_2(3+sqrt(8))*/
+static ulong
+sumalt_N(long prec)
+{ return (ulong)(0.39322*(prec2nbits(prec) + 7)); }
+
 GEN
 sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 {
@@ -1094,7 +1099,7 @@ sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
   GEN s, az, c, d;
 
   if (typ(a) != t_INT) pari_err_TYPE("sumalt",a);
-  N = (ulong)(0.39322*(prec2nbits(prec) + 7)); /*0.39322 > 1/log_2(3+sqrt(8))*/
+  N = sumalt_N(prec);
   d = powru(addsr(3, sqrtr(utor(8,prec))), N);
   d = shiftr(addrr(d, invr(d)),-1);
   a = setloop(a);
@@ -1215,7 +1220,7 @@ sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec)
 
   if (typ(a) != t_INT) pari_err_TYPE("sumpos",a);
   a = subiu(a,1);
-  N = (ulong)(0.4*(prec2nbits(prec) + 7));
+  N = sumalt_N(prec);
   if (odd(N)) N++; /* extra precision for free */
   d = powru(addsr(3, sqrtr(utor(8,prec))), N);
   d = shiftr(addrr(d, invr(d)),-1);
