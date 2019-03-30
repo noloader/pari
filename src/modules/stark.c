@@ -2364,7 +2364,7 @@ AllStark(GEN data,  GEN nf,  long flag,  long newprec)
   long cl, i, j, cpt = 0, N, h, v, n, r1, r2, den;
   pari_sp av, av2;
   int **matan;
-  GEN bnr = gel(data,1), p1, p2, S, T, polrelnum, polrel, Lp, W, veczeta;
+  GEN bnr = gel(data,1), p1, p2, S, T, polrelnum, polrel, Lp, W, vzeta;
   GEN vChar, degs, C, dataCR, cond1, L1, an;
   LISTray LIST;
   pari_timer ti;
@@ -2445,7 +2445,7 @@ LABDOUB:
   p1 = ComputeLift(gel(data,4));
 
   den = flag ? h: 2*h;
-  veczeta = cgetg(h + 1, t_VEC);
+  vzeta = cgetg(h + 1, t_VEC);
   for (i = 1; i <= h; i++)
   {
     GEN z = gen_0, sig = gel(p1,i);
@@ -2456,16 +2456,16 @@ LABDOUB:
       if (chi_get_deg(CHI) != 2) t = gmul2n(t, 1); /* character not real */
       z = gadd(z, t);
     }
-    gel(veczeta,i) = gdivgs(z, den);
+    gel(vzeta,i) = gdivgs(z, den);
   }
   for (j = 1; j <= h; j++)
-    gel(veczeta,j) = gmul2n(gcosh(gel(veczeta,j), newprec), 1);
-  polrelnum = roots_to_pol(veczeta, 0);
+    gel(vzeta,j) = gmul2n(gcosh(gel(vzeta,j), newprec), 1);
+  polrelnum = roots_to_pol(vzeta, 0);
   if (DEBUGLEVEL)
   {
     if (DEBUGLEVEL>1) {
       err_printf("polrelnum = %Ps\n", polrelnum);
-      err_printf("zetavalues = %Ps\n", veczeta);
+      err_printf("zetavalues = %Ps\n", vzeta);
       if (!flag)
         err_printf("Checking the square-root of the Stark unit...\n");
     }
@@ -2480,8 +2480,8 @@ LABDOUB:
   if (!polrel)
   {
     for (j = 1; j <= h; j++)
-      gel(veczeta,j) = gsubgs(gsqr(gel(veczeta,j)), 2);
-    polrelnum = roots_to_pol(veczeta, 0);
+      gel(vzeta,j) = gsubgs(gsqr(gel(vzeta,j)), 2);
+    polrelnum = roots_to_pol(vzeta, 0);
     if (DEBUGLEVEL)
     {
       if (DEBUGLEVEL>1) {
