@@ -1432,9 +1432,9 @@ ppgamma(ST_t *T, long prec)
     E = ser_unscale(G2, ghalf);
     O = ser_unscale(G, ghalf);
   }
-  A = gmul(powru(gmul2n(sqpi,1), t),
+  /* (sqrt(Pi) 2^{1-x})^t Gamma(x)^{t+c} */
+  A = gmul(gmul(powru(gmul2n(sqpi,1), t), gpowgs(G, t+c)),
            gpow(gen_2, RgX_to_ser(gmulgs(x,-t), r+2), prec));
-  A = gmul(A, gpowgs(G, t+c)); /* (sqrt(Pi) 2^{1-x})^t Gamma(x)^{t+c} */
   /* A * Gamma((x - dx + 1)/2)^{s-t} */
   E = gmul(A, gpowgs(E, s-t));
   /* A * Gamma((x - dx)/2)^{s-t} */
