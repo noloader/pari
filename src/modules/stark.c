@@ -1391,7 +1391,7 @@ typedef struct {
 static void
 ppgamma(ST_t *T, long prec)
 {
-  GEN G, G1, G2, A, E, O, x, sqpi, p1, p2, aij, bij;
+  GEN G, G1, G2, A, E, O, x, sqpi, aij, bij;
   long c = T->c, r = T->r, i0 = T->i0, i, j, s, t, dx;
   pari_sp av;
 
@@ -1399,6 +1399,7 @@ ppgamma(ST_t *T, long prec)
   T->bij = bij = cgetg(i0+1, t_VEC);
   for (i = 1; i <= i0; i++)
   {
+    GEN p1, p2;
     gel(aij,i) = p1 = cgetg(r+1, t_VEC);
     gel(bij,i) = p2 = cgetg(r+1, t_VEC);
     for (j=1; j<=r; j++) { gel(p1,j) = cgetr(prec); gel(p2,j) = cgetr(prec); }
