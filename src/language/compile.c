@@ -2023,7 +2023,7 @@ compilenode(long n, int mode, long flag)
     {
       GEN vars = listtogen(tree[x].x,Fmatrixelts);
       long i, l = lg(vars)-1, d = mode==Gvoid? l-1: l;
-      compilenode(y,Ggen,mode==Gvoid?FLnocopy:flag&FLsurvive);
+      compilenode(y,Ggen,mode==Gvoid?0:flag&FLsurvive);
       if (d) op_push(OCdup, d, x);
       for(i=1; i<=l; i++)
       {
