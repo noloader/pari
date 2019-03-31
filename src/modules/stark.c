@@ -1391,8 +1391,8 @@ typedef struct {
 static void
 ppgamma(ST_t *T, long prec)
 {
-  GEN G, G1, G2, an, bn, cen, con, x, sqpi, p1, p2, aij, bij;
-  long a = T->a, b = T->b, c = T->c, r = T->r, i0 = T->i0, i, j, s, t, dx;
+  GEN G, G1, G2, A, E, O, x, sqpi, p1, p2, aij, bij;
+  long c = T->c, r = T->r, i0 = T->i0, i, j, s, t, dx;
   pari_sp av;
 
   T->aij = aij = cgetg(i0+1, t_VEC);
@@ -1419,42 +1419,42 @@ ppgamma(ST_t *T, long prec)
  /* We simplify to get one of the following two expressions
   * if (b > a) : sqrt(Pi)^a 2^{a-au} Gamma(u)^{a+c} Gamma(  u/2  )^{|b-a|}
   * if (b <= a): sqrt(Pi)^b 2^{b-bu} Gamma(u)^{b+c} Gamma((u+1)/2)^{|b-a|} */
-  if (b > a)
+  if (T->b > T->a)
   {
-    t = a; s = b; dx = 1;
-    p1 = ser_unscale(G, ghalf);
-    p2 = gmul2n(gdiv(ser_unscale(G2,ghalf), d1(1)), 1); /* Gamma((x-1)/2) */
+    t = T->a; s = T->b; dx = 1;
+    E = ser_unscale(G, ghalf);
+    O = gmul2n(gdiv(ser_unscale(G2, ghalf), d1(1)), 1); /* Gamma((x-1)/2) */
   }
   else
   {
-    t = b; s = a; dx = 0;
-    p1 = ser_unscale(G2,ghalf);
-    p2 = ser_unscale(G,ghalf);
+    t = T->b; s = T->a; dx = 0;
+    E = ser_unscale(G2, ghalf);
+    O = ser_unscale(G, ghalf);
   }
-  an = gmul(powru(gmul2n(sqpi,1), t),
-            gpow(gen_2, RgX_to_ser(gmulgs(x,-t), r+2), prec));
-  bn = gmul(an, gpowgs(G, t+c)); /* (sqrt(Pi) 2^{1-x})^t Gamma(x)^{t+c} */
-  cen = gpowgs(p1, s-t); /* Gamma((x - dx + 1)/2)^{s-t} */
-  con = gpowgs(p2, s-t); /* Gamma((x - dx)/2)^{s-t} */
-  cen = gmul(bn, cen);
-  con = gdiv(gmul(bn, con), gpowgs(gsubgs(x, 1), t+c));
+  A = gmul(powru(gmul2n(sqpi,1), t),
+           gpow(gen_2, RgX_to_ser(gmulgs(x,-t), r+2), prec));
+  A = gmul(A, gpowgs(G, t+c)); /* (sqrt(Pi) 2^{1-x})^t Gamma(x)^{t+c} */
+  /* A * Gamma((x - dx + 1)/2)^{s-t} */
+  E = gmul(A, gpowgs(E, s-t));
+  /* A * Gamma((x - dx)/2)^{s-t} */
+  O = gdiv(gmul(A, gpowgs(O, s-t)), gpowgs(gsubgs(x, 1), t+c));
   for (i = 0; i < i0/2; i++)
   {
-    GEN q1, A1 = gel(aij,2*i+1), B1 = gel(bij,2*i+1);
-    GEN q2, A2 = gel(aij,2*i+2), B2 = gel(bij,2*i+2);
+    GEN p1, q1, A1 = gel(aij,2*i+1), B1 = gel(bij,2*i+1);
+    GEN p2, q2, A2 = gel(aij,2*i+2), B2 = gel(bij,2*i+2);
     long t1 = i * (s+t), t2 = t1 + t;
 
-    p1 = gdiv(cen, d1(2*i));
-    q1 = gdiv(cen, d1(2*i+1));
-    p2 = gdiv(con, d1(2*i+1));
-    q2 = gdiv(con, d1(2*i+2));
+    p1 = gdiv(E, d1(2*i));
+    q1 = gdiv(E, d1(2*i+1));
+    p2 = gdiv(O, d1(2*i+1));
+    q2 = gdiv(O, d1(2*i+2));
     for (j = 1; j <= r; j++)
     {
       affect_coeff(p1, j, A1, t1); affect_coeff(q1, j, B1, t1);
       affect_coeff(p2, j, A2, t2); affect_coeff(q2, j, B2, t2);
     }
-    cen = gdiv(cen, gmul(gpowgs(d1(2*i+1+dx), s-t), gpowgs(d2(2*i+1), t+c)));
-    con = gdiv(con, gmul(gpowgs(d1(2*i+2+dx), s-t), gpowgs(d2(2*i+2), t+c)));
+    E = gdiv(E, gmul(gpowgs(d1(2*i+1+dx), s-t), gpowgs(d2(2*i+1), t+c)));
+    O = gdiv(O, gmul(gpowgs(d1(2*i+2+dx), s-t), gpowgs(d2(2*i+2), t+c)));
   }
   set_avma(av);
 }
