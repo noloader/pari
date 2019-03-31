@@ -1854,17 +1854,15 @@ chron(const char *s)
 {
   if (*s)
   { /* if "#" or "##" timer metacommand. Otherwise let the parser get it */
-    const char *t, *r;
+    const char *t;
     if (*s == '#') s++;
     if (*s) return 0;
+    t = gp_format_time(pari_get_histtime(0));
     if (pari_mt_nbthreads==1)
-    {
-      t = gp_format_time(pari_get_histtime(0));
       pari_printf("  ***   last result computed in %s.\n", t);
-    } else
+    else
     {
-      t = gp_format_time(pari_get_histtime(0));
-      r = gp_format_time(pari_get_histrtime(0));
+      const char *r = gp_format_time(pari_get_histrtime(0));
       pari_printf("  ***   last result: cpu time %s, real time %s.\n", t,r);
     }
   }
