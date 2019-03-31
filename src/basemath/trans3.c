@@ -1528,14 +1528,14 @@ optim_zeta(GEN S, long prec, long *pp, long *pn)
   if (*pp < 0 || *pn < 0) pari_err_OVERFLOW("zeta");
 }
 
-/* zeta(a*j+b), j=0..N-1, b>1, using sumalt. Johansonn'b thesis, Algo 4.7.1 */
+/* zeta(a*j+b), j=0..N-1, b>1, using sumalt. Johansonn's thesis, Algo 4.7.1 */
 static GEN
 veczetas(long a, long b, long N, long prec)
 {
-  pari_sp av = avma;
   const long n = ceil(2 + prec2nbits_mul(prec, M_LN2/1.7627));
-  long j, k;
+  pari_sp av = avma;
   GEN c, d, z = zerovec(N);
+  long j, k;
   c = d = int2n(2*n-1);
   for (k = n; k; k--)
   {
@@ -1562,18 +1562,17 @@ veczetas(long a, long b, long N, long prec)
     long u = b+a*j-1;
     gel(z,j+1) = rdivii(shifti(gel(z,j+1), u), subii(shifti(d,u), d), prec);
   }
-  return gerepilecopy(av, z);
+  return z;
 }
 /* zeta(a*j+b), j=0..N-1, b>1, using sumalt */
 GEN
 veczeta(GEN a, GEN b, long N, long prec)
 {
-  pari_sp av;
+  pari_sp av = avma;
   long n, j, k;
-  GEN L, c, d, z;
+  GEN L, c, d, z = zerovec(N);
   if (typ(a) == t_INT && typ(b) == t_INT)
-    return veczetas(itos(a),  itos(b), N, prec);
-  av = avma; z = zerovec(N);
+    return gerepilecopy(av, veczetas(itos(a),  itos(b), N, prec));
   n = ceil(2 + prec2nbits_mul(prec, M_LN2/1.7627));
   c = d = int2n(2*n-1);
   for (k = n; k; k--)
@@ -1606,6 +1605,23 @@ veczeta(GEN a, GEN b, long N, long prec)
     gel(z,j+1) = gdiv(gmul(gel(z,j+1), w), gmul(d,gsubgs(w,1)));
   }
   return gerepilecopy(av, z);
+}
+
+GEN
+constzeta(long n, long prec)
+{
+  GEN o = zetazone, z;
+  long l = o? lg(o): 0;
+  pari_sp av;
+  if (l > n)
+  {
+    long p = realprec(gel(o,1));
+    if (p >= prec) return o;
+  }
+  n = maxss(n, l + 15);
+  av = avma; z = veczetas(1, 2, n-1, prec);
+  zetazone = gclone(vec_prepend(z, mpeuler(prec)));
+  set_avma(av); guncloneNULL(o); return zetazone;
 }
 
 /* zeta(s) using sumalt, case h=0,N=1. Assume s > 1 */
@@ -1653,8 +1669,8 @@ szeta(long k, long prec)
   }
   /* k > 1 */
   if (k > prec2nbits(prec)+1) return real_1(prec);
-  if (zetazone && realprec(gel(zetazone,1)) >= prec && lg(zetazone) >= k)
-    return rtor(gel(zetazone, k-1), prec);
+  if (zetazone && realprec(gel(zetazone,1)) >= prec && lg(zetazone) > k)
+    return rtor(gel(zetazone, k), prec);
   if (!odd(k))
   {
     if (!bernzone) constbern(0);
@@ -2358,7 +2374,7 @@ static GEN
 cxpolylog(long m, GEN x, long prec)
 {
   long li, n, k, ksmall, real;
-  GEN z, Z, h, q, s, S;
+  GEN vz, z, Z, h, q, s, S;
   pari_sp av;
   double dz;
   pari_timer T;
@@ -2367,14 +2383,14 @@ cxpolylog(long m, GEN x, long prec)
   /* x real <= 1 ==> Li_m(x) real */
   real = (typ(x) == t_REAL && (expo(x) < 0 || signe(x) <= 0));
 
+  vz = constzeta(m, prec);
   z = glog(x,prec);
   /* n = 0 */
-  q = gen_1;
-  s = szeta(m,prec);
+  q = gen_1; s = gel(vz, m);
   for (n=1; n < m-1; n++)
   {
     q = gdivgs(gmul(q,z),n);
-    s = gadd(s, gmul(szeta(m-n,prec), real? real_i(q): q));
+    s = gadd(s, gmul(gel(vz,m-n), real? real_i(q): q));
   }
   /* n = m-1 */
     q = gdivgs(gmul(q,z),n); /* multiply by "zeta(1)" */
@@ -2382,10 +2398,10 @@ cxpolylog(long m, GEN x, long prec)
     s = gadd(s, real? real_i(h): h);
   /* n = m */
     q = gdivgs(gmul(q,z),m);
-    s = gadd(s, gmul(szeta(0,prec), real? real_i(q): q));
+    s = gadd(s, gdivgs(real? real_i(q): q, -2)); /* zeta(0) = -1/2 */
   /* n = m+1 */
     q = gdivgs(gmul(q,z),m+1); /* = z^(m+1) / (m+1)! */
-    s = gadd(s, gmul(szeta(-1,prec), real? real_i(q): q));
+    s = gadd(s, gdivgs(real? real_i(q): q, -12)); /* zeta(-1) = -1/12 */
 
   li = -(prec2nbits(prec)+1);
   if (DEBUGLEVEL) timer_start(&T);
@@ -2495,10 +2511,10 @@ polylog(long m, GEN x, long prec)
   }
   else
   {
-    GEN logx = glog(x,l), logx2 = gsqr(logx);
+    GEN logx = glog(x,l), logx2 = gsqr(logx), vz = constzeta(m, l);
     p1 = mkfrac(gen_m1,gen_2);
-    for (i=m-2; i>=0; i-=2)
-      p1 = gadd(szeta(m-i,l), gmul(p1,gdivgs(logx2,(i+1)*(i+2))));
+    for (i = m-2; i >= 0; i -= 2)
+      p1 = gadd(gel(vz, m-i), gmul(p1,gdivgs(logx2,(i+1)*(i+2))));
     if (m&1) p1 = gmul(logx,p1); else y = gneg_i(y);
     p1 = gadd(gmul2n(p1,1), gmul(z,gpowgs(logx,m-1)));
     if (typ(x) == t_REAL && signe(x) < 0) p1 = real_i(p1);

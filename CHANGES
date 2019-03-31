@@ -252,6 +252,7 @@ HC  54- new GP functions ellE and ellK
     55- [libpari] maxprimeN
 BA  56- support for rational model in ellratpoints and hyperellratpoints
     57- [libpari] psi1series
+    58- [libpari] constzeta
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

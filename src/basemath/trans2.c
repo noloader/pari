@@ -909,20 +909,6 @@ red_mod_2z(GEN x, GEN z)
 #endif
 
 static GEN
-mpveczeta(long n, long prec)
-{
-  GEN z, o = zetazone;
-  pari_sp av;
-  if (o)
-  {
-    long p = realprec(gel(o,1));
-    if (p >= prec && lg(o) > n) return o;
-  }
-  av = avma; z = veczeta(gen_1, gen_2, n, prec);
-  zetazone = gclone(z); set_avma(av);
-  guncloneNULL(o); return zetazone;
-}
-static GEN
 negeuler(long prec) { GEN g = mpeuler(prec); setsigne(g, -1); return g; }
 /* lngamma(1+z) = -Euler*z + sum_{i > 1} zeta(i)/i (-z)^i
  * at relative precision prec, |z| < 1 is small */
@@ -931,17 +917,17 @@ lngamma1(GEN z, long prec)
 { /* sum_{i > l} |z|^(i-1) = |z|^l / (1-|z|) < 2^-B
    * for l > (B+1) / |log2(|z|)| */
   long i, l = ceil((bit_accuracy(prec) + 1) / - dbllog2(z));
-  GEN s, vz, me = negeuler(prec);
+  GEN s, vz;
 
-  if (l <= 1) return gmul(me, z);
-  vz = mpveczeta(l - 1, prec); /* vz[i] = zeta(i+1) */
-  for (i = l, s = gen_0; i > 1; i--)
+  if (l <= 1) return gmul(negeuler(prec), z);
+  vz = constzeta(l, prec);
+  for (i = l, s = gen_0; i > 0; i--)
   {
-    GEN c = divru(gel(vz,i-1), i);
+    GEN c = divru(gel(vz,i), i);
     if (odd(i)) setsigne(c, -1);
     s = gadd(gmul(s,z), c);
   }
-  return gmul(z, gadd(gmul(s,z), me));
+  return gmul(z, s);
 }
 /* B_i / (i(i-1)), i even. Sometimes NOT reduced (but gadd/gmul won't care)!*/
 static GEN
@@ -1938,13 +1924,12 @@ GEN
 psi1series(long n, long v, long prec)
 {
   long i, l = n+3;
-  GEN s = cgetg(l, t_SER), z = n? mpveczeta(n, prec): NULL;/* z_i = zeta(i+1) */
+  GEN s = cgetg(l, t_SER), z = constzeta(n + 1, prec);
 
   s[1] = evalsigne(1)|evalvalp(0)|evalvarn(v);
-  gel(s,2) = negeuler(prec);
-  for (i = 2; i < l-1; i++)
+  for (i = 1; i <= n+1; i++)
   {
-    GEN c = gel(z,i-1); /* zeta(i) */
+    GEN c = gel(z,i); /* zeta(i) */
     gel(s,i+1) = odd(i)? negr(c): c;
   }
   return s;

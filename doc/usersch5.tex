@@ -12812,6 +12812,13 @@ $B_2,\dots,B_{2n}$ as \typ{FRAC}. No more than $n$ Bernoulli numbers will
 ever be stored (by \tet{bernfrac} or \tet{bernreal}), unless a subsequent
 call to \kbd{constbern} increases the cache.
 
+\fun{GEN}{constzeta}{long n, long prec} ensures that the $n$ values
+$\gamma, \zeta(2),\dots, \zeta(n)$ are cached at accuracy bigger than or equal
+to \kbd{prec} and return a vector containing at least those value. Note that
+$\gamma = \lim_1 \zeta(s) - 1/(s-1)$. If the accuracy of cached data is too
+low or $n$ is greater than the cache length, the cache is recomputed at the
+given parameters.
+
 The following functions use cached data if \kbd{prec} is smaller than the
 precision of the cached value; otherwise the newly computed data replaces the
 old cache.
