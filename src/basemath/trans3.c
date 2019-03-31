@@ -2118,7 +2118,7 @@ gzeta(GEN x, long prec)
       if (is_bigint(x))
       {
         if (signe(x) > 0) return real_1(prec);
-        if (signe(x) < 0 && mod2(x) == 0) return real_0(prec);
+        if (mod2(x) == 0) return real_0(prec);
         pari_err_OVERFLOW("zeta [large negative argument]");
       }
       return szeta(itos(x),prec);
