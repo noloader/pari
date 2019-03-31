@@ -1253,10 +1253,9 @@ gp_sigint_fun(void) {
   if (win32alrm) { win32alrm = 0; gp_alarm_fun(); return;}
 #endif
   if (cb_pari_start_output) cb_pari_start_output();
-  if (pari_mt_nbthreads == 1)
-    convert_time(buf, timer_get(GP_DATA->T));
-  else {
-    convert_time(buf, timer_get(GP_DATA->T));
+  convert_time(buf, timer_get(GP_DATA->T));
+  if (pari_mt_nbthreads > 1)
+  {
     sprintf(buf + strlen(buf), " cpu time, ");
     convert_time(buf + strlen(buf), walltimer_get(GP_DATA->Tw));
     sprintf(buf + strlen(buf), " real time");
