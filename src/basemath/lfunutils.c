@@ -748,12 +748,10 @@ dirzetak0(GEN nf, ulong N)
   long court[] = {evaltyp(t_INT)|_evallg(3), evalsigne(1)|evallgefint(3),0};
   forprime_t S;
 
-  (void)evallg(N+1);
   c  = cgetalloc(t_VECSMALL, N+1);
   c2 = cgetalloc(t_VECSMALL, N+1);
   c2[1] = c[1] = 1; for (i=2; i<=N; i++) c[i] = 0;
-  u_forprime_init(&S, 2, N);
-  av2 = avma;
+  u_forprime_init(&S, 2, N); av2 = avma;
   while ( (p = u_forprime_next(&S)) )
   {
     set_avma(av2);
