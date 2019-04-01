@@ -23,13 +23,23 @@ Doc: \idx{field discriminant} of the number field defined by the integral,
  return the $p$-adic discriminant of the maximal order of $\Z_p[X]/(T)$,
  as a power of $p$, as follows:
  \bprog
- ? padicdisc(T,p) = p^valuation(nfdisc(T,[p]), p);
+ ? padicdisc(T,p) = p^valuation(nfdisc([T,[p]]), p);
  ? nfdisc(x^2 + 6)
  %2 = -24
  ? padicdisc(x^2 + 6, 2)
  %3 = 8
  ? padicdisc(x^2 + 6, 3)
  %4 = 3
+ @eprog\noindent The following function computes the discriminant of the
+ maximal order under the assumption that $P$ is a vector of prime numbers
+ containing (at least) all prime divisors of the field discriminant:
+ \bprog
+ globaldisc(T, P) =
+ { my (D = nfdisc([T, P]));
+   sign(D) * factorback(P, [valuation(D,p) | p <-P]);
+ }
+ ? globaldisc(x^2 + 6, [2, 3, 5])
+ %1 = -24
  @eprog
 
  \synt{nfdisc}{GEN T} (\kbd{listP = NULL}). Also available is
