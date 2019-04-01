@@ -187,7 +187,7 @@ Babai(pari_sp av, long kappa, GEN *pG, GEN *pB, GEN *pU, GEN mu, GEN r, GEN s,
 
     /* Step3--5: compute the X_j's  */
     for (j=kappa-1; j>zeros; j--)
-    {
+    { /* The code below seemingly handles U = NULL, but in this case d = 0 */
       tmp = gmael(mu,kappa,j);
       if (abscmprr(tmp, eta) <= 0) continue; /* (essentially) size-reduced */
 
