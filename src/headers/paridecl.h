@@ -2115,6 +2115,7 @@ GEN     nfX_to_FqX(GEN x, GEN nf,GEN modpr);
 GEN     nfX_to_monic(GEN nf, GEN T, GEN *pL);
 GEN     nfbasis(GEN x, GEN *y);
 GEN     nfcompositum(GEN nf, GEN A, GEN B, long flag);
+GEN     nfdiscfactors(GEN x);
 void    nfmaxord(nfmaxord_t *S, GEN T, long flag);
 GEN     nfmodpr(GEN nf, GEN x, GEN pr);
 GEN     nfmodprinit(GEN nf, GEN pr);

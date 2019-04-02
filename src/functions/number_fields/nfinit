@@ -70,7 +70,8 @@ Doc: \var{pol} being a non-constant,
  used in \tet{idealinv}.
 
  \quad\item \var{vP} is the list of prime divisors of the field discriminant,
- i.e, the ramified primes.
+ i.e, the ramified primes; \kbd{nfdiscfactors(nf)} is the preferred way
+ to access that information.
 
  $\var{nf}[6]$ is the vector containing the $r1+r2$ roots
  (\kbd{\var{nf}.roots}) of $\var{nf}[1]$ corresponding to the $r1+r2$

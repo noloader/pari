@@ -374,11 +374,26 @@ diag_denom(GEN M)
   }
   return d;
 }
+static void
+setPE(GEN D, GEN P, GEN *pP, GEN *pE)
+{
+  long k, j, l = lg(P);
+  GEN P2, E2;
+  *pP = P2 = cgetg(l, t_COL);
+  *pE = E2 = cgetg(l, t_VECSMALL);
+  for (k = j = 1; j < l; j++)
+  {
+    long v = Z_pvalrem(D, gel(P,j), &D);
+    if (v) { gel(P2,k) = gel(P,j); E2[k] = v; k++; }
+  }
+  setlg(P2, k);
+  setlg(E2, k);
+}
 void
 nfmaxord(nfmaxord_t *S, GEN T0, long flag)
 {
   GEN O = get_maxord(S, T0, flag);
-  GEN f = S->T, P = S->dTP, a = NULL, da = NULL, P2, E2, D;
+  GEN f = S->T, P = S->dTP, a = NULL, da = NULL;
   long n = degpol(f), lP = lg(P), i, j, k;
   int centered = 0;
   pari_sp av = avma;
@@ -428,17 +443,7 @@ nfmaxord(nfmaxord_t *S, GEN T0, long flag)
     S->dK = S->dT;
     a = matid(n);
   }
-
-  D = S->dK;
-  P2 = cgetg(lP, t_COL);
-  E2 = cgetg(lP, t_VECSMALL);
-  for (k = j = 1; j < lP; j++)
-  {
-    long v = Z_pvalrem(D, gel(P,j), &D);
-    if (v) { gel(P2,k) = gel(P,j); E2[k] = v; k++; }
-  }
-  setlg(P2, k); S->dKP = P2;
-  setlg(E2, k); S->dKE = E2;
+  setPE(S->dK, P, &S->dKP, &S->dKE);
   S->basis = RgM_to_RgXV(a, varn(f));
 }
 GEN
@@ -452,25 +457,49 @@ nfbasis(GEN x, GEN *pdK)
   if (pdK)  *pdK = S.dK;
   gerepileall(av, pdK? 2: 1, &B, pdK); return B;
 }
-GEN
-nfdisc(GEN x)
+/* field discriminant: faster than nfmaxord, use local data only */
+static GEN
+maxord_disc(nfmaxord_t *S, GEN x)
 {
-  pari_sp av = avma;
-  nfmaxord_t S;
-  GEN O = get_maxord(&S, x, 0);
-  long n = degpol(S.T), lP = lg(O), i, j;
-  GEN index = gen_1;
-  for (i=1; i<lP; i++)
+  GEN O = get_maxord(S, x, 0), I = gen_1;
+  long n = degpol(S->T), lP = lg(O), i, j;
+  for (i = 1; i < lP; i++)
   {
     GEN b = gel(O,i);
     if (b == gen_1) continue;
     for (j = 1; j <= n; j++)
     {
       GEN c = gcoeff(b,j,j);
-      if (typ(c) == t_FRAC) index = mulii(index, gel(c,2)) ;
+      if (typ(c) == t_FRAC) I = mulii(I, gel(c,2)) ;
     }
   }
-  return gerepileuptoint(av, diviiexact(S.dT, sqri(index)));
+  return diviiexact(S->dT, sqri(I));
+}
+GEN
+nfdisc(GEN x)
+{
+  pari_sp av = avma;
+  nfmaxord_t S;
+  return gerepileuptoint(av, maxord_disc(&S, x));
+}
+GEN
+nfdiscfactors(GEN x)
+{
+  pari_sp av = avma;
+  GEN E, P, D, nf = checknf_i(x);
+  if (nf)
+  {
+    D = nf_get_disc(nf);
+    P = nf_get_ramified_primes(nf);
+  }
+  else
+  {
+    nfmaxord_t S;
+    D = maxord_disc(&S, x);
+    P = S.dTP;
+  }
+  setPE(D, P, &P, &E); settyp(P, t_COL);
+  return gerepilecopy(av, mkvec2(D, mkmat2(P, zc_to_ZC(E))));
 }
 
 static ulong
