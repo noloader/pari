@@ -120,10 +120,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: basis(x) ===> nfbasis(x)
 
-nfbasis(T): integral basis of the field Q[a], where a is a root of the 
+nfbasis(T, {&dK}): integral basis of the field Q[a], where a is a root of the 
 polynomial T, using the round 4 algorithm. An argument [T,listP] is possible, 
-where listP is a list of primes (to get an order which is maximal at certain 
-primes only) or a prime bound.
+where listP is a list of primes or a prime bound, to get an order which is 
+maximal at certain primes only. If present, dK is set to the discriminant of 
+the returned order.
 
 
   ***   at top-level: basis2()
@@ -133,10 +134,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: basis2(x) ===> nfbasis(x,2)
 
-nfbasis(T): integral basis of the field Q[a], where a is a root of the 
+nfbasis(T, {&dK}): integral basis of the field Q[a], where a is a root of the 
 polynomial T, using the round 4 algorithm. An argument [T,listP] is possible, 
-where listP is a list of primes (to get an order which is maximal at certain 
-primes only) or a prime bound.
+where listP is a list of primes or a prime bound, to get an order which is 
+maximal at certain primes only. If present, dK is set to the discriminant of 
+the returned order.
 
 
   ***   at top-level: basistoalg()
@@ -1003,10 +1005,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: factoredbasis(x,p) ===> nfbasis(x,,p)
 
-nfbasis(T): integral basis of the field Q[a], where a is a root of the 
+nfbasis(T, {&dK}): integral basis of the field Q[a], where a is a root of the 
 polynomial T, using the round 4 algorithm. An argument [T,listP] is possible, 
-where listP is a list of primes (to get an order which is maximal at certain 
-primes only) or a prime bound.
+where listP is a list of primes or a prime bound, to get an order which is 
+maximal at certain primes only. If present, dK is set to the discriminant of 
+the returned order.
 
 
   ***   at top-level: factoreddiscf()
@@ -3657,10 +3660,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: smallbasis(x) ===> nfbasis(x,1)
 
-nfbasis(T): integral basis of the field Q[a], where a is a root of the 
+nfbasis(T, {&dK}): integral basis of the field Q[a], where a is a root of the 
 polynomial T, using the round 4 algorithm. An argument [T,listP] is possible, 
-where listP is a list of primes (to get an order which is maximal at certain 
-primes only) or a prime bound.
+where listP is a list of primes or a prime bound, to get an order which is 
+maximal at certain primes only. If present, dK is set to the discriminant of 
+the returned order.
 
 
   ***   at top-level: smallbuchinit()
@@ -4519,4 +4523,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 12

@@ -442,12 +442,12 @@ nfmaxord(nfmaxord_t *S, GEN T0, long flag)
   S->basis = RgM_to_RgXV(a, varn(f));
 }
 GEN
-nfbasis(GEN x, GEN *pdK, GEN fa)
+nfbasis(GEN x, GEN *pdK)
 {
   pari_sp av = avma;
   nfmaxord_t S;
   GEN B;
-  nfmaxord(&S, fa? mkvec2(x,fa): x, 0);
+  nfmaxord(&S, x, 0);
   B = RgXV_unscale(S.basis, S.unscale);
   if (pdK)  *pdK = S.dK;
   gerepileall(av, pdK? 2: 1, &B, pdK); return B;
@@ -472,9 +472,6 @@ nfdisc(GEN x)
   }
   return gerepileuptoint(av, diviiexact(S.dT, sqri(index)));
 }
-
-GEN
-nfbasis_gp(GEN x) { return nfbasis(x,NULL,NULL); }
 
 static ulong
 Flx_checkdeflate(GEN x)
@@ -3361,7 +3358,7 @@ rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf)
     dzknf = gel(zknf,1);
     if (gequal1(dzknf)) dzknf = NULL;
     Tabs = gel(rnfeq,1);
-    B = nfbasis(Tabs, NULL, P);
+    B = nfbasis(mkvec2(Tabs, P), NULL);
     BdB = Q_remove_denom(B, &dB);
     MB = RgXV_to_RgM(BdB, N); /* HNF */
 

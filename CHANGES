@@ -187,10 +187,16 @@ BA  44- GP: the argument of a user member function is now a reference
         (same for rnfbasis, rnfinit, rnfconductor, rnfpseudobasis)
     50- ??? include double quotes when needed (e.g. ???conductor) [#2122]
     51- improved the prime() function
-    52- mpeint1: supposrt all t_REAL x != 0 (was x > 0)
+    52- mpeint1: support all t_REAL x != 0 (was x > 0)
 LGr 53- nffactor now supports rational functions
     54- improve QM_gauss [treat contents sensibly]
     55- lngamma and psi near 1: cache values of zeta(odd integers)
+    56- [libpari] nfbasis prototype changed: 3rd argument listP is gone, use
+        nfbasis(mkvec2(T,listP), &disc). Note that the documentation was
+        incorrect: it is not guaranteed that nfbasis([T, listP]) returns the
+        maximal order even if listP contains all prime divisors of the field
+        discriminant. See ??nfbasis
+    57- nfbasis now accepts an optional argument &dK [order discriminant]
 
   Added
      1- [libpari] nonsquare_Fl

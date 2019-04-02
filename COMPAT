@@ -27,6 +27,11 @@ This file lists the incompatible changes between Version 2.x and older versions
   - gen_factorback: change argument order to match other functions.
   - pari_add_hist now take 3 arguments (data, cpu time, real time)
   - gp_format_time: remove trailing ".\n" from formatted string
+  - nfbasis prototype changed: 3rd argument listP is gone, use
+    nfbasis(mkvec2(T,listP), &disc). Note that the documentation was
+    incorrect: it is not guaranteed that nfbasis([T, listP]) returns the
+    maximal order even if listP contains all prime divisors of the field
+    discriminant. See ??nfbasis
 
 * Specific to the pthread interface
 ===================================

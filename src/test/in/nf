@@ -33,6 +33,13 @@ for (i = 1, #funs, try(funs[i]))
 nfisincl(nfinit(x-1),y)
 p=x^2+3;nfbasis([p, factor(poldisc(p))])
 
+P = [13,73,89]; TP = [x^4-x^3+10558*x^2-2169592*x+195873967, P];
+nfbasis(TP)
+nfbasis(TP,&D)
+D
+dK = sign(D) * vecprod([p^valuation(D,p) | p <-P])
+sqrt(D / dK)
+
 \\#1253
 k=bnfinit(z^2+19*z+6,1); bnfisunit(k,k.fu[1]^2)
 

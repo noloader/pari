@@ -36,12 +36,12 @@ Doc: \idx{field discriminant} of the number field defined by the integral,
  \bprog
  globaldisc(T, P) =
  { my (D = nfdisc([T, P]));
-   sign(D) * factorback(P, [valuation(D,p) | p <-P]);
+   sign(D) * vecprod([p^valuation(D,p) | p <-P]);
  }
  ? globaldisc(x^2 + 6, [2, 3, 5])
  %1 = -24
  @eprog
 
- \synt{nfdisc}{GEN T} (\kbd{listP = NULL}). Also available is
- \fun{GEN}{nfbasis}{GEN T, GEN *d, GEN listP = NULL}, which returns the order
- basis, and where \kbd{*d} receives the order discriminant.
+ \synt{nfdisc}{GEN T}. Also available is \fun{GEN}{nfbasis}{GEN T, GEN *d},
+ which returns the order basis, and where \kbd{*d} receives the order
+ discriminant.

@@ -635,7 +635,6 @@ GEN zk_galoisapplymod(GEN nf, GEN z, GEN S, GEN p);
 
 GEN     dim1proj(GEN prh);
 GEN     gen_if_principal(GEN bnf, GEN x);
-GEN     nfbasis_gp(GEN T);
 
 /* base3.c */
 

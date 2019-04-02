@@ -129,10 +129,10 @@ Doc: \var{pol} being a non-constant,
  \item an argument \kbd{listP} which specifies a list of primes (see
  \tet{nfbasis}). Instead of the maximal order, \kbd{nfinit} then computes an
  order which is maximal at these particular primes as well as the primes
- contained in the private prime table (see \tet{addprimes}). The result is
- unconditionaly correct when the discriminant \kbd{nf.disc} factors
- completely over this set of primes. The function \tet{nfcertify} automates
- this:
+ contained in the private prime table (see \tet{addprimes}). The result has
+ a good chance of being correct when the discriminant \kbd{nf.disc} factors
+ completely over this set of primes but this is not guaranteed. The function
+ \tet{nfcertify} automates this:
  \bprog
  ? pol = polcompositum(x^5 - 101, polcyclo(7))[1];
  ? nf = nfinit( [pol, 10^3] );
