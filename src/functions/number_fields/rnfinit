@@ -103,11 +103,11 @@ Doc: given an \var{nf} structure attached to a number field $K$, as output by
  \item a vector of rational primes or prime ideals: the list of all maximal
  ideals dividing an element in the list.
 
- Instead of $\Z_L$, this produces an order which is maximal
- at all such maximal ideals primes. The result is actually a complete and
- correct \var{rnf} structure if the relative ideal discriminant factors
- completely over this list of maximal ideals. In general, the order
- may not be maximal at primes $\goth{p}$ not in the list such that
+ Instead of $\Z_L$, this produces an order which is maximal at all such
+ maximal ideals primes. The result may actually be a complete and correct
+ \var{rnf} structure if the relative ideal discriminant factors completely
+ over this list of maximal ideals but this is not guaranteed. In general, the
+ order may not be maximal at primes $\goth{p}$ not in the list such that
  $\goth{p}^2$ divides the relative ideal discriminant.
 
 Variant: Also available is
