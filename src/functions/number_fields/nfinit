@@ -39,7 +39,7 @@ Doc: \var{pol} being a non-constant,
  i.e.~$[\Z_K : \Z[\theta]]$, where $\theta$ is any root of $\var{nf}[1]$.
 
  $\var{nf}[5]$ is a vector containing 7 matrices $M$, $G$, \var{roundG}, $T$,
- $MD$, $TI$, $MDI$ useful for certain computations in the number field $K$.
+ \var{MD}, \var{TI}, \var{MDI} and a vector \var{vP} defined as follows:
 
  \quad\item $M$ is the $(r1+r2)\times n$ matrix whose columns represent
  the numerical values of the conjugates of the elements of the integral
@@ -61,13 +61,16 @@ Doc: \var{pol} being a non-constant,
  \quad\item The columns of $MD$ (\kbd{\var{nf}.diff}) express a $\Z$-basis
  of the different of $K$ on the integral basis.
 
- \quad\item $TI$ is equal to the primitive part of $T^{-1}$, which has integral
- coefficients.
+ \quad\item \var{TI} is equal to the primitive part of $T^{-1}$, which has
+ integral coefficients.
 
- \quad\item Finally, $MDI$ is a two-element representation (for faster
+ \quad\item \var{MDI} is a two-element representation (for faster
  ideal product) of $d(K)$ times the codifferent ideal
- (\kbd{\var{nf}.disc$*$\var{nf}.codiff}, which is an integral ideal). $MDI$
- is only used in \tet{idealinv}.
+ (\kbd{\var{nf}.disc$*$\var{nf}.codiff}, which is an integral ideal). This is
+ used in \tet{idealinv}.
+
+ \quad\item \var{vP} is the list of prime divisors of the field discriminant,
+ i.e, the ramified primes.
 
  $\var{nf}[6]$ is the vector containing the $r1+r2$ roots
  (\kbd{\var{nf}.roots}) of $\var{nf}[1]$ corresponding to the $r1+r2$
