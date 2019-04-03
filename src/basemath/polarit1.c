@@ -496,6 +496,9 @@ padicappr(GEN f, GEN a)
   if (typ(a) != t_POL) a = scalarpol_shallow(a, varn(T));
   a = ZpX_to_ZX(a,p);
   T = QpX_to_ZX(T,p);
+  /* if f was rounded above, it may now be non-separable */
+  (void)nfgcd_all(f, RgX_deriv(f), T, NULL, &f);
+
   if (!gequal0(FqX_eval(FqX_red(f,T,p), a, T,p))) /* check f(a) = 0 (mod p,T) */
   { set_avma(av); return cgetg(1,t_COL); }
   z = ZXY_ZpQ_root(f, a, T, p, prec);
