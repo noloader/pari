@@ -485,8 +485,6 @@ padicappr(GEN f, GEN a)
     default: pari_err_TYPE("padicappr",a);
   }
   if (gequal0(f)) pari_err_ROOTS0("padicappr");
-  z = RgX_gcd(f, RgX_deriv(f));
-  if (degpol(z) > 0) f = RgX_div(f,z);
   T = gel(a,1);
   a = gel(a,2);
   p = NULL; prec = LONG_MAX;
@@ -496,7 +494,7 @@ padicappr(GEN f, GEN a)
   if (typ(a) != t_POL) a = scalarpol_shallow(a, varn(T));
   a = ZpX_to_ZX(a,p);
   T = QpX_to_ZX(T,p);
-  /* if f was rounded above, it may now be non-separable */
+  /* ensure that f /= (f,f') is separable */
   (void)nfgcd_all(f, RgX_deriv(f), T, NULL, &f);
 
   if (!gequal0(FqX_eval(FqX_red(f,T,p), a, T,p))) /* check f(a) = 0 (mod p,T) */
