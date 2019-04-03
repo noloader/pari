@@ -1,5 +1,5 @@
 Function: nfdiscfactors
-Section: polynomials
+Section: number_fields
 C-Name: nfdiscfactors
 Prototype: G
 Help: nfdiscfactors(T): [D, faD], where D = nfdisc(T), and faD is the
