@@ -1696,13 +1696,13 @@ lim_lines_output(char *s, long n, long max_lin)
       if (c == '\n' || col >= width-5)
       {
         pari_sp av = avma;
-        normalOutS(term_get_color(NULL, c_ERR)); set_avma(av);
-        normalOutS("[+++]"); return;
+        pari_puts(term_get_color(NULL, c_ERR)); set_avma(av);
+        pari_puts("[+++]"); return;
       }
     if (c == '\n')         { col = -1; lin++; }
     else if (col == width) { col =  0; lin++; }
     set_last_newline(c);
-    col++; normalOutC(c);
+    col++; pari_putc(c);
   }
 }
 
