@@ -2127,6 +2127,20 @@ static GEN
 zetap(GEN s) { return zetap_i(s, 1); }
 #endif
 
+/* v a t_VEC/t_COL */
+int
+RgV_is_arithprog(GEN v, GEN *a, GEN *b)
+{
+  pari_sp av = avma, av2;
+  long i, n = lg(v)-1;
+  if (n < 1) { *a = *b = gen_0; return 1; }
+  *a = gel(v,1);
+  *b = gsub(gel(v,2), gel(v,1)); av2 = avma;
+  for (i = 2; i < n; i++)
+    if (!gequal(*b, gsub(gel(v,i+1), gel(v,i)))) return gc_int(av,0);
+  return gc_int(av2,1);
+}
+
 GEN
 gzeta(GEN x, long prec)
 {
@@ -2145,8 +2159,19 @@ gzeta(GEN x, long prec)
       return szeta(itos(x),prec);
     case t_REAL: case t_COMPLEX: return czeta(x,prec);
     case t_PADIC: return zetap(x);
+    case t_VEC: case t_COL:
+    {
+      GEN a, b;
+      if (RgV_is_arithprog(x, &a, &b))
+      {
+        if (!is_real_t(typ(a)) || !is_real_t(typ(b)) gcmpgs(a, 1) <= 0)
+        { set_avma(av); break; }
+        a = veczeta(b, a, lg(x)-1, prec);
+        settyp(a, typ(x)); return a;
+      }
+    }
     default:
-      av = avma; if (!(y = toser_i(x))) break;
+      if (!(y = toser_i(x))) break;
       return gerepileupto(av, lfun(gen_1,y,prec2nbits(prec)));
   }
   return trans_eval("zeta",gzeta,x,prec);

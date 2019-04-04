@@ -8148,6 +8148,10 @@ otherwise.
 \fun{int}{RgV_is_QV}{GEN P} return 1 if the \kbd{RgV}~$P$ has only
 \typ{INT} and \typ{FRAC} coefficients, and 0 otherwise.
 
+\fun{int}{RgV_is_arithprog}{GEN v, GEN *a, GEN *b} assuming $x$ is a \typ{VEC}
+or \typ{COL} return $1$ if its entries follow an arithmetic progression
+of the form $a + b*n$, $n = 0, 1, \dots$ and set $a$ and $b$. Else return $0$.
+
 \fun{int}{ZV_equal0}{GEN x} returns 1 if all entries of the \kbd{ZV} $x$ are
 zero, and $0$ otherwise.
 

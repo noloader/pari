@@ -4978,6 +4978,7 @@ GEN     sumformal(GEN T, long v);
 
 /* trans3.c */
 
+int     Rg_is_arithprog(GEN v, GEN *a, GEN *b);
 GEN     constzeta(long n, long prec);
 GEN     cxEk(GEN tau, long k, long prec);
 double  dblmodulus(GEN x);
