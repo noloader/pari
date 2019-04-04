@@ -1673,15 +1673,20 @@ szeta(long k, long prec)
     return rtor(gel(zetazone, k), prec);
   if (!odd(k))
   {
+    GEN B;
     if (!bernzone) constbern(0);
-    if (k >= lg(bernzone))
-      z = invr(inv_szeta_euler(k, prec));
+    if (k < lg(bernzone))
+      B = gel(bernzone, k>>1);
     else
     {
-      z = gmul(powru(Pi2n(1, prec + EXTRAPRECWORD), k), gel(bernzone,k>>1));
-      z = divrr(z, mpfactr(k,prec));
-      setsigne(z, 1); shiftr_inplace(z, -1);
+      if (bernbitprec(k) > prec2nbits(prec))
+        return gerepileupto(av, invr(inv_szeta_euler(k, prec)));
+      B = bernfrac(k);
     }
+    /* B = B_k */
+    z = gmul(powru(Pi2n(1, prec + EXTRAPRECWORD), k), B);
+    z = divrr(z, mpfactr(k,prec));
+    setsigne(z, 1); shiftr_inplace(z, -1);
   }
   else
   {
