@@ -2164,7 +2164,7 @@ gzeta(GEN x, long prec)
       GEN a, b;
       if (RgV_is_arithprog(x, &a, &b))
       {
-        if (!is_real_t(typ(a)) || !is_real_t(typ(b)) gcmpgs(a, 1) <= 0)
+        if (!is_real_t(typ(a)) || !is_real_t(typ(b)) || gcmpgs(a, 1) <= 0)
         { set_avma(av); break; }
         a = veczeta(b, a, lg(x)-1, prec);
         settyp(a, typ(x)); return a;
