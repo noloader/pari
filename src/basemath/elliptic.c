@@ -1537,13 +1537,13 @@ safe_Z_lval(GEN n, ulong p)
 { return signe(n)==0? -1: Z_lval(n, p); }
 
 /* Twist by d2 = 1,-4,-8,8, to get minimal discriminant at 2 after
- * ellminimalmodel / get_u; assume vg = min(3*v4,2*v6,vD) >= 6.
+ * ellminimalmodel / ellQ_minimalu; assume vg = min(3*v4,2*v6,vD) >= 6.
  * If non-trivial, v(d2) = 2 or 3 and let t = [(vg+6v(d2))/12].
- * Good case if reduction in get_u i.e. t = 2 (v4 < 6 or v6 < 9 or
+ * Good case if reduction in ellQ_minimalu i.e. t = 2 (v4 < 6 or v6 < 9 or
  * vD < 18) or 3 and "d--" does not occur. Minimal model => t = 3 iff
  * v4 = 6, v6 = 9 and vD >= 18. Total net effect is
  *   v4 += 2v(d2) - 4t, v6 += 3v(d2) - 6t, vD += 6 v(d2) - 12t
- * After rescaling in get_u (c4 >>= 4t, c6 >>= 6t) we need
+ * After rescaling in ellQ_minimalu (c4 >>= 4t, c6 >>= 6t) we need
  *   c6 % 4 = 3 OR  (v4 >= 4 AND (v6 >= 5 or c6 % 32 = 8)) */
 static long
 twist2(GEN c4, GEN c6, GEN disc, long vg)
@@ -1587,14 +1587,15 @@ ellminimaltwist(GEN e)
   ellQ_get_Nfa(E, &N, &M);
   F = gel(M, 1); lF = lg(F);
   /* on twist by d, (c4,c6,D,g) -> (d^2 c4, d^3 c6, d^6 D, d^6 g),
-   * then apply get_u(). Since model is minimal, v(g) < 12 unless p=3 and
-   * v(g) < 14 or p = 2 and v(g) <= 18 */
+   * then apply ellQ_minimalu(). Since model is minimal, v(g) < 12 unless p=3
+   * and v(g) < 14 or p = 2 and v(g) <= 18 */
   for(i = 1; i < lF; i++)
   {
     GEN p = gel(F, i);
     long vg = Z_pval(g,p), d2;
     if (vg < 6) continue;
-    /* twist by fund. discriminant d2; in get_u, we have v(g) = vg + 6*v(d2) */
+    /* twist by fund. discriminant d2; in ellQ_minimalu,
+     * we have v(g) = vg + 6*v(d2) */
     switch(itou_or_0(p))
     {
       default: /* p > 3, 6 <= v(g) < 12 => v(D) -= 6 */
@@ -4411,7 +4412,7 @@ Z_gcd_primes(GEN a, GEN b)
 /* E/Q, integral model, Laska-Kraus-Connell algorithm. Set *pDP to a list
  * of known prime divisors of minimal discriminant */
 static GEN
-get_u(GEN E, GEN *pDP)
+ellQ_minimalu(GEN E, GEN *pDP)
 {
   pari_sp av;
   GEN D = ell_get_disc(E);
@@ -4421,7 +4422,7 @@ get_u(GEN E, GEN *pDP)
 
   P = Z_gcd_primes(c4, c6);
   l = lg(P); if (l == 1) { *pDP = P; return gen_1; }
-  DP = vectrunc_init(l); settyp(DP,t_COL);
+  DP = coltrunc_init(l);
   av = avma;
   g = gcdii(sqri(c6), D);
   u = gen_1;
@@ -4446,7 +4447,7 @@ get_u(GEN E, GEN *pDP)
     if (r) vectrunc_append(DP, p);
     if (d) u = mulii(u, powiu(p, d));
   }
-  *pDP = DP;
+  if (pDP) *pDP = DP;
   return gerepileuptoint(av, u);
 }
 
@@ -4640,7 +4641,7 @@ ellminimalmodel_i(GEN E, GEN *ptv)
     return gcopy(E);
   }
   e = ellintegralmodel_i(E, &v0);
-  u = get_u(e, &DP);
+  u = ellQ_minimalu(e, &DP);
   min_set_all(&M, e, u);
   v = min_get_v(&M, e);
   y = min_to_ell(&M, e);
@@ -5952,7 +5953,7 @@ ellnf_volume(GEN e, long prec)
 static GEN
 ellheightfaltings(GEN e, long prec)
 {
-  GEN E, h;
+  GEN h;
   long d;
   pari_sp av = avma;
   checkell(e);
@@ -5960,9 +5961,7 @@ ellheightfaltings(GEN e, long prec)
   {
     case t_ELL_Q:
       d = 1;
-      E = ellminimalmodel(e,NULL);
-      h = ellR_area(E, prec);
-      obj_free(E);
+      h = gmul(gsqr(ellQ_minimalu(e,NULL)), ellR_area(e, prec));
       break;
     case t_ELL_NF:
       d = nf_get_degree(ellnf_get_nf(e));
