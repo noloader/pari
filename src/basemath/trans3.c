@@ -2133,9 +2133,10 @@ RgV_is_arithprog(GEN v, GEN *a, GEN *b)
 {
   pari_sp av = avma, av2;
   long i, n = lg(v)-1;
-  if (n < 1) { *a = *b = gen_0; return 1; }
+  if (n == 0) { *a = *b = gen_0; return 1; }
   *a = gel(v,1);
-  *b = gsub(gel(v,2), gel(v,1)); av2 = avma;
+  if (n == 1) { * b = gen_0; return 1; }
+  *b = gsub(gel(v,2), *a); av2 = avma;
   for (i = 2; i < n; i++)
     if (!gequal(*b, gsub(gel(v,i+1), gel(v,i)))) return gc_int(av,0);
   return gc_int(av2,1);
@@ -2162,11 +2163,12 @@ gzeta(GEN x, long prec)
     case t_VEC: case t_COL:
     {
       GEN a, b;
-      if (RgV_is_arithprog(x, &a, &b))
+      long n = lg(x) - 1;
+      if (n > 1 && RgV_is_arithprog(x, &a, &b))
       {
         if (!is_real_t(typ(a)) || !is_real_t(typ(b)) || gcmpgs(a, 1) <= 0)
         { set_avma(av); break; }
-        a = veczeta(b, a, lg(x)-1, prec);
+        a = veczeta(b, a, n, prec);
         settyp(a, typ(x)); return a;
       }
     }
