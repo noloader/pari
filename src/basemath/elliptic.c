@@ -4555,7 +4555,7 @@ ellminimalprimes(GEN E)
   return obj_insert(E, NF_MINIMALPRIMES, Q_to_minimalprimes(nf,P,Q));
 }
 static GEN
-ellminimalnormu(GEN E0)
+ellnf_minimalnormu(GEN E0)
 {
   GEN E, S, L, U, P, v, Nu = NULL, nf = ellnf_get_nf(E0);
   long i, l;
@@ -5033,7 +5033,7 @@ static GEN
 ellnf_bsdperiod(GEN E, long prec)
 {
   pari_sp av = avma;
-  GEN Eb = ellnfembed(E, prec), per = gtofp(ellminimalnormu(E), prec);
+  GEN Eb = ellnfembed(E, prec), per = gtofp(ellnf_minimalnormu(E), prec);
   long i, l = lg(Eb), r1 = nf_get_r1(ellnf_get_nf(E));
   for(i = 1; i < l; i++)
   {
@@ -5965,7 +5965,7 @@ ellheightfaltings(GEN e, long prec)
       break;
     case t_ELL_NF:
       d = nf_get_degree(ellnf_get_nf(e));
-      h = gmul(gsqr(ellminimalnormu(e)), ellnf_volume(e, prec));
+      h = gmul(gsqr(ellnf_minimalnormu(e)), ellnf_volume(e, prec));
       break;
     default:
       pari_err_TYPE("ellheight", e);
