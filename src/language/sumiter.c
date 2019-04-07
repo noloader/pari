@@ -1465,43 +1465,38 @@ derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 }
 
 /* Fornberg interpolation algorithm for finite differences coefficients
-* using N+1 equidistant grid points around 0 [ assume N even >= M ].
-* Compute \delta[m]_{N,nu} for all derivation orders m = 0..M such that
-*   h^m * f^{(m)}(0) = \sum_{nu = 0}^n delta[m]_{N,nu}  f(a_nu) + O(h^{N-m+1}),
+* using 2N+1 equidistant grid points around 0 [ assume 2N even >= M ].
+* Compute \delta[m]_{N,i} for all derivation orders m = 0..M such that
+*   h^m * f^{(m)}(0) = \sum_{i = 0}^n delta[m]_{N,i}  f(a_i) + O(h^{N-m+1}),
 * for step size h.
-* Return a = [0,-1,1...,-N2,N2] and vector of vectors d: d[m+1][nu+1]
-* = (N!/m!) * delta[m]_{N,nu}, nu = 0..N */
+* Return a = [0,-1,1...,-N,N] and vector of vectors d: d[m+1][i+1]
+* = w'(a_i) delta[m]_{2N,i}, i = 0..2N */
 static void
-FD(long M, long N, GEN *pd, GEN *pa)
+FD(long M, long N2, GEN *pd, GEN *pa)
 {
-  GEN d, a, b, W, t, F, C;
-  long N2 = N>>1, m, nu, i;
+  GEN d, a, b, W, F;
+  long N = N2>>1, m, i;
 
-  F = cgetg(N+2, t_VEC);
-  a = cgetg(N+2, t_VEC);
-  b = cgetg(N2+1, t_VEC);
+  F = cgetg(N2+2, t_VEC);
+  a = cgetg(N2+2, t_VEC);
+  b = cgetg(N+1, t_VEC);
   gel(a,1) = gen_0;
-  for (i = 1; i <= N2; i++)
+  for (i = 1; i <= N; i++)
   {
     gel(a,2*i)   = utoineg(i);
     gel(a,2*i+1) = utoipos(i);
     gel(b,i) = sqru(i);
   }
-  /* w = \prod (X - a[i]) = x W(x^2);
-   * N! / w'(i) = N! / w'(-i) = (-1)^(N2-i) binom(N,N2-i) */
-  C = vecbinomial(N);
+  /* w = \prod (X - a[i]) = x W(x^2) */
   W = roots_to_pol(b, 0);
-  t = gel(C,N2+1);
-  gel(F,1) = ZX_Z_mul(RgX_inflate(W,2), odd(N2)? negi(t): t);
-  for (i = 1; i <= N2; i++)
-  { /* t = w'(a_{2i}) = w'(a_{2i+1}) */
+  gel(F,1) = RgX_inflate(W,2);
+  for (i = 1; i <= N; i++)
+  {
     pari_sp av = avma, av2;
     GEN r, U, S, T;
     U = RgX_inflate(RgX_div_by_X_x(W, gel(b,i), &r), 2);
-    U = RgX_shift_shallow(U, 1);
-    U = RgXn_red_shallow(U, M+1); /* higher terms not needed */
-    t = gel(C, N2-i+1);
-    U = ZX_Z_mul(U, odd(N2-i)? negi(t): t);
+    U = RgXn_red_shallow(U, M); /* higher terms not needed */
+    U = RgX_shift_shallow(U,1); /* w(X) / (X^2-a[i]^2) mod X^(M+1) */
     S = RgX_shift_shallow(U,1);
     T = ZX_Z_mul(U, gel(a,2*i+1)); av2 = avma;
     U = ZX_sub(S, T);
@@ -1509,12 +1504,12 @@ FD(long M, long N, GEN *pd, GEN *pa)
     gel(F,2*i)   = U;
     gel(F,2*i+1) = T;
   }
-  /* F[i] = N! w(X) / ((X-a[i])w'(a[i])) + O(X^(M+1)) in Z[X] */
+  /* F[i] = w(X) / (X-a[i]) + O(X^(M+1)) in Z[X] */
   d = cgetg(M+2, t_VEC);
   for (m = 0; m <= M; m++)
   {
-    GEN v = cgetg(N+2, t_VEC); /* coeff(F[nu],X^m) */
-    for (nu = 0; nu <= N; nu++) gel(v, nu+1) = gmael(F, nu+1, m+2);
+    GEN v = cgetg(N2+2, t_VEC); /* coeff(F[i],X^m) */
+    for (i = 0; i <= N2; i++) gel(v, i+1) = gmael(F, i+1, m+2);
     gel(d,m+1) = v;
   }
   *pd = d;
@@ -1531,8 +1526,8 @@ chk_ord(long m)
 GEN
 derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
-  GEN A, D, X, F, iN, ind;
-  long M, M2, fpr, p, i, pr, l, lA, e, ex, eD, newprec;
+  GEN A, C, D, DM, T, X, F, iN, ind, t;
+  long M, N, N2, fpr, p, i, pr, l, lA, e, ex, emin, emax, newprec;
   pari_sp av = avma;
   int allodd = 1;
 
@@ -1548,17 +1543,35 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
     if (typ(ind0) == t_INT) F = gel(F,1);
     return gerepilecopy(av, F);
   }
-  M2 = 3*M - 1; if (odd(M2)) M2++;
-  FD(M, M2, &D,&A); /* optimal if 'eval' uses quadratic time */
+  N2 = 3*M - 1; if (odd(N2)) N2++;
+  N = N2 >> 1;
+  FD(M, N2, &D,&A); /* optimal if 'eval' uses quadratic time */
+  C = vecbinomial(N2); DM = gel(D,M);
+  T = cgetg(N2+2, t_VEC);
+  /* (2N)! / w'(i) = (2N)! / w'(-i) = (-1)^(N-i) binom(2*N, N-i) */
+  t = gel(C, N+1);
+  gel(T,1) = odd(N)? negi(t): t;
+  for (i = 1; i <= N; i++)
+  {
+    t = gel(C, N-i+1);
+    gel(T,2*i) = gel(T,2*i+1) = odd(N-i)? negi(t): t;
+  }
+  N = N2 >> 1; emin = LONG_MAX; emax = 0;
+  for (i = 1; i <= N; i++)
+  {
+    e = expi(gel(DM,i)) + expi(gel(T,i));
+    if (e < 0) continue; /* 0 */
+    if (e < emin) emin = e;
+    else if (e > emax) emax = e;
+  }
 
   p = precision(x);
   fpr = p ? prec2nbits(p): prec2nbits(prec);
-  eD = gexpo(gel(D,M));
   e = (fpr + 3*M*log2((double)M)) / (2*M);
   ex = gexpo(x);
   if (ex < 0) ex = 0; /* near 0 */
   pr = (long)ceil(fpr + e * M); /* ~ 3fpr/2 */
-  newprec = nbits2prec(pr + eD + ex + BITS_IN_LONG);
+  newprec = nbits2prec(pr + (emax - emin) + ex + BITS_IN_LONG);
   switch(typ(x))
   {
     case t_REAL:
@@ -1573,12 +1586,13 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   for (i = allodd? 2: 1; i < lA; i++)
   {
     GEN t = eval(E, gadd(x, gmul2n(gel(A,i), -e)), newprec);
+    t = gmul(t, gel(T,i));
     if (!gprecision(t))
       t = is_scalar_t(typ(t))? gtofp(t, newprec): gmul(t, real_1(newprec));
-    gel(X, i) = t;
+    gel(X,i) = t;
   }
 
-  iN = invr(mpfactr(M2, nbits2prec(fpr)));
+  iN = invr(mpfactr(N2, nbits2prec(fpr)));
   for (i = 1; i < l; i++)
   {
     GEN t;
