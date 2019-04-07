@@ -1522,11 +1522,23 @@ chk_ord(long m)
   if (m < 0)
     pari_err_DOMAIN("derivnumk", "derivation order", "<", gen_0, stoi(m));
 }
-
+/* m! / N! for m in ind; vecmax(ind) <= N */
+static GEN
+vfact(GEN ind, long N, long prec)
+{
+  GEN v, iN;
+  long i, l;
+  ind = vecsmall_uniq(ind); chk_ord(ind[1]); l = lg(ind);
+  iN = invr(itor(mulu_interval(ind[1] + 1, N), prec));
+  v = const_vec(ind[l-1], NULL); gel(v, ind[1]) = iN;
+  for (i = 2; i < l; i++)
+    gel(v, ind[i]) = iN = mulri(iN, mulu_interval(ind[i-1] + 1, ind[i]));
+  return v;
+}
 GEN
 derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
-  GEN A, C, D, DM, T, X, F, iN, ind, t;
+  GEN A, C, D, DM, T, X, F, v, ind, t;
   long M, N, N2, fpr, p, i, pr, l, lA, e, ex, emin, emax, newprec;
   pari_sp av = avma;
   int allodd = 1;
@@ -1592,13 +1604,12 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
     gel(X,i) = t;
   }
 
-  iN = invr(mpfactr(N2, nbits2prec(fpr)));
+  v = vfact(ind, N2, nbits2prec(fpr + 32));
   for (i = 1; i < l; i++)
   {
-    GEN t;
-    long m = ind[i]; chk_ord(m);
-    t = gmul2n(RgV_dotproduct(gel(D,m+1), X), e*m);
-    gel(F,i) = gmul(gmul(t, iN), mpfact(m));
+    long m = ind[i];
+    GEN t = RgV_dotproduct(gel(D,m+1), X);
+    gel(F,i) = gmul(t, gmul2n(gel(v, m), e*m));
   }
   if (typ(ind0) == t_INT) F = gel(F,1);
   return gerepilecopy(av, F);
