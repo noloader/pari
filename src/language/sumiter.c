@@ -1470,15 +1470,13 @@ derivnum(void *E, GEN (*eval)(void *, GEN, long), GEN x, long prec)
 *   h^m * f^{(m)}(0) = \sum_{nu = 0}^n delta[m]_{N,nu}  f(a_nu) + O(h^{N-m+1}),
 * for step size h.
 * Return a = [0,-1,1...,-N2,N2] and vector of vectors d: d[m+1][nu+1]
-* = (M!/m!) * delta[m]_{N,nu}, nu = 0..N */
+* = (N!/m!) * delta[m]_{N,nu}, nu = 0..N */
 static void
 FD(long M, long N, GEN *pd, GEN *pa)
 {
-  GEN d, a, b, W, Wp, t, F, Mfact;
-  long N2, m, nu, i;
+  GEN d, a, b, W, t, F, C;
+  long N2 = N>>1, m, nu, i;
 
-  if (odd(N)) N++; /* make it even */
-  N2 = N>>1;
   F = cgetg(N+2, t_VEC);
   a = cgetg(N+2, t_VEC);
   b = cgetg(N2+1, t_VEC);
@@ -1489,28 +1487,29 @@ FD(long M, long N, GEN *pd, GEN *pa)
     gel(a,2*i+1) = utoipos(i);
     gel(b,i) = sqru(i);
   }
-  /* w = \prod (X - a[i]) = x W(x^2) */
-  Mfact = mpfact(M);
+  /* w = \prod (X - a[i]) = x W(x^2);
+   * N! / w'(i) = N! / w'(-i) = (-1)^(N2-i) binom(N,N2-i) */
+  C = vecbinomial(N);
   W = roots_to_pol(b, 0);
-  Wp = ZX_deriv(W);
-  t = gel(W,2); /* w'(0) */
-  t = diviiexact(t, Mfact);
-  gel(F,1) = RgX_Rg_div(RgX_inflate(W,2), t);
+  t = gel(C,N2+1);
+  gel(F,1) = ZX_Z_mul(RgX_inflate(W,2), odd(N2)? negi(t): t);
   for (i = 1; i <= N2; i++)
   { /* t = w'(a_{2i}) = w'(a_{2i+1}) */
-    GEN r, t = mulii(shifti(gel(b,i),1), poleval(Wp, gel(b,i)));
-    GEN U, S, T;
+    pari_sp av = avma, av2;
+    GEN r, U, S, T;
     U = RgX_inflate(RgX_div_by_X_x(W, gel(b,i), &r), 2);
     U = RgX_shift_shallow(U, 1);
     U = RgXn_red_shallow(U, M+1); /* higher terms not needed */
-    t = diviiexact(t, Mfact);
-    U = RgX_Rg_div(U, t);
+    t = gel(C, N2-i+1);
+    U = ZX_Z_mul(U, odd(N2-i)? negi(t): t);
     S = RgX_shift_shallow(U,1);
-    T = RgX_Rg_mul(U, gel(a,2*i+1));
-    gel(F,2*i)   = RgX_sub(S, T);
-    gel(F,2*i+1) = RgX_add(S, T);
+    T = ZX_Z_mul(U, gel(a,2*i+1)); av2 = avma;
+    U = ZX_sub(S, T);
+    T = ZX_add(S, T); gerepileallsp(av, av2, 2, &U, &T);
+    gel(F,2*i)   = U;
+    gel(F,2*i+1) = T;
   }
-  /* F[i] = M! w(X) / ((X-a[i])w'(a[i])) + O(X^(M+1)) */
+  /* F[i] = N! w(X) / ((X-a[i])w'(a[i])) + O(X^(M+1)) in Z[X] */
   d = cgetg(M+2, t_VEC);
   for (m = 0; m <= M; m++)
   {
@@ -1532,8 +1531,8 @@ chk_ord(long m)
 GEN
 derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
-  GEN A, D, X, F, ind;
-  long M, fpr, p, i, pr, l, lA, e, ex, eD, newprec;
+  GEN A, D, X, F, iN, ind;
+  long M, M2, fpr, p, i, pr, l, lA, e, ex, eD, newprec;
   pari_sp av = avma;
   int allodd = 1;
 
@@ -1549,7 +1548,8 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
     if (typ(ind0) == t_INT) F = gel(F,1);
     return gerepilecopy(av, F);
   }
-  FD(M, 3*M-1, &D,&A); /* optimal if 'eval' uses quadratic time */
+  M2 = 3*M - 1; if (odd(M2)) M2++;
+  FD(M, M2, &D,&A); /* optimal if 'eval' uses quadratic time */
 
   p = precision(x);
   fpr = p ? prec2nbits(p): prec2nbits(prec);
@@ -1578,16 +1578,16 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
     gel(X, i) = t;
   }
 
+  iN = invr(mpfactr(M2, nbits2prec(fpr)));
   for (i = 1; i < l; i++)
   {
     GEN t;
     long m = ind[i]; chk_ord(m);
     t = gmul2n(RgV_dotproduct(gel(D,m+1), X), e*m);
-    if (m < M) t = gdiv(t, mulu_interval(m+1,M));
-    gel(F,i) = t;
+    gel(F,i) = gmul(gmul(t, iN), mpfact(m));
   }
   if (typ(ind0) == t_INT) F = gel(F,1);
-  return gerepilecopy(av, gprec_w(F, nbits2prec(fpr)));
+  return gerepilecopy(av, F);
 }
 /* v(t') */
 static long
