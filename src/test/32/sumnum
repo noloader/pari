@@ -1,7 +1,7 @@
   ***   Warning: new stack size = 40000000 (38.147 Mbytes).
 +oo
 +oo
--38
++oo
 1.6449340668482264364724151666460251892
 0.39493406684822643647241516664602518922
 1.6449340668482264364724151666460251892
@@ -28,7 +28,7 @@
 2.3979771206715998375659850036324914715
 2.3979771206715998375659850036324914714
 +oo
--38
++oo
   ***   at top-level: sumnummonien(n=1,1/n^2,tab)
   ***                                  ^----------
   ***   incompatible initial value 2 != 1.
@@ -104,4 +104,4 @@
   ***   at top-level: sumpos(n=0,1,2)
   ***                 ^---------------
   *** sumpos: invalid flag in sumpos.
-Total time spent: 3323
+Total time spent: 1816
