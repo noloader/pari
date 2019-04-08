@@ -1492,17 +1492,16 @@ FD(long M, long N2, GEN *pd, GEN *pa)
   gel(F,1) = RgX_inflate(W,2);
   for (i = 1; i <= N; i++)
   {
-    pari_sp av = avma, av2;
-    GEN r, U, S, T;
+    pari_sp av = avma;
+    GEN r, U, S;
     U = RgX_inflate(RgX_div_by_X_x(W, gel(b,i), &r), 2);
     U = RgXn_red_shallow(U, M); /* higher terms not needed */
     U = RgX_shift_shallow(U,1); /* w(X) / (X^2-a[i]^2) mod X^(M+1) */
-    S = RgX_shift_shallow(U,1);
-    T = ZX_Z_mul(U, gel(a,2*i+1)); av2 = avma;
-    U = ZX_sub(S, T);
-    T = ZX_add(S, T); gerepileallsp(av, av2, 2, &U, &T);
-    gel(F,2*i)   = U;
-    gel(F,2*i+1) = T;
+    S = ZX_sub(RgX_shift_shallow(U,1),
+               ZX_Z_mul(U, gel(a,2*i+1)));
+    S = gerepileupto(av, S);
+    gel(F,2*i)   = S;
+    gel(F,2*i+1) = ZX_z_unscale(S, -1);
   }
   /* F[i] = w(X) / (X-a[i]) + O(X^(M+1)) in Z[X] */
   d = cgetg(M+2, t_VEC);
