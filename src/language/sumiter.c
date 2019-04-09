@@ -1169,32 +1169,33 @@ binsum(GEN S, ulong k, void *E, GEN (*f)(void *, GEN), GEN a,
         long G, long prec)
 {
   long e, i, N = lg(S)-1, l = expu(N / k); /* k 2^l <= N < k 2^(l+1) */
-  pari_sp av;
-  GEN r, t = gen_0;
+  pari_sp av = avma;
+  GEN t = gen_0;
 
-  gel(S, k << l) = cgetr(prec); av = avma;
   G -= l;
-  r = utoipos(k<<l);
-  for(e=0;;e++) /* compute g(k 2^l) with absolute error ~ 2^(G-l) */
-  {
-    GEN u = gtofp(f(E, addii(a,r)), prec);
+  if (!signe(a)) a = NULL;
+  for (e = 0;; e++)
+  { /* compute g(k 2^l) with absolute error ~ 2^(G-l) */
+    GEN u, r = utor(k, prec + EXTRAPRECWORD);
+    shiftr_inplace(r, l + e);
+    if (a) r = addri(r, a);
+    u = gtofp(f(E, r), prec);
     if (typ(u) != t_REAL) pari_err_TYPE("sumpos",u);
     if (!signe(u)) break;
     if (!e)
       t = u;
     else {
       shiftr_inplace(u, e);
-      t = addrr(t,u);
-      if (expo(u) < G) break;
+      t = addrr(t,u); if (expo(u) < G) break;
+      if ((e & 0x1ff) == 0) t = gerepileuptoleaf(av, t);
     }
-    r = shifti(r,1);
   }
   gel(S, k << l) = t = gerepileuptoleaf(av, t);
   /* g(j) = 2g(2j) + f(a+j) for all j > 0 */
   for(i = l-1; i >= 0; i--)
   { /* t ~ g(2 * k*2^i) with error ~ 2^(G-i-1) */
     GEN u;
-    av = avma; u = gtofp(f(E, addiu(a, k << i)), prec);
+    av = avma; u = gtofp(f(E, a? addiu(a, k << i): utoipos(k << i)), prec);
     if (typ(u) != t_REAL) pari_err_TYPE("sumpos",u);
     t = addrr(gtofp(u,prec), mpshift(t,1)); /* ~ g(k*2^i) */
     gel(S, k << i) = t = gerepileuptoleaf(av, t);
