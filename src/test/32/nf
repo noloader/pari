@@ -499,13 +499,13 @@ Mod(0, x)
 Mod(-6/5, x)
   ***   at top-level: nfinit([y^3+2,[1,x]])
   ***                 ^---------------------
-  *** nfinit: incorrect type in nfbasic_init (t_VEC).
+  *** nfinit: incorrect type in nfinit_basic (t_VEC).
   ***   at top-level: nfinit([y^3+2,[1,x,x^2]])
   ***                 ^-------------------------
-  *** nfinit: incorrect type in nfbasic_init (t_VEC).
+  *** nfinit: incorrect type in nfinit_basic (t_VEC).
   ***   at top-level: nfinit([y^3+2,[1,y^5,y]])
   ***                 ^-------------------------
-  *** nfinit: incorrect type in nfbasic_init (t_VEC).
+  *** nfinit: incorrect type in nfinit_basic (t_VEC).
   ***   at top-level: nfdisc([y^2+2,matid(3)])
   ***                 ^------------------------
   *** nfdisc: incorrect type in nfmaxord (t_MAT).
@@ -560,4 +560,4 @@ Mod(-6/5, x)
   ***   at top-level: nfalgtobasis(nf,['a,'a]~)
   ***                 ^-------------------------
   *** nfalgtobasis: incorrect type in nfalgtobasis (t_COL).
-Total time spent: 13644
+Total time spent: 13713

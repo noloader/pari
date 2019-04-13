@@ -1786,11 +1786,9 @@ nf_basden(GEN nf)
 void
 nfinit_basic(nfmaxord_t *S, GEN T)
 {
-  long t = nf_input_type(T);
-  if (t == t_POL) { nfmaxord(S, T, 0); return; }
-  S->dTP = S->dTE = S->dKE = S->basden = NULL;
-  switch (t)
+  switch (nf_input_type(T))
   {
+    case t_POL: nfmaxord(S, T, 0); return;
     case t_VEC:
     { /* nf, bnf, bnr */
       GEN nf = checknf(T);
@@ -1798,7 +1796,7 @@ nfinit_basic(nfmaxord_t *S, GEN T)
       S->basis = nf_get_zk(nf); /* probably useless */
       S->basden = nf_basden(nf);
       S->index = nf_get_index(nf);
-      S->dK    = nf_get_disc(nf);
+      S->dK = nf_get_disc(nf);
       S->dKP = nf_get_ramified_primes(nf);
       S->dT = mulii(S->dK, sqri(S->index));
       S->r1 = nf_get_r1(nf); break;
@@ -1806,15 +1804,16 @@ nfinit_basic(nfmaxord_t *S, GEN T)
     case 0: /* monic integral polynomial + integer basis */
       S->T = S->T0 = gel(T,1);
       S->basis = gel(T,2);
+      S->basden = NULL;
       S->index = NULL;
       S->dK = NULL;
       S->dKP = NULL;
       S->dT = NULL;
       S->r1 = -1; break;
     default: /* -1 */
-      pari_err_TYPE("nfbasic_init", T);
-      return;
+      pari_err_TYPE("nfinit_basic", T);
   }
+  S->dTP = S->dTE = S->dKE = NULL;
   S->unscale = gen_1;
 }
 
