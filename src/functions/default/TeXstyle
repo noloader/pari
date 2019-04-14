@@ -18,5 +18,4 @@ Doc: the bits of this default allow
     \def\PARIbreak{\hskip 0pt plus \hsize\relax\discretionary{}{}{}}
  @eprog
 
-
  The default value is \kbd{0}.
