@@ -63,7 +63,7 @@ Doc:
  number, representing the ideal $(t)I$. This is useful whenever \tet{idealred}
  is involved, implicitly working in the ideal class group, while keeping track
  of principal ideals. The following multiplicative ideal operations
- update the principal part: \kbd{idealmul}, \kbd{idealsqr}, \kbd{idealinv},
+ update the principal part: \kbd{idealmul}, \kbd{idealinv},
  \kbd{idealpow} and \kbd{idealred}; e.g.~using \kbd{idealmul}
  on $[I,t]$, $[J,u]$, we obtain $[IJ, tu]$. In all other
  functions, the extended part is silently discarded, e.g.~using
