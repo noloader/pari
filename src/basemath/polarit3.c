@@ -917,18 +917,14 @@ get_nbprimes(ulong bound, ulong *pt_start)
 }
 
 static GEN
-primelist_disc(ulong *p, long n, GEN dB)
+primelist(ulong *p, long n, GEN dB)
 {
   ulong u = 0;
   GEN P = cgetg(n+1, t_VECSMALL);
   long i;
   if (dB && typ(dB)==t_VECSMALL) { u = uel(dB,1); dB = NULL; }
-  for (i=1; i <= n; i++, *p = unextprime(*p+1))
-  {
-    if (dB && umodiu(dB, *p)==0) { i--; continue; }
-    if (u && *p%u!=1) { i--; continue; }
-    P[i] = *p;
-  }
+  for (i = 1; i <= n; *p = unextprime(*p+1))
+    if ((!dB || umodiu(dB, *p)) && (!u || *p % u == 1)) P[i++] = *p;
   return P;
 }
 
@@ -950,7 +946,7 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
   }
   if (m == 1)
   {
-    GEN P = primelist_disc(p, n, dB);
+    GEN P = primelist(p, n, dB);
     GEN done = closure_callgen1(worker, P);
     H = gel(done,1);
     mod = gel(done,2);
@@ -967,7 +963,7 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
     for (i=1; i<=m || pending; i++)
     {
       GEN done;
-      GEN pr = i <= m ? mkvec(primelist_disc(p, i<=r ? s: s-1, dB)): NULL;
+      GEN pr = i <= m ? mkvec(primelist(p, i<=r ? s: s-1, dB)): NULL;
       mt_queue_submit(&pt, i, pr);
       done = mt_queue_get(&pt, NULL, &pending);
       if (done)
