@@ -82,6 +82,7 @@ BA  59- ffinvmap(m) could SEGV on bad input
     61- idealispower(nf, t_INT n) possibly wrong if (n, nf.disc) > 1
     62- zeta''(0): all precision lost [more generally f'...'(n quotes)
         imprecise in the neighbourhood of 0, while derivnum(,n) was OK]
+BA  63- (f(x, y = 1) = x*y); f'(1) returned 0
     64- poldiscfactors(x^0) -> division by 0
     65- factormod(x^3+1,[y^2+1,2]) -> SEGV
     66- factormod(x^3+1,[y^2+1,5]) -> weird error message
@@ -115,8 +116,7 @@ BA  91- [a,b]=a could lead to memory corruption
     92- memory leak in cgetalloc when lg overflows
     93- possible SEGV in padicappr [#2133]
     94- zeta(small even integer) was very slow at large accuracy
-BA  95- (f(x, y = 1) = x*y); f'(1) returned 0
-    96- core() could destroy its input, if stored in a GP variable
+    95- core() could destroy its input, if stored in a GP variable
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
