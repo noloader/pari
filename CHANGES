@@ -82,7 +82,7 @@ BA  59- ffinvmap(m) could SEGV on bad input
     61- idealispower(nf, t_INT n) possibly wrong if (n, nf.disc) > 1
     62- zeta''(0): all precision lost [more generally f'...'(n quotes)
         imprecise in the neighbourhood of 0, while derivnum(,n) was OK]
-BA  63- (f(x, y = 1) = x*y); f'(1) returned 0
+    63- sumdigits(negative number, B) sometimes negative
     64- poldiscfactors(x^0) -> division by 0
     65- factormod(x^3+1,[y^2+1,2]) -> SEGV
     66- factormod(x^3+1,[y^2+1,5]) -> weird error message
@@ -117,6 +117,7 @@ BA  91- [a,b]=a could lead to memory corruption
     93- possible SEGV in padicappr [#2133]
     94- zeta(small even integer) was very slow at large accuracy
     95- core() could destroy its input, if stored in a GP variable
+BA  96- (f(x, y = 1) = x*y); f'(1) returned 0
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
@@ -173,32 +174,31 @@ BA  33- gen_factorback: change argument order to match other functions
     35- suminf is now sensitive to bit precision. In library mode, use
         suminf_bitprec (precision in bits) rather than the historical suminf
         (precision in words)
-    36- sumdigits(negative number, B) sometimes negative
-    37- RgV_polint: use (asymptotically fast) FpV_polint over Fp
-BA  38- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
-BA  39- # and ## now also display the realtime when nbthreads is not 1
-    40- gp_format_time: remove trailing ".\n" from formatted string
-BA  41- GP: arguments of the parser code W can start with ~ for clarity, e.g.
+    36- RgV_polint: use (asymptotically fast) FpV_polint over Fp
+BA  37- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
+BA  38- # and ## now also display the realtime when nbthreads is not 1
+    39- gp_format_time: remove trailing ".\n" from formatted string
+BA  40- GP: arguments of the parser code W can start with ~ for clarity, e.g.
         listput(~L,x), mapput(~M,x)
-BA  42- GP: the argument of a user member function is now a reference
-    43- make ellheight(E, torsion point) return an exact 0 [#2109]
-    44- allow rnfdisc(k, polynomial with non-integral coeffs)
-    45- allow rnfconductor(k, non-monic polynomial)
-    46- poldisc(t_COMPLEX) now raises an exception (used to return -4)
-    47- rnfdisc(nf, [T,B]) allow B a list of primes and maximal ideals
+BA  41- GP: the argument of a user member function is now a reference
+    42- make ellheight(E, torsion point) return an exact 0 [#2109]
+    43- allow rnfdisc(k, polynomial with non-integral coeffs)
+    44- allow rnfconductor(k, non-monic polynomial)
+    45- poldisc(t_COMPLEX) now raises an exception (used to return -4)
+    46- rnfdisc(nf, [T,B]) allow B a list of primes and maximal ideals
         (same for rnfbasis, rnfinit, rnfconductor, rnfpseudobasis)
-    48- ??? include double quotes when needed (e.g. ???conductor) [#2122]
-    49- improved the prime() function
-    50- mpeint1: support all t_REAL x != 0 (was x > 0)
-LGr 51- nffactor now supports rational functions
-    52- improve QM_gauss [treat contents sensibly]
-    53- lngamma and psi near 1: cache values of zeta(odd integers)
-    54- [libpari] nfbasis prototype changed: 3rd argument listP is gone, use
+    47- ??? include double quotes when needed (e.g. ???conductor) [#2122]
+    48- improved the prime() function
+    49- mpeint1: support all t_REAL x != 0 (was x > 0)
+LGr 50- nffactor now supports rational functions
+    51- improve QM_gauss [treat contents sensibly]
+    52- lngamma and psi near 1: cache values of zeta(odd integers)
+    53- [libpari] nfbasis prototype changed: 3rd argument listP is gone, use
         nfbasis(mkvec2(T,listP), &disc). Note that the documentation was
         incorrect: it is not guaranteed that nfbasis([T, listP]) returns the
         maximal order even if listP contains all prime divisors of the field
         discriminant. See ??nfbasis
-    55- nfbasis now accepts an optional argument &dK [order discriminant]
+    54- nfbasis now accepts an optional argument &dK [order discriminant]
 
   Added
      1- [libpari] nonsquare_Fl
