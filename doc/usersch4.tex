@@ -1450,12 +1450,12 @@ polynomial arithmetic and linear algebra over small finite fields, etc.
 \fun{char *}{GSTR}{z} (= \kbd{(z+1)}) points to the first character of the
 (\kbd{NULL}-terminated) string.
 
-\subsec{Type \typ{ERROR} (error context)}\kbdsidx{t_ERROR}\sidx{error context}
+\subsec{Type \typ{ERROR} (error context)}\kbdsidx{t_ERROR}
 This type holds error messages, as well as details about the error, as
 returned by the exception handling system. The second codeword \kbd{z[1]}
 contains the error type (an \kbd{int}, as passed to \tet{pari_err}). The
 subsequent words \kbd{z[2]},\dots \kbd{z[lg(z)-1]} are \kbd{GEN}s containing
-additional data, depending on the error type.
+additional data, depending on the error type.\sidx{error context}
 
 \subsec{Type \typ{CLOSURE} (closure)}\kbdsidx{t_CLOSURE}\sidx{closure}
 This type holds GP functions and closures, in compiled form. The internal detail
