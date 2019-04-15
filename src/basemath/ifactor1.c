@@ -2265,7 +2265,7 @@ ifac_print(GEN part, GEN where)
 }
 
 static const long decomp_default_hint = 0;
-/* assume n a non-zero t_INT */
+/* assume n > 0, which we can assign to */
 /* return initial data structure, see ifac_crack() for the hint argument */
 static GEN
 ifac_start_hint(GEN n, int moebius, long hint)
@@ -2277,10 +2277,6 @@ ifac_start_hint(GEN n, int moebius, long hint)
 
   MOEBIUS(part) = moebius? gen_1 : NULL;
   HINT(part) = stoi(hint);
-  if (isonstack(n)) n = absi(n);
-  /* make copy, because we'll later want to replace it in place.
-   * If it's not on stack, then we assume it is a clone made for us by
-   * ifactor, and we assume the sign has already been set positive */
   /* fill first slot at the top end */
   here = part + ifac_initial_length - 3; /* LAST(part) */
   INIT(here, n,gen_1,gen_0); /* n^1: composite */
@@ -2972,7 +2968,7 @@ ifac_main(GEN *partial)
  * pairs space to the old one. This whole affair translates into a surprisingly
  * compact routine. */
 
-/* find primary factors of n */
+/* find primary factors of n; destroy n */
 static long
 ifac_decomp(GEN n, long hint)
 {
@@ -3031,6 +3027,7 @@ ifac_GC(pari_sp av, GEN *part)
   *part = gerepileupto(av, *part);
 }
 
+/* destroys n */
 static long
 ifac_moebius(GEN n)
 {
@@ -3063,6 +3060,7 @@ ifac_skip(GEN part)
   if (here) ifac_delete(here);
 }
 
+/* destroys n */
 static int
 ifac_ispowerful(GEN n)
 {
@@ -3080,6 +3078,7 @@ ifac_ispowerful(GEN n)
     if (gc_needed(av,1)) ifac_GC(av,&part);
   }
 }
+/* destroys n */
 static GEN
 ifac_core(GEN n)
 {
@@ -3122,6 +3121,7 @@ utridiv_bound(ulong n)
   return 1UL<<14;
 }
 
+/* destroys n */
 static void
 ifac_factoru(GEN n, long hint, GEN P, GEN E, long *pi)
 {
@@ -3136,6 +3136,7 @@ ifac_factoru(GEN n, long hint, GEN P, GEN E, long *pi)
     (*pi)++;
   }
 }
+/* destroys n */
 static long
 ifac_moebiusu(GEN n)
 {
@@ -3494,6 +3495,7 @@ core(GEN n)
     }
   }
   if (ifac_isprime(n)) { m = mulii(m, n); return gerepileuptoint(av, m); }
+  if (m == gen_1) n = icopy(n); /* ifac_core destroys n */
   /* large composite without small factors */
   return gerepileuptoint(av, mulii(m, ifac_core(n)));
 }
@@ -3803,7 +3805,7 @@ Z_factor_until(GEN n, GEN limit)
     GEN  P2 = coltrunc_init(l2);
     GEN  E2 = coltrunc_init(l2);
     GEN  F2 = mkmat2(P2,E2);
-    part = ifac_start(q, 0);
+    part = ifac_start(icopy(q), 0); /* ifac_next would destroy q */
     for(;;)
     {
       long e;

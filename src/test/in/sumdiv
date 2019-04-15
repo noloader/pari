@@ -60,3 +60,7 @@ divisors([1,2])
 
 \\#1702
 moebius(factor(18))
+
+\\ core would destroy its input
+R = 762104756900678410271641;
+core(R); R

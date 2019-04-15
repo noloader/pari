@@ -116,6 +116,7 @@ BA  91- [a,b]=a could lead to memory corruption
     93- possible SEGV in padicappr [#2133]
     94- zeta(small even integer) was very slow at large accuracy
 BA  95- (f(x, y = 1) = x*y); f'(1) returned 0
+    96- core() could destroy its input, if stored in a GP variable
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
