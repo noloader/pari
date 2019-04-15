@@ -180,7 +180,7 @@ GEN  gen_parapply(GEN worker, GEN D);
 GEN  gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod,
              GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN));
 void gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
-           ulong *p, GEN *pt_H, GEN *pt_mod, GEN crt(GEN, GEN, GEN*),
+           forprime_t *S, GEN *pt_H, GEN *pt_mod, GEN crt(GEN, GEN, GEN*),
            GEN center(GEN, GEN, GEN));
 GEN  direllnf_worker(GEN P, ulong X, GEN E);
 GEN  dirartin_worker(GEN P, ulong X, GEN nf, GEN G, GEN V, GEN aut);

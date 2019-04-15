@@ -905,40 +905,29 @@ FpXM_center(GEN x, GEN p, GEN pov2)
 /*******************************************************************/
 
 static long
-get_nbprimes(ulong bound, ulong *pt_start)
-{
-#ifdef LONG_IS_64BIT
-  ulong pstart = 4611686018427388039UL;
-#else
-  ulong pstart = 1073741827UL;
-#endif
-  if (pt_start) *pt_start = pstart;
-  return (bound/expu(pstart))+1;
-}
+get_nbprimes(ulong bound, ulong p) { return (bound/expu(p))+1; }
 
 static GEN
-primelist(ulong *p, long n, GEN dB)
+primelist(forprime_t *S, long n, GEN dB)
 {
-  ulong u = 0;
+  ulong u = 0, p;
   GEN P = cgetg(n+1, t_VECSMALL);
-  long i;
+  long i = 1;
   if (dB && typ(dB)==t_VECSMALL) { u = uel(dB,1); dB = NULL; }
-  for (i = 1; i <= n; *p = unextprime(*p+1))
-    if ((!dB || umodiu(dB, *p)) && (!u || *p % u == 1)) P[i++] = *p;
+  while (i <= n && (p = u_forprime_next(S)))
+    if ((!dB || umodiu(dB, p)) && (!u || p % u == 1)) P[i++] = p;
   return P;
 }
 
 void
 gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
-           ulong *p, GEN *pt_H, GEN *pt_mod, GEN crt(GEN, GEN, GEN*),
+           forprime_t *S, GEN *pt_H, GEN *pt_mod, GEN crt(GEN, GEN, GEN*),
            GEN center(GEN, GEN, GEN))
 {
   pari_sp av = avma;
-  long m;
+  long m = minss(mmin, n);
   GEN  H, P, mod;
   pari_timer ti;
-  if (!*p) (void) get_nbprimes(1, p);
-  m = minss(mmin, n);
   if (DEBUGLEVEL > 4)
   {
     timer_start(&ti);
@@ -946,7 +935,7 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
   }
   if (m == 1)
   {
-    GEN P = primelist(p, n, dB);
+    GEN P = primelist(S, n, dB);
     GEN done = closure_callgen1(worker, P);
     H = gel(done,1);
     mod = gel(done,2);
@@ -963,7 +952,7 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
     for (i=1; i<=m || pending; i++)
     {
       GEN done;
-      GEN pr = i <= m ? mkvec(primelist(p, i<=r ? s: s-1, dB)): NULL;
+      GEN pr = i <= m ? mkvec(primelist(S, i<=r ? s: s-1, dB)): NULL;
       mt_queue_submit(&pt, i, pr);
       done = mt_queue_get(&pt, NULL, &pending);
       if (done)
@@ -991,13 +980,14 @@ GEN
 gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod,
         GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN))
 {
-  ulong p = 0;
   GEN mod = gen_1, H = NULL;
-  bound++;
+  forprime_t S;
+
+  init_modular_big(&S); bound++;
   while ((ulong)expi(mod) < bound)
   {
-    long n = get_nbprimes(bound-expi(mod), NULL);
-    gen_inccrt(str, worker, dB, n, mmin, &p, &H, &mod, crt, center);
+    long n = get_nbprimes(bound-expi(mod), S.p);
+    gen_inccrt(str, worker, dB, n, mmin, &S, &H, &mod, crt, center);
   }
   if (pt_mod) *pt_mod = mod;
   return H;

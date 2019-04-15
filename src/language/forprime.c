@@ -911,8 +911,22 @@ NEXT_CHUNK:
     if (T->q == 1)
     {
 #ifdef LONG_IS_64BIT
-      if (T->p == HIGHBIT) return T->p = HIGHBIT + 29;
-      if (T->p == HIGHBIT + 29) return T->p = HIGHBIT + 99;
+      switch(T->p)
+      {
+        case HIGHBIT: return T->p = HIGHBIT + 29;
+        case HIGHBIT + 29: return T->p = HIGHBIT + 99;
+        case HIGHBIT + 99: return T->p = HIGHBIT + 123;
+        case HIGHBIT +123: return T->p = HIGHBIT + 131;
+        case HIGHBIT +131: return T->p = HIGHBIT + 155;
+        case HIGHBIT +155: return T->p = HIGHBIT + 255;
+        case HIGHBIT +255: return T->p = HIGHBIT + 269;
+        case HIGHBIT +269: return T->p = HIGHBIT + 359;
+        case HIGHBIT +359: return T->p = HIGHBIT + 435;
+        case HIGHBIT +435: return T->p = HIGHBIT + 449;
+        case HIGHBIT +449: return T->p = HIGHBIT + 453;
+        case HIGHBIT +453: return T->p = HIGHBIT + 485;
+        case HIGHBIT +485: return T->p = HIGHBIT + 491;
+      }
 #endif
       T->p = unextprime(T->p + 1);
     }

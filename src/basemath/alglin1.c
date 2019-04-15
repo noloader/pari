@@ -3081,7 +3081,8 @@ ZM_inv(GEN A, GEN *pden)
   pari_sp av = avma;
   long m = lg(A)-1, n, k1 = 1, k2;
   GEN H = NULL, D, H1 = NULL, mod1 = NULL, worker;
-  ulong bnd, mask, p = 0;
+  ulong bnd, mask;
+  forprime_t S;
   pari_timer ti;
 
   if (m == 0) return ZM_inv0(A,pden);
@@ -3091,10 +3092,11 @@ ZM_inv(GEN A, GEN *pden)
   if (m == 2 && nbrows(A)==2) return ZM_inv2(A,pden);
 
   if (DEBUGLEVEL>=5) timer_start(&ti);
+  init_modular_big(&S);
   bnd = expi(RgM_true_Hadamard(A));
   worker = strtoclosure("_ZM_inv_worker", 1, A);
-  gen_inccrt("ZM_inv_r", worker, NULL, k1, m, &p, &H1, &mod1, nmV_chinese_center, FpM_center);
-  n = (bnd+1)/expu(p)+1;
+  gen_inccrt("ZM_inv_r", worker, NULL, k1, m, &S, &H1, &mod1, nmV_chinese_center, FpM_center);
+  n = (bnd+1)/expu(S.p)+1;
   if (DEBUGLEVEL>=5) timer_printf(&ti,"inv (%ld/%ld primes)", k1, n);
   mask = quadratic_prec_mask(n);
   for (k2 = 0;;)
@@ -3102,7 +3104,7 @@ ZM_inv(GEN A, GEN *pden)
     GEN Hr;
     if (k2 > 0)
     {
-      gen_inccrt("ZM_inv_r", worker, NULL, k2, m, &p, &H1, &mod1,nmV_chinese_center,FpM_center);
+      gen_inccrt("ZM_inv_r", worker, NULL, k2, m, &S, &H1, &mod1,nmV_chinese_center,FpM_center);
       k1 += k2;
       if (DEBUGLEVEL>=5) timer_printf(&ti,"CRT (%ld/%ld primes)", k1, n);
     }
