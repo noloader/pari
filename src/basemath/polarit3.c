@@ -941,8 +941,8 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
   m = minss(mmin, n);
   if (DEBUGLEVEL > 4)
   {
-      timer_start(&ti);
-      err_printf("%s: nb primes: %ld\n",str, n);
+    timer_start(&ti);
+    err_printf("%s: nb primes: %ld\n",str, n);
   }
   if (m == 1)
   {
