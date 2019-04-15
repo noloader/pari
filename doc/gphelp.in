@@ -33,7 +33,7 @@ $datadir= "@datadir@";
 #
 #  -to_pod file		convert file to POD (should be the only args)
 #
-#  -to_dumbpod file	same, but without nested formating
+#  -to_dumb_pod file	same, but without nested formating
 #  -utf8  in detex mode, use UFT-8 encoding for output
 #
 # Granted environment variables (override):
@@ -1125,6 +1125,7 @@ sub TeXprint_topod {
     $acc .= wrap_code($1) if s/\A(?:tabs[^\n]*)?(?![a-zA-Z])[ \t]*\n?(.*?)(\\|@)eprog\s*//s;
   }
   $_ = $acc . basic_subst($_);
+  s/\@[0123]//g;
 
 #  s/\\kbd\{/\{\\tt /g;		# startcode
 #  s/\\typ\{/\{\\tt t_/g;	# startcode
