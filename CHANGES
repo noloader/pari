@@ -163,44 +163,42 @@ BA  18- qfbsolve now returns a vector of solutions.
     27- improve intnumgaussinit (use direct Newton instead of polrootsreal)
     28- improve sumeulerrat / prodeulerrat
     29- factor(x, D), D now encodes the domain over which to factor
-    30- allow strsplit(str) [split into characters]
-    31- allow strjoin(str) [default value for p = ""]
-    32- allow listinsert(L, x, n) for n > #L, like listput
-    33- allow forsquarefree(n = a, b) with a*b < 0
-    34- allow L[a..b] and L[^i] for t_LISTs
-BA  35- gen_factorback: change argument order to match other functions
-    36- polinterpolate(X,Y,t,&e): e is now more precisely defined and the
+    30- allow listinsert(L, x, n) for n > #L, like listput
+    31- allow forsquarefree(n = a, b) with a*b < 0
+    32- allow L[a..b] and L[^i] for t_LISTs
+BA  33- gen_factorback: change argument order to match other functions
+    34- polinterpolate(X,Y,t,&e): e is now more precisely defined and the
         error estimate is given as a binary exponent; compared to the value
         dy returned up to this change, we have e = exponent(dy).
-    37- suminf is now sensitive to bit precision. In library mode, use
+    35- suminf is now sensitive to bit precision. In library mode, use
         suminf_bitprec (precision in bits) rather than the historical suminf
         (precision in words)
-    38- sumdigits(negative number, B) sometimes negative
-    39- RgV_polint: use (asymptotically fast) FpV_polint over Fp
-BA  40- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
-BA  41- # and ## now also display the realtime when nbthreads is not 1
-    42- gp_format_time: remove trailing ".\n" from formatted string
-BA  43- GP: arguments of the parser code W can start with ~ for clarity, e.g.
+    36- sumdigits(negative number, B) sometimes negative
+    37- RgV_polint: use (asymptotically fast) FpV_polint over Fp
+BA  38- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
+BA  39- # and ## now also display the realtime when nbthreads is not 1
+    40- gp_format_time: remove trailing ".\n" from formatted string
+BA  41- GP: arguments of the parser code W can start with ~ for clarity, e.g.
         listput(~L,x), mapput(~M,x)
-BA  44- GP: the argument of a user member function is now a reference
-    45- make ellheight(E, torsion point) return an exact 0 [#2109]
-    46- allow rnfdisc(k, polynomial with non-integral coeffs)
-    47- allow rnfconductor(k, non-monic polynomial)
-    48- poldisc(t_COMPLEX) now raises an exception (used to return -4)
-    49- rnfdisc(nf, [T,B]) allow B a list of primes and maximal ideals
+BA  42- GP: the argument of a user member function is now a reference
+    43- make ellheight(E, torsion point) return an exact 0 [#2109]
+    44- allow rnfdisc(k, polynomial with non-integral coeffs)
+    45- allow rnfconductor(k, non-monic polynomial)
+    46- poldisc(t_COMPLEX) now raises an exception (used to return -4)
+    47- rnfdisc(nf, [T,B]) allow B a list of primes and maximal ideals
         (same for rnfbasis, rnfinit, rnfconductor, rnfpseudobasis)
-    50- ??? include double quotes when needed (e.g. ???conductor) [#2122]
-    51- improved the prime() function
-    52- mpeint1: support all t_REAL x != 0 (was x > 0)
-LGr 53- nffactor now supports rational functions
-    54- improve QM_gauss [treat contents sensibly]
-    55- lngamma and psi near 1: cache values of zeta(odd integers)
-    56- [libpari] nfbasis prototype changed: 3rd argument listP is gone, use
+    48- ??? include double quotes when needed (e.g. ???conductor) [#2122]
+    49- improved the prime() function
+    50- mpeint1: support all t_REAL x != 0 (was x > 0)
+LGr 51- nffactor now supports rational functions
+    52- improve QM_gauss [treat contents sensibly]
+    53- lngamma and psi near 1: cache values of zeta(odd integers)
+    54- [libpari] nfbasis prototype changed: 3rd argument listP is gone, use
         nfbasis(mkvec2(T,listP), &disc). Note that the documentation was
         incorrect: it is not guaranteed that nfbasis([T, listP]) returns the
         maximal order even if listP contains all prime divisors of the field
         discriminant. See ??nfbasis
-    57- nfbasis now accepts an optional argument &dK [order discriminant]
+    55- nfbasis now accepts an optional argument &dK [order discriminant]
 
   Added
      1- [libpari] nonsquare_Fl
