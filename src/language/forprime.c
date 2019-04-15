@@ -788,8 +788,7 @@ void
 init_modular_big(forprime_t *S)
 {
 #ifdef LONG_IS_64BIT
-  ulong a = (1UL<<(BITS_IN_LONG-1))+1;
-  u_forprime_init(S, a, ULONG_MAX);
+  u_forprime_init(S, HIGHBIT + 1, ULONG_MAX);
 #else
   u_forprime_sieve_init(S, &pari_sieve_modular, ULONG_MAX);
 #endif
@@ -912,8 +911,8 @@ NEXT_CHUNK:
     if (T->q == 1)
     {
 #ifdef LONG_IS_64BIT
-      if (T->p == (1UL<<63)) return T->p = 9223372036854775837UL;
-      if (T->p == 9223372036854775837UL) return T->p = 9223372036854775907UL;
+      if (T->p == HIGHBIT) return T->p = HIGHBIT + 29;
+      if (T->p == HIGHBIT + 29) return T->p = HIGHBIT + 99;
 #endif
       T->p = unextprime(T->p + 1);
     }
