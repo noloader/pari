@@ -2546,13 +2546,9 @@ quadnorm(GEN q)
 INLINE GEN
 quad_disc(GEN x)
 {
-  GEN Q = gel(x,1), b = gel(Q,3), c = gel(Q,2), c4;
-  if (is_pm1(b))
-  {
-    pari_sp av = avma; (void)new_chunk(lgefint(c) + 1);
-    c4 = shifti(c,2); set_avma(av); return subsi(1, c4);
-  }
-  c4 = shifti(c,2); togglesign_safe(&c4); return c4;
+  GEN Q = gel(x,1), b = gel(Q,3), c = gel(Q,2), c4 = shifti(c,2);
+  if (is_pm1(b)) return subsi(1, c4);
+  togglesign_safe(&c4); return c4;
 }
 INLINE GEN
 qfb_disc3(GEN x, GEN y, GEN z) { return subii(sqri(y), shifti(mulii(x,z),2)); }

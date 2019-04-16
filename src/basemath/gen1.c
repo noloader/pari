@@ -1879,7 +1879,7 @@ gmul(GEN x, GEN y)
       {
         case t_FRAC: return mulrfrac(x, y);
         case t_COMPLEX: return mulRc(x, y);
-        case t_QUAD: return mulqf(y, x, lg(x));
+        case t_QUAD: return mulqf(y, x, realprec(x));
         default: pari_err_TYPE2("*",x,y);
       }
 
@@ -2548,7 +2548,7 @@ gdiv(GEN x, GEN y)
           av = avma; z = divri(mulri(x,gel(y,2)), gel(y,1));
           return gerepileuptoleaf(av, z);
         case t_COMPLEX: return divRc(x, y);
-        case t_QUAD: return divfq(x, y, lg(x));
+        case t_QUAD: return divfq(x, y, realprec(x));
         default: pari_err_TYPE2("/",x,y);
       }
 
@@ -2677,7 +2677,7 @@ gdiv(GEN x, GEN y)
           gel(z,1) = ZX_copy(gel(x,1));
           gel(z,2) = gdiv(gel(x,2), y);
           gel(z,3) = gdiv(gel(x,3), y); return z;
-        case t_REAL: return divqf(x, y, lg(y));
+        case t_REAL: return divqf(x, y, realprec(y));
         case t_PADIC: return divTp(x, y);
         case t_COMPLEX:
           ly = precision(y); if (!ly) pari_err_OP("/",x,y);
