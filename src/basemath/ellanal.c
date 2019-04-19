@@ -1322,12 +1322,11 @@ ellheegner(GEN E)
 static GEN
 ellisobound(GEN e)
 {
-  GEN v, M = gel(ellisomat(e,0,1),2);
-  long i, j, k, n = lg(M)-1;
-  v = cgetg((n-1)*(n-2) / 2 + 1, t_VEC);
-  for (i = 1, k = 1; i <= n; i++)
-    for (j = i+1; j <= n; j++) gel(v,k++) = gcoeff(M,i,j);
-  return glcm0(v, NULL);
+  GEN M = gel(ellisomat(e,0,1),2), d = gen_1;
+  long i, j, n = lg(M)-1;
+  for (i = 1; i <= n; i++)
+    for (j = 1; j < i; j++) d = lcmii(d, gcoeff(M,i,j));
+  return d;
 }
 
 /* Modular degree of elliptic curve e over Q, assuming Manin constant = 1
