@@ -1864,14 +1864,9 @@ trivial_case(GEN A, GEN B)
 static ulong
 ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
 {
-  pari_sp av = avma;
-  ulong H;
-  long dropa, dropb;
-  ulong dp = dB ? umodiu(dB, p): 1;
-  if (!b) b = Flx_deriv(a, p);
-  dropa = degA - degpol(a);
-  dropb = degB - degpol(b);
-  if (dropa && dropb) return gc_ulong(av,0); /* p | lc(A), p | lc(B) */
+  long dropa = degA - degpol(a), dropb = degB - degpol(b);
+  ulong H, dp;
+  if (dropa && dropb) return 0; /* p | lc(A), p | lc(B) */
   H = Flx_resultant(a, b, p);
   if (dropa)
   { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
@@ -1886,36 +1881,36 @@ ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
     c = Fl_powu(c, dropb, p);
     if (c != 1) H = Fl_mul(H, c, p);
   }
+  dp = dB ? umodiu(dB, p): 1;
   if (dp != 1) H = Fl_mul(H, Fl_powu(Fl_inv(dp,p), degA, p), p);
-  return gc_ulong(av,H);
+  return H;
 }
 
 /* If B=NULL, assume B=A' */
 static GEN
 ZX_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   long degA, degB, i, n = lg(P)-1;
   GEN H, T;
 
   degA = degpol(A);
-  degB = B ? degpol(B): degA - 1;
+  degB = B? degpol(B): degA - 1;
   if (n == 1)
   {
     ulong Hp, p = uel(P,1);
-    GEN a = ZX_to_Flx(A, p), b = B ? ZX_to_Flx(B, p): NULL;
+    GEN a = ZX_to_Flx(A, p), b = B? ZX_to_Flx(B, p): Flx_deriv(a, p);
     Hp = ZX_resultant_prime(a, b, dB, degA, degB, p);
-    set_avma(av);
-    *mod = utoi(p); return utoi(Hp);
+    set_avma(av); *mod = utoipos(p); return utoi(Hp);
   }
   T = ZV_producttree(P);
   A = ZX_nv_mod_tree(A, P, T);
   if (B) B = ZX_nv_mod_tree(B, P, T);
-  H = cgetg(n+1, t_VECSMALL);
-  for(i=1; i <= n; i++)
+  H = cgetg(n+1, t_VECSMALL); av2 = avma;
+  for(i=1; i <= n; i++, set_avma(av2))
   {
     ulong p = P[i];
-    GEN a = gel(A,i), b = B? gel(B,i): NULL;
+    GEN a = gel(A,i), b = B? gel(B,i): Flx_deriv(a, p);
     H[i] = ZX_resultant_prime(a, b, dB, degA, degB, p);
   }
   H = ZV_chinese_tree(H, P, T, ZV_chinesetree(P,T));
