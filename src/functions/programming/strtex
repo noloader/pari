@@ -28,7 +28,7 @@ Doc:
  \item if you enabled bit 4 in \tet{TeXstyle} default, you must define
  \kbd{\bs{}PARIbreak}; see \kbd{??TeXstyle};
 
- \item if you use plain TeX only: you must define \kbd{\bs{}frac}:
+ \item if you use plain TeX only: you must define \kbd{\bs{}frac} as follows
  \bprog
    \def\frac#1#2{{#1\over#2}}
  @eprog
