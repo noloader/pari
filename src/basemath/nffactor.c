@@ -149,6 +149,14 @@ FpX_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
 /*******************************************************************/
 /*              GCD in K[X], K NUMBER FIELD                        */
 /*******************************************************************/
+/* P a non-zero ZXQX */
+static GEN
+lead_simplify(GEN P)
+{
+  GEN x = gel(P, lg(P)-1); /* x a non-zero ZX or t_INT */
+  if (typ(x) == t_POL && !degpol(x)) x = gel(x,2);
+  return is_pm1(x)? NULL: x;
+}
 /* P,Q in Z[X,Y], T in Z[Y] irreducible. compute GCD in Q[Y]/(T)[X].
  *
  * M. Encarnacion "On a modular Algorithm for computing GCDs of polynomials
@@ -177,15 +185,20 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
 
   if (!signe(P)) { if (Pnew) *Pnew = pol_0(vT); return gcopy(Q); }
   if (!signe(Q)) { if (Pnew) *Pnew = pol_1(vT);   return gcopy(P); }
-  /*Compute denominators*/
-  lP = leading_coeff(P);
-  lQ = leading_coeff(Q);
-  if ( !((typ(lP)==t_INT && is_pm1(lP)) || (typ(lQ)==t_INT && is_pm1(lQ))) )
+  /* Compute denominators */
+  if ((lP = lead_simplify(P)) && (lQ = lead_simplify(Q)))
   {
-    lden = gcdii(ZX_resultant(lP, T), ZX_resultant(lQ, T));
-    if (den) den = mulii(den, lden);
+    if (typ(lP) == t_INT && typ(lQ) == t_INT)
+      lden = powiu(gcdii(lP, lQ), dT);
+    else if (typ(lP) == t_INT)
+      lden = gcdii(powiu(lP, dT), ZX_resultant(lQ, T));
+    else if (typ(lQ) == t_INT)
+      lden = gcdii(powiu(lQ, dT), ZX_resultant(lP, T));
+    else
+      lden = gcdii(ZX_resultant(lP, T), ZX_resultant(lQ, T));
+    if (is_pm1(lden)) lden = NULL;
+    den = mul_denom(den, lden);
   }
-
   init_modular_small(&S);
   btop = avma;
   for(;;)
