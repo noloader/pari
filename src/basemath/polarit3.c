@@ -1903,8 +1903,7 @@ ZX_resultant_slice(GEN A, GEN B, GEN dB, GEN P, GEN *mod)
   if (n == 1)
   {
     ulong Hp, p = uel(P,1);
-    GEN a, b;
-    a = ZX_to_Flx(A, p), b = B ? ZX_to_Flx(B, p): NULL;
+    GEN a = ZX_to_Flx(A, p), b = B ? ZX_to_Flx(B, p): NULL;
     Hp = ZX_resultant_prime(a, b, dB, degA, degB, p);
     set_avma(av);
     *mod = utoi(p); return utoi(Hp);
