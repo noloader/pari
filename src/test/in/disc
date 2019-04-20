@@ -42,5 +42,7 @@ poldiscfactors(T)
 
 a=ffgen(3^2,'a);poldisc(x^6+a*x+y)
 
+poldisc(Pol(0))
+
 \\ ERRORS, keep at end of file
 poldisc(x^2/y^2, y)

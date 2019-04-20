@@ -2009,7 +2009,7 @@ ZX_disc_all(GEN x, ulong bound)
   pari_sp av = avma;
   GEN l, R;
   long s, d = degpol(x);
-  if (d <= 1) return d ? gen_1: gen_0;
+  if (d <= 1) return d == 1? gen_1: gen_0;
   s = (d & 2) ? -1: 1;
   l = leading_coeff(x);
   R = ZX_resultant_all(x, NULL, NULL, bound);
