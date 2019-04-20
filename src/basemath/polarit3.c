@@ -1850,17 +1850,6 @@ QXQ_charpoly(GEN A, GEN T, long v)
   return gerepilecopy(av, den ? RgX_rescale(P, ginv(den)): P);
 }
 
-static GEN
-trivial_case(GEN A, GEN B)
-{
-  long d;
-  if (typ(A) == t_INT) return powiu(A, degpol(B));
-  d = degpol(A);
-  if (d == 0) return trivial_case(gel(A,2),B);
-  if (d < 0) return gen_0;
-  return NULL;
-}
-
 static ulong
 ZX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, ulong p)
 {
@@ -1929,6 +1918,14 @@ ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB)
   return V;
 }
 
+static GEN
+trivial_case(GEN A, GEN B)
+{
+  long d = degpol(A);
+  if (d == 0) return powiu(gel(A,2), degpol(B));
+  if (d < 0) return gen_0;
+  return NULL;
+}
 /* Res(A, B/dB), assuming the A,B in Z[X] and result is integer */
 /* if B=NULL, take B = A' */
 GEN
@@ -1946,7 +1943,7 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
   worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
   m = degpol(A)+(B ? degpol(B): 0);
   H = gen_crt("ZX_resultant_all", worker, dB, bound, m, NULL,
-               ZV_chinese_center, Fp_center);
+              ZV_chinese_center, Fp_center);
   return gerepileuptoint(av, H);
 }
 
