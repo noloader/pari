@@ -19,21 +19,21 @@ Doc:
  \misctitle{\TeX-nical notes} The TeX output engine was originally written
  for plain TeX and designed for maximal portability. Unfortunately later
  \kbd{LaTeX} packages have obsoleted valid \TeX\ primitives, leading us
- to replace TeX's \kbd{{\bs}over} by LaTeX's \kbd{{\bs}frac} in PARI's TeX
+ to replace TeX's \kbd{\bs{}over} by LaTeX's \kbd{\bs{}frac} in PARI's TeX
  output. We have decided not to update further our TeX markup and let the
  users of various LaTeX engines customize their preambles. The following
  documents the precise changes you may need to include in your style files to
  incorporate PARI TeX output verbatim:
 
  \item if you enabled bit 4 in \tet{TeXstyle} default, you must define
- \kbd{{\bs}PARIbreak}; see \kbd{??TeXstyle};
+ \kbd{\bs{}PARIbreak}; see \kbd{??TeXstyle};
 
- \item if you use plain TeX only: you must define \kbd{{\bs}frac}:
+ \item if you use plain TeX only: you must define \kbd{\bs{}frac}:
  \bprog
    \def\frac#1#2{{#1\over#2}}
  @eprog
 
- \item if you use LaTeX and \kbd{amsmath}, \kbd{{\bs}pmatrix} is
+ \item if you use LaTeX and \kbd{amsmath}, \kbd{\bs{}pmatrix} is
  obsoleted in favor of the \kbd{pmatrix} environment; see
  \kbd{examples/parigp.sty} for how to re-enable the deprecated construct.
 
