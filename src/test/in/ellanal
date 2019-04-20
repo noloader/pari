@@ -36,3 +36,4 @@ ellmoddegree(ellinit([1,-1,0,0,-5]))
 ellmoddegree(ellinit([1,-1,0,-69,-208]))
 ellmoddegree(ellinit([0, -1, 1, 0, 0]))
 ellmoddegree(ellinit([-4,-3]))
+ellmoddegree(ellinit([1,-1,0,-363204,-84000240])) \\ small E.area

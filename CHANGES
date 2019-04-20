@@ -120,6 +120,7 @@ BA  91- [a,b]=a could lead to memory corruption
 BA  96- (f(x, y = 1) = x*y); f'(1) returned 0
     97- quadgen(2^64+1) * 1. => junk (stack corruption in quad_disc).
     98- ellmoddegree: infinite loop and stack corruption (e.g on 52a2)
+    99- ellmoddegree(ellinit("10890ba6")) -> wrong result
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
