@@ -5227,27 +5227,31 @@ ZM_det_worker(GEN P, GEN A)
   return V;
 }
 
-/* assume dim(a) = n > 0 */
-static GEN
-ZM_det_i(GEN M, long n)
+GEN
+ZM_det(GEN M)
 {
   const long DIXON_THRESHOLD = 40;
-  pari_sp av = avma, av2;
-  long i;
-  ulong p, Dp = 1;
+  pari_sp av, av2;
+  long i, n = lg(M)-1;
+  ulong p, Dp;
   forprime_t S;
   pari_timer ti;
   GEN H, D, mod, h, q, v, worker;
-  if (n == 1) return icopy(gcoeff(M,1,1));
-  if (n == 2) return ZM_det2(M);
-  if (n == 3) return ZM_det3(M);
+
+  switch(n)
+  {
+    case 0: return gen_1;
+    case 1: return icopy(gcoeff(M,1,1));
+    case 2: return ZM_det2(M);
+    case 3: return ZM_det3(M);
+  }
   if (DEBUGLEVEL >=4) timer_start(&ti);
-  h = RgM_Hadamard(M);
+  av = avma; h = RgM_Hadamard(M);
   if (!signe(h)) { set_avma(av); return gen_0; }
-  h = sqrti(h); q = gen_1;
+  h = sqrti(h); q = gen_1; Dp = 1;
   init_modular_big(&S);
   p = 0; /* -Wall */
-  while( cmpii(q, h) <= 0 && (p = u_forprime_next(&S)) )
+  while (cmpii(q, h) <= 0 && (p = u_forprime_next(&S)))
   {
     av2 = avma; Dp = Flm_det_sp(ZM_to_Flm(M, p), p);
     set_avma(av2);
@@ -5359,14 +5363,6 @@ det(GEN a)
   if (pivot != gauss_get_pivot_NZ) return det_simple_gauss(a, data, pivot);
   B = (double)n;
   return det_develop(a, det_init_max(n), B*B*B);
-}
-
-GEN
-ZM_det(GEN a)
-{
-  long n = lg(a)-1;
-  if (!n) return gen_1;
-  return ZM_det_i(a, n);
 }
 
 GEN
