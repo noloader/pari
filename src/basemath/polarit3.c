@@ -903,10 +903,6 @@ FpXM_center(GEN x, GEN p, GEN pov2)
 /*                          GENERIC CRT                            */
 /*                                                                 */
 /*******************************************************************/
-
-static long
-get_nbprimes(ulong bound, ulong p) { return (bound/expu(p))+1; }
-
 static GEN
 primelist(forprime_t *S, long n, GEN dB)
 {
@@ -977,19 +973,20 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
 }
 
 GEN
-gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pt_mod,
+gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pmod,
         GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN))
 {
   GEN mod = gen_1, H = NULL;
   forprime_t S;
+  ulong e;
 
   init_modular_big(&S); bound++;
-  while ((ulong)expi(mod) < bound)
+  while (bound > (e = expi(mod)))
   {
-    long n = get_nbprimes(bound-expi(mod), S.p);
+    long n = (bound - e) / expu(S.p) + 1;
     gen_inccrt(str, worker, dB, n, mmin, &S, &H, &mod, crt, center);
   }
-  if (pt_mod) *pt_mod = mod;
+  if (pmod) *pmod = mod;
   return H;
 }
 
