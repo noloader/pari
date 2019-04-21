@@ -1333,7 +1333,7 @@ ZX_norml1(GEN x)
 ulong
 ZX_ZXY_ResBound(GEN A, GEN B, GEN dB)
 {
-  pari_sp av = avma, av2;
+  pari_sp av = avma;
   GEN a = gen_0, b = gen_0;
   long i , lA = lg(A), lB = lg(B);
   double loga, logb;
@@ -1346,23 +1346,45 @@ ZX_ZXY_ResBound(GEN A, GEN B, GEN dB)
       a = gerepileupto(av, a);
     }
   }
-  a = gerepileuptoint(av, a);
-  av2 = avma;
+  loga = dbllog2(a); set_avma(av);
   for (i=2; i<lB; i++)
   {
     GEN t = gel(B,i);
     if (typ(t) == t_POL) t = ZX_norml1(t);
     b = addii(b, sqri(t));
-    if (gc_needed(av2,1))
+    if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"ZX_ZXY_ResBound i = %ld",i);
-      b = gerepileupto(av2, b);
+      b = gerepileupto(av, b);
     }
   }
-  loga = dbllog2(a);
   logb = dbllog2(b); if (dB) logb -= 2 * dbllog2(dB);
   i = (long)((degpol(B) * loga + degpol(A) * logb) / 2);
   return gc_ulong(av, (i <= 0)? 1: 1 + (ulong)i);
+}
+/* special case B = A' */
+static ulong
+ZX_discbound(GEN A)
+{
+  pari_sp av = avma;
+  GEN a = gen_0, b = gen_0;
+  long i , lA = lg(A), dA = degpol(A);
+  double loga, logb;
+  for (i = 2; i < lA; i++)
+  {
+    GEN c = sqri(gel(A,i));
+    a = addii(a, c);
+    if (i > 2) b = addii(b, mulii(c, sqru(i-2)));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZX_discound i = %ld",i);
+      gerepileall(av, 2, &a, &b);
+    }
+  }
+  loga = dbllog2(a);
+  logb = dbllog2(b); set_avma(av);
+  i = (long)(((dA-1) * loga + dA * logb) / 2);
+  return (i <= 0)? 1: 1 + (ulong)i;
 }
 
 /* return Res(a(Y), b(n,Y)) over Fp. la = leading_coeff(a) [for efficiency] */
@@ -1926,20 +1948,19 @@ trivial_case(GEN A, GEN B)
   if (d < 0) return gen_0;
   return NULL;
 }
-/* Res(A, B/dB), assuming the A,B in Z[X] and result is integer */
-/* if B=NULL, take B = A' */
+/* Compute Res(A, B/dB) in Z, assuming A,B in Z[X], dB in Z or NULL (= 1)
+ * If B=NULL, take B = A' and assume deg A > 1 and 'bound' is set */
 GEN
 ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
 {
   pari_sp av = avma;
   long m;
   GEN  H, worker;
-  int is_disc = !B;
-  if (is_disc) B = ZX_deriv(A);
-  if ((H = trivial_case(A,B)) || (H = trivial_case(B,A))) return H;
-  if (!bound) bound = ZX_ZXY_ResBound(A, B, dB);
-  if (is_disc)
-    B = NULL;
+  if (B)
+  {
+    if ((H = trivial_case(A,B)) || (H = trivial_case(B,A))) return H;
+    if (!bound) bound = ZX_ZXY_ResBound(A, B, dB);
+  }
   worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
   m = degpol(A)+(B ? degpol(B): 0);
   H = gen_crt("ZX_resultant_all", worker, dB, bound, m, NULL,
@@ -2007,11 +2028,13 @@ GEN
 ZX_disc_all(GEN x, ulong bound)
 {
   pari_sp av = avma;
-  GEN l, R;
   long s, d = degpol(x);
+  GEN l, R;
+
   if (d <= 1) return d == 1? gen_1: gen_0;
   s = (d & 2) ? -1: 1;
   l = leading_coeff(x);
+  if (!bound) bound = ZX_discbound(x);
   R = ZX_resultant_all(x, NULL, NULL, bound);
   if (is_pm1(l))
   { if (signe(l) < 0) s = -s; }
