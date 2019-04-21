@@ -917,7 +917,7 @@ primelist(forprime_t *S, long n, GEN dB)
 
 void
 gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
-           forprime_t *S, GEN *pt_H, GEN *pt_mod, GEN crt(GEN, GEN, GEN*),
+           forprime_t *S, GEN *pH, GEN *pmod, GEN crt(GEN, GEN, GEN*),
            GEN center(GEN, GEN, GEN))
 {
   pari_sp av = avma;
@@ -935,7 +935,7 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
     GEN done = closure_callgen1(worker, P);
     H = gel(done,1);
     mod = gel(done,2);
-    if (!*pt_H && center) H = center(H, mod, shifti(mod,-1));
+    if (!*pH && center) H = center(H, mod, shifti(mod,-1));
     if (DEBUGLEVEL>4) timer_printf(&ti,"%s: modular", str);
   }
   else
@@ -965,11 +965,9 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
     H = crt(H, P, &mod);
     if (DEBUGLEVEL>4) timer_printf(&ti,"%s: chinese", str);
   }
-  if (*pt_H)
-    H = crt(mkvec2(*pt_H, H), mkvec2(*pt_mod, mod), &mod);
-  *pt_H = H;
-  *pt_mod = mod;
-  gerepileall(av, 2, pt_H, pt_mod);
+  if (*pH) H = crt(mkvec2(*pH, H), mkvec2(*pmod, mod), &mod);
+  *pH = H; *pmod = mod;
+  gerepileall(av, 2, pH, pmod);
 }
 
 GEN
