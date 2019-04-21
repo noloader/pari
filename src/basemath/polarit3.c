@@ -1377,7 +1377,7 @@ ZX_discbound(GEN A)
     if (i > 2) b = addii(b, mulii(c, sqru(i-2)));
     if (gc_needed(av,1))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"ZX_discound i = %ld",i);
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZX_discbound i = %ld",i);
       gerepileall(av, 2, &a, &b);
     }
   }
