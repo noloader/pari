@@ -1929,9 +1929,9 @@ GEN
 ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB)
 {
   GEN V = cgetg(3, t_VEC);
-  if (isintzero(B)) B = NULL;
-  if (isintzero(dB)) dB = NULL;
-  gel(V,1) = ZX_resultant_slice(A,B,dB,P,&gel(V,2));
+  if (typ(B) == t_INT) B = NULL;
+  if (!signe(dB)) dB = NULL;
+  gel(V,1) = ZX_resultant_slice(A, B, dB, P, &gel(V,2));
   return V;
 }
 
