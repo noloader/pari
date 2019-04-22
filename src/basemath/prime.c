@@ -414,21 +414,13 @@ IsLucasPsP(GEN N)
   return 0;
 }
 
-/* assume u odd, u > 1 */
 static int
-iu_coprime(GEN N, ulong u)
-{
-  const ulong n = umodiu(N, u);
-  return (n == 1 || ugcd(n, u) == 1);
-}
-/* assume u odd, u > 1 */
+uu_coprime(ulong n, ulong u) { return ugcd(n, u) == 1; }
 static int
-uu_coprime(ulong n, ulong u)
-{
-  return ugcd(n, u) == 1;
-}
+iu_coprime(GEN N, ulong u) { return ugcd(u, umodiu(N,u)) == 1; }
 
-/* composite strong 2-pseudoprime < 1016801 whose prime divisors are > 101 */
+/* composite strong 2-pseudoprime < 1016801 whose prime divisors are > 101.
+ * All have a prime divisor <= 661 */
 static int
 is_2_prp_101(ulong n)
 {
@@ -529,14 +521,17 @@ uisprime(ulong n)
 int
 uisprime_101(ulong n)
 {
-  if (n < 10427) return 1;
-  if (n < 1016801) return u_2_prp(n) && !is_2_prp_101(n);
+  if (n < 1016801) return n < 10427? 1: (u_2_prp(n) && !is_2_prp_101(n));
   return uBPSW_psp(n);
 }
 
 /* assume no prime divisor <= 661 */
 int
-uisprime_661(ulong n) { return uBPSW_psp(n); }
+uisprime_661(ulong n)
+{
+  if (n < 1016801) return n < 10427? 1: u_2_prp(n);
+  return uBPSW_psp(n);
+}
 
 long
 BPSW_psp(GEN N)
