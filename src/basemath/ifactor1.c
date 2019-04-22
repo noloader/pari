@@ -42,11 +42,21 @@ static unsigned char prc210_d1[] = {
   2, 6, 6, 4, 2, 4, 6, 2, 6, 4, 2, 4, 2, 10, 2,
 };
 
+static int
+unextprime_overflow(ulong n)
+{
+#ifdef LONG_IS_64BIT
+  return (n > (ulong)-59);
+#else
+  return (n > (ulong)-5);
+#endif
+}
+
 /* return 0 for overflow */
 ulong
 unextprime(ulong n)
 {
-  long rc, rc0, rcd, rcn;
+  long rc, rc0, rcn;
 
   switch(n) {
     case 0: case 1: case 2: return 2;
@@ -54,11 +64,7 @@ unextprime(ulong n)
     case 4: case 5: return 5;
     case 6: case 7: return 7;
   }
-#ifdef LONG_IS_64BIT
-  if (n > (ulong)-59) return 0;
-#else
-  if (n > (ulong)-5) return 0;
-#endif
+  if (unextprime_overflow(n)) return 0;
   /* here n > 7 */
   n |= 1; /* make it odd */
   rc = rc0 = n % 210;
@@ -74,9 +80,8 @@ unextprime(ulong n)
   for(;;)
   {
     if (uisprime(n)) break;
-    rcd = prc210_d1[rcn];
+    n += prc210_d1[rcn];
     if (++rcn > 47) rcn = 0;
-    n += rcd;
   }
   return n;
 }
@@ -84,7 +89,7 @@ unextprime(ulong n)
 GEN
 nextprime(GEN n)
 {
-  long rc, rc0, rcd, rcn;
+  long rc, rc0, rcn;
   pari_sp av = avma;
 
   if (typ(n) != t_INT)
@@ -119,9 +124,8 @@ nextprime(GEN n)
   for(;;)
   {
     if (BPSW_psp(n)) break;
-    rcd = prc210_d1[rcn];
+    n = addui(prc210_d1[rcn], n);
     if (++rcn > 47) rcn = 0;
-    n = addui(rcd, n);
   }
   if (avma == av) return icopy(n);
   return gerepileuptoint(av, n);
@@ -130,7 +134,7 @@ nextprime(GEN n)
 ulong
 uprecprime(ulong n)
 {
-  long rc, rc0, rcd, rcn;
+  long rc, rc0, rcn;
   { /* check if n <= 10 */
     if (n <= 1)  return 0;
     if (n == 2)  return 2;
@@ -154,8 +158,7 @@ uprecprime(ulong n)
   {
     if (uisprime(n)) break;
     if (--rcn < 0) rcn = 47;
-    rcd = prc210_d1[rcn];
-    n -= rcd;
+    n -= prc210_d1[rcn];
   }
   return n;
 }
@@ -163,7 +166,7 @@ uprecprime(ulong n)
 GEN
 precprime(GEN n)
 {
-  long rc, rc0, rcd, rcn;
+  long rc, rc0, rcn;
   pari_sp av = avma;
 
   if (typ(n) != t_INT)
@@ -193,8 +196,7 @@ precprime(GEN n)
   {
     if (BPSW_psp(n)) break;
     if (--rcn < 0) rcn = 47;
-    rcd = prc210_d1[rcn];
-    n = subiu(n, rcd);
+    n = subiu(n, prc210_d1[rcn]);
   }
   if (avma == av) return icopy(n);
   return gerepileuptoint(av, n);
@@ -213,7 +215,6 @@ precprime(GEN n)
 ulong
 snextpr(ulong p, byteptr *d, long *rcn, long *q, long k)
 {
-  ulong n;
   if (**d)
   {
     byteptr dd = *d;
@@ -233,19 +234,15 @@ snextpr(ulong p, byteptr *d, long *rcn, long *q, long k)
     NEXT_PRIME_VIADIFF(p,*d);
     return p;
   }
-  /* we are beyond the diffptr table */
-  /* initialize */
+  if (unextprime_overflow(p)) pari_err_OVERFLOW("snextpr");
+  /* we are beyond the diffptr table, initialize if needed */
   if (*rcn == NPRC) *rcn = prc210_no[(p % 210) >> 1]; /* != NPRC */
   /* look for the next one */
-  n = p + prc210_d1[*rcn];
-  if (++*rcn > 47) *rcn = 0;
-  while (!Fl_MR_Jaeschke(n, k))
-  {
-    n += prc210_d1[*rcn];
-    if (n <= 11) pari_err_OVERFLOW("snextpr");
+  do {
+    p += prc210_d1[*rcn];
     if (++*rcn > 47) { *rcn = 0; if (q) (*q)++; }
-  }
-  return n;
+  } while (!Fl_MR_Jaeschke(p, k));
+  return p;
 }
 
 /********************************************************************/
