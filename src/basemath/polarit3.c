@@ -1935,14 +1935,6 @@ ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB)
   return V;
 }
 
-static GEN
-trivial_case(GEN A, GEN B)
-{
-  long d = degpol(A);
-  if (d == 0) return powiu(gel(A,2), degpol(B));
-  if (d < 0) return gen_0;
-  return NULL;
-}
 /* Compute Res(A, B/dB) in Z, assuming A,B in Z[X], dB in Z or NULL (= 1)
  * If B=NULL, take B = A' and assume deg A > 1 and 'bound' is set */
 GEN
@@ -1953,7 +1945,10 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
   GEN  H, worker;
   if (B)
   {
-    if ((H = trivial_case(A,B)) || (H = trivial_case(B,A))) return H;
+    long a = degpol(A), b = degpol(B);
+    if (a < 0 || b < 0) return gen_0;
+    if (!a) return powiu(gel(A,2), b);
+    if (!b) return powiu(gel(B,2), a);
     if (!bound) bound = ZX_ZXY_ResBound(A, B, dB);
   }
   worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
