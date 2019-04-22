@@ -823,29 +823,24 @@ ECM_loop(struct ECM *E, GEN N, ulong B1)
     p += dp;
     if (rcn == 47)
     { /* wrap mod 210 */
-      if (ecm_elladd(N, &g, nbc,
-            XT+dp*nbc, XH+rcn*nbc2, XH) > 1) return g;
+      if (ecm_elladd(N, &g, nbc, XT+dp*nbc, XH+rcn*nbc2, XH) > 1) return g;
       rcn = 0; continue;
     }
-    if (ecm_elladd(N, &g, nbc,
-          XT+dp*nbc, XH+rcn*nbc2, XH+rcn*nbc2+nbc2) > 1)
+    if (ecm_elladd(N, &g, nbc, XT+dp*nbc, XH+rcn*nbc2, XH+rcn*nbc2+nbc2) > 1)
       return g;
     rcn++;
   }
   if (DEBUGLEVEL >= 7) err_printf("\t(got initial helix)\n");
   /* compute [210]Q etc, needed for the baby step table */
-  if (ellmult(N, &g, nbc, 3, XD + (nbc<<3), X, XAUX) > 1)
-    return g;
-  if (ellmult(N, &g, nbc, 7, X, X, XAUX) > 1)
-    return g; /* [210]Q */
+  if (ellmult(N, &g, nbc, 3, XD + (nbc<<3), X, XAUX) > 1) return g;
+  if (ellmult(N, &g, nbc, 7, X, X, XAUX) > 1) return g; /* [210]Q */
   /* this was the last call to ellmult() in the main loop body; may now
    * overwrite XAUX and slots XD and following */
   if (elldouble(N, &g, nbc, X, XAUX) > 1) return g; /* [420]Q */
   if (ecm_elladd(N, &g, nbc, X, XAUX, XT) > 1) return g;/*[630]Q*/
   if (ecm_elladd(N, &g, nbc, X, XT, XD) > 1) return g;  /*[840]Q*/
   for (i=1; i <= gse; i++)
-    if (elldouble(N, &g, nbc, XT + i*nbc2, XD + i*nbc2) > 1)
-      return g;
+    if (elldouble(N, &g, nbc, XT + i*nbc2, XD + i*nbc2) > 1) return g;
   /* (the last iteration has initialized XG to [210*2^(gse+1)]Q) */
 
   if (DEBUGLEVEL >= 4)
