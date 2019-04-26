@@ -692,7 +692,7 @@ if test -s $f; then
   . $f
 else
   cat >> $file <<EOT
-L0MODS=$kern0/asm0.h $knone/addll.h $knone/mulll.h $knone/bfffo.h $knone/divll.h
+L0MODS=$kern0/asm0.h $knone/addll.h $knone/mulll.h $knone/bfffo.h $knone/divll.h $knone/divll_pre.h
 parilvl0.h: \$(L0MODS)
 	$cfg/genkernel $src $kern0/asm0.h > parilvl0.h
 EOT
