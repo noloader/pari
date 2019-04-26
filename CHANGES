@@ -122,7 +122,6 @@ BA  96- (f(x, y = 1) = x*y); f'(1) returned 0
     98- ellmoddegree: infinite loop and stack corruption (e.g on 52a2)
     99- ellmoddegree(ellinit("10890ba6")) -> wrong result
    100- nfgcd called ZX_resultant(a,T) with typ(a) == t_INT
-   101- poldisc(Pol(0)) -> 1 [instead of 0]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
