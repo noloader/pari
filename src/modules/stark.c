@@ -2148,16 +2148,14 @@ get_i0(long r1, long r2, GEN B, GEN limx)
   }
   return imax & ~1; /* make it even */
 }
-/* assume limx = zeta_get_limx(r1, r2, bit), a t_REAL */
+/* limx = zeta_get_limx(r1, r2, bit), a t_REAL */
 static long
 zeta_get_i0(long r1, long r2, long bit, GEN limx)
 {
   pari_sp av = avma;
   GEN B = gmul(sqrtr( divrr(powrs(mppi(DEFAULTPREC), r2-3), limx) ),
                gmul2n(powuu(5, r1), bit + r2));
-  long i0 = get_i0(r1, r2, B, limx);
-  if (DEBUGLEVEL>1) err_printf("i0 = %ld\n",i0);
-  return gc_long(av, i0);
+  return gc_long(av, get_i0(r1, r2, B, limx));
 }
 
 static void
@@ -2187,6 +2185,7 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
     if (n0 < N0[j]) n0  = N0[j];
   }
   i0 = zeta_get_i0(r1, r2, prec2nbits(prec), limx);
+  if (DEBUGLEVEL>1) err_printf("i0 = %ld\n",i0);
   InitPrimes(bnr, n0, &LIST);
 
   prec2 = precdbl(prec) + EXTRA_PREC;
