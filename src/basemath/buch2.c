@@ -1106,60 +1106,57 @@ log_m1(long r1, long ru, long prec)
 static GEN
 getfu(GEN nf, GEN *ptA, long *pte, long prec)
 {
-  GEN u, y, matep, A, vec, T = nf_get_pol(nf), M = nf_get_M(nf);
-  long e, i, j, R1, RU, N = degpol(T);
+  GEN U, y, matep, A, vm1, T = nf_get_pol(nf), M = nf_get_M(nf);
+  long i, j, R1, RU, N = degpol(T);
 
   if (DEBUGLEVEL) err_printf("\n#### Computing fundamental units\n");
-  R1 = nf_get_r1(nf); RU = (N+R1)>>1;
-  if (RU==1) { *pte=LONG_MAX; return cgetg(1,t_VEC); }
+  R1 = nf_get_r1(nf); RU = (N+R1) >> 1;
+  if (RU == 1) { *pte = LONG_MAX; return cgetg(1,t_VEC); }
 
   *pte = 0; A = *ptA;
   if (lg(A) < RU) return not_given(fupb_PRECI);
   matep = cgetg(RU,t_MAT);
-  for (j=1; j<RU; j++)
+  for (j = 1; j < RU; j++)
   {
     GEN c = cgetg(RU+1,t_COL), Aj = gel(A,j);
     GEN s = gdivgs(RgV_sum(real_i(Aj)), -N); /* -log |norm(Aj)| / N */
     gel(matep,j) = c;
-    for (i=1; i<=R1; i++) gel(c,i) = gadd(s, gel(Aj,i));
-    for (   ; i<=RU; i++) gel(c,i) = gadd(s, gmul2n(gel(Aj,i),-1));
+    for (i = 1; i <= R1; i++) gel(c,i) = gadd(s, gel(Aj,i));
+    for (     ; i <= RU; i++) gel(c,i) = gadd(s, gmul2n(gel(Aj,i),-1));
   }
-  u = lll(real_i(matep));
-  if (lg(u) < RU) return not_given(fupb_PRECI);
+  U = lll(real_i(matep));
+  if (lg(U) < RU) return not_given(fupb_PRECI);
 
-  y = RgM_mul(matep,u);
+  y = RgM_mul(matep,U);
   if (!exp_OK(y, pte))
     return not_given(*pte == LONG_MAX? fupb_LARGE: fupb_PRECI);
   if (prec <= 0) prec = gprecision(A);
   y = RgM_solve_realimag(M, gexp(y,prec));
   if (!y) return not_given(fupb_PRECI);
-  y = grndtoi(y, &e);
-  *pte = -e;
-  if (e >= 0) return not_given(fupb_PRECI);
-  for (j=1; j<RU; j++)
-    if (!is_pm1(nfnorm(nf, gel(y,j)))) { *pte=0; return not_given(fupb_PRECI); }
-  A = RgM_mul(A,u);
-  settyp(y, t_VEC);
-  /* y[i] are unit generators. Normalize: smallest T2 norm + lead coeff > 0 */
-  vec = log_m1(R1,RU,prec);
-  for (j=1; j<RU; j++)
-  {
-    GEN u = gel(y,j), v = zk_inv(nf, u);
-    if (gcmp(RgC_fpnorml2(v,DEFAULTPREC),
-             RgC_fpnorml2(u,DEFAULTPREC)) < 0)
+  y = grndtoi(y, pte); if (*pte >= 0) return not_given(fupb_PRECI);
+
+  *ptA = A = RgM_mul(A, U); settyp(y, t_VEC);
+  vm1 = log_m1(R1, RU, prec);
+  for (j = 1; j < RU; j++)
+  { /* y[i] are hopefully unit generators. Normalize: smallest T2 norm
+     * + lead coeff > 0 */
+    GEN u = gel(y,j), v = zk_inv(nf, u), z;
+    if (gcmp(RgC_fpnorml2(v,DEFAULTPREC), RgC_fpnorml2(u,DEFAULTPREC)) < 0)
     {
       gel(A,j) = RgC_neg(gel(A,j));
       u = v;
     }
-    u = nf_to_scalar_or_alg(nf,u);
-    if (gsigne(leading_coeff(u)) < 0)
+    z = nf_to_scalar_or_alg(nf, u);
+    if (typ(z) != t_POL
+        || !is_pm1(nfnorm(nf, z))) { *pte = 0; return not_given(fupb_PRECI); }
+    if (gsigne(leading_coeff(z)) < 0)
     {
-      gel(A,j) = RgC_add(gel(A,j), vec);
-      u = RgX_neg(u);
+      gel(A,j) = RgC_add(gel(A,j), vm1);
+      z = RgX_neg(z);
     }
-    gel(y,j) = u;
+    gel(y,j) = z;
   }
-  *ptA = A; return y;
+  return y;
 }
 
 static GEN
@@ -4440,8 +4437,8 @@ START:
       if (DEBUGLEVEL) timer_printf(&T, "getfu");
       if (!fu && (flun & nf_FORCE))
       { /* units not found but we want them */
-        if (e > 0) pari_err_OVERFLOW("bnfinit [fundamental units too large]");
-        if (e < 0) precadd = nbits2extraprec( (-e - (BITS_IN_LONG - 1)) + 64);
+        if (e < 0) pari_err_OVERFLOW("bnfinit [fundamental units too large]");
+        if (e > 0) precadd = nbits2extraprec( (e - (BITS_IN_LONG-1)) + 64);
         set_avma(av3); precpb = "getfu"; continue;
       }
     }
