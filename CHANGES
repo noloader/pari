@@ -282,6 +282,7 @@ BA  63- lfun now allows non-integral weights
 OB  64- example/parigp.sty to re-enable PARI's \pmatrix with amsmath [#2110]
 IZ  65- [win32+gp-sta] support for install()
     66- [libpari] setunion_i
+BA  67- [libpari] hash_init, hash_init_ulong
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

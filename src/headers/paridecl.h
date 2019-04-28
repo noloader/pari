@@ -3668,7 +3668,10 @@ hashtable *hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void
 void    hash_dbg(hashtable *h);
 GEN     hash_haskey_GEN(hashtable *h, void *k);
 int     hash_haskey_long(hashtable *h, void *k, long *v);
+void    hash_init(hashtable *h, ulong minsize, ulong (*hash)(void*),
+                                int (*eq)(void*,void*), int use_stack);
 void    hash_init_GEN(hashtable *h, ulong minsize, int (*eq)(GEN,GEN), int use_stack);
+void    hash_init_ulong(hashtable *h, ulong minsize, int use_stack);
 void    hash_insert(hashtable *h, void *k, void *v);
 void    hash_insert_long(hashtable *h, void *k, long v);
 void    hash_insert2(hashtable *h, void *k, void *v, ulong hash);

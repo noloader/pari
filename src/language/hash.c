@@ -79,9 +79,17 @@ hash_create(ulong minsize, ulong (*hash)(void*), int (*eq)(void*,void*),
   h->eq   = eq;
   setlen(h, len); return h;
 }
+static ulong
+hash_id(void *x) { return (ulong)x; }
+static int
+eq_id(void *x, void *y) { return x == y; }
+hashtable *
+hash_create_ulong(ulong s, long stack)
+{ return hash_create(s, &hash_id, &eq_id, stack); }
 
 void
-hash_init_GEN(hashtable *h, ulong minsize, int (*eq)(GEN,GEN), int use_stack)
+hash_init(hashtable *h, ulong minsize, ulong (*hash)(void*),
+                                       int (*eq)(void*,void*), int use_stack)
 {
   int i = get_prime_index(minsize);
   ulong len = hashprimes[i];
@@ -92,10 +100,20 @@ hash_init_GEN(hashtable *h, ulong minsize, int (*eq)(GEN,GEN), int use_stack)
   h->use_stack = use_stack;
   h->pindex = i;
   h->nb = 0;
-  h->hash = (ulong (*)(void*)) hash_GEN;
-  h->eq   = (int (*)(void*,void*)) eq;
+  h->hash = hash;
+  h->eq   = eq;
   setlen(h, len);
 }
+
+void
+hash_init_GEN(hashtable *h, ulong minsize, int (*eq)(GEN,GEN), int use_stack)
+{ hash_init(h, minsize,(ulong (*)(void*)) hash_GEN,
+                       (int (*)(void*,void*)) eq, use_stack);
+}
+
+void
+hash_init_ulong(hashtable *h, ulong minsize, int use_stack)
+{ hash_init(h, minsize,hash_id, eq_id, use_stack); }
 
 void
 hash_insert2(hashtable *h, void *k, void *v, ulong hash)
@@ -262,13 +280,6 @@ hash_destroy(hashtable *h)
   }
   pari_free(h->table); pari_free(h);
 }
-static ulong
-hash_id(void *x) { return (ulong)x; }
-static int
-eq_id(void *x, void *y) { return x == y; }
-hashtable *
-hash_create_ulong(ulong s, long stack)
-{ return hash_create(s, &hash_id, &eq_id, stack); }
 
 static
 int strequal(void *a, void *b) { return !strcmp((char*)a,(char*)b); }

@@ -13807,11 +13807,24 @@ when the keys are \kbd{ulongs} with ordinary equality test.
 when the keys are character strings with string equality test (and
 \tet{hash_str} hash function).
 
+\fun{void}{hash_init}{hashtable *h, ulong size, ulong (*hash)(void*),
+int (*eq)(void*,void*), use_stack}
+Initialize \kbd{h} for an hashtable with enough room to contain
+\kbd{size} entries of type \kbd{void*}. The functions \kbd{eq} test keys for
+equality. If \kbd{use\_stack} is non zero, the resulting table will use the
+PARI stack; otherwise, we use \kbd{malloc}.
+
 \fun{void}{hash_init_GEN}{hashtable *h, ulong size, int (*eq)(GEN,GEN), use_stack}
-Initialize \kbd{h } for an hashtable with enough room to contain
+Initialize \kbd{h} for an hashtable with enough room to contain
 \kbd{size} entries of type \kbd{GEN}. The functions \kbd{eq} test keys for
 equality. If \kbd{use\_stack} is non zero, the resulting table will use the
 PARI stack; otherwise, we use \kbd{malloc}. The hash used is \kbd{hash\_GEN}.
+
+\fun{void}{hash_init_ulong}{hashtable *h, ulong size, use_stack}
+Initialize \kbd{h} for an hashtable with enough room to contain
+\kbd{size} entries of type \kbd{ulong}.
+If \kbd{use\_stack} is non zero, the resulting table will use the
+PARI stack; otherwise, we use \kbd{malloc}.
 
 \fun{void}{hash_insert}{hashtable *h, void *k, void *v} inserts $(k,v)$
 in hashtable $h$. No copy is made: $k$ and $v$ themselves are stored. The
