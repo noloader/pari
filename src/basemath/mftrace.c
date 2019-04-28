@@ -10261,9 +10261,10 @@ mfspace(GEN mf, GEN F)
 static GEN
 lfunfindchi(GEN ldata, GEN van, long prec)
 {
-  GEN gN = ldata_get_conductor(ldata), G = znstar0(gN,1), L, go, vz;
-  long k = gtos(ldata_get_k(ldata)), N = itou(gN), bit = 10 - prec2nbits(prec);
-  long i, j, o, l, odd = k & 1, B0 = 2, B = lg(van)-1;
+  GEN gN = ldata_get_conductor(ldata), gk = ldata_get_k(ldata);
+  GEN G = znstar0(gN,1), L, go, vz;
+  long N = itou(gN), odd = typ(gk) == t_INT && mpodd(gk);
+  long i, j, o, l, B0 = 2, B = lg(van)-1, bit = 10 - prec2nbits(prec);
 
   van = shallowcopy(van);
   L = cyc2elts(znstar_get_conreycyc(G));
@@ -10307,16 +10308,15 @@ mffromlfun(GEN L, long prec)
 {
   pari_sp av = avma;
   GEN ldata = lfunmisc_to_ldata_shallow(L), Vga = ldata_get_gammavec(ldata);
-  GEN van, a0, CHI, NK;
-  long k, N, space;
+  GEN van, a0, CHI, NK, gk = ldata_get_k(ldata);
+  long N, space;
   if (!gequal(Vga, mkvec2(gen_0, gen_1))) pari_err_TYPE("mffromlfun", L);
-  k = gtos(ldata_get_k(ldata));
   N = itou(ldata_get_conductor(ldata));
-  van = ldata_vecan(ldata_get_an(ldata), mfsturmNk(N,k) + 2, prec);
+  van = ldata_vecan(ldata_get_an(ldata), mfsturmNgk(N,gk) + 2, prec);
   CHI = lfunfindchi(ldata, van, prec);
   space = (lg(ldata) == 7)? mf_CUSP: mf_FULL;
   a0 = (space == mf_CUSP)? gen_0: gneg(lfun(L, gen_0, prec2nbits(prec)));
-  NK = mkvec3(utoi(N), utoi(k), mfchisimpl(CHI));
+  NK = mkvec3(utoi(N), gk, mfchisimpl(CHI));
   return gerepilecopy(av, mkvec3(NK, utoi(space), shallowconcat(a0, van)));
 }
 /*******************************************************************/

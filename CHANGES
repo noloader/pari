@@ -203,6 +203,7 @@ LGr 50- nffactor now supports rational functions
         maximal order even if listP contains all prime divisors of the field
         discriminant. See ??nfbasis
     54- nfbasis now accepts an optional argument &dK [order discriminant]
+    55- mffromlfun: support forms of half-integral weight (e.g. from lfunqf)
 
   Added
      1- [libpari] nonsquare_Fl

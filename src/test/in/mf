@@ -581,6 +581,7 @@ mf=mfinit([92,1,-23],1); mfconductor(mf,f)
 mf=mfinit([96,2]); L=mfbasis(mf); mf0=mfinit(mf,0);
 mftobasis(mf0,L[1],1)
 mffromlfun(lfuncreate(x^2+1))
+mffromlfun(lfunqf(matid(3)))
 F=mffromell(ellinit([0,1]))[2]; mfisCM(F)
 mf = mfinit([39,1,-39],0); F=mfeigenbasis(mf)[1]; mfisCM(F)
 
