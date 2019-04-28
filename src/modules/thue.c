@@ -1435,7 +1435,6 @@ test_sol(struct sol_abs *T, long i)
   {
     err_printf("sol = %Ps\n",s);
     if (T->partrel) err_printf("T->partrel = %Ps\n",T->partrel);
-    err_flush();
   }
 }
 /* partrel[i] <-- partrel[i-1] + u[i] * rel[i] */
@@ -1532,8 +1531,7 @@ get_sol_abs(struct sol_abs *T, GEN bnf, GEN fact, GEN *ptPR)
     for (j=2; gcd > 1 && j < lL; j++) gcd = ugcd(gcd, pr_get_f(gel(L,j)));
     if (gcd > 1 && vn % gcd)
     {
-      if (DEBUGLEVEL>2)
-      { err_printf("gcd f_P  does not divide n_p\n"); err_flush(); }
+      if (DEBUGLEVEL>2) err_printf("gcd f_P  does not divide n_p\n");
       return 0;
     }
     v = (i==nP)? 0: nPR + lL;

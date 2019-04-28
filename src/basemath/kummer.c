@@ -1083,7 +1083,7 @@ compute_polrel(GEN nfz, toK_s *T, GEN be, long g, long ell)
     z = downtoK(T, gmulgs(z, ell));
     if (C_Rk) z = gmul(z, C_Rk);
     gerepileall(av, C_Rk? 3: 2, &z, &prim_Rk, &C_Rk);
-    if (DEBUGLEVEL>1) { err_printf("%ld(%ld) ", k, timer_delay(&ti)); err_flush(); }
+    if (DEBUGLEVEL>1) err_printf("%ld(%ld) ", k, timer_delay(&ti));
     gel(S,k) = z;
   }
   if (DEBUGLEVEL>1) err_printf("\n");

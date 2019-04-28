@@ -146,7 +146,7 @@ dbg_cancelrel(long jid, long jdir, GEN col)
 {
   err_printf("relation cancelled: ");
   if (DEBUGLEVEL>3) err_printf("(jid=%ld,jdir=%ld)",jid,jdir);
-  wr_rel(col); err_flush();
+  wr_rel(col);
 }
 
 
@@ -783,7 +783,7 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
     if (!F->KC && p > C1) { F->KCZ = i; F->KC = ip; }
     if (p > C2) break;
 
-    if (DEBUGLEVEL>1) { err_printf(" %ld",p); err_flush(); }
+    if (DEBUGLEVEL>1) err_printf(" %ld",p);
 
     f = gel(pr->dec, 1); nb = gel(pr->dec, 2);
     if (f[1] == N)
@@ -978,7 +978,7 @@ can_factor(FB_t *F, GEN nf, GEN I, GEN m, GEN N, FACT *fact)
     if (ex[i] && !divide_p(F, F->FB[i], ex[i], nf, I, m, fact)) goto END;
   res = is_pm1(N) || divide_p(F, itou(N), 1, nf, I, m, fact);
 END:
-  if (!res && DEBUGLEVEL > 1) { err_printf("."); err_flush(); }
+  if (!res && DEBUGLEVEL > 1) err_printf(".");
   return res;
 }
 
@@ -992,7 +992,7 @@ factorgen(FB_t *F, GEN nf, GEN I, GEN NI, GEN m, FACT *fact)
   N = grndtoi(N, &e);
   if (e > -1)
   {
-    if (DEBUGLEVEL > 1) { err_printf("+"); err_flush(); }
+    if (DEBUGLEVEL > 1) err_printf("+");
     return 0;
   }
   return can_factor(F, nf, I, m, N, fact);
@@ -2525,7 +2525,7 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
   if (DEBUGLEVEL>1)
   {
     if (DEBUGLEVEL>3) err_printf("\n");
-    err_printf("BOUND = %.4g\n",BOUND); err_flush();
+    err_printf("BOUND = %.4g\n",BOUND);
   }
   BOUND *= 1 + 1e-6;
   k = N; fp->y[N] = fp->z[N] = 0; fp->x[N] = 0;
@@ -2592,7 +2592,7 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
       if (nbsmallnorm) (*nbsmallnorm)++;
       Nx = grndtoi(embed_norm(xembed, R1), &e);
       if (e >= 0) {
-        if (DEBUGLEVEL > 1) { err_printf("+"); err_flush(); }
+        if (DEBUGLEVEL > 1) err_printf("+");
         continue;
       }
       if (!can_factor(F, nf, NULL, gx, Nx, fact)) continue;
@@ -3174,7 +3174,7 @@ compute_R(GEN lambda, long RU, GEN z, long bit, GEN *ptL, GEN *ptkR)
   GEN L, H, D, den, R, c;
 
   *ptL = NULL;
-  if (DEBUGLEVEL) { err_printf("\n#### Computing check\n"); err_flush(); }
+  if (DEBUGLEVEL) err_printf("\n#### Computing check\n");
   if (RU == 1) { *ptkR = gen_1; *ptL = lambda; return bad_check(z); }
   D = gmul2n(mpmul(*ptkR,z), 1); /* bound for denom(lambda) */
   if (expo(D) < 0 && rtodbl(D) < 0.95) return fupb_PRECI;

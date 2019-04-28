@@ -3038,7 +3038,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
   av = avma;
   while ((p[2] = u_forprime_next(&S)))
   {
-    if (DEBUGLEVEL>1) { err_printf("%ld ",p[2]); err_flush(); }
+    if (DEBUGLEVEL>1) err_printf("%ld ",p[2]);
     fa = idealprimedec_limit_norm(nf, p, BOUND);
     for (j=1; j<lg(fa); j++)
     {

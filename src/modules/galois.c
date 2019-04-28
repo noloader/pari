@@ -758,8 +758,7 @@ moreprec(buildroot *BR)
 
     if (d < BIGDEFAULTPREC-2) d = BIGDEFAULTPREC-2;
     BR->prmax = maxss(BR->prmax+d, (long)(BR->prmax * 1.2));
-    if (DEBUGLEVEL)
-      { err_printf("$$$$$ New prec = %ld\n",BR->prmax); err_flush(); }
+    if (DEBUGLEVEL) err_printf("$$$$$ New prec = %ld\n",BR->prmax);
     ro = sortroots(QX_complex_roots(BR->p,BR->prmax), gel(BR->r,1));
     delete_roots(BR);
     vectrunc_append(BR->r, gclone(ro));
@@ -833,7 +832,6 @@ dbg_rac(long nri,long nbracint,long numi[],GEN racint[],long multi[])
   for (k = nri+1; k <= nbracint; k++) err_printf(" %ld^%ld", numi[k], multi[k]);
   err_printf("\n");
   for (k = nri+1; k <= nbracint; k++) err_printf("\t%2ld: %Ps\n", numi[k], racint[k]);
-  err_flush();
 }
 
 #define M 2521
@@ -2249,9 +2247,7 @@ static void
 init_isin(long N, long n1, long n2, GROUP *tau, PERM *s0, resolv *R)
 {
   int fl = 1;
-  if (DEBUGLEVEL) {
-    err_printf("\n*** Entering isin_%ld_G_H_(%ld,%ld)\n",N,n1,n2); err_flush();
-  }
+  if (DEBUGLEVEL) err_printf("\n*** Entering isin_%ld_G_H_(%ld,%ld)\n",N,n1,n2);
   switch(N)
   {
     case 8:
@@ -2317,7 +2313,6 @@ isin_G_H(buildroot *BR, long n1, long n2)
     {
       err_printf("\n    Output of isin_%ld_G_H(%ld,%ld): %ld",N,n1,n2,n2);
       err_printf("\n    Reordering of the roots: "); printperm(s0);
-      err_flush();
     }
     for (i = 1; i < l; i++)
     {
@@ -2328,10 +2323,7 @@ isin_G_H(buildroot *BR, long n1, long n2)
     return gc_long(av, n2);
   }
   if (DEBUGLEVEL)
-  {
     err_printf("    Output of isin_%ld_G_H(%ld,%ld): not included.\n",N,n1,n2);
-    err_flush();
-  }
   return gc_long(av, 0);
 }
 
@@ -2375,7 +2367,7 @@ galoisbig(GEN pol, long prec)
   if (DEBUGLEVEL)
   {
     err_printf("Galoisbig: polynomial #1 = %Ps\n", pol);
-    err_printf("%s group\n", EVEN? "EVEN": "ODD"); err_flush();
+    err_printf("%s group\n", EVEN? "EVEN": "ODD");
   }
   switch(N)
   {

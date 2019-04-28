@@ -2156,7 +2156,7 @@ zeta_get_i0(long r1, long r2, long bit, GEN limx)
   GEN B = gmul(sqrtr( divrr(powrs(mppi(DEFAULTPREC), r2-3), limx) ),
                gmul2n(powuu(5, r1), bit + r2));
   long i0 = get_i0(r1, r2, B, limx);
-  if (DEBUGLEVEL>1) { err_printf("i0 = %ld\n",i0); err_flush(); }
+  if (DEBUGLEVEL>1) err_printf("i0 = %ld\n",i0);
   return gc_long(av, i0);
 }
 

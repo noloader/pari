@@ -760,7 +760,6 @@ minimforunits(GEN nf, long BORNE, ulong w)
   {
     err_printf("Searching minimum of T2-form on units:\n");
     if (DEBUGLEVEL>2) err_printf("   BOUND = %ld\n",BORNE);
-    err_flush();
   }
   n = nf_get_degree(nf); r1 = nf_get_r1(nf);
   minim_alloc(n+1, &q, &x, &y, &z, &v);
@@ -799,7 +798,7 @@ minimforunits(GEN nf, long BORNE, ulong w)
     while (k>1);
     if (!x[1] && y[1]<=eps) break;
 
-    if (DEBUGLEVEL>8){ err_printf("."); err_flush(); }
+    if (DEBUGLEVEL>8) err_printf(".");
     if (++cnt == 5000) return -1.; /* too expensive */
 
     p = (double)x[1] + z[1]; norme = y[1] + p*p*v[1];
@@ -812,10 +811,10 @@ minimforunits(GEN nf, long BORNE, ulong w)
         if (typ(t) != t_COL || ZV_isscalar(t)) continue;
       }
       normin = norme*(1-eps);
-      if (DEBUGLEVEL>=2) { err_printf("*"); err_flush(); }
+      if (DEBUGLEVEL>=2) err_printf("*");
     }
   }
-  if (DEBUGLEVEL>=2){ err_printf("\n"); err_flush(); }
+  if (DEBUGLEVEL>=2) err_printf("\n");
   set_avma(av);
   return normin;
 }
@@ -860,10 +859,7 @@ compute_M0(GEN M_star,long N)
         w = gmul2n(subrr(p5,p4),-1);
         M0_pro=gmul2n(mulur(m1,addrr(sqrr(logr_abs(v)),sqrr(logr_abs(w)))), -2);
         if (DEBUGLEVEL>2)
-        {
           err_printf("[ %ld, %ld, %ld ]: %.28Pg\n",n1,n2,n3,M0_pro);
-          err_flush();
-        }
         if (!M0 || gcmp(M0_pro,M0) < 0) M0 = M0_pro;
       }
       else if (n1==n2 || n2==n3)
@@ -896,10 +892,7 @@ compute_M0(GEN M_star,long N)
           p6 = mulur(n2, addrr(sqrr(logr_abs(u)), sqrr(logr_abs(v))));
           M0_pro = gmul2n(addrr(p6, mulur(k, sqrr(logr_abs(w)))),-2);
           if (DEBUGLEVEL>2)
-          {
             err_printf("[ %ld, %ld, %ld ]: %.28Pg\n",n1,n2,n3,M0_pro);
-            err_flush();
-          }
           if (!M0 || gcmp(M0_pro,M0) < 0) M0 = M0_pro;
         }
       }
@@ -954,10 +947,7 @@ compute_M0(GEN M_star,long N)
               M0_pro = gadd(M0_pro, mulur(n3, sqrr(logr_abs(w))));
               M0_pro = gmul2n(M0_pro,-2);
               if (DEBUGLEVEL>2)
-              {
-               err_printf("[ %ld, %ld, %ld ]: %.28Pg\n",n1,n2,n3,M0_pro);
-               err_flush();
-              }
+                err_printf("[ %ld, %ld, %ld ]: %.28Pg\n",n1,n2,n3,M0_pro);
               if (!M0 || gcmp(M0_pro,M0) < 0) M0 = M0_pro;
             }
           }
@@ -995,7 +985,7 @@ lowerboundforregulator(GEN bnf, GEN units)
   if (bound < 0) return NULL;
   if (DEBUGLEVEL>1) err_printf("M* = %Ps\n", dbltor(bound));
   M0 = compute_M0(dbltor(bound), N);
-  if (DEBUGLEVEL>1) { err_printf("M0 = %.28Pg\n",M0); err_flush(); }
+  if (DEBUGLEVEL>1) err_printf("M0 = %.28Pg\n",M0);
   M = gmul2n(divru(gdiv(powrs(M0,RU),hermiteconstant(RU)),N),R2);
   if (cmprr(M, dbltor(0.04)) < 0) return NULL;
   M = sqrtr(M);
@@ -1112,7 +1102,7 @@ check_prime(ulong p, GEN nf, struct check_pr *S)
   }
   for (i=1; i<lf; i++) gel(beta,b++) = gel(S->fu,i);
   setlg(beta, b); /* beta = [cycgen[i] if p|cyc[i], tu if p|w, fu] */
-  if (DEBUGLEVEL>3) {err_printf("     Beta list = %Ps\n",beta); err_flush();}
+  if (DEBUGLEVEL>3) err_printf("     Beta list = %Ps\n",beta);
   primecertify(nf, beta, p, S->bad); set_avma(av);
 }
 
@@ -1167,7 +1157,7 @@ bnfcertify0(GEN bnf, long flag)
   if (DEBUGLEVEL)
   {
     err_printf("PHASE 1 [CLASS GROUP]: are all primes good ?\n");
-    err_printf("  Testing primes <= %Ps\n", B); err_flush();
+    err_printf("  Testing primes <= %Ps\n", B);
   }
   bnftestprimes(bnf, B);
   if (flag) return 1;
@@ -1185,7 +1175,7 @@ bnfcertify0(GEN bnf, long flag)
   if (DEBUGLEVEL)
   {
     err_printf("PHASE 2 [UNITS/RELATIONS]: are all primes good ?\n");
-    err_printf("  Testing primes <= %Ps\n", B); err_flush();
+    err_printf("  Testing primes <= %Ps\n", B);
   }
   bound = itou_or_0(B);
   if (!bound) pari_err_OVERFLOW("bnfcertify [too many primes to check]");
@@ -1195,7 +1185,7 @@ bnfcertify0(GEN bnf, long flag)
   {
     GEN f = Z_factor(gel(cyc,1)), P = gel(f,1);
     long i;
-    if (DEBUGLEVEL>1) { err_printf("  Primes dividing h(K)\n\n"); err_flush(); }
+    if (DEBUGLEVEL>1) err_printf("  Primes dividing h(K)\n\n");
     for (i = lg(P)-1; i; i--)
     {
       p = itou(gel(P,i)); if (p <= bound) break;

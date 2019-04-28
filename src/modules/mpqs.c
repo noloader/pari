@@ -2928,7 +2928,6 @@ mpqs_i(mpqs_handle_t *handle)
       else
         err_printf("\nMPQS: passing the %3.1f%% sort point\n",
                    sort_interval/10.);
-      err_flush();
     }
 
     /* sort LPNEW and merge it into LPREL, diverting combinables into COMB */
