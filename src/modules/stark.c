@@ -2116,7 +2116,6 @@ zeta_get_N0(GEN C,  GEN limx)
   GEN z = gcvtoi(gdiv(C, limx), &e); /* avoid truncation error */
   if (e >= 0 || is_bigint(z))
     pari_err_OVERFLOW("zeta_get_N0 [need too many primes]");
-  if (DEBUGLEVEL>1) err_printf("\ninitzeta: N0 = %Ps\n", z);
   return gc_long(av, itos(z));
 }
 
@@ -2185,7 +2184,7 @@ GetST0(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
     if (n0 < N0[j]) n0  = N0[j];
   }
   i0 = zeta_get_i0(r1, r2, prec2nbits(prec), limx);
-  if (DEBUGLEVEL>1) err_printf("i0 = %ld\n",i0);
+  if (DEBUGLEVEL>1) err_printf("i0 = %ld, N0 = %ld\n",i0, n0);
   InitPrimes(bnr, n0, &LIST);
 
   prec2 = precdbl(prec) + EXTRA_PREC;
