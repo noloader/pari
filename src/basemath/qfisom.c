@@ -1754,13 +1754,15 @@ qfisom(GEN F, GEN FF, GEN flags, GEN G)
 {
   pari_sp av = avma;
   struct fingerprint fp;
-  GEN res;
+  GEN res, detf, detff;
   struct qfauto qf, qff;
   struct qfcand cand;
   long max;
   GEN norm = init_qfisom(F, &fp, &cand, &qf, flags, &max, NULL);
   init_qfauto(FF, NULL, max, &qff, norm, NULL);
-  if (lg(qf.W)!=lg(qff.W)
+  detf = ZM_det(zm_to_ZM(gel(qf.F,1)));
+  detff = ZM_det(zm_to_ZM(gel(qff.F,1)));
+  if (lg(qf.W)!=lg(qff.W) || cmpii(detf,detff)
       || !zvV_equal(vecvecsmall_sort(qf.W), vecvecsmall_sort(qff.W)))
     { set_avma(av); return gen_0; }
   if (!G) G = mkvec(scalar_Flm(-1, qff.dim));
