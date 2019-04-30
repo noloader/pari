@@ -2570,9 +2570,8 @@ ffextend(GEN a, GEN P, long v)
 GEN
 fffrobenius(GEN a, long n)
 {
-  GEN g;
   if (typ(a)!=t_FFELT) pari_err_TYPE("fffrobenius",a);
-  retmkvec2(g=FF_gen(a), FF_Frobenius(g, n));
+  retmkvec2(FF_gen(a), FF_Frobenius(a, n));
 }
 
 GEN

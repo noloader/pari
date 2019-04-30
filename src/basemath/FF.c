@@ -615,21 +615,23 @@ FF_Frobenius(GEN x, long e)
   ulong pp;
   GEN r, T, p, z=_initFF(x,&T,&p,&pp);
   ulong n = umodsu(e, FF_f(x));
+  pari_sp av = avma;
   if (n==0) return gcopy(x);
   switch(x[1])
   {
   case t_FF_FpXQ:
-    r=FpXQ_pow(gel(x,2),p,T,p);
+    r=FpX_Frobenius(T,p);
     if (n>1) r=FpXQ_autpow(r,n,T,p);
     break;
   case t_FF_F2xq:
-    r=F2xq_sqr(gel(x,2),T);
+    r=F2x_Frobenius(T);
     if (n>1) r=F2xq_autpow(r,n,T);
     break;
   default:
-    r=Flxq_powu(gel(x,2),pp,T,pp);
+    r=Flx_Frobenius(T,pp);
     if (n>1) r=Flxq_autpow(r,n,T,pp);
   }
+  r = gerepileupto(av, r);
   return _mkFF(x,z,r);
 }
 
