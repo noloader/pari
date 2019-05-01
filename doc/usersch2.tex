@@ -953,9 +953,35 @@ object into a string.
 
 \subsec{Small vectors (\typ{VECSMALL})}%
 \kbdsidx{t_VECSMALL}
-This is an internal type, used to code in an efficient way vectors containing
-only small integers, such as permutations. Most \kbd{gp} functions will
-refuse to operate on these objects.
+This type codes in an efficient way vectors containing only small integers,
+such as permutations. Most \kbd{gp} functions will refuse to operate on these
+objects, notable exceptions being \kbd{vecsort} and conversion functions
+such as \kbd{VEC}, but you can retrieve entry values and assign to them as
+for ordinary vectors. You can also convert back and forth between
+\typ{VECSMALL} and \typ{VEC} objects using \tet{Vec} and \tet{Vecsmall}.
+\bprog
+? v = Vecsmall([2, 4, 6])
+%1 = Vecsmall([1, 2, 3])
+? v[1]
+%2 = 2
+? v[1] = 3; v
+%3 = Vecsmall([3, 2, 3])
+? v[2..3]
+%4 = Vecsmall([2, 3])
+? v[^2]
+%5 = Vecsmall([3, 3])
+? Vec(v)
+%6 = [3, 2, 3]
+@eprog\noindent
+A \typ{VECMALL} entry is any signed integer $x$ such $|x| < 2^{31}$
+(resp.~$|x| < 2^{63}$) on a 32-bit (resp.~64-bit) architecture. Assigning a
+larger integer to a \typ{VECSMALL} triggers an exception:
+\bprog
+? v[1] = 2^63
+  ***   at top-level: v[1]=2^63
+  ***                 ^----------
+  ***   incorrect type in t_VECSMALL assignment (t_INT).
+@eprog
 
 \subsec{Functions (\typ{CLOSURE})}%
 \kbdsidx{t_CLOSURE}
