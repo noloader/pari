@@ -126,6 +126,7 @@ BA  96- (f(x, y = 1) = x*y); f'(1) returned 0
         (due to fundamental units computed via floating point approximations
         rounding to 1 or -1)
    102- qfisom([16,6;6,10],[4,3;3,10]) was not 0. [#2140]
+   103- mfeval: wrong result when level of form and space didn't match [#2134]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

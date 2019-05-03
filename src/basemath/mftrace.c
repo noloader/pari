@@ -7124,7 +7124,7 @@ static GEN
 mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
 {
   GEN L0, vL, vb, sqN, vczd, vTAU, vs, van, vE;
-  long N = mf_get_N(F), N0, ta, lv, i, prec = nbits2prec(bitprec);
+  long N = MF_get_N(mf), N0, ta, lv, i, prec = nbits2prec(bitprec);
   GEN gN = utoipos(N), gk = mf_get_gk(F), gk1 = gsubgs(gk,1), vgk;
   long flscal = 0;
 
