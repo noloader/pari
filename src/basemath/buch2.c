@@ -4439,7 +4439,10 @@ START:
       if (!fu && (flun & nf_FORCE))
       { /* units not found but we want them */
         if (e == LONG_MAX)
+        {
+          delete_cache(&cache); delete_FB(&F); free_GRHcheck(&GRHcheck);
           pari_err_OVERFLOW("bnfinit [fundamental units too large]");
+        }
         if (e > 0) precadd = nbits2extraprec( (e - (BITS_IN_LONG-1)) + 64);
         set_avma(av3); precpb = "getfu"; continue;
       }
