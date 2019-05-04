@@ -956,7 +956,7 @@ object into a string.
 This type codes in an efficient way vectors containing only small integers,
 such as permutations. Most \kbd{gp} functions will refuse to operate on these
 objects, notable exceptions being \kbd{vecsort} and conversion functions
-such as \kbd{VEC}, but you can retrieve entry values and assign to them as
+such as \kbd{VEC}, but you can retrieve entries and assign to them as
 for ordinary vectors. You can also convert back and forth between
 \typ{VECSMALL} and \typ{VEC} objects using \tet{Vec} and \tet{Vecsmall}.
 \bprog
@@ -973,9 +973,10 @@ for ordinary vectors. You can also convert back and forth between
 ? Vec(v)
 %6 = [3, 2, 3]
 @eprog\noindent
-A \typ{VECMALL} entry is any signed integer $x$ such $|x| < 2^{31}$
-(resp.~$|x| < 2^{63}$) on a 32-bit (resp.~64-bit) architecture. Assigning a
-larger integer to a \typ{VECSMALL} triggers an exception:
+Allowed entries for a \typ{VECMALL} are signed integer $x$ such that $|x| <
+2^{31}$ on a 32-bit architecture, resp.~$|x| < 2^{63}$ on a 64-bit
+architecture Assigning a larger integer to a \typ{VECSMALL} entry triggers an
+exception:
 \bprog
 ? v[1] = 2^63
   ***   at top-level: v[1]=2^63
