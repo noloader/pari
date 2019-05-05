@@ -55,7 +55,8 @@ case "$osname" in
 	# Actually, the build will fail until the switch to -Zomf
 	dlld_ignore=- ;;
   mingw)
-    export_file='$(LIBPARI).def';;
+    export_file='$(LIBPARI).def';
+    export_exe='$(LIBPARI)_exe.def';;
   darwin)
     ld_install_name="-Wl,-install_name -Wl,\"$libdir\"/\$(LIBPARI_DYN)";;
 esac
@@ -220,6 +221,7 @@ DL_DFLT_NAME = $DL_DFLT_NAME
 LD_INSTALL_NAME  = $ld_install_name
 
 EXPORT_FILE   = $export_file
+EXPORT_EXE    = $export_exe
 EXPORT_CREATE = $export_create
 EXPORT_LIB    = $export_lib
 EXPORT_LIB_CREATE = $export_lib_create
@@ -335,9 +337,9 @@ tune-dyn: tune\$(_O) \$(LIBPARI_DYN)
 tune-sta: tune\$(_O) \$(LIBPARI_STA)
 	\$(LD) \$(LDFLAGS) \$(RUNPTH) -o \$@ \$< \$(GMPOBJS) ./\$(LIBPARI_STA) \$(STA_LIBS)
 
-gp-sta$exe_suff: $add_funclist \$(OBJS) \$(OBJSGP)
+gp-sta$exe_suff: $add_funclist \$(OBJS) \$(OBJSGP) \$(EXPORT_EXE)
 	\$(RM) \$@
-	\$(LD) -o \$@ \$(LDFLAGS) \$(OBJS) \$(OBJSGP) \$(RUNPTH) \$(RLLIBS) \$(PLOTLIBS) \$(STA_LIBS)
+	\$(LD) -o \$@ \$(LDFLAGS) \$(OBJS) \$(OBJSGP) \$(RUNPTH) \$(RLLIBS) \$(PLOTLIBS) \$(STA_LIBS) \$(EXPORT_EXE)
 	$postconfig gp-sta$exe_suff
 
 clean_pari_ps::
@@ -607,9 +609,15 @@ EOT
     mingw)
     cat >> $file << EOT
 
+\$(EXPORT_EXE): \$(OBJS)
+	\$(DLLTOOL) --export-all-symbols -k -z \$@.tmp \$(OBJS)
+	echo "NAME \$(LIBPARI)_exe" > \$@ && cat \$@.tmp >> \$@
+	rm \$@.tmp
+
 \$(EXPORT_FILE): \$(OBJS)
 	\$(DLLTOOL) --export-all-symbols -k -z \$@.tmp \$(OBJS)
-	echo "LIBRARY \$(LIBPARI)" > \$@ && cat \$@.tmp >> \$@ && rm \$@.tmp
+	echo "LIBRARY \$(LIBPARI)" > \$@ && cat \$@.tmp >> \$@
+	rm \$@.tmp
 EOT
     ;;
     esac

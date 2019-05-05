@@ -5177,7 +5177,12 @@ static void *
 install0(const char *name, const char *lib)
 {
   HMODULE handle;
-
+  if (lib == pari_library_path)
+  {
+    handle = GetModuleHandleA(NULL);
+    void * fun = (void *) GetProcAddress(handle,name);
+    if (fun) return fun;
+  }
   handle = gp_LoadLibrary(lib);
   if (!handle)
   {
