@@ -3,10 +3,8 @@ Section: programming/specific
 C-Name: localprec
 Prototype: vG
 Help: localprec(p): set the real precision to p in the dynamic scope
- and return p. If p is omitted, return current real precision.
+ and return p.
 Doc: set the real precision to $p$ in the dynamic scope and return $p$.
- (If $p$ is omitted, return the current dynamic precision.)
-
  All computations are performed as if \tet{realprecision} was $p$:
  transcendental constants (e.g.~\kbd{Pi}) and
  conversions from exact to floating point inexact data use $p$ decimal
