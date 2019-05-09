@@ -1812,8 +1812,7 @@ get_image(GEN tau, GEN P, GEN Pmod, GEN p)
   return gc_long(av,0);
 }
 
-static GEN
-galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
+static GEN galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
           const struct galois_analysis *ga);
 static GEN
 galoisgenfixedfield(GEN Tp, GEN Pmod, GEN V, GEN ip, struct galois_borne *gb)
