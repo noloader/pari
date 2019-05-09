@@ -598,6 +598,7 @@ main(int argc, char **argv)
   if (GP_DATA->flags & gpd_TEXMACS) init_texmacs();
 
   timer_start(GP_DATA->T);
+  walltimer_start(GP_DATA->Tw);
   if (!(GP_DATA->flags & gpd_QUIET)) gp_head();
   if (GP_DATA->flags & gpd_TEST) init_test();
   if (s_A.n)
