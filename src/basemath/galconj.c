@@ -1817,13 +1817,11 @@ static GEN galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
 static GEN
 galoisgenfixedfield(GEN Tp, GEN Pmod, GEN V, GEN ip, struct galois_borne *gb)
 {
-  GEN  P, PL, Pden, PM, Pp;
+  GEN  Pden, PM;
   GEN  tau, PG, Pg;
   long g, lP;
-  long x=varn(Tp);
-  P=gel(V,3);
-  PL=gel(V,2);
-  Pp = FpX_red(P,ip);
+  long x = varn(Tp);
+  GEN PL = gel(V,2), P = gel(V,3), Pp = FpX_red(P, ip);
   if (DEBUGLEVEL>=6)
     err_printf("GaloisConj: Fixed field %Ps\n",P);
   if (degpol(P)==2)
@@ -1872,6 +1870,23 @@ galoisgenfixedfield(GEN Tp, GEN Pmod, GEN V, GEN ip, struct galois_borne *gb)
     }
   }
   return mkvec2(PG,Pg);
+}
+
+static GEN
+galoisgenfixedfield0(GEN O, GEN L, GEN sigma, GEN T,
+                     struct galois_frobenius *gf, struct galois_borne *gb)
+{
+  pari_sp btop = avma;
+  GEN p  = utoipos(gf->p);
+  GEN OL = fixedfieldorbits(O,L);
+  GEN V  = fixedfieldsympol(OL, gb->ladicabs, gb->l, p, varn(T));
+  GEN Tp = FpX_red(T,p);
+  GEN Sp = sympol_aut_evalmod(gel(V,1), gf->deg, sigma, Tp, p);
+  GEN Pmod = fixedfieldfactmod(Sp, p, gf->Tmod);
+  GEN PG = galoisgenfixedfield(Tp, Pmod, V, p, gb);
+  if (PG == NULL) return NULL;
+  if (DEBUGLEVEL >= 4) err_printf("GaloisConj: Back to Earth:%Ps\n", PG);
+  return gerepilecopy(btop, PG);
 }
 
 /* Let sigma^m=1, tau*sigma*tau^-1=sigma^s. Return n = sum_{0<=k<e,0} s^k mod m
@@ -1971,8 +1986,8 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
   struct galois_test td;
   struct galois_frobenius gf;
   pari_sp ltop = avma;
-  long p, deg, x, j, n = degpol(T), lP;
-  GEN sigma, Tmod, res, res1, ip, frob, O, PG, PG1, PG2, Pg;
+  long deg, x, j, n = degpol(T), lP;
+  GEN sigma, res, res1, frob, O, PG, PG1, PG2, Pg;
 
   if (!ga->deg) return gen_0;
   x = varn(T);
@@ -1999,28 +2014,14 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
   }
   frob = galoisfindfrobenius(T, L, den, &gf, gb, ga);
   if (!frob) { set_avma(ltop); return gen_0; }
-  p = gf.p; ip = utoipos(p);
-  Tmod = gf.Tmod;
-  O = perm_cycles(frob);
-  deg = lg(gel(O,1))-1;
-  if (DEBUGLEVEL >= 9) err_printf("GaloisConj: Orbit:%Ps\n", O);
+  deg = gf.deg;
   if (deg == n)        /* cyclic */
     return gerepilecopy(ltop, mkvec2(mkvec(frob), mkvecsmall(deg)));
   sigma = permtopol(frob, L, M, den, gb->ladicabs, shifti(gb->ladicabs,-1), x);
+  O = perm_cycles(frob);
   if (DEBUGLEVEL >= 9) err_printf("GaloisConj: Frobenius:%Ps\n", sigma);
-  {
-    pari_sp btop=avma;
-    GEN V, Tp, Sp, Pmod;
-    GEN OL = fixedfieldorbits(O,L);
-    V  = fixedfieldsympol(OL, gb->ladicabs, gb->l, ip, x);
-    Tp = FpX_red(T,ip);
-    Sp = sympol_aut_evalmod(gel(V,1),deg,sigma,Tp,ip);
-    Pmod = fixedfieldfactmod(Sp,ip,Tmod);
-    PG = galoisgenfixedfield(Tp, Pmod, V, ip, gb);
-    if (PG == NULL) { set_avma(ltop); return gen_0; }
-    if (DEBUGLEVEL >= 4) err_printf("GaloisConj: Back to Earth:%Ps\n", PG);
-    PG=gerepilecopy(btop, PG);
-  }
+  PG = galoisgenfixedfield0(O, L, sigma, T, &gf, gb);
+  if (PG == NULL) { set_avma(ltop); return gen_0; }
   inittest(L, M, gb->bornesol, gb->ladicsol, &td);
   PG1 = gmael(PG, 1, 1); lP = lg(PG1);
   PG2 = gmael(PG, 1, 2);
