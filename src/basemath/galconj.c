@@ -1274,7 +1274,7 @@ a4galoisgen(struct galois_test *td)
   }
   if (DEBUGLEVEL >= 1 && hop)
     err_printf("A4GaloisConj: %ld hop over %ld iterations\n", hop, N);
-  if (i == N) { set_avma(ltop); return gen_0; }
+  if (i == N) return gc_NULL(ltop);
   /* N = itos(gdiv(mpfact(n >> 1), mpfact(n >> 2))) >> 1; */
   N = 60;
   if (DEBUGLEVEL >= 4) err_printf("A4GaloisConj: sigma=%Ps \n", pft);
@@ -1334,7 +1334,7 @@ a4galoisgen(struct galois_test *td)
     }
     set_avma(av2);
   }
-  if (i == N) { set_avma(ltop); return gen_0; }
+  if (i == N) return gc_NULL(ltop);
   if (DEBUGLEVEL >= 1 && hop)
     err_printf("A4GaloisConj: %ld hop over %ld iterations\n", hop, N);
   if (DEBUGLEVEL >= 4) err_printf("A4GaloisConj: tau=%Ps \n", pfu);
@@ -1383,7 +1383,7 @@ a4galoisgen(struct galois_test *td)
       hop++; set_avma(av2);
     }
   }
-  set_avma(ltop); return gen_0; /* Fail */
+  return gc_NULL(ltop);
 }
 
 /* S4 */
@@ -1541,7 +1541,7 @@ s4galoisgen(struct galois_lift *gl)
       }
     }
   }
-  set_avma(ltop); return gen_0;
+  return gc_NULL(ltop);
 suites4:
   if (DEBUGLEVEL >= 4) err_printf("S4GaloisConj: sigma=%Ps\n", sigma);
   if (DEBUGLEVEL >= 4) err_printf("S4GaloisConj: pj=%Ps\n", pj);
@@ -1584,7 +1584,7 @@ suites4:
       pj[2] = (-pj[2]) & 3;
     }
   }
-  set_avma(ltop); return gen_0;
+  return gc_NULL(ltop);
 suites4_2:
   set_avma(av);
   {
@@ -1611,7 +1611,7 @@ suites4_2:
       set_avma(av2);
     }
   }
-  if (j == 8) { set_avma(ltop); return gen_0; }
+  if (j == 8) return gc_NULL(ltop);
   for (i = 1; i <= n; i++)
   {
     r1[i] = sigma[tau[i]];
@@ -1855,7 +1855,7 @@ galoisgenfixedfield(GEN Tp, GEN Pmod, GEN V, GEN ip, struct galois_borne *gb)
       PL = FpC_red(PL, Pgb.ladicabs);
     PM = FpV_invVandermonde(PL, Pden, Pgb.ladicabs);
     PG = galoisgen(P, PL, PM, Pden, &Pgb, &Pga);
-    if (PG == gen_0) return NULL;
+    if (!PG) return NULL;
     lP = lg(gel(PG,1));
     mod = Pgb.ladicabs; mod2 = shifti(mod, -1);
     Pg = cgetg(lP, t_VECSMALL);
@@ -1989,7 +1989,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
   long deg, x, j, n = degpol(T), lP;
   GEN sigma, res, res1, frob, O, PG, PG1, PG2, Pg;
 
-  if (!ga->deg) return gen_0;
+  if (!ga->deg) return NULL;
   x = varn(T);
   if (DEBUGLEVEL >= 9) err_printf("GaloisConj: denominator:%Ps\n", den);
   if (n == 12 && ga->ord==3 && !ga->p4)
@@ -1999,7 +1999,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
     inittest(L, M, gb->bornesol, gb->ladicsol, &td);
     PG = a4galoisgen(&td);
     freetest(&td);
-    if (PG != gen_0) return gerepileupto(ltop, PG);
+    if (PG) return gerepileupto(ltop, PG);
     set_avma(av);
   }
   if (n == 24 && ga->ord==3)
@@ -2009,11 +2009,11 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
     if (DEBUGLEVEL >= 4) err_printf("GaloisConj: Testing S4 first\n");
     initlift(T, den, stoi(ga->p4), L, makeLden(L,den,gb), gb, &gl);
     PG = s4galoisgen(&gl);
-    if (PG != gen_0) return gerepileupto(ltop, PG);
+    if (PG) return gerepileupto(ltop, PG);
     set_avma(av);
   }
   frob = galoisfindfrobenius(T, L, den, &gf, gb, ga);
-  if (!frob) { set_avma(ltop); return gen_0; }
+  if (!frob) return gc_NULL(ltop);
   deg = gf.deg;
   if (deg == n)        /* cyclic */
     return gerepilecopy(ltop, mkvec2(mkvec(frob), mkvecsmall(deg)));
@@ -2021,7 +2021,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
   O = perm_cycles(frob);
   if (DEBUGLEVEL >= 9) err_printf("GaloisConj: Frobenius:%Ps\n", sigma);
   PG = galoisgenfixedfield0(O, L, sigma, T, &gf, gb);
-  if (PG == NULL) { set_avma(ltop); return gen_0; }
+  if (PG == NULL) return gc_NULL(ltop);
   inittest(L, M, gb->bornesol, gb->ladicsol, &td);
   PG1 = gmael(PG, 1, 1); lP = lg(PG1);
   PG2 = gmael(PG, 1, 2);
@@ -2033,7 +2033,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, struct galois_borne *gb,
   for (j = 1; j < lP; j++)
   {
     GEN pf = galoisgenliftauto(O, gel(PG1, j), gf.psi[Pg[j]], n, &td);
-    if (!pf) { freetest(&td); set_avma(ltop); return gen_0; }
+    if (!pf) { freetest(&td); return gc_NULL(ltop); }
     gel(res1, j+1) = pf;
   }
   if (DEBUGLEVEL >= 4) err_printf("GaloisConj: Fini!\n");
@@ -2115,7 +2115,7 @@ galoisconj4_main(GEN T, GEN den, long flag)
   else
     G = galoisgen(T, L, M, den, &gb, &ga);
   if (DEBUGLEVEL >= 6) err_printf("GaloisConj: %Ps\n", G);
-  if (G == gen_0) { set_avma(ltop); return gen_0; }
+  if (!G) { set_avma(ltop); return gen_0; }
   if (DEBUGLEVEL >= 1) timer_start(&ti);
   if (flag)
   {
