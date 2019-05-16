@@ -166,7 +166,7 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
   else
   {
     r1 = lfunrtopoles(r1);
-    if (r2) r1 = setunion(r1, lfunrtopoles(r2));
+    if (r2) r1 = setunion_i(r1, lfunrtopoles(r2));
   }
   l = lg(r1); r = cgetg(l, t_VEC);
   for (j = 1; j < l; j++)

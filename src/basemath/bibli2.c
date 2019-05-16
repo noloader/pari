@@ -2014,14 +2014,16 @@ setsearch(GEN T, GEN y, long flag)
 }
 
 GEN
+setunion_i(GEN x, GEN y)
+{ return merge_sort_uniq(x,y, (void*)cmp_universal, cmp_nodata); }
+
+GEN
 setunion(GEN x, GEN y)
 {
   pari_sp av = avma;
-  GEN z;
   if (typ(x) != t_VEC) pari_err_TYPE("setunion",x);
   if (typ(y) != t_VEC) pari_err_TYPE("setunion",y);
-  z = merge_sort_uniq(x,y, (void*)cmp_universal, cmp_nodata);
-  return gerepilecopy(av, z);
+  return gerepilecopy(av, setunion_i(x, y));
 }
 
 GEN

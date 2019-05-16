@@ -11517,6 +11517,13 @@ column.
 \fun{GEN}{merge_sort_uniq}{GEN x,GEN y, void *data, int (*cmp)(void *,GEN,GEN)}
 assuming \kbd{x} and \kbd{y} are sorted vectors, with respect to the \kbd{cmp}
 comparison function, return a sorted concatenation, with duplicates removed.
+Shallow function.
+
+\fun{GEN}{setunion_i}{GEN x,GEN y} shallow version of \kbd{setunion}, a
+simple alias for
+\bprog
+  merge_sort_uniq(x,y, (void*)cmp_universal, cmp_nodata)
+@eprog
 
 \fun{GEN}{merge_factor}{GEN fx, GEN fy, void *data, int (*cmp)(void *,GEN,GEN)}
 let \kbd{fx} and \kbd{fy} be factorization matrices for $X$ and $Y$

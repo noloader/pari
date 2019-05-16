@@ -2544,6 +2544,7 @@ long    setisset(GEN x);
 GEN     setminus(GEN x, GEN y);
 long    setsearch(GEN x, GEN y, long flag);
 GEN     setunion(GEN x, GEN y);
+GEN     setunion_i(GEN x, GEN y);
 GEN     sort(GEN x);
 GEN     sort_factor(GEN y, void *data, int (*cmp)(void*,GEN,GEN));
 GEN     stirling(long n, long m, long flag);
