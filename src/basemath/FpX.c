@@ -739,13 +739,13 @@ FpX_gcd_check(GEN x, GEN y, GEN p)
   b = FpX_red(y, p);
   while (signe(b))
   {
-    GEN g = gcdii(p, leading_coeff(b));
-    if (!equali1(g)) return gerepileuptoint(av,g);
-    c = FpX_rem(a,b,p); a = b; b = c;
+    GEN g;
+    if (!invmod(leading_coeff(b), p, &g)) return gerepileuptoint(av,g);
+    b = FpX_Fp_mul_to_monic(b, g, p);
+    c = FpX_rem(a, b, p); a = b; b = c;
     if (gc_needed(av,1))
     {
-      if (DEBUGMEM>1)
-        pari_warn(warnmem,"FpX_gcd_check (d = %ld)",degpol(b));
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpX_gcd_check (d = %ld)",degpol(b));
       gerepileall(av,2,&a,&b);
     }
   }
