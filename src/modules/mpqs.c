@@ -1685,6 +1685,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel, long rel)
    * about which factors we know to be composite (zero) or believe to be
    * composite (NULL) or suspect to be prime (one), or an exponent (two
    * or some t_INT) if it is a proper power */
+  ei = cgetg(h->size_of_FB + 2, t_VECSMALL);
   av2 = avma;
   if (rank > (long)BITS_IN_LONG - 2)
     res_max = LONG_MAX; /* the common case, unfortunately */
@@ -1694,8 +1695,6 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel, long rel)
   res = cgetg(2*res_size+1, t_VEC);
   for (i=2*res_size; i; i--) res[i] = 0;
   res_next = res_last = 1;
-
-  ei = cgetg(h->size_of_FB + 2, t_VECSMALL);
 
   for (i = 1; i <= H_cols; i++)
   { /* loop over kernel basis */
