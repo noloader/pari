@@ -254,7 +254,7 @@ RgX_to_Flx(GEN x, ulong p)
 GEN
 Rg_to_Flxq(GEN x, GEN T, ulong p)
 {
-  long ta, tx = typ(x), v = T[1];
+  long ta, tx = typ(x), v = get_Flx_var(T);
   GEN a, b;
   if (is_const_t(tx))
   {
@@ -2509,7 +2509,7 @@ Flxq_powu(GEN x, ulong n, GEN T, ulong p)
   GEN y;
   switch(n)
   {
-    case 0: return pol1_Flx(T[1]);
+    case 0: return pol1_Flx(get_Flx_var(T));
     case 1: return Flx_copy(x);
     case 2: return Flxq_sqr(x, T, p);
   }
@@ -3115,7 +3115,7 @@ Flxq_minpoly(GEN x, GEN T, ulong p)
     k1 = usqrt(m);
     tr = Flxq_transmul_init(gel(v_x,k1+1), T, p);
     c = cgetg(m+2,t_VECSMALL);
-    c[1] = T[1];
+    c[1] = vT;
     for (i=0; i<m; i+=k1)
     {
       long mj = minss(m-i, k1);
@@ -4484,9 +4484,9 @@ FlxqX_invBarrett_Newton(GEN S, GEN T, ulong p)
   pari_sp av = avma;
   long nold, lx, lz, lq, l = degpol(S), i, lQ;
   GEN q, y, z, x = cgetg(l+2, t_POL) + 2;
-  long dT = get_Flx_degree(T);
+  long dT = get_Flx_degree(T), vT = get_Flx_var(T);
   ulong mask = quadratic_prec_mask(l-2); /* assume l > 2 */
-  for (i=0;i<l;i++) gel(x,i) = pol0_Flx(T[1]);
+  for (i=0;i<l;i++) gel(x,i) = pol0_Flx(vT);
   q = FlxX_recipspec(S+2,l+1,l+1,dT);
   lQ = lgpol(q); q+=2;
   /* We work on _spec_ FlxX's, all the l[xzq] below are lgpol's */
@@ -4767,7 +4767,7 @@ FlxqX_halfgcd_split(GEN x, GEN y, GEN T, ulong p)
   GEN R, S, V;
   GEN y1, r, q;
   long l = lgpol(x), n = l>>1, k;
-  if (lgpol(y)<=n) return matid2_FlxXM(varn(x),T[1]);
+  if (lgpol(y)<=n) return matid2_FlxXM(varn(x),get_Flx_var(T));
   R = FlxqX_halfgcd(RgX_shift_shallow(x,-n),RgX_shift_shallow(y,-n), T, p);
   V = FlxqXM_FlxqX_mul2(R,x,y, T, p); y1 = gel(V,2);
   if (lgpol(y1)<=n) return gerepilecopy(av, R);
@@ -5536,7 +5536,7 @@ FlxqXQ_minpoly(GEN x, GEN S, GEN T, ulong p)
 GEN
 FlxqXQ_matrix_pow(GEN y, long n, long m, GEN S, GEN T, ulong p)
 {
-  return FlxXV_to_FlxM(FlxqXQ_powers(y,m-1,S,T,p), n, T[1]);
+  return FlxXV_to_FlxM(FlxqXQ_powers(y,m-1,S,T,p), n, get_Flx_var(T));
 }
 
 static GEN
@@ -5559,6 +5559,7 @@ FlxqX_FlxqXQV_eval(GEN Q, GEN x, GEN S, GEN T, ulong p)
 {
   pari_sp btop, av = avma;
   long v = get_FlxqX_var(S), m = get_FlxqX_degree(S);
+  long vT = get_Flx_var(T);
   long i, l = lg(x)-1, lQ = lgpol(Q), n,  d;
   GEN A, B, C, R, g;
   if (lQ == 0) return pol_0(v);
@@ -5572,8 +5573,8 @@ FlxqX_FlxqXQV_eval(GEN Q, GEN x, GEN S, GEN T, ulong p)
     n = l-1;
     d = (lQ+n-1)/n;
   }
-  A = FlxXV_to_FlxM_lg(x, m, n, T[1]);
-  B = FlxX_blocks_FlxM(Q, n, d, T[1]);
+  A = FlxXV_to_FlxM_lg(x, m, n, vT);
+  B = FlxX_blocks_FlxM(Q, n, d, vT);
   C = gerepileupto(av, FlxqM_mul(A, B, T, p));
   g = gel(x, l);
   T = Flx_get_red(T, p);
