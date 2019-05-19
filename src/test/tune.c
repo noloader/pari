@@ -831,7 +831,6 @@ Test(tune_param *param, long linear)
         new_thresh = s.size = bad + 1;
       }
       else s.size = (good+bad)/2;
-      err_printf("bad= %ld good = %ld thresh = %ld linear = %ld\n",bad, good, thresh, linear);
     }
     if (s.size >= param->max_size)
     {
@@ -857,6 +856,7 @@ void error(char **argv) {
   diag("  -t:     verbose output\n");
   diag("  -tt:    very verbose output\n");
   diag("  -ttt:   output everything\n");
+  diag("  -d:     use dichotomic search (faster)\n");
   diag("  -s xxx: set step factor between successive sizes to xxx (default 0.01)\n");
   diag("  -p xxx: set Flx modulus to xxx (default 27449)\n");
   diag("  -u xxx: set speed_unittime to xxx (default 1e-4s)\n");
