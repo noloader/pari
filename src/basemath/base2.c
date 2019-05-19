@@ -105,7 +105,7 @@ set_disc(nfmaxord_t *S)
 static GEN
 poldiscfactors_i(GEN T, GEN dT, long flag)
 {
-  GEN fa = absZ_factor_limit(dT, tridiv_bound(dT));
+  GEN fa = absZ_factor_limit(dT, minuu(tridiv_bound(dT), maxprime()));
   GEN Z, E, P = gel(fa,1), Tp = NULL;
   long i, first = 1, l = lg(P);
   if (l == 1) return fa;
