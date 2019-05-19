@@ -82,20 +82,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define MAX_PE_PAIR 60
 #define DEFAULT_VEC_LEN 17
 
-
-static GEN
-rel_q(GEN c) { return gel(c,1); }
-static GEN
-rel_Y(GEN c) { return gel(c,2); }
-static GEN
-rel_p(GEN c) { return gel(c,3); }
+static GEN rel_q(GEN c) { return gel(c,1); }
+static GEN rel_Y(GEN c) { return gel(c,2); }
+static GEN rel_p(GEN c) { return gel(c,3); }
 
 static void
 frel_add(hashtable *frel, GEN R)
 {
-  ulong hash = hash_GEN(R);
-  if (!hash_search2(frel, (void*)R, hash))
-    hash_insert2(frel, (void*)R, (void*)1, hash);
+  ulong h = hash_GEN(R);
+  if (!hash_search2(frel, (void*)R, h))
+    hash_insert2(frel, (void*)R, (void*)1, h);
 }
 static void
 vec_frel_add(hashtable *frel, GEN V)
@@ -855,13 +851,10 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   return 1;
 }
 
-
-
 /* compute coefficients of the sieving polynomial for self initializing
  * variant. Coefficients A and B are returned and several tables are
- * updated.   */
-/* A and B are kept on the PARI stack in preallocated GENs.  So is C when
- * we're compiled for debugging. */
+ * updated. A and B are kept on the PARI stack in preallocated GENs; so is C
+ * when MPQS_DEBUG */
 static void
 mpqs_self_init(mpqs_handle_t *h)
 {
@@ -1024,14 +1017,10 @@ mpqs_self_init(mpqs_handle_t *h)
   /* p=2 is a special case.  start1[2], start2[2] are never looked at,
    * so don't bother setting them. */
 
-  /* "mpqs_self_init_common()" */
-
   /* now compute zeros of polynomials that have only one zero mod p
      because p divides the coefficient A */
 
-  /* compute coefficient -C */
-  p1 = diviiexact(subii(h->kN, sqri(B)), shifti(A, 2));
-
+  p1 = diviiexact(subii(h->kN, sqri(B)), shifti(A, 2)); /* coefficient -C */
   for (i = 0; i < h->omega_A; i++)
   {
     ulong tmp, s;
@@ -1175,7 +1164,7 @@ split_relp(GEN rel, GEN *pt_relp, GEN *pt_relc)
   long j, l = lg(rel);
   GEN relp = cgetg(l, t_VECSMALL);
   GEN relc = cgetg(l, t_VECSMALL);
-  for(j=1; j<l; j++)
+  for (j=1; j<l; j++)
   {
     relc[j] = rel[j]>>REL_OFFSET;
     relp[j] = rel[j]&REL_MASK;
@@ -1464,7 +1453,7 @@ static void
 rel_to_ei(GEN ei, GEN relp)
 {
   long j, l = lg(relp);
-  for(j=1; j<l; j++)
+  for (j=1; j<l; j++)
   {
     long e = relp[j]>>REL_OFFSET;
     long i = relp[j]&REL_MASK;
@@ -1476,8 +1465,7 @@ static GEN
 combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
 {
   pari_sp av = avma;
-  GEN new_Y, new_Y1;
-  GEN Y1 = rel_Y(rel1), Y2 = rel_Y(rel2);
+  GEN new_Y, new_Y1, Y1 = rel_Y(rel1), Y2 = rel_Y(rel2);
   long l, lei = h->size_of_FB + 1, nb = 0;
   GEN ei, relp, inv_q, q = rel_q(rel1);
 
@@ -1540,7 +1528,7 @@ static GEN
 mpqs_combine_large_primes(mpqs_handle_t *h, hashtable *lprel, GEN LPNEW, hashtable *frel)
 {
   long j, lpnew = lg(LPNEW);
-  for(j = 1; j < lpnew; j++)
+  for (j = 1; j < lpnew; j++)
   {
     GEN rel = gel(LPNEW,j);
     ulong q = itou(rel_q(rel));
@@ -1550,9 +1538,11 @@ mpqs_combine_large_primes(mpqs_handle_t *h, hashtable *lprel, GEN LPNEW, hashtab
     else
     {
       GEN f = combine_large_primes(h, rel, col);
-      if (!f) continue;
-      if (typ(f)==t_INT) return f;
-      else frel_add(frel, f);
+      if (f)
+      {
+        if (typ(f) == t_INT) return f;
+        frel_add(frel, f);
+      }
     }
   }
   return NULL;
@@ -1899,8 +1889,6 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel, long rel)
 /**               MAIN ENTRY POINT AND DRIVER ROUTINE               **/
 /**                                                                 **/
 /*********************************************************************/
-
-
 /* All percentages below are actually fixed-point quantities scaled by 10
  * (value of 1 means 0.1%, 1000 means 100%) */
 
@@ -2031,18 +2019,13 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
   }
 
   if (DEBUGLEVEL >= 5)
-  {
     err_printf("MPQS: sieve threshold = %u\n",
                (unsigned int)handle->sieve_threshold);
-  }
 
   if (DEBUGLEVEL >= 4)
-  {
     err_printf("MPQS: first sorting at %ld%%, then every %3.1f%% / %3.1f%%\n",
                sort_interval/10, followup_sort_interval/10.,
                followup_sort_interval/20.);
-  }
-
 
   /* main loop which
    * - computes polynomials and their zeros (SI)
