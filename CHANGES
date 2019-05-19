@@ -210,6 +210,7 @@ LGr 50- nffactor now supports rational functions
     54- nfbasis now accepts an optional argument &dK [order discriminant]
     55- mffromlfun: support forms of half-integral weight (e.g. from lfunqf)
 BA  56- [libpari] FF_Frobenius: return the image of the standard generator
+    57- faster poldiscfactors()
 
   Added
      1- [libpari] nonsquare_Fl
