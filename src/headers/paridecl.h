@@ -3307,6 +3307,7 @@ GEN     FFX_resultant(GEN Pf, GEN Qf, GEN ff);
 GEN     FFX_roots(GEN f, GEN x);
 GEN     FFX_sqr(GEN Pf, GEN ff);
 GEN     FFXQ_inv(GEN Pf, GEN Qf, GEN ff);
+GEN     FFXQ_minpoly(GEN Pf, GEN Qf, GEN ff);
 GEN     FFXQ_mul(GEN Pf, GEN Qf, GEN Sf, GEN ff);
 GEN     FFXQ_sqr(GEN Pf, GEN Qf, GEN ff);
 GEN     FqX_to_FFX(GEN x, GEN ff);

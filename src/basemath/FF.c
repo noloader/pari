@@ -1839,6 +1839,29 @@ FFXQ_mul(GEN Pf, GEN Qf, GEN Sf, GEN ff)
   return gerepilecopy(av, raw_to_FFX(r, ff));
 }
 
+GEN
+FFXQ_minpoly(GEN Pf, GEN Qf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  GEN Q = FFX_to_raw(Qf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQXQ_minpoly(P, Q, T, p);
+    break;
+  case t_FF_F2xq:
+    r = FlxX_to_F2xX(FlxqXQ_minpoly(F2xX_to_FlxX(P), F2xX_to_FlxX(Q), F2x_to_Flx(T), 2UL));
+    break;
+  default:
+    r = FlxqXQ_minpoly(P, Q, T, pp);
+  }
+  return gerepilecopy(av, raw_to_FFX(r, ff));
+}
+
 long
 FFX_ispower(GEN Pf, long k, GEN ff, GEN *pt_r)
 {
