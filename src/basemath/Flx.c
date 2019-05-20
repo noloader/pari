@@ -4315,12 +4315,12 @@ GEN
 FlxqX_mul(GEN x, GEN y, GEN T, ulong p)
 {
   pari_sp ltop=avma;
-  GEN z,kx,ky;
-  kx= zxX_to_Kronecker(x,get_Flx_mod(T));
-  ky= zxX_to_Kronecker(y,get_Flx_mod(T));
+  GEN z, kx, ky, Tm = get_Flx_mod(T);
+  kx= zxX_to_Kronecker(x, Tm);
+  ky= zxX_to_Kronecker(y, Tm);
   z = Flx_mul(ky, kx, p);
-  z = Kronecker_to_FlxqX(z,T,p);
-  return gerepileupto(ltop,z);
+  z = Kronecker_to_FlxqX(z, T, p);
+  return gerepileupto(ltop, z);
 }
 
 GEN
