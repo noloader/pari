@@ -2004,7 +2004,7 @@ is_kth_power(GEN x, ulong n, GEN *pt)
 
   if (DEBUGLEVEL>4) err_printf("\nOddPwrs: [%lu] passed modular checks\n",n);
   /* go to the horse's mouth... */
-  y = roundr( sqrtnr(itor(x, nbits2prec((expi(x)+16*n)/n)), n) );
+  y = roundr( sqrtnr(itor(x, nbits2prec(expi(x)/n + 16)), n) );
   if (!equalii(powiu(y, n), x)) {
     if (DEBUGLEVEL>4) err_printf("\tBut it wasn't a pure power.\n");
     return gc_ulong(av,0);
