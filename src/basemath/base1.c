@@ -1193,9 +1193,12 @@ nfisincl(GEN fa, GEN fb)
   x = cgetg(lx, t_VEC);
   for (i=1, k=1; i<lx; i++)
   {
-    GEN t = gel(y,i);
+    GEN t = gel(y,i), z;
     if (degpol(t)!=d) continue;
-    gel(x, k++) = partmap_reverse(b, a, t, vb);
+    z = partmap_reverse(b, a, t, vb);
+    if (lb != gen_1) z = RgX_unscale(z, lb);
+    if (la != gen_1) z = RgX_Rg_div(z, la);
+    gel(x, k++) = z;
   }
   if (newvar) (void)delete_var();
   if (k==1) { set_avma(av); return gen_0; }
