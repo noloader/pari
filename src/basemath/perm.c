@@ -341,6 +341,7 @@ vecperm_orbits_i(GEN v, long n)
   GEN cycle = cgetg(n+1, t_VEC), bit = const_vecsmall(n, 0);
   for (k = 1, l = 1; k <= n;)
   {
+    pari_sp ltop = avma;
     long m = 1;
     GEN cy = cgetg(n+1, t_VECSMALL);
     for (  ; bit[mj]; mj++) /*empty*/;
@@ -363,7 +364,8 @@ vecperm_orbits_i(GEN v, long n)
       if (m == mold) break;
       k += m - mold;
     }
-    setlg(cy, m); gel(cycle,l++) = cy;
+    setlg(cy, m);
+    gel(cycle,l++) = gerepileuptoleaf(ltop, cy);
   }
   setlg(cycle, l); return cycle;
 }
