@@ -8862,10 +8862,13 @@ orthogonalization of the basis $(e_i)$ given by the columns of \typ{MAT} $e$.
 Return the $e_i^*$ (as columns of a \typ{MAT}) and set \kbd{*ptB} to the
 vector of squared lengths $|e_i^*|^2$.
 
-\fun{GEN}{RgM_Babai}{GEN M, GEN y} given an LLL-reduced \typ{MAT} $M$ and
-a \typ{COL} $y$ of the same dimension, apply Babai's nearest plane algorithm
-to return an \emph{integral} $x$ such that $y - Mx$ has small $L_2$ norm.
-This yields an approximate solution to the closest vector problem.
+\fun{GEN}{RgM_Babai}{GEN M, GEN y} given a \typ{MAT} $M$ of maximal rank $n$
+and a \typ{COL} $y$ of the same dimension, apply Babai's nearest plane
+algorithm to return an \emph{integral} $x$ such that $y - Mx$ has small $L_2$
+norm. This yields an approximate solution to the closest vector problem: if
+$M$ is LLL-reduced, then
+$$|| y - Mx ||_2 \leq 2 (2/\sqrt{3})^n || y - MX ||_2$$
+for all $X \in \Z^n$.
 
 \subsec{\kbd{ZG}}
 

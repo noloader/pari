@@ -252,8 +252,8 @@ RgM_gram_schmidt(GEN e, GEN *ptB)
   *ptB = B; return f;
 }
 
-/* Assume B an LLL-reduced basis, t a vector. Apply Babai's nearest plane
- * algorithm to (B,t) */
+/* B a Z-basis (which the caller should LLL-reduce for efficiency), t a vector.
+ * Apply Babai's nearest plane algorithm to (B,t) */
 GEN
 RgM_Babai(GEN B, GEN t)
 {
@@ -267,7 +267,7 @@ RgM_Babai(GEN B, GEN t)
     long e;
     c = grndtoi(c,&e);
     if (e >= 0) return NULL;
-    if (signe(c)) b = RgC_sub(b, RgC_Rg_mul(gel(G,j), c));
+    if (signe(c)) b = RgC_sub(b, RgC_Rg_mul(gel(B,j), c));
     gel(C,j) = c;
   }
   return C;
