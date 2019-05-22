@@ -1642,6 +1642,10 @@ raw_to_FFXC(GEN x, GEN ff)
 { pari_APPLY_type(t_COL, raw_to_FFX(gel(x,i), ff)); }
 
 static GEN
+raw_to_FFXM(GEN x, GEN ff)
+{ pari_APPLY_same(raw_to_FFXC(gel(x,i), ff)); }
+
+static GEN
 raw_to_FFX_fact(GEN F, GEN ff)
 {
   GEN y, u, v;
@@ -1804,6 +1808,29 @@ FFX_extgcd(GEN Pf, GEN Qf, GEN ff, GEN *pt_Uf, GEN *pt_Vf)
   if (pt_Uf) *pt_Uf = raw_to_FFX(*pt_Uf, ff);
   if (pt_Vf) *pt_Vf = raw_to_FFX(*pt_Vf, ff);
   return gc_gcdext(av, raw_to_FFX(r, ff), pt_Uf, pt_Vf);
+}
+
+GEN
+FFX_halfgcd(GEN Pf, GEN Qf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  GEN Q = FFX_to_raw(Qf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXQX_halfgcd(P, Q, T, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xqX_halfgcd(P, Q, T);
+    break;
+  default:
+    r = FlxqX_halfgcd(P, Q, T, pp);
+  }
+  return gerepilecopy(av, raw_to_FFXM(r, ff));
 }
 
 GEN
