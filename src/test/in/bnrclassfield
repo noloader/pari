@@ -4,7 +4,7 @@ do(nf,f = 1, H = 0, flag = 0, res = 0) =
 { my(T, K = bnfinit(nf));
   setrand(1); print(count++);
   T = liftpol(bnrclassfield(bnrinit(K,f), H, flag));
-  if (res, T == res, T);
+  if (res && T == res,, T);
 }
 
 do(y^2+6) \\1
