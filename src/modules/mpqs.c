@@ -748,8 +748,7 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
 
   /* XXX also clear the index_j field here? */
   if (h->bin_index == 0)
-  {
-    /* first time here, or after increasing index2_FB, initialize to a pattern
+  { /* first time here, or after increasing index2_FB, initialize to a pattern
      * of omega_A - 1 consecutive right-justified 1 bits.
      * Caller will have ensured that there are enough primes for this in the
      * FB below index2_FB. */
@@ -757,8 +756,7 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
     prev_last_p_idx = 0;
   }
   else
-  {
-    /* clear out the old flags */
+  { /* clear out the old flags */
     for (i = 0; i < omega_A; i++)
       MPQS_FLG(i) &= ~MPQS_FBE_DIVIDES_A;
     prev_last_p_idx = MPQS_I(omega_A-1);
@@ -819,19 +817,14 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   }
   /* Choose the larger prime.  Note we keep index2_FB <= size_of_FB - 3 */
   for (j = h->index2_FB + 1; (p = FB[j].fbe_p) != 0; j++)
-  {
     if (FB[j].fbe_flogp > l2_last_p) break;
-  }
   /* GN 20050724: The following trick avoids generating a relatively large
    * proportion of duplicate relations when the last prime happens to fall
    * into an area where there are large gaps from one FB prime to the next,
    * and would otherwise often be repeated  (so that successive A's would
    * wind up too similar to each other).  While this trick isn't perfect,
    * it seems to get rid of a major part of the potential duplication. */
-  if ((p != 0) && (j == prev_last_p_idx))
-  {
-    j++; p = FB[j].fbe_p;
-  }
+  if (p != 0 && j == prev_last_p_idx) { j++; p = FB[j].fbe_p; }
   MPQS_I(omega_A - 1) = (p == 0 ? /* did we fall off the end of the FB? */
                          h->size_of_FB + 1 : /* then improvise */
                          j);
@@ -841,12 +834,8 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   {
     err_printf("MPQS: chose primes for A");
     for (i = 0; i < omega_A; i++)
-    {
-      err_printf(" FB[%ld]=%ld%s",
-                 (long) MPQS_I(i),
-                 (long) MPQS_AP(i),
+      err_printf(" FB[%ld]=%ld%s", (long) MPQS_I(i), (long) MPQS_AP(i),
                  i < omega_A - 1 ? "," : "\n");
-    }
   }
   return 1;
 }
@@ -1326,18 +1315,9 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
       GEN Qx_div_p;
       pi = relaprimes[pii];
 
-      /* Here, prime factors of k go their separate way.  We could have
-       * introduced another FB entry flag for marking them, but it is easier
-       * to identify them just by their position before index0_FB. */
-      if ((mpqs_int32_t)pi < h->index0_FB) {
-#ifdef MPQS_DEBUG
-        PRINT_IF_VERBOSE("\bk!");
-#endif
-        mpqs_add_factor(relp, &nb, 1, pi);
-        continue;
-      }
-      if (ei == 0) /* p divides A and that was it */
-      {
+      /* p | k (identified by its position before index0_FB)
+       * or p | A (ei = 0) */
+      if ((mpqs_int32_t)pi < h->index0_FB || ei == 0) {
         mpqs_add_factor(relp, &nb, 1, pi);
         continue;
       }
