@@ -2504,7 +2504,9 @@ ldata_vecan(GEN van, long L, long prec)
       break;
     case t_LFUN_ZETA: an = const_vecsmall(L, 1); break;
     case t_LFUN_NF:  an = dirzetak(an, stoi(L)); break;
-    case t_LFUN_ELL: an = ellan(an, L); break;
+    case t_LFUN_ELL:
+      an = (ell_get_type(an) == t_ELL_Q) ? ellanQ_zv(an, L): ellan(an, L);
+      break;
     case t_LFUN_KRONECKER: an = vecan_Kronecker(an, L); break;
     case t_LFUN_CHIZ: an = vecan_chiZ(an, L, prec); break;
     case t_LFUN_CHIGEN: an = vecan_chigen(an, L, prec); break;
