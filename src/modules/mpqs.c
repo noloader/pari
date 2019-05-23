@@ -1896,32 +1896,23 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel, long rel)
  * (SIMPQS).  Returns one of the two factors, or (usually) a vector of factors
  * and exponents and information about which ones are still composite, or NULL
  * when something goes wrong or when we can't seem to make any headway. */
-
-/* TODO: this function to be renamed mpqs_main() with several extra parameters,
- * with mpqs() as a wrapper for the standard case, so we can do partial runs
- * across several machines etc.  (from gp or a dedicated C program). --GN */
-static GEN
-mpqs_i(mpqs_handle_t *handle, GEN N)
+GEN
+mpqs(GEN N)
 {
+  mpqs_handle_t H;
   GEN fact; /* will in the end hold our factor(s) */
   mpqs_int32_t size_of_FB; /* size of the factor base */
   mpqs_FB_entry_t *FB; /* factor base */
-  mpqs_int32_t M;               /* sieve interval size [-M, M] */
 
   /* local loop / auxiliary vars */
   ulong p;
-
-  /* already exists in the handle, keep for convenience */
-  long lp_bound;                /* size limit for large primes */
-  long lp_scale;                /* ...relative to largest FB prime */
-
   /* bookkeeping */
+  long size_N; /* ~ log_10(N) */
   long tc;                      /* # of candidates found in one iteration */
   long tff = 0;                 /* # recently found full rels from sieving */
   long tfc;                     /* # full rels recently combined from LPs */
   double tfc_ratio = 0;         /* recent (tfc + tff) / tff */
   ulong sort_interval;          /* determine when to sort and merge */
-  ulong followup_sort_interval; /* temporary files (scaled percentages) */
   long percentage = 0;          /* scaled by 10, see comment above */
   double net_yield;
   long total_full_relations = 0, total_partial_relations = 0, total_no_cand = 0;
@@ -1939,93 +1930,85 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
     err_printf("MPQS: number to factor N = %Ps\n", N);
   }
 
-  handle->N = N;
-  handle->bin_index = 0;
-  handle->index_i = 0;
-  handle->index_j = 0;
-  handle->index2_moved = 0;
+  H.N = N;
+  H.bin_index = 0;
+  H.index_i = 0;
+  H.index_j = 0;
+  H.index2_moved = 0;
 
-  handle->digit_size_N = decimal_len(N);
-  if (handle->digit_size_N > MPQS_MAX_DIGIT_SIZE_KN)
+  size_N = decimal_len(N);
+  if (size_N > MPQS_MAX_DIGIT_SIZE_KN)
   {
     pari_warn(warner, "MPQS: number too big to be factored with MPQS,\n\tgiving up");
     return NULL;
   }
 
   if (DEBUGLEVEL >= 4)
-    err_printf("MPQS: factoring number of %ld decimal digits\n",
-               handle->digit_size_N);
+    err_printf("MPQS: factoring number of %ld decimal digits\n", size_N);
 
-  p = mpqs_find_k(handle);
+  p = mpqs_find_k(&H);
   if (p) { set_avma(av); return utoipos(p); }
   if (DEBUGLEVEL >= 5) err_printf("MPQS: found multiplier %ld for N\n",
-                                  handle->_k->k);
-  handle->kN = muliu(N, handle->_k->k);
+                                  H._k->k);
+  H.kN = muliu(N, H._k->k);
 
-  if (!mpqs_set_parameters(handle))
+  if (!mpqs_set_parameters(&H))
   {
     pari_warn(warner,
         "MPQS: number too big to be factored with MPQS,\n\tgiving up");
     return NULL;
   }
 
-  size_of_FB = handle->size_of_FB;
-  M = handle->M;
-  sort_interval = handle->first_sort_point;
-  followup_sort_interval = handle->sort_pt_interval;
+  size_of_FB = H.size_of_FB;
+  sort_interval = H.first_sort_point;
 
   if (DEBUGLEVEL >= 5)
     err_printf("MPQS: creating factor base and allocating arrays...\n");
-  FB = mpqs_create_FB(handle, &p);
+  FB = mpqs_create_FB(&H, &p);
   if (p) { set_avma(av); return utoipos(p); }
-  mpqs_sieve_array_ctor(handle);
-  mpqs_poly_ctor(handle);
+  mpqs_sieve_array_ctor(&H);
+  mpqs_poly_ctor(&H);
 
-  lp_bound = handle->largest_FB_p;
-  if (lp_bound > MPQS_LP_BOUND) lp_bound = MPQS_LP_BOUND;
+  H.lp_bound = minss(H.largest_FB_p, MPQS_LP_BOUND);
   /* don't allow large primes to have room for two factors both bigger than
    * what the FB contains (...yet!) */
-  lp_scale = handle->lp_scale;
-  if (lp_scale >= handle->largest_FB_p)
-    lp_scale = handle->largest_FB_p - 1;
-  lp_bound *= lp_scale;
-  handle->lp_bound = lp_bound;
+  H.lp_bound *= minss(H.lp_scale, H.largest_FB_p - 1);
 
-  handle->dkN = gtodouble(handle->kN);
+  H.dkN = gtodouble(H.kN);
   /* compute the threshold and fill in the byte-sized scaled logarithms */
-  mpqs_set_sieve_threshold(handle);
+  mpqs_set_sieve_threshold(&H);
 
-  if (!mpqs_locate_A_range(handle)) return NULL;
+  if (!mpqs_locate_A_range(&H)) return NULL;
 
   if (DEBUGLEVEL >= 4)
   {
-    err_printf("MPQS: sieving interval = [%ld, %ld]\n", -(long)M, (long)M);
+    err_printf("MPQS: sieving interval = [%ld, %ld]\n", -(long)H.M, (long)H.M);
     /* that was a little white lie, we stop one position short at the top */
     err_printf("MPQS: size of factor base = %ld\n",
                (long)size_of_FB);
     err_printf("MPQS: striving for %ld relations\n",
-               (long)handle->target_no_rels);
+               (long)H.target_no_rels);
     err_printf("MPQS: coefficients A will be built from %ld primes each\n",
-               (long)handle->omega_A);
+               (long)H.omega_A);
     err_printf("MPQS: primes for A to be chosen near FB[%ld] = %ld\n",
-               (long)handle->index2_FB,
-               (long)FB[handle->index2_FB].fbe_p);
+               (long)H.index2_FB,
+               (long)FB[H.index2_FB].fbe_p);
     err_printf("MPQS: smallest prime used for sieving FB[%ld] = %ld\n",
-               (long)handle->index1_FB,
-               (long)FB[handle->index1_FB].fbe_p);
+               (long)H.index1_FB,
+               (long)FB[H.index1_FB].fbe_p);
     err_printf("MPQS: largest prime in FB = %ld\n",
-               (long)handle->largest_FB_p);
-    err_printf("MPQS: bound for `large primes' = %ld\n", (long)lp_bound);
+               (long)H.largest_FB_p);
+    err_printf("MPQS: bound for `large primes' = %ld\n", (long)H.lp_bound);
   }
 
   if (DEBUGLEVEL >= 5)
     err_printf("MPQS: sieve threshold = %u\n",
-               (unsigned int)handle->sieve_threshold);
+               (unsigned int)H.sieve_threshold);
 
   if (DEBUGLEVEL >= 4)
     err_printf("MPQS: first sorting at %ld%%, then every %3.1f%% / %3.1f%%\n",
-               sort_interval/10, followup_sort_interval/10.,
-               followup_sort_interval/20.);
+               sort_interval/10, H.sort_pt_interval/10.,
+               H.sort_pt_interval/20.);
 
   /* main loop which
    * - computes polynomials and their zeros (SI)
@@ -2033,21 +2016,21 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
    * - tests candidates of the sieve array */
 
   /* Let (A, B_i) the current pair of coeffs. If i == 0 a new A is generated */
-  handle->index_j = (mpqs_uint32_t)-1;  /* increment below will have it start at 0 */
+  H.index_j = (mpqs_uint32_t)-1;  /* increment below will have it start at 0 */
 
   if (DEBUGLEVEL >= 5) err_printf("MPQS: starting main loop\n");
 
-  hash_init_GEN(&frel, handle->target_no_rels, gequal, 1);
-  hash_init_ulong(&lprel,handle->target_no_rels, 1);
-  vnew = cgetg((long)(sort_interval * (handle->target_no_rels/1000.))+2, t_VEC);
+  hash_init_GEN(&frel, H.target_no_rels, gequal, 1);
+  hash_init_ulong(&lprel,H.target_no_rels, 1);
+  vnew = cgetg((long)(sort_interval * (H.target_no_rels/1000.))+2, t_VEC);
   nvnew = 1;
   for(;;)
   {
     long i, fnb;
     iterations++;
     /* self initialization: compute polynomial and its zeros */
-    mpqs_self_init(handle);
-    if (handle->bin_index == 0)
+    mpqs_self_init(&H);
+    if (H.bin_index == 0)
     { /* have run out of primes for A */
       /* We might change some parameters.  For the moment, simply give up */
       if (DEBUGLEVEL >= 2)
@@ -2055,10 +2038,10 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
       return gc_NULL(av);
     }
 
-    memset((void*)(handle->sieve_array), 0, (M << 1) * sizeof(unsigned char));
-    mpqs_sieve(handle);
+    memset((void*)(H.sieve_array), 0, (H.M << 1) * sizeof(unsigned char));
+    mpqs_sieve(&H);
 
-    tc = mpqs_eval_sieve(handle);
+    tc = mpqs_eval_sieve(&H);
     total_no_cand += tc;
     if (DEBUGLEVEL >= 6)
       err_printf("MPQS: found %lu candidate%s\n", tc, (tc==1? "" : "s"));
@@ -2066,7 +2049,7 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
     if (tc)
     {
       GEN lpnew;
-      long t = mpqs_eval_cand(handle, tc, &fnew, &lpnew);
+      long t = mpqs_eval_cand(&H, tc, &fnew, &lpnew);
       total_full_relations += t;
       tff += t;
       good_iterations++;
@@ -2075,7 +2058,7 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
     }
 
     percentage =
-      (long)((1000.0 * total_full_relations) / handle->target_no_rels);
+      (long)((1000.0 * total_full_relations) / H.target_no_rels);
 
     if ((ulong)percentage < sort_interval) continue;
     /* most main loops continue here! */
@@ -2097,7 +2080,7 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
     fnb = frel.nb;
     for (i=1; i<nvnew; i++)
     {
-      GEN fact = mpqs_combine_large_primes(handle, &lprel, gel(vnew,i) , &frel);
+      GEN fact = mpqs_combine_large_primes(&H, &lprel, gel(vnew,i) , &frel);
       if (fact)
       { /* factor found during combining */
         if (DEBUGLEVEL >= 4)
@@ -2122,7 +2105,7 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
      * this point.  Looks funny in the diagnostics but is nothing to worry
      * about: we _are_ making progress. */
     percentage =
-      (long)((1000.0 * total_full_relations) / handle->target_no_rels);
+      (long)((1000.0 * total_full_relations) / H.target_no_rels);
     net_yield =
       (total_full_relations * 100.) / (total_no_cand ? total_no_cand : 1);
     vain_iterations =
@@ -2148,7 +2131,7 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
     {
       if (tfc_ratio > 1.)
       {
-        if (percentage + (followup_sort_interval >> 1) * tfc_ratio > 994)
+        if (percentage + (H.sort_pt_interval>> 1) * tfc_ratio > 994)
         {
           /* aim for a _slight_ overshoot */
           sort_interval = (ulong)(percentage + 2 +
@@ -2157,20 +2140,20 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
         else if (percentage >= 980)
           sort_interval = percentage + 8;
         else
-          sort_interval = percentage + (followup_sort_interval >> 1);
+          sort_interval = percentage + (H.sort_pt_interval >> 1);
       }
       else
       {
         if (percentage >= 980)
           sort_interval = percentage + 10;
         else
-          sort_interval = percentage + (followup_sort_interval >> 1);
+          sort_interval = percentage + (H.sort_pt_interval >> 1);
         if (sort_interval >= 1000 && percentage < 1000)
           sort_interval = 1000;
       }
     }
     else
-      sort_interval = percentage + followup_sort_interval;
+      sort_interval = percentage + H.sort_pt_interval;
 
     if (DEBUGLEVEL >= 4)
     {
@@ -2184,9 +2167,9 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
          * dups, so don't lie about it... */
         err_printf("MPQS: found %ld full relations\n",
                    total_full_relations);
-        if (lp_scale > 1)
-        err_printf("MPQS:   (%ld of these from partial relations)\n",
-                   total_partial_relations);
+        if (H.lp_scale > 1)
+          err_printf("MPQS:   (%ld of these from partial relations)\n",
+                     total_partial_relations);
         err_printf("MPQS: Net yield: %4.3g full relations per 100 candidates\n",
                    net_yield);
         err_printf("MPQS:            %4.3g full relations per 100 polynomials\n",
@@ -2207,7 +2190,7 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
                  total_full_relations);
-    fact = mpqs_solve_linear_system(handle, hash_keys(&frel), total_full_relations);
+    fact = mpqs_solve_linear_system(&H, hash_keys(&frel), total_full_relations);
 
     if (fact)
     { /* solution found */
@@ -2255,11 +2238,4 @@ mpqs_i(mpqs_handle_t *handle, GEN N)
         return gc_NULL(av);
     }
   } /* main loop */
-}
-
-GEN
-mpqs(GEN N)
-{
-  mpqs_handle_t handle;
-  return mpqs_i(&handle, N);
 }

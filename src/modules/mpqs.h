@@ -282,7 +282,6 @@ typedef struct mpqs_handle {
 
   /* FIXME: lp_bound might have to be mpqs_int64_t ? or mpqs_invp_t ? */
   long lp_bound;                /* cutoff for Large Primes */
-  long digit_size_N;
   long digit_size_kN;
   const mpqs_multiplier_t *_k;  /* multiplier k and attached quantities */
   double tolerance;             /* controls the tightness of the sieve */
