@@ -145,6 +145,7 @@ GEN     F2xX_add(GEN x, GEN y);
 GEN     F2xX_deriv(GEN z);
 GEN     F2xX_renormalize(GEN /*in place*/ x, long lx);
 GEN     F2xX_to_Kronecker(GEN P, long d);
+GEN     F2xX_to_FlxX(GEN B);
 GEN     F2xX_to_ZXX(GEN B);
 GEN     F2xXC_to_ZXXC(GEN B);
 GEN     F2xY_F2xq_evalx(GEN P, GEN x, GEN T);

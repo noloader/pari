@@ -1668,6 +1668,16 @@ ZXX_to_F2xX(GEN B, long v)
 }
 
 GEN
+F2xX_to_FlxX(GEN B)
+{
+  long i, lb = lg(B);
+  GEN b = cgetg(lb,t_POL);
+  for (i=2; i<lb; i++)
+    gel(b,i) = F2x_to_Flx(gel(B,i));
+  b[1] = B[1]; return b;
+}
+
+GEN
 F2xX_to_ZXX(GEN B)
 {
   long i, lb = lg(B);
