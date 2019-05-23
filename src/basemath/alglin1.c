@@ -2861,7 +2861,7 @@ ZM_gauss(GEN a, GEN b0)
     GEN ni = gnorml2(gel(b, i));
     if (cmpii(nb, ni) < 0) nb = ni;
   }
-  if (!signe(nb)) { set_avma(av); return gcopy(b0); }
+  if (!signe(nb)) { set_avma(av); return zerocol(n); }
   delta = gen_1; nmin = nb;
   for (i = 1; i <= n; i++)
   {
