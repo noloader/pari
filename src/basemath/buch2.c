@@ -4323,11 +4323,10 @@ START:
         continue;
       }
       need = F.KC - (lg(W)-1) - (lg(B)-1);
-      /* FIXME: replace by err(e_BUG,"") */
       if (!need && cache.missing)
-      { /* The test above will never be true except if 27449|class number,
-         * but the code implicitely assumes that if we have maximal rank
-         * for the ideal lattice, then cache.missing == 0. */
+      { /* The test above will never be true except if 27449|class number.
+         * Ensure that if we have maximal rank for the ideal lattice, then
+         * cache.missing == 0. */
         for (i = 1; cache.missing; i++)
           if (!mael(cache.basis, i, i))
           {
