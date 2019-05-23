@@ -289,9 +289,6 @@ typedef struct mpqs_handle {
   double l2sqrtkN;              /* ~log2(sqrt(kN)) */
   double l2M;                   /* ~log2(M) (cf. below) */
   /* TODO: need an index2_FB here to remember where to start picking primes */
-
-  /* Put statistics here ? Currently keep them as local variables in mpqs() */
-
   /* bookkeeping pointers to containers of aligned memory chunks: */
   void *FB_chunk;               /* (unaligned) chunk containing the FB */
   void *invAH_chunk;            /* (unaligned) chunk for self-init array */
@@ -373,10 +370,6 @@ static const mpqs_parameterset_t mpqs_parameters[] =
   { /*32*/ 1.36,  1,   7200,   375,  5,  13, 20, 10},
   { /*33*/ 1.40,  1,   7400,   400,  5,  13, 20, 10},
   { /*34*/ 1.43,  1,   7600,   425,  5,  17, 20, 10},
-  /* around here, sieving takes long enough to make it worthwhile recording
-   * LP relations into their separate output files, although they tend not
-   * yet to contribute a lot to the full relations until we get up to around
-   * 47 digits or so. */
   { /*35*/ 1.48, 30,   7800,   550,  5,  17, 20, 10},
   { /*36*/ 1.53, 45,   8100,   650,  5,  17, 20, 10},
   { /*37*/ 1.60, 60,   9000,   750,  6,  19, 20, 10},
