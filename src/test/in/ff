@@ -154,6 +154,9 @@ test(p=3,f=10,d=2,e=2)=
   if (ffmaprel(m,Pa).pol!=Pb, error("ffmaprel"));
   if (ffmaprel(rm,Pb).pol!=Pa, error("ffmaprel"));
   if (ffmaprel(rm,b).pol!='b, error("ffmaprel"));
+  mPa = ffmaprel(m,Pa); if (subst(minpoly(mPa),x,mPa)!=0, error("minpoly"));
+  rmPb = ffmaprel(rm,Pb); if (subst(minpoly(rmPb),x,rmPb)!=0, error("minpoly"));
+  rmb = ffmaprel(rm,b); if (subst(minpoly(rmb),x,rmb)!=0, error("minpoly"));
 }
 default(echo,1);
 test(2,1,5,3)

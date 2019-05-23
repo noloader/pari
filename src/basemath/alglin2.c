@@ -698,6 +698,62 @@ RgXQ_minpoly_naive(GEN y, GEN P)
   GEN M = ker(RgXQ_matrix_pow(y,n,n,P));
   return content(RgM_to_RgXV(M,varn(P)));
 }
+
+static GEN
+RgXQ_minpoly_FpXQ(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flx_to_ZX_inplace(Flxq_minpoly(RgX_to_Flx(x, pp),
+                                   RgX_to_Flx(y, pp), pp));
+  }
+  else
+    r = FpXQ_minpoly(RgX_to_FpX(x, p), RgX_to_FpX(y, p), p);
+  return gerepileupto(av, FpX_to_mod(r, p));
+}
+
+static GEN
+RgXQ_minpoly_FpXQXQ(GEN x, GEN S, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  GEN T = RgX_to_FpX(pol, p);
+  if (signe(T)==0) pari_err_OP("minpoly",x,S);
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    GEN Tp = ZX_to_Flx(T, pp);
+    r = FlxX_to_ZXX(FlxqXQ_minpoly(RgX_to_FlxqX(x, Tp, pp),
+                                   RgX_to_FlxqX(S, Tp, pp), Tp, pp));
+  }
+  else
+    r = FpXQXQ_minpoly(RgX_to_FpXQX(x, T, p), RgX_to_FpXQX(S, T, p), T, p);
+  return gerepileupto(av, FpXQX_to_mod(r, T, p));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+
+static GEN
+RgXQ_minpoly_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgX_type2(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INTMOD: return RgXQ_minpoly_FpXQ(x, y, p);
+    case t_FFELT:  return FFXQ_minpoly(x, y, pol);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgXQ_minpoly_FpXQXQ(x, y, pol, p);
+    default:       return NULL;
+  }
+}
+
+#undef code
+
 static GEN
 easymin(GEN x, long v)
 {
@@ -716,6 +772,8 @@ easymin(GEN x, long v)
       if (varncmp(gvar(a), v) <= 0) pari_err_PRIORITY("minpoly", x, "<", v);
       return deg1pol(gen_1, gneg_i(a), v);
     }
+    R = RgXQ_minpoly_fast(a,b);
+    if (R) { setvarn(R, v); return R; }
     if (!issquarefree(b))
     {
       R = RgXQ_minpoly_naive(a, b);
