@@ -109,6 +109,13 @@ GEN
 FlxV_to_ZXV(GEN x)
 { pari_APPLY_type(t_VEC, Flx_to_ZX(gel(x,i))) }
 
+void
+FlxV_to_ZXV_inplace(GEN v)
+{
+  long i;
+  for(i=1;i<lg(v);i++) gel(v,i)= Flx_to_ZX(gel(v,i));
+}
+
 /*FlxM_to_ZXM=zxM_to_ZXM*/
 GEN
 FlxM_to_ZXM(GEN x)

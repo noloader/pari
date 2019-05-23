@@ -1482,12 +1482,6 @@ F2xV_to_FlxV_inplace(GEN v)
   for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_Flx(gel(v,i));
 }
 void
-FlxV_to_ZXV_inplace(GEN v)
-{
-  long i;
-  for(i=1;i<lg(v);i++) gel(v,i)= Flx_to_ZX(gel(v,i));
-}
-void
 F2xV_to_ZXV_inplace(GEN v)
 {
   long i;
