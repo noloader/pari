@@ -1475,19 +1475,6 @@ Flx_factor_deg2(GEN f, ulong p, long d, long flag)
   }
 }
 
-void
-F2xV_to_FlxV_inplace(GEN v)
-{
-  long i;
-  for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_Flx(gel(v,i));
-}
-void
-F2xV_to_ZXV_inplace(GEN v)
-{
-  long i;
-  for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_ZX(gel(v,i));
-}
-
 static GEN
 F2x_Berlekamp_ker(GEN u)
 {

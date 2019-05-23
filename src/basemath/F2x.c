@@ -1596,6 +1596,19 @@ GEN
 F2xV_to_F2m(GEN x, long n)
 { pari_APPLY_type(t_MAT, F2x_to_F2v(gel(x,i), n)) }
 
+void
+F2xV_to_FlxV_inplace(GEN v)
+{
+  long i;
+  for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_Flx(gel(v,i));
+}
+void
+F2xV_to_ZXV_inplace(GEN v)
+{
+  long i;
+  for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_ZX(gel(v,i));
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                             F2xX                                  **/
