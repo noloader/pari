@@ -837,7 +837,10 @@ static GEN
 vecan_cmul(void *E, GEN P, long a, GEN x)
 {
   (void)E;
-  return (a==0 || !gel(P,a))? NULL: gmul(gel(P,a), x);
+  if (typ(P) == t_VECSMALL)
+    return (a==0 || !P[a])? NULL: gmulsg(P[a], x);
+  else
+    return (a==0 || !gel(P,a))? NULL: gmul(gel(P,a), x);
 }
 /* d=2, 2 sum_{n <= limt} a(n) (n t)^al q^n, q = exp(-2pi t),
  * an2[n] = a(n) * n^al */
