@@ -2101,15 +2101,11 @@ mpqs(GEN N)
     /* sort FNEW and merge it into frel */
     total_full_relations = frel.nb;
 
-    /* Due to the removal of duplicates, percentage may actually decrease at
-     * this point.  Looks funny in the diagnostics but is nothing to worry
-     * about: we _are_ making progress. */
-    percentage =
-      (long)((1000.0 * total_full_relations) / H.target_no_rels);
-    net_yield =
-      (total_full_relations * 100.) / (total_no_cand ? total_no_cand : 1);
-    vain_iterations =
-      (long)((1000.0 * (iterations - good_iterations)) / iterations);
+    /* Due to the removal of duplicates, percentage may decrease at
+     * Nothing to worry about: we _are_ making progress. */
+    percentage = (long)((1000.0 * total_full_relations) / H.target_no_rels);
+    net_yield = (total_full_relations * 100.) / (total_no_cand? total_no_cand: 1);
+    vain_iterations = (long)((1000.0 * (iterations - good_iterations)) / iterations);
 
     /* Now estimate the current full relations yield rate:  we directly see
      * each time through the main loop how many full relations we're getting
@@ -2121,22 +2117,19 @@ mpqs(GEN N)
      * Avoid drawing conclusions from too-small samples during very short
      * follow-on intervals  (in this case we'll just re-use an earlier
      * estimated ratio). */
-    if ((tfc >= 16) && (tff >= 20))
+    if (tfc >= 16 && tff >= 20)
       tfc_ratio = (tfc + tff + 0.) / tff; /* floating-point division */
-    tff = 0;                    /* reset this count (tfc is always fresh) */
+    tff = 0; /* reset this count (tfc is always fresh) */
 
-    if (percentage >= 1000)     /* when Gauss had failed */
+    if (percentage >= 1000) /* when Gauss had failed */
       sort_interval = percentage + 2;
     else if (percentage >= 820)
     {
       if (tfc_ratio > 1.)
       {
         if (percentage + (H.sort_pt_interval>> 1) * tfc_ratio > 994)
-        {
-          /* aim for a _slight_ overshoot */
           sort_interval = (ulong)(percentage + 2 +
-            (1000 - percentage) / tfc_ratio);
-        }
+            (1000 - percentage) / tfc_ratio); /* aim for a slight overshoot */
         else if (percentage >= 980)
           sort_interval = percentage + 8;
         else
@@ -2179,19 +2172,15 @@ mpqs(GEN N)
         err_printf("MPQS: next sort point at %3.1f%%\n", sort_interval/10.);
       }
     }
-
-    if (percentage < 1000)
-      continue; /* main loop */
+    if (percentage < 1000) continue; /* main loop */
 
     /* percentage >= 1000, which implies total_full_relations > size_of_FB:
        try finishing it off */
 
-    /* solve the system over F_2 */
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
                  total_full_relations);
     fact = mpqs_solve_linear_system(&H, hash_keys(&frel), total_full_relations);
-
     if (fact)
     { /* solution found */
       if (DEBUGLEVEL >= 4)
