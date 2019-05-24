@@ -102,18 +102,18 @@ Z_to_F2x(GEN x, long v)
 GEN
 ZX_to_F2x(GEN x)
 {
-  long l=nbits2lg(lgpol(x));
-  GEN z=cgetg(l,t_VECSMALL);
-  long i,j,k;
-  z[1]=((ulong)x[1])&VARNBITS;
-  for(i=2, k=1,j=BITS_IN_LONG;i<lg(x);i++,j++)
+  long lx = lg(x), l = nbits2lg(lx-2);
+  GEN z = cgetg(l,t_VECSMALL);
+  long i, j, k;
+  z[1] = ((ulong)x[1])&VARNBITS;
+  for (i=2, k=1,j=BITS_IN_LONG; i<lx; i++,j++)
   {
     if (j==BITS_IN_LONG)
     {
-      j=0; k++; z[k]=0;
+      j=0; z[++k]=0;
     }
     if (mpodd(gel(x,i)))
-      z[k]|=1UL<<j;
+      z[k] |= 1UL<<j;
   }
   return F2x_renormalize(z,l);
 }
@@ -121,18 +121,18 @@ ZX_to_F2x(GEN x)
 GEN
 Flx_to_F2x(GEN x)
 {
-  long l=nbits2lg(lgpol(x));
-  GEN z=cgetg(l,t_VECSMALL);
-  long i,j,k;
-  z[1]=x[1];
-  for(i=2, k=1,j=BITS_IN_LONG;i<lg(x);i++,j++)
+  long lx = lg(x), l = nbits2lg(lx-2);
+  GEN z = cgetg(l,t_VECSMALL);
+  long i, j, k;
+  z[1] = x[1];
+  for (i=2, k=1, j=BITS_IN_LONG; i<lx; i++,j++)
   {
     if (j==BITS_IN_LONG)
     {
-      j=0; k++; z[k]=0;
+      j=0; z[++k] = 0;
     }
     if (x[i]&1UL)
-      z[k]|=1UL<<j;
+      z[k] |= 1UL<<j;
   }
   return F2x_renormalize(z,l);
 }
