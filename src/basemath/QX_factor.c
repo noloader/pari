@@ -1061,9 +1061,15 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   av = avma;
   R = NULL;/*-Wall*/
   H = NULL;
+  if (DEBUGLEVEL>5) err_printf("ZX_gcd: ");
   while ((p = u_forprime_next(&S)))
   {
     if (g && !umodiu(g,p)) continue;
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"QX_gcd");
+      gerepileall(av, 3, &H, &q, &Hp);
+    }
     a = ZX_to_Flx(A, p);
     b = ZX_to_Flx(B, p); Hp = Flx_gcd(a,b, p);
     m = degpol(Hp);
@@ -1091,20 +1097,18 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
       if (!small) continue; /* if gcd is small, try our luck */
     }
     else
+    {
+      if (DEBUGLEVEL>5) err_printf("%ld ", expi(q));
       if (!ZX_incremental_CRT(&H, Hp, &q, p)) continue;
-    if (DEBUGLEVEL>5) err_printf("gcd mod %lu (bound 2^%ld)\n", p,expi(q));
+    }
     /* H stable: check divisibility */
     if (!ZX_divides(Bg, H)) continue;
     R = ZX_divides(Ag, H);
     if (R) break;
 
-    if (gc_needed(av,1))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"QX_gcd");
-      gerepileall(av, 3, &H, &q, &Hp);
-    }
   }
   if (!p) pari_err_OVERFLOW("ZX_gcd_all [ran out of primes]");
+  if (DEBUGLEVEL>5) err_printf("done\n");
   if (Anew) {
     A = R;
     if (valA != valX) A = RgX_shift(A, valA - valX);
