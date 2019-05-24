@@ -230,6 +230,19 @@ rand_g(speed_param *s)
 }
 
 static void
+dft_F2xq(speed_param *s)
+{
+  pari_sp av = avma;
+  do
+  {
+    avma = av;
+    s->T = random_F2x(BITS_IN_LONG*10, 0);
+  } while (!F2x_is_irred(s->T));
+  s->T[1] = evalvarn(1);
+  s->T = F2x_get_red(s->T);
+}
+
+static void
 dft_Flxq(speed_param *s)
 {
   pari_sp av = avma;
@@ -271,8 +284,8 @@ dftmod(speed_param *s)
     case t_NFl2x: s->l=DFLT_mod2;  return;
     case t_FpX:  s->p=LARGE_mod; return;
     case t_NFpX: s->p=LARGE_mod; return;
-    case t_F2xqX:  s->l=2;  dft_Flxq(s); return;
-    case t_NF2xqX: s->l=2;  dft_Flxq(s); return;
+    case t_F2xqX:  s->l=2;  dft_F2xq(s); return;
+    case t_NF2xqX: s->l=2;  dft_F2xq(s); return;
     case t_FlxqX:  s->l=DFLT_mod;  dft_Flxq(s); return;
     case t_NFlxqX: s->l=DFLT_mod;  dft_Flxq(s); return;
     case t_FpXQX:  s->p=LARGE_mod; dft_FpXQ(s); return;
