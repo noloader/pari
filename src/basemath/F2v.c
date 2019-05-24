@@ -33,10 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 GEN
 F2c_to_ZC(GEN x)
 {
-  long l=x[1]+1;
+  long l = x[1]+1, lx = lg(x);
   GEN  z = cgetg(l, t_COL);
-  long i,j,k;
-  for (i=2,k=1; i<lg(x); i++)
+  long i, j, k;
+  for (i=2, k=1; i<lx; i++)
     for (j=0; j<BITS_IN_LONG && k<l; j++,k++)
       gel(z,k) = (x[i]&(1UL<<j))? gen_1: gen_0;
   return z;
@@ -44,12 +44,12 @@ F2c_to_ZC(GEN x)
 GEN
 F2c_to_mod(GEN x)
 {
-  long l=x[1]+1;
+  long l = x[1]+1, lx = lg(x);
   GEN  z = cgetg(l, t_COL);
   GEN _0 = mkintmod(gen_0,gen_2);
   GEN _1 = mkintmod(gen_1,gen_2);
-  long i,j,k;
-  for (i=2,k=1; i<lg(x); i++)
+  long i, j, k;
+  for (i=2, k=1; i<lx; i++)
     for (j=0; j<BITS_IN_LONG && k<l; j++,k++)
       gel(z,k) = (x[i]&(1UL<<j))? _1: _0;
   return z;
@@ -99,10 +99,10 @@ F2m_to_mod(GEN z)
 GEN
 F2v_to_Flv(GEN x)
 {
-  long l=x[1]+1;
-  GEN  z=cgetg(l, t_VECSMALL);
+  long l = x[1]+1, lx = lg(x);
+  GEN  z = cgetg(l, t_VECSMALL);
   long i,j,k;
-  for (i=2,k=1; i<lg(x); i++)
+  for (i=2, k=1; i<lx; i++)
     for (j=0; j<BITS_IN_LONG && k<l; j++,k++)
       z[k] = (x[i]>>j)&1UL;
   return z;
