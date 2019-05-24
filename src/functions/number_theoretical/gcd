@@ -51,3 +51,9 @@ Doc: creates the greatest common divisor of $x$ and $y$.
 
 Variant: Also available are \fun{GEN}{ggcd}{GEN x, GEN y}, if \kbd{y} is not
  \kbd{NULL}, and \fun{GEN}{content}{GEN x}, if $\kbd{y} = \kbd{NULL}$.
+
+Function: _ZX_gcd_worker
+C-Name: ZX_gcd_worker
+Prototype: GGGG
+Section: programming/internals
+Help: worker for ZX_gcd

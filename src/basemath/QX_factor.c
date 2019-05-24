@@ -1010,6 +1010,155 @@ ZX_is_squarefree(GEN x)
   return gc_bool(av, lg(d) == 3);
 }
 
+static GEN
+ZX_gcd_filter(GEN A, GEN P)
+{
+  long i, j, l = lg(A), n = 1, d = degpol(gel(A,1));
+  GEN B, Q;
+  for (i=2; i<l; i++)
+  {
+    long di = degpol(gel(A,i));
+    if (di==d) n++;
+    else if (d > di)
+    { n=1; d = di; }
+  }
+  if (n == l-1)
+    return NULL;
+  B = cgetg(n+1, t_VEC);
+  Q = cgetg(n+1, typ(P));
+  for (i=1, j=1; i<l; i++)
+  {
+    if (degpol(gel(A,i))==d)
+    {
+      gel(B,j) = gel(A,i);
+      Q[j] = P[i];
+      j++;
+    }
+  }
+  return mkvec2(B,Q);
+}
+
+static GEN
+ZX_gcd_Flx(GEN a, GEN b, ulong g, ulong p)
+{
+  GEN H = Flx_gcd(a, b, p);
+  if (!g)
+    return Flx_normalize(H, p);
+  else
+  {
+    ulong t = Fl_mul(g, Fl_inv(Flx_lead(H), p), p);
+    return Flx_Fl_mul(H, t, p);
+  }
+}
+
+static GEN
+ZX_gcd_slice(GEN A, GEN B, GEN g, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1;
+  GEN H, T, KQ;
+  if (n == 1)
+  {
+    ulong p = uel(P,1), gp = g ? umodiu(g, p): 0;
+    GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p);
+    GEN Hp = ZX_gcd_Flx(a, b, gp, p);
+    H = Flx_to_ZX(Hp);
+    *mod = utoi(p);
+    gerepileall(av, 2, &H, mod);
+    return H;
+  }
+  T = ZV_producttree(P);
+  A = ZX_nv_mod_tree(A, P, T);
+  B = ZX_nv_mod_tree(B, P, T);
+  g = g ?  Z_ZV_mod_tree(g, P, T): NULL;
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), b = gel(B,i);
+    gel(H,i) = ZX_gcd_Flx(a, b, g? g[i]: 0, p);
+  }
+  KQ = ZX_gcd_filter(H, P);
+  if (KQ)
+  {
+    H = gel(KQ, 1); P = gel(KQ, 2);
+    T = ZV_producttree(P);
+  }
+  H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZX_gcd_worker(GEN P, GEN A, GEN B, GEN g)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZX_gcd_slice(A, B, equali1(g)? NULL: g , P, &gel(V,2));
+  return V;
+}
+
+static GEN
+ZX_gcd_chinese(GEN A, GEN P, GEN *mod)
+{
+  GEN KQ = ZX_gcd_filter(A, P);
+  if (KQ) { A = gel(KQ,1); P = gel(KQ,2); }
+  return nxV_chinese_center(A, P, mod);
+}
+
+GEN
+ZX_gcd_all(GEN A, GEN B, GEN *Anew)
+{
+  pari_sp av2 = avma;
+  GEN worker;
+  long m, valX, valA, vA = varn(A);
+  GEN g, Ag, Bg;
+  GEN H = NULL, mod = gen_1, R;
+  long k;
+  forprime_t S;
+  ulong pp;
+  if (!signe(A)) { if (Anew) *Anew = pol_0(vA); return ZX_copy(B); }
+  if (!signe(B)) { if (Anew) *Anew = pol_1(vA); return ZX_copy(A); }
+  if (degpol(A)==0 || degpol(B)==0) { if (Anew) *Anew = A; return pol_1(vA); }
+  m = usqrt(maxss(degpol(A), degpol(B)));
+  valA = ZX_valrem(A, &A);
+  valX = minss(valA, ZX_valrem(B, &B));
+
+  g = gcdii(leading_coeff(A), leading_coeff(B)); /* multiple of lead(gcd) */
+  if (is_pm1(g)) {
+    g = NULL;
+    Ag = A;
+    Bg = B;
+  } else {
+    Ag = ZX_Z_mul(A,g);
+    Bg = ZX_Z_mul(B,g);
+  }
+  worker = strtoclosure("_ZX_gcd_worker", 3, A, B, g ? g: gen_1);
+  init_modular_big(&S); pp = u_forprime_next(&S); /* once */
+  av2 = avma;
+  for (k = 1; ;k *= 2)
+  {
+    gen_inccrt("ZX_gcd", worker, g, (k+1)>>1, m, &S, &H, &mod, ZX_gcd_chinese, NULL);
+    if (lgpol(Flx_rem(ZX_to_Flx(Ag, pp), ZX_to_Flx(H, pp), pp))) continue;
+    if (lgpol(Flx_rem(ZX_to_Flx(Bg, pp), ZX_to_Flx(H, pp), pp))) continue;
+    if (!ZX_divides(Bg, H)) continue;
+    R = ZX_divides(Ag, H);
+    if (R) break;
+    if (gc_needed(av2,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"ZX_gcd");
+      gerepileall(av2, 2, &H, &mod);
+    }
+  }
+  if (DEBUGLEVEL>5) err_printf("done\n");
+  if (Anew) {
+    A = R;
+    if (valA != valX) A = RgX_shift(A, valA - valX);
+    *Anew = A;
+  }
+  return valX ? RgX_shift(H, valX): H;
+}
+
 #if 0
 /* ceil( || p ||_oo / lc(p) ) */
 static GEN
@@ -1029,98 +1178,11 @@ maxnorm(GEN p)
 }
 #endif
 
-/* A, B in Z[X] */
-GEN
-ZX_gcd_all(GEN A, GEN B, GEN *Anew)
-{
-  GEN R, a, b, q, H, Hp, g, Ag, Bg;
-  long m, n, valX, valA, vA = varn(A);
-  ulong p;
-  int small;
-  pari_sp ltop, av;
-  forprime_t S;
-
-  if (!signe(A)) { if (Anew) *Anew = pol_0(vA); return ZX_copy(B); }
-  if (!signe(B)) { if (Anew) *Anew = pol_1(vA); return ZX_copy(A); }
-  valA = ZX_valrem(A, &A);
-  valX = minss(valA, ZX_valrem(B, &B));
-  ltop = avma;
-
-  n = 1 + minss(degpol(A), degpol(B)); /* > degree(gcd) */
-  g = gcdii(leading_coeff(A), leading_coeff(B)); /* multiple of lead(gcd) */
-  if (is_pm1(g)) {
-    g = NULL;
-    Ag = A;
-    Bg = B;
-  } else {
-    Ag = ZX_Z_mul(A,g);
-    Bg = ZX_Z_mul(B,g);
-  }
-  small = (ZX_max_lg(A) == 3 && ZX_max_lg(B) == 3);
-  init_modular_big(&S);
-  av = avma;
-  R = NULL;/*-Wall*/
-  H = NULL;
-  if (DEBUGLEVEL>5) err_printf("ZX_gcd: ");
-  while ((p = u_forprime_next(&S)))
-  {
-    if (g && !umodiu(g,p)) continue;
-    if (H && gc_needed(av,1))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"QX_gcd");
-      gerepileall(av, 2, &H, &q);
-    }
-    a = ZX_to_Flx(A, p);
-    b = ZX_to_Flx(B, p); Hp = Flx_gcd(a,b, p);
-    m = degpol(Hp);
-    if (m == 0) { /* coprime. DONE */
-      set_avma(ltop);
-      if (Anew) {
-        if (valA != valX) A = RgX_shift(A, valA - valX);
-        *Anew = A;
-      }
-      return pol_xn(valX, vA);
-    }
-    if (m > n) continue; /* p | Res(A/G, B/G). Discard */
-
-    if (!g) /* make sure lead(H) = g mod p */
-      Hp = Flx_normalize(Hp, p);
-    else
-    {
-      ulong t = Fl_mul(umodiu(g, p), Fl_inv(Hp[m+2],p), p);
-      Hp = Flx_Fl_mul(Hp, t, p);
-    }
-    if (m < n)
-    { /* First time or degree drop [all previous p were as above; restart]. */
-      H = ZX_init_CRT(Hp,p,vA);
-      q = utoipos(p); n = m;
-      if (!small) continue; /* if gcd is small, try our luck */
-    }
-    else
-    {
-      if (DEBUGLEVEL>5) err_printf("%ld ", expi(q));
-      if (!ZX_incremental_CRT(&H, Hp, &q, p)) continue;
-    }
-    /* H stable: check divisibility */
-    if (!ZX_divides(Bg, H)) continue;
-    R = ZX_divides(Ag, H);
-    if (R) break;
-
-  }
-  if (!p) pari_err_OVERFLOW("ZX_gcd_all [ran out of primes]");
-  if (DEBUGLEVEL>5) err_printf("done\n");
-  if (Anew) {
-    A = R;
-    if (valA != valX) A = RgX_shift(A, valA - valX);
-    *Anew = A;
-  }
-  return valX ? RgX_shift(H, valX): H;
-}
 GEN
 ZX_gcd(GEN A, GEN B)
 {
   pari_sp av = avma;
-  return gerepileupto(av, ZX_gcd_all(A,B,NULL));
+  return gerepilecopy(av, ZX_gcd_all(A,B,NULL));
 }
 
 GEN
