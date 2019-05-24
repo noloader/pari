@@ -232,8 +232,10 @@ rand_g(speed_param *s)
 static void
 dft_Flxq(speed_param *s)
 {
+  pari_sp av = avma;
   do
   {
+    avma = av;
     s->T = rand_NFlx(10, s->l);
   } while (!Flx_is_irred(s->T, s->l));
   s->T[1] = evalvarn(1);
@@ -243,7 +245,12 @@ dft_Flxq(speed_param *s)
 static void
 dft_FpXQ(speed_param *s)
 {
-  s->T = rand_NFpX(10);
+  pari_sp av = avma;
+  do
+  {
+    avma = av;
+    s->T = rand_NFpX(10);
+  } while (!FpX_is_irred(s->T, LARGE_mod));
   setvarn(s->T, 1);
   s->T = FpX_get_red(s->T, s->p);
 }
