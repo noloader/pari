@@ -102,7 +102,7 @@ static GEN
 rand_F2x(long n)
 {
   GEN x;
-  do x = random_F2x(BITS_IN_LONG*n, 0); while (lgpol(x) < n);
+  do x = random_F2x(BITS_IN_LONG*(n+1), 0); while (degpol(x) < n);
   return x;
 }
 /* Flx, degree n */
@@ -543,7 +543,8 @@ static tune_param param[] = {
 {0,   var(LOGAGMCX_LIMIT),         t_REAL,3,0, speed_logcx,0.05},
 {0,   var(AGM_ATAN_LIMIT),         t_REAL,20,0, speed_atan,0.05},
 {GMP, var(INVMOD_GMP_LIMIT),       t_INT, 3,0, speed_invmod},
-{0,   var(F2x_MUL_KARATSUBA_LIMIT),t_F2x,3,0, speed_F2x_mul},
+{0,   var(F2x_MUL_KARATSUBA_LIMIT),t_F2x,3,0, speed_F2x_mul,0,0,&F2x_MUL_MULII_LIMIT},
+{0,   var(F2x_MUL_MULII_LIMIT),    t_F2x,20,20000, speed_F2x_mul},
 {0,   var(Flx_MUL_KARATSUBA_LIMIT),t_Flx,5,0, speed_Flx_mul,0,0,&Fmod_MUL_MULII_LIMIT},
 {0,   var(Flx_SQR_KARATSUBA_LIMIT),t_Flx,5,0, speed_Flx_sqr,0,0,&Fmod_SQR_SQRI_LIMIT},
 {0,   var(Flx_MUL_QUARTMULII_LIMIT),t_Fqx,3,0, speed_Flx_mul},
@@ -892,7 +893,7 @@ main(int argc, char **argv)
   int i, r, n = 0;
   int linear = 1;
   GEN v;
-  pari_init(8000000, 2);
+  pari_init(16000000, 2);
   DFLT_mod = 27449;
   LARGE_mod=subis(powuu(3,128),62);
 #ifdef LONG_IS_64BIT

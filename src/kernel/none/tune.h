@@ -3,6 +3,7 @@
 #define __DIVRR_GMP_LIMIT                -1
 #define __EXPNEWTON_LIMIT                66
 #define __F2x_MUL_KARATSUBA_LIMIT        15
+#define __F2x_MUL_MULII_LIMIT            668
 #define __F2xqX_BARRETT_LIMIT            17
 #define __F2xqX_DIVREM_BARRETT_LIMIT     46
 #define __F2xqX_INVBARRETT_LIMIT         22
@@ -76,6 +77,7 @@
 #define __DIVRR_GMP_LIMIT                -1
 #define __EXPNEWTON_LIMIT                66
 #define __F2x_MUL_KARATSUBA_LIMIT        23
+#define __F2x_MUL_MULII_LIMIT            6265
 #define __F2xqX_BARRETT_LIMIT            17
 #define __F2xqX_DIVREM_BARRETT_LIMIT     46
 #define __F2xqX_INVBARRETT_LIMIT         22

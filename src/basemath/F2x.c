@@ -35,6 +35,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 */
 
 INLINE long
+F2x_degreespec(GEN x, long l)
+{
+  return (l==0)?-1:l*BITS_IN_LONG-bfffo(x[l-1])-1;
+}
+
+INLINE long
 F2x_degree_lg(GEN x, long l)
 {
   return (l==2)?-1:bit_accuracy(l)-bfffo(x[l-1])-1;
@@ -421,6 +427,64 @@ F2x_shiftip(pari_sp av, GEN x, long v)
   set_avma((pari_sp)y); return y;
 }
 
+static GEN
+F2x_to_int(GEN a, long na, long da, long bs)
+{
+  const long BIL = BITS_IN_LONG;
+  GEN z;
+  long i,j,k,m;
+  long lz = nbits2lg(1+da*bs);
+  z = cgeti(lz); z[1] = evalsigne(1)|evallgefint(lz);
+  for (i=0, k=1, m=BIL; i<na; i++)
+    for (j=0; j<BIL; j++, m+=bs)
+    {
+      if (m >= BIL)
+      {
+        k++; if (k>=lz) break;
+        m -= BIL;
+        z[k] = ((a[i]>>j)&1UL)<<m;
+      } else
+      z[k] |= ((a[i]>>j)&1UL)<<m;
+    }
+  return int_normalize(z,0);
+}
+
+static GEN
+int_to_F2x(GEN x, long d, long bs)
+{
+  const long BIL = BITS_IN_LONG;
+  long lx = lgefint(x), lz = nbits2lg(d+1);
+  long i,j,k,m;
+  GEN z = cgetg(lz, t_VECSMALL);
+  z[1] = 0;
+  for (k=1, i=2, m=BIL; k < lx; i++)
+  {
+    z[i] = 0;
+    for (j=0; j<BIL; j++, m+=bs)
+    {
+      if (m >= BIL)
+      {
+        m -= BIL;
+        if (++k==lx) break;
+      }
+      if ((x[k]>>m)&1UL)
+        z[i]|=1UL<<j;
+    }
+  }
+  return F2x_renormalize(z,lz);
+}
+
+static GEN
+F2x_mulspec_mulii(GEN a, GEN b, long na, long nb)
+{
+  long da = F2x_degreespec(a,na), db = F2x_degreespec(b,nb);
+  long bs = expu(1 + maxss(da, db))+1;
+  GEN A = F2x_to_int(a,na,da,bs);
+  GEN B = F2x_to_int(b,nb,db,bs);
+  GEN z = mulii(A,B);
+  return int_to_F2x(z,da+db,bs);
+}
+
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
  * Only c, c0, c1, c2 are genuine GEN.
@@ -431,7 +495,6 @@ F2x_mulspec(GEN a, GEN b, long na, long nb)
   GEN a0,c,c0;
   long n0, n0a, i, v = 0;
   pari_sp av;
-
   while (na && !a[0]) { a++; na-=1; v++; }
   while (nb && !b[0]) { b++; nb-=1; v++; }
   if (na < nb) swapspec(a,b, na,nb);
@@ -442,6 +505,8 @@ F2x_mulspec(GEN a, GEN b, long na, long nb)
     return F2x_shiftip(av, F2x_mul1(*a,*b), v);
   if (na < F2x_MUL_KARATSUBA_LIMIT)
     return F2x_shiftip(av, F2x_mulspec_basecase(a, b, na, nb), v);
+  if (nb >= F2x_MUL_MULII_LIMIT)
+    return F2x_shiftip(av, F2x_mulspec_mulii(a, b, na, nb), v);
   i=(na>>1); n0=na-i; na=i;
   a0=a+n0; n0a=n0;
   while (n0a && !a[n0a-1]) n0a--;
