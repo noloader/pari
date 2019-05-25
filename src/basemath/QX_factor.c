@@ -1065,10 +1065,10 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   while ((p = u_forprime_next(&S)))
   {
     if (g && !umodiu(g,p)) continue;
-    if (gc_needed(av,1))
+    if (H && gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"QX_gcd");
-      gerepileall(av, 3, &H, &q, &Hp);
+      gerepileall(av, 2, &H, &q);
     }
     a = ZX_to_Flx(A, p);
     b = ZX_to_Flx(B, p); Hp = Flx_gcd(a,b, p);
