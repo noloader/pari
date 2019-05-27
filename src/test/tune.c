@@ -16,8 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  *
  * (GMU MP Library is Copyright Free Software Foundation, Inc.) */
 #define PARI_TUNE
-#include <pari.h>
-#include <paripriv.h>
+#include "pari.h"
+#include "paripriv.h"
 
 int option_trace = 0;
 double Step_Factor = .01; /* small steps by default */
