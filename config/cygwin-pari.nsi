@@ -13,6 +13,7 @@ cat << 'EOT'
 !define top ".."
 !define cfgdir "${top}\config"
 AutoCloseWindow false
+RequestExecutionLevel user
 
 OutFile "Pari.exe"
 InstallDir "$PROGRAMFILES\${PARIver}"
