@@ -1554,7 +1554,7 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN TB, GEN p, long finaldeg, long ab
   nf2 = rnf_build_nfabs(rnf, prec);
   gsetvarn(nf2, varn(nf_get_pol(nf)));
   r1 = nf_get_r1(nf2);
-  bnf2 = Buchall(nf2, 0, prec);
+  bnf2 = Buchall(nf2, nf_FORCE, prec);
 
   sp = itos(p);
   spk = sp * rnf_get_degree(rnf);

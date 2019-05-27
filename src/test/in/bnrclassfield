@@ -72,6 +72,11 @@ bnr = bnrinit(bnf,[6545,1333,2018;0,1,0;0,0,1]);
 bnrclassfield(bnr,[2,0;0,2])
 bnrclassfield(bnr,[2,1;0,1])
 
+\\#2146
+bnf=bnfinit(y^3-7*y-7,1);
+bnr=bnrinit(bnf,[[13729,0,0;0,13729,0;0,0,13729],[0,0,0]]);
+bnrclassfield(bnr,4,1);
+
 print("examples from doc");
 bnf = bnfinit(y^3+14*y-1); bnf.cyc
 pol = bnrclassfield(bnf,,1) \\Hilbert class field
