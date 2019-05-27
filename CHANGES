@@ -130,6 +130,7 @@ BA  96- (f(x, y = 1) = x*y); f'(1) returned 0
 BA 104- nfisincl(x^3+9,x^6+2187): wrong result [#2144]
    105- ispower(27,2^60) -> SEGV [#2145]
 BA 106- matsolve(M,vector(n)) could return result of wrong dimension
+   107- [Windows] no longer crash on deep recursion [#2105]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

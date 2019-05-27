@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #  include <process.h>
 #endif
 #include "paricfg.h"
-#if defined(STACK_CHECK) && !defined(__EMX__)
+#if defined(STACK_CHECK) && !defined(__EMX__) && !defined(_WIN32)
 #  include <sys/types.h>
 #  include <sys/time.h>
 #  include <sys/resource.h>
@@ -346,11 +346,21 @@ THREAD void *PARI_stack_limit = NULL;
 void
 pari_stackcheck_init(void *pari_stack_base)
 {
-  (void) pari_stack_base;
   if (!pari_stack_base) { PARI_stack_limit = NULL; return; }
   PARI_stack_limit = get_stack(1./16, 32*1024);
 }
-#  else /* !__EMX__ */
+#  elif _WIN32
+void
+pari_stackcheck_init(void *pari_stack_base)
+{
+  ulong size = 1UL << 21;
+  if (!pari_stack_base) { PARI_stack_limit = NULL; return; }
+  if (size > (ulong)pari_stack_base)
+    PARI_stack_limit = (void*)(((ulong)pari_stack_base) / 16);
+  else
+    PARI_stack_limit = (void*)((ulong)pari_stack_base - (size/16)*15);
+}
+#  else /* !__EMX__ && !_WIN32 */
 /* Set PARI_stack_limit to (a little above) the lowest safe address that can be
  * used on the stack. Leave PARI_stack_limit at its initial value (NULL) to
  * show no check should be made [init failed]. Assume stack grows downward. */

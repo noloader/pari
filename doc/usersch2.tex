@@ -2044,8 +2044,8 @@ coeffs(P, nbvar) =
 assignment {\tt v = coeffs(P,k)}, the coefficient of $x_1^{n_1}\dots
 x_k^{n_k}$ in P is given by {\tt v[$n_1$+1][\dots][$n_k$+1]}.
 
-The operating system automatically limits the \idx{recursion depth}:
-\sidx{deep recursion}
+When the operating system allows querying the maximum size of the process
+stack, we automatically limit the \idx{recursion depth}: \sidx{deep recursion}
 \bprog
 ? dive(n) = dive(n+1)
 ? dive(0);
@@ -2056,10 +2056,12 @@ The operating system automatically limits the \idx{recursion depth}:
   \\@com (last 2 lines repeated 19 times)
   ***   deep recursion.
 @eprog\noindent
-There is no way to increase the recursion limit (which may be different on
-your machine) from within \kbd{gp}. To increase it before launching \kbd{gp},
-you can use \tet{ulimit} or \tet{limit}, depending on your shell, and raise
-the process available stack space (increase \tet{stacksize}).
+All Unix variants support this mechanism and the recursion limit
+may be different from one machine to the next; other systems may crash on
+deep recursion. There is no way to increase the limit from within \kbd{gp}.
+On a Unix system, you may increase it before launching \kbd{gp} with
+\tet{ulimit} or \tet{limit}, depending on your shell, and raise the process
+available stack space (increase \tet{stacksize}).
 
 \subsec{Function which take functions as parameters} This is done as follows:
 \bprog

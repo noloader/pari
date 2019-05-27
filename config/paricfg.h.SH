@@ -16,7 +16,8 @@ if test -n "$perl"; then
 fi
 
 has_stack_check=
-if test "$osname" = "os2" -o "$has_getrlimit" = "yes"; then
+if test "$osname" = "os2" -o "$osname" = "mingw"\
+                          -o "$has_getrlimit" = "yes"; then
   has_stack_check=yes;
 fi
 
