@@ -13,7 +13,7 @@ cat << 'EOT'
 !define top ".."
 !define tree "..\mingw"
 AutoCloseWindow false
-RequestExecutionLevel user
+RequestExecutionLevel highest
 
 OutFile "..\${PARIver}.exe"
 InstallDir "$PROGRAMFILES\${PARIver}"
