@@ -1176,9 +1176,8 @@ binsum(GEN S, ulong k, void *E, GEN (*f)(void *, GEN), GEN a,
   if (!signe(a)) a = NULL;
   for (e = 0;; e++)
   { /* compute g(k 2^l) with absolute error ~ 2^(G-l) */
-    GEN u, r = utor(k, prec + EXTRAPRECWORD);
-    shiftr_inplace(r, l + e);
-    if (a) r = addri(r, a);
+    GEN u, r = shifti(utoipos(k), l+e);
+    if (a) r = addii(r, a);
     u = gtofp(f(E, r), prec);
     if (typ(u) != t_REAL) pari_err_TYPE("sumpos",u);
     if (!signe(u)) break;
