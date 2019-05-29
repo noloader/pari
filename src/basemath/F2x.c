@@ -2608,7 +2608,8 @@ F2xqXQ_pow(GEN x, GEN n, GEN S, GEN T)
   if (s < 0) x = F2xqXQ_inv(x,S,T);
   if (is_pm1(n)) return s < 0 ? x : gcopy(x);
   if (degpol(x) >= get_F2xqX_degree(S)) x = F2xqX_rem(x,S,T);
-  D.S = S; D.T = T;
+  D.T = F2x_get_red(T);
+  D.S = F2xqX_get_red(S, T);
   return gen_pow(x, n, (void*)&D, &_F2xqXQ_sqr, &_F2xqXQ_mul);
 }
 
@@ -2617,7 +2618,8 @@ F2xqXQ_powers(GEN x, long l, GEN S, GEN T)
 {
   struct _F2xqXQ D;
   int use_sqr = 2*degpol(x) >= get_F2xqX_degree(S);
-  D.S = S; D.T = T;
+  D.T = F2x_get_red(T);
+  D.S = F2xqX_get_red(S, T);
   return gen_powers(x, l, use_sqr, (void*)&D, &_F2xqXQ_sqr, &_F2xqXQ_mul,&_F2xqXQ_one);
 }
 
@@ -2625,7 +2627,8 @@ GEN
 F2xqX_F2xqXQV_eval(GEN P, GEN V, GEN S, GEN T)
 {
   struct _F2xqXQ D;
-  D.S = S; D.T = T;
+  D.T = F2x_get_red(T);
+  D.S = F2xqX_get_red(S, T);
   return gen_bkeval_powers(P, degpol(P), V, (void*)&D, &F2xqXQ_algebra,
                                                    _F2xqXQ_cmul);
 }
@@ -2635,7 +2638,8 @@ F2xqX_F2xqXQ_eval(GEN Q, GEN x, GEN S, GEN T)
 {
   struct _F2xqXQ D;
   int use_sqr = 2*degpol(x) >= get_F2xqX_degree(S);
-  D.S = S; D.T = T;
+  D.T = F2x_get_red(T);
+  D.S = F2xqX_get_red(S, T);
   return gen_bkeval(Q, degpol(Q), x, use_sqr, (void*)&D, &F2xqXQ_algebra,
                                                     _F2xqXQ_cmul);
 }
@@ -2673,7 +2677,8 @@ GEN
 F2xqXQ_autpow(GEN aut, long n, GEN S, GEN T)
 {
   struct _F2xqXQ D;
-  D.S = S; D.T = T;
+  D.T = F2x_get_red(T);
+  D.S = F2xqX_get_red(S, T);
   return gen_powu(aut,n,&D,F2xqXQ_autpow_sqr,F2xqXQ_autpow_mul);
 }
 
@@ -2705,7 +2710,8 @@ GEN
 F2xqXQ_auttrace(GEN aut, long n, GEN S, GEN T)
 {
   struct _F2xqXQ D;
-  D.S = S; D.T = T;
+  D.T = F2x_get_red(T);
+  D.S = F2xqX_get_red(S, T);
   return gen_powu(aut,n,&D,F2xqXQ_auttrace_sqr,F2xqXQ_auttrace_mul);
 }
 
