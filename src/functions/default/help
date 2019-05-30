@@ -9,7 +9,7 @@ Doc: name of the external help program to use from within \kbd{gp} when
  (see \secref{se:exthelp}), or \kbd{M-H} under readline (see
  \secref{se:readline}).
 
- \misctitle{Windows-specific note:} on Windows operating systems, if the
+ \misctitle{Windows-specific note} On Windows operating systems, if the
  first character of \kbd{help} is \kbd{@}, it is replaced by ``the directory
   where the \kbd{gp} binary was installed to by our installer'', which contains
   the documentation and the \kbd{gphelp} script.
