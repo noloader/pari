@@ -16,13 +16,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include <windows.h>
 #include <stdio.h>
 
-char* win32_datadir(void)
+char*
+win32_datadir(void)
 {
   char datadir[1024];
   char* slash;
-  GetModuleFileNameA(0, datadir, sizeof(datadir) );
+  GetModuleFileNameA(0, datadir, sizeof(datadir));
   slash = strrchr(datadir, '\\');
-  if( slash ) *(slash+1) = 0;
+  if (slash) slash[1] = 0;
   strcat(datadir, "data");
   return strdup(datadir);
 }

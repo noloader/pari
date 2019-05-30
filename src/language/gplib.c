@@ -427,7 +427,7 @@ external_help(const char *s, int num)
 {
   long nbli = term_height()-3, li = 0;
   char buf[256], *str;
-  const char *opt = "", *ar = "", *cdir = "";
+  const char *opt = "", *ar = "";
   char *t, *help = GP_DATA->help;
   pariFILE *z;
   FILE *f;
@@ -442,15 +442,14 @@ external_help(const char *s, int num)
   else if (t[strlen(t)-1] != '@')
     ar = stack_sprintf("@%d",num);
 #ifdef _WIN32
-  if (*help=='@')
+  if (*help == '@')
   {
     const char *basedir = win32_basedir();
-    help++;
-    cdir = stack_sprintf("%c:& cd %s & ", *basedir, basedir);
+    help = stack_sprintf("%c:& cd %s & %s", *basedir, basedir, help+1);
   }
 #endif
-  str=stack_sprintf("%s%s -fromgp %s %c%s%s%c",cdir,help,opt,
-                                               SHELL_Q,t,ar,SHELL_Q);
+  str = stack_sprintf("%s -fromgp %s %c%s%s%c",
+                      help, opt, SHELL_Q, t, ar, SHELL_Q);
   z = try_pipe(str,0); f = z->file;
   pari_free(t);
   while (fgets(buf, numberof(buf), f))

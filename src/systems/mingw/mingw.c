@@ -23,8 +23,7 @@ static const char * pariwin32_basedir = NULL;
 const char*
 win32_basedir(void)
 {
-  if (pariwin32_basedir) return pariwin32_basedir;
-  else
+  if (!pariwin32_basedir)
   {
     char basedir[1024];
     char* slash;
@@ -32,8 +31,8 @@ win32_basedir(void)
     slash = strrchr(basedir, '\\');
     if (slash) slash[1] = 0;
     pariwin32_basedir = strdup(basedir);
-    return pariwin32_basedir;
   }
+  return pariwin32_basedir;
 }
 
 char*
@@ -41,7 +40,7 @@ win32_datadir(void)
 {
   char datadir[1029];
   const char * basedir = win32_basedir();
-  sprintf(datadir, "%sdata",basedir);
+  sprintf(datadir, "%sdata", basedir);
   return strdup(datadir);
 }
 
