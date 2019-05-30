@@ -2477,7 +2477,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
     ind++;
     nb_todo--;
 
-    if (equalii(gel(Q, 2), gen_0))
+    if (!signe(gel(Q, 2)))
     { /* Q(0) = 0 */
       GEN s = gmul2n(c, -k);
       long j;
@@ -2530,8 +2530,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
         }
         for (i = indf; i <= listsize; i++) gel(Lc, i) = gen_0;
       }
-      nc = shifti(c, 1);
-      gel(Lc, indf) = nc;
+      gel(Lc, indf) = nc = shifti(c, 1);
       gel(Lc, indf + 1) = addiu(nc, 1);
       Lk[indf] = Lk[indf + 1] = k + 1;
       indf += 2;
