@@ -2468,7 +2468,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
       deg0 = deg;
       setlg(Q0, deg + 3);
       Q0 = ZX_rescale2n(Q0, 1);
-      Q = Q_primpart(Q0);
+      Q = Q0 = Q_primpart(Q0);
       c = gen_0;
     }
     if (!equalii(nc, c)) Q = ZX_translate(Q, subii(nc, c));
@@ -2479,12 +2479,12 @@ usp(GEN Q0, long deg, long flag, long bitprec)
 
     if (!signe(gel(Q, 2)))
     { /* Q(0) = 0 */
-      GEN s = gmul2n(c, -k);
+      GEN s = gmul2n(c, -k), R;
       long j;
       if (!RgV_isin_i(sol, s, nbr)) gel(sol, ++nbr) = s;
-      deg0--;
-      for (j = 2; j <= deg0 + 2; j++) gel(Q, j) = gel(Q, j+1);
-      setlg(Q, j);
+      deg0--; R = cgetg(deg0+3, t_POL); R[1] = Q[1];
+      for (j = 2; j <= deg0 + 2; j++) gel(R, j) = gel(Q, j+1);
+      Q = R;
     }
 
     av2 = avma;
