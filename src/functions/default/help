@@ -11,7 +11,6 @@ Doc: name of the external help program to use from within \kbd{gp} when
 
  \misctitle{Windows-specific note} On Windows operating systems, if the
  first character of \kbd{help} is \kbd{@}, it is replaced by ``the directory
-  where the \kbd{gp} binary was installed to by our installer'', which contains
-  the documentation and the \kbd{gphelp} script.
+ where the \kbd{gp} binary is installed''.
 
  The default value is the path to the \kbd{gphelp} script we install.

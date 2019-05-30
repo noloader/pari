@@ -13,5 +13,4 @@ Doc: the name of directory containing the optional data files. For now,
 
  \misctitle{Windows-specific note} On Windows operating systems, the
  special value \kbd{@} stands for ``the directory where the \kbd{gp}
- binary was installed to by our installer'', which contains all packages we
- are looking for. This is the defaut value.
+ binary is installed''. This is the defaut value.
