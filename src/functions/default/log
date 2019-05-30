@@ -22,7 +22,7 @@ Doc: this can be either 0 (off) or 1, 2, 3
 
  The default value is \kbd{0}.
 
- \misctitle{Note} logging starts as soon as \kbd{log} is set to a non-zero
+ \misctitle{Note} Logging starts as soon as \kbd{log} is set to a non-zero
  value. In particular, when \kbd{log} is set in \kbd{gprc}, warnings and
  errors triggered from the rest of the file will be written in the logfile.
  For instance, on clean startup, the logfile will start by \kbd{Done.}
