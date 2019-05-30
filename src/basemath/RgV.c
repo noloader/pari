@@ -956,20 +956,7 @@ RgM_isdiagonal(GEN x)
   return 1;
 }
 int
-isdiagonal(GEN x)
-{
-  return (typ(x)==t_MAT) && RgM_isdiagonal(x);
-}
-
-/* returns the first index i<=n such that x=v[i] if it exists, 0 otherwise */
-long
-RgV_isin(GEN v, GEN x)
-{
-  long i, l = lg(v);
-  for (i = 1; i < l; i++)
-    if (gequal(gel(v,i), x)) return i;
-  return 0;
-}
+isdiagonal(GEN x) { return (typ(x)==t_MAT) && RgM_isdiagonal(x); }
 
 GEN
 RgM_det_triangular(GEN mat)

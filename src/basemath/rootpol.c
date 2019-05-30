@@ -2481,10 +2481,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
     { /* Q(0) = 0 */
       GEN s = gmul2n(c, -k);
       long j;
-      for (j = 1; j <= nbr; j++)
-        if (gequal(gel(sol, j), s)) break;
-      if (j > nbr) gel(sol, ++nbr) = s;
-
+      if (!RgV_isin_i(sol, s, nbr)) gel(sol, ++nbr) = s;
       deg0--;
       for (j = 2; j <= deg0 + 2; j++) gel(Q, j) = gel(Q, j+1);
       setlg(Q, j);
@@ -2539,10 +2536,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
     if (root1)
     { /* Q(1) = 0 */
       GEN s = gmul2n(addiu(c,1), -k);
-      long j;
-      for (j = 1; j <= nbr; j++)
-        if (gequal(gel(sol, j), s)) break;
-      if (j > nbr) gel(sol, ++nbr) = s;
+      if (!RgV_isin_i(sol, s, nbr)) gel(sol, ++nbr) = s;
     }
 
     if (gc_needed(av, 2))

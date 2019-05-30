@@ -290,6 +290,7 @@ IZ  65- [win32+gp-sta] support for install()
 BA  67- [libpari] hash_init, hash_init_ulong
 BA  68- [libpari] FFXQ_minpoly
 BA  69- [libpari] F2x_recip
+    70- [libpari] RgV_isin_i
 
   Removed
      1- member functions .futu and .tufu [deprecated since 2.2]

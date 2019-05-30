@@ -848,6 +848,16 @@ RgV_is_QV(GEN x)
     if (!is_rational_t(typ(gel(x,i)))) return 0;
   return 1;
 }
+INLINE long
+RgV_isin_i(GEN v, GEN x, long n)
+{
+  long i;
+  for (i = 1; i <= n; i++)
+    if (gequal(gel(v,i), x)) return i;
+  return 0;
+}
+INLINE long
+RgV_isin(GEN v, GEN x) { return RgV_isin_i(v, x, lg(v)-1); }
 
 /********************************************************************/
 /**                                                                **/

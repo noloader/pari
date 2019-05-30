@@ -8756,6 +8756,10 @@ is an even quadratic form (all diagonal coefficients are even), and 0 otherwise.
 $v[i] = x$ if it exists, and $0$ otherwise. Naive search in linear time, does
 not assume that \kbd{v} is sorted.
 
+\fun{long}{RgV_isin_i}{GEN v, GEN x, long n} return the first index $i\ leq n$
+such that $v[i] = x$ if it exists, and $0$ otherwise. Naive search in linear
+time, does not assume that \kbd{v} is sorted. Assume that $n < \kbd{lg(v)}$.
+
 \fun{GEN}{RgM_diagonal}{GEN m} returns the diagonal of $m$ as a \typ{VEC}.
 
 \fun{GEN}{RgM_diagonal_shallow}{GEN m} shallow version of \kbd{RgM\_diagonal}
