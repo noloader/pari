@@ -17,7 +17,7 @@ Doc: given a \var{bnf} structure attached to a number field $K$, as produced
  and \var{subgroup} is a matrix in HNF defining the subgroup of the ray class
  group on the ray class group generators \kbd{bnr.gen}.
 
- \misctitle{Huge discriminants, helping rnfdisc} the format $[T,B]$ is
+ \misctitle{Huge discriminants, helping rnfdisc} The format $[T,B]$ is
  also accepted instead of $T$ and computes the conductor of the extension
  provided it factors completely over the maximal ideals specified by $B$,
  see \kbd{??rnfinit}: the valuation of $f_0$ is then correct at all such

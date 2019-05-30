@@ -13,7 +13,7 @@ Doc: given an \var{nf} structure attached to a number field $K$, as output
  The main variable of $\var{nf}$ \emph{must} be of lower priority than that of
  $T$, see \secref{se:priority}.
 
- \misctitle{Huge discriminants, helping rnfdisc} the format $[T,B]$ is
+ \misctitle{Huge discriminants, helping rnfdisc} The format $[T,B]$ is
  also accepted instead of $T$ and computes an order which is maximal at all
  maximal ideals specified by $B$, see \kbd{??rnfinit}: the valuation of $D$ is
  then correct at all such maximal ideals but may be incorrect at other primes.

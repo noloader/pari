@@ -14,5 +14,5 @@ Doc: list of right cosets of $\Gamma_0(N) \bs \Gamma$, i.e., matrices
  %1 = [[0, -1; 1, 0], [1, 0; 1, 1], [0, -1; 1, 2], [0, -1; 1, 3],\
        [1, 0; 2, 1], [1, 0; 4, 1]]
  @eprog
- \misctitle{Warning} in the present implementation, the trivial coset is
+ \misctitle{Warning} In the present implementation, the trivial coset is
  represented by $[1,0;N,1]$ and is the last in the list.

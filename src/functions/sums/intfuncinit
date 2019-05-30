@@ -19,7 +19,7 @@ Doc: initialize tables for use with integral transforms (such as Fourier,
  function is particularly useful when the function $f$ is hard to compute,
  such as a gamma product.
 
- \misctitle{Limitation} the endpoints $a$ and $b$ must be at infinity,
+ \misctitle{Limitation} The endpoints $a$ and $b$ must be at infinity,
  with the same asymptotic behavior. Oscillating types are not supported.
  This is easily overcome by integrating vectors of functions, see example
  below.

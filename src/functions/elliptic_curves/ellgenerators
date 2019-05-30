@@ -15,7 +15,7 @@ Doc:
  If $E$ is an elliptic curve over a finite field $\F_q$ as output by
  \tet{ellinit}, return a minimal set of generators for the group $E(\F_q)$.
 
- \misctitle{Caution} when the group is not cyclic, of shape $\Z/d_1\Z \times
+ \misctitle{Caution} When the group is not cyclic, of shape $\Z/d_1\Z \times
  \Z/d_2\Z$ with $d_2\mid d_1$, the points $[P,Q]$ returned by ellgenerators
  need not have order $d_1$ and $d_2$: it is true that
  $P$ has order $d_1$, but we only know that $Q$ is a generator of

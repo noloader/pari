@@ -41,8 +41,8 @@ Doc: numerical integration
  We shall see in a moment how to avoid that last problem, after describing
  the last \emph{optional} argument \var{tab}.
 
- \misctitle{The \var{tab} argument}
- The routine uses weights $w_i$, which are mostly independent of the function
+ \misctitle{The \var{tab} argument} The routine uses weights $w_i$, which are
+ mostly independent of the function
  being integrated, evaluated at many sampling points $x_i$ and
  approximates the integral by $\sum w_i f(x_i)$. If \var{tab} is
 
@@ -59,8 +59,8 @@ Doc: numerical integration
  of magnitude as the evaluation of the integrand. This is in particular
  useful for multivariate integrals.
 
- \misctitle{Specifying the behavior at endpoints}
- This is done as follows. An endpoint $a$ is either given as such (a scalar,
+ \misctitle{Specifying the behavior at endpoints} This is done as follows.
+ An endpoint $a$ is either given as such (a scalar,
  real or complex, \kbd{oo} or \kbd{-oo} for $\pm\infty$), or as a two
  component vector $[a,\alpha]$, to indicate the behavior of the integrand in a
  neighborhood of $a$.

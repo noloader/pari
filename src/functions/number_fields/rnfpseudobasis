@@ -30,7 +30,7 @@ Doc: given an \var{nf} structure attached to a number field $K$, as output by
  %6 = [0, -1]~
  @eprog
 
- \misctitle{Huge discriminants, helping rnfdisc} the format $[T,B]$ is
+ \misctitle{Huge discriminants, helping rnfdisc} The format $[T,B]$ is
  also accepted instead of $T$ and produce an order which is maximal at all
  prime ideals specified by $B$, see \kbd{??rnfinit}.
  \bprog
