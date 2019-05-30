@@ -2490,9 +2490,8 @@ usp(GEN Q0, long deg, long flag, long bitprec)
     av2 = avma;
     nb = X2XP1(Q, deg0, &root1, pQremapped);
 
-    if      (nb == 0) set_avma(av2);/* no root in this open interval */
-    else if (nb == 1) /* exactly one root */
-    {
+    if (nb == 1)
+    { /* exactly one root */
       GEN s = gen_0;
       if (flag == 0)
         s = mkvec2(gmul2n(c,-k), gmul2n(addiu(c,1),-k));
@@ -2505,7 +2504,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
       }
       gel(sol, ++nbr) = gerepileupto(av2, s);
     }
-    else
+    else if (nb)
     { /* unknown, add two nodes to refine */
       if (indf + 2 > listsize)
       {
