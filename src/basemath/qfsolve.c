@@ -676,12 +676,12 @@ quadclass2(GEN D, GEN P2D, GEN E2D, GEN Pm2D, GEN W, int n_is_4)
   if (vD == 2 && smodis(D,16) != 4)
   {
     GEN q2 = qfb(D, gen_2,gen_2, shifti(subsi(4,D),-3));
-    m++; r++; gen = shallowconcat(gen, mkvec(q2));
+    m++; r++; gen = vec_append(gen, q2);
   }
   if (vD == 3)
   {
     GEN q2 = qfb(D, gen_2,gen_0, negi(shifti(D,-3)));
-    m++; r++; gen = shallowconcat(gen, mkvec(q2));
+    m++; r++; gen = vec_append(gen, q2);
   }
   if (!r) return id(D);
   Wgen = qflocalinvariants(gen,Pm2D);

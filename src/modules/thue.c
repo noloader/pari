@@ -420,8 +420,7 @@ LLL_1stPass(GEN *pB0, GEN kappa, baker_s *BS, GEN *pBx)
 
 /* add solution (x,y) if not already known */
 static void
-add_sol(GEN *pS, GEN x, GEN y)
-{ *pS = shallowconcat(*pS, mkvec(mkvec2(x,y))); }
+add_sol(GEN *pS, GEN x, GEN y) { *pS = vec_append(*pS, mkvec2(x,y)); }
 /* z = P(p,q), d = deg P, |z| = |rhs|. Check signs and (possibly)
  * add solutions (p,q), (-p,-q) */
 static void

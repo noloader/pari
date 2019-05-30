@@ -462,7 +462,7 @@ static GEN
 get_Selmer(GEN bnf, GEN cycgen, long rc)
 {
   GEN U = bnf_build_units(bnf), tu = gel(U,1), fu = vecslice(U, 2, lg(U)-1);
-  return shallowconcat(shallowconcat(fu,mkvec(tu)), vecslice(cycgen,1,rc));
+  return shallowconcat(vec_append(fu,tu), vecslice(cycgen,1,rc));
 }
 
 GEN
@@ -675,7 +675,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
       M = shallowconcat(Hsofar, v);
       M = ZM_hnfmodid(M, cyc);
       if (ZM_equal(M, Hsofar)) continue;
-      L = shallowconcat(L, mkvec(P));
+      L = vec_append(L, P);
       Hsofar = M;
       /* the primes in L generate H */
       if (ZM_equal(M, H)) return gerepilecopy(av0, L);

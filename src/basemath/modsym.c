@@ -879,8 +879,8 @@ msnew(GEN W)
       /* p^2 \nmid N */
       if (M % P[i])
       {
-        v1 = shallowconcat(v1, mkvec(NP_matrix_extra(M,P[i])));
-        vd = shallowconcat(vd, mkvec(WQ_matrix(N,P[i])));
+        v1 = vec_append(v1, NP_matrix_extra(M,P[i]));
+        vd = vec_append(vd, WQ_matrix(N,P[i]));
       }
       T1 = getMorphism(W, Wi, v1);
       Td = getMorphism(W, Wi, vd);
@@ -3283,7 +3283,7 @@ msfromell(GEN E0, long sign)
     av2 = avma;
     M = RgM_Rg_sub_shallow(mshecke_i(W, p), ellap(E, utoipos(p)));
     M = gerepilecopy(av2, M);
-    vT = shallowconcat(vT, mkvec(M)); /* for certification at the end */
+    vT = vec_append(vT, M); /* for certification at the end */
     K = msfromell_ker(K, M, l);
     if (lg(K) == 3) break;
   }

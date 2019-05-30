@@ -2619,7 +2619,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
       return ZX_Uspensky_cst_pol(nbz, flag, bitprec);
     }
     if (flag >= 2) { set_avma(av); return utoi(nbz+1); }
-    sol = gconcat(zerocol(nbz), mkcol(sol));
+    sol = vec_append(zerocol(nbz), sol);
     if (flag == 1) sol = RgC_gtofp(sol, nbits2prec(bitprec));
     return gerepilecopy(av, sol);
   }
