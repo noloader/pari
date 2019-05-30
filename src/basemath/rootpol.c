@@ -2440,6 +2440,22 @@ polsolve(GEN P, long bitprec)
   return gerepileuptoleaf(av, rtor(rc, prec));
 }
 
+/* Return primpart(P(x / 2)) */
+static GEN
+ZX_rescale2prim(GEN P)
+{
+  long i, l = lg(P), v, n;
+  GEN Q;
+  if (l==2) return pol_0(varn(P));
+  Q = cgetg(l,t_POL); v = vali(gel(P,l-1));
+  for (i = l-2, n = 1; v > n && i >= 2; i--, n++)
+    v = minss(v, vali(gel(P,i)) + n);
+  gel(Q,l-1) = v? shifti(gel(P,l-1), -v): gel(P,l-1);
+  for (i = l-2, n = 1-v; i >= 2; i--, n++)
+    gel(Q,i) = shifti(gel(P,i), n);
+  Q[1] = P[1]; return Q;
+}
+
 static GEN
 usp(GEN Q0, long deg, long flag, long bitprec)
 {
@@ -2455,7 +2471,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
   c = gen_0;
   k = Lk[1] = 0;
   ind = 1; indf = 2;
-  Q = leafcopy(Q0);
+  Q = Q0;
 
   nb_todo = 1;
   while (nb_todo)
@@ -2467,8 +2483,7 @@ usp(GEN Q0, long deg, long flag, long bitprec)
     {
       deg0 = deg;
       setlg(Q0, deg + 3);
-      Q0 = ZX_rescale2n(Q0, 1);
-      Q = Q0 = Q_primpart(Q0);
+      Q = Q0 = ZX_rescale2prim(Q0);
       c = gen_0;
     }
     if (!equalii(nc, c)) Q = ZX_translate(Q, subii(nc, c));
@@ -2544,7 +2559,6 @@ usp(GEN Q0, long deg, long flag, long bitprec)
       if (DEBUGMEM > 1) pari_warn(warnmem, "ZX_Uspensky", avma);
     }
   }
-
   setlg(sol, nbr+1);
   return gerepilecopy(av, sol);
 }
