@@ -2,8 +2,8 @@ Function: exportall
 Section: programming/specific
 C-Name: exportall
 Prototype: v
-Help: exportall(): declare all current dynamic variables as exported variables [EXPERIMENTAL].
-Doc: (Experimental) declare all current dynamic variables as exported variables.
+Help: exportall(): declare all current dynamic variables as exported variables.
+Doc: declare all current dynamic variables as exported variables.
  Such variables are visible inside parallel sections in place of global variables.
  \bprog
  ? fun(x)=x^2+1;

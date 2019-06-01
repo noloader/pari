@@ -3,5 +3,5 @@ Section: programming/specific
 C-Name: unexportall
 Prototype: v
 Help: unexportall(): empty the list of variables exported to the parallel
- world [EXPERIMENTAL].
-Doc: (Experimental) empty the list of variables exported to the parallel world.
+ world.
+Doc: empty the list of variables exported to the parallel world.
