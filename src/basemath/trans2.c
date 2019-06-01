@@ -1791,8 +1791,10 @@ glngamma(GEN x, long prec)
     }
     case t_FRAC:
     {
-      GEN a = gel(x,1), b = gel(x,2), c = subii(a,b);
-      long e = expi(b) - expi(c);
+      GEN a = gel(x,1), b = gel(x,2), c = gammafrac24(a, b, prec);
+      long e;
+      if (c) return glog(c, prec);
+      c = subii(a,b); e = expi(b) - expi(c);
       if (e > 50)
       {
         x = mkfrac(c,b);
