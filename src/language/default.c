@@ -612,14 +612,16 @@ sd_log(const char *v, long flag)
     { /* close log */
       if (flag == d_ACKNOWLEDGE)
         pari_printf("   [logfile was \"%s\"]\n", current_logfile);
-      if (pari_logfile) /* paranoia */
-      {
-        fclose(pari_logfile);
-        pari_logfile = NULL;
-      }
+      if (pari_logfile) { fclose(pari_logfile); pari_logfile = NULL; }
     }
     else
+    {
       pari_logfile = open_logfile(current_logfile);
+      if (flag == d_ACKNOWLEDGE)
+        pari_printf("   [logfile is \"%s\"]\n", current_logfile);
+      else if (flag == d_INITRC)
+        pari_printf("Logging to %s\n", current_logfile);
+    }
   }
   if (pari_logfile && s != logstyle && s == logstyle_TeX)
   {

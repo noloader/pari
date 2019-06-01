@@ -215,6 +215,7 @@ LGr 50- nffactor now supports rational functions
     55- mffromlfun: support forms of half-integral weight (e.g. from lfunqf)
 BA  56- [libpari] FF_Frobenius: return the image of the standard generator
     57- faster poldiscfactors()
+    58- when 'log' is turned on, explicitly output the logfile name
 
   Added
      1- [libpari] nonsquare_Fl

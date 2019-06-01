@@ -777,7 +777,7 @@ static FILE *
 gprc_chk(const char *s)
 {
   FILE *f = fopen(s, "r");
-  if (f && !(GP_DATA->flags & gpd_QUIET)) err_printf("Reading GPRC: %s ...", s);
+  if (f && !(GP_DATA->flags & gpd_QUIET)) err_printf("Reading GPRC: %s\n", s);
   return f;
 }
 
@@ -997,7 +997,7 @@ gp_initrc(pari_stack *p_A)
   }
   pari_stack_delete(&s_env);
   pop_buffer();
-  if (!(GP_DATA->flags & gpd_QUIET)) err_printf("Done.\n\n");
+  if (!(GP_DATA->flags & gpd_QUIET)) err_printf("GPRC Done.\n\n");
   fclose(file);
 }
 
