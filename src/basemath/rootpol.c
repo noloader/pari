@@ -2219,7 +2219,7 @@ X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
       s = -s;
     }
     /* if flag is set there will be no further sign changes */
-    if (flag && (!Premapped || !nb)) goto END;
+    if (flag && (!Premapped || !nb)) return gc_long(av, nb);
     vlim--;
     if (gc_needed(av, 3))
     {
@@ -2229,7 +2229,6 @@ X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
     }
   }
   if (vlim >= 2 && s == signe(gel(v, vlim))) nb++;
-END:
   if (Premapped && nb == 1) *Premapped = v; else set_avma(av);
   return nb;
 }
