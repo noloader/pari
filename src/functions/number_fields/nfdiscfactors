@@ -7,7 +7,7 @@ Help: nfdiscfactors(T): [D, faD], where D = nfdisc(T), and faD is the
 Doc: given a polynomial $T$ with integer coefficients, return
  $[D, \var{faD}]$ where $D$ is \kbd{nfdisc}$(T)$ and
  \var{faD} is the factorization of $|D|$. All the variants \kbd{[T,listP]}
- are allowed (see \kbd{??nfdisc}), in which case, \var{faD} is the
+ are allowed (see \kbd{??nfdisc}), in which case \var{faD} is the
  factorization of the discriminant underlying order (which need not be maximal
  at the primes not specified by \kbd{listP}) and the factorization may
  contain large composites.
