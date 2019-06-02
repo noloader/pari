@@ -135,7 +135,7 @@ BA 106- matsolve(M,vector(n)) could return result of wrong dimension
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack
         [was undocumented, malloc'ed and resulted in memory leaks]
-     2- improved n!, factorial(n) and lngamma(n) for integral n
+     2- improved n!, factorial(n), lngamma(n) and psi(n) for integral n
      3- improved bernvec: no longer Obsolete
      4- [libpari] mpbern is now obsolete: use constbern
      5- rewrote the Bernoulli number cache (using zeta(2n) = * B_{2n})

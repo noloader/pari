@@ -1840,6 +1840,12 @@ glngamma(GEN x, long prec)
 /**                  PSI(x) = GAMMA'(x)/GAMMA(x)                   **/
 /**                                                                **/
 /********************************************************************/
+static void
+err_psi(GEN s)
+{
+  pari_err_DOMAIN("psi","argument", "=",
+                  strtoGENstr("non-positive integer"), s);
+}
 static GEN
 cxpsi(GEN s0, long prec)
 {
@@ -1853,9 +1859,7 @@ cxpsi(GEN s0, long prec)
   if (DEBUGLEVEL>2) timer_start(&T);
   s = trans_fix_arg(&prec,&s0,&sig,&tau,&av,&res);
   if (signe(sig) <= 0) { funeq = 1; s = gsub(gen_1, s); sig = real_i(s); }
-  if (typ(s0) == t_INT && signe(s0) <= 0)
-    pari_err_DOMAIN("psi","argument", "=",
-                    strtoGENstr("non-positive integer"), s0);
+  if (typ(s0) == t_INT && signe(s0) <= 0) err_psi(s0);
 
   if (expo(sig) > 300 || (typ(s) == t_COMPLEX && gexpo(gel(s,2)) > 300))
   { /* |s| is HUGE. Play safe */
@@ -2086,13 +2090,45 @@ serpsi(GEN y, long prec)
   return Q;
 }
 
+static GEN
+hrec(ulong a, long b)
+{
+  long m;
+  switch(b - a)
+  {
+    case 1: return mkfrac(gen_1, utoipos(a));
+    case 2: return mkfrac(utoipos(2*a + 1), muluu(a, a+1));
+  }
+  m = (a + b) >> 1;
+  return gadd(hrec(a, m), hrec(m, b));
+}
+/* exact Harmonic number H_n */
+static GEN
+harmonic(ulong n) { return hrec(1, n+1); }
+static ulong
+psi_n(ulong b)
+{
+  if (b <= 64) return 50;
+  if (b <= 128) return 85;
+  if (b <= 192) return 122;
+  if (b <= 256) return 150;
+  if (b <= 512) return 320;
+  if (b <= 1024) return 715;
+  return 0.010709 * pow((double)b, 1.631); /* 1.631 ~ log_3(6) */
+}
 GEN
 gpsi(GEN x, long prec)
 {
   pari_sp av;
+  ulong n;
   GEN y;
   switch(typ(x))
   {
+    case t_INT:
+      if (signe(x) <= 0) err_psi(x);
+      if (lgefint(x) > 3 || (n = itou(x)) > psi_n(prec2nbits(prec))) break;
+      av = avma; y = mpeuler(prec);
+      return gerepileuptoleaf(av, n == 1? negr(y): gsub(harmonic(n-1), y));
     case t_REAL: case t_COMPLEX: return cxpsi(x,prec);
     default:
       av = avma; if (!(y = toser_i(x))) break;
