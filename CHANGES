@@ -131,6 +131,7 @@ BA 104- nfisincl(x^3+9,x^6+2187): wrong result [#2144]
    105- ispower(27,2^60) -> SEGV [#2145]
 BA 106- matsolve(M,vector(n)) could return result of wrong dimension
    107- [Windows] no longer crash on deep recursion [#2105]
+   108- factor(Mod(x^3 + x + y^2,2)) -> oo loop [#2148]
 
   Changed
      1- [libpari] gp_filter return value is now allocated on the stack

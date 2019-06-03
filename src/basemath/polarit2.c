@@ -238,12 +238,18 @@ RgX_cmbf(GEN p, long i, GEN BLOC, GEN Lmod, GEN Lfac, GEN *F)
 static GEN factor_domain(GEN x, GEN flag);
 
 static GEN
+ok_bloc(GEN f, GEN BLOC, ulong c)
+{
+  GEN F = poleval(f, BLOC);
+  return issquarefree(c ? gmul(F,mkintmodu(1,c)): F)? F: NULL;
+}
+static GEN
 RgXY_factor_squarefree(GEN f, GEN dom)
 {
   pari_sp av = avma;
   ulong i, c = itou_or_0(residual_characteristic(f));
   long vy = gvar2(f), val = RgX_valrem(f, &f), n = RgXY_degreex(f);
-  GEN Lmod, F = NULL, BLOC = NULL, Lfac = coltrunc_init(degpol(f)+2);
+  GEN y, Lmod, F = NULL, BLOC = NULL, Lfac = coltrunc_init(degpol(f)+2);
   if (val)
   {
     GEN x = pol_x(varn(f));
@@ -254,13 +260,19 @@ RgXY_factor_squarefree(GEN f, GEN dom)
     }
     vectrunc_append(Lfac, x); if (!degpol(f)) return Lfac;
   }
+  y = pol_x(vy);
   for(;;)
   {
     for (i = 0; !c || i < c; i++)
     {
-      BLOC = gpowgs(gaddgs(pol_x(vy), i), n+1);
-      F = poleval(f, BLOC);
-      if (issquarefree(c ? gmul(F,mkintmodu(1,c)): F)) break;
+      BLOC = gpowgs(gaddgs(y, i), n+1);
+      if ((F = ok_bloc(f, BLOC, c))) break;
+      if (c)
+      {
+        BLOC = random_FpX(n+1, vy, utoipos(c));
+        gel(BLOC,lg(BLOC)-1) = gen_1;
+        if ((F = ok_bloc(f, BLOC, c))) break;
+      }
     }
     if (!c || i < c) break;
     n++;
