@@ -717,6 +717,21 @@ F2x_recip(GEN x)
 }
 
 GEN
+F2xn_red(GEN f, long n)
+{
+  GEN g;
+  long i, dl, db, l;
+  if (F2x_degree(f) < n) return zv_copy(f);
+  dl = dvmdsBIL(n, &db); l = 2 + dl + (db>0);
+  g = cgetg(l, t_VECSMALL);
+  g[1] = f[1];
+  for (i=2; i<l; i++)
+    uel(g,i) = uel(f,i);
+  if (db) uel(g,l-1) = uel(f,l-1)&((1UL<<db)-1);
+  return F2x_renormalize(g, l);
+}
+
+GEN
 F2x_get_red(GEN T)
 {
   return T;
