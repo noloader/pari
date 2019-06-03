@@ -731,6 +731,72 @@ F2xn_red(GEN f, long n)
   return F2x_renormalize(g, l);
 }
 
+static GEN
+F2xn_mul(GEN a, GEN b, long n)
+{ return F2xn_red(F2x_mul(a, b), n); }
+
+static ulong
+F2xn_inv_basecase1(ulong x)
+{
+  ulong u, v, w;
+  long i;
+  u = x>>1;
+  v = (u&1UL)|2UL;
+  w = u&v; w ^= w >> 1; v = (w&1UL)|(v<<1);
+  w = u&v; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1);
+  w = u&v; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1);
+  for (i=1;i<=4;i++)
+   { w = u&v; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1); }
+  for (i=1;i<=8;i++)
+   { w = u&v; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1); }
+  for (i=1;i<=16;i++)
+   { w = u&v; w ^= w >> 16; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1; v = (w&1UL)|(v<<1); }
+#ifdef LONG_IS_64BIT
+  for (i=1; i<=32; i++)
+   { w = u&v; w ^= w >> 32; w ^= w >> 16; w ^= w >> 8; w ^= w >> 4; w ^= w >> 2; w ^= w >> 1;
+   v = (w&1UL)|(v<<1); }
+#endif
+  return (F2x_recip1(v)<<1)|1UL;
+}
+
+static GEN
+F2xn_inv1(GEN v, long e)
+{
+  ulong mask = e==BITS_IN_LONG ? -1UL: ((1UL<<e)-1);
+  return mkvecsmall2(v[1],F2xn_inv_basecase1(uel(v,2))&mask);
+}
+
+GEN
+F2xn_inv(GEN f, long e)
+{
+  pari_sp av = avma, av2;
+  ulong mask;
+  GEN W;
+  long n=1;
+  if (lg(f)==2) pari_err_INV("Flxn_inv",f);
+  if (e <= BITS_IN_LONG) return F2xn_inv1(f, e);
+  W = F2xn_inv1(f, BITS_IN_LONG);
+  mask = quadratic_prec_mask(divsBIL(e+BITS_IN_LONG-1));
+  n = BITS_IN_LONG;
+  av2 = avma;
+  for (;mask>1;)
+  {
+    GEN u, fr;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    fr = F2xn_red(f, n);
+    u = F2x_shift(F2xn_mul(W, fr, n), -n2);
+    W = F2x_add(W, F2x_shift(F2xn_mul(u, W, n-n2), n2));
+    if (gc_needed(av2,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"F2xn_inv, e = %ld", n);
+      W = gerepileupto(av2, W);
+    }
+  }
+  return gerepileupto(av, F2xn_red(W,e));
+}
+
 GEN
 F2x_get_red(GEN T)
 {

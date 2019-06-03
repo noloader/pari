@@ -154,6 +154,7 @@ GEN     F2xXC_to_ZXXC(GEN B);
 GEN     F2xY_F2xq_evalx(GEN P, GEN x, GEN T);
 GEN     F2xY_F2xqV_evalx(GEN P, GEN x, GEN T);
 long    F2xY_degreex(GEN b);
+GEN     F2xn_inv(GEN f, long e);
 GEN     F2xn_red(GEN a, long n);
 GEN     F2xq_Artin_Schreier(GEN a, GEN T);
 GEN     F2xq_autpow(GEN x, long n, GEN T);

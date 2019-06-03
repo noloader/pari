@@ -2387,7 +2387,10 @@ RgXn_inv_FpX(GEN x, long e, GEN p)
   if (lgefint(p) == 3)
   {
     ulong pp = uel(p, 2);
-    r = Flx_to_ZX_inplace(Flxn_inv(RgX_to_Flx(x, pp), e, pp));
+    if (pp == 2)
+      r = F2x_to_ZX(F2xn_inv(RgX_to_F2x(x), e));
+    else
+      r = Flx_to_ZX_inplace(Flxn_inv(RgX_to_Flx(x, pp), e, pp));
   }
   else
     r = FpXn_inv(RgX_to_FpX(x, p), e, p);
