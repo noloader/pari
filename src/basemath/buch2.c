@@ -4032,7 +4032,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   M_sn = nf_get_M(nf);
   if (PRECREG > small_norm_prec) M_sn = gprec_w(M_sn, small_norm_prec);
 
-  zu = rootsof1(nf);
+  zu = nfrootsof1(nf);
   gel(zu,2) = nf_to_scalar_or_alg(nf, gel(zu,2));
 
   auts = automorphism_matrices(nf, &F.invs, &cyclic);
@@ -4042,7 +4042,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   compute_vecG(nf, &F, minss(RU, 9));
   if (DEBUGLEVEL)
   {
-    timer_printf(&T, "nfinit & rootsof1");
+    timer_printf(&T, "nfinit & nfrootsof1");
     err_printf("R1 = %ld, R2 = %ld\nD = %Ps\n",R1,R2, D);
   }
   if (LOGD < 20.) /* tiny disc, Minkowski *may* be smaller than Bach */

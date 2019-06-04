@@ -3321,7 +3321,7 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
     if (pl[i]==-1 && ell%2)
       pari_err_IMPL("nfgrunwaldwang for non prime-power local degrees (c)");
 
-  w = bnf? bnf_get_tuN(bnf): itos(gel(rootsof1(nf),1));
+  w = bnf? bnf_get_tuN(bnf): itos(gel(nfrootsof1(nf),1));
 
   /* TODO choice between kummer and generic ? Let user choose between speed
    * and size */

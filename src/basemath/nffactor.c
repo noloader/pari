@@ -2143,7 +2143,7 @@ static GEN
 trivroots(void) { return mkvec2(gen_2, gen_m1); }
 /* Number of roots of unity in number field [nf]. */
 GEN
-rootsof1(GEN nf)
+nfrootsof1(GEN nf)
 {
   nflift_t L;
   GEN T, q, fa, LP, LE, C0, z, disc;
@@ -2252,70 +2252,8 @@ rootsof1(GEN nf)
         break;
       }
       set_avma(av);
-      if (DEBUGLEVEL) pari_warn(warner,"rootsof1: wrong guess");
+      if (DEBUGLEVEL) pari_warn(warner,"nfrootsof1: wrong guess");
     }
   }
   return gerepilecopy(av, mkvec2(utoi(nbroots), z));
-}
-
-static long
-zk_equal1(GEN y)
-{
-  if (typ(y) == t_INT) return equali1(y);
-  return equali1(gel(y,1)) && ZV_isscalar(y);
-}
-/* x^w = 1 */
-static GEN
-is_primitive_root(GEN nf, GEN fa, GEN x, long w)
-{
-  GEN P = gel(fa,1);
-  long i, l = lg(P);
-
-  for (i = 1; i < l; i++)
-  {
-    long p = itos(gel(P,i));
-    GEN y = nfpow_u(nf,x, w/p);
-    if (zk_equal1(y) > 0) /* y = 1 */
-    {
-      if (p != 2 || !equali1(gcoeff(fa,i,2))) return NULL;
-      x = gneg_i(x);
-    }
-  }
-  return x;
-}
-GEN
-rootsof1_kannan(GEN nf)
-{
-  pari_sp av = avma;
-  long N, k, i, ws, prec;
-  GEN z, y, d, list, w;
-
-  nf = checknf(nf);
-  if ( nf_get_r1(nf) ) return trivroots();
-
-  N = nf_get_degree(nf); prec = nf_get_prec(nf);
-  for (;;)
-  {
-    GEN R = R_from_QR(nf_get_G(nf), prec);
-    if (R)
-    {
-      y = fincke_pohst(mkvec(R), utoipos(N), N * N, 0, NULL);
-      if (y) break;
-    }
-    prec = precdbl(prec);
-    if (DEBUGLEVEL) pari_warn(warnprec,"rootsof1",prec);
-    nf = nfnewprec_shallow(nf,prec);
-  }
-  if (itos(ground(gel(y,2))) != N) pari_err_BUG("rootsof1 (bug1)");
-  w = gel(y,1); ws = itos(w);
-  if (ws == 2) { set_avma(av); return trivroots(); }
-
-  d = Z_factor(w); list = gel(y,3); k = lg(list);
-  for (i=1; i<k; i++)
-  {
-    z = is_primitive_root(nf, d, gel(list,i), ws);
-    if (z) return gerepilecopy(av, mkvec2(w, z));
-  }
-  pari_err_BUG("rootsof1");
-  return NULL; /* LCOV_EXCL_LINE */
 }

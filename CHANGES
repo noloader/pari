@@ -3,8 +3,12 @@ Done for version 2.12.1 (released ??/??/2019):
   Fixed
 
   Changed
+     1- renamed libpari function rootsof1 -> nfrootsof1
 
   Added
+
+  Removed
+     1- obsolete function rootsof1_kannan: use nfrootsof1
 
 Done for version 2.12.0 (released 01/06/2019):
   Fixed

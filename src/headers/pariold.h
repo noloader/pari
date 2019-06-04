@@ -12,6 +12,8 @@ with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /* For compatibility with older PARI versions */
+#define rootsof1 nfrootsof1
+#define rootsof1_kannan nfrootsof1
 #define hash_str2 hash_str
 #define Strtex strtex
 #define Strprintf strprintf

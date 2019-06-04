@@ -4346,7 +4346,7 @@ int     nfissquarefree(GEN nf, GEN x);
 GEN     nfroots(GEN nf,GEN pol);
 GEN     nfroots_if_split(GEN *pnf, GEN pol);
 GEN     polfnf(GEN a, GEN t);
-GEN     rootsof1(GEN x);
+GEN     nfrootsof1(GEN x);
 GEN     rootsof1_kannan(GEN nf);
 
 /* paricfg.c */
