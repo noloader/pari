@@ -1197,7 +1197,6 @@ Flx_invBarrett_Newton(GEN T, ulong p)
   return x;
 }
 
-/* x/polrecip(T)+O(x^deg(T)) */
 GEN
 Flx_invBarrett(GEN T, ulong p)
 {
@@ -4542,7 +4541,6 @@ FlxqX_invBarrett_Newton(GEN S, GEN T, ulong p)
   return gerepilecopy(av, x);
 }
 
-/* x/polrecip(P)+O(x^n) */
 GEN
 FlxqX_invBarrett(GEN T, GEN Q, ulong p)
 {

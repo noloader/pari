@@ -916,7 +916,6 @@ FpXQX_invBarrett_Newton(GEN S, GEN T, GEN p)
   return gerepilecopy(av, x);
 }
 
-/* 1/polrecip(S)+O(x^(deg(S)-1)) */
 GEN
 FpXQX_invBarrett(GEN S, GEN T, GEN p)
 {
