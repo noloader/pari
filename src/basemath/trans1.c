@@ -1228,19 +1228,15 @@ grootsof1(long N, long prec)
   GEN z, RU, *v;
   long i, k;
 
+  if (N <= 0) pari_err_DOMAIN("rootsof1", "N", "<=", gen_0, stoi(N));
   if ((N & 3) == 0) return grootsof1_4(N, prec);
   if (N <= 2) return N == 1? mkvec(gen_1): mkvec2(gen_1, gen_m1);
-  k = (N+3)>>1;
+  k = (N+1)>>1;
   RU = cgetg(N+1,t_VEC);
   v  = ((GEN*)RU) + 1;
   v[0] = gen_1; v[1] = z = rootsof1u_cx(N, prec);
-  if (odd(N))
-    for (i=2; i<k; i++) v[i] = gmul(z, v[i-1]);
-  else
-  {
-    for (i=2; i<k-1; i++) v[i] = gmul(z, v[i-1]);
-    v[i++] = gen_m1; /*avoid loss of accuracy*/
-  }
+  for (i=2; i<k; i++) v[i] = gmul(z, v[i-1]);
+  if (!odd(N)) v[i++] = gen_m1; /*avoid loss of accuracy*/
   for (   ; i<N; i++) v[i] = gconj(v[N-i]);
   return RU;
 }

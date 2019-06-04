@@ -6,6 +6,7 @@ Done for version 2.12.1 (released ??/??/2019):
      1- renamed libpari function rootsof1 -> nfrootsof1
 
   Added
+     1- new GP function rootsof1
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
