@@ -14,7 +14,7 @@ Doc: $\var{bnf}$ being as output by
  ? K = bnfinit(x^3+2^2^3+1); bnfcertify(K)
    ***   at top-level: K=bnfinit(x^3+2^2^3+1);bnfcertify(K)
    ***                                        ^-------------
-   *** bnfcertify: missing units in bnf.
+   *** bnfcertify: precision too low in makeunits [use bnfinit(,1)].
  ? K = bnfinit(x^3+2^2^3+1, 1); \\ include units
  ? bnfcertify(K)
  %3 = 1

@@ -1171,8 +1171,7 @@ makeunits(GEN BNF)
     pari_sp av = avma;
     GEN A = bnf_get_logfu(bnf);
     fu = getfu(nf, &A, &l, 0);
-    if (!fu)
-      pari_err_PREC("makeunits [cannot compute units, use bnfinit(,1)]");
+    if (!fu) pari_err_PREC("makeunits [use bnfinit(,1)]");
     fu = gerepilecopy(av, fu);
   }
   l = lg(fu) + 1; v = cgetg(l, t_VEC);

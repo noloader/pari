@@ -15,18 +15,17 @@ Doc: \var{bnf} being the number field data
  u_r^{x_r}\cdot\zeta^{x_{r+1}}$. The $x_i$ are integers for $i\le r$ and is an
  integer modulo the order of $\zeta$ for $i=r+1$.
 
- Note that \var{bnf} need not contain the fundamental unit explicitly:
+ Note that \var{bnf} need not contain the fundamental units explicitly: it may
+ contain the placeholder $0$ instead:
  \bprog
  ? setrand(1); bnf = bnfinit(x^2-x-100000);
  ? bnf.fu
-   ***   at top-level: bnf.fu
-   ***                     ^--
-   *** _.fu: missing units in .fu.
+ %2 = 0
  ? u = [119836165644250789990462835950022871665178127611316131167, \
         379554884019013781006303254896369154068336082609238336]~;
  ? bnfisunit(bnf, u)
- %3 = [-1, Mod(0, 2)]~
- @eprog\noindent The given $u$ is the inverse of the fundamental unit
- implicitly stored in \var{bnf}. In this case, the fundamental unit was not
- computed and stored in algebraic form since the default accuracy was too
- low. (Re-run the command at \bs g1 or higher to see such diagnostics.)
+ %3 = [-1, Mod(1, 2)]~
+ @eprog\noindent The given $u$ is $- 1/u_1$, where $u_1$ is the fundamental
+ unit implicitly stored in \var{bnf}. In this case, $u_1$ was not computed
+ and stored in algebraic form since the default accuracy was too low. Re-run
+ the command at \bs g1 or higher to see such diagnostics.
