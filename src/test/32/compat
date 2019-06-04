@@ -3547,17 +3547,8 @@ polroots(T): complex roots of the polynomial T using Schonhage's method, as
 modified by Gourdon.
 
 
-  ***   at top-level: rootsof1()
-  ***                 ^----------
-  ***   not a function in function call
-A function with that name existed in GP-1.39.15. Please update your script.
-
-New syntax: rootsof1(nf) ===> nfrootsof1(nf)
-
-nfrootsof1(nf): number of roots of unity and primitive root of unity in the 
-number field nf.
-
-
+  ***   too few arguments: rootsof1()
+  ***                               ^-
   ***   at top-level: rootsold()
   ***                 ^----------
   ***   not a function in function call
@@ -4525,4 +4516,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 12
+Total time spent: 9
