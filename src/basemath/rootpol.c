@@ -908,7 +908,7 @@ fft(GEN Omega, GEN p, GEN f, long step, long l)
     gel(ff,i+l3+1) = gsub(g02, g13);
   }
   ff = gerepilecopy(ltop,ff);
-  for (i=0; i<l; i++) f[i] = ff[i+1];
+  for (i=0; i<l; i++) gel(f,i) = gel(ff,i+1);
 }
 
 GEN
@@ -1049,8 +1049,8 @@ dft(GEN p, long k, long NN, long Lmax, long bit, GEN F, GEN H, long polreal)
   C = cgetg(Lmax+1,t_VEC); C++;
   pc = cgetg(Lmax+1,t_VEC); pc++;
   pd = cgetg(Lmax+1,t_VEC); pd++;
-  pc[0] = q[2];  for (i=n+1; i<Lmax; i++) gel(pc,i) = gen_0;
-  pd[0] = qd[2]; for (i=n;   i<Lmax; i++) gel(pd,i) = gen_0;
+  gel(pc,0) = gel(q,2);  for (i=n+1; i<Lmax; i++) gel(pc,i) = gen_0;
+  gel(pd,0) = gel(qd,2); for (i=n;   i<Lmax; i++) gel(pd,i) = gen_0;
 
   ltop = avma;
   W = cgetg(k+1,t_VEC);
