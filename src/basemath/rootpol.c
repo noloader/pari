@@ -912,13 +912,6 @@ fft(GEN Omega, GEN p, GEN f, long step, long l)
 }
 
 GEN
-FFTinit(long k, long prec)
-{
-  if (k <= 0) pari_err_DOMAIN("FFTinit", "k", "<=", gen_0, stoi(k));
-  return grootsof1(1L << k, prec);
-}
-
-GEN
 FFT(GEN x, GEN Omega)
 {
   long i, l = lg(Omega), n = lg(x);
@@ -929,7 +922,7 @@ FFT(GEN x, GEN Omega)
 
   if (n < l) {
     z = cgetg(l, t_VECSMALL); /* cf stackdummy */
-    for (i = 1; i < n; i++) z[i] = x[i];
+    for (i = 1; i < n; i++) gel(z,i) = gel(x,i);
     for (     ; i < l; i++) gel(z,i) = gen_0;
   }
   else z = x;

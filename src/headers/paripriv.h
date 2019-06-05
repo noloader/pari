@@ -849,7 +849,6 @@ char**  pari_completion_matches(pari_rl_interface *pari_rl, const char *s, long 
 /* rootpol.c */
 
 GEN     FFT(GEN x, GEN Omega);
-GEN     FFTinit(long k, long prec);
 
 /* subcyclo.c */
 
