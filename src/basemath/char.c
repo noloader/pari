@@ -853,7 +853,7 @@ znlog0(GEN h, GEN g, GEN o)
   {
     GEN N;
     if (o) pari_err_TYPE("znlog [with znstar]", o);
-    if (!checkznstar_i(g)) pari_err_TYPE("znlog", h);
+    if (!checkznstar_i(g)) pari_err_TYPE("znlog", g);
     N = znstar_get_N(g);
     h = Rg_to_Fp(h,N);
     return Zideallog(g, h);
