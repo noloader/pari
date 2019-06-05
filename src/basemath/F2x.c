@@ -431,20 +431,22 @@ static GEN
 F2x_to_int(GEN a, long na, long da, long bs)
 {
   const long BIL = BITS_IN_LONG;
-  GEN z;
+  GEN z, zs;
   long i,j,k,m;
   long lz = nbits2lg(1+da*bs);
   z = cgeti(lz); z[1] = evalsigne(1)|evallgefint(lz);
-  for (i=0, k=1, m=BIL; i<na; i++)
+  zs = int_LSW(z); *zs = 0;
+  for (i=0, k=2, m=0; i<na; i++)
     for (j=0; j<BIL; j++, m+=bs)
     {
       if (m >= BIL)
       {
         k++; if (k>=lz) break;
+        zs = int_nextW(zs);
+        *zs = 0;
         m -= BIL;
-        z[k] = ((a[i]>>j)&1UL)<<m;
-      } else
-      z[k] |= ((a[i]>>j)&1UL)<<m;
+      }
+      *zs |= ((a[i]>>j)&1UL)<<m;
     }
   return int_normalize(z,0);
 }
@@ -455,19 +457,21 @@ int_to_F2x(GEN x, long d, long bs)
   const long BIL = BITS_IN_LONG;
   long lx = lgefint(x), lz = nbits2lg(d+1);
   long i,j,k,m;
+  GEN xs = int_LSW(x);
   GEN z = cgetg(lz, t_VECSMALL);
   z[1] = 0;
-  for (k=1, i=2, m=BIL; k < lx; i++)
+  for (k=2, i=2, m=0; k < lx; i++)
   {
     z[i] = 0;
     for (j=0; j<BIL; j++, m+=bs)
     {
       if (m >= BIL)
       {
-        m -= BIL;
         if (++k==lx) break;
+        xs = int_nextW(xs);
+        m -= BIL;
       }
-      if ((x[k]>>m)&1UL)
+      if ((*xs>>m)&1UL)
         z[i]|=1UL<<j;
     }
   }
