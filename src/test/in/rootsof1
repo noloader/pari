@@ -1,3 +1,4 @@
+default(realprecision,38);
 rootsof1(1)
 rootsof1(2)
 rootsof1(3)
