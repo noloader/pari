@@ -635,7 +635,7 @@ rectlines0(long ne, double *x, double *y, long lx, long flag)
   }
   Rchain(e, z);
   RoType(z) = ROt_ML;
-  RoMLcnt(z) = lx;
+  RoMLcnt(z) = I;
   RoMLxs(z) = ptx;
   RoMLys(z) = pty;
   RoCol(z) = current_color[ne];
