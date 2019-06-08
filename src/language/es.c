@@ -251,7 +251,7 @@ gp_read_stream_buf(FILE *fi, Buffer *b)
   init_filtre(&F, b);
 
   IM.file = (void*)fi;
-  IM.fgets = (fgets_t)&fgets;
+  IM.myfgets = (fgets_t)&fgets;
   IM.getline = &file_input;
   IM.free = 0;
   return input_loop(&F,&IM);
@@ -338,7 +338,7 @@ gp_read_str_multiline(const char *s, char *last)
   const char *ptr = s;
 
   IM.file = (void*)(&ptr);
-  IM.fgets = (fgets_t)&string_gets;
+  IM.myfgets = (fgets_t)&string_gets;
   IM.getline = &file_input;
   IM.free = 0;
 
@@ -447,7 +447,7 @@ file_getline(Buffer *b, char **s0, input_method *IM)
     /* # of chars read by fgets is an int; be careful */
     read = minuu(left, MAX);
     s = b->buf + used;
-    if (! IM->fgets(s, (int)read, IM->file)) return **s0? *s0: NULL; /* EOF */
+    if (! IM->myfgets(s, (int)read, IM->file)) return **s0? *s0: NULL; /* EOF */
 
     l = strlen(s);
     if (l+1 < read || s[l-1] == '\n') return *s0; /* \n */
@@ -4051,7 +4051,7 @@ get_lines(FILE *F)
   GEN z = cgetg(nz + 1, t_VEC);
   Buffer *b = new_buffer();
   input_method IM;
-  IM.fgets = (fgets_t)&fgets;
+  IM.myfgets = (fgets_t)&fgets;
   IM.file = (void*)F;
   for(i = 1;;)
   {
@@ -5075,7 +5075,7 @@ gp_filereadstr(long n)
   if (t!=mf_IN && t!=mf_PIPE)
     pari_err_FILEDESC("fileread",n);
   b = new_buffer();
-  IM.fgets = (fgets_t)&fgets;
+  IM.myfgets = (fgets_t)&fgets;
   IM.file = (void*) gp_file[n].fp;
   s = b->buf;
   if (!file_getline(b, &s, &IM)) { delete_buffer(b); return gen_0; }

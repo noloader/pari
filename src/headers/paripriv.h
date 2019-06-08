@@ -429,7 +429,7 @@ typedef char *(*fgets_t)(char *, int, void*);
 
 typedef struct input_method {
 /* optional */
-  fgets_t fgets;  /* like libc fgets() but last argument is (void*) */
+  fgets_t myfgets;  /* like libc fgets() but last argument is (void*) */
 /* mandatory */
   char * (*getline)(char**, int f, struct input_method*, filtre_t *F);
   int free; /* boolean: must we free the output of getline() ? */

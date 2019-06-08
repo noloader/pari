@@ -1162,9 +1162,9 @@ get_line_from_file(const char *prompt, filtre_t *F, FILE *file)
 
   IM.file = (void*)file;
   if (file==stdin && cb_pari_fgets_interactive)
-    IM.fgets = (fgets_t)cb_pari_fgets_interactive;
+    IM.myfgets = (fgets_t)cb_pari_fgets_interactive;
   else
-    IM.fgets = (fgets_t)&fgets;
+    IM.myfgets = (fgets_t)&fgets;
   IM.getline = &file_input;
   IM.free = 0;
   if (! input_loop(F,&IM))
