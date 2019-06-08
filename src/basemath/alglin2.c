@@ -979,10 +979,10 @@ carhess(GEN x, long v)
  *   s = max_k binomial(n,k) (kB^2)^(k/2),
  * return ceil(log2(s)) */
 static long
-charpoly_bound(GEN M, GEN dM)
+charpoly_bound(GEN M, GEN dM, GEN N)
 {
   pari_sp av = avma;
-  GEN B = itor(ZM_supnorm(M), LOWDEFAULTPREC);
+  GEN B = itor(N, LOWDEFAULTPREC);
   GEN s = real_0(LOWDEFAULTPREC), bin, B2;
   long n = lg(M)-1, k;
   bin = gen_1;
@@ -997,62 +997,62 @@ charpoly_bound(GEN M, GEN dM)
   return gc_long(av, ceil(dbllog2(s)));
 }
 
-/* Return char_{M/d}(X) = d^(-n) char_M(dX) modulo p. Assume dp = d mod p. */
 static GEN
-QM_charpoly_Flx(GEN M, ulong dp, ulong p)
+QM_charpoly_ZX_slice(GEN A, GEN dM, GEN P, GEN *mod)
 {
   pari_sp av = avma;
-  GEN H = Flm_charpoly_i(ZM_to_Flm(M,p), p);
-  if (dp) H = Flx_rescale(H, Fl_inv(dp,p), p);
-  return gerepileuptoleaf(av, H);
+  long i, n = lg(P)-1;
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1), dp = dM ? umodiu(dM, p): 1;
+    GEN Hp, a = ZM_to_Flm(A, p);
+    Hp = Flm_charpoly_i(a, p);
+    if (dp != 1) Hp = Flx_rescale(Hp, Fl_inv(dp, p), p);
+    Hp = gerepileupto(av, Flx_to_ZX(Hp));
+    *mod = utoi(p); return Hp;
+  }
+  T = ZV_producttree(P);
+  A = ZM_nv_mod_tree(A, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = uel(P,i), dp = dM ? umodiu(dM, p): 1;
+    gel(H,i) = Flm_charpoly(gel(A, i), p);
+    if (dp != 1) gel(H,i) = Flx_rescale(gel(H,i), Fl_inv(dp, p), p);
+  }
+  H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P,T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
 }
 
-static int
-ZX_CRT(GEN *H, GEN Hp, GEN *q, ulong p, long bit)
+GEN
+QM_charpoly_ZX_worker(GEN P, GEN M, GEN dM)
 {
-  if (!*H)
-  {
-    *H = ZX_init_CRT(Hp, p, 0);
-    if (DEBUGLEVEL>5)
-      err_printf("charpoly mod %lu, bound = 2^%ld\n", p, expu(p));
-    if (expu(p) > bit) return 1;
-    *q = utoipos(p);
-  }
-  else
-  {
-    int stable = ZX_incremental_CRT(H, Hp, q,p);
-    if (DEBUGLEVEL>5)
-      err_printf("charpoly mod %lu (stable=%ld), bound = 2^%ld\n",
-                 p, stable, expi(*q));
-    if (stable && expi(*q) > bit) return 1;
-  }
-  return 0;
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = QM_charpoly_ZX_slice(M, equali1(dM) ? NULL:dM, P, &gel(V,2));
+  return V;
 }
 
 /* Assume M a square ZM, dM integer. Return charpoly(M / dM) in Z[X] */
 static GEN
-QM_charpoly_ZX_i(GEN M, GEN dM, long bit)
+QM_charpoly_ZX_i(GEN M, GEN dM, long bound)
 {
   long n = lg(M)-1;
-  GEN q = NULL, H = NULL;
-  forprime_t S;
-  ulong p;
+  GEN worker = strtoclosure("_QM_charpoly_ZX_worker",2,M,dM? dM: gen_1);
   if (!n) return pol_1(0);
-
-  if (bit < 0) bit = charpoly_bound(M, dM) + 1;
-  if (DEBUGLEVEL>5) err_printf("ZM_charpoly: bit-bound 2^%ld\n", bit);
-  init_modular_big(&S);
-  while ((p = u_forprime_next(&S)))
+  if (bound < 0)
   {
-    ulong dMp = 0;
-    GEN Hp;
-    if (dM && !(dMp = umodiu(dM, p))) continue;
-    Hp = QM_charpoly_Flx(M, dMp, p);
-    if (ZX_CRT(&H, Hp, &q,p, bit)) break;
+    GEN N = ZM_supnorm(M);
+    if (signe(N) == 0) return monomial(gen_1, n, 0);
+    bound = charpoly_bound(M, dM, N) + 1;
   }
-  if (!p) pari_err_OVERFLOW("charpoly [ran out of primes]");
-  return H;
+  if (DEBUGLEVEL>5) err_printf("ZM_charpoly: bound 2^%ld\n", bound);
+  return gen_crt("QM_charpoly_ZX", worker, dM, bound, n, NULL,
+              nxV_chinese_center, FpX_center);
 }
+
 GEN
 QM_charpoly_ZX_bound(GEN M, long bit)
 {

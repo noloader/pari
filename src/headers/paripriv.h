@@ -169,6 +169,7 @@ GEN  nxMV_chinese_center_tree_seq(GEN A, GEN P, GEN T, GEN R);
 GEN  F2xq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN  Flxq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R);
 GEN  Fp_log_sieve_worker(long a, long prmax, GEN C, GEN c, GEN Ci, GEN ci, GEN pr, GEN sz);
+GEN  QM_charpoly_ZX_worker(GEN P, GEN M, GEN dM);
 GEN  ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB);
 GEN  ZX_ZXY_resultant_worker(GEN P, GEN A, GEN B, GEN dB, GEN v);
 GEN  ZM_det_worker(GEN P, GEN A);

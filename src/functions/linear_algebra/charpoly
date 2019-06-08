@@ -66,3 +66,9 @@ Variant: Also available are
  last case, if \var{pt} is not \kbd{NULL}, \kbd{*pt} receives the address of
  the adjoint matrix of $A$ (see \tet{matadjoint}), so both can be obtained at
  once.
+
+Function: _QM_charpoly_ZX_worker
+C-Name: QM_charpoly_ZX_worker
+Prototype: GGG
+Section: programming/internals
+Help: worker for QM_charpoly_ZX
