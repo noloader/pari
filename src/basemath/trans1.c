@@ -2326,8 +2326,12 @@ cxexp(GEN x, long prec)
   pari_sp av = avma, tetpil;
   long l;
   l = precision(x); if (l > prec) prec = l;
+  if (gequal0(gel(x,1)))
+  {
+    gsincos(gel(x,2),&gel(y,2),&gel(y,1),prec);
+    return y;
+  }
   r = gexp(gel(x,1),prec);
-  if (gequal0(r)) { gel(y,1) = r; gel(y,2) = r; return y; }
   gsincos(gel(x,2),&p2,&p1,prec);
   tetpil = avma;
   gel(y,1) = gmul(r,p1);
