@@ -3206,7 +3206,7 @@ ZM_ker_slice(GEN A, GEN P, GEN *mod)
 {
   pari_sp av = avma;
   long i, n = lg(P)-1;
-  GEN BQD, D, H, T;
+  GEN BQD, D, H, T, Q;
   if (n == 1)
   {
     ulong p = uel(P,1);
@@ -3219,8 +3219,9 @@ ZM_ker_slice(GEN A, GEN P, GEN *mod)
   H = cgetg(n+1, t_VEC);
   for(i=1 ; i <= n; i++)
     gel(H,i) = Flm_ker_sp(gel(A, i), P[i], 2);
-  BQD = ZM_ker_filter(H, P);
-  H = nmV_chinese_center_tree_seq(gel(BQD,1), gel(BQD,2), T, ZV_chinesetree(P,T));
+  BQD = ZM_ker_filter(H, P); Q = gel(BQD,2);
+  if (lg(Q) != lg(P)) T = ZV_producttree(Q);
+  H = nmV_chinese_center_tree_seq(gel(BQD,1), Q, T, ZV_chinesetree(Q,T));
   *mod = gmael(T, lg(T)-1, 1);
   D = gel(BQD, 3);
   gerepileall(av, 3, &H, &D, mod);
