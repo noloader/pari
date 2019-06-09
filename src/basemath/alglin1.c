@@ -3178,7 +3178,7 @@ ZM_ker_filter(GEN A, GEN P)
     int c = vecsmall_lexcmp(D, Di);
     if (di==d && c==0) n++;
     else if (d > di || (di==d && c>0))
-    { n=1; d = di; D = Di; }
+    { n = 1; d = di; D = Di; }
   }
   B = cgetg(n+1, t_VEC);
   Q = cgetg(n+1, typ(P));
@@ -3257,8 +3257,11 @@ ZM_ker_i(GEN A, long fl)
     if (DEBUGLEVEL >= 4) timer_start(&ti);
     Hr = FpM_ratlift(H, mod, B, B, NULL);
     if (DEBUGLEVEL >= 4) timer_printf(&ti,"ZM_ker: ratlift (%ld)",!!Hr);
-    if (Hr) {/* DONE ? */
-      GEN MH = QM_mul(A, Hr);
+    if (Hr)
+    {
+      GEN MH;
+      if (lg(Hr)==1) return gerepilecopy(av, Hr);
+      MH = QM_mul(A, Hr);
       if (DEBUGLEVEL >= 4) timer_printf(&ti,"ZM_ker: QM_mul");
       if (gequal0(MH))
         return gerepilecopy(av, fl ? vec_Q_primpart(Hr): Hr);
