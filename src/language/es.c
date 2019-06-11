@@ -4595,24 +4595,25 @@ error0(GEN g)
 
 void warning0(GEN g) { pari_warn(warnuser, g); }
 
-static char *
-wr_check(const char *s) {
-  char *t = path_expand(s);
+static void
+wr_check(const char *t) {
   if (GP_DATA->secure)
   {
     char *msg = pari_sprintf("[secure mode]: about to write to '%s'",t);
     pari_ask_confirm(msg);
     pari_free(msg);
   }
-  return t;
 }
 
 /* write to file s */
 static void
 wr(const char *s, GEN g, long flag, int addnl)
 {
-  char *t = wr_check(s);
-  FILE *out = switchout_get_FILE(t);
+  char *t = path_expand(s);
+  FILE *out;
+
+  wr_check(t);
+  out = switchout_get_FILE(t);
   pari_free(t);
   print0_file(out, g, flag);
   if (addnl) fputc('\n', out);
@@ -4622,7 +4623,11 @@ wr(const char *s, GEN g, long flag, int addnl)
 void write0  (const char *s, GEN g) { wr(s, g, f_RAW, 1); }
 void writetex(const char *s, GEN g) { wr(s, g, f_TEX, 1); }
 void write1  (const char *s, GEN g) { wr(s, g, f_RAW, 0); }
-void gpwritebin(const char *s, GEN x) { char *t=wr_check(s); writebin(t, x); pari_free(t);}
+void gpwritebin(const char *s, GEN x)
+{
+  char *t = path_expand(s);
+  wr_check(t); writebin(t, x); pari_free(t);
+}
 
 /*******************************************************************/
 /**                                                               **/
@@ -4940,6 +4945,7 @@ gp_fileopen(char *s, char *mode)
     return new_gp_file(s, f, mf_IN);
   case 'w':
   case 'a':
+    wr_check(s);
     f = fopen(s, mode[0]=='w' ? "w": "a");
     if (!f) pari_err_FILE("requested file", s);
     return new_gp_file(s, f, mf_OUT);
