@@ -3773,13 +3773,12 @@ _expand_env(char *str)
     while (is_keyword_char(*s)) s++;
     l = s - s0; env = strn(s0, l);
     s0 = os_getenv(env);
-    if (!s0)
+    if (!s0) pari_warn(warner,"undefined environment variable: %s",env);
+    else
     {
-      pari_warn(warner,"undefined environment variable: %s",env);
-      s0 = (char*)"";
+      l = strlen(s0);
+      if (l) { x[xnum++] = strn(s0,l); len += l; }
     }
-    l = strlen(s0);
-    if (l) { x[xnum++] = strn(s0,l); len += l; }
     pari_free(env); s0 = s;
   }
   l = s - s0;
