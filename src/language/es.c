@@ -3718,6 +3718,13 @@ pari_stdin_isatty(void)
 #endif
 }
 
+static char *
+strn(const char *s, long l)
+{
+  char *t = (char*)memcpy(pari_malloc(l+1), s, l);
+  t[l] = 0; return t;
+}
+
 /* expand tildes in filenames, return a malloc'ed buffer */
 static char *
 _path_expand(const char *s)
@@ -3732,9 +3739,7 @@ _path_expand(const char *s)
     dir = pari_get_homedir("");
   else
   {
-    size_t len = t - s;
-    char *user = (char*)pari_malloc(len+1);
-    (void)memcpy(user,s,len); user[len] = 0;
+    char *user = strn(s, t - s);
     dir = pari_get_homedir(user);
     pari_free(user);
   }
@@ -3749,18 +3754,15 @@ static char *
 _expand_env(char *str)
 {
   long i, l, len = 0, xlen = 16, xnum = 0;
-  char *s = str, *s0 = s, *env;
+  char *s = str, *s0 = s;
   char **x = (char **)pari_malloc(xlen * sizeof(char*));
 
   while (*s)
   {
+    char *env;
     if (*s != '$') { s++; continue; }
     l = s - s0;
-    if (l)
-    {
-      s0 = (char*)memcpy(pari_malloc(l+1), s0, l); s0[l] = 0;
-      x[xnum++] = s0; len += l;
-    }
+    if (l) { x[xnum++] = strn(s0, l); len += l; }
     if (xnum > xlen - 3) /* need room for possibly two more elts */
     {
       xlen <<= 1;
@@ -3769,8 +3771,7 @@ _expand_env(char *str)
 
     s0 = ++s; /* skip $ */
     while (is_keyword_char(*s)) s++;
-    l = s - s0;
-    env = (char*)memcpy(pari_malloc(l+1), s0, l); env[l] = 0;
+    l = s - s0; env = strn(s0, l);
     s0 = os_getenv(env);
     if (!s0)
     {
@@ -3778,19 +3779,11 @@ _expand_env(char *str)
       s0 = (char*)"";
     }
     l = strlen(s0);
-    if (l)
-    {
-      s0 = (char*)memcpy(pari_malloc(l+1), s0, l); s0[l] = 0;
-      x[xnum++] = s0; len += l;
-    }
+    if (l) { x[xnum++] = strn(s0,l); len += l; }
     pari_free(env); s0 = s;
   }
   l = s - s0;
-  if (l)
-  {
-    s0 = (char*)memcpy(pari_malloc(l+1), s0, l); s0[l] = 0;
-    x[xnum++] = s0; len += l;
-  }
+  if (l) { x[xnum++] = strn(s0,l); len += l; }
 
   s = (char*)pari_malloc(len+1); *s = 0;
   for (i = 0; i < xnum; i++) { (void)strcat(s, x[i]); pari_free(x[i]); }
