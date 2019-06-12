@@ -74,7 +74,7 @@ Doc:
  computed, it is much more efficient to initialize this data once and for all
  and pass it to the relevant functions, as in
  \bprog
- ? p = nextprime(10^40);
+ ? p = nextprime(10^30);
  ? v = [p-1, factor(p-1)]; \\ data for discrete log & order computations
  ? znorder(Mod(2,p), v)
  %3 = 500000000000000000000000000028
