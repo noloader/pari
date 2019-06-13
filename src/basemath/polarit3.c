@@ -906,12 +906,11 @@ FpXM_center(GEN x, GEN p, GEN pov2)
 static GEN
 primelist(forprime_t *S, long n, GEN dB)
 {
-  ulong u = 0, p;
   GEN P = cgetg(n+1, t_VECSMALL);
   long i = 1;
-  if (dB && typ(dB)==t_VECSMALL) { u = uel(dB,1); dB = NULL; }
+  ulong p;
   while (i <= n && (p = u_forprime_next(S)))
-    if ((!dB || umodiu(dB, p)) && (!u || p % u == 1)) P[i++] = p;
+    if (!dB || umodiu(dB, p)) P[i++] = p;
   return P;
 }
 
@@ -971,18 +970,17 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
 }
 
 GEN
-gen_crt(const char *str, GEN worker, GEN dB, ulong bound, long mmin, GEN *pmod,
+gen_crt(const char *str, GEN worker, forprime_t *S, GEN dB, ulong bound, long mmin, GEN *pmod,
         GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN))
 {
   GEN mod = gen_1, H = NULL;
-  forprime_t S;
   ulong e;
 
-  init_modular_big(&S); bound++;
+  bound++;
   while (bound > (e = expi(mod)))
   {
-    long n = (bound - e) / expu(S.p) + 1;
-    gen_inccrt(str, worker, dB, n, mmin, &S, &H, &mod, crt, center);
+    long n = (bound - e) / expu(S->p) + 1;
+    gen_inccrt(str, worker, dB, n, mmin, S, &H, &mod, crt, center);
   }
   if (pmod) *pmod = mod;
   return H;
@@ -1941,6 +1939,7 @@ GEN
 ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
 {
   pari_sp av = avma;
+  forprime_t S;
   long m;
   GEN  H, worker;
   if (B)
@@ -1953,7 +1952,8 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
   }
   worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
   m = degpol(A)+(B ? degpol(B): 0);
-  H = gen_crt("ZX_resultant_all", worker, dB, bound, m, NULL,
+  init_modular_big(&S);
+  H = gen_crt("ZX_resultant_all", worker, &S, dB, bound, m, NULL,
               ZV_chinese_center, Fp_center);
   return gerepileuptoint(av, H);
 }
@@ -2277,6 +2277,7 @@ GEN
 ZX_ZXY_resultant(GEN A, GEN B)
 {
   pari_sp av = avma;
+  forprime_t S;
   ulong bound;
   long v = fetch_var_higher();
   long degA = degpol(A), degB, dres = degA * degpol(B);
@@ -2291,7 +2292,8 @@ ZX_ZXY_resultant(GEN A, GEN B)
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
   worker = strtoclosure("_ZX_ZXY_resultant_worker", 4, A, B, dB?dB:gen_0,
                         mkvecsmall5(degA, degB,dres, vY, sX));
-  H = gen_crt("ZX_ZXY_resultant_all", worker, dB, bound, degpol(A)+degpol(B), NULL,
+  init_modular_big(&S);
+  H = gen_crt("ZX_ZXY_resultant_all", worker, &S, dB, bound, degpol(A)+degpol(B), NULL,
                nxV_chinese_center, FpX_center_i);
   setvarn(H, vX); (void)delete_var();
   return gerepilecopy(av, H);

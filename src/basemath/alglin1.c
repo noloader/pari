@@ -4495,6 +4495,7 @@ GEN
 ZabM_inv(GEN A, GEN Q, long n, GEN *pt_den)
 {
   pari_sp av = avma;
+  forprime_t S;
   long m = lg(A)-1;
   GEN bnd, H, D, d, mod, worker;
   if (m == 0)
@@ -4504,7 +4505,8 @@ ZabM_inv(GEN A, GEN Q, long n, GEN *pt_den)
   }
   bnd = ZabM_true_Hadamard(A);
   worker = strtoclosure("_ZabM_inv_worker", 2, A, Q);
-  H = gen_crt("ZabM_inv", worker, mkvecsmall(n), expi(bnd), m, &mod,
+  u_forprime_arith_init(&S, HIGHBIT+1, ULONG_MAX, 1, n);
+  H = gen_crt("ZabM_inv", worker, &S, NULL, expi(bnd), m, &mod,
               nxMV_chinese_center, FpXM_center);
   D = RgMrow_RgC_mul(H, gel(A,1), 1);
   D = ZX_rem(D, Q);
@@ -5349,7 +5351,8 @@ ZM_det(GEN M)
     timer_printf(&ti,"ZM_det: Dixon %ld/%ld bits",expi(D),expi(h));
   h = divii(h, D);
   worker = strtoclosure("_ZM_det_worker", 1, M);
-  H = gen_crt("ZM_det", worker, D, expi(h)+1, lg(M)-1, &mod, ZV_chinese, NULL);
+  H = gen_crt("ZM_det", worker, &S, D, expi(h)+1, lg(M)-1, &mod,
+              ZV_chinese, NULL);
   if (D) H = Fp_div(H, D, mod);
   H = Fp_center(H, mod, shifti(mod,-1));
   if (D) H = mulii(H, D);

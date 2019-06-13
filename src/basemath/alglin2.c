@@ -1040,6 +1040,7 @@ static GEN
 QM_charpoly_ZX_i(GEN M, GEN dM, long bound)
 {
   long n = lg(M)-1;
+  forprime_t S;
   GEN worker = strtoclosure("_QM_charpoly_ZX_worker",2,M,dM? dM: gen_1);
   if (!n) return pol_1(0);
   if (bound < 0)
@@ -1049,8 +1050,9 @@ QM_charpoly_ZX_i(GEN M, GEN dM, long bound)
     bound = charpoly_bound(M, dM, N) + 1;
   }
   if (DEBUGLEVEL>5) err_printf("ZM_charpoly: bound 2^%ld\n", bound);
-  return gen_crt("QM_charpoly_ZX", worker, dM, bound, n, NULL,
-              nxV_chinese_center, FpX_center);
+  init_modular_big(&S);
+  return gen_crt("QM_charpoly_ZX", worker, &S, dM, bound, n, NULL,
+                 nxV_chinese_center, FpX_center);
 }
 
 GEN
