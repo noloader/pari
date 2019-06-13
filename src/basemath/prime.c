@@ -126,6 +126,42 @@ Fl_bad_for_base(Fl_MR_Jaeschke_t *S, ulong a)
   return 1;
 }
 
+static int
+u_2_prp_pre(ulong n, ulong ni)
+{
+  ulong c, t = n - 1;
+  long e = vals(t);
+
+  c = Fl_powu_pre(2, t >> e, n, ni);
+  if (c == 1 || c == t) return 1;
+  while (--e)
+  { /* go fishing for -1, not for 1 (saves one squaring) */
+    c = Fl_sqr_pre(c, n, ni);
+    if (c == t) return 1;
+    if (c == 1) return 0;
+  }
+  return 0;
+}
+static int
+u_2_prp(ulong n)
+{
+  ulong c, t;
+  long e;
+
+  if (n & HIGHMASK) return u_2_prp_pre(n, get_Fl_red(n));
+  t = n - 1;
+  e = vals(t);
+  c = Fl_powu(2, t >> e, n);
+  if (c == 1 || c == t) return 1;
+  while (--e)
+  { /* go fishing for -1, not for 1 (saves one squaring) */
+    c = Fl_sqr(c, n);
+    if (c == t) return 1;
+    if (c == 1) return 0;
+  }
+  return 0;
+}
+
 /* Miller-Rabin test for k random bases */
 long
 millerrabin(GEN n, long k)
@@ -342,41 +378,56 @@ u_LucasMod(ulong n, ulong P, ulong N)
   return v;
 }
 
-int
-uislucaspsp(ulong n)
+static ulong
+get_disc(ulong n)
 {
-  long i, v;
-  ulong b, z, m = n + 1;
-  for (b=3, i=0;; b+=2, i++)
+  ulong b;
+  long i;
+  for (b = 3, i = 0;; b += 2, i++)
   {
     ulong c = b*b - 4; /* = 1 mod 4 */
     if (krouu(n % c, c) < 0) break;
     if (i == 64 && uissquareall(n, &c)) return 0; /* oo loop if N = m^2 */
   }
+  return b;
+}
+static int
+uislucaspsp_pre(ulong n, ulong ni)
+{
+  long i, v;
+  ulong b, z, m = n + 1;
+
   if (!m) return 0; /* neither 2^32-1 nor 2^64-1 are Lucas-pp */
+  b = get_disc(n); if (!b) return 0;
   v = vals(m); m >>= v;
-  if (n & HIGHMASK)
+  z = u_LucasMod_pre(m, b, n, ni);
+  if (z == 2 || z == n-2) return 1;
+  for (i=1; i<v; i++)
   {
-    ulong ni = get_Fl_red(n);
-    z = u_LucasMod_pre(m, b, n, ni);
-    if (z == 2 || z == n-2) return 1;
-    for (i=1; i<v; i++)
-    {
-      if (!z) return 1;
-      z = Fl_sub(Fl_sqr_pre(z,n,ni), 2UL, n);
-      if (z == 2) return 0;
-    }
+    if (!z) return 1;
+    z = Fl_sub(Fl_sqr_pre(z,n,ni), 2UL, n);
+    if (z == 2) return 0;
   }
-  else
+  return 0;
+}
+int
+uislucaspsp(ulong n)
+{
+  long i, v;
+  ulong b, z, m;
+
+  if (n & HIGHMASK) return uislucaspsp_pre(n, get_Fl_red(n));
+  m = n + 1;
+  if (!m) return 0; /* neither 2^32-1 nor 2^64-1 are Lucas-pp */
+  b = get_disc(n); if (!b) return 0;
+  v = vals(m); m >>= v;
+  z = u_LucasMod(m, b, n);
+  if (z == 2 || z == n-2) return 1;
+  for (i=1; i<v; i++)
   {
-    z = u_LucasMod(m, b, n);
-    if (z == 2 || z == n-2) return 1;
-    for (i=1; i<v; i++)
-    {
-      if (!z) return 1;
-      z = Fl_sub((z*z) % n, 2UL, n);
-      if (z == 2) return 0;
-    }
+    if (!z) return 1;
+    z = Fl_sub((z*z) % n, 2UL, n);
+    if (z == 2) return 0;
   }
   return 0;
 }
@@ -455,14 +506,15 @@ is_2_prp_101(ulong n)
 }
 
 static int
-u_2_prp(ulong n)
+uBPSW_psp(ulong n)
 {
-  Fl_MR_Jaeschke_t S;
-  Fl_init_MR_Jaeschke(&S, n);
-  return Fl_bad_for_base(&S, 2) == 0;
+  if (n & HIGHMASK)
+  {
+    ulong ni = get_Fl_red(n);
+    return (u_2_prp_pre(n,ni) && uislucaspsp_pre(n,ni));
+  }
+  return (u_2_prp(n) && uislucaspsp(n));
 }
-static int
-uBPSW_psp(ulong n) { return (u_2_prp(n) && uislucaspsp(n)); }
 
 int
 uisprime(ulong n)
