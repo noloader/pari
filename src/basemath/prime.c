@@ -49,62 +49,31 @@ Fl_init_MR_Jaeschke(Fl_MR_Jaeschke_t *S, ulong n)
   S->sqrt2 = 0;
 }
 
-/* c = sqrt(-1) seen in bad_for_base. End-matching: compare or remember
- * If ends do mismatch, then we have factored n, and this information
- * should somehow be made available to the factoring machinery. But so
- * exceedingly rare... besides we use BSPW now. */
-static int
-MR_Jaeschke_ok(MR_Jaeschke_t *S, GEN c)
-{
-  if (signe(S->sqrt1))
-  { /* saw one earlier: compare */
-    if (!equalii(c, S->sqrt1) && !equalii(c, S->sqrt2))
-    { /* too many sqrt(-1)s mod n */
-      if (DEBUGLEVEL) {
-        GEN z = gcdii(addii(c, S->sqrt1), S->n);
-        pari_warn(warner,"found factor\n\t%Ps\ncurrently lost to the factoring machinery", z);
-      }
-      return 1;
-    }
-  } else { /* remember */
-    affii(c, S->sqrt1);
-    affii(subii(S->n, c), S->sqrt2);
-  }
-  return 0;
-}
-static int
-Fl_MR_Jaeschke_ok(Fl_MR_Jaeschke_t *S, ulong c)
-{
-  if (S->sqrt1)
-  { /* saw one earlier: compare */
-    if (c != S->sqrt1 && c != S->sqrt2) return 1;
-  } else { /* remember */
-    S->sqrt1 = c;
-    S->sqrt2 = S->n - c;
-  }
-  return 0;
-}
-
 /* is n strong pseudo-prime for base a ? 'End matching' (check for square
- * roots of -1) added by GN */
+ * roots of -1): if ends do mismatch, then we have factored n, and this
+ * information should be made available to the factoring machinery. But so
+ * exceedingly rare... besides we use BSPW now. */
 static int
 bad_for_base(MR_Jaeschke_t *S, GEN a)
 {
-  pari_sp av = avma;
+  GEN c = Fp_pow(a, S->t1, S->n);
   long r;
-  GEN c2, c = Fp_pow(a, S->t1, S->n);
 
   if (is_pm1(c) || equalii(S->t, c)) return 0;
-
   /* go fishing for -1, not for 1 (saves one squaring) */
   for (r = S->r1 - 1; r; r--) /* r1 - 1 squarings */
   {
-    c2 = c; c = remii(sqri(c), S->n);
-    if (equalii(S->t, c)) return MR_Jaeschke_ok(S, c2);
-    if (gc_needed(av,1))
+    GEN c2 = c;
+    c = remii(sqri(c), S->n);
+    if (equalii(S->t, c))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"Rabin-Miller");
-      c = gerepileuptoint(av, c);
+      if (!signe(S->sqrt1))
+      {
+        affii(subii(S->n, c2), S->sqrt2);
+        affii(c2, S->sqrt1); return 0;
+      }
+      /* saw one earlier: too many sqrt(-1)s mod n ? */
+      return !equalii(c2, S->sqrt1) && !equalii(c2, S->sqrt2);
     }
   }
   return 1;
@@ -112,22 +81,44 @@ bad_for_base(MR_Jaeschke_t *S, GEN a)
 static int
 Fl_bad_for_base(Fl_MR_Jaeschke_t *S, ulong a)
 {
+  ulong c = Fl_powu(a, S->t1, S->n);
   long r;
-  ulong c2, c = Fl_powu(a, S->t1, S->n);
 
   if (c == 1 || c == S->t) return 0;
-
   /* go fishing for -1, not for 1 (saves one squaring) */
   for (r = S->r1 - 1; r; r--) /* r1 - 1 squarings */
   {
-    c2 = c; c = Fl_sqr(c, S->n);
-    if (c == S->t) return Fl_MR_Jaeschke_ok(S, c2);
+    ulong c2 = c;
+    c = Fl_sqr(c, S->n);
+    if (c == S->t)
+    {
+      if (!S->sqrt1) { S->sqrt1 = c2; S->sqrt2 = S->n - c2; return 0; }
+      return (c2 != S->sqrt1 && c2 != S->sqrt2); /* saw one earlier: compare */
+    }
   }
   return 1;
 }
 
+/* is n > 0 strong pseudo-prime for base 2 ? Only used when lgefint(n) > 3,
+ * so don't test */
 static int
-u_2_prp_pre(ulong n, ulong ni)
+is2psp(GEN n)
+{
+  GEN c, t = subiu(n, 1);
+  long e = vali(t);
+
+  c = Fp_pow(gen_2, shifti(t, -e), n);
+  if (is_pm1(c) || equalii(t, c)) return 1;
+  while (--e)
+  { /* go fishing for -1, not for 1 (e - 1 squaring) */
+    c = remii(sqri(c), n);
+    if (equalii(t, c)) return 1;
+    /* can return 0 if (c == 1) but very infrequent */
+  }
+  return 0;
+}
+static int
+uis2psp_pre(ulong n, ulong ni)
 {
   ulong c, t = n - 1;
   long e = vals(t);
@@ -138,26 +129,26 @@ u_2_prp_pre(ulong n, ulong ni)
   { /* go fishing for -1, not for 1 (saves one squaring) */
     c = Fl_sqr_pre(c, n, ni);
     if (c == t) return 1;
-    if (c == 1) return 0;
+    /* can return 0 if (c == 1) but very infrequent */
   }
   return 0;
 }
 static int
-u_2_prp(ulong n)
+uis2psp(ulong n)
 {
   ulong c, t;
   long e;
 
-  if (n & HIGHMASK) return u_2_prp_pre(n, get_Fl_red(n));
+  if (n & HIGHMASK) return uis2psp_pre(n, get_Fl_red(n));
   t = n - 1;
   e = vals(t);
   c = Fl_powu(2, t >> e, n);
   if (c == 1 || c == t) return 1;
   while (--e)
-  { /* go fishing for -1, not for 1 (saves one squaring) */
+  { /* go fishing for -1, not for 1 (e - 1 squaring) */
     c = Fl_sqr(c, n);
     if (c == t) return 1;
-    if (c == 1) return 0;
+    /* can return 0 if (c == 1) but very infrequent */
   }
   return 0;
 }
@@ -172,13 +163,13 @@ millerrabin(GEN n, long k)
   MR_Jaeschke_t S;
 
   if (typ(n) != t_INT) pari_err_TYPE("millerrabin",n);
-  if (signe(n)<=0) return 0;
+  if (signe(n) <= 0) return 0;
   /* If |n| <= 3, check if n = +- 1 */
-  if (lgefint(n)==3 && uel(n,2)<=3) return uel(n,2) != 1;
+  if (lgefint(n) == 3 && uel(n,2) <= 3) return uel(n,2) != 1;
 
   if (!mod2(n)) return 0;
   init_MR_Jaeschke(&S, n); av2 = avma;
-  for (i=1; i<=k; i++)
+  for (i = 1; i <= k; i++)
   {
     do r = umodui(pari_rand(), n); while (!r);
     if (DEBUGLEVEL > 4) err_printf("Miller-Rabin: testing base %ld\n", r);
@@ -196,64 +187,55 @@ long
 ispseudoprime(GEN x, long flag)
 { return flag? millerrabin(x, flag): BPSW_psp(x); }
 
-/* As above for k bases taken in pr (i.e not random). We must have |n|>2 and
- * 1<=k<=11 (not checked) or k in {16,17} to select some special sets of bases.
+/* As above for k non-random bases. We must have |n|>2 and odd and k in
+ * {1,16,17} to select some special sets of bases.
  *
  * From Jaeschke, 'On strong pseudoprimes to several bases', Math.Comp. 61
  * (1993), 915--926  (see also http://www.utm.edu/research/primes/prove2.html),
  * we have:
  *
- * k == 4  (bases 2,3,5,7)  detects all composites
- *    n <     118 670 087 467 == 172243 * 688969  with the single exception of
- *    n ==      3 215 031 751 == 151 * 751 * 28351,
+ * bases 2,3,5,7 detect all composites
+ *    n <     118 670 087 467 = 172243 * 688969  with the single exception of
+ *    n =      3 215 031 751 = 151 * 751 * 28351,
  *
- * k == 5  (bases 2,3,5,7,11)  detects all composites
- *    n <   2 152 302 898 747 == 6763 * 10627 * 29947,
+ * bases 2,3,5,7,11 detect all composites
+ *    n <   2 152 302 898 747 = 6763 * 10627 * 29947,
  *
- * k == 6  (bases 2,3,...,13)  detects all composites
- *    n <   3 474 749 660 383 == 1303 * 16927 * 157543,
+ * bases 2,3,...,13 detect all composites
+ *    n <   3 474 749 660 383 = 1303 * 16927 * 157543,
  *
- * k == 7  (bases 2,3,...,17)  detects all composites
- *    n < 341 550 071 728 321 == 10670053 * 32010157,
+ * bases 2,3,...,17 detect all composites
+ *    n < 341 550 071 728 321 = 10670053 * 32010157,
  * Even this limiting value is caught by an end mismatch between bases 5 and 17
  *
- * Moreover, the four bases chosen at
+ * k = 1   (2) will let thousands of composites slip through
  *
- * k == 16  (2,13,23,1662803)  detects all composites up
- * to at least 10^12, and the combination at
+ * k = 16  (2,13,23,1662803) detects all composites up to at least 10^12
  *
- * k == 17  (31,73)  detects most odd composites without prime factors > 100
+ * k = 17  (31,73)  detects most odd composites without prime factors > 100
  * in the range  n < 2^36  (with less than 250 exceptions, indeed with fewer
  * than 1400 exceptions up to 2^42). --GN */
 int
 Fl_MR_Jaeschke(ulong n, long k)
 {
-  const ulong pr[] =
-    { 0, 2,3,5,7,11,13,17,19,23,29, 31,73, 2,13,23,1662803UL, };
-  const ulong *p;
-  ulong r;
-  long i;
   Fl_MR_Jaeschke_t S;
 
-  if (!(n & 1)) return 0;
+  if (k == 1) return uis2psp(n);
+  Fl_init_MR_Jaeschke(&S, n);
   if (k == 16)
   { /* use smaller (faster) bases if possible */
-    p = (n < 3215031751UL)? pr: pr+13;
-    k = 4;
+    if (n < 3215031751UL)
+      return !Fl_bad_for_base(&S, 2) && !Fl_bad_for_base(&S, 3)
+          && !Fl_bad_for_base(&S, 5) && !Fl_bad_for_base(&S, 7);
+    else
+      return !Fl_bad_for_base(&S, 2) && !Fl_bad_for_base(&S, 13)
+          && !Fl_bad_for_base(&S,23) && !Fl_bad_for_base(&S, 1662803UL);
   }
-  else if (k == 17)
-  {
-    p = (n < 1373653UL)? pr: pr+11;
-    k = 2;
-  }
-  else p = pr; /* 2,3,5,... */
-  Fl_init_MR_Jaeschke(&S, n);
-  for (i=1; i<=k; i++)
-  {
-    r = p[i] % n; if (!r) break;
-    if (Fl_bad_for_base(&S, r)) return 0;
-  }
-  return 1;
+  /* k = 17 */
+  if (n < 1373653UL)
+    return !Fl_bad_for_base(&S, 2) && !Fl_bad_for_base(&S, 3);
+  else
+    return !Fl_bad_for_base(&S,31) && !Fl_bad_for_base(&S,73);
 }
 
 int
@@ -265,9 +247,8 @@ MR_Jaeschke(GEN n)
   if (lgefint(n) == 3) return Fl_MR_Jaeschke(uel(n,2), 17);
   if (!mod2(n)) return 0;
   av = avma; init_MR_Jaeschke(&S, n);
-  if (bad_for_base(&S, utoipos(31)) || bad_for_base(&S, utoipos(73)))
-    return gc_bool(av,0);
-  return gc_bool(av,1);
+  return gc_bool(av, !bad_for_base(&S, utoipos(31)) &&
+                     !bad_for_base(&S, utoipos(73)));
 }
 
 /*********************************************************************/
@@ -434,7 +415,7 @@ uislucaspsp(ulong n)
 /* N > 3. Caller should check that N is not a square first (taken care of here,
  * but inefficient) */
 static int
-IsLucasPsP(GEN N)
+islucaspsp(GEN N)
 {
   pari_sp av = avma;
   GEN m, z;
@@ -458,7 +439,7 @@ IsLucasPsP(GEN N)
     if (absequaliu(z, 2)) return 0;
     if (gc_needed(av,1))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"IsLucasPsP");
+      if(DEBUGMEM>1) pari_warn(warnmem,"islucaspsp");
       z = gerepileupto(av, z);
     }
   }
@@ -511,9 +492,9 @@ uBPSW_psp(ulong n)
   if (n & HIGHMASK)
   {
     ulong ni = get_Fl_red(n);
-    return (u_2_prp_pre(n,ni) && uislucaspsp_pre(n,ni));
+    return (uis2psp_pre(n,ni) && uislucaspsp_pre(n,ni));
   }
-  return (u_2_prp(n) && uislucaspsp(n));
+  return uis2psp(n) && uislucaspsp(n);
 }
 
 int
@@ -573,7 +554,7 @@ uisprime(ulong n)
 int
 uisprime_101(ulong n)
 {
-  if (n < 1016801) return n < 10427? 1: (u_2_prp(n) && !is_2_prp_101(n));
+  if (n < 1016801) return n < 10427? 1: (uis2psp(n) && !is_2_prp_101(n));
   return uBPSW_psp(n);
 }
 
@@ -581,7 +562,7 @@ uisprime_101(ulong n)
 int
 uisprime_661(ulong n)
 {
-  if (n < 1016801) return n < 10427? 1: u_2_prp(n);
+  if (n < 1016801) return n < 10427? 1: uis2psp(n);
   return uBPSW_psp(n);
 }
 
@@ -589,8 +570,6 @@ long
 BPSW_psp(GEN N)
 {
   pari_sp av;
-  MR_Jaeschke_t S;
-
   if (typ(N) != t_INT) pari_err_TYPE("BPSW_psp",N);
   if (signe(N) <= 0) return 0;
   if (lgefint(N) == 3) return uisprime(uel(N,2));
@@ -611,8 +590,8 @@ BPSW_psp(GEN N)
       !iu_coprime(N, 4269855901UL)) return 0;
 #endif
   /* no prime divisor < 103 */
-  av = avma; init_MR_Jaeschke(&S, N);
-  return gc_long(av, (!bad_for_base(&S, gen_2) && IsLucasPsP(N)));
+  av = avma;
+  return gc_long(av, is2psp(N) && islucaspsp(N));
 }
 
 /* can we write n = x^k ? Assume N has no prime divisor <= 2^14.
@@ -637,7 +616,6 @@ long
 BPSW_psp_nosmalldiv(GEN N)
 {
   pari_sp av;
-  MR_Jaeschke_t S;
   long l = lgefint(N);
 
   if (l == 3) return uisprime_661(uel(N,2));
@@ -646,8 +624,8 @@ BPSW_psp_nosmalldiv(GEN N)
    * compositeness test times */
   if (bit_accuracy(l) > 512 && isanypower_nosmalldiv(N,&N) != 1)
     return gc_long(av,0);
-  init_MR_Jaeschke(&S, N);
-  return gc_long(av, !bad_for_base(&S, gen_2) && IsLucasPsP(N));
+  N = absi_shallow(N);
+  return gc_long(av, is2psp(N) && islucaspsp(N));
 }
 
 /***********************************************************************/
