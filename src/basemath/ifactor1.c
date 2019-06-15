@@ -210,8 +210,7 @@ precprime(GEN n)
  * the diffptr table, and we'll update it before that if it isn't NPRC.
  *
  * *q is incremented whenever q!=NULL and we wrap from 209 mod 210 to
- * 1 mod 210
- * k =  second argument for Fl_MR_Jaeschke(). --GN1998Aug22 */
+ * 1 mod 210 */
 ulong
 snextpr(ulong p, byteptr *d, long *rcn, long *q, int (*ispsp)(ulong))
 {
