@@ -83,12 +83,12 @@ is2psp(GEN n)
   return 0;
 }
 static int
-uis2psp_pre(ulong n, ulong ni)
+uispsp_pre(ulong a, ulong n, ulong ni)
 {
   ulong c, t = n - 1;
   long e = vals(t);
 
-  c = Fl_powu_pre(2, t >> e, n, ni);
+  c = Fl_powu_pre(a, t >> e, n, ni);
   if (c == 1 || c == t) return 1;
   while (--e)
   { /* go fishing for -1, not for 1 (saves one squaring) */
@@ -99,15 +99,15 @@ uis2psp_pre(ulong n, ulong ni)
   return 0;
 }
 int
-uis2psp(ulong n)
+uispsp(ulong a, ulong n)
 {
   ulong c, t;
   long e;
 
-  if (n & HIGHMASK) return uis2psp_pre(n, get_Fl_red(n));
+  if (n & HIGHMASK) return uispsp_pre(a, n, get_Fl_red(n));
   t = n - 1;
   e = vals(t);
-  c = Fl_powu(2, t >> e, n);
+  c = Fl_powu(a, t >> e, n);
   if (c == 1 || c == t) return 1;
   while (--e)
   { /* go fishing for -1, not for 1 (e - 1 squaring) */
@@ -117,6 +117,8 @@ uis2psp(ulong n)
   }
   return 0;
 }
+int
+uis2psp(ulong n) { return uispsp(2, n); }
 
 /* Miller-Rabin test for k random bases */
 long
@@ -359,11 +361,6 @@ islucaspsp(GEN N)
   return 0;
 }
 
-static int
-uu_coprime(ulong n, ulong u) { return ugcd(n, u) == 1; }
-static int
-iu_coprime(GEN N, ulong u) { return ugcd(u, umodiu(N,u)) == 1; }
-
 /* composite strong 2-pseudoprime < 1016801 whose prime divisors are > 101.
  * All have a prime divisor <= 661 */
 static int
@@ -405,9 +402,31 @@ uBPSW_psp(ulong n)
   if (n & HIGHMASK)
   {
     ulong ni = get_Fl_red(n);
-    return (uis2psp_pre(n, ni) && uislucaspsp_pre(n,ni));
+    return (uispsp_pre(2, n, ni) && uislucaspsp_pre(n,ni));
   }
-  return uis2psp(n) && uislucaspsp(n);
+  return uispsp(2, n) && uislucaspsp(n);
+}
+
+static int
+_uispsp(ulong a, long n) { a %= n; return !a || uispsp(a, n); }
+static int
+_uisprime(ulong n)
+{
+#ifdef LONG_IS_64_BIT
+  if (n < 341531)
+    return _uispsp(9345883071009581737UL, n);
+  if (n < 1050535501)
+    return _uispsp(336781006125UL, n)
+       && _uispsp(9639812373923155UL, n);
+  if (n < 350269456337)
+    return _uispsp(4230279247111683200UL, n)
+        && _uispsp(14694767155120705706UL, n)
+        && _uispsp(16641139526367750375UL, n);
+  return uBPSW_psp(n);
+#else
+  if (n < 360018361) return _uispsp(1143370UL, n) && _uispsp(2350307676UL, n);
+  return uispsp(15, n) && uispsp(176006322UL, n) && _uispsp(4221622697UL, n);
+#endif
 }
 
 int
@@ -444,38 +463,27 @@ uisprime(ulong n)
       case 101: return 1;
       default: return 0;
     }
-  if (!odd(n) || !uisprime_101(n)) return 0;
-#ifdef LONG_IS_64BIT
-  /* 16294579238595022365 = 3*5*7*11*13*17*19*23*29*31*37*41*43*47*53
-   *  7145393598349078859 = 59*61*67*71*73*79*83*89*97*101 */
-  return uu_coprime(n, 16294579238595022365UL)
-      && uu_coprime(n, 7145393598349078859UL);
-#else
-  /* 4127218095 = 3*5*7*11*13*17*19*23*37
-   * 3948078067 = 29*31*41*43*47*53
-   * 4269855901 = 59*83*89*97*101
-   * 1673450759 = 61*67*71*73*79 */
-  return uu_coprime(n, 4127218095UL) && uu_coprime(n, 3948078067UL)
-      && uu_coprime(n, 1673450759UL) && uu_coprime(n, 4269855901UL);
-#endif
+  return odd(n) && _uisprime(n);
 }
 
 /* assume no prime divisor <= 101 */
 int
 uisprime_101(ulong n)
 {
-  if (n < 1016801) return n < 10609? 1: (uis2psp(n) && !is_2_prp_101(n));
-  return uBPSW_psp(n);
+  if (n < 1016801) return n < 10609? 1: (uispsp(2, n) && !is_2_prp_101(n));
+  return _uisprime(n);
 }
 
 /* assume no prime divisor <= 661 */
 int
 uisprime_661(ulong n)
 {
-  if (n < 1016801) return n < 452929? 1: uis2psp(n);
-  return uBPSW_psp(n);
+  if (n < 1016801) return n < 452929? 1: uispsp(2, n);
+  return _uisprime(n);
 }
 
+static int
+iu_coprime(GEN N, ulong u) { return ugcd(u, umodiu(N,u)) == 1; }
 long
 BPSW_psp(GEN N)
 {

@@ -3734,6 +3734,10 @@ compositeness test (it thus may be prime or composite), and $0$ otherwise
 strong Rabin-Miller test for the base $2$ (it thus may be prime or
 composite), and $0$ otherwise (proving that $n$ is composite).
 
+\fun{int}{uispsp}{ulong a, ulong n} returns $1$ if the odd \kbd{ulong} $n > 1$
+fails a strong Rabin-Miller test for the base $1 < a < n$ (it thus may be
+prime or composite), and $0$ otherwise (proving that $n$ is composite).
+
 \fun{ulong}{sumdigitsu}{ulong n} returns the sum of decimal digits of $u$.
 
 \fun{GEN}{usumdiv_fact}{GEN fa}, sum of divisors of \kbd{ulong} $n$, where
