@@ -397,22 +397,11 @@ is_2_prp_101(ulong n)
 }
 
 static int
-uBPSW_psp(ulong n)
-{
-  if (n & HIGHMASK)
-  {
-    ulong ni = get_Fl_red(n);
-    return (uispsp_pre(2, n, ni) && uislucaspsp_pre(n,ni));
-  }
-  return uispsp(2, n) && uislucaspsp(n);
-}
-
-static int
 _uispsp(ulong a, long n) { a %= n; return !a || uispsp(a, n); }
 static int
 _uisprime(ulong n)
 {
-#ifdef LONG_IS_64_BIT
+#ifdef LONG_IS_64BIT
   if (n < 341531)
     return _uispsp(9345883071009581737UL, n);
   if (n < 1050535501)
@@ -422,7 +411,12 @@ _uisprime(ulong n)
     return _uispsp(4230279247111683200UL, n)
         && _uispsp(14694767155120705706UL, n)
         && _uispsp(16641139526367750375UL, n);
-  return uBPSW_psp(n);
+  if (n & HIGHMASK)
+  {
+    ulong ni = get_Fl_red(n);
+    return (uispsp_pre(2, n, ni) && uislucaspsp_pre(n,ni));
+  }
+  return uispsp(2, n) && uislucaspsp(n);
 #else
   if (n < 360018361) return _uispsp(1143370UL, n) && _uispsp(2350307676UL, n);
   return uispsp(15, n) && uispsp(176006322UL, n) && _uispsp(4221622697UL, n);
