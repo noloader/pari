@@ -554,7 +554,7 @@ uisprime(ulong n)
 int
 uisprime_101(ulong n)
 {
-  if (n < 1016801) return n < 10427? 1: (uis2psp(n) && !is_2_prp_101(n));
+  if (n < 1016801) return n < 10609? 1: (uis2psp(n) && !is_2_prp_101(n));
   return uBPSW_psp(n);
 }
 
@@ -562,7 +562,7 @@ uisprime_101(ulong n)
 int
 uisprime_661(ulong n)
 {
-  if (n < 1016801) return n < 10427? 1: uis2psp(n);
+  if (n < 1016801) return n < 452929? 1: uis2psp(n);
   return uBPSW_psp(n);
 }
 
