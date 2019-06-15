@@ -155,8 +155,8 @@ ispseudoprime(GEN x, long flag)
 int
 MR_Jaeschke(GEN n)
 {
-  pari_sp av = avma;
   MR_Jaeschke_t S;
+  pari_sp av;
 
   if (lgefint(n) == 3) return uisprime(uel(n,2));
   if (!mod2(n)) return 0;
