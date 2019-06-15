@@ -38,16 +38,6 @@ init_MR_Jaeschke(MR_Jaeschke_t *S, GEN n)
   S->sqrt1 = cgeti(lg(n)); S->sqrt1[1] = evalsigne(0)|evallgefint(2);
   S->sqrt2 = cgeti(lg(n)); S->sqrt2[1] = evalsigne(0)|evallgefint(2);
 }
-static void
-Fl_init_MR_Jaeschke(Fl_MR_Jaeschke_t *S, ulong n)
-{
-  S->n = n;
-  S->t = n-1;
-  S->r1 = vals(S->t);
-  S->t1 = S->t >> S->r1;
-  S->sqrt1 = 0;
-  S->sqrt2 = 0;
-}
 
 /* is n strong pseudo-prime for base a ? 'End matching' (check for square
  * roots of -1): if ends do mismatch, then we have factored n, and this
@@ -74,26 +64,6 @@ bad_for_base(MR_Jaeschke_t *S, GEN a)
       }
       /* saw one earlier: too many sqrt(-1)s mod n ? */
       return !equalii(c2, S->sqrt1) && !equalii(c2, S->sqrt2);
-    }
-  }
-  return 1;
-}
-static int
-Fl_bad_for_base(Fl_MR_Jaeschke_t *S, ulong a)
-{
-  ulong c = Fl_powu(a, S->t1, S->n);
-  long r;
-
-  if (c == 1 || c == S->t) return 0;
-  /* go fishing for -1, not for 1 (saves one squaring) */
-  for (r = S->r1 - 1; r; r--) /* r1 - 1 squarings */
-  {
-    ulong c2 = c;
-    c = Fl_sqr(c, S->n);
-    if (c == S->t)
-    {
-      if (!S->sqrt1) { S->sqrt1 = c2; S->sqrt2 = S->n - c2; return 0; }
-      return (c2 != S->sqrt1 && c2 != S->sqrt2); /* saw one earlier: compare */
     }
   }
   return 1;
@@ -210,32 +180,11 @@ ispseudoprime(GEN x, long flag)
  *
  * k = 1   (2) will let thousands of composites slip through
  *
- * k = 16  (2,13,23,1662803) detects all composites up to at least 10^12
- *
- * k = 17  (31,73)  detects most odd composites without prime factors > 100
- * in the range  n < 2^36  (with less than 250 exceptions, indeed with fewer
- * than 1400 exceptions up to 2^42). --GN */
+ * k = 16  (2,13,23,1662803) detects all composites up to at least 10^12 */
 int
 Fl_MR_Jaeschke(ulong n, long k)
 {
-  Fl_MR_Jaeschke_t S;
-
-  if (k == 1) return uis2psp(n);
-  Fl_init_MR_Jaeschke(&S, n);
-  if (k == 16)
-  { /* use smaller (faster) bases if possible */
-    if (n < 3215031751UL)
-      return !Fl_bad_for_base(&S, 2) && !Fl_bad_for_base(&S, 3)
-          && !Fl_bad_for_base(&S, 5) && !Fl_bad_for_base(&S, 7);
-    else
-      return !Fl_bad_for_base(&S, 2) && !Fl_bad_for_base(&S, 13)
-          && !Fl_bad_for_base(&S,23) && !Fl_bad_for_base(&S, 1662803UL);
-  }
-  /* k = 17 */
-  if (n < 1373653UL)
-    return !Fl_bad_for_base(&S, 2) && !Fl_bad_for_base(&S, 3);
-  else
-    return !Fl_bad_for_base(&S,31) && !Fl_bad_for_base(&S,73);
+  return k == 1? uis2psp(n): uisprime(n);
 }
 
 int
@@ -244,7 +193,7 @@ MR_Jaeschke(GEN n)
   pari_sp av = avma;
   MR_Jaeschke_t S;
 
-  if (lgefint(n) == 3) return Fl_MR_Jaeschke(uel(n,2), 17);
+  if (lgefint(n) == 3) return uisprime(uel(n,2));
   if (!mod2(n)) return 0;
   av = avma; init_MR_Jaeschke(&S, n);
   return gc_int(av, !bad_for_base(&S, utoipos(31)) &&
