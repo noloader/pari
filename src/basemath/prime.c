@@ -247,7 +247,7 @@ MR_Jaeschke(GEN n)
   if (lgefint(n) == 3) return Fl_MR_Jaeschke(uel(n,2), 17);
   if (!mod2(n)) return 0;
   av = avma; init_MR_Jaeschke(&S, n);
-  return gc_bool(av, !bad_for_base(&S, utoipos(31)) &&
+  return gc_int(av, !bad_for_base(&S, utoipos(31)) &&
                      !bad_for_base(&S, utoipos(73)));
 }
 
@@ -531,23 +531,20 @@ uisprime(ulong n)
       case 101: return 1;
       default: return 0;
     }
-  if (!odd(n)) return 0;
+  if (!odd(n) || !uisprime_101(n)) return 0;
 #ifdef LONG_IS_64BIT
   /* 16294579238595022365 = 3*5*7*11*13*17*19*23*29*31*37*41*43*47*53
    *  7145393598349078859 = 59*61*67*71*73*79*83*89*97*101 */
-  if (!uu_coprime(n, 16294579238595022365UL) ||
-      !uu_coprime(n,  7145393598349078859UL)) return 0;
+  return uu_coprime(n, 16294579238595022365UL)
+      && uu_coprime(n, 7145393598349078859UL);
 #else
   /* 4127218095 = 3*5*7*11*13*17*19*23*37
    * 3948078067 = 29*31*41*43*47*53
    * 4269855901 = 59*83*89*97*101
    * 1673450759 = 61*67*71*73*79 */
-  if (!uu_coprime(n, 4127218095UL) ||
-      !uu_coprime(n, 3948078067UL) ||
-      !uu_coprime(n, 1673450759UL) ||
-      !uu_coprime(n, 4269855901UL)) return 0;
+  return uu_coprime(n, 4127218095UL) && uu_coprime(n, 3948078067UL)
+      && uu_coprime(n, 1673450759UL) && uu_coprime(n, 4269855901UL);
 #endif
-  return uisprime_101(n);
 }
 
 /* assume no prime divisor <= 101 */
