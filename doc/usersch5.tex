@@ -3730,6 +3730,10 @@ $211\times209\times61\times203\times117\times31\times43\times71$.
 compositeness test (it thus may be prime or composite), and $0$ otherwise
 (proving that $n$ is composite).
 
+\fun{int}{uis2psp}{ulong n} returns $1$ the \kbd{ulong} $n$ fails a
+strong Rabin-Miller test for the base $2$ (it thus may be prime or
+composite), and $0$ otherwise (proving that $n$ is composite).
+
 \fun{ulong}{sumdigitsu}{ulong n} returns the sum of decimal digits of $u$.
 
 \fun{GEN}{usumdiv_fact}{GEN fa}, sum of divisors of \kbd{ulong} $n$, where
@@ -8085,7 +8089,7 @@ produced; we have in principle factored $n$ at this point, but
 unfortunately, there is currently no way for the factoring machinery to
 become aware of it. (It is highly implausible that hard to find factors
 would be exhibited in this way, though.) This should be slower than
-\tet{BPSW_psp} for $k\geq 4$ and we would expect it to be less reliable.
+\tet{BPSW_psp} for $k\geq 4$ and we expect it to be less reliable.
 
 \fun{GEN}{ecpp}{GEN N} returns an ECPP certificate for \typ{INT} $N$;
 underlies \kbd{primecert}.

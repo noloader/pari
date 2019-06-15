@@ -213,7 +213,7 @@ precprime(GEN n)
  * 1 mod 210
  * k =  second argument for Fl_MR_Jaeschke(). --GN1998Aug22 */
 ulong
-snextpr(ulong p, byteptr *d, long *rcn, long *q, long k)
+snextpr(ulong p, byteptr *d, long *rcn, long *q, int (*ispsp)(ulong))
 {
   if (**d)
   {
@@ -241,7 +241,7 @@ snextpr(ulong p, byteptr *d, long *rcn, long *q, long k)
   do {
     p += prc210_d1[*rcn];
     if (++*rcn > 47) { *rcn = 0; if (q) (*q)++; }
-  } while (!Fl_MR_Jaeschke(p, k));
+  } while (!ispsp(p));
   return p;
 }
 
@@ -704,10 +704,6 @@ ECM_init(struct ECM *E, GEN N, long nbc)
 static GEN
 ECM_loop(struct ECM *E, GEN N, ulong B1)
 {
-  const long MR_foolproof = 16;/* B1 phase, foolproof below 10^12 */
-  const long MR_fast = 1; /* B2 phase, not foolproof, 2xfaster */
-/* MR_fast will let thousands of composites slip through, which doesn't
- * harm ECM; but ellmult() in the B1 phase should only be fed actual primes */
   const ulong B2 = 110 * B1, B2_rt = usqrt(B2);
   const ulong nbc = E->nbc, nbc2 = E->nbc2;
   pari_sp av1, avtmp;
@@ -753,7 +749,7 @@ ECM_loop(struct ECM *E, GEN N, ulong B1)
   while (p < B1 && p <= B2_rt)
   {
     pari_sp av2 = avma;
-    p = snextpr(p, &d, &rcn, NULL, MR_foolproof);
+    p = snextpr(p, &d, &rcn, NULL, uisprime);
     B2_p = B2/p; /* beware integer overflow on 32-bit CPUs */
     for (m=1; m<=B2_p; m*=p)
     {
@@ -767,7 +763,7 @@ ECM_loop(struct ECM *E, GEN N, ulong B1)
   while (p < B1)
   {
     pari_sp av2 = avma;
-    p = snextpr(p, &d, &rcn, NULL, MR_foolproof);
+    p = snextpr(p, &d, &rcn, NULL, uisprime);
     if (ellmult(N, &g, nbc, p, X, X, XAUX) > 1) return g;
     set_avma(av2);
   }
@@ -789,7 +785,7 @@ ECM_loop(struct ECM *E, GEN N, ulong B1)
   if (DEBUGLEVEL >= 7) err_printf("\t(got [2]Q...[10]Q)\n");
 
   /* get next prime (still using the foolproof test) */
-  p = snextpr(p, &d, &rcn, NULL, MR_foolproof);
+  p = snextpr(p, &d, &rcn, NULL, uisprime);
   /* make sure we have the residue class number (mod 210) */
   if (rcn == NPRC)
   {
@@ -951,7 +947,7 @@ ECM_loop(struct ECM *E, GEN N, ulong B1)
     while (p < B2)
     {/* loop over probable primes p0 < p <= nextprime(B2), inserting giant
       * steps as necessary */
-      p = snextpr(p, &d, &rcn, &bstp, MR_fast); /* next probable prime */
+      p = snextpr(p, &d, &rcn, &bstp, uis2psp); /* next probable prime */
       /* work out the corresponding baby-step multiplier */
       k = bstp - (rcn < rcn0 ? 1 : 0);
       if (k > gss)

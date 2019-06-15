@@ -777,7 +777,7 @@ GEN     ZlXQX_hyperellpadicfrobenius(GEN H, GEN T, ulong p, long n);
 
 /* ifactor1.c */
 
-ulong   snextpr(ulong p, byteptr *d, long *rcn, long *q, long k);
+ulong snextpr(ulong p, byteptr *d, long *rcn, long *q, int (*ispsp)(ulong));
 
 /* intnum.c */
 

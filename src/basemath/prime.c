@@ -19,11 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /**                                                                 **/
 /*********************************************************************/
 typedef struct {
-  ulong n, sqrt1, sqrt2, t1, t;
-  long r1;
-} Fl_MR_Jaeschke_t;
-
-typedef struct {
   GEN n, sqrt1, sqrt2, t1, t;
   long r1;
 } MR_Jaeschke_t;
@@ -103,7 +98,7 @@ uis2psp_pre(ulong n, ulong ni)
   }
   return 0;
 }
-static int
+int
 uis2psp(ulong n)
 {
   ulong c, t;
@@ -156,36 +151,6 @@ gispseudoprime(GEN x, long flag)
 long
 ispseudoprime(GEN x, long flag)
 { return flag? millerrabin(x, flag): BPSW_psp(x); }
-
-/* As above for k non-random bases. We must have |n|>2 and odd and k in
- * {1,16,17} to select some special sets of bases.
- *
- * From Jaeschke, 'On strong pseudoprimes to several bases', Math.Comp. 61
- * (1993), 915--926  (see also http://www.utm.edu/research/primes/prove2.html),
- * we have:
- *
- * bases 2,3,5,7 detect all composites
- *    n <     118 670 087 467 = 172243 * 688969  with the single exception of
- *    n =      3 215 031 751 = 151 * 751 * 28351,
- *
- * bases 2,3,5,7,11 detect all composites
- *    n <   2 152 302 898 747 = 6763 * 10627 * 29947,
- *
- * bases 2,3,...,13 detect all composites
- *    n <   3 474 749 660 383 = 1303 * 16927 * 157543,
- *
- * bases 2,3,...,17 detect all composites
- *    n < 341 550 071 728 321 = 10670053 * 32010157,
- * Even this limiting value is caught by an end mismatch between bases 5 and 17
- *
- * k = 1   (2) will let thousands of composites slip through
- *
- * k = 16  (2,13,23,1662803) detects all composites up to at least 10^12 */
-int
-Fl_MR_Jaeschke(ulong n, long k)
-{
-  return k == 1? uis2psp(n): uisprime(n);
-}
 
 int
 MR_Jaeschke(GEN n)
@@ -441,7 +406,7 @@ uBPSW_psp(ulong n)
   if (n & HIGHMASK)
   {
     ulong ni = get_Fl_red(n);
-    return (uis2psp_pre(n,ni) && uislucaspsp_pre(n,ni));
+    return (uis2psp_pre(n, ni) && uislucaspsp_pre(n,ni));
   }
   return uis2psp(n) && uislucaspsp(n);
 }
