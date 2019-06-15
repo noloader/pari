@@ -39,12 +39,12 @@ init_MR_Jaeschke(MR_Jaeschke_t *S, GEN n)
  * information should be made available to the factoring machinery. But so
  * exceedingly rare... besides we use BSPW now. */
 static int
-bad_for_base(MR_Jaeschke_t *S, GEN a)
+ispsp(MR_Jaeschke_t *S, ulong a)
 {
-  GEN c = Fp_pow(a, S->t1, S->n);
+  GEN c = Fp_pow(utoipos(a), S->t1, S->n);
   long r;
 
-  if (is_pm1(c) || equalii(S->t, c)) return 0;
+  if (is_pm1(c) || equalii(S->t, c)) return 1;
   /* go fishing for -1, not for 1 (saves one squaring) */
   for (r = S->r1 - 1; r; r--) /* r1 - 1 squarings */
   {
@@ -55,13 +55,13 @@ bad_for_base(MR_Jaeschke_t *S, GEN a)
       if (!signe(S->sqrt1))
       {
         affii(subii(S->n, c2), S->sqrt2);
-        affii(c2, S->sqrt1); return 0;
+        affii(c2, S->sqrt1); return 1;
       }
       /* saw one earlier: too many sqrt(-1)s mod n ? */
       return !equalii(c2, S->sqrt1) && !equalii(c2, S->sqrt2);
     }
   }
-  return 1;
+  return 0;
 }
 
 /* is n > 0 strong pseudo-prime for base 2 ? Only used when lgefint(n) > 3,
@@ -138,7 +138,7 @@ millerrabin(GEN n, long k)
   {
     do r = umodui(pari_rand(), n); while (!r);
     if (DEBUGLEVEL > 4) err_printf("Miller-Rabin: testing base %ld\n", r);
-    if (bad_for_base(&S, utoipos(r))) return gc_long(av,0);
+    if (!ispsp(&S, r)) return gc_long(av,0);
     set_avma(av2);
   }
   return gc_long(av,1);
@@ -161,8 +161,7 @@ MR_Jaeschke(GEN n)
   if (lgefint(n) == 3) return uisprime(uel(n,2));
   if (!mod2(n)) return 0;
   av = avma; init_MR_Jaeschke(&S, n);
-  return gc_int(av, !bad_for_base(&S, utoipos(31)) &&
-                     !bad_for_base(&S, utoipos(73)));
+  return gc_int(av, ispsp(&S, 31) && ispsp(&S, 73));
 }
 
 /*********************************************************************/
