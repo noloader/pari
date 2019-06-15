@@ -2755,7 +2755,7 @@ ifac_crack(GEN *partial, GEN *where, long moebius_mode)
   exponent = EXPON(*where);
   *where -= 3;
   CLASS(*where) = NULL; /* mark factor /cofactor 'unknown' */
-  EXPON(*where) = isonstack(exponent)? icopy(exponent): exponent;
+  icopyifstack(exponent, EXPON(*where));
   if (cmp_res < 0)
     VALUE(*where) = factor; /* common case */
   else if (cmp_res > 0)
@@ -2807,14 +2807,8 @@ ifac_insert_multiplet(GEN *partial, GEN *where, GEN facvec, long moebius_mode)
   cur = facvec + sorted[nf];
   VALUE(*where) = VALUE(cur);
   newexp = EXPON(cur);
-  if (newexp != gen_1) /* new exponent > 1 */
-  {
-    if (exponent == 1)
-      e = isonstack(newexp)? icopy(newexp): newexp;
-    else
-      e = mului(exponent, newexp);
-    EXPON(*where) = e;
-  } /* if new exponent is 1, the old exponent already in place will do */
+  if (newexp != gen_1) EXPON(*where) = mului(exponent,newexp);
+  /* if new exponent is 1, the old exponent already in place will do */
   CLASS(*where) = CLASS(cur);
   if (DEBUGLEVEL >= 6) err_printf("\tstored (largest) factor no. %ld...\n", nf);
 
@@ -2857,7 +2851,7 @@ ifac_insert_multiplet(GEN *partial, GEN *where, GEN facvec, long moebius_mode)
                utoipos(exponent))); /* inherit parent's exponent */
     EXPON(*where) = e;
     /* keep components younger than *partial */
-    VALUE(*where) = isonstack(factor) ? icopy(factor) : factor;
+    icopyifstack(factor, VALUE(*where));
     k++;
     if (DEBUGLEVEL >= 6)
       err_printf("\tfactor no. %ld was unique%s\n", j, j>1? " (so far)...": "");
