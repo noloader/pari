@@ -524,9 +524,9 @@ sieve_init(forprime_t *T, ulong a, ulong b)
 {
   T->sieveb = b;
   T->chunk = optimize_chunk(a, b);
+  /* >> 1 [only odds] + 3 [convert from bits to bytes] */
   T->isieve = (unsigned char*)stack_malloc(((T->chunk+2) >> 4) + 1);
   T->cache[0] = 0;
-  /* >> 1 [only odds] + 3 [convert from bits to bytes] */
   T->a = a;
   T->end = minuu(a + T->chunk, b);
   T->pos = T->maxpos = 0;
