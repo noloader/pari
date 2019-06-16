@@ -58,7 +58,7 @@ ispsp(MR_Jaeschke_t *S, ulong a)
         affii(c2, S->sqrt1); return 1;
       }
       /* saw one earlier: too many sqrt(-1)s mod n ? */
-      return !equalii(c2, S->sqrt1) && !equalii(c2, S->sqrt2);
+      return equalii(c2, S->sqrt1) || equalii(c2, S->sqrt2);
     }
   }
   return 0;
