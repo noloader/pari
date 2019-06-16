@@ -457,7 +457,10 @@ uisprime(ulong n)
       case 101: return 1;
       default: return 0;
     }
-  return odd(n) && _uisprime(n);
+  /* gcd-extraction is much slower */
+  return odd(n) && n % 3 && n % 5 && n % 7 && n % 11 && n % 13 && n % 17
+                && n % 19 && n % 23 && n % 29 && n % 31 && n % 37 && n % 41
+                && (n < 1849 || _uisprime(n));
 }
 
 /* assume no prime divisor <= 101 */
