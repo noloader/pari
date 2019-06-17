@@ -1,6 +1,6 @@
 Function: polisirreducible
 Section: polynomials
-C-Name: isirreducible
+C-Name: polisirreducible
 Prototype: lG
 Help: polisirreducible(pol): true(1) if pol is an irreducible non-constant
  polynomial, false(0) if pol is reducible or constant.

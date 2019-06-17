@@ -844,7 +844,7 @@ checkpols(GEN p, GEN EFJ, GEN pols)
   {
     pol = gel(pols, i);
     if (typ(pol) == t_VEC) pol = gel(pol, 1);
-    if (!isirreducible(pol)) pari_err_BUG("Polynomial is reducible");
+    if (!polisirreducible(pol)) pari_err_BUG("Polynomial is reducible");
     p1 = poldisc0(pol, -1);
     if (gvaluation(p1, p) != f*(e+j-1)) pari_err_BUG("Discriminant is incorrect");
     /* only compute a p-maximal order */

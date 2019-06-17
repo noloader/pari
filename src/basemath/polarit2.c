@@ -1221,14 +1221,14 @@ static int
 RgX_is_irred(GEN x)
 { pari_sp av = avma; return gc_bool(av, RgX_is_irred_i(x)); }
 long
-isirreducible(GEN x)
+polisirreducible(GEN x)
 {
   switch(typ(x))
   {
     case t_INT: case t_REAL: case t_FRAC: return 0;
     case t_POL: return RgX_is_irred(x);
   }
-  pari_err_TYPE("isirreducible",x);
+  pari_err_TYPE("polisirreducible",x);
   return 0;
 }
 
