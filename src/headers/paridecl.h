@@ -4753,6 +4753,7 @@ GEN     primes_zv(long m);
 GEN     randomprime(GEN N);
 GEN     removeprimes(GEN primes);
 int     uis2psp(ulong n);
+int     uispsp(ulong a, ulong n);
 int     uislucaspsp(ulong n);
 int     uisprime(ulong n);
 int     uisprime_101(ulong n);
