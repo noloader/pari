@@ -1214,7 +1214,7 @@ RgX_is_irred_i(GEN x)
       if (l > 5) return 0;
       return gsigne(RgX_disc(x)) > 0;
   }
-  y = factor(x);
+  y = RgX_factor(x, NULL);
   return (lg(gcoeff(y,1,1))==l);
 }
 static int
@@ -1223,12 +1223,9 @@ RgX_is_irred(GEN x)
 long
 polisirreducible(GEN x)
 {
-  switch(typ(x))
-  {
-    case t_INT: case t_REAL: case t_FRAC: return 0;
-    case t_POL: return RgX_is_irred(x);
-  }
-  pari_err_TYPE("polisirreducible",x);
+  long tx = typ(x);
+  if (tx == t_POL) return RgX_is_irred(x);
+  if (!is_scalar_t(tx)) pari_err_TYPE("polisirreducible",x);
   return 0;
 }
 
