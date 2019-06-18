@@ -380,6 +380,8 @@ GEN     Flx_to_ZX_inplace(GEN z);
 GEN     Flx_triple(GEN y, ulong p);
 long    Flx_val(GEN x);
 long    Flx_valrem(GEN x, GEN *Z);
+GEN     FlxC_FlxqV_eval(GEN x, GEN v, GEN T, ulong p);
+GEN     FlxC_Flxq_eval(GEN x, GEN F, GEN T, ulong p);
 GEN     FlxC_eval_powers_pre(GEN z, GEN x, ulong p, ulong pi);
 GEN     FlxC_neg(GEN x, ulong p);
 GEN     FlxC_sub(GEN x, GEN y, ulong p);

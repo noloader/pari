@@ -2686,6 +2686,19 @@ Flx_Flxq_eval(GEN Q, GEN x, GEN T, ulong p)
   return gerepileupto(av, z);
 }
 
+GEN
+FlxC_FlxqV_eval(GEN x, GEN v, GEN T, ulong p)
+{ pari_APPLY_type(t_COL, Flx_FlxqV_eval(gel(x,i), v, T, p))
+}
+
+GEN
+FlxC_Flxq_eval(GEN x, GEN F, GEN T, ulong p)
+{
+  long d = brent_kung_optpow(degpol(T)-1,lg(x)-1,1);
+  GEN Fp = Flxq_powers(F, d, T, p);
+  return FlxC_FlxqV_eval(x, Fp, T, p);
+}
+
 #if 0
 static struct bb_algebra Flxq_algebra = { _Flxq_red, _Flx_add, _Flx_sub,
               _Flxq_mul, _Flxq_sqr, _Flxq_one, _Flxq_zero};
