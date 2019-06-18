@@ -4607,6 +4607,7 @@ GEN     polresultantext(GEN x, GEN y);
 GEN     prime_fact(GEN x);
 GEN     vec_Q_primpart(GEN M);
 GEN     vecprod(GEN v);
+GEN     ZV_lcm(GEN x);
 
 /* polarit3.c */
 

@@ -1711,6 +1711,8 @@ glcm0(GEN x, GEN y)
   return glcm(x,y);
 }
 GEN
+ZV_lcm(GEN x) { return fix_lcm(gassoc_proto(lcmii,x,NULL)); }
+GEN
 glcm(GEN x, GEN y)
 {
   pari_sp av;
