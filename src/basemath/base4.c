@@ -1852,7 +1852,6 @@ idealismaximal_mat(GEN nf, GEN x)
     if (pr_get_f(pr) != f) continue;
     v = idealval(nf, x, pr);
     if (v == 1) return pr;
-    if (!v) break;
   }
   return NULL;
 }

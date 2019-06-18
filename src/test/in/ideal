@@ -71,6 +71,7 @@ idealismaximal(K,7).p
 idealismaximal(K,-7).p
 pr=idealprimedec(K,5)[1];
 idealismaximal(K,pr) == pr
+pr = idealprimedec(K,31)[2];
 idealismaximal(K,idealhnf(K,pr)) == pr
 
 k=nfinit(polcyclo(5));
