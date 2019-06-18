@@ -1640,7 +1640,7 @@ nfsnf0(GEN nf, GEN x, long flag)
         /* find d in D = I[k]/I[i] not in J[i]/(A[k,l] J[l]) */
         D = idealdiv(nf,gel(I,k),gel(I,i));
         p2 = idealdiv(nf,gel(J,i), p1);
-        d = RgV_find_denom( RgM_solve(p2, D) );
+        d = RgV_find_denom(QM_gauss(p2, D));
         if (!d) pari_err_BUG("nfsnf");
         p1 = element_mulvecrow(nf,d,A,k,i);
         for (t=1; t<=i; t++) gcoeff(A,i,t) = gadd(gcoeff(A,i,t),gel(p1,t));
