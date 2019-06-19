@@ -1844,14 +1844,12 @@ idealismaximal_mat(GEN nf, GEN x)
     c = gcoeff(x,i,i);
     if (equalii(c, p)) f++; else if (!equali1(c)) return NULL;
   }
-  L = idealprimedec_limit_f(nf, p, f); l = lg(L);
-  for (i = 1; i < l; i++)
+  L = idealprimedec_limit_f(nf, p, f);
+  for (i = lg(L)-1; i; i--)
   {
     GEN pr = gel(L,i);
-    long v;
-    if (pr_get_f(pr) != f) continue;
-    v = idealval(nf, x, pr);
-    if (v == 1) return pr;
+    if (pr_get_f(pr) != f) break;
+    if (idealval(nf, x, pr) == 1) return pr;
   }
   return NULL;
 }
