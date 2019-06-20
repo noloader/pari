@@ -352,6 +352,13 @@ K=nfinit(polcyclo(4,a));G=galoisinit(K);[T,o]=galoischartable(G);
 L=lfunartin(K,G,T[,1]+T[,2],o);
 localbitprec(50);lfuncheckfeq(L)
 
+\\lfuntwist
+
+E=ellinit([0,-1,1,-10,-20]);
+lfunan(lfuntwist(E,-4),10)
+lfunan(lfuntwist(E,Mod(2,7)),10)
+bnr=bnrinit(bnfinit(a),13);lfunan(lfuntwist(E,[bnr,[1]]),10)
+
 localbitprec(20); #lfunzeros('x^2-2,6)
 
 lfuncost(1, [100], 5)

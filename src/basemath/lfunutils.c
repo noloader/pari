@@ -310,9 +310,12 @@ lfuntwist(GEN ldata1, GEN chi)
   ldata1 = lfunmisc_to_ldata_shallow(ldata1);
   ldata2 = lfunmisc_to_ldata_shallow(chi);
   t = ldata_get_type(ldata2);
+  a1 = ldata_get_an(ldata1);
+  a2 = ldata_get_an(ldata2);
   if (t == t_LFUN_ZETA)
     return gerepilecopy(ltop, ldata1);
-  if (t != t_LFUN_CHIZ && t != t_LFUN_KRONECKER)
+  if (t != t_LFUN_CHIZ && t != t_LFUN_KRONECKER &&
+    ( t != t_LFUN_CHIGEN || nf_get_degree(bnr_get_nf(gmael(a2,2,1))) != 1))
     pari_err_TYPE("lfuntwist", chi);
   N1 = ldata_get_conductor(ldata1);
   N2 = ldata_get_conductor(ldata2);
@@ -328,8 +331,6 @@ lfuntwist(GEN ldata1, GEN chi)
   else
     gam = gamma_imagchi(ldata_get_gammavec(ldata1), gaddgs(k,-1));
   if (!gam) pari_err_IMPL("lfuntwist (gammafactors)");
-  a1 = ldata_get_an(ldata1);
-  a2 = ldata_get_an(ldata2);
   b1 = ldata_get_dual(ldata1);
   b2 = ldata_get_dual(ldata2);
   a = tag(mkvec2(a1, a2), t_LFUN_TWIST);
