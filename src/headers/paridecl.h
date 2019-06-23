@@ -5077,6 +5077,7 @@ GEN     weberf2(GEN x, long prec);
 GEN     zetahurwitz(GEN s, GEN x, long der, long bitprec);
 
 /* modsym.c */
+GEN     SL2_inv_shallow(GEN M);
 GEN     Qevproj_apply(GEN T, GEN pro);
 GEN     Qevproj_apply_vecei(GEN T, GEN pro, long k);
 GEN     Qevproj_down(GEN T, GEN pro);
@@ -5120,6 +5121,13 @@ GEN     msstar(GEN W, GEN);
 GEN     msqexpansion(GEN W, GEN proV, ulong B);
 GEN     mssplit(GEN W, GEN H, long deglim);
 GEN     mstooms(GEN W, GEN phi);
+
+/* mscosets.c */
+GEN mscosets0(GEN V, GEN code);
+GEN mscosets(GEN V, void *E, long (*in)(void *, GEN));
+GEN msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM);
+GEN msfarey0(GEN F, GEN code, GEN *pCM);
+int checkfarey_i(GEN F);
 
 /* zetamult.c */
 

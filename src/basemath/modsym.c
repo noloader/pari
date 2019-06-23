@@ -213,8 +213,8 @@ inithashmsymbols(ulong N, GEN symbols)
 
 /** Helper functions for Sl2(Z) / Gamma_0(N) **/
 /* M a 2x2 ZM in SL2(Z) */
-static GEN
-SL2_inv(GEN M)
+GEN
+SL2_inv_shallow(GEN M)
 {
   GEN a = gcoeff(M,1,1), b = gcoeff(M,1,2);
   GEN c = gcoeff(M,2,1), d = gcoeff(M,2,2);
@@ -289,7 +289,7 @@ gamma_equiv_matrix(GEN a, GEN b)
 {
   GEN m = path_to_ZM(a);
   GEN n = path_to_ZM(b);
-  return ZM_mul(m, SL2_inv(n));
+  return ZM_mul(m, SL2_inv_shallow(n));
 }
 
 /*************/
@@ -1293,7 +1293,7 @@ ZSl2_star(GEN v)
   for (i = 1; i < l; i++)
   {
     GEN g = gel(G,i);
-    if (typ(g) == t_MAT) g = SL2_inv(g);
+    if (typ(g) == t_MAT) g = SL2_inv_shallow(g);
     gel(w,i) = g;
   }
   return ZG_normalize(mkmat2(w, gel(v,2)));
@@ -1539,7 +1539,7 @@ msinit_N(ulong N)
   for (r = 1; r <= T31->nb; r++)
   {
     GEN M = path_to_ZM( vecreverse(gel(vecT31,r)) );
-    GEN gamma = ZM_mul(ZM_mul(M, TAU), SL2_inv(M));
+    GEN gamma = ZM_mul(ZM_mul(M, TAU), SL2_inv_shallow(M));
     gel(annT31, r) = mkmat2(mkcol3(gen_1,gamma,ZM_sqr(gamma)),
                             mkcol3(gen_1,gen_1,gen_1));
   }
@@ -4502,7 +4502,7 @@ basic_op(struct siegel *S, long a1, long c1, long c2)
   g = get_g(S, a1);
   if (S->oo >= c1 && S->oo < c2) /* W inside [c1..c2[ */
   { /* c2 -> c1 excluding a1 */
-    GEN gi = SL2_inv(g); /* g a^* = a; gi a = a^* */
+    GEN gi = SL2_inv_shallow(g); /* g a^* = a; gi a = a^* */
     path_vec_mul(S->V, 1, a1, gi);
     path_vec_mul(S->V, a1+1, c1, gi);
     path_vec_mul(S->V, c2, l, gi);
@@ -4725,7 +4725,7 @@ circle2tex(GEN Ast, GEN G)
     }
     else if(Ast[u] > u)
       str_printf(&s, "\\draw \\%slink {%ld}{%s}{%ld}{%s}{%.4f};\n",
-                     Ast[u]-u==n/2? "s": "", u, v[u], Ast[u], v[Ast[u]], ang);
+                     (Ast[u] - u)*ang > 179? "s": "", u, v[u], Ast[u], v[Ast[u]], ang);
   }
   str_printf(&s, "\\end{tikzpicture}\\endgroup");
   return gerepileuptoleaf(av, strtoGENstr(s.string));
@@ -4736,43 +4736,53 @@ mspolygon(GEN M, long flag)
 {
   pari_sp av = avma;
   struct siegel T;
-  long i, l;
-  GEN v, G, msN;
+  GEN v, msN = NULL, G = NULL;
   if (typ(M) == t_INT)
   {
     long N = itos(M);
     if (N <= 0) pari_err_DOMAIN("msinit","N", "<=", gen_0,M);
     msN = msinit_N(N);
   }
-  else { checkms(M); msN = get_msN(M); }
-  if (flag < 0 || flag > 3) pari_err_FLAG("mspolygon");
-  if (ms_get_N(msN) == 1)
+  else if (checkfarey_i(M))
   {
-    GEN S = mkS();
-    T.V = mkvec2(matid(2), S);
-    T.Ast = mkvecsmall2(1,2);
-    G = mkvec2(S, mkTAU());
+    T.V = gel(M,1);
+    T.Ast = gel(M,2);
+    G = gel(M,3);
   }
   else
+  { checkms(M); msN = get_msN(M); }
+  if (flag < 0 || flag > 3) pari_err_FLAG("mspolygon");
+  if (!G)
   {
-    siegel_init(&T, msN);
-    l = lg(T.V);
-    if (flag & 1)
+    if (ms_get_N(msN) == 1)
     {
-      long oo2 = 0;
-      pari_sp av;
-      mssiegel(&T);
-      for (i = 1; i < l; i++)
-      {
-        GEN c = gel(T.V, i);
-        GEN c22 = gcoeff(c,2,2); if (!signe(c22)) { oo2 = i; break; }
-      }
-      if (!oo2) pari_err_BUG("mspolygon");
-      av = avma; siegel_perm0(&T, rotate_perm(l, oo2));
-      set_avma(av);
+      GEN S = mkS();
+      T.V = mkvec2(matid(2), S);
+      T.Ast = mkvecsmall2(1,2);
+      G = mkvec2(S, mkTAU());
     }
-    G = cgetg(l, t_VEC);
-    for (i = 1; i < l; i++) gel(G,i) = get_g(&T, i);
+    else
+    {
+      long i, l;
+      siegel_init(&T, msN);
+      l = lg(T.V);
+      if (flag & 1)
+      {
+        long oo2 = 0;
+        pari_sp av;
+        mssiegel(&T);
+        for (i = 1; i < l; i++)
+        {
+          GEN c = gel(T.V, i);
+          GEN c22 = gcoeff(c,2,2); if (!signe(c22)) { oo2 = i; break; }
+        }
+        if (!oo2) pari_err_BUG("mspolygon");
+        av = avma; siegel_perm0(&T, rotate_perm(l, oo2));
+        set_avma(av);
+      }
+      G = cgetg(l, t_VEC);
+      for (i = 1; i < l; i++) gel(G,i) = get_g(&T, i);
+    }
   }
   if (flag & 2)
     v = mkvec5(T.V, T.Ast, G, polygon2tex(T.V,T.Ast,G), circle2tex(T.Ast,G));
@@ -5230,7 +5240,7 @@ eiscocycle(GEN co, GEN f, GEN g)
     P = evalcap(co,f, gdiv(negi(b),a));
   else
   {
-    GEN gi = SL2_inv(g);
+    GEN gi = SL2_inv_shallow(g);
     P = gsub(evalhull(co, f, gdiv(negi(d),c)),
              act(evalcap(co, actf(N,f,gi), gdiv(a,c)), gi, co_get_k(co)));
   }
@@ -5247,7 +5257,7 @@ eisCocycle(GEN co, GEN D, GEN f)
   {
     GEN c, g, d, s = gel(V,i);
     if (i > Ast[i]) continue;
-    g = SL2_inv(gel(G,i));
+    g = SL2_inv_shallow(gel(G,i));
     c = eiscocycle(co,f,g);
     if (i < Ast[i]) /* non elliptic */
       d = gen_1;

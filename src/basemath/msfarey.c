@@ -1,0 +1,330 @@
+/* Copyright (C) 2000, 2012  The PARI group.
+
+This file is part of the PARI/GP package.
+
+PARI/GP is free software; you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation. It is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY WHATSOEVER.
+
+Check the License for details. You should have received a copy of it, along
+with the package; see the file 'COPYING'. If not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
+
+#include "pari.h"
+#include "paripriv.h"
+
+static long
+conginlist(GEN L, GEN g, void *E, long (*in)(void *, GEN ))
+{
+  long i, l = lg(L);
+  GEN gi = ginv(g);
+  for (i = 1; i < l; i++)
+    if (in(E, gmul(gel(L,i), gi))) break;
+  return i;
+}
+
+static GEN
+normalise(GEN M)
+{
+  GEN d = gcoeff(M,2,2);
+  if (signe(d) < 0 || (!signe(d) && signe(gcoeff(M,1,2)) < 0)) M = ZM_neg(M);
+  return M;
+}
+
+static void
+filln(GEN V, long n, long a, long c)
+{
+  long i, j;
+  for (j = a + 1, i = 1; i < n; i++)
+  { /* j != a (mod n) */
+    gel(V,i) = mkvecsmall2(c, j);
+    if (++j > n) j = 1;
+  }
+}
+/* set v[k+1..k+n-1] or (k == l) append to v; 0 <= a < n */
+static GEN
+vec_insertn(GEN v, long n, long k, long a, long c)
+{
+  long i, j, l = lg(v), L = l + n-1;
+  GEN V = cgetg(L, t_VEC);
+  if (k == l)
+  {
+    for (i = 1; i < l; i++) gel(V,i) = gel(v,i);
+    filln(V + i-1, n, a, c);
+  }
+  else
+  {
+    for (i = 1; i <= k; i++) gel(V,i) = gel(v,i);
+    filln(V + i-1, n, a, c);
+    i += n - 1;
+    for (j = k + 1; j < l; j++) gel(V,i++) = gel(v,j);
+  }
+  return V;
+}
+
+#define newcoset(g, k, a) \
+{ \
+  long _i, _c = lg(C); \
+  C = vec_append(C, g); \
+  M = vec_append(M, zero_zv(n)); \
+  for (_i = 1; _i <= n; _i++) \
+    if (trois[_i]) \
+      L3 = vec_append(L3, mkvecsmall2(_c,_i)); \
+    else \
+      L = vec_append(L, mkvecsmall2(_c,_i)); \
+  B = vec_insertn(B, n, k, a % n, _c); \
+}
+
+static long
+_isin2(GEN L, long m, long a)
+{
+  pari_sp av = avma;
+  long k = RgV_isin(L, mkvecsmall2(m,a));
+  return gc_long(av, k? k: lg(L));
+}
+static void
+get2(GEN x, long *a, long *b) { *a = x[1]; *b = x[2]; }
+
+static GEN
+denval(GEN g)
+{
+  GEN a = gcoeff(g,1,1), c = gcoeff(g,2,1);
+  return signe(c)? denom_i(gdiv(a,c)): gen_0;
+}
+/* M * S, S = [0,1;-1,0] */
+static GEN
+mulS(GEN g)
+{
+  GEN a = gcoeff(g,1,1), b = gcoeff(g,1,2);
+  GEN c = gcoeff(g,2,1), d = gcoeff(g,2,2);
+  return mkmat22(negi(b), a, negi(d), c);
+}
+/* remove extra scales and reduce ast to involution */
+static GEN
+rectify(GEN V, GEN ast, GEN gam)
+{
+  long n = lg(V)-1, n1, i, def, m, dec;
+  GEN V1, a1, g1, d, inj;
+
+  for(i = 1, def = 0; i <= n; i++)
+    if (ast[ast[i]] != i) def++;
+  def /= 3;
+
+  if (!def) return mkvec3(V, ast, gam);
+  n1 = n + def;
+  g1 = cgetg(n1+1, t_VEC);
+  V1 = cgetg(n1+1, t_VEC);
+  a1 = cgetg(n1+1, t_VECSMALL);
+  d = cgetg(def+1, t_VECSMALL);
+  for (i = m = 1; i <= n; i++)
+  {
+    long i2 = ast[i], i3 = ast[i2];
+    if (i2 > i && i3 > i)
+    {
+      GEN d1 = mulii(denval(gel(gam,i)),  gel(V,ast[i]));
+      GEN d2 = mulii(denval(gel(gam,i2)), gel(V,ast[i2]));
+      GEN d3 = mulii(denval(gel(gam,i3)), gel(V,ast[i3]));
+      if (cmpii(d1,d2) <= 0)
+        d[m++] = cmpii(d1,d3) <= 0? i: i3;
+      else
+        d[m++] = cmpii(d2,d3) <= 0? i2: i3;
+    }
+  }
+  inj = zero_zv(n);
+  for (i = 1; i <= def; i++) inj[d[i]] = 1;
+  for (i = 1, dec = 0; i <= n; i++) { dec += inj[i]; inj[i] = i + dec; }
+  for (i = 1; i <= n; i++)
+    if (ast[ast[i]] == i)
+    {
+      gel(g1, inj[i]) = gel(gam,i);
+      gel(V1, inj[i]) = gel(V,i);
+      a1[inj[i]] = inj[ast[i]];
+    }
+  for (i = 1; i <= def; i++)
+  {
+    long a = d[i], b = ast[a], c = ast[b];
+    GEN igc;
+
+    gel(V1, inj[b]) = gel(V, b);
+    gel(g1, inj[b]) = normalise(SL2_inv_shallow(gel(gam,a)));
+    a1[inj[b]] = inj[a]-1;
+
+    gel(V1, inj[c]) = gel(V, c);
+    gel(g1, inj[c]) = gel(gam, c);
+    a1[inj[c]] = inj[a];
+
+    gel(V1, inj[a]-1) = normalise(ZM_mul(gel(gam,a), mulS(gel(V,b))));
+    gel(g1, inj[a]-1) = gel(gam, a);
+    a1[inj[a]-1] = inj[b];
+
+    igc = SL2_inv_shallow(gel(gam,c));
+    gel(V1, inj[a]) = normalise(ZM_mul(igc, mulS(gel(V,c))));
+    gel(g1, inj[a]) = normalise(igc);
+    a1[inj[a]] = inj[c];
+  }
+  return mkvec3(V1, a1, g1);
+}
+
+GEN
+msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
+{
+  pari_sp av = avma, av2, av3;
+  GEN V = gel(F,1), ast = gel(F,2), gam = gel(F,3), V2, ast2, gam2;
+  GEN C, M, L3, L, B, g, trois;
+  long n = lg(gam)-1, i, k, m, a, l;
+
+  trois = cgetg(n+1, t_VECSMALL);
+  for (i = 1; i <= n; i++)
+    if (ast[i] == i)
+      trois[i] = !isintzero(gtrace(gel(gam,i)));
+    else
+      trois[i] = ast[ast[i]] != i;
+  av2 = avma;
+  if (typ(ast) == t_VEC) ast = ZV_to_zv(ast);
+  C = M = L = L3 = cgetg(1, t_VEC);
+  B = mkvec(mkvecsmall2(1,1));
+  newcoset(matid(2),1,1);
+  while(lg(L)-1 + lg(L3)-1)
+  {
+    while(lg(L3)-1)
+    {
+      get2(gel(L3,1), &m,&a); L3 = vecsplice(L3,1);
+      av3 = avma;
+      g = ZM_mul(gel(C,m), gel(gam,a));
+      k = conginlist(C, g, E, in);
+      gel(M,m)[a] = k;
+      if (k < lg(C)) avma = av3;
+      else
+      {
+        k = _isin2(B, m, a);
+        newcoset(g, k, ast[a]);
+        newcoset(ZM_mul(g,gel(gam,ast[a])), k+n-1, ast[ast[a]]);
+        B = vecsplice(B, k);
+      }
+    }
+    get2(gel(L,1), &m,&a); L = vecsplice(L,1);
+    av3 = avma;
+    g = ZM_mul(gel(C,m), gel(gam,a));
+    k = conginlist(C, g, E, in);
+    gel(M,m)[a] = k; /* class of C[m]*gam[a] */
+    if (k < lg(C)) avma = av3;
+    else
+    {
+      k = _isin2(B, m, a);
+      newcoset(g,k,ast[a]);
+      B = vecsplice(B,k);
+    }
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"msfarey, #L = %ld", lg(L)-1);
+      gerepileall(av2, 5, &C, &M, &L, &L3, &B);
+    }
+  }
+  l = lg(B);
+  V2 = cgetg(l, t_VEC);
+  gam2 = cgetg(l, t_VEC);
+  ast2 = cgetg(l, t_VECSMALL);
+  for (i = 1; i < l; i++)
+  {
+    long r;
+    get2(gel(B,i), &m,&a);
+    gel(V2,i) = normalise(ZM_mul(gel(C,m), gel(V,a)));
+    r = gel(M,m)[a];
+    gel(gam2,i) = normalise(gdiv(ZM_mul(gel(C,m), gel(gam,a)), gel(C,r)));
+    ast2[i] = RgV_isin(B, mkvecsmall2(r, ast[a]));
+  }
+  F = rectify(V2, ast2, gam2);
+  if (pCM) *pCM = mkvec2(C,M);
+  gerepileall(av, pCM? 2: 1, &F, pCM); return F;
+}
+
+GEN
+mscosets(GEN G, void *E, long (*in)(void *, GEN))
+{
+  pari_sp av = avma;
+  GEN g, L, M;
+  long n = lg(G)-1, i, m, k;
+  g = gel(G,1);
+  L = mkvec(typ(g) == t_VECSMALL? identity_perm(lg(g)-1): gdiv(g,g));
+  M = mkvec(zero_zv(n));
+  for (m = 1; m < lg(L); m++)
+    for (i = 1; i <= n; i++)
+    {
+      g = gmul(gel(L,m), gel(G,i));
+      mael(M, m, i) = k = conginlist(L, g, E, in);
+      if (k > lg(L)-1) { L = vec_append(L,g); M = vec_append(M, zero_zv(n)); }
+      if (gc_needed(av,2))
+      {
+        if (DEBUGMEM>1) pari_warn(warnmem,"mscosets, #L = %ld", lg(L)-1);
+        gerepileall(av, 2, &M, &L);
+      }
+    }
+  return gerepilecopy(av, mkvec2(L, M));
+}
+
+int
+checkfarey_i(GEN F)
+{
+  GEN V, ast, gam;
+  if (typ(F) != t_VEC || lg(F) < 4) return 0;
+  V   = gel(F,1);
+  ast = gel(F,2);
+  gam = gel(F,3);
+  if (typ(V) != t_VEC
+      || (typ(ast) != t_VECSMALL && (typ(ast) != t_VEC || !RgV_is_ZV(ast)))
+      || typ(gam) != t_VEC
+      || lg(V) != lg(ast) || lg(ast) != lg(gam)) return 0;
+  return 1;
+}
+static int
+check_inH(GEN inH)
+{
+  return (typ(inH) == t_CLOSURE && closure_arity(inH) == 1
+          && !closure_is_variadic(inH));
+}
+GEN
+msfarey0(GEN F, GEN code, GEN *pCM)
+{
+  if (!checkfarey_i(F)) pari_err_TYPE("msfarey", F);
+  if (!check_inH(code)) pari_err_TYPE("msfarey", code);
+  return msfarey(F, (void*)code, gp_callbool, pCM);
+}
+GEN
+mscosets0(GEN V, GEN code)
+{
+  if (typ(V) != t_VEC) pari_err_TYPE("mscosets", V);
+  if (!check_inH(code)) pari_err_TYPE("mscosets", code);
+  if (lg(V) == 1) pari_err_TYPE("mscosets [trivial group]", V);
+  return mscosets(V, (void*)code, gp_callbool);
+}
+
+/*
+Psl2=mspolygon(1);
+gamma_0(N)=msfarey(Psl2,(x)->(x[2,1]%N==0));
+gamma_1(N)=msfarey(gamma_0(N),g->((g[1,1]%N==1)||(g[1,1]%N==N-1)));
+gamma_(N)=msfarey(gamma_1(N),g->(g[1,2]%N==0));
+gamma_00(N)=msfarey(gamma_0(N),(x)->(x[1,2]%N==0));
+\\ exemple du livre de Stevens
+gamma1_0(N1,N2)=msfarey(Psl2,(x)->(x[2,1]%N1==0) && x[1,2]%N2==0);
+gamma1(N1,N2)= {
+  msfarey(Psl2,
+    (x)->(x[2,1]%N1==0 && x[1,2]%N2==0 && x[2,1]%lcm(N1,N2)==0 && x[1,2]%lcm(N1,N2)==0))
+};
+
+gammafrom(N,d)=msfarey(gamma_0(N),(x)->(x[2,1]%(N*d)==0));
+
+matrixtopath(V,R=vector(#V,i,i))=vector(#R,i,[valeur(V[R[i]],oo),valeur(V[R[i]],0)]);
+
+perm(S)= my(n=#S); vector(n,i, S[i%n+1]);
+permast(V)=my(n=#V); vector(n,i, (V[i%n+1]+n-2)%n +1);
+
+test(N)=my(V=mspolygon(N)); [perm(V[1]),permast(V[2])]==gamma_0(N)[1..2];
+test2(N)={my(V=mspolygon(N)); perm(V[3])==gamma_0(N)[3]};
+test3(N)={
+  my(F=msfarey(Psl2,g->(g[1,1]%N==1||g[1,1]%N==N-1) && (g[2,1]%N==0)));
+  my(G=rectifie(gamma_1(N)));
+  [G==F,matrixtopath(G[1]),matrixtopath(F[1])]
+};
+\\for(N=2,10, if(test(N)!=1, print(N)));
+*/
