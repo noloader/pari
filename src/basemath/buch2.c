@@ -3010,20 +3010,21 @@ bnftestprimes(GEN bnf, GEN BOUND)
     for (j = 1; j < J; j++)
     {
       GEN P = gel(vP,j);
-      long k;
+      long k = 0;
       if (pr_orbit)
       {
         if (pr_orbit[j]) continue;
         /* discard all primes in automorphism orbit simultaneously */
         pr_orbit_fill(pr_orbit, auts, vP, j);
       }
-      if (DEBUGLEVEL>1) err_printf("  Testing P = %Ps\n",P);
-      if (abscmpiu(p, pmax) <= 0 && (k = tablesearch(fb, P, &cmp_prime_ideal)))
-      { if (DEBUGLEVEL>1) err_printf("    #%ld in factor base\n",k); }
-      else if (DEBUGLEVEL>1)
-        err_printf("    is %Ps\n", isprincipal(bnf,P));
-      else /* faster: don't compute result */
+      if (abscmpiu(p, pmax) > 0 || !(k = tablesearch(fb, P, &cmp_prime_ideal)))
         (void)SPLIT(&F, nf, pr_hnf(nf,P), Vbase, fact);
+      if (DEBUGLEVEL>1)
+      {
+        err_printf("  Testing P = %Ps\n",P);
+        if (k) err_printf("    #%ld in factor base\n",k);
+        else err_printf("    is %Ps\n", isprincipal(bnf,P));
+      }
     }
   }
   set_avma(av0);
