@@ -1796,8 +1796,8 @@ escape(const char *tch, int ismain)
       s = get_name(s);
       if (*s)
       {
-        (void)sd_logfile(s,d_ACKNOWLEDGE);
-        if (pari_logfile) break;
+        if (pari_logfile) { (void)sd_logfile(s,d_ACKNOWLEDGE);break; }
+        (void)sd_logfile(s,d_SILENT);
       }
       (void)sd_log(pari_logfile?"0":"1",d_ACKNOWLEDGE);
       break;
