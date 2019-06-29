@@ -25,9 +25,10 @@ L=List();writebin(F,L)
 read(F)
 del()
 \\
-write(F,"1+1")
-extern("cat "F)
-externstr("cat "F)
+write(F,"1+1"); s = Str("cat ", F);
+extern(s)
+externstr(s)
+n = fileextern(s); while(l = fileread(n), print(l)); fileclose(n);
 del()
 {
   my(f=fileopen(F,"w"));
