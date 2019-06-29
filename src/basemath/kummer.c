@@ -1797,9 +1797,8 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
   fa = Z_factor(N);
   PN = gel(fa,1); lPN = lg(PN);
   EN = gel(fa,2);
-  for (i = 1; i < lPN; i++)
-    if (lgefint(gel(PN,i)) > 3)
-      pari_err_OVERFLOW("bnrclassfield [extension of too large degree]");
+  if (lgefint(gel(PN,lPN-1)) > 3)
+    pari_err_OVERFLOW("bnrclassfield [extension of too large degree]");
   bnf = bnr_get_bnf(bnr);
   nf = bnf_get_nf(bnf);
   res = cgetg(lPN, t_VEC);
