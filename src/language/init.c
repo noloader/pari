@@ -310,7 +310,7 @@ unexportall(void)
   GEN keys = hash_keys(export_hash);
   long i, l = lg(keys);
   for (i = 1; i < l; i++) mt_export_del((const char *)keys[i]);
-  avma = av;
+  set_avma(av);
 }
 
 void
