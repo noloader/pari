@@ -306,13 +306,11 @@ export_get(const char *str)
 void
 unexportall(void)
 {
+  pari_sp av = avma;
   GEN keys = hash_keys(export_hash);
   long i, l = lg(keys);
-  for(i=1; i<l; i++)
-  {
-    const char *s = (const char *) keys[i];
-    mt_export_del(s);
-  }
+  for (i = 1; i < l; i++) mt_export_del((const char *)keys[i]);
+  avma = av;
 }
 
 void
