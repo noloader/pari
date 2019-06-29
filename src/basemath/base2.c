@@ -490,6 +490,7 @@ nfdiscfactors(GEN x)
   {
     D = nf_get_disc(nf);
     P = nf_get_ramified_primes(nf);
+    if (lg(P) == 1 && nf_get_degree(nf) != 1) P = gel(absZ_factor(D),1);
   }
   else
   {
