@@ -444,7 +444,7 @@ chigeneval(GEN logx, GEN nchi, GEN z, long prec)
   pari_sp av = avma;
   GEN d = gel(nchi,1);
   GEN e = FpV_dotproduct(gel(nchi,2), logx, d);
-  if (typ(z) != t_VEC)
+  if (!is_vec_t(typ(z)))
     return gerepileupto(av, gpow(z, e, prec));
   else
   {

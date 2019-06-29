@@ -7011,7 +7011,7 @@ mfeigenembed(GEN mf, long prec)
 
 static int
 checkPv(GEN P, GEN v)
-{ return typ(P) == t_POL && typ(v) == t_VEC && lg(v)-1 >= degpol(P); }
+{ return typ(P) == t_POL && is_vec_t(typ(v)) && lg(v)-1 >= degpol(P); }
 static int
 checkemb_i(GEN E)
 {
@@ -7019,7 +7019,7 @@ checkemb_i(GEN E)
   if (t == t_VEC) return l == 1 || (l == 3 && checkPv(gel(E,1), gel(E,2)));
   if (t != t_COL) return 0;
   if (l == 3) return checkPv(gel(E,1), gel(E,2));
-  return l == 4 && typ(gel(E,2)) == t_VEC && checkPv(gel(E,1), gel(E,3));
+  return l == 4 && is_vec_t(typ(gel(E,2))) && checkPv(gel(E,1), gel(E,3));
 }
 static GEN
 anyembed(GEN v, GEN E)

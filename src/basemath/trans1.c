@@ -1204,7 +1204,7 @@ gsqrpowers(GEN q, long n)
 static GEN
 grootsof1_4(long N, long prec)
 {
-  GEN z, RU = cgetg(N+1,t_VEC), *v  = ((GEN*)RU) + 1;
+  GEN z, RU = cgetg(N+1,t_COL), *v  = ((GEN*)RU) + 1;
   long i, N2 = (N>>1), N4 = (N>>2), N8 = (N>>3);
   /* z^N2 = -1, z^N4 = I; if z^k = a+I*b, then z^(N4-k) = I*conj(z) = b+a*I */
 
@@ -1230,9 +1230,9 @@ grootsof1(long N, long prec)
 
   if (N <= 0) pari_err_DOMAIN("rootsof1", "N", "<=", gen_0, stoi(N));
   if ((N & 3) == 0) return grootsof1_4(N, prec);
-  if (N <= 2) return N == 1? mkvec(gen_1): mkvec2(gen_1, gen_m1);
+  if (N <= 2) return N == 1? mkcol(gen_1): mkcol2(gen_1, gen_m1);
   k = (N+1)>>1;
-  RU = cgetg(N+1,t_VEC);
+  RU = cgetg(N+1,t_COL);
   v  = ((GEN*)RU) + 1;
   v[0] = gen_1; v[1] = z = rootsof1u_cx(N, prec);
   for (i=2; i<k; i++) v[i] = gmul(z, v[i-1]);
