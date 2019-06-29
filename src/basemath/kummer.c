@@ -1778,9 +1778,14 @@ nfcompositumall(GEN nf, GEN L)
   return nfcompositum(nf, gel(pol,1), gel(pol,2), 2);
 }
 
-static GEN
-bnrclassfield_i(GEN bnr, GEN subgroup, long flag, long prec)
+/* flag:
+ * 0 list of polynomials whose compositum is the extension
+ * 1 single polynomial
+ * 2 single absolute polynomial */
+GEN
+bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
 {
+  pari_sp av = avma;
   GEN N, fa, res, bnf, nf, P, PN, Pmod, EN;
   long i, absolute, lPN;
   struct rnfkummer kum;
@@ -1788,7 +1793,7 @@ bnrclassfield_i(GEN bnr, GEN subgroup, long flag, long prec)
   bnrclassfield_sanitize(&bnr, &subgroup);
 
   N = ZM_det_triangular(subgroup);
-  if (equali1(N)) return pol_x(0);
+  if (equali1(N)) { set_avma(av); return pol_x(0); }
   fa = Z_factor(N);
   PN = gel(fa,1); lPN = lg(PN);
   EN = gel(fa,2);
@@ -1827,16 +1832,5 @@ bnrclassfield_i(GEN bnr, GEN subgroup, long flag, long prec)
     res = nfcompositumall(nf, res);
     if (flag==2 && !absolute) res = rnfequation(nf, res);
   }
-  return res;
-}
-
-/* flag:
- * 0 list of polynomials whose compositum is the extension
- * 1 single polynomial
- * 2 single absolute polynomial */
-GEN
-bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
-{
-  pari_sp av = avma;
-  return gerepilecopy(av, bnrclassfield_i(bnr, subgroup, flag, prec));
+  return gerepileupto(av,res);
 }
