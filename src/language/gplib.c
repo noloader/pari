@@ -679,12 +679,11 @@ what_cc(void)
   char *s;
 #ifdef GCC_VERSION
 #  ifdef __cplusplus
-#    define Format "(C++) %s"
-#  else
-#    define Format "%s"
-#  endif
   s = stack_malloc(6 + strlen(GCC_VERSION) + 1);
-  (void)sprintf(s, Format, GCC_VERSION);
+  (void)sprintf(s, "(C++) %s", GCC_VERSION);
+#  else
+  s = stack_strdup(GCC_VERSION);
+#  endif
 #else
 #  ifdef _MSC_VER
   s = stack_malloc(32);

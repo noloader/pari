@@ -75,7 +75,7 @@ if test -z "$__gnuc__"; then
     # avoid internationalization trouble by setting LANG=C
     __gnuc__=`env LANG=C LC_ALL=C LC_MESSAGES=C PATH="$PATH" $CC -v 2>&1 |\
       grep ' version ' | tr '\n' , | sed -e 's/ *,$//' |\
-      sed -e 's/(.*) *\((.*\))/\1/'`
+      sed -e 's/(.*) *\((.*)\)/\1/'`
     echo GNU compatible compiler: $__gnuc__
   fi
   . cleanup_exe
