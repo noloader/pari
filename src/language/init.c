@@ -319,14 +319,9 @@ exportall(void)
   long i;
   for (i = 0; i < functions_tblsz; i++)
   {
-    entree *ep = functions_hash[i];
-    while (ep)
-    {
-      entree *EP = ep->next;
-      if (EpVALENCE(ep)==EpVAR)
-        mt_export_add(ep->name, (GEN) ep->value);
-      ep = EP;
-    }
+    entree *ep;
+    for (ep = functions_hash[i]; ep; ep = ep->next)
+      if (EpVALENCE(ep)==EpVAR) mt_export_add(ep->name, (GEN)ep->value);
   }
 }
 
