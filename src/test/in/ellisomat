@@ -37,3 +37,10 @@ chk(ellinit([0,1,phi,-47*phi+31,560*phi-803],nf))
 chk(ellinit([phi+1,1,phi+1,6*phi-1,13*phi+2],nf))
 nf=nfinit(a^2-2);
 chk(ellinit([a,-1,0,18,46],nf))
+
+E=ellinit([1,0,1,4,-6]);
+ellisotree(E)
+ellisotree(ellisomat(E,2,1))
+ellisotree(ellisomat(E,2))
+ellisotree(ellisomat(E,3,1))
+ellisotree(ellisomat(E,,1))
