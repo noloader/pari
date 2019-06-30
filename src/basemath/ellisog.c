@@ -1613,7 +1613,8 @@ get_isomat(GEN v)
   /* wE a vector of [a4,a6] */
   for (i = 1; i < l; i++)
   {
-    GEN e = ellinit(gel(wE,i), gen_1, 0), E = ellminimalmodel(e, NULL);
+    GEN e = ellinit(gel(wE,i), gen_1, DEFAULTPREC);
+    GEN E = ellminimalmodel(e, NULL);
     obj_free(e); gel(wE,i) = E;
   }
   return mkvec2(wE, M);
@@ -1659,7 +1660,7 @@ ellisotree(GEN E)
   vE = gel(L,1);
   adj = gel(L,2);
   n = lg(vE)-1; L = cgetg(n+1, t_VEC);
-  for (i = 1; i <= n; i++) gel(L,i) = ellR_area(gel(vE,i), LOWDEFAULTPREC);
+  for (i = 1; i <= n; i++) gel(L,i) = ellR_area(gel(vE,i), DEFAULTPREC);
   M = zeromatcopy(n,n);
   for (i = 1; i <= n; i++)
     for (j = i+1; j <= n; j++)
