@@ -1,7 +1,7 @@
 Function: hyperellpadicfrobenius
 Section: elliptic_curves
 C-Name: hyperellpadicfrobenius0
-Prototype: GUL
+Prototype: GGL
 Help: hyperellpadicfrobenius(Q,q,n): Q being a rational polynomial of degree
  d and X being the curve defined by y^2=Q(x), return the matrix of the
  Frobenius at the prime q >= d in the standard basis of H^1_dR(X) to absolute
