@@ -1,3 +1,9 @@
+hc(P,p)=
+{
+  print(centerlift(hyperellpadicfrobenius(P,p,3)));
+  checkfeq(hyperellcharpoly(P*Mod(1,p)),p);
+}
+
 checkfeq(P,q)=
 {
   for(i=0,poldegree(P),if (type(polcoeff(P,i))!="t_INT",error(dbg_x(P))));
@@ -8,24 +14,22 @@ checkfeq(P,q)=
 {
   for(g=1,6,
     for(n=1,2*g,
-      H=hyperellcharpoly(n*(x^(2*g+1)-2*x^n+1)*Mod(1,19));
-      printsep(":",g,n,checkfeq(H,19))))
+      my(H=n*(x^(2*g+1)-2*x^n+1));
+      printsep(":",g,n,hc(H,19))))
 }
 
 {
   for(g=1,5,
     for(n=1,2*g+1,
-      H=hyperellcharpoly(n*(x^(2*g+2)-3*x^n+1)*Mod(1,29));
-      printsep(":",g,n,checkfeq(H,29))))
+      H=n*(x^(2*g+2)-3*x^n+1);
+      printsep(":",g,n,hc(H,29))))
 }
 
 {
   forprime(p=3,7,
-    H=hyperellcharpoly((x^6+x+1)*Mod(1,p));
-    print(checkfeq(H,p)));
+    print(hc(x^6+x+1,p)));
   forprime(p=3,11,
-    H=hyperellcharpoly((x^10+x+1)*Mod(1,p));
-    print(checkfeq(H,p)));
+    print(hc(x^10+x+1,p)));
   forprime(p=3,7,
     g=ffgen(ffinit(p,3),'g);
     H=hyperellcharpoly((x^6+g*x+1));
