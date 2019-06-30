@@ -18,7 +18,7 @@ Doc:
  $\varphi$ is the numerator of the zeta-function of the reduction of the curve
  $X$ modulo $q$. The matrix is computed to absolute $q$-adic precision $q^n$.
 
- Alternatively, $q$ may be of the form $[T,p]$ where $p$ is a prime, 
+ Alternatively, $q$ may be of the form $[T,p]$ where $p$ is a prime,
  $T$ is a polynomial with integral coefficients whose projection to
  $\F_p[t]$ is irreducible, $X$ is defined over $K = \Q[t]/(T)$ and has good
  reduction to the finite field $\F_q = \F_p[t]/(T)$. The matrix of
