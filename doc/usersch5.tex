@@ -8395,7 +8395,8 @@ variable $0$) of the \kbd{ZM} $M$.
 
 \fun{long}{ZM_rank}{GEN x} returns \kbd{matrank(x)}.
 
-\fun{GEN}{ZM_ker}{GEN x} returns \kbd{matker(x)}
+\fun{GEN}{ZM_ker}{GEN x} returns the primitive part of \kbd{matker(x)}; in
+other words the $\Q$-basis vectors are made integral and primitive.
 
 \fun{GEN}{ZM_indexrank}{GEN x} returns \kbd{matindexrank(x)}.
 
