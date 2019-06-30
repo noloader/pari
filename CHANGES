@@ -14,12 +14,15 @@ BA   1- plotlines flag was ignored
   Changed
      1- [libpari] renamed rootsof1 -> nfrootsof1
      2- [libpari] renamed isirreducible -> polisirreducible
+     3- hyperellpadicfrobenius: allow X defined over a number field and
+        compute Frobanius over unramified extension of Q_p
 
   Added
      1- new GP function rootsof1
 BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
      3- [libpari] uis2psp, uispsp
      4- [libpari] ZV_lcm
+     5- [libpari] nfhyperellpadicfrobenius
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
