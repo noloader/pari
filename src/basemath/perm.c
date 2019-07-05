@@ -1111,7 +1111,7 @@ group_abelianHNF(GEN G, GEN S)
     GEN P, C = cgetg(n,t_COL);
     pari_sp av = avma;
     gel(M,i) = C;
-    P = perm_pow(gel(g,i), o[i]);
+    P = perm_pow(gel(g,i), -o[i]);
     for(j=1; j<lg(S); j++)
       if (zv_equal(P, gel(S,j))) break;
     set_avma(av);
