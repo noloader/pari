@@ -2231,6 +2231,14 @@ trivsmith(long all)
 }
 
 static void
+snf_pile1(pari_sp av, GEN *x, GEN *U)
+{
+  GEN *gptr[2];
+  int c = 1; gptr[0]=x;
+  if (*U) gptr[c++] = U;
+  gerepilemany(av,gptr,c);
+}
+static void
 snf_pile(pari_sp av, GEN *x, GEN *U, GEN *V)
 {
   GEN *gptr[3];
@@ -2263,26 +2271,37 @@ bezout_step(GEN *pa, GEN *pb, GEN *pu, GEN *pv)
 static int
 negcmpii(void *E, GEN x, GEN y) { (void)E; return -cmpii(x,y); }
 
-/* does b = x[i,i] divide all entries in x[1..i-1,1..i-1] ? If so, return 0;
- * else return the index of a problematic row */
+/* x square of maximal rank; does b = x[i,i] divide all entries in
+ * x[1..i-1, 1..i-1] ? If so, return 0; else the index of a problematic row */
 static long
 ZM_snf_no_divide(GEN x, long i)
 {
   GEN b = gcoeff(x,i,i);
   long j, k;
 
-  if (!signe(b))
-  { /* impossible in the current implementation : x square of maximal rank */
-    for (k = 1; k < i; k++)
-      for (j = 1; j < i; j++)
-        if (signe(gcoeff(x,k,j))) return k;
-    return 0;
-  }
   if (is_pm1(b)) return 0;
   for (k = 1; k < i; k++)
     for (j = 1; j < i; j++)
       if (!dvdii(gcoeff(x,k,j),b)) return k;
   return 0;
+}
+
+static void
+ZM_redpart(GEN x, GEN p, long I)
+{
+  long l = lgefint(p), i, j;
+  for (i = 1; i <= I; i++)
+    for (j = 1; j <= I; j++)
+    {
+      GEN c = gcoeff(x,i,j);
+      if (lgefint(c) > l) gcoeff(x,i,j) = remii(c, p);
+    }
+}
+static void
+ZMrow_divexact_inplace(GEN M, long i, GEN c)
+{
+  long j, l = lg(M);
+  for (j = 1; j < l; j++) gcoeff(M,i,j) = diviiexact(gcoeff(M,i,j), c);
 }
 
 /* Return the SNF D of matrix X. If ptU/ptV non-NULL set them to U/V
@@ -2292,7 +2311,7 @@ ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
 {
   pari_sp av0 = avma, av;
   long i, j, k, m0, m, n0, n;
-  GEN p1, u, v, U, V, V0, mdet, ys, perm = NULL;
+  GEN u, v, U, V, V0, mdet, A = NULL, perm = NULL;
 
   n0 = n = lg(x)-1;
   if (!n) {
@@ -2300,101 +2319,82 @@ ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
     if (ptV) *ptV = cgetg(1,t_MAT);
     return cgetg(1, return_vec? t_VEC: t_MAT);
   }
-  av = avma;
   m0 = m = nbrows(x);
 
-  U = ptU? gen_1: NULL; /* TRANSPOSE of row transform matrix [act on columns]*/
-  V = ptV? gen_1: NULL;
-  V0 = NULL;
-  x = RgM_shallowcopy(x);
+  U = V = V0 = NULL; /* U = TRANSPOSE of row transform matrix [act on columns]*/
   if (m == n && ZM_ishnf(x))
   {
-    mdet = ZM_det_triangular(x);
-    if (V) *ptV = matid(n);
+    mdet = ZM_det_triangular(x); /* != 0 */
+    if (ptV) *ptV = matid(n);
   }
   else
   {
     mdet = ZM_detmult(x);
-    if (signe(mdet))
-    {
-      if (!V)
-        p1 = ZM_hnfmod(x,mdet);
-      else
-      {
-        if (m == n)
-        {
-          p1 = ZM_hnfmod(x,mdet);
-          *ptV = ZM_gauss(x,p1);
-        }
-        else
-          p1 = ZM_hnfperm(x, ptV, ptU? &perm: NULL);
-      }
-      mdet = ZM_det_triangular(p1);
-    }
+    if (!signe(mdet))
+      x = ZM_hnfperm(x, ptV, ptU? &perm: NULL);
     else
-      p1 = ZM_hnfperm(x, ptV, ptU? &perm: NULL);
-    x = p1;
-  }
-  n = lg(x)-1;
-  if (V)
-  {
-    V = *ptV;
-    if (n != n0)
+    { /* m <= n */
+      if (!ptV)
+        x = ZM_hnfmod(x,mdet);
+      else if (m == n)
+      {
+        GEN H = ZM_hnfmod(x,mdet);
+        *ptV = ZM_gauss(x,H);
+        x = H;
+      }
+      else
+        x = ZM_hnfperm(x, ptV, ptU? &perm: NULL);
+      mdet = ZM_det_triangular(x); /* > 0 */
+    }
+    n = lg(x)-1; /* n independent columns */
+    if (ptV)
     {
-      V0 = vecslice(V, 1, n0 - n); /* kernel */
-      V  = vecslice(V, n0-n+1, n0);
-      av = avma;
+      V = *ptV;
+      if (n != n0)
+      {
+        V0 = vecslice(V, 1, n0 - n); /* kernel */
+        V  = vecslice(V, n0-n+1, n0);
+      }
+    }
+    if (!signe(mdet))
+    {
+      if (n)
+      {
+        x = ZM_snfall_i(shallowtrans(x), ptV, ptU, return_vec); /* swap V,U */
+        if (!return_vec && n != m) x = shallowtrans(x);
+        if (ptV) V = ZM_mul(V, shallowtrans(*ptV));
+        if (ptU) U = *ptU; /* TRANSPOSE */
+      }
+      else /* 0 matrix */
+      {
+        x = cgetg(1,t_MAT);
+        if (ptV) V = cgetg(1, t_MAT);
+        if (ptU) U = matid(m);
+      }
+      goto THEEND;
     }
   }
-  /* independent columns */
-  if (!signe(mdet))
-  {
-    if (n)
-    {
-      x = ZM_snfall_i(shallowtrans(x), ptV, ptU, return_vec); /* swap ptV,ptU */
-      if (typ(x) == t_MAT && n != m) x = shallowtrans(x);
-      if (V) V = ZM_mul(V, shallowtrans(*ptV));
-      if (U) U = *ptU; /* TRANSPOSE */
-    }
-    else /* 0 matrix */
-    {
-      x = cgetg(1,t_MAT);
-      if (V) V = cgetg(1, t_MAT);
-      if (U) U = matid(m);
-    }
-    goto THEEND;
-  }
-  if (U) U = matid(n);
+  if (ptV || ptU) U = matid(n); /* we will compute V in terms of U */
+  if (DEBUGLEVEL>7) err_printf("starting SNF loop");
 
   /* square, maximal rank n */
-  p1 = gen_indexsort(RgM_diagonal_shallow(x), NULL, &negcmpii);
-  ys = cgetg(n+1,t_MAT);
-  for (j=1; j<=n; j++) gel(ys,j) = vecpermute(gel(x, p1[j]), p1);
-  x = ys;
-  if (U) U = vecpermute(U, p1);
-  if (V) V = vecpermute(V, p1);
-
-  p1 = ZM_hnfmod(x, mdet);
-  if (V) V = ZM_mul(V, ZM_gauss(x,p1));
-  x = p1;
-
-  if (DEBUGLEVEL>7) err_printf("starting SNF loop");
-  for (i=n; i>1; i--)
+  A = x; x = shallowcopy(x); av = avma;
+  for (i = n; i > 1; i--)
   {
     if (DEBUGLEVEL>7) err_printf("\ni = %ld: ",i);
     for(;;)
     {
       int c = 0;
       GEN a, b;
-      for (j=i-1; j>=1; j--)
+      for (j = i-1; j >= 1; j--)
       {
         b = gcoeff(x,i,j); if (!signe(b)) continue;
         a = gcoeff(x,i,i);
-        ZC_elem(b, a, x,V, j,i);
+        ZC_elem(b, a, x,NULL, j,i);
         if (gc_needed(av,1))
         {
           if (DEBUGMEM>1) pari_warn(warnmem,"[1]: ZM_snfall i = %ld", i);
-          snf_pile(av, &x,&U,&V);
+          snf_pile1(av, &x,&U);
         }
       }
       if (DEBUGLEVEL>7) err_printf("; ");
@@ -2417,7 +2417,7 @@ ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
         if (gc_needed(av,1))
         {
           if (DEBUGMEM>1) pari_warn(warnmem,"[2]: ZM_snfall, i = %ld", i);
-          snf_pile(av, &x,&U,&V);
+          snf_pile1(av, &x,&U);
         }
         c = 1;
       }
@@ -2427,25 +2427,40 @@ ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
         if (!k) break;
 
         /* x[k,j] != 0 mod b */
-        for (j=1; j<=i; j++)
+        for (j = 1; j <= i; j++)
           gcoeff(x,i,j) = addii(gcoeff(x,i,j),gcoeff(x,k,j));
         if (U) gel(U,i) = gadd(gel(U,i),gel(U,k));
       }
+      ZM_redpart(x, mdet, i);
       if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"[3]: ZM_snfall");
-        snf_pile(av, &x,&U,&V);
+        snf_pile1(av, &x,&U);
       }
     }
   }
   if (DEBUGLEVEL>7) err_printf("\n");
-  for (k=1; k<=n; k++)
-    if (signe(gcoeff(x,k,k)) < 0)
-    {
-      if (V) ZV_togglesign(gel(V,k));
-      togglesign(gcoeff(x,k,k));
-    }
+  for (k = n; k; k--)
+  {
+    GEN d = gcdii(gcoeff(x,k,k), mdet);
+    gcoeff(x,k,k) = d;
+    if (!is_pm1(d)) mdet = diviiexact(mdet,d);
+  }
 THEEND:
+  if (U) U = shallowtrans(U);
+  if (ptV && A)
+  { /* U A V = D => D^(-1) U A = V^(-1) */
+    long l = lg(x);
+    GEN W = ZM_mul(U, A);
+    for (i = 1; i < l; i++)
+    {
+      GEN c = gcoeff(x,i,i);
+      if (is_pm1(c)) break; /* only 1 from now on */
+      ZMrow_divexact_inplace(W, i, c);
+    }
+    W = ZM_inv(W, NULL);
+    V = V? ZM_mul(V, W): W;
+  }
   if (return_vec)
   {
     long l = lg(x)-1;
@@ -2454,15 +2469,11 @@ THEEND:
   }
 
   if (V0)
-  {
+  { /* add kernel */
     if (!return_vec) x = shallowconcat(zeromat(m,n0-n), x);
-    if (V) V = shallowconcat(V0, V);
+    if (ptV) V = shallowconcat(V0, V);
   }
-  if (U)
-  {
-    U = shallowtrans(U);
-    if (perm) U = vecpermute(U, perm_inv(perm));
-  }
+  if (perm && U) U = vecpermute(U, perm_inv(perm));
   snf_pile(av0, &x,&U,&V);
   if (ptU) *ptU = U;
   if (ptV) *ptV = V;

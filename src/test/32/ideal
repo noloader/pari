@@ -54,7 +54,7 @@
 [0 0 0 0 1]
 
 0
-[512, [16, 8, 4], [[3, 2]~, 5, [0, -1]~]]
+[512, [16, 8, 4], [[-2, -3]~, [0, 5]~, [0, -1]~]]
 [1, [], []]
 
 [1/2   0]
@@ -296,4 +296,4 @@ matrix(0,2)
   ***   at top-level: idealred(nf,[2,Mat(1)])
   ***                 ^-----------------------
   *** idealred: incorrect type in idealtyp [extended ideal] (t_VEC).
-Total time spent: 183
+Total time spent: 136
