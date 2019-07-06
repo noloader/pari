@@ -1,4 +1,4 @@
-HEAP=[170, if(sizebyte(0)==16,95790,97425)];
+HEAP=[170, if(sizebyte(0)==16,95790,97433)];
 default(realprecision,154); Pi; default(realprecision,38);
 dobnf(T,flag=0,tech=[])= setrand(1); my(K = bnfinit(T,flag,tech)); [K.cyc,K.fu];
 \e
