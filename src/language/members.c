@@ -57,7 +57,12 @@ member_f(GEN x)
 GEN
 member_p(GEN x)
 {
-  long t; (void)get_nf(x,&t);
+  long t; GEN y = get_nf(x,&t);
+  if (y)
+  {
+    if (t == typ_RNF) return rnf_get_ramified_primes(x);
+    return nf_get_ramified_primes(y);
+  }
   switch(t)
   {
     case typ_GAL: return gal_get_p(x);

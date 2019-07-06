@@ -28,6 +28,8 @@ BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
      4- [libpari] ZV_lcm
      5- [libpari] nfhyperellpadicfrobenius
      6- [libpari] rnf_get_ramified_primes
+     7- allow nfinit([T, basis, ramified primes])
+     8- allow nf.p, rnf.p [rational ramified primes]
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

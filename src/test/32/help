@@ -79,7 +79,7 @@ nf   : number field                                    nf,bnf,bnr,rnf
 no   : number of elements            bid,     clgp,ell,   bnf,bnr
 omega, eta: [w1,w2] and [eta1, eta2]               ell
 orders: relative orders of generators                                 gal
-p    : rational prime                    prid,     ell,           rnf,gal
+p    : rational prime                    prid,     ell,nf,bnr,bnr,rnf,gal
 pol  : defining polynomial                             nf,bnf,bnr,    gal
 polabs: defining polynomial over Q                                rnf
 reg  : regulator                                          bnf

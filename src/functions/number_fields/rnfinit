@@ -46,6 +46,9 @@ Doc: given an \var{nf} structure attached to a number field $K$, as output by
  $\var{rnf}[4]$(\kbd{rnf.index}) is the ideal index $\goth{f}$, i.e.~such
  that $d(T)\Z_K=\goth{f}^2\goth{d}(L/K)$.
 
+ $\var{rnf}[5]$(\kbd{rnf.p}) is the list of rational primes dividing the norm
+ of the relative discriminant ideal.
+
  $\var{rnf}[7]$ (\kbd{rnf.zk}) is the pseudo-basis $(A,I)$ for the maximal
  order $\Z_L$ as a $\Z_K$-module: $A$ is the relative integral pseudo basis
  expressed as polynomials (in the variable of $T$) with polmod coefficients
