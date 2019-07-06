@@ -337,6 +337,13 @@ $\Z_L$ as a $\Z_K$-module, as a pseudo-matrix $(A,I)$ in HNF.
 \fun{GEN}{rnf_get_disc}{GEN rnf} is the output $[\goth{d}, s]$
  of \kbd{rnfdisc}.
 
+\fun{GEN}{rnf_get_ramified_primes}{GEN rnf} returns the vector of rational
+primes below ramified primes in the relative extension, i.e. all prime
+numbers appearing in the factorization of
+\bprog
+  idealnorm(rnf_get_nf(rnf), rnf_get_disc(rnf));
+@eprog
+
 \fun{GEN}{rnf_get_idealdisc}{GEN rnf} is the ideal discriminant $\goth{d}$
 from \kbd{rnfdisc}.
 

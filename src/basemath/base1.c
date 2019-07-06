@@ -1580,7 +1580,7 @@ nfmaxord_to_nf(nfmaxord_t *S, GEN ro, long prec)
   gel(mat,3) = RM_round_maxrank(F.G);
   gel(mat,4) = Tr;
   gel(mat,5) = D;
-  gel(mat,8) = S->dKP? shallowtrans(S->dKP): cgetg(1,t_VEC);
+  gel(mat,8) = shallowtrans(S->dKP? S->dKP: gel(absZ_factor(S->dK), 1));
   return nf;
 }
 
@@ -1736,13 +1736,18 @@ nfpolred(nfmaxord_t *S, GEN *pro)
 static long
 nf_input_type(GEN x)
 {
-  GEN T, V;
+  GEN T, V, DKP = NULL;
   long i, d, v;
   switch(typ(x))
   {
     case t_POL: return t_POL;
     case t_VEC:
-      if (lg(x) != 3) return t_VEC; /* nf or incorrect */
+      switch(lg(x))
+      {
+        case 4: DKP = gel(x,3);
+        case 3: break;
+        default: return t_VEC; /* nf or incorrect */
+      }
       T = gel(x,1); V = gel(x,2);
       if (typ(T) != t_POL) return -1;
       switch(typ(V))
@@ -1766,6 +1771,7 @@ nf_input_type(GEN x)
           default: return -1;
         }
       }
+      if (DKP && (typ(DKP) != t_VEC || !RgV_is_ZV(DKP))) return -1;
       return 0;
   }
   return t_VEC; /* nf or incorrect */
@@ -1804,13 +1810,13 @@ nfinit_basic(nfmaxord_t *S, GEN T)
       S->dT = mulii(S->dK, sqri(S->index));
       S->r1 = nf_get_r1(nf); break;
     }
-    case 0: /* monic integral polynomial + integer basis */
+    case 0: /* monic integral polynomial + integer basis (+ ramified primes)*/
       S->T = S->T0 = gel(T,1);
       S->basis = gel(T,2);
       S->basden = NULL;
       S->index = NULL;
       S->dK = NULL;
-      S->dKP = NULL;
+      S->dKP = lg(T) == 4? gel(T,3): NULL;
       S->dT = NULL;
       S->r1 = -1; break;
     default: /* -1 */
@@ -2594,7 +2600,7 @@ polredabs_i(GEN x, nfmaxord_t *S, GEN *u, long flag)
     return mkvec2(mkvec( pol_x(vx) ),
                   mkvec( deg1pol_shallow(gen_1, negi(gel(S->T,2)), vx) ));
   }
-  if (!(flag & nf_PARTIALFACT) && S->dKP)
+  if (!(flag & nf_PARTIALFACT) && S->dK && S->dKP)
   {
     GEN vw = primes_certify(S->dK, S->dKP);
     v = gel(vw,1); l = lg(v);

@@ -3345,7 +3345,7 @@ pr_factorback_scal(GEN nf, GEN fa)
  * Returns a pseudo-basis [A,I] of Z_L, set *pD to [D,d] and *pf to the
  * index-ideal; rnf is used when lim != 0 and may be NULL */
 GEN
-rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf)
+rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf, GEN *pDKP)
 {
   long i, j, jf, l;
   GEN fa, E, P, Ef, Pf, z, disc;
@@ -3359,6 +3359,7 @@ rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf)
     GEN rnfeq, zknf, dzknf, U, vU, dA, A, MB, dB, BdB, vj, B, Tabs;
     GEN D = idealhnf(nf, disc);
     long rU, m = nf_get_degree(nf), n = degpol(pol), N = n*m;
+    nfmaxord_t S;
 
     if (typ(lim) == t_INT)
       P = ZV_union_shallow(nf_get_ramified_primes(nf),
@@ -3387,7 +3388,8 @@ rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf)
     dzknf = gel(zknf,1);
     if (gequal1(dzknf)) dzknf = NULL;
     Tabs = gel(rnfeq,1);
-    B = nfbasis(mkvec2(Tabs, P), NULL);
+    nfmaxord(&S, mkvec2(Tabs,P), 0);
+    B = RgXV_unscale(S.basis, S.unscale);
     BdB = Q_remove_denom(B, &dB);
     MB = RgXV_to_RgM(BdB, N); /* HNF */
 
@@ -3466,6 +3468,7 @@ rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf)
       if (pf) *pf = idealinv(nf, fi);
     }
     if (RgM_isscalar(D,NULL)) D = gcoeff(D,1,1);
+    if (pDKP) { settyp(S.dKP, t_VEC); *pDKP = S.dKP; }
     *pD = mkvec2(D, get_d(nf, disc)); return z;
   }
   pol = lift_shallow(pol);
@@ -3493,6 +3496,12 @@ rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf)
   }
   setlg(P,j);
   setlg(E,j);
+  if (pDKP)
+  {
+    GEN v = cgetg(j, t_VEC);
+    for (i = 1; i < j; i++) gel(v,i) = pr_get_p(gel(P,i));
+    *pDKP = ZV_sort_uniq(v);
+  }
   if (pf)
   {
     setlg(Pf, jf);

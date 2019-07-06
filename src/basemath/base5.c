@@ -194,7 +194,7 @@ modulereltoabs(GEN rnf, GEN x)
 GEN
 rnf_zkabs(GEN rnf)
 {
-  GEN d, M = modulereltoabs(rnf, rnf_get_zk(rnf));
+  GEN d, v, M = modulereltoabs(rnf, rnf_get_zk(rnf));
   GEN T = rnf_get_polabs(rnf);
   long n = degpol(T);
   M = Q_remove_denom(M, &d); /* t_VEC of t_POL */
@@ -206,7 +206,14 @@ rnf_zkabs(GEN rnf)
   }
   else
     M = matid(n);
-  return mkvec2(T, RgM_to_RgXV(M, varn(T)));
+  v = rnf_get_ramified_primes(rnf);
+  if (lg(v) == 1)
+  {
+    GEN D = gel(rnf_get_disc(rnf),1);
+    if (!isint1(D)) pari_err_TYPE("rnf_zkabs (old style rnf)", rnf);
+  }
+  v = shallowconcat(nf_get_ramified_primes(rnf_get_nf(rnf)), v);
+  return mkvec3(T, RgM_to_RgXV(M, varn(T)), ZV_sort_uniq(v));
 }
 
 static GEN
@@ -302,7 +309,7 @@ rnfpseudobasis(GEN nf, GEN pol)
   GEN D, z, lim;
   nf = checknf(nf);
   pol = rnfdisc_get_T(nf, pol, &lim);
-  z = rnfallbase(nf, pol, lim, NULL, &D, NULL);
+  z = rnfallbase(nf, pol, lim, NULL, &D, NULL, NULL);
   return gerepilecopy(av, shallowconcat(z,D));
 }
 
@@ -310,19 +317,19 @@ GEN
 rnfinit0(GEN nf, GEN T, long flag)
 {
   pari_sp av = avma;
-  GEN lim, bas, D, f, B, T0, rnfeq, rnf = obj_init(11, 2);
+  GEN lim, bas, D, f, B, T0, DKP, rnfeq, rnf = obj_init(11, 2);
   nf = checknf(nf);
   T0 = rnfdisc_get_T(nf, T, &lim);
   T = lift_shallow(T0);
   gel(rnf,11) = rnfeq = nf_rnfeq(nf,T);
   gel(rnf,2) = nf_nfzk(nf, rnfeq);
-  bas = rnfallbase(nf, T0, lim, rnf, &D, &f);
+  bas = rnfallbase(nf, T0, lim, rnf, &D, &f, &DKP);
   B = matbasistoalg(nf,gel(bas,1));
   gel(bas,1) = lift_if_rational( RgM_to_RgXV(B,varn(T)) );
   gel(rnf,1) = T;
   gel(rnf,3) = D;
   gel(rnf,4) = f;
-  gel(rnf,5) = cgetg(1, t_VEC); /* dummy */
+  gel(rnf,5) = DKP;
   gel(rnf,6) = cgetg(1, t_VEC); /* dummy */
   gel(rnf,7) = bas;
   gel(rnf,8) = lift_if_rational( RgM_inv_upper(B) );

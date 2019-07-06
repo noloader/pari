@@ -132,6 +132,10 @@ Doc: \var{pol} being a non-constant irreducible polynomial in $\Q[X]$,
  a vector of polynomials with first element $1$ (implicitly modulo \var{pol}).
  This is useful if the maximal order is known in advance.
 
+ \item $[\var{pol}, B, P]$ where \var{pol} and $B$ are as above
+ (a monic integral polynomial and the lift of an integer basis), and $P$ is
+ the list of ramified primes in the extension.
+
  \item $[\var{pol}, \kbd{listP}]$ where \var{pol} is a rational polynomial and
  \kbd{listP} specifies a list of primes as in \tet{nfbasis}. Instead of the
  maximal order, \kbd{nfinit} then computes

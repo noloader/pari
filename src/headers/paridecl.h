@@ -5487,6 +5487,7 @@ INLINE GEN    rnf_get_nfpol(GEN rnf);
 INLINE long   rnf_get_nfvarn(GEN rnf);
 INLINE GEN    rnf_get_pol(GEN rnf);
 INLINE GEN    rnf_get_polabs(GEN rnf);
+INLINE GEN    rnf_get_ramified_primes(GEN rnf);
 INLINE GEN    rnf_get_zk(GEN nf);
 INLINE GEN    rnf_get_nfzk(GEN rnf);
 INLINE long   rnf_get_varn(GEN rnf);
