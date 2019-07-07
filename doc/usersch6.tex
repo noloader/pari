@@ -1100,6 +1100,24 @@ prime ideal attached to $T_i$ by Kummer / Dedekind criterion, namely
 $p \Z_K + T_i(\bar{X}) \Z_K$, which has ramification index $e_i$ over $p$.
 Shallow function.
 
+\fun{GEN}{idealfactor}{GEN nf, GEN x} factors the fractional (hence non-zero)
+ideal $x$ into prime ideal powers; return the factorization matrix.
+
+\fun{GEN}{idealfactor_limit}{GEN nf, GEN x, ulong lim} as \kbd{idealfactor},
+including only prime ideals above rational primes $< \kbd{lim}$.
+
+\fun{GEN}{idealfactor_partial}{GEN nf, GEN x, GEN L} return partial
+factorization of fractional ideal $x$ as limited by argument $L$:
+
+\item $L = \kbd{NULL}$: as \kbd{idealfactor};
+
+\item $L$ a \typ{INT}: as \kbd{idealfactor\_limit};
+
+\item $L$ a vector of prime ideals of \var{nf} and/or rational primes
+(standing for ``all prime ideal divisors of given rational prime'') limit
+factorization to trial division by elements of $L$; do not include the
+cofactor.
+
 \fun{GEN}{idealHNF_Z_factor}{GEN x, GEN *pvN, GEN *pvZ} given an integral
 (non-$0$) ideal $x$ in HNF, compute both the factorization of $Nx$ and
 of $x\cap\Z$. This returns the vector of prime divisors of both

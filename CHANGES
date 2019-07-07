@@ -30,6 +30,7 @@ BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
      6- [libpari] rnf_get_ramified_primes
      7- allow nfinit([T, basis, ramified primes])
      8- allow nf.p, rnf.p [rational ramified primes]
+     9- [libpari] idealfactor_partial
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

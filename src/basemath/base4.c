@@ -709,6 +709,7 @@ Q_nffactor(GEN nf, GEN y, ulong lim)
 GEN
 idealfactor_partial(GEN nf, GEN x, GEN L)
 {
+  pari_sp av = avma;
   long i, j, l;
   GEN P, E;
   if (!L) return idealfactor(nf, x);
@@ -729,7 +730,7 @@ idealfactor_partial(GEN nf, GEN x, GEN L)
     if (v) { gel(P,j) = gel(P,i); gel(E,j) = stoi(v); j++; }
   }
   setlg(P,j);
-  setlg(E,j); return mkmat2(P, E);
+  setlg(E,j); return gerepilecopy(av, mkmat2(P, E));
 }
 GEN
 idealfactor_limit(GEN nf, GEN x, ulong lim)
@@ -738,12 +739,12 @@ idealfactor_limit(GEN nf, GEN x, ulong lim)
   GEN fa, y;
   long tx = idealtyp(&x,&y);
 
-  nf = checknf(nf);
   if (tx == id_PRIME)
   {
     if (lim && abscmpiu(pr_get_p(x), lim) >= 0) return trivial_fact();
     retmkmat2(mkcolcopy(x), mkcol(gen_1));
   }
+  nf = checknf(nf);
   if (tx == id_PRINCIPAL)
   {
     y = nf_to_scalar_or_basis(nf, x);
