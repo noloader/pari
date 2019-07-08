@@ -3725,7 +3725,7 @@ void    ZM_snfclean(GEN d, GEN u, GEN v);
 GEN     ZM_snf(GEN x);
 GEN     ZM_snf_group(GEN H, GEN *newU, GEN *newUi);
 GEN     ZM_snfall(GEN x, GEN *ptU, GEN *ptV);
-GEN     ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec);
+GEN     ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, long flag);
 GEN     zlm_echelon(GEN x, long early_abort, ulong p, ulong pm);
 GEN     ZpM_echelon(GEN x, long early_abort, GEN p, GEN pm);
 GEN     gsmith(GEN x);

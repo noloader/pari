@@ -2307,9 +2307,10 @@ ZMrow_divexact_inplace(GEN M, long i, GEN c)
 /* Return the SNF D of matrix X. If ptU/ptV non-NULL set them to U/V
  * to that D = UXV */
 GEN
-ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
+ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, long flag)
 {
   pari_sp av0 = avma, av;
+  const long return_vec = flag & 1;
   long i, j, k, m0, m, n0, n;
   GEN u, v, U, V, V0, mdet, A = NULL, perm = NULL;
 
@@ -2432,6 +2433,7 @@ ZM_snfall_i(GEN x, GEN *ptU, GEN *ptV, int return_vec)
         if (U) gel(U,i) = gadd(gel(U,i),gel(U,k));
       }
       ZM_redpart(x, mdet, i);
+      if (U && (flag & 2)) ZM_redpart(U, mdet, n);
       if (gc_needed(av,1))
       {
         if (DEBUGMEM>1) pari_warn(warnmem,"[3]: ZM_snfall");
@@ -2458,7 +2460,13 @@ THEEND:
       if (is_pm1(c)) break; /* only 1 from now on */
       ZMrow_divexact_inplace(W, i, c);
     }
-    W = ZM_inv(W, NULL);
+    if (flag & 2)
+    {
+      W = FpM_red(W, gcoeff(x,1,1));
+      W = matinvmod(W, gcoeff(x,1,1));
+    }
+    else
+      W = ZM_inv(W, NULL);
     V = V? ZM_mul(V, W): W;
   }
   if (return_vec)
@@ -2803,7 +2811,7 @@ snf_group(GEN H, GEN D, GEN *newU, GEN *newUi)
 GEN
 ZM_snf_group(GEN H, GEN *newU, GEN *newUi)
 {
-  GEN D = ZM_snfall_i(H, newU, newUi, 1);
+  GEN D = ZM_snfall_i(H, newU, newUi, 1 + 2);
   return snf_group(H, D, newU, newUi);
 }
 

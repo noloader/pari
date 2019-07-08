@@ -2419,10 +2419,19 @@ $V$ may be \kbd{NULL} in which case the corresponding matrix is not computed.
 \fun{GEN}{ZV_snfall}{GEN d, GEN *U, GEN *V} here $d$ is a \kbd{ZV}; same as
 \tet{ZM_snfall} applied to \kbd{diagonal(d)}, but faster.
 
-\fun{GEN}{ZM_snfall_i}{GEN x, GEN *U, GEN *V, int returnvec} same as
-\kbd{ZM\_snfall}, except that, depending on the value of \kbd{returnvec}, we
-either return a diagonal matrix (as in \kbd{ZM\_snfall}, \kbd{returnvec} is 0)
-or a vector of elementary divisors (as in \kbd{ZM\_snf}, \kbd{returnvec} is 1) .
+\fun{GEN}{ZM_snfall_i}{GEN x, GEN *U, GEN *V, long flag} low level version of
+\kbd{ZM\_snfall}:
+
+\item if the first bit of \fl\ is $0$, return a diagonal matrix (as in
+\kbd{ZM\_snfall}), else a vector of elementary divisors (as in
+\kbd{ZM\_snf}).
+
+\item if the second bit of \fl\ is $1$, assume that $x$ is invertible
+and allow $U$ and $V$ to have determinant congruent to $1$ modulo $d$,
+where $d$ is the largest elementary divisor of $x$. Rationale: the finite
+group $G = \Z^n/\Im x$ has exponent $d$ and we are only interested
+in the action of $U$, $V$ as they act on $G$ not in genuine unimodular
+matries. (See \kbd{ZM\_snf\_group}.)
 
 \fun{void}{ZM_snfclean}{GEN d, GEN U, GEN V} assuming $d$, $U$, $V$ come
 from \kbd{d = ZM\_snfall(x, \&U, \&V)}, where $U$ or $V$ may be \kbd{NULL},
