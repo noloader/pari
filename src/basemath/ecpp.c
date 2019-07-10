@@ -84,7 +84,7 @@ D_get_wD(long D)
  *   pd: the degree of polclass; equal to h except when bi is a double
  *       eta-quotient w_p,q with p|D and q|D, where pd = h/2.
  * Dfac: the prime factorization of D; we have D = q0 q1* q2* ... qn*
- *       where q0 = 1, 4, -4, 8, qi* = 1 mod 4 and |qi| is a prime.
+ *       where q0 = 1, -4, 8, -8, qi* = 1 mod 4 and |qi| is a prime.
  *       The factorization is a vecsmall listing the indices of the qi* as
  *       they appear in the primelist (q0 = 1 is omitted) */
 INLINE long
