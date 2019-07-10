@@ -24,6 +24,8 @@ Doc:
  reduction to the finite field $\F_q = \F_p[t]/(T)$. The matrix of
  $\varphi$ on $D_q(X) = \Q_q \otimes H^1_{dR}(X/K)$ is computed
  to absolute $p$-adic precision $p^n$.
-Variant: The function
- \fun{GEN}{nfhyperellpadicfrobenius}{GEN H, GEN T, ulong p, long n} is also
+Variant: The functions
+ \fun{GEN}{hyperellpadicfrobenius}{GEN H, ulong p, long n}
+ and
+ \fun{GEN}{nfhyperellpadicfrobenius}{GEN H, GEN T, ulong p, long n} are also
  available.
