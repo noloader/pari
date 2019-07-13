@@ -2294,7 +2294,7 @@ findp(GEN D, GEN P, GEN S, long o, GEN *Tmod)
 }
 
 static GEN
-nilp_froblift(GEN genG, GEN autH, GEN genH, GEN grpH, long j, GEN pcgrp,
+nilp_froblift(GEN genG, GEN autH, long j, GEN pcgrp,
   GEN idp, GEN incl, GEN H, struct galois_lift *gl, struct galois_perm *gp)
 {
   pari_sp av = avma;
@@ -2390,7 +2390,6 @@ galoisgenlift_nilp(GEN PG, GEN O, GEN V, GEN T, GEN frob, GEN sigma,
   GEN PG4 = gmael(PG, 1, 4);
   long lP = lg(PG1);
   GEN PG5 = pcgrp_lift(gmael(PG, 1, 5), deg);
-  GEN grpH = group_elts(mkvec2(PG1,gel(PG5,1)), n/deg);
   GEN res = cgetg(6, t_VEC), res1, res2, res3;
   gel(res,1) = res1 = cgetg(lP + 1, t_VEC);
   gel(res,2) = res2 = cgetg(lP + 1, t_VEC);
@@ -2408,7 +2407,7 @@ galoisgenlift_nilp(GEN PG, GEN O, GEN V, GEN T, GEN frob, GEN sigma,
     GEN Lden = makeLden(L,den,gb);
     GEN pf;
     initlift(T, den, ip, L, Lden, gb, &gl);
-    pf = nilp_froblift(vecslice(res1,1,j), PG3, PG1, grpH, j, PG5, gel(PG2,j), incl, H, &gl, gp);
+    pf = nilp_froblift(vecslice(res1,1,j), PG3, j, PG5, gel(PG2,j), incl, H, &gl, gp);
     if (!pf) return NULL;
     if (DEBUGLEVEL>=2)
       err_printf("found: %ld/%ld: %Ps: %Ps\n", n, j+1, gel(pf,2),gel(pf,1));
@@ -2422,7 +2421,7 @@ galoisgenlift_nilp(GEN PG, GEN O, GEN V, GEN T, GEN frob, GEN sigma,
 }
 
 static GEN
-galoisgenlift(GEN PG, GEN Pg, GEN O, GEN L, GEN M, GEN den, GEN frob,
+galoisgenlift(GEN PG, GEN Pg, GEN O, GEN L, GEN M, GEN frob,
               struct galois_borne *gb, struct galois_frobenius *gf)
 {
   struct galois_test td;
@@ -2542,7 +2541,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
       PG = galoisgenfixedfield0(O, L, sigma, T, NULL, NULL, &gf, gb);
       if (PG == NULL) return gc_NULL(ltop);
     }
-    res = galoisgenlift(gg_get_std(gel(PG,1)), gel(PG,2), O, L, M, den, frob, gb, &gf);
+    res = galoisgenlift(gg_get_std(gel(PG,1)), gel(PG,2), O, L, M, frob, gb, &gf);
   }
   if (!res) return gc_NULL(ltop);
   return gerepilecopy(ltop, res);
