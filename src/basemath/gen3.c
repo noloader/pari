@@ -600,12 +600,19 @@ iscomplex(GEN x)
 /*                    GENERIC REMAINDER                            */
 /*                                                                 */
 /*******************************************************************/
+static int
+is_realquad(GEN x) { GEN Q = gel(x,1); return signe(gel(Q,2)) < 0; }
+static int
+is_realext(GEN x)
+{ long t = typ(x);
+  return (t == t_QUAD)? is_realquad(x): is_real_t(t);
+}
 /* euclidean quotient for scalars of admissible types */
 static GEN
 _quot(GEN x, GEN y)
 {
   GEN q = gdiv(x,y), f = gfloor(q);
-  if (gsigne(y) < 0 && !gequal(f,q)) f = gaddgs(f, 1);
+  if (gsigne(y) < 0 && !gequal(f,q)) f = addiu(f, 1);
   return f;
 }
 /* y t_REAL, x \ y */
@@ -631,6 +638,20 @@ _quotri(GEN x, GEN y)
 {
   GEN q = divri(x,y), f = floorr(q);
   if (signe(y) < 0 && signe(subir(f,q))) f = addiu(f, 1);
+  return f;
+}
+static GEN
+_quotsq(long x, GEN y)
+{
+  GEN f = gfloor(gdivsg(x,y));
+  if (gsigne(y) < 0) f = gaddgs(f, 1);
+  return f;
+}
+static GEN
+_quotqs(GEN x, long y)
+{
+  GEN f = gfloor(gdivgs(x,y));
+  if (y < 0) f = addiu(f, 1);
   return f;
 }
 
@@ -662,6 +683,12 @@ quotsr(long x, GEN y)
 static GEN
 quotsf(long x, GEN y)
 { pari_sp av = avma; return gerepileuptoleaf(av, _quotsf(x, y)); }
+static GEN
+quotsq(long x, GEN y)
+{ pari_sp av = avma; return gerepileuptoleaf(av, _quotsq(x, y)); }
+static GEN
+quotqs(GEN x, long y)
+{ pari_sp av = avma; return gerepileuptoleaf(av, _quotqs(x, y)); }
 static GEN
 quotfi(GEN x, GEN y)
 { pari_sp av = avma; return gerepileuptoleaf(av, _quotfi(x, y)); }
@@ -736,20 +763,19 @@ gmod(GEN x, GEN y)
           gel(z,1) = gcdii(gel(x,1),y);
           gel(z,2) = modii(gel(x,2),gel(z,1)); return z;
         case t_FRAC: return Fp_div(gel(x,1),gel(x,2),y);
-        case t_QUAD: z=cgetg(4,t_QUAD);
-          gel(z,1) = ZX_copy(gel(x,1));
-          gel(z,2) = gmod(gel(x,2),y);
-          gel(z,3) = gmod(gel(x,3),y); return z;
         case t_PADIC: return padic_to_Fp(x, y);
-        case t_REAL: /* NB: conflicting semantic with lift(x * Mod(1,y)). */
-          av = avma;
-          return gerepileuptoleaf(av, mpsub(x, mpmul(_quot(x,y),y)));
-        default: pari_err_TYPE2("%",x,y);
+        case t_QUAD: if (!is_realquad(x)) break;
+        case t_REAL:
+          av = avma; /* NB: conflicting semantic with lift(x * Mod(1,y)). */
+          return gerepileupto(av, gsub(x, gmul(_quot(x,y),y)));
       }
+      break;
+    case t_QUAD:
+      if (!is_realquad(y)) break;
     case t_REAL: case t_FRAC:
-      if (!is_real_t(tx)) pari_err_TYPE2("%",x,y);
+      if (!is_realext(x)) break;
       av = avma;
-      return gerepileupto(av, gadd(x, gneg(gmul(_quot(x,y),y))));
+      return gerepileupto(av, gsub(x, gmul(_quot(x,y),y)));
   }
   pari_err_TYPE2("%",x,y);
   return NULL; /* LCOV_EXCL_LINE */
@@ -783,12 +809,12 @@ gmodgs(GEN x, long y)
       u = (ulong)labs(y);
       return utoi( Fl_div(umodiu(gel(x,1), u),
                           umodiu(gel(x,2), u), u) );
-
-    case t_QUAD: z=cgetg(4,t_QUAD);
-      gel(z,1) = ZX_copy(gel(x,1));
-      gel(z,2) = gmodgs(gel(x,2),y);
-      gel(z,3) = gmodgs(gel(x,3),y); return z;
-
+    case t_QUAD:
+    {
+      pari_sp av = avma;
+      if (!is_realquad(x)) break;
+      return gerepileupto(av, gsub(x, gmulgs(_quotqs(x,y),y)));
+    }
     case t_PADIC: return padic_to_Fp(x, stoi(y));
     case t_POL: return scalarpol(Rg_get_0(x), varn(x));
     case t_POLMOD: return gmul(gen_0,x);
@@ -804,6 +830,12 @@ gmodsg(long x, GEN y)
     case t_INT: return modsi(x,y);
     case t_REAL: return modsr(x,y);
     case t_FRAC: return modsf(x,y);
+    case t_QUAD:
+    {
+      pari_sp av = avma;
+      if (!is_realquad(y)) break;
+      return gerepileupto(av, gsubsg(x, gmul(_quotsq(x,y),y)));
+    }
     case t_POL:
       if (!signe(y)) pari_err_INV("gmodsg",y);
       return degpol(y)? gmulsg(x, Rg_get_1(y)): Rg_get_0(y);
@@ -895,9 +927,15 @@ gdivent(GEN x, GEN y)
         case t_INT: return truedivii(x,y);
         case t_REAL: return quotri(x,y);
         case t_FRAC: return quotfi(x,y);
+        case t_QUAD:
+          if (!is_realquad(x)) break;
+          return quot(x,y);
       }
       break;
-    case t_REAL: case t_FRAC: return quot(x,y);
+    case t_QUAD:
+      if (!is_realext(x) || !is_realquad(y)) break;
+    case t_REAL: case t_FRAC:
+      return quot(x,y);
   }
   pari_err_TYPE2("\\",x,y);
   return NULL; /* LCOV_EXCL_LINE */
@@ -913,6 +951,8 @@ gdiventgs(GEN x, long y)
     case t_INT:  return truedivis(x,y);
     case t_REAL: return quotrs(x,y);
     case t_FRAC: return quotfs(x,y);
+    case t_QUAD: if (!is_realquad(x)) break;
+                 return quotqs(x,y);
     case t_POL:  return gdivgs(x,y);
     case t_VEC: case t_COL: case t_MAT:
       z = cgetg_copy(x, &lx);
@@ -930,6 +970,8 @@ gdiventsg(long x, GEN y)
     case t_INT:  return truedivsi(x,y);
     case t_REAL: return quotsr(x,y);
     case t_FRAC: return quotsf(x,y);
+    case t_QUAD: if (!is_realquad(y)) break;
+                 return quotsq(x,y);
     case t_POL:
       if (!signe(y)) pari_err_INV("gdiventsg",y);
       return degpol(y)? Rg_get_0(y): gdivsg(x,gel(y,2));
@@ -952,7 +994,7 @@ GEN
 gdiventres(GEN x, GEN y)
 {
   long tx = typ(x), ty = typ(y);
-  GEN z,q,r;
+  GEN z;
 
   if (is_matvec_t(tx))
   {
@@ -975,16 +1017,18 @@ gdiventres(GEN x, GEN y)
         case t_INT:
           gel(z,1) = truedvmdii(x,y,(GEN*)(z+2));
           return z;
+        case t_QUAD:
+          if (!is_realquad(x)) break;
         case t_REAL: case t_FRAC:
-          q = quotrem(x,y,&r);
-          gel(z,1) = q;
-          gel(z,2) = r; return z;
+          gel(z,1) = quotrem(x,y,&gel(z,2));
+          return z;
       }
       break;
+    case t_QUAD:
+      if (!is_realext(x) || !is_realquad(y)) break;
     case t_REAL: case t_FRAC:
-          q = quotrem(x,y,&r);
-          gel(z,1) = q;
-          gel(z,2) = r; return z;
+      gel(z,1) = quotrem(x,y,&gel(z,2));
+      return z;
   }
   pari_err_TYPE2("\\",x,y);
   return NULL; /* LCOV_EXCL_LINE */
@@ -1029,6 +1073,13 @@ diviiround(GEN x, GEN y)
   return q;
 }
 
+static GEN
+_abs(GEN x)
+{
+  if (typ(x) == t_QUAD) return (gsigne(x) < 0)? gneg(x): x;
+  return R_abs_shallow(x);
+}
+
 /* If x and y are not both scalars, same as gdivent.
  * Otherwise, compute the quotient x/y, rounded to the nearest integer
  * (towards +oo in case of tie). */
@@ -1036,18 +1087,17 @@ GEN
 gdivround(GEN x, GEN y)
 {
   pari_sp av;
-  long tx=typ(x),ty=typ(y);
-  GEN q,r;
+  long tx = typ(x), ty = typ(y);
+  GEN q, r;
 
-  if (tx==t_INT && ty==t_INT) return diviiround(x,y);
+  if (tx == t_INT && ty == t_INT) return diviiround(x,y);
   av = avma;
-  if (is_real_t(tx) && is_real_t(ty))
-  { /* same as diviiround but less efficient */
+  if (is_realext(x) && is_realext(y))
+  { /* same as diviiround, less efficient */
     pari_sp av1;
     int fl;
-    q = quotrem(x,y,&r);
-    av1 = avma;
-    fl = gcmp(gmul2n(R_abs_shallow(r),1), R_abs_shallow(y));
+    q = quotrem(x,y,&r); av1 = avma;
+    fl = gcmp(gmul2n(_abs(r),1), _abs(y));
     set_avma(av1); cgiv(r);
     if (fl >= 0) /* If 2*|r| >= |y| */
     {
@@ -2207,7 +2257,7 @@ integ(GEN x, long v)
 
 /*******************************************************************/
 /*                                                                 */
-/*                    PARTIES ENTIERES                             */
+/*                             FLOOR                               */
 /*                                                                 */
 /*******************************************************************/
 
@@ -2223,6 +2273,22 @@ gfloor(GEN x)
     case t_POL: return RgX_copy(x);
     case t_REAL: return floorr(x);
     case t_FRAC: return truedivii(gel(x,1),gel(x,2));
+    case t_QUAD:
+    {
+      pari_sp av = avma;
+      GEN Q = gel(x,1), D = quad_disc(x), u, v, b, d, z;
+      if (signe(D) < 0) break;
+      x = Q_remove_denom(x, &d);
+      u = gel(x,2);
+      v = gel(x,3); b = gel(Q,3);
+      /* x0 = (2u + v*(-b + sqrt(D))) / (2d) */
+      z = sqrti(mulii(D, sqri(v)));
+      if (signe(v) < 0) { z = addiu(z,1); togglesign(z); }
+      /* z = floor(v * sqrt(D)) */
+      z = addii(subii(shifti(u,1), mulii(v,b)), z);
+      d = d? shifti(d,1): gen_2;
+      return gerepileuptoint(av, truedivii(z, d));
+    }
     case t_RFRAC: return gdeuc(gel(x,1),gel(x,2));
     case t_VEC: case t_COL: case t_MAT:
       y = cgetg_copy(x, &lx);
@@ -2265,7 +2331,9 @@ gceil(GEN x)
       av = avma; y = divii(gel(x,1),gel(x,2));
       if (signe(gel(x,1)) > 0) y = gerepileuptoint(av, addui(1,y));
       return y;
-
+    case t_QUAD:
+      if (!is_realquad(x)) break;
+      av = avma; return gerepileupto(av, addiu(gfloor(x), 1));
     case t_RFRAC:
       return gdeuc(gel(x,1),gel(x,2));
 
@@ -2354,9 +2422,28 @@ ground(GEN x)
   switch(typ(x))
   {
     case t_INT: return icopy(x);
-    case t_INTMOD: case t_QUAD: return gcopy(x);
+    case t_INTMOD: return gcopy(x);
     case t_REAL: return roundr(x);
     case t_FRAC: return diviiround(gel(x,1), gel(x,2));
+    case t_QUAD:
+    {
+      GEN Q = gel(x,1), u, v, b, d, z;
+      av = avma;
+      if (is_realquad(x)) return gerepileupto(av, gfloor(gadd(x, ghalf)));
+      u = gel(x,2);
+      v = gel(x,3); b = gel(Q,3);
+      u = ground(gsub(u, gmul2n(gmul(v,b),-1)));
+      v = Q_remove_denom(v, &d);
+      if (!d) d = gen_1;
+      /* Im x = v sqrt(|D|) / (2d),
+       * Im(round(x)) = floor((d + v sqrt(|D|)) / (2d))
+       *              = floor(floor(d + v sqrt(|D|)) / (2d)) */
+      z = sqrti(mulii(sqri(v), quad_disc(x)));
+      if (signe(v) < 0) { z = addiu(z,1); togglesign(z); }
+      /* z = floor(v * sqrt(|D|)) */
+      v = truedivii(addii(z, d), shifti(d,1));
+      return gerepilecopy(av, signe(v)? mkcomplex(u,v): u);
+    }
     case t_POLMOD:
       retmkpolmod(ground(gel(x,2)), RgX_copy(gel(x,1)));
 
@@ -2406,7 +2493,10 @@ grndtoi(GEN x, long *e)
       return gerepileuptoint(av, x);
     }
     case t_FRAC: return diviiround(gel(x,1), gel(x,2));
-    case t_INTMOD: case t_QUAD: return gcopy(x);
+    case t_INTMOD: return gcopy(x);
+    case t_QUAD:
+      y = ground(x); av = avma;
+      *e = gexpo(gsub(x,y)); set_avma(avma); return y;
     case t_COMPLEX:
       av = avma; y = cgetg(3, t_COMPLEX);
       gel(y,2) = grndtoi(gel(x,2), e);

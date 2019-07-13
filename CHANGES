@@ -20,6 +20,9 @@ BA   1- plotlines flag was ignored
         compute Frobenius over unramified extension of Q_p
      4- matsnf(integral matrix): use modular algorithm
      5- rnf structure now contains the list of relative ramified primes
+     6- use the documented semantic for Euclidean division involving real t_QUAD
+        e.g. x % y is x - floor(x/y)*y; for a t_QUAD x and t_INT y, we used
+        to mod out y in "real" and "imaginary" part independently.
 
   Added
      1- new GP function rootsof1
@@ -32,6 +35,7 @@ BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
      8- allow nf.p, rnf.p [rational ramified primes]
      9- [libpari] idealfactor_partial
     10- add flag bit to ZM_snfall_i
+    11- allow real t_QUAD in floor, ceil, divrem, %, \, \/
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

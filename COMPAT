@@ -19,6 +19,9 @@ This file lists the incompatible changes between Version 2.x and older versions
   - renamed libpari function rootsof1 -> nfrootsof1
   - renamed libpari function isirreducible -> polisirreducible
   - removed libpari function rootsof1_kannan: use nfrootsof1
+  - use the documented semantic for Euclidean division involving real t_QUAD
+    e.g. x % y is x - floor(x/y)*y; for a t_QUAD x and t_INT y, we used
+    to mod out y in "real" and "imaginary" part independently.
 
 * Specific to the PARI library:
 ===============================

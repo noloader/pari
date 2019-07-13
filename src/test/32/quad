@@ -9,6 +9,12 @@
   *** norml2: incorrect type in gnorml2 (t_QUAD).
 1
 2
+1
+0
+2
+1
+2
+1
 0
 1
 0
@@ -25,8 +31,22 @@
 (a)->[sign(z)|z<-[a,a-1,a-2,1-a,2-a]]
 [1, 1, -1, -1, 1]
 [1, 1, -1, -1, 1]
-  ***   at top-level: sign(quadgen(-8))
-  ***                 ^-----------------
-  *** sign: incorrect type in gsigne (t_QUAD).
+I
+w
 2147483648.5000000000582076609134674072
+4294967297
+-4294967298
+4294967298
+-4294967297
+4294967297
+-4294967297
+  ***   at top-level: floor(w8)
+  ***                 ^---------
+  *** floor: incorrect type in gfloor (t_QUAD).
+  ***   at top-level: ceil(w8)
+  ***                 ^--------
+  *** ceil: incorrect type in gceil (t_QUAD).
+  ***   at top-level: sign(w8)
+  ***                 ^--------
+  *** sign: incorrect type in gsigne (t_QUAD).
 Total time spent: 1

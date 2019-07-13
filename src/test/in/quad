@@ -9,6 +9,12 @@ norm(w)
 norml2(w)
 trace(w)
 trace(1+0*w)
+floor(w)
+floor(1/2 + w/7)
+ceil(w)
+ceil(1/2 + w/7)
+round(w)
+round(1/2 + w/7)
 
 w < 1
 1 < w
@@ -25,6 +31,19 @@ quadgen(-8) < 1
 test(a)=[sign(z) | z<-[a,a-1,a-2,1-a,2-a]]
 test(w)
 test(quadgen(8))
-sign(quadgen(-8))
+w8 = quadgen(-8);
+round(w8)
 
-quadgen(2^64+1) * 1.
+w = quadgen(2^64+1)
+w * 1.
+floor(2*w)
+floor(-2*w)
+ceil(2*w)
+ceil(-2*w)
+round(2*w)
+round(-2*w)
+
+\\ Errors keep at end of file
+floor(w8)
+ceil(w8)
+sign(w8)
