@@ -1411,7 +1411,6 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   vecAp = cgetg(lSp, t_VEC);
   vecBp = cgetg(lSp, t_VEC);
   matP  = cgetg(lSp, t_MAT);
-
   for (j = 1; j < lSp; j++)
   {
     GEN e, a;
@@ -1419,8 +1418,8 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
     e = gel(p1,1); gel(matP,j) = gel(p1, 1);
     a = gel(p1,2);
     gel(vecBp,j) = famat_mul_shallow(famat_factorbacks(vecC, zv_neg(e)), a);
+    gel(vecAp,j) = lambdaofelt(gel(vecBp,j), T);
   }
-  vecAp = lambdaofvec(vecBp, T);
   /* step 13 */
   if (DEBUGLEVEL>2) err_printf("Step 13\n");
   vecWA = shallowconcat(vecW, vecAp);
