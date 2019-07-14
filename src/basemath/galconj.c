@@ -2470,7 +2470,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
   pari_sp ltop = avma;
   long x, n = degpol(T), is_central;
   long po;
-  GEN sigma, res, frob, O, PG, V, ofrob;
+  GEN sigma, res, frob, O, PG, V, ofrob = NULL;
 
   if (!ga->deg) return NULL;
   x = varn(T);
