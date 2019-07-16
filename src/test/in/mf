@@ -484,6 +484,10 @@ vector(8,i,bestappr(lfunlambda(L18,2*i)/omm))
 mf = mfinit([25,3,Mod(2,5)],0); F = mfbasis(mf)[1];
 L=lfunmf(mf,F); lfun(L,1)
 
+[mf,F] = mffromqf([2,0;0,2]);
+L=lfunmf(mf,F); lfun(L,1)
+lfun(L,2)
+
 mf=mfinit(D);
 PP=mfperiodpol(mf,D,-1);cP=polcoeff(PP,1)
 PP/=cP;bestappr(PP)

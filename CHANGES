@@ -12,6 +12,7 @@ BA   1- plotlines flag was ignored
         inputs from nfinit([T, integer basis]))
      6- nfinit(rnf) would produce a broken nf (not supporting
         nf_get_ramified_primes)
+     7- [mf,F] = mffromqf([2,0;0,2]); L=lfunmf(mf,F) => wrong values
 
   Changed
      1- [libpari] renamed rootsof1 -> nfrootsof1

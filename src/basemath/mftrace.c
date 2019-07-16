@@ -8485,7 +8485,8 @@ mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk)
     eps = mfa; /* cuspidal eigenform: root number; no poles */
   else
   { /* mfatkininit */
-    GEN a0, b0, vF, vG, G = NULL, M = gdiv(gel(mfa,2), gel(mfa,3)), mf = gel(mfa,4);
+    GEN a0, b0, vF, vG, G = NULL;
+    GEN C = gel(mfa,3), M = gdiv(gel(mfa,2), C), mf = gel(mfa,4);
     vF = mftobasis_i(mf, F);
     vG = RgM_RgC_mul(M, vF);
     if (gequal(vF,vG)) eps = gen_1;
@@ -8494,12 +8495,12 @@ mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk)
     { /* not self-dual */
       eps = NULL;
       G = mfatkin(mfa, F);
-      gel(LF,2) = lfuntag(t_LFUN_MFCLOS, mkvec3(G,E,ginv(gel(mfa,3))));
+      gel(LF,2) = lfuntag(t_LFUN_MFCLOS, mkvec3(G,E,ginv(C)));
       gel(LF,6) = powIs(k);
     }
     /* polar part */
     a0 = mfcoef(F,0);
-    b0 = eps? gmul(eps,a0): mfcoef(G,0);
+    b0 = eps? gmul(eps,a0): gdiv(mfcoef(G,0), C);
     if (!gequal0(b0))
     {
       b0 = mulcxpowIs(gmul2n(b0,1), k);
