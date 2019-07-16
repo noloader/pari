@@ -320,21 +320,22 @@ makeLden(GEN L,GEN den, struct galois_borne *gb)
 
 /* Initialize the galois_lift structure */
 static void
-initlift(GEN T, GEN den, GEN p, GEN L, GEN Lden, struct galois_borne *gb, struct galois_lift *gl)
+initlift(GEN T, GEN den, ulong p, GEN L, GEN Lden, struct galois_borne *gb, struct galois_lift *gl)
 {
-  pari_sp av = avma;
+  pari_sp av;
   long e;
   gl->gb = gb;
   gl->T = T;
   gl->den = is_pm1(den)? gen_1: den;
-  gl->p = p;
+  gl->p = utoipos(p);
   gl->L = L;
   gl->Lden = Lden;
-  e = logint(shifti(gb->bornesol, 2+BITS_IN_LONG),p) + 1;
+  av = avma;
+  e = logint(shifti(gb->bornesol, 2+BITS_IN_LONG), gl->p) + 1;
   set_avma(av);
   if (e < 2) e = 2;
   gl->e = e;
-  gl->Q = powiu(p, e);
+  gl->Q = powuu(p, e);
   gl->TQ = FpX_red(T,gl->Q);
 }
 
@@ -1652,10 +1653,10 @@ galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden, long central,
   struct galois_testlift gt;
   struct galois_lift gl;
   long i, j, k, n = lg(L)-1, deg = 1, g = lg(gf->Tmod)-1;
-  GEN F,Fp,Fe, aut, frob, ip = utoipos(gf->p), res = cgetg(lg(L), t_VECSMALL);
+  GEN F,Fp,Fe, aut, frob, res = cgetg(lg(L), t_VECSMALL);
   gf->psi = const_vecsmall(g,1);
   av2 = avma;
-  initlift(T, den, ip, L, Lden, gb, &gl);
+  initlift(T, den, gf->p, L, Lden, gb, &gl);
   if (DEBUGLEVEL >= 4)
     err_printf("GaloisConj: p=%ld e=%ld deg=%ld fp=%ld\n",
                             gf->p, gl.e, deg, gf->fp);
@@ -2394,11 +2395,9 @@ galoisgenlift_nilp(GEN PG, GEN O, GEN V, GEN T, GEN frob, GEN sigma,
   for (j = 1; j < lP; j++)
   {
     struct galois_lift gl;
-    ulong p = uel(PG4,j);
-    GEN ip = utoipos(p);
     GEN Lden = makeLden(L,den,gb);
     GEN pf;
-    initlift(T, den, ip, L, Lden, gb, &gl);
+    initlift(T, den, uel(PG4,j), L, Lden, gb, &gl);
     pf = nilp_froblift(vecslice(res1,1,j), PG3, j, PG5, gel(PG2,j), incl, H, &gl, gp);
     if (!pf) return NULL;
     if (DEBUGLEVEL>=2)
@@ -2482,7 +2481,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
     pari_sp av = avma;
     struct galois_lift gl;
     if (DEBUGLEVEL >= 4) err_printf("GaloisConj: Testing S4 first\n");
-    initlift(T, den, stoi(ga->p4), L, makeLden(L,den,gb), gb, &gl);
+    initlift(T, den, ga->p4, L, makeLden(L,den,gb), gb, &gl);
     PG = s4galoisgen(&gl);
     if (PG) return gerepileupto(ltop, PG);
     set_avma(av);
