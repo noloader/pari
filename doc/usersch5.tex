@@ -4957,6 +4957,14 @@ accessors are defined:
 
 \subsubsec{Conversions}
 
+\fun{int}{ff_parse_Tp}{GEN Tp, GEN *T, GEN *p} \kbd{Tp} is either
+a prime number $p$ or a \typ{VEC} with 2 entries $T$ (an irreducible
+polynomial mod $p$) and $p$ (a prime number). Sets \kbd{*p} and \kbd{*T}
+to the corresponding \kbd{GEN} (\kbd{NULL} if undefined) and normalize
+\kbd{*T} as an \kbd{FpX}. Return $1$ on success, and $0$ on failure.
+This helper routine is used by GP functions such as \kbd{factormod} where
+a single user argument defines a finite field. \typ{FFELT} is not supported.
+
 \fun{GEN}{Rg_is_FpXQ}{GEN z, GEN *T, GEN *p}, checks if \kbd{z} is a \kbd{GEN}
 which can be mapped to $\F_p[X]/(T)$: anything for which \kbd{Rg\_is\_Fp} return
 $1$, a \typ{POL} for which \kbd{RgX\_to\_FpX} return $1$, a \typ{POLMOD}

@@ -606,29 +606,15 @@ nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
   GEN m = gmul(ZXM_to_padic(MM, q), gmodulo(gen_1, T));
   return gerepileupto(av, m);
 }
-static void
-hyperell_checkp(GEN p)
-{
-  if (cmpiu(p, 2) < 0) pari_err_PRIME("hyperellpadicfrobenius", p);
-  if (lgefint(p) > 3) pari_err_IMPL("large prime in hyperellpadicfrobenius");
-}
+
 GEN
 hyperellpadicfrobenius0(GEN H, GEN p, long n)
 {
-  pari_sp av = avma;
   GEN T;
-  if (typ(p) == t_INT)
-  {
-    hyperell_checkp(p);
-    return hyperellpadicfrobenius(H, itou(p), n);
-  }
-  if (typ(p) != t_VEC || lg(p) != 3) pari_err_TYPE("hyperellpadicfrobenius", p);
-  T = gel(p,1); p = gel(p,2);
-  if (typ(T) == t_INT) swap(T, p); /* support both [T,p] and [p,T] */
-  hyperell_checkp(p);
-  if (typ(T) != t_POL || !RgX_is_ZX(T))
-    pari_err_TYPE("hyperellpadicfrobenius", T);
-  return gerepileupto(av, nfhyperellpadicfrobenius(H, T, itou(p), n));
+  if (!ff_parse_Tp(p, &T,&p)) pari_err_TYPE("hyperellpadicfrobenius", p);
+  if (lgefint(p) > 3) pari_err_IMPL("large prime in hyperellpadicfrobenius");
+  return T? nfhyperellpadicfrobenius(H, T, itou(p), n)
+          : hyperellpadicfrobenius(H, itou(p), n);
 }
 
 static GEN

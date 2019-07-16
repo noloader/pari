@@ -36,6 +36,7 @@ BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
      9- [libpari] idealfactor_partial
     10- add flag bit to ZM_snfall_i
     11- allow real t_QUAD in floor, ceil, divrem, %, \, \/
+    12- [libpari] ff_parse_Tp
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

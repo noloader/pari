@@ -804,6 +804,7 @@ GEN     factorff(GEN f, GEN p, GEN a);
 GEN     factormod0(GEN f, GEN p,long flag);
 GEN     factormodDDF(GEN f, GEN D);
 GEN     factormodSQF(GEN f, GEN D);
+int     ff_parse_Tp(GEN Tp, GEN *T, GEN *p);
 GEN     polrootsff(GEN f, GEN p, GEN T);
 GEN     polrootsmod(GEN f, GEN p);
 GEN     rootmod0(GEN f, GEN p,long flag);

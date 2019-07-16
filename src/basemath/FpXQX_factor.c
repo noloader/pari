@@ -2837,7 +2837,7 @@ static GEN
 factmod_init(GEN f, GEN *pD, GEN *pT, GEN *pp)
 {
   const char *s = "factormod";
-  GEN T = NULL, p = NULL, D = *pD;
+  GEN T, p, D = *pD;
   if (typ(f) != t_POL) pari_err_TYPE(s,f);
   if (!D)
   {
@@ -2847,30 +2847,31 @@ factmod_init(GEN f, GEN *pD, GEN *pT, GEN *pp)
     if (t != t_INTMOD && t != code(t_POLMOD,t_INTMOD)) pari_err_TYPE(s,f);
     return RgX_to_FqX(f, *pT, *pp);
   }
-  switch(typ(D))
-  {
-    case t_INT: p = D; break;
-    case t_FFELT: { *pD = NULL; *pT = D; return RgX_to_FFX(f,D); }
-    case t_VEC:
-      if (lg(D) == 3)
-      {
-        p = gel(D,1);
-        T = gel(D,2);
-        if (typ(p) == t_INT) break;
-        if (typ(T) == t_INT) { swap(T,p); break; }
-      }
-    default: pari_err_TYPE(s,D);
-  }
-  if (signe(p) <= 0) pari_err_PRIME(s,p);
-  if (T)
-  {
-    if (typ(T) != t_POL) pari_err_TYPE(s,p);
-    T = RgX_to_FpX(T,p);
-    if (varncmp(varn(T), varn(f)) <= 0) pari_err_PRIORITY(s, T, "<=", varn(f));
-  }
+  if (typ(D) == t_FFELT) { *pD = NULL; *pT = D; return RgX_to_FFX(f,D); }
+  if (!ff_parse_Tp(D, &T, &p)) pari_err_TYPE(s,D);
+  if (T && varncmp(varn(T), varn(f)) <= 0)
+    pari_err_PRIORITY(s, T, "<=", varn(f));
   *pT = T; *pp = p; return RgX_to_FqX(f, T, p);
 }
 #undef code
+
+int
+ff_parse_Tp(GEN Tp, GEN *T, GEN *p)
+{
+  long t = typ(Tp);
+  *T = NULL;
+  if (t == t_INT) { *p = Tp; return cmpiu(*p, 1) > 0; }
+  if (t != t_VEC || lg(Tp) != 3) return 0;
+  *T = gel(Tp,1);
+  *p = gel(Tp,2);
+  if (typ(*p) != t_INT)
+  {
+    if (typ(*T) != t_INT) return 0;
+    swap(*T, *p); /* support both [T,p] and [p,T] */
+  }
+  *T = RgX_to_FpX(*T, *p);
+  return cmpiu(*p, 1) > 0 && typ(*T) == t_POL && RgX_is_ZX(*T);
+}
 
 static GEN
 to_Fq(GEN x, GEN T, GEN p)

@@ -394,26 +394,17 @@ bezout_lift_fact(GEN pol, GEN Q, GEN p, long e)
 GEN
 polhensellift(GEN pol, GEN L, GEN p, long N)
 {
-  GEN T = NULL;
-  long i, l, t;
+  GEN T;
+  long i, l;
   pari_sp av = avma;
   void (*chk)(GEN, const char*);
 
   if (typ(pol) != t_POL) pari_err_TYPE("polhensellift",pol);
   RgX_check_ZXX(pol, "polhensellift");
   if (!is_vec_t(typ(L)) || lg(L) < 3) pari_err_TYPE("polhensellift",L);
-  t = typ(p);
-  if (t == t_VEC) /* [p, T] */
-  {
-    T = gel(p,2);
-    if (typ(T) != t_POL) pari_err_TYPE("polhensellift",pol);
-    RgX_check_ZX(T, "polhensellift");
-    p = gel(p,1); t = typ(p);
-  }
-  chk = T? RgX_check_ZXX: RgX_check_ZX;
-  if (t != t_INT) pari_err_TYPE("polhensellift",p);
   if (N < 1) pari_err_DOMAIN("polhensellift", "precision", "<", gen_1,stoi(N));
-
+  if (!ff_parse_Tp(p, &T, &p)) pari_err_TYPE("polhensellift",pol);
+  chk = T? RgX_check_ZXX: RgX_check_ZX;
   l = lg(L); L = leafcopy(L);
   for (i = 1; i < l; i++)
   {
