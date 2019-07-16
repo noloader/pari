@@ -229,11 +229,11 @@ embed_disc(GEN z, long r1, long prec)
 }
 
 /* Compute bound for the coefficients of automorphisms.
- * T a ZX, dn a t_INT denominator or NULL */
+ * T a ZX, den a t_INT denominator or NULL */
 GEN
-initgaloisborne(GEN T, GEN dn, long prec, GEN *ptL, GEN *ptprep, GEN *ptdis)
+initgaloisborne(GEN T, GEN den, long prec, GEN *ptL, GEN *ptprep, GEN *ptdis)
 {
-  GEN L, prep, den, nf, r, dis;
+  GEN L, prep, nf, r;
   pari_timer ti;
 
   if (DEBUGLEVEL>=4) timer_start(&ti);
@@ -245,20 +245,12 @@ initgaloisborne(GEN T, GEN dn, long prec, GEN *ptL, GEN *ptprep, GEN *ptdis)
     L = QX_complex_roots(T, prec);
   if (DEBUGLEVEL>=4) timer_printf(&ti,"roots");
   prep = vandermondeinverseprep(L);
-  if (!dn || ptdis)
+  if (!den || ptdis)
   {
     GEN res = RgV_prod(gabs(prep,prec));
-    /*Add +1 to cater for accuracy error in res */
-    dis = ZX_disc_all(T, 1+expi(ceil_safe(res)));
-    if (ptdis) *ptdis = dis;
-  }
-  if (!dn)
-    den = indexpartial(T,dis);
-  else
-  {
-    if (typ(dn) != t_INT || signe(dn) <= 0)
-      pari_err_TYPE("initgaloisborne [incorrect denominator]", dn);
-    den = dn;
+    GEN D = ZX_disc_all(T, 1 + expi(ceil_safe(res))); /* +1 if inaccurate res */
+    if (ptdis) *ptdis = D;
+    if (!den) den = indexpartial(T,D);
   }
   if (ptprep) *ptprep = prep;
   *ptL = L; return den;
