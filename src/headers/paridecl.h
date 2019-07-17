@@ -4520,7 +4520,7 @@ GEN     gdeuc(GEN x, GEN y);
 GEN     grem(GEN x, GEN y);
 GEN     padicappr(GEN f, GEN a);
 GEN     poldivrem(GEN x, GEN y, GEN *pr);
-GEN     rootpadic(GEN f, GEN p, long r);
+GEN     polrootspadic(GEN f, GEN p, long r);
 
 /* polarit2.c */
 

@@ -15,8 +15,8 @@ BA   1- plotlines flag was ignored
      7- [mf,F] = mffromqf([2,0;0,2]); L=lfunmf(mf,F) => wrong values
 
   Changed
-     1- [libpari] renamed rootsof1 -> nfrootsof1
-     2- [libpari] renamed isirreducible -> polisirreducible
+     1- [libpari] rename rootsof1 -> nfrootsof1
+     2- [libpari] rename isirreducible -> polisirreducible
      3- hyperellpadicfrobenius: allow X defined over a number field and
         compute Frobenius over unramified extension of Q_p
      4- matsnf(integral matrix): use modular algorithm
@@ -24,6 +24,7 @@ BA   1- plotlines flag was ignored
      6- use the documented semantic for Euclidean division involving real t_QUAD
         e.g. x % y is x - floor(x/y)*y; for a t_QUAD x and t_INT y, we used
         to mod out y in "real" and "imaginary" part independently.
+     7- [libpari] rename rootpadic -> polrootspadic
 
   Added
      1- new GP function rootsof1

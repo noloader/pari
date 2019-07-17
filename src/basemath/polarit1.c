@@ -399,18 +399,18 @@ pnormalize(GEN f, GEN p, long prec, long n, GEN *plead, long *pprec, int *prev)
 
 /* return p-adic roots of f, precision prec */
 GEN
-rootpadic(GEN f, GEN p, long prec)
+polrootspadic(GEN f, GEN p, long prec)
 {
   pari_sp av = avma;
   GEN lead,y;
   long PREC, i, k, v;
   int reverse;
 
-  if (typ(p)!=t_INT) pari_err_TYPE("rootpadic",p);
-  if (typ(f)!=t_POL) pari_err_TYPE("rootpadic",f);
-  if (gequal0(f)) pari_err_ROOTS0("rootpadic");
+  if (typ(p)!=t_INT) pari_err_TYPE("polrootspadic",p);
+  if (typ(f)!=t_POL) pari_err_TYPE("polrootspadic",f);
+  if (gequal0(f)) pari_err_ROOTS0("polrootspadic");
   if (prec <= 0)
-    pari_err_DOMAIN("rootpadic", "precision", "<=",gen_0,stoi(prec));
+    pari_err_DOMAIN("polrootspadic", "precision", "<=",gen_0,stoi(prec));
   v = RgX_valrem(f, &f);
   f = QpX_to_ZX(f, p);
   f = pnormalize(f, p, prec, 1, &lead, &PREC, &reverse);

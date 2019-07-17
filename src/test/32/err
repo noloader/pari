@@ -385,7 +385,7 @@
   *** factorpadic: domain error in factorpadic: precision <= 0
   ***   at top-level: polrootspadic(x^2+1,2,-1)
   ***                 ^-------------------------
-  *** polrootspadic: domain error in rootpadic: precision <= 0
+  *** polrootspadic: domain error in polrootspadic: precision <= 0
   ***   at top-level: ellinit([1+O(3),1+O(5)])
   ***                 ^------------------------
   *** ellinit: inconsistent moduli in ellinit: 3 != 5
@@ -650,4 +650,4 @@ INFINITY
   ***                                   ^-
   ***   incorrect value for plothsizes: [2,
   ***                                      ^
-Total time spent: 18
+Total time spent: 21
