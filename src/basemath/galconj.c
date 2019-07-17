@@ -2377,7 +2377,6 @@ nilp_froblift(GEN genG, GEN autH, long j, GEN pcgrp,
   long fp = degpol(gel(factTp, 1));
   GEN frobp = Flxq_autpow(Flx_Frobenius(Tp, pp), fp-1, Tp, pp);
   GEN frob = ZpX_ZpXQ_liftroot(T, Flx_to_ZX(frobp), T, p, e);
-  GEN frobG = FpXQ_powers(frob, usqrt(degpol(T)), T, pe);
   if (galoisfrobeniustest(frob, gl, pf))
   {
     GEN pfi = perm_inv(pf);
@@ -2386,6 +2385,7 @@ nilp_froblift(GEN genG, GEN autH, long j, GEN pcgrp,
   }
   else
   {
+    GEN frobG = FpXQ_powers(frob, usqrt(degpol(T)), T, pe);
     GEN autHp = RgXV_to_FlxV(autH,pp);
     GEN inclp = RgX_to_Flx(incl,pp);
     GEN factHp = gel(Flx_factor(Hp, pp),1);
