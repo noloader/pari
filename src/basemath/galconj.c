@@ -432,6 +432,14 @@ galoisdolift(struct galois_lift *gl)
   return gerepileupto(av, automorphismlift(S, gl));
 }
 
+static GEN
+galoisdoliftn(struct galois_lift *gl, long e)
+{
+  pari_sp av = avma;
+  GEN Tp = FpX_red(gl->T, gl->p);
+  GEN S = FpXQ_autpow(FpX_Frobenius(Tp, gl->p), e, Tp, gl->p);
+  return gerepileupto(av, automorphismlift(S, gl));
+}
 static void
 inittestlift(GEN plift, GEN Tmod, struct galois_lift *gl,
              struct galois_testlift *gt)
@@ -1646,7 +1654,68 @@ galoismakepsi(long g, GEN sg, GEN pf)
 }
 
 static GEN
-galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden, long central,
+galoisfrobeniuslift_nilp(GEN T, GEN den, GEN L,  GEN Lden,
+    struct galois_frobenius *gf,  struct galois_borne *gb)
+{
+  pari_sp ltop=avma, av2;
+  struct galois_lift gl;
+  long i, k, deg = 1, g = lg(gf->Tmod)-1;
+  GEN F,Fp,Fe, aut, frob, res = cgetg(lg(L), t_VECSMALL);
+  gf->psi = const_vecsmall(g,1);
+  av2 = avma;
+  initlift(T, den, gf->p, L, Lden, gb, &gl);
+  if (DEBUGLEVEL >= 4)
+    err_printf("GaloisConj: p=%ld e=%ld deg=%ld fp=%ld\n",
+                            gf->p, gl.e, deg, gf->fp);
+  aut = galoisdolift(&gl);
+  if (galoisfrobeniustest(aut,&gl,res))
+  {
+    set_avma(av2); gf->deg = gf->fp; return res;
+  }
+
+  F =factoru(gf->fp);
+  Fp = gel(F,1);
+  Fe = gel(F,2);
+  frob = cgetg(lg(L), t_VECSMALL);
+  for(k = lg(Fp)-1; k>=1; k--)
+  {
+    pari_sp btop=avma;
+    GEN fres=NULL;
+    long el = gf->fp, dg = 1, dgf = 1, e, pr;
+    for(e=1; e<=Fe[k]; e++)
+    {
+      dg *= Fp[k]; el /= Fp[k];
+      if (DEBUGLEVEL>=4) err_printf("Trying degre %d.\n",dg);
+      if (el==1) break;
+      aut = galoisdoliftn(&gl, el);
+      if (!galoisfrobeniustest(aut,&gl,frob))
+        break;
+      dgf = dg; fres = gcopy(frob);
+    }
+    if (dgf == 1) { set_avma(btop); continue; }
+    pr = deg*dgf;
+    if (deg == 1)
+    {
+      for(i=1;i<lg(res);i++) res[i]=fres[i];
+    }
+    else
+    {
+      GEN cp = perm_mul(res,fres);
+      for(i=1;i<lg(res);i++) res[i] = cp[i];
+    }
+    deg = pr; set_avma(btop);
+  }
+  if (DEBUGLEVEL>=4 && res) err_printf("Best lift: %d\n",deg);
+  if (deg==1) return gc_NULL(ltop);
+  else
+  {
+    set_avma(av2); gf->deg = deg; return res;
+  }
+}
+
+
+static GEN
+galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
     struct galois_frobenius *gf,  struct galois_borne *gb)
 {
   pari_sp ltop=avma, av2;
@@ -1693,7 +1762,6 @@ galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden, long central,
         psi = const_vecsmall(g,1);
         dgf = dg; fres = gcopy(frob); continue;
       }
-      if (central) break;
       lo = listznstarelts(dg, n / gf->fp);
       if (e!=1) lo = galoisfindgroups(lo, sg, dgf);
       if (DEBUGLEVEL>=4) err_printf("Galoisconj:Subgroups list:%Ps\n", lo);
@@ -1767,7 +1835,10 @@ galoisfindfrobenius(GEN T, GEN L, GEN den, GEN bad, struct galois_frobenius *gf,
     FlxV_to_ZXV_inplace(Ti);
     gf->fp = d;
     gf->Tmod = Ti; lbot = avma;
-    frob = galoisfrobeniuslift(T, den, L, Lden, is_nilpotent, gf, gb);
+    if (is_nilpotent)
+      frob = galoisfrobeniuslift_nilp(T, den, L, Lden, gf, gb);
+    else
+      frob = galoisfrobeniuslift(T, den, L, Lden, gf, gb);
     if (frob)
     {
       GEN *gptr[3];
