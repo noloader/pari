@@ -356,35 +356,19 @@ Zp_appr(GEN f, GEN a)
   z = ZX_Zp_root(f, a, p, prec);
   return gerepilecopy(av, ZV_to_ZpV(z, p, prec));
 }
-/* vector of p-adic roots of the ZX f, leading term prime to p. Shallow */
+static long
+pval(GEN x, GEN p) { return typ(x) == t_INT? Z_pval(x,p): ZX_pval(x,p); }
+/* f a ZXX, f(0) != 0 */
 static GEN
-ZX_Zp_roots(GEN f, GEN p, long prec)
-{
-  GEN y, z, rac;
-  long lx, i, j, k;
-
-  f = ZX_radical(f);
-  rac = FpX_roots(f, p);
-  lx = lg(rac); if (lx == 1) return rac;
-  y = cgetg(degpol(f)+1,t_COL);
-  for (j=i=1; i<lx; i++)
-  {
-    z = ZX_Zp_root(f, gel(rac,i), p, prec);
-    for (k=1; k<lg(z); k++,j++) gel(y,j) = gel(z,k);
-  }
-  setlg(y,j); return ZV_to_ZpV(y, p, prec);
-}
-
-/* f a ZX, f(0) != 0 */
-static GEN
-pnormalize(GEN f, GEN p, long prec, long n, GEN *plead, long *pprec, int *prev)
+pnormalize(GEN f, GEN p, GEN T, long prec, long n,
+           GEN *plead, long *pprec, int *prev)
 {
   *plead = leading_coeff(f);
   *pprec = prec;
   *prev = 0;
-  if (!is_pm1(*plead))
+  if (!isint1(*plead))
   {
-    long v = Z_pval(*plead,p), v1 = Z_pval(constant_coeff(f),p);
+    long v = pval(*plead,p), v1 = pval(constant_coeff(f),p);
     if (v1 < v)
     {
       *prev = 1;
@@ -394,34 +378,9 @@ pnormalize(GEN f, GEN p, long prec, long n, GEN *plead, long *pprec, int *prev)
     }
     *pprec += v * n;
   }
-  return ZX_Q_normalize(f, plead);
-}
-
-/* return p-adic roots of f, precision prec */
-GEN
-polrootspadic(GEN f, GEN p, long prec)
-{
-  pari_sp av = avma;
-  GEN lead, y, T;
-  long PREC, i, k, v;
-  int reverse;
-
-  if (!ff_parse_Tp(p, &T,&p,0)) pari_err_TYPE("polrootspadic",p);
-  if (typ(f)!=t_POL) pari_err_TYPE("polrootspadic",f);
-  if (gequal0(f)) pari_err_ROOTS0("polrootspadic");
-  if (prec <= 0)
-    pari_err_DOMAIN("polrootspadic", "precision", "<=",gen_0,stoi(prec));
-  v = RgX_valrem(f, &f);
-  f = QpX_to_ZX(f, p);
-  f = pnormalize(f, p, prec, 1, &lead, &PREC, &reverse);
-  y = ZX_Zp_roots(f,p,PREC);
-  k = lg(y);
-  if (lead != gen_1)
-    for (i=1; i<k; i++) gel(y,i) = gdiv(gel(y,i), lead);
-  if (reverse)
-    for (i=1; i<k; i++) gel(y,i) = ginv(gel(y,i));
-  if (v) y = shallowconcat(zeropadic_shallow(p, prec), y);
-  return gerepilecopy(av, y);
+  if (!T) return ZX_Q_normalize(f, plead);
+  *plead = gen_1;
+  return FpXQX_normalize(f, T, powiu(p,*pprec));
 }
 
 /**************************************************************************/
@@ -503,6 +462,59 @@ padicappr(GEN f, GEN a)
   return gerepilecopy(av, ZXV_to_ZpXQV(z, T, p, prec));
 }
 
+/* vector of p-adic roots of the ZX f, leading term prime to p. Shallow */
+static GEN
+ZX_Zp_roots(GEN f, GEN p, long prec)
+{
+  long l, i;
+  GEN r;
+
+  f = ZX_radical(f);
+  r = FpX_roots(f, p);
+  l = lg(r); if (l == 1) return r;
+  for (i = 1; i < l; i++) gel(r,i) = ZX_Zp_root(f, gel(r,i), p, prec);
+  settyp(r, t_VEC); return ZV_to_ZpV(shallowconcat1(r), p, prec);
+}
+/* vector of p-adic roots of the ZXX f, leading term prime to p. Shallow */
+static GEN
+ZXY_ZpQ_roots(GEN f, GEN T, GEN p, long prec)
+{
+  long l, i;
+  GEN r;
+
+  (void)nfgcd_all(f, RgX_deriv(f), T, NULL, &f);
+  r = FqX_roots(f, FpX_red(T,p), p);
+  l = lg(r); if (l == 1) return r;
+  for (i = 1; i < l; i++) gel(r,i) = ZXY_ZpQ_root(f, gel(r,i), T, p, prec);
+  settyp(r, t_VEC); return ZXV_to_ZpXQV(shallowconcat1(r), T, p, prec);
+}
+
+/* return p-adic roots of f, precision prec */
+GEN
+polrootspadic(GEN f, GEN p, long prec)
+{
+  pari_sp av = avma;
+  GEN lead, y, T;
+  long PREC, i, k, v;
+  int reverse;
+
+  if (!ff_parse_Tp(p, &T,&p,0)) pari_err_TYPE("polrootspadic",p);
+  if (typ(f)!=t_POL) pari_err_TYPE("polrootspadic",f);
+  if (gequal0(f)) pari_err_ROOTS0("polrootspadic");
+  if (prec <= 0)
+    pari_err_DOMAIN("polrootspadic", "precision", "<=",gen_0,stoi(prec));
+  f = T? QpXQX_to_ZXY(f, p): QpX_to_ZX(f, p);
+  v = RgX_valrem(f, &f);
+  f = pnormalize(f, p, T, prec, 1, &lead, &PREC, &reverse);
+  y = T? ZXY_ZpQ_roots(f,T,p,PREC): ZX_Zp_roots(f,p,PREC);
+  k = lg(y);
+  if (lead != gen_1) y = RgC_Rg_div(y, lead);
+  if (reverse)
+    for (i=1; i<k; i++) gel(y,i) = ginv(gel(y,i));
+  if (v) y = shallowconcat(zeropadic_shallow(p, prec), y);
+  return gerepilecopy(av, y);
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*             FACTORIZATION in Zp[X], using ROUND4                */
@@ -566,7 +578,7 @@ factorpadic(GEN f, GEN p, long r)
     long i, l, pr;
 
     f = QpX_to_ZX(f, p); (void)Z_pvalrem(leading_coeff(f), p, &lt);
-    f = pnormalize(f, p, r, n-1, &lead, &pr, &reverse);
+    f = pnormalize(f, p, NULL, r, n-1, &lead, &pr, &reverse);
     y = ZpX_monic_factor(f, p, pr);
     P = gel(y,1); l = lg(P);
     if (lead != gen_1)
