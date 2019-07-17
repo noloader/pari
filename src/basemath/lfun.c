@@ -1203,12 +1203,15 @@ lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
 {
   GEN Vga = ldata_get_gammavec(ldata);
   long d = lg(Vga)-1;
-  GEN k2 = gmul2n(ldata_get_k(ldata), -1);
+  GEN hardy, w2 = gen_1, k2 = gmul2n(ldata_get_k(ldata), -1);
   GEN expot = gdivgs(gadd(gmulsg(d, gsubgs(k2, 1)), sumVga(Vga)), 4);
-  GEN eno = ldata_get_rootno(ldata);
-  long prec = nbits2prec( domain_get_bitprec(domain) );
-  GEN w2 = ginv(gsqrt(eno, prec));
-  GEN hardy = mkvec4(k2, w2, expot, gammafactor(Vga));
+  if (typ(ldata_get_dual(ldata))==t_INT)
+  {
+    GEN eno = ldata_get_rootno(ldata);
+    long prec = nbits2prec( domain_get_bitprec(domain) );
+    if (!isint1(eno)) w2 = ginv(gsqrt(eno, prec));
+  }
+  hardy = mkvec4(k2, w2, expot, gammafactor(Vga));
   return mkvec3(mkvecsmall(t),ldata, mkvec3(domain, molin, hardy));
 }
 
@@ -1759,10 +1762,8 @@ lfunhardy(GEN lmisc, GEN t, long bitprec)
   a = gsub(gmulsg(d, gmul(t, gmul2n(argz,-1))),
            gmul(expot,glog(gnorm(z),prec)));
   h = lfunlambda_OK(linit, z, mkvec(t), bitprec);
-  if (typ(ldata_get_dual(ldata))==t_INT)
+  if (!isint1(w2) && typ(ldata_get_dual(ldata))==t_INT)
     h = mulreal(h, w2);
-  else
-    h = gmul(h, w2);
   if (typ(h) == t_COMPLEX && gexpo(imag_i(h)) < -(bitprec >> 1))
     h = real_i(h);
   return gerepileupto(ltop, gmul(h, gexp(a, prec)));

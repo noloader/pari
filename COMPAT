@@ -23,6 +23,9 @@ This file lists the incompatible changes between Version 2.x and older versions
     e.g. x % y is x - floor(x/y)*y; for a t_QUAD x and t_INT y, we used
     to mod out y in "real" and "imaginary" part independently.
   - rename libpari function rootpadic -> polrootspadic
+  - change definition of lfunhardy for non-self-dual functions: remove
+    rootnumber, which is not well defined since it depends on the choice
+    of dual sequence a^*(n). And the function is not real-valued in any case.
 
 * Specific to the PARI library:
 ===============================

@@ -7,18 +7,22 @@ Help: lfunhardy(L,t): variant of the Hardy L-function attached to L, used for
 Doc: Variant of the Hardy $Z$-function given by \kbd{L}, used for
  plotting or locating zeros of $L(k/2+it)$ on the critical line.
  The precise definition is as
- follows: if as usual $k/2$ is the center of the critical strip, $d$ is the
- degree, $\alpha_j$ the entries of \kbd{Vga} giving the gamma factors,
- and $\varepsilon$ the root number, then if we set
+ follows: let $k/2$ be the center of the critical strip, $d$ be the
+ degree, $\kbd{Vga} = (\alpha_j)_{j\leq d}$ given the gamma factors,
+ and $\varepsilon$ be the root number; we set
  $s = k/2+it = \rho e^{i\theta}$ and
- $E=(d(k/2-1)+\sum_{1\le j\le d}\alpha_j)/2$, the computed function at $t$ is
- equal to
+ $E=(d(k/2-1)+\sum_{1\le j\le d}\alpha_j)/2$. Assume first that $\Lambda$
+ is self-dual, then the computed function at $t$ is equal to
  $$Z(t) = \varepsilon^{-1/2}\Lambda(s) \cdot |s|^{-E}e^{dt\theta/2}\;,$$
- which is a real function of $t$ for self-dual $\Lambda$,
+ which is a real function of $t$
  vanishing exactly when $L(k/2+it)$ does on the critical line. The
  normalizing factor $|s|^{-E}e^{dt\theta/2}$ compensates the
  exponential decrease of $\gamma_A(s)$ as $t\to\infty$ so that
- $Z(t) \approx 1$.
+ $Z(t) \approx 1$. For self-dual $\Lambda$, the definition is the same except
+ we drop the $\varepsilon^{-1/2}$ term (which is not well defined since it
+ depends on the chosen dual sequence $a^*(n)$): $Z(t)$ is still of the order
+ of $1$ and still vanishes where $L(k/2+it)$ does, but it needs no longer be
+ real-valued.
 
  \bprog
  ? T = 100; \\ maximal height
