@@ -3533,7 +3533,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: rootpadic(x,p,r) ===> polrootspadic(x,p,r)
 
-polrootspadic(x,p,r): p-adic roots of the polynomial x to precision r.
+polrootspadic(f,p,r): p-adic roots of the polynomial f to precision r.
 
 
   ***   at top-level: roots()
@@ -4516,4 +4516,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 9
+Total time spent: 12
