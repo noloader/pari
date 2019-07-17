@@ -4957,13 +4957,16 @@ accessors are defined:
 
 \subsubsec{Conversions}
 
-\fun{int}{ff_parse_Tp}{GEN Tp, GEN *T, GEN *p} \kbd{Tp} is either
+\fun{int}{ff_parse_Tp}{GEN Tp, GEN *T, GEN *p, long red} \kbd{Tp} is either
 a prime number $p$ or a \typ{VEC} with 2 entries $T$ (an irreducible
 polynomial mod $p$) and $p$ (a prime number). Sets \kbd{*p} and \kbd{*T}
-to the corresponding \kbd{GEN} (\kbd{NULL} if undefined) and normalize
-\kbd{*T} as an \kbd{FpX}. Return $1$ on success, and $0$ on failure.
-This helper routine is used by GP functions such as \kbd{factormod} where
-a single user argument defines a finite field. \typ{FFELT} is not supported.
+to the corresponding \kbd{GEN}s (\kbd{NULL} if undefined). If \kbd{red}
+is non-zero, normalize \kbd{*T} as an \kbd{FpX}; on the other hand,
+to initialize a $p$-adic function, set \kbd{red} to $0$ and \kbd{*T} is left
+as is and must be a \kbd{ZX} to start with. Return $1$ on success, and $0$ on
+failure. This helper routine is used by GP functions such as \kbd{factormod}
+where a single user argument defines a finite field. \typ{FFELT} is not
+supported.
 
 \fun{GEN}{Rg_is_FpXQ}{GEN z, GEN *T, GEN *p}, checks if \kbd{z} is a \kbd{GEN}
 which can be mapped to $\F_p[X]/(T)$: anything for which \kbd{Rg\_is\_Fp} return

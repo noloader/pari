@@ -402,11 +402,11 @@ GEN
 polrootspadic(GEN f, GEN p, long prec)
 {
   pari_sp av = avma;
-  GEN lead,y;
+  GEN lead, y, T;
   long PREC, i, k, v;
   int reverse;
 
-  if (typ(p)!=t_INT) pari_err_TYPE("polrootspadic",p);
+  if (!ff_parse_Tp(p, &T,&p,0)) pari_err_TYPE("polrootspadic",p);
   if (typ(f)!=t_POL) pari_err_TYPE("polrootspadic",f);
   if (gequal0(f)) pari_err_ROOTS0("polrootspadic");
   if (prec <= 0)
