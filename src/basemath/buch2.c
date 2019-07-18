@@ -1142,6 +1142,7 @@ getfu(GEN nf, GEN *ptA, long *pte, long prec)
   { /* y[i] are hopefully unit generators. Normalize: smallest T2 norm
      * + lead coeff > 0 */
     GEN u = gel(y,j), v = zk_inv(nf, u), z;
+    if (!v) { *pte = 0; return not_given(fupb_PRECI); }
     if (gcmp(RgC_fpnorml2(v,DEFAULTPREC), RgC_fpnorml2(u,DEFAULTPREC)) < 0)
     {
       gel(A,j) = RgC_neg(gel(A,j));
