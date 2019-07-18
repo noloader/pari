@@ -3739,7 +3739,7 @@ GEN
 Fp_order(GEN a, GEN o, GEN p) {
   if (lgefint(p) == 3 && (!o || typ(o) == t_INT))
   {
-    ulong pp = p[2], oo = (o && lgefint(o)==3)? o[2]: pp-1;
+    ulong pp = p[2], oo = (o && lgefint(o)==3)? uel(o,2): pp-1;
     return utoi( Fl_order(umodiu(a, pp), oo, pp) );
   }
   return gen_order(a, o, (void*)p, &Fp_star);

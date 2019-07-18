@@ -277,14 +277,14 @@ forfactored(GEN a, GEN b, GEN code)
   sb = signe(b);
   if (sa < 0)
   {
-    stop = forfactoredneg((sb < 0)? b[2]: 1UL, itou(a), code);
+    stop = forfactoredneg((sb < 0)? uel(b,2): 1UL, itou(a), code);
     if (!stop && sb >= 0) stop = eval0(code);
     if (!stop && sb > 0) forfactoredpos(1UL, b[2], code);
   }
   else
   {
     if (!sa) stop = eval0(code);
-    if (!stop && sb) forfactoredpos(sa? a[2]: 1UL, itou(b), code);
+    if (!stop && sb) forfactoredpos(sa? uel(a,2): 1UL, itou(b), code);
   }
   pop_lex(1); set_avma(av);
 }

@@ -693,7 +693,7 @@ Flx_genus2charpoly_naive(GEN H, ulong p)
     {
       GEN r2 = gel(V, n+1);
       c += uel(r2,2) ?
-        (uel(r2,1) ? k[1+Fl2_norm_pre(r2, D, p, pi)]: e)
+        (uel(r2,1) ? uel(k,1+Fl2_norm_pre(r2, D, p, pi)): e)
          : !!uel(r2,1);
       if (i == p-1) break;
       V = Fl2V_next(V, p);
