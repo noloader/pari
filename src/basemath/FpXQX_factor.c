@@ -2859,7 +2859,7 @@ int
 ff_parse_Tp(GEN Tp, GEN *T, GEN *p, long red)
 {
   long t = typ(Tp);
-  *T = NULL;
+  *T = *p = NULL;
   if (t == t_INT) { *p = Tp; return cmpiu(*p, 1) > 0; }
   if (t != t_VEC || lg(Tp) != 3) return 0;
   *T = gel(Tp,1);
