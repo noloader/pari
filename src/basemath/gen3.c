@@ -1670,9 +1670,9 @@ gsubstvec(GEN e, GEN v, GEN r)
       j++;
     }
   }
-  for(i=1;i<j;i++) e = gsubst(e,w[i],pol_x(z[i]));
-  for(i=1;i<j;i++) e = gsubst(e,z[i],gel(R,i));
-  for(i=1;i<j;i++) (void)delete_var();
+  for(i = 1; i < j; i++) e = gsubst(e,w[i],pol_x(z[i]));
+  for(i = 1; i < j; i++) e = gsubst(e,z[i],gel(R,i));
+  for(i = 1; i < j; i++) (void)delete_var();
   return gerepileupto(av, e);
 }
 
