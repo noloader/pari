@@ -8690,13 +8690,12 @@ GEN
 mffromqf(GEN Q, GEN P)
 {
   pari_sp av = avma;
-  GEN G, Qi, F, D, N, mf, v, gk, gwt, chi;
+  GEN G, Qi, F, D, N, mf, v, gk, chi;
   long m, d, space;
   if (typ(Q) != t_MAT) pari_err_TYPE("mffromqf", Q);
   if (!RgM_is_ZM(Q) || !qfiseven(Q))
     pari_err_TYPE("mffromqf [not integral or even]", Q);
   m = lg(Q)-1;
-  gk = sstoQ(m, 2);
   Qi = ZM_inv(Q, &N);
   if (!qfiseven(Qi)) N = shifti(N, 1);
   d = 0;
@@ -8712,13 +8711,13 @@ mffromqf(GEN Q, GEN P)
         pari_err_TYPE("mffromqf [not a spherical t_POL]", P);
     }
   }
+  gk = sstoQ(m + 2*d, 2);
   D = ZM_det(Q);
-  if (typ(gk) == t_INT) { if (mpodd(gk)) D = negi(D); } else D = shifti(D, 1);
+  if (!odd(m)) { if ((m & 3) == 2) D = negi(D); } else D = shifti(D, 1);
   space = d > 0 ? mf_CUSP : mf_FULL;
   G = znstar0(N,1);
   chi = mkvec2(G, znchar_quad(G,D));
-  gwt = gaddgs(gk, d);
-  mf = mfinit(mkvec3(N, gwt, chi), space);
+  mf = mfinit(mkvec3(N, gk, chi), space);
   if (odd(d))
   {
     F = mftrivial();
