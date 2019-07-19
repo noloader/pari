@@ -2071,13 +2071,14 @@ guess_roots(GEN nf)
   for (l=1; (p = u_forprime_next(&S)); l++)
   {
     GEN old, F, pf_1, Tp;
-    long i, nb, gcdf = 0;
+    ulong i, gcdf = 0;
+    long nb;
 
     if (!umodiu(D,p) || !umodiu(index,p)) continue;
     Tp = ZX_to_Flx(T,p); /* squarefree */
     F = Flx_nbfact_by_degree(Tp, &nb, p);
     /* the gcd of the p^f - 1 is p^(gcd of the f's) - 1 */
-    for (i = 1; i <= nfdegree; i++)
+    for (i = 1; i <= (ulong) nfdegree; i++)
       if (F[i]) {
         gcdf = gcdf? ugcd(gcdf, i): i;
         if (gcdf == 1) break;

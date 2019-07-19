@@ -11087,7 +11087,7 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
     long CD = (C * D) % N, BC = (B * C) % F;
     GEN CV, t;
     /* weight of f * Theta in 1/2-integral weight */
-    k = typ(gk) == t_INT? itou(gk): MF_get_r(mf)+1;
+    k = typ(gk) == t_INT? (long) itou(gk): MF_get_r(mf)+1;
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
     deg = ulcm(ulcm(ord, N/ugcd(N,CD)), F/ugcd(F,BC));
     V = bestapprnf2(V, deg, CV, prec);

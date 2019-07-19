@@ -503,7 +503,7 @@ idealHNF_Z_factor_i(GEN x, GEN f0, GEN *pvN, GEN *pvZ)
   for (i = 1; i < l; i++)
   {
     GEN p = gel(P,i);
-    vZ[i] = f0? Z_pval(xZ, p): itou(gel(E,i));
+    vZ[i] = f0? Z_pval(xZ, p): (long) itou(gel(E,i));
     vN[i] = idealHNF_norm_pval(x,p, vZ[i]);
   }
   return P;
