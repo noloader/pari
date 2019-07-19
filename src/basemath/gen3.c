@@ -1647,7 +1647,7 @@ ser_unscale(GEN P, GEN h)
 GEN
 gsubstvec(GEN e, GEN v, GEN r)
 {
-  pari_sp ltop=avma;
+  pari_sp av = avma;
   long i, j, l = lg(v);
   GEN w, z, R;
   if ( !is_vec_t(typ(v)) ) pari_err_TYPE("substvec",v);
@@ -1673,7 +1673,7 @@ gsubstvec(GEN e, GEN v, GEN r)
   for(i=1;i<j;i++) e = gsubst(e,w[i],pol_x(z[i]));
   for(i=1;i<j;i++) e = gsubst(e,z[i],gel(R,i));
   for(i=1;i<j;i++) (void)delete_var();
-  return gerepileupto(ltop,e);
+  return gerepileupto(av, e);
 }
 
 /*******************************************************************/
