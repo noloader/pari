@@ -8666,24 +8666,34 @@ c_QFsimple_i(long n, GEN Q, GEN P)
   }
   return V;
 }
+
+/* v a t_VECSMALL of variable numbers, lg(r) >= lg(v), r is a vector of
+ * scalars [not involving any variable in v] */
+static GEN
+gsubstvec_i(GEN e, GEN v, GEN r)
+{
+  long i, l = lg(v);
+  for(i = 1; i < l; i++) e = gsubst(e, v[i], gel(r,i));
+  return e;
+}
 static GEN
 c_QF_i(long n, GEN Q, GEN P)
 {
   pari_sp av = avma;
   GEN V, v, va;
-  long i, lva, lq, l;
+  long i, l;
   if (!P || typ(P) != t_POL) return gerepileupto(av, c_QFsimple_i(n, Q, P));
   v = gel(minim(Q, utoi(2*n), NULL), 3);
-  va = variables_vec(P); lq = lg(Q) - 1; lva = lg(va) - 1;
+  va = variables_vecsmall(P);
   V = zerovec(n + 1); l = lg(v);
   for (i = 1; i < l; i++)
   {
+    pari_sp av = avma;
     GEN X = gel(v,i);
-    long ind = (itos(qfeval0(Q, X, NULL)) >> 1) + 1;
-    if (lq > lva) X = vecslice(X, 1, lva);
-    gel(V, ind) = gadd(gel(V, ind), gsubstvec(P, va, X));
+    long c = (itos(qfeval(Q, X)) >> 1) + 1;
+    gel(V, c) = gerepileupto(av, gadd(gel(V, c), gsubstvec_i(P, va, X)));
   }
-  return gerepilecopy(av, gmul2n(V, 1));
+  return gmul2n(V, 1);
 }
 
 GEN
