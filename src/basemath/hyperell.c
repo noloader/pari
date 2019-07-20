@@ -608,10 +608,10 @@ nfhyperellpadicfrobenius(GEN H, GEN T, ulong p, long n)
 }
 
 GEN
-hyperellpadicfrobenius0(GEN H, GEN p, long n)
+hyperellpadicfrobenius0(GEN H, GEN Tp, long n)
 {
-  GEN T;
-  if (!ff_parse_Tp(p, &T,&p,0)) pari_err_TYPE("hyperellpadicfrobenius", p);
+  GEN T, p;
+  if (!ff_parse_Tp(Tp, &T,&p,0)) pari_err_TYPE("hyperellpadicfrobenius", Tp);
   if (lgefint(p) > 3) pari_err_IMPL("large prime in hyperellpadicfrobenius");
   return T? nfhyperellpadicfrobenius(H, T, itou(p), n)
           : hyperellpadicfrobenius(H, itou(p), n);

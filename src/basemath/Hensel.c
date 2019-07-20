@@ -392,9 +392,9 @@ bezout_lift_fact(GEN pol, GEN Q, GEN p, long e)
 /* Front-end for ZpX_liftfact:
    lift the factorization of pol mod p given by L to p^N (if possible) */
 GEN
-polhensellift(GEN pol, GEN L, GEN p, long N)
+polhensellift(GEN pol, GEN L, GEN Tp, long N)
 {
-  GEN T;
+  GEN T, p;
   long i, l;
   pari_sp av = avma;
   void (*chk)(GEN, const char*);
@@ -403,7 +403,7 @@ polhensellift(GEN pol, GEN L, GEN p, long N)
   RgX_check_ZXX(pol, "polhensellift");
   if (!is_vec_t(typ(L)) || lg(L) < 3) pari_err_TYPE("polhensellift",L);
   if (N < 1) pari_err_DOMAIN("polhensellift", "precision", "<", gen_1,stoi(N));
-  if (!ff_parse_Tp(p, &T, &p, 0)) pari_err_TYPE("polhensellift",pol);
+  if (!ff_parse_Tp(Tp, &T, &p, 0)) pari_err_TYPE("polhensellift",Tp);
   chk = T? RgX_check_ZXX: RgX_check_ZX;
   l = lg(L); L = leafcopy(L);
   for (i = 1; i < l; i++)

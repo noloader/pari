@@ -491,14 +491,14 @@ ZXY_ZpQ_roots(GEN f, GEN T, GEN p, long prec)
 
 /* return p-adic roots of f, precision prec */
 GEN
-polrootspadic(GEN f, GEN p, long prec)
+polrootspadic(GEN f, GEN Tp, long prec)
 {
   pari_sp av = avma;
-  GEN lead, y, T;
+  GEN lead, y, T, p;
   long PREC, i, k, v;
   int reverse;
 
-  if (!ff_parse_Tp(p, &T,&p,0)) pari_err_TYPE("polrootspadic",p);
+  if (!ff_parse_Tp(Tp, &T,&p,0)) pari_err_TYPE("polrootspadic",Tp);
   if (typ(f)!=t_POL) pari_err_TYPE("polrootspadic",f);
   if (gequal0(f)) pari_err_ROOTS0("polrootspadic");
   if (prec <= 0)
