@@ -637,8 +637,10 @@ F=mffrometaquo([8,3]);mfparams(F)
 mf=mfinit([64,3/2]); mftobasis(mf,F)
 V=mfslashexpansion(mf,F,[0,-1;1,0],10,0,&A);
 [A,V]
+mfslashexpansion(mf,F,[0,-1;1,0],10,1)
 V=mfslashexpansion(mf,F,[-1,0;2,-1],10,0,&A);
 [A,V]
+mfslashexpansion(mf,F,[-1,0;2,-1],10,1)
 mfeval(mf,F,I)
 mf=mfinit([36,5/2],1);mfparams(mfbasis(mf)[3])
 K=mfkohnenbasis(mf); nbcol=matsize(K)[2]

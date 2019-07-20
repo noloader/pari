@@ -7157,7 +7157,7 @@ mfeval_i(GEN mf, GEN F, GEN vtau, long flag, long bitprec)
     if (N0 < n) N0 = n;
     if (flag)
     {
-      GEN A, al, v = mfslashexpansion(mf, F, ZM_inv(U,NULL), N0, 0, &A, prec);
+      GEN A, al, v = mfslashexpansion(mf, F, ZM_inv(U,NULL), n, 0, &A, prec);
       gel(vL,i) = van_embedall(v, vE, gN, vgk);
       al = gel(A,1);
       if (!gequal0(al))
@@ -11100,6 +11100,7 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
     k = typ(gk) == t_INT? (long) itou(gk): MF_get_r(mf)+1;
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
     deg = ulcm(ulcm(ord, N/ugcd(N,CD)), F/ugcd(F,BC));
+    if (typ(gk) != t_INT && (C & 3) && odd(deg)) deg <<= 2;/* must adjoin I */
     V = bestapprnf2(V, deg, CV, prec);
     if (abd && !signe(b))
     { /* can [a,0; 0,d] be simplified to id ? */
