@@ -1327,9 +1327,11 @@ FpX_divrem_Barrett(GEN x, GEN mg, GEN T, GEN p, GEN *pr)
 GEN
 FpX_divrem(GEN x, GEN T, GEN p, GEN *pr)
 {
-  GEN B, y = get_FpX_red(T, &B);
-  long dy = degpol(y), dx = degpol(x), d = dx-dy;
-  if (pr==ONLY_REM) return FpX_rem(x, y, p);
+  GEN B, y;
+  long dy, dx, d;
+  if (pr==ONLY_REM) return FpX_rem(x, T, p);
+  y = get_FpX_red(T, &B);
+  dy = degpol(y); dx = degpol(x); d = dx-dy;
   if (!B && d+3 < FpX_DIVREM_BARRETT_LIMIT)
     return FpX_divrem_basecase(x,y,p,pr);
   else if (lgefint(p)==3)

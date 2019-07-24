@@ -2389,9 +2389,11 @@ F2xqX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, GEN *pr)
 GEN
 F2xqX_divrem(GEN x, GEN S, GEN T, GEN *pr)
 {
-  GEN B, y = get_F2xqX_red(S, &B);
-  long dy = degpol(y), dx = degpol(x), d = dx-dy;
-  if (pr==ONLY_REM) return F2xqX_rem(x, y, T);
+  GEN B, y;
+  long dy, dx, d;
+  if (pr==ONLY_REM) return F2xqX_rem(x, S, T);
+  y = get_F2xqX_red(S, &B);
+  dy = degpol(y); dx = degpol(x); d = dx-dy;
   if (!B && d+3 < F2xqX_DIVREM_BARRETT_LIMIT)
     return F2xqX_divrem_basecase(x,y,T,pr);
   else

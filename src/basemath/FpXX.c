@@ -1031,9 +1031,11 @@ FpXQX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, GEN p, GEN *pr)
 GEN
 FpXQX_divrem(GEN x, GEN S, GEN T, GEN p, GEN *pr)
 {
-  GEN B, y = get_FpXQX_red(S, &B);
-  long dy = degpol(y), dx = degpol(x), d = dx-dy;
-  if (pr==ONLY_REM) return FpXQX_rem(x, y, T, p);
+  GEN B, y;
+  long dy, dx, d;
+  if (pr==ONLY_REM) return FpXQX_rem(x, S, T, p);
+  y = get_FpXQX_red(S, &B);
+  dy = degpol(y); dx = degpol(x); d = dx-dy;
   if (lgefint(p) == 3)
   {
     GEN a, b, t, z;

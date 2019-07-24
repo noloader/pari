@@ -1486,9 +1486,11 @@ Flx_divrem_Barrett(GEN x, GEN mg, GEN T, ulong p, GEN *pr)
 GEN
 Flx_divrem(GEN x, GEN T, ulong p, GEN *pr)
 {
-  GEN B, y = get_Flx_red(T, &B);
-  long dy = degpol(y), dx = degpol(x), d = dx-dy;
-  if (pr==ONLY_REM) return Flx_rem(x, y, p);
+  GEN B, y;
+  long dy, dx, d;
+  if (pr==ONLY_REM) return Flx_rem(x, T, p);
+  y = get_Flx_red(T, &B);
+  dy = degpol(y); dx = degpol(x); d = dx-dy;
   if (!B && d+3 < Flx_DIVREM_BARRETT_LIMIT)
     return Flx_divrem_basecase(x,y,p,pr);
   else
@@ -4669,9 +4671,11 @@ FlxqX_divrem_Barrett(GEN x, GEN mg, GEN S, GEN T, ulong p, GEN *pr)
 GEN
 FlxqX_divrem(GEN x, GEN S, GEN T, ulong p, GEN *pr)
 {
-  GEN B, y = get_FlxqX_red(S, &B);
-  long dy = degpol(y), dx = degpol(x), d = dx-dy;
-  if (pr==ONLY_REM) return FlxqX_rem(x, y, T, p);
+  GEN B, y;
+  long dy, dx, d;
+  if (pr==ONLY_REM) return FlxqX_rem(x, S, T, p);
+  y = get_FlxqX_red(S, &B);
+  dy = degpol(y); dx = degpol(x); d = dx-dy;
   if (!B && d+3 < FlxqX_DIVREM_BARRETT_LIMIT)
     return FlxqX_divrem_basecase(x,y,T,p,pr);
   else
