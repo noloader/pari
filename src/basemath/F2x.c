@@ -1222,6 +1222,7 @@ static GEN
 F2xq_log_from_rel(GEN W, GEN rel, long r, long n, GEN T, GEN m)
 {
   pari_sp av = avma;
+  long vT = get_F2x_var(T);
   GEN F = gel(rel,1), E = gel(rel,2), o = gen_0;
   long i, l = lg(F);
   for(i=1; i<l; i++)
@@ -1232,7 +1233,7 @@ F2xq_log_from_rel(GEN W, GEN rel, long r, long n, GEN T, GEN m)
     else if (signe(R)<0) /* Not yet tested */
     {
       setsigne(gel(W,F[i]),0);
-      R = F2xq_log_Coppersmith_d(W, mkF2(F[i],T[1]), r, n, T, m);
+      R = F2xq_log_Coppersmith_d(W, mkF2(F[i],vT), r, n, T, m);
       if (!R) return NULL;
     }
     o = Fp_add(o, mulis(R, E[i]), m);
@@ -1244,13 +1245,13 @@ static GEN
 F2xq_log_Coppersmith_d(GEN W, GEN g, long r, long n, GEN T, GEN mo)
 {
   pari_sp av = avma, av2;
+  long dT = get_F2x_degree(T), vT = get_F2x_var(T);
   long dg = F2x_degree(g), k = r-1, m = maxss((dg-k)/2,0);
   long i, j, l = dg-m, N;
   GEN v = cgetg(k+m+1,t_MAT);
-  long dT = F2x_degree(T);
   long h = dT>>n, d = dT-(h<<n);
-  GEN R = F2x_add(F2x_shift(pol1_F2x(T[1]), dT), T);
-  GEN z = F2x_rem(F2x_shift(pol1_F2x(T[1]),h), g);
+  GEN R = F2x_add(F2x_shift(pol1_F2x(vT), dT), T);
+  GEN z = F2x_rem(F2x_shift(pol1_F2x(vT),h), g);
   for(i=1; i<=k+m; i++)
   {
     gel(v,i) = F2x_to_F2v(F2x_shift(z,-l),m);
@@ -1258,14 +1259,14 @@ F2xq_log_Coppersmith_d(GEN W, GEN g, long r, long n, GEN T, GEN mo)
   }
   v = F2m_ker(v);
   for(i=1; i<=k; i++)
-    gel(v,i) = F2v_to_F2x(gel(v,i),T[1]);
+    gel(v,i) = F2v_to_F2x(gel(v,i),vT);
   N = 1<<k;
   av2 = avma;
   for (i=1; i<N; i++)
   {
     GEN p,q,qh,a,b;
     set_avma(av2);
-    q = pol0_F2x(T[1]);
+    q = pol0_F2x(vT);
     for(j=0; j<k; j++)
       if (i&(1UL<<j))
         q = F2x_add(q, gel(v,j+1));
@@ -1330,9 +1331,10 @@ F2xq_log_find_rel(GEN b, long r, GEN T, GEN *g, ulong *e)
 static GEN
 F2xq_log_Coppersmith_rec(GEN W, long r2, GEN a, long r, long n, GEN T, GEN m)
 {
-  GEN b = polx_F2x(T[1]);
+  long vT = get_F2x_var(T);
+  GEN b = polx_F2x(vT);
   ulong AV = 0;
-  GEN g = a, bad = pol0_F2x(T[1]);
+  GEN g = a, bad = pol0_F2x(vT);
   pari_timer ti;
   while(1)
   {
@@ -1346,7 +1348,7 @@ F2xq_log_Coppersmith_rec(GEN W, long r2, GEN a, long r, long n, GEN T, GEN m)
     Ao = gen_0;
     for(i=1; i<l; i++)
     {
-      GEN Fi = mkF2(F[i], T[1]);
+      GEN Fi = mkF2(F[i], vT);
       GEN R;
       if (F2x_degree(Fi) <= r)
       {
@@ -1425,10 +1427,10 @@ F2xq_log_Coppersmith_worker(GEN u, long i, GEN V, GEN R)
 static GEN
 F2xq_log_Coppersmith(long nbrel, long r, long n, GEN T)
 {
-  long dT = F2x_degree(T);
+  long dT = get_F2x_degree(T), vT = get_F2x_var(T);
   long h = dT>>n, d = dT-(h<<n);
-  GEN R = F2x_add(F2x_shift(pol1_F2x(T[1]), dT), T);
-  GEN u = mkF2(0,T[1]);
+  GEN R = F2x_add(F2x_shift(pol1_F2x(vT), dT), T);
+  GEN u = mkF2(0,vT);
   long rel = 1, nbtest = 0;
   GEN M = cgetg(nbrel+1, t_VEC);
   long i = 0;
@@ -1479,22 +1481,23 @@ static GEN
 check_kernel(long N, GEN M, long nbi, GEN T, GEN m)
 {
   pari_sp av = avma;
+  long dT = get_F2x_degree(T), vT = get_F2x_var(T);
   GEN K = FpMs_leftkernel_elt(M, N, m);
   long i, f=0, tbs;
   long l = lg(K), lm = lgefint(m);
-  GEN idx = diviiexact(int2um1(F2x_degree(T)),m);
-  GEN g = F2xq_pow(polx_F2x(T[1]), idx, T);
+  GEN idx = diviiexact(int2um1(dT), m);
+  GEN g = F2xq_pow(polx_F2x(vT), idx, T);
   GEN tab;
   pari_timer ti;
   if (DEBUGLEVEL) timer_start(&ti);
   K = FpC_Fp_mul(K, Fp_inv(gel(K,2), m), m);
   tbs = maxss(1, expu(nbi/expi(m)));
-  tab = F2xq_pow_init(g, int2n(F2x_degree(T)), tbs, T);
+  tab = F2xq_pow_init(g, int2n(dT), tbs, T);
   for(i=1; i<l; i++)
   {
     GEN k = gel(K,i);
     if (signe(k)==0 || !F2x_equal(F2xq_pow_table(tab, k, T),
-                                  F2xq_pow(mkF2(i,T[1]), idx, T)))
+                                  F2xq_pow(mkF2(i,vT), idx, T)))
       gel(K,i) = cgetineg(lm);
     else
       f++;
