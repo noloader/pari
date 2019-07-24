@@ -178,7 +178,7 @@ RgX_to_F2x(GEN x)
 GEN
 Rg_to_F2xq(GEN x, GEN T)
 {
-  long ta, tx = typ(x), v = T[1];
+  long ta, tx = typ(x), v = get_F2x_var(T);
   GEN a, b;
   if (is_const_t(tx))
   {
@@ -960,7 +960,7 @@ F2xq_sqr(GEN x,GEN pol)
 GEN
 F2xq_invsafe(GEN x, GEN T)
 {
-  GEN V, z = F2x_extgcd(T, x, NULL, &V);
+  GEN V, z = F2x_extgcd(get_F2x_mod(T), x, NULL, &V);
   if (F2x_degree(z)) return NULL;
   return V;
 }
@@ -1061,7 +1061,7 @@ F2xq_pow_table(GEN R, GEN n, GEN T)
 GEN
 F2xq_powers(GEN x, long l, GEN T)
 {
-  int use_sqr = 2*F2x_degree(x) >= F2x_degree(T);
+  int use_sqr = 2*F2x_degree(x) >= get_F2x_degree(T);
   return gen_powers(x, l, use_sqr, (void*)T, &_F2xq_sqr, &_F2xq_mul, &_F2xq_one);
 }
 
@@ -1074,13 +1074,13 @@ F2xq_matrix_pow(GEN y, long n, long m, GEN P)
 GEN
 F2x_Frobenius(GEN T)
 {
-  return F2xq_sqr(polx_F2x(T[1]), T);
+  return F2xq_sqr(polx_F2x(get_F2x_var(T)), T);
 }
 
 GEN
 F2x_matFrobenius(GEN T)
 {
-  long n = F2x_degree(T);
+  long n = get_F2x_degree(T);
   return F2xq_matrix_pow(F2x_Frobenius(T), n, n, T);
 }
 
@@ -1098,7 +1098,7 @@ GEN
 F2x_F2xq_eval(GEN Q, GEN x, GEN T)
 {
   long d = F2x_degree(Q);
-  int use_sqr = 2*F2x_degree(x) >= F2x_degree(T);
+  int use_sqr = 2*F2x_degree(x) >= get_F2x_degree(T);
   return gen_bkeval(Q, d, x, use_sqr, (void*)T, &F2xq_algebra, _F2xq_cmul);
 }
 
@@ -1120,8 +1120,8 @@ ulong
 F2xq_trace(GEN x, GEN T)
 {
   pari_sp av = avma;
-  long n = F2x_degree(T)-1;
-  GEN z = F2x_mul(x, F2x_deriv(T));
+  long n = get_F2x_degree(T)-1;
+  GEN z = F2x_mul(x, F2x_deriv(get_F2x_mod(T)));
   z = F2x_rem(z, T);
   return gc_ulong(av, F2x_degree(z) < n ? 0 : 1);
 }
@@ -1129,7 +1129,7 @@ F2xq_trace(GEN x, GEN T)
 GEN
 F2xq_conjvec(GEN x, GEN T)
 {
-  long i, l = F2x_degree(T);
+  long i, l = get_F2x_degree(T);
   GEN z = cgetg(l,t_COL);
   gel(z,1) = F2x_copy(x);
   for (i=2; i<l; i++) gel(z,i) = F2xq_sqr(gel(z,i-1), T);
@@ -1565,7 +1565,7 @@ GEN
 F2xq_Artin_Schreier(GEN a, GEN T)
 {
   pari_sp ltop=avma;
-  long j,N = F2x_degree(T);
+  long j,N = get_F2x_degree(T), vT = get_F2x_var(T);
   GEN Q = F2x_matFrobenius(T);
   for (j=1; j<=N; j++)
     F2m_flip(Q,j,j);
@@ -1573,7 +1573,7 @@ F2xq_Artin_Schreier(GEN a, GEN T)
   Q = F2m_ker_sp(Q,0);
   if (lg(Q)!=2) return NULL;
   Q = gel(Q,1);
-  Q[1] = T[1];
+  Q[1] = vT;
   return gerepileuptoleaf(ltop, F2x_renormalize(Q, lg(Q)));
 }
 
@@ -1592,11 +1592,11 @@ GEN
 F2xq_sqrt(GEN a, GEN T)
 {
   pari_sp av = avma;
-  long n = F2x_degree(T);
+  long n = get_F2x_degree(T), vT = get_F2x_var(T);
   GEN sqx;
   if (n==1) return F2x_copy(a);
   if (n==2) return F2xq_sqr(a,T);
-  sqx = F2xq_autpow(mkF2(4, T[1]), n-1, T);
+  sqx = F2xq_autpow(mkF2(4, vT), n-1, T);
   return gerepileuptoleaf(av, F2x_is_x(a)? sqx: F2xq_sqrt_fast(a,sqx,T));
 }
 
@@ -1617,7 +1617,7 @@ F2xq_sqrtn(GEN a, GEN n, GEN T, GEN *zeta)
 GEN
 gener_F2xq(GEN T, GEN *po)
 {
-  long i, j, vT = T[1], f = F2x_degree(T);
+  long i, j, vT = get_F2x_var(T), f = get_F2x_degree(T);
   pari_sp av0 = avma, av;
   GEN g, L2, o, q;
 
@@ -1878,7 +1878,7 @@ GEN
 F2xY_F2xq_evalx(GEN P, GEN x, GEN T)
 {
   pari_sp av = avma;
-  long n = brent_kung_optpow(F2x_degree(T)-1,lgpol(P),1);
+  long n = brent_kung_optpow(get_F2x_degree(T)-1,lgpol(P),1);
   GEN xp = F2xq_powers(x, n, T);
   return gerepileupto(av, F2xY_F2xqV_evalx(P, xp, T));
 }
@@ -1951,7 +1951,7 @@ GEN
 Kronecker_to_F2xqX(GEN z, GEN T)
 {
   long lz = F2x_degree(z)+1;
-  long i, j, N = F2x_degree(T)*2 + 1;
+  long i, j, N = get_F2x_degree(T)*2 + 1;
   long lx = lz / (N-2);
   GEN x = cgetg(lx+3,t_POL);
   x[1] = z[1];
@@ -1994,7 +1994,7 @@ get_F2xqX_red(GEN T, GEN *B)
 GEN
 random_F2xqX(long d1, long v, GEN T)
 {
-  long dT = F2x_degree(T), vT = T[1];
+  long dT = get_F2x_degree(T), vT = get_F2x_var(T);
   long i, d = d1+2;
   GEN y = cgetg(d,t_POL); y[1] = evalsigne(1) | evalvarn(v);
   for (i=2; i<d; i++) gel(y,i) = random_F2x(dT, vT);
@@ -2222,7 +2222,7 @@ F2xqX_invBarrett_Newton(GEN S, GEN T)
   pari_sp av = avma;
   long nold, lx, lz, lq, l = degpol(S), i, lQ;
   GEN q, y, z, x = cgetg(l+2, t_POL) + 2;
-  long dT = F2x_degree(T);
+  long dT = get_F2x_degree(T);
   ulong mask = quadratic_prec_mask(l-2); /* assume l > 2 */
   for (i=0;i<l;i++) gel(x,i) = pol0_F2x(T[1]);
   q = F2xX_recipspec(S+2,l+1,l+1,dT);
@@ -2847,7 +2847,7 @@ F2xqXQ_autpow_sqr(void * E, GEN x)
   struct _F2xqXQ *D = (struct _F2xqXQ *)E;
   GEN T = D->T;
   GEN phi = gel(x,1), S = gel(x,2);
-  long n = brent_kung_optpow(F2x_degree(T)-1,lgpol(S)+1,1);
+  long n = brent_kung_optpow(get_F2x_degree(T)-1,lgpol(S)+1,1);
   GEN V = F2xq_powers(phi, n, T);
   GEN phi2 = F2x_F2xqV_eval(phi, V, T);
   GEN Sphi = F2xY_F2xqV_evalx(S, V, T);
@@ -2862,7 +2862,7 @@ F2xqXQ_autpow_mul(void * E, GEN x, GEN y)
   GEN T = D->T;
   GEN phi1 = gel(x,1), S1 = gel(x,2);
   GEN phi2 = gel(y,1), S2 = gel(y,2);
-  long n = brent_kung_optpow(F2x_degree(T)-1,lgpol(S1)+1,1);
+  long n = brent_kung_optpow(get_F2x_degree(T)-1,lgpol(S1)+1,1);
   GEN V = F2xq_powers(phi2, n, T);
   GEN phi3 = F2x_F2xqV_eval(phi1,V,T);
   GEN Sphi = F2xY_F2xqV_evalx(S1,V,T);
@@ -2886,7 +2886,7 @@ F2xqXQ_auttrace_mul(void *E, GEN x, GEN y)
   GEN T = D->T;
   GEN phi1 = gel(x,1), S1 = gel(x,2), a1 = gel(x,3);
   GEN phi2 = gel(y,1), S2 = gel(y,2), a2 = gel(y,3);
-  long n2 = brent_kung_optpow(F2x_degree(T)-1, lgpol(S1)+lgpol(a1)+1, 1);
+  long n2 = brent_kung_optpow(get_F2x_degree(T)-1, lgpol(S1)+lgpol(a1)+1, 1);
   GEN V2 = F2xq_powers(phi2, n2, T);
   GEN phi3 = F2x_F2xqV_eval(phi1, V2, T);
   GEN Sphi = F2xY_F2xqV_evalx(S1, V2, T);
