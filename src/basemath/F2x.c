@@ -1250,8 +1250,9 @@ F2xq_log_Coppersmith_d(GEN W, GEN g, long r, long n, GEN T, GEN mo)
   long i, j, l = dg-m, N;
   GEN v = cgetg(k+m+1,t_MAT);
   long h = dT>>n, d = dT-(h<<n);
-  GEN R = F2x_add(F2x_shift(pol1_F2x(vT), dT), T);
-  GEN z = F2x_rem(F2x_shift(pol1_F2x(vT),h), g);
+  GEN p1 = pol1_F2x(vT);
+  GEN R = F2x_add(F2x_shift(p1, dT), T);
+  GEN z = F2x_rem(F2x_shift(p1, h), g);
   for(i=1; i<=k+m; i++)
   {
     gel(v,i) = F2x_to_F2v(F2x_shift(z,-l),m);
