@@ -1800,17 +1800,16 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
     pari_err_OVERFLOW("bnrclassfield [extension of too large degree]");
   bnf = bnr_get_bnf(bnr);
   nf = bnf_get_nf(bnf);
-  res = cgetg(lPN, t_VEC);
 
   /* one prime, exponent > 1 */
   absolute = flag==2 && lPN==2 && !equali1(gel(EN,1));
 
-  P = gel(absZ_factor(nf_get_disc(nf)),1);
   Pmod = shallowcopy(gel(bid_get_fact(bnr_get_bid(bnr)),1));
   for (i=1; i<lg(Pmod); i++) gel(Pmod,i) = pr_get_p(gel(Pmod,i));
-  P = ZV_sort_uniq(shallowconcat(P, Pmod));
+  P = ZV_sort_uniq(shallowconcat(nf_get_ramified_primes(nf), Pmod));
 
-  for (i=1; i<lg(res); i++)
+  res = cgetg(lPN, t_VEC);
+  for (i = 1; i < lPN; i++)
   {
     struct rnfkummer *pkum = NULL;
     GEN p = gel(PN,i), H = hnfmodid(subgroup, powii(p, gel(EN,i)));
