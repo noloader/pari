@@ -2045,7 +2045,7 @@ GEN
 F2xqX_mul(GEN x, GEN y, GEN T)
 {
   pari_sp ltop=avma;
-  GEN z,kx,ky;
+  GEN z, kx, ky;
   long d = get_F2x_degree(T);
   kx= F2xX_to_Kronecker(x, d);
   ky= F2xX_to_Kronecker(y, d);
@@ -2058,9 +2058,10 @@ static GEN
 F2xqX_mulspec(GEN x, GEN y, GEN T, long nx, long ny)
 {
   pari_sp ltop=avma;
-  GEN z,kx,ky;
-  kx= F2xX_to_Kronecker_spec(x, nx, F2x_degree(T));
-  ky= F2xX_to_Kronecker_spec(y, ny, F2x_degree(T));
+  GEN z, kx, ky;
+  long dT = get_F2x_degree(T);
+  kx= F2xX_to_Kronecker_spec(x, nx, dT);
+  ky= F2xX_to_Kronecker_spec(y, ny, dT);
   z = F2x_mul(ky, kx);
   z = Kronecker_to_F2xqX(z,T);
   return gerepileupto(ltop,z);
