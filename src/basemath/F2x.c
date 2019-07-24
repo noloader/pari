@@ -1602,14 +1602,15 @@ F2xq_sqrt(GEN a, GEN T)
 GEN
 F2xq_sqrtn(GEN a, GEN n, GEN T, GEN *zeta)
 {
+  long dT = get_F2x_degree(T), vT = get_F2x_var(T);
   if (!lgpol(a))
   {
     if (signe(n) < 0) pari_err_INV("F2xq_sqrtn",a);
     if (zeta)
-      *zeta=pol1_F2x(T[1]);
-    return pol0_F2x(T[1]);
+      *zeta=pol1_F2x(vT);
+    return pol0_F2x(vT);
   }
-  return gen_Shanks_sqrtn(a,n,subiu(powuu(2,F2x_degree(T)),1),zeta,(void*)T,&F2xq_star);
+  return gen_Shanks_sqrtn(a, n, int2um1(dT), zeta, (void*)T, &F2xq_star);
 }
 
 GEN
