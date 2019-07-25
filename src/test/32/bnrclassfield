@@ -208,6 +208,7 @@ x^8 - 2*x^7 + Mod(-2*y^2 - 4*y - 27, y^3 + 14*y - 1)*x^6 + Mod(2*y^2 + 6*y +
 1
 [24, 12, 12, 2]
 [x^2 + (-21*y - 105), x^2 + (-5*y - 25), x^2 + (-y - 5), x^2 + (-y - 1)]
+[x^3 + (147/2*t + 1323/2)*x + (86302034*t - 842482480)]
 bad inputs
   ***   at top-level: bnrclassfield(y^2+6,Mat(2))
   ***                 ^---------------------------
@@ -233,4 +234,4 @@ bad inputs
   ***   at top-level: bnrclassfield(bnrinit(bnfinit(y,1),[7378697629
   ***                 ^----------------------------------------------
   *** bnrclassfield: overflow in bnrclassfield [extension of too large degree].
-Total time spent: 2248
+Total time spent: 4348

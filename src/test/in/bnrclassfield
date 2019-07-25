@@ -85,6 +85,8 @@ rnfdisc(bnf,pol)[1]
 bnr = bnrinit(bnf,3*5*7); bnr.cyc
 bnrclassfield(bnr,2) \\maximal 2-elementary subextension
 
+R=bnrinit(bnfinit(t^2+115),7); bnrclassfield(R,[1,0;0,3])
+
 print("bad inputs");
 bnrclassfield(y^2+6,Mat(2))
 bnrclassfield(bnfinit(y^2+6),Mat(1/2))

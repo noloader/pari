@@ -1804,8 +1804,9 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
   /* one prime, exponent > 1 */
   absolute = flag==2 && lPN==2 && !equali1(gel(EN,1));
 
-  Pmod = shallowcopy(gel(bid_get_fact(bnr_get_bid(bnr)),1));
+  Pmod = leafcopy(gel(bid_get_fact(bnr_get_bid(bnr)),1));
   for (i=1; i<lg(Pmod); i++) gel(Pmod,i) = pr_get_p(gel(Pmod,i));
+  settyp(Pmod, t_VEC);
   P = ZV_sort_uniq(shallowconcat(nf_get_ramified_primes(nf), Pmod));
 
   res = cgetg(lPN, t_VEC);
