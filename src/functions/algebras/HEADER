@@ -7,7 +7,7 @@ Doc:
  This section collects functions related to associative algebras and central
  simple algebras (CSA) over number fields.
 
- \subsec{Basic definitions} %GPHELPskip
+ \subsec{Algebra definitions} %GPHELPskip
 
  Let $A$ be a finite-dimensional unital associative algebra over a field $K$.
  The algebra $A$ is \emph{central} if its center is $K$ and it is
@@ -47,7 +47,7 @@ Doc:
  $(L/K, \Frob, \pi^h)$ for some integer $h$. The element $h/d\in
  \Q/\Z$ is called the \emph{Hasse invariant} of $A$.
 
- \subsec{Orders} %GPHELPskip
+ \subsec{Orders in algebras} %GPHELPskip
 
  Let~$A$ be an algebra of finite dimension over~$\Q$. An \emph{order}
  in~$A$ is a finitely generated $\Z$-submodule~${\cal O}$ such
@@ -71,7 +71,7 @@ Doc:
  a~$\Z$-basis of~$\Z_K$. The \emph{natural basis} of~${\cal O}$
  is~$b_0,\dots,b_{nd^2-1}$ where~$b_i = \omega_{(i \mod n)}e_{i/n}$.
 
- \subsec{Lattices} %GPHELPskip
+ \subsec{Lattices in algebras} %GPHELPskip
 
  We also provide functions to handle full lattices in algebras over~$\Q$. A
  full lattice~$J\subset A$ is represented by a $2$-component \typ{VEC}~$[I,t]$
@@ -87,7 +87,7 @@ Doc:
  uses this property, but all GP functions return lattices in this form. The
  prefix for lattice functions is \kbd{alglat}.
 
- \subsec{GP conventions} %GPHELPskip
+ \subsec{GP conventions for algebras} %GPHELPskip
 
  As with number fields, we represent elements of central simple algebras
  in two ways, called the \emph{algebraic representation} and the \emph{basis
