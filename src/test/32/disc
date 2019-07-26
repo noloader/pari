@@ -41,7 +41,8 @@ Mod(Mod(0, 1267650600228229401496703205653), Mod(1, 126765060022822940149670
  163561, 2; 647113, 4; 314542445630843, 2]]
 2*a + 1
 0
+-110592/y^4
   ***   at top-level: poldisc(x^2/y^2,y)
   ***                 ^------------------
   *** poldisc: incorrect type in polresultant (t_RFRAC).
-Total time spent: 64
+Total time spent: 92

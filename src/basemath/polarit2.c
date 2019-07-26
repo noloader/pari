@@ -2192,6 +2192,10 @@ Q_divmuli_to_int(GEN x, GEN d, GEN n)
       for (i=2; i<l; i++) gel(y,i) = Q_divmuli_to_int(gel(x,i), d,n);
       return y;
 
+    case t_RFRAC:
+      av = avma;
+      return gerepileupto(av, gmul(x,mkfrac(n,d)));
+
     case t_POLMOD:
       retmkpolmod(Q_divmuli_to_int(gel(x,2), d,n), RgX_copy(gel(x,1)));
   }
@@ -2220,6 +2224,9 @@ Q_divi_to_int(GEN x, GEN d)
       y = cgetg_copy(x, &l); y[1] = x[1];
       for (i=2; i<l; i++) gel(y,i) = Q_divi_to_int(gel(x,i), d);
       return y;
+
+    case t_RFRAC:
+      return gdiv(x,d);
 
     case t_POLMOD:
       retmkpolmod(Q_divi_to_int(gel(x,2), d), RgX_copy(gel(x,1)));
