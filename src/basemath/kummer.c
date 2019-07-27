@@ -42,9 +42,9 @@ typedef struct {
 static long
 prank(GEN cyc, long ell)
 {
-  long i;
-  for (i=1; i<lg(cyc); i++)
-    if (smodis(gel(cyc,i),ell)) break;
+  long i, l = lg(cyc);
+  for (i=1; i < l; i++)
+    if (umodiu(gel(cyc,i),ell)) break;
   return i-1;
 }
 
@@ -184,19 +184,25 @@ tauofalg(GEN x, tau_s *tau) {
   return mkpolmod(x, tau->R);
 }
 
-/* compute Gal(K(\zeta_l)/K) */
-static void
-get_tau(tau_s *tau, GEN nf, compo_s *C, ulong g)
+struct rnfkummer
 {
-  GEN U;
+  GEN bnfz, u, vecC, Q, vecW;
+  ulong g, ell;
+  long rc;
+  compo_s COMPO;
+  tau_s tau;
+  toK_s T;
+};
 
-  /* compute action of tau: q^g + kp */
-  U = RgX_add(RgXQ_powu(C->q, g, C->R), RgX_muls(C->p, C->k));
-  U = RgX_RgXQ_eval(C->rev, U, C->R);
-
-  tau->x  = U;
-  tau->R  = C->R;
-  tau->zk = nfgaloismatrix(nf, U);
+/* set kum->tau; compute Gal(K(\zeta_l)/K) */
+static void
+get_tau(struct rnfkummer *kum)
+{ /* compute action of tau: q^g + kp */
+  compo_s *C = &kum->COMPO;
+  GEN U = RgX_add(RgXQ_powu(C->q, kum->g, C->R), RgX_muls(C->p, C->k));
+  kum->tau.x  = RgX_RgXQ_eval(C->rev, U, C->R);
+  kum->tau.R  = C->R;
+  kum->tau.zk = nfgaloismatrix(bnf_get_nf(kum->bnfz), kum->tau.x);
 }
 
 static GEN tauoffamat(GEN x, tau_s *tau);
@@ -402,7 +408,7 @@ get_u(GEN cyc, long rc, ulong ell)
   long i, l = lg(cyc);
   GEN u = cgetg(l,t_VECSMALL);
   for (i=1; i<=rc; i++) uel(u,i) = 0;
-  for (   ; i<  l; i++) uel(u,i) = Fl_inv(uel(cyc,i), ell);
+  for (   ; i < l; i++) uel(u,i) = Fl_inv(umodiu(gel(cyc,i), ell), ell);
   return u;
 }
 
@@ -748,7 +754,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell, long all)
   cyc = bnf_get_cyc(bnf); rc = prank(cyc, ell);
 
   vecW = get_Selmer(bnf, cycgen, rc);
-  u = get_u(ZV_to_Flv(cyc,ell), rc, ell);
+  u = get_u(cyc, rc, ell);
 
   vecBp = cgetg(lSp, t_VEC);
   matP  = cgetg(lSp, t_MAT);
@@ -1149,7 +1155,6 @@ compositum_red(compo_s *C, GEN P, GEN Q)
   C->p = RgX_RgXQ_eval(p, a, C->R);
   C->q = RgX_RgXQ_eval(q, a, C->R);
   C->rev = QXQ_reverse(a, C->R);
-  if (DEBUGLEVEL>1) err_printf("polred(compositum) = %Ps\n",C->R);
 }
 
 /* replace P->C^(-deg P) P(xC) for the largest integer C such that coefficients
@@ -1179,16 +1184,18 @@ nfX_Z_normalize(GEN nf, GEN P)
   }
 }
 
-static GEN
-_rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, ulong ell, long rc,
-                 long d, long m, long g, tau_s *tau)
+/* set kum->vecC, kum->Q */
+static void
+_rnfkummer_step4(struct rnfkummer *kum, GEN cycgen, long d, long m)
 {
+  long i, j, rc = kum->rc;
   GEN Q, vecC, vecB = cgetg(rc+1,t_VEC), Tc = cgetg(rc+1,t_MAT);
-  long i, j;
+  GEN gen = bnf_get_gen(kum->bnfz), u = kum->u;
+  ulong ell = kum->ell;
   for (j=1; j<=rc; j++)
   {
-    GEN p1 = tauofideal(gel(gen,j), tau);
-    p1 = isprincipalell(bnfz, p1, cycgen,u,ell,rc);
+    GEN p1 = tauofideal(gel(gen,j), &kum->tau);
+    p1 = isprincipalell(kum->bnfz, p1, cycgen,u,ell,rc);
     gel(Tc,j)  = gel(p1,1);
     gel(vecB,j)= gel(p1,2);
   }
@@ -1196,44 +1203,43 @@ _rnfkummer_step4(GEN bnfz, GEN gen, GEN cycgen, GEN u, ulong ell, long rc,
   if (!rc) vecC = cgetg(1,t_VEC);
   else
   {
-    GEN p1, p2;
+    GEN p1 = Flm_powers(Tc, m-2, ell), p2 = vecB;
     vecC = const_vec(rc, trivial_fact());
-    p1 = Flm_powers(Tc, m-2, ell);
-    p2 = vecB;
     for (j=1; j<=m-1; j++)
     {
       GEN z = Flm_Fl_mul(gel(p1,m-j), Fl_mul(j,d,ell), ell);
-      p2 = tauofvec(p2, tau);
+      p2 = tauofvec(p2, &kum->tau);
       for (i=1; i<=rc; i++)
         gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
                                         famat_factorbacks(p2, gel(z,i)));
     }
     for (i=1; i<=rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   }
-  Q = Flm_ker(Flm_Fl_add(Flm_transpose(Tc), Fl_neg(g, ell), ell), ell);
-  return mkvec2(vecC, Q);
+  Q = Flm_ker(Flm_Fl_add(Flm_transpose(Tc), Fl_neg(kum->g, ell), ell), ell);
+  kum->vecC = vecC;
+  kum->Q = Q;
 }
 
-static GEN
-_rnfkummer_step5(GEN bnfz, GEN vselmer, GEN cycgen, GEN gell, long rc,
-                 long rv, long g, tau_s *tau)
+/* set kum->vecW */
+static void
+_rnfkummer_step5(struct rnfkummer *kum, GEN vselmer, GEN cycgen)
 {
-  GEN Tv, P, vecW, cyc = bnf_get_cyc(bnfz);
-  long j, lW;
-  ulong ell = itou(gell);
-  Tv = cgetg(rv+1,t_MAT);
-  for (j=1; j<=rv; j++)
+  GEN bnfz = kum->bnfz, cyc = bnf_get_cyc(bnfz);
+  long ru = (nf_get_degree(bnf_get_nf(bnfz))>>1)-1;
+  long j, lW, rc = kum->rc, rv = rc+ru+1;
+  ulong ell = kum->ell;
+  GEN P, vecW, gell = utoipos(ell), Tv = cgetg(rv+1,t_MAT);
+  for (j = 1; j <= rv; j++)
   {
-    GEN p1 = tauofelt(gel(vselmer,j), tau);
+    GEN p1 = tauofelt(gel(vselmer,j), &kum->tau);
     if (typ(p1) == t_MAT) /* famat */
       p1 = nffactorback(bnfz, gel(p1,1), FpC_red(gel(p1,2),gell));
     gel(Tv,j) = ZV_to_Flv(isvirtualunit(bnfz, p1, cycgen,cyc,gell,rc), ell);
   }
-  P = Flm_ker(Flm_Fl_add(Tv, Fl_neg(g, ell), ell), ell);
+  P = Flm_ker(Flm_Fl_add(Tv, Fl_neg(kum->g, ell), ell), ell);
   lW = lg(P);
-  vecW = cgetg(lW,t_VEC);
+  kum->vecW = vecW = cgetg(lW,t_VEC);
   for (j=1; j<lW; j++) gel(vecW,j) = famat_factorbacks(vselmer, gel(P,j));
-  return vecW;
 }
 
 static GEN
@@ -1299,33 +1305,25 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
   return res;
 }
 
-struct rnfkummer
-{
-  GEN bnfz, u, vecC, Q, vecW;
-  ulong g, ell;
-  long rc;
-  compo_s COMPO;
-  tau_s tau;
-  toK_s T;
-};
-
 static void
 rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
 {
   compo_s *COMPO = &kum->COMPO;
-  tau_s *tau = &kum->tau;
   toK_s *T = &kum->T;
-  GEN nf  = bnf_get_nf(bnf), polnf = nf_get_pol(nf), gell = utoi(ell);
-  GEN vselmer, bnfz, nfz, cyc, gen, cycgen, step4, u, vecC, vecW, Q;
-  long rc, ru, rv, degK, degKz, m, d;
+  GEN nf  = bnf_get_nf(bnf), polnf = nf_get_pol(nf), vselmer, bnfz, cyc, cycgen;
+  long degK, degKz, m, d;
   ulong g;
   pari_timer ti;
   /* step 1 of alg 5.3.5. */
   if (DEBUGLEVEL>2) err_printf("Step 1\n");
   compositum_red(COMPO, polnf, polcyclo(ell, varn(polnf)));
+  if (DEBUGLEVEL)
+  {
+    timer_printf(&ti, "[rnfkummer] compositum");
+    if (DEBUGLEVEL>1) err_printf("polred(compositum) = %Ps\n",COMPO->R);
+  }
   /* step 2 */
   if (DEBUGLEVEL>2) err_printf("Step 2\n");
-  if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] compositum");
   degK  = degpol(polnf);
   degKz = degpol(COMPO->R);
   m = degKz / degK;
@@ -1336,44 +1334,33 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   /* step 3 */
   if (DEBUGLEVEL>2) err_printf("Step 3\n");
   /* could factor disc(R) using th. 2.1.6. */
-  bnfz = Buchall(COMPO->R, nf_FORCE, maxss(prec,BIGDEFAULTPREC));
+  kum->bnfz = bnfz = Buchall(COMPO->R, nf_FORCE, maxss(prec,BIGDEFAULTPREC));
   if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] bnfinit(Kz)");
   cycgen = bnf_build_cycgen(bnfz);
-  nfz = bnf_get_nf(bnfz);
-  cyc = bnf_get_cyc(bnfz); rc = prank(cyc,ell);
-  gen = bnf_get_gen(bnfz);
-  u = get_u(ZV_to_Flv(cyc, ell), rc, ell);
+  cyc = bnf_get_cyc(bnfz);
+  kum->ell = ell;
+  kum->rc = prank(cyc, ell);
+  kum->u = get_u(cyc, kum->rc, ell);
+  kum->g = g;
 
-  vselmer = get_Selmer(bnfz, cycgen, rc);
+  vselmer = get_Selmer(bnfz, cycgen, kum->rc);
   if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] Selmer group");
-  ru = (degKz>>1)-1;
-  rv = rc+ru+1;
-  get_tau(tau, nfz, COMPO, g);
+  get_tau(kum);
 
   /* step 4 */
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
-  step4 = _rnfkummer_step4(bnfz, gen, cycgen, u, ell, rc, d, m, g, tau);
-  vecC = gel(step4,1);
-  Q    = gel(step4,2);
+  _rnfkummer_step4(kum, cycgen, d, m);
   /* step 5 */
   if (DEBUGLEVEL>2) err_printf("Step 5\n");
-  vecW = _rnfkummer_step5(bnfz, vselmer, cycgen, gell, rc, rv, g, tau);
+  _rnfkummer_step5(kum, vselmer, cycgen);
   /* step 8 */
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
   /* left inverse */
   T->invexpoteta1 = RgM_inv(RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R));
   T->polnf = polnf;
-  T->tau = tau;
+  T->tau = &kum->tau;
   T->m = m;
   T->powg = Fl_powers(g, m, ell);
-  kum->bnfz = bnfz;
-  kum->ell = ell;
-  kum->u = u;
-  kum->vecC = vecC;
-  kum->Q = Q;
-  kum->vecW = vecW;
-  kum->g = g;
-  kum->rc = rc;
 }
 
 static GEN
