@@ -7984,11 +7984,13 @@ mfthetaexpansion(GEN M, long n)
       break;
     case 2: al = sstoQ(1,4); w = 1;
       s = gmul2n(mfthetamultiplier(C - 2*D, D), 1);
+      if (C == -2 && D == -1) s = gneg(s);
       lim = (usqrt(n << 2) - 1) >> 1;
       for (f = 0; f <= lim; f++) gel(V, f*(f+1) + 1) = s;
       break;
     default: al = gen_0; w = 4; la = (-D*C) & 3L;
       s = mfthetamultiplier(-(D + la*C), C);
+      if (C == -1 && D == la) s = gneg(s);
       s = gsub(s, mulcxI(s));
       sla = gmul(s, powIs(-la));
       lim = usqrt(n); gel(V, 1) = gmul2n(s, -1);
