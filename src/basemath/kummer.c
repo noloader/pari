@@ -1317,12 +1317,12 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   toK_s *T = &kum->T;
   GEN nf  = bnf_get_nf(bnf), polnf = nf_get_pol(nf), gell = utoi(ell);
   GEN vselmer, bnfz, nfz, cyc, gen, cycgen, step4, u, vecC, vecW, Q;
-  long vnf = varn(polnf), rc, ru, rv, degK, degKz, m, d;
+  long rc, ru, rv, degK, degKz, m, d;
   ulong g;
   pari_timer ti;
   /* step 1 of alg 5.3.5. */
   if (DEBUGLEVEL>2) err_printf("Step 1\n");
-  compositum_red(COMPO, polnf, polcyclo(ell,vnf));
+  compositum_red(COMPO, polnf, polcyclo(ell, varn(polnf)));
   /* step 2 */
   if (DEBUGLEVEL>2) err_printf("Step 2\n");
   if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] compositum");
@@ -1466,7 +1466,6 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
 static GEN
 _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 {
-  long vnf;
   ulong ell;
   GEN polnf, bnf, nf, gell, p1;
   struct rnfkummer kum;
@@ -1476,8 +1475,8 @@ _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
   checkbnr(bnr);
   bnf = bnr_get_bnf(bnr);
   nf  = bnf_get_nf(bnf);
-  polnf = nf_get_pol(nf); vnf = varn(polnf);
-  if (!vnf) pari_err_PRIORITY("rnfkummer", polnf, "=", 0);
+  polnf = nf_get_pol(nf);
+  if (!varn(polnf)) pari_err_PRIORITY("rnfkummer", polnf, "=", 0);
   /* step 7 */
   p1 = bnrconductor_i(bnr, subgroup, 2);
   if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] conductor");
