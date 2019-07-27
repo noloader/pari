@@ -213,20 +213,20 @@ bad inputs
   ***   at top-level: bnrclassfield(y^2+6,Mat(2))
   ***                 ^---------------------------
   *** bnrclassfield: incorrect type in checkbnr [please apply bnrinit()] (t_POL).
-  ***   at top-level: bnrclassfield(bnfinit(y^2+6),Mat(1/2))
-  ***                 ^--------------------------------------
+  ***   at top-level: bnrclassfield(K,Mat(1/2))
+  ***                 ^-------------------------
   *** bnrclassfield: incorrect type in allhnfmod [integer matrix] (t_MAT).
-  ***   at top-level: bnrclassfield(bnfinit(y^2+6),1/2)
-  ***                 ^---------------------------------
+  ***   at top-level: bnrclassfield(K,1/2)
+  ***                 ^--------------------
   *** bnrclassfield: incorrect type in bnrclassfield [subgroup] (t_FRAC).
-  ***   at top-level: bnrclassfield(bnfinit(y^2+6),matid(2))
-  ***                 ^--------------------------------------
+  ***   at top-level: bnrclassfield(K,matid(2))
+  ***                 ^-------------------------
   *** bnrclassfield: inconsistent dimensions in ZM_hnfmod.
-  ***   at top-level: bnrclassfield(bnfinit(y^2+6),Mat(2),3)
-  ***                 ^--------------------------------------
+  ***   at top-level: bnrclassfield(K,Mat(2),3)
+  ***                 ^-------------------------
   *** bnrclassfield: invalid flag in bnrclassfield [must be 0,1 or 2].
-  ***   at top-level: bnrclassfield(bnfinit(y^2+6),Mat(2),-1)
-  ***                 ^---------------------------------------
+  ***   at top-level: bnrclassfield(K,Mat(2),-1)
+  ***                 ^--------------------------
   *** bnrclassfield: invalid flag in bnrclassfield [must be 0,1 or 2].
   ***   at top-level: bnrclassfield(vector(6),Mat(2))
   ***                 ^-------------------------------
@@ -234,4 +234,7 @@ bad inputs
   ***   at top-level: bnrclassfield(bnrinit(bnfinit(y,1),[7378697629
   ***                 ^----------------------------------------------
   *** bnrclassfield: overflow in bnrclassfield [extension of too large degree].
-Total time spent: 4348
+  ***   at top-level: bnrclassfield(bnfinit(x))
+  ***                 ^-------------------------
+  *** bnrclassfield: incorrect priority in bnrclassfield: variable x = x
+Total time spent: 3765

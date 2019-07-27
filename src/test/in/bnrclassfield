@@ -89,10 +89,12 @@ R=bnrinit(bnfinit(t^2+115),7); bnrclassfield(R,[1,0;0,3])
 
 print("bad inputs");
 bnrclassfield(y^2+6,Mat(2))
-bnrclassfield(bnfinit(y^2+6),Mat(1/2))
-bnrclassfield(bnfinit(y^2+6),1/2)
-bnrclassfield(bnfinit(y^2+6),matid(2))
-bnrclassfield(bnfinit(y^2+6),Mat(2),3)
-bnrclassfield(bnfinit(y^2+6),Mat(2),-1)
+K = bnfinit(y^2+6);
+bnrclassfield(K,Mat(1/2))
+bnrclassfield(K,1/2)
+bnrclassfield(K,matid(2))
+bnrclassfield(K,Mat(2),3)
+bnrclassfield(K,Mat(2),-1)
 bnrclassfield(vector(6),Mat(2))
 bnrclassfield(bnrinit(bnfinit(y,1),[73786976294838212093,[1]]))
+bnrclassfield(bnfinit(x));

@@ -318,12 +318,9 @@ no_sol(long all, long i)
 static GEN
 get_gell(GEN bnr, GEN subgp, long all)
 {
-  GEN gell;
   if (all && all != -1) return utoipos(labs(all));
   if (!subgp) return ZV_prod(bnr_get_cyc(bnr));
-  gell = det(subgp);
-  if (typ(gell) != t_INT) pari_err_TYPE("rnfkummer",gell);
-  return gell;
+  return det(subgp);
 }
 
 typedef struct {
@@ -1438,37 +1435,46 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   return _rnfkummer_step18(kum,bnr,subgroup, M, vecWB, vecMsup, all);
 }
 
+static void
+bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
+{
+  GEN cyc, cnd, bnr = *pbnr, H = *pH, T;
+
+  if (nftyp(bnr)==typ_BNF) bnr = bnrinit0(bnr, gen_1, 0); else checkbnr(bnr);
+  T = nf_get_pol(bnr_get_nf(bnr));
+  if (!varn(T)) pari_err_PRIORITY("bnrclassfield", T, "=", 0);
+  cyc = bnr_get_cyc(bnr);
+  if (!H) H = gen_0;
+  switch(typ(H))
+  {
+    case t_INT: H = scalarmat_shallow(H, lg(cyc)-1);
+    case t_MAT: H = hnfmodid(H, cyc); break;
+    default: pari_err_TYPE("bnrclassfield [subgroup]", H);
+  }
+  cnd = bnrconductor_i(bnr, H, 2);
+  *pbnr = gel(cnd,2);
+  *pH = gel(cnd,3);
+}
+
 static GEN
 _rnfkummer(GEN bnr, GEN subgroup, long all, long prec)
 {
   ulong ell;
-  GEN polnf, bnf, nf, gell, p1;
+  GEN gell;
   struct rnfkummer kum;
-  pari_timer t;
 
-  if (DEBUGLEVEL) timer_start(&t);
-  checkbnr(bnr);
-  bnf = bnr_get_bnf(bnr);
-  nf  = bnf_get_nf(bnf);
-  polnf = nf_get_pol(nf);
-  if (!varn(polnf)) pari_err_PRIORITY("rnfkummer", polnf, "=", 0);
-  /* step 7 */
-  p1 = bnrconductor_i(bnr, subgroup, 2);
-  if (DEBUGLEVEL) timer_printf(&t, "[rnfkummer] conductor");
-  bnr      = gel(p1,2);
-  subgroup = gel(p1,3);
+  bnrclassfield_sanitize(&bnr, &subgroup);
   gell = get_gell(bnr,subgroup,all);
+  if (typ(gell) != t_INT) pari_err_TYPE("rnfkummer",gell);
   ell = itou(gell);
   if (ell == 1) return pol_x(0);
-  if (!uisprime(ell)) pari_err_IMPL("kummer for composite relative degree");
+  if (!uisprime(ell)) pari_err_IMPL("rnfkummer for composite relative degree");
   if (all && all != -1 && umodiu(bnr_get_no(bnr), ell))
     return cgetg(1, t_VEC);
-  if (bnf_get_tuN(bnf) % ell == 0)
+  if (bnf_get_tuN(bnr_get_bnf(bnr)) % ell == 0)
     return rnfkummersimple(bnr, subgroup, ell, all);
-
-  if (all == -1) all = 0;
   rnfkummer_init(&kum, bnr_get_bnf(bnr), ell, prec);
-  return rnfkummer_ell(&kum, bnr, subgroup, all);
+  return rnfkummer_ell(&kum, bnr, subgroup, all == -1? 0: all);
 }
 
 GEN
@@ -1652,24 +1658,6 @@ bnrclassfield_primepower(struct rnfkummer *ptkum, GEN bnr, GEN subgroup, GEN p,
     gel(res,i) = pol;
   }
   return res;
-}
-
-static void
-bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
-{
-  GEN cyc, cnd, bnr = *pbnr, H = *pH;
-  if (nftyp(bnr)==typ_BNF) bnr = bnrinit0(bnr, gen_1, 0); else checkbnr(bnr);
-  cyc = bnr_get_cyc(bnr);
-  if (!H) H = gen_0;
-  switch(typ(H))
-  {
-    case t_INT: H = scalarmat_shallow(H, lg(cyc)-1);
-    case t_MAT: H = hnfmodid(H, cyc); break;
-    default: pari_err_TYPE("bnrclassfield [subgroup]", H);
-  }
-  cnd = bnrconductor_i(bnr, H, 2);
-  *pbnr = gel(cnd,2);
-  *pH = gel(cnd,3);
 }
 
 /* partition of v into two subsets whose products are as balanced as possible */

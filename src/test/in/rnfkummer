@@ -88,3 +88,5 @@ setrand(1); bnr=bnrinit(bnfinit(y^4 - 561*y^2 - 1334*y + 104607,1),matdiagonal([
 rnfkummer(bnr,subgrouplist(bnr,[3],0)[1])
 */
 
+\\ ERRORS, keep at end of file
+rnfkummer(bnfinit(x^2+23))
