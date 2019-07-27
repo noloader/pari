@@ -1305,6 +1305,7 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
   return res;
 }
 
+/* alg 5.3.5 */
 static void
 rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
 {
@@ -1314,7 +1315,6 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   long degK, degKz, m, d;
   ulong g;
   pari_timer ti;
-  /* step 1 of alg 5.3.5. */
   if (DEBUGLEVEL>2) err_printf("Step 1\n");
   compositum_red(COMPO, polnf, polcyclo(ell, varn(polnf)));
   if (DEBUGLEVEL)
@@ -1322,7 +1322,6 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
     timer_printf(&ti, "[rnfkummer] compositum");
     if (DEBUGLEVEL>1) err_printf("polred(compositum) = %Ps\n",COMPO->R);
   }
-  /* step 2 */
   if (DEBUGLEVEL>2) err_printf("Step 2\n");
   degK  = degpol(polnf);
   degKz = degpol(COMPO->R);
@@ -1331,7 +1330,6 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   g = Fl_powu(pgener_Fl(ell), d, ell);
   if (Fl_powu(g, m, ell*ell) == 1) g += ell;
   /* ord(g) = m in all (Z/ell^k)^* */
-  /* step 3 */
   if (DEBUGLEVEL>2) err_printf("Step 3\n");
   /* could factor disc(R) using th. 2.1.6. */
   kum->bnfz = bnfz = Buchall(COMPO->R, nf_FORCE, maxss(prec,BIGDEFAULTPREC));
@@ -1346,14 +1344,10 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   vselmer = get_Selmer(bnfz, cycgen, kum->rc);
   if (DEBUGLEVEL) timer_printf(&ti, "[rnfkummer] Selmer group");
   get_tau(kum);
-
-  /* step 4 */
   if (DEBUGLEVEL>2) err_printf("Step 4\n");
   _rnfkummer_step4(kum, cycgen, d, m);
-  /* step 5 */
   if (DEBUGLEVEL>2) err_printf("Step 5\n");
   _rnfkummer_step5(kum, vselmer, cycgen);
-  /* step 8 */
   if (DEBUGLEVEL>2) err_printf("Step 8\n");
   /* left inverse */
   T->invexpoteta1 = RgM_inv(RgXQ_matrix_pow(COMPO->p, degKz, degK, COMPO->R));
@@ -1374,8 +1368,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   toK_s *T = &kum->T;
   ulong g = kum->g;
   primlist L;
-  GEN gothf, idealz, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup;
-  GEN M;
+  GEN gothf, idealz, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup, M;
   idealz = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
   if (umodiu(gcoeff(ideal,1,1), ell)) gothf = idealz;
   else
@@ -1384,7 +1377,6 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
     GEN subgroupz = invimsubgroup(bnrz, bnr, subgroup, T);
     gothf = bnrconductor_i(bnrz,subgroupz,0);
   }
-  /* step 9, 10, 11 */
   if (DEBUGLEVEL>2) err_printf("Step 9, 10 and 11\n");
   i = build_list_Hecke(&L, nfz, NULL, gothf, ell, T->tau);
   if (i) return no_sol(all,i);
@@ -1393,7 +1385,6 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   Sp = shallowconcat(L.Sm, L.Sml1); lSp = lg(Sp);
   prSp = shallowconcat(L.Sml2, L.Sl); lSl2 = lg(prSp);
 
-  /* step 12 */
   if (DEBUGLEVEL>2) err_printf("Step 12\n");
   vecAp = cgetg(lSp, t_VEC);
   vecBp = cgetg(lSp, t_VEC);
@@ -1407,12 +1398,10 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
     gel(vecBp,j) = famat_mul_shallow(famat_factorbacks(vecC, zv_neg(e)), a);
     gel(vecAp,j) = lambdaofelt(gel(vecBp,j), T);
   }
-  /* step 13 */
   if (DEBUGLEVEL>2) err_printf("Step 13\n");
   vecWA = shallowconcat(vecW, vecAp);
   vecWB = shallowconcat(vecW, vecBp);
 
-  /* step 14, 15, and 17 */
   if (DEBUGLEVEL>2) err_printf("Step 14, 15 and 17\n");
   mginv = Fl_div(T->m, g, ell);
   vecMsup = cgetg(lSml2,t_VEC);
@@ -1446,7 +1435,6 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
     M = vconcat(M, M2);
   }
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
-  /* step 16 && 18 & ff */
   return _rnfkummer_step18(T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, ell, lW, all);
 }
 
