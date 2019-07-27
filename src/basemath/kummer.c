@@ -1025,16 +1025,18 @@ to_alg(GEN nfz, GEN c, long v)
 
 /* th. 5.3.5. and prop. 5.3.9. */
 static GEN
-compute_polrel(GEN nfz, toK_s *T, GEN be, long g, long ell)
+compute_polrel(struct rnfkummer *kum, GEN be)
 {
-  long i, k, m = T->m, vT = fetch_var(), vz = fetch_var();
+  toK_s *T = &kum->T;
+  long i, k, ell = kum->ell, m = T->m, vT = fetch_var(), vz = fetch_var();
   GEN r, powtaubet, S, p1, root, num_t, den_t, nfzpol, powtau_prim_invbe;
   GEN prim_Rk, C_Rk, prim_root, C_root, prim_invbe, C_invbe;
+  GEN nfz = bnf_get_nf(kum->bnfz);
   pari_timer ti;
 
   r = cgetg(m+1,t_VECSMALL); /* r[i+1] = g^i mod ell */
   r[1] = 1;
-  for (i=2; i<=m; i++) r[i] = (r[i-1] * g) % ell;
+  for (i=2; i<=m; i++) r[i] = (r[i-1] * kum->g) % ell;
   powtaubet = powtau(be, m, T->tau);
   if (DEBUGLEVEL>1) { err_printf("Computing Newton sums: "); timer_start(&ti); }
   prim_invbe = Q_primitive_part(nfinv(nfz, be), &C_invbe);
@@ -1243,14 +1245,13 @@ _rnfkummer_step5(struct rnfkummer *kum, GEN vselmer, GEN cycgen)
 }
 
 static GEN
-_rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
-     GEN vecWB, GEN vecMsup, ulong g, ulong ell, long lW, long all)
+_rnfkummer_step18(struct rnfkummer *kum, GEN bnr, GEN subgroup, GEN M,
+     GEN vecWB, GEN vecMsup, long all)
 {
-  long i, dK, ncyc = 0;
-  GEN bnf = bnr_get_bnf(bnr), nf  = bnf_get_nf(bnf), polnf = nf_get_pol(nf);
-  GEN nfz = bnf_get_nf(bnfz), gell = utoipos(ell);
-  GEN K, y, res = NULL, mat = NULL;
-  long firstpass = all < 0, rk = 0;
+  ulong ell = kum->ell;
+  long i, dK, ncyc = 0, firstpass = all < 0, rk = 0, lW = lg(kum->vecW);
+  GEN K, y, nf = bnr_get_nf(bnr), gell = utoipos(ell), res = NULL, mat = NULL;
+
   K = Flm_ker(M, ell);
   if (all < 0) K = fix_kernel(K, M, vecMsup, lW, ell);
   if (DEBUGLEVEL>2) err_printf("Step 18\n");
@@ -1277,8 +1278,8 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
             if (Flm_rank(mat,ell) <= rk) continue;
             rk++;
           }
-          be = compute_beta(X, vecWB, gell, bnfz);
-          P = compute_polrel(nfz, T, be, g, ell);
+          be = compute_beta(X, vecWB, gell, kum->bnfz);
+          P = compute_polrel(kum, be);
           nfX_Z_normalize(nf, P);
           if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
           if (!all) {
@@ -1287,7 +1288,7 @@ _rnfkummer_step18(toK_s *T, GEN bnr, GEN subgroup, GEN bnfz, GEN M,
             set_avma(av); continue;
           } else {
             GEN P0 = Q_primpart(lift_shallow(P));
-            GEN g = nfgcd(P0, RgX_deriv(P0), polnf, nf_get_index(nf));
+            GEN g = nfgcd(P0, RgX_deriv(P0), nf_get_pol(nf), nf_get_index(nf));
             if (degpol(g)) continue;
             H = rnfnormgroup(bnr, P);
             if (!ZM_equal(subgroup,H) && !bnrisconductor(bnr,H)) continue;
@@ -1366,9 +1367,9 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   GEN vecC = kum->vecC, vecW = kum->vecW, u = kum->u, Q = kum->Q;
   long lW = lg(vecW), rc = kum->rc, i, j, lSml2, lSp, lSl2, dc;
   toK_s *T = &kum->T;
-  ulong g = kum->g;
   primlist L;
   GEN gothf, idealz, Sp, prSp, vecAp, vecBp, matP, vecWA, vecWB, vecMsup, M;
+
   idealz = ideallifttoKz(nfz, nf, ideal, &kum->COMPO);
   if (umodiu(gcoeff(ideal,1,1), ell)) gothf = idealz;
   else
@@ -1403,7 +1404,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   vecWB = shallowconcat(vecW, vecBp);
 
   if (DEBUGLEVEL>2) err_printf("Step 14, 15 and 17\n");
-  mginv = Fl_div(T->m, g, ell);
+  mginv = Fl_div(T->m, kum->g, ell);
   vecMsup = cgetg(lSml2,t_VEC);
   M = NULL;
   for (i = 1; i < lSl2; i++)
@@ -1431,11 +1432,10 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
     GEN lambdaWB = shallowconcat(lambdaofvec(vecW, T), vecAp);/*vecWB^lambda*/
     GEN Lpr = get_prlist(bnr, subgroup, ell, bnfz);
     GEN Lprz= get_przlist(Lpr, nfz, nf, &kum->COMPO);
-    GEN M2 = subgroup_info(bnfz, Lprz, ell, lambdaWB);
-    M = vconcat(M, M2);
+    M = vconcat(M, subgroup_info(bnfz, Lprz, ell, lambdaWB));
   }
   if (DEBUGLEVEL>2) err_printf("Step 16\n");
-  return _rnfkummer_step18(T,bnr,subgroup,bnfz, M, vecWB, vecMsup, g, ell, lW, all);
+  return _rnfkummer_step18(kum,bnr,subgroup, M, vecWB, vecMsup, all);
 }
 
 static GEN
