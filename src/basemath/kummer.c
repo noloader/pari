@@ -1440,7 +1440,8 @@ bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
 {
   GEN cyc, cnd, bnr = *pbnr, H = *pH, T;
 
-  if (nftyp(bnr)==typ_BNF) bnr = bnrinit0(bnr, gen_1, 0); else checkbnr(bnr);
+  if (nftyp(bnr)==typ_BNF) bnr = Buchray(bnr, gen_1, nf_INIT);
+  else checkbnr(bnr);
   T = nf_get_pol(bnr_get_nf(bnr));
   if (!varn(T)) pari_err_PRIORITY("bnrclassfield", T, "=", 0);
   cyc = bnr_get_cyc(bnr);
@@ -1573,7 +1574,7 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN TB, GEN p, long finaldeg, long ab
       gcoeff(fa,i,2) = utoipos(e);
     }
   }
-  bnr2 = bnrinit0(bnf2, mkvec2(fa, const_vec(r1,gen_1)), 0);
+  bnr2 = Buchray(bnf2, mkvec2(fa, const_vec(r1,gen_1)), nf_INIT);
 
   /* compute subgroup */
   cyc = bnr_get_cyc(bnr2);

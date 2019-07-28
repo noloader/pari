@@ -5867,7 +5867,7 @@ mfisdihedral(GEN vF, GEN DIH)
   { /* finite part of conductor not ambiguous */
     GEN a = idealmul(nf, f0, idealdivexact(nf, f0b, idealadd(nf, f0, f0b)));
     GEN bnr0 = bnr;
-    bnr = bnrinit0(bnr_get_bnf(bnr), mkvec2(a, gel(f,2)), 1);
+    bnr = Buchray(bnr_get_bnf(bnr), mkvec2(a, gel(f,2)), nf_INIT | nf_GEN);
     xin = RgV_RgM_mul(xin, bnrsurjection(bnr, bnr0));
     /* still xi(gen[i]) = e(xin[i] / D), for the new generators */
   }
@@ -6196,7 +6196,7 @@ dihan_bnf(long D)
 { setrand(gen_1); return Buchall(quadpoly(stoi(D)), 0, LOWDEFAULTPREC); }
 static GEN
 dihan_bnr(GEN bnf, GEN A)
-{ setrand(gen_1); return bnrinit0(bnf, A, 1); }
+{ setrand(gen_1); return Buchray(bnf, A, nf_INIT|nf_GEN); }
 
 /* Hecke xi * (D/.) = Dirichlet chi, return v in Q^r st chi(g_i) = e(v[i]).
  * cycn = cyc_normalize_zv(bnr.cyc), chin = char_normalize_zv(chi,cyc) */
@@ -12737,7 +12737,7 @@ search_abelian(GEN nf, long n, long k, GEN N, GEN CHI, GEN F,
   setlg(P,j);
   setlg(E,j);
   cond = mkvec2(cond, const_vec(r1, gen_1));
-  bnr = bnrinit0(Buchall(nf, 0, prec), cond, 0);
+  bnr = Buchray(Buchall(nf, 0, prec), cond, nf_INIT);
   cyc = bnr_get_cyc(bnr);
   d = lg(cyc)-1;
   H = zv_diagonal(ZV_to_Flv(cyc, n));
