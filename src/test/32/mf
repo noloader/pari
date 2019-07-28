@@ -1390,6 +1390,12 @@ d(0, t^2 + 1), Mod(3/32*t + 3/32, t^2 + 1), Mod(0, t^2 + 1)]
 ), Mod(0, t^16 + 1), Mod(0, t^16 + 1), Mod(0, t^16 + 1), Mod(0, t^16 + 1), M
 od(0, t^16 + 1), Mod(3/8*t^11, t^16 + 1), Mod(0, t^16 + 1)]
 0.0018674427317079888144293843310939736875
+[Mod(-t, t^2 + 1), Mod(-2*t, t^2 + 1), Mod(0, t^2 + 1)]
+[Mod(2*t, t^2 + 1), Mod(0, t^2 + 1), Mod(2*t, t^2 + 1), Mod(0, t^2 + 1)]
+[2, 0, 2, 0]
+[Mod(1/2*t + 1/2, t^2 + 1), Mod(t + 1, t^2 + 1), Mod(0, t^2 + 1)]
+[Mod(-1/2*t + 1/2, t^2 + 1), Mod(-t + 1, t^2 + 1), Mod(0, t^2 + 1)]
+[1, 2, 0]
 [36, 5/2, 1, y, t - 1]
 2
 
@@ -1547,6 +1553,9 @@ od(0, t^16 + 1), Mod(3/8*t^11, t^16 + 1), Mod(0, t^16 + 1)]
   ***   at top-level: mfeval(mfD,D,-I)
   ***                 ^----------------
   *** mfeval: domain error in mfeval: imag(tau) <= 0
+  ***   at top-level: mfslashexpansion(mfD,D,[1,2;3,4],1,1)
+  ***                 ^-------------------------------------
+  *** mfslashexpansion: incorrect type in GL2toSL2 (t_MAT).
   ***   at top-level: mftonew(mfD,1)
   ***                 ^--------------
   *** mftonew: incorrect type in mftobasis (t_INT).
@@ -1589,4 +1598,4 @@ od(0, t^16 + 1), Mod(3/8*t^11, t^16 + 1), Mod(0, t^16 + 1)]
   ***   at top-level: ...,0);[F]=mfeigenbasis(mf);mfpow(F,3)
   ***                                             ^----------
   *** mfpow: sorry, changing cyclotomic fields in mf is not yet implemented.
-Total time spent: 18190
+Total time spent: 19411

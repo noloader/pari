@@ -635,13 +635,18 @@ mfparams(mffrometaquo([12,2]))
 mfparams(mffrometaquo([24,1]))
 F=mffrometaquo([8,3]);mfparams(F)
 mf=mfinit([64,3/2]); mftobasis(mf,F)
-V=mfslashexpansion(mf,F,[0,-1;1,0],10,0,&A);
-[A,V]
+V=mfslashexpansion(mf,F,[0,-1;1,0],10,0,&A); [A,V]
 mfslashexpansion(mf,F,[0,-1;1,0],10,1)
-V=mfslashexpansion(mf,F,[-1,0;2,-1],10,0,&A);
-[A,V]
+V=mfslashexpansion(mf,F,[-1,0;2,-1],10,0,&A); [A,V]
 mfslashexpansion(mf,F,[-1,0;2,-1],10,1)
 mfeval(mf,F,I)
+T=mfTheta(); mf=mfinit(T);
+mfslashexpansion(mf,T,[-1,0;0,-1],2,1)
+mfslashexpansion(mf,T,[-1,0;-2,-1],2,1)
+mfslashexpansion(mf,T,[1,0;2,1],2,1)
+mfslashexpansion(mf,T,[0,1;-1,0],2,1)
+mfslashexpansion(mf,T,[0,-1;1,0],2,1)
+mfslashexpansion(mf,T,[2^64+1,2^64+3;9223372036854775808,9223372036854775809],2,1)
 mf=mfinit([36,5/2],1);mfparams(mfbasis(mf)[3])
 K=mfkohnenbasis(mf); nbcol=matsize(K)[2]
 K~
@@ -756,6 +761,7 @@ mfgaloistype([11,1,Mod(2,11)], mfeisenstein(1,1,Mod(2,11)))
 D=mfDelta();
 mfdiv(D,mfpow(D,2))
 mfeval(mfD,D,-I)
+mfslashexpansion(mfD,D,[1,2;3,4],1,1)
 mftonew(mfD,1)
 T=mftraceform([96,6],4);
 mfshimura(mfinit(T5),T5,-3)

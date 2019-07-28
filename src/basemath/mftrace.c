@@ -7963,41 +7963,48 @@ mfgaexpansion_i(GEN mf, GEN B0, GEN ga, long n, long prec)
 
 /* Theta multiplier: assume 4 | C, (C,D)=1 */
 static GEN
-mfthetamultiplier(long C, long D)
+mfthetamultiplier(GEN C, GEN D)
 {
-  long s = kross(C, D);
-  if ((D&3L) == 1) return stoi(s);
-  return s > 0 ? powIs(3) : gen_I();
+  long s = kronecker(C, D);
+  if (Mod4(D) == 1) return s > 0 ? gen_1: gen_m1;
+  return s > 0? powIs(3): gen_I();
 }
+/* theta | [*,*;C,D] defined over Q(i) [else over Q] */
+static int
+mfthetaI(long C, long D) { return odd(C) || (D & 3) == 3; }
+/* (theta | M) [0..n] */
 static GEN
 mfthetaexpansion(GEN M, long n)
 {
-  GEN s, al, sla, V = zerovec(n + 1);
-  long w, lim, la, f, C = itos(gcoeff(M, 2, 1)), D = itos(gcoeff(M, 2, 2));
-  switch (C & 3L)
+  GEN w, s, al, sla, E, V = zerovec(n+1), C = gcoeff(M,2,1), D = gcoeff(M,2,2);
+  long lim, la, f, C4 = Mod4(C);
+  switch (C4)
   {
-    case 0: al = gen_0; w = 1;
+    case 0: al = gen_0; w = gen_1;
       s = mfthetamultiplier(C,D);
       lim = usqrt(n); gel(V, 1) = s;
       s = gmul2n(s, 1);
       for (f = 1; f <= lim; f++) gel(V, f*f + 1) = s;
       break;
-    case 2: al = sstoQ(1,4); w = 1;
-      s = gmul2n(mfthetamultiplier(C - 2*D, D), 1);
-      if (C == -2 && D == -1) s = gneg(s);
+    case 2: al = sstoQ(1,4); w = gen_1;
+      E = subii(C, shifti(D,1));
+      s = gmul2n(mfthetamultiplier(E, D), 1);
+      if (!signe(E) && equalim1(D)) s = gneg(s);
       lim = (usqrt(n << 2) - 1) >> 1;
       for (f = 0; f <= lim; f++) gel(V, f*(f+1) + 1) = s;
       break;
-    default: al = gen_0; w = 4; la = (-D*C) & 3L;
-      s = mfthetamultiplier(-(D + la*C), C);
-      if (C == -1 && D == la) s = gneg(s);
+    default: al = gen_0; w = utoipos(4);
+      la = (-Mod4(D)*C4) & 3L;
+      E = negi(addii(D, mului(la, C)));
+      s = mfthetamultiplier(E, C);
+      if (!signe(E) && equalim1(C)) s = gneg(s);
       s = gsub(s, mulcxI(s));
       sla = gmul(s, powIs(-la));
       lim = usqrt(n); gel(V, 1) = gmul2n(s, -1);
       for (f = 1; f <= lim; f++) gel(V, f*f + 1) = odd(f) ? sla : s;
       break;
   }
-  return mkvec3(al, stoi(w), V);
+  return mkvec3(al, w, V);
 }
 
 /* F 1/2 integral weight */
@@ -8005,9 +8012,9 @@ static GEN
 mf2gaexpansion(GEN mf2, GEN F, GEN ga, long n, long prec)
 {
   GEN FT = mfmultheta(F), mf = obj_checkbuild(mf2, MF_MF2INIT, &mf2init);
-  GEN res, V1, Tres, V2, al, V, gsh;
-  long w2, C = itos(gcoeff(ga,2,1)), w = mfcuspcanon_width(MF_get_N(mf), C);
-  long ext = ((C & 3L) != 2)? 0: (w+3) >> 2;
+  GEN res, V1, Tres, V2, al, V, gsh, C = gcoeff(ga,2,1);
+  long w2, N = MF_get_N(mf), w = mfcuspcanon_width(N, umodiu(C,N));
+  long ext = (Mod4(C) != 2)? 0: (w+3) >> 2;
   long prec2 = prec + nbits2extraprec((long)M_PI/(2*M_LN2)*sqrt(n + ext));
   res = mfgaexpansion(mf, FT, ga, n + ext, prec2);
   Tres = mfthetaexpansion(ga, n + ext);
@@ -11102,7 +11109,8 @@ mfslashexpansion(GEN mf, GEN f, GEN ga, long n, long flrat, GEN *params, long pr
     k = typ(gk) == t_INT? (long) itou(gk): MF_get_r(mf)+1;
     CV = odd(k) ? powuu(N, k - 1) : powuu(N, k >> 1);
     deg = ulcm(ulcm(ord, N/ugcd(N,CD)), F/ugcd(F,BC));
-    if (typ(gk) != t_INT && (C & 3) && odd(deg)) deg <<= 2;/* must adjoin I */
+    if ((deg & 3) == 2) deg >>= 1;
+    if (typ(gk) != t_INT && odd(deg) && mfthetaI(C,D)) deg <<= 2;
     V = bestapprnf2(V, deg, CV, prec);
     if (abd && !signe(b))
     { /* can [a,0; 0,d] be simplified to id ? */
