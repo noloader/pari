@@ -4211,6 +4211,7 @@ GEN   mfinit(GEN NK, long space);
 GEN   mfisCM(GEN F);
 long  mfiscuspidal(GEN mf, GEN F);
 long  mfisequal(GEN F, GEN G, long lim);
+GEN   mfisetaquo(GEN F, long flag);
 GEN   mfkohnenbasis(GEN mf);
 GEN   mfkohnenbijection(GEN mf);
 GEN   mfkohneneigenbasis(GEN mf, GEN bij);

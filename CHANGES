@@ -47,6 +47,7 @@ BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
     10- add flag bit to ZM_snfall_i
     11- allow real t_QUAD in floor, ceil, divrem, %, \, \/
     12- [libpari] ff_parse_Tp
+    13- new GP function mfisetaquo
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

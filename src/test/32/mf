@@ -1274,6 +1274,18 @@ DIH(-23, [1, 0; 0, 1], [3], [1])"]
 [[4, 3/2, 1], 4, [1, 6, 12, 8]]
 -3
 [-3, -39]
+
+[1 24]
+
+
+[ 1 1]
+
+[23 1]
+
+0
+
+[1 -24]
+
 [Mod(575, 576), 1] [Mod(593, 900), 1] [Mod(575, 1152), 1] [Mod(1151, 1152), 
 1] 
 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 2 2 2 1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 
@@ -1599,4 +1611,4 @@ od(0, t^16 + 1), Mod(3/8*t^11, t^16 + 1), Mod(0, t^16 + 1)]
   ***   at top-level: ...,0);[F]=mfeigenbasis(mf);mfpow(F,3)
   ***                                             ^----------
   *** mfpow: sorry, changing cyclotomic fields in mf is not yet implemented.
-Total time spent: 21452
+Total time spent: 18824

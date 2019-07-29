@@ -9386,6 +9386,50 @@ mffrometaquo(GEN eta, long flag)
   return gerepilecopy(av, tag2(t_MF_ETAQUO, NK, BR, utoi(v)));
 }
 
+/* flag same as in mffrometaquo: if set, accept meromorphic. */
+static GEN
+mfisetaquo_i(GEN F, long flag)
+{
+  GEN gk, P, E, M, S, G, CHI;
+  long N, vS, m, j, weight, val;
+
+  if (!checkmf_i(F)) pari_err_TYPE("mfisetaquo",F);
+  N = mf_get_N(F);
+  gk = mf_get_gk(F);
+  CHI = mf_get_CHI(F);
+  if (mfcharorder(CHI) > 2) return NULL;
+  S = gtoser(mfcoefs_i(F, N + 10, 1), 0, 0);
+  vS = valp(S); if (vS) setvalp(S, 0);
+  P = cgetg(N + 1, t_COL);
+  E = cgetg(N + 1, t_COL); weight = val = 0;
+  for (m = j = 1; m <= N; m++)
+  {
+    GEN c = polcoef_i(S, m, 0);
+    long rm;
+    if (typ(c) != t_INT) return NULL;
+    rm = -itos(c);
+    if (rm)
+    {
+      gel(P, j) = utoipos(m);
+      gel(E, j) = stoi(rm); j++;
+      S = gmul(S, gpowgs(eta_ZXn(m, N+10), -rm));
+      weight += rm; val += m * rm;
+    }
+  }
+  if (!gequalsg(weight, gmul2n(gk, 1)) || (!flag && val != 24*vS)) return NULL;
+  setlg(P, j);
+  setlg(E, j); M = mkmat2(P, E); G = mffrometaquo(M, flag);
+  return (!gequal0(G) && mfisequal(F, G, 0))? M: NULL;
+}
+GEN
+mfisetaquo(GEN F, long flag)
+{
+  pari_sp av = avma;
+  GEN M = mfisetaquo_i(F, flag);
+  if (!M) { set_avma(av); return gen_0; }
+  return gerepilecopy(av, M);
+}
+
 #if 0
 /* number of primitive characters modulo N */
 static ulong
