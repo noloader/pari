@@ -646,6 +646,7 @@ mfslashexpansion(mf,T,[-1,0;-2,-1],2,1)
 mfslashexpansion(mf,T,[1,0;2,1],2,1)
 mfslashexpansion(mf,T,[0,1;-1,0],2,1)
 mfslashexpansion(mf,T,[0,-1;1,0],2,1)
+mfslashexpansion(mf,T,[0,1;-1,-1],2,1)
 mfslashexpansion(mf,T,[2^64+1,2^64+3;9223372036854775808,9223372036854775809],2,1)
 mf=mfinit([36,5/2],1);mfparams(mfbasis(mf)[3])
 K=mfkohnenbasis(mf); nbcol=matsize(K)[2]

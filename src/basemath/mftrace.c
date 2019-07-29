@@ -7972,7 +7972,7 @@ mfthetamultiplier(GEN C, GEN D)
 /* theta | [*,*;C,D] defined over Q(i) [else over Q] */
 static int
 mfthetaI(long C, long D) { return odd(C) || (D & 3) == 3; }
-/* (theta | M) [0..n] */
+/* (theta | M) [0..n], assume (C,D) = 1 */
 static GEN
 mfthetaexpansion(GEN M, long n)
 {
@@ -7987,17 +7987,18 @@ mfthetaexpansion(GEN M, long n)
       for (f = 1; f <= lim; f++) gel(V, f*f + 1) = s;
       break;
     case 2: al = sstoQ(1,4); w = gen_1;
-      E = subii(C, shifti(D,1));
+      E = subii(C, shifti(D,1)); /* (E, D) = 1 */
       s = gmul2n(mfthetamultiplier(E, D), 1);
-      if (!signe(E) && equalim1(D)) s = gneg(s);
+      if ((!signe(E) && equalim1(D)) || (signe(E) > 0 && signe(C) < 0))
+        s = gneg(s);
       lim = (usqrt(n << 2) - 1) >> 1;
       for (f = 0; f <= lim; f++) gel(V, f*(f+1) + 1) = s;
       break;
     default: al = gen_0; w = utoipos(4);
       la = (-Mod4(D)*C4) & 3L;
       E = negi(addii(D, mului(la, C)));
-      s = mfthetamultiplier(E, C);
-      if (!signe(E) && equalim1(C)) s = gneg(s);
+      s = mfthetamultiplier(E, C); /* (E,C) = 1 */
+      if (signe(C) < 0 && signe(E) >= 0) s = gneg(s);
       s = gsub(s, mulcxI(s));
       sla = gmul(s, powIs(-la));
       lim = usqrt(n); gel(V, 1) = gmul2n(s, -1);
