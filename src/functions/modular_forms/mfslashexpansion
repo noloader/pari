@@ -72,3 +72,9 @@ Doc: let \var{mf} be a modular form space in level $N$, $f$ a modular form
  ? mfslashexpansion(mf,f,[0,-1;1,0],5,1)
  %3 = [0, -1/23, 1/23*y, -2/23*y + 1/23, -1/23*y + 1/23, 2/23*y]
  @eprog
+ \misctitle{Caveat} In half-integral weight, we \emph{define} the ``slash''
+ operation as
+ $$(f |_k g)(\tau) := \big((c \tau + d)^{-1/2}\big)^{2k} f( g\cdot \tau),$$
+ with the principal determination of the square root. In particular,
+ the standard cocycle condition is no longer satisfied and we only
+ have $f | (gg') = \pm (f | g) | g'$.
