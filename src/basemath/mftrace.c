@@ -9391,32 +9391,39 @@ static GEN
 mfisetaquo_i(GEN F, long flag)
 {
   GEN gk, P, E, M, S, G, CHI;
-  long N, vS, m, j, weight, val;
+  long l, L, N, vS, m, j, w, v;
 
   if (!checkmf_i(F)) pari_err_TYPE("mfisetaquo",F);
-  N = mf_get_N(F);
+  CHI = mf_get_CHI(F); if (mfcharorder(CHI) > 2) return NULL;
+  N = mf_get_N(F); L = N + 10;
   gk = mf_get_gk(F);
-  CHI = mf_get_CHI(F);
-  if (mfcharorder(CHI) > 2) return NULL;
-  S = gtoser(mfcoefs_i(F, N + 10, 1), 0, 0);
-  vS = valp(S); if (vS) setvalp(S, 0);
-  P = cgetg(N + 1, t_COL);
-  E = cgetg(N + 1, t_COL); weight = val = 0;
-  for (m = j = 1; m <= N; m++)
+  S = mfcoefs_i(F, L, 1);
+  if (!RgV_is_ZV(S)) return NULL;
+  for (vS = 1; vS <= L; vS++)
+    if (signe(gel(S,vS))) break;
+  vS--; if (vS) { L -= vS; S = vecslice(S, vS+1, L+1); }
+  S = RgV_to_RgX(S, 0); l = lg(S)-2;
+  P = cgetg(l, t_COL);
+  E = cgetg(l, t_COL); w = v = 0; /* w = weight, v = valuation */
+  for (m = j = 1; m+2 < lg(S); m++)
   {
-    GEN c = polcoef_i(S, m, 0);
-    long rm;
-    if (typ(c) != t_INT) return NULL;
-    rm = -itos(c);
-    if (rm)
+    GEN c = gel(S,m+2);
+    long r;
+    if (lgefint(c) > 3) return NULL;
+    r = -itos(c);
+    if (r)
     {
+      GEN Q = eta_ZXn(m, L);
+      if (r > 0) Q = RgXn_inv_i(Q, L);
+      if (labs(r) != 1) Q = RgXn_powu_i(Q, labs(r), L);
+      S = ZXn_mul(S, Q, L);
       gel(P, j) = utoipos(m);
-      gel(E, j) = stoi(rm); j++;
-      S = gmul(S, gpowgs(eta_ZXn(m, N+10), -rm));
-      weight += rm; val += m * rm;
+      gel(E, j) = stoi(r); j++;
+      v += m * r;
+      w += r;
     }
   }
-  if (!gequalsg(weight, gmul2n(gk, 1)) || (!flag && val != 24*vS)) return NULL;
+  if (!gequalsg(w, gmul2n(gk, 1)) || (!flag && v != 24*vS)) return NULL;
   setlg(P, j);
   setlg(E, j); M = mkmat2(P, E); G = mffrometaquo(M, flag);
   return (!gequal0(G) && mfisequal(F, G, 0))? M: NULL;

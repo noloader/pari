@@ -10,20 +10,19 @@ Doc: if the generalized modular form $f$ is a meromorphic eta quotient,
  0 if the eta quotient is not holomorphic. See \kbd{mffrometaquo}.
 
  \bprog
- ? f = mffrometaquo(Mat([1,24]));
- ? mfisetaquo(f)
- %2 =
+ ? mfisetaquo(mfDelta())
+ %1 =
  [1 24]
  ? f = mffrometaquo([1,1;23,1]);
  ? mfisetaquo(f)
- %4 =
+ %3 =
  [ 1 1]
 
  [23 1]
  ? f = mffrometaquo(Mat([1,-24]), 1);
  ? mfisetaquo(f) \\ non-holomorphic
- %6 = 0
+ %5 = 0
  ? mfisetaquo(f,1)
- %7 =
+ %6 =
  [1 -24]
  @eprog
