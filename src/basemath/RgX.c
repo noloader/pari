@@ -2255,15 +2255,21 @@ GEN
 RgXn_powu_i(GEN x, ulong m, long n)
 {
   struct modXn S;
+  long v;
+  if (n == 1) return x;
+  v = RgX_valrem(x, &x);
+  if (v) n -= m * v;
   S.v = varn(x); S.n = n;
-  return gen_powu_i(x, m, (void*)&S,_sqrXn,_mulXn);
+  x = gen_powu_i(x, m, (void*)&S,_sqrXn,_mulXn);
+  if (v) x = RgX_shift_shallow(x, m * v);
+  return x;
 }
 GEN
 RgXn_powu(GEN x, ulong m, long n)
 {
-  struct modXn S;
-  S.v = varn(x); S.n = n;
-  return gen_powu(x, m, (void*)&S,_sqrXn,_mulXn);
+  pari_sp av;
+  if (n == 1) return gcopy(x);
+  av = avma; return gerepilecopy(av, RgXn_powu_i(x, m, n));
 }
 
 GEN
