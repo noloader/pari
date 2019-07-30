@@ -205,6 +205,25 @@ F2v_add_inplace(GEN x, GEN y)
   }
 }
 
+/* Allow lg(y)<lg(x) */
+void
+F2v_and_inplace(GEN x, GEN y)
+{
+  long n = lg(y);
+  long r = (n-2)&7L, q = n-r, i;
+  for (i = 2; i < q; i += 8)
+  {
+    x[  i] &= y[  i]; x[1+i] &= y[1+i]; x[2+i] &= y[2+i]; x[3+i] &= y[3+i];
+    x[4+i] &= y[4+i]; x[5+i] &= y[5+i]; x[6+i] &= y[6+i]; x[7+i] &= y[7+i];
+  }
+  switch (r)
+  {
+    case 7: x[i] &= y[i]; i++; case 6: x[i] &= y[i]; i++;
+    case 5: x[i] &= y[i]; i++; case 4: x[i] &= y[i]; i++;
+    case 3: x[i] &= y[i]; i++; case 2: x[i] &= y[i]; i++;
+    case 1: x[i] &= y[i]; i++;
+  }
+}
 
 ulong
 F2v_dotproduct(GEN x, GEN y)

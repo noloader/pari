@@ -100,6 +100,7 @@ GEN     F2m_to_Flm(GEN z);
 GEN     F2m_to_ZM(GEN z);
 GEN     F2m_to_mod(GEN z);
 void    F2v_add_inplace(GEN x, GEN y);
+void    F2v_and_inplace(GEN x, GEN y);
 GEN     F2v_slice(GEN x, long a, long b);
 GEN     F2v_to_Flv(GEN x);
 GEN     matid_F2m(long n);

@@ -4550,6 +4550,10 @@ all columns.
 \fun{void}{F2v_add_inplace}{GEN x, GEN y} replaces $x$ by $x+y$. It is
 allowed for $y$ to be shorter than $x$.
 
+\fun{void}{F2v_and_inplace}{GEN x, GEN y} replaces $x$ by the term-by term product
+of $x$ and $y$ (which is the logical \kbd{and}). It is allowed for $y$ to be
+shorter than $x$.
+
 \fun{ulong}{F2m_det}{GEN x}
 
 \fun{ulong}{F2m_det_sp}{GEN x}, as \kbd{F2m\_det}, in place (destroys~\kbd{x}).
