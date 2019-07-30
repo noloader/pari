@@ -9386,6 +9386,14 @@ mffrometaquo(GEN eta, long flag)
   return gerepilecopy(av, tag2(t_MF_ETAQUO, NK, BR, utoi(v)));
 }
 
+/* Q^(-r) */
+static GEN
+RgXn_negpow(GEN Q, long r, long L)
+{
+  if (r < 0) r = -r; else Q = RgXn_inv_i(Q, L);
+  if (r != 1) Q = RgXn_powu_i(Q, r, L);
+  return Q;
+}
 /* flag same as in mffrometaquo: if set, accept meromorphic. */
 static GEN
 mfisetaquo_i(GEN F, long flag)
@@ -9399,9 +9407,9 @@ mfisetaquo_i(GEN F, long flag)
   gk = mf_get_gk(F);
   S = mfcoefs_i(F, L, 1);
   if (!RgV_is_ZV(S)) return NULL;
-  for (vS = 1; vS <= L; vS++)
+  for (vS = 1; vS <= L+1; vS++)
     if (signe(gel(S,vS))) break;
-  vS--; if (vS) { L -= vS; S = vecslice(S, vS+1, L+1); }
+  vS--; if (vS) { S = vecslice(S, vS+1, L+1); L -= vS; }
   S = RgV_to_RgX(S, 0); l = lg(S)-2;
   P = cgetg(l, t_COL);
   E = cgetg(l, t_COL); w = v = 0; /* w = weight, v = valuation */
@@ -9413,10 +9421,7 @@ mfisetaquo_i(GEN F, long flag)
     r = -itos(c);
     if (r)
     {
-      GEN Q = eta_ZXn(m, L);
-      if (r > 0) Q = RgXn_inv_i(Q, L);
-      if (labs(r) != 1) Q = RgXn_powu_i(Q, labs(r), L);
-      S = ZXn_mul(S, Q, L);
+      S = ZXn_mul(S, RgXn_negpow(eta_ZXn(m, L), r, L), L);
       gel(P, j) = utoipos(m);
       gel(E, j) = stoi(r); j++;
       v += m * r;
