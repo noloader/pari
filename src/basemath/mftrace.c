@@ -9403,8 +9403,8 @@ mfisetaquo_i(GEN F, long flag)
 
   if (!checkmf_i(F)) pari_err_TYPE("mfisetaquo",F);
   CHI = mf_get_CHI(F); if (mfcharorder(CHI) > 2) return NULL;
-  N = mf_get_N(F); L = N + 10;
-  gk = mf_get_gk(F);
+  N = mf_get_N(F);
+  gk = mf_get_gk(F); L = maxss(N, mfsturmNgk(N, gk)) + 10;
   S = mfcoefs_i(F, L, 1);
   if (!RgV_is_ZV(S)) return NULL;
   for (vS = 1; vS <= L+1; vS++)
