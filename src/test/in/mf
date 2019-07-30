@@ -598,6 +598,8 @@ f = mffrometaquo(Mat([1,24])); mfisetaquo(f)
 f = mffrometaquo([1,1;23,1]); mfisetaquo(f)
 f = mffrometaquo(Mat([1,-24]), 1); mfisetaquo(f)
 mfisetaquo(f,1)
+mfisetaquo(mffromell(ellinit([0,1,1,0,0]))[2])
+mfisetaquo(mfpow(mfDelta(),20))
 
 \\ Half-integral weight
 dim2(N,k,space)=

@@ -9417,7 +9417,7 @@ mfisetaquo_i(GEN F, long flag)
   {
     GEN c = gel(S,m+2);
     long r;
-    if (lgefint(c) > 3) return NULL;
+    if (is_bigint(c)) return NULL;
     r = -itos(c);
     if (r)
     {
