@@ -1864,15 +1864,14 @@ mpqs(GEN N)
   ulong p;
   /* bookkeeping */
   long size_N; /* ~ log_10(N) */
-  long tc;                      /* # of candidates found in one iteration */
-  long tff = 0;                 /* # recently found full rels from sieving */
-  long tfc;                     /* # full rels recently combined from LPs */
-  double tfc_ratio = 0;         /* recent (tfc + tff) / tff */
-  ulong sort_interval;          /* determine when to sort and merge */
-  long percentage = 0;          /* scaled by 10, see comment above */
-  double net_yield;
+  long tc;              /* # of candidates found in one iteration */
+  long tff = 0;         /* # recently found full rels from sieving */
+  long tfc;             /* # full rels recently combined from LPs */
+  double tfc_ratio = 0; /* recent (tfc + tff) / tff */
+  ulong sort_interval;  /* determine when to sort and merge */
+  long percentage = 0;  /* scaled by 10, see comment above */
   long total_partial_relations = 0, total_no_cand = 0;
-  long vain_iterations = 0, good_iterations = 0, iterations = 0;
+  long good_iterations = 0, iterations = 0;
 
   pari_timer T;
   GEN fnew, vnew;
@@ -2050,24 +2049,16 @@ mpqs(GEN N)
       err_printf("MPQS: combined %ld full relation%s\n", tfc, (tfc!=1 ? "s" : ""));
     total_partial_relations += tfc;
 
-    /* Due to the removal of duplicates, percentage may decrease at
-     * Nothing to worry about: we _are_ making progress. */
     percentage = (long)((1000.0 * frel.nb) / H.target_no_rels);
-    net_yield = (frel.nb * 100.) / (total_no_cand? total_no_cand: 1);
-    vain_iterations = (long)((1000.0 * (iterations - good_iterations)) / iterations);
-
-    /* Now estimate the current full relations yield rate:  we directly see
-     * each time through the main loop how many full relations we're getting
-     * as such from the sieve  (tff since the previous checkpoint),  but
-     * only at checkpoints do we see how many we're typically combining
-     * (tfc).  So we're really producing (tfc+tff)/tff as many full rels,
-     * and when we get close to 100%, we should bias the next interval by
-     * the inverse ratio.
-     * Avoid drawing conclusions from too-small samples during very short
-     * follow-on intervals  (in this case we'll just re-use an earlier
-     * estimated ratio). */
-    if (tfc >= 16 && tff >= 20)
-      tfc_ratio = (tfc + tff + 0.) / tff; /* floating-point division */
+    /* Estimate the current full relations yield rate: we see each time through
+     * the main loop how many full relations we're getting from the sieve
+     * (tff since previous checkpoint), but only at checkpoints do we see how
+     * many we're typically combining (tfc).  So we're producing (tfc+tff)/tff
+     * as many full rels, and when we get close to 100%, we should bias the
+     * next interval by the inverse ratio. Avoid drawing conclusions from
+     * too-small samples during very short follow-on intervals (in this case
+     * re-use an earlier estimated ratio). */
+    if (tfc >= 16 && tff >= 20) tfc_ratio = (tfc + tff + 0.) / tff;
     tff = 0; /* reset this count (tfc is always fresh) */
 
     if (percentage >= 1000) /* when Gauss had failed */
@@ -2099,23 +2090,23 @@ mpqs(GEN N)
 
     if (DEBUGLEVEL >= 4)
     {
-      err_printf("MPQS: done sorting%s, time = %ld ms\n",
-                 " and combining", timer_delay(&T));
+      err_printf("MPQS: done sorting and combining, time = %ld ms\n",
+                 timer_delay(&T));
       err_printf("MPQS: found %3.1f%% of the required relations\n",
                  percentage/10.);
       if (DEBUGLEVEL >= 5)
-      { /* GN20050708: present code doesn't succeed in discarding all
-         * dups, so don't lie about it... */
+      { /* GN20050708: present code doesn't succeed in discarding all dups,
+         * so don't lie about it */
         err_printf("MPQS: found %ld full relations\n", frel.nb);
         if (H.lp_scale > 1)
           err_printf("MPQS:   (%ld of these from partial relations)\n",
                      total_partial_relations);
         err_printf("MPQS: Net yield: %4.3g full relations per 100 candidates\n",
-                   net_yield);
+                   (frel.nb * 100.) / (total_no_cand? total_no_cand: 1));
         err_printf("MPQS:            %4.3g full relations per 100 polynomials\n",
                    (frel.nb * 100.) / iterations);
         err_printf("MPQS: %4.1f%% of the polynomials yielded no candidates\n",
-                   vain_iterations/10.);
+                   (100.0 * (iterations - good_iterations)) / iterations);
         err_printf("MPQS: next sort point at %3.1f%%\n", sort_interval/10.);
       }
     }
