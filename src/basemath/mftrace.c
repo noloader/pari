@@ -2684,6 +2684,8 @@ mfsturmNgk(long N, GEN k)
   long n,d; Qtoss(k,&n,&d);
   return (d == 1)? mfsturmNk(N,n): 1 + (mypsiu(N)*n)/24;
 }
+static long
+mfsturmmf(GEN F) { return mfsturmNgk(mf_get_N(F), mf_get_gk(F)); }
 
 /* List of all solutions of x^2 + x + 1 = 0 modulo N, x modulo N */
 static GEN
@@ -4195,24 +4197,15 @@ mfsturm(GEN T)
   checkNK2(T, &N, &nk, &dk, &CHI, 0);
   return dk == 1 ? mfsturmNk(N, nk) : mfsturmNk(N, (nk + 1) >> 1);
 }
-
 long
 mfisequal(GEN F, GEN G, long lim)
 {
   pari_sp av = avma;
-  long sb;
+  long b;
   if (!checkmf_i(F)) pari_err_TYPE("mfisequal",F);
   if (!checkmf_i(G)) pari_err_TYPE("mfisequal",G);
-  if (lim) sb = lim;
-  else
-  {
-    GEN gN, gk;
-    gN = mf_get_gN(F); gk = mf_get_gk(F);
-    sb = mfsturmNgk(itou(gN), gk);
-    gN = mf_get_gN(G); gk = mf_get_gk(G);
-    sb = maxss(sb, mfsturmNgk(itou(gN), gk));
-  }
-  return gc_long(av, gequal(mfcoefs_i(F, sb+1, 1), mfcoefs_i(G, sb+1, 1)));
+  b = lim? lim: maxss(mfsturmmf(F), mfsturmmf(G));
+  return gc_long(av, gequal(mfcoefs_i(F, b+1, 1), mfcoefs_i(G, b+1, 1)));
 }
 
 GEN
