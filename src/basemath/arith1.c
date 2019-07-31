@@ -1376,7 +1376,8 @@ Z_isanypower_nosmalldiv(GEN *px)
       e2 = (ulong)((expi(x) + 1) / LOG2_103);
       u_forprime_restrict(&T, e2);
     }
-    if (DEBUGLEVEL>4) err_printf("Z_isanypower: now k=%ld, x=%ld-bit\n", k, expi(x));
+    if (DEBUGLEVEL>4)
+      err_printf("Z_isanypower: now k=%ld, x=%ld-bit\n", k, expi(x)+1);
     xmodQ = umodiu(x, Q);
     /* test Q | x, just in case */
     if (!xmodQ) { *px = x; return k * split_exponent(Z_lval(x,Q), px); }

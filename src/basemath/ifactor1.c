@@ -1908,7 +1908,8 @@ is_357_power(GEN x, GEN *pt, ulong *mask)
   GEN y;
 
   if (!*mask) return 0; /* useful when running in a loop */
-  if (DEBUGLEVEL>4) err_printf("OddPwrs: examining %ld-bit integer\n", expi(x));
+  if (DEBUGLEVEL>4)
+    err_printf("OddPwrs: examining %ld-bit integer\n", expi(x)+1);
   if (lgefint(x) == 3) {
     ulong t;
     long e = uis_357_power(x[2], &t, mask);
@@ -3706,7 +3707,7 @@ ifactor_sign(GEN n, ulong all, long hint, long sn)
     set_avma(av); STOREi(&nb, n, k);
     if (DEBUGLEVEL >= 2) {
       pari_warn(warner,
-        "IFAC: untested %ld-bit integer declared prime", expi(n));
+        "IFAC: untested %ld-bit integer declared prime", expi(n)+1);
       if (expi(n) <= 256)
         err_printf("\t%Ps\n", n);
     }
