@@ -133,57 +133,39 @@ decimal_len(GEN N)
 static int
 mpqs_set_parameters(mpqs_handle_t *h)
 {
-  long i;
+  long i, s, D;
   const mpqs_parameterset_t *P;
 
-  h->digit_size_kN = decimal_len(h->kN);
-  if (h->digit_size_kN <= 9)
-    i = 0;
-  else if (h->digit_size_kN > MPQS_MAX_DIGIT_SIZE_KN)
-    return 0;
-  else
-    i = h->digit_size_kN - 9;
+  h->digit_size_kN = D = decimal_len(h->kN);
+  if (D > MPQS_MAX_DIGIT_SIZE_KN) return 0;
+  i = maxss(0, D - 9);
+  if (D >= 90)
+    pari_warn(warner, "MPQS: factoring this number will take several hours:\nN = %Ps", h->N);
 
-  /* (cf PARI bug#235) the following has always been, and will remain,
-   * a moving target... increased thresholds from 64, 80 to 79, 86
-   * respectively --GN20050601.  Note that the new values correspond to
-   * kN having >= 86 or >= 95 decimal digits, respectively.  Note also
-   * that the current sizing parameters for 90 or more digits are based
-   * on 100% theory and 0% practice. */
-  if (i >= 79)
-    pari_warn(warner, "MPQS: factoring this number will take %s hours:\nN = %Ps",
-        i >= 86 ? "many": "several", h->N);
+  P = &(mpqs_parameters[i]);
+  h->tolerance      = P->tolerance;
+  h->lp_scale       = P->lp_scale;
+  /* make room for prime factors of k if any: */
+  h->size_of_FB     = s = P->size_of_FB + h->_k->omega_k;
+  /* for the purpose of Gauss elimination etc., prime factors of k behave
+   * like real FB primes, so take them into account when setting the goal: */
+  h->target_no_rels = (s >= 200 ? s + 70 : (mpqs_int32_t)(s * 1.35));
+  h->M              = P->M;
+  h->omega_A        = P->omega_A;
+  h->no_B           = 1UL << (P->omega_A - 1);
+  h->pmin_index1    = P->pmin_index1;
+  /* certain subscripts into h->FB should also be offset by omega_k: */
+  h->index0_FB      = 3 + h->_k->omega_k;
+  /* following are converted from % to parts per thousand: */
+  h->first_sort_point = P->first_sort_point;
+  h->sort_pt_interval = P->sort_pt_interval;
 
   if (DEBUGLEVEL >= 5)
   {
     err_printf("MPQS: kN = %Ps\n", h->kN);
-    err_printf("MPQS: kN has %ld decimal digits\n", h->digit_size_kN);
-  }
-
-  P = &(mpqs_parameters[i]);
-  h->tolerance        = P->tolerance;
-  h->lp_scale         = P->lp_scale;
-  /* make room for prime factors of k if any: */
-  h->size_of_FB       = P->size_of_FB + h->_k->omega_k;
-  /* for the purpose of Gauss elimination etc., prime factors of k behave
-   * like real FB primes, so take them into account when setting the goal: */
-  h->target_no_rels   = (h->size_of_FB >= 200 ?
-                         h->size_of_FB + 70 :
-                         (mpqs_int32_t)(h->size_of_FB * 1.35));
-  h->M                = P->M;
-  h->omega_A          = P->omega_A;
-  h->no_B             = 1UL << (P->omega_A - 1);
-  h->pmin_index1      = P->pmin_index1;
-  /* certain subscripts into h->FB should also be offset by omega_k: */
-  h->index0_FB        = 3 + h->_k->omega_k;
-  /* following are converted from % to parts per thousand: */
-  h->first_sort_point = 10 * P->first_sort_point;
-  h->sort_pt_interval = 10 * P->sort_pt_interval;
-
-  if (DEBUGLEVEL >= 5)
-  {
-    double mb = (h->size_of_FB + 1)/(8.*1048576.) * h->target_no_rels;
-    err_printf("\t(estimated memory needed: %4.1fMBy)\n", mb);
+    err_printf("MPQS: kN has %ld decimal digits\n", D);
+    err_printf("\t(estimated memory needed: %4.1fMBy)\n",
+               (s + 1)/8388608. * h->target_no_rels);
   }
   return 1;
 }
