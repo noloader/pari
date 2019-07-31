@@ -9391,8 +9391,8 @@ RgXn_negpow(GEN Q, long r, long L)
 static GEN
 mfisetaquo_i(GEN F, long flag)
 {
-  GEN gk, P, E, M, S, G, CHI;
-  long b, l, L, N, vS, m, j, w, v;
+  GEN gk, P, E, M, S, G, CHI, v, w;
+  long b, l, L, N, vS, m, j;
   const long bextra = 10;
 
   if (!checkmf_i(F)) pari_err_TYPE("mfisetaquo",F);
@@ -9408,7 +9408,7 @@ mfisetaquo_i(GEN F, long flag)
   vS--; if (vS) { S = vecslice(S, vS+1, L+1); L -= vS; }
   S = RgV_to_RgX(S, 0); l = lg(S)-2;
   P = cgetg(l, t_COL);
-  E = cgetg(l, t_COL); w = v = 0; /* w = weight, v = valuation */
+  E = cgetg(l, t_COL); w = v = gen_0; /* w = weight, v = valuation */
   for (m = j = 1; m+2 < lg(S); m++)
   {
     GEN c = gel(S,m+2);
@@ -9418,13 +9418,15 @@ mfisetaquo_i(GEN F, long flag)
     if (r)
     {
       S = ZXn_mul(S, RgXn_negpow(eta_ZXn(m, L), r, L), L);
-      gel(P, j) = utoipos(m);
-      gel(E, j) = stoi(r); j++;
-      v += m * r;
-      w += r;
+      gel(P,j) = utoipos(m);
+      gel(E,j) = stoi(r);
+      v = addmuliu(v, gel(E,j), m);
+      w = addis(w, r);
+      j++;
     }
   }
-  if (!gequalsg(w, gmul2n(gk, 1)) || (!flag && v != 24*vS)) return NULL;
+  if (!equalii(w, gmul2n(gk, 1)) || (!flag && !equalii(v, muluu(24,vS))))
+    return NULL;
   setlg(P, j);
   setlg(E, j); M = mkmat2(P, E); G = mffrometaquo(M, flag);
   return (typ(G) != t_INT
