@@ -9392,12 +9392,15 @@ static GEN
 mfisetaquo_i(GEN F, long flag)
 {
   GEN gk, P, E, M, S, G, CHI;
-  long l, L, N, vS, m, j, w, v;
+  long b, l, L, N, vS, m, j, w, v;
+  const long bextra = 10;
 
   if (!checkmf_i(F)) pari_err_TYPE("mfisetaquo",F);
   CHI = mf_get_CHI(F); if (mfcharorder(CHI) > 2) return NULL;
   N = mf_get_N(F);
-  gk = mf_get_gk(F); L = maxss(N, mfsturmNgk(N, gk)) + 10;
+  gk = mf_get_gk(F);
+  b = mfsturmNgk(N, gk);
+  L = maxss(N, b) + bextra;
   S = mfcoefs_i(F, L, 1);
   if (!RgV_is_ZV(S)) return NULL;
   for (vS = 1; vS <= L+1; vS++)
@@ -9424,7 +9427,8 @@ mfisetaquo_i(GEN F, long flag)
   if (!gequalsg(w, gmul2n(gk, 1)) || (!flag && v != 24*vS)) return NULL;
   setlg(P, j);
   setlg(E, j); M = mkmat2(P, E); G = mffrometaquo(M, flag);
-  return (!gequal0(G) && mfisequal(F, G, 0))? M: NULL;
+  return (typ(G) != t_INT
+          && (mfsturmmf(G) <= b + bextra || mfisequal(F, G, b)))? M: NULL;
 }
 GEN
 mfisetaquo(GEN F, long flag)
