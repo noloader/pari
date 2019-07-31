@@ -295,10 +295,8 @@ mpqs_find_k(mpqs_handle_t *h)
   u_forprime_init(&S, 2, ULONG_MAX);
   while ( (p = u_forprime_next(&S)) )
   {
-    ulong Np = umodiu(h->N, p);
-    long kroNp, seen = 0;
-    if (!Np) return p;
-    kroNp = krouu(Np, p);
+    long kroNp = kroiu(h->N, p), seen = 0;
+    if (!kroNp) return p;
     for (i = 0; i < nbk; i++)
     {
       if (cache[i].np > MPQS_MULTIPLIER_SEARCH_DEPTH) continue;
