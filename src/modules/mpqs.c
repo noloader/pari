@@ -1843,6 +1843,9 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
 /**               MAIN ENTRY POINT AND DRIVER ROUTINE               **/
 /**                                                                 **/
 /*********************************************************************/
+static void
+toolarge()
+{ pari_warn(warner, "MPQS: number too big to be factored with MPQS,\n\tgiving up"); }
 /* All percentages below are actually fixed-point quantities scaled by 10
  * (value of 1 means 0.1%, 1000 means 100%) */
 
@@ -1853,13 +1856,13 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
 GEN
 mpqs(GEN N)
 {
+  const long size_N = decimal_len(N);
   mpqs_handle_t H;
   GEN fact; /* will in the end hold our factor(s) */
   mpqs_FB_entry_t *FB; /* factor base */
 
   ulong p; /* auxiliary var */
   /* bookkeeping */
-  long size_N; /* ~ log_10(N) */
   long tc;              /* # of candidates found in one iteration */
   long tff = 0;         /* # recently found full rels from sieving */
   long tfc;             /* # full rels recently combined from LPs */
@@ -1875,10 +1878,13 @@ mpqs(GEN N)
   hashtable lprel, frel;
   pari_sp av = avma;
 
+  if (DEBUGLEVEL >= 4) err_printf("MPQS: number to factor N = %Ps\n", N);
+  if (size_N > MPQS_MAX_DIGIT_SIZE_KN) { toolarge(); return NULL; }
+
   if (DEBUGLEVEL >= 4)
   {
     timer_start(&T);
-    err_printf("MPQS: number to factor N = %Ps\n", N);
+    err_printf("MPQS: factoring number of %ld decimal digits\n", size_N);
   }
 
   H.N = N;
@@ -1886,29 +1892,12 @@ mpqs(GEN N)
   H.index_i = 0;
   H.index_j = 0;
   H.index2_moved = 0;
-
-  size_N = decimal_len(N);
-  if (size_N > MPQS_MAX_DIGIT_SIZE_KN)
-  {
-    pari_warn(warner, "MPQS: number too big to be factored with MPQS,\n\tgiving up");
-    return NULL;
-  }
-
-  if (DEBUGLEVEL >= 4)
-    err_printf("MPQS: factoring number of %ld decimal digits\n", size_N);
-
   p = mpqs_find_k(&H);
   if (p) { set_avma(av); return utoipos(p); }
   if (DEBUGLEVEL >= 5) err_printf("MPQS: found multiplier %ld for N\n",
                                   H._k->k);
   H.kN = muliu(N, H._k->k);
-
-  if (!mpqs_set_parameters(&H))
-  {
-    pari_warn(warner,
-        "MPQS: number too big to be factored with MPQS,\n\tgiving up");
-    return NULL;
-  }
+  if (!mpqs_set_parameters(&H)) { toolarge(); return NULL; }
 
   sort_interval = H.first_sort_point;
 
