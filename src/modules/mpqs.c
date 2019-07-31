@@ -1540,8 +1540,7 @@ stream_read_F2m(GEN rel, long rows, long cols)
     GEN relp = gmael(rel,i,2);
     long j, l = lg(relp);
     for (j = 1; j < l; j++)
-      if (odd(relp[j]>>REL_OFFSET))
-         F2m_set(m, relp[j]&REL_MASK, i);
+      if (odd(relp[j]>>REL_OFFSET)) F2m_set(m, relp[j]&REL_MASK, i);
   }
   if (i-1 != cols)
     pari_err_BUG(stack_sprintf("MPQS: full relations %s than expected",
@@ -2153,16 +2152,10 @@ mpqs(GEN N)
         {
           long j, nf = (lg(fact)-1)/3;
           if (nf == 2)
-            /* GN20050707: Changed the arrangement of the two factors,
-             * to match the debug diagnostics in mpqs_solve_linear_system()
-             * above */
             err_printf("MPQS: found factors = %Ps\n\tand %Ps\n",
                         fact[1], fact[4]);
           else
           {
-            /* GN20050707: Changed loop to scan upwards instead of downwards,
-             * to match the debug diagnostics in mpqs_solve_linear_system()
-             * above */
             err_printf("MPQS: found %ld factors =\n", nf);
             for (j=1; j<=nf; j++)
               err_printf("\t%Ps%s\n", fact[3*j-2], (j<nf ? "," : ""));
