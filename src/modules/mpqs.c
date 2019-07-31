@@ -1857,11 +1857,9 @@ mpqs(GEN N)
 {
   mpqs_handle_t H;
   GEN fact; /* will in the end hold our factor(s) */
-  mpqs_int32_t size_of_FB; /* size of the factor base */
   mpqs_FB_entry_t *FB; /* factor base */
 
-  /* local loop / auxiliary vars */
-  ulong p;
+  ulong p; /* auxiliary var */
   /* bookkeeping */
   long size_N; /* ~ log_10(N) */
   long tc;              /* # of candidates found in one iteration */
@@ -1914,7 +1912,6 @@ mpqs(GEN N)
     return NULL;
   }
 
-  size_of_FB = H.size_of_FB;
   sort_interval = H.first_sort_point;
 
   if (DEBUGLEVEL >= 5)
@@ -1940,7 +1937,7 @@ mpqs(GEN N)
     err_printf("MPQS: sieving interval = [%ld, %ld]\n", -(long)H.M, (long)H.M);
     /* that was a little white lie, we stop one position short at the top */
     err_printf("MPQS: size of factor base = %ld\n",
-               (long)size_of_FB);
+               (long)H.size_of_FB);
     err_printf("MPQS: striving for %ld relations\n",
                (long)H.target_no_rels);
     err_printf("MPQS: coefficients A will be built from %ld primes each\n",
@@ -2112,7 +2109,7 @@ mpqs(GEN N)
     }
     if (percentage < 1000) continue; /* main loop */
 
-    /* percentage >= 1000, hence frel.nb > size_of_FB: try finishing it off */
+    /* percentage >= 1000, hence frel.nb > size of FB: try finishing it off */
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
                  frel.nb);
