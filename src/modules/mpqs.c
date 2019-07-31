@@ -1871,7 +1871,7 @@ mpqs(GEN N)
   ulong sort_interval;          /* determine when to sort and merge */
   long percentage = 0;          /* scaled by 10, see comment above */
   double net_yield;
-  long total_full_relations = 0, total_partial_relations = 0, total_no_cand = 0;
+  long total_partial_relations = 0, total_no_cand = 0;
   long vain_iterations = 0, good_iterations = 0, iterations = 0;
 
   pari_timer T;
@@ -2006,16 +2006,12 @@ mpqs(GEN N)
     {
       GEN lpnew;
       long t = mpqs_eval_cand(&H, tc, &fnew, &lpnew);
-      total_full_relations += t;
       tff += t;
       good_iterations++;
       if (fnew) vec_frel_add(&frel, fnew);
       if (lpnew) vnew = vec_extend(vnew, lpnew, nvnew++);
     }
-
-    percentage =
-      (long)((1000.0 * total_full_relations) / H.target_no_rels);
-
+    percentage = (long)((1000.0 * frel.nb) / H.target_no_rels);
     if ((ulong)percentage < sort_interval) continue;
     /* most main loops continue here! */
 
@@ -2054,13 +2050,10 @@ mpqs(GEN N)
       err_printf("MPQS: combined %ld full relation%s\n", tfc, (tfc!=1 ? "s" : ""));
     total_partial_relations += tfc;
 
-    /* sort FNEW and merge it into frel */
-    total_full_relations = frel.nb;
-
     /* Due to the removal of duplicates, percentage may decrease at
      * Nothing to worry about: we _are_ making progress. */
-    percentage = (long)((1000.0 * total_full_relations) / H.target_no_rels);
-    net_yield = (total_full_relations * 100.) / (total_no_cand? total_no_cand: 1);
+    percentage = (long)((1000.0 * frel.nb) / H.target_no_rels);
+    net_yield = (frel.nb * 100.) / (total_no_cand? total_no_cand: 1);
     vain_iterations = (long)((1000.0 * (iterations - good_iterations)) / iterations);
 
     /* Now estimate the current full relations yield rate:  we directly see
@@ -2111,18 +2104,16 @@ mpqs(GEN N)
       err_printf("MPQS: found %3.1f%% of the required relations\n",
                  percentage/10.);
       if (DEBUGLEVEL >= 5)
-      { /* total_full_relations are always plural */
-        /* GN20050708: present code doesn't succeed in discarding all
+      { /* GN20050708: present code doesn't succeed in discarding all
          * dups, so don't lie about it... */
-        err_printf("MPQS: found %ld full relations\n",
-                   total_full_relations);
+        err_printf("MPQS: found %ld full relations\n", frel.nb);
         if (H.lp_scale > 1)
           err_printf("MPQS:   (%ld of these from partial relations)\n",
                      total_partial_relations);
         err_printf("MPQS: Net yield: %4.3g full relations per 100 candidates\n",
                    net_yield);
         err_printf("MPQS:            %4.3g full relations per 100 polynomials\n",
-                   (total_full_relations * 100.) / iterations);
+                   (frel.nb * 100.) / iterations);
         err_printf("MPQS: %4.1f%% of the polynomials yielded no candidates\n",
                    vain_iterations/10.);
         err_printf("MPQS: next sort point at %3.1f%%\n", sort_interval/10.);
@@ -2130,12 +2121,10 @@ mpqs(GEN N)
     }
     if (percentage < 1000) continue; /* main loop */
 
-    /* percentage >= 1000, which implies total_full_relations > size_of_FB:
-       try finishing it off */
-
+    /* percentage >= 1000, hence frel.nb > size_of_FB: try finishing it off */
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
-                 total_full_relations);
+                 frel.nb);
     fact = mpqs_solve_linear_system(&H, hash_keys(&frel));
     if (fact)
     { /* solution found */
