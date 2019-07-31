@@ -1516,13 +1516,11 @@ mpqs_combine_large_primes(mpqs_handle_t *h, hashtable *lprel, GEN LPNEW, hashtab
 /**                                                                 **/
 /*********************************************************************/
 
-/* create and read an F2m from a relation file FREL.
- * Also record the position of each relation in the file for later use
- * rows = size_of_FB+1, cols = rel */
+/* create an F2m from a relations list; rows = size_of_FB+1 */
 static GEN
-stream_read_F2m(GEN rel, long rows, long cols)
+stream_read_F2m(GEN rel, long rows)
 {
-  long i, lr = lg(rel);
+  long i, cols = lg(rel)-1;
   GEN m;
   long space = 2*((nbits2nlong(rows)+3)*cols+1);
   if ((long)((GEN)avma - (GEN)pari_mainstack->bot) < space)
@@ -1535,16 +1533,13 @@ stream_read_F2m(GEN rel, long rows, long cols)
   }
   else
     m = zero_F2m_copy(rows, cols);
-  for (i = 1; i < lr; i++)
+  for (i = 1; i <= cols; i++)
   {
     GEN relp = gmael(rel,i,2);
     long j, l = lg(relp);
     for (j = 1; j < l; j++)
       if (odd(relp[j]>>REL_OFFSET)) F2m_set(m, relp[j]&REL_MASK, i);
   }
-  if (i-1 != cols)
-    pari_err_BUG(stack_sprintf("MPQS: full relations %s than expected",
-               i > cols ? "longer" : "shorter"));
   return m;
 }
 
@@ -1589,7 +1584,7 @@ split(GEN N, GEN *e, GEN *res)
 }
 
 static GEN
-mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel, long rel)
+mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
 {
   GEN N = h->N, X, Y_prod, X_plus_Y, D1, res, new_res;
   mpqs_FB_entry_t *FB = h->FB;
@@ -1600,7 +1595,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel, long rel)
   GEN  m, ker_m;
   long done, rank;
 
-  m = stream_read_F2m(frel, h->size_of_FB+1, rel);
+  m = stream_read_F2m(frel, h->size_of_FB+1);
   if (DEBUGLEVEL >= 7)
     err_printf("\\\\ MATRIX READ BY MPQS\nFREL=%Ps\n",m);
 
@@ -1617,7 +1612,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel, long rel)
     err_printf("MPQS: Gauss done: kernel has rank %ld, taking gcds...\n", rank);
   }
 
-  H_rows = rel;
+  H_rows = lg(m)-1;
   H_cols = rank;
 
   if (!H_cols)
@@ -2141,7 +2136,7 @@ mpqs(GEN N)
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
                  total_full_relations);
-    fact = mpqs_solve_linear_system(&H, hash_keys(&frel), total_full_relations);
+    fact = mpqs_solve_linear_system(&H, hash_keys(&frel));
     if (fact)
     { /* solution found */
       if (DEBUGLEVEL >= 4)
