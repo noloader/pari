@@ -1372,16 +1372,13 @@ combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
   new_Y = modii(mulii(mulii(Y1, Y2), inv_q), h->N);
   new_Y1 = subii(h->N, new_Y);
   if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
-  if (odd(ei[1]))
-    mpqs_add_factor(relp, &nb, 1, 1);
+  if (odd(ei[1])) mpqs_add_factor(relp, &nb, 1, 1);
   for (l = 2; l <= lei; l++)
-    if (ei[l])
-      mpqs_add_factor(relp, &nb, ei[l],l);
+    if (ei[l]) mpqs_add_factor(relp, &nb, ei[l],l);
+  setlg(relp, nb+1);
   if (DEBUGLEVEL >= 6)
   {
-    GEN relpp, relpc;
-    GEN rel1p, rel1c;
-    GEN rel2p, rel2c;
+    GEN relpp, relpc, rel1p, rel1c, rel2p, rel2c;
     split_relp(relp,&relpp,&relpc);
     split_relp(rel1,&rel1p,&rel1c);
     split_relp(rel2,&rel2p,&rel2c);
@@ -1390,16 +1387,10 @@ combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
     err_printf("  * {%Ps @ %Ps : %Ps}\n", rel_q(rel2), Y2, rel2p, rel2c);
     err_printf(" == {%Ps, %Ps}\n", relpp, relpc);
   }
-  setlg(relp, nb+1);
-
 #ifdef MPQS_DEBUG
   {
-    GEN Qx_2, prod;
     pari_sp av1 = avma;
-
-    Qx_2 = modii(sqri(new_Y), h->N);
-    prod = mpqs_factorback(h, relp);
-    if (!equalii(Qx_2, prod))
+    if (!equalii(modii(sqri(new_Y), h->N), mpqs_factorback(h, relp)))
       pari_err_BUG("MPQS: combined large prime relation is false");
     set_avma(av1);
   }
