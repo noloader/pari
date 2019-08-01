@@ -1406,17 +1406,13 @@ mpqs_combine_large_primes(mpqs_handle_t *h, hashtable *lprel, GEN LPNEW, hashtab
   {
     GEN rel = gel(LPNEW,j);
     ulong q = itou(rel_q(rel));
-    GEN col = hash_haskey_GEN(lprel, (void*)q);
+    GEN f, col = hash_haskey_GEN(lprel, (void*)q);
     if (!col)
       hash_insert(lprel, (void*)q, (void*)rel);
-    else
+    else if ((f = combine_large_primes(h, rel, col)))
     {
-      GEN f = combine_large_primes(h, rel, col);
-      if (f)
-      {
-        if (typ(f) == t_INT) return f;
-        frel_add(frel, f);
-      }
+      if (typ(f) == t_INT) return f;
+      frel_add(frel, f);
     }
   }
   return NULL;
