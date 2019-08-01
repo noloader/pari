@@ -1134,18 +1134,15 @@ split_relp(GEN rel, GEN *pt_relp, GEN *pt_relc)
 static GEN
 mpqs_factorback(mpqs_handle_t *h, GEN relp)
 {
-  GEN N = h->N, prod = gen_1;
+  GEN N = h->N, Q = gen_1;
   long j, l = lg(relp);
-  mpqs_FB_entry_t *FB = h->FB;
-
-  for (j=1; j<l; j++)
+  for (j = 1; j < l; j++)
   {
     long e = relp[j]>>REL_OFFSET, i = relp[j]&REL_MASK;
-    /* special case -1 */
-    if (i == 1) prod = Fp_neg(prod,N);
-    else prod = Fp_mul(prod, Fp_powu(utoipos(FB[i].fbe_p), e, N), N);
+    if (i == 1) Q = Fp_neg(Q,N); /* special case -1 */
+    else Q = Fp_mul(Q, Fp_powu(utoipos(h->FB[i].fbe_p), e, N), N);
   }
-  return prod;
+  return Q;
 }
 #endif
 
