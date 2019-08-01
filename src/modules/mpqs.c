@@ -1152,53 +1152,38 @@ mpqs_factorback(mpqs_handle_t *h, GEN relp)
 
 /* NB FREL, LPREL are actually FNEW, LPNEW when we get called */
 static long
-mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
-               GEN *FREL, GEN *LPREL)
+mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
 {
   pari_sp av = avma;
-  long number_of_relations = 0;
-  long *relaprimes = h->relaprimes;
-  ulong i, pi;
   mpqs_FB_entry_t *FB = h->FB;
-  GEN A = h->A;
-  GEN B = h->B;                 /* we don't need coefficient C here */
+  GEN A = h->A, B = h->B, frel, lprel;
+  long *relaprimes = h->relaprimes, *candidates = h->candidates;
+  long nfrel = 1, nlprel = 1, number_of_relations = 0;
+  ulong i, pi;
   int pii;
-  long *candidates = h->candidates;
-  long nb;
-  GEN frel, lprel;
-  long nfrel = 1, nlprel = 1;
+
   frel = cgetg(DEFAULT_VEC_LEN, t_VEC);
   lprel = cgetg(DEFAULT_VEC_LEN, t_VEC);
   for (i = 0; i < (ulong)number_of_cand; i++)
   {
     pari_sp btop = avma;
-    GEN Qx, Qx_part, A_2x_plus_B, Y;
-    long powers_of_2, p;
-    long x = candidates[i];
-    long x_minus_M = x - h->M;
+    GEN Qx, Qx_part, Y, relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
+    long powers_of_2, p, x = candidates[i], nb = 0;
     int relaprpos = 0;
-    GEN relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
-
-    nb=0;
 
 #ifdef MPQS_DEBUG_VERYVERBOSE
     err_printf("%c", (char)('0' + i%10));
 #endif
+    /* Y = |2*A*x + B|, Qx = Y^2/(4*A) = Q(x) */
+    Y = absi_shallow( addii(mulis(A, 2 * (x - h->M)), B) );
+    Qx = subii(sqri(Y), h->kN);
 
-    /* A_2x_plus_B = (A*(2x)+B), Qx = (A*(2x)+B)^2/(4*A) = Q(x) */
-    A_2x_plus_B = addii(mulis(A, 2 * x_minus_M), B);
-    Y = absi_shallow(A_2x_plus_B);
-
-    Qx = subii(sqri(A_2x_plus_B), h->kN);
-
-    /* When N is relatively small, it may happen that Qx is outright
-     * divisible by N at this point.  In any case, when no extensive prior
-     * trial division / Rho / ECM had been attempted, gcd(Qx,N) may turn
-     * out to be a nontrivial factor of N  (larger than what the FB contains
-     * or we'd have found it already, but possibly smaller than the large-
-     * prime bound).  This is too rare to check for here in the inner loop,
-     * but it will be caught if such an LP relation is ever combined with
-     * another. */
+    /* When N is small, it may happen that N | Qx outright. In any case, when
+     * no extensive prior trial division / Rho / ECM was attempted, gcd(Qx,N)
+     * may turn out to be a nontrivial factor of N (not in FB or we'd have
+     * found it already, but possibly smaller than the large prime bound). This
+     * is too rare to check for here in the inner loop, but it will be caught
+     * if such an LP relation is ever combined with another. */
 
     /* Qx cannot possibly vanish here */
     if (!signe(Qx)) { PRINT_IF_VERBOSE("<+>"); continue; }
@@ -1207,85 +1192,69 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
       mpqs_add_factor(relp, &nb, 1, 1); /* i = 1, ei = 1, pi */
     }
 
-    /* divide by powers of 2;  we're really dealing with 4*A*Q(x), so we
-     * always have at least 2^2 here, and at least 2^3 when kN is 1 mod 4 */
+    /* Qx > 0, divide by powers of 2; we're really dealing with 4*A*Q(x), so we
+     * always have at least 2^2 here, and at least 2^3 when kN = 1 mod 4 */
     powers_of_2 = vali(Qx);
     Qx = shifti(Qx, -powers_of_2);
     mpqs_add_factor(relp, &nb, powers_of_2, 2); /* i = 1, ei = 1, pi */
 
-    /* That has dealt with a possible -1 and the power of 2.  First pass
-     * over odd primes in FB: pick up all possible divisors of Qx including
-     * those sitting in k or in A, and remember them in relaprimes. Do not
-     * yet worry about possible repeated factors, these will be found in the
-     * second pass. */
-    Qx_part = A;
-
-    /* The first pass recognizes divisors of A by their corresponding flags
-     * bit in the FB entry.  (Divisors of k require no special treatment at
-     * this stage.)  We construct a preliminary table of FB subscripts and
-     * "exponents" of the FB primes which divide Qx.  (We store subscripts
-     * rather than the primes themselves because the string representation
-     * of a relation is in terms of the subscripts.)
-     * We must distinguish three cases so we can do the right thing in the
-     * 2nd pass: prime not in A which divides Qx, prime in A which does not
-     * divide Qx/A, prime in A which does divide Qx/A. The first and third
-     * kinds need checking for repeated factors, the second kind doesn't. The
-     * first and second kinds contribute 1 to the exponent in the relation,
-     * the 3rd kind contributes 2. We store 1,0,2 respectively in these three
-     * cases.
-     * Factors in common with k are much simpler - if they occur, they occur
-     * exactly to the first power, and this makes no difference in the first
-     * pass - here they behave just like every normal odd factor base prime.
-     */
-
-    for (pi = 3; (p = FB[pi].fbe_p); pi++)
+    /* Pass 1 over odd primes in FB: pick up all possible divisors of Qx
+     * including those sitting in k or in A, and remember them in relaprimes.
+     * Do not yet worry about possible repeated factors, these will be found in
+     * the Pass 2. Pass 1 recognizes divisors of A by their corresponding flags
+     * bit in the FB entry. (Divisors of k are ignored at this stage.)
+     * We construct a preliminary table of FB subscripts and "exponents" of FB
+     * primes which divide Qx. (We store subscripts, not the primes themselves.)
+     * We distinguish three cases:
+     * 0) prime in A which does not divide Qx/A,
+     * 1) prime not in A which divides Qx/A,
+     * 2) prime in A which divides Qx/A.
+     * Cases 1 and 2 need checking for repeated factors, kind 0 doesn't.
+     * Cases 0 and 1 contribute 1 to the exponent in the relation, case 2
+     * contributes 2.
+     * Factors in common with k are simpler: if they occur, they occur
+     * exactly to the first power, and this makes no difference in Pass 1,
+     * so they behave just like every normal odd FB prime. */
+    for (Qx_part = A, pi = 3; (p = FB[pi].fbe_p); pi++)
     {
-      long tmp_p = x % p;
-      ulong ei = 0;
+      long xp = x % p;
+      ulong ei = FB[pi].fbe_flags & MPQS_FBE_DIVIDES_A;
+      /* Here we used that MPQS_FBE_DIVIDES_A = 1. */
 
-      /* Here we use that MPQS_FBE_DIVIDES_A equals 1. */
-      ei = FB[pi].fbe_flags & MPQS_FBE_DIVIDES_A;
-
-      if (tmp_p == FB[pi].fbe_start1 || tmp_p == FB[pi].fbe_start2)
-      { /* p divides Q(x)/A (and possibly A), 1st or 3rd case */
+      if (xp == FB[pi].fbe_start1 || xp == FB[pi].fbe_start2)
+      { /* p divides Q(x)/A and possibly A, case 2 or 3 */
         relaprimes[relaprpos++] = pi;
         relaprimes[relaprpos++] = 1 + ei;
         Qx_part = muliu(Qx_part, p);
       }
       else if (ei)
-      { /* p divides A but does not divide Q(x)/A, 2nd case */
+      { /* p divides A but does not divide Q(x)/A, case 1 */
         relaprimes[relaprpos++] = pi;
         relaprimes[relaprpos++] = 0;
       }
     }
-
-    /* We have now accumulated the known factors of Qx except for possible
-     * repeated factors and for possible large primes.  Divide off what we
-     * have.  (This is faster than dividing off A and each prime separately.)
-     */
+    /* We have accumulated the known factors of Qx except for possible repeated
+     * factors and for possible large primes.  Divide off what we have.
+     * This is faster than dividing off A and each prime separately. */
     Qx = diviiexact(Qx, Qx_part);
-    /* (ToDo: MPQS_DEBUG sanity check...) */
 
 #ifdef MPQS_DEBUG_AVMA
     err_printf("MPQS DEBUG: eval loop 3, avma = 0x%lX\n", (ulong)avma);
 #endif
-
-    /* second pass - deal with any repeated factors, and write out the string
-     * representation of the tentative relation. At this point, the only
-     * primes which can occur again in the adjusted Qx are those in relaprimes
-     * which are followed by 1 or 2.  We must pick up those followed by a 0,
-     * too, though. */
+    /* Pass 2: deal with repeated factors and store tentative relation. At this
+     * point, the only primes which can occur again in the adjusted Qx are
+     * those in relaprimes which are followed by 1 or 2. We must pick up those
+     * followed by a 0, too. */
     PRINT_IF_VERBOSE("a");
-    for (pii = 0; pii < relaprpos; pii+=2)
+    for (pii = 0; pii < relaprpos; pii += 2)
     {
-      long remd_p;
-      ulong ei = relaprimes[pii+1];
-      GEN Qx_div_p;
-      pi = relaprimes[pii];
+      ulong r, ei = relaprimes[pii+1];
+      GEN q;
 
-      /* p | k (identified by its position before index0_FB)
-       * or p | A (ei = 0) */
-      if ((mpqs_int32_t)pi < h->index0_FB || ei == 0) {
+      pi = relaprimes[pii];
+      /* p | k (identified by its index before index0_FB)* or p | A (ei = 0) */
+      if ((mpqs_int32_t)pi < h->index0_FB || ei == 0)
+      {
         mpqs_add_factor(relp, &nb, 1, pi);
         continue;
       }
@@ -1293,18 +1262,14 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 #ifdef MPQS_DEBUG_CANDIDATE_EVALUATION
       err_printf("MPQS DEBUG: Qx=%Ps p=%ld\n", Qx, p);
 #endif
-      /* otherwise p might still divide the current adjusted Qx. Try it... */
-      /* NOTE: break out of loop when remaining Qx is 1 ?  Or rather, suppress
-       * the trial divisions, since we still need to write our string.
-       * Actually instead of testing for 1, test whether Qx is smaller than p;
-       * cf Karim's mail from 20050124.  If it is, without being 1, then it has
-       * a common factor with k.  But those factors are soon going to have
-       * disappeared before we get here.  However, inserting
-       * an explicit if (!is_pm1(Qx)) here did not help any. */
-      Qx_div_p = divis_rem(Qx, p, &remd_p);
-      while (remd_p == 0) {
-        ei++; Qx = Qx_div_p;
-        Qx_div_p = divis_rem(Qx, p, &remd_p);
+      /* p might still divide the current adjusted Qx. Try it. */
+      switch(cmpiu(Qx, p))
+      {
+        case 0: ei++; Qx = gen_1; break;
+        case 1:
+          q = absdiviu_rem(Qx, p, &r);
+          while (r == 0) { ei++; Qx = q; q = absdiviu_rem(Qx, p, &r); }
+          break;
       }
       mpqs_add_factor(relp, &nb, ei, pi);
     }
@@ -1313,11 +1278,10 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
     err_printf("MPQS DEBUG: eval loop 4, avma = 0x%lX\n", (ulong)avma);
 #endif
     PRINT_IF_VERBOSE("\bb");
+    setlg(relp, nb+1);
     if (is_pm1(Qx))
     {
-      GEN rel;
-      setlg(relp, nb+1);
-      rel = gerepilecopy(btop, mkvec2(Y, relp));
+      GEN rel = gerepilecopy(btop, mkvec2(Y, relp));
       frel = vec_extend(frel, rel, nfrel++);
       number_of_relations++;
 
@@ -1325,55 +1289,45 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
       {
         pari_sp av1 = avma;
         GEN rhs = mpqs_factorback(h, relp);
-        GEN Y = gel(rel,1);
-        GEN Qx_2 = remii(sqri(Y), h->N);
-        GEN relpp, relpc;
-        split_relp(relp,&relpp,&relpc);
+        GEN Y = gel(rel,1), Qx_2 = remii(sqri(Y), h->N);
         if (!equalii(Qx_2, rhs))
         {
-          PRINT_IF_VERBOSE("\b(!)\n");
+          GEN relpp, relpc;
+          split_relp(relp,&relpp,&relpc);
           err_printf("MPQS: %Ps @ %Ps : %Ps %Ps\n", Y, Qx,relpp,relpc);
           err_printf("\tQx_2 = %Ps\n", Qx_2);
           err_printf("\t rhs = %Ps\n", rhs);
           pari_err_BUG("MPQS: wrong full relation found");
         }
-        else
-          PRINT_IF_VERBOSE("\b(:)");
-        set_avma(av1);
+        PRINT_IF_VERBOSE("\b(:)"); set_avma(av1);
       }
 #endif
     }
-    else if (cmpis(Qx, h->lp_bound) > 0)
+    else if (cmpiu(Qx, h->lp_bound) > 0)
     { /* TODO: check for double large prime */
       PRINT_IF_VERBOSE("\b.");
       set_avma(btop);
     }
     else
-    { /* if (mpqs_isprime(itos(Qx))) */
-      GEN rel;
-      setlg(relp, nb+1);
-      rel = gerepilecopy(btop, mkvec3(Qx,Y,relp));
+    {
+      GEN rel = gerepilecopy(btop, mkvec3(Qx,Y,relp));
       lprel = vec_extend(lprel, rel, nlprel++);
 #ifdef MPQS_DEBUG
       {
         pari_sp av1 = avma;
         GEN rhs = mpqs_factorback(h, relp);
-        GEN Qx = gel(rel,1), Y = gel(rel,2);
-        GEN Qx_2 = remii(sqri(Y), h->N);
-        split_relp(relp,&relpp,&relpc);
-
+        GEN Qx = gel(rel,1), Y = gel(rel,2), Qx_2 = remii(sqri(Y), h->N);
         rhs = modii(mulii(rhs, Qx), h->N);
         if (!equalii(Qx_2, rhs))
         {
-          PRINT_IF_VERBOSE("\b(!)\n");
+          GEN relpp, relpc;
+          split_relp(relp,&relpp,&relpc);
           err_printf("MPQS: %Ps @ %Ps :%s %Ps %Ps\n", Y, Qx, relpp, relpc);
           err_printf("\tQx_2 = %Ps\n", Qx_2);
           err_printf("\t rhs = %Ps\n", rhs);
           pari_err_BUG("MPQS: wrong large prime relation found");
         }
-        else
-          PRINT_IF_VERBOSE("\b(;)");
-        set_avma(av1);
+        PRINT_IF_VERBOSE("\b(;)"); set_avma(av1);
       }
 #endif
     }
