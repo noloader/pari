@@ -1255,9 +1255,6 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
         continue;
       }
       p = FB[pi].fbe_p;
-#ifdef MPQS_DEBUG_CANDIDATE_EVALUATION
-      err_printf("MPQS DEBUG: Qx=%Ps p=%ld\n", Qx, p);
-#endif
       /* p might still divide the current adjusted Qx. Try it. */
       switch(cmpiu(Qx, p))
       {
