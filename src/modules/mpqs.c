@@ -70,9 +70,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define MAX_PE_PAIR 60
 #define DEFAULT_VEC_LEN 17
 
-static GEN rel_q(GEN c) { return gel(c,1); }
-static GEN rel_Y(GEN c) { return gel(c,2); }
-static GEN rel_p(GEN c) { return gel(c,3); }
+static GEN rel_q(GEN c) { return gel(c,3); }
+static GEN rel_Y(GEN c) { return gel(c,1); }
+static GEN rel_p(GEN c) { return gel(c,2); }
 
 static void
 frel_add(hashtable *frel, GEN R)
@@ -1144,6 +1144,27 @@ mpqs_factorback(mpqs_handle_t *h, GEN relp)
   }
   return Q;
 }
+static void
+mpqs_check_rel(mpqs_handle_t *h, GEN c)
+{
+  pari_sp av = avma;
+  int LP = (lg(c) == 4);
+  GEN rhs = mpqs_factorback(h, rel_p(c));
+  GEN Y = rel_Y(c), Qx_2 = remii(sqri(Y), h->N);
+  if (LP) rhs = modii(mulii(rhs, rel_q(c)), h->N);
+  if (!equalii(Qx_2, rhs))
+  {
+    GEN relpp, relpc;
+    split_relp(rel_p(c), &relpp, &relpc);
+    err_printf("MPQS: %Ps : %Ps %Ps\n", Y, relpp,relpc);
+    err_printf("\tQx_2 = %Ps\n", Qx_2);
+    err_printf("\t rhs = %Ps\n", rhs);
+    pari_err_BUG(LP? "MPQS: wrong large prime relation found"
+                   : "MPQS: wrong full relation found");
+  }
+  PRINT_IF_VERBOSE(LP? "\b(;)": "\b(:)");
+  set_avma(av);
+}
 #endif
 
 /* NB FREL, LPREL are actually FNEW, LPNEW when we get called */
@@ -1278,21 +1299,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
       frel = vec_extend(frel, rel, nfrel++);
       number_of_relations++;
 #ifdef MPQS_DEBUG
-      {
-        pari_sp av1 = avma;
-        GEN rhs = mpqs_factorback(h, gel(rel,2));
-        GEN Y = gel(rel,1), Qx_2 = remii(sqri(Y), h->N);
-        if (!equalii(Qx_2, rhs))
-        {
-          GEN relpp, relpc;
-          split_relp(gel(rel,2),&relpp,&relpc);
-          err_printf("MPQS: %Ps @ %Ps : %Ps %Ps\n", Y, Qx,relpp,relpc);
-          err_printf("\tQx_2 = %Ps\n", Qx_2);
-          err_printf("\t rhs = %Ps\n", rhs);
-          pari_err_BUG("MPQS: wrong full relation found");
-        }
-        PRINT_IF_VERBOSE("\b(:)"); set_avma(av1);
-      }
+      mpqs_check_rel(h, rel);
 #endif
     }
     else if (cmpiu(Qx, h->lp_bound) > 0)
@@ -1302,25 +1309,10 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
     }
     else
     {
-      GEN rel = gerepilecopy(btop, mkvec3(Qx,Y,relp));
+      GEN rel = gerepilecopy(btop, mkvec3(Y,relp,Qx));
       lprel = vec_extend(lprel, rel, nlprel++);
 #ifdef MPQS_DEBUG
-      {
-        pari_sp av1 = avma;
-        GEN rhs = mpqs_factorback(h, gel(rel,3));
-        GEN Qx = gel(rel,1), Y = gel(rel,2), Qx_2 = remii(sqri(Y), h->N);
-        rhs = modii(mulii(rhs, Qx), h->N);
-        if (!equalii(Qx_2, rhs))
-        {
-          GEN relpp, relpc;
-          split_relp(gel(relp,3),&relpp,&relpc);
-          err_printf("MPQS: %Ps @ %Ps :%s %Ps %Ps\n", Y, Qx, relpp, relpc);
-          err_printf("\tQx_2 = %Ps\n", Qx_2);
-          err_printf("\t rhs = %Ps\n", rhs);
-          pari_err_BUG("MPQS: wrong large prime relation found");
-        }
-        PRINT_IF_VERBOSE("\b(;)"); set_avma(av1);
-      }
+      mpqs_check_rel(h, rel);
 #endif
     }
 
