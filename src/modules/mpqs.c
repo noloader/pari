@@ -1620,8 +1620,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
   else
     res_max = 1L<<rank; /* max number of factors we can hope for */
   res_size = 8; /* no. of factors we can store in this res */
-  res = cgetg(2*res_size+1, t_VEC);
-  for (i=2*res_size; i; i--) res[i] = 0;
+  res = const_vec(2*res_size, NULL);
   res_next = res_last = 1;
 
   for (i = 1; i <= H_cols; i++)
@@ -1666,41 +1665,29 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
         pari_warn(warner, "MPQS: wrong relation found after Gauss");
       }
     }
-    /* At this point, X^2 == Y^2 mod N.  Indeed, something stronger is true:
-     * We have gcd(X-Y, N) * gcd(X+Y, N) == N.  Why?
-     * First, N divides X^2 - Y^2, so it divides the lefthand side.
-     * Second, let P be any prime factor of N.  If P were to divide both
-     * X-Y and X+Y, then it would divide their sum 2X.  But X (in the present
-     * backwards notation!) is a product of powers of FB primes, and no FB
-     * prime is a divisor of N, or we would have found out about it already
-     * whilst constructing the FB.
-     * Therefore in the following it is sufficient to work with gcd(X+Y, N)
-     * alone, and never look at gcd(X-Y, N).
-     */
-    done = 0; /* (re-)counts probably-prime factors (or powers whose bases we
-               * don't want to handle any further) */
+    /* At this point, gcd(X-Y, N) * gcd(X+Y, N) = N:
+     * 1) N | X^2 - Y^2, so it divides the LHS;
+     * 2) let P be any prime factor of N. If P | X-Y and P | X+Y, then P | 2X
+     * But X is a product of powers of FB primes => coprime to N.
+     * Hence we work with gcd(X+Y, N) alone. */
+    done = 0; /* # probably-prime factors (or powers whose bases we don't
+                 want to handle any further) */
     X_plus_Y = addii(X, Y_prod);
     if (res_next < 3)
-    { /* we still haven't decomposed the original N, and want both a gcd and
-       * its cofactor. */
+    { /* we still haven't decomposed, and want both a gcd and its cofactor. */
       D1 = gcdii(X_plus_Y, N);
       if (is_pm1(D1) || equalii(D1,N)) { set_avma(av3); continue; }
       /* got something that works */
       if (DEBUGLEVEL >= 5)
         err_printf("MPQS: splitting N after %ld kernel vector%s\n",
                    i+1, (i? "s" : ""));
-      /* GN20050707 Fixed:
-       * Don't divide N in place. We still need it for future X and Y_prod
-       * computations! */
       gel(res,1) = diviiexact(N, D1);
       gel(res,2) = D1;
       res_last = res_next = 3;
 
       if ( split(gel(res,1),  &gel(res,res_size+1), &gel(res,1)) ) done++;
       if ( split(D1, &gel(res,res_size+2), &gel(res,2)) ) done++;
-      if (done == 2) break;     /* both factors look prime or were powers */
-      /* GN20050707: moved following line down to here, was before the
-       * two split() invocations.  Very rare case anyway. */
+      if (done == 2) break; /* both factors look prime or were powers */
       if (res_max == 2) break; /* two out of two possible factors seen */
       if (DEBUGLEVEL >= 5)
         err_printf("MPQS: got two factors, looking for more...\n");
@@ -1721,74 +1708,57 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
         /* got one which splits this factor */
         if (DEBUGLEVEL >= 5)
           err_printf("MPQS: resplitting a factor after %ld kernel vectors\n",
-                     i+1);      /* always plural */
+                     i+1);
         /* first make sure there's room for another factor */
         if (res_next > res_size)
-        { /* need to reallocate (_very_ rare case) */
-          long i1, size = 2*res_size;
-          GEN RES;
-          if (size > res_max) size = res_max;
-          RES = cgetg(2*size+1, t_VEC);
-          for (i1=2*size; i1>=res_next; i1--) gel(RES,i1) = NULL;
-          for (i1=1; i1<res_next; i1++)
-          {
-            /* GN20050707:
-             * on-stack contents of RES must be rejuvenated */
-            icopyifstack(gel(res,i1), gel(RES,i1)); /* factors */
-            if ( gel(res,res_size+i1) )
-              icopyifstack(gel(res,res_size+i1), gel(RES,size+i1));
-            /* primality tags */
+        { /* need to reallocate (rare) */
+          long t, s = minss(2*res_size, res_max);
+          GEN RES = cgetg(2*s+1, t_VEC);
+          for (t=2*s; t>=res_next; t--) gel(RES,t) = NULL;
+          for (t=1; t<res_next; t++)
+          { /* on-stack contents of RES must be rejuvenated */
+            icopyifstack(gel(res,t), gel(RES,t)); /* factors */
+            if (gel(res,res_size+t)) /* primality tags */
+              icopyifstack(gel(res,res_size+t), gel(RES,s+t));
           }
-          res = RES; res_size = size;   /* res_next unchanged */
+          res = RES; res_size = s; /* res_next unchanged */
         }
-        /* now there is room; divide into existing factor and store the
-           new gcd */
+        /* divide into existing factor and store the new gcd */
         diviiz(gel(res,j), D1, gel(res,j));
         gel(res,res_next) = D1;
 
         /* following overwrites the old known-composite indication at j */
         if (split( gel(res,j), &gel(res,res_size+j), &gel(res,j)) ) done++;
-        /* GN20050707 Fixed:
-         * Don't increment done when the newly stored factor seems to be
+        /* Don't increment done when the newly stored factor seems to be
          * prime or otherwise devoid of interest - this happens later
-         * when we routinely revisit it during the present inner loop. */
+         * when we revisit it during the present inner loop. */
         (void)split(D1, &gel(res,res_size+res_next), &gel(res,res_next));
-
-        /* GN20050707: Following line moved down to here, was before the
-         * two split() invocations. */
-        if (++res_next > res_max)
-        {
-          /* all possible factors seen, outer loop postprocessing will
-           * proceed to break out of the outer loop below. */
-          break;
-        }
-      }       /* loop over known composite factors */
+        if (++res_next > res_max) break; /* all possible factors seen */
+      } /* loop over known composite factors */
 
       if (res_next > res_last)
       {
-        res_last = res_next - 1; /* we might have resplit more than one */
         if (DEBUGLEVEL >= 5)
-          err_printf("MPQS: got %ld factors%s\n", res_last,
+          err_printf("MPQS: got %ld factors%s\n", res_last - 1,
                      (done < res_last ? ", looking for more..." : ""));
         res_last = res_next;
       }
-      /* break out of the outer loop when we have seen res_max factors, and
-       * also when all current factors are probable primes */
+      /* break out of the outer loop if we have seen res_max factors, or
+       * when all current factors are probable primes */
       if (res_next > res_max || done == res_next - 1) break;
     } /* end case of further splitting of existing factors */
     if (gc_needed(av2,1))
     {
-      long i1;
+      long t;
       if(DEBUGMEM>1) pari_warn(warnmem,"[3]: mpqs_solve_linear_system");
       /* gcopy would have a problem with our NULL pointers... */
       new_res = cgetg(lg(res), t_VEC);
-      for (i1=2*res_size; i1>=res_next; i1--) new_res[i1] = 0;
-      for (i1=1; i1<res_next; i1++)
+      for (t=2*res_size; t>=res_next; t--) new_res[t] = 0;
+      for (t=1; t<res_next; t++)
       {
-        icopyifstack(gel(res,i1), gel(new_res,i1));
-        /* GN20050707: the marker GENs might need rejuvenating, too */
-        if (gel(res,res_size+i1))
-          icopyifstack(gel(res,res_size+i1), gel(new_res,res_size+i1));
+        icopyifstack(gel(res,t), gel(new_res,t));
+        if (gel(res,res_size+t))
+          icopyifstack(gel(res,res_size+t), gel(new_res,res_size+t));
       }
       res = gerepileupto(av2, new_res);
     }
@@ -1797,8 +1767,8 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
   if (res_next < 3) return gc_NULL(av); /* no factors found */
 
   /* normal case:  convert internal format to ifac format as described in
-   * src/basemath/ifactor1.c  (triples of components: value, exponent, class
-   * [unknown, known composite, known prime]),  clean up and return result */
+   * basemath/ifactor1.c  (value, exponent, class [unknown, known composite,
+   * known prime]) */
   res_last = res_next - 1; /* number of distinct factors found */
   new_res = cgetg(3*res_last + 1, t_VEC);
   if (DEBUGLEVEL >= 6)
@@ -1807,14 +1777,11 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
   {
     GEN F = gel(res, res_size+i);
     icopyifstack(gel(res,i), gel(new_res,j++)); /* factor */
-    gel(new_res,j++) = /* exponent */
-      F ? (F == gen_0 ? gen_1
-                      : (isonstack(F) ? icopy(F) : F))
-        : gen_1; /* F was NULL */
-    gel(new_res,j++) = /* class */
-      F == gen_0 ? gen_0 :      /* known composite */
-        NULL;           /* base of power or suspected prime --
-                                   mark as `unknown' */
+    /* exponent */
+    gel(new_res,j++) = F ? (F == gen_0 ? gen_1
+                                       : (isonstack(F) ? icopy(F) : F))
+                         : gen_1;
+    gel(new_res,j++) = F; /* class, known composite or unknown */
     if (DEBUGLEVEL >= 6)
       err_printf("\tpackaging %ld: %Ps ^%ld (%s)\n", i, res[i],
                  itos(gel(new_res,j-2)), (F == gen_0 ? "comp." : "unknown"));
