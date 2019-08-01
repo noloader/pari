@@ -1426,21 +1426,10 @@ mpqs_combine_large_primes(mpqs_handle_t *h, hashtable *lprel, GEN LPNEW, hashtab
 
 /* create an F2m from a relations list; rows = size_of_FB+1 */
 static GEN
-stream_read_F2m(GEN rel, long rows)
+rels_to_F2m(GEN rel, long rows)
 {
   long i, cols = lg(rel)-1;
-  GEN m;
-  long space = 2*((nbits2nlong(rows)+3)*cols+1);
-  if ((long)((GEN)avma - (GEN)pari_mainstack->bot) < space)
-  {
-    pari_sp av = avma;
-    m = gclone(zero_F2m(rows, cols));
-    if (DEBUGLEVEL>=4)
-      err_printf("MPQS: allocating %ld words for Gauss\n",space);
-    set_avma(av);
-  }
-  else
-    m = zero_F2m_copy(rows, cols);
+  GEN m = zero_F2m_copy(rows, cols);
   for (i = 1; i <= cols; i++)
   {
     GEN relp = gmael(rel,i,2);
@@ -1485,14 +1474,14 @@ split(GEN N, GEN *e, GEN *res)
 }
 
 static GEN
-mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
+mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
 {
   mpqs_FB_entry_t *FB = h->FB;
   pari_sp av = avma, av2;
-  long i, j, H_cols, H_rows, res_last, res_next, res_size, res_max, done, rank;
-  GEN N = h->N, X_plus_Y, D1, res, new_res, ei, m, ker_m;
+  GEN rels = hash_keys(frel), N = h->N, res, new_res, ei, m, ker_m;
+  long i, j, H_rows, res_last, res_next, res_size, res_max, done, rank;
 
-  m = stream_read_F2m(frel, h->size_of_FB+1);
+  m = rels_to_F2m(rels, h->size_of_FB+1);
   if (DEBUGLEVEL >= 7)
     err_printf("\\\\ MATRIX READ BY MPQS\nFREL=%Ps\n",m);
 
@@ -1509,10 +1498,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
     err_printf("MPQS: Gauss done: kernel has rank %ld, taking gcds...\n", rank);
   }
 
-  H_rows = lg(m)-1;
-  H_cols = rank;
-
-  if (!H_cols)
+  if (!rank)
   { /* trivial kernel. Fail gracefully: main loop may look for more relations */
     if (DEBUGLEVEL >= 3)
       pari_warn(warner, "MPQS: no solutions found from linear system solver");
@@ -1535,18 +1521,17 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
   res_size = 8; /* no. of factors we can store in this res */
   res = const_vec(2*res_size, NULL);
   res_next = res_last = 1;
-
-  for (i = 1; i <= H_cols; i++)
+  H_rows = lg(m)-1;
+  for (i = 1; i <= rank; i++)
   { /* loop over kernel basis */
-    GEN X = gen_1, Y_prod = gen_1;
-    pari_sp av3;
-    memset((void *)(ei+1), 0, (h->size_of_FB + 1) * sizeof(long));
+    GEN X = gen_1, Y_prod = gen_1, X_plus_Y, D1;
+    pari_sp av3 = avma;
 
-    av3 = avma;
+    memset((void *)(ei+1), 0, (h->size_of_FB + 1) * sizeof(long));
     for (j = 1; j <= H_rows; j++)
     {
       if (F2m_coeff(ker_m, j, i))
-        Y_prod = mpqs_add_relation(Y_prod, N, ei, gel(frel,j));
+        Y_prod = mpqs_add_relation(Y_prod, N, ei, gel(rels,j));
       if (gc_needed(av3,1))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"[1]: mpqs_solve_linear_system");
@@ -1960,7 +1945,7 @@ mpqs(GEN N)
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
                  frel.nb);
-    fact = mpqs_solve_linear_system(&H, hash_keys(&frel));
+    fact = mpqs_solve_linear_system(&H, &frel);
     if (fact)
     { /* solution found */
       if (DEBUGLEVEL >= 4)
