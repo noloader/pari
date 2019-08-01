@@ -1135,13 +1135,12 @@ static GEN
 mpqs_factorback(mpqs_handle_t *h, GEN relp)
 {
   GEN N = h->N, prod = gen_1;
-  long i, j, l = lg(relp);
+  long j, l = lg(relp);
   mpqs_FB_entry_t *FB = h->FB;
 
   for (j=1; j<l; j++)
   {
-    long e = relp[j]>>REL_OFFSET;
-    i = relp[j]&REL_MASK;
+    long e = relp[j]>>REL_OFFSET, i = relp[j]&REL_MASK;
     /* special case -1 */
     if (i == 1) prod = Fp_neg(prod,N);
     else prod = Fp_mul(prod, Fp_powu(utoipos(FB[i].fbe_p), e, N), N);
@@ -1284,16 +1283,15 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
       GEN rel = gerepilecopy(btop, mkvec2(Y, relp));
       frel = vec_extend(frel, rel, nfrel++);
       number_of_relations++;
-
 #ifdef MPQS_DEBUG
       {
         pari_sp av1 = avma;
-        GEN rhs = mpqs_factorback(h, relp);
+        GEN rhs = mpqs_factorback(h, gel(rel,2));
         GEN Y = gel(rel,1), Qx_2 = remii(sqri(Y), h->N);
         if (!equalii(Qx_2, rhs))
         {
           GEN relpp, relpc;
-          split_relp(relp,&relpp,&relpc);
+          split_relp(gel(rel,2),&relpp,&relpc);
           err_printf("MPQS: %Ps @ %Ps : %Ps %Ps\n", Y, Qx,relpp,relpc);
           err_printf("\tQx_2 = %Ps\n", Qx_2);
           err_printf("\t rhs = %Ps\n", rhs);
@@ -1315,13 +1313,13 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
 #ifdef MPQS_DEBUG
       {
         pari_sp av1 = avma;
-        GEN rhs = mpqs_factorback(h, relp);
+        GEN rhs = mpqs_factorback(h, gel(rel,3));
         GEN Qx = gel(rel,1), Y = gel(rel,2), Qx_2 = remii(sqri(Y), h->N);
         rhs = modii(mulii(rhs, Qx), h->N);
         if (!equalii(Qx_2, rhs))
         {
           GEN relpp, relpc;
-          split_relp(relp,&relpp,&relpc);
+          split_relp(gel(relp,3),&relpp,&relpc);
           err_printf("MPQS: %Ps @ %Ps :%s %Ps %Ps\n", Y, Qx, relpp, relpc);
           err_printf("\tQx_2 = %Ps\n", Qx_2);
           err_printf("\t rhs = %Ps\n", rhs);
