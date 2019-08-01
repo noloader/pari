@@ -1873,22 +1873,20 @@ mpqs(GEN N)
                    sort_interval/10.);
     }
 
-    /* combine whatever there is to be combined */
-    tfc = 0;
     /* build full relations out of large prime relations */
-    fnb = frel.nb;
-    for (i=1; i<nvnew; i++)
+    tfc = 0; fnb = frel.nb;
+    for (i = 1; i < nvnew; i++)
     {
-      GEN fact = mpqs_combine_large_primes(&H, &lprel, gel(vnew,i) , &frel);
-      if (fact)
+      GEN q = mpqs_combine_large_primes(&H, &lprel, gel(vnew,i) , &frel);
+      if (q)
       { /* factor found during combining */
         if (DEBUGLEVEL >= 4)
         {
           err_printf("\nMPQS: split N whilst combining, time = %ld ms\n",
-              timer_delay(&T));
-          err_printf("MPQS: found factor = %Ps\n", fact);
+                     timer_delay(&T));
+          err_printf("MPQS: found factor = %Ps\n", q);
         }
-        return gerepileupto(av, fact);
+        return gerepileupto(av, q);
       }
     }
     nvnew = 1;
@@ -1898,14 +1896,12 @@ mpqs(GEN N)
     total_partial_relations += tfc;
 
     percentage = (long)((1000.0 * frel.nb) / H.target_no_rels);
-    /* Estimate the current full relations yield rate: we see each time through
-     * the main loop how many full relations we're getting from the sieve
-     * (tff since previous checkpoint), but only at checkpoints do we see how
-     * many we're typically combining (tfc).  So we're producing (tfc+tff)/tff
-     * as many full rels, and when we get close to 100%, we should bias the
-     * next interval by the inverse ratio. Avoid drawing conclusions from
-     * too-small samples during very short follow-on intervals (in this case
-     * re-use an earlier estimated ratio). */
+    /* Estimate full relations yield rate: we got tff relations
+     * from the sieve since checkpoint, and tfc by combining. So we're
+     * producing (tfc+tff)/tff as many full rels, and when we get close to
+     * 100%, we bias the next interval by the inverse ratio. Avoid drawing
+     * conclusions from too-small samples during very short follow-on intervals
+     * (in this case re-use an earlier estimated ratio). */
     if (tfc >= 16 && tff >= 20) tfc_ratio = (tfc + tff + 0.) / tff;
     tff = 0; /* reset this count (tfc is always fresh) */
 
