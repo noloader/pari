@@ -21,55 +21,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  */
 /* Notation commonly used in this file, and sketch of algorithm:
  *
- * Given an odd integer N > 1 to be factored, we throw in a small odd and
- * squarefree multiplier k so as to make kN congruent 1 mod 4 and to have
- * many small primes over which X^2 - kN splits.  We compute a factor base
- * FB of such primes, and then essentially look for values x0 such that
- * Q0(x0) = x0^2 - kN can be decomposed over this factor base, up to a
- * possible factor dividing k and a possible "large prime".  Relations
- * involving the latter can be combined into full relations (working mod N
- * now) which don't, and full relations, by Gaussian elimination over the
- * 2-element field for the exponent vectors, will finally lead us to an
- * expression X^2 - Y^2 divisible by N and hopefully to a nontrivial
- * splitting when we compute gcd(X +- Y, N).  Note that this can never
- * split prime powers.  (Any odd prime dividing the X - Y factor, say, will
- * divide it to the same power as it divides N.)
+ * Given an odd integer N > 1 to be factored, we throw in a small odd squarefree
+ * multiplier k so as to make kN = 1 mod 4 and to have many small primes over
+ * which X^2 - kN splits.  We compute a factor base FB of such primes then
+ * look for values x0 such that Q0(x0) = x0^2 - kN can be decomposed over FB,
+ * up to a possible factor dividing k and a possible "large prime". Relations
+ * involving the latter can be combined into full relations which don't; full
+ * relations, by Gaussian elimination over F2 for the exponent vectors lead us
+ * to an expression X^2 - Y^2 divisible by N and hopefully to a nontrivial
+ * splitting when we compute gcd(X + Y, N).  Note that this can never
+ * split prime powers.
  *
- * Candidates x0 are found by sieving along arithmetic progressions modulo
- * the small primes in the factor base, and evaluation of candidates picks
- * out those x0 where many of these APs happen to coincide, resulting in a
- * highly divisible Q0(x0).
+ * Candidates x0 are found by sieving along arithmetic progressions modulo the
+ * small primes in FB and evaluation of candidates picks out those x0 where
+ * many of these progressions coincide, resulting in a highly divisible Q0(x0).
  *
  * The Multi-Polynomial version improves this by choosing a modest subset of
- * factor base primes and forcing these to divide Q0(x).  Let A be the product
- * of the chosen primes, and write Q(x) = Q0(2Ax + B) = (2Ax + B)^2 - kN =
- * 4A(Ax^2 + Bx + C), where B has been suitably chosen.  For each A, there
- * are 2^omega_A possible values for B when A is the product of omega_A
- * distinct primes, but we'll use only half of these, since the other half
- * is more easily covered by exploiting the symmetry x <-> -x of the original
- * quadratic.  The "Self-Initializating" bit refers to the fact that switching
- * from one B to the next can be done very fast, whereas switching to the
- * next A involves some recomputation from scratch.  (C is never needed
- * explicitly except for debug diagnostics.)  Thus we can very quickly run
- * through an entire "cohort" of polynomials sharing the same A.
+ * FB primes (let A be their product) and forcing these to divide Q0(x).
+ * Write Q(x) = Q0(2Ax + B) = (2Ax + B)^2 - kN = 4A(Ax^2 + Bx + C), where B is
+ * suitably chosen.  For each A, there are 2^omega_A possible values for B
+ * but we'll use only half of these, since the other half is easily covered by
+ * exploiting the symmetry x -> -x of the original Q0. The "Self-Initializating"
+ * bit refers to the fact that switching from one B to the next is fast, whereas
+ * switching to the next A involves some recomputation (C is never needed).
+ * Thus we quickly run through many polynomials sharing the same A.
  *
- * The sieve now ranges over values x0 such that |x0| < M  (we use x = x0 + M
- * as the non-negative array subscript).  The coefficients A are chosen so
- * that A*M is approximately sqrt(kN).  Then |B| will be bounded by about
- * (j+4)*A, and |C| = -C will be about (M/4)*sqrt(kN), so Q(x0)/(4A) will
- * take values roughly between -|C| and 3|C|.
+ * The sieve ranges over values x0 such that |x0| < M  (we use x = x0 + M
+ * as array subscript).  The coefficients A are chosen so that A*M ~ sqrt(kN).
+ * Then |B| is bounded by ~ (j+4)*A, and |C| = -C ~ (M/4)*sqrt(kN), so
+ * Q(x0)/(4A) takes values roughly between -|C| and 3|C|.
  *
- * There are numerous refinements to this basic outline  (e.g. it is more
- * efficient to _not_ use the very smallest primes in the FB for sieving,
- * incorporating them only after selecting candidates).  The substition of
- * 2Ax+B into X^2 - kN, with odd B, forces 2 to occur;  when kN is 1 mod 8,
- * it will always occur at least to the 3rd power;  when kN = 5 mod 8, it
- * will always occur exactly to the 2nd power.  We never sieve on 2 and we
- * always pull out the power of 2 directly  (which is easy, of course).
- * The prime factor(s) of k will show up whenever 2Ax + B has a factor in
- * common with k;  we don't sieve on these either but can easily recognize
- * them in a candidate.
- */
+ * Refinements. We do not use the smallest FB primes for sieving, incorporating
+ * them only after selecting candidates).  The substition of 2Ax+B into
+ * X^2 - kN, with odd B, forces 2 to occur; when kN is 1 mod 8, it occurs at
+ * least to the 3rd power; when kN = 5 mod 8, it occurs exactly to the 2nd
+ * power.  We never sieve on 2 and always pull out the power of 2 directly. The
+ * prime factors of k show up whenever 2Ax + B has a factor in common with k;
+ * we don't sieve on these either but easily recognize them in a candidate. */
 #include "pari.h"
 #include "paripriv.h"
 
