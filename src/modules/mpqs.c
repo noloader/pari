@@ -1626,7 +1626,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
     if (gc_needed(av2,1))
     {
       long t;
-      if(DEBUGMEM>1) pari_warn(warnmem,"[3]: mpqs_solve_linear_system");
+      if(DEBUGMEM>1) pari_warn(warnmem,"mpqs_solve_linear_system");
       /* gcopy would have a problem with our NULL pointers... */
       new_res = cgetg(lg(res), t_VEC);
       for (t=2*res_size; t>=res_next; t--) new_res[t] = 0;
@@ -1928,25 +1928,24 @@ mpqs(GEN N)
     { /* solution found */
       if (DEBUGLEVEL >= 4)
       {
-        err_printf("\nMPQS: time in Gauss and gcds = %ld ms\n", timer_delay(&T));
+        err_printf("\nMPQS: time in Gauss and gcds = %ld ms\n",timer_delay(&T));
         if (typ(fact) == t_INT) err_printf("MPQS: found factor = %Ps\n", fact);
         else
         {
           long j, nf = (lg(fact)-1)/3;
           if (nf == 2)
             err_printf("MPQS: found factors = %Ps\n\tand %Ps\n",
-                        fact[1], fact[4]);
+                       fact[1], fact[4]);
           else
           {
             err_printf("MPQS: found %ld factors =\n", nf);
             for (j=1; j<=nf; j++)
-              err_printf("\t%Ps%s\n", fact[3*j-2], (j<nf ? "," : ""));
+              err_printf("\t%Ps%s\n", fact[3*j-2], (j < nf)? ",": "");
           }
         }
       }
-      /* fact not safe for a gerepilecopy(): segfaults on one of the NULL
-       * markers. However, it is a nice connected object, and it resides
-       * already the top of the stack, so... --GN */
+      /* fact not safe for a gerepilecopy(): segfaults on NULL markers.
+       * However, it is a nice connected object, on top of the stack... */
       return gerepileupto(av, fact);
     }
     else
@@ -1960,8 +1959,7 @@ mpqs(GEN N)
         else
           err_printf("\nMPQS: giving up.\n");
       }
-      if (percentage > MPQS_ADMIT_DEFEAT)
-        return gc_NULL(av);
+      if (percentage > MPQS_ADMIT_DEFEAT) return gc_NULL(av);
     }
-  } /* main loop */
+  }
 }
