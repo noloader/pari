@@ -1406,9 +1406,6 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand,
 /**                      COMBINING RELATIONS                        **/
 /**                                                                 **/
 /*********************************************************************/
-
-/* combines the large prime relations in COMB to full relations in FNEW.*/
-
 static void
 rel_to_ei(GEN ei, GEN relp)
 {
@@ -1559,24 +1556,17 @@ split(GEN N, GEN *e, GEN *res)
   if (MR_Jaeschke(N)) { *e = gen_1; return 1; } /* probable prime */
   if (Z_issquareall(N, &base))
   { /* squares could cost us a lot of time */
-    /* GN20050707: as used now, this is always called with res!=NULL */
-    *res = base;
-    *e = gen_2;
     if (DEBUGLEVEL >= 5) err_printf("MPQS: decomposed a square\n");
-    return 1;
+    *res = base; *e = gen_2; return 1;
   }
   mask = 7;
   /* 5th/7th powers aren't worth the trouble. OTOH once we have the hooks for
    * dealing with cubes, higher powers can be handled essentially for free) */
-  if ( (flag = is_357_power(N, &base, &mask)) )
+  if ((flag = is_357_power(N, &base, &mask)))
   {
-    *res = base;
-    *e = utoipos(flag);
     if (DEBUGLEVEL >= 5)
-      err_printf("MPQS: decomposed a %s\n",
-                 (flag == 3 ? "cube" :
-                  (flag == 5 ? "5th power" : "7th power")));
-    return 1;
+      err_printf("MPQS: decomposed a %s power\n", uordinal(flag));
+    *res = base; *e = utoipos(flag); return 1;
   }
   *e = gen_0; return 0; /* known composite */
 }
@@ -1584,14 +1574,10 @@ split(GEN N, GEN *e, GEN *res)
 static GEN
 mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
 {
-  GEN N = h->N, X, Y_prod, X_plus_Y, D1, res, new_res;
   mpqs_FB_entry_t *FB = h->FB;
-  pari_sp av=avma, av2, av3;
-  GEN ei;
-  long i, j, H_cols, H_rows;
-  long res_last, res_next, res_size, res_max;
-  GEN  m, ker_m;
-  long done, rank;
+  pari_sp av = avma, av2;
+  long i, j, H_cols, H_rows, res_last, res_next, res_size, res_max, done, rank;
+  GEN N = h->N, X_plus_Y, D1, res, new_res, ei, m, ker_m;
 
   m = stream_read_F2m(frel, h->size_of_FB+1);
   if (DEBUGLEVEL >= 7)
@@ -1622,13 +1608,11 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
 
   /* If the rank is r, we can expect up to 2^r pairwise coprime factors,
    * but it may happen that a kernel basis vector contributes nothing new to
-   * the decomposition.  We allocate room for up to eight factors initially
-   * (certainly adequate when one or two basis vectors work), adjusting this
-   * down at the end to what we actually found, or up if we are very lucky and
-   * find more factors.  In the upper half of our vector, we store information
-   * about which factors we know to be composite (zero) or believe to be
-   * composite (NULL) or suspect to be prime (one), or an exponent (two
-   * or some t_INT) if it is a proper power */
+   * the decomposition.  We allocate room for up to eight factors initially,
+   * adjusting this as we go along. In the upper half of our vector, we store
+   * information about which factors we know to be composite (zero) or believe
+   * to be composite (NULL) or suspect to be prime (one), or an exponent
+   * (t_INT >= 2) if it is a proper power */
   ei = cgetg(h->size_of_FB + 2, t_VECSMALL);
   av2 = avma;
   if (rank > (long)BITS_IN_LONG - 2)
@@ -1642,7 +1626,8 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
 
   for (i = 1; i <= H_cols; i++)
   { /* loop over kernel basis */
-    X = Y_prod = gen_1;
+    GEN X = gen_1, Y_prod = gen_1;
+    pari_sp av3;
     memset((void *)(ei+1), 0, (h->size_of_FB + 1) * sizeof(long));
 
     av3 = avma;
@@ -1663,8 +1648,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, GEN frel)
       if (ei[j])
       {
         if (ei[j] & 1) pari_err_BUG("MPQS (relation is a nonsquare)");
-        X = remii(mulii(X,
-                        Fp_powu(utoipos(FB[j].fbe_p), (ulong)ei[j]>>1, N)),
+        X = remii(mulii(X, Fp_powu(utoipos(FB[j].fbe_p), (ulong)ei[j]>>1, N)),
                   N);
         if (gc_needed(av3,1))
         {
