@@ -1440,15 +1440,6 @@ rels_to_F2m(GEN rel, long rows)
   return m;
 }
 
-static GEN
-mpqs_add_relation(GEN Y_prod, GEN N, GEN ei, GEN r)
-{
-  pari_sp av = avma;
-  GEN res = remii(mulii(Y_prod, gel(r,1)), N);
-  rel_to_ei(ei, gel(r,2));
-  return gerepileuptoint(av, res);
-}
-
 static int
 split(GEN N, GEN *e, GEN *res)
 {
@@ -1525,43 +1516,31 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
   for (i = 1; i <= rank; i++)
   { /* loop over kernel basis */
     GEN X = gen_1, Y_prod = gen_1, X_plus_Y, D1;
-    pari_sp av3 = avma;
+    pari_sp av3;
 
     memset((void *)(ei+1), 0, (h->size_of_FB + 1) * sizeof(long));
+    av3 = avma;
     for (j = 1; j <= H_rows; j++)
-    {
       if (F2m_coeff(ker_m, j, i))
-        Y_prod = mpqs_add_relation(Y_prod, N, ei, gel(rels,j));
-      if (gc_needed(av3,1))
       {
-        if(DEBUGMEM>1) pari_warn(warnmem,"[1]: mpqs_solve_linear_system");
-        Y_prod = gerepileuptoint(av3, Y_prod);
+        GEN R = gel(rels,j);
+        Y_prod = gerepileuptoint(av3, remii(mulii(Y_prod, gel(R,1)), N));
+        rel_to_ei(ei, gel(R,2));
       }
-    }
-    Y_prod = gerepileuptoint(av3, Y_prod);
-
     av3 = avma;
     for (j = 2; j <= h->size_of_FB + 1; j++)
       if (ei[j])
       {
+        GEN q = utoipos(FB[j].fbe_p);
         if (ei[j] & 1) pari_err_BUG("MPQS (relation is a nonsquare)");
-        X = remii(mulii(X, Fp_powu(utoipos(FB[j].fbe_p), (ulong)ei[j]>>1, N)),
-                  N);
-        if (gc_needed(av3,1))
-        {
-          if(DEBUGMEM>1) pari_warn(warnmem,"[2]: mpqs_solve_linear_system");
-          X = gerepileupto(av3, X);
-        }
+        X = remii(mulii(X, Fp_powu(q, (ulong)ei[j]>>1, N)), N);
+        X = gerepileuptoint(av3, X);
       }
-    X = gerepileuptoint(av3, X);
-    if (MPQS_DEBUGLEVEL >= 1)
+    if (MPQS_DEBUGLEVEL >= 1 && !dvdii(subii(sqri(X), sqri(Y_prod)), N))
     {
-      if (!dvdii(subii(sqri(X), sqri(Y_prod)), N))
-      { /* shouldn't happen */
-        err_printf("MPQS: X^2 - Y^2 != 0 mod N\n");
-        err_printf("\tindex i = %ld\n", i);
-        pari_warn(warner, "MPQS: wrong relation found after Gauss");
-      }
+      err_printf("MPQS: X^2 - Y^2 != 0 mod N\n");
+      err_printf("\tindex i = %ld\n", i);
+      pari_warn(warner, "MPQS: wrong relation found after Gauss");
     }
     /* At this point, gcd(X-Y, N) * gcd(X+Y, N) = N:
      * 1) N | X^2 - Y^2, so it divides the LHS;
@@ -1600,8 +1579,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
         }
         /* actually, also skip square roots of squares etc.  They are a lot
          * smaller than the original N, and should be easy to deal with later */
-        av3 = avma;
-        D1 = gcdii(X_plus_Y, gel(res,j));
+        av3 = avma; D1 = gcdii(X_plus_Y, gel(res,j));
         if (is_pm1(D1) || equalii(D1, gel(res,j))) { set_avma(av3); continue; }
         /* got one which splits this factor */
         if (DEBUGLEVEL >= 5)
