@@ -4594,6 +4594,7 @@ GEN     group_subgroups(GEN G);
 GEN     group_to_cc(GEN G);
 GEN     groupelts_abelian_group(GEN S);
 GEN     groupelts_center(GEN S);
+GEN     groupelts_conj_set(GEN elts, GEN p);
 GEN     groupelts_conjclasses(GEN elts, long *nbcl);
 GEN     groupelts_quotient(GEN G, GEN H);
 GEN     groupelts_set(GEN G, long n);

@@ -772,6 +772,18 @@ group_elts(GEN G, long n)
 }
 
 GEN
+groupelts_conj_set(GEN elts, GEN p)
+{
+  long i, j, l = lg(elts), n = lg(p)-1;
+  GEN res = zero_F2v(n);
+  for(j = 1; j < n; j++)
+    if (p[j]==1) break;
+  for(i = 1; i < l; i++)
+    F2v_set(res, p[mael(elts,i,j)]);
+  return res;
+}
+
+GEN
 groupelts_set(GEN elts, long n)
 {
   GEN res = zero_F2v(n);

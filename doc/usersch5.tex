@@ -13463,6 +13463,11 @@ elements of a small group of domain \var{n}, returns a \var{F2v} $b$ such that
 $b[i]$ is set if and only if the small group contains a permutation sending $1$
 to $i$.
 
+\fun{GEN}{groupelts_conj_set}{GEN elts, GEN p}, where \var{elts} is the list of
+elements of a small group of domain \var{n}, returns a \var{F2v} $b$ such that
+$b[i]$ is set if and only if the small group contains a permutation sending
+$p^{-1}[1]$ to $p^{-1}[i]$.
+
 \fun{GEN}{groupelts_conjclasses}{GEN elts, long *pn}, where \var{elts} is
 the list of elements of a small group (sorted with respect to
 \kbd{vecsmall\_lexcmp}), return a \typ{VECSMALL} \kbd{conj} of
