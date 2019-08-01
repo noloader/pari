@@ -1352,7 +1352,7 @@ combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
   long l, lei = h->size_of_FB + 1, nb = 0;
   GEN ei, relp, inv_q, q = rel_q(rel1);
 
-  if (!invmod(q, h->N, &inv_q)) /* can happen --GN */
+  if (!invmod(q, h->N, &inv_q)) /* can happen */
   {
     inv_q = gcdii(inv_q, h->N);
     if (is_pm1(inv_q) || equalii(inv_q, h->N)) /* pity */
@@ -1383,8 +1383,8 @@ combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
     split_relp(rel1,&rel1p,&rel1c);
     split_relp(rel2,&rel2p,&rel2c);
     err_printf("MPQS: combining\n");
-    err_printf("    {%Ps @ %Ps : %Ps}\n", rel_q(rel1), Y1, rel1p, rel1c);
-    err_printf("  * {%Ps @ %Ps : %Ps}\n", rel_q(rel2), Y2, rel2p, rel2c);
+    err_printf("    {%Ps @ %Ps : %Ps}\n", q, Y1, rel1p, rel1c);
+    err_printf("  * {%Ps @ %Ps : %Ps}\n", q, Y2, rel2p, rel2c);
     err_printf(" == {%Ps, %Ps}\n", relpp, relpc);
   }
 #ifdef MPQS_DEBUG
