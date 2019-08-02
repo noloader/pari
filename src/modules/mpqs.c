@@ -11,12 +11,11 @@ Check the License for details. You should have received a copy of it, along
 with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-/* Written by Thomas Papanikolaou and Xavier Roblot
- *
- * Implementation of the Self-Initializing Multi-Polynomial Quadratic Sieve
+/* Implementation of the Self-Initializing Multi-Polynomial Quadratic Sieve
  * based on code developed as part of the LiDIA project
  * (http://www.informatik.tu-darmstadt.de/TI/LiDIA/)
  *
+ * Original version: Thomas Papanikolaou and Xavier Roblot
  * Extensively modified by The PARI group.
  */
 /* Notation commonly used in this file, and sketch of algorithm:
@@ -85,8 +84,7 @@ static void
 vec_frel_add(hashtable *frel, GEN V)
 {
   long i, l = lg(V);
-  for (i = 1; i<l ; i++)
-    frel_add(frel, gel(V,i));
+  for (i = 1; i<l ; i++) frel_add(frel, gel(V,i));
 }
 
 static GEN
@@ -99,15 +97,13 @@ vec_extend(GEN frel, GEN rel, long nfrel)
     frel = vec_lengthen(frel, lfrel);
     if (DEBUGLEVEL >= 4) err_printf("MPQS: extending store to %ld\n",lfrel);
   }
-  gel(frel, nfrel) = rel;
-  return frel;
+  gel(frel, nfrel) = rel; return frel;
 }
 
 /*********************************************************************/
 /**                         INITIAL SIZING                          **/
 /*********************************************************************/
-/* number of decimal digits of argument - for parameter choosing and for
- * diagnostics */
+/* # of decimal digits of argument */
 static long
 decimal_len(GEN N)
 { pari_sp av = avma; return gc_long(av, 1+logint(N,utoi(10))); }
@@ -145,7 +141,6 @@ mpqs_set_parameters(mpqs_handle_t *h)
   /* following are converted from % to parts per thousand: */
   h->first_sort_point = P->first_sort_point;
   h->sort_pt_interval = P->sort_pt_interval;
-
   if (DEBUGLEVEL >= 5)
   {
     err_printf("MPQS: kN = %Ps\n", h->kN);
@@ -338,40 +333,36 @@ mpqs_create_FB(mpqs_handle_t *h, ulong *f)
   FB[2].fbe_p = 2;
   /* the fbe_logval and the fbe_sqrt_kN for 2 are never used */
   FB[2].fbe_flags = MPQS_FBE_CLEAR;
-  (void)u_forprime_init(&S, 3, ULONG_MAX);
-
-  /* the first loop executes h->_k->omega_k = 0, 1, or 2 times */
   for (i = 3; i < h->index0_FB; i++)
-  {
+  { /* this loop executes h->_k->omega_k = 0, 1, or 2 times */
     mpqs_uint32_t kp = (ulong)h->_k->kp[i-3];
     if (MPQS_DEBUGLEVEL >= 7) err_printf(",<%lu>", (ulong)kp);
     FB[i].fbe_p = kp;
-    /* we *could* flag divisors of k here, but so far I see no need,
-     * and no flags bit has been assigned for the purpose */
+    /* we could flag divisors of k here, but no need so far */
     FB[i].fbe_flags = MPQS_FBE_CLEAR;
-    FB[i].fbe_flogp = (float) log2((double) kp);
+    FB[i].fbe_flogp = (float)log2((double) kp);
     FB[i].fbe_sqrt_kN = 0;
   }
-  /* now i == h->index0_FB */
+  (void)u_forprime_init(&S, 3, ULONG_MAX);
   while (i < size + 2)
   {
     ulong p = u_forprime_next(&S);
     if (p > k || k % p)
     {
-      ulong kN_mod_p = umodiu(h->kN, p);
-      long kr = krouu(kN_mod_p, p);
+      ulong kNp = umodiu(h->kN, p);
+      long kr = krouu(kNp, p);
       if (kr != -1)
       {
         if (kr == 0) { *f = p; return FB; }
         FB[i].fbe_p = (mpqs_uint32_t) p;
         FB[i].fbe_flags = MPQS_FBE_CLEAR;
         /* dyadic logarithm of p; single precision suffices */
-        FB[i].fbe_flogp = (float) log2((double)p);
+        FB[i].fbe_flogp = (float)log2((double)p);
         /* cannot yet fill in fbe_logval because the scaling multiplier
          * depends on the largest prime in FB, as yet unknown */
 
         /* x such that x^2 = kN (mod p_i) */
-        FB[i++].fbe_sqrt_kN = (mpqs_uint32_t)Fl_sqrt(kN_mod_p, p);
+        FB[i++].fbe_sqrt_kN = (mpqs_uint32_t)Fl_sqrt(kNp, p);
       }
     }
   }
@@ -391,7 +382,7 @@ mpqs_create_FB(mpqs_handle_t *h, ulong *f)
   for (i = h->index0_FB; FB[i].fbe_p != 0; i++)
     if (FB[i].fbe_p >= h->pmin_index1) break;
   h->index1_FB = i;
-  /* with our parameters this will never fall of the end of the FB */
+  /* with our parameters this will never fall off the end of the FB */
   *f = 0; return FB;
 }
 
