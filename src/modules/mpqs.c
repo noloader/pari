@@ -112,7 +112,7 @@ vec_extend(GEN frel, GEN rel, long nfrel)
  * diagnostics */
 static long
 decimal_len(GEN N)
-{ pari_sp av = avma; return gc_long(av, 1+logint(N,stoi(10))); }
+{ pari_sp av = avma; return gc_long(av, 1+logint(N,utoi(10))); }
 
 /* To be called after choosing k and putting kN into the handle:
  * Pick up the requested parameter set for the given size of kN in decimal
@@ -1441,90 +1441,81 @@ rels_to_F2m(GEN rel, long rows)
 }
 
 static int
-split(GEN N, GEN *e, GEN *res)
+split(GEN *D, long *e)
 {
   ulong mask;
   long flag;
-  GEN base;
-  if (MR_Jaeschke(N)) { *e = gen_1; return 1; } /* probable prime */
-  if (Z_issquareall(N, &base))
+  if (MR_Jaeschke(*D)) { *e = 1; return 1; } /* probable prime */
+  if (Z_issquareall(*D, D))
   { /* squares could cost us a lot of time */
     if (DEBUGLEVEL >= 5) err_printf("MPQS: decomposed a square\n");
-    *res = base; *e = gen_2; return 1;
+    *e = 2; return 1;
   }
   mask = 7;
   /* 5th/7th powers aren't worth the trouble. OTOH once we have the hooks for
    * dealing with cubes, higher powers can be handled essentially for free) */
-  if ((flag = is_357_power(N, &base, &mask)))
+  if ((flag = is_357_power(*D, D, &mask)))
   {
     if (DEBUGLEVEL >= 5)
       err_printf("MPQS: decomposed a %s power\n", uordinal(flag));
-    *res = base; *e = utoipos(flag); return 1;
+    *e = flag; return 1;
   }
-  *e = gen_0; return 0; /* known composite */
+  *e = 0; return 0; /* known composite */
 }
 
 static GEN
 mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
 {
   mpqs_FB_entry_t *FB = h->FB;
-  pari_sp av = avma, av2;
-  GEN rels = hash_keys(frel), N = h->N, res, new_res, ei, m, ker_m;
-  long i, j, H_rows, res_last, res_next, res_size, res_max, done, rank;
+  pari_sp av = avma;
+  GEN rels = hash_keys(frel), N = h->N, r, c, res, ei, M, Ker;
+  long i, j, nrows, rlast, rnext, rmax, rank;
 
-  m = rels_to_F2m(rels, h->size_of_FB+1);
-  if (DEBUGLEVEL >= 7)
-    err_printf("\\\\ MATRIX READ BY MPQS\nFREL=%Ps\n",m);
-
-  ker_m = F2m_ker_sp(m,0); rank = lg(ker_m)-1;
-  clone_unlock(m);
-
+  M = rels_to_F2m(rels, h->size_of_FB+1);
+  Ker = F2m_ker_sp(M,0); rank = lg(Ker)-1;
   if (DEBUGLEVEL >= 4)
   {
     if (DEBUGLEVEL >= 7)
     {
+      err_printf("\\\\ MATRIX READ BY MPQS\nFREL=%Ps\n",M);
       err_printf("\\\\ KERNEL COMPUTED BY MPQS\n");
-      err_printf("KERNEL=%Ps\n",ker_m);
+      err_printf("KERNEL=%Ps\n",Ker);
     }
     err_printf("MPQS: Gauss done: kernel has rank %ld, taking gcds...\n", rank);
   }
-
   if (!rank)
-  { /* trivial kernel. Fail gracefully: main loop may look for more relations */
+  { /* trivial kernel; main loop may look for more relations */
     if (DEBUGLEVEL >= 3)
       pari_warn(warner, "MPQS: no solutions found from linear system solver");
     return gc_NULL(av); /* no factors found */
   }
 
-  /* If the rank is r, we can expect up to 2^r pairwise coprime factors,
-   * but it may happen that a kernel basis vector contributes nothing new to
-   * the decomposition.  We allocate room for up to eight factors initially,
-   * adjusting this as we go along. In the upper half of our vector, we store
+  /* We can expect up to 2^rank pairwise coprime factors, but a kernel basis
+   * vector may not contribute to the decomposition. In the upper half of our
+   * vector, we store
    * information about which factors we know to be composite (zero) or believe
    * to be composite (NULL) or suspect to be prime (one), or an exponent
    * (t_INT >= 2) if it is a proper power */
   ei = cgetg(h->size_of_FB + 2, t_VECSMALL);
-  av2 = avma;
-  if (rank > (long)BITS_IN_LONG - 2)
-    res_max = LONG_MAX; /* the common case, unfortunately */
-  else
-    res_max = 1L<<rank; /* max number of factors we can hope for */
-  res_size = 8; /* no. of factors we can store in this res */
-  res = const_vec(2*res_size, NULL);
-  res_next = res_last = 1;
-  H_rows = lg(m)-1;
+  rmax = logint(N, utoi(3));
+  if (rank <= BITS_IN_LONG-2)
+    rmax = minss(rmax, 1L<<rank); /* max # of factors we can hope for */
+  r = cgetg(rmax+1, t_VEC);
+  c = cgetg(rmax+1, t_VECSMALL);
+  rnext = rlast = 1;
+  nrows = lg(M)-1;
   for (i = 1; i <= rank; i++)
   { /* loop over kernel basis */
-    GEN X = gen_1, Y_prod = gen_1, X_plus_Y, D1;
-    pari_sp av3;
-
+    GEN X = gen_1, Y_prod = gen_1, X_plus_Y, D;
+    pari_sp av2 = avma, av3;
+    long done = 0; /* # probably-prime factors or powers whose bases we won't
+                    * handle any further */
     memset((void *)(ei+1), 0, (h->size_of_FB + 1) * sizeof(long));
-    av3 = avma;
-    for (j = 1; j <= H_rows; j++)
-      if (F2m_coeff(ker_m, j, i))
+    for (j = 1; j <= nrows; j++)
+      if (F2m_coeff(Ker, j, i))
       {
         GEN R = gel(rels,j);
-        Y_prod = gerepileuptoint(av3, remii(mulii(Y_prod, gel(R,1)), N));
+        Y_prod = gerepileuptoint(av2, remii(mulii(Y_prod, gel(R,1)), N));
         rel_to_ei(ei, gel(R,2));
       }
     av3 = avma;
@@ -1547,122 +1538,77 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
      * 2) let P be any prime factor of N. If P | X-Y and P | X+Y, then P | 2X
      * But X is a product of powers of FB primes => coprime to N.
      * Hence we work with gcd(X+Y, N) alone. */
-    done = 0; /* # probably-prime factors (or powers whose bases we don't
-                 want to handle any further) */
     X_plus_Y = addii(X, Y_prod);
-    if (res_next < 3)
+    if (rnext == 1)
     { /* we still haven't decomposed, and want both a gcd and its cofactor. */
-      D1 = gcdii(X_plus_Y, N);
-      if (is_pm1(D1) || equalii(D1,N)) { set_avma(av3); continue; }
+      D = gcdii(X_plus_Y, N);
+      if (is_pm1(D) || equalii(D,N)) { set_avma(av2); continue; }
       /* got something that works */
       if (DEBUGLEVEL >= 5)
         err_printf("MPQS: splitting N after %ld kernel vector%s\n",
                    i+1, (i? "s" : ""));
-      gel(res,1) = diviiexact(N, D1);
-      gel(res,2) = D1;
-      res_last = res_next = 3;
-
-      if ( split(gel(res,1),  &gel(res,res_size+1), &gel(res,1)) ) done++;
-      if ( split(D1, &gel(res,res_size+2), &gel(res,2)) ) done++;
-      if (done == 2) break; /* both factors look prime or were powers */
-      if (res_max == 2) break; /* two out of two possible factors seen */
+      gel(r,1) = diviiexact(N, D);
+      gel(r,2) = D;
+      rlast = rnext = 3;
+      if (split(&gel(r,1), &c[1])) done++;
+      if (split(&gel(r,2), &c[2])) done++;
+      if (done == 2 || rmax == 2) break;
       if (DEBUGLEVEL >= 5)
         err_printf("MPQS: got two factors, looking for more...\n");
     }
     else
     { /* we already have factors */
-      for (j=1; j < res_next; j++)
+      for (j = 1; j < rnext; j++)
       { /* loop over known-composite factors */
-        if (gel(res,res_size+j) && gel(res,res_size+j) != gen_0)
-        {
-          done++; continue; /* skip probable primes etc */
-        }
-        /* actually, also skip square roots of squares etc.  They are a lot
-         * smaller than the original N, and should be easy to deal with later */
-        av3 = avma; D1 = gcdii(X_plus_Y, gel(res,j));
-        if (is_pm1(D1) || equalii(D1, gel(res,j))) { set_avma(av3); continue; }
+        /* skip probable primes and also roots of pure powers: they are a lot
+         * smaller than N and should be easy to deal with later */
+        if (c[j]) { done++; continue; }
+        av3 = avma; D = gcdii(X_plus_Y, gel(r,j));
+        if (is_pm1(D) || equalii(D, gel(r,j))) { set_avma(av3); continue; }
         /* got one which splits this factor */
         if (DEBUGLEVEL >= 5)
           err_printf("MPQS: resplitting a factor after %ld kernel vectors\n",
                      i+1);
-        /* first make sure there's room for another factor */
-        if (res_next > res_size)
-        { /* need to reallocate (rare) */
-          long t, s = minss(2*res_size, res_max);
-          GEN RES = cgetg(2*s+1, t_VEC);
-          for (t=2*s; t>=res_next; t--) gel(RES,t) = NULL;
-          for (t=1; t<res_next; t++)
-          { /* on-stack contents of RES must be rejuvenated */
-            icopyifstack(gel(res,t), gel(RES,t)); /* factors */
-            if (gel(res,res_size+t)) /* primality tags */
-              icopyifstack(gel(res,res_size+t), gel(RES,s+t));
-          }
-          res = RES; res_size = s; /* res_next unchanged */
-        }
-        /* divide into existing factor and store the new gcd */
-        diviiz(gel(res,j), D1, gel(res,j));
-        gel(res,res_next) = D1;
-
-        /* following overwrites the old known-composite indication at j */
-        if (split( gel(res,j), &gel(res,res_size+j), &gel(res,j)) ) done++;
-        /* Don't increment done when the newly stored factor seems to be
-         * prime or otherwise devoid of interest - this happens later
-         * when we revisit it during the present inner loop. */
-        (void)split(D1, &gel(res,res_size+res_next), &gel(res,res_next));
-        if (++res_next > res_max) break; /* all possible factors seen */
+        gel(r,j) = diviiexact(gel(r,j), D);
+        gel(r,rnext) = D;
+        if (split(&gel(r,j), &c[j])) done++;
+        /* Don't increment done: happens later when we revisit c[rnext] during
+         * the present inner loop. */
+        (void)split(&gel(r,rnext), &c[rnext]);
+        if (++rnext > rmax) break; /* all possible factors seen */
       } /* loop over known composite factors */
 
-      if (res_next > res_last)
+      if (rnext > rlast)
       {
         if (DEBUGLEVEL >= 5)
-          err_printf("MPQS: got %ld factors%s\n", res_last - 1,
-                     (done < res_last ? ", looking for more..." : ""));
-        res_last = res_next;
+          err_printf("MPQS: got %ld factors%s\n", rlast - 1,
+                     (done < rlast ? ", looking for more..." : ""));
+        rlast = rnext;
       }
-      /* break out of the outer loop if we have seen res_max factors, or
-       * when all current factors are probable primes */
-      if (res_next > res_max || done == res_next - 1) break;
-    } /* end case of further splitting of existing factors */
-    if (gc_needed(av2,1))
-    {
-      long t;
-      if(DEBUGMEM>1) pari_warn(warnmem,"mpqs_solve_linear_system");
-      /* gcopy would have a problem with our NULL pointers... */
-      new_res = cgetg(lg(res), t_VEC);
-      for (t=2*res_size; t>=res_next; t--) new_res[t] = 0;
-      for (t=1; t<res_next; t++)
-      {
-        icopyifstack(gel(res,t), gel(new_res,t));
-        if (gel(res,res_size+t))
-          icopyifstack(gel(res,res_size+t), gel(new_res,res_size+t));
-      }
-      res = gerepileupto(av2, new_res);
+      /* break out if we have rmax factors or all current factors are probable
+       * primes or tiny roots from pure powers */
+      if (rnext > rmax || done == rnext - 1) break;
     }
-  } /* for (loop over kernel basis) */
-
-  if (res_next < 3) return gc_NULL(av); /* no factors found */
-
-  /* normal case:  convert internal format to ifac format as described in
-   * basemath/ifactor1.c  (value, exponent, class [unknown, known composite,
-   * known prime]) */
-  res_last = res_next - 1; /* number of distinct factors found */
-  new_res = cgetg(3*res_last + 1, t_VEC);
-  if (DEBUGLEVEL >= 6)
-    err_printf("MPQS: wrapping up vector of %ld factors\n", res_last);
-  for (i=1,j=1; i <= res_last; i++)
-  {
-    GEN F = gel(res, res_size+i);
-    icopyifstack(gel(res,i), gel(new_res,j++)); /* factor */
-    /* exponent */
-    gel(new_res,j++) = F ? (F == gen_0 ? gen_1
-                                       : (isonstack(F) ? icopy(F) : F))
-                         : gen_1;
-    gel(new_res,j++) = F; /* class, known composite or unknown */
-    if (DEBUGLEVEL >= 6)
-      err_printf("\tpackaging %ld: %Ps ^%ld (%s)\n", i, res[i],
-                 itos(gel(new_res,j-2)), (F == gen_0 ? "comp." : "unknown"));
   }
-  return gerepileupto(av, new_res);
+  if (rnext == 1) return gc_NULL(av); /* no factors found */
+
+  /* normal case: convert to ifac format as described in ifactor1.c (value,
+   * exponent, class [unknown, known composite, known prime]) */
+  rlast = rnext - 1; /* # of distinct factors found */
+  res = cgetg(3*rlast + 1, t_VEC);
+  if (DEBUGLEVEL >= 6) err_printf("MPQS: wrapping up %ld factors\n", rlast);
+  for (i = j = 1; i <= rlast; i++, j += 3)
+  {
+    long C  = c[i];
+    icopyifstack(gel(r,i), gel(res,j)); /* factor */
+    /* exponent */
+    gel(res,j+1) = C <= 1? gen_1: utoipos(C);
+    gel(res,j+2) = C ? gen_1: gen_0; /* known composite or unknown */
+    if (DEBUGLEVEL >= 6)
+      err_printf("\tpackaging %ld: %Ps ^%ld (%s)\n", i, r[i],
+                 itos(gel(res,j-2)), (C? "comp.": "unknown"));
+  }
+  return res;
 }
 
 /*********************************************************************/
@@ -1679,7 +1625,7 @@ toolarge()
 /* Factors N using the self-initializing multipolynomial quadratic sieve
  * (SIMPQS).  Returns one of the two factors, or (usually) a vector of factors
  * and exponents and information about which ones are still composite, or NULL
- * when something goes wrong or when we can't seem to make any headway. */
+ * when we can't seem to make any headway. */
 GEN
 mpqs(GEN N)
 {
@@ -1933,33 +1879,22 @@ mpqs(GEN N)
         else
         {
           long j, nf = (lg(fact)-1)/3;
-          if (nf == 2)
-            err_printf("MPQS: found factors = %Ps\n\tand %Ps\n",
-                       fact[1], fact[4]);
-          else
-          {
-            err_printf("MPQS: found %ld factors =\n", nf);
-            for (j=1; j<=nf; j++)
-              err_printf("\t%Ps%s\n", fact[3*j-2], (j < nf)? ",": "");
-          }
+          err_printf("MPQS: found %ld factors =\n", nf);
+          for (j = 1; j <= nf; j++)
+            err_printf("\t%Ps%s\n", gel(fact,3*j-2), (j < nf)? ",": "");
         }
       }
-      /* fact not safe for a gerepilecopy(): segfaults on NULL markers.
-       * However, it is a nice connected object, on top of the stack... */
       return gerepileupto(av, fact);
     }
-    else
+    if (DEBUGLEVEL >= 4)
     {
-      if (DEBUGLEVEL >= 4)
-      {
-        err_printf("\nMPQS: time in Gauss and gcds = %ld ms\n",timer_delay(&T));
-        err_printf("MPQS: no factors found.\n");
-        if (percentage <= MPQS_ADMIT_DEFEAT)
-          err_printf("\nMPQS: restarting sieving ...\n");
-        else
-          err_printf("\nMPQS: giving up.\n");
-      }
-      if (percentage > MPQS_ADMIT_DEFEAT) return gc_NULL(av);
+      err_printf("\nMPQS: time in Gauss and gcds = %ld ms\n",timer_delay(&T));
+      err_printf("MPQS: no factors found.\n");
+      if (percentage <= MPQS_ADMIT_DEFEAT)
+        err_printf("\nMPQS: restarting sieving ...\n");
+      else
+        err_printf("\nMPQS: giving up.\n");
     }
+    if (percentage > MPQS_ADMIT_DEFEAT) return gc_NULL(av);
   }
 }
