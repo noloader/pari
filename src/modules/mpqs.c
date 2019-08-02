@@ -1041,18 +1041,17 @@ mpqs_add_factor(GEN relp, long *i, ulong ei, ulong pi)
 
 /* only used for debugging */
 static void
-split_relp(GEN rel, GEN *pt_relp, GEN *pt_relc)
+split_relp(GEN rel, GEN *prelp, GEN *prelc)
 {
   long j, l = lg(rel);
-  GEN relp = cgetg(l, t_VECSMALL);
-  GEN relc = cgetg(l, t_VECSMALL);
+  GEN relp, relc;
+  *prelp = relp = cgetg(l, t_VECSMALL);
+  *prelc = relc = cgetg(l, t_VECSMALL);
   for (j=1; j<l; j++)
   {
     relc[j] = rel[j]>>REL_OFFSET;
     relp[j] = rel[j]&REL_MASK;
   }
-  *pt_relp = relp;
-  *pt_relc = relc;
 }
 
 #ifdef MPQS_DEBUG
@@ -1092,7 +1091,6 @@ mpqs_check_rel(mpqs_handle_t *h, GEN c)
 }
 #endif
 
-/* NB FREL, LPREL are actually FNEW, LPNEW when we get called */
 static long
 mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
 {
