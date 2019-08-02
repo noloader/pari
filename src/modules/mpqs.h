@@ -41,10 +41,8 @@
 #define MPQS_CANDIDATE_ARRAY_SIZE  2000 /* max. this many cand's per poly */
 
 /* give up when nothing found after ~1.5 times the required number of
- * relations has been computed  (N might be a prime power or the
- * parameters might be exceptionally unfortunate for it) */
+ * relations has been computed */
 #define MPQS_ADMIT_DEFEAT 1500
-
 
 /* - structures, types, and constants */
 
@@ -61,13 +59,6 @@ typedef struct {
   ulong _w1;
 } mpqs_uint64_t;
 #endif
-
-/* -- we'll sometimes want to use the machine's native size here, and
- * sometimes  (for future double-large-primes)  force 64 bits - thus: */
-typedef union mpqs_invp {
-  ulong _ul;
-  mpqs_uint64_t _u64;
-} mpqs_invp_t;
 
 /* -- factor base entries should occupy 32 bytes  (and we'll keep them
  * aligned, for good L1 cache hit rates).  Some of the entries will be
@@ -89,15 +80,10 @@ typedef union mpqs_invp {
 typedef union mpqs_FB_entry {
   char __pad[MPQS_FB_ENTRY_PAD];
   struct {
-    mpqs_int32_t __p;           /* the prime p */
-    /* Following two are not yet used: */
-    float __flogp;              /* its logarithm as a 4-byte float */
-    mpqs_invp_t __invp;         /* 1/p mod 2^64 or 2^BITS_IN_LONG */
-
-    mpqs_int32_t __start1;      /* representatives of the two APs mod p */
-    mpqs_int32_t __start2;
-    mpqs_uint32_t __sqrt_kN;    /* sqrt(kN) mod p */
-    unsigned char __val;        /* 8-bit approx. scaled log for sieving */
+    /* the prime p, the two arith. prog. mod p, sqrt(kN) mod p */
+    mpqs_int32_t __p, __start1, __start2, __sqrt_kN;
+    float __flogp; /* log(p) as a 4-byte float */
+    unsigned char __val; /* 8-bit approx. scaled log for sieving */
     unsigned char __flags;
   } __entry;
 } mpqs_FB_entry_t;
@@ -105,7 +91,6 @@ typedef union mpqs_FB_entry {
 /* --- convenience accessor macros for the preceding: */
 #define fbe_p           __entry.__p
 #define fbe_flogp       __entry.__flogp
-#define fbe_invp        __entry.__invp
 #define fbe_start1      __entry.__start1
 #define fbe_start2      __entry.__start2
 #define fbe_sqrt_kN     __entry.__sqrt_kN
@@ -113,8 +98,6 @@ typedef union mpqs_FB_entry {
 #define fbe_flags       __entry.__flags
 
 /* --- flag bits for fbe_flags: */
-/* TODO */
-
 #define MPQS_FBE_CLEAR       0x0 /* no flags */
 
 /* following used for odd FB primes, and applies to the divisors of A but not
@@ -122,21 +105,18 @@ typedef union mpqs_FB_entry {
  * shift count after extracting it from the byte. */
 #define MPQS_FBE_DIVIDES_A   0x1ul /* and Q(x) mod p only has degree 1 */
 
-/* XX tentative: one bit to mark normal FB primes,
- * XX one to mark the factors of k,
- * XX one to mark primes used in sieving,
- * XX later maybe one to mark primes of which we'll be tracking the square,
- * XX one to mark primes currently in use for A;
- * XX once we segment the FB, one bit marking the members of the first segment
- */
+/* TODO (tentative): one bit to mark normal FB primes,
+ * one to mark the factors of k,
+ * one to mark primes used in sieving,
+ * later maybe one to mark primes of which we'll be tracking the square,
+ * one to mark primes currently in use for A;
+ * once we segment the FB, one bit marking the members of the first segment */
 
-/* -- multiplier k and attached quantities: More than two prime factors
-* for k will be pointless in practice, thus capping them at two. */
-#define MPQS_MAX_OMEGA_K 2
+/* -- multiplier k and attached quantities */
 typedef struct mpqs_multiplier {
-  mpqs_uint32_t k;              /* the multiplier (odd, squarefree) */
-  mpqs_uint32_t omega_k;        /* number (>=0) of primes dividing k */
-  mpqs_uint32_t kp[MPQS_MAX_OMEGA_K]; /* prime factors of k, if any */
+  mpqs_uint32_t k;       /* the multiplier (odd, squarefree) */
+  mpqs_uint32_t omega_k; /* number (0, 1 or 2) of primes dividing k */
+  mpqs_uint32_t kp[2]; /* prime factors of k, if any */
 } mpqs_multiplier_t;
 
 static const mpqs_multiplier_t cand_multipliers[] = {
@@ -188,8 +168,8 @@ static const mpqs_multiplier_t cand_multipliers[] = {
  * primes in current use for A.  We keep these together since both arrays
  * are of the same size and are used at the same times. */
 typedef struct mqps_per_A_prime {
-  GEN _H;                       /* summand for B */
-  mpqs_int32_t _i;              /* subscript into FB */
+  GEN _H;          /* summand for B */
+  mpqs_int32_t _i; /* subscript into FB */
 } mpqs_per_A_prime_t;
 
 /* following cooperate with names of local variables in the self_init fcns.
@@ -203,14 +183,13 @@ typedef struct mqps_per_A_prime {
 #define MPQS_SQRT(i) (FB[per_A_pr[i]._i].fbe_sqrt_kN)
 #define MPQS_FLG(i) (FB[per_A_pr[i]._i].fbe_flags)
 
-
 /* -- the array of addends / subtrahends for changing polynomials during
  * self-initialization: (1/A) H[i] mod p_j, with i subscripting the inner
  * array in each entry, and j choosing the entry in an outer array.
- * Entries will occupy 64 bytes each no matter what  (which imposes one
- * sizing restriction: at most 17 prime factors for A;  thus i will range
- * from 0 to at most 15.)  This wastes a little memory for smaller N but
- * makes it easier for compilers to generate efficient code. */
+ * Entries will occupy 64 bytes each no matter what (which imposes at most 17
+ * prime factors for A; thus i will range from 0 to at most 15.) This wastes a
+ * little memory for smaller N but makes it easier for compilers to generate
+ * efficient code. */
 
 /* NOTE: At present, memory locality vis-a-vis accesses to this array is good
  * in the slow (new A) branch of mpqs_self_init(), but poor in the fast
@@ -230,7 +209,7 @@ typedef struct mpqs_inv_A_H {
  * wanting to keep the most frequently used stuff near the beginning. */
 
 typedef struct mpqs_handle {
-  /* pointers into pari_malloc()d memory which must be freed at the end: */
+  /* pointers */
   unsigned char *sieve_array;   /* 0-based, representing [-M,M-1] */
   unsigned char *sieve_array_end; /* points at sieve_array[M-1] */
   mpqs_FB_entry_t *FB;          /* (aligned) FB array itself */
@@ -250,34 +229,28 @@ typedef struct mpqs_handle {
   mpqs_int32_t index2_FB;       /* primes for A are chosen relative to this */
   unsigned char index2_moved;   /* true when we're starved for small A's */
   unsigned char sieve_threshold; /* distinguishes candidates in sieve */
-  GEN N;                        /* given number to be factored */
-  GEN kN;                       /* N with multiplier (on PARI stack) */
-  /* quantities attached to the current polynomial; all these also
-   * live in preallocated slots on the PARI stack: */
-  GEN A;                        /* leading coefficient */
-  GEN B;                        /* middle coefficient */
+  GEN N, kN;                    /* number to be factored, with multiplier */
+  GEN A, B;                     /* leading, middle coefficient */
   mpqs_int32_t omega_A;         /* number of primes going into each A */
   mpqs_int32_t no_B;            /* number of B's for each A: 2^(omega_A-1) */
   double l2_target_A;           /* ~log2 of desired typical A */
-  /* counters and bit pattern determining and numbering the current
-   * polynomial: */
+  /* counters and bit pattern determining and numbering current polynomial: */
   mpqs_uint32_t bin_index;      /* bit pattern for selecting primes for A */
   mpqs_uint32_t index_i;        /* running count of A's */
   mpqs_uint32_t index_j;        /* B's ordinal number in A's cohort */
-  /* TODO: one more to follow here... */
 
   /* further sizing parameters: */
   mpqs_int32_t target_no_rels;  /* target number of full relations */
   mpqs_int32_t largest_FB_p;    /* largest prime in the FB */
-  mpqs_int32_t pmin_index1;        /* lower bound for primes used for sieving */
+  mpqs_int32_t pmin_index1;     /* lower bound for primes used for sieving */
   mpqs_int32_t lp_scale;        /* factor by which LPs may exceed FB primes */
 
   mpqs_int32_t first_sort_point; /* when to sort and combine */
   mpqs_int32_t sort_pt_interval; /* (in units of 1/1000) */
 
-  /* subscripts determining where to pick primes for A... */
+  /* subscripts determining where to pick primes for A */
 
-  /* FIXME: lp_bound might have to be mpqs_int64_t ? or mpqs_invp_t ? */
+  /* FIXME: lp_bound might have to be mpqs_int64_t ? */
   long lp_bound;                /* cutoff for Large Primes */
   long digit_size_kN;
   const mpqs_multiplier_t *_k;  /* multiplier k and attached quantities */
@@ -294,15 +267,14 @@ typedef struct mpqs_handle {
 
 /* -- sizing table entries */
 
-/* The "tolerance" is explained below apropos of mpqs_set_sieve_threshold().
- * The LP scale, for very large kN, prevents us from accumulating vast amounts
- * of LP relations with little chance of hitting any particular large prime
- * a second time and being able to combine a full relation from two LP ones;
- * however, the sieve threshold (determined by the tolerance) already works
- * against very large LPs being produced.-- The present relations "database"
- * can detect duplicate full relations only during the sort/combine phases,
- * so we must do some sort points even for tiny kN where we do not admit
- * large primes at all.
+/* For "tolerance", see mpqs_set_sieve_threshold(). The LP scale, for very
+ * large kN, prevents us from accumulating vast amounts of LP relations with
+ * little chance of hitting any particular large prime a second time and being
+ * able to combine a full relation from two LP ones; however, the sieve
+ * threshold (determined by the tolerance) already works against very large LPs
+ * being produced. The present relations "database" can detect duplicate full
+ * relations only during the sort/combine phases, so we must do some sort
+ * points even for tiny kN where we do not admit large primes at all.
  * Some constraints imposed by the present implementation:
  * + omega_A should be at least 3, and no more than MPQS_MAX_OMEGA_A
  * + The size of the FB must be large enough compared to omega_A
@@ -317,20 +289,18 @@ typedef struct mpqs_handle {
  * XXX   cap index2_FB below index3_FB instead of below size_of_FB)
  */
 typedef struct mpqs_parameterset {
-  float tolerance;              /* "mesh width" of the sieve */
-  /* XX following subject to further change */
-  mpqs_int32_t lp_scale;        /* factor by which LPs may exceed FB primes */
-  mpqs_int32_t M;               /* size of half the sieving interval */
-  mpqs_int32_t size_of_FB;      /* #primes to use for FB (including 2) */
-  mpqs_int32_t omega_A;         /* #primes to go into each A */
-  /* following is auto-adjusted to account for prime factors of k inserted
-   * near the start of the FB.  NB never ever sieve on the prime 2  (which
-   * would just contribute a constant at each sieve point). */
-  mpqs_int32_t pmin_index1;     /* lower bound for primes used for sieving */
-  /* the remaining two are expressed in percent  (of the target number of full
-   * relations),  and determine when we stop sieving to review the contents
-   * of the relations DB and sort them and combine full relations from LP
-   * ones.  Note that the handle has these in parts per thousand instead. */
+  float tolerance;          /* "mesh width" of the sieve */
+  mpqs_int32_t lp_scale;    /* factor by which LPs may exceed FB primes */
+  mpqs_int32_t M;           /* size of half the sieving interval */
+  mpqs_int32_t size_of_FB;  /* #primes to use for FB (including 2) */
+  mpqs_int32_t omega_A;     /* #primes to go into each A */
+  /* Following is auto-adjusted to account for prime factors of k inserted
+   * near the start of the FB. NB never ever sieve on the prime 2,which would
+   * just contribute a constant at each sieve point. */
+  mpqs_int32_t pmin_index1; /* lower bound for primes used for sieving */
+  /* The remaining two are expressed in 1/1000-th (of the target number of full
+   * relations), and determine when we stop sieving to review the
+   * relations, sort them and combine full relations from LP ones. */
   mpqs_int32_t first_sort_point;
   mpqs_int32_t sort_pt_interval;
 } mpqs_parameterset_t;
