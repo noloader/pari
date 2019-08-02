@@ -11,13 +11,11 @@ Check the License for details. You should have received a copy of it, along
 with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-/* Implementation of the Self-Initializing Multi-Polynomial Quadratic Sieve
- * based on code developed as part of the LiDIA project
- * (http://www.informatik.tu-darmstadt.de/TI/LiDIA/)
+/* Self-Initializing Multi-Polynomial Quadratic Sieve, based on code developed
+ * as part of the LiDIA project.
  *
  * Original version: Thomas Papanikolaou and Xavier Roblot
- * Extensively modified by The PARI group.
- */
+ * Extensively modified by The PARI group. */
 /* Notation commonly used in this file, and sketch of algorithm:
  *
  * Given an odd integer N > 1 to be factored, we throw in a small odd squarefree
