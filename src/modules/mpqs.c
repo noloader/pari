@@ -104,9 +104,7 @@ vec_extend(GEN frel, GEN rel, long nfrel)
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**                         INITIAL SIZING                          **/
-/**                                                                 **/
 /*********************************************************************/
 /* number of decimal digits of argument - for parameter choosing and for
  * diagnostics */
@@ -159,9 +157,7 @@ mpqs_set_parameters(mpqs_handle_t *h)
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**                       OBJECT HOUSEKEEPING                       **/
-/**                                                                 **/
 /*********************************************************************/
 
 /* factor base constructor. Really a home-grown memalign(3c) underneath.
@@ -245,9 +241,7 @@ mpqs_poly_ctor(mpqs_handle_t *h)
 /* TODO: relationsdb handle */
 
 /*********************************************************************/
-/**                                                                 **/
 /**                        FACTOR BASE SETUP                        **/
-/**                                                                 **/
 /*********************************************************************/
 /* fill in the best-guess multiplier k for N. We force kN = 1 mod 4.
  * Caller should proceed to fill in kN */
@@ -307,7 +301,6 @@ mpqs_find_k(mpqs_handle_t *h)
   }
 }
 
-/******************************/
 /* Create a factor base of 'size' primes p_i such that legendre(k*N, p_i) != -1
  * We could have shifted subscripts down from their historical arrangement,
  * but this seems too risky for the tiny potential gain in memory economy.
@@ -403,9 +396,7 @@ mpqs_create_FB(mpqs_handle_t *h, ulong *f)
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**                      MISC HELPER FUNCTIONS                      **/
-/**                                                                 **/
 /*********************************************************************/
 
 /* Effect of the following:  multiplying the base-2 logarithm of some
@@ -469,9 +460,7 @@ mpqs_set_sieve_threshold(mpqs_handle_t *h)
 
   /* Now fill in the byte-sized approximate scaled logarithms of p_i */
   if (DEBUGLEVEL >= 5)
-  {
     err_printf("MPQS: computing logarithm approximations for p_i in FB\n");
-  }
   for (i = h->index0_FB; i < h->size_of_FB + 2; i++)
   {
     FB[i].fbe_logval =
@@ -538,9 +527,7 @@ mpqs_locate_A_range(mpqs_handle_t *h)
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**                       SELF-INITIALIZATION                       **/
-/**                                                                 **/
 /*********************************************************************/
 
 #ifdef MPQS_DEBUG
@@ -1014,9 +1001,7 @@ mpqs_self_init(mpqs_handle_t *h)
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**                           THE SIEVE                             **/
-/**                                                                 **/
 /*********************************************************************/
 
 /* Main sieving routine:
@@ -1071,8 +1056,6 @@ mpqs_sieve(mpqs_handle_t *h)
   }
 }
 
-/******************************/
-
 /* Could make shameless use of the fact that M is divisible by 4, but
  * let the compiler worry about loop unrolling.  Indeed I wonder whether
  * modern compilers woudln't have an easier time optimizing this if it
@@ -1101,9 +1084,7 @@ mpqs_eval_sieve(mpqs_handle_t *h)
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**                     CONSTRUCTING RELATIONS                      **/
-/**                                                                 **/
 /*********************************************************************/
 
 /* Main relation routine */
@@ -1328,9 +1309,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**                      COMBINING RELATIONS                        **/
-/**                                                                 **/
 /*********************************************************************/
 static void
 rel_to_ei(GEN ei, GEN relp)
@@ -1419,9 +1398,7 @@ mpqs_combine_large_primes(mpqs_handle_t *h, hashtable *lprel, GEN LPNEW, hashtab
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**                    FROM RELATIONS TO DIVISORS                   **/
-/**                                                                 **/
 /*********************************************************************/
 
 /* create an F2m from a relations list; rows = size_of_FB+1 */
@@ -1612,9 +1589,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
 }
 
 /*********************************************************************/
-/**                                                                 **/
 /**               MAIN ENTRY POINT AND DRIVER ROUTINE               **/
-/**                                                                 **/
 /*********************************************************************/
 static void
 toolarge()
