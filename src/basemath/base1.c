@@ -1174,6 +1174,72 @@ nfisincl(GEN fa, GEN fb)
   return gerepilecopy(av,x);
 }
 
+static GEN
+lastel(GEN x) { return gel(x, lg(x)-1); }
+
+static GEN
+nfsplitting_composite(GEN P)
+{
+  GEN F = gel(ZX_factor(P), 1), Q = NULL;
+  long i, n = lg(F)-1;
+  for (i = 1; i <= n; i++)
+  {
+    GEN Fi = gel(F, i);
+    if (degpol(Fi) == 1) continue;
+    Q = Q ? lastel(compositum(Q, Fi)): Fi;
+  }
+  return Q ? Q: pol_x(varn(P));
+}
+GEN
+nfsplitting(GEN T, GEN D)
+{
+  pari_sp av = avma;
+  long d, v;
+  GEN F, K;
+  T = get_nfpol(T,&K);
+  if (!K)
+  {
+    if (typ(T) != t_POL) pari_err_TYPE("nfsplitting",T);
+    T = Q_primpart(T);
+    RgX_check_ZX(T,"nfsplitting");
+  }
+  T = nfsplitting_composite(T);
+  d = degpol(T);
+  if (d<=1) return pol_x(varn(T));
+  if (!K) {
+    if (!isint1(leading_coeff(T))) K = T = polredbest(T,0);
+    K = T;
+  }
+  if (D)
+  {
+    if (typ(D) != t_INT || signe(D) < 1) pari_err_TYPE("nfsplitting",D);
+  }
+  else
+  {
+    char *data = stack_strcat(pari_datadir, "/galdata");
+    long dmax = pari_is_dir(data)? 11: 7;
+    D = (d <= dmax)? gel(polgalois(T,DEFAULTPREC), 1): mpfact(d);
+  }
+  d = itos_or_0(D);
+  v = varn(T);
+  T = leafcopy(T); setvarn(T, fetch_var_higher());
+  for(F = T;;)
+  {
+    GEN P = gel(nffactor(K, F), 1), Q = gel(P,lg(P)-1);
+    if (degpol(gel(P,1)) == degpol(Q)) break;
+    F = rnfequation(K,Q);
+    if (degpol(F) == d) break;
+  }
+  if (umodiu(D,degpol(F)))
+  {
+    char *sD = itostr(D);
+    pari_warn(warner,stack_strcat("ignoring incorrect degree bound ",sD));
+  }
+  (void)delete_var();
+  setvarn(F,v);
+  return gerepilecopy(av, F);
+}
+
 /*************************************************************************/
 /**                                                                     **/
 /**                               INITALG                               **/
