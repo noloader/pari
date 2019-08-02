@@ -403,10 +403,8 @@ mpqs_create_FB(mpqs_handle_t *h, ulong *f)
  * in order to be accepted as a candidate. */
 /* The old formula was...
  *   log_multiplier =
- *      127.0 / (0.5 * log2 (handle->dkN)
- *               + log2((double)M)
- *               - tolerance * log2((double)handle->largest_FB_p)
- *               );
+ *      127.0 / (0.5 * log2 (handle->dkN) + log2((double)M)
+ *               - tolerance * log2((double)handle->largest_FB_p));
  * and we used to use this with a constant threshold of 128. */
 
 /* NOTE: We used to divide log_multiplier by an extra factor 2, and in
@@ -422,20 +420,15 @@ static void
 mpqs_set_sieve_threshold(mpqs_handle_t *h)
 {
   mpqs_FB_entry_t *FB = h->FB;
+  double log_maxval, log_multiplier;
   long i;
-  double log_maxval;
-  double log_multiplier;
 
   h->l2sqrtkN = 0.5 * log2(h->dkN);
   h->l2M = log2((double)h->M);
   log_maxval = h->l2sqrtkN + h->l2M - MPQS_A_FUDGE;
   log_multiplier = 232.0 / log_maxval;
-  h->sieve_threshold =
-    (unsigned char) (log_multiplier *
-                     (log_maxval
-                      - h->tolerance * log2((double)h->largest_FB_p)
-                      )
-                     ) + 1;
+  h->sieve_threshold = (unsigned char) (log_multiplier *
+    (log_maxval - h->tolerance * log2((double)h->largest_FB_p))) + 1;
   /* That "+ 1" really helps - we may want to tune towards somewhat smaller
    * tolerances  (or introduce self-tuning one day)... */
 
@@ -453,10 +446,7 @@ mpqs_set_sieve_threshold(mpqs_handle_t *h)
   if (DEBUGLEVEL >= 5)
     err_printf("MPQS: computing logarithm approximations for p_i in FB\n");
   for (i = h->index0_FB; i < h->size_of_FB + 2; i++)
-  {
-    FB[i].fbe_logval =
-      (unsigned char) (log_multiplier * FB[i].fbe_flogp);
-  }
+    FB[i].fbe_logval = (unsigned char) (log_multiplier * FB[i].fbe_flogp);
 }
 
 /* Given the partially populated handle, find the optimum place in the FB
@@ -486,12 +476,7 @@ mpqs_locate_A_range(mpqs_handle_t *h)
   l2_target_pA = h->l2_target_A / h->omega_A;
 
   /* find the sweet spot, normally shouldn't take long */
-  while ((FB[i].fbe_p != 0) && (FB[i].fbe_flogp <= l2_target_pA)) i++;
-
-#ifdef MPQS_DEBUG_LOCATE_A_RANGE
-  err_printf("MPQS DEBUG: omega_A=%ld, index0=%ld, i=%ld\n",
-             (long) h->omega_A, (long) h->index0_FB, i);
-#endif
+  while (FB[i].fbe_p && FB[i].fbe_flogp <= l2_target_pA) i++;
 
   /* check whether this hasn't walked off the top end... */
   /* The following should actually NEVER happen. */
@@ -501,20 +486,13 @@ mpqs_locate_A_range(mpqs_handle_t *h)
         "MPQS: sizing out of tune, FB too small or\n\tway too few primes in A");
     return 0;
   }
-  h->index2_FB = i - 1;
-#ifdef MPQS_DEBUG_LOCATE_A_RANGE
-  err_printf("MPQS DEBUG: index2_FB = %ld\n", i - 1);
-#endif
-  /* GN20050723
-   * assert: index0_FB + (omega_A - 3) [the lowest FB subscript eligible to
-   * be used in picking primes for A]  plus  (omega_A - 2)  does not exceed
-   * index2_FB  [the subscript from which the choice of primes for A starts,
-   * putting omega_A - 1 of them at or below index2_FB, and the last and
-   * largest one above, cf. mpqs_si_choose_primes() below].
-   * Moreover, index2_FB indicates the last prime below the ideal size, unless
-   * (when kN is very small) the ideal size was too small to use. */
-
-  return 1;
+  h->index2_FB = i - 1; return 1;
+  /* assert: index0_FB + (omega_A - 3) [the lowest FB subscript used in primes
+   * for A]  + (omega_A - 2) <= index2_FB  [the subscript from which the choice
+   * of primes for A starts, putting omega_A - 1 of them at or below index2_FB,
+   * and the last and largest one above, cf. mpqs_si_choose_primes]. Moreover,
+   * index2_FB indicates the last prime below the ideal size, unless (when kN
+   * is tiny) the ideal size was too small to use. */
 }
 
 /*********************************************************************/
