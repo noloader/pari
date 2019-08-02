@@ -222,15 +222,10 @@ mpqs_poly_ctor(mpqs_handle_t *h)
    * is sufficient. */
   h->A = cgeti(h->omega_A + 2);
   h->B = cgeti(h->omega_A + 3);
-#ifdef MPQS_DEBUG
-  h->C = cgeti(h->omega_A + 4);
-#endif
-  for (i = 0; i < h->omega_A; i++)
-    h->per_A_pr[i]._H = cgeti(h->omega_A + 2);
+  for (i = 0; i < h->omega_A; i++) h->per_A_pr[i]._H = cgeti(h->omega_A + 2);
   /* the handle starts out all zero, so in particular bin_index and index_i
    * are initially 0.
-   * TODO: index_j currently initialized in mqps() but this is going to
-   * change. */
+   * TODO: index_j currently initialized in mqps() but this will change. */
 }
 
 /* TODO: relationsdb handle */
@@ -501,21 +496,22 @@ mpqs_locate_A_range(mpqs_handle_t *h)
 
 #ifdef MPQS_DEBUG
 /* Debug-only helper routine: check correctness of the root z mod p_i
- * by evaluting A * z^2 + B * z + C mod p_i  (which should be 0).
- * C is written as (B*B-kN)/(4*A) */
+ * by evaluting A * z^2 + B * z + C mod p_i  (which should be 0). */
 static void
-check_root(mpqs_handle_t *h, long p, long start)
+check_root(mpqs_handle_t *h, GEN mC, long p, long start)
 {
+  pari_sp av = avma;
   long z = start - ((long)(h->M) % p);
-  if (smodis(addii(h->C, mulsi(z, addii(h->B, mulsi(z, h->A)))), p))
+  if (umodiu(subii(mulsi(z, addii(h->B, mulsi(z, h->A))), mC), p))
   {
     err_printf("MPQS: p = %ld\n", p);
     err_printf("MPQS: A = %Ps\n", h->A);
     err_printf("MPQS: B = %Ps\n", h->B);
-    err_printf("MPQS: C = %Ps\n", h->C);
+    err_printf("MPQS: C = %Ps\n", negi(mC));
     err_printf("MPQS: z = %ld\n", z);
     pari_err_BUG("MPQS: self_init: found wrong polynomial");
   }
+  avma = av;
 }
 #endif
 
@@ -806,8 +802,8 @@ mpqs_self_init(mpqs_handle_t *h)
        * maintain towards the top end is that h->size_of_FB - h->index2_FB >= 3,
        * but note that our size_of_FB is one larger. */
 
-      /* "throw exception up to caller." ( bin_index set to impossible value
-       * 0 by mpqs_si_choose_primes() */
+      /* throw exception up to caller ( bin_index set to impossible value 0 by
+       * mpqs_si_choose_primes() */
       if (size_of_FB - h->index2_FB < 4) return;
       (void) mpqs_si_choose_primes(h);
     }
@@ -890,16 +886,8 @@ mpqs_self_init(mpqs_handle_t *h)
      * of H[omega_A-1] (the topmost one), because that would just give us
      * the same sieve items Q(x) again with the opposite sign of x.  This
      * is why we only precomputed inv_A_H up to i = omega_A - 2. */
-
-    ulong v2 = 0;               /* 2-valuation of h->index_j */
-
-    j = h->index_j;
-    /* could use vals() here, but we need to right shift the bit pattern
-     * anyway in order to find out which inv_A_H entries must be added to or
-     * subtracted from the modular roots */
-    while ((j & 1) == 0) { v2++; j >>= 1; }
-
-    /* v2 = v_2(index_j), determine new starting positions for sieving */
+    ulong v2 = vals(h->index_j); /* new starting positions for sieving */
+    j = h->index_j >> v2;
     p1 = shifti(MPQS_H(v2), 1);
     if (j & 2)
     { /* j = 3 mod 4 */
@@ -936,34 +924,23 @@ mpqs_self_init(mpqs_handle_t *h)
   p1 = diviiexact(subii(h->kN, sqri(B)), shifti(A, 2)); /* coefficient -C */
   for (i = 0; i < h->omega_A; i++)
   {
-    ulong tmp, s;
+    ulong s;
     p = (ulong) MPQS_AP(i);
-    tmp = Fl_div(umodiu(p1, p), umodiu(B, p), p); s = (tmp + h->M) % p;
-    FB[MPQS_I(i)].fbe_start1 = (mpqs_int32_t)s;
-    FB[MPQS_I(i)].fbe_start2 = (mpqs_int32_t)s;
+    s = h->M + Fl_div(umodiu(p1, p), umodiu(B, p), p);
+    FB[MPQS_I(i)].fbe_start1 = FB[MPQS_I(i)].fbe_start2 = (mpqs_int32_t)(s % p);
   }
-
+#ifdef MPQS_DEBUG
+  for (j = 3; j <= size_of_FB; j++)
+  {
+    check_root(h, p1, FB[j].fbe_p, FB[j].fbe_start1);
+    check_root(h, p1, FB[j].fbe_p, FB[j].fbe_start2);
+  }
+#endif
   if (MPQS_DEBUGLEVEL >= 6)
     err_printf("MPQS: chose Q_%ld(x) = %Ps x^2 %c %Ps x + C\n",
                (long) h->index_j, h->A,
                signe(h->B) < 0? '-': '+', absi_shallow(h->B));
-
   set_avma(av);
-
-#ifdef MPQS_DEBUG
-  /* stash C into the handle.  Since check_root() is the only thing which
-   * uses it, and only for debugging, C doesn't even exist as a field in
-   * the handle unless we're built with MPQS_DEBUG. */
-  affii(negi(p1), h->C);
-  for (j = 3; j <= size_of_FB; j++)
-  {
-    check_root(h, FB[j].fbe_p, FB[j].fbe_start1);
-    check_root(h, FB[j].fbe_p, FB[j].fbe_start2); set_avma(av);
-  }
-  if (DEBUGLEVEL >= 6)
-    PRINT_IF_VERBOSE("MPQS: checking of roots of Q(x) was successful\n");
-#endif
-
 #ifdef MPQS_DEBUG_AVMA
   err_printf("MPQS DEBUG: leave self init, avma = 0x%lX\n", (ulong)avma);
 #endif

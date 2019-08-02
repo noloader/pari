@@ -256,9 +256,6 @@ typedef struct mpqs_handle {
    * live in preallocated slots on the PARI stack: */
   GEN A;                        /* leading coefficient */
   GEN B;                        /* middle coefficient */
-#ifdef MPQS_DEBUG
-  GEN C;                        /* and constant coefficient */
-#endif
   mpqs_int32_t omega_A;         /* number of primes going into each A */
   mpqs_int32_t no_B;            /* number of B's for each A: 2^(omega_A-1) */
   double l2_target_A;           /* ~log2 of desired typical A */
