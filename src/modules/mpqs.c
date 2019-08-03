@@ -937,31 +937,24 @@ mpqs_sieve(mpqs_handle_t *h)
   }
 }
 
-/* Could make shameless use of the fact that M is divisible by 4, but
- * let the compiler worry about loop unrolling.  Indeed I wonder whether
- * modern compilers woudln't have an easier time optimizing this if it
- * were written as array accesses.  Doing so. */
+/* Could use the fact that 4 | M, but let the compiler worry about unrolling. */
 static long
 mpqs_eval_sieve(mpqs_handle_t *h)
 {
-  long x = 0, count = 0, M_2 = h->M << 1;
-  unsigned char th = h->sieve_threshold;
+  long x = 0, count = 0, M2 = h->M << 1;
+  unsigned char t = h->sieve_threshold;
   unsigned char *sieve_array = h->sieve_array;
-  long *candidates = h->candidates;
+  long *cand = h->candidates;
 
-  /* The following variation on the original is marginally faster with a
-   * good optimizing compiler.  Exploiting the sentinel, we don't need to
-   * check for x < M_2 in the inner while loop - this more than makes up
-   * for the "lack" of explicit unrolling.  Optimizations like loop
-   * unrolling are best left to the compiler anyway... */
+  /* Exploiting the sentinel, we don't need to check for x < M2 in the inner
+   * while loop; more than makes up for the lack of explicit unrolling. */
   while (count < MPQS_CANDIDATE_ARRAY_SIZE - 1)
   {
-    while (sieve_array[x] < th) x++;
-    if (x >= M_2) break;
-    candidates[count++] = x++;
+    while (sieve_array[x] < t) x++;
+    if (x >= M2) break;
+    cand[count++] = x++;
   }
-
-  candidates[count] = 0; return count;
+  cand[count] = 0; return count;
 }
 
 /*********************************************************************/
