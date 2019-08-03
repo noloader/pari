@@ -1231,6 +1231,37 @@ group_subgroup_isnormal(GEN G, GEN H)
   return groupelts_subgroup_isnormal(grp_get_gen(G), H);
 }
 
+static GEN
+group_subgroup_kernel_set(GEN G, GEN H)
+{
+  pari_sp av;
+  GEN g = grp_get_gen(G);
+  long i, n = lg(g);
+  GEN S, elts;
+  long d = group_domain(G);
+  if (lg(grp_get_gen(H)) > 1 && group_domain(G) != group_domain(H))
+    pari_err_DOMAIN("group_subgroup_isnormal","domain(H)","!=",
+                    strtoGENstr("domain(G)"), H);
+  elts = group_elts(H,d);
+  S = groupelts_set(elts, d);
+  av = avma;
+  for(i=1; i<n; i++)
+  {
+    F2v_and_inplace(S, groupelts_conj_set(elts,gel(g,i)));
+    set_avma(av);
+  }
+  return S;
+}
+
+int
+group_subgroup_is_faithful(GEN G, GEN H)
+{
+  pari_sp av = avma;
+  GEN K = group_subgroup_kernel_set(G,H);
+  F2v_clear(K,1);
+  return gc_long(av, F2v_equal0(K));
+}
+
 long
 groupelts_exponent(GEN elts)
 {
