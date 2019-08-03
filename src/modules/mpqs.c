@@ -1098,7 +1098,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, GEN *FREL, GEN *LPREL)
   mpqs_FB_entry_t *FB = h->FB;
   GEN A = h->A, B = h->B, frel, lprel;
   long *relaprimes = h->relaprimes, *candidates = h->candidates;
-  long pi, i, nfrel = 1, nlprel = 1, number_of_relations = 0;
+  long pi, i, nfrel = 1, nlprel = 1;
   int pii;
 
   frel = cgetg(nc+1, t_VEC);
@@ -1219,7 +1219,6 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, GEN *FREL, GEN *LPREL)
     {
       GEN rel = gerepilecopy(btop, mkvec2(absi_shallow(Y), relp));
       gel(frel, nfrel++) = rel;
-      number_of_relations++;
 #ifdef MPQS_DEBUG
       mpqs_check_rel(h, rel);
 #endif
