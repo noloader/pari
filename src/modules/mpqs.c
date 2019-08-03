@@ -1030,13 +1030,12 @@ mpqs_add_factor(GEN relp, long *i, ulong ei, ulong pi)
 static GEN
 combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
 {
-  pari_sp av = avma;
   GEN new_Y, new_Y1, Y1 = rel_Y(rel1), Y2 = rel_Y(rel2);
   long l, lei = h->size_of_FB + 1, nb = 0;
   GEN ei, relp, iq, q = rel_q(rel1);
 
   /* can happen */
-  if (!invmod(q, h->N, &iq)) return equalii(iq, h->N)? gc_NULL(av): iq;
+  if (!invmod(q, h->N, &iq)) return equalii(iq, h->N)? NULL: iq;
   ei = zero_zv(lei);
   relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
 
@@ -1068,7 +1067,7 @@ combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
     set_avma(av1);
   }
 #endif
-  return gerepilecopy(av, mkvec2(new_Y, relp));
+  return mkvec2(new_Y, relp);
 }
 
 /* nc candidates */
@@ -1219,6 +1218,8 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
 #endif
         frel_add(frel, gerepilecopy(btop,rel));
       }
+      else
+        set_avma(btop);
     }
     else
     { /* TODO: check for double large prime */
