@@ -685,7 +685,7 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
         err_printf("MPQS: wrapping, more primes for A now chosen near FB[%ld] = %ld\n",
                    (long)h->index2_FB,
                    (long)FB[h->index2_FB].fbe_p);
-      return 0;                 /* back off - caller should retry */
+      return 0; /* back off - caller should retry */
     }
   }
   /* assert: we aren't occupying any of the room_mask bits now, and if
@@ -729,139 +729,114 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   {
     err_printf("MPQS: chose primes for A");
     for (i = 0; i < omega_A; i++)
-      err_printf(" FB[%ld]=%ld%s", (long) MPQS_I(i), (long) MPQS_AP(i),
+      err_printf(" FB[%ld]=%ld%s", (long)MPQS_I(i), (long)MPQS_AP(i),
                  i < omega_A - 1 ? "," : "\n");
   }
   return 1;
 }
 
-/* compute coefficients of the sieving polynomial for self initializing
- * variant. Coefficients A and B are returned and several tables are
- * updated. A and B are kept on the PARI stack in preallocated GENs; so is C
- * when MPQS_DEBUG */
-static void
+/* compute coefficients of sieving polynomial for self initializing variant.
+ * Coefficients A and B are set (preallocated GENs) and several tables are
+ * updated. */
+static int
 mpqs_self_init(mpqs_handle_t *h)
 {
   const ulong size_of_FB = h->size_of_FB + 1;
   mpqs_FB_entry_t *FB = h->FB;
   mpqs_inv_A_H_t *inv_A_H = h->inv_A_H;
   const pari_sp av = avma;
-  GEN p1, p2;
-  GEN A = h->A;
-  GEN B = h->B;
+  GEN p1, A = h->A, B = h->B;
   mpqs_per_A_prime_t *per_A_pr = h->per_A_pr;
   long i, j;
-  long inv_A2;
-  ulong p;
 
 #ifdef MPQS_DEBUG_AVMA
   err_printf("MPQS DEBUG: enter self init, avma = 0x%lX\n", (ulong)avma);
 #endif
-
-  /* when all of the B's have already been used, choose new A ;
-     this is indicated by setting index_j to 0 */
   if (++h->index_j == (mpqs_uint32_t)h->no_B)
-  {
+  { /* all the B's have been used, choose new A; this is indicated by setting
+     * index_j to 0 */
     h->index_j = 0;
     h->index_i++; /* count finished A's */
   }
 
   if (h->index_j == 0)
-  /* "mpqs_self_init_A()" */
   { /* compute first polynomial with new A */
+    GEN a, b, A2;
     if (!mpqs_si_choose_primes(h))
-    {
-      /* We ran out of room towards small primes, and index2_FB was raised.
-       * Check that we're still ok in that direction before re-trying the
-       * operation, which then is guaranteed to succeed. The invariant we
-       * maintain towards the top end is that h->size_of_FB - h->index2_FB >= 3,
-       * but note that our size_of_FB is one larger. */
-
-      /* throw exception up to caller ( bin_index set to impossible value 0 by
-       * mpqs_si_choose_primes() */
-      if (size_of_FB - h->index2_FB < 4) return;
-      (void) mpqs_si_choose_primes(h);
+    { /* Ran out of room towards small primes, and index2_FB was raised. */
+      if (size_of_FB - h->index2_FB < 4) return 0; /* Fail */
+      (void)mpqs_si_choose_primes(h); /* now guaranteed to succeed */
     }
-    /* assert: bin_index and per_A_pr are now populated with consistent
-     * values */
+    /* bin_index and per_A_pr now populated with consistent values */
 
     /* compute A = product of omega_A primes given by bin_index */
-    p1 = NULL;
+    a = b = NULL;
     for (i = 0; i < h->omega_A; i++)
     {
-      p = (ulong) MPQS_AP(i);
-      p1 = p1 ? muliu(p1, p): utoipos(p);
+      ulong p = MPQS_AP(i);
+      a = a? muliu(a, p): utoipos(p);
     }
-    affii(p1, A); set_avma(av);
-
+    affii(a, A);
     /* Compute H[i], 0 <= i < omega_A.  Also compute the initial
-     * B = sum(v_i*H[i]), by taking all v_i = +1 */
-    /* TODO: following needs to be changed later for segmented FB and sieve
+     * B = sum(v_i*H[i]), by taking all v_i = +1
+     * TODO: following needs to be changed later for segmented FB and sieve
      * interval, where we'll want to precompute several B's. */
-    p2 = NULL;
     for (i = 0; i < h->omega_A; i++)
     {
-      p = (ulong) MPQS_AP(i);
-      p1 = divis(A, (long)p);
-      p1 = muliu(p1, Fl_inv(umodiu(p1, p), p));
-      p1 = muliu(p1, MPQS_SQRT(i));
-      affii(remii(p1, A), MPQS_H(i));
-      p2 = p2 ? addii(p2, MPQS_H(i)) : MPQS_H(i);
+      ulong p = MPQS_AP(i);
+      GEN t = divis(A, (long)p);
+      t = remii(mulii(t, muluu(Fl_inv(umodiu(t, p), p), MPQS_SQRT(i))), A);
+      affii(t, MPQS_H(i));
+      b = b? addii(b, t): t;
     }
-    affii(p2, B);
-    set_avma(av);                  /* must happen outside the loop */
+    affii(b, B); set_avma(av);
 
     /* ensure B = 1 mod 4 */
     if (mod2(B) == 0)
       affii(addii(B, mului(mod4(A), A)), B); /* B += (A % 4) * A; */
 
-    p1 = shifti(A, 1);
+    A2 = shifti(A, 1);
     /* compute the roots z1, z2, of the polynomial Q(x) mod p_j and
      * initialize start1[i] with the first value p_i | Q(z1 + i p_j)
      * initialize start2[i] with the first value p_i | Q(z2 + i p_j)
-     * The following loop "miraculously" does The Right Thing for the
-     * primes dividing k (where sqrt_kN is 0 mod p).  Primes dividing A
-     * are skipped here, and are handled further down in the common part
-     * of SI. */
+     * The following loop does The Right Thing for primes dividing k (where
+     * sqrt_kN is 0 mod p). Primes dividing A are skipped here, and are handled
+     * further down in the common part of SI. */
     for (j = 3; (ulong)j <= size_of_FB; j++)
     {
-      ulong mb, tmp1, tmp2, m;
+      ulong s, mb, t, m, p, iA2, iA;
       if (FB[j].fbe_flags & MPQS_FBE_DIVIDES_A) continue;
-      p = (ulong)FB[j].fbe_p; m = h->M % p;
-      inv_A2 = Fl_inv(umodiu(p1, p), p); /* = 1/(2*A) mod p_j */
-      mb = umodiu(B, p); if (mb) mb = p - mb;
-      /* mb = -B mod p */
-      tmp1 = Fl_sub(mb, FB[j].fbe_sqrt_kN, p);
-      tmp1 = Fl_mul(tmp1, inv_A2, p);
-      FB[j].fbe_start1 = (mpqs_int32_t)Fl_add(tmp1, m, p);
-
-      tmp2 = Fl_add(mb, FB[j].fbe_sqrt_kN, p);
-      tmp2 = Fl_mul(tmp2, inv_A2, p);
-      FB[j].fbe_start2 = (mpqs_int32_t)Fl_add(tmp2, m, p);
+      p = (ulong)FB[j].fbe_p;
+      m = h->M % p;
+      iA2 = Fl_inv(umodiu(A2, p), p); /* = 1/(2*A) mod p_j */
+      iA = iA2 << 1; if (iA > p) iA -= p;
+      mb = umodiu(B, p); if (mb) mb = p - mb; /* mb = -B mod p */
+      s = FB[j].fbe_sqrt_kN;
+      t = Fl_add(m, Fl_mul(Fl_sub(mb, s, p), iA2, p), p);
+      FB[j].fbe_start1 = (mpqs_int32_t)t;
+      FB[j].fbe_start2 = (mpqs_int32_t)Fl_add(t, Fl_mul(s, iA, p), p);
       for (i = 0; i < h->omega_A - 1; i++)
       {
-        ulong h = umodiu(MPQS_H(i), p) << 1; if (h > p) h -= p;
-        MPQS_INV_A_H(i,j) = Fl_mul(h, inv_A2, p); /* 1/A * H[i] mod p_j */
+        ulong h = umodiu(MPQS_H(i), p);
+        MPQS_INV_A_H(i,j) = Fl_mul(h, iA, p); /* 1/A * H[i] mod p_j */
       }
     }
   }
   else
-  /* "mpqs_self_init_B()" */
   { /* no "real" computation -- use recursive formula */
-    /* The following exploits that B is the sum of omega_A terms +-H[i].
-     * Each time we switch to a new B, we choose a new pattern of signs;
-     * the precomputation of the inv_A_H array allows us to change the
-     * two arithmetic progressions equally fast.  The choice of sign
-     * patterns does *not* follow the bit pattern of the ordinal number
-     * of B in the current cohort;  rather, we use a Gray code, changing
-     * only one sign each time.  When the i-th rightmost bit of the new
-     * ordinal number index_j of B is 1, the sign of H[i] is changed;
-     * the next bit to the left tells us whether we should be adding or
-     * subtracting the difference term.  We never need to change the sign
-     * of H[omega_A-1] (the topmost one), because that would just give us
-     * the same sieve items Q(x) again with the opposite sign of x.  This
-     * is why we only precomputed inv_A_H up to i = omega_A - 2. */
-    ulong v2 = vals(h->index_j); /* new starting positions for sieving */
+    /* The following exploits that B is the sum of omega_A terms +-H[i]. Each
+     * time we switch to a new B, we choose a new pattern of signs; the
+     * precomputation of the inv_A_H array allows us to change the two
+     * arithmetic progressions equally fast. The choice of sign patterns does
+     * not follow the bit pattern of the ordinal number of B in the current
+     * cohort; rather, we use a Gray code, changing only one sign each time.
+     * When the i-th rightmost bit of the new ordinal number index_j of B is 1,
+     * the sign of H[i] is changed; the next bit to the left tells us whether
+     * we should be adding or subtracting the difference term. We never need to
+     * change the sign of H[omega_A-1] (the topmost one), because that would
+     * just give us the same sieve items Q(x) again with the opposite sign
+     * of x.  This is why we only precomputed inv_A_H up to i = omega_A - 2. */
+    ulong p, v2 = vals(h->index_j); /* new starting positions for sieving */
     j = h->index_j >> v2;
     p1 = shifti(MPQS_H(v2), 1);
     if (j & 2)
@@ -888,20 +863,15 @@ mpqs_self_init(mpqs_handle_t *h)
     }
     affii(p1, B);
   }
-  set_avma(av);
 
   /* p=2 is a special case.  start1[2], start2[2] are never looked at,
    * so don't bother setting them. */
 
-  /* now compute zeros of polynomials that have only one zero mod p
-     because p divides the coefficient A */
-
+  /* compute zeros of polynomials that have only one zero mod p since p | A */
   p1 = diviiexact(subii(h->kN, sqri(B)), shifti(A, 2)); /* coefficient -C */
   for (i = 0; i < h->omega_A; i++)
   {
-    ulong s;
-    p = (ulong) MPQS_AP(i);
-    s = h->M + Fl_div(umodiu(p1, p), umodiu(B, p), p);
+    ulong p = MPQS_AP(i), s = h->M + Fl_div(umodiu(p1, p), umodiu(B, p), p);
     FB[MPQS_I(i)].fbe_start1 = FB[MPQS_I(i)].fbe_start2 = (mpqs_int32_t)(s % p);
   }
 #ifdef MPQS_DEBUG
@@ -919,6 +889,7 @@ mpqs_self_init(mpqs_handle_t *h)
 #ifdef MPQS_DEBUG_AVMA
   err_printf("MPQS DEBUG: leave self init, avma = 0x%lX\n", (ulong)avma);
 #endif
+  return 1;
 }
 
 /*********************************************************************/
@@ -1580,10 +1551,8 @@ mpqs(GEN N)
   {
     long tc;
     /* self initialization: compute polynomial and its zeros */
-    mpqs_self_init(&H);
-    if (H.bin_index == 0)
-    { /* have run out of primes for A */
-      /* We might change some parameters.  For the moment, simply give up */
+    if (!mpqs_self_init(&H))
+    { /* have run out of primes for A; give up */
       if (DEBUGLEVEL >= 2)
         err_printf("MPQS: Ran out of primes for A, giving up.\n");
       return gc_NULL(av);

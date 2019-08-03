@@ -174,10 +174,10 @@ typedef struct mqps_per_A_prime {
  * for all but the first two of them. */
 #define MPQS_H(i) (per_A_pr[i]._H)
 #define MPQS_I(i) (per_A_pr[i]._i)
-#define MPQS_AP(i) (FB[per_A_pr[i]._i].fbe_p)
-#define MPQS_LP(i) (FB[per_A_pr[i]._i].fbe_flogp)
-#define MPQS_SQRT(i) (FB[per_A_pr[i]._i].fbe_sqrt_kN)
-#define MPQS_FLG(i) (FB[per_A_pr[i]._i].fbe_flags)
+#define MPQS_AP(i) (FB[MPQS_I(i)].fbe_p)
+#define MPQS_LP(i) (FB[MPQS_I(i)].fbe_flogp)
+#define MPQS_SQRT(i) (FB[MPQS_I(i)].fbe_sqrt_kN)
+#define MPQS_FLG(i) (FB[MPQS_I(i)].fbe_flags)
 
 /* -- the array of addends / subtrahends for changing polynomials during
  * self-initialization: (1/A) H[i] mod p_j, with i subscripting the inner
