@@ -4447,6 +4447,9 @@ coefficients are given by the bits of remaining words by increasing indices.
 \fun{void}{F2v_clear}{GEN x, long i} sets the coefficient $i\ge 1$ of $x$ to
 $0$.
 
+\fun{int}{F2v_equal0}{GEN x} returns $1$ if all entries are $0$, and return
+$0$ otherwise.
+
 \fun{void}{F2v_flip}{GEN x, long i} adds $1$ to the coefficient $i\ge 1$ of $x$.
 
 \fun{void}{F2v_set}{GEN x, long i} sets the coefficient $i\ge 1$ of $x$ to $1$.

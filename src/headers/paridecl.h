@@ -87,6 +87,7 @@ GEN     F2m_deplin(GEN x);
 ulong   F2m_det(GEN x);
 ulong   F2m_det_sp(GEN x);
 ulong   F2v_dotproduct(GEN x, GEN y);
+int     F2v_equal0(GEN a);
 GEN     F2m_gauss(GEN a, GEN b);
 GEN     F2m_inv(GEN x);
 GEN     F2m_invimage(GEN A, GEN B);

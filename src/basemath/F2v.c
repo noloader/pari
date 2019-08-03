@@ -30,6 +30,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
    where the a_i are bits.
 */
 
+int
+F2v_equal0(GEN V)
+{
+  long l = lg(V);
+  while (--l > 1)
+    if (V[l]) return 0;
+  return 1;
+}
+
 GEN
 F2c_to_ZC(GEN x)
 {
