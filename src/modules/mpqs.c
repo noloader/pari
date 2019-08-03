@@ -77,25 +77,6 @@ frel_add(hashtable *frel, GEN R)
   if (!hash_search2(frel, (void*)R, h))
     hash_insert2(frel, (void*)R, (void*)1, h);
 }
-static void
-vec_frel_add(hashtable *frel, GEN V)
-{
-  long i, l = lg(V);
-  for (i = 1; i < l ; i++) frel_add(frel, gel(V,i));
-}
-
-static GEN
-vec_extend(GEN frel, GEN rel, long nfrel)
-{
-  long lfrel = lg(frel)-1;
-  if (nfrel > lfrel)
-  {
-    lfrel *= 2;
-    frel = vec_lengthen(frel, lfrel);
-    if (DEBUGLEVEL >= 4) err_printf("MPQS: extending store to %ld\n",lfrel);
-  }
-  gel(frel, nfrel) = rel; return frel;
-}
 
 /*********************************************************************/
 /**                         INITIAL SIZING                          **/
@@ -135,9 +116,6 @@ mpqs_set_parameters(mpqs_handle_t *h)
   h->pmin_index1    = P->pmin_index1;
   /* certain subscripts into h->FB should also be offset by omega_k: */
   h->index0_FB      = 3 + h->_k->omega_k;
-  /* following are converted from % to parts per thousand: */
-  h->first_sort_point = P->first_sort_point;
-  h->sort_pt_interval = P->sort_pt_interval;
   if (DEBUGLEVEL >= 5)
   {
     err_printf("MPQS: kN = %Ps\n", h->kN);
@@ -1090,19 +1068,81 @@ mpqs_check_rel(mpqs_handle_t *h, GEN c)
 }
 #endif
 
-/* nc candidates */
 static void
-mpqs_eval_cand(mpqs_handle_t *h, long nc, GEN *FREL, GEN *LPREL)
+rel_to_ei(GEN ei, GEN relp)
+{
+  long j, l = lg(relp);
+  for (j=1; j<l; j++)
+  {
+    long e = relp[j]>>REL_OFFSET;
+    long i = relp[j]&REL_MASK;
+    ei[i] += e;
+  }
+}
+
+static GEN
+combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
 {
   pari_sp av = avma;
+  GEN new_Y, new_Y1, Y1 = rel_Y(rel1), Y2 = rel_Y(rel2);
+  long l, lei = h->size_of_FB + 1, nb = 0;
+  GEN ei, relp, inv_q, q = rel_q(rel1);
+
+  if (!invmod(q, h->N, &inv_q)) /* can happen */
+  {
+    if (equalii(inv_q, h->N)) /* pity */
+    {
+#ifdef MPQS_DEBUG
+      err_printf("MPQS: skipping relation with non-invertible q\n");
+#endif
+      set_avma(av); return NULL;
+    }
+    return inv_q;
+  }
+  ei = zero_zv(lei);
+  relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
+
+  rel_to_ei(ei, rel_p(rel1));
+  rel_to_ei(ei, rel_p(rel2));
+  new_Y = modii(mulii(mulii(Y1, Y2), inv_q), h->N);
+  new_Y1 = subii(h->N, new_Y);
+  if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
+  if (odd(ei[1])) mpqs_add_factor(relp, &nb, 1, 1);
+  for (l = 2; l <= lei; l++)
+    if (ei[l]) mpqs_add_factor(relp, &nb, ei[l],l);
+  setlg(relp, nb+1);
+  if (DEBUGLEVEL >= 6)
+  {
+    GEN relpp, relpc, rel1p, rel1c, rel2p, rel2c;
+    split_relp(relp,&relpp,&relpc);
+    split_relp(rel1,&rel1p,&rel1c);
+    split_relp(rel2,&rel2p,&rel2c);
+    err_printf("MPQS: combining\n");
+    err_printf("    {%Ps @ %Ps : %Ps}\n", q, Y1, rel1p, rel1c);
+    err_printf("  * {%Ps @ %Ps : %Ps}\n", q, Y2, rel2p, rel2c);
+    err_printf(" == {%Ps, %Ps}\n", relpp, relpc);
+  }
+#ifdef MPQS_DEBUG
+  {
+    pari_sp av1 = avma;
+    if (!equalii(modii(sqri(new_Y), h->N), mpqs_factorback(h, relp)))
+      pari_err_BUG("MPQS: combined large prime relation is false");
+    set_avma(av1);
+  }
+#endif
+  return gerepilecopy(av, mkvec2(new_Y, relp));
+}
+
+/* nc candidates */
+static GEN
+mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
+{
   mpqs_FB_entry_t *FB = h->FB;
-  GEN A = h->A, B = h->B, frel, lprel;
+  GEN A = h->A, B = h->B;
   long *relaprimes = h->relaprimes, *candidates = h->candidates;
-  long pi, i, nfrel = 1, nlprel = 1;
+  long pi, i;
   int pii;
 
-  frel = cgetg(nc+1, t_VEC);
-  lprel = cgetg(nc+1, t_VEC);
   for (i = 0; i < nc; i++)
   {
     pari_sp btop = avma;
@@ -1218,121 +1258,37 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, GEN *FREL, GEN *LPREL)
     if (is_pm1(Qx))
     {
       GEN rel = gerepilecopy(btop, mkvec2(absi_shallow(Y), relp));
-      gel(frel, nfrel++) = rel;
 #ifdef MPQS_DEBUG
       mpqs_check_rel(h, rel);
 #endif
+      frel_add(frel, rel);
     }
-    else if (cmpiu(Qx, h->lp_bound) > 0)
+    else if (cmpiu(Qx, h->lp_bound) <= 0)
+    {
+      ulong q = itou(Qx);
+      GEN rel = mkvec3(absi_shallow(Y),relp,Qx);
+      GEN col = hash_haskey_GEN(lprel, (void*)q);
+#ifdef MPQS_DEBUG
+      mpqs_check_rel(h, rel);
+#endif
+      if (!col) /* relation up to large prime */
+        hash_insert(lprel, (void*)q, (void*)gerepilecopy(btop,rel));
+      else if ((rel = combine_large_primes(h, rel, col)))
+      {
+        if (typ(rel) == t_INT) return rel; /* very unlikely */
+#ifdef MPQS_DEBUG
+        mpqs_check_rel(h, rel);
+#endif
+        frel_add(frel, gerepilecopy(btop,rel));
+      }
+    }
+    else
     { /* TODO: check for double large prime */
       PRINT_IF_VERBOSE("\b.");
       set_avma(btop);
     }
-    else
-    {
-      GEN rel = gerepilecopy(btop, mkvec3(absi_shallow(Y),relp,Qx));
-      gel(lprel, nlprel++) = rel;
-#ifdef MPQS_DEBUG
-      mpqs_check_rel(h, rel);
-#endif
-    }
-
-  } /* for */
+  }
   PRINT_IF_VERBOSE("\n");
-  if (nfrel==1) frel=NULL;   else setlg(frel, nfrel);
-  if (nlprel==1) lprel=NULL; else setlg(lprel, nlprel);
-  *FREL = frel; *LPREL = lprel;
-  if (!frel && !lprel) set_avma(av);
-  else if (!frel) *LPREL = gerepilecopy(av, lprel);
-  else gerepileall(av, lprel ? 2: 1, FREL, LPREL);
-}
-
-/*********************************************************************/
-/**                      COMBINING RELATIONS                        **/
-/*********************************************************************/
-static void
-rel_to_ei(GEN ei, GEN relp)
-{
-  long j, l = lg(relp);
-  for (j=1; j<l; j++)
-  {
-    long e = relp[j]>>REL_OFFSET;
-    long i = relp[j]&REL_MASK;
-    ei[i] += e;
-  }
-}
-
-static GEN
-combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
-{
-  pari_sp av = avma;
-  GEN new_Y, new_Y1, Y1 = rel_Y(rel1), Y2 = rel_Y(rel2);
-  long l, lei = h->size_of_FB + 1, nb = 0;
-  GEN ei, relp, inv_q, q = rel_q(rel1);
-
-  if (!invmod(q, h->N, &inv_q)) /* can happen */
-  {
-    inv_q = gcdii(inv_q, h->N);
-    if (is_pm1(inv_q) || equalii(inv_q, h->N)) /* pity */
-    {
-#ifdef MPQS_DEBUG
-      err_printf("MPQS: skipping relation with non-invertible q\n");
-#endif
-      set_avma(av); return NULL;
-    }
-    return inv_q;
-  }
-  ei = zero_zv(lei);
-  relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
-
-  rel_to_ei(ei, rel_p(rel1));
-  rel_to_ei(ei, rel_p(rel2));
-  new_Y = modii(mulii(mulii(Y1, Y2), inv_q), h->N);
-  new_Y1 = subii(h->N, new_Y);
-  if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
-  if (odd(ei[1])) mpqs_add_factor(relp, &nb, 1, 1);
-  for (l = 2; l <= lei; l++)
-    if (ei[l]) mpqs_add_factor(relp, &nb, ei[l],l);
-  setlg(relp, nb+1);
-  if (DEBUGLEVEL >= 6)
-  {
-    GEN relpp, relpc, rel1p, rel1c, rel2p, rel2c;
-    split_relp(relp,&relpp,&relpc);
-    split_relp(rel1,&rel1p,&rel1c);
-    split_relp(rel2,&rel2p,&rel2c);
-    err_printf("MPQS: combining\n");
-    err_printf("    {%Ps @ %Ps : %Ps}\n", q, Y1, rel1p, rel1c);
-    err_printf("  * {%Ps @ %Ps : %Ps}\n", q, Y2, rel2p, rel2c);
-    err_printf(" == {%Ps, %Ps}\n", relpp, relpc);
-  }
-#ifdef MPQS_DEBUG
-  {
-    pari_sp av1 = avma;
-    if (!equalii(modii(sqri(new_Y), h->N), mpqs_factorback(h, relp)))
-      pari_err_BUG("MPQS: combined large prime relation is false");
-    set_avma(av1);
-  }
-#endif
-  return gerepilecopy(av, mkvec2(new_Y, relp));
-}
-
-static GEN
-mpqs_combine_large_primes(mpqs_handle_t *h, hashtable *lprel, GEN LPNEW, hashtable *frel)
-{
-  long j, lpnew = lg(LPNEW);
-  for (j = 1; j < lpnew; j++)
-  {
-    GEN rel = gel(LPNEW,j);
-    ulong q = itou(rel_q(rel));
-    GEN f, col = hash_haskey_GEN(lprel, (void*)q);
-    if (!col)
-      hash_insert(lprel, (void*)q, (void*)rel);
-    else if ((f = combine_large_primes(h, rel, col)))
-    {
-      if (typ(f) == t_INT) return f;
-      frel_add(frel, f);
-    }
-  }
   return NULL;
 }
 
@@ -1547,33 +1503,19 @@ mpqs(GEN N)
   mpqs_handle_t H;
   GEN fact; /* will in the end hold our factor(s) */
   mpqs_FB_entry_t *FB; /* factor base */
-
-  ulong p; /* auxiliary var */
-  /* bookkeeping */
-  long tc;              /* # of candidates found in one iteration */
-  long tff = 0;         /* # recently found full rels from sieving */
-  long tfc;             /* # full rels recently combined from LPs */
-  double tfc_ratio = 0; /* recent (tfc + tff) / tff */
-  ulong sort_interval;  /* determine when to sort and merge */
-  long percentage = 0;  /* scaled by 10, see comment above */
-  long total_partial_relations = 0, total_no_cand = 0;
-  long good_iterations = 0, iterations = 0;
-
+  double dbg_target, DEFEAT;
+  ulong p;
   pari_timer T;
-  GEN vnew;
-  long nvnew;
   hashtable lprel, frel;
   pari_sp av = avma;
 
   if (DEBUGLEVEL >= 4) err_printf("MPQS: number to factor N = %Ps\n", N);
   if (size_N > MPQS_MAX_DIGIT_SIZE_KN) { toolarge(); return NULL; }
-
   if (DEBUGLEVEL >= 4)
   {
     timer_start(&T);
     err_printf("MPQS: factoring number of %ld decimal digits\n", size_N);
   }
-
   H.N = N;
   H.bin_index = 0;
   H.index_i = 0;
@@ -1581,12 +1523,10 @@ mpqs(GEN N)
   H.index2_moved = 0;
   p = mpqs_find_k(&H);
   if (p) { set_avma(av); return utoipos(p); }
-  if (DEBUGLEVEL >= 5) err_printf("MPQS: found multiplier %ld for N\n",
-                                  H._k->k);
+  if (DEBUGLEVEL >= 5)
+    err_printf("MPQS: found multiplier %ld for N\n", H._k->k);
   H.kN = muliu(N, H._k->k);
   if (!mpqs_set_parameters(&H)) { toolarge(); return NULL; }
-
-  sort_interval = H.first_sort_point;
 
   if (DEBUGLEVEL >= 5)
     err_printf("MPQS: creating factor base and allocating arrays...\n");
@@ -1599,42 +1539,30 @@ mpqs(GEN N)
   /* don't allow large primes to have room for two factors both bigger than
    * what the FB contains (...yet!) */
   H.lp_bound *= minss(H.lp_scale, H.largest_FB_p - 1);
-
   H.dkN = gtodouble(H.kN);
   /* compute the threshold and fill in the byte-sized scaled logarithms */
   mpqs_set_sieve_threshold(&H);
-
   if (!mpqs_locate_A_range(&H)) return NULL;
-
   if (DEBUGLEVEL >= 4)
   {
     err_printf("MPQS: sieving interval = [%ld, %ld]\n", -(long)H.M, (long)H.M);
     /* that was a little white lie, we stop one position short at the top */
-    err_printf("MPQS: size of factor base = %ld\n",
-               (long)H.size_of_FB);
-    err_printf("MPQS: striving for %ld relations\n",
-               (long)H.target_no_rels);
+    err_printf("MPQS: size of factor base = %ld\n", (long)H.size_of_FB);
+    err_printf("MPQS: striving for %ld relations\n", (long)H.target_no_rels);
     err_printf("MPQS: coefficients A will be built from %ld primes each\n",
                (long)H.omega_A);
     err_printf("MPQS: primes for A to be chosen near FB[%ld] = %ld\n",
-               (long)H.index2_FB,
-               (long)FB[H.index2_FB].fbe_p);
+               (long)H.index2_FB, (long)FB[H.index2_FB].fbe_p);
     err_printf("MPQS: smallest prime used for sieving FB[%ld] = %ld\n",
-               (long)H.index1_FB,
-               (long)FB[H.index1_FB].fbe_p);
-    err_printf("MPQS: largest prime in FB = %ld\n",
-               (long)H.largest_FB_p);
+               (long)H.index1_FB, (long)FB[H.index1_FB].fbe_p);
+    err_printf("MPQS: largest prime in FB = %ld\n", (long)H.largest_FB_p);
     err_printf("MPQS: bound for `large primes' = %ld\n", (long)H.lp_bound);
   }
-
   if (DEBUGLEVEL >= 5)
-    err_printf("MPQS: sieve threshold = %u\n",
-               (unsigned int)H.sieve_threshold);
-
-  if (DEBUGLEVEL >= 4)
-    err_printf("MPQS: first sorting at %ld%%, then every %3.1f%% / %3.1f%%\n",
-               sort_interval/10, H.sort_pt_interval/10.,
-               H.sort_pt_interval/20.);
+  {
+    err_printf("MPQS: sieve threshold = %u\n", (unsigned int)H.sieve_threshold);
+    err_printf("MPQS: starting main loop\n");
+  }
 
   /* main loop which
    * - computes polynomials and their zeros (SI)
@@ -1644,16 +1572,13 @@ mpqs(GEN N)
   /* Let (A, B_i) the current pair of coeffs. If i == 0 a new A is generated */
   H.index_j = (mpqs_uint32_t)-1;  /* increment below will have it start at 0 */
 
-  if (DEBUGLEVEL >= 5) err_printf("MPQS: starting main loop\n");
-
+  dbg_target = H.target_no_rels / 100.;
+  DEFEAT = H.target_no_rels * 1.5;
   hash_init_GEN(&frel, H.target_no_rels, gequal, 1);
   hash_init_ulong(&lprel,H.target_no_rels, 1);
-  vnew = cgetg((long)(sort_interval * (H.target_no_rels/1000.))+2, t_VEC);
-  nvnew = 1;
   for(;;)
   {
-    long i, fnb;
-    iterations++;
+    long tc;
     /* self initialization: compute polynomial and its zeros */
     mpqs_self_init(&H);
     if (H.bin_index == 0)
@@ -1663,122 +1588,33 @@ mpqs(GEN N)
         err_printf("MPQS: Ran out of primes for A, giving up.\n");
       return gc_NULL(av);
     }
-
     memset((void*)(H.sieve_array), 0, (H.M << 1) * sizeof(unsigned char));
     mpqs_sieve(&H);
-
     tc = mpqs_eval_sieve(&H);
     if (DEBUGLEVEL >= 6)
       err_printf("MPQS: found %lu candidate%s\n", tc, (tc==1? "" : "s"));
-
     if (tc)
     {
-      GEN fnew, lpnew;
-      total_no_cand += tc;
-      mpqs_eval_cand(&H, tc, &fnew, &lpnew);
-      if (fnew) { vec_frel_add(&frel, fnew); tff += lg(fnew)-1; }
-      if (lpnew) vnew = vec_extend(vnew, lpnew, nvnew++);
-      good_iterations++;
-    }
-    percentage = (long)((1000.0 * frel.nb) / H.target_no_rels);
-    if ((ulong)percentage < sort_interval) continue;
-    /* most main loops continue here! */
-
-    /* Extra processing when we have completed a sort interval: */
-    if (DEBUGLEVEL >= 3)
-    {
-      if (DEBUGLEVEL >= 4)
-        err_printf("\nMPQS: passing the %3.1f%% sort point, time = %ld ms\n",
-                   sort_interval/10., timer_delay(&T));
-      else
-        err_printf("\nMPQS: passing the %3.1f%% sort point\n",
-                   sort_interval/10.);
-    }
-
-    /* build full relations out of large prime relations */
-    tfc = 0; fnb = frel.nb;
-    for (i = 1; i < nvnew; i++)
-    {
-      GEN q = mpqs_combine_large_primes(&H, &lprel, gel(vnew,i) , &frel);
-      if (q)
+      fact = mpqs_eval_cand(&H, tc, &frel, &lprel);
+      if (fact)
       { /* factor found during combining */
         if (DEBUGLEVEL >= 4)
         {
           err_printf("\nMPQS: split N whilst combining, time = %ld ms\n",
                      timer_delay(&T));
-          err_printf("MPQS: found factor = %Ps\n", q);
+          err_printf("MPQS: found factor = %Ps\n", fact);
         }
-        return gerepileupto(av, q);
+        return gerepileupto(av, fact);
       }
     }
-    nvnew = 1;
-    tfc = frel.nb - fnb;
-    if (DEBUGLEVEL >= 4)
-      err_printf("MPQS: combined %ld full relation%s\n", tfc, (tfc!=1 ? "s" : ""));
-    total_partial_relations += tfc;
-
-    percentage = (long)((1000.0 * frel.nb) / H.target_no_rels);
-    /* Estimate full relations yield rate: we got tff relations
-     * from the sieve since checkpoint, and tfc by combining. So we're
-     * producing (tfc+tff)/tff as many full rels, and when we get close to
-     * 100%, we bias the next interval by the inverse ratio. Avoid drawing
-     * conclusions from too-small samples during very short follow-on intervals
-     * (in this case re-use an earlier estimated ratio). */
-    if (tfc >= 16 && tff >= 20) tfc_ratio = (tfc + tff + 0.) / tff;
-    tff = 0; /* reset this count (tfc is always fresh) */
-
-    if (percentage >= 1000) /* when Gauss had failed */
-      sort_interval = percentage + 2;
-    else if (percentage >= 820)
+    if (DEBUGLEVEL >= 4 && frel.nb > dbg_target)
     {
-      if (tfc_ratio > 1.)
-      {
-        if (percentage + (H.sort_pt_interval>> 1) * tfc_ratio > 994)
-          sort_interval = (ulong)(percentage + 2 +
-            (1000 - percentage) / tfc_ratio); /* aim for a slight overshoot */
-        else if (percentage >= 980)
-          sort_interval = percentage + 8;
-        else
-          sort_interval = percentage + (H.sort_pt_interval >> 1);
-      }
-      else
-      {
-        if (percentage >= 980)
-          sort_interval = percentage + 10;
-        else
-          sort_interval = percentage + (H.sort_pt_interval >> 1);
-        if (sort_interval >= 1000 && percentage < 1000)
-          sort_interval = 1000;
-      }
+      err_printf("MPQS: found %ld / %ld required relations, time = %ld ms\n",
+                 frel.nb, H.target_no_rels, timer_delay(&T));
+      dbg_target += H.target_no_rels / 100.;
     }
-    else
-      sort_interval = percentage + H.sort_pt_interval;
+    if (frel.nb < H.target_no_rels) continue; /* main loop */
 
-    if (DEBUGLEVEL >= 4)
-    {
-      err_printf("MPQS: done sorting and combining, time = %ld ms\n",
-                 timer_delay(&T));
-      err_printf("MPQS: found %3.1f%% of the required relations\n",
-                 percentage/10.);
-      if (DEBUGLEVEL >= 5)
-      { /* GN20050708: present code doesn't succeed in discarding all dups,
-         * so don't lie about it */
-        err_printf("MPQS: found %ld full relations\n", frel.nb);
-        if (H.lp_scale > 1)
-          err_printf("MPQS:   (%ld of these from partial relations)\n",
-                     total_partial_relations);
-        err_printf("MPQS: Net yield: %4.3g full relations per 100 candidates\n",
-                   (frel.nb * 100.) / (total_no_cand? total_no_cand: 1));
-        err_printf("MPQS:            %4.3g full relations per 100 polynomials\n",
-                   (frel.nb * 100.) / iterations);
-        err_printf("MPQS: %4.1f%% of the polynomials yielded no candidates\n",
-                   (100.0 * (iterations - good_iterations)) / iterations);
-        err_printf("MPQS: next sort point at %3.1f%%\n", sort_interval/10.);
-      }
-    }
-    if (percentage < 1000) continue; /* main loop */
-
-    /* percentage >= 1000, hence frel.nb > size of FB: try finishing it off */
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
                  frel.nb);
@@ -1803,11 +1639,12 @@ mpqs(GEN N)
     {
       err_printf("\nMPQS: time in Gauss and gcds = %ld ms\n",timer_delay(&T));
       err_printf("MPQS: no factors found.\n");
-      if (percentage <= MPQS_ADMIT_DEFEAT)
+      if (frel.nb < DEFEAT)
         err_printf("\nMPQS: restarting sieving ...\n");
       else
         err_printf("\nMPQS: giving up.\n");
     }
-    if (percentage > MPQS_ADMIT_DEFEAT) return gc_NULL(av);
+    if (frel.nb >= DEFEAT) return gc_NULL(av);
+    H.target_no_rels += 10;
   }
 }
