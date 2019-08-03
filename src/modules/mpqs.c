@@ -896,30 +896,24 @@ mpqs_self_init(mpqs_handle_t *h)
 /**                           THE SIEVE                             **/
 /*********************************************************************/
 
-/* Main sieving routine:
- * p4 = 4*p (used for loop unrolling)
- * log_p: approximation for log(p)
- * begin: points to a sieve array
- * end: points to the end of the sieve array
- * starting_sieving_index: marks the first FB element used for sieving */
+/* Main sieving routine: p4 = 4*p, logp ~ log(p), begin points to a sieve
+ * array, end points to the end of the sieve array */
 INLINE void
 mpqs_sieve_p(unsigned char *begin, unsigned char *end,
-             long p4, long p, unsigned char log_p)
+             long p4, long p, unsigned char logp)
 {
   register unsigned char *e = end - p4;
-  /* Loop unrolled some time ago. It might be better to let the compiler worry
-   * about *this* kind of optimization, based on its knowledge of whatever
-   * useful tricks the machine instruction set architecture is offering
-   * ("speculative loads" being the buzzword). --GN */
+  /* Unrolled loop. It might be better to let the compiler worry about this
+   * kind of optimization, based on its knowledge of whatever useful tricks the
+   * machine instruction set architecture is offering */
   while (e - begin >= 0) /* signed comparison */
   {
-    (*begin) += log_p, begin += p;
-    (*begin) += log_p, begin += p;
-    (*begin) += log_p, begin += p;
-    (*begin) += log_p, begin += p;
+    (*begin) += logp, begin += p;
+    (*begin) += logp, begin += p;
+    (*begin) += logp, begin += p;
+    (*begin) += logp, begin += p;
   }
-  while (end - begin >= 0) /* again */
-    (*begin) += log_p, begin += p;
+  while (end - begin >= 0) (*begin) += logp, begin += p;
 }
 
 static void
@@ -930,21 +924,16 @@ mpqs_sieve(mpqs_handle_t *h)
   unsigned char *sieve_array = h->sieve_array;
   unsigned char *sieve_array_end = h->sieve_array_end;
 
-  for (ptr_FB = &(h->FB[l]); (p = ptr_FB->fbe_p) != 0; ptr_FB++, l++)
+  for (ptr_FB = &(h->FB[l]); (p = ptr_FB->fbe_p); ptr_FB++) /* l++ */
   {
-    unsigned char log_p = ptr_FB->fbe_logval;
-    long start1 = ptr_FB->fbe_start1;
-    long start2 = ptr_FB->fbe_start2;
+    unsigned char logp = ptr_FB->fbe_logval;
+    long start1 = ptr_FB->fbe_start1, start2 = ptr_FB->fbe_start2;
 
-    /* sieve with FB[l] from start_1[l] */
-    /* if start1 != start2 sieve with FB[l] from start_2[l] */
-    /* Maybe it is more efficient not to have a conditional branch in
-     * the present loop body, and instead to right-shift log_p one bit
-     * based on a flag bit telling us that we're on a one-root prime?
-     * And instead roll the two invocations of mpqs_sieve_p into one. */
-    mpqs_sieve_p(sieve_array + start1, sieve_array_end, p << 2, p, log_p);
+    /* sieve with FB[l] from start_1[l]; if start1 != start2 sieve also
+     * from start_2[l] */
+    mpqs_sieve_p(sieve_array + start1, sieve_array_end, p << 2, p, logp);
     if (start1 != start2)
-      mpqs_sieve_p(sieve_array + start2, sieve_array_end, p << 2, p, log_p);
+      mpqs_sieve_p(sieve_array + start2, sieve_array_end, p << 2, p, logp);
   }
 }
 
