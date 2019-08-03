@@ -961,14 +961,6 @@ mpqs_eval_sieve(mpqs_handle_t *h)
 /**                     CONSTRUCTING RELATIONS                      **/
 /*********************************************************************/
 
-/* Main relation routine */
-static void
-mpqs_add_factor(GEN relp, long *i, ulong ei, ulong pi)
-{
-  ++*i;
-  relp[*i]=pi | (ei<<REL_OFFSET);
-}
-
 /* only used for debugging */
 static void
 split_relp(GEN rel, GEN *prelp, GEN *prelc)
@@ -979,8 +971,8 @@ split_relp(GEN rel, GEN *prelp, GEN *prelc)
   *prelc = relc = cgetg(l, t_VECSMALL);
   for (j=1; j<l; j++)
   {
-    relc[j] = rel[j]>>REL_OFFSET;
-    relp[j] = rel[j]&REL_MASK;
+    relc[j] = rel[j] >> REL_OFFSET;
+    relp[j] = rel[j] & REL_MASK;
   }
 }
 
@@ -992,7 +984,7 @@ mpqs_factorback(mpqs_handle_t *h, GEN relp)
   long j, l = lg(relp);
   for (j = 1; j < l; j++)
   {
-    long e = relp[j]>>REL_OFFSET, i = relp[j]&REL_MASK;
+    long e = relp[j] >> REL_OFFSET, i = relp[j] & REL_MASK;
     if (i == 1) Q = Fp_neg(Q,N); /* special case -1 */
     else Q = Fp_mul(Q, Fp_powu(utoipos(h->FB[i].fbe_p), e, N), N);
   }
@@ -1027,11 +1019,13 @@ rel_to_ei(GEN ei, GEN relp)
   long j, l = lg(relp);
   for (j=1; j<l; j++)
   {
-    long e = relp[j]>>REL_OFFSET;
-    long i = relp[j]&REL_MASK;
+    long e = relp[j] >> REL_OFFSET, i = relp[j] & REL_MASK;
     ei[i] += e;
   }
 }
+static void
+mpqs_add_factor(GEN relp, long *i, ulong ei, ulong pi)
+{ relp[++*i] = pi | (ei << REL_OFFSET); }
 
 static GEN
 combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
@@ -1039,25 +1033,16 @@ combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
   pari_sp av = avma;
   GEN new_Y, new_Y1, Y1 = rel_Y(rel1), Y2 = rel_Y(rel2);
   long l, lei = h->size_of_FB + 1, nb = 0;
-  GEN ei, relp, inv_q, q = rel_q(rel1);
+  GEN ei, relp, iq, q = rel_q(rel1);
 
-  if (!invmod(q, h->N, &inv_q)) /* can happen */
-  {
-    if (equalii(inv_q, h->N)) /* pity */
-    {
-#ifdef MPQS_DEBUG
-      err_printf("MPQS: skipping relation with non-invertible q\n");
-#endif
-      set_avma(av); return NULL;
-    }
-    return inv_q;
-  }
+  /* can happen */
+  if (!invmod(q, h->N, &iq)) return equalii(iq, h->N)? gc_NULL(av): iq;
   ei = zero_zv(lei);
   relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
 
   rel_to_ei(ei, rel_p(rel1));
   rel_to_ei(ei, rel_p(rel2));
-  new_Y = modii(mulii(mulii(Y1, Y2), inv_q), h->N);
+  new_Y = modii(mulii(mulii(Y1, Y2), iq), h->N);
   new_Y1 = subii(h->N, new_Y);
   if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
   if (odd(ei[1])) mpqs_add_factor(relp, &nb, 1, 1);
@@ -1260,7 +1245,7 @@ rels_to_F2m(GEN rel, long rows)
     GEN relp = gmael(rel,i,2);
     long j, l = lg(relp);
     for (j = 1; j < l; j++)
-      if (odd(relp[j]>>REL_OFFSET)) F2m_set(m, relp[j]&REL_MASK, i);
+      if (odd(relp[j] >> REL_OFFSET)) F2m_set(m, relp[j] & REL_MASK, i);
   }
   return m;
 }
