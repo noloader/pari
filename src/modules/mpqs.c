@@ -82,7 +82,7 @@ static void
 vec_frel_add(hashtable *frel, GEN V)
 {
   long i, l = lg(V);
-  for (i = 1; i<l ; i++) frel_add(frel, gel(V,i));
+  for (i = 1; i < l ; i++) frel_add(frel, gel(V,i));
 }
 
 static GEN
@@ -1098,13 +1098,12 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
   mpqs_FB_entry_t *FB = h->FB;
   GEN A = h->A, B = h->B, frel, lprel;
   long *relaprimes = h->relaprimes, *candidates = h->candidates;
-  long nfrel = 1, nlprel = 1, number_of_relations = 0;
-  ulong i, pi;
+  long pi, i, nfrel = 1, nlprel = 1, number_of_relations = 0;
   int pii;
 
   frel = cgetg(DEFAULT_VEC_LEN, t_VEC);
   lprel = cgetg(DEFAULT_VEC_LEN, t_VEC);
-  for (i = 0; i < (ulong)number_of_cand; i++)
+  for (i = 0; i < number_of_cand; i++)
   {
     pari_sp btop = avma;
     GEN Qx, Qx_part, Y, relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
@@ -1114,8 +1113,8 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
 #ifdef MPQS_DEBUG_VERYVERBOSE
     err_printf("%c", (char)('0' + i%10));
 #endif
-    /* Y = |2*A*x + B|, Qx = Y^2/(4*A) = Q(x) */
-    Y = absi_shallow( addii(mulis(A, 2 * (x - h->M)), B) );
+    /* Y = 2*A*x + B, Qx = Y^2/(4*A) = Q(x) */
+    Y = addii(mulis(A, 2 * (x - h->M)), B);
     Qx = subii(sqri(Y), h->kN);
 
     /* When N is small, it may happen that N | Qx outright. In any case, when
@@ -1218,7 +1217,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
     setlg(relp, nb+1);
     if (is_pm1(Qx))
     {
-      GEN rel = gerepilecopy(btop, mkvec2(Y, relp));
+      GEN rel = gerepilecopy(btop, mkvec2(absi_shallow(Y), relp));
       frel = vec_extend(frel, rel, nfrel++);
       number_of_relations++;
 #ifdef MPQS_DEBUG
@@ -1232,7 +1231,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
     }
     else
     {
-      GEN rel = gerepilecopy(btop, mkvec3(Y,relp,Qx));
+      GEN rel = gerepilecopy(btop, mkvec3(absi_shallow(Y),relp,Qx));
       lprel = vec_extend(lprel, rel, nlprel++);
 #ifdef MPQS_DEBUG
       mpqs_check_rel(h, rel);
