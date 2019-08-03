@@ -65,7 +65,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define REL_OFFSET 20
 #define REL_MASK ((1UL<<REL_OFFSET)-1)
 #define MAX_PE_PAIR 60
-#define DEFAULT_VEC_LEN 17
 
 static GEN rel_q(GEN c) { return gel(c,3); }
 static GEN rel_Y(GEN c) { return gel(c,1); }
@@ -1091,8 +1090,9 @@ mpqs_check_rel(mpqs_handle_t *h, GEN c)
 }
 #endif
 
-static long
-mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
+/* nc candidates */
+static void
+mpqs_eval_cand(mpqs_handle_t *h, long nc, GEN *FREL, GEN *LPREL)
 {
   pari_sp av = avma;
   mpqs_FB_entry_t *FB = h->FB;
@@ -1101,9 +1101,9 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
   long pi, i, nfrel = 1, nlprel = 1, number_of_relations = 0;
   int pii;
 
-  frel = cgetg(DEFAULT_VEC_LEN, t_VEC);
-  lprel = cgetg(DEFAULT_VEC_LEN, t_VEC);
-  for (i = 0; i < number_of_cand; i++)
+  frel = cgetg(nc+1, t_VEC);
+  lprel = cgetg(nc+1, t_VEC);
+  for (i = 0; i < nc; i++)
   {
     pari_sp btop = avma;
     GEN Qx, Qx_part, Y, relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
@@ -1218,7 +1218,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
     if (is_pm1(Qx))
     {
       GEN rel = gerepilecopy(btop, mkvec2(absi_shallow(Y), relp));
-      frel = vec_extend(frel, rel, nfrel++);
+      gel(frel, nfrel++) = rel;
       number_of_relations++;
 #ifdef MPQS_DEBUG
       mpqs_check_rel(h, rel);
@@ -1232,7 +1232,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
     else
     {
       GEN rel = gerepilecopy(btop, mkvec3(absi_shallow(Y),relp,Qx));
-      lprel = vec_extend(lprel, rel, nlprel++);
+      gel(lprel, nlprel++) = rel;
 #ifdef MPQS_DEBUG
       mpqs_check_rel(h, rel);
 #endif
@@ -1243,10 +1243,9 @@ mpqs_eval_cand(mpqs_handle_t *h, long number_of_cand, GEN *FREL, GEN *LPREL)
   if (nfrel==1) frel=NULL;   else setlg(frel, nfrel);
   if (nlprel==1) lprel=NULL; else setlg(lprel, nlprel);
   *FREL = frel; *LPREL = lprel;
-  if (!frel && !lprel) { set_avma(av); return 0; }
-  if (!frel) *LPREL = gerepilecopy(av, lprel);
+  if (!frel && !lprel) set_avma(av);
+  else if (!frel) *LPREL = gerepilecopy(av, lprel);
   else gerepileall(av, lprel ? 2: 1, FREL, LPREL);
-  return number_of_relations;
 }
 
 /*********************************************************************/
@@ -1562,7 +1561,7 @@ mpqs(GEN N)
   long good_iterations = 0, iterations = 0;
 
   pari_timer T;
-  GEN fnew, vnew;
+  GEN vnew;
   long nvnew;
   hashtable lprel, frel;
   pari_sp av = avma;
@@ -1670,18 +1669,17 @@ mpqs(GEN N)
     mpqs_sieve(&H);
 
     tc = mpqs_eval_sieve(&H);
-    total_no_cand += tc;
     if (DEBUGLEVEL >= 6)
       err_printf("MPQS: found %lu candidate%s\n", tc, (tc==1? "" : "s"));
 
     if (tc)
     {
-      GEN lpnew;
-      long t = mpqs_eval_cand(&H, tc, &fnew, &lpnew);
-      tff += t;
-      good_iterations++;
-      if (fnew) vec_frel_add(&frel, fnew);
+      GEN fnew, lpnew;
+      total_no_cand += tc;
+      mpqs_eval_cand(&H, tc, &fnew, &lpnew);
+      if (fnew) { vec_frel_add(&frel, fnew); tff += lg(fnew)-1; }
       if (lpnew) vnew = vec_extend(vnew, lpnew, nvnew++);
+      good_iterations++;
     }
     percentage = (long)((1000.0 * frel.nb) / H.target_no_rels);
     if ((ulong)percentage < sort_interval) continue;
