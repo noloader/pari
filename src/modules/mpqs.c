@@ -1287,11 +1287,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
   if (DEBUGLEVEL >= 4)
   {
     if (DEBUGLEVEL >= 7)
-    {
-      err_printf("\\\\ MATRIX READ BY MPQS\nFREL=%Ps\n",M);
-      err_printf("\\\\ KERNEL COMPUTED BY MPQS\n");
-      err_printf("KERNEL=%Ps\n",Ker);
-    }
+      err_printf("\\\\ MPQS RELATION MATRIX\nFREL=%Ps\nKERNEL=%Ps\n",M, Ker);
     err_printf("MPQS: Gauss done: kernel has rank %ld, taking gcds...\n", rank);
   }
   if (!rank)
@@ -1301,10 +1297,9 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
     return gc_NULL(av); /* no factors found */
   }
 
-  /* We can expect up to 2^rank pairwise coprime factors, but a kernel basis
-   * vector may not contribute to the decomposition; r stores the factors
-   * and c information about them (0: composite, 1: probably prime, 2 or
-   * larger: proper power) */
+  /* Expect up to 2^rank pairwise coprime factors, but a kernel basis vector
+   * may not contribute to the decomposition; r stores the factors and c what
+   * we know about them (0: composite, 1: probably prime, >= 2: proper power) */
   ei = cgetg(h->size_of_FB + 2, t_VECSMALL);
   rmax = logint(N, utoi(3));
   if (rank <= BITS_IN_LONG-2)
