@@ -200,61 +200,59 @@ typedef struct mpqs_inv_A_H {
 
 #define MPQS_INV_A_H(i,j) (inv_A_H[j]._i[i])
 
-/* -- global handle for keeping track of everything used throughout any one
- * factorization attempt.  The order of the fields is roughly determined by
- * wanting to keep the most frequently used stuff near the beginning. */
-
+/* -- global handle to keep track of everything used through one factorization
+ * attempt. The order of the fields is determined by keeping most frequently
+ * used stuff near the beginning. */
 typedef struct mpqs_handle {
   /* pointers */
-  unsigned char *sieve_array;   /* 0-based, representing [-M,M-1] */
+  unsigned char *sieve_array;/* 0-based, representing [-M,M-1] */
   unsigned char *sieve_array_end; /* points at sieve_array[M-1] */
-  mpqs_FB_entry_t *FB;          /* (aligned) FB array itself */
-  long *candidates;             /* collects promising sieve subscripts */
-  long *relaprimes;             /* prime/exponent pairs in a relation */
-  mpqs_inv_A_H_t *inv_A_H;      /* self-init: (aligned) stepping array, and */
+  mpqs_FB_entry_t *FB;       /* (aligned) FB array itself */
+  long *candidates;          /* collects promising sieve subscripts */
+  long *relaprimes;          /* prime/exponent pairs in a relation */
+  mpqs_inv_A_H_t *inv_A_H;   /* self-init: (aligned) stepping array, and */
   mpqs_per_A_prime_t *per_A_pr; /* FB subscripts of primes in A etc. */
 
   /* other stuff that's being used all the time */
-  mpqs_int32_t M;               /* sieving over |x| <= M */
-  mpqs_int32_t size_of_FB;      /* # primes in FB (or dividing k) */
+  mpqs_int32_t M;            /* sieving over |x| <= M */
+  mpqs_int32_t size_of_FB;   /* # primes in FB (or dividing k) */
   /* the following three are in non-descending order, and the first two must
    * be adjusted for omega_k at the beginning */
-  mpqs_int32_t index0_FB;       /* lowest subscript into FB of a "real" prime
-                                 * (i.e. other than -1, 2, factors of k) */
-  mpqs_int32_t index1_FB;       /* lowest subscript into FB for sieving */
-  mpqs_int32_t index2_FB;       /* primes for A are chosen relative to this */
-  unsigned char index2_moved;   /* true when we're starved for small A's */
+  mpqs_int32_t index0_FB;    /* lowest subscript into FB of a "real" prime
+                              * (i.e. other than -1, 2, factors of k) */
+  mpqs_int32_t index1_FB;    /* lowest subscript into FB for sieving */
+  mpqs_int32_t index2_FB;    /* primes for A are chosen relative to this */
+  unsigned char index2_moved;/* true when we're starved for small A's */
   unsigned char sieve_threshold; /* distinguishes candidates in sieve */
-  GEN N, kN;                    /* number to be factored, with multiplier */
-  GEN A, B;                     /* leading, middle coefficient */
-  mpqs_int32_t omega_A;         /* number of primes going into each A */
-  mpqs_int32_t no_B;            /* number of B's for each A: 2^(omega_A-1) */
-  double l2_target_A;           /* ~log2 of desired typical A */
+  GEN N, kN;                 /* number to be factored, with multiplier */
+  GEN A, B;                  /* leading, middle coefficient */
+  mpqs_int32_t omega_A;      /* number of primes going into each A */
+  mpqs_int32_t no_B;         /* number of B's for each A: 2^(omega_A-1) */
+  double l2_target_A;        /* ~log2 of desired typical A */
   /* counters and bit pattern determining and numbering current polynomial: */
-  mpqs_uint32_t bin_index;      /* bit pattern for selecting primes for A */
-  mpqs_uint32_t index_i;        /* running count of A's */
-  mpqs_uint32_t index_j;        /* B's ordinal number in A's cohort */
+  mpqs_uint32_t bin_index;   /* bit pattern for selecting primes for A */
+  mpqs_uint32_t index_i;     /* running count of A's */
+  mpqs_uint32_t index_j;     /* B's ordinal number in A's cohort */
 
   /* further sizing parameters: */
-  mpqs_int32_t target_no_rels;  /* target number of full relations */
-  mpqs_int32_t largest_FB_p;    /* largest prime in the FB */
-  mpqs_int32_t pmin_index1;     /* lower bound for primes used for sieving */
-  mpqs_int32_t lp_scale;        /* factor by which LPs may exceed FB primes */
+  mpqs_int32_t target_rels;  /* target number of full relations */
+  mpqs_int32_t largest_FB_p; /* largest prime in the FB */
+  mpqs_int32_t pmin_index1;  /* lower bound for primes used for sieving */
+  mpqs_int32_t lp_scale;     /* factor by which LPs may exceed FB primes */
 
   /* subscripts determining where to pick primes for A */
   /* FIXME: lp_bound might have to be mpqs_int64_t ? */
-  long lp_bound;                /* cutoff for Large Primes */
+  long lp_bound;             /* cutoff for Large Primes */
   long digit_size_kN;
   const mpqs_multiplier_t *_k;  /* multiplier k and attached quantities */
-  double tolerance;             /* controls the tightness of the sieve */
-  double dkN;                   /* - double prec. approximation of kN */
-  double l2sqrtkN;              /* ~log2(sqrt(kN)) */
-  double l2M;                   /* ~log2(M) (cf. below) */
+  double tolerance;          /* controls the tightness of the sieve */
+  double dkN;                /* - double prec. approximation of kN */
+  double l2sqrtkN;           /* ~log2(sqrt(kN)) */
+  double l2M;                /* ~log2(M) (cf. below) */
   /* TODO: need an index2_FB here to remember where to start picking primes */
   /* bookkeeping pointers to containers of aligned memory chunks: */
-  void *FB_chunk;               /* (unaligned) chunk containing the FB */
-  void *invAH_chunk;            /* (unaligned) chunk for self-init array */
-
+  void *FB_chunk;            /* (unaligned) chunk containing the FB */
+  void *invAH_chunk;         /* (unaligned) chunk for self-init array */
 } mpqs_handle_t;
 
 /* -- sizing table entries */

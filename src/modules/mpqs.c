@@ -84,12 +84,11 @@ frel_add(hashtable *frel, GEN R)
 /* # of decimal digits of argument */
 static long
 decimal_len(GEN N)
-{ pari_sp av = avma; return gc_long(av, 1+logint(N,utoi(10))); }
+{ pari_sp av = avma; return gc_long(av, 1+logint(N, utoipos(10))); }
 
 /* To be called after choosing k and putting kN into the handle:
- * Pick up the requested parameter set for the given size of kN in decimal
- * digits and fill in various fields in the handle.  Return 0 when kN is
- * too large, 1 when we're ok. */
+ * Pick up the parameters for given size of kN in decimal digits and fill in
+ * the handle. Return 0 when kN is too large, 1 when we're ok. */
 static int
 mpqs_set_parameters(mpqs_handle_t *h)
 {
@@ -103,25 +102,25 @@ mpqs_set_parameters(mpqs_handle_t *h)
     pari_warn(warner, "MPQS: factoring this number will take several hours:\nN = %Ps", h->N);
 
   P = &(mpqs_parameters[i]);
-  h->tolerance      = P->tolerance;
-  h->lp_scale       = P->lp_scale;
+  h->tolerance   = P->tolerance;
+  h->lp_scale    = P->lp_scale;
   /* make room for prime factors of k if any: */
-  h->size_of_FB     = s = P->size_of_FB + h->_k->omega_k;
+  h->size_of_FB  = s = P->size_of_FB + h->_k->omega_k;
   /* for the purpose of Gauss elimination etc., prime factors of k behave
    * like real FB primes, so take them into account when setting the goal: */
-  h->target_no_rels = (s >= 200 ? s + 70 : (mpqs_int32_t)(s * 1.35));
-  h->M              = P->M;
-  h->omega_A        = P->omega_A;
-  h->no_B           = 1UL << (P->omega_A - 1);
-  h->pmin_index1    = P->pmin_index1;
+  h->target_rels = (s >= 200 ? s + 70 : (mpqs_int32_t)(s * 1.35));
+  h->M           = P->M;
+  h->omega_A     = P->omega_A;
+  h->no_B        = 1UL << (P->omega_A - 1);
+  h->pmin_index1 = P->pmin_index1;
   /* certain subscripts into h->FB should also be offset by omega_k: */
-  h->index0_FB      = 3 + h->_k->omega_k;
+  h->index0_FB   = 3 + h->_k->omega_k;
   if (DEBUGLEVEL >= 5)
   {
     err_printf("MPQS: kN = %Ps\n", h->kN);
     err_printf("MPQS: kN has %ld decimal digits\n", D);
     err_printf("\t(estimated memory needed: %4.1fMBy)\n",
-               (s + 1)/8388608. * h->target_no_rels);
+               (s + 1)/8388608. * h->target_rels);
   }
   return 1;
 }
@@ -677,7 +676,7 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   return 1;
 }
 
-/* There are 4parts to self-initialization, exercised at different times:
+/* There are 4 parts to self-initialization, exercised at different times:
  * - choosing a new sqfree coef. A (selecting its prime factors, FB bookkeeping)
  * - doing the actual computations attached to a new A
  * - choosing a new B keeping the same A (much simpler)
@@ -859,7 +858,6 @@ mpqs_self_init(mpqs_handle_t *h)
 /*********************************************************************/
 /**                           THE SIEVE                             **/
 /*********************************************************************/
-
 /* Main sieving routine: p4 = 4*p, logp ~ log(p), begin points to a sieve
  * array, end points to the end of the sieve array */
 INLINE void
@@ -998,16 +996,14 @@ combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
   long l, lei = h->size_of_FB + 1, nb = 0;
   GEN ei, relp, iq, q = rel_q(rel1);
 
-  /* can happen */
-  if (!invmod(q, h->N, &iq)) return equalii(iq, h->N)? NULL: iq;
+  if (!invmod(q, h->N, &iq)) return equalii(iq, h->N)? NULL: iq; /* rare */
   ei = zero_zv(lei);
-  relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
-
   rel_to_ei(ei, rel_p(rel1));
   rel_to_ei(ei, rel_p(rel2));
   new_Y = modii(mulii(mulii(Y1, Y2), iq), h->N);
   new_Y1 = subii(h->N, new_Y);
   if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
+  relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
   if (odd(ei[1])) mpqs_add_factor(relp, &nb, 1, 1);
   for (l = 2; l <= lei; l++)
     if (ei[l]) mpqs_add_factor(relp, &nb, ei[l],l);
@@ -1444,7 +1440,7 @@ mpqs(GEN N)
     err_printf("MPQS: sieving interval = [%ld, %ld]\n", -(long)H.M, (long)H.M);
     /* that was a little white lie, we stop one position short at the top */
     err_printf("MPQS: size of factor base = %ld\n", (long)H.size_of_FB);
-    err_printf("MPQS: striving for %ld relations\n", (long)H.target_no_rels);
+    err_printf("MPQS: striving for %ld relations\n", (long)H.target_rels);
     err_printf("MPQS: coefficients A will be built from %ld primes each\n",
                (long)H.omega_A);
     err_printf("MPQS: primes for A to be chosen near FB[%ld] = %ld\n",
@@ -1468,10 +1464,10 @@ mpqs(GEN N)
   /* Let (A, B_i) the current pair of coeffs. If i == 0 a new A is generated */
   H.index_j = (mpqs_uint32_t)-1;  /* increment below will have it start at 0 */
 
-  dbg_target = H.target_no_rels / 100.;
-  DEFEAT = H.target_no_rels * 1.5;
-  hash_init_GEN(&frel, H.target_no_rels, gequal, 1);
-  hash_init_ulong(&lprel,H.target_no_rels, 1);
+  dbg_target = H.target_rels / 100.;
+  DEFEAT = H.target_rels * 1.5;
+  hash_init_GEN(&frel, H.target_rels, gequal, 1);
+  hash_init_ulong(&lprel,H.target_rels, 1);
   for(;;)
   {
     long tc;
@@ -1504,10 +1500,10 @@ mpqs(GEN N)
     if (DEBUGLEVEL >= 4 && frel.nb > dbg_target)
     {
       err_printf("MPQS: found %ld / %ld required relations, time = %ld ms\n",
-                 frel.nb, H.target_no_rels, timer_delay(&T));
-      dbg_target += H.target_no_rels / 100.;
+                 frel.nb, H.target_rels, timer_delay(&T));
+      dbg_target += H.target_rels / 100.;
     }
-    if (frel.nb < (ulong)H.target_no_rels) continue; /* main loop */
+    if (frel.nb < (ulong)H.target_rels) continue; /* main loop */
 
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
@@ -1539,6 +1535,6 @@ mpqs(GEN N)
         err_printf("\nMPQS: giving up.\n");
     }
     if (frel.nb >= DEFEAT) return gc_NULL(av);
-    H.target_no_rels += 10;
+    H.target_rels += 10;
   }
 }
