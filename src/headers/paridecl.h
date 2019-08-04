@@ -4144,6 +4144,7 @@ long  MF_get_space(GEN mf);
 GEN   MF_get_S(GEN mf);
 GEN   MFcusp_get_vMjd(GEN mf);
 GEN   MFnew_get_vj(GEN mf);
+GEN   Qab_tracerel(GEN v, long t, GEN a);
 GEN   QabM_tracerel(GEN v, long t, GEN x);
 GEN   QabV_tracerel(GEN v, long t, GEN x);
 GEN   Qab_trace_init(long n, long m, GEN Pn, GEN Pm);

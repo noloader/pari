@@ -504,33 +504,42 @@ tracerel_i(GEN T, GEN x)
   for (k = 3; k < l; k++) S = gadd(S, gmul(gel(T,k-1), gel(x,k)));
   return S;
 }
+static GEN
+tracerel(GEN a, GEN v, GEN z)
+{
+  a = liftpol_shallow(a);
+  a = simplify_shallow(z? gmul(z,a): a);
+  if (typ(a) == t_POL)
+  {
+    GEN T = gel(v,3);
+    long degrel = itou(gel(T,1));
+    a = tracerel_i(T, RgX_rem(a, gel(v,2)));
+    if (degrel != 1) a = gdivgs(a, degrel);
+    if (typ(a) == t_POL) a = RgX_rem(a, gel(v,1));
+  }
+  return a;
+}
+static GEN
+tracerel_z(GEN v, long t)
+{
+  GEN Pn = gel(v,2);
+  return t? pol_xn(t, varn(Pn)): NULL;
+}
 /* v = Qab_trace_init(n,m); x is a t_VEC of polmodulo Phi_n; Kn = Q(zeta_n)
  * [Kn:Km]^(-1) Tr_{Kn/Km} (zeta_n^t * x); 0 <= t < [Kn:Km] */
 GEN
+Qab_tracerel(GEN v, long t, GEN a)
+{
+  if (lg(v) != 4) return a; /* => t = 0 */
+  return tracerel(a, v, tracerel_z(v, t));
+}
+GEN
 QabV_tracerel(GEN v, long t, GEN x)
 {
-  long l, j, degrel;
-  GEN y, z, Pm, Pn, T;
+  GEN z;
   if (lg(v) != 4) return x; /* => t = 0 */
-  y = cgetg_copy(x, &l);
-  Pm = gel(v,1);
-  Pn = gel(v,2);
-  T  = gel(v,3); degrel = itou(gel(T,1));
-  z = t? RgX_rem(pol_xn(t, varn(Pn)), Pn): NULL;
-  for (j = 1; j < l; j++)
-  {
-    GEN a = liftpol_shallow(gel(x,j));
-    if (z) a = gmul(a, z);
-    a = simplify_shallow(a);
-    if (typ(a) == t_POL)
-    {
-      a = tracerel_i(T, RgX_rem(a, Pn));
-      if (degrel != 1) a = gdivgs(a, degrel);
-      if (typ(a) == t_POL) a = RgX_rem(a, Pm);
-    }
-    gel(y,j) = a;
-  }
-  return y;
+  z = tracerel_z(v, t);
+  pari_APPLY_same(tracerel(gel(x,i), v, z));
 }
 GEN
 QabM_tracerel(GEN v, long t, GEN x)
