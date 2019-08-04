@@ -490,45 +490,7 @@ check_root(mpqs_handle_t *h, GEN mC, long p, long start)
 }
 #endif
 
-/* There are four parts to self-initialization, which are exercised at
- * somewhat different times:
- * - choosing a new coefficient A  (selecting the prime factors to go into it,
- *   and doing the required bookkeeping in the FB entries, including clearing
- *   out the flags from the previous cohort), together with:
- * - doing the actual computations attached to a new A
- * - choosing a new B keeping the same A (very much simpler and quicker)
- * - and a small common bit that needs to happen in both cases.
- * As to the first item, the new scheme works as follows:
- * We pick omega_A - 1 prime factors for A below the index2_FB point which
- * marks their ideal size, and one prime above this point, choosing the
- * latter so as to get log2(A) as close as possible to l2_target_A.
- * The lower prime factors are chosen using bit patterns of constant weight,
- * gradually moving away from index2_FB towards smaller FB subscripts.
- * If this bumps into index0_FB  (might happen for very small input),  we
- * back up by increasing index2_FB by two, and from then on choosing only
- * bit patterns with either or both of their bottom bits set, so at least
- * one of the omega_A - 1 smaller prime factor will be beyond the original
- * index2_FB point.  In this way we avoid re-using A's which had already
- * been done.
- * (The choice of the upper "flyer" prime is of course constrained by the
- * size of the FB, which normally should never be anywhere close to becoming
- * a problem.  In unfortunate cases, e.g. for very small kN, we might have
- * to live with a rather non-optimal choice.
- * Then again, MPQS as such is surprisingly robust.  One day, I had got the
- * order of entries in mpqs_parameterset_t mixed up, and was running on a
- * smallish N with a huuuuge factor base and extremely tiny sieve interval,
- * and it still managed to factor it fairly quickly...)
- *
- * Mathematically, there isn't much more to this than the usual formula for
- * solving a quadratic  (over the field of p elements for each prime p in
- * the FB which doesn't divide A),  solving a linear equation for each of
- * the primes which do divide A, and precomputing differences between roots
- * mod p so we can adjust the roots quickly when we change B.
- * See Thomas Sosnowski's diploma thesis.
- */
-
-/* Helper function:
- * Increment *x (!=0) to a larger value which has the same number of 1s in its
+/* Increment *x > 0 to a larger value which has the same number of 1s in its
  * binary representation.  Wraparound can be detected by the caller as long as
  * we keep total_no_of_primes_for_A strictly less than BITS_IN_LONG.
  *
@@ -541,9 +503,8 @@ mpqs_increment(mpqs_uint32_t *x)
 {
   mpqs_uint32_t r1_mask, r01_mask, slider=1UL;
 
-  /* 32-way computed jump handles 22 out of 32 cases */
   switch (*x & 0x1F)
-  {
+  { /* 32-way computed jump handles 22 out of 32 cases */
   case 29:
     (*x)++; break; /* shifts a single bit, but we postprocess this case */
   case 26:
@@ -572,8 +533,8 @@ mpqs_increment(mpqs_uint32_t *x)
        left, and will need postprocessing */
     if (r1_mask == r01_mask) { *x += r1_mask; break; }
     if (r1_mask == 1) { *x += r01_mask; break; }
-    /* general case -- idea: add r01_mask, kill off as many 1 bits as possible
-     * to its right while at the same time filling in 1 bits from the LSB. */
+    /* General case: add r01_mask, kill off as many 1 bits as possible to its
+     * right while at the same time filling in 1 bits from the LSB. */
     if (r1_mask == 2) { *x += (r01_mask>>1) + 1; return; }
     while (r01_mask > r1_mask && slider < r1_mask)
     {
@@ -582,8 +543,7 @@ mpqs_increment(mpqs_uint32_t *x)
     *x += r01_mask + slider - 1;
     return;
   }
-  /* post-process all cases which couldn't be finalized above.  If we get
-     here, slider still has its original value. */
+  /* post-process cases which couldn't be finalized above */
   r1_mask = ((*x ^ (*x - 1)) + 1) >> 1;
   r01_mask = ((*x ^ (*x + r1_mask)) + r1_mask) >> 2;
   if (r1_mask == r01_mask) { *x += r1_mask; return; }
@@ -594,27 +554,21 @@ mpqs_increment(mpqs_uint32_t *x)
     r01_mask >>= 1; slider <<= 1;
   }
   *x += r01_mask + slider - 1;
-  return;
 }
 
 /* self-init (1): advancing the bit pattern, and choice of primes for A.
- * The first time this is called, it finds h->bin_index == 0, which tells us
- * to initialize things from scratch.  On later occasions, we need to begin
+ * On first call, h->bin_index = 0. On later occasions, we need to begin
  * by clearing the MPQS_FBE_DIVIDES_A bit in the fbe_flags of the former
- * prime factors of A.  We use, of course, the per_A_pr array for finding
- * them.  Upon successful return, that array will have been filled in, and
- * the flag bits will have been turned on again in the right places.
- * We return 1 (true) when we could set things up successfully, and 0 when
- * we found we'd be using more bits to the left in bin_index than we have
- * matching primes for in the FB.  In the latter case, bin_index will be
- * zeroed out, index2_FB will be incremented by 2, index2_moved will be
- * turned on, and the caller, after checking that index2_FB has not become
- * too large, should just call us again, which then is guaranteed to succeed:
+ * prime factors of A (use per_A_pr to find them). Upon successful return, that
+ * array will have been filled in, and the flag bits will have been turned on
+ * again in the right places.
+ * Return 1 when all is fine and 0 when we found we'd be using more bits to
+ * the left in bin_index than we have matching primes in the FB. In the latter
+ * case, bin_index will be zeroed out, index2_FB will be incremented by 2,
+ * index2_moved will be turned on; the caller, after checking that index2_FB
+ * has not become too large, should just call us again, which then succeeds:
  * we'll start again with a right-justified sequence of 1 bits in bin_index,
  * now interpreted as selecting primes relative to the new index2_FB. */
-#ifndef MPQS_DEBUG_SI_CHOOSE_PRIMES
-#  define MPQS_DEBUG_SI_CHOOSE_PRIMES 0
-#endif
 INLINE int
 mpqs_si_choose_primes(mpqs_handle_t *h)
 {
@@ -624,19 +578,16 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   mpqs_int32_t omega_A = h->omega_A;
   int i, j, v2, prev_last_p_idx;
   int room = h->index2_FB - h->index0_FB - omega_A + 4;
-  /* GN 20050723:  I.e., index2_FB minus (index0_FB + omega_A - 3) plus 1
-   * The notion of room here (cf mpqs_locate_A_range() above) is the number
-   * of primes at or below index2_FB which are eligible for A.
-   * At the very least, we need omega_A - 1 of them, and it is guaranteed
-   * by mpqs_locate_A_range() that at least this many are available when we
-   * first get here.  The logic here ensures that the lowest FB slot used
-   * for A is never less than index0_FB + omega_A - 3.  In other words, when
-   * omega_A == 3 (very small kN), we allow ourselves to reach all the way
-   * down to index0_FB;  otherwise, we keep away from it by at least one
-   * position.  For omega_A >= 4 this avoids situations where the selection
-   * of the smaller primes here has advanced to a lot of very small ones, and
-   * the single last larger one has soared away to bump into the top end of
-   * the FB. */
+  /* The notion of room here (cf mpqs_locate_A_range() above) is the number
+   * of primes at or below index2_FB which are eligible for A. We need
+   * >= omega_A - 1 of them, and it is guaranteed by mpqs_locate_A_range() that
+   * this many are available: the lowest FB slot used for A is never less than
+   * index0_FB + omega_A - 3. When omega_A = 3 (very small kN), we allow
+   * ourselves to reach all the way down to index0_FB; otherwise, we keep away
+   * from it by at least one position.  For omega_A >= 4 this avoids situations
+   * where the selection of the smaller primes here has advanced to a lot of
+   * very small ones, and the single last larger one has soared away to bump
+   * into the top end of the FB. */
   mpqs_uint32_t room_mask;
   mpqs_int32_t p;
   ulong bits;
@@ -644,44 +595,38 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   /* XXX also clear the index_j field here? */
   if (h->bin_index == 0)
   { /* first time here, or after increasing index2_FB, initialize to a pattern
-     * of omega_A - 1 consecutive right-justified 1 bits.
-     * Caller will have ensured that there are enough primes for this in the
-     * FB below index2_FB. */
+     * of omega_A - 1 consecutive 1 bits. Caller has ensured that there are
+     * enough primes for this in the FB below index2_FB. */
     h->bin_index = (1UL << (omega_A - 1)) - 1;
     prev_last_p_idx = 0;
   }
   else
-  { /* clear out the old flags */
-    for (i = 0; i < omega_A; i++)
-      MPQS_FLG(i) &= ~MPQS_FBE_DIVIDES_A;
+  { /* clear out old flags */
+    for (i = 0; i < omega_A; i++) MPQS_FLG(i) = MPQS_FBE_CLEAR;
     prev_last_p_idx = MPQS_I(omega_A-1);
 
-    /* find out how much maneuvering room we have before we're up against
-     * the index0_FB wall */
     if (room > 30) room = 30;
     room_mask = ~((1UL << room) - 1);
 
-    /* bump bin_index to the next acceptable value.  If index2_moved is off,
-     * call mpqs_increment() just once;  otherwise, repeat until there's
-     * something in the least significant 2 bits - this to ensure that we
-     * never re-use an A which we'd used before increasing index2_FB - but
-     * also stop if something shows up in the forbidden bits on the left
-     * where we'd run out of bits or out of subscripts  (i.e. walk beyond
-     * index0_FB + omega_A - 3). */
+    /* bump bin_index to next acceptable value. If index2_moved is off, call
+     * mpqs_increment() once; otherwise, repeat until there's something in the
+     * least significant 2 bits - to ensure that we never re-use an A which
+     * we'd used before increasing index2_FB - but also stop if something shows
+     * up in the forbidden bits on the left where we'd run out of bits or walk
+     * beyond index0_FB + omega_A - 3. */
     mpqs_increment(&h->bin_index);
     if (h->index2_moved)
     {
       while ((h->bin_index & (room_mask | 0x3)) == 0)
         mpqs_increment(&h->bin_index);
     }
-    /* ok so did we fall off the edge on the left? */
+    /* did we fall off the edge on the left? */
     if ((h->bin_index & room_mask) != 0)
-    {
-      /* Yes.  Turn on the index2_moved flag in the handle */
-      h->index2_FB += 2;        /* caller to check this isn't too large!!! */
+    { /* Yes. Turn on the index2_moved flag in the handle */
+      h->index2_FB += 2; /* caller to check this isn't too large!!! */
       h->index2_moved = 1;
       h->bin_index = 0;
-      if (MPQS_DEBUG_SI_CHOOSE_PRIMES || (MPQS_DEBUGLEVEL >= 5))
+      if (MPQS_DEBUGLEVEL >= 5)
         err_printf("MPQS: wrapping, more primes for A now chosen near FB[%ld] = %ld\n",
                    (long)h->index2_FB,
                    (long)FB[h->index2_FB].fbe_p);
@@ -691,7 +636,7 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   /* assert: we aren't occupying any of the room_mask bits now, and if
    * index2_moved had already been on, at least one of the two LSBs is on */
   bits = h->bin_index;
-  if (MPQS_DEBUG_SI_CHOOSE_PRIMES || (MPQS_DEBUGLEVEL >= 6))
+  if (MPQS_DEBUGLEVEL >= 6)
     err_printf("MPQS: new bit pattern for primes for A: 0x%lX\n", bits);
 
   /* map bits to FB subscripts, counting downward with bit 0 corresponding
@@ -705,27 +650,24 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
     l2_last_p -= MPQS_LP(i);
     MPQS_FLG(i) |= MPQS_FBE_DIVIDES_A;
     bits &= ~1UL;
-    if (!bits) break;           /* that was the i=0 iteration */
-    v2 = vals((long)bits);
-    j -= v2;
-    bits >>= v2;
+    if (!bits) break; /* i = 0 */
+    v2 = vals((long)bits); /* > 0 */
+    bits >>= v2; j -= v2;
   }
   /* Choose the larger prime.  Note we keep index2_FB <= size_of_FB - 3 */
-  for (j = h->index2_FB + 1; (p = FB[j].fbe_p) != 0; j++)
+  for (j = h->index2_FB + 1; (p = FB[j].fbe_p); j++)
     if (FB[j].fbe_flogp > l2_last_p) break;
-  /* GN 20050724: The following trick avoids generating a relatively large
-   * proportion of duplicate relations when the last prime happens to fall
-   * into an area where there are large gaps from one FB prime to the next,
-   * and would otherwise often be repeated  (so that successive A's would
-   * wind up too similar to each other).  While this trick isn't perfect,
-   * it seems to get rid of a major part of the potential duplication. */
-  if (p != 0 && j == prev_last_p_idx) { j++; p = FB[j].fbe_p; }
-  MPQS_I(omega_A - 1) = (p == 0 ? /* did we fall off the end of the FB? */
-                         h->size_of_FB + 1 : /* then improvise */
-                         j);
+  /* The following trick avoids generating a large proportion of duplicate
+   * relations when the last prime falls into an area where there are large
+   * gaps from one FB prime to the next, and would otherwise often be repeated
+   * (so that successive A's would wind up too similar to each other). While
+   * this trick isn't perfect, it gets rid of a major part of the potential
+   * duplication. */
+  if (p && j == prev_last_p_idx) { j++; p = FB[j].fbe_p; }
+  MPQS_I(omega_A - 1) = p? j: h->size_of_FB + 1;
   MPQS_FLG(omega_A - 1) |= MPQS_FBE_DIVIDES_A;
 
-  if (MPQS_DEBUG_SI_CHOOSE_PRIMES || (MPQS_DEBUGLEVEL >= 6))
+  if (MPQS_DEBUGLEVEL >= 6)
   {
     err_printf("MPQS: chose primes for A");
     for (i = 0; i < omega_A; i++)
@@ -735,6 +677,28 @@ mpqs_si_choose_primes(mpqs_handle_t *h)
   return 1;
 }
 
+/* There are 4parts to self-initialization, exercised at different times:
+ * - choosing a new sqfree coef. A (selecting its prime factors, FB bookkeeping)
+ * - doing the actual computations attached to a new A
+ * - choosing a new B keeping the same A (much simpler)
+ * - a small common bit that needs to happen in both cases.
+ * As to the first item, the scheme works as follows: pick omega_A - 1 prime
+ * factors for A below the index2_FB point which marks their ideal size, and
+ * one prime above this point, choosing the latter so log2(A) ~ l2_target_A.
+ * Lower prime factors are chosen using bit patterns of constant weight,
+ * gradually moving away from index2_FB towards smaller FB subscripts.
+ * If this bumps into index0_FB (for very small input), back up by increasing
+ * index2_FB by two, and from then on choosing only bit patterns with either or
+ * both of their bottom bits set, so at least one of the omega_A - 1 smaller
+ * prime factor will be beyond the original index2_FB point. In this way we
+ * avoid re-using the same A. (The choice of the upper "flyer" prime is
+ * constrained by the size of the FB, which normally should never a problem.
+ * For tiny kN, we might have to live with a non-optimal choice.)
+ *
+ * Mathematically, we solve a quadratic (over F_p for each prime p in the FB
+ * which doesn't divide A), a linear equation for each prime p | A, and
+ * precompute differences between roots mod p so we can adjust the roots
+ * quickly when we change B. See Thomas Sosnowski's Diplomarbeit. */
 /* compute coefficients of sieving polynomial for self initializing variant.
  * Coefficients A and B are set (preallocated GENs) and several tables are
  * updated. */
