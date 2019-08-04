@@ -443,22 +443,35 @@ tracerelz(long *pv, long d, long M, long k)
 GEN
 Qab_trace_init(long n, long m, GEN Pn, GEN Pm)
 {
-  long a, i, N, M, vt, d;
-  GEN T;
+  long a, i, j, N, M, vt, d, D;
+  GEN T, G;
 
   if (m == n || n <= 2) return mkvec(Pm);
   vt = varn(Pn);
   d = degpol(Pn);
-  T = cgetg(d+1, t_VEC);
-  gel(T,1) = utoipos(d / degpol(Pm)); /* Tr 1 */
   /* if (N != n) zeta_N = zeta_n^2 and zeta_n = - zeta_N^{(N+1)/2} */
   N = ((n & 3) == 2)? n >> 1: n;
-  M = ((m & 3) == 2)? m >> 1: m;
+  M = ((m & 3) == 2)? m >> 1: m; /* M | N | n */
   a = N / M;
+  T = const_vec(d, NULL);
+  D = d / degpol(Pm); /* relative degree */
+  if (D == 1) G = NULL;
+  else
+  { /* zeta_M = zeta_n^A; s_j(zeta_M) = zeta_M <=> j = 1 (mod J) */
+    long lG, A = (N == n)? a: (a << 1), J = n / ugcd(n, A);
+    G = coprimes_zv(n);
+    for (j = lG = 1; j < n; j += J)
+      if (G[j]) G[lG++] = j;
+    setlg(G, lG); /* Gal(Q(zeta_n) / Q(zeta_m)) */
+  }
+  T = const_vec(d, NULL);
+  gel(T,1) = utoipos(D); /* Tr 1 */
   for (i = 1; i < d; i++)
   { /* if n = 2N, zeta_n^i = (-1)^i zeta_N^k */
     long s, v, k;
-    GEN t = gen_0;
+    GEN t;
+
+    if (gel(T, i+1)) continue;
     k = (N == n)? i: ((odd(i)? i + N: i) >> 1);
     if ((s = tracerelz(&v, a, M, k)))
     {
@@ -466,7 +479,17 @@ Qab_trace_init(long n, long m, GEN Pn, GEN Pm)
       if (n != N && odd(i)) s = -s;
       t = Qab_Czeta(v, m, stoi(s), vt);
     }
-    gel(T,i+1) = t; /* Tr_{Kn/Km} zeta_n^i */
+    else
+      t = gen_0;
+    /* t = Tr_{Kn/Km} zeta_n^i; fill using Galois action */
+    if (!G)
+      gel(T, i + 1) = t;
+    else
+      for (j = 1; j <= D; j++)
+      {
+        long z = Fl_mul(i,G[j], n);
+        if (z < d) gel(T, z + 1) = t;
+      }
   }
   return mkvec3(Pm, Pn, T);
 }
