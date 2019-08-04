@@ -1550,7 +1550,7 @@ mpqs(GEN N)
                  frel.nb, H.target_no_rels, timer_delay(&T));
       dbg_target += H.target_no_rels / 100.;
     }
-    if (frel.nb < H.target_no_rels) continue; /* main loop */
+    if (frel.nb < (ulong)H.target_no_rels) continue; /* main loop */
 
     if (DEBUGLEVEL >= 4)
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
