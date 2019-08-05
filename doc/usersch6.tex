@@ -772,19 +772,21 @@ $K_n$ to $K_m$. This is in particular useful for character values.
 \fun{GEN}{Qab_trace_init}{long n, long m, GEN Pn, GEN Pm} assume
 that \kbd{Pn} is \kbd{polcyclo}$(n)$, \kbd{Pm} is \kbd{polcyclo}$(m)$
 (both in the same variable), initialize a structure $T$ used in the following
-routines
+routines. Shallow function.
 
 \fun{GEN}{Qab_tracerel}{GEN T, long t, GEN z} assume $T$ was created
 by \tet{Qab_trace_init}, $t$ is an integer such that $0 \leq t < [K_n:K_m]$
 and $z$ belongs to the cyclotomic field
 $\Q(\zeta_n) = \Q[X]/(\kbd{Pn})$. Return the normalized relative trace
- $[K_n:K_m]^{-1}\text{Tr}_{K_n/K_m} (\zeta_n^t z)$.
+$[K_n:K_m]^{-1}\text{Tr}_{K_n/K_m} (\zeta_n^t z)$. Shallow function.
 
 \fun{GEN}{QabV_tracerel}{GEN T, long t, GEN v} $v$ being a vector of
 entries belonging to $K_n$, apply \tet{Qab_tracerel} to all entries.
+Shallow function.
 
 \fun{GEN}{QabM_tracerel}{GEN T, long t, GEN m} $m$ being a matrix
 of entries belonging to $K_n$, apply \tet{Qab_tracerel} to all entries.
+Shallow function.
 
 \subsec{Elements in factored form}
 
