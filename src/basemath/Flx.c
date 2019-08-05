@@ -257,6 +257,10 @@ RgX_to_Flx(GEN x, ulong p)
   return Flx_renormalize(a,lx);
 }
 
+GEN
+RgXV_to_FlxV(GEN x, ulong p)
+{ pari_APPLY_type(t_VEC, RgX_to_Flx(gel(x,i), p)) }
+
 /* If x is a POLMOD, assume modulus is a multiple of T. */
 GEN
 Rg_to_Flxq(GEN x, GEN T, ulong p)

@@ -7413,6 +7413,9 @@ for a $x$ a \typ{PADIC}.
 \fun{GEN}{RgX_to_Flx}{GEN x, ulong p}, \kbd{x} a \typ{POL}, returns the
 \kbd{Flx} obtained by applying \kbd{Rg\_to\_Fl} coefficientwise.
 
+\fun{GEN}{RgXV_to_FlxV}{GEN x, ulong p}, \kbd{x} a vector, returns the
+\kbd{FlxV} obtained by applying \kbd{RgX\_to\_Flx} coefficientwise.
+
 \fun{GEN}{Rg_to_F2xq}{GEN z, GEN T}, \kbd{z} a \kbd{GEN} which can be
 mapped to $\F_2[X]/(T)$: anything \kbd{Rg\_to\_Fl} can be applied to,
 a \typ{POL} to which \kbd{RgX\_to\_F2x} can be applied to, a \typ{POLMOD}

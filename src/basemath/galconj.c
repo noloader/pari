@@ -2065,10 +2065,6 @@ FlxV_minpolymod(GEN x, GEN y, ulong p)
 { pari_APPLY_same(Flx_FlxV_minpolymod(gel(x,i), y, p)) }
 
 static GEN
-RgXV_to_FlxV(GEN x, ulong p)
-{ pari_APPLY_type(t_VEC, RgX_to_Flx(gel(x,i), p)) }
-
-static GEN
 factperm(GEN x)
 {
   pari_APPLY_same(gen_indexsort(gel(x,i), (void*)cmp_Flx, cmp_nodata))
