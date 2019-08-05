@@ -523,7 +523,7 @@ cyc_pow(GEN cyc, long exp)
   for (r = j = 1; j < lg(cyc); j++)
   {
     GEN v = gel(cyc,j);
-    long n = lg(v) - 1, e = smodss(exp,n), g = (long)ugcd(n, e), m = n / g;
+    long n = lg(v) - 1, e = umodsu(exp,n), g = (long)ugcd(n, e), m = n / g;
     for (i = 0; i < g; i++)
     {
       GEN p = cgetg(m+1, t_VECSMALL);
@@ -550,7 +550,7 @@ cyc_pow_perm(GEN cyc, long exp)
   for (j = 1; j < lg(cyc); j++)
   {
     GEN v = gel(cyc,j);
-    n = lg(v) - 1; e = smodss(exp, n);
+    n = lg(v) - 1; e = umodsu(exp, n);
     for (k = 1, l = e; k <= n; k++)
     {
       p[v[k]] = v[l+1];
@@ -572,9 +572,8 @@ perm_pow(GEN perm, long exp)
     long e, n, k, l;
     if (p[i]) continue;
     v[1] = i;
-    for (n=1, k=perm[i]; k!=i; k=perm[k], n++)
-      v[n+1] = k;
-    e = smodss(exp, n);
+    for (n=1, k=perm[i]; k!=i; k=perm[k], n++) v[n+1] = k;
+    e = umodsu(exp, n);
     for (k = 1, l = e; k <= n; k++)
     {
       p[v[k]] = v[l+1];
