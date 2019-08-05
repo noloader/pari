@@ -739,7 +739,7 @@ get_nr(long d, long a, long b, long *n, long *r)
   ssQ_red(a, b, &A,&B);
   c = d / ugcd(d, B);
   *n = B * c;
-  *r = smodss(A * c, *n);
+  *r = umodsu(A * c, *n);
 }
 /* n = lcm(denom(a/b), denom(c/d)); r = (a/b * n mod n); q = (c/d * n mod n);
  * assume b > 0 and d > 0 */
@@ -751,8 +751,8 @@ get_nrq(long a, long b, long c, long d, long *n, long *r, long *q)
   ssQ_red(c, d, &C,&D);
   g = ugcd(B,D);
   *n = B * (D/g);
-  *r = smodss(A * (D/g), *n);
-  *q = smodss(C * (B/g), *n);
+  *r = umodsu(A * (D/g), *n);
+  *q = umodsu(C * (B/g), *n);
 }
 
 /* Ip->tt = 1 */
@@ -818,7 +818,7 @@ tame_234_init(struct igusa *I, struct igusa_p *Ip, long *n, long *q, long *r)
   else if (120*va0+5*v12 > 36*va5 && 60*vb2 >= 12*va5+5*v12)
   {
     ssQ_red(36*va5-25*v12,240, q,n);
-    *r = smodss(-2* *q, *n);
+    *r = umodsu(-2* *q, *n);
   }
   else /* 6*va0+v12 > 9*vb2 && 12*va5+5*v12 > 60*vb2 */
   {
@@ -1080,7 +1080,7 @@ tame_567_init(struct igusa *I, struct igusa_p *Ip, long dk,
     *pn = 2*ddk;
     *pd = 2*ndk;
   }
-  *pdm = smodss(*pd, *pn);
+  *pdm = umodsu(*pd, *pn);
 }
 
 static long
