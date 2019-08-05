@@ -51,6 +51,7 @@ BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
     13- new GP function mfisetaquo
     14- [libpari] Qab_tracerel, QabV_tracerel, QabM_tracerel
 BA  15- [libpari] RgXV_to_Flxv
+    16- [libpari] ZpX_primedec
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

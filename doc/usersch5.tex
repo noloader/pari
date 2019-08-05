@@ -7207,11 +7207,16 @@ result. It is very inefficient when the resultant is $0$, but otherwise
 usually more efficient than computations using a priori bounds.
 
 \fun{GEN}{ZpX_monic_factor}{GEN f, GEN p, long M} $f$ a monic
-\kbd{ZX}, $p$ a primer, return the $p$-adic factorization of $f$, modulo
+\kbd{ZX}, $p$ a prime, return the $p$-adic factorization of $f$, modulo
 $p^M$. This is the underlying low-level recursive function behind
 \kbd{factorpadic} (using a combination of Round 4 factorization and Hensel
 lifting); the factors are not sorted and the function is not
 \kbd{gerepile}-clean.
+
+\fun{GEN}{ZpX_primedec}{GEN T, GEN p} $T$ a monic separable \kbd{ZX}, $p$ a
+prime, return as a factorization matrix the shape of the prime ideal
+decomposition of $(p)$ in $\Q[X]/(T)$: the first column contains inertia
+degrees, the second columns contains ramification degrees.
 
 \subsec{ZpXQ}
 
