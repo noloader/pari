@@ -1446,7 +1446,7 @@ INLINE void
 append_neighbours(GEN rts, GEN surface_js, long njs, long L, long m, long i)
 {
   long r_idx = (((i - 1) + m) % njs) + 1; /* (i + m) % njs */
-  long l_idx = smodss((i - 1) - m, njs) + 1; /* (i - m) % njs */
+  long l_idx = umodsu((i - 1) - m, njs) + 1; /* (i - m) % njs */
   rts[L] = surface_js[l_idx];
   rts[L + 1] = surface_js[r_idx];
 }
@@ -1570,7 +1570,7 @@ inflate_polys(GEN phi, long L, long s)
   long maxr;
   maxr = nbrows(phi);
   for (k = 0; k <= deg; ) {
-    long i, c = smodss(L * (1 - k) + 1, s);
+    long i, c = umodsu(L * (1 - k) + 1, s);
     /* TODO: We actually know that the last non-zero element of gel(phi, k)
      * can't be later than index n+1, where n is about (L + 1)/s. */
     ++k;
@@ -1619,7 +1619,7 @@ normalise_coeffs(GEN coeffs, GEN js, long L, long s, ulong p, ulong pi)
    * Said in another way, normalise each row i of coeffs by
    * dividing through by js[i - 1]^c (where c depends on i). */
   for (k = 1; k < lg(coeffs); ++k) {
-    long i, c = smodss(L * (1 - (k - 1)) + 1, s);
+    long i, c = umodsu(L * (1 - (k - 1)) + 1, s);
     GEN col = gel(coeffs, k), C = gel(pows, c + 1);
     for (i = 1; i < lg(col); ++i)
       col[i] = Fl_mul_pre(col[i], C[i], p, pi);

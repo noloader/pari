@@ -2941,7 +2941,7 @@ mychicgcd(GEN GCD, GEN VCHI, long x)
 {
   long N = lg(GCD)-1;
   if (N == 1) return gen_1;
-  x = smodss(x, N);
+  x = umodsu(x, N);
   if (GCD[x+1] != 1) return NULL;
   x %= vchip_FC(VCHI); if (!x) return gen_1;
   return gel(gel(VCHI,1), x);
@@ -3107,7 +3107,7 @@ TA2(long N, long k, GEN VCHI, long n, GEN SQRTS, GEN MUP, GEN GCD)
     long t2 = t*t, D = n4 - t2, F, D0, NF;
     GEN sh, li;
 
-    li = gel(SQRTS, (smodss(-D - 1, N4) >> 1) + 1);
+    li = gel(SQRTS, (umodsu(-D - 1, N4) >> 1) + 1);
     if (lg(li) == 1) continue;
     D0 = mycoredisc2neg(D, &F);
     NF = myugcd(GCD, F);
@@ -11699,7 +11699,7 @@ mftocoset_i(ulong N, GEN M, GEN cosets)
   long C = itos(gcoeff(M,2,1)), D = itos(gcoeff(M,2,2));
   GEN ga;
   c = cbezout(N*A, C, &u, &v); Nc = N/c;
-  ga = coset_complete(c, smodss(v*D, Nc), Nc);
+  ga = coset_complete(c, umodsu(v*D, Nc), Nc);
   i = gen_search(cosets, ga, 0, (void*)N, &cmp_coset);
   if (!i) pari_err_BUG("mftocoset [no coset found]");
   return gc_long(av,i);
