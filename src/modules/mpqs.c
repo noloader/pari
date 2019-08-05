@@ -886,6 +886,7 @@ mpqs_sieve(mpqs_handle_t *h)
   unsigned char *sieve_array = h->sieve_array;
   unsigned char *sieve_array_end = h->sieve_array_end;
 
+  memset((void*)sieve_array, 0, (h->M << 1) * sizeof(unsigned char));
   for (ptr_FB = &(h->FB[l]); (p = ptr_FB->fbe_p); ptr_FB++) /* l++ */
   {
     unsigned char logp = ptr_FB->fbe_logval;
@@ -1478,7 +1479,6 @@ mpqs(GEN N)
         err_printf("MPQS: Ran out of primes for A, giving up.\n");
       return gc_NULL(av);
     }
-    memset((void*)(H.sieve_array), 0, (H.M << 1) * sizeof(unsigned char));
     mpqs_sieve(&H);
     tc = mpqs_eval_sieve(&H);
     if (DEBUGLEVEL >= 6)
