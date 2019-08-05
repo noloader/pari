@@ -6024,6 +6024,10 @@ returns their product.
 \fun{ulong}{FlxC_eval_powers_pre}{GEN x, GEN y, ulong p, ulong pi}
 apply \kbd{Flx\_eval\_powers\_pre} to all elements of \kbd{x}.
 
+\fun{GEN}{FlxV_Flv_multieval}{GEN F, GEN v, ulong p} returns the vector
+$[[F[1](v[1]),\ldots,F[1](v[n])],\ldots,[F[m](v[1]),\ldots,F[m](v[n])]]$
+as a \kbd{FlvV}.
+
 \fun{GEN}{FlxC_neg}{GEN x, ulong p}
 
 \fun{GEN}{FlxC_sub}{GEN x, GEN y, ulong p}

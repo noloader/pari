@@ -52,7 +52,7 @@ BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
     12- [libpari] ff_parse_Tp
     13- new GP function mfisetaquo
     14- [libpari] Qab_tracerel, QabV_tracerel, QabM_tracerel
-BA  15- [libpari] RgXV_to_FlxV, F2v_and_inplace
+BA  15- [libpari] RgXV_to_FlxV, F2v_and_inplace, FlxV_Flv_multieval
     16- [libpari] ZpX_primedec
 
   Removed

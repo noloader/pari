@@ -2398,6 +2398,19 @@ Flx_Flv_multieval(GEN P, GEN xa, ulong p)
   return gerepileuptoleaf(av, Flx_Flv_multieval_tree(P, xa, T, p));
 }
 
+static GEN
+FlxV_Flv_multieval_tree(GEN x, GEN xa, GEN T, ulong p)
+{ pari_APPLY_same(Flx_Flv_multieval_tree(gel(x,i), xa, T, p)) }
+
+GEN
+FlxV_Flv_multieval(GEN P, GEN xa, ulong p)
+{
+  pari_sp av = avma;
+  GEN s = producttree_scheme(lg(xa)-1);
+  GEN T = Flv_producttree(xa, s, p, P[1]);
+  return gerepileupto(av, FlxV_Flv_multieval_tree(P, xa, T, p));
+}
+
 GEN
 Flv_polint(GEN xa, GEN ya, ulong p, long vs)
 {
