@@ -333,8 +333,8 @@ p1_std_form(long *pc, long *pd, GEN p1N)
 {
   ulong N = p1N_get_N(p1N);
   ulong u;
-  *pc = smodss(*pc, N); if (!*pc) { *pd = 1; return; }
-  *pd = smodss(*pd, N); if (!*pd) { *pc = 1; return; }
+  *pc = umodsu(*pc, N); if (!*pc) { *pd = 1; return; }
+  *pd = umodsu(*pd, N); if (!*pd) { *pc = 1; return; }
   u = p1N_get_invsafe(p1N)[*pd];
   if (u) { *pc = Fl_mul(*pc,u,N); *pd = 1; return; } /* (d,N) = 1 */
 
@@ -450,10 +450,10 @@ inithashcusps(GEN p1N)
 static GEN
 cusp_std_form(GEN c, GEN S)
 {
-  long p, N = gel(S,1)[1], q = smodss(c[2], N);
+  long p, N = gel(S,1)[1], q = umodsu(c[2], N);
   ulong u, d;
   if (q == 0) return mkvecsmall2(1, 0);
-  p = smodss(c[1], N);
+  p = umodsu(c[1], N);
   u = Fl_inverse(q, N);
   q = Fl_mul(q,u, N);
   d = ugcd(q, N/q);
@@ -1036,8 +1036,8 @@ form_list_of_cusps(ulong N, GEN p1N)
         /* add cl(gam), cl(gam*TAU), cl(gam*TAU^2) to v */
         position += 3;
         /* gam tau gam^(-1) in \Gamma ? */
-        B1 = smodss(b1, N);
-        B2 = smodss(b2, N);
+        B1 = umodsu(b1, N);
+        B2 = umodsu(b2, N);
         if ((Fl_sqr(B2,N) + Fl_sqr(B1,N) + Fl_mul(B1,B2,N)) % N == 0)
           cusp2[3] = type_T;
         else
@@ -2484,11 +2484,11 @@ iscuspeq(ulong N, GEN cusp1, GEN cusp2)
   long p1, q1, p2, q2, s1, s2, d;
   p1 = cusp1[1]; p2 = cusp2[1];
   q1 = cusp1[2]; q2 = cusp2[2];
-  d = Fl_mul(smodss(q1,N),smodss(q2,N), N);
+  d = Fl_mul(umodsu(q1,N),umodsu(q2,N), N);
   d = ugcd(d, N);
 
-  s1 = q1 > 2? Fl_inv(smodss(p1,q1), q1): 1;
-  s2 = q2 > 2? Fl_inv(smodss(p2,q2), q2): 1;
+  s1 = q1 > 2? Fl_inv(umodsu(p1,q1), q1): 1;
+  s2 = q2 > 2? Fl_inv(umodsu(p2,q2), q2): 1;
   return Fl_mul(s1,q2,d) == Fl_mul(s2,q1,d);
 }
 #endif
@@ -4069,7 +4069,7 @@ mspadicint(GEN oms, long teichi, GEN S)
   else
   {
     la = p; /* corresponds to [1,2,...,p-1] */
-    teichi = smodss(teichi, p-1);
+    teichi = umodsu(teichi, p-1);
     if (teichi) teich = teichmullerinit(p, n);
   }
   for (i=1; i<l; i++)
