@@ -855,7 +855,8 @@ GEN
 gmodulss(long x, long y)
 {
   if (!y) pari_err_INV("%",gen_0);
-  retmkintmod(modss(x, y), utoi(labs(y)));
+  y = labs(y);
+  retmkintmod(utoi(umodsu(x, y)), utoipos(y));
 }
 GEN
 gmodulsg(long x, GEN y)

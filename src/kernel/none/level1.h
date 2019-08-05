@@ -683,7 +683,7 @@ remii(GEN a, GEN b) { return dvmdii(a,b,ONLY_REM); }
 INLINE GEN
 divss(long x, long y) { return stoi(x / y); }
 INLINE GEN
-modss(long x, long y) { return stoi(smodss(x, y)); }
+modss(long x, long y) { return utoi(smodss(x, y)); }
 INLINE GEN
 remss(long x, long y) { return stoi(x % y); }
 INLINE long
