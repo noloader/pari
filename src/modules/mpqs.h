@@ -1,11 +1,5 @@
 /* - debug support */
 
-#ifdef MPQS_DEBUG_VERYVERBOSE
-#  ifndef MPQS_DEBUG_VERBOSE
-#  define MPQS_DEBUG_VERBOSE
-#  endif
-#endif
-
 #ifdef MPQS_DEBUG_VERBOSE
 #  ifndef MPQS_DEBUG
 #  define MPQS_DEBUG

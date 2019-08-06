@@ -1048,9 +1048,6 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
     long powers_of_2, p, x = candidates[i], nb = 0;
     int relaprpos = 0;
 
-#ifdef MPQS_DEBUG_VERYVERBOSE
-    err_printf("%c", (char)('0' + i%10));
-#endif
     /* Y = 2*A*x + B, Qx = Y^2/(4*A) = Q(x) */
     Y = addii(mulis(A, 2 * (x - h->M)), B);
     Qx = subii(sqri(Y), h->kN);
