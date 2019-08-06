@@ -708,7 +708,7 @@ mpqs_self_init(mpqs_handle_t *h)
   mpqs_per_A_prime_t *per_A_pr = h->per_A_pr;
   long i, j;
 
-#ifdef MPQS_DEBUG_AVMA
+#ifdef MPQS_DEBUG
   err_printf("MPQS DEBUG: enter self init, avma = 0x%lX\n", (ulong)avma);
 #endif
   if (++h->index_j == (mpqs_uint32_t)h->no_B)
@@ -845,7 +845,7 @@ mpqs_self_init(mpqs_handle_t *h)
                (long) h->index_j, h->A,
                signe(h->B) < 0? '-': '+', absi_shallow(h->B));
   set_avma(av);
-#ifdef MPQS_DEBUG_AVMA
+#ifdef MPQS_DEBUG
   err_printf("MPQS DEBUG: leave self init, avma = 0x%lX\n", (ulong)avma);
 #endif
   return 1;
@@ -1103,7 +1103,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
      * This is faster than dividing off A and each prime separately. */
     Qx = diviiexact(Qx, Qx_part);
 
-#ifdef MPQS_DEBUG_AVMA
+#ifdef MPQS_DEBUG
     err_printf("MPQS DEBUG: eval loop 3, avma = 0x%lX\n", (ulong)avma);
 #endif
     /* Pass 2: deal with repeated factors and store tentative relation. At this
@@ -1136,7 +1136,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
       mpqs_add_factor(relp, &nb, ei, pi);
     }
 
-#ifdef MPQS_DEBUG_AVMA
+#ifdef MPQS_DEBUG
     err_printf("MPQS DEBUG: eval loop 4, avma = 0x%lX\n", (ulong)avma);
 #endif
     PRINT_IF_VERBOSE("\bb");
