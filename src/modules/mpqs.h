@@ -38,14 +38,9 @@
 #ifdef LONG_IS_64BIT
 typedef int  mpqs_int32_t;
 typedef unsigned int  mpqs_uint32_t;
-typedef ulong mpqs_uint64_t;
 #else
 typedef long mpqs_int32_t;
 typedef ulong mpqs_uint32_t;
-typedef struct {
-  ulong _w0;
-  ulong _w1;
-} mpqs_uint64_t;
 #endif
 
 /* -- factor base entries should occupy 32 bytes  (and we'll keep them
