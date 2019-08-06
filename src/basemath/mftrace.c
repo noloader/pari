@@ -7970,8 +7970,16 @@ mfgaexpansion_i(GEN mf, GEN B0, GEN ga, long n, long prec)
   settyp(B, t_VEC);
   if (E)
   {
-    GEN v = hash_eisengacx(H, (void*)E, w, ga, n, prec);
-    long ell = 0;
+    GEN v, e;
+    long ell = 0, vB, ve;
+    for (i = 1; i < l; i++)
+      if (!gequal0(gel(B,i))) break;
+    vB = i-1;
+    v = hash_eisengacx(H, (void*)E, w, ga, n + vB, prec);
+    e = gel(v,2); l = lg(e);
+    for (i = 1; i < l; i++)
+      if (!gequal0(gel(e,i))) break;
+    ve = i-1;
     almin = gsub(almin, gel(v,1));
     if (gsigne(almin) < 0)
     {
@@ -7980,8 +7988,9 @@ mfgaexpansion_i(GEN mf, GEN B0, GEN ga, long n, long prec)
       almin = gadd(almin, gdivgs(gell, w));
       if (nw < ell) pari_err_IMPL("alpha < 0 in mfgaexpansion");
     }
-    B = vecslice(B, ell + 1, n + ell + 1);
-    B = RgV_div_RgXn(B, gel(v,2));
+    if (ve) { ell += ve; e = vecslice(e, ve+1, l-1); }
+    B = vecslice(B, ell + 1, minss(n + ell + 1, lg(B)-1));
+    B = RgV_div_RgXn(B, e);
   }
   return mkvec3(almin, utoi(w), B);
 }
@@ -8095,9 +8104,10 @@ static long
 inveis_extraprec(long N, GEN ga, GEN Mvecj, long n)
 {
   long e, w = mfZC_width(N, gel(ga,1));
-  GEN E = gel(Mvecj,2), v = mfeisensteingacx(E, w, ga, n, DEFAULTPREC);
+  GEN f, E = gel(Mvecj,2), v = mfeisensteingacx(E, w, ga, n, DEFAULTPREC);
   v = gel(v,2);
-  e = gexpo(RgXn_inv(RgV_to_RgX(v,0), n+1));
+  f = RgV_to_RgX(v,0); n -= RgX_valrem(f, &f);
+  e = gexpo(RgXn_inv(f, n+1));
   return (e > 0)? nbits2extraprec(e): 0;
 }
 /* allow F of the form [F, mf_eisendec(F)]~ */
