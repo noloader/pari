@@ -92,16 +92,12 @@ decimal_len(GEN N)
 static int
 mpqs_set_parameters(mpqs_handle_t *h)
 {
-  long i, s, D;
+  long s, D;
   const mpqs_parameterset_t *P;
 
   h->digit_size_kN = D = decimal_len(h->kN);
   if (D > MPQS_MAX_DIGIT_SIZE_KN) return 0;
-  i = maxss(0, D - 9);
-  if (D >= 90)
-    pari_warn(warner, "MPQS: factoring this number will take several hours:\nN = %Ps", h->N);
-
-  P = &(mpqs_parameters[i]);
+  P = &(mpqs_parameters[maxss(0, D - 9)]);
   h->tolerance   = P->tolerance;
   h->lp_scale    = P->lp_scale;
   /* make room for prime factors of k if any: */
