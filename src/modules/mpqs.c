@@ -854,45 +854,40 @@ mpqs_self_init(mpqs_handle_t *h)
 /*********************************************************************/
 /**                           THE SIEVE                             **/
 /*********************************************************************/
-/* Main sieving routine: p4 = 4*p, logp ~ log(p), begin points to a sieve
- * array, end points to the end of the sieve array */
+/* p4 = 4*p, logp ~ log(p), B/E point to the beginning/end of a sieve array */
 INLINE void
-mpqs_sieve_p(unsigned char *begin, unsigned char *end,
-             long p4, long p, unsigned char logp)
+mpqs_sieve_p(unsigned char *B, unsigned char *E, long p4, long p,
+             unsigned char logp)
 {
-  register unsigned char *e = end - p4;
+  register unsigned char *e = E - p4;
   /* Unrolled loop. It might be better to let the compiler worry about this
    * kind of optimization, based on its knowledge of whatever useful tricks the
    * machine instruction set architecture is offering */
-  while (e - begin >= 0) /* signed comparison */
+  while (e - B >= 0) /* signed comparison */
   {
-    (*begin) += logp, begin += p;
-    (*begin) += logp, begin += p;
-    (*begin) += logp, begin += p;
-    (*begin) += logp, begin += p;
+    (*B) += logp, B += p;
+    (*B) += logp, B += p;
+    (*B) += logp, B += p;
+    (*B) += logp, B += p;
   }
-  while (end - begin >= 0) (*begin) += logp, begin += p;
+  while (E - B >= 0) (*B) += logp, B += p;
 }
 
 static void
 mpqs_sieve(mpqs_handle_t *h)
 {
   long p, l = h->index1_FB;
-  mpqs_FB_entry_t *ptr_FB;
-  unsigned char *sieve_array = h->sieve_array;
-  unsigned char *sieve_array_end = h->sieve_array_end;
+  mpqs_FB_entry_t *FB;
+  unsigned char *S = h->sieve_array, *Send = h->sieve_array_end;
 
-  memset((void*)sieve_array, 0, (h->M << 1) * sizeof(unsigned char));
-  for (ptr_FB = &(h->FB[l]); (p = ptr_FB->fbe_p); ptr_FB++) /* l++ */
+  memset((void*)S, 0, (h->M << 1) * sizeof(unsigned char));
+  for (FB = &(h->FB[l]); (p = FB->fbe_p); FB++) /* l++ */
   {
-    unsigned char logp = ptr_FB->fbe_logval;
-    long start1 = ptr_FB->fbe_start1, start2 = ptr_FB->fbe_start2;
-
-    /* sieve with FB[l] from start_1[l]; if start1 != start2 sieve also
-     * from start_2[l] */
-    mpqs_sieve_p(sieve_array + start1, sieve_array_end, p << 2, p, logp);
-    if (start1 != start2)
-      mpqs_sieve_p(sieve_array + start2, sieve_array_end, p << 2, p, logp);
+    unsigned char logp = FB->fbe_logval;
+    long s1 = FB->fbe_start1, s2 = FB->fbe_start2;
+    /* sieve with FB[l] from start_1[l], and from start_2[l] if s1 != s2 */
+    mpqs_sieve_p(S + s1, Send, p << 2, p, logp);
+    if (s1 != s2) mpqs_sieve_p(S + s2, Send, p << 2, p, logp);
   }
 }
 
