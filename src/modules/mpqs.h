@@ -21,9 +21,7 @@
 /* following must be in range of the cand_multipliers table below */
 #define MPQS_MULTIPLIER_SEARCH_DEPTH 5 /* how many primes to inspect per k */
 
-/* `large primes' must be smaller than
- *   min(MPQS_LP_BOUND, largest_FB_p) * MPQS_LP_FACTOR
- * - increased this with the idea of capping it at about 2^30 */
+/* 'large primes' must be smaller than min(MPQS_LP_BOUND, largest_FB_p) */
 #define MPQS_LP_BOUND              12500000 /* works for 32 and 64bit */
 
 /* see mpqs_locate_A_range() for an explanation of the following.  I had
