@@ -958,7 +958,7 @@ GEN     ZabM_pseudoinv(GEN M, GEN P, long n, GEN *pv, GEN *den);
 GEN     ZV_zMs_mul(GEN B, GEN M);
 GEN     ZpMs_ZpCs_solve(GEN M, GEN B, long nbrow, GEN p, long e);
 GEN     gen_FpM_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p);
-GEN     gen_ZpM_Dixon(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e);
+GEN     gen_ZpM_Dixon_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e);
 GEN     gen_matid(long n, void *E, const struct bb_field *S);
 GEN     matid_Flm(long n);
 GEN     matid_F2xqM(long n, GEN T);

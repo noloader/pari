@@ -1456,7 +1456,7 @@ wrap_relker(void*E, GEN x) { return ZV_zMs_mul(x, (GEN)E); }
 
 /* Solve f(X) = B (mod p^e); blackbox version of ZlM_gauss */
 GEN
-gen_ZpM_Dixon(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e)
+gen_ZpM_Dixon_Wiedemann(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e)
 {
   struct wrapper_modp_s W;
   pari_sp av = avma;
@@ -1474,7 +1474,7 @@ gen_ZpM_Dixon(void *E, GEN (*f)(void*, GEN), GEN B, GEN p, long e)
     B = ZC_Z_divexact(ZC_sub(B, f(E, xi)), p);
     if (gc_needed(av,2))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"gen_ZpM_Dixon. i=%ld",i);
+      if(DEBUGMEM>1) pari_warn(warnmem,"gen_ZpM_Dixon_Wiedemann. i=%ld",i);
       gerepileall(av,3, &pi,&B,&xb);
     }
     xi = gen_FpM_Wiedemann((void*)&W, wrap_relcomb_modp, FpC_red(B, p), p);
@@ -1514,7 +1514,7 @@ ZpMs_ZpCs_solve(GEN M, GEN A, long nbrow, GEN p, long e)
     gel(Mp, i) = vecprow(gel(M,pcol[i]), prow);
   Ap = zCs_to_ZC(vecprow(A, prow), n);
   if (DEBUGLEVEL) timer_start(&ti);
-  Rp = gen_ZpM_Dixon((void*)Mp,wrap_relcomb, Ap, p, e);
+  Rp = gen_ZpM_Dixon_Wiedemann((void*)Mp,wrap_relcomb, Ap, p, e);
   if (DEBUGLEVEL) timer_printf(&ti,"linear algebra");
   if (!Rp) return gc_NULL(av);
   lR = lg(Rp)-1;
