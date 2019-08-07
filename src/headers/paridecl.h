@@ -1246,6 +1246,7 @@ GEN     QM_QC_mul(GEN x, GEN y);
 GEN     QM_det(GEN x);
 GEN     QM_ker(GEN M);
 GEN     QM_mul(GEN x, GEN y);
+GEN     QM_sqr(GEN x);
 void    RgM_check_ZM(GEN A, const char *s);
 void    RgV_check_ZV(GEN A, const char *s);
 GEN     Z_ZC_sub(GEN a, GEN x);

@@ -604,7 +604,7 @@ RgM_sqr_fast(GEN x)
   switch(t)
   {
     case t_INT:    return ZM_sqr(x);
-    case t_FRAC:   return QM_mul(x, x);
+    case t_FRAC:   return QM_sqr(x);
     case t_FFELT:  return FFM_mul(x, x, pol);
     case t_INTMOD: return RgM_mul_FpM(x, x, p);
     case code(t_POLMOD, t_INT):

@@ -436,6 +436,16 @@ QM_mul(GEN x, GEN y)
 }
 
 GEN
+QM_sqr(GEN x)
+{
+  GEN dx, nx = Q_primitive_part(x, &dx);
+  GEN z = ZM_sqr(nx);
+  if (dx)
+    z = ZM_Q_mul(z, gsqr(dx));
+  return z;
+}
+
+GEN
 QM_QC_mul(GEN x, GEN y)
 {
   GEN dx, nx = Q_primitive_part(x, &dx);
