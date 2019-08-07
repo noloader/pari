@@ -2799,31 +2799,26 @@ static GEN
 ZlM_gauss_ratlift(GEN a, GEN b, ulong p, long e, GEN C)
 {
   pari_sp av = avma, av2;
-  GEN bb, xi, xb, pi, P, B, r;
-  long i, k = 2;
+  GEN bb, xi, xb, pi, q, B, r;
+  long i, f, k;
+  ulong mask;
   if (!C) {
     C = Flm_inv(ZM_to_Flm(a, p), p);
     if (!C) pari_err_INV("ZlM_gauss", a);
   }
-  pi = P = utoipos(p);
-  av2 = avma;
-  xi = Flm_mul(C, ZM_to_Flm(b, p), p);
-  xb = Flm_to_ZM(xi);
+  k = f = ZM_max_lg(a)-1;
+  mask = quadratic_prec_mask((e+f-1)/f);
+  pi = q = powuu(p, f);
   bb = b;
-  for (i = 2; i <= e; i++)
+  C = ZpM_invlift(FpM_red(a, q), Flm_to_ZM(C), utoi(p), f);
+  av2 = avma;
+  xb = xi = FpM_mul(C, b, q);
+  for (i = f; i <= e; i+=f)
   {
-    bb = ZM_Z_divexact(ZM_sub(bb, ZM_nm_mul(a, xi)), P);
-    if (gc_needed(av,2))
+    if (i==k)
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"ZlM_gauss. i=%ld/%ld",i,e);
-      gerepileall(av2,3, &pi,&bb,&xb);
-    }
-    xi = Flm_mul(C, ZM_to_Flm(bb, p), p);
-    xb = ZM_add(xb, nm_Z_mul(xi, pi));
-    pi = muliu(pi, p); /* = p^(i-1) */
-    if (i==k && i < e)
-    {
-      k *= 2;
+      k = (mask&1UL) ? 2*k-f: 2*k;
+      mask >>= 1;
       B = sqrti(shifti(pi,-1));
       r = FpM_ratlift(xb, pi, B, B, NULL);
       if (r)
@@ -2837,6 +2832,15 @@ ZlM_gauss_ratlift(GEN a, GEN b, ulong p, long e, GEN C)
         }
       }
     }
+    bb = ZM_Z_divexact(ZM_sub(bb, ZM_mul(a, xi)), q);
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ZlM_gauss. i=%ld/%ld",i,e);
+      gerepileall(av2,3, &pi,&bb,&xb);
+    }
+    xi = FpM_mul(C, bb, q);
+    xb = ZM_add(xb, ZM_Z_mul(xi, pi));
+    pi = mulii(pi, q);
   }
   B = sqrti(shifti(pi,-1));
   return gerepileupto(av, FpM_ratlift(xb, pi, B, B, NULL));
