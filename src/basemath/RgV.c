@@ -468,6 +468,52 @@ GEN
 RgMrow_RgC_mul(GEN x, GEN y, long i)
 { return RgMrow_RgC_mul_i(x, y, i, lg(x)); }
 
+static GEN
+RgM_RgC_mul_FpM(GEN x, GEN y, GEN p)
+{
+  pari_sp av = avma;
+  GEN r;
+  if (lgefint(p) == 3)
+  {
+    ulong pp = uel(p, 2);
+    r = Flc_to_ZC_inplace(Flm_Flc_mul(RgM_to_Flm(x, pp),
+                                  RgV_to_Flv(y, pp), pp));
+  }
+  else
+    r = FpM_FpC_mul(RgM_to_FpM(x, p), RgC_to_FpC(y, p), p);
+  return gerepileupto(av, FpC_to_mod(r, p));
+}
+
+static GEN
+RgM_RgC_mul_FqM(GEN x, GEN y, GEN pol, GEN p)
+{
+  pari_sp av = avma;
+  GEN b, T = RgX_to_FpX(pol, p);
+  if (signe(T) == 0) pari_err_OP("*", x, y);
+  b = FqM_FqC_mul(RgM_to_FqM(x, T, p), RgC_to_FqC(y, T, p), T, p);
+  return gerepileupto(av, FqC_to_mod(b, T, p));
+}
+
+#define code(t1,t2) ((t1 << 6) | t2)
+static GEN
+RgM_RgC_mul_fast(GEN x, GEN y)
+{
+  GEN p, pol;
+  long pa;
+  long t = RgM_RgC_type(x,y, &p,&pol,&pa);
+  switch(t)
+  {
+    case t_INT:    return ZM_ZC_mul(x,y);
+    case t_FRAC:   return QM_QC_mul(x,y);
+    case t_FFELT:  return FFM_FFC_mul(x, y, pol);
+    case t_INTMOD: return RgM_RgC_mul_FpM(x, y, p);
+    case code(t_POLMOD, t_INTMOD):
+                   return RgM_RgC_mul_FqM(x, y, pol, p);
+    default:       return NULL;
+  }
+}
+#undef code
+
 /* compatible t_MAT * t_COL, lx = lg(x) = lg(y) > 1, l = lgcols(x) */
 static GEN
 RgM_RgC_mul_i(GEN x, GEN y, long lx, long l)
@@ -482,14 +528,11 @@ GEN
 RgM_RgC_mul(GEN x, GEN y)
 {
   long lx = lg(x);
-  GEN ffx = NULL, ffy = NULL;
+  GEN z;
   if (lx != lg(y)) pari_err_OP("operation 'RgM_RgC_mul'", x,y);
   if (lx == 1) return cgetg(1,t_COL);
-  if (RgM_is_FFM(x, &ffx) && RgC_is_FFC(y, &ffy)) {
-    if (!FF_samefield(ffx, ffy))
-      pari_err_OP("*", ffx, ffy);
-    return FFM_FFC_mul(x, y, ffx);
-  }
+  z = RgM_RgC_mul_fast(x, y);
+  if (z) return z;
   return RgM_RgC_mul_i(x, y, lx, lgcols(x));
 }
 
