@@ -711,6 +711,7 @@ GEN     FpXn_sqr(GEN a, long n, GEN p);
 int     Fq_issquare(GEN x, GEN T, GEN p);
 long    Fq_ispower(GEN x, GEN K, GEN T, GEN p);
 GEN     Fq_log(GEN a, GEN g, GEN ord, GEN T, GEN p);
+GEN     FqC_to_mod(GEN z, GEN T, GEN p);
 GEN     FqM_to_mod(GEN z, GEN T, GEN p);
 GEN     FqV_inv(GEN x, GEN T, GEN p);
 GEN     Z_to_FpX(GEN a, GEN p, long v);

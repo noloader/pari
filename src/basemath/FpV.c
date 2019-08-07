@@ -1204,6 +1204,21 @@ Fq_to_mod_raw(GEN x, GEN T, GEN p)
 }
 
 /* z in Z^n, return z * Mod(1,p), normalized*/
+GEN
+FqC_to_mod(GEN z, GEN T, GEN p)
+{
+  GEN x;
+  long i,l = lg(z);
+  if (!T) return FpC_to_mod(z, p);
+  x = cgetg(l, t_COL);
+  if (l == 1) return x;
+  T = FpX_to_mod(T, p);
+  for (i=1; i<l; i++)
+    gel(x,i) = Fq_to_mod_raw(gel(z, i), T, p);
+  return x;
+}
+
+/* z in Z^n, return z * Mod(1,p), normalized*/
 static GEN
 FqC_to_mod_raw(GEN x, GEN T, GEN p)
 { pari_APPLY_type(t_COL, Fq_to_mod_raw(gel(x,i), T, p)) }
