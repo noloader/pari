@@ -255,6 +255,15 @@ GEN
 ZXQX_gcd(GEN P, GEN Q, GEN T)
 { return nfgcd_all(P, Q, T, NULL, NULL); }
 
+GEN
+QXQX_gcd(GEN P, GEN Q, GEN T)
+{
+  pari_sp av = avma;
+  GEN P1 = Q_remove_denom(P, NULL);
+  GEN Q1 = Q_remove_denom(Q, NULL);
+  return gerepileupto(av, ZXQX_gcd(P1, Q1, T));
+}
+
 int
 nfissquarefree(GEN nf, GEN x)
 {

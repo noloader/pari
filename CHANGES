@@ -56,7 +56,7 @@ BA   2- [libpari] F2xqX_halfgcd, FFX_halfgcd
     14- [libpari] Qab_tracerel, QabV_tracerel, QabM_tracerel
 BA  15- [libpari] RgXV_to_FlxV, F2v_and_inplace, FlxV_Flv_multieval
     16- [libpari] ZpX_primedec
-BA  17- [libpari] QM_sqr, FqC_to_mod, ZXQX_gcd
+BA  17- [libpari] QM_sqr, FqC_to_mod, ZXQX_gcd, QXQX_gcd
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

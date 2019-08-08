@@ -3220,6 +3220,14 @@ RgX_gcd_ZXQX(GEN x, GEN y, GEN T)
 }
 
 static GEN
+RgX_gcd_QXQX(GEN x, GEN y, GEN T)
+{
+  pari_sp av = avma;
+  GEN r = QXQX_gcd(RgX_liftred(x, T), RgX_liftred(y, T), T);
+  return gerepilecopy(av, QXQX_to_mod_shallow(r, T));
+}
+
+static GEN
 RgX_gcd_fast(GEN x, GEN y)
 {
   GEN p, pol;
@@ -3235,6 +3243,9 @@ RgX_gcd_fast(GEN x, GEN y)
                    return RgX_gcd_FpXQX(x, y, pol, p);
     case code(t_POLMOD, t_INT):
                    return ZX_is_monic(pol)? RgX_gcd_ZXQX(x,y,pol): NULL;
+    case code(t_POLMOD, t_FRAC):
+                   return RgX_is_ZX(pol) && ZX_is_monic(pol) ?
+                                            RgX_gcd_QXQX(x,y,pol): NULL;
     default:       return NULL;
   }
 }

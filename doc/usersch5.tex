@@ -9532,6 +9532,8 @@ Not memory clean, nor suitable for \kbd{gerepileupto}.
 convenience) , $a$ and $T$ both \kbd{QX}. Return the \kbd{QX} $P(X, a \mod
 T)$. Not memory clean, nor suitable for \kbd{gerepileupto}.
 
+\subsec{\kbd{QXQX}}
+
 \fun{GEN}{nfgcd}{GEN P, GEN Q, GEN T, GEN den} given $P$ and $Q$ in
 $\Z[X,Y]$, $T$ monic irreducible in $\Z[Y]$, returns the primitive $d$ in
 $\Z[X,Y]$ which is a gcd of $P$, $Q$ in $K[X]$, where $K$ is the number field
@@ -9543,6 +9545,9 @@ If \kbd{Pnew} is not \kbd{NULL}, set \kbd{*Pnew} to a non-zero integer
 multiple of $P/d$. If $P$ and $Q$ are both monic, then $d$ is monic and
 \kbd{*Pnew} is exactly $P/d$. Not memory clean if the gcd is $1$
 (in that case \kbd{*Pnew} is set to $P$).
+
+\fun{GEN}{QXQX_gcd}{GEN x, GEN y, GEN T} returns the gcd of $x$ and $y$,
+assuming that $x$ and $y$ are \kbd{QXQX}s and that $T$ is a monic \kbd{ZX}.
 
 \subsec{\kbd{QXQM}}
 
