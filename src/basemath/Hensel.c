@@ -738,6 +738,46 @@ gen_ZpX_Dixon(GEN F, GEN V, GEN q, GEN p, long N, void *E,
 }
 
 GEN
+gen_ZpM_Newton(GEN x, GEN p, long n, void *E,
+                      GEN eval(void *E, GEN f, GEN q),
+                      GEN invd(void *E, GEN V, GEN v, GEN q, long M))
+{
+  pari_sp ltop = avma, av;
+  long N = 1, N2, M;
+  long mask;
+  GEN q = p;
+  if (n == 1) return gcopy(x);
+  mask = quadratic_prec_mask(n);
+  av = avma;
+  while (mask > 1)
+  {
+    GEN qM, q2, v, V;
+    N2 = N; N <<= 1;
+    q2 = q;
+    if (mask&1UL) { /* can never happen when q2 = p */
+      N--; M = N2-1;
+      qM = diviiexact(q2,p); /* > 1 */
+      q = mulii(qM,q2);
+    } else {
+      M = N2;
+      qM = q2;
+      q = sqri(q2);
+    }
+    /* q2 = p^N2, qM = p^M, q = p^N = q2 * qM */
+    mask >>= 1;
+    v = eval(E, x, q);
+    V = ZM_Z_divexact(gel(v,1), q2);
+    x = FpM_sub(x, ZM_Z_mul(invd(E, V, v, qM, M), q2), q);
+    if (gc_needed(av, 1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"gen_ZpX_Newton");
+      gerepileall(av, 2, &x, &q);
+    }
+  }
+  return gerepileupto(ltop, x);
+}
+
+GEN
 gen_ZpX_Newton(GEN x, GEN p, long n, void *E,
                       GEN eval(void *E, GEN f, GEN q),
                       GEN invd(void *E, GEN V, GEN v, GEN q, long M))

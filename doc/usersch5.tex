@@ -10517,6 +10517,10 @@ subproduct of computing the function. The vector $v$ allows \kbd{eval} to
 provide these to \kbd{invd}. The implementation of \kbd{invd} will generally
 involves the use of the function \kbd{gen\_ZpX\_Dixon}.
 
+\fun{GEN}{gen_ZpM_Newton}{GEN x, GEN p, long n, void *E,
+                          GEN eval(void *E, GEN a, GEN q),
+                          GEN invd(void *E, GEN b, GEN v, GEN q, long N)}
+as above, with polynomials replaced by matrices.
 
 \newpage
 \chapter{Operations on general PARI objects}
