@@ -777,6 +777,26 @@ gen_ZpM_Newton(GEN x, GEN p, long n, void *E,
   return gerepileupto(ltop, x);
 }
 
+static GEN
+_ZpM_invd(void *E, GEN V, GEN v, GEN q, long M/*unused*/)
+{
+  (void)E; (void)M;
+  return FpM_mul(V, gel(v,2), q);
+}
+
+static GEN
+_ZpM_eval(void *E, GEN x, GEN q)
+{
+  GEN f = RgM_Rg_sub_shallow(FpM_mul(x, FpM_red((GEN) E, q), q), gen_1);
+  return mkvec2(f, x);
+}
+
+GEN
+ZpM_invlift(GEN M, GEN C, GEN p, long n)
+{
+  return gen_ZpM_Newton(C, p, n, (void *)M, _ZpM_eval, _ZpM_invd);
+}
+
 GEN
 gen_ZpX_Newton(GEN x, GEN p, long n, void *E,
                       GEN eval(void *E, GEN f, GEN q),

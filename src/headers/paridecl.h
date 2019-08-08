@@ -977,6 +977,7 @@ GEN     Z2_sqrt(GEN x, long e);
 GEN     Zp_sqrt(GEN x, GEN p, long e);
 GEN     Zp_sqrtlift(GEN b, GEN a, GEN p, long e);
 GEN     Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e);
+GEN     ZpM_invlift(GEN M, GEN C, GEN p, long n);
 GEN     ZpX_Frobenius(GEN T, GEN p, long e);
 GEN     ZpX_ZpXQ_liftroot(GEN P, GEN S, GEN T, GEN p, long e);
 GEN     ZpX_ZpXQ_liftroot_ea(GEN P, GEN S, GEN T, GEN p, long n, void *E,

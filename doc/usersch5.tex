@@ -7152,6 +7152,14 @@ mod $4$).
 \fun{GEN}{teichmullerinit}{long p, long n} returns the values of
 \tet{Zp_teichmuller} at all $x = 1, \dots, p-1$.
 
+\subsec{ZpM}
+
+\fun{GEN}{ZpM_invlift}{GEN M, GEN Np, GEN p, long e} let
+$p$ be a prime \typ{INT}, $Np$ be a \kbd{FpM} (modulo $p$) and
+$M$ a \kbd{ZpM} such that $M\*Np \equiv 1 \mod p$.
+Returns an \kbd{ZpM} $N$ such that $N \equiv Np \pmod{p}$ and
+$M\*N \equiv 1 \mod p^e$.
+
 \subsec{ZpX}
 
 \fun{GEN}{ZpX_roots}{GEN f, GEN p, long e} $f$ a \kbd{ZX} with leading
