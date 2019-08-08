@@ -249,7 +249,11 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
 }
 GEN
 nfgcd(GEN P, GEN Q, GEN T, GEN den)
-{ return nfgcd_all(P,Q,T,den,NULL); }
+{ return nfgcd_all(P, Q, T, den, NULL); }
+
+GEN
+ZXQX_gcd(GEN P, GEN Q, GEN T)
+{ return nfgcd_all(P, Q, T, NULL, NULL); }
 
 int
 nfissquarefree(GEN nf, GEN x)

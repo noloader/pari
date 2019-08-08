@@ -3215,7 +3215,7 @@ static GEN
 RgX_gcd_ZXQX(GEN x, GEN y, GEN T)
 {
   pari_sp av = avma;
-  GEN r = nfgcd(RgX_liftred(x, T), RgX_liftred(y, T), T, NULL);
+  GEN r = ZXQX_gcd(RgX_liftred(x, T), RgX_liftred(y, T), T);
   return gerepilecopy(av, QXQX_to_mod_shallow(r, T));
 }
 

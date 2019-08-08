@@ -4351,6 +4351,7 @@ long    vals(ulong x);
 GEN     FpC_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom);
 GEN     FpM_ratlift(GEN M, GEN mod, GEN amax, GEN bmax, GEN denom);
 GEN     FpX_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom);
+GEN     ZXQX_gcd(GEN P, GEN Q, GEN T);
 GEN     nffactor(GEN nf,GEN x);
 GEN     nffactormod(GEN nf,GEN pol,GEN pr);
 GEN     nfgcd(GEN P, GEN Q, GEN nf, GEN den);
