@@ -3304,9 +3304,9 @@ RgX_gcd(GEN x, GEN y)
       if (!signe(r)) break;
       if (dr <= 3)
       {
-        set_avma(av1); return gerepileupto(av, scalarpol(d, varn(x)));
+        set_avma(av1);
+        return gerepileupto(av, scalarpol(d, varn(x)));
       }
-      if (DEBUGLEVEL > 9) err_printf("RgX_gcd: dr = %ld\n", degpol(r));
       du = lg(u); dv = lg(v); degq = du-dv;
       u = v; p1 = g; g = leading_coeff(u);
       switch(degq)
@@ -3321,7 +3321,7 @@ RgX_gcd(GEN x, GEN y)
       v = RgX_Rg_div(r,p1);
       if (gc_needed(av1,1))
       {
-        if(DEBUGMEM>1) pari_warn(warnmem,"RgX_gcd");
+        if(DEBUGMEM>1) pari_warn(warnmem,"RgX_gcd, dr = %ld", degpol(r));
         gerepileall(av1,4, &u,&v,&g,&h);
       }
     }
