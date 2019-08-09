@@ -197,7 +197,7 @@ nfgcd_all(GEN P, GEN Q, GEN T, GEN den, GEN *Pnew)
     else
       lden = gcdii(ZX_resultant(lP, T), ZX_resultant(lQ, T));
     if (is_pm1(lden)) lden = NULL;
-    den = mul_denom(den, lden);
+    if (den && lden) den = mulii(den, lden);
   }
   init_modular_small(&S);
   btop = avma;

@@ -20,6 +20,7 @@ BA   1- plotlines flag was ignored
     12- mf=mfinit([470,2],0);F=mfeigenbasis(mf)[7]; mfcuspval(mf,F,1/5)
         -> division by 0
     13- quadtofp(quadgen(-3)) -> t_FRAC component [#2158]
+    14- nfgcd wouldn't terminate [#2159]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
