@@ -2316,22 +2316,19 @@ gaffect(GEN x, GEN y)
 GEN
 quadtofp(GEN x, long prec)
 {
-  GEN z, Q, u = gel(x,2), v = gel(x,3);
+  GEN b, mb2, c, z, Q, u = gel(x,2), v = gel(x,3);
   pari_sp av;
   if (prec < LOWDEFAULTPREC) prec = LOWDEFAULTPREC;
   if (isintzero(v)) return cxcompotor(u, prec);
-  av = avma; Q = gel(x,1);
-  z = itor(quad_disc(x), prec);
-  if (signe(gel(Q,2)) < 0) /* Q[2] = -D/4 or (1-D)/4 */
-  {
-    z = subri(sqrtr(z), gel(Q,3));
-    shiftr_inplace(z, -1);
-  }
-  else
-  {
-    z = sqrtr_abs(z); shiftr_inplace(z, -1);
-    z = mkcomplex(gmul2n(negi(gel(Q,3)),-1), z);
-  }/* z = (-b + sqrt(D)) / 2 */
+  av = avma; Q = gel(x,1); c = gel(Q,2); b = gel(Q,3);
+  z = sqrtr_abs(itor(quad_disc(x), prec));
+  shiftr_inplace(z, -1);
+  mb2 = signe(b) ? real2n(-1, prec): NULL;
+  if (signe(c) > 0) /* c = -D/4 or (1-D)/4 */
+    z = mkcomplex(mb2? mb2: real_0(prec), z);
+  else if (mb2)
+    z = addrr(z, mb2);
+  /* z = (-b + sqrt(D)) / 2 */
   return gerepileupto(av, gadd(u, gmul(v,z)));
 }
 
