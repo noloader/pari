@@ -327,7 +327,7 @@ Use \tet{RgX_to_ser} or \tet{rfrac_to_ser} for a fast clean alternative to
 \fun{GEN}{listinit}{GEN x} a \typ{LIST} (from \kbd{List} or \kbd{Map}) may
 exist in two different forms due to GP memory model:
 
-\item an ordinary \emph{read-only} copy on the pari stack (as produced by
+\item an ordinary \emph{read-only} copy on the PARI stack (as produced by
 \kbd{gtolist} or \kbd{gtomap}) to which one may not assign elements
 (\kbd{listput} will fail) unless the list is empty.
 
@@ -715,93 +715,149 @@ it is actually valid. This is used by GP2C -C.
 \newpage
 \chapter{Parallelism}
 
-\section{The PARI MT interface}
+PARI provides an abstraction, herafter called the MT engine, for doing
+parallel computations. The exact same high level routines are used whether
+the underlying communication protocol is POSIX threads or MPI and they behave
+differently depending on how \kbd{libpari} was configured, specifically on
+\kbd{Configure}'s \kbd{--mt} option. Sequential computation is also supported
+(no \kbd{--mt} argument) which is helpful for debugging newly written
+parallel code. The final section in this chapter comments a complete example.
 
-PARI provides an abstraction for doing parallel computations.
+\section{The PARI multithread interface}
 
 \fun{void}{mt_queue_start}{struct pari_mt *pt, GEN worker} Let \kbd{worker}
-be a \typ{CLOSURE} object of arity $1$.  Initialize the structure \kbd{pt}
-to evaluate \kbd{worker} in parallel.
+be a \typ{CLOSURE} object of arity $1$.  Initialize the opaque structure
+\kbd{pt} to evaluate \kbd{worker} in parallel. This allocates data in
+various ways, e.g., on the PARI stack or as malloc'ed objects: you may not
+collect garbage on the PARI stack starting from an earlier \kbd{avma} point
+until the parallel computation is over, it could destroy something in \kbd{pt}.
+All ressources allocated outside the PARI stack are freed by
+\kbd{mt\_queue\_end}.
 
 \fun{void}{mt_queue_start_lim}{struct pari_mt *pt, GEN worker, long lim}
 as \kbd{mt\_queue\_start}, where \kbd{lim} is an upper bound on the number
-of \kbd{tasks} to perform. Concretly the number of
-threads will be \kbd{min(lim,nbthreads}. The values $0$ and $1$ of \kbd{lim}
-are special:
+of \kbd{tasks} to perform. Concretly the number of threads is the minimum
+of \kbd{lim} and \kbd{nbthreads}. The values $0$ and $1$ of \kbd{lim} are
+special:
 
 \item $0$: no limit, equivalent to \kbd{mt\_queue\_start}.
 
-\item $1$: no parallelism. Evaluate the tasks sequentially.
+\item $1$: no parallelism, evaluate the tasks sequentially.
 
-\fun{void}{mt_queue_submit}{struct pari_mt *pt, long taskid, GEN task} Submit
+\fun{void}{mt_queue_submit}{struct pari_mt *pt, long taskid, GEN task} submit
 \kbd{task} to be evaluated by \kbd{worker}, or \kbd{NULL} if no further task
-is left to be submitted. The value \kbd{taskid} is user-specified and allows
-to later match up results and submitted tasks.
+needs to be submitted. The label \kbd{taskid} is attached to a task but is
+not available to \kbd{worker} and its main use is for the main thread to
+later match up results and submitted tasks (see \kbd{mt\_queue\_get} which
+returns the \kbd{taskid} together with each result). In practice using
+consecutive (distinct!) integers should be sufficient. The \kbd{taskid}
+parameter is ignored when \kbd{task} is \kbd{NULL}. It is forbidden to call
+this function twice without an intervening \kbd{mt\_queue\_get}.
+
 
 \fun{GEN}{mt_queue_get}{struct pari_mt *pt, long *taskid, long *pending}
-Return the result of the evaluation by \kbd{worker} of one of the previously
-submitted tasks. Set \kbd{pending} to the number of remaining pending tasks.
-Set \kbd{taskid} to the value associate to this task by
-\kbd{mt\_queue\_submit}.  Returns \kbd{NULL} if more tasks need to be
-submitted.
+return the result of the evaluation by \kbd{worker} of one of the previously
+submitted tasks, in random order. Set \kbd{pending} to the number of
+remaining pending tasks: if this is $0$ then no more tasks are pending and it
+is safe to call \tet{mt_queue_end}. Set \kbd{*taskid} to the value attached
+to this task by \kbd{mt\_queue\_submit}, unless the \kbd{taskid} pointer is
+\kbd{NULL}. Returns \kbd{NULL} if all tasks submitted so far have been
+processed. It is forbidden to call this function twice without an intervening
+\kbd{mt\_queue\_submit}.
 
-\fun{void}{mt_queue_end}{struct pari_mt *pt} End the parallel execution.
+\fun{void}{mt_queue_end}{struct pari_mt *pt} end the parallel execution
+and free ressources attached to the opaque \kbd{pari\_mt} structure. For
+instance malloc'ed data; in the \kbd{pthreads} interface, it would destroy
+mutex locks, condition variables, etc. This must be called once there are no
+longer pending tasks to avoid leaking ressources; but not before all tasks
+have been processed else crashes will occur.
 
-Calls to \tet{mt_queue_submit} and \tet{mt_queue_get} must alternate: each
-call to \tet{mt_queue_submit} must be followed by a call to
-\tet{mt_queue_get} before any other call to \tet{mt_queue_submit},
-and conversely.
+\section{Technical functions required by MPI}
 
-The first call to \tet{mt_queue_get} will return \kbd{NULL} until a
-sufficient number of tasks have been submitted. If no more tasks are left
-to be submitted, use
-\bprog
-  mt_queue_submit(handle, id, NULL)
-@eprog\noindent
-to allow further calls to \tet{mt_queue_get}.  If \tet{mt_queue_get} sets
-\kbd{pending} to $0$, then no more tasks are pending and it is safe to call
-\tet{mt_queue_end}.
-
-The parameter \kbd{taskid} can be chosen arbitrarily. It is attached to a
-task but is not available to \kbd{worker}.  It provides an efficient way to
-match a tasks and results. It is ignored when the parameter \kbd{task} is
-\kbd{NULL}.
-
-\subsec{Miscellaneous}
+The functions in this section are needed when writing complex independent
+programs in order to support the MPI MT engine, as more flexible
+complement/variants of \kbd{pari\_init} and \kbd{pari\_close}.
 
 \fun{void}{mt_broadcast}{GEN code}: do nothing unless the MPI threading engine
-is in use. In that case, it evaluates the closure  \kbd{code} on all secondary
-nodes. This can be sued to change the states of the MPI child nodes.
-This is used by \tet{install}.
-
-\section{Initialization}
-
-This section is technical.
+is in use. In that case, evaluates the closure  \kbd{code} on all secondary
+nodes. This can be used to change the state of all MPI child nodes, e.g.,
+in \tet{gpinstall} run in the main thread, which allows all nodes to use the
+new function.
 
 \fun{void}{pari_mt_init}{void} \label{pari_mt_init}
-When using MPI, it is sometimes necessary to run initialization code on the
-child nodes after PARI is initialized. This can be done as follow:
+when using MPI, it is often necessary to run initialization code on the child
+nodes after PARI is initialized. This is done by calling successively:
 
-\item call \tet{pari_init_opts} with the flag \tet{INIT_noIMTm}.
-This initializes PARI, but not the MT engine.
+\item \tet{pari_init_opts} with the flag \tet{INIT_noIMTm}:
+this initializes PARI, but not the MT engine;
 
-\item call the required initialization code.
+\item the required initialization code;
 
-\item call \tet{pari_mt_init} to initialize the MT engine.
-Note that under MPI, this function only returns on the master node. On the
-child nodes, it enters slave mode. Thus it is no longer possible to run
+\item \tet{pari_mt_init} to initialize the MT engine.
+Note that under MPI, this function returns on the master node but enters
+slave mode on the child nodes. Thus it is no longer possible to run
 initialization code on the child nodes.
 
-See the file \kbd{examples/pari-mt.c} for an example.
-
 \fun{void}{pari_mt_close}{void} \label{pari_mt_close}
-When using MPI, calling \tet{pari_close} will terminate the MPI execution
-environment. If this is undesirable, you should call \tet{pari_close_opts} with
-the flag \tet{INIT_noIMTm}.  This closes PARI without terminating the MPI
-execution environment It is allowed to call \kbd{pari\_mt\_close} later to
-terminate it.  Note that the once MPI is terminated it cannot be restarted, and
-that it is considered an error for a program to end without having terminated
-the MPI execution environment.
+when using MPI, calling \tet{pari_close} terminates the MPI execution
+environment and it will not be possible to restart it. If this is
+undesirable, call \tet{pari_close_opts} with the flag \tet{INIT_noIMTm}
+instead of \kbd{pari\_close}: this closes PARI without terminating the MPI
+execution environment. You may later call \kbd{pari\_mt\_close} to terminate
+it. It is an error for a program to end without terminating the MPI execution
+environment.
 
+\section{A complete example}
+
+We now proceed to an example exhibiting complex features of this
+interface, in particular showing how to generate a valid \kbd{worker}.
+Explanations and details follow.
+
+\bprogfile{../examples/pari-mt.c}
+
+We start from some arbitrary C function \kbd{Cworker} and create an
+\kbd{entree} summarizing all that GP would need to know about it, in
+particular
+
+\item a GP name \kbd{\_worker}; the leading \kbd{\_} is not necessary,
+we use it as a namespace mechanism grouping private functions;
+
+\item the name of the C function;
+
+\item and its prototype, see \kbd{install} for an introduction to Prototype
+Codes.
+
+\noindent The other three arguments ($0$, $20$ and \kbd{""}) are required in an
+\kbd{entree} but not useful in our simple context: they are respectively a
+valence ($0$ means ``nothing special''), a help section (20 is customary for
+internal functions which need to be exported for technical reasons, see
+\kbd{?20}), and a help text (no help).
+
+Then we initialize the MT engine; doing things in this order with a two part
+initialization ensures that nodes have access to our \kbd{Cworker}. We
+convert the \kbd{ep} data to a \typ{CLOSURE} using \kbd{strtofunction}, which
+provides a valid \kbd{worker} to \kbd{mt\_queue\_start}. This creates a
+parallel evaluation queue \kbd{mt}, and we proceed to submit all tasks,
+recording all results. Results are stored in the right order
+by making good use of the \kbd{taskid} label, although we have no control
+over \emph{when} each result is returned. We finally free all ressources
+attached to the \kbd{mt} structure. If needed, we could have collected all
+garbage on the PARI stack using \kbd{gerepilecopy} on the \kbd{out} array and
+gone on working instead of quitting.
+
+Note the argument passing convention for \kbd{Cworker}: the task consists of a
+single vector containing all arguments as \kbd{GEN}s, which are interpreted
+according to the function prototype, here \kbd{GL} so the first argument is
+left as is and the second one is converted to a long integer. In more
+complicated situations, this second (and possibly further) argument could
+provide arbitrary evaluation contexts. In this example, we just used it as a
+flag to indicate the kind of evaluation expected on the data: integer
+factorization (0) or matrix determinant (1).
+
+Note also that
+\bprog
+  gel(out, taskid) = mt_queue_get(&mt, &taskid, &pending);
+@eprog \noindent instead of our use of a temporary \kbd{done} would be
+undefined behaviour (\kbd{taskid} may be uninitialized in the left hand side).
 \vfill\eject
 \input index\end
