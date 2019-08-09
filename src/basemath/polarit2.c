@@ -2312,6 +2312,7 @@ gdivexact(GEN x, GEN y)
   long i,lx;
   GEN z;
   if (gequal1(y)) return x;
+  if (typ(y) == t_POLMOD) return gmul(x, ginv(y));
   switch(typ(x))
   {
     case t_INT:
@@ -2411,8 +2412,17 @@ subres_step(GEN *u, GEN *v, GEN *g, GEN *h, GEN *uze, GEN *um1, long *signh)
       c = gmul(gpowgs(*h,degq), c);
       *h = gdivexact(gpowgs(*g,degq), gpowgs(*h,degq-1));
   }
-  *v  = RgX_Rg_divexact(r,c);
-  *uze= RgX_Rg_divexact(*uze,c);
+  if (typ(c) == t_POLMOD)
+  {
+    c = ginv(c);
+    *v = RgX_Rg_mul(r,c);
+    *uze = RgX_Rg_mul(*uze,c);
+  }
+  else
+  {
+    *v  = RgX_Rg_divexact(r,c);
+    *uze= RgX_Rg_divexact(*uze,c);
+  }
   if (both_odd(du, dv)) *signh = -*signh;
   return (dr > 3);
 }
