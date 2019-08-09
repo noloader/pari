@@ -746,14 +746,19 @@ special:
 
 \fun{void}{mt_queue_submit}{struct pari_mt *pt, long taskid, GEN task} submit
 \kbd{task} to be evaluated by \kbd{worker}, or \kbd{NULL} if no further task
-needs to be submitted. The label \kbd{taskid} is attached to a task but is
-not available to \kbd{worker} and its main use is for the main thread to
-later match up results and submitted tasks (see \kbd{mt\_queue\_get} which
-returns the \kbd{taskid} together with each result). In practice using
-consecutive (distinct!) integers should be sufficient. The \kbd{taskid}
-parameter is ignored when \kbd{task} is \kbd{NULL}. It is forbidden to call
-this function twice without an intervening \kbd{mt\_queue\_get}.
+needs to be submitted. The parameter \kbd{taskid} is attached to the
+\kbd{task} but not used in any way by the \kbd{worker} or the MT engine,
+it will be returned to you by \kbd{mt\_queue\_get} together with the result
+for the task, allowing to match up results and submitted tasks if desired.
+For instance, if the tasks $(t_1,\dots, t_m)$ are known in advance, stored
+in a vector, and you want to recover the evaluation results in the same order
+as in that vector, you may use consecutive integers $1, \dots, m$ as
+\kbd{taskid}s. If you do not care about the ordering, on the other hand, you
+can just use $\kbd{taskid} = 0$ for all tasks.
 
+The \kbd{taskid} parameter is ignored when \kbd{task} is \kbd{NULL}. It is
+forbidden to call this function twice without an intervening
+\kbd{mt\_queue\_get}.
 
 \fun{GEN}{mt_queue_get}{struct pari_mt *pt, long *taskid, long *pending}
 return the result of the evaluation by \kbd{worker} of one of the previously
