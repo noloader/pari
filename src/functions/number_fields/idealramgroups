@@ -10,7 +10,7 @@ Doc: Let $K$ be the number field defined by \var{nf} and assume that $K/\Q$ is
  Galois with Galois group $G$ given by \kbd{gal=galoisinit(nf)}.
  Let \var{pr} be the prime ideal $\goth{P}$ in prid format.
  This function returns a vector $g$ of subgroups of \kbd{gal}
- as follow:
+ as follows:
 
  \item \kbd{g[1]} is the decomposition group of $\goth{P}$,
 
