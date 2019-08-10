@@ -862,7 +862,7 @@ factorization (0) or matrix determinant (1).
 Note also that
 \bprog
   gel(out, taskid) = mt_queue_get(&mt, &taskid, &pending);
-@eprog \noindent instead of our use of a temporary \kbd{done} would be
+@eprog \noindent instead of our use of a temporary \kbd{done} would have
 undefined behaviour (\kbd{taskid} may be uninitialized in the left hand side).
 \vfill\eject
 \input index\end
