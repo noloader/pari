@@ -81,6 +81,8 @@ polroots(T)
 polrootsbound(T)
 polrootsbound('x)
 
+polzagier(-1,1)
+
 \\ Errors
 polrootsbound(Pol(0))
 polrootsbound(1)

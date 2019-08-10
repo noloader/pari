@@ -94,6 +94,7 @@ Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
   *** polrootsbound: Warning: normalizing a polynomial with 0 leading term.
 0
 0
+0
   ***   at top-level: polrootsbound(Pol(0))
   ***                 ^---------------------
   *** polrootsbound: zero polynomial in roots.
@@ -106,4 +107,4 @@ Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
   ***   at top-level: (1/x)%x
   ***                      ^--
   *** _%_: impossible inverse in Flx_divrem: Vecsmall([0]).
-Total time spent: 5
+Total time spent: 12

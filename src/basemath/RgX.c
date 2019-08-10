@@ -1565,8 +1565,9 @@ RgX_sqr_i(GEN x)
 /*******************************************************************/
 GEN
 RgX_Rg_divexact(GEN x, GEN y) {
-  long i, lx;
+  long i, lx = lg(x);
   GEN z;
+  if (lx == 2) return gcopy(x);
   switch(typ(y))
   {
     case t_INT:
@@ -1574,14 +1575,15 @@ RgX_Rg_divexact(GEN x, GEN y) {
       break;
     case t_INTMOD: case t_POLMOD: return RgX_Rg_mul(x, ginv(y));
   }
-  z = cgetg_copy(x, &lx); z[1] = x[1];
+  z = cgetg(lx, t_POL); z[1] = x[1];
   for (i=2; i<lx; i++) gel(z,i) = gdivexact(gel(x,i),y);
   return z;
 }
 GEN
 RgX_Rg_div(GEN x, GEN y) {
-  long i, lx;
+  long i, lx = lg(x);
   GEN z;
+  if (lx == 2) return gcopy(x);
   switch(typ(y))
   {
     case t_INT:
@@ -1589,7 +1591,7 @@ RgX_Rg_div(GEN x, GEN y) {
       break;
     case t_INTMOD: case t_POLMOD: return RgX_Rg_mul(x, ginv(y));
   }
-  z = cgetg_copy(x, &lx); z[1] = x[1];
+  z = cgetg(lx, t_POL); z[1] = x[1];
   for (i=2; i<lx; i++) gel(z,i) = gdiv(gel(x,i),y);
   return normalizepol_lg(z, lx);
 }
