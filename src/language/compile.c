@@ -1716,7 +1716,6 @@ genclosurectx(const char *loc, long nbdata)
 static GEN
 genclosure(entree *ep, const char *loc, long nbdata, int check)
 {
-  pari_sp av = avma;
   struct codepos pos;
   long nb=0;
   const char *code=ep->code,*p,*q;
@@ -1905,24 +1904,21 @@ genclosure(entree *ep, const char *loc, long nbdata, int check)
   if (ret_flag==FLnocopy) op_push_loc(OCcopy,0,loc);
   compilecast_loc(ret_typ, Ggen, loc);
   if (dovararg) nb|=VARARGBITS;
-  return gerepilecopy(av, getfunction(&pos,nb+arity,nbdata,text,0));
+  return getfunction(&pos,nb+arity,nbdata,text,0);
 }
 
 GEN
 snm_closure(entree *ep, GEN data)
 {
-  long i;
-  long n = data ? lg(data)-1: 0;
+  long i, n = data ? lg(data)-1: 0;
   GEN C = genclosure(ep,ep->name,n,0);
-  for(i=1; i<=n; i++)
-    gmael(C,7,i) = gel(data,i);
+  for(i = 1; i <= n; i++) gmael(C,7,i) = gel(data,i);
   return C;
 }
 
 GEN
 strtoclosure(const char *s, long n,  ...)
 {
-  pari_sp av = avma;
   entree *ep = is_entry(s);
   GEN C;
   if (!ep) pari_err(e_NOTFUNC, strtoGENstr(s));
@@ -1936,18 +1932,14 @@ strtoclosure(const char *s, long n,  ...)
     va_list ap;
     long i;
     va_start(ap,n);
-    for(i=1; i<=n; i++)
-      gmael(C,7,i) = va_arg(ap, GEN);
+    for(i = 1; i <= n; i++) gmael(C,7,i) = va_arg(ap, GEN);
     va_end(ap);
   }
-  return gerepilecopy(av, C);
+  return C;
 }
 
 GEN
-strtofunction(const char *s)
-{
-  return strtoclosure(s, 0);
-}
+strtofunction(const char *s) { return strtoclosure(s, 0); }
 
 GEN
 call0(GEN fun, GEN args)
