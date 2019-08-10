@@ -3094,7 +3094,7 @@ ZM_inv(GEN A, GEN *pden)
   if (DEBUGLEVEL>=5) timer_start(&ti);
   init_modular_big(&S);
   bnd = expi(RgM_true_Hadamard(A));
-  worker = strtoclosure("_ZM_inv_worker", 1, A);
+  worker = snm_closure(is_entry("_ZM_inv_worker"), mkvec(A));
   gen_inccrt("ZM_inv_r", worker, NULL, k1, m, &S, &H1, &mod1, nmV_chinese_center, FpM_center);
   n = (bnd+1)/expu(S.p)+1;
   if (DEBUGLEVEL>=5) timer_printf(&ti,"inv (%ld/%ld primes)", k1, n);
@@ -3246,7 +3246,7 @@ ZM_ker_i(GEN A)
   forprime_t S;
 
   init_modular_big(&S);
-  worker = strtoclosure("_ZM_ker_worker", 1, A);
+  worker = snm_closure(is_entry("_ZM_ker_worker"), mkvec(A));
   av = avma;
   for (k = 1;; k *= 2)
   {
@@ -4513,7 +4513,7 @@ ZabM_inv(GEN A, GEN Q, long n, GEN *pt_den)
     return cgetg(1, t_MAT);
   }
   bnd = ZabM_true_Hadamard(A);
-  worker = strtoclosure("_ZabM_inv_worker", 2, A, Q);
+  worker = snm_closure(is_entry("_ZabM_inv_worker"), mkvec2(A, Q));
   u_forprime_arith_init(&S, HIGHBIT+1, ULONG_MAX, 1, n);
   H = gen_crt("ZabM_inv", worker, &S, NULL, expi(bnd), m, &mod,
               nxMV_chinese_center, FpXM_center);
@@ -5359,7 +5359,7 @@ ZM_det(GEN M)
   if (DEBUGLEVEL >=4)
     timer_printf(&ti,"ZM_det: Dixon %ld/%ld bits",expi(D),expi(h));
   h = divii(h, D);
-  worker = strtoclosure("_ZM_det_worker", 1, M);
+  worker = snm_closure(is_entry("_ZM_det_worker"), mkvec(M));
   H = gen_crt("ZM_det", worker, &S, D, expi(h)+1, lg(M)-1, &mod,
               ZV_chinese, NULL);
   if (D) H = Fp_div(H, D, mod);

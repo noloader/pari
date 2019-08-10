@@ -5780,7 +5780,7 @@ direllnf_worker(GEN P, ulong X, GEN E)
 static GEN
 ellnfan(GEN E, long N)
 {
-  GEN worker = strtoclosure("_direllnf_worker",1,E);
+  GEN worker = snm_closure(is_entry("_direllnf_worker"), mkvec(E));
   return pardireuler(worker, gen_2, stoi(N), NULL, NULL);
 }
 

@@ -1025,7 +1025,7 @@ static GEN
 vecan_ellsympow(GEN an, long n)
 {
   GEN nn = utoi(n), crvm = gel(an,1), bad = gel(an,2);
-  GEN worker = strtoclosure("_direllsympow_worker",2, gel(crvm,1), gel(crvm,2));
+  GEN worker = snm_closure(is_entry("_direllsympow_worker"), crvm);
   return pardireuler(worker, gen_2, nn, nn, bad);
 }
 
@@ -1590,7 +1590,7 @@ static GEN
 vecan_genus2(GEN an, long L)
 {
   GEN Q = gel(an,1), bad = gel(an, 2);
-  GEN worker = strtoclosure("_dirgenus2_worker", 1, Q);
+  GEN worker = snm_closure(is_entry("_dirgenus2_worker"), mkvec(Q));
   return pardireuler(worker, gen_2, stoi(L), NULL, bad);
 }
 
@@ -2302,7 +2302,7 @@ vecan_artin(GEN an, long L, long prec)
 {
   GEN A, Sbad = gel(an,5);
   long n = itos(gel(an,6)), isreal = lg(an)<8 ? 0: !itos(gel(an,7));
-  GEN worker = strtoclosure("_dirartin_worker", 4, gel(an,1), gel(an,2), gel(an,3), gel(an,4));
+  GEN worker = snm_closure(is_entry("_dirartin_worker"), vecslice(an,1,4));
   A = lift_shallow(pardireuler(worker, gen_2, stoi(L), NULL, Sbad));
   A = RgXV_RgV_eval(A, grootsof1(n, prec));
   if (isreal) A = real_i(A);

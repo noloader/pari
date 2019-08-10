@@ -1950,7 +1950,8 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
     if (!b) return powiu(gel(B,2), a);
     if (!bound) bound = ZX_ZXY_ResBound(A, B, dB);
   }
-  worker = strtoclosure("_ZX_resultant_worker", 3, A, B?B:gen_0, dB?dB:gen_0);
+  worker = snm_closure(is_entry("_ZX_resultant_worker"),
+                       mkvec3(A, B? B: gen_0, dB? dB: gen_0));
   m = degpol(A)+(B ? degpol(B): 0);
   init_modular_big(&S);
   H = gen_crt("ZX_resultant_all", worker, &S, dB, bound, m, NULL,
@@ -2290,8 +2291,9 @@ ZX_ZXY_resultant(GEN A, GEN B)
   B = swap_vars(B, vY); setvarn(B,v); degB = degpol(B);
   bound = ZX_ZXY_ResBound(A, B, dB);
   if (DEBUGLEVEL>4) err_printf("bound for resultant coeffs: 2^%ld\n",bound);
-  worker = strtoclosure("_ZX_ZXY_resultant_worker", 4, A, B, dB?dB:gen_0,
-                        mkvecsmall5(degA, degB,dres, vY, sX));
+  worker = snm_closure(is_entry("_ZX_ZXY_resultant_worker"),
+                       mkvec4(A, B, dB? dB: gen_0,
+                              mkvecsmall5(degA, degB,dres, vY, sX)));
   init_modular_big(&S);
   H = gen_crt("ZX_ZXY_resultant_all", worker, &S, dB, bound, degpol(A)+degpol(B), NULL,
                nxV_chinese_center, FpX_center_i);

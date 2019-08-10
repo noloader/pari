@@ -1881,8 +1881,10 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
       compute_derivs = !!compute_derivs;
       j_powers = Fp_powers(J, L+1, Q);
     }
-    worker = strtoclosure("_polmodular_worker", 8, utoi(L), hilb, factu,
-        mkvecsmall2(D, cond), (GEN)dinfo, stoi(compute_derivs), j_powers, *db);
+    worker = snm_closure(is_entry("_polmodular_worker"),
+                         mkvecn(8, utoi(L), hilb, factu, mkvecsmall2(D, cond),
+                                   (GEN)dinfo, stoi(compute_derivs), j_powers,
+                                   *db));
     mt_queue_start_lim(&pt, worker, dinfo->nprimes);
     for (i = 0; i < dinfo->nprimes || pending; i++)
     {

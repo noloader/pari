@@ -1041,7 +1041,8 @@ QM_charpoly_ZX_i(GEN M, GEN dM, long bound)
 {
   long n = lg(M)-1;
   forprime_t S;
-  GEN worker = strtoclosure("_QM_charpoly_ZX_worker",2,M,dM? dM: gen_1);
+  GEN worker = snm_closure(is_entry("_QM_charpoly_ZX_worker"),
+                           mkvec2(M, dM? dM: gen_1));
   if (!n) return pol_1(0);
   if (bound < 0)
   {

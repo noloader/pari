@@ -5221,7 +5221,8 @@ gpinstall(const char *s, const char *code, const char *gpname, const char *lib)
       && !strcmp(ep->help, dft_help(gp,s,ep->code)));
   ep = install(f,gp,code);
   if (update_help || !ep->help) addhelp(gp, dft_help(gp,s,code));
-  mt_broadcast(strtoclosure("install",4,strtoGENstr(s),strtoGENstr(code),
-                                       strtoGENstr(gp),strtoGENstr(lib)));
+  mt_broadcast(snm_closure(is_entry("install"),
+                           mkvec4(strtoGENstr(s),strtoGENstr(code),
+                                  strtoGENstr(gp),strtoGENstr(lib))));
   set_avma(av);
 }

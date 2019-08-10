@@ -1133,7 +1133,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     Ag = ZX_Z_mul(A,g);
     Bg = ZX_Z_mul(B,g);
   }
-  worker = strtoclosure("_ZX_gcd_worker", 3, A, B, g ? g: gen_1);
+  worker = snm_closure(is_entry("_ZX_gcd_worker"), mkvec3(A, B, g ? g: gen_1));
   init_modular_big(&S); pp = u_forprime_next(&S); /* once */
   av2 = avma;
   for (k = 1; ;k *= 2)

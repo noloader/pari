@@ -633,7 +633,7 @@ parselect(GEN C, GEN D, long flag)
   check_callgen1(C, "parselect");
   if (!is_vec_t(typ(D))) pari_err_TYPE("parselect",D);
   W = cgetg(l, t_VECSMALL); av = avma;
-  worker = strtoclosure("_parselect_worker", 1, C);
+  worker = snm_closure(is_entry("_parselect_worker"), mkvec(C));
   V = gen_parapply(worker, D);
   for (lv=1, i=1; i<l; i++)
     if (signe(gel(V,i))) W[lv++] = i;
