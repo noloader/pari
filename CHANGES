@@ -38,9 +38,6 @@ BA   1- plotlines flag was ignored
         rootnumber, which is not well defined since it depends on the choice
         of dual sequence a^*(n)
     10- improved RgXn_powu / RgXn_powu_i for large valuations
-    11- strtoclosure, strtofunction are now shallow (fix large overhead and
-        increased memory usage due to argument copies). Use gerepilecopy or
-        gcopy in the caller if you need garbage collection or deep copies.
 
   Added
      1- new GP function rootsof1

@@ -1919,6 +1919,7 @@ snm_closure(entree *ep, GEN data)
 GEN
 strtoclosure(const char *s, long n,  ...)
 {
+  pari_sp av = avma;
   entree *ep = is_entry(s);
   GEN C;
   if (!ep) pari_err(e_NOTFUNC, strtoGENstr(s));
@@ -1935,7 +1936,7 @@ strtoclosure(const char *s, long n,  ...)
     for(i = 1; i <= n; i++) gmael(C,7,i) = va_arg(ap, GEN);
     va_end(ap);
   }
-  return C;
+  return gerepilecopy(av, C);
 }
 
 GEN

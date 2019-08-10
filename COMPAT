@@ -42,9 +42,6 @@ This file lists the incompatible changes between Version 2.x and older versions
     incorrect: it is not guaranteed that nfbasis([T, listP]) returns the
     maximal order even if listP contains all prime divisors of the field
     discriminant. See ??nfbasis
-  - strtoclosure, strtofunction are now shallow (fix large overhead and
-    increased memory usage due to argument copies). Use gerepilecopy or
-    gcopy in the caller if you need garbage collection or deep copies.
 
 * Specific to the pthread interface
 ===================================

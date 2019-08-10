@@ -14486,12 +14486,13 @@ $g(x_1,\ldots,x_n)=f(x_1,\ldots,x_n,gel(data,1),...,gel(data,m))$. If
 \kbd{data} is \kbd{NULL}, then $m=0$ is assumed. Shallow function.
 
 \fun{GEN}{strtofunction}{char *str} returns a closure corresponding to the
-built-in or install'ed function named \kbd{str}. Shallow function.
+built-in or install'ed function named \kbd{str}.
 
 \fun{GEN}{strtoclosure}{char *str, long n, ...} returns a closure
 corresponding to the built-in or install'ed function named \kbd{str} with the
-$n$ last parameters set to the $n$ \kbd{GEN}s following $n$, see
-\tet{snm_closure}. Shallow function.
+$n$ last parameters set to the $n$ \kbd{GEN}s following $n$. This is
+analogous to \kbd{snm\_closure(isentry(str), mkvecn(...))} but the latter has
+lower overhead since it does not copy arguments, nor does it validate inputs.
 
 In the example code below, \kbd{agm1} is set to the function
 \kbd{x->agm(x,1)} and \kbd{res} is set to \kbd{agm(2,1)}.
