@@ -786,6 +786,10 @@ for dir in basemath modules language gp graph systems mt; do
     depend="$ANAL_H $src/language/opcode.h"
     cflags="$cflags \$(DLCFLAGS)"
     ;;
+  mpqs)
+    depend="$src/modules/mpqs.h"
+    cflags="$cflags \$(DLCFLAGS)"
+    ;;
   ratpoints)
     cflags="$cflags \$(DLCFLAGS) \$(KERNELCFLAGS)"
     ;;

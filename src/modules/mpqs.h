@@ -282,7 +282,7 @@ typedef struct mpqs_parameterset {
 /* indexed by size of kN in decimal digits, subscript 0 corresponding to
  * 9 (or fewer) digits */
 static const mpqs_parameterset_t mpqs_parameters[] =
-{ /*       tol lp_scl     M   szFB  oA pmx1 1st  sti */
+{ /*       tol lp_scl     M   szFB  oA pmx1 */
   {  /*9*/ 0.8,   1,    900,    20,  3,   5},
   { /*10*/ 0.8,   1,    900,    21,  3,   5},
   { /*11*/ 0.8,   1,    920,    22,  3,   5},
