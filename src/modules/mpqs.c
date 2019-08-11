@@ -173,32 +173,20 @@ mpqs_sieve_array_ctor(mpqs_handle_t *h)
   h->relaprimes = (long *) stack_malloc((size_of_FB << 1) * sizeof(long));
 }
 
-/* mpqs() calls the following (after recording avma) to allocate GENs for
- * the current polynomial and self-initialization scratchpad data on the
- * PARI stack.  This space is released by mpqs() itself at the end. */
+/* allocate GENs for current polynomial and self-initialization scratch data */
 static void
 mpqs_poly_ctor(mpqs_handle_t *h)
 {
-  mpqs_int32_t i;
-  long size_per = h->omega_A * sizeof(mpqs_per_A_prime_t);
-
-  h->per_A_pr = (mpqs_per_A_prime_t *) stack_calloc(size_per);
-  /* Sizing:  A is the product of omega_A primes, each well below word
-   * size.
-   * |B| is bounded by (omega_A + 4) * A, so can have at most one word
-   * more, and that's generous.
-   * |C| is less than A*M^2, so can take at most two words more than A.
-   * The array H holds residues modulo A, so the same size as used for A
-   * is sufficient. */
-  h->A = cgeti(h->omega_A + 2);
-  h->B = cgeti(h->omega_A + 3);
-  for (i = 0; i < h->omega_A; i++) h->per_A_pr[i]._H = cgeti(h->omega_A + 2);
-  /* the handle starts out all zero, so in particular bin_index and index_i
-   * are initially 0.
-   * TODO: index_j currently initialized in mqps() but this will change. */
+  mpqs_int32_t i, w = h->omega_A;
+  h->per_A_pr = (mpqs_per_A_prime_t *)
+                stack_calloc(w * sizeof(mpqs_per_A_prime_t));
+  /* A is the product of w primes, each below word size.
+   * |B| <= (w + 4) * A, so can have at most one word more
+   * H holds residues modulo A: the same size as used for A is sufficient. */
+  h->A = cgeti(w + 2);
+  h->B = cgeti(w + 3);
+  for (i = 0; i < w; i++) h->per_A_pr[i]._H = cgeti(w + 2);
 }
-
-/* TODO: relationsdb handle */
 
 /*********************************************************************/
 /**                        FACTOR BASE SETUP                        **/
