@@ -104,7 +104,7 @@ mpqs_set_parameters(mpqs_handle_t *h)
   h->size_of_FB  = s = P->size_of_FB + h->_k->omega_k;
   /* for the purpose of Gauss elimination etc., prime factors of k behave
    * like real FB primes, so take them into account when setting the goal: */
-  h->target_rels = (s >= 200 ? s + 70 : (mpqs_int32_t)(s * 1.35));
+  h->target_rels = (s >= 200 ? s + 10 : (mpqs_int32_t)(s * 1.05));
   h->M           = P->M;
   h->omega_A     = P->omega_A;
   h->no_B        = 1UL << (P->omega_A - 1);
