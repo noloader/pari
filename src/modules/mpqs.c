@@ -1029,27 +1029,23 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
 
     /* Y = 2*A*x + B, Qx = Y^2/(4*A) = Q(x) */
     Y = addii(mulis(A, 2 * (x - h->M)), B);
-    Qx = subii(sqri(Y), h->kN);
-
+    Qx = subii(sqri(Y), h->kN); /* != 0 since N not a square and (N,k) = 1 */
+    if (signe(Qx) < 0)
+    {
+      setabssign(Qx);
+      mpqs_add_factor(relp, &nb, 1, 1); /* i = 1, ei = 1, pi */
+    }
+    /* Qx > 0, divide by powers of 2; we're really dealing with 4*A*Q(x), so we
+     * always have at least 2^2 here, and at least 2^3 when kN = 1 mod 4 */
+    powers_of_2 = vali(Qx);
+    Qx = shifti(Qx, -powers_of_2);
+    mpqs_add_factor(relp, &nb, powers_of_2, 2); /* i = 1, ei = 1, pi */
     /* When N is small, it may happen that N | Qx outright. In any case, when
      * no extensive prior trial division / Rho / ECM was attempted, gcd(Qx,N)
      * may turn out to be a nontrivial factor of N (not in FB or we'd have
      * found it already, but possibly smaller than the large prime bound). This
      * is too rare to check for here in the inner loop, but it will be caught
      * if such an LP relation is ever combined with another. */
-
-    /* Qx cannot possibly vanish here */
-    if (!signe(Qx)) { PRINT_IF_VERBOSE("<+>"); continue; }
-    else if (signe(Qx) < 0) {
-      setabssign(Qx);
-      mpqs_add_factor(relp, &nb, 1, 1); /* i = 1, ei = 1, pi */
-    }
-
-    /* Qx > 0, divide by powers of 2; we're really dealing with 4*A*Q(x), so we
-     * always have at least 2^2 here, and at least 2^3 when kN = 1 mod 4 */
-    powers_of_2 = vali(Qx);
-    Qx = shifti(Qx, -powers_of_2);
-    mpqs_add_factor(relp, &nb, powers_of_2, 2); /* i = 1, ei = 1, pi */
 
     /* Pass 1 over odd primes in FB: pick up all possible divisors of Qx
      * including those sitting in k or in A, and remember them in relaprimes.
