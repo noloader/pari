@@ -885,14 +885,14 @@ mpqs_eval_sieve(mpqs_handle_t *h)
 {
   long x = 0, count = 0, M2 = h->M << 1;
   unsigned char t = h->sieve_threshold;
-  unsigned char *sieve_array = h->sieve_array;
+  unsigned char *S = h->sieve_array;
   long *cand = h->candidates;
 
   /* Exploiting the sentinel, we don't need to check for x < M2 in the inner
    * while loop; more than makes up for the lack of explicit unrolling. */
   while (count < MPQS_CANDIDATE_ARRAY_SIZE - 1)
   {
-    while (sieve_array[x] < t) x++;
+    while (S[x] < t) x++;
     if (x >= M2) break;
     cand[count++] = x++;
   }
