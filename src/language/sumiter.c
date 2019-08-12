@@ -1031,12 +1031,12 @@ delt(GEN g, long n)
 static GEN
 polzag1(long n, long m)
 {
-  const long d = n - m, d2 = d<<1, r = (m+1)>>1, D = (d+1)>>1;
-  long i, k;
+  long d = n - m, i, k, d2, r, D;
   pari_sp av = avma;
   GEN g, T;
 
   if (d <= 0 || m < 0) return pol_0(0);
+  d2 = d << 1; r = (m+1) >> 1, D = (d+1) >> 1;
   g = cgetg(d+2, t_POL);
   g[1] = evalsigne(1)|evalvarn(0);
   T = cgetg(d+1,t_VEC);
@@ -1067,7 +1067,7 @@ polzag1(long n, long m)
   /* sum_{0 <= i < d} g_i x^i * (x+x^2)^r */
   g = RgX_mulXn(gmul(g, gpowgs(deg1pol(gen_1,gen_1,0),r)), r);
   if (!odd(m)) g = delt(g, n);
-  for (i=1; i<=r; i++)
+  for (i = 1; i <= r; i++)
   {
     g = delt(ZX_deriv(g), n);
     if (gc_needed(av,4))
