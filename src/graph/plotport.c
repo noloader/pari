@@ -1308,34 +1308,33 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
   }
   else /* non-recursive plot */
   {
-    GEN V = cgetg(N, t_VEC), X = cgetg(N, t_VEC), worker = NULL, vx = NULL;
-    long pending = 0;
-    struct pari_mt pt;
+    GEN V = cgetg(N+1, t_VEC), X = cgetg(N+1, t_VEC);
     if (flags & PLOT_PARA && eval == gp_call)
     {
-      worker = snm_closure(is_entry("_parvector_worker"), mkvec((GEN)E));
+      GEN worker = snm_closure(is_entry("_parvector_worker"), mkvec((GEN)E));
+      GEN vx = mkvec(x);
+      long pending = 0;
+      struct pari_mt pt;
       mt_queue_start_lim(&pt, worker, N-1);
-      vx = mkvec(x);
-    }
-    for (i = 1; i <= N || pending; i++)
-    {
-      long workid;
-      if (worker)
+      for (i = 1; i <= N || pending; i++)
       {
+        long workid;
         mt_queue_submit(&pt, i, i<=N ? vx : NULL);
         t = mt_queue_get(&pt, &workid, &pending);
         if (!t) continue;
+        gel(V, workid) = t;
+        gel(X, workid) = x;
+        if (i <= N) x = addrr(x,dx);
       }
-      else
+      mt_queue_end(&pt);
+    }
+    else
+      for (i = 1; i <= N; i++)
       {
         t = eval(E,x);
-        workid = i;
+        gel(V, i) = t;
+        gel(X, i) = x; x = addrr(x,dx);
       }
-      gel(V, workid) = t;
-      gel(X, workid) = x;
-      if (i <= N) x = addrr(x,dx);
-    }
-    if (worker) mt_queue_end(&pt);
     if (param)
     {
       for (i = 1; i <= N; i++)
