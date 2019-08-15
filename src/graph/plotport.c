@@ -1297,10 +1297,8 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       {
         addrrz(xl,dx,xr);
         yr = gtodouble(eval(E,xr));
-
         Appendx(&pl[0],&pl[0],rtodbl(xl));
         Appendy(&pl[0],&pl[1],yl);
-
         single_recursion(E,eval, pl,xl,yl,xr,yr,0);
         affrr(xr,xl); yl = yr;
       }
