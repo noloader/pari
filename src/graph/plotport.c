@@ -1017,19 +1017,15 @@ set_xrange(dblPointList *f, double x)
 { if (x < f->xsml) f->xsml = x;
   if (x > f->xbig) f->xbig = x; }
 static void
-Appendxat(dblPointList *f, dblPointList *l,long n,double x)
-{ (l->d)[n] = x; l->nb = n+1; set_xrange(f,x); }
+Appendx(dblPointList *f, dblPointList *l, double x)
+{ (l->d)[l->nb++] = x; set_xrange(f,x); }
 static void
 set_yrange(dblPointList *f, double y)
 { if (y < f->ysml) f->ysml = y;
   if (y > f->ybig) f->ybig = y; }
 static void
-Appendyat(dblPointList *f, dblPointList *l,long n,double y)
-{ (l->d)[n] = y; l->nb = n+1; set_yrange(f,y); }
-static void
-Appendx(dblPointList *f, dblPointList *l,double x) { Appendxat(f,l,l->nb,x); }
-static void
-Appendy(dblPointList *f, dblPointList *l,double y) { Appendyat(f,l,l->nb,y); }
+Appendy(dblPointList *f, dblPointList *l, double y)
+{ (l->d)[l->nb++] = y; set_yrange(f,y); }
 
 static void
 get_xy(long cplx, GEN t, double *x, double *y)
@@ -1219,7 +1215,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
   const long param = flags & (PLOT_PARAMETRIC|PLOT_COMPLEX);
   const long recur = flags & PLOT_RECURSIVE;
   const long cplx = flags & PLOT_COMPLEX;
-  GEN t,dx,x;
+  GEN t, dx, x;
   dblPointList *pl;
   long tx, i, j, sig, nc, nl, ncoords, nbpoints, non_vec = 0;
 
@@ -1314,9 +1310,8 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
   }
   else /* non-recursive plot */
   {
-    pari_sp av2;
-    GEN worker = NULL, vx = NULL;
-    long pending = 0, workid;
+    GEN V = cgetg(N, t_VEC), X = cgetg(N, t_VEC), worker = NULL, vx = NULL;
+    long pending = 0;
     struct pari_mt pt;
     if (flags & PLOT_PARA && eval == gp_call)
     {
@@ -1324,23 +1319,31 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       mt_queue_start_lim(&pt, worker, N-1);
       vx = mkvec(x);
     }
-    av2 = avma;
+    for (i = 1; i <= N || pending; i++)
+    {
+      long workid;
+      if (worker)
+      {
+        mt_queue_submit(&pt, i, i<=N ? vx : NULL);
+        t = mt_queue_get(&pt, &workid, &pending);
+        if (!t) continue;
+      }
+      else
+      {
+        t = eval(E,x);
+        workid = i;
+      }
+      gel(V, workid) = t;
+      gel(X, workid) = x;
+      if (i <= N) x = addrr(x,dx);
+    }
+    if (worker) mt_queue_end(&pt);
     if (param)
     {
-      for (i=0; i<N || pending; i++, set_avma(av2))
+      for (i = 1; i <= N; i++)
       {
-        long k, nt;
-        if (worker)
-        {
-          mt_queue_submit(&pt, i, i<N ? vx : NULL);
-          t = mt_queue_get(&pt, &workid, &pending);
-          if (!t) continue;
-        }
-        else
-        {
-          t = eval(E,x);
-          workid = i;
-        }
+        long nt, k, j;
+        t = gel(V,i);
         if (typ(t) != t_VEC)
         {
           if (cplx) nt = 1;
@@ -1354,58 +1357,25 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
         {
           double xx, yy;
           get_xy_from_vec(cplx, t, &j, &xx, &yy);
-          Appendxat(&pl[0], &pl[k++], workid, xx);
-          Appendyat(&pl[0], &pl[k++], workid, yy);
+          Appendx(&pl[0], &pl[k++], xx);
+          Appendy(&pl[0], &pl[k++], yy);
         }
-        if (i<N) affrr(addrr(x,dx), x);
       }
     }
     else if (non_vec)
-      for (i=0; i<N || pending; i++, set_avma(av2))
+      for (i = 1; i <= N; i++)
       {
-        if (worker)
-        {
-          mt_queue_submit(&pt, i, i<N ? vx : NULL);
-          t = mt_queue_get(&pt, &workid, &pending);
-        }
-        else
-        {
-          t = eval(E,x);
-          workid = i;
-        }
-        if (t) Appendyat(&pl[0], &pl[1], workid, gtodouble(t));
-        if (i<N)
-        {
-          pl[0].d[i] = gtodouble(x);
-          affrr(addrr(x,dx), x);
-        }
+        Appendy(&pl[0], &pl[1], gtodouble(gel(V,i)));
+        pl[0].d[i-1] = gtodouble(gel(X,i));
       }
     else /* vector of non-parametric curves */
-      for (i=0; i<N || pending; i++, set_avma(av2))
+      for (i = 1; i <= N; i++)
       {
-        if (worker)
-        {
-          mt_queue_submit(&pt, i, i<N ? vx : NULL);
-          t = mt_queue_get(&pt, &workid, &pending);
-        }
-        else
-        {
-          t = eval(E,x);
-          workid = i;
-        }
-        if (t)
-        {
-          if (typ(t) != t_VEC || lg(t) != nl) pari_err_DIM("plotrecth");
-          for (j=1; j<nl; j++)
-            Appendyat(&pl[0], &pl[j], workid, gtodouble(gel(t,j)));
-        }
-        if (i<N)
-        {
-          pl[0].d[i] = gtodouble(x);
-          affrr(addrr(x,dx), x);
-        }
+        t = gel(V,i);
+        if (typ(t) != t_VEC || lg(t) != nl) pari_err_DIM("plotrecth");
+        for (j = 1; j < nl; j++) Appendy(&pl[0], &pl[j], gtodouble(gel(t,j)));
+        pl[0].d[i-1] = gtodouble(gel(X,i));
       }
-    if (worker) mt_queue_end(&pt);
   }
   pl[0].nb = nc; return pl;
 }
