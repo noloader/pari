@@ -1309,32 +1309,25 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
   else /* non-recursive plot */
   {
     GEN V = cgetg(N+1, t_VEC), X = cgetg(N+1, t_VEC);
+    for (i = 1; i <= N; i++) { gel(X,i) = x; x = addrr(x,dx); }
     if (flags & PLOT_PARA && eval == gp_call)
     {
       GEN worker = snm_closure(is_entry("_parvector_worker"), mkvec((GEN)E));
-      GEN vx = mkvec(x);
       long pending = 0;
       struct pari_mt pt;
       mt_queue_start_lim(&pt, worker, N-1);
       for (i = 1; i <= N || pending; i++)
       {
         long workid;
-        mt_queue_submit(&pt, i, i<=N ? vx : NULL);
+        mt_queue_submit(&pt, i, i<=N ? mkvec(gel(X,i)) : NULL);
         t = mt_queue_get(&pt, &workid, &pending);
         if (!t) continue;
         gel(V, workid) = t;
-        gel(X, workid) = x;
-        if (i <= N) x = addrr(x,dx);
       }
       mt_queue_end(&pt);
     }
     else
-      for (i = 1; i <= N; i++)
-      {
-        t = eval(E,x);
-        gel(V, i) = t;
-        gel(X, i) = x; x = addrr(x,dx);
-      }
+      for (i = 1; i <= N; i++) gel(V,i) = eval(E,x);
     if (param)
     {
       for (i = 1; i <= N; i++)
