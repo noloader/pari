@@ -1159,13 +1159,13 @@ gtodblList(GEN data, long flags)
   return l;
 }
 
-/* (x+y)/2 */
+/* x,y t_REAL; return (x+y)/2,  */
 static GEN
 rmiddle(GEN x, GEN y) { GEN z = addrr(x,y); shiftr_inplace(z,-1); return z; }
 
 static void
 single_recursion(void *E, GEN(*eval)(void*,GEN), dblPointList *pl,
-                 GEN xleft,double yleft, GEN xright,double yright,long depth)
+                 GEN xl,double yl, GEN xr,double yr,long depth)
 {
   GEN xx;
   pari_sp av = avma;
@@ -1173,38 +1173,37 @@ single_recursion(void *E, GEN(*eval)(void*,GEN), dblPointList *pl,
 
   if (depth==RECUR_MAXDEPTH) return;
 
-  xx = rmiddle(xleft,xright);
+  xx = rmiddle(xl,xr);
   yy = gtodouble(eval(E,xx));
 
-  if (dy && fabs(yleft+yright-2*yy) < dy*RECUR_PREC) return;
-  single_recursion(E,eval, pl,xleft,yleft, xx,yy, depth+1);
+  if (dy && fabs(yl+yr-2*yy) < dy*RECUR_PREC) return;
+  single_recursion(E,eval, pl,xl,yl, xx,yy, depth+1);
   Appendx(&pl[0],&pl[0],rtodbl(xx));
   Appendy(&pl[0],&pl[1],yy);
-  single_recursion(E,eval, pl,xx,yy, xright,yright, depth+1);
+  single_recursion(E,eval, pl,xx,yy, xr,yr, depth+1);
   set_avma(av);
 }
 
 static void
 param_recursion(void *E,GEN(*eval)(void*,GEN), long cplx, dblPointList *pl,
-  GEN tleft,double xleft, double yleft,
-  GEN tright,double xright,double yright, long depth)
+  GEN tl,double xl, double yl, GEN tr,double xr,double yr, long depth)
 {
-  GEN tt;
+  GEN t;
   pari_sp av = avma;
   double xx, dy=pl[0].ybig - pl[0].ysml;
   double yy, dx=pl[0].xbig - pl[0].xsml;
 
   if (depth==RECUR_MAXDEPTH) return;
 
-  tt = rmiddle(tleft,tright);
-  get_xy(cplx, eval(E,tt), &xx,&yy);
+  t = rmiddle(tl,tr);
+  get_xy(cplx, eval(E,t), &xx,&yy);
 
-  if (dx && dy && fabs(xleft+xright-2*xx) < dx*RECUR_PREC
-               && fabs(yleft+yright-2*yy) < dy*RECUR_PREC) return;
-  param_recursion(E,eval, cplx, pl, tleft,xleft,yleft, tt,xx,yy, depth+1);
+  if (dx && dy && fabs(xl+xr-2*xx) < dx*RECUR_PREC
+               && fabs(yl+yr-2*yy) < dy*RECUR_PREC) return;
+  param_recursion(E,eval, cplx, pl, tl,xl,yl, t,xx,yy, depth+1);
   Appendx(&pl[0],&pl[0],xx);
   Appendy(&pl[0],&pl[1],yy);
-  param_recursion(E,eval,cplx, pl, tt,xx,yy, tright,xright,yright, depth+1);
+  param_recursion(E,eval,cplx, pl, t,xx,yy, tr,xr,yr, depth+1);
   set_avma(av);
 }
 
@@ -1270,47 +1269,47 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
   dx = divru(gtofp(gsub(b,a),prec), N-1);
   if (recur)
   { /* recursive plot */
-    double yleft, yright = 0;
+    double yl, yr = 0;
     if (param)
     {
-      GEN tleft = cgetr(prec), tright = cgetr(prec);
-      double xleft, xright = 0;
+      GEN tl = cgetr(prec), tr = cgetr(prec);
+      double xl, xr = 0;
       pari_sp av2 = avma;
-      affgr(a,tleft);
-      t = eval(E, tleft);
-      get_xy(cplx,t, &xleft,&yleft);
+      affgr(a, tl);
+      t = eval(E, tl);
+      get_xy(cplx,t, &xl,&yl);
       for (i=0; i<N-1; i++, set_avma(av2))
       {
-        if (i) { affrr(tright,tleft); xleft = xright; yleft = yright; }
-        addrrz(tleft,dx,tright);
-        t = eval(E, tright);
-        get_xy(cplx,t, &xright,&yright);
-        Appendx(&pl[0],&pl[0],xleft);
-        Appendy(&pl[0],&pl[1],yleft);
-        param_recursion(E,eval, cplx, pl, tleft,xleft,yleft, tright,xright,yright, 0);
+        if (i) { affrr(tr,tl); xl = xr; yl = yr; }
+        addrrz(tl,dx,tr);
+        t = eval(E, tr);
+        get_xy(cplx,t, &xr,&yr);
+        Appendx(&pl[0],&pl[0],xl);
+        Appendy(&pl[0],&pl[1],yl);
+        param_recursion(E,eval, cplx, pl, tl,xl,yl, tr,xr,yr, 0);
       }
-      Appendx(&pl[0],&pl[0],xright);
-      Appendy(&pl[0],&pl[1],yright);
+      Appendx(&pl[0],&pl[0],xr);
+      Appendy(&pl[0],&pl[1],yr);
     }
     else /* single curve */
     {
-      GEN xleft = cgetr(prec), xright = cgetr(prec);
+      GEN xl = cgetr(prec), xr = cgetr(prec);
       pari_sp av2 = avma;
-      affgr(a,xleft);
-      yleft = gtodouble(eval(E,xleft));
+      affgr(a,xl);
+      yl = gtodouble(eval(E,xl));
       for (i=0; i<N-1; i++, set_avma(av2))
       {
-        addrrz(xleft,dx,xright);
-        yright = gtodouble(eval(E,xright));
+        addrrz(xl,dx,xr);
+        yr = gtodouble(eval(E,xr));
 
-        Appendx(&pl[0],&pl[0],rtodbl(xleft));
-        Appendy(&pl[0],&pl[1],yleft);
+        Appendx(&pl[0],&pl[0],rtodbl(xl));
+        Appendy(&pl[0],&pl[1],yl);
 
-        single_recursion(E,eval, pl,xleft,yleft,xright,yright,0);
-        affrr(xright,xleft); yleft = yright;
+        single_recursion(E,eval, pl,xl,yl,xr,yr,0);
+        affrr(xr,xl); yl = yr;
       }
-      Appendx(&pl[0],&pl[0],rtodbl(xright));
-      Appendy(&pl[0],&pl[1],yright);
+      Appendx(&pl[0],&pl[0],rtodbl(xr));
+      Appendy(&pl[0],&pl[1],yr);
     }
   }
   else /* non-recursive plot */
