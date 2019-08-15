@@ -1313,16 +1313,18 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     if (flags & PLOT_PARA && eval == gp_call)
     {
       GEN worker = snm_closure(is_entry("_parvector_worker"), mkvec((GEN)E));
-      long pending = 0;
+      GEN W = cgetg(2, t_VEC);
       struct pari_mt pt;
+      long pending = 0;
       mt_queue_start_lim(&pt, worker, N-1);
       for (i = 1; i <= N || pending; i++)
       {
         long workid;
-        mt_queue_submit(&pt, i, i<=N ? mkvec(gel(X,i)) : NULL);
-        t = mt_queue_get(&pt, &workid, &pending);
-        if (!t) continue;
-        gel(V, workid) = t;
+        GEN done;
+        if (i <= N) gel(W,1) = gel(X,i);
+        mt_queue_submit(&pt, i, i<=N? W: NULL);
+        done = mt_queue_get(&pt, &workid, &pending);
+        if (done) gel(V, workid) = done;
       }
       mt_queue_end(&pt);
     }

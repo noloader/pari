@@ -765,15 +765,16 @@ veccatselapply(void *Epred, long (*pred)(void* E, GEN x), void *Efun,
 GEN
 gen_parapply(GEN worker, GEN D)
 {
-  long l, i, pending = 0, workid;
-  GEN V, W, done;
+  long l, i, pending = 0;
+  GEN V, W = cgetg(2, t_VEC);
   struct pari_mt pt;
-  W = cgetg(2, t_VEC);
   V = cgetg_copy(D, &l);
   mt_queue_start_lim(&pt, worker, l-1);
-  for (i=1; i<l || pending; i++)
+  for (i = 1; i < l || pending; i++)
   {
-    if (i<l) gel(W,1) = gel(D,i);
+    long workid;
+    GEN done;
+    if (i < l) gel(W,1) = gel(D,i);
     mt_queue_submit(&pt, i, i<l? W: NULL);
     done = mt_queue_get(&pt, &workid, &pending);
     if (done) gel(V,workid) = done;
