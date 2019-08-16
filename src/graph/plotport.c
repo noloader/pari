@@ -1312,8 +1312,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     for (i = 1; i <= N; i++) { gel(X,i) = x; x = addrr(x,dx); }
     if (flags & PLOT_PARA && eval == gp_call)
     {
-      GEN worker = snm_closure(is_entry("_parvector_worker"), mkvec((GEN)E));
-      GEN W = cgetg(2, t_VEC);
+      GEN worker = (GEN)E, W = cgetg(2, t_VEC);
       struct pari_mt pt;
       long pending = 0;
       mt_queue_start_lim(&pt, worker, N-1);
