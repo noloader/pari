@@ -182,6 +182,8 @@ GEN  aprcl_step6_worker(GEN r, long t, GEN N, GEN N1, GEN et);
 GEN  lfuninit_worker(long r, GEN K, GEN L, GEN peh2d, GEN vroots, GEN dr, GEN di, GEN an, GEN bn);
 GEN  lfuninit_theta2_worker(long r, GEN L, GEN qk, GEN a, GEN di, GEN an, GEN bn);
 GEN  gen_parapply(GEN worker, GEN D);
+GEN  parapply_slice_worker(GEN worker, GEN D);
+GEN  gen_parapply_slice(GEN worker, GEN D, long mmin);
 GEN  gen_crt(const char *str, GEN worker, forprime_t *S, GEN dB, ulong bound, long mmin, GEN *pt_mod,
              GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN));
 void gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,

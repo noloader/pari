@@ -764,6 +764,41 @@ veccatselapply(void *Epred, long (*pred)(void* E, GEN x), void *Efun,
 
 /* suitable for gerepileupto */
 GEN
+parapply_slice_worker(GEN D, GEN worker)
+{
+  long l, i;
+  GEN w = cgetg_copy(D, &l);
+  for (i = 1; i < l; i++) gel(w,i) = closure_callgen1(worker, gel(D,i));
+  return w;
+}
+
+GEN
+gen_parapply_slice(GEN worker, GEN D, long mmin)
+{
+  long a, l, i, M, n = lg(D)-1, m = minss(mmin, n), pending = 0;
+  GEN V;
+  struct pari_mt pt;
+  if (m <= 1) return parapply_slice_worker(D, gmael(worker,7,1));
+  M = (n + m-1) / m;
+  V = cgetg_copy(D, &l);
+  mt_queue_start_lim(&pt, worker, n);
+  for (i = 1, a = 0; i <= m || pending; i++, a += M)
+  {
+    long workid;
+    GEN W, done;
+    W = i <= m ? mkvec(vecslice(D, a+1, minss(a+M, n))): NULL;
+    mt_queue_submit(&pt, a, W);
+    done = mt_queue_get(&pt, &workid, &pending);
+    if (done)
+    {
+      long j, J = lg(done)-1;
+      for (j = 1; j <= J; j++) gel(V, workid + j) = gel(done, j);
+    }
+  }
+  mt_queue_end(&pt); return V;
+}
+
+GEN
 gen_parapply(GEN worker, GEN D)
 {
   long l = lg(D), i, pending = 0;
@@ -783,8 +818,7 @@ gen_parapply(GEN worker, GEN D)
     done = mt_queue_get(&pt, &workid, &pending);
     if (done) gel(V,workid) = done;
   }
-  mt_queue_end(&pt);
-  return V;
+  mt_queue_end(&pt); return V;
 }
 
 GEN

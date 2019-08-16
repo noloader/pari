@@ -17,3 +17,9 @@ Doc: parallel evaluation of \kbd{f} on the elements of \kbd{x}.
  }
  @eprog
  computes the order of $E(\F_p)$ for $12$ random primes of $200$ bits.
+
+Function: _parapply_slice_worker
+Section: programming/internals
+C-Name: parapply_slice_worker
+Prototype: GG
+Help: _parapply_slice_worker(v,C): return [C(x) | x<-v].
