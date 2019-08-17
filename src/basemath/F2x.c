@@ -1129,7 +1129,7 @@ F2xq_trace(GEN x, GEN T)
 GEN
 F2xq_conjvec(GEN x, GEN T)
 {
-  long i, l = get_F2x_degree(T);
+  long i, l = 1+get_F2x_degree(T);
   GEN z = cgetg(l,t_COL);
   gel(z,1) = F2x_copy(x);
   for (i=2; i<l; i++) gel(z,i) = F2xq_sqr(gel(z,i-1), T);
