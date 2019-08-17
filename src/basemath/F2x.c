@@ -1169,14 +1169,21 @@ static long
 F2x_is_smooth_squarefree(GEN f, long r)
 {
   pari_sp av = avma;
-  long i;
-  GEN sx = polx_F2x(f[1]), a = sx;
+  long i, df = F2x_degree(f);
+  GEN sx, a;
+  if (!df) return 1;
+  a = sx = polx_F2x(f[1]);
   for(i = 1;; i++)
   {
-    a = F2xq_sqr(F2x_rem(a,f),f);
-    if (F2x_equal(a, F2x_rem(sx,f))) return gc_long(av,1);
+    long dg;
+    GEN g;
+    a = F2xq_sqr(a, f);
+    if (F2x_equal(a, sx)) return gc_long(av,1);
     if (i==r) return gc_long(av,0);
-    f = F2x_div(f, F2x_gcd(F2x_add(a,sx),f));
+    g = F2x_gcd(f, F2x_add(a,sx));
+    dg = F2x_degree(g);
+    if (dg == df) return gc_long(av,1);
+    if (dg) { f = F2x_div(f, g); df -= dg; a = F2x_rem(a, f); }
   }
 }
 
@@ -1187,8 +1194,7 @@ F2x_is_smooth(GEN g, long r)
   while (1)
   {
     GEN f = F2x_gcd(g, F2x_deriv(g));
-    if (!F2x_is_smooth_squarefree(F2x_div(g, f), r))
-      return 0;
+    if (!F2x_is_smooth_squarefree(F2x_div(g, f), r)) return 0;
     if (F2x_degree(f)==0) return 1;
     g = F2x_issquare(f) ? F2x_sqrt(f): f;
   }
