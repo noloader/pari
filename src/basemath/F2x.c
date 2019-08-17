@@ -982,11 +982,9 @@ F2xq_div(GEN x,GEN y,GEN T)
 }
 
 static GEN
-_F2xq_red(void *E, GEN x)
-{ return F2x_rem(x, (GEN)E); }
+_F2xq_red(void *E, GEN x) { return F2x_rem(x, (GEN)E); }
 static GEN
-_F2xq_add(void *E, GEN x, GEN y)
-{ (void)E; return F2x_add(x,y); }
+_F2xq_add(void *E, GEN x, GEN y) { (void)E; return F2x_add(x,y); }
 
 static GEN
 _F2xq_cmul(void *E, GEN P, long a, GEN x)
@@ -1121,8 +1119,7 @@ F2xq_trace(GEN x, GEN T)
 {
   pari_sp av = avma;
   long n = get_F2x_degree(T)-1;
-  GEN z = F2x_mul(x, F2x_deriv(get_F2x_mod(T)));
-  z = F2x_rem(z, T);
+  GEN z = F2xq_mul(x, F2x_deriv(get_F2x_mod(T)), T);
   return gc_ulong(av, F2x_degree(z) < n ? 0 : 1);
 }
 
@@ -1174,7 +1171,7 @@ F2x_is_smooth_squarefree(GEN f, long r)
   pari_sp av = avma;
   long i;
   GEN sx = polx_F2x(f[1]), a = sx;
-  for(i=1;  ;i++)
+  for(i = 1;; i++)
   {
     a = F2xq_sqr(F2x_rem(a,f),f);
     if (F2x_equal(a, F2x_rem(sx,f))) return gc_long(av,1);
