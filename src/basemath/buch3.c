@@ -2590,18 +2590,17 @@ bnrgaloismatrix(GEN bnr, GEN aut)
       return bnrautmatrix(bnr, aut);
     case t_VEC:
     {
+      pari_sp av = avma;
       long i, l = lg(aut);
-      GEN V;
-      if (l==9 && typ(gal_get_gen(aut))==t_VEC)
+      GEN v;
+      if (l == 9)
       {
-        pari_sp av = avma;
-        V = galoispermtopol(aut, gal_get_gen(aut));
-        return gerepileupto(av, bnrgaloismatrix(bnr, V));
+        GEN g = gal_get_gen(aut);
+        if (typ(g) == t_VEC) { aut = galoispermtopol(aut, g); l = lg(aut); }
       }
-      V = cgetg(l, t_VEC);
-      for(i=1; i<l; i++)
-        gel(V,i) = bnrautmatrix(bnr, gel(aut,i));
-      return V;
+      v = cgetg(l, t_VEC);
+      for(i = 1; i < l; i++) gel(v,i) = bnrautmatrix(bnr, gel(aut,i));
+      return gerepileupto(av, v);
     }
     default:
       pari_err_TYPE("bnrgaloismatrix", aut);
