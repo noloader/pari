@@ -1612,21 +1612,22 @@ plotrecth(void *E, GEN(*f)(void*,GEN), long ne, GEN a,GEN b,
 GEN
 plotrecth0(long ne, GEN a,GEN b,GEN code,ulong flags,long n, long prec)
 { EXPR_WRAP(code, plotrecth(EXPR_ARG, ne, a,b, flags, n, prec)); }
+static GEN
+_ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b,long flags, long n, long prec)
+{
+  PARI_plot T; pari_get_plot(&T);
+  return plotrecth_i(NULL, E,f, &T, NUMRECT-1, a,b, flags,n, prec);
+}
 GEN
 ploth(void *E, GEN(*f)(void*,GEN), GEN a, GEN b,long flags, long n, long prec)
-{
-  PARI_plot T; pari_get_plot(&T);
-  return plotrecth_i(NULL, E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
-}
+{ return _ploth(E, f, a, b, flags&~PLOT_PARA, n, prec); }
 GEN
 parploth(GEN a, GEN b, GEN code, long flags, long n, long prec)
-{
-  PARI_plot T; pari_get_plot(&T);
-  return plotrecth_i(NULL, code,gp_call,&T, NUMRECT-1, a,b, flags|PLOT_PARA,n, prec);
-}
+{ return _ploth(code, gp_call, a, b, flags|PLOT_PARA, n, prec); }
 GEN
 ploth0(GEN a, GEN b, GEN code, long flags,long n, long prec)
 { EXPR_WRAP(code, ploth(EXPR_ARG, a,b,flags,n, prec)); }
+
 GEN
 psploth(void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags, long n, long prec)
 {
@@ -1636,19 +1637,27 @@ psploth(void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags, long n, long prec)
 GEN
 psploth0(GEN a, GEN b, GEN code, long flags, long n, long prec)
 { EXPR_WRAP(code, psploth(EXPR_ARG, a, b, flags, n, prec)); }
-GEN
-plothexport(GEN fmt, void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags,
+
+static GEN
+_plothexport(GEN fmt, void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags,
             long n, long prec)
 {
   pari_sp av = avma;
   GEN s;
   PARI_plot T; pari_get_fmtplot(fmt, &T);
-  s = plotrecth_i(fmt, E,f, &T, NUMRECT-1, a,b, flags&~PLOT_PARA,n, prec);
+  s = plotrecth_i(fmt, E,f, &T, NUMRECT-1, a,b, flags,n, prec);
   return gerepileuptoleaf(av, s);
 }
 GEN
+plothexport(GEN fmt, void *E, GEN(*f)(void*,GEN), GEN a,GEN b, long flags,
+            long n, long prec)
+{ return _plothexport(fmt, E, f, a, b, flags&~PLOT_PARA, n, prec); }
+GEN
 plothexport0(GEN fmt, GEN a, GEN b, GEN code, long flags, long n, long prec)
 { EXPR_WRAP(code, plothexport(fmt, EXPR_ARG, a, b, flags, n, prec)); }
+GEN
+parplothexport(GEN fmt, GEN a, GEN b, GEN code, long flags, long n, long prec)
+{ return _plothexport(fmt, code, gp_call, a, b, flags|PLOT_PARA, n, prec); }
 
 /* Draw list of points */
 static GEN
