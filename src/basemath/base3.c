@@ -2213,7 +2213,6 @@ principal_units(GEN nf, GEN pr, long k, GEN prk)
   ulong mask = quadratic_prec_mask(k);
   long a = 1;
 
-  if (DEBUGLEVEL>3) err_printf("treating pr^%ld, pr = %Ps\n",k,pr);
   prb = pr_hnf(nf,pr);
   list = vectrunc_init(k);
   while (mask > 1)
@@ -2224,7 +2223,6 @@ principal_units(GEN nf, GEN pr, long k, GEN prk)
     if (mask & 1) b--;
     mask >>= 1;
     /* compute 1 + pr^a / 1 + pr^b, 2a <= b */
-    if(DEBUGLEVEL>3) err_printf("  treating a = %ld, b = %ld\n",a,b);
     prb = (b >= k)? prk: idealpows(nf,pr,b);
     vectrunc_append(list, zidealij(pra, prb));
     a = b;
