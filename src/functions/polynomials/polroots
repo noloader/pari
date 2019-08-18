@@ -19,4 +19,7 @@ Doc: complex roots of the polynomial $T$, given as a column vector where each
  root-finding algorithm, due to and originally implemented by Gourdon.
  It runs in polynomial time in $\text{deg}(T)$ and the precision.
  If furthermore $T$ has rational coefficients, roots are guaranteed to the
- required relative accuracy.
+ required relative accuracy. If the input polynomial $T$ is exact, then
+ the ordering of the roots does not depend on the precision: they are ordered
+ by increasing $|\Im z|$, then by increasing $\Re z$; in case of tie
+ (conjugates), the root with negative imaginary part comes first.
