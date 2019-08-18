@@ -2324,10 +2324,10 @@ idealprincipalunits(GEN nf, GEN pr, long k)
  *       and 1 + pr^a/ 1 + pr^b for various a < b <= min(2a, k)
  * U   : base change matrices to convert a vector of local DL to DL wrt gen */
 static GEN
-sprkinit(GEN nf, GEN pr, GEN gk, GEN x)
+sprkinit(GEN nf, GEN pr, long k, GEN x)
 {
   GEN T, p, modpr, cyc, gen, g, g0, ord0, A, prk, U, L2;
-  long k = itos(gk), f = pr_get_f(pr);
+  long f = pr_get_f(pr);
 
   if(DEBUGLEVEL>3) err_printf("treating pr^%ld, pr = %Ps\n",k,pr);
   modpr = nf_to_Fq_init(nf, &pr,&T,&p);
@@ -2373,7 +2373,7 @@ sprkinit(GEN nf, GEN pr, GEN gk, GEN x)
   /* local-gens of (Z_K/pr^k)^* = SNF-gens * U */
   if (x)
   {
-    GEN uv = zkchineseinit(nf, idealdivpowprime(nf,x,pr,gk), prk, x);
+    GEN uv = zkchineseinit(nf, idealmulpowprime(nf,x,pr,utoineg(k)), prk, x);
     gen = zkVchinese1(uv, gen);
   }
   return mkvecn(U? 6: 4, cyc, gen, prk, mkvec3(modpr,g0,ord0), L2, U);
@@ -2445,7 +2445,7 @@ log_prk(GEN nf, GEN a, GEN sprk)
 }
 GEN
 log_prk_init(GEN nf, GEN pr, long k)
-{ return sprkinit(checknf(nf),pr,utoipos(k),NULL);}
+{ return sprkinit(checknf(nf),pr,k,NULL);}
 GEN
 veclog_prk(GEN nf, GEN v, GEN sprk)
 {
@@ -2752,7 +2752,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
     fa = idealfactor(nf, ideal);
     x = ideal;
   }
-  if (typ(x) != t_MAT)  x = idealhnf_shallow(nf, x);
+  if (typ(x) != t_MAT) x = idealhnf_shallow(nf, x);
   if (lg(x) == 1) pari_err_DOMAIN("Idealstar", "ideal","=",gen_0,x);
   if (typ(gcoeff(x,1,1)) != t_INT)
     pari_err_DOMAIN("Idealstar","denominator(ideal)", "!=",gen_1,x);
@@ -2769,7 +2769,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
     gen = cgetg(nbp+1,t_VEC);
     for (i = 1; i <= nbp; i++)
     {
-      GEN L = sprkinit(nf, gel(P,i), gel(E,i), t);
+      GEN L = sprkinit(nf, gel(P,i), itou(gel(E,i)), t);
       gel(sprk,i) = L;
       gel(cyc,i) = sprk_get_cyc(L);
       /* true gens are congruent to those mod x AND positive at archp */
