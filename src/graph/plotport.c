@@ -1328,7 +1328,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
       mt_queue_end(&pt);
     }
     else
-      for (i = 1; i <= N; i++) gel(V,i) = eval(E,x);
+      for (i = 1; i <= N; i++) gel(V,i) = eval(E,gel(X,i));
     if (param)
     {
       for (i = 1; i <= N; i++)
