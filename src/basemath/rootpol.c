@@ -2046,14 +2046,14 @@ tocomplex(GEN x, long l, long bit)
   return y;
 }
 
-/* x,y are t_COMPLEX of t_REALs or t_REAL, compare lexicographically,
- * up to 2^-e absolute error */
+/* x,y are t_COMPLEX of t_REALs or t_REAL, compare wrt |Im x| - |Im y|,
+ * then Re x - Re y, up to 2^-e absolute error */
 static int
 cmp_complex_appr(void *E, GEN x, GEN y)
 {
   long e = (long)E;
   GEN z, xi, yi, xr, yr;
-  long sxi, syi;
+  long sz, sxi, syi;
   if (typ(x) == t_COMPLEX) { xr = gel(x,1); xi = gel(x,2); sxi = signe(xi); }
   else { xr = x; xi = NULL; sxi = 0; }
   if (typ(y) == t_COMPLEX) { yr = gel(y,1); yi = gel(y,2); syi = signe(yi); }
@@ -2071,15 +2071,13 @@ cmp_complex_appr(void *E, GEN x, GEN y)
   }
   else
   {
-    long sz;
-    z = addrr_sign(xi, 1, yi, -1);
-    sz = signe(z);
+    z = addrr_sign(xi, 1, yi, -1); sz = signe(z);
     if (sz && expo(z) >= e) return (int)sz;
   }
   /* |Im x| ~ |Im y|, sort according to real parts */
-  z = subrr(xr, yr);
-  if (expo(z) >= e) return (int)signe(z);
-  /* Re x ~ Re y. Place negative absolute value before positive */
+  z = subrr(xr, yr); sz = signe(z);
+  if (sz && expo(z) >= e) return (int)sz;
+  /* Re x ~ Re y. Place negative imaginary part before positive */
   return (int) (sxi - syi);
 }
 

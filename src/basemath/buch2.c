@@ -2132,9 +2132,12 @@ bnfisunit(GEN bnf,GEN x)
   }
 
   setlg(ex, RU); /* ZC */
-  p1 = imag_i( row_i(logunit,1, 1,RU-1) );
+  /* choose a large embedding => small relative error */
+  for (i = 1; i < RU; i++)
+    if (gexpo(gel(emb,i)) > -1) break;
+  p1 = imag_i( row_i(logunit,i, 1,RU-1) );
   p1 = RgV_dotproduct(p1, ex); if (!R1) p1 = gmul2n(p1, -1);
-  p1 = gsub(garg(gel(emb,1),prec), p1);
+  p1 = gsub(garg(gel(emb,i),prec), p1);
   /* p1 = arg(the missing root of 1) */
 
   pi2_sur_w = divru(mppi(prec), n>>1); /* 2pi / n */
@@ -2142,7 +2145,7 @@ bnfisunit(GEN bnf,GEN x)
   if (n > 2)
   {
     GEN z = algtobasis(nf, bnf_get_tuU(bnf)); /* primitive root of 1 */
-    GEN ro = RgV_dotproduct(row(nf_get_M(nf), 1), z);
+    GEN ro = RgV_dotproduct(row(nf_get_M(nf), i), z);
     GEN p2 = roundr(divrr(garg(ro, prec), pi2_sur_w));
     e *= Fl_inv(umodiu(p2,n), n);
     e %= n;

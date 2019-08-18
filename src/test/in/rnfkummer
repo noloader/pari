@@ -83,10 +83,8 @@ rnfkummer(bnr,,-2)
 rnfkummer(bnrinit(bnfinit(y^6-2*y^5+8*y^4-18*y^3+24*y^2-18*y+6),168),matdiagonal([2,1,1,1,1,1,1,1]))
 
 \\ #2154
-/* No SEGV but still broken
 setrand(1); bnr=bnrinit(bnfinit(y^4 - 561*y^2 - 1334*y + 104607,1),matdiagonal([2,1,1,2]));
 rnfkummer(bnr,subgrouplist(bnr,[3],0)[1])
-*/
 
 \\ ERRORS, keep at end of file
 rnfkummer(bnfinit(x^2+23))
