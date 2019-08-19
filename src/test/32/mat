@@ -6,12 +6,6 @@ error("impossible inverse in gdiv: [Mod(0, 2), Mod(0, 2); Mod(0, 2), Mod(0,
 1
 [[;], [;]]
 [[], [;]]
-  ***   at top-level: mathouseholder(1,1)
-  ***                 ^-------------------
-  *** mathouseholder: incorrect type in mathouseholder (t_INT).
-  ***   at top-level: mathouseholder(q,1)
-  ***                 ^-------------------
-  *** mathouseholder: incorrect type in mathouseholder (t_INT).
 [-3.3612877988091253174761851599065654319, -3.976856899758389008450416890680
 9665041, 2.9389389601206943824942150128578581054, 1.772259568771888526939788
 0627029321445, -0.93302137188052358042404010605293659373, -0.441231719485000
@@ -343,12 +337,6 @@ Mod(3037000506, 3037000507)
 Mod(18446744073709551628, 18446744073709551629)
 [Mod(3, 18446744073709551629), Mod(1, 18446744073709551629), Mod(18446744073
 709551628, 18446744073709551629)]~
-  ***   at top-level: matsolve([1,0;0,0]*Mod(1,2),[1,1]~)
-  ***                 ^-----------------------------------
-  *** matsolve: impossible inverse in gauss: [Mod(1, 2), Mod(0, 2); Mod(0, 2), Mod(0, 2)].
-  ***   at top-level: matsolve([1,0;0,0]*Mod(1,3),[1,1]~)
-  ***                 ^-----------------------------------
-  *** matsolve: impossible inverse in gauss: [Mod(1, 3), Mod(0, 3); Mod(0, 3), Mod(0, 3)].
 
 [1 2]
 
@@ -471,14 +459,8 @@ od(0, 18446744073709551629), Mod(1, 18446744073709551629), Mod(0, 1844674407
 0
 2
 17
-  ***   at top-level: vecsum(1)
-  ***                 ^---------
-  *** vecsum: incorrect type in vecsum (t_INT).
 1
 6
-  ***   at top-level: 1~
-  ***                 ^--
-  *** _~: incorrect type in gtrans (t_INT).
 0
 0
 0
@@ -488,9 +470,6 @@ Vecsmall([3, 12, 27])
 0
 Vecsmall([2, 2, 0, -4, -10])
 2
-  ***   at top-level: vectorsmall(3,i,i^100)
-  ***                                 ^------
-  ***   overflow in t_INT-->long assignment.
 
 [1 0 0]
 
@@ -536,15 +515,6 @@ Vecsmall([2, 2, 0, -4, -10])
 
 [0 0 1]
 
-  ***   at top-level: m[1,]=[1,2]
-  ***                 ^-----------
-  ***   inconsistent dimensions in matrix row assignment.
-  ***   at top-level: m[1,]=[1,2,3,4]
-  ***                 ^---------------
-  ***   inconsistent dimensions in matrix row assignment.
-  ***   at top-level: m[1,]=[1,2,3]~
-  ***                 ^--------------
-  ***   incorrect type in matrix row assignment (t_COL).
 [1, 2, 3]
 
 [1 2 3]
@@ -573,14 +543,44 @@ Vecsmall([2, 2, 0, -4, -10])
 
 [3/2 -1/2 0]
 
+[;]
+  ***   at top-level: 1/Mat([0,0]~)
+  ***                  ^------------
+  *** _/_: impossible inverse in ZM_inv: [0; 0].
+  ***   at top-level: mathouseholder(1,1)
+  ***                 ^-------------------
+  *** mathouseholder: incorrect type in mathouseholder (t_INT).
+  ***   at top-level: [q,r]=matqr(matid(2),1);mathouseholder(q,1)
+  ***                                         ^-------------------
+  *** mathouseholder: incorrect type in mathouseholder (t_INT).
+  ***   at top-level: matsolve([1,0;0,0]*Mod(1,2),[1,1]~)
+  ***                 ^-----------------------------------
+  *** matsolve: impossible inverse in gauss: [Mod(1, 2), Mod(0, 2); Mod(0, 2), Mod(0, 2)].
+  ***   at top-level: matsolve([1,0;0,0]*Mod(1,3),[1,1]~)
+  ***                 ^-----------------------------------
+  *** matsolve: impossible inverse in gauss: [Mod(1, 3), Mod(0, 3); Mod(0, 3), Mod(0, 3)].
+  ***   at top-level: vecsum(1)
+  ***                 ^---------
+  *** vecsum: incorrect type in vecsum (t_INT).
+  ***   at top-level: 1~
+  ***                 ^--
+  *** _~: incorrect type in gtrans (t_INT).
+  ***   at top-level: vectorsmall(3,i,i^100)
+  ***                                 ^------
+  ***   overflow in t_INT-->long assignment.
+  ***   at top-level: m[1,]=[1,2]
+  ***                 ^-----------
+  ***   inconsistent dimensions in matrix row assignment.
+  ***   at top-level: m[1,]=[1,2,3,4]
+  ***                 ^---------------
+  ***   inconsistent dimensions in matrix row assignment.
+  ***   at top-level: m[1,]=[1,2,3]~
+  ***                 ^--------------
+  ***   incorrect type in matrix row assignment (t_COL).
   ***   at top-level: [1,2,3;4,5,6]^-1
   ***                              ^---
   *** _^_: impossible inverse in ginv: [1, 2, 3; 4, 5, 6].
   ***   at top-level: [1,2,3;4,5,6;7,8,9]^-1
   ***                                    ^---
   *** _^_: impossible inverse in ZM_inv: [1, 2, 3; 4, 5, 6; 7, 8, 9].
-[;]
-  ***   at top-level: 1/Mat([0,0]~)
-  ***                  ^------------
-  *** _/_: impossible inverse in ZM_inv: [0; 0].
-Total time spent: 831
+Total time spent: 513
