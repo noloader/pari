@@ -271,7 +271,6 @@ GMi_get_tmax(GEN K, long bitprec)
 static GEN
 Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
 {
-  pari_sp ltop = avma;
   GEN Vga = GMi_get_Vga(K), VS = GMi_get_VS(K);
   GEN L = gel(VS,1), M = gel(VS,2), mat = gel(VS,3);
   GEN d2, Lx, x2, x2i, A, S, pi;
@@ -306,7 +305,7 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   }
   A = gsubsg(m*d, sumVga(Vga));
   if (!gequal0(A)) S = gmul(S, gpow(pi, gmul2n(A,-1), prec));
-  return gerepileupto(ltop, gtofp(S, nbits2prec(bitprec)));
+  return gtofp(S, nbits2prec(bitprec));
 }
 
 /* In Klarge, we conpute K(t) as (asymptotic) * F(z), where F ~ 1 is given by
@@ -355,7 +354,6 @@ Kderivlarge_optim(GEN K, long abs, GEN t2d,GEN gcd, long *pbitprec, long *pnlim)
 static GEN
 Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec0)
 {
-  pari_sp ltop = avma;
   GEN tdA, P, S, pi, z, Vga = GMi_get_Vga(K);
   const long d = lg(Vga)-1;
   GEN M, VL = GMi_get_VL(K), Ms = gel(VL,1), cd = gel(VL,2), A2 = gel(VL,3);
@@ -396,7 +394,7 @@ Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec0)
     }
     if (status == 1) S = gmul(S, gsubsg(1, ginv(gmul(z, pi))));
   }
-  return gerepileupto(ltop, gmul(P, S));
+  return gmul(P, S);
 }
 
 /* Dokchitser's coefficients used for asymptotic expansion of inverse Mellin

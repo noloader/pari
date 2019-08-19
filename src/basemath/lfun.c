@@ -1128,6 +1128,7 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
     {
       GEN t2d, kmn = gmael(vK,m+1,n);
       long nn, mm, p = 0;
+      pari_sp av;
 
       if (kmn) continue; /* done already */
       /* p = largest (absolute) accuracy to which we need k[m,n] */
@@ -1135,9 +1136,10 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
         if (gel(an, nn) || (bn && gel(bn, nn)))
           p = maxuu(p, umael(vprec,mm+1,nn));
       if (!p) continue; /* a_{n 2^v} = 0 for all v in range */
+      av = avma;
       t2d = mpmul(gel(vroots, n), gel(peh2d,m+1)); /*(n exp(mh)/sqrt(N))^(2/d)*/
       neval++;
-      kmn = gammamellininvrt(K, t2d, p);
+      kmn = gerepileupto(av, gammamellininvrt(K, t2d, p));
       for (mm=m,nn=n; mm>=0 && nn <= L[mm+1]; nn<<=1,mm-=m0)
         gmael(vK,mm+1,nn) = kmn;
     }
@@ -1888,7 +1890,7 @@ ropm1(GEN eno, long prec)
 static void
 lfunthetaspec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   GEN t, Vga, an, K, ldata, thetainit, v, v2, vroots;
   long L, prec, n, d;
 
@@ -1921,9 +1923,10 @@ lfunthetaspec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
     GEN tn, Kn, a = gel(an, n);
 
     if (!a) continue;
+    av2 = avma;
     tn = gmul(t, gel(vroots,n));
     Kn = gammamellininvrt(K, tn, bitprec);
-    v = gadd(v, gmul(a,Kn));
+    v = gerepileupto(av2, gadd(v, gmul(a,Kn)));
   }
   /* v += \sum_{n <= L, n even} a_n K(nt), v2 = \sum_{n <= L/2} a_n K(2n t) */
   for (v2 = gen_0, n = 1; n <= L/2; n++)
@@ -1931,8 +1934,9 @@ lfunthetaspec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
     GEN t2n, K2n, a = gel(an, n), a2 = gel(an,2*n);
 
     if (!a && !a2) continue;
+    av2 = avma;
     t2n = gmul(t, gel(vroots,2*n));
-    K2n = gammamellininvrt(K, t2n, bitprec);
+    K2n = gerepileupto(av2, gammamellininvrt(K, t2n, bitprec));
     if (a) v2 = gadd(v2, gmul(a, K2n));
     if (a2) v = gadd(v,  gmul(a2,K2n));
   }
