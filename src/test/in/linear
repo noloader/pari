@@ -1,4 +1,4 @@
-HEAP=[99, if(sizebyte(0)==16,8757,8955)];
+HEAP=[99, if(sizebyte(0)==16,8757,8937)];
 default(realprecision,38);
 \e
 algdep(2*cos(2*Pi/13),6)
