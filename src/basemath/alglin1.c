@@ -3254,7 +3254,7 @@ ZM_ker_i(GEN A)
     GEN H, B, Hr;
     gen_inccrt("ZM_ker", worker, NULL, (k+1)>>1 , m,
                &S, &HD, &mod, ZM_ker_chinese, NULL);
-    H = gel(HD, 1);
+    H = gel(HD, 1); if (lg(H) == 1) return H;
     B = sqrti(shifti(mod,-1));
     if (DEBUGLEVEL >= 4) timer_start(&ti);
     Hr = FpM_ratlift(H, mod, B, B, NULL);
@@ -3262,10 +3262,10 @@ ZM_ker_i(GEN A)
     if (Hr)
     {
       GEN MH;
-      if (lg(Hr)==1) return Hr;
-      MH = QM_mul(A, Hr);
+      Hr = vec_Q_primpart(Hr);
+      MH = ZM_mul(A, Hr);
       if (DEBUGLEVEL >= 4) timer_printf(&ti,"ZM_ker: QM_mul");
-      if (gequal0(MH)) return Hr;
+      if (ZM_equal0(MH)) return Hr;
     }
     if (gc_needed(av,2))
     {
@@ -3282,7 +3282,7 @@ ZM_ker(GEN M)
   long l = lg(M)-1;
   if (l==0) return cgetg(1, t_MAT);
   if (lgcols(M)==1) return matid(l);
-  return gerepilecopy(av, vec_Q_primpart(ZM_ker_i(M)));
+  return gerepilecopy(av, ZM_ker_i(M));
 }
 
 static GEN
@@ -3514,7 +3514,7 @@ QM_deplin(GEN M)
   if (lgcols(M)==1) return col_ei(l, 1);
   k = ZM_ker_i(row_Q_primpart(M));
   if (lg(k)== 1) return gc_NULL(av);
-  return gerepilecopy(av, Q_primpart(gel(k,1)));
+  return gerepilecopy(av, gel(k,1));
 }
 
 static GEN
