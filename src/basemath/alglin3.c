@@ -766,9 +766,11 @@ GEN
 gen_parapply(GEN worker, GEN D)
 {
   long l, i, pending = 0;
-  GEN V, W = cgetg(2, t_VEC);
+  GEN W, V = cgetg_copy(D, &l);
   struct pari_mt pt;
-  V = cgetg_copy(D, &l);
+
+  if (l == 1) return V;
+  W = cgetg(2, t_VEC);
   mt_queue_start_lim(&pt, worker, l-1);
   for (i = 1; i < l || pending; i++)
   {
