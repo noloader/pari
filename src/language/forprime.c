@@ -913,19 +913,30 @@ NEXT_CHUNK:
 #ifdef LONG_IS_64BIT
       switch(T->p)
       {
-        case HIGHBIT: return T->p = HIGHBIT + 29;
-        case HIGHBIT + 29: return T->p = HIGHBIT + 99;
-        case HIGHBIT + 99: return T->p = HIGHBIT + 123;
-        case HIGHBIT +123: return T->p = HIGHBIT + 131;
-        case HIGHBIT +131: return T->p = HIGHBIT + 155;
-        case HIGHBIT +155: return T->p = HIGHBIT + 255;
-        case HIGHBIT +255: return T->p = HIGHBIT + 269;
-        case HIGHBIT +269: return T->p = HIGHBIT + 359;
-        case HIGHBIT +359: return T->p = HIGHBIT + 435;
-        case HIGHBIT +435: return T->p = HIGHBIT + 449;
-        case HIGHBIT +449: return T->p = HIGHBIT + 453;
-        case HIGHBIT +453: return T->p = HIGHBIT + 485;
-        case HIGHBIT +485: return T->p = HIGHBIT + 491;
+#define retp(x) return T->p = (HIGHBIT+x <= T->b)? HIGHBIT+x: 0
+        case HIGHBIT: retp(29);
+        case HIGHBIT + 29: retp(99);
+        case HIGHBIT + 99: retp(123);
+        case HIGHBIT +123: retp(131);
+        case HIGHBIT +131: retp(155);
+        case HIGHBIT +155: retp(255);
+        case HIGHBIT +255: retp(269);
+        case HIGHBIT +269: retp(359);
+        case HIGHBIT +359: retp(435);
+        case HIGHBIT +435: retp(449);
+        case HIGHBIT +449: retp(453);
+        case HIGHBIT +453: retp(485);
+        case HIGHBIT +485: retp(491);
+        case HIGHBIT +491: retp(543);
+        case HIGHBIT +543: retp(585);
+        case HIGHBIT +585: retp(599);
+        case HIGHBIT +599: retp(753);
+        case HIGHBIT +753: retp(849);
+        case HIGHBIT +849: retp(879);
+        case HIGHBIT +879: retp(885);
+        case HIGHBIT +885: retp(903);
+        case HIGHBIT +903: retp(995);
+#undef retp
       }
 #endif
       T->p = unextprime(T->p + 1);
