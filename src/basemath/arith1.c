@@ -2871,19 +2871,23 @@ nxCV_polint_center_tree(GEN vA, GEN P, GEN T, GEN R, GEN m2)
 static GEN
 polint_chinese(GEN worker, GEN mA, GEN P)
 {
-  long i, j, l = lg(gel(mA,1)), n = lg(P);
-  long pending = 0, workid, cnt = 0;
+  long cnt, pending, n, i, j, l = lg(gel(mA,1));
   struct pari_mt pt;
-  GEN done, va, M;
-  GEN A = cgetg(n, t_VEC);
+  GEN done, va, M, A;
   pari_timer ti;
-  va = mkvec(gen_0);
+
   M = cgetg(l, t_MAT);
+  if (l == 1) return M;
+  cnt = pending = 0;
+  n = lg(P);
+  A = cgetg(n, t_VEC);
+  va = mkvec(gen_0);
   if (DEBUGLEVEL>4) timer_start(&ti);
   if (DEBUGLEVEL>5) err_printf("Start parallel Chinese remainder: ");
   mt_queue_start_lim(&pt, worker, l-1);
   for (i=1; i<l || pending; i++)
   {
+    long workid;
     for(j=1; j < n; j++) gel(A,j) = gmael(mA,j,i);
     gel(va, 1) = A;
     mt_queue_submit(&pt, i, i<l? va: NULL);
