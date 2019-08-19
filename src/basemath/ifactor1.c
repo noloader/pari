@@ -3226,6 +3226,13 @@ GEN
 factoru(ulong n)
 { return factoru_sign(n, 0, decomp_default_hint); }
 
+ulong
+radicalu(ulong n)
+{
+  pari_sp av = avma;
+  return gc_long(av, zv_prod(gel(factoru(n),1)));
+}
+
 long
 moebiusu_fact(GEN f)
 {

@@ -2512,13 +2512,6 @@ psi_order(GEN psi, ulong d)
   return s;
 }
 
-static ulong
-radicalu(ulong n)
-{
-  pari_sp av = avma;
-  return gc_long(av, zv_prod(gel(factoru(n),1)));
-}
-
 static GEN
 galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
           const struct galois_analysis *ga)

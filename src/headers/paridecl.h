@@ -3797,6 +3797,7 @@ long    numdivu_fact(GEN fa);
 long    omega(GEN n);
 long    omegau(ulong n);
 GEN     precprime(GEN n);
+ulong   radicalu(ulong n);
 GEN     sumdiv(GEN n);
 GEN     sumdivk(GEN n,long k);
 ulong   tridiv_bound(GEN n);

@@ -5910,15 +5910,14 @@ mfisdihedral(GEN vF, GEN DIH)
 }
 
 static ulong
-radical_u(ulong n)
-{ return zv_prod(gel(myfactoru(n),1)); }
+myradicalu(ulong n) { return zv_prod(gel(myfactoru(n),1)); }
 
 /* list of fundamental discriminants unramified outside N, with sign s
  * [s = 0 => no sign condition] */
 static GEN
 mfunram(long N, long s)
 {
-  long cN = radical_u(N >> vals(N)), p = 1, m = 1, l, c, i;
+  long cN = myradicalu(N >> vals(N)), p = 1, m = 1, l, c, i;
   GEN D = mydivisorsu(cN), res;
   l = lg(D);
   if (s == 1) m = 0; else if (s == -1) p = 0;
