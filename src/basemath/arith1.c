@@ -2876,12 +2876,12 @@ polint_chinese(GEN worker, GEN mA, GEN P)
   GEN done, va, M, A;
   pari_timer ti;
 
-  M = cgetg(l, t_MAT);
-  if (l == 1) return M;
+  if (l == 1) return cgetg(1, t_MAT);
   cnt = pending = 0;
   n = lg(P);
   A = cgetg(n, t_VEC);
   va = mkvec(gen_0);
+  M = cgetg(l, t_MAT);
   if (DEBUGLEVEL>4) timer_start(&ti);
   if (DEBUGLEVEL>5) err_printf("Start parallel Chinese remainder: ");
   mt_queue_start_lim(&pt, worker, l-1);
