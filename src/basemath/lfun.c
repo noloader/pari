@@ -1085,17 +1085,18 @@ lfuninit_vecc_sum(GEN L, long M, GEN an, GEN vK, GEN pokq, long prec)
 /* return [\theta(exp(mh)), m=0..M], theta(t) = sum a(n) K(n/sqrt(N) t),
  * h = log(2)/m0 */
 static GEN
-lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
+lfuninit_vecc(GEN theta, GEN h, struct lfunp *S)
 {
-  const long m0 = S->m0, M = S->M;
-  GEN tech = linit_get_tech(theta);
-  GEN va, vK, L, K, d2, vroots, eh2d, peh2d;
+  const long m0 = S->m0, M = S->M, prec = S->precmax;
+  GEN tech = linit_get_tech(theta), ldata = linit_get_ldata(theta);
+  GEN poqk, va, vK, L, K, d2, vroots, eh2d, peh2d, k = ldata_get_k(ldata);
   GEN sqN = theta_get_sqrtN(tech), an = S->an, bn = S->bn, vprec = S->vprec;
-  long d, prec, m, n, neval;
+  long d, m, n, neval;
 
+  /* exp(kh/2 . [0..M]) */
+  poqk = gpowers(gprec_w(mpexp(gmul2n(gmul(k,h), -1)), prec), M);
   if (!vprec)
   { /* d=2 and Vga = [a,a+1] */
-    GEN ldata = linit_get_ldata(theta);
     GEN a = vecmin(ldata_get_gammavec(ldata));
     GEN qk = gpowers0(mpexp(h), M, ginv(sqN));
     va = lfuninit_vecc2_sum(an, qk, a, S, poqk);
@@ -1103,9 +1104,7 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S, GEN poqk)
   }
   d = S->d;
   L = S->L;
-  prec = S->precmax;
   K = theta_get_K(tech);
-
   /* For all 0<= m <= M, and all n <= L[m+1] such that a_n!=0, we must compute
    *   k[m,n] = K(n exp(mh)/sqrt(N))
    * with ln(absolute error) <= E + max(mh sigma - sub, 0) + k1 * log(n).
@@ -1358,8 +1357,7 @@ GEN
 lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN R, h, theta, ldata, qk, poqk, pol, eno, r, domain, molin;
-  GEN k;
+  GEN R, h, theta, ldata, eno, r, domain, molin, k;
   struct lfunp S;
 
   if (is_linit(lmisc))
@@ -1410,11 +1408,7 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
     R = lfunrtoR(ldata, nbits2prec(S.D));
   }
   h = divru(mplog2(S.precmax), S.m0);
-  k = ldata_get_k(ldata);
-  qk = gprec_w(mpexp(gmul2n(gmul(k,h), -1)), S.precmax); /* exp(kh/2) */
-  poqk = gpowers(qk, S.M);
-  pol = lfuninit_vecc(theta, h, &S, poqk);
-  molin = mkvec3(h, pol, R);
+  molin = mkvec3(h, lfuninit_vecc(theta, h, &S), R);
   domain = mkvec2(dom, mkvecsmall2(der, bitprec));
   return gerepilecopy(ltop, lfuninit_make(t_LDESC_INIT, ldata, molin, domain));
 }
