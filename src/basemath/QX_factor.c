@@ -1112,6 +1112,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   pari_sp av = avma;
   long k, m, valX, valA, vA = varn(A), dA = degpol(A), dB = degpol(B);
   GEN worker, c, cA, cB, g, Ag, Bg, H = NULL, mod = gen_1, R;
+  GEN Ap, Bp, Hp;
   forprime_t S;
   ulong pp;
   if (dA < 0) { if (Anew) *Anew = pol_0(vA); return ZX_copy(B); }
@@ -1148,14 +1149,19 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     Ag = ZX_Z_mul(A,g);
     Bg = ZX_Z_mul(B,g);
   }
+  init_modular_big(&S);
+  do {
+    pp = u_forprime_next(&S);
+    Ap = ZX_to_Flx(Ag, pp);
+    Bp = ZX_to_Flx(Bg, pp);
+  } while (degpol(Ap) != degpol(Ag) || degpol(Bp) != degpol(Bg));
   worker = snm_closure(is_entry("_ZX_gcd_worker"), mkvec3(A, B, g? g: gen_1));
-  init_modular_big(&S); pp = u_forprime_next(&S); /* once */
   av = avma;
   for (k = 1; ;k *= 2)
   {
     gen_inccrt("ZX_gcd", worker, g, (k+1)>>1, m, &S, &H, &mod, ZX_gcd_chinese, NULL);
-    if (lgpol(Flx_rem(ZX_to_Flx(Ag, pp), ZX_to_Flx(H, pp), pp))) continue;
-    if (lgpol(Flx_rem(ZX_to_Flx(Bg, pp), ZX_to_Flx(H, pp), pp))) continue;
+    Hp = ZX_to_Flx(H, pp);
+    if (lgpol(Flx_rem(Ap, Hp, pp)) || lgpol(Flx_rem(Bp, Hp, pp))) continue;
     if (!ZX_divides(Bg, H)) continue;
     R = ZX_divides(Ag, H);
     if (R) break;
