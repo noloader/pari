@@ -1267,20 +1267,15 @@ lfunparams2(struct lfunp *S)
     double c = S->D + maxdd(m*sig0 - sub2, 0);
     GEN t;
     if (!S->k1)
-    {
       t = const_vecsmall(L[m+1]+1, c);
-      pmax = maxdd(pmax,c);
-    }
     else
     {
       long n;
       t = cgetg(L[m+1]+1, t_VECSMALL);
-      for (n = 1; n <= L[m+1]; n++)
-      {
-        t[n] = c + S->k1 * log2(n);
-        pmax = maxdd(pmax, t[n]);
-      }
+      for (n = 1; n <= L[m+1]; n++) t[n] = c + S->k1 * log2(n);
+      if (S->k1 > 0) c = t[n-1];
     }
+    pmax = maxdd(pmax, c); /* c = max(t) */
     gel(vprec,m+1) = t;
   }
   S->vprec = vprec;
@@ -1292,7 +1287,7 @@ static GEN
 lfun_init_theta(GEN ldata, GEN eno, struct lfunp *S)
 {
   GEN an2, dual, tdom = NULL, Vga = ldata_get_gammavec(ldata);
-  long L;
+  long L, prec = S->precmax;
   if (eno)
     L = S->nmax;
   else
@@ -1301,16 +1296,16 @@ lfun_init_theta(GEN ldata, GEN eno, struct lfunp *S)
     L = maxss(S->nmax, lfunthetacost(ldata, tdom, 0, S->D));
   }
   dual = ldata_get_dual(ldata);
-  S->an = ldata_vecan(ldata_get_an(ldata), L, S->precmax);
-  S->bn = typ(dual)==t_INT? NULL: ldata_vecan(dual, S->nmax, S->precmax);
+  S->an = ldata_vecan(ldata_get_an(ldata), L, prec);
+  S->bn = typ(dual)==t_INT? NULL: ldata_vecan(dual, S->nmax, prec);
   if (!vgaell(Vga)) lfunparams2(S);
   else
   {
-    S->an = antwist(S->an, Vga, S->precmax);
-    if (S->bn) S->bn = antwist(S->bn, Vga, S->precmax);
+    S->an = antwist(S->an, Vga, prec);
+    if (S->bn) S->bn = antwist(S->bn, Vga, prec);
     S->vprec = NULL;
   }
-  an2 = lg(Vga)-1 == 1? antwist(S->an, Vga, S->precmax): S->an;
+  an2 = lg(Vga)-1 == 1? antwist(S->an, Vga, prec): S->an;
   return lfunthetainit0(ldata, tdom, an2, 0, S->Dmax, 0);
 }
 
