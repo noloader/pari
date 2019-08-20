@@ -1109,18 +1109,33 @@ ZX_gcd_chinese(GEN A, GEN P, GEN *mod)
 GEN
 ZX_gcd_all(GEN A, GEN B, GEN *Anew)
 {
-  pari_sp av2 = avma;
-  GEN worker;
-  long m, valX, valA, vA = varn(A);
-  GEN g, Ag, Bg;
-  GEN H = NULL, mod = gen_1, R;
-  long k;
+  pari_sp av = avma;
+  long k, m, valX, valA, vA = varn(A), dA = degpol(A), dB = degpol(B);
+  GEN worker, c, cA, cB, g, Ag, Bg, H = NULL, mod = gen_1, R;
   forprime_t S;
   ulong pp;
-  if (!signe(A)) { if (Anew) *Anew = pol_0(vA); return ZX_copy(B); }
-  if (!signe(B)) { if (Anew) *Anew = pol_1(vA); return ZX_copy(A); }
-  if (degpol(A)==0 || degpol(B)==0) { if (Anew) *Anew = A; return pol_1(vA); }
-  m = usqrt(maxss(degpol(A), degpol(B)));
+  if (dA < 0) { if (Anew) *Anew = pol_0(vA); return ZX_copy(B); }
+  if (dB < 0) { if (Anew) *Anew = pol_1(vA); return ZX_copy(A); }
+  A = Q_primitive_part(A, &cA);
+  B = Q_primitive_part(B, &cB);
+  c = (cA && cB)? gcdii(cA, cB): NULL; /* content(gcd) */
+  if (!dA || !dB)
+  {
+    if (!c)
+    {
+      set_avma(av); if (Anew) *Anew = A;
+      return pol_1(vA);
+    }
+    if (Anew)
+    {
+      if (!equalii(c, cA)) A = ZX_Z_mul(A, diviiexact(cA,c));
+      *Anew = A;
+    }
+    c = scalarpol_shallow(c, vA);
+    gerepileall(av, Anew? 2: 1, &c, Anew);
+    return c;
+  }
+  m = usqrt(maxss(dA, dB));
   valA = ZX_valrem(A, &A);
   valX = minss(valA, ZX_valrem(B, &B));
 
@@ -1133,9 +1148,9 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     Ag = ZX_Z_mul(A,g);
     Bg = ZX_Z_mul(B,g);
   }
-  worker = snm_closure(is_entry("_ZX_gcd_worker"), mkvec3(A, B, g ? g: gen_1));
+  worker = snm_closure(is_entry("_ZX_gcd_worker"), mkvec3(A, B, g? g: gen_1));
   init_modular_big(&S); pp = u_forprime_next(&S); /* once */
-  av2 = avma;
+  av = avma;
   for (k = 1; ;k *= 2)
   {
     gen_inccrt("ZX_gcd", worker, g, (k+1)>>1, m, &S, &H, &mod, ZX_gcd_chinese, NULL);
@@ -1144,12 +1159,15 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     if (!ZX_divides(Bg, H)) continue;
     R = ZX_divides(Ag, H);
     if (R) break;
-    if (gc_needed(av2,2))
+    if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"ZX_gcd");
-      gerepileall(av2, 2, &H, &mod);
+      gerepileall(av, 2, &H, &mod);
     }
   }
+  /* lead(H) = g */
+  if (g) H = Q_primpart(H);
+  if (c) H = ZX_Z_mul(H,c);
   if (DEBUGLEVEL>5) err_printf("done\n");
   if (Anew) {
     A = R;

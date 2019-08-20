@@ -1773,27 +1773,53 @@ derivser(GEN x)
 static GEN
 rfrac_deriv(GEN x, long v)
 {
-  GEN a = gel(x,1), b = gel(x,2), bp, b0, d, t;
-  GEN y = cgetg(3,t_RFRAC);
   pari_sp av = avma;
+  GEN y = cgetg(3,t_RFRAC), a = gel(x,1), b = gel(x,2), bp, b0, t, T;
+  long vx = varn(b);
 
   bp = deriv(b, v);
-  d = RgX_gcd(bp, b);
-  if (gequal1(d)) {
-    d = gsub(gmul(b, deriv(a,v)), gmul(a, bp));
-    if (isexactzero(d)) return gerepileupto((pari_sp)(y+3), d);
-    gel(y,1) = gerepileupto(av, d);
-    gel(y,2) = gsqr(b); return y;
+  t = simplify_shallow(RgX_gcd(bp, b));
+  if (typ(t) != t_POL || varn(t) != vx)
+  {
+    if (gequal1(t)) b0 = b;
+    else
+    {
+      b0 = RgX_Rg_div(b, t);
+      bp = RgX_Rg_div(bp, t);
+    }
+    a = gsub(gmul(b0, deriv(a,v)), gmul(a, bp));
+    if (isexactzero(a)) return gerepileupto(av, a);
+    if (b0 == b)
+    {
+      gel(y,1) = gerepileupto((pari_sp)y, a);
+      gel(y,2) = RgX_sqr(b);
+    }
+    else
+    {
+      gel(y,1) = a;
+      gel(y,2) = RgX_Rg_mul(RgX_sqr(b0), t);
+      y = gerepilecopy(av, y);
+    }
+    return y;
   }
-  b0 = gdivexact(b, d);
-  bp = gdivexact(bp,d);
+  b0 = gdivexact(b, t);
+  bp = gdivexact(bp,t);
   a = gsub(gmul(b0, deriv(a,v)), gmul(a, bp));
-  if (isexactzero(a)) return gerepileupto((pari_sp)(y+3), a);
-  t = ggcd(a, d);
-  if (!gequal1(t)) { a = gdivexact(a, t); d = gdivexact(d, t); }
+  if (isexactzero(a)) return gerepileupto(av, a);
+  T = RgX_gcd(a, t);
+  if (typ(T) != t_POL || varn(T) != vx)
+  {
+    a = gdiv(a, T);
+    t = gdiv(t, T);
+  }
+  else if (!gequal1(T))
+  {
+    a = gdivexact(a, T);
+    t = gdivexact(t, T);
+  }
   gel(y,1) = a;
-  gel(y,2) = gmul(d, gsqr(b0));
-  return gerepilecopy((pari_sp)(y+3), y);
+  gel(y,2) = gmul(RgX_sqr(b0), t);
+  return gerepilecopy(av, y);
 }
 
 GEN
