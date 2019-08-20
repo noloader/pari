@@ -762,15 +762,17 @@ veccatselapply(void *Epred, long (*pred)(void* E, GEN x), void *Efun,
   return lg(v) == 1? v: gerepilecopy(av, shallowconcat1(v));
 }
 
+/* suitable for gerepileupto */
 GEN
 gen_parapply(GEN worker, GEN D)
 {
-  long l, i, pending = 0;
-  GEN W, V = cgetg_copy(D, &l);
+  long l = lg(D), i, pending = 0;
+  GEN W, V;
   struct pari_mt pt;
 
-  if (l == 1) return V;
+  if (l == 1) return cgetg(1, typ(D));
   W = cgetg(2, t_VEC);
+  V = cgetg(l, typ(D));
   mt_queue_start_lim(&pt, worker, l-1);
   for (i = 1; i < l || pending; i++)
   {
