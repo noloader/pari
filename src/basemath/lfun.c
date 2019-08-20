@@ -937,7 +937,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
 
 struct lfunp {
   long precmax, Dmax, D, M, m0, nmax, d;
-  double k1, E, logN2, logC, A, hd, dc, dw, dh, MAXs, sub;
+  double k1, dc, dw, dh, MAXs, sub;
   GEN L, vprec, an, bn;
 };
 
@@ -947,7 +947,8 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   const long derprec = (der > 1)? dbllog2(mpfact(der)): 0; /* log2(der!) */
   GEN Vga, N, L, k;
   long k1, d, m, M, flag, nmax;
-  double a, E, hd, Ep, d2, suma, maxs, mins, sub, B0,B1, Lestimate, Mestimate;
+  double a, A, E, hd, Ep, d2, suma, maxs, mins, sub, B0,B1;
+  double logN2, logC, Lestimate, Mestimate;
 
   Vga = ldata_get_gammavec(ldata);
   S->d = d = lg(Vga)-1; d2 = d/2.;
@@ -955,7 +956,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   suma = gtodouble(sumVga(Vga));
   k = ldata_get_k(ldata);
   N = ldata_get_conductor(ldata);
-  S->logN2 = log(gtodouble(N)) / 2;
+  logN2 = log(gtodouble(N)) / 2;
   maxs = S->dc + S->dw;
   mins = S->dc - S->dw;
   S->MAXs = maxdd(maxs, gtodouble(k)-mins);
@@ -964,23 +965,23 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
    * ln |gamma(s)| ~ -(pi/4) \sum_i |Im(s + a_i)|; max with 1: fudge factor */
   a = (M_PI/(4*M_LN2))*(d*S->dh + sumVgaimpos(Vga));
   S->D = (long)ceil(bitprec + derprec + maxdd(a, 1));
-  S->E = E = M_LN2*S->D; /* D:= required absolute bitprec */
+  E = M_LN2*S->D; /* D:= required absolute bitprec */
 
   Ep = E + maxdd(M_PI * S->dh * d2, (d*S->MAXs + suma - 1) * log(E));
   hd = d2*M_PI*M_PI / Ep;
   S->m0 = (long)ceil(M_LN2/hd);
-  S->hd = M_LN2/S->m0;
+  hd = M_LN2/S->m0;
 
-  S->logC = d2*M_LN2 - log(d2)/2;
+  logC = d2*M_LN2 - log(d2)/2;
   k1 = ldata_get_k1(ldata);
   S->k1 = k1; /* assume |a_n| << n^k1 with small implied constant */
-  S->A  = gammavec_expo(d, suma);
+  A = gammavec_expo(d, suma);
 
   sub = 0.;
   if (mins > 1)
   {
     GEN sig = dbltor(mins);
-    sub += S->logN2*mins;
+    sub += logN2*mins;
     if (gammaordinary(Vga, sig))
     {
       GEN FVga = gammafactor(Vga);
@@ -995,18 +996,18 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   S->sub = sub;
   M = 1000;
   L = cgetg(M+2, t_VECSMALL);
-  a = S->k1 + S->A;
+  a = S->k1 + A;
 
-  B0 = 5 + S->E - S->sub + S->logC + S->k1*S->logN2; /* 5 extra bits */
-  B1 = S->hd * (S->MAXs - S->k1);
+  B0 = 5 + E - S->sub + logC + S->k1*logN2; /* 5 extra bits */
+  B1 = hd * (S->MAXs - S->k1);
   Lestimate = dblcoro526(a + S->MAXs - 2./d, d/2.,
-    S->E - S->sub + S->logC - log(2*M_PI*S->hd) + S->MAXs*S->logN2);
-  Mestimate = ((Lestimate > 0? log(Lestimate): 0) + S->logN2) / S->hd;
+    E - S->sub + logC - log(2*M_PI*hd) + S->MAXs*logN2);
+  Mestimate = ((Lestimate > 0? log(Lestimate): 0) + logN2) / hd;
   nmax = 0;
   flag = 0;
   for (m = 0;; m++)
   {
-    double x, H = S->logN2 - m*S->hd, B = B0 + m*B1;
+    double x, H = logN2 - m*hd, B = B0 + m*B1;
     long n;
     x = dblcoro526(a, d/2., B);
     n = floor(x*exp(H));
@@ -1021,7 +1022,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   S->L = L;
   S->nmax = nmax;
 
-  S->Dmax = S->D + (long)ceil((S->M * S->hd * S->MAXs - S->sub) / M_LN2);
+  S->Dmax = S->D + (long)ceil((S->M * hd * S->MAXs - S->sub) / M_LN2);
   if (S->Dmax < S->D) S->Dmax = S->D;
   S->precmax = nbits2prec(S->Dmax);
   if (DEBUGLEVEL > 1)
