@@ -1110,7 +1110,7 @@ GEN
 ZX_gcd_all(GEN A, GEN B, GEN *Anew)
 {
   pari_sp av = avma;
-  long k, m, valX, valA, vA = varn(A), dA = degpol(A), dB = degpol(B);
+  long k, m, valH, valA, valB, vA = varn(A), dA = degpol(A), dB = degpol(B);
   GEN worker, c, cA, cB, g, Ag, Bg, H = NULL, mod = gen_1, R;
   GEN Ap, Bp, Hp;
   forprime_t S;
@@ -1119,27 +1119,17 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   if (dB < 0) { if (Anew) *Anew = pol_1(vA); return ZX_copy(A); }
   A = Q_primitive_part(A, &cA);
   B = Q_primitive_part(B, &cB);
+  valA = ZX_valrem(A, &A); dA -= valA;
+  valB = ZX_valrem(B, &B); dB -= valB;
+  valH = minss(valA, valB);
+  valA -= valH; /* valuation(Anew) */
   c = (cA && cB)? gcdii(cA, cB): NULL; /* content(gcd) */
   if (!dA || !dB)
   {
-    if (!c)
-    {
-      set_avma(av); if (Anew) *Anew = A;
-      return pol_1(vA);
-    }
-    if (Anew)
-    {
-      if (!equalii(c, cA)) A = ZX_Z_mul(A, diviiexact(cA,c));
-      *Anew = A;
-    }
-    c = scalarpol_shallow(c, vA);
-    gerepileall(av, Anew? 2: 1, &c, Anew);
-    return c;
+    if (Anew) *Anew = RgX_shift_shallow(A, valA);
+    return monomial(c? c: gen_1, valH, vA);
   }
   m = usqrt(maxss(dA, dB));
-  valA = ZX_valrem(A, &A);
-  valX = minss(valA, ZX_valrem(B, &B));
-
   g = gcdii(leading_coeff(A), leading_coeff(B)); /* multiple of lead(gcd) */
   if (is_pm1(g)) {
     g = NULL;
@@ -1155,6 +1145,11 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     Ap = ZX_to_Flx(Ag, pp);
     Bp = ZX_to_Flx(Bg, pp);
   } while (degpol(Ap) != degpol(Ag) || degpol(Bp) != degpol(Bg));
+  if (degpol(Flx_gcd(Ap, Bp, pp)) == 0)
+  {
+    if (Anew) *Anew = RgX_shift_shallow(A, valA);
+    return monomial(c? c: gen_1, valH, vA);
+  }
   worker = snm_closure(is_entry("_ZX_gcd_worker"), mkvec3(A, B, g? g: gen_1));
   av = avma;
   for (k = 1; ;k *= 2)
@@ -1175,12 +1170,8 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   if (g) H = Q_primpart(H);
   if (c) H = ZX_Z_mul(H,c);
   if (DEBUGLEVEL>5) err_printf("done\n");
-  if (Anew) {
-    A = R;
-    if (valA != valX) A = RgX_shift(A, valA - valX);
-    *Anew = A;
-  }
-  return valX ? RgX_shift(H, valX): H;
+  if (Anew) *Anew = RgX_shift_shallow(R, valA);
+  return valH? RgX_shift_shallow(H, valH): H;
 }
 
 #if 0
