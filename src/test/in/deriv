@@ -46,6 +46,9 @@ derivnum(t=x^2,exp(t),4)
 derivnum(t=x^2+O(x^20),exp(t),4)
 derivnum(z=0,0,0)
 
+\\ #2162
+deriv(2/(4*x^2+1),x)
+
 \\ ERORS
 derivnum(z=0,0,[0,-1])
 derivnum(z=0,0,[1,-1])
