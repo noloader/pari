@@ -936,9 +936,9 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
 /*******************************************************************/
 
 struct lfunp {
-  long precmax, Dmax, D, M, m0, nmax, d;
+  long precmax, Dmax, D, M, m0, nmax, d, vgaell;
   double k1, dc, dw, dh, MAXs, sub;
-  GEN L, vprec, an, bn;
+  GEN L, an, bn;
 };
 
 static void
@@ -1091,12 +1091,13 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S)
   const long m0 = S->m0, M = S->M, prec = S->precmax;
   GEN tech = linit_get_tech(theta), ldata = linit_get_ldata(theta);
   GEN poqk, va, vK, L, K, d2, vroots, eh2d, peh2d, k = ldata_get_k(ldata);
-  GEN sqN = theta_get_sqrtN(tech), an = S->an, bn = S->bn, vprec = S->vprec;
+  GEN sqN = theta_get_sqrtN(tech), an = S->an, bn = S->bn;
   long d, m, n, neval;
+  double M0, sig0, sub2;
 
   /* exp(kh/2 . [0..M]) */
   poqk = gpowers(gprec_w(mpexp(gmul2n(gmul(k,h), -1)), prec), M);
-  if (!vprec)
+  if (S->vgaell)
   { /* d=2 and Vga = [a,a+1] */
     GEN a = vecmin(ldata_get_gammavec(ldata));
     GEN qk = gpowers0(mpexp(h), M, ginv(sqN));
@@ -1123,18 +1124,34 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S)
   for (m = 0; m <= M; m++)
     gel(vK,m+1) = const_vec(L[m+1], NULL);
 
+  sig0 = S->MAXs / m0;
+  sub2 = S->sub / M_LN2;
+  M0 = sig0? sub2 / sig0: 1./0.;
+  /* bit accuracy for vK[m+1,n]: D + k1*log2(n) + 1_{m > M0} (m*sig0 - sub2) */
   for (m = M; m >= 0; m--)
+  {
+    double c1 = S->D + ((m > M0)? m * sig0 - sub2 : 0);
     for (n = 1; n <= L[m+1]; n++)
     {
       GEN t2d, kmn = gmael(vK,m+1,n);
       long nn, mm, p = 0;
+      double c, c2;
       pari_sp av;
 
       if (kmn) continue; /* done already */
-      /* p = largest (absolute) accuracy to which we need k[m,n] */
-      for (mm=m,nn=n; mm>=0 && nn <= L[mm+1]; nn<<=1,mm-=m0)
-        if (gel(an, nn) || (bn && gel(bn, nn)))
-          p = maxuu(p, umael(vprec,mm+1,nn));
+      c = c1 + S->k1 * log2(n);
+      /* n *= 2; m -= m0 => c += c2, provided m >= M0. Else c += k1 */
+      c2 = S->k1 - S->MAXs;
+      /* p = largest (absolute) accuracy to which we need vK[m+1,n] */
+      for (mm=m,nn=n; mm>=M0 && nn <= L[mm+1];)
+      {
+        if (gel(an, nn) || (bn && gel(bn, nn))) p = maxuu(p, (ulong)c);
+        nn <<= 1;
+        mm -= m0; if (mm >= M0) c += c2; else { c += S->k1; break; }
+      }
+      /* mm < M0 || nn > L[mm+1] */
+      for (         ; mm>=0 && nn <= L[mm+1]; nn<<=1,mm-=m0,c+=S->k1)
+        if (gel(an, nn) || (bn && gel(bn, nn))) p = maxuu(p, (ulong)c);
       if (!p) continue; /* a_{n 2^v} = 0 for all v in range */
       av = avma;
       t2d = mpmul(gel(vroots, n), gel(peh2d,m+1)); /*(n exp(mh)/sqrt(N))^(2/d)*/
@@ -1143,6 +1160,7 @@ lfuninit_vecc(GEN theta, GEN h, struct lfunp *S)
       for (mm=m,nn=n; mm>=0 && nn <= L[mm+1]; nn<<=1,mm-=m0)
         gmael(vK,mm+1,nn) = kmn;
     }
+  }
   if (DEBUGLEVEL >= 1) err_printf("true evaluations: %ld\n", neval);
   va = lfuninit_vecc_sum(L, M, an, vK, poqk, S->precmax);
   return bn? mkvec2(va, lfuninit_vecc_sum(L, M, bn, vK, poqk, S->precmax)): va;
@@ -1220,10 +1238,11 @@ lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
 static void
 lfunparams2(struct lfunp *S)
 {
-  GEN vprec, L = S->L, an = S->an, bn = S->bn;
-  double sig0, pmax, sub2;
+  GEN L = S->L, an = S->an, bn = S->bn;
+  double pmax;
   long m, nan, nmax, neval, M = S->M;
 
+  S->vgaell = 0;
   /* try to reduce parameters now we know the a_n (some may be 0) */
   if (typ(an) == t_VEC) an = RgV_kill0(an);
   nan = S->nmax; /* lg(an)-1 may be large than this */
@@ -1256,29 +1275,19 @@ lfunparams2(struct lfunp *S)
   S->M = M;
   S->nmax = nmax;
 
-  pmax = 0;
-  sig0 = S->MAXs/S->m0;
-  sub2 = S->sub / M_LN2;
-  vprec = cgetg(S->M+2, t_VEC);
-  /* compute accuracy to which we will need k[m,n] = K(n*exp(mh)/sqrt(N))
-   * vprec[m+1,n] = absolute accuracy to which we need k[m,n] */
-  for (m = 0; m <= S->M; m++)
+  /* need K(n*exp(mh)/sqrt(N)) to absolute accuracy
+   *   D + k1*log(n) + max(m * sig0 - sub2, 0) */
+  pmax = S->D + S->k1 * log2(L[1]);
+  if (S->MAXs)
   {
-    double c = S->D + maxdd(m*sig0 - sub2, 0);
-    GEN t;
-    if (!S->k1)
-      t = const_vecsmall(L[m+1]+1, c);
-    else
+    double sig0 = S->MAXs/S->m0, sub2 = S->sub / M_LN2;
+    for (m = ceil(sub2 / sig0); m <= S->M; m++)
     {
-      long n;
-      t = cgetg(L[m+1]+1, t_VECSMALL);
-      for (n = 1; n <= L[m+1]; n++) t[n] = c + S->k1 * log2(n);
-      if (S->k1 > 0) c = t[n-1];
+      double c = S->D + m*sig0 - sub2;
+      if (S->k1 > 0) c += S->k1 * log2(L[m+1]);
+      pmax = maxdd(pmax, c);
     }
-    pmax = maxdd(pmax, c); /* c = max(t) */
-    gel(vprec,m+1) = t;
   }
-  S->vprec = vprec;
   S->Dmax = pmax;
   S->precmax = nbits2prec(pmax);
 }
@@ -1303,7 +1312,7 @@ lfun_init_theta(GEN ldata, GEN eno, struct lfunp *S)
   {
     S->an = antwist(S->an, Vga, prec);
     if (S->bn) S->bn = antwist(S->bn, Vga, prec);
-    S->vprec = NULL;
+    S->vgaell = 1;
   }
   an2 = lg(Vga)-1 == 1? antwist(S->an, Vga, prec): S->an;
   return lfunthetainit0(ldata, tdom, an2, 0, S->Dmax, 0);
