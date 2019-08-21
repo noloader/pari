@@ -1144,7 +1144,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     pp = u_forprime_next(&S);
     Ap = ZX_to_Flx(Ag, pp);
     Bp = ZX_to_Flx(Bg, pp);
-  } while (degpol(Ap) != degpol(Ag) || degpol(Bp) != degpol(Bg));
+  } while (degpol(Ap) != dA || degpol(Bp) != dB);
   if (degpol(Flx_gcd(Ap, Bp, pp)) == 0)
   {
     if (Anew) *Anew = RgX_shift_shallow(A, valA);
