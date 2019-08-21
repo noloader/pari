@@ -1074,16 +1074,89 @@ an_msum(GEN an, long N, GEN vKm)
   return gerepileupto(av, s);
 }
 
+GEN
+lfuninit_worker(long r, GEN K, GEN L, GEN peh2d, GEN vroots, GEN dr, GEN di,
+                GEN an, GEN bn)
+{
+  pari_sp av0 = avma;
+  long m, n, q, L0 = lg(an)-1;
+  double sig0 = rtodbl(gel(dr,1));
+  double sub2 = rtodbl(gel(dr,1));
+  double k1 = rtodbl(gel(dr,3));
+  double MAXs = rtodbl(gel(dr,4));
+  long D = di[1], M = di[2], m0 = di[3];
+  double M0 = sig0? sub2 / sig0: 1./0.;
+  GEN AB, A, B, vK = cgetg(M/m0 + 2, t_VEC);
+
+  if (typ(bn) == t_INT) bn = NULL;
+  for (q = 0, m = r; m <= M; m += m0, q++)
+    gel(vK, q+1) = const_vec(L[m+1], NULL);
+  if (bn)
+  {
+    AB = cgetg(3, t_VEC);
+    gel(AB,1) = A = cgetg(q+1, t_VEC);
+    gel(AB,2) = B = cgetg(q+1, t_VEC);
+  }
+  else
+  {
+    B = NULL;
+    AB = A = cgetg(q+1, t_VEC);
+  }
+  for (m -= m0, q--; m >= 0; m -= m0, q--)
+  {
+    double c1 = D + ((m > M0)? m * sig0 - sub2 : 0);
+    GEN vKm = gel(vK,q+1); /* conceptually K(m,n) */
+    for (n = 1; n <= L[m+1]; n++)
+    {
+      GEN t2d, kmn;
+      long nn, mm, qq, p = 0;
+      double c, c2;
+      pari_sp av;
+
+      if (gel(vKm, n)) continue; /* done already */
+      c = c1 + k1 * log2(n);
+      /* n *= 2; m -= m0 => c += c2, provided m >= M0. Else c += k1 */
+      c2 = k1 - MAXs;
+      /* p = largest (absolute) accuracy to which we need K(m,n) */
+      for (mm=m,nn=n; mm >= M0;)
+      {
+        if (nn <= L[mm+1] && (gel(an, nn) || (bn && gel(bn, nn))))
+          p = maxuu(p, (ulong)c);
+        nn <<= 1;
+        mm -= m0; if (mm >= M0) c += c2; else { c += k1; break; }
+      }
+      /* mm < M0 || nn > L[mm+1] */
+      for (         ; mm >= 0; nn<<=1,mm-=m0,c+=k1)
+        if (nn <= L[mm+1] && (gel(an, nn) || (bn && gel(bn, nn))))
+          p = maxuu(p, (ulong)c);
+      if (!p) continue; /* a_{n 2^v} = 0 for all v in range */
+      av = avma;
+      t2d = mpmul(gel(vroots,n), gel(peh2d,m+1));/*(n exp(mh)/sqrt(N))^(2/d)*/
+      kmn = gerepileupto(av, gammamellininvrt(K, t2d, p));
+      for (qq=q,mm=m,nn=n; mm >= 0; nn<<=1,mm-=m0,qq--)
+        if (nn <= L[mm+1]) gmael(vK, qq+1, nn) = kmn;
+    }
+  }
+  for (q = 0, m = r; m <= M; m += m0, q++)
+  {
+    long N = minss(L0, L[m+1]);
+    gel(A, q+1) = an_msum(an, N, gel(vK,q+1));
+    if (bn) gel(B, q+1) = an_msum(bn, N, gel(vK,q+1));
+  }
+  return gerepileupto(av0, AB);
+}
 /* return A = [\theta(exp(mh)), m=0..M], theta(t) = sum a(n) K(n/sqrt(N) t),
  * h = log(2)/m0. If bn != NULL, return the pair [A, B] */
 static GEN
 lfuninit_ab(GEN theta, GEN h, struct lfunp *S)
 {
-  const long m0 = S->m0, M = S->M, prec = S->precmax;
+  const long M = S->M, m0 = S->m0, prec = S->precmax;
   GEN tech = linit_get_tech(theta), sqN = theta_get_sqrtN(tech);
-  GEN an = S->an, bn = S->bn, va, vb, L, K, d2, vroots, peh2d;
-  double M0, sig0, sub2, k1;
-  long r;
+  GEN an = S->an, bn = S->bn, va, vb, d2, vroots, peh2d;
+  struct pari_mt pt;
+  GEN worker;
+  double sig0, sub2;
+  long r, pending;
 
   if (S->vgaell)
   { /* d=2 and Vga = [a,a+1] */
@@ -1092,9 +1165,6 @@ lfuninit_ab(GEN theta, GEN h, struct lfunp *S)
     va = an_sum2(an, qk, a, S);
     return bn? mkvec2(va, an_sum2(bn, qk, a, S)): va;
   }
-  L = S->L;
-  k1 = S->k1;
-  K = theta_get_K(tech);
   /* For all 0<= m <= M, and all n <= L[m+1] such that a_n!=0, we must compute
    *   k[m,n] = K(n exp(mh)/sqrt(N))
    * with ln(absolute error) <= E + max(mh sigma - sub, 0) + k1 * log(n).
@@ -1107,72 +1177,36 @@ lfuninit_ab(GEN theta, GEN h, struct lfunp *S)
   peh2d = gpowers0(gexp(gmul(d2,h), prec), M, invr(gpow(sqN, d2, prec)));
   va = cgetg(M+2, t_VEC);
   vb = bn? cgetg(M+2, t_VEC): NULL;
+
   sig0 = S->MAXs / m0;
   sub2 = S->sub / M_LN2;
-  M0 = sig0? sub2 / sig0: 1./0.;
+  worker = snm_closure(is_entry("_lfuninit_worker"),
+                       mkvecn(8, theta_get_K(tech), S->L, peh2d, vroots,
+                              mkvec4(dbltor(sig0), dbltor(sub2),
+                                     dbltor(S->k1), dbltor(S->MAXs)),
+                              mkvecsmall3(S->D, M, m0),
+                              an, bn? bn: gen_0));
   /* For each 0 <= m <= M, we will sum for n<=L[m+1] a(n) K(m,n)
    * bit accuracy for K(m,n): D + k1*log2(n) + 1_{m > M0} (m*sig0 - sub2)
-   * We restrict m to arithmetic progressions mod m0 to save memory and
+   * We restrict m to arithmetic progressions r mod m0 to save memory and
    * allow parallelization */
-  for (r = 0; r < m0; r++)
+  mt_queue_start_lim(&pt, worker, m0);
+  pending = 0;
+  for (r = 0; r < m0 || pending; r++)
   { /* m = q m0 + r */
-    pari_sp av0 = avma;
-    GEN A, B, vK = cgetg(M/m0 + 2, t_VEC);
-    long m, n, q, L0 = lg(an)-1;
-    for (q = 0, m = r; m <= M; m += m0, q++)
-      gel(vK, q+1) = const_vec(L[m+1], NULL);
-    A = cgetg(q+1, t_VEC);
-    B = bn? cgetg(q+1, t_VEC): NULL;
-    q = M / m0;
-    m = q * m0 + r; if (m > M) { m -= m0; q--; }
-    for (; m >= 0; m -= m0, q--)
-    {
-      double c1 = S->D + ((m > M0)? m * sig0 - sub2 : 0);
-      GEN vKm = gel(vK,q+1); /* conceptually K(m,n) */
-      for (n = 1; n <= L[m+1]; n++)
-      {
-        GEN t2d, kmn;
-        long nn, mm, qq, p = 0;
-        double c, c2;
-        pari_sp av;
-
-        if (gel(vKm, n)) continue; /* done already */
-        c = c1 + k1 * log2(n);
-        /* n *= 2; m -= m0 => c += c2, provided m >= M0. Else c += k1 */
-        c2 = k1 - S->MAXs;
-        /* p = largest (absolute) accuracy to which we need K(m,n) */
-        for (mm=m,nn=n; mm >= M0;)
-        {
-          if (nn <= L[mm+1] && (gel(an, nn) || (bn && gel(bn, nn))))
-            p = maxuu(p, (ulong)c);
-          nn <<= 1;
-          mm -= m0; if (mm >= M0) c += c2; else { c += k1; break; }
-        }
-        /* mm < M0 || nn > L[mm+1] */
-        for (         ; mm >= 0; nn<<=1,mm-=m0,c+=k1)
-          if (nn <= L[mm+1] && (gel(an, nn) || (bn && gel(bn, nn))))
-            p = maxuu(p, (ulong)c);
-        if (!p) continue; /* a_{n 2^v} = 0 for all v in range */
-        av = avma;
-        t2d = mpmul(gel(vroots,n), gel(peh2d,m+1));/*(n exp(mh)/sqrt(N))^(2/d)*/
-        kmn = gerepileupto(av, gammamellininvrt(K, t2d, p));
-        for (qq=q,mm=m,nn=n; mm >= 0; nn<<=1,mm-=m0,qq--)
-          if (nn <= L[mm+1]) gmael(vK, qq+1, nn) = kmn;
-      }
-    }
-    for (q = 0, m = r; m <= M; m += m0, q++)
-    {
-      long N = minss(L0, L[m+1]);
-      gel(A, q+1) = an_msum(an, N, gel(vK,q+1));
-      if (bn) gel(B, q+1) = an_msum(bn, N, gel(vK,q+1));
-    }
-    gerepileall(av0, bn? 2: 1, &A, &B);
-    for (q = 0, m = r; m <= M; m += m0, q++)
+    GEN done, A, B;
+    long q, m, workid;
+    mt_queue_submit(&pt, r, r < m0 ? mkvec(utoi(r)): NULL);
+    done = mt_queue_get(&pt, &workid, &pending);
+    if (!done) continue;
+    if (bn) { A = gel(done,1); B = gel(done,2); } else { A = done; B = NULL; }
+    for (q = 0, m = workid; m <= M; m += m0, q++)
     {
       gel(va, m+1) = gel(A, q+1);
       if (bn) gel(vb, m+1) = gel(B, q+1);
     }
   }
+  mt_queue_end(&pt);
   return bn? mkvec2(va, vb): va;
 }
 

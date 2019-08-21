@@ -37,3 +37,9 @@ Doc: initalization function for all functions linked to the
  ? lfun(L, 1/2 + I)
  ? L = lfuninit(L0, [100]); \\ same as above !
  @eprog
+
+Function: _lfuninit_worker
+C-Name: lfuninit_worker
+Prototype: LGGGGGGGG
+Section: programming/internals
+Help: worker for lfuninit
