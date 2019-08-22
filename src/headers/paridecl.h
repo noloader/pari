@@ -3998,7 +3998,7 @@ GEN     theta_get_R(GEN tdata);
 long    theta_get_bitprec(GEN tdata);
 long    theta_get_m(GEN tdata);
 GEN     theta_get_tdom(GEN tdata);
-GEN     theta_get_sqrtN(GEN tdata);
+GEN     theta_get_isqrtN(GEN tdata);
 GEN     vecpowuu(long N, ulong B);
 GEN     vecpowug(long N, GEN B, long prec);
 GEN     znchargauss(GEN G, GEN chi, GEN a, long bitprec);

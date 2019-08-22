@@ -203,19 +203,19 @@ GEN
 lfunprod_get_fact(GEN tech)  { return gel(tech, 2); }
 
 GEN
-theta_get_an(GEN tdata)        { return gel(tdata, 1);}
+theta_get_an(GEN tdata)      { return gel(tdata, 1);}
 GEN
-theta_get_K(GEN tdata)         { return gel(tdata, 2);}
+theta_get_K(GEN tdata)       { return gel(tdata, 2);}
 GEN
-theta_get_R(GEN tdata)         { return gel(tdata, 3);}
+theta_get_R(GEN tdata)       { return gel(tdata, 3);}
 long
-theta_get_bitprec(GEN tdata)   { return itos(gel(tdata, 4));}
+theta_get_bitprec(GEN tdata) { return itos(gel(tdata, 4));}
 long
-theta_get_m(GEN tdata)         { return itos(gel(tdata, 5));}
+theta_get_m(GEN tdata)       { return itos(gel(tdata, 5));}
 GEN
-theta_get_tdom(GEN tdata)      { return gel(tdata, 6);}
+theta_get_tdom(GEN tdata)    { return gel(tdata, 6);}
 GEN
-theta_get_sqrtN(GEN tdata)     { return gel(tdata, 7);}
+theta_get_isqrtN(GEN tdata)  { return gel(tdata, 7);}
 
 /*******************************************************************/
 /*  Helper functions related to Gamma products                     */
@@ -648,7 +648,8 @@ lfunthetainit0(GEN ldata, GEN tdom, GEN an2, long m,
     get_cone_fuzz(tdom, &r, &a);
     tdom = mkvec2(dbltor(r), a? dbltor(a): gen_0);
   }
-  tech = mkvecn(7, an2,K,R, stoi(bitprec), stoi(m), tdom, gsqrt(N,prec));
+  tech = mkvecn(7, an2,K,R, stoi(bitprec), stoi(m), tdom,
+                   gsqrt(ginv(N), prec + EXTRAPRECWORD));
   return mkvec3(mkvecsmall(t_LDESC_THETA), ldata, tech);
 }
 
@@ -889,14 +890,14 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
 {
   pari_sp ltop = avma;
   long limt, d;
-  GEN sqN, vecan, Vga, ldata, theta, thetainit, S;
+  GEN isqN, vecan, Vga, ldata, theta, thetainit, S;
   long n, prec = nbits2prec(bitprec);
   t = gprec_w(t, prec);
   theta = lfunthetacheckinit(data, t, m, bitprec);
   ldata = linit_get_ldata(theta);
   thetainit = linit_get_tech(theta);
   vecan = theta_get_an(thetainit);
-  sqN = theta_get_sqrtN(thetainit);
+  isqN = theta_get_isqrtN(thetainit);
   limt = lg(vecan)-1;
   if (theta == data)
     limt = minss(limt, lfunthetacost(ldata, t, m, bitprec));
@@ -907,7 +908,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
       S = gerepilecopy(ltop, mkcomplex(S,S));
     return S;
   }
-  t = gdiv(t, sqN);
+  t = gmul(t, isqN);
   Vga = ldata_get_gammavec(ldata);
   d = lg(Vga)-1;
   if (m == 0 && vgaeasytheta(Vga))
@@ -932,7 +933,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
       S = gadd(S, gmul(an, gammamellininvrt(K, nt, bitprec)));
       if ((n & 0x1ff) == 0) S = gerepileupto(av, S);
     }
-    if (m) S = gdiv(S, gpowgs(sqN, m));
+    if (m) S = gmul(S, gpowgs(isqN, m));
   }
   return gerepileupto(ltop, S);
 }
@@ -1164,7 +1165,7 @@ static GEN
 lfuninit_ab(GEN theta, GEN h, struct lfunp *S)
 {
   const long M = S->M, prec = S->precmax;
-  GEN tech = linit_get_tech(theta), sqN = theta_get_sqrtN(tech);
+  GEN tech = linit_get_tech(theta), isqN = theta_get_isqrtN(tech);
   GEN an = S->an, bn = S->bn, va, vb;
   struct pari_mt pt;
   GEN worker;
@@ -1173,7 +1174,7 @@ lfuninit_ab(GEN theta, GEN h, struct lfunp *S)
   if (S->vgaell)
   { /* d=2 and Vga = [a,a+1] */
     GEN a = vecmin(ldata_get_gammavec(linit_get_ldata(theta)));
-    GEN qk = gpowers0(mpexp(h), M, ginv(sqN));
+    GEN qk = gpowers0(mpexp(h), M, isqN);
     m0 = pari_mt_nbthreads;
     worker = snm_closure(is_entry("_lfuninit_theta2_worker"),
                          mkvecn(6, S->L, qk, a, mkvecsmall3(prec, M, m0),
@@ -1192,7 +1193,7 @@ lfuninit_ab(GEN theta, GEN h, struct lfunp *S)
     vroots = mkvroots(S->d, S->nmax, prec);
     d2 = gdivgs(gen_2, S->d);
     /* peh2d[m+1] = (exp(mh)/sqrt(N))^(2/d) */
-    peh2d = gpowers0(gexp(gmul(d2,h), prec), M, invr(gpow(sqN, d2, prec)));
+    peh2d = gpowers0(gexp(gmul(d2,h), prec), M, gpow(isqN, d2, prec));
     m0 = S->m0;
     worker = snm_closure(is_entry("_lfuninit_worker"),
                          mkvecn(8, theta_get_K(tech), S->L, peh2d, vroots,
@@ -2322,7 +2323,7 @@ static void
 condset(struct huntcond_t *S, GEN M, long prec)
 {
   *(S->pM) = M;
-  *(S->psqrtM) = gsqrt(M, prec);
+  *(S->psqrtM) = gsqrt(ginv(M), prec);
   if (S->thetad != S->theta)
   {
     *(S->pMd) = *(S->pM);
