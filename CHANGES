@@ -64,6 +64,7 @@ BA  15- [libpari] RgXV_to_FlxV, F2v_and_inplace, FlxV_Flv_multieval
 BA  17- [libpari] QM_sqr, FqC_to_mod, ZXQX_gcd, QXQX_gcd
     18- [libpari] radicalu
     19- parallel support for lfuninit
+    20- new GP function parplothexport
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
