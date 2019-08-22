@@ -842,29 +842,29 @@ vecan_cmul(void *E, GEN P, long a, GEN x)
   else
     return (a==0 || !gel(P,a))? NULL: gmul(gel(P,a), x);
 }
-/* d=2, 2 sum_{n <= limt} a(n) (n t)^al q^n, q = exp(-2pi t),
+/* d=2, 2 sum_{n <= N} a(n) (n t)^al q^n, q = exp(-2pi t),
  * an2[n] = a(n) * n^al */
 static GEN
-theta2(GEN an2, long limt, GEN t, GEN al, long prec)
+theta2(GEN an2, long N, GEN t, GEN al, long prec)
 {
   GEN S, q, pi2 = Pi2n(1,prec);
   const struct bb_algebra *alg = get_Rg_algebra();
   setsigne(pi2,-1); q = gexp(gmul(pi2, t), prec);
   /* Brent-Kung in case the a_n are small integers */
-  S = gen_bkeval(an2, limt, q, 1, NULL, alg, vecan_cmul);
+  S = gen_bkeval(an2, N, q, 1, NULL, alg, vecan_cmul);
   return mulT(t, al, S, prec);
 }
 
-/* d=1, 2 sum_{n <= limt} a_n (n t)^al q^(n^2), q = exp(-pi t^2),
+/* d=1, 2 sum_{n <= N} a_n (n t)^al q^(n^2), q = exp(-pi t^2),
  * an2[n] is a_n n^al */
 static GEN
-theta1(GEN an2, long limt, GEN t, GEN al, long prec)
+theta1(GEN an2, long N, GEN t, GEN al, long prec)
 {
   GEN q = gexp(gmul(negr(mppi(prec)), gsqr(t)), prec);
-  GEN vexp = gsqrpowers(q, limt), S = gen_0;
+  GEN vexp = gsqrpowers(q, N), S = gen_0;
   pari_sp av = avma;
   long n;
-  for (n = 1; n <= limt; n++)
+  for (n = 1; n <= N; n++)
   {
     GEN c = mul_an(an2, n, gel(vexp,n));
     if (c)
