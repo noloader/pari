@@ -43,3 +43,9 @@ C-Name: lfuninit_worker
 Prototype: LGGGGGGGG
 Section: programming/internals
 Help: worker for lfuninit
+
+Function: _lfuninit_theta2_worker
+C-Name: lfuninit_theta2_worker
+Prototype: LGGGGGG
+Section: programming/internals
+Help: worker for lfuninit using theta2

@@ -845,7 +845,7 @@ vecan_cmul(void *E, GEN P, long a, GEN x)
 /* d=2, 2 sum_{n <= N} a(n) (n t)^al q^n, q = exp(-2pi t),
  * an2[n] = a(n) * n^al */
 static GEN
-theta2(GEN an2, long N, GEN t, GEN al, long prec)
+theta2_i(GEN an2, long N, GEN t, GEN al, long prec)
 {
   GEN S, q, pi2 = Pi2n(1,prec);
   const struct bb_algebra *alg = get_Rg_algebra();
@@ -853,6 +853,12 @@ theta2(GEN an2, long N, GEN t, GEN al, long prec)
   /* Brent-Kung in case the a_n are small integers */
   S = gen_bkeval(an2, N, q, 1, NULL, alg, vecan_cmul);
   return mulT(t, al, S, prec);
+}
+static GEN
+theta2(GEN an2, long N, GEN t, GEN al, long prec)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, theta2_i(an2, N, t, al, prec));
 }
 
 /* d=1, 2 sum_{n <= N} a_n (n t)^al q^(n^2), q = exp(-pi t^2),
@@ -908,7 +914,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
   {
     if (theta_get_m(thetainit) > 0) vecan = antwist(vecan, Vga, prec);
     if (d == 1) S = theta1(vecan, limt, t, gel(Vga,1), prec);
-    else        S = theta2(vecan, limt, t, vecmin(Vga), prec);
+    else        S = theta2_i(vecan, limt, t, vecmin(Vga), prec);
   }
   else
   {
@@ -1042,21 +1048,39 @@ lfuninit_pol(GEN v, GEN poqk, long prec)
   return RgX_renormalize_lg(pol, M+3);
 }
 
-static GEN
-an_sum2(GEN an, GEN qk, GEN a, struct lfunp *Q)
+static void
+worker_init(long q, GEN *an, GEN *bn, GEN *AB, GEN *A, GEN *B)
 {
-  const long M = Q->M, prec = Q->precmax;
-  GEN L = Q->L;
-  long m, L0 = lg(an)-1;
-  GEN v = cgetg(M + 2, t_VEC);
-  if (typ(an) == t_VEC) an = RgV_kill0(an);
-  for (m = 0; m <= M; m++)
+  if (typ(*bn) == t_INT) *bn = NULL;
+  if (*bn)
   {
-    pari_sp av = avma;
-    GEN t = gel(qk, m+1), S = theta2(an, minss(L[m+1],L0), t, a, prec);
-    gel(v, m+1) = gerepileupto(av, S); /* theta(exp(mh)) */
+    *AB = cgetg(3, t_VEC);
+    gel(*AB,1) = *A = cgetg(q+1, t_VEC);
+    gel(*AB,2) = *B = cgetg(q+1, t_VEC);
+    if (typ(an) == t_VEC) *an = RgV_kill0(*an);
+    if (typ(bn) == t_VEC) *bn = RgV_kill0(*bn);
   }
-  return v;
+  else
+  {
+    *B = NULL;
+    *AB = *A = cgetg(q+1, t_VEC);
+    if (typ(*an) == t_VEC) *an = RgV_kill0(*an);
+  }
+}
+GEN
+lfuninit_theta2_worker(long r, GEN L, GEN qk, GEN a, GEN di, GEN an, GEN bn)
+{
+  long q, m, prec = di[1], M = di[2], m0 = di[3], L0 = lg(an)-1;
+  GEN AB, A, B;
+  worker_init((M - r) / m0 + 1, &an, &bn, &AB, &A, &B);
+  for (q = 0, m = r; m <= M; m += m0, q++)
+  {
+    GEN t = gel(qk, m+1);
+    long N = minss(L[m+1],L0);
+    gel(A, q+1) = theta2(an, N, t, a, prec); /* theta(exp(mh)) */
+    if (bn) gel(B, q+1) = theta2(bn, N, t, a, prec);
+  }
+  return AB;
 }
 
 /* theta(exp(mh)) ~ sum_{n <= N} a(n) k[m,n] */
@@ -1088,23 +1112,9 @@ lfuninit_worker(long r, GEN K, GEN L, GEN peh2d, GEN vroots, GEN dr, GEN di,
   double M0 = sig0? sub2 / sig0: 1./0.;
   GEN AB, A, B, vK = cgetg(M/m0 + 2, t_VEC);
 
-  if (typ(bn) == t_INT) bn = NULL;
   for (q = 0, m = r; m <= M; m += m0, q++)
     gel(vK, q+1) = const_vec(L[m+1], NULL);
-  if (bn)
-  {
-    AB = cgetg(3, t_VEC);
-    gel(AB,1) = A = cgetg(q+1, t_VEC);
-    gel(AB,2) = B = cgetg(q+1, t_VEC);
-    if (typ(an) == t_VEC) an = RgV_kill0(an);
-    if (typ(bn) == t_VEC) bn = RgV_kill0(bn);
-  }
-  else
-  {
-    B = NULL;
-    AB = A = cgetg(q+1, t_VEC);
-    if (typ(an) == t_VEC) an = RgV_kill0(an);
-  }
+  worker_init(q, &an, &bn, &AB, &A, &B);
   for (m -= m0, q--; m >= 0; m -= m0, q--)
   {
     double c1 = D + ((m > M0)? m * sig0 - sub2 : 0);
@@ -1153,46 +1163,50 @@ lfuninit_worker(long r, GEN K, GEN L, GEN peh2d, GEN vroots, GEN dr, GEN di,
 static GEN
 lfuninit_ab(GEN theta, GEN h, struct lfunp *S)
 {
-  const long M = S->M, m0 = S->m0, prec = S->precmax;
+  const long M = S->M, prec = S->precmax;
   GEN tech = linit_get_tech(theta), sqN = theta_get_sqrtN(tech);
-  GEN an = S->an, bn = S->bn, va, vb, d2, vroots, peh2d;
+  GEN an = S->an, bn = S->bn, va, vb;
   struct pari_mt pt;
   GEN worker;
-  double sig0, sub2;
-  long r, pending;
+  long m0, r, pending;
 
   if (S->vgaell)
   { /* d=2 and Vga = [a,a+1] */
     GEN a = vecmin(ldata_get_gammavec(linit_get_ldata(theta)));
     GEN qk = gpowers0(mpexp(h), M, ginv(sqN));
-    va = an_sum2(an, qk, a, S);
-    return bn? mkvec2(va, an_sum2(bn, qk, a, S)): va;
+    m0 = pari_mt_nbthreads;
+    worker = snm_closure(is_entry("_lfuninit_theta2_worker"),
+                         mkvecn(6, S->L, qk, a, mkvecsmall3(prec, M, m0),
+                                an, bn? bn: gen_0));
   }
-  /* For all 0<= m <= M, and all n <= L[m+1] such that a_n!=0, we must compute
-   *   k[m,n] = K(n exp(mh)/sqrt(N))
-   * with ln(absolute error) <= E + max(mh sigma - sub, 0) + k1 * log(n).
-   * N.B. we use the 'rt' variant and pass argument (n exp(mh)/sqrt(N))^(2/d).
-   * Speedup: if n' = 2n and m' = m - m0 >= 0; then k[m,n] = k[m',n']. */
-  /* vroots[n] = n^(2/d) */
-  vroots = mkvroots(S->d, S->nmax, prec);
-  d2 = gdivgs(gen_2, S->d);
-  /* peh2d[m+1] = (exp(mh)/sqrt(N))^(2/d) */
-  peh2d = gpowers0(gexp(gmul(d2,h), prec), M, invr(gpow(sqN, d2, prec)));
+  else
+  {
+    GEN vroots, peh2d, d2;
+    double sig0 = S->MAXs / S->m0, sub2 = S->sub / M_LN2;
+    /* For all 0<= m <= M, and all n <= L[m+1] such that a_n!=0, we must compute
+     *   k[m,n] = K(n exp(mh)/sqrt(N))
+     * with ln(absolute error) <= E + max(mh sigma - sub, 0) + k1 * log(n).
+     * N.B. we use the 'rt' variant and pass argument (n exp(mh)/sqrt(N))^(2/d).
+     * Speedup: if n' = 2n and m' = m - m0 >= 0; then k[m,n] = k[m',n']. */
+    /* vroots[n] = n^(2/d) */
+    vroots = mkvroots(S->d, S->nmax, prec);
+    d2 = gdivgs(gen_2, S->d);
+    /* peh2d[m+1] = (exp(mh)/sqrt(N))^(2/d) */
+    peh2d = gpowers0(gexp(gmul(d2,h), prec), M, invr(gpow(sqN, d2, prec)));
+    m0 = S->m0;
+    worker = snm_closure(is_entry("_lfuninit_worker"),
+                         mkvecn(8, theta_get_K(tech), S->L, peh2d, vroots,
+                                mkvec4(dbltor(sig0), dbltor(sub2),
+                                       dbltor(S->k1), dbltor(S->MAXs)),
+                                mkvecsmall3(S->D, M, m0),
+                                an, bn? bn: gen_0));
+    /* For each 0 <= m <= M, we will sum for n<=L[m+1] a(n) K(m,n)
+     * bit accuracy for K(m,n): D + k1*log2(n) + 1_{m > M0} (m*sig0 - sub2)
+     * We restrict m to arithmetic progressions r mod m0 to save memory and
+     * allow parallelization */
+  }
   va = cgetg(M+2, t_VEC);
   vb = bn? cgetg(M+2, t_VEC): NULL;
-
-  sig0 = S->MAXs / m0;
-  sub2 = S->sub / M_LN2;
-  worker = snm_closure(is_entry("_lfuninit_worker"),
-                       mkvecn(8, theta_get_K(tech), S->L, peh2d, vroots,
-                              mkvec4(dbltor(sig0), dbltor(sub2),
-                                     dbltor(S->k1), dbltor(S->MAXs)),
-                              mkvecsmall3(S->D, M, m0),
-                              an, bn? bn: gen_0));
-  /* For each 0 <= m <= M, we will sum for n<=L[m+1] a(n) K(m,n)
-   * bit accuracy for K(m,n): D + k1*log2(n) + 1_{m > M0} (m*sig0 - sub2)
-   * We restrict m to arithmetic progressions r mod m0 to save memory and
-   * allow parallelization */
   mt_queue_start_lim(&pt, worker, m0);
   pending = 0;
   for (r = 0; r < m0 || pending; r++)

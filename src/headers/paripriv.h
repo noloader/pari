@@ -180,6 +180,7 @@ GEN  ZabM_inv_worker(GEN P, GEN A, GEN Q);
 GEN  aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v);
 GEN  aprcl_step6_worker(GEN r, long t, GEN N, GEN N1, GEN et);
 GEN  lfuninit_worker(long r, GEN K, GEN L, GEN peh2d, GEN vroots, GEN dr, GEN di, GEN an, GEN bn);
+GEN  lfuninit_theta2_worker(long r, GEN L, GEN qk, GEN a, GEN di, GEN an, GEN bn);
 GEN  gen_parapply(GEN worker, GEN D);
 GEN  gen_crt(const char *str, GEN worker, forprime_t *S, GEN dB, ulong bound, long mmin, GEN *pt_mod,
              GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN));
