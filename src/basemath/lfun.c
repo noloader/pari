@@ -1096,11 +1096,14 @@ lfuninit_worker(long r, GEN K, GEN L, GEN peh2d, GEN vroots, GEN dr, GEN di,
     AB = cgetg(3, t_VEC);
     gel(AB,1) = A = cgetg(q+1, t_VEC);
     gel(AB,2) = B = cgetg(q+1, t_VEC);
+    if (typ(an) == t_VEC) an = RgV_kill0(an);
+    if (typ(bn) == t_VEC) bn = RgV_kill0(bn);
   }
   else
   {
     B = NULL;
     AB = A = cgetg(q+1, t_VEC);
+    if (typ(an) == t_VEC) an = RgV_kill0(an);
   }
   for (m -= m0, q--; m >= 0; m -= m0, q--)
   {
