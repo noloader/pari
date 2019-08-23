@@ -1932,9 +1932,8 @@ lfuncheckfeq(GEN lmisc, GEN t0, long bitprec)
   }
   av = avma;
   if (!t0)
-  { /* Pi/3 + I/7, some random complex number */
-    long prec = nbits2prec(bitprec);
-    t0 = mkcomplex(gdivgs(mppi(prec), 3), sstoQ(1,7));
+  { /* ~Pi/3 + I/7, some random complex number */
+    t0 = mkcomplex(sstoQ(355,339), sstoQ(1,7));
     t0i = ginv(t0);
   }
   else if (gcmpgs(gnorm(t0), 1) < 0) { t0i = t0; t0 = ginv(t0); }
