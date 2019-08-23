@@ -78,11 +78,13 @@ Doc: \var{pol} being a non-constant irreducible polynomial in $\Q[X]$,
  embeddings of the number field into $\C$ (the first $r1$ components are real,
  the next $r2$ have positive imaginary part).
 
- $\var{nf}[7]$ is an integral basis for $\Z_K$ (\kbd{\var{nf}.zk}) expressed
- on the powers of~$\theta$. Its first element is guaranteed to be $1$. This
- basis is LLL-reduced with respect to $T_2$ (strictly speaking, it is a
- permutation of such a basis, due to the condition that the first element be
- $1$).
+ $\var{nf}[7]$ is a $\Z$-basis for $d\Z_K$, where $d = [\Z_K:\Z(\theta)]$,
+ expressed on the powers of $\theta$. The multiplication by
+ $d$ ensures that all polynomials have integral coefficients
+ and $\var{nf}[7] / d$ (\kbd{\var{nf}.zk}) is an integral basis for $\Z_K$.
+ Its first element is guaranteed to be $1$. This basis is LLL-reduced with
+ respect to $T_2$ (strictly speaking, it is a permutation of such a basis, due
+ to the condition that the first element be $1$).
 
  $\var{nf}[8]$ is the $n\times n$ integral matrix expressing the power
  basis in terms of the integral basis, and finally
