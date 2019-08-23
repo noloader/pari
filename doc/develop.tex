@@ -727,7 +727,8 @@ parallel code. The final section in this chapter comments a complete example.
 
 \fun{void}{mt_queue_start}{struct pari_mt *pt, GEN worker} Let \kbd{worker}
 be a \typ{CLOSURE} object of arity $1$.  Initialize the opaque structure
-\kbd{pt} to evaluate \kbd{worker} in parallel. This allocates data in
+\kbd{pt} to evaluate \kbd{worker} in parallel, using \kbd{nbthreads} threads.
+This allocates data in
 various ways, e.g., on the PARI stack or as malloc'ed objects: you may not
 collect garbage on the PARI stack starting from an earlier \kbd{avma} point
 until the parallel computation is over, it could destroy something in \kbd{pt}.
@@ -736,23 +737,24 @@ All ressources allocated outside the PARI stack are freed by
 
 \fun{void}{mt_queue_start_lim}{struct pari_mt *pt, GEN worker, long lim}
 as \kbd{mt\_queue\_start}, where \kbd{lim} is an upper bound on the number
-of \kbd{tasks} to perform. Concretly the number of threads is the minimum
+of \kbd{tasks} to perform. Concretely the number of threads is the minimum
 of \kbd{lim} and \kbd{nbthreads}. The values $0$ and $1$ of \kbd{lim} are
 special:
 
-\item $0$: no limit, equivalent to \kbd{mt\_queue\_start}.
+\item $0$: no limit, equivalent to \kbd{mt\_queue\_start} (use
+\kbd{nbthreads} threads).
 
 \item $1$: no parallelism, evaluate the tasks sequentially.
 
 \fun{void}{mt_queue_submit}{struct pari_mt *pt, long taskid, GEN task} submit
-\kbd{task} to be evaluated by \kbd{worker}, or \kbd{NULL} if no further task
-needs to be submitted. The parameter \kbd{taskid} is attached to the
-\kbd{task} but not used in any way by the \kbd{worker} or the MT engine,
+\kbd{task} to be evaluated by \kbd{worker}; use \kbd{task = NULL} if no
+further task needs to be submitted. The parameter \kbd{taskid} is attached to
+the \kbd{task} but not used in any way by the \kbd{worker} or the MT engine,
 it will be returned to you by \kbd{mt\_queue\_get} together with the result
 for the task, allowing to match up results and submitted tasks if desired.
-For instance, if the tasks $(t_1,\dots, t_m)$ are known in advance, stored
-in a vector, and you want to recover the evaluation results in the same order
-as in that vector, you may use consecutive integers $1, \dots, m$ as
+For instance, if the tasks $(t_1,\dots, t_m)$ are known in advance, stored in
+a vector, and you want to recover the evaluation results in the same order as
+in that vector, you may use consecutive integers $1, \dots, m$ as
 \kbd{taskid}s. If you do not care about the ordering, on the other hand, you
 can just use $\kbd{taskid} = 0$ for all tasks.
 
@@ -761,13 +763,14 @@ forbidden to call this function twice without an intervening
 \kbd{mt\_queue\_get}.
 
 \fun{GEN}{mt_queue_get}{struct pari_mt *pt, long *taskid, long *pending}
-return the result of the evaluation by \kbd{worker} of one of the previously
-submitted tasks, in random order. Set \kbd{pending} to the number of
-remaining pending tasks: if this is $0$ then no more tasks are pending and it
-is safe to call \tet{mt_queue_end}. Set \kbd{*taskid} to the value attached
-to this task by \kbd{mt\_queue\_submit}, unless the \kbd{taskid} pointer is
-\kbd{NULL}. Returns \kbd{NULL} if all tasks submitted so far have been
-processed. It is forbidden to call this function twice without an intervening
+return \kbd{NULL} until \kbd{mt\_queue\_submit} has submitted
+tasks for the required number (\kbd{nbthreads}) of threads; then return the
+result of the evaluation by \kbd{worker} of one of the previously submitted
+tasks, in random order. Set \kbd{pending} to the number of remaining pending
+tasks: if this is $0$ then no more tasks are pending and it is safe to call
+\tet{mt_queue_end}. Set \kbd{*taskid} to the value attached to this task by
+\kbd{mt\_queue\_submit}, unless the \kbd{taskid} pointer is \kbd{NULL}. It is
+forbidden to call this function twice without an intervening
 \kbd{mt\_queue\_submit}.
 
 \fun{void}{mt_queue_end}{struct pari_mt *pt} end the parallel execution
