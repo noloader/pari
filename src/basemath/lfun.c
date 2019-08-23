@@ -1175,7 +1175,7 @@ lfuninit_ab(GEN theta, GEN h, struct lfunp *S)
   { /* d=2 and Vga = [a,a+1] */
     GEN a = vecmin(ldata_get_gammavec(linit_get_ldata(theta)));
     GEN qk = gpowers0(mpexp(h), M, isqN);
-    m0 = pari_mt_nbthreads;
+    m0 = minss(M+1, pari_mt_nbthreads);
     worker = snm_closure(is_entry("_lfuninit_theta2_worker"),
                          mkvecn(6, S->L, qk, a, mkvecsmall3(prec, M, m0),
                                 an, bn? bn: gen_0));
