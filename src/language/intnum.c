@@ -469,12 +469,10 @@ inittanhsinh(long m, long prec)
     ct = divr2_ip(addrr(et, invr(et))); /* ch(kh) */
     st = subrr(et, ct); /* sh(kh) */
     z = invr( addrs(mpexp(mulrr(pi, st)), 1) );
-    shiftr_inplace(z, 1);
+    shiftr_inplace(z, 1); if (expo(z) < -D.eps) { nt = k-1; break; }
     xp = subsr(1, z);
     wp = divr2_ip(mulrr(mulrr(pi,ct), mulrr(z, subsr(2, z))));
-    if (expo(wp) < -D.eps) { nt = k-1; break; }
     affrr(xp, gel(D.tabxp,k));
-    if (absrnz_equal1(gel(D.tabxp,k))) { nt = k-1; break; }
     affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
   }
   return intinit_end(&D, nt, 0);
@@ -591,8 +589,8 @@ initexpexp(long m, long prec)
     xp = mpexp(subrr(kh, et));
     xm = mpexp(negr(addrr(kh, eti)));
     wp = mulrr(xp, addsr(1, et));
-    wm = mulrr(xm, addsr(1, eti));
     if (expo(xm) < -D.eps && cmprs(xp, (long)(M_LN2*(expo(wp)+D.eps) + 1)) > 0) { nt = k-1; break; }
+    wm = mulrr(xm, addsr(1, eti));
     affrr(xp, gel(D.tabxp,k));
     affrr(wp, gel(D.tabwp,k));
     affrr(xm, gel(D.tabxm,k));
