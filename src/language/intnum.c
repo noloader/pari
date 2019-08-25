@@ -452,28 +452,29 @@ divr2_ip(GEN x) { shiftr_inplace(x, -1); return x; }
 static GEN
 inittanhsinh(long m, long prec)
 {
-  GEN et, ex, pi = mppi(prec);
+  GEN e, ei, ek, eik, pi = mppi(prec);
   long k, nt = -1;
   intdata D;
 
   intinit_start(&D, m, 1.86, prec);
   D.tabx0 = real_0(prec);
   D.tabw0 = Pi2n(-1,prec);
-  et = ex = mpexp(D.h);
+  e = mpexp(D.h); ek = mulrr(pi, e);
+  ei = invr(e); eik = mulrr(pi, ei);
   for (k = 1; k < D.l; k++)
   {
     GEN xp, wp, ct, st, z;
     pari_sp av;
     gel(D.tabxp,k) = cgetr(prec);
     gel(D.tabwp,k) = cgetr(prec); av = avma;
-    ct = divr2_ip(addrr(et, invr(et))); /* ch(kh) */
-    st = subrr(et, ct); /* sh(kh) */
-    z = invr( addrs(mpexp(mulrr(pi, st)), 1) );
+    ct = divr2_ip(addrr(ek, eik)); /* Pi ch(kh) */
+    st = subrr(ek, ct); /* Pi sh(kh) */
+    z = invr( addrs(mpexp(st), 1) );
     shiftr_inplace(z, 1); if (expo(z) < -D.eps) { nt = k-1; break; }
     xp = subsr(1, z);
-    wp = divr2_ip(mulrr(mulrr(pi,ct), mulrr(z, subsr(2, z))));
-    affrr(xp, gel(D.tabxp,k));
-    affrr(wp, gel(D.tabwp,k)); et = gerepileuptoleaf(av, mulrr(et, ex));
+    wp = divr2_ip(mulrr(ct, mulrr(z, subsr(2, z))));
+    affrr(xp, gel(D.tabxp,k)); mulrrz(ek, e, ek);
+    affrr(wp, gel(D.tabwp,k)); mulrrz(eik, ei, eik); set_avma(av);
   }
   return intinit_end(&D, nt, 0);
 }
