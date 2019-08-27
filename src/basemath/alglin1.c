@@ -3245,6 +3245,20 @@ ZM_ker_i(GEN A)
   GEN HD = NULL, mod = gen_1, worker;
   forprime_t S;
 
+  if (m >= 2*nbrows(A))
+  {
+    GEN v = ZM_indexrank(A), y = gel(v,2), z = indexcompl(y, m);
+    GEN B, A1, A1i, d;
+    A = rowpermute(A, gel(v,1)); /* same kernel */
+    A1 = vecpermute(A, y); /* maximal rank submatrix */
+    B = vecpermute(A, z);
+    A1i = ZM_inv(A1, &d);
+    if (!d) d = gen_1;
+    B = vconcat(ZM_mul(ZM_neg(A1i), B), scalarmat_shallow(d, lg(B)-1));
+    if (!gequal(y, identity_perm(lg(y)-1)))
+      B = rowpermute(B, perm_inv(shallowconcat(y,z)));
+    return B;
+  }
   init_modular_big(&S);
   worker = snm_closure(is_entry("_ZM_ker_worker"), mkvec(A));
   av = avma;
