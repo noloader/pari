@@ -927,12 +927,12 @@ long
 FF_ispower(GEN x, GEN K, GEN *pt)
 {
   ulong pp;
-  GEN r, T, p;
+  GEN z, r, T, p;
   pari_sp av = avma;
 
   if (FF_equal0(x)) { if (pt) *pt = gcopy(x); return 1; }
   _getFF(x, &T, &p, &pp);
-  if (pt) *pt = cgetg(5,t_FFELT);
+  z = pt? cgetg(5,t_FFELT): NULL;
   switch(x[1])
   {
   case t_FF_FpXQ:
@@ -946,7 +946,7 @@ FF_ispower(GEN x, GEN K, GEN *pt)
     break;
   }
   if (!r) return gc_long(av,0);
-  if (pt) { (void)_mkFF(x,*pt,r); }
+  if (pt) { *pt = z; (void)_mkFF(x,z,r); }
   return 1;
 }
 
