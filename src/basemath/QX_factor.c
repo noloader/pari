@@ -1154,17 +1154,13 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   av = avma;
   for (k = 1; ;k *= 2)
   {
-    gen_inccrt("ZX_gcd", worker, g, (k+1)>>1, m, &S, &H, &mod, ZX_gcd_chinese, NULL);
+    gen_inccrt_i("ZX_gcd", worker, g, (k+1)>>1, m, &S, &H, &mod, ZX_gcd_chinese, NULL);
+    gerepileall(av, 2, &H, &mod);
     Hp = ZX_to_Flx(H, pp);
     if (lgpol(Flx_rem(Ap, Hp, pp)) || lgpol(Flx_rem(Bp, Hp, pp))) continue;
     if (!ZX_divides(Bg, H)) continue;
     R = ZX_divides(Ag, H);
     if (R) break;
-    if (gc_needed(av,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ZX_gcd");
-      gerepileall(av, 2, &H, &mod);
-    }
   }
   /* lead(H) = g */
   if (g) H = Q_primpart(H);

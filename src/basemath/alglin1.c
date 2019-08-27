@@ -3252,8 +3252,9 @@ ZM_ker_i(GEN A)
   {
     pari_timer ti;
     GEN H, B, Hr;
-    gen_inccrt("ZM_ker", worker, NULL, (k+1)>>1 , m,
-               &S, &HD, &mod, ZM_ker_chinese, NULL);
+    gen_inccrt_i("ZM_ker", worker, NULL, (k+1)>>1 , m,
+                 &S, &HD, &mod, ZM_ker_chinese, NULL);
+    gerepileall(av, 2, &HD, &mod);
     H = gel(HD, 1); if (lg(H) == 1) return H;
     B = sqrti(shifti(mod,-1));
     if (DEBUGLEVEL >= 4) timer_start(&ti);
@@ -3266,11 +3267,6 @@ ZM_ker_i(GEN A)
       MH = ZM_mul(A, Hr);
       if (DEBUGLEVEL >= 4) timer_printf(&ti,"ZM_ker: QM_mul");
       if (ZM_equal0(MH)) return Hr;
-    }
-    if (gc_needed(av,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"ZM_ker");
-      gerepileall(av, 2, &HD, &mod);
     }
   }
 }

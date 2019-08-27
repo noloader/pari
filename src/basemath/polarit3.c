@@ -915,11 +915,10 @@ primelist(forprime_t *S, long n, GEN dB)
 }
 
 void
-gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
-           forprime_t *S, GEN *pH, GEN *pmod, GEN crt(GEN, GEN, GEN*),
-           GEN center(GEN, GEN, GEN))
+gen_inccrt_i(const char *str, GEN worker, GEN dB, long n, long mmin,
+             forprime_t *S, GEN *pH, GEN *pmod, GEN crt(GEN, GEN, GEN*),
+             GEN center(GEN, GEN, GEN))
 {
-  pari_sp av = avma;
   long m = minss(mmin, n);
   GEN  H, P, mod;
   pari_timer ti;
@@ -966,8 +965,17 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
   }
   if (*pH) H = crt(mkvec2(*pH, H), mkvec2(*pmod, mod), &mod);
   *pH = H; *pmod = mod;
+}
+void
+gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
+           forprime_t *S, GEN *pH, GEN *pmod, GEN crt(GEN, GEN, GEN*),
+           GEN center(GEN, GEN, GEN))
+{
+  pari_sp av = avma;
+  gen_inccrt_i(str, worker, dB, n, mmin, S, pH, pmod, crt, center);
   gerepileall(av, 2, pH, pmod);
 }
+
 
 GEN
 gen_crt(const char *str, GEN worker, forprime_t *S, GEN dB, ulong bound, long mmin, GEN *pmod,
