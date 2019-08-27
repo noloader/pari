@@ -472,7 +472,7 @@ inittanhsinh(long m, long prec)
     z = invr( addrs(mpexp(st), 1) );
     shiftr_inplace(z, 1); if (expo(z) < -D.eps) { nt = k-1; break; }
     xp = subsr(1, z);
-    wp = divr2_ip(mulrr(ct, mulrr(z, subsr(2, z))));
+    wp = divr2_ip(mulrr(ct, subsr(1, sqrr(xp))));
     affrr(xp, gel(D.tabxp,k)); mulrrz(ek, e, ek);
     affrr(wp, gel(D.tabwp,k)); mulrrz(eik, ei, eik); set_avma(av);
   }
