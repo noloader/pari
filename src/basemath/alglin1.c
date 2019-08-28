@@ -5259,7 +5259,7 @@ parallelogramarea(GEN v1, GEN v2)
 { return gsub(gmul(gnorml2(v1), gnorml2(v2)), gsqr(RgV_dotproduct(v1, v2))); }
 
 /* Square of Hadamard bound for det(a), a square matrix.
- * Slightly improvement: instead of using the column norms, use the area of
+ * Slight improvement: instead of using the column norms, use the area of
  * the parallelogram formed by pairs of consecutive vectors */
 GEN
 RgM_Hadamard(GEN a)
@@ -5325,6 +5325,11 @@ ZM_det(GEN M)
   forprime_t S;
   pari_timer ti;
   GEN H, D, mod, h, q, v, worker;
+#ifdef LONG_IS_64BIT
+  const ulong PMAX = 18446744073709551557UL;
+#else
+  const ulong PMAX = 4294967291UL;
+#endif
 
   switch(n)
   {
@@ -5333,10 +5338,19 @@ ZM_det(GEN M)
     case 2: return ZM_det2(M);
     case 3: return ZM_det3(M);
   }
-  if (DEBUGLEVEL >=4) timer_start(&ti);
-  av = avma; h = RgM_Hadamard(M);
+  if (DEBUGLEVEL>=4) timer_start(&ti);
+  av = avma; h = RgM_Hadamard(M); /* |D| <= sqrt(h) */
   if (!signe(h)) { set_avma(av); return gen_0; }
-  h = sqrti(h); q = gen_1; Dp = 1;
+  h = sqrti(h);
+  if (lgefint(h) == 3 && (ulong)h[2] <= (PMAX >> 1))
+  { /* h < p/2 => direct result */
+    p = PMAX;
+    Dp = Flm_det_sp(ZM_to_Flm(M, p), p);
+    set_avma(av);
+    if (!Dp) return gen_0;
+    return (Dp <= (p>>1))? utoipos(Dp): utoineg(p - Dp);
+  }
+  q = gen_1; Dp = 1;
   init_modular_big(&S);
   p = 0; /* -Wall */
   while (cmpii(q, h) <= 0 && (p = u_forprime_next(&S)))
@@ -5348,8 +5362,8 @@ ZM_det(GEN M)
   }
   if (!p) pari_err_OVERFLOW("ZM_det [ran out of primes]");
   if (!Dp) { set_avma(av); return gen_0; }
-  if (n <= DIXON_THRESHOLD)
-    D = q;
+  if (pari_mt_nbthreads > 1 || n <= DIXON_THRESHOLD)
+    D = q; /* never competitive when bound is sharp even with 2 threads */
   else
   {
     av2 = avma;
@@ -5365,10 +5379,11 @@ ZM_det(GEN M)
     D = gerepileuptoint(av2, D);
     if (q != gen_1) D = lcmii(D, q);
   }
-  /* determinant is a multiple of D */
   if (DEBUGLEVEL >=4)
     timer_printf(&ti,"ZM_det: Dixon %ld/%ld bits",expi(D),expi(h));
-  h = divii(h, D);
+  /* determinant is a multiple of D */
+  if (is_pm1(D)) D = NULL;
+  if (D) h = diviiexact(h, D);
   worker = snm_closure(is_entry("_ZM_det_worker"), mkvec(M));
   H = gen_crt("ZM_det", worker, &S, D, expi(h)+1, lg(M)-1, &mod,
               ZV_chinese, NULL);
