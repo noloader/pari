@@ -423,6 +423,7 @@ static GEN
 lfunchiquad(GEN D)
 {
   GEN r;
+  D = coredisc(D);
   if (equali1(D)) return lfunzeta();
   if (!isfundamental(D)) pari_err_TYPE("lfunchiquad [not primitive]", D);
   r = mkvecn(6, NULL, gen_0, NULL, gen_1, NULL, gen_1);

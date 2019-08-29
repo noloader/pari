@@ -165,10 +165,11 @@ Doc:
 
  Given a Dirichlet character $\chi:(\Z/N\Z)^*\to \C$, we let
  $$L(\chi, s) = \sum_{n\geq 1} \chi(n) n^{-s}.$$
- Only primitive characters are supported. Given a fundamental discriminant
- $D$, the function $L((D/.), s)$, for the quadratic Kronecker symbol, is encoded
- by the \typ{INT} $D$. This includes Riemann $\zeta$ function via the special
- case $D = 1$.
+ Only primitive characters are supported. Given a non-zero
+ integer $D$, the \typ{INT} $D$ encodes the function $L((D_0/.), s)$, for the
+ quadratic Kronecker symbol attached to the fundamental discriminant
+ $D_0 = \kbd{coredisc}(D)$. This includes Riemann $\zeta$ function via the
+ special case $D = 1$.
 
  More general characters can be represented in a variety of ways:
 
