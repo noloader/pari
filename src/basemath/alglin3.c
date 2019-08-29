@@ -772,27 +772,36 @@ parapply_slice_worker(GEN D, GEN worker)
   return w;
 }
 
+/* B <- {A[i] : i = r (mod m)}, 1 <= r <= m */
+static void
+arithprogset(GEN B, GEN A, long r, long m)
+{
+  long i, k, l = lg(A);
+  for (k = 1, i = r; i < l; i += m, k++) gel(B, k) = gel(A, i);
+  setlg(B, k);
+}
 GEN
 gen_parapply_slice(GEN worker, GEN D, long mmin)
 {
-  long a, l, i, M, n = lg(D)-1, m = minss(mmin, n), pending = 0;
-  GEN V;
+  long l, r, n = lg(D)-1, m = minss(mmin, n), pending = 0;
+  GEN V, L, va;
   struct pari_mt pt;
   if (m <= 1) return parapply_slice_worker(D, gmael(worker,7,1));
-  M = (n + m-1) / m;
   V = cgetg_copy(D, &l);
-  mt_queue_start_lim(&pt, worker, n);
-  for (i = 1, a = 0; i <= m || pending; i++, a += M)
+  L = cgetg(n / m + 2, t_VEC);
+  va = mkvec(L);
+  mt_queue_start_lim(&pt, worker, m);
+  for (r = 1; r <= m || pending; r++)
   {
     long workid;
-    GEN W, done;
-    W = i <= m ? mkvec(vecslice(D, a+1, minss(a+M, n))): NULL;
-    mt_queue_submit(&pt, a, W);
+    GEN done;
+    if (r <= m) arithprogset(L, D, r, m);
+    mt_queue_submit(&pt, r, r <= m? va: NULL);
     done = mt_queue_get(&pt, &workid, &pending);
     if (done)
     {
-      long j, J = lg(done)-1;
-      for (j = 1; j <= J; j++) gel(V, workid + j) = gel(done, j);
+      long j, k, J = lg(done)-1;
+      for (j = 1, k = workid; j <= J; j++, k +=m) gel(V, k) = gel(done, j);
     }
   }
   mt_queue_end(&pt); return V;

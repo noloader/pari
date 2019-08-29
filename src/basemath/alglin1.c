@@ -3236,6 +3236,35 @@ ZM_ker_worker(GEN P, GEN A)
   return V;
 }
 
+GEN
+FpM_ratlift_worker(GEN A, GEN mod, GEN B)
+{
+  GEN H = FpC_ratlift(A, mod, B, B, NULL);
+  return H? H: gen_0;
+}
+static GEN
+FpM_ratlift_parallel(GEN A, GEN mod)
+{
+  pari_sp av = avma;
+  GEN worker, E, B, a, b;
+  long i, m = pari_mt_nbthreads, l = lg(A);
+
+  if (l == 1 || lgcols(A) == 1) return gcopy(A);
+  B = sqrti(shifti(mod,-1));
+  if (m == 1 || l == 2 || lgcols(A) < 10)
+  {
+    A = FpM_ratlift(A, mod, B, B, NULL);
+    return A? A: gc_NULL(av);
+  }
+  /* test one coefficient first */
+  if (!Fp_ratlift(gcoeff(A,1,1), mod, B, B, &a,&b)) return gc_NULL(av);
+  E = snm_closure(is_entry("_FpM_ratlift_worker"), mkvec2(mod,B));
+  worker = snm_closure(is_entry("_parapply_slice_worker"), mkvec(E));
+  A = gen_parapply_slice(worker, A, m);
+  for (i = 1; i < l; i++) if (typ(gel(A,i)) != t_COL) return gc_NULL(av);
+  return A;
+}
+
 /* assume lg(A) > 1 */
 static GEN
 ZM_ker_i(GEN A)
@@ -3262,17 +3291,16 @@ ZM_ker_i(GEN A)
   init_modular_big(&S);
   worker = snm_closure(is_entry("_ZM_ker_worker"), mkvec(A));
   av = avma;
-  for (k = 1;; k *= 2)
+  for (k = 1;; k <<= 1)
   {
     pari_timer ti;
-    GEN H, B, Hr;
+    GEN H, Hr;
     gen_inccrt_i("ZM_ker", worker, NULL, (k+1)>>1 , m,
                  &S, &HD, &mod, ZM_ker_chinese, NULL);
     gerepileall(av, 2, &HD, &mod);
     H = gel(HD, 1); if (lg(H) == 1) return H;
-    B = sqrti(shifti(mod,-1));
     if (DEBUGLEVEL >= 4) timer_start(&ti);
-    Hr = FpM_ratlift(H, mod, B, B, NULL);
+    Hr = FpM_ratlift_parallel(H, mod);
     if (DEBUGLEVEL >= 4) timer_printf(&ti,"ZM_ker: ratlift (%ld)",!!Hr);
     if (Hr)
     {

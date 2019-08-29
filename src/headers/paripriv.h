@@ -197,6 +197,7 @@ GEN  dirartin_worker(GEN P, ulong X, GEN nf, GEN G, GEN V, GEN aut);
 GEN  direllsympow_worker(GEN P, ulong X, GEN E, ulong m);
 GEN  dirgenus2_worker(GEN P, ulong X, GEN Q);
 GEN  pardireuler(GEN worker, GEN a, GEN b, GEN c, GEN Sbad);
+GEN  FpM_ratlift_worker(GEN A, GEN mod, GEN B);
 
 /* Relative number fields */
 enum { rnf_NFABS = 1, rnf_MAPS };
