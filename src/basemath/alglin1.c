@@ -3058,21 +3058,60 @@ ZM_inv_ratlift(GEN M, GEN *pden)
   return H;
 }
 
+GEN
+FpM_ratlift_worker(GEN A, GEN mod, GEN B)
+{
+  GEN H = FpC_ratlift(A, mod, B, B, NULL);
+  return H? H: gen_0;
+}
+static int
+can_ratlift(GEN x, GEN mod, GEN B)
+{
+  pari_sp av = avma;
+  GEN a, b;
+  return gc_bool(av, Fp_ratlift(x, mod, B, B, &a,&b));
+}
+static GEN
+FpM_ratlift_parallel(GEN A, GEN mod, GEN B)
+{
+  pari_sp av = avma;
+  GEN worker, E;
+  long i, m = pari_mt_nbthreads, l = lg(A);
+  int test = !!B;
+
+  if (l == 1 || lgcols(A) == 1) return gcopy(A);
+  if (!B) B = sqrti(shifti(mod,-1));
+  if (m == 1 || l == 2 || lgcols(A) < 10)
+  {
+    A = FpM_ratlift(A, mod, B, B, NULL);
+    return A? A: gc_NULL(av);
+  }
+  /* test one coefficient first */
+  if (test && !can_ratlift(gcoeff(A,1,1), mod, B)) return gc_NULL(av);
+  E = snm_closure(is_entry("_FpM_ratlift_worker"), mkvec2(mod,B));
+  worker = snm_closure(is_entry("_parapply_slice_worker"), mkvec(E));
+  A = gen_parapply_slice(worker, A, m);
+  for (i = 1; i < l; i++) if (typ(gel(A,i)) != t_COL) return gc_NULL(av);
+  return A;
+}
+
 static GEN
 ZM_adj_ratlift(GEN A, GEN H, GEN mod)
 {
-  GEN B;
-  GEN D = ZMrow_ZC_mul(H, gel(A,1), 1);
-  GEN g = gcdii(D, mod);
+  pari_sp av = avma;
+  GEN B, D = ZMrow_ZC_mul(H, gel(A,1), 1), g = gcdii(D, mod);
   if (!equali1(g))
   {
     mod = diviiexact(mod, g);
     H = FpM_red(H, mod);
   }
   D = Fp_inv(Fp_red(D, mod), mod);
-  H = FpM_Fp_mul(H, D, mod);
+  /* test 1 coeff first */
   B = sqrti(shifti(mod,-1));
-  return FpM_ratlift(H, mod, B, B, NULL);
+  if (!can_ratlift(Fp_mul(D, gcoeff(A,1,1), mod), mod, B)) return gc_NULL(av);
+  H = FpM_Fp_mul(H, D, mod);
+  H = FpM_ratlift_parallel(H, mod, B);
+  return H? H: gc_NULL(av);
 }
 
 GEN
@@ -3115,8 +3154,7 @@ ZM_inv(GEN A, GEN *pden)
     Hr = ZM_adj_ratlift(A, H1, mod1);
     if (DEBUGLEVEL>=5) timer_printf(&ti,"ratlift (%ld/%ld primes)", k1, n);
     if (Hr) {/* DONE ? */
-      GEN den;
-      GEN Hl = Q_remove_denom(Hr, &den);
+      GEN den, Hl = Q_remove_denom(Hr, &den);
       GEN R = ZM_mul(Hl, A);
       if (DEBUGLEVEL>=5) timer_printf(&ti,"mult (%ld/%ld primes)", k1, n);
       den = den ? den: gen_1;
@@ -3236,35 +3274,6 @@ ZM_ker_worker(GEN P, GEN A)
   return V;
 }
 
-GEN
-FpM_ratlift_worker(GEN A, GEN mod, GEN B)
-{
-  GEN H = FpC_ratlift(A, mod, B, B, NULL);
-  return H? H: gen_0;
-}
-static GEN
-FpM_ratlift_parallel(GEN A, GEN mod)
-{
-  pari_sp av = avma;
-  GEN worker, E, B, a, b;
-  long i, m = pari_mt_nbthreads, l = lg(A);
-
-  if (l == 1 || lgcols(A) == 1) return gcopy(A);
-  B = sqrti(shifti(mod,-1));
-  if (m == 1 || l == 2 || lgcols(A) < 10)
-  {
-    A = FpM_ratlift(A, mod, B, B, NULL);
-    return A? A: gc_NULL(av);
-  }
-  /* test one coefficient first */
-  if (!Fp_ratlift(gcoeff(A,1,1), mod, B, B, &a,&b)) return gc_NULL(av);
-  E = snm_closure(is_entry("_FpM_ratlift_worker"), mkvec2(mod,B));
-  worker = snm_closure(is_entry("_parapply_slice_worker"), mkvec(E));
-  A = gen_parapply_slice(worker, A, m);
-  for (i = 1; i < l; i++) if (typ(gel(A,i)) != t_COL) return gc_NULL(av);
-  return A;
-}
-
 /* assume lg(A) > 1 */
 static GEN
 ZM_ker_i(GEN A)
@@ -3300,7 +3309,7 @@ ZM_ker_i(GEN A)
     gerepileall(av, 2, &HD, &mod);
     H = gel(HD, 1); if (lg(H) == 1) return H;
     if (DEBUGLEVEL >= 4) timer_start(&ti);
-    Hr = FpM_ratlift_parallel(H, mod);
+    Hr = FpM_ratlift_parallel(H, mod, NULL);
     if (DEBUGLEVEL >= 4) timer_printf(&ti,"ZM_ker: ratlift (%ld)",!!Hr);
     if (Hr)
     {
