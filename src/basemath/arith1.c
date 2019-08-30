@@ -2880,7 +2880,7 @@ polint_chinese(GEN worker, GEN mA, GEN P)
   cnt = pending = 0;
   n = lg(P);
   A = cgetg(n, t_VEC);
-  va = mkvec(gen_0);
+  va = mkvec(A);
   M = cgetg(l, t_MAT);
   if (DEBUGLEVEL>4) timer_start(&ti);
   if (DEBUGLEVEL>5) err_printf("Start parallel Chinese remainder: ");
@@ -2889,7 +2889,6 @@ polint_chinese(GEN worker, GEN mA, GEN P)
   {
     long workid;
     for(j=1; j < n; j++) gel(A,j) = gmael(mA,j,i);
-    gel(va, 1) = A;
     mt_queue_submit(&pt, i, i<l? va: NULL);
     done = mt_queue_get(&pt, &workid, &pending);
     if (done)
