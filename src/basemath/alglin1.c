@@ -2889,8 +2889,7 @@ ZM_gauss(GEN a, GEN b0)
   /* N.B. Our delta/lambda are SQUARES of those in the paper
    * log(delta lambda) / log p, where lambda is 3+sqrt(5) / 2,
    * whose log is < 1, hence + 1 (to cater for rounding errors) */
-  m = (long)ceil((rtodbl(logr_abs(itor(delta,LOWDEFAULTPREC))) + 1)
-                 / log((double)p));
+  m = (long)ceil((dbllog2(delta)*M_LN2 + 1) / log((double)p));
   res = ZlM_gauss_ratlift(a, b, p, m, C);
   if (iscol) return gerepilecopy(av, gel(res, 1));
   return gerepileupto(av, res);
