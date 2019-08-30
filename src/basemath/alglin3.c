@@ -784,12 +784,8 @@ GEN
 gen_parapply_slice(GEN worker, GEN D, long mmin)
 {
   long l, r, n = lg(D)-1, m = minss(mmin, n), pending = 0;
-  GEN V, L, va;
+  GEN L = cgetg(n / m + 2, t_VEC), va = mkvec(L), V = cgetg_copy(D, &l);
   struct pari_mt pt;
-  if (m <= 1) return parapply_slice_worker(D, gmael(worker,7,1));
-  V = cgetg_copy(D, &l);
-  L = cgetg(n / m + 2, t_VEC);
-  va = mkvec(L);
   mt_queue_start_lim(&pt, worker, m);
   for (r = 1; r <= m || pending; r++)
   {

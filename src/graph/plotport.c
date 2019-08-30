@@ -1310,7 +1310,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
   {
     GEN V, X = cgetg(N+1, t_VEC);
     for (i = 1; i <= N; i++) { gel(X,i) = x; x = addrr(x,dx); }
-    if (flags & PLOT_PARA && eval == gp_call)
+    if (flags & PLOT_PARA && eval == gp_call && pari_mt_nbthreads > 1)
     {
       GEN worker = snm_closure(is_entry("_parapply_slice_worker"),
                                mkvec((GEN)E));

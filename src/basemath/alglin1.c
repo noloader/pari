@@ -3060,8 +3060,14 @@ ZM_inv_ratlift(GEN M, GEN *pden)
 GEN
 FpM_ratlift_worker(GEN A, GEN mod, GEN B)
 {
-  GEN H = FpC_ratlift(A, mod, B, B, NULL);
-  return H? H: gen_0;
+  long l, i;
+  GEN H = cgetg_copy(A, &l);
+  for (i = 1; i < l; i++)
+  {
+     GEN c = FpC_ratlift(gel(A,i), mod, B, B, NULL);
+     gel(H,i) = c? c: gen_0;
+  }
+  return H;
 }
 static int
 can_ratlift(GEN x, GEN mod, GEN B)
@@ -3074,8 +3080,8 @@ static GEN
 FpM_ratlift_parallel(GEN A, GEN mod, GEN B)
 {
   pari_sp av = avma;
-  GEN worker, E;
-  long i, m = pari_mt_nbthreads, l = lg(A);
+  GEN worker;
+  long i, l = lg(A), m = pari_mt_nbthreads;
   int test = !!B;
 
   if (l == 1 || lgcols(A) == 1) return gcopy(A);
@@ -3087,8 +3093,7 @@ FpM_ratlift_parallel(GEN A, GEN mod, GEN B)
   }
   /* test one coefficient first */
   if (test && !can_ratlift(gcoeff(A,1,1), mod, B)) return gc_NULL(av);
-  E = snm_closure(is_entry("_FpM_ratlift_worker"), mkvec2(mod,B));
-  worker = snm_closure(is_entry("_parapply_slice_worker"), mkvec(E));
+  worker = snm_closure(is_entry("_FpM_ratlift_worker"), mkvec2(mod,B));
   A = gen_parapply_slice(worker, A, m);
   for (i = 1; i < l; i++) if (typ(gel(A,i)) != t_COL) return gc_NULL(av);
   return A;
