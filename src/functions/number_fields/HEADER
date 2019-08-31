@@ -151,8 +151,8 @@ Doc:
  We are given a number field $K = \kbd{nfinit}(T)$, attached to $K = \Q[Y]/(T)$,
  $T \in \Q[Y]$, and a relative extension $L = \kbd{rnfinit}(K, P)$, attached
  to $L = K[X]/(P)$, $P \in K[X]$.
- In all contexts (except \kbd{rnfeltabstorel}, see below), an \tev{algebraic
- number} is given as
+ In all contexts (except \kbd{rnfeltabstorel}, see below), an
+ \tev{algebraic number} is given as
 
  \item a \typ{INT}, \typ{FRAC} or \typ{POL} in $\Q[Y]$ (implicitly modulo $T$)
  or a \typ{POL} in $K[X]$ (implicitly modulo $P$),
