@@ -110,7 +110,7 @@ Doc:
  you may use the variable name $y$ to define the base field $K$, and $x$ to
  define the relative extension $L/K$.
 
- \subsubsec{Basic definitions}\label{se:ZKmodules} %GPHELPskip
+ \misctitle{Basic definitions}\label{se:ZKmodules} %GPHELPskip
 
  \item $\tev{rnf}$ denotes a relative number field, i.e.~a data structure
  output by \kbd{rnfinit}, attached to the extension $L/K$. The \var{nf}
@@ -146,7 +146,7 @@ Doc:
  \item An arbitrary $\Z_K$ modules of finite type in $K^m$, with non-trivial
  torsion, is given by an integral pseudo-matrix $(A,I,J)$
 
- \subsubsec{Algebraic numbers in relative extension}
+ \misctitle{Algebraic numbers in relative extension}
 
  We are given a number field $K = \kbd{nfinit}(T)$, attached to $K = \Q[Y]/(T)$,
  $T \in \Q[Y]$, and a relative extension $L = \kbd{rnfinit}(K, P)$, attached
@@ -181,7 +181,7 @@ Doc:
  of length $[L:\Q]$ refers to the integral basis \kbd{Labs.zk} in all cases,
  including $L = K$.
 
- \subsubsec{Pseudo-bases, determinant} %GPHELPskip
+ \misctitle{Pseudo-bases, determinant} %GPHELPskip
 
  \item The pair $(A,I)$ is a \tev{pseudo-basis} of the module it
  generates if the $\goth{a}_j$ are non-zero, and the $A_j$ are $K$-linearly

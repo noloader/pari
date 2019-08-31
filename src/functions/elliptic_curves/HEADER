@@ -25,7 +25,7 @@ Doc:
  be used directly. The following \idx{member functions} are available,
  depending on the underlying domain.
 
- \subsubsec{All domains} %GPHELPskip
+ \misctitle{All domains} %GPHELPskip
 
  \item \tet{a1}, \tet{a2}, \tet{a3}, \tet{a4}, \tet{a6}: coefficients of the
  elliptic curve.
@@ -52,7 +52,7 @@ Doc:
  %3 = -64*a4^3 - 432*a6^2
  @eprog
 
- \subsubsec{Curves over $\C$} %GPHELPskip
+ \misctitle{Curves over $\C$} %GPHELPskip
 
  This in particular includes curves defined over $\Q$. All member functions in
  this section return data, as it is currently stored in the structure, if
@@ -97,7 +97,7 @@ Doc:
  instead of a twisted one. (Our $tau$ is $-1/\tau$ in the above inverse
  convention.)
 
- \subsubsec{Curves over $\Q_p$} %GPHELPskip
+ \misctitle{Curves over $\Q_p$} %GPHELPskip
 
  We advise to input a model defined over $\Q$ for such curves. In any case,
  if you input an approximate model with \typ{PADIC} coefficients, it will be
@@ -132,7 +132,7 @@ Doc:
  the singular curve $E_\infty$. Finally, $L$ is Mazur-Tate-Teitelbaum's
  ${\cal L}$-invariant, equal to $\log_p q / v_p(q)$.
 
- \subsubsec{Curves over $\F_q$} %GPHELPskip
+ \misctitle{Curves over $\F_q$} %GPHELPskip
 
  \item \tet{p} is the characteristic of $\F_q$.
 
@@ -145,7 +145,7 @@ Doc:
  \item \tet{group} returns $[\kbd{no},\kbd{cyc},\kbd{gen}]$, i.e. $E(\F_q)$
  as an abelian group structure.
 
- \subsubsec{Curves over $\Q$} %GPHELPskip
+ \misctitle{Curves over $\Q$} %GPHELPskip
 
  All functions should return a correct result, whether the model is minimal or
  not, but it is a good idea to stick to minimal models whenever
@@ -170,7 +170,7 @@ Doc:
  \item \tet{gen} returns the generators of $E(\Q)$, if known (from John
    Cremona's database)
 
- \subsubsec{Curves over number fields} %GPHELPskip
+ \misctitle{Curves over number fields} %GPHELPskip
 
  \item \tet{nf} return the \var{nf} structure attached to the number field
  over which $E$ is defined.
