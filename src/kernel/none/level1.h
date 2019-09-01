@@ -886,6 +886,7 @@ INLINE void
 rdiviiz(GEN x, GEN y, GEN z)
 {
   pari_sp av = avma;
+  long prec = realprec(z);
   affir(x, z);
   if (lg(y) == 3) {
     if (signe(y) < 0) togglesign(z);
@@ -894,25 +895,31 @@ rdiviiz(GEN x, GEN y, GEN z)
   else
     affrr(divri(z, y), z);
   set_avma(av);
-}
-INLINE GEN
-rdivii(GEN x, GEN y, long prec)
-{
-  GEN z;
-  if (lg(y) == 3)
+  long lx = lgefint(x), ly = lgefint(y);
+  if (lx == 2) { affur(0, z); return; }
+  if (ly == 3)
   {
-    z = itor(x, prec); if (signe(y) < 0) togglesign(z);
-    affrr(divru(z, y[2]), z); set_avma((ulong)z);
+    affir(x, z); if (signe(y) < 0) togglesign(z);
+    affrr(divru(z, y[2]), z);
+  }
+  else if (lx > prec + 1 || ly > prec + 1)
+  {
+    affir(x,z); affrr(divri(z, y), z);
   }
   else
   {
-    pari_sp av = avma;
-    z = gerepileuptoleaf(av, divri(itor(x, prec), y));
+    long b = bit_accuracy(prec) + expi(y) - expi(x) + 1;
+    GEN q = divii(b > 0? shifti(x, b): x, y);
+    affir(q, z); if (b > 0) shiftr_inplace(z, -b);
   }
-  return z;
+  set_avma((ulong)z);
 }
 INLINE GEN
-fractor(GEN x, long prec) { return rdivii(gel(x,1), gel(x,2), prec); }
+rdivii(GEN x, GEN y, long prec)
+{ GEN z = cgetr(prec); rdiviiz(x, y, z); return z; }
+INLINE GEN
+fractor(GEN x, long prec)
+{ return rdivii(gel(x,1), gel(x,2), prec); }
 
 INLINE int
 dvdii(GEN x, GEN y)
