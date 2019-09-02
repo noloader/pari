@@ -2411,11 +2411,69 @@ serexp(GEN x, long prec)
   return gerepileupto(av, gmul(gexp(gel(x,2),prec), serexp(serchop0(x),prec)));
 }
 
+static GEN
+expQ(GEN x, long prec)
+{
+  GEN p, q, z, z0 = NULL;
+  pari_sp av;
+  long n, nmax, s, e, b = prec2nbits(prec);
+  double ex;
+  struct abpq_res R;
+  struct abpq S;
+
+  if (typ(x) == t_INT)
+  {
+    if (!signe(x)) return real_1(prec);
+    p = x; q = gen_1;
+    e = expi(p);
+    if (e > b) return mpexp(itor(x, prec));
+  }
+  else
+  {
+    long ep, eq;
+    p = gel(x,1); ep = expi(p);
+    q = gel(x,2); eq = expi(q);
+    if (ep > b || eq > b) return mpexp(fractor(x, prec));
+    e = ep - eq;
+    if (e < -3) prec += nbits2extraprec(-e); /* see addrr 'extend' rule */
+  }
+  if (e > 2) { z0 = cgetr(prec); prec += EXTRAPRECWORD; b += BITS_IN_LONG; }
+  z = cgetr(prec); av = avma;
+  if (e > 0)
+  { /* simplify x/2^e = p / (q * 2^e) */
+    long v = minss(e, vali(p));
+    if (v) p = shifti(p, -v);
+    if (e - v) q = shifti(q, e - v);
+  }
+  s = signe(p);
+  if (s < 0) p = negi(p);
+  ex = exp2(dbllog2(x) - e) * 2.718281828; /* exp(1) * x / 2^e,  x / 2^e < 2 */
+  nmax = (long)(1 + exp(dbllambertW0(M_LN2 * b / ex)) * ex);
+  abpq_init(&S, nmax);
+  S.a[0] = S.b[0] = S.p[0] = S.q[0] = gen_1;
+  for (n = 1; n <= nmax; n++)
+  {
+    S.a[n] = gen_1;
+    S.b[n] = gen_1;
+    S.p[n] = p;
+    S.q[n] = muliu(q, n);
+  }
+  abpq_sum(&R, 0, nmax, &S);
+  if (s > 0) rdiviiz(R.T, R.Q, z); else rdiviiz(R.Q, R.T, z);
+  if (e > 0)
+  {
+    q = z; while (e--) q = sqrr(q);
+    if (z0) { affrr(q, z0); z = z0; } else affrr(q,z);
+  }
+  set_avma(av); return z;
+}
+
 GEN
 gexp(GEN x, long prec)
 {
   switch(typ(x))
   {
+    case t_INT: case t_FRAC: return expQ(x, prec);
     case t_REAL: return mpexp(x);
     case t_COMPLEX: return cxexp(x,prec);
     case t_PADIC: return Qp_exp(x);

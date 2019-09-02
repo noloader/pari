@@ -50,6 +50,7 @@ BA   1- plotlines flag was ignored
     11- improved ZM_ker for wide rectangular matrices
     12- lfun(t_INT D): allow arbitrary non-0 D encoding the attached
         primitive character coredisc(D) (as for other character formats)
+    13- exp(small rational number): use binary splitting
 
   Added
      1- new GP function rootsof1
