@@ -873,7 +873,7 @@ mpqs_sieve(mpqs_handle_t *h)
   {
     unsigned char logp = FB->fbe_logval;
     long s1 = FB->fbe_start1, s2 = FB->fbe_start2;
-    /* sieve with FB[l] from start_1[l], and from start_2[l] if s1 != s2 */
+    /* sieve with FB[l] from start1[l], and from start2[l] if s1 != s2 */
     mpqs_sieve_p(S + s1, Send, p << 2, p, logp);
     if (s1 != s2) mpqs_sieve_p(S + s2, Send, p << 2, p, logp);
   }
