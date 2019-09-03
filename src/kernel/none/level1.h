@@ -885,17 +885,7 @@ rdivss(long x, long y, long prec)
 INLINE void
 rdiviiz(GEN x, GEN y, GEN z)
 {
-  pari_sp av = avma;
-  long prec = realprec(z);
-  affir(x, z);
-  if (lg(y) == 3) {
-    if (signe(y) < 0) togglesign(z);
-    affrr(divru(z, y[2]), z);
-  }
-  else
-    affrr(divri(z, y), z);
-  set_avma(av);
-  long lx = lgefint(x), ly = lgefint(y);
+  long prec = realprec(z), lx = lgefint(x), ly = lgefint(y);
   if (lx == 2) { affur(0, z); return; }
   if (ly == 3)
   {
