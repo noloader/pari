@@ -1125,7 +1125,6 @@ nfisisom(GEN a, GEN b)
 static GEN
 partmap_reverse(GEN a, GEN b, GEN F, long v)
 {
-  pari_sp av = avma;
   long i, j, k;
   long da = degpol(a), d = degpol(F);
   GEN M1, M2,  W, U, V;
@@ -1163,7 +1162,17 @@ partmap_reverse(GEN a, GEN b, GEN F, long v)
   V = QM_gauss(M2, col_ei(da-d, 1));
   if (!V) { setvarn(a,v); pari_err_IRREDPOL("nfisincl", a); }
   U = RgC_neg(QM_QC_mul(M1, V));
-  return gerepilecopy(av, RgV_to_RgX(shallowconcat(U,V), v));
+  return RgV_to_RgX(shallowconcat(U,V), v);
+}
+
+GEN
+nfisincl_worker(GEN t, GEN a, GEN b, GEN la, GEN lb, long v)
+{
+  pari_sp av = avma;
+  GEN z = partmap_reverse(b, a, t, v);
+  if (lb != gen_1) z = RgX_unscale(z, lb);
+  if (la != gen_1) z = RgX_Rg_div(z, la);
+  return gerepilecopy(av, z);
 }
 
 GEN
@@ -1172,7 +1181,7 @@ nfisincl(GEN fa, GEN fb)
   pari_sp av = avma;
   long i, k, vb, lx;
   long da, db, d;
-  GEN a, b, nfa, nfb, x, y, la, lb;
+  GEN a, b, nfa, nfb, x, y, la, lb, worker;
   int newvar;
 
   a = get_nfpol(fa, &nfa);
@@ -1193,16 +1202,16 @@ nfisincl(GEN fa, GEN fb)
   x = cgetg(lx, t_VEC);
   for (i=1, k=1; i<lx; i++)
   {
-    GEN t = gel(y,i), z;
+    GEN t = gel(y,i);
     if (degpol(t)!=d) continue;
-    z = partmap_reverse(b, a, t, vb);
-    if (lb != gen_1) z = RgX_unscale(z, lb);
-    if (la != gen_1) z = RgX_Rg_div(z, la);
-    gel(x, k++) = z;
+    gel(x, k++) = t;
   }
-  if (newvar) (void)delete_var();
   if (k==1) { set_avma(av); return gen_0; }
   setlg(x, k);
+  worker = snm_closure(is_entry("_nfisincl_worker"),
+                       mkvec5(a, b, la, lb, stoi(vb)));
+  x = gen_parapply(worker, x);
+  if (newvar) (void)delete_var();
   gen_sort_inplace(x, (void*)&cmp_RgX, &cmp_nodata, NULL);
   return gerepilecopy(av,x);
 }

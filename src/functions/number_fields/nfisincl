@@ -55,3 +55,9 @@ Doc: let $f$ and $g$ define number fields, where $f$ and $g$ are irreducible
  ? for (i=1, B, nfinit(U))
  time = 308 ms.
  @eprog
+
+Function: _nfisincl_worker
+C-Name: nfisincl_worker
+Prototype: GGGGGL
+Section: programming/internals
+Help: worker for nfisincl
