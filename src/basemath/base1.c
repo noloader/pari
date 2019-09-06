@@ -1170,8 +1170,8 @@ nfisincl_worker(GEN t, GEN a, GEN b, GEN la, GEN lb, long v)
 {
   pari_sp av = avma;
   GEN z = partmap_reverse(b, a, t, v);
-  if (isint1(lb)) z = RgX_unscale(z, lb);
-  if (isint1(la)) z = RgX_Rg_div(z, la);
+  if (!isint1(lb)) z = RgX_unscale(z, lb);
+  if (!isint1(la)) z = RgX_Rg_div(z, la);
   return gerepilecopy(av, z);
 }
 
