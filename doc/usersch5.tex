@@ -7234,9 +7234,10 @@ degrees, the second columns contains ramification degrees.
 \subsec{ZpXQ}
 
 \fun{GEN}{ZpXQ_invlift}{GEN b, GEN a, GEN T, GEN p, long e} let
-$p$ be a prime \typ{INT} and $a,b$ be \kbd{FpXQ}s (modulo $T$) such that $a\*b
-\equiv 1 \mod (p,T)$.  Returns an \kbd{FpXQ} $A$ such that
-$A\*b \equiv 1 \mod (p^e, T)$.  Special case of \tet{ZpXQ_liftroot}.
+$p$ be a prime \typ{INT}, $a$ be a \kbd{FpXQ} (modulo $(p, T)$) and
+$b$ a \kbd{ZpXQ} such that $a\*b \equiv 1 \mod (p, T)$.
+Returns an \kbd{ZpXQ} $A$ such that $A \equiv a \pmod{p}$ and
+$A\*b \equiv 1 \mod (p^e, T)$.
 
 \fun{GEN}{ZpXQ_inv}{GEN b, GEN T, GEN p, long e} let
 $p$ be a prime \typ{INT} and $b$ be a \kbd{FpXQ} (modulo $T, p^e$).
@@ -7251,7 +7252,6 @@ The parameter $q$ must be equal to $p^e$.
 $n,p$ be \typ{INT}s, with $n,p > 1$ and $p$ coprime to $n$, and $a,b$
 be \kbd{FpXQ}s (modulo $T$) such that $a^n \equiv b \mod (p,T)$.
 Returns an \kbd{Fq} $A$ such that $A^n \equiv b \mod (p^e, T)$.
-Special case of \tet{ZpXQ_liftroot}.
 
 \fun{GEN}{ZpXQ_sqrt}{GEN b, GEN T, GEN p, long e} let
 $p$ being a odd prime and $b$ be a \kbd{FpXQ} (modulo $T, p^e$),
