@@ -965,8 +965,8 @@ Flm_gauss_sp_OK(GEN a, GEN b, ulong *detp, ulong p)
 }
 
 /* destroy a, b */
-GEN
-Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p)
+static GEN
+Flm_gauss_sp_i(GEN a, GEN b, ulong *detp, ulong p)
 {
   long i, j, k, li, bco, aco = lg(a)-1, s = 1;
   ulong det = 1;
@@ -1051,6 +1051,18 @@ Flm_gauss_CUP(GEN a, GEN b, ulong *detp, ulong p) {
   if (nbrows(a) < n || (r = Flm_CUP_pre(a, &R, &C, &U, &P, p, pi)) < n)
     return NULL;
   return Flm_gauss_from_CUP(b, R, C, U, P, p, pi, detp);
+}
+
+GEN
+Flm_gauss_sp(GEN a, GEN b, ulong *detp, ulong p) {
+  pari_sp av = avma;
+  GEN x;
+  if (lg(a) - 1 >= Flm_CUP_LIMIT)
+    x = Flm_gauss_CUP(a, b, detp, p);
+  else
+    x = Flm_gauss_sp_i(a, b, detp, p);
+  if (!x) return gc_NULL(av);
+  return gerepileupto(av, x);
 }
 
 GEN
