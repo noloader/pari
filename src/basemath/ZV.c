@@ -400,16 +400,96 @@ ZM_mul_classical(GEN x, GEN y, long l, long lx, long ly)
   return z;
 }
 
+static GEN
+ZM_mul_slice(GEN A, GEN B, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1;
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN a = ZM_to_Flm(A, p);
+    GEN b = ZM_to_Flm(B, p);
+    GEN Hp = gerepileupto(av, Flm_to_ZM(Flm_mul(a, b, p)));
+    *mod = utoi(p); return Hp;
+  }
+  T = ZV_producttree(P);
+  A = ZM_nv_mod_tree(A, P, T);
+  B = ZM_nv_mod_tree(B, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+    gel(H,i) = Flm_mul(gel(A,i),gel(B,i),P[i]);
+  H = nmV_chinese_center_tree_seq(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZM_mul_worker(GEN P, GEN A, GEN B)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZM_mul_slice(A, B, P, &gel(V,2));
+  return V;
+}
+
+static long
+ZC_expi(GEN x)
+{
+  long i, l = lg(x), m=-1;
+  for(i = 1; i < l; i++)
+  {
+    GEN xi = gel(x,i);
+    long e = signe(xi) ? expi(xi): -1;
+    if (e > m) m = e;
+  }
+  return m;
+}
+
+static long
+ZM_expi(GEN x)
+{
+  long i, l = lg(x), m=-1;
+  for(i = 1; i < l; i++)
+  {
+    long e = ZC_expi(gel(x,i));
+    if (e > m) m = e;
+  }
+  return m;
+}
+
+static GEN
+ZM_mul_fast(GEN A, GEN B, long lA, long lB)
+{
+  pari_sp av = avma;
+  forprime_t S;
+  GEN H, worker;
+  long h, mA = ZM_expi(A), mB = ZM_expi(B);
+  if (mA==-1 || mB==-1) return zeromat(nbrows(A),lB);
+  h = 3 + mA + mB + expu(lA);
+  init_modular_big(&S);
+  worker = snm_closure(is_entry("_ZM_mul_worker"), mkvec2(A,B));
+  H = gen_crt("ZM_mul", worker, &S, NULL, h, lA, NULL,
+              nmV_chinese_center, FpM_center);
+  return gerepileupto(av, H);
+}
+
 /* Strassen-Winograd used for dim >= ZM_sw_bound */
 static GEN
 ZM_mul_i(GEN x, GEN y, long l, long lx, long ly)
 {
-  long s = maxss(ZM_max_lg_i(x,lx,l), ZM_max_lg_i(y,ly,lx));
-  long ZM_sw_bound = s > 60 ? 2: s > 25 ? 4: s>15 ? 8 : s > 8 ? 16 : 32;
-  if (l <= ZM_sw_bound || lx <= ZM_sw_bound || ly <= ZM_sw_bound)
-    return ZM_mul_classical(x, y, l, lx, ly);
+  if (lx > 70 && l > 70)
+    return ZM_mul_fast(x, y, lx, ly);
   else
-    return ZM_mul_sw(x, y, l - 1, lx - 1, ly - 1);
+  {
+    long s = maxss(ZM_max_lg_i(x,lx,l), ZM_max_lg_i(y,ly,lx));
+    long ZM_sw_bound = s > 60 ? 2: s > 25 ? 4: s>15 ? 8 : s > 8 ? 16 : 32;
+    if (l <= ZM_sw_bound || lx <= ZM_sw_bound || ly <= ZM_sw_bound)
+      return ZM_mul_classical(x, y, l, lx, ly);
+    else
+      return ZM_mul_sw(x, y, l - 1, lx - 1, ly - 1);
+  }
 }
 
 GEN
@@ -570,12 +650,17 @@ ZM_transmul(GEN x, GEN y)
 static GEN
 ZM_sqr_i(GEN x, long l)
 {
-  long s = ZM_max_lg_i(x,l,l);
-  long ZM_sw_bound = s > 60 ? 2: s > 25 ? 4: s>15 ? 8 : s > 8 ? 16 : 32;
-  if (l <= ZM_sw_bound)
-    return ZM_mul_classical(x, x, l, l, l);
+  if (l > 70)
+    return ZM_mul_fast(x, x, l, l);
   else
-    return ZM_mul_sw(x, x, l - 1, l - 1, l - 1);
+  {
+    long s = ZM_max_lg_i(x,l,l);
+    long ZM_sw_bound = s > 60 ? 2: s > 25 ? 4: s>15 ? 8 : s > 8 ? 16 : 32;
+    if (l <= ZM_sw_bound)
+      return ZM_mul_classical(x, x, l, l, l);
+    else
+      return ZM_mul_sw(x, x, l - 1, l - 1, l - 1);
+  }
 }
 
 GEN

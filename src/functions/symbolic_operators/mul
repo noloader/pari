@@ -40,3 +40,9 @@ Description:
  (Fq, FqX):FqX                   FqX_Fq_mul($2, $1, T, p)
  (FqX, Fq):FqX                   FqX_Fq_mul($1, $2, T, p)
  (FqX, FqX):FqX                  FqX_mul($1, $2, T, p)
+
+Function: _ZM_mul_worker
+C-Name: ZM_mul_worker
+Prototype: GGG
+Section: programming/internals
+Help: worker for ZM_mul
