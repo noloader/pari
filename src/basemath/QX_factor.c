@@ -1062,9 +1062,8 @@ ZX_gcd_slice(GEN A, GEN B, GEN g, GEN P, GEN *mod)
     ulong p = uel(P,1), gp = g ? umodiu(g, p): 0;
     GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p);
     GEN Hp = ZX_gcd_Flx(a, b, gp, p);
-    H = Flx_to_ZX(Hp);
+    H = gerepileupto(av, Flx_to_ZX(Hp));
     *mod = utoi(p);
-    gerepileall(av, 2, &H, mod);
     return H;
   }
   T = ZV_producttree(P);
