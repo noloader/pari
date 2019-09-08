@@ -2077,60 +2077,116 @@ QXQ_sqr(GEN x, GEN T)
   return z;
 }
 
+static void
+QXQ_inv_filter(GEN *H, GEN *P, GEN *T)
+{
+  long i, j, l = lg(*H), n = 0;
+  GEN K, Q;
+  for (i=1; i<l; i++)
+    if (gel(*H,i)) n++;
+  if (n == l-1)
+    return;
+  K = cgetg(n+1, t_VEC);
+  Q = cgetg(n+1, typ(*P));
+  for (i=1, j=1; i<l; i++)
+  {
+    if (gel(*H,i))
+    {
+      gel(K, j) = gel(*H,i);
+      Q[j] = *P[i];
+      j++;
+    }
+  }
+  *H = K; *P = Q; *T = ZV_producttree(Q);
+}
+
+static GEN
+QXQ_inv_slice(GEN A, GEN B, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1;
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p);
+    GEN U, V;
+    if (!Flx_extresultant(b,a,p, &U, &V))
+      { *mod = gen_1; return zerocol(2); }
+    H = gerepilecopy(av, mkvec2(Flx_to_ZX(U), Flx_to_ZX(V)));
+    *mod = utoi(p);
+    return H;
+  }
+  T = ZV_producttree(P);
+  A = ZX_nv_mod_tree(A, P, T);
+  B = ZX_nv_mod_tree(B, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), b = gel(B,i), U, V;
+    if (!Flx_extresultant(b,a,p, &U, &V))
+      gel(H,i) = NULL;
+    gel(H,i) = mkcol2(U, V);
+  }
+  QXQ_inv_filter(&H, &P, &T);
+  H = nxCV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+QXQ_inv_worker(GEN P, GEN A, GEN B)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = QXQ_inv_slice(A, B, P, &gel(V,2));
+  return V;
+}
+
 /* lift(1 / Mod(A,B)). B a ZX, A a scalar or a QX */
 GEN
 QXQ_inv(GEN A, GEN B)
 {
-  GEN D, cU, q, U, V;
-  ulong p;
+  GEN D, Ap, Bp;
+  ulong pp;
   pari_sp av2, av = avma;
   forprime_t S;
+  GEN worker, U, cU, H = NULL, mod = gen_1;
   pari_timer ti;
+  long k, dA, dB;
   if (is_scalar_t(typ(A))) return scalarpol(ginv(A), varn(B));
   /* A a QX, B a ZX */
   A = Q_primitive_part(A, &D);
+  dA = degpol(A); dB= degpol(B);
   /* A, B in Z[X] */
   init_modular_small(&S);
+  do {
+    pp = u_forprime_next(&S);
+    Ap = ZX_to_Flx(A, pp);
+    Bp = ZX_to_Flx(B, pp);
+  } while (degpol(Ap) != dA || degpol(Bp) != dB);
   if (DEBUGLEVEL>5) timer_start(&ti);
-  av2 = avma; U = NULL;
-  while ((p = u_forprime_next(&S)))
+  worker = snm_closure(is_entry("_QXQ_inv_worker"), mkvec2(A, B));
+  av2 = avma;
+  for (k = 1; ;k *= 2)
   {
-    GEN a, b, qp, Up, Vp;
-    int stable;
-
-    a = ZX_to_Flx(A, p);
-    b = ZX_to_Flx(B, p);
-    /* if p | Res(A/G, B/G), discard */
-    if (!Flx_extresultant(b,a,p, &Vp,&Up)) continue;
-
-    if (!U)
-    { /* First time */
-      U = ZX_init_CRT(Up,p,varn(A));
-      V = ZX_init_CRT(Vp,p,varn(A));
-      q = utoipos(p); continue;
-    }
-    if (DEBUGLEVEL>5) timer_printf(&ti,"QXQ_inv: mod %ld (bound 2^%ld)", p,expi(q));
-    qp = muliu(q,p);
-    stable = ZX_incremental_CRT_raw(&U, Up, q,qp, p)
-           & ZX_incremental_CRT_raw(&V, Vp, q,qp, p);
-    if (stable)
-    { /* all stable: check divisibility */
-      GEN res = ZX_add(ZX_mul(A,U), ZX_mul(B,V));
-      if (degpol(res) == 0) {
-        res = gel(res,2);
-        D = D? gmul(D, res): res;
-        break;
-      } /* DONE */
-      if (DEBUGLEVEL) err_printf("QXQ_inv: char 0 check failed");
-    }
-    q = qp;
-    if (gc_needed(av,1))
+    GEN resp, res;
+    gen_inccrt_i("QXQ_inv", worker, NULL, (k+1)>>1, dB, &S, &H, &mod,
+                 nxCV_chinese_center, FpXC_center);
+    gerepileall(av2, 2, &H, &mod);
+    resp = Flx_add(Flx_mul(Ap, ZX_to_Flx(gel(H,2), pp), pp),
+           Flx_mul(Bp, ZX_to_Flx(gel(H,1), pp), pp), pp);
+    if (degpol(resp)) continue;
+    res = ZX_add(ZX_mul(A,gel(H,2)), ZX_mul(B,gel(H,1)));
+    if (degpol(res)==0)
     {
-      if (DEBUGMEM>1) pari_warn(warnmem,"QXQ_inv");
-      gerepileall(av2, 3, &q,&U,&V);
+      res = gel(res,2);
+      D = D? gmul(D, res): res;
+      break;
     }
   }
-  if (!p) pari_err_OVERFLOW("QXQ_inv [ran out of primes]");
+  U = gel(H,2);
   cU = ZX_content(U);
   if (!is_pm1(cU)) { U = Q_div_to_int(U, cU); D = gdiv(D, cU); }
   return gerepileupto(av, RgX_Rg_div(U, D));
