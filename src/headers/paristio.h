@@ -166,6 +166,7 @@ struct pari_mtstate
 {
   long pending_threads;
   long is_thread;
+  long trace_level;
 };
 
 struct pari_evalstate

@@ -1610,6 +1610,14 @@ closure_evalgen(GEN C)
   return gerepileupto(ltop,gel(st,--sp));
 }
 
+long
+evalstate_get_trace(void)
+{ return s_trace.n; }
+
+void
+evalstate_set_trace(long lvl)
+{ s_trace.n = lvl; }
+
 void
 evalstate_save(struct pari_evalstate *state)
 {

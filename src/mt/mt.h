@@ -15,6 +15,7 @@ BEGINEXTERN
 
 void mtsingle_queue_start(struct pari_mt *pt, GEN worker);
 int  mtsingle_is_thread(void);
+void mtsingle_err_recover(long er);
 void mt_queue_reset(void);
 int  mt_is_parallel(void);
 

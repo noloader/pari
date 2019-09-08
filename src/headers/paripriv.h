@@ -363,6 +363,8 @@ void filestate_save(struct pari_filestate *file);
 void filestate_restore(struct pari_filestate *file);
 void tmp_restore(pariFILE *F);
 
+long evalstate_get_trace(void);
+void evalstate_set_trace(long lvl);
 void evalstate_clone(void);
 void evalstate_reset(void);
 void evalstate_restore(struct pari_evalstate *state);
