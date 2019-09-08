@@ -1934,6 +1934,7 @@ GEN     nmV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     nmV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R);
 ulong   nonsquare_Fl(ulong p);
 GEN     nxCV_chinese_center(GEN A, GEN P, GEN *pt_mod);
+GEN     nxCV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R);
 GEN     nxMV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     nxV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     nxV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R);
