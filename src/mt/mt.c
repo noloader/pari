@@ -46,6 +46,7 @@ mtsingle_is_thread(void) { return single_is_thread; }
 void
 mtsingle_err_recover(long er)
 {
+  (void) er;
   if (single_is_thread)
   {
     evalstate_set_trace(single_trace_level);
