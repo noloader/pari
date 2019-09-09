@@ -1728,10 +1728,10 @@ polmodular_split_p_Flm(ulong L, GEN hilb, GEN factu, norm_eqn_t ne, GEN db,
 }
 
 INLINE void
-norm_eqn_update(norm_eqn_t ne, GEN vne, ulong t, ulong p, long L)
+norm_eqn_update(norm_eqn_t ne, GEN vne, GEN tp, long L)
 {
+  ulong vL_sqr, vL, t = tp[1], p = tp[2];
   long res;
-  ulong vL_sqr, vL;
 
   ne->D = vne[1];
   ne->u = vne[2];
@@ -1778,14 +1778,13 @@ eval_modpoly_modp(GEN Tp, GEN j_powers, norm_eqn_t ne, int compute_derivs)
 
 /* Parallel interface */
 GEN
-polmodular_worker(ulong p, ulong t, ulong L,
-                  GEN hilb, GEN factu, GEN vne, GEN vinfo,
+polmodular_worker(GEN tp, ulong L, GEN hilb, GEN factu, GEN vne, GEN vinfo,
                   long derivs, GEN j_powers, GEN fdb)
 {
   pari_sp av = avma;
   norm_eqn_t ne;
   GEN Tp;
-  norm_eqn_update(ne, vne, t, p, L);
+  norm_eqn_update(ne, vne, tp, L);
   Tp = polmodular_split_p_Flm(L, hilb, factu, ne, fdb, (const disc_info*)vinfo);
   if (!isintzero(j_powers)) Tp = eval_modpoly_modp(Tp, j_powers, ne, derivs);
   return gerepileupto(av, Tp);
@@ -1839,7 +1838,7 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
 {
   pari_sp ltop = avma;
   long k, d, Dcnt, nprimes = 0;
-  GEN modpoly, plist;
+  GEN modpoly, plist, tp, j_powers;
   disc_info Ds[MODPOLY_MAX_DCNT];
   long lvl = modinv_level(inv);
   if (ugcd(L, lvl) != 1)
@@ -1853,6 +1852,12 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
   for (d = 0; d < Dcnt; d++) nprimes += Ds[d].nprimes;
   modpoly = cgetg(nprimes+1, t_VEC);
   plist = cgetg(nprimes+1, t_VECSMALL);
+  tp = mkvec(mkvecsmall2(0,0));
+  j_powers = gen_0;
+  if (J) {
+    compute_derivs = !!compute_derivs;
+    j_powers = Fp_powers(J, L+1, Q);
+  }
   for (d = 0, k = 1; d < Dcnt; d++)
   {
     disc_info *dinfo = &Ds[d];
@@ -1860,7 +1865,7 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
     const long D = dinfo->D1, DK = dinfo->D0;
     const ulong cond = usqrt(D / DK);
     long i, pending = 0;
-    GEN worker, j_powers, factu, hilb;
+    GEN worker, factu, hilb;
 
     polmodular_db_add_level(db, dinfo->L0, inv);
     if (dinfo->L1) polmodular_db_add_level(db, dinfo->L1, inv);
@@ -1870,17 +1875,11 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
     hilb = polclass0(DK, INV_J, 0, db);
     if (cond > 1)
       polmodular_db_add_levels(db, zv_to_longptr(gel(factu,1)), lg(gel(factu,1))-1, INV_J);
-
     dbg_printf(1)("D = %ld, L0 = %lu, L1 = %lu, ", dinfo->D1, dinfo->L0, dinfo->L1);
     dbg_printf(1)("n1 = %lu, n2 = %lu, dl1 = %lu, dl2_0 = %lu, dl2_1 = %lu\n",
           dinfo->n1, dinfo->n2, dinfo->dl1, dinfo->dl2_0, dinfo->dl2_1);
     dbg_printf(0)("Calculating modular polynomial of level %lu:", L);
 
-    j_powers = gen_0;
-    if (J) {
-      compute_derivs = !!compute_derivs;
-      j_powers = Fp_powers(J, L+1, Q);
-    }
     worker = snm_closure(is_entry("_polmodular_worker"),
                          mkvecn(8, utoi(L), hilb, factu, mkvecsmall2(D, cond),
                                    (GEN)dinfo, stoi(compute_derivs), j_powers,
@@ -1888,15 +1887,19 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
     mt_queue_start_lim(&pt, worker, dinfo->nprimes);
     for (i = 0; i < dinfo->nprimes || pending; i++)
     {
-      GEN done;
       long workid;
-      ulong p = dinfo->primes[i], t = dinfo->traces[i];
-      mt_queue_submit(&pt, p, i < dinfo->nprimes? mkvec2(utoi(p), utoi(t)): NULL);
+      GEN done;
+      if (i < dinfo->nprimes)
+      {
+        mael(tp, 1, 1) = dinfo->traces[i];
+        mael(tp, 1, 2) = dinfo->primes[i];
+      }
+      mt_queue_submit(&pt, i, i < dinfo->nprimes? tp: NULL);
       done = mt_queue_get(&pt, &workid, &pending);
       if (done)
       {
-        gel(modpoly, k) = done;
-        plist[k] = workid; k++;
+        plist[k] = dinfo->primes[workid];
+        gel(modpoly, k) = done; k++;
         dbg_printf(0)(" %ld%%", k*100/nprimes);
       }
     }

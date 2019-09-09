@@ -40,6 +40,6 @@ Doc: Return the modular polynomial of prime level $L$ in variables $x$ and $y$
 Function: _polmodular_worker
 Section: programming/internals
 C-Name: polmodular_worker
-Prototype: UUUGGGGLGG
+Prototype: GUGGGGLGG
 Help: used by polmodular
 Doc: used by polmodular
