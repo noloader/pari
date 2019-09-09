@@ -2136,7 +2136,8 @@ bnfisunit(GEN bnf,GEN x)
   for (i = 1; i < RU; i++)
     if (gexpo(gel(emb,i)) > -1) break;
   p1 = imag_i( row_i(logunit,i, 1,RU-1) );
-  p1 = RgV_dotproduct(p1, ex); if (!R1) p1 = gmul2n(p1, -1);
+  p1 = RgV_dotproduct(p1, ex);
+  if (i > R1) p1 = gmul2n(p1, -1);
   p1 = gsub(garg(gel(emb,i),prec), p1);
   /* p1 = arg(the missing root of 1) */
 
