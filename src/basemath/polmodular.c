@@ -1832,6 +1832,9 @@ modinv_max_internal_level(long inv)
   }
   pari_err_BUG("modinv_max_internal_level"); return LONG_MAX;/*LCOV_EXCL_LINE*/
 }
+static void
+db_add_levels(GEN *db, GEN P, long inv)
+{ polmodular_db_add_levels(db, zv_to_longptr(P), lg(P)-1, inv); }
 
 GEN
 polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
@@ -1865,16 +1868,13 @@ polmodular0_ZM(long L, long inv, GEN J, GEN Q, int compute_derivs, GEN *db)
     const long D = dinfo->D1, DK = dinfo->D0;
     const ulong cond = usqrt(D / DK);
     long i, pending = 0;
-    GEN worker, factu, hilb;
+    GEN worker, hilb, factu = factoru(cond);
 
     polmodular_db_add_level(db, dinfo->L0, inv);
     if (dinfo->L1) polmodular_db_add_level(db, dinfo->L1, inv);
-    factu = factoru(cond);
     dbg_printf(1)("Selected discriminant D = %ld = %ld^2 * %ld.\n", D,cond,DK);
-
     hilb = polclass0(DK, INV_J, 0, db);
-    if (cond > 1)
-      polmodular_db_add_levels(db, zv_to_longptr(gel(factu,1)), lg(gel(factu,1))-1, INV_J);
+    if (cond > 1) db_add_levels(db, gel(factu,1), INV_J);
     dbg_printf(1)("D = %ld, L0 = %lu, L1 = %lu, ", dinfo->D1, dinfo->L0, dinfo->L1);
     dbg_printf(1)("n1 = %lu, n2 = %lu, dl1 = %lu, dl2_0 = %lu, dl2_1 = %lu\n",
           dinfo->n1, dinfo->n2, dinfo->dl1, dinfo->dl2_0, dinfo->dl2_1);
