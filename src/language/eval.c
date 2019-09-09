@@ -1779,38 +1779,51 @@ parvector(long n, GEN code)
   return V;
 }
 
-GEN
-parsum(GEN a, GEN b, GEN code, GEN x)
+/* B <- {a + k * m : k = 0, ..., (b-a)/m)} */
+static void
+arithprogset(GEN B, GEN a, GEN b, long m)
 {
-  pari_sp av = avma, av2;
-  long pending = 0;
-  GEN worker = snm_closure(is_entry("_parvector_worker"), mkvec(code));
-  GEN done;
+  long k;
+  for (k = 1; cmpii(a, b) <= 0; a = addui(m,a), k++) gel(B, k) = a;
+  setlg(B, k);
+}
+static GEN
+vecsum_i(GEN v)
+{
+  long i, l = lg(v);
+  GEN s;
+  if (l == 1) return gen_0;
+  s = gel(v,1); for (i = 2; i < l; i++) s = gadd(s, gel(v,i));
+  return s;
+}
+GEN
+parsum(GEN a, GEN b, GEN code)
+{
+  pari_sp av = avma;
+  GEN worker, L, v, s, N;
+  long r, m, pending;
   struct pari_mt pt;
-  if (typ(a) != t_INT) pari_err_TYPE("parsum",a);
-  if (!x) x = gen_0;
-  if (gcmp(b,a) < 0) return gcopy(x);
+  pari_sp av2;
 
-  mt_queue_start(&pt, worker);
+  if (typ(a) != t_INT) pari_err_TYPE("parsum",a);
+  if (gcmp(b,a) < 0) return gen_0;
+  worker = snm_closure(is_entry("_parapply_slice_worker"), mkvec(code));
   b = gfloor(b);
-  a = mkvec(setloop(a));
-  av2=avma;
-  for (; cmpii(gel(a,1),b) <= 0 || pending; gel(a,1) = incloop(gel(a,1)))
+  N = addiu(subii(b, a), 1);
+  m = itou(sqrti(N)); if (cmpiu(N, m) < 0) m = itou(N);
+  mt_queue_start_lim(&pt, worker, m);
+  L = cgetg(m + 2, t_VEC); v = mkvec(L);
+  s = gen_0; a = setloop(a); pending = 0; av2 = avma;
+  for (r = 1; r <= m || pending; r++)
   {
-    mt_queue_submit(&pt, 0, cmpii(gel(a,1),b) <= 0? a: NULL);
-    done = mt_queue_get(&pt, NULL, &pending);
-    if (done)
-    {
-      x = gadd(x, done);
-      if (gc_needed(av2,1))
-      {
-        if (DEBUGMEM>1) pari_warn(warnmem,"sum");
-        x = gerepileupto(av2,x);
-      }
-    }
+    long workid;
+    GEN done;
+    if (r <= m) { arithprogset(L, icopy(a), b, m); a = incloop(a); }
+    mt_queue_submit(&pt, 0, r <= m? v: NULL);
+    done = mt_queue_get(&pt, &workid, &pending);
+    if (done) s = gerepileupto(av2, gadd(s, vecsum_i(done)));
   }
-  mt_queue_end(&pt);
-  return gerepilecopy(av, x);
+  mt_queue_end(&pt); return gerepileupto(av, s);
 }
 
 void

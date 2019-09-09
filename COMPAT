@@ -26,6 +26,7 @@ This file lists the incompatible changes between Version 2.x and older versions
   - change definition of lfunhardy for non-self-dual functions: remove
     rootnumber, which is not well defined since it depends on the choice
     of dual sequence a^*(n). And the function is not real-valued in any case.
+  - parsum: removed optional argument [allows grouping of subsums => faster]
 
 * Specific to the PARI library:
 ===============================

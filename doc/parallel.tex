@@ -337,25 +337,36 @@ Dispatching tasks to parallel threads takes time. To limit overhead, split
 the computation so that each parallel task requires at least a few
 seconds. Consider the following sequential example:
 \bprog
-  thuemorse(n) = (-1)^n * hammingweight(n);
-  sum(n = 1, 2*10^6, thuemorse(n) / n * 1.)
+  ? thuemorse(n) = (-1)^n * hammingweight(n);
+  ? s = 0; for(n = 1, 2*10^6, s += thuemorse(n) / n * 1.)
+  cpu time = 1,064 ms, real time = 1,064 ms.
 @eprog\noindent
 It is natural to try
 \bprog
-  export(thuemorse);
-  parsum(n = 1, 2*10^6, thuemorse(n) / n * 1.)
+  ? export(thuemorse);
+  ? s = 0; parfor(n = 1, 2*10^6, thuemorse(n) / n * 1., S, s += S)
+  cpu time = 5,637 ms, real time = 3,216 ms.
 @eprog\noindent
-However, due to the overhead, this will not be faster than the sequential
-version; in fact it will likely be \emph{slower}. To limit overhead, we group
+However, due to the overhead, this is not faster than the sequential
+version; in fact it is much \emph{slower}. To limit overhead, we group
 the summation by blocks:
 \bprog
-  parsum(N = 1, 20, sum(n = 1+(N-1)*10^5, N*10^5, thuemorse(n) / n*1.))
+  ? s = 0; parfor(N = 1, 20, sum(n = 1+(N-1)*10^5, N*10^5,
+                                 thuemorse(n) / n*1.), S, s += S)
+  ? cpu time = 1,997 ms, real time = 186 ms.
 @eprog\noindent
 Try to create at least as many groups as the number of available threads,
 to take full advantage of parallelism. Since some of the floating point
 additions are done in random order (the ones in a given block occur
 successively, in deterministic order), it is possible that some of the
 results will differ slightly from one run to the next.
+
+Of course, in this example, \kbd{parsum} is much easier to use since it will
+group the summations for you behind the scenes:
+\bprog
+  ? parsum(n = 1, 2*10^6, thuemorse(n) / n * 1.)
+  cpu time = 1,905 ms, real time = 177 ms.
+@eprog
 
 \section{Load balancing}
 

@@ -3196,7 +3196,7 @@ long    loop_break(void);
 GEN     next0(long n);
 GEN     pareval(GEN C);
 GEN     pari_self(void);
-GEN     parsum(GEN a, GEN b, GEN code, GEN x);
+GEN     parsum(GEN a, GEN b, GEN code);
 GEN     parvector(long n, GEN code);
 void    pop_lex(long n);
 void    pop_localprec(void);
