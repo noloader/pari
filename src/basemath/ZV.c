@@ -479,7 +479,7 @@ ZM_mul_fast(GEN A, GEN B, long lA, long lB)
 static GEN
 ZM_mul_i(GEN x, GEN y, long l, long lx, long ly)
 {
-  if (lx > 70 && l > 70)
+  if (lx > 70 && ly > 70 && l > 70)
     return ZM_mul_fast(x, y, lx, ly);
   else
   {
