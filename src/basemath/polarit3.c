@@ -2166,6 +2166,8 @@ QXQ_inv(GEN A, GEN B)
     Ap = ZX_to_Flx(A, pp);
     Bp = ZX_to_Flx(B, pp);
   } while (degpol(Ap) != dA || degpol(Bp) != dB);
+  if (degpol(Flx_gcd(Ap, Bp, pp)) != 0 && degpol(ZX_gcd(A,B))!=0)
+    pari_err_INV("QXQ_inv",mkpolmod(A,B));
   if (DEBUGLEVEL>5) timer_start(&ti);
   worker = snm_closure(is_entry("_QXQ_inv_worker"), mkvec2(A, B));
   av2 = avma;

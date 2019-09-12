@@ -106,7 +106,5 @@ Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
   *** Pol: incorrect type in gtopoly (t_STR).
   ***   at top-level: (1/x)%x
   ***                      ^--
-  ***   in anonymous function: _QXQ_inv_worker
-  ***                          ^---------------
-  *** _QXQ_inv_worker: impossible inverse in Flx_divrem: Vecsmall([0]).
-Total time spent: 24
+  *** _%_: impossible inverse in QXQ_inv: Mod(0, x).
+Total time spent: 8
