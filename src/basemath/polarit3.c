@@ -2078,33 +2078,35 @@ QXQ_sqr(GEN x, GEN T)
 }
 
 static void
-QXQ_inv_filter(GEN *H, GEN *P, GEN *T)
+QXQ_inv_filter(GEN *pt_H, GEN *pt_P, GEN *pt_T)
 {
-  long i, j, l = lg(*H), n = 0;
+  GEN H = *pt_H, P = *pt_P;
+  long i, j, l = lg(H), n = 0;
   GEN K, Q;
   for (i=1; i<l; i++)
-    if (gel(*H,i)) n++;
+    if (gel(H,i)) n++;
   if (n == l-1)
     return;
   K = cgetg(n+1, t_VEC);
-  Q = cgetg(n+1, typ(*P));
+  Q = cgetg(n+1, typ(P));
+  if (n == 0) { *pt_H = K; *pt_P = Q; return; }
   for (i=1, j=1; i<l; i++)
   {
-    if (gel(*H,i))
+    if (gel(H,i))
     {
-      gel(K, j) = gel(*H,i);
-      Q[j] = *P[i];
+      gel(K,j) = gel(H,i);
+      Q[j] = P[i];
       j++;
     }
   }
-  *H = K; *P = Q; *T = ZV_producttree(Q);
+  *pt_H = K; *pt_P = Q; *pt_T = ZV_producttree(Q);
 }
 
 static GEN
 QXQ_inv_slice(GEN A, GEN B, GEN P, GEN *mod)
 {
   pari_sp av = avma;
-  long i, n = lg(P)-1;
+  long i, n = lg(P)-1, v = varn(A);
   GEN H, T;
   if (n == 1)
   {
@@ -2112,8 +2114,11 @@ QXQ_inv_slice(GEN A, GEN B, GEN P, GEN *mod)
     GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p);
     GEN U, V;
     if (!Flx_extresultant(b,a,p, &U, &V))
-      { *mod = gen_1; return zerocol(2); }
-    H = gerepilecopy(av, mkvec2(Flx_to_ZX(U), Flx_to_ZX(V)));
+    {
+      set_avma(av);
+      *mod = gen_1; return mkcol2(pol_0(v), pol_0(v));
+    }
+    H = gerepilecopy(av, mkcol2(Flx_to_ZX(U), Flx_to_ZX(V)));
     *mod = utoi(p);
     return H;
   }
@@ -2127,9 +2132,15 @@ QXQ_inv_slice(GEN A, GEN B, GEN P, GEN *mod)
     GEN a = gel(A,i), b = gel(B,i), U, V;
     if (!Flx_extresultant(b,a,p, &U, &V))
       gel(H,i) = NULL;
-    gel(H,i) = mkcol2(U, V);
+    else
+      gel(H,i) = mkcol2(U, V);
   }
   QXQ_inv_filter(&H, &P, &T);
+  if (lg(P)==1)
+  {
+      set_avma(av);
+      *mod = gen_1; return mkcol2(pol_0(v), pol_0(v));
+  }
   H = nxCV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
   *mod = gmael(T, lg(T)-1, 1);
   gerepileall(av, 2, &H, mod);
@@ -2179,7 +2190,7 @@ QXQ_inv(GEN A, GEN B)
     gerepileall(av2, 2, &H, &mod);
     resp = Flx_add(Flx_mul(Ap, ZX_to_Flx(gel(H,2), pp), pp),
            Flx_mul(Bp, ZX_to_Flx(gel(H,1), pp), pp), pp);
-    if (degpol(resp)) continue;
+    if (degpol(resp) > 0) continue;
     res = ZX_add(ZX_mul(A,gel(H,2)), ZX_mul(B,gel(H,1)));
     if (degpol(res)==0)
     {
