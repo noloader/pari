@@ -87,9 +87,6 @@
 ])]]
 0
 0
-  ***   at top-level: mseval(W,xpm[1],[1])
-  ***                 ^--------------------
-  *** mseval: incorrect type in mspathlog (t_VEC).
 1/2
 [1/4, -1/2, -1/2]
 -1/2
@@ -270,9 +267,6 @@ x^2 + x - 1)]
 [ 0 0   0 -150  60   -24]
 
 1
-  ***   at top-level: msatkinlehner(W,4)
-  ***                 ^------------------
-  *** msatkinlehner: domain error in msatkinlehner: N % Q != 0
 
 [1 0 0    0   0   0]
 
@@ -542,4 +536,13 @@ O(11^7) + (10 + 3*11 + 6*11^2 + 9*11^3 + 8*11^4 + 5*11^5 + O(11^6))*x + (6 +
  1; -1, 0; -2, 0; -3, -1]]]
 1
 1
-Total time spent: 2016
+  ***   at top-level: ...it(57,2,1);M=mssplit(ms);msdim(M)
+  ***                                             ^--------
+  *** msdim: incorrect type in checkms [please apply msinit] (t_VEC).
+  ***   at top-level: ...2]);[W,xpm]=msfromell(E);mseval(W,xpm[1],[1])
+  ***                                             ^--------------------
+  *** mseval: incorrect type in mspathlog (t_VEC).
+  ***   at top-level: W=msinit(6,4);msatkinlehner(W,4)
+  ***                               ^------------------
+  *** msatkinlehner: domain error in msatkinlehner: N % Q != 0
+Total time spent: 1776

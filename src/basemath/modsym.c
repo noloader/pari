@@ -117,7 +117,8 @@ msgetsign(GEN W) { checkms(W); return msk_get_sign(W); }
 void
 checkms(GEN W)
 {
-  if (typ(W) != t_VEC || lg(W) != 4)
+  if (typ(W) != t_VEC || lg(W) != 4
+      || typ(gel(W,1)) != t_VEC || lg(gel(W,1)) != 17)
     pari_err_TYPE("checkms [please apply msinit]", W);
 }
 
