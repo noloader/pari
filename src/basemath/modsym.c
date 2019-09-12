@@ -3271,7 +3271,7 @@ msfromell(GEN E0, long sign)
   N = itou(NE); av2 = avma;
   W = gerepilecopy(av2, mskinit(N,2,0));
   star = msk_get_star(W);
-  init_modular_small(&Sl);
+  (void)u_forprime_init(&Sl, 1UL<<29, ULONG_MAX);
   /* loop for p <= count_Manin_symbols(N) / 6 would be enough */
   (void)u_forprime_init(&S, 2, ULONG_MAX);
   vT = cgetg(1, t_VEC);
