@@ -2481,18 +2481,6 @@ init_gauss(GEN a, GEN *b, long *aco, long *li, int *iscol)
 }
 
 static GEN
-RgM_inv_QM(GEN M)
-{
-  pari_sp av = avma;
-  GEN den, cM, pM = Q_primitive_part(M, &cM);
-  GEN b = ZM_inv(pM, &den);
-  if (!b) return gc_NULL(av);
-  if (cM) den = gmul(den, cM);
-  if (!gequal1(den)) b = ZM_Q_mul(b, ginv(den));
-  return gerepileupto(av, b);
-}
-
-static GEN
 RgM_inv_FpM(GEN a, GEN p)
 {
   ulong pp;
@@ -2535,7 +2523,7 @@ RgM_inv_fast(GEN x)
   switch(t)
   {
     case t_INT:    /* Fall back */
-    case t_FRAC:   return RgM_inv_QM(x);
+    case t_FRAC:   return QM_inv(x);
     case t_FFELT:  return FFM_inv(x, pol);
     case t_INTMOD: return RgM_inv_FpM(x, p);
     case code(t_POLMOD, t_INTMOD):
@@ -3104,10 +3092,13 @@ FpM_ratlift_parallel(GEN A, GEN mod, GEN B)
 }
 
 static GEN
-ZM_adj_ratlift(GEN A, GEN H, GEN mod)
+ZM_adj_ratlift(GEN A, GEN H, GEN mod, GEN T)
 {
   pari_sp av = avma;
-  GEN B, D = ZMrow_ZC_mul(H, gel(A,1), 1), g = gcdii(D, mod);
+  GEN B, D, g;
+  D = ZMrow_ZC_mul(H, gel(A,1), 1);
+  if (T) D = mulii(T, D);
+  g = gcdii(D, mod);
   if (!equali1(g))
   {
     mod = diviiexact(mod, g);
@@ -3122,8 +3113,9 @@ ZM_adj_ratlift(GEN A, GEN H, GEN mod)
   return H? H: gc_NULL(av);
 }
 
+/* if (T) return T A^(-1) in Mn(Q), else B in Mn(Z) such that A B = den*Id */
 GEN
-ZM_inv(GEN A, GEN *pden)
+ZM_inv_i(GEN A, GEN *pden, GEN T)
 {
   pari_sp av = avma;
   long m = lg(A)-1, n, k1 = 1, k2;
@@ -3135,8 +3127,8 @@ ZM_inv(GEN A, GEN *pden)
   if (m == 0) return ZM_inv0(A,pden);
   if (pden) *pden = gen_1;
   if (nbrows(A) < m) return NULL;
-  if (m == 1 && nbrows(A)==1) return ZM_inv1(A,pden);
-  if (m == 2 && nbrows(A)==2) return ZM_inv2(A,pden);
+  if (m == 1 && nbrows(A)==1 && !T) return ZM_inv1(A,pden);
+  if (m == 2 && nbrows(A)==2 && !T) return ZM_inv2(A,pden);
 
   if (DEBUGLEVEL>=5) timer_start(&ti);
   init_modular_big(&S);
@@ -3159,24 +3151,22 @@ ZM_inv(GEN A, GEN *pden)
     k2 = (mask&1UL) ? k1-1: k1;
     mask >>= 1;
 
-    Hr = ZM_adj_ratlift(A, H1, mod1);
+    Hr = ZM_adj_ratlift(A, H1, mod1, T);
     if (DEBUGLEVEL>=5) timer_printf(&ti,"ratlift (%ld/%ld primes)", k1, n);
     if (Hr) {/* DONE ? */
-      GEN den, Hl = Q_remove_denom(Hr, &den);
-      GEN R = ZM_mul(Hl, A);
+      GEN Hl = Q_remove_denom(Hr, NULL);
+      GEN R = ZM_mul(Hl, A), d = gcoeff(R,1,1);
       if (DEBUGLEVEL>=5) timer_printf(&ti,"mult (%ld/%ld primes)", k1, n);
-      den = den ? den: gen_1;
-      if (den)
+      if (equali1(d))
       {
-        if (ZM_isscalar(R, den))
-        {
-          H = Hl;
-          if (pden) *pden = den;
-          break;
-        }
+        if (ZM_isidentity(R)) { H = Hl; break; }
       }
-      else
-        if (ZM_isidentity(R)) { H=Hl; break; }
+      else if (ZM_isscalar(R, d))
+      {
+        if (T) T = gdiv(T,d);
+        else if (pden) *pden = d;
+        H = Hl; break;
+      }
     }
   }
   if (!H)
@@ -3185,30 +3175,36 @@ ZM_inv(GEN A, GEN *pden)
     H = H1;
     D = ZMrow_ZC_mul(H, gel(A,1), 1);
     if (signe(D)==0) pari_err_INV("ZM_inv", A);
-    d = gcdii(Q_content_safe(H), D);
-    if (signe(D) < 0) d = negi(d);
-    if (!equali1(d))
+    if (T) T = gdiv(T, D);
+    else
     {
-      H = ZM_Z_divexact(H, d);
-      D = diviiexact(D, d);
+      d = gcdii(Q_content_safe(H), D);
+      if (signe(D) < 0) d = negi(d);
+      if (!equali1(d))
+      {
+        H = ZM_Z_divexact(H, d);
+        D = diviiexact(D, d);
+      }
+      if (pden) *pden = D;
     }
-    if (pden) *pden = D;
   }
+  if (T && !isint1(T)) H = ZM_Q_mul(H, T);
   gerepileall(av, pden? 2: 1, &H, pden);
   return H;
 }
+GEN
+ZM_inv(GEN A, GEN *pden) { return ZM_inv_i(A, pden, NULL); }
 
 /* same as above, M rational */
 GEN
 QM_inv(GEN M)
 {
   pari_sp av = avma;
-  GEN den, cM, K;
-  M = Q_primitive_part(M, &cM);
-  K = ZM_inv(M, &den);
+  GEN den, dM, K;
+  M = Q_remove_denom(M, &dM);
+  K = ZM_inv_i(M, &den, dM);
   if (!K) return gc_NULL(av);
-  cM = inv_content(mul_content(cM, den));
-  if (cM) K = RgM_Rg_div(K, cM);
+  if (den && !equali1(den)) K = ZM_Q_mul(K, ginv(den));
   return gerepileupto(av, K);
 }
 

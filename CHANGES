@@ -30,6 +30,7 @@ BA   1- plotlines flag was ignored
     21- rdivii / rdiviiz imprecise, e.g.
         a=28088408347805994933529600180306266460976;
         b=10333147966386144929666651337523200000000; rdivii(a, b)
+    22- typo in QM_inv (wrong result)
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
