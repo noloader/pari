@@ -2077,36 +2077,11 @@ QXQ_sqr(GEN x, GEN T)
   return z;
 }
 
-static void
-QXQ_inv_filter(GEN *pt_H, GEN *pt_P, GEN *pt_T)
-{
-  GEN H = *pt_H, P = *pt_P;
-  long i, j, l = lg(H), n = 0;
-  GEN K, Q;
-  for (i=1; i<l; i++)
-    if (gel(H,i)) n++;
-  if (n == l-1)
-    return;
-  K = cgetg(n+1, t_VEC);
-  Q = cgetg(n+1, typ(P));
-  if (n == 0) { *pt_H = K; *pt_P = Q; return; }
-  for (i=1, j=1; i<l; i++)
-  {
-    if (gel(H,i))
-    {
-      gel(K,j) = gel(H,i);
-      Q[j] = P[i];
-      j++;
-    }
-  }
-  *pt_H = K; *pt_P = Q; *pt_T = ZV_producttree(Q);
-}
-
 static GEN
 QXQ_inv_slice(GEN A, GEN B, GEN P, GEN *mod)
 {
   pari_sp av = avma;
-  long i, n = lg(P)-1, v = varn(A);
+  long i, n = lg(P)-1, v = varn(A), redo = 0;
   GEN H, T;
   if (n == 1)
   {
@@ -2116,7 +2091,7 @@ QXQ_inv_slice(GEN A, GEN B, GEN P, GEN *mod)
     if (!Flx_extresultant(b,a,p, &U, &V))
     {
       set_avma(av);
-      *mod = gen_1; return mkcol2(pol_0(v), pol_0(v));
+      *mod = gen_1; retmkcol2(pol_0(v), pol_0(v));
     }
     H = gerepilecopy(av, mkcol2(Flx_to_ZX(U), Flx_to_ZX(V)));
     *mod = utoi(p);
@@ -2131,16 +2106,14 @@ QXQ_inv_slice(GEN A, GEN B, GEN P, GEN *mod)
     ulong p = P[i];
     GEN a = gel(A,i), b = gel(B,i), U, V;
     if (!Flx_extresultant(b,a,p, &U, &V))
-      gel(H,i) = NULL;
+    {
+      gel(H,i) = mkcol2(pol_0(v), pol_0(v));
+      P[i] = 1; redo = 1;
+    }
     else
       gel(H,i) = mkcol2(U, V);
   }
-  QXQ_inv_filter(&H, &P, &T);
-  if (lg(P)==1)
-  {
-      set_avma(av);
-      *mod = gen_1; return mkcol2(pol_0(v), pol_0(v));
-  }
+  if (redo) T = ZV_producttree(P);
   H = nxCV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
   *mod = gmael(T, lg(T)-1, 1);
   gerepileall(av, 2, &H, mod);
