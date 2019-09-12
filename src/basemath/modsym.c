@@ -555,8 +555,6 @@ Qevproj_apply_vecei(GEN T, GEN pro, long k)
 }
 
 static GEN
-QM_ker_r(GEN M) { return ZM_ker(Q_primpart(M)); }
-static GEN
 QM_image(GEN A)
 {
   A = vec_Q_primpart(A);
@@ -652,7 +650,7 @@ mssplit_i(GEN W, GEN H, long deglim)
         for (k = 1; k < lF; k++)
         {
           GEN f = gel(F,k);
-          GEN K = QM_ker_r( RgX_RgMV_eval(f, pows)) ; /* Ker f(TVj) */
+          GEN K = QM_ker( RgX_RgMV_eval(f, pows)) ; /* Ker f(TVj) */
           GEN p = vec_Q_primpart( RgM_mul(P, K) );
           vectrunc_append(V, Qevproj_init(p));
           if (lg(K) == 2 || isint1(gel(E,k)))
@@ -896,7 +894,7 @@ msnew(GEN W)
       gel(v,2*i-1) = T1;
       gel(v,2*i)   = Td;
     }
-    S = ZM_mul(S, QM_ker_r(matconcat(v))); /* Snew */
+    S = ZM_mul(S, QM_ker(matconcat(v))); /* Snew */
     S = Qevproj_init(vec_Q_primpart(S));
   }
   return gerepilecopy(av, S);
@@ -2872,7 +2870,7 @@ static GEN
 add_star(GEN W, long sign)
 {
   GEN s = msstar_i(W);
-  GEN K = sign? QM_ker_r(gsubgs(s, sign)): cgetg(1,t_MAT);
+  GEN K = sign? QM_ker(gsubgs(s, sign)): cgetg(1,t_MAT);
   gel(W,2) = mkvec3(stoi(sign), s, Qevproj_init(K));
   return W;
 }
