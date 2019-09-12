@@ -2048,7 +2048,7 @@ Flx_resultant(GEN a, GEN b, ulong p)
   return gc_ulong(av, Fl_mul(res, Fl_powu(b[2], da, p), p));
 }
 
-/* If resultant is 0, *ptU and *ptU are not set */
+/* If resultant is 0, *ptU and *ptV are not set */
 ulong
 Flx_extresultant(GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV)
 {
@@ -2066,8 +2066,8 @@ Flx_extresultant(GEN a, GEN b, ulong p, GEN *ptU, GEN *ptV)
     a = x; b = y;
     if (both_odd(dx,dy)) res = p-res;
   }
-  /* dx <= dy */
-  if (dx < 0) return 0;
+  /* dy <= dx */
+  if (dy < 0) return 0;
 
   u = pol0_Flx(vs);
   v = pol1_Flx(vs); /* v = 1 */
