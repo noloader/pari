@@ -1010,9 +1010,10 @@ ZX_is_squarefree(GEN x)
   return gc_bool(av, lg(d) == 3);
 }
 
-static GEN
-ZX_gcd_filter(GEN A, GEN P)
+static int
+ZX_gcd_filter(GEN *pt_A, GEN *pt_P)
 {
+  GEN A = *pt_A, P = *pt_P;
   long i, j, l = lg(A), n = 1, d = degpol(gel(A,1));
   GEN B, Q;
   for (i=2; i<l; i++)
@@ -1023,7 +1024,7 @@ ZX_gcd_filter(GEN A, GEN P)
     { n=1; d = di; }
   }
   if (n == l-1)
-    return NULL;
+    return 0;
   B = cgetg(n+1, t_VEC);
   Q = cgetg(n+1, typ(P));
   for (i=1, j=1; i<l; i++)
@@ -1035,7 +1036,7 @@ ZX_gcd_filter(GEN A, GEN P)
       j++;
     }
   }
-  return mkvec2(B,Q);
+  *pt_A = B; *pt_P = Q; return 1;
 }
 
 static GEN
@@ -1056,7 +1057,7 @@ ZX_gcd_slice(GEN A, GEN B, GEN g, GEN P, GEN *mod)
 {
   pari_sp av = avma;
   long i, n = lg(P)-1;
-  GEN H, T, KQ;
+  GEN H, T;
   if (n == 1)
   {
     ulong p = uel(P,1), gp = g ? umodiu(g, p): 0;
@@ -1077,12 +1078,8 @@ ZX_gcd_slice(GEN A, GEN B, GEN g, GEN P, GEN *mod)
     GEN a = gel(A,i), b = gel(B,i);
     gel(H,i) = ZX_gcd_Flx(a, b, g? g[i]: 0, p);
   }
-  KQ = ZX_gcd_filter(H, P);
-  if (KQ)
-  {
-    H = gel(KQ, 1); P = gel(KQ, 2);
+  if (ZX_gcd_filter(&H, &P))
     T = ZV_producttree(P);
-  }
   H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
   *mod = gmael(T, lg(T)-1, 1);
   gerepileall(av, 2, &H, mod);
@@ -1100,8 +1097,7 @@ ZX_gcd_worker(GEN P, GEN A, GEN B, GEN g)
 static GEN
 ZX_gcd_chinese(GEN A, GEN P, GEN *mod)
 {
-  GEN KQ = ZX_gcd_filter(A, P);
-  if (KQ) { A = gel(KQ,1); P = gel(KQ,2); }
+  ZX_gcd_filter(&A, &P);
   return nxV_chinese_center(A, P, mod);
 }
 

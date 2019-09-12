@@ -78,3 +78,7 @@ gcd(Mod(1,2)*x+Mod(1,2), 0*ffgen(2^3))
 
 lcm(Pol(0),0)
 lcm(0,Mod(0,3))
+
+V=factorback(primes([2^63,2^63+1000]))
+gcd((x+1+V)*(x^3+3*x+1),(x+1)*(x^3+x+1))
+gcd((x+1)*(x^3+3*x+1),(x+1)*(x^3+x+1)+V)
