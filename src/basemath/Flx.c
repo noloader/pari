@@ -5143,6 +5143,7 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
   GEN U;
   if (!signe(P)) return gcopy(Q);
   if (!signe(Q)) return gcopy(P);
+  T = Flx_get_red(T,p);
   for(;;)
   {
     U = Flxq_invsafe(leading_coeff(Q), T, p);
