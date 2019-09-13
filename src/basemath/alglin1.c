@@ -3114,7 +3114,7 @@ ZM_adj_ratlift(GEN A, GEN H, GEN mod, GEN T)
 }
 
 /* if (T) return T A^(-1) in Mn(Q), else B in Mn(Z) such that A B = den*Id */
-GEN
+static GEN
 ZM_inv_i(GEN A, GEN *pden, GEN T)
 {
   pari_sp av = avma;
