@@ -315,28 +315,28 @@ mpeuler(long prec) { return rtor(consteuler(prec), prec); }
 /**                       CATALAN CONSTANT                         **/
 /**                                                                **/
 /********************************************************************/
-/* 8G = 3\sum_{n>=0} 1/(binomial(2n,n)(2n+1)^2) + Pi log(2+sqrt(3)) */
+/*        inf  256^i (580i^2 - 184i + 15) (2i)!^3 (3i)!^2
+ * 64 G = SUM  ------------------------------------------
+ *        i=1             i^3 (2i-1) (6i)!^2           */
 static GEN
 catalan(long prec)
 {
-  long i, nmax = prec2nbits(prec) >> 1;
+  long i, nmax = 1 + prec2nbits(prec) / 7.509; /* / log2(729/4) */
   struct abpq_res R;
   struct abpq A;
-  GEN u, v;
+  GEN u;
   abpq_init(&A, nmax);
-  A.a[0] = A.b[0] = A.p[0] = A.q[0] = gen_1;
+  A.a[0] = gen_0; A.b[0] = A.p[0] = A.q[0] = gen_1;
   for (i = 1; i <= nmax; i++)
   {
-    A.a[i] = gen_1;
-    A.b[i] = utoipos((i<<1)+1);
-    A.p[i] = utoipos(i);
-    A.q[i] = utoipos((i<<2)+2);
+    A.a[i] = addiu(muluu(580*i - 184, i), 15);
+    A.b[i] = muliu(powuu(i, 3), 2*i - 1);
+    A.p[i] = mului(64*i-32, powuu(i,3));
+    A.q[i] = sqri(muluu(6*i - 1, 18*i - 15));
   }
   abpq_sum(&R, 0, nmax, &A);
-  u = mulur(3, rdivii(R.T, mulii(R.B,R.Q),prec));
-  v = mulrr(mppi(prec), logr_abs(addrs(sqrtr_abs(utor(3,prec)), 2)));
-  u = addrr(u, v); shiftr_inplace(u, -3);
-  return u;
+  u = rdivii(R.T, mulii(R.B,R.Q),prec);
+  shiftr_inplace(u, -6); return u;
 }
 
 GEN

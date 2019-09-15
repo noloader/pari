@@ -57,6 +57,7 @@ BA   1- plotlines flag was ignored
     14- parsum: removed optional argument [allows grouping of subsums => faster]
 BA  15- old gen_ZpM_Dixon renamed to gen_ZpM_Dixon_Wiedemann,
         new gen_ZpM_Dixon with simpler interface
+    16- better formula for Catalan
 
   Added
      1- new GP function rootsof1
