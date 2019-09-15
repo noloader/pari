@@ -150,6 +150,8 @@ GEN     F2xX_renormalize(GEN /*in place*/ x, long lx);
 GEN     F2xX_to_Kronecker(GEN P, long d);
 GEN     F2xX_to_FlxX(GEN B);
 GEN     F2xX_to_ZXX(GEN B);
+GEN     F2xX_to_F2xC(GEN x, long N, long sv);
+GEN     F2xXV_to_F2xM(GEN v, long n, long sv);
 GEN     F2xXC_to_ZXXC(GEN B);
 GEN     F2xY_F2xq_evalx(GEN P, GEN x, GEN T);
 GEN     F2xY_F2xqV_evalx(GEN P, GEN x, GEN T);

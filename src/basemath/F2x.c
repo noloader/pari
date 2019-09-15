@@ -2048,6 +2048,28 @@ Kronecker_to_F2xqX(GEN z, GEN T)
   return F2xX_renormalize(x, j);
 }
 
+GEN
+F2xX_to_F2xC(GEN x, long N, long sv)
+{
+  long i, l;
+  GEN z;
+  l = lg(x)-1; x++;
+  if (l > N+1) l = N+1; /* truncate higher degree terms */
+  z = cgetg(N+1,t_COL);
+  for (i=1; i<l ; i++) gel(z,i) = gel(x,i);
+  for (   ; i<=N; i++) gel(z,i) = pol0_F2x(sv);
+  return z;
+}
+
+GEN
+F2xXV_to_F2xM(GEN v, long n, long sv)
+{
+  long j, N = lg(v);
+  GEN y = cgetg(N, t_MAT);
+  for (j=1; j<N; j++) gel(y,j) = F2xX_to_F2xC(gel(v,j), n, sv);
+  return y;
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                             F2xXV/F2xXC                           **/
