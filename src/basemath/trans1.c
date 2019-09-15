@@ -116,8 +116,8 @@ abpq_sum(struct abpq_res *r, long n1, long n2, struct abpq *A)
   r->P = mulii(L.P, R.P);
   r->Q = mulii(L.Q, R.Q);
   r->B = mulii(L.B, R.B);
-  u1 = mulii3(R.B,R.Q,L.T);
-  u2 = mulii3(L.B,L.P,R.T);
+  u1 = mulii3(R.B, R.Q, L.T);
+  u2 = mulii3(L.B, L.P, R.T);
   r->T = addii(u1,u2);
   set_avma(av);
   r->P = icopy(r->P);
