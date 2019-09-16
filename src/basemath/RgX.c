@@ -448,7 +448,7 @@ RgX_translate(GEN P, GEN c)
   if (!signe(P) || gequal0(c)) return RgX_copy(P);
   Q = leafcopy(P);
   R = Q+2; n = degpol(P);
-  if (equali1(c))
+  if (isint1(c))
   {
     for (i=1; i<=n; i++)
     {
@@ -460,7 +460,7 @@ RgX_translate(GEN P, GEN c)
       }
     }
   }
-  else if (equalim1(c))
+  else if (isintm1(c))
   {
     for (i=1; i<=n; i++)
     {
