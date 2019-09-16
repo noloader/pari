@@ -442,21 +442,21 @@ GEN
 RgX_translate(GEN P, GEN c)
 {
   pari_sp av = avma;
-  GEN Q, *R;
+  GEN Q, R;
   long i, k, n;
 
   if (!signe(P) || gequal0(c)) return RgX_copy(P);
   Q = leafcopy(P);
-  R = (GEN*)(Q+2); n = degpol(P);
+  R = Q+2; n = degpol(P);
   if (equali1(c))
   {
     for (i=1; i<=n; i++)
     {
-      for (k=n-i; k<n; k++) R[k] = gadd(R[k], R[k+1]);
+      for (k=n-i; k<n; k++) gel(R,k) = gadd(gel(R,k), gel(R,k+1));
       if (gc_needed(av,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"TR_POL(1), i = %ld/%ld", i,n);
-        Q = gerepilecopy(av, Q); R = (GEN*)Q+2;
+        Q = gerepilecopy(av, Q); R = Q+2;
       }
     }
   }
@@ -464,11 +464,11 @@ RgX_translate(GEN P, GEN c)
   {
     for (i=1; i<=n; i++)
     {
-      for (k=n-i; k<n; k++) R[k] = gsub(R[k], R[k+1]);
+      for (k=n-i; k<n; k++) gel(R,k) = gsub(gel(R,k), gel(R,k+1));
       if (gc_needed(av,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"TR_POL(-1), i = %ld/%ld", i,n);
-        Q = gerepilecopy(av, Q); R = (GEN*)Q+2;
+        Q = gerepilecopy(av, Q); R = Q+2;
       }
     }
   }
@@ -476,11 +476,11 @@ RgX_translate(GEN P, GEN c)
   {
     for (i=1; i<=n; i++)
     {
-      for (k=n-i; k<n; k++) R[k] = gadd(R[k], gmul(c, R[k+1]));
+      for (k=n-i; k<n; k++) gel(R,k) = gadd(gel(R,k), gmul(c, gel(R,k+1)));
       if (gc_needed(av,2))
       {
         if(DEBUGMEM>1) pari_warn(warnmem,"TR_POL, i = %ld/%ld", i,n);
-        Q = gerepilecopy(av, Q); R = (GEN*)Q+2;
+        Q = gerepilecopy(av, Q); R = Q+2;
       }
     }
   }
