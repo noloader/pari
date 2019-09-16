@@ -487,55 +487,6 @@ RgX_translate(GEN P, GEN c)
   return gerepilecopy(av, Q);
 }
 
-/* return P(X + c) using destructive Horner, optimize for c = 1,-1 */
-GEN
-ZX_translate(GEN P, GEN c)
-{
-  pari_sp av = avma;
-  GEN Q, R;
-  long i, k, n;
-
-  if (!signe(P) || !signe(c)) return ZX_copy(P);
-  Q = leafcopy(P);
-  R = Q+2; n = degpol(P);
-  if (equali1(c))
-  {
-    for (i=1; i<=n; i++)
-    {
-      for (k=n-i; k<n; k++) gel(R,k) = addii(gel(R,k), gel(R,k+1));
-      if (gc_needed(av,2))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"ZX_translate(1), i = %ld/%ld", i,n);
-        Q = gerepilecopy(av, Q); R = Q+2;
-      }
-    }
-  }
-  else if (equalim1(c))
-  {
-    for (i=1; i<=n; i++)
-    {
-      for (k=n-i; k<n; k++) gel(R,k) = subii(gel(R,k), gel(R,k+1));
-      if (gc_needed(av,2))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"ZX_translate(-1), i = %ld/%ld", i,n);
-        Q = gerepilecopy(av, Q); R = Q+2;
-      }
-    }
-  }
-  else
-  {
-    for (i=1; i<=n; i++)
-    {
-      for (k=n-i; k<n; k++) gel(R,k) = addmulii_inplace(gel(R,k), c, gel(R,k+1));
-      if (gc_needed(av,2))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"ZX_translate, i = %ld/%ld", i,n);
-        Q = gerepilecopy(av, Q); R = Q+2;
-      }
-    }
-  }
-  return gerepilecopy(av, Q);
-}
 /* return lift( P(X + c) ) using Horner, c in R[y]/(T) */
 GEN
 RgXQX_translate(GEN P, GEN c, GEN T)
