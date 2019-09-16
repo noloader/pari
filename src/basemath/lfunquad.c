@@ -682,7 +682,7 @@ lfunquadfeq(long D, long k)
 
 /* heuristic */
 static long
-usefeq(long D, long k, long N, double c)
+usefeq(long D, long k, double c)
 {
   long e = expu(labs(D));
   if (D < 0) k /= 2;
@@ -739,9 +739,9 @@ lfunquadneg_i(long D, long k)
   if (k == 0) return D < 0? hclassno(stoi(-D)): gen_0;
   if ((D > 0 && !odd(k)) || (D < 0 && odd(k))) return gen_0;
   if (D == -4) return gmul2n(Eulernumber(-k), -1);
-  N = D < 0? lfunquadfindNodd(D, &c): lfunquadfindNeven(D, &c);
   k = 1 - k;
-  if (usefeq(D, k, N, c)) return lfunquadfeq(D, k);
+  N = D < 0? lfunquadfindNodd(D, &c): lfunquadfindNeven(D, &c);
+  if (usefeq(D, k, c)) return lfunquadfeq(D, k);
   return D < 0? lfunquadmodularhalfodd(D,k,N): lfunquadmodularhalfeven(D,k,N);
 }
 /* need k <= 0 and D fundamental */
