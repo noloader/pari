@@ -1354,8 +1354,6 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
 static void
 toolarge()
 { pari_warn(warner, "MPQS: number too big to be factored with MPQS,\n\tgiving up"); }
-/* All percentages below are actually fixed-point quantities scaled by 10
- * (value of 1 means 0.1%, 1000 means 100%) */
 
 /* Factors N using the self-initializing multipolynomial quadratic sieve
  * (SIMPQS).  Returns one of the two factors, or (usually) a vector of factors
