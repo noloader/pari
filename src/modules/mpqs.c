@@ -1207,6 +1207,7 @@ split(GEN *D, long *e)
   *e = 0; return 0; /* known composite */
 }
 
+/* return a GEN structure containing NULL but safe for gerepileupto */
 static GEN
 mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
 {
@@ -1338,9 +1339,8 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
   {
     long C  = c[i];
     icopyifstack(gel(r,i), gel(res,j)); /* factor */
-    /* exponent */
-    gel(res,j+1) = C <= 1? gen_1: utoipos(C);
-    gel(res,j+2) = C ? gen_1: gen_0; /* known composite or unknown */
+    gel(res,j+1) = C <= 1? gen_1: utoipos(C); /* exponent */
+    gel(res,j+2) = C ? NULL: gen_0; /* unknown or known composite */
     if (DEBUGLEVEL >= 6)
       err_printf("\tpackaging %ld: %Ps ^%ld (%s)\n", i, r[i],
                  itos(gel(res,j-2)), (C? "comp.": "unknown"));
