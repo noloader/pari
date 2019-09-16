@@ -248,11 +248,12 @@ sigsumN(long r, long dim, GEN vD, long N)
 static GEN lfunquadfeq(long D, long k);
 /* Euler numbers: 1, 0, -1, 0, 5, 0, -61,... */
 GEN
-Eulernumber(long k)
+eulerfrac(long n)
 {
   pari_sp av = avma;
-  if (odd(k)) return gen_0;
-  switch(k)
+  if (n < 0) pari_err_DOMAIN("eulerfrac", "index", "<", gen_0, stoi(n));
+  if (odd(n)) return gen_0;
+  switch(n)
   {
     case 0: return gen_1;
     case 2: return gen_m1;
@@ -263,7 +264,7 @@ Eulernumber(long k)
     case 12:return utoipos(2702765);
     case 14:return utoineg(199360981);
   }
-  return gerepileuptoint(av, gmul2n(lfunquadfeq(-4, k+1), 1));
+  return gerepileuptoint(av, gmul2n(lfunquadfeq(-4, n+1), 1));
 }
 
 static GEN
@@ -404,7 +405,7 @@ usumdivktwist_0_all(long k, long dim0, long two)
 {
   long j, dim = two == 2 ? (dim0 + 1) >> 1 : dim0;
   GEN v = cgetg(dim + 1, t_COL);
-  for (j = 1; j <= dim; j++) gel(v,j) = gmul2n(Eulernumber(k+2-2*j), -2);
+  for (j = 1; j <= dim; j++) gel(v,j) = gmul2n(eulerfrac(k+2-2*j), -2);
   return two == 1? v: mkvec2(v, zerocol(dim0 - dim));
 }
 /* fa = factoru(N) */
@@ -738,7 +739,7 @@ lfunquadneg_i(long D, long k)
   if (!sisfundamental(D)) pari_err_TYPE("lfunquad [D not fundamental]",stoi(D));
   if (k == 0) return D < 0? hclassno(stoi(-D)): gen_0;
   if ((D > 0 && !odd(k)) || (D < 0 && odd(k))) return gen_0;
-  if (D == -4) return gmul2n(Eulernumber(-k), -1);
+  if (D == -4) return gmul2n(eulerfrac(-k), -1);
   k = 1 - k;
   N = D < 0? lfunquadfindNodd(D, &c): lfunquadfindNeven(D, &c);
   if (usefeq(D, k, c)) return lfunquadfeq(D, k);

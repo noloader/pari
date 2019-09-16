@@ -2459,6 +2459,8 @@ GEN     bernpol(long k, long v);
 GEN     bernreal(long n, long prec);
 GEN     bernvec(long nomb);
 void    constbern(long n);
+GEN     eulerpol(long k, long v);
+GEN     eulervec(long n);
 
 /* bibli1.c */
 
@@ -4040,7 +4042,7 @@ long    qfiseven(GEN M);
 /* lfunquad */
 
 GEN lfunquadneg(long D, long k);
-GEN Eulernumber(long k);
+GEN eulerfrac(long k);
 
 /* lll.c */
 

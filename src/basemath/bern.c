@@ -217,7 +217,6 @@ bernpol_i(long k, long v)
   GEN B, C;
   long i;
   if (v < 0) v = 0;
-  if (k < 0) pari_err_DOMAIN("bernpol", "index", "<", gen_0, stoi(k));
   constbern(k >> 1); /* cache B_2, ..., B_2[k/2] */
   C = vecbinomial(k);
   B = cgetg(k + 3, t_POL);
@@ -226,8 +225,10 @@ bernpol_i(long k, long v)
   return B;
 }
 GEN
-bernpol(long k, long v) {
+bernpol(long k, long v)
+{
   pari_sp av = avma;
+  if (k < 0) pari_err_DOMAIN("bernpol", "index", "<", gen_0, stoi(k));
   return gerepileupto(av, bernpol_i(k, v));
 }
 /* x := pol_x(v); return 1^e + ... + x^e = x^e + (B_{e+1}(x) - B_{e+1})/(e+1) */
@@ -329,4 +330,53 @@ bernreal(long n, long prec)
   B = bernreal_using_zeta(n, minss(p, prec));
   if (p < prec) B = fractor(bernfrac_i(n, B), prec);
   return B;
+}
+
+GEN
+eulerpol(long k, long v)
+{
+  pari_sp av = avma;
+  GEN B, E;
+  if (k < 0) pari_err_DOMAIN("eulerpol", "index", "<", gen_0, stoi(k));
+  k++; B = bernpol_i(k, v);
+  E = RgX_Rg_mul(RgX_sub(B, RgX_rescale(B, gen_2)), sstoQ(2,k));
+  return gerepileupto(av, E);
+}
+/* e = 2^n E_n(x/2), return e'' / n(n-1) = 2^(n-2) E_{n-2}(x/2) */
+static GEN
+eulerderiv(GEN e)
+{
+  long k, n = degpol(e), K = n-1, N = n * K;
+  GEN f = cgetg(n+1, t_POL);
+  f[1] = evalvarn(0)|evalsigne(1); gel(f,2) = gen_1;
+  for (k = 1; k < K; k++)
+  {
+    pari_sp av = avma;
+    GEN c = diviuexact(muliu(gel(e,k+4), (k+2)*(k+1)), N);
+    gel(f,k+2) = gerepileuptoint(av, c);
+  }
+  return f;
+}
+GEN
+eulervec(long n)
+{
+  pari_sp av;
+  GEN v, E;
+  long k;
+  if (n < 0) return cgetg(1, t_VEC);
+  v = cgetg(n + 2, t_VEC); gel(v,1) = gen_1; av = avma;
+  E = RgX_rescale(eulerpol(2*n, 0), gen_2); /* 2^(2n) E_2n(x/2) */
+  for (k = 0; k < n; k++)
+  {
+    gel(v,n-k+1) = gclone(ZX_eval1(E)); E = eulerderiv(E);
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"eulervec, k = %ld/%ld", k,n);
+      E = gerepileupto(av, E);
+    }
+  }
+  set_avma((pari_sp)v);
+  for (k = 2; k <= n+1; k++)
+  { GEN o = gel(v,k); gel(v,k) = icopy(o); gunclone(o); }
+  return v;
 }

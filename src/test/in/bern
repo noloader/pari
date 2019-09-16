@@ -2,9 +2,6 @@ bernfrac(0);
 bernfrac(1);
 for(k = 1, 20, print(bernfrac(k)));
 for(k = 0, 5, print(bernpol(k)));
-bernfrac(-1)
-bernreal(-1)
-bernpol(-1)
 bernvec(30)
 default(realprecision,38);
 bernreal(30)
@@ -12,3 +9,16 @@ bernreal(202)
 bernreal(1024)
 bernfrac(256)
 localprec(57); bernreal(30)
+eulerfrac(0)
+eulerfrac(1)
+eulerfrac(2)
+eulervec(30)
+forstep(k = 0, 20, 2, print(eulerfrac(k)));
+for(k = 0, 5, print(eulerpol(k)));
+\\ Errors, keep at end of file
+bernfrac(-1)
+bernreal(-1)
+bernpol(-1)
+eulerfrac(-1)
+eulerreal(-1)
+eulerpol(-1)
