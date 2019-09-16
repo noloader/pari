@@ -1731,8 +1731,8 @@ lfun(GEN lmisc, GEN s, long bitprec)
         {
           long prec = nbits2prec(bitprec), q = labs(D);
           ss = 1 - ss; /* <= 0 */
-          z = mulrr(shiftr(powrs(divrs(mppi(prec), q), 1-ss), -ss),
-                    sqrtr_abs(utor(q, prec)));
+          z = powrs(divrs(mppi(prec + EXTRAPRECWORD), q), 1-ss);
+          z = mulrr(shiftr(z, -ss), sqrtr_abs(utor(q, prec)));
           z = gdiv(z, mpfactr(-ss, prec));
           if (smodss(ss, 4) > 1) togglesign(z);
           return gmul(z, lfunquadneg(D, ss));
