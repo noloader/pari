@@ -2794,8 +2794,8 @@ ifac_insert_multiplet(GEN *partial, GEN *where, GEN facvec, long moebius_mode)
     ifac_realloc(partial, where, lg(*partial) + needroom + 3);
 
   /* create sort permutation from the values of the factors */
-  for (j=nf; j; j--) auxvec[j] = facvec[3*j-2]; /* just the pointers */
-  sorted = indexsort(auxvec);
+  for (j=nf; j; j--) gel(auxvec,j) = gel(facvec,3*j-2);
+  sorted = ZV_indexsort(auxvec);
   /* and readjust the result for the triple spacing */
   for (j=nf; j; j--) sorted[j] = 3*sorted[j]-2;
 
@@ -2820,14 +2820,14 @@ ifac_insert_multiplet(GEN *partial, GEN *where, GEN facvec, long moebius_mode)
        * then forget current factor */
       newexp = EXPON(cur);
       if (newexp != gen_1) /* new exp > 1 */
-        e = addis(EXPON(*where), exponent * itos(newexp));
+        e = addiu(EXPON(*where), exponent * itou(newexp));
       else if (EXPON(*where) == gen_1 && exponent == 1)
         e = gen_2;
       else
-        e = addis(EXPON(*where), exponent);
+        e = addiu(EXPON(*where), exponent);
       EXPON(*where) = e;
 
-      if (moebius_mode) return 0; /* stop now, but with exponent updated */
+      if (moebius_mode) return 0; /* stop now, with exponent updated */
       continue;
     }
 
