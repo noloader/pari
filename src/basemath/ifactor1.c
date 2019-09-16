@@ -2185,11 +2185,9 @@ is_pth_power(GEN x, GEN *pt, forprime_t *T, ulong cutoffbits)
  * would already know where 'here' is, so we don't want to search for it again.
  * We do not preserve this from one user-interface call to the next. */
 
-/* In the most common cases, control flows from the user interface to
- * ifac_main() and then to a succession of ifac_crack()s and ifac_divide()s,
- * with (typically) none of the latter finding anything. */
-
-static long ifac_insert_multiplet(GEN *, GEN *, GEN, long);
+/* In the most cases, control flows from the user interface to ifac_main() and
+ * then to a succession of ifac_crack()s and ifac_divide()s, with (typically)
+ * none of the latter finding anything. */
 
 #define LAST(x) x+lg(x)-3
 #define FIRST(x) x+3
@@ -2612,6 +2610,85 @@ update_pow(GEN where, GEN factor, long exp, pari_sp *av)
  * hint & 8 : avoid final ECM; may flag a composite as prime. */
 #define get_hint(partial) (itos(HINT(*partial)) & 15)
 
+/* Complete ifac_crack's job when a factoring engine splits the current factor
+ * into a product of three or more new factors. Makes room for them if
+ * necessary, sorts them, gives them the right exponents and class. Returns the
+ * number of factors actually written, which may be less than #facvec if there
+ * are duplicates. Vectors of factors (cf pollardbrent() or mpqs()) contain
+ * 'slots' of 3 GENs per factor, interpreted as in our partial factorization
+ * data structure. Thus engines can tell us what they already know about
+ * factors being prime/composite or appearing to a power larger than thefirst.
+ * Don't collect garbage.  No diagnostics: engine has printed what it found.
+ * facvec contains slots of three components per factor; repeated factors are
+ * allowed (their classes shouldn't contradict each other whereas their
+ * exponents will be added up) */
+static long
+ifac_insert_multiplet(GEN *partial, GEN *where, GEN facvec, long moebius_mode)
+{
+  long j,k=1, lfv=lg(facvec)-1, nf=lfv/3, room=(long)(*where-*partial);
+  /* one of the factors will go into the *where slot, so room is now 3 times
+   * the number of slots we can use */
+  long needroom = lfv - room;
+  GEN newexp, cur, sorted, auxvec = cgetg(nf+1, t_VEC), factor;
+  long E = itos(EXPON(*where)); /* the old exponent */
+
+  if (DEBUGLEVEL >= 5) /* squfof may return a single squared factor as a set */
+    err_printf("IFAC: incorporating set of %ld factor(s)\n", nf);
+  if (needroom > 0) ifac_realloc(partial, where, lg(*partial) + needroom);
+
+  /* create sort permutation from the values of the factors */
+  for (j=nf; j; j--) gel(auxvec,j) = gel(facvec,3*j-2);
+  sorted = ZV_indexsort(auxvec);
+  /* store factors, beginning at *where, and catching any duplicates */
+  cur = facvec + 3*sorted[nf]-2; /* adjust for triple spacing */
+  VALUE(*where) = VALUE(cur);
+  newexp = EXPON(cur);
+  /* if new exponent is 1, the old exponent already in place will do */
+  if (newexp != gen_1) EXPON(*where) = mului(E,newexp);
+  CLASS(*where) = CLASS(cur);
+  if (DEBUGLEVEL >= 6) err_printf("\tstored (largest) factor no. %ld...\n", nf);
+
+  for (j=nf-1; j; j--)
+  {
+    GEN e;
+    cur = facvec + 3*sorted[j]-2;
+    factor = VALUE(cur);
+    if (equalii(factor, VALUE(*where)))
+    {
+      if (DEBUGLEVEL >= 6)
+        err_printf("\tfactor no. %ld is a duplicate%s\n", j, (j>1? "...": ""));
+      /* update exponent, ignore class which would already have been set,
+       * then forget current factor */
+      newexp = EXPON(cur);
+      if (newexp != gen_1) /* new exp > 1 */
+        e = addiu(EXPON(*where), E * itou(newexp));
+      else if (EXPON(*where) == gen_1 && E == 1)
+        e = gen_2;
+      else
+        e = addiu(EXPON(*where), E);
+      EXPON(*where) = e;
+
+      if (moebius_mode) return 0; /* stop now, with exponent updated */
+      continue;
+    }
+
+    *where -= 3;
+    CLASS(*where) = CLASS(cur); /* class as given */
+    newexp = EXPON(cur);
+    if (newexp != gen_1) /* new exp > 1 */
+      e = (E == 1 && newexp == gen_2)? gen_2: mului(E, newexp);
+    else /* inherit parent's exponent */
+      e = (E == 1 ? gen_1 : (E == 2 ? gen_2 : utoipos(E)));
+    EXPON(*where) = e;
+    /* keep components younger than *partial */
+    icopyifstack(factor, VALUE(*where));
+    k++;
+    if (DEBUGLEVEL >= 6)
+      err_printf("\tfactor no. %ld was unique%s\n", j, j>1? " (so far)...": "");
+  }
+  return k;
+}
+
 /* Split the first (composite) entry.  There _must_ already be room for another
  * factor below *where, and *where is updated. Two cases:
  * - entry = factor^k is a pure power: factor^k is inserted, leaving *where
@@ -2762,100 +2839,6 @@ ifac_crack(GEN *partial, GEN *where, long moebius_mode)
   }
   else pari_err_BUG("ifac_crack [Z_issquareall miss]");
   return 2;
-}
-
-/* Gets called to complete ifac_crack's job when a factoring engine splits
- * the current factor into a product of three or more new factors. Makes room
- * for them if necessary, sorts them, gives them the right exponents and class.
- * Also returns the number of factors actually written, which may be less than
- * the number of components in facvec if there are duplicates.--- Vectors of
- * factors  (cf pollardbrent()) actually contain 'slots' of three GENs per
- * factor with the three fields interpreted as in our partial factorization
- * data structure.  Thus 'engines' can tell us what they already happen to
- * know about factors being prime or composite and/or appearing to a power
- * larger than the first.
- * Don't collect garbage.  No diagnostics: the factoring engine should have
- * printed what it found. facvec contains slots of three components per factor;
- * repeated factors are allowed  (and their classes shouldn't contradict each
- * other whereas their exponents will be added up) */
-static long
-ifac_insert_multiplet(GEN *partial, GEN *where, GEN facvec, long moebius_mode)
-{
-  long j,k=1, lfv=lg(facvec)-1, nf=lfv/3, room=(long)(*where-*partial);
-  /* one of the factors will go into the *where slot, so room is now 3 times
-   * the number of slots we can use */
-  long needroom = lfv - room;
-  GEN e, newexp, cur, sorted, auxvec = cgetg(nf+1, t_VEC), factor;
-  long exponent = itos(EXPON(*where)); /* the old exponent */
-
-  if (DEBUGLEVEL >= 5) /* squfof may return a single squared factor as a set */
-    err_printf("IFAC: incorporating set of %ld factor(s)\n", nf);
-  if (needroom > 0) /* one extra slot for paranoia, errm, future use */
-    ifac_realloc(partial, where, lg(*partial) + needroom + 3);
-
-  /* create sort permutation from the values of the factors */
-  for (j=nf; j; j--) gel(auxvec,j) = gel(facvec,3*j-2);
-  sorted = ZV_indexsort(auxvec);
-  /* and readjust the result for the triple spacing */
-  for (j=nf; j; j--) sorted[j] = 3*sorted[j]-2;
-
-  /* store factors, beginning at *where, and catching any duplicates */
-  cur = facvec + sorted[nf];
-  VALUE(*where) = VALUE(cur);
-  newexp = EXPON(cur);
-  if (newexp != gen_1) EXPON(*where) = mului(exponent,newexp);
-  /* if new exponent is 1, the old exponent already in place will do */
-  CLASS(*where) = CLASS(cur);
-  if (DEBUGLEVEL >= 6) err_printf("\tstored (largest) factor no. %ld...\n", nf);
-
-  for (j=nf-1; j; j--)
-  {
-    cur = facvec + sorted[j];
-    factor = VALUE(cur);
-    if (equalii(factor, VALUE(*where)))
-    {
-      if (DEBUGLEVEL >= 6)
-        err_printf("\tfactor no. %ld is a duplicate%s\n", j, (j>1? "...": ""));
-      /* update exponent, ignore class which would already have been set,
-       * then forget current factor */
-      newexp = EXPON(cur);
-      if (newexp != gen_1) /* new exp > 1 */
-        e = addiu(EXPON(*where), exponent * itou(newexp));
-      else if (EXPON(*where) == gen_1 && exponent == 1)
-        e = gen_2;
-      else
-        e = addiu(EXPON(*where), exponent);
-      EXPON(*where) = e;
-
-      if (moebius_mode) return 0; /* stop now, with exponent updated */
-      continue;
-    }
-
-    *where -= 3;
-    CLASS(*where) = CLASS(cur);        /* class as given */
-    newexp = EXPON(cur);
-    if (newexp != gen_1) /* new exp > 1 */
-    {
-      if (exponent == 1 && newexp == gen_2)
-        e = gen_2;
-      else /* exponent*newexp > 2 */
-        e = mului(exponent, newexp);
-    }
-    else
-      e = (exponent == 1 ? gen_1 :
-            (exponent == 2 ? gen_2 :
-               utoipos(exponent))); /* inherit parent's exponent */
-    EXPON(*where) = e;
-    /* keep components younger than *partial */
-    icopyifstack(factor, VALUE(*where));
-    k++;
-    if (DEBUGLEVEL >= 6)
-      err_printf("\tfactor no. %ld was unique%s\n", j, j>1? " (so far)...": "");
-  }
-  /* make the 'sorted' object safe for garbage collection (it should be in the
-   * garbage zone from everybody's perspective, but it's easy to do it) */
-  *sorted = evaltyp(t_INT) | evallg(nf+1);
-  return k;
 }
 
 /* main loop:  iterate until smallest entry is a finished prime;  returns
