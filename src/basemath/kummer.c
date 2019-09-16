@@ -1524,7 +1524,7 @@ static GEN
 bnrclassfield_tower(GEN bnr, GEN subgroup, GEN TB, GEN p, long finaldeg, long absolute, long prec)
 {
   pari_sp av = avma;
-  GEN nf, nf2, rnf, bnf, bnf2, bnr2, q, H, dec, cyc, pk, sgpk, pol2, emb, emb2, famod, fa, Lbad;
+  GEN nf, nf2, rnf, bnf, bnf2, bnr2, q, H, dec, cyc, pk, sgpk, pol2, emb, emb2, famod, fa, Lbad, cert;
   long i, r1, ell, sp, spk, last;
   forprime_t iter;
 
@@ -1533,6 +1533,15 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN TB, GEN p, long finaldeg, long ab
   rnf = rnfinit0(nf, TB, 1);
   nf2 = rnf_build_nfabs(rnf, prec);
   gsetvarn(nf2, varn(nf_get_pol(nf)));
+
+  cert = nfcertify(nf2);
+  if (lg(cert)>1)
+  {
+    rnf = rnfinit0(nf, gel(TB,1), 1);
+    nf2 = rnf_build_nfabs(rnf, prec);
+    gsetvarn(nf2, varn(nf_get_pol(nf)));
+  }
+
   r1 = nf_get_r1(nf2);
   bnf2 = Buchall(nf2, nf_FORCE, prec);
 
