@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 %}
 %define parse.error verbose
 %define api.prefix {pari_}
-%pure-parser
+%define api.pure full
 %parse-param {char **lex}
 %lex-param {char **lex}
 %initial-action{ @$.start=@$.end=*lex; }
