@@ -492,23 +492,24 @@ GEN
 RgXQX_translate(GEN P, GEN c, GEN T)
 {
   pari_sp av = avma;
-  GEN Q, *R;
+  GEN Q, R;
   long i, k, n;
 
   if (!signe(P) || gequal0(c)) return RgX_copy(P);
   Q = leafcopy(P);
-  R = (GEN*)(Q+2); n = degpol(P);
+  R = Q+2; n = degpol(P);
   for (i=1; i<=n; i++)
   {
     for (k=n-i; k<n; k++)
     {
       pari_sp av2 = avma;
-      R[k] = gerepileupto(av2, RgX_rem(gadd(R[k], gmul(c, R[k+1])), T));
+      gel(R,k) = gerepileupto(av2,
+                   RgX_rem(gadd(gel(R,k), gmul(c, gel(R,k+1))), T));
     }
     if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgXQX_translate, i = %ld/%ld", i,n);
-      Q = gerepilecopy(av, Q); R = (GEN*)Q+2;
+      Q = gerepilecopy(av, Q); R = Q+2;
     }
   }
   return gerepilecopy(av, Q);
