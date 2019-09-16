@@ -1720,7 +1720,7 @@ lfun(GEN lmisc, GEN s, long bitprec)
     else
       lmisc = ldata = lfunmisc_to_ldata_shallow(lmisc);
     t = ldata_get_type(ldata);
-    if (t == t_LFUN_KRONECKER)
+    if (t == t_LFUN_KRONECKER || t == t_LFUN_ZETA)
     {
       long D = itos_or_0(gel(ldata_get_an(ldata), 2));
       if (D)
