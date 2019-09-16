@@ -18,34 +18,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-/* 2^(2k) binomial(n/2, k), an integer */
 static GEN
-binom2(long n, long k)
+RCpol(long k, long t, GEN c)
 {
-  if (!k) return gen_1;
-  if (k == 1) return utoi(2*n);
-  return diviiexact(shifti(mulu_interval_step(n-2*k+2, n, 2), k), mpfact(k));
-}
-static GEN
-RCpol(long n, long t, long N)
-{
-  GEN P = cgetg(n+3, t_POL), c = binom2(t, n);
-  long l, s = N - 2*n;
-  if (s) c = shifti(c, s);
-  gel(P,n+2) = c;
-  for(l = 0; l < n; l++)
+  GEN P = cgetg(k+3, t_POL);
+  long l;
+
+  gel(P,k+2) = c;
+  for(l = 0; l < k; l++)
   {
-    c = diviiexact(mulii(c, muluu(2*n-1 - 2*l, n-l)), mulss(l+1, 2*l-t));
-    gel(P,n-l+1) = c;
+    c = diviiexact(mulii(c, muluu(2*k-1 - 2*l, k-l)), mulss(l+1, 2*l-t));
+    gel(P,k-l+1) = c;
   }
   P[1] = evalsigne(1) | evalvarn(0); return P;
 }
 static GEN
 vecRCpol(long r, long dim)
 {
-  GEN v = cgetg(dim+1, t_VEC);
-  long i, N = 2*(dim-1), t = 2*r - 3;
-  for (i = 1; i <= dim; i++) gel(v,i) = RCpol(i-1, t, N);
+  long k, K = dim-1, t = 2*r - 3;
+  GEN v = cgetg(dim+1, t_VEC), c = int2n(2*K);
+  for (k = 0; k <= K; k++)
+  { /* c = 2^(2K) binomial(n/2,k), an integer */
+    gel(v,k+1) = RCpol(k, t, c);
+    if (k == K) break;
+    c = diviuexact(muliu(c, t - 2*k), 2*k + 2);
+  }
   return v;
 }
 /* D a t_INT */
