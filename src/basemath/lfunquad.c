@@ -672,10 +672,11 @@ lfunquadfeq(long D, long k)
   if (k == 2) pari_err_TYPE("lfunquadfeq [k = 2]", stoi(k));
   Da = labs(D); prime = uisprime(Da);
   L = LFEk(D, k, prime); prec = lg(L);
-  res = divrr(mulrr(mpfactr(k-1, prec), gpowgs(divur(Da, Pi2n(1, prec)), k)),
-              mulrr(L, sqrtr_abs(utor(Da,prec))));
-  shiftr_inplace(res,1); if (odd(k/2)) togglesign(res);
-  den = (prime || Da == 4)? utoi(k*Da): NULL;
+  L = mulrr(L, powrs(divru(Pi2n(1, prec), Da), k));
+  if (Da != 4) { L = mulrr(L, sqrtr_abs(utor(Da,prec))); shiftr_inplace(L,-1); }
+  res = divrr(mpfactr(k-1, prec), L);
+  if (odd(k/2)) togglesign(res);
+  den = (prime || Da == 4)? utoipos(k*Da): NULL;
   return myround(res, den);
 }
 
