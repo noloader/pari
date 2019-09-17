@@ -11020,7 +11020,7 @@ Hfind(long r, GEN *pden)
   M = mfEHmat(lim, r);
   B = cgetg(lim+1, t_COL);
   for (i = 1; i <= lim; i++) gel(B, i) = mfEHcoef(r, i-1);
-  res = inverseimage(M, B);
+  res = QM_gauss(M, B);
   if (lg(res) == 1) pari_err_BUG("mfEH");
   return Q_remove_denom(res,pden);
 }
