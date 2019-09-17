@@ -3418,8 +3418,9 @@ GEN
 Flx_Newton(GEN P, long n, ulong p)
 {
   pari_sp av = avma;
-  GEN dP = Flx_deriv(P, p);
-  GEN Q = Flxn_recip(Flx_div(Flx_shift(dP, n), P, p), n);
+  long d = degpol(P);
+  GEN dP = Flxn_recip(Flx_deriv(P, p), d);
+  GEN Q = Flxn_mul(Flxn_inv(Flxn_recip(P, d+1), n, p), dP, n, p);
   return gerepileuptoleaf(av, Q);
 }
 
@@ -3447,7 +3448,7 @@ GEN
 Flx_translate1(GEN P, ulong p)
 {
   long i, k, n = degpol(P);
-  if (n >= 18000 && p >= (ulong)n)
+  if (n >= 16000 && p >= (ulong)n)
   {
     pari_sp av = avma;
     ulong l = Flx_lead(P);
