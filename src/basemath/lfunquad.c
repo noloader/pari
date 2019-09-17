@@ -288,10 +288,12 @@ myinverseimage(GEN M, GEN R, GEN *pden)
 }
 
 static GEN
-cohenHcolgen(long r, GEN vD)
+Hcol(GEN k, long r, GEN vD, long d)
 {
-  long m, l = lg(vD);
-  GEN v = cgetg(l, t_COL);
+  long m, l;
+  GEN v;
+  if (r <= 10) return mfDcoefs(mfEH(k),vD,d);
+  l = lg(vD); v = cgetg(l, t_COL);
   for (m = 1; m < l; m++)
   {
     pari_sp av = avma;
@@ -326,7 +328,7 @@ thetabracketseven(GEN k, long N, GEN *pden)
     GEN v = mfDcoefs(mfderiv(T, dim+1), vD, 1);
     gel(M, dim) = gadd(gel(M, dim), gdivgs(v, N*(2*dim - 1)));
   }
-  if (km <= 40) R = mfDcoefs(mfEH(k),vD,1); else R = cohenHcolgen(km, vD);
+  R = Hcol(k, km, vD, 1);
   if (N == 8 || N == 12)
   {
     long i, l = lg(vD), N2 = N/4;
@@ -453,7 +455,7 @@ thetabracketsodd(GEN k, long kro, long N, GEN *pden)
   B = findmul(N, kro) * mfsturmNgk(4*N, k);
   vD = Dneg(B, kro, dim + 5, N);
   M = sigsumtwist1N(r, dim, kro, vD, N);
-  if (r <= 40) R = mfDcoefs(mfEH(k), vD, kro?1:4); else R = cohenHcolgen(r, vD);
+  R = Hcol(k, h, vD, kro? 1: 4);
   if (N > 2)
   {
     long i, l = lg(vD), N2 = N&1L ? N : N >> 1;
