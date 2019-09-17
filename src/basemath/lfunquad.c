@@ -455,7 +455,7 @@ thetabracketsodd(GEN k, long kro, long N, GEN *pden)
   B = findmul(N, kro) * mfsturmNgk(4*N, k);
   vD = Dneg(B, kro, dim + 5, N);
   M = sigsumtwist1N(r, dim, kro, vD, N);
-  R = Hcol(k, h, vD, kro? 1: 4);
+  R = Hcol(k, r, vD, kro? 1: 4);
   if (N > 2)
   {
     long i, l = lg(vD), N2 = N&1L ? N : N >> 1;
