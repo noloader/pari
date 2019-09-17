@@ -630,9 +630,10 @@ LFEk(long D, long k, int prime)
   av = avma; P = real_1(nbits2prec(bit));
   while ((p = u_forprime_next(&iter)))
   {
-    long s = kross(D, p), bitnew = (long)(bit - k * log2(p));
+    long s = kross(D, p), bitnew;
     GEN Q;
     if (!s) continue;
+    bitnew = (long)(bit - k * log2(p));
     Q = divrr(P, rpowuu(p, k, nbits2prec(maxss(64, bitnew))));
     P = s == 1? subrr(P, Q): addrr(P, Q);
     if (gc_needed(av,1)) P = gerepileuptoleaf(av, P);
