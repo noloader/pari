@@ -134,7 +134,7 @@ RgV_mul2(GEN a, GEN b)
  * N=12: a=6, b=3 if D odd, 0 if D even: D = 0,1 mod 4
  * N=-12: a=6, b=5,1 if D odd, 4,2 if D even: D = 0,1 mod 4
  * N=16: a=8, b=7,1 if D = 1 mod 16, 5,3 if D = 9 mod 16: D = 1 mod 8 */
-GEN
+static GEN
 sigsum(long k, long dim, long a, long b, long D, long N, GEN vs, GEN vP)
 {
   pari_sp av;
@@ -292,7 +292,7 @@ Hcol(GEN k, long r, GEN vD, long d)
 {
   long m, l;
   GEN v;
-  if (r <= 10) return mfDcoefs(mfEH(k),vD,d);
+  if (r < 5) return mfDcoefs(mfEH(k),vD,d);
   l = lg(vD); v = cgetg(l, t_COL);
   for (m = 1; m < l; m++)
   {
@@ -681,20 +681,9 @@ lfunquadfeq(long D, long k)
 static long
 usefeq(long D, long k, double c)
 {
-  long e = expu(labs(D));
-  if (D < 0) k /= 2;
-  if (k > 30 * c)
-  {
-    if (k <= 60 * c)
-    {
-      if (e <= 20 + k/10) return 0;
-    }
-    else
-    {
-      if (e <= 14 + k/50) return 1;
-    }
-  }
-  return 0;
+  if (k == 2) return 0;
+  if (D < 0) { k = 2*k; D = -D; }
+  return eulerphiu(D) <= k * sqrt(D/c);
 }
 
 static long
