@@ -400,14 +400,6 @@ div4(GEN V)
   return W;
 }
 
-static GEN
-usumdivktwist_0_all(long k, long dim0, long two)
-{
-  long j, dim = two == 2 ? (dim0 + 1) >> 1 : dim0;
-  GEN v = cgetg(dim + 1, t_COL);
-  for (j = 1; j <= dim; j++) gel(v,j) = gmul2n(eulerfrac(k+2-2*j), -2);
-  return two == 1? v: mkvec2(v, zerocol(dim0 - dim));
-}
 /* fa = factoru(N) */
 static GEN
 usumdivktwist_fact_all(GEN fa, long N, long k, long dim0, long two)
@@ -489,12 +481,13 @@ sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GE
   for (s = b, n = 0; s <= lim; s += a, n++)
   {
     long Ds = D2 - n*(c2*n + c1);
-    GEN v, P = gsubst(vPD, 0, utoi(s*s));
+    GEN v, P;
+    if (!Ds) continue;
     if (vstwist)
       v = gel(vstwist, Ds+1);
     else
-      v = Ds? usumdivktwist_fact_all(factoru(Ds), Ds, k, dim0, two)
-            : usumdivktwist_0_all(k, dim0, two);
+      v = usumdivktwist_fact_all(factoru(Ds), Ds, k, dim0, two);
+    P = gsubst(vPD, 0, utoi(s*s));
     v = (two == 1)? RgV_mul(v, P): RgV_mul2(v, P);
     if (!s) keep0 = v; else listS = gadd(listS, v);
     if (gc_needed(btop, 1)) gerepileall(btop, keep0? 2: 1, &listS,&keep0);
@@ -590,7 +583,7 @@ sigsumtwist1N(long r, long dim0, long kro, GEN vD, long N)
   l = lg(vD4); M = cgetg(l, t_MAT);
   B = vD4[l-1] / labs(N);
   V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
-  gel(vs,1) = usumdivktwist_0_all(r, dim0, two);
+  gel(vs,1) = NULL; /* unused */
   for (n = 1; n <= B; n++)
     gel(vs,n+1) = usumdivktwist_fact_all(gel(V,n), n, r, dim0, two);
   if (two == 1) N = -N;
