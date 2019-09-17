@@ -318,8 +318,8 @@ ZX_div_by_X_1(GEN a, GEN *r)
 }
 
 /* return P(X + c) using destructive Horner, optimize for c = 1,-1 */
-GEN
-ZX_translate(GEN P, GEN c)
+static GEN
+ZX_translate_basecase(GEN P, GEN c)
 {
   pari_sp av = avma;
   GEN Q, R;
@@ -365,6 +365,63 @@ ZX_translate(GEN P, GEN c)
     }
   }
   return gerepilecopy(av, Q);
+}
+
+/* return (x+u)^n */
+static GEN
+Z_XpN_powu(GEN u, long n, long v)
+{
+  long d, k;
+  GEN C, V;
+  if (!n) return pol_1(v);
+  d = (n + 1) >> 1;
+  V = is_pm1(u) ? NULL: gpowers(u, n);
+  C = cgetg(n+3, t_POL);
+  C[1] = evalsigne(1)| evalvarn(v);
+  if (V)
+  {
+    gel(C,2) = gel(V,n+1);
+    gel(C,3) = mulii(utoipos(n), gel(V,n));
+    for (k=2; k <= d; k++)
+    {
+      pari_sp av = avma;
+      long nk = n-k+1;
+      GEN Ck = mulii(diviuexact(mului(nk, gel(C,k+1)), k),gel(V,nk));
+      gel(C,k+2) = gerepileuptoint(av, Ck);
+    }
+  } else
+  {
+    gel(C,2) = gen_1;
+    gel(C,3) = utoipos(n);
+    for (k=2; k <= d; k++)
+    {
+      pari_sp av = avma;
+      long nk = n-k+1;
+      GEN Ck = diviuexact(mului(nk, gel(C,k+1)), k);
+      gel(C,k+2) = gerepileuptoint(av, Ck);
+    }
+    if (signe(u) < 0)
+      for(k=d-1; k>0; k-=2) togglesign_safe(&gel(C,k+2));
+  }
+  for (   ; k <= n; k++) gel(C,k+2) = gel(C,n-k+2);
+  return C;
+}
+
+GEN
+ZX_translate(GEN P, GEN c)
+{
+  pari_sp av = avma;
+  long n = degpol(P);
+  if (n < 220)
+    return ZX_translate_basecase(P, c);
+  else
+  {
+    long d = n >> 1;
+    GEN Q = ZX_translate(RgX_shift_shallow(P, -d), c);
+    GEN R = ZX_translate(RgXn_red_shallow(P, d), c);
+    GEN S = Z_XpN_powu(c, d, varn(P));
+    return gerepilecopy(av, ZX_add(ZX_mul(Q, S), R));
+  }
 }
 
 /* Return 2^(n degpol(P))  P(x >> n) */
