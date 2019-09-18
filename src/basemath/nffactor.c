@@ -58,51 +58,73 @@ typedef struct
 /*******************************************************************/
 /* NOT stack clean. a, b stay on the stack */
 static GEN
-lift_to_frac(GEN t, GEN mod, GEN amax, GEN bmax, GEN denom, GEN tdenom)
+lift_to_frac(GEN t, GEN N, GEN amax, GEN bmax, GEN den, GEN tden)
 {
   GEN a, b;
-  if (signe(t) < 0) t = addii(t, mod); /* in case t is a centerlift */
-  if (tdenom)
+  if (signe(t) < 0) t = addii(t, N); /* in case t is a centerlift */
+  if (tden)
   {
     pari_sp av = avma;
-    a = Fp_center_i(Fp_mul(t, tdenom, mod), mod, shifti(mod,-1));
-    if (abscmpii(a, amax) < 0) return gerepileupto(av, Qdivii(a, tdenom));
+    a = Fp_center_i(Fp_mul(t, tden, N), N, shifti(N,-1));
+    if (abscmpii(a, amax) < 0) return gerepileupto(av, Qdivii(a, tden));
     set_avma(av);
   }
-  if (!Fp_ratlift(t, mod, amax,bmax, &a,&b)
-     || (denom && !dvdii(denom,b))
+  if (!Fp_ratlift(t, N, amax,bmax, &a,&b)
+     || (den && !dvdii(den,b))
      || !is_pm1(gcdii(a,b))) return NULL;
   if (is_pm1(b)) { cgiv(b); return a; }
   return mkfrac(a, b);
 }
 
-/* Compute rational lifting for all the components of M modulo mod.
- * Assume all Fp_ratlift preconditions are met; we allow centerlifts but in
- * that case are no longer stack clean. If one component fails, return NULL.
- * If denom != NULL, check that the denominators divide denom.
- *
- * We suppose gcd(mod, denom) = 1, then a and b are coprime; so we can use
- * mkfrac rather than gdiv */
+/* Compute rational lifting for all the components of P modulo N. Assume
+ * Fp_ratlift preconditions are met; we allow centerlifts. If one component
+ * fails, return NULL. If den != NULL, check that the deninators divide den;
+ * assume (N, den) = 1. */
 GEN
-FpC_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
+FpC_ratlift(GEN P, GEN N, GEN amax, GEN bmax, GEN den)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   long j, l;
-  GEN tdenom = NULL, Q = cgetg_copy(P, &l);
+  GEN tden = NULL, Q = cgetg_copy(P, &l);
   if (l==1) return Q;
+  if (den && cmpii(bmax, den) > 0) bmax = den;
   for (j = 1; j < l; ++j)
   {
-    GEN d, a = lift_to_frac(gel(P,j), mod, amax, bmax, denom, tdenom);
-    if (!a) return gc_NULL(ltop);
-    d = Q_denom(a);
-    tdenom = tdenom ? cmpii(tdenom, d)<0? d: tdenom : d;
+    GEN a = lift_to_frac(gel(P,j), N, amax, bmax, den, tden);
+    if (!a) return gc_NULL(av);
+    if (typ(a) == t_FRAC)
+    {
+      GEN d = gel(a,2);
+      tden = tden? (cmpii(tden, d) < 0? d: tden): d;
+    }
+    gel(Q,j) = a;
+  }
+  return Q;
+}
+GEN
+FpX_ratlift(GEN P, GEN N, GEN amax, GEN bmax, GEN den)
+{
+  pari_sp av = avma;
+  long j, l;
+  GEN tden = NULL, Q = cgetg_copy(P, &l);
+  Q[1] = P[1];
+  if (den && cmpii(bmax, den) > 0) bmax = den;
+  for (j = 2; j < l; ++j)
+  {
+    GEN a = lift_to_frac(gel(P,j), N, amax, bmax, den, tden);
+    if (!a) return gc_NULL(av);
+    if (typ(a) == t_FRAC)
+    {
+      GEN d = gel(a,2);
+      tden = tden? (cmpii(tden, d) < 0? d: tden): d;
+    }
     gel(Q,j) = a;
   }
   return Q;
 }
 
 GEN
-FpM_ratlift(GEN M, GEN mod, GEN amax, GEN bmax, GEN denom)
+FpM_ratlift(GEN M, GEN mod, GEN amax, GEN bmax, GEN den)
 {
   pari_sp av = avma;
   long j, l = lg(M);
@@ -110,29 +132,11 @@ FpM_ratlift(GEN M, GEN mod, GEN amax, GEN bmax, GEN denom)
   if (l == 1) return N;
   for (j = 1; j < l; ++j)
   {
-    GEN a = FpC_ratlift(gel(M, j), mod, amax, bmax, denom);
+    GEN a = FpC_ratlift(gel(M, j), mod, amax, bmax, den);
     if (!a) return gc_NULL(av);
     gel(N,j) = a;
   }
   return N;
-}
-
-GEN
-FpX_ratlift(GEN P, GEN mod, GEN amax, GEN bmax, GEN denom)
-{
-  pari_sp ltop = avma;
-  long j, l;
-  GEN tdenom = NULL, Q = cgetg_copy(P, &l);
-  Q[1] = P[1];
-  for (j = 2; j < l; ++j)
-  {
-    GEN d, a = lift_to_frac(gel(P,j), mod, amax, bmax, denom, tdenom);
-    if (!a) return gc_NULL(ltop);
-    d = Q_denom(a);
-    tdenom = tdenom ? cmpii(tdenom, d)<0? d: tdenom : d;
-    gel(Q,j) = a;
-  }
-  return Q;
 }
 
 /*******************************************************************/
