@@ -420,7 +420,7 @@ ZX_translate(GEN P, GEN c)
     GEN Q = ZX_translate(RgX_shift_shallow(P, -d), c);
     GEN R = ZX_translate(RgXn_red_shallow(P, d), c);
     GEN S = Z_XpN_powu(c, d, varn(P));
-    return gerepilecopy(av, ZX_add(ZX_mul(Q, S), R));
+    return gerepileupto(av, ZX_add(ZX_mul(Q, S), R));
   }
 }
 
