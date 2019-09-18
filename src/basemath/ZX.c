@@ -367,44 +367,46 @@ ZX_translate_basecase(GEN P, GEN c)
   return gerepilecopy(av, Q);
 }
 
+static GEN
+Z_Xpm1_powu(long n, long s, long v)
+{
+  long d, k;
+  GEN C;
+  if (!n) return pol_1(v);
+  d = (n + 1) >> 1;
+  C = cgetg(n+3, t_POL);
+  C[1] = evalsigne(1)| evalvarn(v);
+  gel(C,2) = gen_1;
+  gel(C,3) = utoipos(n);
+  for (k=2; k <= d; k++)
+    gel(C,k+2) = diviuexact(mului(n-k+1, gel(C,k+1)), k);
+  if (s < 0)
+    for (k = odd(n)? 0: 1; k <= d; k += 2)
+      togglesign_safe(&gel(C,k+2));
+  if (s > 0 || !odd(n))
+    for (k = d+1; k <= n; k++) gel(C,k+2) = gel(C,n-k+2);
+  else
+    for (k = d+1; k <= n; k++) gel(C,k+2) = negi(gel(C,n-k+2));
+  return C;
+}
 /* return (x+u)^n */
 static GEN
 Z_XpN_powu(GEN u, long n, long v)
 {
-  long d, k;
-  GEN C, V;
+  pari_sp av;
+  long k;
+  GEN B, C, V;
   if (!n) return pol_1(v);
-  d = (n + 1) >> 1;
-  V = is_pm1(u) ? NULL: gpowers(u, n);
+  if (is_pm1(u))
+    return Z_Xpm1_powu(n, signe(u), v);
+  av = avma;
+  V = gpowers(u, n);
+  B = vecbinomial(n);
   C = cgetg(n+3, t_POL);
   C[1] = evalsigne(1)| evalvarn(v);
-  if (V)
-  {
-    gel(C,2) = gel(V,n+1);
-    gel(C,3) = mulii(utoipos(n), gel(V,n));
-    for (k=2; k <= d; k++)
-    {
-      pari_sp av = avma;
-      long nk = n-k+1;
-      GEN Ck = mulii(diviuexact(mului(nk, gel(C,k+1)), k),gel(V,nk));
-      gel(C,k+2) = gerepileuptoint(av, Ck);
-    }
-  } else
-  {
-    gel(C,2) = gen_1;
-    gel(C,3) = utoipos(n);
-    for (k=2; k <= d; k++)
-    {
-      pari_sp av = avma;
-      long nk = n-k+1;
-      GEN Ck = diviuexact(mului(nk, gel(C,k+1)), k);
-      gel(C,k+2) = gerepileuptoint(av, Ck);
-    }
-    if (signe(u) < 0)
-      for(k=d-1; k>0; k-=2) togglesign_safe(&gel(C,k+2));
-  }
-  for (   ; k <= n; k++) gel(C,k+2) = gel(C,n-k+2);
-  return C;
+  for (k=1; k <= n+1; k++)
+    gel(C,k+1) = mulii(gel(V,n+2-k), gel(B,k));
+  return gerepileupto(av, C);
 }
 
 GEN
