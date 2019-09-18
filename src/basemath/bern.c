@@ -342,41 +342,18 @@ eulerpol(long k, long v)
   E = RgX_Rg_mul(RgX_sub(B, RgX_rescale(B, gen_2)), sstoQ(2,k));
   return gerepileupto(av, E);
 }
-/* e = 2^n E_n(x/2), return e'' / n(n-1) = 2^(n-2) E_{n-2}(x/2) */
-static GEN
-eulerderiv(GEN e)
-{
-  long k, n = degpol(e), K = n-1, N = n * K;
-  GEN f = cgetg(n+1, t_POL);
-  f[1] = evalvarn(0)|evalsigne(1); gel(f,2) = gen_1;
-  for (k = 1; k < K; k++)
-  {
-    pari_sp av = avma;
-    GEN c = diviuexact(muliu(gel(e,k+4), (k+2)*(k+1)), N);
-    gel(f,k+2) = gerepileuptoint(av, c);
-  }
-  return f;
-}
 GEN
 eulervec(long n)
 {
   pari_sp av;
-  GEN v, E;
+  GEN v, E, C;
   long k;
   if (n < 0) return cgetg(1, t_VEC);
+  C = vecbinomial(2*n);
+  E = ZX_translate(RgX_rescale(eulerpol(2*n, 0), gen_2), gen_1);
   v = cgetg(n + 2, t_VEC); gel(v,1) = gen_1; av = avma;
-  E = RgX_rescale(eulerpol(2*n, 0), gen_2); /* 2^(2n) E_2n(x/2) */
-  for (k = 0; k < n; k++)
-  {
-    gel(v,n-k+1) = gclone(ZX_eval1(E)); E = eulerderiv(E);
-    if (gc_needed(av,2))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"eulervec, k = %ld/%ld", k,n);
-      E = gerepileupto(av, E);
-    }
-  }
-  set_avma((pari_sp)v);
-  for (k = 2; k <= n+1; k++)
-  { GEN o = gel(v,k); gel(v,k) = icopy(o); gunclone(o); }
-  return v;
+  /* 2^(2n) E_2n(x/2 + 1) = sum_k binomial(2n,k) E_k x^(n-k) */
+  for (k = 1; k <= n; k++)
+    gel(v,k+1) = diviiexact(gel(E,2*n-2*k+2), gel(C,2*k+1));
+  return gerepileupto(av, v);
 }
