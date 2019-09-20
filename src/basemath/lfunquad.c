@@ -612,18 +612,19 @@ lfunquadmodularhalfodd(long D, long k, long N)
 /********************************************************/
 /*        Using the Full Functional Equation            */
 /********************************************************/
+/* cost O( D/log(D) M(k log(kD)) ) */
 static GEN
 LFEk(long D, long k, int prime)
 {
   pari_sp av;
   long bit, lim, Da = labs(D);
-  double B = (k-0.5)*log(k*Da/17.079)+12;
+  double B = (k-0.5) * log((k-1.)*Da/17.079) + 12; /* 17.079 ~ 2Pi e */
   forprime_t iter;
   ulong p;
   GEN P;
   if (prime) B += log(Da);
-  bit = maxss((long)ceil(B/M_LN2 * k/(k-1)), 32) + 32;
-  lim = (long)ceil(exp((B-log(k-1.))/(k-1)));
+  bit = maxss((long)B/M_LN2 * k/(k-1), 32) + 32;
+  lim = (long)exp((B-log(k-1.))/(k-1)); /* ~ D / (2Pi e) */
   u_forprime_init(&iter, 2, lim);
   av = avma; P = real_1(nbits2prec(bit));
   while ((p = u_forprime_next(&iter)))
@@ -679,7 +680,7 @@ usefeq(long D, long k, double c)
 {
   if (k == 2) return 0;
   if (D < 0) { k = 2*k; D = -D; }
-  return eulerphiu(D) <= k * sqrt(D/c);
+  return sqrt(D*c) <= k;
 }
 
 static long
