@@ -309,15 +309,26 @@ Hcol(GEN k, long r, GEN vD, long d)
 /*   Modular form method using Half-Integral Weight forms  */
 /*                      Case D > 0                         */
 /***********************************************************/
+static long
+dimeven(long r, long N)
+{
+  switch(N)
+  {
+    case 4:  return r / 6 + 1;
+    case 12: return r / 3 + 1;
+    default: return r / 4 + 1;
+  }
+}
+static long
+muleven(long N) { return (N == 4)? 1: 2; }
 
 static GEN
 thetabracketseven(GEN k, long N0, GEN *pden)
 {
-  static long di[] = {6, 4, 3, 4}, mul[] = {1, 2, 2, 2};
-  long B, r = itos(gsub(k, ghalf)), N = labs(N0), dim = r/di[(N - 4)/4] + 1;
+  long B, r = itos(gsub(k, ghalf)), N = labs(N0), dim = dimeven(r, N);
   GEN R, M, vD;
 
-  B = mul[(N - 4)/4] * mfsturmNgk(N, k);
+  B = muleven(N) * mfsturmNgk(N, k);
   vD = Dpos(dim, N0, B);
   M = sigsumN(r, dim, vD, N0);
   if (r == 2*dim)
@@ -350,7 +361,7 @@ lfunquadmodulareven(long D, long k, long N)
 /***********************************************************/
 
 static long
-dimsmall(long r, long kro, long N)
+dimodd(long r, long kro, long N)
 {
   switch(N)
   {
@@ -429,7 +440,7 @@ usumdivktwist_fact_all(GEN fa, long N, long k, long dim0, long two)
 }
 
 static long
-findmul(long N, long kro)
+mulodd(long N, long kro)
 {
   if (N == 1 || N == 2) return 1;
   if (kro != 1) return kro? 5: 7;
@@ -443,10 +454,10 @@ static GEN sigsumtwist1N(long r, long dim, long kro, GEN vD, long N);
 static GEN
 thetabracketsodd(GEN k, long kro, long N, GEN *pden)
 {
-  long B, r = itos(gsub(k, ghalf)), dim = dimsmall(r, kro, N);
+  long B, r = itos(gsub(k, ghalf)), dim = dimodd(r, kro, N);
   GEN R, M, vD;
 
-  B = findmul(N, kro) * mfsturmNgk(4*N, k);
+  B = mulodd(N, kro) * mfsturmNgk(4*N, k);
   vD = Dneg(B, kro, dim + 5, N);
   M = sigsumtwist1N(r, dim, kro, vD, N);
   R = Hcol(k, r, vD, kro? 1: 4);
