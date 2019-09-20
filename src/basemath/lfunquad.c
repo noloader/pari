@@ -322,14 +322,13 @@ dimeven(long r, long N)
 static long
 muleven(long N) { return (N == 4)? 1: 2; }
 
+/* k = r + 1/2 */
 static GEN
-thetabracketseven(GEN k, long N0, GEN *pden)
+thetabracketseven(GEN k, long r, long N0, GEN *pden)
 {
-  long B, r = itos(gsub(k, ghalf)), N = labs(N0), dim = dimeven(r, N);
-  GEN R, M, vD;
+  long N = labs(N0), dim = dimeven(r, N), B = muleven(N) * mfsturmNgk(N, k);
+  GEN R, M, vD = Dpos(dim, N0, B);
 
-  B = muleven(N) * mfsturmNgk(N, k);
-  vD = Dpos(dim, N0, B);
   M = sigsumN(r, dim, vD, N0);
   if (r == 2*dim)
   {
@@ -349,8 +348,8 @@ thetabracketseven(GEN k, long N0, GEN *pden)
 static GEN
 lfunquadmodulareven(long D, long k, long N)
 {
-  GEN C, S, gk = gaddsg(k, ghalf), den;
-  C = thetabracketseven(gk, labs(N), &den);
+  GEN C, S, den;
+  C = thetabracketseven(sstoQ(2*k+1,2), k, labs(N), &den);
   S = RgV_dotproduct(C, get_S_even(N)(k, lg(C)-1, D, NULL, NULL));
   return den? gdiv(S, den): S;
 }
@@ -451,14 +450,13 @@ mulodd(long N, long kro)
 
 static GEN sigsumtwist1N(long r, long dim, long kro, GEN vD, long N);
 
+/* k = r + 1/2 */
 static GEN
-thetabracketsodd(GEN k, long kro, long N, GEN *pden)
+thetabracketsodd(GEN k, long r, long kro, long N, GEN *pden)
 {
-  long B, r = itos(gsub(k, ghalf)), dim = dimodd(r, kro, N);
-  GEN R, M, vD;
+  long dim = dimodd(r, kro, N), B = mulodd(N, kro) * mfsturmNgk(4*N, k);
+  GEN R, M, vD = Dneg(B, kro, dim + 5, N);
 
-  B = mulodd(N, kro) * mfsturmNgk(4*N, k);
-  vD = Dneg(B, kro, dim + 5, N);
   M = sigsumtwist1N(r, dim, kro, vD, N);
   R = Hcol(k, r, vD, kro? 1: 4);
   if (N > 2)
@@ -608,10 +606,10 @@ sigsumtwist1N(long r, long dim0, long kro, GEN vD, long N)
 static GEN
 lfunquadmodularodd(long D, long k, long N)
 {
-  GEN C, den, S, gk = gaddsg(k, ghalf);
   long two, kro = kross(D, 2), Da = labs(D);
+  GEN C, den, S;
   SIGMA_Fodd F;
-  C = thetabracketsodd(gk, kro, labs(N), &den);
+  C = thetabracketsodd(sstoQ(2*k+1,2), k, kro, labs(N), &den);
   two = ((N == 2 && kro) || (N == -6 && kro == 1))? 1: 2;
   F = get_S_odd(N, two);
   if (!kro) Da >>= 2;
