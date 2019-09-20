@@ -33,10 +33,10 @@ RCpol(long k, long t, GEN c)
   P[1] = evalsigne(1) | evalvarn(0); return P;
 }
 static GEN
-vecRCpol(long r, long dim)
+vecRCpol(long r, long d)
 {
-  long k, K = dim-1, t = 2*r - 3;
-  GEN v = cgetg(dim+1, t_VEC), c = int2n(2*K);
+  long k, K = d - 1, t = 2*r - 3;
+  GEN v = cgetg(d + 1, t_VEC), c = int2n(2*K);
   for (k = 0; k <= K; k++)
   { /* c = 2^(2K) binomial(n/2,k), an integer */
     gel(v,k+1) = RCpol(k, t, c);
@@ -76,11 +76,11 @@ vpowp(long k, long d, long p, long s)
   return v;
 }
 static GEN
-usumdivk_0_all(long k, long dim)
+usumdivk_0_all(long k, long d)
 {
-  GEN v = cgetg(dim + 1, t_COL);
+  GEN v = cgetg(d + 1, t_COL);
   long j;
-  for (j = 1; j <= dim; j++)
+  for (j = 1; j <= d; j++)
   {
     long n = k + 2 - 2*j;
     gel(v,j) = gdivgs(bernfrac(n), - (n << 1));
@@ -88,15 +88,15 @@ usumdivk_0_all(long k, long dim)
   return v;
 }
 static GEN
-usumdivk_fact_all(GEN fa, long k, long dim)
+usumdivk_fact_all(GEN fa, long k, long d)
 {
   GEN res, P, E, pow;
   long i, j, l;
-  res = cgetg(dim + 1, t_COL);
+  res = cgetg(d + 1, t_COL);
   P = gel(fa, 1); l = lg(P);
   E = gel(fa, 2); pow = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++) gel(pow, i) = vpowp(k, dim, P[i], 1);
-  for (j = 1; j <= dim; j++)
+  for (i = 1; i < l; i++) gel(pow, i) = vpowp(k, d, P[i], 1);
+  for (j = 1; j <= d; j++)
   {
     GEN v = cgetg(l, t_VEC);
     for (i = 1; i < l; i++) gel(v,i) = euler_sumdiv(gmael(pow,i,j), E[i]);
@@ -126,7 +126,7 @@ RgV_mul2(GEN a, GEN b)
   return v;
 }
 
-/* r = k - 2*j, 0<=j<dim, factor s=an+b, 0<=s<lim. Check if n starts at 0 or 1
+/* r = k - 2*j, 0<=j<d, factor s=an+b, 0<=s<lim. Check if n starts at 0 or 1
  * P(D,(an+b)^2), (D-s^2)/N = (D-b^2)/N - 2abn/N - a^2n^2/N and guarantee
  *  N | D-b^2, N | 2ab, and N | a^2 (except N=8, D odd):
  * N=4: a=2, b=0,1\equiv D: D = 0,1 mod 4.
@@ -134,18 +134,18 @@ RgV_mul2(GEN a, GEN b)
  * N=12: a=6, b=3 if D odd, 0 if D even: D = 0,1 mod 4
  * N=-12: a=6, b=5,1 if D odd, 4,2 if D even: D = 0,1 mod 4
  * N=16: a=8, b=7,1 if D = 1 mod 16, 5,3 if D = 9 mod 16: D = 1 mod 8 */
-/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ), d = dim; mu = mult. exponent */
+/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ); mu = mult. exponent */
 static GEN
-sigsum(long k, long dim, long a, long b, long D, long N, GEN vs, GEN vP)
+sigsum(long k, long d, long a, long b, long D, long N, GEN vs, GEN vP)
 {
   pari_sp av;
   GEN vPD, S, keep0 = NULL;
   long D2, n, c1, c2, s, lim = usqrt(labs(D));
 
-  if (!vP) vP = vecRCpol(k, dim);
+  if (!vP) vP = vecRCpol(k, d);
   vPD = RgXV_rescale(vP, stoi(D));
   D2 = (D - b*b)/N; c1 = (2*a*b)/N; c2 = (a*a)/N;
-  av = avma; S = zerocol(dim);
+  av = avma; S = zerocol(d);
   for (s = b, n = 0; s <= lim; s += a, n++)
   {
     long Ds = c2 ? D2 - n*(c2*n + c1) : D2 - ((n*(n+1)) >> 1);
@@ -153,8 +153,8 @@ sigsum(long k, long dim, long a, long b, long D, long N, GEN vs, GEN vP)
     if (vs)
       v = gel(vs, Ds+1);
     else
-      v = Ds? usumdivk_fact_all(factoru(Ds), k, dim)
-            : usumdivk_0_all(k,dim);
+      v = Ds? usumdivk_fact_all(factoru(Ds), k, d)
+            : usumdivk_0_all(k,d);
     v = RgV_mul(v, P);
     if (!s) keep0 = gclone(v); else S = gadd(S, v);
     if (gc_needed(av, 1)) S = gerepileupto(av, S);
@@ -165,49 +165,49 @@ sigsum(long k, long dim, long a, long b, long D, long N, GEN vs, GEN vP)
 }
 
 static GEN
-sigsum4(long k, long dim, long D, GEN vs, GEN vP)
-{ return sigsum(k, dim, 2, odd(D), D, 4, vs, vP); }
+sigsum4(long k, long d, long D, GEN vs, GEN vP)
+{ return sigsum(k, d, 2, odd(D), D, 4, vs, vP); }
 
 /* D != 5 (mod 8) */
 static GEN
-sigsum8(long k, long dim, long D, GEN vs, GEN vP)
+sigsum8(long k, long d, long D, GEN vs, GEN vP)
 {
-  if (D&1L) return gmul2n(sigsum(k, dim, 2, 1, D, 8, vs, vP), -1);
-  return sigsum(k, dim, 4, 2*odd(D >> 2), D, 8, vs, vP);
+  if (D&1L) return gmul2n(sigsum(k, d, 2, 1, D, 8, vs, vP), -1);
+  return sigsum(k, d, 4, 2*odd(D >> 2), D, 8, vs, vP);
 }
 
 /* D = 0 (mod 3) */
 static GEN
-sigsum12(long k, long dim, long D, GEN vs, GEN vP)
-{ return sigsum(k, dim, 6, 3*odd(D), D, 12, vs, vP); }
+sigsum12(long k, long d, long D, GEN vs, GEN vP)
+{ return sigsum(k, d, 6, 3*odd(D), D, 12, vs, vP); }
 
 /* D = 1 (mod 3) */
 static GEN
-sigsumm12(long k, long dim, long D, GEN vs, GEN vP)
+sigsumm12(long k, long d, long D, GEN vs, GEN vP)
 {
   long fl = odd(D);
-  GEN res = sigsum(k, dim, 6, 4 + fl, D, 12, vs, vP);
-  res = gadd(res, sigsum(k, dim, 6, 2 - fl, D, 12, vs, vP));
+  GEN res = sigsum(k, d, 6, 4 + fl, D, 12, vs, vP);
+  res = gadd(res, sigsum(k, d, 6, 2 - fl, D, 12, vs, vP));
   return gmul2n(res, -1);
 }
 
 /* D = 1 (mod 8) */
 static GEN
-sigsum16(long k, long dim, long D, GEN vs, GEN vP)
+sigsum16(long k, long d, long D, GEN vs, GEN vP)
 {
   long fl = (D&15L) == 1;
-  GEN res = sigsum(k, dim, 8, 5 + 2*fl, D, 16, vs, vP);
-  return gadd(res, sigsum(k, dim, 8, 3 - 2*fl, D, 16, vs, vP));
+  GEN res = sigsum(k, d, 8, 5 + 2*fl, D, 16, vs, vP);
+  return gadd(res, sigsum(k, d, 8, 3 - 2*fl, D, 16, vs, vP));
 }
 
 /* N = 4 (as above), 8 (factor (1+(D/2))), 12 (factor (1+(D/3))),
    16 (only D=1 mod 8). */
 static GEN
-Dpos(long dim, long N, long B)
+Dpos(long d, long N, long B)
 {
-  GEN vD = cgetg(maxss(B, dim) + 1, t_VECSMALL);
+  GEN vD = cgetg(maxss(B, d) + 1, t_VECSMALL);
   long D, c;
-  for (D = 5, c = 1; c <= dim || D <= B; D += odd(D) ? 3 : 1)
+  for (D = 5, c = 1; c <= d || D <= B; D += odd(D) ? 3 : 1)
     if (!(N == 8 && (D&3L))
         && !(N == 12 && D%3)
         && !(N == -12 && D%3 != 1)
@@ -228,21 +228,21 @@ get_S_even(long N)
   }
 }
 static GEN
-sigsumN(long r, long dim, GEN vD, long N)
+sigsumN(long r, long d, GEN vD, long N)
 {
-  GEN V, M, vs, vP = vecRCpol(r, dim);
+  GEN V, M, vs, vP = vecRCpol(r, d);
   SIGMA_F S = get_S_even(N);
   long B, n, i, l = lg(vD);
 
   B = vD[l-1] / labs(N);
   V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
-  gel(vs,1) = usumdivk_0_all(r, dim);
-  for (n = 1; n <= B; n++) gel(vs, n+1) = usumdivk_fact_all(gel(V,n), r, dim);
+  gel(vs,1) = usumdivk_0_all(r, d);
+  for (n = 1; n <= B; n++) gel(vs, n+1) = usumdivk_fact_all(gel(V,n), r, d);
   M = cgetg(l, t_MAT);
   for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
-    gel(M,i) = gerepileupto(av, S(r, dim, vD[i], vs, vP));
+    gel(M,i) = gerepileupto(av, S(r, d, vD[i], vs, vP));
   }
   return shallowtrans(M);
 }
@@ -326,14 +326,14 @@ muleven(long N) { return (N == 4)? 1: 2; }
 static GEN
 thetabracketseven(GEN k, long r, long N0, GEN *pden)
 {
-  long N = labs(N0), dim = dimeven(r, N), B = muleven(N) * mfsturmNgk(N, k);
-  GEN R, M, vD = Dpos(dim, N0, B);
+  long N = labs(N0), d = dimeven(r, N), B = muleven(N) * mfsturmNgk(N, k);
+  GEN R, M, vD = Dpos(d, N0, B);
 
-  M = sigsumN(r, dim, vD, N0);
-  if (r == 2*dim)
+  M = sigsumN(r, d, vD, N0);
+  if (r == 2*d)
   { /* r = 2 or (r = 4 and N = 4) */
-    GEN v = mfDcoefs(mfderiv(mfTheta(NULL), dim+1), vD, 1);
-    gel(M, dim) = gadd(gel(M, dim), gdivgs(v, N*(2*dim - 1)));
+    GEN v = mfDcoefs(mfderiv(mfTheta(NULL), d+1), vD, 1);
+    gel(M, d) = gadd(gel(M, d), gdivgs(v, N*(2*d - 1)));
   }
   R = Hcol(k, r, vD, 1);
   if (N == 8 || N == 12)
@@ -389,11 +389,11 @@ dimodd(long r, long kro, long N)
 }
 
 static GEN
-Dneg(long n, long kro, long dim, long N)
+Dneg(long n, long kro, long d, long N)
 {
-  GEN vD = cgetg(maxss(n, dim) + 1, t_VECSMALL);
+  GEN vD = cgetg(maxss(n, d) + 1, t_VECSMALL);
   long D, c;
-  for (D = -3, c = 1; D >= -n || c <= dim; D -= odd(D)? 1: 3)
+  for (D = -3, c = 1; D >= -n || c <= d; D -= odd(D)? 1: 3)
     if (D != -4 && kross(D, 2) == kro
         && !(N == 6 && (D&7L) == 5)
         && !(N == 7 && (D&7L) != 5) && sisfundamental(D)) vD[c++] = labs(D);
@@ -411,28 +411,28 @@ div4(GEN V)
 
 /* fa = factoru(N) */
 static GEN
-usumdivktwist_fact_all(GEN fa, long N, long k, long dim0, long two)
+usumdivktwist_fact_all(GEN fa, long N, long k, long dim, long two)
 {
   GEN res, P, E, pow;
-  long i, j, l, f2, v, Nmod4, dim = two == 2 ? (dim0 + 1) >> 1 : dim0;
+  long i, j, l, f2, v, Nmod4, d = two == 2 ? (dim + 1) >> 1 : dim;
 
-  res = cgetg(dim0 + 1, t_COL);
+  res = cgetg(dim + 1, t_COL);
   Nmod4 = (N >> vals(N)) & 3L; /* (N/2^oo) mod 4 */
   P = gel(fa, 1); l = lg(P);
   E = gel(fa, 2);
   if (l == 1 || P[1] != 2) f2 = v = 0; else { f2 = 1; v = E[1]; }
   pow = cgetg(l, t_VEC); /* pow[1] unused if f2 */
-  for (i = 1+f2; i < l; i++) gel(pow, i) = vpowp(k, dim, P[i], -1);
-  for (j = 1; j <= dim; j++)
+  for (i = 1+f2; i < l; i++) gel(pow, i) = vpowp(k, d, P[i], -1);
+  for (j = 1; j <= d; j++)
   {
     GEN V = cgetg(l - f2, t_VEC), z;
     for (i = 1+f2; i < l; i++) gel(V,i-f2) = euler_sumdiv(gmael(pow,i,j), E[i]);
     gel(res, j) = z = ZV_prod(V);
-    if (two == 2 && j <= dim0 - dim)
+    if (two == 2 && j <= dim - d)
     {
       if (Nmod4 == 3) z = negi(z);
       if (v) z = shifti(z, (k - 2*j + 1)*v);
-      gel(res, j + dim) = z;
+      gel(res, j + d) = z;
     }
   }
   return res;
@@ -448,16 +448,16 @@ mulodd(long N, long kro)
   return 2;
 }
 
-static GEN sigsumtwist1N(long r, long dim, long kro, GEN vD, long N);
+static GEN sigsumtwist1N(long r, long d, long kro, GEN vD, long N);
 
 /* k = r + 1/2, r odd */
 static GEN
 thetabracketsodd(GEN k, long r, long kro, long N, GEN *pden)
 {
-  long dim = dimodd(r, kro, N), B = mulodd(N, kro) * mfsturmNgk(4*N, k);
-  GEN R, M, vD = Dneg(B, kro, dim + 5, N);
+  long d = dimodd(r, kro, N), B = mulodd(N, kro) * mfsturmNgk(4*N, k);
+  GEN R, M, vD = Dneg(B, kro, d + 5, N);
 
-  M = sigsumtwist1N(r, dim, kro, vD, N);
+  M = sigsumtwist1N(r, d, kro, vD, N);
   R = Hcol(k, r, vD, kro? 1: 4);
   if (N > 2)
   {
@@ -467,20 +467,20 @@ thetabracketsodd(GEN k, long r, long kro, long N, GEN *pden)
   return myinverseimage(M, R, pden);
 }
 
-/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ), d = dim; mu = mult. exponent */
+/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ); mu = mult. exponent */
 static GEN
-sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GEN vP)
+sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vstwist, GEN vP)
 {
-  GEN vPD, S = zerocol(dim0), keep0 = NULL;
-  long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), two, dim;
+  GEN vPD, S = zerocol(dim), keep0 = NULL;
+  long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), two, d;
   pari_sp av;
 
   if (N > 2 && kross(Da, N == 6 ? 3 : N) == -1) return S;
   if (N0 == -2 || (N0 == -6 && (Da&7L) == 7))
-  { two = 1; dim = dim0; }
+  { two = 1; d = dim; }
   else
-  { two = 2; dim = (dim0 + 1) >> 1; }
-  if (!vP) vP = vecRCpol(k, dim);
+  { two = 2; d = (dim + 1) >> 1; }
+  if (!vP) vP = vecRCpol(k, d);
   vPD = RgXV_rescale(vP, stoi(Da));
   D2 = (Da - b*b)/N; c1 = (2*a*b)/N; c2 = (a*a)/N;
   av = avma;
@@ -492,7 +492,7 @@ sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GE
     if (vstwist)
       v = gel(vstwist, Ds+1);
     else
-      v = usumdivktwist_fact_all(factoru(Ds), Ds, k, dim0, two);
+      v = usumdivktwist_fact_all(factoru(Ds), Ds, k, dim, two);
     P = gsubst(vPD, 0, utoi(s*s));
     v = (two == 1)? RgV_mul(v, P): RgV_mul2(v, P);
     if (!s) keep0 = gclone(v); else S = gadd(S, v);
@@ -500,7 +500,7 @@ sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GE
   }
   S = gmul2n(S, 1);
   if (keep0) { S = gadd(S, keep0); gunclone(keep0); }
-  return gmul2n(S, -2*(dim-1));
+  return gmul2n(S, -2*(d-1));
 }
 
 /* Da = |D|; [sum sigma_r^(1)(Da-s^2), sum sigma_r^(2)(Da-s^2)], N = 1 */
@@ -575,29 +575,29 @@ get_S_odd(long N, long two)
 
 /* N > 0 */
 static GEN
-sigsumtwist1N(long r, long dim0, long kro, GEN vD, long N)
+sigsumtwist1N(long r, long dim, long kro, GEN vD, long N)
 {
   GEN V, M, vs, vP, vD4 = kro ? vD : div4(vD);
-  long B, n, i, l, two, dim;
+  long B, n, i, l, two, d;
   SIGMA_Fodd S;
 
   if ((N == 2 && kro) || (N == 6 && kro == 1))
-  { two = 1; dim = dim0; }
+  { two = 1; d = dim; }
   else
-  { two = 2; dim = (dim0 + 1) >> 1; }
+  { two = 2; d = (dim + 1) >> 1; }
   S = get_S_odd(N, two);
-  vP = vecRCpol(r, dim);
+  vP = vecRCpol(r, d);
   l = lg(vD4); M = cgetg(l, t_MAT);
   B = vD4[l-1] / labs(N);
   V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
   gel(vs,1) = NULL; /* unused */
   for (n = 1; n <= B; n++)
-    gel(vs,n+1) = usumdivktwist_fact_all(gel(V,n), n, r, dim0, two);
+    gel(vs,n+1) = usumdivktwist_fact_all(gel(V,n), n, r, dim, two);
   if (two == 1) N = -N;
   for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
-    gel(M,i) = gerepileupto(av, S(r, dim0, vD4[i], N, vs, vP));
+    gel(M,i) = gerepileupto(av, S(r, dim, vD4[i], N, vs, vP));
   }
   return shallowtrans(M);
 }
