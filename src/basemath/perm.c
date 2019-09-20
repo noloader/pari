@@ -821,13 +821,13 @@ dicyclicgroup(GEN g1, GEN g2, long s1, long s2)
 /* gen (vecvecsmall): coset generators
  * coset (vecsmall): vecsmall of coset number) */
 GEN
-group_quotient(GEN G, GEN H)
+groupelts_quotient(GEN elt, GEN H)
 {
   pari_sp ltop = avma;
   GEN  p2, p3;
   long i, j, a = 1;
-  long n = group_domain(G), o = group_order(H);
-  GEN  elt = group_elts(G,n), el;
+  long n = lg(gel(elt,1))-1, o = group_order(H);
+  GEN  el;
   long le = lg(elt)-1;
   GEN used = zero_F2v(le+1);
   long l = le/o;
@@ -852,6 +852,12 @@ group_quotient(GEN G, GEN H)
       p3[mael(V, j, 1)] = i;
   }
   return gerepilecopy(ltop,mkvec2(p2,p3));
+}
+
+GEN
+group_quotient(GEN G, GEN H)
+{
+  return groupelts_quotient(group_elts(G, group_domain(G)), H);
 }
 
 /*Compute the image of a permutation by a quotient map.*/

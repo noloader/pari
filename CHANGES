@@ -89,6 +89,7 @@ HC  23- direct formulas for quadratic Dirichlet L-functions at integers
     24- new GP functions: eulerfrac, eulerpol, eulervec
     25- [libpari] lfunquadneg
 BA  26- [libpari] vecvecsmall_sort_inplace
+BA  27- [libpari] groupelts_quotient
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
