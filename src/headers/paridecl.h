@@ -4445,6 +4445,7 @@ GEN     groupelts_center(GEN S);
 GEN     groupelts_conjclasses(GEN elts, long *nbcl);
 GEN     groupelts_quotient(GEN G, GEN H);
 GEN     groupelts_set(GEN G, long n);
+GEN     groupelts_to_group(GEN G);
 GEN     numtoperm(long n, GEN x);
 GEN     perm_cycles(GEN v);
 GEN     perm_pow(GEN perm, long exp);

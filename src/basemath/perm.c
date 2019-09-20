@@ -1186,6 +1186,15 @@ abelian_group(GEN v)
   return G;
 }
 
+static long
+groupelts_subgroup_isnormal(GEN G, GEN H)
+{
+  long i, n = lg(G);
+  for(i=1; i<n; i++)
+    if (!group_perm_normalize(H, gel(G,i))) return 0;
+  return 1;
+}
+
 /*return 1 if H is a normal subgroup of G*/
 long
 group_subgroup_isnormal(GEN G, GEN H)
@@ -1368,4 +1377,68 @@ group_export(GEN G, long format)
   }
   pari_err_FLAG("galoisexport");
   return NULL; /*-Wall*/
+}
+
+static GEN
+groupelts_cyclic_subgroups(GEN G)
+{
+  pari_sp av = avma;
+  long i, j, n = lg(G)-1;
+  GEN elts = zero_F2v(n+1), f;
+  GEN ord = cgetg(n+1, t_VECSMALL);
+  GEN V = cgetg(n+1, t_VEC);
+  for (i=1, j=1; i<=n; i++)
+  {
+    long k = 1, o, c = 0;
+    GEN p = gel(G, i);
+    if (F2v_coeff(elts, p[1])) continue;
+    o = perm_order(p);
+    ord[j] = o;
+    gel(V,j++) = p;
+    do
+    {
+      if (cgcd(o, ++c)==1) F2v_set(elts, p[k]);
+      k = p[k];
+    } while (k!=1);
+  }
+  setlg(ord, j);
+  setlg(V, j);
+  f = vecsmall_indexsort(ord);
+  return gerepilecopy(av, mkvec2(vecpermute(V, f), vecpermute(ord, f)));
+}
+
+GEN
+groupelts_to_group(GEN G)
+{
+  pari_sp av = avma;
+  GEN L = groupelts_cyclic_subgroups(G);
+  GEN cyc = gel(L,1), ord = gel(L,2);
+  long i, l = lg(cyc), n = lg(G)-1;
+  for (i = l-1; i >= 2; i--)
+  {
+    GEN p = gel(cyc,i);
+    long o = ord[i];
+    GEN H;
+    if (o == n) { avma = av; return cyclicgroup(p, o); }
+    H = cyclicgroup(p, o);
+    if (groupelts_subgroup_isnormal(G, H))
+    {
+      GEN C = groupelts_quotient(G, H);
+      GEN Q = quotient_groupelts(C);
+      GEN R = groupelts_to_group(Q);
+      if (isintzero(R)) { avma = av; return gen_0; }
+      return gerepilecopy(av, quotient_subgroup_lift(C, H, R));
+    }
+  }
+  if (n==12 && l==9 && ord[2]==2 && ord[3]==2 && ord[5]==3)
+    return gerepilecopy(av,
+      mkvec2(mkvec3(gel(cyc,2), gel(cyc,3), gel(cyc,5)), mkvecsmall3(2,2,3)));
+  if (n==24 && l==18 && ord[11]==3 && ord[15]==4 && ord[16]==4)
+  {
+    GEN t21 = perm_pow(gel(cyc,15),2);
+    GEN t22 = perm_pow(gel(cyc,16),2);
+    return gerepilecopy(av,
+      mkvec2(mkvec4(t21,t22, gel(cyc,11), gel(cyc,15)), mkvecsmall4(2,2,3,2)));
+  }
+  set_avma(av); return gen_0;
 }
