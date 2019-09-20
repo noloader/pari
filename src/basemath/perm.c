@@ -927,6 +927,17 @@ quotient_group(GEN C, GEN G)
   return gerepilecopy(ltop,Q);
 }
 
+GEN
+quotient_groupelts(GEN C)
+{
+  GEN G = quo_get_gen(C);
+  long i, l = lg(G);
+  GEN Q = cgetg(l, t_VEC);
+  for (i = 1; i < l; ++i)
+    gel(Q,i) = quotient_perm(C, gel(G,i));
+  return Q;
+}
+
 /* Return 1 if g normalizes N, 0 otherwise */
 long
 group_perm_normalize(GEN N, GEN g)

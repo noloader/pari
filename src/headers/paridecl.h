@@ -4452,6 +4452,7 @@ GEN     perm_to_GAP(GEN v);
 GEN     perm_to_Z(GEN v);
 GEN     permtonum(GEN x);
 GEN     quotient_group(GEN C, GEN G);
+GEN     quotient_groupelts(GEN C);
 GEN     quotient_perm(GEN C, GEN p);
 GEN     quotient_subgroup_lift(GEN C, GEN H, GEN S);
 GEN     subgroups_tableset(GEN S, long n);

@@ -13173,6 +13173,11 @@ return the image of $g$ by $C$ (i.e. the coset $gH$).
 $G\rightarrow G/H$ for some \emph{normal} subgroup $H$ of $G$, return the
 quotient group $G/H$ as a small group.
 
+\fun{GEN}{quotient_groupelts}{GEN C} where $C$ is the quotient map
+$G\rightarrow G/H$ for some group $G$ and some \emph{normal} subgroup $H$ of $G$,
+return the list of elements of the quotient group $G/H$ (as permutations over
+corresponding to the regular representation).
+
 \fun{GEN}{quotient_subgroup_lift}{GEN C, GEN H, GEN S} where $C$ is the
 quotient map $G\rightarrow G/H$ for some group $G$ normalizing $H$ and $S$ is
 a subgroup of $G/H$, return the inverse image of $S$ by $C$.
