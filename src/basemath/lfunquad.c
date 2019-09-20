@@ -311,26 +311,21 @@ Hcol(GEN k, long r, GEN vD, long d)
 /***********************************************************/
 
 static GEN
-thetabracketseven(GEN k, long N, GEN *pden)
+thetabracketseven(GEN k, long N0, GEN *pden)
 {
-  GEN T = mfTheta(NULL), R, M, vD;
-  static long di[] = {6, 4, 3, 4};
-  static long mul[] = {1, 2, 2, 2};
-  long km = itos(gsub(k, ghalf)), dim, N0, B;
-  if (!N) N = 4;
-  if ((N&3L) || (N <= 0 && N != -12) || N > 16)
-    pari_err_TYPE("thetabrackets [incorrect N]", stoi(N));
-  N0 = N; N = labs(N);
-  dim = km/di[(N - 4)/4] + 1;
+  static long di[] = {6, 4, 3, 4}, mul[] = {1, 2, 2, 2};
+  long B, r = itos(gsub(k, ghalf)), N = labs(N0), dim = r/di[(N - 4)/4] + 1;
+  GEN R, M, vD;
+
   B = mul[(N - 4)/4] * mfsturmNgk(N, k);
   vD = Dpos(dim, N0, B);
-  M = sigsumN(km, dim, vD, N0);
-  if (km - 2*(dim - 1) == 2)
+  M = sigsumN(r, dim, vD, N0);
+  if (r == 2*dim)
   {
-    GEN v = mfDcoefs(mfderiv(T, dim+1), vD, 1);
+    GEN v = mfDcoefs(mfderiv(mfTheta(NULL), dim+1), vD, 1);
     gel(M, dim) = gadd(gel(M, dim), gdivgs(v, N*(2*dim - 1)));
   }
-  R = Hcol(k, km, vD, 1);
+  R = Hcol(k, r, vD, 1);
   if (N == 8 || N == 12)
   {
     long i, l = lg(vD), N2 = N/4;
@@ -341,7 +336,7 @@ thetabracketseven(GEN k, long N, GEN *pden)
 
 /* L(\chi_D, 1-k) for D > 0 and k > 0 even. */
 static GEN
-lfunquadmodularhalfeven(long D, long k, long N)
+lfunquadmodulareven(long D, long k, long N)
 {
   GEN C, S, gk = gaddsg(k, ghalf), den;
   C = thetabracketseven(gk, labs(N), &den);
@@ -450,6 +445,7 @@ thetabracketsodd(GEN k, long kro, long N, GEN *pden)
 {
   long B, r = itos(gsub(k, ghalf)), dim = dimsmall(r, kro, N);
   GEN R, M, vD;
+
   B = findmul(N, kro) * mfsturmNgk(4*N, k);
   vD = Dneg(B, kro, dim + 5, N);
   M = sigsumtwist1N(r, dim, kro, vD, N);
@@ -599,7 +595,7 @@ sigsumtwist1N(long r, long dim0, long kro, GEN vD, long N)
 
 /* L(\chi_D, 1-k) for D < 0 and k > 0 odd. */
 static GEN
-lfunquadmodularhalfodd(long D, long k, long N)
+lfunquadmodularodd(long D, long k, long N)
 {
   GEN C, den, S, gk = gaddsg(k, ghalf);
   long two, kro = kross(D, 2), Da = labs(D);
@@ -730,7 +726,7 @@ lfunquadneg_i(long D, long k)
   k = 1 - k;
   N = D < 0? lfunquadfindNodd(D, k, &c): lfunquadfindNeven(D, &c);
   if (usefeq(D, k, c)) return lfunquadfeq(D, k);
-  return D < 0? lfunquadmodularhalfodd(D,k,N): lfunquadmodularhalfeven(D,k,N);
+  return D < 0? lfunquadmodularodd(D,k,N): lfunquadmodulareven(D,k,N);
 }
 /* need k <= 0 and D fundamental */
 GEN
