@@ -322,7 +322,7 @@ dimeven(long r, long N)
 static long
 muleven(long N) { return (N == 4)? 1: 2; }
 
-/* k = r + 1/2 */
+/* k = r + 1/2, r > 0 even */
 static GEN
 thetabracketseven(GEN k, long r, long N0, GEN *pden)
 {
@@ -331,7 +331,7 @@ thetabracketseven(GEN k, long r, long N0, GEN *pden)
 
   M = sigsumN(r, dim, vD, N0);
   if (r == 2*dim)
-  {
+  { /* r = 2 or (r = 4 and N = 4) */
     GEN v = mfDcoefs(mfderiv(mfTheta(NULL), dim+1), vD, 1);
     gel(M, dim) = gadd(gel(M, dim), gdivgs(v, N*(2*dim - 1)));
   }
@@ -450,7 +450,7 @@ mulodd(long N, long kro)
 
 static GEN sigsumtwist1N(long r, long dim, long kro, GEN vD, long N);
 
-/* k = r + 1/2 */
+/* k = r + 1/2, r odd */
 static GEN
 thetabracketsodd(GEN k, long r, long kro, long N, GEN *pden)
 {
@@ -721,6 +721,7 @@ lfunquadfindNodd(long D, long k, double *c)
   *c = 1; return 2;
 }
 
+/* k <= 0 */
 static GEN
 lfunquadneg_i(long D, long k)
 {
