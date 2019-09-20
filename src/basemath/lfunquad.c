@@ -446,12 +446,8 @@ static GEN sigsumtwist1N(long r, long dim, long kro, GEN vD, long N);
 static GEN
 thetabracketsodd(GEN k, long kro, long N, GEN *pden)
 {
+  long B, r = itos(gsub(k, ghalf)), dim = dimsmall(r, kro, N);
   GEN R, M, vD;
-  long r = itos(gsub(k, ghalf)), dim, B;
-  if (!N) N = 2;
-  if (N <= 0 || N >= 8 || N == 4 || (N == 6 && kro == -1) || (N == 7 && kro != -1))
-    pari_err_TYPE("thetabrackets [incorrect N]", stoi(N));
-  dim = dimsmall(r, kro, N);
   B = findmul(N, kro) * mfsturmNgk(4*N, k);
   vD = Dneg(B, kro, dim + 5, N);
   M = sigsumtwist1N(r, dim, kro, vD, N);
@@ -467,19 +463,19 @@ thetabracketsodd(GEN k, long kro, long N, GEN *pden)
 static GEN
 sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GEN vP)
 {
-  pari_sp btop;
   GEN vPD, listS = zerocol(dim0), keep0 = NULL;
   long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), two, dim;
-  long N2 = N == 6 ? 3 : N;
+  pari_sp av;
+
+  if (N > 2 && kross(Da, N == 6 ? 3 : N) == -1) return listS;
   if (N0 == -2 || (N0 == -6 && (Da&7L) == 7))
   { two = 1; dim = dim0; }
   else
   { two = 2; dim = (dim0 + 1) >> 1; }
-  if (N > 2 && kross(Da, N2) == -1) return listS;
   if (!vP) vP = vecRCpol(k, dim);
   vPD = RgXV_rescale(vP, stoi(Da));
   D2 = (Da - b*b)/N; c1 = (2*a*b)/N; c2 = (a*a)/N;
-  btop = avma;
+  av = avma;
   for (s = b, n = 0; s <= lim; s += a, n++)
   {
     long Ds = D2 - n*(c2*n + c1);
@@ -492,7 +488,7 @@ sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GE
     P = gsubst(vPD, 0, utoi(s*s));
     v = (two == 1)? RgV_mul(v, P): RgV_mul2(v, P);
     if (!s) keep0 = v; else listS = gadd(listS, v);
-    if (gc_needed(btop, 1)) gerepileall(btop, keep0? 2: 1, &listS,&keep0);
+    if (gc_needed(av, 1)) gerepileall(av, keep0? 2: 1, &listS,&keep0);
   }
   listS = gmul2n(listS, 1);
   return gmul2n(keep0? gadd(keep0, listS): listS, -2*(dim-1));
@@ -697,9 +693,10 @@ lfunquadfindNeven(long D, double *c)
   *c = 1; return 4;
 }
 static long
-lfunquadfindNodd(long D, double *c)
+lfunquadfindNodd(long D, long k, double *c)
 {
   long Dmod8 = D&7L, r;
+  if (log(k) > 0.15 * log(labs(D))) { *c = 1; return odd(D)? 2: 1; }
   if (D%7 == 0 && (Dmod8 == 5)) { *c = 3.5; return 7; }
   if (D%6 == 0) { *c = 3; return 6; } /* no need to add (Dmod8 != 5) */
   if (D%5 == 0) { *c = 2.5; return 5; }
@@ -726,7 +723,7 @@ lfunquadneg_i(long D, long k)
   if ((D > 0 && !odd(k)) || (D < 0 && odd(k))) return gen_0;
   if (D == -4) return gmul2n(eulerfrac(-k), -1);
   k = 1 - k;
-  N = D < 0? lfunquadfindNodd(D, &c): lfunquadfindNeven(D, &c);
+  N = D < 0? lfunquadfindNodd(D, k, &c): lfunquadfindNeven(D, &c);
   if (usefeq(D, k, c)) return lfunquadfeq(D, k);
   return D < 0? lfunquadmodularhalfodd(D,k,N): lfunquadmodularhalfeven(D,k,N);
 }
