@@ -134,17 +134,18 @@ RgV_mul2(GEN a, GEN b)
  * N=12: a=6, b=3 if D odd, 0 if D even: D = 0,1 mod 4
  * N=-12: a=6, b=5,1 if D odd, 4,2 if D even: D = 0,1 mod 4
  * N=16: a=8, b=7,1 if D = 1 mod 16, 5,3 if D = 9 mod 16: D = 1 mod 8 */
+/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ), d = dim; mu = mult. exponent */
 static GEN
 sigsum(long k, long dim, long a, long b, long D, long N, GEN vs, GEN vP)
 {
   pari_sp av;
-  GEN vPD, listS, keep0 = NULL;
+  GEN vPD, S, keep0 = NULL;
   long D2, n, c1, c2, s, lim = usqrt(labs(D));
 
   if (!vP) vP = vecRCpol(k, dim);
   vPD = RgXV_rescale(vP, stoi(D));
   D2 = (D - b*b)/N; c1 = (2*a*b)/N; c2 = (a*a)/N;
-  av = avma; listS = zerocol(dim);
+  av = avma; S = zerocol(dim);
   for (s = b, n = 0; s <= lim; s += a, n++)
   {
     long Ds = c2 ? D2 - n*(c2*n + c1) : D2 - ((n*(n+1)) >> 1);
@@ -155,11 +156,12 @@ sigsum(long k, long dim, long a, long b, long D, long N, GEN vs, GEN vP)
       v = Ds? usumdivk_fact_all(factoru(Ds), k, dim)
             : usumdivk_0_all(k,dim);
     v = RgV_mul(v, P);
-    if (!s) keep0 = v; else listS = gadd(listS, v);
-    if (gc_needed(av, 1)) gerepileall(av, keep0? 2: 1, &listS, &keep0);
+    if (!s) keep0 = gclone(v); else S = gadd(S, v);
+    if (gc_needed(av, 1)) S = gerepileupto(av, S);
   }
-  listS = gmul2n(listS, 1);
-  return keep0 ? gadd(keep0, listS): listS;
+  S = gmul2n(S, 1);
+  if (keep0) { S = gadd(S, keep0); gunclone(keep0); }
+  return S;
 }
 
 static GEN
@@ -460,14 +462,15 @@ thetabracketsodd(GEN k, long kro, long N, GEN *pden)
   return myinverseimage(M, R, pden);
 }
 
+/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ), d = dim; mu = mult. exponent */
 static GEN
 sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GEN vP)
 {
-  GEN vPD, listS = zerocol(dim0), keep0 = NULL;
+  GEN vPD, S = zerocol(dim0), keep0 = NULL;
   long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), two, dim;
   pari_sp av;
 
-  if (N > 2 && kross(Da, N == 6 ? 3 : N) == -1) return listS;
+  if (N > 2 && kross(Da, N == 6 ? 3 : N) == -1) return S;
   if (N0 == -2 || (N0 == -6 && (Da&7L) == 7))
   { two = 1; dim = dim0; }
   else
@@ -487,11 +490,12 @@ sigsumtwist(long k, long dim0, long a, long b, long Da, long N0, GEN vstwist, GE
       v = usumdivktwist_fact_all(factoru(Ds), Ds, k, dim0, two);
     P = gsubst(vPD, 0, utoi(s*s));
     v = (two == 1)? RgV_mul(v, P): RgV_mul2(v, P);
-    if (!s) keep0 = v; else listS = gadd(listS, v);
-    if (gc_needed(av, 1)) gerepileall(av, keep0? 2: 1, &listS,&keep0);
+    if (!s) keep0 = gclone(v); else S = gadd(S, v);
+    if (gc_needed(av, 1)) S = gerepileupto(av, S);
   }
-  listS = gmul2n(listS, 1);
-  return gmul2n(keep0? gadd(keep0, listS): listS, -2*(dim-1));
+  S = gmul2n(S, 1);
+  if (keep0) { S = gadd(S, keep0); gunclone(keep0); }
+  return gmul2n(S, -2*(dim-1));
 }
 
 /* Da = |D|; [sum sigma_r^(1)(Da-s^2), sum sigma_r^(2)(Da-s^2)], N = 1 */
