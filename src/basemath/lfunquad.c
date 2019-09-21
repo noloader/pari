@@ -134,7 +134,7 @@ RgV_mul2(GEN a, GEN b)
  * N=12: a=6, b=3 if D odd, 0 if D even: D = 0,1 mod 4
  * N=-12: a=6, b=5,1 if D odd, 4,2 if D even: D = 0,1 mod 4
  * N=16: a=8, b=7,1 if D = 1 mod 16, 5,3 if D = 9 mod 16: D = 1 mod 8 */
-/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ); mu = mult. exponent */
+/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ) */
 static GEN
 sigsum(long k, long d, long a, long b, long D, long N, GEN vs, GEN vP)
 {
@@ -348,8 +348,8 @@ dimeven(long r, long N)
 static long
 muleven(long N) { return (N == 4)? 1: 2; }
 
-/* k = r + 1/2, r > 0 even; cost is O(d^2) * bitsize(result) ~ O(d^3.8)
- * [heuristic] */
+/* k = r + 1/2, r > 0 even
+ * Cost is O(d^2) * bitsize(result) ~ O(d^3.8) [heuristic] */
 static GEN
 thetabracketseven(GEN k, long r, long N0, GEN *pden)
 {
@@ -473,7 +473,8 @@ mulodd(long N, long kro)
 
 static GEN sigsumtwist1N(long r, long d, long kro, GEN vD, long N);
 
-/* k = r + 1/2, r odd; cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
+/* k = r + 1/2, r odd
+ * Cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
 static GEN
 thetabracketsodd(GEN k, long r, long kro, long N, GEN *pden)
 {
@@ -486,9 +487,9 @@ thetabracketsodd(GEN k, long r, long kro, long N, GEN *pden)
   return myinverseimage(M, R, pden);
 }
 
-/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ); mu = mult. exponent */
+/* Cost: O( sqrt(D) d^(mu+2) log(D)^mu ) */
 static GEN
-sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vstwist, GEN vP)
+sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vs, GEN vP)
 {
   GEN vPD, S = zerocol(dim), keep0 = NULL;
   long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), two, d;
@@ -508,8 +509,8 @@ sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vstwist, GEN
     long Ds = D2 - n*(c2*n + c1);
     GEN v, P;
     if (!Ds) continue;
-    if (vstwist)
-      v = gel(vstwist, Ds+1);
+    if (vs)
+      v = gel(vs, Ds+1);
     else
       v = usumdivktwist_fact_all(factoru(Ds), Ds, k, dim, two);
     P = gsubst(vPD, 0, utoi(s*s));
@@ -524,26 +525,26 @@ sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vstwist, GEN
 
 /* Da = |D|; [sum sigma_r^(1)(Da-s^2), sum sigma_r^(2)(Da-s^2)], N = 1 */
 static GEN
-sigsumtwist11(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
-{ return sigsumtwist(k, dim, 1, 0, Da, N, vstwist, vP); }
+sigsumtwist11(long k, long dim, long Da, long N, GEN vs, GEN vP)
+{ return sigsumtwist(k, dim, 1, 0, Da, N, vs, vP); }
 
 /* [sum sigma_r^(1)((Da-s^2)/2), sum sigma_r^(2)((Da-s^2)/2)], N = -2
  * Here Da is odd. Only (1). */
 static GEN
-sigsumtwist122spec(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
-{ return sigsumtwist(k, dim, 2, 1, Da, N, vstwist, vP); }
+sigsumtwist122spec(long k, long dim, long Da, long N, GEN vs, GEN vP)
+{ return sigsumtwist(k, dim, 2, 1, Da, N, vs, vP); }
 
 /* Here Da = |D|/4 can be odd or even. N = 2 */
 static GEN
-sigsumtwist122(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
-{ return sigsumtwist(k, dim, 2, odd(Da), Da, N, vstwist, vP); }
+sigsumtwist122(long k, long dim, long Da, long N, GEN vs, GEN vP)
+{ return sigsumtwist(k, dim, 2, odd(Da), Da, N, vs, vP); }
 
 /* Da = |D| or |D|/4 */
 /* [sum sigma_r^(1)((Da-s^2)/N), sum sigma_r^(2)((Da-s^2)/N)] */
 /* Case N|Da; N not necessarily prime. */
 static GEN
-sigsumtwist12p0(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
-{ return sigsumtwist(k, dim, N, 0, Da, N, vstwist, vP); }
+sigsumtwist12p0(long k, long dim, long Da, long N, GEN vs, GEN vP)
+{ return sigsumtwist(k, dim, N, 0, Da, N, vs, vP); }
 
 /* [sum sigma_r^(1)((Da-s^2)/p), sum sigma_r^(2)((Da-s^2)/p)] */
 /* Case p\nmid Da */
@@ -552,29 +553,29 @@ sigsumtwist12p0(long k, long dim, long Da, long N, GEN vstwist, GEN vP)
  * p = 7: s=+-1, +-2, +-3 if Da=1,4,2 mod 7;
  * p = 6: s=+-1, +-2, +-3 if Da=1,4,3 mod 6 */
 static GEN
-sigsumtwist12pt(long k, long dim, long Da, long N0, GEN vstwist, GEN vP)
+sigsumtwist12pt(long k, long dim, long Da, long N0, GEN vs, GEN vP)
 {
   GEN res;
   long N = labs(N0), t = Da%N, e = 0;
   if (t == 1) e = 1;
   else if (t == 4) e = 2;
   else if (t == 2 || t == 3) e = 3;
-  res = sigsumtwist(k, dim, N, N-e, Da, N0, vstwist, vP);
-  if (N-e != e) res = gadd(res, sigsumtwist(k, dim, N, e, Da, N0, vstwist, vP));
+  res = sigsumtwist(k, dim, N, N-e, Da, N0, vs, vP);
+  if (N-e != e) res = gadd(res, sigsumtwist(k, dim, N, e, Da, N0, vs, vP));
   return res;
 }
 
 static GEN
-sigsumtwist12_6(long r, long dim, long Da, long N, GEN vstwist, GEN vP)
+sigsumtwist12_6(long r, long dim, long Da, long N, GEN vs, GEN vP)
 {
-  if (Da%12 == 6) return sigsumtwist12p0(r, dim, Da, N, vstwist, vP);
-  return sigsumtwist12pt(r, dim, Da, N, vstwist, vP);
+  if (Da%12 == 6) return sigsumtwist12p0(r, dim, Da, N, vs, vP);
+  return sigsumtwist12pt(r, dim, Da, N, vs, vP);
 }
 static GEN
-sigsumtwist12_N(long r, long dim, long Da, long N, GEN vstwist, GEN vP)
+sigsumtwist12_N(long r, long dim, long Da, long N, GEN vs, GEN vP)
 {
-  if (N > 0 && Da%N == 0) return sigsumtwist12p0(r, dim, Da, N, vstwist, vP);
-  return sigsumtwist12pt(r, dim, Da, -N, vstwist, vP);
+  if (N > 0 && Da%N == 0) return sigsumtwist12p0(r, dim, Da, N, vs, vP);
+  return sigsumtwist12pt(r, dim, Da, -N, vs, vP);
 }
 
 typedef GEN (*SIGMA_Fodd)(long,long,long,long,GEN,GEN);
@@ -640,7 +641,7 @@ lfunquadmodularodd(long D, long k, long N)
 /********************************************************/
 /*        Using the Full Functional Equation            */
 /********************************************************/
-/* cost O( D/log(D) M(k log(kD)) ) */
+/* Cost O( D/log(D) (k log(kD))^mu ), mu = multiplication exponent */
 static GEN
 LFEk(long D, long k, int prime)
 {
