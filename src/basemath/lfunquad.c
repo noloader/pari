@@ -290,21 +290,49 @@ myinverseimage(GEN M, GEN R, GEN *pden)
 }
 
 static GEN
-Hcol(GEN k, long r, GEN vD, long d)
+mfvkro(GEN v, GEN vkro)
 {
-  long m, l;
+  if (vkro)
+  {
+    long i, l = lg(v);
+    for (i = 1; i < l; i++)
+      switch(vkro[i])
+      {
+        case 0: gel(v,i) = gen_0; break;
+        case 2: gel(v,i) = gmul2n(gel(v,i), 2); break;
+      }
+  }
+  return v;
+}
+static GEN
+Hcol(GEN k, long r, GEN vD, long d, GEN vkro)
+{
+  long i, l;
   GEN v;
-  if (r < 5) return mfDcoefs(mfEH(k),vD,d);
+  if (r < 5) return mfvkro(mfDcoefs(mfEH(k),vD,d), vkro);
   l = lg(vD); v = cgetg(l, t_COL);
-  for (m = 1; m < l; m++)
+  for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
-    long D = odd(r)? -vD[m]: vD[m]; /* fundamental */
-    gel(v, m) = gerepileupto(av, lfunquadfeq(D, r));
+    long D;
+    GEN c;
+    if (vkro && !vkro[i]) { gel(v,i) = gen_0; continue; }
+    D = odd(r)? -vD[i]: vD[i]; /* fundamental */
+    c = lfunquadfeq(D, r);
+    if (vkro && vkro[i] == 2) c = gmul2n(c, 1);
+    gel(v, i) = gerepileupto(av, c);
   }
   return v;
 }
 
+static GEN
+veckro(GEN vD, long N2)
+{
+  long i, l;
+  GEN w = cgetg_copy(vD, &l);
+  for (i = 1; i < l; i++) w[i] = 1 + kross(vD[i], N2);
+  return w;
+}
 /***********************************************************/
 /*   Modular form method using Half-Integral Weight forms  */
 /*                      Case D > 0                         */
@@ -322,12 +350,13 @@ dimeven(long r, long N)
 static long
 muleven(long N) { return (N == 4)? 1: 2; }
 
-/* k = r + 1/2, r > 0 even */
+/* k = r + 1/2, r > 0 even; cost is O(d^2) * bitsize(result) ~ O(d^3.8)
+ * [heuristic] */
 static GEN
 thetabracketseven(GEN k, long r, long N0, GEN *pden)
 {
   long N = labs(N0), d = dimeven(r, N), B = muleven(N) * mfsturmNgk(N, k);
-  GEN R, M, vD = Dpos(d, N0, B);
+  GEN R, M, vkro = NULL, vD = Dpos(d, N0, B);
 
   M = sigsumN(r, d, vD, N0);
   if (r == 2*d)
@@ -335,12 +364,8 @@ thetabracketseven(GEN k, long r, long N0, GEN *pden)
     GEN v = mfDcoefs(mfderiv(mfTheta(NULL), d+1), vD, 1);
     gel(M, d) = gadd(gel(M, d), gdivgs(v, N*(2*d - 1)));
   }
-  R = Hcol(k, r, vD, 1);
-  if (N == 8 || N == 12)
-  {
-    long i, l = lg(vD), N2 = N/4;
-    for (i = 1; i < l; i++) gel(R,i) = gmulsg(1 + kross(vD[i], N2), gel(R,i));
-  }
+  if (N == 8 || N == 12) vkro = veckro(vD, N / 4);
+  R = Hcol(k, r, vD, 1, vkro);
   return myinverseimage(M, R, pden);
 }
 
@@ -450,20 +475,16 @@ mulodd(long N, long kro)
 
 static GEN sigsumtwist1N(long r, long d, long kro, GEN vD, long N);
 
-/* k = r + 1/2, r odd */
+/* k = r + 1/2, r odd; cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
 static GEN
 thetabracketsodd(GEN k, long r, long kro, long N, GEN *pden)
 {
   long d = dimodd(r, kro, N), B = mulodd(N, kro) * mfsturmNgk(4*N, k);
-  GEN R, M, vD = Dneg(B, kro, d + 5, N);
+  GEN R, M, vkro = NULL, vD = Dneg(B, kro, d + 5, N);
 
   M = sigsumtwist1N(r, d, kro, vD, N);
-  R = Hcol(k, r, vD, kro? 1: 4);
-  if (N > 2)
-  {
-    long i, l = lg(vD), N2 = N&1L ? N : N >> 1;
-    for (i = 1; i < l; i++) gel(R,i) = gmulsg(1 + kross(vD[i],N2), gel(R,i));
-  }
+  if (N > 2) vkro = veckro(vD, odd(N)? N: N >> 1);
+  R = Hcol(k, r, vD, kro? 1: 4, vkro);
   return myinverseimage(M, R, pden);
 }
 
