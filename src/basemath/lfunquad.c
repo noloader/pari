@@ -273,12 +273,12 @@ static GEN
 mfDcoefs(GEN F, GEN vD, long d)
 {
   long l = lg(vD), i;
-  GEN V = mfcoefs(F, vD[l-1], d), W = cgetg(l, t_COL);
-  if (d == 1)
-    for (i = 1; i < l; i++) gel(W, i) = gel(V, vD[i]+1);
+  GEN v = mfcoefs(F, vD[l-1], d), w = cgetg(l, t_COL);
+  if (d == 4)
+    for (i = 1; i < l; i++) gel(w, i) = gel(v, (vD[i]>>2)+1);
   else
-    for (i = 1; i < l; i++) gel(W, i) = gel(V, vD[i]/d+1);
-  return W;
+    for (i = 1; i < l; i++) gel(w, i) = gel(v, vD[i]+1);
+  return w;
 }
 
 static GEN
@@ -314,11 +314,9 @@ Hcol(GEN k, long r, GEN vD, long d, GEN vkro)
   for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
-    long D;
     GEN c;
     if (vkro && !vkro[i]) { gel(v,i) = gen_0; continue; }
-    D = odd(r)? -vD[i]: vD[i]; /* fundamental */
-    c = lfunquadfeq(D, r);
+    c = lfunquadfeq(odd(r)? -vD[i]: vD[i], r); /* fundamental */
     if (vkro && vkro[i] == 2) c = gmul2n(c, 1);
     gel(v, i) = gerepileupto(av, c);
   }
