@@ -4383,7 +4383,7 @@ poleval(GEN x, GEN y)
       return NULL; /* LCOV_EXCL_LINE */
   }
   if (i<=imin) return (i==imin)? gmul(gel(x,imin),Rg_get_1(y)): Rg_get_0(y);
-  if (isintzero(y)) return gcopy(gel(x,2));
+  if (isintzero(y)) return gcopy(gel(x,imin));
 
   p1 = gel(x,i); i--;
   if (typ(y)!=t_COMPLEX)
