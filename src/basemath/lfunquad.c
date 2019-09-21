@@ -347,16 +347,18 @@ dimeven(long r, long N)
 static long
 muleven(long N) { return (N == 4)? 1: 2; }
 
-/* k = r + 1/2, r > 0 even
- * Cost is O(d^2) * bitsize(result) ~ O(d^3.8) [heuristic] */
+/* L(\chi_D, 1-r) for D > 0 and r > 0 even. */
 static GEN
-thetabracketseven(GEN k, long r, long N0, GEN *pvP, GEN *pden)
+lfunquadmodulareven(long D, long r, long N0)
 {
-  long N = labs(N0), d = dimeven(r, N), B = muleven(N) * mfsturmNgk(N, k);
-  GEN R, M, vkro = NULL, vD = Dpos(d, N0, B);
+  long B, d, N = labs(N0);
+  GEN R, M, C, den, S, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
 
-  *pvP = vecRCpol(r, d);
-  M = sigsumN(r, d, vD, N0, *pvP);
+  d = dimeven(r, N);
+  B = muleven(N) * mfsturmNgk(N, k);
+  vD = Dpos(d, N0, B);
+  vP = vecRCpol(r, d);
+  M = sigsumN(r, d, vD, N0, vP);
   if (r == 2*d)
   { /* r = 2 or (r = 4 and N = 4) */
     GEN v = mfDcoefs(mfderiv(mfTheta(NULL), d+1), vD, 1);
@@ -364,15 +366,11 @@ thetabracketseven(GEN k, long r, long N0, GEN *pvP, GEN *pden)
   }
   if (N == 8 || N == 12) vkro = veckro(vD, N / 4);
   R = Hcol(k, r, vD, 1, vkro);
-  return myinverseimage(M, R, pden);
-}
+  /* Cost is O(d^2) * bitsize(result) ~ O(d^3.8) [heuristic] */
+  C = myinverseimage(M, R, &den);
 
-/* L(\chi_D, 1-k) for D > 0 and k > 0 even. */
-static GEN
-lfunquadmodulareven(long D, long k, long N)
-{
-  GEN S, den, vP, C = thetabracketseven(sstoQ(2*k+1,2), k, N, &vP, &den);
-  S = RgV_dotproduct(C, get_S_even(N)(k, lg(C)-1, D, NULL, vP));
+  /* Cost: O( sqrt(D)/c d^(mu+2) log(D)^mu ), c from findNeven */
+  S = RgV_dotproduct(C, get_S_even(N)(r, lg(C)-1, D, NULL, vP));
   return den? gdiv(S, den): S;
 }
 
@@ -471,22 +469,6 @@ mulodd(long N, long kro)
 }
 
 static GEN sigsumtwist1N(long r, long d, long kro, GEN vD, long N, GEN vP);
-
-/* k = r + 1/2, r odd
- * Cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
-static GEN
-thetabracketsodd(GEN k, long r, long kro, long N, long two, GEN *pvP, GEN *pden)
-{
-  long dim = dimodd(r, kro, N), B = mulodd(N, kro) * mfsturmNgk(4*N, k);
-  long d = two == 1? dim: (dim + 1) >> 1;
-  GEN R, M, vkro = NULL, vD = Dneg(B, kro, dim + 5, N);
-
-  *pvP = vecRCpol(r, d);
-  M = sigsumtwist1N(r, dim, kro, vD, two == 1? -N: N, *pvP);
-  if (N > 2) vkro = veckro(vD, odd(N)? N: N >> 1);
-  R = Hcol(k, r, vD, kro? 1: 4, vkro);
-  return myinverseimage(M, R, pden);
-}
 
 /* Cost: O( sqrt(D)/a d^(mu+2) log(D)^mu ) */
 static GEN
@@ -616,18 +598,30 @@ sigsumtwist1N(long r, long dim, long kro, GEN vD, long N0, GEN vP)
   return shallowtrans(M);
 }
 
-/* L(\chi_D, 1-k) for D < 0 and k > 0 odd. */
+/* L(\chi_D, 1-r) for D < 0 and r > 0 odd. */
 static GEN
-lfunquadmodularodd(long D, long k, long N)
+lfunquadmodularodd(long D, long r, long N0)
 {
-  long two, kro = kross(D, 2), Da = labs(D);
-  GEN C, den, S, vP;
+  long B, d, dim, two, kro = kross(D, 2), Da = labs(D), N = labs(N0);
+  GEN R, M, C, den, S, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
   SIGMA_Fodd F;
-  two = ((N == 2 && kro) || (N == -6 && kro == 1))? 1: 2;
-  C = thetabracketsodd(sstoQ(2*k+1,2), k, kro, labs(N), two, &vP, &den);
+
+  two = ((N0 == 2 && kro) || (N0 == -6 && kro == 1))? 1: 2;
+  dim = dimodd(r, kro, N);
+  d = two == 1? dim: (dim + 1) >> 1;
+  vP = vecRCpol(r, d);
+  B = mulodd(N, kro) * mfsturmNgk(4*N, k);
+  vD = Dneg(B, kro, dim + 5, N);
+  M = sigsumtwist1N(r, dim, kro, vD, two == 1? -N: N, vP);
+  if (N > 2) vkro = veckro(vD, odd(N)? N: N >> 1);
+  R = Hcol(k, r, vD, kro? 1: 4, vkro);
+  /* Cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
+  C = myinverseimage(M, R, &den);
+
   F = get_S_odd(N, two);
   if (!kro) Da >>= 2;
-  S = RgV_dotproduct(C, F(k, lg(C)-1, Da, (two==1 && N==2)? -2: N, NULL, vP));
+  /* Cost: O( sqrt(D)/c d^(mu+2) log(D)^mu ), c from findNodd */
+  S = RgV_dotproduct(C, F(r, lg(C)-1, Da, (two==1 && N==2)? -2: N, NULL, vP));
   if (N < 0 && (N != -6 || Da%3)) den = den? shifti(den,1): gen_2;
   return den? gdiv(S, den): S;
 }
