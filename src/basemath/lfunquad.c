@@ -140,11 +140,9 @@ static GEN
 sigsum(long k, long d, long a, long b, long D, long N, GEN vs, GEN vP)
 {
   pari_sp av;
-  GEN vPD, S, keep0 = NULL;
+  GEN S, keep0 = NULL, vPD = RgXV_rescale(vP, stoi(D));
   long D2, n, c1, c2, s, lim = usqrt(labs(D));
 
-  if (!vP) vP = vecRCpol(k, d);
-  vPD = RgXV_rescale(vP, stoi(D));
   D2 = (D - b*b)/N; c1 = (2*a*b)/N; c2 = (a*a)/N;
   av = avma; S = zerocol(d);
   for (s = b, n = 0; s <= lim; s += a, n++)
@@ -229,9 +227,9 @@ get_S_even(long N)
   }
 }
 static GEN
-sigsumN(long r, long d, GEN vD, long N)
+sigsumN(long r, long d, GEN vD, long N, GEN vP)
 {
-  GEN V, M, vs, vP = vecRCpol(r, d);
+  GEN V, M, vs;
   SIGMA_F S = get_S_even(N);
   long B, n, i, l = lg(vD);
 
@@ -352,12 +350,13 @@ muleven(long N) { return (N == 4)? 1: 2; }
 /* k = r + 1/2, r > 0 even
  * Cost is O(d^2) * bitsize(result) ~ O(d^3.8) [heuristic] */
 static GEN
-thetabracketseven(GEN k, long r, long N0, GEN *pden)
+thetabracketseven(GEN k, long r, long N0, GEN *pvP, GEN *pden)
 {
   long N = labs(N0), d = dimeven(r, N), B = muleven(N) * mfsturmNgk(N, k);
   GEN R, M, vkro = NULL, vD = Dpos(d, N0, B);
 
-  M = sigsumN(r, d, vD, N0);
+  *pvP = vecRCpol(r, d);
+  M = sigsumN(r, d, vD, N0, *pvP);
   if (r == 2*d)
   { /* r = 2 or (r = 4 and N = 4) */
     GEN v = mfDcoefs(mfderiv(mfTheta(NULL), d+1), vD, 1);
@@ -372,9 +371,8 @@ thetabracketseven(GEN k, long r, long N0, GEN *pden)
 static GEN
 lfunquadmodulareven(long D, long k, long N)
 {
-  GEN C, S, den;
-  C = thetabracketseven(sstoQ(2*k+1,2), k, labs(N), &den);
-  S = RgV_dotproduct(C, get_S_even(N)(k, lg(C)-1, D, NULL, NULL));
+  GEN S, den, vP, C = thetabracketseven(sstoQ(2*k+1,2), k, N, &vP, &den);
+  S = RgV_dotproduct(C, get_S_even(N)(k, lg(C)-1, D, NULL, vP));
   return den? gdiv(S, den): S;
 }
 
@@ -472,17 +470,19 @@ mulodd(long N, long kro)
   return 2;
 }
 
-static GEN sigsumtwist1N(long r, long d, long kro, GEN vD, long N);
+static GEN sigsumtwist1N(long r, long d, long kro, GEN vD, long N, GEN vP);
 
 /* k = r + 1/2, r odd
  * Cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
 static GEN
-thetabracketsodd(GEN k, long r, long kro, long N, GEN *pden)
+thetabracketsodd(GEN k, long r, long kro, long N, long two, GEN *pvP, GEN *pden)
 {
-  long d = dimodd(r, kro, N), B = mulodd(N, kro) * mfsturmNgk(4*N, k);
-  GEN R, M, vkro = NULL, vD = Dneg(B, kro, d + 5, N);
+  long dim = dimodd(r, kro, N), B = mulodd(N, kro) * mfsturmNgk(4*N, k);
+  long d = two == 1? dim: (dim + 1) >> 1;
+  GEN R, M, vkro = NULL, vD = Dneg(B, kro, dim + 5, N);
 
-  M = sigsumtwist1N(r, d, kro, vD, N);
+  *pvP = vecRCpol(r, d);
+  M = sigsumtwist1N(r, dim, kro, vD, two == 1? -N: N, *pvP);
   if (N > 2) vkro = veckro(vD, odd(N)? N: N >> 1);
   R = Hcol(k, r, vD, kro? 1: 4, vkro);
   return myinverseimage(M, R, pden);
@@ -596,29 +596,22 @@ get_S_odd(long N, long two)
 
 /* N > 0 */
 static GEN
-sigsumtwist1N(long r, long dim, long kro, GEN vD, long N)
+sigsumtwist1N(long r, long dim, long kro, GEN vD, long N0, GEN vP)
 {
-  GEN V, M, vs, vP, vD4 = kro ? vD : div4(vD);
-  long B, n, i, l, two, d;
-  SIGMA_Fodd S;
+  GEN V, M, vs, vD4 = kro ? vD : div4(vD);
+  long B, n, i, l, N = labs(N0), two = N0 < 0? 1: 2;
+  SIGMA_Fodd S = get_S_odd(N, two);
 
-  if ((N == 2 && kro) || (N == 6 && kro == 1))
-  { two = 1; d = dim; }
-  else
-  { two = 2; d = (dim + 1) >> 1; }
-  S = get_S_odd(N, two);
-  vP = vecRCpol(r, d);
   l = lg(vD4); M = cgetg(l, t_MAT);
-  B = vD4[l-1] / labs(N);
+  B = vD4[l-1] / N;
   V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
   gel(vs,1) = NULL; /* unused */
   for (n = 1; n <= B; n++)
     gel(vs,n+1) = usumdivktwist_fact_all(gel(V,n), n, r, dim, two);
-  if (two == 1) N = -N;
   for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
-    gel(M,i) = gerepileupto(av, S(r, dim, vD4[i], N, vs, vP));
+    gel(M,i) = gerepileupto(av, S(r, dim, vD4[i], N0, vs, vP));
   }
   return shallowtrans(M);
 }
@@ -628,13 +621,13 @@ static GEN
 lfunquadmodularodd(long D, long k, long N)
 {
   long two, kro = kross(D, 2), Da = labs(D);
-  GEN C, den, S;
+  GEN C, den, S, vP;
   SIGMA_Fodd F;
-  C = thetabracketsodd(sstoQ(2*k+1,2), k, kro, labs(N), &den);
   two = ((N == 2 && kro) || (N == -6 && kro == 1))? 1: 2;
+  C = thetabracketsodd(sstoQ(2*k+1,2), k, kro, labs(N), two, &vP, &den);
   F = get_S_odd(N, two);
   if (!kro) Da >>= 2;
-  S = RgV_dotproduct(C, F(k, lg(C)-1, Da, (two==1 && N==2)? -2: N, NULL, NULL));
+  S = RgV_dotproduct(C, F(k, lg(C)-1, Da, (two==1 && N==2)? -2: N, NULL, vP));
   if (N < 0 && (N != -6 || Da%3)) den = den? shifti(den,1): gen_2;
   return den? gdiv(S, den): S;
 }
