@@ -295,7 +295,7 @@ mfvkro(GEN v, GEN vkro)
       switch(vkro[i])
       {
         case 0: gel(v,i) = gen_0; break;
-        case 2: gel(v,i) = gmul2n(gel(v,i), 2); break;
+        case 2: gel(v,i) = gmul2n(gel(v,i), 1); break;
       }
   }
   return v;
@@ -614,8 +614,8 @@ modularodd(long D, long r, long N0)
 
   if (!kro) Da >>= 2;
   /* Cost: O( sqrt(D)/c d^(mu+2) log(D)^mu ), c from findNodd */
-  L = RgV_dotproduct(C, S(r, lg(C)-1, Da, (two==1 && N==2)? -2: N, NULL, vP));
-  if (N < 0 && (N != -6 || Da%3)) den = den? shifti(den,1): gen_2;
+  L = RgV_dotproduct(C, S(r, lg(C)-1, Da, (two==1 && N==2)? -2: N0, NULL, vP));
+  if (N0 < 0 && (N0 != -6 || Da%3)) den = den? shifti(den,1): gen_2;
   return den? gdiv(L, den): L;
 }
 
