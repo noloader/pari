@@ -459,10 +459,10 @@ mulodd(long N, long kro)
 
 /* Cost: O( sqrt(D)/a d^3 log(D) ) */
 static GEN
-sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vs, GEN vP)
+sigsumtwist(long k, long dim, long a, long b, long Da, long N, GEN vs, GEN vP)
 {
   GEN vPD, S = zerocol(dim), keep0 = NULL;
-  long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), d;
+  long D2, n, c1, c2, s, lim = usqrt(Da), d;
   pari_sp av;
 
   if (N > 2 && kross(Da, N == 6 ? 3 : N) == -1) return S;
@@ -514,15 +514,15 @@ sigsumtwist12p0(long k, long dim, long Da, long N, GEN vs, GEN vP)
  * p = 7: s=+-1, +-2, +-3 if Da=1,4,2 mod 7;
  * p = 6: s=+-1, +-2, +-3 if Da=1,4,3 mod 6 */
 static GEN
-sigsumtwist12pt(long k, long dim, long Da, long N0, GEN vs, GEN vP)
+sigsumtwist12pt(long k, long dim, long Da, long N, GEN vs, GEN vP)
 {
+  long t = Da%N, e = 0;
   GEN res;
-  long N = labs(N0), t = Da%N, e = 0;
   if (t == 1) e = 1;
   else if (t == 4) e = 2;
   else if (t == 2 || t == 3) e = 3;
-  res = sigsumtwist(k, dim, N, N-e, Da, N0, vs, vP);
-  if (N-e != e) res = gadd(res, sigsumtwist(k, dim, N, e, Da, N0, vs, vP));
+  res = sigsumtwist(k, dim, N, N-e, Da, N, vs, vP);
+  if (N-e != e) res = gadd(res, sigsumtwist(k, dim, N, e, Da, N, vs, vP));
   return res;
 }
 
@@ -535,8 +535,8 @@ sigsumtwist12_6(long r, long dim, long Da, long N, GEN vs, GEN vP)
 static GEN
 sigsumtwist12_N(long r, long dim, long Da, long N, GEN vs, GEN vP)
 {
-  if (N > 0 && Da%N == 0) return sigsumtwist12p0(r, dim, Da, N, vs, vP);
-  return sigsumtwist12pt(r, dim, Da, -N, vs, vP);
+  if (Da%N == 0) return sigsumtwist12p0(r, dim, Da, N, vs, vP);
+  return sigsumtwist12pt(r, dim, Da, N, vs, vP);
 }
 
 typedef GEN (*SIGMA_Fodd)(long,long,long,long,GEN,GEN);
@@ -579,7 +579,7 @@ modularodd(long D, long r, long N0)
 
   if (!kro) Da >>= 2;
   /* Cost: O( sqrt(D)/c d^3 log(D) ), c from findNodd */
-  L = RgV_dotproduct(C, S(r, lg(C)-1, Da, N0, NULL, vP));
+  L = RgV_dotproduct(C, S(r, lg(C)-1, Da, N, NULL, vP));
   if (N0 < 0 && (N0 != -6 || Da%3)) den = den? shifti(den,1): gen_2;
   return den? gdiv(L, den): L;
 }
