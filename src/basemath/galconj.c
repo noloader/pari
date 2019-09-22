@@ -2803,6 +2803,20 @@ galoisinit(GEN nf, GEN den)
 }
 
 static GEN
+galoisvecpermtopol(GEN gal, GEN vec, GEN mod, GEN mod2)
+{
+  long i, l = lg(vec);
+  long v = varn(gal_get_pol(gal));
+  GEN L = gal_get_roots(gal);
+  GEN M = gal_get_invvdm(gal);
+  GEN P = cgetg(l, t_MAT);
+  for (i=1; i<l; i++)
+    gel(P, i) = vecpermute(L,gel(vec,i));
+  P = RgM_to_RgXV(FpM_center(FpM_mul(M, P, mod), mod, mod2), v);
+  return gdiv(P, gal_get_den(gal));
+}
+
+static GEN
 galoispermtopol_i(GEN gal, GEN perm, GEN mod, GEN mod2)
 {
   switch (typ(perm))
@@ -2812,18 +2826,7 @@ galoispermtopol_i(GEN gal, GEN perm, GEN mod, GEN mod2)
                              gal_get_den(gal), mod, mod2,
                              varn(gal_get_pol(gal)));
     case t_VEC: case t_COL: case t_MAT:
-    {
-      long i, lv;
-      GEN v = cgetg_copy(perm, &lv);
-      if (DEBUGLEVEL>=4) err_printf("GaloisPermToPol:");
-      for (i = 1; i < lv; i++)
-      {
-        gel(v,i) = galoispermtopol_i(gal, gel(perm,i), mod, mod2);
-        if (DEBUGLEVEL>=4) err_printf("%ld ",i);
-      }
-      if (DEBUGLEVEL>=4) err_printf("\n");
-      return v;
-    }
+      return galoisvecpermtopol(gal, perm, mod, mod2);
   }
   pari_err_TYPE("galoispermtopol", perm);
   return NULL; /* LCOV_EXCL_LINE */
