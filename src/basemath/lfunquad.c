@@ -671,7 +671,7 @@ myround(GEN z, GEN d)
   long e;
   if (d) z = mulri(z, d);
   z = grndtoi(z, &e); if (e >= -4) pari_err_BUG("lfunquad");
-  if (d) z = gdiv(z, d);
+  if (d) z = Qdivii(z, d);
   return z;
 }
 
@@ -750,7 +750,7 @@ lfunquadneg_i(long D, long k)
   if (D == -4) return gmul2n(eulerfrac(-k), -1);
   k = 1 - k;
   N = D < 0? findNodd(D, k, &c): findNeven(D, &c);
-  if (usefeq(D, k, c)) return lfunquadfeq(D, k);
+  if (usefeq(D, k, c)) return Lfeq(D, k);
   return D < 0? modularodd(D,k,N): modulareven(D,k,N);
 }
 /* need k <= 0 and D fundamental */
