@@ -2714,7 +2714,7 @@ long
 mfsturmNgk(long N, GEN k)
 {
   long n,d; Qtoss(k,&n,&d);
-  return (d == 1)? mfsturmNk(N,n): 1 + (mypsiu(N)*n)/24;
+  return 1 + (mypsiu(N)*n)/(d == 1? 12: 24);
 }
 static long
 mfsturmmf(GEN F) { return mfsturmNgk(mf_get_N(F), mf_get_gk(F)); }
