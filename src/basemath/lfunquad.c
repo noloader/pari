@@ -135,7 +135,7 @@ RgV_mul2(GEN a, GEN b)
  * N=12: a=6, b=3 if D odd, 0 if D even: D = 0,1 mod 4
  * N=-12: a=6, b=5,1 if D odd, 4,2 if D even: D = 0,1 mod 4
  * N=16: a=8, b=7,1 if D = 1 mod 16, 5,3 if D = 9 mod 16: D = 1 mod 8 */
-/* Cost: O( sqrt(D)/a d^(mu+2) log(D)^mu ) */
+/* Cost: O( sqrt(D)/a d^3 log(D) ) */
 static GEN
 sigsum(long k, long d, long a, long b, long D, long N, GEN vs, GEN vP)
 {
@@ -367,7 +367,7 @@ modulareven(long D, long r, long N0)
   /* Cost is O(d^2) * bitsize(result) ~ O(d^3.8) [heuristic] */
   C = myinverseimage(M, R, &den);
 
-  /* Cost: O( sqrt(D)/c d^(mu+2) log(D)^mu ), c from findNeven */
+  /* Cost: O( sqrt(D)/c d^3 log(D) ), c from findNeven */
   L = RgV_dotproduct(C, S(r, lg(C)-1, D, NULL, vP));
   return den? gdiv(L, den): L;
 }
@@ -465,7 +465,7 @@ mulodd(long N, long kro)
   return 2;
 }
 
-/* Cost: O( sqrt(D)/a d^(mu+2) log(D)^mu ) */
+/* Cost: O( sqrt(D)/a d^3 log(D) ) */
 static GEN
 sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vs, GEN vP)
 {
@@ -613,7 +613,7 @@ modularodd(long D, long r, long N0)
   C = myinverseimage(M, R, &den);
 
   if (!kro) Da >>= 2;
-  /* Cost: O( sqrt(D)/c d^(mu+2) log(D)^mu ), c from findNodd */
+  /* Cost: O( sqrt(D)/c d^3 log(D) ), c from findNodd */
   L = RgV_dotproduct(C, S(r, lg(C)-1, Da, (two==1 && N==2)? -2: N0, NULL, vP));
   if (N0 < 0 && (N0 != -6 || Da%3)) den = den? shifti(den,1): gen_2;
   return den? gdiv(L, den): L;
@@ -714,7 +714,7 @@ static long
 findNodd(long D, long k, double *c)
 {
   long Dmod8 = D&7L, r;
-  if (log(k) > 0.15 * log(labs(D))) { *c = 1; return odd(D)? 2: 1; }
+  if (log(k) > 0.7 * log((double)-D)) { *c = 1; return odd(D)? 2: 1; }
   if (D%7 == 0 && (Dmod8 == 5)) { *c = 3.5; return 7; }
   if (D%6 == 0) { *c = 3; return 6; } /* no need to add (Dmod8 != 5) */
   if (D%5 == 0) { *c = 2.5; return 5; }
