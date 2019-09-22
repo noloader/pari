@@ -246,7 +246,7 @@ sigsumN(long r, long d, GEN vD, long N, GEN vP)
   return shallowtrans(M);
 }
 
-static GEN lfunquadfeq(long D, long k);
+static GEN Lfeq(long D, long k);
 /* Euler numbers: 1, 0, -1, 0, 5, 0, -61,... */
 GEN
 eulerfrac(long n)
@@ -265,7 +265,7 @@ eulerfrac(long n)
     case 12:return utoipos(2702765);
     case 14:return utoineg(199360981);
   }
-  return gerepileuptoint(av, gmul2n(lfunquadfeq(-4, n+1), 1));
+  return gerepileuptoint(av, gmul2n(Lfeq(-4, n+1), 1));
 }
 
 static GEN
@@ -315,7 +315,7 @@ Hcol(GEN k, long r, GEN vD, long d, GEN vkro)
     pari_sp av = avma;
     GEN c;
     if (vkro && !vkro[i]) { gel(v,i) = gen_0; continue; }
-    c = lfunquadfeq(odd(r)? -vD[i]: vD[i], r); /* fundamental */
+    c = Lfeq(odd(r)? -vD[i]: vD[i], r); /* fundamental */
     if (vkro && vkro[i] == 2) c = gmul2n(c, 1);
     gel(v, i) = gerepileupto(av, c);
   }
@@ -349,7 +349,7 @@ muleven(long N) { return (N == 4)? 1: 2; }
 
 /* L(\chi_D, 1-r) for D > 0 and r > 0 even. */
 static GEN
-lfunquadmodulareven(long D, long r, long N0)
+modulareven(long D, long r, long N0)
 {
   long B, d, N = labs(N0);
   GEN R, M, C, den, S, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
@@ -600,7 +600,7 @@ sigsumtwist1N(long r, long dim, long kro, GEN vD, long N0, GEN vP)
 
 /* L(\chi_D, 1-r) for D < 0 and r > 0 odd. */
 static GEN
-lfunquadmodularodd(long D, long r, long N0)
+modularodd(long D, long r, long N0)
 {
   long B, d, dim, two, kro = kross(D, 2), Da = labs(D), N = labs(N0);
   GEN R, M, C, den, S, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
@@ -629,26 +629,34 @@ lfunquadmodularodd(long D, long r, long N0)
 /********************************************************/
 /*        Using the Full Functional Equation            */
 /********************************************************/
-/* Cost O( D/log(D) (k log(kD))^mu ), mu = multiplication exponent */
+/* prod_p (1 - (D/p)p^(-k))
+ * Cost O( D/log(D) (k log(kD))^mu ), mu = multiplication exponent */
 static GEN
-LFEk(long D, long k, int prime)
+Linv(long D, long k, int prime)
 {
   pari_sp av;
-  long bit, lim, Da = labs(D);
-  double B = (k-0.5) * log((k-1.)*Da/17.079) + 12; /* 17.079 ~ 2Pi e */
+  long s, bit, lim, Da = labs(D), prec;
+  double km = k - 1, B = (k-0.5) * log(km*Da/17.079) + 12; /* 17.079 ~ 2Pi e */
   forprime_t iter;
   ulong p;
-  GEN P;
+  GEN P, Q;
   if (prime) B += log(Da);
-  bit = maxss((long)B/M_LN2 * k/(k-1), 32) + 32;
-  lim = (long)exp((B-log(k-1.))/(k-1)); /* ~ D / (2Pi e) */
-  u_forprime_init(&iter, 2, lim);
-  av = avma; P = real_1(nbits2prec(bit));
+  bit = maxss((long)(B * k)/(M_LN2 * km), 32) + 32;
+  prec = nbits2prec(bit);
+  lim = (long)exp( (B-log(km)) / km ); /* ~ D / (2Pi e) */
+  u_forprime_init(&iter, 3, lim); av = avma;
+  s = kross(D, 2);
+  if (!s) P = real_1(prec);
+  else
+  {
+    Q = real2n(-k, nbits2prec(bit - k));
+    P = (s == 1)? subir(gen_1, Q): addir(gen_1, Q);
+  }
   while ((p = u_forprime_next(&iter)))
   {
-    long s = kross(D, p), bitnew;
+    long bitnew;
     GEN Q;
-    if (!s) continue;
+    s = kross(D, p); if (!s) continue;
     bitnew = (long)(bit - k * log2(p));
     Q = divrr(P, rpowuu(p, k, nbits2prec(maxss(64, bitnew))));
     P = s == 1? subrr(P, Q): addrr(P, Q);
@@ -662,16 +670,16 @@ myround(GEN z, GEN d)
 {
   long e;
   if (d) z = mulri(z, d);
-  z = grndtoi(z, &e); if (e >= -4) pari_err_BUG("lquadfeq");
+  z = grndtoi(z, &e); if (e >= -4) pari_err_BUG("lfunquad");
   if (d) z = gdiv(z, d);
   return z;
 }
 
-/* LFE = L Functional Equation; L(\chi_D, 1-k). */
+/* k > 2; L(\chi_D, 1-k) using func. eq. */
 static GEN
-lfunquadfeq(long D, long k)
+Lfeq(long D, long k)
 {
-  GEN L, res, den;
+  GEN z, res, den;
   long Da, prec;
   int prime;
   if (D == 1)
@@ -680,12 +688,11 @@ lfunquadfeq(long D, long k)
     return gdivgs(bernfrac(k), -k);
   }
   if ((D > 0 && odd(k)) || (D < 0 && !odd(k))) return gen_0;
-  if (k == 2) pari_err_TYPE("lfunquadfeq [k = 2]", stoi(k));
   Da = labs(D); prime = uisprime(Da);
-  L = LFEk(D, k, prime); prec = lg(L);
-  L = mulrr(L, powrs(divru(Pi2n(1, prec), Da), k));
-  if (Da != 4) { L = mulrr(L, sqrtr_abs(utor(Da,prec))); shiftr_inplace(L,-1); }
-  res = divrr(mpfactr(k-1, prec), L);
+  z = Linv(D, k, prime); prec = lg(z);
+  z = mulrr(z, powrs(divru(Pi2n(1, prec), Da), k));
+  if (Da != 4) { z = mulrr(z, sqrtr_abs(utor(Da,prec))); shiftr_inplace(z,-1); }
+  res = divrr(mpfactr(k-1, prec), z);
   if (odd(k/2)) togglesign(res);
   den = (prime || Da == 4)? utoipos(k*Da): NULL;
   return myround(res, den);
@@ -701,7 +708,7 @@ usefeq(long D, long k, double c)
 }
 
 static long
-lfunquadfindNeven(long D, double *c)
+findNeven(long D, double *c)
 {
   long r = D%3;
   if (!r) { *c = 3; return 12; }
@@ -711,7 +718,7 @@ lfunquadfindNeven(long D, double *c)
   *c = 1; return 4;
 }
 static long
-lfunquadfindNodd(long D, long k, double *c)
+findNodd(long D, long k, double *c)
 {
   long Dmod8 = D&7L, r;
   if (log(k) > 0.15 * log(labs(D))) { *c = 1; return odd(D)? 2: 1; }
@@ -742,9 +749,9 @@ lfunquadneg_i(long D, long k)
   if ((D > 0 && !odd(k)) || (D < 0 && odd(k))) return gen_0;
   if (D == -4) return gmul2n(eulerfrac(-k), -1);
   k = 1 - k;
-  N = D < 0? lfunquadfindNodd(D, k, &c): lfunquadfindNeven(D, &c);
+  N = D < 0? findNodd(D, k, &c): findNeven(D, &c);
   if (usefeq(D, k, c)) return lfunquadfeq(D, k);
-  return D < 0? lfunquadmodularodd(D,k,N): lfunquadmodulareven(D,k,N);
+  return D < 0? modularodd(D,k,N): modulareven(D,k,N);
 }
 /* need k <= 0 and D fundamental */
 GEN
