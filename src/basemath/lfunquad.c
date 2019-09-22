@@ -115,15 +115,22 @@ RgV_mul(GEN a, GEN b)
   for (j = 1; j < l; j++) gel(v,j) = gmul(gel(a,j), gel(b,j));
   return v;
 }
-/* Hadamard product a o (b | b) */
 static GEN
-RgV_mul2(GEN a, GEN b)
+RgV_multwist(GEN a, GEN P, long k, long dim, long d, long v2, long N4)
 {
-  long j, l = lg(a), lb = lg(b);
-  GEN v = cgetg(l, t_COL);
-  for (j = 1; j < lb;j++) gel(v,j) = gmul(gel(a,j), gel(b,j));
-  b -= lb-1;
-  for (     ; j < l; j++) gel(v,j) = gmul(gel(a,j), gel(b,j));
+  GEN v = cgetg(dim+1, t_COL);
+  long j;
+  for (j = 1; j <= d; j++)
+  {
+    GEN z;
+    gel(v,j) = z = gmul(gel(a,j), gel(P,j));
+    if (j + d <= dim)
+    {
+      if (N4 == 3) z = negi(z);
+      if (v2) z = shifti(z, (k - 2*j + 1)*v2);
+      gel(v, j + d) = z;
+    }
+  }
   return v;
 }
 
@@ -427,30 +434,22 @@ div4(GEN V)
   return W;
 }
 
-/* fa = factoru(N) */
 static GEN
-usumdivktwist_fact_all(GEN fa, long N, long k, long dim, long two)
+usumdivktwist_fact_all(GEN fa, long k, long dim)
 {
-  GEN P, E, pow, res = cgetg(dim + 1, t_COL);
-  long i, j, l, f2, v, Nmod4, d = two == 2 ? (dim + 1) >> 1 : dim;
+  long i, j, l, d = (dim + 1) >> 1;
+  GEN V, P, E, pow, res = cgetg(d + 1, t_VEC);
 
-  Nmod4 = (N >> vals(N)) & 3L; /* (N/2^oo) mod 4 */
   P = gel(fa, 1); l = lg(P);
   E = gel(fa, 2);
-  if (l == 1 || P[1] != 2) f2 = v = 0; else { f2 = 1; v = E[1]; }
-  pow = cgetg(l, t_VEC); /* pow[1] unused if f2 */
-  for (i = 1+f2; i < l; i++) gel(pow, i) = vpowp(k, d, P[i], -1);
+  if (l > 1 && P[1] == 2) { l--; P++; E++; } /* odd part */
+  pow = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(pow, i) = vpowp(k, d, P[i], -1);
+  V = cgetg(l, t_VEC);
   for (j = 1; j <= d; j++)
   {
-    GEN V = cgetg(l - f2, t_VEC), z;
-    for (i = 1+f2; i < l; i++) gel(V,i-f2) = euler_sumdiv(gmael(pow,i,j), E[i]);
-    gel(res, j) = z = ZV_prod(V);
-    if (two == 2 && j + d <= dim)
-    {
-      if (Nmod4 == 3) z = negi(z);
-      if (v) z = shifti(z, (k - 2*j + 1)*v);
-      gel(res, j + d) = z;
-    }
+    for (i = 1; i < l; i++) gel(V,i) = euler_sumdiv(gmael(pow,i,j), E[i]);
+    gel(res, j) = ZV_prod(V);
   }
   return res;
 }
@@ -470,29 +469,26 @@ static GEN
 sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vs, GEN vP)
 {
   GEN vPD, S = zerocol(dim), keep0 = NULL;
-  long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), two, d;
+  long D2, n, c1, c2, s, lim = usqrt(Da), N = labs(N0), d;
   pari_sp av;
 
   if (N > 2 && kross(Da, N == 6 ? 3 : N) == -1) return S;
-  if (N0 == -2 || (N0 == -6 && (Da&7L) == 7))
-  { two = 1; d = dim; }
-  else
-  { two = 2; d = (dim + 1) >> 1; }
-  if (!vP) vP = vecRCpol(k, d);
+  d = (dim + 1) >> 1;
   vPD = RgXV_rescale(vP, stoi(Da));
   D2 = (Da - b*b)/N; c1 = (2*a*b)/N; c2 = (a*a)/N;
   av = avma;
   for (s = b, n = 0; s <= lim; s += a, n++)
   {
-    long Ds = D2 - n*(c2*n + c1);
+    long v2, D4, Ds2, Ds = D2 - n*(c2*n + c1);
     GEN v, P;
     if (!Ds) continue;
+    v2 = vals(Ds); Ds2 = Ds >> v2; D4 = Ds2 & 3L; /* (Ds/2^oo) mod 4 */
     if (vs)
       v = gel(vs, Ds+1);
     else
-      v = usumdivktwist_fact_all(factoru(Ds), Ds, k, dim, two);
+      v = usumdivktwist_fact_all(factoru(Ds2), k, dim);
     P = gsubst(vPD, 0, utoi(s*s));
-    v = (two == 1)? RgV_mul(v, P): RgV_mul2(v, P);
+    v = RgV_multwist(v, P, k, dim, d, v2, D4);
     if (!s) keep0 = gclone(v); else S = gadd(S, v);
     if (gc_needed(av, 1)) S = gerepileupto(av, S);
   }
@@ -505,12 +501,6 @@ sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vs, GEN vP)
 static GEN
 sigsumtwist11(long k, long dim, long Da, long N, GEN vs, GEN vP)
 { return sigsumtwist(k, dim, 1, 0, Da, N, vs, vP); }
-
-/* [sum sigma_r^(1)((Da-s^2)/2), sum sigma_r^(2)((Da-s^2)/2)], N = -2
- * Here Da is odd. Only (1). */
-static GEN
-sigsumtwist122spec(long k, long dim, long Da, long N, GEN vs, GEN vP)
-{ return sigsumtwist(k, dim, 2, 1, Da, N, vs, vP); }
 
 /* Here Da = |D|/4 can be odd or even. N = 2 */
 static GEN
@@ -558,13 +548,8 @@ sigsumtwist12_N(long r, long dim, long Da, long N, GEN vs, GEN vP)
 
 typedef GEN (*SIGMA_Fodd)(long,long,long,long,GEN,GEN);
 static SIGMA_Fodd
-get_S_odd(long N, long two)
+get_S_odd(long N)
 {
-  if (two == 1)
-  {
-    if (N == 2) return sigsumtwist122spec;
-    return sigsumtwist12pt;
-  }
   if (N == 1) return sigsumtwist11;
   if (N == 2) return sigsumtwist122;
   if (N == 6) return sigsumtwist12_6;
@@ -573,21 +558,21 @@ get_S_odd(long N, long two)
 
 /* N > 0 */
 static GEN
-sigsumtwist1N(SIGMA_Fodd S, long r, long dim, long kro, GEN vD, long N0, GEN vP)
+sigsumtwist1N(SIGMA_Fodd S, long r, long dim, long kro, GEN vD, long N, GEN vP)
 {
   GEN V, M, vs, vD4 = kro ? vD : div4(vD);
-  long B, n, i, l, N = labs(N0), two = N0 < 0? 1: 2;
+  long B, n, i, l;
 
   l = lg(vD4); M = cgetg(l, t_MAT);
   B = vD4[l-1] / N;
   V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
   gel(vs,1) = NULL; /* unused */
   for (n = 1; n <= B; n++)
-    gel(vs,n+1) = usumdivktwist_fact_all(gel(V,n), n, r, dim, two);
+    gel(vs,n+1) = usumdivktwist_fact_all(gel(V,n), r, dim);
   for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
-    gel(M,i) = gerepileupto(av, S(r, dim, vD4[i], N0, vs, vP));
+    gel(M,i) = gerepileupto(av, S(r, dim, vD4[i], N, vs, vP));
   }
   return shallowtrans(M);
 }
@@ -598,15 +583,14 @@ modularodd(long D, long r, long N0)
 {
   long B, d, dim, kro = kross(D, 2), Da = labs(D), N = labs(N0);
   GEN R, M, C, den, L, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
-  long two = ((N0 == 2 && kro) || (N0 == -6 && kro == 1))? 1: 2;
-  SIGMA_Fodd S = get_S_odd(N, two);
+  SIGMA_Fodd S = get_S_odd(N);
 
   dim = dimodd(r, kro, N);
-  d = two == 1? dim: (dim + 1) >> 1;
+  d = (dim + 1) >> 1;
   vP = vecRCpol(r, d);
   B = mulodd(N, kro) * mfsturmNgk(4*N, k);
   vD = Dneg(B, kro, dim + 5, N);
-  M = sigsumtwist1N(S, r, dim, kro, vD, two == 1? -N: N, vP);
+  M = sigsumtwist1N(S, r, dim, kro, vD, N, vP);
   if (N > 2) vkro = veckro(vD, odd(N)? N: N >> 1);
   R = Hcol(k, r, vD, kro? 1: 4, vkro);
   /* Cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
@@ -614,7 +598,7 @@ modularodd(long D, long r, long N0)
 
   if (!kro) Da >>= 2;
   /* Cost: O( sqrt(D)/c d^3 log(D) ), c from findNodd */
-  L = RgV_dotproduct(C, S(r, lg(C)-1, Da, (two==1 && N==2)? -2: N0, NULL, vP));
+  L = RgV_dotproduct(C, S(r, lg(C)-1, Da, N0, NULL, vP));
   if (N0 < 0 && (N0 != -6 || Da%3)) den = den? shifti(den,1): gen_2;
   return den? gdiv(L, den): L;
 }
@@ -714,9 +698,9 @@ static long
 findNodd(long D, long k, double *c)
 {
   long Dmod8 = D&7L, r;
-  if (log(k) > 0.7 * log((double)-D)) { *c = 1; return odd(D)? 2: 1; }
+  if (log(k) > 0.7 * log((double)-D)) { *c = 1; return 1; }
   if (D%7 == 0 && (Dmod8 == 5)) { *c = 3.5; return 7; }
-  if (D%6 == 0) { *c = 3; return 6; } /* no need to add (Dmod8 != 5) */
+  if (D%6 == 0) { *c = 3; return 6; }
   if (D%5 == 0) { *c = 2.5; return 5; }
   if (D%3 == 0) { *c = 1.5; return 3; }
   if (Dmod8 == 5)
@@ -724,9 +708,9 @@ findNodd(long D, long k, double *c)
     r = smodss(D, 7);
     if (r!=1 && r!=2 && r!=4) { *c = 7./6; return -7; }
   }
-  if (smodss(D, 3) != 1 && Dmod8 != 5) { *c = 1.5; return -6; }
+  if (smodss(D, 3) != 1 && !odd(D)) { *c = 1.5; return -6; }
   r = smodss(D, 5); if (r != 2 && r != 3) { *c = 5./4; return -5; }
-  *c = 1; return 2;
+  *c = 1; return 1;
 }
 
 /* k <= 0 */
