@@ -227,14 +227,11 @@ get_S_even(long N)
   }
 }
 static GEN
-sigsumN(long r, long d, GEN vD, long N, GEN vP)
+sigsumN(SIGMA_F S, long r, long d, GEN vD, long N, GEN vP)
 {
-  GEN V, M, vs;
-  SIGMA_F S = get_S_even(N);
-  long B, n, i, l = lg(vD);
+  long n, i, l = lg(vD), B = vD[l-1] / N;
+  GEN M, V = vecfactoru(1, B), vs = cgetg(B+2, t_VEC);
 
-  B = vD[l-1] / labs(N);
-  V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
   gel(vs,1) = usumdivk_0_all(r, d);
   for (n = 1; n <= B; n++) gel(vs, n+1) = usumdivk_fact_all(gel(V,n), r, d);
   M = cgetg(l, t_MAT);
@@ -352,13 +349,14 @@ static GEN
 modulareven(long D, long r, long N0)
 {
   long B, d, N = labs(N0);
-  GEN R, M, C, den, S, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
+  GEN R, M, C, den, L, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
+  SIGMA_F S = get_S_even(N0);
 
   d = dimeven(r, N);
   B = muleven(N) * mfsturmNgk(N, k);
   vD = Dpos(d, N0, B);
   vP = vecRCpol(r, d);
-  M = sigsumN(r, d, vD, N0, vP);
+  M = sigsumN(S, r, d, vD, N, vP);
   if (r == 2*d)
   { /* r = 2 or (r = 4 and N = 4) */
     GEN v = mfDcoefs(mfderiv(mfTheta(NULL), d+1), vD, 1);
@@ -370,8 +368,8 @@ modulareven(long D, long r, long N0)
   C = myinverseimage(M, R, &den);
 
   /* Cost: O( sqrt(D)/c d^(mu+2) log(D)^mu ), c from findNeven */
-  S = RgV_dotproduct(C, get_S_even(N)(r, lg(C)-1, D, NULL, vP));
-  return den? gdiv(S, den): S;
+  L = RgV_dotproduct(C, S(r, lg(C)-1, D, NULL, vP));
+  return den? gdiv(L, den): L;
 }
 
 /***********************************************************/
@@ -433,10 +431,9 @@ div4(GEN V)
 static GEN
 usumdivktwist_fact_all(GEN fa, long N, long k, long dim, long two)
 {
-  GEN res, P, E, pow;
+  GEN P, E, pow, res = cgetg(dim + 1, t_COL);
   long i, j, l, f2, v, Nmod4, d = two == 2 ? (dim + 1) >> 1 : dim;
 
-  res = cgetg(dim + 1, t_COL);
   Nmod4 = (N >> vals(N)) & 3L; /* (N/2^oo) mod 4 */
   P = gel(fa, 1); l = lg(P);
   E = gel(fa, 2);
@@ -448,7 +445,7 @@ usumdivktwist_fact_all(GEN fa, long N, long k, long dim, long two)
     GEN V = cgetg(l - f2, t_VEC), z;
     for (i = 1+f2; i < l; i++) gel(V,i-f2) = euler_sumdiv(gmael(pow,i,j), E[i]);
     gel(res, j) = z = ZV_prod(V);
-    if (two == 2 && j <= dim - d)
+    if (two == 2 && j + d <= dim)
     {
       if (Nmod4 == 3) z = negi(z);
       if (v) z = shifti(z, (k - 2*j + 1)*v);
@@ -467,8 +464,6 @@ mulodd(long N, long kro)
   if (N == 5) return 5;
   return 2;
 }
-
-static GEN sigsumtwist1N(long r, long d, long kro, GEN vD, long N, GEN vP);
 
 /* Cost: O( sqrt(D)/a d^(mu+2) log(D)^mu ) */
 static GEN
@@ -578,11 +573,10 @@ get_S_odd(long N, long two)
 
 /* N > 0 */
 static GEN
-sigsumtwist1N(long r, long dim, long kro, GEN vD, long N0, GEN vP)
+sigsumtwist1N(SIGMA_Fodd S, long r, long dim, long kro, GEN vD, long N0, GEN vP)
 {
   GEN V, M, vs, vD4 = kro ? vD : div4(vD);
   long B, n, i, l, N = labs(N0), two = N0 < 0? 1: 2;
-  SIGMA_Fodd S = get_S_odd(N, two);
 
   l = lg(vD4); M = cgetg(l, t_MAT);
   B = vD4[l-1] / N;
@@ -602,28 +596,27 @@ sigsumtwist1N(long r, long dim, long kro, GEN vD, long N0, GEN vP)
 static GEN
 modularodd(long D, long r, long N0)
 {
-  long B, d, dim, two, kro = kross(D, 2), Da = labs(D), N = labs(N0);
-  GEN R, M, C, den, S, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
-  SIGMA_Fodd F;
+  long B, d, dim, kro = kross(D, 2), Da = labs(D), N = labs(N0);
+  GEN R, M, C, den, L, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
+  long two = ((N0 == 2 && kro) || (N0 == -6 && kro == 1))? 1: 2;
+  SIGMA_Fodd S = get_S_odd(N, two);
 
-  two = ((N0 == 2 && kro) || (N0 == -6 && kro == 1))? 1: 2;
   dim = dimodd(r, kro, N);
   d = two == 1? dim: (dim + 1) >> 1;
   vP = vecRCpol(r, d);
   B = mulodd(N, kro) * mfsturmNgk(4*N, k);
   vD = Dneg(B, kro, dim + 5, N);
-  M = sigsumtwist1N(r, dim, kro, vD, two == 1? -N: N, vP);
+  M = sigsumtwist1N(S, r, dim, kro, vD, two == 1? -N: N, vP);
   if (N > 2) vkro = veckro(vD, odd(N)? N: N >> 1);
   R = Hcol(k, r, vD, kro? 1: 4, vkro);
   /* Cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
   C = myinverseimage(M, R, &den);
 
-  F = get_S_odd(N, two);
   if (!kro) Da >>= 2;
   /* Cost: O( sqrt(D)/c d^(mu+2) log(D)^mu ), c from findNodd */
-  S = RgV_dotproduct(C, F(r, lg(C)-1, Da, (two==1 && N==2)? -2: N, NULL, vP));
+  L = RgV_dotproduct(C, S(r, lg(C)-1, Da, (two==1 && N==2)? -2: N, NULL, vP));
   if (N < 0 && (N != -6 || Da%3)) den = den? shifti(den,1): gen_2;
-  return den? gdiv(S, den): S;
+  return den? gdiv(L, den): L;
 }
 
 /********************************************************/
