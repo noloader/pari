@@ -233,22 +233,6 @@ get_S_even(long N)
     default:return sigsumm12; /* -12 */
   }
 }
-static GEN
-sigsumN(SIGMA_F S, long r, long d, GEN vD, long N, GEN vP)
-{
-  long n, i, l = lg(vD), B = vD[l-1] / N;
-  GEN M, V = vecfactoru(1, B), vs = cgetg(B+2, t_VEC);
-
-  gel(vs,1) = usumdivk_0_all(r, d);
-  for (n = 1; n <= B; n++) gel(vs, n+1) = usumdivk_fact_all(gel(V,n), r, d);
-  M = cgetg(l, t_MAT);
-  for (i = 1; i < l; i++)
-  {
-    pari_sp av = avma;
-    gel(M,i) = gerepileupto(av, S(r, d, vD[i], vs, vP));
-  }
-  return shallowtrans(M);
-}
 
 static GEN Lfeq(long D, long k);
 /* Euler numbers: 1, 0, -1, 0, 5, 0, -61,... */
@@ -355,21 +339,30 @@ muleven(long N) { return (N == 4)? 1: 2; }
 static GEN
 modulareven(long D, long r, long N0)
 {
-  long B, d, N = labs(N0);
-  GEN R, M, C, den, L, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
+  long B, d, i, l, N = labs(N0);
+  GEN V, vs, R, M, C, den, L, vP, vD, vkro, k = sstoQ(2*r+1, 2);
   SIGMA_F S = get_S_even(N0);
 
   d = dimeven(r, N);
   B = muleven(N) * mfsturmNgk(N, k);
   vD = Dpos(d, N0, B);
   vP = vecRCpol(r, d);
-  M = sigsumN(S, r, d, vD, N, vP);
+  l = lg(vD); B = vD[l-1] / N; V = vecfactoru(1, B);
+  vs = cgetg(B+2, t_VEC); gel(vs,1) = usumdivk_0_all(r, d);
+  for (i = 1; i <= B; i++) gel(vs, i+1) = usumdivk_fact_all(gel(V,i), r, d);
+  M = cgetg(l, t_MAT);
+  for (i = 1; i < l; i++)
+  {
+    pari_sp av = avma;
+    gel(M,i) = gerepileupto(av, S(r, d, vD[i], vs, vP));
+  }
+  M = shallowtrans(M);
   if (r == 2*d)
   { /* r = 2 or (r = 4 and N = 4) */
     GEN v = mfDcoefs(mfderiv(mfTheta(NULL), d+1), vD, 1);
     gel(M, d) = gadd(gel(M, d), gdivgs(v, N*(2*d - 1)));
   }
-  if (N == 8 || N == 12) vkro = veckro(vD, N / 4);
+  vkro = (N == 8 || N == 12)? veckro(vD, N / 4): NULL;
   R = Hcol(k, r, vD, 1, vkro);
   /* Cost is O(d^2) * bitsize(result) ~ O(d^3.8) [heuristic] */
   C = myinverseimage(M, R, &den);
@@ -435,10 +428,10 @@ div4(GEN V)
 }
 
 static GEN
-usumdivktwist_fact_all(GEN fa, long k, long dim)
+usumdivktwist_fact_all(GEN fa, long k, long d)
 {
-  long i, j, l, d = (dim + 1) >> 1;
   GEN V, P, E, pow, res = cgetg(d + 1, t_VEC);
+  long i, j, l;
 
   P = gel(fa, 1); l = lg(P);
   E = gel(fa, 2);
@@ -486,7 +479,7 @@ sigsumtwist(long k, long dim, long a, long b, long Da, long N0, GEN vs, GEN vP)
     if (vs)
       v = gel(vs, Ds+1);
     else
-      v = usumdivktwist_fact_all(factoru(Ds2), k, dim);
+      v = usumdivktwist_fact_all(factoru(Ds2), k, d);
     P = gsubst(vPD, 0, utoi(s*s));
     v = RgV_multwist(v, P, k, dim, d, v2, D4);
     if (!s) keep0 = gclone(v); else S = gadd(S, v);
@@ -556,41 +549,29 @@ get_S_odd(long N)
   return sigsumtwist12_N;
 }
 
-/* N > 0 */
+/* L(\chi_D, 1-r) for D < 0 and r > 0 odd. */
 static GEN
-sigsumtwist1N(SIGMA_Fodd S, long r, long dim, long kro, GEN vD, long N, GEN vP)
+modularodd(long D, long r, long N0)
 {
-  GEN V, M, vs, vD4 = kro ? vD : div4(vD);
-  long B, n, i, l;
+  long B, d, i, l, dim, kro = kross(D, 2), Da = labs(D), N = labs(N0);
+  GEN V, vs, R, M, C, den, L, vP, vD, vD4, vkro = NULL, k = sstoQ(2*r+1, 2);
+  SIGMA_Fodd S = get_S_odd(N);
 
-  l = lg(vD4); M = cgetg(l, t_MAT);
-  B = vD4[l-1] / N;
-  V = vecfactoru(1, B); vs = cgetg(B+2, t_VEC);
-  gel(vs,1) = NULL; /* unused */
-  for (n = 1; n <= B; n++)
-    gel(vs,n+1) = usumdivktwist_fact_all(gel(V,n), r, dim);
+  dim = dimodd(r, kro, N); d = (dim + 1) >> 1;
+  vP = vecRCpol(r, d);
+  B = mulodd(N, kro) * mfsturmNgk(4*N, k);
+  vD = Dneg(B, kro, dim + 5, N);
+  vD4 = kro ? vD : div4(vD);
+  l = lg(vD); B = vD4[l-1] / N; V = vecfactoru(1, B);
+  vs = cgetg(B+2, t_VEC); gel(vs,1) = NULL; /* unused */
+  for (i = 1; i <= B; i++) gel(vs,i+1) = usumdivktwist_fact_all(gel(V,i), r, d);
+  M = cgetg(l, t_MAT);
   for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
     gel(M,i) = gerepileupto(av, S(r, dim, vD4[i], N, vs, vP));
   }
-  return shallowtrans(M);
-}
-
-/* L(\chi_D, 1-r) for D < 0 and r > 0 odd. */
-static GEN
-modularodd(long D, long r, long N0)
-{
-  long B, d, dim, kro = kross(D, 2), Da = labs(D), N = labs(N0);
-  GEN R, M, C, den, L, vP, vD, vkro = NULL, k = sstoQ(2*r+1, 2);
-  SIGMA_Fodd S = get_S_odd(N);
-
-  dim = dimodd(r, kro, N);
-  d = (dim + 1) >> 1;
-  vP = vecRCpol(r, d);
-  B = mulodd(N, kro) * mfsturmNgk(4*N, k);
-  vD = Dneg(B, kro, dim + 5, N);
-  M = sigsumtwist1N(S, r, dim, kro, vD, N, vP);
+  M = shallowtrans(M);
   if (N > 2) vkro = veckro(vD, odd(N)? N: N >> 1);
   R = Hcol(k, r, vD, kro? 1: 4, vkro);
   /* Cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
