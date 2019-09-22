@@ -706,7 +706,7 @@ findNeven(long D, double *c)
   long r = D%3;
   if (!r) { *c = 3; return 12; }
   if ((D&7L) == 1) { *c = 2; return 16; }
-  if (!(D&1L)) { *c = 2; return 8; }
+  if (!odd(D)) { *c = 2; return 8; }
   if (r == 1) { *c = 1.5; return -12; }
   *c = 1; return 4;
 }
