@@ -633,18 +633,14 @@ myround(GEN z, GEN d)
   return z;
 }
 
-/* k > 2; L(\chi_D, 1-k) using func. eq. */
+/* D != 1, k > 2; L(\chi_D, 1-k) using func. eq. */
 static GEN
 Lfeq(long D, long k)
 {
   GEN z, res, den;
   long Da, prec;
   int prime;
-  if (D == 1)
-  {
-    if (k == 1) return gneg(ghalf);
-    return gdivgs(bernfrac(k), -k);
-  }
+
   if ((D > 0 && odd(k)) || (D < 0 && !odd(k))) return gen_0;
   Da = labs(D); prime = uisprime(Da);
   z = Linv(D, k, prime); prec = lg(z);
