@@ -472,7 +472,7 @@ sigsumtwist(long k, long dim, long a, long b, long Da, long N, GEN vs, GEN vP)
   av = avma;
   for (s = b, n = 0; s <= lim; s += a, n++)
   {
-    long v2, D4, Ds2, Ds = D2 - n*(c2*n + c1);
+    long v2, D4, Ds2, Ds = D2 - n*(c2*n + c1); /* (Da - s^2) / N */
     GEN v, P;
     if (!Ds) continue;
     v2 = vals(Ds); Ds2 = Ds >> v2; D4 = Ds2 & 3L; /* (Ds/2^oo) mod 4 */
