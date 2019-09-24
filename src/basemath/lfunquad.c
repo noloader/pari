@@ -693,7 +693,7 @@ findNodd(long D, long k, double *c)
 {
   long Dmod8 = D&7L, r;
   if (log(k) > 0.7 * log((double)-D)) { *c = 1; return 1; }
-  if (D%7 == 0 && (Dmod8 == 5)) { *c = 3.5; return 7; }
+  if (D%7 == 0 && Dmod8 == 5) { *c = 3.5; return 7; }
   if (D%6 == 0) { *c = 3; return 6; }
   if (D%5 == 0) { *c = 2.5; return 5; }
   if (D%3 == 0) { *c = 1.5; return 3; }
