@@ -2212,18 +2212,20 @@ INLINE GEN
 RgX_shift_inplace(GEN x, long v)
 {
   long i, lx;
-  GEN y, z;
+  GEN z;
   if (!v) return x;
   lx = lg(x);
   if (lx == 2) return x;
-  y = x + v;
   z = x + lx;
-  /* stackdummy from normalizepol: move it up */
-  if (lg(z) != v) x[lx + v] = z[0];
-  for (i = lx-1; i >= 2; i--) gel(y,i) = gel(x,i);
-  for (i = v+1;  i >= 2; i--) gel(x,i) = gen_0;
-  /* leave x[1] alone: it is correct */
-  x[0] = evaltyp(t_POL) | evallg(lx+v); return x;
+  /* stackdummy's from normalizepol */
+  while (lg(z) != v) z += lg(z);
+  z += v;
+  for (i = lx-1; i >= 2; i--) gel(--z,0) = gel(x,i);
+  for (i = 0;  i < v; i++) gel(--z,0) = gen_0;
+  z -= 2;
+  z[1] = x[1];
+  z[0] = evaltyp(t_POL) | evallg(lx+v);
+  stackdummy((pari_sp)z, (pari_sp)x); return z;
 }
 
 
