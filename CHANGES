@@ -33,6 +33,8 @@ BA   1- plotlines flag was ignored
     22- typo in QM_inv (wrong result)
     23- modular symbols package: better type checks
     24- division by 0 in Flx_extresultant when one input is 0
+    25- lfunconductor(1,[]) -> SEGV
+
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

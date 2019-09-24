@@ -315,6 +315,7 @@ lfunconductor(-4)
 lfunconductor(857)
 lfunconductor(120)
 lfunconductor(2108)
+lfunconductor(1,[],-1)
 
 lfunrootres(x^3+x^2-3*x-1)
 

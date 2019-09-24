@@ -236,6 +236,7 @@ zeta(s)*zeta(s-a)
 857
 120
 [8, 2108]
+[]
 [[[1, 0.54657288114990636157071248041210027593*x^-1 + O(x^0)]], [[1, 6.64934
 60830715850476062965515423576642*x^-1 + O(x^0)], [0, -6.64934608307158504760
 62965515423576642*x^-1 + O(x^0)]], 1]
@@ -298,4 +299,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: localbitprec(16);lfun(Lt,12)
   ***                                  ^-----------
   *** lfun: incorrect type in vecan_closure (t_INT).
-Total time spent: 4940
+Total time spent: 9634

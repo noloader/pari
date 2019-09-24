@@ -2474,7 +2474,10 @@ lfunconductor(GEN data, GEN maxcond, long flag, long bitprec)
   M = parse_maxcond(maxcond);
   r = ldata_get_residue(ldata);
   if (typ(M) == t_VEC) /* select in list */
-  { eval = NULL; tdom = dbltor(0.7); }
+  {
+    if (lg(M) == 1) { set_avma(av); return cgetg(1,t_VEC); }
+    eval = NULL; tdom = dbltor(0.7);
+  }
   else if (!r) { eval = wrap1; tdom = sstoQ(10,11); }
   else
   {
