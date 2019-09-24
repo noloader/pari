@@ -283,11 +283,7 @@ mfvkro(GEN v, GEN vkro)
   {
     long i, l = lg(v);
     for (i = 1; i < l; i++)
-      switch(vkro[i])
-      {
-        case 0: gel(v,i) = gen_0; break;
-        case 2: gel(v,i) = gmul2n(gel(v,i), 1); break;
-      }
+      if (vkro[i] == 2) gel(v,i) = gmul2n(gel(v,i), 1);
   }
   return v;
 }
@@ -301,9 +297,7 @@ Hcol(GEN k, long r, GEN vD, long d, GEN vkro)
   for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
-    GEN c;
-    if (vkro && !vkro[i]) { gel(v,i) = gen_0; continue; }
-    c = Lfeq(odd(r)? -vD[i]: vD[i], r); /* fundamental */
+    GEN c = Lfeq(odd(r)? -vD[i]: vD[i], r); /* fundamental */
     if (vkro && vkro[i] == 2) c = gmul2n(c, 1);
     gel(v, i) = gerepileupto(av, c);
   }
@@ -388,12 +382,6 @@ dimodd(long r, long kro, long N)
       case 0: return (r + 2)/3;
       case 1: return (r + 1) >> 2;
     }
-    case 2: switch (kro)
-    {
-      case -1 : return (r + 3) >> 2;
-      case 0  : return (r + 1) >> 1;
-      case 1  : return (r + 1) >> 2;
-    }
     case 3: return kro? (r + 1) >> 1: ((r << 1) + 2)/3;
     case 5: switch (kro)
     {
@@ -417,7 +405,7 @@ negDok(long D, long N)
             return d != 2 && d != 3;
     case 6: return  (D & 7L) != 5 && (-D % 3) != 2;;
     case 7: d = (-D) % 7;
-            return (D & 7L) == 5 && d != 3 && d != 5 && d != 7;
+            return (D & 7L) == 5 && d != 3 && d != 5 && d != 6;
     default: return 1;
   }
 }
@@ -512,11 +500,6 @@ static GEN
 sigsumtwist11(long k, long dim, long Da, long N, GEN vs, GEN vP)
 { return sigsumtwist(k, dim, 1, 0, Da, N, vs, vP); }
 
-/* Here Da = |D|/4 can be odd or even. N = 2 */
-static GEN
-sigsumtwist122(long k, long dim, long Da, long N, GEN vs, GEN vP)
-{ return sigsumtwist(k, dim, 2, odd(Da), Da, N, vs, vP); }
-
 /* Da = |D| or |D|/4 */
 /* [sum sigma_r^(1)((Da-s^2)/N), sum sigma_r^(2)((Da-s^2)/N)] */
 /* Case N|Da; N not necessarily prime. */
@@ -561,7 +544,6 @@ static SIGMA_Fodd
 get_S_odd(long N)
 {
   if (N == 1) return sigsumtwist11;
-  if (N == 2) return sigsumtwist122;
   if (N == 6) return sigsumtwist12_6;
   return sigsumtwist12_N;
 }
