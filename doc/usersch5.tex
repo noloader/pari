@@ -14375,6 +14375,11 @@ These functions manipulate vectors of \typ{VECSMALL} (vecvecsmall).
 \fun{GEN}{vecvecsmall_sort}{GEN x} sorts lexicographically the components of
 the vector \kbd{x}.
 
+\fun{void}{vecvecsmall_sort_inplace}{GEN x, GEN *perm} sort lexicographically
+\kbd{x} in place, without copying its components. If
+\kbd{perm} is non-\kbd{NULL}, it is set to the permutation that would sort
+the original \kbd{x}.
+
 \fun{GEN}{vecvecsmall_sort_uniq}{GEN x} sorts lexicographically the components of
 the vector \kbd{x}, removing duplicates entries.
 

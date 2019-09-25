@@ -4462,6 +4462,7 @@ GEN     vecsmall_uniq(GEN V);
 GEN     vecsmall_uniq_sorted(GEN V);
 GEN     vecvecsmall_indexsort(GEN x);
 GEN     vecvecsmall_sort(GEN x);
+void    vecvecsmall_sort_inplace(GEN x, GEN *perm);
 GEN     vecvecsmall_sort_uniq(GEN x);
 int     perm_commute(GEN p, GEN q);
 int     vec_is1to1(GEN v);

@@ -88,6 +88,7 @@ BA  22- [libpari] F2xn_red, F2xn_inv, F2xX_to_F2xC, F2xXV_to_F2xM
 HC  23- direct formulas for quadratic Dirichlet L-functions at integers
     24- new GP functions: eulerfrac, eulerpol, eulervec
     25- [libpari] lfunquadneg
+BA  26- [libpari] vecvecsmall_sort_inplace
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

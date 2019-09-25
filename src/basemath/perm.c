@@ -207,6 +207,12 @@ vecvecsmall_sort(GEN x)
   return gen_sort(x, (void*)&vecsmall_lexcmp, cmp_nodata);
 }
 
+void
+vecvecsmall_sort_inplace(GEN x, GEN *perm)
+{
+  gen_sort_inplace(x, (void*)&vecsmall_lexcmp, cmp_nodata, perm);
+}
+
 GEN
 vecvecsmall_sort_uniq(GEN x)
 {
