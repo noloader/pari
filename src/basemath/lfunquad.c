@@ -212,12 +212,17 @@ static GEN
 Dpos(long d, long N, long B)
 {
   GEN vD = cgetg(maxss(B, d) + 1, t_VECSMALL);
-  long D, c;
-  for (D = 5, c = 1; c <= d || D <= B; D += odd(D) ? 3 : 1)
-    if (!(N == 8 && (D&3L))
-        && !(N == 12 && D%3)
-        && !(N == -12 && D%3 != 1)
-        && !(N == 16 && (D&7L) != 1) && sisfundamental(D)) vD[c++] = D;
+  long D, step, c;
+  switch(N)
+  {
+    case 4:  D = 5;  step = 1; break;
+    case 8:  D = 8;  step = 4; break;
+    case 12: D = 12; step = 3; break;
+    case 16: D = 17; step = 8; break;
+    default: D = 13; step = 3; break; /* -12 */
+  }
+  for (c = 1; c <= d || D <= B; D += step)
+    if (sisfundamental(D)) vD[c++] = D;
   setlg(vD, c); return vD;
 }
 
@@ -398,14 +403,14 @@ static GEN
 Dneg(long n, long kro, long d, long N)
 {
   GEN vD = cgetg(maxss(n, d) + 1, t_VECSMALL);
-  long D0, D, c, step, N2 = odd(N)? N: N>> 1;
+  long D, c, step, N2 = odd(N)? N: N>> 1;
   switch(kro)
   {
-    case -1:D0 = -3; step = 8; break;
-    case 0: D0 = -8; step = 4; break;
-    case 1: D0 = -7; step = 8; break;
+    case -1: D = -3; step = 8; break;
+    case 1:  D = -7; step = 8; break;
+    default: D = -8; step = 4; break;
   }
-  for (D = D0, c = 1; D >= -n || c <= d; D -= step)
+  for (c = 1; D >= -n || c <= d; D -= step)
     if (kross(-D, N2) != -1 && sisfundamental(D)) vD[c++] = -D;
   setlg(vD, c); return vD;
 }
