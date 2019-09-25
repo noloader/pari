@@ -60,8 +60,6 @@ BA   1- plotlines flag was ignored
 BA  15- old gen_ZpM_Dixon renamed to gen_ZpM_Dixon_Wiedemann,
         new gen_ZpM_Dixon with simpler interface
     16- better formula for Catalan
-    17- new GP functions: eulerfrac, eulerpol, eulervec
-    18- [libpari] lfunquadneg
 
   Added
      1- new GP function rootsof1
@@ -88,6 +86,8 @@ BA  17- [libpari] QM_sqr, FqC_to_mod, ZXQX_gcd, QXQX_gcd
 BA  21- [libpari] gen_ZpM_Newton, ZpM_invlift
 BA  22- [libpari] F2xn_red, F2xn_inv, F2xX_to_F2xC, F2xXV_to_F2xM
 HC  23- direct formulas for quadratic Dirichlet L-functions at integers
+    24- new GP functions: eulerfrac, eulerpol, eulervec
+    25- [libpari] lfunquadneg
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
