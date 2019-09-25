@@ -282,41 +282,28 @@ myinverseimage(GEN M, GEN R, GEN *pden)
 }
 
 static GEN
-mfvkro(GEN v, GEN vkro)
+Hcol(GEN k, long r, GEN vD, long d, long N2)
 {
-  if (vkro)
-  {
-    long i, l = lg(v);
-    for (i = 1; i < l; i++)
-      if (vkro[i] == 2) gel(v,i) = gmul2n(gel(v,i), 1);
-  }
-  return v;
-}
-static GEN
-Hcol(GEN k, long r, GEN vD, long d, GEN vkro)
-{
-  long i, l;
+  long i, l = lg(vD);
   GEN v;
-  if (r < 5) return mfvkro(mfDcoefs(mfEH(k),vD,d), vkro);
-  l = lg(vD); v = cgetg(l, t_COL);
+  if (r < 5)
+  {
+    v = mfDcoefs(mfEH(k),vD,d);
+    for (i = 1; i < l; i++)
+      if (N2 != 1 && vD[i] % N2) gel(v,i) = gmul2n(gel(v,i), 1);
+    return v;
+  }
+  v = cgetg(l, t_COL);
   for (i = 1; i < l; i++)
   {
     pari_sp av = avma;
     GEN c = Lfeq(odd(r)? -vD[i]: vD[i], r); /* fundamental */
-    if (vkro && vkro[i] == 2) c = gmul2n(c, 1);
+    if (N2 != 1 && vD[i] % N2) c = gmul2n(c, 1);
     gel(v, i) = gerepileupto(av, c);
   }
   return v;
 }
 
-static GEN
-veckro(GEN vD, long N2)
-{
-  long i, l;
-  GEN w = cgetg_copy(vD, &l);
-  for (i = 1; i < l; i++) w[i] = 1 + kross(vD[i], N2);
-  return w;
-}
 /***********************************************************/
 /*   Modular form method using Half-Integral Weight forms  */
 /*                      Case D > 0                         */
@@ -339,7 +326,7 @@ static GEN
 modulareven(long D, long r, long N0)
 {
   long B, d, i, l, N = labs(N0);
-  GEN V, vs, R, M, C, den, L, vP, vD, vkro, k = sstoQ(2*r+1, 2);
+  GEN V, vs, R, M, C, den, L, vP, vD, k = sstoQ(2*r+1, 2);
   SIGMA_F S = get_S_even(N0);
 
   d = dimeven(r, N);
@@ -361,8 +348,7 @@ modulareven(long D, long r, long N0)
     GEN v = mfDcoefs(mfderiv(mfTheta(NULL), d+1), vD, 1);
     gel(M, d) = gadd(gel(M, d), gdivgs(v, N*(2*d - 1)));
   }
-  vkro = (N == 8 || N == 12)? veckro(vD, N / 4): NULL;
-  R = Hcol(k, r, vD, 1, vkro);
+  R = Hcol(k, r, vD, 1, (N == 8 || N0 == 12)? N >> 2: 1);
   /* Cost is O(d^2) * bitsize(result) ~ O(d^3.8) [heuristic] */
   C = myinverseimage(M, R, &den);
 
@@ -545,7 +531,7 @@ static GEN
 modularodd(long D, long r, long N0)
 {
   long B, d, i, l, dim, kro = kross(D, 2), Da = labs(D), N = labs(N0);
-  GEN V, vs, R, M, C, den, L, vP, vD, vD4, vkro = NULL, k = sstoQ(2*r+1, 2);
+  GEN V, vs, R, M, C, den, L, vP, vD, vD4, k = sstoQ(2*r+1, 2);
   SIGMA_Fodd S = get_S_odd(N);
 
   dim = dimodd(r, kro, N); d = (dim + 1) >> 1;
@@ -563,8 +549,7 @@ modularodd(long D, long r, long N0)
     gel(M,i) = gerepileupto(av, S(r, dim, vD4[i], N, vs, vP));
   }
   M = shallowtrans(M);
-  if (N > 2) vkro = veckro(vD, odd(N)? N: N >> 1);
-  R = Hcol(k, r, vD, kro? 1: 4, vkro);
+  R = Hcol(k, r, vD, kro? 1: 4, odd(N)? N: N >>1);
   /* Cost O(d^2) * bitsize(result) ~ O(d^3.7) [heuristic] */
   C = myinverseimage(M, R, &den);
 
