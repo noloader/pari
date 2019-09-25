@@ -394,32 +394,19 @@ dimodd(long r, long kro, long N)
   }
 }
 
-static int
-negDok(long D, long N)
-{
-  long d;
-  switch(N)
-  {
-    case 3: return ((-D) % 3) != 2;
-    case 5: d = (-D) % 5;
-            return d != 2 && d != 3;
-    case 6: return  (D & 7L) != 5 && (-D % 3) != 2;;
-    case 7: d = (-D) % 7;
-            return (D & 7L) == 5 && d != 3 && d != 5 && d != 6;
-    default: return 1;
-  }
-}
 static GEN
 Dneg(long n, long kro, long d, long N)
 {
   GEN vD = cgetg(maxss(n, d) + 1, t_VECSMALL);
-  long D, c;
-  for (D = -3, c = 1; D >= -n || c <= d; D -= odd(D)? 1: 3)
+  long D0, D, c, step, N2 = odd(N)? N: N>> 1;
+  switch(kro)
   {
-    long mD = -D;
-    if (D != -4 && kross(D, 2) == kro
-                && negDok(D, N) && sisfundamental(D)) vD[c++] = mD;
+    case -1:D0 = -3; step = 8; break;
+    case 0: D0 = -8; step = 4; break;
+    case 1: D0 = -7; step = 8; break;
   }
+  for (D = D0, c = 1; D >= -n || c <= d; D -= step)
+    if (kross(-D, N2) != -1 && sisfundamental(D)) vD[c++] = -D;
   setlg(vD, c); return vD;
 }
 
