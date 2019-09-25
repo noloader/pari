@@ -1091,6 +1091,7 @@ gequal(GEN x, GEN y)
       case t_INFINITY:
         return gequal(gel(x,1),gel(y,1));
     }
+  if (is_noncalc_t(tx) || is_noncalc_t(ty)) return 0;
   (void)&av; av = avma; /* emulate volatile */
   return gc_bool(av, gequal_try(x, y));
 }
