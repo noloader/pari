@@ -872,8 +872,8 @@ Flx_mulspec(GEN a, GEN b, ulong p, long na, long nb)
 GEN
 Flx_mul(GEN x, GEN y, ulong p)
 {
- GEN z = Flx_mulspec(x+2,y+2,p, lgpol(x),lgpol(y));
- z[1] = x[1]; return z;
+  GEN z = Flx_mulspec(x+2,y+2,p, lgpol(x),lgpol(y));
+  z[1] = x[1]; return z;
 }
 
 static GEN
