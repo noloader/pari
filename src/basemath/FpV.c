@@ -236,7 +236,10 @@ void
 Flv_Fl_mul_part_inplace(GEN x, ulong y, ulong p, long l)
 {
   long i;
-  for (i=1;i<=l;i++) x[i] = Fl_mul(x[i], y, p);
+  if (HIGHWORD(y | p))
+    for(i=1; i<=l; i++) x[i] = Fl_mul(x[i], y, p);
+  else
+    for(i=1; i<=l; i++) x[i] = (x[i] * y) % p;
 }
 void
 Flv_Fl_mul_inplace(GEN x, ulong y, ulong p)
