@@ -1406,7 +1406,7 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
     }
     if ((!(flag&2) || lg(v) > 1) && (!(flag&8) || ct))
       return gerepilecopy(av, v);
-    step = (flag&4)? sqrtr(sqrtr(step)): gmul2n(step, -2);
+    step = (flag&4)? sqrtnr(step,4): gmul2n(step, -2);
     gerepileall(av2, 2, &fa, &step);
   }
   pari_err_IMPL("solvestep recovery [too many iterations]");
