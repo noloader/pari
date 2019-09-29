@@ -41,6 +41,7 @@ init_MR_Jaeschke(MR_Jaeschke_t *S, GEN n)
 static int
 ispsp(MR_Jaeschke_t *S, ulong a)
 {
+  pari_sp av = avma;
   GEN c = Fp_pow(utoipos(a), S->t1, S->n);
   long r;
 
@@ -60,6 +61,11 @@ ispsp(MR_Jaeschke_t *S, ulong a)
       /* saw one earlier: too many sqrt(-1)s mod n ? */
       return equalii(c2, S->sqrt1) || equalii(c2, S->sqrt2);
     }
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"ispsp, r = %ld", r);
+      c = gerepileuptoint(av, c);
+    }
   }
   return 0;
 }
@@ -70,6 +76,7 @@ static int
 is2psp(GEN n)
 {
   GEN c, t = subiu(n, 1);
+  pari_sp av = avma;
   long e = vali(t);
 
   c = Fp_pow(gen_2, shifti(t, -e), n);
@@ -79,6 +86,11 @@ is2psp(GEN n)
     c = remii(sqri(c), n);
     if (equalii(t, c)) return 1;
     /* can return 0 if (c == 1) but very infrequent */
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"is2psp, r = %ld", e);
+      c = gerepileuptoint(av, c);
+    }
   }
   return 0;
 }
