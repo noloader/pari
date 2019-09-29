@@ -1015,16 +1015,17 @@ permtopol(GEN p, GEN L, GEN M, GEN den, GEN mod, GEN mod2, long x)
 }
 
 static GEN
-galoisgrouptopol(GEN res, GEN L, GEN M, GEN den, GEN mod, long v)
+galoisvecpermtopol(GEN gal, GEN vec, GEN mod, GEN mod2)
 {
-  long i, l = lg(res);
-  GEN mod2 = shifti(mod,-1), aut = cgetg(l, t_COL);
-  for (i = 1; i < l; i++)
-  {
-    if (DEBUGLEVEL>=6) err_printf("%d ",i);
-    gel(aut,i) = permtopol(gel(res,i), L, M, den, mod, mod2, v);
-  }
-  return aut;
+  long i, l = lg(vec);
+  long v = varn(gal_get_pol(gal));
+  GEN L = gal_get_roots(gal);
+  GEN M = gal_get_invvdm(gal);
+  GEN P = cgetg(l, t_MAT);
+  for (i=1; i<l; i++)
+    gel(P, i) = vecpermute(L,gel(vec,i));
+  P = RgM_to_RgXV(FpM_center(FpM_mul(M, P, mod), mod, mod2), v);
+  return gdiv(P, gal_get_den(gal));
 }
 
 static void
@@ -2621,7 +2622,7 @@ static GEN
 galoisconj4_main(GEN T, GEN den, long flag)
 {
   pari_sp ltop = avma;
-  GEN nf, G, L, M, aut;
+  GEN nf, G, L, M, aut, grp;
   struct galois_analysis ga;
   struct galois_borne gb;
   long n;
@@ -2674,19 +2675,18 @@ galoisconj4_main(GEN T, GEN den, long flag)
   if (DEBUGLEVEL >= 6) err_printf("GaloisConj: %Ps\n", G);
   if (!G) { set_avma(ltop); return gen_0; }
   if (DEBUGLEVEL >= 1) timer_start(&ti);
-  if (flag)
-  {
-    GEN grp = cgetg(9, t_VEC);
-    gel(grp,1) = T;
-    gel(grp,2) = mkvec3(utoipos(ga.l), utoipos(gb.valabs), gb.ladicabs);
-    gel(grp,3) = L;
-    gel(grp,4) = M;
-    gel(grp,5) = den;
-    gel(grp,6) = group_elts(G,n);
-    gel(grp,7) = gel(G,1);
-    gel(grp,8) = gel(G,2); return gerepilecopy(ltop, grp);
-  }
-  aut = galoisgrouptopol(group_elts(G, n),L,M,den,gb.ladicsol, varn(T));
+  grp = cgetg(9, t_VEC);
+  gel(grp,1) = T;
+  gel(grp,2) = mkvec3(utoipos(ga.l), utoipos(gb.valabs), gb.ladicabs);
+  gel(grp,3) = L;
+  gel(grp,4) = M;
+  gel(grp,5) = den;
+  gel(grp,6) = group_elts(G,n);
+  gel(grp,7) = gel(G,1);
+  gel(grp,8) = gel(G,2);
+  if (flag) return gerepilecopy(ltop, grp);
+  aut = galoisvecpermtopol(grp, gal_get_group(grp), gb.ladicabs, shifti(gb.ladicabs,-1));
+  settyp(aut, t_COL);
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "Computation of polynomials");
   return gerepileupto(ltop, gen_sort(aut, (void*)&gcmp, &gen_cmp_RgX));
 }
@@ -2800,20 +2800,6 @@ galoisinit(GEN nf, GEN den)
 {
   GEN G = galoisconj4_main(nf, den, 1);
   return (typ(G) == t_INT)? gen_0: G;
-}
-
-static GEN
-galoisvecpermtopol(GEN gal, GEN vec, GEN mod, GEN mod2)
-{
-  long i, l = lg(vec);
-  long v = varn(gal_get_pol(gal));
-  GEN L = gal_get_roots(gal);
-  GEN M = gal_get_invvdm(gal);
-  GEN P = cgetg(l, t_MAT);
-  for (i=1; i<l; i++)
-    gel(P, i) = vecpermute(L,gel(vec,i));
-  P = RgM_to_RgXV(FpM_center(FpM_mul(M, P, mod), mod, mod2), v);
-  return gdiv(P, gal_get_den(gal));
 }
 
 static GEN
