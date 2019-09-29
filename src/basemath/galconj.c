@@ -2677,14 +2677,14 @@ galoisconj4_main(GEN T, GEN den, long flag)
   if (flag)
   {
     GEN grp = cgetg(9, t_VEC);
-    gel(grp,1) = ZX_copy(T);
-    gel(grp,2) = mkvec3(utoipos(ga.l), utoipos(gb.valabs), icopy(gb.ladicabs));
-    gel(grp,3) = ZC_copy(L);
-    gel(grp,4) = ZM_copy(M);
-    gel(grp,5) = icopy(den);
+    gel(grp,1) = T;
+    gel(grp,2) = mkvec3(utoipos(ga.l), utoipos(gb.valabs), gb.ladicabs);
+    gel(grp,3) = L;
+    gel(grp,4) = M;
+    gel(grp,5) = den;
     gel(grp,6) = group_elts(G,n);
-    gel(grp,7) = gcopy(gel(G,1));
-    gel(grp,8) = gcopy(gel(G,2)); return gerepileupto(ltop, grp);
+    gel(grp,7) = gel(G,1);
+    gel(grp,8) = gel(G,2); return gerepilecopy(ltop, grp);
   }
   aut = galoisgrouptopol(group_elts(G, n),L,M,den,gb.ladicsol, varn(T));
   if (DEBUGLEVEL >= 1) timer_printf(&ti, "Computation of polynomials");
