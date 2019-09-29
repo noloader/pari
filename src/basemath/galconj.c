@@ -2649,7 +2649,7 @@ galoisconj4_main(GEN T, GEN den, long flag)
     ga.deg = 1;
     den = gen_1;
   }
-  else if (!galoisanalysis(T, &ga, 1, NULL)) { set_avma(ltop); return utoipos(ga.p); }
+  else if (!galoisanalysis(T, &ga, 1, NULL)) return gc_NULL(ltop);
 
   if (den)
   {
@@ -2673,7 +2673,7 @@ galoisconj4_main(GEN T, GEN den, long flag)
   else
     G = gg_get_std(galoisgen(T, L, M, den, NULL, &gb, &ga));
   if (DEBUGLEVEL >= 6) err_printf("GaloisConj: %Ps\n", G);
-  if (!G) { set_avma(ltop); return gen_0; }
+  if (!G) return gc_NULL(ltop);
   if (DEBUGLEVEL >= 1) timer_start(&ti);
   grp = cgetg(9, t_VEC);
   gel(grp,1) = T;
@@ -2741,7 +2741,7 @@ galoisconj4(GEN nf, GEN d)
   pari_sp av = avma;
   GEN G, T;
   G = galoisconj4_main(nf, d, 0);
-  if (typ(G) != t_INT) return G; /* Success */
+  if (G) return G; /* Success */
   set_avma(av); T = get_nfpol(nf, &nf);
   G = cgetg(2, t_COL); gel(G,1) = pol_x(varn(T)); return G; /* Fail */
 
@@ -2765,7 +2765,7 @@ galoisconj(GEN nf, GEN d)
     gel(G,2) = deg1pol(gen_m1, b, v); return G;
   }
   G = galoisconj4_main(nf, d, 0);
-  if (typ(G) != t_INT) return G; /* Success */
+  if (G) return G; /* Success */
   set_avma(av); return galoisconj1(nf);
 }
 
@@ -2799,7 +2799,7 @@ GEN
 galoisinit(GEN nf, GEN den)
 {
   GEN G = galoisconj4_main(nf, den, 1);
-  return (typ(G) == t_INT)? gen_0: G;
+  return G? G: gen_0;
 }
 
 static GEN
