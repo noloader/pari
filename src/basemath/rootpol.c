@@ -626,68 +626,70 @@ dual_modulus(GEN p, double lrho, double tau, long l)
 /**              FACTORS THROUGH CIRCLE INTEGRATION                **/
 /**                                                                **/
 /********************************************************************/
-/* l power of 2 */
+/* l power of 2, W[step*j] = w_j; set f[j] = p(w_j)
+ * if inv, w_j = exp(2IPi*j/l), else exp(-2IPi*j/l) */
 static void
-fft(GEN Omega, GEN p, GEN f, long step, long l)
+fft(GEN W, GEN p, GEN f, long step, long l, long inv)
 {
-  pari_sp ltop;
-  long i, l1, l2, l3, rapi, step4;
-  GEN f1, f2, f3, f02, f13, g02, g13, ff;
+  pari_sp av;
+  long i, s1, l1, l2, l3, step4;
+  GEN f1, f2, f3, f02;
 
   if (l == 2)
   {
-    gel(f,0) = gadd(gel(p,0),gel(p,step));
-    gel(f,1) = gsub(gel(p,0),gel(p,step)); return;
+    gel(f,0) = gadd(gel(p,0), gel(p,step));
+    gel(f,1) = gsub(gel(p,0), gel(p,step)); return;
   }
+  av = avma;
   if (l == 4)
   {
-    f1 = gadd(gel(p,0),   gel(p,step<<1));
-    f2 = gsub(gel(p,0),   gel(p,step<<1));
-    f3 = gadd(gel(p,step),gel(p,3*step));
-    f02= gsub(gel(p,step),gel(p,3*step));
-    f02 = mulcxI(f02);
+    pari_sp av2;
+    f1 = gadd(gel(p,0), gel(p,step<<1));
+    f2 = gsub(gel(p,0), gel(p,step<<1));
+    f3 = gadd(gel(p,step), gel(p,3*step));
+    f02 = gsub(gel(p,step), gel(p,3*step));
+    f02 = inv? mulcxI(f02): mulcxmI(f02);
+    av2 = avma;
     gel(f,0) = gadd(f1, f3);
     gel(f,1) = gadd(f2, f02);
     gel(f,2) = gsub(f1, f3);
-    gel(f,3) = gsub(f2, f02); return;
+    gel(f,3) = gsub(f2, f02);
+    gerepileallsp(av,av2,4,&gel(f,0),&gel(f,1),&gel(f,2),&gel(f,3));
+    return;
   }
-
-  ltop = avma;
   l1 = l>>2; l2 = 2*l1; l3 = l1+l2; step4 = step<<2;
-  fft(Omega,p,          f,   step4,l1);
-  fft(Omega,p+step,     f+l1,step4,l1);
-  fft(Omega,p+(step<<1),f+l2,step4,l1);
-  fft(Omega,p+3*step,   f+l3,step4,l1);
-
-  ff = cgetg(l+1,t_VEC);
-  for (i=0; i<l1; i++)
+  fft(W,p,          f,   step4,l1,inv);
+  fft(W,p+step,     f+l1,step4,l1,inv);
+  fft(W,p+(step<<1),f+l2,step4,l1,inv);
+  fft(W,p+3*step,   f+l3,step4,l1,inv);
+  for (i = s1 = 0; i < l1; i++, s1 += step)
   {
-    rapi = step*i;
-    f1 = gmul(gel(Omega,rapi),    gel(f,i+l1));
-    f2 = gmul(gel(Omega,rapi<<1), gel(f,i+l2));
-    f3 = gmul(gel(Omega,3*rapi),  gel(f,i+l3));
+    long s2 = s1 << 1, s3 = s1 + s2;
+    GEN g02, g13, f13;
+    f1 = gmul(gel(W,s1), gel(f,i+l1));
+    f2 = gmul(gel(W,s2), gel(f,i+l2));
+    f3 = gmul(gel(W,s3), gel(f,i+l3));
 
     f02 = gadd(gel(f,i),f2);
     g02 = gsub(gel(f,i),f2);
     f13 = gadd(f1,f3);
-    g13 = mulcxI(gsub(f1,f3));
+    g13 = gsub(f1,f3); g13 = inv? mulcxI(g13): mulcxmI(g13);
 
-    gel(ff,i+1)    = gadd(f02, f13);
-    gel(ff,i+l1+1) = gadd(g02, g13);
-    gel(ff,i+l2+1) = gsub(f02, f13);
-    gel(ff,i+l3+1) = gsub(g02, g13);
+    gel(f,i)    = gadd(f02, f13);
+    gel(f,i+l1) = gadd(g02, g13);
+    gel(f,i+l2) = gsub(f02, f13);
+    gel(f,i+l3) = gsub(g02, g13);
   }
-  ff = gerepilecopy(ltop,ff);
-  for (i=0; i<l; i++) gel(f,i) = gel(ff,i+1);
+  gerepilecoeffs(av, f, l);
 }
 
-GEN
-FFT(GEN x, GEN Omega)
+static GEN
+FFT_i(GEN W, GEN x, long inv)
 {
-  long i, l = lg(Omega), n = lg(x);
+  long i, l = lg(W), n = lg(x), tx = typ(x);
   GEN y, z;
-  if (!is_vec_t(typ(x))) pari_err_TYPE("FFT",x);
-  if (typ(Omega) != t_VEC) pari_err_TYPE("FFT",Omega);
+  if (tx == t_POL) { x++; n--; }
+  else if (!is_vec_t(tx)) pari_err_TYPE("FFT",x);
   if (n > l) pari_err_DIM("FFT");
 
   if (n < l) {
@@ -697,8 +699,34 @@ FFT(GEN x, GEN Omega)
   }
   else z = x;
   y = cgetg(l, t_VEC);
-  fft(Omega+1, z+1, y+1, 1, l-1);
+  fft(W+1, z+1, y+1, 1, l-1, inv);
   return y;
+}
+GEN
+FFT(GEN W, GEN x)
+{
+  if (typ(W) != t_COL) pari_err_TYPE("FFT",W);
+  return FFT_i(W, x, 0);
+}
+GEN
+FFTinv(GEN W, GEN x)
+{
+  long l = lg(W), i;
+  GEN w = cgetg(l, t_VECSMALL); /* cf stackdummy */
+  if (typ(W) != t_COL) pari_err_TYPE("FFTinv",W);
+  gel(w,1) = gel(W,1); /* w = gconj(W), faster */
+  for (i = 2; i < l; i++) gel(w, i) = gel(W, l-i+1);
+  return FFT_i(w, x, 1);
+}
+GEN
+FFTinit(long N, long prec)
+{
+  long i, l = N+1;
+  GEN W;
+  if (N <= 0 || (N & (N-1))) pari_err_TYPE("FFTinit", stoi(N));
+  W = grootsof1(N, prec); N >>= 1;
+  for (i = 2; i <= N; i++) swap(gel(W, i), gel(W, l-i+1));
+  return W;
 }
 
 /* returns 1 if p has only real coefficients, 0 else */
@@ -783,7 +811,7 @@ parameters(GEN p, long *LMAX, double *mu, double *gamma,
       gel(pc,n) = gmul(gel(q,n),z);
     }
 
-    fft(Omega,pc,A,1,Lmax);
+    fft(Omega,pc,A,1,Lmax,1);
     if (polreal && i>0 && i<K-1)
       for (j=0; j<Lmax; j++) g = addrr(g, divrr(TWO, abs_update(gel(A,j),mu)));
     else
@@ -836,13 +864,13 @@ dft(GEN p, long k, long NN, long Lmax, long bit, GEN F, GEN H, long polreal)
     /* RU[j] = prim^(ij)= prim2^j */
 
     for (j=1; j<n; j++) gel(pd,j) = gmul(gel(qd,j+2),gel(RU,j));
-    fft(Omega,pd,A,1,Lmax);
+    fft(Omega,pd,A,1,Lmax,1);
     for (j=1; j<=n; j++) gel(pc,j) = gmul(gel(q,j+2),gel(RU,j));
-    fft(Omega,pc,B,1,Lmax);
+    fft(Omega,pc,B,1,Lmax,1);
     for (j=0; j<Lmax; j++) gel(C,j) = ginv(gel(B,j));
     for (j=0; j<Lmax; j++) gel(B,j) = gmul(gel(A,j),gel(C,j));
-    fft(Omega,B,A,1,Lmax);
-    fft(Omega,C,B,1,Lmax);
+    fft(Omega,B,A,1,Lmax,1);
+    fft(Omega,C,B,1,Lmax,1);
 
     if (polreal) /* p has real coefficients */
     {

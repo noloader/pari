@@ -863,10 +863,6 @@ GEN     ffinit_rand(GEN p, long n);
 char**  pari_completion(pari_rl_interface *pari_rl, char *text, int START, int END);
 char**  pari_completion_matches(pari_rl_interface *pari_rl, const char *s, long pos, long *wordpos);
 
-/* rootpol.c */
-
-GEN     FFT(GEN x, GEN Omega);
-
 /* subcyclo.c */
 
 GEN     bnr_to_znstar(GEN bnr, long *complex);

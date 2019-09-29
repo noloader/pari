@@ -1,0 +1,12 @@
+[1, -1]~
+[2, 0]
+[2, 2]
+[1, -I, -1, I]~
+[3, 1, -1, 1]
+[4, 4, 0, 4]
+-97
+1
+  ***   at top-level: fftinit(3)
+  ***                 ^----------
+  *** fftinit: incorrect type in FFTinit (t_INT).
+Total time spent: 83

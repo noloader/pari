@@ -123,6 +123,7 @@ BA  34- lfuncreate: support for closures of arity 0
     41- [libpari] ellQtwist_bsdperiod
     42- [libpari] mseval2_ooQ
     43- [libpari] etaquotype
+    44- new GP functions fftinit, fft, fftinv
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

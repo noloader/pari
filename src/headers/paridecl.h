@@ -4850,6 +4850,9 @@ GEN     hyperellratpoints(GEN P, GEN h, long flag);
 /* rootpol.c */
 
 GEN     QX_complex_roots(GEN p, long l);
+GEN     FFT(GEN W, GEN x);
+GEN     FFTinv(GEN W, GEN x);
+GEN     FFTinit(long N, long prec);
 GEN     cleanroots(GEN x,long l);
 double  fujiwara_bound(GEN p);
 double  fujiwara_bound_real(GEN p, long sign);
