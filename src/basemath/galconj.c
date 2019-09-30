@@ -2616,6 +2616,67 @@ conjcyclo(GEN T, long N)
   return gerepileupto(av, gen_sort(L, (void*)&gcmp, &gen_cmp_RgX));
 }
 
+static GEN
+aut_to_groupelts(GEN aut, GEN L, ulong p)
+{
+  pari_sp av = avma;
+  long i, d = lg(aut)-1;
+  GEN P = ZV_to_Flv(L, p);
+  GEN N = FlxV_Flv_multieval(RgXV_to_FlxV(aut, p), P, p);
+  GEN q = perm_inv(vecsmall_indexsort(P));
+  GEN G = cgetg(d+1, t_VEC);
+  for (i=1; i<=d; i++)
+    gel(G,i) = perm_mul(vecsmall_indexsort(gel(N,i)),q);
+  return gerepilecopy(av, vecvecsmall_sort(G));
+}
+
+static GEN
+galoisinitfromaut(GEN T, GEN aut)
+{
+  pari_sp ltop = avma;
+  GEN nf, A, G, L, M, grp, den=NULL;
+  struct galois_analysis ga;
+  struct galois_borne gb;
+  long n;
+  pari_timer ti;
+
+  T = get_nfpol(T, &nf);
+  n = degpol(T);
+  if (nf)
+  { if (!den) den = nf_get_zkden(nf); }
+  else
+  {
+    if (n <= 0) pari_err_IRREDPOL("galoisinit",T);
+    RgX_check_ZX(T, "galoisinit");
+    if (!ZX_is_squarefree(T))
+      pari_err_DOMAIN("galoisinit","issquarefree(pol)","=",gen_0,T);
+    if (!gequal1(gel(T,n+2))) pari_err_IMPL("galoisinit(non-monic)");
+  }
+  if (!galoisanalysis(T, &ga, 1, NULL)) pari_err_IMPL("galoisinit");
+  gb.l = utoipos(ga.l);
+  if (DEBUGLEVEL >= 1) timer_start(&ti);
+  den = galoisborne(T, den, &gb, degpol(T));
+  if (DEBUGLEVEL >= 1) timer_printf(&ti, "galoisborne()");
+  L = ZpX_roots(T, gb.l, gb.valabs);
+  if (DEBUGLEVEL >= 1) timer_printf(&ti, "ZpX_roots");
+  M = FpV_invVandermonde(L, den, gb.ladicabs);
+  if (DEBUGLEVEL >= 1) timer_printf(&ti, "FpV_invVandermonde()");
+  A = aut_to_groupelts(aut, L, ga.l);
+  G = groupelts_to_group(A);
+  if (!G) pari_err_IMPL("galoisinit");
+  A = group_elts(G,n);
+  grp = cgetg(9, t_VEC);
+  gel(grp,1) = T;
+  gel(grp,2) = mkvec3(utoipos(ga.l), utoipos(gb.valabs), gb.ladicabs);
+  gel(grp,3) = L;
+  gel(grp,4) = M;
+  gel(grp,5) = den;
+  gel(grp,6) = A;
+  gel(grp,7) = gel(G,1);
+  gel(grp,8) = gel(G,2);
+  return gerepilecopy(ltop, grp);
+}
+
 /* T: polynomial or nf, den multiple of common denominator of solutions or
  * NULL (unknown). If T is nf, and den unknown, use den = denom(nf.zk) */
 static GEN
@@ -2798,7 +2859,10 @@ checkgal(GEN gal)
 GEN
 galoisinit(GEN nf, GEN den)
 {
-  GEN G = galoisconj4_main(nf, den, 1);
+  GEN G;
+  if (is_vec_t(typ(nf)) && lg(nf)==3 && is_vec_t(typ(gel(nf,2))))
+    return galoisinitfromaut(gel(nf,1), gel(nf,2));
+  G = galoisconj4_main(nf, den, 1);
   return G? G: gen_0;
 }
 
