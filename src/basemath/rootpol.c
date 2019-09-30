@@ -46,279 +46,55 @@ checkvalidpol(GEN p, const char *f)
 /**                   FAST ARITHMETIC over Z[i]                    **/
 /**                                                                **/
 /********************************************************************/
-static THREAD long KARASQUARE_LIMIT, COOKSQUARE_LIMIT;
 
-/* fast sum of x,y: t_INT or t_COMPLEX(t_INT) */
 static GEN
-addCC(GEN x, GEN y)
+ZX_to_ZiX(GEN Pr, GEN Pi)
 {
-  GEN z;
-
-  if (typ(x) == t_INT)
-  {
-    if (typ(y) == t_INT) return addii(x,y);
-    /* ty == t_COMPLEX */
-    z = cgetg(3,t_COMPLEX);
-    gel(z,1) = addii(x, gel(y,1));
-    gel(z,2) = icopy(gel(y,2)); return z;
-  }
-  /* tx == t_COMPLEX */
-  z = cgetg(3,t_COMPLEX);
-  if (typ(y) == t_INT)
-  {
-    gel(z,1) = addii(gel(x,1),y);
-    gel(z,2) = icopy(gel(x,2)); return z;
-  }
-  /* ty == t_COMPLEX */
-  gel(z,1) = addii(gel(x,1),gel(y,1));
-  gel(z,2) = addii(gel(x,2),gel(y,2)); return z;
-}
-/* fast product of x,y: t_INT or t_COMPLEX(t_INT) */
-static GEN
-mulCC(GEN x, GEN y)
-{
-  GEN z;
-
-  if (typ(x) == t_INT)
-  {
-    if (typ(y) == t_INT) return mulii(x,y);
-    /* ty == t_COMPLEX */
-    z = cgetg(3,t_COMPLEX);
-    gel(z,1) = mulii(x, gel(y,1));
-    gel(z,2) = mulii(x, gel(y,2)); return z;
-  }
-  /* tx == t_COMPLEX */
-  z = cgetg(3,t_COMPLEX);
-  if (typ(y) == t_INT)
-  {
-    gel(z,1) = mulii(gel(x,1),y);
-    gel(z,2) = mulii(gel(x,2),y); return z;
-  }
-  /* ty == t_COMPLEX */
-  {
-    pari_sp av = avma, tetpil;
-    GEN p1, p2;
-
-    p1 = mulii(gel(x,1),gel(y,1));
-    p2 = mulii(gel(x,2),gel(y,2));
-    y = mulii(addii(gel(x,1),gel(x,2)),
-              addii(gel(y,1),gel(y,2)));
-    x = addii(p1,p2); tetpil = avma;
-    gel(z,1) = subii(p1,p2);
-    gel(z,2) = subii(y,x); gerepilecoeffssp(av,tetpil,z+1,2);
-    return z;
-  }
-}
-/* fast squaring x: t_INT or t_COMPLEX(t_INT) */
-static GEN
-sqrCC(GEN x)
-{
-  GEN z;
-
-  if (typ(x) == t_INT) return sqri(x);
-  /* tx == t_COMPLEX */
-  z = cgetg(3,t_COMPLEX);
-  {
-    pari_sp av = avma, tetpil;
-    GEN y, p1, p2;
-
-    p1 = sqri(gel(x,1));
-    p2 = sqri(gel(x,2));
-    y = sqri(addii(gel(x,1),gel(x,2)));
-    x = addii(p1,p2); tetpil = avma;
-    gel(z,1) = subii(p1,p2);
-    gel(z,2) = subii(y,x); gerepilecoeffssp(av,tetpil,z+1,2);
-    return z;
-  }
+  long i, lr = lg(Pr), li = lg(Pi), l = maxss(lr, li), m = minss(lr, li);
+  GEN P = cgetg(l, t_POL);
+  for(i = 2; i < m; i++)
+    gel(P,i) = signe(gel(Pi,i)) ? mkcomplex(gel(Pr,i), gel(Pi,i))
+                                : gel(Pr,i);
+  for(     ; i < lr; i++)
+    gel(P,i) = gel(Pr, i);
+  for(     ; i < li; i++)
+    gel(P,i) = mkcomplex(gen_0, gel(Pi, i));
+  return P;
 }
 
-static void
-set_karasquare_limit(long bit)
-{
-  if (bit<600)       { KARASQUARE_LIMIT=8; COOKSQUARE_LIMIT=400; }
-  else if (bit<2000) { KARASQUARE_LIMIT=4; COOKSQUARE_LIMIT=200; }
-  else if (bit<3000) { KARASQUARE_LIMIT=4; COOKSQUARE_LIMIT=125; }
-  else if (bit<5000) { KARASQUARE_LIMIT=2; COOKSQUARE_LIMIT= 75; }
-  else               { KARASQUARE_LIMIT=1; COOKSQUARE_LIMIT= 50; }
-}
 
-/* assume lP > 0, lP = lgpol(P) */
 static GEN
-CX_square_spec(GEN P, long lP)
+ZiX_sqr(GEN P)
 {
-  GEN s, t;
-  long i, j, l, nn, n = lP - 1;
-  pari_sp av;
-
-  nn = n<<1; s = cgetg(nn+3,t_POL); s[1] = evalsigne(1)|evalvarn(0);
-  gel(s,2) = sqrCC(gel(P,0)); /* i = 0 */
-  for (i=1; i<=n; i++)
-  {
-    av = avma; l = (i+1)>>1;
-    t = mulCC(gel(P,0), gel(P,i)); /* j = 0 */
-    for (j=1; j<l; j++) t = addCC(t, mulCC(gel(P,j), gel(P,i-j)));
-    t = gmul2n(t,1);
-    if ((i & 1) == 0) t = addCC(t, sqrCC(gel(P,i>>1)));
-    gel(s,i+2) = gerepileupto(av, t);
-  }
-  gel(s,nn+2) = sqrCC(gel(P,n)); /* i = nn */
-  for (   ; i<nn; i++)
-  {
-    av = avma; l = (i+1)>>1;
-    t = mulCC(gel(P,i-n),gel(P,n)); /* j = i-n */
-    for (j=i-n+1; j<l; j++) t = addCC(t, mulCC(gel(P,j),gel(P,i-j)));
-    t = gmul2n(t,1);
-    if ((i & 1) == 0) t = addCC(t, sqrCC(gel(P,i>>1)));
-    gel(s,i+2) = gerepileupto(av, t);
-  }
-  return normalizepol_lg(s, nn+3);
-}
-/* nx = lgpol(x) */
-static GEN
-RgX_s_mulspec(GEN x, long nx, long s)
-{
-  GEN z, t;
-  long i;
-  if (!s || !nx) return pol_0(0);
-  z = cgetg(nx+2, t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z + 2;
-  for (i=0; i < nx; i++) gel(t,i) = gmulgs(gel(x,i), s);
-  return z;
-}
-/* nx = lgpol(x), return x << s. Inefficient if s = 0... */
-static GEN
-RgX_shiftspec(GEN x, long nx, long s)
-{
-  GEN z, t;
-  long i;
-  if (!nx) return pol_0(0);
-  z = cgetg(nx+2, t_POL); z[1] = evalsigne(1)|evalvarn(0); t = z + 2;
-  for (i=0; i < nx; i++) gel(t,i) = gmul2n(gel(x,i), s);
-  return z;
-}
-
-/* spec function. nP = lgpol(P) */
-static GEN
-karasquare(GEN P, long nP)
-{
-  GEN Q, s0, s1, s2, a, t;
-  long n0, n1, i, l, N, N0, N1, n = nP - 1; /* degree(P) */
-  pari_sp av;
-
-  if (n <= KARASQUARE_LIMIT) return nP? CX_square_spec(P, nP): pol_0(0);
-  av = avma;
-  n0 = (n>>1) + 1; n1 = nP - n0;
-  s0 = karasquare(P, n0); Q = P + n0;
-  s2 = karasquare(Q, n1);
-  s1 = RgX_addspec_shallow(P, Q, n0, n1);
-  s1 = RgX_sub(karasquare(s1+2, lgpol(s1)), RgX_add(s0,s2));
-  N = (n<<1) + 1;
-  a = cgetg(N + 2, t_POL); a[1] = evalsigne(1)|evalvarn(0);
-  t = a+2; l = lgpol(s0); s0 += 2; N0 = n0<<1;
-  for (i=0; i < l;  i++) gel(t,i) = gel(s0,i);
-  for (   ; i < N0; i++) gel(t,i) = gen_0;
-  t = a+2 + N0; l = lgpol(s2); s2 += 2; N1 = N - N0;
-  for (i=0; i < l;  i++) gel(t,i) = gel(s2,i);
-  for (   ; i < N1; i++) gel(t,i) = gen_0;
-  t = a+2 + n0; l = lgpol(s1); s1 += 2;
-  for (i=0; i < l; i++)  gel(t,i) = gadd(gel(t,i), gel(s1,i));
-  return gerepilecopy(av, normalizepol_lg(a, N+2));
-}
-/* spec function. nP = lgpol(P) */
-static GEN
-cook_square(GEN P, long nP)
-{
-  GEN Q, p0, p1, p2, p3, q, r, t, vp, vm;
-  long n0, n3, i, j, n = nP - 1;
-  pari_sp av;
-
-  if (n <= COOKSQUARE_LIMIT) return  nP? karasquare(P, nP): pol_0(0);
-  av = avma;
-
-  n0 = (n+1) >> 2; n3 = n+1 - 3*n0;
-  p0 = P;
-  p1 = p0+n0;
-  p2 = p1+n0;
-  p3 = p2+n0; /* lgpol(p0,p1,p2) = n0, lgpol(p3) = n3 */
-
-  q = cgetg(8,t_VEC) + 4;
-  Q = cook_square(p0, n0);
-  r = RgX_addspec_shallow(p0,p2, n0,n0);
-  t = RgX_addspec_shallow(p1,p3, n0,n3);
-  gel(q,-1) = RgX_sub(r,t);
-  gel(q,1)  = RgX_add(r,t);
-  r = RgX_addspec_shallow(p0,RgX_shiftspec(p2,n0, 2)+2, n0,n0);
-  t = gmul2n(RgX_addspec_shallow(p1,RgX_shiftspec(p3,n3, 2)+2, n0,n3), 1);
-  gel(q,-2) = RgX_sub(r,t);
-  gel(q,2)  = RgX_add(r,t);
-  r = RgX_addspec_shallow(p0,RgX_s_mulspec(p2,n0, 9)+2, n0,n0);
-  t = gmulsg(3, RgX_addspec_shallow(p1,RgX_s_mulspec(p3,n3, 9)+2, n0,n3));
-  gel(q,-3) = RgX_sub(r,t);
-  gel(q,3)  = RgX_add(r,t);
-
-  r = new_chunk(7);
-  vp = cgetg(4,t_VEC);
-  vm = cgetg(4,t_VEC);
-  for (i=1; i<=3; i++)
-  {
-    GEN a = gel(q,i), b = gel(q,-i);
-    a = cook_square(a+2, lgpol(a));
-    b = cook_square(b+2, lgpol(b));
-    gel(vp,i) = RgX_add(b, a);
-    gel(vm,i) = RgX_sub(b, a);
-  }
-  gel(r,0) = Q;
-  gel(r,1) = gdivgs(gsub(gsub(gmulgs(gel(vm,2),9),gel(vm,3)),
-                     gmulgs(gel(vm,1),45)),
-                60);
-  gel(r,2) = gdivgs(gadd(gadd(gmulgs(gel(vp,1),270),gmulgs(Q,-490)),
-                     gadd(gmulgs(gel(vp,2),-27),gmulgs(gel(vp,3),2))),
-                360);
-  gel(r,3) = gdivgs(gadd(gadd(gmulgs(gel(vm,1),13),gmulgs(gel(vm,2),-8)),
-                    gel(vm,3)),
-                48);
-  gel(r,4) = gdivgs(gadd(gadd(gmulgs(Q,56),gmulgs(gel(vp,1),-39)),
-                     gsub(gmulgs(gel(vp,2),12),gel(vp,3))),
-                144);
-  gel(r,5) = gdivgs(gsub(gadd(gmulgs(gel(vm,1),-5),gmulgs(gel(vm,2),4)),
-                     gel(vm,3)),
-                240);
-  gel(r,6) = gdivgs(gadd(gadd(gmulgs(Q,-20),gmulgs(gel(vp,1),15)),
-                     gadd(gmulgs(gel(vp,2),-6),gel(vp,3))),
-                720);
-  q = cgetg(2*n+3,t_POL); q[1] = evalsigne(1)|evalvarn(0);
-  t = q+2;
-  for (i=0; i<=2*n; i++) gel(t,i) = gen_0;
-  for (i=0; i<=6; i++,t += n0)
-  {
-    GEN h = gel(r,i);
-    long d = lgpol(h);
-    h += 2;
-    for (j=0; j<d; j++) gel(t,j) = gadd(gel(t,j), gel(h,j));
-  }
-  return gerepilecopy(av, normalizepol_lg(q, 2*n+3));
+  pari_sp av = avma;
+  GEN Pr2, Pi2, Qr, Qi;
+  GEN Pr = real_i(P), Pi = imag_i(P);
+  if (signe(Pi)==0) return gerepileupto(av, ZX_sqr(Pr));
+  if (signe(Pr)==0) return gerepileupto(av, ZX_neg(ZX_sqr(Pi)));
+  Pr2 = ZX_sqr(Pr); Pi2 = ZX_sqr(Pi);
+  Qr = ZX_sub(Pr2, Pi2);
+  if (degpol(Pr)==degpol(Pi))
+    Qi = ZX_sub(ZX_sqr(ZX_add(Pr, Pi)), ZX_add(Pr2, Pi2));
+  else
+    Qi = ZX_shifti(ZX_mul(Pr, Pi), 1);
+  return gerepilecopy(av, ZX_to_ZiX(Qr, Qi));
 }
 
 static GEN
 graeffe(GEN p)
 {
+  pari_sp av = avma;
   GEN p0, p1, s0, s1;
-  long n = degpol(p), n0, n1, i;
+  long n = degpol(p);
 
-  if (!n) return gcopy(p);
-  n0 = (n>>1)+1; n1 = n+1 - n0; /* n1 <= n0 <= n1+1 */
-  p0 = new_chunk(n0);
-  p1 = new_chunk(n1);
-  for (i=0; i<n1; i++)
-  {
-    p0[i] = p[2+(i<<1)];
-    p1[i] = p[3+(i<<1)];
-  }
-  if (n1 != n0)
-    p0[i] = p[2+(i<<1)];
-  s0 = cook_square(p0, n0);
-  s1 = cook_square(p1, n1);
-  return RgX_sub(s0, RgX_shift_shallow(s1,1));
+  if (!n) return RgX_copy(p);
+  RgX_even_odd(p, &p0, &p1);
+  /* p = p0(x^2) + x p1(x^2) */
+  s0 = ZiX_sqr(p0);
+  s1 = ZiX_sqr(p1);
+  return gerepileupto(av, RgX_sub(s0, RgX_shift_shallow(s1,1)));
 }
+
 GEN
 ZX_graeffe(GEN p)
 {
@@ -676,7 +452,6 @@ logmax_modulus(GEN p, double tau)
                      (double)(nn-k)*log2(1./eps) + 3*log2((double)nn)) + 1;
     homothetie_gauss(q, e, bit-(long)floor(dbllog2(gel(q,2+nn))+0.5));
     nn -= RgX_valrem(q, &q);
-    set_karasquare_limit(gexpo(q));
     q = gerepileupto(av, graeffe(q));
     tau2 *= 1.5; if (tau2 > 0.9) tau2 = 0.5;
     eps = -1/log(tau2); /* > 0 */
@@ -758,7 +533,6 @@ logmodulus(GEN p, long k, double tau)
     kk -= RgX_valrem(q, &q);
     nn = degpol(q);
 
-    set_karasquare_limit(bit);
     q = gerepileupto(av, graeffe(q));
     e = newton_polygon(q,kk);
     r += e / exp2((double)i);
@@ -796,7 +570,6 @@ logpre_modulus(GEN p, long k, double tau, double lrmin, double lrmax)
   for (i=0; i<imax; i++)
   {
     q = eval_rel_pol(q,bit);
-    set_karasquare_limit(bit);
     q = gerepileupto(av, graeffe(q));
     aux = 2*aux + 2*tau2;
     tau2 *= 1.5;
@@ -843,7 +616,6 @@ dual_modulus(GEN p, double lrho, double tau, long l)
     nn = degpol(q); delta_k += v;
     if (!nn) return delta_k;
 
-    set_karasquare_limit(bit);
     q = gerepileupto(av, graeffe(q));
     tau2 *= 7./4.;
     bit = 6*nn - 5*ll + (long)(nn*(-log2(tau2) + tau2 * 8./7.));
