@@ -416,6 +416,22 @@ Flx_sub(GEN x, GEN y, ulong p)
   z[1]=x[1]; return Flx_renormalize(z, lz);
 }
 
+GEN
+Flx_Fl_sub(GEN y, ulong x, ulong p)
+{
+  GEN z;
+  long lz = lg(y), i;
+  if (lz==2)
+    return Fl_to_Flx(Fl_neg(x, p),y[1]);
+  z = cgetg(lz, t_VECSMALL);
+  z[1] = y[1];
+  z[2] = Fl_sub(uel(y,2), x, p);
+  for(i=3; i<lz; i++)
+    z[i] = y[i];
+  if (lz==3) z = Flx_renormalize(z,lz);
+  return z;
+}
+
 static GEN
 Flx_negspec(GEN x, ulong p, long l)
 {
