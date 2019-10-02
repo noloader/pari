@@ -2181,6 +2181,116 @@ QXQ_inv(GEN A, GEN B)
   }
 }
 
+static GEN
+QXQ_div_slice(GEN A, GEN B, GEN C, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1, v = varn(A), redo = 0;
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p), c = ZX_to_Flx(C, p);
+    GEN bi = Flxq_invsafe(b, c, p), U;
+    if (!bi)
+    {
+      set_avma(av);
+      *mod = gen_1; return pol_0(v);
+    }
+    U = Flxq_mul(a, bi, c, p);
+    H = gerepilecopy(av, Flx_to_ZX(U));
+    *mod = utoi(p);
+    return H;
+  }
+  T = ZV_producttree(P);
+  A = ZX_nv_mod_tree(A, P, T);
+  B = ZX_nv_mod_tree(B, P, T);
+  C = ZX_nv_mod_tree(C, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), b = gel(B,i), c = gel(C, i);
+    GEN bi = Flxq_invsafe(b, c, p);
+    if (!bi)
+    {
+      gel(H,i) = pol_0(v);
+      P[i] = 1; redo = 1;
+    }
+    else
+      gel(H,i) = Flxq_mul(a, bi, c, p);
+  }
+  if (redo) T = ZV_producttree(P);
+  H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+QXQ_div_worker(GEN P, GEN A, GEN B, GEN C)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = QXQ_div_slice(A, B, C, P, &gel(V,2));
+  return V;
+}
+
+/* lift(Mod(A/B, C)). C a ZX, A, B a scalar or a QX */
+GEN
+QXQ_div(GEN A, GEN B, GEN C)
+{
+  GEN DA, DB, Ap, Bp, Cp;
+  ulong pp;
+  pari_sp av2, av = avma;
+  forprime_t S;
+  GEN worker, U, H = NULL, mod = gen_1;
+  pari_timer ti;
+  long k, dA, dB, dC;
+  if (is_scalar_t(typ(A))) return scalarpol(ginv(A), varn(B));
+  /* A a QX, B a ZX */
+  A = Q_primitive_part(A, &DA);
+  B = Q_primitive_part(B, &DB);
+  dA = degpol(A); dB = degpol(B); dC = degpol(C);
+  /* A, B in Z[X] */
+  init_modular_small(&S);
+  do {
+    pp = u_forprime_next(&S);
+    Ap = ZX_to_Flx(A, pp);
+    Bp = ZX_to_Flx(B, pp);
+    Cp = ZX_to_Flx(C, pp);
+  } while (degpol(Ap) != dA || degpol(Bp) != dB || degpol(Cp) != dC);
+  if (degpol(Flx_gcd(Bp, Cp, pp)) != 0 && degpol(ZX_gcd(B,C))!=0)
+    pari_err_INV("QXQ_div",mkpolmod(B,C));
+  worker = snm_closure(is_entry("_QXQ_div_worker"), mkvec3(A, B, C));
+  av2 = avma;
+  for (k = 1; ;k *= 2)
+  {
+    GEN res, b, N, den;
+    gen_inccrt_i("QXQ_div", worker, NULL, (k+1)>>1, dC, &S, &H, &mod,
+                 nxV_chinese_center, FpX_center);
+    gerepileall(av2, 2, &H, &mod);
+    b = sqrti(shifti(mod,-1));
+    if (DEBUGLEVEL>5) timer_start(&ti);
+    U = FpX_ratlift(H, mod, b, b, NULL);
+    if (DEBUGLEVEL>5) timer_printf(&ti,"QXQ_div: ratlift");
+    if (!U) continue;
+    N = Q_remove_denom(U, &den); if (!den) den = gen_1;
+    res = Flx_rem(Flx_sub(Flx_mul(Bp, ZX_to_Flx(N,pp), pp),
+                          Flx_Fl_mul(Ap, umodiu(den, pp), pp), pp), Cp, pp);
+    if (degpol(res) >= 0) continue;
+    res = ZX_sub(ZX_mul(B, N), ZX_Z_mul(A,den));
+    res = ZX_is_monic(C) ? ZX_rem(res, C): RgX_pseudorem(res, C);
+    if (DEBUGLEVEL>5) timer_printf(&ti,"QXQ_div: final check");
+    if (degpol(res)<0)
+    {
+      if (DA && DB) U = RgX_Rg_mul(U, gdiv(DA,DB));
+      else if (DA) U = RgX_Rg_mul(U, DA);
+      else if (DB) U = RgX_Rg_div(U, DB);
+      return gerepilecopy(av, U);
+    }
+  }
+}
+
 /* lift(C / Mod(A,B)). B monic ZX, A and C scalar or QX. Use when result is
  * small */
 GEN

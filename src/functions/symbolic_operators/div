@@ -27,3 +27,9 @@ C-Name: QXQ_inv_worker
 Prototype: GGG
 Section: programming/internals
 Help: worker for QXQ_inv
+
+Function: _QXQ_div_worker
+C-Name: QXQ_div_worker
+Prototype: GGGG
+Section: programming/internals
+Help: worker for QXQ_div

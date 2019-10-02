@@ -859,7 +859,7 @@ rnfequation0(GEN A, GEN B, long flall)
   if (flall)
   { /* a,b,c root of A,B,C = compositum, c = b + k a */
     GEN a, mH0 = RgX_neg(gel(LPRS,1)), H1 = gel(LPRS,2);
-    a = RgXQ_mul(mH0, QXQ_inv(H1, C), C);
+    a = QXQ_div(mH0, H1, C);
     C = mkvec3(C, mkpolmod(a, C), stoi(k));
   }
   return gerepilecopy(av, C);
