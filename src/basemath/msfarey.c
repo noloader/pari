@@ -298,33 +298,3 @@ mscosets0(GEN V, GEN code)
   if (lg(V) == 1) pari_err_TYPE("mscosets [trivial group]", V);
   return mscosets(V, (void*)code, gp_callbool);
 }
-
-/*
-Psl2=mspolygon(1);
-gamma_0(N)=msfarey(Psl2,(x)->(x[2,1]%N==0));
-gamma_1(N)=msfarey(gamma_0(N),g->((g[1,1]%N==1)||(g[1,1]%N==N-1)));
-gamma_(N)=msfarey(gamma_1(N),g->(g[1,2]%N==0));
-gamma_00(N)=msfarey(gamma_0(N),(x)->(x[1,2]%N==0));
-\\ exemple du livre de Stevens
-gamma1_0(N1,N2)=msfarey(Psl2,(x)->(x[2,1]%N1==0) && x[1,2]%N2==0);
-gamma1(N1,N2)= {
-  msfarey(Psl2,
-    (x)->(x[2,1]%N1==0 && x[1,2]%N2==0 && x[2,1]%lcm(N1,N2)==0 && x[1,2]%lcm(N1,N2)==0))
-};
-
-gammafrom(N,d)=msfarey(gamma_0(N),(x)->(x[2,1]%(N*d)==0));
-
-matrixtopath(V,R=vector(#V,i,i))=vector(#R,i,[valeur(V[R[i]],oo),valeur(V[R[i]],0)]);
-
-perm(S)= my(n=#S); vector(n,i, S[i%n+1]);
-permast(V)=my(n=#V); vector(n,i, (V[i%n+1]+n-2)%n +1);
-
-test(N)=my(V=mspolygon(N)); [perm(V[1]),permast(V[2])]==gamma_0(N)[1..2];
-test2(N)={my(V=mspolygon(N)); perm(V[3])==gamma_0(N)[3]};
-test3(N)={
-  my(F=msfarey(Psl2,g->(g[1,1]%N==1||g[1,1]%N==N-1) && (g[2,1]%N==0)));
-  my(G=rectifie(gamma_1(N)));
-  [G==F,matrixtopath(G[1]),matrixtopath(F[1])]
-};
-\\for(N=2,10, if(test(N)!=1, print(N)));
-*/
