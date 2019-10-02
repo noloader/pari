@@ -9527,10 +9527,11 @@ a \kbd{QX} $B$, just use
 desired, it is much more efficient to replace $B$ by \kbd{Q\_primpart$(B)$}
 once and for all.
 
-\fun{GEN}{QXQ_div_ratlift}{GEN C, GEN A, GEN B} returns $C/A$ modulo $B$
-where $A$ and $C$ are \kbd{QX} and $B$ is a \kbd{ZX}. Use this function
-when the result is known to be ``small'' compared to $A^{-1}$ mod $B$,
-it will be faster than \tet{QXQ_inv} in this case.
+\fun{GEN}{QXQ_div}{GEN A, GEN B, GEN T} returns $A/B$ modulo $T$
+where $A$ and $B$ are \kbd{QX} and $T$ is a \kbd{ZX}. Use this function
+when the result is expected to be of the same size as $B^{-1}$ mod $T$
+or smaller.
+Otherwise, it will be faster to use \tet{QXQ_mul(A,QXQ_inv(B,T),T)}.
 
 \fun{GEN}{QXQ_charpoly}{GEN A, GEN T, long v} where \kbd{A} is a \kbd{QX} and
 \kbd{T} is a \kbd{ZX}, returns the characteristic polynomial of \kbd{Mod(A, T)}.

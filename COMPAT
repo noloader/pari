@@ -45,7 +45,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     discriminant. See ??nfbasis
   - old gen_ZpM_Dixon renamed to gen_ZpM_Dixon_Wiedemann,
     new gen_ZpM_Dixon with simpler interface
-
+  - QXQ_div_ratlift was renamed to QXQ_div
 
 * Specific to the pthread interface
 ===================================

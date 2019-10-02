@@ -4700,7 +4700,6 @@ GEN     QX_disc(GEN x);
 GEN     QX_gcd(GEN a,GEN b);
 GEN     QX_resultant(GEN A, GEN B);
 GEN     QXQ_div(GEN A, GEN B, GEN C);
-GEN     QXQ_div_ratlift(GEN C, GEN A, GEN B);
 GEN     QXQ_intnorm(GEN A, GEN B);
 GEN     QXQ_inv(GEN A, GEN B);
 GEN     QXQ_mul(GEN A, GEN B, GEN T);

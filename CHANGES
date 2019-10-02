@@ -60,6 +60,7 @@ BA   1- plotlines flag was ignored
 BA  15- old gen_ZpM_Dixon renamed to gen_ZpM_Dixon_Wiedemann,
         new gen_ZpM_Dixon with simpler interface
     16- better formula for Catalan
+BA  17- QXQ_div_ratlift renamed to QXQ_div
 
   Added
      1- new GP function rootsof1

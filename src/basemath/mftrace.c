@@ -4742,7 +4742,7 @@ mf_normalize(GEN mf, GEN v)
     for (i = 2; i < l; i++)
     {
       c = liftpol_shallow(RgMrow_RgC_mul(M, v, Mindex[i]));
-      gel(w,i) = QXQ_div_ratlift(c, a1, P);
+      gel(w,i) = QXQ_div(c, a1, P);
     }
     /* w = expansion at oo of normalized form */
     v = Minv_RgC_mul(MF_get_Minv(mf), Q_remove_denom(w, &dc));
