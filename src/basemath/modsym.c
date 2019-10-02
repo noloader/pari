@@ -2036,7 +2036,7 @@ mspathlog_trivial(GEN W, GEN p)
 }
 
 /* map from W1=Hom(Delta_0(N1),Q) -> W2=Hom(Delta_0(N2),Q), weight 2,
- * trivial action. v a Gl2_Q or a t_VEC of Gl2_Q (\sum v[i] in Z[Gl2(Q)]).
+ * trivial action. v a t_VEC of Gl2_Q (\sum v[i] in Z[Gl2(Q)]).
  * Return the matrix attached to the action of v. */
 static GEN
 getMorphism_trivial(GEN WW1, GEN WW2, GEN v)
