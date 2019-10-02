@@ -1123,53 +1123,14 @@ nfisisom(GEN a, GEN b)
 }
 
 static GEN
-partmap_reverse(GEN a, GEN b, GEN F, long v)
-{
-  long i, j, k;
-  long da = degpol(a), d = degpol(F);
-  GEN M1, M2,  W, U, V;
-  M1 = cgetg(1+da-d, t_MAT);
-  M2 = cgetg(1+da-d, t_MAT);
-  for (i=1; i<=da-d; i++)
-  {
-    gel(M1, i) = zerocol(d);
-    gel(M2, i) = zerocol(da-d);
-  }
-  W = monomial(gen_1, d-1, varn(F));
-  for (i=1; i<=da-d; i++)
-  {
-    long l;
-    GEN M1i = gel(M1, i), M2i = gel(M2,i);
-    W = RgX_shift_shallow(W,1);
-    if (degpol(W)==d)
-      W = RgX_sub(W, RgXQX_RgXQ_mul(F, gel(W, d+2), b));
-    l = lg(W);
-    for (j=2; j<l; j++)
-    {
-      GEN Wj = gel(W, j);
-      if (typ(Wj) == t_INT)
-        gel(M1i, j-1) = Wj;
-      else
-      {
-        long lj = lg(Wj), u;
-        if (lj > 2)
-          gel(M1i, j-1) = gel(Wj, 2);
-        for (k=3, u=j-1; k<lj; k++, u+=d)
-          gel(M2i, u) = gel(Wj, k);
-      }
-    }
-  }
-  V = QM_gauss(M2, col_ei(da-d, 1));
-  if (!V) { setvarn(a,v); pari_err_IRREDPOL("nfisincl", a); }
-  U = RgC_neg(QM_QC_mul(M1, V));
-  return RgV_to_RgX(shallowconcat(U,V), v);
-}
-
-GEN
-nfisincl_worker(GEN t, GEN a, GEN b, GEN la, GEN lb, long v)
+partmap_reverse(GEN a, GEN b, GEN t, GEN la, GEN lb, long v)
 {
   pari_sp av = avma;
-  GEN z = partmap_reverse(b, a, t, v);
+  GEN rnf = rnfequation2(a, t), z;
+  if (!RgX_equal(b, gel(rnf,1)))
+    { setvarn(b,v); pari_err_IRREDPOL("nfisincl", b); }
+  z = liftpol_shallow(gel(rnf, 2));
+  setvarn(z, v);
   if (!isint1(lb)) z = RgX_unscale(z, lb);
   if (!isint1(la)) z = RgX_Rg_div(z, la);
   return gerepilecopy(av, z);
@@ -1181,7 +1142,7 @@ nfisincl(GEN fa, GEN fb)
   pari_sp av = avma;
   long i, k, vb, lx;
   long da, db, d;
-  GEN a, b, nfa, nfb, x, y, la, lb, worker;
+  GEN a, b, nfa, nfb, x, y, la, lb;
   int newvar;
 
   a = get_nfpol(fa, &nfa);
@@ -1204,13 +1165,10 @@ nfisincl(GEN fa, GEN fb)
   {
     GEN t = gel(y,i);
     if (degpol(t)!=d) continue;
-    gel(x, k++) = t;
+    gel(x, k++) = partmap_reverse(a, b, t, la, lb, vb);
   }
   if (k==1) { set_avma(av); return gen_0; }
   setlg(x, k);
-  worker = snm_closure(is_entry("_nfisincl_worker"),
-                       mkvec5(a, b, la, lb, stoi(vb)));
-  x = gen_parapply(worker, x);
   if (newvar) (void)delete_var();
   gen_sort_inplace(x, (void*)&cmp_RgX, &cmp_nodata, NULL);
   return gerepilecopy(av,x);
