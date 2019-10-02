@@ -34,7 +34,7 @@ Doc: Teichm\"uller character of the $p$-adic number $x$, i.e. the unique
  time = 1,293 ms.
  ? 1 + 2*(log(p)/log(2) + hammingweight(p))
  %8 = 22.316[...]
- @eprog\noindent Here the precompuation induces a speedup by a factor
+ @eprog\noindent Here the precomputation induces a speedup by a factor
  $1293/ 60 \approx 21.5$.
 
  \misctitle{Caveat}
