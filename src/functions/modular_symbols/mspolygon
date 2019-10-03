@@ -2,49 +2,54 @@ Function: mspolygon
 Section: modular_symbols
 C-Name: mspolygon
 Prototype: GD0,L,
-Help: mspolygon(M, {flag = 0}): M being a full modular symbol space
- attached to a group G, as given by msinit, or a positive integer N
- (encoding the group G = Gamma0(N)), return an hyperbolic polygon
- (Farey symbol) attached to G. Binary digits of flag mean: 1=normalized
- polygon, 2=also add graphical representations.
-Doc: $M$ being a full modular symbol space attached to the group
- as given by \kbd{msinit} attached to a group $G$ or a positive integer $N$
- (encoding the group $G = \Gamma_0(N)$), return an hyperbolic polygon
- (Farey symbol) attached to $G$. More precisely,
+Help: mspolygon(M, {flag = 0}): M describes a subgroup G of finite index in
+ the modular group PSL2(Z), as given by msinit or a positive integer N
+ (encoding the group G = Gamma0(N)), or by msfarey (arbitrary subgroups).
+ Return an hyperbolic polygon (Farey symbol) attached to G.
+ Binary digits of flag mean: 1=normalized polygon, 2=also add graphical
+ representations.
+Doc: $M$ describes a subgroup $G$ of finite index in the modular group
+ $\text{PSL}_2(\Z)$, as given by \kbd{msinit} or a positive integer $N$
+ (encoding the group $G = \Gamma_0(N)$), or by \kbd{msfarey} (arbitrary
+ subgroup). Return an hyperbolic polygon (Farey symbol) attached to $G$.
+ More precisely:
 
- \item its vertices are an ordered list in $\P^{1}(\Q)$, forming a system of
- representatives of cusps,
+ \item Its vertices are an ordered list in $\P^{1}(\Q)$, forming a system of
+ representatives of cusps.
 
- \item its edges are hyperbolic arcs joining two consecutive vertices,
+ \item Its edges are hyperbolic arcs joining two consecutive vertices;
+ each edge $e$ is labelled by an integer $\mu(e) \in \{\infty,2,3\}$.
 
- \item given a path $(a,b)$ between two elements of $\P^{1}(\Q)$, let
+ \item Given a path $(a,b)$ between two elements of $\P^1(\Q)$, let
  $\overline{(a,b)} = (b,a)$ be the opposite path. There is an involution $e
- \to e^*$ on the edges, where $e^*$ is $G$ equivalent to
- $\overline{e}$, i.e. there exist $\gamma_e \in G$ such that $e =
- \gamma_e \overline{e^*}$.
+ \to e^*$ on the edges. We have $\mu(e) = \infty$ if and only if $e\neq e^*$;
+ when $\mu(e) \neq 3$, $e$ is $G$-equivalent to $\overline{e^*}$, i.e. there
+ exists $\gamma_e \in G$ such that $e = \gamma_e \overline{e^*}$; if $\mu(e)=3$
+ there exists $\gamma_e \in G$ of order $3$ such that the hyperbolic triangle
+ $(e, \gamma_e e, \gamma_e^2 e)$ is invariant by $\gamma_e$. In all cases,
+ to each edge we have attached $\gamma_e \in G$ of order $\mu(e)$.
 
- The polygon is given by
+ \noindent The polygon is given by a triple $[E, A, g]$
 
- \item the list $E$ of its consecutive edges as matrices in $M_2(\Z)$;
+ \item The list $E$ of its consecutive edges as matrices in $M_2(\Z)$.
 
- \item the permutation $A$ attached to the involution, such that
- \kbd{A[i]} is the index of $e^*$ in $E$ if $e = E[i]$ is the $i$-th edge;
+ \item The permutation $A$ attached to the involution: if $e = E[i]$ is the
+ $i$-th edge, then \kbd{A[i]} is the index of $e^*$ in $E$.
 
- \item the list $G$ of pairing matrices between $e$ and
- $\overline{e^*}$, i.e. the matrices $\gamma_e\in G$ such that $e =
- \gamma_e \overline{e^*}$. If $e = E[i]$, then $\gamma_e = G[i]$.
- Remark that $\gamma_{e^*}=\gamma_e^{-1}$ if $e \neq e^*$; modulo these
- trivial relations, the pairing matrices form a system of independant
- generators of $G$ modulo $\{1,-1\}$. Note that $\gamma_e$ is elliptic if and
- only if $e^* = e$.
+ \item The list $g$ of pairing matrices $\gamma_e$ between $e$ and
+ $\overline{e^*}$. Remark that $\gamma_{e^*}=\gamma_e^{-1}$ if $\mu(e) \neq 3$,
+ i.e., $g[i]^{-1} = g[A[i]]$ whenever $i\neq A[i]$ ($\mu(g[i]) = 1$) or
+ $\mu(g[i]) = 2$ ($g[i]^2 = 1$). Modulo these trivial relations,
+ the pairing matrices form a system of independant generators of $G$. Note
+ that $\gamma_e$ is elliptic if and only if $e^* = e$.
 
- The above data yields a fundamental domain for $G$ acting
+ \noindent The above data yields a fundamental domain for $G$ acting
  on Poincar\'e's half-plane: take the convex hull of the polygon defined by
 
- \item the edges in $E$ such that $e \neq e^*$ or $e^*=e$, where the pairing
+ \item The edges in $E$ such that $e \neq e^*$ or $e^*=e$, where the pairing
  matrix $\gamma_e$ has order $2$;
 
- \item the edges $(r,t)$ and $(t,s)$ where the edge $e = (r,s) \in E$ is such
+ \item The edges $(r,t)$ and $(t,s)$ where the edge $e = (r,s) \in E$ is such
  that $e = e^*$ and $\gamma_e$ has order $3$ and the triangle $(r,t,s)$
  is the image of $(0,\exp(2i\pi/3), \infty)$ by some element of $PSL_2(\Q)$
  formed around the edge.
@@ -66,7 +71,7 @@ Doc: $M$ being a full modular symbol space attached to the group
  $H_1(G,\Z)$ as it gives a symplectic basis for the intersection pairing.
  In this case, the number of parabolic matrices (trace 2) in the system of
  generators $G$ is $2(t-1)$, where $t$ is the number of non equivalent cusps
- for $G$.
+ for $G$. This is currently only implemented for $G = \Gamma_0(N)$.
 
  2: add graphical representations (in LaTeX form) for the hyperbolic polygon
  in Poincar\'e's half-space and the involution $a\to a^*$ of the Farey symbol.
@@ -75,14 +80,14 @@ Doc: $M$ being a full modular symbol space attached to the group
  \kbd{\bs usepackage\obr tikz\cbr}.
 
  \bprog
- ? [V,A,G] = mspolygon(3);
+ ? [V,A,g] = mspolygon(3);
  ? V
  %2 = [[-1, 1; -1, 0], [1, 0; 0, 1], [0, 1; -1, 1]]
  ? A
  %3 = Vecsmall([2, 1, 3])
- ? G
+ ? g
  %4 = [[-1, -1; 0, -1], [1, -1; 0, 1], [1, -1; 3, -2]]
- ? [V,A,G, D1,D2] = mspolygon(11,2); \\ D1 and D2 contains pictures
+ ? [V,A,g, D1,D2] = mspolygon(11,2); \\ D1 and D2 contains pictures
  ? {write("F.tex",
       "\\documentclass{article}\\usepackage{tikz}\\begin{document}"
       D1, "\n",
