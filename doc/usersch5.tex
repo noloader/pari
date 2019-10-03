@@ -5965,6 +5965,10 @@ form $Q(X^d)$, return $Q$.
 \fun{int}{Flx_is_irred}{GEN f, ulong p}, as \kbd{FpX\_is\_irred}.
 Assumes that $p$ is prime.
 
+\fun{int}{Flx_is_totally_split}{GEN f, ulong p} returns $1$ if the
+\kbd{Flx}~\kbd{f} splits into a product of distinct linear factors, $0$
+otherwise. Assumes that \kbd{p} is prime.
+
 \fun{int}{Flx_is_smooth}{GEN f, long r, ulong p} return $1$ if all
 irreducible factors of $f$ are of degree at most $r$, $0$ otherwise.
 Assumes that $p$ is prime.

@@ -737,6 +737,7 @@ GEN     F2x_factor_squarefree(GEN f);
 int     F2x_is_irred(GEN f);
 GEN     Flx_ddf(GEN T, ulong p);
 int     Flx_is_irred(GEN f, ulong p);
+int     Flx_is_totally_split(GEN f, ulong p);
 long    Flx_ispower(GEN f, ulong k, ulong p, GEN *pt_r);
 GEN     Flx_degfact(GEN f, ulong p);
 GEN     Flx_factor(GEN f, ulong p);
