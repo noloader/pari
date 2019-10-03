@@ -715,7 +715,7 @@ int
 Flx_is_totally_split(GEN f, ulong p)
 {
   pari_sp av = avma;
-  long n = degpol(f);
+  ulong n = degpol(f);
   if (n <= 1) return 1;
   if ((ulong)n > p) return 0;
   return gc_bool(av, Flx_is_totally_split_i(f,p));
