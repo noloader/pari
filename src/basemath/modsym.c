@@ -4575,7 +4575,7 @@ mssiegel(struct siegel *S)
 #endif
 }
 
-/* return a vector of char */
+/* return a vector of char* */
 static GEN
 Ast2v(GEN Ast)
 {
@@ -4592,58 +4592,102 @@ Ast2v(GEN Ast)
   }
   return v;
 };
-static GEN
-M2Q(GEN p) { GEN c = gel(p,1); return gdiv(gel(c,1), gel(c,2)); }
 
 static void
-decorate(pari_str *s, GEN g, GEN T1, GEN T2)
+decorate(pari_str *s, GEN g, GEN arc)
 {
-  double a = gtodouble(gcoeff(g,1,1)), t1 = gtodouble(T1), t2 = gtodouble(T2);
-  double c = gtodouble(gcoeff(g,2,1)), d = gtodouble(gcoeff(g,2,2));
+  double a = gtodouble(gcoeff(g,1,1)), c = gtodouble(gcoeff(g,2,1));
+  double d = gtodouble(gcoeff(g,2,2));
   if (a + d)
   {
-    double x, y, u1, u2, C = 360 / (2*M_PI);
-    x = (a - d) / (2 * c);
-    y = 0.8660254 / fabs(c); /* sqrt(3)/ (2 |c|) > 0 */
-    u1 = (x*x + y*y - t1*t1)/(x-t1)/2;
-    u2 = (x*x + y*y - t2*t2)/(x-t2)/2;
-    str_printf(s, ";\n \\draw (start) arc (180:%.4f:%.4f) node {$\\bullet$} arc (%.4f:0:%.4f)", C*atan2(y,x-u1), fabs(t1-u1), C*atan2(y,x-u2), fabs(t2-u2));
+    double t, u, C = 360/(2*M_PI), x = (a-d) / (2*c), y = 0.8660254/fabs(c);
+    long D1 = itos(gcoeff(arc,2,1));
+    long D2 = itos(gcoeff(arc,2,2));
+    str_printf(s, "\\draw (%.4f,%.4f) node (ellpt) {$\\bullet$}\n", x, y);
+    if (D1)
+    {
+      t = gtodouble(gcoeff(arc,1,1)) / D1;
+      u = (x*x + y*y - t*t)/(x-t)/2;
+      str_printf(s, "arc (%.4f:180:%.4f)\n", C*atan2(y,x-u), fabs(t-u));
+    }
+    else
+      str_printf(s, "-- (%.4f,0.5)\n", x);
+    if (D2)
+    {
+      t = gtodouble(gcoeff(arc,1,2)) / D2;
+      u = (x*x + y*y - t*t)/(x-t)/2;
+      str_printf(s, "(ellpt) arc (%.4f:0:%.4f);\n", C*atan2(y,x-u), fabs(t-u));
+    }
+    else
+      str_printf(s, "(ellpt) -- (%.4f,0.5);\n", x);
   }
   else
-    str_printf(s, " node (start) {} (%.4f,%.4f) node {$\\circ$};\n \\draw (start) node{}",a/c,fabs(1/c));
+    str_printf(s, "\\draw (%.4f,%.4f) node {$\\circ$};\n",a/c,fabs(1/c));
 }
 
 static GEN
 polygon2tex(GEN V, GEN Ast, GEN G)
 {
   pari_sp av = avma;
-  GEN v = Ast2v(Ast), a, b;
   pari_str s;
-  long j, k, l = lg(V), flag = (l <= 16);
-  double c;
-  str_init(&s, 1);
-  str_puts(&s, "\n\\begin{tikzpicture}[scale=10]\n");
-  str_puts(&s, "\\draw (0,0.5)--(0,0) node [very near start, right] {$1^*$} node [below] {$0$}");
-  k = minss(3, l-1); a = M2Q(gel(V,k));
-  for (j = 4; j < l; k = j, a = b, j++)
-  {
-    b = M2Q(gel(V,j)); /* next vertex */
-    c = gtodouble(gsub(b,a)) / 2;
+  long j, l = lg(V), flag = (l <= 16);
+  GEN v = Ast2v(Ast), r1 = NULL, r2 = NULL;
 
-    str_printf(&s, "node (start) {} arc (180:0:%.4f)\n", c);
-    if (flag)
-    {
-      long sb = itos(numer_i(b)), sa = itos(denom_i(b));
-      str_printf(&s, "node [midway, above] {%s} node [below]{$\\frac{%ld}{%ld}$}\n",
-                 (char*)gel(v,k), sb, sa);
-    }
-    if (Ast[k] == k) decorate(&s, gel(G,k), a, b);
+  for (j = 1; j < l; j++)
+  {
+    GEN arc = gel(V,j);
+    if (!signe(gcoeff(arc,2,1)))
+      r1 = gdiv(gcoeff(arc,1,2), gcoeff(arc,2,2));
+    else if (!signe(gcoeff(arc,2,2)))
+      r2 = gdiv(gcoeff(arc,1,1), gcoeff(arc,2,1));
   }
-  c = (1 - gtodouble(a)) / 2;
-  str_printf(&s, "node (start) {} arc (180:0:%.4f)\n", c);
-  if (flag) str_printf(&s, "node [midway, above] {%s}", (char*)gel(v,l-1));
-  if (Ast[k] == k) decorate(&s, gel(G,k), a, gen_1);
-  str_printf(&s,"node [below] {$1$} -- (1,0.5) node [very near end, left] {$1$};");
+  if (!r1 || !r2) pari_err_BUG("polgon2tex");
+  str_init(&s, 1);
+  str_printf(&s, "\n\\begin{tikzpicture}[scale=%ld]\n",
+                 10 / labs(gtodouble(gsub(r1,r2))));
+  for (j = 1; j < l; j++)
+  {
+    GEN arc = gel(V,j);
+    if (itos(gcoeff(arc,2,1)))
+    {
+      GEN a = gdiv(gcoeff(arc,1,1), gcoeff(arc,2,1));
+      double aa = gtodouble(a);
+      str_printf(&s, "\\draw (%.4f,0) ", aa);
+      if (flag || j == 2 || j == l-1)
+      {
+        long n, d;
+        Qtoss(a, &n, &d);
+        if (d == 1)
+          str_printf(&s, "node [below] {$%ld$}\n", n);
+        else
+          str_printf(&s, "node [below] {$\\frac{%ld}{%ld}$}\n", n, d);
+      }
+      if (itos(gcoeff(arc,2,2)))
+      {
+        GEN b = gdiv(gcoeff(arc,1,2),gcoeff(arc,2,2));
+        str_printf(&s, "arc (%s:%.4f) ", (gcmp(a,b)<0)?"180:0":"0:180",
+                   fabs((gtodouble(b)-aa)/2));
+        if (flag)
+          str_printf(&s, "node [midway, above] {%s} ", (char*)gel(v,j));
+      }
+      else
+      {
+        str_printf(&s, "-- (%.4f,0.5) ", aa);
+        if (flag)
+          str_printf(&s, "node [very near end, right] {%s}",(char*)gel(v,j));
+      }
+    }
+    else
+    {
+      GEN b = gdiv(gcoeff(arc,1,2), gcoeff(arc,2,2));
+      double bb = gtodouble(b);
+      str_printf(&s, "\\draw (%.4f,0.5)--(%.4f,0)\n", bb, bb);
+      if (flag)
+        str_printf(&s,"node [very near start, left] {%s}\n", (char*)gel(v,j));
+    }
+    str_printf(&s,";\n");
+    if (Ast[j] == j) decorate(&s, gel(G,j), arc);
+  }
   str_printf(&s, "\n\\end{tikzpicture}");
   return gerepileuptoleaf(av, strtoGENstr(s.string));
 }
