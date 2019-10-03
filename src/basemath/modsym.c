@@ -910,31 +910,6 @@ msnew(GEN W)
  *
  * FIXME: Implemented for \Gamma = \Gamma_0(N) only. */
 
-#if 0 /* Pollack-Stevens shift their paths so as to solve equations of the
-         form f(z+1) - f(z) = g. We don't (to avoid mistakes) so we will
-         have to solve eqs of the form f(z-1) - f(z) = g */
-/* c = a/b; as a t_VECSMALL [a,b]; return c-1 as a t_VECSMALL */
-static GEN
-Shift_left_cusp(GEN c) { long a=c[1], b=c[2]; return mkvecsmall2(a - b, b); }
-/* c = a/b; as a t_VECSMALL [a,b]; return c+1 as a t_VECSMALL */
-static GEN
-Shift_right_cusp(GEN c) { long a=c[1], b=c[2]; return mkvecsmall2(a + b, b); }
-/*Input: path = [r,s] (thought of as a geodesic between these points)
- *Output: The path shifted by one to the left, i.e. [r-1,s-1] */
-static GEN
-Shift_left(GEN path)
-{
-  GEN r = gel(path,1), s = gel(path,2);
-  return mkvec2(Shift_left_cusp(r), Shift_left_cusp(s)); }
-/*Input: path = [r,s] (thought of as a geodesic between these points)
- *Output: The path shifted by one to the right, i.e. [r+1,s+1] */
-GEN
-Shift_right(GEN path)
-{
-  GEN r = gel(path,1), s = gel(path,2);
-  return mkvec2(Shift_right_cusp(r), Shift_right_cusp(s)); }
-#endif
-
 /* linked lists */
 typedef struct list_t { GEN data; struct list_t *next; } list_t;
 static list_t *
