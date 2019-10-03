@@ -218,7 +218,7 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
     if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"msfarey, #L = %ld", lg(L)-1);
-      gerepileall(av2, 5, &C, &M, &L, &L3, &B);
+      gerepileall(av2, 4, &C, &M, &L, &B); L3 = cgetg(1, t_VEC);
     }
   }
   l = lg(B);
