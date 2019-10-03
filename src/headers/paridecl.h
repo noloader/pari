@@ -4085,6 +4085,7 @@ GEN     ellmoddegree(GEN e);
 GEN     eta_ZXn(long v, long L);
 GEN     eta_product_ZXn(GEN eta, long L);
 long    etaquotype(GEN *eta, GEN *pN, GEN *pk, GEN *CHI, long *pv, long *sd, long *cusp);
+GEN     galois_get_conj(GEN G); /* TODO move somewhere else? */
 GEN     ldata_vecan(GEN ldata, long L, long prec);
 GEN     ldata_newprec(GEN ldata, long prec);
 GEN     lfunabelianrelinit(GEN bnfabs, GEN bnf, GEN polrel, GEN dom, long der, long bitprec);
@@ -4802,6 +4803,7 @@ GEN     ZX_radical(GEN A);
 GEN     ZX_resultant(GEN A, GEN B);
 int     ZXM_incremental_CRT(GEN *pH, GEN Hp, GEN *ptq, ulong p);
 GEN     ZXM_init_CRT(GEN Hp, long deg, ulong p);
+GEN     ZXQ_minpoly(GEN A, GEN T, long d, ulong b);
 GEN     ZXQ_charpoly(GEN A, GEN T, long v);
 GEN     characteristic(GEN x);
 GEN     ffinit(GEN p, long n, long v);
@@ -4933,6 +4935,8 @@ GEN     polsubcyclo(long n, long d, long v);
 /* subfield.c */
 
 GEN     nfsubfields(GEN nf, long d);
+GEN     nfsubfieldscm(GEN nf);
+GEN     nfsubfieldsmax(GEN nf);
 
 /* subgroup.c */
 

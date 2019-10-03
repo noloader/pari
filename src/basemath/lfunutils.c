@@ -2201,7 +2201,8 @@ artin_charfromgens(GEN G, GEN M)
   return V;
 }
 
-static GEN
+/* TODO move somewhere else? */
+GEN
 galois_get_conj(GEN G)
 {
   GEN grp = gal_get_group(G);

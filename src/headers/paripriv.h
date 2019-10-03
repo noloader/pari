@@ -179,6 +179,7 @@ GEN  ZX_ZXY_resultant_worker(GEN P, GEN A, GEN B, GEN dB, GEN v);
 GEN  ZX_direct_compositum_worker(GEN P, GEN A, GEN B);
 GEN  ZXQX_direct_compositum_worker(GEN P, GEN A, GEN B, GEN C);
 GEN  ZX_gcd_worker(GEN P, GEN A, GEN B, GEN g);
+GEN  ZXQ_minpoly_worker(GEN P, GEN A, GEN B, long d);
 GEN  ZM_det_worker(GEN P, GEN A);
 GEN  ZM_inv_worker(GEN P, GEN A);
 GEN  ZM_ker_worker(GEN P, GEN A);

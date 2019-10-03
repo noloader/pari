@@ -91,6 +91,7 @@ BA  17- QXQ_div_ratlift renamed to QXQ_div
     25- format of bnf structure, to allow compact representations
 BA  26- [libpari] Z_to_F2x(s,v): v is now a shifted variable number
 AP  27- matrixqz(,-1 or -2): faster code + no longer return result in HNF
+AP  28- allow nfsubfields([nf,fa],): van Hoeij-Klueners-Novocin algorithm
 
   Added
      1- new GP function rootsof1
@@ -158,6 +159,7 @@ BA  54- [libpari] FlxX_Laplace, FlxX_invLaplace, FlxqX_Newton, FlxqX_fromNewton
     57- [libpari] gc_const
 AP  58- [libpari] QM_ImZ, QM_ImZ_all, QM_ImQ, QM_ImQ_all
 BA  59- [libpari] RgXn_expint
+AP  60- new GP functions nfsubfieldscm, nfsubfieldsmax
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

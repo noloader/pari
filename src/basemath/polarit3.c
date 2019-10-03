@@ -2296,6 +2296,69 @@ QXQ_div(GEN A, GEN B, GEN C)
 
 /************************************************************************
  *                                                                      *
+ *                           ZXQ_minpoly                                *
+ *                                                                      *
+ ************************************************************************/
+
+static GEN
+ZXQ_minpoly_slice(GEN A, GEN B, long d, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1, v = evalvarn(varn(B));
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p);
+    GEN Hp = Flxq_minpoly(a, b, p);
+    if (degpol(Hp) != d) { p = 1; Hp = pol0_Flx(v); }
+    H = Flx_to_ZX(Hp);
+    *mod = utoi(p);
+    gerepileall(av, 2, &H, mod);
+    return H;
+  }
+  T = ZV_producttree(P);
+  A = ZX_nv_mod_tree(A, P, T);
+  B = ZX_nv_mod_tree(B, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), b = gel(B,i);
+    GEN m = Flxq_minpoly(a, b, p);
+    if (degpol(m) != d) { P[i] = 1; m = pol0_Flx(v); }
+    gel(H, i) = m;
+  }
+  H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZXQ_minpoly_worker(GEN P, GEN A, GEN B, long d)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZXQ_minpoly_slice(A, B, d, P, &gel(V,2));
+  return V;
+}
+
+GEN
+ZXQ_minpoly(GEN A, GEN B, long d, ulong bound)
+{
+  pari_sp av = avma;
+  GEN worker, H, dB;
+  forprime_t S;
+  B = Q_remove_denom(B, &dB);
+  worker = strtoclosure("_ZXQ_minpoly_worker", 3, A, B, stoi(d));
+  init_modular_big(&S);
+  H = gen_crt("ZXQ_minpoly", worker, &S, dB, bound, degpol(B), NULL,
+               nxV_chinese_center, FpX_center_i);
+  return gerepilecopy(av, H);
+}
+
+/************************************************************************
+ *                                                                      *
  *                   ZX_ZXY_resultant                                   *
  *                                                                      *
  ************************************************************************/

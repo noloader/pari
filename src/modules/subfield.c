@@ -872,6 +872,7 @@ subfieldsall(GEN nf)
   return fix_var(gerepilecopy(av, LSB), v0);
 }
 
+static GEN nfsubfields_fa(GEN nf, long d);
 GEN
 nfsubfields(GEN nf, long d)
 {
@@ -881,6 +882,8 @@ nfsubfields(GEN nf, long d)
   poldata PD;
   primedata S;
   blockdata B;
+
+  if (typ(nf)==t_VEC && lg(nf)==3) return nfsubfields_fa(nf, d);
 
   if (!d) return subfieldsall(nf);
 
@@ -921,4 +924,713 @@ nfsubfields(GEN nf, long d)
   if (!LSB) return cgetg(1, t_VEC);
   G = gcopy(LSB); gunclone(LSB);
   return fix_var(G, v0);
+}
+
+/******************************/
+/*                            */
+/*    Maximal CM subfield     */
+/*     Aurel Page (2019)      */
+/*                            */
+/******************************/
+
+/* ero: maximum exponent+1 of roots of pol */
+static GEN
+try_subfield_generator(GEN pol, GEN v, long e, long p, long ero)
+{
+  GEN a, P, Q;
+  long d, bound, i, B, bi, ed;
+
+  a = gtopolyrev(v, varn(pol));
+  P = Flxq_charpoly(ZX_to_Flx(a,p), ZX_to_Flx(pol,p), p);
+  Flx_ispower(P, e, p, &Q);
+  if (!Flx_is_squarefree(Q,p)) return NULL;
+  d = degree(pol)/e;
+  B = 0;
+  for (i=1; i<lg(v); i++)
+  {
+    bi = (i-1)*ero + expi(gel(v,i));
+    if (bi > B) B = bi;
+  }
+  ed = expu(d);
+  B += ed+1;
+  bound = 0;
+  for (i=0; 2*i<=d; i++)
+  {
+    if (!i) bi = d*B;
+    else    bi = (d-i)*B + i*(3+ed-expu(i));
+    if (bi > bound) bound = bi;
+  }
+  Q = ZXQ_minpoly(a,pol,d,bound);
+  return mkvec2(Q, a);
+}
+
+/* subfield sub of nf of degree d assuming:
+   - V is contained in sub
+   - V is not contained in a proper subfield of sub
+   ero: maximum exponent+1 of roots of pol
+   output as nfsubfields:
+   - pair [g,h] where g absolute equation for the  subfield and h expresses
+   - one of the roots of g in terms of the generator of nf
+*/
+static GEN
+subfield_generator(GEN pol, GEN V, long d, long ero)
+{
+  long p, i, e;
+  GEN a = NULL, v = cgetg(lg(V),t_COL), B;
+
+  if (d==1) return mkvec2(pol_x(varn(pol)), gen_0);
+  e = degree(pol)/d;
+  p = 1009;
+  for (i=1; i<lg(V); i++)
+  {
+    a = try_subfield_generator(pol, gel(V,i), e, p, ero);
+    if (a) return a;
+    p = unextprime(p+1);
+  }
+  B = stoi(10);
+  while(1)
+  {
+    for (i=1; i<lg(v); i++) gel(v,i) = randomi(B);
+    a = try_subfield_generator(pol, QM_QC_mul(V,v), e, p, ero);
+    if (a) return a;
+    p = unextprime(p+1);
+  }
+  return NULL; /* not reached */
+}
+
+static GEN
+polmod_to_col(GEN P, long dx, long dy)
+{
+  GEN res, c;
+  long i, j, k;
+
+  P = liftpol(P);
+  res = zerocol((dx+1)*(dy+1));
+  k = 1;
+  for(i=0; i<=dy; i++)
+  {
+    c = polcoef_i(P,i,-1);
+    for (j=0; j<=dx; j++)
+    {
+      gel(res,k) = polcoef_i(c,j,-1);
+      k++;
+    }
+  }
+  return res;
+}
+
+/* lambda: t_VEC of t_INT; 0 means ignore this factor */
+static GEN
+twoembequation(GEN pol, GEN fa, GEN lambda)
+{
+  GEN m, vpolx, vpoly, x, y, C, modpol;
+  long i,j, dx, dy;
+
+  x = pol_x(varn(pol));
+  dx = degree(pol);
+  y = pol_x(varn(gel(fa,1)));
+  modpol = mkpolmod(gen_1,pol);
+
+  lambda = shallowcopy(lambda);
+  fa = shallowcopy(fa);
+  j = 1;
+  for (i=1; i<lg(fa); i++)
+    if (signe(gel(lambda,i)))
+    {
+      gel(lambda,j) = negi(gel(lambda,i));
+      gel(fa,j) = gmul(gel(fa,i),modpol);
+      j++;
+    }
+  setlg(lambda, j);
+  setlg(fa, j);
+
+  vpolx = cgetg(lg(fa),t_VEC);
+  for (i=1; i<lg(fa); i++)
+    gel(vpolx,i) = gmul(modpol,mkpolmod(gen_1,gel(fa,i)));
+  vpoly = gcopy(vpolx);
+
+  m = cgetg(degree(pol)+1,t_MAT);
+  for (j=1; j<lg(m); j++)
+  {
+    C = zerovec(lg(fa)-1);
+    for(i=1; i<lg(fa); i++)
+    {
+      dy = degree(gel(fa,i));
+      gel(C,i) = polmod_to_col(gadd(gel(vpolx,i),gmul(gel(lambda,i),gel(vpoly,i))), dx, dy);
+      gel(vpolx,i) = gmul(gel(vpolx,i),x);
+      gel(vpoly,i) = gmul(gel(vpoly,i),y);
+    }
+    gel(m,j) = shallowconcat1(C);
+  }
+  return QM_ker(m);
+}
+
+static void
+subfields_cleanup(GEN* nf, GEN* pol, long* n, GEN* fa)
+{
+  *fa = NULL;
+  if (typ(*nf) != t_VEC && typ(*nf) != t_POL) pari_err_TYPE("subfields_cleanup", *nf);
+  if (typ(*nf) == t_VEC && lg(*nf) == 3)
+  {
+    *fa = gel(*nf,2);
+    *nf = gel(*nf,1);
+    if (typ(*fa)!=t_MAT || lg(*fa)!=3)
+      pari_err_TYPE("subfields_cleanup [fa should be a factorisation matrix]", *fa);
+  }
+  if (typ(*nf) == t_POL)
+  {
+    *pol = *nf;
+    *nf = NULL;
+    if (!gequal1(leading_coeff(*pol))) pari_err_TYPE("subfields_cleanup [not monic]", *pol);
+    *n = degree(*pol);
+    if (*n<=0) pari_err_TYPE("subfields_cleanup [constant polynomial]", *pol);
+  }
+  else
+  {
+    *nf = checknf(*nf);
+    *pol = nf_get_pol(*nf);
+    *n = degree(*pol);
+  }
+}
+
+static GEN
+rootsuptoconj(GEN pol, long prec)
+{
+  GEN ro;
+  long n, i;
+  ro = roots(pol,prec);
+  n = lg(ro)-1;
+  for (i=1; i<=n/2; i++)
+    gel(ro,i) = gel(ro,2*i-1);
+  setlg(ro,n/2+1);
+  return ro;
+}
+static GEN
+cmsubfield_get_roots(GEN pol, GEN nf, long n, long* r2, long *prec)
+{
+  GEN ro;
+  if (nf)
+  {
+    if (nf_get_r1(nf)) return NULL;
+    *r2 = nf_get_r2(nf);
+    *prec = nf_get_prec(nf);
+    ro = nf_get_roots(nf);
+  }
+  else
+  {
+    if (n%2 || sturm(pol)) return NULL;
+    *r2 = n/2;
+    *prec = MEDDEFAULTPREC;
+    ro = rootsuptoconj(pol, *prec);
+  }
+  return ro;
+}
+
+static GEN
+subfields_get_fa(GEN pol, GEN nf, GEN fa)
+{
+  GEN poly;
+  long var = fetch_var_higher();
+  if (!fa)
+  {
+    poly = shallowcopy(pol);
+    setvarn(poly,var);
+    if (nf) fa = nffactor(nf, poly);
+    else    fa = nffactor(pol, poly);
+  }
+  return liftpol(gel(fa,1));
+}
+
+static long
+subfields_get_ero(GEN pol, GEN nf)
+{
+  GEN ro;
+  long ero, e, i;
+  if (nf)   ro = nf_get_roots(nf);
+  else      ro = roots(pol, LOWDEFAULTPREC);
+  ero = 0;
+  for (i=1; i<lg(ro); i++)
+  {
+    e = 1+gexpo(gel(ro,i));
+    if (e > ero) ero = e;
+  }
+  return ero+1;
+};
+
+static GEN
+try_imag(GEN x, GEN c, GEN pol, long v, ulong p, GEN emb, GEN galpol)
+{
+  GEN a;
+  a = Q_primpart(RgX_sub(RgX_RgXQ_eval(x,c,pol),x));
+  if (Flx_is_squarefree(Flxq_charpoly(ZX_to_Flx(a,p),ZX_to_Flx(pol,p),p),p))
+  {
+    emb = RgX_RgXQ_eval(a, emb, galpol);
+    pol = ZXQ_charpoly(a, pol, v);
+    return mkvec2(pol, emb);
+  }
+  return NULL;
+}
+
+static GEN
+galoissubfieldcm(GEN G)
+{
+  pari_sp av = avma;
+  GEN c, H, elts, g, Hset, c2, gene, sub, pol, M, emb, a, galpol, B, b;
+  long n, i, j, nH, ind, v, d, vsub;
+  ulong p = 1009;
+
+  galpol = gal_get_pol(G);
+  n = degree(galpol);
+  v = varn(galpol);
+  c = galois_get_conj(G);
+  /* compute the list of c*g*c*g^(-1) : product of all pairs of conjugations
+   * maximal CM subfield is the field fixed by those elements, if c does not
+   * belong to the group they generate */
+  checkgroup(G, &elts);
+  elts = gen_sort(elts,(void*)vecsmall_lexcmp,cmp_nodata);
+  H = vecsmall_ei(n,1); /* indices of elements of H */
+  Hset = zero_F2v(n);
+  F2v_set(Hset,1);
+  nH = 1;
+  for (i=2; i<=n; i++)
+  {
+    g = gel(elts,i);
+    c2 = perm_mul(c,perm_conj(g,c));
+    if (!F2v_coeff(Hset,c2[1]))
+    {
+      nH++;
+      H[nH] = c2[1];
+      F2v_set(Hset,c2[1]);
+    }
+  }
+  /* group generated */
+  gene = gcopy(H);
+  setlg(gene,nH+1);
+  i = 1; /* last element that has been multiplied by the generators */
+  while (i < nH)
+  {
+    for (j=1; j<lg(gene); j++)
+    {
+      g = gel(elts,gene[j]);
+      ind = g[H[i]]; /* index of the product */
+      if (!F2v_coeff(Hset,ind))
+      {
+        nH++;
+        if (ind==c[1] || 2*nH>n) { set_avma(av); return gen_0; }
+        H[nH] = ind;
+        F2v_set(Hset,ind);
+      }
+    }
+    i++;
+  }
+  H = cgetg(lg(gene), t_VEC);
+  for (i=1; i<lg(H); i++)
+    gel(H,i) = gel(elts,gene[i]);
+  vsub = fetch_var();
+  sub = galoisfixedfield(G, H, 2, vsub);
+
+  /* compute a totally imaginary generator */
+  pol = gel(sub,1);
+  emb = liftpol(gel(sub,2));
+  d = degree(pol);
+  if (!(ZX_deflate_order(pol)%2) && sturm(RgX_deflate(pol,2))==d/2)
+  {
+    setvarn(pol,v);
+    delete_var();
+    return mkvec2(pol,emb);
+  }
+
+  /* compute action of c on the subfield from that on the large field */
+  c = galoispermtopol(G,c);
+  if (d<n)
+  {
+    c = RgX_to_RgC(c,n);
+    M = cgetg(d+1,t_MAT);
+    gel(M,1) = col_ei(n,1);
+    a = pol_1(v);
+    for (i=2; i<=d; i++)
+    {
+      a = ZX_rem(ZX_mul(a,emb), galpol);
+      gel(M,i) = RgX_to_RgC(a,n);
+    }
+    c = RgM_RgC_invimage(M, c);
+    c = RgV_to_RgX(c, vsub);
+  }
+  else setvarn(c,vsub);
+
+  /* search for a generator of the form c(b)-b */
+  for (i=1; i<d; i++)
+  {
+    a = try_imag(pol_xn(i,vsub),c,pol,v,p,emb,galpol);
+    if (a) { delete_var(); return a; }
+    p = unextprime(p+1);
+  }
+  B = stoi(10);
+  b = pol_xn(d-1,vsub);
+  while(1)
+  {
+    for (i=2; i<lg(b); i++) gel(b,i) = randomi(B);
+    a = try_imag(b,c,pol,v,p,emb,galpol);
+    if (a) { delete_var(); return a; }
+    p = unextprime(p+1);
+  }
+  return NULL; /* not reached */
+}
+
+static GEN
+quadsubfieldcm(GEN pol)
+{
+  GEN a = polcoef_i(pol,1,-1), b = polcoef_i(pol,0,-1), res;
+  long i;
+  if (smodis(a,2))
+    res = mkvec2(
+          mkpoln(3,gen_1,gen_0,subii(mulsi(4,b),sqri(a))),
+          mkpoln(2,gen_2,a)
+          );
+  else
+  {
+    a = divis(a,2);
+    res = mkvec2(
+          mkpoln(3,gen_1,gen_0,subii(b,sqri(a))),
+          mkpoln(2,gen_1,a)
+          );
+  }
+  for (i=1; i<=2; i++) setvarn(gel(res,i),varn(pol));
+  return res;
+}
+
+GEN
+nfsubfieldscm(GEN nf)
+{
+  pari_sp av = avma;
+  GEN fa, lambda, V, res, ro, a, aa, ev, minev, pol, G;
+  long i, j, n, r2, minj=0, prec, emax, emin, e, precbound, ero;
+
+  subfields_cleanup(&nf, &pol, &n, &fa);
+  ro = cmsubfield_get_roots(pol, nf, n, &r2, &prec);
+  if (!ro) { set_avma(av); return gen_0; }
+  /* now r2 == 2*n */
+
+  if (n==2) return gerepilecopy(av, quadsubfieldcm(pol));
+  G = galoisinit(nf? nf: pol, NULL);
+  if (G != gen_0) return gerepilecopy(av, galoissubfieldcm(G));
+
+  ero = 0;
+  for (i=1; i<lg(ro); i++)
+  {
+    e = 1+gexpo(gel(ro,i));
+    if (e > ero) ero = e;
+  }
+  ero++;
+  fa = subfields_get_fa(pol, nf, fa);
+
+  emax = 1;
+  emin = -1;
+  for (i=1; i<lg(ro); i++)
+    for (j=i+1; j<lg(ro); j++)
+    {
+      e = gexpo(gsub(gel(ro,i),gel(ro,j)));
+      if (e > emax) emax = e;
+      if (e < emin) emin = e;
+    }
+  precbound = n*(emax-emin) + gexpo(fa) + n*n + 5;
+  precbound = 3 + precbound/BITS_IN_LONG;
+  if (prec < precbound)
+  {
+    prec = precbound;
+    ro = rootsuptoconj(pol, prec);
+  }
+
+  lambda = zerovec(lg(fa)-1);
+  for (i=1; i<=r2; i++)
+  {
+    a = gel(ro,i);
+    aa = conj_i(a);
+    for (j=1; j<lg(fa); j++)
+    {
+      ev = cxnorm(poleval(poleval(gel(fa,j),aa),a));
+      if (j==1 || cmprr(minev,ev)>0) { minj = j; minev = ev; }
+    }
+    gel(lambda,minj) = gen_m1;
+  }
+
+  V = twoembequation(pol, fa, lambda);
+  if (lg(V)==1) { set_avma(av); delete_var(); return gen_0; }
+  res = subfield_generator(pol, V, 2*(lg(V)-1), ero);
+  delete_var();
+  return gerepilecopy(av, res);
+}
+
+static int
+field_is_contained(GEN V, GEN W, int strict)
+{
+  GEN VW;
+  ulong p = 1073741827;
+  /* distinct overfield must have different dimension */
+  if (strict && lg(V) == lg(W)) return 0;
+  /* dimension of overfield must be multiple */
+  if ((lg(W)-1) % (lg(V)-1)) return 0;
+  VW = shallowconcat(V,W);
+  if (Flm_rank(ZM_to_Flm(VW,p),p) > lg(W)-1) return 0;
+  return ZM_rank(VW) == lg(W)-1;
+}
+
+/***********************************************/
+/*                                             */
+/*    Maximal, generating, all subfields       */
+/*             Aurel Page (2019)               */
+/*     after van Hoeij, Klueners, Novocin      */
+/*  Journal of Symbolic Computation 52 (2013)  */
+/*                                             */
+/***********************************************/
+
+const long subf_MAXIMAL = 1; /* return the maximal subfields */
+const long subf_GENERATING = 2; /* return the generating subfields */
+static GEN
+maxgen_subfields(GEN pol, GEN fa, long n, long flag)
+{
+  pari_sp av = avma;
+  GEN principal, ismax, isgene, Lmax = NULL, Lgene, res, V, W, W1;
+  long i, i2, j, flmax, flgene, nbmax = 0, nbgene = 0, dup;
+
+  if (!flag) return cgetg(1,t_VEC);
+  flmax = (flag & subf_MAXIMAL)!=0;
+  flgene = (flag & subf_GENERATING)!=0;
+
+  /* compute principal subfields */
+  principal = cgetg(lg(fa),t_VEC);
+  for (i=1; i<lg(fa); i++)
+    gel(principal,i) = twoembequation(pol, fa, vec_ei(lg(fa)-1,i));
+  principal = gen_sort_uniq(principal, (void*)&cmp_universal, &cmp_nodata);
+  /* remove nf and duplicates (sort_uniq possibly not enough) */
+  i2 = 1;
+  for (i=1; i<lg(principal)-1; i++)
+  {
+    V = gel(principal,i);
+    dup = 0;
+    j = i2-1;
+    while(j>0 && lg(gel(principal,j))==lg(V))
+    {
+      if (field_is_contained(gel(principal,j),V,0)) { dup=1; break; }
+      j--;
+    }
+    if (!dup)
+    {
+      gel(principal,i2) = V;
+      i2++;
+    }
+  }
+  setlg(principal, i2);
+
+  /* a subfield is generating iff all overfields contain the first overfield */
+  ismax = cgetg(lg(principal),t_VECSMALL);
+  isgene = cgetg(lg(principal),t_VECSMALL);
+  for (i=1; i<lg(principal); i++)
+  {
+    V = gel(principal,i);
+    ismax[i] = flmax;
+    isgene[i] = flgene;
+    W1 = NULL; /* intersection of strict overfields */
+    for (j=i+1; j<lg(principal); j++)
+    {
+      W = gel(principal,j);
+      if (!field_is_contained(V,W,1)) continue;
+      ismax[i] = 0;
+      if (!flgene) break;
+      if (!W1) { W1 = W; continue; }
+      if (!field_is_contained(W1,W,1))
+      {
+        W1 = intersect(W1,W);
+        if (lg(W1)==lg(V)) { isgene[i]=0; break; }
+      }
+    }
+  }
+
+  for (i=1; i<lg(principal); i++)
+  {
+    nbmax += ismax[i];
+    nbgene += isgene[i];
+  }
+
+  if (flmax)
+  {
+    Lmax = cgetg(nbmax+1, t_VEC);
+    j=1;
+    for (i=1; i<lg(principal); i++)
+      if (ismax[i])
+      {
+        gel(Lmax,j) = gel(principal,i);
+        j++;
+      }
+  }
+
+  if (flgene)
+  {
+    Lgene = cgetg(nbgene+1, t_VEC);
+    j=1;
+    for (i=1; i<lg(principal); i++)
+      if (isgene[i])
+      {
+        gel(Lgene,j) = gel(principal,i);
+        j++;
+      }
+  }
+
+  if (!flgene) res = Lmax;
+  else if (!flmax) res = Lgene;
+  else res = mkvec2(Lmax,Lgene);
+  return gerepilecopy(av, res);
+}
+
+GEN
+nfsubfieldsmax(GEN nf)
+{
+  pari_sp av = avma;
+  GEN pol, fa, Lmax, V;
+  long n, i, ero;
+
+  subfields_cleanup(&nf, &pol, &n, &fa);
+  if (n==1) { set_avma(av); return cgetg(1,t_VEC); }
+  if (uisprime(n)) return gerepilecopy(av,mkvec(mkvec2(pol_x(varn(pol)),gen_0)));
+  ero = subfields_get_ero(pol, nf);
+  fa = subfields_get_fa(pol, nf, fa);
+  Lmax = maxgen_subfields(pol, fa, n, subf_MAXIMAL);
+  for (i=1; i<lg(Lmax); i++)
+  {
+    V = gel(Lmax,i);
+    gel(Lmax,i) = subfield_generator(pol, V, lg(V)-1, ero);
+  }
+  delete_var();
+  return gerepilecopy(av, Lmax);
+}
+
+static void
+heap_climb(GEN* H, long i)
+{
+  long j;
+  if (i==1) return;
+  j = i/2;
+  if (cmp_universal(gel(*H,i),gel(*H,j)) > 0)
+  {
+    swap(gel(*H,i), gel(*H,j));
+    return heap_climb(H,j);
+  }
+}
+
+static void
+heap_push(GEN* H, long *len, GEN x)
+{
+  if (*len+1 == lg(*H))
+  {
+    GEN H2 = zerovec(2*(*len));
+    long i;
+    for(i=1; i<lg(*H); i++)
+      gel(H2,i) = gel(*H,i);
+    *H = H2;
+  }
+  (*len)++;
+  gel(*H,*len) = x;
+  return heap_climb(H,*len);
+}
+
+static void
+heap_descend(GEN* H, long len, long i)
+{
+  long maxi = i, j = 2*i;
+  if (j > len) return;
+  if (cmp_universal(gel(*H,j),gel(*H,i)) > 0) maxi = j;
+  j++;
+  if (j<=len && cmp_universal(gel(*H,j),gel(*H,maxi))>0) maxi = j;
+  if (maxi == i) return;
+  swap(gel(*H,i), gel(*H,maxi));
+  return heap_descend(H,len,maxi);
+}
+
+static void
+heap_pop(GEN *H, long *len, GEN* top)
+{
+  *top = gel(*H,1);
+  gel(*H,1) = gel(*H,*len);
+  (*len)--;
+  return heap_descend(H,*len,1);
+};
+
+static GEN
+nfsubfields_fa(GEN nf, long d)
+{
+  pari_sp av = avma;
+  GEN pol, fa, gene, res, res2, H, V, v, W, w, data;
+  long n, r, i, j, nres, len, s, newfield, ero;
+
+  subfields_cleanup(&nf, &pol, &n, &fa);
+  if (d && (d<1 || d>n || n%d)) return gerepilecopy(av, cgetg(1,t_VEC));
+  if (!d && uisprime(n)) return gerepilecopy(av, mkvec2(
+        mkvec2(pol_x(varn(pol)),gen_0),
+        mkvec2(pol,pol_x(varn(pol)))
+        ));
+  if (n==1 || d==1) return gerepilecopy(av,mkvec(mkvec2(pol_x(varn(pol)),gen_0)));
+  if (d==n) return gerepilecopy(av, mkvec(mkvec2(pol,pol_x(varn(pol)))));
+  ero = subfields_get_ero(pol, nf);
+  fa = subfields_get_fa(pol, nf, fa);
+  gene = maxgen_subfields(pol, fa, n, subf_GENERATING);
+
+  if (d)
+  {
+    /* keep only generating subfields of degree a multiple of d */
+    j=1;
+    for (i=1; i<lg(gene); i++)
+      if ((lg(gel(gene,i))-1) % d == 0)
+      {
+        gel(gene,j) = gel(gene,i);
+        j++;
+      }
+    setlg(gene,j);
+  }
+  r = lg(gene)-1;
+
+  res = zerovec(10);
+  nres = 0;
+  H = zerovec(10);
+  gel(H,1) = mkvec3(matid(n),zero_F2v(r),mkvecsmall(0));
+  len = 1;
+
+  while (len>0)
+  {
+    heap_pop(&H, &len, &data);
+    V = gel(data,1);
+    v = gel(data,2);
+    s = gel(data,3)[1];
+    for (i=s+1; i<=r; i++)
+      if (!F2v_coeff(v,i))
+      {
+        W = vec_Q_primpart(intersect(V, gel(gene,i)));
+        w = F2v_copy(v);
+        F2v_set(w, i);
+        newfield = 1;
+        for (j=1; j<=r; j++)
+          if (!F2v_coeff(w,j) && field_is_contained(W,gel(gene,j),1))
+          {
+            if (j<i) { newfield = 0; break; }
+            F2v_set(w,j);
+          }
+        if (newfield && (!d || (lg(W)-1)%d==0)) heap_push(&H, &len, mkvec3(W,w,mkvecsmall(i)));
+      }
+
+    if (!d || lg(V)-1==d)
+    {
+      nres++;
+      if (nres == lg(res))
+      {
+        res2 = zerovec(2*lg(res));
+        for(j=1; j<lg(res); j++) gel(res2,j) = gel(res,j);
+        res = res2;
+      }
+      gel(res,nres) = subfield_generator(pol, V, lg(V)-1, ero);
+    }
+  }
+  setlg(res,nres+1);
+  vecreverse_inplace(res);
+
+  delete_var();
+  return gerepilecopy(av, res);
 }
