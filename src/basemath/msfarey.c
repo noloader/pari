@@ -180,8 +180,8 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
       trois[i] = !isintzero(gtrace(gel(gam,i)));
     else
       trois[i] = ast[ast[i]] != i;
-  av2 = avma;
   if (typ(ast) == t_VEC) ast = ZV_to_zv(ast);
+  av2 = avma;
   C = M = L = L3 = cgetg(1, t_VEC);
   B = mkvec(mkvecsmall2(1,1));
   newcoset(matid(2),1,1);
@@ -218,7 +218,7 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
     if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"msfarey, #L = %ld", lg(L)-1);
-      gerepileall(av2, 4, &C, &M, &L, &B); L3 = cgetg(1, t_VEC);
+      gerepileall(av2, 5, &C, &M, &L, &L3, &B);
     }
   }
   l = lg(B);
