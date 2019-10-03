@@ -11,11 +11,13 @@ Doc:
  $\text{PSL}_2(\Z)$ and $H$ a subgroup of $G$, return a Farey symbol attached
  to $H$. The subgroup $H$ is given by a criterion \kbd{inH} (closure) deciding
  whether an element of $G$ belongs to $H$. The symbol $F$ can be created using
- \kbd{mspolygon} ($G = \Gamma_0(N)$, which runs in time $\tilde{O}(N)$) or
- \kbd{msfarey} itself (which runs in time $[G:H]^2$).
+
+ \item \kbd{mspolygon}: $G = \Gamma_0(N)$, which runs in time $\tilde{O}(N)$;
+
+ \item or \kbd{msfarey} itself, which runs in time $O([G:H]^2)$.
 
  If present, the argument \kbd{CM} is set to \kbd{mscosets(F[3])}, giving
- the action of right cosets of $H \backslash G$ and the action of $G$ by right
+ the right cosets of $H \backslash G$ and the action of $G$ by right
  multiplication.
 
  Since \kbd{msfarey}'s algorithm is quadratic in the index $[G:H]$, it is
