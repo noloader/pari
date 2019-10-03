@@ -704,35 +704,38 @@ FpX_nbroots(GEN f, GEN p)
   return gc_long(av, degpol(z));
 }
 
+/* 1 < deg(f) <= p */
+static int
+Flx_is_totally_split_i(GEN f, ulong p)
+{
+  GEN F = Flx_Frobenius(f, p);
+  return degpol(F)==1 && uel(F,2)==0UL && uel(F,3)==1UL;
+}
 int
 Flx_is_totally_split(GEN f, ulong p)
 {
   pari_sp av = avma;
   long n = degpol(f);
-  GEN F;
   if (n <= 1) return 1;
   if (n > p) return 0;
-  F = Flx_Frobenius(f, p);
-  if (degpol(F)==1 && uel(F,2)==0UL && uel(F,3)==1UL)
-    return gc_bool(av,1);
-  return gc_bool(av, 0);
+  return gc_bool(av, Flx_is_totally_split_i(f,p));
 }
-
 int
 FpX_is_totally_split(GEN f, GEN p)
 {
   pari_sp av = avma;
   long n = degpol(f);
+  int u;
   if (n <= 1) return 1;
   if (abscmpui(n, p) > 0) return 0;
-  if (lgefint(p)==3)
+  if (lgefint(p) != 3)
+    u = gequalX(FpX_Frobenius(FpX_red(f,p), p));
+  else
   {
     ulong pp = (ulong)p[2];
-    int u = Flx_is_totally_split(ZX_to_Flx(f,pp), pp);
-    return gc_bool(av, u);
+    u = Flx_is_totally_split_i(ZX_to_Flx(f,pp), pp);
   }
-  f = FpX_red(f, p);
-  return gc_bool(av, gequalX(FpX_Frobenius(f, p)));
+  return gc_bool(av, u);
 }
 
 long
