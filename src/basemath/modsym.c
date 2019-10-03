@@ -4643,8 +4643,8 @@ polygon2tex(GEN V, GEN Ast, GEN G)
   }
   if (!r1 || !r2) pari_err_BUG("polgon2tex");
   str_init(&s, 1);
-  str_printf(&s, "\n\\begin{tikzpicture}[scale=%ld]\n",
-                 10 / (long)fabs(gtodouble(gsub(r1,r2))));
+  str_printf(&s, "\n\\begin{tikzpicture}[scale=%.2f]\n",
+                 10 / fabs(gtodouble(gsub(r1,r2))));
   for (j = 1; j < l; j++)
   {
     GEN arc = gel(V,j);
