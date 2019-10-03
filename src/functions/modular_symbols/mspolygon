@@ -14,8 +14,8 @@ Doc: $M$ describes a subgroup $G$ of finite index in the modular group
  subgroup). Return an hyperbolic polygon (Farey symbol) attached to $G$.
  More precisely:
 
- \item Its vertices are an ordered list in $\P^{1}(\Q)$, forming a system of
- representatives of cusps.
+ \item Its vertices are an ordered list in $\P^{1}(\Q)$ and contain
+ a representatives of all cusps.
 
  \item Its edges are hyperbolic arcs joining two consecutive vertices;
  each edge $e$ is labelled by an integer $\mu(e) \in \{\infty,2,3\}$.
@@ -36,8 +36,8 @@ Doc: $M$ describes a subgroup $G$ of finite index in the modular group
  \item The permutation $A$ attached to the involution: if $e = E[i]$ is the
  $i$-th edge, then \kbd{A[i]} is the index of $e^*$ in $E$.
 
- \item The list $g$ of pairing matrices $\gamma_e$ between $e$ and
- $\overline{e^*}$. Remark that $\gamma_{e^*}=\gamma_e^{-1}$ if $\mu(e) \neq 3$,
+ \item The list $g$ of pairing matrices $\gamma_e$.
+ Remark that $\gamma_{e^*}=\gamma_e^{-1}$ if $\mu(e) \neq 3$,
  i.e., $g[i]^{-1} = g[A[i]]$ whenever $i\neq A[i]$ ($\mu(g[i]) = 1$) or
  $\mu(g[i]) = 2$ ($g[i]^2 = 1$). Modulo these trivial relations,
  the pairing matrices form a system of independant generators of $G$. Note
@@ -75,9 +75,8 @@ Doc: $M$ describes a subgroup $G$ of finite index in the modular group
 
  2: add graphical representations (in LaTeX form) for the hyperbolic polygon
  in Poincar\'e's half-space and the involution $a\to a^*$ of the Farey symbol.
- The corresponding character strings can be written to file and included in a
- LaTeX document provided the preamble contains
- \kbd{\bs usepackage\obr tikz\cbr}.
+ The corresponding character strings can be included in a LaTeX document
+ provided the preamble contains \kbd{\bs usepackage\obr tikz\cbr}.
 
  \bprog
  ? [V,A,g] = mspolygon(3);
@@ -90,8 +89,7 @@ Doc: $M$ describes a subgroup $G$ of finite index in the modular group
  ? [V,A,g, D1,D2] = mspolygon(11,2); \\ D1 and D2 contains pictures
  ? {write("F.tex",
       "\\documentclass{article}\\usepackage{tikz}\\begin{document}"
-      D1, "\n",
-      D2,
+      D1, "\n", D2,
       "\\end{document}");}
 
  ? [V1,A1] = mspolygon(6,1); \\ normalized
