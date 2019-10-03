@@ -70,7 +70,7 @@ logp(GEN C, ulong a, ulong p, ulong q, ulong pn)
  * Assume |D p^n| < MAX_LONG. Much cheaper than oms at low precision.
  * Return 1/2 * correct value [half loop over a]. Assume xpm belongs to
  * (-1)^i (D/-1) - part */
-GEN
+static GEN
 polPn(GEN W, GEN xpm, long p, long D, long R, long n)
 {
   pari_sp av = avma, av2;
