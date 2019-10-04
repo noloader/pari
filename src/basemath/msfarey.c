@@ -27,8 +27,8 @@ conginlist(GEN L, GEN g, void *E, long (*in)(void *, GEN ))
 static GEN
 normalise(GEN M)
 {
-  GEN d = gcoeff(M,2,2);
-  if (signe(d) < 0 || (!signe(d) && signe(gcoeff(M,1,2)) < 0)) M = ZM_neg(M);
+  long sd = signe(gcoeff(M,2,2));
+  if (sd < 0 || (!sd && signe(gcoeff(M,1,2)) < 0)) M = ZM_neg(M);
   return M;
 }
 
@@ -62,17 +62,25 @@ vec_insertn(GEN v, long n, long k, long a, long c)
   }
   return V;
 }
-
+/* append the [c,L[i]], i=1..#L to v */
+static GEN
+vec_appendL(GEN v, GEN L, long c)
+{
+  long i, j, lv, l = lg(L);
+  GEN w;
+  if (l == 1) return v;
+  lv = lg(v); w = cgetg(lv + l -1, typ(v));
+  for (i = 1; i < lv; i++) gel(w,i) = gel(v,i);
+  for (j = 1; j < l; i++, j++) gel(w,i) = mkvecsmall2(c, L[j]);
+  return w;
+}
 #define newcoset(g, k, a) \
 { \
-  long _i, _c = lg(C); \
+  long _c = lg(C); \
   C = vec_append(C, g); \
   M = vec_append(M, zero_zv(n)); \
-  for (_i = 1; _i <= n; _i++) \
-    if (trois[_i]) \
-      L3 = vec_append(L3, mkvecsmall2(_c,_i)); \
-    else \
-      L = vec_append(L, mkvecsmall2(_c,_i)); \
+  L3= vec_appendL(L3, list3, _c); \
+  L = vec_appendL(L, list, _c); \
   B = vec_insertn(B, n, k, a % n, _c); \
 }
 
@@ -173,15 +181,21 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
 {
   pari_sp av = avma, av2, av3;
   GEN V = gel(F,1), ast = gel(F,2), gam = gel(F,3), V2, ast2, gam2;
-  GEN C, M, L3, L, B, g, trois;
-  long n = lg(gam)-1, i, k, m, a, l;
+  GEN C, M, L3, L, B, g, list3, list, perm, v2;
+  long n = lg(gam)-1, i, k, m, a, l, c, c3;
 
-  trois = cgetg(n+1, t_VECSMALL);
-  for (i = 1; i <= n; i++)
+  list = cgetg(n+1, t_VECSMALL);
+  list3 = cgetg(n+1, t_VECSMALL);
+  for (i = c = c3 = 1; i <= n; i++)
+  {
+    long t;
     if (ast[i] == i)
-      trois[i] = !isintzero(gtrace(gel(gam,i)));
+      t = !isintzero(gtrace(gel(gam,i)));
     else
-      trois[i] = ast[ast[i]] != i;
+      t = ast[ast[i]] != i;
+    if (t) list3[c3++] = i; else list[c++] = i;
+  }
+  setlg(list, c); setlg(list3, c3);
   if (typ(ast) == t_VEC) ast = ZV_to_zv(ast);
   av2 = avma;
   C = M = L = L3 = cgetg(1, t_VEC);
@@ -223,18 +237,21 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
       B = vecsplice(B,k);
     }
   }
+  vecvecsmall_sort_inplace(B, &perm);
   l = lg(B);
   V2 = cgetg(l, t_VEC);
   gam2 = cgetg(l, t_VEC);
   ast2 = cgetg(l, t_VECSMALL);
+  v2 = cgetg(3, t_VECSMALL);
   for (i = 1; i < l; i++)
   {
-    long r;
+    long r, j = perm[i];
+    GEN ig;
     get2(gel(B,i), &m,&a);
-    gel(V2,i) = normalise(ZM_mul(gel(C,m), gel(V,a)));
-    r = gel(M,m)[a];
-    gel(gam2,i) = normalise(gdiv(ZM_mul(gel(C,m), gel(gam,a)), gel(C,r)));
-    ast2[i] = RgV_isin(B, mkvecsmall2(r, ast[a]));
+    r = gel(M,m)[a]; ig = SL2_inv_shallow(gel(C,r));
+    gel(V2, j) = normalise(ZM_mul(gel(C,m), gel(V,a)));
+    gel(gam2, j) = normalise(ZM_mul(ZM_mul(gel(C,m), gel(gam,a)), ig));
+    v2[1] = r; v2[2] = ast[a]; ast2[j] = perm[vecvecsmall_search(B, v2, 0)];
   }
   F = rectify(V2, ast2, gam2);
   if (pCM) *pCM = mkvec2(C,M);
