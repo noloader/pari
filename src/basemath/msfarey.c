@@ -106,6 +106,7 @@ rectify(GEN V, GEN ast, GEN gam)
 {
   long n = lg(V)-1, n1, i, def, m, dec;
   GEN V1, a1, g1, d, inj;
+  pari_sp av;
 
   for(i = 1, def = 0; i <= n; i++)
     if (ast[ast[i]] != i) def++;
@@ -117,21 +118,22 @@ rectify(GEN V, GEN ast, GEN gam)
   V1 = cgetg(n1+1, t_VEC);
   a1 = cgetg(n1+1, t_VECSMALL);
   d = cgetg(def+1, t_VECSMALL);
+  av = avma;
   for (i = m = 1; i <= n; i++)
   {
     long i2 = ast[i], i3 = ast[i2];
     if (i2 > i && i3 > i)
     {
-      GEN d1 = mulii(denval(gel(gam,i)),  gel(V,ast[i]));
-      GEN d2 = mulii(denval(gel(gam,i2)), gel(V,ast[i2]));
-      GEN d3 = mulii(denval(gel(gam,i3)), gel(V,ast[i3]));
+      GEN d1 = denval(ZM_mul(gel(gam,i),  gel(V,ast[i])));
+      GEN d2 = denval(ZM_mul(gel(gam,i2), gel(V,ast[i2])));
+      GEN d3 = denval(ZM_mul(gel(gam,i3), gel(V,ast[i3])));
       if (cmpii(d1,d2) <= 0)
         d[m++] = cmpii(d1,d3) <= 0? i: i3;
       else
         d[m++] = cmpii(d2,d3) <= 0? i2: i3;
     }
   }
-  inj = zero_zv(n);
+  set_avma(av); inj = zero_zv(n);
   for (i = 1; i <= def; i++) inj[d[i]] = 1;
   for (i = 1, dec = 0; i <= n; i++) { dec += inj[i]; inj[i] = i + dec; }
   for (i = 1; i <= n; i++)
@@ -204,6 +206,11 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
       }
     }
     get2(gel(L,1), &m,&a); L = vecsplice(L,1);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"msfarey, #L = %ld", lg(L)-1);
+      gerepileall(av2, 4, &C, &M, &L, &B); L3 = cgetg(1, t_VEC);
+    }
     av3 = avma;
     g = ZM_mul(gel(C,m), gel(gam,a));
     k = conginlist(C, g, E, in);
@@ -214,11 +221,6 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
       k = _isin2(B, m, a);
       newcoset(g,k,ast[a]);
       B = vecsplice(B,k);
-    }
-    if (gc_needed(av,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"msfarey, #L = %ld", lg(L)-1);
-      gerepileall(av2, 5, &C, &M, &L, &L3, &B);
     }
   }
   l = lg(B);
