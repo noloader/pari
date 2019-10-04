@@ -17,11 +17,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 static long
 conginlist(GEN L, GEN g, void *E, long (*in)(void *, GEN ))
 {
+  pari_sp av = avma;
   long i, l = lg(L);
   GEN gi = ginv(g);
   for (i = 1; i < l; i++)
     if (in(E, gmul(gel(L,i), gi))) break;
-  return i;
+  return gc_long(av, i);
 }
 
 static GEN
@@ -175,6 +176,14 @@ rectify(GEN V, GEN ast, GEN gam)
   }
   return mkvec3(V1, a1, g1);
 }
+static GEN
+vecpop(GEN v)
+{
+  long l = lg(v);
+  *v++ = evaltyp(t_VEC)|_evallg(1); /* stackdummy */
+  *v = evaltyp(t_VEC)|_evallg(l-1);
+  return v;
+}
 
 GEN
 msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
@@ -205,7 +214,7 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
   {
     while(lg(L3)-1)
     {
-      get2(gel(L3,1), &m,&a); L3 = vecsplice(L3,1);
+      get2(gel(L3,1), &m,&a); L3 = vecpop(L3);
       av3 = avma;
       g = ZM_mul(gel(C,m), gel(gam,a));
       k = conginlist(C, g, E, in);
@@ -219,7 +228,7 @@ msfarey(GEN F, void *E, long (*in)(void *, GEN), GEN *pCM)
         B = vecsplice(B, k);
       }
     }
-    get2(gel(L,1), &m,&a); L = vecsplice(L,1);
+    get2(gel(L,1), &m,&a); L = vecpop(L);
     if (gc_needed(av,2))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"msfarey, #L = %ld", lg(L)-1);
