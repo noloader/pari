@@ -1141,7 +1141,15 @@ Fl_sqr(ulong a, ulong p)
   (void)divll(x,p); return hiremainder;
 }
 INLINE ulong
-Fl_div(ulong a, ulong b, ulong p) { return Fl_mul(a, Fl_inv(b, p), p); }
+Fl_div(ulong a, ulong b, ulong p)
+{
+  if (!a)
+  { /* not infrequent */
+    if (b) return 0;
+    (void)Fl_inv(0,p);
+  }
+  return Fl_mul(a, Fl_inv(b, p), p);
+}
 
 /*******************************************************************/
 /*                                                                 */
