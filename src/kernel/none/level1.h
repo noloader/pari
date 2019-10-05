@@ -1140,16 +1140,10 @@ Fl_sqr(ulong a, ulong p)
   if (!hiremainder) return x % p;
   (void)divll(x,p); return hiremainder;
 }
+/* don't assume that p is prime: can't special case a = 0 */
 INLINE ulong
 Fl_div(ulong a, ulong b, ulong p)
-{
-  if (!a)
-  { /* not infrequent */
-    if (b) return 0;
-    (void)Fl_inv(0,p);
-  }
-  return Fl_mul(a, Fl_inv(b, p), p);
-}
+{ return Fl_mul(a, Fl_inv(b, p), p); }
 
 /*******************************************************************/
 /*                                                                 */
