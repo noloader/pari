@@ -3479,7 +3479,7 @@ Fl_Xp1_powu(long n, ulong p, long v)
     if (!ik)
     { /* Ooops, finish by hand */
       GEN D = vecbinomial(n);
-      for (; k <= d; k++) uel(C,k+2) = umodiu(gel(D,k+2), p);
+      for (; k <= d; k++) uel(C,k+2) = umodiu(gel(D,k+1), p);
       break;
     }
     uel(C,k+2) = Fl_mul(Fl_mul(Fl_sub(np,kp,p), uel(C,k+1), p), ik, p);
