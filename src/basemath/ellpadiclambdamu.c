@@ -156,7 +156,14 @@ ellpadiclambdamu(GEN E, long p, long D, long R)
   if (odd(R)) s = -s;
 
   ap = ellap(E, utoi(p));
-  if (!umodiu(ap, p)) ap = NULL; /* supersingular */
+  if (ell_get_type(E) != t_ELL_Q)
+    pari_err_TYPE("ellpadiclambdamu", E);
+  if (!umodiu(ap, p))
+  {
+    if (Z_lval(ellQ_get_N(E), p) >= 2)
+      pari_err_IMPL("additive reduction in ellpadiclambdamu");
+    ap = NULL; /* supersingular */
+  }
   if (ap)
   { /* ordinary */
     GEN v = ellisomat(E, p, 1), vE = gel(v,1), M = gel(v,2);
