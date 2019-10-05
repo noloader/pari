@@ -3476,8 +3476,12 @@ Fl_Xp1_powu(long n, ulong p, long v)
   for (k = kp = 2; k <= d; k++) /* binom(n,k) = binom(n,k-1) * (n-k+1) / k */
   {
     ulong ik = Fl_invsafe(kp, p);
-    /* Ooops */
-    if (!ik) return Flv_to_Flx(ZV_to_Flv(vecbinomial(n), p), v);
+    if (!ik)
+    { /* Ooops, finish by hand */
+      GEN D = vecbinomial(n);
+      for (; k <= d; k++) uel(C,k+2) = umodiu(gel(D,k+2), p);
+      break;
+    }
     uel(C,k+2) = Fl_mul(Fl_mul(Fl_sub(np,kp,p), uel(C,k+1), p), ik, p);
     if (++kp == p) kp = 0;
   }
