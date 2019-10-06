@@ -4844,7 +4844,8 @@ few factors, \kbd{FpX\_nbfact(f,p) == 1} is much faster.
 
 \fun{int}{FpX_is_totally_split}{GEN f, GEN p} returns $1$ if the
 \kbd{FpX}~\kbd{f} splits into a product of distinct linear factors, $0$
-otherwise. Assumes that \kbd{p} is prime.
+otherwise. Assumes that \kbd{p} is prime. The $0$ polynomial is not
+totally split.
 
 \fun{long}{FpX_ispower}{GEN f, ulong k, GEN p, GEN *pt}
 return $1$ if the \kbd{FpX} $f$ is a $k$-th power, $0$ otherwise.

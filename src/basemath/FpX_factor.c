@@ -717,17 +717,17 @@ Flx_is_totally_split(GEN f, ulong p)
   pari_sp av = avma;
   ulong n = degpol(f);
   if (n <= 1) return 1;
-  if ((ulong)n > p) return 0;
+  if (n > p) return 0; /* includes n < 0 */
   return gc_bool(av, Flx_is_totally_split_i(f,p));
 }
 int
 FpX_is_totally_split(GEN f, GEN p)
 {
   pari_sp av = avma;
-  long n = degpol(f);
+  ulong n = degpol(f);
   int u;
   if (n <= 1) return 1;
-  if (abscmpui(n, p) > 0) return 0;
+  if (abscmpui(n, p) > 0) return 0; /* includes n < 0 */
   if (lgefint(p) != 3)
     u = gequalX(FpX_Frobenius(FpX_red(f,p), p));
   else
