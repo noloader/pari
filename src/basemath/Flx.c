@@ -3465,9 +3465,9 @@ Flx_diamondsum(GEN P, GEN Q, ulong p)
 /* Best if ((n+1)/2 !, p) = 1. FIXME: could use multi-inverse but 'safe'
  * variant is not implemented, in case p is not prime */
 static GEN
-Fl_Xp1_powu(long n, ulong p, long v)
+Fl_Xp1_powu(ulong n, ulong p, long v)
 {
-  long k, kp, np = n % p, d = (n + 1) >> 1;
+  ulong k, kp, np = n % p, d = (n + 1) >> 1;
   GEN C = cgetg(n+3, t_VECSMALL);
   C[1] = v;
   uel(C,2) = 1UL;
