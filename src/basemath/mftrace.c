@@ -9024,10 +9024,15 @@ mfeisenstein2_0_Fl(long k, GEN CHI1vec, GEN CHI2vec, GEN vz, ulong p)
   else return 0;
 }
 static GEN
-NK_eisen2(long k, GEN CHI1, GEN CHI2)
+NK_eisen2(long k, GEN CHI1, GEN CHI2, long ord)
 {
-  long N = mfcharmodulus(CHI1)*mfcharmodulus(CHI2);
-  return mkNK(N, k, mfcharmul(CHI1,CHI2));
+  long o, N = mfcharmodulus(CHI1)*mfcharmodulus(CHI2);
+  GEN CHI = mfcharmul(CHI1, CHI2);
+  o = mfcharorder(CHI);
+  if ((ord & 3) == 2) ord >>= 1;
+  if ((o & 3) == 2) o >>= 1;
+  if (ord != o) pari_err_IMPL("mfeisenstein for these characters");
+  return mkNK(N, k, CHI);
 }
 static GEN
 mfeisenstein_i(long k, GEN CHI1, GEN CHI2)
@@ -9049,8 +9054,8 @@ mfeisenstein_i(long k, GEN CHI1, GEN CHI2)
   }
   /* E_k(chi1,chi2) */
   vt = varn(mfcharpol(CHI1));
-  NK = NK_eisen2(k, CHI1, CHI2);
   ord = ulcm(mfcharorder(CHI1), mfcharorder(CHI2));
+  NK = NK_eisen2(k, CHI1, CHI2, ord);
   E0 = mfeisenstein2_0(k, CHI1, CHI2, ord);
   T = mkvec(polcyclo(ord, vt));
   vchi = mkvec4(E0, T, CHI1, CHI2);

@@ -749,6 +749,7 @@ mfdim([4,1/2],5)
 
 mfeisenstein(2,1.0)
 mfeisenstein(2,[0,0])
+mfeisenstein(6,Mod(7,9),Mod(4,9));
 mfinit([1,1.0])
 L=mfeigenbasis(mfinit([14,6,Mod(9,14)],0)); mfmul(L[1],L[2])
 

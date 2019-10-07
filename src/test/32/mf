@@ -1527,6 +1527,9 @@ od(0, t^16 + 1), Mod(3/8*t^11, t^16 + 1), Mod(0, t^16 + 1)]
   ***   at top-level: mfeisenstein(2,[0,0])
   ***                 ^---------------------
   *** mfeisenstein: incorrect type in checkNF [chi] (t_VEC).
+  ***   at top-level: mfeisenstein(6,Mod(7,9),Mod(4,9))
+  ***                 ^---------------------------------
+  *** mfeisenstein: sorry, mfeisenstein for these characters is not yet implemented.
   ***   at top-level: mfinit([1,1.0])
   ***                 ^---------------
   *** mfinit: incorrect type in checkNF [k] (t_VEC).
@@ -1615,4 +1618,4 @@ od(0, t^16 + 1), Mod(3/8*t^11, t^16 + 1), Mod(0, t^16 + 1)]
   ***   at top-level: ...,0);[F]=mfeigenbasis(mf);mfpow(F,3)
   ***                                             ^----------
   *** mfpow: sorry, changing cyclotomic fields in mf is not yet implemented.
-Total time spent: 17601
+Total time spent: 9448
