@@ -2601,23 +2601,49 @@ use_Petersson(long N, long k, long s)
 {
   if (!s)
   {
-    if (N == 1)  return k >= 124;
-    if (N <= 3)  return k >= 44;
+    if (N == 1)  return 1;
+    if (N <= 3)  return k >= 42;
     if (N == 4)  return k >= 30;
     if (N == 5)  return k >= 20;
     if (N <= 10) return k >= 14;
     if (N <= 16) return k >= 10;
     if (N <= 28) return k >= 8;
-    if (N <= 650) return k >= 6;
+    if (N <= 136 || N == 180 || N == 200 || N == 225) return k >= 6;
     return k >= 4;
   }
-  if (s < 0) return 0; /* TODO: why ? */
-  if (N == 1) return k >= 144;
-  if (N <= 4) return k >= 70;
-  if (N <= 9) return k >= 30;
-  if (N <= 100) return k >= 12;
-  if (N <= 200) return k >= 8;
+  if (s < 0)
+  {
+    if (N <= 64 || N == 100 || N == 128 || N == 144 || N == 225
+        || N == 351 || N == 375) return 8;
+    return 6;
+  }
+  if (N == 1) return 1;
+  if (N == 2) return k >= 56;
+  if (N <= 4) return k >= 74;
+  if (N <= 9) return k >= 38;
+  if (N <= 11) return k >= 24;
+  if (N <= 19) return k >= 20;
+  if (N <= 27 || N == 128) return k >= 16;
+  if (N <= 50 || N == 64 || N == 72 || N == 75 || N == 108 || N == 144 || N == 192 ) return k >= 12;
+  if (N == 63 || N == 100 || N == 133 || N == 160 || N == 175 || N == 180 || N == 225 || N == 252 || N == 320) return k >= 10;
+  if (N <= 127 || N == 147 || N == 216 || N == 224 || N == 315 || N == 336 || N == 360 || N == 384) return k >= 8;
   return k >= 6;
+}
+/* eisspace^-(N) = 0 */
+static int
+isminustriv(GEN F)
+{
+  GEN P = gel(F,1), E = gel(F,2);
+  long i = 1, l = lg(P);
+  if (l == 1) return 1;
+  if (P[1] == 2)
+  {
+    if (E[1] >= 4) return 0;
+    i++;
+  }
+  for (; i < l; i++)
+    if (E[i] > 1) return 0;
+  return 1;
 }
 
 GEN
@@ -2626,12 +2652,13 @@ mscuspidal(GEN W, long flag)
   pari_sp av = avma;
   GEN M, E, S;
   ulong p, N;
-  long k;
+  long k, s = msk_get_sign(W);
 
-  E = mseisenstein(W);
   N = ms_get_N(W);
   k = msk_get_weight(W);
-  if (use_Petersson(N, k, msk_get_sign(W))) M = eisker(W);
+  E = flag? mseisenstein(W): NULL;
+  if (s < 0 && isminustriv(factoru(N))) M = matid(msdim(W));
+  else if (use_Petersson(N, k, s)) M = eisker(W);
   else
   {
     GEN T, TE, chE;
@@ -2639,6 +2666,7 @@ mscuspidal(GEN W, long flag)
     long bit;
     pari_timer ti;
 
+    E = mseisenstein(W);
     (void)u_forprime_init(&F, 2, ULONG_MAX);
     while ((p = u_forprime_next(&F)))
       if (N % p) break;
@@ -5068,37 +5096,45 @@ eisf(long N, long C, long a, long d1, GEN Z2, long c1, long c2,
 
 /* basis for Gamma_0(N)-invariant functions attached to cusps */
 static GEN
-eisspace(long N, long k, GEN *pperm)
+eisspace(long N, long k, long s, GEN *pperm)
 {
-  GEN v, perm, F = factoru(N), D = divisorsu_fact(F);
-  long l = lg(D), n = mfnumcuspsu_fact(F), i, j;
+  GEN v, perm, D, F = factoru(N);
+  long l, n, i, j;
+  D = divisorsu_fact(F); l = lg(D);
+  n = mfnumcuspsu_fact(F);
   v = cgetg((k==2)? n: n+1, t_VEC);
-  *pperm = perm = cgetg(lg(v), t_VECSMALL);
+  *pperm = perm = s > 0? cgetg(lg(v), t_VECSMALL): NULL;
   for (i = (k==2)? 2: 1, j = 1; i < l; i++) /* remove d = 1 if k = 2 */
   {
-    long d = D[i], Nd = D[l-i], a = ugcd(d, Nd), q1 = N / a, q2 = q1 / d;
-    long d2 = u_ppo(d/a, a), d1 = d / d2, C = eulerphiu(d) * a;
-    long c1, c2, u;
-    GEN  Z2 = coprimes_zv(d2);
+    long d = D[i], Nd = D[l-i], a = ugcd(d, Nd), q1, q2, d1, d2, C, c1, c2, u;
+    GEN Z2;
+
+    if (s < 0 && a <= 2) continue;
+    q1 = N / a;
+    q2 = q1 / d;
+    d2 = u_ppo(d/a, a);
+    d1 = d / d2;
+    C = eulerphiu(d) * a;
+    Z2 = coprimes_zv(d2);
     /* d = d1d2, (d2,a) = 1; d1 and a have same prime divisors */
     (void)cbezout(d1, d2, &c2, &c1);
     c2 *= d1 * q2;
     c1 *= d2 * q2;
     if (a <= 2)
     { /* sigma.(C cusp attached to [q1,q2,u]) = C */
-      perm[j] = j;
+      if (perm) perm[j] = j;
       gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, N/a, 1);
       continue;
     }
     for (u = 1; 2*u < a; u++)
     {
       if (ugcd(u,a) != 1) continue;
-      perm[j] = j+1;
-      perm[j+1] = j;
+      if (perm) { perm[j] = j+1; perm[j+1] = j; }
       gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, q1, u);
-      gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, q1, a-u);
+      if (s >= 0) gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, q1, a-u);
     }
   }
+  if (s) { setlg(v, j); if (perm) setlg(perm, j); }
   return v;
 }
 
@@ -5342,11 +5378,12 @@ static GEN
 eisker(GEN M)
 {
   long N = ms_get_N(M), k = msk_get_weight(M), s = msk_get_sign(M);
-  GEN worker, co, CD, D, B, BD, T, perm, E = eisspace(N, k, &perm);
-  GEN vC = vecbinomial(k-2);
+  GEN worker, vC, co, CD, D, B, BD, T, perm, E = eisspace(N, k, s, &perm);
   long i, j, m = lg(E)-1, n = msdim(M), pending = 0;
   struct pari_mt pt;
 
+  if (m == 0) return matid(n);
+  vC = vecbinomial(k-2);
   T = zeromatcopy(m, n);
   D = mspolygon(M, 0);
   B = Q_remove_denom(get_bern(N,k), &BD);
@@ -5363,10 +5400,19 @@ eisker(GEN M)
     if (done) for (j = 1; j <= n; j++) gcoeff(T,workid,j) = gel(done,j);
   }
   mt_queue_end(&pt);
-  if (s)
-  {
-    GEN U = rowpermute(T, perm);
-    T = s == 1? gadd(T, U): gsub(T, U);
+  if (s > 0)
+  { /* U = T + (row perm) * T */
+    long j, l = lg(perm);
+    GEN v = cgetg(l, t_COL);
+    for (i = j = 1; i < l; i++)
+      if (perm[i] == i)
+        gel(v,j++) = Q_primpart(row(T,i));
+      else
+      {
+        gel(v,j++) = Q_primpart(gadd(row(T,i), row(T,i+1)));
+        i++;
+      }
+    setlg(v, j); T = shallowmatconcat(T);
   }
   return QM_ker(T);
 }

@@ -3327,7 +3327,7 @@ ZM_ker_i(GEN A)
     B = vconcat(ZM_mul(ZM_neg(A1i), B), scalarmat_shallow(d, lg(B)-1));
     if (!gequal(y, identity_perm(lg(y)-1)))
       B = rowpermute(B, perm_inv(shallowconcat(y,z)));
-    return B;
+    return vec_Q_primpart(B);
   }
   init_modular_big(&S);
   worker = snm_closure(is_entry("_ZM_ker_worker"), mkvec(A));
