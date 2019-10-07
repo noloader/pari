@@ -5328,11 +5328,11 @@ FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p)
   b = expi(z) + 1;
   /* only do expensive bit-packing if it saves at least 1 limb */
   if (b <= BITS_IN_HALFULONG) {
-    if (nbits2lg(d*b) - 2 == (d + 1)/2)
+    if (nbits2nlong(d*b) == (d + 1)/2)
       b = BITS_IN_HALFULONG;
   } else {
     long l = lgefint(z) - 2;
-    if (nbits2lg(d*b) - 2 == d*l)
+    if (nbits2nlong(d*b) == d*l)
       b = l*BITS_IN_LONG;
   }
   set_avma(av);
