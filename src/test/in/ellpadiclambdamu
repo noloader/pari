@@ -88,3 +88,4 @@ lambdamu(E11a3,5)
 \\ ERRORS
 lambdamu(E20a1,2)
 lambdamu(E20a1,3,2)
+lambdamu(ellinit([1,1],5),5)
