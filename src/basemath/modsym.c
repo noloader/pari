@@ -2570,14 +2570,13 @@ mseisenstein_i(GEN W)
   if (msk_get_weight(W)==2) l--;
   M = cgetg(l, t_MAT);
   for (i = 1; i < l; i++) gel(M,i) = msfromcusp_i(W, gel(cusps,i));
-  return Qevproj_star(W, QM_image(M));
+  return Qevproj_init(Qevproj_star(W, QM_image(M)));
 }
 GEN
 mseisenstein(GEN W)
 {
   pari_sp av = avma;
-  checkms(W);
-  return gerepilecopy(av, Qevproj_init(mseisenstein_i(W)));
+  checkms(W); return gerepilecopy(av, mseisenstein_i(W));
 }
 
 /* upper bound for log_2 |charpoly(T_p|S)|, where S is a cuspidal subspace of
@@ -2652,11 +2651,13 @@ mscuspidal(GEN W, long flag)
   pari_sp av = avma;
   GEN M, E, S;
   ulong p, N;
-  long k, s = msk_get_sign(W);
+  long k, s;
 
+  checkms(W);
   N = ms_get_N(W);
   k = msk_get_weight(W);
-  E = flag? mseisenstein(W): NULL;
+  s = msk_get_sign(W);
+  E = flag? mseisenstein_i(W): NULL;
   if (s < 0 && isminustriv(factoru(N))) M = matid(msdim(W));
   else if (use_Petersson(N, k, s)) M = eisker(W);
   else
@@ -2666,7 +2667,7 @@ mscuspidal(GEN W, long flag)
     long bit;
     pari_timer ti;
 
-    E = mseisenstein(W);
+    if (!E) E = mseisenstein_i(W);
     (void)u_forprime_init(&F, 2, ULONG_MAX);
     while ((p = u_forprime_next(&F)))
       if (N % p) break;
