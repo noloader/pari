@@ -597,6 +597,31 @@ maxlengthcoeffpol(ulong p, long n)
   return l-2;
 }
 
+INLINE long
+maxbitcoeffpol(ulong p, long n)
+{
+  GEN z = muliu(sqru(p - 1), n);
+  long b = expi(z) + 1;
+  /* only do expensive bit-packing if it saves at least 1 limb */
+  if (b <= BITS_IN_QUARTULONG)
+  {
+    if (nbits2nlong(n*b) == (n + 3)>>2)
+      b = BITS_IN_QUARTULONG;
+  }
+  else if (b <= BITS_IN_HALFULONG)
+  {
+    if (nbits2nlong(n*b) == (n + 1)>>1)
+      b = BITS_IN_HALFULONG;
+  }
+  else
+  {
+    long l = lgefint(z) - 2;
+    if (nbits2nlong(n*b) == n*l)
+      b = l*BITS_IN_LONG;
+  }
+  return b;
+}
+
 INLINE ulong
 Flx_mullimb_ok(GEN x, GEN y, ulong p, long a, long b)
 { /* Assume OK_ULONG*/
@@ -903,6 +928,39 @@ kron_unpack_Flx_bits_wide(GEN z, long b, ulong p, ulong pi) {
   return Flx_renormalize(x, l);
 }
 
+static GEN
+Flx_mulspec_Kronecker(GEN A, GEN B, long b, ulong p, long lA, long lB)
+{
+  GEN C, D;
+  A =  kron_pack_Flx_spec_bits(A, b, lA);
+  B =  kron_pack_Flx_spec_bits(B, b, lB);
+  C = mulii(A, B);
+  if (b < BITS_IN_LONG)
+    D =  kron_unpack_Flx_bits_narrow(C, b, p);
+  else
+  {
+    ulong pi = get_Fl_red(p);
+    D = kron_unpack_Flx_bits_wide(C, b, p, pi);
+  }
+  return D;
+}
+
+static GEN
+Flx_sqrspec_Kronecker(GEN A, long b, ulong p, long lA)
+{
+  GEN C, D;
+  A =  kron_pack_Flx_spec_bits(A, b, lA);
+  C = sqri(A);
+  if (b < BITS_IN_LONG)
+    D =  kron_unpack_Flx_bits_narrow(C, b, p);
+  else
+  {
+    ulong pi = get_Fl_red(p);
+    D = kron_unpack_Flx_bits_wide(C, b, p, pi);
+  }
+  return D;
+}
+
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
  * Only c, c0, c1, c2 are genuine GEN.
@@ -911,7 +969,7 @@ static GEN
 Flx_mulspec(GEN a, GEN b, ulong p, long na, long nb)
 {
   GEN a0,c,c0;
-  long n0, n0a, i, v = 0;
+  long n0, n0a, i, v = 0, m;
   pari_sp av;
 
   while (na && !a[0]) { a++; na--; v++; }
@@ -920,28 +978,31 @@ Flx_mulspec(GEN a, GEN b, ulong p, long na, long nb)
   if (!nb) return pol0_Flx(0);
 
   av = avma;
-  switch (maxlengthcoeffpol(p,nb))
+  m = maxbitcoeffpol(p,nb);
+  switch (m)
   {
-  case -1:
+  case BITS_IN_QUARTULONG:
     if (na>=Flx_MUL_QUARTMULII_LIMIT)
       return Flx_shiftip(av,Flx_mulspec_quartmulii(a,b,p,na,nb), v);
     break;
-  case 0:
+  case BITS_IN_HALFULONG:
     if (na>=Flx_MUL_HALFMULII_LIMIT)
       return Flx_shiftip(av,Flx_mulspec_halfmulii(a,b,p,na,nb), v);
     break;
-  case 1:
+  case BITS_IN_LONG:
     if (na>=Flx_MUL_MULII_LIMIT)
       return Flx_shiftip(av,Flx_mulspec_mulii(a,b,p,na,nb), v);
     break;
-  case 2:
+  case 2*BITS_IN_LONG:
     if (na>=Flx_MUL_MULII2_LIMIT)
       return Flx_shiftip(av,Flx_mulspec_mulii_inflate(a,b,2,p,na,nb), v);
     break;
-  case 3:
+  case 3*BITS_IN_LONG:
     if (na>70)
       return Flx_shiftip(av,Flx_mulspec_mulii_inflate(a,b,3,p,na,nb), v);
     break;
+  default:
+    return Flx_shiftip(av,Flx_mulspec_Kronecker(a,b,m,p,na,nb), v);
   }
   if (nb < Flx_MUL_KARATSUBA_LIMIT)
     return Flx_shiftip(av,Flx_mulspec_basecase(a,b,p,na,nb), v);
@@ -1069,35 +1130,38 @@ static GEN
 Flx_sqrspec(GEN a, ulong p, long na)
 {
   GEN a0, c, c0;
-  long n0, n0a, i, v = 0;
+  long n0, n0a, i, v = 0, m;
   pari_sp av;
 
   while (na && !a[0]) { a++; na--; v += 2; }
   if (!na) return pol0_Flx(0);
 
   av = avma;
-  switch(maxlengthcoeffpol(p,na))
+  m = maxbitcoeffpol(p,na);
+  switch(m)
   {
-  case -1:
+  case BITS_IN_QUARTULONG:
     if (na>=Flx_SQR_QUARTSQRI_LIMIT)
       return Flx_shiftip(av, Flx_sqrspec_quartsqri(a,p,na), v);
     break;
-  case 0:
+  case BITS_IN_HALFULONG:
     if (na>=Flx_SQR_HALFSQRI_LIMIT)
       return Flx_shiftip(av, Flx_sqrspec_halfsqri(a,p,na), v);
     break;
-  case 1:
+  case BITS_IN_LONG:
     if (na>=Flx_SQR_SQRI_LIMIT)
       return Flx_shiftip(av, Flx_sqrspec_sqri(a,p,na), v);
     break;
-  case 2:
+  case 2*BITS_IN_LONG:
     if (na>=Flx_SQR_SQRI2_LIMIT)
       return Flx_shiftip(av, Flx_sqrspec_sqri_inflate(a,2,p,na), v);
     break;
-  case 3:
+  case 3*BITS_IN_LONG:
     if (na>70)
       return Flx_shiftip(av, Flx_sqrspec_sqri_inflate(a,3,p,na), v);
     break;
+  default:
+    return Flx_shiftip(av, Flx_sqrspec_Kronecker(a,m,p,na), v);
   }
   if (na < Flx_SQR_KARATSUBA_LIMIT)
     return Flx_shiftip(av, Flx_sqrspec_basecase(a,p,na), v);
