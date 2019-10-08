@@ -2433,6 +2433,7 @@ typedef struct {
   int q_is_real; /* exp(2iPi tau) \in R */
   int abs_u_is_1; /* |exp(2iPi Z)| = 1 */
   long prec; /* precision(Z) */
+  long prec0; /* required precision for result */
 } ellred_t;
 
 /* compute g in SL_2(Z), g.t is in the usual
@@ -2495,6 +2496,7 @@ red_modSL2(ellred_t *T, long prec)
                           mkvec2(T->w1,T->w2));
   T->swap = (s < 0);
   if (T->swap) { swap(T->w1, T->w2); T->tau = ginv(T->tau); }
+  p = precision(T->tau); T->prec0 = p? p: prec;
   set_gamma(&T->tau, &T->a, &T->b, &T->c, &T->d);
   /* update lattice */
   p = precision(T->tau);
@@ -2507,8 +2509,7 @@ red_modSL2(ellred_t *T, long prec)
   T->W2 = gadd(gmul(T->c,T->w1), gmul(T->d,T->w2));
   T->Tau = gdiv(T->W1, T->W2);
   if (isintzero(real_i(T->Tau))) T->some_q_is_real = T->q_is_real = 1;
-  p = precision(T->Tau); if (!p) p = prec;
-  T->prec = p;
+  p = precision(T->Tau); T->prec = p? p: prec;
 }
 /* is z real or pure imaginary ? */
 static void
@@ -2665,7 +2666,7 @@ elleisnum(GEN om, long k, long flag, long prec)
   }
   else if (k==4 && flag) y = gdivgs(y,  12);
   else if (k==6 && flag) y = gdivgs(y,-216);
-  return gerepileupto(av,y);
+  return gerepilecopy(av, gprec_wtrunc(y, T.prec0));
 }
 
 /* return quasi-periods attached to [T->W1,T->W2] */
@@ -2813,7 +2814,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
     }
     y = mkvec2(y, yp);
   }
-  return gerepilecopy(av, y);
+  return gerepilecopy(av, gprec_wtrunc(y, T.prec0));
 }
 static GEN
 ellwpseries_aux(GEN c4, GEN c6, long v, long PRECDL)
@@ -2995,7 +2996,8 @@ ellzeta(GEN w, GEN z, long prec0)
         gel(y,1) = gen_0;
     }
   }
-  return et? gerepileupto(av, gadd(y,et)): gerepilecopy(av, y);
+  if (et) y = gadd(y, et);
+  return gerepilecopy(av, gprec_wtrunc(y, T.prec0));
 }
 
 /* if flag=0, return ellsigma, otherwise return log(ellsigma) */
@@ -3098,7 +3100,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
       else if (cx && typ(y) == t_COMPLEX) gel(y,1) = gen_0;
     }
   }
-  return gerepilecopy(av, y);
+  return gerepilecopy(av, gprec_wtrunc(y, T.prec0));
 }
 
 GEN

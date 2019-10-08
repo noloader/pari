@@ -272,6 +272,11 @@ for (i = 1, #v,
 elleisnum([1,I/2^30],2)
 elleisnum([1,I/2^30],4)
 
+\\ #2167
+E=ellinit([0,-1,1,-10,-20]);
+e=elleisnum(E,4,1)
+bitprecision(e)
+
 \\ #1257
 ellrootno(ellinit([0,-1,1,217,-282]))
 
