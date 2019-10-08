@@ -816,7 +816,6 @@ void    prime_table_next_p(ulong a, byteptr *pd, ulong *pp, ulong *pn);
 long    cosets_perm_search(GEN C, GEN p);
 GEN     perm_generate(GEN S, GEN H, long o);
 long    perm_relorder(GEN p, GEN S);
-GEN     vecperm_schreier(GEN v, long n, long mj);
 GEN     vecperm_extendschreier(GEN C, GEN v, long n);
 
 /* polclass.c */

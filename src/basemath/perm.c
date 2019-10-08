@@ -263,43 +263,6 @@ perm_mul_inplace2(GEN s, GEN t)
 }
 
 GEN
-vecperm_schreier(GEN v, long n, long mj)
-{
-  long lv = lg(v);
-  GEN id = identity_perm(n);
-  GEN bit = const_vecsmall(n, 0);
-  GEN sh = const_vec(n, gen_0);
-  {
-    long m = 1;
-    GEN cy = cgetg(n+1, t_VECSMALL);
-    for (  ; bit[mj]; mj++) /*empty*/;
-    gel(sh,mj) = id; cy[m++] = mj;
-    bit[mj++] = 1;
-    for(;;)
-    {
-      long o, mold = m;
-      for (o = 1; o < lv; o++)
-      {
-        GEN vo = gel(v,o);
-        long p;
-        for (p = 1; p < m; p++) /* m increases! */
-        {
-          long j = vo[ cy[p] ];
-          if (!bit[j])
-          {
-            gel(sh,j) = perm_mul(vo, gel(sh, cy[p]));
-            cy[m++] = j;
-          }
-          bit[j] = 1;
-        }
-      }
-      if (m == mold) break;
-    }
-    setlg(cy, m); return mkvec2copy(cy,sh);
-  }
-}
-
-GEN
 vecperm_extendschreier(GEN C, GEN v, long n)
 {
   pari_sp av = avma;
