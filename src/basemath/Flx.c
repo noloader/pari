@@ -809,6 +809,100 @@ Flx_mulspec_mulii_inflate(GEN x, GEN y, long N, ulong p, long nx, long ny)
   return gerepileupto(av, Z_mod2BIL_Flx(z, N, nx+ny-2, p));
 }
 
+static GEN
+kron_pack_Flx_spec_half(GEN x, long l) {
+  if (l == 0)
+    return gen_0;
+  return Flx_to_int_halfspec(x, l);
+}
+
+static GEN
+kron_pack_Flx_spec(GEN x, long l) {
+  long i;
+  GEN w, y;
+  if (l == 0)
+    return gen_0;
+  y = cgetipos(l + 2);
+  for (i = 0, w = int_LSW(y); i < l; i++, w = int_nextW(w))
+    *w = x[i];
+  return y;
+}
+
+static GEN
+kron_pack_Flx_spec_2(GEN x, long l) {
+  return Flx_eval2BILspec(x, 2, l);
+}
+
+static GEN
+kron_pack_Flx_spec_3(GEN x, long l) {
+  return Flx_eval2BILspec(x, 3, l);
+}
+
+static GEN
+kron_pack_Flx_spec_bits(GEN x, long b, long l) {
+  GEN y;
+  long i;
+  if (l == 0)
+    return gen_0;
+  y = cgetg(l + 1, t_VECSMALL);
+  for(i = 1; i <= l; i++)
+    y[i] = x[l - i];
+  return nv_fromdigits_2k(y, b);
+}
+
+static GEN
+kron_unpack_Flx(GEN z, ulong p)
+{
+  long i, l = lgefint(z);
+  GEN x = cgetg(l, t_VECSMALL), w;
+  for (w = int_LSW(z), i = 2; i < l; w = int_nextW(w), i++)
+    x[i] = ((ulong) *w) % p;
+  return Flx_renormalize(x, l);
+}
+
+static GEN
+kron_unpack_Flx_2(GEN x, ulong p) {
+  long d = (lgefint(x)-1)/2 - 1;
+  return Z_mod2BIL_Flx_2(x, d, p);
+}
+
+static GEN
+kron_unpack_Flx_3(GEN x, ulong p) {
+  long d = lgefint(x)/3 - 1;
+  return Z_mod2BIL_Flx_3(x, d, p);
+}
+
+/* assume b < BITS_IN_LONG */
+static GEN
+kron_unpack_Flx_bits_narrow(GEN z, long b, ulong p) {
+  GEN v = binary_2k_nv(z, b), x;
+  long i, l = lg(v) + 1;
+  x = cgetg(l, t_VECSMALL);
+  for (i = 2; i < l; i++)
+    x[i] = v[l - i] % p;
+  return Flx_renormalize(x, l);
+}
+
+static GEN
+kron_unpack_Flx_bits_wide(GEN z, long b, ulong p, ulong pi) {
+  GEN v = binary_2k(z, b), x, y;
+  long i, l = lg(v) + 1, ly;
+  x = cgetg(l, t_VECSMALL);
+  for (i = 2; i < l; i++) {
+    y = gel(v, l - i);
+    ly = lgefint(y);
+    switch (ly) {
+    case 2: x[i] = 0; break;
+    case 3: x[i] = *int_W_lg(y, 0, ly) % p; break;
+    case 4: x[i] = remll_pre(*int_W_lg(y, 1, ly), *int_W_lg(y, 0, ly), p, pi); break;
+    case 5: x[i] = remlll_pre(*int_W_lg(y, 2, ly), *int_W_lg(y, 1, ly),
+                              *int_W_lg(y, 0, ly), p, pi); break;
+    default: x[i] = umodiu(gel(v, l - i), p);
+    }
+  }
+  return Flx_renormalize(x, l);
+}
+
 /* fast product (Karatsuba) of polynomials a,b. These are not real GENs, a+2,
  * b+2 were sent instead. na, nb = number of terms of a, b.
  * Only c, c0, c1, c2 are genuine GEN.
@@ -5135,100 +5229,6 @@ FlxqC_Flxq_mul(GEN x, GEN y, GEN T, ulong p)
 GEN
 FlxqM_Flxq_mul(GEN x, GEN y, GEN T, ulong p)
 { pari_APPLY_same(FlxqC_Flxq_mul(gel(x, i), y, T, p)) }
-
-static GEN
-kron_pack_Flx_spec_half(GEN x, long l) {
-  if (l == 0)
-    return gen_0;
-  return Flx_to_int_halfspec(x, l);
-}
-
-static GEN
-kron_pack_Flx_spec(GEN x, long l) {
-  long i;
-  GEN w, y;
-  if (l == 0)
-    return gen_0;
-  y = cgetipos(l + 2);
-  for (i = 0, w = int_LSW(y); i < l; i++, w = int_nextW(w))
-    *w = x[i];
-  return y;
-}
-
-static GEN
-kron_pack_Flx_spec_2(GEN x, long l) {
-  return Flx_eval2BILspec(x, 2, l);
-}
-
-static GEN
-kron_pack_Flx_spec_3(GEN x, long l) {
-  return Flx_eval2BILspec(x, 3, l);
-}
-
-static GEN
-kron_pack_Flx_spec_bits(GEN x, long b, long l) {
-  GEN y;
-  long i;
-  if (l == 0)
-    return gen_0;
-  y = cgetg(l + 1, t_VECSMALL);
-  for(i = 1; i <= l; i++)
-    y[i] = x[l - i];
-  return nv_fromdigits_2k(y, b);
-}
-
-static GEN
-kron_unpack_Flx(GEN z, ulong p)
-{
-  long i, l = lgefint(z);
-  GEN x = cgetg(l, t_VECSMALL), w;
-  for (w = int_LSW(z), i = 2; i < l; w = int_nextW(w), i++)
-    x[i] = ((ulong) *w) % p;
-  return Flx_renormalize(x, l);
-}
-
-static GEN
-kron_unpack_Flx_2(GEN x, ulong p) {
-  long d = (lgefint(x)-1)/2 - 1;
-  return Z_mod2BIL_Flx_2(x, d, p);
-}
-
-static GEN
-kron_unpack_Flx_3(GEN x, ulong p) {
-  long d = lgefint(x)/3 - 1;
-  return Z_mod2BIL_Flx_3(x, d, p);
-}
-
-/* assume b < BITS_IN_LONG */
-static GEN
-kron_unpack_Flx_bits_narrow(GEN z, long b, ulong p) {
-  GEN v = binary_2k_nv(z, b), x;
-  long i, l = lg(v) + 1;
-  x = cgetg(l, t_VECSMALL);
-  for (i = 2; i < l; i++)
-    x[i] = v[l - i] % p;
-  return Flx_renormalize(x, l);
-}
-
-static GEN
-kron_unpack_Flx_bits_wide(GEN z, long b, ulong p, ulong pi) {
-  GEN v = binary_2k(z, b), x, y;
-  long i, l = lg(v) + 1, ly;
-  x = cgetg(l, t_VECSMALL);
-  for (i = 2; i < l; i++) {
-    y = gel(v, l - i);
-    ly = lgefint(y);
-    switch (ly) {
-    case 2: x[i] = 0; break;
-    case 3: x[i] = *int_W_lg(y, 0, ly) % p; break;
-    case 4: x[i] = remll_pre(*int_W_lg(y, 1, ly), *int_W_lg(y, 0, ly), p, pi); break;
-    case 5: x[i] = remlll_pre(*int_W_lg(y, 2, ly), *int_W_lg(y, 1, ly),
-                              *int_W_lg(y, 0, ly), p, pi); break;
-    default: x[i] = umodiu(gel(v, l - i), p);
-    }
-  }
-  return Flx_renormalize(x, l);
-}
 
 static GEN
 FlxM_pack_ZM(GEN M, GEN (*pack)(GEN, long)) {
