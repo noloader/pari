@@ -99,7 +99,7 @@ polPn(GEN W, GEN xpm, long p, long D, long R, long n)
     v[j + 1] = Fl_add(v[j + 1], x, q);
   }
   v = Flv_to_Flx(v, evalvarn(0));
-  v = Flx_translate1(v, q);
+  v = Flx_translate1_basecase(v, q);
   return gerepileupto(av, Flx_to_ZX(v));
 }
 /* return lambda, assuming mu = 0 [else infinite loop] */

@@ -96,6 +96,7 @@ BA  27- [libpari] groupelts_quotient, quotient_groupelts, groupelts_to_group
     28- new GP functions mscosets, msfarey
     29- new GP function ellpadiclambdamu
 BA  30- [libpari] Flx_Fl_sub, Flx_is_totally_split
+    31- [libpari] Flx_translate1_basecase
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

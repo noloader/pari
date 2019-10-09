@@ -1772,6 +1772,7 @@ Flx_integ(GEN x, ulong p)
   return Flx_renormalize(y, lx+1);;
 }
 
+/* assume p prime */
 GEN
 Flx_diff1(GEN P, ulong p)
 {
@@ -3583,27 +3584,28 @@ Fl_Xp1_powu(ulong n, ulong p, long v)
   return C; /* normalized */
 }
 
+/* p arbitrary */
+GEN
+Flx_translate1_basecase(GEN P, ulong p)
+{
+  GEN R = Flx_copy(P);
+  long i, k, n = degpol(P);
+  for (i = 1; i <= n; i++)
+    for (k = n-i; k < n; k++) uel(R,k+2) = Fl_add(uel(R,k+2), uel(R,k+3), p);
+  return R;
+}
+/* assume p prime */
 GEN
 Flx_translate1(GEN P, ulong p)
 {
-  long n = degpol(P);
-  if (n < 1000)
-  {
-    GEN R = Flx_copy(P);
-    long i, k;
-    for (i=1; i<=n; i++)
-      for (k=n-i; k<n; k++)
-        uel(R,k+2) = Fl_add(uel(R,k+2), uel(R,k+3), p);
-    return R;
-  }
-  else
-  {
-    long d = n >> 1;
-    GEN R = Flx_translate1(Flxn_red(P, d), p);
-    GEN Q = Flx_translate1(Flx_shift(P, -d), p);
-    GEN S = Fl_Xp1_powu(d, p, P[1]);
-    return Flx_add(Flx_mul(Q, S, p), R, p);
-  }
+  long d, n = degpol(P);
+  GEN R, Q, S;
+  if (n < 1000) return Flx_translate1_basecase(P, p);
+  d = n >> 1;
+  R = Flx_translate1(Flxn_red(P, d), p);
+  Q = Flx_translate1(Flx_shift(P, -d), p);
+  S = Fl_Xp1_powu(d, p, P[1]);
+  return Flx_add(Flx_mul(Q, S, p), R, p);
 }
 
 /***********************************************************************/
