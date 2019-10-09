@@ -160,6 +160,9 @@ nfinit(1/2*x + 3/5, 3)[2]
 bnf = bnfinit(y^4-y-1);
 bnfisunit(bnf,-y^3+2*y^2-1)
 
+\\ #2169
+nfinit(x^12-3*x^11+7*x^10-6*x^9+58*x^8-49*x^7+529*x^6-653*x^5+404*x^4-54*x^3-5711*x^2+2581*x+7009);
+
 \\ ERRORS: keep at end of file
 
 nfinit([y^3+2,[1,x]])

@@ -3182,8 +3182,7 @@ ZM_inv_i(GEN A, GEN *pden, GEN T)
     Hr = ZM_adj_ratlift(A, H1, mod1, T);
     if (DEBUGLEVEL>=5) timer_printf(&ti,"ratlift (%ld/%ld primes)", k1, n);
     if (Hr) {/* DONE ? */
-      GEN Hl = Q_remove_denom(Hr, NULL);
-      GEN R = ZM_mul(Hl, A), d = gcoeff(R,1,1);
+      GEN Hl = Q_primpart(Hr), R = ZM_mul(Hl, A), d = gcoeff(R,1,1);
       if (DEBUGLEVEL>=5) timer_printf(&ti,"mult (%ld/%ld primes)", k1, n);
       if (equali1(d))
       {
