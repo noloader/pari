@@ -3662,7 +3662,6 @@ Flx_translate1_basecase(GEN P, ulong p)
 static int
 translate_basecase(long n, ulong p)
 {
-  long e;
 #ifdef LONG_IS_64BIT
   if (p <= 19) return n < 40;
   if (p < 1UL<<30) return n < 58;
