@@ -3599,13 +3599,23 @@ static int
 translate_basecase(long n, ulong p)
 {
   long e;
+#ifdef LONG_IS_64BIT
   if (p <= 19) return n < 40;
-  e = expu(p);
-  if (e <= 29) return n < 58;
-  if (e <= 58) return n < 100;
-  if (e <= 61) return n < 120;
-  if (e <= 62) return n < 240;
+  if (p < 1UL<<30) return n < 58;
+  if (p < 1UL<<59) return n < 100;
+  if (p < 1UL<<62) return n < 120;
+  if (p < 1UL<<63) return n < 240;
   return n < 250;
+#else
+  if (p <= 13) return n < 18;
+  if (p <= 17) return n < 22;
+  if (p <= 29) return n < 39;
+  if (p <= 67) return n < 69;
+  if (p < 1UL<< 15) return n < 80;
+  if (p < 1UL<< 16) return n < 100;
+  if (p < 1UL<< 28) return n < 300;
+  return n < 650;
+#endif
 }
 /* assume p prime */
 GEN
