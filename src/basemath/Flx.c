@@ -3557,28 +3557,28 @@ Flx_diamondsum(GEN P, GEN Q, ulong p)
 }
 #endif
 
-/* Best if ((n+1)/2 !, p) = 1. FIXME: could use multi-inverse but 'safe'
- * variant is not implemented, in case p is not prime */
+/* (x+1)^n mod p; assume 2 <= n < 2p prime */
 static GEN
 Fl_Xp1_powu(ulong n, ulong p, long v)
 {
-  ulong k, kp, np = n % p, d = (n + 1) >> 1;
-  GEN C = cgetg(n+3, t_VECSMALL);
+  ulong k, d = (n + 1) >> 1;
+  GEN C, V = identity_zv(d);
+
+  Flv_inv_inplace(V, p); /* could restrict to odd integers in [3,d] */
+  C = cgetg(n+3, t_VECSMALL);
   C[1] = v;
   uel(C,2) = 1UL;
-  uel(C,3) = np;
-  if (++np == p) np = 0; /* n + 1 % p */
-  for (k = kp = 2; k <= d; k++) /* binom(n,k) = binom(n,k-1) * (n-k+1) / k */
+  uel(C,3) = n;
+  uel(C,4) = Fl_mul(odd(n)? n: n-1, n >> 1, p);
+    /* binom(n,k) = binom(n,k-1) * (n-k+1) / k */
+  if (SMALL_ULONG(p))
+    for (k = 3; k <= d; k++)
+      uel(C,k+2) = Fl_mul(Fl_mul(n-k+1, uel(C,k+1), p), uel(V,k), p);
+  else
   {
-    ulong ik = Fl_invsafe(kp, p);
-    if (!ik)
-    { /* Ooops, finish by hand */
-      GEN D = vecbinomial(n);
-      for (; k <= d; k++) uel(C,k+2) = umodiu(gel(D,k+1), p);
-      break;
-    }
-    uel(C,k+2) = Fl_mul(Fl_mul(Fl_sub(np,kp,p), uel(C,k+1), p), ik, p);
-    if (++kp == p) kp = 0;
+    ulong pi  = get_Fl_red(p);
+    for (k = 3; k <= d; k++)
+      uel(C,k+2) = Fl_mul_pre(Fl_mul(n-k+1, uel(C,k+1), p), uel(V,k), p, pi);
   }
   for (   ; k <= n; k++) uel(C,2+k) = uel(C,2+n-k);
   return C; /* normalized */
@@ -3594,18 +3594,43 @@ Flx_translate1_basecase(GEN P, ulong p)
     for (k = n-i; k < n; k++) uel(R,k+2) = Fl_add(uel(R,k+2), uel(R,k+3), p);
   return R;
 }
+
+static int
+translate_basecase(long n, ulong p)
+{
+  long e;
+  if (p <= 19) return n < 40;
+  e = expu(p);
+  if (e <= 29) return n < 58;
+  if (e <= 58) return n < 100;
+  if (e <= 61) return n < 120;
+  if (e <= 62) return n < 240;
+  return n < 250;
+}
 /* assume p prime */
 GEN
 Flx_translate1(GEN P, ulong p)
 {
   long d, n = degpol(P);
   GEN R, Q, S;
-  if (n < 1000) return Flx_translate1_basecase(P, p);
+  if (translate_basecase(n, p)) return Flx_translate1_basecase(P, p);
   d = n >> 1;
-  R = Flx_translate1(Flxn_red(P, d), p);
-  Q = Flx_translate1(Flx_shift(P, -d), p);
-  S = Fl_Xp1_powu(d, p, P[1]);
-  return Flx_add(Flx_mul(Q, S, p), R, p);
+  if (n < p)
+  {
+    R = Flx_translate1(Flxn_red(P, d), p);
+    Q = Flx_translate1(Flx_shift(P, -d), p);
+    S = Fl_Xp1_powu(d, p, P[1]);
+    return Flx_add(Flx_mul(Q, S, p), R, p);
+  }
+  else
+  {
+    ulong q;
+    if (d > p) (void)ulogintall(d, p, &q); else q = p;
+    R = Flx_translate1(Flxn_red(P, q), p);
+    Q = Flx_translate1(Flx_shift(P, -q), p);
+    S = Flx_add(Flx_shift(Q, q), Q, p);
+    return Flx_add(S, R, p); /* P(x+1) = Q(x+1) (x^q+1) + R(x+1) */
+  }
 }
 
 /***********************************************************************/
