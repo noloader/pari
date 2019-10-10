@@ -1403,6 +1403,11 @@ solvestep(void *E, GEN (*f)(void *,GEN), GEN a, GEN b, GEN step, long flag, long
         v = shallowconcat(v, z);
       }
       a = c; fa = fc; sa = sc;
+      if (gc_needed(av2,1))
+      {
+        if (DEBUGMEM>1) pari_warn(warnmem,"solvestep");
+        gerepileall(av2, 4, &a ,&fa, &v, &step);
+      }
     }
     if ((!(flag&2) || lg(v) > 1) && (!(flag&8) || ct))
       return gerepilecopy(av, v);
