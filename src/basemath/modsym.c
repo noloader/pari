@@ -2618,14 +2618,19 @@ use_Petersson(long N, long k, long s)
   }
   if (N == 1) return 1;
   if (N == 2) return k >= 56;
-  if (N <= 4) return k >= 74;
-  if (N <= 9) return k >= 38;
-  if (N <= 11) return k >= 24;
-  if (N <= 19) return k >= 20;
-  if (N <= 27 || N == 128) return k >= 16;
-  if (N <= 50 || N == 64 || N == 72 || N == 75 || N == 108 || N == 144 || N == 192 ) return k >= 12;
-  if (N == 63 || N == 100 || N == 133 || N == 160 || N == 175 || N == 180 || N == 225 || N == 252 || N == 320) return k >= 10;
-  if (N <= 127 || N == 147 || N == 216 || N == 224 || N == 315 || N == 336 || N == 360 || N == 384) return k >= 8;
+  if (N == 3) return k >= 68;
+  if (N == 4) return k >= 78;
+  if (N == 5) return k >= 38;
+  if (N == 6) return k >= 24;
+  if (N == 7) return k >= 44;
+  if (N <= 9) return k >= 28;
+  if (N <= 13) return k >= 20;
+  if (N <= 21 || N == 50) return k >= 14;
+  if (N == 24 || N == 25) return k >= 16;
+  if (N <= 58 || N == 63 || N == 72 || N == 84 || N == 208 || N == 224) return k >= 10;
+  if (N <= 128 || N == 144 || N == 145 || N == 160 || N == 168 || N == 175 ||
+      N == 180 || N == 252 || N == 253 || N == 273 || N == 320 || N == 335 ||
+      N == 336 || N == 345 || N == 360) return k >= 8;
   return k >= 6;
 }
 /* eisspace^-(N) = 0 */
@@ -5097,14 +5102,13 @@ eisf(long N, long C, long a, long d1, GEN Z2, long c1, long c2,
 
 /* basis for Gamma_0(N)-invariant functions attached to cusps */
 static GEN
-eisspace(long N, long k, long s, GEN *pperm)
+eisspace(long N, long k, long s)
 {
-  GEN v, perm, D, F = factoru(N);
+  GEN v, D, F = factoru(N);
   long l, n, i, j;
   D = divisorsu_fact(F); l = lg(D);
   n = mfnumcuspsu_fact(F);
   v = cgetg((k==2)? n: n+1, t_VEC);
-  *pperm = perm = s > 0? cgetg(lg(v), t_VECSMALL): NULL;
   for (i = (k==2)? 2: 1, j = 1; i < l; i++) /* remove d = 1 if k = 2 */
   {
     long d = D[i], Nd = D[l-i], a = ugcd(d, Nd), q1, q2, d1, d2, C, c1, c2, u;
@@ -5123,19 +5127,17 @@ eisspace(long N, long k, long s, GEN *pperm)
     c1 *= d2 * q2;
     if (a <= 2)
     { /* sigma.(C cusp attached to [q1,q2,u]) = C */
-      if (perm) perm[j] = j;
       gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, N/a, 1);
       continue;
     }
     for (u = 1; 2*u < a; u++)
     {
       if (ugcd(u,a) != 1) continue;
-      if (perm) { perm[j] = j+1; perm[j+1] = j; }
       gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, q1, u);
-      if (s >= 0) gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, q1, a-u);
+      if (!s) gel(v, j++) = eisf(N,C,a,d1,Z2,c1,c2, q1, a-u);
     }
   }
-  if (s) { setlg(v, j); if (perm) setlg(perm, j); }
+  if (s) setlg(v, j);
   return v;
 }
 
@@ -5379,7 +5381,7 @@ static GEN
 eisker(GEN M)
 {
   long N = ms_get_N(M), k = msk_get_weight(M), s = msk_get_sign(M);
-  GEN worker, vC, co, CD, D, B, BD, T, perm, E = eisspace(N, k, s, &perm);
+  GEN worker, vC, co, CD, D, B, BD, T, E = eisspace(N, k, s);
   long i, j, m = lg(E)-1, n = msdim(M), pending = 0;
   struct pari_mt pt;
 
@@ -5400,20 +5402,5 @@ eisker(GEN M)
     done = mt_queue_get(&pt, &workid, &pending);
     if (done) for (j = 1; j <= n; j++) gcoeff(T,workid,j) = gel(done,j);
   }
-  mt_queue_end(&pt);
-  if (s > 0)
-  { /* U = T + (row perm) * T */
-    long j, l = lg(perm);
-    GEN v = cgetg(l, t_COL);
-    for (i = j = 1; i < l; i++)
-      if (perm[i] == i)
-        gel(v,j++) = Q_primpart(row(T,i));
-      else
-      {
-        gel(v,j++) = Q_primpart(gadd(row(T,i), row(T,i+1)));
-        i++;
-      }
-    setlg(v, j); T = shallowmatconcat(T);
-  }
-  return QM_ker(T);
+  mt_queue_end(&pt); return QM_ker(T);
 }

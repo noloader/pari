@@ -544,4 +544,4 @@ O(11^7) + (10 + 3*11 + 6*11^2 + 9*11^3 + 8*11^4 + 5*11^5 + O(11^6))*x + (6 +
   ***   at top-level: W=msinit(6,4);msatkinlehner(W,4)
   ***                               ^------------------
   *** msatkinlehner: domain error in msatkinlehner: N % Q != 0
-Total time spent: 1956
+Total time spent: 1903
