@@ -2853,7 +2853,7 @@ ZM_gauss(GEN a, GEN b0)
     GEN ni = gnorml2(gel(b, i));
     if (cmpii(nb, ni) < 0) nb = ni;
   }
-  if (!signe(nb)) { set_avma(av); return zerocol(n); }
+  if (!signe(nb)) {set_avma(av); return iscol? zerocol(n): zeromat(n,lg(b)-1);}
   delta = gen_1; nmin = nb;
   for (i = 1; i <= n; i++)
   {
@@ -3762,7 +3762,7 @@ GEN
 ZM_pivots(GEN M0, long *rr)
 {
   GEN d, dbest = NULL;
-  long m, n, i, imax, rmin, rbest, zc;
+  long m, mm, n, nn, i, imax, rmin, rbest, zc;
   int beenthere = 0;
   pari_sp av, av0 = avma;
   forprime_t S;
@@ -3775,7 +3775,8 @@ ZM_pivots(GEN M0, long *rr)
   m = nbrows(M0);
   rmin = maxss(zc, n-m);
   init_modular_small(&S);
-  imax = (n < (1<<4))? 1: (n>>3); /* heuristic */
+  if (n <= m) { nn = n; mm = m; } else { nn = m; mm = n; }
+  imax = (nn < 16)? 1: (nn < 64)? 2: 3; /* heuristic */
 
   for(;;)
   {
@@ -3801,18 +3802,16 @@ ZM_pivots(GEN M0, long *rr)
     indexrank_all(m,n, rbest, dbest, &row, &col);
     M = rowpermute(vecpermute(M0, col), row);
     rk = n - rbest; /* (probable) dimension of image */
+    if (n > m) M = shallowtrans(M);
     IM = vecslice(M,1,rk);
-    KM = vecslice(M,rk+1, n);
+    KM = vecslice(M,rk+1, nn);
     M = rowslice(IM, 1,rk); /* square maximal rank */
     X = ZM_gauss(M, rowslice(KM, 1,rk));
+    RHS = rowslice(KM,rk+1,mm);
+    M = rowslice(IM,rk+1,mm);
     X = Q_remove_denom(X, &cX);
-    RHS = rowslice(KM,rk+1,m);
     if (cX) RHS = ZM_Z_mul(RHS, cX);
-    if (ZM_equal(ZM_mul(rowslice(IM,rk+1,m), X), RHS))
-    {
-      d = vecsmall_copy(dbest);
-      goto END;
-    }
+    if (ZM_equal(ZM_mul(M, X), RHS)) { d = vecsmall_copy(dbest); goto END; }
     set_avma(av);
   }
 END:

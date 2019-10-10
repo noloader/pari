@@ -35,6 +35,7 @@ BA   1- plotlines flag was ignored
     24- division by 0 in Flx_extresultant when one input is 0
     25- lfunconductor(1,[]) -> SEGV
     26- internal error in isprime(,1) after addprime() [#2166]
+    27- ZM_gauss returned incorrect result for t_MAT RHS and 0 input
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
@@ -63,6 +64,7 @@ BA  15- old gen_ZpM_Dixon renamed to gen_ZpM_Dixon_Wiedemann,
 BA  17- QXQ_div_ratlift renamed to QXQ_div
     18- disallow mfeisenstein(k,chi1,chi2) when Q(chi1 chi2) is not its field
         of definition
+    19- improved ZM_rank for rectangular matrices
 
   Added
      1- new GP function rootsof1
