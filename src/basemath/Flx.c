@@ -3687,8 +3687,9 @@ Flx_translate1(GEN P, ulong p)
   long d, n = degpol(P);
   GEN R, Q, S;
   if (translate_basecase(n, p)) return Flx_translate1_basecase(P, p);
+  /* n > 0 */
   d = n >> 1;
-  if (n < p)
+  if ((ulong)n < p)
   {
     R = Flx_translate1(Flxn_red(P, d), p);
     Q = Flx_translate1(Flx_shift(P, -d), p);
@@ -3698,7 +3699,7 @@ Flx_translate1(GEN P, ulong p)
   else
   {
     ulong q;
-    if (d > p) (void)ulogintall(d, p, &q); else q = p;
+    if ((ulong)d > p) (void)ulogintall(d, p, &q); else q = p;
     R = Flx_translate1(Flxn_red(P, q), p);
     Q = Flx_translate1(Flx_shift(P, -q), p);
     S = Flx_add(Flx_shift(Q, q), Q, p);
