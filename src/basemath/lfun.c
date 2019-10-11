@@ -1865,7 +1865,7 @@ lfunhardy(GEN lmisc, GEN t, long bitprec)
   prec = precision(argz);
   a = gsub(gmulsg(d, gmul(t, gmul2n(argz,-1))),
            gmul(expot,glog(gnorm(z),prec)));
-  h = lfunlambda_OK(linit, z, mkvec(t), bitprec);
+  h = lfunlambda_OK(linit, z, dom, bitprec);
   if (!isint1(w2) && typ(ldata_get_dual(ldata))==t_INT)
     h = mulreal(h, w2);
   if (typ(h) == t_COMPLEX && gexpo(imag_i(h)) < -(bitprec >> 1))

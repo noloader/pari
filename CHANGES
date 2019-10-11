@@ -36,6 +36,7 @@ BA   1- plotlines flag was ignored
     25- lfunconductor(1,[]) -> SEGV
     26- internal error in isprime(,1) after addprime() [#2166]
     27- ZM_gauss returned incorrect result for t_MAT RHS and 0 input
+BA  28- lfunhardy(..., t) with t<0 -> error
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
