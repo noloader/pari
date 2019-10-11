@@ -272,7 +272,7 @@ lfuncheckfeq(L)
 
 print("zeta(s-a)");
 
-Z(a)=lfuncreate([(p,n)->1/(1-p^a*x),0,[-a],2*a+1,1,1,[[a+1,0]]]);
+Z(a)=lfuncreate([(p,n)->1/(1-p^a*x+O(x^n)),0,[-a],2*a+1,1,1,[[a+1,0]]]);
 lfuncheckfeq(Z(1))
 lfun(Z(1),2)
 lfun(Z(1),3)
@@ -411,3 +411,5 @@ N=nfinit(x^2+1);G=galoisinit(N);lfunartin(N,G,[1,1,1]~,2)
 
 Lt=lfuncreate([1,0,[-1,0,0,1,-2,-1,0,0],21,61^2,1]);
 localbitprec(16);lfun(Lt,12);
+L=lfuncreate([[(p,e)->1-p*x+O(x^2),[[2,3,1/(x^2-x+1)]]],1,[0,0],2,1,0]);
+lfun(L,1)

@@ -299,4 +299,7 @@ zeta(s)*zeta(s-a)
   ***   at top-level: localbitprec(16);lfun(Lt,12)
   ***                                  ^-----------
   *** lfun: incorrect type in vecan_closure (t_INT).
-Total time spent: 9634
+  ***   at top-level: lfun(L,1)
+  ***                 ^---------
+  *** lfun: incorrect type in direuler [bad primes] (t_VEC).
+Total time spent: 4983
