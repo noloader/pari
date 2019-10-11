@@ -1024,7 +1024,7 @@ primecertify(GEN nf, GEN beta, ulong p, GEN bad)
   while ((q = u_forprime_next(&T)))
   {
     GEN qq, gg, og;
-    long lQ, i, j;
+    long lQ, i, j, v;
     ulong g, m;
     if (!umodiu(bad,q)) continue;
 
@@ -1034,7 +1034,7 @@ primecertify(GEN nf, GEN beta, ulong p, GEN bad)
 
     /* cf rootsof1_Fl */
     g = pgener_Fl_local(q, L);
-    (void)u_lvalrem((q-1) / p, p, &m);
+    m = (q-1) / p;
     gg = utoipos( Fl_powu(g, m, q) ); /* order p in (Z/q)^* */
     og = mkmat2(mkcol(utoi(p)), mkcol(gen_1)); /* order of g */
 
@@ -1050,7 +1050,6 @@ primecertify(GEN nf, GEN beta, ulong p, GEN bad)
       {
         GEN t = nf_to_Fp_coprime(nf, gel(beta,j), modpr);
         t = utoipos( Fl_powu(t[2], m, q) );
-        /* FIXME: implement Fl_log_Shanks */
         C[j] = itou( Fp_log(t, gg, og, qq) ) % p;
       }
       r = lg(M);
