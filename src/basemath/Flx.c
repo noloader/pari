@@ -576,6 +576,12 @@ Flx_shiftip(pari_sp av, GEN x, long v)
   set_avma((pari_sp)y); return y;
 }
 
+static long
+get_Fl_threshold(ulong p, long mul, long mul2)
+{
+  return SMALL_ULONG(p) ? mul: mul2;
+}
+
 #define BITS_IN_QUARTULONG (BITS_IN_HALFULONG >> 1)
 #define QUARTMASK ((1UL<<BITS_IN_QUARTULONG)-1UL)
 #define LLQUARTWORD(x) ((x) & QUARTMASK)
@@ -969,7 +975,7 @@ static GEN
 Flx_mulspec(GEN a, GEN b, ulong p, long na, long nb)
 {
   GEN a0,c,c0;
-  long n0, n0a, i, v = 0, m;
+  long n0, n0a, i, v = 0;
   pari_sp av;
 
   while (na && !a[0]) { a++; na--; v++; }
@@ -978,33 +984,26 @@ Flx_mulspec(GEN a, GEN b, ulong p, long na, long nb)
   if (!nb) return pol0_Flx(0);
 
   av = avma;
-  m = maxbitcoeffpol(p,nb);
-  switch (m)
+  if (nb >= get_Fl_threshold(p, Flx_MUL_MULII_LIMIT, Flx_MUL2_MULII_LIMIT))
   {
-  case BITS_IN_QUARTULONG:
-    if (na>=Flx_MUL_QUARTMULII_LIMIT)
+    long m = maxbitcoeffpol(p,nb);
+    switch (m)
+    {
+    case BITS_IN_QUARTULONG:
       return Flx_shiftip(av,Flx_mulspec_quartmulii(a,b,p,na,nb), v);
-    break;
-  case BITS_IN_HALFULONG:
-    if (na>=Flx_MUL_HALFMULII_LIMIT)
+    case BITS_IN_HALFULONG:
       return Flx_shiftip(av,Flx_mulspec_halfmulii(a,b,p,na,nb), v);
-    break;
-  case BITS_IN_LONG:
-    if (na>=Flx_MUL_MULII_LIMIT)
+    case BITS_IN_LONG:
       return Flx_shiftip(av,Flx_mulspec_mulii(a,b,p,na,nb), v);
-    break;
-  case 2*BITS_IN_LONG:
-    if (na>=Flx_MUL_MULII2_LIMIT)
+    case 2*BITS_IN_LONG:
       return Flx_shiftip(av,Flx_mulspec_mulii_inflate(a,b,2,p,na,nb), v);
-    break;
-  case 3*BITS_IN_LONG:
-    if (na>70)
+    case 3*BITS_IN_LONG:
       return Flx_shiftip(av,Flx_mulspec_mulii_inflate(a,b,3,p,na,nb), v);
-    break;
-  default:
-    return Flx_shiftip(av,Flx_mulspec_Kronecker(a,b,m,p,na,nb), v);
+    default:
+      return Flx_shiftip(av,Flx_mulspec_Kronecker(a,b,m,p,na,nb), v);
+    }
   }
-  if (nb < Flx_MUL_KARATSUBA_LIMIT)
+  if (nb < get_Fl_threshold(p, Flx_MUL_KARATSUBA_LIMIT, Flx_MUL2_KARATSUBA_LIMIT))
     return Flx_shiftip(av,Flx_mulspec_basecase(a,b,p,na,nb), v);
   i=(na>>1); n0=na-i; na=i;
   a0=a+n0; n0a=n0;
@@ -1137,33 +1136,26 @@ Flx_sqrspec(GEN a, ulong p, long na)
   if (!na) return pol0_Flx(0);
 
   av = avma;
-  m = maxbitcoeffpol(p,na);
-  switch(m)
+  if (na >= get_Fl_threshold(p, Flx_SQR_SQRI_LIMIT, Flx_SQR2_SQRI_LIMIT))
   {
-  case BITS_IN_QUARTULONG:
-    if (na>=Flx_SQR_QUARTSQRI_LIMIT)
+    m = maxbitcoeffpol(p,na);
+    switch(m)
+    {
+    case BITS_IN_QUARTULONG:
       return Flx_shiftip(av, Flx_sqrspec_quartsqri(a,p,na), v);
-    break;
-  case BITS_IN_HALFULONG:
-    if (na>=Flx_SQR_HALFSQRI_LIMIT)
+    case BITS_IN_HALFULONG:
       return Flx_shiftip(av, Flx_sqrspec_halfsqri(a,p,na), v);
-    break;
-  case BITS_IN_LONG:
-    if (na>=Flx_SQR_SQRI_LIMIT)
+    case BITS_IN_LONG:
       return Flx_shiftip(av, Flx_sqrspec_sqri(a,p,na), v);
-    break;
-  case 2*BITS_IN_LONG:
-    if (na>=Flx_SQR_SQRI2_LIMIT)
+    case 2*BITS_IN_LONG:
       return Flx_shiftip(av, Flx_sqrspec_sqri_inflate(a,2,p,na), v);
-    break;
-  case 3*BITS_IN_LONG:
-    if (na>70)
+    case 3*BITS_IN_LONG:
       return Flx_shiftip(av, Flx_sqrspec_sqri_inflate(a,3,p,na), v);
-    break;
-  default:
-    return Flx_shiftip(av, Flx_sqrspec_Kronecker(a,m,p,na), v);
+    default:
+      return Flx_shiftip(av, Flx_sqrspec_Kronecker(a,m,p,na), v);
+    }
   }
-  if (na < Flx_SQR_KARATSUBA_LIMIT)
+  if (na < get_Fl_threshold(p, Flx_SQR_KARATSUBA_LIMIT, Flx_SQR2_KARATSUBA_LIMIT))
     return Flx_shiftip(av, Flx_sqrspec_basecase(a,p,na), v);
   i=(na>>1); n0=na-i; na=i;
   a0=a+n0; n0a=n0;
@@ -1251,36 +1243,6 @@ Flx_rescale(GEN P, ulong h, ulong p)
     hi = Fl_mul(hi,h, p);
   }
   Q[1] = P[1]; return Q;
-}
-
-static long
-Flx_multhreshold(GEN T, ulong p, long quart, long half, long mul, long mul2, long kara)
-{
-  long na = lgpol(T);
-  switch (maxlengthcoeffpol(p,na))
-  {
-  case -1:
-    if (na>=Flx_MUL_QUARTMULII_LIMIT)
-      return na>=quart;
-    break;
-  case 0:
-    if (na>=Flx_MUL_HALFMULII_LIMIT)
-      return na>=half;
-    break;
-  case 1:
-    if (na>=Flx_MUL_MULII_LIMIT)
-      return na>=mul;
-    break;
-  case 2:
-    if (na>=Flx_MUL_MULII2_LIMIT)
-      return na>=mul2;
-    break;
-  case 3:
-    if (na>=70)
-      return na>=70;
-    break;
-  }
-  return na>=kara;
 }
 
 /*
@@ -1378,17 +1340,13 @@ Flx_invBarrett_Newton(GEN T, ulong p)
 GEN
 Flx_invBarrett(GEN T, ulong p)
 {
-  pari_sp ltop=avma;
-  long l=lg(T);
+  pari_sp ltop = avma;
+  long l = lgpol(T);
   GEN r;
-  if (l<5) return pol0_Flx(T[1]);
-  if (!Flx_multhreshold(T,p, Flx_INVBARRETT_QUARTMULII_LIMIT,
-                             Flx_INVBARRETT_HALFMULII_LIMIT,
-                             Flx_INVBARRETT_MULII_LIMIT,
-                             Flx_INVBARRETT_MULII2_LIMIT,
-                             Flx_INVBARRETT_KARATSUBA_LIMIT))
+  if (l < 3) return pol0_Flx(T[1]);
+  if (l < get_Fl_threshold(p, Flx_INVBARRETT_LIMIT, Flx_INVBARRETT2_LIMIT))
   {
-    ulong c = T[l-1];
+    ulong c = T[l+1];
     if (c!=1)
     {
       ulong ci = Fl_inv(c,p);
@@ -1407,12 +1365,9 @@ Flx_invBarrett(GEN T, ulong p)
 GEN
 Flx_get_red(GEN T, ulong p)
 {
-  if (typ(T)!=t_VECSMALL || !Flx_multhreshold(T,p,
-                         Flx_BARRETT_QUARTMULII_LIMIT,
-                         Flx_BARRETT_HALFMULII_LIMIT,
-                         Flx_BARRETT_MULII_LIMIT,
-                         Flx_BARRETT_MULII2_LIMIT,
-                         Flx_BARRETT_KARATSUBA_LIMIT))
+  if (typ(T)!=t_VECSMALL
+    || lgpol(T) <= get_Fl_threshold(p, Flx_BARRETT_LIMIT,
+                                       Flx_BARRETT2_LIMIT))
     return T;
   retmkvec2(Flx_invBarrett(T,p),T);
 }
@@ -1689,7 +1644,7 @@ Flx_rem(GEN x, GEN T, ulong p)
   GEN B, y = get_Flx_red(T, &B);
   long dy = degpol(y), dx = degpol(x), d = dx-dy;
   if (d < 0) return Flx_copy(x);
-  if (!B && d+3 < Flx_REM_BARRETT_LIMIT)
+  if (!B && d+3 < get_Fl_threshold(p, Flx_REM_BARRETT_LIMIT,Flx_REM2_BARRETT_LIMIT))
     return Flx_rem_basecase(x,y,p);
   else
   {
@@ -2003,12 +1958,7 @@ if [a',b']~=M*[a,b]~ then degpol(a')>= (lgpol(a)>>1) >degpol(b')
 static GEN
 Flx_halfgcd_i(GEN x, GEN y, ulong p)
 {
-  if (!Flx_multhreshold(x,p,
-                             Flx_HALFGCD_QUARTMULII_LIMIT,
-                             Flx_HALFGCD_HALFMULII_LIMIT,
-                             Flx_HALFGCD_MULII_LIMIT,
-                             Flx_HALFGCD_MULII2_LIMIT,
-                             Flx_HALFGCD_KARATSUBA_LIMIT))
+  if (lgpol(x) <= get_Fl_threshold(p, Flx_HALFGCD_LIMIT, Flx_HALFGCD2_LIMIT))
     return Flx_halfgcd_basecase(x,y,p);
   return Flx_halfgcd_split(x,y,p);
 }
@@ -2058,8 +2008,10 @@ GEN
 Flx_gcd(GEN x, GEN y, ulong p)
 {
   pari_sp av = avma;
+  long lim;
   if (!lgpol(x)) return Flx_copy(y);
-  while (lg(y)>Flx_GCD_LIMIT)
+  lim = get_Fl_threshold(p, Flx_GCD_LIMIT, Flx_GCD_LIMIT);
+  while (lg(y) > lim)
   {
     GEN c;
     if (lgpol(y)<=(lgpol(x)>>1))
@@ -2153,7 +2105,8 @@ Flx_extgcd_halfgcd(GEN x, GEN y, ulong p, GEN *ptu, GEN *ptv)
 {
   pari_sp av=avma;
   GEN u,v,R = matid2_FlxM(x[1]);
-  while (lg(y)>Flx_EXTGCD_LIMIT)
+  long lim = get_Fl_threshold(p, Flx_EXTGCD_LIMIT, Flx_EXTGCD_LIMIT);
+  while (lg(y)>lim)
   {
     GEN M, c;
     if (lgpol(y)<=(lgpol(x)>>1))
@@ -2181,7 +2134,8 @@ Flx_extgcd(GEN x, GEN y, ulong p, GEN *ptu, GEN *ptv)
 {
   GEN d;
   pari_sp ltop=avma;
-  if (lg(y)>Flx_EXTGCD_LIMIT)
+  long lim = get_Fl_threshold(p, Flx_EXTGCD_LIMIT, Flx_EXTGCD_LIMIT);
+  if (lg(y)>lim)
     d = Flx_extgcd_halfgcd(x, y, p, ptu, ptv);
   else
     d = Flx_extgcd_basecase(x, y, p, ptu, ptv);

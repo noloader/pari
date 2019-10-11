@@ -21,18 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 int option_trace = 0;
 double Step_Factor = .01; /* small steps by default */
-ulong DFLT_mod1, DFLT_hmod, DFLT_qmod, DFLT_mod2;
+ulong DFLT_mod, DFLT_hmod, DFLT_qmod, DFLT_mod2;
 GEN LARGE_mod;
-
-#ifdef LONG_IS_64BIT
-#  define DFLT_mod DFLT_mod1
-#  define Fmod_MUL_MULII_LIMIT Flx_MUL_MULII_LIMIT
-#  define Fmod_SQR_SQRI_LIMIT  Flx_SQR_SQRI_LIMIT
-#  else
-#  define DFLT_mod DFLT_mod2
-#  define Fmod_MUL_MULII_LIMIT Flx_MUL_MULII2_LIMIT
-#  define Fmod_SQR_SQRI_LIMIT  Flx_SQR_SQRI2_LIMIT
-#endif
 
 typedef struct {
   ulong reps, type;
@@ -210,12 +200,10 @@ rand_g(speed_param *s)
     case t_Fqx:  return rand_Flx(n,DFLT_qmod);
     case t_Fhx:  return rand_Flx(n,DFLT_hmod);
     case t_Flx:  return rand_Flx(n,DFLT_mod);
-    case t_Fl1x: return rand_Flx(n,DFLT_mod1);
     case t_Fl2x: return rand_Flx(n,DFLT_mod2);
     case t_NFqx: return rand_NFlx(n,DFLT_qmod);
     case t_NFhx: return rand_NFlx(n,DFLT_hmod);
     case t_NFlx: return rand_NFlx(n,DFLT_mod);
-    case t_NFl1x: return rand_NFlx(n,DFLT_mod1);
     case t_NFl2x: return rand_NFlx(n,DFLT_mod2);
     case t_FpX:    return rand_FpX(n);
     case t_NFpX:   return rand_NFpX(n);
@@ -275,12 +263,10 @@ dftmod(speed_param *s)
     case t_Fqx:  s->l=DFLT_qmod; return;
     case t_Fhx:  s->l=DFLT_hmod; return;
     case t_Flx:  s->l=DFLT_mod;  return;
-    case t_Fl1x: s->l=DFLT_mod1; return;
     case t_Fl2x: s->l=DFLT_mod2; return;
     case t_NFqx: s->l=DFLT_qmod;  return;
     case t_NFhx: s->l=DFLT_hmod;  return;
     case t_NFlx: s->l=DFLT_mod;  return;
-    case t_NFl1x: s->l=DFLT_mod1;  return;
     case t_NFl2x: s->l=DFLT_mod2;  return;
     case t_FpX:  s->p=LARGE_mod; return;
     case t_NFpX: s->p=LARGE_mod; return;
@@ -554,50 +540,28 @@ static tune_param param[] = {
 {GMP, var(INVMOD_GMP_LIMIT),       t_INT, 3,0, speed_invmod},
 {0,   var(F2x_MUL_KARATSUBA_LIMIT),t_F2x,3,0, speed_F2x_mul,0,0,&F2x_MUL_MULII_LIMIT},
 {0,   var(F2x_MUL_MULII_LIMIT),    t_F2x,20,20000, speed_F2x_mul},
-{0,   var(Flx_MUL_KARATSUBA_LIMIT),t_Flx,5,0, speed_Flx_mul,0,0,&Fmod_MUL_MULII_LIMIT},
-{0,   var(Flx_SQR_KARATSUBA_LIMIT),t_Flx,5,0, speed_Flx_sqr,0,0,&Fmod_SQR_SQRI_LIMIT},
-{0,   var(Flx_MUL_QUARTMULII_LIMIT),t_Fqx,3,0, speed_Flx_mul},
-{0,   var(Flx_SQR_QUARTSQRI_LIMIT), t_Fqx,3,0, speed_Flx_sqr},
-{0,   var(Flx_MUL_HALFMULII_LIMIT),t_Fhx,3,0, speed_Flx_mul},
-{0,   var(Flx_SQR_HALFSQRI_LIMIT), t_Fhx,3,0, speed_Flx_sqr},
-{0,   var(Flx_MUL_MULII_LIMIT),    t_Fl1x,5,0, speed_Flx_mul},
-{0,   var(Flx_SQR_SQRI_LIMIT),     t_Fl1x,5,0, speed_Flx_sqr},
-{0,   var(Flx_MUL_MULII2_LIMIT),   t_Fl2x,5,20000, speed_Flx_mul,0.05},
-{0,   var(Flx_SQR_SQRI2_LIMIT),    t_Fl2x,5,20000, speed_Flx_sqr,0.05},
-{0,  var(Flx_INVBARRETT_KARATSUBA_LIMIT), t_NFlx,5,20000,
-            speed_Flx_inv,0,0,&Fmod_MUL_MULII_LIMIT,&Flx_MUL_KARATSUBA_LIMIT},
-{0,  var(Flx_INVBARRETT_QUARTMULII_LIMIT), t_NFqx,5,0,
-            speed_Flx_inv,0,0,NULL,&Flx_MUL_QUARTMULII_LIMIT},
-{0,  var(Flx_INVBARRETT_HALFMULII_LIMIT), t_NFhx,5,0,
-            speed_Flx_inv,0,0,NULL,&Flx_MUL_HALFMULII_LIMIT},
-{0,  var(Flx_INVBARRETT_MULII_LIMIT), t_NFl1x,5,0,
-            speed_Flx_inv,0,0,NULL,&Flx_MUL_MULII_LIMIT},
-{0,  var(Flx_INVBARRETT_MULII2_LIMIT),t_NFl2x,5,0,
-            speed_Flx_inv,0,0,NULL,&Flx_MUL_MULII2_LIMIT},
-{0,  var(Flx_DIVREM_BARRETT_LIMIT),t_NFlx,10,0, speed_Flx_divrem,0.05},
-{0,  var(Flx_REM_BARRETT_LIMIT),  t_NFlx,10,0, speed_Flx_rem,0.05},
-{0,  var(Flx_BARRETT_KARATSUBA_LIMIT), t_NFlx,5,0,
-            speed_Flxq_red,0,0,&Fmod_MUL_MULII_LIMIT,&Flx_MUL_KARATSUBA_LIMIT},
-{0,  var(Flx_BARRETT_QUARTMULII_LIMIT), t_NFqx,5,0,
-            speed_Flxq_red,0,0,NULL,&Flx_MUL_QUARTMULII_LIMIT},
-{0,  var(Flx_BARRETT_HALFMULII_LIMIT), t_NFhx,5,0,
-            speed_Flxq_red,0,0,NULL,&Flx_MUL_HALFMULII_LIMIT},
-{0,  var(Flx_BARRETT_MULII_LIMIT), t_NFl1x,5,0,
-            speed_Flxq_red,0,0,NULL,&Flx_MUL_MULII_LIMIT},
-{0,  var(Flx_BARRETT_MULII2_LIMIT),t_NFl2x,5,0,
-            speed_Flxq_red,0,0,NULL,&Flx_MUL_MULII2_LIMIT},
-{0,  var(Flx_HALFGCD_KARATSUBA_LIMIT), t_Flx,10,0,
-            speed_Flx_halfgcd,0,0,&Fmod_MUL_MULII_LIMIT,&Flx_MUL_KARATSUBA_LIMIT},
-{0,  var(Flx_HALFGCD_QUARTMULII_LIMIT), t_Fqx,10,0,
-            speed_Flx_halfgcd,0,0,NULL,&Flx_MUL_QUARTMULII_LIMIT},
-{0,  var(Flx_HALFGCD_HALFMULII_LIMIT), t_Fhx,10,0,
-            speed_Flx_halfgcd,0,0,NULL,&Flx_MUL_HALFMULII_LIMIT},
-{0,  var(Flx_HALFGCD_MULII_LIMIT), t_Fl1x,10,0,
-            speed_Flx_halfgcd,0,0,NULL,&Flx_MUL_MULII_LIMIT},
-{0,  var(Flx_HALFGCD_MULII2_LIMIT),t_Fl2x,10,0,
-            speed_Flx_halfgcd,0,0,NULL,&Flx_MUL_MULII2_LIMIT},
-{0,  var(Flx_GCD_LIMIT),           t_Flx,10,0, speed_Flx_gcd,0.1},
-{0,  var(Flx_EXTGCD_LIMIT),        t_Flx,10,0, speed_Flx_extgcd},
+{0,   var(Flx_MUL_KARATSUBA_LIMIT),t_Flx,5,0, speed_Flx_mul,0,0,&Flx_MUL_MULII_LIMIT},
+{0,   var(Flx_SQR_KARATSUBA_LIMIT),t_Flx,5,0, speed_Flx_sqr,0,0,&Flx_SQR_SQRI_LIMIT},
+{0,   var(Flx_MUL2_KARATSUBA_LIMIT),t_Fl2x,5,0, speed_Flx_mul,0,0,&Flx_MUL2_MULII_LIMIT},
+{0,   var(Flx_SQR2_KARATSUBA_LIMIT),t_Fl2x,5,0, speed_Flx_sqr,0,0,&Flx_SQR2_SQRI_LIMIT},
+{0,   var(Flx_MUL_MULII_LIMIT),    t_Flx,5,0, speed_Flx_mul},
+{0,   var(Flx_SQR_SQRI_LIMIT),     t_Flx,5,0, speed_Flx_sqr},
+{0,   var(Flx_MUL2_MULII_LIMIT),   t_Fl2x,5,20000, speed_Flx_mul,0.05},
+{0,   var(Flx_SQR2_SQRI_LIMIT),    t_Fl2x,5,20000, speed_Flx_sqr,0.05},
+{0,  var(Flx_INVBARRETT_LIMIT), t_NFlx, 5,0, speed_Flx_inv},
+{0,  var(Flx_INVBARRETT2_LIMIT),t_NFl2x,5,0, speed_Flx_inv},
+{0,  var(Flx_DIVREM_BARRETT_LIMIT) ,t_NFlx,10,0, speed_Flx_divrem,0.05},
+{0,  var(Flx_DIVREM2_BARRETT_LIMIT),t_NFl2x,10,0, speed_Flx_divrem,0.05},
+{0,  var(Flx_REM_BARRETT_LIMIT),   t_NFlx,10,0, speed_Flx_rem,0.05},
+{0,  var(Flx_REM2_BARRETT_LIMIT),  t_NFl2x,10,0, speed_Flx_rem,0.05},
+{0,  var(Flx_BARRETT_LIMIT), t_NFlx, 5,0, speed_Flxq_red},
+{0,  var(Flx_BARRETT2_LIMIT),t_NFl2x,5,0, speed_Flxq_red},
+{0,  var(Flx_HALFGCD_LIMIT), t_Flx, 10,0, speed_Flx_halfgcd},
+{0,  var(Flx_HALFGCD2_LIMIT),t_Fl2x,10,0, speed_Flx_halfgcd},
+{0,  var(Flx_GCD_LIMIT),            t_Flx,10,0, speed_Flx_gcd,0.1},
+{0,  var(Flx_GCD2_LIMIT),           t_Fl2x,10,0, speed_Flx_gcd,0.1},
+{0,  var(Flx_EXTGCD_LIMIT),         t_Flx,10,0, speed_Flx_extgcd},
+{0,  var(Flx_EXTGCD2_LIMIT),        t_Fl2x,10,0, speed_Flx_extgcd},
 {0,  var(F2xqX_INVBARRETT_LIMIT),t_NF2xqX,10,0, speed_F2xqX_inv,0.05},
 {0,  var(F2xqX_BARRETT_LIMIT),   t_NF2xqX,10,0, speed_F2xqXQ_red,0.05},
 {0,  var(F2xqX_DIVREM_BARRETT_LIMIT), t_NF2xqX,10,0, speed_F2xqX_divrem,0.05},
@@ -906,17 +870,9 @@ main(int argc, char **argv)
   int linear = 1;
   GEN v;
   pari_init(16000000, 2);
-  DFLT_mod = 27449;
   LARGE_mod=subis(powuu(3,128),62);
-#ifdef LONG_IS_64BIT
-  DFLT_qmod = 3;
-  DFLT_hmod = 257;
-  DFLT_mod2 = 281474976710677UL;
-#else
-  DFLT_qmod = 3;
-  DFLT_hmod = 3;
-  DFLT_mod1 = 1031UL;
-#endif
+  DFLT_mod = (1UL<<((BITS_IN_LONG-2)>>1))+1;
+  DFLT_mod2 = (1UL<<(BITS_IN_LONG-1))+1;
   v = new_chunk(argc);
   for (i = 1; i < argc; i++)
   {
