@@ -1024,7 +1024,7 @@ primecertify(GEN nf, GEN beta, ulong p, GEN bad)
   while ((q = u_forprime_next(&T)))
   {
     GEN qq, gg, og;
-    long lQ, i, j, v;
+    long lQ, i, j;
     ulong g, m;
     if (!umodiu(bad,q)) continue;
 
