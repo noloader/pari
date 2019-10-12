@@ -400,25 +400,30 @@ Kderivlarge(GEN K, GEN t, GEN t2d, long bitprec0)
 /* Dokchitser's coefficients used for asymptotic expansion of inverse Mellin
  * 2 <= p <= min(n+1, d) */
 static GEN
-fun_vp(long p, long n, long d, GEN SM, GEN vsinh)
+vp(long p, long n, long d, GEN SM, GEN vsinh)
 {
-  pari_sp ltop = avma;
-  long m, j, k;
-  GEN s = gen_0;
-  for (m = 0; m <= p; ++m)
+  pari_sp av = avma, av2;
+  long m, j, k, c = 2*n - p + 1;
+  GEN s = gen_0, vd, ve, sh = gel(vsinh, d-p+1);/* (sh(x)/x)^(d-p) */
+  vd = cgetg(p+2, t_VEC); gel(vd,1) = gen_1;
+  ve = cgetg(p+2, t_VEC); gel(ve,1) = gen_1;
+  gel(vd,2) = utoipos(d - p + 1);
+  gel(ve,2) = utoipos(c);
+  for (j = 2; j <= p; j++)
   {
-    GEN pr = gen_1, s2 = gen_0, sh = gel(vsinh, d-p+1);/* (sh(x)/x)^(d-p) */
-    long pm = p-m;
-    for (j = m; j < p; ++j) pr = muliu(pr, d-j);
-    for (k = 0; k <= pm; k+=2)
-    {
-      GEN e = gdiv(powuu(2*n-p+1, pm-k), mpfact(pm-k));
-      s2 = gadd(s2, gmul(e, RgX_coeff(sh, k)));
-    }
-    s = gadd(s, gmul(gmul(gel(SM, m+1), pr), s2));
-    if (gc_needed(ltop, 1)) s = gerepilecopy(ltop, s);
+    gel(vd,j+1) = muliu(gel(vd,j), d - p + j);
+    gel(ve,j+1) = gdivgs(gmulgs(gel(ve,j), c), j);
   }
-  return gerepileupto(ltop, gmul(gdivsg(-d, powuu(2*d, p)), s));
+  av2 = avma;
+  for (m = 0; m <= p; m++)
+  {
+    GEN s2 = gen_0;
+    for (k = 0; k <= m; k += 2)
+      s2 = gadd(s2, gmul(gel(ve, m-k+1), RgX_coeff(sh, k)));
+    s = gadd(s, gmul(gmul(gel(SM, p-m+1), gel(vd, m+1)), s2));
+    if (gc_needed(av2, 1)) s = gerepileupto(av2, s);
+  }
+  return gerepileupto(av, gdiv(s, shifti(powuu(d, p-1), p)));
 }
 
 /* Asymptotic expansion of inverse Mellin, to length nlimmax. Set status = 0
@@ -430,10 +435,9 @@ fun_vp(long p, long n, long d, GEN SM, GEN vsinh)
 static GEN
 Klargeinit0(GEN Vga, long nlimmax, long *status)
 {
-  const long prec = LOWDEFAULTPREC;
-  const long d = lg(Vga)-1;
+  const long prec = LOWDEFAULTPREC, d = lg(Vga)-1;
   long k, n, m, cnt;
-  GEN pol, SM, nS1, se, vsinh, M, dk;
+  GEN C, pol, SM, nS1, se, vsinh, M, dk;
 
   if (d==1 || (d==2 && gequal1(gabs(gsub(gel(Vga,1), gel(Vga,2)), prec))))
   { /* shortcut */
@@ -445,29 +449,30 @@ Klargeinit0(GEN Vga, long nlimmax, long *status)
   nS1 = gpowers(gneg(RgX_coeff(pol, d-1)), d);
   dk = gpowers(utoi(d), d-1);
   SM = cgetg(d+3, t_VEC);
-  for (m = 0; m <= d; ++m)
+  C = matpascal(d);
+  for (m = 0; m <= d; m++)
   {
-    pari_sp btop = avma;
-    GEN s = gmul(gdivgs(gel(nS1, m+1), d), binomialuu(d, m));
-    for (k = 1; k <= m; ++k)
+    pari_sp av = avma;
+    GEN s = gmul(gdivgs(gel(nS1, m+1), d), gcoeff(C,d+1,m+1));
+    for (k = 1; k <= m; k++)
     {
       GEN e = gmul(gel(nS1, m-k+1), gel(dk, k));
-      s = gadd(s, gmul(gmul(e, binomialuu(d-k, m-k)), RgX_coeff(pol, d-k)));
+      s = gadd(s, gmul(gmul(e, gcoeff(C,d-k+1, m-k+1)), RgX_coeff(pol, d-k)));
     }
-    gel(SM, m+1) = gerepileupto(btop, s);
+    gel(SM, m+1) = gerepileupto(av, s);
   }
   se = gdiv(gsinh(RgX_to_ser(pol_x(0), d+2), prec), pol_x(0));
   vsinh = gpowers(se, d);
   M = vectrunc_init(nlimmax + d);
   vectrunc_append(M, gen_1);
-  for (n=2, cnt=0; (n <= nlimmax) || cnt; ++n)
+  for (n=2, cnt=0; (n <= nlimmax) || cnt; n++)
   {
-    pari_sp btop = avma;
+    pari_sp av = avma;
     long p, ld = minss(d, n);
     GEN s = gen_0;
-    for (p = 2; p <= ld; ++p)
-      s = gadd(s, gmul(fun_vp(p, n-1, d, SM, vsinh), gel(M, n+1-p)));
-    s = gerepileupto(btop, gdivgs(s, n-1));
+    for (p = 2; p <= ld; p++)
+      s = gadd(s, gmul(vp(p, n-1, d, SM, vsinh), gel(M, n+1-p)));
+    s = gerepileupto(av, gdivgs(s, 1-n));
     vectrunc_append(M, s);
     if (!isintzero(s))
     {
