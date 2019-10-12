@@ -1342,8 +1342,8 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
     gel(res,j+1) = C <= 1? gen_1: utoipos(C); /* exponent */
     gel(res,j+2) = C ? NULL: gen_0; /* unknown or known composite */
     if (DEBUGLEVEL >= 6)
-      err_printf("\tpackaging %ld: %Ps ^%ld (%s)\n", i, r[i],
-                 itos(gel(res,j-2)), (C? "comp.": "unknown"));
+      err_printf("\tpackaging %ld: %Ps ^%ld (%s)\n", i, gel(r,i),
+                 itos(gel(res,j+1)), (C? "unknown": "composite"));
   }
   return res;
 }
