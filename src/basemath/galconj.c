@@ -118,7 +118,7 @@ struct galois_analysis {
   long ord;
   long l; /* l: prime number such that T is totally split mod l */
   long p4;
-  enum ga_code group;
+  long group;
 };
 struct galois_frobenius {
   long p;
