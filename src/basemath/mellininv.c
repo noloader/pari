@@ -554,7 +554,8 @@ gammamellininvasymp_i(GEN Vga, long nlimmax, long m, long *status)
 GEN
 gammamellininvasymp(GEN Vga, long nlimmax, long m)
 { long status;
-  if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);
+  if (!is_vec_t(typ(Vga)) || lg(Vga) == 1)
+    pari_err_TYPE("gammamellininvinit",Vga);
   return gammamellininvasymp_i(Vga, nlimmax, m, &status);
 }
 
@@ -590,7 +591,7 @@ gammamellininvinit(GEN Vga, long m, long bitprec)
   double E = M_LN2*bitprec, tmax = get_tmax(bitprec); /* = E/C2 */
   const long nlimmax = ceil(E*log2(1+M_PI*tmax)*C2/D);
 
-  if (!is_vec_t(typ(Vga))) pari_err_TYPE("gammamellininvinit",Vga);
+  if (!is_vec_t(typ(Vga)) || !d) pari_err_TYPE("gammamellininvinit",Vga);
   A2 = gaddsg(m*(2-d) + 1-d, sumVga(Vga));
   cd = (d <= 2)? gen_2: gsqrt(gdivgs(int2n(d+1), d), nbits2prec(bitprec));
   /* if in Klarge, we have |t| > tmax = E/C2, thus nlim < E*C2/D. */
