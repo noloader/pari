@@ -426,29 +426,20 @@ vp(long p, long n, long d, GEN SM, GEN vsinh)
   return gerepileupto(av, gdiv(s, powuu(2*d, p)));
 }
 
-/* Asymptotic expansion of inverse Mellin, to length nlimmax. Set status = 0
- * (regular), 1 (one Hankel determinant vanishes => contfracinit will fail)
- * or 2 (same as 1, but asymptotic expansion is finite!)
- *
- * If status = 2, the asymptotic expansion is finite so return only
- * the necessary number of terms nlim <= nlimmax + d. */
 static GEN
-Klargeinit0(GEN Vga, long nlimmax, long *status)
+get_SM(GEN Vga)
 {
-  const long prec = LOWDEFAULTPREC, d = lg(Vga)-1;
-  long k, n, m, cnt;
-  GEN C, pol, SM, nS1, se, vsinh, M;
+  long k, m, d = lg(Vga)-1;
+  GEN pol, nS1, SM, C, t = vecsum(Vga);
 
-  if (d==1 || (d==2 && gequal1(gabs(gsub(gel(Vga,1), gel(Vga,2)), prec))))
+  pol = roots_to_pol(gmulgs(Vga, -d), 0); /* deg(pol) = d */
+  SM = cgetg(d+2, t_VEC);
+  if (gequal0(t))
   { /* shortcut */
-    *status = 2; return mkvec(gen_1);
+    for (m = 0; m <= d; m++) gel(SM,m+1) = gel(pol,d+2-m);
+    return SM;
   }
-  /* d >= 2 */
-  *status = 0;
-  pol = roots_to_pol(gneg(Vga), 0); /* deg(pol) = d */
-  nS1 = gpowers(gneg(RgX_coeff(pol, d-1)), d);
-  pol = RgX_rescale(pol, utoipos(d));
-  SM = cgetg(d+3, t_VEC);
+  nS1 = gpowers(gneg(t), d);
   C = matpascal(d);
   for (m = 0; m <= d; m++)
   {
@@ -461,11 +452,30 @@ Klargeinit0(GEN Vga, long nlimmax, long *status)
     }
     gel(SM, m+1) = gerepileupto(av, s);
   }
-  se = gdiv(gsinh(RgX_to_ser(pol_x(0), d+2), prec), pol_x(0));
+  return SM;
+}
+
+/* Asymptotic expansion of inverse Mellin, to length nlimmax. Set status = 0
+ * (regular), 1 (one Hankel determinant vanishes => contfracinit will fail)
+ * or 2 (same as 1, but asymptotic expansion is finite!)
+ *
+ * If status = 2, the asymptotic expansion is finite so return only
+ * the necessary number of terms nlim <= nlimmax + d. */
+static GEN
+Klargeinit0(GEN Vga, long nlimmax, long *status)
+{
+  long d = lg(Vga)-1, n, cnt;
+  GEN SM, se, vsinh, M;
+
+  if (Vgaeasytheta(Vga)) { *status = 2; return mkvec(gen_1); }
+  /* d >= 2 */
+  *status = 0;
+  SM = get_SM(Vga);
+  se = gsinh(RgX_to_ser(pol_x(0), d+2), 0); setvalp(se,0); /* sinh(x)/x */
   vsinh = gpowers(se, d);
   M = vectrunc_init(nlimmax + d);
   vectrunc_append(M, gen_1);
-  for (n=2, cnt=0; (n <= nlimmax) || cnt; n++)
+  for (n = 2, cnt = 0; n <= nlimmax || cnt; n++)
   {
     pari_sp av = avma;
     long p, ld = minss(d, n);

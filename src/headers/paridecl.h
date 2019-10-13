@@ -4022,6 +4022,7 @@ GEN     theta_get_tdom(GEN tdata);
 GEN     theta_get_isqrtN(GEN tdata);
 GEN     vecpowuu(long N, ulong B);
 GEN     vecpowug(long N, GEN B, long prec);
+int     Vgaeasytheta(GEN Vga);
 GEN     znchargauss(GEN G, GEN chi, GEN a, long bitprec);
 
 /* lfunutils.c */

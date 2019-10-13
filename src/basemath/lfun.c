@@ -134,15 +134,15 @@ sumVgaimpos(GEN v)
 static long
 vgaell(GEN Vga)
 {
-  GEN c;
   long d = lg(Vga)-1;
+  GEN c;
   if (d != 2) return 0;
   c = gsub(gel(Vga,1), gel(Vga,2));
   return gequal1(c) || gequalm1(c);
 }
-static long
-vgaeasytheta(GEN Vga) { return lg(Vga)-1 == 1 || vgaell(Vga); }
-/* return b(n) := a(n) * n^c, when vgaeasytheta(Vga) is set */
+int
+Vgaeasytheta(GEN Vga) { return lg(Vga)-1 == 1 || vgaell(Vga); }
+/* return b(n) := a(n) * n^c, when Vgaeasytheta(Vga) is set */
 static GEN
 antwist(GEN an, GEN Vga, long prec)
 {
@@ -180,7 +180,7 @@ theta_dual(GEN theta, GEN bn)
     GEN an = theta_get_an(tech);
     long prec = nbits2prec(theta_get_bitprec(tech));
     GEN vb = ldata_vecan(bn, lg(an)-1, prec);
-    if (!theta_get_m(tech) && vgaeasytheta(Vga)) vb = antwist(vb, Vga, prec);
+    if (!theta_get_m(tech) && Vgaeasytheta(Vga)) vb = antwist(vb, Vga, prec);
     gel(tech,1) = vb;
     gel(thetad,3) = tech; return thetad;
   }
@@ -662,7 +662,7 @@ lfunthetainit_i(GEN data, GEN tdom, long m, long bitprec)
   long L = lfunthetacost(ldata, tdom, m, bitprec), prec = nbits2prec(bitprec);
   GEN an = ldata_vecan(ldata_get_an(ldata), L, prec);
   GEN Vga = ldata_get_gammavec(ldata);
-  if (m == 0 && vgaeasytheta(Vga)) an = antwist(an, Vga, prec);
+  if (m == 0 && Vgaeasytheta(Vga)) an = antwist(an, Vga, prec);
   return lfunthetainit0(ldata, tdom, an, m, bitprec, 32);
 }
 
@@ -911,7 +911,7 @@ lfuntheta(GEN data, GEN t, long m, long bitprec)
   t = gmul(t, isqN);
   Vga = ldata_get_gammavec(ldata);
   d = lg(Vga)-1;
-  if (m == 0 && vgaeasytheta(Vga))
+  if (m == 0 && Vgaeasytheta(Vga))
   {
     if (theta_get_m(thetainit) > 0) vecan = antwist(vecan, Vga, prec);
     if (d == 1) S = theta1(vecan, limt, t, gel(Vga,1), prec);
@@ -1999,7 +1999,7 @@ lfunthetaspec(GEN linit, long bitprec, GEN *pv, GEN *pv2)
   thetainit = linit_get_tech(linit);
   prec = nbits2prec(bitprec);
   Vga = ldata_get_gammavec(ldata); d = lg(Vga)-1;
-  if (vgaeasytheta(Vga))
+  if (Vgaeasytheta(Vga))
   {
     GEN v2 = sqrtr(real2n(1, nbits2prec(bitprec)));
     GEN v = shiftr(v2,-1);
