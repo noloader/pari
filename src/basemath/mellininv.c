@@ -407,15 +407,15 @@ vp(long p, long c, GEN SMd, GEN sh)
 
   gel(ve,1) = gen_1; gel(ve,2) = utoipos(c);
   for (j = 2; j <= p; j++) gel(ve,j+1) = gdivgs(gmulgs(gel(ve,j), c), j);
-  s = gel(SMd,1);
+  s = gel(SMd, 1);
   for (m = 1; m <= p; m++)
   {
-    GEN s2, c = gel(SMd, m+1);
+    GEN t, c = gel(SMd, m+1);
     if (gequal0(c)) continue;
-    s2 = gel(ve, m+1);
-    for (k = 2; k <= m; k += 2)
-      s2 = gadd(s2, gmul(gel(ve, m-k+1), RgX_coeff(sh, k)));
-    s = gadd(s, gmul(c, s2));
+    t = gel(ve, m+1);
+    for (k = 1; k <= m/2; k++)
+      t = gadd(t, gmul(gel(ve, m-2*k+1), RgX_coeff(sh, k)));
+    s = gadd(s, gmul(c, t));
   }
   return s;
 }
@@ -480,14 +480,16 @@ static GEN
 Klargeinit(GEN Vga, long nlimmax, long *status)
 {
   long d = lg(Vga) - 1, p, n, cnt;
-  GEN SMd, se, vsinh, M;
+  GEN M, SMd, se, vsinh, vd;
 
   if (Vgaeasytheta(Vga)) { *status = 2; return mkvec(gen_1); }
   /* d >= 2 */
   *status = 0;
   SMd = get_SMd(Vga);
-  se = gsinh(RgX_to_ser(pol_x(0), d+2), 0); setvalp(se,0); /* sinh(x)/x */
+  se = gsinh(RgX_to_ser(pol_x(0), d+2), 0); setvalp(se,0);
+  se = gdeflate(se, 0, 2); /* se(x^2) = sinh(x)/x */
   vsinh = gpowers(se, d);
+  vd = gpowers(utoipos(2*d), d);
   M = cgetg(nlimmax + d + 1, t_VEC); gel(M,1) = gen_1;
   for (n = 2, cnt = 0; n <= nlimmax || cnt; n++)
   {
@@ -497,7 +499,7 @@ Klargeinit(GEN Vga, long nlimmax, long *status)
     for (p = 2; p <= ld; p++)
     {
       GEN z = vp(p, 2*n-1-p, gel(SMd, p-1), gel(vsinh, d-p+1));
-      s = gadd(s, gmul(gdiv(z, powuu(2*d,p)), gel(M, n+1-p)));
+      s = gadd(s, gmul(gdiv(z, gel(vd, p+1)), gel(M, n+1-p)));
     }
     gel(M,n) = s = gerepileupto(av, gdivgs(s, 1-n));
     if (isintzero(s))
