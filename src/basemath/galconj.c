@@ -110,7 +110,8 @@ struct galois_test { /* data for permutation test */
   GEN M; /* vandermonde inverse */
 };
 /* result of the study of Frobenius degrees */
-enum ga_code {ga_all_normal=1,ga_ext_2=2,ga_non_wss=4,ga_all_nilpotent=8};
+enum ga_code {ga_all_normal=1,ga_ext_2=2,ga_non_wss=4,
+              ga_all_nilpotent=8,ga_easy=16};
 struct galois_analysis {
   long p; /* prime to be lifted */
   long deg; /* degree of the lift */
@@ -1057,6 +1058,7 @@ init_group(long n, long np, GEN Fp, GEN Fe, long *porder)
     if (Fe[i] > 1) break;
   }
   if (uisprimepower(n, &p) || n == 135) group |= ga_all_nilpotent;
+  if (n <= 104) group |= ga_easy; /* no need to use polynomial algo */
   *porder = order; return group;
 }
 
@@ -1913,6 +1915,7 @@ galoisgenfixedfield(GEN Tp, GEN Pmod, GEN V, GEN ip, GEN bad, struct galois_born
     GEN mod, mod2;
     long j;
     if (!galoisanalysis(P, &Pga, 0, NULL)) return NULL;
+    if (bad) Pga.group &= ~ga_easy;
     Pgb.l = gb->l;
     Pden = galoisborne(P, NULL, &Pgb, degpol(P));
 
@@ -2550,7 +2553,7 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
   frob = galoisfindfrobenius(T, L, den, bad, &gf, gb, ga);
   if (!frob) return gc_NULL(ltop);
   po = psi_order(gf.psi, gf.deg);
-  if (po < gf.deg && gf.deg/radicalu(gf.deg)%po == 0)
+  if (!(ga->group&ga_easy) && po < gf.deg && gf.deg/radicalu(gf.deg)%po == 0)
   {
     is_central = 1;
     if (!bad) bad = gb->dis;
@@ -2574,7 +2577,8 @@ galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne *gb,
   }
   O = perm_cycles(frob);
   if (DEBUGLEVEL >= 9) err_printf("GaloisConj: Frobenius:%Ps\n", sigma);
-  PG = galoisgenfixedfield0(O, L, sigma, T, is_central ? bad: NULL, is_central ? &V: NULL, &gf, gb);
+  PG = galoisgenfixedfield0(O, L, sigma, T, is_central ? bad: NULL,
+                                            is_central ? &V:  NULL, &gf, gb);
   if (PG == NULL) return gc_NULL(ltop);
   if (is_central && lg(gel(PG,1))!=3)
   {
