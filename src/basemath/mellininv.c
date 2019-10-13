@@ -407,12 +407,15 @@ vp(long p, long c, GEN SMd, GEN sh)
 
   gel(ve,1) = gen_1; gel(ve,2) = utoipos(c);
   for (j = 2; j <= p; j++) gel(ve,j+1) = gdivgs(gmulgs(gel(ve,j), c), j);
-  for (m = 0, s = gen_0; m <= p; m++)
+  s = gel(SMd,1);
+  for (m = 1; m <= p; m++)
   {
-    GEN s2 = gen_0;
-    for (k = 0; k <= m; k += 2)
+    GEN s2, c = gel(SMd, m+1);
+    if (gequal0(c)) continue;
+    s2 = gel(ve, m+1);
+    for (k = 2; k <= m; k += 2)
       s2 = gadd(s2, gmul(gel(ve, m-k+1), RgX_coeff(sh, k)));
-    s = gadd(s, gmul(gel(SMd, m+1), s2));
+    s = gadd(s, gmul(c, s2));
   }
   return s;
 }
