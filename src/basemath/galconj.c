@@ -1178,7 +1178,7 @@ galoisanalysis(GEN T, struct galois_analysis *ga, long calcul_l, GEN bad)
     }
     if (!p) pari_err_OVERFLOW("galoisanalysis [ran out of primes]");
   }
-  ga->group = (enum ga_code)group;
+  ga->group = group;
   ga->deg = deg;
   ga->ord = order;
   ga->l  = O[1];
