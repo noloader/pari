@@ -455,7 +455,7 @@ RgX_translate(GEN P, GEN c)
       for (k=n-i; k<n; k++) gel(R,k) = gadd(gel(R,k), gel(R,k+1));
       if (gc_needed(av,2))
       {
-        if(DEBUGMEM>1) pari_warn(warnmem,"TR_POL(1), i = %ld/%ld", i,n);
+        if(DEBUGMEM>1) pari_warn(warnmem,"RgX_translate(1), i = %ld/%ld", i,n);
         Q = gerepilecopy(av, Q); R = Q+2;
       }
     }
@@ -467,7 +467,7 @@ RgX_translate(GEN P, GEN c)
       for (k=n-i; k<n; k++) gel(R,k) = gsub(gel(R,k), gel(R,k+1));
       if (gc_needed(av,2))
       {
-        if(DEBUGMEM>1) pari_warn(warnmem,"TR_POL(-1), i = %ld/%ld", i,n);
+        if(DEBUGMEM>1) pari_warn(warnmem,"RgX_translate(-1), i = %ld/%ld", i,n);
         Q = gerepilecopy(av, Q); R = Q+2;
       }
     }
@@ -479,7 +479,7 @@ RgX_translate(GEN P, GEN c)
       for (k=n-i; k<n; k++) gel(R,k) = gadd(gel(R,k), gmul(c, gel(R,k+1)));
       if (gc_needed(av,2))
       {
-        if(DEBUGMEM>1) pari_warn(warnmem,"TR_POL, i = %ld/%ld", i,n);
+        if(DEBUGMEM>1) pari_warn(warnmem,"RgX_translate, i = %ld/%ld", i,n);
         Q = gerepilecopy(av, Q); R = Q+2;
       }
     }

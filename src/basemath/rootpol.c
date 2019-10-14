@@ -1062,7 +1062,7 @@ conformal_pol(GEN p, GEN a)
     z = RgX_addmulXn_shallow(gmul(z,ca), gneg(z), 1); /* z *= conj(a)X - 1 */
     if (gc_needed(av,2))
     {
-      if(DEBUGMEM>1) pari_warn(warnmem,"conformal_pol");
+      if(DEBUGMEM>1) pari_warn(warnmem,"conformal_pol (%ld/%ld)",n-i, n);
       gerepileall(av,2, &r,&z);
     }
   }
