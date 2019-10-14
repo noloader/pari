@@ -284,13 +284,15 @@ mygprecrc(GEN x, long prec, long e)
   GEN y;
   switch(typ(x))
   {
-    case t_REAL: return signe(x)? rtor(x, prec): real_0_bit(e);
+    case t_REAL:
+      if (!signe(x)) return real_0_bit(e);
+      return realprec(x) == prec? x: rtor(x, prec);
     case t_COMPLEX:
       y = cgetg(3,t_COMPLEX);
       gel(y,1) = mygprecrc(gel(x,1),prec,e);
       gel(y,2) = mygprecrc(gel(x,2),prec,e);
       return y;
-    default: return gcopy(x);
+    default: return x;
   }
 }
 
@@ -1677,7 +1679,8 @@ fix_roots1(GEN r)
   for (i=1; i<l; i++)
   {
     GEN t = gel(r,i);
-    gel(allr,i) = gcopy(t); gunclone(t);
+    gel(allr,i) = gcopy(t);
+    gunclone(t);
   }
   return allr;
 }
@@ -1902,7 +1905,7 @@ roots_aux(GEN p, long l, long clean)
   if (l < LOWDEFAULTPREC) l = LOWDEFAULTPREC;
   bit = prec2nbits(l);
   L = roots_com(p, bit);
-  return gerepileupto(av, clean_roots(L, l, bit, clean));
+  return gerepilecopy(av, clean_roots(L, l, bit, clean));
 }
 GEN
 roots(GEN p, long l) { return roots_aux(p,l, 0); }
@@ -1941,7 +1944,7 @@ QX_complex_roots(GEN p, long l)
   v = RgX_valrem(p, &p);
   L = lg(p) > 3? all_roots(Q_primpart(p), bit): cgetg(1,t_COL);
   if (v) L = shallowconcat(const_vec(v, real_0_bit(-bit)), L);
-  return gerepileupto(av, clean_roots(L, l, bit, 1));
+  return gerepilecopy(av, clean_roots(L, l, bit, 1));
 }
 
 /********************************************************************/
