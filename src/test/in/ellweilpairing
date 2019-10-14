@@ -47,6 +47,7 @@ t=ffgen(Mod(1,2)*(t^6+t^5+t^3+t^2+1));
 E=ellinit([0,0,1,0,0],t);
 P=[t^2+t+1,t+1];
 Q=[t^5+t^3+t^2,t^5+t^4+t^3+t^2+t+1];
+ellweilpairing(E,P,P,3)
 ellweilpairing(E,P,Q,3)
 elltatepairing(E,P,Q,3)
 elltatepairing(E,P,P,3)
@@ -69,6 +70,12 @@ ellweilpairing(E,P,Q,126)
 elltatepairing(E,P,Q,126)
 elltatepairing(E,P,P,126)
 elltatepairing(E,Q,Q,126)
+
+t=ffgen(ffinit(101,6),'t);
+E=ellinit([3,7],t);
+P=[89*t^5+75*t^4+75*t^3+89*t^2,48*t^5+6*t^4+52*t^3+10*t^2+58*t+29];
+ellweilpairing(E,P,P,5)
+elltatepairing(E,P,P,5)
 
 t=ffgen(2^4,'t);
 E=ellinit([1,0,0,0,t^3+t^2+t+1]);

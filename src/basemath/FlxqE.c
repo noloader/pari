@@ -472,7 +472,8 @@ FlxqE_weilpairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, ulong p)
 {
   pari_sp ltop = avma;
   GEN num, denom, result;
-  if (ell_is_inf(P) || ell_is_inf(Q) || Flx_equal(P,Q))
+  if (ell_is_inf(P) || ell_is_inf(Q)
+    || (Flx_equal(gel(P,1),gel(Q,1)) && Flx_equal(gel(P,2),gel(Q,2))))
     return pol1_Flx(get_Flx_var(T));
   num    = FlxqE_Miller(P, Q, m, a4, T, p);
   denom  = FlxqE_Miller(Q, P, m, a4, T, p);

@@ -489,7 +489,8 @@ F2xqE_weilpairing(GEN P, GEN Q, GEN m, GEN a2, GEN T)
 {
   pari_sp ltop = avma;
   GEN num, denom, result;
-  if (ell_is_inf(P) || ell_is_inf(Q) || F2x_equal(P,Q))
+  if (ell_is_inf(P) || ell_is_inf(Q)
+    || (F2x_equal(gel(P,1),gel(Q,1)) && F2x_equal(gel(P,2),gel(Q,2))))
     return pol1_F2x(T[1]);
   num    = F2xqE_Miller(P, Q, m, a2, T);
   denom  = F2xqE_Miller(Q, P, m, a2, T);
