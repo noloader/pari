@@ -270,7 +270,7 @@ vecperm_extendschreier(GEN C, GEN v, long n)
   GEN bit = const_vecsmall(n, 0);
   GEN cy = cgetg(n+1, t_VECSMALL);
   GEN sh = const_vec(n, gen_0);
-  for(mj=1; mj<n; mj++)
+  for(mj=1; mj<=n; mj++)
   {
     if (isintzero(gel(C,mj))) continue;
     gel(sh,mj) = gcopy(gel(C,mj));
