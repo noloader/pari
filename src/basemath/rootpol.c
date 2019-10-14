@@ -1671,7 +1671,7 @@ fix_roots1(GEN r)
   return allr;
 }
 static GEN
-fix_roots(GEN r, GEN *m, long h, long bit)
+fix_roots(GEN r, long h, long bit)
 {
   long i, j, k, l, prec;
   GEN allr, ro1;
@@ -1687,23 +1687,22 @@ fix_roots(GEN r, GEN *m, long h, long bit)
     for (j=0; j<h; j++) gel(allr,k++) = gmul(p2, gel(ro1,j));
     gunclone(p1);
   }
-  *m = roots_to_pol(allr, 0);
   return allr;
 }
 
 static GEN
 all_roots(GEN p, long bit)
 {
-  GEN lc, pd, q, roots_pol, m;
-  long bit0,  bit2, i, e, h, n = degpol(p);
+  GEN pd, q, roots_pol, m;
+  long bit2, i, e, h, elc, n = degpol(p);
   double fb;
   pari_sp av;
 
-  pd = RgX_deflate_max(p, &h); lc = leading_coeff(pd);
+  pd = RgX_deflate_max(p, &h); elc = gexpo(leading_coeff(pd));
   fb = fujiwara_bound(pd);
   e = (fb < 0)? 0: (long)(2 * fb);
-  bit0 = bit + gexpo(pd) - gexpo(lc) + (long)log2(n/h)+1+e;
-  bit2 = bit0; e = 0;
+  bit2 = bit + gexpo(pd) + (long)log2(n/h)+1+e;
+  e = 0;
   for (av=avma,i=1;; i++,set_avma(av))
   {
     roots_pol = vectrunc_init(n+1);
@@ -1711,13 +1710,11 @@ all_roots(GEN p, long bit)
     q = RgX_gtofp_bit(mygprec(pd,bit2), bit2);
     q[1] = evalsigne(1)|evalvarn(0);
     m = split_complete(q,bit2,roots_pol);
-    roots_pol = fix_roots(roots_pol, &m, h, bit2);
-    q = mygprec_special(p,bit2); lc = leading_coeff(q);
+    roots_pol = fix_roots(roots_pol, h, bit2);
+    q = mygprec_special(pd,bit2);
     q[1] = evalsigne(1)|evalvarn(0);
-    if (h > 1) m = gmul(m,lc);
-
-    e = gexpo(gsub(q, m)) - gexpo(lc) + (long)log2((double)n) + 1;
-    if (e < -2*bit2) e = -2*bit2; /* avoid e = -pariINFINITY */
+    e = gexpo(RgX_sub(q, m)) - elc + (long)log2((double)n) + 1;
+    if (e < -2*bit2) e = -2*bit2; /* avoid e = -oo */
     if (e < 0)
     {
       e = bit + a_posteriori_errors(p,roots_pol,e);
