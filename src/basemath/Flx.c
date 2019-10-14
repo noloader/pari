@@ -589,21 +589,6 @@ get_Fl_threshold(ulong p, long mul, long mul2)
 #define LHQUARTWORD(x) (((x) >> (2*BITS_IN_QUARTULONG)) & QUARTMASK)
 #define HHQUARTWORD(x) (((x) >> (3*BITS_IN_QUARTULONG)) & QUARTMASK)
 INLINE long
-maxlengthcoeffpol(ulong p, long n)
-{
-  pari_sp ltop = avma;
-  GEN z = muliu(sqru(p-1), n);
-  long l = lgefint(z);
-  set_avma(ltop);
-  if (l==3 && HIGHWORD(z[2])==0)
-  {
-    if (HLQUARTWORD(z[2]) == 0) return -1;
-    else return 0;
-  }
-  return l-2;
-}
-
-INLINE long
 maxbitcoeffpol(ulong p, long n)
 {
   GEN z = muliu(sqru(p - 1), n);
