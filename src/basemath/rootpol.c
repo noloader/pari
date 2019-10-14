@@ -1028,32 +1028,24 @@ scalepol2n(GEN p, long e)
   for (i=2; i<=n; i++) gel(p,i) = gmul2n(gel(p,i),(i-n)*e);
 }
 
-/* returns p(x/R)*R^n */
+/* returns p(x/R)*R^n; assume R is at the correct accuracy */
 static GEN
 scalepol(GEN p, GEN R, long bit)
-{
-  GEN q,aux,gR;
-  long i;
-
-  aux = gR = mygprec(R,bit); q = mygprec(p,bit);
-  for (i=lg(p)-2; i>=2; i--)
-  {
-    gel(q,i) = gmul(aux,gel(q,i));
-    aux = gmul(aux,gR);
-  }
-  return q;
-}
+{ return RgX_rescale(mygprec(p, bit), R); }
 
 /* return (conj(a)X-1)^n * p[ (X-a) / (conj(a)X-1) ] */
 static GEN
-conformal_pol(GEN p, GEN a)
+conformal_basecase(GEN p, GEN a)
 {
-  GEN z, r, ma = gneg(a), ca = conj_i(a);
-  long n = degpol(p), i;
-  pari_sp av = avma;
+  GEN z, r, ma, ca;
+  long i, n = degpol(p);
+  pari_sp av;
 
-  z = mkpoln(2, ca, gen_m1);
-  r = scalarpol(gel(p,2+n), 0);
+  if (n <= 0) return p;
+  ma = gneg(a); ca = conj_i(a);
+  av = avma;
+  z = deg1pol_shallow(ca, gen_m1, 0);
+  r = scalarpol_shallow(gel(p,2+n), 0);
   for (i=n-1; ; i--)
   {
     r = RgX_addmulXn_shallow(r, gmul(ma,r), 1); /* r *= (X - a) */
@@ -1066,6 +1058,25 @@ conformal_pol(GEN p, GEN a)
       gerepileall(av,2, &r,&z);
     }
   }
+}
+static GEN
+conformal_pol(GEN p, GEN a)
+{
+  pari_sp av = avma;
+  long d, nR, n = degpol(p), v;
+  GEN Q, R, S, T;
+  if (n < 35) return conformal_basecase(p, a);
+  d = (n+1) >> 1; v = varn(p);
+  Q = RgX_shift_shallow(p, -d);
+  R = RgXn_red_shallow(p, d);
+  Q = conformal_pol(Q, a);
+  R = conformal_pol(R, a);
+  S = gpowgs(deg1pol_shallow(gen_1, gneg(a), v), d);
+  T = gconj(RgX_recip_shallow(S));
+  if (odd(d)) T = RgX_neg(T);
+  nR = n - degpol(R) - d; /* >= 0 */
+  if (nR) T = RgX_mul(T, gpowgs(deg1pol_shallow(gconj(a), gen_m1, v), nR));
+  return gerepileupto(av, RgX_add(RgX_mul(Q, S), RgX_mul(R, T)));
 }
 
 static const double UNDEF = -100000.;
