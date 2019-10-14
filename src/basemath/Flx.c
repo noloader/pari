@@ -1351,7 +1351,7 @@ GEN
 Flx_get_red(GEN T, ulong p)
 {
   if (typ(T)!=t_VECSMALL
-    || lgpol(T) <= get_Fl_threshold(p, Flx_BARRETT_LIMIT,
+    || lgpol(T) < get_Fl_threshold(p, Flx_BARRETT_LIMIT,
                                        Flx_BARRETT2_LIMIT))
     return T;
   retmkvec2(Flx_invBarrett(T,p),T);
@@ -1609,7 +1609,7 @@ Flx_divrem(GEN x, GEN T, ulong p, GEN *pr)
   if (pr==ONLY_REM) return Flx_rem(x, T, p);
   y = get_Flx_red(T, &B);
   dy = degpol(y); dx = degpol(x); d = dx-dy;
-  if (!B && d+3 < Flx_DIVREM_BARRETT_LIMIT)
+  if (!B && d+3 < get_Fl_threshold(p, Flx_DIVREM_BARRETT_LIMIT,Flx_DIVREM2_BARRETT_LIMIT))
     return Flx_divrem_basecase(x,y,p,pr);
   else
   {
@@ -1943,7 +1943,7 @@ if [a',b']~=M*[a,b]~ then degpol(a')>= (lgpol(a)>>1) >degpol(b')
 static GEN
 Flx_halfgcd_i(GEN x, GEN y, ulong p)
 {
-  if (lgpol(x) <= get_Fl_threshold(p, Flx_HALFGCD_LIMIT, Flx_HALFGCD2_LIMIT))
+  if (lgpol(x) < get_Fl_threshold(p, Flx_HALFGCD_LIMIT, Flx_HALFGCD2_LIMIT))
     return Flx_halfgcd_basecase(x,y,p);
   return Flx_halfgcd_split(x,y,p);
 }
@@ -1995,8 +1995,8 @@ Flx_gcd(GEN x, GEN y, ulong p)
   pari_sp av = avma;
   long lim;
   if (!lgpol(x)) return Flx_copy(y);
-  lim = get_Fl_threshold(p, Flx_GCD_LIMIT, Flx_GCD_LIMIT);
-  while (lg(y) > lim)
+  lim = get_Fl_threshold(p, Flx_GCD_LIMIT, Flx_GCD2_LIMIT);
+  while (lgpol(y) >= lim)
   {
     GEN c;
     if (lgpol(y)<=(lgpol(x)>>1))
@@ -2090,8 +2090,8 @@ Flx_extgcd_halfgcd(GEN x, GEN y, ulong p, GEN *ptu, GEN *ptv)
 {
   pari_sp av=avma;
   GEN u,v,R = matid2_FlxM(x[1]);
-  long lim = get_Fl_threshold(p, Flx_EXTGCD_LIMIT, Flx_EXTGCD_LIMIT);
-  while (lg(y)>lim)
+  long lim = get_Fl_threshold(p, Flx_EXTGCD_LIMIT, Flx_EXTGCD2_LIMIT);
+  while (lgpol(y) >= lim)
   {
     GEN M, c;
     if (lgpol(y)<=(lgpol(x)>>1))
@@ -2119,8 +2119,8 @@ Flx_extgcd(GEN x, GEN y, ulong p, GEN *ptu, GEN *ptv)
 {
   GEN d;
   pari_sp ltop=avma;
-  long lim = get_Fl_threshold(p, Flx_EXTGCD_LIMIT, Flx_EXTGCD_LIMIT);
-  if (lg(y)>lim)
+  long lim = get_Fl_threshold(p, Flx_EXTGCD_LIMIT, Flx_EXTGCD2_LIMIT);
+  if (lgpol(y) >= lim)
     d = Flx_extgcd_halfgcd(x, y, p, ptu, ptv);
   else
     d = Flx_extgcd_basecase(x, y, p, ptu, ptv);
