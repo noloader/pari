@@ -871,8 +871,8 @@ main(int argc, char **argv)
   GEN v;
   pari_init(16000000, 2);
   LARGE_mod=subis(powuu(3,128),62);
-  DFLT_mod = (1UL<<((BITS_IN_LONG-2)>>1))+1;
-  DFLT_mod2 = (1UL<<(BITS_IN_LONG-1))+1;
+  DFLT_mod  = unextprime((1UL<<((BITS_IN_LONG-2)>>1))+1);
+  DFLT_mod2 = unextprime((1UL<<(BITS_IN_LONG-1))+1);
   v = new_chunk(argc);
   for (i = 1; i < argc; i++)
   {
