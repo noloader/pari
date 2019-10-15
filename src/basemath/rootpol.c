@@ -1074,8 +1074,10 @@ conformal_pol(GEN p, GEN a)
   Q = conformal_pol(Q, a);
   R = conformal_pol(R, a);
   S = gpowgs(deg1pol_shallow(gen_1, gneg(a), v), d);
-  T = gconj(RgX_recip_shallow(S));
+  T = RgX_recip_shallow(S);
+  if (typ(a) == t_COMPLEX) T = gconj(T);
   if (odd(d)) T = RgX_neg(T);
+  /* S = (X - a)^d, T = (conj(a) X - 1)^d */
   nR = n - degpol(R) - d; /* >= 0 */
   if (nR) T = RgX_mul(T, gpowgs(deg1pol_shallow(gconj(a), gen_m1, v), nR));
   return gerepileupto(av, RgX_add(RgX_mul(Q, S), RgX_mul(R, T)));
