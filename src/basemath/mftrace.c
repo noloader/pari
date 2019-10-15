@@ -923,7 +923,10 @@ compatlift(GEN *F, long o, GEN P)
   long i, l;
   GEN f = *F, g = cgetg_copy(f,&l);
   for (i = 1; i < l; i++)
-    gel(g,i) = gmodulo(RgX_inflate(lift_shallow(gel(f,i)), o), P);
+  {
+    GEN fi = lift_shallow(gel(f,i));
+    gel(g,i) = gmodulo(typ(fi)==t_POL? RgX_inflate(fi,o): fi, P);
+  }
   *F = g;
 }
 static void
