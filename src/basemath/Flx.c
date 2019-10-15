@@ -4989,13 +4989,14 @@ FlxqX_halfgcd_split(GEN x, GEN y, GEN T, ulong p)
   GEN R, S, V;
   GEN y1, r, q;
   long l = lgpol(x), n = l>>1, k;
-  if (lgpol(y)<=n) return matid2_FlxXM(varn(x),get_Flx_var(T));
-  R = FlxqX_halfgcd(RgX_shift_shallow(x,-n),RgX_shift_shallow(y,-n), T, p);
+  long vT = get_Flx_var(T);
+  if (lgpol(y)<=n) return matid2_FlxXM(varn(x),vT);
+  R = FlxqX_halfgcd(FlxX_shift(x,-n,vT),FlxX_shift(y,-n,vT), T, p);
   V = FlxqXM_FlxqX_mul2(R,x,y, T, p); y1 = gel(V,2);
   if (lgpol(y1)<=n) return gerepilecopy(av, R);
   q = FlxqX_divrem(gel(V,1), y1, T, p, &r);
   k = 2*n-degpol(y1);
-  S = FlxqX_halfgcd(RgX_shift_shallow(y1,-k), RgX_shift_shallow(r,-k), T, p);
+  S = FlxqX_halfgcd(FlxX_shift(y1,-k,vT), FlxX_shift(r,-k,vT), T, p);
   return gerepileupto(av, FlxqXM_mul2(S,FlxqX_FlxqXM_qmul(q,R, T, p), T, p));
 }
 
@@ -5583,7 +5584,7 @@ FlxqXQ_transmul_init(GEN tau, GEN S, GEN T, ulong p)
     bht = FlxqXn_mul(bt, h, n-1, T, p);
   else
   {
-    GEN bh = FlxqX_div(RgX_shift_shallow(tau, n-1), S, T, p);
+    GEN bh = FlxqX_div(FlxX_shift(tau, n-1, vT), S, T, p);
     bht = FlxX_recipspec(bh+2, lgpol(bh), n-1, vT);
     setvarn(bht, vS);
   }
@@ -5596,12 +5597,13 @@ FlxqXQ_transmul(GEN tau, GEN a, long n, GEN T, ulong p)
   pari_sp ltop = avma;
   GEN t1, t2, t3, vec;
   GEN bt = gel(tau, 1), bht = gel(tau, 2), ft = gel(tau, 3);
+  long vT = get_Flx_var(T);
   if (signe(a)==0) return pol_0(varn(a));
-  t2 = RgX_shift_shallow(FlxqX_mul(bt, a, T, p),1-n);
+  t2 = FlxX_shift(FlxqX_mul(bt, a, T, p),1-n,vT);
   if (signe(bht)==0) return gerepilecopy(ltop, t2);
-  t1 = RgX_shift_shallow(FlxqX_mul(ft, a, T, p),-n);
+  t1 = FlxX_shift(FlxqX_mul(ft, a, T, p),-n,vT);
   t3 = FlxqXn_mul(t1, bht, n-1, T, p);
-  vec = FlxX_sub(t2, RgX_shift_shallow(t3, 1), p);
+  vec = FlxX_sub(t2, FlxX_shift(t3, 1, vT), p);
   return gerepileupto(ltop, vec);
 }
 
