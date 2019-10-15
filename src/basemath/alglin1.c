@@ -3183,6 +3183,7 @@ ZM_inv_i(GEN A, GEN *pden, GEN T)
     if (DEBUGLEVEL>=5) timer_printf(&ti,"ratlift (%ld/%ld primes)", k1, n);
     if (Hr) {/* DONE ? */
       GEN Hl = Q_primpart(Hr), R = ZM_mul(Hl, A), d = gcoeff(R,1,1);
+      if (gsigne(d) < 0) { d = gneg(d); Hl = ZM_neg(Hl); }
       if (DEBUGLEVEL>=5) timer_printf(&ti,"mult (%ld/%ld primes)", k1, n);
       if (equali1(d))
       {
