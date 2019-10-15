@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 int option_trace = 0;
 double Step_Factor = .01; /* small steps by default */
-ulong DFLT_mod, DFLT_mod2;
+ulong DFLT_mod, DFLT_mod2, DFLT_deg;
 GEN LARGE_mod;
 
 typedef struct {
@@ -227,7 +227,7 @@ dft_Flxq(speed_param *s)
   do
   {
     avma = av;
-    s->T = rand_NFlx(10, s->l);
+    s->T = rand_NFlx(DFLT_deg, s->l);
   } while (!Flx_is_irred(s->T, s->l));
   s->T[1] = evalvarn(1);
   s->T = Flx_get_red(s->T, s->l);
@@ -240,7 +240,7 @@ dft_FpXQ(speed_param *s)
   do
   {
     avma = av;
-    s->T = rand_NFpX(10);
+    s->T = rand_NFpX(DFLT_deg);
   } while (!FpX_is_irred(s->T, LARGE_mod));
   setvarn(s->T, 1);
   s->T = FpX_get_red(s->T, s->p);
@@ -839,9 +839,10 @@ void error(char **argv) {
   diag("  -t:     verbose output\n");
   diag("  -tt:    very verbose output\n");
   diag("  -ttt:   output everything\n");
-  diag("  -d:     use dichotomic search (faster)\n");
-  diag("  -s xxx: set step factor between successive sizes to xxx (default 0.01)\n");
+  diag("  -l:     use linear search (slower)\n");
+  diag("  -d xxx: set finite field degree to xxx (default 10)\n");
   diag("  -p xxx: set Flx modulus to xxx (default 27449)\n");
+  diag("  -s xxx: set step factor between successive sizes to xxx (default 0.01)\n");
   diag("  -u xxx: set speed_unittime to xxx (default 1e-4s)\n");
   diag("Tunable variables (omitting variable indices tunes everybody):\n");
   for (i = 0; i < (long)numberof(param); i++)
@@ -853,12 +854,13 @@ int
 main(int argc, char **argv)
 {
   int i, r, n = 0;
-  int linear = 1;
+  int linear = 0;
   GEN v;
-  pari_init(16000000, 2);
+  pari_init(160000000, 2);
   LARGE_mod=subis(powuu(3,128),62);
   DFLT_mod  = unextprime((1UL<<((BITS_IN_LONG-2)>>1))+1);
   DFLT_mod2 = unextprime((1UL<<(BITS_IN_LONG-1))+1);
+  DFLT_deg  = 10;
   v = new_chunk(argc);
   for (i = 1; i < argc; i++)
   {
@@ -868,8 +870,15 @@ main(int argc, char **argv)
         case 't': option_trace++;
           while (*++s == 't') option_trace++;
           break;
-        case 'd': linear = 1-linear;
+        case 'l': linear = 1-linear;
           break;
+        case 'd':
+          if (!*++s)
+          {
+            if (++i == argc) error(argv);
+            s = argv[i];
+          }
+          DFLT_deg = itou(gp_read_str(s)); break;
         case 'p':
           if (!*++s)
           {
