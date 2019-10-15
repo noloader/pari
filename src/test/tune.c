@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 int option_trace = 0;
 double Step_Factor = .01; /* small steps by default */
-ulong DFLT_mod, DFLT_hmod, DFLT_qmod, DFLT_mod2;
+ulong DFLT_mod, DFLT_mod2;
 GEN LARGE_mod;
 
 typedef struct {
@@ -170,16 +170,10 @@ rand_NFpXQX(long n, GEN T)
 }
 
 #define t_F2x     100
-#define t_Fqx     200
-#define t_Fhx     201
-#define t_Flx     202
-#define t_Fl1x    203
-#define t_Fl2x    204
-#define t_NFqx    210
-#define t_NFhx    211
-#define t_NFlx    212
-#define t_NFl1x   213
-#define t_NFl2x   214
+#define t_Flx     200
+#define t_Fl2x    201
+#define t_NFlx    210
+#define t_NFl2x   211
 #define t_FpX     300
 #define t_NFpX    310
 #define t_F2xqX   400
@@ -197,12 +191,8 @@ rand_g(speed_param *s)
     case t_INT:  return rand_INT(n);
     case t_REAL: return rand_REAL(n);
     case t_F2x:  return rand_F2x(n);
-    case t_Fqx:  return rand_Flx(n,DFLT_qmod);
-    case t_Fhx:  return rand_Flx(n,DFLT_hmod);
     case t_Flx:  return rand_Flx(n,DFLT_mod);
     case t_Fl2x: return rand_Flx(n,DFLT_mod2);
-    case t_NFqx: return rand_NFlx(n,DFLT_qmod);
-    case t_NFhx: return rand_NFlx(n,DFLT_hmod);
     case t_NFlx: return rand_NFlx(n,DFLT_mod);
     case t_NFl2x: return rand_NFlx(n,DFLT_mod2);
     case t_FpX:    return rand_FpX(n);
@@ -260,12 +250,8 @@ static void
 dftmod(speed_param *s)
 {
   switch (s->type) {
-    case t_Fqx:  s->l=DFLT_qmod; return;
-    case t_Fhx:  s->l=DFLT_hmod; return;
     case t_Flx:  s->l=DFLT_mod;  return;
     case t_Fl2x: s->l=DFLT_mod2; return;
-    case t_NFqx: s->l=DFLT_qmod;  return;
-    case t_NFhx: s->l=DFLT_hmod;  return;
     case t_NFlx: s->l=DFLT_mod;  return;
     case t_NFl2x: s->l=DFLT_mod2;  return;
     case t_FpX:  s->p=LARGE_mod; return;
