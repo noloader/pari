@@ -321,6 +321,16 @@ Flx_red(GEN z, ulong p)
   return Flx_renormalize(x,l);
 }
 
+int
+Flx_equal(GEN V, GEN W)
+{
+  long l = lg(V);
+  if (lg(W) != l) return 0;
+  while (--l > 1) /* do not compare variables, V[1] */
+    if (V[l] != W[l]) return 0;
+  return 1;
+}
+
 GEN
 random_Flx(long d1, long vs, ulong p)
 {
@@ -3051,16 +3061,6 @@ Flxq_easylog(void* E, GEN a, GEN g, GEN ord)
   if (typ(ord)!=t_INT || d <= 4 || d == 6 || abscmpiu(ord,1UL<<27)<0)
     return NULL;
   return Flxq_log_index(a, g, ord, T, p);
-}
-
-int
-Flx_equal(GEN V, GEN W)
-{
-  long l = lg(V);
-  if (lg(W) != l) return 0;
-  while (--l > 1) /* do not compare variables, V[1] */
-    if (V[l] != W[l]) return 0;
-  return 1;
 }
 
 static const struct bb_group Flxq_star={_Flxq_mul,_Flxq_pow,_Flxq_rand,hash_GEN,Flx_equal,Flx_equal1,Flxq_easylog};
