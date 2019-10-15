@@ -388,7 +388,7 @@ F2x_addshift(GEN x, GEN y, long d)
   GEN xd,yd,zd = (GEN)avma;
   long a,lz,ny = lgpol(y), nx = lgpol(x);
   long vs = x[1];
-
+  if (nx == 0) return y;
   x += 2; y += 2; a = ny-d;
   if (a <= 0)
   {

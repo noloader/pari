@@ -540,14 +540,14 @@ Flx_normalize(GEN z, ulong p)
   return Flx_Fl_mul_to_monic(z, Fl_inv(p1,p), p);
 }
 
-/* return (x * X^d) + y. Assume d > 0, x > 0 and y >= 0 */
+/* return (x * X^d) + y. Assume d > 0, shallow if x == 0*/
 static GEN
 Flx_addshift(GEN x, GEN y, ulong p, long d)
 {
   GEN xd,yd,zd = (GEN)avma;
   long a,lz,ny = lgpol(y), nx = lgpol(x);
   long vs = x[1];
-
+  if (nx == 0) return y;
   x += 2; y += 2; a = ny-d;
   if (a <= 0)
   {
