@@ -544,6 +544,7 @@ Vecsmall([2, 2, 0, -4, -10])
 [3/2 -1/2 0]
 
 [;]
+30
   ***   at top-level: 1/Mat([0,0]~)
   ***                  ^------------
   *** _/_: impossible inverse in ginv: 0.

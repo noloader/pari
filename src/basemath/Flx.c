@@ -5361,7 +5361,7 @@ GEN
 FlxqM_mul_Kronecker(GEN A, GEN B, GEN T, ulong p)
 {
   pari_sp av = avma;
-  long b, d = degpol(T), n = lg(A) - 1;
+  long b, d = get_Flx_degree(T), n = lg(A) - 1;
   GEN C, D, z;
   GEN (*pack)(GEN, long), (*unpack)(GEN, ulong);
   int is_sqr = A==B;

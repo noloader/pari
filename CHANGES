@@ -38,6 +38,7 @@ BA   1- plotlines flag was ignored
     27- ZM_gauss returned incorrect result for t_MAT RHS and 0 input
 BA  28- lfunhardy(..., t) with t<0 -> error
 BA  29- ellweilpairing(E,P,P, odd m) -> wrong result [#2172]
+PB  30- FlxqM_mul could return wrong result [#2174]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
