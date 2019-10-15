@@ -124,8 +124,9 @@ direuler_bad(void *E, GEN (*eval)(void *,GEN,long), GEN a,GEN b,GEN c, GEN Sbad)
     if (!Sbad || umodiu(Sbad, p))
     {
       GEN s;
-      gp[2] = p; s = eval(E, gp, 2);
-      if (degpol(s) && !gequal0(gel(s,3))) dirmuleuler_large(V, p, gel(s,3));
+      gp[2] = p; s = eval(E, gp, 2); /* s either t_POL or t_SER of val 0 */
+      if (lg(s) > 3 && !gequal0(gel(s,3)))
+        dirmuleuler_large(V, p, gel(s,3));
     }
   return gerepilecopy(av0,V);
 }
