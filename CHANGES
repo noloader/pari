@@ -103,6 +103,7 @@ BA  27- [libpari] groupelts_quotient, quotient_groupelts, groupelts_to_group
 BA  30- [libpari] Flx_Fl_sub, Flx_is_totally_split
     31- [libpari] Flx_translate1_basecase
     32- [libpari] Vgaeasytheta
+BA  33- [libpari] RgV_type2
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

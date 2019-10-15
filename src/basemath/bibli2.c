@@ -1124,7 +1124,7 @@ RgV_polint_fast(GEN X, GEN Y, long v)
 {
   GEN p, pol;
   long t, pa;
-  if (X) t = RgM_type(mkmat2(X,Y), &p, &pol, &pa);
+  if (X) t = RgV_type2(X,Y, &p, &pol, &pa);
   else   t = Rg_type(Y, &p, &pol, &pa);
   if (t != t_INTMOD) return NULL;
   Y = RgC_to_FpC(Y, p);
