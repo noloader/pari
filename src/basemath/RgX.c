@@ -438,8 +438,8 @@ RgX_inflate(GEN x0, long d)
 }
 
 /* return P(X + c) using destructive Horner, optimize for c = 1,-1 */
-GEN
-RgX_translate(GEN P, GEN c)
+static GEN
+RgX_translate_basecase(GEN P, GEN c)
 {
   pari_sp av = avma;
   GEN Q, R;
@@ -485,6 +485,22 @@ RgX_translate(GEN P, GEN c)
     }
   }
   return gerepilecopy(av, Q);
+}
+GEN
+RgX_translate(GEN P, GEN c)
+{
+  pari_sp av = avma;
+  long n = degpol(P);
+  if (n < 40)
+    return RgX_translate_basecase(P, c);
+  else
+  {
+    long d = n >> 1;
+    GEN Q = RgX_translate(RgX_shift_shallow(P, -d), c);
+    GEN R = RgX_translate(RgXn_red_shallow(P, d), c);
+    GEN S = gpowgs(deg1pol_shallow(gen_1, c, varn(P)), d);
+    return gerepileupto(av, RgX_add(RgX_mul(Q, S), R));
+  }
 }
 
 /* return lift( P(X + c) ) using Horner, c in R[y]/(T) */

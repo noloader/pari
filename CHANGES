@@ -67,6 +67,7 @@ BA  17- QXQ_div_ratlift renamed to QXQ_div
     18- disallow mfeisenstein(k,chi1,chi2) when Q(chi1 chi2) is not its field
         of definition
     19- improved ZM_rank for rectangular matrices
+    20- asymptotically fast variant for RgX_translate algorithms
 
   Added
      1- new GP function rootsof1
