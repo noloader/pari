@@ -2355,6 +2355,8 @@ ZX_Uspensky_equal(GEN P, GEN a, long flag)
     return flag <= 1 ? cgetg(1, t_COL) : gen_0;
 }
 
+/* P a ZX without double roots; better if squarefree but caller should ensure
+ * that */
 GEN
 ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
 {
@@ -2396,7 +2398,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
   if (deg == 0) { set_avma(av); return ZX_Uspensky_cst_pol(nbz, flag, bitprec); }
   if (deg == 1)
   {
-    sol = gdiv(gneg(gel(Pcur, 2)), pollead(Pcur, -1));
+    sol = gdiv(gneg(gel(Pcur, 2)), gel(Pcur, 3));
     if (gcmp(a, sol) > 0 || gcmp(sol, b) > 0)
     {
       set_avma(av);
@@ -2435,7 +2437,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
 
   if (typ(a) != t_INFINITY && typ(b) != t_INFINITY)
   {
-    GEN den, diff, unscaledres, co, Pdiv, ascaled;
+    GEN den, diff, unscaledres, co, Pdiv, ascaled, bscaled;
     pari_sp av1;
     long i;
     if (gequal(a,b)) /* can occur if one of a,b was initially a t_INFINITY */
@@ -2445,13 +2447,15 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     {
       Pcur = ZX_rescale(Pcur, den);
       ascaled = gmul(a, den);
+      bscaled = gmul(b, den);
     }
     else
     {
       den = NULL;
       ascaled = a;
+      bscaled = b;
     }
-    diff = subii(den ? gmul(b,den) : b, ascaled);
+    diff = subii(bscaled, ascaled);
     Pcur = ZX_unscale(ZX_translate(Pcur, ascaled), diff);
     av1 = avma;
     Pdiv = cgetg(deg+2, t_POL);
@@ -2464,12 +2468,8 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     }
     if (!signe(co))
     {
-      Pcur = Pdiv;
-      deg--;
-      if (flag <= 1)
-        sol = gconcat(sol, b);
-      else
-        nbz++;
+      Pcur = Pdiv; deg--;
+      if (flag <= 1) sol = vec_append(sol, b); else nbz++;
     }
     else
       set_avma(av1);
@@ -2489,7 +2489,7 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
         if (den) z = gdiv(z, den);
         gel(unscaledres, i) = z;
       }
-      sol = gconcat(sol, unscaledres);
+      sol = shallowconcat(sol, unscaledres);
     }
     else
       nbz += lg(unscaledres) - 1;
@@ -2567,7 +2567,6 @@ GEN
 realroots(GEN P, GEN ab, long prec)
 {
   pari_sp av = avma;
-  long nrr = 0;
   GEN sol = NULL, fa, ex;
   long i, j, v;
 
@@ -2587,7 +2586,7 @@ realroots(GEN P, GEN ab, long prec)
   for (i = 1; i < lg(fa); i++)
   {
     GEN Pi = gel(fa, i), soli, soli2 = NULL;
-    long n, nrri = 0, h;
+    long n, h;
     if (ab)
       h = 1;
     else
@@ -2598,12 +2597,7 @@ realroots(GEN P, GEN ab, long prec)
     for (j = 1; j < n; j++)
     {
       GEN elt = gel(soli, j); /* != 0 */
-      if (typ(elt) != t_REAL)
-      {
-        nrri++; if (h > 1 && !(h % 2)) nrri++;
-        elt = gtofp(elt, prec);
-        gel(soli, j) = elt;
-      }
+      if (typ(elt) != t_REAL) gel(soli, j) = elt = gtofp(elt, prec);
       if (h > 1)
       {
         GEN r;
@@ -2623,15 +2617,8 @@ realroots(GEN P, GEN ab, long prec)
     if (!(h % 2)) soli = shallowconcat(soli, soli2);
     if (ex[i] > 1) soli = shallowconcat1( const_vec(ex[i], soli) );
     sol = sol? shallowconcat(sol, soli): soli;
-    nrr += ex[i]*nrri;
   }
   if (!sol) { set_avma(av); return cgetg(1,t_COL); }
-
-  if (DEBUGLEVEL > 4)
-  {
-    err_printf("Number of real roots: %d\n", lg(sol)-1);
-    err_printf(" -- of which 2-integral: %ld\n", nrr);
-  }
   return gerepileupto(av, sort(sol));
 }
 
