@@ -1960,11 +1960,11 @@ QX_complex_roots(GEN p, long l)
  * at 0 and 1 (mapped to oo and 0) are ignored here and must be dealt with
  * by the caller. Set root1 if P(1) = 0 */
 static long
-X2XP1(GEN P, long deg, int *root1, GEN *Premapped)
+X2XP1(GEN P, int *root1, GEN *Premapped)
 {
   const pari_sp av = avma;
   GEN v = shallowcopy(P);
-  long i, j, vlim, nb, s;
+  long i, j, vlim, nb, s, deg = degpol(P);
 
   for (i = 0, vlim = deg+2;;)
   {
@@ -2234,17 +2234,15 @@ usp(GEN Q0, long flag, long bitprec)
   GEN Qremapped, Q, c, Lc, Lk, sol;
   GEN *pQremapped = flag == 1? &Qremapped: NULL;
   const long prec = nbits2prec(bitprec), deg = degpol(Q0);
-  long listsize = 64, nbr = 0, nb_todo, ind, deg0, indf, i, k, nb;
+  long listsize = 64, nbr = 0, nb_todo, ind, indf, i, k, nb;
 
   sol = zerocol(deg);
-  deg0 = deg;
   Lc = zerovec(listsize);
   Lk = cgetg(listsize+1, t_VECSMALL);
-  c = gen_0;
   k = Lk[1] = 0;
   ind = 1; indf = 2;
   Q = Q0;
-
+  c = gen_0;
   nb_todo = 1;
   while (nb_todo)
   {
@@ -2253,8 +2251,6 @@ usp(GEN Q0, long flag, long bitprec)
     int root1;
     if (Lk[ind] == k + 1)
     {
-      deg0 = deg;
-      setlg(Q0, deg + 3);
       Q = Q0 = ZX_rescale2prim(Q0);
       c = gen_0;
     }
@@ -2266,16 +2262,12 @@ usp(GEN Q0, long flag, long bitprec)
 
     if (!signe(gel(Q, 2)))
     { /* Q(0) = 0 */
-      GEN s = gmul2n(c, -k), R;
-      long j;
+      GEN s = gmul2n(c, -k);
       if (!RgV_isin_i(sol, s, nbr)) gel(sol, ++nbr) = s;
-      deg0--; R = cgetg(deg0+3, t_POL); R[1] = Q[1];
-      for (j = 2; j <= deg0 + 2; j++) gel(R, j) = gel(Q, j+1);
-      Q = R;
+      Q = RgX_shift_shallow(Q, -1);
     }
 
-    av2 = avma;
-    nb = X2XP1(Q, deg0, &root1, pQremapped);
+    av2 = avma; nb = X2XP1(Q, &root1, pQremapped);
 
     if (nb == 1)
     { /* exactly one root */
