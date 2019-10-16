@@ -808,7 +808,7 @@ Test(tune_param *param, long linear)
         if (new_size==s.size) linear = 1;
         s.size = new_size;
       }
-      else if (good-bad < 20*param->step_factor*bad)
+      else if (good-bad <= maxss(1,(long)(20*param->step_factor*bad)))
       {
         linear = 1;
         new_thresh = s.size = bad + 1;
