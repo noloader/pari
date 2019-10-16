@@ -2228,14 +2228,15 @@ ZX_rescale2prim(GEN P)
 }
 
 static GEN
-usp(GEN Q0, long deg, long flag, long bitprec)
+usp(GEN Q0, long flag, long bitprec)
 {
   const pari_sp av = avma;
-  GEN Qremapped, Q, c, Lc, Lk, sol = zerocol(deg);
+  GEN Qremapped, Q, c, Lc, Lk, sol;
   GEN *pQremapped = flag == 1? &Qremapped: NULL;
-  const long prec = nbits2prec(bitprec);
+  const long prec = nbits2prec(bitprec), deg = degpol(Q0);
   long listsize = 64, nbr = 0, nb_todo, ind, deg0, indf, i, k, nb;
 
+  sol = zerocol(deg);
   deg0 = deg;
   Lc = zerovec(listsize);
   Lk = cgetg(listsize+1, t_VECSMALL);
@@ -2335,24 +2336,25 @@ usp(GEN Q0, long deg, long flag, long bitprec)
 }
 
 static GEN
-ZX_Uspensky_cst_pol(long nbz, long flag, long bitprec)
-{
-  switch(flag)
-  {
-    case 0:  return zerocol(nbz);
-    case 1:  retconst_col(nbz, real_0_bit(-bitprec));
-    default: return utoi(nbz);
-  }
-}
-
+ZX_Uspensky_equal_yes(GEN a, long flag)
+{ return flag <= 1 ? mkcol(a): gen_1; }
+static GEN
+ZX_Uspensky_no(long flag)
+{ return flag <= 1 ? cgetg(1, t_COL) : gen_0; }
 /* ZX_Uspensky(P, [a,a], flag) */
 static GEN
 ZX_Uspensky_equal(GEN P, GEN a, long flag)
 {
   if (typ(a) != t_INFINITY && gequal0(poleval(P, a)))
-    return flag <= 1 ? mkcol(a): gen_1;
+    return ZX_Uspensky_equal_yes(a, flag);
   else
-    return flag <= 1 ? cgetg(1, t_COL) : gen_0;
+    return ZX_Uspensky_no(flag);
+}
+static GEN
+ZX_Uspensky_cst(long nbz, long flag)
+{
+  if (nbz) return ZX_Uspensky_equal_yes(gen_0, flag);
+  return ZX_Uspensky_no(flag);
 }
 
 /* P a ZX without double roots; better if squarefree but caller should ensure
@@ -2361,12 +2363,10 @@ GEN
 ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
 {
   pari_sp av = avma;
-  GEN a, b, sol = NULL, Pcur;
+  GEN a, b, sol = NULL;
   double fb;
   long nbz, deg;
 
-  deg = degpol(P);
-  if (deg == 0) return flag <= 1 ? cgetg(1, t_COL) : gen_0;
   if (ab)
   {
     if (typ(ab) == t_VEC)
@@ -2388,21 +2388,20 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
   }
   switch (gcmp(a, b))
   {
-    case 1: set_avma(av); return flag <= 1 ? cgetg(1, t_COL) : gen_0;
+    case 1: set_avma(av); return ZX_Uspensky_no(flag);
     case 0: return gerepilecopy(av, ZX_Uspensky_equal(P, a, flag));
   }
-  nbz = ZX_valrem(P, &Pcur);
-  deg -= nbz;
-  if (!nbz) Pcur = P;
+  nbz = ZX_valrem(P, &P);
+  deg = degpol(P);
   if (nbz && (gsigne(a) > 0 || gsigne(b) < 0)) nbz = 0;
-  if (deg == 0) { set_avma(av); return ZX_Uspensky_cst_pol(nbz, flag, bitprec); }
+  if (deg == 0) { set_avma(av); return ZX_Uspensky_cst(nbz, flag); }
   if (deg == 1)
   {
-    sol = gdiv(gneg(gel(Pcur, 2)), gel(Pcur, 3));
+    sol = gdiv(gneg(gel(P, 2)), gel(P, 3));
     if (gcmp(a, sol) > 0 || gcmp(sol, b) > 0)
     {
       set_avma(av);
-      return ZX_Uspensky_cst_pol(nbz, flag, bitprec);
+      return ZX_Uspensky_cst(nbz, flag);
     }
     if (flag >= 2) { set_avma(av); return utoi(nbz+1); }
     sol = vec_append(zerocol(nbz), sol);
@@ -2422,14 +2421,14 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
 
   if (typ(a) == t_INFINITY && typ(b) != t_INFINITY && gsigne(b))
   {
-    fb = fujiwara_bound_real(Pcur, -1);
+    fb = fujiwara_bound_real(P, -1);
     if (fb <= -pariINFINITY) a = gen_0;
     else if (fb < 0) a = gen_m1;
     else a = negi(int2n((long)ceil(fb)));
   }
   if (typ(b) == t_INFINITY && typ(a) != t_INFINITY && gsigne(a))
   {
-    fb = fujiwara_bound_real(Pcur, 1);
+    fb = fujiwara_bound_real(P, 1);
     if (fb <= -pariINFINITY) b = gen_0;
     else if (fb < 0) b = gen_1;
     else b = int2n((long)ceil(fb));
@@ -2441,11 +2440,14 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     pari_sp av1;
     long i;
     if (gequal(a,b)) /* can occur if one of a,b was initially a t_INFINITY */
+    {
+      if (isintzero(a)) return ZX_Uspensky_cst(nbz, flag);
       return gerepilecopy(av, ZX_Uspensky_equal(P, a, flag));
+    }
     den = lcmii(Q_denom(a), Q_denom(b));
     if (!is_pm1(den))
     {
-      Pcur = ZX_rescale(Pcur, den);
+      P = ZX_rescale(P, den);
       ascaled = gmul(a, den);
       bscaled = gmul(b, den);
     }
@@ -2456,24 +2458,16 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
       bscaled = b;
     }
     diff = subii(bscaled, ascaled);
-    Pcur = ZX_unscale(ZX_translate(Pcur, ascaled), diff);
-    av1 = avma;
-    Pdiv = cgetg(deg+2, t_POL);
-    Pdiv[1] = Pcur[1];
-    co = gel(Pcur, deg+2);
-    for (i = deg; --i >= 0; )
-    {
-      gel(Pdiv, i+2) = co;
-      co = addii(co, gel(Pcur, i+2));
-    }
+    P = ZX_unscale(ZX_translate(P, ascaled), diff);
+    av1 = avma; Pdiv = ZX_div_by_X_1(P, &co);
     if (!signe(co))
     {
-      Pcur = Pdiv; deg--;
+      P = Pdiv;
       if (flag <= 1) sol = vec_append(sol, b); else nbz++;
     }
     else
       set_avma(av1);
-    unscaledres = usp(Pcur, deg, flag, bitprec);
+    unscaledres = usp(P, flag, bitprec);
     if (flag <= 1)
     {
       for (i = 1; i < lg(unscaledres); i++)
@@ -2494,25 +2488,25 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     else
       nbz += lg(unscaledres) - 1;
   }
-  if (typ(b) == t_INFINITY && (fb=fujiwara_bound_real(Pcur, 1)) > -pariINFINITY)
+  if (typ(b) == t_INFINITY && (fb=fujiwara_bound_real(P, 1)) > -pariINFINITY)
   {
     GEN Pcurp, unscaledres;
     long bp = (long)ceil(fb);
     if (bp < 0) bp = 0;
-    Pcurp = ZX_unscale2n(Pcur, bp);
-    unscaledres = usp(Pcurp, deg, flag, bitprec);
+    Pcurp = ZX_unscale2n(P, bp);
+    unscaledres = usp(Pcurp, flag, bitprec);
     if (flag <= 1)
       sol = shallowconcat(sol, gmul2n(unscaledres, bp));
     else
       nbz += lg(unscaledres)-1;
   }
-  if (typ(a) == t_INFINITY && (fb=fujiwara_bound_real(Pcur,-1)) > -pariINFINITY)
+  if (typ(a) == t_INFINITY && (fb=fujiwara_bound_real(P,-1)) > -pariINFINITY)
   {
     GEN Pcurm, unscaledres;
     long i, bm = (long)ceil(fb);
     if (bm < 0) bm = 0;
-    Pcurm = ZX_unscale2n(ZX_z_unscale(Pcur, -1), bm);
-    unscaledres = usp(Pcurm, deg, flag, bitprec);
+    Pcurm = ZX_unscale2n(ZX_z_unscale(P, -1), bm);
+    unscaledres = usp(Pcurm, flag, bitprec);
     if (flag <= 1)
     {
       for (i = 1; i < lg(unscaledres); i++)
