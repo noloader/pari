@@ -39,6 +39,7 @@ BA   1- plotlines flag was ignored
 BA  28- lfunhardy(..., t) with t<0 -> error
 BA  29- ellweilpairing(E,P,P, odd m) -> wrong result [#2172]
 PB  30- FlxqM_mul could return wrong result [#2174]
+    31- p = 4*vecprod(primes([3,373]))*587-1; quadclassunit(-p) -> SEGV [#2175]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

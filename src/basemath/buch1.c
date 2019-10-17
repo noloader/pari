@@ -321,20 +321,20 @@ cache_prime_quad(GRHcheck_t *S, ulong LIM, GEN D)
 }
 
 static GEN
-compute_invresquad(GRHcheck_t *S)
+compute_invresquad(GRHcheck_t *S, long LIMC)
 {
   pari_sp av = avma;
   GEN invres = real_1(DEFAULTPREC);
-  GRHprime_t *pr = S->primes;
-  long i = S->nprimes, LIMC = GRH_last_prime(S)+diffptr[i]-1; /* nextprime(p+1)-1*/
   double limp = log((double)LIMC) / 2;
-  for (; i > 0; pr++, i--)
+  GRHprime_t *pr;
+  long i;
+  for (pr = S->primes, i = S->nprimes; i > 0; pr++, i--)
   {
     long s = (long)pr->dec;
     if (s)
     {
       ulong p = pr->p;
-      if (s>0 || pr->logp <= limp)
+      if (s > 0 || pr->logp <= limp)
         /* Both p and P contribute */
         invres = mulur(p - s, divru(invres, p));
       else if (s<0)
@@ -1052,7 +1052,8 @@ START:
   }
   while (nsubFB < (expi(D) > 15 ? 3 : 2));
   /* invhr = 2^r1 (2pi)^r2 / sqrt(D) w ~ L(chi,1) / hR */
-  invhr = gmul(dbltor((BQ.PRECREG?2.:M_PI)/sdrc), compute_invresquad(&GRHcheck));
+  invhr = gmul(dbltor((BQ.PRECREG?2.:M_PI)/sdrc),
+               compute_invresquad(&GRHcheck, LIMC));
   BQ.powsubFB = powsubFBquad(&BQ,CBUCH+1);
   if (DEBUGLEVEL>2) timer_printf(&T, "powsubFBquad");
   BQ.limhash = (LIMC & HIGHMASK)? (HIGHBIT>>1): LIMC*LIMC;
