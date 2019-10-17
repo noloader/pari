@@ -2535,3 +2535,23 @@ ldata_vecan(GEN van, long L, long prec)
   if (DEBUGLEVEL >= 2) timer_printf(&ti, "ldata_vecan");
   return an;
 }
+
+/* shallow function */
+GEN
+ldata_newprec(GEN ldata, long prec)
+{
+  GEN van = ldata_get_an(ldata);
+  GEN an = gel(van, 2);
+  long t = mael(van,1,1);
+  switch (t)
+  {
+    case t_LFUN_QF:
+    {
+      GEN eno = ldata_get_rootno(ldata);
+      if (typ(eno)==t_REAL && realprec(eno) < prec)
+        return lfunqf(an, prec);
+      break;
+    }
+  }
+  return ldata;
+}

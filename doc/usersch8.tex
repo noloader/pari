@@ -28,8 +28,6 @@
 
 \fun{GEN}{ldata_get_residue}{GEN ldata}
 
-\fun{GEN}{ldata_vecan}{GEN ldata, long L, long prec}
-
 \fun{long}{ldata_get_type}{GEN ldata}
 
 \fun{long}{linit_get_type}{GEN linit}
@@ -85,6 +83,14 @@
 \fun{GEN}{lfunrtopoles}{GEN r}
 
 \fun{int}{sdomain_isincl}{double k, GEN dom, GEN dom0}
+
+\fun{GEN}{ldata_vecan}{GEN ldata, long L, long prec}
+return the vector of coefficients of indices $1$ to $L$ to precision
+\kbd{prec}.
+
+\fun{GEN}{ldata_newprec}{GEN ldata, long prec}
+return a shallow copy of \kbd{ldata} with fields accurate to precision
+\kbd{prec}.
 
 \section{Variants of GP functions}
 

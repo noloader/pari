@@ -660,10 +660,11 @@ lfunthetainit_i(GEN data, GEN tdom, long m, long bitprec)
 {
   GEN ldata = lfunmisc_to_ldata_shallow(data);
   long L = lfunthetacost(ldata, tdom, m, bitprec), prec = nbits2prec(bitprec);
-  GEN an = ldata_vecan(ldata_get_an(ldata), L, prec);
-  GEN Vga = ldata_get_gammavec(ldata);
+  GEN ldatan = ldata_newprec(ldata, prec);
+  GEN an = ldata_vecan(ldata_get_an(ldatan), L, prec);
+  GEN Vga = ldata_get_gammavec(ldatan);
   if (m == 0 && Vgaeasytheta(Vga)) an = antwist(an, Vga, prec);
-  return lfunthetainit0(ldata, tdom, an, m, bitprec, 32);
+  return lfunthetainit0(ldatan, tdom, an, m, bitprec, 32);
 }
 
 GEN
@@ -679,7 +680,7 @@ lfunan(GEN ldata, long L, long prec)
 {
   pari_sp av = avma;
   GEN an ;
-  ldata = lfunmisc_to_ldata_shallow(ldata);
+  ldata = ldata_newprec(lfunmisc_to_ldata_shallow(ldata), prec);
   an = gerepilecopy(av, ldata_vecan(ldata_get_an(ldata), L, prec));
   if (typ(an) != t_VEC) an = vecsmall_to_vec_inplace(an);
   return an;
@@ -1446,6 +1447,7 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
   k = ldata_get_k(ldata);
   parse_dom(gtodouble(k), dom, &S);
   lfunparams(ldata, der, bitprec, &S);
+  ldata = ldata_newprec(ldata, nbits2prec(S.Dmax));
   r = ldata_get_residue(ldata);
   /* Note: all guesses should already have been performed (thetainit more
    * expensive than needed: should be either tdom = 1 or bitprec = S.D).
