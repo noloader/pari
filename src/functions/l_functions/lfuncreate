@@ -127,3 +127,30 @@ Doc: This low-level routine creates \tet{Ldata} structures, needed by
  the frequent situation where $L$ has at most simple pole, at $s = k$,
  with residue $r$ a complex scalar: you may then input $\kbd{poles} = r$.
  This value $r$ can be set to $0$ if unknown and it will be computed.
+
+ Alternatively, \kbd{obj} can be a closure of arity $0$ returning the above vector
+ to the current real precision. This is needed if some fields contain approximated
+ real or complex number. This allows PARI to recompute them to higher accuracy
+ when needed.
+
+ Compare
+ \bprog
+ ? Ld1() = [(n)->lfunan(Mod(2,7),n),1,[0],1,7,((-13-3*sqrt(-3))/14)^(1/6)];
+ ? Ld2   = [(n)->lfunan(Mod(2,7),n),1,[0],1,7,((-13-3*sqrt(-3))/14)^(1/6)];
+ ? L1 = lfuncreate(Ld1);
+ ? L2 = lfuncreate(Ld2);
+ ? z1 = lfun(L1,1/2+I*200) \\ OK
+ %5 = 0.55943925130316677665287870224047183265-0.42492662223174071305478563967365980756*I
+ ? z2 = lfun(L2,1/2+I*200) \\ all accuracy lost
+ %6 = 0.E-38+0.E-38*I
+ @eprog
+ The accuracy lost is due to \kbd{Ld2} root number being given only to
+ an insufficient precision. To see what happen try
+ \bprog
+ ? Ld3() = printf("prec needed: %ld digits ",getlocalprec());Ld1()
+ ? L3 = lfuncreate(Ld3);
+ prec needed: 19 digits
+ ? z3 = lfun(L3,1/2+I*200)
+ prec needed: 115 digits
+ %16 = 0.55943925130316677665287870224047183265-0.42492662223174071305478563967365980756*I
+ @eprog

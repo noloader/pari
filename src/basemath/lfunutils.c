@@ -71,6 +71,12 @@ lfuncreate(GEN data)
         gel(ldata, 2) = tag(gel(ldata,2), t_LFUN_GENERIC);
     }
     checkldata(ldata); return ldata;
+  } else if (typ(data)==t_CLOSURE && closure_arity(data)==0)
+  {
+    pari_sp av = avma;
+    GEN ldata = lfuncreate(closure_callgen0prec(data, DEFAULTPREC));
+    gel(ldata,1) = tag(data, t_LFUN_CLOSURE0);
+    return gerepilecopy(av, ldata);
   }
   return lfunmisc_to_ldata(data);
 }
@@ -2504,6 +2510,8 @@ ldata_vecan(GEN van, long L, long prec)
       if (n < L)
         pari_warn(warner, "#an = %ld < %ld, results may be imprecise", n, L);
       break;
+    case t_LFUN_CLOSURE0:
+      pari_err_BUG("ldata_vecan: please call ldata_newprec");/*LCOV_EXCL_LINE*/
     case t_LFUN_ZETA: an = const_vecsmall(L, 1); break;
     case t_LFUN_NF:  an = dirzetak(an, stoi(L)); break;
     case t_LFUN_ELL:
@@ -2545,6 +2553,8 @@ ldata_newprec(GEN ldata, long prec)
   long t = mael(van,1,1);
   switch (t)
   {
+    case t_LFUN_CLOSURE0:
+      return lfuncreate(closure_callgen0prec(an, prec));
     case t_LFUN_QF:
     {
       GEN eno = ldata_get_rootno(ldata);

@@ -46,7 +46,8 @@ ellinit([0,2,1,-19-8*a,28+11*a],K3)),
 lfuncreate([n->my(V=ellan(E,n));vector(n,i,V[i]/sqrt(i)),0,[1/2,3/2],1,11,1])),
 lfuntwist(E, Mod(2,5)),
 lfunsympow(E,2),
-lfunsympow(E,3)
+lfunsympow(E,3),
+if(1,localprec(19);lfuncreate(()->[n->lfunan(Mod(2,7),n),1,[0],1,7,((-13-3*sqrt(-3))/14)^(1/6)]))
 ];
 }
 
