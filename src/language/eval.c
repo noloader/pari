@@ -1981,6 +1981,18 @@ closure_callvoid1(GEN C, GEN x)
 }
 
 GEN
+closure_callgen0prec(GEN C, long prec)
+{
+  GEN z;
+  long i, ar = closure_arity(C);
+  for(i=1; i<= ar; i++) gel(st,sp++) = NULL;
+  push_localprec(prec);
+  z = closure_returnupto(C);
+  pop_localprec();
+  return z;
+}
+
+GEN
 closure_callgen1(GEN C, GEN x)
 {
   long i, ar = closure_arity(C);
