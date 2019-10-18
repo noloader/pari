@@ -886,7 +886,33 @@ listznstarelts(long m, long o)
  * v[1]...v[k], w[1]...w[k]  represent the polynomial sum(i=1,k,v[i]*s_w[i])
  * where s_i(X_1,...,X_n) = sum(j=1,n,X_j^i) */
 
-/*Return s_e*/
+static GEN
+Flm_newtonsum(GEN M, ulong e, ulong p)
+{
+  long f = lg(M), g = lg(gel(M,1)), i, j;
+  GEN NS = cgetg(f, t_VECSMALL);
+  for(i=1; i<f; i++)
+  {
+    ulong s = 0;
+    GEN Mi = gel(M,i);
+    for(j = 1; j < g; j++)
+      s = Fl_add(s, Fl_powu(uel(Mi,j), e, p), p);
+    uel(NS,i) = s;
+  }
+  return NS;
+}
+
+static GEN
+Flv_sympol_eval(GEN v, GEN NS, ulong p)
+{
+  pari_sp av = avma;
+  long i, l = lg(v);
+  GEN S = Flv_Fl_mul(gel(NS,1), uel(v,1), p);
+  for (i=2; i<l; i++)
+    if (v[i]) S = Flv_add(S, Flv_Fl_mul(gel(NS,i), uel(v,i), p), p);
+  return gerepileuptoleaf(av, S);
+}
+
 static GEN
 sympol_eval_newtonsum(long e, GEN O, GEN mod)
 {
@@ -896,20 +922,21 @@ sympol_eval_newtonsum(long e, GEN O, GEN mod)
   {
     pari_sp av = avma;
     GEN s = gen_0;
-    for(j=1; j<g; j++) s = addii(s, Fp_powu(gmael(O,i,j), (ulong)e, mod));
+    for(j=1; j<g; j++) s = addii(s, Fp_powu(gmael(O,i,j), e, mod));
     gel(PL,i) = gerepileuptoint(av, remii(s,mod));
   }
   return PL;
 }
 
 static GEN
-sympol_eval(GEN v, GEN NS)
+sympol_eval(GEN sym, GEN O, GEN mod)
 {
   pari_sp av = avma;
   long i;
+  GEN v = gel(sym,1), w = gel(sym,2);
   GEN S = gen_0;
   for (i=1; i<lg(v); i++)
-    if (v[i]) S = gadd(S, gmulsg(v[i], gel(NS,i)));
+    if (v[i]) S = gadd(S, gmulsg(v[i],  sympol_eval_newtonsum(w[i], O, mod)));
   return gerepileupto(av, S);
 }
 
@@ -952,25 +979,24 @@ fixedfieldfactmod(GEN Sp, GEN p, GEN Tmod)
 }
 
 static GEN
-fixedfieldsurmer(GEN mod, GEN l, long v, GEN NS, GEN W)
+fixedfieldsurmer(ulong l, long v, GEN NS, GEN W)
 {
   const long step=3;
   long i, j, n = lg(W)-1, m = 1L<<((n-1)<<1);
-  GEN sym = cgetg(n+1,t_VECSMALL), mod2 = shifti(mod,-1);
+  GEN sym = cgetg(n+1,t_VECSMALL);
   for (j=1;j<n;j++) sym[j] = step;
   sym[n] = 0;
   if (DEBUGLEVEL>=4) err_printf("FixedField: Weight: %Ps\n",W);
   for (i=0; i<m; i++)
   {
     pari_sp av = avma;
-    GEN L, P;
+    GEN L;
     for (j=1; sym[j]==step; j++) sym[j]=0;
     sym[j]++;
     if (DEBUGLEVEL>=6) err_printf("FixedField: Sym: %Ps\n",sym);
-    L = sympol_eval(sym,NS);
-    if (!vec_is1to1(FpC_red(L,l))) { set_avma(av); continue; }
-    P = FpX_center_i(FpV_roots_to_pol(L,mod,v),mod,mod2);
-    return mkvec3(mkvec2(sym, W), L, P);
+    L = Flv_sympol_eval(sym, NS, l);
+    if (!vecsmall_is1to1(L)) { set_avma(av); continue; }
+    return mkvec2(sym,W);
   }
   return NULL;
 }
@@ -984,7 +1010,7 @@ sympol_is1to1_lg(GEN NS, long n)
     for(j=i+1; j<l; j++)
     {
       for(k=1; k<n; k++)
-        if (!equalii(gmael(NS,k,j),gmael(NS,k,i))) break;
+        if (mael(NS,k,j)!=mael(NS,k,i)) break;
       if (k>=n) return 0;
     }
   return 1;
@@ -995,7 +1021,7 @@ sympol_is1to1_lg(GEN NS, long n)
  * sym is a sympol, s is the set of images of sym on O and
  * P is the polynomial with roots s. */
 static GEN
-fixedfieldsympol(GEN O, GEN mod, GEN l, long v)
+fixedfieldsympol(GEN O, ulong l, long v)
 {
   pari_sp ltop=avma;
   const long n=(BITS_IN_LONG>>1)-1;
@@ -1003,14 +1029,15 @@ fixedfieldsympol(GEN O, GEN mod, GEN l, long v)
   long i, e=1;
   if (DEBUGLEVEL>=4)
     err_printf("FixedField: Size: %ldx%ld\n",lg(O)-1,lg(gel(O,1))-1);
+  O = ZM_to_Flm(O,l);
   for (i=1; !sym && i<=n; i++)
   {
-    GEN L = sympol_eval_newtonsum(e++, O, mod);
+    GEN L = Flm_newtonsum(O, e++, l);
     if (lg(O)>2)
-      while (vec_isconst(L)) L = sympol_eval_newtonsum(e++, O, mod);
+      while (vecsmall_isconst(L)) L = Flm_newtonsum(O, e++, l);
     W[i] = e-1; gel(NS,i) = L;
     if (sympol_is1to1_lg(NS,i+1))
-      sym = fixedfieldsurmer(mod, l, v, NS, vecsmall_shorten(W,i));
+      sym = fixedfieldsurmer(l,v,NS,vecsmall_shorten(W,i));
   }
   if (!sym) pari_err_BUG("fixedfieldsympol [p too small]");
   if (DEBUGLEVEL>=2) err_printf("FixedField: Found: %Ps\n",gel(sym,1));
@@ -1935,13 +1962,13 @@ static GEN galoisgen(GEN T, GEN L, GEN M, GEN den, GEN bad, struct galois_borne 
           const struct galois_analysis *ga);
 
 static GEN
-galoisgenfixedfield(GEN Tp, GEN Pmod, GEN V, GEN ip, GEN bad, struct galois_borne *gb)
+galoisgenfixedfield(GEN Tp, GEN Pmod, GEN PL, GEN P, GEN ip, GEN bad, struct galois_borne *gb)
 {
   GEN  Pden, PM;
   GEN  tau, PG, Pg;
   long g, lP;
   long x = varn(Tp);
-  GEN PL = gel(V,2), P = gel(V,3), Pp = FpX_red(P, ip);
+  GEN Pp = FpX_red(P, ip);
   if (DEBUGLEVEL>=6)
     err_printf("GaloisConj: Fixed field %Ps\n",P);
   if (degpol(P)==2 && !bad)
@@ -1998,23 +2025,27 @@ galoisgenfixedfield0(GEN O, GEN L, GEN sigma, GEN T, GEN bad, GEN *pt_V,
                      struct galois_frobenius *gf, struct galois_borne *gb)
 {
   pari_sp btop = avma;
-  GEN OL, p, Tp, Sp, Pmod, PG, V;
+  long vT = varn(T);
+  GEN mod = gb->ladicabs, mod2 = shifti(gb->ladicabs,-1);
+  GEN OL, sym, P, PL, p, Tp, Sp, Pmod, PG;
   OL = fixedfieldorbits(O,L);
-  V  = fixedfieldsympol(OL, gb->ladicabs, gb->l, varn(T));
-  if (!FpX_is_squarefree(gel(V,3),utoipos(gf->p)))
+  sym  = fixedfieldsympol(OL, itou(gb->l), vT);
+  PL = sympol_eval(sym, OL, mod);
+  P = FpX_center_i(FpV_roots_to_pol(PL, mod, vT), mod, mod2);
+  if (!FpX_is_squarefree(P,utoipos(gf->p)))
   {
-    GEN badp = lcmii(bad? bad: gb->dis, ZX_disc(gel(V,3)));
+    GEN badp = lcmii(bad? bad: gb->dis, ZX_disc(P));
     gf->p  = findpsi(badp, gf->p, T, sigma, gf->deg, &gf->Tmod, &gf->psi);
   }
   p  = utoipos(gf->p);
   Tp = FpX_red(T,p);
-  Sp = sympol_aut_evalmod(gel(V,1), gf->deg, sigma, Tp, p);
+  Sp = sympol_aut_evalmod(sym, gf->deg, sigma, Tp, p);
   Pmod = fixedfieldfactmod(Sp, p, gf->Tmod);
-  PG = galoisgenfixedfield(Tp, Pmod, V, p, bad, gb);
+  PG = galoisgenfixedfield(Tp, Pmod, PL, P, p, bad, gb);
   if (PG == NULL) return NULL;
   if (DEBUGLEVEL >= 4)
     err_printf("GaloisConj: Back to Earth:%Ps\n", gg_get_std(gel(PG,1)));
-  if (pt_V) *pt_V = V;
+  if (pt_V) *pt_V = mkvec3(sym, PL, P);
   gerepileall(btop, pt_V ? 4: 3, &gf->Tmod, &gf->psi, &PG, pt_V);
   return PG;
 }
@@ -3013,7 +3044,7 @@ GEN
 galoisfixedfield(GEN gal, GEN perm, long flag, long y)
 {
   pari_sp ltop = avma;
-  GEN T, L, P, S, PL, O, res, mod, mod2;
+  GEN T, L, P, S, PL, O, res, mod, mod2, OL, sym;
   long vT, n, i;
   if (flag<0 || flag>2) pari_err_FLAG("galoisfixedfield");
   gal = checkgal(gal); T = gal_get_pol(gal);
@@ -3031,15 +3062,12 @@ galoisfixedfield(GEN gal, GEN perm, long flag, long y)
     chk_perm(perm, n);
     O = perm_cycles(perm);
   }
-
-  {
-    GEN OL= fixedfieldorbits(O,L);
-    GEN V = fixedfieldsympol(OL, mod, gal_get_p(gal), vT);
-    PL= gel(V,2);
-    P = gel(V,3);
-  }
-  if (flag==1) return gerepileupto(ltop,P);
   mod2 = shifti(mod,-1);
+  OL = fixedfieldorbits(O, L);
+  sym = fixedfieldsympol(OL, itou(gal_get_p(gal)), vT);
+  PL = sympol_eval(sym, OL, mod);
+  P = FpX_center_i(FpV_roots_to_pol(PL, mod, vT), mod, mod2);
+  if (flag==1) return gerepilecopy(ltop,P);
   S = fixedfieldinclusion(O, PL);
   S = vectopol(S, gal_get_invvdm(gal), gal_get_den(gal), mod, mod2, vT);
   if (flag==0)
