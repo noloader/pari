@@ -107,9 +107,13 @@ Doc:
  $L$-functions, the motivic weight $w$ is $w = k-1$; but we also support
  non-motivic $L$-functions.
 
- \misctitle{Design problem} All components of an \kbd{Ldata} should be given
- exactly since the accuracy to which they must be computed is not bounded a
- priori; but this is not always possible, in particular for $\epsilon$ and $r$.
+ \misctitle{Technical note} When some components of an \kbd{Ldata} cannot be
+ given exactly, usually $r$ or $\epsilon$, the \kbd{Ldata} may be given as a
+ \emph{closure}. When evaluated at a given precision, the closure must return
+ all components as exact data or floating point numbers at the requested
+ precision, see \kbd{??lfuncreate}. The reason for this technicality is that
+ the accuracy to which we must compute is not bounded a priori and unknown
+ at this stage: it depends on the domain where we evaluate the $L$-function.
 
  \item an \tet{Linit} contains an \kbd{Ldata} and everything needed for fast
  \emph{numerical} computations. It specifies the functions to be considered
