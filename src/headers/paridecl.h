@@ -445,6 +445,7 @@ GEN     Flxn_mul(GEN a, GEN b, long n, ulong p);
 GEN     Flxn_sqr(GEN a, long n, ulong p);
 GEN     Flxn_red(GEN a, long n);
 GEN     Flxq_autpow(GEN x, ulong n, GEN T, ulong p);
+GEN     Flxq_autpowers(GEN x, ulong n, GEN T, ulong p);
 GEN     Flxq_autsum(GEN x, ulong n, GEN T, ulong p);
 GEN     Flxq_auttrace(GEN x, ulong n, GEN T, ulong p);
 GEN     Flxq_charpoly(GEN x, GEN T, ulong p);

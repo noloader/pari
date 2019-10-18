@@ -6121,6 +6121,11 @@ see \kbd{FpXQ\_matrix\_pow}.
 \fun{GEN}{Flxq_autpow}{GEN a, long n, GEN T, ulong p}
 see \kbd{FpXQ\_autpow}.
 
+\fun{GEN}{Flxq_autpowers}{GEN a, long n, GEN T, ulong p}
+return $[X,\sigma(X),\ldots,\sigma^n(X)]$,
+assuming $a=\sigma(X)$ where $\sigma$ is an automorphism of the algebra
+$\F_p[X]/T(X)$.
+
 \fun{GEN}{Flxq_autsum}{GEN a, long n, GEN T, ulong p}
 see \kbd{FpXQ\_autsum}.
 

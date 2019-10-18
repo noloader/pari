@@ -2879,6 +2879,24 @@ Flxq_autpow(GEN x, ulong n, GEN T, ulong p)
   return gerepilecopy(av, x);
 }
 
+GEN
+Flxq_autpowers(GEN x, ulong l, GEN T, ulong p)
+{
+  long i;
+  long vT = get_Flx_var(T), dT = get_Flx_degree(T), d;
+  pari_sp av = avma;
+  GEN V, xp;
+  V = cgetg(l+2,t_VEC);
+  gel(V,1) = polx_Flx(vT); if (l==0) return V;
+  gel(V,2) = gcopy(x); if (l==1) return V;
+  T = Flx_get_red(T, p);
+  d = brent_kung_optpow(dT-1, l-1, 1);
+  xp = Flxq_powers(x, d, T, p);
+  for(i = 3; i < l+2; i++)
+    gel(V,i) = Flx_FlxqV_eval(gel(V,i-1), xp, T, p);
+  return gerepilecopy(av, V);
+}
+
 static GEN
 Flxq_autsum_mul(void *E, GEN x, GEN y)
 {

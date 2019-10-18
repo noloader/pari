@@ -109,7 +109,7 @@ BA  26- [libpari] vecvecsmall_sort_inplace
 BA  27- [libpari] groupelts_quotient, quotient_groupelts, groupelts_to_group
     28- new GP functions mscosets, msfarey
     29- new GP function ellpadiclambdamu
-BA  30- [libpari] Flx_Fl_sub, Flx_is_totally_split
+BA  30- [libpari] Flx_Fl_sub, Flx_is_totally_split, Flxq_autpowers
     31- [libpari] Flx_translate1_basecase
     32- [libpari] Vgaeasytheta
 BA  33- [libpari] RgV_type2, closure_callgen0prec
