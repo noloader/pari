@@ -26,15 +26,8 @@ Doc: \kbd{lim} being either a positive upper limit or a non-empty real
  search interval. (The possible zero at $s = k/2$ is repeated according to
  its multiplicity.)
 
- Should you pass an \kbd{Linit} argument to the function, beware that the
- algorithm needs at least
- \bprog
-    L = lfuninit(Ldata, [T+1])
- @eprog\noindent where $T$ is the maximum of $\abs \im(z)$ for $z$ in the
- interval defined by \kbd{lim}: this allows to detect zeros near $T$.
- Make sure that your \kbd{Linit} domain contains this one, i.e. a domain
- $[1,T+1]$ is fine but $[0, T]$ is not! The algorithm assumes that a multiple
- zero at $s = k / 2$ has order less than or equal to the maximal derivation
- order allowed by the \kbd{Linit}. You may increase that value in the
- \kbd{Linit} but this is costly: only do it for zeros of low height or in
+ If you pass an \kbd{Linit} to the function, the algorithm assumes that a
+ multiple zero at $s = k / 2$ has order less than or equal to the maximal
+ derivation order allowed by the \kbd{Linit}. You may increase that value in
+ the \kbd{Linit} but this is costly: only do it for zeros of low height or in
  \kbd{lfunorderzero} instead.
