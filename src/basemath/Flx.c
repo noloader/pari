@@ -2854,10 +2854,10 @@ Flxq_autpow_sqr(void *E, GEN x)
   return Flx_Flxq_eval(x, x, D->T, D->p);
 }
 static GEN
-Flxq_autpow_mul(void *E, GEN x, GEN y)
+Flxq_autpow_msqr(void *E, GEN x)
 {
   struct _Flxq *D = (struct _Flxq*)E;
-  return Flx_Flxq_eval(x, y, D->T, D->p);
+  return Flx_FlxqV_eval(Flxq_autpow_sqr(E, x), D->aut, D->T, D->p);
 }
 
 GEN
@@ -2865,10 +2865,13 @@ Flxq_autpow(GEN x, ulong n, GEN T, ulong p)
 {
   pari_sp av = avma;
   struct _Flxq D;
+  long d;
   if (n==0) return Flx_rem(polx_Flx(x[1]), T, p);
   if (n==1) return Flx_rem(x, T, p);
   D.T = Flx_get_red(T, p); D.p = p;
-  x = gen_powu_i(x,n,(void*)&D,Flxq_autpow_sqr,Flxq_autpow_mul);
+  d = brent_kung_optpow(degpol(T), hammingl(n)-1, 1);
+  D.aut = Flxq_powers(x, d , T, p);
+  x = gen_powu_fold(x,n,(void*)&D,Flxq_autpow_sqr,Flxq_autpow_msqr);
   return gerepilecopy(av, x);
 }
 
