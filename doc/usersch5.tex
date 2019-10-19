@@ -14378,6 +14378,9 @@ element of \typ{VECSMALL} \kbd{v}, assumed non-empty.
 \fun{long}{vecsmall_indexmin}{GEN v} returns the index of the smallest
 element of \typ{VECSMALL} \kbd{v}, assumed non-empty.
 
+\fun{int}{vecsmall_isconst}{GEN v} Returns 1 if all the components of \kbd{v}
+are equal, else returns 0.
+
 \fun{long}{vecsmall_isin}{GEN v, long x} returns the first index $i$
 such that \kbd{v[$i$]} is equal to \kbd{x}. Naive search in linear time, does
 not assume that \kbd{v} is sorted.

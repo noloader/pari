@@ -26,8 +26,20 @@ vec_isconst(GEN v)
   GEN w;
   if (l==1) return 1;
   w = gel(v,1);
-  for(i=2;i<l;i++)
+  for(i=2; i<l; i++)
     if (!gequal(gel(v,i), w)) return 0;
+  return 1;
+}
+
+int
+vecsmall_isconst(GEN v)
+{
+  long i, l = lg(v);
+  ulong w;
+  if (l==1) return 1;
+  w = uel(v,1);
+  for(i=2; i<l; i++)
+    if (uel(v,i) != w) return 0;
   return 1;
 }
 
