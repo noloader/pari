@@ -2283,19 +2283,18 @@ GEN
 lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN ldataf, linit, N, pi2, cN, pi2div, w, T, Vga, h1, h2;
-  long i, d, NEWD, precinit, c, ct, s1, s2, prec = nbits2prec(bitprec);
+  GEN linit, pi2, pi2div, cN, w, T, h1, h2;
+  long i, d, NEWD, c, ct, s1, s2, prec, prec0 = nbits2prec(bitprec);
   double maxt;
   struct lhardyz_t S;
 
   if (is_linit(ldata) && linit_get_type(ldata) == t_LDESC_PRODUCT)
   {
-    GEN v, M = gmael(linit_get_tech(ldata), 2,1);
+    GEN M = gmael(linit_get_tech(ldata), 2,1);
     long l = lg(M);
-    v = cgetg(l, t_VEC);
-    for (i = 1; i < l; i++)
-      gel(v,i) = lfunzeros(gel(M,i), lim, divz, bitprec);
-    return gerepileupto(ltop, vecsort0(shallowconcat1(v), NULL, 0));
+    w = cgetg(l, t_VEC);
+    for (i = 1; i < l; i++) gel(w,i) = lfunzeros(gel(M,i), lim, divz, bitprec);
+    return gerepileupto(ltop, vecsort0(shallowconcat1(w), NULL, 0));
   }
   if (typ(lim) == t_VEC)
   {
@@ -2312,26 +2311,25 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
     h2 = lim;
     maxt = gtodouble(h2);
   }
-  S.linit = linit = lfuncenterinit(ldata, maxt + 1, -1, bitprec);
+  S.linit = linit = lfuncenterinit(ldata, maxt, -1, bitprec);
   S.bitprec = bitprec;
-  S.prec = prec;
-  ldataf = linit_get_ldata(linit);
-  Vga = ldata_get_gammavec(ldataf); d = lg(Vga) - 1;
-  N = ldata_get_conductor(ldataf);
-  NEWD = minss((long) ceil(bitprec+(M_PI/(4*M_LN2))*d*maxt),
+  S.prec = prec0;
+  ldata = linit_get_ldata(linit);
+  d = ldata_get_degree(ldata);
+
+  NEWD = minss((long) ceil(bitprec + (M_PI/(4*M_LN2)) * d * maxt),
                lfun_get_bitprec(linit_get_tech(linit)));
-  precinit = prec; prec = nbits2prec(NEWD);
+  prec = nbits2prec(NEWD);
+  cN = gdiv(ldata_get_conductor(ldata), gpowgs(Pi2n(-1, prec), d));
+  cN = gexpo(cN) >= 0? gaddsg(d, gmulsg(2, glog(cN, prec))): utoi(d);
   pi2 = Pi2n(1, prec);
-  cN = gdiv(N, gpowgs(Pi2n(-1, prec), d));
-  cN = gexpo(cN) >= 0? gaddsg(d, gmulsg(2, glog(cN, prec))): stoi(d);
   pi2div = gdivgs(pi2, labs(divz));
   s1 = gsigne(h1);
   s2 = gsigne(h2);
-  w = cgetg(1000+1,t_VEC); c = 1; ct = 0;
-  T = NULL;
+  w = cgetg(1000+1, t_VEC); c = 1; ct = 0; T = NULL;
   if (s1 <= 0 && s2 >= 0)
   {
-    GEN r = ldata_get_residue(ldataf);
+    GEN r = ldata_get_residue(ldata);
     if (!r || gequal0(r))
     {
       ct = lfunorderzero(linit, -1, bitprec);
@@ -2342,7 +2340,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
   {
     if (s1 < 0)
       lfunzeros_i(&S, h1, T? negr(T): h2,
-                  w, &c, d, cN, pi2, pi2div, precinit, prec);
+                  w, &c, d, cN, pi2, pi2div, prec0, prec);
     if (ct)
     {
       long l = lg(w);
@@ -2351,7 +2349,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
     }
   }
   if (s2 > 0)
-    lfunzeros_i(&S, T? T: h1, h2, w, &c, d, cN, pi2, pi2div, precinit, prec);
+    lfunzeros_i(&S, T? T: h1, h2, w, &c, d, cN, pi2, pi2div, prec0, prec);
   setlg(w, c); return gerepilecopy(ltop, w);
 }
 
