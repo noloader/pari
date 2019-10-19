@@ -9348,6 +9348,14 @@ either \kbd{NULL} (no restriction) or a \typ{VEC} $[a,b]$ with two real
 components (of type \typ{INT}, \typ{FRAC} or \typ{INFINITY}). For efficiency,
 it is advised to make $P$ primitive first.
 
+\fun{long}{ZX_sturm_irred}{GEN P} number of real roots of the \kbd{ZX} $P$,
+assumed irreducible over $\Q[X]$. For efficiency, it is advised to make $P$
+primitive first.
+
+\fun{long}{ZX_realroots_irred}{GEN P, long prec} real roots of the \kbd{ZX}
+$P$, assumed irreducible over $\Q[X]$ to precision prec. For efficiency, it
+is advised to make $P$ primitive first.
+
 \subsec{Resultants}
 
 \fun{GEN}{ZX_ZXY_resultant}{GEN A, GEN B}

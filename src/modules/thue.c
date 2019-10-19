@@ -649,7 +649,7 @@ MiddleSols(GEN *pS, GEN bound, GEN roo, GEN P, GEN rhs, long s, GEN c1)
       /* the theoretical value is bit_prec = gexpo(ro)+1+log2(bound) */
       prec = precdbl(precision(ro));
       if (DEBUGLEVEL>1) pari_warn(warnprec,"thue",prec);
-      roo = realroots(P, NULL, prec);
+      roo = ZX_realroots_irred(P, prec);
       if (lg(roo)-1 != s) pari_err_BUG("thue [realroots]");
       k--;
     }
@@ -797,12 +797,12 @@ thueinit(GEN pol, long flag, long prec)
     delete_var(); delete_var(); delete_var();
     return gerepilecopy(av, tnf);
   }
-  /* POL monic: POL(x) = C pol(x/L), L integer */
+  /* POL monic irreducible: POL(x) = C pol(x/L), L integer */
   POL = ZX_primitive_to_monic(POL, &L);
   C = gdiv(powiu(L, dpol), gel(pol, dpol+2));
   pol = POL;
 
-  s = ZX_sturm(pol);
+  s = ZX_sturm_irred(pol);
   if (s)
   {
     long PREC, n = degpol(pol);

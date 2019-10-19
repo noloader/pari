@@ -109,6 +109,7 @@ BA  30- [libpari] Flx_Fl_sub, Flx_is_totally_split
     32- [libpari] Vgaeasytheta
 BA  33- [libpari] RgV_type2, closure_callgen0prec
 BA  34- lfuncreate: support for closures of arity 0
+    35- [libpari] ZX_sturm_irred, ZX_realroots_irred
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

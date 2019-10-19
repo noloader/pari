@@ -1202,7 +1202,7 @@ get_roots(GEN x, long r1, long prec)
   else
   {
     long n = degpol(x);
-    z = (r1 == n)? realroots(x, NULL, prec): QX_complex_roots(x,prec);
+    z = (r1 == n)? ZX_realroots_irred(x, prec): QX_complex_roots(x,prec);
     ru = (n+r1)>>1;
   }
   for (i=r1+1; i<=ru; i++) gel(z,i) = gel(z, (i<<1)-r1);
@@ -1495,7 +1495,7 @@ nfmaxord_complete(nfmaxord_t *S)
       S->index = get_nfindex(S->basis);
   }
   if (!S->dK) S->dK = diviiexact(S->dT, sqri(S->index));
-  if (S->r1 < 0) S->r1 = ZX_sturm(S->T);
+  if (S->r1 < 0) S->r1 = ZX_sturm_irred(S->T);
   if (!S->basden) S->basden = get_bas_den(S->basis);
 }
 
@@ -1621,7 +1621,7 @@ static void
 set_LLL_basis(nfmaxord_t *S, GEN *pro, double DELTA)
 {
   GEN B = S->basis;
-  if (S->r1 < 0) S->r1 = ZX_sturm(S->T);
+  if (S->r1 < 0) S->r1 = ZX_sturm_irred(S->T);
   if (!S->basden) S->basden = get_bas_den(B);
   if (S->r1 == degpol(S->T)) {
     pari_sp av = avma;

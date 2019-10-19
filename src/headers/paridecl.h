@@ -4846,7 +4846,6 @@ GEN     hyperellratpoints(GEN P, GEN h, long flag);
 /* rootpol.c */
 
 GEN     QX_complex_roots(GEN p, long l);
-GEN     ZX_graeffe(GEN p);
 GEN     cleanroots(GEN x,long l);
 double  fujiwara_bound(GEN p);
 double  fujiwara_bound_real(GEN p, long sign);
@@ -4856,7 +4855,10 @@ GEN     polmod_to_embed(GEN x, long prec);
 GEN     polrootsbound(GEN p, GEN tau);
 GEN     roots(GEN x,long l);
 GEN     realroots(GEN P, GEN ab, long prec);
+GEN     ZX_graeffe(GEN p);
+GEN     ZX_realroots_irred(GEN P, long prec);
 long    ZX_sturm(GEN P);
+long    ZX_sturm_irred(GEN P);
 long    ZX_sturmpart(GEN P, GEN ab);
 GEN     ZX_Uspensky(GEN P, GEN ab, long flag, long prec);
 

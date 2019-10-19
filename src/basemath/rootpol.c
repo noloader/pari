@@ -1963,12 +1963,12 @@ X2XP1(GEN P, GEN *Premapped)
 {
   const pari_sp av = avma;
   GEN v = shallowcopy(P);
-  long i, j, nb, s, deg = degpol(P), vlim = deg+2;
+  long i, j, nb, s, dP = degpol(P), vlim = dP+2;
 
   for (j = 2; j < vlim; j++) gel(v, j+1) = addii(gel(v, j), gel(v, j+1));
   s = -signe(gel(v, vlim));
   vlim--; nb = 0;
-  for (i = 1; i < deg; i++)
+  for (i = 1; i < dP; i++)
   {
     long s2 = -signe(gel(v, 2));
     int flag = (s2 == s);
@@ -1987,7 +1987,7 @@ X2XP1(GEN P, GEN *Premapped)
     vlim--;
     if (gc_needed(av, 3))
     {
-      if (DEBUGMEM>1) pari_warn(warnmem, "X2XP1, i = %ld/%ld", i, deg-1);
+      if (DEBUGMEM>1) pari_warn(warnmem, "X2XP1, i = %ld/%ld", i, dP-1);
       if (!Premapped) setlg(v, vlim + 2);
       v = gerepilecopy(av, v);
     }
@@ -2096,6 +2096,18 @@ splitcauchy(GEN Pp, GEN Pm, long prec)
   return subsr(1, rdivii(A, S, prec)); /* 1 + |Pm|_oo / |Pp|_1 */
 }
 
+static GEN
+ZX_deg1root(GEN P, long prec)
+{
+  GEN a = gel(P,3), b = gel(P,2);
+  if (is_pm1(a))
+  {
+    b = itor(b, prec); if (signe(a) > 0) togglesign(b);
+    return b;
+  }
+  return rdivii(negi(b), a, prec);
+}
+
 /* Newton for polynom P, P(0)!=0, with unique sign change => one root in ]0,oo[
  * P' has also at most one zero there */
 static GEN
@@ -2103,13 +2115,13 @@ polsolve(GEN P, long bitprec)
 {
   pari_sp av;
   GEN Pp, Pm, Pprimep, Pprimem, Pprime, Pprime2, ra, rb, rc, Pc;
-  long deg = degpol(P), prec = nbits2prec(bitprec);
+  long dP = degpol(P), prec = nbits2prec(bitprec);
   long expoold, iter, D, rt, s0, bitaddprec, cprec, PREC;
 
-  if (deg == 1) return rdivii(negi(gel(P,2)), gel(P,3), prec);
+  if (dP == 1) return ZX_deg1root(P, prec);
   Pprime = ZX_deriv(P);
   Pprime2 = ZX_deriv(Pprime);
-  bitaddprec = 1 + 2*expu(deg); PREC = prec + nbits2prec(bitaddprec);
+  bitaddprec = 1 + 2*expu(dP); PREC = prec + nbits2prec(bitaddprec);
   D = split_pols(P, &Pp, &Pm, &Pprimep, &Pprimem); /* P = X^D*Pp + Pm */
   s0 = signe(gel(P, 2));
   rt = maxss(D, brent_kung_optpow(maxss(degpol(Pp), degpol(Pm)), 2, 1));
@@ -2331,12 +2343,13 @@ static int
 sol_ok(GEN r, GEN a, GEN b) { return gcmp(a, r) <= 0 && gcmp(r, b) <= 0; }
 
 /* P a ZX without real double roots; better if primitive and squarefree but
- * caller should ensure that */
+ * caller should ensure that. If flag & 4 assume that P has no rational root
+ * (modest speedup) */
 GEN
 ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
 {
   pari_sp av = avma;
-  GEN a, b, res, sol = NULL;
+  GEN a, b, res, sol;
   double fb;
   long l, nbz, deg;
 
@@ -2359,12 +2372,22 @@ ZX_Uspensky(GEN P, GEN ab, long flag, long bitprec)
     a = mkmoo();
     b = mkoo();
   }
-  switch (gcmp(a, b))
+  if (flag & 4)
   {
-    case 1: set_avma(av); return ZX_Uspensky_no(flag);
-    case 0: return gerepilecopy(av, ZX_Uspensky_equal(P, a, flag, bitprec));
+    if (gcmp(a, b) >= 0) { set_avma(av); return ZX_Uspensky_no(flag); }
+    flag &= ~4;
+    sol = cgetg(1, t_COL);
   }
-  nbz = 0; sol = nfrootsQ(P); l = lg(sol);
+  else
+  {
+    switch (gcmp(a, b))
+    {
+      case 1: set_avma(av); return ZX_Uspensky_no(flag);
+      case 0: return gerepilecopy(av, ZX_Uspensky_equal(P, a, flag, bitprec));
+    }
+    sol = nfrootsQ(P);
+  }
+  nbz = 0; l = lg(sol);
   if (l > 1)
   {
     long i, j;
@@ -2488,12 +2511,23 @@ check_ab(GEN ab)
       typ(b) == t_INFINITY && inf_get_sign(b) > 0) ab = NULL;
   return ab;
 }
+/* e^(1/h) assuming the h-th root is real, beware that sqrtnr assumes e >= 0 */
+static GEN
+_sqrtnr(GEN e, long h)
+{
+  long s;
+  GEN r;
+  if (h == 2) return sqrtr(e);
+  s = signe(e); setsigne(e, 1); /* e < 0 is possible, implies h is odd */
+  r = sqrtnr(e, h); if (s < 0) setsigne(r, -1);
+  return r;
+}
 GEN
 realroots(GEN P, GEN ab, long prec)
 {
   pari_sp av = avma;
   GEN sol = NULL, fa, ex;
-  long i, j, v;
+  long i, j, v, l;
 
   ab = check_ab(ab);
   if (typ(P) != t_POL) return rootsdeg0(P);
@@ -2503,61 +2537,83 @@ realroots(GEN P, GEN ab, long prec)
     case 0: return rootsdeg0(gel(P,2));
   }
   if (!RgX_is_ZX(P)) P = RgX_rescale_to_int(P);
-  P = Q_primpart(P);
-  v = ZX_valrem(P,&P);
-  if (v && (!ab || (gsigne(gel(ab,1)) <= 0 && gsigne(gel(ab,2)) >= 0)))
-    sol = const_col(v, real_0(prec));
-  fa = ZX_squff(P, &ex);
-  for (i = 1; i < lg(fa); i++)
+  v = ZX_valrem(Q_primpart(P), &P);
+  fa = ZX_squff(P, &ex); l = lg(fa); sol = cgetg(l + 1, t_VEC);
+  for (i = 1; i < l; i++)
   {
     GEN Pi = gel(fa, i), soli, soli2 = NULL;
-    long n, h;
-    if (ab)
-      h = 1;
-    else
-      Pi = ZX_deflate_max(Pi, &h);
-    soli = ZX_Uspensky(Pi, h%2 ? ab: gen_0, 1, prec2nbits(prec));
-    n = lg(soli);
-    if (!(h % 2)) soli2 = cgetg(n, t_COL);
+    long n, h, evenh;
+    if (ab) h = 1; else Pi = ZX_deflate_max(Pi, &h);
+    evenh = !odd(h);
+    soli = ZX_Uspensky(Pi, evenh? gen_0: ab, 1, prec2nbits(prec));
+    n = lg(soli); if (evenh) soli2 = cgetg(n, t_COL);
     for (j = 1; j < n; j++)
     {
-      GEN elt = gel(soli, j); /* != 0 */
-      if (typ(elt) != t_REAL) gel(soli, j) = elt = gtofp(elt, prec);
+      GEN r = gel(soli, j); /* != 0 */
+      if (typ(r) != t_REAL) gel(soli, j) = r = gtofp(r, prec);
       if (h > 1)
       {
-        GEN r;
-        if (h == 2)
-          r = sqrtr(elt);
-        else
-        {
-          if (signe(elt) < 0)
-            r = negr(sqrtnr(negr(elt), h));
-          else
-            r = sqrtnr(elt, h);
-        }
-        gel(soli, j) = r;
-        if (!(h % 2)) gel(soli2, j) = negr(r);
+        gel(soli, j) = r = _sqrtnr(r, h);
+        if (evenh) gel(soli2, j) = negr(r);
       }
     }
-    if (!(h % 2)) soli = shallowconcat(soli, soli2);
+    if (evenh) soli = shallowconcat(soli, soli2);
     if (ex[i] > 1) soli = shallowconcat1( const_vec(ex[i], soli) );
-    sol = sol? shallowconcat(sol, soli): soli;
+    gel(sol, i) = soli;
   }
-  if (!sol) { set_avma(av); return cgetg(1,t_COL); }
+  if (v && (!ab || (gsigne(gel(ab,1)) <= 0 && gsigne(gel(ab,2)) >= 0)))
+    gel(sol, i++) = const_col(v, real_0(prec));
+  setlg(sol, i); if (i == 1) { set_avma(av); return cgetg(1,t_COL); }
+  return gerepileupto(av, sort(shallowconcat1(sol)));
+}
+GEN
+ZX_realroots_irred(GEN P, long prec)
+{
+  long dP = degpol(P), j, n, h, evenh;
+  GEN sol, sol2;
+  pari_sp av;
+  if (dP == 1) retmkvec(ZX_deg1root(P, prec));
+  av = avma; P = ZX_deflate_max(P, &h); evenh = !odd(h);
+  if (h == dP)
+  {
+    GEN r = _sqrtnr(ZX_deg1root(P, prec), h);
+    return gerepilecopy(av, evenh? mkvec2(negr(r), r): mkvec(r));
+  }
+  sol = ZX_Uspensky(P, evenh? gen_0: NULL, 1 | 4, prec2nbits(prec));
+  n = lg(sol); if (evenh) sol2 = cgetg(n, t_COL);
+  for (j = 1; j < n; j++)
+  {
+    GEN r = gel(sol, j);
+    if (typ(r) != t_REAL) gel(sol, j) = r = gtofp(r, prec);
+    if (h > 1)
+    {
+      gel(sol, j) = r = _sqrtnr(r, h);
+      if (evenh) gel(sol2, j) = negr(r);
+    }
+  }
+  if (evenh) sol = shallowconcat(sol, sol2);
   return gerepileupto(av, sort(sol));
 }
 
-/* P non-constant, squarefree ZX */
-long
-ZX_sturm(GEN P)
+static long
+ZX_sturm_i(GEN P, long flag)
 {
-  pari_sp av = avma;
-  long h, r;
-  P = ZX_deflate_max(P, &h);
+  pari_sp av;
+  long h, r, dP = degpol(P);
+  if (dP == 1) return 1;
+  av = avma; P = ZX_deflate_max(P, &h);
+  if (h == dP)
+  { /* now deg P = 1 */
+    if (odd(h))
+      r = 1;
+    else
+      r = (signe(gel(P,2)) != signe(gel(P,3)))? 2: 0;
+    return gc_long(av, r);
+  }
   if (odd(h))
-    r = itos(ZX_Uspensky(P, NULL, 2, 0));
+    r = itou(ZX_Uspensky(P, NULL, flag, 0));
   else
-    r = 2*itos(ZX_Uspensky(P, gen_0, 2, 0));
+    r = 2*itou(ZX_Uspensky(P, gen_0, flag, 0));
   return gc_long(av,r);
 }
 /* P non-constant, squarefree ZX */
@@ -2568,3 +2624,9 @@ ZX_sturmpart(GEN P, GEN ab)
   if (!check_ab(ab)) return ZX_sturm(P);
   return gc_long(av, itou(ZX_Uspensky(P, ab, 2, 0)));
 }
+/* P non-constant, squarefree ZX */
+long
+ZX_sturm(GEN P) { return ZX_sturm_i(P, 2); }
+/* P irreducible ZX */
+long
+ZX_sturm_irred(GEN P) { return ZX_sturm_i(P, 2 + 4); }

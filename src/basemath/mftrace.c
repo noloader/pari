@@ -6962,7 +6962,7 @@ lfunthetaall(GEN b, GEN vL, GEN t, long bitprec)
   return l == 2? gel(v,1): v;
 }
 
-/* P in ZX */
+/* P in ZX, irreducible */
 static GEN
 ZX_roots(GEN P, long prec)
 {
@@ -6970,7 +6970,8 @@ ZX_roots(GEN P, long prec)
   if (d == 1) return mkvec(gen_0);
   if (d == 2 && isint1(gel(P,2)) && isintzero(gel(P,3)) && isint1(gel(P,4)))
     return mkvec2(powIs(3), gen_I()); /* order as polroots */
-  return (ZX_sturm(P) == d)? realroots(P,NULL,prec): QX_complex_roots(P,prec);
+  return (ZX_sturm_irred(P) == d)? ZX_realroots_irred(P, prec)
+                                 : QX_complex_roots(P, prec);
 }
 /* initializations for RgX_RgV_eval / RgC_embed */
 static GEN
