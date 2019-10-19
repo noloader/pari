@@ -72,6 +72,7 @@ BA  17- QXQ_div_ratlift renamed to QXQ_div
     19- improved ZM_rank for rectangular matrices
     20- asymptotically fast variant for RgX_translate algorithms
     21- ZX_Uspensky(flag = 0) is now guaranteed to find all rational roots
+    22- lfunzeros: allow intervals not contained in R^+
 
   Added
      1- new GP function rootsof1

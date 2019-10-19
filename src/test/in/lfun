@@ -59,6 +59,9 @@ lfun(Mod(8,13), 1)
 e = ellinit([0, 0, 1, -7, 6]);
 lfunzeros(e,20)
 lfunzeros(e,[0,3])
+lfunzeros(e,[-3,-1])
+lfunzeros(e,[1,3])
+lfunzeros(e,[-3,3])
 /* Ramanujan */
 ltau=lfunetaquo(Mat([1,24]));
 lfunmfspec(ltau)
@@ -414,3 +417,4 @@ Lt=lfuncreate([1,0,[-1,0,0,1,-2,-1,0,0],21,61^2,1]);
 localbitprec(16);lfun(Lt,12);
 L=lfuncreate([[(p,e)->1-p*x+O(x^2),[[2,3,1/(x^2-x+1)]]],1,[0,0],2,1,0]);
 lfun(L,1)
+lfunzeros(1, [3,1])

@@ -2248,30 +2248,45 @@ lfunorderzero(GEN lmisc, long m, long bitprec)
     if (gexpo(lfun0(linit, k2, c, bitprec)) > G) return gc_long(ltop, c);
 }
 
+/* assume T1 * T2 > 0 */
+static void
+lfunzeros_i(struct lhardyz_t *S, GEN T1, GEN T2, GEN w, long *ct, long d,
+            GEN cN, GEN pi2, GEN pi2div, long precinit, long prec)
+{
+  long W = lg(w), s = gsigne(lfunhardyzeros(S, T1));
+  GEN T = T1;
+  for(;;)
+  {
+    pari_sp av = avma;
+    GEN T0 = T, z;
+    for(;;)
+    {
+      GEN L = (gcmp(T, pi2) < 0)? cN
+                                : gadd(cN, gmulsg(d, glog(gdiv(T, pi2), prec)));
+      long s0;
+      T = gadd(T, gdiv(pi2div, L));
+      if (gcmp(T, T2) > 0) T = T2;
+      s0 = gsigne(lfunhardyzeros(S, T));
+      if (s0 != s) { s = s0; break; }
+      if (T == T2) return;
+    }
+    T = gerepileupto(av, T);
+    z = zbrent(S, lfunhardyzeros, T0, T, prec);
+    if (gcmp(z, T2) > 0) break;
+    if (*ct == W) { W *= 2; w = vec_lengthen(w, W); }
+    if (typ(z) == t_REAL) z  = rtor(z, precinit);
+    gel(w, (*ct)++) = z;
+    if (gcmp(T0, T2) >= 0) break;
+  }
+}
 GEN
 lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
 {
   pari_sp ltop = avma;
   GEN ldataf, linit, N, pi2, cN, pi2div, w, T, Vga, h1, h2;
-  long i, d, W, NEWD, precinit, ct, s, prec = nbits2prec(bitprec);
+  long i, d, NEWD, precinit, c, ct, s1, s2, prec = nbits2prec(bitprec);
   double maxt;
-  GEN maxtr, maxtr1;
   struct lhardyz_t S;
-
-  if (typ(lim) == t_VEC)
-  {
-    if (lg(lim) != 3 || gcmp(gel(lim,1),gel(lim,2)) >= 0
-                     || gcmp(gel(lim,1),gen_0) < 0)
-      pari_err_TYPE("lfunzeros",lim);
-    h1 = gel(lim,1); h2 = gel(lim,2);
-  }
-  else
-  {
-    if (gcmp(lim,gen_0) <= 0)
-      pari_err_TYPE("lfunzeros",lim);
-    h1 = gen_0; h2 = lim;
-  }
-  maxt = gtodouble(h2);
 
   if (is_linit(ldata) && linit_get_type(ldata) == t_LDESC_PRODUCT)
   {
@@ -2281,6 +2296,21 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
     for (i = 1; i < l; i++)
       gel(v,i) = lfunzeros(gel(M,i), lim, divz, bitprec);
     return gerepileupto(ltop, vecsort0(shallowconcat1(v), NULL, 0));
+  }
+  if (typ(lim) == t_VEC)
+  {
+    if (lg(lim) != 3 || gcmp(gel(lim,1),gel(lim,2)) >= 0)
+      pari_err_TYPE("lfunzeros",lim);
+    h1 = gel(lim,1);
+    h2 = gel(lim,2);
+    maxt = maxdd(fabs(gtodouble(h1)), fabs(gtodouble(h2)));
+  }
+  else
+  {
+    if (gcmp(lim,gen_0) <= 0) pari_err_TYPE("lfunzeros",lim);
+    h1 = gen_0;
+    h2 = lim;
+    maxt = gtodouble(h2);
   }
   S.linit = linit = lfuncenterinit(ldata, maxt + 1, -1, bitprec);
   S.bitprec = bitprec;
@@ -2295,49 +2325,34 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
   cN = gdiv(N, gpowgs(Pi2n(-1, prec), d));
   cN = gexpo(cN) >= 0? gaddsg(d, gmulsg(2, glog(cN, prec))): stoi(d);
   pi2div = gdivgs(pi2, labs(divz));
-  ct = 0;
-  T = h1;
-  if (gequal0(h1))
+  s1 = gsigne(h1);
+  s2 = gsigne(h2);
+  w = cgetg(1000+1,t_VEC); c = 1; ct = 0;
+  T = NULL;
+  if (s1 <= 0 && s2 >= 0)
   {
     GEN r = ldata_get_residue(ldataf);
     if (!r || gequal0(r))
     {
       ct = lfunorderzero(linit, -1, bitprec);
-      if (ct) T = real2n(-prec2nbits(prec)/(2*ct), prec);
+      if (ct) T = real2n(-prec2nbits(prec) / (2*ct), prec);
     }
   }
-  /* initialize for 100 further zeros, double later if needed */
-  W = 100 + ct; w = cgetg(W+1,t_VEC);
-  for (i=1; i<=ct; i++) gel(w,i) = gen_0;
-  s = gsigne(lfunhardyzeros(&S, T));
-  maxtr = h2; maxtr1 = gaddsg(1, maxtr);
-  while (gcmp(T, maxtr1) < 0)
+  if (s1 <= 0)
   {
-    pari_sp av = avma;
-    GEN T0 = T, z;
-    for(;;)
+    if (s1 < 0)
+      lfunzeros_i(&S, h1, T? negr(T): h2,
+                  w, &c, d, cN, pi2, pi2div, precinit, prec);
+    if (ct)
     {
-      long s0;
-      GEN L;
-      if (gcmp(T, pi2) >= 0)
-        L = gadd(cN, gmulsg(d, glog(gdiv(T, pi2), prec)));
-      else
-        L = cN;
-      T = gadd(T, gdiv(pi2div, L));
-      if (gcmp(T, maxtr1) > 0) goto END;
-      s0 = gsigne(lfunhardyzeros(&S, T));
-      if (s0 != s) { s = s0; break; }
+      long l = lg(w);
+      if (c + ct >= l) w = vec_lengthen(w, l + ct + 1000);
+      for (i = 1; i <= ct; i++) gel(w,c++) = gen_0;
     }
-    T = gerepileupto(av, T);
-    z = zbrent(&S, lfunhardyzeros, T0, T, prec);
-    if (gcmp(z, maxtr) > 0) break;
-    if (typ(z) == t_REAL) z  = rtor(z, precinit);
-    /* room for twice as many zeros */
-    if (ct >= W) { W *= 2; w = vec_lengthen(w, W); }
-    gel(w, ++ct) = z;
   }
-END:
-  setlg(w, ct+1); return gerepilecopy(ltop, w);
+  if (s2 > 0)
+    lfunzeros_i(&S, T? T: h1, h2, w, &c, d, cN, pi2, pi2div, precinit, prec);
+  setlg(w, c); return gerepilecopy(ltop, w);
 }
 
 /*******************************************************************/
