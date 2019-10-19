@@ -272,11 +272,7 @@ myshiftic(GEN z, long e)
 }
 
 static GEN
-RgX_gtofp_bit(GEN q, long bit)
-{
-  if (bit < 0) bit = 0;
-  return RgX_gtofp(q, nbits2prec(bit));
-}
+RgX_gtofp_bit(GEN q, long bit) { return RgX_gtofp(q, nbits2prec(bit)); }
 
 static GEN
 mygprecrc(GEN x, long prec, long e)
