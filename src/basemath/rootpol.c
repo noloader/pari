@@ -2537,12 +2537,11 @@ realroots(GEN P, GEN ab, long prec)
   fa = ZX_squff(P, &ex); l = lg(fa); sol = cgetg(l + 1, t_VEC);
   for (i = 1; i < l; i++)
   {
-    GEN Pi = gel(fa, i), soli, soli2 = NULL;
-    long n, h, evenh;
+    GEN Pi = gel(fa, i), soli, soli2;
+    long n, h;
     if (ab) h = 1; else Pi = ZX_deflate_max(Pi, &h);
-    evenh = !odd(h);
-    soli = ZX_Uspensky(Pi, evenh? gen_0: ab, 1, prec2nbits(prec));
-    n = lg(soli); if (evenh) soli2 = cgetg(n, t_COL);
+    soli = ZX_Uspensky(Pi, odd(h)? ab: gen_0, 1, prec2nbits(prec));
+    n = lg(soli); soli2 = odd(h)? NULL: cgetg(n, t_COL);
     for (j = 1; j < n; j++)
     {
       GEN r = gel(soli, j); /* != 0 */
@@ -2550,10 +2549,10 @@ realroots(GEN P, GEN ab, long prec)
       if (h > 1)
       {
         gel(soli, j) = r = _sqrtnr(r, h);
-        if (evenh) gel(soli2, j) = negr(r);
+        if (soli2) gel(soli2, j) = negr(r);
       }
     }
-    if (evenh) soli = shallowconcat(soli, soli2);
+    if (soli2) soli = shallowconcat(soli, soli2);
     if (ex[i] > 1) soli = shallowconcat1( const_vec(ex[i], soli) );
     gel(sol, i) = soli;
   }
@@ -2565,18 +2564,18 @@ realroots(GEN P, GEN ab, long prec)
 GEN
 ZX_realroots_irred(GEN P, long prec)
 {
-  long dP = degpol(P), j, n, h, evenh;
+  long dP = degpol(P), j, n, h;
   GEN sol, sol2;
   pari_sp av;
   if (dP == 1) retmkvec(ZX_deg1root(P, prec));
-  av = avma; P = ZX_deflate_max(P, &h); evenh = !odd(h);
+  av = avma; P = ZX_deflate_max(P, &h);
   if (h == dP)
   {
     GEN r = _sqrtnr(ZX_deg1root(P, prec), h);
-    return gerepilecopy(av, evenh? mkvec2(negr(r), r): mkvec(r));
+    return gerepilecopy(av, odd(h)? mkvec(r): mkvec2(negr(r), r));
   }
-  sol = ZX_Uspensky(P, evenh? gen_0: NULL, 1 | 4, prec2nbits(prec));
-  n = lg(sol); sol2 = evenh? cgetg(n, t_COL): NULL;
+  sol = ZX_Uspensky(P, odd(h)? NULL: gen_0, 1 | 4, prec2nbits(prec));
+  n = lg(sol); sol2 = odd(h)? NULL: cgetg(n, t_COL);
   for (j = 1; j < n; j++)
   {
     GEN r = gel(sol, j);
