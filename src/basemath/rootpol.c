@@ -2576,7 +2576,7 @@ ZX_realroots_irred(GEN P, long prec)
     return gerepilecopy(av, evenh? mkvec2(negr(r), r): mkvec(r));
   }
   sol = ZX_Uspensky(P, evenh? gen_0: NULL, 1 | 4, prec2nbits(prec));
-  n = lg(sol); if (evenh) sol2 = cgetg(n, t_COL);
+  n = lg(sol); sol2 = evenh? cgetg(n, t_COL): NULL;
   for (j = 1; j < n; j++)
   {
     GEN r = gel(sol, j);
@@ -2584,10 +2584,10 @@ ZX_realroots_irred(GEN P, long prec)
     if (h > 1)
     {
       gel(sol, j) = r = _sqrtnr(r, h);
-      if (evenh) gel(sol2, j) = negr(r);
+      if (sol2) gel(sol2, j) = negr(r);
     }
   }
-  if (evenh) sol = shallowconcat(sol, sol2);
+  if (sol2) sol = shallowconcat(sol, sol2);
   return gerepileupto(av, sort(sol));
 }
 
