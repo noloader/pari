@@ -3212,33 +3212,6 @@ compute_R(GEN lambda, long RU, GEN z, long bit, GEN *ptL, GEN *ptkR)
   *ptkR = R; *ptL = L; return fupb_NONE;
 }
 
-/* norm of an extended ideal I, whose 1st component is in integral HNF */
-static GEN
-idnorm(GEN I) { return ZM_det_triangular(gel(I,1)); }
-
-/* find the smallest (wrt norm) among I, I^-1 and red(I^-1) */
-static GEN
-inverse_if_smaller(GEN nf, GEN I)
-{
-  GEN d, dmin, I1;
-
-  dmin = idnorm(I);
-  I1 = idealinv(nf,I); gel(I1,1) = Q_remove_denom(gel(I1,1), NULL);
-  d = idnorm(I1); if (cmpii(d,dmin) < 0) { I = I1; dmin = d;}
-  /* try reducing (often _increases_ the norm) */
-  I1 = idealred(nf,I1);
-  d = idnorm(I1); if (cmpii(d,dmin) < 0) I = I1;
-  return I;
-}
-
-/* in place */
-static void
-neg_row(GEN U, long i)
-{
-  GEN c = U + lg(U)-1;
-  for (; c>U; c--) gcoeff(c,i,0) = negi(gcoeff(c,i,0));
-}
-
 static void
 setlg_col(GEN U, long l)
 {
@@ -3251,7 +3224,7 @@ static void
 class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
                 GEN *ptclg1,GEN *ptclg2)
 {
-  GEN z, G, Ga, ga, GD, cyc, X, Y, D, U, V, Ur, Ui, Uir, I, J, arch;
+  GEN z, G, Ga, ga, GD, cyc, X, Y, D, U, V, Ur, Ui, Uir, I, arch;
   long i, j, lo, lo0;
   pari_timer T;
 
@@ -3259,18 +3232,12 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
   D = ZM_snfall(W,&U,&V); /* UWV=D, D diagonal, G = g Ui (G=new gens, g=old) */
   Ui = ZM_inv(U, NULL);
   lo0 = lo = lg(D);
- /* we could set lo = lg(cyc) and truncate all matrices below
-  *   setlg_col(D && U && Y, lo) + setlg(D && V && X && Ui, lo)
-  * but it's not worth the complication:
-  * 1) gain is negligible (avoid computing z^0 if lo < lo0)
-  * 2) when computing ga, the products XU and VY use the original matrices */
   Ur  = ZM_hnfdivrem(U, D, &Y);
   Uir = ZM_hnfdivrem(Ui,W, &X);
- /* [x] = logarithmic embedding of x (arch. component)
-  * NB: z = idealred(I) --> I = y z[1], with [y] = - z[2]
-  * P invertible diagonal matrix (\pm 1) which is only implicitly defined
-  * G = g Uir P + [Ga],  Uir = Ui + WX
-  * g = G P Ur  + [ga],  Ur  = U + DY */
+ /* {x} = logarithmic embedding of x (arch. component)
+  * NB: [J,z] = idealred(I) --> I = y J, with {y} = - z
+  * G = g Uir + {Ga},  Uir = Ui + WX
+  * g = G Ur  + {ga},  Ur  = U + DY */
   G = cgetg(lo,t_VEC);
   Ga= cgetg(lo,t_VEC);
   z = init_famat(NULL);
@@ -3289,30 +3256,19 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
         I = idealHNF_mulred(nf0, I, idealpowred(nf0,z,p1));
       }
     }
-    J = inverse_if_smaller(nf0, I);
-    if (J != I)
-    { /* update wrt P */
-      neg_row(Y ,j); gel(V,j) = ZC_neg(gel(V,j));
-      neg_row(Ur,j); gel(X,j) = ZC_neg(gel(X,j));
-    }
-    gel(G,j) = gel(J,1); /* generator, order cyc[j] */
-    arch = famat_to_arch(nf, gel(J,2), prec);
+    gel(G,j) = gel(I,1); /* generator, order cyc[j] */
+    arch = famat_to_arch(nf, gel(I,2), prec);
     if (!arch) pari_err_PREC("class_group_gen");
     gel(Ga,j) = gneg(arch);
   }
-  /* at this point Y = PY, Ur = PUr, V = VP, X = XP */
-
-  /* G D =: [GD] = g (UiP + W XP) D + [Ga]D = g W (VP + XP D) + [Ga]D
-   * NB: DP = PD and Ui D = W V. gW is given by (first lo0-1 cols of) C
-   */
+  /* G D =: {GD} = g (Ui + W X) D + {Ga}D = g W (V + X D) + {Ga}D
+   * NB: Ui D = W V. gW is given by (first lo0-1 cols of) C */
   GD = gadd(act_arch(ZM_add(V, ZM_mul(X,D)), C), act_arch(D, Ga));
-  /* -[ga] = [GD]PY + G PU - g = [GD]PY + [Ga] PU + gW XP PU
-                               = gW (XP PUr + VP PY) + [Ga]PUr */
+  /* -{ga} = {GD}Y + G U - g = {GD}Y + {Ga} U + gW X U
+                               = gW (X Ur + V Y) + {Ga}Ur */
   ga = gadd(act_arch(ZM_add(ZM_mul(X,Ur), ZM_mul(V,Y)), C),
             act_arch(Ur, Ga));
   ga = gneg(ga);
-  /* TODO: could (LLL)reduce ga and GD mod units ? */
-
   cyc = cgetg(lo,t_VEC); /* elementary divisors */
   for (j=1; j<lo; j++)
   {
