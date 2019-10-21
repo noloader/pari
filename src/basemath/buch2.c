@@ -3225,29 +3225,29 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
                 GEN *ptclg1,GEN *ptclg2)
 {
   GEN z, G, Ga, ga, GD, cyc, X, Y, D, U, V, Ur, Ui, Uir, I, arch;
-  long i, j, lo, lo0;
+  long i, j, l;
   pari_timer T;
 
   if (DEBUGLEVEL) timer_start(&T);
   D = ZM_snfall(W,&U,&V); /* UWV=D, D diagonal, G = g Ui (G=new gens, g=old) */
   Ui = ZM_inv(U, NULL);
-  lo0 = lo = lg(D);
+  l = lg(D);
   Ur  = ZM_hnfdivrem(U, D, &Y);
   Uir = ZM_hnfdivrem(Ui,W, &X);
  /* {x} = logarithmic embedding of x (arch. component)
   * NB: [J,z] = idealred(I) --> I = y J, with {y} = - z
   * G = g Uir + {Ga},  Uir = Ui + WX
   * g = G Ur  + {ga},  Ur  = U + DY */
-  G = cgetg(lo,t_VEC);
-  Ga= cgetg(lo,t_VEC);
+  G = cgetg(l,t_VEC);
+  Ga= cgetg(l,t_VEC);
   z = init_famat(NULL);
   if (!nf0) nf0 = nf;
-  for (j=1; j<lo; j++)
+  for (j=1; j<l; j++)
   {
     GEN v = gel(Uir,j);
     GEN p1 = gel(v,1);
     gel(z,1) = gel(Vbase,1); I = idealpowred(nf0,z,p1);
-    for (i=2; i<lo0; i++)
+    for (i=2; i<l; i++)
     {
       p1 = gel(v,i);
       if (signe(p1))
@@ -3262,24 +3262,24 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
     gel(Ga,j) = gneg(arch);
   }
   /* G D =: {GD} = g (Ui + W X) D + {Ga}D = g W (V + X D) + {Ga}D
-   * NB: Ui D = W V. gW is given by (first lo0-1 cols of) C */
+   * NB: Ui D = W V. gW is given by (first l-1 cols of) C */
   GD = gadd(act_arch(ZM_add(V, ZM_mul(X,D)), C), act_arch(D, Ga));
   /* -{ga} = {GD}Y + G U - g = {GD}Y + {Ga} U + gW X U
                                = gW (X Ur + V Y) + {Ga}Ur */
   ga = gadd(act_arch(ZM_add(ZM_mul(X,Ur), ZM_mul(V,Y)), C),
             act_arch(Ur, Ga));
   ga = gneg(ga);
-  cyc = cgetg(lo,t_VEC); /* elementary divisors */
-  for (j=1; j<lo; j++)
+  cyc = cgetg(l,t_VEC); /* elementary divisors */
+  for (j = 1; j < l; j++)
   {
     gel(cyc,j) = gcoeff(D,j,j);
     if (is_pm1(gel(cyc,j)))
     { /* strip useless components */
-      lo = j; setlg(cyc,lo); setlg_col(Ur,lo);
-      setlg(G,lo); setlg(Ga,lo); setlg(GD,lo); break;
+      setlg(cyc,j); setlg(G,j); setlg(Ga,j); setlg(GD,j);
+      setlg_col(Ur,j); break;
     }
   }
-  *ptclg1 = mkvec3(ZM_det_triangular(W), cyc, G);
+  *ptclg1 = mkvec3(ZV_prod(cyc), cyc, G);
   *ptclg2 = mkvec3(Ur, ga, GD);
   if (DEBUGLEVEL) timer_printf(&T, "classgroup generators");
 }
