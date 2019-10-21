@@ -1167,9 +1167,9 @@ nfisincl(GEN fa, GEN fb)
     if (degpol(t)!=d) continue;
     gel(x, k++) = partmap_reverse(a, b, t, la, lb, vb);
   }
+  if (newvar) (void)delete_var();
   if (k==1) { set_avma(av); return gen_0; }
   setlg(x, k);
-  if (newvar) (void)delete_var();
   gen_sort_inplace(x, (void*)&cmp_RgX, &cmp_nodata, NULL);
   return gerepilecopy(av,x);
 }
