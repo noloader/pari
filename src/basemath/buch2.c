@@ -1759,30 +1759,26 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
   GEN C  = bnf_get_C(bnf);
   GEN nf = bnf_get_nf(bnf);
   GEN clg2 = gel(bnf,9);
-  pari_sp av;
 
   U = gel(clg2,1);
   cyc = bnf_get_cyc(bnf); c = lg(cyc)-1;
-  gen = bnf_get_gen(bnf);
   ex = cgetg(c+1,t_COL);
   if (c == 0 && !(flag & (nf_GEN|nf_GENMAT|nf_GEN_IF_PRINCIPAL))) return ex;
 
   /* factor x */
   x = Q_primitive_part(x, &xc);
-  av = avma;
   xar = split_ideal(bnf, x, &Wex, &Bex);
-  /* x = g_W Wex + g_B Bex + [xar] = g_W (Wex - B*Bex) + [xar] + [C_B]Bex
-   * since g_W B + g_B = [C_B] */
+  /* x = g_W Wex + g_B Bex + [xar] = g_W (Wex - B*Bex) + [xar] + [C_B]Bex */
   A = zc_to_ZC(Wex);
   nB = lg(Bex)-1;
   if (nB) A = ZC_sub(A, ZM_zc_mul(B,Bex));
   Q = ZM_ZC_mul(U, A);
-  for (i=1; i<=c; i++)
+  for (i = 1; i <= c; i++)
     gel(Q,i) = truedvmdii(gel(Q,i), gel(cyc,i), (GEN*)(ex+i));
   if ((flag & nf_GEN_IF_PRINCIPAL))
     { if (!ZV_equal0(ex)) return gen_0; }
   else if (!(flag & (nf_GEN|nf_GENMAT)))
-    return ZC_copy(ex);
+    return ex;
 
   /* compute arch component of the missing principal ideal */
   { /* g A = G Ur A + [ga]A, Ur A = D Q + R as above (R = ex)
@@ -1800,15 +1796,14 @@ isprincipalall(GEN bnf, GEN x, long *ptprec, long flag)
     GEN t = get_arch(nf, xar, prec);
     col = t? gadd(col, t): NULL;
   }
-
   /* find coords on Zk; Q = N (x / \prod gj^ej) = N(alpha), denom(alpha) | d */
+  gen = bnf_get_gen(bnf);
   Q = gdiv(ZM_det_triangular(x), get_norm_fact(gen, ex, &d));
   col = col?isprincipalarch(bnf, col, Q, gen_1, d, &e): NULL;
   if (col && !fact_ok(nf,x, col,gen,ex)) col = NULL;
   if (!col && !ZV_equal0(ex))
   { /* in case isprincipalfact calls bnfinit() due to prec trouble...*/
     GEN y;
-    ex = gerepilecopy(av, ex);
     y = isprincipalfact(bnf, x, gen, ZC_neg(ex), flag);
     if (typ(y) != t_VEC) return y;
     col = gel(y,2);
@@ -3229,10 +3224,10 @@ inverse_if_smaller(GEN nf, GEN I)
 
   dmin = idnorm(I);
   I1 = idealinv(nf,I); gel(I1,1) = Q_remove_denom(gel(I1,1), NULL);
-  d = idnorm(I1); if (cmpii(d,dmin) < 0) {I=I1; dmin=d;}
+  d = idnorm(I1); if (cmpii(d,dmin) < 0) { I = I1; dmin = d;}
   /* try reducing (often _increases_ the norm) */
   I1 = idealred(nf,I1);
-  d = idnorm(I1); if (cmpii(d,dmin) < 0) I=I1;
+  d = idnorm(I1); if (cmpii(d,dmin) < 0) I = I1;
   return I;
 }
 
@@ -3322,7 +3317,7 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
   for (j=1; j<lo; j++)
   {
     gel(cyc,j) = gcoeff(D,j,j);
-    if (gequal1(gel(cyc,j)))
+    if (is_pm1(gel(cyc,j)))
     { /* strip useless components */
       lo = j; setlg(cyc,lo); setlg_col(Ur,lo);
       setlg(G,lo); setlg(Ga,lo); setlg(GD,lo); break;
