@@ -2632,7 +2632,6 @@ GEN     Buchall_param(GEN P, double bach, double bach2, long nbrelpid, long flun
 GEN     bnf_build_cycgen(GEN bnf);
 GEN     bnf_build_matalpha(GEN bnf);
 GEN     bnf_build_units(GEN bnf);
-GEN     bnfcompress(GEN bnf);
 GEN     bnfinit0(GEN P,long flag,GEN data,long prec);
 GEN     bnfisprincipal0(GEN bnf, GEN x,long flall);
 GEN     bnfisunit(GEN bignf, GEN x);

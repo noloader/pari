@@ -1,4 +1,4 @@
-HEAP=[170, if(sizebyte(0)==16,95811,97475)];
+HEAP=[164, if(sizebyte(0)==16,93580,97475)];
 default(realprecision,154); Pi; default(realprecision,38);
 dobnf(T,flag=0,tech=[])= setrand(1); my(K = bnfinit(T,flag,tech)); [K.cyc,K.fu];
 \e
@@ -13,10 +13,6 @@ nf3=nfinit(x^6+108);
 setrand(1);bnf2=bnfinit(y^3-y-1);nf2=bnf2[7];
 setrand(1);bnf=bnfinit(x^2-x-57,,[0.2,0.2])
 dobnf(x^2-x-100000,1)
-\p19
-setrand(1);sbnf=bnfcompress(bnfinit(x^3-x^2-14*x-1))
-K=bnfinit(sbnf); bnfisprincipal(K, idealprimedec(K,3)[2])
-\p38
 bnr=bnrinit(bnf,[[5,3;0,1],[1,0]],1); bnr.cyc
 bnr2=bnrinit(bnf,[[25,13;0,1],[1,1]]); bnr2.bid
 rnfinit(nf2,x^5-x-2)

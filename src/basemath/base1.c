@@ -24,7 +24,7 @@ int new_galois_format = 0;
 /* v a t_VEC, lg(v) = 13, sanity check for true rnf */
 static int
 v13checkrnf(GEN v)
-{ return typ(gel(v,6)) == t_VEC; } /* false for sbnf from bnfcompress */
+{ return typ(gel(v,6)) == t_VEC; }
 static int
 rawcheckbnf(GEN v) { return typ(v)==t_VEC && lg(v)==11; }
 static int

@@ -27,6 +27,15 @@ This file lists the incompatible changes between Version 2.x and older versions
     rootnumber, which is not well defined since it depends on the choice
     of dual sequence a^*(n). And the function is not real-valued in any case.
   - parsum: removed optional argument [allows grouping of subsums => faster]
+  - the function 'bnfcompress' has been removed. That compressed format
+    complicated the code base, prevented planned extensions of the 'bnf' format
+    and was not very useful: the best compression of a number field is the
+    defining polynomial, from which everything can be recomputed.
+    Additionally, compared to a 'writebin' of the 'bnf' structure compressed by
+    gzip, the old 'bnfcompress' typically achieved ~ 75% compression, with
+    compression running times often comparable to the computation of a new
+    bnfinit from scratch, and expensive decompression as well. It was not a
+    useful format for storage.
 
 * Specific to the PARI library:
 ===============================

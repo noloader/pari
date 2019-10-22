@@ -3284,48 +3284,6 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
   if (DEBUGLEVEL) timer_printf(&T, "classgroup generators");
 }
 
-/* SMALLBUCHINIT */
-
-static GEN
-decodeprime(GEN T, GEN L, long n)
-{
-  long t = itos(T);
-  return gmael(L, t/n, t%n + 1);
-}
-static GEN
-codeprime(GEN L, long N, GEN pr)
-{
-  long p = pr_get_smallp(pr);
-  return utoipos( N*p + pr_index(gel(L,p), pr)-1 );
-}
-
-static GEN
-decode_pr_lists(GEN nf, GEN pfc)
-{
-  long i, n = nf_get_degree(nf), l = lg(pfc);
-  GEN L, P = cgetg(l, t_VECSMALL), Vbase = cgetg(l, t_COL);
-
-  for (i = 1; i < l; i++) P[i] = itou(gel(pfc,i)) / n;
-  L = const_vec(vecsmall_max(P), NULL);
-  for (i = 1; i < l; i++)
-  {
-    long p = P[i];
-    if (!gel(L,p)) gel(L,p) = idealprimedec(nf, utoipos(p));
-  }
-  for (i = 1; i < l; i++) gel(Vbase,i) = decodeprime(gel(pfc,i), L, n);
-  return Vbase;
-}
-
-static GEN
-codeprimes(GEN Vbase, long N)
-{
-  GEN v, L = get_pr_lists(Vbase, N, 1);
-  long i, l = lg(Vbase);
-  v = cgetg(l, t_VEC);
-  for (i=1; i<l; i++) gel(v,i) = codeprime(L, N, gel(Vbase,i));
-  return v;
-}
-
 /* compute principal ideals corresponding to (gen[i]^cyc[i]) */
 static GEN
 makecycgen(GEN bnf)
@@ -3572,86 +3530,12 @@ buchall_end(GEN nf,GEN res, GEN clg2, GEN W, GEN B, GEN A, GEN C,GEN Vbase)
   return z;
 }
 
-/* FIXME: obsolete function */
-GEN
-bnfcompress(GEN bnf)
-{
-  pari_sp av = avma;
-  GEN nf, fu, y = cgetg(13,t_VEC);
-
-  bnf = checkbnf(bnf);
-  nf = bnf_get_nf(bnf);
-  gel(y,1) = nf_get_pol(nf);
-  gel(y,2) = gmael(nf,2,1);
-  gel(y,3) = nf_get_disc(nf);
-  gel(y,4) = nf_get_zk(nf);
-  gel(y,5) = nf_get_roots(nf);
-  gel(y,6) = gen_0; /* FIXME: unused */
-  gel(y,7) = bnf_get_W(bnf);
-  gel(y,8) = bnf_get_B(bnf);
-  gel(y,9) = codeprimes(bnf_get_vbase(bnf), nf_get_degree(nf));
-  gel(y,10) = mkvec2(utoipos(bnf_get_tuN(bnf)),
-                     nf_to_scalar_or_basis(nf, bnf_get_tuU(bnf)));
-  fu = bnf_build_units(bnf); fu = vecslice(fu,2,lg(fu)-1);
-  gel(y,11) = fu;
-  gel(y,12) = bnf_build_matalpha(bnf);
-  return gerepilecopy(av, y);
-}
-
-/* FIXME: obsolete feature */
-static GEN
-sbnf2bnf(GEN sbnf, long prec)
-{
-  pari_sp av = avma;
-  GEN ro, nf, A, fu, FU, C, clgp, clgp2, res, y, W, zu, matal, Vbase;
-  long k, l;
-  nfmaxord_t S;
-
-  if (typ(sbnf) != t_VEC || lg(sbnf) != 13) pari_err_TYPE("bnfmake",sbnf);
-  if (prec < DEFAULTPREC) prec = DEFAULTPREC;
-
-  S.T0 = S.T = gel(sbnf,1);
-  S.r1    = itos(gel(sbnf,2));
-  S.dK    = gel(sbnf,3);
-  S.basis = gel(sbnf,4);
-  S.index = NULL;
-  S.dT    = NULL;
-  S.dKP   = NULL;
-  S.basden= NULL;
-  ro = gel(sbnf,5); if (prec > gprecision(ro)) ro = NULL;
-  nf = nfmaxord_to_nf(&S, ro, prec);
-
-  fu = gel(sbnf,11);
-  A = get_archclean(nf, fu, prec, 1);
-  if (!A) pari_err_PREC("bnfmake");
-
-  prec = nf_get_prec(nf);
-  matal = gel(sbnf,12);
-  C = get_archclean(nf,matal,prec,0);
-  if (!C) pari_err_PREC("bnfmake");
-
-  Vbase = decode_pr_lists(nf, gel(sbnf,9));
-  W = gel(sbnf,7);
-  class_group_gen(nf,W,C,Vbase,prec,NULL, &clgp,&clgp2);
-
-  zu = gel(sbnf,10);
-  zu = mkvec2(gel(zu,1), nf_to_scalar_or_alg(nf, gel(zu,2)));
-  FU = cgetg_copy(fu, &l);
-  for (k=1; k < l; k++) gel(FU,k) = nf_to_scalar_or_alg(nf, gel(fu,k));
-
-  res = get_clfu(clgp, get_regulator(A), zu, FU);
-  y = buchall_end(nf,res,clgp2,W,gel(sbnf,8),A,C,Vbase);
-  return gerepilecopy(av,y);
-}
-
 GEN
 bnfinit0(GEN P, long flag, GEN data, long prec)
 {
   double c1 = BNF_C1, c2 = BNF_C2;
   long fl, relpid = BNF_RELPID;
 
-  if (typ(P) == t_VEC && lg(P) == 13 && typ(gel(P,3)) == t_INT)
-    return sbnf2bnf(P, prec); /* sbnf (FIXME: obsolete) */
   if (data)
   {
     long lx = lg(data);

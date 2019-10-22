@@ -552,7 +552,7 @@ static const whatnow_t whatnowlist[]={
 {"sinh",_SAME},
 {"size","sizedigit","(x)","(x)"},
 {"smallbasis","nfbasis","(x)","(x,1)"},
-{"smallbuchinit","bnfcompress","(x)","(x)"},
+{"smallbuchinit",_REMOV},
 {"smalldiscf","nfdisc","(x)","(x,1)"},
 {"smallfact","factor","(x)","(x,0)"},
 {"smallinitell","ellinit","(x)","(x,1)"},
