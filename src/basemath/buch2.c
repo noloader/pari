@@ -3265,7 +3265,7 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN nf0,
    * NB: Ui D = W V. gW is given by (first l-1 cols of) C */
   GD = gadd(act_arch(ZM_add(V, ZM_mul(X,D)), C), act_arch(D, Ga));
   /* -{ga} = {GD}Y + G U - g = {GD}Y + {Ga} U + gW X U
-                               = gW (X Ur + V Y) + {Ga}Ur */
+                             = gW (X Ur + V Y) + {Ga}Ur */
   ga = gadd(act_arch(ZM_add(ZM_mul(X,Ur), ZM_mul(V,Y)), C),
             act_arch(Ur, Ga));
   ga = gneg(ga);
