@@ -488,6 +488,8 @@ L=lfunmf(mf,F); lfun(L,1)
 L=lfunmf(mf,F); lfun(L,1)
 lfun(L,2)
 
+mf=mfinit([11,2,Mod(3,11)]); f=mfbasis(mf)[1]; lfuncheckfeq(lfunmf(mf,f))
+
 mf=mfinit(D);
 PP=mfperiodpol(mf,D,-1);cP=polcoeff(PP,1)
 PP/=cP;bestappr(PP)

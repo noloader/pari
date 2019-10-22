@@ -8534,8 +8534,9 @@ mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk)
   else
   { /* mfatkininit */
     GEN a0, b0, vF, vG, G = NULL;
-    GEN C = gel(mfa,3), M = gdiv(gel(mfa,2), C), mf = gel(mfa,4);
-    vF = mftobasis_i(mf, F);
+    GEN M = gel(mfa,2), C = gel(mfa,3), mf = gel(mfa,4);
+    M = gdiv(mfmatembed(E, M), C);
+    vF = mfvecembed(E, mftobasis_i(mf, F));
     vG = RgM_RgC_mul(M, vF);
     if (gequal(vF,vG)) eps = gen_1;
     else if (gequal(vF,gneg(vG))) eps = gen_m1;
@@ -8547,8 +8548,8 @@ mflfuncreate(GEN mfa, GEN F, GEN E, GEN N, GEN gk)
       gel(LF,6) = powIs(k);
     }
     /* polar part */
-    a0 = mfcoef(F,0);
-    b0 = eps? gmul(eps,a0): gdiv(mfcoef(G,0), C);
+    a0 = mfembed(E, mfcoef(F,0));
+    b0 = eps? gmul(eps,a0): gdiv(mfembed(E, mfcoef(G,0)), C);
     if (!gequal0(b0))
     {
       b0 = mulcxpowIs(gmul2n(b0,1), k);
