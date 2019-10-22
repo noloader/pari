@@ -2390,9 +2390,13 @@ GEN
 Flx_div_by_X_x(GEN a, ulong x, ulong p, ulong *rem)
 {
   long l = lg(a), i;
-  GEN a0, z0;
-  GEN z = cgetg(l-1,t_VECSMALL);
-  z[1] = a[1];
+  GEN a0, z0, z;
+  if (l <= 3)
+  {
+    if (rem) *rem = l == 2? 0: a[2];
+    return zero_Flx(a[1]);
+  }
+  z = cgetg(l-1,t_VECSMALL); z[1] = a[1];
   a0 = a + l-1;
   z0 = z + l-2; *z0 = *a0--;
   if (SMALL_ULONG(p))
