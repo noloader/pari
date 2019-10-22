@@ -1381,7 +1381,7 @@ algsplit(GEN al, long v)
 
 /* multiplication table sanity checks */
 static GEN
-check_mt(GEN mt, GEN p)
+check_mt_noid(GEN mt, GEN p)
 {
   long i, l;
   GEN MT = cgetg_copy(mt, &l);
@@ -1391,10 +1391,19 @@ check_mt(GEN mt, GEN p)
     GEN M = gel(mt,i);
     if (typ(M) != t_MAT || lg(M) != l || lgcols(M) != l) return NULL;
     if (p) M = RgM_to_FpM(M,p);
-    if (i > 1 && ZC_is_ei(gel(M,1)) != i) return NULL; /* i = 1 checked at end */
     gel(MT,i) = M;
   }
-  if (!ZM_isidentity(gel(MT,1))) return NULL;
+  return MT;
+}
+static GEN
+check_mt(GEN mt, GEN p)
+{
+  long i;
+  GEN MT;
+  MT = check_mt_noid(mt, p);
+  if (!MT || !ZM_isidentity(gel(MT,1))) return NULL;
+  for (i=2; i<lg(MT); i++)
+    if (ZC_is_ei(gmael(MT,i,1)) != i) return NULL;
   return MT;
 }
 
@@ -1436,8 +1445,9 @@ algisassociative(GEN mt0, GEN p)
 
   if (checkalg_i(mt0)) { p = alg_get_char(mt0); mt0 = alg_get_multable(mt0); }
   if (typ(p) != t_INT) pari_err_TYPE("algisassociative",p);
-  mt = check_mt(mt0, isintzero(p)? NULL: p);
+  mt = check_mt_noid(mt0, isintzero(p)? NULL: p);
   if (!mt) pari_err_TYPE("algisassociative (mult. table)", mt0);
+  if (!ZM_isidentity(gel(mt,1))) return gc_bool(av,0);
   n = lg(mt)-1;
   M = cgetg(n+1,t_MAT);
   for (j=1; j<=n; j++) gel(M,j) = cgetg(n+1,t_COL);

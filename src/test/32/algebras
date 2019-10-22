@@ -1713,9 +1713,7 @@ testing simplify: quatalg csa over Q
   ***   at top-level: algisassociative([1],0)
   ***                 ^-----------------------
   *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
-  ***   at top-level: algisassociative([[1,0;0,2],[0,0;0,0]])
-  ***                 ^---------------------------------------
-  *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
+0
   ***   at top-level: algmul(almt,a,b)
   ***                 ^----------------
   *** algmul: incorrect type in alg_model (t_COL).
@@ -1917,9 +1915,7 @@ testing simplify: quatalg csa over Q
   ***   at top-level: algisassociative([matid(2),Mat([1,1])])
   ***                 ^---------------------------------------
   *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
-  ***   at top-level: algisassociative([[1,2;3,4],matid(2)])
-  ***                 ^--------------------------------------
-  *** algisassociative: incorrect type in algisassociative (mult. table) (t_VEC).
+0
   ***   at top-level: algisassociative([matid(1)],[])
   ***                 ^-------------------------------
   *** algisassociative: incorrect type in algisassociative (t_VEC).
@@ -2424,4 +2420,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
   *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-Total time spent: 2097
+Total time spent: 1456

@@ -1749,7 +1749,7 @@ algtensor(al,al2)
 algtensor(al2,al)
 algtensor(1,z,1)
 algisassociative([1],0)
-algisassociative([[1,0;0,2],[0,0;0,0]])
+algisassociative([[1,0;0,2],[0,0;0,0]]) \\valid input
 algmul(almt,a,b)
 algtomatrix(almt,a,1)
 alginv(almt,a)
@@ -1821,7 +1821,7 @@ algcentralproj(almt,[zero,zero]);
 algsubalg(almt,0);
 algisassociative([]);
 algisassociative([matid(2),Mat([1,1])]);
-algisassociative([[1,2;3,4],matid(2)]);
+algisassociative([[1,2;3,4],matid(2)]) \\valid input
 algisassociative([matid(1)],[]);
 algsqr(algtableinit([matid(1)]),[1,2]~);
 algsqr(al,vector(691)~);
@@ -2294,7 +2294,6 @@ M2 = algtomatrix(al,m2,1);
 #M2[,1]==32
 M1+M2 == algtomatrix(al,algadd(al,m1,m2),1)
 M1*M2 == algtomatrix(al,algmul(al,m1,m2),1)
-
 
 
 
