@@ -2348,7 +2348,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
       for (i = 1; i <= ct; i++) gel(w,c++) = gen_0;
     }
   }
-  if (s2 > 0)
+  if (s2 > 0 && (T || s1 >= 0))
     lfunzeros_i(&S, T? T: h1, h2, w, &c, d, cN, pi2, pi2div, prec0, prec);
   setlg(w, c); return gerepilecopy(ltop, w);
 }
