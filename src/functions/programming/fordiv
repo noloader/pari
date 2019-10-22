@@ -16,20 +16,16 @@ Doc: evaluates \var{seq}, where
  increasing size.
 
  To avoid storing all divisors, possibly using a lot of memory, the following
- (much slower) routine loops over the divisors using essentially constant
- space:
+ (slower) routine loops over the divisors using essentially constant space:
  \bprog
  FORDIV(N)=
- { my(P, E);
+ { my(F = factor(N), P = F[,1], E = F[,2]);
 
-   P = factor(N); E = P[,2]; P = P[,1];
-   forvec( v = vector(#E, i, [0,E[i]]),
-   X = factorback(P, v)
-   \\ ...
- );
+   forvec(v = vector(#E, i, [0,E[i]]), X = factorback(P, v));
  }
- ? for(i=1,10^5, FORDIV(i))
- time = 3,445 ms.
- ? for(i=1,10^5, fordiv(i, d, ))
- time = 490 ms.
- @eprog
+ ? for(i=1, 10^6, FORDIV(i))
+ time = 11,180 ms.
+ ? for(i=1, 10^6, fordiv(i, d, ))
+ time = 2,667 ms.
+ @eprog\noindent Of course, the divisors are no longer sorted by inreasing
+ size.

@@ -27,5 +27,27 @@ Doc: creates a row vector whose components are the
  %3 = [1, x, x^2, x + 1, x^2 + x, x^3 + x^2, x^2 + 2*x + 1,
        x^3 + 2*x^2 + x, x^4 + 2*x^3 + x^2]
  @eprog
+
+ This function requires a lot of memory if $x$ has many divisors. The
+ following idiom runs through all divisors using very little memory, in no
+ particular order this time:
+ \bprog
+ F = factor(x); P = F[,1]; E = F[,2];
+ forvec(e = vectorv(#E,i,[0,E[i]]), d = factorback(P,e); ...)
+ @eprog If the factorization of $d$ is also desired, then $[P,e]$ almost
+ provides it but not quite: $e$ may contain $0$ exponents, which are not
+ allowed in factorizations. These must be sieved out as in:
+ \bprog
+ tofact(P,E) =
+   my(v = select(x->x, E, 1)); Mat([vecextract(P,v), vecextract(E,v)]);
+
+ ? tofact([2,3,5,7]~, [4,0,2,0]~)
+ %4 =
+ [2 4]
+
+ [5 2]
+ @eprog We can then run the above loop with \kbd{tofact(P,e)} instead of,
+ or together with, \kbd{factorback}.
+
 Variant: The functions \fun{GEN}{divisors}{GEN N} ($\fl = 0$) and
  \fun{GEN}{divisors_factored}{GEN N} ($\fl = 1$) are also available.
