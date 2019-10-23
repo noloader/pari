@@ -2873,8 +2873,8 @@ Flxq_autpow(GEN x, ulong n, GEN T, ulong p)
   if (n==0) return Flx_rem(polx_Flx(x[1]), T, p);
   if (n==1) return Flx_rem(x, T, p);
   D.T = Flx_get_red(T, p); D.p = p;
-  d = brent_kung_optpow(degpol(T), hammingl(n)-1, 1);
-  D.aut = Flxq_powers(x, d , T, p);
+  d = brent_kung_optpow(get_Flx_degree(T), hammingl(n)-1, 1);
+  D.aut = Flxq_powers(x, d, T, p);
   x = gen_powu_fold(x,n,(void*)&D,Flxq_autpow_sqr,Flxq_autpow_msqr);
   return gerepilecopy(av, x);
 }
