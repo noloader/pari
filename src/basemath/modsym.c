@@ -555,13 +555,6 @@ Qevproj_apply_vecei(GEN T, GEN pro, long k)
   return RgC_Rg_div(v, ciM);
 }
 
-static GEN
-QM_image(GEN A)
-{
-  A = vec_Q_primpart(A);
-  return vecpermute(A, ZM_indeximage(A));
-}
-
 static int
 cmp_dim(void *E, GEN a, GEN b)
 {
@@ -806,7 +799,7 @@ Qevproj_star(GEN W, GEN H)
     GEN A = RgM_mul(msk_get_star(W), H);
     A = (s > 0)? gadd(A, H): gsub(A, H);
     /* Im(star + sign) = Ker(star - sign) */
-    H = QM_image(A);
+    H = QM_image_shallow(A);
     H = Qevproj_apply0(H, msk_get_starproj(W));
   }
   return H;
@@ -2570,7 +2563,7 @@ mseisenstein_i(GEN W)
   if (msk_get_weight(W)==2) l--;
   M = cgetg(l, t_MAT);
   for (i = 1; i < l; i++) gel(M,i) = msfromcusp_i(W, gel(cusps,i));
-  return Qevproj_init(Qevproj_star(W, QM_image(M)));
+  return Qevproj_init(Qevproj_star(W, QM_image_shallow(M)));
 }
 GEN
 mseisenstein(GEN W)
@@ -2685,7 +2678,7 @@ mscuspidal(GEN W, long flag)
     chE = QM_charpoly_ZX_bound(TE, bit);
     chE = ZX_radical(chE);
     M = RgX_RgM_eval(chE, T);
-    M = QM_image(M);
+    M = QM_image_shallow(M);
   }
   S = Qevproj_init(M);
   return gerepilecopy(av, flag? mkvec2(S,E): S);

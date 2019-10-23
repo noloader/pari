@@ -8539,6 +8539,12 @@ coefficients are \typ{FRAC}s.
 
 \fun{long}{QM_rank}{GEN x} returns \kbd{matrank(x)}.
 
+\fun{GEN}{QM_image}{GEN x} returns an integral matrix with primitive columns
+generating the image of $x$.
+
+\fun{GEN}{QM_image_shallow}{GEN A} shallow version of the previous function,
+not suitable for \kbd{gerepile}.
+
 \subsec{\kbd{Qevproj}}
 
 \fun{GEN}{Qevproj_init}{GEN M} let $M$ be a  $n\times d$ \kbd{ZM} of

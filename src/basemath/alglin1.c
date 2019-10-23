@@ -3945,12 +3945,17 @@ RgM_image_FqM(GEN x, GEN pol, GEN p)
   return gerepileupto(av, FqM_to_mod(b, T, p));
 }
 
-static GEN
+GEN
+QM_image_shallow(GEN A)
+{
+  A = vec_Q_primpart(A);
+  return vecpermute(A, ZM_indeximage(A));
+}
+GEN
 QM_image(GEN A)
 {
   pari_sp av = avma;
-  GEN M = vecpermute(A, ZM_indeximage(vec_Q_primpart(A)));
-  return gerepilecopy(av, M);
+  return gerepilecopy(av, QM_image_shallow(A));
 }
 
 #define code(t1,t2) ((t1 << 6) | t2)

@@ -1598,6 +1598,8 @@ GEN     FqM_invimage(GEN a, GEN b, GEN T, GEN p);
 GEN     FqM_mul(GEN a, GEN b, GEN T, GEN p);
 long    FqM_rank(GEN a, GEN T, GEN p);
 GEN     FqM_suppl(GEN x, GEN T, GEN p);
+GEN     QM_image_shallow(GEN A);
+GEN     QM_image(GEN A);
 GEN     QM_gauss(GEN a, GEN b);
 GEN     QM_gauss_i(GEN M, GEN B, long flag);
 GEN     QM_indexrank(GEN x);
