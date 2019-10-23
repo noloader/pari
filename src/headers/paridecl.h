@@ -4479,6 +4479,7 @@ GEN     vecvecsmall_sort_uniq(GEN x);
 int     perm_commute(GEN p, GEN q);
 int     vec_is1to1(GEN v);
 int     vec_isconst(GEN v);
+int     vecsmall_is1to1(GEN v);
 int     vecsmall_isconst(GEN v);
 long    group_domain(GEN G);
 long    group_isA4S4(GEN G);

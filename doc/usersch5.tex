@@ -14381,6 +14381,10 @@ element of \typ{VECSMALL} \kbd{v}, assumed non-empty.
 \fun{int}{vecsmall_isconst}{GEN v} Returns 1 if all the components of \kbd{v}
 are equal, else returns 0.
 
+\fun{int}{vecsmall_is1to1}{GEN v}  Returns 1 if the components of \kbd{v} are
+pair-wise distinct, i.e. if $i\mapsto v[i]$ is a 1-to-1 mapping, else returns
+0.
+
 \fun{long}{vecsmall_isin}{GEN v, long x} returns the first index $i$
 such that \kbd{v[$i$]} is equal to \kbd{x}. Naive search in linear time, does
 not assume that \kbd{v} is sorted.
