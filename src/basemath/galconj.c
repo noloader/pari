@@ -1952,13 +1952,14 @@ galoisgenfixedfield0(GEN O, GEN L, GEN sigma, GEN T, GEN bad, GEN *pt_V,
                      struct galois_frobenius *gf, struct galois_borne *gb)
 {
   pari_sp btop = avma;
-  GEN p  = utoipos(gf->p);
-  GEN OL = fixedfieldorbits(O,L);
-  GEN V  = fixedfieldsympol(OL, gb->ladicabs, gb->l, p, varn(T));
-  GEN Tp = FpX_red(T,p);
-  GEN Sp = sympol_aut_evalmod(gel(V,1), gf->deg, sigma, Tp, p);
-  GEN Pmod = fixedfieldfactmod(Sp, p, gf->Tmod);
-  GEN PG = galoisgenfixedfield(Tp, Pmod, V, p, bad, gb);
+  GEN OL, V, p, Tp, Sp, Pmod, PG;
+  p  = utoipos(gf->p);
+  OL = fixedfieldorbits(O,L);
+  V  = fixedfieldsympol(OL, gb->ladicabs, gb->l, p, varn(T));
+  Tp = FpX_red(T,p);
+  Sp = sympol_aut_evalmod(gel(V,1), gf->deg, sigma, Tp, p);
+  Pmod = fixedfieldfactmod(Sp, p, gf->Tmod);
+  PG = galoisgenfixedfield(Tp, Pmod, V, p, bad, gb);
   if (PG == NULL) return NULL;
   if (DEBUGLEVEL >= 4)
     err_printf("GaloisConj: Back to Earth:%Ps\n", gg_get_std(gel(PG,1)));
