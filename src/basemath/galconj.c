@@ -441,6 +441,53 @@ galoisdoliftn(struct galois_lift *gl, long e)
   GEN S = FpXQ_autpow(FpX_Frobenius(Tp, gl->p), e, Tp, gl->p);
   return gerepileupto(av, automorphismlift(S, gl));
 }
+
+static ulong
+findpsi(GEN D, ulong pstart, GEN P, GEN S, long o, GEN *Tmod, GEN *Tpsi)
+{
+  forprime_t iter;
+  ulong p;
+  long n = degpol(P), i, j, g = n/o;
+  GEN psi = cgetg(g+1, t_VECSMALL);
+  u_forprime_init(&iter, pstart, ULONG_MAX);
+  while ((p = u_forprime_next(&iter)))
+  {
+    GEN F, Sp;
+    long gp = 0;
+    if (smodis(D, p) == 0)
+      continue;
+    F = gel(Flx_factor(ZX_to_Flx(P, p), p), 1);
+    if (lg(F)-1 != g) continue;
+    Sp = RgX_to_Flx(S, p);
+    for (j = 1; j <= g; j++)
+    {
+      GEN Fj = gel(F, j);
+      GEN Sj = Flx_rem(Sp, Fj, p);
+      GEN A = Flxq_autpowers(Flx_Frobenius(Fj, p), o,  Fj, p);
+      for (i = 1; i <= o; i++)
+        if (gequal(Sj, gel(A,i+1)))
+        {
+          psi[j] = i; break;
+        }
+      if (i > o) break;
+      if (gp==0 && i==1) gp=j;
+    }
+    if (gp && j > g)
+    {
+      /* Normalize result so that psi[l]=1 */
+      if (gp!=1)
+      {
+        swap(gel(F,1),gel(F,gp));
+        lswap(uel(psi,1),uel(psi,gp));
+      }
+      *Tpsi = Flv_Fl_div(psi,psi[g],o);
+      *Tmod = FlxV_to_ZXV(F);
+      return p;
+    }
+  }
+  return 0;
+}
+
 static void
 inittestlift(GEN plift, GEN Tmod, struct galois_lift *gl,
              struct galois_testlift *gt)
@@ -905,7 +952,7 @@ fixedfieldfactmod(GEN Sp, GEN p, GEN Tmod)
 }
 
 static GEN
-fixedfieldsurmer(GEN mod, GEN l, GEN p, long v, GEN NS, GEN W)
+fixedfieldsurmer(GEN mod, GEN l, long v, GEN NS, GEN W)
 {
   const long step=3;
   long i, j, n = lg(W)-1, m = 1L<<((n-1)<<1);
@@ -923,8 +970,7 @@ fixedfieldsurmer(GEN mod, GEN l, GEN p, long v, GEN NS, GEN W)
     L = sympol_eval(sym,NS);
     if (!vec_is1to1(FpC_red(L,l))) { set_avma(av); continue; }
     P = FpX_center_i(FpV_roots_to_pol(L,mod,v),mod,mod2);
-    if (!p || FpX_is_squarefree(P,p)) return mkvec3(mkvec2(sym,W),L,P);
-    set_avma(av);
+    return mkvec3(mkvec2(sym, W), L, P);
   }
   return NULL;
 }
@@ -949,7 +995,7 @@ sympol_is1to1_lg(GEN NS, long n)
  * sym is a sympol, s is the set of images of sym on O and
  * P is the polynomial with roots s. */
 static GEN
-fixedfieldsympol(GEN O, GEN mod, GEN l, GEN p, long v)
+fixedfieldsympol(GEN O, GEN mod, GEN l, long v)
 {
   pari_sp ltop=avma;
   const long n=(BITS_IN_LONG>>1)-1;
@@ -964,7 +1010,7 @@ fixedfieldsympol(GEN O, GEN mod, GEN l, GEN p, long v)
       while (vec_isconst(L)) L = sympol_eval_newtonsum(e++, O, mod);
     W[i] = e-1; gel(NS,i) = L;
     if (sympol_is1to1_lg(NS,i+1))
-      sym = fixedfieldsurmer(mod,l,p,v,NS,vecsmall_shorten(W,i));
+      sym = fixedfieldsurmer(mod, l, v, NS, vecsmall_shorten(W,i));
   }
   if (!sym) pari_err_BUG("fixedfieldsympol [p too small]");
   if (DEBUGLEVEL>=2) err_printf("FixedField: Found: %Ps\n",gel(sym,1));
@@ -1952,10 +1998,15 @@ galoisgenfixedfield0(GEN O, GEN L, GEN sigma, GEN T, GEN bad, GEN *pt_V,
                      struct galois_frobenius *gf, struct galois_borne *gb)
 {
   pari_sp btop = avma;
-  GEN OL, V, p, Tp, Sp, Pmod, PG;
-  p  = utoipos(gf->p);
+  GEN OL, p, Tp, Sp, Pmod, PG, V;
   OL = fixedfieldorbits(O,L);
-  V  = fixedfieldsympol(OL, gb->ladicabs, gb->l, p, varn(T));
+  V  = fixedfieldsympol(OL, gb->ladicabs, gb->l, varn(T));
+  if (!FpX_is_squarefree(gel(V,3),utoipos(gf->p)))
+  {
+    GEN badp = lcmii(bad? bad: gb->dis, ZX_disc(gel(V,3)));
+    gf->p  = findpsi(badp, gf->p, T, sigma, gf->deg, &gf->Tmod, &gf->psi);
+  }
+  p  = utoipos(gf->p);
   Tp = FpX_red(T,p);
   Sp = sympol_aut_evalmod(gel(V,1), gf->deg, sigma, Tp, p);
   Pmod = fixedfieldfactmod(Sp, p, gf->Tmod);
@@ -1963,8 +2014,9 @@ galoisgenfixedfield0(GEN O, GEN L, GEN sigma, GEN T, GEN bad, GEN *pt_V,
   if (PG == NULL) return NULL;
   if (DEBUGLEVEL >= 4)
     err_printf("GaloisConj: Back to Earth:%Ps\n", gg_get_std(gel(PG,1)));
-  if (pt_V) { *pt_V = V; gerepileall(btop, 2, pt_V, &PG); return PG; }
-  return gerepilecopy(btop, PG);
+  if (pt_V) *pt_V = V;
+  gerepileall(btop, pt_V ? 4: 3, &gf->Tmod, &gf->psi, &PG, pt_V);
+  return PG;
 }
 
 /* Let sigma^m=1, tau*sigma*tau^-1=sigma^s. Return n = sum_{0<=k<e,0} s^k mod m
@@ -2982,7 +3034,7 @@ galoisfixedfield(GEN gal, GEN perm, long flag, long y)
 
   {
     GEN OL= fixedfieldorbits(O,L);
-    GEN V = fixedfieldsympol(OL, mod, gal_get_p(gal), NULL, vT);
+    GEN V = fixedfieldsympol(OL, mod, gal_get_p(gal), vT);
     PL= gel(V,2);
     P = gel(V,3);
   }
