@@ -2254,7 +2254,7 @@ lfunzeros_i(struct lhardyz_t *S, GEN *pw, long *ct, GEN T1, GEN T2, long d,
             GEN cN, GEN pi2, GEN pi2div, long precinit, long prec)
 {
   GEN T = T1, w = *pw;
-  long W = lg(w), s = gsigne(lfunhardyzeros(S, T1));
+  long W = lg(w)-1, s = gsigne(lfunhardyzeros(S, T1));
   for(;;)
   {
     pari_sp av = avma;
@@ -2268,17 +2268,17 @@ lfunzeros_i(struct lhardyz_t *S, GEN *pw, long *ct, GEN T1, GEN T2, long d,
       if (gcmp(T, T2) > 0) T = T2;
       s0 = gsigne(lfunhardyzeros(S, T));
       if (s0 != s) { s = s0; break; }
-      if (T == T2) return;
+      if (T == T2) { setlg(w, *ct); *pw = w; return; }
     }
     T = gerepileupto(av, T);
     z = zbrent(S, lfunhardyzeros, T0, T, prec);
     if (gcmp(z, T2) > 0) break;
-    if (*ct == W) { W *= 2; w = vec_lengthen(w, W); }
+    if (*ct > W) { W *= 2; w = vec_lengthen(w, W); }
     if (typ(z) == t_REAL) z  = rtor(z, precinit);
     gel(w, (*ct)++) = z;
     if (gcmp(T0, T2) >= 0) break;
   }
-  *pw = w;
+  setlg(w, *ct); *pw = w;
 }
 GEN
 lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
@@ -2327,7 +2327,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
   pi2div = gdivgs(pi2, labs(divz));
   s1 = gsigne(h1);
   s2 = gsigne(h2);
-  w = cgetg(1000+1, t_VEC); c = 1; ct = 0; T = NULL;
+  w = cgetg(100+1, t_VEC); c = 1; ct = 0; T = NULL;
   if (s1 <= 0 && s2 >= 0)
   {
     GEN r = ldata_get_residue(ldata);
@@ -2344,14 +2344,14 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
                   d, cN, pi2, pi2div, prec0, prec);
     if (ct)
     {
-      long l = lg(w);
-      if (c + ct >= l) w = vec_lengthen(w, l + ct + 1000);
+      long n = lg(w)-1;
+      if (c + ct >= n) w = vec_lengthen(w, n + ct);
       for (i = 1; i <= ct; i++) gel(w,c++) = gen_0;
     }
   }
   if (s2 > 0 && (T || s1 >= 0))
     lfunzeros_i(&S, &w, &c, T? T: h1, h2, d, cN, pi2, pi2div, prec0, prec);
-  setlg(w, c); return gerepilecopy(ltop, w);
+  return gerepilecopy(ltop, w);
 }
 
 /*******************************************************************/
