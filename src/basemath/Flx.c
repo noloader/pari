@@ -933,9 +933,10 @@ static GEN
 Flx_mulspec_Kronecker(GEN A, GEN B, long b, ulong p, long lA, long lB)
 {
   GEN C, D;
+  pari_sp av = avma;
   A =  kron_pack_Flx_spec_bits(A, b, lA);
   B =  kron_pack_Flx_spec_bits(B, b, lB);
-  C = mulii(A, B);
+  C = gerepileuptoint(av, mulii(A, B));
   if (b < BITS_IN_LONG)
     D =  kron_unpack_Flx_bits_narrow(C, b, p);
   else
