@@ -2250,11 +2250,11 @@ lfunorderzero(GEN lmisc, long m, long bitprec)
 
 /* assume T1 * T2 > 0 */
 static void
-lfunzeros_i(struct lhardyz_t *S, GEN T1, GEN T2, GEN w, long *ct, long d,
+lfunzeros_i(struct lhardyz_t *S, GEN *pw, long *ct, GEN T1, GEN T2, long d,
             GEN cN, GEN pi2, GEN pi2div, long precinit, long prec)
 {
+  GEN T = T1, w = *pw;
   long W = lg(w), s = gsigne(lfunhardyzeros(S, T1));
-  GEN T = T1;
   for(;;)
   {
     pari_sp av = avma;
@@ -2278,6 +2278,7 @@ lfunzeros_i(struct lhardyz_t *S, GEN T1, GEN T2, GEN w, long *ct, long d,
     gel(w, (*ct)++) = z;
     if (gcmp(T0, T2) >= 0) break;
   }
+  *pw = w;
 }
 GEN
 lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
@@ -2339,8 +2340,8 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
   if (s1 <= 0)
   {
     if (s1 < 0)
-      lfunzeros_i(&S, h1, T? negr(T): h2,
-                  w, &c, d, cN, pi2, pi2div, prec0, prec);
+      lfunzeros_i(&S, &w, &c, h1, T? negr(T): h2,
+                  d, cN, pi2, pi2div, prec0, prec);
     if (ct)
     {
       long l = lg(w);
@@ -2349,7 +2350,7 @@ lfunzeros(GEN ldata, GEN lim, long divz, long bitprec)
     }
   }
   if (s2 > 0 && (T || s1 >= 0))
-    lfunzeros_i(&S, T? T: h1, h2, w, &c, d, cN, pi2, pi2div, prec0, prec);
+    lfunzeros_i(&S, &w, &c, T? T: h1, h2, d, cN, pi2, pi2div, prec0, prec);
   setlg(w, c); return gerepilecopy(ltop, w);
 }
 
