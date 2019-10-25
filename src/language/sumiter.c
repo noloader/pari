@@ -1983,7 +1983,7 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long prec)
 {
   const long MAX = 100;
   pari_sp av = avma;
-  GEN u, vres = vectrunc_init(MAX);
+  GEN u, A = cgetg(MAX+1, t_VEC);
   long i, B = prec2nbits(prec);
   double LB = 0.9*expu(B); /* 0.9 and 0.95 below are heuristic */
   struct limit L;
@@ -2003,10 +2003,10 @@ asympnum(void *E, GEN (*f)(void *, GEN, long), GEN alpha, long prec)
     s = gsub(s, a);
     /* |s|q^2 > eps */
     if (!gequal0(s) && gexpo(s) + 2*expi(q) > -17) break;
-    vectrunc_append(vres, a);
+    gel(A,i) = a;
     for (n = 1; n <= L.N; n++) gel(u,n) = gmul(gsub(gel(u,n), a), gel(L.na,n));
   }
-  return gerepilecopy(av, vres);
+  setlg(A,i); return gerepilecopy(av, A);
 }
 GEN
 asympnum0(GEN u, GEN alpha, long prec)
