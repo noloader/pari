@@ -855,7 +855,7 @@ GEN     FpX_compositum(GEN A, GEN B, GEN p);
 GEN     FpX_direct_compositum(GEN A, GEN B, GEN p);
 GEN     FpXV_direct_compositum(GEN V, GEN p);
 ulong   ZX_ZXY_ResBound(GEN A, GEN B, GEN dB);
-GEN     ffinit_Artin_Shreier(GEN ip, long l);
+GEN     ffinit_Artin_Shreier(ulong p, long l);
 GEN     ffinit_rand(GEN p, long n);
 
 /* readline.c */

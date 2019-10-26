@@ -2494,19 +2494,20 @@ f2init(long l)
 /* return an extension of degree p^l of F_p, assume l > 0
  * Not stack clean. */
 GEN
-ffinit_Artin_Shreier(GEN ip, long l)
+ffinit_Artin_Shreier(ulong p, long l)
 {
-  long i, v, p = itos(ip);
-  GEN T, Q, xp = pol_xn(p,0); /* x^p */
-  T = ZX_sub(xp, deg1pol_shallow(gen_1,gen_1,0)); /* x^p - x - 1 */
+  long i, v;
+  GEN Q, R, S, T, xp = polxn_Flx(p,0); /* x^p */
+  T = Flx_sub(xp, mkvecsmall3(0,1,1),p); /* x^p - x - 1 */
   if (l == 1) return T;
 
   v = fetch_var_higher();
   setvarn(xp, v);
-  Q = ZX_sub(pol_xn(2*p-1,0), pol_xn(p,0));
-  Q = gsub(xp, deg1pol_shallow(gen_1, Q, v)); /* x^p - x - (y^(2p-1)-y^p) */
-  for (i = 2; i <= l; ++i) T = FpX_FpXY_resultant(T, Q, ip);
-  (void)delete_var(); setvarn(T,0); return T;
+  R = Flx_sub(polxn_Flx(2*p-1,0), polxn_Flx(p,0),p);
+  S = Flx_sub(xp, polx_Flx(0), p);
+  Q = FlxX_Flx_sub(Flx_to_FlxX(S, v), R, p); /* x^p - x - (y^(2p-1)-y^p) */
+  for (i = 2; i <= l; ++i) T = Flx_FlxY_resultant(T, Q, p);
+  (void)delete_var(); T[1] = 0; return T;
 }
 
 /* check if polsubcyclo(n,l,0) is irreducible modulo p */
