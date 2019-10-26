@@ -92,6 +92,7 @@ GEN  gsub1e(GEN *x);
 GEN  gshift_right(GEN x, long n);
 
 GEN  asympnum0(GEN u, GEN alpha, long prec);
+GEN  asympnumraw0(GEN u, long LIM, GEN alpha, long prec);
 GEN  derivnum0(GEN a, GEN code, GEN ind, long prec);
 GEN  derivfun0(GEN args, GEN def, GEN code, long k, long prec);
 GEN  direuler0(GEN a, GEN b, GEN code, GEN c);

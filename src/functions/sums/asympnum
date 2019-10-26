@@ -10,7 +10,7 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  $$u(n) \approx \sum_{i \geq 0} a_i n^{-i\alpha}$$
  with rational coefficients $a_i$ with reasonable height; the algorithm
  is heuristic and performs repeated calls to limitnum, with
- \kbd{alpha} is as in \kbd{limitnum}. As in \kbd{limitnum}, $u(n)$ may be
+ \kbd{alpha} as in \kbd{limitnum}. As in \kbd{limitnum}, $u(n)$ may be
  given either by a closure $u\mapsto u(n)$ or as a closure $N\mapsto
  [u(1),\dots,u(N)]$, the latter being often more efficient.
  \bprog
@@ -75,7 +75,7 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  %6 = [0, 1, -1/2, 1/3, -1/4, ...]
  @eprog\noindent
 
- \synt{asympnum}{void *E, GEN (*u)(void *,GEN,long), GEN alpha, long prec}, where \kbd{u(E, n, prec)} must return $u(n)$ in precision \kbd{prec}.
- Also available is
- \fun{GEN}{asympnum0}{GEN u, GEN alpha, long prec}, where $u$
- must be a vector of sufficient length as above.
+ \synt{asympnum}{void *E, GEN (*u)(void *,GEN,long), GEN alpha, long prec}, where \kbd{u(E, n, prec)} must return either $u(n)$ or $[u(1),\dots,u(n)]$
+ in precision \kbd{prec}. Also available is
+ \fun{GEN}{asympnum0}{GEN u, GEN alpha, long prec}, where $u$ is a closure
+ as above or a vector of sufficient length.

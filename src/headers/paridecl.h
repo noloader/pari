@@ -4908,6 +4908,7 @@ GEN     type0(GEN x);
 /* sumiter.c */
 
 GEN     asympnum(void *E, GEN (*f)(void *,GEN,long), GEN alpha, long prec);
+GEN     asympnumraw(void *E, GEN (*f)(void *,GEN,long), long LIM, GEN alpha, long prec);
 GEN     derivnum(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
 GEN     derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec);
 GEN     derivfun(void *E, GEN (*eval)(void *, GEN, long prec), GEN x, long prec);
