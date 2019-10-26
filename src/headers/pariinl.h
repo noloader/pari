@@ -308,6 +308,15 @@ pol_xnall(long n, long v)
   if (n < 0) retmkrfrac(gen_1, pol_xn(-n,v));
   return pol_xn(n, v);
 }
+/* x^n, assume n >= 0 */
+INLINE GEN
+polxn_Flx(long n, long sv) {
+  long i, a = n+2;
+  GEN p = cgetg(a+1, t_VECSMALL);
+  p[1] = sv;
+  for (i = 2; i < a; i++) p[i] = 0;
+  p[a] = 1; return p;
+}
 INLINE GEN
 pol_1(long v) {
   GEN p = cgetg(3, t_POL);
