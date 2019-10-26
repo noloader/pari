@@ -2876,18 +2876,17 @@ Flxq_autpow(GEN x, ulong n, GEN T, ulong p)
   D.T = Flx_get_red(T, p); D.p = p;
   d = brent_kung_optpow(get_Flx_degree(T), hammingl(n)-1, 1);
   D.aut = Flxq_powers(x, d, T, p);
-  x = gen_powu_fold(x,n,(void*)&D,Flxq_autpow_sqr,Flxq_autpow_msqr);
+  x = gen_powu_fold_i(x,n,(void*)&D,Flxq_autpow_sqr,Flxq_autpow_msqr);
   return gerepilecopy(av, x);
 }
 
 GEN
 Flxq_autpowers(GEN x, ulong l, GEN T, ulong p)
 {
-  long i;
-  long vT = get_Flx_var(T), dT = get_Flx_degree(T), d;
+  long d, vT = get_Flx_var(T), dT = get_Flx_degree(T);
+  ulong i;
   pari_sp av = avma;
-  GEN V, xp;
-  V = cgetg(l+2,t_VEC);
+  GEN xp, V = cgetg(l+2,t_VEC);
   gel(V,1) = polx_Flx(vT); if (l==0) return V;
   gel(V,2) = gcopy(x); if (l==1) return V;
   T = Flx_get_red(T, p);
