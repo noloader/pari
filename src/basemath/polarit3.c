@@ -2494,7 +2494,7 @@ f2init(long l)
 /* return an extension of degree p^l of F_p, assume l > 0
  * Not stack clean. */
 GEN
-ffinit_Artin_Shreier(ulong p, long l)
+ffinit_Artin_Schreier(ulong p, long l)
 {
   long i, v;
   GEN Q, R, S, T, xp = polxn_Flx(p,0); /* x^p */
@@ -2544,7 +2544,7 @@ ffinit_fact(GEN p, long n)
     gel(P,i++) = f2init(Fe[1]); /* if n is even, F[1] = 2^vals(n)*/
   for (  ; i < l; ++i)
     gel(P,i) = absequaliu(p, Fp[i]) ?
-                 Flx_to_ZX(ffinit_Artin_Shreier(Fp[i], Fe[i]))
+                 Flx_to_ZX(ffinit_Artin_Schreier(Fp[i], Fe[i]))
                : fpinit(p, Fm[i]);
   return FpXV_direct_compositum(P, p);
 }

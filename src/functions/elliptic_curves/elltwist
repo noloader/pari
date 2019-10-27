@@ -19,7 +19,7 @@ Doc: returns the coefficients $[a_1,a_2,a_3,a_4,a_6]$ of the twist of the
  ? elltwist(ellinit([0,a2,0,a4,a6]),-3)
  %1 = [0,-3*a2,0,9*a4,-27*a6]
  @eprog
- Twist by the Artin-Shreier extension given by $x^2+x+T$ in
+ Twist by the Artin-Schreier extension given by $x^2+x+T$ in
  characteristic $2$:
  \bprog
  ? lift(elltwist(ellinit([a1,a2,a3,a4,a6]*Mod(1,2)),x^2+x+T))
