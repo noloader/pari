@@ -277,7 +277,7 @@ FFELT
 .p: 2
 .pol: x
 .f: 3
-.mod: x^3 + x^2 + x + 2
+.mod: x^3 + 2*x + 2
 .p: 3
 .pol: x
 .f: 2
@@ -343,4 +343,4 @@ BID (nogen)
 MF
 .mod: t^2 + t + 1
 .mod: Mod(1, t^2 + t + 1)*y^2 + Mod(-2*t, t^2 + t + 1)
-Total time spent: 100
+Total time spent: 80

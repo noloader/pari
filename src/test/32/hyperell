@@ -602,7 +602,7 @@ x^4 + 4*x^3 - 14*x^2 - 42*x + 14
  131, -649, 242; 539, -594, 330, -517, 110, 374, 569, 208, -154; 462, 253, -
 572, 363, -649, -165, 592, 502, -303]
 x^4 + 3*x^3 - 27*x^2 - 26*x + 47
-x^2 - 54
+x^2 - 27
 x^2 + 25*x + 125
 x^2 + 23*x - 265
 x^4 - 9*x^2 - 2*x + 12
@@ -633,4 +633,4 @@ x^2 - 686
   ***   at top-level: hyperellcharpoly((256*a^5+5)*ffgen(5^2))
   ***                 ^----------------------------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5
-Total time spent: 3016
+Total time spent: 2724

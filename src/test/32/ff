@@ -25,21 +25,15 @@ a^9 + a^6 + a^4 + a^3 + a^2 + a, a + 1, a^2 + 1, a^4 + 1, a^8 + 1, a^16 + 1,
 ), 1], [a^18 + a^16 + a^13 + a^9 + a^8 + a^7 + a^6 + a^4 + a^2 + a, a^18 + a
 ^16 + a^13 + a^9 + a^8 + a^7 + a^6 + a^4 + a^2 + a + 1]~]
 ? test(7,7)
-[a, a^2 + 3*a + 1, a^6 + 2*a^4 + 5*a^3 + 2*a^2 + 5*a + 1, 3*a + 3, a + 3, 5*
-a^6 + 3*a^4 + 4*a^3 + 3*a^2 + 4*a, 2*a + 2, 2*a + 2, 4*a + 4, 6*a^6 + 6*a^5 
-+ 5*a^4 + 2, 6*a, a^2, 3*a^6 + 5*a^5 + 3*a^3 + a^2 + 2*a + 6, 4*a^2 + 4*a + 
-4, 4*a^2 + 4*a + 4, 4, 3*a^6 + 3*a^5 + 5*a^4 + 2*a^3 + 3*a^2 + a + 4, Mod(1,
- 7), Mod(6, 7), Mod(1, 7)*x^7 + Mod(1, 7)*x^6 + Mod(2, 7)*x^5 + Mod(5, 7)*x 
-+ Mod(1, 7), Mod(1, 7)*x^7 + Mod(1, 7)*x^6 + Mod(2, 7)*x^5 + Mod(5, 7)*x + M
-od(1, 7), [a, 6*a^6 + 5*a^5 + 2*a + 6, 5*a^6 + 6*a^5 + 2*a^3 + 4*a^2 + 3*a +
- 5, 3*a^6 + 5*a^2 + 5, 6*a^6 + 2*a^5 + 5*a^4 + 5*a^3 + 5*a^2 + a + 5, 2*a^6 
-+ 5*a^2 + 6, 6*a^6 + a^5 + 2*a^4 + 2*a^2]~, [x^2 + (a^6 + 6*a^5 + 4*a^4 + 5*
-a^3 + 4)*x + 4, 1; x^2 + (2*a^6 + 5*a^5 + a^4 + 3*a^3 + 1)*x + 2, 1; x^2 + (
-4*a^6 + 3*a^5 + 2*a^4 + 6*a^3 + 2)*x + 1, 1], a^6 + 4*a^5 + 4*a^4 + 6*a^2 + 
-a + 4, a/x, (x + a)/(x + 6*a), 5*a^6 + 6*a^5 + 4*a^4 + 2*a^3 + 6*a^2 + 3*a +
- 5, 274514, a, [x + (2*a^6 + 6*a^5 + 5*a^2 + 2*a + 1), 1; x + (5*a^6 + a^5 +
- 2*a^2 + 5*a), 1], [2*a^6 + 6*a^5 + 5*a^2 + 2*a, 5*a^6 + a^5 + 2*a^2 + 5*a +
- 6]~]
+[a, a^2 + 3*a + 1, 6*a^6 + a^5 + 6*a^4 + a^3 + 6*a^2 + a + 1, 3*a + 3, a + 3
+, 2*a^6 + 5*a^5 + 2*a^4 + 5*a^3 + 2*a^2 + 5*a, 2*a + 2, 2*a + 2, 4*a + 4, a^
+6 + 6, 6*a, a^2, 4*a^6 + a^5 + 3*a^4 + 3*a^3 + 5*a^2 + 2*a + 5, a^2 + a + 1,
+ a^2 + a + 1, 4, a^6 + 2*a^5 + 3*a^4 + a^2 + a + 6, Mod(5, 7), Mod(0, 7), Mo
+d(1, 7)*x^7 + Mod(6, 7)*x + Mod(6, 7), Mod(1, 7)*x^7 + Mod(6, 7)*x + Mod(6, 
+7), [a, a + 1, a + 2, a + 3, a + 4, a + 5, a + 6]~, [x^3 + (2*a^6 + 6*a^5 + 
+2*a^4 + a^2 + 4*a + 2), 1; x^3 + (5*a^6 + a^5 + 5*a^4 + 6*a^2 + 2*a + 5), 1]
+, a^6 + 5*a^5 + 4*a^4 + 2*a^3 + 3*a^2 + a + 2, a/x, (x + a)/(x + 6*a), a^6 +
+ a^4 + 2*a^3 + 3*a^2 + a, 137257, a, Mat([x^2 + x + a, 1]), []~]
 ? test(precprime(2^32),3)
 [a, a^2 + 3*a + 1, 3435973833*a^2 + 3435973833, 2863311528*a + 2863311528, a
  + 3435973833, 3579139409*a^2 + 2863311528, 3579139410*a + 3579139410, 1024*
@@ -292,20 +286,19 @@ error("domain error in ffmap: m domain does not contain c^4 + c^2 + c")
 error("incorrect type in ffextend (t_POL).")
 ? test(3,10,2,3)
 error("domain error in ffcompomap: m domain does not contain codomain of [b,
- 2*c^55 + 2*c^53 + c^52 + 2*c^50 + 2*c^47 + c^46 + 2*c^45 + c^43 + 2*c^42 + 
-c^41 + 2*c^39 + 2*c^37 + 2*c^35 + c^34 + 2*c^32 + c^31 + 2*c^30 + 2*c^28 + c
-^26 + c^25 + c^23 + c^21 + 2*c^20 + c^19 + 2*c^18 + c^17 + c^15 + c^14 + c^1
-3 + 2*c^12 + 2*c^11 + 2*c^9 + c^8 + c^6 + c^5 + 2*c^4 + c^3 + 2*c^2 + 1]")
+ c^51 + c^49 + c^47 + 2*c^45 + c^43 + 2*c^42 + c^41 + 2*c^40 + c^39 + 2*c^38
+ + 2*c^37 + c^35 + c^34 + 2*c^33 + c^32 + 2*c^31 + c^28 + 2*c^25 + 2*c^23 + 
+2*c^21 + c^19 + 2*c^18 + 2*c^17 + c^16 + 2*c^15 + c^14 + 2*c^13 + 2*c^12 + c
+^11 + c^10 + c^9 + 2*c^8 + c^7 + c^5 + c^3 + 1]")
 error("domain error in ffcompomap: m domain does not contain codomain of [b,
  b^2 + (2*a^9 + 2*a^7 + 2*a^6)*b + (2*a^9 + 2*a^2)]")
-error("domain error in ffmap: m domain does not contain 2*b^19 + b^18 + 2*b^
-17 + b^16 + b^14 + 2*b^13 + b^12 + 2*b^11 + b^10 + 2*b^9 + 2*b^8 + b^7 + 2*b
-^6 + b^3 + 2*b^2")
-error("domain error in ffmap: m domain does not contain 2*c^55 + 2*c^53 + c^
-52 + 2*c^50 + 2*c^47 + c^46 + 2*c^45 + c^43 + 2*c^42 + c^41 + 2*c^39 + 2*c^3
-7 + 2*c^35 + c^34 + 2*c^32 + c^31 + 2*c^30 + 2*c^28 + c^26 + c^25 + c^23 + c
-^21 + 2*c^20 + c^19 + 2*c^18 + c^17 + c^15 + c^14 + c^13 + 2*c^12 + 2*c^11 +
- 2*c^9 + c^8 + c^6 + c^5 + 2*c^4 + c^3 + 2*c^2 + 1")
+error("domain error in ffmap: m domain does not contain b^19 + b^17 + b^16 +
+ b^14 + b^12 + b^11 + 2*b^10 + 2*b^8 + b^7 + 2*b^6 + b^4 + b^2 + 2*b")
+error("domain error in ffmap: m domain does not contain c^51 + c^49 + c^47 +
+ 2*c^45 + c^43 + 2*c^42 + c^41 + 2*c^40 + c^39 + 2*c^38 + 2*c^37 + c^35 + c^
+34 + 2*c^33 + c^32 + 2*c^31 + c^28 + 2*c^25 + 2*c^23 + 2*c^21 + c^19 + 2*c^1
+8 + 2*c^17 + c^16 + 2*c^15 + c^14 + 2*c^13 + 2*c^12 + c^11 + c^10 + c^9 + 2*
+c^8 + c^7 + c^5 + c^3 + 1")
 error("incorrect type in ffextend (t_POL).")
 ? test(nextprime(2^100),1,3,2)
 error("domain error in ffcompomap: m domain does not contain codomain of [b,
@@ -366,4 +359,4 @@ error("incorrect type in ffextend (t_POL).")
   ***                                 ^-----------------------------
   *** ffinvmap: incorrect type in ffinvmap (t_VEC).
 ? print("Total time spent: ",gettime);
-Total time spent: 2170
+Total time spent: 1640

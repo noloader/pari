@@ -2537,15 +2537,15 @@ fpinit(GEN p, long l)
 static GEN
 ffinit_fact(GEN p, long n)
 {
-  GEN P, F = gel(factoru_pow(n),3);
-  long i, l = lg(F);
-  P= cgetg(l, t_VEC);
-  if (!odd(n) && absequaliu(p, 2))
-    gel(P,1) = f2init(vals(n)); /* if n is even, F[1] = 2^vals(n)*/
-  else
-    gel(P,1) = fpinit(p, F[1]);
-  for (i = 2; i < l; ++i)
-    gel(P,i) = fpinit(p, F[i]);
+  GEN P, F = factoru_pow(n), Fp = gel(F,1), Fe = gel(F,2), Fm = gel(F,3);
+  long i = 1, l = lg(Fm);
+  P = cgetg(l, t_VEC);
+  if (Fp[1]==2 && absequaliu(p, 2))
+    gel(P,i++) = f2init(Fe[1]); /* if n is even, F[1] = 2^vals(n)*/
+  for (  ; i < l; ++i)
+    gel(P,i) = absequaliu(p, Fp[i]) ?
+                 Flx_to_ZX(ffinit_Artin_Shreier(Fp[i], Fe[i]))
+               : fpinit(p, Fm[i]);
   return FpXV_direct_compositum(P, p);
 }
 
