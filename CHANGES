@@ -117,7 +117,7 @@ BA  34- lfuncreate: support for closures of arity 0
     35- [libpari] ZX_sturm_irred, ZX_realroots_irred
     36- [libpari] QM_image, QM_image_shallow
     37- new GP function asympnumraw
-    38- [libpari] QM_gauss_i
+    38- [libpari] QM_gauss_i, SL2_inv_shallow
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
