@@ -140,13 +140,13 @@ Build Options:
                           times, ftime)
   --builddir=<dir>      directory where the object files will be created
   --tune                tune the binary for compiling host (slow)
+  --mt=pthread	        enable pthread thread engine
+  --mt=mpi	        enable MPI thread engine
 Additional developer options:
   -g              creates debugging version (in Oxxx.dbg)
   -pg             creates profiling version (in Oxxx.prf)
   -gcov           creates gcov version (in Oxxx.gcov)
-  --enable-tls	  (*experimental*) enable thread-local stack
-  --mt=pthread	  (*experimental*) enable pthread thread engine
-  --mt=mpi	  (*experimental*) enable MPI thread engine
+  --enable-tls	  enable thread-local stack
   --disable-mmap  (*troubleshooting*) disable mmap usage
 
 Installation directories:
