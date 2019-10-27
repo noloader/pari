@@ -92,6 +92,34 @@ return the vector of coefficients of indices $1$ to $L$ to precision
 return a shallow copy of \kbd{ldata} with fields accurate to precision
 \kbd{prec}.
 
+\fun{long}{etaquotype}{GEN *peta, GEN *pN, GEN *pk, GEN *pCHI, long *pv, long
+*psd, long *pcusp} Let \kbd{eta} be the integer matrix factorization supposedly
+attached to an $\eta$-quotient $f(z) = \prod_i \eta(n_i z)^{e_i}$. Assuming
+\kbd{*peta} is initially set to \kbd{eta}, this function returns $0$ if
+there is a type error or this does not define a function on some $X_0(N)$.
+Else it returns $1$ and sets
+
+\item \kbd{*peta} to a normalized factorization (as would be returned by
+\kbd{factor}),
+
+\item \kbd{*pN} to the level $N$ of $f$,
+
+\item \kbd{*pk} to the modular weight $k$ of $f$,
+
+\item \kbd{*pCHI} to the Nebentypus of $f$ (quadratic character)
+as an integer,
+
+\item \kbd{*pv} to the valuation at infinity $v_q(f)$,
+
+\item \kbd{*psd} to $1$ if and only if $f$ is self-dual,
+
+\item \kbd{*pcusp} to $1$ if $f$ is cuspidal, else to $0$ if $f$ holomorphic
+at all cusps, else to $-1$.
+
+The last three arguments \kbd{pCHI}, \kbd{pv} and \kbd{pcusp} can be set to
+\kbd{NULL}, in which case the relevant information is not computed, which
+saves time.
+
 \section{Variants of GP functions}
 
 \fun{GEN}{lfun}{GEN ldata, GEN s, long bitprec}

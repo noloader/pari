@@ -1919,6 +1919,7 @@ static int
 etacuspidal(GEN N, GEN k, GEN B, GEN R, GEN NB)
 {
   long i, j, lD, l, cusp = 1;
+  pari_sp av = avma;
   GEN D;
   if (gsigne(k) < 0) return -1;
   D = divisors(N); lD = lg(D); l = lg(B);
@@ -1932,18 +1933,18 @@ etacuspidal(GEN N, GEN k, GEN B, GEN R, GEN NB)
     if (s < 0) return -1;
     if (!s) cusp = 0;
   }
-  return cusp;
+  return gc_bool(av, cusp);
 }
-/* u | 24, level = u*N0, N0 = lcm(B), NB[i] = N0/B[i] */
+/* u | 24, level N = u*N0, N0 = lcm(B), NB[i] = N0/B[i] */
 static int
 etaselfdual(GEN B, GEN R, GEN NB, ulong u)
 {
+  pari_sp av = avma;
   long i, l = lg(B);
-  for (i = 1; i < l; ++i)
+  for (i = 1; i < l; i++)
   {
-    GEN t = muliu(gel(NB,i), u); /* *pN / B[i] */
-    long j = ZV_search(B, t);
-    if (!j || !equalii(gel(R,i),gel(R,j))) return 0;
+    long j = ZV_search(B, muliu(gel(NB,i), u)); /* search for N / B[i] */
+    set_avma(av); if (!j || !equalii(gel(R,i),gel(R,j))) return 0;
   }
   return 1;
 }
@@ -1984,8 +1985,7 @@ etaquotype(GEN *peta, GEN *pN, GEN *pk, GEN *CHI, long *pv, long *sd,
   *peta = eta = famat_reduce(eta);
   B = gel(eta,1); l = lg(B); /* sorted in increasing order */
   R = gel(eta,2);
-  N = glcm0(B, NULL);
-  NB = cgetg(l, t_VEC);
+  N = ZV_lcm(B); NB = cgetg(l, t_VEC);
   for (i = 1; i < l; i++) gel(NB,i) = diviiexact(N, gel(B,i));
   S = gen_0; T = gen_0; u = 0;
   for (i = 1; i < l; ++i)
@@ -1997,8 +1997,7 @@ etaquotype(GEN *peta, GEN *pN, GEN *pk, GEN *CHI, long *pv, long *sd,
   }
   S = divis_rem(S, 24, &S24);
   if (S24) return 0; /* non-integral valuation at oo */
-  u %= 24; if (u < 0) u += 24;
-  u = 24/ugcd(24, u);
+  u = 24 / ugcd(24, u % 24);
   *pN = muliu(N, u); /* level */
   *pk = gmul2n(T,-1); /* weight */
   *pv = itos(S); /* valuation */
