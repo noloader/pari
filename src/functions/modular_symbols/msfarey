@@ -18,10 +18,9 @@ Doc:
 
  If present, the argument \kbd{CM} is set to \kbd{mscosets(F[3])}, giving
  the right cosets of $H \backslash G$ and the action of $G$ by right
- multiplication.
-
- Since \kbd{msfarey}'s algorithm is quadratic in the index $[G:H]$, it is
- advisable to construct subgroups by a chain of inclusion if possible.
+ multiplication. Since \kbd{msfarey}'s algorithm is quadratic in the index
+ $[G:H]$, it is advisable to construct subgroups by a chain of inclusions if
+ possible.
 
  \bprog
  \\ Gamma_0(N)
@@ -45,3 +44,6 @@ Doc:
  write("F.tex","\\documentclass{article}\\usepackage{tikz}\\begin{document}",\
                 D0,"\n",D1,"\\end{document}");
  @eprog
+
+Variant: Also available is
+ \fun{GEN}{msfarey}{GEN F, void *E, long (*inH)(void *, GEN), GEN *pCM}.
