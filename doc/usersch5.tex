@@ -8538,6 +8538,13 @@ assuming that the sup norm of the (integral) result is $\leq 2^b$.
 \fun{GEN}{QM_gauss}{GEN a, GEN b} as \kbd{gauss}, where $a$ and $b$
 coefficients are \typ{FRAC}s.
 
+\fun{GEN}{QM_gauss_i}{GEN a, GEN b, long flag} as \kbd{QM\_gauss} if
+\kbd{flag} is $0$. Else, no longer assume that $a$ is left-invertible and
+return a solution of $P a x = P b$ where $P$ is a row-selection matrix
+such that $A = P a Q$ is square invertible of maximal rank, for some
+column-selection matrix $Q$; in particular, $x$ is a solution of
+the original equation $a x = b$ if and only if a solution exists.
+
 \fun{GEN}{QM_indexrank}{GEN x} returns \kbd{matindexrank(x)}.
 
 \fun{GEN}{QM_inv}{GEN M} return the inverse of the \kbd{QM} $M$.
