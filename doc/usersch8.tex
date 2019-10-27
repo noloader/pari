@@ -150,6 +150,18 @@ structure from \kbd{msinit}.
 \fun{void}{checkmspadic}{GEN W} raise an exception if $W$ is not an
 \var{mspadic} structure from \kbd{mspadicinit}.
 
+\fun{void}{mspadic_parse_chi}{GEN s, GEN *s1, GEN *s2} see \kbd{mspadicL};
+let $\chi$ be the  cyclotomic  character from
+$\text{Gal}\big(\Q_p(mu_{p^\infty})/\Q_p\big)$ to $\Z_p^*$
+and $\tau$ be the Teichm\"uller character for $p > 2$ and the character of
+order $2$ on $(\Z/4\Z)^*$ if $p = 2$. Let $s$ encode
+the $p$-adic characther $\chi^s := \langle\chi\rangle^{s_1} \tau^{s_2}$;
+set \kbd{*s1} and \kbd{*s2} to the integers $s_1$ and $s_2$.
+
+\fun{GEN}{mspadic_unit_eigenvalue}{GEN ap, long k, GEN p, long n}
+let $p$ be a prime not dividing the trace of Frobenius \kbd{ap},
+return the unit root of $x^2 - ap*x + p^(k-1)$ to $p$-adic accuracy $p^n$.
+
 Variants of \kbd{mfnumcusps} :
 
 \fun{ulong}{mfnumcuspsu}{ulong n}
