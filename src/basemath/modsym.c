@@ -3119,8 +3119,9 @@ seval(GEN G, GEN chi, GEN vx)
 
 /* Let W = msinit(conductor(E), 2), xpm an integral modular symbol with the same
  * eigenvalues as L_E. There exist a unique C such that
- *   C*L(E,(D/.),1)_{xpm} = L(E,(D/.),1) / w1(E_D) != 0, for all D fundamental,
- * sign(D) = s, and such that E_D has rank 0. Return C * ellQtwist_bsdperiod(E,s) */
+ *   C*L(E,(D/.),1)_{xpm} = L(E,(D/.),1) / w1(E_D) != 0,
+ * for all D fundamental, sign(D) = s, and such that E_D has rank 0.
+ * Return C * ellQtwist_bsdperiod(E,s) */
 static GEN
 ell_get_Cw(GEN LE, GEN W, GEN xpm, long s)
 {

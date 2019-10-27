@@ -198,6 +198,12 @@ $[u,0,0,0]$ making $e$ integral. We have $u = 1/t$, $t > 1$.
 \fun{GEN}{ellintegralmodel_i}{GEN e, GEN *pv} shallow version of
  \kbd{ellintegralmodel}.
 
+\fun{GEN}{ellQtwist_bsdperiod}{GEN E, long s} let $E$ be a rational elliptic
+curve given by a minimal model, $\Lambda_E$ its period lattice, and
+$s\in\{-1,1\}$. Let $\Omega_E^\pm$ be the canonical periods in
+$\sqrt{\pm 1}\R^+$ generating $\Lambda_E \cap \sqrt{\pm 1} \R$.
+Return $\Omega_E^+$ if $s = 1$ and $\Omega_E^-$ if $s = -1$.
+
 \misctitle{Deprecated routines}
 
 \fun{GEN}{elltors0}{GEN e, long flag} this function is deprecated; use

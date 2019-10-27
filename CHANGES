@@ -120,6 +120,7 @@ BA  34- lfuncreate: support for closures of arity 0
     38- [libpari] QM_gauss_i, SL2_inv_shallow
     39- [libpari] checkfarey_i
     40- [libpari] mspadic_parse_chi, mspadic_unit_eigenvalue
+    41- [libpari] ellQtwist_bsdperiod
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
