@@ -2470,12 +2470,12 @@ ffinit_rand(GEN p,long n)
 /* return an extension of degree 2^l of F_2, assume l > 0
  * Not stack clean. */
 static GEN
-f2init(long l)
+ffinit_Artin_Schreier_2(long l)
 {
   GEN Q, T, S;
   long i, v;
 
-  if (l == 1) return polcyclo(3, 0);
+  if (l == 1) return mkvecsmall4(0,1,1,1); /*x^2 + x + 1*/
   v = fetch_var_higher();
   S = mkvecsmall5(0, 0, 0, 1, 1); /* y(y^2 + y) */
   Q = mkpoln(3, pol1_Flx(0), pol1_Flx(0), S); /* x^2 + x + y(y^2+y) */
@@ -2488,7 +2488,7 @@ f2init(long l)
    * ==> x^2 + x + a(y) b irred. over K for any root b of Q
    * ==> x^2 + x + (b^2+b)b */
   for (i=2; i<l; i++) T = Flx_FlxY_resultant(T, Q, 2); /* minpoly(b) / F2*/
-  (void)delete_var(); setvarn(T,0); return Flx_to_ZX(T);
+  (void)delete_var(); T[1] = 0; return T;
 }
 
 /* return an extension of degree p^l of F_p, assume l > 0
@@ -2497,7 +2497,9 @@ GEN
 ffinit_Artin_Schreier(ulong p, long l)
 {
   long i, v;
-  GEN Q, R, S, T, xp = polxn_Flx(p,0); /* x^p */
+  GEN Q, R, S, T, xp;
+  if (p==2) return ffinit_Artin_Schreier_2(l);
+  xp = polxn_Flx(p,0); /* x^p */
   T = Flx_sub(xp, mkvecsmall3(0,1,1),p); /* x^p - x - 1 */
   if (l == 1) return T;
 
@@ -2538,11 +2540,9 @@ static GEN
 ffinit_fact(GEN p, long n)
 {
   GEN P, F = factoru_pow(n), Fp = gel(F,1), Fe = gel(F,2), Fm = gel(F,3);
-  long i = 1, l = lg(Fm);
+  long i, l = lg(Fm);
   P = cgetg(l, t_VEC);
-  if (Fp[1]==2 && absequaliu(p, 2))
-    gel(P,i++) = f2init(Fe[1]); /* if n is even, F[1] = 2^vals(n)*/
-  for (  ; i < l; ++i)
+  for (i = 1; i < l; ++i)
     gel(P,i) = absequaliu(p, Fp[i]) ?
                  Flx_to_ZX(ffinit_Artin_Schreier(Fp[i], Fe[i]))
                : fpinit(p, Fm[i]);
