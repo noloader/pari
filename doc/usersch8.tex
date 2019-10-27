@@ -150,6 +150,11 @@ structure from \kbd{msinit}.
 \fun{void}{checkmspadic}{GEN W} raise an exception if $W$ is not an
 \var{mspadic} structure from \kbd{mspadicinit}.
 
+\fun{GEN}{mseval2_ooQ}{GEN W, GEN phi, GEN c} let $W$ be a \kbd{msinit}
+structure for $k = 2$, $\phi$ be a modular symbol with integral values
+and $c$ be a rational number. Return the integer $\phi(p)$,
+where $p$ is the path $\{\infty,c\}$.
+
 \fun{void}{mspadic_parse_chi}{GEN s, GEN *s1, GEN *s2} see \kbd{mspadicL};
 let $\chi$ be the  cyclotomic  character from
 $\text{Gal}\big(\Q_p(mu_{p^\infty})/\Q_p\big)$ to $\Z_p^*$
