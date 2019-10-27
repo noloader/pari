@@ -2477,18 +2477,18 @@ f2init(long l)
 
   if (l == 1) return polcyclo(3, 0);
   v = fetch_var_higher();
-  S = mkpoln(4, gen_1,gen_1,gen_0,gen_0); /* y(y^2 + y) */
-  Q = mkpoln(3, gen_1,gen_1, S); /* x^2 + x + y(y^2+y) */
+  S = mkvecsmall5(0, 0, 0, 1, 1); /* y(y^2 + y) */
+  Q = mkpoln(3, pol1_Flx(0), pol1_Flx(0), S); /* x^2 + x + y(y^2+y) */
   setvarn(Q, v);
 
   /* x^4+x+1, irred over F_2, minimal polynomial of a root of Q */
-  T = mkpoln(5, gen_1,gen_0,gen_0,gen_1,gen_1);
+  T = mkvecsmalln(6,0UL,1UL,1UL,0UL,0UL,1UL);
   setvarn(T, v);
   /* Q = x^2 + x + a(y) irred. over K = F2[y] / (T(y))
    * ==> x^2 + x + a(y) b irred. over K for any root b of Q
    * ==> x^2 + x + (b^2+b)b */
-  for (i=2; i<l; i++) T = FpX_FpXY_resultant(T, Q, gen_2); /* minpoly(b) / F2*/
-  (void)delete_var(); setvarn(T,0); return T;
+  for (i=2; i<l; i++) T = Flx_FlxY_resultant(T, Q, 2); /* minpoly(b) / F2*/
+  (void)delete_var(); setvarn(T,0); return Flx_to_ZX(T);
 }
 
 /* return an extension of degree p^l of F_p, assume l > 0
