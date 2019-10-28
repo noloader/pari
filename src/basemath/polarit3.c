@@ -2517,6 +2517,58 @@ ffinit_Artin_Schreier(ulong p, long l)
   (void)delete_var(); T[1] = 0; return T;
 }
 
+static long
+flinit_check(ulong p, long n, long l)
+{
+  ulong q;
+  if (!uisprime(n)) return 0;
+  q = p % n; if (!q) return 0;
+  return ugcd((n-1)/Fl_order(q, n-1, n), l) == 1;
+}
+
+static GEN
+flinit(ulong p, long l)
+{
+  ulong n = 1+l;
+  while (!flinit_check(p,n,l)) n += l;
+  if (DEBUGLEVEL>=4) err_printf("FFInit: using polsubcyclo(%ld, %ld)\n",n,l);
+  return ZX_to_Flx(polsubcyclo(n,l,0), p);
+}
+
+static GEN
+ffinit_fact_Flx(ulong p, long n)
+{
+  GEN P, F = factoru_pow(n), Fp = gel(F,1), Fe = gel(F,2), Fm = gel(F,3);
+  long i, l = lg(Fm);
+  P = cgetg(l, t_VEC);
+  for (i = 1; i < l; ++i)
+    gel(P,i) = p==Fp[i] ?
+                 ffinit_Artin_Schreier(Fp[i], Fe[i])
+               : flinit(p, Fm[i]);
+  return FlxV_direct_compositum(P, p);
+}
+
+static GEN
+init_Flxq_i(ulong p, long n, long sv)
+{
+  GEN P;
+  if (n == 1) return polx_Flx(sv);
+  if (flinit_check(p, n+1, n))
+  {
+    P = const_vecsmall(n+2,1);
+    P[1] = sv; return P;
+  }
+  P = ffinit_fact_Flx(p,n);
+  P[1] = sv; return P;
+}
+
+GEN
+init_Flxq(ulong p, long n, long v)
+{
+  pari_sp av = avma;
+  return gerepileupto(av, init_Flxq_i(p, n, v));
+}
+
 /* check if polsubcyclo(n,l,0) is irreducible modulo p */
 static long
 fpinit_check(GEN p, long n, long l)

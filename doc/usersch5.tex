@@ -5911,6 +5911,9 @@ a \kbd{Flx} in variable $v$; assume that $n \geq 0$.
 \fun{GEN}{monomial_Flx}{ulong a, long d, long sv} returns the \kbd{Flx}
 $a\*X^d$ in variable $v$.
 
+\fun{GEN}{init_Flxq}{ulong p, long n, long sv} returns an irreducible
+polynomial of degree $\kbd{n} > 0$ over $\F_p$, in variable \kbd{v}.
+
 \fun{GEN}{Flx_normalize}{GEN z, ulong p}, as \kbd{FpX\_normalize}.
 
 \fun{GEN}{Flx_rescale}{GEN P, ulong h, ulong p} returns $h^{\deg(P)} P(x/h)$,
