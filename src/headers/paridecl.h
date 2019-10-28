@@ -4756,6 +4756,7 @@ GEN     ffnbirred(GEN p, long n);
 GEN     ffnbirred0(GEN p, long n, long flag);
 GEN     ffsumnbirred(GEN p, long n);
 const struct bb_field *get_Fq_field(void **E, GEN T, GEN p);
+GEN     init_Flxq(ulong p, long n, long v);
 GEN     init_Fq(GEN p, long n, long v);
 GEN     pol_x_powers(long N, long v);
 GEN     residual_characteristic(GEN x);

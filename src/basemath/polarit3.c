@@ -2615,6 +2615,8 @@ init_Fq_i(GEN p, long n, long v)
   if (signe(p) <= 0) pari_err_PRIME("ffinit",p);
   if (v < 0) v = 0;
   if (n == 1) return pol_x(v);
+  if (lgefint(p) == 3)
+    P = Flx_to_ZX(init_Flxq_i(p[2], n, v));
   if (fpinit_check(p, n+1, n)) return polcyclo(n+1, v);
   P = ffinit_fact(p,n);
   setvarn(P, v); return P;
