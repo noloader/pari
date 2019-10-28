@@ -354,32 +354,28 @@ producttree_scheme(long n)
 }
 
 GEN
-gen_product(GEN x, void *data, GEN (*mul)(void *,GEN,GEN))
+gen_product(GEN x, void *E, GEN (*mul)(void *,GEN,GEN))
 {
-  pari_sp ltop;
-  long i,k,lx = lg(x),lv;
+  pari_sp av;
+  long i, k, l = lg(x);
   pari_timer ti;
-  GEN v;
-  if (DEBUGLEVEL>7) timer_start(&ti);
+  GEN y, v;
 
-  if (lx == 1) return gen_1;
-  if (lx == 2) return gcopy(gel(x,1));
-  x = leafcopy(x); k = lx;
-  v = producttree_scheme(lx-1); lv = lg(v);
-  ltop = avma;
-  for (k=1, i=1; k<lv; i+=v[k++])
-    gel(x,k) = v[k]==1 ? gel(x,i): mul(data,gel(x,i),gel(x,i+1));
+  if (l <= 2) return l == 1? gen_1: gcopy(gel(x,1));
+  y = cgetg(l, t_VEC); av = avma;
+  v = producttree_scheme(l-1);
+  l = lg(v);
+  if (DEBUGLEVEL>7) timer_start(&ti);
+  for (k = i = 1; k < l; i += v[k++])
+    gel(y,k) = v[k]==1? gel(x,i): mul(E, gel(x,i), gel(x,i+1));
   while (k > 2)
   {
-    if (DEBUGLEVEL>7)
-      timer_printf(&ti,"gen_product: remaining objects %ld",k-1);
-    lx = k; k = 1;
-    for (i=1; i<lx-1; i+=2)
-      gel(x,k++) = mul(data,gel(x,i),gel(x,i+1));
-    if (gc_needed(ltop,1))
-      gerepilecoeffs(ltop,x+1,k-1);
+    long n = k - 1;
+    if (DEBUGLEVEL>7) timer_printf(&ti,"gen_product: remaining objects %ld",n);
+    for (k = i = 1; i < n; i += 2) gel(y,k++) = mul(E, gel(y,i), gel(y,i+1));
+    if (gc_needed(av,1)) gerepilecoeffs(av, y+1, k-1);
   }
-  return gel(x,1);
+  return gel(y,1);
 }
 
 /***********************************************************************/
