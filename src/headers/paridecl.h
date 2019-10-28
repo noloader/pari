@@ -2494,7 +2494,7 @@ GEN     minim(GEN a, GEN borne, GEN stockmax);
 GEN     minim_raw(GEN a, GEN borne, GEN stockmax);
 GEN     minim2(GEN a, GEN borne, GEN stockmax);
 GEN     lindep_padic(GEN x);
-GEN     perf(GEN a);
+GEN     qfperfection(GEN a);
 GEN     qfrep0(GEN a, GEN borne, long flag);
 GEN     qfminim0(GEN a, GEN borne, GEN stockmax,long flag, long prec);
 GEN     seralgdep(GEN s, long p, long r);

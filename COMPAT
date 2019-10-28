@@ -18,6 +18,7 @@ This file lists the incompatible changes between Version 2.x and older versions
     (precision in words)
   - rename libpari function rootsof1 -> nfrootsof1
   - rename libpari function isirreducible -> polisirreducible
+  - rename libpari function perf -> qfperfection
   - remove libpari function rootsof1_kannan: use nfrootsof1
   - use the documented semantic for Euclidean division involving real t_QUAD
     e.g. x % y is x - floor(x/y)*y; for a t_QUAD x and t_INT y, we used

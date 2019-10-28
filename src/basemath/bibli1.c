@@ -1490,7 +1490,7 @@ addcolumntomatrix(GEN V, GEN invp, GEN L)
 }
 
 GEN
-perf(GEN a)
+qfperfection(GEN a)
 {
   pari_sp av = avma;
   GEN u, L;
