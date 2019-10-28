@@ -3573,7 +3573,7 @@ Flx_fromNewton(GEN P, ulong p)
   return gerepileuptoleaf(av, Q);
 }
 
-GEN
+static GEN
 Flx_diamondsum(GEN P, GEN Q, ulong p)
 {
   long n = 1+ degpol(P)*degpol(Q);
