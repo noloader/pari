@@ -12,12 +12,12 @@ Doc: \idx{field discriminant} of the number field defined by the integral,
  \misctitle{Local discriminants, valuations at certain primes}
 
  As in \kbd{nfbasis}, the argument $T$ can be replaced by $[T,\var{listP}]$,
- where \kbd{listP} is as in \kbd{nfbasis}: a vector of
- pairwise coprime integers (usually distinct primes), a factorization matrix,
- or a single integer. In that case, the function returns the discriminant of
- an order whose basis is given by \kbd{nfbasis(T,listP)}, which need not be
- the maximal order, and whose valuation at a prime entry in \kbd{listP} is the
- same as the valuation of the field discriminant.
+ where \kbd{listP} is as in \kbd{nfbasis}: a vector of pairwise coprime
+ integers (usually distinct primes), a factorization matrix, or a single
+ integer. In that case, the function returns the discriminant of an order
+ whose basis is given by \kbd{nfbasis(T,listP)}, which need not be the maximal
+ order, and whose valuation at a prime entry in \kbd{listP} is the same as the
+ valuation of the field discriminant.
 
  In particular, if \kbd{listP} is $[p]$ for a prime $p$, we can
  return the $p$-adic discriminant of the maximal order of $\Z_p[X]/(T)$,

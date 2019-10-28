@@ -96,7 +96,7 @@ Doc:
  @eprog\noindent The variable \kbd{dK} contains the field discriminant and
  the last command returns $1$ if and only if $B$ is a $\Z$-basis of the
  maximal order. Of course, the \kbd{nfinit} / \kbd{nfcertify} approach is
- much simpler, but it is also more costly.
+ simpler, but it is also more costly.
 
  \misctitle{The Buchmann-Lenstra algorithm}
 
@@ -104,33 +104,32 @@ Doc:
  \emph{composite} numbers instead of primes
  in \kbd{listP} (Vector or Matrix case), provided they are pairwise coprime.
  The result may still be a correct integral basis if
- the field discriminant factors completely over the actual primes in the list.
- Adding a composite $C$ such that $C^2$ \emph{divides} $D$ may help because
- when we consider $C$ as a prime and run the algorithm, two good things can
- happen: either we succeed in proving that no prime dividing $C$ can divide the
- index (without actually needing to find those primes), or the computation
- exhibits a non-trivial zero divisor, thereby factoring $C$ and
- we go on with the refined factorization. (Note that including a $C$
- such that $C^2$ does not divide $D$ is useless.) If neither happen, then the
- computed basis need not generate the maximal order. Here is an example:
+ the field discriminant factors completely over the actual primes in the
+ list; again, this is not guaranteed. Adding a composite $C$ such that $C^2$
+ \emph{divides} $D$ may help because when we consider $C$ as a prime and run
+ the algorithm, two good things can happen: either we succeed in proving that
+ no prime dividing $C$ can divide the index (without actually needing to find
+ those primes), or the computation exhibits a non-trivial zero divisor,
+ thereby factoring $C$ and we go on with the refined factorization. (Note that
+ including a $C$ such that $C^2$ does not divide $D$ is useless.) If neither
+ happen, then the computed basis need not generate the maximal order. Here is
+ an example:
  \bprog
  ? B = 10^5;
  ? listP = factor(poldisc(T), B); \\ primes <= B dividing D + cofactor
  ? basis = nfbasis([T, listP], &D)
- @eprog\noindent We obtain the maximal order and its discriminant if the
- field discriminant factors
- completely over the primes less than $B$ (together with the primes
- contained in the \tet{addprimes} table). This can be tested as follows:
+ @eprog\noindent If the computed discriminant $D$ factors completely
+ over the primes less than $B$ (together with the primes contained in the
+ \tet{addprimes} table), then everything is certified: $D$ is the field
+ discriminant and \kbd{basis} generates the maximal order.
+ This can be tested as follows:
  \bprog
-   vP = factor(D, B)[,1];
-   lastp = vP[#vP];
-   if (lastp > B && !setsearch(addprimes(), lastp),
-     warning("nf may be incorrect"))
+   F = factor(D, B); P = F[,1]; E = F[,2];
+   for (i = 1, #P,
+     if (P[i] > B && !isprime(P[i]), warning("nf may be incorrect")));
  @eprog\noindent
  This is a sufficient but not a necessary condition, hence the warning,
- instead of an error. N.B. \kbd{lastp} is the last entry
- in the first column of the factorisation matrix, i.e. the largest prime
- dividing \kbd{nf.disc} if $\leq B$ or if it belongs to the prime table.
+ instead of an error.
 
  The function \tet{nfcertify} speeds up and automates the above process:
  \bprog
