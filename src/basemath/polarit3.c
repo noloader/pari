@@ -1648,6 +1648,11 @@ _FpX_direct_compositum(void *E, GEN a, GEN b)
 GEN
 FpXV_direct_compositum(GEN V, GEN p)
 {
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    return Flx_to_ZX(FlxV_direct_compositum(ZXV_to_FlxV(V, pp), pp));
+  }
   return gen_product(V, (void *)p, &_FpX_direct_compositum);
 }
 
