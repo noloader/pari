@@ -3573,8 +3573,7 @@ Flx_fromNewton(GEN P, ulong p)
   return gerepileuptoleaf(av, Q);
 }
 
-#if 0
-static GEN
+GEN
 Flx_diamondsum(GEN P, GEN Q, ulong p)
 {
   long n = 1+ degpol(P)*degpol(Q);
@@ -3583,7 +3582,35 @@ Flx_diamondsum(GEN P, GEN Q, ulong p)
   GEN L = Flx_Laplace(Flxn_mul(Pl, Ql, n, p), p);
   return Flx_fromNewton(L, p);
 }
-#endif
+
+GEN
+Flx_direct_compositum(GEN a, GEN b, ulong p)
+{
+  long da = degpol(a), db = degpol(b);
+  if (p > da*db)
+    return Flx_diamondsum(a, b, p);
+  else
+  {
+    long v = varn(a), w = fetch_var_higher();
+    GEN mx = deg1pol_shallow(gen_m1, gen_0, v);
+    GEN r, ymx = deg1pol_shallow(gen_1, mx, w); /* Y-X */
+    if (degpol(a) < degpol(b)) swap(a,b);
+    b = ZXX_to_FlxX(poleval(Flx_to_ZX(b), ymx), p, v);
+    r = Flx_FlxY_resultant(a, b, p);
+    setvarn(r, v); (void)delete_var(); return r;
+  }
+}
+
+static GEN
+_Flx_direct_compositum(void *E, GEN a, GEN b)
+{ return Flx_direct_compositum(a, b, (ulong)E); }
+
+GEN
+FlxV_direct_compositum(GEN V, ulong p)
+{
+  return gen_product(V, (void *)p, &_Flx_direct_compositum);
+}
+
 
 /* (x+1)^n mod p; assume 2 <= n < 2p prime */
 static GEN
