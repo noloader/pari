@@ -383,22 +383,17 @@ gen_product(GEN x, void *E, GEN (*mul)(void *,GEN,GEN))
 /**                    DISCRETE LOGARITHM                             **/
 /**                                                                   **/
 /***********************************************************************/
-
 static GEN
 iter_rho(GEN x, GEN g, GEN q, GEN A, ulong h, void *E, const struct bb_group *grp)
 {
-  GEN a = gel(A,1);
-  switch((h|grp->hash(a))%3UL)
+  GEN a = gel(A,1), b = gel(A,2), c = gel(A,3);
+  switch((h | grp->hash(a)) % 3UL)
   {
-    case 0:
-      return mkvec3(grp->pow(E,a,gen_2),Fp_mulu(gel(A,2),2,q),
-                                        Fp_mulu(gel(A,3),2,q));
-    case 1:
-      return mkvec3(grp->mul(E,a,x),addis(gel(A,2),1),gel(A,3));
-    case 2:
-      return mkvec3(grp->mul(E,a,g),gel(A,2),addiu(gel(A,3),1));
+    case 0: return mkvec3(grp->pow(E,a,gen_2), Fp_mulu(b,2,q), Fp_mulu(c,2,q));
+    case 1: return mkvec3(grp->mul(E,a,x), addiu(b,1), c);
+    case 2: return mkvec3(grp->mul(E,a,g), b, addiu(c,1));
   }
-  return NULL;
+  return NULL; /* LCOV_EXCL_LINE */
 }
 
 /*Generic Pollard rho discrete log algorithm*/
