@@ -3743,6 +3743,7 @@ Fl_order(ulong a, ulong o, ulong p)
   pari_sp av = avma;
   GEN m, P, E;
   long i;
+  if (a==1) return 1;
   if (!o) o = p-1;
   m = factoru(o);
   P = gel(m,1);
