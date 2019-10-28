@@ -376,7 +376,6 @@ gen_product(GEN x, void *data, GEN (*mul)(void *,GEN,GEN))
     lx = k; k = 1;
     for (i=1; i<lx-1; i+=2)
       gel(x,k++) = mul(data,gel(x,i),gel(x,i+1));
-    if (i < lx) gel(x,k++) = gel(x,i);
     if (gc_needed(ltop,1))
       gerepilecoeffs(ltop,x+1,k-1);
   }
