@@ -1635,7 +1635,7 @@ FpX_direct_compositum(GEN a, GEN b, GEN p)
     long v = varn(a), w = fetch_var_higher();
     GEN mx = deg1pol_shallow(gen_m1, gen_0, v);
     GEN r, ymx = deg1pol_shallow(gen_1, mx, w); /* Y-X */
-    if (degpol(a) < degpol(b)) swap(a,b);
+    if (da < db) swap(a,b);
     r = FpX_FpXY_resultant(a, poleval(b,ymx),p);
     setvarn(r, v); (void)delete_var(); return r;
   }
@@ -2542,9 +2542,9 @@ ffinit_fact_Flx(ulong p, long n)
   long i, l = lg(Fm);
   P = cgetg(l, t_VEC);
   for (i = 1; i < l; ++i)
-    gel(P,i) = p==Fp[i] ?
-                 ffinit_Artin_Schreier(Fp[i], Fe[i])
-               : flinit(p, Fm[i]);
+    gel(P,i) = p==uel(Fp,i) ?
+                 ffinit_Artin_Schreier(uel(Fp,i), Fe[i])
+               : flinit(p, uel(Fm,i));
   return FlxV_direct_compositum(P, p);
 }
 

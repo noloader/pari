@@ -3587,14 +3587,14 @@ GEN
 Flx_direct_compositum(GEN a, GEN b, ulong p)
 {
   long da = degpol(a), db = degpol(b);
-  if (p > da*db)
+  if (p > (ulong) da*db)
     return Flx_diamondsum(a, b, p);
   else
   {
     long v = varn(a), w = fetch_var_higher();
     GEN mx = deg1pol_shallow(gen_m1, gen_0, v);
     GEN r, ymx = deg1pol_shallow(gen_1, mx, w); /* Y-X */
-    if (degpol(a) < degpol(b)) swap(a,b);
+    if (da < db) swap(a,b);
     b = ZXX_to_FlxX(poleval(Flx_to_ZX(b), ymx), p, v);
     r = Flx_FlxY_resultant(a, b, p);
     setvarn(r, v); (void)delete_var(); return r;
