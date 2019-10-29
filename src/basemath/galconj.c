@@ -979,7 +979,7 @@ fixedfieldfactmod(GEN Sp, GEN p, GEN Tmod)
 }
 
 static GEN
-fixedfieldsurmer(ulong l, long v, GEN NS, GEN W)
+fixedfieldsurmer(ulong l, GEN NS, GEN W)
 {
   const long step=3;
   long i, j, n = lg(W)-1, m = 1L<<((n-1)<<1);
@@ -1021,7 +1021,7 @@ sympol_is1to1_lg(GEN NS, long n)
  * sym is a sympol, s is the set of images of sym on O and
  * P is the polynomial with roots s. */
 static GEN
-fixedfieldsympol(GEN O, ulong l, long v)
+fixedfieldsympol(GEN O, ulong l)
 {
   pari_sp ltop=avma;
   const long n=(BITS_IN_LONG>>1)-1;
@@ -1037,7 +1037,7 @@ fixedfieldsympol(GEN O, ulong l, long v)
       while (vecsmall_isconst(L)) L = Flm_newtonsum(O, e++, l);
     W[i] = e-1; gel(NS,i) = L;
     if (sympol_is1to1_lg(NS,i+1))
-      sym = fixedfieldsurmer(l,v,NS,vecsmall_shorten(W,i));
+      sym = fixedfieldsurmer(l,NS,vecsmall_shorten(W,i));
   }
   if (!sym) pari_err_BUG("fixedfieldsympol [p too small]");
   if (DEBUGLEVEL>=2) err_printf("FixedField: Found: %Ps\n",gel(sym,1));
@@ -2029,7 +2029,7 @@ galoisgenfixedfield0(GEN O, GEN L, GEN sigma, GEN T, GEN bad, GEN *pt_V,
   GEN mod = gb->ladicabs, mod2 = shifti(gb->ladicabs,-1);
   GEN OL, sym, P, PL, p, Tp, Sp, Pmod, PG;
   OL = fixedfieldorbits(O,L);
-  sym  = fixedfieldsympol(OL, itou(gb->l), vT);
+  sym  = fixedfieldsympol(OL, itou(gb->l));
   PL = sympol_eval(sym, OL, mod);
   P = FpX_center_i(FpV_roots_to_pol(PL, mod, vT), mod, mod2);
   if (!FpX_is_squarefree(P,utoipos(gf->p)))
@@ -3064,7 +3064,7 @@ galoisfixedfield(GEN gal, GEN perm, long flag, long y)
   }
   mod2 = shifti(mod,-1);
   OL = fixedfieldorbits(O, L);
-  sym = fixedfieldsympol(OL, itou(gal_get_p(gal)), vT);
+  sym = fixedfieldsympol(OL, itou(gal_get_p(gal)));
   PL = sympol_eval(sym, OL, mod);
   P = FpX_center_i(FpV_roots_to_pol(PL, mod, vT), mod, mod2);
   if (flag==1) return gerepilecopy(ltop,P);
