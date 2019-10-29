@@ -1,3 +1,4 @@
+default(realprecision,38);
 w = fftinit(2)
 g = fft(w, x+1)
 fftinv(w, g)

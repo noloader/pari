@@ -9,4 +9,4 @@
   ***   at top-level: fftinit(3)
   ***                 ^----------
   *** fftinit: incorrect type in FFTinit (t_INT).
-Total time spent: 83
+Total time spent: 68
