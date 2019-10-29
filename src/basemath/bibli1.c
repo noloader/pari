@@ -1506,7 +1506,7 @@ qfperfection(GEN a)
     GEN D, V, invp;
     L = gel(L, 3); l = lg(L);
     if (l == 2) { set_avma(av); return gen_1; }
-
+    /* |L[i]|^2 fits  into a long for all i */
     D = zero_zv(r);
     V = cgetg(r+1, t_VECSMALL);
     invp = matid(r);
