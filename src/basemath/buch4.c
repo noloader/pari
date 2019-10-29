@@ -450,101 +450,78 @@ nfhilbert0(GEN nf,GEN a,GEN b,GEN p)
 /* S a list of prime ideal in idealprimedec format. Return res:
  * res[1] = generators of (S-units / units), as polynomials
  * res[2] = [perm, HB, den], for bnfissunit
- * res[3] = [] (was: log. embeddings of res[1])
- * res[4] = S-regulator ( = R * det(res[2]) * \prod log(Norm(S[i])))
+ * res[3] = []
+ * res[4] = S-regulator ( = R * det(res[2]) * prod log(Norm(S[i])))
  * res[5] = S class group
  * res[6] = S */
 GEN
 bnfsunit0(GEN bnf, GEN S, long flag, long prec)
 {
   pari_sp av = avma;
-  long i,j,ls;
-  GEN p1,nf,gen,M,U,H;
-  GEN sunit,card,sreg,res,pow;
+  long i, lS, nH;
+  GEN nf, M, U, H, Sunit, card, sreg, res, den, S2, perm, dep, B, A, p1, U1;
 
   if (!is_vec_t(typ(S))) pari_err_TYPE("bnfsunit",S);
   bnf = checkbnf(bnf);
   nf = bnf_get_nf(bnf);
-  gen = bnf_get_gen(bnf);
 
-  sreg = bnf_get_reg(bnf);
   res=cgetg(7,t_VEC);
   gel(res,1) = gel(res,2) = gel(res,3) = cgetg(1,t_VEC);
-  gel(res,4) = sreg;
+  gel(res,4) = bnf_get_reg(bnf);
   gel(res,5) = bnf_get_clgp(bnf);
-  gel(res,6) = S; ls=lg(S);
+  gel(res,6) = S; lS = lg(S);
+  if (lS == 1) return gerepilecopy(av, res);
 
- /* M = relation matrix for the S class group (in terms of the class group
-  * generators given by gen)
-  * 1) ideals in S
-  */
-  M = cgetg(ls,t_MAT);
-  for (i=1; i<ls; i++)
+  M = cgetg(lS,t_MAT); /* relation matrix for the S class group */
+  for (i = 1; i < lS; i++)
   {
-    p1 = gel(S,i); checkprid(p1);
-    gel(M,i) = isprincipal(bnf,p1);
+    GEN pr = gel(S,i); checkprid(pr);
+    gel(M,i) = isprincipal(bnf,pr);
   }
-  /* 2) relations from bnf class group */
   M = shallowconcat(M, diagonal_shallow(bnf_get_cyc(bnf)));
 
   /* S class group */
   H = ZM_hnfall(M, &U, 1);
   card = gen_1;
   if (lg(H) > 1)
-  { /* non trivial (rare!) */
-    GEN A, u, D = ZM_snfall_i(H, &u, NULL, 1);
+  { /* non trivial */
+    GEN A, u, D = ZM_snfall_i(H, &u, NULL, 1), gen = bnf_get_gen(bnf);
     long l;
-    ZV_snf_trunc(D); l = lg(D);
-    card = ZV_prod(D);
-    A = cgetg(l, t_VEC); pow = ZM_inv(u, NULL);
-    for(i = 1; i < l; i++) gel(A,i) = idealfactorback(nf, gen, gel(pow,i), 1);
+    ZV_snf_trunc(D); l = lg(D); card = ZV_prod(D);
+    A = cgetg(l, t_VEC); u = ZM_inv(u, NULL);
+    for(i = 1; i < l; i++) gel(A,i) = idealfactorback(nf, gen, gel(u,i), 1);
     gel(res,5) = mkvec3(card, D, A);
   }
 
   /* S-units */
-  if (ls>1)
+  U1 = U; setlg(U1,lS); for (i = 1; i < lS; i++) setlg(U1[i], lS);
+ /* U1 = upper left corner of U, invertible. S * U1 = principal ideals
+  * whose generators generate the S-units */
+  p1 = zeromat(0, lS-1); /* junk for mathnfspec */
+  H = mathnfspec(U1, &perm, &dep, &B, &p1); /* dep has 0 rows */
+ /*                   [ H B  ]            [ H^-1   - H^-1 B ]
+  * perm o HNF(U1) =  [ 0 Id ], inverse = [  0         Id   ]
+  * S * HNF(U1) = integral generators for S-units  = Sunit */
+  Sunit = cgetg(lS, t_VEC);
+  S2 = vecpermute(S, perm);
+  nH = lg(H) - 1; setlg(S2, nH + 1);
+  for (i = 1; i < lS; i++)
   {
-    GEN den, Sperm, perm, dep, B, A, U1 = U;
-    long lH, lB, FLAG = flag|nf_FORCE;
-
-   /* U1 = upper left corner of U, invertible. S * U1 = principal ideals
-    * whose generators generate the S-units */
-    setlg(U1,ls); p1 = cgetg(ls, t_MAT); /* p1 is junk for mathnfspec */
-    for (i=1; i<ls; i++) { setlg(U1[i],ls); gel(p1,i) = cgetg(1,t_COL); }
-    H = mathnfspec(U1,&perm,&dep,&B,&p1);
-    lH = lg(H);
-    lB = lg(B);
-    if (lg(dep) > 1 && lgcols(dep) > 1) pari_err_BUG("bnfsunit");
-   /*                   [ H B  ]            [ H^-1   - H^-1 B ]
-    * perm o HNF(U1) =  [ 0 Id ], inverse = [  0         Id   ]
-    * (permute the rows)
-    * S * HNF(U1) = _integral_ generators for S-units  = sunit */
-    Sperm = cgetg(ls, t_VEC); sunit = cgetg(ls, t_VEC);
-    for (i=1; i<ls; i++) Sperm[i] = S[perm[i]]; /* S o perm */
-
-    setlg(Sperm, lH);
-    for (i=1; i<lH; i++)
-    {
-      GEN v = isprincipalfact(bnf, NULL,Sperm,gel(H,i), FLAG);
-      v = gel(v,2); if (flag == nf_GEN) v = nf_to_scalar_or_alg(nf, v);
-      gel(sunit,i) = v;
-    }
-    for (j=1; j<lB; j++,i++)
-    {
-      GEN v = isprincipalfact(bnf, gel(Sperm,i),Sperm,gel(B,j),FLAG);
-      v = gel(v,2); if (flag == nf_GEN) v = nf_to_scalar_or_alg(nf, v);
-      gel(sunit,i) = v;
-   }
-    H = ZM_inv(H,&den);
-    A = shallowconcat(H, ZM_neg(ZM_mul(H,B))); /* top part of inverse * den */
-    /* HNF in split form perm + (H B) [0 Id missing] */
-    gel(res,1) = sunit;
-    gel(res,2) = mkvec3(perm,A,den);
+    GEN C = NULL, E, v;
+    if (i <= nH) E = gel(H,i); else { C = gel(S2,i), E = gel(B,i-nH); }
+    v = gel(isprincipalfact(bnf, C, S2, E, flag | nf_FORCE), 2);
+    if (flag == nf_GEN) v = nf_to_scalar_or_alg(nf, v);
+    gel(Sunit,i) = v;
   }
+  H = ZM_inv(H,&den);
+  A = shallowconcat(H, ZM_neg(ZM_mul(H,B))); /* top part of inverse * den */
+  /* HNF in split form perm + (H B) */
+  gel(res,1) = Sunit;
+  gel(res,2) = mkvec3(perm, A, den);
 
   /* S-regulator */
-  sreg = mpmul(sreg,card);
-  for (i=1; i<ls; i++)
+  sreg = mpmul(bnf_get_reg(bnf), card);
+  for (i = 1; i < lS; i++)
   {
     GEN p = pr_get_p( gel(S,i) );
     sreg = mpmul(sreg, logr_abs(itor(p,prec)));

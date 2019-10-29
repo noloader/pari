@@ -1,0 +1,24 @@
+default(realprecision,38);
+bnf=bnfinit(x^3-2); S=bnfsunit(bnf,idealfactor(bnf,2*3*5*7)[,1]);
+S[1]
+S[4]
+S[5]
+bnfissunit(bnf,S,x)
+bnfissunit(bnf,S,x+2)
+bnfissunit(bnf,S,x+100)
+bnfisunit(bnf, x+100)
+
+S=bnfsunit(bnf,[]);
+bnfissunit(bnf,S,2)
+bnfissunit(bnf,S,-1)
+bnfissunit(bnf,S,bnf.fu[1])
+
+bnf=bnfinit(x^2+23); S=bnfsunit(bnf,idealprimedec(bnf,2)[1..1]);
+S[1]
+S[4]
+S[5]
+
+bnf=bnfinit(x^2-210); S=bnfsunit(bnf,idealprimedec(bnf,2)[1..1]);
+S[1]
+S[4]
+S[5]
