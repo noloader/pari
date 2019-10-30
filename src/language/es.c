@@ -375,6 +375,7 @@ gp_embedded(const char *s)
     if (GP_DATA->simplify) z = simplify_shallow(z);
     pari_add_hist(z, t, r);
     n = pari_nb_hist();
+    set_avma(pari_mainstack->top);
     parivstack_reset();
     res = (z==gnil || last==';') ? stack_strdup("\n"):
           stack_sprintf("%%%lu = %Ps\n", n, pari_get_hist(n));
