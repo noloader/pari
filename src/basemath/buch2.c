@@ -3761,6 +3761,7 @@ bnfnewprec_shallow(GEN bnf, long prec)
   gel(y,8) = v = leafcopy(gel(bnf,8));
   gel(v,2) = get_regulator(mun);
   v = gel(bnf,9);
+  if (lg(v) < 7) pari_err_TYPE("bnfnewprec [obsolete bnf format]", bnf);
   Ur = gel(v,1);
   Ge = gel(v,4);
   Ga = vecfamat_to_arch(nf, Ge, prec);

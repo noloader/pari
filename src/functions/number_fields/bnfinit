@@ -26,11 +26,11 @@ Doc: initializes a
  The computation involves floating point computation and, if the precision is
  insufficient, \kbd{gp} does not strive to compute the units by default
  ($\fl=0$). If may be possible to increase the precision of the \kbd{bnf}
- structure using \kbd{bnfnewprec} but this may fail, in particular when
+ structure using \kbd{nfnewprec} but this may fail, in particular when
  fundamental units are large.
 
  When $\fl=1$, we keep an exact algebraic version of all floating point data
- and this allows to guarantee that \kbd{bnfnewprec} will always succeed
+ and this allows to guarantee that \kbd{nfnewprec} will always succeed
  as well as to compute the fundamental units exactly but in factored form,
  as small product of small $S$-units, possibly with huge exponents (compact
  representation). This flag also allows \kbd{bnfisprincipal} to compute
