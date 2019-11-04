@@ -37,6 +37,10 @@ This file lists the incompatible changes between Version 2.x and older versions
     compression running times often comparable to the computation of a new
     bnfinit from scratch, and expensive decompression as well. It was not a
     useful format for storage.
+  - the 'bnf' structure has changed to allow compact units and principal
+    ideal generators: a new bnf can be read and used in an older pari
+    version, but a bnf from an old version can no longer be used in this
+    version: recompute it !
 
 * Specific to the PARI library:
 ===============================
