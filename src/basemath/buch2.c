@@ -1620,8 +1620,6 @@ INLINE GEN
 bnf_get_ga(GEN bnf) { return gmael(bnf,9,2); }
 INLINE GEN
 bnf_get_GD(GEN bnf) { return gmael(bnf,9,3); }
-INLINE GEN
-bnf_get_Ge(GEN bnf) { return gmael(bnf,9,4); }
 
 /* Return y (as an elt of K or a t_MAT representing an elt in Z[K])
  * such that x / (y) is smooth and store the exponents of  its factorization
