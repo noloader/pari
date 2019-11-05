@@ -1408,11 +1408,9 @@ update_phi(decomp_t *S)
   if (!PHI) /* ok above for k = 1 */
   {
     PHI = S->phi;
-    if (S->phi0)
-    {
-      PHI = compmod(S->p, PHI, S->phi0, S->f, psc, 0);
+    if (S->phi0) PHI = compmod(S->p, PHI, S->phi0, S->f, psc, 0);
+    if (S->phi0 || cmpii(psc,S->psc) > 0)
       S->chi = mycaract(S, S->f, PHI, psc, S->pdf);
-    }
   }
   S->phi = PHI;
   S->chi = FpX_red(S->chi, psc);
