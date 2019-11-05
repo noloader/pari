@@ -264,7 +264,8 @@ New syntax: buchinit(P) ===> bnfinit(P,2)
 bnfinit(P,{flag=0},{tech=[]}): compute the necessary data for future use in 
 ideal and unit group computations, including fundamental units if they are not 
 too large. flag and tech are both optional. flag can be any of 0: default, 1: 
-insist on having fundamental units. See manual for details about tech.
+include all data in algebraic form (compact units). See manual for details 
+about tech.
 
 
   ***   at top-level: buchinitforcefu()
@@ -277,7 +278,8 @@ New syntax: buchinitforcefu(P) ===> bnfinit(P,1)
 bnfinit(P,{flag=0},{tech=[]}): compute the necessary data for future use in 
 ideal and unit group computations, including fundamental units if they are not 
 too large. flag and tech are both optional. flag can be any of 0: default, 1: 
-insist on having fundamental units. See manual for details about tech.
+include all data in algebraic form (compact units). See manual for details 
+about tech.
 
 
   ***   at top-level: buchinitfu()
@@ -290,7 +292,8 @@ New syntax: buchinitfu(P) ===> bnfinit(P)
 bnfinit(P,{flag=0},{tech=[]}): compute the necessary data for future use in 
 ideal and unit group computations, including fundamental units if they are not 
 too large. flag and tech are both optional. flag can be any of 0: default, 1: 
-insist on having fundamental units. See manual for details about tech.
+include all data in algebraic form (compact units). See manual for details 
+about tech.
 
 
   ***   at top-level: buchnarrow()
@@ -1978,12 +1981,13 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isprincipal(bnf,x) ===> bnfisprincipal(bnf,x,0)
 
-bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [v,alpha], 
-where v is the vector of exponents on the class group generators and alpha is 
-the generator of the resulting principal ideal. In particular x is principal if 
-and only if v is the zero vector. flag is optional, whose binary digits mean 1: 
-output [v,alpha] (only v if unset); 2: increase precision until alpha can be 
-computed (do not insist if unset).
+bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [e,t], where 
+e is the vector of exponents on the class group generators and t is the 
+generator of the resulting principal ideal. In particular x is principal if and 
+only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+output [e,t] (only e if unset); 2: increase precision until alpha can be 
+computed (do not insist if unset); 4: allow returning alpha in factored form 
+(compact representation).
 
 
   ***   at top-level: isprincipalforce()
@@ -1993,12 +1997,13 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isprincipalforce(bnf,x) ===> bnfisprincipal(bnf,x,2)
 
-bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [v,alpha], 
-where v is the vector of exponents on the class group generators and alpha is 
-the generator of the resulting principal ideal. In particular x is principal if 
-and only if v is the zero vector. flag is optional, whose binary digits mean 1: 
-output [v,alpha] (only v if unset); 2: increase precision until alpha can be 
-computed (do not insist if unset).
+bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [e,t], where 
+e is the vector of exponents on the class group generators and t is the 
+generator of the resulting principal ideal. In particular x is principal if and 
+only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+output [e,t] (only e if unset); 2: increase precision until alpha can be 
+computed (do not insist if unset); 4: allow returning alpha in factored form 
+(compact representation).
 
 
   ***   at top-level: isprincipalgen()
@@ -2008,12 +2013,13 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isprincipalgen(bnf,x) ===> bnfisprincipal(bnf,x)
 
-bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [v,alpha], 
-where v is the vector of exponents on the class group generators and alpha is 
-the generator of the resulting principal ideal. In particular x is principal if 
-and only if v is the zero vector. flag is optional, whose binary digits mean 1: 
-output [v,alpha] (only v if unset); 2: increase precision until alpha can be 
-computed (do not insist if unset).
+bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [e,t], where 
+e is the vector of exponents on the class group generators and t is the 
+generator of the resulting principal ideal. In particular x is principal if and 
+only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+output [e,t] (only e if unset); 2: increase precision until alpha can be 
+computed (do not insist if unset); 4: allow returning alpha in factored form 
+(compact representation).
 
 
   ***   at top-level: isprincipalgenforce()
@@ -2023,12 +2029,13 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isprincipalgenforce(bnf,x) ===> bnfisprincipal(bnf,x,3)
 
-bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [v,alpha], 
-where v is the vector of exponents on the class group generators and alpha is 
-the generator of the resulting principal ideal. In particular x is principal if 
-and only if v is the zero vector. flag is optional, whose binary digits mean 1: 
-output [v,alpha] (only v if unset); 2: increase precision until alpha can be 
-computed (do not insist if unset).
+bnfisprincipal(bnf,x,{flag=1}): bnf being output by bnfinit, gives [e,t], where 
+e is the vector of exponents on the class group generators and t is the 
+generator of the resulting principal ideal. In particular x is principal if and 
+only if v is the zero vector. flag is optional, whose binary digits mean 1: 
+output [e,t] (only e if unset); 2: increase precision until alpha can be 
+computed (do not insist if unset); 4: allow returning alpha in factored form 
+(compact representation).
 
 
   ***   at top-level: isprincipalray()
@@ -2540,7 +2547,8 @@ New syntax: makebigbnf(sbnf) ===> bnfinit(sbnf)
 bnfinit(P,{flag=0},{tech=[]}): compute the necessary data for future use in 
 ideal and unit group computations, including fundamental units if they are not 
 too large. flag and tech are both optional. flag can be any of 0: default, 1: 
-insist on having fundamental units. See manual for details about tech.
+include all data in algebraic form (compact units). See manual for details 
+about tech.
 
 
   ***   at top-level: mat()
@@ -4513,4 +4521,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 7
