@@ -1246,6 +1246,145 @@ nfdivrem(GEN nf, GEN a, GEN b)
 
 /*************************************************************************/
 /**                                                                     **/
+/**                   LOGARITHMIC EMBEDDINGS                            **/
+/**                                                                     **/
+/*************************************************************************/
+
+static int
+low_prec(GEN x)
+{
+  switch(typ(x))
+  {
+    case t_INT: return !signe(x);
+    case t_REAL: return !signe(x) || realprec(x) <= DEFAULTPREC;
+    default: return 0;
+  }
+}
+
+static GEN
+triv_cxlog(GEN nf) { return zerovec(lg(nf_get_roots(nf))-1); }
+static GEN
+famat_cxlog(GEN nf, GEN fa, long prec)
+{
+  GEN g,e, y = NULL;
+  long i,l;
+
+  if (typ(fa) != t_MAT) pari_err_TYPE("famat_cxlog",fa);
+  if (lg(fa) == 1) return triv_cxlog(nf);
+  g = gel(fa,1);
+  e = gel(fa,2); l = lg(e);
+  for (i = 1; i < l; i++)
+  {
+    GEN t, x = nf_to_scalar_or_basis(nf, gel(g,i));
+    /* multiplicative arch would be better (save logs), but exponents overflow
+     * [ could keep track of expo separately, but not worth it ] */
+    t = nf_cxlog(nf,x,prec); if (!t) return NULL;
+    if (gel(t,1) == gen_0) continue; /* rational */
+    t = RgV_Rg_mul(t, gel(e,i));
+    y = y? RgV_add(y,t): t;
+  }
+  return y ? y: triv_cxlog(nf);
+}
+/* Archimedean components: [e_i Log( sigma_i(X) )], where X = primpart(x),
+ * and e_i = 1 (resp 2.) for i <= R1 (resp. > R1) */
+GEN
+nf_cxlog(GEN nf, GEN x, long prec)
+{
+  long i, l, r1;
+  GEN v;
+  if (typ(x) == t_MAT) return famat_cxlog(nf,x,prec);
+  x = nf_to_scalar_or_basis(nf,x);
+  if (typ(x) != t_COL) return triv_cxlog(nf);
+  x = RgM_RgC_mul(nf_get_M(nf), Q_primpart(x));
+  l = lg(x); r1 = nf_get_r1(nf);
+  for (i = 1; i <= r1; i++)
+    if (low_prec(gel(x,i))) return NULL;
+  for (     ; i <  l;  i++)
+    if (low_prec(gnorm(gel(x,i)))) return NULL;
+  v = cgetg(l,t_VEC);
+  for (i = 1; i <= r1; i++) gel(v,i) = glog(gel(x,i),prec);
+  for (     ; i <  l;  i++) gel(v,i) = gmul2n(glog(gel(x,i),prec),1);
+  return v;
+}
+GEN
+nfV_cxlog(GEN nf, GEN x, long prec)
+{
+  long i, l;
+  GEN v = cgetg_copy(x, &l);
+  for (i = 1; i < l; i++)
+    if (!(gel(v,i) = nf_cxlog(nf, gel(x,i), prec))) return NULL;
+  return v;
+}
+
+static GEN
+scalar_logembed(GEN nf, GEN u, GEN *emb)
+{
+  GEN v, logu;
+  long i, s = signe(u), RU = lg(nf_get_roots(nf))-1, R1 = nf_get_r1(nf);
+
+  if (!s) pari_err_DOMAIN("nflogembed","argument","=",gen_0,u);
+  v = cgetg(RU+1, t_COL);
+  logu = logr_abs(u);
+  for (i = 1; i <= R1; i++) gel(v,i) = logu;
+  if (i <= RU)
+  {
+    GEN logu2 = shiftr(logu,1);
+    for (   ; i <= RU; i++) gel(v,i) = logu2;
+  }
+  if (emb) *emb = const_col(RU, u);
+  return v;
+}
+
+static GEN
+famat_logembed(GEN nf,GEN x,GEN *emb,long prec)
+{
+  GEN A, M, T, a, t, g = gel(x,1), e = gel(x,2);
+  long i, l = lg(e);
+
+  if (l == 1) return scalar_logembed(nf, real_1(prec), emb);
+  A = NULL; T = emb? cgetg(l, t_COL): NULL;
+  if (emb) *emb = M = mkmat2(T, e);
+  for (i = 1; i < l; i++)
+  {
+    a = nflogembed(nf, gel(g,i), &t, prec);
+    if (!a) return NULL;
+    a = RgC_Rg_mul(a, gel(e,i));
+    A = A? RgC_add(A, a): a;
+    if (emb) gel(T,i) = t;
+  }
+  return A;
+}
+
+/* Get archimedean components: [e_i log( | sigma_i(x) | )], with e_i = 1
+ * (resp 2.) for i <= R1 (resp. > R1) and set emb to the embeddings of x.
+ * Return NULL if precision problem */
+GEN
+nflogembed(GEN nf, GEN x, GEN *emb, long prec)
+{
+  long i, l, r1;
+  GEN v, t;
+
+  if (typ(x) == t_MAT) return famat_logembed(nf,x,emb,prec);
+  x = nf_to_scalar_or_basis(nf,x);
+  if (typ(x) != t_COL) return scalar_logembed(nf, gtofp(x,prec), emb);
+  x = RgM_RgC_mul(nf_get_M(nf), x);
+  l = lg(x); r1 = nf_get_r1(nf); v = cgetg(l,t_COL);
+  for (i = 1; i <= r1; i++)
+  {
+    t = gabs(gel(x,i),prec); if (low_prec(t)) return NULL;
+    gel(v,i) = glog(t,prec);
+  }
+  for (   ; i < l; i++)
+  {
+    t = gnorm(gel(x,i)); if (low_prec(t)) return NULL;
+    gel(v,i) = glog(t,prec);
+  }
+  if (emb) *emb = x;
+  return v;
+}
+
+/*************************************************************************/
+/**                                                                     **/
 /**                        REAL EMBEDDINGS                              **/
 /**                                                                     **/
 /*************************************************************************/

@@ -1347,10 +1347,6 @@ a \typ{VECSMALL}, return it: not suitable for \kbd{gerepile} in this case.
 \fun{GEN}{indices_to_vec01}{GEN p, long n} return the $0/1$ vector of length
 $n$ with ones exactly at the positions $p[1], p[2], \ldots$
 
-\fun{GEN}{nfembed}{GEN nf, GEN x, long k} returns a floating point
-approximation of the $k$-th embedding of $x$ (attached to the $k$-th
-complex root in \kbd{nf.roots}).
-
 \fun{GEN}{nfsign}{GEN nf,GEN x} $x$ being a number field element and \kbd{nf}
 any form of number field, return the $0-1$-vector giving the signs of the
 $r_1$ real embeddings of $x$, as a \typ{VECSMALL}. Linear algebra functions
@@ -1408,6 +1404,31 @@ suitable for computations mod $f$. See \tet{set_sign_mod_divisor}.
 multiplicative group $(1 + \var{pr}) / (1 + \var{pr}^e)$ as an abelian group.
 Faster than \tet{idealstar} when the norm of \var{pr} is large, since it
 avoids (useless) work in the multiplicative group of the residue field.
+
+\subsec{Complex embeddings}
+
+\fun{GEN}{nfembed}{GEN nf, GEN x, long k} returns a floating point
+approximation of the $k$-th embedding of $x$ (attached to the $k$-th
+complex root in \kbd{nf.roots}).
+
+\fun{GEN}{nf_cxlog}{GEN nf, GEN x, long prec} return the vector of complex
+logarithmic embeddings $(e_i \text{Log}(\sigma_i x))$ where $e_i = 1$ if $i \leq
+r_1$ and $e_i = 2$ if $r_1 < i \leq r_2$. Returns \kbd{NULL} if loss of
+accuracy. Not \kbd{gerepile}-clean but suitable for \kbd{gerepileupto}.
+Allows $x$ in compact representation.
+
+\fun{GEN}{nfV_cxlog}{GEN nf, GEN x, long prec} applies \kbd{nf\_cxlog}
+to each component of the vector $x$. Returns \kbd{NULL} if loss of
+accuracy for even one component. Not \kbd{gerepile}-clean.
+
+\fun{GEN}{nflogembed}{GEN nf, GEN x, GEN *emb, long prec}
+return the vector of real logarithmic embeddings $(e_i \text{Log}|\sigma_i x|)$
+where $e_i = 1$ if $i \leq r_1$ and $e_i = 2$ if $r_1 < i \leq r_2$. Returns
+\kbd{NULL} if loss of accuracy. Not \kbd{gerepile}-clean. If \kbd{emb}
+is non-\kbd{NULL} set it to $(e_i \sigma_i x)$.
+Allows $x$ in compact representation, in which case \kbd{emb} is returned
+in compact representation as well, as a factorization matrix (expanding the
+factorization may overflowexponents).
 
 \subsec{Maximal order and discriminant, conversion to \kbd{nf} structure}
 

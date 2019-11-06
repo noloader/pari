@@ -131,6 +131,7 @@ BA  45- [libpari] init_Flxq
     46- compact representation of units in bnf (bnfinit(pol,1)) and of
         principal ideal generators (bnfisprincipal(bnf,id,4))
     47- [libpari] Flv_factorback, Flxq_factorback
+    48- nflogembed, nf_cxlog, nfV_cxlog
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

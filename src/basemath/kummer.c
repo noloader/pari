@@ -153,10 +153,10 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
     long prec = nf_get_prec(nf);
     for (;;)
     {
-      GEN emb, z = get_arch_real(nf, b, &emb, prec);
+      GEN ex, z = nflogembed(nf, b, NULL, prec);
       if (z)
       {
-        GEN ex = RgM_Babai(elllogfu, z);
+        ex = RgM_Babai(elllogfu, z);
         if (ex)
         {
           y = nffactorback(nf, fu, RgC_Rg_mul(ex,ell));
