@@ -1136,21 +1136,6 @@ chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
   settyp(M, t_VEC); return M;
 }
 
-/* *pE a ZC */
-static void
-ZC_remove_unused(GEN *pE, GEN *pX)
-{
-  long j, k, l = lg(*pX);
-  GEN E = *pE, v = cgetg(l, t_VECSMALL);
-  for (j = k = 1; j < l; j++)
-    if (signe(gel(E,j))) v[k++] = j;
-  if (k < l)
-  {
-    setlg(v, k);
-    *pX = vecpermute(*pX,v);
-    *pE = vecpermute(*pE,v);
-  }
-}
 /* *pE a ZM */
 static void
 ZM_remove_unused(GEN *pE, GEN *pX)
@@ -1838,7 +1823,6 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
     }
     /* reduce modulo units and Q^* */
     if (lg(U) != 1) z = ZC_sub(z, ZM_ZC_mul(U, RgM_Babai(U,z)));
-    ZC_remove_unused(&z, &X);
     col = mkmat2(X, z);
     if (F) col = famat_mul_shallow(col, F);
     col = famat_simplify(col);
