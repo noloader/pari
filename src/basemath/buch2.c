@@ -1697,7 +1697,6 @@ isprincipalarch(GEN bnf, GEN col, GEN kNx, GEN e, GEN dx, long *pe)
   R1 = nf_get_r1(nf);
   RU = (N + R1)>>1;
   if (!(col = cleanarch(col,N,prec))) return NULL;
-  settyp(col, t_COL);
   if (RU > 1)
   { /* reduce mod units */
     GEN u, z = init_red_mod_units(bnf,prec);
