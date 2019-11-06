@@ -1262,7 +1262,7 @@ low_prec(GEN x)
 }
 
 static GEN
-triv_cxlog(GEN nf) { return zerovec(lg(nf_get_roots(nf))-1); }
+triv_cxlog(GEN nf) { return zerocol(lg(nf_get_roots(nf))-1); }
 static GEN
 famat_cxlog(GEN nf, GEN fa, long prec)
 {
@@ -1280,7 +1280,7 @@ famat_cxlog(GEN nf, GEN fa, long prec)
      * [ could keep track of expo separately, but not worth it ] */
     t = nf_cxlog(nf,x,prec); if (!t) return NULL;
     if (gel(t,1) == gen_0) continue; /* rational */
-    t = RgV_Rg_mul(t, gel(e,i));
+    t = RgC_Rg_mul(t, gel(e,i));
     y = y? RgV_add(y,t): t;
   }
   return y ? y: triv_cxlog(nf);
@@ -1301,7 +1301,7 @@ nf_cxlog(GEN nf, GEN x, long prec)
     if (low_prec(gel(x,i))) return NULL;
   for (     ; i <  l;  i++)
     if (low_prec(gnorm(gel(x,i)))) return NULL;
-  v = cgetg(l,t_VEC);
+  v = cgetg(l,t_COL);
   for (i = 1; i <= r1; i++) gel(v,i) = glog(gel(x,i),prec);
   for (     ; i <  l;  i++) gel(v,i) = gmul2n(glog(gel(x,i),prec),1);
   return v;
@@ -1323,8 +1323,7 @@ scalar_logembed(GEN nf, GEN u, GEN *emb)
   long i, s = signe(u), RU = lg(nf_get_roots(nf))-1, R1 = nf_get_r1(nf);
 
   if (!s) pari_err_DOMAIN("nflogembed","argument","=",gen_0,u);
-  v = cgetg(RU+1, t_COL);
-  logu = logr_abs(u);
+  v = cgetg(RU+1, t_COL); logu = logr_abs(u);
   for (i = 1; i <= R1; i++) gel(v,i) = logu;
   if (i <= RU)
   {

@@ -1614,7 +1614,7 @@ red_mod_units(GEN col, GEN z)
 }
 
 static GEN
-add(GEN a, GEN t) { return a = a? gadd(a,t): t; }
+add(GEN a, GEN t) { return a = a? RgC_add(a,t): t; }
 
 /* [x] archimedian components, A column vector. return [x] A */
 static GEN
@@ -1624,11 +1624,11 @@ act_arch(GEN A, GEN x)
   long i,l = lg(A), tA = typ(A);
   if (tA == t_MAT)
   { /* assume lg(x) >= l */
-    a = cgetg(l, t_VEC);
+    a = cgetg(l, t_MAT);
     for (i=1; i<l; i++) gel(a,i) = act_arch(gel(A,i), x);
     return a;
   }
-  if (l==1) return cgetg(1, t_VEC);
+  if (l==1) return cgetg(1, t_COL);
   a = NULL;
   if (tA == t_VECSMALL)
   {
@@ -1646,15 +1646,14 @@ act_arch(GEN A, GEN x)
       if (signe(c)) a = add(a, gmul(c, gel(x,i)));
     }
   }
-  if (!a) return zerovec(lgcols(x)-1);
-  settyp(a, t_VEC); return a;
+  return a? a: zerocol(lgcols(x)-1);
 }
 /* act_arch(matdiagonal(v), x) */
 static GEN
 diagact_arch(GEN v, GEN x)
 {
   long i, l = lg(v);
-  GEN a = cgetg(l, t_VEC);
+  GEN a = cgetg(l, t_MAT);
   for (i = 1; i < l; i++) gel(a,i) = gmul(gel(x,i), gel(v,i));
   return a;
 }
@@ -1793,7 +1792,7 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
   if (nB) col = add(col, act_arch(Bex, nW? vecslice(C,nW+1,lg(C)-1): C));
   if (nW)
   {
-    GEN v = RgV_sub(act_arch(Q, bnf_get_GD(bnf)), act_arch(A, bnf_get_ga(bnf)));
+    GEN v = RgC_sub(act_arch(Q, bnf_get_GD(bnf)), act_arch(A, bnf_get_ga(bnf)));
     col = add(col, v);
   }
 
@@ -2129,7 +2128,8 @@ bnfisunit(GEN bnf, GEN x)
       }
       else
       {
-        ex = RgM_solve(rlog, rx); /* ~ fundamental units exponents */
+        ex = RU == 1? cgetg(1,t_COL)
+                    : RgM_solve(rlog, rx); /* ~ fundamental units exponents */
         if (ex) { ex = grndtoi(ex, &e); if (e < -4) break; }
       }
     }
@@ -2146,9 +2146,13 @@ bnfisunit(GEN bnf, GEN x)
   /* choose a large embedding => small relative error */
   for (i = 1; i < RU; i++)
     if (signe(gel(rx,i)) > -1) break;
-  t = imag_i( row_i(logunit,i, 1,RU-1) );
-  t = RgV_dotproduct(t, ex);
-  if (i > r1) t = gmul2n(t, -1);
+  if (RU == 1) t = gen_0;
+  else
+  {
+    t = imag_i( row_i(logunit,i, 1,RU-1) );
+    t = RgV_dotproduct(t, ex);
+    if (i > r1) t = gmul2n(t, -1);
+  }
   if (typ(emb) != t_MAT) arg = garg(gel(emb,i), prec);
   else
   {
@@ -3281,7 +3285,7 @@ class_group_gen(GEN nf,GEN W,GEN C,GEN Vbase,long prec, GEN *pclg2)
   * G = g Uir - {Ga},  Uir = Ui + WX
   * g = G Ur  - {ga},  Ur  = U + DY */
   G = cgetg(l,t_VEC);
-  Ga= cgetg(l,t_VEC);
+  Ga= cgetg(l,t_MAT);
   Ge= cgetg(l,t_COL);
   z = init_famat(NULL);
   for (j = 1; j < l; j++)
@@ -3441,7 +3445,7 @@ get_archclean(GEN nf, GEN x, long prec, int units)
     pari_sp av = avma;
     GEN c = nf_cxlog(nf, gel(x,k), prec);
     if (!c || (!units && !(c = cleanarch(c, N, prec)))) return NULL;
-    settyp(c, t_COL); gel(M,k) = gerepilecopy(av, c);
+    gel(M,k) = gerepilecopy(av, c);
   }
   return M;
 }
@@ -3453,11 +3457,7 @@ Sunits_archclean(GEN nf, GEN Sunits, GEN *pmun, GEN *pC, long prec)
 
   M = cgetg(l, t_MAT);
   for (k = 1; k < l; k++)
-  {
-    GEN c = nf_cxlog(nf, gel(X,k), prec);
-    if (!c) return;
-    settyp(c,t_COL); gel(M,k) = c;
-  }
+    if (!(gel(M,j) = nf_cxlog(nf, gel(X,k), prec))) return;
   *pmun = cleanarch(RgM_mul(M, U), N, prec);
   if (*pmun) *pC = cleanarch(RgM_mul(M, G), N, prec);
 }
