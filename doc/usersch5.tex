@@ -8442,6 +8442,9 @@ of \kbd{ZM}~\kbd{x} by the \kbd{ZC}~\kbd{y} (seen as a column vector, assumed
 to have compatible dimensions). Assumes that $x$ is non-empty and
 $0 < i < \kbd{lg(x[1])}$.
 
+\fun{int}{ZMrow_equal0}{GEN V, long i} returns $1$ if the $i$-th row of
+the \kbd{ZM}~\kbd{V} is zero, and $0$ otherwise.
+
 \fun{GEN}{ZV_ZM_mul}{GEN x, GEN y} multiplies the \kbd{ZV}~\kbd{x}
 by the \kbd{ZM}~\kbd{y}. Returns a \typ{VEC}.
 

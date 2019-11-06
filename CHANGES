@@ -132,7 +132,7 @@ BA  45- [libpari] init_Flxq
         principal ideal generators (bnfisprincipal(bnf,id,4))
     47- [libpari] Flv_factorback, FlxqV_factorback, famatV_zv_factorback,
         famatV_factorback
-    48- [libpari] nflogembed, nf_cxlog, nfV_cxlog
+    48- [libpari] nflogembed, nf_cxlog, nfV_cxlog, ZMrow_equal0
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
