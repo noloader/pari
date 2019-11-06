@@ -3440,7 +3440,7 @@ Flx_invLaplace(GEN x, ulong p)
 {
   pari_sp av = avma;
   long i, e = 0, l = lg(x);
-  GEN y = cgetg(l,t_POL);
+  GEN y = cgetg(l,t_VECSMALL);
   ulong t = 1;
   y[1] = x[1];
   for (i=2; i<l; i++)
@@ -3456,7 +3456,7 @@ Flx_Laplace(GEN x, ulong p)
 {
   pari_sp av = avma;
   long i, e = 0, l = lg(x);
-  GEN y = cgetg(l,t_POL);
+  GEN y = cgetg(l,t_VECSMALL);
   ulong t = 1;
   y[1] = x[1];
   for (i=2; i<l; i++)
