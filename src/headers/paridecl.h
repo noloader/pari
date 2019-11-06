@@ -4576,6 +4576,7 @@ GEN     polrootspadic(GEN f, GEN p, long r);
 /* polarit2.c */
 
 ulong   Flv_factorback(GEN L, GEN e, ulong p);
+GEN     Flxq_factorback(GEN L, GEN e, GEN Tp, ulong p);
 GEN     FpV_factorback(GEN L, GEN e, GEN p);
 GEN     Q_content(GEN x);
 GEN     Q_content_safe(GEN x);

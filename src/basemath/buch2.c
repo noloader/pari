@@ -1101,12 +1101,11 @@ static GEN
 chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
 {
   GEN f = nf_get_index(nf), T = nf_get_pol(nf), invzk = nf_get_invzk(nf);
-  GEN q, Mp, M = NULL;
-  long i, j, l = lgcols(U), lU = lg(U), lX = lg(nX);
+  long i, j, lU = lg(U), lX = lg(nX);
+  GEN q, M = NULL, Mp = cgetg(lU, t_MAT);
   int stable = 0;
   forprime_t S;
   ulong p;
-  Mp = cgetg(lU, t_MAT);
   init_modular_big(&S);
   while ((p = u_forprime_next(&S)))
   {
@@ -1121,20 +1120,7 @@ chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
     }
     for (j = 1; j < lU; j++)
     {
-      GEN Hp, Hpi, e = gel(U,j);
-      Hpi = Hp = mkvecsmall2(0, 1); /* scalar_Flx(1) */
-      for (i = 1; i < l; i++)
-      {
-        GEN x, ei = gel(e,i);
-        long s = signe(ei);
-        if (!s) continue;
-        x = gel(Xp,i);
-        if (s > 0)
-          Hp = Flxq_mul(Hp, Flxq_pow(x, ei, Tp, p), Tp, p);
-        else
-          Hpi = Flxq_mul(Hpi, Flxq_pow(x, negi(ei), Tp, p), Tp, p);
-      }
-      Hp = Flxq_div(Hp, Hpi, Tp, p);
+      GEN Hp = Flxq_factorback(Xp, gel(U,j), Tp, p);
       Hp = ZM_ZX_mul(invzk, Flx_to_ZX(Hp));
       gel(Mp, j) = ZV_to_Flv(Hp, p);
     }

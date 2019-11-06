@@ -4337,6 +4337,9 @@ of \kbd{x} and \kbd{y}
 scalar product of \kbd{x} and \kbd{y} assuming $pi$ is the pseudo inverse of
 $p$.
 
+\fun{GEN}{Flv_factorback}{GEN L, GEN e, ulong p} given an \kbd{Flv} $L$
+and a \kbd{zv} $e$ of the same length, return $\prod_i L_i^{e_i}$ modulo $p$.
+
 \fun{ulong}{Flv_sum}{GEN x, ulong p} returns the sum of the components of $x$.
 
 \fun{ulong}{Flv_prod}{GEN x, ulong p} returns the product of the components of
@@ -6114,6 +6117,8 @@ It is required that the valuation of $x$ is positive and that $p>n$.
 \fun{GEN}{Flxq_pow}{GEN x, GEN n, GEN T, ulong p}
 
 \fun{GEN}{Flxq_powu}{GEN x, ulong n, GEN T, ulong p}
+
+\fun{GEN}{Flxq_factorback}{GEN L, GEN e, GEN Tp, ulong p}
 
 \fun{GEN}{Flxq_pow_init}{GEN x, GEN n, long k, GEN T, ulong p}
 
