@@ -1213,7 +1213,7 @@ Flv_factorback(GEN L, GEN e, ulong p)
   return r;
 }
 GEN
-Flxq_factorback(GEN L, GEN e, GEN Tp, ulong p)
+FlxqV_factorback(GEN L, GEN e, GEN Tp, ulong p)
 {
   pari_sp av = avma;
   GEN Hi = NULL, H = NULL;

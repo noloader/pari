@@ -1120,7 +1120,7 @@ chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
     }
     for (j = 1; j < lU; j++)
     {
-      GEN Hp = Flxq_factorback(Xp, gel(U,j), Tp, p);
+      GEN Hp = FlxqV_factorback(Xp, gel(U,j), Tp, p);
       Hp = ZM_ZX_mul(invzk, Flx_to_ZX(Hp));
       gel(Mp, j) = ZV_to_Flv(Hp, p);
     }

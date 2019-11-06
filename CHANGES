@@ -130,7 +130,7 @@ BA  34- lfuncreate: support for closures of arity 0
 BA  45- [libpari] init_Flxq
     46- compact representation of units in bnf (bnfinit(pol,1)) and of
         principal ideal generators (bnfisprincipal(bnf,id,4))
-    47- [libpari] Flv_factorback, Flxq_factorback
+    47- [libpari] Flv_factorback, FlxqV_factorback
     48- nflogembed, nf_cxlog, nfV_cxlog
 
   Removed
