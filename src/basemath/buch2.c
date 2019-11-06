@@ -1818,7 +1818,7 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
       GEN C1 = vecslice(C, 1, nW);
       GEN v = ZC_sub(ZM_ZC_mul(M1,Q), ZM_ZC_mul(M2,A));
       z = add(z, ZM_ZC_mul(C1, v));
-      F = famat_reduce(famat_factorback(Ge, ZC_sub(UA, ZV_mul(cyc,Q))));
+      F = famat_reduce(famatV_factorback(Ge, ZC_sub(UA, ZV_mul(cyc,Q))));
       if (lgcols(F) == 1) F = NULL;
     }
     /* reduce modulo units and Q^* */
@@ -2083,24 +2083,26 @@ isprincipalfact_or_fail(GEN bnf, GEN C, GEN P, GEN e)
   return gerepilecopy(av, y);
 }
 
-/* if x a famat, assume it is an algebraic integer (very costly to check) */
+/* if x a famat, assume it is a true unit (very costly to check even that
+ * it's an algebraic integer) */
 GEN
-bnfisunit(GEN bnf,GEN x)
+bnfisunit(GEN bnf, GEN x)
 {
-  long tx = typ(x), i, R1, RU, e, n, prec;
+  long tx = typ(x), i, r1, RU, e, n, prec;
   pari_sp av = avma;
-  GEN t, v, rlog, logunit, ex, nf, pi2_sur_w, rx, emb, arg;
+  GEN t, rlog, logunit, ex, nf, pi2_sur_w, rx, emb, arg;
 
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   logunit = bnf_get_logfu(bnf); RU = lg(logunit);
   n = bnf_get_tuN(bnf); /* # { roots of 1 } */
   if (tx == t_MAT)
-  { /* famat, assumed integral */
+  { /* famat, assumed OK */
     if (lg(x) != 3) pari_err_TYPE("bnfisunit [not a factorization]", x);
   } else {
     x = nf_to_scalar_or_basis(nf,x);
     if (typ(x) != t_COL)
     { /* rational unit ? */
+      GEN v;
       long s;
       if (typ(x) != t_INT || !is_pm1(x)) return cgetg(1,t_COL);
       s = signe(x); set_avma(av); v = zerocol(RU);
@@ -2110,11 +2112,7 @@ bnfisunit(GEN bnf,GEN x)
     if (!isint1(Q_denom(x))) { set_avma(av); return cgetg(1,t_COL); }
   }
 
-  R1 = nf_get_r1(nf); v = cgetg(RU+1,t_COL);
-  for (i=1; i<=R1; i++) gel(v,i) = gen_1;
-  for (   ; i<=RU; i++) gel(v,i) = gen_2;
-  logunit = shallowconcat(logunit, v);
-  /* ex = fundamental units exponents */
+  r1 = nf_get_r1(nf);
   rlog = real_i(logunit);
   prec = nf_get_prec(nf);
   for (i = 1;; i++)
@@ -2126,20 +2124,13 @@ bnfisunit(GEN bnf,GEN x)
       if (gexpo(logN) > -20)
       { /* precision problem ? */
         if (typ(logN) != t_REAL) { set_avma(av); return cgetg(1,t_COL); } /*no*/
-        if (i == 1)
-        {
-          GEN N = nfnorm(nf, x);
-          if (!is_pm1(N)) { set_avma(av); return cgetg(1, t_COL); }
-        }
+        if (i == 1 && typ(x) != t_MAT &&
+            !is_pm1(nfnorm(nf, x))) { set_avma(av); return cgetg(1, t_COL); }
       }
       else
       {
-        ex = RgM_solve(rlog, rx);
-        if (ex)
-        {
-          ex = grndtoi(ex, &e);
-          if (!signe(gel(ex,RU)) && e < -4) break;
-        }
+        ex = RgM_solve(rlog, rx); /* ~ fundamental units exponents */
+        if (ex) { ex = grndtoi(ex, &e); if (e < -4) break; }
       }
     }
     if (i == 1)
@@ -2152,14 +2143,12 @@ bnfisunit(GEN bnf,GEN x)
     if (DEBUGLEVEL) pari_warn(warnprec,"bnfisunit",prec);
     nf = nfnewprec_shallow(nf, prec);
   }
-
-  setlg(ex, RU); /* ZC */
   /* choose a large embedding => small relative error */
   for (i = 1; i < RU; i++)
     if (signe(gel(rx,i)) > -1) break;
   t = imag_i( row_i(logunit,i, 1,RU-1) );
   t = RgV_dotproduct(t, ex);
-  if (i > R1) t = gmul2n(t, -1);
+  if (i > r1) t = gmul2n(t, -1);
   if (typ(emb) != t_MAT) arg = garg(gel(emb,i), prec);
   else
   {

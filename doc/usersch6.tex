@@ -855,6 +855,14 @@ $k$, returns the \var{famat} $x^k$.
 
 \fun{GEN}{to_famat_shallow}{GEN x, GEN k} same, as a shallow function.
 
+\fun{GEN}{famatV_factorback}{GEN v, GEN e} given a vector of \kbd{famat}s
+$v$ and a \kbd{ZV} $e$ return the \kbd{famat} $\prod_i v[i]^{e[i]}$. Shallow
+function.
+
+\fun{GEN}{famatV_zv_factorback}{GEN v, GEN e} given a vector of \kbd{famat}s
+$v$ and a \kbd{zv} $e$ return the \kbd{famat} $\prod_i v[i]^{e[i]}$. Shallow
+function.
+
 Note that it is trivial to break up a \var{famat} into its two constituent
 columns: \kbd{gel(f,1)} and \kbd{gel(f,2)} are the elements and exponents
 respectively. Conversely, \kbd{mkmat2} builds a (shallow) \var{famat} from
@@ -869,7 +877,8 @@ of $f$ and $g$ would be equal. Shallow function.
 
 \fun{GEN}{ZM_famat_limit}{GEN f, GEN limit} given a \var{famat} $f$ with
 \typ{INT} entries, returns a \var{famat} $g$ with all factors larger than
-\kbd{limit} multiplied out as the last entry (with exponent $1$).
+\kbd{limit} multiplied out as the last entry (with exponent $1$). Shallow
+function.
 
 \fun{GEN}{famat_to_nf}{GEN nf, GEN f} You normally never want to do this!
 This is a simplified form of \tet{nffactorback}, where we do not check the
@@ -884,8 +893,8 @@ generally make good use of a quotient operation (modulo a fixed conductor,
 modulo $\ell$-th powers); see the end of \secref{se:Ideal_reduction}.
 
 \misctitle{Caveat} Receiving a \var{famat} input, \kbd{bnfisunit} assumes that
-it is an algebraic integer, since this is expensive to check, and normally
-easy to ensure from the user's side; do not feed it ridiculous inputs.
+it is an actual unit, since this is expensive to check, and normally
+easy to ensure from the user's side.
 
 \fun{GEN}{famatsmall_reduce}{GEN f} as \kbd{famat\_reduce}, but for exponents
 given by a \typ{VECSMALL}.

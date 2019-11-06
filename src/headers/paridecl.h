@@ -2302,6 +2302,8 @@ GEN     famat_reduce(GEN fa);
 GEN     famat_to_nf(GEN nf, GEN f);
 GEN     famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX);
 GEN     famat_to_nf_moddivisor(GEN nf, GEN g, GEN e, GEN bid);
+GEN     famatV_factorback(GEN v, GEN e);
+GEN     famatV_zv_factorback(GEN v, GEN e);
 GEN     famatsmall_reduce(GEN fa);
 GEN     gpidealval(GEN nf, GEN ix, GEN P);
 GEN     gpidealfactor(GEN nf, GEN x, GEN lim);
@@ -3961,7 +3963,6 @@ GEN     padicfields(GEN p, long m, long d, long flag);
 /* kummer.c */
 
 GEN     bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec);
-GEN     famat_factorback(GEN v, GEN e);
 GEN     rnfkummer(GEN bnr, GEN subgroup, long all, long prec);
 
 /* lfun.c */

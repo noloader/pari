@@ -1385,6 +1385,24 @@ famatsmall_reduce(GEN fa)
 }
 
 GEN
+famatV_factorback(GEN v, GEN e)
+{
+  long i, l = lg(e);
+  GEN V = trivial_fact();
+  for (i=1; i<l; i++) V = famat_mulpow_shallow(V, gel(v,i), gel(e,i));
+  return V;
+}
+
+GEN
+famatV_zv_factorback(GEN v, GEN e)
+{
+  long i, l = lg(e);
+  GEN V = trivial_fact();
+  for (i=1; i<l; i++) V = famat_mulpows_shallow(V, gel(v,i), uel(e,i));
+  return V;
+}
+
+GEN
 ZM_famat_limit(GEN fa, GEN limit)
 {
   pari_sp av;

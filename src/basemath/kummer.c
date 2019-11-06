@@ -429,29 +429,11 @@ isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, ulong ell, long rc)
   setlg(v,rc+1); return mkvec2(v, b);
 }
 
-GEN
-famat_factorback(GEN v, GEN e)
-{
-  long i, l = lg(e);
-  GEN V = trivial_fact();
-  for (i=1; i<l; i++) V = famat_mulpow_shallow(V, gel(v,i), gel(e,i));
-  return V;
-}
-
-static GEN
-famat_factorbacks(GEN v, GEN e)
-{
-  long i, l = lg(e);
-  GEN V = trivial_fact();
-  for (i=1; i<l; i++) V = famat_mulpows_shallow(V, gel(v,i), uel(e,i));
-  return V;
-}
-
 static GEN
 compute_beta(GEN X, GEN vecWB, GEN ell, GEN bnfz)
 {
   GEN BE, be;
-  BE = famat_reduce(famat_factorbacks(vecWB, X));
+  BE = famat_reduce(famatV_zv_factorback(vecWB, X));
   gel(BE,2) = centermod(gel(BE,2), ell);
   be = nffactorback(bnfz, BE, NULL);
   be = reducebeta(bnfz, be, ell);
@@ -1261,7 +1243,7 @@ _rnfkummer_step4(struct rnfkummer *kum, GEN cycgen, long d, long m)
       p2 = tauofvec(p2, &kum->tau);
       for (i=1; i<=rc; i++)
         gel(vecC,i) = famat_mul_shallow(gel(vecC,i),
-                                        famat_factorbacks(p2, gel(z,i)));
+                                        famatV_zv_factorback(p2, gel(z,i)));
     }
     for (i=1; i<=rc; i++) gel(vecC,i) = famat_reduce(gel(vecC,i));
   }
@@ -1288,7 +1270,7 @@ _rnfkummer_step5(struct rnfkummer *kum, GEN vselmer)
   T = matvirtualunit(bnfz, vell, vtau, ell, kum->rc);
   P = Flm_ker(Flm_Fl_add(T, Fl_neg(kum->g, ell), ell), ell);
   lW = lg(P); kum->vecW = W = cgetg(lW,t_VEC);
-  for (j = 1; j < lW; j++) gel(W,j) = famat_factorbacks(vselmer, gel(P,j));
+  for (j = 1; j < lW; j++) gel(W,j) = famatV_zv_factorback(vselmer, gel(P,j));
 }
 
 static GEN
@@ -1442,7 +1424,7 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
     GEN p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,ell,rc);
     e = gel(p1,1); gel(matP,j) = gel(p1, 1);
     a = gel(p1,2);
-    gel(vecBp,j) = famat_mul_shallow(famat_factorbacks(vecC, zv_neg(e)), a);
+    gel(vecBp,j) = famat_mul_shallow(famatV_zv_factorback(vecC, zv_neg(e)), a);
     gel(vecAp,j) = lambdaofelt(gel(vecBp,j), T);
   }
   if (DEBUGLEVEL>2) err_printf("Step 13\n");
