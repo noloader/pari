@@ -3457,7 +3457,7 @@ Sunits_archclean(GEN nf, GEN Sunits, GEN *pmun, GEN *pC, long prec)
 
   M = cgetg(l, t_MAT);
   for (k = 1; k < l; k++)
-    if (!(gel(M,j) = nf_cxlog(nf, gel(X,k), prec))) return;
+    if (!(gel(M,k) = nf_cxlog(nf, gel(X,k), prec))) return;
   *pmun = cleanarch(RgM_mul(M, U), N, prec);
   if (*pmun) *pC = cleanarch(RgM_mul(M, G), N, prec);
 }
