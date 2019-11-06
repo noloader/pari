@@ -5241,9 +5241,13 @@ below take place. They can be seen as truncated power series.
 
 \fun{GEN}{FpXn_inv}{GEN x, long n, GEN p} return $1/x\pmod{X^n}$.
 
-\fun{GEN}{FpXn_exp}{GEN x, long n, GEN p} return $\exp(x)$
+\fun{GEN}{FpXn_exp}{GEN f, long n, GEN p} return $\exp(f)$
 as a composition of formal power series.
-It is required that the valuation of $x$ is positive and that $p>n$.
+It is required that the valuation of $f$ is positive and that $p>n$.
+
+\fun{GEN}{FpXn_expint}{GEN f, long n, GEN p} return $\exp(F)$
+where $F$ is the primitive of $f$ that vanishes at $0$.
+It is required that $p>n$.
 
 \subsec{\kbd{FpXC}, \kbd{FpXM}}
 

@@ -714,6 +714,7 @@ GEN     FpXV_FpX_fromdigits(GEN x, GEN T, GEN p);
 GEN     FpXV_prod(GEN V, GEN p);
 GEN     FpXV_red(GEN z, GEN p);
 GEN     FpXn_exp(GEN x, long n, GEN p);
+GEN     FpXn_expint(GEN x, long n, GEN p);
 GEN     FpXn_inv(GEN x, long n, GEN p);
 GEN     FpXn_mul(GEN a, GEN b, long n, GEN p);
 GEN     FpXn_sqr(GEN a, long n, GEN p);

@@ -848,6 +848,33 @@ FpX_rescale(GEN P, GEN h, GEN p)
 GEN
 FpX_deriv(GEN x, GEN p) { return FpX_red(ZX_deriv(x), p); }
 
+
+/* Compute intformal(x^n*S)/x^(n+1) */
+static GEN
+FpX_integXn(GEN x, long n, GEN p)
+{
+  long i, lx = lg(x);
+  GEN y;
+  if (lx == 2) return ZX_copy(x);
+  y = cgetg(lx, t_POL); y[1] = x[1];
+  for (i=2; i<lx; i++)
+  {
+    GEN xi = gel(x,i);
+    if (!signe(xi))
+      gel(y,i) = gen_0;
+    else
+    {
+      ulong j = n+i-1;
+      ulong d = ugcd(j, umodiu(xi, j));
+      if (d==1)
+        gel(y,i) = Fp_divu(xi, j, p);
+      else
+        gel(y,i) = Fp_divu(diviuexact(xi, d), j/d, p);
+    }
+  }
+  return ZX_renormalize(y, lx);;
+}
+
 GEN
 FpX_integ(GEN x, GEN p)
 {
@@ -879,8 +906,8 @@ FpX_fromNewton(GEN P, GEN p)
 {
   pari_sp av = avma;
   long n = itos(modii(constant_coeff(P), p))+1;
-  GEN z = FpX_neg(FpX_integ(RgX_shift(P,-1),p),p);
-  GEN Q = FpXn_recip(FpXn_exp(z, n, p), n);
+  GEN z = FpX_neg(RgX_shift(P,-1),p);
+  GEN Q = FpXn_recip(FpXn_expint(z, n, p), n);
   return gerepilecopy(av, Q);
 }
 
@@ -2499,34 +2526,8 @@ FpXn_sqr(GEN a, long n, GEN p)
   return FpX_red(ZXn_sqr(a, n), p);
 }
 
-GEN
-FpXn_exp(GEN h, long e, GEN p)
-{
-  pari_sp av = avma, av2;
-  long v = varn(h), n=1;
-  GEN f = pol_1(v), g = pol_1(v);
-  ulong mask = quadratic_prec_mask(e);
-  av2 = avma;
-  if (signe(h)==0 || degpol(h)<1 || !gequal0(gel(h,2)))
-    pari_err_DOMAIN("FpXn_exp","valuation", "<", gen_1, h);
-  for (;mask>1;)
-  {
-    GEN q, w;
-    long n2 = n;
-    n<<=1; if (mask & 1) n--;
-    mask >>= 1;
-    g = FpX_sub(FpX_mulu(g,2,p), FpXn_mul(f, FpXn_sqr(g, n2, p), n2, p), p);
-    q = FpX_deriv(FpXn_red(h,n2), p);
-    w = FpX_add(q, FpXn_mul(g, FpX_sub(FpX_deriv(f, p), FpXn_mul(f,q,n-1, p), p),n-1, p), p);
-    f = FpX_add(f, FpXn_mul(f, FpX_sub(FpXn_red(h, n), FpX_integ(w,p), p), n, p), p);
-    if (gc_needed(av2,2))
-    {
-      if (DEBUGMEM>1) pari_warn(warnmem,"FpXn_exp, e = %ld", n);
-      gerepileall(av2, 2, &f, &g);
-    }
-  }
-  return gerepileupto(av, f);
-}
+static GEN
+FpX_shift(GEN a, long n) { return RgX_shift_shallow(a, n); }
 
 /* (f*g) \/ x^n */
 static GEN
@@ -2582,4 +2583,43 @@ FpXn_inv(GEN f, long e, GEN p)
     }
   }
   return gerepileupto(av, W);
+}
+
+GEN
+FpXn_expint(GEN h, long e, GEN p)
+{
+  pari_sp av = avma, av2;
+  long v = varn(h), n=1;
+  GEN f = pol_1(v), g = pol_1(v);
+  ulong mask = quadratic_prec_mask(e);
+  av2 = avma;
+  for (;mask>1;)
+  {
+    GEN u, w, H;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    H = RgX_blocks(h, n2, 2);
+    u = FpXn_mul(g, FpX_mulhigh_i(f, gel(H,1), n2-1, p), n2, p);
+    u = FpX_add(u, FpX_shift(gel(H,2), 1), p);
+    w = FpXn_mul(f, FpX_integXn(u, n2-1, p), n-n2, p);
+    f = FpX_add(f, FpX_shift(w, n2), p);
+    if (mask<=1) break;
+    u = FpXn_mul(g, FpXn_mulhigh(f, g, n2, n, p), n-n2, p);
+    g = FpX_sub(g, FpX_shift(u, n2), p);
+    if (gc_needed(av2,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FpXn_exp, e = %ld", n);
+      gerepileall(av2, 2, &f, &g);
+    }
+  }
+  return gerepileupto(av, f);
+}
+
+GEN
+FpXn_exp(GEN h, long e, GEN p)
+{
+  if (signe(h)==0 || degpol(h)<1 || !gequal0(gel(h,2)))
+    pari_err_DOMAIN("FpXn_exp","valuation", "<", gen_1, h);
+  return FpXn_expint(FpX_deriv(h, p), e, p);
 }
