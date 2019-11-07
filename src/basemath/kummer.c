@@ -408,8 +408,9 @@ get_u(GEN cyc, long rc, ulong ell)
 }
 
 /* alg. 5.2.15. with remark */
-static GEN
-isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, ulong ell, long rc)
+static void
+isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, ulong ell, long rc,
+               GEN *pv, GEN *pb)
 {
   long i, l = lg(cycgen);
   GEN v, b, db, y = bnfisprincipal0(bnfz, id, nf_FORCE|nf_GENMAT);
@@ -421,12 +422,12 @@ isprincipalell(GEN bnfz, GEN id, GEN cycgen, GEN u, ulong ell, long rc)
     b = Q_remove_denom(gel(y,2), &db);
     if (db) b = famat_mulpows_shallow(b, db, -1);
   }
-  for (i=rc+1; i<l; i++)
+  for (i = rc+1; i < l; i++)
   {
     ulong e = Fl_mul( uel(v,i), uel(u,i), ell);
     b = famat_mulpows_shallow(b, gel(cycgen,i), e);
   }
-  setlg(v,rc+1); return mkvec2(v, b);
+  setlg(v,rc+1); *pv = v; *pb = b;
 }
 
 static GEN
@@ -752,11 +753,7 @@ rnfkummersimple(GEN bnr, GEN subgroup, long ell, long all)
   vecBp = cgetg(lSp, t_VEC);
   matP  = cgetg(lSp, t_MAT);
   for (j = 1; j < lSp; j++)
-  {
-    GEN L = isprincipalell(bnf,gel(Sp,j), cycgen,u,ell,rc);
-    gel( matP,j) = gel(L,1);
-    gel(vecBp,j) = gel(L,2);
-  }
+    isprincipalell(bnf,gel(Sp,j), cycgen,u,ell,rc, &gel(matP,j), &gel(vecBp,j));
   vecWB = shallowconcat(vecW, vecBp);
 
   prec = DEFAULTPREC +
@@ -1253,9 +1250,7 @@ _rnfkummer_step4(struct rnfkummer *kum, GEN cycgen, long d, long m)
   for (j=1; j<=rc; j++)
   {
     GEN p1 = tauofideal(gel(gen,j), &kum->tau);
-    p1 = isprincipalell(kum->bnfz, p1, cycgen,u,ell,rc);
-    gel(Tc,j)  = gel(p1,1);
-    gel(vecB,j)= gel(p1,2);
+    isprincipalell(kum->bnfz, p1, cycgen,u,ell,rc, &gel(Tc,j), &gel(vecB,j));
   }
 
   kum->vecC = vecC = const_vec(rc, trivial_fact());
@@ -1433,9 +1428,8 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
   for (j = 1; j < lSp; j++)
   {
     GEN e, a;
-    GEN p1 = isprincipalell(bnfz, gel(Sp,j), cycgen,u,ell,rc);
-    e = gel(p1,1); gel(matP,j) = gel(p1, 1);
-    a = gel(p1,2);
+    isprincipalell(bnfz, gel(Sp,j), cycgen,u,ell,rc, &e, &a);
+    gel(matP,j) = e;
     gel(vecBp,j) = famat_mul_shallow(famatV_zv_factorback(vecC, zv_neg(e)), a);
     gel(vecAp,j) = lambdaofelt(gel(vecBp,j), T);
   }
