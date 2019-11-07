@@ -895,6 +895,7 @@ GEN     Flm_Fl_add(GEN x, ulong y, ulong p);
 GEN     Flm_Fl_mul(GEN y, ulong x, ulong p);
 void    Flm_Fl_mul_inplace(GEN y, ulong x, ulong p);
 GEN     Flm_Fl_mul_pre(GEN y, ulong x, ulong p, ulong pi);
+GEN     Flm_Fl_sub(GEN x, ulong y, ulong p);
 GEN     Flm_Flc_mul(GEN x, GEN y, ulong p);
 GEN     Flm_Flc_mul_pre(GEN x, GEN y, ulong p, ulong pi);
 GEN     Flm_Flc_mul_pre_Flx(GEN x, GEN y, ulong p, ulong pi, long sv);
@@ -2637,6 +2638,7 @@ GEN     quadray(GEN bnf, GEN f, long prec);
 
 /* buch2.c */
 
+GEN     famat_remove0(GEN fa);
 GEN     Buchall(GEN P, long flag, long prec);
 GEN     Buchall_param(GEN P, double bach, double bach2, long nbrelpid, long flun, long prec);
 GEN     bnf_build_cycgen(GEN bnf);

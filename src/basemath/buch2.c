@@ -1151,8 +1151,8 @@ ZM_remove_unused(GEN *pE, GEN *pX)
     *pE = rowpermute(E,v);
   }
 }
-static GEN
-famat_simplify(GEN fa)
+GEN
+famat_remove0(GEN fa)
 {
   GEN P, E, p = gel(fa,1), e = gel(fa,2);
   long j, k, l = lg(p);
@@ -1823,7 +1823,7 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
     if (lg(U) != 1) z = ZC_sub(z, ZM_ZC_mul(U, RgM_Babai(U,z)));
     col = mkmat2(X, z);
     if (F) col = famat_mul_shallow(col, F);
-    col = famat_simplify(col);
+    col = famat_remove0(col);
     if (xar) col = famat_mul_shallow(col, xar);
   }
   if (!col && !ZV_equal0(R))
@@ -4350,7 +4350,7 @@ START:
       CU = CU? ZM_mul(CU, U): cgetg(1, t_MAT);
       if (DEBUGLEVEL) timer_printf(&T, "getfu");
       Ce = vecslice(C, zc+1, lg(C)-1);
-      if (SUnits) SUnits = mkvec3(SUnits, CU, Ce);
+      if (SUnits) SUnits = mkvec4(SUnits, CU, Ce, utoipos(LIMC));
     }
     /* class group generators */
     if (flun & nf_FORCE) Ce = gmul(embs, Ce);

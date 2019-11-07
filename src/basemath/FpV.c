@@ -184,6 +184,8 @@ Flm_Fl_add(GEN x, ulong y, ulong p)
   }
   return z;
 }
+GEN
+Flm_Fl_sub(GEN x, ulong y, ulong p) { return Flm_Fl_add(x, Fl_neg(y,p), p); }
 
 GEN
 Flm_add(GEN x, GEN y, ulong p)
