@@ -627,6 +627,9 @@ matid2_FpXM(long v)
 }
 
 static GEN
+FpX_shift(GEN a, long n) { return RgX_shift_shallow(a, n); }
+
+static GEN
 FpX_halfgcd_split(GEN x, GEN y, GEN p)
 {
   pari_sp av=avma;
@@ -634,12 +637,12 @@ FpX_halfgcd_split(GEN x, GEN y, GEN p)
   GEN y1, r, q;
   long l = lgpol(x), n = l>>1, k;
   if (lgpol(y)<=n) return matid2_FpXM(varn(x));
-  R = FpX_halfgcd(RgX_shift_shallow(x,-n),RgX_shift_shallow(y,-n),p);
+  R = FpX_halfgcd(FpX_shift(x,-n), FpX_shift(y,-n), p);
   V = FpXM_FpX_mul2(R,x,y,p); y1 = gel(V,2);
   if (lgpol(y1)<=n) return gerepilecopy(av, R);
   q = FpX_divrem(gel(V,1), y1, p, &r);
   k = 2*n-degpol(y1);
-  S = FpX_halfgcd(RgX_shift_shallow(y1,-k), RgX_shift_shallow(r,-k),p);
+  S = FpX_halfgcd(FpX_shift(y1,-k), FpX_shift(r,-k), p);
   return gerepileupto(av, FpXM_mul2(S,FpX_FpXM_qmul(q,R,p),p));
 }
 
@@ -897,7 +900,7 @@ FpX_Newton(GEN P, long n, GEN p)
 {
   pari_sp av = avma;
   GEN dP = FpX_deriv(P, p);
-  GEN Q = FpXn_recip(FpX_div(RgX_shift(dP,n), P, p), n);
+  GEN Q = FpXn_recip(FpX_div(FpX_shift(dP,n), P, p), n);
   return gerepilecopy(av, Q);
 }
 
@@ -906,7 +909,7 @@ FpX_fromNewton(GEN P, GEN p)
 {
   pari_sp av = avma;
   long n = itos(modii(constant_coeff(P), p))+1;
-  GEN z = FpX_neg(RgX_shift(P,-1),p);
+  GEN z = FpX_neg(FpX_shift(P,-1),p);
   GEN Q = FpXn_recip(FpXn_expint(z, n, p), n);
   return gerepilecopy(av, Q);
 }
@@ -2300,7 +2303,7 @@ FpXQ_transmul_init(GEN tau, GEN T, GEN p)
     bht = FpXn_mul(bt, h, n-1, p);
   else
   {
-    GEN bh = FpX_div(RgX_shift_shallow(tau, n-1), T, p);
+    GEN bh = FpX_div(FpX_shift(tau, n-1), T, p);
     bht = FpX_recipspec(bh+2, lgpol(bh), n-1);
     setvarn(bht, vT);
   }
@@ -2314,11 +2317,11 @@ FpXQ_transmul(GEN tau, GEN a, long n, GEN p)
   GEN t1, t2, t3, vec;
   GEN bt = gel(tau, 1), bht = gel(tau, 2), ft = gel(tau, 3);
   if (signe(a)==0) return pol_0(varn(a));
-  t2 = RgX_shift_shallow(FpX_mul(bt, a, p),1-n);
+  t2 = FpX_shift(FpX_mul(bt, a, p),1-n);
   if (signe(bht)==0) return gerepilecopy(ltop, t2);
-  t1 = RgX_shift_shallow(FpX_mul(ft, a, p),-n);
+  t1 = FpX_shift(FpX_mul(ft, a, p),-n);
   t3 = FpXn_mul(t1, bht, n-1, p);
-  vec = FpX_sub(t2, RgX_shift_shallow(t3, 1), p);
+  vec = FpX_sub(t2, FpX_shift(t3, 1), p);
   return gerepileupto(ltop, vec);
 }
 
@@ -2526,14 +2529,11 @@ FpXn_sqr(GEN a, long n, GEN p)
   return FpX_red(ZXn_sqr(a, n), p);
 }
 
-static GEN
-FpX_shift(GEN a, long n) { return RgX_shift_shallow(a, n); }
-
 /* (f*g) \/ x^n */
 static GEN
 FpX_mulhigh_i(GEN f, GEN g, long n, GEN p)
 {
-  return RgX_shift_shallow(FpX_mul(f,g, p),-n);
+  return FpX_shift(FpX_mul(f,g, p),-n);
 }
 
 static GEN
@@ -2575,7 +2575,7 @@ FpXn_inv(GEN f, long e, GEN p)
     mask >>= 1;
     fr = FpXn_red(f, n);
     u = FpXn_mul(W, FpXn_mulhigh(fr, W, n2, n, p), n-n2, p);
-    W = FpX_sub(W, RgX_shift_shallow(u, n2), p);
+    W = FpX_sub(W, FpX_shift(u, n2), p);
     if (gc_needed(av2,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"FpXn_inv, e = %ld", n);
