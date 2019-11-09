@@ -2595,13 +2595,12 @@ FpXn_expint(GEN h, long e, GEN p)
   av2 = avma;
   for (;mask>1;)
   {
-    GEN u, w, H;
+    GEN u, w;
     long n2 = n;
     n<<=1; if (mask & 1) n--;
     mask >>= 1;
-    H = RgX_blocks(h, n2, 2);
-    u = FpXn_mul(g, FpX_mulhigh_i(f, gel(H,1), n2-1, p), n2, p);
-    u = FpX_add(u, FpX_shift(gel(H,2), 1), p);
+    u = FpXn_mul(g, FpX_mulhigh_i(f, FpXn_red(h, n2-1), n2-1, p), n-n2, p);
+    u = FpX_add(u, FpX_shift(FpXn_red(h, n-1), 1-n2), p);
     w = FpXn_mul(f, FpX_integXn(u, n2-1, p), n-n2, p);
     f = FpX_add(f, FpX_shift(w, n2), p);
     if (mask<=1) break;
