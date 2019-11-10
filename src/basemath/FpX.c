@@ -908,10 +908,18 @@ GEN
 FpX_fromNewton(GEN P, GEN p)
 {
   pari_sp av = avma;
-  long n = itos(modii(constant_coeff(P), p))+1;
-  GEN z = FpX_neg(FpX_shift(P,-1),p);
-  GEN Q = FpXn_recip(FpXn_expint(z, n, p), n);
-  return gerepilecopy(av, Q);
+  if (lgefint(p)==3)
+  {
+    ulong pp = p[2];
+    GEN Q = Flx_fromNewton(ZX_to_Flx(P, pp), pp);
+    return gerepileupto(av, Flx_to_ZX(Q));
+  } else
+  {
+    long n = itos(modii(constant_coeff(P), p))+1;
+    GEN z = FpX_neg(FpX_shift(P,-1),p);
+    GEN Q = FpXn_recip(FpXn_expint(z, n, p), n);
+    return gerepilecopy(av, Q);
+  }
 }
 
 GEN
