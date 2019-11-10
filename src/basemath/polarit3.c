@@ -2507,8 +2507,8 @@ ffinit_Artin_Schreier(ulong p, long l)
   T = Flx_sub(xp, mkvecsmall3(0,1,1),p); /* x^p - x - 1 */
   if (l == 1) return T;
 
-  v = fetch_var_higher();
-  setvarn(xp, v);
+  v = evalvarn(fetch_var_higher());
+  xp[1] = v;
   R = Flx_sub(polxn_Flx(2*p-1,0), polxn_Flx(p,0),p);
   S = Flx_sub(xp, polx_Flx(0), p);
   Q = FlxX_Flx_sub(Flx_to_FlxX(S, v), R, p); /* x^p - x - (y^(2p-1)-y^p) */
