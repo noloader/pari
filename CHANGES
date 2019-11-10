@@ -133,6 +133,7 @@ BA  45- [libpari] init_Flxq
     47- [libpari] Flv_factorback, FlxqV_factorback, famatV_zv_factorback,
         famatV_factorback
     48- [libpari] nflogembed, nf_cxlog, nfV_cxlog, ZMrow_equal0, ZC_u_divexact
+BA  49- [libpari] FpXn_expint, Flxn_expint, Flx_blocks
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
