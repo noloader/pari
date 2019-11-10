@@ -147,7 +147,11 @@ static GEN
 lead_simplify(GEN P)
 {
   GEN x = gel(P, lg(P)-1); /* x a non-zero ZX or t_INT */
-  if (typ(x) == t_POL && !degpol(x)) x = gel(x,2);
+  if (typ(x) == t_POL)
+  {
+    if (degpol(x)) return x;
+    x = gel(x,2);
+  }
   return is_pm1(x)? NULL: x;
 }
 /* P,Q in Z[X,Y], T in Z[Y] irreducible. compute GCD in Q[Y]/(T)[X].
