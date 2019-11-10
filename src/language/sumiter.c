@@ -1172,7 +1172,7 @@ binsum(GEN S, ulong k, void *E, GEN (*f)(void *, GEN), GEN a,
 {
   long e, i, N = lg(S)-1, l = expu(N / k); /* k 2^l <= N < k 2^(l+1) */
   pari_sp av = avma;
-  GEN t = gen_0;
+  GEN t = real_0(prec); /* unused unless f(a + k <<l) = 0 */
 
   G -= l;
   if (!signe(a)) a = NULL;
