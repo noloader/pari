@@ -5981,9 +5981,11 @@ of the coefficients of $x$ and $y$.
 \fun{GEN}{Flx_deflate}{GEN P, long d} assuming $P$ is a polynomial of the
 form $Q(X^d)$, return $Q$.
 
+\fun{GEN}{Flx_inflate}{GEN P, long d} returns $P(X^d)$.
+
 \fun{GEN}{Flx_splitting}{GEN P, long k}, as \tet{RgX_splitting}.
 
-\fun{GEN}{Flx_inflate}{GEN P, long d} returns $P(X^d)$.
+\fun{GEN}{Flx_blocks}{GEN P, long k}, as \tet{RgX_blocks}.
 
 \fun{int}{Flx_is_squarefree}{GEN z, ulong p}. Assumes that $p$ is prime.
 

@@ -338,6 +338,7 @@ GEN     Flx_Frobenius(GEN T, ulong p);
 GEN     Flx_Laplace(GEN x, ulong p);
 GEN     Flx_Newton(GEN P, long n, ulong p);
 GEN     Flx_add(GEN x, GEN y, ulong p);
+GEN     Flx_blocks(GEN P, long n, long m);
 GEN     Flx_deflate(GEN x0, long d);
 GEN     Flx_deriv(GEN z, ulong p);
 GEN     Flx_diff1(GEN P, ulong p);
