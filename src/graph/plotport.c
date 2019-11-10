@@ -81,6 +81,7 @@ DTOL(double t) { return (long)(t + 0.5); }
 
 static const long PS_WIDTH = 1120 - 60; /* 1400 - 60 for hi-res */
 static const long PS_HEIGH = 800 - 40; /* 1120 - 60 for hi-res */
+static const long PS_SCALE = 1000; /* Allowing 64x zoom on 500ppi */
 
 static void
 _psdraw_scale(PARI_plot *T, GEN w, GEN x, GEN y)
@@ -97,12 +98,12 @@ _psdraw(PARI_plot *T, GEN w, GEN x, GEN y)
 static void
 pari_get_psplot(PARI_plot *T)
 {
-  T->width  = PS_WIDTH;
-  T->height = PS_HEIGH;
-  T->fheight= 15;
-  T->fwidth = 6;
-  T->hunit  = 5;
-  T->vunit  = 5;
+  T->width  = PS_WIDTH*PS_SCALE;
+  T->height = PS_HEIGH*PS_SCALE;
+  T->fheight= 15*PS_SCALE;
+  T->fwidth = 6*PS_SCALE;
+  T->hunit  = 5*PS_SCALE;
+  T->vunit  = 5*PS_SCALE;
   T->dwidth = 0;
   T->dheight= 0;
   T->draw = NULL;
@@ -2150,8 +2151,8 @@ rect2ps_i(GEN w, GEN x, GEN y, PARI_plot *T, int plotps)
       xs = ys = 1;
     else
     {
-      xs *= ((double)PS_WIDTH) / T->width;
-      ys *= ((double)PS_HEIGH) / T->height;
+      xs *= ((double)PS_WIDTH*PS_SCALE) / T->width;
+      ys *= ((double)PS_HEIGH*PS_SCALE) / T->height;
     }
   }
   else
@@ -2162,12 +2163,14 @@ rect2ps_i(GEN w, GEN x, GEN y, PARI_plot *T, int plotps)
   /* Definitions taken from post terminal of Gnuplot. */
   str_printf(&S, "%%!\n\
 50 50 translate\n\
+1 %d div 1 %d div scale\n\
 /p {moveto 0 2 rlineto 2 0 rlineto 0 -2 rlineto closepath fill} def\n\
 /c0 {0 0 0 setrgbcolor} def\n\
 /c {setrgbcolor} def\n\
 /l {lineto} def\n\
 /m {moveto} def\n"
-"/Times-Roman findfont %ld scalefont setfont\n", DTOL(T->fheight * xs));
+"/Times-Roman findfont %ld scalefont setfont\n",
+PS_SCALE, PS_SCALE, DTOL(T->fheight * xs));
 
   pl.sc = &ps_sc;
   pl.pt = &ps_point;
