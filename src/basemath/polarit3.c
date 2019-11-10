@@ -2487,8 +2487,7 @@ ffinit_Artin_Schreier_2(long l)
   setvarn(Q, v);
 
   /* x^4+x+1, irred over F_2, minimal polynomial of a root of Q */
-  T = mkvecsmalln(6,0UL,1UL,1UL,0UL,0UL,1UL);
-  setvarn(T, v);
+  T = mkvecsmalln(6,evalvarn(v),1UL,1UL,0UL,0UL,1UL);
   /* Q = x^2 + x + a(y) irred. over K = F2[y] / (T(y))
    * ==> x^2 + x + a(y) b irred. over K for any root b of Q
    * ==> x^2 + x + (b^2+b)b */
