@@ -805,8 +805,8 @@ lfunthetacheckinit(GEN data, GEN t, long m, long bitprec)
     if (bitprec > bitprecnew) goto INIT;
     get_cone(t, &rt, &alt);
     tdom = theta_get_tdom(thetainit);
-    r = rtodbl(gel(tdom,1));
-    al= rtodbl(gel(tdom,2)); if (rt >= r && alt <= al) return data;
+    r = gtodouble(gel(tdom,1));
+    al= gtodouble(gel(tdom,2)); if (rt >= r && alt <= al) return data;
   }
 INIT:
   return lfunthetainit_i(data, t, m, bitprec);

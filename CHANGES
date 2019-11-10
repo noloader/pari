@@ -45,6 +45,7 @@ BA  32- Using local in export()ed functions could crash GP
     34- M=mfinit([11,2,Mod(3,11)]); f=mfbasis(M)[1]; lfuncheckfeq(lfunmf(M,f))
         -> type error
     35- x^12-4*x^11-1948*x^10+23072*x^9+1377243*x^8-28119512*x^7-305497980*x^6+12643497432*x^5-64374713540*x^4-1604497782672*x^3+26693470513376*x^2-159320374579040*x+352544728838416 -> SEGV [#2178]
+    36- missing type checks in lfunthetacheckinit [#2179]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
