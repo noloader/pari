@@ -182,7 +182,7 @@ Fq_to_FF(GEN x, GEN ff)
   switch(ff[1])
   {
   case t_FF_FpXQ:
-    r= is_int ? scalarpol(x, varn(T)): x;
+    r= is_int ? scalarpol(x, varn(T)): ZX_copy(x);
     break;
   case t_FF_F2xq:
     r= is_int ? Z_to_F2x(x,T[1]): ZX_to_F2x(x);
