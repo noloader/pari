@@ -1001,7 +1001,7 @@ heegner_try_point(GEN E, GEN lambdas, GEN ht, GEN z, long prec)
       {
         GEN P = mkvec2(X, gel(ylist, 1));
         GEN hp = ghell(E,P,prec);
-        if (cmprr(hp, shiftr(ht,1)) < 0 && cmprr(hp, shiftr(ht,-1)) > 0)
+        if (signe(hp) && cmprr(hp, shiftr(ht,1)) < 0 && cmprr(hp, shiftr(ht,-1)) > 0)
           return P;
         if (DEBUGLEVEL)
           err_printf("found non-Heegner point %Ps\n", P);
