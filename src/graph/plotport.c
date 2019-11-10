@@ -81,7 +81,6 @@ DTOL(double t) { return (long)(t + 0.5); }
 
 static const long PS_WIDTH = 1120 - 60; /* 1400 - 60 for hi-res */
 static const long PS_HEIGH = 800 - 40; /* 1120 - 60 for hi-res */
-static const long PS_SCALE = 1000; /* Allowing 64x zoom on 500ppi */
 
 static void
 _psdraw_scale(PARI_plot *T, GEN w, GEN x, GEN y)

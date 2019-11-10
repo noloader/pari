@@ -169,4 +169,7 @@ void gp_get_plot(PARI_plot *T);
   _T->vunit = maxss(_T->height/100,3);                                       \
   gp_get_ploth_default_sizes(S);                                             \
 }
+
+#define PS_SCALE 1000 /* Allowing 64x zoom on 500ppi */
+
 ENDEXTERN

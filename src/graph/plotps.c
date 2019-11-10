@@ -35,6 +35,12 @@ gp_get_plot(PARI_plot *T)
   T->hunit  = 3;
   T->vunit  = 3;
   gp_get_ploth_default_sizes(T);
+  T->width   *= PS_SCALE;
+  T->height  *= PS_SCALE;
+  T->fheight *= PS_SCALE;
+  T->fwidth  *= PS_SCALE;
+  T->hunit   *= PS_SCALE;
+  T->vunit   *= PS_SCALE;
   T->dwidth = 0;
   T->dheight= 0;
   T->draw = &draw;
