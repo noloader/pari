@@ -148,7 +148,7 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
   if (cb && lg(y) != 1) b = gen_1;
   else
   { /* log. embeddings of fu^ell */
-    GEN fu = bnf_get_fu(bnfz), logfu = bnf_get_logfu(bnfz);
+    GEN logfu = bnf_get_logfu(bnfz);
     GEN elllogfu = RgM_Rg_mul(real_i(logfu), ell);
     long prec = nf_get_prec(nf);
     for (;;)
@@ -159,7 +159,8 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
         ex = RgM_Babai(elllogfu, z);
         if (ex)
         {
-          y = nffactorback(nf, fu, RgC_Rg_mul(ex,ell));
+          if (ZV_equal0(ex)) break;
+          y = nffactorback(nf, bnf_get_fu(bnfz), RgC_Rg_mul(ex,ell));
           b = nfdiv(nf, b, y); break;
         }
       }
