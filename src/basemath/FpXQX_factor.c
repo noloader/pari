@@ -464,7 +464,7 @@ Flx_factorgalois(GEN P, ulong l, long d, long w, GEN MP)
   }
   M = Flm_Frobenius_pow(MP,d,P,l);
 
-  Tl = leafcopy(P); setvarn(Tl,w);
+  Tl = leafcopy(P); Tl[1] = w;
   V = cgetg(m+1,t_VEC);
   gel(V,1) = polx_Flx(w);
   z = gel(M,2);
