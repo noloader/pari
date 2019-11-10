@@ -793,7 +793,7 @@ fix_var(GEN x, long v)
 {
   long i, l = lg(x);
   if (!v) return x;
-  for (i=1; i<l; i++) { GEN t = gel(x,i); setvarn(t[1],v); setvarn(t[2],v); }
+  for (i=1; i<l; i++) { GEN t = gel(x,i); setvarn(gel(t,1),v); setvarn(gel(t,2),v); }
   return x;
 }
 
