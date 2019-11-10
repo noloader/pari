@@ -89,9 +89,9 @@ Z_to_raw(GEN x, GEN ff)
   case t_FF_FpXQ:
     return scalarpol(x, varn(T));
   case t_FF_F2xq:
-    return Z_to_F2x(x,varn(T));
+    return Z_to_F2x(x, T[1]);
   default:
-    return Z_to_Flx(x,pp,T[1]);
+    return Z_to_Flx(x, pp, T[1]);
   }
 }
 

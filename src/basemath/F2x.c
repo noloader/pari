@@ -99,9 +99,8 @@ F2x_to_F2xX(GEN z, long sv)
 }
 
 GEN
-Z_to_F2x(GEN x, long v)
+Z_to_F2x(GEN x, long sv)
 {
-  long sv = evalvarn(v);
   return mpodd(x) ? pol1_F2x(sv): pol0_F2x(sv);
 }
 
@@ -1853,7 +1852,7 @@ ZXX_to_F2xX(GEN B, long v)
     switch (typ(gel(B,i)))
     {
     case t_INT:
-      gel(b,i) = Z_to_F2x(gel(B,i), v);
+      gel(b,i) = Z_to_F2x(gel(B,i), evalvarn(v));
       break;
     case t_POL:
       gel(b,i) = ZX_to_F2x(gel(B,i));

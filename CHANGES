@@ -80,6 +80,7 @@ BA  17- QXQ_div_ratlift renamed to QXQ_div
     23- removed obsolete function 'bnfcompress'
     24- [libpari] rename perf -> qfperfection
     25- format of bnf structure, to allow compact representations
+BA  26- [libpari] Z_to_F2x(s,v): v is now a shifted variable number
 
   Added
      1- new GP function rootsof1
