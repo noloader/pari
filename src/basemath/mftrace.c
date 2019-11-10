@@ -5444,7 +5444,7 @@ mfstabitermodp(GEN Mp, GEN Ap, long p, long lim)
 static GEN
 mfintereis(GEN A, GEN M2, GEN y, GEN den, GEN E2, GEN P, long ordchi)
 {
-  GEN z, M1 = mfmatsermul(A,E2), M1den = is_pm1(den)? M1: RgM_Rg_mul(M1,den);
+  GEN z, M1 = mfmatsermul(A,E2), M1den = isint1(den)? M1: RgM_Rg_mul(M1,den);
   M2 = RgM_mul(M2, rowpermute(M1, y));
   z = QabM_ker(RgM_sub(M2,M1den), P, ordchi);
   if (ordchi > 2) z = gmodulo(z, P);
