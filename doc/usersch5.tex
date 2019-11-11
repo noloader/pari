@@ -3500,6 +3500,9 @@ $g = \gcd(x,m)$ and return $u$ in $(\Z/m\Z)^*$ such that $x u = g$ modulo $m$.
 We have $g = 1$ if and only if $x$ is invertible, and in this case $u$
 is its inverse.
 
+\fun{GEN}{FpV_prod}{GEN x, GEN p} returns the product of the components of
+$x$.
+
 \fun{GEN}{FpV_inv}{GEN x, GEN m} $x$ being a vector of \typ{INT}s, return
 the vector of inverses of the $x[i]$ mod $m$. The routine uses Montgomery's
 trick, and involves a single inversion mod $m$, plus $3(N-1)$ multiplications

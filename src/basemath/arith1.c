@@ -3692,6 +3692,12 @@ Fp_powers(GEN x, long n, GEN p)
   return gen_powers(x, n, 1, (void*)p, _Fp_sqr, _Fp_mul, _Fp_one);
 }
 
+GEN
+FpV_prod(GEN V, GEN p)
+{
+  return gen_product(V, (void *)p, &_Fp_mul);
+}
+
 static GEN
 _Fp_pow(void *E, GEN x, GEN n) { return Fp_pow(x,n,(GEN)E); }
 
