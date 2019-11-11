@@ -176,6 +176,7 @@ GEN  QXQ_div_worker(GEN P, GEN A, GEN B, GEN C);
 GEN  QXQ_inv_worker(GEN P, GEN A, GEN B);
 GEN  ZX_resultant_worker(GEN P, GEN A, GEN B, GEN dB);
 GEN  ZX_ZXY_resultant_worker(GEN P, GEN A, GEN B, GEN dB, GEN v);
+GEN  ZX_direct_compositum_worker(GEN P, GEN A, GEN B);
 GEN  ZX_gcd_worker(GEN P, GEN A, GEN B, GEN g);
 GEN  ZM_det_worker(GEN P, GEN A);
 GEN  ZM_inv_worker(GEN P, GEN A);

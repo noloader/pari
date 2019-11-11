@@ -3947,13 +3947,60 @@ compositum(GEN pol1,GEN pol2) { return polcompositum0(pol1,pol2,0); }
 GEN
 compositum2(GEN pol1,GEN pol2) { return polcompositum0(pol1,pol2,1); }
 
+static GEN
+ZX_direct_compositum_slice(GEN A, GEN B, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1;
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN a = ZX_to_Flx(A, p), b = ZX_to_Flx(B, p);
+    GEN Hp = Flx_direct_compositum(a, b, p);
+    H = gerepileupto(av, Flx_to_ZX(Hp));
+    *mod = utoi(p);
+    return H;
+  }
+  T = ZV_producttree(P);
+  A = ZX_nv_mod_tree(A, P, T);
+  B = ZX_nv_mod_tree(B, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), b = gel(B,i);
+    gel(H,i) = Flx_direct_compositum(a, b, p);
+  }
+  H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZX_direct_compositum_worker(GEN P, GEN A, GEN B)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZX_direct_compositum_slice(A, B, P, &gel(V,2));
+  return V;
+}
+
 /* Assume A,B irreducible (in particular squarefree) and define linearly
  * disjoint extensions: no factorisation needed */
 GEN
 ZX_compositum_disjoint(GEN A, GEN B)
 {
-  long k = 1;
-  return ZX_ZXY_rnfequation(A, B, &k);
+  pari_sp av = avma;
+  forprime_t S;
+  long m = maxss(degpol(A),degpol(B));
+  GEN  H, worker;
+  ulong bound = ZX_ZXY_ResBound(A, poleval(B,deg1pol(gen_1,pol_x(1),0)), NULL);
+  worker = snm_closure(is_entry("_ZX_direct_compositum_worker"), mkvec2(A,B));
+  init_modular_big(&S);
+  H = gen_crt("ZX_direct_compositum", worker, &S, NULL, bound, m, NULL,
+              nxV_chinese_center, FpX_center);
+  return gerepileupto(av, H);
 }
 
 static GEN
