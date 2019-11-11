@@ -2549,7 +2549,7 @@ famat_zlog_pr(GEN nf, GEN g, GEN e, GEN sprk)
                             sprk_get_expo(sprk));
   return log_prk(nf, x, sprk);
 }
-/* famat_zlog_pr assuming (g,sprk.pr) */
+/* famat_zlog_pr assuming (g,sprk.pr) = 1 */
 static GEN
 famat_zlog_pr_coprime(GEN nf, GEN g, GEN e, GEN sprk)
 {
