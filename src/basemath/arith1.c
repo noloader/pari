@@ -4693,7 +4693,9 @@ ulong
 factorial_Fl(long n, ulong p)
 {
   long k;
-  ulong v = Fl_powu(2, factorial_lval(n, 2), p);
+  ulong v;
+  if (p <= n) return 0;
+  v = Fl_powu(2, factorial_lval(n, 2), p);
   for (k = 1;; k++)
   {
     long m = n >> (k-1), l, i;
