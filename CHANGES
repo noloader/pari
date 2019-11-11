@@ -138,6 +138,7 @@ BA  45- [libpari] init_Flxq
 BA  49- [libpari] FpXn_expint, Flxn_expint, Flx_blocks
     50- [libpari] bnf_get_sunits, nfsign_tu, nfsign_fu, ideallog_units,
         sunits_makecoprime
+BA  51- [libpari] factorial_Fl
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

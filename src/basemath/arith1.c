@@ -4689,6 +4689,25 @@ mpfact(long n)
   return gerepileuptoint(av, a);
 }
 
+ulong
+factorial_Fl(long n, ulong p)
+{
+  long k;
+  ulong v = Fl_powu(2, factorial_lval(n, 2), p);
+  for (k = 1;; k++)
+  {
+    long m = n >> (k-1), l, i;
+    ulong a = 1;
+    if (m <= 2) break;
+    l = (1 + (n >> k)) | 1;
+    /* product of odd numbers in ]n / 2^k, 2 / 2^(k-1)] */
+    for (i=l; i<=m; i+=2)
+      a = Fl_mul(a, i, p);
+    v = Fl_mul(v, k == 1? a: Fl_powu(a, k, p), p);
+  }
+  return v;
+}
+
 /*******************************************************************/
 /**                                                               **/
 /**                      LUCAS & FIBONACCI                        **/

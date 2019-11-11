@@ -1947,6 +1947,7 @@ GEN     Fp_invgen(GEN x, GEN N, GEN *pd);
 long    logint0(GEN B, GEN y, GEN *ptq);
 long    logintall(GEN B, GEN y, GEN *ptq);
 GEN     mpfact(long n);
+ulong   factorial_Fl(long n, ulong p);
 GEN     muls_interval(long a, long b);
 GEN     mulu_interval(ulong a, ulong b);
 GEN     mulu_interval_step(ulong a, ulong b, ulong step);
