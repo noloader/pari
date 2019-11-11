@@ -4708,6 +4708,27 @@ factorial_Fl(long n, ulong p)
   return v;
 }
 
+GEN
+factorial_Fp(long n, GEN p)
+{
+  pari_sp av = avma;
+  long k;
+  GEN v = Fp_powu(gen_2, factorial_lval(n, 2), p);
+  for (k = 1;; k++)
+  {
+    long m = n >> (k-1), l, i;
+    GEN a = gen_1;
+    if (m <= 2) break;
+    l = (1 + (n >> k)) | 1;
+    /* product of odd numbers in ]n / 2^k, 2 / 2^(k-1)] */
+    for (i=l; i<=m; i+=2)
+      a = Fp_mulu(a, i, p);
+    v = Fp_mul(v, k == 1? a: Fp_powu(a, k, p), p);
+    v = gerepileuptoint(av, v);
+  }
+  return v;
+}
+
 /*******************************************************************/
 /**                                                               **/
 /**                      LUCAS & FIBONACCI                        **/
