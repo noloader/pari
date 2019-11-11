@@ -926,14 +926,19 @@ GEN
 FpX_invLaplace(GEN x, GEN p)
 {
   pari_sp av = avma;
-  long i, e = 0, l = lg(x);
-  GEN t = gen_1, y = cgetg(l,t_POL);
+  long i, d = degpol(x);
+  GEN t, y;
+  if (d <= 1) return gcopy(x);
+  t = Fp_inv(factorial_Fp(d, p), p);
+  y = cgetg(d+3, t_POL);
   y[1] = x[1];
-  for (i=2; i<l; i++)
+  for (i=d; i>=2; i--)
   {
-    gel(y,i) = Fp_div(gel(x,i), t, p);
-    e++; t = Fp_mulu(t,e,p);
+    gel(y,i+2) = Fp_mul(gel(x,i+2), t, p);
+    t = Fp_mulu(t, i, p);
   }
+  gel(y,3) = gel(x,3);
+  gel(y,2) = gel(x,2);
   return gerepilecopy(av, y);
 }
 
@@ -941,13 +946,18 @@ GEN
 FpX_Laplace(GEN x, GEN p)
 {
   pari_sp av = avma;
-  long i, e = 0, l = lg(x);
-  GEN t = gen_1, y = cgetg(l,t_POL);
+  long i, d = degpol(x);
+  GEN t = gen_1;
+  GEN y;
+  if (d <= 1) return gcopy(x);
+  y = cgetg(d+3, t_POL);
   y[1] = x[1];
-  for (i=2; i<l; i++)
+  gel(y,2) = gel(x,2);
+  gel(y,3) = gel(x,3);
+  for (i=2; i<=d; i++)
   {
-    gel(y,i) = Fp_mul(gel(x,i), t, p);
-    e++; t = Fp_mulu(t,e,p);
+    t = Fp_mulu(t, i, p);
+    gel(y,i+2) = Fp_mul(gel(x,i+2), t, p);
   }
   return gerepilecopy(av, y);
 }
