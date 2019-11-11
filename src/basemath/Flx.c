@@ -3645,32 +3645,74 @@ Flx_fromNewton(GEN P, ulong p)
   return gerepileuptoleaf(av, Q);
 }
 
+static long
+newtonlogint(long n, ulong pp)
+{
+  long s = 0;
+  while (n > pp)
+  {
+    s += ulogint(n, pp);
+    n = (n+1)>>1;
+  }
+  return s;
+}
+
+/* return p^val * FpX_invLaplace(x, q), with q a power of p and val large
+ * enough to compensate for the power of p in the factorials */
+static GEN
+ZpX_invLaplace_val(GEN x, GEN q, ulong p, long v)
+{
+  pari_sp av = avma;
+  long i, d = degpol(x);
+  GEN y, W, E, t;
+  ulong w = 0;
+  W = cgetg(d+1, t_VECSMALL);
+  E = cgetg(d+1, t_VECSMALL);
+  y = cgetg(d+3,t_POL);
+  y[1] = x[1];
+  for (i=1; i<=d; i++)
+    W[i] = u_lvalrem(i, p, &uel(E,i));
+  t = Fp_inv(FpV_prod(Flv_to_ZV(E), q), q);
+  w = zv_sum(W);
+  if (v > w) t = Fp_mul(t, powuu(p, v-w), q);
+  for (i=d; i>=1; i--)
+  {
+    gel(y,i+2) = Fp_mul(gel(x,i+2), t, q);
+    t = Fp_mulu(t, uel(E,i), q);
+    if (uel(W,i)) t = Fp_mul(t, powuu(p, uel(W,i)), q);
+  }
+  gel(y,2) = Fp_mul(gel(x,2), t, q);
+  return gerepilecopy(av, y);
+}
+
 static GEN
 Flx_diamondsum(GEN P, GEN Q, ulong p)
 {
-  long n = 1+ degpol(P)*degpol(Q);
-  GEN Pl = Flx_invLaplace(Flx_Newton(P,n,p), p);
-  GEN Ql = Flx_invLaplace(Flx_Newton(Q,n,p), p);
-  GEN L = Flx_Laplace(Flxn_mul(Pl, Ql, n, p), p);
-  return Flx_fromNewton(L, p);
+  long n = 1 + degpol(P)*degpol(Q);
+  if (p >= n)
+  {
+    GEN Pl = Flx_invLaplace(Flx_Newton(P,n,p), p);
+    GEN Ql = Flx_invLaplace(Flx_Newton(Q,n,p), p);
+    GEN L = Flx_Laplace(Flxn_mul(Pl, Ql, n, p), p);
+    return Flx_fromNewton(L, p);
+  } else
+  {
+    long v = factorial_lval(n-1, p);
+    long w = 1 + newtonlogint(n-1, p);
+    GEN pv = powuu(p, v);
+    GEN qf = powuu(p, w), q = mulii(pv, qf), q2 = mulii(q, pv);
+    GEN Pl = ZpX_invLaplace_val(FpX_Newton(Flx_to_ZX(P), n, qf), q, p ,v);
+    GEN Ql = ZpX_invLaplace_val(FpX_Newton(Flx_to_ZX(Q), n, qf), q, p, v);
+    GEN Ln = ZX_Z_divexact(FpXn_mul(Pl, Ql, n, q2), pv);
+    GEN L = ZX_Z_divexact(FpX_Laplace(Ln, q), pv);
+    return ZX_to_Flx(FpX_fromNewton(L, qf), p);
+  }
 }
 
 GEN
 Flx_direct_compositum(GEN a, GEN b, ulong p)
 {
-  long da = degpol(a), db = degpol(b);
-  if (p > (ulong) da*db)
-    return Flx_diamondsum(a, b, p);
-  else
-  {
-    long v = varn(a), w = fetch_var_higher();
-    GEN mx = deg1pol_shallow(gen_m1, gen_0, v);
-    GEN r, ymx = deg1pol_shallow(gen_1, mx, w); /* Y-X */
-    if (da < db) swap(a,b);
-    b = ZXX_to_FlxX(poleval(Flx_to_ZX(b), ymx), p, v);
-    r = Flx_FlxY_resultant(a, b, p);
-    setvarn(r, v); (void)delete_var(); return r;
-  }
+  return Flx_diamondsum(a, b, p);
 }
 
 static GEN

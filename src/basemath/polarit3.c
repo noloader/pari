@@ -1627,18 +1627,14 @@ FpX_diamondprod(GEN P, GEN Q, GEN p)
 GEN
 FpX_direct_compositum(GEN a, GEN b, GEN p)
 {
-  long da = degpol(a), db = degpol(b);
-  if (cmpis(p, da*db) > 0)
-    return FpX_diamondsum(a, b, p);
-  else
+  if (lgefint(p)==3)
   {
-    long v = varn(a), w = fetch_var_higher();
-    GEN mx = deg1pol_shallow(gen_m1, gen_0, v);
-    GEN r, ymx = deg1pol_shallow(gen_1, mx, w); /* Y-X */
-    if (da < db) swap(a,b);
-    r = FpX_FpXY_resultant(a, poleval(b,ymx),p);
-    setvarn(r, v); (void)delete_var(); return r;
+    pari_sp av = avma;
+    ulong pp = p[2];
+    GEN z = Flx_direct_compositum(ZX_to_Flx(a, pp), ZX_to_Flx(b, pp), pp);
+    return gerepileupto(av, Flx_to_ZX(z));
   }
+  return FpX_diamondsum(a, b, p);
 }
 
 static GEN
