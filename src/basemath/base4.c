@@ -1579,7 +1579,7 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
 
 /* simplified version of famat_makecoprime for X = SUnits[1] */
 GEN
-sunits_makecoprime(GEN nf, GEN X, GEN pr, GEN prk)
+sunits_makecoprime(GEN X, GEN pr, GEN prk)
 {
   GEN G, p = pr_get_p(pr), prkZ = gcoeff(prk,1,1);
   long i, l = lg(X);

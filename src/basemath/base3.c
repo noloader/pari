@@ -3023,8 +3023,7 @@ ideallog_units(GEN bnf, GEN bid)
     for (i = 1; i < l0; i++)
     {
       GEN sprk = gel(S.sprk, i);
-      GEN Xi = sunits_makecoprime(nf, X, sprk_get_pr(sprk),
-                                  sprk_get_prk(sprk));
+      GEN Xi = sunits_makecoprime(X, sprk_get_pr(sprk), sprk_get_prk(sprk));
       for (j = 1; j < lU; j++)
         gcoeff(y,i,j) = famat_zlog_pr_coprime(nf, Xi, gel(U,j), sprk);
     }

@@ -2394,7 +2394,7 @@ GEN     pr_inv(GEN pr);
 GEN     pr_inv_p(GEN pr);
 GEN     pr_uniformizer(GEN pr, GEN F);
 GEN     prV_lcm_capZ(GEN L);
-GEN     sunits_makecoprime(GEN nf, GEN X, GEN pr, GEN prk);
+GEN     sunits_makecoprime(GEN X, GEN pr, GEN prk);
 GEN     to_famat(GEN x, GEN y);
 GEN     to_famat_shallow(GEN x, GEN y);
 ulong   u_ppo(ulong x, ulong f);
