@@ -1083,18 +1083,6 @@ fu_bitprec(GEN x)
   return e;
 }
 
-static GEN
-log_m1(long r1, long ru, long prec)
-{
-  GEN v = cgetg(ru+1,t_COL);
-  GEN a = r1? PiI2n(0,prec): NULL;
-  GEN a2 = (r1 != ru)? PiI2n(1,prec): NULL;
-  long i;
-  for (i=1; i<=r1; i++) gel(v,i) = a;
-  for (   ; i<=ru; i++) gel(v,i) = a2;
-  return v;
-}
-
 /* Let x = \prod X[i]^E[i] = u, return u.
  * If dX != NULL, X[i] = nX[i] / dX[i] where nX[i] is a ZX, dX[i] in Z */
 static GEN
@@ -1201,7 +1189,7 @@ vec_chinese_unit(GEN bnf)
 static GEN
 getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
 {
-  GEN U, y, matep, A, vm1, T = nf_get_pol(nf), M = nf_get_M(nf);
+  GEN U, y, matep, A, T = nf_get_pol(nf), M = nf_get_M(nf);
   long i, j, R1, RU, N = degpol(T);
 
   R1 = nf_get_r1(nf); RU = (N+R1) >> 1;
@@ -1219,37 +1207,30 @@ getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
   }
   U = lll(real_i(matep));
   if (lg(U) < RU) return not_given(fupb_PRECI);
-  if (ptU) { *ptU = U; *ptA = RgM_mul(A,U); return NULL; }
+  if (ptU) { *ptU = U; *ptA = A = RgM_mul(A,U); }
   y = RgM_mul(matep,U);
   *pte = fu_bitprec(y);
-  if (*pte >= 0)
-    return not_given(*pte == LONG_MAX? fupb_LARGE: fupb_PRECI);
+  if (*pte >= 0) return not_given(*pte == LONG_MAX? fupb_LARGE: fupb_PRECI);
   if (prec <= 0) prec = gprecision(A);
   y = RgM_solve_realimag(M, gexp(y,prec));
   if (!y) return not_given(fupb_PRECI);
   y = grndtoi(y, pte); if (*pte >= 0) return not_given(fupb_PRECI);
+  settyp(y, t_VEC);
 
-  *ptA = A = RgM_mul(A, U); settyp(y, t_VEC);
-  vm1 = log_m1(R1, RU, prec);
+  if (!ptU) *ptA = A = RgM_mul(A, U);
   for (j = 1; j < RU; j++)
-  { /* y[i] are hopefully unit generators. Normalize: smallest T2 norm
-     * + lead coeff > 0 */
+  { /* y[i] are hopefully unit generators. Normalize: smallest T2 norm */
     GEN u = gel(y,j), v = zk_inv(nf, u), z;
     if (!v) { *pte = 0; return not_given(fupb_PRECI); }
     if (gcmp(RgC_fpnorml2(v,DEFAULTPREC), RgC_fpnorml2(u,DEFAULTPREC)) < 0)
     {
       gel(A,j) = RgC_neg(gel(A,j));
+      if (ptU) gel(U,j) = ZC_neg(gel(U,j));
       u = v;
     }
-    z = nf_to_scalar_or_alg(nf, u);
+    gel(y,j) = z = nf_to_scalar_or_alg(nf, u);
     if (typ(z) != t_POL
-        || !is_pm1(nfnorm(nf, z))) { *pte = 0; return not_given(fupb_PRECI); }
-    if (gsigne(leading_coeff(z)) < 0)
-    {
-      gel(A,j) = RgC_add(gel(A,j), vm1);
-      z = RgX_neg(z);
-    }
-    gel(y,j) = z;
+        || !is_pm1(RgXQ_norm(z,T))) { *pte = 0; return not_given(fupb_PRECI); }
   }
   return y;
 }
