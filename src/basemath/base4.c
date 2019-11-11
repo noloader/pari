@@ -1577,6 +1577,29 @@ famat_makecoprime(GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN EX)
   return famat_to_nf_modideal_coprime(nf, G, E, prk, EX);
 }
 
+/* simplified version of famat_makecoprime for X = SUnits[1] */
+GEN
+sunits_makecoprime(GEN nf, GEN X, GEN pr, GEN prk)
+{
+  GEN G, p = pr_get_p(pr), prkZ = gcoeff(prk,1,1);
+  long i, l = lg(X);
+
+  G = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+  {
+    GEN x = gel(X,i);
+    if (typ(x) == t_INT) /* a prime */
+      x = equalii(x,p)? p_makecoprime(pr): modii(x, prkZ);
+    else
+    {
+      (void)ZC_nfvalrem(x, pr, &x); /* x *= (b/p)^v_pr(x) */
+      x = ZC_hnfrem(FpC_red(x,prkZ), prk);
+    }
+    gel(G,i) = x;
+  }
+  return G;
+}
+
 /* prod g[i]^e[i] mod bid, assume (g[i], id) = 1 and 1 < lg(g) <= lg(e) */
 GEN
 famat_to_nf_moddivisor(GEN nf, GEN g, GEN e, GEN bid)

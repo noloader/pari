@@ -620,7 +620,6 @@ GEN    make_integral(GEN nf, GEN L0, GEN f, GEN listpr);
 GEN    rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnfeq, GEN *pD, GEN *pfi,
                   GEN *pdKP);
 GEN    subgroupcondlist(GEN cyc, GEN bound, GEN listKer);
-GEN    ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid);
 
 /* Qfb.c */
 

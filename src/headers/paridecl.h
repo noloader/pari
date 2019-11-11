@@ -2209,7 +2209,8 @@ GEN     gpnfvalrem(GEN nf, GEN x, GEN pr, GEN *py);
 GEN     ideallist(GEN nf,long bound);
 GEN     ideallist0(GEN nf,long bound, long flag);
 GEN     ideallistarch(GEN nf, GEN list, GEN arch);
-GEN     ideallog(GEN nf,GEN x,GEN bigideal);
+GEN     ideallog(GEN nf,GEN x,GEN bid);
+GEN     ideallog_units(GEN bnf, GEN bid);
 GEN     idealprincipalunits(GEN nf, GEN pr, long e);
 GEN     idealstar0(GEN nf, GEN x,long flag);
 GEN     indices_to_vec01(GEN archp, long r);
@@ -2390,6 +2391,7 @@ GEN     pr_inv(GEN pr);
 GEN     pr_inv_p(GEN pr);
 GEN     pr_uniformizer(GEN pr, GEN F);
 GEN     prV_lcm_capZ(GEN L);
+GEN     sunits_makecoprime(GEN nf, GEN X, GEN pr, GEN prk);
 GEN     to_famat(GEN x, GEN y);
 GEN     to_famat_shallow(GEN x, GEN y);
 ulong   u_ppo(ulong x, ulong f);
@@ -2647,6 +2649,7 @@ GEN     Buchall_param(GEN P, double bach, double bach2, long nbrelpid, long flun
 GEN     bnf_build_cycgen(GEN bnf);
 GEN     bnf_build_matalpha(GEN bnf);
 GEN     bnf_build_units(GEN bnf);
+GEN     bnf_get_compactfu(GEN bnf);
 GEN     bnfinit0(GEN P,long flag,GEN data,long prec);
 GEN     bnfisprincipal0(GEN bnf, GEN x,long flall);
 GEN     bnfisunit(GEN bignf, GEN x);
@@ -2660,6 +2663,8 @@ GEN     isprincipalfact_or_fail(GEN bnf, GEN C, GEN P, GEN e);
 GEN     isprincipal(GEN bnf, GEN x);
 GEN     nfcyclotomicunits(GEN nf, GEN zu);
 GEN     nfsign_units(GEN bnf, GEN archp, int add_zu);
+GEN     nfsign_tu(GEN bnf, GEN archp);
+GEN     nfsign_fu(GEN bnf, GEN archp);
 GEN     signunits(GEN bignf);
 
 /* buch3.c */

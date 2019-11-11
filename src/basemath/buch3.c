@@ -351,13 +351,6 @@ check_subgroup(GEN bnr, GEN H, GEN *clhray)
   return H;
 }
 
-static GEN
-get_dataunit(GEN bnf, GEN bid)
-{
-  GEN D = nfsign_units(bnf, bid_get_archp(bid), 1);
-  return ideallog_sgn(bnf_get_nf(bnf), bnf_build_units(bnf), D, bid);
-}
-
 /* c a rational content (NULL or t_INT or t_FRAC), return u*c as a ZM/d */
 static GEN
 ZM_content_mul(GEN u, GEN c, GEN *pd)
@@ -418,7 +411,7 @@ Buchray_i(GEN bnf, GEN module, long flag)
     return mkvecn(6, bnf, bid, El, U, clg, vu);
   }
 
-  logU = get_dataunit(bnf, bid);
+  logU = ideallog_units(bnf, bid);
   if (do_init)
   { /* (log(Units)|D) * u = (0 | H) */
     GEN c1,c2, u,u1,u2, Hi, D = shallowconcat(logU, diagonal_shallow(cycbid));
@@ -496,7 +489,7 @@ bnrclassno(GEN bnf,GEN ideal)
   if (!bid) bid = Idealstar(bnf, ideal, nf_INIT);
   cycbid = bid_get_cyc(bid);
   if (lg(cycbid) == 1) { set_avma(av); return icopy(h); }
-  D = get_dataunit(bnf, bid); /* (Z_K/f)^* / units ~ Z^n / D */
+  D = ideallog_units(bnf, bid); /* (Z_K/f)^* / units ~ Z^n / D */
   D = ZM_hnfmodid(D,cycbid);
   return gerepileuptoint(av, mulii(h, ZM_det_triangular(D)));
 }

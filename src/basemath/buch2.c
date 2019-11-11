@@ -1162,6 +1162,22 @@ famat_remove0(GEN fa)
     if (signe(gel(e,j))) { gel(P,k) = gel(p,j); gel(E,k++) = gel(e,j); }
   setlg(P, k); setlg(E, k); return mkmat2(P,E);
 }
+GEN
+bnf_get_compactfu(GEN bnf)
+{
+  GEN SUnits = bnf_get_sunits(bnf);
+  if (SUnits)
+  {
+    GEN X = gel(SUnits,1), U = gel(SUnits,2);
+    ZM_remove_unused(&U, &X);
+    return mkvec2(X, U);
+  }
+  else
+  {
+    GEN U = bnf_build_units(bnf);
+    return vecslice(U, 2, lg(U)-1);
+  }
+}
 
 static GEN
 vec_chinese_unit(GEN bnf)
@@ -2196,23 +2212,31 @@ nfsign_from_logarch(GEN LA, GEN invpi, GEN archp)
 }
 
 GEN
-nfsign_units(GEN bnf, GEN archp, int add_zu)
+nfsign_tu(GEN bnf, GEN archp)
+{
+  long n;
+  if (bnf_get_tuN(bnf) != 2) return cgetg(1, t_VECSMALL);
+  n = archp? lg(archp) - 1: nf_get_r1(bnf_get_nf(bnf));
+  return const_vecsmall(n, 1);
+}
+GEN
+nfsign_fu(GEN bnf, GEN archp)
 {
   GEN invpi, y, A = bnf_get_logfu(bnf), nf = bnf_get_nf(bnf);
   long j = 1, RU = lg(A);
 
-  invpi = invr( mppi(nf_get_prec(nf)) );
   if (!archp) archp = identity_perm( nf_get_r1(nf) );
-  if (add_zu) { RU++; A--; }
+  invpi = invr( mppi(nf_get_prec(nf)) );
   y = cgetg(RU,t_MAT);
-  if (add_zu)
-  {
-    long w = bnf_get_tuN(bnf);
-    gel(y, j++) = (w == 2)? const_vecsmall(lg(archp)-1, 1)
-                          : cgetg(1, t_VECSMALL);
-  }
-  for ( ; j < RU; j++) gel(y,j) = nfsign_from_logarch(gel(A,j), invpi, archp);
+  for (j = 1; j < RU; j++)
+    gel(y,j) = nfsign_from_logarch(gel(A,j), invpi, archp);
   return y;
+}
+GEN
+nfsign_units(GEN bnf, GEN archp, int add_zu)
+{
+  GEN sfu = nfsign_fu(bnf, archp);
+  return add_zu? vec_prepend(sfu, nfsign_tu(bnf, archp)): sfu;
 }
 
 /* obsolete */
@@ -2226,7 +2250,7 @@ signunits(GEN bnf)
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf);
   nf_get_sign(nf, &r1,&r2);
   S = zeromatcopy(r1, r1+r2-1); av = avma;
-  y = nfsign_units(bnf, NULL, 0);
+  y = nfsign_fu(bnf, NULL);
   for (j = 1; j < lg(y); j++)
   {
     GEN Sj = gel(S,j), yj = gel(y,j);

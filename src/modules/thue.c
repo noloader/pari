@@ -1596,7 +1596,7 @@ get_unit_1(GEN bnf, GEN *unit)
 
   if (DEBUGLEVEL > 2) err_printf("looking for a fundamental unit of norm -1\n");
   if (odd(n)) { *unit = gen_m1; return 1; }
-  v = nfsign_units(bnf, NULL, 0);
+  v = nfsign_fu(bnf, NULL);
   for (i = 1; i < lg(v); i++)
     if ( Flv_sum( gel(v,i), 2) ) { *unit = gel(bnf_get_fu(bnf), i); return 1; }
   return 0;

@@ -2545,11 +2545,19 @@ sprk_is_prime(GEN s) { return lg(s) == 5; }
 static GEN
 famat_zlog_pr(GEN nf, GEN g, GEN e, GEN sprk)
 {
-  GEN pr = sprk_get_pr(sprk);
-  GEN prk = sprk_get_prk(sprk);
-  GEN x = famat_makecoprime(nf, g, e, pr, prk, sprk_get_expo(sprk));
+  GEN x = famat_makecoprime(nf, g, e, sprk_get_pr(sprk), sprk_get_prk(sprk),
+                            sprk_get_expo(sprk));
   return log_prk(nf, x, sprk);
 }
+/* famat_zlog_pr assuming (g,sprk.pr) */
+static GEN
+famat_zlog_pr_coprime(GEN nf, GEN g, GEN e, GEN sprk)
+{
+  GEN x = famat_to_nf_modideal_coprime(nf, g, e, sprk_get_prk(sprk),
+                                       sprk_get_expo(sprk));
+  return log_prk(nf, x, sprk);
+}
+
 /* log_g(a) in (Z_K/pr)^* */
 static GEN
 nf_log(GEN nf, GEN a, GEN ff)
@@ -2596,18 +2604,14 @@ veclog_prk(GEN nf, GEN v, GEN sprk)
 static GEN
 famat_zlog(GEN nf, GEN fa, GEN sgn, zlog_S *S)
 {
-  long i, n0, n = lg(S->U)-1;
-  GEN g, e, y;
-  if (lg(fa) == 1) return zerocol(n);
-  g = gel(fa,1);
-  e = gel(fa,2);
-  y = cgetg(n+1, t_COL);
-  n0 = lg(S->sprk)-1; /* n0 = n (trivial arch. part), or n-1 */
-  for (i=1; i <= n0; i++) gel(y,i) = famat_zlog_pr(nf, g, e, gel(S->sprk,i));
-  if (n0 != n)
+  long i, l0, l = lg(S->U);
+  GEN g = gel(fa,1), e = gel(fa,2), y = cgetg(l, t_COL);
+  l0 = lg(S->sprk); /* = l (trivial arch. part), or l-1 */
+  for (i=1; i < l0; i++) gel(y,i) = famat_zlog_pr(nf, g, e, gel(S->sprk,i));
+  if (l0 != l)
   {
     if (!sgn) sgn = nfsign_arch(nf, fa, S->archp);
-    gel(y,n) = Flc_to_ZC(sgn);
+    gel(y,l0) = Flc_to_ZC(sgn);
   }
   return y;
 }
@@ -2998,47 +3002,63 @@ GEN
 vecmoduu(GEN x, GEN y)
 { pari_APPLY_ulong(uel(x,i) % uel(y,i)) }
 
-static GEN
-ideallog_i(GEN nf, GEN x, GEN sgn, zlog_S *S)
+/* assume a true bnf and bid */
+GEN
+ideallog_units(GEN bnf, GEN bid)
 {
-  pari_sp av = avma;
-  GEN y, cyc;
-  if (!S->hU) return cgetg(1, t_COL);
-  cyc = bid_get_cyc(S->bid);
-  if (typ(x) == t_MAT)
+  GEN nf = bnf_get_nf(bnf), D, y, C, cyc;
+  long j, lU = lg(bnf_get_logfu(bnf)); /* r1+r2 */
+  zlog_S S;
+  init_zlog(&S, bid);
+  if (!S.hU) return zeromat(0,lU);
+  cyc = bid_get_cyc(bid);
+  D = nfsign_fu(bnf, bid_get_archp(bid));
+  C = bnf_get_compactfu(bnf);
+  y = cgetg(lU, t_MAT);
+  if (lg(C) == 3 && typ(gel(C,2)) == t_MAT)
   {
-    if (lg(x) == 1) return zerocol(lg(cyc)-1);
-    y = famat_zlog(nf, x, sgn, S);
+    GEN X = gel(C,1), U = gel(C,2);
+    long i, l = lg(S.U), l0 = lg(S.sprk);
+    for (j = 1; j < lU; j++) gel(y,j) = cgetg(l, t_COL);
+    for (i = 1; i < l0; i++)
+    {
+      GEN sprk = gel(S.sprk, i);
+      GEN Xi = sunits_makecoprime(nf, X, sprk_get_pr(sprk),
+                                  sprk_get_prk(sprk));
+      for (j = 1; j < lU; j++)
+        gcoeff(y,i,j) = famat_zlog_pr_coprime(nf, Xi, gel(U,j), sprk);
+    }
+    if (l0 != l)
+      for (j = 1; j < lU; j++) gcoeff(y,l0,j) = Flc_to_ZC(gel(D,j));
   }
   else
-    y = zlog(nf, x, sgn, S);
-  y = ZMV_ZCV_mul(S->U, y);
-  return gerepileupto(av, vecmodii(y, cyc));
+    for (j = 1; j < lU; j++) gel(y,j) = zlog(nf, gel(C,j), gel(D,j), &S);
+  y = vec_prepend(y, zlog(nf, bnf_get_tuU(bnf), nfsign_tu(bnf, S.archp), &S));
+  for (j = 1; j <= lU; j++)
+    gel(y,j) = vecmodii(ZMV_ZCV_mul(S.U, gel(y,j)), cyc);
+  return y;
 }
 
-/* Given x (not necessarily integral), and bid as output by zidealstarinit,
- * compute the vector of components on the generators bid[2].
- * Assume (x,bid) = 1 and sgn is either NULL or nfsign_arch(x, bid) */
-GEN
-ideallog_sgn(GEN nf, GEN x, GEN sgn, GEN bid)
+static GEN
+ideallog_i(GEN nf, GEN x, zlog_S *S)
 {
-  zlog_S S;
-  nf = checknf(nf); checkbid(bid);
-  init_zlog(&S, bid);
-  if (sgn && typ(x) == t_VEC) /* vector of elements and signatures */
-  {
-    long i, l = lg(x);
-    GEN y = cgetg(l, t_MAT);
-    for (i = 1; i < l; i++) gel(y,i) = ideallog_i(nf, gel(x,i), gel(sgn,i), &S);
-    return y;
-  }
-  return ideallog_i(nf, x, sgn, &S);
+  pari_sp av = avma;
+  GEN y;
+  if (!S->hU) return cgetg(1, t_COL);
+  if (typ(x) == t_MAT)
+    y = famat_zlog(nf, x, NULL, S);
+  else
+    y = zlog(nf, x, NULL, S);
+  y = ZMV_ZCV_mul(S->U, y);
+  return gerepileupto(av, vecmodii(y, bid_get_cyc(S->bid)));
 }
 GEN
 ideallog(GEN nf, GEN x, GEN bid)
 {
+  zlog_S S;
   if (!nf) return Zideallog(bid, x);
-  return ideallog_sgn(nf, x, NULL, bid);
+  checkbid(bid); init_zlog(&S, bid);
+  return ideallog_i(checknf(nf), x, &S);
 }
 
 /*************************************************************************/

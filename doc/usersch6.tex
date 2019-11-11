@@ -268,6 +268,32 @@ of $\Z_K^*$.
 \fun{long}{bnf_get_tuN}{GEN bnf} returns the order of the torsion part of
 $\Z_K^*$, i.e.~the number of roots of unity in $K$.
 
+\fun{GEN}{bnf_get_sunits}{GEN bnf} allows access to the algebraic data
+stored by \kbd{bnfinit(,1)}. It returns \kbd{NULL} unless the \kbd{bnf}
+was initialized by \kbd{bnfinit(,1)}, else a vector $[X,U,E,\kbd{lim}]$ where
+
+\item $X$ is a vector of rational primes and algebraic integers all of whose
+prime divisors have norm less than \kbd{lim},
+
+\item $U$ is a matrix of exponents whose columns yield the fundamental units
+\kbd{bnf.fu}. More precisely,
+$$\kbd{bnf.fu}[j] = \prod_i X[i]^{U[i,j]}.$$
+
+\item $G$ is a matrix of exponents whose columns yield the generators
+of principal ideals attached to the HNF of the \kbd{bnf} relation matrix
+between the maximal ideals of norm less \kbd{lim} (that generate the class
+group under GRH). More precisely, \kbd{bnf[5]} contains the prime factor
+base $P$ (its first $r$ elements being independant class group generators),
+\kbd{bnf[1]} contains a matrix $W$ in HNF in $M_r(\Z)$ and
+\kbd{bnf[2]}, contains a matrix $B$ in $M_{r \times c}(\Z)$. We define
+algebraic numbers $e_j$ for $j \leq r+c$ such that
+
+$$\kbd{\prod_{i \leq r} P_i^{W[i,j]}} = (e_j),\quad j \leq r$$
+
+$$ P_j \kbd{\prod_{i \leq r} P_i^{B[i,j]}} = (e_j), j > r$$
+
+\noindent Then $e_j = \prod_i X[i]^{E[i,j]}$.
+
 \subsec{Extracting info from a \kbd{bnr} structure}
 
 These functions expect a true \var{bnr} argument.
@@ -1376,11 +1402,18 @@ places. This is the low-level function underlying \kbd{nfsign}.
 Return $1$ if $\sigma_i(x) \var{pl}[i] \geq 0$ for all $i$, and $0$ otherwise.
 
 \fun{GEN}{nfsign_units}{GEN bnf, GEN archp, int add_tu}
-\kbd{archp} being a divisor at infinity in \kbd{indices} form
-(or \kbd{NULL} for the divisor including all real places), return the signs
-at \kbd{archp} of a system of fundamental units for the field, in the same
-order as \kbd{bnf.tufu} if \kbd{add\_tu} is set; and in the same order as
+\kbd{archp} being a divisor at infinity in \kbd{indices} form (or \kbd{NULL}
+for the divisor including all real places), return the signs at \kbd{archp}
+of a \kbd{bnf.tu} and of system of fundamental units for the field
+\kbd{bnf.fu}, in that order if \kbd{add\_tu} is set; and in the same order as
 \kbd{bnf.fu} otherwise.
+
+\fun{GEN}{nfsign_fu}{GEN bnf, GEN archp} returns the signs at \kbd{archp}
+of the fundamental units \kbd{bnf.fu}. This is an alias for
+\kbd{nfsign\_units} with \kbd{add\_tu} unset.
+
+\fun{GEN}{nfsign_tu}{GEN bnf, GEN archp} returns the signs at \kbd{archp}
+of the torsion unit generator \kbd{bnf.tu}.
 
 \fun{GEN}{nfsign_from_logarch}{GEN L, GEN invpi, GEN archp} given $L$
 the vector of the $\log \sigma(x)$, where $\sigma$ runs through the (real
@@ -1779,19 +1812,24 @@ the prime number $p$, and $x$ is either a number field element or a
 \kbd{famat} factorization matrix. We finally assume that no component of $x$
 has a denominator $p$.
 
-
 What to do when the $g[i]$ are not coprime to $f$, but only $\prod
 g[i]^{e[i]}$ is? Then the situation is more complicated, and we advise to
-solve it one prime divisor of $f$ at a time. Let $v$ the valuation
-attached to a maximal ideal \kbd{pr} and assume $v(f) = k > 0$:
+solve it one prime divisor of $f$ at a time. Let $v$ be the valuation
+attached to a maximal ideal \kbd{pr}:
 
 \fun{GEN}{famat_makecoprime}{GEN nf, GEN g, GEN e, GEN pr, GEN prk, GEN expo}
 returns an element in $(\Z_K/\kbd{pr}^k)^*$ congruent to the product
-$\prod g[i]^{e[i]}$, assumed to be globally coprime to $f$. As above,
+$\prod g[i]^{e[i]}$, assumed to be globally coprime to \kbd{pr}. As above,
 \kbd{expo} is any positive multiple of the exponent of $(\Z_K/\kbd{pr}^k)^*$,
 for instance $(Nv-1)p^{k-1}$, if $p$ is the underlying rational prime. You
 may use other values of \kbd{expo} (see the useful trick in
 \tet{famat_to_nf_modideal_coprime}).
+
+\fun{GEN}{sunits_makecoprime}{GEN nf, GEN g, GEN pr, GEN prk} is a
+specialized variant that allows to precondition a vector of $g[i]$ assumed to
+be integral primes or algebraic integers so that it becomes suitable for
+\kbd{famat_to_nf_modideal_coprime} modulo \kbd{pr}. This is in particular
+usefull for the output of \kbd{bnf\_get\_sunits}.
 
 \fun{GEN}{Idealstarprk}{GEN nf, GEN pr, long k, long flag} same as
 \kbd{Idealstar} for $I = \kbd{pr}^k$
@@ -1839,6 +1877,10 @@ is the \kbd{bnr} modulus: avoids copying the \kbd{bnr} (wasteful).
 \fun{long}{bnrisconductor}{GEN bnr, GEN H} returns 1 is the class field
 defined by the subgroup $H$ (of the ray class group mod $f$ coded in \kbd{bnr})
 has conductor $f$. Returns 0 otherwise.
+
+\fun{GEN}{ideallog_units}{GEN bnf, GEN bid} return the images of the units
+generators \kbd{bnf.tu} and \kbd{bnf.tu} in the finite abelian group
+$(\Z_K/f)^*$ attached to \kbd{bid}.
 
 \fun{GEN}{bnrchar_primitive}{GEN bnr, GEN chi, GEN bnrc}
 Given a normalized character $\kbd{chi} = [d,c]$ on \kbd{bnr.clgp} (see
