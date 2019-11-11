@@ -3480,33 +3480,40 @@ const struct bb_field *get_Flxq_field(void **E, GEN T, ulong p)
 GEN
 Flx_invLaplace(GEN x, ulong p)
 {
-  pari_sp av = avma;
-  long i, e = 0, l = lg(x);
-  GEN y = cgetg(l,t_VECSMALL);
-  ulong t = 1;
+  long i, d = degpol(x);
+  ulong t;
+  GEN y;
+  if (d <= 1) return Flx_copy(x);
+  t = Fl_inv(factorial_Fl(d, p), p);
+  y = cgetg(d+3, t_VECSMALL);
   y[1] = x[1];
-  for (i=2; i<l; i++)
+  for (i=d; i>=2; i--)
   {
-    uel(y,i) = Fl_div(uel(x,i), t, p);
-    e++; t = Fl_mul(t,e%p,p);
+    uel(y,i+2) = Fl_mul(uel(x,i+2), t, p);
+    t = Fl_mul(t, i, p);
   }
-  return gerepileuptoleaf(av, y);
+  uel(y,3) = uel(x,3);
+  uel(y,2) = uel(x,2);
+  return y;
 }
 
 GEN
 Flx_Laplace(GEN x, ulong p)
 {
-  pari_sp av = avma;
-  long i, e = 0, l = lg(x);
-  GEN y = cgetg(l,t_VECSMALL);
+  long i, d = degpol(x);
   ulong t = 1;
+  GEN y;
+  if (d <= 1) return Flx_copy(x);
+  y = cgetg(d+3, t_VECSMALL);
   y[1] = x[1];
-  for (i=2; i<l; i++)
+  uel(y,2) = uel(x,2);
+  uel(y,3) = uel(x,3);
+  for (i=2; i<=d; i++)
   {
-    uel(y,i) = Fl_mul(uel(x,i), t, p);
-    e++; t = Fl_mul(t,e%p,p);
+    t = Fl_mul(t, i%p, p);
+    uel(y,i+2) = Fl_mul(uel(x,i+2), t, p);
   }
-  return gerepileuptoleaf(av, y);
+  return y;
 }
 
 GEN
