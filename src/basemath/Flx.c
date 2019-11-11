@@ -3605,7 +3605,7 @@ Flxn_expint(GEN h, long e, ulong p)
 GEN
 Flxn_exp(GEN h, long e, ulong p)
 {
-    if (degpol(h)<1 || uel(h,2)!=0)
+  if (degpol(h)<1 || uel(h,2)!=0)
     pari_err_DOMAIN("Flxn_exp","valuation", "<", gen_1, h);
   return Flxn_expint(Flx_deriv(h, p), e, p);
 }
