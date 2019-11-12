@@ -3657,31 +3657,32 @@ newtonlogint(ulong n, ulong pp)
   return s;
 }
 
-/* return p^val * FpX_invLaplace(x, q), with q a power of p and val large
- * enough to compensate for the power of p in the factorials */
+/* return p^val * FpX_invLaplace(1+x+...x^(n-1), q), with q a power of p and
+ * val large enough to compensate for the power of p in the factorials */
+
 static GEN
-ZpX_invLaplace_val(GEN x, GEN q, ulong p, long v)
+ZpX_invLaplace_init(long n, GEN q, ulong p, long v, long var)
 {
   pari_sp av = avma;
-  long i, d = degpol(x), w = 0;
+  long i, d = n-1, w;
   GEN y, W, E, t;
   W = cgetg(d+1, t_VECSMALL);
   E = cgetg(d+1, t_VECSMALL);
-  y = cgetg(d+3,t_POL);
-  y[1] = x[1];
   for (i=1; i<=d; i++)
     W[i] = u_lvalrem(i, p, &uel(E,i));
   t = Fp_inv(FpV_prod(Flv_to_ZV(E), q), q);
   w = zv_sum(W);
   if (v > w) t = Fp_mul(t, powuu(p, v-w), q);
+  y = cgetg(d+3,t_POL);
+  y[1] = evalsigne(1) | evalvarn(var);
   for (i=d; i>=1; i--)
   {
-    gel(y,i+2) = Fp_mul(gel(x,i+2), t, q);
+    gel(y,i+2) = t;
     t = Fp_mulu(t, uel(E,i), q);
     if (uel(W,i)) t = Fp_mul(t, powuu(p, uel(W,i)), q);
   }
-  gel(y,2) = Fp_mul(gel(x,2), t, q);
-  return gerepilecopy(av, y);
+  gel(y,2) = t;
+  return gerepilecopy(av, ZX_renormalize(y, d+3));
 }
 
 static GEN
@@ -3692,7 +3693,7 @@ Flx_diamondsum(GEN P, GEN Q, ulong p)
   {
     GEN Pl = Flx_invLaplace(Flx_Newton(P,n,p), p);
     GEN Ql = Flx_invLaplace(Flx_Newton(Q,n,p), p);
-    GEN L = Flx_Laplace(Flxn_mul(Pl, Ql, n, p), p);
+    GEN L  = Flx_Laplace(Flxn_mul(Pl, Ql, n, p), p);
     return Flx_fromNewton(L, p);
   } else
   {
@@ -3700,10 +3701,11 @@ Flx_diamondsum(GEN P, GEN Q, ulong p)
     long w = 1 + newtonlogint(n-1, p);
     GEN pv = powuu(p, v);
     GEN qf = powuu(p, w), q = mulii(pv, qf), q2 = mulii(q, pv);
-    GEN Pl = ZpX_invLaplace_val(FpX_Newton(Flx_to_ZX(P), n, qf), q, p ,v);
-    GEN Ql = ZpX_invLaplace_val(FpX_Newton(Flx_to_ZX(Q), n, qf), q, p, v);
+    GEN iL = ZpX_invLaplace_init(n, q, p, v, varn(P));
+    GEN Pl = FpX_convol(iL, FpX_Newton(Flx_to_ZX(P), n, qf), q);
+    GEN Ql = FpX_convol(iL, FpX_Newton(Flx_to_ZX(Q), n, qf), q);
     GEN Ln = ZX_Z_divexact(FpXn_mul(Pl, Ql, n, q2), pv);
-    GEN L = ZX_Z_divexact(FpX_Laplace(Ln, q), pv);
+    GEN L  = ZX_Z_divexact(FpX_Laplace(Ln, q), pv);
     return ZX_to_Flx(FpX_fromNewton(L, qf), p);
   }
 }
