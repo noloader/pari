@@ -485,10 +485,9 @@ bnfsunit0(GEN bnf, GEN S, long flag, long prec)
   card = gen_1;
   if (lg(H) > 1)
   { /* non trivial */
-    GEN A, u, D = ZM_snfall_i(H, &u, NULL, 1), gen = bnf_get_gen(bnf);
-    long l;
-    ZV_snf_trunc(D); l = lg(D); card = ZV_prod(D);
-    A = cgetg(l, t_VEC); u = ZM_inv(u, NULL);
+    GEN A, u, gen = bnf_get_gen(bnf), D = ZM_snf_group(H, NULL, &u);
+    long l = lg(D);
+    A = cgetg(l, t_VEC); card = ZV_prod(D);
     for(i = 1; i < l; i++) gel(A,i) = idealfactorback(nf, gen, gel(u,i), 1);
     gel(res,5) = mkvec3(card, D, A);
   }
