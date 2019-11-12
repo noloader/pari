@@ -1239,17 +1239,15 @@ static GEN
 makeunits(GEN bnf)
 {
   GEN nf = bnf_get_nf(bnf), fu = bnf_get_fu_nocheck(bnf);
-  GEN v, t = nf_to_scalar_or_basis(nf, bnf_get_tuU(bnf));
-  long i, l;
+  GEN tu = nf_to_scalar_or_basis(nf, bnf_get_tuU(bnf));
   if (typ(fu) == t_MAT)
   {
     fu = vec_chinese_unit(bnf);
     if (!fu) pari_err_PREC("makeunits [cannot get units, use bnfinit(,1)]");
-    return vec_prepend(fu, t);
   }
-  l = lg(fu) + 1; v = cgetg(l, t_VEC); gel(v,1) = t;
-  for (i = 2; i < l; i++) gel(v,i) = algtobasis(nf, gel(fu,i-1));
-  return v;
+  else
+    fu = matalgtobasis(nf, fu);
+  return vec_prepend(fu, tu);
 }
 
 /*******************************************************************/
