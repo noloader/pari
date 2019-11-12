@@ -3900,7 +3900,8 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
   else
   {
     B = leafcopy(B); setvarn(B,fetch_var_higher());
-    C = ZX_ZXY_resultant_all(A, B, &k, (flag&1)? &LPRS: NULL);
+    C = (flag&1)? ZX_ZXY_resultant_all(A, B, &k, &LPRS)
+                : ZX_compositum(A, B, &k);
     setvarn(C, v);
   }
   /* C = Res_Y (A(Y), B(X + kY)) guaranteed squarefree */

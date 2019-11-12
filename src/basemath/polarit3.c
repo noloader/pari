@@ -2491,16 +2491,14 @@ ZX_direct_compositum_worker(GEN P, GEN A, GEN B)
 
 /* Assume A,B irreducible (in particular squarefree) and define linearly
  * disjoint extensions: no factorisation needed */
-GEN
-ZX_compositum_disjoint(GEN A, GEN B)
+static GEN
+ZX_direct_compositum(GEN A, GEN B, GEN lead)
 {
   pari_sp av = avma;
   forprime_t S;
   long m = maxss(degpol(A),degpol(B));
   ulong bound;
-  GEN H, worker, lead, mod;
-  lead  = mulii(powiu(leading_term(A),degpol(B)),powiu(leading_term(B),degpol(A)));
-  if (is_pm1(lead)) lead = NULL;
+  GEN H, worker, mod;
   bound = ZX_ZXY_ResBound(A, poleval(B,deg1pol(gen_1,pol_x(1),0)), lead);
   worker = snm_closure(is_entry("_ZX_direct_compositum_worker"), mkvec2(A,B));
   init_modular_big(&S);
@@ -2509,6 +2507,44 @@ ZX_compositum_disjoint(GEN A, GEN B)
   if (lead) H = FpX_center(FpX_Fp_mul(H, lead, mod), mod, shifti(mod,-1));
   return gerepileupto(av, H);
 }
+
+static long
+ZX_compositum_lambda(GEN A, GEN B, GEN lead, long lambda)
+{
+  pari_sp av = avma;
+  forprime_t S;
+INIT:
+  if (DEBUGLEVEL>4) err_printf("Trying lambda = %ld\n", lambda);
+  init_modular_big(&S);
+  while (1)
+  {
+    GEN Hp, a;
+    ulong p = u_forprime_next(&S);
+    if (lead && dvdiu(lead,p)) continue;
+    a = ZX_to_Flx(ZX_rescale(A, stoi(-lambda)), p);
+    Hp = Flx_direct_compositum(a, ZX_to_Flx(B, p), p);
+    if (!Flx_is_squarefree(Hp, p)) { lambda = next_lambda(lambda); goto INIT; }
+    if (DEBUGLEVEL>4) err_printf("Final lambda = %ld\n", lambda);
+    return gc_long(av, lambda);
+  }
+}
+
+GEN
+ZX_compositum(GEN A, GEN B, long *lambda)
+{
+  GEN lead  = mulii(powiu(leading_term(A),degpol(B)),
+                    powiu(leading_term(B),degpol(A)));
+  if (lambda)
+  {
+    *lambda = ZX_compositum_lambda(A, B, lead, *lambda);
+    A = ZX_rescale(A, stoi(-*lambda));
+  }
+  return ZX_direct_compositum(A, B, lead);
+}
+
+GEN
+ZX_compositum_disjoint(GEN A, GEN B)
+{ return ZX_compositum(A, B, NULL); }
 
 /************************************************************************
  *                                                                      *

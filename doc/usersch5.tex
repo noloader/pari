@@ -9424,6 +9424,12 @@ $R = \text{Res}_Y(A, B) \in \Z[X]$, returns the resultant $R$.
 defining linearly disjoint extensions, returns a \kbd{ZX} defining their
 compositum.
 
+\fun{GEN}{ZX_compositum}{GEN A, GEN B, long *lambda}
+given two irreducible \kbd{ZX}, returns an irreducible \kbd{ZX} $C$ defining
+their compositum and set \kbd{lambda} to a small integer $k$ such that if
+$\alpha$ is a root of $A$ and $\beta$ is a root of $B$, then $k\*\alpha +
+\beta$ is a root of $C$.
+
 \fun{GEN}{ZX_ZXY_rnfequation}{GEN A, GEN B, long *lambda},
 assume \kbd{A} in $\Z[Y]$, \kbd{B} in $\Q[Y][X]$, and $R =
 \text{Res}_Y(A, B) \in \Z[X]$. If \kbd{lambda = NULL}, returns $R$

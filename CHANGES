@@ -140,6 +140,7 @@ BA  49- [libpari] FpXn_expint, Flxn_expint, Flx_blocks
         sunits_makecoprime, famat_remove_trivial, bnf_build_cheapfu,
         bnf_compactfu, bnf_compactfu_mat, bnf_has_fu
 BA  51- [libpari] factorial_Fl, factorial_Fp, FpV_prod
+BA  52- [libpari] ZX_compositum
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
