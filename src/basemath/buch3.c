@@ -578,14 +578,10 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
   }
   return gerepilecopy(av, mkvec2(ex,alpha));
 }
-
 GEN
-isprincipalray(GEN bnr, GEN x)
-{ return bnrisprincipal(bnr,x,0); }
-
+isprincipalray(GEN bnr, GEN x) { return bnrisprincipal(bnr,x,0); }
 GEN
-isprincipalraygen(GEN bnr, GEN x)
-{ return bnrisprincipal(bnr,x,nf_GEN); }
+isprincipalraygen(GEN bnr, GEN x) { return bnrisprincipal(bnr,x,nf_GEN); }
 
 /* N! / N^N * (4/pi)^r2 * sqrt(|D|) */
 GEN

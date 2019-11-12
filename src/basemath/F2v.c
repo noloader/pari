@@ -172,16 +172,11 @@ Flv_to_F2v(GEN x)
 }
 
 GEN
-ZM_to_F2m(GEN x)
-{ pari_APPLY_same(ZV_to_F2v(gel(x,i))) }
-
+ZM_to_F2m(GEN x) { pari_APPLY_same(ZV_to_F2v(gel(x,i))) }
 GEN
-RgM_to_F2m(GEN x)
-{ pari_APPLY_same(RgV_to_F2v(gel(x,i))) }
-
+RgM_to_F2m(GEN x) { pari_APPLY_same(RgV_to_F2v(gel(x,i))) }
 GEN
-Flm_to_F2m(GEN x)
-{ pari_APPLY_same(Flv_to_F2v(gel(x,i))) }
+Flm_to_F2m(GEN x) { pari_APPLY_same(Flv_to_F2v(gel(x,i))) }
 
 GEN
 const_F2v(long m)
@@ -326,11 +321,9 @@ F2m_F2c_mul(GEN x, GEN y)
 }
 
 static GEN
-_F2m_mul(void *data, GEN x, GEN y)
-{ (void) data; return F2m_mul(x,y); }
+_F2m_mul(void *data, GEN x, GEN y) { (void) data; return F2m_mul(x,y); }
 static GEN
-_F2m_sqr(void *data, GEN x)
-{ (void) data; return F2m_mul(x,x); }
+_F2m_sqr(void *data, GEN x) { (void) data; return F2m_mul(x,x); }
 GEN
 F2m_powu(GEN x, ulong n)
 {

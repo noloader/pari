@@ -731,8 +731,7 @@ F2xn_red(GEN f, long n)
 }
 
 static GEN
-F2xn_mul(GEN a, GEN b, long n)
-{ return F2xn_red(F2x_mul(a, b), n); }
+F2xn_mul(GEN a, GEN b, long n) { return F2xn_red(F2x_mul(a, b), n); }
 
 static ulong
 F2xn_inv_basecase1(ulong x)
@@ -1073,12 +1072,9 @@ _F2xq_cmul(void *E, GEN P, long a, GEN x)
   return F2x_coeff(P,a) ? x: pol0_F2x(pol[1]);
 }
 static GEN
-_F2xq_sqr(void *E, GEN x)
-{ return F2xq_sqr(x, (GEN) E); }
-
+_F2xq_sqr(void *E, GEN x) { return F2xq_sqr(x, (GEN) E); }
 static GEN
-_F2xq_mul(void *E, GEN x, GEN y)
-{ return F2xq_mul(x,y, (GEN) E); }
+_F2xq_mul(void *E, GEN x, GEN y) { return F2xq_mul(x,y, (GEN) E); }
 
 static GEN
 _F2xq_one(void *E)
@@ -1737,20 +1733,13 @@ gener_F2xq(GEN T, GEN *po)
 }
 
 static GEN
-_F2xq_neg(void *E, GEN x)
-{ (void) E; return F2x_copy(x); }
-
+_F2xq_neg(void *E, GEN x) { (void) E; return F2x_copy(x); }
 static GEN
-_F2xq_rmul(void *E, GEN x, GEN y)
-{ (void) E; return F2x_mul(x,y); }
-
+_F2xq_rmul(void *E, GEN x, GEN y) { (void) E; return F2x_mul(x,y); }
 static GEN
-_F2xq_inv(void *E, GEN x)
-{ return F2xq_inv(x, (GEN) E); }
-
+_F2xq_inv(void *E, GEN x) { return F2xq_inv(x, (GEN) E); }
 static int
 _F2xq_equal0(GEN x) { return lgpol(x)==0; }
-
 static GEN
 _F2xq_s(void *E, long x)
 { GEN T = (GEN) E;
@@ -1775,32 +1764,25 @@ const struct bb_field *get_F2xq_field(void **E, GEN T)
 /* F2xV are t_VEC with F2x coefficients. */
 
 GEN
-FlxC_to_F2xC(GEN x)
-{ pari_APPLY_type(t_COL, Flx_to_F2x(gel(x,i))) }
-
+FlxC_to_F2xC(GEN x) { pari_APPLY_type(t_COL, Flx_to_F2x(gel(x,i))) }
 GEN
-F2xC_to_FlxC(GEN x)
-{ pari_APPLY_type(t_COL, F2x_to_Flx(gel(x,i))) }
-
+F2xC_to_FlxC(GEN x) { pari_APPLY_type(t_COL, F2x_to_Flx(gel(x,i))) }
 GEN
-F2xC_to_ZXC(GEN x)
-{ pari_APPLY_type(t_COL, F2x_to_ZX(gel(x,i))) }
-
+F2xC_to_ZXC(GEN x) { pari_APPLY_type(t_COL, F2x_to_ZX(gel(x,i))) }
 GEN
-F2xV_to_F2m(GEN x, long n)
-{ pari_APPLY_type(t_MAT, F2x_to_F2v(gel(x,i), n)) }
+F2xV_to_F2m(GEN x, long n) { pari_APPLY_type(t_MAT, F2x_to_F2v(gel(x,i), n)) }
 
 void
 F2xV_to_FlxV_inplace(GEN v)
 {
-  long i;
-  for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_Flx(gel(v,i));
+  long i, l = lg(v);
+  for(i = 1; i < l;i++) gel(v,i) = F2x_to_Flx(gel(v,i));
 }
 void
 F2xV_to_ZXV_inplace(GEN v)
 {
-  long i;
-  for(i=1;i<lg(v);i++) gel(v,i)= F2x_to_ZX(gel(v,i));
+  long i, l = lg(v);
+  for(i = 1; i < l; i++) gel(v,i)= F2x_to_ZX(gel(v,i));
 }
 
 /***********************************************************************/
@@ -2076,12 +2058,9 @@ F2xXV_to_F2xM(GEN v, long n, long sv)
 /***********************************************************************/
 
 GEN
-FlxXC_to_F2xXC(GEN x)
-{ pari_APPLY_type(t_COL, FlxX_to_F2xX(gel(x,i))); }
-
+FlxXC_to_F2xXC(GEN x) { pari_APPLY_type(t_COL, FlxX_to_F2xX(gel(x,i))); }
 GEN
-F2xXC_to_ZXXC(GEN x)
-{ pari_APPLY_type(t_COL, F2xX_to_ZXX(gel(x,i))); }
+F2xXC_to_ZXXC(GEN x) { pari_APPLY_type(t_COL, F2xX_to_ZXX(gel(x,i))); }
 
 /***********************************************************************/
 /**                                                                   **/
@@ -2760,18 +2739,12 @@ F2xqX_extgcd(GEN x, GEN y, GEN T,  GEN *ptu, GEN *ptv)
 
 
 static GEN
-_F2xqX_mul(void *data,GEN a,GEN b)
-{ return F2xqX_mul(a,b, (GEN) data); }
-
+_F2xqX_mul(void *data,GEN a,GEN b) { return F2xqX_mul(a,b, (GEN) data); }
 static GEN
-_F2xqX_sqr(void *data,GEN a)
-{ return F2xqX_sqr(a, (GEN) data); }
-
+_F2xqX_sqr(void *data,GEN a) { return F2xqX_sqr(a, (GEN) data); }
 GEN
 F2xqX_powu(GEN x, ulong n, GEN T)
-{
-  return gen_powu(x, n, (void*)T, &_F2xqX_sqr, &_F2xqX_mul);
-}
+{ return gen_powu(x, n, (void*)T, &_F2xqX_sqr, &_F2xqX_mul); }
 
 /* Res(A,B) = Res(B,R) * lc(B)^(a-r) * (-1)^(ab), with R=A%B, a=deg(A) ...*/
 GEN
@@ -3007,9 +2980,7 @@ F2xqXQ_auttrace_mul(void *E, GEN x, GEN y)
 }
 
 static GEN
-F2xqXQ_auttrace_sqr(void *E, GEN x)
-{ return F2xqXQ_auttrace_mul(E, x, x); }
-
+F2xqXQ_auttrace_sqr(void *E, GEN x) { return F2xqXQ_auttrace_mul(E, x, x); }
 GEN
 F2xqXQ_auttrace(GEN aut, long n, GEN S, GEN T)
 {

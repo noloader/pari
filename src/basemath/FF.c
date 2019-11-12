@@ -132,12 +132,9 @@ FFX_to_raw(GEN x, GEN ff)
 }
 
 static GEN
-FFC_to_raw(GEN x, GEN ff)
-{ pari_APPLY_same(Rg_to_raw(gel(x, i), ff)) }
-
+FFC_to_raw(GEN x, GEN ff) { pari_APPLY_same(Rg_to_raw(gel(x, i), ff)) }
 static GEN
-FFM_to_raw(GEN x, GEN ff)
-{ pari_APPLY_same(FFC_to_raw(gel(x, i), ff)) }
+FFM_to_raw(GEN x, GEN ff) { pari_APPLY_same(FFC_to_raw(gel(x, i), ff)) }
 
 /* in place */
 static GEN
@@ -204,15 +201,11 @@ Fq_to_FF(GEN x, GEN ff)
 
 static int
 FF_samechar(GEN x, GEN y)
-{
-  return x[1] == y[1] && equalii(gel(x,4),gel(y,4));
-}
+{ return x[1] == y[1] && equalii(gel(x,4),gel(y,4)); }
 
 int
 FF_samefield(GEN x, GEN y)
-{
-  return FF_samechar(x, y) && gidentical(gel(x,3),gel(y,3));
-}
+{ return FF_samechar(x, y) && gidentical(gel(x,3),gel(y,3)); }
 
 int
 FF_equal(GEN x, GEN y)
@@ -1426,9 +1419,7 @@ FF_elltwist(GEN E)
 }
 
 static long
-F3x_equalm1(GEN x)
-{ return degpol(x)==0 && x[2] == 2; }
-
+F3x_equalm1(GEN x) { return degpol(x)==0 && x[2] == 2; }
 GEN
 FF_ellrandom(GEN E)
 {
@@ -1638,13 +1629,9 @@ FFX_roots(GEN Pf, GEN ff)
 }
 
 static GEN
-raw_to_FFXC(GEN x, GEN ff)
-{ pari_APPLY_type(t_COL, raw_to_FFX(gel(x,i), ff)); }
-
+raw_to_FFXC(GEN x, GEN ff) { pari_APPLY_type(t_COL, raw_to_FFX(gel(x,i), ff)); }
 static GEN
-raw_to_FFXM(GEN x, GEN ff)
-{ pari_APPLY_same(raw_to_FFXC(gel(x,i), ff)); }
-
+raw_to_FFXM(GEN x, GEN ff) { pari_APPLY_same(raw_to_FFXC(gel(x,i), ff)); }
 static GEN
 raw_to_FFX_fact(GEN F, GEN ff)
 {
