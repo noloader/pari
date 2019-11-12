@@ -3646,7 +3646,7 @@ Flx_fromNewton(GEN P, ulong p)
 }
 
 static long
-newtonlogint(long n, ulong pp)
+newtonlogint(ulong n, ulong pp)
 {
   long s = 0;
   while (n > pp)
@@ -3663,9 +3663,8 @@ static GEN
 ZpX_invLaplace_val(GEN x, GEN q, ulong p, long v)
 {
   pari_sp av = avma;
-  long i, d = degpol(x);
+  long i, d = degpol(x), w = 0;
   GEN y, W, E, t;
-  ulong w = 0;
   W = cgetg(d+1, t_VECSMALL);
   E = cgetg(d+1, t_VECSMALL);
   y = cgetg(d+3,t_POL);
@@ -3689,7 +3688,7 @@ static GEN
 Flx_diamondsum(GEN P, GEN Q, ulong p)
 {
   long n = 1 + degpol(P)*degpol(Q);
-  if (p >= n)
+  if (p >= (ulong)n)
   {
     GEN Pl = Flx_invLaplace(Flx_Newton(P,n,p), p);
     GEN Ql = Flx_invLaplace(Flx_Newton(Q,n,p), p);
