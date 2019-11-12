@@ -3994,11 +3994,15 @@ ZX_compositum_disjoint(GEN A, GEN B)
   pari_sp av = avma;
   forprime_t S;
   long m = maxss(degpol(A),degpol(B));
-  GEN  H, worker;
-  ulong bound = ZX_ZXY_ResBound(A, poleval(B,deg1pol(gen_1,pol_x(1),0)), NULL);
+  ulong bound;
+  GEN H, worker, lead, mod;
+  lead  = mulii(powiu(leading_term(A),degpol(B)),powiu(leading_term(B),degpol(A)));
+  if (is_pm1(lead)) lead = NULL;
+  bound = ZX_ZXY_ResBound(A, poleval(B,deg1pol(gen_1,pol_x(1),0)), lead);
   worker = snm_closure(is_entry("_ZX_direct_compositum_worker"), mkvec2(A,B));
   init_modular_big(&S);
-  H = gen_crt("ZX_direct_compositum", worker, &S, NULL, bound, m, NULL,
+  H = gen_crt("ZX_direct_compositum", worker, &S, lead, bound, m, &mod,
               nxV_chinese_center, FpX_center);
+  if (lead) H = FpX_center(FpX_Fp_mul(H, lead, mod), mod, shifti(mod,-1));
   return gerepileupto(av, H);
 }
