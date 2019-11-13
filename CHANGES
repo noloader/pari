@@ -135,13 +135,14 @@ BA  45- [libpari] init_Flxq
     47- [libpari] Flv_factorback, FlxqV_factorback, famatV_zv_factorback,
         famatV_factorback
     48- [libpari] nflogembed, nf_cxlog, nfV_cxlog, ZMrow_equal0, ZC_u_divexact
-BA  49- [libpari] FpXn_expint, Flxn_expint, Flx_blocks
+BA  49- [libpari] FpXn_expint, Flxn_expint, Flx_blocks, FlxX_blocks
     50- [libpari] bnf_get_sunits, nfsign_tu, nfsign_fu, ideallog_units,
         sunits_makecoprime, famat_remove_trivial, bnf_build_cheapfu,
         bnf_compactfu, bnf_compactfu_mat, bnf_has_fu
 BA  51- [libpari] factorial_Fl, factorial_Fp, FpV_prod
 BA  52- [libpari] ZX_compositum
-BA  53- [libpari] FlxXn_red, FlxqXn_mul, FlxqXn_sqr, FlxqXn_inv, FlxX_blocks
+BA  53- [libpari] FlxXn_red, FlxqXn_mul, FlxqXn_sqr, FlxqXn_inv
+BA  54- [libpari] FlxX_Laplace, FlxX_invLaplace
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
