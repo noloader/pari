@@ -1964,3 +1964,55 @@ FlxqXn_inv(GEN f, long e, GEN T, ulong p)
   }
   return gerepileupto(av, W);
 }
+
+INLINE GEN
+FlxXn_recip(GEN x, long n, long v)
+{
+  return FlxX_recipspec(x+2, minss(lgpol(x), n), n, v);
+}
+
+/* Compute intformal(x^n*S)/x^(n+1) */
+static GEN
+FlxX_integXn(GEN x, long n, ulong p)
+{
+  long i, lx = lg(x);
+  GEN y;
+  if (lx == 2) return gcopy(x);
+  y = cgetg(lx, t_POL); y[1] = x[1];
+  for (i=2; i<lx; i++)
+  {
+    GEN xi = gel(x,i);
+    gel(y,i) = Flx_Fl_mul(xi, Fl_inv((n+i-1)%p, p), p);
+  }
+  return FlxX_renormalize(y, lx);;
+}
+
+GEN
+FlxqXn_expint(GEN h, long e, GEN T, ulong p)
+{
+  pari_sp av = avma, av2;
+  long v = varn(h), n = 1, vT = get_Flx_var(T);
+  GEN f = pol1_FlxX(v, vT), g = pol1_FlxX(v, vT);
+  ulong mask = quadratic_prec_mask(e);
+  av2 = avma;
+  for (;mask>1;)
+  {
+    GEN u, w;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    u = FlxqXn_mul(g, FlxqX_mulhigh_i(f, FlxXn_red(h, n2-1), n2-1, T, p), n-n2, T, p);
+    u = FlxX_add(u, FlxX_shift(FlxXn_red(h, n-1), 1-n2, vT), p);
+    w = FlxqXn_mul(f, FlxX_integXn(u, n2-1, p), n-n2, T, p);
+    f = FlxX_add(f, FlxX_shift(w, n2, vT), p);
+    if (mask<=1) break;
+    u = FlxqXn_mul(g, FlxqXn_mulhigh(f, g, n2, n, T, p), n-n2, T, p);
+    g = FlxX_sub(g, FlxX_shift(u, n2, vT), p);
+    if (gc_needed(av2,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FlxqXn_exp, e = %ld", n);
+      gerepileall(av2, 2, &f, &g);
+    }
+  }
+  return gerepileupto(av, f);
+}
