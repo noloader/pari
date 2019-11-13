@@ -2546,6 +2546,133 @@ GEN
 ZX_compositum_disjoint(GEN A, GEN B)
 { return ZX_compositum(A, B, NULL); }
 
+static GEN
+ZXQX_direct_compositum_slice(GEN A, GEN B, GEN C, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1, dC = degpol(C), v = varn(C);
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN a = ZXX_to_FlxX(A, p, v), b = ZXX_to_FlxX(B, p, v);
+    GEN c = ZX_to_Flx(C, p);
+    GEN Hp = FlxX_to_Flm(FlxqX_direct_compositum(a, b, c, p), dC);
+    H = gerepileupto(av, Flm_to_ZM(Hp));
+    *mod = utoi(p);
+    return H;
+  }
+  T = ZV_producttree(P);
+  A = ZXX_nv_mod_tree(A, P, T, v);
+  B = ZXX_nv_mod_tree(B, P, T, v);
+  C = ZX_nv_mod_tree(C, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), b = gel(B,i), c = gel(C,i);
+    gel(H,i) = FlxX_to_Flm(FlxqX_direct_compositum(a, b, c, p), dC);
+  }
+  H = nmV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZXQX_direct_compositum_worker(GEN P, GEN A, GEN B, GEN C)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ZXQX_direct_compositum_slice(A, B, C, P, &gel(V,2));
+  return V;
+}
+
+/* Interpolate at roots of 1 and use Hadamard bound for univariate resultant:
+ *   bound = N_2(A)^degpol B N_2(B)^degpol(A),  where
+ *     N_2(A) = sqrt(sum (N_1(Ai))^2)
+ * Return e such that Res(A, B) < 2^e */
+static GEN
+RgX_RgXY_ResBound(GEN A, GEN B)
+{
+  pari_sp av = avma, av2;
+  GEN a = gen_0, b = gen_0, bnd;
+  long i , lA = lg(A), lB = lg(B);
+  for (i=2; i<lA; i++)
+  {
+    a = gadd(a, gnorm(gel(A,i)));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_RgXY_ResBound i = %ld",i);
+      a = gerepileupto(av, a);
+    }
+  }
+  av2 = avma;
+  for (i=2; i<lB; i++)
+  {
+    GEN t = gel(B,i);
+    if (typ(t) == t_POL) t = gnorml1(t, DEFAULTPREC);
+    b = gadd(b, gsqr(t));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_RgXY_ResBound i = %ld",i);
+      b = gerepileupto(av2, b);
+    }
+  }
+  bnd = gsqrt(gmul(gpowgs(a, degpol(B)), gpowgs(b, degpol(A))), DEFAULTPREC);
+  return gerepileupto(av, bnd);
+}
+
+static GEN
+ZXQX_direct_compositum(GEN A, GEN B, GEN T, ulong bound)
+{
+  pari_sp av = avma;
+  forprime_t S;
+  long m = maxss(degpol(A),degpol(B));
+  GEN H, worker, mod;
+  GEN lead = mulii(Q_content(leading_coeff(A)), Q_content(leading_coeff(B)));
+  worker = snm_closure(is_entry("_ZXQX_direct_compositum_worker")
+                      , mkvec3(A,B,T));
+  init_modular_big(&S);
+  H = gen_crt("ZXQX_direct_compositum", worker, &S, lead, bound, m, &mod,
+              nmV_chinese_center, FpM_center);
+  if (DEBUGLEVEL > 4)
+    err_printf("nfcompositum: a priori bound: %lu, a posteriori: %lu\n",
+               bound, expi(gsupnorm(H, DEFAULTPREC)));
+  return gerepilecopy(av, RgM_to_RgXX(H, varn(A), varn(T)));
+}
+
+static GEN
+L2_bound(GEN nf, GEN den)
+{
+  GEN M, L, prep, T = nf_get_pol(nf), tozk = nf_get_invzk(nf);
+  long prec = ZM_max_lg(tozk) + ZX_max_lg(T) + nbits2prec(degpol(T));
+  (void)initgaloisborne(nf, den? den: gen_1, prec, &L, &prep, NULL);
+  M = vandermondeinverse(L, RgX_gtofp(T,prec), den, prep);
+  return RgM_fpnorml2(RgM_mul(tozk,M), DEFAULTPREC);
+}
+
+static long
+ZXQX_direct_compositum_bound(GEN nf, GEN A, GEN B)
+{
+  pari_sp av = avma;
+  GEN M = L2_bound(nf, NULL);
+  GEN r = nf_get_roots(nf);
+  long v = nf_get_varn(nf), i, l = lg(r);
+  GEN a = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+    gel(a, i) =  RgX_RgXY_ResBound(gsubst(A, v, gel(r,i)),
+                 poleval(gsubst(B, v, gel(r,i)),
+                         deg1pol(gen_1, pol_x(1), 0)));
+  return gc_long(av, (long) dbllog2(gmul(M,RgC_fpnorml2(a, DEFAULTPREC))));
+}
+
+GEN
+nf_direct_compositum(GEN nf, GEN A, GEN B)
+{
+  ulong bnd = ZXQX_direct_compositum_bound(nf, A, B);
+  return ZXQX_direct_compositum(A, B, nf_get_pol(nf), bnd);
+}
+
 /************************************************************************
  *                                                                      *
  *                   IRREDUCIBLE POLYNOMIAL / Fp                        *

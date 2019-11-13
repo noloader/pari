@@ -87,3 +87,9 @@ C-Name: ZX_direct_compositum_worker
 Prototype: GGG
 Section: programming/internals
 Help: worker for ZX_direct_compositum
+
+Function: _ZXQX_direct_compositum_worker
+C-Name: ZXQX_direct_compositum_worker
+Prototype: GGGG
+Section: programming/internals
+Help: worker for ZX_direct_compositum

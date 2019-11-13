@@ -3846,8 +3846,31 @@ compositum_fix(GEN nf, GEN A)
   if (!ok) pari_err_DOMAIN("polcompositum","issquarefree(arg)","=",gen_0,A);
   return A;
 }
-INLINE long
-nextk(long k) { return k>0 ? -k : 1-k; }
+#define next_lambda(a) (a>0 ? -a : 1-a)
+
+static long
+nfcompositum_lambda(GEN nf, GEN A, GEN B, long lambda)
+{
+  pari_sp av = avma;
+  forprime_t S;
+  GEN T = nf_get_pol(nf);
+  long vT = varn(T);
+  ulong p;
+  init_modular_big(&S);
+  p = u_forprime_next(&S);
+  while (1)
+  {
+    GEN Hp, Tp, a;
+    if (DEBUGLEVEL>4) err_printf("Trying lambda = %ld\n", lambda);
+    a = ZXX_to_FlxX(RgX_rescale(A, stoi(-lambda)), p, vT);
+    Tp = ZX_to_Flx(T, p);
+    Hp = FlxqX_direct_compositum(a, ZXX_to_FlxX(B, p, vT), Tp, p);
+    if (!FlxqX_is_squarefree(Hp, Tp, p))
+      { lambda = next_lambda(lambda); continue; }
+    if (DEBUGLEVEL>4) err_printf("Final lambda = %ld\n", lambda);
+    return gc_long(av, lambda);
+  }
+}
 
 /* modular version */
 GEN
@@ -3879,18 +3902,15 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
     long v0 = fetch_var();
     GEN q;
     GEN T = nf_get_pol(nf);
-    for(;; k = nextk(k))
+    k = nfcompositum_lambda(nf, liftpol(A), liftpol(B), k);
+    if (flag&1)
     {
+      GEN H0, H1;
       GEN chgvar = deg1pol_shallow(stoi(k),pol_x(v0),v);
       GEN B1 = poleval(QXQX_to_mod_shallow(B, T), chgvar);
       C = RgX_resultant_all(QXQX_to_mod_shallow(A, T), B1, &q);
       C = gsubst(C,v0,pol_x(v));
-      if (nfissquarefree(nf,C)) break;
-    }
-    C = lift_if_rational(C);
-    if (flag&1)
-    {
-      GEN H0, H1;
+      C = lift_if_rational(C);
       H0 = gsubst(gel(q,2),v0,pol_x(v));
       H1 = gsubst(gel(q,3),v0,pol_x(v));
       if (typ(H0) != t_POL) H0 = scalarpol_shallow(H0,v);
@@ -3898,6 +3918,10 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
       H0 = lift_if_rational(H0);
       H1 = lift_if_rational(H1);
       LPRS = mkvec2(H0,H1);
+    } else
+    {
+      C = nf_direct_compositum(nf, RgX_rescale(liftpol(A),stoi(-k)), liftpol(B));
+      setvarn(C, v); C = QXQX_to_mod_shallow(C, T);
     }
   }
   else
