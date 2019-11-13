@@ -2876,7 +2876,7 @@ Idealstar_i(GEN nf, GEN ideal, long flag)
         break;
       default:
         pari_err_TYPE("Idealstar [incorrect archimedean component]",arch);
-        return NULL;
+        return NULL;/*LCOV_EXCL_LINE*/
     }
   }
   else
@@ -3161,7 +3161,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
   const long istar_flag = (flag & nf_GEN) | nf_INIT;
   pari_sp av, av0 = avma;
   long i, j;
-  GEN nf, z, p, fa, id, BOUND, U, empty = cgetg(1,t_VEC);
+  GEN nf, z, p, fa, id, BOUND, empty = cgetg(1,t_VEC);
   forprime_t S;
   ideal_data ID;
   GEN (*join_z)(ideal_data*, GEN) =
@@ -3178,15 +3178,8 @@ Ideallist(GEN bnf, ulong bound, long flag)
    * in vectors, computed one primary component at a time; join_z
    * reconstructs the global object */
   BOUND = utoipos(bound);
-  z = cgetg(bound+1,t_VEC);
-  if (do_units) {
-    U = bnf_build_units(bnf);
-    gel(z,1) = mkvec( mkvec2(id, cgetg(1,t_VEC)) );
-  } else {
-    U = NULL; /* -Wall */
-    gel(z,1) = mkvec(id);
-  }
-  for (i=2; i<=(long)bound; i++) gel(z,i) = empty;
+  z = const_vec(bound, empty);
+  gel(z,1) = mkvec(do_units? mkvec2(id, cgetg(1,t_VEC)): id);
   ID.nf = nf;
 
   p = cgetipos(3);
@@ -3196,25 +3189,21 @@ Ideallist(GEN bnf, ulong bound, long flag)
   {
     if (DEBUGLEVEL>1) err_printf("%ld ",p[2]);
     fa = idealprimedec_limit_norm(nf, p, BOUND);
-    for (j=1; j<lg(fa); j++)
+    for (j = 1; j < lg(fa); j++)
     {
       GEN pr = gel(fa,j), z2 = leafcopy(z);
       ulong Q, q = upr_norm(pr);
-      long l = (cond && q == 2)? 2: 1;
-
+      long l;
       ID.pr = ID.prL = pr;
-      for (Q = q; Q <= bound; l++, Q *= q) /* add pr^l */
+      if (cond && q == 2) { l = 2; Q = 4; } else { l = 1; Q = q; }
+      for (; Q <= bound; l++, Q *= q) /* add pr^l */
       {
         ulong iQ;
         ID.L = utoipos(l);
         if (big_id) {
           ID.prL = Idealstarprk(nf, pr, l, istar_flag);
           if (do_units)
-          {
-            GEN sprk = bid_get_sprk(ID.prL);
-            ID.emb = lg(sprk) == 1? cgetg(1,t_VEC)
-                                  : veclog_prk(nf, U, gel(sprk,1));
-          }
+            ID.emb = Q == 2? cgetg(1,t_VEC): ideallog_units(bnf, ID.prL);
         }
         for (iQ = Q,i = 1; iQ <= bound; iQ += Q,i++)
           concat_join(&gel(z,iQ), gel(z2,i), join_z, &ID);
