@@ -1497,12 +1497,6 @@ FlxqXQ_powers(GEN x, long l, GEN S, GEN T, ulong p)
   return gen_powers(x, l, use_sqr, (void*)&D, &_FlxqXQ_sqr, &_FlxqXQ_mul,&_FlxqXQ_one);
 }
 
-static GEN
-FlxqXn_mul(GEN a, GEN b, long n, GEN T, ulong p)
-{
-  return RgXn_red_shallow(FlxqX_mul(a, b, T, p), n);
-}
-
 /* Let v a linear form, return the linear form z->v(tau*z)
    that is, v*(M_tau) */
 
@@ -1832,3 +1826,27 @@ FlxYqq_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
   return gen_pow(x, n, (void*)&D, &FlxYqq_sqr, &FlxYqq_mul);
 }
 
+/*******************************************************************/
+/*                                                                 */
+/*                      FlxqXn                                     */
+/*                                                                 */
+/*******************************************************************/
+
+GEN
+FlxXn_red(GEN a, long n)
+{
+  long i, L = n+2, l = lg(a);
+  GEN  b;
+  if (L >= l) return a; /* deg(x) < n */
+  b = cgetg(L, t_POL); b[1] = a[1];
+  for (i=2; i<L; i++) gel(b,i) = gel(a,i);
+  return FlxX_renormalize(b,L);
+}
+
+GEN
+FlxqXn_mul(GEN a, GEN b, long n, GEN T, ulong p)
+{ return FlxXn_red(FlxqX_mul(a, b, T, p), n); }
+
+GEN
+FlxqXn_sqr(GEN a, long n, GEN T, ulong p)
+{ return FlxXn_red(FlxqX_sqr(a, T, p), n); }

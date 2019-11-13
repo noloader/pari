@@ -6456,6 +6456,14 @@ as \kbd{FpXQXQ\_auttrace}
 \fun{GEN}{FlxqXQ_minpoly}{GEN x, GEN S, GEN T, ulong p}, as
 \kbd{FpXQ\_minpoly}
 
+\subsec{\kbd{FlxqXn}} See \kbd{FpXn} operations.
+
+\fun{GEN}{FlxXn_red}{GEN a, long n} returns $a$ modulo $X^n$.
+
+\fun{GEN}{FlxqXn_mul}{GEN a, GEN b, long n, GEN T, ulong p}
+
+\fun{GEN}{FlxqXn_sqr}{GEN a, long n, GEN T, ulong p}
+
 \subsec{\kbd{F2x}} An \kbd{F2x}~\kbd{z} is a \typ{VECSMALL}
 representing a polynomial over $\F_2[X]$. Specifically
 \kbd{z[0]} is the usual codeword, \kbd{z[1] = evalvarn($v$)} for some
