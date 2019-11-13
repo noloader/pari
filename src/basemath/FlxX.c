@@ -550,6 +550,45 @@ FlxX_recipspec(GEN x, long l, long n, long vs)
   return FlxX_renormalize(z-2,n+2);
 }
 
+GEN
+FlxX_invLaplace(GEN x, ulong p)
+{
+  long i, d = degpol(x);
+  GEN y;
+  ulong t;
+  if (d <= 1) return gcopy(x);
+  t = Fl_inv(factorial_Fl(d, p), p);
+  y = cgetg(d+3, t_POL);
+  y[1] = x[1];
+  for (i=d; i>=2; i--)
+  {
+    gel(y,i+2) = Flx_Fl_mul(gel(x,i+2), t, p);
+    t = Fl_mul(t, i, p);
+  }
+  gel(y,3) = Flx_copy(gel(x,3));
+  gel(y,2) = Flx_copy(gel(x,2));
+  return FlxX_renormalize(y, d+3);
+}
+
+GEN
+FlxX_Laplace(GEN x, ulong p)
+{
+  long i, d = degpol(x);
+  ulong t = 1;
+  GEN y;
+  if (d <= 1) return gcopy(x);
+  y = cgetg(d+3, t_POL);
+  y[1] = x[1];
+  gel(y,2) = Flx_copy(gel(x,2));
+  gel(y,3) = Flx_copy(gel(x,3));
+  for (i=2; i<=d; i++)
+  {
+    t = Fl_mul(t, i%p, p);
+    gel(y,i+2) = Flx_Fl_mul(gel(x,i+2), t, p);
+  }
+  return FlxX_renormalize(y, d+3);
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                               FlxqX                               **/
@@ -1874,45 +1913,6 @@ FlxYqq_pow(GEN x, GEN n, GEN S, GEN T, ulong p)
 /*                      FlxqXn                                     */
 /*                                                                 */
 /*******************************************************************/
-
-GEN
-FlxX_invLaplace(GEN x, ulong p)
-{
-  long i, d = degpol(x);
-  GEN y;
-  ulong t;
-  if (d <= 1) return gcopy(x);
-  t = Fl_inv(factorial_Fl(d, p), p);
-  y = cgetg(d+3, t_POL);
-  y[1] = x[1];
-  for (i=d; i>=2; i--)
-  {
-    gel(y,i+2) = Flx_Fl_mul(gel(x,i+2), t, p);
-    t = Fl_mul(t, i, p);
-  }
-  gel(y,3) = Flx_copy(gel(x,3));
-  gel(y,2) = Flx_copy(gel(x,2));
-  return FlxX_renormalize(y, d+3);
-}
-
-GEN
-FlxX_Laplace(GEN x, ulong p)
-{
-  long i, d = degpol(x);
-  ulong t = 1;
-  GEN y;
-  if (d <= 1) return gcopy(x);
-  y = cgetg(d+3, t_POL);
-  y[1] = x[1];
-  gel(y,2) = Flx_copy(gel(x,2));
-  gel(y,3) = Flx_copy(gel(x,3));
-  for (i=2; i<=d; i++)
-  {
-    t = Fl_mul(t, i%p, p);
-    gel(y,i+2) = Flx_Fl_mul(gel(x,i+2), t, p);
-  }
-  return FlxX_renormalize(y, d+3);
-}
 
 GEN
 FlxXn_red(GEN a, long n)
