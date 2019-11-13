@@ -836,35 +836,6 @@ Flx_mulspec_mulii_inflate(GEN x, GEN y, long N, ulong p, long nx, long ny)
 }
 
 static GEN
-kron_pack_Flx_spec_half(GEN x, long l) {
-  if (l == 0)
-    return gen_0;
-  return Flx_to_int_halfspec(x, l);
-}
-
-static GEN
-kron_pack_Flx_spec(GEN x, long l) {
-  long i;
-  GEN w, y;
-  if (l == 0)
-    return gen_0;
-  y = cgetipos(l + 2);
-  for (i = 0, w = int_LSW(y); i < l; i++, w = int_nextW(w))
-    *w = x[i];
-  return y;
-}
-
-static GEN
-kron_pack_Flx_spec_2(GEN x, long l) {
-  return Flx_eval2BILspec(x, 2, l);
-}
-
-static GEN
-kron_pack_Flx_spec_3(GEN x, long l) {
-  return Flx_eval2BILspec(x, 3, l);
-}
-
-static GEN
 kron_pack_Flx_spec_bits(GEN x, long b, long l) {
   GEN y;
   long i;
@@ -874,28 +845,6 @@ kron_pack_Flx_spec_bits(GEN x, long b, long l) {
   for(i = 1; i <= l; i++)
     y[i] = x[l - i];
   return nv_fromdigits_2k(y, b);
-}
-
-static GEN
-kron_unpack_Flx(GEN z, ulong p)
-{
-  long i, l = lgefint(z);
-  GEN x = cgetg(l, t_VECSMALL), w;
-  for (w = int_LSW(z), i = 2; i < l; w = int_nextW(w), i++)
-    x[i] = ((ulong) *w) % p;
-  return Flx_renormalize(x, l);
-}
-
-static GEN
-kron_unpack_Flx_2(GEN x, ulong p) {
-  long d = (lgefint(x)-1)/2 - 1;
-  return Z_mod2BIL_Flx_2(x, d, p);
-}
-
-static GEN
-kron_unpack_Flx_3(GEN x, ulong p) {
-  long d = lgefint(x)/3 - 1;
-  return Z_mod2BIL_Flx_3(x, d, p);
 }
 
 /* assume b < BITS_IN_LONG */
@@ -5454,6 +5403,57 @@ FlxM_pack_ZM(GEN M, GEN (*pack)(GEN, long)) {
     }
   }
   return N;
+}
+
+static GEN
+kron_pack_Flx_spec_half(GEN x, long l) {
+  if (l == 0)
+    return gen_0;
+  return Flx_to_int_halfspec(x, l);
+}
+
+static GEN
+kron_pack_Flx_spec(GEN x, long l) {
+  long i;
+  GEN w, y;
+  if (l == 0)
+    return gen_0;
+  y = cgetipos(l + 2);
+  for (i = 0, w = int_LSW(y); i < l; i++, w = int_nextW(w))
+    *w = x[i];
+  return y;
+}
+
+static GEN
+kron_pack_Flx_spec_2(GEN x, long l) {
+  return Flx_eval2BILspec(x, 2, l);
+}
+
+static GEN
+kron_pack_Flx_spec_3(GEN x, long l) {
+  return Flx_eval2BILspec(x, 3, l);
+}
+
+static GEN
+kron_unpack_Flx(GEN z, ulong p)
+{
+  long i, l = lgefint(z);
+  GEN x = cgetg(l, t_VECSMALL), w;
+  for (w = int_LSW(z), i = 2; i < l; w = int_nextW(w), i++)
+    x[i] = ((ulong) *w) % p;
+  return Flx_renormalize(x, l);
+}
+
+static GEN
+kron_unpack_Flx_2(GEN x, ulong p) {
+  long d = (lgefint(x)-1)/2 - 1;
+  return Z_mod2BIL_Flx_2(x, d, p);
+}
+
+static GEN
+kron_unpack_Flx_3(GEN x, ulong p) {
+  long d = lgefint(x)/3 - 1;
+  return Z_mod2BIL_Flx_3(x, d, p);
 }
 
 static GEN
