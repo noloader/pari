@@ -160,24 +160,24 @@ vtilde_i(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
   }
   if (cx)
   {
-    Q_pvalrem(cx, ell, &cx);
-    if (!isint1(cx))
-      L = gadd(L, gmulsg(degpol(T), Qp_log(cvtop(cx,ell,prec))));
+    (void)Q_pvalrem(cx, ell, &cx);
+    if (!isint1(cx)) L = gadd(L, gmulsg(degpol(T), Qp_log(cvtop(cx,ell,prec))));
   }
   return gdiv(L, deg);
 }
 static GEN
+vecvtilde(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
+{ pari_APPLY_same(vtilde_i(K, gel(x,i), T, deg, ell, prec)); }
+static GEN
 vtilde(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
 {
   pari_sp av;
-  GEN G, E, vG;
-  long i, l;
+  GEN G, E;
   if (typ(x) != t_MAT) return vtilde_i(K,x,T,deg,ell,prec);
-  av = avma;
-  G = gel(x,1); vG = cgetg_copy(G, &l);
+  G = gel(x,1);
   E = gel(x,2);
-  for (i = 1; i < l; i++) gel(vG, i) = vtilde_i(K, gel(G,i),T,deg,ell,prec);
-  return gerepileupto(av, RgV_dotproduct(E, vG));
+  av = avma;
+  return gerepileupto(av, RgV_dotproduct(E, vecvtilde(K,G,T,deg,ell,prec)));
 }
 
 /* v[i] = deg S[i] mod p^prec */
@@ -192,20 +192,14 @@ get_vdegS(GEN Ftilde, GEN ell, long prec)
 /* K a bnf. Compute kernel \tilde{Cl}_K(ell); return cyclic factors.
  * Set *pM to (vtilde_S[i](US[j]))_{i,j} */
 static GEN
-CL_tilde(GEN K, GEN US, GEN ell, GEN T, GEN Ftilde, GEN *pM, long prec)
+CL_tilde(GEN K, GEN US, GEN ell, GEN T, long imin, GEN vdegS,
+         GEN *pM, long prec)
 {
-  GEN D, M, ellk, vdegS;
-  long i, j, imin, vmin, k, lD, l = lg(T), lU = lg(US);
+  long i, j, k, lD, l = lg(T), lU = lg(US);
+  GEN D, M, ellk;
 
-  *pM = cgetg(1, t_MAT);
-  if (l == 2) return cgetg(1, t_VEC); /* p = P^e: \tilde{Cl}(l) = (1) */
-  vdegS = get_vdegS(Ftilde, ell, prec);
-  imin = 1; vmin = l; /* upper bound */
-  for (i = 1; i < l; i++)
-  {
-    long v = z_pval(Ftilde[i], ell);
-    if (v < vmin) { vmin = v; imin = i; }
-  }
+  /* p = P^e: \tilde{Cl}(l) = (1) */
+  if (l == 2) { *pM = cgetg(1, t_MAT); return cgetg(1, t_VEC); }
   M = cgetg(lU, t_MAT);
   for (j = 1; j < lU; j++)
   {
@@ -216,10 +210,7 @@ CL_tilde(GEN K, GEN US, GEN ell, GEN T, GEN Ftilde, GEN *pM, long prec)
   }
   k = padicprec(M, ell); ellk = powiu(ell, k);
   *pM = M = gmod(M, ellk);
-  M = rowsplice(M, imin);
-  l--;
-  if (l == 1) return cgetg(1, t_VEC);
-  M = ZM_hnfmodid(M, ellk);
+  M = ZM_hnfmodid(rowsplice(M, imin), ellk);
   D = matsnf0(M, 4); lD = lg(D);
   if (lD > 1 && Z_pval(gel(D,1), ell) >= k) return NULL;
   return D;
@@ -362,14 +353,26 @@ vtilde_prec(GEN nf, GEN vec, GEN ell)
     v0 = maxss(v0, vtilde_prec_x(nf, gel(vec,i), ell));
   return 3 + v0 + z_pval(nf_get_degree(nf), ell);
 }
-
+static GEN
+get_Ftilde(GEN nf, GEN S, GEN T, GEN ell, long *pimin)
+{
+  long j, lS = lg(S), vmin = lS;
+  GEN Ftilde = cgetg(lS, t_VECSMALL);
+  *pimin = 1;
+  for (j = 1; j < lS; j++)
+  {
+    long f = ftilde(nf, gel(S,j), gel(T,j)), v = z_pval(f, ell);
+    Ftilde[j] = f; if (v < vmin) { vmin = v; *pimin = j; }
+  }
+  return Ftilde;
+}
 static GEN
 bnflog_i(GEN bnf, GEN ell)
 {
   long prec0, prec;
   GEN nf, US, vdegS, S, T, M, CLp, CLt, Ftilde, vtG, ellk;
-  GEN D, Ap, cycAp, bnfS;
-  long i, j, lS, lvAp;
+  GEN D, Ap, cycAp, bnfS, fu;
+  long imin, i, j, lvAp;
 
   checkbnf(bnf);
   nf = checknf(bnf);
@@ -377,17 +380,19 @@ bnflog_i(GEN bnf, GEN ell)
   bnfS = bnfsunit0(bnf, S, nf_GENMAT, LOWDEFAULTPREC); /* S-units */
   US = leafcopy(gel(bnfS,1));
   prec0 = maxss(30, vtilde_prec(nf, US, ell));
-  US = shallowconcat(bnf_get_fu(bnf), US);
+  if (!(fu = bnf_build_cheapfu(bnf)) && !(fu = bnf_compactfu(bnf)))
+    bnf_build_units(bnf);
+  US = shallowconcat(fu, US);
   settyp(US, t_COL);
   T = padicfact(nf, S, prec0);
-  lS = lg(S); Ftilde = cgetg(lS, t_VECSMALL);
-  for (j = 1; j < lS; j++) Ftilde[j] = ftilde(nf, gel(S,j), gel(T,j));
+  Ftilde = get_Ftilde(nf, S, T, ell, &imin);
   CLp = CL_prime(bnf, ell, S);
   cycAp = gel(CLp,1);
   Ap = gel(CLp,2);
   for(;;)
   {
-    CLt = CL_tilde(nf, US, ell, T, Ftilde, &vtG, prec0);
+    vdegS = get_vdegS(Ftilde, ell, prec0);
+    CLt = CL_tilde(nf, US, ell, T, imin, vdegS, &vtG, prec0);
     if (CLt) break;
     prec0 <<= 1;
     T = padicfact(nf, S, prec0);
@@ -395,11 +400,11 @@ bnflog_i(GEN bnf, GEN ell)
   prec = ellexpo(cycAp, ell) + ellexpo(CLt,ell) + 1;
   if (prec == 1) return mkvec3(cgetg(1,t_VEC), cgetg(1,t_VEC), cgetg(1,t_VEC));
 
-  vdegS = get_vdegS(Ftilde, ell, prec0);
   ellk = powiu(ell, prec);
   lvAp = lg(Ap);
   if (lvAp > 1)
   {
+    long lS = lg(S);
     GEN Kcyc = bnf_get_cyc(bnf);
     GEN C = zeromatcopy(lvAp-1, lS-1);
     GEN Rell = gel(CLp,3), Uell = gel(CLp,4), ordS = gel(CLp,5);

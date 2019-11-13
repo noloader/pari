@@ -3430,8 +3430,12 @@ bnf_build_cheapfu(GEN bnf)
 {
   GEN fu, SUnits;
   if ((fu = bnf_has_fu(bnf))) return fu;
-  if ((SUnits = bnf_get_sunits(bnf)) && gexpo(bnf_get_logfu(bnf)) < 18)
-    return vecsplice(bnf_build_units(bnf), 1);
+  if ((SUnits = bnf_get_sunits(bnf)))
+  {
+    pari_sp av = avma;
+    long e = gexpo(real_i(bnf_get_logfu(bnf)));
+    set_avma(av); if (e < 18) return vecsplice(bnf_build_units(bnf), 1);
+  }
   return NULL;
 }
 
