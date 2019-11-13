@@ -3038,6 +3038,23 @@ ideallog_units(GEN bnf, GEN bid)
     gel(y,j) = vecmodii(ZMV_ZCV_mul(S.U, gel(y,j)), cyc);
   return y;
 }
+GEN
+log_prk_units(GEN nf, GEN D, GEN sprk)
+{
+  GEN L, Ltu = log_prk(nf, gel(D,1), sprk);
+  D = gel(D,2);
+  if (lg(D) != 3 || typ(gel(D,2)) != t_MAT) L = veclog_prk(nf, D, sprk);
+  else
+  {
+    GEN X = gel(D,1), U = gel(D,2);
+    long j, lU = lg(U);
+    X = sunits_makecoprime(X, sprk_get_pr(sprk), sprk_get_prk(sprk));
+    L = cgetg(lU, t_MAT);
+    for (j = 1; j < lU; j++)
+      gel(L,j) = famat_zlog_pr_coprime(nf, X, gel(U,j), sprk);
+  }
+  return vec_prepend(L, Ltu);
+}
 
 static GEN
 ideallog_i(GEN nf, GEN x, zlog_S *S)
@@ -3149,6 +3166,13 @@ join_unit(ideal_data *D, GEN x)
   return mkvec2(bid, v);
 }
 
+GEN
+log_prk_units_init(GEN bnf)
+{
+  GEN U = bnf_has_fu(bnf);
+  if (!U && !(U = bnf_compactfu_mat(bnf))) (void)bnf_build_units(bnf);
+  return mkvec2(bnf_get_tuU(bnf), U);
+}
 /*  flag & nf_GEN : generators, otherwise no
  *  flag &2 : units, otherwise no
  *  flag &4 : ideals in HNF, otherwise bid
@@ -3161,7 +3185,7 @@ Ideallist(GEN bnf, ulong bound, long flag)
   const long istar_flag = (flag & nf_GEN) | nf_INIT;
   pari_sp av, av0 = avma;
   long i, j;
-  GEN nf, z, p, fa, id, BOUND, empty = cgetg(1,t_VEC);
+  GEN nf, z, p, fa, id, BOUND, U, empty = cgetg(1,t_VEC);
   forprime_t S;
   ideal_data ID;
   GEN (*join_z)(ideal_data*, GEN) =
@@ -3179,7 +3203,8 @@ Ideallist(GEN bnf, ulong bound, long flag)
    * reconstructs the global object */
   BOUND = utoipos(bound);
   z = const_vec(bound, empty);
-  gel(z,1) = mkvec(do_units? mkvec2(id, cgetg(1,t_VEC)): id);
+  U = do_units? log_prk_units_init(bnf): NULL;
+  gel(z,1) = mkvec(U? mkvec2(id, cgetg(1,t_VEC)): id);
   ID.nf = nf;
 
   p = cgetipos(3);
@@ -3202,8 +3227,9 @@ Ideallist(GEN bnf, ulong bound, long flag)
         ID.L = utoipos(l);
         if (big_id) {
           ID.prL = Idealstarprk(nf, pr, l, istar_flag);
-          if (do_units)
-            ID.emb = Q == 2? cgetg(1,t_VEC): ideallog_units(bnf, ID.prL);
+          if (U)
+            ID.emb = Q == 2? cgetg(1,t_VEC)
+                           : log_prk_units(nf, U, gel(bid_get_sprk(ID.prL),1));
         }
         for (iQ = Q,i = 1; iQ <= bound; iQ += Q,i++)
           concat_join(&gel(z,iQ), gel(z2,i), join_z, &ID);

@@ -2295,7 +2295,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
   }
   else if (lg(arch)-1 != r1)
     pari_err_TYPE("Idealstar [incorrect archimedean component]",arch);
-  U = bnf_build_units(bnf);
+  U = log_prk_units_init(bnf);
   archp = vec01_to_indices(arch);
   nba = lg(archp)-1;
   sgnU = zm_to_ZM( nfsign_units(bnf, archp, 1) );
@@ -2341,7 +2341,7 @@ discrayabslistarch(GEN bnf, GEN arch, ulong bound)
       {
         ulong iQ;
         GEN sprk = log_prk_init(nf, pr, l);
-        GEN U_pr = veclog_prk(nf, U, sprk);
+        GEN U_pr = log_prk_units(nf, U, sprk);
         for (iQ = Q, i = 1; iQ <= bound; iQ += Q, i++)
         {
           GEN pz, p2, p1 = gel(Z,i);

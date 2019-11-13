@@ -659,6 +659,8 @@ GEN     gen_if_principal(GEN bnf, GEN x);
 void    check_nfelt(GEN x, GEN *den);
 GEN     zk_ei_mul(GEN nf, GEN x, long i);
 GEN     log_prk(GEN nf, GEN a, GEN sprk);
+GEN     log_prk_units(GEN nf, GEN D, GEN sprk);
+GEN     log_prk_units_init(GEN bnf);
 GEN     veclog_prk(GEN nf, GEN v, GEN sprk);
 GEN     log_prk_init(GEN nf, GEN pr, long k);
 
