@@ -1404,6 +1404,23 @@ FlxqX_fromNewton(GEN P, GEN T, ulong p)
   GEN Q = FlxXn_recip(FlxqXn_expint(z, n, T, p), n, vT);
   return gerepilecopy(av, Q);
 }
+
+static GEN
+FlxqX_diamondsum(GEN P, GEN Q, GEN T, ulong p)
+{
+  long n = 1+ degpol(P)*degpol(Q);
+  GEN Pl = FlxX_invLaplace(FlxqX_Newton(P,n, T,p), p);
+  GEN Ql = FlxX_invLaplace(FlxqX_Newton(Q,n, T,p), p);
+  GEN L = FlxX_Laplace(FlxqXn_mul(Pl, Ql, n, T,p), p);
+  return FlxqX_fromNewton(L, T, p);
+}
+
+GEN
+FlxqX_direct_compositum(GEN P, GEN Q, GEN T, ulong p)
+{
+  return FlxqX_diamondsum(P, Q, T, p);
+}
+
 GEN
 FlxqXV_prod(GEN V, GEN T, ulong p)
 {
