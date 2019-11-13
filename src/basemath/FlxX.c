@@ -1339,6 +1339,32 @@ FlxqX_disc(GEN P, GEN T, ulong p)
   return gerepileupto(av, D);
 }
 
+INLINE GEN
+FlxXn_recip(GEN x, long n, long v)
+{
+  return FlxX_recipspec(x+2, minss(lgpol(x), n), n, v);
+}
+
+GEN
+FlxqX_Newton(GEN P, long n, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  long d = degpol(P), vT = get_Flx_var(T);
+  GEN dP = FlxXn_recip(FlxX_deriv(P, p), d, vT);
+  GEN Q = FlxqXn_mul(FlxqXn_inv(FlxXn_recip(P, d+1, vT), n, T, p), dP, n, T, p);
+  return gerepilecopy(av, Q);
+}
+
+GEN
+FlxqX_fromNewton(GEN P, GEN T, ulong p)
+{
+  pari_sp av = avma;
+  long vT = get_Flx_var(T);
+  long n = Flx_constant(constant_coeff(P))+1;
+  GEN z = FlxX_neg(FlxX_shift(P, -1, vT), p);
+  GEN Q = FlxXn_recip(FlxqXn_expint(z, n, T, p), n, vT);
+  return gerepilecopy(av, Q);
+}
 GEN
 FlxqXV_prod(GEN V, GEN T, ulong p)
 {
@@ -1963,12 +1989,6 @@ FlxqXn_inv(GEN f, long e, GEN T, ulong p)
     }
   }
   return gerepileupto(av, W);
-}
-
-INLINE GEN
-FlxXn_recip(GEN x, long n, long v)
-{
-  return FlxX_recipspec(x+2, minss(lgpol(x), n), n, v);
 }
 
 /* Compute intformal(x^n*S)/x^(n+1) */

@@ -142,7 +142,7 @@ BA  49- [libpari] FpXn_expint, Flxn_expint, Flx_blocks, FlxX_blocks
 BA  51- [libpari] factorial_Fl, factorial_Fp, FpV_prod
 BA  52- [libpari] ZX_compositum
 BA  53- [libpari] FlxXn_red, FlxqXn_mul, FlxqXn_sqr, FlxqXn_inv, FlxqXn_expint
-BA  54- [libpari] FlxX_Laplace, FlxX_invLaplace
+BA  54- [libpari] FlxX_Laplace, FlxX_invLapace, FlxqX_Newton, FlxqX_fromNewton
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
