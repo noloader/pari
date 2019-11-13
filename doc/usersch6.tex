@@ -294,6 +294,18 @@ $$ P_j \kbd{\prod_{i \leq r} P_i^{B[i,j]}} = (e_j), j > r$$
 
 \noindent Then $e_j = \prod_i X[i]^{E[i,j]}$.
 
+\fun{GEN}{bnf_has_fu}{GEN bnf} return fundamental units in expanded form if
+\kbd{bnf} contains them. Else return \kbd{NULL}.
+
+\fun{GEN}{bnf_compactfu}{GEN bnf} return fundamental units as a vector
+of algebraic numbers in compact form if \kbd{bnf} contains them. Else return
+\kbd{NULL}.
+
+\fun{GEN}{bnf_compactfu_mat}{GEN bnf} as a pair $(X,U)$, where $X$ is a
+vector of $S$-units and $U$ is a matrix with integer entries (without $0$
+rows), see \kbd{bnf\_get\_sunits}, if \kbd{bnf} contains them. Else return
+\kbd{NULL}.
+
 \subsec{Extracting info from a \kbd{bnr} structure}
 
 These functions expect a true \var{bnr} argument.
@@ -505,8 +517,14 @@ rest of $S$ in terms of the singled out generators). This function returns the
 $\alpha_j$ in factored form as a product of $S$-units.
 
 \fun{GEN}{bnf_build_units}{GEN bnf} returns a minimal set of generators
-for the unit group. The first element is a torsion unit, the others have
-infinite order.
+for the unit group in expanded form. The first element is a torsion unit, the
+others have infinite order. This expands units in compact form contained
+in a \kbd{bnf} from \kbd{bnfinit}$(,1)$ and may be \emph{very} expensive
+if the units are huge.
+
+\fun{GEN}{bnf_build_cheapfu}{GEN bnf} as \kbd{bnf\_build\_units} but only
+expand units in compact form if the computation is inexpensive (a few seconds).
+Return \kbd{NULL} otherwise.
 
 These functions expect a \kbd{rnf} argument:
 
@@ -889,41 +907,43 @@ function.
 $v$ and a \kbd{zv} $e$ return the \kbd{famat} $\prod_i v[i]^{e[i]}$. Shallow
 function.
 
-Note that it is trivial to break up a \var{famat} into its two constituent
-columns: \kbd{gel(f,1)} and \kbd{gel(f,2)} are the elements and exponents
-respectively. Conversely, \kbd{mkmat2} builds a (shallow) \var{famat} from
-two \typ{COL}s of the same length.
-
-The last two functions makes an assumption about the elements: they must be
-regular algebraic numbers (not \var{famat}s) over a given number field:
-
-\fun{GEN}{famat_reduce}{GEN f} given a \var{famat} $f$, returns a \var{famat}
-$g$ without repeated elements or 0 exponents, such that the expanded forms
-of $f$ and $g$ would be equal. Shallow function.
-
 \fun{GEN}{ZM_famat_limit}{GEN f, GEN limit} given a \var{famat} $f$ with
 \typ{INT} entries, returns a \var{famat} $g$ with all factors larger than
 \kbd{limit} multiplied out as the last entry (with exponent $1$). Shallow
 function.
 
+Note that it is trivial to break up a \var{famat} into its two constituent
+columns: \kbd{gel(f,1)} and \kbd{gel(f,2)} are the elements and exponents
+respectively. Conversely, \kbd{mkmat2} builds a (shallow) \var{famat} from
+two \typ{COL}s of the same length.
+
+\fun{GEN}{famat_reduce}{GEN f} given a \var{famat} $f$, returns a \var{famat}
+$g$ without repeated elements or 0 exponents, such that the expanded forms
+of $f$ and $g$ would be equal. Shallow function.
+
+\fun{GEN}{famat_remove_trivial}{GEN f} given a \var{famat} $f$, returns a
+\var{famat} $g$ without 0 exponents. Shallow function.
+
+\fun{GEN}{famatsmall_reduce}{GEN f} as \kbd{famat\_reduce}, but for exponents
+given by a \typ{VECSMALL}.
+
 \fun{GEN}{famat_to_nf}{GEN nf, GEN f} You normally never want to do this!
 This is a simplified form of \tet{nffactorback}, where we do not check the
-user input for consistency.
+user input for consistency. The elements must be regular algebraic numbers
+(not \var{famat}s) over the given number field.
 
-The description of \tet{famat_to_nf} says that you do not want to use this
-function. Then how do we recover genuine number field elements? Well, in
-most cases, we do not need to: most of the functions useful in this
-context accept \var{famat}s as inputs, for instance \tet{nfsign},
-\tet{nfsign_arch}, \tet{ideallog} and \tet{bnfisunit}. Otherwise, we can
-generally make good use of a quotient operation (modulo a fixed conductor,
-modulo $\ell$-th powers); see the end of \secref{se:Ideal_reduction}.
+Why should you \emph{not} want to use this function ? You should not need to:
+most of the functions useful in this context accept \var{famat}s as inputs,
+for instance \tet{nfsign}, \tet{nfsign_arch}, \tet{ideallog} and
+\tet{bnfisunit}. Otherwise, we can hopefully make good use of a quotient
+operation (modulo a fixed conductor, modulo $\ell$-th powers); see the end of
+\secref{se:Ideal_reduction}. If nothing else works, this function is
+available but is expected to be slow or even overflow the possibilities of
+the implementation.
 
 \misctitle{Caveat} Receiving a \var{famat} input, \kbd{bnfisunit} assumes that
 it is an actual unit, since this is expensive to check, and normally
 easy to ensure from the user's side.
-
-\fun{GEN}{famatsmall_reduce}{GEN f} as \kbd{famat\_reduce}, but for exponents
-given by a \typ{VECSMALL}.
 
 \subsec{Ideal arithmetic}
 

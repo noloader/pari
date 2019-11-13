@@ -1385,6 +1385,18 @@ famatsmall_reduce(GEN fa)
 }
 
 GEN
+famat_remove_trivial(GEN fa)
+{
+  GEN P, E, p = gel(fa,1), e = gel(fa,2);
+  long j, k, l = lg(p);
+  P = cgetg(l, t_COL);
+  E = cgetg(l, t_COL);
+  for (j = k = 1; j < l; j++)
+    if (signe(gel(e,j))) { gel(P,k) = gel(p,j); gel(E,k++) = gel(e,j); }
+  setlg(P, k); setlg(E, k); return mkmat2(P,E);
+}
+
+GEN
 famatV_factorback(GEN v, GEN e)
 {
   long i, l = lg(e);

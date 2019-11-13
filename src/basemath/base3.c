@@ -3013,12 +3013,15 @@ ideallog_units(GEN bnf, GEN bid)
   if (!S.hU) return zeromat(0,lU);
   cyc = bid_get_cyc(bid);
   D = nfsign_fu(bnf, bid_get_archp(bid));
-  C = bnf_get_compactfu(bnf);
   y = cgetg(lU, t_MAT);
-  if (lg(C) == 3 && typ(gel(C,2)) == t_MAT)
+  if ((C = bnf_build_cheapfu(bnf)))
+  { for (j = 1; j < lU; j++) gel(y,j) = zlog(nf, gel(C,j), gel(D,j), &S); }
+  else
   {
-    GEN X = gel(C,1), U = gel(C,2);
     long i, l = lg(S.U), l0 = lg(S.sprk);
+    GEN X, U;
+    if (!(C = bnf_compactfu_mat(bnf))) bnf_build_units(bnf); /* error */
+    X = gel(C,1); U = gel(C,2);
     for (j = 1; j < lU; j++) gel(y,j) = cgetg(l, t_COL);
     for (i = 1; i < l0; i++)
     {
@@ -3030,8 +3033,6 @@ ideallog_units(GEN bnf, GEN bid)
     if (l0 != l)
       for (j = 1; j < lU; j++) gcoeff(y,l0,j) = Flc_to_ZC(gel(D,j));
   }
-  else
-    for (j = 1; j < lU; j++) gel(y,j) = zlog(nf, gel(C,j), gel(D,j), &S);
   y = vec_prepend(y, zlog(nf, bnf_get_tuU(bnf), nfsign_tu(bnf, S.archp), &S));
   for (j = 1; j <= lU; j++)
     gel(y,j) = vecmodii(ZMV_ZCV_mul(S.U, gel(y,j)), cyc);

@@ -124,7 +124,7 @@ idealsqrtn(GEN nf, GEN x, GEN gn)
 static GEN
 reducebeta(GEN bnfz, GEN b, GEN ell)
 {
-  GEN y, cb, nf = bnf_get_nf(bnfz);
+  GEN y, cb, fu, nf = bnf_get_nf(bnfz);
 
   if (DEBUGLEVEL>1) err_printf("reducing beta = %Ps\n",b);
   b = reduce_mod_Qell(nf, b, ell);
@@ -145,8 +145,8 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
                          basistoalg(nf,b)));
     delete_var();
   }
-  if (cb && lg(y) != 1) b = gen_1;
-  else
+  if (cb && lg(y) != 1) b = cb;
+  else if ((fu = bnf_build_cheapfu(bnfz)))
   { /* log. embeddings of fu^ell */
     GEN logfu = bnf_get_logfu(bnfz);
     GEN elllogfu = RgM_Rg_mul(real_i(logfu), ell);
@@ -160,7 +160,7 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
         if (ex)
         {
           if (ZV_equal0(ex)) break;
-          y = nffactorback(nf, bnf_get_fu(bnfz), RgC_Rg_mul(ex,ell));
+          y = nffactorback(nf, fu, RgC_Rg_mul(ex,ell));
           b = nfdiv(nf, b, y); break;
         }
       }
@@ -168,8 +168,8 @@ reducebeta(GEN bnfz, GEN b, GEN ell)
       if (DEBUGLEVEL) pari_warn(warnprec,"reducebeta",prec);
       nf = nfnewprec_shallow(nf,prec);
     }
+    if (cb) b = gmul(b, cb);
   }
-  if (cb) b = gmul(b, cb);
   if (DEBUGLEVEL>1) err_printf("beta LLL-reduced mod U^l = %Ps\n",b);
   return b;
 }
@@ -449,11 +449,8 @@ futu(GEN bnf)
   GEN fu, tu, SUnits = bnf_get_sunits(bnf);
   if (SUnits)
   {
-    GEN X = gel(SUnits,1), U = gel(SUnits,2);
-    long i, l = lg(U);
-    fu = cgetg(l, t_VEC);
-    for (i = 1; i < l; i++) gel(fu,i) = famat_remove0(mkmat2(X, gel(U,i)));
     tu = nf_to_scalar_or_basis(bnf_get_nf(bnf), bnf_get_tuU(bnf));
+    fu = bnf_compactfu(bnf);
   }
   else
   {

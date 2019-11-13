@@ -1139,53 +1139,7 @@ ZM_remove_unused(GEN *pE, GEN *pX)
     *pE = rowpermute(E,v);
   }
 }
-GEN
-famat_remove0(GEN fa)
-{
-  GEN P, E, p = gel(fa,1), e = gel(fa,2);
-  long j, k, l = lg(p);
-  P = cgetg(l, t_COL);
-  E = cgetg(l, t_COL);
-  for (j = k = 1; j < l; j++)
-    if (signe(gel(e,j))) { gel(P,k) = gel(p,j); gel(E,k++) = gel(e,j); }
-  setlg(P, k); setlg(E, k); return mkmat2(P,E);
-}
-GEN
-bnf_get_compactfu(GEN bnf)
-{
-  GEN SUnits = bnf_get_sunits(bnf);
-  if (SUnits)
-  {
-    GEN X = gel(SUnits,1), U = gel(SUnits,2);
-    ZM_remove_unused(&U, &X);
-    return mkvec2(X, U);
-  }
-  else
-  {
-    GEN U = bnf_build_units(bnf);
-    return vecslice(U, 2, lg(U)-1);
-  }
-}
 
-static GEN
-vec_chinese_unit(GEN bnf)
-{
-  GEN nf = bnf_get_nf(bnf), SUnits = bnf_get_sunits(bnf);
-  GEN X, dX, Y, U, f = nf_get_index(nf);
-  long j, l, v;
-  if (!SUnits) return NULL; /* no compact units */
-  Y = gel(SUnits,1); v = nf_get_varn(nf);
-  U = gel(SUnits,2);
-  ZM_remove_unused(&U, &Y); l = lg(Y); X = cgetg(l, t_VEC);
-  if (is_pm1(f)) f = dX = NULL; else dX = cgetg(l, t_VEC);
-  for (j = 1; j < l; j++)
-  {
-    GEN t = nf_to_scalar_or_alg(nf, gel(Y,j));
-    if (f) t = Q_remove_denom(t, &gel(dX,j));
-    gel(X,j) = typ(t) == t_INT? scalarpol_shallow(t,v): t;
-  }
-  return chinese_unit(nf, X, dX, U);
-}
 static GEN
 getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
 {
@@ -1235,18 +1189,34 @@ getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
   return y;
 }
 
+static void
+err_units() { pari_err_PREC("makeunits [cannot get units, use bnfinit(,1)]"); }
+static GEN
+vec_chinese_unit(GEN bnf)
+{
+  GEN nf = bnf_get_nf(bnf), SUnits = bnf_get_sunits(bnf);
+  GEN X, dX, Y, U, f = nf_get_index(nf);
+  long j, l, v;
+  if (!SUnits) err_units(); /* no compact units */
+  Y = gel(SUnits,1); v = nf_get_varn(nf);
+  U = gel(SUnits,2);
+  ZM_remove_unused(&U, &Y); l = lg(Y); X = cgetg(l, t_VEC);
+  if (is_pm1(f)) f = dX = NULL; else dX = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++)
+  {
+    GEN t = nf_to_scalar_or_alg(nf, gel(Y,j));
+    if (f) t = Q_remove_denom(t, &gel(dX,j));
+    gel(X,j) = typ(t) == t_INT? scalarpol_shallow(t,v): t;
+  }
+  return chinese_unit(nf, X, dX, U);
+}
+
 static GEN
 makeunits(GEN bnf)
 {
   GEN nf = bnf_get_nf(bnf), fu = bnf_get_fu_nocheck(bnf);
   GEN tu = nf_to_scalar_or_basis(nf, bnf_get_tuU(bnf));
-  if (typ(fu) == t_MAT)
-  {
-    fu = vec_chinese_unit(bnf);
-    if (!fu) pari_err_PREC("makeunits [cannot get units, use bnfinit(,1)]");
-  }
-  else
-    fu = matalgtobasis(nf, fu);
+  fu = (typ(fu) == t_MAT)? vec_chinese_unit(bnf): matalgtobasis(nf, fu);
   return vec_prepend(fu, tu);
 }
 
@@ -1818,7 +1788,7 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
     if (lg(U) != 1) z = ZC_sub(z, ZM_ZC_mul(U, RgM_Babai(U,z)));
     col = mkmat2(X, z);
     if (F) col = famat_mul_shallow(col, F);
-    col = famat_remove0(col);
+    col = famat_remove_trivial(col);
     if (xar) col = famat_mul_shallow(col, xar);
   }
   if (!col && !ZV_equal0(R))
@@ -3420,6 +3390,50 @@ bnf_build_matalpha(GEN bnf)
 GEN
 bnf_build_units(GEN bnf)
 { return obj_checkbuild(bnf, UNITS, &makeunits); }
+
+/* return fu in compact form if available; in terms of a fixed basis
+ * of S-units */
+GEN
+bnf_compactfu_mat(GEN bnf)
+{
+  GEN X, U, SUnits = bnf_get_sunits(bnf);
+  if (!SUnits) return NULL;
+  X = gel(SUnits,1);
+  U = gel(SUnits,2); ZM_remove_unused(&U, &X);
+  return mkvec2(X, U);
+}
+/* return fu in compact form if available; individually as famat */
+GEN
+bnf_compactfu(GEN bnf)
+{
+  GEN fu, X, U, SUnits = bnf_get_sunits(bnf);
+  long i, l;
+  if (!SUnits) return NULL;
+  X = gel(SUnits,1);
+  U = gel(SUnits,2); l = lg(U); fu = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
+    gel(fu,i) = famat_remove_trivial(mkmat2(X, gel(U,i)));
+  return fu;
+}
+/* return expanded fu if available */
+GEN
+bnf_has_fu(GEN bnf)
+{
+  GEN fu = obj_check(bnf, UNITS);
+  if (fu) return vecsplice(fu, 1);
+  fu = bnf_get_fu_nocheck(bnf);
+  return (typ(fu) == t_MAT)? NULL: fu;
+}
+/* return expanded fu if available; build if cheap */
+GEN
+bnf_build_cheapfu(GEN bnf)
+{
+  GEN fu, SUnits;
+  if ((fu = bnf_has_fu(bnf))) return fu;
+  if ((SUnits = bnf_get_sunits(bnf)) && gexpo(bnf_get_logfu(bnf)) < 18)
+    return vecsplice(bnf_build_units(bnf), 1);
+  return NULL;
+}
 
 static GEN
 get_regulator(GEN mun)

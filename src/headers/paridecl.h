@@ -2307,6 +2307,7 @@ GEN     famat_pow_shallow(GEN f, GEN n);
 GEN     famat_pows_shallow(GEN f, long n);
 GEN     famat_sqr(GEN f);
 GEN     famat_reduce(GEN fa);
+GEN     famat_remove_trivial(GEN fa);
 GEN     famat_to_nf(GEN nf, GEN f);
 GEN     famat_to_nf_modideal_coprime(GEN nf, GEN g, GEN e, GEN id, GEN EX);
 GEN     famat_to_nf_moddivisor(GEN nf, GEN g, GEN e, GEN bid);
@@ -2646,13 +2647,15 @@ GEN     quadray(GEN bnf, GEN f, long prec);
 
 /* buch2.c */
 
-GEN     famat_remove0(GEN fa);
 GEN     Buchall(GEN P, long flag, long prec);
 GEN     Buchall_param(GEN P, double bach, double bach2, long nbrelpid, long flun, long prec);
+GEN     bnf_build_cheapfu(GEN bnf);
 GEN     bnf_build_cycgen(GEN bnf);
 GEN     bnf_build_matalpha(GEN bnf);
 GEN     bnf_build_units(GEN bnf);
-GEN     bnf_get_compactfu(GEN bnf);
+GEN     bnf_compactfu(GEN bnf);
+GEN     bnf_compactfu_mat(GEN bnf);
+GEN     bnf_has_fu(GEN bnf);
 GEN     bnfinit0(GEN P,long flag,GEN data,long prec);
 GEN     bnfisprincipal0(GEN bnf, GEN x,long flall);
 GEN     bnfisunit(GEN bignf, GEN x);
