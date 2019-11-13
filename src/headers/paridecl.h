@@ -533,6 +533,7 @@ GEN     FlxqXQ_autpow(GEN x, long n, GEN S, GEN T, ulong p);
 GEN     FlxqXQ_autsum(GEN aut, long n, GEN S, GEN T, ulong p);
 GEN     FlxqXQ_auttrace(GEN x, ulong n, GEN S, GEN T, ulong p);
 GEN     FlxqXV_prod(GEN V, GEN T, ulong p);
+GEN     FlxqXn_inv(GEN f, long e, GEN T, ulong p);
 GEN     FlxqXn_mul(GEN a, GEN b, long n, GEN T, ulong p);
 GEN     FlxqXn_sqr(GEN a, long n, GEN T, ulong p);
 GEN     Fly_to_FlxY(GEN B, long v);

@@ -1867,3 +1867,61 @@ FlxqXn_mul(GEN a, GEN b, long n, GEN T, ulong p)
 GEN
 FlxqXn_sqr(GEN a, long n, GEN T, ulong p)
 { return FlxXn_red(FlxqX_sqr(a, T, p), n); }
+
+/* (f*g) \/ x^n */
+static GEN
+FlxqX_mulhigh_i(GEN f, GEN g, long n, GEN T, ulong p)
+{
+  return FlxX_shift(FlxqX_mul(f, g, T, p), -n , get_Flx_var(T));
+}
+
+static GEN
+FlxqXn_mulhigh(GEN f, GEN g, long n2, long n, GEN T, ulong p)
+{
+  long vT = get_Flx_var(T);
+  GEN F = FlxX_blocks(f, n2, 2, vT), fl = gel(F,1), fh = gel(F,2);
+  return FlxX_add(FlxqX_mulhigh_i(fl, g, n2, T, p),
+                  FlxqXn_mul(fh, g, n - n2, T, p), p);
+}
+
+GEN
+FlxqXn_inv(GEN f, long e, GEN T, ulong p)
+{
+  pari_sp av = avma, av2;
+  ulong mask;
+  GEN W, a;
+  long v = varn(f), n = 1, vT = get_Flx_var(T);
+
+  if (!signe(f)) pari_err_INV("FlxqXn_inv",f);
+  a = Flxq_inv(gel(f,2), T, p);
+  if (e == 1) return scalarpol(a, v);
+  else if (e == 2)
+  {
+    GEN b;
+    if (degpol(f) <= 0) return scalarpol(a, v);
+    b = Flx_neg(gel(f,3), p);
+    if (lgpol(b)==0) return scalarpol(a, v);
+    b = Flxq_mul(b, Flxq_sqr(a, T, p), T, p);
+    W = deg1pol_shallow(b, a, v);
+    return gerepilecopy(av, W);
+  }
+  W = scalarpol_shallow(Flxq_inv(gel(f,2), T, p),v);
+  mask = quadratic_prec_mask(e);
+  av2 = avma;
+  for (;mask>1;)
+  {
+    GEN u, fr;
+    long n2 = n;
+    n<<=1; if (mask & 1) n--;
+    mask >>= 1;
+    fr = FlxXn_red(f, n);
+    u = FlxqXn_mul(W, FlxqXn_mulhigh(fr, W, n2, n, T, p), n-n2, T, p);
+    W = FlxX_sub(W, FlxX_shift(u, n2, vT), p);
+    if (gc_needed(av2,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"FlxqXn_inv, e = %ld", n);
+      W = gerepileupto(av2, W);
+    }
+  }
+  return gerepileupto(av, W);
+}
