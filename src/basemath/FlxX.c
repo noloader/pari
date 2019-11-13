@@ -520,6 +520,23 @@ FlxX_shift(GEN a, long n, long vs)
   return b;
 }
 
+GEN
+FlxX_blocks(GEN P, long n, long m, long vs)
+{
+  GEN z = cgetg(m+1,t_VEC);
+  long i,j, k=2, l = lg(P);
+  for(i=1; i<=m; i++)
+  {
+    GEN zi = cgetg(n+2,t_POL);
+    zi[1] = P[1];
+    gel(z,i) = zi;
+    for(j=2; j<n+2; j++)
+      gel(zi, j) = k==l ? pol0_Flx(vs) : gel(P,k++);
+    zi = FlxX_renormalize(zi, n+2);
+  }
+  return z;
+}
+
 static GEN
 FlxX_recipspec(GEN x, long l, long n, long vs)
 {

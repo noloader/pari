@@ -472,6 +472,7 @@ GEN     FlxX_Flx_add(GEN y, GEN x, ulong p);
 GEN     FlxX_Flx_mul(GEN x, GEN y, ulong p);
 GEN     FlxX_Flx_sub(GEN y, GEN x, ulong p);
 GEN     FlxX_add(GEN P, GEN Q, ulong p);
+GEN     FlxX_blocks(GEN P, long n, long m, long vs);
 GEN     FlxX_deriv(GEN z, ulong p);
 GEN     FlxX_double(GEN x, ulong p);
 GEN     FlxX_neg(GEN x, ulong p);
