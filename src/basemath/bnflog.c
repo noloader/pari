@@ -144,40 +144,42 @@ CL_prime(GEN K, GEN ell, GEN Sell)
 static GEN
 ell1(GEN ell) { return equaliu(ell,2)? utoipos(5): addiu(ell,1); }
 
-/* log N_{F_P/Q_p}(x) / deg_F P */
+/* log N_{F_P/Q_p}(x) */
 static GEN
-vtilde_i(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
+vtilde_i(GEN K, GEN x, GEN T, GEN ell, long prec)
 {
-  GEN L, cx;
+  GEN N, cx;
   if (typ(x) != t_POL) x = nf_to_scalar_or_alg(K, x);
-  if (typ(x) != t_POL) { cx = x; L = gen_0; }
+  if (typ(x) != t_POL) { cx = x; N = NULL; }
   else
   {
-    GEN N;
     x = Q_primitive_part(x,&cx);
     N = resultant(RgX_rem(x,T), T);
-    L = Qp_log(cvtop(N,ell,prec));
+    N = cvtop(N,ell,prec);
   }
   if (cx)
   {
     (void)Q_pvalrem(cx, ell, &cx);
-    if (!isint1(cx)) L = gadd(L, gmulsg(degpol(T), Qp_log(cvtop(cx,ell,prec))));
+    if (!isint1(cx))
+    {
+      cx = gpowgs(cvtop(cx,ell,prec), degpol(T));
+      N = N? gmul(N, cx): cx;
+    }
   }
-  return gdiv(L, deg);
+  return N? Qp_log(N): gen_0;
 }
 static GEN
-vecvtilde(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
-{ pari_APPLY_same(vtilde_i(K, gel(x,i), T, deg, ell, prec)); }
+vecvtilde_i(GEN K, GEN x, GEN T, GEN ell, long prec)
+{ pari_APPLY_same(vtilde_i(K, gel(x,i), T, ell, prec)); }
 static GEN
 vtilde(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
 {
   pari_sp av;
-  GEN G, E;
-  if (typ(x) != t_MAT) return vtilde_i(K,x,T,deg,ell,prec);
+  GEN v, G, E;
+  if (typ(x) != t_MAT) return gdiv(vtilde_i(K,x,T,ell,prec), deg);
   G = gel(x,1);
-  E = gel(x,2);
-  av = avma;
-  return gerepileupto(av, RgV_dotproduct(E, vecvtilde(K,G,T,deg,ell,prec)));
+  E = gel(x,2); av = avma; v = vecvtilde_i(K,G,T,ell,prec);
+  return gerepileupto(av, gdiv(RgV_dotproduct(E, v), deg));
 }
 
 /* v[i] = deg S[i] mod p^prec */
