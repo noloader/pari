@@ -976,7 +976,6 @@ gen_inccrt(const char *str, GEN worker, GEN dB, long n, long mmin,
   gerepileall(av, 2, pH, pmod);
 }
 
-
 GEN
 gen_crt(const char *str, GEN worker, forprime_t *S, GEN dB, ulong bound, long mmin, GEN *pmod,
         GEN crt(GEN, GEN, GEN*), GEN center(GEN, GEN, GEN))
