@@ -155,7 +155,7 @@ vtilde_i(GEN K, GEN x, GEN T, GEN deg, GEN ell, long prec)
   {
     GEN N;
     x = Q_primitive_part(x,&cx);
-    N = RgXQ_norm(x, T);
+    N = resultant(RgX_rem(x,T), T);
     L = Qp_log(cvtop(N,ell,prec));
   }
   if (cx)
