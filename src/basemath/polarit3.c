@@ -2512,17 +2512,17 @@ ZX_compositum_lambda(GEN A, GEN B, GEN lead, long lambda)
 {
   pari_sp av = avma;
   forprime_t S;
-INIT:
-  if (DEBUGLEVEL>4) err_printf("Trying lambda = %ld\n", lambda);
+  ulong p;
   init_modular_big(&S);
+  p = u_forprime_next(&S);
   while (1)
   {
     GEN Hp, a;
-    ulong p = u_forprime_next(&S);
-    if (lead && dvdiu(lead,p)) continue;
+    if (DEBUGLEVEL>4) err_printf("Trying lambda = %ld\n", lambda);
+    if (lead && dvdiu(lead,p)) { p = u_forprime_next(&S); continue; }
     a = ZX_to_Flx(ZX_rescale(A, stoi(-lambda)), p);
     Hp = Flx_direct_compositum(a, ZX_to_Flx(B, p), p);
-    if (!Flx_is_squarefree(Hp, p)) { lambda = next_lambda(lambda); goto INIT; }
+    if (!Flx_is_squarefree(Hp, p)) { lambda = next_lambda(lambda); continue; }
     if (DEBUGLEVEL>4) err_printf("Final lambda = %ld\n", lambda);
     return gc_long(av, lambda);
   }
