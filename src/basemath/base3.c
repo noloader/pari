@@ -3170,7 +3170,8 @@ GEN
 log_prk_units_init(GEN bnf)
 {
   GEN U = bnf_has_fu(bnf);
-  if (!U && !(U = bnf_compactfu_mat(bnf))) (void)bnf_build_units(bnf);
+  if (U) U = matalgtobasis(bnf_get_nf(bnf), U);
+  else if (!(U = bnf_compactfu_mat(bnf))) (void)bnf_build_units(bnf);
   return mkvec2(bnf_get_tuU(bnf), U);
 }
 /*  flag & nf_GEN : generators, otherwise no

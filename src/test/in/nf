@@ -73,6 +73,9 @@ l=ideallist(K,3,3);L=ideallistarch(K,l,[1])
 bnrdisclist(K,l)
 bnrdisclist(K,L)
 bnrdisclist(K,4,[1])
+\\#2180
+bnrdisclist(bnfinit(galoissubcyclo(32,15)),94);
+
 K=nfinit([x^5-x^4+x^3+100*x+20,[1,x,x^2-x,1/2*x^4-1/2*x^3+1/2*x^2+40,x^3-x^2+x]]);
 K.index
 
