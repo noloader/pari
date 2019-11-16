@@ -911,7 +911,7 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
       {
         GEN F = Q_factor(ct);
         ct = factorback2(gel(F,1), ZV_to_Flv(gel(F,2), ell));
-        t = ZC_Z_mul(t, ct);
+        t = (typ(t) == t_INT)? ct: ZC_Z_mul(t, ct);
       }
     }
     gel(vell,j) = t; /* integral, not to far from primitive */

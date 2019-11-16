@@ -110,7 +110,9 @@ y - 4/3)]
  + 4/3*y - 2/3, y^7 + 7*y^3 - 7*y^2 + 7*y + 1)]
 []
 x^2 - 3
+x^3 + Mod(-13798674*y^2 + 985608*y - 386432859, y^3 + 28*y + 2)*x + Mod(1011
+33611882*y^2 - 7222514984*y + 2832256884618, y^3 + 28*y + 2)
   ***   at top-level: rnfkummer(bnfinit(x^2+23))
   ***                 ^--------------------------
   *** rnfkummer: incorrect priority in bnrclassfield: variable x = x
-Total time spent: 11742
+Total time spent: 10472
