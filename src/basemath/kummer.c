@@ -903,14 +903,30 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   {
     GEN t = gel(vselmer,j);
     if (typ(t) == t_MAT)
+    {
+      GEN ct;
       t = nffactorback(bnf, gel(t,1), ZV_to_Flv(gel(t,2), ell));
-    gel(vell,j) = t;
+      t = Q_primitive_part(t, &ct);
+      if (ct)
+      {
+        GEN F = Q_factor(ct);
+        ct = factorback2(gel(F,1), ZV_to_Flv(gel(F,2), ell));
+        t = ZC_Z_mul(t, ct);
+      }
+    }
+    gel(vell,j) = t; /* integral, not to far from primitive */
     gel(vtau,j) = tauofelt(t, &kum->tau);
   }
   U1 = vecslice(vell, 1, ru); /* units */
   U2 = vecslice(vell, ru+1, ru+rc); /* cycgen (mod ell-th powers) */
   B = nf_get_index(nf); /* bad primes; from 1 to ru are LIMC-units */
   for (i = 1; i <= rc; i++) B = mulii(B, nfnorm(nf, gel(U2,i)));
+  if (LIMC > 1)
+  {
+    GEN F = absZ_factor_limit(B, LIMC), P = gel(F,1);
+    long lP = lg(P);
+    B = (lP > 1)? gel(P,lP-1): gen_1;
+  }
   vy = cgetg(l, t_MAT);
   for (j = 1; j <= ru; j++) gel(vy,j) = zero_Flv(rc); /* units */
   for (     ; j < l; j++)
