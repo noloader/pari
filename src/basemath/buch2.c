@@ -1766,7 +1766,6 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
   col = isprincipalarch(bnf, col, q, gen_1, d, &e);
   if (col && !fact_ok(nf,x, col,gen,R)) col = NULL;
   if (!col && (flag & nf_GENMAT) && (SUnits = bnf_get_sunits(bnf)))
-  if ((SUnits = bnf_get_sunits(bnf)))
   {
     GEN X = gel(SUnits,1), U = gel(SUnits,2), C = gel(SUnits,3);
     GEN v = gel(bnf,9), Ge = gel(v,4), M1 = gel(v,5), M2 = gel(v,6);
