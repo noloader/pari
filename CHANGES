@@ -140,7 +140,7 @@ BA  45- [libpari] init_Flxq
 BA  49- [libpari] FpXn_expint, Flxn_expint, Flx_blocks, FlxX_blocks
     50- [libpari] bnf_get_sunits, nfsign_tu, nfsign_fu, ideallog_units,
         sunits_makecoprime, famat_remove_trivial, bnf_build_cheapfu,
-        bnf_compactfu, bnf_compactfu_mat, bnf_has_fu
+        bnf_compactfu, bnf_compactfu_mat, bnf_has_fu, famat_idealfactor
 BA  51- [libpari] factorial_Fl, factorial_Fp, FpV_prod
 BA  52- [libpari] ZX_compositum
 BA  53- [libpari] FlxXn_red, FlxqXn_mul, FlxqXn_sqr, FlxqXn_inv, FlxqXn_expint

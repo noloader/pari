@@ -1318,6 +1318,16 @@ famat_to_nf(GEN nf, GEN f)
 }
 
 GEN
+famat_idealfactor(GEN nf, GEN x)
+{
+  long i, l;
+  GEN g = gel(x,1), e = gel(x,2), h = cgetg_copy(g, &l);
+  for (i = 1; i < l; i++) gel(h,i) = idealfactor(nf, gel(g,i));
+  h = famat_reduce(famatV_factorback(h,e));
+  return sort_factor(h, (void*)&cmp_prime_ideal, &cmp_nodata);
+}
+
+GEN
 famat_reduce(GEN fa)
 {
   GEN E, G, L, g, e;

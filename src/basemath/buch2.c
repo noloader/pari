@@ -1722,15 +1722,6 @@ ZV_mul(GEN x, GEN y)
   return z;
 }
 
-GEN
-famat_idealfactor(GEN nf, GEN x)
-{
-  long i, l;
-  GEN g = gel(x,1), e = gel(x,2), h = cgetg_copy(g, &l);
-  for (i = 1; i < l; i++) gel(h,i) = idealfactor(nf, gel(g,i));
-  return famat_reduce(famatV_factorback(h,e));
-}
-
 /* assume x in HNF; cf class_group_gen for notations. Return NULL iff
  * flag & nf_FORCE and computation of principal ideal generator fails */
 static GEN
