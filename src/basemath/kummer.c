@@ -382,6 +382,7 @@ build_list_Hecke(primlist *L, GEN nfz, GEN fa, GEN gothf, long ell, tau_s *tau)
 static GEN
 logall(GEN nf, GEN vec, long lW, long mginv, long ell, GEN pr, long ex)
 {
+  pari_sp av = avma;
   GEN m, M, sprk = log_prk_init(nf, pr, ex);
   long ellrank, i, l = lg(vec);
 
@@ -394,7 +395,7 @@ logall(GEN nf, GEN vec, long lW, long mginv, long ell, GEN pr, long ex)
     if (i < lW) m = gmulsg(mginv, m);
     gel(M,i) = ZV_to_Flv(m, ell);
   }
-  return M;
+  return gerepilecopy(av, M);
 }
 
 /* compute the u_j (see remark 5.2.15.) */
@@ -932,7 +933,7 @@ kervirtualunit(struct rnfkummer *kum, GEN vselmer)
   for (     ; j < l; j++)
   {
     GEN y, w, u = gel(vtau, j); /* virtual unit */
-    (void)idealispower(nf, u, ell, &w);
+    if (!idealispower(nf, u, ell, &w)) pari_err_BUG("kervirtualunit");
     y = isprincipal(bnf, w); setlg(y, rc+1);
     if (!ZV_equal0(y))
       for (i = 1; i <= rc; i++)
