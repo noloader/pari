@@ -1394,11 +1394,52 @@ static GEN
 gsubst_v(GEN e, long v, GEN x)
 { pari_APPLY_same(gsubst(e, v, gel(x,i))); }
 
+static GEN
+constmat(GEN z, long n)
+{
+  GEN y = cgetg(n+1, t_MAT), c = const_col(n, gcopy(z));
+  long i;
+  for (i = 1; i <= n; i++) gel(y, i) = c;
+  return y;
+}
+static GEN
+scalarmat2(GEN o, GEN z, long n)
+{
+  GEN y;
+  long i;
+  if (n == 0) return cgetg(1, t_MAT);
+  if (n == 1) retmkmat(mkcol(gcopy(o)));
+  y = cgetg(n+1, t_MAT); z = gcopy(z); o = gcopy(o);
+  for (i = 1; i <= n; i++) { gel(y, i) = const_col(n, z); gcoeff(y,i,i) = o; }
+  return y;
+}
+/* x * y^0, n = dim(y) if t_MAT, else -1 */
+static GEN
+subst_higher(GEN x, GEN y, long n)
+{
+  GEN o = Rg_get_1(y);
+  if (o == gen_1) return n < 0? gcopy(x): scalarmat(x,n);
+  x = gmul(x,o); return n < 0? x: scalarmat2(x, Rg_get_0(y), n);
+}
+
+/* x t_POLMOD, v strictly lower priority than var(x) */
+static GEN
+subst_polmod(GEN x, long v, GEN y)
+{
+  long l, i;
+  GEN a = gsubst(gel(x,2),v,y), b = gsubst(gel(x,1),v,y), z;
+
+  if (typ(b) != t_POL) pari_err_TYPE2("substitution",x,y);
+  if (typ(a) != t_POL || varncmp(varn(a), varn(b)) >= 0) return gmodulo(a, b);
+  l = lg(a); z = cgetg(l,t_POL); z[1] = a[1];
+  for (i = 2; i < l; i++) gel(z,i) = gmodulo(gel(a,i),b);
+  return normalizepol_lg(z, l);
+}
 GEN
 gsubst(GEN x, long v, GEN y)
 {
   long tx = typ(x), ty = typ(y), lx = lg(x), ly = lg(y);
-  long l, vx, vy, ex, ey, i, j, k, jb;
+  long l, vx, vy, ex, ey, i, j, k, jb, matn;
   pari_sp av, av2;
   GEN X, t, p1, p2, z;
 
@@ -1408,70 +1449,56 @@ gsubst(GEN x, long v, GEN y)
       return gsubst_v(x, v, y);
     case t_MAT:
       if (ly==1) return cgetg(1,t_MAT);
-      if (ly == lgcols(y)) break;
+      if (ly == lgcols(y)) { matn = ly - 1; break; }
       /* fall through */
     case t_QFR: case t_QFI:
       pari_err_TYPE2("substitution",x,y);
-      break; /* LCOV_EXCL_LINE */
+    default: matn = -1;
   }
-
   if (is_scalar_t(tx))
   {
-    GEN modp1;
-    if (tx != t_POLMOD || varncmp(v, varn(gel(x,1))) <= 0)
-      return ty==t_MAT? scalarmat(x,ly-1): gcopy(x);
-    av = avma;
-    p1 = gsubst(gel(x,1),v,y);
-    if (typ(p1) != t_POL) pari_err_TYPE2("substitution",x,y);
-    p2 = gsubst(gel(x,2),v,y);
-    vx = varn(p1);
-    if (typ(p2) != t_POL || varncmp(varn(p2), vx) >= 0)
-      return gerepileupto(av, gmodulo(p2, p1));
-    modp1 = mkpolmod(gen_1,p1);
-    lx = lg(p2);
-    z = cgetg(lx,t_POL); z[1] = p2[1];
-    for (i=2; i<lx; i++)
+    if (tx == t_POLMOD && varncmp(v, varn(gel(x,1))) > 0)
     {
-      GEN c = gel(p2,i);
-      if (typ(c) != t_POL || varncmp(varn(c), vx) >= 0)
-        c = gmodulo(c,p1);
-      else
-        c = gmul(c, modp1);
-      gel(z,i) = c;
+      av = avma;
+      return gerepileupto(av, subst_polmod(x, v, y));
     }
-    return gerepileupto(av, normalizepol_lg(z,lx));
+    return subst_higher(x, y, matn);
   }
 
   switch(tx)
   {
     case t_POL:
       vx = varn(x);
-      if (lx==2)
-      {
-        GEN z;
-        if (vx != v) return gcopy(x);
-        z = Rg_get_0(y);
-        return ty == t_MAT? scalarmat(z,ly-1): z;
-      }
-
-      if (varncmp(vx, v) > 0)
-        return ty == t_MAT? scalarmat(x,ly-1): RgX_copy(x);
+      if (varncmp(vx, v) > 0) return subst_higher(x, y, matn);
       if (varncmp(vx, v) < 0)
       {
         av = avma; z = cgetg(lx, t_POL); z[1] = x[1];
-        for (i=2; i<lx; i++) gel(z,i) = gsubst(gel(x,i),v,y);
+        if (lx == 2) return z;
+        for (i = 2; i < lx; i++) gel(z,i) = gsubst(gel(x,i),v,y);
         return gerepileupto(av, poleval(z, pol_x(vx)));
       }
-      return ty == t_MAT? RgX_RgM_eval(x, y): poleval(x,y);
+      /* v = vx */
+      if (lx == 2)
+      {
+        GEN z = Rg_get_0(y);
+        return matn >= 0? constmat(z, matn): z;
+      }
+      if (lx == 3)
+      {
+        x = subst_higher(gel(x,2), y, matn);
+        if (matn >= 0) return x;
+        vy = gvar(y);
+        return (vy == NO_VARIABLE)? x: gmul(x, pol_1(vy));
+      }
+      return matn >= 0? RgX_RgM_eval(x, y): poleval(x,y);
 
     case t_SER:
       vx = varn(x);
-      if (varncmp(vx, v) > 0)
-        return (ty==t_MAT)? scalarmat(x,ly-1): gcopy(x);
+      if (varncmp(vx, v) > 0) return subst_higher(x, y, matn);
       ex = valp(x);
       if (varncmp(vx, v) < 0)
       {
-        if (lx == 2) return (ty==t_MAT)? scalarmat(x,ly-1): gcopy(x);
+        if (lx == 2) return matn >= 0? scalarmat(x, matn): gcopy(x);
         av = avma; X = pol_x(vx);
         av2 = avma;
         z = gadd(gsubst(gel(x,lx-1),v,y), zeroser(vx,1));
@@ -1511,7 +1538,6 @@ gsubst(GEN x, long v, GEN y)
           if (vy != vx)
           {
             av = avma; z = gel(x,lx-1);
-
             for (i=lx-2; i>=2; i--)
             {
               z = gadd(gmul(y,z), gel(x,i));

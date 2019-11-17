@@ -48,6 +48,9 @@ BA  32- Using local in export()ed functions could crash GP
     36- missing type checks in lfunthetacheckinit [#2179]
     37- idealispower(x,n,&y): y could be incorrect [#2181]
     38- SEGV in idealispower [#2183]
+    39- inconsistencies in subst for constant polynomials: e.g.,
+          type(subst('u^0,u,x)) -> t_POL (was t_INT)
+          subst('u^0,u,Mat(Mod(1,2))) -> [Mod(1,2)] (was [1])
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
