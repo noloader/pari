@@ -581,7 +581,7 @@ factorpadic(GEN f, GEN p, long r)
     f = pnormalize(f, p, NULL, r, n-1, &lead, &pr, &reverse);
     y = ZpX_monic_factor(f, p, pr);
     P = gel(y,1); l = lg(P);
-    if (is_pm1(lead))
+    if (!is_pm1(lead))
       for (i=1; i<l; i++) gel(P,i) = Q_primpart(RgX_unscale(gel(P,i), lead));
     for (i=1; i<l; i++)
     {
