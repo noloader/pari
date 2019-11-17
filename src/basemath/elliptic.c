@@ -4188,6 +4188,26 @@ ellintegralmodel(GEN e, GEN *pv)
   return e;
 }
 
+/* return an integral model with a1 = a3 = 0 */
+GEN
+ellintegralbmodel(GEN e, GEN *pv)
+{
+  GEN f = ellintegralmodel_i(e, pv);
+  GEN a1 = ell_get_a1(f), a3 = ell_get_a3(f);
+  if (signe(a1)==0 && signe(a3)==0)
+  {
+    if (!*pv) *pv = init_ch();
+    return f;
+  }
+  else
+  {
+    GEN urst = mkvec4(mpodd(a1) || mpodd(a3) ? ghalf: gen_1,
+        gen_0, gdivgs(a1,-2), gdivgs(a3,-2));
+    gcomposev(pv, urst);
+    return coordch(f, urst);
+  }
+}
+
 static long
 F2_card(ulong a1, ulong a2, ulong a3, ulong a4, ulong a6)
 {

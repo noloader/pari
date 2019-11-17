@@ -719,6 +719,7 @@ GEN direuler_factor(GEN s, long n);
 
 void ellprint(GEN e);
 GEN  elltors_psylow(GEN e, ulong p);
+GEN  ellintegralbmodel(GEN e, GEN *pv);
 
 /* es.c */
 
