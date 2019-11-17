@@ -3800,22 +3800,16 @@ static GEN
 trim_list(FB_t *F)
 {
   pari_sp av = avma;
-  GEN L_jid = F->L_jid, present = zero_Flv(F->KC);
+  GEN v, L_jid = F->L_jid, minidx = F->minidx, present = zero_Flv(F->KC);
   long i, j, imax = minss(lg(L_jid), F->KC + 1);
-  GEN minidx = F->minidx, idx = cgetg(imax, t_VECSMALL);
 
+  v = cgetg(imax, t_VECSMALL);
   for (i = j = 1; i < imax; i++)
   {
-    long id = minidx[L_jid[i]];
-
-    if (!present[id])
-    {
-      idx[j++] = L_jid[i];
-      present[id] = 1;
-    }
+    long k = minidx[ L_jid[i] ];
+    if (!present[k]) { v[j++] = L_jid[i]; present[k] = 1; }
   }
-  setlg(idx, j);
-  return gerepileuptoleaf(av, idx);
+  setlg(v, j); return gerepileuptoleaf(av, v);
 }
 
 static void
@@ -4192,9 +4186,9 @@ START:
         }
         else
         { /* recompute embs + HNF */
-           for(i = 1; i < lg(PERM); i++) F.perm[i] = PERM[i];
-           cache.chk = cache.base;
-           W = NULL;
+          for(i = 1; i < lg(PERM); i++) F.perm[i] = PERM[i];
+          cache.chk = cache.base;
+          W = NULL;
         }
       }
       set_avma(av4);
