@@ -140,6 +140,7 @@ B
 A = [9375, 2841, 198; 0, 3, 0; 0, 0, 3];
 idealispower(K, A, 3)
 idealispower(K, A, 1)
+idealispower(K, x, 2)
 
 \\ #2019
 idealispower(nfinit('y), 4, 2, &A)

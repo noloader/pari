@@ -825,6 +825,7 @@ idealsqrtn_int(GEN nf, GEN A, long n, GEN *pB)
   }
   /* compute valuations at ramified primes */
   root = ramified_root(nf, idealadd(nf, nf_get_diff(nf), A), A, n);
+  if (!root) return 0;
   /* remove ramified primes */
   if (isint1(root))
     root = matid(nf_get_degree(nf));

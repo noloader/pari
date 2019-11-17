@@ -269,6 +269,7 @@ matrix(0,2)
 
 0
 1
+0
 1
 
 [2]
@@ -296,4 +297,4 @@ matrix(0,2)
   ***   at top-level: idealred(nf,[2,Mat(1)])
   ***                 ^-----------------------
   *** idealred: incorrect type in idealtyp [extended ideal] (t_VEC).
-Total time spent: 136
+Total time spent: 270
