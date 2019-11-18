@@ -2222,6 +2222,7 @@ GEN     algtobasis(GEN nf, GEN x);
 GEN     basistoalg(GEN nf, GEN x);
 GEN     ei_multable(GEN nf, long i);
 const struct bb_field *get_nf_field(void **E, GEN nf);
+GEN     famat_nfvalrem(GEN nf, GEN x, GEN pr, GEN *py);
 GEN     gpnfvalrem(GEN nf, GEN x, GEN pr, GEN *py);
 GEN     ideallist(GEN nf,long bound);
 GEN     ideallist0(GEN nf,long bound, long flag);

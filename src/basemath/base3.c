@@ -762,6 +762,27 @@ pr_equal(GEN P, GEN Q)
   return ZV_equal(pr_get_gen(P), gQ) || ZC_prdvd(gQ, P);
 }
 
+GEN
+famat_nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
+{
+  pari_sp av = avma;
+  GEN P = gel(x,1), E = gel(x,2), V = gen_0, y = NULL;
+  long l = lg(P), i;
+  if (py) { *py = gen_1; y = cgetg(l, t_COL); }
+
+  for (i = 1; i < l; i++)
+  {
+    GEN e = gel(E,i);
+    long v;
+    if (!signe(e)) continue;
+    v = nfvalrem(nf, gel(P,i), pr, py? &gel(y,i): NULL);
+    if (v == LONG_MAX) { set_avma(av); if (py) *py = gen_1; return mkoo(); }
+    V = addmulii(V, stoi(v), e);
+  }
+  if (!py) V = gerepileuptoint(av, V);
+  else { gerepileall(av, 2, &V, &y); *py = y; }
+  return V;
+}
 long
 nfval(GEN nf, GEN x, GEN pr)
 {
@@ -835,7 +856,9 @@ nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
 GEN
 gpnfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
 {
-  long v = nfvalrem(nf,x,pr,py);
+  long v;
+  if (typ(x) == t_MAT && lg(x) == 3) return famat_nfvalrem(nf, x, pr, py);
+  v = nfvalrem(nf,x,pr,py);
   return v == LONG_MAX? mkoo(): stoi(v);
 }
 
