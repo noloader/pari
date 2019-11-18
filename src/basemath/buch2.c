@@ -2526,7 +2526,7 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
   {
     fp->v[k] = gtodouble(gcoeff(r,k,k));
     for (j=1; j<k; j++) fp->q[j][k] = gtodouble(gcoeff(r,j,k));
-    if (DEBUGLEVEL>3) err_printf("fp->v[%ld]=%.4g ",k,fp->v[k]);
+    if (DEBUGLEVEL>3) err_printf("v[%ld]=%.4g ",k,fp->v[k]);
   }
   BOUND = mindd(BMULT*fp->v[1], 2*(fp->v[2]+fp->v[1]*fp->q[1][2]*fp->q[1][2]));
   /* BOUND at most BMULT fp->x smallest known vector */
@@ -2582,14 +2582,12 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
 
     if (!nbrelpid)
     {
-      if (!factorgen(F,nf,ideal0,Nideal,gx,fact))
-         continue;
+      if (!factorgen(F,nf,ideal0,Nideal,gx,fact)) continue;
       return 1;
     }
     else if (rr)
     {
-      if (!factorgen(F,nf,ideal0,rr->Nideal,gx,fact))
-         continue;
+      if (!factorgen(F,nf,ideal0,rr->Nideal,gx,fact)) continue;
       add_to_fact(rr->jid, 1, fact);
       gx = nfmul(nf, rr->m1, gx);
     }
@@ -2627,7 +2625,6 @@ static void
 small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
            FACT *fact, GEN p0)
 {
-  pari_timer T;
   const long prec = nf_get_prec(nf);
   FP_t fp;
   pari_sp av;
@@ -2636,11 +2633,8 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
   REL_t *last = cache->last;
 
   if (DEBUGLEVEL)
-  {
-    timer_start(&T);
-    err_printf("\n#### Look for %ld relations in %ld ideals (small_norm)\n",
+    err_printf("#### Look for %ld relations in %ld ideals (small_norm)\n",
                cache->end - last, lg(L_jid)-1);
-  }
   nbsmallnorm = nbfact = 0;
 
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
@@ -2657,14 +2651,13 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
     if (Fincke_Pohst_ideal(cache, F, nf, M, G, ideal, fact,
           nbrelpid, &fp, NULL, prec, &nbsmallnorm, &nbfact))
       break;
-    if (DEBUGLEVEL>1) timer_printf(&T, "for this ideal");
   }
-  if (DEBUGLEVEL)
+  if (DEBUGLEVEL && nbsmallnorm)
   {
-    err_printf("\n");
-    timer_printf(&T, "small norm relations");
-    if (nbsmallnorm && DEBUGLEVEL > 1)
-      err_printf("  nb. fact./nb. small norm = %ld/%ld = %.3f\n",
+    if (DEBUGLEVEL == 1)
+    { if (nbfact) err_printf("\n"); }
+    else
+      err_printf("  \nnb. fact./nb. small norm = %ld/%ld = %.3f\n",
                   nbfact,nbsmallnorm,((double)nbfact)/nbsmallnorm);
   }
 }
@@ -4040,6 +4033,7 @@ START:
   init_rel(&cache, &F, RELSUP + RU-1);
   old_need = need = cache.end - cache.last;
   add_cyclotomic_units(nf, zu, &cache, &F);
+  if (DEBUGLEVEL) err_printf("\n");
   cache.end = cache.last + need;
 
   W = NULL; zc = 0;
@@ -4101,11 +4095,10 @@ START:
           long mj = small_multiplier[j];
           p0 = gel(F.LP, j);
           if (!A)
-          {
-            /* Prevent considering both P_iP_j and P_jP_i in small_norm */
-            /* Since not all elements end up in F.L_jid (because they can
-             * be eliminated by hnfspec/add or by trim_list, keep track
-             * of which ideals are being considered at each run. */
+          { /* Prevent considering both P_iP_j and P_jP_i in small_norm */
+            /* Not all elements end up in F.L_jid (eliminated by hnfspec/add or
+             * by trim_list): keep track of which ideals are being considered
+             * at each run. */
             for (i = k = 1; i < lg(F.L_jid); i++)
               if (F.L_jid[i] > mj)
               {
@@ -4190,6 +4183,7 @@ START:
           cache.chk = cache.base;
           W = NULL;
         }
+        if (DEBUGLEVEL) timer_printf(&T, "increasing accuracy");
       }
       set_avma(av4);
       if (cache.chk != cache.last)
