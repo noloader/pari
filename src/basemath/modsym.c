@@ -4659,6 +4659,7 @@ polygon2tex(GEN V, GEN Ast, GEN G)
   pari_sp av = avma;
   pari_str s;
   long j, l = lg(V), flag = (l <= 16);
+  double d;
   GEN v = Ast2v(Ast), r1 = NULL, r2 = NULL;
 
   for (j = 1; j < l; j++)
@@ -4670,9 +4671,9 @@ polygon2tex(GEN V, GEN Ast, GEN G)
       r2 = gdiv(gcoeff(arc,1,1), gcoeff(arc,2,1));
   }
   if (!r1 || !r2) pari_err_BUG("polgon2tex");
-  str_init(&s, 1);
+  str_init(&s, 1); d = fabs(gtodouble(gsub(r1,r2)));
   str_printf(&s, "\n\\begin{tikzpicture}[scale=%.2f]\n",
-                 10 / fabs(gtodouble(gsub(r1,r2))));
+                 d? (10 / d): 10);
   for (j = 1; j < l; j++)
   {
     GEN arc = gel(V,j);
