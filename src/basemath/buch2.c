@@ -3130,6 +3130,7 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
   if (!L) { *ptL = NULL; return kR; }
   /* estimate for # of correct bits in result */
   *bit = - gexpo(RgM_Rg_sub(RgM_mul(L,Im_mdet), gen_1));
+  if (*bit < 16) { *ptL = NULL; return kR; }
 
   L = rowslice(L, 2, RU); /* remove first line */
   L = RgM_mul(L, xreal); /* approximate rational entries */
