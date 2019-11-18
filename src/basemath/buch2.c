@@ -1174,17 +1174,16 @@ getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
   if (!ptU) *ptA = A = RgM_mul(A, U);
   for (j = 1; j < RU; j++)
   { /* y[i] are hopefully unit generators. Normalize: smallest T2 norm */
-    GEN u = gel(y,j), v = zk_inv(nf, u), z;
-    if (!v) { *pte = 0; return not_given(fupb_PRECI); }
+    GEN u = gel(y,j), v = zk_inv(nf, u);
+    if (!v || !is_pm1(Q_denom(v)) || ZV_isscalar(u))
+    { *pte = 0; return not_given(fupb_PRECI); }
     if (gcmp(RgC_fpnorml2(v,DEFAULTPREC), RgC_fpnorml2(u,DEFAULTPREC)) < 0)
     {
       gel(A,j) = RgC_neg(gel(A,j));
       if (ptU) gel(U,j) = ZC_neg(gel(U,j));
       u = v;
     }
-    gel(y,j) = z = nf_to_scalar_or_alg(nf, u);
-    if (typ(z) != t_POL
-        || !is_pm1(RgXQ_norm(z,T))) { *pte = 0; return not_given(fupb_PRECI); }
+    gel(y,j) = nf_to_scalar_or_alg(nf, u);
   }
   return y;
 }
