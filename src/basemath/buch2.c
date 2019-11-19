@@ -1078,7 +1078,7 @@ expbitprec(GEN x, long *e)
 static long
 RgC_expbitprec(GEN x)
 {
-  long l = lg(x), i, j, e = - (long)HIGHEXPOBIT;
+  long l = lg(x), i, e = - (long)HIGHEXPOBIT;
   for (i = 1; i < l; i++)
     if (!expbitprec(gel(x,i), &e)) return LONG_MAX;
   return e;
@@ -4304,7 +4304,11 @@ START:
       old_need = 0;
     }
     A = vecslice(C, 1, zc); /* cols corresponding to units */
-    if (flun & nf_FORCE) A = RgM_mul(embs, A);
+    if (flun & nf_FORCE)
+    {
+      A = RgM_mul(embs, A);
+      if (DEBUGLEVEL) timer_printf(&T, "floating point embeddings for units");
+    }
     R = compute_multiple_of_R(A, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
     old_need = need;
