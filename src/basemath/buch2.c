@@ -4264,33 +4264,27 @@ START:
           }
       }
       zc = (lg(C)-1) - (lg(B)-1) - (lg(W)-1);
-      if (zc < RU-1)
-      {
-        /* need more columns for units */
-        need += RU-1 - zc;
-        if (need > F.KC) need = F.KC;
-      }
+      if (RU-1-zc > 0)
+        need = minss(need + RU-1-zc, F.KC); /* more columns for units */
       if (need)
       { /* dependent rows */
         F.L_jid = vecslice(F.perm, 1, need);
         vecsmall_sort(F.L_jid);
-        if (need != old_need) nreldep = 0;
-        old_need = need;
+        if (need != old_need) { nreldep = 0; old_need = need; }
       }
       else
       {
-        /* If the relation lattice is too small, check will be > 1 and we
-         * will do a new run of small_norm/rnd_rel asking for 1 relation.
-         * However they tend to give a relation involving the first element
-         * of L_jid. We thus permute which element is the first of L_jid in
-         * order to increase the probability of finding a good relation, i.e.
-         * one that increases the relation lattice. */
-        if (lg(W) > 2 && squash_index % (lg(W) - 1))
+        long j, n = lg(W) - 1;
+        /* If the relation lattice is too small, check will be > 1 and we will
+         * do a new run of small_norm/rnd_rel asking for 1 relation. This often
+         * gives a relation involving L_jid[1]. We thus permute which element
+         * is the first of L_jid in order to increase the probability of
+         * finding a good relation, i.e. that increases the relation lattice. */
+        if (n > 1 && squash_index % n)
         {
-          long j, l = lg(W) - 1;
           F.L_jid = leafcopy(F.perm);
-          for (j = 1; j <= l; j++)
-            F.L_jid[j] = F.perm[1 + (j + squash_index - 1) % l];
+          for (j = 1; j <= n; j++)
+            F.L_jid[j] = F.perm[1 + (j + squash_index - 1) % n];
         }
         else
           F.L_jid = F.perm;
@@ -4298,10 +4292,11 @@ START:
       }
     }
     while (need);
+
     if (!A)
     {
-      small_fail = 0; fail_limit = maxss(F.KC / FAIL_DIVISOR, MINFAIL);
-      old_need = 0;
+      small_fail = old_need = 0;
+      fail_limit = maxss(F.KC / FAIL_DIVISOR, MINFAIL);
     }
     A = vecslice(C, 1, zc); /* cols corresponding to units */
     if (flun & nf_FORCE)
