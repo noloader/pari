@@ -2498,7 +2498,7 @@ ZX_direct_compositum(GEN A, GEN B, GEN lead)
   long m = maxss(degpol(A),degpol(B));
   ulong bound;
   GEN H, worker, mod;
-  bound = ZX_ZXY_ResBound(A, poleval(B,deg1pol(gen_1,pol_x(1),0)), lead);
+  bound = ZX_ZXY_ResBound(A, poleval(B,deg1pol(gen_1,pol_x(1),0)), NULL);
   worker = snm_closure(is_entry("_ZX_direct_compositum_worker"), mkvec2(A,B));
   init_modular_big(&S);
   H = gen_crt("ZX_direct_compositum", worker, &S, lead, bound, m, &mod,

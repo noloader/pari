@@ -83,6 +83,8 @@ polresultant(1+x*z^2,1+y*z^4,z)
 polcompositum(x^5-5,x^4-2,2)
 polcompositum(x-1, x^2+x+1, 1)
 polcompositum(x-1, x, 1)
+my(p=nextprime(2^31));polcompositum(p*x^2+x+1,p*x^3+x+1)
+my(p=nextprime(2^63));polcompositum(p*x^2+x+1,p*x^3+x+1)
 
 polresultant(x^2+1,z,x)
 
