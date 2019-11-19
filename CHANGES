@@ -51,7 +51,7 @@ BA  32- Using local in export()ed functions could crash GP
     39- inconsistencies in subst for constant polynomials: e.g.,
           type(subst('u^0,u,x)) -> t_POL (was t_INT)
           subst('u^0,u,Mat(Mod(1,2))) -> [Mod(1,2)] (was [1])
-XR  40- factorpadic: incorrect factors (might not lift to Q))
+XR  40- factorpadic: incorrect factors (might not lift to Qp)
         E.g. T=polsubcyclo(271,9); factorpadic(T,3,7)[4,1]
 
   Changed
