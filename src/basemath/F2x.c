@@ -2193,7 +2193,7 @@ F2xqX_divrem_basecase(GEN x, GEN y, GEN T, GEN *pr)
     }
     return pol_0(vx);
   }
-  lead = leading_term(y);
+  lead = leading_coeff(y);
   if (!dy) /* y is constant */
   {
     if (pr && pr != ONLY_DIVIDES)

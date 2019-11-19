@@ -2531,8 +2531,8 @@ ZX_compositum_lambda(GEN A, GEN B, GEN lead, long lambda)
 GEN
 ZX_compositum(GEN A, GEN B, long *lambda)
 {
-  GEN lead  = mulii(powiu(leading_term(A),degpol(B)),
-                    powiu(leading_term(B),degpol(A)));
+  GEN lead  = mulii(powiu(leading_coeff(A),degpol(B)),
+                    powiu(leading_coeff(B),degpol(A)));
   if (lambda)
   {
     *lambda = ZX_compositum_lambda(A, B, lead, *lambda);
@@ -2842,7 +2842,7 @@ ffinvmap(GEN m)
   for(i=1; i<l; i++)
   {
     GEN s = FFX_rem(FF_to_FpXQ_i(r), gel(F, i), a);
-    if (degpol(s)==0 && gequal(constant_term(s),g)) { f = gel(F, i); break; }
+    if (degpol(s)==0 && gequal(constant_coeff(s),g)) { f = gel(F, i); break; }
   }
   if (f==NULL) pari_err_TYPE("ffinvmap", m);
   if (degpol(f)==1) f = FF_neg_i(gel(f,2));
