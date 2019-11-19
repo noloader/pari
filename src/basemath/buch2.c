@@ -1063,23 +1063,34 @@ not_given(long reason)
 /* check whether exp(x) will 1) get too big (real(x) large), 2) require
  * large accuracy for argument reduction (imag(x) large) */
 static long
-fu_bitprec(GEN x)
+expbitprec(GEN x, long *e)
+{
+  GEN re, im;
+  if (typ(x) != t_COMPLEX) re = x;
+  else
+  {
+    im = gel(x,2); *e = maxss(*e, expo(im) + 5 - bit_prec(im));
+    re = gel(x,1);
+  }
+  return (expo(re) <= 20);
+
+}
+static long
+RgC_expbitprec(GEN x)
+{
+  long l = lg(x), i, j, e = - (long)HIGHEXPOBIT;
+  for (i = 1; i < l; i++)
+    if (!expbitprec(gel(x,i), &e)) return LONG_MAX;
+  return e;
+}
+static long
+RgM_expbitprec(GEN x)
 {
   long i, j, I, J, e = - (long)HIGHEXPOBIT;
   RgM_dimensions(x, &I,&J);
   for (j = 1; j <= J; j++)
     for (i = 1; i <= I; i++)
-    {
-      GEN c = gcoeff(x,i,j), re;
-      if (typ(c) != t_COMPLEX) re = c;
-      else
-      {
-        GEN im = gel(c,2);
-        e = maxss(e, expo(im) + 5 - bit_prec(im));
-        re = gel(c,1);
-      }
-      if (expo(re) > 20) return LONG_MAX;
-    }
+      if (!expbitprec(gcoeff(x,i,j), &e)) return LONG_MAX;
   return e;
 }
 
@@ -1140,11 +1151,22 @@ ZM_remove_unused(GEN *pE, GEN *pX)
   }
 }
 
+/* s = -log|norm(x)|/N */
+static GEN
+fixarch(GEN x, GEN s, long R1)
+{
+  long i, l;
+  GEN y = cgetg_copy(x, &l);
+  for (i = 1; i <= R1; i++) gel(y,i) = gadd(s, gel(x,i));
+  for (     ; i <   l; i++) gel(y,i) = gadd(s, gmul2n(gel(x,i),-1));
+  return y;
+}
+
 static GEN
 getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
 {
   GEN U, y, matep, A, T = nf_get_pol(nf), M = nf_get_M(nf);
-  long i, j, R1, RU, N = degpol(T);
+  long j, R1, RU, N = degpol(T);
 
   R1 = nf_get_r1(nf); RU = (N+R1) >> 1;
   if (RU == 1) { *pte = LONG_MAX; return cgetg(1,t_VEC); }
@@ -1153,17 +1175,14 @@ getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
   matep = cgetg(RU,t_MAT);
   for (j = 1; j < RU; j++)
   {
-    GEN c = cgetg(RU+1,t_COL), Aj = gel(A,j);
-    GEN s = gdivgs(RgV_sum(real_i(Aj)), -N); /* -log |norm(Aj)| / N */
-    gel(matep,j) = c;
-    for (i = 1; i <= R1; i++) gel(c,i) = gadd(s, gel(Aj,i));
-    for (     ; i <= RU; i++) gel(c,i) = gadd(s, gmul2n(gel(Aj,i),-1));
+    GEN Aj = gel(A,j), s = gdivgs(RgV_sum(real_i(Aj)), -N);
+    gel(matep,j) = fixarch(Aj, s, R1);
   }
   U = lll(real_i(matep));
   if (lg(U) < RU) return not_given(fupb_PRECI);
   if (ptU) { *ptU = U; *ptA = A = RgM_mul(A,U); }
   y = RgM_mul(matep,U);
-  *pte = fu_bitprec(y);
+  *pte = RgM_expbitprec(y);
   if (*pte >= 0) return not_given(*pte == LONG_MAX? fupb_LARGE: fupb_PRECI);
   if (prec <= 0) prec = gprecision(A);
   y = RgM_solve_realimag(M, gexp(y,prec));
@@ -1652,16 +1671,14 @@ GEN
 isprincipalarch(GEN bnf, GEN col, GEN kNx, GEN e, GEN dx, long *pe)
 {
   GEN nf, x, y, logfu, s, M;
-  long N, R1, RU, i, prec = gprecision(col);
+  long N, prec = gprecision(col);
   bnf = checkbnf(bnf); nf = bnf_get_nf(bnf); M = nf_get_M(nf);
   if (!prec) prec = prec_arch(bnf);
   *pe = 128;
   logfu = bnf_get_logfu(bnf);
   N = nf_get_degree(nf);
-  R1 = nf_get_r1(nf);
-  RU = (N + R1)>>1;
   if (!(col = cleanarch(col,N,prec))) return NULL;
-  if (RU > 1)
+  if (lg(col) > 2)
   { /* reduce mod units */
     GEN u, z = init_red_mod_units(bnf,prec);
     if (!(u = red_mod_units(col,z))) return NULL;
@@ -1669,8 +1686,9 @@ isprincipalarch(GEN bnf, GEN col, GEN kNx, GEN e, GEN dx, long *pe)
     if (!(col = cleanarch(col,N,prec))) return NULL;
   }
   s = divru(mulir(e, glog(kNx,prec)), N);
-  for (i=1; i<=R1; i++) gel(col,i) = gexp(gadd(s, gel(col,i)),prec);
-  for (   ; i<=RU; i++) gel(col,i) = gexp(gadd(s, gmul2n(gel(col,i),-1)),prec);
+  col = fixarch(col, s, nf_get_r1(nf));
+  if (RgC_expbitprec(col) >= 0) return NULL;
+  col = gexp(col, prec);
   /* d.alpha such that x = alpha \prod gj^ej */
   x = RgM_solve_realimag(M,col); if (!x) return NULL;
   x = RgC_Rg_mul(x, dx);
