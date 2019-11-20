@@ -1406,7 +1406,7 @@ FlxqX_fromNewton(GEN P, GEN T, ulong p)
 }
 
 static GEN
-FlxqX_diamondsum(GEN P, GEN Q, GEN T, ulong p)
+FlxqX_composedsum(GEN P, GEN Q, GEN T, ulong p)
 {
   long n = 1+ degpol(P)*degpol(Q);
   GEN Pl = FlxX_invLaplace(FlxqX_Newton(P,n, T,p), p);
@@ -1418,7 +1418,7 @@ FlxqX_diamondsum(GEN P, GEN Q, GEN T, ulong p)
 GEN
 FlxqX_direct_compositum(GEN P, GEN Q, GEN T, ulong p)
 {
-  return FlxqX_diamondsum(P, Q, T, p);
+  return FlxqX_composedsum(P, Q, T, p);
 }
 
 GEN

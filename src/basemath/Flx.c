@@ -3635,7 +3635,7 @@ ZpX_invLaplace_init(long n, GEN q, ulong p, long v, long var)
 }
 
 static GEN
-Flx_diamondsum(GEN P, GEN Q, ulong p)
+Flx_composedsum(GEN P, GEN Q, ulong p)
 {
   long n = 1 + degpol(P)*degpol(Q);
   if (p >= (ulong)n)
@@ -3662,7 +3662,7 @@ Flx_diamondsum(GEN P, GEN Q, ulong p)
 GEN
 Flx_direct_compositum(GEN a, GEN b, ulong p)
 {
-  return Flx_diamondsum(a, b, p);
+  return Flx_composedsum(a, b, p);
 }
 
 static GEN

@@ -1604,7 +1604,7 @@ FpX_FpXY_resultant(GEN a, GEN b, GEN p)
 }
 
 static GEN
-FpX_diamondsum(GEN P, GEN Q, GEN p)
+FpX_composedsum(GEN P, GEN Q, GEN p)
 {
   long n = 1+ degpol(P)*degpol(Q);
   GEN Pl = FpX_invLaplace(FpX_Newton(P,n,p), p);
@@ -1633,7 +1633,7 @@ FpX_direct_compositum(GEN a, GEN b, GEN p)
     GEN z = Flx_direct_compositum(ZX_to_Flx(a, pp), ZX_to_Flx(b, pp), pp);
     return gerepileupto(av, Flx_to_ZX(z));
   }
-  return FpX_diamondsum(a, b, p);
+  return FpX_composedsum(a, b, p);
 }
 
 static GEN
