@@ -615,40 +615,7 @@ primeneeded(long N, long R1, long R2, double LOGD)
   return Cmax;
 }
 
-/*
-  for (; i > 0; pr++, i--)
-  {
-    GEN dec, a = NULL, b = NULL, fs, ns;
-    long j, k, limp = (long)(llimc/pr->logp);
-    ulong p = pr->p;
-    dec = pr->dec;
-    fs = gel(dec, 1); ns = gel(dec, 2);
-    k = lg(fs);
-    for (j = 1; j < k; j++)
-    {
-      long f, nb;
-      GEN nor;
-      f = fs[j]; if (f > limp) continue;
-      nb = ns[j];
-      nor = powuu(p, f);
-      if (a)
-      {
-        a = mulii(a, powiu(nor, nb));
-        b = mulii(b, powiu(subii(nor, gen_1), nb));
-      }
-      else
-      {
-        a = powuu(p, f*nb-1);
-        b = diviuexact(powiu(subii(nor, gen_1), nb), p-1);
-      }
-    }
-    if (a)
-      invres = divri(mulir(b, invres), a);
-    else
-      invres = divru(mulur(p, invres), p-1);
-  }
-*/
-
+/* ~ 1 / Res(s = 1, zeta_K) */
 static GEN
 compute_invres(GRHcheck_t *S, long LIMC)
 {
@@ -677,15 +644,8 @@ compute_invres(GRHcheck_t *S, long LIMC)
     dec = pr->dec;
     fs = gel(dec, 1); ns = gel(dec, 2);
     loginvres += 1./p;
-    /*
-     * note for optimization: limp == 1 nearly always and limp >= 3 for
-     * only very few primes.
-     */
-    for (k = 2, NPk = p; k <= limp; k++)
-    {
-      NPk *= p;
-      loginvres += 1/(k * NPk);
-    }
+    /* NB: limp = 1 nearly always and limp > 2 for very few primes */
+    for (k=2, NPk = p; k <= limp; k++) { NPk *= p; loginvres += 1/(k * NPk); }
     addpsi = limp;
     addpsi1 = p *(pow((double)p , (double)limp)-1)/(p -1);
     addpsi2 = p2*(pow((double)p2, (double)limp)-1)/(p2-1);
@@ -699,11 +659,7 @@ compute_invres(GRHcheck_t *S, long LIMC)
       NP = pow((double)p, (double)f);
       addinvres = 1/NP;
       kmax = limp / f;
-      for (k = 2, NPk = NP; k <= kmax; k++)
-      {
-        NPk *= NP;
-        addinvres += 1/(k*NPk);
-      }
+      for (k=2, NPk = NP; k <= kmax; k++) { NPk *= NP; addinvres += 1/(k*NPk); }
       NP2 = NP*NP;
       loginvres -= nb * addinvres;
       addpsi -= nb * f * kmax;
@@ -3888,7 +3844,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   GEN small_multiplier, auts, cyclic, embs, SUnits;
   GEN res, L, invhr, B, C, C0, lambda, dep, clg1, clg2, Vbase;
   const char *precpb = NULL;
-  int FIRST = 1, class1 = 0;
+  int FIRST = 1;
   nfmaxord_t nfT;
   RELCACHE_t cache;
   FB_t F;
@@ -3988,8 +3944,6 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
     LIMC2 = high;
   if (LIMC2 > LIMCMAX) LIMC2 = LIMCMAX;
   if (DEBUGLEVEL) err_printf("LIMC2 = %ld\n", LIMC2);
-  if (LIMC2 < nthideal(&GRHcheck, nf, 1)) class1 = 1;
-  if (DEBUGLEVEL && class1) err_printf("Class 1\n", LIMC2);
   LIMC0 = (long)(cbach*LOGD2);
   LIMC = cbach ? LIMC0 : LIMC2;
   LIMC = maxss(LIMC, nthideal(&GRHcheck, nf, N));
