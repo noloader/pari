@@ -2618,8 +2618,8 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
     { Nid = mulii(Np0, pr_norm(id)); id = idealmul(nf, p0, id); }
     else
     { Nid = pr_norm(id); id = pr_hnf(nf, id);}
-    if (Fincke_Pohst_ideal(cache, F, nf, M, G, id, Nid, fact,
-          Nrelid, &fp, NULL, prec, &Nsmall, &Nfact)) break;
+    if (Fincke_Pohst_ideal(cache, F, nf, M, G, id, Nid, fact, Nrelid, &fp,
+                           NULL, prec, &Nsmall, &Nfact)) break;
   }
   if (DEBUGLEVEL && Nsmall)
   {
