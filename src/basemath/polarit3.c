@@ -1610,12 +1610,15 @@ FpX_composedsum(GEN P, GEN Q, GEN p)
   GEN Pl = FpX_invLaplace(FpX_Newton(P,n,p), p);
   GEN Ql = FpX_invLaplace(FpX_Newton(Q,n,p), p);
   GEN L = FpX_Laplace(FpXn_mul(Pl, Ql, n, p), p);
-  return FpX_fromNewton(L, p);
+  GEN lead = Fp_mul(Fp_powu(leading_coeff(P),degpol(Q), p),
+                    Fp_powu(leading_coeff(Q),degpol(P), p), p);
+  GEN R = FpX_fromNewton(L, p);
+  return FpX_Fp_mul(R, lead, p);
 }
 
 #if 0
 GEN
-FpX_diamondprod(GEN P, GEN Q, GEN p)
+FpX_composedprod(GEN P, GEN Q, GEN p)
 {
   long n = 1+ degpol(P)*degpol(Q);
   GEN L=FpX_convol(FpX_Newton(P,n,p), FpX_Newton(Q,n,p), p);
@@ -2503,7 +2506,6 @@ ZX_direct_compositum(GEN A, GEN B, GEN lead)
   init_modular_big(&S);
   H = gen_crt("ZX_direct_compositum", worker, &S, lead, bound, m, &mod,
               nxV_chinese_center, FpX_center);
-  if (lead) H = FpX_center(FpX_Fp_mul(H, lead, mod), mod, shifti(mod,-1));
   return gerepileupto(av, H);
 }
 
@@ -2531,8 +2533,7 @@ ZX_compositum_lambda(GEN A, GEN B, GEN lead, long lambda)
 GEN
 ZX_compositum(GEN A, GEN B, long *lambda)
 {
-  GEN lead  = mulii(powiu(leading_coeff(A),degpol(B)),
-                    powiu(leading_coeff(B),degpol(A)));
+  GEN lead  = mulii(leading_coeff(A),leading_coeff(B));
   if (lambda)
   {
     *lambda = ZX_compositum_lambda(A, B, lead, *lambda);

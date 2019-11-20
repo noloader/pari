@@ -1412,7 +1412,10 @@ FlxqX_composedsum(GEN P, GEN Q, GEN T, ulong p)
   GEN Pl = FlxX_invLaplace(FlxqX_Newton(P,n, T,p), p);
   GEN Ql = FlxX_invLaplace(FlxqX_Newton(Q,n, T,p), p);
   GEN L = FlxX_Laplace(FlxqXn_mul(Pl, Ql, n, T,p), p);
-  return FlxqX_fromNewton(L, T, p);
+  GEN R = FlxqX_fromNewton(L, T, p);
+  GEN lead = Flxq_mul(Flxq_powu(leading_coeff(P),degpol(Q), T, p),
+                      Flxq_powu(leading_coeff(Q),degpol(P), T, p), T, p);
+  return FlxqX_Flxq_mul(R, lead, T, p);
 }
 
 GEN

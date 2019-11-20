@@ -3638,12 +3638,15 @@ static GEN
 Flx_composedsum(GEN P, GEN Q, ulong p)
 {
   long n = 1 + degpol(P)*degpol(Q);
+  ulong lead = Fl_mul(Fl_powu(Flx_lead(P), degpol(Q), p),
+                      Fl_powu(Flx_lead(Q), degpol(P), p), p);
+  GEN R;
   if (p >= (ulong)n)
   {
     GEN Pl = Flx_invLaplace(Flx_Newton(P,n,p), p);
     GEN Ql = Flx_invLaplace(Flx_Newton(Q,n,p), p);
     GEN L  = Flx_Laplace(Flxn_mul(Pl, Ql, n, p), p);
-    return Flx_fromNewton(L, p);
+    R = Flx_fromNewton(L, p);
   } else
   {
     long v = factorial_lval(n-1, p);
@@ -3655,8 +3658,9 @@ Flx_composedsum(GEN P, GEN Q, ulong p)
     GEN Ql = FpX_convol(iL, FpX_Newton(Flx_to_ZX(Q), n, qf), q);
     GEN Ln = ZX_Z_divexact(FpXn_mul(Pl, Ql, n, q2), pv);
     GEN L  = ZX_Z_divexact(FpX_Laplace(Ln, q), pv);
-    return ZX_to_Flx(FpX_fromNewton(L, qf), p);
+    R = ZX_to_Flx(FpX_fromNewton(L, qf), p);
   }
+  return Flx_Fl_mul(R, lead, p);
 }
 
 GEN
