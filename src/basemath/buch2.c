@@ -2362,14 +2362,14 @@ add_rel(RELCACHE_t *cache, FB_t *F, GEN R, long nz, GEN m, long in_rnd_rel)
 {
   REL_t *rel;
   long k, l, reln;
-  const long nauts = lg(F->idealperm), KC = F->KC;
+  const long lauts = lg(F->idealperm), KC = F->KC;
 
   k = add_rel_i(cache, R, nz, m, 0, 0, &rel, in_rnd_rel);
   if (k > 0 && typ(m) != t_INT)
   {
     GEN Rl = cgetg(KC+1, t_VECSMALL);
     reln = rel - cache->base;
-    for (l = 1; l < nauts; l++)
+    for (l = 1; l < lauts; l++)
     {
       GEN perml = gel(F->idealperm, l);
       long i, nzl = perml[nz];
@@ -2666,13 +2666,11 @@ static void
 rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
 {
   pari_timer T;
-  const GEN L_jid = F->L_jid, M = nf_get_M(nf), G = F->G0;
-  GEN baseid, Nbaseid;
+  GEN L_jid = F->L_jid, M = nf_get_M(nf), G = F->G0, baseid, Nbaseid;
+  long lG = lg(F->vecG)-1, lgsub = lg(F->subFB), l_jid = lg(L_jid);
+  long i, prec = nf_get_prec(nf);
   RNDREL_t rr;
   FP_t fp;
-  const long nbG = lg(F->vecG)-1, lgsub = lg(F->subFB), l_jid = lg(L_jid);
-  const long prec = nf_get_prec(nf);
-  long jlist;
   pari_sp av;
 
   /* will compute P[ L_jid[i] ] * (random product from subFB) */
@@ -2685,15 +2683,15 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
   baseid = red(nf, get_random_ideal(F, nf, rr.ex), F->G0, &rr.m1);
   Nbaseid = ZM_det_triangular(baseid);
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
-  for (av = avma, jlist = 1; jlist < l_jid; jlist++, set_avma(av))
+  for (av = avma, i = 1; i < l_jid; i++, set_avma(av))
   {
     long j;
     GEN id, Nid;
     pari_sp av1;
     REL_t *last = cache->last;
 
-    rr.jid = L_jid[jlist];
-    id = gel(F->LP,rr.jid);
+    rr.jid = L_jid[i];
+    id = gel(F->LP, rr.jid);
     if (DEBUGLEVEL>1)
       err_printf("\n*** Ideal no %ld: %Ps\n", rr.jid, vecslice(id,1,4));
     Nid = mulii(Nbaseid, pr_norm(id));
@@ -2702,86 +2700,70 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
                            RND_REL_RELPID, &fp, &rr, prec, NULL, NULL))
       break;
     if (PREVENT_LLL_IN_RND_REL || cache->last != last) continue;
-    for (av1 = avma, j = 1; j <= nbG; j++, set_avma(av1))
+    for (av1 = avma, j = 1; j < lG; j++, set_avma(av1))
     { /* reduce along various directions */
-      GEN m = idealpseudomin_nonscalar(id, gel(F->vecG,j));
-      GEN R;
+      GEN R, m = idealpseudomin_nonscalar(id, gel(F->vecG,j));
       long nz;
       if (!factorgen(F, nf, id, Nid, m, fact)) continue;
       /* can factor id, record relation */
       add_to_fact(rr.jid, 1, fact);
       R = set_fact(F, fact, rr.ex, &nz);
-      switch (add_rel(cache, F, R, nz, nfmul(nf, m, rr.m1), 1))
-      {
-        case -1: /* forget it */
-          if (DEBUGLEVEL>1) dbg_cancelrel(rr.jid,j,R);
-          continue;
+      if (add_rel(cache, F, R, nz, nfmul(nf, m, rr.m1), 1) < 0)
+      { /* forget it */
+        if (DEBUGLEVEL>1) dbg_cancelrel(rr.jid,j,R);
+        continue;
       }
       if (DEBUGLEVEL) timer_printf(&T, "for this relation");
-      /* Need more, try next prime ideal */
-      if (cache->last < cache->end) break;
-      /* We have found enough. Return */
-      set_avma(av); return;
+      if (cache->last < cache->end) break; /* need more, try next prime */
+      set_avma(av); return; /* we have found enough */
     }
   }
-  if (DEBUGLEVEL)
-  {
-    err_printf("\n");
-    timer_printf(&T, "for remaining ideals");
-  }
+  if (DEBUGLEVEL) { err_printf("\n"); timer_printf(&T,"for remaining ideals"); }
 }
 
 static GEN
-automorphism_perms(GEN M, GEN auts, GEN cyclic, long N)
+automorphism_perms(GEN M, GEN auts, GEN cyclic, long r1, long r2, long N)
 {
+  long L = lgcols(M), lauts = lg(auts), lcyc = lg(cyclic), i, j, l, m;
+  GEN Mt, perms = cgetg(lauts, t_VEC);
   pari_sp av;
-  const long r1plusr2 = lgcols(M), r1 = 2*r1plusr2-N-2, r2 = r1plusr2-r1-1;
-  long nauts = lg(auts), ncyc = lg(cyclic), i, j, l, m;
-  GEN Mt, perms = cgetg(nauts, t_VEC);
 
-  for (l = 1; l < nauts; l++)
-    gel(perms, l) = cgetg(r1plusr2, t_VECSMALL);
+  for (l = 1; l < lauts; l++) gel(perms, l) = cgetg(L, t_VECSMALL);
   av = avma;
-  Mt = shallowtrans(gprec_w(M, 3)); /* need little accuracy */
+  Mt = shallowtrans(gprec_w(M, LOWDEFAULTPREC));
   Mt = shallowconcat(Mt, conj_i(vecslice(Mt, r1+1, r1+r2)));
-  for (l = 1; l < ncyc; l++)
+  for (l = 1; l < lcyc; l++)
   {
-    GEN thiscyc = gel(cyclic, l);
+    GEN thiscyc = gel(cyclic, l), thisperm, perm, prev, Nt;
     long k = thiscyc[1];
-    GEN Nt = RgM_mul(shallowtrans(gel(auts, k)), Mt);
-    GEN perm = gel(perms, k), permprec;
-    pari_sp av2 = avma;
-    for (i = 1; i < r1plusr2; i++, set_avma(av2))
+
+    Nt = RgM_mul(shallowtrans(gel(auts, k)), Mt);
+    perm = gel(perms, k);
+    for (i = 1; i < L; i++)
     {
-      GEN vec = gel(Nt, i), minnorm;
-      minnorm = gnorml2(gsub(vec, gel(Mt, 1)));
+      GEN v = gel(Nt, i), minD;
+      minD = gnorml2(gsub(v, gel(Mt, 1)));
       perm[i] = 1;
       for (j = 2; j <= N; j++)
       {
-        GEN thisnorm = gnorml2(gsub(vec, gel(Mt, j)));
-        if (gcmp(thisnorm, minnorm) < 0)
-        {
-          minnorm = thisnorm;
-          perm[i] = j >= r1plusr2 ? r2-j : j;
-        }
+        GEN D = gnorml2(gsub(v, gel(Mt, j)));
+        if (gcmp(D, minD) < 0) { minD = D; perm[i] = j >= L ? r2-j : j; }
       }
     }
-    for (permprec = perm, m = 2; m < lg(thiscyc); m++)
+    for (prev = perm, m = 2; m < lg(thiscyc); m++, prev = thisperm)
     {
-      GEN thisperm = gel(perms, thiscyc[m]);
-      for (i = 1; i < r1plusr2; i++)
+      thisperm = gel(perms, thiscyc[m]);
+      for (i = 1; i < L; i++)
       {
-        long pp = labs(permprec[i]);
-        thisperm[i] = permprec[i] < 0 ? -perm[pp] : perm[pp];
+        long pp = labs(prev[i]);
+        thisperm[i] = prev[i] < 0 ? -perm[pp] : perm[pp];
       }
-      permprec = thisperm;
     }
   }
-  set_avma(av);
-  return perms;
+  set_avma(av); return perms;
 }
 
-/* Determine the field automorphisms as matrices in the integral basis */
+/* Determine the field automorphisms as matrices on the integral basis */
 static GEN
 automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
 {
@@ -3887,10 +3869,9 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flun, long p
   zu = nfrootsof1(nf);
   gel(zu,2) = nf_to_scalar_or_alg(nf, gel(zu,2));
 
-  auts = automorphism_matrices(nf, &F.invs, &cyclic);
-  F.embperm = automorphism_perms(nf_get_M(nf), auts, cyclic, N);
-
   nf_get_sign(nf, &R1, &R2); RU = R1+R2;
+  auts = automorphism_matrices(nf, &F.invs, &cyclic);
+  F.embperm = automorphism_perms(nf_get_M(nf), auts, cyclic, R1, R2, N);
   compute_vecG(nf, &F, minss(RU, 9));
   if (DEBUGLEVEL)
   {
