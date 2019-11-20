@@ -3983,13 +3983,8 @@ START:
   av = avma;
   subFBgen(&F,auts,cyclic,lim < 0? LIMC2: mindd(lim,LIMC2),MINSFB);
   if (DEBUGLEVEL)
-  {
-    if (lg(F.subFB) > 1)
-      timer_printf(&T, "factorbase (#subFB = %ld) and ideal permutations",
-                       lg(F.subFB)-1);
-    else
-      timer_printf(&T, "factorbase (no subFB) and ideal permutations");
-  }
+    timer_printf(&T, "factorbase (#subFB = %ld) and ideal permutations",
+                     lg(F.subFB)-1);
 
   fact = (FACT*)stack_malloc((F.KC+1)*sizeof(FACT));
   PERM = leafcopy(F.perm); /* to be restored in case of precision increase */
@@ -4015,12 +4010,9 @@ START:
   {
     for (i = 1; i < lg(computed); i++)
       try_elt(&cache, &F, nf, gel(computed, i), fact);
-    clone_unlock(computed);
+    gunclone(computed);
     if (DEBUGLEVEL && i > 1)
-    {
-      err_printf("\n");
       timer_printf(&T, "including already computed relations");
-    }
     need = 0;
   }
 
