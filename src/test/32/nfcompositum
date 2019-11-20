@@ -46,6 +46,8 @@ Mod(0, x^10 + Mod(-5/2*y + 5/2, y^2 - 5)*x^9 + Mod(-5*y + 20, y^2 - 5)*x^8 +
 [Mod(1, y^2 - 5)*x^5 + Mod(y, y^2 - 5), x^10 + Mod(77*y - 275, y^2 - 5)*x^5 
 + Mod(-41525*y + 96630, y^2 - 5), x^10 + Mod(77*y + 275, y^2 - 5)*x^5 + Mod(
 41525*y + 96630, y^2 - 5)]
+x^25 + Mod(155*y, y^2 - 5)*x^20 + 148050*x^15 + Mod(-7810450*y, y^2 - 5)*x^1
+0 + 675940125*x^5 + Mod(715728775*y, y^2 - 5)
 x^10 + 5*x^9 + 15*x^8 + 30*x^7 + 45*x^6 + Mod(2*y + 51, y^2 - 5)*x^5 + Mod(5
 *y + 45, y^2 - 5)*x^4 + Mod(-10*y + 30, y^2 - 5)*x^3 + Mod(-20*y + 15, y^2 -
  5)*x^2 + Mod(-5*y + 5, y^2 - 5)*x + Mod(y + 6, y^2 - 5)
@@ -92,4 +94,4 @@ x^10 + 5*x^9 + 15*x^8 + 30*x^7 + 45*x^6 + Mod(2*y + 51, y^2 - 5)*x^5 + Mod(5
   ***   at top-level: nfcompositum(bnfinit(x),x^3-2,x^3-1)
   ***                 ^------------------------------------
   *** nfcompositum: incorrect priority in polcompositum: variable x >= x
-Total time spent: 1015
+Total time spent: 1022

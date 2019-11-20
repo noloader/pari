@@ -35,6 +35,7 @@ L = nfcompositum(K, x^5-y, polcyclo(5), 1);
 a^5 - y
 liftall(b^5)
 L = nfcompositum(K, x^5-y, x^5-y)
+L = nfcompositum(K, x^5-y, x^5-y,2)
 L = nfcompositum(K, x^5-y, polcyclo(3),2)
 L = nfcompositum(K, x^5-y, polcyclo(3),3)
 

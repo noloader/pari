@@ -3909,19 +3909,22 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
     setvarn(C, v);
   }
   /* C = Res_Y (A(Y), B(X + kY)) guaranteed squarefree */
-  if (same)
-  {
-    D = RgX_rescale(A, stoi(1 - k));
-    C = RgX_div(C, D);
-    if (degpol(C) <= 0)
-      C = mkvec(D);
-    else
-      C = shallowconcat(nf? gel(nffactor(nf,C),1): ZX_DDF(C), D);
-  }
-  else if (flag & 2)
+  if (flag & 2)
     C = mkvec(C);
   else
-    C = nf? gel(nffactor(nf,C),1): ZX_DDF(C);
+  {
+    if (same)
+    {
+      D = RgX_rescale(A, stoi(1 - k));
+      C = RgX_div(C, D);
+      if (degpol(C) <= 0)
+        C = mkvec(D);
+      else
+        C = shallowconcat(nf? gel(nffactor(nf,C),1): ZX_DDF(C), D);
+    }
+    else
+      C = nf? gel(nffactor(nf,C),1): ZX_DDF(C);
+  }
   gen_sort_inplace(C, (void*)(nf?&cmp_RgX: &cmpii), &gen_cmp_RgX, NULL);
   if (flag&1)
   { /* a,b,c root of A,B,C = compositum, c = b - k a */
