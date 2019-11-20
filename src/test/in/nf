@@ -112,28 +112,10 @@ nfisincl(x^3+9*27,x^6+2187*3^6)
 \\#1631
 setrand(1);bnfinit(x^16-48*x^14+934*x^12-9632*x^10+57251*x^8-198568*x^6+386172*x^4-377776*x^2+137288).no
 
-K = nfinit(y^2-5);
-L = nfcompositum(K, x^5-y, polcyclo(5))
-L = nfcompositum(K, x^5-y, polcyclo(5), 1);
-[R,a,b,k] = L[1]
-a^5 - y
-liftall(b^5)
-L = nfcompositum(K, x^5-y, x^5-y)
-L = nfcompositum(K, x^5-y, polcyclo(3),2)
-L = nfcompositum(K, x^5-y, polcyclo(3),3)
-
-nfcompositum(nfinit(y),x,x^2+x+1,3)
-
 p=10^62+447;
 q=10^42+63;
 nf=nfinit([polcompositum(x^2-p,x^2-q,2), [2,p,q]]);
 idealprimedec(nf,25339)[1].gen \\ overflow in get_norm
-
-\\#1777
-nfcompositum(nfinit(y-1),x^3-2,x^3-1)
-
-\\#1796
-nfcompositum(bnfinit(y),x^3-2,x^3-1)
 
 \\ oo loop in 2.9
 K=bnfinit(x^2+2323);
@@ -185,10 +167,6 @@ nfnewprec(vector(6))
 nfnewprec(vector(8))
 nfnewprec(vector(9))
 nfnewprec(vector(16))
-nfcompositum(nfinit(x-1),x^3-2,x^3-1)
-nfcompositum(nfinit(x^2+1),x^3-2,x^3-1)
-nfcompositum(nfinit(x-1),y^3-2,y^3-1)
-nfcompositum(bnfinit(x),x^3-2,x^3-1)
 nfisincl(y^2 + 1, z^4 + z^2 + 1)
 nfisisom(x,x^0)
 nf=nfinit('a^2+1);
