@@ -2478,14 +2478,14 @@ step(GEN x, double *y, GEN inc, long k)
 
 INLINE long
 Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN G, GEN I,
-    GEN NI, FACT *fact, long nbrelpid, FP_t *fp, RNDREL_t *rr, long prec,
-    long *nbsmallnorm, long *nbfact)
+    GEN NI, FACT *fact, long Nrelid, FP_t *fp, RNDREL_t *rr, long prec,
+    long *Nsmall, long *Nfact)
 {
   pari_sp av;
   const long N = nf_get_degree(nf), R1 = nf_get_r1(nf);
   GEN r, u, gx, inc=const_vecsmall(N, 1), ideal;
   double BOUND;
-  long j, k, skipfirst, nbrelideal=0, dependent=0, try_elt=0, try_factor=0;
+  long j, k, skipfirst, relid=0, dependent=0, try_elt=0, try_factor=0;
 
   u = ZM_lll(ZM_mul(F->G0, I), 0.99, LLL_IM|LLL_COMPATIBLE);
   ideal = ZM_mul(I,u); /* approximate T2-LLL reduction */
@@ -2551,7 +2551,7 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN G, GEN I,
     if (ZV_isscalar(gx)) continue;
     if (++try_factor > maxtry_FACT) return 0;
 
-    if (!nbrelpid)
+    if (!Nrelid)
     {
       if (!factorgen(F,nf,I,NI,gx,fact)) continue;
       return 1;
@@ -2566,7 +2566,7 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN G, GEN I,
     {
       GEN Nx, xembed = RgM_RgC_mul(M, gx);
       long e;
-      if (nbsmallnorm) (*nbsmallnorm)++;
+      if (Nsmall) (*Nsmall)++;
       Nx = grndtoi(embed_norm(xembed, R1), &e);
       if (e >= 0) {
         if (DEBUGLEVEL > 1) err_printf("+");
@@ -2585,28 +2585,28 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN G, GEN I,
       continue;
     }
     dependent = 0;
-    if (DEBUGLEVEL && nbfact) (*nbfact)++;
+    if (DEBUGLEVEL && Nfact) (*Nfact)++;
     if (cache->last >= cache->end) return 1; /* we have enough */
-    if (++nbrelideal == nbrelpid) break;
+    if (++relid == Nrelid) break;
   }
   return 0;
 }
 
 static void
-small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
+small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
            FACT *fact, GEN p0)
 {
   const long prec = nf_get_prec(nf);
   FP_t fp;
   pari_sp av;
   GEN G = nf_get_G(nf), L_jid = F->L_jid, Np0;
-  long nbsmallnorm, nbfact, n = lg(L_jid);
+  long Nsmall, Nfact, n = lg(L_jid);
   REL_t *last = cache->last;
 
   if (DEBUGLEVEL)
     err_printf("#### Look for %ld relations in %ld ideals (small_norm)\n",
                cache->end - last, lg(L_jid)-1);
-  nbsmallnorm = nbfact = 0;
+  Nsmall = Nfact = 0;
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   Np0 = p0? pr_norm(p0): NULL;
   for (av = avma; --n; set_avma(av))
@@ -2619,15 +2619,15 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
     else
     { Nid = pr_norm(id); id = pr_hnf(nf, id);}
     if (Fincke_Pohst_ideal(cache, F, nf, M, G, id, Nid, fact,
-          nbrelpid, &fp, NULL, prec, &nbsmallnorm, &nbfact)) break;
+          Nrelid, &fp, NULL, prec, &Nsmall, &Nfact)) break;
   }
-  if (DEBUGLEVEL && nbsmallnorm)
+  if (DEBUGLEVEL && Nsmall)
   {
     if (DEBUGLEVEL == 1)
-    { if (nbfact) err_printf("\n"); }
+    { if (Nfact) err_printf("\n"); }
     else
       err_printf("  \nnb. fact./nb. small norm = %ld/%ld = %.3f\n",
-                  nbfact,nbsmallnorm,((double)nbfact)/nbsmallnorm);
+                  Nfact,Nsmall,((double)Nfact)/Nsmall);
   }
 }
 
@@ -3826,8 +3826,9 @@ matbotid(RELCACHE_t *cache)
   return res;
 }
 
+/* Nrelid = nb relations per ideal, possibly 0 */
 GEN
-Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long prec)
+Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flun, long prec)
 {
   pari_timer T;
   pari_sp av0 = avma, av, av2;
@@ -4014,7 +4015,7 @@ START:
         cache.end = cache.last + need;
         F.L_jid = trim_list(&F);
       }
-      if (need > 0 && nbrelpid > 0 && (done_small <= F.KC+1 || A) &&
+      if (need > 0 && Nrelid > 0 && (done_small <= F.KC+1 || A) &&
           small_fail <= fail_limit &&
           cache.last < cache.base + 2*F.KC+2*RU+RELSUP /* heuristic */)
       {
@@ -4055,7 +4056,7 @@ START:
           }
         }
         if (lg(F.L_jid) > 1)
-          small_norm(&cache, &F, nf, nbrelpid, M_sn, fact, p0);
+          small_norm(&cache, &F, nf, Nrelid, M_sn, fact, p0);
         set_avma(av3);
         if (!A && cache.last != last) small_fail = 0; else small_fail++;
         if (LIE)
