@@ -3831,10 +3831,10 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
 {
   pari_timer T;
   pari_sp av0 = avma, av, av2;
-  long PRECREG, N, R1, R2, RU, low, high, LIMC0, LIMC, LIMC2, LIMCMAX, zc, i;
+  long PREC, N, R1, R2, RU, low, high, LIMC0, LIMC, LIMC2, LIMCMAX, zc, i;
   long LIMres, bit = 0, flag_nfinit = 0;
   long MAXDEPSIZESFB, MAXDEPSFB;
-  long nreldep, sfb_trials, need, old_need, precdouble = 0, precadd = 0;
+  long nreldep, sfb_trials, need, old_need, precdouble = 0;
   long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
   double LOGD, LOGD2, lim;
   GEN computed = NULL, fu = NULL, zu, nf, M_sn, D, A, W, R, h, Ce, PERM;
@@ -3852,12 +3852,12 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   P = get_nfpol(P, &nf);
   if (nf)
   {
-    PRECREG = nf_get_prec(nf);
+    PREC = nf_get_prec(nf);
     D = nf_get_disc(nf);
   }
   else
   {
-    PRECREG = maxss(prec, MEDDEFAULTPREC);
+    PREC = maxss(prec, MEDDEFAULTPREC);
     nfinit_basic(&nfT, P);
     D = nfT.dK;
     if (!ZX_is_monic(nfT.T0))
@@ -3869,7 +3869,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   N = degpol(P);
   if (N <= 1)
   {
-    if (!nf) nf = nfinit_complete(&nfT, flag_nfinit, PRECREG);
+    if (!nf) nf = nfinit_complete(&nfT, flag_nfinit, PREC);
     return gerepilecopy(av0, Buchall_deg1(nf));
   }
   D = absi_shallow(D);
@@ -3884,13 +3884,13 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   small_norm_prec = nbits2prec( BITS_IN_LONG +
     (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N))
      + 2*log((double) LIMCMAX) + LOGD/2) / M_LN2 ); /*enough to compute norms*/
-  if (small_norm_prec > PRECREG) PRECREG = small_norm_prec;
+  if (small_norm_prec > PREC) PREC = small_norm_prec;
   if (!nf)
-    nf = nfinit_complete(&nfT, flag_nfinit, PRECREG);
-  else if (nf_get_prec(nf) < PRECREG)
-    nf = nfnewprec_shallow(nf, PRECREG);
+    nf = nfinit_complete(&nfT, flag_nfinit, PREC);
+  else if (nf_get_prec(nf) < PREC)
+    nf = nfnewprec_shallow(nf, PREC);
   M_sn = nf_get_M(nf);
-  if (PRECREG > small_norm_prec) M_sn = gprec_w(M_sn, small_norm_prec);
+  if (PREC > small_norm_prec) M_sn = gprec_w(M_sn, small_norm_prec);
 
   zu = nfrootsof1(nf);
   gel(zu,2) = nf_to_scalar_or_alg(nf, gel(zu,2));
@@ -3979,18 +3979,15 @@ START:
   F.id2 = zerovec(F.KC);
   MAXDEPSIZESFB = (lg(F.subFB) - 1) * DEPSIZESFBMULT;
   MAXDEPSFB = MAXDEPSIZESFB / DEPSFBDIV;
-  done_small = 0; small_fail = 0; squash_index = 0;
+  done_small = small_fail = squash_index = zc = sfb_trials = nreldep = 0;
   fail_limit = F.KC + 1;
-  R = NULL; A = NULL;
+  W = A = R = NULL;
   av2 = avma;
   init_rel(&cache, &F, RELSUP + RU-1);
   old_need = need = cache.end - cache.last;
   add_cyclotomic_units(nf, zu, &cache, &F);
   if (DEBUGLEVEL) err_printf("\n");
   cache.end = cache.last + need;
-
-  W = NULL; zc = 0;
-  sfb_trials = nreldep = 0;
 
   if (computed)
   {
@@ -4102,14 +4099,12 @@ START:
       {
         GEN nf0 = nf, M;
         REL_t *rel;
-        if (precadd) { PRECREG += precadd; precadd = 0; }
-        else           PRECREG = precdbl(PRECREG);
         if (DEBUGLEVEL)
         {
           char str[64]; sprintf(str,"Buchall_param (%s)",precpb);
-          pari_warn(warnprec,str,PRECREG);
+          pari_warn(warnprec,str,PREC);
         }
-        nf = gclone( nfnewprec_shallow(nf, PRECREG) );
+        nf = gclone( nfnewprec_shallow(nf, PREC) );
         M = nf_get_M(nf);
         if (precdouble) gunclone(nf0);
         precdouble++; precpb = NULL;
@@ -4118,7 +4113,7 @@ START:
         { /* recompute embs only, no need to redo HNF */
           set_avma(av4);
           for(rel = cache.base+1, i = 1; i < lg(embs); i++,rel++)
-            gel(embs,i) = rel_embed(rel, &F, embs, i, M, RU, R1, PRECREG);
+            gel(embs,i) = rel_embed(rel, &F, embs, i, M, RU, R1, PREC);
           av4 = avma;
         }
         else
@@ -4142,7 +4137,7 @@ START:
         for (j=1,rel = cache.chk + 1; j < l; rel++,j++,k++)
         {
           gel(mat,j) = rel->R;
-          gel(embs,k) = rel_embed(rel, &F, embs, k, M, RU, R1, PRECREG);
+          gel(embs,k) = rel_embed(rel, &F, embs, k, M, RU, R1, PREC);
         }
         if (DEBUGLEVEL) timer_printf(&T, "floating point embeddings");
         if (!W)
@@ -4232,11 +4227,11 @@ START:
     R = compute_multiple_of_R(A, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
     old_need = need;
-    if (!lambda) { precpb = "bestappr"; continue; }
+    if (!lambda) { precpb = "bestappr"; PREC = precdbl(PREC); continue; }
     if (!R)
     { /* not full rank for units */
       if (DEBUGLEVEL) err_printf("regulator is zero.\n");
-      if (!need) precpb = "regulator";
+      if (!need) { precpb = "regulator"; PREC = precdbl(PREC); }
       continue;
     }
 
@@ -4251,7 +4246,7 @@ START:
         continue;
       case fupb_PRECI: /* prec problem unless we cheat on Bach constant */
         if ((precdouble&7) == 7 && LIMC<=LIMCMAX/6) goto START;
-        precpb = "compute_R";
+        precpb = "compute_R"; PREC = precdbl(PREC);
         continue;
     }
     /* DONE */
@@ -4278,12 +4273,11 @@ START:
       H = ZM_hnflll(L, &U, 1); U = vecslice(U, lg(U)-(RU-1), lg(U)-1);
       U = ZM_mul(U, ZM_lll(H, 0.99, LLL_IM|LLL_COMPATIBLE));
       AU = RgM_mul(A, U);
-      A = cleanarch(AU, N, PRECREG);
+      A = cleanarch(AU, N, PREC);
       if (DEBUGLEVEL) timer_printf(&T, "cleanarch");
       if (!A) {
-        precadd = nbits2extraprec( gexpo(AU) + 64 ) - gprecision(AU);
-        if (precadd <= 0) precadd = 1;
-        precpb = "cleanarch"; continue;
+        long add = nbits2extraprec( gexpo(AU) + 64 ) - gprecision(AU);
+        precpb = "cleanarch"; PREC += maxss(add, 1); continue;
       }
       if (flun & nf_FORCE)
       {
@@ -4292,11 +4286,10 @@ START:
         SUnits = cgetg(l, t_COL);
         for (rel = cache.base+1, i = 1; i < l; i++,rel++)
           set_rel_alpha(rel, auts, SUnits, i);
-        if (RU > 1)
-          CU = ZM_mul(v? vecpermute(C,v): vecslice(C,1,zc), U);
+        if (RU > 1) CU = ZM_mul(v? vecpermute(C,v): vecslice(C,1,zc), U);
       }
       if (DEBUGLEVEL) err_printf("\n#### Computing fundamental units\n");
-      fu = getfu(nf, &A, &e, CU? &U: NULL, PRECREG);
+      fu = getfu(nf, &A, &e, CU? &U: NULL, PREC);
       CU = CU? ZM_mul(CU, U): cgetg(1, t_MAT);
       if (DEBUGLEVEL) timer_printf(&T, "getfu");
       Ce = vecslice(C, zc+1, lg(C)-1);
@@ -4304,11 +4297,10 @@ START:
     }
     /* class group generators */
     if (flun & nf_FORCE) Ce = gmul(embs, Ce);
-    C0 = Ce; Ce = cleanarch(Ce, N, PRECREG);
+    C0 = Ce; Ce = cleanarch(Ce, N, PREC);
     if (!Ce) {
-      precadd = nbits2extraprec( gexpo(C0) + 64 ) - gprecision(C0);
-      if (precadd <= 0) precadd = 1;
-      precpb = "cleanarch";
+      long add = nbits2extraprec( gexpo(C0) + 64 ) - gprecision(C0);
+      precpb = "cleanarch"; PREC += maxss(add, 1);
     }
     if (DEBUGLEVEL) timer_printf(&T, "cleanarch");
   } while (need || precpb);
@@ -4316,7 +4308,7 @@ START:
   Vbase = vecpermute(F.LP, F.perm);
   if (!fu) fu = cgetg(1, t_MAT);
   if (!SUnits) SUnits = gen_1;
-  clg1 = class_group_gen(nf,W,Ce,Vbase,PRECREG, &clg2);
+  clg1 = class_group_gen(nf,W,Ce,Vbase,PREC, &clg2);
   res = mkvec5(clg1, R, SUnits, zu, fu);
   res = buchall_end(nf,res,clg2,W,B,A,Ce,Vbase);
   delete_FB(&F);
