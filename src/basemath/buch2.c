@@ -2208,22 +2208,21 @@ set_rel_alpha(REL_t *rel, GEN auts, GEN vA, long ind)
   gel(vA, ind) = u;
 }
 static GEN
-set_fact(FB_t *F, FACT *fact, GEN ex, long *pnz)
+set_fact(FB_t *F, FACT *fact, GEN e, long *pnz)
 {
   long n = fact[0].pr;
   GEN c = zero_Flv(F->KC);
   if (!n) /* trivial factorization */
     *pnz = F->KC+1;
-  else {
-    long i, nz = fact[1].pr;
-    if (fact[n].pr < nz) /* Possible with jid in rnd_rel */
-      nz = fact[n].pr;
+  else
+  {
+    long i, nz = minss(fact[1].pr, fact[n].pr);
     for (i = 1; i <= n; i++) c[fact[i].pr] = fact[i].ex;
-    if (ex)
+    if (e)
     {
-      long l = lg(ex);
+      long l = lg(e);
       for (i = 1; i < l; i++)
-        if (ex[i]) { long v = F->subFB[i]; c[v] += ex[i]; if (v < nz) nz = v; }
+        if (e[i]) { long v = F->subFB[i]; c[v] += e[i]; if (v < nz) nz = v; }
     }
     *pnz = nz;
   }
