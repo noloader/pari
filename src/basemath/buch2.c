@@ -33,7 +33,6 @@ static const long maxtry_DEP = 20;
 static const long maxtry_FACT = 500;
 /* rnd_rel */
 static const long RND_REL_RELPID = 1;
-static const long PREVENT_LLL_IN_RND_REL = 1;
 /* random relations */
 static const long MINSFB = 3;
 static const long SFB_MAX = 3;
@@ -75,7 +74,7 @@ typedef struct FB_t {
   int newpow; /* need to compute powFB */
   GEN perm; /* permutation of LP used to represent relations [updated by
                hnfspec/hnfadd: dense rows come first] */
-  GEN vecG, G0;
+  GEN G0;
   GEN idealperm; /* permutation of ideals under field automorphisms */
   GEN minidx; /* minidx[i] min ideal in orbit of LP[i] under field autom */
   subFB_t *allsubFB; /* all subFB's used */
@@ -140,15 +139,6 @@ dbg_newrel(RELCACHE_t *cache)
   else
     err_printf("%ld ", cache->last - cache->base);
 }
-
-static void
-dbg_cancelrel(long jid, long jdir, GEN col)
-{
-  err_printf("relation cancelled: ");
-  if (DEBUGLEVEL>3) err_printf("(jid=%ld,jdir=%ld)",jid,jdir);
-  wr_rel(col);
-}
-
 
 static void
 delete_cache(RELCACHE_t *M)
@@ -2666,9 +2656,8 @@ static void
 rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
 {
   pari_timer T;
-  GEN L_jid = F->L_jid, M = nf_get_M(nf), G = F->G0, baseid, Nbaseid;
-  long lG = lg(F->vecG)-1, lgsub = lg(F->subFB), l_jid = lg(L_jid);
-  long i, prec = nf_get_prec(nf);
+  GEN L_jid = F->L_jid, M = nf_get_M(nf), baseid, Nbaseid;
+  long i, lgsub = lg(F->subFB), l_jid = lg(L_jid), prec = nf_get_prec(nf);
   RNDREL_t rr;
   FP_t fp;
   pari_sp av;
@@ -2685,10 +2674,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   for (av = avma, i = 1; i < l_jid; i++, set_avma(av))
   {
-    long j;
     GEN id, Nid;
-    pari_sp av1;
-    REL_t *last = cache->last;
 
     rr.jid = L_jid[i];
     id = gel(F->LP, rr.jid);
@@ -2696,27 +2682,8 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
       err_printf("\n*** Ideal no %ld: %Ps\n", rr.jid, vecslice(id,1,4));
     Nid = mulii(Nbaseid, pr_norm(id));
     id = idealHNF_mul(nf, baseid, id);
-    if (Fincke_Pohst_ideal(cache, F, nf, M, G, id, Nid, fact,
-                           RND_REL_RELPID, &fp, &rr, prec, NULL, NULL))
-      break;
-    if (PREVENT_LLL_IN_RND_REL || cache->last != last) continue;
-    for (av1 = avma, j = 1; j < lG; j++, set_avma(av1))
-    { /* reduce along various directions */
-      GEN R, m = idealpseudomin_nonscalar(id, gel(F->vecG,j));
-      long nz;
-      if (!factorgen(F, nf, id, Nid, m, fact)) continue;
-      /* can factor id, record relation */
-      add_to_fact(rr.jid, 1, fact);
-      R = set_fact(F, fact, rr.ex, &nz);
-      if (add_rel(cache, F, R, nz, nfmul(nf, m, rr.m1), 1) < 0)
-      { /* forget it */
-        if (DEBUGLEVEL>1) dbg_cancelrel(rr.jid,j,R);
-        continue;
-      }
-      if (DEBUGLEVEL) timer_printf(&T, "for this relation");
-      if (cache->last < cache->end) break; /* need more, try next prime */
-      set_avma(av); return; /* we have found enough */
-    }
+    if (Fincke_Pohst_ideal(cache, F, nf, M, F->G0, id, Nid, fact,
+                           RND_REL_RELPID, &fp, &rr, prec, NULL, NULL)) break;
   }
   if (DEBUGLEVEL) { err_printf("\n"); timer_printf(&T,"for remaining ideals"); }
 }
@@ -3689,50 +3656,6 @@ add_cyclotomic_units(GEN nf, GEN zu, RELCACHE_t *cache, FB_t *F)
   set_avma(av);
 }
 
-static void
-shift_embed(GEN G, GEN Gtw, long a, long r1)
-{
-  long j, k, l = lg(G);
-  if (a <= r1)
-    for (j=1; j<l; j++) gcoeff(G,a,j) = gcoeff(Gtw,a,j);
-  else
-  {
-    k = (a<<1) - r1;
-    for (j=1; j<l; j++)
-    {
-      gcoeff(G,k-1,j) = gcoeff(Gtw,k-1,j);
-      gcoeff(G,k  ,j) = gcoeff(Gtw,k,  j);
-    }
-  }
-}
-
-/* G where embeddings a and b are multiplied by 2^10 */
-static GEN
-shift_G(GEN G, GEN Gtw, long a, long b, long r1)
-{
-  GEN g = RgM_shallowcopy(G);
-  if (a != b) shift_embed(g,Gtw,a,r1);
-  shift_embed(g,Gtw,b,r1); return g;
-}
-
-static void
-compute_vecG(GEN nf, FB_t *F, long n)
-{
-  GEN G0, Gtw0, vecG, G = nf_get_G(nf);
-  long e, i, j, ind, r1 = nf_get_r1(nf), r = lg(G)-1;
-  if (n == 1) { F->G0 = G0 = ground(G); F->vecG = mkvec( G0 ); return; }
-  for (e = 32;;)
-  {
-    G = gmul2n(G, e);
-    G0 = ground(G); if (ZM_rank(G0) == r) break; /* maximal rank ? */
-  }
-  Gtw0 = ground(gmul2n(G, 10));
-  vecG = cgetg(1 + n*(n+1)/2,t_VEC);
-  for (ind=j=1; j<=n; j++)
-    for (i=1; i<=j; i++) gel(vecG,ind++) = shift_G(G0,Gtw0,i,j,r1);
-  F->G0 = G0; F->vecG = vecG;
-}
-
 static GEN
 trim_list(FB_t *F)
 {
@@ -3872,7 +3795,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flun, long p
   nf_get_sign(nf, &R1, &R2); RU = R1+R2;
   auts = automorphism_matrices(nf, &F.invs, &cyclic);
   F.embperm = automorphism_perms(nf_get_M(nf), auts, cyclic, R1, R2, N);
-  compute_vecG(nf, &F, minss(RU, 9));
+  F.G0 = nf_get_roundG(nf);
   if (DEBUGLEVEL)
   {
     timer_printf(&T, "nfinit & nfrootsof1");
