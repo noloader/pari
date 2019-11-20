@@ -4021,7 +4021,7 @@ START:
         long j, k, LIE = (R && lg(W) > 1 && (done_small % 2));
         REL_t *last = cache.last;
         pari_sp av3 = avma;
-        GEN p0 = NULL;
+        GEN p0;
         if (LIE)
         { /* We have full rank for class group and unit. The following tries to
            * improve the prime group lattice by looking for relations involving
@@ -4035,15 +4035,16 @@ START:
           for ( ; n > 0; n--) mael(cache.basis, F.perm[n], F.perm[n]) = 0;
         }
         j = done_small % (F.KC+1);
-        if (j)
+        if (j == 0) p0 = NULL;
+        else
         {
-          long mj = small_multiplier[j];
           p0 = gel(F.LP, j);
           if (!A)
           { /* Prevent considering both P_iP_j and P_jP_i in small_norm */
             /* Not all elements end up in F.L_jid (eliminated by hnfspec/add or
              * by trim_list): keep track of which ideals are being considered
              * at each run. */
+            long mj = small_multiplier[j];
             for (i = k = 1; i < lg(F.L_jid); i++)
               if (F.L_jid[i] > mj)
               {
@@ -4058,7 +4059,7 @@ START:
         set_avma(av3);
         if (!A && cache.last != last) small_fail = 0; else small_fail++;
         if (LIE)
-        { /* restore add_rel subsystem: correct above lie */
+        { /* restore add_rel subsystem: undo above lie */
           long n = lg(W) - 1;
           for ( ; n > 0; n--) mael(cache.basis, F.perm[n], F.perm[n]) = 1;
           cache.missing = 0;
