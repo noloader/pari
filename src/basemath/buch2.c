@@ -74,7 +74,6 @@ typedef struct FB_t {
   int newpow; /* need to compute powFB */
   GEN perm; /* permutation of LP used to represent relations [updated by
                hnfspec/hnfadd: dense rows come first] */
-  GEN G0;
   GEN idealperm; /* permutation of ideals under field automorphisms */
   GEN minidx; /* minidx[i] min ideal in orbit of LP[i] under field autom */
   subFB_t *allsubFB; /* all subFB's used */
@@ -2467,17 +2466,18 @@ step(GEN x, double *y, GEN inc, long k)
 }
 
 INLINE long
-Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN G, GEN I,
+Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN I,
     GEN NI, FACT *fact, long Nrelid, FP_t *fp, RNDREL_t *rr, long prec,
     long *Nsmall, long *Nfact)
 {
   pari_sp av;
   const long N = nf_get_degree(nf), R1 = nf_get_r1(nf);
-  GEN r, u, gx, inc=const_vecsmall(N, 1), ideal;
+  GEN G = nf_get_G(nf), G0 = nf_get_roundG(nf), r, u, gx, inc, ideal;
   double BOUND;
   long j, k, skipfirst, relid=0, dependent=0, try_elt=0, try_factor=0;
 
-  u = ZM_lll(ZM_mul(F->G0, I), 0.99, LLL_IM|LLL_COMPATIBLE);
+  inc = const_vecsmall(N, 1);
+  u = ZM_lll(ZM_mul(G0, I), 0.99, LLL_IM|LLL_COMPATIBLE);
   ideal = ZM_mul(I,u); /* approximate T2-LLL reduction */
   r = gaussred_from_QR(RgM_mul(G, ideal), prec); /* Cholesky for T2 | ideal */
   if (!r) pari_err_BUG("small_norm (precision too low)");
@@ -2589,7 +2589,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
   const long prec = nf_get_prec(nf);
   FP_t fp;
   pari_sp av;
-  GEN G = nf_get_G(nf), L_jid = F->L_jid, Np0;
+  GEN L_jid = F->L_jid, Np0;
   long Nsmall, Nfact, n = lg(L_jid);
   REL_t *last = cache->last;
 
@@ -2608,7 +2608,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
     { Nid = mulii(Np0, pr_norm(id)); id = idealmul(nf, p0, id); }
     else
     { Nid = pr_norm(id); id = pr_hnf(nf, id);}
-    if (Fincke_Pohst_ideal(cache, F, nf, M, G, id, Nid, fact, Nrelid, &fp,
+    if (Fincke_Pohst_ideal(cache, F, nf, M, id, Nid, fact, Nrelid, &fp,
                            NULL, prec, &Nsmall, &Nfact)) break;
   }
   if (DEBUGLEVEL && Nsmall)
@@ -2669,7 +2669,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
                cache->end - cache->last, lg(L_jid)-1);
   }
   rr.ex = cgetg(lgsub, t_VECSMALL);
-  baseid = red(nf, get_random_ideal(F, nf, rr.ex), F->G0, &rr.m1);
+  baseid = red(nf, get_random_ideal(F, nf, rr.ex), nf_get_roundG(nf), &rr.m1);
   Nbaseid = ZM_det_triangular(baseid);
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   for (av = avma, i = 1; i < l_jid; i++, set_avma(av))
@@ -2682,7 +2682,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
       err_printf("\n*** Ideal no %ld: %Ps\n", rr.jid, vecslice(id,1,4));
     Nid = mulii(Nbaseid, pr_norm(id));
     id = idealHNF_mul(nf, baseid, id);
-    if (Fincke_Pohst_ideal(cache, F, nf, M, F->G0, id, Nid, fact,
+    if (Fincke_Pohst_ideal(cache, F, nf, M, id, Nid, fact,
                            RND_REL_RELPID, &fp, &rr, prec, NULL, NULL)) break;
   }
   if (DEBUGLEVEL) { err_printf("\n"); timer_printf(&T,"for remaining ideals"); }
@@ -2822,7 +2822,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
   long i, iz, nbtest;
   long lgsub = lg(F->subFB), KCZ0 = F->KCZ;
   long N = nf_get_degree(nf), prec = nf_get_prec(nf);
-  GEN M = nf_get_M(nf), G = nf_get_G(nf);
+  GEN M = nf_get_M(nf);
   FP_t fp;
   pari_sp av;
 
@@ -2857,7 +2857,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
       Nid = pr_norm(gel(P,j));
       for (nbtest=0;;)
       {
-        if (Fincke_Pohst_ideal(NULL, F, nf, M, G, id, Nid, fact, 0, &fp,
+        if (Fincke_Pohst_ideal(NULL, F, nf, M, id, Nid, fact, 0, &fp,
                                NULL, prec, NULL, NULL)) break;
         if (++nbtest > maxtry_HONEST)
         {
@@ -3795,7 +3795,6 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flun, long p
   nf_get_sign(nf, &R1, &R2); RU = R1+R2;
   auts = automorphism_matrices(nf, &F.invs, &cyclic);
   F.embperm = automorphism_perms(nf_get_M(nf), auts, cyclic, R1, R2, N);
-  F.G0 = nf_get_roundG(nf);
   if (DEBUGLEVEL)
   {
     timer_printf(&T, "nfinit & nfrootsof1");
