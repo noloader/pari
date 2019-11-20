@@ -115,7 +115,6 @@ typedef struct FP_t {
 } FP_t;
 
 typedef struct RNDREL_t {
-  GEN Nideal;
   long jid;
   GEN ex;
   GEN m1;
@@ -2478,19 +2477,18 @@ step(GEN x, double *y, GEN inc, long k)
 }
 
 INLINE long
-Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
-    GEN G, GEN ideal0, FACT *fact, long nbrelpid, FP_t *fp,
-    RNDREL_t *rr, long prec, long *nbsmallnorm, long *nbfact)
+Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN G, GEN I,
+    GEN NI, FACT *fact, long nbrelpid, FP_t *fp, RNDREL_t *rr, long prec,
+    long *nbsmallnorm, long *nbfact)
 {
   pari_sp av;
   const long N = nf_get_degree(nf), R1 = nf_get_r1(nf);
   GEN r, u, gx, inc=const_vecsmall(N, 1), ideal;
-  GEN Nideal = nbrelpid ? NULL : idealnorm(nf, ideal0);
   double BOUND;
-  long j, k, skipfirst, nbrelideal=0, dependent=0, try_elt=0,  try_factor=0;
+  long j, k, skipfirst, nbrelideal=0, dependent=0, try_elt=0, try_factor=0;
 
-  u = ZM_lll(ZM_mul(F->G0, ideal0), 0.99, LLL_IM|LLL_COMPATIBLE);
-  ideal = ZM_mul(ideal0,u); /* approximate T2-LLL reduction */
+  u = ZM_lll(ZM_mul(F->G0, I), 0.99, LLL_IM|LLL_COMPATIBLE);
+  ideal = ZM_mul(I,u); /* approximate T2-LLL reduction */
   r = gaussred_from_QR(RgM_mul(G, ideal), prec); /* Cholesky for T2 | ideal */
   if (!r) pari_err_BUG("small_norm (precision too low)");
 
@@ -2555,12 +2553,12 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M,
 
     if (!nbrelpid)
     {
-      if (!factorgen(F,nf,ideal0,Nideal,gx,fact)) continue;
+      if (!factorgen(F,nf,I,NI,gx,fact)) continue;
       return 1;
     }
     else if (rr)
     {
-      if (!factorgen(F,nf,ideal0,rr->Nideal,gx,fact)) continue;
+      if (!factorgen(F,nf,I,NI,gx,fact)) continue;
       add_to_fact(rr->jid, 1, fact);
       gx = nfmul(nf, rr->m1, gx);
     }
@@ -2601,29 +2599,27 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long nbrelpid, GEN M,
   const long prec = nf_get_prec(nf);
   FP_t fp;
   pari_sp av;
-  GEN G = nf_get_G(nf), L_jid = F->L_jid;
-  long nbsmallnorm, nbfact, noideal = lg(L_jid);
+  GEN G = nf_get_G(nf), L_jid = F->L_jid, Np0;
+  long nbsmallnorm, nbfact, n = lg(L_jid);
   REL_t *last = cache->last;
 
   if (DEBUGLEVEL)
     err_printf("#### Look for %ld relations in %ld ideals (small_norm)\n",
                cache->end - last, lg(L_jid)-1);
   nbsmallnorm = nbfact = 0;
-
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
-  for (av = avma; --noideal; set_avma(av))
+  Np0 = p0? pr_norm(p0): NULL;
+  for (av = avma; --n; set_avma(av))
   {
-    GEN ideal = gel(F->LP, L_jid[noideal]);
-
+    GEN id = gel(F->LP, L_jid[n]), Nid;
     if (DEBUGLEVEL>1)
-      err_printf("\n*** Ideal no %ld: %Ps\n", L_jid[noideal], vecslice(ideal,1,4));
+      err_printf("\n*** Ideal no %ld: %Ps\n", L_jid[n], vecslice(id,1,4));
     if (p0)
-      ideal = idealmul(nf, p0, ideal);
+    { Nid = mulii(Np0, pr_norm(id)); id = idealmul(nf, p0, id); }
     else
-      ideal = pr_hnf(nf, ideal);
-    if (Fincke_Pohst_ideal(cache, F, nf, M, G, ideal, fact,
-          nbrelpid, &fp, NULL, prec, &nbsmallnorm, &nbfact))
-      break;
+    { Nid = pr_norm(id); id = pr_hnf(nf, id);}
+    if (Fincke_Pohst_ideal(cache, F, nf, M, G, id, Nid, fact,
+          nbrelpid, &fp, NULL, prec, &nbsmallnorm, &nbfact)) break;
   }
   if (DEBUGLEVEL && nbsmallnorm)
   {
@@ -2671,7 +2667,7 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
 {
   pari_timer T;
   const GEN L_jid = F->L_jid, M = nf_get_M(nf), G = F->G0;
-  GEN baseideal;
+  GEN baseid, Nbaseid;
   RNDREL_t rr;
   FP_t fp;
   const long nbG = lg(F->vecG)-1, lgsub = lg(F->subFB), l_jid = lg(L_jid);
@@ -2686,33 +2682,33 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
                cache->end - cache->last, lg(L_jid)-1);
   }
   rr.ex = cgetg(lgsub, t_VECSMALL);
-  baseideal = get_random_ideal(F, nf, rr.ex);
-  baseideal = red(nf, baseideal, F->G0, &rr.m1);
+  baseid = red(nf, get_random_ideal(F, nf, rr.ex), F->G0, &rr.m1);
+  Nbaseid = ZM_det_triangular(baseid);
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   for (av = avma, jlist = 1; jlist < l_jid; jlist++, set_avma(av))
   {
     long j;
-    GEN ideal;
+    GEN id, Nid;
     pari_sp av1;
     REL_t *last = cache->last;
 
     rr.jid = L_jid[jlist];
-    ideal = gel(F->LP,rr.jid);
+    id = gel(F->LP,rr.jid);
     if (DEBUGLEVEL>1)
-      err_printf("\n*** Ideal no %ld: %Ps\n", rr.jid, vecslice(ideal,1,4));
-    ideal = idealHNF_mul(nf, baseideal, ideal);
-    rr.Nideal = ZM_det_triangular(ideal);
-    if (Fincke_Pohst_ideal(cache, F, nf, M, G, ideal, fact,
+      err_printf("\n*** Ideal no %ld: %Ps\n", rr.jid, vecslice(id,1,4));
+    Nid = mulii(Nbaseid, pr_norm(id));
+    id = idealHNF_mul(nf, baseid, id);
+    if (Fincke_Pohst_ideal(cache, F, nf, M, G, id, Nid, fact,
                            RND_REL_RELPID, &fp, &rr, prec, NULL, NULL))
       break;
     if (PREVENT_LLL_IN_RND_REL || cache->last != last) continue;
     for (av1 = avma, j = 1; j <= nbG; j++, set_avma(av1))
     { /* reduce along various directions */
-      GEN m = idealpseudomin_nonscalar(ideal, gel(F->vecG,j));
+      GEN m = idealpseudomin_nonscalar(id, gel(F->vecG,j));
       GEN R;
       long nz;
-      if (!factorgen(F,nf,ideal,rr.Nideal,m,fact)) continue;
-      /* can factor ideal, record relation */
+      if (!factorgen(F, nf, id, Nid, m, fact)) continue;
+      /* can factor id, record relation */
       add_to_fact(rr.jid, 1, fact);
       R = set_fact(F, fact, rr.ex, &nz);
       switch (add_rel(cache, F, R, nz, nfmul(nf, m, rr.m1), 1))
@@ -2883,7 +2879,7 @@ pr_orbit_fill(GEN orbit, GEN auts, GEN vP, long j)
 static int
 be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
 {
-  long ex, i, iz, nbtest;
+  long i, iz, nbtest;
   long lgsub = lg(F->subFB), KCZ0 = F->KCZ;
   long N = nf_get_degree(nf), prec = nf_get_prec(nf);
   GEN M = nf_get_M(nf), G = nf_get_G(nf);
@@ -2910,17 +2906,18 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
     pr_orbit = auts? zero_zv(J-1): NULL;
     for (j = 1; j < J; j++)
     {
-      GEN ideal, ideal0;
+      GEN Nid, id, id0;
       if (pr_orbit)
       {
         if (pr_orbit[j]) continue;
         /* discard all primes in automorphism orbit simultaneously */
         pr_orbit_fill(pr_orbit, auts, P, j);
       }
-      ideal = ideal0 = pr_hnf(nf,gel(P,j));
+      id = id0 = pr_hnf(nf,gel(P,j));
+      Nid = pr_norm(gel(P,j));
       for (nbtest=0;;)
       {
-        if (Fincke_Pohst_ideal(NULL, F, nf, M, G, ideal, fact, 0, &fp,
+        if (Fincke_Pohst_ideal(NULL, F, nf, M, G, id, Nid, fact, 0, &fp,
                                NULL, prec, NULL, NULL)) break;
         if (++nbtest > maxtry_HONEST)
         {
@@ -2930,14 +2927,14 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
         }
         /* occurs at most once in the whole function */
         if (F->newpow) powFBgen(NULL, F, nf, auts);
-        for (i = 1, ideal = ideal0; i < lgsub; i++)
+        for (i = 1, id = id0; i < lgsub; i++)
         {
-          long id = F->subFB[i];
-          ex = random_bits(RANDOM_BITS);
-          if (ex) ideal = idealHNF_mul(nf,ideal, gmael(F->id2,id,ex));
+          long k = F->subFB[i], ex = random_bits(RANDOM_BITS);
+          if (ex) id = idealHNF_mul(nf, id, gmael(F->id2,k,ex));
         }
-        ideal = remove_content(ideal);
-        if (expi(gcoeff(ideal,1,1)) > 100) ideal = idealred(nf, ideal);
+        id = remove_content(id);
+        if (expi(gcoeff(id,1,1)) > 100) id = idealred(nf, id);
+        Nid = ZM_det_triangular(id);
       }
     }
     F->KCZ++; /* SUCCESS, "enlarge" factorbase */
