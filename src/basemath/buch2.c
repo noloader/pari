@@ -3930,7 +3930,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
    * NI <= LIMCMAX^2 */
   small_norm_prec = nbits2prec( BITS_IN_LONG +
     (N/2. * ((N-1)/2.*log(4./3) + log(BMULT/(double)N))
-     + 2*log((double) LIMCMAX) + LOGD/2) / M_LN2 ); /* enough to compute norms */
+     + 2*log((double) LIMCMAX) + LOGD/2) / M_LN2 ); /*enough to compute norms*/
   if (small_norm_prec > PRECREG) PRECREG = small_norm_prec;
   if (!nf)
     nf = nfinit_complete(&nfT, flag_nfinit, PRECREG);
@@ -3952,7 +3952,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
     timer_printf(&T, "nfinit & nfrootsof1");
     err_printf("R1 = %ld, R2 = %ld\nD = %Ps\n",R1,R2, D);
   }
-  if (LOGD < 20.) /* tiny disc, Minkowski *may* be smaller than Bach */
+  if (LOGD < 20.) /* tiny disc, Minkowski may be smaller than Bach */
   {
     lim = exp(-N + R2 * log(4/M_PI) + LOGD/2) * sqrt(2*M_PI*N);
     if (lim < 3) lim = 3;
@@ -4089,23 +4089,21 @@ START:
           small_fail <= fail_limit &&
           cache.last < cache.base + 2*F.KC+2*RU+RELSUP /* heuristic */)
       {
+        long j, k, LIE = (R && lg(W) > 1 && (done_small % 2));
+        REL_t *last = cache.last;
         pari_sp av3 = avma;
         GEN p0 = NULL;
-        long j, k;
-        REL_t *last = cache.last;
-        if (R && lg(W) > 1 && (done_small % 2))
-        {
-          /* We have full rank for class group and unit, however those
-           * lattices are too small. The following tries to improve the
-           * prime group lattice: it specifically looks for relations
-           * involving the primes generating the class group. */
-          long l = lg(W) - 1;
-          /* We need lg(W)-1 relations to squash the class group. */
-          F.L_jid = vecslice(F.perm, 1, l); cache.end = cache.last + l;
+        if (LIE)
+        { /* We have full rank for class group and unit. The following tries to
+           * improve the prime group lattice by looking for relations involving
+           * the primes generating the class group. */
+          long n = lg(W)-1; /* need n relations to squash the class group */
+          F.L_jid = vecslice(F.perm, 1, n);
+          cache.end = cache.last + n;
           /* Lie to the add_rel subsystem: pretend we miss relations involving
            * the primes generating the class group (and only those). */
-          cache.missing = l;
-          for ( ; l > 0; l--) mael(cache.basis, F.perm[l], F.perm[l]) = 0;
+          cache.missing = n;
+          for ( ; n > 0; n--) mael(cache.basis, F.perm[n], F.perm[n]) = 0;
         }
         j = done_small % (F.KC+1);
         if (j)
@@ -4129,24 +4127,20 @@ START:
         if (lg(F.L_jid) > 1)
           small_norm(&cache, &F, nf, nbrelpid, M_sn, fact, p0);
         set_avma(av3);
-        if (!A && cache.last != last)
-          small_fail = 0;
-        else
-          small_fail++;
-        if (R && lg(W) > 1 && (done_small % 2))
-        {
-          long l = lg(W) - 1;
-          for ( ; l > 0; l--) mael(cache.basis, F.perm[l], F.perm[l]) = 1;
+        if (!A && cache.last != last) small_fail = 0; else small_fail++;
+        if (LIE)
+        { /* restore add_rel subsystem: correct above lie */
+          long n = lg(W) - 1;
+          for ( ; n > 0; n--) mael(cache.basis, F.perm[n], F.perm[n]) = 1;
           cache.missing = 0;
         }
         F.L_jid = F.perm;
-        need = 0; cache.end = cache.last;
+        cache.end = cache.last;
         done_small++;
-        F.sfb_chg = 0;
+        need = F.sfb_chg = 0;
       }
       if (need > 0)
-      {
-        /* Random relations */
+      { /* Random relations */
         if (lg(F.subFB) == 1) goto START;
         nreldep++;
         if (nreldep > MAXDEPSIZESFB) {
@@ -4273,13 +4267,12 @@ START:
         if (need != old_need) { nreldep = 0; old_need = need; }
       }
       else
-      {
-        long j, n = lg(W) - 1;
-        /* If the relation lattice is too small, check will be > 1 and we will
+      { /* If the relation lattice is too small, check will be > 1 and we will
          * do a new run of small_norm/rnd_rel asking for 1 relation. This often
-         * gives a relation involving L_jid[1]. We thus permute which element
-         * is the first of L_jid in order to increase the probability of
-         * finding a good relation, i.e. that increases the relation lattice. */
+         * gives a relation involving L_jid[1]. We rotate the first element of
+         * L_jid in order to increase the probability of finding relations that
+         * increases the lattice. */
+        long j, n = lg(W) - 1;
         if (n > 1 && squash_index % n)
         {
           F.L_jid = leafcopy(F.perm);
