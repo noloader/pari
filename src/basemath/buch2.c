@@ -3925,27 +3925,17 @@ Buchall_param(GEN P, double cbach, double cbach2, long nbrelpid, long flun, long
   cache.base = NULL; F.subFB = NULL; F.LP = NULL;
   init_GRHcheck(&GRHcheck, N, R1, LOGD);
   high = low = LIMC0 = maxss((long)(cbach2*LOGD2), 1);
-  while (!GRHchk(nf, &GRHcheck, high))
-  {
-    low = high;
-    high *= 2;
-  }
+  while (!GRHchk(nf, &GRHcheck, high)) { low = high; high *= 2; }
   while (high - low > 1)
   {
     long test = (low+high)/2;
-    if (GRHchk(nf, &GRHcheck, test))
-      high = test;
-    else
-      low = test;
+    if (GRHchk(nf, &GRHcheck, test)) high = test; else low = test;
   }
-  if (high == LIMC0+1 && GRHchk(nf, &GRHcheck, LIMC0))
-    LIMC2 = LIMC0;
-  else
-    LIMC2 = high;
+  LIMC2 = (high == LIMC0+1 && GRHchk(nf, &GRHcheck, LIMC0))? LIMC0: high;
   if (LIMC2 > LIMCMAX) LIMC2 = LIMCMAX;
   if (DEBUGLEVEL) err_printf("LIMC2 = %ld\n", LIMC2);
   LIMC0 = (long)(cbach*LOGD2);
-  LIMC = cbach ? LIMC0 : LIMC2;
+  LIMC = cbach? LIMC0: LIMC2;
   LIMC = maxss(LIMC, nthideal(&GRHcheck, nf, N));
   if (DEBUGLEVEL) timer_printf(&T, "computing Bach constant");
   LIMres = primeneeded(N, R1, R2, LOGD);
@@ -3970,8 +3960,7 @@ START:
     computed = cgetg(i, t_VEC);
     for (i = 1, rel = cache.base + 1; rel < cache.last; rel++)
       if (rel->m) gel(computed, i++) = rel->m;
-    computed = gclone(computed);
-    delete_cache(&cache);
+    computed = gclone(computed); delete_cache(&cache);
   }
   FIRST = 0; set_avma(av);
   if (F.LP) delete_FB(&F);
