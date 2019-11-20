@@ -3835,9 +3835,7 @@ compositum_fix(GEN nf, GEN A)
   int ok;
   if (nf)
   {
-    long i, l = lg(A);
-    A = shallowcopy(A);
-    for (i=2; i<l; i++) gel(A,i) = basistoalg(nf, gel(A,i));
+    A = Q_primpart(liftpol_shallow(A)); RgX_check_ZXX(A,"polcompositum");
     ok = nfissquarefree(nf,A);
   }
   else
@@ -3880,11 +3878,12 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
   {
     long v0 = fetch_var();
     GEN q;
+    GEN T = nf_get_pol(nf);
     for(;; k = nextk(k))
     {
       GEN chgvar = deg1pol_shallow(stoi(k),pol_x(v0),v);
-      GEN B1 = poleval(B,chgvar);
-      C = RgX_resultant_all(A,B1,&q);
+      GEN B1 = poleval(QXQX_to_mod_shallow(B, T), chgvar);
+      C = RgX_resultant_all(QXQX_to_mod_shallow(A, T), B1, &q);
       C = gsubst(C,v0,pol_x(v));
       if (nfissquarefree(nf,C)) break;
     }
@@ -3916,6 +3915,7 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
     if (same)
     {
       D = RgX_rescale(A, stoi(1 - k));
+      if (nf) D = QXQX_to_mod_shallow(D, nf_get_pol(nf));
       C = RgX_div(C, D);
       if (degpol(C) <= 0)
         C = mkvec(D);
