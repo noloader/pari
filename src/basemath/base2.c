@@ -3872,7 +3872,7 @@ nfcompositum(GEN nf, GEN A, GEN B, long flag)
   }
   same = (A == B || RgX_equal(A,B));
   A = compositum_fix(nf,A);
-  if (!same) B = compositum_fix(nf,B);
+  B = same ? A: compositum_fix(nf,B);
 
   D = LPRS = NULL; /* -Wall */
   k = same? -1: 1;

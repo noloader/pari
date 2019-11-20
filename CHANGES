@@ -53,6 +53,7 @@ BA  32- Using local in export()ed functions could crash GP
           subst('u^0,u,Mat(Mod(1,2))) -> [Mod(1,2)] (was [1])
 XR  40- factorpadic: incorrect factors (might not lift to Qp)
         E.g. T=polsubcyclo(271,9); factorpadic(T,3,7)[4,1]
+BA  41- polcompositum(x^2+x/3+1,x^2+x/3+1) -> SEGV
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
