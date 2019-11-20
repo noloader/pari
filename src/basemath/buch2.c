@@ -2781,13 +2781,12 @@ automorphism_perms(GEN M, GEN auts, GEN cyclic, long N)
   return perms;
 }
 
-/* Determine the field automorphisms and its matrix in the integral basis. */
+/* Determine the field automorphisms as matrices in the integral basis */
 static GEN
 automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
 {
   pari_sp av = avma;
-  GEN auts = galoisconj(nf, NULL), mats, cyclic, cyclicidx;
-  GEN invs;
+  GEN auts = galoisconj(nf, NULL), mats, cyclic, cyclicidx, invs;
   long nauts = lg(auts)-1, i, j, k, l;
 
   cyclic = cgetg(nauts+1, t_VEC);
@@ -2801,30 +2800,26 @@ automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
   /* trivial automorphism is last */
   for (l = 1; l <= nauts; l++) gel(auts, l) = algtobasis(nf, gel(auts, l));
   /* Compute maximal cyclic subgroups */
-  for (l = nauts; --l > 0; )
-    if (!cyclicidx[l])
+  for (l = nauts; --l > 0; ) if (!cyclicidx[l])
+  {
+    GEN elt = gel(auts, l), aut = elt, cyc = cgetg(nauts+1, t_VECSMALL);
+    cyc[1] = cyclicidx[l] = l; j = 1;
+    do
     {
-      GEN elt = gel(auts, l), aut = elt, cyc = cgetg(nauts+1, t_VECSMALL);
-      cyclicidx[l] = l;
-      cyc[1] = l;
-      j = 1;
-      do
-      {
-        elt = galoisapply(nf, elt, aut);
-        for (k = 1; k <= nauts; k++) if (gequal(elt, gel(auts, k))) break;
-        cyclicidx[k] = l;
-        cyc[++j] = k;
-      }
-      while (k != nauts);
-      setlg(cyc, j);
-      gel(cyclic, l) = cyc;
-      /* Store the inverses */
-      for (i = 1; i <= j/2; i++)
-      {
-        invs[cyc[i]] = cyc[j-i];
-        invs[cyc[j-i]] = cyc[i];
-      }
+      elt = galoisapply(nf, elt, aut);
+      for (k = 1; k <= nauts; k++) if (gequal(elt, gel(auts, k))) break;
+      cyclicidx[k] = l; cyc[++j] = k;
     }
+    while (k != nauts);
+    setlg(cyc, j);
+    gel(cyclic, l) = cyc;
+    /* Store the inverses */
+    for (i = 1; i <= j/2; i++)
+    {
+      invs[cyc[i]] = cyc[j-i];
+      invs[cyc[j-i]] = cyc[i];
+    }
+  }
   for (i = j = 1; i < nauts; i++)
     if (cyclicidx[i] == i) cyclic[j++] = cyclic[i];
   setlg(cyclic, j);
@@ -2836,11 +2831,7 @@ automorphism_matrices(GEN nf, GEN *invp, GEN *cycp)
     GEN M, Mi, aut = gel(auts, id);
 
     gel(mats, id) = Mi = M = nfgaloismatrix(nf, aut);
-    for (i = 2; i < lg(cyc); i++)
-    {
-      Mi = ZM_mul(Mi, M);
-      gel(mats, cyc[i]) = Mi;
-    }
+    for (i = 2; i < lg(cyc); i++) gel(mats, cyc[i]) = Mi = ZM_mul(Mi, M);
   }
   gerepileall(av, 3, &mats, &invs, &cyclic);
   if (invp) *invp = invs;
