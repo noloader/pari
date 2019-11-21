@@ -89,7 +89,7 @@ tors(GEN e, long k, GEN p, GEN q, GEN v)
 
 /* Finds a multiplicative upper bound for #E_tor; assume integral model */
 static long
-torsbound(GEN e)
+torsbound(GEN e, ulong p)
 {
   GEN D = ell_get_disc(e);
   pari_sp av = avma, av2;
@@ -98,7 +98,15 @@ torsbound(GEN e)
   long CM = ellQ_get_CM(e);
   nb = expi(D) >> 3;
   /* nb = number of primes to try ~ 1 prime every 8 bits in D */
-  b = bold = 5040; /* = 2^4 * 3^2 * 5 * 7 */
+  switch (p)
+  {
+    case 0: b = 5040; break;
+    case 2: b = 16;   break;
+    case 3: b = 9;    break;
+    case 5: case 7: b = p; break;
+    default: return 1;
+  }
+  bold = b;
   m = 0;
   /* p > 2 has good reduction => E(Q) injects in E(Fp) */
   (void)u_forprime_init(&S, 3, ULONG_MAX);
@@ -154,13 +162,13 @@ t2points(GEN E, GEN *f2)
 }
 
 static GEN
-elltors_divpol(GEN E)
+elltors_divpol(GEN E, long psylow)
 {
   GEN T2 = NULL, p, P, Q, v;
   long v2, r2, B;
 
   E = ellintegralmodel_i(E, &v);
-  B = torsbound(E); /* #E_tor | B */
+  B = torsbound(E, psylow); /* #E_tor | B */
   if (B == 1) return tors(E,1,NULL,NULL, v);
   v2 = vals(B); /* bound for v_2(point order) */
   B >>= v2;
@@ -250,7 +258,7 @@ primedec_deg1(GEN K, GEN p)
 /* Bound for the elementary divisors of the torsion group of elliptic curve
  * Reduce the curve modulo some small good primes */
 static GEN
-nftorsbound(GEN E)
+nftorsbound(GEN E, ulong psylow)
 {
   pari_sp av;
   long k = 0, g;
@@ -295,7 +303,7 @@ nftorsbound(GEN E)
       B2 = (n == 1)? gen_1: gcdii(B2,gel(cyc,2));
       obj_free(EQ);
       /* division by 2 is cheap when it fails, no need to have a sharp bound */
-      if (Z_ispow2(B1)) return mkvec2(B1,B2);
+      if (psylow==0 && Z_ispow2(B1)) return mkvec2(B1,B2);
     }
     if ((g & 15) == 0) gerepileall(av, 2, &B1, &B2);
   }
@@ -303,6 +311,11 @@ nftorsbound(GEN E)
   { /* if E(K) has full n-torsion then K contains the n-th roots of 1 */
     GEN n = gel(nfrootsof1(K), 1);
     B2 = gcdii(B2,n);
+  }
+  if (psylow)
+  {
+    B1 = powuu(psylow, Z_lval(B1, psylow));
+    B2 = powuu(psylow, Z_lval(B1, psylow));
   }
   return mkvec2(B1,B2);
 }
@@ -544,9 +557,9 @@ nfpt(GEN e, GEN P)
 }
 /* Computes the torsion subgroup of E(K), as [order, cyc, gen] */
 static GEN
-ellnftors(GEN e)
+ellnftors(GEN e, ulong psylow)
 {
-  GEN B = nftorsbound(e), B1 = gel(B,1), B2 = gel(B,2), d1,d2, P1,P2;
+  GEN B = nftorsbound(e, psylow), B1 = gel(B,1), B2 = gel(B,2), d1,d2, P1,P2;
   GEN f = Z_factor(B1), P = gel(f,1), E = gel(f,2);
   long i, l = lg(P), v = fetch_var_higher();
 
@@ -577,8 +590,8 @@ elltors(GEN e)
   checkell(e);
   switch(ell_get_type(e))
   {
-    case t_ELL_Q:  t = elltors_divpol(e); break;
-    case t_ELL_NF: t = ellnftors(e); break;
+    case t_ELL_Q:  t = elltors_divpol(e, 0); break;
+    case t_ELL_NF: t = ellnftors(e, 0); break;
     case t_ELL_Fp:
     case t_ELL_Fq: return ellgroup0(e,NULL,1);
     default: pari_err_TYPE("elltors",e);
@@ -588,6 +601,21 @@ elltors(GEN e)
 
 GEN
 elltors0(GEN e, long flag) { (void)flag; return elltors(e); }
+
+GEN
+elltors_psylow(GEN e, ulong p)
+{
+  pari_sp av = avma;
+  GEN t = NULL;
+  checkell(e);
+  switch(ell_get_type(e))
+  {
+    case t_ELL_Q:  t = elltors_divpol(e, p); break;
+    case t_ELL_NF: t = ellnftors(e, p); break;
+    default: pari_err_TYPE("elltorspsylow",e);
+  }
+  return gerepilecopy(av, t);
+}
 
 /********************************************************************/
 /**                                                                **/
@@ -650,7 +678,7 @@ ellorder_nf(GEN E, GEN P)
   if (ell_is_inf(P)) return gen_1;
   if (gequal(P, ellneg(E,P))) return gen_2;
 
-  B = gel(nftorsbound(E), 1);
+  B = gel(nftorsbound(E, 0), 1);
   dx = Q_denom(gel(P,1));
   dy = Q_denom(gel(P,2));
   d4 = Q_denom(ell_get_c4(E));

@@ -718,6 +718,7 @@ GEN direuler_factor(GEN s, long n);
 /* elliptic.c */
 
 void ellprint(GEN e);
+GEN  elltors_psylow(GEN e, ulong p);
 
 /* es.c */
 
