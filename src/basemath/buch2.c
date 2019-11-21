@@ -1038,35 +1038,46 @@ RgM_expbitprec(GEN x)
   return e;
 }
 
+static GEN
+FlxqX_chinese_unit(GEN X, GEN U, GEN invzk, GEN D, GEN T, ulong p)
+{
+  long i, lU = lg(U), lX = lg(X), d = lg(invzk)-1;
+  GEN M = cgetg(lU, t_MAT);
+  if (D)
+  {
+    D = Flv_inv(D, p);
+    for (i = 1; i < lX; i++)
+      if (uel(D, i) != 1)
+        gel(X,i) = Flx_Fl_mul(gel(X,i), uel(D,i), p);
+  }
+  for (i = 1; i < lU; i++)
+  {
+    GEN H = FlxqV_factorback(X, gel(U, i), T, p);
+    gel(M, i) = Flm_Flc_mul(invzk, Flx_to_Flv(H, d), p);
+  }
+  return M;
+}
+
 /* Let x = \prod X[i]^E[i] = u, return u.
  * If dX != NULL, X[i] = nX[i] / dX[i] where nX[i] is a ZX, dX[i] in Z */
 static GEN
 chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
 {
   GEN f = nf_get_index(nf), T = nf_get_pol(nf), invzk = nf_get_invzk(nf);
-  long i, j, lU = lg(U), lX = lg(nX);
-  GEN q, M = NULL, Mp = cgetg(lU, t_MAT);
+  GEN q, M = NULL, Mp;
   int stable = 0;
   forprime_t S;
   ulong p;
   init_modular_big(&S);
   while ((p = u_forprime_next(&S)))
   {
-    GEN Tp, Xp, invzkp;
+    GEN Tp, Xp, Dp, invzkp;
     if (!umodiu(f,p)) continue;
     Tp = ZX_to_Flx(T, p);
     Xp = ZXV_to_FlxV(nX, p);
     invzkp = ZM_to_Flm(invzk, p);
-    if (dX) for (i = 1; i < lX; i++)
-    {
-      ulong d = gel(dX,i)? umodiu(gel(dX,i), p): 1;
-      if (d != 1) gel(Xp,i) = Flx_Fl_mul(gel(Xp,i), Fl_inv(d,p), p);
-    }
-    for (j = 1; j < lU; j++)
-    {
-      GEN Hp = FlxqV_factorback(Xp, gel(U,j), Tp, p);
-      gel(Mp, j) = Flm_Flc_mul(invzkp, Flx_to_Flv(Hp, lU-1), p);
-    }
+    Dp = dX ? ZV_to_Flv(dX, p): NULL;
+    Mp = FlxqX_chinese_unit(Xp, U, invzkp, Dp, Tp, p);
     if (!M)
     { /* initialize */
       q = utoipos(p);
