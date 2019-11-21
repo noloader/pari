@@ -237,7 +237,7 @@ checkvalue(entree *ep, enum chk_VALUE flag)
         break;
     }
   else if (ep->valence!=EpVAR)
-    err_var(strtoGENstr(ep->name));
+    pari_err(e_MISC, "attempt to change built-in %s", ep->name);
 }
 
 INLINE GEN
