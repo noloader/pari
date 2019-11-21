@@ -1008,39 +1008,75 @@ FlxqX_chinese_unit(GEN X, GEN U, GEN invzk, GEN D, GEN T, ulong p)
   return M;
 }
 
+static GEN
+chinese_unit_slice(GEN A, GEN U, GEN B, GEN D, GEN C, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1, v = varn(C);
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN a = ZXV_to_FlxV(A, p), b = ZM_to_Flm(B, p), c = ZX_to_Flx(C, p);
+    GEN d = D ? ZV_to_Flv(D, p): NULL;
+    GEN Hp = FlxqX_chinese_unit(a, U, b, d, c, p);
+    H = gerepileupto(av, Flm_to_ZM(Hp));
+    *mod = utoi(p);
+    return H;
+  }
+  T = ZV_producttree(P);
+  A = ZXC_nv_mod_tree(A, P, T, v);
+  B = ZM_nv_mod_tree(B, P, T);
+  D = D ? ZV_nv_mod_tree(D, P, T): NULL;
+  C = ZX_nv_mod_tree(C, P, T);
+
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), b = gel(B,i), c = gel(C,i), d = D ? gel(D,i): NULL;
+    gel(H,i) = FlxqX_chinese_unit(a, U, b, d, c, p);
+  }
+  H = nmV_chinese_center_tree_seq(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+chinese_unit_worker(GEN P, GEN A, GEN U, GEN B, GEN D, GEN C)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = chinese_unit_slice(A, U, B, isintzero(D) ? NULL: D, C, P, &gel(V,2));
+  return V;
+}
+
 /* Let x = \prod X[i]^E[i] = u, return u.
  * If dX != NULL, X[i] = nX[i] / dX[i] where nX[i] is a ZX, dX[i] in Z */
 static GEN
 chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
 {
-  pari_sp av = avma;
+  pari_sp av = avma, av2;
   GEN f = nf_get_index(nf), T = nf_get_pol(nf), invzk = nf_get_invzk(nf);
-  GEN q, M = NULL, Mp;
-  int stable = 0;
+  GEN H = NULL, Hp, mod = gen_1;
   forprime_t S;
   ulong p;
+  long k;
+  GEN worker = snm_closure(is_entry("_chinese_unit_worker"),
+               mkcol5(nX, U, invzk, dX? dX: gen_0, T));
   init_modular_big(&S);
-  while ((p = u_forprime_next(&S)))
+  do p = u_forprime_next(&S); while (dvdiu(f, p));
+  Hp = FlxqX_chinese_unit(ZXV_to_FlxV(nX, p), U, ZM_to_Flm(invzk, p)
+                        , dX ? ZV_to_Flv(dX, p): NULL, ZX_to_Flx(T, p), p);
+  av2 = avma;
+  for (k = 1; ;k *= 2)
   {
-    GEN Tp, Xp, Dp, invzkp;
-    if (!umodiu(f,p)) continue;
-    Tp = ZX_to_Flx(T, p);
-    Xp = ZXV_to_FlxV(nX, p);
-    invzkp = ZM_to_Flm(invzk, p);
-    Dp = dX ? ZV_to_Flv(dX, p): NULL;
-    Mp = FlxqX_chinese_unit(Xp, U, invzkp, Dp, Tp, p);
-    if (!M)
-    { /* initialize */
-      q = utoipos(p);
-      M = ZM_init_CRT(Mp, p);
-    }
-    else
-      stable = ZM_incremental_CRT(&M, Mp, &q, p);
-    if (stable) break;
-    if (gc_needed(av, 1))
-      gerepileall(av, 2, &M, &q);
+    gen_inccrt_i("chinese_units", worker, f, (k+1)>>1, degpol(T), &S, &H, &mod,
+                 nmV_chinese_center, FpM_center);
+    gerepileall(av2, 2, &H, &mod);
+    if (gequal(ZM_to_Flm(H, p), Hp)) break;
   }
-  settyp(M, t_VEC); return M;
+  settyp(H, t_VEC); return gerepilecopy(av, H);
 }
 
 /* *pE a ZM */
