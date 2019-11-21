@@ -1052,10 +1052,11 @@ chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
   init_modular_big(&S);
   while ((p = u_forprime_next(&S)))
   {
-    GEN Tp, Xp;
+    GEN Tp, Xp, invzkp;
     if (!umodiu(f,p)) continue;
     Tp = ZX_to_Flx(T, p);
     Xp = ZXV_to_FlxV(nX, p);
+    invzkp = ZM_to_Flm(invzk, p);
     if (dX) for (i = 1; i < lX; i++)
     {
       ulong d = gel(dX,i)? umodiu(gel(dX,i), p): 1;
@@ -1064,8 +1065,7 @@ chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
     for (j = 1; j < lU; j++)
     {
       GEN Hp = FlxqV_factorback(Xp, gel(U,j), Tp, p);
-      Hp = ZM_ZX_mul(invzk, Flx_to_ZX(Hp));
-      gel(Mp, j) = ZV_to_Flv(Hp, p);
+      gel(Mp, j) = Flm_Flc_mul(invzkp, Flx_to_Flv(Hp, lU-1), p);
     }
     if (!M)
     { /* initialize */
