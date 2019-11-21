@@ -613,6 +613,14 @@ static entree *
 getvar(long n)
 {
   entree *ep = getentry(n);
+  return ep;
+}
+
+/* match Fentry that are not actually EpSTATIC functions called without parens*/
+static entree *
+getvardyn(long n)
+{
+  entree *ep = getentry(n);
   if (EpSTATIC(do_alias(ep)))
     compile_varerr(tree[n].str);
   return ep;
@@ -759,7 +767,11 @@ compilestore(long vn, entree *ep, long n)
   if (vn)
     op_push(OCstorelex,vn,n);
   else
+  {
+    if (EpSTATIC(do_alias(ep)))
+      compile_varerr(tree[n].str);
     op_push(OCstoredyn,(long)ep,n);
+  }
 }
 
 INLINE void
@@ -1177,7 +1189,7 @@ compilemy(GEN arg, const char *str, int inl)
 static long
 localpush(op_code op, long a)
 {
-  entree *ep = getvar(a);
+  entree *ep = getvardyn(a);
   long vep  = (long) ep;
   op_push(op,vep,a);
   var_push(ep,Llocal);
@@ -1241,13 +1253,13 @@ compileexport(GEN arg)
     if (tree[a].f==Fassign)
     {
       long x = detag(tree[a].x);
-      long v = (long) getvar(x);
+      long v = (long) getvardyn(x);
       compilenode(tree[a].y,Ggen,FLnocopy);
       op_push(OCexportvar,v,x);
     } else
     {
       long x = detag(a);
-      long v = (long) getvar(x);
+      long v = (long) getvardyn(x);
       op_push(OCpushdyn,v,x);
       op_push(OCexportvar,v,x);
     }
@@ -1262,7 +1274,7 @@ compileunexport(GEN arg)
   {
     long a = arg[i];
     long x = detag(a);
-    long v = (long) getvar(x);
+    long v = (long) getvardyn(x);
     op_push(OCunexportvar,v,x);
   }
 }
@@ -1371,12 +1383,12 @@ compilefunc(entree *ep, long n, int mode, long flag)
       {
         compilenode(tree[a].y,Ggen,0);
         a=tree[a].x;
-        en=(long)getvar(a);
+        en=(long)getvardyn(a);
         op_push(OCstoredyn,en,a);
       }
       else
       {
-        en=(long)getvar(a);
+        en=(long)getvardyn(a);
         op_push(OCpushdyn,en,a);
         op_push(OCpop,1,a);
       }
