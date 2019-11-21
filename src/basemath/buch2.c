@@ -1167,7 +1167,12 @@ vec_chinese_unit(GEN bnf)
   for (j = 1; j < l; j++)
   {
     GEN t = nf_to_scalar_or_alg(nf, gel(Y,j));
-    if (f) t = Q_remove_denom(t, &gel(dX,j));
+    if (f)
+    {
+      GEN den;
+      t = Q_remove_denom(t, &den);
+      gel(dX,j) = den ? den: gen_1;
+    }
     gel(X,j) = typ(t) == t_INT? scalarpol_shallow(t,v): t;
   }
   return chinese_unit(nf, X, dX, U);
