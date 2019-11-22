@@ -1063,6 +1063,7 @@ FlxqX_chinese_unit(GEN X, GEN U, GEN invzk, GEN D, GEN T, ulong p)
 static GEN
 chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
 {
+  pari_sp av = avma;
   GEN f = nf_get_index(nf), T = nf_get_pol(nf), invzk = nf_get_invzk(nf);
   GEN q, M = NULL, Mp;
   int stable = 0;
@@ -1086,6 +1087,8 @@ chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
     else
       stable = ZM_incremental_CRT(&M, Mp, &q, p);
     if (stable) break;
+    if (gc_needed(av, 1))
+      gerepileall(av, 2, &M, &q);
   }
   settyp(M, t_VEC); return M;
 }
