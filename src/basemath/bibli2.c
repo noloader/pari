@@ -1731,10 +1731,10 @@ void
 ZV_sort_inplace(GEN L) { gen_sort_inplace(L, (void*)&cmpii, &cmp_nodata,NULL); }
 
 GEN
-equivclasses(GEN O, GEN F)
+equivclasses(GEN F)
 {
   pari_sp av = avma;
-  long j, k, L = lg(O);
+  long j, k, L = lg(F);
   GEN w = cgetg(L, t_VEC);
   GEN perm = gen_indexsort(F, (void*)&cmp_universal, cmp_nodata);
   for (j = k = 1; j < L;)
