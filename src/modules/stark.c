@@ -1467,36 +1467,22 @@ _cond(GEN dtcr) { return mkvec2(ch_cond(dtcr), ch_4(dtcr)); }
 static GEN
 sortChars(GEN dataCR)
 {
-  const long cl = lg(dataCR) - 1;
-  GEN vCond  = cgetg(cl+1, t_VEC);
-  GEN CC     = cgetg(cl+1, t_VECSMALL);
-  GEN nvCond = cgetg(cl+1, t_VECSMALL);
-  long j,k, ncond;
-  GEN vChar;
+  long j, k, L = lg(dataCR);
+  GEN perm, vChar = cgetg(L, t_VEC), F = cgetg(L, t_VEC);
 
-  for (j = 1; j <= cl; j++) nvCond[j] = 0;
-
-  ncond = 0;
-  for (j = 1; j <= cl; j++)
+  for (j = 1; j < L; j++) gel(F, j) = _cond(gel(dataCR,j));
+  perm = gen_indexsort(F, (void*)&cmp_universal, cmp_nodata);
+  vChar = cgetg(L, t_VEC);
+  for (j = k = 1; j < L;)
   {
-    GEN cond = _cond(gel(dataCR,j));
-    for (k = 1; k <= ncond; k++)
-      if (gequal(cond, gel(vCond,k))) break;
-    if (k > ncond) gel(vCond,++ncond) = cond;
-    nvCond[k]++; CC[j] = k; /* char j has conductor number k */
+    GEN v = cgetg(L, t_VECSMALL);
+    long l = 1, o = perm[j];
+    v[l++] = o;
+    for (j++; j < L; v[l++] = perm[j++])
+      if (!gequal(gel(F,o), gel(F, perm[j]))) break;
+    setlg(v, l); gel(vChar, k++) = v;
   }
-  vChar = cgetg(ncond+1, t_VEC);
-  for (k = 1; k <= ncond; k++)
-  {
-    gel(vChar,k) = cgetg(nvCond[k]+1, t_VECSMALL);
-    nvCond[k] = 0;
-  }
-  for (j = 1; j <= cl; j++)
-  {
-    k = CC[j]; nvCond[k]++;
-    mael(vChar,k,nvCond[k]) = j;
-  }
-  return vChar;
+  setlg(vChar, k); return vChar;
 }
 
 /* Given W(chi), S(chi) and T(chi), return L(1, chi) if fl & 1, else
