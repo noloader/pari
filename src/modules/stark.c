@@ -1462,27 +1462,14 @@ ppgamma(ST_t *T, long prec)
 
 static GEN
 _cond(GEN dtcr) { return mkvec2(ch_cond(dtcr), ch_4(dtcr)); }
-
 /* sort chars according to conductor */
 static GEN
 sortChars(GEN dataCR)
 {
-  long j, k, L = lg(dataCR);
-  GEN perm, vChar = cgetg(L, t_VEC), F = cgetg(L, t_VEC);
-
-  for (j = 1; j < L; j++) gel(F, j) = _cond(gel(dataCR,j));
-  perm = gen_indexsort(F, (void*)&cmp_universal, cmp_nodata);
-  vChar = cgetg(L, t_VEC);
-  for (j = k = 1; j < L;)
-  {
-    GEN v = cgetg(L, t_VECSMALL);
-    long l = 1, o = perm[j];
-    v[l++] = o;
-    for (j++; j < L; v[l++] = perm[j++])
-      if (!gequal(gel(F,o), gel(F, perm[j]))) break;
-    setlg(v, l); gel(vChar, k++) = v;
-  }
-  setlg(vChar, k); return vChar;
+  long j, l = lg(dataCR);
+  GEN F = cgetg(l, t_VEC);
+  for (j = 1; j < l; j++) gel(F, j) = _cond(gel(dataCR,j));
+  return equivclasses(F);
 }
 
 /* Given W(chi), S(chi) and T(chi), return L(1, chi) if fl & 1, else

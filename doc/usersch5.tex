@@ -11724,6 +11724,12 @@ the original \kbd{x}.
 vectors $A$ and $B$, returns the vector of elements of $A$ not belonging to
 $B$.
 
+\fun{GEN}{equivclasses}{GEN O} given a vector of objects $O$, return a vector
+with $n$ components where $n$ is the number of distinct objects in $O$. The
+$i$-th component is a \typ{VECSMALL} containing the indices of the elements
+in $O$ having the same value. Applied to the image of a function evaluated on
+some finite set, it computes the fibers of the function.
+
 \fun{GEN}{sort_factor}{GEN y, void *data, int (*cmp)(void *,GEN,GEN)}:
 assuming \kbd{y} is a factorization matrix, sorts its rows in place (no copy
 is made) according to the comparison function \kbd{cmp} applied to its first

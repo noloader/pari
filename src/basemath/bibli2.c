@@ -1730,6 +1730,25 @@ ZV_sort_uniq(GEN L) { return gen_sort_uniq(L, (void*)&cmpii, &cmp_nodata); }
 void
 ZV_sort_inplace(GEN L) { gen_sort_inplace(L, (void*)&cmpii, &cmp_nodata,NULL); }
 
+GEN
+equivclasses(GEN O, GEN F)
+{
+  pari_sp av = avma;
+  long j, k, L = lg(O);
+  GEN w = cgetg(L, t_VEC);
+  GEN perm = gen_indexsort(F, (void*)&cmp_universal, cmp_nodata);
+  for (j = k = 1; j < L;)
+  {
+    GEN v = cgetg(L, t_VECSMALL);
+    long l = 1, o = perm[j];
+    v[l++] = o;
+    for (j++; j < L; v[l++] = perm[j++])
+      if (!gequal(gel(F,o), gel(F, perm[j]))) break;
+    setlg(v, l); gel(w, k++) = v;
+  }
+  setlg(w, k); return gerepilecopy(av,w);
+}
+
 /********************************************************************/
 /**                      SEARCH IN SORTED VECTOR                   **/
 /********************************************************************/
