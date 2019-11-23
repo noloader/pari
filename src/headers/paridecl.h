@@ -2700,6 +2700,7 @@ GEN     bnrchar_primitive(GEN bnr, GEN chi, GEN bnrc);
 GEN     bnrclassno(GEN bignf,GEN ideal);
 GEN     bnrclassno0(GEN A,GEN B,GEN C);
 GEN     bnrclassnolist(GEN bnf,GEN listes);
+GEN     bnrcharimage(GEN bnr, GEN bnrc, GEN chi);
 GEN     bnrconductor0(GEN A, GEN B, GEN C, long flag);
 GEN     bnrconductor(GEN bnr, GEN H0, long flag);
 GEN     bnrconductor_i(GEN bnr, GEN H0, long flag);

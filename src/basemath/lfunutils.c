@@ -667,28 +667,68 @@ static GEN
 lfunchigen(GEN bnr, GEN CHI)
 {
   pari_sp av = avma;
-  GEN v;
-  GEN N, sig, Ldchi, nf, nchi, NN;
+  GEN v, N, sig, Ldchi, nf, nchi, NN;
   long r1, r2, n1;
   int real;
 
   if (nftyp(bnr) == typ_BIDZ) return lfunchiZ(bnr, CHI);
 
-  v = bnrconductor_i(bnr, CHI, 2);
-  bnr = gel(v,2);
-  CHI = gel(v,3); /* now CHI is primitive wrt bnr */
+  if (typ(CHI) == t_VEC && !RgV_is_ZV(CHI))
+  {
+    long map, i, l = lg(CHI);
+    GEN F, bnr0 = bnr, o = gen_1, D = cyc_normalize(bnr_get_cyc(bnr));
+    nchi = cgetg(l, t_VEC);
+    N = bnr_get_mod(bnr);
+    v = bnrconductor_i(bnr, gel(CHI,1), 2);
+    F = gel(v,1); map = !gequal(N, F);
+    bnr = gel(v,2);
+    for (i = 1; i < l; i++)
+    {
+      GEN C;
+      if (i == 1)
+        C = gel(v,3);
+      else
+      {
+        C = gel(CHI,i);
+        if (!gequal(bnrconductor_i(bnr0, C, 0), N))
+          pari_err_TYPE("lfuncreate [different conductors]", CHI);
+        if (map) C = bnrcharimage(bnr0, bnr, C);
+      }
+      C = char_normalize(C, D);
+      o = lcmii(o, gel(C,1)); /* lcm with charorder */
+      gel(nchi,i) = C;
+    }
+    /* use quasi-normalized characters: all have same apparent order o */
+    for (i = 1; i < l; i++)
+    {
+      GEN C = gel(nchi,i), oc = gel(C,1), c = gel(C,2);
+      if (!equalii(o, oc)) c = gmul(c, diviiexact(o, oc));
+      gel(nchi,i) = c;
+    }
+    nchi = mkvec2(o, nchi);
+  }
+  else
+  {
+    v = bnrconductor_i(bnr, CHI, 2);
+    bnr = gel(v,2);
+    CHI = gel(v,3); /* now CHI is primitive wrt bnr */
+    nchi = NULL;
+  }
 
-  nf = bnr_get_nf(bnr);
   N = bnr_get_mod(bnr);
+  nf = bnr_get_nf(bnr);
   n1 = lg(vec01_to_indices(gel(N,2))) - 1; /* vecsum(N[2]) */
   N = gel(N,1);
   NN = mulii(idealnorm(nf, N), absi_shallow(nf_get_disc(nf)));
-  if (equali1(NN)) return gerepileupto(av, lfunzeta());
-  if (ZV_equal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr));
+  if (!nchi)
+  {
+    if (equali1(NN)) { set_avma(av); return lfunzeta(); }
+    if (ZV_equal0(CHI)) return gerepilecopy(av, lfunzetak_i(bnr_get_bnf(bnr)));
+    nchi = char_normalize(CHI, cyc_normalize(bnr_get_cyc(bnr)));
+  }
+  real = abscmpiu(gel(nchi,1), 2) <= 0;
   nf_get_sign(nf, &r1, &r2);
   sig = vec01(r1+r2-n1, r2+n1);
-  nchi = char_normalize(CHI, cyc_normalize(bnr_get_cyc(bnr)));
-  real = abscmpiu(gel(nchi,1), 2) <= 0;
   Ldchi = mkvecn(6, tag(mkvec2(bnr, nchi), t_LFUN_CHIGEN),
                     real? gen_0: gen_1, sig, gen_1, NN, gen_0);
   return gerepilecopy(av, Ldchi);

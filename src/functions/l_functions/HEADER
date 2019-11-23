@@ -242,7 +242,12 @@ Doc:
  ? Cf = bnrinit(Q, [100, [1]]); \\ for odd characters on (Z/100Z)*
  @eprog\noindent
  For even characters, replace by \kbd{bnrinit(K, N)}. Note that the simpler
- direct construction in the previous section will be more efficient.
+ direct construction in the previous section will be more efficient. Instead
+ of a single character as above, one may use the construction
+ \kbd{lfuncreate([Cf, vchi])} where \kbd{vchi} is a non-empty vector of
+ characters \emph{of the same conductor} (more precisely, whose attached
+ primitive characters have the same conductor). The function is then
+ vector-valued, where the values are ordered as the characters in \kbd{vchi}.
 
  \subsec{Artin $L$ functions} %GPHELPskip
 
