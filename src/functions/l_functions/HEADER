@@ -198,9 +198,18 @@ Doc:
  attached to $\chi$.
 
  \item in fact, this construction $[G, m]$ describing a character
- is more general: $m$ is also allowed to be a Conrey index as seen above,
+ is more general: $m$ is also allowed to be a Conrey label as seen above,
  or a Conrey logarithm (see \tet{znconreylog}), and the latter format is
- actually the fastest one.
+ actually the fastest one. Instead
+ of a single character as above, one may use the construction
+ \kbd{lfuncreate([G, vchi])} where \kbd{vchi} is a non-empty vector of
+ characters \emph{of the same conductor} (more precisely, whose attached
+ primitive characters have the same conductor) and \emph{same parity}.
+ The function is then vector-valued, where the values are ordered as the
+ characters in \kbd{vchi}. Conrey labels cannot be used in this last format
+ because of the need to distinguish a single character given by a row vector
+ of integers and a vector of characters given by their labels: use
+ \kbd{znconreylog(G,i)} first to convert a label to Conrey logarithm.
 
  \item it is also possible to view Dirichlet characters as Hecke characters
  over $K = \Q$ (see below), for a modulus $[N, [1]]$ but this is both more

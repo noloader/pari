@@ -152,6 +152,8 @@ BA  52- [libpari] ZX_compositum
 BA  53- [libpari] FlxXn_red, FlxqXn_mul, FlxqXn_sqr, FlxqXn_inv, FlxqXn_expint
 BA  54- [libpari] FlxX_Laplace, FlxX_invLaplace, FlxqX_Newton, FlxqX_fromNewton
     55- [libpari] equivclasses
+    56- lfuncreate(znstar or bnr,): allow a vector of characters =>
+        vector-valued L-function
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

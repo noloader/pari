@@ -405,14 +405,12 @@ L=lfunsympow(E,5); lfun(L,1,1)
 
 \\ lfunvec
 
-G=znstar(11,1);
-L1=lfuncreate([G,[3]]);
-L2=lfuncreate([G,[9]]);
+errG=G=znstar(44,1);
+L1=lfuncreate([G,[3,0]]);
+L2=lfuncreate([G,[9,0]]);
 a=[lfun(L1,1),lfun(L2,1)];
-L=L1;
-L[1][2][2][2]=[[3]~,[9]~];
-b=lfun(L,1);
-round(a-b,&e)
+L=lfuncreate([G,[[3,0],[9,0]]]);
+round(lfun(L,1)-a,&e)
 e
 
 bnf=bnfinit('a^2+47);errbnr=bnr=bnrinit(bnf,3);
@@ -420,8 +418,7 @@ L1=lfuncreate([bnr,[1]]);
 L2=lfuncreate([bnr,[3]]);
 a=[lfun(L1,1),lfun(L2,1)];
 L=lfuncreate([bnr,[[1],[3]]]);
-b=lfun(L,1);
-round(a-b,&e)
+round(lfun(L,1)-a,&e)
 e
 
 \\ #2118
@@ -441,3 +438,6 @@ L=lfuncreate([[(p,e)->1-p*x+O(x^2),[[2,3,1/(x^2-x+1)]]],1,[0,0],2,1,0]);
 lfun(L,1)
 lfunzeros(1, [3,1])
 lfuncreate([errbnr,[[1],[2]]]);
+lfuncreate([errG,[[1],[2]]]);
+lfuncreate([errG,[[1,8]~,[1,7]~]]);
+lfuncreate([errG,[[1,8]~,[0,1]~]]);

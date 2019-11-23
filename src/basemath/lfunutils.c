@@ -628,35 +628,74 @@ vec01(long r1, long r2)
   for (     ; i <= d;  i++) gel(v,i) = gen_1;
   return v;
 }
-
+/* v = vector of normalized characters of order dividing o; renormalize
+ * so that all have same apparent order o */
+static GEN
+char_renormalize(GEN v, GEN o)
+{
+  long i, l;
+  GEN w = cgetg_copy(v, &l);
+  for (i = 1; i < l; i++)
+  {
+    GEN C = gel(v,i), oc = gel(C,1), c = gel(C,2);
+    if (!equalii(o, oc)) c = gmul(c, diviiexact(o, oc));
+    gel(w,i) = c;
+  }
+  return w;
+}
 /* G is a bid of nftyp typ_BIDZ */
 static GEN
-lfunchiZ(GEN G, GEN chi)
+lfunchiZ(GEN G, GEN CHI)
 {
   pari_sp av = avma;
-  GEN sig = NULL;
-  GEN N = bid_get_ideal(G), nchi, r;
+  GEN sig = NULL, N = bid_get_ideal(G), nchi, r;
   int real;
+  long s;
 
   if (typ(N) != t_INT) pari_err_TYPE("lfunchiZ", G);
-  if (equali1(N)) return lfunzeta();
-  if (typ(chi) != t_COL) chi = znconreylog(G,chi);
-  N = znconreyconductor(G, chi, &chi);
-  if (typ(N) != t_INT)
+  if (typ(CHI) == t_VEC && !RgV_is_ZV(CHI))
   {
-    if (equali1(gel(N,1))) { set_avma(av); return lfunzeta(); }
-    G = znstar0(N, 1);
-    N = gel(N,1);
+    GEN C, G0 = G, o = gen_1;
+    long i, l = lg(CHI);
+    nchi = cgetg(l, t_VEC);
+    N = znconreyconductor(G, gel(CHI,1), &C);
+    if (typ(N) != t_INT) G = znstar0(N, 1);
+    s = zncharisodd(G, C);
+    for (i = 1; i < l; i++)
+    {
+      if (i > 1)
+      {
+        if (!gequal(N, znconreyconductor(G0, gel(CHI,i), &C))
+            || zncharisodd(G, C) != s)
+          pari_err_TYPE("lfuncreate [different conductors]", CHI);
+      }
+      C = znconreylog_normalize(G, C);
+      o = lcmii(o, gel(C,1)); /* lcm with charorder */
+      gel(nchi,i) = C;
+    }
+    nchi = mkvec2(o, char_renormalize(nchi, o));
+    if (typ(N) != t_INT) N = gel(N,1);
   }
-  /* chi now primitive on G */
-  switch(itou_or_0(zncharorder(G, chi)))
+  else
   {
-    case 1: set_avma(av); return lfunzeta();
-    case 2: if (zncharisodd(G,chi)) N = negi(N);
-            return gerepileupto(av, lfunchiquad(N));
+    N = znconreyconductor(G, CHI, &CHI);
+    if (typ(N) != t_INT)
+    {
+      if (equali1(gel(N,1))) { set_avma(av); return lfunzeta(); }
+      G = znstar0(N, 1);
+      N = gel(N,1);
+    }
+    /* CHI now primitive on G */
+    switch(itou_or_0(zncharorder(G, CHI)))
+    {
+      case 1: set_avma(av); return lfunzeta();
+      case 2: if (zncharisodd(G,CHI)) N = negi(N);
+              return gerepileupto(av, lfunchiquad(N));
+    }
+    nchi = znconreylog_normalize(G, CHI);
+    s = zncharisodd(G, CHI);
   }
-  sig = mkvec( zncharisodd(G, chi)? gen_1: gen_0 );
-  nchi = znconreylog_normalize(G, chi);
+  sig = mkvec(s? gen_1: gen_0);
   real = abscmpiu(gel(nchi,1), 2) <= 0;
   r = mkvecn(6, tag(mkvec2(G,nchi), t_LFUN_CHIZ),
                 real? gen_0: gen_1, sig, gen_1, N, gen_0);
@@ -672,7 +711,6 @@ lfunchigen(GEN bnr, GEN CHI)
   int real;
 
   if (nftyp(bnr) == typ_BIDZ) return lfunchiZ(bnr, CHI);
-
   if (typ(CHI) == t_VEC && !RgV_is_ZV(CHI))
   {
     long map, i, l = lg(CHI);
@@ -698,14 +736,7 @@ lfunchigen(GEN bnr, GEN CHI)
       o = lcmii(o, gel(C,1)); /* lcm with charorder */
       gel(nchi,i) = C;
     }
-    /* use quasi-normalized characters: all have same apparent order o */
-    for (i = 1; i < l; i++)
-    {
-      GEN C = gel(nchi,i), oc = gel(C,1), c = gel(C,2);
-      if (!equalii(o, oc)) c = gmul(c, diviiexact(o, oc));
-      gel(nchi,i) = c;
-    }
-    nchi = mkvec2(o, nchi);
+    nchi = mkvec2(o, char_renormalize(nchi, o));
   }
   else
   {
