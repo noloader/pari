@@ -224,7 +224,8 @@ get_prdiff(GEN bnr, GEN condc)
 
 #define ch_C(x)    gel(x,1)
 #define ch_bnr(x)  gel(x,2)
-#define ch_4(x)    gel(x,3)
+#define ch_3(x)    gel(x,3)
+#define ch_q(x)    gel(x,3)[1]
 #define ch_CHI(x)  gel(x,4)
 #define ch_diff(x) gel(x,5)
 #define ch_cond(x) gel(x,6)
@@ -830,17 +831,14 @@ L_vanishes_at_0(GEN dtcr)
 }
 
 static GEN
-_data4(GEN arch, long r1, long r2)
+_data3(GEN arch, long r2)
 {
-  GEN z = cgetg(5, t_VECSMALL);
-  long i, b, q = 0;
-
-  for (i=1; i<=r1; i++) if (signe(gel(arch,i))) q++;
-  z[1] = q; b = r1 - q;
-  z[2] = b;
-  z[3] = r2;
-  z[4] = maxss(b+r2+1, r2+q);
-  return z;
+  GEN z = cgetg(4, t_VECSMALL);
+  long i, r1 = lg(arch) - 1, q = 0;
+  for (i = 1; i <= r1; i++) if (signe(gel(arch,i))) q++;
+  z[1] = q;
+  z[2] = r1 - q;
+  z[3] = r2; return z;
 }
 
 /* Given a list [chi, F = cond(chi)] of characters over Cl(bnr), compute a
@@ -890,7 +888,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
     if (!olddtcr)
     {
       ch_C(dtcr) = gmul(C, gsqrt(ZM_det_triangular(gel(cond,1)), prec2));
-      ch_4(dtcr) = _data4(gel(cond,2),r1,r2);
+      ch_3(dtcr) = _data3(gel(cond,2), r2);
       ch_cond(dtcr) = cond;
       if (gequal(cond,modul))
       {
@@ -907,7 +905,7 @@ InitChar(GEN bnr, GEN listCR, long prec)
     {
       ch_C(dtcr) = ch_C(olddtcr);
       ch_bnr(dtcr) = ch_bnr(olddtcr);
-      ch_4(dtcr) = ch_4(olddtcr);
+      ch_3(dtcr) = ch_3(olddtcr);
       ch_diff(dtcr) = ch_diff(olddtcr);
       ch_cond(dtcr) = ch_cond(olddtcr);
     }
@@ -1461,7 +1459,7 @@ ppgamma(ST_t *T, long prec)
 }
 
 static GEN
-_cond(GEN dtcr) { return mkvec2(ch_cond(dtcr), ch_4(dtcr)); }
+_cond(GEN dtcr) { return mkvec2(ch_cond(dtcr), ch_3(dtcr)); }
 /* sort chars according to conductor */
 static GEN
 sortChars(GEN dataCR)
@@ -1483,7 +1481,7 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
   long q, b, c, r;
   int isreal = (chi_get_deg(ch_CHI0(dtcr)) <= 2);
 
-  p1 = ch_4(dtcr);
+  p1 = ch_3(dtcr);
   q = p1[1];
   b = p1[2];
   c = p1[3];
@@ -1859,16 +1857,14 @@ QuadGetST(GEN bnr, GEN *pS, GEN *pT, GEN dataCR, GEN vChar, long prec)
   for (j = 1; j <= ncond; j++)
   {
     /* FIXME: make sure that this value of c is correct for the general case */
-    long r1, r2, q;
-    GEN dtcr = gel(dataCR, mael(vChar,j,1)), p1 = ch_4(dtcr), c = ch_C(dtcr);
+    GEN dtcr = gel(dataCR, mael(vChar,j,1)), c = ch_C(dtcr);
+    long r1, r2;
 
     gel(C,j) = c;
-    q = p1[1];
-
     nf_get_sign(bnr_get_nf(ch_bnr(dtcr)), &r1, &r2);
     if (r1 == 2) /* real quadratic */
     {
-      cs[j] = 2 + q;
+      cs[j] = 2 + ch_q(dtcr);
       /* FIXME:
          make sure that this value of N0 is correct for the general case */
       N0[j] = (long)prec2nbits_mul(prec, 0.35 * gtodouble(c));
@@ -2050,7 +2046,7 @@ clear_cScT(ST_t *T, long N)
 static void
 init_cScT(ST_t *T, GEN dtcr, long N, long prec)
 {
-  GEN p1 = ch_4(dtcr);
+  GEN p1 = ch_3(dtcr);
   T->a = p1[1];
   T->b = p1[2];
   T->c = p1[3];
