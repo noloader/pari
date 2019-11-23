@@ -840,6 +840,9 @@ _data3(GEN arch, long r2)
   z[2] = r1 - q;
   z[3] = r2; return z;
 }
+static void
+ch_get3(GEN dtcr, long *a, long *b, long *c)
+{ GEN v = ch_3(dtcr); *a = v[1]; *b = v[2]; *c = v[3]; }
 
 /* Given a list [chi, F = cond(chi)] of characters over Cl(bnr), compute a
    vector dataCR containing for each character:
@@ -1477,15 +1480,11 @@ static GEN
 GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
 {
   pari_sp av = avma;
-  GEN cf, z, p1;
+  GEN cf, z;
   long q, b, c, r;
   int isreal = (chi_get_deg(ch_CHI0(dtcr)) <= 2);
 
-  p1 = ch_3(dtcr);
-  q = p1[1];
-  b = p1[2];
-  c = p1[3];
-
+  ch_get3(dtcr, &q, &b, &c);
   if (fl & 1)
   { /* S(chi) + W(chi).T(chi)) / (C(chi) sqrt(Pi)^{r1 - q}) */
     cf = gmul(ch_C(dtcr), powruhalf(mppi(prec), b));
@@ -2046,10 +2045,7 @@ clear_cScT(ST_t *T, long N)
 static void
 init_cScT(ST_t *T, GEN dtcr, long N, long prec)
 {
-  GEN p1 = ch_3(dtcr);
-  T->a = p1[1];
-  T->b = p1[2];
-  T->c = p1[3];
+  ch_get3(dtcr, &T->a, &T->b, &T->c);
   T->rc1 = T->a + T->c;
   T->rc2 = T->b + T->c;
   T->r   = maxss(T->rc2+1, T->rc1); /* >= 2 */
