@@ -799,9 +799,7 @@ ComputeAChi(GEN dtcr, long *r, long flag, long prec)
   A = gen_1; *r = 0;
   for (i = 1; i < l; i++)
   {
-    GEN pr = gel(diff,i), B;
-    GEN z = CharEval(chi, isprincipalray(bnrc, pr));
-
+    GEN B, pr = gel(diff,i), z = CharEval(chi, isprincipalray(bnrc, pr));
     if (flag)
       B = gsubsg(1, gdiv(z, pr_norm(pr)));
     else if (gequal1(z))
@@ -1482,7 +1480,7 @@ GetValue(GEN dtcr, GEN W, GEN S, GEN T, long fl, long prec)
   pari_sp av = avma;
   GEN cf, z;
   long q, b, c, r;
-  int isreal = (chi_get_deg(ch_CHI0(dtcr)) <= 2);
+  int isreal = (ch_deg(dtcr) <= 2);
 
   ch_get3(dtcr, &q, &b, &c);
   if (fl & 1)
