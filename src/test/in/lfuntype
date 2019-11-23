@@ -48,17 +48,24 @@ lfuncreate([n->my(V=ellan(E,n));vector(n,i,V[i]/sqrt(i)),0,[1/2,3/2],1,11,1])),
 lfuntwist(E, Mod(2,5)),
 lfunsympow(E,2),
 lfunsympow(E,3),
-if(1,localprec(19);lfuncreate(()->[n->lfunan(Mod(2,7),n),1,[0],1,7,((-13-3*sqrt(-3))/14)^(1/6)]))
+  if(1,localprec(19);
+lfuncreate(()->[n->lfunan(Mod(2,7),n),1,[0],1,7,((-13-3*sqrt(-3))/14)^(1/6)])),
+\\35
+  if(1,my(bnf=bnfinit('a^2+47),bnr=bnrinit(bnf,1));
+lfuncreate([bnr,[[1],[2]]])),
+if(1,my(G=znstar(44,1)); lfuncreate([G,[[3,0],[9,0]]]))
 ];
 }
 
 chk(s,i,a,b) =
 {
-  my(e,eps);
-  round((a-b)/b,&e);
+  my(e,eps,cvt=0);
+  if(type(a)!="t_VEC",a=[a];b=[b];cvt=1);
+  e=vector(#a,i,my(e);round((a[i]-b[i])/b[i],&e);e);
   eps=10^(-precision(1.));
-  if(type(a)=="t_COMPLEX" && abs(imag(a))<eps, a = real(a));
-  if(e>-120,
+  if(type(a[1])=="t_COMPLEX" && normlp(imag(a))<eps, a = real(a));
+  if(cvt,a=a[1]);
+  if(vecmax(e)>-120,
     error("bug in lfuntype:", s, ":", i, ":", e)
    ,print(i," (",s,"): ",a));
 }

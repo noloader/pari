@@ -403,24 +403,6 @@ lfun(z,2)
 }
 L=lfunsympow(E,5); lfun(L,1,1)
 
-\\ lfunvec
-
-errG=G=znstar(44,1);
-L1=lfuncreate([G,[3,0]]);
-L2=lfuncreate([G,[9,0]]);
-a=[lfun(L1,1),lfun(L2,1)];
-L=lfuncreate([G,[[3,0],[9,0]]]);
-round(lfun(L,1)-a,&e)
-e
-
-bnf=bnfinit('a^2+47);errbnr=bnr=bnrinit(bnf,3);
-L1=lfuncreate([bnr,[1]]);
-L2=lfuncreate([bnr,[3]]);
-a=[lfun(L1,1),lfun(L2,1)];
-L=lfuncreate([bnr,[[1],[3]]]);
-round(lfun(L,1)-a,&e)
-e
-
 \\ #2118
 Z = lfuncreate([n->[1], 0, [0], 1, 1, 1, 1]); lfun(Z,2)
 
@@ -437,7 +419,9 @@ localbitprec(16);lfun(Lt,12);
 L=lfuncreate([[(p,e)->1-p*x+O(x^2),[[2,3,1/(x^2-x+1)]]],1,[0,0],2,1,0]);
 lfun(L,1)
 lfunzeros(1, [3,1])
+errbnr=bnrinit(bnfinit('a^2+47),3);
 lfuncreate([errbnr,[[1],[2]]]);
+errG=znstar(44,1);
 lfuncreate([errG,[[1],[2]]]);
 lfuncreate([errG,[[1,8]~,[1,7]~]]);
 lfuncreate([errG,[[1,8]~,[0,1]~]]);

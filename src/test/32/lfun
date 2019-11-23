@@ -282,10 +282,6 @@ zeta(s)*zeta(s-a)
 6:-25
 7:-22
 0
-[0, 0]
--127
-[0, 0]
--127
   *** lfun: Warning: #an = 1 < 5, results may be imprecise.
   *** lfun: Warning: #an = 1 < 8, results may be imprecise.
 1.6449321944727952165464885195862083681
@@ -328,4 +324,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfuncreate([errG,[[1,8]~,[0,1]~]])
   ***                 ^----------------------------------
   *** lfuncreate: incorrect type in lfuncreate [different conductors] (t_VEC).
-Total time spent: 7462
+Total time spent: 5968
