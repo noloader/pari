@@ -1,4 +1,4 @@
-  ***   Warning: new stack size = 90000000 (85.831 Mbytes).
+  ***   Warning: new stack size = 100000000 (95.367 Mbytes).
 []
 [[0, -1]]
 [[-4, -3], [-4, 3], [4, -3], [4, 3]]
@@ -53,4 +53,4 @@
 [[-1, 0], [1, 0]]
 [[-1, 0], [1, 0]]
 [[-1, 0], [1, 0]]
-Total time spent: 3927
+Total time spent: 8314

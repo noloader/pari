@@ -3719,13 +3719,20 @@ matenlarge(GEN C, long botl)
   for (i = lg(C); --i; ) gel(C, i) = shallowconcat(gel(C, i), bot);
 }
 
+/* E = floating point embeddings */
 static GEN
-matbotid(RELCACHE_t *cache)
+matbotid(RELCACHE_t *cache, GEN E)
 {
-  long i, w = cache->last - cache->chk, h = cache->last - cache->base;
-  GEN res = zeromatcopy(h, w);
-  for(i = maxss(1,1+w-h); i <= w; i++) gcoeff(res, h-w+i, i) = gen_1;
-  return res;
+  long w = cache->last - cache->chk, h = cache->last - cache->base;
+  long j, d = h - w, hE = nbrows(E);
+  GEN y = cgetg(w+1,t_MAT), _0 = zerocol(h);
+  for (j = 1; j <= w; j++)
+  {
+    GEN c = shallowconcat(gel(E,j), _0);
+    if (d + j >= 1) gel(c, d + j + hE) = gen_1;
+    gel(y,j) = c;
+  }
+  return y;
 }
 
 /* Nrelid = nb relations per ideal, possibly 0. If flag is set, keep data in
@@ -3736,16 +3743,14 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   pari_timer T;
   pari_sp av0 = avma, av, av2;
   long PREC, N, R1, R2, RU, low, high, LIMC0, LIMC, LIMC2, LIMCMAX, zc, i;
-  long LIMres, bit = 0, flag_nfinit = 0;
-  long MAXDEPSIZESFB, MAXDEPSFB;
-  long nreldep, sfb_trials, need, old_need, precdouble = 0;
+  long LIMres, MAXDEPSIZESFB, MAXDEPSFB, bit = 0, flag_nfinit = 0;
+  long nreldep, sfb_trials, need, old_need, precdouble = 0, TRIES = 0;
   long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
   double LOGD, LOGD2, lim;
   GEN computed = NULL, fu = NULL, zu, nf, M_sn, D, A, W, R, h, Ce, PERM;
   GEN small_multiplier, auts, cyclic, embs, SUnits;
   GEN res, L, invhr, B, C, C0, lambda, dep, clg1, clg2, Vbase;
   const char *precpb = NULL;
-  int FIRST = 1;
   nfmaxord_t nfT;
   RELCACHE_t cache;
   FB_t F;
@@ -3848,9 +3853,9 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
 
 START:
   if (DEBUGLEVEL) timer_start(&T);
-  if (!FIRST) LIMC = bnf_increase_LIMC(LIMC,LIMCMAX);
+  if (TRIES) LIMC = bnf_increase_LIMC(LIMC,LIMCMAX);
   if (DEBUGLEVEL && LIMC > LIMC0)
-    err_printf("%s*** Bach constant: %f\n", FIRST?"":"\n", LIMC/LOGD2);
+    err_printf("%s*** Bach constant: %f\n", TRIES?"\n":"", LIMC/LOGD2);
   if (cache.base)
   {
     REL_t *rel;
@@ -3861,7 +3866,7 @@ START:
       if (rel->m) gel(computed, i++) = rel->m;
     computed = gclone(computed); delete_cache(&cache);
   }
-  FIRST = 0; set_avma(av);
+  TRIES++; set_avma(av);
   if (F.LP) delete_FB(&F);
   if (LIMC2 < LIMC) LIMC2 = LIMC;
   if (DEBUGLEVEL) { err_printf("LIMC = %ld, LIMC2 = %ld\n",LIMC,LIMC2); }
@@ -3974,8 +3979,7 @@ START:
       if (need > 0)
       { /* Random relations */
         if (lg(F.subFB) == 1) goto START;
-        nreldep++;
-        if (nreldep > MAXDEPSIZESFB) {
+        if (++nreldep > MAXDEPSIZESFB) {
           if (++sfb_trials > SFB_MAX && LIMC < LIMCMAX/6) goto START;
           F.sfb_chg = sfb_INCREASE;
           nreldep = 0;
@@ -4014,9 +4018,14 @@ START:
 
         if (flag)
         { /* recompute embs only, no need to redo HNF */
+          long j, le = lg(embs), lC = lg(C);
+          GEN E;
           set_avma(av4);
-          for(rel = cache.base+1, i = 1; i < lg(embs); i++,rel++)
+          for (rel = cache.base+1, i = 1; i < le; i++,rel++)
             gel(embs,i) = rel_embed(rel, &F, embs, i, M, RU, R1, PREC);
+          E = RgM_mul(embs, rowslice(C, RU+1, nbrows(C)));
+          for (j = 1; j < lC; j++)
+            for (i = 1; i <= RU; i++) gcoeff(C,i,j) = gcoeff(E,i,j);
           av4 = avma;
         }
         else
@@ -4046,21 +4055,19 @@ START:
           timer_printf(&T, "floating point embeddings");
         if (!W)
         { /* never reduced before */
-          C = flag? matbotid(&cache): embs;
+          C = flag? matbotid(&cache, embs): embs;
           W = hnfspec_i(mat, F.perm, &dep, &B, &C, F.subFB ? lg(F.subFB)-1:0);
           if (DEBUGLEVEL)
             timer_printf(&T, "hnfspec [%ld x %ld]", lg(F.perm)-1, l-1);
         }
         else
         {
-          GEN E;
+          GEN E = vecslice(embs, k-l+1,k-1);
           if (flag)
           {
-            E = matbotid(&cache);
+            E = matbotid(&cache, E);
             matenlarge(C, cache.last - cache.chk);
           }
-          else
-            E = vecslice(embs, k-l+1,k-1);
           W = hnfadd_i(W, F.perm, &dep, &B, &C, mat, E);
           if (DEBUGLEVEL)
             timer_printf(&T, "hnfadd (%ld + %ld)", l-1, lg(dep)-1);
@@ -4089,8 +4096,7 @@ START:
           }
       }
       zc = (lg(C)-1) - (lg(B)-1) - (lg(W)-1);
-      if (RU-1-zc > 0)
-        need = minss(need + RU-1-zc, F.KC); /* more columns for units */
+      if (RU-1-zc > 0) need = minss(need + RU-1-zc, F.KC); /* for units */
       if (need)
       { /* dependent rows */
         F.L_jid = vecslice(F.perm, 1, need);
@@ -4123,11 +4129,7 @@ START:
       fail_limit = maxss(F.KC / FAIL_DIVISOR, MINFAIL);
     }
     A = vecslice(C, 1, zc); /* cols corresponding to units */
-    if (flag)
-    {
-      A = RgM_mul(embs, A);
-      if (DEBUGLEVEL) timer_printf(&T, "floating point embeddings for units");
-    }
+    if (flag) A = rowslice(A, 1, RU);
     R = compute_multiple_of_R(A, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
     old_need = need;
@@ -4137,10 +4139,8 @@ START:
       if (!need) { precpb = "regulator"; PREC = precdbl(PREC); }
       continue;
     }
-
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
-
     switch (compute_R(lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit), &L, &R))
     {
       case fupb_RELAT:
@@ -4178,22 +4178,27 @@ START:
       }
       if (flag)
       {
-        long l = lgcols(C);
+        long l = lgcols(C) - RU;
         REL_t *rel;
         SUnits = cgetg(l, t_COL);
         for (rel = cache.base+1, i = 1; i < l; i++,rel++)
           set_rel_alpha(rel, auts, SUnits, i);
-        if (RU > 1) CU = ZM_mul(v? vecpermute(C,v): vecslice(C,1,zc), U);
+        if (RU > 1)
+        {
+          GEN c = v? vecpermute(C,v): vecslice(C,1,zc);
+          CU = ZM_mul(rowslice(c, RU+1, nbrows(c)), U);
+        }
       }
       if (DEBUGLEVEL) err_printf("\n#### Computing fundamental units\n");
       fu = getfu(nf, &A, CU? &U: NULL, PREC);
       CU = CU? ZM_mul(CU, U): cgetg(1, t_MAT);
       if (DEBUGLEVEL) timer_printf(&T, "getfu");
       Ce = vecslice(C, zc+1, lg(C)-1);
-      if (SUnits) SUnits = mkvec4(SUnits, CU, Ce, utoipos(LIMC));
+      if (flag) SUnits = mkvec4(SUnits, CU, rowslice(Ce, RU+1, nbrows(Ce)),
+                                utoipos(LIMC));
     }
     /* class group generators */
-    if (flag) Ce = gmul(embs, Ce);
+    if (flag) Ce = rowslice(Ce, 1, RU);
     C0 = Ce; Ce = cleanarch(Ce, N, PREC);
     if (!Ce) {
       long add = nbits2extraprec( gexpo(C0) + 64 ) - gprecision(C0);
