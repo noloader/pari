@@ -5129,6 +5129,102 @@ ellbsd(GEN E, long prec)
   return gerepileupto(av, v);
 }
 
+static GEN
+QE_to_ZJ(GEN P)
+{
+  if (ell_is_inf(P))
+    return mkvec3(gen_1, gen_1, gen_0);
+  else
+  {
+    GEN D1 = denom(gel(P,1)), D2 = denom(gel(P,2));
+    GEN R  = diviiexact(D2, gcdii(D1,D2));
+    GEN R2 = sqri(R), R3 = mulii(R2, R);
+    GEN Q1 = gmul(gel(P,1),R2);
+    GEN Q2 = gmul(gel(P,2),R3);
+    GEN Z  = denom(mkvec2(Q1, Q2));
+    GEN Z2 = sqri(Z), Z3 = mulii(Z, Z2);
+    retmkvec3(gmul(Q1, Z2), gmul(Q2, Z3), mulii(Z, R));
+  }
+}
+
+static GEN
+QEV_to_ZJV(GEN x)
+{ pari_APPLY_same(QE_to_ZJ(gel(x,i))) }
+
+static GEN
+FljV_changepointinv_pre(GEN x, GEN a4a6, ulong p, ulong pi)
+{
+  pari_APPLY_same(Flj_changepointinv_pre(gel(x,i), a4a6, p, pi))
+}
+
+static GEN
+ellQ_factorback1(GEN A, GEN L, GEN E, ulong p)
+{
+  pari_sp av = avma;
+  ulong pi = get_Fl_red(p);
+  GEN c4 = ell_get_c4(E);
+  ulong a4 = Fl_c4_to_a4(Rg_to_Fl(c4, p), p);
+  GEN a4a6 = a4a6_ch_Fl(E,p);
+  GEN a = FljV_changepointinv_pre(A, a4a6, p , pi);
+  GEN Hp = FljV_factorback_pre(a, L, a4, p, pi);
+  Hp = Flj_to_Fle_pre(Hp, p, pi);
+  Hp = Fle_changepoint(Hp, a4a6, p);
+  return gerepileuptoleaf(av, Hp);
+}
+
+static GEN
+ellQ_factorback_slice(GEN A, GEN L, GEN E, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long i, n = lg(P)-1;
+  GEN H, T;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN Hp = ellQ_factorback1(ZM_to_Flm(A, p), L, E, p);
+    *mod = utoi(p);
+    return Flv_to_ZV(Hp);
+  }
+  T = ZV_producttree(P);
+  A = ZM_nv_mod_tree(A, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+    gel(H,i) = ellQ_factorback1(gel(A,i),L,E,uel(P,i));
+  H = ncV_chinese_center_tree(H, P, T, ZV_chinesetree(P,T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ellQ_factorback_worker(GEN P, GEN E, GEN A, GEN L)
+{
+  GEN V = cgetg(3, t_VEC);
+  gel(V,1) = ellQ_factorback_slice(A, L, E, P, &gel(V,2));
+  return V;
+}
+
+GEN
+ellQ_factorback(GEN E, GEN A, GEN L)
+{
+  pari_sp av = avma;
+  GEN mod = gen_1, H = NULL;
+  forprime_t S;
+  GEN worker = strtoclosure("_ellQ_factorback_worker", 3, E, QEV_to_ZJV(A), L);
+  ulong bound = 1;
+  init_modular_big(&S);
+  while (1)
+  {
+    GEN amax, r;
+    gen_inccrt("ellfactorback", worker, NULL, bound, usqrt(bound),
+            &S, &H, &mod, ncV_chinese_center, FpC_center);
+    amax = sqrti(shifti(mod,-2));
+    r = FpC_ratlift(H, mod, amax, amax, NULL);
+    if (r) settyp(r,t_VEC);
+    if (r && oncurve(E,r)) return gerepileupto(av, r);
+    bound <<=1;
+  }
+}
 /********************************************************************/
 /**                                                                **/
 /**           ROOT NUMBER (after Halberstadt at p = 2,3)           **/
