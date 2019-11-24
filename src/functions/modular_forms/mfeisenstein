@@ -36,7 +36,7 @@ Doc: create the Eisenstein series $E_k(\chi_1,\chi_2)$, where $k \geq 1$,
   ***                 ^---------------------------------
   *** mfeisenstein: sorry, mfeisenstein for these characters is not
   *** yet implemented.
- eprog\noindent The reason for this is that each modular form is attached
+ @eprog\noindent The reason for this is that each modular form is attached
  to a modular form space $M_k(\Gamma_0(N),\chi)$. This is a $\C$-vector
  space but it allows a basis of forms defined over $\Q(\chi)$ and is only
  implemented as a $\Q(\chi)$-vector space: there is
