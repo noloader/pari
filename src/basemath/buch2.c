@@ -2589,10 +2589,14 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
   GEN L_jid = F->L_jid, Np0;
   long Nsmall, Nfact, n = lg(L_jid);
   REL_t *last = cache->last;
+  pari_timer T;
 
   if (DEBUGLEVEL)
+  {
+    timer_start(&T);
     err_printf("#### Look for %ld relations in %ld ideals (small_norm)\n",
                cache->end - last, lg(L_jid)-1);
+  }
   Nsmall = Nfact = 0;
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   Np0 = p0? pr_norm(p0): NULL;
@@ -2615,6 +2619,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
     else
       err_printf("  \nnb. fact./nb. small norm = %ld/%ld = %.3f\n",
                   Nfact,Nsmall,((double)Nfact)/Nsmall);
+    timer_printf(&T,"small_norm");
   }
 }
 
