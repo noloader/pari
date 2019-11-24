@@ -3215,6 +3215,15 @@ ncV_chinese_center(GEN A, GEN P, GEN *pt_mod)
 }
 
 GEN
+ncV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R)
+{
+  pari_sp av = avma;
+  GEN m2 = shifti(gmael(T, lg(T)-1, 1), -1);
+  GEN a = ncV_polint_center_tree(A, P, T, R, m2);
+  return gerepileupto(av, a);
+}
+
+GEN
 nmV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R)
 {
   pari_sp av = avma;

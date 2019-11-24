@@ -1967,6 +1967,7 @@ GEN     muls_interval(long a, long b);
 GEN     mulu_interval(ulong a, ulong b);
 GEN     mulu_interval_step(ulong a, ulong b, ulong step);
 GEN     ncV_chinese_center(GEN A, GEN P, GEN *pt_mod);
+GEN     ncV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R);
 GEN     nmV_chinese_center(GEN A, GEN P, GEN *pt_mod);
 GEN     nmV_chinese_center_tree(GEN A, GEN P, GEN T, GEN R);
 ulong   nonsquare_Fl(ulong p);
