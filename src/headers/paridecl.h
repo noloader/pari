@@ -273,6 +273,7 @@ GEN     Fle_order(GEN z, GEN o, ulong a4, ulong p);
 GEN     Fle_sub(GEN P, GEN Q, ulong a4, ulong p);
 GEN     Fle_to_Flj(GEN P);
 GEN     Flj_add_pre(GEN P, GEN Q, ulong a4, ulong p, ulong pi);
+GEN     Flj_changepointinv_pre(GEN P, GEN ch, ulong p, ulong pi);
 GEN     Flj_dbl_pre(GEN P, ulong a4, ulong p, ulong pi);
 GEN     Flj_mulu_pre(GEN P, ulong n, ulong a4, ulong p, ulong pi);
 GEN     Flj_neg(GEN Q, ulong p);

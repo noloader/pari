@@ -266,6 +266,26 @@ random_Flj_pre(ulong a4, ulong a6, ulong p, ulong pi)
   return mkvecsmall3(x, y, 1);
 }
 
+GEN
+Flj_changepointinv_pre(GEN P, GEN ch, ulong p, ulong pi)
+{
+  ulong c, u, r, s, t, u2, u3;
+  ulong x  = uel(P,1), y = uel(P,2), z = uel(P,3);
+  GEN w;
+  if (z == 0) return Flv_copy(P);
+  u = ch[1]; r = ch[2];
+  s = ch[3]; t = ch[4];
+  u2 = Fl_sqr_pre(u, p, pi); u3 = Fl_mul_pre(u, u2, p, pi);
+  c = Fl_mul_pre(u2, x, p, pi);
+  w = cgetg(4, t_VECSMALL);
+  uel(w,1) = Fl_add(c, Fl_mul_pre(r, Fl_sqr_pre(z, p, pi), p, pi), p);
+  uel(w,2) = Fl_add(Fl_mul_pre(u3 ,y, p, pi),
+                    Fl_mul_pre(z, Fl_add(Fl_mul_pre(s,c,p,pi),
+                                         Fl_mul_pre(z,t,p,pi), p), p, pi), p);
+  uel(w,3) = z;
+  return w;
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                              Fle                                  **/
