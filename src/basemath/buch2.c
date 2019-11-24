@@ -1102,15 +1102,15 @@ fixarch(GEN x, GEN s, long R1)
 }
 
 static GEN
-getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
+getfu(GEN nf, GEN *ptA, GEN *ptU, long prec)
 {
   GEN U, y, matep, A, T = nf_get_pol(nf), M = nf_get_M(nf);
-  long j, R1, RU, N = degpol(T);
+  long e, j, R1, RU, N = degpol(T);
 
   R1 = nf_get_r1(nf); RU = (N+R1) >> 1;
-  if (RU == 1) { *pte = LONG_MAX; return cgetg(1,t_VEC); }
+  if (RU == 1) return cgetg(1,t_VEC);
 
-  *pte = 0; A = *ptA;
+  A = *ptA;
   matep = cgetg(RU,t_MAT);
   for (j = 1; j < RU; j++)
   {
@@ -1121,12 +1121,12 @@ getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
   if (lg(U) < RU) return not_given(fupb_PRECI);
   if (ptU) { *ptU = U; *ptA = A = RgM_mul(A,U); }
   y = RgM_mul(matep,U);
-  *pte = RgM_expbitprec(y);
-  if (*pte >= 0) return not_given(*pte == LONG_MAX? fupb_LARGE: fupb_PRECI);
+  e = RgM_expbitprec(y);
+  if (e >= 0) return not_given(e == LONG_MAX? fupb_LARGE: fupb_PRECI);
   if (prec <= 0) prec = gprecision(A);
   y = RgM_solve_realimag(M, gexp(y,prec));
   if (!y) return not_given(fupb_PRECI);
-  y = grndtoi(y, pte); if (*pte >= 0) return not_given(fupb_PRECI);
+  y = grndtoi(y, &e); if (e >= 0) return not_given(fupb_PRECI);
   settyp(y, t_VEC);
 
   if (!ptU) *ptA = A = RgM_mul(A, U);
@@ -1134,7 +1134,7 @@ getfu(GEN nf, GEN *ptA, long *pte, GEN *ptU, long prec)
   { /* y[i] are hopefully unit generators. Normalize: smallest T2 norm */
     GEN u = gel(y,j), v = zk_inv(nf, u);
     if (!v || !is_pm1(Q_denom(v)) || ZV_isscalar(u))
-    { *pte = 0; return not_given(fupb_PRECI); }
+      return not_given(fupb_PRECI);
     if (gcmp(RgC_fpnorml2(v,DEFAULTPREC), RgC_fpnorml2(u,DEFAULTPREC)) < 0)
     {
       gel(A,j) = RgC_neg(gel(A,j));
@@ -3519,7 +3519,7 @@ bnfinit0(GEN P, long flag, GEN data, long prec)
 }
 GEN
 Buchall(GEN P, long flag, long prec)
-{ return Buchall_param(P, BNF_C1, BNF_C2, BNF_RELPID, flag, prec); }
+{ return Buchall_param(P, BNF_C1, BNF_C2, BNF_RELPID, flag & nf_FORCE, prec); }
 
 static GEN
 Buchall_deg1(GEN nf)
@@ -3728,9 +3728,10 @@ matbotid(RELCACHE_t *cache)
   return res;
 }
 
-/* Nrelid = nb relations per ideal, possibly 0 */
+/* Nrelid = nb relations per ideal, possibly 0. If flag is set, keep data in
+ * algebraic form. */
 GEN
-Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flun, long prec)
+Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long prec)
 {
   pari_timer T;
   pari_sp av0 = avma, av, av2;
@@ -4011,7 +4012,7 @@ START:
         if (precdouble) gunclone(nf0);
         precdouble++; precpb = NULL;
 
-        if (flun & nf_FORCE)
+        if (flag)
         { /* recompute embs only, no need to redo HNF */
           set_avma(av4);
           for(rel = cache.base+1, i = 1; i < lg(embs); i++,rel++)
@@ -4045,7 +4046,7 @@ START:
           timer_printf(&T, "floating point embeddings");
         if (!W)
         { /* never reduced before */
-          C = (flun & nf_FORCE)? matbotid(&cache): embs;
+          C = flag? matbotid(&cache): embs;
           W = hnfspec_i(mat, F.perm, &dep, &B, &C, F.subFB ? lg(F.subFB)-1:0);
           if (DEBUGLEVEL)
             timer_printf(&T, "hnfspec [%ld x %ld]", lg(F.perm)-1, l-1);
@@ -4053,7 +4054,7 @@ START:
         else
         {
           GEN E;
-          if (flun & nf_FORCE)
+          if (flag)
           {
             E = matbotid(&cache);
             matenlarge(C, cache.last - cache.chk);
@@ -4122,7 +4123,7 @@ START:
       fail_limit = maxss(F.KC / FAIL_DIVISOR, MINFAIL);
     }
     A = vecslice(C, 1, zc); /* cols corresponding to units */
-    if (flun & nf_FORCE)
+    if (flag)
     {
       A = RgM_mul(embs, A);
       if (DEBUGLEVEL) timer_printf(&T, "floating point embeddings for units");
@@ -4140,8 +4141,7 @@ START:
     h = ZM_det_triangular(W);
     if (DEBUGLEVEL) err_printf("\n#### Tentative class number: %Ps\n", h);
 
-    switch (compute_R(lambda, mulir(h,invhr),
-                      flun & nf_FORCE? 0: RgM_bit(C, bit), &L, &R))
+    switch (compute_R(lambda, mulir(h,invhr), flag? 0: RgM_bit(C, bit), &L, &R))
     {
       case fupb_RELAT:
         need = 1; /* not enough relations */
@@ -4164,24 +4164,19 @@ START:
     /* fundamental units */
     {
       GEN AU, CU, U, H, v = extract_full_lattice(L); /* L may be very large */
-      long e;
       SUnits = CU = NULL;
-      if (v)
-      {
-        A = vecpermute(A, v);
-        L = vecpermute(L, v);
-      }
+      if (v) { A = vecpermute(A, v); L = vecpermute(L, v); }
       /* arch. components of fund. units */
       H = ZM_hnflll(L, &U, 1); U = vecslice(U, lg(U)-(RU-1), lg(U)-1);
       U = ZM_mul(U, ZM_lll(H, 0.99, LLL_IM|LLL_COMPATIBLE));
       AU = RgM_mul(A, U);
       A = cleanarch(AU, N, PREC);
-      if (DEBUGLEVEL) timer_printf(&T, "cleanarch");
+      if (DEBUGLEVEL) timer_printf(&T, "units LLL + cleanarch");
       if (!A) {
         long add = nbits2extraprec( gexpo(AU) + 64 ) - gprecision(AU);
         precpb = "cleanarch"; PREC += maxss(add, 1); continue;
       }
-      if (flun & nf_FORCE)
+      if (flag)
       {
         long l = lgcols(C);
         REL_t *rel;
@@ -4191,14 +4186,14 @@ START:
         if (RU > 1) CU = ZM_mul(v? vecpermute(C,v): vecslice(C,1,zc), U);
       }
       if (DEBUGLEVEL) err_printf("\n#### Computing fundamental units\n");
-      fu = getfu(nf, &A, &e, CU? &U: NULL, PREC);
+      fu = getfu(nf, &A, CU? &U: NULL, PREC);
       CU = CU? ZM_mul(CU, U): cgetg(1, t_MAT);
       if (DEBUGLEVEL) timer_printf(&T, "getfu");
       Ce = vecslice(C, zc+1, lg(C)-1);
       if (SUnits) SUnits = mkvec4(SUnits, CU, Ce, utoipos(LIMC));
     }
     /* class group generators */
-    if (flun & nf_FORCE) Ce = gmul(embs, Ce);
+    if (flag) Ce = gmul(embs, Ce);
     C0 = Ce; Ce = cleanarch(Ce, N, PREC);
     if (!Ce) {
       long add = nbits2extraprec( gexpo(C0) + 64 ) - gprecision(C0);
@@ -4215,7 +4210,7 @@ START:
   res = buchall_end(nf,res,clg2,W,B,A,Ce,Vbase);
   delete_FB(&F);
   res = gerepilecopy(av0, res);
-  if (flun & nf_FORCE) obj_insert_shallow(res, MATAL, cgetg(1,t_VEC));
+  if (flag) obj_insert_shallow(res, MATAL, cgetg(1,t_VEC));
   if (precdouble) gunclone(nf);
   delete_cache(&cache);
   free_GRHcheck(&GRHcheck);
