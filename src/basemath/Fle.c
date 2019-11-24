@@ -192,6 +192,34 @@ Flj_mulu_pre(GEN P, ulong n, ulong a4, ulong p, ulong pi)
   return Flj_mulu_pre_naf(P, n, a4, p, pi, &x);
 }
 
+struct _Flj { ulong a4, p, pi; };
+
+static GEN
+_Flj_add(void *E, GEN P, GEN Q)
+{
+  struct _Flj *ell=(struct _Flj *) E;
+  return Flj_add_pre(P, Q, ell->a4, ell->p, ell->pi);
+}
+
+static GEN
+_Flj_mul(void *E, GEN P, GEN n)
+{
+  struct _Flj *ell = (struct _Flj *) E;
+  long s = signe(n);
+  GEN Q;
+  if (s==0) return mkvecsmall3(1, 1, 0);
+  Q = Flj_mulu_pre(P, itou(n), ell->a4, ell->p, ell->pi);
+  return s>0 ? Q : Flj_neg(Q, ell->p);
+}
+
+GEN
+FljV_factorback_pre(GEN P, GEN L, ulong a4, ulong p, ulong pi)
+{
+  struct _Flj E;
+  E.a4 = a4; E.p = p; E.pi = pi;
+  return gen_factorback(P, L, (void*)&E, &_Flj_add, &_Flj_mul);
+}
+
 ulong
 Flj_order_ufact(GEN P, ulong n, GEN F, ulong a4, ulong p, ulong pi)
 {
