@@ -2619,7 +2619,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
     else
       err_printf("  \nnb. fact./nb. small norm = %ld/%ld = %.3f\n",
                   Nfact,Nsmall,((double)Nfact)/Nsmall);
-    timer_printf(&T,"small_norm");
+    if (timer_get(&T)>1) timer_printf(&T,"small_norm");
   }
 }
 
@@ -2687,7 +2687,11 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
     if (Fincke_Pohst_ideal(cache, F, nf, M, idealHNF_mul(nf, R, P), Nid, fact,
                            RND_REL_RELPID, &fp, &rr, prec, NULL, NULL)) break;
   }
-  if (DEBUGLEVEL) { err_printf("\n"); timer_printf(&T,"for remaining ideals"); }
+  if (DEBUGLEVEL)
+  {
+    err_printf("\n");
+    if (timer_get(&T) > 1) timer_printf(&T,"for remaining ideals");
+  }
 }
 
 static GEN
@@ -3035,17 +3039,17 @@ compute_multiple_of_R(GEN A, long RU, long N, long *pneed, long *bit, GEN *ptL)
    * index in the full lattice. First column is T */
   kR = divru(det2(Im_mdet), N);
   /* R > 0.2 uniformly */
-  if (!signe(kR) || expo(kR) < -3) { *pneed = 0; return gc_NULL(av); }
+  if (!signe(kR) || expo(kR) < -3)
+  {
+    if (DEBUGLEVEL) err_printf("Regulator is zero.\n");
+    *pneed = 0; return gc_NULL(av);
+  }
+  setabssign(kR); L = RgM_inv(Im_mdet);
+  /* estimate # of correct bits in result */
+  if (!L || (*bit = - gexpo(RgM_Rg_sub(RgM_mul(L,Im_mdet), gen_1))) < 16)
+  { *ptL = NULL; return gerepilecopy(av,kR); }
 
-  setabssign(kR);
-  L = RgM_inv(Im_mdet);
-  if (!L) { *ptL = NULL; return kR; }
-  /* estimate for # of correct bits in result */
-  *bit = - gexpo(RgM_Rg_sub(RgM_mul(L,Im_mdet), gen_1));
-  if (*bit < 16) { *ptL = NULL; return kR; }
-
-  L = rowslice(L, 2, RU); /* remove first line */
-  L = RgM_mul(L, xreal); /* approximate rational entries */
+  L = RgM_mul(rowslice(L,2,RU), xreal); /* approximate rational entries */
   gerepileall(av,2, &L, &kR);
   *ptL = L; return kR;
 }
@@ -3987,7 +3991,7 @@ START:
           powFBgen(&cache, &F, nf, auts);
           MAXDEPSIZESFB = (lg(F.subFB) - 1) * DEPSIZESFBMULT;
           MAXDEPSFB = MAXDEPSIZESFB / DEPSFBDIV;
-          if (DEBUGLEVEL) timer_printf(&T, "powFBgen");
+          if (DEBUGLEVEL && timer_get(&T) > 1) timer_printf(&T, "powFBgen");
         }
         if (!F.sfb_chg) rnd_rel(&cache, &F, nf, fact);
         F.L_jid = F.perm;
@@ -4037,7 +4041,8 @@ START:
           gel(mat,j) = rel->R;
           gel(embs,k) = rel_embed(rel, &F, embs, k, M, RU, R1, PREC);
         }
-        if (DEBUGLEVEL) timer_printf(&T, "floating point embeddings");
+        if (DEBUGLEVEL && timer_get(&T) > 1)
+          timer_printf(&T, "floating point embeddings");
         if (!W)
         { /* never reduced before */
           C = (flun & nf_FORCE)? matbotid(&cache): embs;
@@ -4128,7 +4133,6 @@ START:
     if (!lambda) { precpb = "bestappr"; PREC = precdbl(PREC); continue; }
     if (!R)
     { /* not full rank for units */
-      if (DEBUGLEVEL) err_printf("regulator is zero.\n");
       if (!need) { precpb = "regulator"; PREC = precdbl(PREC); }
       continue;
     }
