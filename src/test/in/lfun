@@ -406,6 +406,9 @@ L=lfunsympow(E,5); lfun(L,1,1)
 \\ #2118
 Z = lfuncreate([n->[1], 0, [0], 1, 1, 1, 1]); lfun(Z,2)
 
+\\ #2185
+bnr=bnrinit(bnfinit('a^4+47),1); lfun([bnr,[1]],2)
+
 \\ ERRORS: keep them at end of file
 lfuntheta(1,0)
 lfunhardy(1,I)
