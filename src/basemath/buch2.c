@@ -2649,7 +2649,7 @@ get_random_ideal(FB_t *F, GEN nf, RNDREL_t *R)
       R->N = ZM_det_triangular(I);
       if (is_pm1(gcoeff(J,1,1))) { R->m1 = gen_1; return I; }
       N = ZM_det_triangular(J);
-      if (cmpii(R->N, N) > 0) { R->m1 = gen_1; return I; }
+      if (cmpii(R->N, N) <= 0) { R->m1 = gen_1; return I; }
       R->N = N; m = gel(y,2);
       R->m1 = lgcols(m)==1? gen_1: gmael(m,1,1); return J;
     }
