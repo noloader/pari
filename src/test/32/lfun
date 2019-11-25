@@ -326,4 +326,7 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfuncreate([errG,[[1,8]~,[0,1]~]])
   ***                 ^----------------------------------
   *** lfuncreate: incorrect type in lfuncreate [different conductors] (t_VEC).
-Total time spent: 11240
+  ***   at top-level: lfunorderzero([errG,[[1,8]~,[1,2]~]])
+  ***                 ^-------------------------------------
+  *** lfunorderzero: incorrect type in lfunorderzero [vector-valued] (t_VEC).
+Total time spent: 5835

@@ -2305,21 +2305,18 @@ lfunorderzero(GEN lmisc, long m, long bitprec)
   if (is_linit(lmisc) && linit_get_type(lmisc) == t_LDESC_PRODUCT)
   {
     GEN M = gmael(linit_get_tech(lmisc), 2,1);
-    long i;
-    for (c=0,i=1; i < lg(M); i++) c += lfunorderzero(gel(M,i), m, bitprec);
+    long i, l = lg(M);
+    for (c=0, i=1; i < l; i++) c += lfunorderzero(gel(M,i), m, bitprec);
     return c;
   }
   linit = lfuncenterinit(lmisc, 0, m, bitprec);
   ldata = linit_get_ldata(linit);
   eno = ldata_get_rootno(ldata);
+  if (typ(eno) == t_VEC) pari_err_TYPE("lfunorderzero [vector-valued]", lmisc);
+  k2 = gmul2n(ldata_get_k(ldata), -1);
   G = -bitprec/2;
   c0 = 0; st = 1;
-  if (ldata_isreal(ldata))
-  {
-    if (!gequal1(eno)) c0 = 1;
-    st = 2;
-  }
-  k2 = gmul2n(ldata_get_k(ldata), -1);
+  if (ldata_isreal(ldata)) { st = 2; if (!gequal1(eno)) c0 = 1; }
   for (c = c0;; c += st)
     if (gexpo(lfun0(linit, k2, c, bitprec)) > G) return gc_long(ltop, c);
 }

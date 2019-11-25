@@ -428,3 +428,4 @@ errG=znstar(44,1);
 lfuncreate([errG,[[1],[2]]]);
 lfuncreate([errG,[[1,8]~,[1,7]~]]);
 lfuncreate([errG,[[1,8]~,[0,1]~]]);
+lfunorderzero([errG,[[1,8]~,[1,2]~]]);
