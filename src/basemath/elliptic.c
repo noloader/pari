@@ -5204,7 +5204,7 @@ ellQ_factorback_worker(GEN P, GEN E, GEN A, GEN L)
   return V;
 }
 
-GEN
+static GEN
 ellQ_factorback(GEN E, GEN A, GEN L)
 {
   pari_sp av = avma;
@@ -5225,6 +5225,19 @@ ellQ_factorback(GEN E, GEN A, GEN L)
     bound <<=1;
   }
 }
+
+static GEN
+ellQ_vecfactorback(GEN E, GEN G, GEN x)
+{ pari_APPLY_type(t_VEC,ellQ_factorback(E, G, gel(x,i))) }
+
+GEN
+ellQ_genreduce(GEN E, GEN G, long prec)
+{
+  GEN M = ellheightmatrix(E, G, prec);
+  GEN L = lllgram(M);
+  return ellQ_vecfactorback(E, G, L);
+}
+
 /********************************************************************/
 /**                                                                **/
 /**           ROOT NUMBER (after Halberstadt at p = 2,3)           **/
