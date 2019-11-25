@@ -136,7 +136,7 @@ hnffinal(GEN matgen,GEN perm,GEN* ptdep,GEN* ptB,GEN* ptC)
       for (   ; k<=lig;  k++) gel(z,k) = subii(gel(z,k), mulii(p1, gel(Hi,k-nlze)));
       gel(Cnew,j) = gsub(gel(Cnew,j), gmul(p1, gel(Cnew,i+zc)));
     }
-    if (gc_needed(av,3))
+    if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"hnffinal, i = %ld",i);
       gerepileall(av, 2, &Cnew, &B);
