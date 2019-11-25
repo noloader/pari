@@ -1223,7 +1223,7 @@ See \secref{se:garbage} for a detailed explanation and many examples.
 \fun{GEN}{gc_NULL}{pari_sp av} reset \kbd{avma} to \kbd{av} and return
 \kbd{NULL}.
 
-The following 5 functions reset \kbd{avma} to \kbd{av} and return $x$:
+The following 6 functions reset \kbd{avma} to \kbd{av} and return $x$:
 
 \fun{int}{gc_bool}{pari_sp av, int x}
 
@@ -1242,6 +1242,10 @@ to return \kbd{gc\_ulong(av, itou(z))}, whereas
   return itou(z);
 @eprog should be frowned upon since \kbd{set\_avma(av)} conceptually
 destroys everything from the reference point on, including $z$.
+
+\fun{long}{gc_const}{pari_sp av, GEN x} assumes that $x$ is either not on the
+stack (clone, universal constant such as \kbd{gen\_0}) or was defined
+before \kbd{av}.
 
 \fun{void}{cgiv}{GEN x} frees object \kbd{x}, assuming it is the last created
 on the stack.

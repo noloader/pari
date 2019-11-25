@@ -5840,6 +5840,7 @@ INLINE void   gabsz(GEN x, long prec, GEN z);
 INLINE GEN    gaddgs(GEN y, long s);
 INLINE void   gaddz(GEN x, GEN y, GEN z);
 INLINE int    gc_bool(pari_sp av, int s);
+INLINE GEN    gc_const(pari_sp av, GEN x);
 INLINE double gc_double(pari_sp av, double d);
 INLINE int    gc_int(pari_sp av, int s);
 INLINE long   gc_long(pari_sp av, long s);

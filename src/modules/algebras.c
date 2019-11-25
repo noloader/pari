@@ -492,13 +492,13 @@ algradical(GEN al)
     dbg_printf(2)(" char 0, computing kernel...\n");
     K = ker(traces);
     dbg_printf(2)(" ...done.\n");
-    ni = lg(K)-1; if (!ni) { set_avma(av); return gen_0; }
+    ni = lg(K)-1; if (!ni) return gc_const(av, gen_0);
     return gerepileupto(av, K);
   }
   dbg_printf(2)(" char>0, computing kernel...\n");
   K = FpM_ker(traces, P);
   dbg_printf(2)(" ...done.\n");
-  ni = lg(K)-1; if (!ni) { set_avma(av); return gen_0; }
+  ni = lg(K)-1; if (!ni) return gc_const(av, gen_0);
   if (abscmpiu(P,n)>0) return gerepileupto(av, K);
 
   /* tough case, p <= n. Ronyai's algorithm */
@@ -533,7 +533,7 @@ algradical(GEN al)
     dbg_printf(2)(" computing kernel...\n");
     K = Flm_ker(traces, p);
     dbg_printf(2)(" ...done.\n");
-    ni = lg(K)-1; if (!ni) { set_avma(av); return gen_0; }
+    ni = lg(K)-1; if (!ni) return gc_const(av, gen_0);
     I = Flm_mul(I,K,p);
     expo *= p;
   }
@@ -3173,7 +3173,7 @@ bnrgwsearch(GEN bnr, GEN Lpr, GEN Ld, GEN pl)
   pari_sp av = avma;
   long n, r;
   GEN phi0 = get_phi0(bnr,Lpr,Ld,pl, &r,&n), gn, v, H,U;
-  if (!phi0) { set_avma(av); return gen_0; }
+  if (!phi0) return gc_const(av, gen_0);
   gn = stoi(n);
   /* compute kernel of phi0 */
   v = ZV_extgcd(shallowconcat(phi0, gn));
@@ -3341,10 +3341,8 @@ nfgrunwaldwang(GEN nf0, GEN Lpr, GEN Ld, GEN pl, long var)
     if (!bnf) bnf = Buchall(nf,0,0);
     return gerepileupto(av,bnfgwgeneric(bnf,Lpr,Ld,pl,var));
   }
-  else {
-    pari_err_IMPL("nfgrunwaldwang for non-prime degree");
-    set_avma(av); return gen_0; /*LCOV_EXCL_LINE*/
-  }
+  pari_err_IMPL("nfgrunwaldwang for non-prime degree");
+  return NULL; /*LCOV_EXCL_LINE*/
 }
 
 /** HASSE INVARIANTS **/
@@ -3424,7 +3422,7 @@ cyclicrelfrob(GEN rnf, GEN auts, GEN pr)
     autabs = nfadd(nf2, autabs, gmul(rnf_get_k(rnf), rnf_get_alpha(rnf)));
     frob = cyclicrelfrob0(nf2, autabs, PR, pr_norm(pr), f, g);
   }
-  set_avma(av); return frob;
+  return gc_long(av, frob);
 }
 
 static long
@@ -3460,8 +3458,7 @@ localhasse(GEN rnf, GEN cnd, GEN pl, GEN auts, GEN b, long k)
   }
   /* ...then restore it. */
   gcoeff(cnd,k,2) = previous;
-
-  set_avma(av); return Fl_neg(h,n);
+  return gc_long(av, Fl_neg(h,n));
 }
 
 static GEN

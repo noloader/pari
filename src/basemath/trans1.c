@@ -217,7 +217,7 @@ constpi(long prec)
   av = avma;
   tmp = gclone(pi_ramanujan(prec));
   swap_clone(&gpi,tmp);
-  set_avma(av); return gpi;
+  return gc_const(av, gpi);
 }
 
 GEN
@@ -304,7 +304,7 @@ consteuler(long prec)
   }
   divrrz(u,v,tmpeuler);
   swap_clone(&geuler,tmpeuler);
-  set_avma(av1); return geuler;
+  return gc_const(av1, geuler);
 }
 
 GEN
@@ -347,7 +347,7 @@ constcatalan(long prec)
   if (gcatalan && realprec(gcatalan) >= prec) return gcatalan;
   tmp = gclone(catalan(prec));
   swap_clone(&gcatalan,tmp);
-  set_avma(av); return gcatalan;
+  return gc_const(av, gcatalan);
 }
 
 GEN
@@ -706,7 +706,7 @@ rpowuu(ulong a, ulong n, long prec)
   D.prec = prec;
   D.a = (long)a;
   y = gen_powu_fold_i(utoipos(a), n, (void*)&D, &_rpowuu_sqr, &_rpowuu_msqr);
-  mpaff(y, z); set_avma(av); return z;
+  mpaff(y, z); return gc_const(av,z);
 }
 
 GEN
@@ -1616,7 +1616,7 @@ Qp_sqrtn_unram(GEN x, GEN n, GEN *zetan)
     affii(Zp_sqrtnlift(gen_1, n, *zetan, p, precp(x)), gel(Z,4));
     *zetan = Z;
   }
-  set_avma(av); return r;
+  return gc_const(av,r);
 }
 
 GEN
@@ -1687,7 +1687,7 @@ sqrtnint(GEN a, long n)
   if (k == 0)
   {
     long flag;
-    if (n > e) {set_avma(ltop); return gen_1;}
+    if (n > e) return gc_const(ltop, gen_1);
     flag = cmpii(a, powuu(3, n)); set_avma(ltop);
     return (flag < 0) ? gen_2: stoi(3);
   }
@@ -1958,7 +1958,7 @@ gsqrtn(GEN x, GEN n, GEN *zetan, long prec)
       if (zetan) { z = cgetg(3,t_INTMOD); gel(z,1) = gel(y,1); }
       s = Fp_sqrtn(gel(x,2),n,p,zetan);
       if (!s) {
-        if (zetan) {set_avma(av); return gen_0;}
+        if (zetan) return gc_const(av,gen_0);
         if (!BPSW_psp(p)) pari_err_PRIME("sqrtn [modulus]",p);
         pari_err_SQRTN("gsqrtn",x);
       }
@@ -2092,7 +2092,7 @@ exp1r_abs(GEN x)
     if (realprec(p2) > L) setprec(p2,L);
     p2 = mulrr(p2, addsr(2,p2));
   }
-  affrr_fixlg(p2,y); set_avma(av); return y;
+  affrr_fixlg(p2,y); return gc_const(av,y);
 }
 
 GEN
@@ -2233,7 +2233,7 @@ mpexp(GEN x)
   }
   affrr(t,z);
   if (sh) shiftr_inplace(z, sh);
-  set_avma((pari_sp)z); return z;
+  return gc_const((pari_sp)z, z);
 }
 
 static long
@@ -2465,7 +2465,7 @@ expQ(GEN x, long prec)
     q = z; while (e--) q = sqrr(q);
     if (z0) { affrr(q, z0); z = z0; } else affrr(q,z);
   }
-  set_avma(av); return z;
+  return gc_const(av,z);
 }
 
 GEN
@@ -2515,7 +2515,7 @@ agm1r_abs(GEN x)
     a1 = addrr(a,b1); shiftr_inplace(a1, -1);
     b1 = sqrtr_abs(mulrr(a,b1));
   }
-  affrr_fixlg(a1,y); set_avma(av); return y;
+  affrr_fixlg(a1,y); return gc_const(av,y);
 }
 
 struct agmcx_gap_t { long L, ex, cnt; };
@@ -2799,7 +2799,7 @@ constlog2(long prec)
   av = avma;
   affrr(log2_split(prec+EXTRAPRECWORD), tmp);
   swap_clone(&glog2,tmp);
-  set_avma(av); return glog2;
+  return gc_const(av,glog2);
 }
 
 GEN
@@ -2822,7 +2822,7 @@ logagmr_abs(GEN q)
   /* Pi / 2agm(1, 4/Q) ~ log(Q), q = Q * 2^(e-lim) */
   y = divrr(Pi2n(-1, prec), agm1r_abs(_4ovQ));
   y = addrr(y, mulsr(e - lim, mplog2(prec)));
-  affrr_fixlg(y, z); set_avma(av); return z;
+  affrr_fixlg(y, z); return gc_const(av,z);
 }
 
 /* sum_{k >= 0} y^(2k+1) / (2k+1), y close to 0 */
@@ -2919,7 +2919,7 @@ logr_abs(GEN X)
   y = logr_aux(y); /* log(1+y) - log(1-y) = log(x) */
   shiftr_inplace(y, m + 1);
   if (EX) y = addrr(y, mulsr(EX, mplog2(l+1)));
-  affrr_fixlg(y, z); set_avma((pari_sp)z); return z;
+  affrr_fixlg(y, z); return gc_const((pari_sp)z, z);
 }
 
 /* assume Im(q) != 0 and precision(q) >= prec. Compute log(q) with accuracy
@@ -2942,7 +2942,7 @@ logagmcx(GEN q, long prec)
     affrr_fixlg(logr_abs(b), gel(z,1));
     y = Pi2n(-1, prec);
     if (signe(b) < 0) setsigne(y, -1);
-    affrr_fixlg(y, gel(z,2)); set_avma(av); return z;
+    affrr_fixlg(y, gel(z,2)); return gc_const(av,z);
   }
   ea = expo(a);
   eb = expo(b);
@@ -2959,7 +2959,7 @@ logagmcx(GEN q, long prec)
   if (neg) b = gsigne(b) <= 0? gadd(b, mppi(prec))
                              : gsub(b, mppi(prec));
   affrr_fixlg(a, gel(z,1));
-  affrr_fixlg(b, gel(z,2)); set_avma(av); return z;
+  affrr_fixlg(b, gel(z,2)); return gc_const(av,z);
 }
 
 GEN
@@ -3398,11 +3398,11 @@ gcos(GEN x, long prec)
       if (typ(a) != t_REAL) a = gtofp(a, prec);
       mpsincos(a, &u, &v);
       affrr_fixlg(gmul(v1,v), gel(y,1));
-      affrr_fixlg(gmul(u1,u), gel(y,2)); set_avma(av); return y;
+      affrr_fixlg(gmul(u1,u), gel(y,2)); return gc_const(av,y);
 
     case t_INT: case t_FRAC:
       y = cgetr(prec); av = avma;
-      affrr_fixlg(mpcos(tofp_safe(x,prec)), y); set_avma(av); return y;
+      affrr_fixlg(mpcos(tofp_safe(x,prec)), y); return gc_const(av,y);
 
     case t_PADIC: y = cos_p(x);
       if (!y) pari_err_DOMAIN("gcos(t_PADIC)","argument","",gen_0,x);
@@ -3463,11 +3463,11 @@ gsin(GEN x, long prec)
       if (typ(a) != t_REAL) a = gtofp(a, prec);
       mpsincos(a, &u, &v);
       affrr_fixlg(gmul(v1,u), gel(y,1));
-      affrr_fixlg(gmul(u1,v), gel(y,2)); set_avma(av); return y;
+      affrr_fixlg(gmul(u1,v), gel(y,2)); return gc_const(av,y);
 
     case t_INT: case t_FRAC:
       y = cgetr(prec); av = avma;
-      affrr_fixlg(mpsin(tofp_safe(x,prec)), y); set_avma(av); return y;
+      affrr_fixlg(mpsin(tofp_safe(x,prec)), y); return gc_const(av,y);
 
     case t_PADIC: y = sin_p(x);
       if (!y) pari_err_DOMAIN("gsin(t_PADIC)","argument","",gen_0,x);
@@ -3729,13 +3729,13 @@ gsinc(GEN x, long prec)
       u1 = subrr(r, v1); /* = I*sin(I*Im(x)) */
       gsincos(gel(x,1),&u,&v,prec);
       affc_fixlg(gdiv(mkcomplex(gmul(v1,u), gmul(u1,v)), x), y);
-      set_avma(av); return y;
+      return gc_const(av,y);
 
     case t_INT:
       if (!signe(x)) return real_1(prec); /*fall through*/
     case t_FRAC:
       y = cgetr(prec); av = avma;
-      affrr_fixlg(mpsinc(tofp_safe(x,prec)), y); set_avma(av); return y;
+      affrr_fixlg(mpsinc(tofp_safe(x,prec)), y); return gc_const(av,y);
 
     case t_PADIC:
       if (gequal0(x)) return cvtop(gen_1, gel(x,2), valp(x));
@@ -3807,7 +3807,7 @@ gtan(GEN x, long prec)
     }
     case t_INT: case t_FRAC:
       y = cgetr(prec); av = avma;
-      affrr_fixlg(mptan(tofp_safe(x,prec)), y); set_avma(av); return y;
+      affrr_fixlg(mptan(tofp_safe(x,prec)), y); return gc_const(av,y);
 
     case t_PADIC:
       av = avma;
@@ -3859,7 +3859,7 @@ gcotan(GEN x, long prec)
 
     case t_INT: case t_FRAC:
       y = cgetr(prec); av = avma;
-      affrr_fixlg(mpcotan(tofp_safe(x,prec)), y); set_avma(av); return y;
+      affrr_fixlg(mpcotan(tofp_safe(x,prec)), y); return gc_const(av,y);
 
     case t_PADIC:
       av = avma;

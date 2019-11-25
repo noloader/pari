@@ -313,7 +313,7 @@ IsGoodSubgroup(GEN H, GEN bnr, GEN map)
 
   p1 = InitQuotient(H);
   /* quotient is non cyclic */
-  if (!cyc_is_cyclic(gel(p1,2))) { set_avma(av); return 0; }
+  if (!cyc_is_cyclic(gel(p1,2))) return gc_long(av,0);
 
   p2 = ZM_hnfall_i(shallowconcat(map,H), &U, 0);
   setlg(U, lg(H));

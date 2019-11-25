@@ -1208,7 +1208,7 @@ gerepileuptoleaf(pari_sp av, GEN x)
   long lx;
   GEN q;
 
-  if (!isonstack(x) || (GEN)av<=x) { set_avma(av); return x; }
+  if (!isonstack(x) || (GEN)av<=x) return gc_const(av,x);
   lx = lg(x);
   q = ((GEN)av) - lx;
   set_avma((pari_sp)q);
@@ -1218,14 +1218,14 @@ gerepileuptoleaf(pari_sp av, GEN x)
 INLINE GEN
 gerepileuptoint(pari_sp av, GEN x)
 {
-  if (!isonstack(x) || (GEN)av<=x) { set_avma(av); return x; }
+  if (!isonstack(x) || (GEN)av<=x) return gc_const(av,x);
   set_avma((pari_sp)icopy_avma(x, av));
   return (GEN)avma;
 }
 INLINE GEN
 gerepileupto(pari_sp av, GEN x)
 {
-  if (!isonstack(x) || (GEN)av<=x) { set_avma(av); return x; }
+  if (!isonstack(x) || (GEN)av<=x) return gc_const(av,x);
   switch(typ(x))
   { /* non-default = !is_recursive_t(tq) */
     case t_INT: return gerepileuptoint(av, x);
@@ -1249,6 +1249,8 @@ INLINE int
 gc_int(pari_sp av, int s) { set_avma(av); return s; }
 INLINE GEN
 gc_NULL(pari_sp av) { set_avma(av); return NULL; }
+INLINE GEN
+gc_const(pari_sp av, GEN x) { set_avma(av); return x; }
 
 /* gerepileupto(av, gcopy(x)) */
 INLINE GEN
@@ -1629,8 +1631,8 @@ Fp_add(GEN a, GEN b, GEN m)
   {
     GEN t = subii(p, m);
     s = signe(t);
-    if (!s) { set_avma(av); return gen_0; }
-    if (s < 0) { set_avma((pari_sp)p); return p; }
+    if (!s) return gc_const(av, gen_0);
+    if (s < 0) return gc_const((pari_sp)p, p);
     if (cmpii(t, m) < 0) return gerepileuptoint(av, t); /* general case ! */
     p = remii(t, m);
   }
@@ -1653,7 +1655,7 @@ Fp_sub(GEN a, GEN b, GEN m)
   else
   {
     GEN t = addii(p, m);
-    if (!s) { set_avma(av); return gen_0; }
+    if (!s) return gc_const(av, gen_0);
     if (s > 0) return gerepileuptoint(av, t); /* general case ! */
     p = modii(t, m);
   }
@@ -2207,11 +2209,8 @@ INLINE long
 sturm(GEN x) { return sturmpart(x, NULL, NULL); }
 
 INLINE long
-gval(GEN x, long v) {
-  pari_sp av = avma;
-  long n = gvaluation(x, pol_x(v));
-  set_avma(av); return n;
-}
+gval(GEN x, long v)
+{ pari_sp av = avma; return gc_long(av, gvaluation(x, pol_x(v))); }
 
 INLINE void
 RgX_shift_inplace_init(long v)
