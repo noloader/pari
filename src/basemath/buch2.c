@@ -3712,11 +3712,11 @@ RgM_bit(GEN x, long bit)
   return b;
 }
 static void
-matenlarge(GEN C, long botl)
+matenlarge(GEN C, long h)
 {
-  GEN bot = zerocol(botl);
+  GEN _0 = zerocol(h);
   long i;
-  for (i = lg(C); --i; ) gel(C, i) = shallowconcat(gel(C, i), bot);
+  for (i = lg(C); --i; ) gel(C,i) = shallowconcat(gel(C,i), _0);
 }
 
 /* E = floating point embeddings */
@@ -3963,7 +3963,7 @@ START:
         }
         if (lg(F.L_jid) > 1)
           small_norm(&cache, &F, nf, Nrelid, M_sn, fact, p0);
-        set_avma(av3);
+        F.L_jid = F.perm; set_avma(av3);
         if (!A && cache.last != last) small_fail = 0; else small_fail++;
         if (LIE)
         { /* restore add_rel subsystem: undo above lie */
@@ -3971,7 +3971,6 @@ START:
           for ( ; n > 0; n--) mael(cache.basis, F.perm[n], F.perm[n]) = 1;
           cache.missing = 0;
         }
-        F.L_jid = F.perm;
         cache.end = cache.last;
         done_small++;
         need = F.sfb_chg = 0;
@@ -4090,8 +4089,7 @@ START:
           if (!mael(cache.basis, i, i))
           {
             long j;
-            mael(cache.basis, i, i) = 1;
-            cache.missing--;
+            cache.missing--; mael(cache.basis, i, i) = 1;
             for (j = i+1; j <= F.KC; j++) mael(cache.basis, j, i) = 0;
           }
       }
