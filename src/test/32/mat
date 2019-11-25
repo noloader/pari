@@ -396,6 +396,49 @@ error("inconsistent dimensions in gtrace.")
 
 [0 1]
 
+
+[2 0]
+
+[0 2]
+
+[1 0]
+
+[0 1]
+
+
+[1]
+
+[0]
+
+
+[1]
+
+[0]
+
+[;]
+
+[1 0 0]
+
+[0 1 0]
+
+[0 0 1]
+
+
+[2958 2373]
+
+[1785 1440]
+
+[ 812  666]
+
+[   0   20]
+
+
+[1 0]
+
+[0 0]
+
+[0 1]
+
 lindep:
 [1, 0, 1]~
 [1, -2, 1]~
@@ -584,4 +627,10 @@ Vecsmall([2, 2, 0, -4, -10])
   ***   at top-level: [1,2,3;4,5,6;7,8,9]^-1
   ***                                    ^---
   *** _^_: impossible inverse in ginv: 0.
-Total time spent: 287
+  ***   at top-level: matrixqz(matrix(2,2))
+  ***                 ^---------------------
+  *** matrixqz: domain error in QM_minors_coprime: rank(A) < 2
+  ***   at top-level: matrixqz([;],-3)
+  ***                 ^----------------
+  *** matrixqz: invalid flag in QM_minors_coprime.
+Total time spent: 1412

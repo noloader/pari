@@ -1803,8 +1803,8 @@ matrixqz0(GEN x,GEN p)
   if (typ(p) != t_INT) pari_err_TYPE("matrixqz",p);
   if (signe(p)>=0) return QM_minors_coprime(x,p);
   if (!RgM_is_QM(x)) pari_err_TYPE("matrixqz", x);
-  if (absequaliu(p,1)) return QM_ImZ_hnf(x); /* p = -1 */
-  if (absequaliu(p,2)) return QM_ImQ_hnf(x); /* p = -2 */
+  if (absequaliu(p,1)) return QM_ImZ(x); /* p = -1 */
+  if (absequaliu(p,2)) return QM_ImQ(x); /* p = -2 */
   pari_err_FLAG("QM_minors_coprime");
   return NULL; /* LCOV_EXCL_LINE */
 }
@@ -1868,7 +1868,7 @@ QM_minors_coprime(GEN x, GEN D)
 }
 
 static GEN
-QM_ImZ_hnfall_i(GEN A, GEN *U, long remove)
+QM_ImZ_all_i(GEN A, GEN *U, long remove, long hnf, long linindep)
 {
   GEN V = NULL, D;
   A = Q_remove_denom(A,&D);
@@ -1884,65 +1884,76 @@ QM_ImZ_hnfall_i(GEN A, GEN *U, long remove)
       A = ZM_Z_divexact(ZM_mul(A, V), D);
     }
   }
-  A = ZM_hnflll(A, U, remove);
-  if (U && V) *U = ZM_mul(V,*U);
+  if (!linindep && ZM_rank(A)==lg(A)-1) linindep = 1;
+  if (hnf || !linindep) A = ZM_hnflll(A, U, remove);
+  if (U && V)
+  {
+    if (hnf)    *U = ZM_mul(V,*U);
+    else        *U = V;
+  }
   return A;
 }
 GEN
-QM_ImZ_hnfall(GEN x, GEN *U, long remove)
+QM_ImZ_all(GEN x, GEN *U, long remove, long hnf)
 {
   pari_sp av = avma;
-  x = QM_ImZ_hnfall_i(x, U, remove);
-  if (U) gerepileall(av, 2, &x, &U); else x = gerepileupto(av, x);
+  x = QM_ImZ_all_i(x, U, remove, hnf, 0);
+  if (U) gerepileall(av, 2, &x, &U); else x = gerepilecopy(av, x);
   return x;
 }
 GEN
+QM_ImZ_hnfall(GEN x, GEN *U, long remove) { return QM_ImZ_all(x, U, remove, 1); }
+GEN
 QM_ImZ_hnf(GEN x) { return QM_ImZ_hnfall(x, NULL, 1); }
+GEN
+QM_ImZ(GEN x) { return QM_ImZ_all(x, NULL, 1, 0); }
 
 GEN
-QM_ImQ_hnfall(GEN x, GEN *U, long remove)
+QM_ImQ_all(GEN x, GEN *U, long remove, long hnf)
 {
-  pari_sp av = avma, av1;
-  long k, r, m, n = lg(x);
-  GEN c, V;
+  pari_sp av = avma;
+  long i, n = lg(x), m;
+  GEN ir, V, D, c, K = NULL;
 
   if (U) *U = matid(n-1);
   if (n==1) return gcopy(x);
-  m = lgcols(x); x = RgM_shallowcopy(x);
-  c = zero_zv(n-1); r = 1;
-  av1 = avma;
-  for (k = 1; k < m; k++)
-  {
-    long j = 1, a;
-    GEN p;
-    while (j<n && (c[j] || isintzero(gcoeff(x,k,j)))) j++;
-    if (j==n) continue;
+  m = lg(gel(x,1));
 
-    c[j]=k; p = gcoeff(x,k,j);
-    gel(x,j) = RgC_Rg_div(gel(x,j), p);
-    if (U) gel(*U,j) = RgC_Rg_div(gel(*U,j), p);
-    for (a = 1; a < n; a++)
-      if (a != j)
-      {
-        GEN t = gcoeff(x,k,a);
-        if (gequal0(t)) continue;
-        if (U) gel(*U,a) = RgC_sub(gel(*U,a), RgC_Rg_mul(gel(*U,j),t));
-        gel(x,a) = RgC_sub(gel(x,a), RgC_Rg_mul(gel(x,j),t));
-      }
-    if (++r == n) break;
-    if (gc_needed(av1,1))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"QM_ImQ_hnf");
-      gerepileall(av1, U? 2: 1, &x, U);
-    }
+  x = RgM_shallowcopy(x);
+  for (i=1; i<n; i++)
+  {
+    gel(x,i) = Q_primitive_part(gel(x,i), &c);
+    if (U && c && signe(c)) gcoeff(*U,i,i) = ginv(c);
   }
-  x = QM_ImZ_hnfall_i(x, U? &V: NULL, remove);
-  if (U) { *U = RgM_mul(*U,V); gerepileall(av,2,&x,U); }
-  else x = gerepileupto(av,x);
+
+  ir = ZM_indexrank(x);
+  if (U)
+  {
+    *U = vecpermute(*U, gel(ir,2));
+    if (remove < 2) K = ZM_ker(x);
+  }
+  x = vecpermute(x, gel(ir,2));
+
+  D = absi(ZM_det(rowpermute(x,gel(ir,1))));
+  x = RgM_Rg_div(x, D);
+  x = QM_ImZ_all_i(x, U? &V: NULL, remove, hnf, 1);
+
+  if (U)
+  {
+    *U = RgM_Rg_div(RgM_mul(*U,V),D);
+    if (remove < 2) *U = shallowconcat(K,*U);
+    if (!remove) x = shallowconcat(zeromatcopy(m-1,lg(K)-1), x);
+    gerepileall(av, 2, &x, U);
+  }
+  else x = gerepilecopy(av,x);
   return x;
 }
 GEN
+QM_ImQ_hnfall(GEN x, GEN *U, long remove) { return QM_ImQ_all(x, U, remove, 1); }
+GEN
 QM_ImQ_hnf(GEN x) { return QM_ImQ_hnfall(x, NULL, 1); }
+GEN
+QM_ImQ(GEN x) { return QM_ImQ_all(x, NULL, 1, 0); }
 
 GEN
 intersect(GEN x, GEN y)
