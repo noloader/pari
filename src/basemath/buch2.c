@@ -4130,6 +4130,8 @@ START:
     if (flag) A = rowslice(A, 1, RU);
     R = compute_multiple_of_R(A, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
+    /* we have computed way more relations than should be necessary */
+    if (TRIES < 3 && cache.last - cache.base > 5 * F.KC) goto START;
     old_need = need;
     if (!lambda) { precpb = "bestappr"; PREC = precdbl(PREC); continue; }
     if (!R)
