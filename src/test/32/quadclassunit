@@ -608,6 +608,8 @@
 -999999999999011 [10976478]
 -999999999999007 [2903838, 2, 2]
 -999999999999003 [4036316, 2]
+? setrand(1);quadclassunit(572).no
+2
 ? setrand(11);quadclassunit(-8419588).cyc
 [176, 2]
 ? setrand(2);quadclassunit(-1459008).cyc
@@ -629,4 +631,4 @@
 ? setrand(2);quadclassunit(-699,,[6,6]).cyc
 [10]
 ? print("Total time spent: ",gettime);
-Total time spent: 3304
+Total time spent: 3661
