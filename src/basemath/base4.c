@@ -2503,13 +2503,10 @@ RM_round_maxrank(GEN G0)
 {
   long e, r = lg(G0)-1;
   pari_sp av = avma;
-  GEN G = G0;
-  for (e = 4; ; e <<= 1)
+  for (e = 4; ; e <<= 1, set_avma(av))
   {
-    GEN H = ground(G);
+    GEN G = gmul2n(G0, e), H = ground(G);
     if (ZM_rank(H) == r) return H; /* maximal rank ? */
-    set_avma(av);
-    G = gmul2n(G0, e);
   }
 }
 
