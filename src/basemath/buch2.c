@@ -3810,10 +3810,11 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   if (DEBUGLEVEL)
   {
     timer_printf(&T, "nfinit & nfrootsof1");
-    err_printf("R1 = %ld, R2 = %ld\nD = %Ps\n",R1,R2, D);
+    err_printf("%sR1 = %ld, R2 = %ld\nD = %Ps\n",
+               flag? "Algebraic bnf: ":"Floating point bnf: ", R1,R2, D);
   }
-  if (LOGD < 20.) /* tiny disc, Minkowski may be smaller than Bach */
-  {
+  if (LOGD < 20.)
+  { /* tiny disc, Minkowski may be smaller than Bach */
     lim = exp(-N + R2 * log(4/M_PI) + LOGD/2) * sqrt(2*M_PI*N);
     if (lim < 3) lim = 3;
   }
@@ -4131,7 +4132,7 @@ START:
     R = compute_multiple_of_R(A, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
     /* we have computed way more relations than should be necessary */
-    if (TRIES < 3 && cache.last - cache.base > 5 * F.KC) goto START;
+    if (TRIES < 3 && cache.last - cache.base > 10 * F.KC) goto START;
     old_need = need;
     if (!lambda) { precpb = "bestappr"; PREC = precdbl(PREC); continue; }
     if (!R)
