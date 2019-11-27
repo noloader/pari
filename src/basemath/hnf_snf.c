@@ -431,13 +431,12 @@ END2: /* clean up mat: remove everything to the right of the 1s on diagonal */
         for (h=1; h<i0; h++) gel(Bj,h) = subii(gel(Bj,h), mulii(v,gel(Bk,h)));
       }
       if (T) ZC_lincomb1_inplace(gel(T,j), gel(T,k), negi(v));
-      if (gc_needed(av,3))
-      {
-        if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[3], (i,j) = %ld,%ld", i,j);
-        for (h=1; h<co; h++) setlg(matb[h], i0+1); /* bottom can be forgotten */
-        gerepileall(av, T? 2: 1, &matb, &T);
-        Bk = gel(matb,k);
-      }
+    }
+    if (gc_needed(av,2))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"hnfspec[3], i = %ld", i);
+      for (h=1; h<co; h++) setlg(matb[h], i0+1); /* bottom can be forgotten */
+      gerepileall(av, T? 2: 1, &matb, &T);
     }
   }
   for (j=1; j<co; j++) setlg(matb[j], lig-k0+1); /* bottom can be forgotten */
