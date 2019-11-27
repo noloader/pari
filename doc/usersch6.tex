@@ -2607,6 +2607,12 @@ The following routines underly the various \tet{matrixqz} variants.
 In all case the $m\times n$ \typ{MAT} $x$ is assumed to have rational
 (\typ{INT} and \typ{FRAC}) coefficients
 
+\fun{GEN}{QM_ImQ}{GEN x} returns a basis for
+$\text{Im}_\Q x \cap \Z^n$.
+
+\fun{GEN}{QM_ImZ}{GEN x} returns a basis for
+$\text{Im}_\Z x \cap \Z^n$.
+
 \fun{GEN}{QM_ImQ_hnf}{GEN x} returns an HNF basis for
 $\text{Im}_\Q x \cap \Z^n$.
 
@@ -2618,6 +2624,14 @@ further returning the transformation matrix as in \tet{ZM_hnfall}.
 
 \fun{GEN}{QM_ImZ_hnfall}{GEN A, GEN *pB, long remove} as \tet{QM_ImZ_hnf},
 further returning the transformation matrix as in \tet{ZM_hnfall}.
+
+\fun{GEN}{QM_ImQ_all}{GEN A, GEN *pB, long remove, long hnf} as \tet{QM_ImQ},
+further returning the transformation matrix as in \tet{ZM_hnfall}, and
+returning an HNF basis if \kbd{hnf} is nonzero.
+
+\fun{GEN}{QM_ImZ_all}{GEN A, GEN *pB, long remove, long hnf} as \tet{QM_ImZ},
+further returning the transformation matrix as in \tet{ZM_hnfall}, and
+returning an HNF basis if \kbd{hnf} is nonzero.
 
 \fun{GEN}{QM_minors_coprime}{GEN x, GEN D}, assumes $m\geq n$, and returns
 a matrix in $M_{m,n}(\Z)$ with the same $\Q$-image as $x$, such that
