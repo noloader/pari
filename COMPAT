@@ -41,6 +41,9 @@ This file lists the incompatible changes between Version 2.x and older versions
     ideal generators: a new bnf can be read and used in an older pari
     version, but a bnf from an old version can no longer be used in this
     version: recompute it !
+  - matrixqz(,-1 or -2) no longer return result in HNF [often dominant!].
+    If needed, call explicitly mathnf or mathnfmod with the algorithm adapted
+    to your situation.
 
 * Specific to the PARI library:
 ===============================
