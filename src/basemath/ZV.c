@@ -466,11 +466,11 @@ ZM_mul_fast(GEN A, GEN B, long lA, long lB)
   forprime_t S;
   GEN H, worker;
   long h, mA = ZM_expi(A), mB = ZM_expi(B);
-  if (mA==-1 || mB==-1) return zeromat(nbrows(A),lB);
-  h = 3 + mA + mB + expu(lA);
+  if (mA==-1 || mB==-1) return zeromat(nbrows(A),lB-1);
+  h = 3 + mA + mB + expu(lA-1);
   init_modular_big(&S);
   worker = snm_closure(is_entry("_ZM_mul_worker"), mkvec2(A,B));
-  H = gen_crt("ZM_mul", worker, &S, NULL, h, lA, NULL,
+  H = gen_crt("ZM_mul", worker, &S, NULL, h, lA-1, NULL,
               nmV_chinese_center, FpM_center);
   return gerepileupto(av, H);
 }

@@ -228,6 +228,9 @@ a = ffgen([65537, 96]);
 M = matrix(40, 30, i, j, random(a)) * matrix(30, 40, i, j, random(a));
 matrank(M)
 
+M=matrix(100,200);N=matrix(200,100);
+[matsize(M*N), matsize(N*M)]
+
 \\ Errors, keep at end of file
 1/Mat([0,0]~)
 mathouseholder(1,1)

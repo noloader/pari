@@ -588,6 +588,7 @@ Vecsmall([2, 2, 0, -4, -10])
 
 [;]
 30
+[[100, 100], [200, 200]]
   ***   at top-level: 1/Mat([0,0]~)
   ***                  ^------------
   *** _/_: impossible inverse in ginv: 0.
@@ -633,4 +634,4 @@ Vecsmall([2, 2, 0, -4, -10])
   ***   at top-level: matrixqz([;],-3)
   ***                 ^----------------
   *** matrixqz: invalid flag in QM_minors_coprime.
-Total time spent: 1412
+Total time spent: 628
