@@ -260,7 +260,7 @@ sumformal(GEN T, long v)
   d = poldegree(T,v);
   for (i = d; i >= 0; i--)
   {
-    GEN c = polcoeff0(T, i, v);
+    GEN c = polcoef(T, i, v);
     if (gequal0(c)) continue;
     R = gadd(R, gmul(c, faulhaber(i, v)));
     if (gc_needed(av2,3))

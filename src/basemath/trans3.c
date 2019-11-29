@@ -2260,7 +2260,7 @@ zetahurwitz(GEN s, GEN x, long der, long bitprec)
       if (gequal1(s)) pari_err_DOMAIN("zetahurwitz", "s", "=", gen_1, s0);
       sser = gadd(gadd(s, pol_x(0)), zeroser(0, der + 2));
       z = zetahurwitz(sser, x, 0, bitprec + der * log2(der));
-      z = gmul(mpfact(der), polcoeff0(z, der, -1));
+      z = gmul(mpfact(der), polcoef(z, der, -1));
     }
     return gerepileupto(av,z);
   }
@@ -2700,7 +2700,7 @@ gpolylog(long m, GEN x, long prec)
           a = gmul(y, gadd(a, powis(utoipos(i),-m)));
       } else { /* v == 0 */
         long vy = varn(y);
-        GEN a0 = polcoeff0(y, 0, -1), yprimeovery = gdiv(derivser(y), y);
+        GEN a0 = polcoef(y, 0, -1), yprimeovery = gdiv(derivser(y), y);
         a = gneg( glog(gsub(gen_1,y), prec) );
         for (i=2; i<=m; i++)
           a = gadd(gpolylog(i, a0, prec), integ(gmul(yprimeovery, a), vy));
@@ -3778,7 +3778,7 @@ serlambertW(GEN y, long prec)
   n = lg(y)-3;
   y0 = gel(y,2);
   for (val = 1; val < n; val++)
-    if (!gequal0(polcoeff0(y, val, vy))) break;
+    if (!gequal0(polcoef(y, val, vy))) break;
   if (v < 0) pari_err_DOMAIN("lambertw","valuation", "<", gen_0, y);
   if (val >= n)
   {

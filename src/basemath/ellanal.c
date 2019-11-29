@@ -386,7 +386,7 @@ ellL1_eval(GEN e, GEN vec, struct lcritical *C, GEN t, long prec)
 static GEN
 ellL1_der(GEN e, GEN vec, struct lcritical *C, GEN t, long der, long prec)
 {
-  GEN r = polcoeff0(ellL1_eval(e, vec, C, t, prec), der, 0);
+  GEN r = polcoef(ellL1_eval(e, vec, C, t, prec), der, 0);
   r = gmul(r,powIs(C->real == 1 ? -der: 1-der));
   return gmul(real_i(r), mpfact(der));
 }
