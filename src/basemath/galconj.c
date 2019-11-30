@@ -3427,16 +3427,15 @@ galoischar_dim(GEN ch)
 static GEN
 galoischar_aut_charpoly(GEN cc, GEN ch, GEN p, long d)
 {
-  GEN q = p, V = cgetg(d+3, t_POL);
+  GEN q = p, V = cgetg(d+2, t_POL);
   long i;
   V[1] = evalsigne(1)|evalvarn(0);
-  gel(V,2) = gen_0;
   for (i = 1; i <= d; i++)
   {
-    gel(V,i+2) = gdivgs(gel(ch, cc_id(cc,q)), -i);
+    gel(V,i+1) = gel(ch, cc_id(cc,q));
     if (i < d) q = perm_mul(q, p);
   }
-  return liftpol_shallow(RgXn_exp(V,d+1));
+  return liftpol_shallow(RgXn_expint(RgX_neg(V),d+1));
 }
 
 static GEN

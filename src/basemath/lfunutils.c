@@ -2276,16 +2276,15 @@ artin_ram(GEN nf, GEN gal, GEN aut, GEN pr, GEN ramg, GEN ch, long d)
   q = p = idealramfrobenius_aut(nf, gal, pr, ramg, aut);
   elts = group_elts(gel(ramg,2), n);
   v = fetch_var_higher();
-  V = cgetg(d+3, t_POL);
+  V = cgetg(d+2, t_POL);
   V[1] = evalsigne(1)|evalvarn(v);
-  gel(V,2) = gen_0;
   for(i=1; i<=d; i++)
   {
-    gel(V,i+2) = gdivgs(artin_ind(elts, ch, q), -i);
+    gel(V,i+1) = artin_ind(elts, ch, q);
     q = gmul(q, p);
   }
   delete_var();
-  V = RgXn_exp(V,d+1);
+  V = RgXn_expint(RgX_neg(V),d+1);
   setvarn(V,0); return gerepileupto(av, ginv(V));
 }
 
