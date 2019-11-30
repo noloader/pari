@@ -2405,11 +2405,15 @@ GEN
 RgXn_exp(GEN h, long e)
 {
   pari_sp av = avma, av2;
-  long v = varn(h), n=1;
-  GEN f = pol_1(v), g = pol_1(v);
-  ulong mask = quadratic_prec_mask(e);
+  long v = varn(h), n;
+  GEN f = pol_1(v), g;
+  ulong mask;
+
+  if (!signe(h)) return f;
+  g = pol_1(v);
+  n = 1; mask = quadratic_prec_mask(e);
   av2 = avma;
-  if (signe(h)==0 || degpol(h)<1 || !gequal0(gel(h,2)))
+  if (degpol(h) < 1 || !gequal0(gel(h,2)))
     pari_err_DOMAIN("RgXn_exp","valuation", "<", gen_1, h);
   for (;mask>1;)
   {
