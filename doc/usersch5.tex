@@ -10116,7 +10116,10 @@ where $a$ is a \typ{POL} in the variable $X$ and $n \geq 0$.
 Assume that $a = 1 \mod{X}$. Uses Newton algorithm.
 
 \fun{GEN}{RgXn_exp}{GEN a, long n} returns $exp(a)$ modulo $X^n$, assuming
-$a = 0 \mod{X}$. Uses Hanrot-Zimmermann algorithm.
+$a = 0 \mod{X}$.
+
+\fun{GEN}{RgXn_expint}{GEN f, long n} return $\exp(F)$
+where $F$ is the primitive of $f$ that vanishes at $0$.
 
 \fun{GEN}{RgXn_eval}{GEN Q, GEN x, long n} special case of
 \tet{RgX_RgXQ_eval}, when the modulus is a monomial:
