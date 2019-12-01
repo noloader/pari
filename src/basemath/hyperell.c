@@ -801,3 +801,38 @@ hyperellcharpoly(GEN PQ)
   R = charpoly_funceq(R, q);
   return gerepilecopy(av, R);
 }
+
+GEN
+hyperell_redsl2(GEN Q)
+{
+  pari_sp av = avma;
+  long d = degpol(Q), v = varn(Q);
+  GEN den, P = Q_primitive_part(Q, &den);
+  GEN a = gel(P,d+2), b = gel(P,d+1), c = gel(P, d);
+  GEN q1, q2, q3, D, M, A, B, R;
+  q1 = mulis(sqri(a), d);
+  q2 = shifti(mulii(a,b), 1);
+  q3 = subii(sqri(b),shifti(mulii(a,c), 1));
+  D = gcdii(gcdii(q1, q2), q3);
+  if (!equali1(D))
+  {
+    q1 = diviiexact(q1,D);
+    q2 = diviiexact(q2,D);
+    q3 = diviiexact(q3,D);
+  }
+  D = qfb_disc3(q1, q2, q3);
+  if (!signe(D))
+    M = mkmat22(gen_1,truedivii(negi(q2),shifti(q1,1)),gen_0,gen_1);
+  else if (issquare(D))
+    M = mkmat22(gen_1,divii(negi(q2),shifti(q1,1)),gen_0,gen_1);
+  else
+  {
+    GEN Q = signe(D) < 0 ? qfi(q1,q2,q3): qfr(q1,q2,q3,real_0(DEFAULTPREC));
+    M = gel(qfbredsl2(Q, NULL),2);
+  }
+  A = deg1pol(gcoeff(M,1,1),gcoeff(M,1,2),v);
+  B = gpowers(deg1pol(gcoeff(M,2,1),gcoeff(M,2,2),v), d);
+  R = gel(RgX_homogenous_evalpow(P, A, B),1);
+  if (den) R = gmul(R, den);
+  return gerepilecopy(av,mkvec2(R,M));
+}
