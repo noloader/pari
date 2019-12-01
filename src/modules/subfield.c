@@ -888,7 +888,7 @@ nfsubfields(GEN nf, long d)
   RgX_check_ZX(pol,"nfsubfields");
   v0 = varn(pol); N = degpol(pol);
   if (d == N) return gerepilecopy(av, _subfield(pol, pol_x(v0)));
-  if (d == 1) return gerepilecopy(av, _subfield(pol_x(v0), pol));
+  if (d == 1) return gerepilecopy(av, _subfield(pol_x(v0), zeropol(v0)));
   if (d < 1 || d > N || N % d) return cgetg(1,t_VEC);
 
   /* much easier if nf is Galois (WSS) */
@@ -908,16 +908,13 @@ nfsubfields(GEN nf, long d)
     setlg(F, k);
     return gerepilecopy(av, F);
   }
-
   subfields_poldata(nf? nf: pol, &PD);
-
+  choose_prime(&S, PD.pol, PD.dis);
   B.PD = &PD;
   B.S  = &S;
   B.N  = N;
   B.d  = d;
   B.size = N/d;
-
-  choose_prime(&S, PD.pol, PD.dis);
   LSB = subfields_of_given_degree(&B);
   (void)delete_var(); /* from choose_prime */
   set_avma(av);

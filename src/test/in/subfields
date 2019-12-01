@@ -37,3 +37,4 @@ for (i=1,#v, P = v[i]; S = nfsubfields(v[i]); print(i,":", apply(x->poldegree(x[
   for(j=1,#S,s=S[j];if(subst(s[1],x,Mod(s[2],P)),error([P,s]))))
 }
 
+nfsubfields(x^7-x-1,1)
