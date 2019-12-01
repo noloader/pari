@@ -153,6 +153,50 @@ RgXV_RgV_eval(GEN Q, GEN x)
   return v;
 }
 
+GEN
+RgX_homogenous_evalpow(GEN P, GEN A, GEN B)
+{
+  pari_sp av = avma;
+  long d, i, v;
+  GEN s;
+  if (typ(P)!=t_POL)
+    return mkvec2(P, gen_1);
+  d = degpol(P); v = varn(A);
+  s = scalarpol_shallow(gel(P, d+2), v);
+  for (i = d-1; i >= 0; i--)
+  {
+    s = gadd(gmul(s, A), gmul(gel(B,d+1-i), gel(P,i+2)));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_homogenous_eval(%ld)",i);
+      s = gerepileupto(av, s);
+    }
+  }
+  s = gerepileupto(av, s);
+  return mkvec2(s, gel(B,d+1));
+}
+
+GEN
+RgXQX_homogenous_evalpow(GEN P, GEN A, GEN B, GEN T)
+{
+  pari_sp av = avma;
+  long i, d = degpol(P), v = varn(A);
+  GEN s;
+  if (signe(P)==0) return mkvec2(pol_0(v), pol_1(v));
+  s = scalarpol_shallow(gel(P, d+2), v);
+  for (i = d-1; i >= 0; i--)
+  {
+    s = RgX_add(RgXQX_mul(s, A, T), RgXQX_RgXQ_mul(gel(B,d+1-i), gel(P,i+2), T));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_homogenous_eval(%ld)",i);
+      s = gerepileupto(av, s);
+    }
+  }
+  s = gerepileupto(av, s);
+  return mkvec2(s, gel(B,d+1));
+}
+
 const struct bb_algebra *
 get_Rg_algebra(void)
 {
