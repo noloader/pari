@@ -191,6 +191,35 @@ psquare2nf(GEN nf,GEN x,GEN pr,GEN sprk)
   return gc_long(av, psquare2nf_i(nf,x,pr,sprk));
 }
 
+/*
+For z in nf, z != 0.
+quadratic characters modulo the prime ideal pr in nf.
+pr output by nfmodprinit
+pstar output by idealstar (only for p | 2).
+For p odd, the output is a vector [v,c]*Mod(1,2), where
+v = valuation(z,pr)
+c = !issquare( z/pr^v mod pr)
+For p | 2, the output is similar, with a longer sequence of 0,1 for c.
+*/
+
+GEN
+nf_quadchar_modpr(GEN nf, GEN z, GEN modpr, GEN pstar)
+{
+  pari_sp av = avma;
+  GEN pr = modpr_get_pr(modpr);
+  GEN v = stoi(nfvalrem(nf, z, pr, &z));
+  if( equaliu(pr_get_p(pr),2))
+  {
+    GEN c = ideallog(nf, z, pstar);
+    return gerepilecopy(av, shallowconcat(v, shallowtrans(c)));
+  }
+  else
+  {
+    GEN c = quad_char(nf, z, modpr)==1? gen_0: gen_1;
+    return gerepilecopy(av, mkvec2(v,c));
+  }
+}
+
 /* pr above an odd prime */
 static long
 lemma6nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN modpr)

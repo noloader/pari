@@ -708,6 +708,7 @@ GEN     subgrouplist_cond_sub(GEN bnr, GEN C, GEN bound);
 /* buch4.c */
 
 GEN     bnfsunit0(GEN bnf, GEN S, long flag, long prec);
+GEN     nf_quadchar_modpr(GEN nf, GEN z, GEN modpr, GEN pstar);
 
 /* crvwtors.c */
 
