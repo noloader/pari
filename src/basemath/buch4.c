@@ -93,7 +93,8 @@ zpsol(GEN T, GEN p, long nu, GEN pnu, GEN x0)
     if (gc_needed(btop, 2))
     {
       x = gerepileupto(btop, x);
-      if (DEBUGMEM > 1) pari_warn(warnmem, "zpsol: %ld/%Ps",i,p);
+      if (DEBUGMEM > 1)
+        pari_warn(warnmem, "hyperell_locally_soluble: %ld/%Ps",i,p);
     }
   }
   return gc_long(av,0);
@@ -106,9 +107,9 @@ hyperell_locally_soluble(GEN T,GEN p)
 {
   pari_sp av = avma;
   long res;
-  if (typ(T)!=t_POL) pari_err_TYPE("zpsoluble",T);
-  if (typ(p)!=t_INT) pari_err_TYPE("zpsoluble",p);
-  RgX_check_ZX(T, "zpsoluble");
+  if (typ(T)!=t_POL) pari_err_TYPE("hyperell_locally_soluble",T);
+  if (typ(p)!=t_INT) pari_err_TYPE("hyperell_locally_soluble",p);
+  RgX_check_ZX(T, "hyperell_locally_soluble");
   res = zpsol(T,p,0,gen_1,gen_0) || zpsol(RgX_recip_shallow(T), p, 1, p, gen_0);
   return gc_long(av, res);
 }
