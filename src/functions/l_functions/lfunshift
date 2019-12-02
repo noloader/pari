@@ -1,0 +1,10 @@
+Function: lfunshift
+Section: l_functions
+C-Name: lfunshift
+Prototype: GGp
+Help: lfunshift(L,d): creates the Ldata structure (without initialization)
+ corresponding to the shift of L by s, that is to the function Ld such that
+ Ld(s) = L(s-d).
+Doc: creates the Ldata structure (without initialization) corresponding to the
+ shift of $L$ by $d$, that is to the function $L_d$ such that
+ $L_d(s) = L(s-d)$.

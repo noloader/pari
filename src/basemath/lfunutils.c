@@ -155,6 +155,39 @@ vecan_twist(GEN an, long n, long prec)
 }
 
 static GEN
+vecan_shift(GEN an, long n, long prec)
+{
+  GEN p1 = ldata_vecan(gel(an,1), n, prec);
+  GEN s = gel(an,2);
+  long i;
+  GEN V;
+  if (typ(p1) == t_VECSMALL) p1 = vecsmall_to_vec(p1);
+  V = cgetg(n+1, t_VEC);
+  if (typ(s)==t_INT)
+  {
+    if (equali1(s))
+      for(i = 1; i <= n ; i++)
+      {
+        GEN gi = gel(p1, i);
+        gel(V, i) = gequal0(gi)? gi: gmulgs(gi, i);
+      }
+    else
+      for(i = 1; i <= n ; i++)
+      {
+        GEN gi = gel(p1, i);
+        gel(V, i) = gequal0(gi)? gi: gmul(gi, powgi(utoi(i), s));
+      }
+  }
+  else
+  {
+    GEN D = dirpowers(n, s, prec);
+    for(i = 1; i <= n ; i++)
+      gel(V, i) = gmul(gel(p1,i), gel(D,i));
+  }
+  return V;
+}
+
+static GEN
 lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
   long l, j, lr;
@@ -347,6 +380,73 @@ lfuntwist(GEN ldata1, GEN chi)
   else
     b = tag(mkvec2(b1,lfunconj(a2)), t_LFUN_TWIST);
   L = mkvecn(6, a, b, gam, k, N, gen_0);
+  return gerepilecopy(ltop, L);
+}
+
+static GEN
+RgV_Rg_translate(GEN x, GEN s)
+{ pari_APPLY_same(gadd(gel(x,i),s)) }
+
+static GEN
+pole_translate(GEN x, GEN s, GEN Ns)
+{
+  x = shallowcopy(x);
+  gel(x,1) = gadd(gel(x,1), s);
+  if (Ns)
+    gel(x,2) = gmul(gel(x,2), Ns);
+  return x;
+}
+
+static GEN
+poles_translate(GEN x, GEN s, GEN Ns)
+{ pari_APPLY_same(pole_translate(gel(x,i), s, Ns)) }
+
+static GEN
+deg1ser_shallow(GEN a1, GEN a0, long v, long e)
+{
+  return RgX_to_ser(deg1pol_shallow(a1, a0, v), e+2);
+}
+/* r / x + O(1) */
+static GEN
+simple_pole(GEN r)
+{
+  GEN S;
+  if (isintzero(r)) return gen_0;
+  S = deg1ser_shallow(gen_0, r, 0, 1);
+  setvalp(S, -1); return S;
+}
+
+GEN
+lfunshift(GEN ldata, GEN s, long prec)
+{
+  pari_sp ltop = avma;
+  GEN k, k1, L, N, a, b, gam, eps, res;
+  if (!is_rational_t(typ(s))) pari_err_TYPE("lfunshift",s);
+  ldata = lfunmisc_to_ldata_shallow(ldata);
+  a = ldata_get_an(ldata);
+  b = ldata_get_dual(ldata);
+  gam = RgV_Rg_translate(ldata_get_gammavec(ldata), gneg(s));
+  k = gadd(ldata_get_k(ldata), gmul2n(s, 1));
+  k1 = gadd(ldata_get_k1(ldata), s);
+  N = ldata_get_conductor(ldata);
+  eps = ldata_get_rootno(ldata);
+  res = ldata_get_residue(ldata);
+  a = tag(mkvec2(a, s), t_LFUN_SHIFT);
+  if (typ(b) != t_INT)
+    b = tag(mkvec2(b, s), t_LFUN_SHIFT);
+  if (res)
+    switch(typ(res))
+    {
+    case t_VEC:
+      res = poles_translate(res, s, NULL);
+      break;
+    case t_COL:
+      res = poles_translate(res, s, gpow(N, gmul2n(s, -1), prec));
+      break;
+    default:
+      res = mkvec(mkvec2(gsub(k, s), simple_pole(res)));
+    }
+  L = mkvecn(res ? 7: 6, a, b, gam, mkvec2(k, k1), N, eps, res);
   return gerepilecopy(ltop, L);
 }
 
@@ -2644,6 +2744,7 @@ ldata_vecan(GEN van, long L, long prec)
       break;
     }
     case t_LFUN_TWIST: an = vecan_twist(an, L, prec); break;
+    case t_LFUN_SHIFT: an = vecan_shift(an, L, prec); break;
     default: pari_err_TYPE("ldata_vecan", van);
   }
   if (DEBUGLEVEL >= 2) timer_printf(&ti, "ldata_vecan");
