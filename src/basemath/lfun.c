@@ -1070,8 +1070,12 @@ lfuninit_pol(GEN v, GEN poqk, long prec)
   GEN pol = cgetg(M+3, t_POL);
   pol[1] = evalsigne(1) | evalvarn(0);
   gel(pol, 2) = gprec_w(gmul2n(gel(v,1), -1), prec);
-  for (m = 2; m <= M+1; m++)
-    gel(pol, m+1) = gprec_w(gmul(gel(poqk,m), gel(v,m)), prec);
+  if (poqk)
+    for (m = 2; m <= M+1; m++)
+      gel(pol, m+1) = gprec_w(gmul(gel(poqk,m), gel(v,m)), prec);
+  else
+    for (m = 2; m <= M+1; m++)
+      gel(pol, m+1) = gprec_w(gel(v,m), prec);
   return RgX_renormalize_lg(pol, M+3);
 }
 
@@ -1509,7 +1513,8 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
   }
   h = divru(mplog2(S.precmax), S.m0);
   /* exp(kh/2 . [0..M]) */
-  poqk = gpowers(gprec_w(mpexp(gmul2n(gmul(k,h), -1)), S.precmax), S.M);
+  poqk = gequal0(k) ? NULL
+       : gpowers(gprec_w(mpexp(gmul2n(gmul(k,h), -1)), S.precmax), S.M);
   AB = lfuninit_ab(theta, h, &S);
   if (S.bn)
   {
@@ -1935,7 +1940,10 @@ lfunhardy(GEN lmisc, GEN t, long bitprec)
   k2 = lfun_get_k2(tech);
   expot = lfun_get_expot(tech);
   z = mkcomplex(k2, t);
-  argz = gatan(gdiv(t, k2), prec); /* more accurate than garg since k/2 \in Q */
+  if (gequal0(k2))
+    argz = Pi2n(-1, prec);
+  else
+    argz = gatan(gdiv(t, k2), prec);/* more accurate than garg since k/2 \in Q */
   /* prec may have increased: don't lose accuracy if |z|^2 is exact */
   prec = precision(argz);
   a = gsub(gmulsg(d, gmul(t, gmul2n(argz,-1))),
