@@ -2199,6 +2199,20 @@ rel_embed(REL_t *rel, FB_t *F, GEN embs, long ind, GEN M, long RU, long R1,
   }
   return D;
 }
+static GEN
+get_embs(FB_t *F, RELCACHE_t *cache, GEN nf, long RU, long R1, GEN embs,
+         long PREC)
+{
+  long l = cache->last - cache->chk + 1, j, k;
+  GEN M = nf_get_M(nf), nembs = cgetg(cache->last - cache->base+1, t_MAT);
+  REL_t *rel;
+
+  for (k = 1; k <= cache->chk - cache->base; k++) gel(nembs,k) = gel(embs,k);
+  embs = nembs;
+  for (j=1,rel = cache->chk + 1; j < l; rel++,j++,k++)
+    gel(embs,k) = rel_embed(rel, F, embs, k, M, RU, R1, PREC);
+  return embs;
+}
 static void
 set_rel_alpha(REL_t *rel, GEN auts, GEN vA, long ind)
 {
@@ -4061,32 +4075,35 @@ START:
       set_avma(av4);
       if (cache.chk != cache.last)
       { /* Reduce relation matrices */
-        long l = cache.last - cache.chk + 1, j, k;
-        GEN M = nf_get_M(nf), mat = cgetg(l, t_MAT);
-        GEN nembs = cgetg(cache.last - cache.base+1, t_MAT);
+        long l = cache.last - cache.chk + 1, j;
+        GEN mat = cgetg(l, t_MAT);
         REL_t *rel;
 
-        for (k = 1; k <= cache.chk - cache.base; k++) gel(nembs,k)=gel(embs,k);
-        embs = nembs;
-        for (j=1,rel = cache.chk + 1; j < l; rel++,j++,k++)
+        for (j=1,rel = cache.chk + 1; j < l; rel++,j++) gel(mat,j) = rel->R;
+        if (!flag || W)
         {
-          gel(mat,j) = rel->R;
-          gel(embs,k) = rel_embed(rel, &F, embs, k, M, RU, R1, PREC);
+          embs = get_embs(&F, &cache, nf, RU, R1, embs, PREC);
+          if (DEBUGLEVEL && timer_get(&T) > 1)
+            timer_printf(&T, "floating point embeddings");
         }
-        if (DEBUGLEVEL && timer_get(&T) > 1)
-          timer_printf(&T, "floating point embeddings");
         if (!W)
         { /* never reduced before */
           C = flag? matbotid(&cache): embs;
           W = hnfspec_i(mat, F.perm, &dep, &B, &C, F.subFB ? lg(F.subFB)-1:0);
           if (DEBUGLEVEL)
             timer_printf(&T, "hnfspec [%ld x %ld]", lg(F.perm)-1, l-1);
-          if (flag) C = vconcat(RgM_mul(embs, C), C);
+          if (flag)
+          {
+            PREC += nbits2extraprec(gexpo(C));
+            embs = get_embs(&F, &cache, nf, RU, R1, embs, PREC);
+            C = vconcat(RgM_mul(embs, C), C);
+          }
           if (DEBUGLEVEL)
             timer_printf(&T, "hnfspec floating points");
         }
         else
         {
+          long k = lg(embs);
           GEN E = vecslice(embs, k-l+1,k-1);
           if (flag)
           {
