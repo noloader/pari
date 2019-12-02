@@ -3721,7 +3721,7 @@ matenlarge(GEN C, long h)
 
 /* E = floating point embeddings */
 static GEN
-matbotid(RELCACHE_t *cache, GEN E)
+matbotidembs(RELCACHE_t *cache, GEN E)
 {
   long w = cache->last - cache->chk, h = cache->last - cache->base;
   long j, d = h - w, hE = nbrows(E);
@@ -3733,6 +3733,28 @@ matbotid(RELCACHE_t *cache, GEN E)
     gel(y,j) = c;
   }
   return y;
+}
+static GEN
+matbotid(RELCACHE_t *cache)
+{
+  long w = cache->last - cache->chk, h = cache->last - cache->base;
+  long j, d = h - w;
+  GEN y = cgetg(w+1,t_MAT);
+  for (j = 1; j <= w; j++)
+  {
+    GEN c = zerocol(h);
+    if (d + j >= 1) gel(c, d + j) = gen_1;
+    gel(y,j) = c;
+  }
+  return y;
+}
+
+static long
+myprecdbl(long prec, GEN C)
+{
+  long p = precdbl(prec);
+  if (C) p = maxss(p, prec + nbits2extraprec(gexpo(C)));
+  return p;
 }
 
 /* Nrelid = nb relations per ideal, possibly 0. If flag is set, keep data in
@@ -4055,17 +4077,20 @@ START:
           timer_printf(&T, "floating point embeddings");
         if (!W)
         { /* never reduced before */
-          C = flag? matbotid(&cache, embs): embs;
+          C = flag? matbotid(&cache): embs;
           W = hnfspec_i(mat, F.perm, &dep, &B, &C, F.subFB ? lg(F.subFB)-1:0);
           if (DEBUGLEVEL)
             timer_printf(&T, "hnfspec [%ld x %ld]", lg(F.perm)-1, l-1);
+          if (flag) C = vconcat(RgM_mul(embs, C), C);
+          if (DEBUGLEVEL)
+            timer_printf(&T, "hnfspec floating points");
         }
         else
         {
           GEN E = vecslice(embs, k-l+1,k-1);
           if (flag)
           {
-            E = matbotid(&cache, E);
+            E = matbotidembs(&cache, E);
             matenlarge(C, cache.last - cache.chk);
           }
           W = hnfadd_i(W, F.perm, &dep, &B, &C, mat, E);
@@ -4134,10 +4159,12 @@ START:
     /* we have computed way more relations than should be necessary */
     if (TRIES < 3 && cache.last - cache.base > 10 * F.KC) goto START;
     old_need = need;
-    if (!lambda) { precpb = "bestappr"; PREC = precdbl(PREC); continue; }
+    if (!lambda)
+    { precpb = "bestappr"; PREC = myprecdbl(PREC, flag? C: NULL); continue; }
     if (!R)
     { /* not full rank for units */
-      if (!need) { precpb = "regulator"; PREC = precdbl(PREC); }
+      if (!need)
+      { precpb = "regulator"; PREC = myprecdbl(PREC, flag? C: NULL); }
       continue;
     }
     h = ZM_det_triangular(W);
