@@ -1387,7 +1387,7 @@ field_is_contained(GEN V, GEN W, int strict)
 const long subf_MAXIMAL = 1; /* return the maximal subfields */
 const long subf_GENERATING = 2; /* return the generating subfields */
 static GEN
-maxgen_subfields(GEN pol, GEN fa, long n, long flag)
+maxgen_subfields(GEN pol, GEN fa, long flag)
 {
   pari_sp av = avma;
   GEN principal, ismax, isgene, Lmax = NULL, Lgene, res, V, W, W1;
@@ -1494,7 +1494,7 @@ nfsubfieldsmax(GEN nf)
   if (uisprime(n)) return gerepilecopy(av,mkvec(mkvec2(pol_x(varn(pol)),gen_0)));
   ero = subfields_get_ero(pol, nf);
   fa = subfields_get_fa(pol, nf, fa);
-  Lmax = maxgen_subfields(pol, fa, n, subf_MAXIMAL);
+  Lmax = maxgen_subfields(pol, fa, subf_MAXIMAL);
   for (i=1; i<lg(Lmax); i++)
   {
     V = gel(Lmax,i);
@@ -1572,7 +1572,7 @@ nfsubfields_fa(GEN nf, long d)
   if (d==n) return gerepilecopy(av, mkvec(mkvec2(pol,pol_x(varn(pol)))));
   ero = subfields_get_ero(pol, nf);
   fa = subfields_get_fa(pol, nf, fa);
-  gene = maxgen_subfields(pol, fa, n, subf_GENERATING);
+  gene = maxgen_subfields(pol, fa, subf_GENERATING);
 
   if (d)
   {
