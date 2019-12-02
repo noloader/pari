@@ -2013,7 +2013,7 @@ lfuncheckfeq_i(GEN theta, GEN thetad, GEN t0, GEN t0i, long bitprec)
   }
   if (gequal0(S0i) || gequal0(S0)) pari_err_PREC("lfuncheckfeq");
 
-  w = gdivvec(S0i, gmul(S0, gpow(t0, ldata_get_k(ldata), DEFAULTPREC)));
+  w = gdivvec(S0i, gmul(S0, gpow(t0, ldata_get_k(ldata), prec)));
   /* missing rootno: guess it */
   if (gequal0(eno)) eno = lfunrootno(theta, bitprec);
   w = gsub(w, eno);

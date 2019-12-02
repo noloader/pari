@@ -259,6 +259,9 @@ lfun(lfunetaquo(Mat([1,24])),2)
 lfun(lfunetaquo([5,2;7,2]),2)
 lfun(ellinit([1,1,1,-10,-10]),2)  \\ 15a1
 
+L=lfunqf(Mat(1));
+lfuncheckfeq(L)
+
 \\ residue 2*Pi/sqrt(23) at 1
 L=lfunqf([2,1;1,12]);
 L=lfuninit(L,[1/2,20],1);
