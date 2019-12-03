@@ -46,7 +46,7 @@ checkldata(GEN ldata)
   {
     case t_INT: break;
     case t_FRAC: break;
-    case t_VEC: if (lg(w) == 3 && typ(gel(w,1)) == t_INT) break;
+    case t_VEC: if (lg(w) == 3 && is_rational_t(typ(gel(w,1)))) break;
     default: pari_err_TYPE("checkldata [weight]",w);
   }
   N = ldata_get_conductor(ldata);
