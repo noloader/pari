@@ -56,9 +56,22 @@ ldata_get_k(GEN ldata)
   if (typ(w) == t_VEC) w = gel(w,1);
   return w;
 }
+
+/* a_n = O(n^{k1 + epsilon}) */
+GEN
+ldata_get_k1(GEN ldata)
+{
+  GEN w = gel(ldata,4);
+  if (typ(w) == t_VEC) return gel(w,2);
+  /* by default, assume that k1 = k-1 and even (k-1)/2 for entire functions */
+  w = gaddgs(w,-1);
+  if (ldata_get_residue(ldata)) w = gmul2n(w, -1);
+  return w;
+}
+
 /* a_n = O(n^{k1 + epsilon}) */
 static double
-ldata_get_k1(GEN ldata)
+ldata_get_k1_dbl(GEN ldata)
 {
   GEN w = gel(ldata,4);
   double k;
@@ -447,7 +460,7 @@ lfunthetacost(GEN ldata, GEN tdom, long m, long bitprec)
   pari_sp av = avma;
   GEN Vga = ldata_get_gammavec(ldata);
   long d = lg(Vga)-1;
-  long k1 = ldata_get_k1(ldata);
+  long k1 = ldata_get_k1_dbl(ldata);
   double c = d/2., a, A, B, logC, al, rho, T;
   double N = gtodouble(ldata_get_conductor(ldata));
 
@@ -1006,7 +1019,7 @@ lfunparams(GEN ldata, long der, long bitprec, struct lfunp *S)
   hd = M_LN2/S->m0;
 
   logC = d2*M_LN2 - log(d2)/2;
-  k1 = ldata_get_k1(ldata);
+  k1 = ldata_get_k1_dbl(ldata);
   S->k1 = k1; /* assume |a_n| << n^k1 with small implied constant */
   A = gammavec_expo(d, suma);
 

@@ -4018,6 +4018,7 @@ GEN     ldata_get_dual(GEN ldata);
 GEN     ldata_get_gammavec(GEN ldata);
 long    ldata_get_degree(GEN ldata);
 GEN     ldata_get_k(GEN ldata);
+GEN     ldata_get_k1(GEN ldata);
 GEN     ldata_get_conductor(GEN ldata);
 GEN     ldata_get_rootno(GEN ldata);
 GEN     ldata_get_residue(GEN ldata);
