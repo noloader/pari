@@ -492,16 +492,13 @@ lllintpartial_inplace(GEN mat) { return lllintpartialall(mat,0); }
 /********************************************************************/
 
 static int
-check_condition(double beta, double tau, double rho, long d, long delta, long t)
+check(double beta, double tau, double rho, long d, long delta, long t)
 {
   long dim = d*delta + t;
-  double cond = d*delta*(delta+1)/2 - beta*delta*dim
-    + rho*delta*(delta - 1) / 2
-    + rho * t * delta + tau*dim*(dim - 1)/2;
-
+  double cond = delta * (d * (delta+1) - 2*beta*dim + rho * (delta-1 + 2*t))
+                + tau*dim*(dim - 1);
   if (DEBUGLEVEL >= 4)
-    err_printf("delta = %d, t = %d, cond = %.1lf\n", delta, t, cond);
-
+    err_printf("delta = %d, t = %d (%.1lf)\n", delta, t, cond);
   return (cond <= 0);
 }
 
@@ -510,12 +507,11 @@ choose_params(GEN P, GEN N, GEN X, GEN B, long *pdelta, long *pt)
 {
   long d = degpol(P);
   GEN P0 = leading_coeff(P);
-  double logN = gtodouble(glog(N, DEFAULTPREC));
-  double tau, beta, rho;
+  double logN = gtodouble(glog(N, DEFAULTPREC)), tau, beta, rho;
   long delta, t;
   tau = gtodouble(glog(X, DEFAULTPREC)) / logN;
   beta = B? gtodouble(glog(B, DEFAULTPREC)) / logN: 1.;
-  if (tau >= beta * beta / d)
+  if (tau * d >= beta * beta)
     pari_err_OVERFLOW("zncoppersmith [bound too large]");
   /* TODO : remove P0 completely ! */
   rho = gtodouble(glog(P0, DEFAULTPREC)) / logN;
@@ -526,12 +522,8 @@ choose_params(GEN P, GEN N, GEN X, GEN B, long *pdelta, long *pt)
   for(;;)
   {
     t += d * delta + 1; delta = 0;
-    while (t >= 0) {
-      if (check_condition(beta, tau, rho, d, delta, t)) {
-        *pdelta = delta; *pt = t; return;
-      }
-      delta++; t -= d;
-    }
+    for (delta = 0; t >= 0; delta++, t -= d)
+      if (check(beta,tau,rho,d,delta,t)) { *pdelta = delta; *pt = t; return; }
   }
 }
 
@@ -559,37 +551,40 @@ do_exhaustive(GEN P, GEN N, long x, GEN B)
 /* General Coppersmith, look for a root x0 <= p, p >= B, p | N, |x0| <= X.
  * B = N coded as NULL */
 GEN
-zncoppersmith(GEN P0, GEN N, GEN X, GEN B)
+zncoppersmith(GEN P, GEN N, GEN X, GEN B)
 {
-  GEN Q, R, N0, M, sh, short_pol, *Xpowers, sol, nsp, P, Z;
+  GEN Q, R, N0, M, sh, short_pol, *Xpowers, sol, nsp, cP, Z;
   long delta, i, j, row, d, l, dim, t, bnd = 10;
   const ulong X_SMALL = 1000;
-
   pari_sp av = avma;
 
-  if (typ(P0) != t_POL) pari_err_TYPE("zncoppersmith",P0);
+  if (typ(P) != t_POL || !RgX_is_ZX(P)) pari_err_TYPE("zncoppersmith",P);
   if (typ(N) != t_INT) pari_err_TYPE("zncoppersmith",N);
   if (typ(X) != t_INT) {
     X = gfloor(X);
     if (typ(X) != t_INT) pari_err_TYPE("zncoppersmith",X);
   }
   if (signe(X) < 0) pari_err_DOMAIN("zncoppersmith", "X", "<", gen_0, X);
-  d = degpol(P0);
+  P = FpX_red(P, N); d = degpol(P);
   if (d == 0) { set_avma(av); return cgetg(1, t_VEC); }
   if (d < 0) pari_err_ROOTS0("zncoppersmith");
   if (B && typ(B) != t_INT) B = gceil(B);
-
   if (abscmpiu(X, X_SMALL) <= 0)
-    return gerepileupto(av, do_exhaustive(P0, N, itos(X), B));
+    return gerepileupto(av, do_exhaustive(P, N, itos(X), B));
 
   if (B && equalii(B,N)) B = NULL;
   if (B) bnd = 1; /* bnd-hack is only for the case B = N */
-  P = leafcopy(P0);
-  if (!gequal1(gel(P,d+2)))
+  cP = gel(P,d+2);
+  if (!gequal1(cP))
   {
     GEN r, z;
-    gel(P,d+2) = bezout(gel(P,d+2), N, &z, &r);
-    for (j = 0; j < d; j++) gel(P,j+2) = modii(mulii(gel(P,j+2), z), N);
+    gel(P,d+2) = cP = bezout(cP, N, &z, &r);
+    for (j = 0; j < d; j++) gel(P,j+2) = Fp_mul(gel(P,j+2), z, N);
+    if (!is_pm1(cP))
+    {
+      P = Q_primitive_part(P, &cP);
+      if (cP) { N = diviiexact(N,cP); B = gceil(gdiv(B, cP)); }
+    }
   }
   if (DEBUGLEVEL >= 2) err_printf("Modified P: %Ps\n", P);
 

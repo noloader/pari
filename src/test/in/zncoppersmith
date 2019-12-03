@@ -13,3 +13,8 @@ C = lift( (Mod(x0,N) + P)^e );
 z = zncoppersmith((P+x)^3 - C, N, X)
 z[1] == x0
 zncoppersmith(Pol([192378,19237198,912831923,12938719]), 2*3*5*7, 1000.5, 29.5)
+
+\\ ERRORS
+p=nextprime(2^20);q=nextprime(2*p);n=q*p;v=n+1;P=x^2-1;
+zncoppersmith(v*P,v*n,p,p*v)
+zncoppersmith(x/2, 10, 5, 5)
