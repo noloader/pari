@@ -157,7 +157,7 @@ vecan_twist(GEN an, long n, long prec)
 static GEN
 lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
-  long l, j;
+  long l, j, lr;
   GEN k = ldata_get_k(ldata1);
   GEN r1 = ldata_get_residue(ldata1);
   GEN r2 = ldata_get_residue(ldata2), r;
@@ -174,11 +174,13 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
     r1 = lfunrtopoles(r1);
     if (r2) r1 = setunion_i(r1, lfunrtopoles(r2));
   }
-  l = lg(r1); r = cgetg(l, t_VEC);
+  l = lg(r1); r = cgetg(l, t_VEC); lr = 1;
   for (j = 1; j < l; j++)
   {
     GEN be = gel(r1,j);
     GEN z1 = lfun(ldata1,be,bitprec), z2 = lfun(ldata2,be,bitprec);
+    if (isintzero(z1) || isintzero(z2))
+      continue;
     if (typ(z1) == t_SER && typ(z2) == t_SER)
     { /* pole of both, recompute to needed seriesprecision */
       long e = valp(z1) + valp(z2);
@@ -186,8 +188,9 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
       z1 = lfun(ldata1,b,bitprec);
       z2 = lfun(ldata2,b,bitprec);
     }
-    gel(r,j) = mkvec2(be, gmul(z1, z2));
+    gel(r,lr++) = mkvec2(be, gmul(z1, z2));
   }
+  setlg(r, lr);
   return r;
 }
 
