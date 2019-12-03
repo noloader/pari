@@ -3863,7 +3863,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   if (cbach < 0.)
     pari_err_DOMAIN("Buchall","Bach constant","<",gen_0,dbltor(cbach));
 
-  cache.base = NULL; F.subFB = NULL; F.LP = NULL;
+  cache.base = NULL; F.subFB = NULL; F.LP = NULL; SUnits = Ce = NULL;
   init_GRHcheck(&GRHcheck, N, R1, LOGD);
   high = low = LIMC0 = maxss((long)(cbach2*LOGD2), 1);
   while (!GRHchk(nf, &GRHcheck, high)) { low = high; high *= 2; }
@@ -4209,7 +4209,7 @@ START:
     /* fundamental units */
     {
       GEN AU, CU, U, H, v = extract_full_lattice(L); /* L may be very large */
-      SUnits = CU = NULL;
+      CU = NULL;
       if (v) { A = vecpermute(A, v); L = vecpermute(L, v); }
       /* arch. components of fund. units */
       H = ZM_hnflll(L, &U, 1); U = vecslice(U, lg(U)-(RU-1), lg(U)-1);
