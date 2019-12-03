@@ -208,8 +208,7 @@ lfunmul(GEN ldata1, GEN ldata2, long bitprec)
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
   a1a2 = lfunconvol(ldata_get_an(ldata1), ldata_get_an(ldata2));
   b1b2 = lfuncombdual(lfunconvol, ldata1, ldata2);
-  LD = mkvecn(7, a1a2, b1b2, Vga, k, N, eno, r);
-  if (!r) setlg(LD,7);
+  LD = mkvecn(r? 7: 6, a1a2, b1b2, Vga, k, N, eno, r);
   return gerepilecopy(ltop, LD);
 }
 
