@@ -47,7 +47,13 @@ nfsubfields(x^6-3*x^5+5*x^4-5*x^3+5*x^2-3*x+1,6)
 nfsubfields(x^6-3*x^5+5*x^4-5*x^3+5*x^2-3*x+1,3)
 
 /* maximal CM subfield */
-testcm(a) =
+dec(pol) =
+{
+  my(vp);
+  vp = [15889, 11927, 10499, 18367, 10159, 11657, 13159, 14983, 12541, 17789];
+  print(vector(#vp,i,factormod(pol,vp[i],1)[,1]~))
+};
+testcm(a,P) =
 {
   my(pol,v);
   if(!a,return(a));
@@ -56,55 +62,70 @@ testcm(a) =
   if(pol!=subst(pol,v,-v), return(-1));
   if(polsturm(pol), return(-2));
   if(polsturm(substpol(pol,v^2,v))!=poldegree(pol)/2, return(-3));
+  if(subst(pol,v,Mod(a[2],P))!=0, return(-4));
+  dec(pol); \\to quickly check if different output defines the same field
   a
+};
+testmaxcm(P,fl=0) =
+{
+  my(a);
+  print("P=", P, " fl=",fl);
+  if(fl,
+    a = nfsubfieldscm(nfinit(P)),
+  \\else
+    a = nfsubfieldscm(P)
+  );
+  testcm(a,P)
 };
 
 default(parisize,32M);
 setrand(1);
 x = 'x;
 y = varhigher("y");
-testcm(nfsubfieldscm(x^2+2*x+7)) \\d=2
-testcm(nfsubfieldscm(x^2+x+7)) \\d=2
-testcm(nfsubfieldscm(x)) \\d=0
-testcm(nfsubfieldscm(x^2-2)) \\d=0
-testcm(nfsubfieldscm(x^3-x-1)) \\d=0
-testcm(nfsubfieldscm(nfinit(x^2+3))) \\d=2
-testcm(nfsubfieldscm(x^4+3)) \\d=2
-testcm(nfsubfieldscm(nfinit(x^6+3))) \\d=2 Galois
-testcm(nfsubfieldscm(y^6-2*y^3+7*y^2+28*y+29)) \\d=2
-testcm(nfsubfieldscm(nfinit(x^6+2*x^4+x^2+3))) \\d=2
-testcm(nfsubfieldscm(nfinit(x^4-x+1))) \\d=0
-testcm(nfsubfieldscm(x^3-x+1)) \\d=0
-testcm(nfsubfieldscm(x^4-x^3+2*x-1)) \\d=0
-testcm(nfsubfieldscm(nfinit(x^4+10*x^2+81))) \\d=4 Galois
-testcm(nfsubfieldscm(y^4-y^3+3*y^2-2*y+4)) \\d=4
-testcm(nfsubfieldscm(nfinit(x^4+4*x^2+2))) \\d=4 Galois
-testcm(nfsubfieldscm(nfinit(y^4-2*y^3+5*y^2-4*y+2)))\\d=4
-testcm(nfsubfieldscm(nfinit(x^8-4*x^7+6*x^6-4*x^5+11*x^4-20*x^3+10*x^2+81))) \\d=4
+testmaxcm(x^2+2*x+7) \\d=2
+testmaxcm(x^2+x+7) \\d=2
+testmaxcm(x) \\d=0
+testmaxcm(x^2-2) \\d=0
+testmaxcm(x^3-x-1) \\d=0
+testmaxcm(x^2+3,1) \\d=2
+testmaxcm(x^4+3) \\d=2
+testmaxcm(x^6+3,1) \\d=2 Galois
+testmaxcm(y^6-2*y^3+7*y^2+28*y+29) \\d=2
+testmaxcm(x^6+2*x^4+x^2+3) \\d=2
+testmaxcm(x^4-x+1,1) \\d=0
+testmaxcm(x^3-x+1) \\d=0
+testmaxcm(x^4-x^3+2*x-1) \\d=0
+testmaxcm(x^4+10*x^2+81,1) \\d=4 Galois
+testmaxcm(y^4-y^3+3*y^2-2*y+4) \\d=4
+testmaxcm(x^4+4*x^2+2,1) \\d=4 Galois
+testmaxcm(y^4-2*y^3+5*y^2-4*y+2,1)\\d=4
+testmaxcm(x^8-4*x^7+6*x^6-4*x^5+11*x^4-20*x^3+10*x^2+81,1) \\d=4
 pol = x^12-4*x^10+6*x^8+6*x^6-19*x^4+10*x^2+81;
 fa = nffactor(pol,subst(pol,x,y));
-testcm(nfsubfieldscm([pol,fa])) \\d=4
-testcm(nfsubfieldscm(nfinit(x^8+8*x^6-16*x^5+32*x^4-48*x^3+88*x^2-80*x+49))) \\d=4
-testcm(nfsubfieldscm(nfinit(x^12+4*x^9+4*x^8+6*x^6+8*x^5+2*x^4+4*x^3+4*x^2+1))) \\d=4
-testcm(nfsubfieldscm(nfinit(x^16-8*x^14+1108*x^12+3704*x^10+31142*x^8+104712*x^6+151252*x^4+101000*x^2+25921))) \\d=4
-testcm(nfsubfieldscm(x^32+64*x^30+6784*x^28+313984*x^26+7747040*x^24+108163584*x^22+981706752*x^20+10666873856*x^18+162128298368*x^16+1744771198976*x^14+10419948331008*x^12+43184187432960*x^10+220661237381120*x^8+598077891510272*x^6+1432066821718016*x^4+4527791925035008*x^2+5903913504477184)) \\d=4
+print("with factorisation given, P=",pol);
+testcm(nfsubfieldscm([pol,fa]),pol) \\d=4
+testmaxcm(x^8+8*x^6-16*x^5+32*x^4-48*x^3+88*x^2-80*x+49,1) \\d=4
+testmaxcm(x^12+4*x^9+4*x^8+6*x^6+8*x^5+2*x^4+4*x^3+4*x^2+1,1) \\d=4
+testmaxcm(x^16-8*x^14+1108*x^12+3704*x^10+31142*x^8+104712*x^6+151252*x^4+101000*x^2+25921,1) \\d=4
+testmaxcm(x^32+64*x^30+6784*x^28+313984*x^26+7747040*x^24+108163584*x^22+981706752*x^20+10666873856*x^18+162128298368*x^16+1744771198976*x^14+10419948331008*x^12+43184187432960*x^10+220661237381120*x^8+598077891510272*x^6+1432066821718016*x^4+4527791925035008*x^2+5903913504477184) \\d=4
 pol=x^12+16*x^10-2*x^9-23*x^8-354*x^7+78*x^6-12*x^5+1468*x^4+1120*x^3+1808*x^2+768*x+576; \\d=2
 nf = nfinit(pol);
 fa = nffactor(nf,subst(pol,x,y));
-testcm(nfsubfieldscm([nf,fa]))
-testcm(nfsubfieldscm(x^4 + 12*x^3 + 256*x^2 + 3336*x + 12604)) \\d=4 Galois
-testcm(nfsubfieldscm(y^2+y+1)) \\d=2
-testcm(nfsubfieldscm(x^6-3*x^5+10*x^4-15*x^3+19*x^2-12*x+3)) \\d=6
-testcm(nfsubfieldscm(x^6-2*x^5+5*x^4-7*x^3+10*x^2-8*x+8)) \\d=6
-testcm(nfsubfieldscm(x^6-3*x^5+9*x^4-13*x^3+14*x^2-8*x+2)) \\d=6
-testcm(nfsubfieldscm(x^6-x^5+3*x^4+5*x^2-2*x+1)) \\d=6 Galois
+print("with factorisation given, P=",pol);
+testcm(nfsubfieldscm([nf,fa]),pol)
+testmaxcm(x^4 + 12*x^3 + 256*x^2 + 3336*x + 12604,1) \\d=4 Galois
+testmaxcm(y^2+y+1,1) \\d=2
+testmaxcm(x^6-3*x^5+10*x^4-15*x^3+19*x^2-12*x+3,1) \\d=6
+testmaxcm(x^6-2*x^5+5*x^4-7*x^3+10*x^2-8*x+8) \\d=6
+testmaxcm(x^6-3*x^5+9*x^4-13*x^3+14*x^2-8*x+2) \\d=6
+testmaxcm(x^6-x^5+3*x^4+5*x^2-2*x+1) \\d=6 Galois
 
 /*
 pol=x^64+96*x^62+3664*x^60+138336*x^58+48820072*x^56+3774511776*x^54+70408452368*x^52-3415715897312*x^50-181460174504612*x^48-1463269424430880*x^46+112876320630546640*x^44+3886553626590075360*x^42+32310544425610576856*x^40-817216419624670193120*x^38-18911989493213299044592*x^36+75574827575221188959392*x^34+6783110257645673896066374*x^32+67427794556366653417262880*x^30-409224232405699240608837520*x^28-10185024231373897791953995488*x^26+33608627271402636315786176216*x^24+2140786977982277330764698677728*x^22+21348037724434578430036558445488*x^20+100303837892445470036900049409120*x^18+582288171538387674384751933046364*x^16+7711202633675979091131330471311264*x^14+69710093402021717453738274884587632*x^12+386871329165182266612613221832239264*x^10+1514959930843170006056476784315321960*x^8+3874327706504734663911058389446508896*x^6+7048076339097734475940309155972500528*x^4+6410435303585417655341147657197094624*x^2+3772954882839399478106092174375436161;
 nf = nfinit([pol,10^6]); \\40s
 nfcertify(nf)==[]
 fa = nffactor(nf,subst(pol,x,y)); \\2min
-testcm(nfsubfieldscm([nf,fa])) \\10s
+testcm(nfsubfieldscm([nf,fa]),pol) \\10s
 \\nfsubfields 2h
 \\d=4
 */
@@ -114,10 +135,11 @@ y = 'y;
 \\from doc
 nf = nfinit(x^8 + 20*x^6 + 10*x^4 - 4*x^2 + 9);
 nfsubfieldscm(nf)
+testcm(nfsubfieldscm(nf),nf.pol)
 pol = y^16 - 8*y^14 + 29*y^12 - 60*y^10 + 74*y^8 - 48*y^6 + 8*y^4 + 4*y^2 + 1;
 fa = nffactor(pol, subst(pol,y,x));
 nfsubfieldscm([pol,fa])
-testcm(nfsubfieldscm([pol,fa]))
+testcm(nfsubfieldscm([pol,fa]),pol)
 
 /* maximal subfields */
 nfsubfieldsmax(x+1)
