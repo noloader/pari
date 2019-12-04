@@ -492,11 +492,10 @@ lllintpartial_inplace(GEN mat) { return lllintpartialall(mat,0); }
 /********************************************************************/
 
 static int
-check(double beta, double tau, double rho, long d, long delta, long t)
+check(double b, double x, double rho, long d, long dim, long delta, long t)
 {
-  long dim = d*delta + t;
-  double cond = delta * (d * (delta+1) - 2*beta*dim + rho * (delta-1 + 2*t))
-                + tau*dim*(dim - 1);
+  double cond = delta * (d * (delta+1) - 2*b*dim + rho * (delta-1 + 2*t))
+                + x*dim*(dim - 1);
   if (DEBUGLEVEL >= 4)
     err_printf("delta = %d, t = %d (%.1lf)\n", delta, t, cond);
   return (cond <= 0);
@@ -505,25 +504,21 @@ check(double beta, double tau, double rho, long d, long delta, long t)
 static void
 choose_params(GEN P, GEN N, GEN X, GEN B, long *pdelta, long *pt)
 {
-  long d = degpol(P);
+  long d = degpol(P), dim;
   GEN P0 = leading_coeff(P);
-  double logN = gtodouble(glog(N, DEFAULTPREC)), tau, beta, rho;
-  long delta, t;
-  tau = gtodouble(glog(X, DEFAULTPREC)) / logN;
-  beta = B? gtodouble(glog(B, DEFAULTPREC)) / logN: 1.;
-  if (tau * d >= beta * beta)
-    pari_err_OVERFLOW("zncoppersmith [bound too large]");
-  /* TODO : remove P0 completely ! */
-  rho = gtodouble(glog(P0, DEFAULTPREC)) / logN;
+  double logN = gtodouble(glog(N, DEFAULTPREC)), x, b, rho;
+  x = gtodouble(glog(X, DEFAULTPREC)) / logN;
+  b = B? gtodouble(glog(B, DEFAULTPREC)) / logN: 1.;
+  if (x * d >= b * b) pari_err_OVERFLOW("zncoppersmith [bound too large]");
+  /* TODO : remove P0 completely */
+  rho = is_pm1(P0)? 0: gtodouble(glog(P0, DEFAULTPREC)) / logN;
 
-  /* Enumerate (delta,t) by increasing dimension of resulting lattice.
-   * Not subtle, but o(1) for computing time */
-  t = d; delta = 0;
-  for(;;)
+  /* Enumerate (delta,t) by increasing lattice dimension */
+  for(dim = d + 1;; dim++)
   {
-    t += d * delta + 1; delta = 0;
-    for (delta = 0; t >= 0; delta++, t -= d)
-      if (check(beta,tau,rho,d,delta,t)) { *pdelta = delta; *pt = t; return; }
+    long delta, t; /* dim = d*delta + t in the loop */
+    for (delta = 0, t = dim; t >= 0; delta++, t -= d)
+      if (check(b,x,rho,d,dim,delta,t)) { *pdelta = delta; *pt = t; return; }
   }
 }
 
@@ -554,7 +549,7 @@ GEN
 zncoppersmith(GEN P, GEN N, GEN X, GEN B)
 {
   GEN Q, R, N0, M, sh, short_pol, *Xpowers, sol, nsp, cP, Z;
-  long delta, i, j, row, d, l, dim, t, bnd = 10;
+  long delta, i, j, row, d, l, t, dim, bnd = 10;
   const ulong X_SMALL = 1000;
   pari_sp av = avma;
 
@@ -594,7 +589,6 @@ zncoppersmith(GEN P, GEN N, GEN X, GEN B)
   for(;;)
   {
     dim = d * delta + t;
-
     /* TODO: In case of failure do not recompute the full vector */
     Xpowers = (GEN*)new_chunk(dim + 1);
     Xpowers[0] = gen_1;
@@ -662,7 +656,7 @@ zncoppersmith(GEN P, GEN N, GEN X, GEN B)
     if (cmpii(nsp, mului(bnd, Z)) < 0) break; /* SUCCESS */
 
     /* Failed with the precomputed or supplied value */
-    t++; if (t == d) { delta++; t = 1; }
+    if (++t == d) { delta++; t = 1; }
     if (DEBUGLEVEL >= 2)
       err_printf("Increasing dim, delta = %d t = %d\n", delta, t);
   }
