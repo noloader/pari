@@ -618,7 +618,7 @@ lfunrtoR_i(GEN ldata, GEN r, GEN eno, long prec)
     pari_err(e_MISC,"please give the Taylor development of Lambda");
   vr = lfunrtopoles(r); lr = lg(vr);
   FVga = gammafactor(Vga);
-  R = cgetg(2*lr, t_VEC);
+  R = cgetg(2*lr, t_COL);
   for (j = jR = 1; j < lr; j++)
   {
     GEN rj = gel(r,j), a = gel(rj,1), ra = gel(rj,2);
