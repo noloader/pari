@@ -212,6 +212,7 @@ check all formats
 0.661475187921069742727520633979626889791045796292710056
 -190
 -188
+-58
 0.953260474794660686250509013566383496014986229687151072 + 16.29021572039039
 07929631726451921643054665845864660536*I
 0
@@ -331,4 +332,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfunorderzero([errG,[[1,8]~,[1,2]~]])
   ***                 ^-------------------------------------
   *** lfunorderzero: incorrect type in lfunorderzero [vector-valued] (t_VEC).
-Total time spent: 6736
+Total time spent: 9772

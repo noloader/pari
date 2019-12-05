@@ -55,7 +55,8 @@ lfuncreate(()->[n->lfunan(Mod(2,7),n),1,[0],1,7,((-13-3*sqrt(-3))/14)^(1/6)])),
 lfuncreate([bnr,[[1],[2]]])),
 if(1,my(G=znstar(44,1)); lfuncreate([G,[[3,0],[9,0]]])),
 lfunshift(x^2+1,1),
-lfunshift(x^2+1,-1/2)
+lfunshift(x^2+1,-1/2),
+lfunshift(x^2+1,1,1)
 ];
 }
 

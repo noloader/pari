@@ -262,6 +262,7 @@ lfun(ellinit([1,1,1,-10,-10]),2)  \\ 15a1
 L=lfunqf(Mat(1));
 lfuncheckfeq(L)
 lfuncheckfeq(lfunshift(L,1))
+localbitprec(64);lfuncheckfeq(lfunshift(L,1,1))
 
 \\ residue 2*Pi/sqrt(23) at 1
 L=lfunqf([2,1;1,12]);
@@ -270,8 +271,7 @@ newton(L,z,N)=for(i=1,N,z-=lfun(L,z)/lfun(L,z,1));z;
 z=newton(L,1/2+16*I,10)
 abs(lfun(L,z))>1e-50
 
-localprec(100);
-L=lfunmul(1,1);
+localprec(100); L=lfunmul(1,1);
 lfun(L,2)/(Pi^4/36)
 lfuncheckfeq(L)
 

@@ -4062,7 +4062,7 @@ GEN     lfunprod_get_fact(GEN tech);
 GEN     lfunrootno(GEN data, long bitprec);
 GEN     lfunrootres(GEN data, long bitprec);
 GEN     lfunrtopoles(GEN r);
-GEN     lfunshift(GEN ldata, GEN s, long prec);
+GEN     lfunshift(GEN ldata, GEN s, long flag, long prec);
 GEN     lfuntwist(GEN ldata1, GEN ldata2);
 GEN     lfuntheta(GEN data, GEN t, long m, long bitprec);
 long    lfunthetacost0(GEN L, GEN tdom, long m, long bitprec);

@@ -211,32 +211,24 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
   for (j = 1; j < l; j++)
   {
     GEN be = gel(r1,j);
-    GEN z1 = lfun(ldata1,be,bitprec), z2 = lfun(ldata2,be,bitprec);
-    if (isintzero(z1) || isintzero(z2))
-      continue;
-    if (typ(z1) == t_SER && typ(z2) == t_SER)
+    GEN bx = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 4);
+    GEN z1 = lfun(ldata1,bx,bitprec), z2 = lfun(ldata2,bx,bitprec);
     { /* pole of both, recompute to needed seriesprecision */
       long e = valp(z1) + valp(z2);
-      GEN b = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 3-e);
+      GEN b = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 4-e);
       z1 = lfun(ldata1,b,bitprec);
       z2 = lfun(ldata2,b,bitprec);
     }
     gel(r,lr++) = mkvec2(be, gmul(z1, z2));
   }
   setlg(r, lr);
-  return r;
+  return lr==1? NULL: r;
 }
 
-GEN
-lfunmul(GEN ldata1, GEN ldata2, long bitprec)
+static GEN
+lfunmul_k(GEN ldata1, GEN ldata2, GEN k, long bitprec)
 {
-  pari_sp ltop = avma;
-  GEN k, r, N, Vga, eno, a1a2, b1b2, LD;
-  ldata1 = lfunmisc_to_ldata_shallow(ldata1);
-  ldata2 = lfunmisc_to_ldata_shallow(ldata2);
-  k = ldata_get_k(ldata1);
-  if (!gequal(ldata_get_k(ldata2),k))
-    pari_err_OP("lfunmul [weight]",ldata1, ldata2);
+  GEN r, N, Vga, eno, a1a2, b1b2;
   r = lfunmulpoles(ldata1, ldata2, bitprec);
   N = gmul(ldata_get_conductor(ldata1), ldata_get_conductor(ldata2));
   Vga = shallowconcat(ldata_get_gammavec(ldata1), ldata_get_gammavec(ldata2));
@@ -244,8 +236,20 @@ lfunmul(GEN ldata1, GEN ldata2, long bitprec)
   eno = gmul(ldata_get_rootno(ldata1), ldata_get_rootno(ldata2));
   a1a2 = lfunconvol(ldata_get_an(ldata1), ldata_get_an(ldata2));
   b1b2 = lfuncombdual(lfunconvol, ldata1, ldata2);
-  LD = mkvecn(r? 7: 6, a1a2, b1b2, Vga, k, N, eno, r);
-  return gerepilecopy(ltop, LD);
+  return mkvecn(r? 7: 6, a1a2, b1b2, Vga, k, N, eno, r);
+}
+
+GEN
+lfunmul(GEN ldata1, GEN ldata2, long bitprec)
+{
+  pari_sp ltop = avma;
+  GEN k;
+  ldata1 = lfunmisc_to_ldata_shallow(ldata1);
+  ldata2 = lfunmisc_to_ldata_shallow(ldata2);
+  k = ldata_get_k(ldata1);
+  if (!gequal(ldata_get_k(ldata2),k))
+    pari_err_OP("lfunmul [weight]",ldata1, ldata2);
+  return gerepilecopy(ltop, lfunmul_k(ldata1, ldata2, k, bitprec));
 }
 
 static GEN
@@ -417,10 +421,11 @@ simple_pole(GEN r)
 }
 
 GEN
-lfunshift(GEN ldata, GEN s, long prec)
+lfunshift(GEN ldata, GEN s, long flag, long bitprec)
 {
   pari_sp ltop = avma;
   GEN k, k1, L, N, a, b, gam, eps, res;
+  long prec = nbits2prec(bitprec);
   if (!is_rational_t(typ(s))) pari_err_TYPE("lfunshift",s);
   ldata = lfunmisc_to_ldata_shallow(ldata);
   a = ldata_get_an(ldata);
@@ -447,6 +452,7 @@ lfunshift(GEN ldata, GEN s, long prec)
       res = mkvec(mkvec2(gsub(k, s), simple_pole(res)));
     }
   L = mkvecn(res ? 7: 6, a, b, gam, mkvec2(k, k1), N, eps, res);
+  if (flag) L = lfunmul_k(ldata, L, gsub(k, s), bitprec);
   return gerepilecopy(ltop, L);
 }
 
