@@ -2495,7 +2495,9 @@ RgXn_expint(GEN h, long e)
 GEN
 RgXn_exp(GEN h, long e)
 {
-  if (degpol(h)==0 || !gequal0(gel(h,2)))
+  long d = degpol(h);
+  if (d < 0) return pol_1(varn(h));
+  if (!d || !gequal0(gel(h,2)))
     pari_err_DOMAIN("RgXn_exp","valuation", "<", gen_1, h);
   return RgXn_expint(RgX_deriv(h), e);
 }
