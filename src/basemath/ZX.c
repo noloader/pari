@@ -1049,6 +1049,19 @@ ZXX_renormalize(GEN x, long lx)
   setlg(x, i+1); setsigne(x, i!=1); return x;
 }
 
+GEN
+ZXX_evalx0(GEN y)
+{
+  long i, l = lg(y);
+  GEN z = cgetg(l,t_POL); z[1] = y[1];
+  for(i=2; i<l; i++)
+  {
+    GEN yi = gel(y,i);
+    gel(z,i) = typ(yi)==t_INT? yi: constant_coeff(yi);
+  }
+  return ZX_renormalize(z,l);
+}
+
 long
 ZXX_max_lg(GEN x)
 {
