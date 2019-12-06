@@ -195,8 +195,8 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
   GEN r1 = ldata_get_residue(ldata1);
   GEN r2 = ldata_get_residue(ldata2), r;
 
-  if (r1 && typ(r1) != t_VEC) r1 = mkvec(mkvec2(k, r1));
-  if (r2 && typ(r2) != t_VEC) r2 = mkvec(mkvec2(k, r2));
+  if (r1 && !is_vec_t(typ(r1))) r1 = mkvec(mkvec2(k, r1));
+  if (r2 && !is_vec_t(typ(r2))) r2 = mkvec(mkvec2(k, r2));
   if (!r1)
   {
     if (!r2) return NULL;
