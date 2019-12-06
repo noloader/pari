@@ -2686,12 +2686,8 @@ except \kbd{x} is now a \kbd{long}.
 \fun{long}{z_pvalrem}{long x, GEN p} as \kbd{Z\_pvalrem},
 except \kbd{x} is now a \kbd{long}.
 
-\fun{long}{Q_pval}{GEN x, GEN p} valuation at the \typ{INT} \kbd{p}
-of the \typ{INT} or \typ{FRAC}~\kbd{x}.
-
 \fun{long}{factorial_lval}{ulong n, ulong p} returns $v_p(n!)$, assuming
 $p$ is prime.
-
 
 The following convenience functions generalize \kbd{Z\_pval} and its variants
 to ``containers'' (\kbd{ZV} and \kbd{ZX}):
@@ -11933,9 +11929,13 @@ and returns the primitive part \kbd{x} / \kbd{c}. A trivial content is set to
 \fun{long}{Q_pval}{GEN x, GEN p} valuation at the \typ{INT} \kbd{p}
 of the \typ{INT} or \typ{FRAC}~\kbd{x}.
 
+\fun{long}{Q_lval}{GEN x, ulong p} same for \kbd{ulong} $p$.
+
 \fun{long}{Q_pvalrem}{GEN x, GEN p, GEN *r} returns the valuation $e$ at the
 \typ{INT} \kbd{p} of the \typ{INT} or \typ{FRAC}~\kbd{x}. The quotient
 $\kbd{x}/\kbd{p}^{e}$ is returned in~\kbd{*r}.
+
+\fun{long}{Q_lvalrem}{GEN x, ulong p, GEN *r} same for \kbd{ulong} $p$.
 
 \fun{GEN}{Q_abs}{GEN x} absolute value of the \typ{INT} or
 \typ{FRAC}~\kbd{x}.

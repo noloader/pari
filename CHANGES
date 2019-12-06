@@ -163,6 +163,7 @@ AP  58- [libpari] QM_ImZ, QM_ImZ_all, QM_ImQ, QM_ImQ_all
 BA  59- [libpari] RgXn_expint
 AP  60- new GP functions nfsubfieldscm, nfsubfieldsmax
 BA  61- new GP function lfunshift
+    62- [libpari] Q_lval, Q_lvalrem
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

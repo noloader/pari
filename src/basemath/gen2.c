@@ -1140,26 +1140,52 @@ intdvd(GEN x, GEN y, GEN *z) { GEN r; *z = dvmdii(x,y,&r); return (r==gen_0); }
 
 /* x t_FRAC, p t_INT, return v_p(x) */
 static long
-ratval(GEN x, GEN p) {
+frac_val(GEN x, GEN p) {
   long v = Z_pval(gel(x,2),p);
   if (v) return -v;
   return Z_pval(gel(x,1),p);
 }
-
 long
-Q_pval(GEN x, GEN p) { return (typ(x) == t_INT)? Z_pval(x, p): ratval(x, p); }
+Q_pval(GEN x, GEN p)
+{
+  if (lgefint(p) == 3) return Q_lval(x, uel(p,2));
+  return (typ(x)==t_INT)? Z_pval(x, p): frac_val(x, p);
+}
+
+static long
+frac_lval(GEN x, ulong p) {
+  long v = Z_lval(gel(x,2),p);
+  if (v) return -v;
+  return Z_lval(gel(x,1),p);
+}
+long
+Q_lval(GEN x, ulong p){return (typ(x)==t_INT)? Z_lval(x, p): frac_lval(x, p);}
 
 long
 Q_pvalrem(GEN x, GEN p, GEN *y)
 {
   GEN a, b;
   long v;
+  if (lgefint(p) == 3) return Q_lvalrem(x, uel(p,2), y);
   if (typ(x) == t_INT) return Z_pvalrem(x, p, y);
   a = gel(x,1);
   b = gel(x,2);
   v = Z_pvalrem(b, p, &b);
   if (v) { *y = isint1(b)? a: mkfrac(a, b); return -v; }
   v = Z_pvalrem(a, p, &a);
+  *y = mkfrac(a, b); return v;
+}
+long
+Q_lvalrem(GEN x, ulong p, GEN *y)
+{
+  GEN a, b;
+  long v;
+  if (typ(x) == t_INT) return Z_lvalrem(x, p, y);
+  a = gel(x,1);
+  b = gel(x,2);
+  v = Z_lvalrem(b, p, &b);
+  if (v) { *y = isint1(b)? a: mkfrac(a, b); return -v; }
+  v = Z_lvalrem(a, p, &a);
   *y = mkfrac(a, b); return v;
 }
 
@@ -1208,7 +1234,7 @@ gvaluation(GEN x, GEN p)
 
     case t_FRAC:
       if (tp == t_POL) return 0;
-      return ratval(x, p);
+      return frac_val(x, p);
 
     case t_PADIC:
       if (tp == t_POL) return 0;

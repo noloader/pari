@@ -3478,6 +3478,8 @@ GEN     map_proto_G(GEN f(GEN), GEN x);
 GEN     map_proto_lG(long f(GEN), GEN x);
 GEN     map_proto_lGL(long f(GEN,long), GEN x, long y);
 
+long    Q_lval(GEN x, ulong p);
+long    Q_lvalrem(GEN x, ulong p, GEN *y);
 long    Q_pval(GEN x, GEN p);
 long    Q_pvalrem(GEN x, GEN p, GEN *y);
 long    RgX_val(GEN x);
