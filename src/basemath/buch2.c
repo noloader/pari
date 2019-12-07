@@ -3541,7 +3541,7 @@ Buchall_deg1(GEN nf)
   GEN v = cgetg(1,t_VEC), m = cgetg(1,t_MAT);
   GEN res, W, A, B, C, Vbase = cgetg(1,t_COL);
   GEN fu = v, R = gen_1, zu = mkvec2(gen_2, gen_m1);
-  GEN clg1 = mkvec3(gen_1,v,v), clg2 = mkvec3(m,v,v);
+  GEN clg1 = mkvec3(gen_1,v,v), clg2 = mkvecn(6, m,m,m,v,m,m);
 
   W = A = B = C = m; res = mkvec5(clg1, R, gen_1, zu, fu);
   return buchall_end(nf,res,clg2,W,B,A,C,Vbase);

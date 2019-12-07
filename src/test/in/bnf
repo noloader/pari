@@ -35,6 +35,7 @@ bnfisprincipal(K,A);
 default(realprecision,173);
 K=nfnewprec(K);
 bnfisprincipal(K,A)
+nfnewprec(bnfinit(x));
 
 l=ideallist(K,4,0);ideallistarch(K,l,[1])
 l=ideallist(K,3,3);L=ideallistarch(K,l,[1])
