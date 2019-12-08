@@ -213,12 +213,10 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
     GEN be = gel(r1,j);
     GEN bx = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 4);
     GEN z1 = lfun(ldata1,bx,bitprec), z2 = lfun(ldata2,bx,bitprec);
-    { /* pole of both, recompute to needed seriesprecision */
-      long e = valp(z1) + valp(z2);
-      GEN b = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 4-e);
-      z1 = lfun(ldata1,b,bitprec);
-      z2 = lfun(ldata2,b,bitprec);
-    }
+    long e = valp(z1) + valp(z2);
+    GEN b = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 4-e);
+    z1 = lfun(ldata1,b,bitprec);
+    z2 = lfun(ldata2,b,bitprec);
     gel(r,lr++) = mkvec2(be, gmul(z1, z2));
   }
   setlg(r, lr);
