@@ -51,7 +51,7 @@ dec(pol) =
 {
   my(vp);
   vp = [15889, 11927, 10499, 18367, 10159, 11657, 13159, 14983, 12541, 17789];
-  print(vector(#vp,i,factormod(pol,vp[i],1)[,1]~))
+  print(vector(#vp,i,factormod(pol,vp[i],1)[,1]~)); setrand(1);
 };
 testcm(a,P) =
 {
@@ -139,6 +139,7 @@ testcm(nfsubfieldscm(nf),nf.pol)
 pol = y^16 - 8*y^14 + 29*y^12 - 60*y^10 + 74*y^8 - 48*y^6 + 8*y^4 + 4*y^2 + 1;
 fa = nffactor(pol, subst(pol,y,x));
 nfsubfieldscm([pol,fa])
+setrand(1); \\ necessary for 32/64-bit compatibility
 testcm(nfsubfieldscm([pol,fa]),pol)
 
 /* maximal subfields */
