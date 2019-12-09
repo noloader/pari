@@ -684,13 +684,14 @@ fft(GEN W, GEN p, GEN f, long step, long l, long inv)
 }
 
 static GEN
-FFT_i(GEN W, GEN x, long inv)
+FFT_i(GEN W, GEN x)
 {
-  long i, l = lg(W), n = lg(x), tx = typ(x);
+  long i, l = lg(W), n = lg(x), tx = typ(x), inv;
   GEN y, z;
+  if ((l-1) & (l-2)) pari_err_DIM("fft");
   if (tx == t_POL) { x++; n--; }
-  else if (!is_vec_t(tx)) pari_err_TYPE("FFT",x);
-  if (n > l) pari_err_DIM("FFT");
+  else if (!is_vec_t(tx)) pari_err_TYPE("fft",x);
+  if (n > l) pari_err_DIM("fft");
 
   if (n < l) {
     z = cgetg(l, t_VECSMALL); /* cf stackdummy */
@@ -699,34 +700,25 @@ FFT_i(GEN W, GEN x, long inv)
   }
   else z = x;
   y = cgetg(l, t_VEC);
+  inv = (l >= 5 && signe(imag_i(gel(W,1+(l>>2))))==1) ? 1 : 0;
   fft(W+1, z+1, y+1, 1, l-1, inv);
   return y;
 }
 GEN
 FFT(GEN W, GEN x)
 {
-  if (typ(W) != t_COL) pari_err_TYPE("FFT",W);
-  return FFT_i(W, x, 0);
+  if (typ(W) != t_COL) pari_err_TYPE("fft",W);
+  return FFT_i(W, x);
 }
 GEN
 FFTinv(GEN W, GEN x)
 {
   long l = lg(W), i;
   GEN w = cgetg(l, t_VECSMALL); /* cf stackdummy */
-  if (typ(W) != t_COL) pari_err_TYPE("FFTinv",W);
+  if (typ(W) != t_COL) pari_err_TYPE("fftinv",W);
   gel(w,1) = gel(W,1); /* w = gconj(W), faster */
   for (i = 2; i < l; i++) gel(w, i) = gel(W, l-i+1);
-  return FFT_i(w, x, 1);
-}
-GEN
-FFTinit(long N, long prec)
-{
-  long i, l = N+1;
-  GEN W;
-  if (N <= 0 || (N & (N-1))) pari_err_TYPE("FFTinit", stoi(N));
-  W = grootsof1(N, prec); N >>= 1;
-  for (i = 2; i <= N; i++) swap(gel(W, i), gel(W, l-i+1));
-  return W;
+  return FFT_i(w, x);
 }
 
 /* returns 1 if p has only real coefficients, 0 else */
