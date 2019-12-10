@@ -133,26 +133,19 @@ FpJ_to_FpE(GEN P, GEN p)
   }
 }
 
-struct _FpE
-{
-  GEN a4,a6;
-  GEN p;
-};
-
+struct _FpE { GEN p,a4,a6; };
 static GEN
 _FpJ_dbl(void *E, GEN P)
 {
   struct _FpE *ell = (struct _FpE *) E;
   return FpJ_dbl(P, ell->a4, ell->p);
 }
-
 static GEN
 _FpJ_add(void *E, GEN P, GEN Q)
 {
   struct _FpE *ell=(struct _FpE *) E;
   return FpJ_add(P, Q, ell->a4, ell->p);
 }
-
 static GEN
 _FpJ_mul(void *E, GEN P, GEN n)
 {
@@ -546,31 +539,21 @@ FpE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN p, GEN *pt_R)
   }
 }
 
-/* Returns the Miller function f_{m, Q} evaluated at the point P using
-   the standard Miller algorithm.
- */
-
-struct _FpE_miller
-{
-  GEN p, a4, P;
-};
-
+struct _FpE_miller { GEN p, a4, P; };
 static GEN
 FpE_Miller_dbl(void* E, GEN d)
 {
   struct _FpE_miller *m = (struct _FpE_miller *)E;
   GEN p = m->p, a4 = m->a4, P = m->P;
   GEN v, line;
-  GEN num = Fp_sqr(gel(d,1), p);
-  GEN denom = Fp_sqr(gel(d,2), p);
+  GEN N = Fp_sqr(gel(d,1), p);
+  GEN D = Fp_sqr(gel(d,2), p);
   GEN point = gel(d,3);
   line = FpE_tangent_update(point, P, a4, p, &point);
-  num  = Fp_mul(num, line, p);
+  N  = Fp_mul(N, line, p);
   v = FpE_vert(point, P, a4, p);
-  denom = Fp_mul(denom, v, p);
-  return mkvec3(num, denom, point);
+  D = Fp_mul(D, v, p); return mkvec3(N, D, point);
 }
-
 static GEN
 FpE_Miller_add(void* E, GEN va, GEN vb)
 {
@@ -579,49 +562,48 @@ FpE_Miller_add(void* E, GEN va, GEN vb)
   GEN v, line, point;
   GEN na = gel(va,1), da = gel(va,2), pa = gel(va,3);
   GEN nb = gel(vb,1), db = gel(vb,2), pb = gel(vb,3);
-  GEN num   = Fp_mul(na, nb, p);
-  GEN denom = Fp_mul(da, db, p);
+  GEN N = Fp_mul(na, nb, p);
+  GEN D = Fp_mul(da, db, p);
   line = FpE_chord_update(pa, pb, P, a4, p, &point);
-  num  = Fp_mul(num, line, p);
+  N = Fp_mul(N, line, p);
   v = FpE_vert(point, P, a4, p);
-  denom = Fp_mul(denom, v, p);
-  return mkvec3(num, denom, point);
+  D = Fp_mul(D, v, p);
+  return mkvec3(N, D, point);
 }
 
+/* Returns the Miller function f_{m, Q} evaluated at the point P using
+ * the standard Miller algorithm. */
 static GEN
 FpE_Miller(GEN Q, GEN P, GEN m, GEN a4, GEN p)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   struct _FpE_miller d;
-  GEN v, num, denom;
+  GEN v, N, D;
 
   d.a4 = a4; d.p = p; d.P = P;
   v = gen_pow_i(mkvec3(gen_1,gen_1,Q), m, (void*)&d,
                 FpE_Miller_dbl, FpE_Miller_add);
-  num = gel(v,1); denom = gel(v,2);
-  return gerepileupto(ltop, Fp_div(num, denom, p));
+  N = gel(v,1); D = gel(v,2);
+  return gerepileuptoint(av, Fp_div(N, D, p));
 }
 
 GEN
 FpE_weilpairing(GEN P, GEN Q, GEN m, GEN a4, GEN p)
 {
   pari_sp ltop = avma;
-  GEN num, denom, result;
-  if (ell_is_inf(P) || ell_is_inf(Q) || ZV_equal(P,Q))
-    return gen_1;
-  num    = FpE_Miller(P, Q, m, a4, p);
-  denom  = FpE_Miller(Q, P, m, a4, p);
-  result = Fp_div(num, denom, p);
-  if (mpodd(m))
-    result  = Fp_neg(result, p);
-  return gerepileupto(ltop, result);
+  GEN N, D, w;
+  if (ell_is_inf(P) || ell_is_inf(Q) || ZV_equal(P,Q)) return gen_1;
+  N = FpE_Miller(P, Q, m, a4, p);
+  D = FpE_Miller(Q, P, m, a4, p);
+  w = Fp_div(N, D, p);
+  if (mpodd(m)) w  = Fp_neg(w, p);
+  return gerepileuptoint(ltop, w);
 }
 
 GEN
 FpE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN p)
 {
-  if (ell_is_inf(P) || ell_is_inf(Q))
-    return gen_1;
+  if (ell_is_inf(P) || ell_is_inf(Q)) return gen_1;
   return FpE_Miller(P, Q, m, a4, p);
 }
 
@@ -1595,26 +1577,19 @@ FpXQE_sub(GEN P, GEN Q, GEN a4, GEN T, GEN p)
   return gerepileupto(av, FpXQE_add_slope(P, FpXQE_neg_i(Q, p), a4, T, p, &slope));
 }
 
-struct _FpXQE
-{
-  GEN a4,a6;
-  GEN T,p;
-};
-
+struct _FpXQE { GEN a4,a6,T,p; };
 static GEN
 _FpXQE_dbl(void *E, GEN P)
 {
   struct _FpXQE *ell = (struct _FpXQE *) E;
   return FpXQE_dbl(P, ell->a4, ell->T, ell->p);
 }
-
 static GEN
 _FpXQE_add(void *E, GEN P, GEN Q)
 {
   struct _FpXQE *ell=(struct _FpXQE *) E;
   return FpXQE_add(P, Q, ell->a4, ell->T, ell->p);
 }
-
 static GEN
 _FpXQE_mul(void *E, GEN P, GEN n)
 {
@@ -1793,16 +1768,7 @@ FpXQE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN T, GEN p, GEN *pt_R)
   }
 }
 
-/* Returns the Miller function f_{m, Q} evaluated at the point P using
-   the standard Miller algorithm.
- */
-
-struct _FpXQE_miller
-{
-  GEN p;
-  GEN T, a4, P;
-};
-
+struct _FpXQE_miller { GEN p, T, a4, P; };
 static GEN
 FpXQE_Miller_dbl(void* E, GEN d)
 {
@@ -1810,14 +1776,13 @@ FpXQE_Miller_dbl(void* E, GEN d)
   GEN p  = m->p;
   GEN T = m->T, a4 = m->a4, P = m->P;
   GEN v, line;
-  GEN num = FpXQ_sqr(gel(d,1), T, p);
-  GEN denom = FpXQ_sqr(gel(d,2), T, p);
+  GEN N = FpXQ_sqr(gel(d,1), T, p);
+  GEN D = FpXQ_sqr(gel(d,2), T, p);
   GEN point = gel(d,3);
   line = FpXQE_tangent_update(point, P, a4, T, p, &point);
-  num  = FpXQ_mul(num, line, T, p);
+  N = FpXQ_mul(N, line, T, p);
   v = FpXQE_vert(point, P, a4, T, p);
-  denom = FpXQ_mul(denom, v, T, p);
-  return mkvec3(num, denom, point);
+  D = FpXQ_mul(D, v, T, p); return mkvec3(N, D, point);
 }
 
 static GEN
@@ -1829,50 +1794,49 @@ FpXQE_Miller_add(void* E, GEN va, GEN vb)
   GEN v, line, point;
   GEN na = gel(va,1), da = gel(va,2), pa = gel(va,3);
   GEN nb = gel(vb,1), db = gel(vb,2), pb = gel(vb,3);
-  GEN num   = FpXQ_mul(na, nb, T, p);
-  GEN denom = FpXQ_mul(da, db, T, p);
+  GEN N = FpXQ_mul(na, nb, T, p);
+  GEN D = FpXQ_mul(da, db, T, p);
   line = FpXQE_chord_update(pa, pb, P, a4, T, p, &point);
-  num  = FpXQ_mul(num, line, T, p);
+  N = FpXQ_mul(N, line, T, p);
   v = FpXQE_vert(point, P, a4, T, p);
-  denom = FpXQ_mul(denom, v, T, p);
-  return mkvec3(num, denom, point);
+  D = FpXQ_mul(D, v, T, p); return mkvec3(N, D, point);
 }
 
+/* Returns the Miller function f_{m, Q} evaluated at the point P using
+ * the standard Miller algorithm. */
 static GEN
 FpXQE_Miller(GEN Q, GEN P, GEN m, GEN a4, GEN T, GEN p)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   struct _FpXQE_miller d;
-  GEN v, num, denom, g1;
+  GEN v, N, D, g1;
 
   d.a4 = a4; d.T = T; d.p = p; d.P = P;
   g1 = pol_1(get_FpX_var(T));
   v = gen_pow_i(mkvec3(g1,g1,Q), m, (void*)&d,
                 FpXQE_Miller_dbl, FpXQE_Miller_add);
-  num = gel(v,1); denom = gel(v,2);
-  return gerepileupto(ltop, FpXQ_div(num, denom, T, p));
+  N = gel(v,1); D = gel(v,2);
+  return gerepileupto(av, FpXQ_div(N, D, T, p));
 }
 
 GEN
 FpXQE_weilpairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, GEN p)
 {
-  pari_sp ltop = avma;
-  GEN num, denom, result;
+  pari_sp av = avma;
+  GEN N, D, w;
   if (ell_is_inf(P) || ell_is_inf(Q) || ZXV_equal(P,Q))
     return pol_1(get_FpX_var(T));
-  num    = FpXQE_Miller(P, Q, m, a4, T, p);
-  denom  = FpXQE_Miller(Q, P, m, a4, T, p);
-  result = FpXQ_div(num, denom, T, p);
-  if (mpodd(m))
-    result  = FpX_neg(result, p);
-  return gerepileupto(ltop, result);
+  N = FpXQE_Miller(P, Q, m, a4, T, p);
+  D = FpXQE_Miller(Q, P, m, a4, T, p);
+  w = FpXQ_div(N, D, T, p);
+  if (mpodd(m)) w = FpX_neg(w, p);
+  return gerepileupto(av, w);
 }
 
 GEN
 FpXQE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, GEN p)
 {
-  if (ell_is_inf(P) || ell_is_inf(Q))
-    return pol_1(get_FpX_var(T));
+  if (ell_is_inf(P) || ell_is_inf(Q)) return pol_1(get_FpX_var(T));
   return FpXQE_Miller(P, Q, m, a4, T, p);
 }
 
