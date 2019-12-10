@@ -6574,61 +6574,64 @@ GEN
 ellff_get_o(GEN E)
 { return obj_checkbuild(E, FF_O, &doellff_get_o); }
 
+static void
+RgE2_Fp_init(GEN E, GEN *pP, GEN *pQ, GEN *a4, GEN p)
+{
+  GEN e = ellff_get_a4a6(E);
+  *a4 = gel(e, 1);
+  *pP = FpE_changepointinv(RgE_to_FpE(*pP,p), gel(e,3), p);
+  *pQ = FpE_changepointinv(RgE_to_FpE(*pQ,p), gel(e,3), p);
+}
 GEN
 elllog(GEN E, GEN a, GEN g, GEN o)
 {
   pari_sp av = avma;
-  GEN fg, r;
+  GEN p;
   checkell_Fq(E); checkellpt(a); checkellpt(g);
-  fg = ellff_get_field(E);
+  p = ellff_get_field(E);
   if (!o) o = ellff_get_o(E);
-  if (typ(fg)==t_FFELT)
-    r = FF_elllog(E, a, g, o);
+  if (typ(p)==t_FFELT) return FF_elllog(E, a, g, o);
   else
   {
-    GEN p = fg, e = ellff_get_a4a6(E);
-    GEN Pp = FpE_changepointinv(RgE_to_FpE(a,p), gel(e,3), p);
-    GEN Qp = FpE_changepointinv(RgE_to_FpE(g,p), gel(e,3), p);
-    r = FpE_log(Pp, Qp, o, gel(e,1), p);
+    GEN a4;
+    RgE2_Fp_init(E, &a, &g, &a4, p);
+    return gerepileuptoint(av, FpE_log(a, g, o, a4, p));
   }
-  return gerepileuptoint(av, r);
 }
 
 GEN
 ellweilpairing(GEN E, GEN P, GEN Q, GEN m)
 {
-  GEN fg;
+  GEN p;
   checkell_Fq(E); checkellpt(P); checkellpt(Q);
   if (typ(m)!=t_INT) pari_err_TYPE("ellweilpairing",m);
-  fg = ellff_get_field(E);
-  if (typ(fg)==t_FFELT)
-    return FF_ellweilpairing(E, P, Q, m);
+  p = ellff_get_field(E);
+  if (typ(p)==t_FFELT) return FF_ellweilpairing(E, P, Q, m);
   else
   {
     pari_sp av = avma;
-    GEN p = fg, e = ellff_get_a4a6(E);
-    GEN z = FpE_weilpairing(FpE_changepointinv(RgV_to_FpV(P,p),gel(e,3),p),
-                            FpE_changepointinv(RgV_to_FpV(Q,p),gel(e,3),p),m,gel(e,1),p);
-    return gerepileupto(av, Fp_to_mod(z, p));
+    GEN w, a4;
+    RgE2_Fp_init(E, &P, &Q, &a4, p);
+    w = FpE_weilpairing(P, Q, m, a4, p);
+    return gerepileupto(av, Fp_to_mod(w, p));
   }
 }
 
 GEN
 elltatepairing(GEN E, GEN P, GEN Q, GEN m)
 {
-  GEN fg;
+  GEN p;
   checkell_Fq(E); checkellpt(P); checkellpt(Q);
   if (typ(m)!=t_INT) pari_err_TYPE("elltatepairing",m);
-  fg = ellff_get_field(E);
-  if (typ(fg)==t_FFELT)
-    return FF_elltatepairing(E, P, Q, m);
+  p = ellff_get_field(E);
+  if (typ(p)==t_FFELT) return FF_elltatepairing(E, P, Q, m);
   else
   {
     pari_sp av = avma;
-    GEN p = fg, e = ellff_get_a4a6(E);
-    GEN z = FpE_tatepairing(FpE_changepointinv(RgV_to_FpV(P,p),gel(e,3),p),
-                            FpE_changepointinv(RgV_to_FpV(Q,p),gel(e,3),p),m,gel(e,1),p);
-    return gerepileupto(av, Fp_to_mod(z, p));
+    GEN t, a4;
+    RgE2_Fp_init(E, &P, &Q, &a4, p);
+    t = FpE_tatepairing(P, Q, m, a4, p);
+    return gerepileupto(av, Fp_to_mod(t, p));
   }
 }
 
