@@ -114,7 +114,7 @@ typedef struct FP_t {
 
 typedef struct RNDREL_t {
   long jid;
-  GEN N, ex, m1;
+  GEN N, ex;
 } RNDREL_t;
 
 static void
@@ -2559,7 +2559,6 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN I,
     {
       if (!factorgen(F,nf,I,NI,gx,fact)) continue;
       add_to_fact(rr->jid, 1, fact);
-      gx = nfmul(nf, rr->m1, gx);
     }
     else
     {
@@ -2660,16 +2659,8 @@ get_random_ideal(FB_t *F, GEN nf, RNDREL_t *R)
         GEN a = gmael(F->id2, F->subFB[i], ex[i]);
         I = I? idealHNF_mul(nf,I, a): idealhnf_two(nf,a);
       }
-    if (I && !ZM_isscalar(I,NULL))
-    { /* I != (n)Z_K */
-      GEN N, m, y = idealred(nf, init_famat(I)), J = gel(y,1);
-      R->N = ZM_det_triangular(I);
-      if (is_pm1(gcoeff(J,1,1))) { R->m1 = gen_1; return I; }
-      N = ZM_det_triangular(J);
-      if (cmpii(R->N, N) <= 0) { R->m1 = gen_1; return I; }
-      R->N = N; m = gel(y,2);
-      R->m1 = lgcols(m)==1? gen_1: gmael(m,1,1); return J;
-    }
+    /* I != (n)Z_K */
+    if (I && !ZM_isscalar(I,NULL)) { R->N = ZM_det_triangular(I); return I; }
   }
 }
 
