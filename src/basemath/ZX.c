@@ -185,6 +185,15 @@ ZX_Z_divexact(GEN y,GEN x)
 }
 
 GEN
+zx_z_divexact(GEN y, long x)
+{
+  long i, l = lg(y);
+  GEN z = cgetg(l,t_VECSMALL); z[1] = y[1];
+  for (i=2; i<l; i++) z[i] = y[i]/x;
+  return z;
+}
+
+GEN
 ZX_Z_mul(GEN y,GEN x)
 {
   GEN z;

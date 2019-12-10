@@ -1445,6 +1445,7 @@ GEN     ZXn_sqr(GEN x, long n);
 GEN     scalar_ZX(GEN x, long v);
 GEN     scalar_ZX_shallow(GEN x, long v);
 GEN     zx_to_ZX(GEN z);
+GEN     zx_z_divexact(GEN y, long x);
 
 /* algebras.c */
 
