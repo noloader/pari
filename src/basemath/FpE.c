@@ -567,8 +567,7 @@ FpE_Miller_add(void* E, GEN va, GEN vb)
   line = FpE_chord_update(pa, pb, P, a4, p, &point);
   N = Fp_mul(N, line, p);
   v = FpE_vert(point, P, a4, p);
-  D = Fp_mul(D, v, p);
-  return mkvec3(N, D, point);
+  D = Fp_mul(D, v, p); return mkvec3(N, D, point);
 }
 
 /* Returns the Miller function f_{m, Q} evaluated at the point P using
