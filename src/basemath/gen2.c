@@ -1659,6 +1659,20 @@ ZX_lval(GEN x, ulong p) { return gen_lval(x, p, 2); }
 long
 ZV_lval(GEN x, ulong p) { return gen_lval(x, p, 1); }
 
+long
+zx_lval(GEN f, long p)
+{
+  long i, l = lg(f), x = LONG_MAX;
+  for(i=2; i<l; i++)
+  {
+    long y;
+    if (f[i] == 0) continue;
+    y = z_lval(f[i], p);
+    if (y < x) { x = y; if (x == 0) return x; }
+  }
+  return x;
+}
+
 static long
 gen_pval(GEN x, GEN p, long imin)
 {

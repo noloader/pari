@@ -3569,6 +3569,7 @@ long    z_lval(long s, ulong p);
 long    z_lvalrem(long s, ulong p, long *py);
 long    z_pval(long n, GEN p);
 long    z_pvalrem(long n, GEN p, long *py);
+long    zx_lval(GEN f, long p);
 
 /* Ser.c */
 

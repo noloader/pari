@@ -9716,8 +9716,10 @@ polynomials of degree strictly less than the degree of $T$, which must be a moni
 \fun{GEN}{zx_renormalize}{GEN x, long l}, as \kbd{Flx\_renormalize}, where
 $\kbd{l} = \kbd{lg(x)}$, in place.
 
-\fun{GEN}{zx_shift}{GEN T, long n} returns \kbd{T}
+\fun{GEN}{zx_shift}{GEN T, long n} return \kbd{T}
 multiplied by $\kbd{x}^n$, assuming $n\geq 0$.
+
+\fun{long}{zx_lval}{GEN f, long p} return the valuation of $f$ at $p$.
 
 \fun{GEN}{zx_z_divexact}{GEN x, long y} return \kbd{x/y} assuming all divisions
 are exact.
