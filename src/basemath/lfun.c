@@ -65,8 +65,7 @@ ldata_get_k1(GEN ldata)
   if (typ(w) == t_VEC) return gel(w,2);
   /* by default, assume that k1 = k-1 and even (k-1)/2 for entire functions */
   w = gaddgs(w,-1);
-  if (ldata_get_residue(ldata)) w = gmul2n(w, -1);
-  return w;
+  return ldata_get_residue(ldata)? w: gmul2n(w, -1);
 }
 
 /* a_n = O(n^{k1 + epsilon}) */
