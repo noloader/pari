@@ -716,11 +716,11 @@ FBgen(FB_t *F, GEN nf, long N, ulong C1, ulong C2, GRHcheck_t *S)
     {
       if (p == C2) break;
       continue; /* p inert */
-    }/* compute l such that p^f <= C2  <=> f <= l */
-    l = (long)(L/pr->logp);
+    }
+    l = (long)(L/pr->logp); /* p^f <= C2  <=> f <= l */
     for (k=0, m=1; m < lg(f) && f[m]<=l; m++) k += nb[m];
-    if (!k) /* p too inert to appear in FB */
-    {
+    if (!k)
+    { /* too inert to appear in FB */
       if (p == C2) break;
       continue;
     }
@@ -2412,7 +2412,6 @@ powPgen(GEN nf, GEN vp, GEN *ppowP, long a)
   if (DEBUGLEVEL>1) err_printf("\n");
 }
 
-
 /* Compute powers of prime ideals (P^0,...,P^a) in subFB (a > 1) */
 static void
 powFBgen(RELCACHE_t *cache, FB_t *F, GEN nf, GEN auts)
@@ -2430,7 +2429,6 @@ powFBgen(RELCACHE_t *cache, FB_t *F, GEN nf, GEN auts)
     if (gel(F->id2, id) == gen_0)
     {
       GEN id2 = NULL;
-
       for (k = 1; k < naut; k++)
       {
         long sigmaid = coeff(idealperm, id, k);
@@ -3767,7 +3765,7 @@ static long
 myprecdbl(long prec, GEN C)
 {
   long p = precdbl(prec);
-  if (C) p = maxss(p, prec + nbits2extraprec(gexpo(C)));
+  if (C) p = maxss(p, minss(3*p, prec + nbits2extraprec(gexpo(C))));
   return p;
 }
 
