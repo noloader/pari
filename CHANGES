@@ -94,6 +94,7 @@ BA  17- QXQ_div_ratlift renamed to QXQ_div
 BA  26- [libpari] Z_to_F2x(s,v): v is now a shifted variable number
 AP  27- matrixqz(,-1 or -2): faster code + no longer return result in HNF
 AP  28- allow nfsubfields([nf,fa],): van Hoeij-Klueners-Novocin algorithm
+    29- nfsubfields: retune to avoid huge inertia degrees
 
   Added
      1- new GP function rootsof1
