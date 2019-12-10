@@ -353,9 +353,7 @@ FlxqE_Miller_line(GEN R, GEN Q, GEN slope, GEN a4, GEN T, ulong p)
 }
 
 /* Computes the equation of the line tangent to R and returns its
-   evaluation at the point Q. Also doubles the point R.
- */
-
+ * evaluation at the point Q. Also doubles the point R. */
 static GEN
 FlxqE_tangent_update(GEN R, GEN Q, GEN a4, GEN T, ulong p, GEN *pt_R)
 {
@@ -376,9 +374,7 @@ FlxqE_tangent_update(GEN R, GEN Q, GEN a4, GEN T, ulong p, GEN *pt_R)
 }
 
 /* Computes the equation of the line through R and P, and returns its
-   evaluation at the point Q. Also adds P to the point R.
- */
-
+ * evaluation at the point Q. Also adds P to the point R. */
 static GEN
 FlxqE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN T, ulong p, GEN *pt_R)
 {
@@ -408,10 +404,6 @@ FlxqE_chord_update(GEN R, GEN P, GEN Q, GEN a4, GEN T, ulong p, GEN *pt_R)
   }
 }
 
-/* Returns the Miller function f_{m, Q} evaluated at the point P using
-   the standard Miller algorithm.
- */
-
 struct _FlxqE_miller
 {
   ulong p;
@@ -424,15 +416,13 @@ FlxqE_Miller_dbl(void* E, GEN d)
   struct _FlxqE_miller *m = (struct _FlxqE_miller *)E;
   ulong p  = m->p;
   GEN T = m->T, a4 = m->a4, P = m->P;
-  GEN v, line;
-  GEN num = Flxq_sqr(gel(d,1), T, p);
-  GEN denom = Flxq_sqr(gel(d,2), T, p);
-  GEN point = gel(d,3);
+  GEN v, line, point = gel(d,3);
+  GEN N = Flxq_sqr(gel(d,1), T, p);
+  GEN D = Flxq_sqr(gel(d,2), T, p);
   line = FlxqE_tangent_update(point, P, a4, T, p, &point);
-  num  = Flxq_mul(num, line, T, p);
+  N  = Flxq_mul(N, line, T, p);
   v = FlxqE_vert(point, P, a4, T, p);
-  denom = Flxq_mul(denom, v, T, p);
-  return mkvec3(num, denom, point);
+  D = Flxq_mul(D, v, T, p); return mkvec3(N, D, point);
 }
 
 static GEN
@@ -444,50 +434,50 @@ FlxqE_Miller_add(void* E, GEN va, GEN vb)
   GEN v, line, point;
   GEN na = gel(va,1), da = gel(va,2), pa = gel(va,3);
   GEN nb = gel(vb,1), db = gel(vb,2), pb = gel(vb,3);
-  GEN num   = Flxq_mul(na, nb, T, p);
-  GEN denom = Flxq_mul(da, db, T, p);
+  GEN N = Flxq_mul(na, nb, T, p);
+  GEN D = Flxq_mul(da, db, T, p);
   line = FlxqE_chord_update(pa, pb, P, a4, T, p, &point);
-  num  = Flxq_mul(num, line, T, p);
+  N  = Flxq_mul(N, line, T, p);
   v = FlxqE_vert(point, P, a4, T, p);
-  denom = Flxq_mul(denom, v, T, p);
-  return mkvec3(num, denom, point);
+  D = Flxq_mul(D, v, T, p); return mkvec3(N, D, point);
 }
 
+/* Returns the Miller function f_{m, Q} evaluated at the point P using
+ * the standard Miller algorithm. */
 static GEN
 FlxqE_Miller(GEN Q, GEN P, GEN m, GEN a4, GEN T, ulong p)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   struct _FlxqE_miller d;
-  GEN v, num, denom, g1;
+  GEN v, N, D, g1;
 
   d.a4 = a4; d.T = T; d.p = p; d.P = P;
   g1 = pol1_Flx(get_Flx_var(T));
-  v = gen_pow_i(mkvec3(g1,g1,Q), m, (void*)&d, FlxqE_Miller_dbl, FlxqE_Miller_add);
-  num = gel(v,1); denom = gel(v,2);
-  return gerepileupto(ltop, Flxq_div(num, denom, T, p));
+  v = gen_pow_i(mkvec3(g1,g1,Q), m, (void*)&d,
+                FlxqE_Miller_dbl, FlxqE_Miller_add);
+  N = gel(v,1); D = gel(v,2);
+  return gerepileupto(av, Flxq_div(N, D, T, p));
 }
 
 GEN
 FlxqE_weilpairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, ulong p)
 {
-  pari_sp ltop = avma;
-  GEN num, denom, result;
+  pari_sp av = avma;
+  GEN N, D, result;
   if (ell_is_inf(P) || ell_is_inf(Q)
     || (Flx_equal(gel(P,1),gel(Q,1)) && Flx_equal(gel(P,2),gel(Q,2))))
     return pol1_Flx(get_Flx_var(T));
-  num    = FlxqE_Miller(P, Q, m, a4, T, p);
-  denom  = FlxqE_Miller(Q, P, m, a4, T, p);
-  result = Flxq_div(num, denom, T, p);
-  if (mpodd(m))
-    result  = Flx_neg(result, p);
-  return gerepileupto(ltop, result);
+  N = FlxqE_Miller(P, Q, m, a4, T, p);
+  D = FlxqE_Miller(Q, P, m, a4, T, p);
+  result = Flxq_div(N, D, T, p);
+  if (mpodd(m)) result = Flx_neg(result, p);
+  return gerepileupto(av, result);
 }
 
 GEN
 FlxqE_tatepairing(GEN P, GEN Q, GEN m, GEN a4, GEN T, ulong p)
 {
-  if (ell_is_inf(P) || ell_is_inf(Q))
-    return pol1_Flx(get_Flx_var(T));
+  if (ell_is_inf(P) || ell_is_inf(Q)) return pol1_Flx(get_Flx_var(T));
   return FlxqE_Miller(P, Q, m, a4, T, p);
 }
 

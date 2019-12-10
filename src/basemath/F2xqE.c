@@ -428,31 +428,21 @@ F2xqE_chord_update(GEN R, GEN P, GEN Q, GEN a2, GEN T, GEN *pt_R)
   }
 }
 
-/* Returns the Miller function f_{m, Q} evaluated at the point P using
-   the standard Miller algorithm.
- */
-
-struct _F2xqE_miller
-{
-  GEN T, a2, P;
-};
+struct _F2xqE_miller { GEN T, a2, P; };
 
 static GEN
 F2xqE_Miller_dbl(void* E, GEN d)
 {
   struct _F2xqE_miller *m = (struct _F2xqE_miller *)E;
   GEN T = m->T, a2 = m->a2, P = m->P;
-  GEN v, line;
-  GEN num = F2xq_sqr(gel(d,1), T);
-  GEN denom = F2xq_sqr(gel(d,2), T);
-  GEN point = gel(d,3);
+  GEN v, line, point = gel(d,3);
+  GEN N = F2xq_sqr(gel(d,1), T);
+  GEN D = F2xq_sqr(gel(d,2), T);
   line = F2xqE_tangent_update(point, P, a2, T, &point);
-  num  = F2xq_mul(num, line, T);
+  N = F2xq_mul(N, line, T);
   v = F2xqE_vert(point, P, a2, T);
-  denom = F2xq_mul(denom, v, T);
-  return mkvec3(num, denom, point);
+  D = F2xq_mul(D, v, T); return mkvec3(N, D, point);
 }
-
 static GEN
 F2xqE_Miller_add(void* E, GEN va, GEN vb)
 {
@@ -461,41 +451,40 @@ F2xqE_Miller_add(void* E, GEN va, GEN vb)
   GEN v, line, point;
   GEN na = gel(va,1), da = gel(va,2), pa = gel(va,3);
   GEN nb = gel(vb,1), db = gel(vb,2), pb = gel(vb,3);
-  GEN num   = F2xq_mul(na, nb, T);
-  GEN denom = F2xq_mul(da, db, T);
+  GEN N = F2xq_mul(na, nb, T);
+  GEN D = F2xq_mul(da, db, T);
   line = F2xqE_chord_update(pa, pb, P, a2, T, &point);
-  num  = F2xq_mul(num, line, T);
+  N  = F2xq_mul(N, line, T);
   v = F2xqE_vert(point, P, a2, T);
-  denom = F2xq_mul(denom, v, T);
-  return mkvec3(num, denom, point);
+  D = F2xq_mul(D, v, T); return mkvec3(N, D, point);
 }
-
+/* Returns the Miller function f_{m, Q} evaluated at the point P using
+ * the standard Miller algorithm. */
 static GEN
 F2xqE_Miller(GEN Q, GEN P, GEN m, GEN a2, GEN T)
 {
-  pari_sp ltop = avma;
+  pari_sp av = avma;
   struct _F2xqE_miller d;
-  GEN v, num, denom, g1;
+  GEN v, N, D, g1;
 
   d.a2 = a2; d.T = T; d.P = P;
   g1 = pol1_F2x(T[1]);
   v = gen_pow_i(mkvec3(g1,g1,Q), m, (void*)&d, F2xqE_Miller_dbl, F2xqE_Miller_add);
-  num = gel(v,1); denom = gel(v,2);
-  return gerepileupto(ltop, F2xq_div(num, denom, T));
+  N = gel(v,1); D = gel(v,2);
+  return gerepileupto(av, F2xq_div(N, D, T));
 }
 
 GEN
 F2xqE_weilpairing(GEN P, GEN Q, GEN m, GEN a2, GEN T)
 {
-  pari_sp ltop = avma;
-  GEN num, denom, result;
+  pari_sp av = avma;
+  GEN N, D;
   if (ell_is_inf(P) || ell_is_inf(Q)
     || (F2x_equal(gel(P,1),gel(Q,1)) && F2x_equal(gel(P,2),gel(Q,2))))
     return pol1_F2x(T[1]);
-  num    = F2xqE_Miller(P, Q, m, a2, T);
-  denom  = F2xqE_Miller(Q, P, m, a2, T);
-  result = F2xq_div(num, denom, T);
-  return gerepileupto(ltop, result);
+  N    = F2xqE_Miller(P, Q, m, a2, T);
+  D  = F2xqE_Miller(Q, P, m, a2, T);
+  return gerepileupto(av, F2xq_div(N, D, T));
 }
 
 GEN
