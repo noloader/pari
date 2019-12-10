@@ -520,14 +520,14 @@ init_primedata(primedata *S)
 static void
 choose_prime(primedata *S, GEN pol, GEN dpol)
 {
-  long i, j, k, r, lcm, oldlcm, N = degpol(pol);
+  long i, j, k, r, lcm, oldlcm, oldr, N = degpol(pol);
   ulong p, pp;
   GEN Z, ff, oldff, n, oldn;
   pari_sp av;
   forprime_t T;
 
   u_forprime_init(&T, (N*N) >> 2, ULONG_MAX);
-  oldlcm = 0;
+  oldr = oldlcm = LONG_MAX;
   oldff = oldn = NULL; pp = 0; /* gcc -Wall */
   av = avma;
   for(k = 1; k < 11 || !oldlcm; k++,set_avma(av))
@@ -540,10 +540,12 @@ choose_prime(primedata *S, GEN pol, GEN dpol)
 
     n = cgetg(r+1, t_VECSMALL); lcm = n[1] = degpol(gel(ff,1));
     for (j=2; j<=r; j++) { n[j] = degpol(gel(ff,j)); lcm = ulcm(lcm, n[j]); }
-    if (lcm > 2 * N || lcm <= oldlcm) continue; /* false when oldlcm = 0 */
+    if (r > oldr || (r == oldr && (lcm < oldlcm || oldlcm > 2*N)))
+      continue;
 
     if (DEBUGLEVEL) err_printf("p = %lu,\tlcm = %ld,\torbits: %Ps\n",p,lcm,n);
     pp = p;
+    oldr = r;
     oldn = n;
     oldff = ff;
     oldlcm = lcm; if (r == 1) break;
