@@ -236,6 +236,9 @@ x^6 + x^5 + x^4 + x^3 + x^2 + x + 1, x]]
 *x^3 + 4*x^2 - x], [x^12 - 5*x^11 + 13*x^10 - 25*x^9 + 39*x^8 - 50*x^7 + 53*
 x^6 - 48*x^5 + 37*x^4 - 23*x^3 + 12*x^2 - 4*x + 1, x]]
 11
+15
+2
+2
   ***   at top-level: nfsubfieldscm(1)
   ***                 ^----------------
   *** nfsubfieldscm: incorrect type in subfields_cleanup (t_INT).
@@ -260,4 +263,4 @@ x^6 - 48*x^5 + 37*x^4 - 23*x^3 + 12*x^2 - 4*x + 1, x]]
   ***   at top-level: nfsubfieldscm(x^0)
   ***                 ^------------------
   *** nfsubfieldscm: incorrect type in subfields_cleanup [constant polynomial] (t_POL).
-Total time spent: 19884
+Total time spent: 13596

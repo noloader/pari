@@ -520,7 +520,7 @@ init_primedata(primedata *S)
 static void
 choose_prime(primedata *S, GEN pol, GEN dpol)
 {
-  long i, j, k, r, lcm, oldlcm, oldr, N = degpol(pol);
+  long i, j, k, r, lcm, oldlcm, oldr, K, N = degpol(pol);
   ulong p, pp;
   GEN Z, ff, oldff, n, oldn;
   pari_sp av;
@@ -529,8 +529,8 @@ choose_prime(primedata *S, GEN pol, GEN dpol)
   u_forprime_init(&T, (N*N) >> 2, ULONG_MAX);
   oldr = oldlcm = LONG_MAX;
   oldff = oldn = NULL; pp = 0; /* gcc -Wall */
-  av = avma;
-  for(k = 1; k < 11 || !oldlcm; k++,set_avma(av))
+  av = avma; K = N + 10;
+  for(k = 1; k < K || !oldlcm; k++,set_avma(av))
   {
     if (k > 5 * N) pari_err_OVERFLOW("choose_prime [too many block systems]");
     do p = u_forprime_next(&T); while (!umodiu(dpol, p));
@@ -540,10 +540,10 @@ choose_prime(primedata *S, GEN pol, GEN dpol)
 
     n = cgetg(r+1, t_VECSMALL); lcm = n[1] = degpol(gel(ff,1));
     for (j=2; j<=r; j++) { n[j] = degpol(gel(ff,j)); lcm = ulcm(lcm, n[j]); }
-    if (r > oldr || (r == oldr && (lcm < oldlcm || oldlcm > 2*N)))
+    if (r > oldr || (r == oldr && (lcm <= oldlcm || oldlcm > 2*N)))
       continue;
-
     if (DEBUGLEVEL) err_printf("p = %lu,\tlcm = %ld,\torbits: %Ps\n",p,lcm,n);
+
     pp = p;
     oldr = r;
     oldn = n;
