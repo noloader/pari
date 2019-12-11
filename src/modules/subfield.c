@@ -517,54 +517,58 @@ init_primedata(primedata *S)
   S->bezoutC = get_bezout(S->pol, S->ff, p);
 }
 
-static void
-choose_prime(primedata *S, GEN pol, GEN dpol)
+static int
+choose_prime(primedata *S, GEN pol)
 {
-  long i, j, k, r, lcm, oldlcm, oldr, K, N = degpol(pol);
+  long i, j, k, r, lcm, oldr, K, N = degpol(pol);
   ulong p, pp;
-  GEN Z, ff, oldff, n, oldn;
+  GEN Z, ff, n, oldn;
   pari_sp av;
   forprime_t T;
 
   u_forprime_init(&T, (N*N) >> 2, ULONG_MAX);
-  oldr = oldlcm = LONG_MAX;
-  oldff = oldn = NULL; pp = 0; /* gcc -Wall */
+  oldr = S->lcm = LONG_MAX;
+  S->ff = oldn = NULL; pp = 0; /* gcc -Wall */
   av = avma; K = N + 10;
-  for(k = 1; k < K || !oldlcm; k++,set_avma(av))
+  for(k = 1; k < K || !S->ff; k++,set_avma(av))
   {
-    if (k > 5 * N) pari_err_OVERFLOW("choose_prime [too many block systems]");
-    do p = u_forprime_next(&T); while (!umodiu(dpol, p));
-    ff = gel(Flx_factor(ZX_to_Flx(pol,p), p), 1);
+    GEN Tp;
+    if (k > 5 * N) return 0;
+    do
+    {
+      p = u_forprime_next(&T);
+      Tp = ZX_to_Flx(pol, p);
+    }
+    while (!Flx_is_squarefree(Tp, p));
+    ff = gel(Flx_factor(Tp, p), 1);
     r = lg(ff)-1;
     if (r == N || r >= BIL) continue;
 
     n = cgetg(r+1, t_VECSMALL); lcm = n[1] = degpol(gel(ff,1));
     for (j=2; j<=r; j++) { n[j] = degpol(gel(ff,j)); lcm = ulcm(lcm, n[j]); }
-    if (r > oldr || (r == oldr && (lcm <= oldlcm || oldlcm > 2*N)))
+    if (r > oldr || (r == oldr && (lcm <= S->lcm || S->lcm > 2*N)))
       continue;
     if (DEBUGLEVEL) err_printf("p = %lu,\tlcm = %ld,\torbits: %Ps\n",p,lcm,n);
 
     pp = p;
     oldr = r;
     oldn = n;
-    oldff = ff;
-    oldlcm = lcm; if (r == 1) break;
+    S->ff = ff;
+    S->lcm = lcm; if (r == 1) break;
     av = avma;
   }
+  if (oldr > 6) return 0;
   if (DEBUGLEVEL) err_printf("Chosen prime: p = %ld\n", pp);
-  FlxV_to_ZXV_inplace(oldff);
-  S->ff = oldff;
-  S->lcm= oldlcm;
+  FlxV_to_ZXV_inplace(S->ff);
   S->p  = utoipos(pp);
   S->pol = FpX_red(pol, S->p); init_primedata(S);
-
-  n = oldn; r = lg(n); Z = cgetg(r,t_VEC);
+  n = oldn; r = lg(n); S->Z = Z = cgetg(r,t_VEC);
   for (k=0,i=1; i<r; i++)
   {
     GEN t = cgetg(n[i]+1, t_VECSMALL); gel(Z,i) = t;
     for (j=1; j<=n[i]; j++) t[j] = ++k;
   }
-  S->Z = Z;
+  return 1;
 }
 
 /* maxroot t_REAL */
@@ -800,12 +804,11 @@ fix_var(GEN x, long v)
 }
 
 static void
-subfields_poldata(GEN T, poldata *PD)
+subfields_poldata(GEN nf, GEN T, poldata *PD)
 {
-  GEN  nf,L,dis;
+  GEN L, dis;
 
-  T = leafcopy(get_nfpol(T, &nf));
-  PD->pol = T; setvarn(T, 0);
+  PD->pol = T;
   if (nf)
   {
     PD->den = nf_get_zkden(nf);
@@ -820,84 +823,80 @@ subfields_poldata(GEN T, poldata *PD)
   }
 }
 
+static GEN nfsubfields_fa(GEN nf, long d);
 static GEN
-subfieldsall(GEN nf)
+subfieldsall(GEN nf0)
 {
   pari_sp av = avma;
-  long N, ld, i, v0;
-  GEN G, pol, dg, LSB, NLSB;
+  long N, ld, i, v;
+  GEN nf, G, T, dg, LSB, NLSB;
   poldata PD;
   primedata S;
   blockdata B;
 
   /* much easier if nf is Galois (WSS) */
-  G = galoisinit(nf, NULL);
+  G = galoisinit(nf0, NULL);
+  T = get_nfpol(nf0, &nf);
   if (G != gen_0)
   {
-    GEN L, S, p;
+    GEN L, S;
     long l;
-
-    pol = get_nfpol(nf, &nf);
-    L = lift_shallow( galoissubfields(G, 0, varn(pol)) );
-    l = lg(L);
-    S = cgetg(l, t_VECSMALL);
+    L = lift_shallow( galoissubfields(G, 0, varn(T)) );
+    l = lg(L); S = cgetg(l, t_VECSMALL);
     for (i=1; i<l; i++) S[i] = lg(gmael(L,i,1));
-    p = vecsmall_indexsort(S);
-    return gerepilecopy(av,  vecpermute(L, p));
+    return gerepilecopy(av, vecpermute(L, vecsmall_indexsort(S)));
   }
-
-  subfields_poldata(nf, &PD);
-  pol = PD.pol;
-
-  v0 = varn(pol); N = degpol(pol);
+  v = varn(T); N = degpol(T);
   dg = divisorsu(N); ld = lg(dg)-1;
-  if (DEBUGLEVEL) err_printf("\n***** Entering subfields\n\npol = %Ps\n",pol);
-
-  LSB = _subfield(pol_x(0), gen_0);
-  if (ld > 2)
+  LSB = _subfield(pol_x(v), pol_0(v));
+  if (ld <= 2)
   {
-    B.PD = &PD;
-    B.S  = &S;
-    B.N  = N;
-    choose_prime(&S, PD.pol, PD.dis);
-    for (i=ld-1; i>1; i--)
-    {
-      B.size  = dg[i];
-      B.d = N / B.size;
-      NLSB = subfields_of_given_degree(&B);
-      if (NLSB) { LSB = gconcat(LSB, NLSB); gunclone(NLSB); }
-    }
-    (void)delete_var(); /* from choose_prime */
+    if (ld == 2) LSB = shallowconcat(LSB, _subfield(T, pol_x(v)));
+    return gerepilecopy(av, LSB);
   }
-  LSB = shallowconcat(LSB, _subfield(pol, pol_x(0)));
+  if (varn(T) != 0) { T = leafcopy(T); setvarn(T, 0); }
+  if (!choose_prime(&S, T)) { set_avma(av); return nfsubfields_fa(nf0, 0); }
+  subfields_poldata(nf, T, &PD);
+
+  if (DEBUGLEVEL) err_printf("\n***** Entering subfields\n\npol = %Ps\n",T);
+  B.PD = &PD;
+  B.S  = &S;
+  B.N  = N;
+  for (i=ld-1; i>1; i--)
+  {
+    B.size  = dg[i];
+    B.d = N / B.size;
+    NLSB = subfields_of_given_degree(&B);
+    if (NLSB) { LSB = gconcat(LSB, NLSB); gunclone(NLSB); }
+  }
+  (void)delete_var(); /* from init_primedata() */
+  LSB = shallowconcat(LSB, _subfield(T, pol_x(0)));
   if (DEBUGLEVEL) err_printf("\n***** Leaving subfields\n\n");
-  return fix_var(gerepilecopy(av, LSB), v0);
+  return fix_var(gerepilecopy(av, LSB), v);
 }
 
-static GEN nfsubfields_fa(GEN nf, long d);
 GEN
-nfsubfields(GEN nf, long d)
+nfsubfields(GEN nf0, long d)
 {
   pari_sp av = avma;
   long N, v0;
-  GEN LSB, pol, G;
+  GEN nf, LSB, T, G;
   poldata PD;
   primedata S;
   blockdata B;
 
-  if (typ(nf)==t_VEC && lg(nf)==3) return nfsubfields_fa(nf, d);
+  if (typ(nf0)==t_VEC && lg(nf0)==3) return nfsubfields_fa(nf0, d);
+  if (!d) return subfieldsall(nf0);
 
-  if (!d) return subfieldsall(nf);
-
-  pol = get_nfpol(nf, &nf); /* in order to treat trivial cases */
-  RgX_check_ZX(pol,"nfsubfields");
-  v0 = varn(pol); N = degpol(pol);
-  if (d == N) return gerepilecopy(av, _subfield(pol, pol_x(v0)));
+  /* treat trivial cases */
+  T = get_nfpol(nf0, &nf); v0 = varn(T); N = degpol(T);
+  RgX_check_ZX(T,"nfsubfields");
+  if (d == N) return gerepilecopy(av, _subfield(T, pol_x(v0)));
   if (d == 1) return gerepilecopy(av, _subfield(pol_x(v0), zeropol(v0)));
   if (d < 1 || d > N || N % d) return cgetg(1,t_VEC);
 
   /* much easier if nf is Galois (WSS) */
-  G = galoisinit(nf? nf: pol, NULL);
+  G = galoisinit(nf0, NULL);
   if (G != gen_0)
   { /* Bingo */
     GEN L = galoissubgroups(G), F;
@@ -913,15 +912,16 @@ nfsubfields(GEN nf, long d)
     setlg(F, k);
     return gerepilecopy(av, F);
   }
-  subfields_poldata(nf? nf: pol, &PD);
-  choose_prime(&S, PD.pol, PD.dis);
+  if (varn(T) != 0) { T = leafcopy(T); setvarn(T, 0); }
+  if (!choose_prime(&S, T)) { set_avma(av); return nfsubfields_fa(nf0, d); }
+  subfields_poldata(nf, T, &PD);
   B.PD = &PD;
   B.S  = &S;
   B.N  = N;
   B.d  = d;
   B.size = N/d;
   LSB = subfields_of_given_degree(&B);
-  (void)delete_var(); /* from choose_prime */
+  (void)delete_var(); /* from init_primedata */
   set_avma(av);
   if (!LSB) return cgetg(1, t_VEC);
   G = gcopy(LSB); gunclone(LSB);

@@ -1,3 +1,4 @@
+  ***   Warning: new stack size = 32000000 (30.518 Mbytes).
 1:[1, 2, 3, 3, 3, 6]
 2:[1, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 8]
 3:[1, 2, 2, 2, 4, 4, 4, 8]
@@ -24,7 +25,6 @@
 [[x^3 - 3*x^2 + 2*x - 1, -x^5 + 2*x^4 - 3*x^3 + 2*x^2 - 2*x + 1], [x^3 - 3*x
 ^2 + 2*x + 1, -x^5 + 3*x^4 - 5*x^3 + 5*x^2 - 4*x + 3], [x^3 + x^2 + 7*x - 1,
  2*x^2 - 2*x + 1]]
-  ***   Warning: new stack size = 32000000 (30.518 Mbytes).
 P=x^2 + 2*x + 7 fl=0
 [[1, 1], [2], [1, 1], [1, 1], [1, 1], [2], [1, 1], [1, 1], [2], [1, 1]]
 [x^2 + 6, x + 1]
@@ -263,4 +263,4 @@ x^6 - 48*x^5 + 37*x^4 - 23*x^3 + 12*x^2 - 4*x + 1, x]]
   ***   at top-level: nfsubfieldscm(x^0)
   ***                 ^------------------
   *** nfsubfieldscm: incorrect type in subfields_cleanup [constant polynomial] (t_POL).
-Total time spent: 13596
+Total time spent: 11260

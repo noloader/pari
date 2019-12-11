@@ -12,9 +12,16 @@ Doc: finds all subfields of degree
  \var{pol} (all subfields if $d$ is null or omitted). The result is a vector
  of subfields, each being given by $[g,h]$, where $g$ is an absolute equation
  and $h$ expresses one of the roots of $g$ in terms of the root $x$ of the
- polynomial defining $\var{nf}$. This routine uses Kl\"uners's algorithm
- in the general case, and Allombert's \tet{galoissubfields} when \var{nf}
- is Galois (with weakly supersolvable Galois group).\sidx{Galois}\sidx{subfield}
+ polynomial defining $\var{nf}$. This routine uses
+
+ \item Allombert's \tet{galoissubfields} when \var{nf} is Galois (with weakly
+ supersolvable Galois group).\sidx{Galois}\sidx{subfield}
+
+ \item Kl\"uners's or van Hoeij--Kl\"uners--Novocin algorithm
+ in the general case. The latter runs in polynomial time and is generally
+ superior unless there exists a small unramified prime $p$ such that \var{pol}
+ has few irreducible factors modulo $p$.
+
  An input of the form~\kbd{[nf, fa]} is also allowed, where~\kbd{fa} is the
  factorisation of~\var{nf.pol} over~\var{nf}, in which case the
  van Hoeij--Kl\"uners--Novocin algorithm is used.
