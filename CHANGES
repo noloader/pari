@@ -130,7 +130,7 @@ BA  27- [libpari] groupelts_quotient, quotient_groupelts, groupelts_to_group
 BA  30- [libpari] Flx_Fl_sub, Flx_is_totally_split, Flxq_autpowers
     31- [libpari] Flx_translate1_basecase
     32- [libpari] Vgaeasytheta
-BA  33- [libpari] RgV_type2, closure_callgen0prec
+BA  33- [libpari] RgV_type, RgV_type2, closure_callgen0prec
 BA  34- lfuncreate: support for closures of arity 0
     35- [libpari] ZX_sturm_irred, ZX_realroots_irred
     36- [libpari] QM_image, QM_image_shallow

@@ -4652,6 +4652,7 @@ long    RgM_RgC_type(GEN x, GEN y, GEN *p, GEN *pol, long *pa);
 GEN     RgM_rescale_to_int(GEN x);
 long    RgM_type(GEN x, GEN *p, GEN *pol, long *pa);
 long    RgM_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa);
+long    RgV_type(GEN x, GEN *p, GEN *pol, long *pa);
 long    RgV_type2(GEN x, GEN y, GEN *p, GEN *pol, long *pa);
 long    RgX_Rg_type(GEN x, GEN y, GEN *p, GEN *pol, long *pa);
 GEN     RgX_rescale_to_int(GEN x);
