@@ -4,8 +4,8 @@ C-Name: FFT
 Prototype: GG
 Help: fft(w,P): given w from rootsof1, return the discrete Fourier transform
  of P.
-Doc: given $w$ from \teb{rootsof1}$(N)$ where $N$ is a power of $2$, and a
- polynomial $P$ of degree $< N$,
+Doc: Let $w=[1,z,\ldots,z^{N-1}]$ from some primitive $N$-roots of unity $z$
+ where $N$ is a power of $2$, and $P$ be a polynomial $< N$,
  return the unnormalized discrete Fourier transform of $P$,
  $\{ P(w[i]), 1 \leq i \leq N\}$. Also allow $P$ to be a vector
  $[p_0,\dots,p_n]$ representing the polynomial $\sum p_i X^i$.
@@ -18,4 +18,8 @@ Doc: given $w$ from \teb{rootsof1}$(N)$ where $N$ is a power of $2$, and a
  %2 = [4, 4, 0, 4]
  ? Polrev(%) / 4
  %3 = x^3 + x + 1
+ ? w = powers(znprimroot(5),3); fft(w, x^3+x+1)
+ %4 = [Mod(3,5),Mod(1,5),Mod(4,5),Mod(1,5)]
+ ? fftinv(w, %)
+ %5 = [Mod(4,5),Mod(4,5),Mod(0,5),Mod(4,5)]
  @eprog

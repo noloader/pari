@@ -628,6 +628,32 @@ dual_modulus(GEN p, double lrho, double tau, long l)
 /********************************************************************/
 /* l power of 2, W[step*j] = w_j; set f[j] = p(w_j)
  * if inv, w_j = exp(2IPi*j/l), else exp(-2IPi*j/l) */
+
+static void
+fft2(GEN W, GEN p, GEN f, long step, long l)
+{
+  pari_sp av;
+  long i, s1, l1, step2;
+
+  if (l == 2)
+  {
+    gel(f,0) = gadd(gel(p,0), gel(p,step));
+    gel(f,1) = gsub(gel(p,0), gel(p,step)); return;
+  }
+  av = avma;
+  l1 = l>>1; step2 = step<<1;
+  fft2(W,p,          f,   step2,l1);
+  fft2(W,p+step,     f+l1,step2,l1);
+  for (i = s1 = 0; i < l1; i++, s1 += step)
+  {
+    GEN f0 = gel(f,i);
+    GEN f1 = gmul(gel(W,s1), gel(f,i+l1));
+    gel(f,i)    = gadd(f0, f1);
+    gel(f,i+l1) = gsub(f0, f1);
+  }
+  gerepilecoeffs(av, f, l);
+}
+
 static void
 fft(GEN W, GEN p, GEN f, long step, long l, long inv)
 {
@@ -683,12 +709,15 @@ fft(GEN W, GEN p, GEN f, long step, long l, long inv)
   gerepilecoeffs(av, f, l);
 }
 
+#define code(t1,t2) ((t1 << 6) | t2)
+
 static GEN
 FFT_i(GEN W, GEN x)
 {
-  long i, l = lg(W), n = lg(x), tx = typ(x), inv;
-  GEN y, z;
+  long i, l = lg(W), n = lg(x), tx = typ(x), tw, pa;
+  GEN y, z, p, pol;
   if ((l-1) & (l-2)) pari_err_DIM("fft");
+  tw = RgV_type(W, &p, &pol, &pa);
   if (tx == t_POL) { x++; n--; }
   else if (!is_vec_t(tx)) pari_err_TYPE("fft",x);
   if (n > l) pari_err_DIM("fft");
@@ -700,22 +729,31 @@ FFT_i(GEN W, GEN x)
   }
   else z = x;
   y = cgetg(l, t_VEC);
-  inv = (l >= 5 && signe(imag_i(gel(W,1+(l>>2))))==1) ? 1 : 0;
-  fft(W+1, z+1, y+1, 1, l-1, inv);
+  if (tw==code(t_COMPLEX,t_INT) || tw==code(t_COMPLEX,t_REAL))
+  {
+    long inv = (l >= 5 && signe(imag_i(gel(W,1+(l>>2))))==1) ? 1 : 0;
+    fft(W+1, z+1, y+1, 1, l-1, inv);
+  } else
+    fft2(W+1, z+1, y+1, 1, l-1);
   return y;
 }
+
+#undef code
+
 GEN
 FFT(GEN W, GEN x)
 {
-  if (typ(W) != t_COL) pari_err_TYPE("fft",W);
+  if (!is_vec_t(typ(W))) pari_err_TYPE("fft",W);
   return FFT_i(W, x);
 }
+
 GEN
 FFTinv(GEN W, GEN x)
 {
   long l = lg(W), i;
-  GEN w = cgetg(l, t_VECSMALL); /* cf stackdummy */
-  if (typ(W) != t_COL) pari_err_TYPE("fftinv",W);
+  GEN w;
+  if (!is_vec_t(typ(W))) pari_err_TYPE("fft",W);
+  w = cgetg(l, t_VECSMALL); /* cf stackdummy */
   gel(w,1) = gel(W,1); /* w = gconj(W), faster */
   for (i = 2; i < l; i++) gel(w, i) = gel(W, l-i+1);
   return FFT_i(w, x);

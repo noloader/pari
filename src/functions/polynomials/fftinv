@@ -4,9 +4,9 @@ C-Name: FFTinv
 Prototype: GG
 Help: fftinv(w,P): given w from rootsof1, return the inverse Fourier transform
  of P.
-Doc: given $w$ from \teb{rootsof1}$(N)$ where $N$ is a power of $2$, and a
- polynomial $P$ of degree $< N$,
- return the inverse discrete Fourier transform of $P$,
+Doc: Let $w=[1,z,\ldots,z^{N-1}]$ from some primitive $N$-roots of unity $z$
+ where $N$ is a power of $2$, and $P$ be a polynomial $< N$,
+ return the unnormalized discrete Fourier transform of $P$,
  $\{ P(1 / w[i]), 1 \leq i \leq N\}$. Also allow $P$ to be a vector
  $[p_0,\dots,p_n]$ representing the polynomial $\sum p_i X^i$. Composing
  \kbd{fft} and \kbd{fftinv} returns $N$ times the original input coefficients.

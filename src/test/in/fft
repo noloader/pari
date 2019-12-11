@@ -17,6 +17,12 @@ V = vector(N, i, subst(T, 'x, w[i]));
 exponent(V - U)
 round(Polrev(fftinv(w,U) / N)) == T
 
+w=powers(znprimroot(17),15);
+g=random(x^15*Mod(1,17));
+U=fft(w,g);
+V=fftinv(w,U)/#w;
+V==Vecrev(g)
+
 \\ Errors
 
 fft(rootsof1(3), x^2+x+1)
