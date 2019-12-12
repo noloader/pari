@@ -1115,7 +1115,7 @@ closure_eval(GEN C)
     case OCtostr:
       {
         GEN z = gel(st,sp+operand);
-        st[sp+operand] = z ? (long)GENtostr_unquoted(z): NULL;
+        st[sp+operand] = (long) (z ? GENtostr_unquoted(z): NULL);
         break;
       }
     case OCvarn:
