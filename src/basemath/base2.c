@@ -1978,27 +1978,28 @@ static GEN
 mk_pr(GEN p, GEN u, long e, long f, GEN t)
 { return mkvec5(p, u, utoipos(e), utoipos(f), t); }
 
-/* nf a true nf; pr = (p,u) of ramification index e */
+/* nf a true nf, u in Z[X]/(T); pr = p Z_K + u Z_K of ramification index e */
 GEN
 idealprimedec_kummer(GEN nf,GEN u,long e,GEN p)
 {
   GEN t, T = nf_get_pol(nf);
   long f = degpol(u), N = degpol(T);
 
-  if (f == N) /* inert */
-  {
+  if (f == N)
+  { /* inert */
     u = scalarcol_shallow(p,N);
     t = gen_1;
   }
   else
-  { /* make sure v_pr(u) = 1 (automatic if e>1) */
-    t = poltobasis(nf, FpX_div(T,u,p));
-    t = centermod(t, p);
-    u = FpX_center_i(u, p, shifti(p,-1));
-    if (e == 1 && ZpX_resultant_val(T, u, p, f+1) > f)
-      gel(u,2) = addii(gel(u,2), p);
-    u = poltobasis(nf,u);
-    t = zk_multable(nf, t); /* t never a scalar here since pr is not inert */
+  {
+    t = centermod(poltobasis(nf, FpX_div(T, u, p)), p);
+    u = centermod(poltobasis(nf, u), p);
+    if (e == 1 && ZpX_resultant_val(T, nf_to_scalar_or_alg(nf,u), p, f+1) > f)
+    { /* make sure v_pr(u) = 1 (automatic if e>1) */
+      GEN c = gel(u,1);
+      gel(u,1) = signe(c) > 0? subii(c, p): addii(c, p);
+    }
+    t = zk_multable(nf, t);
   }
   return mk_pr(p,u,e,f,t);
 }
@@ -2437,7 +2438,7 @@ modprinit(GEN nf, GEN pr, int zk, long vT)
     else
     {
       T = RgV_RgC_mul(basis, pr_get_gen(pr));
-      T = FpX_normalize(T,p);
+      T = FpX_normalize(FpX_red(T,p),p);
       basis = FqV_red(vecpermute(basis,c), T, p);
       basis = RgV_to_RgM(basis, lg(basis)-1);
       ffproj = ZM_mul(basis, ffproj);

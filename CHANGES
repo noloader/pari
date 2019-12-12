@@ -56,6 +56,8 @@ XR  40- factorpadic: incorrect factors (might not lift to Qp)
 BA  41- polcompositum(x^2+x/3+1,x^2+x/3+1) -> SEGV
     42- p=nextprime(2^20);q=nextprime(2*p);n=q*p;v=n+1;P=x^2-1;
         zncoppersmith(v*P,v*n,p,p*v) --> oo loop
+    43- missing reduction of pr.gen in idealprimedec [ slowdown ]
+        + nfmodprinit [ division by 0 ]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

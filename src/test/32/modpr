@@ -108,7 +108,7 @@ error("impossible inverse in Rg_to_ff: Mod(0, 3).")
 [0, 1, error("inconsistent variables in poltobasis, t != y."), t, error("inc
 onsistent variables in poltobasis, z != y."), error("incorrect type in Rg_to
 _ff (t_COL)."), 0]
-y^3 - 9: [[0, -1, -1]~, [1, 1, 0; 0, 1, 1], [2, [3, 3, 1]~, 1, 2, [1, 3, 0; 
+y^3 - 9: [[0, -1, -1]~, [1, 1, 0; 0, 1, 1], [2, [1, 1, 1]~, 1, 2, [1, 3, 0; 
 0, 1, 3; 1, 0, 1]], t^2 + t + 1]~
 *[1, 1]:
 error("impossible inverse in F2xq_inv: 0.")
@@ -184,4 +184,4 @@ y
   ***   at top-level: nfmodpr(nfinit(x),[],[]~)
   ***                 ^-------------------------
   *** nfmodpr: incorrect type in checkprid (t_COL).
-Total time spent: 129
+Total time spent: 84

@@ -1018,7 +1018,7 @@ y^3 - y + 1
 Mod(5929, y)
 13
 1
-[[[2, [2, 0]~, 1, 2, 1], [19, [10, 2]~, 1, 1, [-8, 2; 2, -10]]], Vecsmall([0
+[[[2, [2, 0]~, 1, 2, 1], [19, [-9, 2]~, 1, 1, [-8, 2; 2, -10]]], Vecsmall([0
 , 1])]
 Vecsmall([1, 0])
 1/2
@@ -2420,4 +2420,4 @@ x^2 + Mod(-17, y)
   ***   at top-level: al2=algtensor(al,al)
   ***                     ^----------------
   *** algtensor: sorry, tensor of non-cyclic algebras is not yet implemented.
-Total time spent: 1287
+Total time spent: 1220
