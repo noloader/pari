@@ -784,6 +784,8 @@ sd_datadir(const char *v, long flag)
   const char *str;
   if (v)
   {
+    mt_broadcast(snm_closure(is_entry("default"),
+                 mkvec2(strtoGENstr("datadir"), strtoGENstr(v))));
     if (pari_datadir) pari_free(pari_datadir);
     pari_datadir = path_expand(v);
   }
