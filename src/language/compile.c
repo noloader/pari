@@ -1841,8 +1841,10 @@ genclosure(entree *ep, const char *loc, long nbdata, int check)
       case 'E':
       case 'I':
       case 'V':
+        break;
       case 'r':
       case 's':
+        op_push_loc(OCtostr,-index,loc);
         break;
       case 'n':
         op_push_loc(OCvarn,-index,loc);
