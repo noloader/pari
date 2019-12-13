@@ -1502,7 +1502,26 @@ redsl2(GEN Q, GEN d)
 }
 
 static GEN
-qfbsolven(GEN Q, GEN fa)
+qfbsolven_one(GEN Q, GEN fa)
+{
+  pari_sp av = avma;
+  GEN d, F, Qr;
+  long i, l, sD;
+  d = qfb_disc(Q); sD = signe(d);
+  F = normforms(d, fa, DEFAULTPREC); l = lg(F);
+  if (l==1) { set_avma(av); return cgetg(1,t_VEC); }
+  Qr = redsl2(Q, d);
+  for (i=1; i<l; i++)
+  {
+    GEN x = sD < 0 ? qfisolve_normform(Qr, gel(F,i))
+                   : qfrsolve_normform(Qr, gel(F,i), NULL);
+    if (x) return gerepilecopy(av, x);
+  }
+  set_avma(av); return cgetg(1, t_VEC);
+}
+
+static GEN
+qfbsolven_all(GEN Q, GEN fa)
 {
   pari_sp av = avma;
   GEN d, F, Qr, W;
@@ -1523,12 +1542,12 @@ qfbsolven(GEN Q, GEN fa)
 }
 
 GEN
-qfbsolve(GEN Q,GEN n)
+qfbsolve(GEN Q, GEN n, long fl)
 {
   long t = typ(Q);
   if (t!=t_QFI && t!=t_QFR)
     pari_err_TYPE("qfbsolve",Q);
-  return qfbsolven(Q,n);
+  return fl ? qfbsolven_all(Q, n): qfbsolven_one(Q, n);
 }
 
 /* 1 if there exists x,y such that x^2 + dy^2 = p [prime], 0 otherwise */

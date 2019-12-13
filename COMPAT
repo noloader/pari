@@ -6,7 +6,6 @@ This file lists the incompatible changes between Version 2.x and older versions
     interval [a,b]; implement lfunconductor(L, list of potential N) instead
   - renamed GP functions Strchr -> strchr (pari_strchr in libpari),
     Strexpand -> strexpand, Strprintf -> strprintf, Strtex -> strtex
-  - qfbsolve now returns a t_VEC of t_VECs instead of a single t_VEC.
   - limitnum / asympnum: remove useless optional parameter 'muli/k'
     [now implicitly set to 1, not to 20]: just extrapolate u(muli*n).
   - besseln is now obsolete, use bessely

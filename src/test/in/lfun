@@ -136,7 +136,7 @@ fun(p, d)= \\ if (d == 2), only 1 + trace term is needed
   my(p16=p%16, p8=p16%8);
   if (d == 2 && p8 != 1, return (1));
   if (p8 == 5 || p8 == 7, return((1+p*x^2)^-2));
-  my([u,v] = qfbsolve(Qfb(1,0,2),p)[1]);
+  my([u,v] = qfbsolve(Qfb(1,0,2),p));
   if (p8 == 3, return (1 / (1 + (-4*u^2 + 2*p)*x^2 + p^2*x^4)));
   if (u%4 != 1, u=-u);
   if(p16==1,(1-2*x*u+p*x^2)^-2, (1+2*x*u+p*x^2)^-2);
