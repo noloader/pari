@@ -2482,7 +2482,7 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN I,
   pari_sp av;
   const long N = nf_get_degree(nf), R1 = nf_get_r1(nf);
   GEN G = nf_get_G(nf), G0 = nf_get_roundG(nf), r, u, gx, inc, ideal;
-  double BOUND;
+  double BOUND, B1, B2;
   long j, k, skipfirst, relid=0, dependent=0, try_elt=0, try_factor=0;
 
   inc = const_vecsmall(N, 1);
@@ -2491,14 +2491,24 @@ Fincke_Pohst_ideal(RELCACHE_t *cache, FB_t *F, GEN nf, GEN M, GEN I,
   r = gaussred_from_QR(RgM_mul(G, ideal), prec); /* Cholesky for T2 | ideal */
   if (!r) pari_err_BUG("small_norm (precision too low)");
 
-  skipfirst = ZV_isscalar(gel(ideal,1))? 1: 0; /* 1 probable */
   for (k=1; k<=N; k++)
   {
     fp->v[k] = gtodouble(gcoeff(r,k,k));
     for (j=1; j<k; j++) fp->q[j][k] = gtodouble(gcoeff(r,j,k));
     if (DEBUGLEVEL>3) err_printf("v[%ld]=%.4g ",k,fp->v[k]);
   }
-  BOUND = mindd(BMULT*fp->v[1], 2*(fp->v[2]+fp->v[1]*fp->q[1][2]*fp->q[1][2]));
+  B1 = fp->v[1]; /* T2(ideal[1]) */
+  B2 = fp->v[2] + B1 * fp->q[1][2] * fp->q[1][2]; /* T2(ideal[2]) */
+  if (ZV_isscalar(gel(ideal,1))) /* probable */
+  {
+    skipfirst = 1;
+    BOUND = mindd(BMULT * B1, 2 * B2);
+  }
+  else
+  {
+    BOUND = mindd(BMULT * B1, 2 * B2);
+    skipfirst = 0;
+  }
   /* BOUND at most BMULT fp->x smallest known vector */
   if (DEBUGLEVEL>1)
   {
@@ -2607,6 +2617,7 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
     timer_start(&T);
     err_printf("#### Look for %ld relations in %ld ideals (small_norm)\n",
                cache->end - last, lg(L_jid)-1);
+    if (p0) err_printf("Look in p0 = %Ps\n", vecslice(p0,1,4));
   }
   Nsmall = Nfact = 0;
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
@@ -4163,7 +4174,8 @@ START:
     R = compute_multiple_of_R(A, RU, N, &need, &bit, &lambda);
     if (need < old_need) small_fail = 0;
     /* we have computed way more relations than should be necessary */
-    if (TRIES < 3 && cache.last - cache.base > 10 * F.KC) goto START;
+    if (TRIES < 3 && LIMC < LIMCMAX / 24 &&
+                     cache.last - cache.base > 10 * F.KC) goto START;
     old_need = need;
     if (!lambda)
     { precpb = "bestappr"; PREC = myprecdbl(PREC, flag? C: NULL); continue; }
