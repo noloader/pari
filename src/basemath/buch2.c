@@ -114,7 +114,7 @@ typedef struct FP_t {
 
 typedef struct RNDREL_t {
   long jid;
-  GEN N, ex;
+  GEN ex;
 } RNDREL_t;
 
 static void
@@ -2645,33 +2645,20 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
   }
 }
 
-/* I integral ideal in HNF form */
 static GEN
-remove_content(GEN I)
+get_random_ideal(FB_t *F, GEN nf, GEN ex)
 {
-  long N = lg(I)-1;
-  if (!equali1(gcoeff(I,N,N))) I = Q_primpart(I);
-  return I;
-}
-
-static GEN
-get_random_ideal(FB_t *F, GEN nf, RNDREL_t *R)
-{
-  long l;
-  GEN ex;
-  R->ex = ex = cgetg_copy(F->subFB, &l);
+  long i, l = lg(ex);
   for (;;)
   {
     GEN I = NULL;
-    long i;
     for (i = 1; i < l; i++)
       if ((ex[i] = random_bits(RANDOM_BITS)))
       {
         GEN a = gmael(F->id2, F->subFB[i], ex[i]);
         I = I? idealHNF_mul(nf,I, a): idealhnf_two(nf,a);
       }
-    /* I != (n)Z_K */
-    if (I && !ZM_isscalar(I,NULL)) { R->N = ZM_det_triangular(I); return I; }
+    if (I && !ZM_isscalar(I,NULL)) return I; /* != (n)Z_K */
   }
 }
 
@@ -2679,7 +2666,7 @@ static void
 rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
 {
   pari_timer T;
-  GEN L_jid = F->L_jid, M = nf_get_M(nf), R;
+  GEN L_jid = F->L_jid, M = nf_get_M(nf), R, NR;
   long i, l = lg(L_jid), prec = nf_get_prec(nf);
   RNDREL_t rr;
   FP_t fp;
@@ -2688,14 +2675,16 @@ rnd_rel(RELCACHE_t *cache, FB_t *F, GEN nf, FACT *fact)
   if (DEBUGLEVEL) {
     timer_start(&T);
     err_printf("\n#### Look for %ld relations in %ld ideals (rnd_rel)\n",
-               cache->end - cache->last, lg(L_jid)-1);
+               cache->end - cache->last, l-1);
   }
-  R = get_random_ideal(F, nf, &rr); /* random product from subFB */
+  rr.ex = cgetg(lg(F->subFB), t_VECSMALL);
+  R = get_random_ideal(F, nf, rr.ex); /* random product from subFB */
+  NR = ZM_det_triangular(R);
   minim_alloc(lg(M), &fp.q, &fp.x, &fp.y, &fp.z, &fp.v);
   for (av = avma, i = 1; i < l; i++, set_avma(av))
   { /* try P[j] * base */
     long j = L_jid[i];
-    GEN P = gel(F->LP, j), Nid = mulii(rr.N, pr_norm(P));
+    GEN P = gel(F->LP, j), Nid = mulii(NR, pr_norm(P));
     if (DEBUGLEVEL>1) err_printf("\n*** Ideal %ld: %Ps\n", j, vecslice(P,1,4));
     rr.jid = j;
     if (Fincke_Pohst_ideal(cache, F, nf, M, idealHNF_mul(nf, R, P), Nid, fact,
@@ -2892,7 +2881,7 @@ be_honest(FB_t *F, GEN nf, GEN auts, FACT *fact)
           long ex = random_bits(RANDOM_BITS);
           if (ex) id = idealHNF_mul(nf, id, gmael(F->id2, F->subFB[i], ex));
         }
-        id = remove_content(id);
+        if (!equali1(gcoeff(id,N,N))) id = Q_primpart(id);
         if (expi(gcoeff(id,1,1)) > 100) id = idealred(nf, id);
         Nid = ZM_det_triangular(id);
       }
