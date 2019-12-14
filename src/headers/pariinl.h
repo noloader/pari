@@ -1983,6 +1983,8 @@ is_noncalc_t(long tx) { return (tx) >= t_LIST; }
 INLINE int
 is_rational_t(long t) { return (t == t_INT || t == t_FRAC); }
 INLINE int
+is_qfb_t(long t) { return (t == t_QFI || t == t_QFR); }
+INLINE int
 is_real_t(long t) { return (t == t_INT || t == t_REAL || t == t_FRAC); }
 INLINE int
 is_recursive_t(long t) { return lontyp[t]; }

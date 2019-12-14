@@ -1544,10 +1544,8 @@ qfbsolven_all(GEN Q, GEN fa)
 GEN
 qfbsolve(GEN Q, GEN n, long fl)
 {
-  long t = typ(Q);
-  if (t!=t_QFI && t!=t_QFR)
-    pari_err_TYPE("qfbsolve",Q);
-  return fl ? qfbsolven_all(Q, n): qfbsolven_one(Q, n);
+  if (!is_qfb_t(typ(Q))) pari_err_TYPE("qfbsolve",Q);
+  return fl? qfbsolven_all(Q, n): qfbsolven_one(Q, n);
 }
 
 /* 1 if there exists x,y such that x^2 + dy^2 = p [prime], 0 otherwise */

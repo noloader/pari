@@ -169,6 +169,7 @@ AP  60- new GP functions nfsubfieldscm, nfsubfieldsmax
 BA  61- new GP function lfunshift
     62- [libpari] Q_lval, Q_lvalrem
 BA  63- [libpari] ZXX_evalx0, zx_z_divexact, zx_lval
+    64- [libpari] is_qfb_t
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

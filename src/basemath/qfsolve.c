@@ -128,7 +128,7 @@ qflocalinvariants(GEN G, GEN P)
   for (j = 1; j < l; j++)
   {
     GEN g = gel(G,j);
-    if (typ(g) == t_QFI || typ(g) == t_QFR) gel(G,j) = gtomat(g);
+    if (is_qfb_t(typ(g))) gel(G,j) = gtomat(g);
   }
   sol = cgetg(l, t_MAT);
   if (lg(gel(G,1)) == 3)
