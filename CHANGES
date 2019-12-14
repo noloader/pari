@@ -97,7 +97,8 @@ BA  26- [libpari] Z_to_F2x(s,v): v is now a shifted variable number
 AP  27- matrixqz(,-1 or -2): faster code + no longer return result in HNF
 AP  28- allow nfsubfields([nf,fa],): van Hoeij-Klueners-Novocin algorithm
     29- nfsubfields: retune to avoid huge inertia degrees
-BA  30- qfbsolve: new flag: 0 -> 1 solution, 1-> all solutions.
+BA  30- qfbsolve: new flag: 0 -> 1 solution, 1-> all primitive solutions,
+        2 -> all solutions
 
   Added
      1- new GP function rootsof1
@@ -333,64 +334,63 @@ HC  11- gamma(t_FRAC) and lngamma: use direct formula when denom | 24
     16- renamed GP functions Strchr -> strchr (pari_strchr in libpari),
         Strexpand -> strexpand, Strprintf -> strprintf, Strtex -> strtex
     17- [help] move str* functions from "conversions" to "programming" section
-BA  18- qfbsolve now returns a vector of solutions.
-    19- limitnum / asympnum: remove useless optional parameter 'muli/k'
+    18- limitnum / asympnum: remove useless optional parameter 'muli/k'
         [now implicitly set to 1, not to 20]: just extrapolate u(muli*n).
-    20- improve rdivii / rdiviiz [ use divri which may use divri_with_gmp ]
-    21- mfparams now returns [N,k,CHI,space or P, Phi] where Phi is the
+    19- improve rdivii / rdiviiz [ use divri which may use divri_with_gmp ]
+    20- mfparams now returns [N,k,CHI,space or P, Phi] where Phi is the
         cyclotomic polynomials defining the field of values of CHI
-    22- inline / uninline are now obsolete, use export/unexport
-    23- let localprec(p) accept non integral real p [replace by ceil(p)];
+    21- inline / uninline are now obsolete, use export/unexport
+    22- let localprec(p) accept non integral real p [replace by ceil(p)];
         same for localbitprec.
-    24- let precision(x,p) accept non integral real p [replace by ceil(p)];
+    23- let precision(x,p) accept non integral real p [replace by ceil(p)];
         same for bitprecision.
-    25- besseln is now obsolete, use bessely
-    26- [libpari] precision0 / bitprecision0 (meant to implement GP-specific
+    24- besseln is now obsolete, use bessely
+    25- [libpari] precision0 / bitprecision0 (meant to implement GP-specific
         commands, not for library use) are now obsolete. The new equivalent
         commands (still not meant for library use) are precision00 and
         bitprecision00.
-    27- improve intnumgaussinit (use direct Newton instead of polrootsreal)
-    28- improve sumeulerrat / prodeulerrat
-    29- factor(x, D), D now encodes the domain over which to factor
-    30- allow listinsert(L, x, n) for n > #L, like listput
-    31- allow forsquarefree(n = a, b) with a*b < 0
-    32- allow L[a..b] and L[^i] for t_LISTs
-BA  33- gen_factorback: change argument order to match other functions
-    34- polinterpolate(X,Y,t,&e): e is now more precisely defined and the
+    26- improve intnumgaussinit (use direct Newton instead of polrootsreal)
+    27- improve sumeulerrat / prodeulerrat
+    28- factor(x, D), D now encodes the domain over which to factor
+    29- allow listinsert(L, x, n) for n > #L, like listput
+    30- allow forsquarefree(n = a, b) with a*b < 0
+    31- allow L[a..b] and L[^i] for t_LISTs
+BA  32- gen_factorback: change argument order to match other functions
+    33- polinterpolate(X,Y,t,&e): e is now more precisely defined and the
         error estimate is given as a binary exponent; compared to the value
         dy returned up to this change, we have e = exponent(dy).
-    35- suminf is now sensitive to bit precision. In library mode, use
+    34- suminf is now sensitive to bit precision. In library mode, use
         suminf_bitprec (precision in bits) rather than the historical suminf
         (precision in words)
-    36- RgV_polint: use (asymptotically fast) FpV_polint over Fp
-BA  37- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
-BA  38- # and ## now also display the realtime when nbthreads is not 1
-    39- gp_format_time: remove trailing ".\n" from formatted string
-BA  40- GP: arguments of the parser code W can start with ~ for clarity, e.g.
+    35- RgV_polint: use (asymptotically fast) FpV_polint over Fp
+BA  36- [libpari] pari_add_hist now take 3 arguments (data, cputime, realtime)
+BA  37- # and ## now also display the realtime when nbthreads is not 1
+    38- gp_format_time: remove trailing ".\n" from formatted string
+BA  39- GP: arguments of the parser code W can start with ~ for clarity, e.g.
         listput(~L,x), mapput(~M,x)
-BA  41- GP: the argument of a user member function is now a reference
-    42- make ellheight(E, torsion point) return an exact 0 [#2109]
-    43- allow rnfdisc(k, polynomial with non-integral coeffs)
-    44- allow rnfconductor(k, non-monic polynomial)
-    45- poldisc(t_COMPLEX) now raises an exception (used to return -4)
-    46- rnfdisc(nf, [T,B]) allow B a list of primes and maximal ideals
+BA  40- GP: the argument of a user member function is now a reference
+    41- make ellheight(E, torsion point) return an exact 0 [#2109]
+    42- allow rnfdisc(k, polynomial with non-integral coeffs)
+    43- allow rnfconductor(k, non-monic polynomial)
+    44- poldisc(t_COMPLEX) now raises an exception (used to return -4)
+    45- rnfdisc(nf, [T,B]) allow B a list of primes and maximal ideals
         (same for rnfbasis, rnfinit, rnfconductor, rnfpseudobasis)
-    47- ??? include double quotes when needed (e.g. ???conductor) [#2122]
-    48- improved the prime() function
-    49- mpeint1: support all t_REAL x != 0 (was x > 0)
-LGr 50- nffactor now supports rational functions
-    51- improve QM_gauss [treat contents sensibly]
-    52- lngamma and psi near 1: cache values of zeta(odd integers)
-    53- [libpari] nfbasis prototype changed: 3rd argument listP is gone, use
+    46- ??? include double quotes when needed (e.g. ???conductor) [#2122]
+    47- improved the prime() function
+    48- mpeint1: support all t_REAL x != 0 (was x > 0)
+LGr 49- nffactor now supports rational functions
+    50- improve QM_gauss [treat contents sensibly]
+    51- lngamma and psi near 1: cache values of zeta(odd integers)
+    52- [libpari] nfbasis prototype changed: 3rd argument listP is gone, use
         nfbasis(mkvec2(T,listP), &disc). Note that the documentation was
         incorrect: it is not guaranteed that nfbasis([T, listP]) returns the
         maximal order even if listP contains all prime divisors of the field
         discriminant. See ??nfbasis
-    54- nfbasis now accepts an optional argument &dK [order discriminant]
-    55- mffromlfun: support forms of half-integral weight (e.g. from lfunqf)
-BA  56- [libpari] FF_Frobenius: return the image of the standard generator
-    57- faster poldiscfactors()
-    58- when 'log' is turned on, explicitly output the logfile name
+    53- nfbasis now accepts an optional argument &dK [order discriminant]
+    54- mffromlfun: support forms of half-integral weight (e.g. from lfunqf)
+BA  55- [libpari] FF_Frobenius: return the image of the standard generator
+    56- faster poldiscfactors()
+    57- when 'log' is turned on, explicitly output the logfile name
 
   Added
      1- [libpari] nonsquare_Fl

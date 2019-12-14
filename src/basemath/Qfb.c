@@ -1264,7 +1264,6 @@ normforms(GEN D, GEN fa, long prec)
   else
     V = Zn_quad_roots(fa, gen_0, negi(shifti(D, -2)));
   if (!V) { set_avma(av); return cgetg(1, t_VEC); }
-  a = typ(fa) == t_INT ? fa: typ(fa) == t_VEC? gel(fa,1): factorback(fa);
   if (signe(D)<0 && signe(a)<0) { set_avma(av); return cgetg(1, t_VEC); }
   N = gel(V,1); B = gel(V,2);
   N2 = shifti(N,1);
@@ -1521,7 +1520,7 @@ qfbsolven_one(GEN Q, GEN fa)
 }
 
 static GEN
-qfbsolven_all(GEN Q, GEN fa)
+qfbsolven_primitive(GEN Q, GEN fa)
 {
   pari_sp av = avma;
   GEN d, F, Qr, W;
@@ -1540,12 +1539,35 @@ qfbsolven_all(GEN Q, GEN fa)
   setlg(W,j);
   return gerepilecopy(av,W);
 }
+static GEN
+qfbsolven_all(GEN Q, GEN n)
+{
+  pari_sp av = avma;
+  GEN fa = factorint(n, 0), P = gel(fa,1), E = gel(fa,2);
+  GEN W, D = divisors_factored(mkmat2(P, gshift(E,-1)));
+  long i, j, l = lg(D);
+  W = cgetg(l, t_VEC);
+  for (i = j = 1; i < l; i++)
+  {
+    GEN d = gel(D,i), d2 = famat_pows_shallow(gel(d,2), 2);
+    GEN w = qfbsolven_primitive(Q, famat_reduce(famat_div_shallow(fa, d2)));
+    if (lg(w) > 1) gel(W,j++) = RgV_Rg_mul(w, gel(d,1));
+  }
+  if (j == 1) { set_avma(av); return cgetg(1, t_VEC); }
+  setlg(W,j); return gerepilecopy(av, shallowconcat1(W));
+}
 
 GEN
 qfbsolve(GEN Q, GEN n, long fl)
 {
   if (!is_qfb_t(typ(Q))) pari_err_TYPE("qfbsolve",Q);
-  return fl? qfbsolven_all(Q, n): qfbsolven_one(Q, n);
+  switch(fl)
+  {
+    case 2: return qfbsolven_all(Q, n);
+    case 1: return qfbsolven_primitive(Q, n);
+    case 0: return qfbsolven_one(Q, n);
+    default: pari_err_FLAG("qfbsolve"); return NULL;
+  }
 }
 
 /* 1 if there exists x,y such that x^2 + dy^2 = p [prime], 0 otherwise */

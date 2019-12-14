@@ -1104,7 +1104,10 @@ Zn_quad_roots(GEN N, GEN B, GEN C)
   long l, i, j, ct;
 
   if ((fa = check_arith_non0(N,"Zn_quad_roots")))
+  {
     N = typ(N) == t_VEC? gel(N,1): factorback(N);
+    fa = clean_Z_factor(fa);
+  }
   N = absi_shallow(N);
   N4 = shifti(N,2);
   D = modii(subii(sqri(B), shifti(C,2)), N4);
