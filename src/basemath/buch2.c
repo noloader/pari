@@ -116,21 +116,20 @@ typedef struct RNDREL_t {
 } RNDREL_t;
 
 static void
-wr_rel(GEN col)
+wr_rel(GEN e)
 {
-  long i, l = lg(col);
-  err_printf("\nrel = ");
-  for (i=1; i<l; i++)
-    if (col[i]) err_printf("%ld^%ld ",i,col[i]);
-  err_printf("\n");
+  long i, l = lg(e);
+  for (i = 1; i < l; i++)
+    if (e[i]) err_printf("%ld^%ld ",i,e[i]);
 }
 static void
 dbg_newrel(RELCACHE_t *cache)
 {
   if (DEBUGLEVEL > 1)
   {
-    err_printf("\n++++ cglob = %ld", cache->last - cache->base);
+    err_printf("\n++++ cglob = %ld\nrel = ", cache->last - cache->base);
     wr_rel(cache->last->R);
+    err_printf("\n");
   }
   else
     err_printf("%ld ", cache->last - cache->base);
