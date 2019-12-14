@@ -75,6 +75,8 @@ typedef struct FB_t {
   GEN minidx; /* minidx[i] min ideal in orbit of LP[i] under field autom */
   subFB_t *allsubFB; /* all subFB's used */
   GEN embperm; /* permutations of the complex embeddings */
+  long MAXDEPSIZESFB; /* # trials before increasing subFB */
+  long MAXDEPSFB; /* MAXDEPSIZESFB / DEPSFBDIV, # trials befor rotating subFB */
 } FB_t;
 
 enum { sfb_CHANGE = 1, sfb_INCREASE = 2 };
@@ -196,17 +198,14 @@ bad_subFB(FB_t *F, long t)
 static void
 assign_subFB(FB_t *F, GEN yes, long iyes)
 {
-  subFB_t *sub;
-  long i, lv;
-
-  /* single malloc for struct + GEN */
-  lv = sizeof(subFB_t) + iyes*sizeof(long);
-  sub = (subFB_t *)pari_malloc(lv);
-  sub->subFB = (GEN)&sub[1];
-  sub->old = F->allsubFB;
-  F->allsubFB = sub;
-  for (i = 0; i < iyes; i++) sub->subFB[i] = yes[i];
-  F->subFB = sub->subFB;
+  long i, lv = sizeof(subFB_t) + iyes*sizeof(long); /* for struct + GEN */
+  subFB_t *s = (subFB_t *)pari_malloc(lv);
+  s->subFB = (GEN)&s[1];
+  s->old = F->allsubFB; F->allsubFB = s;
+  for (i = 0; i < iyes; i++) s->subFB[i] = yes[i];
+  F->subFB = s->subFB;
+  F->MAXDEPSIZESFB = (iyes-1) * DEPSIZESFBMULT;
+  F->MAXDEPSFB = F->MAXDEPSIZESFB / DEPSFBDIV;
 }
 
 /* Determine the permutation of the ideals made by each field automorphism */
@@ -3675,7 +3674,7 @@ Buchall_param(GEN P, double cbach, double cbach2, long Nrelid, long flag, long p
   pari_timer T;
   pari_sp av0 = avma, av, av2;
   long PREC, N, R1, R2, RU, low, high, LIMC0, LIMC, LIMC2, LIMCMAX, zc, i;
-  long LIMres, MAXDEPSIZESFB, MAXDEPSFB, bit = 0, flag_nfinit = 0;
+  long LIMres, bit = 0, flag_nfinit = 0;
   long nreldep, sfb_trials, need, old_need, precdouble = 0, TRIES = 0;
   long done_small, small_fail, fail_limit, squash_index, small_norm_prec;
   double LOGD, LOGD2, lim;
@@ -3808,6 +3807,7 @@ START:
   if (!F.KC) goto START;
   av = avma;
   subFBgen(&F,auts,cyclic,lim < 0? LIMC2: mindd(lim,LIMC2),MINSFB);
+  if (lg(F.subFB) == 1) goto START;
   if (DEBUGLEVEL)
     timer_printf(&T, "factorbase (#subFB = %ld) and ideal permutations",
                      lg(F.subFB)-1);
@@ -3816,8 +3816,6 @@ START:
   PERM = leafcopy(F.perm); /* to be restored in case of precision increase */
   cache.basis = zero_Flm_copy(F.KC,F.KC);
   small_multiplier = zero_Flv(F.KC);
-  MAXDEPSIZESFB = (lg(F.subFB) - 1) * DEPSIZESFBMULT;
-  MAXDEPSFB = MAXDEPSIZESFB / DEPSFBDIV;
   done_small = small_fail = squash_index = zc = sfb_trials = nreldep = 0;
   fail_limit = F.KC + 1;
   W = A = R = NULL;
@@ -3909,20 +3907,14 @@ START:
       }
       if (need > 0)
       { /* Random relations */
-        if (lg(F.subFB) == 1) goto START;
-        if (++nreldep > MAXDEPSIZESFB) {
+        if (++nreldep > F.MAXDEPSIZESFB) {
           if (++sfb_trials > SFB_MAX && LIMC < LIMCMAX/6) goto START;
           F.sfb_chg = sfb_INCREASE;
           nreldep = 0;
         }
-        else if (!(nreldep % MAXDEPSFB))
+        else if (!(nreldep % F.MAXDEPSFB))
           F.sfb_chg = sfb_CHANGE;
-        if (F.sfb_chg)
-        {
-          if (!subFB_change(&F)) goto START;
-          MAXDEPSIZESFB = (lg(F.subFB) - 1) * DEPSIZESFBMULT;
-          MAXDEPSFB = MAXDEPSIZESFB / DEPSFBDIV;
-        }
+        if (F.sfb_chg && !subFB_change(&F)) goto START;
         rnd_rel(&cache, &F, nf, fact);
         F.L_jid = F.perm;
       }
