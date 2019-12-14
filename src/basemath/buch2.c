@@ -150,20 +150,10 @@ delete_cache(RELCACHE_t *M)
 }
 
 static void
-unclone_subFB(FB_t *F)
-{
-  subFB_t *sub, *subold;
-  for (sub = F->allsubFB; sub; sub = subold)
-  {
-    subold = sub->old;
-    pari_free(sub);
-  }
-}
-
-static void
 delete_FB(FB_t *F)
 {
-  unclone_subFB(F);
+  subFB_t *s, *sold;
+  for (s = F->allsubFB; s; s = sold) { sold = s->old; pari_free(s); }
   gunclone(F->minidx);
   gunclone(F->idealperm);
 }
@@ -209,65 +199,58 @@ assign_subFB(FB_t *F, GEN yes, long iyes)
 }
 
 /* Determine the permutation of the ideals made by each field automorphism */
-static void
+static GEN
 FB_aut_perm(FB_t *F, GEN auts, GEN cyclic)
 {
-  pari_sp av0 = avma;
-  long i, KC = F->KC, nauts = lg(auts);
-  GEN minidx, perm = zero_Flm_copy(KC, nauts-1);
+  long i, j, m, KC = F->KC, nauts = lg(auts)-1;
+  GEN minidx, perm = zero_Flm_copy(KC, nauts);
 
-  if (nauts == 1) minidx = identity_zv(KC);
-  else
+  if (!nauts) { F->minidx = gclone(identity_zv(KC)); return cgetg(1,t_MAT); }
+  minidx = zero_Flv(KC);
+  for (m = 1; m < lg(cyclic); m++)
   {
-    long j, m;
-    minidx = zero_Flv(KC);
-    for (m = 1; m < lg(cyclic); m++)
+    GEN thiscyc = gel(cyclic, m);
+    long k0 = thiscyc[1];
+    GEN aut = gel(auts, k0), permk0 = gel(perm, k0), ppermk;
+    i = 1;
+    while (i <= KC)
     {
-      GEN thiscyc = gel(cyclic, m);
-      long k0 = thiscyc[1];
-      GEN aut = gel(auts, k0), permk0 = gel(perm, k0), ppermk;
-      i = 1;
-      while (i <= KC)
+      pari_sp av2 = avma;
+      GEN seen = zero_Flv(KC), P = gel(F->LP, i);
+      long imin = i, p, f, l;
+      p = pr_get_p(P)[2];
+      f = pr_get_f(P);
+      do
       {
-        pari_sp av2 = avma;
-        GEN seen = zero_Flv(KC), P = gel(F->LP, i);
-        long imin = i, p, f, l;
-        p = pr_get_p(P)[2];
-        f = pr_get_f(P);
-        do
-        {
-          if (++i > KC) break;
-          P = gel(F->LP, i);
-        }
-        while (p == pr_get_p(P)[2] && f == pr_get_f(P));
-        for (j = imin; j < i; j++)
-        {
-          GEN img = ZM_ZC_mul(aut, pr_get_gen(gel(F->LP, j)));
-          for (l = imin; l < i; l++)
-            if (!seen[l] && ZC_prdvd(img, gel(F->LP, l)))
-            {
-              seen[l] = 1; permk0[j] = l; break;
-            }
-        }
-        set_avma(av2);
+        if (++i > KC) break;
+        P = gel(F->LP, i);
       }
-      for (ppermk = permk0, i = 2; i < lg(thiscyc); i++)
+      while (p == pr_get_p(P)[2] && f == pr_get_f(P));
+      for (j = imin; j < i; j++)
       {
-        GEN permk = gel(perm, thiscyc[i]);
-        for (j = 1; j <= KC; j++) permk[j] = permk0[ppermk[j]];
-        ppermk = permk;
+        GEN img = ZM_ZC_mul(aut, pr_get_gen(gel(F->LP, j)));
+        for (l = imin; l < i; l++)
+          if (!seen[l] && ZC_prdvd(img, gel(F->LP, l)))
+          {
+            seen[l] = 1; permk0[j] = l; break;
+          }
       }
+      set_avma(av2);
     }
-    for (j = 1; j <= KC; j++)
+    for (ppermk = permk0, i = 2; i < lg(thiscyc); i++)
     {
-      if (minidx[j]) continue;
-      minidx[j] = j;
-      for (i = 1; i < nauts; i++) minidx[coeff(perm, j, i)] = j;
+      GEN permk = gel(perm, thiscyc[i]);
+      for (j = 1; j <= KC; j++) permk[j] = permk0[ppermk[j]];
+      ppermk = permk;
     }
   }
-  F->minidx = gclone(minidx);
-  F->idealperm = gclone(perm);
-  set_avma(av0);
+  for (j = 1; j <= KC; j++)
+  {
+    if (minidx[j]) continue;
+    minidx[j] = j;
+    for (i = 1; i <= nauts; i++) minidx[coeff(perm, j, i)] = j;
+  }
+  F->minidx = gclone(minidx); return perm;
 }
 
 /* set subFB.
@@ -316,7 +299,7 @@ subFBgen(FB_t *F, GEN auts, GEN cyclic, double PROD, long minsFB)
   for (i=1; i<ino; i++, j++) F->perm[j] =  no[i];
   for (   ; j<lv; j++)       F->perm[j] =  perm[j];
   F->allsubFB = NULL;
-  FB_aut_perm(F, auts, cyclic);
+  F->idealperm = gclone(FB_aut_perm(F, auts, cyclic));
   if (iyes) assign_subFB(F, yes, iyes);
   set_avma(av);
 }
