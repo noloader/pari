@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /* get_random_ideal */
 static const long RANDOM_BITS = 4;
 /* Buchall */
-static const double BNF_C1 = 0.0, BNF_C2 = 0.0;
 static const long RELSUP = 5;
 static const long FAIL_DIVISOR = 32;
 static const long MINFAIL = 10;
@@ -3404,7 +3403,7 @@ buchall_end(GEN nf,GEN res, GEN clg2, GEN W, GEN B, GEN A, GEN C,GEN Vbase)
 GEN
 bnfinit0(GEN P, long flag, GEN data, long prec)
 {
-  double c1 = BNF_C1, c2 = BNF_C2;
+  double c1 = 0., c2 = 0.;
   long fl, relpid = BNF_RELPID;
 
   if (data)
@@ -3430,7 +3429,7 @@ bnfinit0(GEN P, long flag, GEN data, long prec)
 }
 GEN
 Buchall(GEN P, long flag, long prec)
-{ return Buchall_param(P, BNF_C1, BNF_C2, BNF_RELPID, flag & nf_FORCE, prec); }
+{ return Buchall_param(P, 0., 0., BNF_RELPID, flag & nf_FORCE, prec); }
 
 static GEN
 Buchall_deg1(GEN nf)
