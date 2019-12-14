@@ -143,8 +143,7 @@ delete_cache(RELCACHE_t *M)
   for (rel = M->base+1; rel <= M->last; rel++)
   {
     gunclone(rel->R);
-    if (!rel->m) continue;
-    gunclone(rel->m);
+    if (rel->m) gunclone(rel->m);
   }
   pari_free((void*)M->base); M->base = NULL;
 }
@@ -218,14 +217,14 @@ FB_aut_perm(FB_t *F, GEN auts, GEN cyclic)
       pari_sp av2 = avma;
       GEN seen = zero_Flv(KC), P = gel(F->LP, i);
       long imin = i, p, f, l;
-      p = pr_get_p(P)[2];
+      p = pr_get_smallp(P);
       f = pr_get_f(P);
       do
       {
         if (++i > KC) break;
         P = gel(F->LP, i);
       }
-      while (p == pr_get_p(P)[2] && f == pr_get_f(P));
+      while (p == pr_get_smallp(P) && f == pr_get_f(P));
       for (j = imin; j < i; j++)
       {
         GEN img = ZM_ZC_mul(aut, pr_get_gen(gel(F->LP, j)));
@@ -2788,7 +2787,7 @@ bnftestprimes(GEN bnf, GEN BOUND)
   ulong count = 0;
   GEN auts, p, nf = bnf_get_nf(bnf), Vbase = bnf_get_vbase(bnf);
   GEN fb = gen_sort(Vbase, (void*)&cmp_prime_ideal, cmp_nodata); /*tablesearch*/
-  ulong pmax = itou( pr_get_p(gel(fb, lg(fb)-1)) ); /*largest p in factorbase*/
+  ulong pmax = pr_get_smallp(gel(fb, lg(fb)-1)); /*largest p in factorbase*/
   forprime_t S;
   FACT *fact;
   FB_t F;
