@@ -65,7 +65,7 @@ Doc: returns all solutions of the equation
 
  \misctitle{Note} When $P$ is irreducible without a real root, the default
  strategy is to use brute force enumeration in time $|a|^{1/\deg P}$ and
- avoid computing a touch \var{bnf} attached to $P$, see \kbd{thueinit}.
+ avoid computing a tough \var{bnf} attached to $P$, see \kbd{thueinit}.
  Besides reusing a quantity you might need for other purposes, the
  default argument \emph{sol} can also be used to use a different strategy
  and prove that there are no solutions; of course you need to compute a
