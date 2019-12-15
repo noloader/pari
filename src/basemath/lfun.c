@@ -723,6 +723,15 @@ gdivvec(GEN x, GEN y)
     return gdiv(x,y);
 }
 
+static GEN
+gsubvec(GEN x, GEN y)
+{
+  if (is_vec_t(typ(x)) && !is_vec_t(typ(y)))
+    pari_APPLY_same(gsub(gel(x,i),y))
+  else
+    return gsub(x,y);
+}
+
 /* [1^B,...,N^B] */
 GEN
 vecpowuu(long N, ulong B)
@@ -2034,7 +2043,7 @@ lfuncheckfeq_i(GEN theta, GEN thetad, GEN t0, GEN t0i, long bitprec)
   w = gdivvec(S0i, gmul(S0, gpow(t0, ldata_get_k(ldata), prec)));
   /* missing rootno: guess it */
   if (gequal0(eno)) eno = lfunrootno(theta, bitprec);
-  w = gsub(w, eno);
+  w = gsubvec(w, eno);
   if (thetad) w = gdivvec(w, eno); /* |eno| may be large in non-dual case */
   return gexpo(w);
 }
