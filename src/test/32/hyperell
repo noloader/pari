@@ -627,10 +627,19 @@ x^2 - 2
 x^2 - 4
 x^2 - 2
 x^2 - 686
+
+[48107*a + 38874  9222*a + 54290  41941*a + 8931 39672*a + 28651]
+
+[ 21458*a + 4763  3652*a + 22205 31111*a + 42559 39834*a + 40207]
+
+[ 13329*a + 4140 45270*a + 25803  1377*a + 32931 55980*a + 21267]
+
+[15086*a + 26714  33424*a + 4898 41830*a + 48013  5913*a + 24088]
+
   ***   at top-level: hyperellcharpoly((256*a^5+5)*Mod(1,5))
   ***                 ^--------------------------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5
   ***   at top-level: hyperellcharpoly((256*a^5+5)*ffgen(5^2))
   ***                 ^----------------------------------------
   *** hyperellcharpoly: domain error in hyperellpadicfrobenius: H is singular at 5
-Total time spent: 2724
+Total time spent: 2568
