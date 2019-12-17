@@ -27,19 +27,20 @@ typedef int (*QSCOMP)(const void *, const void *);
 #define numberof(x) (sizeof(x) / sizeof((x)[0]))
 
 /* to manipulate 'blocs' */
-#define BL_HEAD 5
+#define BL_HEAD 8
 #define bl_base(x) (void*)((x) - BL_HEAD)
-#define bl_size(x) (((GEN)x)[-5])
-#define bl_refc(x) (((GEN)x)[-4])
-#define bl_next(x) (((GEN*)x)[-3])
-#define bl_prev(x) (((GEN*)x)[-2])
-#define bl_num(x)  (((GEN)x)[-1])
-INLINE void
-clone_lock(GEN C) { if (isclone(C)) ++bl_refc(C); }
-INLINE void
-clone_unlock(GEN C) { if (isclone(C)) gunclone(C); }
-INLINE void
-clone_unlock_deep(GEN C) { if (isclone(C)) gunclone_deep(C); }
+#define bl_height(x) (((GEN)x)[-8])
+#define bl_left(x)   (((GEN*)x)[-7])
+#define bl_right(x)  (((GEN*)x)[-6])
+#define bl_size(x)   (((GEN)x)[-5])
+#define bl_refc(x)   (((GEN)x)[-4])
+#define bl_next(x)   (((GEN*)x)[-3])
+#define bl_prev(x)   (((GEN*)x)[-2])
+#define bl_num(x)    (((GEN)x)[-1])
+
+void clone_lock(GEN C);
+void clone_unlock(GEN C);
+void clone_unlock_deep(GEN C);
 
 /* swap */
 #define lswap(x,y) {long _z=x; x=y; y=_z;}

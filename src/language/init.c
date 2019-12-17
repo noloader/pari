@@ -138,6 +138,7 @@ static void pari_init_timer(void);
 /*#define DEBUG*/
 static THREAD long next_block;
 static THREAD GEN cur_block; /* current block in block list */
+static THREAD GEN root_block; /* current block in block list */
 #ifdef DEBUG
 static THREAD long NUM;
 #endif
@@ -145,7 +146,7 @@ static THREAD long NUM;
 static void
 pari_init_blocks(void)
 {
-  next_block = 0; cur_block = NULL;
+  next_block = 0; cur_block = NULL; root_block = NULL;
 #ifdef DEBUG
   NUM = 0;
 #endif
@@ -157,7 +158,164 @@ pari_close_blocks(void)
   while (cur_block) killblock(cur_block);
 }
 
+static long
+blockheight(GEN bl) { return bl? bl_height(bl): 0; }
+
+static long
+blockbalance(GEN bl)
+{ return bl ? blockheight(bl_left(bl)) - blockheight(bl_right(bl)): 0; }
+
+static void
+fix_height(GEN bl)
+{ bl_height(bl) = maxss(blockheight(bl_left(bl)), blockheight(bl_right(bl)))+1; }
+
+static GEN
+bl_rotright(GEN y)
+{
+  GEN x = bl_left(y), t = bl_right(x);
+  bl_right(x) = y;
+  bl_left(y)  = t;
+  fix_height(y);
+  fix_height(x);
+  return x;
+}
+
+static GEN
+bl_rotleft(GEN x)
+{
+  GEN y = bl_right(x), t = bl_left(y);
+  bl_left(y)  = x;
+  bl_right(x) = t;
+  fix_height(x);
+  fix_height(y);
+  return y;
+}
+
+static GEN
+blockinsert(GEN x, GEN bl, long *d)
+{
+  long b, c;
+  if (!bl)
+  {
+    bl_left(x)=NULL; bl_right(x)=NULL;
+    bl_height(x)=1; return x;
+  }
+  c = cmpuu((ulong)x, (ulong)bl);
+  if (c < 0)
+    bl_left(bl) = blockinsert(x, bl_left(bl), d);
+  else if (c > 0)
+    bl_right(bl) = blockinsert(x, bl_right(bl), d);
+  else return bl; /* ??? Already exist in the tree ? */
+  fix_height(bl);
+  b = blockbalance(bl);
+  if (b > 1)
+  {
+    if (*d > 0) bl_left(bl) = bl_rotleft(bl_left(bl));
+    return bl_rotright(bl);
+  }
+  if (b < -1)
+  {
+    if (*d < 0) bl_right(bl) = bl_rotright(bl_right(bl));
+    return bl_rotleft(bl);
+  }
+  *d = c; return bl;
+}
+
+static GEN
+blockdelete(GEN x, GEN bl)
+{
+  long b;
+  if (!bl) return NULL; /* ??? Do not exist in the tree */
+  if (x < bl)
+    bl_left(bl) = blockdelete(x, bl_left(bl));
+  else if (x > bl)
+    bl_right(bl) = blockdelete(x, bl_right(bl));
+  else
+  {
+    if (!bl_left(bl) && !bl_right(bl)) return NULL;
+    else if (!bl_left(bl)) return bl_right(bl);
+    else if (!bl_right(bl)) return bl_left(bl);
+    else
+    {
+      GEN r = bl_right(bl);
+      while (bl_left(r)) r = bl_left(r);
+      bl_right(r) = blockdelete(r, bl_right(bl));
+      bl_left(r) = bl_left(bl);
+      bl = r;
+    }
+  }
+  fix_height(bl);
+  b = blockbalance(bl);
+  if (b > 1)
+  {
+    if (blockbalance(bl_left(bl)) >= 0) return bl_rotright(bl);
+    else
+    { bl_left(bl) = bl_rotleft(bl_left(bl)); return bl_rotright(bl); }
+  }
+  if (b < -1)
+  {
+    if (blockbalance(bl_right(bl)) <= 0) return bl_rotleft(bl);
+    else
+    { bl_right(bl) = bl_rotright(bl_right(bl)); return bl_rotleft(bl); }
+  }
+  return bl;
+}
+
+static GEN
+blocksearch(GEN x, GEN bl)
+{
+  if (isclone(x)) return x;
+  if (isonstack(x) || is_universal_constant(x)) return NULL;
+  while (bl)
+  {
+    if (x >= bl  && x < bl + bl_size(bl))
+      return bl;
+    bl = x < bl ? bl_left(bl): bl_right(bl);
+  }
+  return NULL; /* Unknown address */
+}
+
+void
+clone_lock(GEN x)
+{
+  GEN y = blocksearch(x, root_block);
+  if (y)
+  {
+    if (DEBUGMEM > 2)
+      err_printf("locking block no %ld: %08lx from %08lx\n", bl_num(y), y, x);
+    ++bl_refc(y);
+  }
+}
+
+void
+clone_unlock(GEN x)
+{
+  GEN y = blocksearch(x, root_block);
+  if (y)
+  {
+    if (DEBUGMEM > 2)
+      err_printf("unlocking block no %ld: %08lx from %08lx\n", bl_num(y), y, x);
+    gunclone(y);
+  }
+}
+
+void
+clone_unlock_deep(GEN x)
+{
+  GEN y = blocksearch(x, root_block);
+  if (y)
+  {
+    if (DEBUGMEM > 2)
+      err_printf("unlocking deep block no %ld: %08lx from %08lx\n", bl_num(y), y, x);
+    gunclone_deep(y);
+  }
+}
+
 /* Return x, where:
+ * x[-8]: AVL height
+ * x[-7]: adress of left child or NULL
+ * x[-6]: adress of right child or NULL
+ * x[-5]: size
  * x[-4]: reference count
  * x[-3]: adress of next block
  * x[-2]: adress of preceding block.
@@ -166,6 +324,7 @@ pari_close_blocks(void)
 GEN
 newblock(size_t n)
 {
+  long d = 0;
   long *x = (long *) pari_malloc((n + BL_HEAD)*sizeof(long)) + BL_HEAD;
 
   bl_size(x) = n;
@@ -174,6 +333,7 @@ newblock(size_t n)
   bl_prev(x) = cur_block;
   bl_num(x)  = next_block++;
   if (cur_block) bl_next(cur_block) = x;
+  root_block = blockinsert(x, root_block, &d);
 #ifdef DEBUG
   err_printf("+ %ld\n", ++NUM);
 #endif
@@ -197,6 +357,7 @@ gunclone(GEN x)
 {
   if (--bl_refc(x) > 0) return;
   BLOCK_SIGINT_START;
+  root_block = blockdelete(x, root_block);
   if (bl_next(x)) bl_prev(bl_next(x)) = bl_prev(x);
   else
   {
@@ -399,11 +560,19 @@ getheap(void)
   traverseheap(&f_getheap, &T); return mkvec2s(T.n, T.l);
 }
 
-void
-traverseheap( void(*f)(GEN, void *), void *data )
+static void
+traverseheap_r(GEN bl, void(*f)(GEN, void *), void *data)
 {
-  GEN x;
-  for (x = cur_block; x; x = bl_prev(x)) f(x, data);
+  if (!bl) return;
+  traverseheap_r(bl_left(bl), f, data);
+  traverseheap_r(bl_right(bl), f, data);
+  f(bl, data);
+}
+
+void
+traverseheap( void(*f)(GEN, void *), void *data)
+{
+  traverseheap_r(root_block,f, data);
 }
 
 /*********************************************************************/
