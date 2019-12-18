@@ -1994,10 +1994,15 @@ idealprimedec_kummer(GEN nf,GEN u,long e,GEN p)
   {
     t = centermod(poltobasis(nf, FpX_div(T, u, p)), p);
     u = centermod(poltobasis(nf, u), p);
-    if (e == 1 && ZpX_resultant_val(T, nf_to_scalar_or_alg(nf,u), p, f+1) > f)
+    if (e == 1)
     { /* make sure v_pr(u) = 1 (automatic if e>1) */
-      GEN c = gel(u,1);
-      gel(u,1) = signe(c) > 0? subii(c, p): addii(c, p);
+      GEN cw, w = Q_primitive_part(nf_to_scalar_or_alg(nf, u), &cw);
+      long v = cw? f - Q_pval(cw, p) * N: f;
+      if (ZpX_resultant_val(T, w, p, v + 1) > v)
+      {
+        GEN c = gel(u,1);
+        gel(u,1) = signe(c) > 0? subii(c, p): addii(c, p);
+      }
     }
     t = zk_multable(nf, t);
   }
