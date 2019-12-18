@@ -234,7 +234,7 @@ gunclone_deep(GEN x)
       if (v) killblock(v);
       break;
   }
-  clone_unlock(x);
+  if (isclone(x)) gunclone(x);
   BLOCK_SIGINT_END;
 }
 
@@ -2269,7 +2269,7 @@ obj_insert_shallow(GEN S, long K, GEN O)
   if (typ(v) != t_VEC) pari_err_TYPE("obj_insert", S);
   o = gel(v,K);
   gel(v,K) = O; /*SIGINT: before unclone(o)*/
-  clone_unlock(o); return gel(v,K);
+  if (isclone(o)) gunclone(o); return gel(v,K);
 }
 
 /* Does S [last position] contain data at position K ? Return it, or NULL */

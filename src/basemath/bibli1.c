@@ -1538,7 +1538,7 @@ clonefill(GEN S, long s, long t)
   GEN T = S, dummy = cgetg(1, t_STR);
   long i;
   for (i = s+1; i <= t; i++) gel(S,i) = dummy;
-  S = gclone(S); clone_unlock(T);
+  S = gclone(S); if (isclone(T)) gunclone(T);
   return S;
 }
 
@@ -1821,7 +1821,8 @@ smallvectors(GEN q, GEN BORNE, long maxnum, FP_chk_fun *CHECK)
 
     {
       GEN Snew = clonefill(vec_lengthen(S,stockmax), s, stockmax);
-      clone_unlock(S); S = Snew;
+      if (isclone(S)) gunclone(S);
+      S = Snew;
     }
   }
 END:

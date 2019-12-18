@@ -698,7 +698,7 @@ compute_data(blockdata *B)
     err_printf("2 * Hadamard bound * ind = %Ps\n",DATA[7]);
     err_printf("2 * M = %Ps\n",DATA[8]);
   }
-  if (B->DATA) { DATA = gclone(DATA); clone_unlock(B->DATA); }
+  if (B->DATA) { DATA = gclone(DATA); if (isclone(B->DATA)) gunclone(B->DATA); }
   B->DATA = DATA;
 }
 
@@ -791,7 +791,8 @@ subfields_of_given_degree(blockdata *B)
   L = calc_block(B, B->S->Z, cgetg(1,t_VEC), NULL);
   if (DEBUGLEVEL>9)
     err_printf("\nSubfields of degree %ld: %Ps\n", B->d, L? L: cgetg(1,t_VEC));
-  clone_unlock(B->DATA); return gc_const(av,L);
+  if (isclone(B->DATA)) gunclone(B->DATA);
+  return gc_const(av,L);
 }
 
 static GEN

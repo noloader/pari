@@ -349,7 +349,7 @@ change_compo(matcomp *c, GEN res)
     {
       GEN p1 = gcoeff(p,c->full_row,i); /* Protect against SIGINT */
       gcoeff(p,c->full_row,i) = gclone(gel(res,i));
-      clone_unlock_deep(p1);
+      if (isclone(p1)) gunclone_deep(p1);
     }
     return;
   }
