@@ -2554,12 +2554,14 @@ polylog(long m, GEN x, long prec)
   y = gadd(y,p1);
   set_avma(av); return affc_fixlg(y, res);
 }
-
-GEN
-dilog(GEN x, long prec)
+static GEN
+RIpolylog(long m, GEN x, long real, long prec)
 {
-  return gpolylog(2, x, prec);
+  GEN y = polylog(m, x, prec);
+  return real? real_i(y): imag_i(y);
 }
+GEN
+dilog(GEN x, long prec) { return gpolylog(2, x, prec); }
 
 /* x a floating point number, t_REAL or t_COMPLEX of t_REAL */
 static GEN
@@ -2578,7 +2580,7 @@ logabs(GEN x)
 static GEN
 polylogD(long m, GEN x, long flag, long prec)
 {
-  long k, l, fl, m2;
+  long fl = 0, k, l, m2;
   pari_sp av;
   GEN p1, p2, y;
 
@@ -2588,23 +2590,20 @@ polylogD(long m, GEN x, long flag, long prec)
   av = avma; l = precision(x);
   if (!l) { l = prec; x = gtofp(x,l); }
   p1 = logabs(x);
-  k = signe(p1);
-  if (k > 0) { x = ginv(x); fl = !m2; } else { setabssign(p1); fl = 0; }
+  if (signe(p1) > 0) { x = ginv(x); fl = !m2; } else setabssign(p1);
   /* |x| <= 1, p1 = - log|x| >= 0 */
   p2 = gen_1;
-  y = polylog(m,x,l);
-  y = m2? real_i(y): imag_i(y);
-  for (k=1; k<m; k++)
+  y = RIpolylog(m, x, m2, l);
+  for (k = 1; k < m; k++)
   {
-    GEN t = polylog(m-k,x,l);
+    GEN t = RIpolylog(m-k, x, m2, l);
     p2 = gdivgs(gmul(p2,p1), k); /* (-log|x|)^k / k! */
-    y = gadd(y, gmul(p2, m2? real_i(t): imag_i(t)));
+    y = gadd(y, gmul(p2, t));
   }
   if (m2)
   {
-    if (!flag) p1 = negr( logabs(gsubsg(1,x)) ); else p1 = shiftr(p1,-1);
-    p2 = gdivgs(gmul(p2,p1), -m);
-    y = gadd(y, p2);
+    p1 = flag? gdivgs(p1, -2*m): gdivgs(logabs(gsubsg(1,x)), m);
+    y = gadd(y, gmul(p2, gdivgs(p1, -m)));
   }
   if (fl) y = gneg(y);
   return gerepileupto(av, y);
@@ -2613,7 +2612,7 @@ polylogD(long m, GEN x, long flag, long prec)
 static GEN
 polylogP(long m, GEN x, long prec)
 {
-  long k, l, fl, m2;
+  long fl = 0, k, l, m2;
   pari_sp av;
   GEN p1,y;
 
@@ -2623,10 +2622,9 @@ polylogP(long m, GEN x, long prec)
   av = avma; l = precision(x);
   if (!l) { l = prec; x = gtofp(x,l); }
   p1 = logabs(x);
-  if (signe(p1) > 0) { x = ginv(x); fl = !m2; setsigne(p1, -1); } else fl = 0;
+  if (signe(p1) > 0) { x = ginv(x); fl = !m2; setsigne(p1, -1); }
   /* |x| <= 1 */
-  y = polylog(m,x,l);
-  y = m2? real_i(y): imag_i(y);
+  y = RIpolylog(m, x, m2, l);
   if (m==1)
   {
     shiftr_inplace(p1, -1); /* log |x| / 2 */
@@ -2635,24 +2633,22 @@ polylogP(long m, GEN x, long prec)
   else
   { /* m >= 2, \sum_{0 <= k <= m} 2^k B_k/k! (log |x|)^k Li_{m-k}(x),
        with Li_0(x) := -1/2 */
-    GEN u, t;
-    t = polylog(m-1,x,l);
+    GEN u, t = RIpolylog(m-1, x, m2, l);
     u = gneg_i(p1); /* u = 2 B1 log |x| */
-    y = gadd(y, gmul(u, m2?real_i(t):imag_i(t)));
+    y = gadd(y, gmul(u, t));
     if (m > 2)
     {
       GEN p2;
-      shiftr_inplace(p1, 1); /* p1 = 2log|x| <= 0 */
+      shiftr_inplace(p1, 1); /* 2log|x| <= 0 */
       constbern(m>>1);
       p1 = sqrr(p1);
       p2 = shiftr(p1,-1);
-      for (k=2; k<m; k+=2)
+      for (k = 2; k < m; k += 2)
       {
-        if (k > 2) p2 = divgunu(gmul(p2,p1),k-1);
-        /* p2 = 2^k/k! log^k |x|*/
-        t = polylog(m-k,x,l);
+        if (k > 2) p2 = divgunu(gmul(p2,p1),k-1); /* 2^k/k! log^k |x|*/
+        t = RIpolylog(m-k, x, m2, l);
         u = gmul(p2, bernfrac(k));
-        y = gadd(y, gmul(u, m2? real_i(t): imag_i(t)));
+        y = gadd(y, gmul(u, t));
       }
     }
   }
@@ -2665,16 +2661,15 @@ gpolylog(long m, GEN x, long prec)
 {
   long i, n, v;
   pari_sp av = avma;
-  GEN a, y, p1;
+  GEN a, y;
 
   if (m <= 0)
   {
     GEN t = mkpoln(2, gen_m1, gen_1); /* 1 - X */
-    p1 = pol_x(0);
-    for (i=2; i <= -m; i++)
-      p1 = RgX_shift_shallow(gadd(gmul(t,ZX_deriv(p1)), gmulsg(i,p1)), 1);
-    p1 = gdiv(p1, gpowgs(t,1-m));
-    return gerepileupto(av, poleval(p1,x));
+    a = pol_x(0);
+    for (i = 2; i <= -m; i++)
+      a = RgX_shift_shallow(ZX_add(ZX_mul(t,ZX_deriv(a)), gmulsg(i,a)), 1);
+    return gerepileupto(av, gdiv(poleval(a,x), gpowgs(gsubsg(1, x), 1-m)));
   }
 
   switch(typ(x))
