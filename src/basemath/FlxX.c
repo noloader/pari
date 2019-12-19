@@ -207,7 +207,7 @@ Flm_to_FlxX(GEN x, long v,long w)
   return FlxX_renormalize(--y, lx+1);
 }
 
-/* P(X,Y) --> P(Y,X), n-1 is the degree in Y */
+/* P(X,Y) --> P(Y,X), n is the degree in Y */
 GEN
 FlxX_swap(GEN x, long n, long ws)
 {
