@@ -2439,8 +2439,8 @@ cxpolylog(long m, GEN x, long prec)
   if (DEBUGLEVEL) timer_start(&T);
   dz = dbllog2(z) - log2PI; /*  ~ log2(|z|/2Pi) */
   /* sum_{k >= 1} zeta(-1-2k) * z^(2k+m+1) / (2k+m+1)!
-   * = 2 z^(m-1) sum_{k >= 1} zeta(2k+2) * Z^(k+1) / (2k+2)..(2k+1+m)),
-   * where Z = -(z/2Pi)^2. Stop at 2k = (li - (m-1)*Lz - m) /  dz, Lz = log2 |z| */
+   * = 2 z^(m-1) sum_{k >= 1} zeta(2k+2) * Z^(k+1) / (2k+2)..(2k+1+m)), where
+   * Z = -(z/2Pi)^2. Stop at 2k = (li - (m-1)*Lz - m) / dz, Lz = log2 |z| */
   /* We cut the sum in two: small values of k first */
   Z = gsqr(z); av = avma;
   ksmall = get_k(dz, prec2nbits(prec));
@@ -2478,6 +2478,9 @@ cxpolylog(long m, GEN x, long prec)
 }
 
 static GEN
+Li1(GEN x, long prec) { return gneg(glog(gsubsg(1, x), prec)); }
+
+static GEN
 polylog(long m, GEN x, long prec)
 {
   long l, e, i, G, sx;
@@ -2487,11 +2490,7 @@ polylog(long m, GEN x, long prec)
   if (m < 0) pari_err_DOMAIN("polylog", "index", "<", gen_0, stoi(m));
   if (!m) return mkfrac(gen_m1,gen_2);
   if (gequal0(x)) return gcopy(x);
-  if (m==1)
-  {
-    av = avma;
-    return gerepileupto(av, gneg(glog(gsub(gen_1,x), prec)));
-  }
+  if (m==1) { av = avma; return gerepileupto(av, Li1(x, prec)); }
 
   l = precision(x);
   if (!l) l = prec; else prec = l;
@@ -2659,8 +2658,8 @@ polylogP(long m, GEN x, long prec)
 GEN
 gpolylog(long m, GEN x, long prec)
 {
-  long i, n, v;
   pari_sp av = avma;
+  long i, n, v;
   GEN a, y;
 
   if (m <= 0)
@@ -2680,7 +2679,7 @@ gpolylog(long m, GEN x, long prec)
     default:
       av = avma; if (!(y = toser_i(x))) break;
       if (!m) { set_avma(av); return mkfrac(gen_m1,gen_2); }
-      if (m==1) return gerepileupto(av, gneg( glog(gsub(gen_1,y),prec) ));
+      if (m==1) return gerepileupto(av, Li1(y, prec));
       if (gequal0(y)) return gerepilecopy(av, y);
       v = valp(y);
       if (v < 0) pari_err_DOMAIN("polylog","valuation", "<", gen_0, x);
@@ -2691,10 +2690,10 @@ gpolylog(long m, GEN x, long prec)
           a = gmul(y, gadd(a, powis(utoipos(i),-m)));
       } else { /* v == 0 */
         long vy = varn(y);
-        GEN a0 = polcoef(y, 0, -1), yprimeovery = gdiv(derivser(y), y);
-        a = gneg( glog(gsub(gen_1,y), prec) );
+        GEN a0 = polcoef(y, 0, -1), t = gdiv(derivser(y), y);
+        a = Li1(y, prec);
         for (i=2; i<=m; i++)
-          a = gadd(gpolylog(i, a0, prec), integ(gmul(yprimeovery, a), vy));
+          a = gadd(gpolylog(i, a0, prec), integ(gmul(t, a), vy));
       }
       return gerepileupto(av, a);
   }
