@@ -1,5 +1,5 @@
 Function: bernreal
-Section: transcendental
+Section: combinatorics
 C-Name: bernreal
 Prototype: Lp
 Help: bernreal(n): Bernoulli number B_n, as a real number with the current

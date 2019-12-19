@@ -1,5 +1,5 @@
 Function: bernvec
-Section: transcendental
+Section: combinatorics
 C-Name: bernvec
 Prototype: L
 Help: bernvec(n): returns a vector containing, as rational numbers,

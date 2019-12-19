@@ -1,5 +1,5 @@
 Function: bernpol
-Section: transcendental
+Section: combinatorics
 C-Name: bernpol
 Prototype: LDn
 Help: bernpol(n, {v = 'x}): Bernoulli polynomial B_n, in variable v.

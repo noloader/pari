@@ -1,5 +1,5 @@
 Function: eulervec
-Section: transcendental
+Section: combinatorics
 C-Name: eulervec
 Prototype: L
 Help: eulervec(n): returns a vector containing

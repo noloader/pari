@@ -1,5 +1,5 @@
 Function: bernfrac
-Section: transcendental
+Section: combinatorics
 C-Name: bernfrac
 Prototype: L
 Help: bernfrac(n): Bernoulli number B_n, as a rational number.

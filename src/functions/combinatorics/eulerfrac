@@ -1,5 +1,5 @@
 Function: eulerfrac
-Section: transcendental
+Section: combinatorics
 C-Name: eulerfrac
 Prototype: L
 Help: eulerfrac(n): Euler number E_n, as a rational number.
