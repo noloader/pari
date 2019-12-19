@@ -3766,6 +3766,37 @@ Flx_translate1(GEN P, ulong p)
   }
 }
 
+GEN
+zlx_translate1(GEN P, ulong p, long e)
+{
+  ulong d, q = upowuu(p,e), n = degpol(P);
+  GEN R, Q, S;
+  if (translate_basecase(n, p)) return Flx_translate1_basecase(P, q);
+  /* n > 0 */
+  d = n >> 1;
+  if (n < p)
+  {
+    R = zlx_translate1(Flxn_red(P, d), p, e);
+    Q = zlx_translate1(Flx_shift(P, -d), p, e);
+    S = Fl_Xp1_powu(d, q, P[1]);
+    return Flx_add(Flx_mul(Q, S, q), R, q);
+  }
+  else
+  {
+    long a, u = ulogintall(n, p, &d);
+    R = zlx_translate1(Flxn_red(P, d), p, e);
+    Q = zlx_translate1(Flx_shift(P, -d), p, e);
+    a = u+1-e;
+    if (a <= 0) S = Flx_powu(Fl_Xp1_powu(p, q, P[1]), d/p, q);
+    else
+    {
+      ulong pa = upowuu(p, a);
+      S = Flx_inflate(Flx_powu(Fl_Xp1_powu(p, q, P[1]), d/pa, q), pa);
+    }
+    return Flx_add(Flx_mul(Q, S, q), R, q);
+  }
+}
+
 /***********************************************************************/
 /**                                                                   **/
 /**                               Fl2                                 **/

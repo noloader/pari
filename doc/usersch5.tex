@@ -5854,6 +5854,10 @@ Asymptotically fast (quasi-linear in the degree of $P$).
 \fun{GEN}{Flx_translate1_basecase}{GEN P, ulong p} return $P(x+1)$, $p$
 need not be prime. Not asymptotically fast (quadratic in the degree of $P$).
 
+\fun{GEN}{zlx_translate1}{GEN P, ulong p, long e} return $P(x+1)$
+modulo $p^e$ for prime $p$. Asymptotically fast (quasi-linear in the degree of
+$P$).
+
 \fun{GEN}{Flx_diff1}{GEN P, ulong p} return $P(x+1)-P(x)$; $p$ must be prime.
 
 \fun{GEN}{Flx_digits}{GEN x, GEN B, ulong p} returns a vector of \kbd{Flx}
