@@ -72,9 +72,9 @@ direulertou(GEN a, GEN fl(GEN))
 }
 
 static GEN
-direuler_Sbad(GEN V, GEN v, GEN Sbad, ulong X, ulong *n)
+direuler_Sbad(GEN V, GEN v, GEN Sbad, ulong *n)
 {
-  long i, l = lg(Sbad);
+  long i, l = lg(Sbad), X = lg(V)-1;
   GEN pbad = gen_1;
   for (i = 1; i < l; i++)
   {
@@ -110,7 +110,7 @@ direuler_bad(void *E, GEN (*eval)(void *,GEN,long), GEN a,GEN b,GEN c, GEN Sbad)
   v = vecsmall_ei(X, 1);
   V = vec_ei(X, 1);
   n = 1;
-  if (Sbad) Sbad = direuler_Sbad(V, v, Sbad, X, &n);
+  if (Sbad) Sbad = direuler_Sbad(V, v, Sbad, &n);
   p = 1; gp = cgetipos(3); sqrtX = usqrt(X);
   while (p <= sqrtX && (p = u_forprime_next(&T)))
     if (!Sbad || umodiu(Sbad, p))
@@ -220,7 +220,7 @@ pardireuler(GEN worker, GEN a, GEN b, GEN c, GEN Sbad)
   v = vecsmall_ei(X, 1);
   V = vec_ei(X, 1);
   n = 1;
-  if (Sbad) Sbad = direuler_Sbad(V, v, Sbad, X, &n);
+  if (Sbad) Sbad = direuler_Sbad(V, v, Sbad, &n);
   sqrtX = usqrt(X); snX = uprimepi(sqrtX); nX = uprimepi(X);
   if (snX)
   {
