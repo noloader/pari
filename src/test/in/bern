@@ -15,6 +15,7 @@ eulerfrac(2)
 eulervec(30)
 forstep(k = 0, 20, 2, print(eulerfrac(k)));
 for(k = 0, 5, print(eulerpol(k)));
+for(k = 1, 5, print(eulerianpol(k)));
 \\ Errors, keep at end of file
 bernfrac(-1)
 bernreal(-1)
@@ -22,3 +23,4 @@ bernpol(-1)
 eulerfrac(-1)
 eulerreal(-1)
 eulerpol(-1)
+eulerianpol(-1)

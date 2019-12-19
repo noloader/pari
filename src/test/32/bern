@@ -76,6 +76,11 @@ x^2 - x
 x^3 - 3/2*x^2 + 1/4
 x^4 - 2*x^3 + x
 x^5 - 5/2*x^4 + 5/2*x^2 - 1/2
+1
+x + 1
+x^2 + 4*x + 1
+x^3 + 11*x^2 + 11*x + 1
+x^4 + 26*x^3 + 126*x^2 + 26*x + 1
   ***   at top-level: bernfrac(-1)
   ***                 ^------------
   *** bernfrac: domain error in bernfrac: index < 0
@@ -94,4 +99,7 @@ x^5 - 5/2*x^4 + 5/2*x^2 - 1/2
   ***   at top-level: eulerpol(-1)
   ***                 ^------------
   *** eulerpol: domain error in eulerpol: index < 0
-Total time spent: 2
+  ***   at top-level: eulerianpol(-1)
+  ***                 ^---------------
+  *** eulerianpol: domain error in eulerianpol: index <= 0
+Total time spent: 1

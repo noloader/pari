@@ -617,6 +617,35 @@ matqpascal(long n, GEN q)
   return gerepilecopy(av, m);
 }
 
+GEN
+eulerianpol(long N, long v)
+{
+  pari_sp av = avma;
+  long n, k;
+  GEN A;
+  if (v < 0) v = 0;
+  if (N <= 0) pari_err_DOMAIN("eulerianpol", "index", "<=", gen_0, stoi(N));
+  if (N == 1) return pol_1(v);
+  if (N == 2) return deg1pol_shallow(gen_1, gen_1, v);
+  A = cgetg(N+1, t_VEC);
+  gel(A,1) = gen_1; gel(A,2) = gen_1; /* A_2 = x+1 */
+  for (n = 3; n <= N; n++)
+  { /* A(n,k) = (n-k)A(n-1,k-1) + (k+1)A(n-1,k) */
+    long n2 = (n-1) >> 1;
+    for (k = 1; k <= n2; k++)
+      gel(A,k+1) = addii(mului(n-k, gel(A, k)), mului(k+1, gel(A,k+1)));
+    if (odd(n)) gel(A,k+1) = mului(n+1, gel(A, k));
+    if (gc_needed(av,1))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"eulerianpol, %ld/%ld",n,N);
+      for (; k < N; k++) gel(A,k+1) = gen_0;
+      A = gerepilecopy(av, A);
+    }
+  }
+  for (; k < N; k++) gel(A,k+1) = gel(A, N-k);
+  return gerepilecopy(av, RgV_to_RgX(A, v));
+}
+
 /******************************************************************/
 /**                                                              **/
 /**                       PRECISION CHANGES                      **/

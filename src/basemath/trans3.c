@@ -2665,13 +2665,9 @@ gpolylog(long m, GEN x, long prec)
 
   if (m <= 0)
   {
-    GEN t = mkpoln(2, gen_m1, gen_1); /* 1 - X */
-    a = pol_x(0);
-    for (i = 2; i <= -m; i++)
-      a = RgX_shift_shallow(ZX_add(ZX_mul(t,ZX_deriv(a)), gmulsg(i,a)), 1);
-    return gerepileupto(av, gdiv(poleval(a,x), gpowgs(gsubsg(1, x), 1-m)));
+    a = gmul(x, poleval(eulerianpol(-m, 0), x));
+    return gerepileupto(av, gdiv(a, gpowgs(gsubsg(1, x), 1-m)));
   }
-
   switch(typ(x))
   {
     case t_INT: case t_REAL: case t_FRAC: case t_COMPLEX: case t_QUAD:
