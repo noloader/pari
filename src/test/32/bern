@@ -80,7 +80,7 @@ x^5 - 5/2*x^4 + 5/2*x^2 - 1/2
 x + 1
 x^2 + 4*x + 1
 x^3 + 11*x^2 + 11*x + 1
-x^4 + 26*x^3 + 126*x^2 + 26*x + 1
+x^4 + 26*x^3 + 66*x^2 + 26*x + 1
   ***   at top-level: bernfrac(-1)
   ***                 ^------------
   *** bernfrac: domain error in bernfrac: index < 0
