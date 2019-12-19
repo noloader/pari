@@ -467,6 +467,7 @@ trace_push(long pc, GEN C)
   BLOCK_SIGINT_START
   tr = pari_stack_new(&s_trace);
   trace[tr].pc = pc;
+  clone_lock(C);
   trace[tr].closure = C;
   BLOCK_SIGINT_END
   return tr;
@@ -896,7 +897,6 @@ closure_eval(GEN C)
   if (PARI_stack_limit && (void*) &stackelt <= PARI_stack_limit)
     pari_err(e_MISC, "deep recursion");
 #endif
-  clone_lock(C);
   t = trace_push(0, C);
   if (lg(C)==8)
   {
