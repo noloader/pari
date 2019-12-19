@@ -2603,7 +2603,7 @@ polylogD(long m, GEN x, long flag, long prec)
   if (m2)
   {
     p1 = flag? gdivgs(p1, -2*m): gdivgs(logabs(gsubsg(1,x)), m);
-    y = gadd(y, gmul(p2, gdivgs(p1, -m)));
+    y = gadd(y, gmul(p2, p1));
   }
   if (fl) y = gneg(y);
   return gerepileupto(av, y);
