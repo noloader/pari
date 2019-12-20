@@ -174,7 +174,7 @@ BA  61- new GP function lfunshift
 BA  63- [libpari] ZXX_evalx0, zx_z_divexact, zx_lval
     64- [libpari] is_qfb_t
     65- new GP function eulerianpol
-BA  66- [libpari] FlxX_translate1, zlx_translate1
+BA  66- [libpari] FlxX_translate1, zlx_translate1, zlxX_translate1
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

@@ -6285,6 +6285,11 @@ the \kbd{Flx} $P(z,Y)$, where $Y$ is the main variable of $P$.
 all coefficients of degree at most $n$, return $(P(x,Y+1)$, where $Y$ is the
 main variable of $P$.
 
+\fun{GEN}{zlxX_translate1}{GEN P, ulong p, long e, long n}
+$P$ being an \kbd{zlxX} with all coefficients of degree at most $n$, return
+$(P(x,Y+1)$  modulo $p^e$ for prime $p$ , where $Y$ is the main variable of
+$P$.
+
 \fun{GEN}{FlxY_Flx_translate}{GEN P, GEN f, ulong p} $P$ being an \kbd{FlxY} and $f$
 being an \kbd{Flx}, return $(P(x,Y+f(x))$, where $Y$ is the main variable of $P$.
 

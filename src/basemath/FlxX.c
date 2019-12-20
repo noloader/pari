@@ -354,10 +354,23 @@ FlxX_translate1(GEN P, long p, long n)
   GEN Q;
   long i, l, ws, lP = lgpol(P);
   if (!lP) return gcopy(P);
-  ws = varn(gel(P,2));
+  ws = mael(P,2,1);
   Q = FlxX_swap(P, n, ws);
   l = lg(Q);
   for (i=2; i<l; i++) gel(Q, i) = Flx_translate1(gel(Q, i), p);
+  return FlxX_swap(Q, lP, ws);
+}
+
+GEN
+zlxX_translate1(GEN P, long p, long e, long n)
+{
+  GEN Q;
+  long i, l, ws, lP = lgpol(P);
+  if (!lP) return gcopy(P);
+  ws = mael(P,2,1);
+  Q = FlxX_swap(P, n, ws);
+  l = lg(Q);
+  for (i=2; i<l; i++) gel(Q, i) = zlx_translate1(gel(Q, i), p, e);
   return FlxX_swap(Q, lP, ws);
 }
 

@@ -553,6 +553,7 @@ const struct bb_algebra *get_FlxqXQ_algebra(void **E, GEN S, GEN T, ulong p);
 GEN     pol1_FlxX(long v, long sv);
 GEN     polx_FlxX(long v, long sv);
 GEN     random_FlxqX(long d1, long v, GEN T, ulong p);
+GEN     zlxX_translate1(GEN P, long p, long e, long n);
 GEN     zxX_to_FlxX(GEN B, ulong p);
 GEN     zxX_to_Kronecker(GEN P, GEN Q);
 
