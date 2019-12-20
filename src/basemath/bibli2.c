@@ -642,7 +642,8 @@ eulerianpol(long N, long v)
       A = gerepilecopy(av, A);
     }
   }
-  for (k = odd(N)? n2+1: n2; k < N; k++) gel(A,k+1) = gel(A, N-k);
+  k = N >> 1; if (odd(N)) k++;
+  for (; k < N; k++) gel(A,k+1) = gel(A, N-k);
   return gerepilecopy(av, RgV_to_RgX(A, v));
 }
 

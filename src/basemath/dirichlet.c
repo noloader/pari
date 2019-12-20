@@ -74,7 +74,8 @@ direulertou(GEN a, GEN fl(GEN))
 static GEN
 direuler_Sbad(GEN V, GEN v, GEN Sbad, ulong *n)
 {
-  long i, l = lg(Sbad), X = lg(V)-1;
+  long i, l = lg(Sbad);
+  ulong X = lg(V)-1;
   GEN pbad = gen_1;
   for (i = 1; i < l; i++)
   {
