@@ -6277,6 +6277,10 @@ respect to the main variable.
 \fun{GEN}{FlxY_evalx}{GEN P, ulong z, ulong p} $P$ being an \kbd{FlxY}, returns
 the \kbd{Flx} $P(z,Y)$, where $Y$ is the main variable of $P$.
 
+\fun{GEN}{FlxX_translate1}{GEN P, ulong p, long n} $P$ being an \kbd{FlxX} with
+all coefficients of degree at most $n$, return $(P(x,Y+1)$, where $Y$ is the
+main variable of $P$.
+
 \fun{GEN}{FlxY_Flx_translate}{GEN P, GEN f, ulong p} $P$ being an \kbd{FlxY} and $f$
 being an \kbd{Flx}, return $(P(x,Y+f(x))$, where $Y$ is the main variable of $P$.
 
