@@ -8,6 +8,6 @@ Doc: \idx{Eulerian polynomial} $A_n$ in variable $v$.
  ? eulerianpol(2)
  %1 = x + 1
  ? eulerianpol(5, 't)
- %2 = t^4 + 26*t^3 + 126*t^2 + 26*t + 1
+ %2 = t^4 + 26*t^3 + 66*t^2 + 26*t + 1
 
  @eprog
