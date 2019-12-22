@@ -59,6 +59,7 @@ BA  41- polcompositum(x^2+x/3+1,x^2+x/3+1) -> SEGV
     43- missing reduction of pr.gen in idealprimedec [ slowdown ]
         + nfmodprinit [ division by 0 ]
 JR  44- polylog(-m, tiny z): catastrophic cancellation, e.g. polylog(-100,.5)
+    45- prodeulerrat((p-2)/(p-1)+(p-1)^(m-1)/p^m,1,3) slow and imprecise [#2192]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

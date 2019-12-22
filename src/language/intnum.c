@@ -2403,12 +2403,12 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   /* F t_RFRAC */
   vF = -poldegree(F1, -1);
   rs = gtodouble(real_i(s));
-  r = 1 / maxdd(polmax(gel(F,1)), polmax(gel(F,2)));
-  N = maxss(30, a); lN = log2((double)N);
-  RS = maxdd(1./vF, -log2(r) / lN);
+  r = maxdd(polmax(gel(F,1)), polmax(gel(F,2)));
+  N = maxss(maxss(30, a), (long)ceil(2*r)); lN = log2((double)N);
+  RS = maxdd(1./vF, log2(r) / lN);
   if (rs <= RS)
     pari_err_DOMAIN("prodeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  lim = (long)ceil(B / (rs*lN + log2(r))) + 1;
+  lim = (long)ceil(B / (rs*lN - log2(r))) + 1;
   ser = gmul(real_1(prec2), F1);
   ser = glog(gaddsg(1, rfracrecip_to_ser_absolute(ser, lim)), prec2);
   P = primes_interval(gen_2, utoipos(N));
