@@ -638,6 +638,7 @@ eulerianpol(long N, long v)
     if (gc_needed(av,1))
     {
       if (DEBUGMEM>1) pari_warn(warnmem,"eulerianpol, %ld/%ld",n,N);
+      k = N >> 1; if (odd(N)) k++;
       for (; k < N; k++) gel(A,k+1) = gen_0;
       A = gerepilecopy(av, A);
     }
