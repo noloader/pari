@@ -267,7 +267,7 @@ Rg_get_0(GEN x)
   switch(tx)
   {
     case t_INTMOD: retmkintmod(gen_0, icopy(p));
-    case t_PADIC: return cvtop(gen_0, p, lx);
+    case t_PADIC: return zeropadic(p, lx);
     case t_FFELT: return FF_zero(T);
     default: return gen_0;
   }
