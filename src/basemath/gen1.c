@@ -1278,16 +1278,14 @@ gsub(GEN x, GEN y)
 /********************************************************************/
 static GEN
 mul_ser_scal(GEN y, GEN x) {
-  long ly, i;
+  long l, i;
   GEN z;
-  if (isexactzero(x)) return gmul(Rg_get_0(y), x);
+  if (isrationalzero(x)) return gmul(Rg_get_0(y), x);
   if (ser_isexactzero(y))
-  {
-    if (lg(y) == 2) return gcopy(y);
-    return scalarser(gmul(x,gel(y,2)), varn(y), valp(y));
-  }
-  z = cgetg_copy(y, &ly); z[1] = y[1];
-  for (i = 2; i < ly; i++) gel(z,i) = gmul(x,gel(y,i));
+    return scalarser(lg(y) == 2? Rg_get_0(x)
+                               : gmul(gel(y,2), x), varn(y), valp(y));
+  z = cgetg_copy(y, &l); z[1] = y[1];
+  for (i = 2; i < l; i++) gel(z,i) = gmul(gel(y,i), x);
   return normalize(z);
 }
 /* (n/d) * x, x "scalar" or polynomial in the same variable as d
@@ -2207,17 +2205,16 @@ static GEN
 div_rfrac(GEN x, GEN y)
 { return mul_rfrac(gel(x,1),gel(x,2), gel(y,2),gel(y,1)); }
 
+/* x != 0 */
 static GEN
-div_ser_scal(GEN x, GEN y) {
-  long i, lx;
+div_ser_scal(GEN y, GEN x) {
+  long i, l;
   GEN z;
-  if (ser_isexactzero(x))
-  {
-    if (lg(x) == 2) return gcopy(x);
-    return scalarser(gdiv(gel(x,2), y), varn(x), valp(x));
-  }
-  z = cgetg_copy(x, &lx); z[1] = x[1];
-  for (i=2; i<lx; i++) gel(z,i) = gdiv(gel(x,i),y);
+  if (ser_isexactzero(y))
+    return scalarser(lg(y) == 2? Rg_get_0(x)
+                               : gdiv(gel(y,2), x), varn(y), valp(y));
+  z = cgetg_copy(y, &l); z[1] = y[1];
+  for (i = 2; i < l; i++) gel(z,i) = gdiv(gel(y,i), x);
   return normalize(z);
 }
 GEN
@@ -2232,6 +2229,7 @@ ser_normalize(GEN x)
   return z;
 }
 
+/* y != 0 */
 static GEN
 div_T_scal(GEN x, GEN y, long tx) {
   switch(tx)
@@ -2455,7 +2453,11 @@ gdiv(GEN x, GEN y)
       vx = varn(x);
       vy = varn(y);
       if (vx != vy) {
-        if (varncmp(vx, vy) < 0) return div_ser_scal(x, y);
+        if (varncmp(vx, vy) < 0)
+        {
+          if (!signe(y)) pari_err_INV("gdiv",y);
+          return div_ser_scal(x, y);
+        }
                             else return div_scal_ser(x, y);
       }
       return div_ser(x, y, vx);

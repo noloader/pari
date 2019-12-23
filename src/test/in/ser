@@ -85,6 +85,10 @@ a=1./x+O(1);a-a
 a=1/x+O(1);a-a
 a=Mod(1,2)/x+O(1);a-a
 
+Mod(0,5) * O(x^1)
+Mod(1,5) * O(x^0)
+O(x^0) / Mod(1,5)
+
 subst(1+O(x),x,y)
 subst(1+x+O(x^2),x,y^2)
 O(1)==O(x)
@@ -124,3 +128,6 @@ Ser("")
 O(13^-5)/Mat(Mod(2,26)*y*x+(Mod(1,2)*y^-1+O(y^3)))
 laurentseries(1)
 laurentseries((x,y)->1)
+O(x) / Mod(0,5)
+O(x) / O(y)
+O(y) / O(x)

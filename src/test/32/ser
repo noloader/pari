@@ -89,7 +89,8 @@ O(x^16)
 0
 Mod(0, 4)*x + O(x^2)
 (1 + O(y^2))*x^3
-(Mod(1, 3) + O(y^2))*x^3
+(Mod(1, 3) + O(y^2))*x^3 + (Mod(0, 3)*y + O(y^2))*x^2 + (Mod(0, 3)*y + O(y^2
+))*x + (Mod(0, 3)*y + O(y^2))
 O(x)
 O(3) + O(x)
 O(3^2) + O(x)
@@ -104,6 +105,9 @@ Mod(0, 9)*x + O(x^2)
 0.E-38*x^-1 + O(x^0)
 O(x^0)
 Mod(0, 2)*x^-1 + O(x^0)
+Mod(0, 5) + O(x)
+Mod(0, 5)*x^-1 + O(x^0)
+Mod(0, 5)*x^-1 + O(x^0)
 1 + O(y)
 1 + y^2 + O(y^4)
 1
@@ -164,4 +168,13 @@ O(x^18)
   ***   at top-level: laurentseries((x,y)->1)
   ***                 ^-----------------------
   *** laurentseries: incorrect type in laurentseries (t_CLOSURE).
-Total time spent: 16
+  ***   at top-level: O(x)/Mod(0,5)
+  ***                     ^---------
+  *** _/_: impossible inverse in gdiv: Mod(0, 5).
+  ***   at top-level: O(x)/O(y)
+  ***                     ^-----
+  *** _/_: impossible inverse in gdiv: O(y).
+  ***   at top-level: O(y)/O(x)
+  ***                     ^-----
+  *** _/_: impossible inverse in gdiv: O(x).
+Total time spent: 10
