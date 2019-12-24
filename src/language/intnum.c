@@ -2071,10 +2071,11 @@ sumnumap0(GEN a, GEN code, GEN tab, long prec)
 static double
 polmax(GEN P)
 {
+  pari_sp av = avma;
   double r;
   if (typ(P) != t_POL || degpol(P) <= 0) return 1.0;
   r = gtodouble(polrootsbound(P, NULL));
-  return maxdd(r, 1.0);
+  return gc_double(av, maxdd(r, 1.0));
 }
 
 /* max (1, |poles|), F a t_POL or t_RFRAC or scalar */
@@ -2084,7 +2085,7 @@ ratpolemax(GEN F)
   if (typ(F) == t_POL) return 1.0;
   return polmax(gel(F,2));
 }
-/* max (1, |poles|, |zeros|), sets *p = max(1, |poles|)) */
+/* max (1, |poles|, |zeros|)) */
 static double
 ratpolemax2(GEN F)
 {
@@ -2368,12 +2369,12 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   if (a < 2) a = 2;
   vF = -poldegree(F, -1);
   rs = gtodouble(real_i(s));
-  r = 1 / polmax(gel(F,2));
+  r = polmax(gel(F,2));
   N = maxss(30, a); lN = log2((double)N);
-  RS = maxdd(1./vF, -log2(r) / lN);
+  RS = maxdd(1./vF, log2(r) / lN);
   if (rs <= RS)
     pari_err_DOMAIN("sumeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  lim = (long)ceil(B / (rs*lN + log2(r))) + 1;
+  lim = (long)ceil(B / (rs*lN - log2(r))) + 1;
   ser = gmul(real_1(prec2), F);
   ser = rfracrecip_to_ser_absolute(ser, lim);
   P = primes_interval(gen_2, utoipos(N));
@@ -2403,7 +2404,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   /* F t_RFRAC */
   vF = -poldegree(F1, -1);
   rs = gtodouble(real_i(s));
-  r = maxdd(polmax(gel(F,1)), polmax(gel(F,2)));
+  r = ratpolemax2(F);
   N = maxss(maxss(30, a), (long)ceil(2*r)); lN = log2((double)N);
   RS = maxdd(1./vF, log2(r) / lN);
   if (rs <= RS)
