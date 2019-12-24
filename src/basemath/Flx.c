@@ -3606,6 +3606,17 @@ newtonlogint(ulong n, ulong pp)
   return s;
 }
 
+static void
+init_invlaplace(long d, ulong p, GEN *pt_P, GEN *pt_V)
+{
+  long i;
+  GEN P = cgetg(d+1, t_VECSMALL);
+  GEN V = cgetg(d+1, t_VECSMALL);
+  for (i=1; i<=d; i++)
+    V[i] = u_lvalrem(i, p, &uel(P,i));
+  *pt_P = P; *pt_V = V;
+}
+
 /* return p^val * FpX_invLaplace(1+x+...x^(n-1), q), with q a power of p and
  * val large enough to compensate for the power of p in the factorials */
 
@@ -3615,10 +3626,7 @@ ZpX_invLaplace_init(long n, GEN q, ulong p, long v, long var)
   pari_sp av = avma;
   long i, d = n-1, w;
   GEN y, W, E, t;
-  W = cgetg(d+1, t_VECSMALL);
-  E = cgetg(d+1, t_VECSMALL);
-  for (i=1; i<=d; i++)
-    W[i] = u_lvalrem(i, p, &uel(E,i));
+  init_invlaplace(d, p, &E, &W);
   t = Fp_inv(FpV_prod(Flv_to_ZV(E), q), q);
   w = zv_sum(W);
   if (v > w) t = Fp_mul(t, powuu(p, v-w), q);
@@ -3691,7 +3699,7 @@ Fl_Xp1_powu(ulong n, ulong p, long v)
   C = cgetg(n+3, t_VECSMALL);
   C[1] = v;
   uel(C,2) = 1UL;
-  uel(C,3) = n;
+  uel(C,3) = n%p;
   uel(C,4) = Fl_mul(odd(n)? n: n-1, n >> 1, p);
     /* binom(n,k) = binom(n,k-1) * (n-k+1) / k */
   if (SMALL_ULONG(p))
@@ -3766,35 +3774,41 @@ Flx_translate1(GEN P, ulong p)
   }
 }
 
+static GEN
+zl_Xp1_powu(ulong n, ulong p, ulong q, long e, long vs)
+{
+  ulong k, d = n >> 1, c, v = 0;
+  GEN C, V, W, U = upowers(p, e-1);
+  init_invlaplace(d, p, &V, &W);
+  Flv_inv_inplace(V, q);
+  C = cgetg(n+3, t_VECSMALL);
+  C[1] = vs;
+  uel(C,2) = 1UL;
+  uel(C,3) = n%q;
+  v = u_lvalrem(n, p, &c);
+  for (k = 2; k <= d; k++)
+  {
+    ulong w;
+    v += u_lvalrem(n-k+1, p, &w) - W[k];
+    c = Fl_mul(Fl_mul(w%q, c, q), uel(V,k), q);
+    uel(C,2+k) = v >= e ? 0: v==0 ? c : Fl_mul(c, uel(U, v+1), q);
+  }
+  for (   ; k <= n; k++) uel(C,2+k) = uel(C,2+n-k);
+  return C; /* normalized */
+}
+
 GEN
 zlx_translate1(GEN P, ulong p, long e)
 {
   ulong d, q = upowuu(p,e), n = degpol(P);
   GEN R, Q, S;
-  if (translate_basecase(n, p)) return Flx_translate1_basecase(P, q);
+  if (translate_basecase(n, q)) return Flx_translate1_basecase(P, q);
   /* n > 0 */
   d = n >> 1;
-  if (n < p)
-  {
-    R = zlx_translate1(Flxn_red(P, d), p, e);
-    Q = zlx_translate1(Flx_shift(P, -d), p, e);
-    S = Fl_Xp1_powu(d, q, P[1]);
-    return Flx_add(Flx_mul(Q, S, q), R, q);
-  }
-  else
-  {
-    long a, u = ulogintall(n, p, &d);
-    R = zlx_translate1(Flxn_red(P, d), p, e);
-    Q = zlx_translate1(Flx_shift(P, -d), p, e);
-    a = u+1-e;
-    if (a <= 0) S = Flx_powu(Fl_Xp1_powu(p, q, P[1]), d/p, q);
-    else
-    {
-      ulong pa = upowuu(p, a);
-      S = Flx_inflate(Flx_powu(Fl_Xp1_powu(p, q, P[1]), d/pa, q), pa);
-    }
-    return Flx_add(Flx_mul(Q, S, q), R, q);
-  }
+  R = zlx_translate1(Flxn_red(P, d), p, e);
+  Q = zlx_translate1(Flx_shift(P, -d), p, e);
+  S = zl_Xp1_powu(d, p, q, e, P[1]);
+  return Flx_add(Flx_mul(Q, S, q), R, q);
 }
 
 /***********************************************************************/
