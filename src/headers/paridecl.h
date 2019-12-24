@@ -5089,6 +5089,7 @@ GEN     teichmullerinit(long p, long n);
 GEN     teichmuller(GEN x, GEN tab);
 GEN     trans_eval(const char *fun, GEN (*f) (GEN, long), GEN x, long prec);
 ulong   upowuu(ulong p, ulong k);
+GEN     upowers(ulong x, long n);
 ulong   usqrtn(ulong a, ulong n);
 ulong   usqrt(ulong a);
 

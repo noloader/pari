@@ -662,6 +662,18 @@ upowuu(ulong p, ulong k)
 #endif
 }
 
+GEN
+upowers(ulong x, long n)
+{
+  long i;
+  GEN p = cgetg(n + 2, t_VECSMALL);
+  uel(p,1) = 1; if (n == 0) return p;
+  uel(p,2) = x;
+  for (i = 3; i <= n; i++)
+    uel(p,i) = uel(p,i-1)*x;
+  return p;
+}
+
 typedef struct {
   long prec, a;
   GEN (*sqr)(GEN);

@@ -3314,6 +3314,9 @@ returns $x^{n/d}$ (always a \typ{REAL}, even if $n = 0$).
 \fun{ulong}{upowuu}{ulong x, ulong n}, returns $x^n$ when $< 2^\B$, and $0$
 otherwise (overflow).
 
+\fun{ulong}{upowers}{ulong x, long n}, returns $[1,x,\ldots,x^n]$ as a
+\typ{VECSMALL}. Assume there is no overflow.
+
 \fun{GEN}{sqrtremi}{GEN N, GEN *r}, returns the integer square root $S$ of
 the non-negative \typ{INT}~\kbd{N} (rounded towards 0) and puts the remainder
 $R$ into~\kbd{*r}. Precisely, $N = S^2 + R$ with $0\leq R \leq 2S$. If
