@@ -3791,7 +3791,7 @@ zl_Xp1_powu(ulong n, ulong p, ulong q, long e, long vs)
     ulong w;
     v += u_lvalrem(n-k+1, p, &w) - W[k];
     c = Fl_mul(Fl_mul(w%q, c, q), uel(V,k), q);
-    uel(C,2+k) = v >= e ? 0: v==0 ? c : Fl_mul(c, uel(U, v+1), q);
+    uel(C,2+k) = v >= (ulong)e ? 0: v==0 ? c : Fl_mul(c, uel(U, v+1), q);
   }
   for (   ; k <= n; k++) uel(C,2+k) = uel(C,2+n-k);
   return C; /* normalized */
