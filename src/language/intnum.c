@@ -2297,9 +2297,9 @@ sdmob(GEN s, long n, GEN fan)
 static GEN
 logzetan(GEN s, GEN P, long prec)
 {
-  GEN negs = gneg(s), Z = gzeta(s, prec);
+  GEN Z = gzeta(s, prec);
   long i, l = lg(P);
-  for (i = 1; i < l; i++) Z = gmul(Z, gsubsg(1, gpow(gel(P,i), negs, prec)));
+  for (i = 1; i < l; i++) Z = gsub(Z, gdiv(Z, gpow(gel(P,i), s, prec)));
   return glog(Z, prec);
 }
 static GEN
