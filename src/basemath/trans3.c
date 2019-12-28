@@ -1537,7 +1537,7 @@ veczetas(long a, long b, long N, long prec)
   GEN c, d, z = zerovec(N);
   long j, k;
   c = d = int2n(2*n-1);
-  for (k = n; k; k--)
+  for (k = n; k > 1; k--)
   {
     GEN u, t = divii(d, powuu(k,b));
     if (!odd(k)) t = negi(t);
@@ -1557,11 +1557,11 @@ veczetas(long a, long b, long N, long prec)
       gerepileall(av, 3, &c,&d,&z);
     }
   }
-  for (j = 0; j < N; j++)
-  {
-    long u = b+a*j-1;
-    gel(z,j+1) = rdivii(shifti(gel(z,j+1), u), subii(shifti(d,u), d), prec);
-  }
+  /* k = 1 */
+  for (j = 1; j <= N; j++) gel(z,j) = addii(gel(z,j), d);
+  d = addiu(d, 1);
+  for (j = 0, k = b - 1; j < N; j++, k += a)
+    gel(z,j+1) = rdivii(shifti(gel(z,j+1), k), subii(shifti(d,k), d), prec);
   return z;
 }
 /* zeta(a*j+b), j=0..N-1, b>1, using sumalt */
