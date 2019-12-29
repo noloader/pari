@@ -2321,16 +2321,26 @@ sumlogzeta(GEN ser, GEN s, GEN P, double rs, double lN, long vF, long lim,
   return gprec_wtrunc(z, prec);
 }
 
+static GEN
+rfrac_evalfp(GEN F, GEN x, long prec)
+{
+  GEN N = gel(F,1), D = gel(F,2), a, b = poleval(D, x);
+  a = (typ(N) == t_POL && varn(N) == varn(D))? poleval(N, x): N;
+  if (typ(a) != t_INT || typ(b) != t_INT ||
+      (lgefint(a) <= prec && lgefint(b) <= prec)) return gdiv(a, b);
+  return rdivii(a, b, prec + EXTRAPRECWORD);
+}
+
 /* { F(p^s): p in P, p >= a }, F t_RFRAC */
 static GEN
 vFps(GEN P, long a, GEN F, GEN s, long prec)
 {
-  long i, j, l = lg(P), vx = varn(gel(F,2));
+  long i, j, l = lg(P);
   GEN v = cgetg(l, t_VEC);
   for (i = j = 1; i < l; i++)
   {
     GEN p = gel(P,i); if (cmpiu(p, a) < 0) continue;
-    gel(v, j++) = gsubst(F, vx, gpow(p, s, prec));
+    gel(v, j++) = rfrac_evalfp(F, gpow(p, s, prec), prec);
   }
   setlg(v, j); return v;
 }
@@ -2411,7 +2421,6 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   lim = (long)ceil(B / (rs*lN - log2(r))) + 1;
   if (!RgX_is_ZX(DF) || !is_pm1(leading_coeff(DF))
       || lim * log2(r2) > 2 * B) F1 = gmul(F1, real_1(prec2));
-
   ser = glog(gaddsg(1, rfracrecip_to_ser_absolute(F1, lim)), prec2);
   P = primes_interval(gen_2, utoipos(N));
   z = gexp(sumlogzeta(ser, s, P, rs, lN, vF, lim, prec), prec);
