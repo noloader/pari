@@ -101,19 +101,15 @@ GEN
 rfracrecip_to_ser_absolute(GEN R, long N)
 {
   GEN n = gel(R,1), d = gel(R,2);
-  long vx = varn(d), v, vn, vd, dn;
+  long vx = varn(d), v = degpol(d);
 
-  if (typ(n) != t_POL || varn(n) != vx) { vn = 0; dn = 0; }
-  else
+  if (typ(n) == t_POL && varn(n) == vx)
   {
-    vn = RgX_valrem(n, &n);
-    n = RgX_recip(n);
-    dn = degpol(n);
+    v -= degpol(n);
+    (void)RgX_valrem(n, &n); n = RgX_recip(n);
   }
-  vd = RgX_valrem(d, &d);
-  d = RgX_recip(d);
-  v = vd - vn + degpol(d) - dn;
-  /* R(1/x) = x^v deg(n)) n/d, val(n/d) = 0 */
+  (void)RgX_valrem(d, &d); d = RgX_recip(d);
+  /* R(1/x) = x^v * n/d, val(n/d) = 0 */
   if (N <= v) return zeroser(vx, N);
   R = gdiv(n, RgX_to_ser(d, N-v+2));
   setvalp(R, v); return R;

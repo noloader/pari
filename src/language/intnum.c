@@ -2421,7 +2421,7 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   lim = (long)ceil(B / (rs*lN - log2(r)));
   if (!RgX_is_ZX(DF) || !is_pm1(leading_coeff(DF))
       || lim * log2(r2) > 2 * B) F1 = gmul(F1, real_1(prec2));
-  ser = glog(gaddsg(1, rfracrecip_to_ser_absolute(F1, lim+1)), prec2);
+  ser = glog(rfracrecip_to_ser_absolute(F, lim+1), prec2);
   P = primes_interval(gen_2, utoipos(N));
   z = gexp(sumlogzeta(ser, s, P, rs, lN, vF, lim, prec), prec);
   z = gmul(z, vecprod(vFps(P, a, F, s, prec)));
