@@ -2109,9 +2109,9 @@ intnumainfrat(GEN F, long N, double r, long prec)
   GEN S, ser;
   pari_sp av = avma;
 
-  lim = (long)ceil(B/log2(N/r)) + 1;
+  lim = (long)ceil(B/log2(N/r));
   ser = gmul(F, real_1(prec + EXTRAPREC));
-  ser = rfracrecip_to_ser_absolute(ser, lim);
+  ser = rfracrecip_to_ser_absolute(ser, lim+2);
   v = valp(ser);
   S = gdivgs(sercoeff(ser,lim+1), lim*N);
   /* goes down to 2, but coeffs are 0 in degree < v */
@@ -2382,9 +2382,9 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   RS = maxdd(1./vF, log2(r) / lN);
   if (rs <= RS)
     pari_err_DOMAIN("sumeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  lim = (long)ceil(B / (rs*lN - log2(r))) + 1;
+  lim = (long)ceil(B / (rs*lN - log2(r)));
   ser = gmul(real_1(prec2), F);
-  ser = rfracrecip_to_ser_absolute(ser, lim);
+  ser = rfracrecip_to_ser_absolute(ser, lim+1);
   P = primes_interval(gen_2, utoipos(N));
   z = sumlogzeta(ser, s, P, rs, lN, vF, lim, prec);
   z = gadd(z, vecsum(vFps(P, a, F, s, prec)));
@@ -2418,10 +2418,10 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
   RS = maxdd(1./vF, log2(r) / lN);
   if (rs <= RS)
     pari_err_DOMAIN("prodeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
-  lim = (long)ceil(B / (rs*lN - log2(r))) + 1;
+  lim = (long)ceil(B / (rs*lN - log2(r)));
   if (!RgX_is_ZX(DF) || !is_pm1(leading_coeff(DF))
       || lim * log2(r2) > 2 * B) F1 = gmul(F1, real_1(prec2));
-  ser = glog(gaddsg(1, rfracrecip_to_ser_absolute(F1, lim)), prec2);
+  ser = glog(gaddsg(1, rfracrecip_to_ser_absolute(F1, lim+1)), prec2);
   P = primes_interval(gen_2, utoipos(N));
   z = gexp(sumlogzeta(ser, s, P, rs, lN, vF, lim, prec), prec);
   z = gmul(z, vecprod(vFps(P, a, F, s, prec)));
