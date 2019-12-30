@@ -96,21 +96,27 @@ sertoser(GEN x, long prec)
   return y;
 }
 
+/* R(1/x) = x^v * n/d, val(n) = val(d) = 0 */
+void
+rfracrecip(GEN *pn, GEN *pd, long *pv)
+{
+  *pv = degpol(*pd);
+  if (typ(*pn) == t_POL && varn(*pn) == varn(*pd))
+  {
+    *pv -= degpol(*pn);
+    (void)RgX_valrem(*pn, pn); *pn = RgX_recip(*pn);
+  }
+  (void)RgX_valrem(*pd, pd); *pd = RgX_recip(*pd);
+}
+
 /* R(1/x) + O(x^N) */
 GEN
 rfracrecip_to_ser_absolute(GEN R, long N)
 {
   GEN n = gel(R,1), d = gel(R,2);
-  long vx = varn(d), v = degpol(d);
-
-  if (typ(n) == t_POL && varn(n) == vx)
-  {
-    v -= degpol(n);
-    (void)RgX_valrem(n, &n); n = RgX_recip(n);
-  }
-  (void)RgX_valrem(d, &d); d = RgX_recip(d);
-  /* R(1/x) = x^v * n/d, val(n/d) = 0 */
-  if (N <= v) return zeroser(vx, N);
+  long v;
+  rfracrecip(&n, &d, &v); /* R(1/x) = x^v * n/d, val(n) = val(d) = 0 */
+  if (N <= v) return zeroser(varn(d), N);
   R = gdiv(n, RgX_to_ser(d, N-v+2));
   setvalp(R, v); return R;
 }

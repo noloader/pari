@@ -2391,13 +2391,23 @@ sumeulerrat(GEN F, GEN s, long a, long prec)
   return gerepilecopy(av, gprec_wtrunc(z, prec));
 }
 
+/* F = N/D; return F'/F. Assume D a t_POL */
+static GEN
+rfrac_logderiv(GEN N, GEN D)
+{
+  if (typ(N) != t_POL || varn(N) != varn(D)) return gdiv(gneg(RgX_deriv(D)), D);
+  if (!degpol(D)) return gdiv(RgX_deriv(N), N);
+  return gdiv(RgX_sub(RgX_mul(RgX_deriv(N), D), RgX_mul(RgX_deriv(D), N)),
+              RgX_mul(N, D));
+}
+
 /* prod_{p prime, p >= a} F(p^s), F rational function */
 GEN
 prodeulerrat(GEN F, GEN s, long a, long prec)
 {
   pari_sp ltop = avma;
-  GEN F1, DF, ser, P, z;
-  double r, r2, rs, RS, lN;
+  GEN F1, DF, NF, ser, P, z;
+  double r, rs, RS, lN;
   long B = prec2nbits(prec), prec2 = prec + EXTRAPREC, vF, N, lim;
 
   euler_set_Fs(&F, &s);
@@ -2409,19 +2419,20 @@ prodeulerrat(GEN F, GEN s, long a, long prec)
       if (gequal0(F1)) return real_1(prec);
     default: pari_err_TYPE("prodeulerrat",F);
   } /* F t_RFRAC */
-  DF = gel(F1, 2);
   vF = -poldegree(F1, -1);
+  NF = gel(F, 1);
+  DF = gel(F, 2); r = ratpolemax2(F);
+  rfracrecip(&NF, &DF, &N); /* N = 0 */
   rs = gtodouble(real_i(s));
-  r2 = polmax(DF);
-  r = maxdd(polmax(gel(F,1)), r2);
   N = maxss(maxss(30, a), (long)ceil(2*r)); lN = log2((double)N);
   RS = maxdd(1./vF, log2(r) / lN);
   if (rs <= RS)
     pari_err_DOMAIN("prodeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
   lim = (long)ceil(B / (rs*lN - log2(r)));
-  if (!RgX_is_ZX(DF) || !is_pm1(leading_coeff(DF))
-      || lim * log2(r2) > 2 * B) F1 = gmul(F1, real_1(prec2));
-  ser = glog(rfracrecip_to_ser_absolute(F, lim+1), prec2);
+  if (!RgX_is_ZX(DF) || !is_pm1(gel(DF,2))
+      || lim * log2(r) > 4 * B) NF = gmul(NF, real_1(prec2));
+  ser = integser(rfrac_to_ser(rfrac_logderiv(NF,DF), lim+3));
+  /* ser = log f, f = F(1/x) + O(x^(lim+1)) */
   P = primes_interval(gen_2, utoipos(N));
   z = gexp(sumlogzeta(ser, s, P, rs, lN, vF, lim, prec), prec);
   z = gmul(z, vecprod(vFps(P, a, F, s, prec)));
