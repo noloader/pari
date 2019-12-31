@@ -243,21 +243,28 @@ isnegint(GEN s)
   return -1;
 }
 
+/* r/x + O(1), r != 0 */
+static GEN
+serpole(GEN r)
+{
+  GEN s = cgetg(3, t_SER);
+  s[1] = evalsigne(1)|evalvalp(-1)|evalvarn(0);
+  gel(s,2) = r; return s;
+}
+
 /* pi^(-s/2) Gamma(s/2) */
 static GEN
 gamma_R(GEN s, long prec)
 {
-  GEN s2 = gdivgs(s, 2), pi = mppi(prec);
+  GEN s2 = gmul2n(s, -1), pi = mppi(prec);
   long ms = isnegint(s2);
   if (ms >= 0)
   {
-    GEN pr = gmul(powru(pi, ms), gdivsg(odd(ms)? -2: 2, mpfact(ms)));
-    GEN S = scalarser(pr, 0, 1);
-    setvalp(S,-1); return S;
+    GEN r = gmul(powru(pi, ms), gdivsg(odd(ms)? -2: 2, mpfact(ms)));
+    return serpole(r);
   }
   return gdiv(ggamma(s2,prec), gpow(pi,s2,prec));
 }
-
 /* gamma_R(s)gamma_R(s+1) = 2 (2pi)^(-s) Gamma(s) */
 static GEN
 gamma_C(GEN s, long prec)
@@ -266,9 +273,8 @@ gamma_C(GEN s, long prec)
   long ms = isnegint(s);
   if (ms >= 0)
   {
-    GEN pr = gmul(powrs(pi2, ms), gdivsg(odd(ms)? -2: 2, mpfact(ms)));
-    GEN S = scalarser(pr, 0, 1);
-    setvalp(S,-1); return S;
+    GEN r = gmul(powrs(pi2, ms), gdivsg(odd(ms)? -2: 2, mpfact(ms)));
+    return serpole(r);
   }
   return gmul2n(gdiv(ggamma(s,prec), gpow(pi2,s,prec)), 1);
 }
@@ -550,12 +556,7 @@ lfunrtopoles(GEN r)
 /* r / x + O(1) */
 static GEN
 simple_pole(GEN r)
-{
-  GEN S;
-  if (isintzero(r)) return gen_0;
-  S = deg1ser_shallow(gen_0, r, 0, 1);
-  setvalp(S, -1); return S;
-}
+{ return isintzero(r)? gen_0: serpole(r); }
 static GEN
 normalize_simple_pole(GEN r, GEN k)
 {
