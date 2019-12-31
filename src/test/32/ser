@@ -176,5 +176,5 @@ O(x^18)
   *** _/_: impossible inverse in gdiv: O(y).
   ***   at top-level: O(y)/O(x)
   ***                     ^-----
-  *** _/_: impossible inverse in gdiv: O(x).
-Total time spent: 10
+  *** _/_: impossible inverse in RgXn_inv: 0.
+Total time spent: 11

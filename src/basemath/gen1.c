@@ -1805,10 +1805,9 @@ gmul(GEN x, GEN y)
       vy = varn(y);
       if (vx != vy) {
         if (varncmp(vx, vy) < 0) return mul_ser_scal(x, y);
-        else                     return mul_ser_scal(y, x);
+        return mul_ser_scal(y, x);
       }
-      lx = lg(x);
-      ly = lg(y); if (lx > ly) { lx = ly; swap(x, y); }
+      lx = minss(lg(x), lg(y));
       if (lx == 2) return zeroser(vx, valp(x)+valp(y));
       av = avma; z = cgetg(lx,t_SER);
       z[1] = evalvalp(valp(x)+valp(y)) | evalvarn(vx) | evalsigne(1);
@@ -2252,16 +2251,8 @@ div_scal_pol(GEN x, GEN y) {
   return gerepileupto(av, gred_rfrac_simple(x,y));
 }
 static GEN
-div_scal_ser(GEN x, GEN y) { /* TODO: improve */
-  GEN z;
-  long ly, i;
-  if (gequal0(x)) { pari_sp av=avma; return gerepileupto(av, gmul(x, ginv(y))); }
-  ly = lg(y); z = (GEN)pari_malloc(ly*sizeof(long));
-  z[0] = evaltyp(t_SER) | evallg(ly);
-  z[1] = evalsigne(1) | _evalvalp(0) | evalvarn(varn(y));
-  gel(z,2) = x; for (i=3; i<ly; i++) gel(z,i) = gen_0;
-  y = gdiv(z,y); pari_free(z); return y;
-}
+div_scal_ser(GEN x, GEN y)
+{ pari_sp av = avma; return gerepileupto(av, gmul(x, ser_inv(y))); }
 static GEN
 div_scal_T(GEN x, GEN y, long ty) {
   switch(ty)
@@ -2274,25 +2265,35 @@ div_scal_T(GEN x, GEN y, long ty) {
   return NULL; /* LCOV_EXCL_LINE */
 }
 
+static GEN
+ser2pol_ii(GEN x, long lx, long y1)
+{
+  GEN y = cgetg(lx, t_POL);
+  long i;
+  for (i = lx-1; i > 1; i--) gel(y,i) = gel(x,i);
+  y[1] = y1; return y;
+}
+
 /* assume tx = ty = t_SER, same variable vx */
 static GEN
 div_ser(GEN x, GEN y, long vx)
 {
-  long i, j, l = valp(x) - valp(y), lx = lg(x), ly = lg(y);
-  GEN y_lead, p1, p2, z;
+  long v = valp(x) - valp(y), lx = lg(x), ly = lg(y);
+  GEN y_lead, z;
+  pari_sp av = avma;
 
   if (!signe(y)) pari_err_INV("div_ser", y);
   if (ser_isexactzero(x))
   {
-    if (lx == 2) return zeroser(vx, l);
-    return scalarser(gmul(gel(x,2),Rg_get_0(y)), varn(x), l);
+    if (lx == 2) return zeroser(vx, v);
+    return scalarser(gmul(gel(x,2),Rg_get_0(y)), varn(x), v);
   }
   y_lead = gel(y,2);
   if (gequal0(y_lead)) /* normalize denominator if leading term is 0 */
   {
     GEN y0 = y;
     pari_warn(warner,"normalizing a series with 0 leading term");
-    for (l--, ly--,y++; ly > 2; l--, ly--, y++)
+    for (v--, ly--,y++; ly > 2; v--, ly--, y++)
     {
       y_lead = gel(y,2);
       if (!gequal0(y_lead)) break;
@@ -2300,25 +2301,11 @@ div_ser(GEN x, GEN y, long vx)
     if (ly <= 2) pari_err_INV("div_ser", y0);
   }
   if (ly < lx) lx = ly;
-  p2 = cgetg(lx, t_VECSMALL); /* left on stack for efficiency */
-  for (i=3; i<lx; i++)
-  {
-    p1 = gel(y,i);
-    if (isrationalzero(p1)) p1 = NULL;
-    gel(p2,i) = p1;
-  }
-  z = cgetg(lx,t_SER);
-  z[1] = evalvalp(l) | evalvarn(vx) | evalsigne(1);
-  gel(z,2) = gdiv(gel(x,2), y_lead);
-  for (i=3; i<lx; i++)
-  {
-    pari_sp av = avma;
-    p1 = gel(x,i);
-    for (j=2, l=i; j<i; j++, l--)
-      if (p2[l]) p1 = gsub(p1, gmul(gel(z,j), gel(p2,l)));
-    gel(z,i) = gerepileupto(av, gdiv(p1, y_lead));
-  }
-  return normalize(z);
+  z = cgetg(lx,t_SER); z[1] = evalvalp(v) | evalvarn(vx) | evalsigne(1);
+  x = ser2pol_i(x, lx);
+  y = ser2pol_ii(y, lx, z[1] & ~VALPBITS);
+  y = RgXn_mul(x, RgXn_inv_i(y, lx-2), lx-2); /* FIXME: use Karp/Markstein */
+  return gerepilecopy(av, fill_ser(z,y));
 }
 /* x,y compatible PADIC */
 static GEN
@@ -2458,7 +2445,7 @@ gdiv(GEN x, GEN y)
           if (!signe(y)) pari_err_INV("gdiv",y);
           return div_ser_scal(x, y);
         }
-                            else return div_scal_ser(x, y);
+        return div_scal_ser(x, y);
       }
       return div_ser(x, y, vx);
     case t_RFRAC:
@@ -3116,8 +3103,7 @@ ginv(GEN x)
     case t_POLMOD: return inv_polmod(gel(x,1), gel(x,2));
     case t_FFELT: return FF_inv(x);
     case t_POL: return gred_rfrac_simple(gen_1,x);
-    case t_SER: return gdiv(gen_1,x);
-
+    case t_SER: return ser_inv(x);
     case t_RFRAC:
     {
       GEN n = gel(x,1), d = gel(x,2);

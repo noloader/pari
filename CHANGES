@@ -103,6 +103,7 @@ AP  28- allow nfsubfields([nf,fa],): van Hoeij-Klueners-Novocin algorithm
 BA  30- qfbsolve: new flag: 0 -> 1 solution, 1-> all primitive solutions,
         2 -> all solutions
 BA  31- revert 2-12-0 C18: qfbsolve with default flag = previous behaviour
+    32- division/inversion power series: use Newton
 
   Added
      1- new GP function rootsof1
