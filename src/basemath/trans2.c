@@ -1421,7 +1421,7 @@ serlngamma0(GEN y, long prec)
 }
 
 static GEN
-serlngamma(GEN y, long prec)
+sergamma(GEN y, long prec)
 {
   GEN z, y0, Y;
   if (lg(y) == 2) pari_err_DOMAIN("gamma", "argument", "=", gen_0,y);
@@ -1688,7 +1688,7 @@ ggamma(GEN x, long prec)
     case t_PADIC: return Qp_gamma(x);
     default:
       av = avma; if (!(y = toser_i(x))) break;
-      return gerepileupto(av, serlngamma(y, prec));
+      return gerepileupto(av, sergamma(y, prec));
   }
   return trans_eval("gamma",ggamma,x,prec);
 }
