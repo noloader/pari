@@ -399,12 +399,12 @@ gammafactproduct(GEN F, GEN s, long prec)
   pari_sp av = avma;
   GEN P = fracgammaeval(gel(F,1), s);
   GEN p = gpow(mppi(prec),gneg(gel(F,2)), prec), z = gmul(P, p);
-  GEN R = gel(F,3), Rw = gel(R,1), Re=gel(R,2);
-  GEN C = gel(F,4), Cw = gel(C,1), Ce=gel(C,2);
+  GEN R = gel(F,3), Rw = gel(R,1), Re = gel(R,2);
+  GEN C = gel(F,4), Cw = gel(C,1), Ce = gel(C,2);
   long i, lR = lg(Rw), lC = lg(Cw);
-  for (i=1; i< lR; i++)
+  for (i = 1; i < lR; i++)
     z = gmul(z, gpowgs(gamma_R(gadd(s,gel(Rw, i)), prec), Re[i]));
-  for (i=1; i< lC; i++)
+  for (i = 1; i < lC; i++)
     z = gmul(z, gpowgs(gamma_C(gadd(s,gel(Cw, i)), prec), Ce[i]));
   return gerepileupto(av, z);
 }
