@@ -10388,19 +10388,17 @@ static GEN
 lfunfindchi(GEN ldata, GEN van, long prec)
 {
   GEN gN = ldata_get_conductor(ldata), gk = ldata_get_k(ldata);
-  GEN G = znstar0(gN,1), L, go, vz;
+  GEN G = znstar0(gN,1), cyc = znstar_get_conreycyc(G), L, go, vz;
   long N = itou(gN), odd = typ(gk) == t_INT && mpodd(gk);
   long i, j, o, l, B0 = 2, B = lg(van)-1, bit = 10 - prec2nbits(prec);
 
-  /* if van is integral, no need to compute it */
-  if (typ(van) == t_VECSMALL) van = NULL;
-  L = cyc2elts(znstar_get_conreycyc(G));
-  l = lg(L);
+  /* if van is integral, chi must be trivial */
+  if (typ(van) == t_VECSMALL) return mfcharGL(G, zerocol(lg(cyc)-1));
+  L = cyc2elts(cyc); l = lg(L);
   for (i = j = 1; i < l; i++)
   {
     GEN chi = zc_to_ZC(gel(L,i));
-    if (zncharisodd(G,chi) == odd && (van || itou(zncharorder(G,chi))) <= 2)
-      gel(L,j++) = mfcharGL(G,chi);
+    if (zncharisodd(G,chi) == odd) gel(L,j++) = mfcharGL(G,chi);
   }
   setlg(L,j); l = j;
   if (l <= 2) return gel(L,1);
@@ -10411,16 +10409,11 @@ lfunfindchi(GEN ldata, GEN van, long prec)
     long n;
     for (n = B0; n <= B; n++)
     {
+      GEN an, r;
       long j;
-      GEN r;
       if (ugcd(n, N) != 1) continue;
-      if (!van) r = gen_1;
-      else
-      {
-        GEN an = gel(van,n);
-        if (gexpo(an) < bit) continue;
-        r = gdiv(an, conj_i(an));
-      }
+      an = gel(van,n); if (gexpo(an) < bit) continue;
+      r = gdiv(an, conj_i(an));
       for (i = 1; i < l; i++)
       {
         GEN CHI = gel(L,i);
@@ -10433,7 +10426,7 @@ lfunfindchi(GEN ldata, GEN van, long prec)
       if (l == 2) return gel(L,1);
     }
     B0 = B+1; B <<= 1;
-    if (van) van = ldata_vecan(ldata_get_an(ldata), B, prec);
+    van = ldata_vecan(ldata_get_an(ldata), B, prec);
   }
 }
 

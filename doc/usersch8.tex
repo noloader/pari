@@ -88,7 +88,10 @@
 
 \fun{GEN}{ldata_vecan}{GEN ldata, long L, long prec}
 return the vector of coefficients of indices $1$ to $L$ to precision
-\kbd{prec}.
+\kbd{prec}. The output is allowed to be a \typ{VECSMALL} when the
+coefficients are known to be all integral and fit into a \kbd{long};
+for instance the Dirichlet $L$ function of a real character or the
+$L$-function of a rational elliptic curve.
 
 \fun{GEN}{ldata_newprec}{GEN ldata, long prec}
 return a shallow copy of \kbd{ldata} with fields accurate to precision
