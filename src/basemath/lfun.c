@@ -2346,7 +2346,7 @@ lfunorderzero(GEN lmisc, long m, long bitprec)
     if (gexpo(lfun0(linit, k2, c, bitprec)) > G) return gc_long(ltop, c);
 }
 
-/* assume T1 * T2 > 0 */
+/* assume T1 * T2 > 0, T1 <= T2 */
 static void
 lfunzeros_i(struct lhardyz_t *S, GEN *pw, long *ct, GEN T1, GEN T2, long d,
             GEN cN, GEN pi2, GEN pi2div, long precinit, long prec)
@@ -2356,20 +2356,20 @@ lfunzeros_i(struct lhardyz_t *S, GEN *pw, long *ct, GEN T1, GEN T2, long d,
   for(;;)
   {
     pari_sp av = avma;
-    GEN T0, z;
+    GEN D, T0, z;
+    D = gcmp(T, pi2) < 0? cN
+                        : gadd(cN, gmulsg(d, glog(gdiv(T, pi2), prec)));
+    D = gdiv(pi2div, D);
     for(;;)
     {
-      GEN L = (gcmp(T, pi2) < 0)? cN
-                                : gadd(cN, gmulsg(d, glog(gdiv(T, pi2), prec)));
       long s0;
-      T0 = T; T = gadd(T, gdiv(pi2div, L));
+      T0 = T; T = gadd(T, D);
       if (gcmp(T, T2) >= 0) T = T2;
       s0 = gsigne(lfunhardyzeros(S, T));
       if (s0 != s) { s = s0; break; }
       if (T == T2) { setlg(w, *ct); *pw = w; return; }
     }
-    /* T <= T2 */
-    z = zbrent(S, lfunhardyzeros, T0, T, prec);
+    z = zbrent(S, lfunhardyzeros, T0, T, prec); /* T <= T2 */
     gerepileall(av, 2, &T, &z);
     if (*ct > W) { W *= 2; w = vec_lengthen(w, W); }
     if (typ(z) == t_REAL) z  = rtor(z, precinit);
