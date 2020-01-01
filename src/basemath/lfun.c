@@ -2356,25 +2356,24 @@ lfunzeros_i(struct lhardyz_t *S, GEN *pw, long *ct, GEN T1, GEN T2, long d,
   for(;;)
   {
     pari_sp av = avma;
-    GEN T0 = T, z;
+    GEN T0, z;
     for(;;)
     {
       GEN L = (gcmp(T, pi2) < 0)? cN
                                 : gadd(cN, gmulsg(d, glog(gdiv(T, pi2), prec)));
       long s0;
-      T = gadd(T, gdiv(pi2div, L));
-      if (gcmp(T, T2) > 0) T = T2;
+      T0 = T; T = gadd(T, gdiv(pi2div, L));
+      if (gcmp(T, T2) >= 0) T = T2;
       s0 = gsigne(lfunhardyzeros(S, T));
       if (s0 != s) { s = s0; break; }
       if (T == T2) { setlg(w, *ct); *pw = w; return; }
     }
-    T = gerepileupto(av, T);
+    /* T <= T2 */
     z = zbrent(S, lfunhardyzeros, T0, T, prec);
-    if (gcmp(z, T2) > 0) break;
+    gerepileall(av, 2, &T, &z);
     if (*ct > W) { W *= 2; w = vec_lengthen(w, W); }
     if (typ(z) == t_REAL) z  = rtor(z, precinit);
     gel(w, (*ct)++) = z;
-    if (gcmp(T0, T2) >= 0) break;
   }
   setlg(w, *ct); *pw = w;
 }
