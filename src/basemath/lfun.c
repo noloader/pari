@@ -2300,10 +2300,7 @@ static GEN
 lfunhardyzeros(void *E, GEN t)
 {
   struct lhardyz_t *S = (struct lhardyz_t*)E;
-  long prec = S->prec;
-  GEN h = lfunhardy(S->linit, t, S->bitprec);
-  if (typ(h) == t_REAL && realprec(h) < prec) h = gprec_w(h, prec);
-  return h;
+  return gprec_wensure(lfunhardy(S->linit, t, S->bitprec), S->prec);
 }
 
 /* initialize for computation on critical line up to height h, zero
