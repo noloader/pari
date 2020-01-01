@@ -2,37 +2,44 @@ Function: qfbsolve
 Section: number_theoretical
 C-Name: qfbsolve
 Prototype: GGD0,L,
-Help: qfbsolve(Q,n,{fl=0}): Solve the equation
+Help: qfbsolve(Q,n,{flag=0}): Solve the equation
  Q(x,y)=n in coprime integers x and y where Q is a binary quadratic form,
  up to the action of the special orthogonal group of Q over the integers.
- If fl=0, return a single solution or [] (no solution).
- If fl=1, return all the primitive solutions.
- If fl=2, return all the solutions, including non-primitive ones.
-Doc: Solve the equation $Q(x,y)=n$ in coprime integers $x$ and $y$, where
+ Binary digits of flag mean
+ 1: return all solutions,
+ 2: also include non-primitive solutions.
+Doc: Solve the equation $Q(x,y)=n$ in coprime integers $x$ and $y$ (primitive
+ solutions), where
  $Q$ is a binary quadratic form and $n$ an integer, up to the action of the
- special orthogonal group $S=SO(Q,\Z)$, which is isomorphic to the group of
+ special orthogonal group $G=SO(Q,\Z)$, which is isomorphic to the group of
  units of positive norm of the quadratic order of discriminant $D = \disc Q$.
- If $D>0$, $S$ is infinite. If $D<-4$, $S$ is of order $2$, if $D=-3$, $S$ is
- of order $6$ and if $D=-4$, $S$ is of order $4$.
+ If $D>0$, $G$ is infinite. If $D<-4$, $G$ is of order $2$, if $D=-3$, $G$ is
+ of order $6$ and if $D=-4$, $G$ is of order $4$.
 
- \item If $\fl=0$, return a single solution or $[]$ (no solution).
- \item If $\fl=1$, return all primitive solutions; the result is a vector of
- two-components vectors $[x,y]$.
- \item  If $\fl=2$, return all solutions, including non primitive ones; the
- result is a vector of two-components vectors $[x,y]$.
+ Binary digits of $\fl$ mean:
+ 1: return all solutions if set, else a single solution; return $[]$ if
+ a single solution is wanted (bit unset) but none exist.
+ 2: also include non-primitive solutions.
+
+ When $\fl = 2$ (return a single solution, possibly non-primitive), the
+ algorithm returns a solution with minimal content; in particular, a
+ primitive solution exists if and only if one is returned.
 
  The integer $n$ can be given by its factorization matrix \kbd{\var{fa} =
  factor(n)} or by the pair $[n, \var{fa}]$.
 
  \bprog
- ? qfbsolve(Qfb(1,0,2), 603, 1)
+ ? qfbsolve(Qfb(1,0,2), 603) \\ a single primitive solution
  %1 = [5, 17]
 
- ? qfbsolve(Qfb(1,0,2), 603, 1)
+ ? qfbsolve(Qfb(1,0,2), 603, 1) \\ all primitive solutions
  %2 = [[5, 17], [-19, -11], [19, -11], [5, -17]]
 
- ? qfbsolve(Qfb(1,0,2), 603, 2)
- %3 = [[5, 17], [-19, -11], [19, -11], [5, -17], [-21, 9], [-21, -9]]
+ ? qfbsolve(Qfb(1,0,2), 603, 2) \\ a single, possibly non-primitive solution
+ %3 = [5, 17] \\ actually primitive
+
+ ? qfbsolve(Qfb(1,0,2), 603, 3) \\ all solutions
+ %4 = [[5, 17], [-19, -11], [19, -11], [5, -17], [-21, 9], [-21, -9]]
 
  ? N = 2^128+1; F = factor(N);
  ? qfbsolve(Qfb(1,0,1),[N,F],1)
