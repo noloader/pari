@@ -188,9 +188,12 @@ vecan_shift(GEN an, long n, long prec)
 }
 
 static GEN
+deg1ser_shallow(GEN a1, GEN a0, long e)
+{ return RgX_to_ser(deg1pol_shallow(a1, a0, 0), e+2); }
+static GEN
 lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
-  long l, j, lr;
+  long l, j;
   GEN k = ldata_get_k(ldata1);
   GEN r1 = ldata_get_residue(ldata1);
   GEN r2 = ldata_get_residue(ldata2), r;
@@ -207,20 +210,19 @@ lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
     r1 = lfunrtopoles(r1);
     if (r2) r1 = setunion_i(r1, lfunrtopoles(r2));
   }
-  l = lg(r1); r = cgetg(l, t_VEC); lr = 1;
+  l = lg(r1); if (l == 1) return NULL;
+  r = cgetg(l, t_VEC);
   for (j = 1; j < l; j++)
   {
-    GEN be = gel(r1,j);
-    GEN bx = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 4);
+    GEN be = gel(r1,j), bx = deg1ser_shallow(gen_1, be, 2);
     GEN z1 = lfun(ldata1,bx,bitprec), z2 = lfun(ldata2,bx,bitprec);
     long e = valp(z1) + valp(z2);
-    GEN b = RgX_to_ser(deg1pol_shallow(gen_1, be, 0), 4-e);
+    GEN b = deg1ser_shallow(gen_1, be, 2-e);
     z1 = lfun(ldata1,b,bitprec);
     z2 = lfun(ldata2,b,bitprec);
-    gel(r,lr++) = mkvec2(be, gmul(z1, z2));
+    gel(r,j) = mkvec2(be, gmul(z1, z2));
   }
-  setlg(r, lr);
-  return lr==1? NULL: r;
+  return r;
 }
 
 static GEN
@@ -403,18 +405,13 @@ static GEN
 poles_translate(GEN x, GEN s, GEN Ns)
 { pari_APPLY_same(pole_translate(gel(x,i), s, Ns)) }
 
-static GEN
-deg1ser_shallow(GEN a1, GEN a0, long v, long e)
-{
-  return RgX_to_ser(deg1pol_shallow(a1, a0, v), e+2);
-}
 /* r / x + O(1) */
 static GEN
 simple_pole(GEN r)
 {
   GEN S;
   if (isintzero(r)) return gen_0;
-  S = deg1ser_shallow(gen_0, r, 0, 1);
+  S = deg1ser_shallow(gen_0, r, 1);
   setvalp(S, -1); return S;
 }
 
@@ -2259,7 +2256,7 @@ lfunqf(GEN M, long prec)
 {
   pari_sp ltop = avma;
   long n;
-  GEN k, D, d, Mi, Ldata, poles, res0, res2, eno, dual;
+  GEN k, D, d, Mi, Ldata, poles, eno, dual;
 
   if (typ(M) != t_MAT) pari_err_TYPE("lfunqf", M);
   if (!RgM_is_ZM(M))   pari_err_TYPE("lfunqf [not integral]", M);
@@ -2273,11 +2270,8 @@ lfunqf(GEN M, long prec)
   D = gdiv(gpow(d,k,prec), ZM_det(M));
   if (!issquareall(D, &eno)) eno = gsqrt(D, prec);
   dual = gequal1(D) ? gen_0: tag(Mi, t_LFUN_QF);
-  res0 = RgX_to_ser(deg1pol_shallow(gen_m2, gen_0, 0), 3);
-  setvalp(res0, -1);
-  res2 = RgX_to_ser(deg1pol_shallow(gmulgs(eno,2), gen_0, 0), 3);
-  setvalp(res2, -1);
-  poles = mkcol2(mkvec2(k,res2), mkvec2(gen_0,res0));
+  poles = mkcol2(mkvec2(k, simple_pole(gmul2n(eno,1))),
+                 mkvec2(gen_0, simple_pole(gen_m2)));
   Ldata = mkvecn(7, tag(M, t_LFUN_QF), dual,
        mkvec2(gen_0, gen_1), k, d, eno, poles);
   return gerepilecopy(ltop, Ldata);
