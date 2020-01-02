@@ -1442,7 +1442,7 @@ qfbredsl2(GEN q, GEN S)
       else
       {
         D = qfb_disc(q);
-        isD = sqrtint(D);
+        isD = sqrti(D);
       }
       v = redrealsl2(q,D,isD);
       gel(v,1) = qfr3_to_qfr(gel(v,1), real_0(precision(gel(q,4))));
