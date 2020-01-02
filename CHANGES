@@ -61,6 +61,7 @@ BA  41- polcompositum(x^2+x/3+1,x^2+x/3+1) -> SEGV
 JR  44- polylog(-m, tiny z): catastrophic cancellation, e.g. polylog(-100,.5)
     45- prodeulerrat((p-2)/(p-1)+(p-1)^(m-1)/p^m,1,3) slow and imprecise [#2192]
     46- Mod(1,5) * O(x) -> O(x) [instead of Mod(0,5) + O(x)]
+    47- lfuninit: lfunrootres calls too expensive if rootno and polar part known
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

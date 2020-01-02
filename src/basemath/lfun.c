@@ -1519,7 +1519,7 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
     if (isintzero(eno)) eno = NULL;
   }
   theta = lfun_init_theta(ldata, eno, &S);
-  if (eno && lg(ldata)==7)
+  if (eno && !r)
     R = gen_0;
   else
   {
@@ -1527,11 +1527,8 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
     ldata = shallowcopy(ldata);
     gel(ldata, 6) = gel(v,3);
     r = gel(v,1);
-    if (isintzero(r))
-      setlg(ldata,7); /* no pole */
-    else
-      gel(ldata, 7) = r;
-    R = lfunrtoR(ldata, nbits2prec(S.D));
+    R = gel(v,2);
+    if (isintzero(r)) setlg(ldata,7); else gel(ldata, 7) = r;
   }
   h = divru(mplog2(S.precmax), S.m0);
   /* exp(kh/2 . [0..M]) */
@@ -2227,10 +2224,11 @@ lfunrootres(GEN data, long bitprec)
   ldata = lfunmisc_to_ldata_shallow(data);
   r = ldata_get_residue(ldata);
   k = ldata_get_k(ldata);
+  w = ldata_get_rootno(ldata);
   if (r) r = normalize_simple_pole(r, k);
   if (!r || residues_known(r))
   {
-    w = lfunrootno(data, bitprec);
+    if (isintzero(w)) w = lfunrootno(data, bitprec);
     if (!r)
       r = R = gen_0;
     else
@@ -2242,7 +2240,6 @@ lfunrootres(GEN data, long bitprec)
   if (lg(r) > 2) pari_err_IMPL("multiple poles in lfunrootres");
   /* Now residue unknown, and r = [[be,0]]. */
   be = gmael(r, 1, 1);
-  w = ldata_get_rootno(ldata);
   if (ldata_isreal(ldata) && gequalm1(w))
     R = lfuntheta(linit, gen_1, 0, bitprec);
   else

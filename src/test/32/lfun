@@ -286,7 +286,6 @@ zeta(s)*zeta(s-a)
 7:-22
 0
   *** lfun: Warning: #an = 1 < 5, results may be imprecise.
-  *** lfun: Warning: #an = 1 < 8, results may be imprecise.
 1.6449321944727952165464885195862083681
 0.97075234252284168437606085418663108405 + 0.0794201340278726639136259197680
 22884149*I
@@ -332,4 +331,4 @@ zeta(s)*zeta(s-a)
   ***   at top-level: lfunorderzero([errG,[[1,8]~,[1,2]~]])
   ***                 ^-------------------------------------
   *** lfunorderzero: incorrect type in lfunorderzero [vector-valued] (t_VEC).
-Total time spent: 8564
+Total time spent: 11302
