@@ -53,5 +53,5 @@
   *** prodeulerrat: incorrect type in prodeulerrat (t_INT).
   ***   at top-level: prodeulerrat(1+1/p)
   ***                 ^-------------------
-  *** prodeulerrat: domain error in prodeulerrat: real(s) <= 1.0000000000000000000
-Total time spent: 65
+  *** prodeulerrat: product diverges in prodeulerrat.
+Total time spent: 66

@@ -2239,11 +2239,15 @@ sumnumrat(GEN F, GEN a, long prec)
   }
   return gerepileupto(av, sumnumrat_i(F, F0, vF, prec));
 }
-static GEN
-_mpmul(GEN x, GEN y)
+/* deg ((a / b) - 1), assuming b a t_POL of positive degree in main variable  */
+static long
+rfracm1_degree(GEN a, GEN b)
 {
-  if (!x) return y;
-  return y? mpmul(x, y): x;
+  long da, db;
+  if (typ(a) != t_POL || varn(a) != varn(b)) return 0;
+  da = degpol(a);
+  db = degpol(b); if (da != db) return maxss(da - db, 0);
+  return degpol(RgX_sub(a,b)) - db;
 }
 
 /* prod_{n >= a} F(n) */
@@ -2252,17 +2256,18 @@ prodnumrat(GEN F, long a, long prec)
 {
   pari_sp ltop = avma;
   long B = prec2nbits(prec), j, k, m, N, vx;
-  GEN S, S1, S2, intf, G, F1 = gsubgs(F,1);
+  GEN S, S1, S2, intf, G;
   double r;
 
-  switch(typ(F1))
+  switch(typ(F))
   {
     case t_RFRAC: break;
     case t_INT: case t_REAL: case t_COMPLEX: case t_POL:
-      if (gequal0(F1)) return real_1(prec);
+      if (gequal1(F)) return real_1(prec);
     default: pari_err_TYPE("prodnumrat",F);
   }
-  if (poldegree(F1,-1) > -2) pari_err(e_MISC, "product diverges in prodnumrat");
+  if (rfracm1_degree(gel(F,1), gel(F,2)) > -2)
+    pari_err(e_MISC, "product diverges in prodnumrat");
   vx = varn(gel(F,2));
   if (a) F = gsubst(F, vx, gaddgs(pol_x(vx), a));
   r = ratpolemax2(F);
@@ -2406,29 +2411,30 @@ GEN
 prodeulerrat(GEN F, GEN s, long a, long prec)
 {
   pari_sp ltop = avma;
-  GEN F1, DF, NF, ser, P, z;
+  GEN DF, NF, ser, P, z;
   double r, rs, RS, lN;
   long B = prec2nbits(prec), prec2 = prec + EXTRAPREC, vF, N, lim;
 
   euler_set_Fs(&F, &s);
-  F1 = gsubgs(F, 1);
   switch(typ(F))
   {
     case t_RFRAC: break;
     case t_INT: case t_REAL: case t_COMPLEX: case t_POL:
-      if (gequal0(F1)) return real_1(prec);
+      if (gequal1(F)) return real_1(prec);
     default: pari_err_TYPE("prodeulerrat",F);
   } /* F t_RFRAC */
-  vF = -poldegree(F1, -1);
   NF = gel(F, 1);
-  DF = gel(F, 2); r = ratpolemax2(F);
-  rfracrecip(&NF, &DF, &N); /* N = 0 */
+  DF = gel(F, 2);
   rs = gtodouble(real_i(s));
+  vF = - rfracm1_degree(NF, DF);
+  if (rs * vF <= 1) pari_err(e_MISC, "product diverges in prodeulerrat");
+  r = ratpolemax2(F);
   N = maxss(maxss(30, a), (long)ceil(2*r)); lN = log2((double)N);
   RS = maxdd(1./vF, log2(r) / lN);
   if (rs <= RS)
     pari_err_DOMAIN("prodeulerrat", "real(s)", "<=",  dbltor(RS), dbltor(rs));
   lim = (long)ceil(B / (rs*lN - log2(r)));
+  (void)rfracrecip(&NF, &DF); /* returned value is 0 */
   if (!RgX_is_ZX(DF) || !is_pm1(gel(DF,2))
       || lim * log2(r) > 4 * B) NF = gmul(NF, real_1(prec2));
   ser = integser(rfrac_to_ser(rfrac_logderiv(NF,DF), lim+3));
@@ -2494,6 +2500,12 @@ sumnumlagrange2init(GEN c1, long flag, long prec)
   return gerepilecopy(av, mkvec4(gen_2, stoi(prec2), gen_1, V));
 }
 
+static GEN
+_mpmul(GEN x, GEN y)
+{
+  if (!x) return y;
+  return y? mpmul(x, y): x;
+}
 /* Used only for al = 2, 1, 1/2, 1/3, 1/4. */
 static GEN
 sumnumlagrangeinit_i(GEN al, GEN c1, long flag, long prec)

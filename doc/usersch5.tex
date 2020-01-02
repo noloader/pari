@@ -9817,6 +9817,11 @@ $P$, i.e. $X^{\deg P} P(1/X)$.
 where we further assume that $P(0)\neq 0$, so that the degree of the output
 is the degree of $P$.
 
+\fun{long}{rfracrecip}{GEN *a, GEN *b} let \kbd{*a} and \kbd{*b} be such that
+their quotient $F$ is a \typ{RFRAC} in variable $X$. Write $F(1/X) = X^v A/B$
+where $A$ and $B$ are coprime to $X$ and $v$ in $\Z$. Set \kbd{*a} to A,
+\kbd{*b} to $B$ and return $v$.
+
 \fun{GEN}{RgX_deflate}{GEN P, long d} assuming $P$ is a polynomial of the
 form $Q(X^d)$, return $Q$. Shallow function, not suitable for
 \kbd{gerepileupto}.
