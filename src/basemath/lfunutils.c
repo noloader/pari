@@ -1579,8 +1579,8 @@ ellsymsq_bad2(GEN c4, GEN c6, long e)
     case 5: return 0;
     case 7: return 0;
     case 8:
-      if (dvdiu(c6,512)) return 0;
-      return umodiu(c4,128)==32 ? 1 : -1;
+      if (!umodi2n(c6,9)) return 0;
+      return umodi2n(c4,7)==32 ? 1 : -1;
     default: return 0;
   }
 }
