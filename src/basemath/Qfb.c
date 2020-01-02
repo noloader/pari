@@ -1455,12 +1455,10 @@ qfbredsl2(GEN q, GEN S)
 }
 
 static GEN
-qfrsolve_normform(GEN N, GEN P, GEN P2)
+qfrsolve_normform(GEN N, GEN P, GEN P2, GEN d, GEN rd)
 {
   pari_sp ltop = avma, btop;
-  GEN P1, M, d = qfb_disc(P), rd = sqrti(d);
-  M = N;
-  P1 = redrealsl2(P, d,rd);
+  GEN M = N, P1 = redrealsl2(P, d,rd);
   btop = avma;
   for(;;)
   {
@@ -1477,13 +1475,12 @@ GEN
 qfrsolvep(GEN Q, GEN p)
 {
   pari_sp ltop = avma;
-  GEN P, P2, N, d = qfb_disc(Q), rd, x;
+  GEN P, N, x, rd, d = qfb_disc(Q);
   if (kronecker(d, p) < 0) { set_avma(ltop); return gen_0; }
   P = primeform(d, p, DEFAULTPREC);
   rd = sqrti(d);
-  N = redrealsl2(Q, d, rd);
-  P2 = invraw(P);
-  x = qfrsolve_normform(N, P, P2);
+  N = redrealsl2(Q, d,rd);
+  x = qfrsolve_normform(N, P, invraw(P), d,rd);
   if (!x) { set_avma(ltop); return gen_0; }
   return gerepileupto(ltop, x);
 }
@@ -1497,39 +1494,47 @@ redsl2(GEN Q, GEN d)
 }
 
 static GEN
-qfsolve_normform(GEN Q, GEN f, long s)
-{ return s < 0? qfisolve_normform(Q, f): qfrsolve_normform(Q, f, NULL); }
+qfsolve_normform(GEN Q, GEN f, GEN d, GEN rd)
+{ return rd? qfrsolve_normform(Q, f, NULL, d, rd): qfisolve_normform(Q, f); }
 static GEN
-qfbsolve1_primitive_i(GEN Q, GEN d, GEN *Qr, GEN fa)
+qfbsolve1_primitive_i(GEN Q, GEN d, GEN rd, GEN *Qr, GEN fa)
 {
   GEN x, F = normforms(d, fa, DEFAULTPREC);
-  long i, l, sd;
+  long i, l;
   if (!F) return NULL;
   if (!*Qr) *Qr = redsl2(Q, d);
-  sd = signe(d); l = lg(F);
+  l = lg(F);
   for (i = 1; i < l; i++)
-    if ((x = qfsolve_normform(*Qr, gel(F,i), sd))) return x;
+    if ((x = qfsolve_normform(*Qr, gel(F,i), d,rd))) return x;
   return NULL;
+}
+static void
+qfb_initrd(GEN Q, GEN *pd, GEN *prd)
+{
+  *pd = qfb_disc(Q);
+  *prd = signe(*pd) > 0? sqrti(*pd): NULL;
 }
 static GEN
 qfbsolve1_primitive(GEN Q, GEN fa)
 {
   pari_sp av = avma;
-  GEN Qr = NULL, x = qfbsolve1_primitive_i(Q, qfb_disc(Q), &Qr, fa);
+  GEN Qr = NULL, dQ, rdQ, x;
+  qfb_initrd(Q, &dQ, &rdQ);
+  x = qfbsolve1_primitive_i(Q, dQ, rdQ, &Qr, fa);
   if (x) return gerepilecopy(av, x);
   set_avma(av); return cgetg(1, t_VEC);
 }
 
 static GEN
-qfbsolve_primitive_i(GEN Q, GEN d, GEN *Qr, GEN fa)
+qfbsolve_primitive_i(GEN Q, GEN d, GEN rd, GEN *Qr, GEN fa)
 {
   GEN x, W, F = normforms(d, fa, DEFAULTPREC);
-  long sd, i, j, l;
+  long i, j, l;
   if (!F) return NULL;
   if (!*Qr) *Qr = redsl2(Q, d);
-  sd = signe(d); l = lg(F); W = cgetg(l, t_VEC);
+  l = lg(F); W = cgetg(l, t_VEC);
   for (j = i = 1; i < l; i++)
-    if ((x = qfsolve_normform(*Qr, gel(F,i), sd))) gel(W,j++) = x;
+    if ((x = qfsolve_normform(*Qr, gel(F,i), d, rd))) gel(W,j++) = x;
   if (j == 1) return NULL;
   setlg(W,j); return W;
 }
@@ -1537,7 +1542,9 @@ static GEN
 qfbsolve_primitive(GEN Q, GEN fa)
 {
   pari_sp av = avma;
-  GEN Qr = NULL, x = qfbsolve_primitive_i(Q, qfb_disc(Q), &Qr, fa);
+  GEN Qr = NULL, dQ, rdQ, x;
+  qfb_initrd(Q, &dQ, &rdQ);
+  x = qfbsolve_primitive_i(Q, dQ, rdQ, &Qr, fa);
   if (!x) { set_avma(av); return cgetg(1, t_VEC); }
   return gerepilecopy(av, x);
 }
@@ -1555,12 +1562,13 @@ static GEN
 qfbsolve1_all(GEN Q, GEN n)
 {
   pari_sp av = avma;
-  GEN fa, Qr = NULL, dQ = qfb_disc(Q), D = qfbsolve_divisors(n, &fa);
+  GEN fa, Qr = NULL, dQ, rdQ, D = qfbsolve_divisors(n, &fa);
   long i, j, l = lg(D);
+  qfb_initrd(Q, &dQ, &rdQ);
   for (i = j = 1; i < l; i++)
   {
     GEN d = gel(D,i);
-    GEN x = qfbsolve1_primitive_i(Q, dQ, &Qr, famat_divsqr(fa, gel(d,2)));
+    GEN x = qfbsolve1_primitive_i(Q, dQ, rdQ, &Qr, famat_divsqr(fa, gel(d,2)));
     if (x) return gerepilecopy(av, i == 1? x: RgV_Rg_mul(x, gel(d,1)));
   }
   set_avma(av); return cgetg(1, t_VEC);
@@ -1569,13 +1577,14 @@ static GEN
 qfbsolve_all(GEN Q, GEN n)
 {
   pari_sp av = avma;
-  GEN W, fa, Qr = NULL, dQ = qfb_disc(Q), D = qfbsolve_divisors(n, &fa);
+  GEN W, fa, dQ, rdQ, Qr = NULL, D = qfbsolve_divisors(n, &fa);
   long i, j, l = lg(D);
+  qfb_initrd(Q, &dQ, &rdQ);
   W = cgetg(l, t_VEC);
   for (i = j = 1; i < l; i++)
   {
     GEN d = gel(D,i);
-    GEN w = qfbsolve_primitive_i(Q, dQ, &Qr, famat_divsqr(fa, gel(d,2)));
+    GEN w = qfbsolve_primitive_i(Q, dQ, rdQ, &Qr, famat_divsqr(fa, gel(d,2)));
     if (w) gel(W,j++) = i == 1? w: RgV_Rg_mul(w, gel(d,1));
   }
   if (j == 1) { set_avma(av); return cgetg(1, t_VEC); }
