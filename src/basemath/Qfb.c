@@ -1546,7 +1546,7 @@ qfbsolve_all(GEN Q, GEN n, long all)
   W = all? cgetg(l, t_VEC): NULL;
   for (i = j = 1; i < l; i++)
   {
-    GEN w, d = gel(D,i), FA = famat_divsqr(fa, gel(d,2));
+    GEN w, d = gel(D,i), FA = i == 1? fa: famat_divsqr(fa, gel(d,2));
     if ((w = qfbsolve_primitive_i(Q, dQ, rdQ, &Qr, FA, all)))
     {
       if (i != 1) w = RgV_Rg_mul(w, gel(d,1));
