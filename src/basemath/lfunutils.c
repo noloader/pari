@@ -1265,43 +1265,40 @@ ellsympow_betam(long o, long m)
 }
 
 static long
-ellsympow_epsm(long o, long m)
-{
-  return m+1-ellsympow_betam(o, m);
-}
+ellsympow_epsm(long o, long m) { return m + 1 - ellsympow_betam(o, m); }
 
 static GEN
 ellsympow_multred(GEN E, GEN p, long m, long vN, long *cnd, long *w)
 {
-  if (vN==1) /* mult red*/
+  if (vN == 1 || !odd(m))
   {
+    GEN s = (odd(m) && signe(ellap(E,p)) < 0)? gen_1: gen_m1;
     *cnd = m;
-    *w = odd(m) ? ellrootno(E, p): 1;
-    if (odd(m) && signe(ellap(E,p))==-1)
-      return deg1pol_shallow(gen_1, gen_1, 0);
-    else
-      return deg1pol_shallow(gen_m1, gen_1, 0);
-  } else
+    *w = odd(m)? ellrootno(E, p): 1;
+    return deg1pol_shallow(s, gen_1, 0);
+  }
+  else
   {
-    *cnd = odd(m)? m+1: m;
-    *w  = odd(m) && odd((m+1)>>1) ? ellrootno(E, p): 1;
-    if (odd(m) && equaliu(p,2))
-      *cnd += ((m+1)>>1)*(vN-2);
-    return odd(m)? pol_1(0): deg1pol_shallow(gen_m1, gen_1, 0);
+    *cnd = equaliu(p,2)? ((m+1)>>1) * vN: m+1;
+    *w = (m & 3) == 1? ellrootno(E, p): 1;
+    return pol_1(0);
   }
 }
 
 static GEN
 ellsympow_nonabelian(GEN p, long m, long bet)
 {
- GEN pm = powiu(p, m), F;
- if (odd(m)) return gpowgs(deg2pol_shallow(pm, gen_0, gen_1, 0), bet>>1);
- F = gpowgs(deg2pol_shallow(negi(pm), gen_0, gen_1, 0), bet>>1);
+ GEN q = powiu(p, m >> 1), q2 = sqri(q), F;
+ if (odd(m))
+ {
+   q2 = mulii(q2, p); /* p^m */
+   return gpowgs(deg2pol_shallow(q2, gen_0, gen_1, 0), bet>>1);
+ }
+ togglesign_safe(&q2);
+ F = gpowgs(deg2pol_shallow(q2, gen_0, gen_1, 0), bet>>1);
  if (!odd(bet)) return F;
- if (m%4==2)
-   return gmul(F, deg1pol_shallow(powiu(p, m>>1), gen_1, 0));
- else
-   return gmul(F, deg1pol_shallow(negi(powiu(p, m>>1)), gen_1, 0));
+ if (m%4 != 2) togglesign_safe(&q);
+ return gmul(F, deg1pol_shallow(q, gen_1, 0));
 }
 
 static long
@@ -1311,16 +1308,14 @@ safe_Z_pvalrem(GEN n, GEN p, GEN *pr)
 static GEN
 c4c6_ap(GEN c4, GEN c6, GEN p)
 {
-  GEN N = Fp_ellcard(Fp_muls(c4,-27,p), Fp_muls(c6, -54, p), p);
-  return subii(addis(p, 1), N);
+  GEN N = Fp_ellcard(Fp_muls(c4, -27, p), Fp_muls(c6, -54, p), p);
+  return subii(addiu(p, 1), N);
 }
 
 static GEN
 ellsympow_abelian_twist(GEN E, GEN p, long m, long o)
 {
-  GEN ap;
-  GEN c4 = ell_get_c4(E), c6 = ell_get_c6(E);
-  GEN c4t, c6t;
+  GEN ap, c4t, c6t, c4 = ell_get_c4(E), c6 = ell_get_c6(E);
   long v4 = safe_Z_pvalrem(c4, p, &c4t);
   long v6 = safe_Z_pvalrem(c6, p, &c6t);
   if (v6>=0 && (v4==-1 || 3*v4>=2*v6)) c6 = c6t;
