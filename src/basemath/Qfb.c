@@ -1250,7 +1250,7 @@ primeform(GEN x, GEN p, long prec)
 }
 
 static GEN
-normforms(GEN D, GEN fa, long prec)
+normforms(GEN D, GEN fa)
 {
   long i, j, k, lB, aN, sa;
   GEN a, L, V, B, N, N2;
@@ -1274,7 +1274,7 @@ normforms(GEN D, GEN fa, long prec)
     {
       gel(L, k++) = mkvec3(a,b,c);
       if (++j == aN) break;
-      C = diviuexact(addii(b,N),aN);
+      C = addii(b, N); if (aN > 1) C = diviuexact(C, aN);
       c = sa > 0? addii(c, C): subii(c, C);
     }
   }
@@ -1499,7 +1499,7 @@ qfsolve_normform(GEN Q, GEN f, GEN d, GEN rd)
 static GEN
 qfbsolve1_primitive_i(GEN Q, GEN d, GEN rd, GEN *Qr, GEN fa)
 {
-  GEN x, F = normforms(d, fa, DEFAULTPREC);
+  GEN x, F = normforms(d, fa);
   long i, l;
   if (!F) return NULL;
   if (!*Qr) *Qr = redsl2(Q, d);
@@ -1528,7 +1528,7 @@ qfbsolve1_primitive(GEN Q, GEN fa)
 static GEN
 qfbsolve_primitive_i(GEN Q, GEN d, GEN rd, GEN *Qr, GEN fa)
 {
-  GEN x, W, F = normforms(d, fa, DEFAULTPREC);
+  GEN x, W, F = normforms(d, fa);
   long i, j, l;
   if (!F) return NULL;
   if (!*Qr) *Qr = redsl2(Q, d);
