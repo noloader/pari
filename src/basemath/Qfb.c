@@ -1252,36 +1252,33 @@ primeform(GEN x, GEN p, long prec)
 static GEN
 normforms(GEN D, GEN fa, long prec)
 {
-  pari_sp av = avma;
-  long i, j, k, l, aN;
+  long i, j, k, lB, aN, sa;
   GEN a, L, V, B, N, N2;
-  int sa, D_odd = mpodd(D);
+  int D_odd = mpodd(D);
   a = typ(fa) == t_INT ? fa: typ(fa) == t_VEC? gel(fa,1): factorback(fa);
   sa = signe(a);
-  if (sa==0 || (signe(D)<0 && sa<0)) { set_avma(av); return cgetg(1, t_VEC); }
-  if (D_odd)
-    V = Zn_quad_roots(fa, gen_1, shifti(subsi(1, D), -2));
-  else
-    V = Zn_quad_roots(fa, gen_0, negi(shifti(D, -2)));
-  if (!V) { set_avma(av); return cgetg(1, t_VEC); }
-  if (signe(D)<0 && signe(a)<0) { set_avma(av); return cgetg(1, t_VEC); }
-  N = gel(V,1); B = gel(V,2);
+  if (sa==0 || (signe(D)<0 && sa<0)) return NULL;
+  V = D_odd? Zn_quad_roots(fa, gen_1, shifti(subsi(1, D), -2))
+           : Zn_quad_roots(fa, gen_0, negi(shifti(D, -2)));
+  if (!V) return NULL;
+  N = gel(V,1); B = gel(V,2); lB = lg(B);
   N2 = shifti(N,1);
-  aN = itos(diviiexact(absi(a),N));
-  l = lg(B)-1;
-  L = cgetg(l*aN+1, t_VEC);
-  for (k = 1, i = 1; i <= l; i++)
+  aN = itou(diviiexact(a, N)); /* |a|/N */
+  L = cgetg((lB-1)*aN+1, t_VEC);
+  for (k = 1, i = 1; i < lB; i++)
   {
-    GEN b = shifti(gel(B,i), 1);
-    if (D_odd) b = addis(b , 1);
-    for (j = 0; j < aN; j++)
+    GEN b = shifti(gel(B,i), 1), c, C;
+    if (D_odd) b = addiu(b , 1);
+    c = diviiexact(shifti(subii(sqri(b), D), -2), a);
+    for (j = 0;; b = addii(b, N2))
     {
-      GEN c = diviiexact(shifti(subii(sqri(b), D), -2), a);
-      gel(L, k++) = signe(D)<0? qfi(a,b,c): qfr(a,b,c,real_0(prec));
-      b = addii(b, N2);
+      gel(L, k++) = mkvec3(a,b,c);
+      if (++j == aN) break;
+      C = diviuexact(addii(b,N),aN);
+      c = sa > 0? addii(c, C): subii(c, C);
     }
   }
-  return gerepilecopy(av, L);
+  return L;
 }
 
 /* Let M and N in SL2(Z), return (N*M^-1)[,1] */
@@ -1506,10 +1503,10 @@ static GEN
 qfbsolve1_primitive_i(GEN Q, GEN d, GEN *Qr, GEN fa)
 {
   GEN x, F = normforms(d, fa, DEFAULTPREC);
-  long i, l = lg(F), sd;
-  if (l==1) return NULL;
+  long i, l, sd;
+  if (!F) return NULL;
   if (!*Qr) *Qr = redsl2(Q, d);
-  sd = signe(d);
+  sd = signe(d); l = lg(F);
   for (i = 1; i < l; i++)
     if ((x = qfsolve_normform(*Qr, gel(F,i), sd))) return x;
   return NULL;
@@ -1527,10 +1524,10 @@ static GEN
 qfbsolve_primitive_i(GEN Q, GEN d, GEN *Qr, GEN fa)
 {
   GEN x, W, F = normforms(d, fa, DEFAULTPREC);
-  long sd, i, j, l = lg(F);
-  if (l==1) return NULL;
+  long sd, i, j, l;
+  if (!F) return NULL;
   if (!*Qr) *Qr = redsl2(Q, d);
-  sd = signe(d); W = cgetg(l, t_VEC);
+  sd = signe(d); l = lg(F); W = cgetg(l, t_VEC);
   for (j = i = 1; i < l; i++)
     if ((x = qfsolve_normform(*Qr, gel(F,i), sd))) gel(W,j++) = x;
   if (j == 1) return NULL;
