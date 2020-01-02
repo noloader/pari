@@ -44,8 +44,7 @@ checkldata(GEN ldata)
   w = gel(ldata, 4); /* FIXME */
   switch(typ(w))
   {
-    case t_INT: break;
-    case t_FRAC: break;
+    case t_INT: case t_FRAC: break;
     case t_VEC: if (lg(w) == 3 && is_rational_t(typ(gel(w,1)))) break;
     default: pari_err_TYPE("checkldata [weight]",w);
   }
@@ -61,11 +60,9 @@ lfuncreate(GEN data)
   long lx = lg(data);
   if (typ(data)==t_VEC && (lx == 7 || lx == 8))
   {
-    GEN ldata;
-    if (is_tagged(data)) ldata = gcopy(data);
-    else
+    GEN ldata = gcopy(data);
+    if (!is_tagged(data))
     { /* tag first component as t_LFUN_GENERIC */
-      ldata = gcopy(data);
       gel(ldata, 1) = tag(gel(ldata,1), t_LFUN_GENERIC);
       if (typ(gel(ldata, 2))!=t_INT)
         gel(ldata, 2) = tag(gel(ldata,2), t_LFUN_GENERIC);
