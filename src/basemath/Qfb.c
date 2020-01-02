@@ -1562,14 +1562,9 @@ GEN
 qfbsolve(GEN Q, GEN n, long fl)
 {
   if (!is_qfb_t(typ(Q))) pari_err_TYPE("qfbsolve",Q);
-  switch(fl)
-  {
-    case 3: return qfbsolve_all(Q, n, 1);
-    case 2: return qfbsolve_all(Q, n, 0);
-    case 1: return qfbsolve_primitive(Q, n, 1);
-    case 0: return qfbsolve_primitive(Q, n, 0);
-    default: pari_err_FLAG("qfbsolve"); return NULL;
-  }
+  if (fl < 0 || fl > 3) pari_err_FLAG("qfbsolve");
+  return (fl & 2)? qfbsolve_all(Q, n, fl & 1)
+                 : qfbsolve_primitive(Q, n, fl & 1);
 }
 
 /* 1 if there exists x,y such that x^2 + dy^2 = p [prime], 0 otherwise */
