@@ -1514,16 +1514,6 @@ qfb_initrd(GEN Q, GEN *pd, GEN *prd)
   *pd = qfb_disc(Q);
   *prd = signe(*pd) > 0? sqrti(*pd): NULL;
 }
-static GEN
-qfbsolve1_primitive(GEN Q, GEN fa)
-{
-  pari_sp av = avma;
-  GEN Qr = NULL, dQ, rdQ, x;
-  qfb_initrd(Q, &dQ, &rdQ);
-  x = qfbsolve1_primitive_i(Q, dQ, rdQ, &Qr, fa);
-  if (x) return gerepilecopy(av, x);
-  set_avma(av); return cgetg(1, t_VEC);
-}
 
 static GEN
 qfbsolve_primitive_i(GEN Q, GEN d, GEN rd, GEN *Qr, GEN fa)
@@ -1539,53 +1529,41 @@ qfbsolve_primitive_i(GEN Q, GEN d, GEN rd, GEN *Qr, GEN fa)
   setlg(W,j); return W;
 }
 static GEN
-qfbsolve_primitive(GEN Q, GEN fa)
+qfbsolve_primitive(GEN Q, GEN fa, long all)
 {
   pari_sp av = avma;
   GEN Qr = NULL, dQ, rdQ, x;
   qfb_initrd(Q, &dQ, &rdQ);
-  x = qfbsolve_primitive_i(Q, dQ, rdQ, &Qr, fa);
+  x = all? qfbsolve_primitive_i(Q, dQ, rdQ, &Qr, fa)
+         : qfbsolve1_primitive_i(Q, dQ, rdQ, &Qr, fa);
   if (!x) { set_avma(av); return cgetg(1, t_VEC); }
   return gerepilecopy(av, x);
 }
+
 /* f / g^2 */
 static GEN
 famat_divsqr(GEN f, GEN g)
 { return famat_reduce(famat_div_shallow(f, famat_pows_shallow(g,2))); }
 static GEN
-qfbsolve_divisors(GEN n, GEN *fa)
-{
-  GEN F = factorint(n, 0);
-  *fa = F; return divisors_factored(mkmat2(gel(F,1), gshift(gel(F,2),-1)));
-}
-static GEN
-qfbsolve1_all(GEN Q, GEN n)
+qfbsolve_all(GEN Q, GEN n, long all)
 {
   pari_sp av = avma;
-  GEN fa, Qr = NULL, dQ, rdQ, D = qfbsolve_divisors(n, &fa);
+  GEN W, dQ, rdQ, Qr = NULL, fa = factorint(n, 0);
+  GEN D = divisors_factored(mkmat2(gel(fa,1), gshift(gel(fa,2),-1)));
   long i, j, l = lg(D);
   qfb_initrd(Q, &dQ, &rdQ);
+  W = all? cgetg(l, t_VEC): NULL;
   for (i = j = 1; i < l; i++)
   {
-    GEN d = gel(D,i);
-    GEN x = qfbsolve1_primitive_i(Q, dQ, rdQ, &Qr, famat_divsqr(fa, gel(d,2)));
-    if (x) return gerepilecopy(av, i == 1? x: RgV_Rg_mul(x, gel(d,1)));
-  }
-  set_avma(av); return cgetg(1, t_VEC);
-}
-static GEN
-qfbsolve_all(GEN Q, GEN n)
-{
-  pari_sp av = avma;
-  GEN W, fa, dQ, rdQ, Qr = NULL, D = qfbsolve_divisors(n, &fa);
-  long i, j, l = lg(D);
-  qfb_initrd(Q, &dQ, &rdQ);
-  W = cgetg(l, t_VEC);
-  for (i = j = 1; i < l; i++)
-  {
-    GEN d = gel(D,i);
-    GEN w = qfbsolve_primitive_i(Q, dQ, rdQ, &Qr, famat_divsqr(fa, gel(d,2)));
-    if (w) gel(W,j++) = i == 1? w: RgV_Rg_mul(w, gel(d,1));
+    GEN d = gel(D,i), FA = famat_divsqr(fa, gel(d,2));
+    GEN w = all? qfbsolve_primitive_i(Q, dQ, rdQ, &Qr, FA)
+               : qfbsolve1_primitive_i(Q, dQ, rdQ, &Qr, FA);
+    if (w)
+    {
+      if (i != 1) w = RgV_Rg_mul(w, gel(d,1));
+      if (!all) return gerepilecopy(av, w);
+      gel(W,j++) = w;
+    }
   }
   if (j == 1) { set_avma(av); return cgetg(1, t_VEC); }
   setlg(W,j); return gerepilecopy(av, shallowconcat1(W));
@@ -1597,10 +1575,10 @@ qfbsolve(GEN Q, GEN n, long fl)
   if (!is_qfb_t(typ(Q))) pari_err_TYPE("qfbsolve",Q);
   switch(fl)
   {
-    case 3: return qfbsolve_all(Q, n);
-    case 2: return qfbsolve1_all(Q, n);
-    case 1: return qfbsolve_primitive(Q, n);
-    case 0: return qfbsolve1_primitive(Q, n);
+    case 3: return qfbsolve_all(Q, n, 1);
+    case 2: return qfbsolve_all(Q, n, 0);
+    case 1: return qfbsolve_primitive(Q, n, 1);
+    case 0: return qfbsolve_primitive(Q, n, 0);
     default: pari_err_FLAG("qfbsolve"); return NULL;
   }
 }
