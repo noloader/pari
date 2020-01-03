@@ -313,11 +313,7 @@ gammafactor(GEN Vga)
     GEN a = gel(Vga,i), qr = gdiventres(real_i(a), gen_2);
     long q = itos(gel(qr,1));
     gel(F,i) = gadd(gel(qr,2), imag_i(a));
-    if (q)
-    {
-      pol = gmul(pol, gammafrac(gel(F,i), q));
-      pi += q;
-    }
+    if (q) { pol = gmul(pol, gammafrac(gel(F,i), q)); pi += q; }
   }
   E = RgV_count(&F); l = lg(E);
   R = cgetg(l, t_VEC);
