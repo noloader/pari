@@ -4060,7 +4060,7 @@ GEN     lfunan(GEN ldata, long L, long prec);
 GEN     lfunhardy(GEN ldata, GEN t, long bitprec);
 GEN     lfuninit(GEN ldata, GEN dom, long der, long bitprec);
 GEN     lfuninit0(GEN ldata, GEN dom, long der, long bitprec);
-GEN     lfuninit_make(long t, GEN ldata, GEN molin, GEN domain);
+GEN     lfuninit_make(long t, GEN ldata, GEN tech, GEN domain);
 GEN     lfunlambda(GEN ldata, GEN s, long bitprec);
 GEN     lfunlambda0(GEN ldata, GEN s, long der, long bitprec);
 GEN     lfunmisc_to_ldata(GEN ldata);

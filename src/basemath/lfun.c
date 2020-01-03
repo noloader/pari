@@ -1339,7 +1339,7 @@ ginvsqrtvec(GEN x, long prec)
 }
 
 GEN
-lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
+lfuninit_make(long t, GEN ldata, GEN tech, GEN domain)
 {
   GEN Vga = ldata_get_gammavec(ldata);
   long d = lg(Vga)-1;
@@ -1352,7 +1352,7 @@ lfuninit_make(long t, GEN ldata, GEN molin, GEN domain)
     if (!isint1(eno)) w2 = ginvsqrtvec(eno, prec);
   }
   hardy = mkvec4(k2, w2, expot, gammafactor(Vga));
-  return mkvec3(mkvecsmall(t),ldata, mkvec3(domain, molin, hardy));
+  return mkvec3(mkvecsmall(t),ldata, mkvec3(domain, tech, hardy));
 }
 
 static void
@@ -1482,7 +1482,7 @@ GEN
 lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
 {
   pari_sp ltop = avma;
-  GEN poqk, AB, R, h, theta, ldata, eno, r, domain, molin, k;
+  GEN poqk, AB, R, h, theta, ldata, eno, r, domain, tech, k;
   struct lfunp S;
 
   if (is_linit(lmisc))
@@ -1544,9 +1544,9 @@ lfuninit(GEN lmisc, GEN dom, long der, long bitprec)
   }
   else
     AB = lfuninit_pol(AB, poqk, S.precmax);
-  molin = mkvec3(h, AB, R);
+  tech = mkvec3(h, AB, R);
   domain = mkvec2(dom, mkvecsmall2(der, bitprec));
-  return gerepilecopy(ltop, lfuninit_make(t_LDESC_INIT, ldata, molin, domain));
+  return gerepilecopy(ltop, lfuninit_make(t_LDESC_INIT, ldata, tech, domain));
 }
 
 GEN
