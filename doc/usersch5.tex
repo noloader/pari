@@ -11775,11 +11775,10 @@ $i$-th component is a \typ{VECSMALL} containing the indices of the elements
 in $O$ having the same value. Applied to the image of a function evaluated on
 some finite set, it computes the fibers of the function.
 
-\fun{GEN}{RgV_count}{GEN O} given a vector of objects $O$, return a vector
-with $n$ components where $n$ is the number of distinct objects in $O$. The
-$i$-th component is a \typ{VECSMALL} containing the indices of the elements
-in $O$ having the same value. Applied to the image of a function evaluated on
-some finite set, it computes the fibers of the function.
+\fun{GEN}{RgV_count}{GEN *pO} given a vector of objects $O = \kbd{*pO}$,
+return a \typ{VECSMALL} $E$ with $n$ components where $n$ is the number of
+distinct objects in $O$ and $E[i]$ is the multiplicity of object $O[i]$.
+Replace \kbd{*O} by the set of distinct objects. Shallow function.
 
 \fun{GEN}{sort_factor}{GEN y, void *data, int (*cmp)(void *,GEN,GEN)}:
 assuming \kbd{y} is a factorization matrix, sorts its rows in place (no copy
