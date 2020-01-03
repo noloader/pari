@@ -1343,7 +1343,7 @@ lfuninit_make(long t, GEN ldata, GEN tech, GEN domain)
 {
   GEN Vga = ldata_get_gammavec(ldata);
   long d = lg(Vga)-1;
-  GEN hardy, w2 = gen_1, k2 = gmul2n(ldata_get_k(ldata), -1);
+  GEN w2 = gen_1, k2 = gmul2n(ldata_get_k(ldata), -1);
   GEN expot = gdivgs(gadd(gmulsg(d, gsubgs(k2, 1)), sumVga(Vga)), 4);
   if (typ(ldata_get_dual(ldata))==t_INT)
   {
@@ -1351,8 +1351,8 @@ lfuninit_make(long t, GEN ldata, GEN tech, GEN domain)
     long prec = nbits2prec( domain_get_bitprec(domain) );
     if (!isint1(eno)) w2 = ginvsqrtvec(eno, prec);
   }
-  hardy = mkvec4(k2, w2, expot, gammafactor(Vga));
-  return mkvec3(mkvecsmall(t),ldata, mkvec3(domain, tech, hardy));
+  tech = mkvec3(domain, tech, mkvec4(k2, w2, expot, gammafactor(Vga)));
+  return mkvec3(mkvecsmall(t), ldata, tech);
 }
 
 static void
