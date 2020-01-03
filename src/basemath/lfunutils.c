@@ -188,30 +188,27 @@ static GEN
 deg1ser_shallow(GEN a1, GEN a0, long e)
 { return RgX_to_ser(deg1pol_shallow(a1, a0, 0), e+2); }
 static GEN
+residuetopoles(GEN r, GEN k)
+{
+  if (!is_vec_t(typ(r))) r = mkvec(mkvec2(k, r));
+  return lfunrtopoles(r);
+}
+static GEN
 lfunmulpoles(GEN ldata1, GEN ldata2, long bitprec)
 {
-  long l, j;
   GEN k = ldata_get_k(ldata1);
   GEN r1 = ldata_get_residue(ldata1);
   GEN r2 = ldata_get_residue(ldata2), r;
+  long l, j;
 
-  if (r1 && !is_vec_t(typ(r1))) r1 = mkvec(mkvec2(k, r1));
-  if (r2 && !is_vec_t(typ(r2))) r2 = mkvec(mkvec2(k, r2));
-  if (!r1)
-  {
-    if (!r2) return NULL;
-    r1 = lfunrtopoles(r2);
-  }
-  else
-  {
-    r1 = lfunrtopoles(r1);
-    if (r2) r1 = setunion_i(r1, lfunrtopoles(r2));
-  }
-  l = lg(r1); if (l == 1) return NULL;
-  r = cgetg(l, t_VEC);
+  if (!r1 && !r2) return NULL;
+  if (r1) r1 = residuetopoles(r1, k);
+  if (r2) r2 = residuetopoles(r2, k);
+  r = r1? (r2? setunion_i(r1, r2): r1): r2;
+  l = lg(r); if (l == 1) return NULL;
   for (j = 1; j < l; j++)
   {
-    GEN be = gel(r1,j), bx = deg1ser_shallow(gen_1, be, 2);
+    GEN be = gel(r,j), bx = deg1ser_shallow(gen_1, be, 2);
     GEN z1 = lfun(ldata1,bx,bitprec), z2 = lfun(ldata2,bx,bitprec);
     long e = valp(z1) + valp(z2);
     GEN b = deg1ser_shallow(gen_1, be, 2-e);
