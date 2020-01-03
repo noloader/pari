@@ -2552,6 +2552,8 @@ GEN     zncoppersmith(GEN P0, GEN N, GEN X, GEN B) ;
 /* bibli2.c */
 
 GEN     QXQ_reverse(GEN a, GEN T);
+GEN     RgV_count(GEN *F);
+GEN     RgV_equiv(GEN F);
 GEN     RgV_polint(GEN X, GEN Y, long v);
 GEN     RgXQ_reverse(GEN a, GEN T);
 GEN     ZC_union_shallow(GEN x, GEN y);
@@ -2576,7 +2578,6 @@ GEN     polcyclo(long n, long v);
 GEN     polcyclo_eval(long n, GEN x);
 GEN     dirdiv(GEN x, GEN y);
 GEN     dirmul(GEN x, GEN y);
-GEN     equivclasses(GEN F);
 GEN     eulerianpol(long N, long v);
 GEN     gprec_wensure(GEN x, long pr);
 GEN     gen_indexsort(GEN x, void *E, int (*cmp)(void*,GEN,GEN));

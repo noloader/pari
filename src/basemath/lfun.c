@@ -282,80 +282,53 @@ gamma_C(GEN s, long prec)
 static GEN
 gammafrac(GEN r, long d)
 {
-  GEN pr, a = gmul2n(r, -1);
-  GEN polj = cgetg(labs(d)+1, t_COL);
-  long i, v=0;
+  long i, D = labs(d);
+  GEN T, v = cgetg(D+1, t_COL);
   if (d > 0)
-    for (i = 1; i <= d; ++i)
-      gel(polj, i) = deg1pol_shallow(ghalf, gaddgs(a, i-1), v);
+    for (i = 1; i <= D; ++i)
+      gel(v,i) = deg1pol_shallow(gen_1, gaddgs(r, 2*i-2), 0);
   else
-    for (i = 1; i <= -d; ++i)
-      gel(polj, i) = deg1pol_shallow(ghalf, gsubgs(a, i), v);
-  pr = RgV_prod(polj);
-  return d < 0 ? ginv(pr): pr;
+    for (i = 1; i <= D; ++i)
+      gel(v,i) = deg1pol_shallow(gen_1, gsubgs(r, 2*i), 0);
+  T = RgV_prod(v);
+  return d < 0 ? mkrfrac(int2n(D),T): gmul2n(T,-D);
 }
 
 static GEN
 gammafactor(GEN Vga)
 {
-  pari_sp av = avma;
-  long i, m, d = lg(Vga)-1, dr, dc;
-  GEN pol = pol_1(0), pi = gen_0, R = cgetg(d+1,t_VEC);
-  GEN P, F, FR, FC, E, ER, EC;
-  for (i = 1; i <= d; ++i)
+  long i, dr, dc, l = lg(Vga);
+  GEN pol = pol_1(0), pi = gen_0;
+  GEN R, P, FR, FC, E, ER, EC, F = cgetg(l, t_VEC);
+  for (i = 1; i < l; ++i)
   {
     GEN a = gel(Vga,i), qr = gdiventres(real_i(a), gen_2);
     long q = itos(gel(qr,1));
-    gel(R, i) = gadd(gel(qr,2), imag_i(a));
+    gel(F,i) = gadd(gel(qr,2), imag_i(a));
     if (q)
     {
-      pol = gmul(pol, gammafrac(gel(R,i), q));
+      pol = gmul(pol, gammafrac(gel(F,i), q));
       pi  = addis(pi, q);
     }
   }
-  gen_sort_inplace(R, (void*)cmp_universal, cmp_nodata, &P);
-  F = cgetg(d+1, t_VEC); E = cgetg(d+1, t_VECSMALL);
-  for (i = 1, m = 0; i <= d;)
-  {
-    long k;
-    GEN u = gel(R, i);
-    for(k = i + 1; k <= d; ++k)
-      if (cmp_universal(gel(R, k), u)) break;
-    m++;
-    E[m] = k - i;
-    gel(F, m) = u;
-    i = k;
-  }
-  setlg(F, m+1); setlg(E, m+1);
-  R = cgetg(m+1, t_VEC);
-  for (i = 1; i <= m; i++)
+  E = RgV_count(&F); l = lg(E);
+  R = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++)
   {
     GEN qr = gdiventres(gel(F,i), gen_1);
-    gel(R, i) = mkvec2(gel(qr,2), stoi(E[i]));
+    gel(R,i) = mkvec2(gel(qr,2), stoi(E[i]));
   }
   gen_sort_inplace(R, (void*)cmp_universal, cmp_nodata, &P);
-  FR = cgetg(m+1, t_VEC); ER = cgetg(m+1, t_VECSMALL);
-  FC = cgetg(m+1, t_VEC); EC = cgetg(m+1, t_VECSMALL);
-  for (i = 1, dr = 1, dc = 1; i <= m;)
-  {
-    if (i==m || cmp_universal(gel(R,i), gel(R,i+1)))
-    {
-      gel(FR, dr) = gel(F, P[i]);
-      ER[dr] = E[P[i]];
-      dr++; i++;
-    } else
-    {
-      if (gequal(gaddgs(gmael(R,i,1), 1), gmael(R,i+1,1)))
-        gel(FC, dc) = gel(F, P[i+1]);
-      else
-        gel(FC, dc) = gel(F, P[i]);
-      EC[dc] = E[P[i]];
-      dc++; i+=2;
-    }
-  }
+  FR = cgetg(l, t_VEC); ER = cgetg(l, t_VECSMALL);
+  FC = cgetg(l, t_VEC); EC = cgetg(l, t_VECSMALL);
+  for (i = dr = dc = 1; i < l;)
+    if (i==l-1 || cmp_universal(gel(R,i), gel(R,i+1)))
+    { gel(FR, dr) = gel(F, P[i]); ER[dr++] = E[P[i]]; i++; }
+    else
+    { gel(FC, dc) = gel(F, P[i]); EC[dc++] = E[P[i]]; i+=2; }
   setlg(FR, dr); setlg(ER, dr);
   setlg(FC, dc); setlg(EC, dc);
-  return gerepilecopy(av, mkvec4(pol, pi, mkvec2(FR,ER), mkvec2(FC,EC)));
+  return mkvec4(pol, pi, mkvec2(FR,ER), mkvec2(FC,EC));
 }
 
 static GEN

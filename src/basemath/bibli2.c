@@ -1761,7 +1761,7 @@ void
 ZV_sort_inplace(GEN L) { gen_sort_inplace(L, (void*)&cmpii, &cmp_nodata,NULL); }
 
 GEN
-equivclasses(GEN F)
+RgV_equiv(GEN F)
 {
   pari_sp av = avma;
   long j, k, L = lg(F);
@@ -1777,6 +1777,25 @@ equivclasses(GEN F)
     setlg(v, l); gel(w, k++) = v;
   }
   setlg(w, k); return gerepilecopy(av,w);
+}
+
+GEN
+RgV_count(GEN *pv)
+{
+  GEN E, F, v = *pv, P = gen_indexsort(v, (void*)cmp_universal, cmp_nodata);
+  long i, m, l = lg(v);
+  *pv = F = cgetg(l, t_VEC);
+  E = cgetg(l, t_VECSMALL);
+  for (i = m = 1; i < l;)
+  {
+    GEN u = gel(v, P[i]);
+    long k;
+    for(k = i + 1; k < l; k++)
+      if (cmp_universal(gel(v, P[k]), u)) break;
+    E[m] = k - i; gel(F, m) = u; i = k; m++;
+  }
+  setlg(F, m);
+  setlg(E, m); return E;
 }
 
 /********************************************************************/

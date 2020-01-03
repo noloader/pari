@@ -1468,7 +1468,7 @@ sortChars(GEN dataCR)
   long j, l = lg(dataCR);
   GEN F = cgetg(l, t_VEC);
   for (j = 1; j < l; j++) gel(F, j) = _cond(gel(dataCR,j));
-  return equivclasses(F);
+  return RgV_equiv(F);
 }
 
 /* Given W(chi), S(chi) and T(chi), return L(1, chi) if fl & 1, else
