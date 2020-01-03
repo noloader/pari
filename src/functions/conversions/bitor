@@ -14,5 +14,5 @@ Doc:
 
  See \secref{se:bitand} for the behavior for negative arguments.
 Variant: Also available is
- \fun{GEN}{ibitor}{GEN x, GEN y}, which returns the bitwise \emph{ir}
+ \fun{GEN}{ibitor}{GEN x, GEN y}, which returns the bitwise \emph{or}
  of $|x|$ and $|y|$, two integers.
