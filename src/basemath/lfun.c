@@ -251,6 +251,10 @@ serpole(GEN r)
   s[1] = evalsigne(1)|evalvalp(-1)|evalvarn(0);
   gel(s,2) = r; return s;
 }
+/* a0 +  a1 x + O(x^e), e >= 0 */
+static GEN
+deg1ser_shallow(GEN a1, GEN a0, long v, long e)
+{ return RgX_to_ser(deg1pol_shallow(a1, a0, v), e+2); }
 
 /* pi^(-s/2) Gamma(s/2) */
 static GEN
@@ -290,6 +294,16 @@ gammafrac(GEN r, long d)
   return d > 0? gmul2n(T, -d): mkrfrac(int2n(-d), T);
 }
 
+/*
+GR(s)=Pi^-(s/2)*gamma(s/2);
+GC(s)=2*(2*Pi)^-s*gamma(s)
+gdirect(F,s)=prod(i=1,#F,GR(s+F[i]))
+gfact(F,s)=
+{ my([P,p,R,C]=gammafactor(F), [FR,ER]=R, [FC,EC]=C);
+  subst(P,x,s) * Pi^-p * prod(i=1,#FR,GR(s+FR[i])^ER[i])
+                       * prod(i=1,#FC,GC(s+FC[i])^EC[i]);
+}
+*/
 static GEN
 gammafactor(GEN Vga)
 {
@@ -326,19 +340,6 @@ gammafactor(GEN Vga)
   setlg(FC, dc); setlg(EC, dc);
   return mkvec4(pol, pi, mkvec2(FR,ER), mkvec2(FC,EC));
 }
-
-static GEN
-deg1ser_shallow(GEN a1, GEN a0, long v, long e)
-{
-  return RgX_to_ser(deg1pol_shallow(a1, a0, v), e+2);
-}
-/*
-To test:
-GR(s)=Pi^-(s/2)*gamma(s/2);
-GC(s)=2*(2*Pi)^-s*gamma(s)
-gam_direct(F,s)=prod(i=1,#F,GR(s+F[i]))
-gam_fact(F,s)=my([P,p,R,C]=gammafactor(F));subst(P,x,s)*Pi^-p*prod(i=1,#R[1],GR(s+R[1][i])^R[2][i])*prod(i=1,#C[1],GC(s+C[1][i])^C[2][i])
-*/
 
 static GEN
 polgammaeval(GEN F, GEN s)
