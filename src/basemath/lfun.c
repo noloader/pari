@@ -290,8 +290,7 @@ gammafrac(GEN r, long d)
   GEN T, v = cgetg(l, t_COL);
   for (i = 1; i < l; i++, j += 2)
     gel(v,i) = deg1pol_shallow(gen_1, gaddgs(r, j), 0);
-  T = RgV_prod(v);
-  return d > 0? gmul2n(T, -d): mkrfrac(int2n(-d), T);
+  T = RgV_prod(v); return d > 0? T: mkrfrac(gen_1, T);
 }
 
 /*
@@ -300,16 +299,15 @@ GC(s)=2*(2*Pi)^-s*gamma(s)
 gdirect(F,s)=prod(i=1,#F,GR(s+F[i]))
 gfact(F,s)=
 { my([P,p,R,C]=gammafactor(F), [FR,ER]=R, [FC,EC]=C);
-  subst(P,x,s) * Pi^-p * prod(i=1,#FR,GR(s+FR[i])^ER[i])
-                       * prod(i=1,#FC,GC(s+FC[i])^EC[i]);
+  subst(P,x,s) * (2*Pi)^-p * prod(i=1,#FR,GR(s+FR[i])^ER[i])
+                           * prod(i=1,#FC,GC(s+FC[i])^EC[i]);
 }
 */
 static GEN
 gammafactor(GEN Vga)
 {
-  long i, dr, dc, l = lg(Vga);
-  GEN pol = pol_1(0), pi = gen_0;
-  GEN R, P, FR, FC, E, ER, EC, F = cgetg(l, t_VEC);
+  long i, dr, dc, pi = 0, l = lg(Vga);
+  GEN pol = pol_1(0), R, P, FR, FC, E, ER, EC, F = cgetg(l, t_VEC);
   for (i = 1; i < l; ++i)
   {
     GEN a = gel(Vga,i), qr = gdiventres(real_i(a), gen_2);
@@ -318,7 +316,7 @@ gammafactor(GEN Vga)
     if (q)
     {
       pol = gmul(pol, gammafrac(gel(F,i), q));
-      pi  = addis(pi, q);
+      pi += q;
     }
   }
   E = RgV_count(&F); l = lg(E);
@@ -338,7 +336,7 @@ gammafactor(GEN Vga)
     { gel(FC, dc) = gel(F, P[i]); EC[dc++] = E[P[i]]; i+=2; }
   setlg(FR, dr); setlg(ER, dr);
   setlg(FC, dc); setlg(EC, dc);
-  return mkvec4(pol, pi, mkvec2(FR,ER), mkvec2(FC,EC));
+  return mkvec4(pol, stoi(pi), mkvec2(FR,ER), mkvec2(FC,EC));
 }
 
 static GEN
@@ -352,7 +350,6 @@ polgammaeval(GEN F, GEN s)
   }
   return r;
 }
-
 static GEN
 fracgammaeval(GEN F, GEN s)
 {
@@ -368,7 +365,7 @@ gammafactproduct(GEN F, GEN s, long prec)
 {
   pari_sp av = avma;
   GEN P = fracgammaeval(gel(F,1), s);
-  GEN p = gpow(mppi(prec),gneg(gel(F,2)), prec), z = gmul(P, p);
+  GEN z = gmul(P, powrs(Pi2n(1,prec), - itos(gel(F,2))));
   GEN R = gel(F,3), Rw = gel(R,1), Re = gel(R,2);
   GEN C = gel(F,4), Cw = gel(C,1), Ce = gel(C,2);
   long i, lR = lg(Rw), lC = lg(Cw);
