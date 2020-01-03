@@ -1663,8 +1663,7 @@ get_domain(GEN s, GEN *dom, long *der)
   *dom = mkvec3(real_i(sa), gen_0, gabs(imag_i(sa),DEFAULTPREC));
   return s;
 }
-/* assume lmisc is an linit, s went through get_domain and s/bitprec belong
- * to domain */
+/* assume s went through get_domain and s/bitprec belong to domain */
 static GEN
 lfunlambda_OK(GEN linit, GEN s, GEN sdom, long bitprec)
 {
