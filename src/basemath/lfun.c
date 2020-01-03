@@ -282,16 +282,12 @@ gamma_C(GEN s, long prec)
 static GEN
 gammafrac(GEN r, long d)
 {
-  long i, D = labs(d);
-  GEN T, v = cgetg(D+1, t_COL);
-  if (d > 0)
-    for (i = 1; i <= D; ++i)
-      gel(v,i) = deg1pol_shallow(gen_1, gaddgs(r, 2*i-2), 0);
-  else
-    for (i = 1; i <= D; ++i)
-      gel(v,i) = deg1pol_shallow(gen_1, gsubgs(r, 2*i), 0);
+  long i, l = labs(d) + 1, j = (d > 0)? 0: 2*d;
+  GEN T, v = cgetg(l, t_COL);
+  for (i = 1; i < l; i++, j += 2)
+    gel(v,i) = deg1pol_shallow(gen_1, gaddgs(r, j), 0);
   T = RgV_prod(v);
-  return d < 0 ? mkrfrac(int2n(D),T): gmul2n(T,-D);
+  return d > 0? gmul2n(T, -d): mkrfrac(int2n(-d), T);
 }
 
 static GEN
