@@ -2304,8 +2304,13 @@ div_ser(GEN x, GEN y, long vx)
   z = cgetg(lx,t_SER); z[1] = evalvalp(v) | evalvarn(vx) | evalsigne(1);
   x = ser2pol_i(x, lx);
   y = ser2pol_ii(y, lx, z[1] & ~VALPBITS);
-  y = RgXn_mul(x, RgXn_inv_i(y, lx-2), lx-2); /* FIXME: use Karp/Markstein */
-  return gerepilecopy(av, fill_ser(z,y));
+  if (lx == 3) gel(z,2) = gdiv(gel(x,2), gel(y,2));
+  else
+  { /* FIXME: use Karp/Markstein */
+    y = RgXn_mul(x, RgXn_inv_i(y, lx-2), lx-2);
+    z = fill_ser(z,y);
+  }
+  return gerepilecopy(av, z);
 }
 /* x,y compatible PADIC */
 static GEN
