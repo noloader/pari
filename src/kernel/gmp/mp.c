@@ -735,7 +735,7 @@ divrr(GEN x, GEN y)
       k >>= 1;
     }
     hiremainder = k; k = divll(l,y[2]);
-    if (hiremainder & HIGHBIT)
+    if (hiremainder > (uel(y,2) >> 1))
     {
       k++;
       if (!k) { k = HIGHBIT; e++; }
