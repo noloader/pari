@@ -650,11 +650,7 @@ divrr(GEN x, GEN y)
       k >>= 1;
     }
     hiremainder = k; k = divll(l,y[2]);
-    if (hiremainder & HIGHBIT)
-    {
-      k++;
-      if (!k) { k = HIGHBIT; e++; }
-    }
+    if (hiremainder > (uel(y,2) >> 1) && !++k) { k = HIGHBIT; e++; }
     r = cgetr(3);
     r[1] = evalsigne(sx) | evalexpo(e);
     r[2] = k; return r;
@@ -671,10 +667,7 @@ divrr(GEN x, GEN y)
     LOCAL_HIREMAINDER;
     LOCAL_OVERFLOW;
 
-    if (uel(r1,1) == y0)
-    {
-      qp = ULONG_MAX; k = addll(y0,r1[2]);
-    }
+    if (uel(r1,1) == y0) { qp = ULONG_MAX; k = addll(y0,r1[2]); }
     else
     {
       if (uel(r1,1) > y0) /* can't happen if i=0 */
