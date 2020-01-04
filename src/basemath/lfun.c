@@ -298,7 +298,7 @@ GR(s)=Pi^-(s/2)*gamma(s/2);
 GC(s)=2*(2*Pi)^-s*gamma(s)
 gdirect(F,s)=prod(i=1,#F,GR(s+F[i]))
 gfact(F,s)=
-{ my([P,p,R,C]=gammafactor(F), [FR,ER]=R, [FC,EC]=C);
+{ my([P,R,C]=gammafactor(F), [FR,ER]=R, [FC,EC]=C, p=poldegree(P));
   subst(P,x,s) * (2*Pi)^-p * prod(i=1,#FR,GR(s+FR[i])^ER[i])
                            * prod(i=1,#FC,GC(s+FC[i])^EC[i]);
 }
@@ -306,14 +306,14 @@ gfact(F,s)=
 static GEN
 gammafactor(GEN Vga)
 {
-  long i, dr, dc, pi = 0, l = lg(Vga);
+  long i, dr, dc, l = lg(Vga);
   GEN pol = pol_1(0), R, P, FR, FC, E, ER, EC, F = cgetg(l, t_VEC);
   for (i = 1; i < l; ++i)
   {
     GEN a = gel(Vga,i), qr = gdiventres(real_i(a), gen_2);
     long q = itos(gel(qr,1));
     gel(F,i) = gadd(gel(qr,2), imag_i(a));
-    if (q) { pol = gmul(pol, gammafrac(gel(F,i), q)); pi += q; }
+    if (q) pol = gmul(pol, gammafrac(gel(F,i), q));
   }
   E = RgV_count(&F); l = lg(E);
   R = cgetg(l, t_VEC);
@@ -332,7 +332,7 @@ gammafactor(GEN Vga)
     { gel(FC, dc) = gel(F, P[i]); EC[dc++] = E[P[i]]; i+=2; }
   setlg(FR, dr); setlg(ER, dr);
   setlg(FC, dc); setlg(EC, dc);
-  return mkvec4(pol, stoi(pi), mkvec2(FR,ER), mkvec2(FC,EC));
+  return mkvec3(pol, mkvec2(FR,ER), mkvec2(FC,EC));
 }
 
 static GEN
@@ -360,11 +360,11 @@ static GEN
 gammafactproduct(GEN F, GEN s, long prec)
 {
   pari_sp av = avma;
-  GEN z, P = fracgammaeval(gel(F,1), s);
-  GEN R = gel(F,3), Rw = gel(R,1), Re = gel(R,2);
-  GEN C = gel(F,4), Cw = gel(C,1), Ce = gel(C,2);
-  long i, pi = itos(gel(F,2)), lR = lg(Rw), lC = lg(Cw);
-  z = pi? gmul(P, powrs(Pi2n(1,prec), - pi)): gen_1;
+  GEN R = gel(F,2), Rw = gel(R,1), Re = gel(R,2);
+  GEN C = gel(F,3), Cw = gel(C,1), Ce = gel(C,2), P = gel(F,1), z;
+  long i, pi = poldegree(P,-1), lR = lg(Rw), lC = lg(Cw);
+
+  z = pi? gmul(fracgammaeval(P, s), powrs(Pi2n(1,prec), - pi)): gen_1;
   for (i = 1; i < lR; i++)
     z = gmul(z, gpowgs(gamma_R(gadd(s,gel(Rw, i)), prec), Re[i]));
   for (i = 1; i < lC; i++)
