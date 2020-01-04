@@ -300,8 +300,7 @@ gdirect(F,s)=prod(i=1,#F,GR(s+F[i]))
 gfact(F,s)=
 { my([P,R,C]=gammafactor(F), [FR,ER]=R, [FC,EC]=C, p=poldegree(P));
   subst(P,x,s) * (2*Pi)^-p * prod(i=1,#FR,GR(s+FR[i])^ER[i])
-                           * prod(i=1,#FC,GC(s+FC[i])^EC[i]);
-}
+                           * prod(i=1,#FC,GC(s+FC[i])^EC[i]); }
 */
 static GEN
 gammafactor(GEN Vga)
