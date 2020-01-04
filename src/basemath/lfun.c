@@ -298,61 +298,77 @@ GR(s)=Pi^-(s/2)*gamma(s/2);
 GC(s)=2*(2*Pi)^-s*gamma(s)
 gdirect(F,s)=prod(i=1,#F,GR(s+F[i]))
 gfact(F,s)=
-{ my([P,R,C]=gammafactor(F), [FR,ER]=R, [FC,EC]=C, p=poldegree(P));
-  subst(P,x,s) * (2*Pi)^-p * prod(i=1,#FR,GR(s+FR[i])^ER[i])
-                           * prod(i=1,#FC,GC(s+FC[i])^EC[i]); }
+{ my([R,A,B]=gammafactor(F), [a,e]=A, [b,f]=B, p=poldegree(R));
+  subst(R,x,s) * (2*Pi)^-p * prod(i=1,#a,GR(s+a[i])^e[i])
+                           * prod(i=1,#b,GC(s+b[i])^f[i]); }
 */
 static GEN
 gammafactor(GEN Vga)
 {
-  long i, dr, dc, l = lg(Vga);
-  GEN pol = pol_1(0), R, P, FR, FC, E, ER, EC, F = cgetg(l, t_VEC);
+  long i, r, c, l = lg(Vga);
+  GEN v, P, a, b, e, f, E, F = cgetg(l, t_VEC), R = gen_1;
   for (i = 1; i < l; ++i)
   {
-    GEN a = gel(Vga,i), qr = gdiventres(real_i(a), gen_2);
-    long q = itos(gel(qr,1));
-    gel(F,i) = gadd(gel(qr,2), imag_i(a));
-    if (q) pol = gmul(pol, gammafrac(gel(F,i), q));
+    GEN a = gel(Vga,i), r = gmul2n(real_i(a), -1);
+    long q = itos(gfloor(r)); /* [Re a/2] */
+    r = gmul2n(gsubgs(r, q), 1);
+    gel(F,i) = gadd(r, imag_i(a)); /* 2{Re a/2} + Im a/2 */
+    if (q) R = gmul(R, gammafrac(gel(F,i), q));
   }
   E = RgV_count(&F); l = lg(E);
-  R = cgetg(l, t_VEC);
-  for (i = 1; i < l; i++)
-  {
-    GEN qr = gdiventres(gel(F,i), gen_1);
-    gel(R,i) = mkvec2(gel(qr,2), stoi(E[i]));
-  }
-  gen_sort_inplace(R, (void*)cmp_universal, cmp_nodata, &P);
-  FR = cgetg(l, t_VEC); ER = cgetg(l, t_VECSMALL);
-  FC = cgetg(l, t_VEC); EC = cgetg(l, t_VECSMALL);
-  for (i = dr = dc = 1; i < l;)
-    if (i==l-1 || cmp_universal(gel(R,i), gel(R,i+1)))
-    { gel(FR, dr) = gel(F, P[i]); ER[dr++] = E[P[i]]; i++; }
+  v = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(v,i) = mkvec2(gfrac(gel(F,i)), stoi(E[i]));
+  gen_sort_inplace(v, (void*)cmp_universal, cmp_nodata, &P);
+  a = cgetg(l, t_VEC); e = cgetg(l, t_VECSMALL);
+  b = cgetg(l, t_VEC); f = cgetg(l, t_VECSMALL);
+  for (i = r = c = 1; i < l;)
+    if (i==l-1 || cmp_universal(gel(v,i), gel(v,i+1)))
+    { gel(a, r) = gel(F, P[i]); e[r++] = E[P[i]]; i++; }
     else
-    { gel(FC, dc) = gel(F, P[i]); EC[dc++] = E[P[i]]; i+=2; }
-  setlg(FR, dr); setlg(ER, dr);
-  setlg(FC, dc); setlg(EC, dc);
-  return mkvec3(pol, mkvec2(FR,ER), mkvec2(FC,EC));
+    { gel(b, c) = gel(F, P[i]); f[c++] = E[P[i]]; i+=2; }
+  setlg(a, r); setlg(e, r);
+  setlg(b, c); setlg(f, c); return mkvec3(R, mkvec2(a,e), mkvec2(b,f));
 }
 
 static GEN
 polgammaeval(GEN F, GEN s)
 {
   GEN r = poleval(F, s);
-  if (typ(s)!=t_SER && gequal0(r))
-  {
-    long e = gvaluation(F, deg1pol(gen_1, gneg(s), varn(F)));
-    r = poleval(F, deg1ser_shallow(gen_1, s, 0, e+1));
+  if (typ(s) != t_SER && gequal0(r))
+  { /* here typ(F) = t_POL */
+    long e;
+    for (e = 1;; e++)
+    {
+      F = RgX_deriv(F); r = poleval(F,s);
+      if (!gequal0(r)) break;
+    }
+    if (e > 1) r = gdiv(r, mpfact(e));
+    r = serpole(r); setvalp(r, e);
   }
   return r;
 }
-static GEN
-fracgammaeval(GEN F, GEN s)
+static long
+rfrac_degree(GEN R)
 {
-  if (typ(F)==t_POL)
-    return polgammaeval(F, s);
-  else if (typ(F)==t_RFRAC)
-    return gdiv(polgammaeval(gel(F,1), s), polgammaeval(gel(F,2), s));
-  return F;
+  GEN a = gel(R,1), b = gel(R,2);
+  return ((typ(a) == t_POL)? degpol(a): 0) - degpol(b);
+}
+static GEN
+fracgammaeval(GEN F, GEN s, long prec)
+{
+  GEN R = gel(F,1);
+  long d;
+  switch(typ(R))
+  {
+    case t_POL:
+      d = degpol(R);
+      R = polgammaeval(R, s); break;
+    case t_RFRAC:
+      d = rfrac_degree(R);
+      R = gdiv(polgammaeval(gel(R,1), s), polgammaeval(gel(R,2), s)); break;
+    default: return R;
+  }
+  return gmul(R, powrs(Pi2n(1,prec), -d));
 }
 
 static GEN
@@ -360,10 +376,8 @@ gammafactproduct(GEN F, GEN s, long prec)
 {
   pari_sp av = avma;
   GEN R = gel(F,2), Rw = gel(R,1), Re = gel(R,2);
-  GEN C = gel(F,3), Cw = gel(C,1), Ce = gel(C,2), P = gel(F,1), z;
-  long i, pi = poldegree(P,-1), lR = lg(Rw), lC = lg(Cw);
-
-  z = pi? gmul(fracgammaeval(P, s), powrs(Pi2n(1,prec), - pi)): gen_1;
+  GEN C = gel(F,3), Cw = gel(C,1), Ce = gel(C,2), z = fracgammaeval(F, s, prec);
+  long i, lR = lg(Rw), lC = lg(Cw);
   for (i = 1; i < lR; i++)
     z = gmul(z, gpowgs(gamma_R(gadd(s,gel(Rw, i)), prec), Re[i]));
   for (i = 1; i < lC; i++)

@@ -264,6 +264,8 @@ lfuncheckfeq(L)
 lfuncheckfeq(lfunshift(L,1))
 localbitprec(64);lfuncheckfeq(lfunshift(L,1,1))
 
+L=lfunshift(1,4); lfun(L,2)
+
 \\ residue 2*Pi/sqrt(23) at 1
 L=lfunqf([2,1;1,12]);
 L=lfuninit(L,[1/2,20],1);
