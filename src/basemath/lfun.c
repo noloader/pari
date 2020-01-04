@@ -360,11 +360,11 @@ static GEN
 gammafactproduct(GEN F, GEN s, long prec)
 {
   pari_sp av = avma;
-  GEN P = fracgammaeval(gel(F,1), s);
-  GEN z = gmul(P, powrs(Pi2n(1,prec), - itos(gel(F,2))));
+  GEN z, P = fracgammaeval(gel(F,1), s);
   GEN R = gel(F,3), Rw = gel(R,1), Re = gel(R,2);
   GEN C = gel(F,4), Cw = gel(C,1), Ce = gel(C,2);
-  long i, lR = lg(Rw), lC = lg(Cw);
+  long i, pi = itos(gel(F,2)), lR = lg(Rw), lC = lg(Cw);
+  z = pi? gmul(P, powrs(Pi2n(1,prec), - pi)): gen_1;
   for (i = 1; i < lR; i++)
     z = gmul(z, gpowgs(gamma_R(gadd(s,gel(Rw, i)), prec), Re[i]));
   for (i = 1; i < lC; i++)
