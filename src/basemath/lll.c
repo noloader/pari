@@ -536,21 +536,17 @@ GEN
 ZM_lll_norms(GEN x, double DELTA, long flag, GEN *B)
 {
   pari_sp ltop = avma;
-  const long compat = flag & LLL_COMPATIBLE;
   const double ETA = 0.51;
   long p, n = lg(x)-1;
   GEN U;
   if (n <= 1) return lll_trivial(x, flag);
   x = RgM_shallowcopy(x);
   U = (flag & LLL_INPLACE)? NULL: matid(n);
-  for (p = compat? DEFAULTPREC: LOWDEFAULTPREC;;)
+  for (p = DEFAULTPREC;;)
   {
     GEN m = fplll(&x, &U, B, DELTA, ETA, flag, p);
     if (m) return m;
-    if (compat)
-      p += DEFAULTPREC-2;
-    else
-      incrprec(p);
+    p += DEFAULTPREC-2;
     gerepileall(ltop, U? 2: 1, &x, &U);
   }
 }

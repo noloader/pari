@@ -1666,7 +1666,7 @@ get_red_G(nfmaxord_t *S, GEN *pro)
     if (DEBUGLEVEL)
       err_printf("get_red_G: starting LLL, prec = %ld (%ld + %ld)\n",
                   prec + F.extraprec, prec, F.extraprec);
-    if ((u = lllfp(G, 0.99, LLL_KEEP_FIRST|LLL_COMPATIBLE)))
+    if ((u = lllfp(G, 0.99, LLL_KEEP_FIRST)))
     {
       if (lg(u)-1 == n) break;
       /* singular ==> loss of accuracy */
@@ -1691,8 +1691,7 @@ set_LLL_basis(nfmaxord_t *S, GEN *pro, double DELTA)
   if (!S->basden) S->basden = get_bas_den(B);
   if (S->r1 == degpol(S->T)) {
     pari_sp av = avma;
-    GEN u = ZM_lll(make_Tr(S), DELTA,
-                   LLL_GRAM|LLL_KEEP_FIRST|LLL_IM|LLL_COMPATIBLE);
+    GEN u = ZM_lll(make_Tr(S), DELTA, LLL_GRAM|LLL_KEEP_FIRST|LLL_IM);
     B = gerepileupto(av, RgV_RgM_mul(B, u));
     *pro = NULL;
   }
