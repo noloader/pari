@@ -4,7 +4,7 @@ count = 0;
 do(nf,f = 1, H = 0, flag = 0) =
 { my(K = bnfinit(nf));
   setrand(1); print(count++); f=liftpol(bnrclassfield(bnrinit(K,f), H, flag));
-  if (setsearch([16,18],count), #Str(f) <= 330, f);
+  if (setsearch([16],count), #Str(f) <= 330, f);
 }
 
 do(y^2+6) \\1

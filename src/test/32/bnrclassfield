@@ -52,7 +52,8 @@ y - 3832)*x^7 + (1576*y - 2336)*x^6 + (1676*y + 18012)*x^5 + (1422*y + 63081
 )*x^4 + (-782*y + 71706)*x^3 + (-2351*y + 46153)*x^2 + (-2488*y + 45164)*x +
  (-1218*y + 22379)]
 18
-1
+[x^3 + 6*x + 4*y, x^3 + (-2697*y + 43455)*x + (-10110193*y - 5957745724), x^
+4 - 4*y*x^3 - 5853*x^2 + 3912*y*x + 955616]
 19
 [x^2 + 3, x^4 + 5*x^2 + 5]
 20
@@ -242,4 +243,4 @@ bad inputs
   ***   at top-level: bnrclassfield(bnfinit(x))
   ***                 ^-------------------------
   *** bnrclassfield: incorrect priority in bnrclassfield: variable x = x
-Total time spent: 3528
+Total time spent: 3235
