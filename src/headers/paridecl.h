@@ -104,6 +104,7 @@ ulong   F2v_dotproduct(GEN x, GEN y);
 int     F2v_equal0(GEN a);
 ulong   F2v_hamming(GEN H);
 void    F2v_negimply_inplace(GEN x, GEN y);
+void    F2v_or_inplace(GEN x, GEN y);
 GEN     F2v_slice(GEN x, long a, long b);
 GEN     F2v_to_Flv(GEN x);
 GEN     matid_F2m(long n);
