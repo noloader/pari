@@ -23,6 +23,7 @@ polrootsreal(1)
 polrootsreal(0)
 polrootsreal(Pol(0))
 polrootsreal(Mod(1,2))
+polrootsreal(x+0.) \\ #2196
 
 polroots(T*x+0.)
 polroots(1)

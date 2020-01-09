@@ -63,6 +63,7 @@ JR  44- polylog(-m, tiny z): catastrophic cancellation, e.g. polylog(-100,.5)
     46- Mod(1,5) * O(x) -> O(x) [instead of Mod(0,5) + O(x)]
     47- lfuninit: lfunrootres calls too expensive if rootno and polar part known
     48- incorrect rounding in divrr(realprec = 3)
+    49- polrootsreal(x+0.) -> SEGV
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

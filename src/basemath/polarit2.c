@@ -2178,8 +2178,7 @@ rescale_init(GEN c, int *exact, long *emin, GEN *D)
   {
     case t_REAL:
       *exact = 0;
-      if (!signe(c)) return;
-      e = expo(c) - bit_prec(c);
+      e = signe(c)? expo(c) - bit_prec(c): expo(c);
       break;
     case t_INT:
       if (!signe(c)) return;
