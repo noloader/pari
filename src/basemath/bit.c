@@ -168,26 +168,22 @@ fromdigits_2k(GEN x, long k)
   m = expi(gel(x, 1)) + 1;
   z = cgetipos(nbits2lg(k * (l - 1) + m));
   w = int_LSW(z);
-  if (!(k & (BITS_IN_LONG - 1))) {
+  if (!(k & (BITS_IN_LONG - 1)))
+  {
     long i, j, t = k >> TWOPOTBITS_IN_LONG;
-    for (; l; l--) {
+    for (; l; l--)
+    {
       j = lgefint(gel(x, l)) - 2;
       y = int_LSW(gel(x, l));
-      for (i = 0; i < j; i++) {
-        *w = *y;
-        y = int_nextW(y);
-        w = int_nextW(w);
-      }
-      for (; i < t; i++) {
-        *w = 0;
-        w = int_nextW(w);
-      }
+      for (i = 0; i < j; i++, y = int_nextW(y), w = int_nextW(w)) *w = *y;
+      if (l > 1) for (; i < t; i++, w = int_nextW(w)) *w = 0;
     }
-  } else {
+  }
+  else
+  {
     long r = 0;
-    for (; l > 1; l--)
-      int_set_int(gel(x, l), k, &w, &r);
-    int_set_int(gel(x, 1), m, &w, &r);
+    for (; l > 1; l--) int_set_int(gel(x, l), k, &w, &r);
+    int_set_int(gel(x,1), m, &w, &r);
   }
   return int_normalize(z, 0);
 }
