@@ -3,7 +3,7 @@ Section: programming/specific
 C-Name: listsort
 Prototype: vWD0,L,
 Help: listsort(~L,{flag=0}): sort the list L in place. If flag is non-zero,
- suppress all but one occurence of each element in list.
+ suppress all but one occurrence of each element in list.
 Doc: sorts the \typ{LIST} \var{list} in place, with respect to the (somewhat
  arbitrary) universal comparison function \tet{cmp}. In particular, the
  ordering is the same as for sets and \tet{setsearch} can be used on a sorted

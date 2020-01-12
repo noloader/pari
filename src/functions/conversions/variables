@@ -2,10 +2,10 @@ Function: variables
 Section: conversions
 C-Name: variables_vec
 Prototype: DG
-Help: variables({x}): all variables occuring in object x, sorted by
+Help: variables({x}): all variables occurring in object x, sorted by
  decreasing priority. Returns the list of user variables if x is omitted.
 Doc:
- returns the list of all variables occuring in object $x$ (all user
+ returns the list of all variables occurring in object $x$ (all user
  variables known to the interpreter if $x$ is omitted), sorted by
  decreasing priority.
  \bprog

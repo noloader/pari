@@ -206,7 +206,7 @@ functions, see doc/refcard*.dvi or http://pari.math.u-bordeaux.fr/doc#refcard
 
     Functions varhigher() and varlower() allow to define
     variables of arbitrary priority independently of the session history;
-    variables() returns the list of variables occuring in an object:
+    variables() returns the list of variables occurring in an object:
      ? variable(x + y*z / t)
      %1 = x
      ? variables(x + y*z / t)

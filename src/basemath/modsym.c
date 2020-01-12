@@ -304,7 +304,7 @@ Fl_inverse(ulong a, ulong N) { ulong g; return Fl_invgen(a,N,&g); }
  *   symbols: list of vectors [x,y] that give a set of representatives
  *            of P^1(Z/NZ)
  *   H: an M by M grid whose value at the r,c-th place is the index of the
- *      "standard representative" equivalent to [r,c] occuring in the first
+ *      "standard representative" equivalent to [r,c] occurring in the first
  *      list. If gcd(r,c,N) > 1 the grid has value 0. */
 static GEN
 create_p1mod(ulong N)
@@ -414,7 +414,6 @@ mfnumcusps(GEN n)
   }
   return gerepileuptoint(av, mfnumcusps_fact(F));
 }
-
 
 /* to each cusp in \Gamma_0(N) P1(Q), represented by p/q, we associate a
  * unique index. Canonical representative: (1:0) or (p:q) with q | N, q < N,
