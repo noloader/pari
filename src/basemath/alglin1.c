@@ -1748,7 +1748,7 @@ FpM_invimage(GEN A, GEN B, GEN p)
     y = F2m_to_ZM(y);
     return gerepileupto(av, y);
   default:
-    y = Flm_invimage(A, ZM_to_Flm(B, pp), pp);
+    y = Flm_invimage_i(A, ZM_to_Flm(B, pp), pp);
     if (!y) return gc_NULL(av);
     y = Flm_to_ZM(y);
     return gerepileupto(av, y);
