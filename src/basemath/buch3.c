@@ -1360,7 +1360,7 @@ imageofgroup(GEN bnr, GEN bnr2, GEN H)
   return ZM_hnfmodid(H2, cyc2); /* s(H) in Cl_n */
 }
 GEN
-bnrcharimage(GEN bnr, GEN bnrc, GEN chi)
+bnrchar_primitive_raw(GEN bnr, GEN bnrc, GEN chi)
 {
   GEN nchi = char_normalize(chi, cyc_normalize(bnr_get_cyc(bnr)));
   GEN DC = bnrchar_primitive(bnr, nchi, bnrc);
@@ -1491,7 +1491,7 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
     long flag = lg(bnr_get_clgp(bnr)) == 4? nf_INIT | nf_GEN: nf_INIT;
     bnrc = Buchray_i(bnr, cond, flag);
     if (ischi)
-      H = bnrcharimage(bnr, bnrc, H0);
+      H = bnrchar_primitive_raw(bnr, bnrc, H0);
     else
       H = imageofgroup(bnr, bnrc, H);
   }

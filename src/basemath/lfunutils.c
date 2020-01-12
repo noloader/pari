@@ -827,7 +827,7 @@ lfunchigen(GEN bnr, GEN CHI)
         C = gel(CHI,i);
         if (!gequal(bnrconductor_i(bnr0, C, 0), N))
           pari_err_TYPE("lfuncreate [different conductors]", CHI);
-        if (map) C = bnrcharimage(bnr0, bnr, C);
+        if (map) C = bnrchar_primitive_raw(bnr0, bnr, C);
       }
       C = char_normalize(C, D);
       o = lcmii(o, gel(C,1)); /* lcm with charorder */
