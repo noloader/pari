@@ -184,6 +184,7 @@ BA  63- [libpari] ZXX_evalx0, zx_z_divexact, zx_lval, upowers
     65- new GP function eulerianpol
 BA  66- [libpari] FlxX_translate1, zlx_translate1, zlxX_translate1
     67- [libpari] rfracrecip
+    68- [libpari] ZXQ_minpoly
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
