@@ -64,6 +64,7 @@ JR  44- polylog(-m, tiny z): catastrophic cancellation, e.g. polylog(-100,.5)
     47- lfuninit: lfunrootres calls too expensive if rootno and polar part known
     48- incorrect rounding in divrr(realprec = 3)
     49- polrootsreal(x+0.) -> SEGV
+DB  50- mspolygon(1,2): incorrect drawing
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
