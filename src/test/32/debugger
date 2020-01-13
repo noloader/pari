@@ -46,6 +46,15 @@ break> dbg_up(4)
   ***                    ^------------
 break> N
 20
+break> dbg_down(4)
+  ***   at top-level: fun(20)
+  ***                 ^-------
+  ***   in function fun: check(N^2+1)
+  ***                    ^------------
+  ***   in function check: ...i+step,N=p^2);if(i==halt,error("check:",N)))
+  ***                                                  ^-------------------
+break> N
+3721
 break> break
 
 ? f(N,x)=my(z=x^2+1);breakpoint();gcd(N,z^2+1-z);
