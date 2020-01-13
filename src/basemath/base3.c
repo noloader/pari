@@ -232,6 +232,42 @@ nfsub(GEN nf, GEN x, GEN y)
   return gerepileupto(av, z);
 }
 
+/* product of ZC x,y in nf; ( sum_i x_i sum_j y_j m^{i,j}_k )_k */
+static GEN
+nfmuli_ZC(GEN nf, GEN x, GEN y)
+{
+  long i, j, k, N;
+  GEN TAB = get_tab(nf, &N), v = cgetg(N+1,t_COL);
+
+  for (k = 1; k <= N; k++)
+  {
+    pari_sp av = avma;
+    GEN s, TABi = TAB;
+    if (k == 1)
+      s = mulii(gel(x,1),gel(y,1));
+    else
+      s = addii(mulii(gel(x,1),gel(y,k)),
+                mulii(gel(x,k),gel(y,1)));
+    for (i=2; i<=N; i++)
+    {
+      GEN t, xi = gel(x,i);
+      TABi += N;
+      if (!signe(xi)) continue;
+
+      t = NULL;
+      for (j=2; j<=N; j++)
+      {
+        GEN p1, c = gcoeff(TABi, k, j); /* m^{i,j}_k */
+        if (!signe(c)) continue;
+        p1 = _mulii(c, gel(y,j));
+        t = t? addii(t, p1): p1;
+      }
+      if (t) s = addii(s, mulii(xi, t));
+    }
+    gel(v,k) = gerepileuptoint(av,s);
+  }
+  return v;
+}
 /* product of x and y in nf */
 GEN
 nfmul(GEN nf, GEN x, GEN y)
@@ -260,12 +296,48 @@ nfmul(GEN nf, GEN x, GEN y)
       GEN dx, dy;
       x = Q_remove_denom(x, &dx);
       y = Q_remove_denom(y, &dy);
-      z = nfmuli(nf,x,y);
+      z = nfmuli_ZC(nf,x,y);
       dx = mul_denom(dx,dy);
       if (dx) z = ZC_Z_div(z, dx);
     }
   }
   return gerepileupto(av, z);
+}
+/* square of ZC x in nf */
+static GEN
+nfsqri_ZC(GEN nf, GEN x)
+{
+  long i, j, k, N;
+  GEN TAB = get_tab(nf, &N), v = cgetg(N+1,t_COL);
+
+  for (k = 1; k <= N; k++)
+  {
+    pari_sp av = avma;
+    GEN s, TABi = TAB;
+    if (k == 1)
+      s = sqri(gel(x,1));
+    else
+      s = shifti(mulii(gel(x,1),gel(x,k)), 1);
+    for (i=2; i<=N; i++)
+    {
+      GEN p1, c, t, xi = gel(x,i);
+      TABi += N;
+      if (!signe(xi)) continue;
+
+      c = gcoeff(TABi, k, i);
+      t = signe(c)? _mulii(c,xi): NULL;
+      for (j=i+1; j<=N; j++)
+      {
+        c = gcoeff(TABi, k, j);
+        if (!signe(c)) continue;
+        p1 = _mulii(c, shifti(gel(x,j),1));
+        t = t? addii(t, p1): p1;
+      }
+      if (t) s = addii(s, mulii(xi, t));
+    }
+    gel(v,k) = gerepileuptoint(av,s);
+  }
+  return v;
 }
 /* square of x in nf */
 GEN
@@ -281,7 +353,7 @@ nfsqr(GEN nf, GEN x)
   {
     GEN dx;
     x = Q_remove_denom(x, &dx);
-    z = nfsqri(nf,x);
+    z = nfsqri_ZC(nf,x);
     if (dx) z = RgC_Rg_div(z, sqri(dx));
   }
   return gerepileupto(av, z);
@@ -442,85 +514,17 @@ nfdiv(GEN nf, GEN x, GEN y)
   return gerepileupto(av, z);
 }
 
-/* product of INTEGERS (t_INT or ZC) x and y in nf
- * compute xy as ( sum_i x_i sum_j y_j m^{i,j}_k )_k */
+/* product of INTEGERS (t_INT or ZC) x and y in nf */
 GEN
 nfmuli(GEN nf, GEN x, GEN y)
 {
-  long i, j, k, N;
-  GEN s, v, TAB = get_tab(nf, &N);
-
   if (typ(x) == t_INT) return (typ(y) == t_COL)? ZC_Z_mul(y, x): mulii(x,y);
   if (typ(y) == t_INT) return ZC_Z_mul(x, y);
-  /* both x and y are ZV */
-  v = cgetg(N+1,t_COL);
-  for (k=1; k<=N; k++)
-  {
-    pari_sp av = avma;
-    GEN TABi = TAB;
-    if (k == 1)
-      s = mulii(gel(x,1),gel(y,1));
-    else
-      s = addii(mulii(gel(x,1),gel(y,k)),
-                mulii(gel(x,k),gel(y,1)));
-    for (i=2; i<=N; i++)
-    {
-      GEN t, xi = gel(x,i);
-      TABi += N;
-      if (!signe(xi)) continue;
-
-      t = NULL;
-      for (j=2; j<=N; j++)
-      {
-        GEN p1, c = gcoeff(TABi, k, j); /* m^{i,j}_k */
-        if (!signe(c)) continue;
-        p1 = _mulii(c, gel(y,j));
-        t = t? addii(t, p1): p1;
-      }
-      if (t) s = addii(s, mulii(xi, t));
-    }
-    gel(v,k) = gerepileuptoint(av,s);
-  }
-  return v;
+  return nfmuli_ZC(nf, x, y);
 }
-/* square of INTEGER (t_INT or ZC) x in nf */
 GEN
 nfsqri(GEN nf, GEN x)
-{
-  long i, j, k, N;
-  GEN s, v, TAB = get_tab(nf, &N);
-
-  if (typ(x) == t_INT) return sqri(x);
-  v = cgetg(N+1,t_COL);
-  for (k=1; k<=N; k++)
-  {
-    pari_sp av = avma;
-    GEN TABi = TAB;
-    if (k == 1)
-      s = sqri(gel(x,1));
-    else
-      s = shifti(mulii(gel(x,1),gel(x,k)), 1);
-    for (i=2; i<=N; i++)
-    {
-      GEN p1, c, t, xi = gel(x,i);
-      TABi += N;
-      if (!signe(xi)) continue;
-
-      c = gcoeff(TABi, k, i);
-      t = signe(c)? _mulii(c,xi): NULL;
-      for (j=i+1; j<=N; j++)
-      {
-        c = gcoeff(TABi, k, j);
-        if (!signe(c)) continue;
-        p1 = _mulii(c, shifti(gel(x,j),1));
-        t = t? addii(t, p1): p1;
-      }
-      if (t) s = addii(s, mulii(xi, t));
-    }
-    gel(v,k) = gerepileuptoint(av,s);
-  }
-  return v;
-}
+{ return (typ(x) == t_INT)? sqri(x): nfsqri_ZC(nf, x); }
 
 /* both x and y are RgV */
 GEN
