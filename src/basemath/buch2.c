@@ -2065,7 +2065,6 @@ bnfisunit(GEN bnf, GEN x)
     e *= Fl_inv(umodiu(p2,n), n);
     e %= n;
   }
-
   gel(ex,RU) = mkintmodu(e, n);
   setlg(ex, RU+1); return gerepilecopy(av, ex);
 }
