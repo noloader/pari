@@ -496,11 +496,16 @@ bnfsunit0(GEN bnf, GEN S, long flag, long prec)
   nf = bnf_get_nf(bnf);
 
   res=cgetg(7,t_VEC);
-  gel(res,1) = gel(res,2) = gel(res,3) = cgetg(1,t_VEC);
+  gel(res,3) = cgetg(1,t_VEC); /* dummy */
   gel(res,4) = bnf_get_reg(bnf);
   gel(res,5) = bnf_get_clgp(bnf);
   gel(res,6) = S; lS = lg(S);
-  if (lS == 1) return gerepilecopy(av, res);
+  if (lS == 1)
+  {
+    gel(res,1) = cgetg(1, t_VEC);
+    gel(res,2) = mkvec3(cgetg(1,t_VECSMALL), cgetg(1,t_MAT), gen_1);
+    return gerepilecopy(av, res);
+  }
 
   M = cgetg(lS,t_MAT); /* relation matrix for the S class group */
   for (i = 1; i < lS; i++)
@@ -564,8 +569,8 @@ bnfsunit(GEN bnf,GEN S,long prec) { return bnfsunit0(bnf,S,nf_GEN,prec); }
 static GEN
 make_unit(GEN nf, GEN bnfS, GEN *px)
 {
-  long lB, cH, i, ls;
-  GEN den, gen, S, v, p1, xp, xb, N, N0, HB, perm;
+  long cH, i, ls;
+  GEN den, gen, S, v, w, xp, xb, N, N0, HB, perm;
 
   if (gequal0(*px)) return NULL;
   S = gel(bnfS,6); ls = lg(S);
@@ -578,48 +583,46 @@ make_unit(GEN nf, GEN bnfS, GEN *px)
     case t_FRAC: N = mulii(gel(xb,1),gel(xb,2)); break;
     default: { GEN d = Q_denom(xb); N = mulii(idealnorm(nf,gmul(*px,d)), d); }
   } /* relevant primes divide N */
-  if (is_pm1(N)) return zerocol(ls -1);
+  if (is_pm1(N)) return zerocol(ls-1);
 
-  p1 = gel(bnfS,2);
-  perm = gel(p1,1);
-  HB   = gel(p1,2);
-  den  = gel(p1,3);
-  cH = nbrows(HB);
-  lB = lg(HB) - cH;
-  v = zero_zv(ls-1);
-  N0 = N;
-  for (i=1; i<ls; i++)
+  w = gel(bnfS,2); perm = gel(w,1); HB = gel(w,2); den = gel(w,3);
+  v = zero_zv(ls-1); N0 = N;
+  for (i = 1; i < ls; i++)
   {
     GEN P = gel(S,i), p = pr_get_p(P);
-    if (dvdii(N, p))
-    {
-      v[i] = nfval(nf,xb,P);
-      (void)Z_pvalrem(N0, p, &N0);
-    }
+    if (dvdii(N, p)) { v[i] = nfval(nf,xb,P); (void)Z_pvalrem(N0, p, &N0); }
   }
   if (!is_pm1(N0)) return NULL;
   /* here, x = S v */
-  p1 = vecsmallpermute(v, perm);
-  v = ZM_zc_mul(HB, p1);
-  for (i=1; i<=cH; i++)
+  w = vecsmallpermute(v, perm);
+  v = ZM_zc_mul(HB, w); cH = nbrows(HB);
+  for (i = 1; i <= cH; i++)
   {
-    GEN r, w = dvmdii(gel(v,i), den, &r);
+    GEN r;
+    gel(v,i) = dvmdii(gel(v,i), den, &r);
     if (r != gen_0) return NULL;
-    gel(v,i) = w;
   }
-  p1 += cH; p1[0] = evaltyp(t_VECSMALL) | evallg(lB);
-  v = shallowconcat(v, zc_to_ZC(p1)); /* append bottom of p1 (= [0 Id] part) */
+  w += cH; w[0] = evaltyp(t_VECSMALL) | evallg(lg(HB) - cH);
+  v = shallowconcat(v, zc_to_ZC(w)); /* append bottom of w (= [0 Id] part) */
 
-  gen = gel(bnfS,1);
-  xp = trivial_fact();
-  for (i=1; i<ls; i++)
+  gen = gel(bnfS,1); xp = trivial_fact();
+  for (i = 1; i < ls; i++)
   {
     GEN e = gel(v,i);
-    if (!signe(e)) continue;
-    xp = famat_mulpow_shallow(xp, gel(gen,i), negi(e));
+    if (signe(e)) xp = famat_mulpow_shallow(xp, gel(gen,i), negi(e));
   }
   if (lgcols(xp) != 1) *px = famat_mulpow_shallow(xp, xb, gen_1);
   return v;
+}
+
+static int
+checkbnfS_i(GEN v)
+{
+  GEN S, g, w;
+  if (typ(v) != t_VEC || lg(v) != 7) return 0;
+  g = gel(v,1); w = gel(v,2); S = gel(v,6);
+  if (typ(g) != t_VEC || !is_vec_t(typ(S)) || lg(S) != lg(g)) return 0;
+  return typ(w) == t_VEC && lg(w) == 4 && typ(gel(w,1)) == t_VECSMALL;
 }
 
 /* Analog to bnfisunit, for S-units. Let v the result
@@ -628,19 +631,18 @@ make_unit(GEN nf, GEN bnfS, GEN *px)
  * where the e_i are the field units (cf bnfisunit), and the s_i are
  * the S-units computed by bnfsunit (in the same order) */
 GEN
-bnfissunit(GEN bnf,GEN bnfS,GEN x)
+bnfissunit(GEN bnf, GEN bnfS, GEN x)
 {
   pari_sp av = avma;
-  GEN v, w, nf;
+  GEN w, nf, v = NULL;
 
   bnf = checkbnf(bnf);
+  if (!checkbnfS_i(bnfS)) pari_err_TYPE("bnfissunit",bnfS);
   nf = bnf_get_nf(bnf);
-  if (typ(bnfS)!=t_VEC || lg(bnfS)!=7) pari_err_TYPE("bnfissunit",bnfS);
   x = nf_to_scalar_or_alg(nf,x);
-  v = NULL;
   if ( (w = make_unit(nf, bnfS, &x)) ) v = bnfisunit(bnf, x);
   if (!v || lg(v) == 1) { set_avma(av); return cgetg(1,t_COL); }
-  return gerepileupto(av, gconcat(v, w));
+  return gerepilecopy(av, shallowconcat(v, w));
 }
 
 static void
