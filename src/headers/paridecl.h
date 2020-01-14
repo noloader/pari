@@ -2674,6 +2674,11 @@ GEN bnflogdegree(GEN bnf, GEN A, GEN ell);
 long nfislocalpower(GEN nf, GEN pr, GEN a, GEN n);
 long rnfislocalcyclo(GEN rnf);
 
+/* bnfunits.c */
+GEN     bnfisunit(GEN bignf, GEN x);
+GEN     bnfissunit(GEN bnf,GEN suni,GEN x);
+GEN     bnfsunit(GEN bnf,GEN s,long PREC);
+
 /* buch1.c */
 
 GEN     Buchquad(GEN D, double c1, double c2, long prec);
@@ -2694,7 +2699,6 @@ GEN     bnf_compactfu_mat(GEN bnf);
 GEN     bnf_has_fu(GEN bnf);
 GEN     bnfinit0(GEN P,long flag,GEN data,long prec);
 GEN     bnfisprincipal0(GEN bnf, GEN x,long flall);
-GEN     bnfisunit(GEN bignf, GEN x);
 GEN     bnfnewprec(GEN nf, long prec);
 GEN     bnfnewprec_shallow(GEN nf, long prec);
 void    bnftestprimes(GEN bnf, GEN bound);
@@ -2756,8 +2760,6 @@ GEN     subgrouplist0(GEN bnr, GEN indexbound, long all);
 GEN     bnfisnorm(GEN bnf,GEN x,long flag);
 GEN     rnfisnorm(GEN S, GEN x, long flag);
 GEN     rnfisnorminit(GEN bnf, GEN R, int galois);
-GEN     bnfissunit(GEN bnf,GEN suni,GEN x);
-GEN     bnfsunit(GEN bnf,GEN s,long PREC);
 long    nfhilbert(GEN bnf,GEN a,GEN b);
 long    nfhilbert0(GEN bnf,GEN a,GEN b,GEN p);
 long    hyperell_locally_soluble(GEN pol,GEN p);
