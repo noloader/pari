@@ -18,7 +18,7 @@ Doc: let $m$ be a factorization matrix, i.e., a 2-column matrix whose
 
  \bprog
  ? A=[x,2;y,4]; B=[x,-2; y,3; 3, 4]; C=matconcat([A,B]~)
- %1 = 
+ %1 =
  [x  2]
 
  [y  4]
@@ -30,7 +30,7 @@ Doc: let $m$ be a factorization matrix, i.e., a 2-column matrix whose
  [3  4]
 
  ? matreduce(C)
- %3 = 
+ %2 =
  [3 4]
 
  [y 7]

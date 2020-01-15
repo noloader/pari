@@ -589,6 +589,12 @@ Vecsmall([2, 2, 0, -4, -10])
 [;]
 30
 [[100, 100], [200, 200]]
+
+[3 4]
+
+[y 7]
+
+matrix(0,2)
   ***   at top-level: 1/Mat([0,0]~)
   ***                  ^------------
   *** _/_: impossible inverse in ginv: 0.
@@ -634,4 +640,10 @@ Vecsmall([2, 2, 0, -4, -10])
   ***   at top-level: matrixqz([;],-3)
   ***                 ^----------------
   *** matrixqz: invalid flag in QM_minors_coprime.
-Total time spent: 628
+  ***   at top-level: matreduce(1)
+  ***                 ^------------
+  *** matreduce: incorrect type in matreduce (t_INT).
+  ***   at top-level: matreduce([;])
+  ***                 ^--------------
+  *** matreduce: incorrect type in matreduce (t_MAT).
+Total time spent: 773
