@@ -6,6 +6,7 @@ S[5]
 bnfissunit(bnf,S,x)
 bnfissunit(bnf,S,x+2)
 bnfissunit(bnf,S,x+100)
+bnfissunit(bnf,S,[x+2,20;x,17])
 bnfisunit(bnf, x+100)
 
 S=bnfsunit(bnf,[]);

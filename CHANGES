@@ -108,6 +108,7 @@ BA  30- qfbsolve new flag: bit 1: 1 solution, bit 2: add imprimitive solutions
 BA  31- revert 2-12-0 C18: qfbsolve with default flag = previous behaviour
     32- division/inversion power series: use Newton
     33- deprecate LLL_COMPATIBLE (now implicitly always set)
+    34- bnfissunit(bnf,sfu,x): allow x to be given in factored form
 
   Added
      1- new GP function rootsof1

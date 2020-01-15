@@ -1,4 +1,4 @@
-/* Copyright (C) 2000  The PARI group.
+/* Copyright (C) 2020  The PARI group.
 
 This file is part of the PARI/GP package.
 
@@ -200,50 +200,79 @@ bnfsunit0(GEN bnf, GEN S, long flag, long prec)
 GEN
 bnfsunit(GEN bnf,GEN S,long prec) { return bnfsunit0(bnf,S,nf_GEN,prec); }
 
+/* v_S(x), x in famat form */
+static GEN
+sunit_famat_val(GEN nf, GEN S, GEN x)
+{
+  long i, l = lg(S);
+  GEN v = cgetg(l, t_VEC);
+  for (i = 1; i < l; i++) gel(v,i) = famat_nfvalrem(nf, x, gel(S,i), NULL);
+  return v;
+}
+/* v_S(x), x algebraic number */
+static GEN
+sunit_val(GEN nf, GEN S, GEN x, GEN N)
+{
+  long i, l = lg(S);
+  GEN v = zero_zv(l-1), N0 = N;
+  for (i = 1; i < l; i++)
+  {
+    GEN P = gel(S,i), p = pr_get_p(P);
+    if (dvdii(N, p)) { v[i] = nfval(nf,x,P); (void)Z_pvalrem(N0, p, &N0); }
+  }
+  return is_pm1(N0)? v: NULL;
+}
+
+/* if *px a famat, assume it's an S-unit */
 static GEN
 make_unit(GEN nf, GEN bnfS, GEN *px)
 {
-  GEN den, gen, v, w, xp, xb, N, N0, HB, perm, S = gel(bnfS,6);
-  long cH, i, ls = lg(S);
+  GEN den, gen, v, w, HB, perm, S = gel(bnfS,6), x = *px;
+  long cH, i, l = lg(S);
 
-  if (ls == 1) return cgetg(1, t_COL);
-  xb = nf_to_scalar_or_basis(nf,*px);
-  switch(typ(xb))
-  {
-    case t_INT:  N = xb; if (!signe(N)) return NULL; break;
-    case t_FRAC: N = mulii(gel(xb,1),gel(xb,2)); break;
-    default: { GEN d = Q_denom(xb); N = mulii(idealnorm(nf,gmul(*px,d)), d); }
-  } /* relevant primes divide N */
-  if (is_pm1(N)) return zerocol(ls-1);
-
+  if (l == 1) return cgetg(1, t_COL);
   w = gel(bnfS,2); perm = gel(w,1); HB = gel(w,2); den = gel(w,3);
-  v = zero_zv(ls-1); N0 = N;
-  for (i = 1; i < ls; i++)
+  cH = nbrows(HB);
+  if (typ(x) == t_MAT && lg(x) == 3)
   {
-    GEN P = gel(S,i), p = pr_get_p(P);
-    if (dvdii(N, p)) { v[i] = nfval(nf,xb,P); (void)Z_pvalrem(N0, p, &N0); }
+    v = sunit_famat_val(nf, S, x); /* x = S v */
+    w = vecpermute(v, perm);
+    v = ZM_ZC_mul(HB, w);
+    w += cH; w[0] = evaltyp(t_COL) | evallg(lg(HB) - cH);
   }
-  if (!is_pm1(N0)) return NULL;
-  /* here, x = S v */
-  w = vecsmallpermute(v, perm);
-  v = ZM_zc_mul(HB, w); cH = nbrows(HB);
-  for (i = 1; i <= cH; i++)
+  else
+  {
+    GEN N;
+    x = nf_to_scalar_or_basis(nf,x);
+    switch(typ(x))
+    {
+      case t_INT:  N = x; if (!signe(N)) return NULL; break;
+      case t_FRAC: N = mulii(gel(x,1),gel(x,2)); break;
+      default: { GEN d = Q_denom(x); N = mulii(idealnorm(nf,gmul(x,d)), d); }
+    }
+    /* relevant primes divide N */
+    if (is_pm1(N)) return zerocol(l-1);
+    v = sunit_val(nf, S, x, N);
+    if (!v) return NULL;
+    w = vecsmallpermute(v, perm);
+    v = ZM_zc_mul(HB, w);
+    w += cH; w[0] = evaltyp(t_VECSMALL) | evallg(lg(HB) - cH);
+    w = zc_to_ZC(w);
+  }
+  if (!is_pm1(den)) for (i = 1; i <= cH; i++)
   {
     GEN r;
     gel(v,i) = dvmdii(gel(v,i), den, &r);
     if (r != gen_0) return NULL;
   }
-  w += cH; w[0] = evaltyp(t_VECSMALL) | evallg(lg(HB) - cH);
-  v = shallowconcat(v, zc_to_ZC(w)); /* append bottom of w (= [0 Id] part) */
-
-  gen = gel(bnfS,1); xp = trivial_fact();
-  for (i = 1; i < ls; i++)
+  v = shallowconcat(v, w); /* append bottom of w (= [0 Id] part) */
+  gen = gel(bnfS,1);
+  for (i = 1; i < l; i++)
   {
     GEN e = gel(v,i);
-    if (signe(e)) xp = famat_mulpow_shallow(xp, gel(gen,i), negi(e));
+    if (signe(e)) x = famat_mulpow_shallow(x, gel(gen,i), negi(e));
   }
-  if (lgcols(xp) != 1) *px = famat_mulpow_shallow(xp, xb, gen_1);
-  return v;
+  *px = x; return v;
 }
 
 static int
@@ -270,7 +299,6 @@ bnfissunit(GEN bnf, GEN bnfS, GEN x)
   bnf = checkbnf(bnf);
   if (!checkbnfS_i(bnfS)) pari_err_TYPE("bnfissunit",bnfS);
   nf = bnf_get_nf(bnf);
-  x = nf_to_scalar_or_alg(nf,x);
   if ( (w = make_unit(nf, bnfS, &x)) ) v = bnfisunit(bnf, x);
   if (!v || lg(v) == 1) { set_avma(av); return cgetg(1,t_COL); }
   return gerepilecopy(av, shallowconcat(v, w));

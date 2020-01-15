@@ -29,3 +29,15 @@ Doc: \var{bnf} being the number field data
  unit implicitly stored in \var{bnf}. In this case, $u_1$ was not computed
  and stored in algebraic form since the default accuracy was too low. Re-run
  the \kbd{bnfinit} command at \bs g1 or higher to see such diagnostics.
+
+ This function allows $x$ to be given in factored form, but it then assumes
+ that $x$ is an actual unit. (Because it is general too costly The result is undefined otherwise.)
+ \bprog
+ ? { v = [2, 85; 5, -71; 13, -162; 17, -76; 23, -37; 29, -104; [224, 1]~, -66;
+ [-86, 1]~, 86; [-241, 1]~, -20; [44, 1]~, 30; [124, 1]~, 11; [125, -1]~, -11;
+ [-214, 1]~, 33; [-213, -1]~, -33; [189, 1]~, 74; [190, -1]~, 104;
+ [-168, 1]~, 2; [-167, -1]~, -8]; }
+ ? bnfisunit(bnf,v)
+ %5 = [1, Mod(0, 2)]~
+ @eprog\noindent Note that $v$ is the fundamental unit of \kbd{bnf} given in
+ compact (factored) form.
