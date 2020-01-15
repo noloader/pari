@@ -2405,6 +2405,7 @@ long    idealval(GEN nf,GEN ix,GEN vp);
 GEN     idealprod(GEN nf, GEN I);
 long    isideal(GEN nf,GEN x);
 GEN     idealmin(GEN nf,GEN ix,GEN vdir);
+GEN     matreduce(GEN fa);
 GEN     nf_get_Gtwist(GEN nf, GEN vdir);
 GEN     nf_get_Gtwist1(GEN nf, long i);
 GEN     nf_to_Fp_coprime(GEN nf, GEN x, GEN modpr);
@@ -2678,6 +2679,7 @@ long rnfislocalcyclo(GEN rnf);
 GEN     bnfisunit(GEN bignf, GEN x);
 GEN     bnfissunit(GEN bnf,GEN suni,GEN x);
 GEN     bnfsunit(GEN bnf,GEN s,long PREC);
+GEN     bnfunits(GEN bnf, GEN S);
 
 /* buch1.c */
 
