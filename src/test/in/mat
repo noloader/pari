@@ -231,6 +231,9 @@ matrank(M)
 M=matrix(100,200);N=matrix(200,100);
 [matsize(M*N), matsize(N*M)]
 
+A=[x,2;y,4]; B=[x,-2; y,3; 3, 4]; matreduce(matconcat([A,B]~))
+matreduce(matrix(0,2))
+
 \\ Errors, keep at end of file
 1/Mat([0,0]~)
 mathouseholder(1,1)
@@ -248,3 +251,5 @@ m[1,]=[1,2,3]~
 [1,2,3;4,5,6;7,8,9]^-1
 matrixqz(matrix(2,2))
 matrixqz([;],-3)
+matreduce(1)
+matreduce([;])
