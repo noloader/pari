@@ -30,7 +30,7 @@ Doc: \var{bnf} being the number field data
  @eprog\noindent The given $u$ is $1/u_1$, where $u_1$ is the fundamental
  unit implicitly stored in \var{bnf}. In this case, $u_1$ was not computed
  and stored in algebraic form since the default accuracy was too low. Re-run
- the \kbd{bnfinit} command at \bs g1 or higher to see such diagnostics.
+ the \kbd{bnfinit} command at \kbd{\bs g1} or higher to see such diagnostics.
 
  This function allows $x$ to be given in factored form, but it then assumes
  that $x$ is an actual unit. (Because it is general too costly to check
