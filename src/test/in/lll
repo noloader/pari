@@ -16,3 +16,7 @@ test();
 v=vector(#v,i,v[i]~*v[i]);
 f=[qflllgram,x->qflllgram(x,1),x->qflllgram(x,4),x->qflllgram(x,5)];
 test();
+
+\\ ERRORS
+qflllgram([1,2,3;4,5,6])
+qfminim([1,2,3;4,5,6],,,2)

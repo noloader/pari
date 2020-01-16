@@ -75,4 +75,10 @@ error("incorrect type in qflllgram [integer matrix] (t_MAT).")
 error("incorrect type in qflllgram [integer matrix] (t_MAT).")
 [[;], [-x^2 + 852*x + 833561, x^5 + 1052503*x^4 - 898292021*x^3 - 8780356471
 55*x^2 + 1; 1, -x^3 - 1053355*x^2]]
-Total time spent: 8
+  ***   at top-level: qflllgram([1,2,3;4,5,6])
+  ***                 ^------------------------
+  *** qflllgram: inconsistent dimensions in qflllgram.
+  ***   at top-level: qfminim([1,2,3;4,5,6],,,2)
+  ***                 ^--------------------------
+  *** qfminim: inconsistent dimensions in qflllgram.
+Total time spent: 0

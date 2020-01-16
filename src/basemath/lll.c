@@ -703,10 +703,13 @@ lllgramallgen(GEN x, long flag)
 }
 
 static GEN
+RgM_square(GEN x) { long l = lg(x); return l == 1 || l == lgcols(x); }
+static GEN
 lllallgen(GEN x, long flag)
 {
   pari_sp av = avma;
   if ((flag & LLL_GRAM) == 0) x = gram_matrix(x);
+  else if (!RgM_square(x)) pari_err_DIM("qflllgram");
   return gerepilecopy(av, lllgramallgen(x, flag));
 }
 GEN
@@ -722,6 +725,7 @@ static GEN
 lllall(GEN x, long flag)
 {
   pari_sp av = avma;
+  if ((flag & LLL_GRAM) && !RgM_square(x)) pari_err_DIM("qflllgram");
   return gerepilecopy(av, ZM_lll(x, LLLDFT, flag));
 }
 GEN
@@ -740,6 +744,7 @@ lllfp(GEN x, double D, long flag)
   pari_sp av = avma;
   GEN h;
   if (n <= 1) return lll_trivial(x,flag);
+  if ((flag & LLL_GRAM) && !RgM_square(x)) pari_err_DIM("qflllgram");
   h = ZM_lll(RgM_rescale_to_int(x), D, flag);
   return gerepilecopy(av, h);
 }
