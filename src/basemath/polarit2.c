@@ -1242,12 +1242,38 @@ FlxqV_factorback(GEN L, GEN e, GEN Tp, ulong p)
   }
   if (!Hi)
   {
-    if (!H ) { set_avma(av); return mkvecsmall2(v,1); }
+    if (!H) { set_avma(av); return mkvecsmall2(v,1); }
     return gerepileuptoleaf(av, H);
   }
   Hi = Flxq_inv(Hi, Tp, p);
   return gerepileuptoleaf(av, H? Flxq_mul(H,Hi,Tp,p): Hi);
 }
+GEN
+FqV_factorback(GEN L, GEN e, GEN Tp, GEN p)
+{
+  pari_sp av = avma;
+  GEN Hi = NULL, H = NULL;
+  long i, l = lg(L);
+  for (i = 1; i < l; i++)
+  {
+    GEN x, ei = gel(e,i);
+    long s = signe(ei);
+    if (!s) continue;
+    x = Fq_pow(gel(L,i), s > 0? ei: negi(ei), Tp, p);
+    if (s > 0)
+      H = H? Fq_mul(H, x, Tp, p): x;
+    else
+      Hi = Hi? Fq_mul(Hi, x, Tp, p): x;
+  }
+  if (!Hi)
+  {
+    if (!H) { set_avma(av); return gen_1; }
+    return gerepileupto(av, H);
+  }
+  Hi = Fq_inv(Hi, Tp, p);
+  return gerepileupto(av, H? Fq_mul(H,Hi,Tp,p): Hi);
+}
+
 GEN
 factorback2(GEN L, GEN e) { return gen_factorback(L, e, NULL, &mul, &powi); }
 GEN

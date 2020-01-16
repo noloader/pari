@@ -21,9 +21,12 @@ test(P) =
 K=nfinit(y^2+1);
 P = nfmodprinit(K,idealprimedec(K,2)[1]); test(P);
 P = nfmodprinit(K,idealprimedec(K,3)[1],t); test(P);
-K=nfinit(y^3-9);
-P = nfmodprinit(K,idealprimedec(K,3)[1]); test(P);
+Kerr = K=nfinit(y^3-9);
+Perr = P = nfmodprinit(K,idealprimedec(K,3)[1]); test(P);
+nfmodpr(K, [y, 2; y^2/9, 2], P)
+nfmodpr(K, [y, 3; y^2/9, 2], P)
 P = nfmodprinit(K,idealprimedec(K,2)[2],t); test(P);
+
 K=nfinit(y^2-1105);
 P7=nfmodprinit(K,idealprimedec(K,7)[1]);
 nfmodprlift(K,nfmodpr(K,y,P7),P7)
@@ -49,3 +52,6 @@ P=idealprimedec(K,2)[1];
 nfeltreducemodpr(K,P.gen[2],nfmodprinit(K,P))
 
 nfmodpr(nfinit(x),[],[]~)
+
+\\ ERRORS
+nfmodpr(Kerr, [y, 2; y^2/9, 3], Perr)

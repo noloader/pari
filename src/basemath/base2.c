@@ -2688,6 +2688,15 @@ nfmodpr(GEN nf, GEN x, GEN pr)
   GEN T, p, modpr;
   nf = checknf(nf);
   modpr = nf_to_Fq_init(nf, &pr, &T, &p);
+  if (typ(x) == t_MAT && lg(x) == 3)
+  {
+    GEN y, v = famat_nfvalrem(nf, x, pr, &y);
+    long s = signe(v);
+    if (s < 0) pari_err_INV("Rg_to_ff", mkintmod(gen_0,p));
+    if (s > 0) return gc_const(av, gen_0);
+    x = FqV_factorback(nfV_to_FqV(gel(y,1), nf, modpr), gel(y,2), T, p);
+    return gerepileupto(av, x);
+  }
   x = Rg_to_ff(nf, x, modpr);
   x = Fq_to_FF(x, Tp_to_FF(T,p));
   return gerepilecopy(av, x);

@@ -787,11 +787,15 @@ famat_nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
     long v;
     if (!signe(e)) continue;
     v = nfvalrem(nf, gel(P,i), pr, py? &gel(y,i): NULL);
-    if (v == LONG_MAX) { set_avma(av); if (py) *py = gen_1; return mkoo(); }
+    if (v == LONG_MAX) { set_avma(av); if (py) *py = gen_0; return mkoo(); }
     V = addmulii(V, stoi(v), e);
   }
   if (!py) V = gerepileuptoint(av, V);
-  else { gerepileall(av, 2, &V, &y); *py = y; }
+  else
+  {
+    y = mkmat2(y, gel(x,2));
+    gerepileall(av, 2, &V, &y); *py = y;
+  }
   return V;
 }
 long
@@ -839,7 +843,7 @@ nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
   GEN cx, p, t;
 
   if (!py) return nfval(nf,x,pr);
-  if (gequal0(x)) { *py = gcopy(x); return LONG_MAX; }
+  if (gequal0(x)) { *py = gen_0; return LONG_MAX; }
   nf = checknf(nf);
   checkprid(pr);
   p = pr_get_p(pr);
@@ -868,7 +872,7 @@ GEN
 gpnfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
 {
   long v;
-  if (typ(x) == t_MAT && lg(x) == 3) return famat_nfvalrem(nf, x, pr, py);
+  if (is_famat(x)) return famat_nfvalrem(nf, x, pr, py);
   v = nfvalrem(nf,x,pr,py);
   return v == LONG_MAX? mkoo(): stoi(v);
 }

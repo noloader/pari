@@ -112,7 +112,7 @@ BA  31- revert 2-12-0 C18: qfbsolve with default flag = previous behaviour
     35- bnfsunit is mostly obsolete, use bnfunits
     36- bnfisunit and bnfissunit: torsion unit exponent is now a t_INT (used
         to be a t_INTMOD)
-    37- support compact representation in nfeltmul, nfeltpow, nfeltdiv
+    37- support compact representation in nfeltmul, nfeltpow, nfeltdiv, nfmodpr
 
   Added
      1- new GP function rootsof1
@@ -165,7 +165,7 @@ BA  45- [libpari] init_Flxq
     46- compact representation of units in bnf (bnfinit(pol,1)) and of
         principal ideal generators (bnfisprincipal(bnf,id,4))
     47- [libpari] Flv_factorback, FlxqV_factorback, famatV_zv_factorback,
-        famatV_factorback
+        famatV_factorback, FqV_factorback
     48- [libpari] nflogembed, nf_cxlog, nfV_cxlog, ZMrow_equal0, ZC_u_divexact
 BA  49- [libpari] FpXn_expint, Flxn_expint, Flx_blocks, FlxX_blocks
     50- [libpari] bnf_get_sunits, nfsign_tu, nfsign_fu, ideallog_units,

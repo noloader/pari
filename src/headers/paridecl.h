@@ -4649,6 +4649,7 @@ GEN     polrootspadic(GEN f, GEN p, long r);
 ulong   Flv_factorback(GEN L, GEN e, ulong p);
 GEN     FlxqV_factorback(GEN L, GEN e, GEN Tp, ulong p);
 GEN     FpV_factorback(GEN L, GEN e, GEN p);
+GEN     FqV_factorback(GEN L, GEN e, GEN Tp, GEN p);
 GEN     Q_content(GEN x);
 GEN     Q_content_safe(GEN x);
 GEN     Q_denom(GEN x);
