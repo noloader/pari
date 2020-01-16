@@ -108,7 +108,10 @@ BA  30- qfbsolve new flag: bit 1: 1 solution, bit 2: add imprimitive solutions
 BA  31- revert 2-12-0 C18: qfbsolve with default flag = previous behaviour
     32- division/inversion power series: use Newton
     33- deprecate LLL_COMPATIBLE (now implicitly always set)
-    34- bnfissunit(bnf,sfu,x): allow x to be given in factored form
+    34- bnfissunit is obsolete, use bnfisunit
+    35- bnfsunit is mostly obsolete, use bnfunits
+    36- bnfisunit and bnfissunit: torsion unit exponent is now a t_INT (used
+        to be a t_INTMOD)
 
   Added
      1- new GP function rootsof1
@@ -187,7 +190,7 @@ BA  66- [libpari] FlxX_translate1, zlx_translate1, zlxX_translate1
     67- [libpari] rfracrecip
     68- [libpari] ZXQ_minpoly
     69- [libpari] bnrchar_primitive_raw
-    70- new GP function matreduce
+    70- new GP functions matreduce, bnfunits
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

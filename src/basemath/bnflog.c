@@ -373,14 +373,13 @@ bnflog_i(GEN bnf, GEN ell)
 {
   long prec0, prec;
   GEN nf, US, vdegS, S, T, M, CLp, CLt, Ftilde, vtG, ellk;
-  GEN D, Ap, cycAp, bnfS, fu;
+  GEN D, Ap, cycAp, fu;
   long imin, i, j, lvAp;
 
   checkbnf(bnf);
   nf = checknf(bnf);
   S = idealprimedec(nf, ell);
-  bnfS = bnfsunit0(bnf, S, nf_GENMAT, LOWDEFAULTPREC); /* S-units */
-  US = leafcopy(gel(bnfS,1));
+  US = sunits_mod_units(bnf, S);
   prec0 = maxss(30, vtilde_prec(nf, US, ell));
   if (!(fu = bnf_build_cheapfu(bnf)) && !(fu = bnf_compactfu(bnf)))
     bnf_build_units(bnf);

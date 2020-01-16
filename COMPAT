@@ -43,6 +43,8 @@ This file lists the incompatible changes between Version 2.x and older versions
   - matrixqz(,-1 or -2) no longer return result in HNF [often dominant!].
     If needed, call explicitly mathnf or mathnfmod with the algorithm adapted
     to your situation.
+  - bnfisunit and bnfissunit: torsion unit exponent is now a t_INT (used
+    to be a t_INTMOD)
 
 * Specific to the PARI library:
 ===============================

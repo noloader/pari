@@ -2680,6 +2680,8 @@ GEN     bnfisunit(GEN bignf, GEN x);
 GEN     bnfissunit(GEN bnf,GEN suni,GEN x);
 GEN     bnfsunit(GEN bnf,GEN s,long PREC);
 GEN     bnfunits(GEN bnf, GEN S);
+GEN     bnfisunit0(GEN bnf, GEN x, GEN U);
+GEN     sunits_mod_units(GEN bnf, GEN S);
 
 /* buch1.c */
 

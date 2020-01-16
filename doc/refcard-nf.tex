@@ -181,11 +181,13 @@ Class field theory data $a_1,\{a_2\}$ is usually \var{bnr} (ray class field),
 $\var{bnr},H$ (congruence subgroup) or $\var{bnr},\chi$ (character on
 \kbd{bnr.clgp}). Any of these define a unique abelian extension of $K$.
 
+\li{units / $S$-units}{bnfunits$(\var{bnf},\{S\})$}
 \li{remove GRH assumption from \var{bnf}}{bnfcertify$(\var{bnf})$}
 \li{expo.~of ideal $x$ on class gp}{bnfisprincipal$(\var{bnf},x,\{\fl\})$}
 \li{expo.~of ideal $x$ on ray class gp}{bnrisprincipal$(\var{bnr},x,\{\fl\})$}
 \li{expo.~of $x$ on fund.~units}{bnfisunit$(\var{bnf},x)$}
-\li{as above for $S$-units}{bnfissunit$(\var{bnfs},x)$}
+\li{\dots on $S$-units, $U$ is \kbd{bnfunits}$(\var{bnf},S)$}
+   {bnfisunit$(\var{bnfs},x,U)$}
 \li{signs of real embeddings of \kbd{\var{bnf}.fu}}{bnfsignunit$(\var{bnf})$}
 \li{narrow class group}{bnfnarrow$(\var{bnf})$}
 
