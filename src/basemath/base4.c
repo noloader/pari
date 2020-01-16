@@ -1193,6 +1193,23 @@ famat_add(GEN f, GEN x)
   }
   return h;
 }
+/* add x^-1 to famat f */
+static GEN
+famat_sub(GEN f, GEN x)
+{
+  GEN h = cgetg(3,t_MAT);
+  if (lgcols(f) == 1)
+  {
+    gel(h,1) = mkcolcopy(x);
+    gel(h,2) = mkcol(gen_m1);
+  }
+  else
+  {
+    gel(h,1) = append(gel(f,1), x);
+    gel(h,2) = gconcat(gel(f,2), gen_m1);
+  }
+  return h;
+}
 
 GEN
 famat_mul(GEN f, GEN g)
@@ -1210,6 +1227,25 @@ famat_mul(GEN f, GEN g)
   h = cgetg(3,t_MAT);
   gel(h,1) = gconcat(gel(f,1), gel(g,1));
   gel(h,2) = gconcat(gel(f,2), gel(g,2));
+  return h;
+}
+
+GEN
+famat_div(GEN f, GEN g)
+{
+  GEN h;
+  if (typ(g) != t_MAT) {
+    if (typ(f) == t_MAT) return famat_sub(f, g);
+    h = cgetg(3, t_MAT);
+    gel(h,1) = mkcol2(gcopy(f), gcopy(g));
+    gel(h,2) = mkcol2(gen_1, gen_m1);
+  }
+  if (typ(f) != t_MAT) return famat_sub(g, f);
+  if (lgcols(f) == 1) return famat_inv(g);
+  if (lgcols(g) == 1) return gcopy(f);
+  h = cgetg(3,t_MAT);
+  gel(h,1) = gconcat(gel(f,1), gel(g,1));
+  gel(h,2) = gconcat(gel(f,2), gneg(gel(g,2)));
   return h;
 }
 

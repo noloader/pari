@@ -268,6 +268,8 @@ nfmuli_ZC(GEN nf, GEN x, GEN y)
   }
   return v;
 }
+static int
+is_famat(GEN x) { return typ(x) == t_MAT && lg(x) == 3; }
 /* product of x and y in nf */
 GEN
 nfmul(GEN nf, GEN x, GEN y)
@@ -278,6 +280,7 @@ nfmul(GEN nf, GEN x, GEN y)
   if (x == y) return nfsqr(nf,x);
 
   nf = checknf(nf);
+  if (is_famat(x) || is_famat(y)) return famat_mul(x, y);
   x = nf_to_scalar_or_basis(nf, x);
   y = nf_to_scalar_or_basis(nf, y);
   if (typ(x) != t_COL)
@@ -347,6 +350,7 @@ nfsqr(GEN nf, GEN x)
   GEN z;
 
   nf = checknf(nf);
+  if (is_famat(x)) return famat_sqr(x);
   x = nf_to_scalar_or_basis(nf, x);
   if (typ(x) != t_COL) z = gsqr(x);
   else
@@ -477,6 +481,7 @@ nfinv(GEN nf, GEN x)
   GEN z;
 
   nf = checknf(nf);
+  if (is_famat(x)) return famat_inv(x);
   x = nf_to_scalar_or_basis(nf, x);
   if (typ(x) == t_COL)
   {
@@ -498,6 +503,7 @@ nfdiv(GEN nf, GEN x, GEN y)
   GEN z;
 
   nf = checknf(nf);
+  if (is_famat(x) || is_famat(y)) return famat_div(x,y);
   y = nf_to_scalar_or_basis(nf, y);
   if (typ(y) != t_COL)
   {
@@ -621,6 +627,7 @@ nfpow(GEN nf, GEN z, GEN n)
   if (typ(n)!=t_INT) pari_err_TYPE("nfpow",n);
   nf = checknf(nf);
   s = signe(n); if (!s) return gen_1;
+  if (is_famat(z)) return famat_pow(z, n);
   x = nf_to_scalar_or_basis(nf, z);
   if (typ(x) != t_COL) return powgi(x,n);
   if (s < 0)
