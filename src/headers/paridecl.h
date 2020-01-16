@@ -2327,6 +2327,7 @@ GEN     RM_round_maxrank(GEN G);
 GEN     ZM_famat_limit(GEN fa, GEN limit);
 GEN     famat_Z_gcd(GEN M, GEN n);
 GEN     famat_div_shallow(GEN f, GEN g);
+GEN     famat_div(GEN f, GEN g);
 GEN     famat_idealfactor(GEN nf, GEN x);
 GEN     famat_inv(GEN f);
 GEN     famat_inv_shallow(GEN f);
