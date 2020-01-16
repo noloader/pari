@@ -702,7 +702,7 @@ lllgramallgen(GEN x, long flag)
   return lll_finish(h,k-1,flag);
 }
 
-static GEN
+static int
 RgM_square(GEN x) { long l = lg(x); return l == 1 || l == lgcols(x); }
 static GEN
 lllallgen(GEN x, long flag)
