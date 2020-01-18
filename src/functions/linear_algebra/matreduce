@@ -11,10 +11,10 @@ Doc: let $m$ be a factorization matrix, i.e., a 2-column matrix whose
  first column is sorted with unique elements and the second one contains the
  merged ``exponents'' (exponents of identical entries in the first column  of
  $m$ are added, rows attached to $0$ exponents are deleted). The generators are
- sorted with the universal \kbd{cmp} routine; in particular, this function is
- the identity on true integer factorization matrices, but not on other
- factorizations (in product of polynomials or maximal ideals, say). It is
- idempotent.
+ sorted with respect to the universal \kbd{cmp} routine; in particular, this
+ function is the identity on true integer factorization matrices, but not on
+ other factorizations (in products of polynomials or maximal ideals, say). It
+ is idempotent.
 
  \bprog
  ? A=[x,2;y,4]; B=[x,-2; y,3; 3, 4]; C=matconcat([A,B]~)
