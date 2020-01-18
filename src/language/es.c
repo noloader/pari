@@ -1250,7 +1250,7 @@ fmtreal(pari_str *S, GEN gvalue, int space, int signvalue, int FORMAT,
         return;
     }
     sigd = get_sigd(gvalue, FORMAT, maxwidth);
-    gvalue = gtofp(gvalue, ndec2prec(sigd));
+    gvalue = gtofp(gvalue, maxss(ndec2prec(sigd), LOWDEFAULTPREC));
     if (typ(gvalue) != t_REAL)
     {
       if (!S->use_stack) free(S->string);

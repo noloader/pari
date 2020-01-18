@@ -66,6 +66,7 @@ printf("%%-20.10g for aa : %-20.10g\n", aa) /* ERROR : aa is not a t_REAL */
 printf("%.100f",1.)
 printf("%1.0f",0)
 printf("%.6f",5e-5)
+printf("%10.6f",1/2510629980073882876067348736); \\#2198
 
 \\ conversions using gtolong()
 printf("%c",97.5)

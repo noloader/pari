@@ -66,6 +66,7 @@ JR  44- polylog(-m, tiny z): catastrophic cancellation, e.g. polylog(-100,.5)
     49- polrootsreal(x+0.) -> SEGV
 DB  50- mspolygon(1,2): incorrect drawing
     51- qflllgram([2,2,3;4,5,6]) -> SEGV
+    52- printf("%10.6f\n",2^-100) -> SEGV [#2198]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
