@@ -2095,6 +2095,154 @@ ZX_disc_all(GEN x, ulong bound)
 GEN
 ZX_disc(GEN x) { return ZX_disc_all(x,0); }
 
+static GEN
+ZXQX_resultant_prime(GEN a, GEN b, GEN dB, long degA, long degB, GEN T, ulong p)
+{
+  long dropa = degA - degpol(a), dropb = degB - degpol(b);
+  GEN H, dp;
+  if (dropa && dropb) return pol0_Flx(T[1]); /* p | lc(A), p | lc(B) */
+  H = FlxqX_saferesultant(a, b, T, p);
+  if (!H) return NULL;
+  if (dropa)
+  { /* multiply by ((-1)^deg B lc(B))^(deg A - deg a) */
+    GEN c = gel(b,degB+2); /* lc(B) */
+    if (odd(degB)) c = Flx_neg(c, p);
+    c = Flxq_powu(c, dropa, T, p);
+    if (!Flx_equal1(c)) H = Flxq_mul(H, c, T, p);
+  }
+  else if (dropb)
+  { /* multiply by lc(A)^(deg B - deg b) */
+    GEN c = gel(a,degA+2); /* lc(A) */
+    c = Flxq_powu(c, dropb, T, p);
+    if (!Flx_equal1(c)) H = Flxq_mul(H, c, T, p);
+  }
+  dp = dB ? ZX_to_Flx(dB, p): pol1_Flx(T[1]);
+  if (!Flx_equal1(dp))
+  {
+    GEN idp = Flxq_invsafe(dp, T, p);
+    if (!idp) return NULL;
+    H = Flxq_mul(H, Flxq_powu(idp, degA, T, p), T, p);
+  }
+  return H;
+}
+
+/* If B=NULL, assume B=A' */
+static GEN
+ZXQX_resultant_slice(GEN A, GEN B, GEN U, GEN dB, GEN P, GEN *mod)
+{
+  pari_sp av = avma;
+  long degA, degB, i, n = lg(P)-1;
+  GEN H, T;
+  long v = varn(U), redo = 0;
+
+  degA = degpol(A);
+  degB = B? degpol(B): degA - 1;
+  if (n == 1)
+  {
+    ulong p = uel(P,1);
+    GEN a = ZXX_to_FlxX(A, p, v), b = B? ZXX_to_FlxX(B, p, v): FlxX_deriv(a, p);
+    GEN u = ZX_to_Flx(U, p);
+    GEN Hp = ZXQX_resultant_prime(a, b, dB, degA, degB, u, p);
+    if (!Hp) { set_avma(av); *mod = gen_1; return pol_0(v); }
+    set_avma(av); *mod = utoipos(p); return Flx_to_ZX(Hp);
+  }
+  T = ZV_producttree(P);
+  A = ZXX_nv_mod_tree(A, P, T, v);
+  if (B) B = ZXX_nv_mod_tree(B, P, T, v);
+  U = ZX_nv_mod_tree(U, P, T);
+  H = cgetg(n+1, t_VEC);
+  for(i=1; i <= n; i++)
+  {
+    ulong p = P[i];
+    GEN a = gel(A,i), b = B? gel(B,i): FlxX_deriv(a, p), u = gel(U, i);
+    GEN h = ZXQX_resultant_prime(a, b, dB, degA, degB, u, p);
+    if (!h)
+    {
+      gel(H,i) = pol_0(v);
+      P[i] = 1; redo = 1;
+    }
+    else
+      gel(H,i) = h;
+  }
+  if (redo) T = ZV_producttree(P);
+  H = nxV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  *mod = gmael(T, lg(T)-1, 1);
+  gerepileall(av, 2, &H, mod);
+  return H;
+}
+
+GEN
+ZXQX_resultant_worker(GEN P, GEN A, GEN B, GEN T, GEN dB)
+{
+  GEN V = cgetg(3, t_VEC);
+  if (isintzero(B)) B = NULL;
+  if (!signe(dB)) dB = NULL;
+  gel(V,1) = ZXQX_resultant_slice(A, B, T, dB, P, &gel(V,2));
+  return V;
+}
+
+static long
+ZXQX_resultant_bound(GEN nf, GEN A, GEN B)
+{
+  pari_sp av = avma;
+  GEN r, M = L2_bound(nf, NULL, &r);
+  long v = nf_get_varn(nf), i, l = lg(r);
+  GEN a = cgetg(l, t_COL);
+  for (i = 1; i < l; i++)
+    gel(a, i) =  RgX_RgXY_ResBound(gsubst(A, v, gel(r,i)),
+                                   gsubst(B, v, gel(r,i)));
+  return gc_long(av, (long) dbllog2(gmul(M,RgC_fpnorml2(a, DEFAULTPREC))));
+}
+
+/* Compute Res(A, B/dB) in Z, assuming A,B in Z[X], dB in Z or NULL (= 1)
+ * If B=NULL, take B = A' and assume deg A > 1 and 'bound' is set */
+static GEN
+ZXQX_resultant_all(GEN A, GEN B, GEN T, GEN dB, ulong bound)
+{
+  pari_sp av = avma;
+  forprime_t S;
+  long m;
+  GEN  H, worker;
+  if (B)
+  {
+    long a = degpol(A), b = degpol(B);
+    if (a < 0 || b < 0) return gen_0;
+    if (!a) return gpowgs(gel(A,2), b);
+    if (!b) return gpowgs(gel(B,2), a);
+    if (!bound) bound = ZXQX_resultant_bound(nfinit(T, DEFAULTPREC), A, B);
+  } else
+    if (!bound) bound = ZXQX_resultant_bound(nfinit(T, DEFAULTPREC), A, RgX_deriv(A));
+  worker = snm_closure(is_entry("_ZXQX_resultant_worker"),
+                       mkvec4(A, B? B: gen_0, T, dB? dB: gen_0));
+  m = degpol(A)+(B ? degpol(B): 0);
+  init_modular_big(&S);
+  H = gen_crt("ZXQX_resultant_all", worker, &S, dB, bound, m, NULL,
+              nxV_chinese_center, FpX_center);
+  if (DEBUGLEVEL)
+    err_printf("ZXQX_resultant_all: a priori bound: %lu, a posteriori: %lu\n",
+               bound, expi(gsupnorm(H, DEFAULTPREC)));
+  return gerepileupto(av, H);
+}
+
+static GEN
+to_ZX(GEN a, long v) { return typ(a)==t_INT? scalarpol(a,v): a; }
+
+static GEN
+ZXQX_disc_all(GEN x, GEN T, ulong bound)
+{
+  pari_sp av = avma;
+  long s, d = degpol(x), v = varn(T);
+  GEN l, R;
+
+  if (d <= 1) return d == 1? pol_1(v): pol_0(v);
+  s = (d & 2) ? -1: 1;
+  l = leading_coeff(x);
+  R = ZXQX_resultant_all(x, NULL, T, NULL, bound);
+  if (!gequal1(l)) R = QXQ_div(R, to_ZX(l,v), T);
+  if (s == -1) R = RgX_neg(R);
+  return gerepileupto(av, R);
+}
+
 GEN
 QX_disc(GEN x)
 {
@@ -2102,6 +2250,21 @@ QX_disc(GEN x)
   GEN c, d = ZX_disc( Q_primitive_part(x, &c) );
   if (c) d = gmul(d, gpowgs(c, 2*degpol(x) - 2));
   return gerepileupto(av, d);
+}
+
+GEN
+nfX_disc(GEN nf, GEN x)
+{
+  pari_sp av = avma;
+  GEN c, D, T = nf_get_pol(nf);
+  ulong bound;
+  long d = degpol(x), v = varn(T);
+  if (d <= 1) return d == 1? pol_1(v): pol_0(v);
+  x = Q_primitive_part(x, &c);
+  bound = ZXQX_resultant_bound(nf, x, RgX_deriv(x));
+  D = ZXQX_disc_all(x, T, bound);
+  if (c) D = gmul(D, gpowgs(c, 2*d - 2));
+  return gerepileupto(av, D);
 }
 
 GEN
