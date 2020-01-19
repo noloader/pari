@@ -351,7 +351,7 @@ eulervec(long n)
   if (n < 0) return cgetg(1, t_VEC);
   C = vecbinomial(2*n);
   E = ZX_translate(RgX_rescale(eulerpol(2*n, 0), gen_2), gen_1);
-  v = cgetg(n + 2, t_VEC); gel(v,1) = gen_1; av = avma;
+  av = avma; v = cgetg(n + 2, t_VEC); gel(v,1) = gen_1;
   /* 2^(2n) E_2n(x/2 + 1) = sum_k binomial(2n,k) E_k x^(n-k) */
   for (k = 1; k <= n; k++)
     gel(v,k+1) = diviiexact(gel(E,2*n-2*k+2), gel(C,2*k+1));
