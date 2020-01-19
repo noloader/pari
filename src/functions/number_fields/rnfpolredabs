@@ -35,9 +35,8 @@ Doc: Relative version of \kbd{polredabs}. Given an irreducible monic polynomial
  as above, $a$, $b$ are \typ{POLMOD} modulo \var{Pabs}, roots of \kbd{nf.pol}
  and \var{pol} respectively.
 
- 16: possibly use a suborder of the maximal order. This is slower than the
- default when the relative discriminant is smooth, and much faster otherwise.
- In this case the result is no longer canonical; see \secref{se:polredabs}.
+ 16: (OBSOLETE) possibly use a suborder of the maximal order. This makes
+ \kbd{rnfpolredabs} behave as \kbd{rnfpolredbest}. Just use the latter.
 
  \misctitle{Warning} The complexity of \kbd{rnfpolredabs}
  is exponential in the absolute degree. The function \tet{rnfpolredbest} runs

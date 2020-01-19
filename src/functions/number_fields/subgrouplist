@@ -38,4 +38,4 @@ Doc: \var{bnr} being as output by \kbd{bnrinit} or a list of cyclic components
  ? vector(#L, i, galoissubcyclo(bnr, L[i]))
  @eprog\noindent
  will produce their equations. (For a general base field, you would
- have to rely on \tet{bnrstark}, or \tet{rnfkummer}.)
+ have to rely on \tet{bnrstark}, or \tet{bnrclassfield}.)

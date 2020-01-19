@@ -31,8 +31,8 @@ Doc: Given \var{nf} a number field in \var{nf} or \var{bnf} format,
 
  \misctitle{Warning} If the number field \var{nf} does not contain the $n$-th
  roots of unity where $n$ is the degree of the extension to be computed,
- triggers the computation of the \var{bnf} of $nf(\zeta_n)$, which may be
- costly.
+ the function triggers the computation of the \var{bnf} of $nf(\zeta_n)$,
+ which may be costly.
 
  \bprog
  ? nf = nfinit(y^2-5);
