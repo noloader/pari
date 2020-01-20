@@ -10,10 +10,9 @@ Doc: Gives the Sturm bound for modular forms on $\Gamma_0(N)$ and
  weight $k$, i.e., an upper bound for the order of the zero at infinity of
  a nonzero form. \kbd{NK} is either
 
- \item a pair $[N,k]$,
+ \item a pair $[N,k]$, in which case the bound is the floor of $(kN/12) \cdot \prod_{p\mid N} (1+1/p)$;
 
- \item or the output of \tet{mfinit} in which case the exact upper bound
- is returned.
+ \item or the output of \tet{mfinit} in which case the exact upper bound is returned.
 
  \bprog
  ? NK = [96,6]; mfsturm(NK)

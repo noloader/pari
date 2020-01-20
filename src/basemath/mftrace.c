@@ -2712,7 +2712,7 @@ ceilA1(long N, long k)
 
 /* sturm bound, slightly larger than dimension */
 long
-mfsturmNk(long N, long k) { return 1 + (mypsiu(N)*k)/12; }
+mfsturmNk(long N, long k) { return (mypsiu(N) * k) / 12; }
 long
 mfsturmNgk(long N, GEN k)
 {
@@ -4220,7 +4220,7 @@ mfsturm_mf(GEN mf)
 {
   GEN Mindex = MF_get_Mindex(mf);
   long n = lg(Mindex)-1;
-  return n? Mindex[n]: 0;
+  return n? Mindex[n]-1: 0;
 }
 
 long
@@ -4240,7 +4240,7 @@ mfisequal(GEN F, GEN G, long lim)
   if (!checkmf_i(F)) pari_err_TYPE("mfisequal",F);
   if (!checkmf_i(G)) pari_err_TYPE("mfisequal",G);
   b = lim? lim: maxss(mfsturmmf(F), mfsturmmf(G));
-  return gc_long(av, gequal(mfcoefs_i(F, b+1, 1), mfcoefs_i(G, b+1, 1)));
+  return gc_long(av, gequal(mfcoefs_i(F, b, 1), mfcoefs_i(G, b, 1)));
 }
 
 GEN
@@ -4536,7 +4536,7 @@ static GEN
 mfheckemat_mfcoefs(GEN mf, GEN B, GEN DATA)
 {
   GEN Mindex = MF_get_Mindex(mf), Minv = MF_get_Minv(mf);
-  long j, l = lg(B), sb = mfsturm_mf(mf)-1;
+  long j, l = lg(B), sb = mfsturm_mf(mf);
   GEN b = MF_get_basis(mf), Q = cgetg(l, t_VEC);
   for (j = 1; j < l; j++)
   {
@@ -4597,7 +4597,7 @@ static GEN
 mfheckemat_p(GEN mf, long p)
 {
   pari_sp av = avma;
-  long N = MF_get_N(mf), sb = mfsturm_mf(mf)-1;
+  long N = MF_get_N(mf), sb = mfsturm_mf(mf);
   GEN B = (N % p)? mfcoefs_mf(mf, sb * p, 1): mfcoefs_mf(mf, sb, p);
   return gerepileupto(av, mfheckemat_mfcoefs(mf, B, hecke_data(N,p)));
 }
@@ -4625,7 +4625,7 @@ mfnewmathecke_p(GEN mf, long p)
   for (i = j = 1; i <= lim; i++)
     if (need[i]) { gel(V,j) = mfhecke_i(i, N, tf); perm[i] = j; j++; }
   setlg(V, j);
-  V = bhnmat_extend_nocache(NULL, N, mfsturm_mf(mf)-1, 1, V);
+  V = bhnmat_extend_nocache(NULL, N, mfsturm_mf(mf), 1, V);
   V = rowpermute(V, Mindex); /* V[perm[i]] = coeffs(T_i newtrace) */
   M = cgetg(lvj, t_MAT);
   for (i = 1; i < lvj; i++)
@@ -4669,7 +4669,7 @@ mfheckemat(GEN mf, GEN vn)
   vP = vecsmall_uniq_sorted(vP); /* all primes occurring in vn */
   lvP = lg(vP); if (lvP == 1) goto END;
   p = vP[lvP-1];
-  sb = mfsturm_mf(mf)-1;
+  sb = mfsturm_mf(mf);
   if (dk == 1 && nk != 1 && MF_get_space(mf) == mf_NEW)
     B = NULL; /* special purpose mfnewmathecke_p is faster */
   else if (lvP == 2 && N % p == 0)
@@ -5291,7 +5291,7 @@ mfwt1_pre(long N)
     u_forprime_init(&S, 2, N);
     while ((p = u_forprime_next(&S)))
       if (N % p) break;
-    lim = mfsturm_mf(mf) + 1;
+    lim = mfsturm_mf(mf); /*FIXME*/
   }
   /* p = smalllest prime not dividing N */
   M = bhnmat_extend_nocache(MF_get_M(mf), N, p*lim-1, 1, MF_get_S(mf));
