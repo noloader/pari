@@ -4,9 +4,9 @@ C-Name: mfatkininit
 Prototype: GLp
 Help: mfatkininit(mf,Q): initializes data necessary for working
  with Atkin--Lehner operators W_Q, for now only the function mfatkin.
- The result is a 4-component vector [mfB, CM, C, mf] where mfB is either
+ The result is a 4-component vector [mfB, MC, C, mf] where mfB is either
  0 or the possibly different modular form space to which F|W_Q will belong
- (this does not depend on F in mf); CM is the matrix of W_Q on the basis of mf
+ (this does not depend on F in mf); MC is the matrix of W_Q on the basis of mf
  multiplied by a normalizing constant C.
 Doc: given a modular form space with parameters $N,k,\chi$ and a
  primitive divisor $Q$ of the level $N$, initializes data necessary for
@@ -18,14 +18,14 @@ Doc: given a modular form space with parameters $N,k,\chi$ and a
  Nebentypus may no longer be $\chi$: it becomes $\overline{\chi_Q} \chi_{N/Q})$
  if $k$ is integral and $\overline{\chi_Q} \chi_{N/Q})(4Q/\cdot)$ if not.
 
- The result is a technical 4-component vector \kbd{[mfB, CM, C, mf]}, where
+ The result is a technical 4-component vector \kbd{[mfB, MC, C, mf]}, where
 
  \item \kbd{mfB} encodes the modular form space to which
  $F|W_Q$ belongs when $F \in M_k(\Gamma_0(N), \chi)$: an \kbd{mfinit}
  corresponding to a new Nebentypus or the integer $0$ when the character does
  not change. This does not depend on $F$.
 
- \item \kbd{CM} is the matrix of $W_Q$ on the bases of \kbd{mf} and \kbd{mfB}
+ \item \kbd{MC} is the matrix of $W_Q$ on the bases of \kbd{mf} and \kbd{mfB}
  multiplied by a normalizing constant $C(k,\chi,Q)$. This matrix has polmod
  coefficients in $\Q(\chi)$.
 
