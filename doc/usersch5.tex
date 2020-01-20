@@ -6406,6 +6406,12 @@ greatest common divisor of $x$  and $y$.
 
 \fun{GEN}{FlxqX_resultant}{GEN x, GEN y, GEN T, ulong p}
 
+\fun{GEN}{FlxqX_saferesultant}{GEN P, GEN Q, GEN T, ulong p} Returns the
+resultant of $P$ and $Q$ if Euclid's algorithm succeeds and \kbd{NULL} otherwise.
+In particular, if $p$ is not prime or $T$ is not irreducible over $\F_p[X]$, the
+routine may still be used (but will fail if non-invertible leading terms
+occur).
+
 \fun{GEN}{FlxqX_disc}{GEN x, GEN T, ulong p}
 
 \fun{GEN}{FlxqXV_prod}{GEN V, GEN T, ulong p}

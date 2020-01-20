@@ -1300,6 +1300,15 @@ FlxqX_extgcd(GEN x, GEN y, GEN T, ulong p, GEN *ptu, GEN *ptv)
   return d;
 }
 
+static GEN
+FlxqX_saferem(GEN P, GEN Q, GEN T, ulong p)
+{
+  GEN U = Flxq_invsafe(leading_coeff(Q), T, p);
+  if (!U) return NULL;
+  Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
+  return FlxqX_rem(P,Q,T,p);
+}
+
 GEN
 FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
 {
@@ -1310,10 +1319,8 @@ FlxqX_safegcd(GEN P, GEN Q, GEN T, ulong p)
   T = Flx_get_red(T,p);
   for(;;)
   {
-    U = Flxq_invsafe(leading_coeff(Q), T, p);
-    if (!U) return gc_NULL(av);
-    Q = FlxqX_Flxq_mul_to_monic(Q,U,T,p);
-    P = FlxqX_rem(P,Q,T,p);
+    P = FlxqX_saferem(P,Q,T,p);
+    if (!P) return gc_NULL(av);
     if (!signe(P)) break;
     if (gc_needed(av, 1))
     {
@@ -1345,6 +1352,48 @@ FlxqX_powu(GEN V, ulong n, GEN T, ulong p)
 {
   struct _FlxqX d; d.p=p; d.T=T;
   return gen_powu(V, n, (void*)&d, &_FlxqX_sqr, &_FlxqX_mul);
+}
+
+/* Res(A,B) = Res(B,R) * lc(B)^(a-r) * (-1)^(ab), with R=A%B, a=deg(A) ...*/
+GEN
+FlxqX_saferesultant(GEN a, GEN b, GEN T, ulong p)
+{
+  long vT = get_Flx_var(T);
+  long da,db,dc;
+  pari_sp av;
+  GEN c,lb, res = pol1_Flx(vT);
+
+  if (!signe(a) || !signe(b)) return pol0_Flx(vT);
+
+  da = degpol(a);
+  db = degpol(b);
+  if (db > da)
+  {
+    swapspec(a,b, da,db);
+    if (both_odd(da,db)) res = Flx_neg(res, p);
+  }
+  if (!da) return pol1_Flx(vT); /* = res * a[2] ^ db, since 0 <= db <= da = 0 */
+  av = avma;
+  while (db)
+  {
+    lb = gel(b,db+2);
+    c = FlxqX_saferem(a,b, T,p);
+    if (!c) return gc_NULL(av);
+    a = b; b = c; dc = degpol(c);
+    if (dc < 0) { set_avma(av); return pol0_Flx(vT); }
+
+    if (both_odd(da,db)) res = Flx_neg(res, p);
+    if (!equali1(lb)) res = Flxq_mul(res, Flxq_powu(lb, da - dc, T, p), T, p);
+    if (gc_needed(av,2))
+    {
+      if (DEBUGMEM>1) pari_warn(warnmem,"FlxqX_resultant (da = %ld)",da);
+      gerepileall(av,3, &a,&b,&res);
+    }
+    da = db; /* = degpol(a) */
+    db = dc; /* = degpol(b) */
+  }
+  res = Flxq_mul(res, Flxq_powu(gel(b,2), da, T, p), T, p);
+  return gerepileupto(av, res);
 }
 
 /* Res(A,B) = Res(B,R) * lc(B)^(a-r) * (-1)^(ab), with R=A%B, a=deg(A) ...*/
