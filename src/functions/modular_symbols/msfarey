@@ -27,7 +27,7 @@ Doc:
  G0(N) = mspolygon(N);
 
  \\ Gamma_1(N): direct construction, slow
- G1(N) = msfarey(mspolygon(1), (g-> my(a = g[1,1]%N, c = g[2,1]%N)
+ G1(N) = msfarey(mspolygon(1), (g-> my(a = g[1,1]%N, c = g[2,1]%N);\
                                c == 0 && (a == 1 || a == N-1)));
  \\ Gamma_1(N) via Gamma_0(N): much faster
  G1(N) = msfarey(G0(N), (g->my(a=g[1,1]%N); a==1 || a==N-1));
