@@ -3,11 +3,14 @@ Section: modular_forms
 C-Name: mfisetaquo
 Prototype: GD0,L,
 Help: mfisetaquo(f,{flag=0}): if the generalized modular form f
- is a meromorphic eta quotient, return the eta quotient matrix, else return 0.
- If flag is set, also return 0 if the eta quotient is not holomorphic.
-Doc: if the generalized modular form $f$ is a meromorphic eta quotient,
- return the eta quotient matrix, else return 0. If \fl is set, also return
- 0 if the eta quotient is not holomorphic. See \kbd{mffrometaquo}.
+ is a holomorphic eta quotient, return the eta quotient matrix, else return 0.
+ If flag is set, also accept meromorphic eta quotients.
+Doc: if the generalized modular form $f$ is a holomorphic eta quotient,
+ return the eta quotient matrix, else return 0. If \fl is set, also accept
+ meromorphic eta quotients: check whether $f = q^{-v(g)} g(q)$ for some
+ eta quotient $g$; if so, return the eta quotient matrix attached to $g$,
+ else return $0$.
+ See \kbd{mffrometaquo}.
 
  \bprog
  ? mfisetaquo(mfDelta())
@@ -19,7 +22,7 @@ Doc: if the generalized modular form $f$ is a meromorphic eta quotient,
  [ 1 1]
 
  [23 1]
- ? f = mffrometaquo(Mat([1,-24]), 1);
+ ? f = mffrometaquo([1,-24], 1);
  ? mfisetaquo(f) \\ non-holomorphic
  %5 = 0
  ? mfisetaquo(f,1)

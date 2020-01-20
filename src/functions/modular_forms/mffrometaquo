@@ -5,12 +5,12 @@ Prototype: GD0,L,
 Help: mffrometaquo(eta,{flag=0}): modular form corresponding to the eta
  quotient matrix eta. If the valuation v at infinity is fractional, return 0.
  If the eta quotient is not holomorphic but simply meromorphic, return 0 if
- flag=0, return the eta quotient (divided by q to the power -v if v < 0, i.e.,
+ flag=0; return the eta quotient (divided by q to the power -v if v < 0, i.e.,
  with valuation 0) if flag is set.
 Doc: modular form corresponding to the eta quotient matrix \kbd{eta}.
  If the valuation $v$ at infinity is fractional, return $0$. If the eta
  quotient is not holomorphic but simply meromorphic, return $0$ if
- \kbd{flag=0}, return the eta quotient (divided by $q$ to the power $-v$ if
+ \kbd{flag=0}; return the eta quotient (divided by $q$ to the power $-v$ if
  $v < 0$, i.e., with valuation $0$) if flag is set.
  \bprog
  ? mffrometaquo(Mat([1,1]),1)
