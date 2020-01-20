@@ -3,7 +3,7 @@ Section: modular_forms
 C-Name: mfbasis
 Prototype: GD4,L,
 Help: mfbasis(NK,{space=4}): If NK=[N,k,CHI] as in mfinit, gives a basis of
- the corresponding subspace of M_k(G_0(N),chi). NK can also be the output of
+ the corresponding subspace of M_k(G_0(N),CHI). NK can also be the output of
  mfinit, in which case space is ignored. To obtain the eigenforms use
  mfeigenbasis.
 Doc: If $NK=[N,k,\var{CHI}]$ as in \kbd{mfinit}, gives a basis of the
