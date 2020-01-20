@@ -18,7 +18,7 @@ Doc: Returns a two-component vector $[w,z]$ where $w$ is the number of roots of
  @eprog
  This function guesses the number $w$ as the gcd of the $\#k(v)^*$ for
  unramified $v$ above odd primes, then computes the roots in \var{nf}
- of the $w$-th cyclotomic polynomial: the algorithm is polynomial time with
+ of the $w$-th cyclotomic polynomial. The algorithm is polynomial time with
  respect to the field degree and the bitsize of the multiplication table in
  \var{nf} (both of them polynomially bounded in terms of the size of the
  discriminant). Fields of degree up to $100$ or so should require less than
