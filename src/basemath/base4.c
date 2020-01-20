@@ -1401,7 +1401,13 @@ GEN
 matreduce(GEN f)
 { pari_sp av = avma;
   if (typ(f) != t_MAT || lg(f) != 3) pari_err_TYPE("matreduce", f);
-  f = typ(gel(f,1)) == t_VECSMALL? famatsmall_reduce(f): famat_reduce(f);
+  if (typ(gel(f,1)) == t_VECSMALL)
+    f = famatsmall_reduce(f);
+  else
+  {
+    if (!RgV_is_ZV(gel(f,2))) pari_err_TYPE("matreduce",f);
+    f = famat_reduce(f);
+  }
   return gerepilecopy(av, f);
 }
 

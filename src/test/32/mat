@@ -646,4 +646,7 @@ matrix(0,2)
   ***   at top-level: matreduce([;])
   ***                 ^--------------
   *** matreduce: incorrect type in matreduce (t_MAT).
-Total time spent: 773
+  ***   at top-level: matreduce([1,x;1,y])
+  ***                 ^--------------------
+  *** matreduce: incorrect type in matreduce (t_MAT).
+Total time spent: 806
