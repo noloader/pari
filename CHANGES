@@ -68,6 +68,8 @@ DB  50- mspolygon(1,2): incorrect drawing
     51- qflllgram([2,2,3;4,5,6]) -> SEGV
     52- printf("%10.6f\n",2^-100) -> SEGV [#2198]
     53- mfsturm: off-by-1 error
+BA  54- ((x^7+x^3+x+1)*Mod(1,Mod(1,2)*d))%(x^4+x^3+x^2+1)->x^3+x
+        instead of Mod(1,2)*x^3+Mod(1,2)*x [#2199]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

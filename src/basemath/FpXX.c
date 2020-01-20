@@ -294,7 +294,24 @@ FpXQX_red(GEN z, GEN T, GEN p)
   return FpXQX_renormalize(res,l);
 }
 
-/* z in Z[X], return z * Mod(1,p), normalized*/
+static GEN
+to_intmod(GEN x, GEN p) { retmkintmod(modii(x, p), p); }
+
+static GEN
+FpX_to_mod_raw(GEN z, GEN p)
+{
+  long i,l = lg(z);
+  GEN x;
+  if (l == 2)
+  {
+    x = cgetg(3,t_POL); x[1] = z[1];
+    gel(x,2) = mkintmod(gen_0,p); return x;
+  }
+  x = cgetg(l,t_POL);
+  for (i=2; i<l; i++) gel(x,i) = to_intmod(gel(z,i), p);
+  x[1] = z[1]; return normalizepol_lg(x,l);
+}
+
 GEN
 FpXQX_to_mod(GEN z, GEN T, GEN p)
 {
@@ -302,11 +319,13 @@ FpXQX_to_mod(GEN z, GEN T, GEN p)
   GEN x = cgetg(l, t_POL);
   x[1] = z[1];
   if (l == 2) return x;
-  T = FpX_to_mod(T, p);
+  p = icopy(p);
+  T = FpX_to_mod_raw(T, p);
   for (i=2; i<l; i++)
   {
     GEN zi = gel(z,i);
-    gel(x,i) = typ(zi) == t_POL? mkpolmod(FpX_to_mod(zi, p), T): icopy(zi);
+    gel(x,i) = typ(zi) == t_POL? mkpolmod(FpX_to_mod_raw(zi, p), T)
+                               : to_intmod(zi, p);
   }
   return normalizepol_lg(x,l);
 }
