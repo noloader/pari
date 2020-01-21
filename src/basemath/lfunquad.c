@@ -574,7 +574,7 @@ Linv(long D, long k, int prime)
   forprime_t iter;
   ulong p;
   GEN P, Q;
-  if (prime) B += log(Da);
+  if (prime) B += log(k * Da);
   bit = maxss((long)(B * k)/(M_LN2 * km), 32) + 32;
   prec = nbits2prec(bit);
   lim = (long)exp( (B-log(km)) / km ); /* ~ D / (2Pi e) */
@@ -618,13 +618,13 @@ Lfeq(long D, long k)
   int prime;
 
   if ((D > 0 && odd(k)) || (D < 0 && !odd(k))) return gen_0;
-  Da = labs(D); prime = uisprime(Da);
+  Da = labs(D); prime = uisprime(Da) || Da == 4;
   z = Linv(D, k, prime); prec = lg(z);
   z = mulrr(z, powrs(divru(Pi2n(1, prec), Da), k));
   if (Da != 4) { z = mulrr(z, sqrtr_abs(utor(Da,prec))); shiftr_inplace(z,-1); }
   res = divrr(mpfactr(k-1, prec), z);
   if (odd(k/2)) togglesign(res);
-  den = (prime || Da == 4)? utoipos(k*Da): NULL;
+  den = prime? utoipos(k*Da): NULL;
   return myround(res, den);
 }
 
