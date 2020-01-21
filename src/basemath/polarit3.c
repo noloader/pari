@@ -2045,7 +2045,9 @@ ZX_disc_all(GEN x, ulong bound)
   if (s == -1) togglesign_safe(&R);
   return gerepileuptoint(av,R);
 }
-GEN ZX_disc(GEN x) { return ZX_disc_all(x,0); }
+
+GEN
+ZX_disc(GEN x) { return ZX_disc_all(x,0); }
 
 GEN
 QX_disc(GEN x)
