@@ -3609,11 +3609,20 @@ newtonlogint(ulong n, ulong pp)
 static void
 init_invlaplace(long d, ulong p, GEN *pt_P, GEN *pt_V)
 {
-  long i;
+  long i, e;
   GEN P = cgetg(d+1, t_VECSMALL);
   GEN V = cgetg(d+1, t_VECSMALL);
-  for (i=1; i<=d; i++)
-    V[i] = u_lvalrem(i, p, &uel(P,i));
+  for (i=1, e=1; i<=d; i++, e++)
+  {
+    if (e==p)
+    {
+      e = 0;
+      V[i] = u_lvalrem(i, p, &uel(P,i));
+    } else
+    {
+      V[i] = 0; uel(P,i) = i;
+    }
+  }
   *pt_P = P; *pt_V = V;
 }
 
