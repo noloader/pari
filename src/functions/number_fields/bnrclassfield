@@ -3,10 +3,10 @@ Section: number_fields
 C-Name: bnrclassfield
 Prototype: GDGD0,L,p
 Help: bnrclassfield(bnr,{subgp},{flag=0}): bnr being as output by bnrinit,
- finds a relative equation for the class field corresponding to the congruence
- subgroup described by (bnr,subgp). If flag=0, returns a vector of polynomials
+ find a relative equation for the class field corresponding to the congruence
+ subgroup described by (bnr,subgp). If flag=0, return a vector of polynomials
  such that the compositum of the corresponding fields is the class field; if
- flag=1 returns a single relative polynomial; if flag=2 returns a single
+ flag=1 return a single relative polynomial; if flag=2 return a single
  absolute polynomial.
 Doc: \var{bnr} being as output by \kbd{bnrinit}, returns a relative equation
  for the class field corresponding to the congruence group defined by

@@ -3,9 +3,9 @@ Section: combinatorics
 C-Name: eulervec
 Prototype: L
 Help: eulervec(n): returns a vector containing
- the Euler numbers E_0, E_2, ..., E_{2n}.
+ the non-zero Euler numbers E_0, E_2, ..., E_{2n}.
 Doc: returns a vector containing, as rational numbers,
- the \idx{Euler numbers} $E_0$, $E_2$,\dots, $E_{2n}$:
+ the non-zero \idx{Euler numbers} $E_0$, $E_2$,\dots, $E_{2n}$:
  \bprog
  ? eulervec(5) \\ E_0, E_2..., E_10
  %1 = [1, -1, 5, -61, 1385, -50521]

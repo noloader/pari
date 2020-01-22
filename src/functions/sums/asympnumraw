@@ -23,10 +23,20 @@ Doc: Return the $N+1$ first terms of asymptotic expansion of \var{expr},
  ? v[1] - sqrt(2*Pi)
  %4 = 0.E-37
  ? bestappr(v / v[1], 2^60)
- %4 =  [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,...]
+ %5 =  [1, 1/12, 1/288, -139/51840, -571/2488320, 163879/209018880,...]
  @eprog\noindent and we indeed get a few terms of Stirling's expansion (the
  first 9 terms are correct).
-
+ If $u(n)$ has an asymptotic expansion in $n^{-\alpha}$ with $\alpha$ not an
+ integer, the default $alpha=1$ is inaccurate:
+ \bprog
+ ? f(n) = (1+1/n^(7/2))^(n^(7/2));
+ ? v1 = asympnumraw(f,10);
+ ? v1[1] - exp(1)
+ %8 = 4.62... E-12
+ ? v2 = asympnumraw(f,10,7/2);
+ ? v2[1] - exp(1)
+ %7 0.E-37
+ @eprog\noindent
  As in \kbd{asympnum}, if \kbd{alpha} is not a rational number,
  loss of accuracy is expected, so it should be precomputed to double
  accuracy, say.

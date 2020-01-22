@@ -8,5 +8,5 @@ Doc: \idx{Euler polynomial} $E_n$ in variable $v$.
  ? eulerpol(1)
  %1 = x - 1/2
  ? eulerpol(3)
- %2 = x^3 - 3/2*x^2 + 1/2*x
+ %2 = x^3 - 3/2*x^2 + 1/4
  @eprog

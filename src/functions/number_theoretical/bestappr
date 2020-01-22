@@ -2,14 +2,14 @@ Function: bestappr
 Section: number_theoretical
 C-Name: bestappr
 Prototype: GDG
-Help: bestappr(x, {B}): returns a rational approximation to x, whose
+Help: bestappr(x, {B}): return a rational approximation to x, whose
  denominator is limited by B, if present. This function applies to reals,
  intmods, p-adics, and rationals of course. Otherwise it applies recursively
  to all components.
 
 Doc: using variants of the extended Euclidean algorithm, returns a rational
  approximation $a/b$ to $x$, whose denominator is limited
- by $B$, if present. If $B$ is omitted, return the best approximation
+ by $B$, if present. If $B$ is omitted, returns the best approximation
  affordable given the input accuracy; if you are looking for true rational
  numbers, presumably approximated to sufficient accuracy, you should first
  try that option. Otherwise, $B$ must be a positive real scalar (impose
@@ -47,4 +47,4 @@ Doc: using variants of the extended Euclidean algorithm, returns a rational
 
  The function applies recursively to components of complex objects
  (polynomials, vectors, \dots). If rational reconstruction fails for even a
- single entry, return $[]$.
+ single entry, returns $[]$.
