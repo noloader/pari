@@ -3,5 +3,4 @@ Section: programming/specific
 Help: unexport(x,...,z): remove x,...,z from the list of variables exported to
  the parallel world.
 Doc: remove $x,\ldots, z$ from the list of variables exported
- to the parallel world.  Such variables are visible inside parallel sections in
- place of global variables.
+ to the parallel world.  See \key{export}.
