@@ -3,15 +3,15 @@ Section: elliptic_curves
 C-Name: ellisomat
 Prototype: GD0,L,D0,L,
 Help: ellisomat(E, {p=0}, {fl=0}): E being an elliptic curve over a number
- field, return a list of representatives of the isomorphism classes of elliptic
- curves isogenous to E, with the corresponding isogenies from E and their dual,
+ field K, return a list of representatives of the isomorphism classes of elliptic
+ curves defined over K and K-isogenous to E, with the corresponding isogenies from E and their dual,
  and the matrix of the isogeny degrees between the curves.
  If the flag fl is 1, the isogenies are not computed, which saves time.
  If p is set, it must be a prime number: in this case only isogenies of degree
  a power of p are considered.
 Doc:
- Given an elliptic curve $E$ defined over a number field, compute
- representatives of the isomorphism classes of elliptic curves $\Q$-isogenous
+ Given an elliptic curve $E$ defined over a number field $K$, compute
+ representatives of the isomorphism classes of elliptic curves defined over $K$ and $K$-isogenous
  to $E$. For any such curve $E_i$, let $f_i: E \to E_i$ be a rational isogeny
  of minimal degree and let $g_i: E_i \to E$ be the dual isogeny; and let $M$
  be the matrix such that $M_{i,j}$ is the minimal degree for an isogeny $E_i
