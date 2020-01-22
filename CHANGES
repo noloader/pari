@@ -197,6 +197,7 @@ BA  66- [libpari] FlxX_translate1, zlx_translate1, zlxX_translate1
     68- [libpari] ZXQ_minpoly
     69- [libpari] bnrchar_primitive_raw
     70- new GP functions matreduce, bnfunits
+BA  71- [libpari] QXQ_to_mod_shallow
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

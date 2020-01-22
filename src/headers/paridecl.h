@@ -1137,6 +1137,7 @@ GEN     Kronecker_to_mod(GEN z, GEN pol);
 GEN     QX_ZXQV_eval(GEN P, GEN V, GEN dV);
 GEN     QXQ_charpoly(GEN A, GEN T, long v);
 GEN     QXQ_powers(GEN a, long n, GEN T);
+GEN     QXQ_to_mod_shallow(GEN x, GEN T);
 GEN     QXQC_to_mod_shallow(GEN V, GEN T);
 GEN     QXQM_to_mod_shallow(GEN V, GEN T);
 GEN     QXQV_to_mod(GEN V, GEN T);

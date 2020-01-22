@@ -6925,6 +6925,12 @@ Mod(1,p)}, with \typ{INTMOD} coefficients.
 converts each entry to a \typ{POLMOD} with \typ{INTMOD} coefficients, and return
 a \typ{COL}.
 
+\fun{GEN}{QXQ_to_mod_shallow}{GEN x, GEN T} $x$ a \kbd{QXQ}, which is
+a lifted representative of elements of $\Q[X]/(T)$ (number field elements
+in most applications) and $T$ is in $\Z[X]$. Convert it to a \typ{POLMOD}
+modulo $T$; no reduction mod $T$ is attempted: the representatives should be
+already reduced. Shallow function.
+
 \fun{GEN}{QXQV_to_mod}{GEN V, GEN T} $V$ a vector of \kbd{QXQ}, which
 are lifted representatives of elements of $\Q[X]/(T)$ (number field elements
 in most applications) and $T$ is in $\Z[X]$. Return a vector where all

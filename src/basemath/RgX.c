@@ -584,7 +584,7 @@ RgXQX_translate(GEN P, GEN c, GEN T)
 /* to INT / FRAC / (POLMOD mod T), not memory clean because T not copied,
  * but everything else is */
 static GEN
-QXQ_to_mod_copy(GEN x, GEN T)
+QXQ_to_mod(GEN x, GEN T)
 {
   long d;
   switch(typ(x))
@@ -601,8 +601,8 @@ QXQ_to_mod_copy(GEN x, GEN T)
   }
 }
 /* pure shallow version */
-static GEN
-QXQ_to_mod(GEN x, GEN T)
+GEN
+QXQ_to_mod_shallow(GEN x, GEN T)
 {
   long d;
   switch(typ(x))
@@ -618,14 +618,14 @@ QXQ_to_mod(GEN x, GEN T)
              return NULL;/* LCOV_EXCL_LINE */
   }
 }
-/* T a ZX, z lifted from (Q[Y]/(T(Y)))[X], apply QXQ_to_mod_copy to all coeffs.
+/* T a ZX, z lifted from (Q[Y]/(T(Y)))[X], apply QXQ_to_mod to all coeffs.
  * Not memory clean because T not copied, but everything else is */
 static GEN
 QXQX_to_mod(GEN z, GEN T)
 {
   long i,l = lg(z);
   GEN x = cgetg(l,t_POL);
-  for (i=2; i<l; i++) gel(x,i) = QXQ_to_mod_copy(gel(z,i), T);
+  for (i=2; i<l; i++) gel(x,i) = QXQ_to_mod(gel(z,i), T);
   x[1] = z[1]; return normalizepol_lg(x,l);
 }
 /* pure shallow version */
@@ -634,7 +634,7 @@ QXQX_to_mod_shallow(GEN z, GEN T)
 {
   long i,l = lg(z);
   GEN x = cgetg(l,t_POL);
-  for (i=2; i<l; i++) gel(x,i) = QXQ_to_mod(gel(z,i), T);
+  for (i=2; i<l; i++) gel(x,i) = QXQ_to_mod_shallow(gel(z,i), T);
   x[1] = z[1]; return normalizepol_lg(x,l);
 }
 /* Apply QXQX_to_mod to all entries. Memory-clean ! */
@@ -646,23 +646,23 @@ QXQXV_to_mod(GEN V, GEN T)
   for (i=1;i<l; i++) gel(z,i) = QXQX_to_mod(gel(V,i), T);
   return z;
 }
-/* Apply QXQ_to_mod_copy to all entries. Memory-clean ! */
+/* Apply QXQ_to_mod to all entries. Memory-clean ! */
 GEN
 QXQV_to_mod(GEN V, GEN T)
 {
   long i, l = lg(V);
   GEN z = cgetg(l, t_VEC); T = ZX_copy(T);
-  for (i=1;i<l; i++) gel(z,i) = QXQ_to_mod_copy(gel(V,i), T);
+  for (i=1;i<l; i++) gel(z,i) = QXQ_to_mod(gel(V,i), T);
   return z;
 }
 
-/* Apply QXQ_to_mod_copy to all entries. Memory-clean ! */
+/* Apply QXQ_to_mod to all entries. Memory-clean ! */
 GEN
 QXQC_to_mod_shallow(GEN V, GEN T)
 {
   long i, l = lg(V);
   GEN z = cgetg(l, t_COL);
-  for (i=1;i<l; i++) gel(z,i) = QXQ_to_mod(gel(V,i), T);
+  for (i=1;i<l; i++) gel(z,i) = QXQ_to_mod_shallow(gel(V,i), T);
   return z;
 }
 
