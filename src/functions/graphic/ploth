@@ -5,9 +5,9 @@ Wrapper: (,,G)
 Description:
   (gen,gen,gen,?0,?0):gen:prec ploth(${3 cookie}, ${3 wrapper}, $1, $2, $4, $5, $prec)
 Prototype: V=GGED0,M,D0,L,p\nParametric|1; Recursive|2; no_Rescale|4; no_X_axis|8; no_Y_axis|16; no_Frame|32; no_Lines|64; Points_too|128; Splines|256; no_X_ticks|512; no_Y_ticks|1024; Same_ticks|2048; Complex|4096
-Help: ploth(X=a,b,expr,{flags=0},{n=0}): plot of expression expr, X goes
- from a to b in high resolution. Both flags and n are optional. Binary digits
- of flags mean: 1=Parametric, 2=Recursive, 4=no_Rescale, 8=no_X_axis,
+Help: ploth(X=a,b,expr,{flag=0},{n=0}): plot of expression expr, X goes
+ from a to b in high resolution. Both flag and n are optional. Binary digits
+ of flag mean: 1=Parametric, 2=Recursive, 4=no_Rescale, 8=no_X_axis,
  16=no_Y_axis, 32=no_Frame, 64=no_Lines (do not join points), 128=Points_too
  (plot both lines and points), 256=Splines (use cubic splines),
  512=no_X_ticks, 1024= no_Y_ticks, 2048=Same_ticks (plot all ticks with the
@@ -49,7 +49,7 @@ Doc: high precision plot of the function $y=f(x)$ represented by the expression
  @eprog\noindent draw successively a circle, two entwined sinusoidal curves
  and a circle cut by the line $y=x$.
 
- \item $2 = \kbd{Recursive}$: \tev{recursive plot}. If this flag is set,
+ \item $2 = \kbd{Recursive}$: \tev{recursive plot}. If this is set,
  only \emph{one} curve can be drawn at a time, i.e.~\var{expr} must be either a
  two-component vector (for a single parametric curve, and the parametric flag
  \emph{has} to be set), or a scalar function. The idea is to choose pairs of
@@ -115,4 +115,4 @@ Doc: high precision plot of the function $y=f(x)$ represented by the expression
  @eprog\noindent will draw respectively a circle and a circle cut by the line
  $y=x$.
 
- \synt{ploth}{void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long flags, long n, long prec},
+ \synt{ploth}{void *E, GEN (*eval)(void*, GEN), GEN a, GEN b, long flag, long n, long prec},
