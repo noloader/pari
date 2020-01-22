@@ -2104,7 +2104,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isunit(bnf,x) ===> bnfisunit(bnf,x)
 
-bnfisunit(bnf,x, {U}): bnf being output by bnfinit, gives the column vector of 
+bnfisunit(bnf,x, {U}): bnf being output by bnfinit, give the column vector of 
 exponents of x on the fundamental units and the roots of unity if x is a unit, 
 the empty vector otherwise. If U is present, as given by bnfunits, decompose x 
 on the attached S-units generators.
@@ -4300,8 +4300,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: ploth2(X=a,b,expr) ===> ploth(X=a,b,expr,1)
 
-ploth(X=a,b,expr,{flags=0},{n=0}): plot of expression expr, X goes from a to b 
-in high resolution. Both flags and n are optional. Binary digits of flags mean: 
+ploth(X=a,b,expr,{flag=0},{n=0}): plot of expression expr, X goes from a to b 
+in high resolution. Both flag and n are optional. Binary digits of flag mean: 
 1=Parametric, 2=Recursive, 4=no_Rescale, 8=no_X_axis, 16=no_Y_axis, 
 32=no_Frame, 64=no_Lines (do not join points), 128=Points_too (plot both lines 
 and points), 256=Splines (use cubic splines), 512=no_X_ticks, 1024= no_Y_ticks, 
@@ -4318,8 +4318,8 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: plothmult(X=a,b,expr) ===> ploth(X=a,b,expr)
 
-ploth(X=a,b,expr,{flags=0},{n=0}): plot of expression expr, X goes from a to b 
-in high resolution. Both flags and n are optional. Binary digits of flags mean: 
+ploth(X=a,b,expr,{flag=0},{n=0}): plot of expression expr, X goes from a to b 
+in high resolution. Both flag and n are optional. Binary digits of flag mean: 
 1=Parametric, 2=Recursive, 4=no_Rescale, 8=no_X_axis, 16=no_Y_axis, 
 32=no_Frame, 64=no_Lines (do not join points), 128=Points_too (plot both lines 
 and points), 256=Splines (use cubic splines), 512=no_X_ticks, 1024= no_Y_ticks, 
@@ -4522,4 +4522,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 10
+Total time spent: 12
