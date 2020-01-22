@@ -39,7 +39,7 @@ Doc: Let $p$ be a prime number and let $E/\Q$ be a rational elliptic curve
  \item there exists integers $\lambda^+$, $\lambda^-$
  in $\Z$ (denoted with a $\til$ in the reference below) such that
  $$ \lim_{n\to\infty} \lambda_{2n} + 1/(p+1) = \lambda^+
-    \quad and \quad
+    \quad \text{and} \quad
     \lim_{n\to\infty} \lambda_{2n+1} + p/(p+1) = \lambda^-.$$
  The function returns $[[\lambda^+, \lambda^-], [\mu^+,\mu^-]]$.
 

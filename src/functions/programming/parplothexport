@@ -13,10 +13,17 @@ Doc: parallel version of \kbd{plothexport}. Plot of expression \var{expr}, $X$
  The format \kbd{fmt} is either \kbd{"ps"} (PostScript output) or \kbd{"svg"}
  (Scalable Vector Graphics). All other parameters and flags are as in
  \kbd{ploth}.
-
  \bprog
   ? s = parplothexport("svg", x=1,10, x^2+3);
   ? write("graph.svg", s);
- @eprog
+ @eprog\noindent The above only works if \kbd{graph.svg} does not already
+ exist, otherwise \kbd{write} will append to the existing file and produce
+ an invalid \kbd{svg}. Here is a version that truncates an existing file
+ (beware!):
+ \bprog
+ ? n = fileopen("graph.svg", "w");
+ ? filewrite(n, s);
+ ? fileclose(n);
+ @eprog\noindent This is intentionally more complicated.
 
  \synt{parplothexport}{GEN fmt, GEN a, GEN b, GEN code, long flags, long n, long prec},
