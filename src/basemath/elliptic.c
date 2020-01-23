@@ -2741,7 +2741,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
 {
   long toadd;
   pari_sp av = avma, av1;
-  GEN pi2, q, u, y, yp, u1, u2, qn;
+  GEN q, u, y, yp, u1, u2, qn;
   ellred_t T;
   int simple_case;
 
@@ -2750,9 +2750,8 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
   prec = T.prec;
 
   /* Now L,Z normalized to <1,tau>. Z in fund. domain of <1, tau> */
-  pi2 = Pi2n(1, prec);
-  q = expIxy(pi2, T.Tau, prec);
-  u = expIxy(pi2, T.Z, prec);
+  q = expIPiC(gmul2n(T.Tau,1), prec);
+  u = expIPiC(gmul2n(T.Z,1), prec);
   u1 = gsubsg(1,u);
   u2 = gsqr(u1); /* (1-u)^2 = -4u sin^2(Pi Z) */
   if (gequal0(gnorm(u2))) return NULL; /* possible if loss of accuracy */
@@ -2799,7 +2798,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
     yp = gadd(yp, gdiv(gaddsg(1,u), gmul(u1,u2)));
   }
 
-  u1 = gdiv(pi2, mulcxmI(T.W2));
+  u1 = gdiv(Pi2n(1, prec), mulcxmI(T.W2));
   u2 = gsqr(u1);
   y = gmul(u2,y); /* y *= (2i pi / w2)^2 */
   if (T.some_q_is_real && (T.some_z_is_real || T.some_z_is_pure_imag))
@@ -2955,15 +2954,14 @@ ellzeta(GEN w, GEN z, long prec0)
   if (signe(T.x) || signe(T.y)) et = eta_correction(&T, _elleta(&T));
 
   pi2 = Pi2n(1, prec);
-  q = expIxy(pi2, T.Tau, prec);
-
+  q = expIPiC(gmul2n(T.Tau,1), prec);
   y = mulcxI(gmul(cxEk(T.Tau,2,prec), gmul(T.Z,divrs(pi2,-12))));
   if (!T.abs_u_is_1 || (!gequal(T.Z,ghalf) && !gequal(T.Z,gneg(ghalf))))
   { /* else u = -1 and this vanishes */
     long toadd = (long)ceil(get_toadd(T.Z));
     GEN qn, u, v, S = gen_0;
     pari_sp av1;
-    u = expIxy(pi2, T.Z, prec);
+    u = expIPiC(gmul2n(T.Z,1), prec);
     v = gadd(ghalf, ginv(gsubgs(u, 1)));
     if (T.abs_u_is_1) gel(v,1) = gen_0; /*v = (u+1)/2(u-1), pure imaginary*/
     y = gadd(y, v);
@@ -3050,11 +3048,11 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
   else
   {
     toadd = (long)ceil(fabs( get_toadd(T.Z) ));
-    urn = expIxy(pi, T.Z, prec); /* exp(i Pi Z) */
+    urn = expIPiC(T.Z, prec); /* exp(i Pi Z) */
     u = gneg_i(gsqr(urn));
     if (!T.abs_u_is_1) { urninv = ginv(urn); uinv = gneg_i(gsqr(urninv)); }
   }
-  q8 = expIxy(gmul2n(pi2,-3), T.Tau, prec);
+  q8 = expIPiC(gmul2n(T.Tau, -2), prec);
   q = gpowgs(q8,8); av1 = avma;
   y = gen_0; qn = q; qn2 = gen_1;
   for(n=0;;n++)
@@ -3072,7 +3070,7 @@ ellsigma(GEN w, GEN z, long flag, long prec0)
       gerepileall(av1,urninv? 5: 4, &y,&qn,&qn2,&urn,&urninv);
     }
   }
-  y = gmul(y, gdiv(q8, gmul(pi2,gpowgs(trueeta(T.Tau,prec),3))));
+  y = gmul(y, gdiv(q8, gmul(pi2, gpowgs(trueeta(T.Tau,prec),3))));
   y = gmul(y, T.abs_u_is_1? gmul2n(T.W2,1): mulcxmI(T.W2));
 
   et = _elleta(&T);

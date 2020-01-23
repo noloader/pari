@@ -5136,6 +5136,8 @@ GEN     cxEk(GEN tau, long k, long prec);
 double  dblmodulus(GEN x);
 GEN     dilog(GEN x, long prec);
 GEN     eint1(GEN x, long prec);
+GEN     expIPiR(GEN x, long prec);
+GEN     expIPiC(GEN z, long prec);
 GEN     eta(GEN x, long prec);
 GEN     eta0(GEN x, long flag,long prec);
 GEN     gerfc(GEN x, long prec);
