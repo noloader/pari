@@ -3936,7 +3936,7 @@ nflocalred_p(GEN e, GEN P)
     ch = mkvec4(u,r,s,t);
   }
 
-  kod = 0; c = 1;
+  kod = 1; c = 1;
   /* minimal at P */
   if (nuj > 0)
   { /* v(j) < 0 */
@@ -3971,7 +3971,7 @@ nflocalred_p(GEN e, GEN P)
     switch(vD)
     {
       GEN piinv2, piinv3, piinv4, w;
-      case 0: kod = 0; c = 1; break;
+      case 0: kod = 1; c = 1; break;
       case 2: kod = 2; c = 1; break;
       case 3: kod = 3; c = 2; break;
       case 4: kod = 4;
