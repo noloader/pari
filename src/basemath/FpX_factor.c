@@ -584,8 +584,6 @@ FpX_oneroot_split(GEN fact, GEN p)
   if (deg_f<=2) return FpX_oneroot(fact, p);
   minfactor = fact; /* factor of minimal degree found so far */
   dmin = degpol(minfactor);
-  prim = good_root_of_unity(p, deg_f, 1, &n);
-  expo = diviuexact(subiu(p, 1), n);
   xplusa = pol_x(varn(fact));
   zeta = gen_1;
   while (dmin != 1)
@@ -593,6 +591,8 @@ FpX_oneroot_split(GEN fact, GEN p)
     /* split minfactor by computing its gcd with (X+a)^exp-zeta, where    */
     /* zeta varies over the roots of unity in F_p                         */
     fact = minfactor; deg_f = dmin;
+    prim = good_root_of_unity(p, deg_f, 1, &n);
+    expo = diviuexact(subiu(p, 1), n);
     /* update X+a, avoid a=0 */
     gel (xplusa, 2) = addis (gel (xplusa, 2), 1);
     xpow = FpXQ_pow (xplusa, expo, fact, p);
@@ -607,7 +607,7 @@ FpX_oneroot_split(GEN fact, GEN p)
         {
           minfactor = FpX_normalize (tmp, p);
           dmin = dtmp;
-          if (dmin == 1 || dmin <= deg_f / (n / 2) + 1)
+          if (dmin == 1 || dmin <= (2 * deg_f) / n - 1)
             /* stop early to avoid too many gcds */
             break;
         }
