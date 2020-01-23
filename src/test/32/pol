@@ -89,10 +89,10 @@ Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
 1.4284266449676411750
 1.4142277045794296914
 "t_INT"
-  *** polroots: Warning: normalizing a polynomial with 0 leading term.
-[0.E-38 + 0.E-38*I]~
-  *** polrootsbound: Warning: normalizing a polynomial with 0 leading term.
-0
+[1.6967749516455178867147127964496742725 E-78 + 6.27680359220261705581969849
+48534498009 E-40*I, 1.5000000000000000000000000000000000000 + 1.593167581732
+6095290002105566876736750 E39*I]~
+1.6064105227872587614 E39
 0
 0
   ***   at top-level: polrootsbound(Pol(0))
@@ -107,4 +107,4 @@ Mod(-6, y^2 - 2)*x^2 + Mod(48*z, y^2 - 2)*x + Mod(480*z + 600, y^2 - 2)
   ***   at top-level: (1/x)%x
   ***                      ^--
   *** _%_: impossible inverse in QXQ_inv: Mod(0, x).
-Total time spent: 8
+Total time spent: 14

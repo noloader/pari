@@ -3262,8 +3262,14 @@ mpcosm1(GEN x, long *ptmod8)
     }
     if (signe(q))
     {
-      x = subrr(x, mulir(q, Pi2n(-1,p))); /* x mod Pi/2  */
-      a = expo(x);
+      GEN y = subrr(x, mulir(q, Pi2n(-1,p))); /* x mod Pi/2  */
+      a = expo(y);
+      if (a >= -5) x = y;
+      else
+      {
+        p += nbits2extraprec(-a); x = rtor(x, p);
+        x = subrr(x, mulir(q, Pi2n(-1,p)));
+      }
       if (!signe(x) && a >= 0) pari_err_PREC("mpcosm1");
       n = mod4(q); if (n && signe(q) < 0) n = 4 - n;
     }
