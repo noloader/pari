@@ -106,9 +106,11 @@ localbitprec(320); obj=[1.2, 2.1*I, 1+1.1*I];
     print1(f,": " ); print([bitprecision(f(p)) | p<-obj]));
 }
 
-z = -0xffffffffffffffd60 / 2^68;
-localbitprec(64); a = atanh(z * 1.);
-localbitprec(128); b = atanh(z * 1.); exponent(b/a - 1)
-z = -0xffffffffffffffeb0 / 2^68;
-localbitprec(64); a = atanh(z * 1.);
-localbitprec(128); b = atanh(z * 1.); exponent(b/a - 1)
+tst(f, z) =
+{
+  localbitprec(64); a = f(z * 1.);
+  localbitprec(128);b = f(z * 1.); exponent(b/a - 1);
+}
+z = -0xffffffffffffffd6 / 2^64; tst(atanh, z)
+z = -0xffffffffffffffeb / 2^64; tst(atanh, z)
+z = 0x1000000000000004 / 2^60; tst(acosh, z)

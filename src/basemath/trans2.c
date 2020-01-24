@@ -595,15 +595,13 @@ gcotanh(GEN x, long prec)
 static GEN
 mpasinh(GEN x)
 {
-  GEN z, res;
-  pari_sp av;
   long lx = realprec(x), ex = expo(x);
-
-  res = cgetr(lx); av = avma;
+  GEN z, res = cgetr(lx);
+  pari_sp av = avma;
   if (ex < 1 - BITS_IN_LONG) x = rtor(x, lx + nbits2extraprec(-ex)-1);
   z = logr_abs( addrr_sign(x,1, sqrtr_abs( addrs(sqrr(x), 1) ), 1) );
   if (signe(x) < 0) togglesign(z);
-  affrr(z, res); set_avma(av); return res;
+  affrr(z, res); return gc_const(av, res);
 }
 
 GEN
@@ -662,11 +660,15 @@ gasinh(GEN x, long prec)
 static GEN
 mpacosh(GEN x)
 {
+  long lx = realprec(x), e;
+  GEN z, res = cgetr(lx);
   pari_sp av = avma;
-  GEN z;
-  if (absrnz_equal1(x)) return real_0_bit(- bit_prec(x) >> 1);
+  e = expo(signe(x) > 0? subrs(x,1): addrs(x,1));
+  if (e == -(long)HIGHEXPOBIT)
+    return gc_const((pari_sp)(res + lx), real_0_bit(- bit_prec(x) >> 1));
+  if (e < -5) x = rtor(x, realprec(x) + nbits2extraprec(-e));
   z = logr_abs( addrr_sign(x, 1, sqrtr( subrs(sqrr(x), 1) ), 1) );
-  return gerepileuptoleaf(av, z);
+  affrr(z, res); return gc_const(av, res);
 }
 
 GEN
