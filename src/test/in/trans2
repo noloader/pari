@@ -109,3 +109,6 @@ localbitprec(320); obj=[1.2, 2.1*I, 1+1.1*I];
 z = -0xffffffffffffffd60 / 2^68;
 localbitprec(64); a = atanh(z * 1.);
 localbitprec(128); b = atanh(z * 1.); exponent(b/a - 1)
+z = -0xffffffffffffffeb0 / 2^68;
+localbitprec(64); a = atanh(z * 1.);
+localbitprec(128); b = atanh(z * 1.); exponent(b/a - 1)
