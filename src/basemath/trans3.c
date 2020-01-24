@@ -3677,7 +3677,7 @@ cxEk(GEN tau, long k, long prec)
     return real_1(prec);
   if (k == 2)
   { /* -theta^(3)(tau/2) / theta^(1)(tau/2). Assume that Im tau > 0 */
-    y = vecthetanullk_loop(qq(tau,prec), 3, prec);
+    y = vecthetanullk_loop(qq(tau,prec), 2, prec);
     return gdiv(gel(y,2), gel(y,1));
   }
   q = cxtoreal(expIPiC(gneg(gmul2n(tau,1)), prec));
