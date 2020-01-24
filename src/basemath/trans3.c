@@ -2824,7 +2824,7 @@ qq(GEN x, long prec)
   {
     if (tx == t_PADIC) return x;
     x = upper_to_cx(x, &prec);
-    return expIPiC(gmul2n(x,1), prec); /* e(x) */
+    return cxtoreal(expIPiC(gmul2n(x,1), prec)); /* e(x) */
   }
   if (! ( y = toser_i(x)) ) pari_err_TYPE("modular function", x);
   return y;
@@ -3673,23 +3673,21 @@ cxEk(GEN tau, long k, long prec)
    * S = \sum_{n > 0} n^(k-1) |q^n/(1-q^n)| <= x(1+(k!-1)x) / (1-x)^(k+1),
    * where x = |q| = exp(-2Pi Im(tau)) < 1. Neglegt 2/zeta(1-k) * S if
    * (2Pi)^k/(k-1)! x < 2^(-b-1) and k! x < 1. Use log2((2Pi)^k/(k-1)!) < 10 */
-  if (gcmpgs(imag_i(tau), (M_LN2 / M_PI) * (b+1+10)) > 0) return real_1(prec);
-  q = expIPiC(gmul2n(tau,1), prec);
-  q = cxtoreal(q);
+  if (gcmpgs(imag_i(tau), (M_LN2 / (2*M_PI)) * (b+1+10)) > 0)
+    return real_1(prec);
   if (k == 2)
   { /* -theta^(3)(tau/2) / theta^(1)(tau/2). Assume that Im tau > 0 */
-    y = vecthetanullk_loop(q, 3, prec);
+    y = vecthetanullk_loop(qq(tau,prec), 3, prec);
     return gdiv(gel(y,2), gel(y,1));
   }
-
-  av = avma; y = gen_0; qn = gen_1;
+  q = cxtoreal(expIPiC(gneg(gmul2n(tau,1)), prec));
+  av = avma; y = gen_0; qn = q;
   for(n = 1;; n++)
-  { /* compute y := sum_{n>0} n^(k-1) q^n / (1-q^n) */
-    GEN p1;
+  { /* compute y := sum_{n>0} n^(k-1) / (q^n-1) */
+    GEN t = gdiv(powuu(n,k-1), gsubgs(qn,1));
+    if (gequal0(t) || gexpo(t) <= - prec2nbits(prec) - 5) break;
+    y = gadd(y, t);
     qn = gmul(q,qn);
-    p1 = gdiv(gmul(powuu(n,k-1),qn), gsubsg(1,qn));
-    if (gequal0(p1) || gexpo(p1) <= - prec2nbits(prec) - 5) break;
-    y = gadd(y, p1);
     if (gc_needed(av,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"elleisnum");
