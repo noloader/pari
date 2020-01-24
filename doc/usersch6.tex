@@ -1483,7 +1483,21 @@ complex root in \kbd{nf.roots}).
 logarithmic embeddings $(e_i \text{Log}(\sigma_i X))$ where $e_i = 1$ if $i \leq
 r_1$ and $e_i = 2$ if $r_1 < i \leq r_2$ of $X = \kbd{Q\_primpart}(x)$.
 Returns \kbd{NULL} if loss of accuracy. Not \kbd{gerepile}-clean but suitable
-for \kbd{gerepileupto}. Allows $x$ in compact representation.
+for \kbd{gerepileupto}. Allows $x$ in compact representation, in which
+case \kbd{Q\_primpart} is taken componentwise.
+
+\fun{GEN}{nf_cxlog_normalize}{GEN nf, GEN x, long prec} an \var{nf} structure
+attached to a number field $K$ and $x$ from \kbd{nf\_cxlog}$(\var{nf}, X)$
+(a column vector of complex logarithmic embeddings with $rِ_1 + r_2$
+components), normalize by subtracting $C \cdot [e_1,\dots, e_{r_1+r_2}]\til$ and
+reducing imaginary parts modulo $e_i\cdot 2\pi$, where the constant $C$ is
+$\sum_j \Re(x_j) / [K:\Q]$, i.e., $\exp C$ is the absolute norm of $X$
+raised to the power $1/[K:\Q]$.
+
+The composition \kbd{nf\_cxlog} followed by\kbd{nf\_cxlog\_normalize} is a
+well-defined morphism from $(K^*/\Q^*, \times) \to (\C^{r_1+r_2}, +)$.
+Its real part maps the units $\Z_K^*$ to a lattice in the hyperplane
+$\sum_i x_i = 0$ in $\R^{r_1+r_2}$.
 
 \fun{GEN}{nfV_cxlog}{GEN nf, GEN x, long prec} applies \kbd{nf\_cxlog}
 to each component of the vector $x$. Returns \kbd{NULL} if loss of

@@ -931,6 +931,12 @@ cleanarch(GEN x, long N, long prec)
   }
   return y;
 }
+GEN
+nf_cxlog_normalize(GEN nf, GEN x, long prec)
+{
+  long N = nf_get_degree(checknf(nf));
+  return cleanarch(x, N, prec);
+}
 
 static GEN
 not_given(long reason)
