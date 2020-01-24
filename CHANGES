@@ -119,7 +119,8 @@ BA  31- revert 2-12-0 C18: qfbsolve with default flag = previous behaviour
     35- bnfsunit is mostly obsolete, use bnfunits
     36- bnfisunit and bnfissunit: torsion unit exponent is now a t_INT (used
         to be a t_INTMOD)
-    37- support compact representation in nfeltmul, nfeltpow, nfeltdiv, nfmodpr
+    37- support compact representation in nfeltmul, nfeltpow, nfeltdiv,
+        nfmodpr, nfeltsign
 
   Added
      1- new GP function rootsof1

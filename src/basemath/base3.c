@@ -1930,8 +1930,9 @@ nfsign_arch(GEN nf, GEN x, GEN arch)
   if (typ(x) == t_MAT)
   { /* factorisation */
     GEN g = gel(x,1), e = gel(x,2);
+    long l = lg(g);
     V = zero_zv(n);
-    for (i=1; i<lg(g); i++)
+    for (i = 1; i < l; i++)
       if (mpodd(gel(e,i)))
         Flv_add_inplace(V, nfsign_arch(nf,gel(g,i),archp), 2);
     set_avma((pari_sp)V); return V;
@@ -1999,14 +2000,13 @@ GEN
 nfeltsign(GEN nf, GEN x, GEN ind0)
 {
   pari_sp av = avma;
-  long i, l, r1;
+  long i, l;
   GEN v, ind;
-  nf = checknf(nf); r1 = nf_get_r1(nf);
-  x = nf_to_scalar_or_basis(nf, x);
-  ind = parse_embed(ind0, r1, "nfeltsign");
+  nf = checknf(nf);
+  ind = parse_embed(ind0, nf_get_r1(nf), "nfeltsign");
   l = lg(ind);
-  if (typ(x) != t_COL)
-  {
+  if (is_rational_t(typ(x)))
+  { /* nfsign_arch would test this, but avoid converting t_VECSMALL -> t_VEC */
     GEN s;
     switch(gsigne(x))
     {

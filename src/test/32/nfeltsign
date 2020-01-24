@@ -5,6 +5,9 @@
 [-1, -1, -1, -1]
 0
 [-1, 1, 1, 1, 1]
+[1, 1, 1, 1, 1]
+1
+[1, 1, 1, 1]
   ***   at top-level: nfeltsign(nf,a,3)
   ***                 ^-----------------
   *** nfeltsign: domain error in nfeltsign: index > 2
