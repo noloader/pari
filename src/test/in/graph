@@ -1,4 +1,4 @@
-HEAP=[32, if(sizebyte(0)==16,276,278)];
+HEAP=[32, if(sizebyte(0)==16,276,280)];
 default(realprecision,38);
 \e
 plotinit(0,500,500)
