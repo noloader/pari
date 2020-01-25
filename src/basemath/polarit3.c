@@ -1326,6 +1326,51 @@ ZX_norml1(GEN x)
   return s;
 }
 
+static GEN
+L2_bound(GEN nf, GEN den)
+{
+  GEN M, L, prep, T = nf_get_pol(nf), tozk = nf_get_invzk(nf);
+  long prec = ZM_max_lg(tozk) + ZX_max_lg(T) + nbits2prec(degpol(T));
+  (void)initgaloisborne(nf, den? den: gen_1, prec, &L, &prep, NULL);
+  M = vandermondeinverse(L, RgX_gtofp(T,prec), den, prep);
+  return RgM_fpnorml2(RgM_mul(tozk,M), DEFAULTPREC);
+}
+
+/* Interpolate at roots of 1 and use Hadamard bound for univariate resultant:
+ *   bound = N_2(A)^degpol B N_2(B)^degpol(A),  where
+ *     N_2(A) = sqrt(sum (N_1(Ai))^2)
+ * Return e such that Res(A, B) < 2^e */
+static GEN
+RgX_RgXY_ResBound(GEN A, GEN B)
+{
+  pari_sp av = avma, av2;
+  GEN a = gen_0, b = gen_0, bnd;
+  long i , lA = lg(A), lB = lg(B);
+  for (i=2; i<lA; i++)
+  {
+    a = gadd(a, gnorm(gel(A,i)));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_RgXY_ResBound i = %ld",i);
+      a = gerepileupto(av, a);
+    }
+  }
+  av2 = avma;
+  for (i=2; i<lB; i++)
+  {
+    GEN t = gel(B,i);
+    if (typ(t) == t_POL) t = gnorml1(t, DEFAULTPREC);
+    b = gadd(b, gsqr(t));
+    if (gc_needed(av,1))
+    {
+      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_RgXY_ResBound i = %ld",i);
+      b = gerepileupto(av2, b);
+    }
+  }
+  bnd = gsqrt(gmul(gpowgs(a, degpol(B)), gpowgs(b, degpol(A))), DEFAULTPREC);
+  return gerepileupto(av, bnd);
+}
+
 /* Interpolate at roots of 1 and use Hadamard bound for univariate resultant:
  *   bound = N_2(A)^degpol B N_2(B)^degpol(A),  where
  *     N_2(A) = sqrt(sum (N_1(Ai))^2)
@@ -2652,41 +2697,6 @@ ZXQX_direct_compositum_worker(GEN P, GEN A, GEN B, GEN C)
   return V;
 }
 
-/* Interpolate at roots of 1 and use Hadamard bound for univariate resultant:
- *   bound = N_2(A)^degpol B N_2(B)^degpol(A),  where
- *     N_2(A) = sqrt(sum (N_1(Ai))^2)
- * Return e such that Res(A, B) < 2^e */
-static GEN
-RgX_RgXY_ResBound(GEN A, GEN B)
-{
-  pari_sp av = avma, av2;
-  GEN a = gen_0, b = gen_0, bnd;
-  long i , lA = lg(A), lB = lg(B);
-  for (i=2; i<lA; i++)
-  {
-    a = gadd(a, gnorm(gel(A,i)));
-    if (gc_needed(av,1))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_RgXY_ResBound i = %ld",i);
-      a = gerepileupto(av, a);
-    }
-  }
-  av2 = avma;
-  for (i=2; i<lB; i++)
-  {
-    GEN t = gel(B,i);
-    if (typ(t) == t_POL) t = gnorml1(t, DEFAULTPREC);
-    b = gadd(b, gsqr(t));
-    if (gc_needed(av,1))
-    {
-      if(DEBUGMEM>1) pari_warn(warnmem,"RgX_RgXY_ResBound i = %ld",i);
-      b = gerepileupto(av2, b);
-    }
-  }
-  bnd = gsqrt(gmul(gpowgs(a, degpol(B)), gpowgs(b, degpol(A))), DEFAULTPREC);
-  return gerepileupto(av, bnd);
-}
-
 static GEN
 ZXQX_direct_compositum(GEN A, GEN B, GEN T, ulong bound)
 {
@@ -2704,16 +2714,6 @@ ZXQX_direct_compositum(GEN A, GEN B, GEN T, ulong bound)
     err_printf("nfcompositum: a priori bound: %lu, a posteriori: %lu\n",
                bound, expi(gsupnorm(H, DEFAULTPREC)));
   return gerepilecopy(av, RgM_to_RgXX(H, varn(A), varn(T)));
-}
-
-static GEN
-L2_bound(GEN nf, GEN den)
-{
-  GEN M, L, prep, T = nf_get_pol(nf), tozk = nf_get_invzk(nf);
-  long prec = ZM_max_lg(tozk) + ZX_max_lg(T) + nbits2prec(degpol(T));
-  (void)initgaloisborne(nf, den? den: gen_1, prec, &L, &prep, NULL);
-  M = vandermondeinverse(L, RgX_gtofp(T,prec), den, prep);
-  return RgM_fpnorml2(RgM_mul(tozk,M), DEFAULTPREC);
 }
 
 static long
