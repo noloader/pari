@@ -1327,12 +1327,13 @@ ZX_norml1(GEN x)
 }
 
 static GEN
-L2_bound(GEN nf, GEN den)
+L2_bound(GEN nf, GEN den, GEN *pt_roots)
 {
   GEN M, L, prep, T = nf_get_pol(nf), tozk = nf_get_invzk(nf);
   long prec = ZM_max_lg(tozk) + ZX_max_lg(T) + nbits2prec(degpol(T));
   (void)initgaloisborne(nf, den? den: gen_1, prec, &L, &prep, NULL);
   M = vandermondeinverse(L, RgX_gtofp(T,prec), den, prep);
+  *pt_roots = L;
   return RgM_fpnorml2(RgM_mul(tozk,M), DEFAULTPREC);
 }
 
@@ -2720,8 +2721,7 @@ static long
 ZXQX_direct_compositum_bound(GEN nf, GEN A, GEN B)
 {
   pari_sp av = avma;
-  GEN M = L2_bound(nf, NULL);
-  GEN r = nf_get_roots(nf);
+  GEN r, M = L2_bound(nf, NULL, &r);
   long v = nf_get_varn(nf), i, l = lg(r);
   GEN a = cgetg(l, t_COL);
   for (i = 1; i < l; i++)
