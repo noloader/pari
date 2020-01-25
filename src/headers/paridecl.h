@@ -2713,6 +2713,7 @@ GEN     bnrnewprec_shallow(GEN bnr, long prec);
 GEN     isprincipalfact(GEN bnf, GEN C, GEN L, GEN f, long flag);
 GEN     isprincipalfact_or_fail(GEN bnf, GEN C, GEN P, GEN e);
 GEN     isprincipal(GEN bnf, GEN x);
+GEN     nf_cxlog_normalize(GEN nf, GEN x, long prec);
 GEN     nfcyclotomicunits(GEN nf, GEN zu);
 GEN     nfsign_units(GEN bnf, GEN archp, int add_zu);
 GEN     nfsign_tu(GEN bnf, GEN archp);
