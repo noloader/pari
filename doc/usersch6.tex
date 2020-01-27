@@ -1489,13 +1489,13 @@ case \kbd{Q\_primpart} is taken componentwise.
 \fun{GEN}{nf_cxlog_normalize}{GEN nf, GEN x, long prec} an \var{nf} structure
 attached to a number field $K$ and $x$ from \kbd{nf\_cxlog}$(\var{nf}, X)$
 (a column vector of complex logarithmic embeddings with $r_1 + r_2$
-components), normalize by subtracting $C \cdot [e_1,\dots, e_{r_1+r_2}]\til$ and
-reducing imaginary parts modulo $e_i\cdot 2\pi$, where the constant $C$ is
-$\sum_j \Re(x_j) / [K:\Q]$, i.e., $\exp C$ is the absolute norm of $X$
-raised to the power $1/[K:\Q]$.
+components) and let $e = (e_1,\dots,e_{r_1+r_2})$.
+Return
+$$ x - \frac{\log \big(N_{K/\Q} X\big)}{[K:\Q]} e $$
+where the imaginary parts are further normalized modulo $2\pi i \cdot e$.
 
 The composition \kbd{nf\_cxlog} followed by\kbd{nf\_cxlog\_normalize} is a
-well-defined morphism from $(K^*/\Q^*, \times) \to (\C^{r_1+r_2}, +)$.
+well-defined morphism from $(K^*/(\Q^+)*, \times) \to (\C^{r_1+r_2}, +)$.
 Its real part maps the units $\Z_K^*$ to a lattice in the hyperplane
 $\sum_i x_i = 0$ in $\R^{r_1+r_2}$.
 

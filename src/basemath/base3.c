@@ -1300,15 +1300,26 @@ low_prec(GEN x)
 }
 
 static GEN
-triv_cxlog(GEN nf) { return zerocol(lg(nf_get_roots(nf))-1); }
+cxlog_1(GEN nf) { return zerocol(lg(nf_get_roots(nf))-1); }
+static GEN
+cxlog_m1(GEN nf, long prec)
+{
+  long i, l = lg(nf_get_roots(nf)), r1 = nf_get_r1(nf);
+  GEN v = cgetg(l, t_VEC), p,  P;
+  p = mppi(prec); P = mkcomplex(gen_0, p);
+  for (i = 1; i <= r1; i++) gel(v,i) = P; /* IPi*/
+  setexpo(p, expo(p)+1);
+  for (     ; i < l; i++) gel(v,i) = P; /* 2IPi */
+  return v;
+}
 static GEN
 famat_cxlog(GEN nf, GEN fa, long prec)
 {
-  GEN g,e, y = NULL;
-  long i,l;
+  GEN g, e, y = NULL;
+  long i, l;
 
   if (typ(fa) != t_MAT) pari_err_TYPE("famat_cxlog",fa);
-  if (lg(fa) == 1) return triv_cxlog(nf);
+  if (lg(fa) == 1) return cxlog_1(nf);
   g = gel(fa,1);
   e = gel(fa,2); l = lg(e);
   for (i = 1; i < l; i++)
@@ -1317,11 +1328,11 @@ famat_cxlog(GEN nf, GEN fa, long prec)
     /* multiplicative arch would be better (save logs), but exponents overflow
      * [ could keep track of expo separately, but not worth it ] */
     t = nf_cxlog(nf,x,prec); if (!t) return NULL;
-    if (gel(t,1) == gen_0) continue; /* rational */
+    if (gel(t,1) == gen_0) continue; /* postitive rational */
     t = RgC_Rg_mul(t, gel(e,i));
     y = y? RgV_add(y,t): t;
   }
-  return y ? y: triv_cxlog(nf);
+  return y ? y: cxlog_1(nf);
 }
 /* Archimedean components: [e_i Log( sigma_i(X) )], where X = primpart(x),
  * and e_i = 1 (resp 2.) for i <= R1 (resp. > R1) */
@@ -1332,7 +1343,7 @@ nf_cxlog(GEN nf, GEN x, long prec)
   GEN v;
   if (typ(x) == t_MAT) return famat_cxlog(nf,x,prec);
   x = nf_to_scalar_or_basis(nf,x);
-  if (typ(x) != t_COL) return triv_cxlog(nf);
+  if (typ(x) != t_COL) return gsigne(x) > 0? cxlog_1(nf): cxlog_m1(nf, prec);
   x = RgM_RgC_mul(nf_get_M(nf), Q_primpart(x));
   l = lg(x); r1 = nf_get_r1(nf);
   for (i = 1; i <= r1; i++)
