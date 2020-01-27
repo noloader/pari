@@ -748,10 +748,15 @@ static GEN
 mpatanh(GEN x)
 {
   pari_sp av = avma;
-  long ex = expo(x), s = signe(x);
+  long e, s = signe(x);
   GEN z;
-  if (ex < 1 - BITS_IN_LONG) x = rtor(x, realprec(x) + nbits2extraprec(-ex)-1);
-  z = invr(s > 0? subsr(1,x): addsr(1,x)); shiftr_inplace(z, 1); /* 2/(1-|x|) */
+  z = s > 0? subsr(1,x): addsr(1,x); e = expo(z);
+  if (e < -5)
+  {
+    x = rtor(x, realprec(x) + nbits2extraprec(-e)-1);
+    z = s > 0? subsr(1,x): addsr(1,x); e = expo(z);
+  }
+  z = invr(z); shiftr_inplace(z, 1); /* 2/(1-|x|) */
   z = logr_abs( addrs(z,-1) ); if (s < 0) togglesign(z);
   shiftr_inplace(z, -1); return gerepileuptoleaf(av, z);
 }
