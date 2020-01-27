@@ -2784,10 +2784,27 @@ expIPiQ(GEN z, long prec)
   if (typ(z) == t_INT) return mpodd(z)? gen_m1: gen_1;
   return expIPifrac(z, prec);
 }
+
+/* convert power of 2 t_REAL to rational */
+static GEN
+real2nQ(GEN x)
+{
+  long e = expo(x);
+  GEN z;
+  if (e < 0)
+    z = mkfrac(signe(x) < 0? gen_m1: gen_1, int2n(-e));
+  else
+  {
+    z = int2n(e);
+    if (signe(x) < 0) togglesign_safe(&z);
+  }
+  return z;
+}
 /* x a real number */
 GEN
 expIPiR(GEN x, long prec)
 {
+  if (typ(x) == t_REAL && absrnz_equal2n(x)) x = real2nQ(x);
   switch(typ(x))
   {
     case t_INT:  return mpodd(x)? gen_m1: gen_1;
@@ -2805,6 +2822,7 @@ expIPiC(GEN z, long prec)
   y = gel(z,2); if (gequal0(y)) return expIPiR(x, prec);
   pi = mppi(prec);
   r = gmul(pi, y); togglesign(r); r = mpexp(r); /* exp(-pi y) */
+  if (typ(x) == t_REAL && absrnz_equal2n(x)) x = real2nQ(x);
   switch(typ(x))
   {
     case t_INT: if (mpodd(x)) togglesign(r);
