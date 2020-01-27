@@ -111,6 +111,7 @@ tst(f, z) =
   localbitprec(64); a = f(z * 1.);
   localbitprec(128);b = f(z * 1.); exponent(b/a - 1);
 }
-z = -0xffffffffffffffd6 / 2^64; tst(atanh, z)
-z = -0xffffffffffffffeb / 2^64; tst(atanh, z)
-z = 0x1000000000000004 / 2^60; tst(acosh, z)
+z = -0xffffffffffffffd6 / 2^64; tst(atanh,z)
+z = -0xffffffffffffffeb / 2^64; tst(atanh,z)
+z = 0x1000000000000004 / 2^60; tst(acosh,z)
+z = 0x33bc6d3d39ebfccc8 / 2^56; tst(tan,z)
