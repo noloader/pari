@@ -887,6 +887,8 @@ shallow version of \tet{famat_mulpow} where $e$ is a small integer.
 
 \fun{GEN}{famat_inv}{GEN f} returns $f^{-1}$.
 
+\fun{GEN}{famat_div}{GEN f, GEN g} return $f/g$.
+
 \fun{GEN}{famat_inv_shallow}{GEN f} shallow version of \tet{famat_inv}.
 
 \fun{GEN}{famat_div_shallow}{GEN f, GEN g} return $f/g$; shallow.
@@ -946,6 +948,15 @@ the implementation.
 $x$. Since the answer is still given in factorized form, there is no risk of
 coefficient explosion when the exponents are large. Of course, all components
 of $x$ must be factored individually.
+
+\fun{GEN}{famat_nfvalrem}{GEN nf, GEN x, GEN pr, GEN *py} return the
+valuation $v$ at \kbd{pr} of \kbd{famat\_to\_nf}$(x)$, without performing the
+expansion of course. Notive that the output is a \kbd{GEN} since it cannot be
+assumed to fit into a \kbd{long}. If \kbd{py} is not \kbd{NULL} it contains
+the \kbd{famat} obtained by applying \kbd{nfvalrem} to each entry of the
+first column and copying the second column. The expanded algebraic number
+is coprime to \kbd{pr} and equal to $x \tau^v$ where $\tau$ is the fixed
+anti-uniformizer for \kbd{pr} (\kbd{pr\_get\_tau}).
 
 \misctitle{Caveat} Receiving a \var{famat} input, \kbd{bnfisunit} assumes that
 it is an actual unit, since this is expensive to check, and normally
