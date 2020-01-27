@@ -78,7 +78,7 @@ default(realprecision,38);
 P(x,y)=(x+1)*y^2+(x^2-x+1)*y+(x^2+x);
 T = P(exp(I*Pi),y);
 polroots(T)
-polrootsbound(T)
+exponent(polrootsbound(T))
 polrootsbound('x)
 
 polzagier(-1,1)
