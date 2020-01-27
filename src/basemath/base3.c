@@ -1305,10 +1305,10 @@ static GEN
 cxlog_m1(GEN nf, long prec)
 {
   long i, l = lg(nf_get_roots(nf)), r1 = nf_get_r1(nf);
-  GEN v = cgetg(l, t_VEC), p,  P;
+  GEN v = cgetg(l, t_COL), p,  P;
   p = mppi(prec); P = mkcomplex(gen_0, p);
   for (i = 1; i <= r1; i++) gel(v,i) = P; /* IPi*/
-  setexpo(p, expo(p)+1);
+  P = gmul2n(P,1);
   for (     ; i < l; i++) gel(v,i) = P; /* 2IPi */
   return v;
 }
@@ -1328,7 +1328,7 @@ famat_cxlog(GEN nf, GEN fa, long prec)
     /* multiplicative arch would be better (save logs), but exponents overflow
      * [ could keep track of expo separately, but not worth it ] */
     t = nf_cxlog(nf,x,prec); if (!t) return NULL;
-    if (gel(t,1) == gen_0) continue; /* postitive rational */
+    if (gel(t,1) == gen_0) continue; /* positive rational */
     t = RgC_Rg_mul(t, gel(e,i));
     y = y? RgV_add(y,t): t;
   }
