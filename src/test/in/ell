@@ -439,5 +439,7 @@ E=ellinit([134199387,91266697],3031140653);
 P = [911071793,1086747416]; Q = ellmul(E,P,2);
 elllog(E,Q,P)
 
+ellheight(ellinit([1,0,1,4,-6]))
+
 \\ ERRORS, keep at end of file
 ellK(1)

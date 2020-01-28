@@ -4441,7 +4441,7 @@ ellQ_minimalu(GEN E, GEN *pDP)
   long l, k;
 
   P = Z_gcd_primes(c4, c6);
-  l = lg(P); if (l == 1) { *pDP = P; return gen_1; }
+  l = lg(P); if (l == 1) { if(pDP) *pDP = P; return gen_1; }
   DP = coltrunc_init(l);
   av = avma;
   g = gcdii(sqri(c6), D);
