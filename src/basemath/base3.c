@@ -1308,7 +1308,7 @@ cxlog_m1(GEN nf, long prec)
   GEN v = cgetg(l, t_COL), p,  P;
   p = mppi(prec); P = mkcomplex(gen_0, p);
   for (i = 1; i <= r1; i++) gel(v,i) = P; /* IPi*/
-  P = gmul2n(P,1);
+  if (i < l) P = gmul2n(P,1);
   for (     ; i < l; i++) gel(v,i) = P; /* 2IPi */
   return v;
 }
