@@ -3091,8 +3091,8 @@ rnfdedekind(GEN nf, GEN P, GEN pr, long flag)
   long v;
 
   nf = checknf(nf);
-  P = RgX_nffix("rnfdedekind", nf_get_pol(nf), P, 0);
-  P = lift_shallow(P); dP = nfX_disc(nf, P);
+  P = RgX_nffix("rnfdedekind", nf_get_pol(nf), P, 1);
+  dP = nfX_disc(nf, P);
   if (!pr)
   {
     GEN fa = idealfactor(nf, dP);
@@ -3366,10 +3366,10 @@ rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf, GEN *pDKP)
   long i, j, jf, l;
   GEN fa, E, P, Ef, Pf, z, disc;
 
-  nf = checknf(nf);
+  nf = checknf(nf); pol = liftpol_shallow(pol);
   if (!gequal1(leading_coeff(pol)))
     pari_err_IMPL("non-monic relative polynomials in rnfallbase");
-  disc = nf_to_scalar_or_basis(nf, nfX_disc(nf, liftpol_shallow(pol)));
+  disc = nf_to_scalar_or_basis(nf, nfX_disc(nf, pol));
   if (lim)
   {
     GEN rnfeq, zknf, dzknf, U, vU, dA, A, MB, dB, BdB, vj, B, Tabs;
@@ -3487,7 +3487,6 @@ rnfallbase(GEN nf, GEN pol, GEN lim, GEN rnf, GEN *pD, GEN *pf, GEN *pDKP)
     if (pDKP) { settyp(S.dKP, t_VEC); *pDKP = S.dKP; }
     *pD = mkvec2(D, get_d(nf, disc)); return z;
   }
-  pol = lift_shallow(pol);
   fa = idealfactor(nf, disc);
   P = gel(fa,1); l = lg(P); z = NULL;
   E = gel(fa,2);
@@ -3576,10 +3575,8 @@ rnfdisc_factored(GEN nf, GEN pol, GEN *pd)
 
   nf = checknf(nf);
   pol = rnfdisc_get_T(nf, pol, &lim);
-  disc = nf_to_scalar_or_basis(nf, nfX_disc(nf, Q_primpart(liftpol_shallow(pol))));
+  disc = nf_to_scalar_or_basis(nf, nfX_disc(nf, Q_primpart(pol)));
   pol = nfX_to_monic(nf, pol, NULL);
-
-  pol = lift_shallow(pol);
   fa = idealfactor_partial(nf, disc, lim);
   P = gel(fa,1); l = lg(P);
   E = gel(fa,2);

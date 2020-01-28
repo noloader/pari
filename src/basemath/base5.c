@@ -299,7 +299,7 @@ rnfdisc_get_T(GEN nf, GEN P, GEN *lim)
 {
   GEN T = rnfdisc_get_T_i(P, lim);
   if (!T) pari_err_TYPE("rnfdisc",P);
-  return RgX_nffix("rnfdisc", nf_get_pol(nf), T, 0);
+  return RgX_nffix("rnfdisc", nf_get_pol(nf), T, 1);
 }
 
 GEN
@@ -317,13 +317,12 @@ GEN
 rnfinit0(GEN nf, GEN T, long flag)
 {
   pari_sp av = avma;
-  GEN lim, bas, D, f, B, T0, DKP, rnfeq, rnf = obj_init(11, 2);
+  GEN lim, bas, D, f, B, DKP, rnfeq, rnf = obj_init(11, 2);
   nf = checknf(nf);
-  T0 = rnfdisc_get_T(nf, T, &lim);
-  T = lift_shallow(T0);
+  T = rnfdisc_get_T(nf, T, &lim);
   gel(rnf,11) = rnfeq = nf_rnfeq(nf,T);
   gel(rnf,2) = nf_nfzk(nf, rnfeq);
-  bas = rnfallbase(nf, T0, lim, rnf, &D, &f, &DKP);
+  bas = rnfallbase(nf, T, lim, rnf, &D, &f, &DKP);
   B = matbasistoalg(nf,gel(bas,1));
   gel(bas,1) = lift_if_rational( RgM_to_RgXV(B,varn(T)) );
   gel(rnf,1) = T;

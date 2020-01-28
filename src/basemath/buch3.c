@@ -1724,7 +1724,7 @@ rnfconductor(GEN bnf, GEN T)
   {
     GEN P, E, Ez;
     long i, l, degT = degpol(T);
-    D = idealfactor_partial(nf, nfX_disc(nf, Q_primpart(liftpol_shallow(Tr))), lim);
+    D = idealfactor_partial(nf, nfX_disc(nf, Q_primpart(Tr)), lim);
     P = gel(D,1); l = lg(P);
     E = gel(D,2); Ez = ZV_to_zv(E);
     if (l > 1 && vecsmall_max(Ez) > 1)
