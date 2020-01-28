@@ -2093,7 +2093,7 @@ nfpolsturm(GEN nf, GEN f, GEN ind0)
   if (gequal0(f)) pari_err_ROOTS0("nfpolsturm");
   if (typ(f) == t_POL && varn(f) != varn(T))
   {
-    f = RgX_nffix("nfsturn", T, f,1);
+    f = RgX_nffix("nfpolsturm", T, f,1);
     if (lg(f) == 3) f = NULL;
   }
   else
