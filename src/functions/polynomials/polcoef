@@ -10,7 +10,7 @@ Description:
  (pol, 0,):gen:copy      constant_coeff($1)
  (pol, small):gen:copy   RgX_coeff($1, $2)
  (pol, small,):gen:copy  RgX_coeff($1, $2)
- (gen, small, ?var):gen polcoef0($1, $2, $3)
+ (gen, small, ?var):gen  polcoeff0($1, $2, $3)
 Doc: coefficient of degree $n$ of the polynomial $x$, with respect to the
  main variable if $v$ is omitted, with respect to $v$ otherwise.  If $n$
  is greater than the degree, the result is zero.
