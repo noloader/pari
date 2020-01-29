@@ -325,27 +325,20 @@ vecF(struct lcritical *C, GEN E)
   return gerepileupto(av, vec);
 }
 
-/* ************************************************************************
- *
- * Compute Lambda function by Fourier inversion
- *
- */
-
+/* Lambda function by Fourier inversion. vec is a grid, t a scalar or t_SER */
 static GEN
 glambda(GEN t, GEN vec, GEN h, long real, long prec)
 {
-  GEN ehs, elhs;
-  GEN r;
-  long L = lg(vec)-1, l;
-  /* assume vec is a grid */
-  ehs = gexp(gmul(gen_I(),gmul(h, t)), prec);
-  elhs = (real == 1) ? gen_1 : mkcomplex(gen_0, gen_m1);
-  r = gmul2n(real_i(gmul(real_i(gel(vec, 1)), elhs)), -1);
+  GEN z, r, e = gexp(gmul(mkcomplex(gen_0,h), t), prec);
+  long n = lg(vec)-1, i;
+
+  r = real == 1? gmul2n(real_i(gel(vec, 1)), -1): gen_0;
+  z = real == 1? e: gmul(powIs(3), e);
   /* FIXME: summing backward may be more stable */
-  for (l = 2; l <= L; ++l)
+  for (i = 2; i <= n; i++)
   {
-    elhs = gmul(elhs, ehs);
-    r = gadd(r, real_i(gmul(gel(vec, l), elhs)));
+    r = gadd(r, real_i(gmul(gel(vec,i), z)));
+    if (i < n) z = gmul(z, e);
   }
   return gmul(mulsr(4, h), r);
 }
