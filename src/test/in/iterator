@@ -35,6 +35,13 @@ my(s=1,a=0);forstep(i=1,20,s,s++;a+=i);a
 
 forprime(p=2,10,p=4)
 
+foreach([],p,print(p));
+foreach(List(),p,print(p));
+foreach(Mat(),p,print(p));
+foreach(primes([1,100]),p,print1(" ",p));print()
+foreach(List([1..10]),p,print1(" ",p));print()
+foreach(matid(3),p,print1(" ",p));print()
+
 forcomposite(a=2,4,print(a))
 forcomposite(a=10,10,print(a))
 forcomposite(a=2,10,print(a))
@@ -74,3 +81,6 @@ forsquarefree(N=10^5,10^5+10,print(N))
 forsquarefree(N=-10^5-10,-10^5,print(N))
 c=0;forsquarefree(N=1,10^6, my([n,f]=N); if (factorback(f)!=n,error(N)); c++);c
 c=0;forsquarefree(N=-10^6,-1, my([n,f]=N); if (factorback(f)!=n,error(N));c++);c
+
+\\ errors
+foreach(x^2+1,x,)

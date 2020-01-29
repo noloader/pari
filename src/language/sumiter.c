@@ -105,6 +105,31 @@ forpari(GEN a, GEN b, GEN code)
   pop_lex(1); set_avma(ltop);
 }
 
+void
+foreachpari(GEN x, GEN code)
+{
+  long i, l;
+  switch(typ(x))
+  {
+    case t_LIST:
+      x = list_data(x); /* FALL THROUGH */
+      if (!x) return;
+    case t_MAT: case t_VEC: case t_COL:
+      break;
+    default:
+      pari_err_TYPE("foreach",x);
+      return; /*LCOV_EXCL_LINE*/
+  }
+  clone_lock(x); l = lg(x);
+  push_lex(gen_0,code);
+  for (i = 1; i < l; i++)
+  {
+    set_lex(-1, gel(x,i));
+    closure_evalvoid(code); if (loop_break()) break;
+  }
+  pop_lex(1); clone_unlock_deep(x);
+}
+
 /* 0 < a <= b. Using small consecutive chunks to 1) limit memory use, 2) allow
  * cheap early abort */
 static int
@@ -363,15 +388,14 @@ forstep(GEN a, GEN b, GEN s, GEN code)
 static void
 _fordiv(GEN a, GEN code, GEN (*D)(GEN))
 {
+  pari_sp av = avma;
   long i, l;
-  pari_sp av2, av = avma;
   GEN t = D(a);
-  push_lex(gen_0,code); l=lg(t); av2 = avma;
+  push_lex(gen_0,code); l = lg(t);
   for (i=1; i<l; i++)
   {
     set_lex(-1,gel(t,i));
     closure_evalvoid(code); if (loop_break()) break;
-    set_avma(av2);
   }
   pop_lex(1); set_avma(av);
 }

@@ -68,6 +68,7 @@ GEN setloop(GEN a);
 GEN  iferrpari(GEN a, GEN b, GEN c);
 void forfactored(GEN a, GEN b, GEN code);
 void forpari(GEN a, GEN b, GEN node);
+void foreachpari(GEN a, GEN node);
 void forsquarefree(GEN a, GEN b, GEN code);
 void untilpari(GEN a, GEN b);
 void whilepari(GEN a, GEN b);
