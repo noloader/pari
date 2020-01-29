@@ -180,27 +180,25 @@ param_points(GEN N, double Y, double tmax, long bprec, long *cprec, long *L,
 static GEN
 vecF2_lk(GEN E, GEN K, GEN rbnd, GEN Q, GEN sleh, long prec)
 {
-  pari_sp av = avma, av2;
+  pari_sp av;
   long l, L  = lg(K)-1;
   GEN a = ellanQ_zv(E, itos(gel(K,1)));
   GEN S = cgetg(L+1, t_VEC);
+
+  for (l = 1; l <= L; l++) gel(S,l) = cgetr(prec);
+  av = avma;
   for (l = 1; l <= L; l++)
-    gel(S,l) = cgetr(prec);
-  av2 = avma;
-  for (l = 1; l <= L; ++l)
   {
-    GEN e1, Sl;
-    long aB, b, A, B;
-    GEN z, zB;
-    pari_sp av3;
-    long Kl = itou(gel(K,l));
+    GEN e1, Sl, z, zB;
+    long aB, b, A, B, Kl = itou(gel(K,l));
+    pari_sp av2;
     /* FIXME: could reduce prec here (useful for large prec) */
     e1 = gel(Q, l);
     Sl = real_0(prec);;
     /* baby-step giant step */
-    A = rbnd[l]; B = A;
+    B = A = rbnd[l];
     z = powersr(e1, B); zB = gel(z, B+1);
-    av3 = avma;
+    av2 = avma;
     for (aB = A*B; aB >= 0; aB -= B)
     {
       GEN s = real_0(prec); /* could change also prec here */
@@ -208,15 +206,14 @@ vecF2_lk(GEN E, GEN K, GEN rbnd, GEN Q, GEN sleh, long prec)
       {
         long k = aB+b;
         if (k <= Kl && a[k]) s = addrr(s, mulsr(a[k], gel(z, b+1)));
-        if (gc_needed(av3, 1))
-          gerepileall(av3, 2, &s, &Sl);
+        if (gc_needed(av2, 1)) gerepileall(av2, 2, &s, &Sl);
       }
       Sl = addrr(mulrr(Sl, zB), s);
     }
     affrr(mulrr(Sl, gel(sleh,l)), gel(S, l)); /* to avoid copying all S */
-    set_avma(av2);
+    set_avma(av);
   }
-  return gerepilecopy(av, S);
+  return S;
 }
 
 /* Return C, C[i][j] = Q[j]^i, i = 1..nb */
@@ -276,7 +273,6 @@ ellL1_add(void *E, GEN n, GEN a)
 static GEN
 vecF2_lk_bsgs(GEN E, GEN bnd, GEN rbnd, GEN Q, GEN sleh, GEN N, long prec)
 {
-  pari_sp av = avma;
   struct bg_data bg;
   struct baby_giant bb;
   long k, L = lg(bnd)-1;
@@ -287,41 +283,41 @@ vecF2_lk_bsgs(GEN E, GEN bnd, GEN rbnd, GEN Q, GEN sleh, GEN N, long prec)
   S = cgetg(L+1, t_VEC);
   for (k = 1; k <= L; ++k)
   {
-    pari_sp av2 = avma;
+    pari_sp av = avma;
     long j, g = rbnd[k];
-    GEN giant = gmael(bb.baby, k, g+1);
-    GEN Sl = real_0(prec);
-    for (j = g; j >=1; j--)
-      Sl = addrr(mulrr(Sl, giant), gmael(bb.giant,k,j));
-    gel(S, k) = gerepileupto(av2, mulrr(gel(sleh,k), Sl));
+    GEN giant = gmael(bb.baby, k, g+1), Sl = gmael(bb.giant, k, g);
+    for (j = g-1; j >=1; j--) Sl = addrr(mulrr(Sl, giant), gmael(bb.giant,k,j));
+    gel(S, k) = gerepileuptoleaf(av, mulrr(gel(sleh,k), Sl));
   }
-  return gerepileupto(av, S);
+  return S;
 }
+
+static long
+_sqrt(GEN x) { pari_sp av = avma; return gc_long(av, itou(sqrtint(x))); }
 
 static GEN
 vecF(struct lcritical *C, GEN E)
 {
-  pari_sp av = avma, av2;
-  long prec = C->cprec, Ks = itos_or_0(C->K), l, L = C->L;
-  GEN N = ellQ_get_N(E);
-  GEN PiN = shiftr(divrr(mppi(prec), gsqrt(N, prec)), 1);
-  GEN eh = mpexp(C->h), elh = powersr(eh, L-1), sleh = elh;
-  GEN Q, bnd, rbnd, vec;
+  pari_sp av = avma;
+  long prec = C->cprec, Ks = itos_or_0(C->K), L = C->L, l;
+  GEN N = ellQ_get_N(E), PiN;
+  GEN e = mpexp(C->h), elh = powersr(e, L-1), Q, bnd, rbnd, vec;
+
+  PiN = divrr(Pi2n(1,prec), sqrtr_abs(itor(N, prec)));
+  setsigne(PiN, -1); /* - 2Pi/sqrt(N) */
+  bnd = gpowers0(invr(e), L-1, C->K); /* bnd[i] = K exp(-(i-1)h) */
   rbnd = cgetg(L+1, t_VECSMALL);
-  av2 = avma;
-  bnd = cgetg(L+1, t_VEC);
   Q  = cgetg(L+1, t_VEC);
-  for (l = 1; l <= L; ++l)
+  for (l = 1; l <= L; l++)
   {
-    gel(bnd,l) = l==1 ? C->K: ceil_safe(divir(C->K, gel(elh, l)));
-    rbnd[l] = itou(sqrtint(gel(bnd,l)))+1;
-    gel(Q, l) = mpexp(mulrr(negr(PiN), gel(elh, l)));
+    gel(bnd,l) = ceil_safe(gel(bnd,l));
+    rbnd[l] = _sqrt(gel(bnd,l)) + 1;
+    gel(Q, l) = mpexp(mulrr(PiN, gel(elh, l)));
   }
-  gerepileall(av2, 2, &bnd, &Q);
   if (Ks && baby_size(rbnd, Ks, prec) > (Ks>>1))
-    vec = vecF2_lk(E, bnd, rbnd, Q, sleh, prec);
+    vec = vecF2_lk(E, bnd, rbnd, Q, elh, prec);
   else
-    vec = vecF2_lk_bsgs(E, bnd, rbnd, Q, sleh, N, prec);
+    vec = vecF2_lk_bsgs(E, bnd, rbnd, Q, elh, N, prec);
   return gerepileupto(av, vec);
 }
 
