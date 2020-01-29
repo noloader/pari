@@ -340,11 +340,11 @@ glambda(GEN t, GEN vec, GEN h, long real, long prec)
 }
 
 static GEN
-Lpoints(struct lcritical *C, GEN e, GEN tmax, long bprec)
+Lpoints(struct lcritical *C, GEN e, double tmax, long bprec)
 {
   double h = 0, Y = .97;
   GEN N = ellQ_get_N(e);
-  param_points(N, Y, gtodouble(tmax), bprec, &C->cprec, &C->L, &C->K, &h);
+  param_points(N, Y, tmax, bprec, &C->cprec, &C->L, &C->K, &h);
   C->real = ellrootno_global(e);
   C->h = rtor(dbltor(h), C->cprec);
   return vecF(C, e);
@@ -391,7 +391,7 @@ ellL1_bitprec(GEN E, long r, long bitprec)
     pari_err_DOMAIN("ellL1", "derivative order", "<", gen_0, stoi(r));
   e = ellanal_globalred(E, NULL);
   if (r == 0 && ellrootno_global(e) < 0) { set_avma(av); return gen_0; }
-  vec = Lpoints(&C, e, gen_0, bitprec);
+  vec = Lpoints(&C, e, 0., bitprec);
   t = r ? scalarser(gen_1, 0, r):  zeroser(0, 0);
   setvalp(t, 1);
   return gerepileupto(av, ellL1_der(e, vec, &C, t, r, prec));
@@ -418,7 +418,7 @@ ellanalyticrank_bitprec(GEN E, GEN eps, long bitprec)
       if (typ(eps) != t_REAL) pari_err_TYPE("ellanalyticrank", eps);
     }
   e = ellanal_globalred(E, NULL);
-  vec = Lpoints(&C, e, gen_0, bitprec);
+  vec = Lpoints(&C, e, 0., bitprec);
   if (DEBUGLEVEL) timer_printf(&ti, "init L");
   av2 = avma;
   for (rk = C.real>0 ? 0: 1;  ; rk += 2)
