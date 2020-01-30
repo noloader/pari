@@ -786,15 +786,24 @@ gen_matimage(GEN A, GEN* U, void *data, const struct bb_hermite *R)
   GEN ops, H;
   if (U)
   {
-    pari_sp av = avma;
-    long m, n, i, r, n2;
+    pari_sp av = avma, av1;
+    long m, n, i, r, n2, pergc;
     RgM_dimensions(A,&m,&n);
     H = gen_howell_i(A, 2, 1, 0, 0, &ops, data, R);
+    av1 = avma;
     r = lg(H)-1;
     *U = shallowmatconcat(mkvec2(gen_zeromat(n, maxss(0,m-n+1), data, R), gen_matid_hermite(n, data, R)));
     n2 = lg(*U)-1;
+    pergc = maxss(m,n);
     for (i=1; i<lg(ops); i++)
+    {
       gen_rightapply(*U, gel(ops,i), data, R);
+      if (!(i%pergc) && gc_needed(av,1))
+      {
+        if (DEBUGMEM>1) pari_warn(warnmem,"gen_matimage. i=%ld",i);
+        gerepileall(av1,1,U);
+      }
+    }
     if (r<n2) *U = vecslice(*U, n2-r+1, n2);
     gerepileall(av, 2, &H, U);
     return H;
