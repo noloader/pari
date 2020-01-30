@@ -112,6 +112,9 @@ check(sumpos(n=1, 2^(-n)), 1)
 check(sumnum(n=[1, 1],2^(-n)), 1)
 check(sumnumap(n=[1, 1],2^(-n)), 1)
 
+\\ very slow if bad tuning for expQ
+localbitprec(1024); sumpos(n=1,(exp(1/n)-1)/n)
+
 \p38
 f(x) = -log(cos(x));
 F = truncate( f(t + O(t^16)) );
