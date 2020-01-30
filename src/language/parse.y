@@ -75,13 +75,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 %left '('
 %left ':'
 %type <val> seq sequence
-%type <val> range matrix matrix_index expr
+%type <val> range matrix matrix_index expr exprno
 %type <val> lvalue deriv
-%type <val> matrixelts matrixlines arg listarg definition
+%type <val> matrixelts matrixeltsno matrixlines arg listarg definition
 %type <val> funcid memberid
 %type <val> backticks history
 %type <val> compr in inseq
-%destructor { pari_discarded++; } seq matrix range matrix_index expr lvalue matrixelts matrixlines arg listarg definition funcid memberid backticks history compr in inseq deriv
+%destructor { pari_discarded++; } seq matrix range matrix_index expr exprno lvalue matrixelts matrixeltsno matrixlines arg listarg definition funcid memberid backticks history compr in inseq deriv
 %%
 
 sequence: seq        {$$=$1;} /* skip the destructor */
@@ -184,8 +184,15 @@ lvalue: KENTRY %prec LVAL   {$$=newnode(Fentry,newconst(CSTentry,&@1),-1,&@$);}
       | lvalue ':' KENTRY   {$$=newnode(Ftag,$1,newconst(CSTentry,&@2),&@$);}
 ;
 
+exprno: expr {$$=$1;}
+      | /**/ {$$=NOARG(@$);}
+
+matrixeltsno: matrixelts {$$=$1;}
+            | /**/ {$$=NOARG(@$);}
+;
+
 matrixelts: expr {$$=$1;}
-          | matrixelts ',' expr {$$=newnode(Fmatrixelts,$1,$3,&@$);}
+          | matrixeltsno ',' exprno {$$=newnode(Fmatrixelts,$1,$3,&@$);}
 ;
 
 matrixlines: matrixelts  ';' matrixelts {$$=newnode(Fmatrixlines,$1,$3,&@$);}

@@ -674,6 +674,16 @@ str_defproto(const char *p, const char *q, const char *loc)
 }
 
 static long
+countmatrixelts(long n)
+{
+  long x,i;
+  if (n==-1 || tree[n].f==Fnoarg) return 0;
+  for(x=n, i=0; tree[x].f==Fmatrixelts ;x=tree[x].x)
+    if (tree[x].f!=Fnoarg) i++;
+  return i+1;
+}
+
+static long
 countlisttogen(long n, Ffunc f)
 {
   long x,i;
@@ -882,6 +892,8 @@ compilevec(long n, long mode, op_code op)
   op_push(op,l,n);
   for (i=1;i<l;i++)
   {
+    if (tree[arg[i]].f==Fnoarg)
+      compile_err("missing vector element",tree[arg[i]].str);
     compilenode(arg[i],Ggen,FLsurvive);
     op_push(OCstackgen,i,n);
   }
@@ -916,6 +928,8 @@ compilemat(long n, long mode)
     for(j=1;j<lgcol;j++)
     {
       k-=lglin;
+      if (tree[col[j]].f==Fnoarg)
+        compile_err("missing matrix element",tree[col[j]].str);
       compilenode(col[j], Ggen, FLsurvive);
       op_push(OCstackgen,k,n);
     }
@@ -1065,7 +1079,7 @@ countvar(GEN arg)
     {
       long x = detag(tree[a].x);
       if (tree[x].f==Fvec && tree[x].x>=0)
-        n += countlisttogen(tree[x].x,Fmatrixelts)-1;
+        n += countmatrixelts(tree[x].x)-1;
     }
   }
   return n;
@@ -1107,10 +1121,11 @@ compilemy(GEN arg, const char *str, int inl)
         GEN vars = listtogen(tree[x].x,Fmatrixelts);
         long nv = lg(vars)-1;
         for (j=1; j<=nv; j++)
-        {
-          ver[++k] = vars[j];
-          vep[k] = (long)getvar(ver[k]);
-        }
+          if (tree[vars[j]].f!=Fnoarg)
+          {
+            ver[++k] = vars[j];
+            vep[k] = (long)getvar(ver[k]);
+          }
         continue;
       } else ver[++k] = x;
     } else ver[++k] = a;
@@ -1129,19 +1144,22 @@ compilemy(GEN arg, const char *str, int inl)
       if (tree[x].f==Fvec && tree[x].x>=0)
       {
         GEN vars = listtogen(tree[x].x,Fmatrixelts);
-        long nv = lg(vars)-1;
+        long nv = lg(vars)-1, m = nv;
         compilenode(tree[a].y,Ggen,FLnocopy);
-        if (nv > 1) op_push(OCdup,nv-1,x);
         for (j=1; j<=nv; j++)
-        {
-          long v = detag(vars[j]);
-          op_push(OCpushlong,j,v);
-          op_push(OCcompo1,Ggen,v);
-          k++;
-          op_push(OCstorelex,-n+k-1,a);
-          localvars[s_lvar.n-n+k-1].ep=(entree*)vep[k];
-          localvars[s_lvar.n-n+k-1].inl=inl;
-        }
+          if (tree[vars[j]].f==Fnoarg) m--;
+        if (m > 1) op_push(OCdup,m-1,x);
+        for (j=1; j<=nv; j++)
+          if (tree[vars[j]].f!=Fnoarg)
+          {
+            long v = detag(vars[j]);
+            op_push(OCpushlong,j,v);
+            op_push(OCcompo1,Ggen,v);
+            k++;
+            op_push(OCstorelex,-n+k-1,a);
+            localvars[s_lvar.n-n+k-1].ep=(entree*)vep[k];
+            localvars[s_lvar.n-n+k-1].inl=inl;
+          }
         continue;
       }
       else if (!is_node_zero(tree[a].y))
@@ -1182,17 +1200,20 @@ compilelocal(GEN arg)
       if (tree[x].f==Fvec && tree[x].x>=0)
       {
         GEN vars = listtogen(tree[x].x,Fmatrixelts);
-        long nv = lg(vars)-1;
+        long nv = lg(vars)-1, m = nv;
         compilenode(tree[a].y,Ggen,FLnocopy);
-        if (nv > 1) op_push(OCdup,nv-1,x);
         for (j=1; j<=nv; j++)
-        {
-          long v = detag(vars[j]);
-          op_push(OCpushlong,j,v);
-          op_push(OCcompo1,Ggen,v);
-          vep[++k] = localpush(OClocalvar, v);
-          ver[k] = v;
-        }
+          if (tree[vars[j]].f==Fnoarg) m--;
+        if (m > 1) op_push(OCdup,m-1,x);
+        for (j=1; j<=nv; j++)
+          if (tree[vars[j]].f!=Fnoarg)
+          {
+            long v = detag(vars[j]);
+            op_push(OCpushlong,j,v);
+            op_push(OCcompo1,Ggen,v);
+            vep[++k] = localpush(OClocalvar, v);
+            ver[k] = v;
+          }
         continue;
       } else if (!is_node_zero(tree[a].y))
       {
@@ -2019,23 +2040,26 @@ compilenode(long n, int mode, long flag)
       GEN vars = listtogen(tree[x].x,Fmatrixelts);
       long i, l = lg(vars)-1, d = mode==Gvoid? l-1: l;
       compilenode(y,Ggen,mode==Gvoid?0:flag&FLsurvive);
+      for (i=1; i<=l; i++)
+        if (tree[vars[i]].f==Fnoarg) d--;
       if (d) op_push(OCdup, d, x);
       for(i=1; i<=l; i++)
-      {
-        long a = detag(vars[i]);
-        entree *ep=getlvalue(a);
-        long vn=getmvar(ep);
-        op_push(OCpushlong,i,a);
-        op_push(OCcompo1,Ggen,a);
-        if (tree[a].f==Fentry)
-          compilestore(vn,ep,n);
-        else
+        if (tree[vars[i]].f!=Fnoarg)
         {
-          compilenewptr(vn,ep,n);
-          compilelvalue(a);
-          op_push(OCstoreptr,0,a);
+          long a = detag(vars[i]);
+          entree *ep=getlvalue(a);
+          long vn=getmvar(ep);
+          op_push(OCpushlong,i,a);
+          op_push(OCcompo1,Ggen,a);
+          if (tree[a].f==Fentry)
+            compilestore(vn,ep,n);
+          else
+          {
+            compilenewptr(vn,ep,n);
+            compilelvalue(a);
+            op_push(OCstoreptr,0,a);
+          }
         }
-      }
       if (mode!=Gvoid)
         compilecast(n,Ggen,mode);
     }
