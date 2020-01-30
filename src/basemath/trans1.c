@@ -2442,10 +2442,10 @@ expQ(GEN x, long prec)
   }
   else
   {
-    long ep, eq;
+    long ep, eq, B = usqrt(b) / 2;
     p = gel(x,1); ep = expi(p);
     q = gel(x,2); eq = expi(q);
-    if (ep > b || eq > b) return mpexp(fractor(x, prec));
+    if (ep > B || eq > B) return mpexp(fractor(x, prec));
     e = ep - eq;
     if (e < -3) prec += nbits2extraprec(-e); /* see addrr 'extend' rule */
   }
