@@ -183,7 +183,7 @@ nfnorm(GEN nf, GEN x)
   nf = checknf(nf);
   if (typ(x) == t_MAT) return famat_norm(nf, x);
   x = nf_to_scalar_or_alg(nf, x);
-  x = (typ(x) == t_POL)? RgXQ_norm(x, nf_get_pol(nf))
+  x = (typ(x) == t_POL)? QXQ_norm(x, nf_get_pol(nf))
                        : gpowgs(x, nf_get_degree(nf));
   return gerepileupto(av, x);
 }
