@@ -4,12 +4,12 @@ C-Name: mfdescribe
 Prototype: GD&
 Help: mfdescribe(F,{&G}): gives a human-readable description of F, which is
  either a modular form space or a modular form. If the address of G is given,
- puts into G the vector of parameters of the outmost operator defining F
- (the empty vector if F is a leaf or a modular form space).
+ puts into G the vector of parameters of the outmost operator defining F.
 Doc: gives a human-readable description of $F$, which is either a modular
  form space or a generalized modular form. If the address of $G$ is given,
- puts into $G$ the vector of parameters of the outmost operator defining $F$
- (the empty vector if $F$ is a leaf or a modular form space).
+ puts into $G$ the vector of parameters of the outermost operator defining $F$;
+ this vector is empty if $F$ is a leaf (an atomic object such as
+ \kbd{mfDelta()}, not defined in terms of other forms) or a modular form space.
  \bprog
  ? E1 = mfeisenstein(4,-3,-4); mfdescribe(E1)
  %1 = "F_4(-3, -4)"
