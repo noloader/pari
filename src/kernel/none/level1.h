@@ -428,6 +428,14 @@ INLINE ulong int_bit(GEN x, long n)
 /*                                                                 */
 /*******************************************************************/
 INLINE int
+cmpss(long a, long b)
+{ return a>b? 1: (a<b? -1: 0); }
+
+INLINE int
+cmpuu(ulong a, ulong b)
+{ return a>b? 1: (a<b? -1: 0); }
+
+INLINE int
 cmpir(GEN x, GEN y)
 {
   pari_sp av;

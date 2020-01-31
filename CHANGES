@@ -206,6 +206,7 @@ BA  66- [libpari] FlxX_translate1, zlx_translate1, zlxX_translate1
     70- new GP functions matreduce, bnfunits
 BA  71- [libpari] QXQ_to_mod_shallow
     72- [libpari] nf_cxlog_normalize
+BA  73- [libpari] cmpss, cmpuu
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

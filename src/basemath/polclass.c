@@ -1469,13 +1469,9 @@ select_classpoly_prime_pool(double min_bits, double delta, classgp_pcp_t G)
   }
 }
 
-INLINE int
-cmp_small(long a, long b)
-{ return a>b? 1: (a<b? -1: 0); }
-
 static int
 primecmp(void *data, GEN v1, GEN v2)
-{ (void)data; return cmp_small(v1[4], v2[4]); }
+{ (void)data; return cmpss(v1[4], v2[4]); }
 
 
 static long
