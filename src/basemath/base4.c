@@ -1890,7 +1890,7 @@ GEN
 idealnorm(GEN nf, GEN x)
 {
   pari_sp av;
-  GEN y, T;
+  GEN y;
   long tx;
 
   switch(idealtyp(&x,&y))
@@ -1899,9 +1899,8 @@ idealnorm(GEN nf, GEN x)
     case id_MAT: return RgM_det_triangular(x);
   }
   /* id_PRINCIPAL */
-  nf = checknf(nf); T = nf_get_pol(nf); av = avma;
-  x = nf_to_scalar_or_alg(nf, x);
-  x = (typ(x) == t_POL)? RgXQ_norm(x, T): gpowgs(x, degpol(T));
+  nf = checknf(nf); av = avma;
+  x = nfnorm(nf, x);
   tx = typ(x);
   if (tx == t_INT) return gerepileuptoint(av, absi(x));
   if (tx != t_FRAC) pari_err_TYPE("idealnorm",x);
