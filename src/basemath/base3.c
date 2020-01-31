@@ -188,14 +188,24 @@ nfnorm(GEN nf, GEN x)
   return gerepileupto(av, x);
 }
 
+static GEN
+to_RgX(GEN P, long vx)
+{
+  return varn(P) == vx ? P: scalarpol_shallow(P, vx);
+}
+
 GEN
 rnfeltnorm(GEN rnf, GEN x)
 {
   pari_sp av = avma;
+  GEN nf, pol;
+  long v = rnf_get_varn(rnf);
   checkrnf(rnf);
-  x = rnfeltabstorel(rnf, x);
-  x = (typ(x) == t_POLMOD)? rnfeltdown(rnf, gnorm(x))
-                          : gpowgs(x, rnf_get_degree(rnf));
+  x = liftpol_shallow(rnfeltabstorel(rnf, x));
+  nf = rnf_get_nf(rnf); pol = rnf_get_pol(rnf);
+  x = (typ(x) == t_POL)
+    ? rnfeltdown(rnf, nfX_resultant(nf,pol,to_RgX(x,v)))
+    : gpowgs(x, rnf_get_degree(rnf));
   return gerepileupto(av, x);
 }
 
