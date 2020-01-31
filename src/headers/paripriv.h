@@ -873,6 +873,7 @@ ulong   ZX_ZXY_ResBound(GEN A, GEN B, GEN dB);
 GEN     ffinit_Artin_Schreier(ulong p, long l);
 GEN     ffinit_rand(GEN p, long n);
 GEN     nfX_disc(GEN nf, GEN x);
+GEN     nfX_resultant(GEN nf, GEN x, GEN y);
 
 /* readline.c */
 

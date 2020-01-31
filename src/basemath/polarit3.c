@@ -2224,6 +2224,23 @@ ZXQX_resultant_all(GEN A, GEN B, GEN T, GEN dB, ulong bound)
   return gerepileupto(av, H);
 }
 
+GEN
+nfX_resultant(GEN nf, GEN x, GEN y)
+{
+  pari_sp av = avma;
+  GEN cx, cy, D, T = nf_get_pol(nf);
+  ulong bound;
+  long d = degpol(x), v = varn(T);
+  if (d <= 1) return d == 1? pol_1(v): pol_0(v);
+  x = Q_primitive_part(x, &cx);
+  y = Q_primitive_part(y, &cy);
+  bound = ZXQX_resultant_bound(nf, x, y);
+  D = ZXQX_resultant_all(x, y, T, NULL, bound);
+  if (cx) D = gmul(D, gpowgs(cx, degpol(y)));
+  if (cy) D = gmul(D, gpowgs(cy, degpol(x)));
+  return gerepileupto(av, D);
+}
+
 static GEN
 to_ZX(GEN a, long v) { return typ(a)==t_INT? scalarpol(a,v): a; }
 
