@@ -1838,7 +1838,18 @@ long
 ZV_search(GEN x, GEN y) { return tablesearch(x, y, cmpii); }
 
 long
-zv_search(GEN x, long y) { return tablesearch(x, (GEN)y, cmp_small); }
+zv_search(GEN T, long x)
+{
+  long l = 1, u = lg(T)-1;
+  while (u>=l)
+  {
+    long i = (l+u)>>1;
+    if (x < T[i]) u = i-1;
+    else if (x > T[i]) l = i+1;
+    else return i;
+  }
+  return 0;
+}
 
 /********************************************************************/
 /**                   COMPARISON FUNCTIONS                         **/
