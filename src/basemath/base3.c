@@ -180,12 +180,18 @@ GEN
 nfnorm(GEN nf, GEN x)
 {
   pari_sp av = avma;
+  GEN c, den;
+  long n;
   nf = checknf(nf);
+  n = nf_get_degree(nf);
   if (typ(x) == t_MAT) return famat_norm(nf, x);
-  x = nf_to_scalar_or_alg(nf, x);
-  x = (typ(x) == t_POL)? QXQ_norm(x, nf_get_pol(nf))
-                       : gpowgs(x, nf_get_degree(nf));
-  return gerepileupto(av, x);
+  x = nf_to_scalar_or_basis(nf, x);
+  if (typ(x)!=t_COL)
+    return gerepileupto(av, gpowgs(x, n));
+  x = nf_to_scalar_or_alg(nf, Q_primitive_part(x, &c));
+  x = Q_remove_denom(x, &den);
+  x = ZX_resultant_all(nf_get_pol(nf), x, den, 0);
+  return gerepileupto(av, c ? gmul(x, gpowgs(c, n)): x);
 }
 
 static GEN
