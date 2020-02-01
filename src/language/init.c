@@ -1991,7 +1991,7 @@ list_internal_copy(GEN z, long nmax)
   l = lg(z);
   a = newblock(nmax+1);
   for (i = 1; i < l; i++) gel(a,i) = gel(z,i)? gclone(gel(z,i)): gen_0;
-  a[0] = z[0]; return a;
+  a[0] = z[0]; setisclone(a); return a;
 }
 
 static void
