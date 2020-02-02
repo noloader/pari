@@ -279,7 +279,7 @@ void
 clone_lock(GEN x)
 {
   GEN y = blocksearch(x, root_block);
-  if (y)
+  if (y && isclone(y))
   {
     if (DEBUGMEM > 2)
       err_printf("locking block no %ld: %08lx from %08lx\n", bl_num(y), y, x);
@@ -291,7 +291,7 @@ void
 clone_unlock(GEN x)
 {
   GEN y = blocksearch(x, root_block);
-  if (y)
+  if (y && isclone(y))
   {
     if (DEBUGMEM > 2)
       err_printf("unlocking block no %ld: %08lx from %08lx\n", bl_num(y), y, x);
@@ -303,7 +303,7 @@ void
 clone_unlock_deep(GEN x)
 {
   GEN y = blocksearch(x, root_block);
-  if (y)
+  if (y && isclone(y))
   {
     if (DEBUGMEM > 2)
       err_printf("unlocking deep block no %ld: %08lx from %08lx\n", bl_num(y), y, x);
