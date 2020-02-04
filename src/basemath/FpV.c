@@ -1386,7 +1386,13 @@ ZV_zMs_mul(GEN B, GEN M)
   {
     GEN R = gel(M, i), C = gel(R, 1), E = gel(R, 2);
     long l = lg(C);
-    GEN z = mulis(gel(B, C[1]), E[1]);
+    GEN z;
+    if (l == 1)
+    {
+      gel(V,i) = gen_0;
+      continue;
+    }
+    z = mulis(gel(B, C[1]), E[1]);
     for (j = 2; j < l; ++j)
     {
       long k = C[j];
