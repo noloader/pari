@@ -586,6 +586,9 @@ matid2_FpXQXM(long v)
 }
 
 static GEN
+FpXX_shift(GEN a, long n) { return RgX_shift_shallow(a, n); }
+
+static GEN
 FpXQX_halfgcd_split(GEN x, GEN y, GEN T, GEN p)
 {
   pari_sp av=avma;
@@ -593,12 +596,12 @@ FpXQX_halfgcd_split(GEN x, GEN y, GEN T, GEN p)
   GEN y1, r, q;
   long l = lgpol(x), n = l>>1, k;
   if (lgpol(y)<=n) return matid2_FpXQXM(varn(x));
-  R = FpXQX_halfgcd(RgX_shift_shallow(x,-n),RgX_shift_shallow(y,-n), T, p);
+  R = FpXQX_halfgcd(FpXX_shift(x,-n),FpXX_shift(y,-n), T, p);
   V = FpXQXM_FpXQX_mul2(R,x,y, T, p); y1 = gel(V,2);
   if (lgpol(y1)<=n) return gerepilecopy(av, R);
   q = FpXQX_divrem(gel(V,1), y1, T, p, &r);
   k = 2*n-degpol(y1);
-  S = FpXQX_halfgcd(RgX_shift_shallow(y1,-k), RgX_shift_shallow(r,-k), T, p);
+  S = FpXQX_halfgcd(FpXX_shift(y1,-k), FpXX_shift(r,-k), T, p);
   return gerepileupto(av, FpXQXM_mul2(S,FpXQX_FpXQXM_qmul(q,R, T, p), T, p));
 }
 
@@ -1512,7 +1515,7 @@ FpXQXQ_transmul_init(GEN tau, GEN S, GEN T, GEN p)
     bht = FpXQXn_mul(bt, h, n-1, T, p);
   else
   {
-    GEN bh = FpXQX_div(RgX_shift_shallow(tau, n-1), S, T, p);
+    GEN bh = FpXQX_div(FpXX_shift(tau, n-1), S, T, p);
     bht = FpXQX_recipspec(bh+2, lgpol(bh), n-1);
     setvarn(bht, vT);
   }
@@ -1526,11 +1529,11 @@ FpXQXQ_transmul(GEN tau, GEN a, long n, GEN T, GEN p)
   GEN t1, t2, t3, vec;
   GEN bt = gel(tau, 1), bht = gel(tau, 2), ft = gel(tau, 3);
   if (signe(a)==0) return pol_0(varn(a));
-  t2 = RgX_shift_shallow(FpXQX_mul(bt, a, T, p),1-n);
+  t2 = FpXX_shift(FpXQX_mul(bt, a, T, p),1-n);
   if (signe(bht)==0) return gerepilecopy(ltop, t2);
-  t1 = RgX_shift_shallow(FpXQX_mul(ft, a, T, p),-n);
+  t1 = FpXX_shift(FpXQX_mul(ft, a, T, p),-n);
   t3 = FpXQXn_mul(t1, bht, n-1, T, p);
-  vec = FpXX_sub(t2, RgX_shift_shallow(t3, 1), p);
+  vec = FpXX_sub(t2, FpXX_shift(t3, 1), p);
   return gerepileupto(ltop, vec);
 }
 
@@ -1793,7 +1796,7 @@ FpXQXn_exp(GEN h, long e, GEN T, GEN p)
 static GEN
 FpXQX_mulhigh_i(GEN f, GEN g, long n, GEN T, GEN p)
 {
-  return RgX_shift_shallow(FpXQX_mul(f,g,T, p),-n);
+  return FpXX_shift(FpXQX_mul(f,g,T, p),-n);
 }
 
 static GEN
@@ -1835,7 +1838,7 @@ FpXQXn_inv(GEN f, long e, GEN T, GEN p)
     mask >>= 1;
     fr = FpXXn_red(f, n);
     u = FpXQXn_mul(W, FpXQXn_mulhigh(fr, W, n2, n, T, p), n-n2, T, p);
-    W = FpXX_sub(W, RgX_shift_shallow(u, n2), p);
+    W = FpXX_sub(W, FpXX_shift(u, n2), p);
     if (gc_needed(av2,2))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"FpXQXn_inv, e = %ld", n);
