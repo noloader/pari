@@ -5537,6 +5537,12 @@ It is required that the valuation of $x$ is positive and that $p>n$.
 
 \fun{GEN}{FqXn_exp}{GEN x, long n, GEN T, GEN p}
 
+\fun{GEN}{FpXQXn_expint}{GEN f, long n, GEN p} return $\exp(F)$
+where $F$ is the primitive of $f$ that vanishes at $0$.
+It is required that $p>n$.
+
+\fun{GEN}{FqXn_expint}{GEN x, long n, GEN T, GEN p}
+
 \subsec{\kbd{FpXQXQ}, \kbd{FqXQ}}
 
 A \kbd{FpXQXQ} is a \typ{FpXQX} which represents an element of the ring

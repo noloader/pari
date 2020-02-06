@@ -2432,6 +2432,9 @@ FqXQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p)
 
 /*FqXn*/
 INLINE GEN
+FqXn_expint(GEN x, long n, GEN T, GEN p)
+{ return T? FpXQXn_expint(x,n,T,p): FpXn_expint(x,n,p); }
+INLINE GEN
 FqXn_exp(GEN x, long n, GEN T, GEN p)
 { return T? FpXQXn_exp(x,n,T,p): FpXn_exp(x,n,p); }
 INLINE GEN
