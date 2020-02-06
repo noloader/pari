@@ -319,6 +319,12 @@ FpX_mulu(GEN y, ulong x,GEN p)
 }
 
 GEN
+FpX_divu(GEN y, ulong x, GEN p)
+{
+  return FpX_Fp_div(y, utoi(umodui(x, p)), p);
+}
+
+GEN
 FpX_Fp_mulspec(GEN y,GEN x,GEN p,long ly)
 {
   GEN z;

@@ -676,6 +676,7 @@ GEN     FpX_digits(GEN x, GEN y, GEN p);
 GEN     FpX_disc(GEN x, GEN p);
 GEN     FpX_div_by_X_x(GEN a, GEN x, GEN p, GEN *r);
 GEN     FpX_divrem(GEN x, GEN y, GEN p, GEN *pr);
+GEN     FpX_divu(GEN x, ulong y, GEN p);
 GEN     FpX_dotproduct(GEN x, GEN y, GEN p);
 GEN     FpX_eval(GEN x,GEN y,GEN p);
 GEN     FpX_extgcd(GEN x, GEN y, GEN p, GEN *ptu, GEN *ptv);
