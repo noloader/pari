@@ -337,6 +337,12 @@ FpX_Fp_mul(GEN y,GEN x,GEN p)
 }
 
 GEN
+FpX_Fp_div(GEN y, GEN x, GEN p)
+{
+  return FpX_Fp_mul(y, Fp_inv(x, p), p);
+}
+
+GEN
 FpX_Fp_mul_to_monic(GEN y,GEN x,GEN p)
 {
   GEN z;
@@ -414,7 +420,7 @@ FpX_divrem_basecase(GEN x, GEN y, GEN p, GEN *pr)
     }
     av0 = avma;
     if (equali1(lead)) return FpX_red(x, p);
-    else return gerepileupto(av0, FpX_Fp_mul(x, Fp_inv(lead,p), p));
+    else return gerepileupto(av0, FpX_Fp_div(x, lead, p));
   }
   av0 = avma; dz = dx-dy;
   if (lgefint(p) == 3)

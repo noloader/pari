@@ -649,7 +649,7 @@ Fq_div(GEN x, GEN y, GEN pol, GEN p)
   switch((typ(x)==t_POL)|((typ(y)==t_POL)<<1))
   {
     case 0: return Fp_div(x,y,p);
-    case 1: return FpX_Fp_mul(x,Fp_inv(y,p),p);
+    case 1: return FpX_Fp_div(x,y,p);
     case 2: return FpX_Fp_mul(FpXQ_inv(y,pol,p),x,p);
     case 3: return FpXQ_div(x,y,pol,p);
   }

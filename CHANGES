@@ -207,6 +207,7 @@ BA  66- [libpari] FlxX_translate1, zlx_translate1, zlxX_translate1
 BA  71- [libpari] QXQ_to_mod_shallow
     72- [libpari] nf_cxlog_normalize
 BA  73- [libpari] cmpss, cmpuu
+BA  74- [libpari] FpX_Fp_div
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

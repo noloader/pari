@@ -654,6 +654,7 @@ GEN     FpV_polint(GEN xa, GEN ya, GEN p, long v);
 GEN     FpV_roots_to_pol(GEN V, GEN p, long v);
 GEN     FpX_Fp_add(GEN x, GEN y, GEN p);
 GEN     FpX_Fp_add_shallow(GEN y,GEN x,GEN p);
+GEN     FpX_Fp_div(GEN x, GEN y, GEN p);
 GEN     FpX_Fp_mul(GEN x, GEN y, GEN p);
 GEN     FpX_Fp_mul_to_monic(GEN y,GEN x,GEN p);
 GEN     FpX_Fp_mulspec(GEN y,GEN x,GEN p,long ly);
