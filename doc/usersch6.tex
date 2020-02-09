@@ -954,8 +954,9 @@ valuation $v$ at \kbd{pr} of \kbd{famat\_to\_nf}$(x)$, without performing the
 expansion of course. Notive that the output is a \kbd{GEN} since it cannot be
 assumed to fit into a \kbd{long}. If \kbd{py} is not \kbd{NULL} it contains
 the \kbd{famat} obtained by applying \kbd{nfvalrem} to each entry of the
-first column and copying the second column. The expanded algebraic number
-is coprime to \kbd{pr} and equal to $x \tau^v$ where $\tau$ is the fixed
+first column and copying the second column, with $0$ exponents removed. The
+expanded algebraic number is coprime to \kbd{pr} (in fact, all its components
+are coprime do \kbd{pr}) and equal to $x \tau^v$ where $\tau$ is the fixed
 anti-uniformizer for \kbd{pr} (\kbd{pr\_get\_tau}).
 
 \misctitle{Caveat} Receiving a \var{famat} input, \kbd{bnfisunit} assumes that

@@ -794,14 +794,18 @@ famat_nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
 {
   pari_sp av = avma;
   GEN P = gel(x,1), E = gel(x,2), V = gen_0, y = NULL;
-  long l = lg(P), i;
+  long l = lg(P), simplify = 0, i;
   if (py) { *py = gen_1; y = cgetg(l, t_COL); }
 
   for (i = 1; i < l; i++)
   {
     GEN e = gel(E,i);
     long v;
-    if (!signe(e)) continue;
+    if (!signe(e))
+    {
+      if (py) gel(y,i) = gen_1;
+      simplify = 1; continue;
+    }
     v = nfvalrem(nf, gel(P,i), pr, py? &gel(y,i): NULL);
     if (v == LONG_MAX) { set_avma(av); if (py) *py = gen_0; return mkoo(); }
     V = addmulii(V, stoi(v), e);
@@ -810,6 +814,7 @@ famat_nfvalrem(GEN nf, GEN x, GEN pr, GEN *py)
   else
   {
     y = mkmat2(y, gel(x,2));
+    if (simplify) y = famat_remove_trivial(y);
     gerepileall(av, 2, &V, &y); *py = y;
   }
   return V;
