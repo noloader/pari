@@ -1668,6 +1668,7 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
   if (lg(x) == 2)
   { /* nf = Q */
     col = gel(x,1);
+    if (flag & nf_GENMAT) col = to_famat_shallow(col, gen_1);
     return (flag & nf_GEN_IF_PRINCIPAL)? col: mkvec2(cgetg(1,t_COL), col);
   }
 
@@ -1732,6 +1733,8 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
   { /* add back missing content */
     if (xc) col = (typ(col)==t_MAT)? famat_mul_shallow(col,xc)
                                    : RgC_Rg_mul(col,xc);
+    if (typ(col) != t_MAT && (flag & nf_GENMAT))
+      col = to_famat_shallow(col, gen_1);
   }
   else
   {
@@ -1752,20 +1755,29 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
 static GEN
 triv_gen(GEN bnf, GEN x, long flag)
 {
+  pari_sp av = avma;
   GEN nf = bnf_get_nf(bnf);
   long c;
-  if (flag & nf_GEN_IF_PRINCIPAL) return algtobasis(nf,x);
+  if (flag & nf_GEN_IF_PRINCIPAL)
+  {
+    x = algtobasis(nf,x);
+    if (!flag & nf_GENMAT) return x;
+    return gerepilecopy(av, to_famat_shallow(x, gen_1));
+  }
   c = lg(bnf_get_cyc(bnf)) - 1;
-  if (flag & (nf_GEN|nf_GENMAT)) retmkvec2(zerocol(c), algtobasis(nf,x));
+  if (flag & nf_GENMAT)
+    retmkvec2(zerocol(c), to_famat_shallow(algtobasis(nf,x), gen_1));
+  if (flag & nf_GEN)
+    retmkvec2(zerocol(c), algtobasis(nf,x));
   return zerocol(c);
 }
 
 GEN
 bnfisprincipal0(GEN bnf,GEN x,long flag)
 {
+  pari_sp av = avma;
   GEN arch, c, nf;
   long pr;
-  pari_sp av = avma;
 
   bnf = checkbnf(bnf);
   nf = bnf_get_nf(bnf);
@@ -1775,8 +1787,7 @@ bnfisprincipal0(GEN bnf,GEN x,long flag)
       if (gequal0(x)) pari_err_DOMAIN("bnfisprincipal","ideal","=",gen_0,x);
       return triv_gen(bnf, x, flag);
     case id_PRIME:
-      if (pr_is_inert(x))
-        return gerepileupto(av, triv_gen(bnf, pr_get_p(x), flag));
+      if (pr_is_inert(x)) return triv_gen(bnf, pr_get_p(x), flag);
       x = pr_hnf(nf, x);
       break;
     case id_MAT:
