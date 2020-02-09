@@ -1761,7 +1761,7 @@ triv_gen(GEN bnf, GEN x, long flag)
   if (flag & nf_GEN_IF_PRINCIPAL)
   {
     x = algtobasis(nf,x);
-    if (!flag & nf_GENMAT) return x;
+    if (!(flag & nf_GENMAT)) return x;
     return gerepilecopy(av, to_famat_shallow(x, gen_1));
   }
   c = lg(bnf_get_cyc(bnf)) - 1;
