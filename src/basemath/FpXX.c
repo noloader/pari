@@ -1787,26 +1787,47 @@ FpXX_integXn(GEN x, long n, GEN p)
   y = cgetg(lx, t_POL); y[1] = x[1];
   for (i=2; i<lx; i++)
   {
+    ulong j = n+i-1;
+    GEN xi = gel(x,i);
+    if (!signe(xi))
+      gel(y,i) = gen_0;
+    else
+      gel(y,i) = typ(xi)==t_INT ? Fp_divu(xi, j, p)
+                                : FpX_divu(xi, j, p);
+  }
+  return ZXX_renormalize(y, lx);;
+}
+
+/* Compute intformal(x^n*S)/x^(n+1) */
+static GEN
+ZlXX_integXn(GEN x, long n, GEN p, ulong pp)
+{
+  long i, lx = lg(x);
+  GEN y;
+  if (lx == 2) return ZXX_copy(x);
+  if (!pp) return FpXX_integXn(x, n, p);
+  y = cgetg(lx, t_POL); y[1] = x[1];
+  for (i=2; i<lx; i++)
+  {
     GEN xi = gel(x,i);
     if (!signe(xi))
       gel(y,i) = gen_0;
     else
     {
-      ulong j = n+i-1;
+      ulong j;
+      long v = u_lvalrem(n+i-1, pp, &j);
       if (typ(xi)==t_INT)
       {
-        ulong d = ugcd(j, umodiu(xi, j));
-        if (d==1)
+        if (v==0)
           gel(y,i) = Fp_divu(xi, j, p);
         else
-          gel(y,i) = Fp_divu(diviuexact(xi, d), j/d, p);
+          gel(y,i) = Fp_divu(diviuexact(xi, upowuu(pp, v)), j, p);
       } else
       {
-        ulong d = ugcd(j, umodiu(ZX_content(xi), j));
-        if (d==1)
+        if (v==0)
           gel(y,i) = FpX_divu(xi, j, p);
         else
-          gel(y,i) = FpX_divu(ZX_divuexact(xi, d), j/d, p);
+          gel(y,i) = FpX_divu(ZX_divuexact(xi, upowuu(pp, v)), j, p);
       }
     }
   }
@@ -1814,7 +1835,7 @@ FpXX_integXn(GEN x, long n, GEN p)
 }
 
 GEN
-FpXQXn_expint(GEN h, long e, GEN T, GEN p)
+ZlXQXn_expint(GEN h, long e, GEN T, GEN p, ulong pp)
 {
   pari_sp av = avma, av2;
   long v = varn(h), n=1;
@@ -1829,7 +1850,7 @@ FpXQXn_expint(GEN h, long e, GEN T, GEN p)
     mask >>= 1;
     u = FpXQXn_mul(g, FpXQX_mulhigh_i(f, FpXXn_red(h, n2-1), n2-1, T, p), n-n2, T, p);
     u = FpXX_add(u, FpXX_shift(FpXXn_red(h, n-1), 1-n2), p);
-    w = FpXQXn_mul(f, FpXX_integXn(u, n2-1, p), n-n2, T, p);
+    w = FpXQXn_mul(f, ZlXX_integXn(u, n2-1, p, pp), n-n2, T, p);
     f = FpXX_add(f, FpXX_shift(w, n2), p);
     if (mask<=1) break;
     u = FpXQXn_mul(g, FpXQXn_mulhigh(f, g, n2, n, T, p), n-n2, T, p);
@@ -1842,6 +1863,10 @@ FpXQXn_expint(GEN h, long e, GEN T, GEN p)
   }
   return gerepileupto(av, f);
 }
+
+GEN
+FpXQXn_expint(GEN h, long e, GEN T, GEN p)
+{ return ZlXQXn_expint(h, e, T, p, 0); }
 
 GEN
 FpXQXn_exp(GEN h, long e, GEN T, GEN p)

@@ -768,6 +768,10 @@ long    zx_is_pcyc(GEN T);
 
 GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
 
+/* FpX.c */
+
+GEN     ZlXQXn_expint(GEN h, long e, GEN T, GEN p, ulong pp);
+
 /* FpX_factor.c */
 
 GEN     ddf_to_ddf2(GEN V);

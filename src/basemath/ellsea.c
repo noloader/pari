@@ -741,7 +741,8 @@ find_kernel(GEN a4, GEN a6, long l, GEN b4, GEN b6, GEN pp1, GEN T, GEN p, GEN p
   Ge = ZqXn_WNewton(Sd, l, a4, a6, pp1, T, p, pp, e);
   if (!Ge) return NULL;
   Ge = FqX_neg(Ge, T, p);
-  Ge = FqXn_expint(Ge, d, T, p);
+  Ge = T && lgefint(pp)==3 ? ZlXQXn_expint(Ge, d, T, p, pp[2])
+                           : FqXn_expint(Ge, d, T, p);
   Ge = RgX_recip(FqX_red(Ge, T, pp));
   if (degpol(Ge)==(l-1)/2) return Ge;
   return NULL;
