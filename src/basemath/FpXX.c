@@ -1806,7 +1806,7 @@ FpXX_integXn(GEN x, long n, GEN p)
         if (d==1)
           gel(y,i) = FpX_divu(xi, j, p);
         else
-          gel(y,i) = FpX_divu(ZX_Z_divexact(xi, utoi(d)), j/d, p);
+          gel(y,i) = FpX_divu(ZX_divuexact(xi, d), j/d, p);
       }
     }
   }

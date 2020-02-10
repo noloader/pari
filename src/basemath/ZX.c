@@ -185,6 +185,15 @@ ZX_Z_divexact(GEN y,GEN x)
 }
 
 GEN
+ZX_divuexact(GEN y, ulong x)
+{
+  long i, l = lg(y);
+  GEN z = cgetg(l,t_POL); z[1] = y[1];
+  for(i=2; i<l; i++) gel(z,i) = diviuexact(gel(y,i),x);
+  return z;
+}
+
+GEN
 zx_z_divexact(GEN y, long x)
 {
   long i, l = lg(y);
