@@ -20,12 +20,13 @@ BA   1- plotlines flag was ignored
     12- mf=mfinit([470,2],0);F=mfeigenbasis(mf)[7]; mfcuspval(mf,F,1/5)
         -> division by 0
     13- quadtofp(quadgen(-3)) -> t_FRAC component [#2158]
-    14- nfgcd wouldn't terminate [#2159]
+    14- [from 2.12.0] nfgcd wouldn't terminate [#2159]
     15- conjvec(t_FFELT of characteristic 2) was missing a conjugate
     16- nf2 = nfnewprec(nf) could return incompatible nf2 [#2154]
-    17- u_forprime_next around 2^63 could return primes larger than upper bound
-    18- gcd(2*x, 2*x+1) -> 2 [instead of 1]
-    19- deriv(2/(4*x^2+1),x) -> inconsistent exact division [#2162]
+    17- [from 2.12.0] u_forprime_next around 2^63 could return primes larger
+        than upper bound
+    18- [from 2.12.0] gcd(2*x, 2*x+1) -> 2 [instead of 1]
+    19- [from 2.12.0] deriv(2/(4*x^2+1),x)->inconsistent exact division [#2162]
     20- issquare(non square t_FFELT, &x) -> SEGV [#2163]
     21- rdivii / rdiviiz imprecise, e.g.
         a=28088408347805994933529600180306266460976;
@@ -33,7 +34,7 @@ BA   1- plotlines flag was ignored
     22- typo in QM_inv (wrong result)
     23- modular symbols package: better type checks
     24- division by 0 in Flx_extresultant when one input is 0
-    25- lfunconductor(1,[]) -> SEGV
+    25- [from 2.12.0] lfunconductor(1,[]) -> SEGV
     26- internal error in isprime(,1) after addprime() [#2166]
     27- ZM_gauss returned incorrect result for t_MAT RHS and 0 input
 BA  28- lfunhardy(..., t) with t<0 -> error
