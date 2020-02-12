@@ -2636,9 +2636,8 @@ PiI2div(GEN x, long prec) { return gdiv(Pi2n(1, prec), mulcxmI(x)); }
 static GEN
 _elleisnum(ellred_t *T, long k)
 {
-  GEN y = cxEk(T->Tau, k, T->prec);
-  y = gmul(y, gpowgs(mulcxI(gdiv(Pi2n(1,T->prec), T->W2)),k));
-  return cxtoreal(y);
+  GEN z = gmul(cxEk(T->Tau, k, T->prec), gpowgs(PiI2div(T->W2, T->prec), k));
+  return cxtoreal(z);
 }
 
 /* Return (2iPi)^k E_k(L) = (2iPi/w2)^k E_k(tau), with L = <w1,w2>, k > 0 even
@@ -2794,7 +2793,7 @@ ellwpnum_all(GEN e, GEN z, long flall, long prec)
     yp = gadd(yp, gdiv(gaddsg(1,u), gmul(u1,u2)));
   }
 
-  u1 = gdiv(Pi2n(1, prec), mulcxmI(T.W2));
+  u1 = PiI2div(T.W2, prec);
   u2 = gsqr(u1);
   y = gmul(u2,y); /* y *= (2i pi / w2)^2 */
   if (T.some_q_is_real && (T.some_z_is_real || T.some_z_is_pure_imag))
