@@ -530,13 +530,11 @@ heegner_psi(GEN E, GEN N, GEN points, long bitprec)
   pari_sp av = avma, av2;
   struct baby_giant bb;
   struct bg_data bg;
-  long k, L = lg(points)-1, prec = nbits2prec(bitprec)+EXTRAPRECWORD;
-  GEN  Q, pi2 = Pi2n(1, prec), bnd, rbnd;
-  long l;
+  long l, k, L = lg(points)-1, prec = nbits2prec(bitprec)+EXTRAPRECWORD;
+  GEN Q, pi2 = Pi2n(1, prec), bnd, rbnd, bndmax;
   GEN B = divrr(mulur(bitprec,mplog2(DEFAULTPREC)), pi2);
-  GEN bndmax;
-  rbnd = cgetg(L+1, t_VECSMALL);
-  av2 = avma;
+
+  rbnd = cgetg(L+1, t_VECSMALL); av2 = avma;
   bnd = cgetg(L+1, t_VEC);
   Q  = cgetg(L+1, t_VEC);
   for (l = 1; l <= L; ++l)
@@ -550,18 +548,15 @@ heegner_psi(GEN E, GEN N, GEN points, long bitprec)
   gen_BG_init(&bg, E, N, bndmax);
   if (bitprec >= 1900)
   {
-    GEN S;
+    GEN S = cgetg(L+1, t_VEC);
     baby_init2(&bb, Q, bnd, rbnd, prec);
     gen_BG_rec((void*)&bb, heegner_L1_bg, &bg);
-    S = cgetg(L+1, t_VEC);
     for (k = 1; k <= L; ++k)
     {
       pari_sp av2 = avma;
       long j, g = rbnd[k];
-      GEN giant = gmael(bb.baby, k, g+1);
-      GEN Sl = real_0(prec);
-      for (j = g; j >=1; j--)
-        Sl = gadd(gmul(Sl, giant), gmael(bb.giant,k,j));
+      GEN giant = gmael(bb.baby, k, g+1), Sl = real_0(prec);
+      for (j = g; j >=1; j--) Sl = gadd(gmul(Sl, giant), gmael(bb.giant,k,j));
       gel(S, k) = gerepileupto(av2, real_i(Sl));
     }
     return gerepileupto(av, S);
