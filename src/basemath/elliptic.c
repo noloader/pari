@@ -2632,10 +2632,6 @@ get_periods(GEN e, GEN z, ellred_t *T, long prec)
 /* 2iPi/x, more efficient when x pure imaginary */
 static GEN
 PiI2div(GEN x, long prec) { return gdiv(Pi2n(1, prec), mulcxmI(x)); }
-/* exp(I x y), more efficient for x in R, y pure imaginary */
-GEN
-expIxy(GEN x, GEN y, long prec) { return gexp(gmul(x, mulcxI(y)), prec); }
-
 /* (2iPi/W2)^k E_k(W1/W2) */
 static GEN
 _elleisnum(ellred_t *T, long k)

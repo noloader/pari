@@ -2831,6 +2831,9 @@ expIPiC(GEN z, long prec)
   }
   return gmul(r, expIr(mulrr(pi, x)));
 }
+/* exp(I x y), more efficient for x in R, y pure imaginary */
+GEN
+expIxy(GEN x, GEN y, long prec) { return gexp(gmul(x, mulcxI(y)), prec); }
 
 static GEN
 qq(GEN x, long prec)

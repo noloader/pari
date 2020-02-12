@@ -13040,6 +13040,12 @@ $\sinh(x)$ and $\cosh(x)$ respectively, where $x$ is a \typ{REAL}
 The return type is \typ{COMPLEX} unless the imaginary part is equal to $0$
 to the current accuracy (its sign is $0$).
 
+\fun{GEN}{expIPiR}{GEN x, long prec} return $\exp(i \pi x)$, where $x$ is a
+real number (\typ{INT}, \typ{FRAC} or \typ{REAL}).
+
+\fun{GEN}{expIPiC}{GEN z, long prec} return $\exp(i \pi x)$, where $x$ is a
+complex number (\typ{INT}, \typ{FRAC}, \typ{REAL} or \typ{COMPLEX}).
+
 \fun{GEN}{expIxy}{GEN x, GEN y, long prec} returns $\exp(ixy)$. Efficient
 when $x$ is real and $y$ pure imaginary.
 
