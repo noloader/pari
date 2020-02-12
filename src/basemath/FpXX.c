@@ -1127,9 +1127,14 @@ Fq_addmul(GEN x, GEN y, GEN z, GEN T, GEN p)
 GEN
 FpXQX_div_by_X_x(GEN a, GEN x, GEN T, GEN p, GEN *r)
 {
-  long l = lg(a)-1, i;
-  GEN z = cgetg(l, t_POL);
-  z[1] = evalsigne(1) | evalvarn(0);
+  long l = lg(a), i;
+  GEN z;
+  if (l <= 3)
+  {
+    if (r) *r = l == 2? gen_0: gcopy(gel(a,2));
+    return pol_0(0);
+  }
+  l--; z = cgetg(l, t_POL); z[1] = evalsigne(1) | evalvarn(0);
   gel(z, l-1) = gel(a,l);
   for (i=l-2; i>1; i--) /* z[i] = a[i+1] + x*z[i+1] */
     gel(z, i) = Fq_addmul(gel(a,i+1), x, gel(z,i+1), T, p);

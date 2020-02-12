@@ -1630,7 +1630,14 @@ GEN
 RgX_div_by_X_x(GEN a, GEN x, GEN *r)
 {
   long l = lg(a), i;
-  GEN a0, z0, z = cgetg(l-1, t_POL);
+  GEN a0, z0, z;
+
+  if (l <= 3)
+  {
+    if (r) *r = l == 2? gen_0: gcopy(gel(a,2));
+    return pol_0(0);
+  }
+  z = cgetg(l-1, t_POL);
   z[1] = a[1];
   a0 = a + l-1;
   z0 = z + l-2; *z0 = *a0--;
