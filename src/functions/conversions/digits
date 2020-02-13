@@ -9,7 +9,7 @@ Doc:
  integers ($b = 10$ by default). For $x\ge1$, the number of digits is
  $\kbd{logint}(x,b) + 1$. See \kbd{fromdigits} for the reverse operation.
  \bprog
- ? digits(123)
+ ? digits(1230)
  %1 = [1, 2, 3, 0]
 
  ? digits(10, 2) \\ base 2
