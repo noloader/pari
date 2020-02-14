@@ -1659,7 +1659,7 @@ ZV_mul(GEN x, GEN y)
 static GEN
 isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
 {
-  GEN xar, Wex, Bex, gen, xc, d, col, A, Q, R, q, UA, SUnits;
+  GEN xar, Wex, Bex, gen, xc, col, A, Q, R, UA, SUnits;
   GEN C = bnf_get_C(bnf), nf = bnf_get_nf(bnf), cyc = bnf_get_cyc(bnf);
   long nB, nW, e;
 
@@ -1685,19 +1685,17 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
   if ((flag & nf_GEN_IF_PRINCIPAL) && !ZV_equal0(R)) return gen_0;
 
   nW = lg(Wex)-1;
-  col = xar? nf_cxlog(nf, xar, *pprec): NULL;
-  if (nB) col = add(col, act_arch(Bex, nW? vecslice(C,nW+1,lg(C)-1): C));
-  if (nW)
-  {
-    GEN v = RgC_sub(act_arch(Q, bnf_get_GD(bnf)), act_arch(A, bnf_get_ga(bnf)));
-    col = add(col, v);
-  }
-
-  /* find coords on Zk; q = N (x / prod gj^ej) = N(alpha), denom(alpha) | d */
   gen = bnf_get_gen(bnf);
-  q = gdiv(ZM_det_triangular(x), get_norm_fact(gen, R, &d));
-  col = isprincipalarch(bnf, col, q, gen_1, d, &e);
-  if (col && !fact_ok(nf,x, col,gen,R)) col = NULL;
+  if (lg(R) == 1 || abscmpiu(gel(R,vecindexmax(R)), bit_accuracy(*pprec)) < 0)
+  { /* q = N (x / prod gj^ej) = N(alpha), denom(alpha) | d */
+    GEN d, q = gdiv(ZM_det_triangular(x), get_norm_fact(gen, R, &d));
+    col = xar? nf_cxlog(nf, xar, *pprec): NULL;
+    if (nB) col = add(col, act_arch(Bex, nW? vecslice(C,nW+1,lg(C)-1): C));
+    if (nW) col = add(col, RgC_sub(act_arch(Q, bnf_get_GD(bnf)),
+                                   act_arch(A, bnf_get_ga(bnf))));
+    col = isprincipalarch(bnf, col, q, gen_1, d, &e);
+    if (col && !fact_ok(nf,x, col,gen,R)) col = NULL;
+  }
   if (!col && (flag & nf_GENMAT) && (SUnits = bnf_get_sunits(bnf)))
   {
     GEN X = gel(SUnits,1), U = gel(SUnits,2), C = gel(SUnits,3);

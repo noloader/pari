@@ -75,6 +75,7 @@ BA  54- ((x^7+x^3+x+1)*Mod(1,Mod(1,2)*d))%(x^4+x^3+x^2+1)->x^3+x
     57- atanh near -1: large relative error
     58- acosh near 1 or -1: large relative error
     59- type(subst('x^0,'y,0)) -> t_INT (instead of t_POL)
+    60- bnfisprincipal: overflow when h >> 1
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
