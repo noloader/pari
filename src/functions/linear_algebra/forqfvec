@@ -2,6 +2,9 @@ Function: forqfvec
 Section: linear_algebra
 C-Name: forqfvec0
 Prototype: vVGDGI
+Wrapper: (,,,vG)
+Description:
+ (,gen,?gen,closure):void forqfvec1(${4 cookie}, ${4 wrapper}, $2, $3)
 Help:forqfvec(v,q,b,expr): q being a square and symmetric integral matrix
  representing an positive definite quadratic form, evaluate expr
  for all vectors v such that q(v)<=b.
@@ -15,9 +18,14 @@ Doc: $q$ being a square and symmetric integral matrix representing a positive
  [1, 0]~
  [-1, 1]~
  @eprog
-Variant: The following function is also available:
+Variant: The following functions are also available:
  \fun{void}{forqfvec}{void *E, long (*fun)(void *, GEN, GEN, double), GEN q, GEN b}:
- Evaluate \kbd{fun(E,w,v,m)} on all $v$ such that $q(v)<b$, where $v$ is a
- \typ{VECSMALL} and $m=q(v)$ is a C double. The function \kbd{fun} must
- return $0$, unless \kbd{forqfvec} should stop, in which case, it should
- return $1$.
+ Evaluate \kbd{fun(E,U,v,m)} on all $v$ such that $q(U\*v)<b$, where $U$ is a
+ \typ{MAT}, $v$ is a \typ{VECSMALL} and $m=q(v)$ is a C double. The function
+ \kbd{fun} must return $0$, unless \kbd{forqfvec} should stop, in which case,
+ it should return $1$.
+
+ \fun{void}{forqfvec1}{void *E, long (*fun)(void *, GEN), GEN q, GEN b}:
+ Evaluate \kbd{fun(E,v)} on all $v$ such that $q(v)<b$, where $v$ is a
+ \typ{COL}. The function \kbd{fun} must return $0$, unless \kbd{forqfvec}
+ should stop, in which case, it should return $1$.

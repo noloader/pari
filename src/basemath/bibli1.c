@@ -1182,6 +1182,32 @@ forqfvec(void *E, long (*fun)(void *, GEN, GEN, double), GEN a, GEN BORNE)
   set_avma(av);
 }
 
+struct qfvecwrap
+{
+  void *E;
+  long (*fun)(void *, GEN);
+};
+
+static long
+forqfvec_wrap(void *E, GEN u, GEN x, double d)
+{
+  struct qfvecwrap *W = (struct qfvecwrap *) E;
+  (void) d;
+  return W->fun(W->E, ZM_zc_mul_canon(u, x));
+}
+
+void
+forqfvec1(void *E, long (*fun)(void *, GEN), GEN a, GEN BORNE)
+{
+  pari_sp av = avma;
+  struct qfvecwrap wr;
+  struct qfvec qv;
+  wr.E = E; wr.fun = fun;
+  forqfvec_init(&qv, a);
+  forqfvec_i((void*) &wr, forqfvec_wrap, &qv, BORNE);
+  set_avma(av);
+}
+
 static long
 _gp_forqf(void *E, GEN u, GEN x, double p/*unused*/)
 {
