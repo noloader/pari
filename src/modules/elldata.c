@@ -266,8 +266,4 @@ forell(void *E, long call(void*, GEN), long a, long b, long flag)
 
 void
 forell0(long a, long b, GEN code, long flag)
-{
-  push_lex(gen_0, code);
-  forell((void*)code, &gp_evalvoid, a, b, flag);
-  pop_lex(1);
-}
+{ EXPRVOID_WRAP(code, forell(EXPR_ARGVOID, a, b, flag)) }

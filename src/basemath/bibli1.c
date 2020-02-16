@@ -1208,28 +1208,9 @@ forqfvec1(void *E, long (*fun)(void *, GEN), GEN a, GEN BORNE)
   set_avma(av);
 }
 
-static long
-_gp_forqf(void *E, GEN u, GEN x, double p/*unused*/)
-{
-  pari_sp av = avma;
-  (void)p;
-  set_lex(-1, ZM_zc_mul_canon(u, x));
-  closure_evalvoid((GEN)E);
-  set_avma(av);
-  return loop_break();
-}
-
 void
 forqfvec0(GEN a, GEN BORNE, GEN code)
-{
-  pari_sp av = avma;
-  struct qfvec qv;
-  forqfvec_init(&qv, a);
-  push_lex(gen_0, code);
-  forqfvec_i((void*) code, &_gp_forqf, &qv, BORNE);
-  pop_lex(1);
-  set_avma(av);
-}
+{ EXPRVOID_WRAP(code, forqfvec1(EXPR_ARGVOID, a,  BORNE)) }
 
 enum { min_ALL = 0, min_FIRST, min_VECSMALL, min_VECSMALL2 };
 

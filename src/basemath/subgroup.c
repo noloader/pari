@@ -557,11 +557,7 @@ forsubgroup(void *E, long call(void*, GEN), GEN cyc, GEN bound)
 
 void
 forsubgroup0(GEN cyc, GEN bound, GEN code)
-{
-  push_lex(gen_0, code);
-  forsubgroup((void*)code, &gp_evalvoid, cyc, bound);
-  pop_lex(1);
-}
+{ EXPRVOID_WRAP(code, forsubgroup(EXPR_ARGVOID, cyc, bound)) }
 
 static GEN
 packtoi(long *pt, long L)

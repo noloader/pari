@@ -61,10 +61,14 @@ GEN setloop(GEN a);
 #define EXPR_WRAP(code, call) \
 { GEN z; GEN __E = code; \
   push_lex(gen_0, __E); z = call; pop_lex(1); return z; }
+#define EXPRVOID_WRAP(code, call) \
+{ GEN __E = code; \
+  push_lex(gen_0, __E); call; pop_lex(1); }
 #define EXPR_ARG __E, &gp_eval
 #define EXPR_ARGPREC __E, &gp_evalprec
 #define EXPR_ARGUPTO __E, &gp_evalupto
 #define EXPR_ARGBOOL __E, &gp_evalbool
+#define EXPR_ARGVOID __E, &gp_evalvoid
 
 GEN  iferrpari(GEN a, GEN b, GEN c);
 void forfactored(GEN a, GEN b, GEN code);
