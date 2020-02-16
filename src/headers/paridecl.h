@@ -5016,14 +5016,15 @@ GEN     polzag(long n, long m);
 GEN     prodeuler(void *E, GEN (*eval)(void *, GEN), GEN ga, GEN gb, long prec);
 GEN     prodinf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     prodinf1(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
+GEN     solvestep(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN step, long flag, long prec);
 GEN     sumalt(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     sumalt2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     sumpos(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     sumpos2(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     suminf(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
 GEN     suminf_bitprec(void *E, GEN (*eval)(void *, GEN), GEN a, long prec);
+GEN     sumdivmultexpr(void *D, GEN (*fun)(void*, GEN), GEN num);
 GEN     zbrent(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, long prec);
-GEN     solvestep(void *E, GEN (*eval)(void *, GEN), GEN a, GEN b, GEN step, long flag, long prec);
 
 /* thue.c */
 

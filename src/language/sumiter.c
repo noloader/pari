@@ -748,8 +748,9 @@ sumdivexpr(GEN num, GEN code)
   }
   pop_lex(1); return gerepileupto(av,y);
 }
+
 GEN
-sumdivmultexpr(GEN num, GEN code)
+sumdivmultexpr(void *D, GEN (*fun)(void*, GEN), GEN num)
 {
   pari_sp av = avma;
   GEN y = gen_1, P,E;
@@ -758,7 +759,6 @@ sumdivmultexpr(GEN num, GEN code)
   GEN (*mul)(GEN,GEN);
 
   if (l == 1) { set_avma(av); return gen_1; }
-  push_lex(gen_0, code);
   mul = isint? mulii: gmul;
   for (i=1; i<l; i++)
   {
@@ -766,14 +766,17 @@ sumdivmultexpr(GEN num, GEN code)
     long j, e = E[i];
     for (j = 1; j <= e; j++, q = mul(q, p))
     {
-      set_lex(-1, q);
-      z = gadd(z, closure_evalnobrk(code));
+      z = gadd(z, fun(D, q));
       if (j == e) break;
     }
     y = gmul(y, z);
   }
-  pop_lex(1); return gerepileupto(av,y);
+  return gerepileupto(av,y);
 }
+
+GEN
+sumdivmultexpr0(GEN num, GEN code)
+{ EXPR_WRAP(code, sumdivmultexpr(EXPR_ARG, num)) }
 
 /********************************************************************/
 /**                                                                **/
