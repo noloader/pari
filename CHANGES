@@ -211,7 +211,7 @@ BA  73- [libpari] cmpss, cmpuu
 BA  74- [libpari] FpX_Fp_div, FpX_divu
 BA  75- holes in multi-assignement: [a,,c]=[1,2,3]
     76- [libpari] expIPiR, expIPiC
-BA  77- [libpari] forqfvec1
+BA  77- [libpari] forqfvec1, pariplot
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

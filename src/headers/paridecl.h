@@ -4639,6 +4639,10 @@ char*   rect2ps(GEN w, GEN x, GEN y, PARI_plot *T);
 char*   rect2ps_i(GEN w, GEN x, GEN y, PARI_plot *T, int plotps);
 char*   rect2svg(GEN w, GEN x, GEN y, PARI_plot *T);
 
+/* plottty.c */
+
+void    pariplot(void* E, GEN (*fun)(void *E, GEN x), GEN a, GEN b, GEN ysmlu,GEN ybigu, long prec);
+
 /* polarit1.c */
 
 GEN     ZX_Zp_root(GEN f, GEN a, GEN p, long prec);

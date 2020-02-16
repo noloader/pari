@@ -80,16 +80,8 @@ fill_gap(screen scr, long i, int jnew, int jpre)
 static double
 todbl(GEN x) { return rtodbl(gtofp(x, LOWDEFAULTPREC)); }
 
-/* code is either a t_CLOSURE (from GP: ploth, etc.) or a t_POL/t_VEC of
- * two t_POLs from rectsplines */
-static GEN
-READ_EXPR(GEN code, GEN x) {
-  if (typ(code)!=t_CLOSURE) return gsubst(code,0,x);
-  set_lex(-1, x); return closure_evalgen(code);
-}
-
 void
-pariplot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
+pariplot(void* E, GEN (*fun)(void *E, GEN x), GEN a, GEN b, GEN ysmlu,GEN ybigu, long prec)
 {
   const char BLANK = ' ', YY = '|', XX_UPPER = '\'', XX_LOWER = '.';
   long jz, j, i, sig;
@@ -102,7 +94,7 @@ pariplot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
 
   sig=gcmp(b,a); if (!sig) return;
   if (sig<0) { x=a; a=b; b=x; }
-  x = gtofp(a, prec); push_lex(x, code);
+  x = gtofp(a, prec);
   dx = divru(gtofp(gsub(b,a),prec), ISCR-1);
   for (j=1; j<=JSCR; j++) scr[1][j]=scr[ISCR][j]=YY;
   for (i=2; i<ISCR; i++)
@@ -115,7 +107,7 @@ pariplot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
   for (i=1; i<=ISCR; i++)
   {
     pari_sp av2 = avma;
-    y[i] = gtodouble( READ_EXPR(code,x) );
+    y[i] = gtodouble( fun(E, x) );
     set_avma(av2);
     if (i == 1)
       ysml = ybig = y[1];
@@ -162,5 +154,12 @@ pariplot(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
     sprintf(line, "%10s%-9.7g%*.7g\n"," ",todbl(a),ISCR-9,todbl(b));
     pari_printf(line);
   }
+}
+
+void
+pariplot0(GEN a, GEN b, GEN code, GEN ysmlu,GEN ybigu, long prec)
+{
+  push_lex(gen_0, code);
+  pariplot((void*)code, &gp_eval, a, b, ysmlu, ybigu, prec);
   pop_lex(1);
 }
