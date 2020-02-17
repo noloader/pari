@@ -74,9 +74,9 @@ setrand(1);bnfinit(x^4-25*x^2+25,1).cyc
 setrand(1);bnfinit(x^6-x^5-26*x^4+57*x^3+98*x^2-345*x+225,1).cyc
 
 \\overflow when h>>1
-setrand(1);
-bnf = bnfinit(x^2+nextprime(2^60));
-pr = idealprimedec(bnf,nextprime(3^30))[1];
-dat = bnfisprincipal(bnf,pr,1+4);
+setrand(1); D = 2^60+33; bnf = bnfinit(x^2+D);
+P = idealprimedec(bnf, 3^30 + 4)[1];
+bnfisprincipal(bnf,P,1+4);
+bnfisprincipal(bnf,P,1);
 
 \\ ERRORS: keep at end of file

@@ -1659,7 +1659,7 @@ ZV_mul(GEN x, GEN y)
 static GEN
 isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
 {
-  GEN xar, Wex, Bex, gen, xc, col, A, Q, R, UA, SUnits;
+  GEN xar, Wex, Bex, gen, xc, col, A, Q, R, UA;
   GEN C = bnf_get_C(bnf), nf = bnf_get_nf(bnf), cyc = bnf_get_cyc(bnf);
   long nB, nW, e;
 
@@ -1698,36 +1698,40 @@ isprincipalall(GEN bnf, GEN x, long *pprec, long flag)
     col = isprincipalarch(bnf, col, q, gen_1, d, &e);
     if (col && !fact_ok(nf,x, col,gen,R)) col = NULL;
   }
-  if (!col && (flag & nf_GENMAT) && (SUnits = bnf_get_sunits(bnf)))
+  if (!col && (flag & nf_GENMAT))
   {
-    GEN X = gel(SUnits,1), U = gel(SUnits,2), C = gel(SUnits,3);
-    GEN v = gel(bnf,9), Ge = gel(v,4), M1 = gel(v,5), M2 = gel(v,6);
-    GEN z = NULL, F = NULL;
-    if (nB)
+    GEN SUnits = bnf_get_sunits(bnf);
+    if (SUnits)
     {
-      GEN C2 = nW? vecslice(C, nW+1, lg(C)-1): C;
-      z = ZM_zc_mul(C2, Bex);
+      GEN X = gel(SUnits,1), U = gel(SUnits,2), C = gel(SUnits,3);
+      GEN v = gel(bnf,9), Ge = gel(v,4), M1 = gel(v,5), M2 = gel(v,6);
+      GEN z = NULL, F = NULL;
+      if (nB)
+      {
+        GEN C2 = nW? vecslice(C, nW+1, lg(C)-1): C;
+        z = ZM_zc_mul(C2, Bex);
+      }
+      if (nW)
+      { /* [GD]Q - [ga]A = ([X]M1 - [Ge]D) Q - ([X]M2 - [Ge]Ur) A */
+        GEN C1 = vecslice(C, 1, nW);
+        GEN v = ZC_sub(ZM_ZC_mul(M1,Q), ZM_ZC_mul(M2,A));
+        z = add(z, ZM_ZC_mul(C1, v));
+        F = famat_reduce(famatV_factorback(Ge, ZC_sub(UA, ZV_mul(cyc,Q))));
+        if (lgcols(F) == 1) F = NULL;
+      }
+      /* reduce modulo units and Q^* */
+      if (lg(U) != 1) z = ZC_sub(z, ZM_ZC_mul(U, RgM_Babai(U,z)));
+      col = mkmat2(X, z);
+      if (F) col = famat_mul_shallow(col, F);
+      col = famat_remove_trivial(col);
+      if (xar) col = famat_mul_shallow(col, xar);
     }
-    if (nW)
-    { /* [GD]Q - [ga]A = ([X]M1 - [Ge]D) Q - ([X]M2 - [Ge]Ur) A */
-      GEN C1 = vecslice(C, 1, nW);
-      GEN v = ZC_sub(ZM_ZC_mul(M1,Q), ZM_ZC_mul(M2,A));
-      z = add(z, ZM_ZC_mul(C1, v));
-      F = famat_reduce(famatV_factorback(Ge, ZC_sub(UA, ZV_mul(cyc,Q))));
-      if (lgcols(F) == 1) F = NULL;
+    else if (!ZV_equal0(R))
+    { /* in case isprincipalfact calls bnfinit() due to prec trouble...*/
+      GEN y = isprincipalfact(bnf, x, gen, ZC_neg(R), flag);
+      if (typ(y) != t_VEC) return y;
+      col = gel(y,2);
     }
-    /* reduce modulo units and Q^* */
-    if (lg(U) != 1) z = ZC_sub(z, ZM_ZC_mul(U, RgM_Babai(U,z)));
-    col = mkmat2(X, z);
-    if (F) col = famat_mul_shallow(col, F);
-    col = famat_remove_trivial(col);
-    if (xar) col = famat_mul_shallow(col, xar);
-  }
-  if (!col && !ZV_equal0(R))
-  { /* in case isprincipalfact calls bnfinit() due to prec trouble...*/
-    GEN y = isprincipalfact(bnf, x, gen, ZC_neg(R), flag);
-    if (typ(y) != t_VEC) return y;
-    col = gel(y,2);
   }
   if (col)
   { /* add back missing content */
