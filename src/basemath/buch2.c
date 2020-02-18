@@ -2422,14 +2422,13 @@ small_norm(RELCACHE_t *cache, FB_t *F, GEN nf, long Nrelid, GEN M,
   pari_sp av;
   GEN L_jid = F->L_jid, Np0;
   long Nsmall, Nfact, n = lg(L_jid);
-  REL_t *last = cache->last;
   pari_timer T;
 
   if (DEBUGLEVEL)
   {
     timer_start(&T);
     err_printf("#### Look for %ld relations in %ld ideals (small_norm)\n",
-               cache->end - last, lg(L_jid)-1);
+               cache->end - cache->last, lg(L_jid)-1);
     if (p0) err_printf("Look in p0 = %Ps\n", vecslice(p0,1,4));
   }
   Nsmall = Nfact = 0;
