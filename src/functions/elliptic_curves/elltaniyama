@@ -2,12 +2,12 @@ Function: elltaniyama
 Section: elliptic_curves
 C-Name: elltaniyama
 Prototype: GDP
-Help: elltaniyama(E, {d = seriesprecision}): modular parametrization of
+Help: elltaniyama(E, {n = seriesprecision}): modular parametrization of
  elliptic curve E/Q.
 Doc:
  computes the modular parametrization of the elliptic curve $E/\Q$,
  where $E$ is an \kbd{ell} structure as output by \kbd{ellinit}. This returns
- a two-component vector $[u,v]$ of power series, given to $d$ significant
+ a two-component vector $[u,v]$ of power series, given to $n$ significant
  terms (\tet{seriesprecision} by default), characterized by the following two
  properties. First the point $(u,v)$ satisfies the equation of the elliptic
  curve. Second, let $N$ be the conductor of $E$ and $\Phi: X_0(N)\to E$
