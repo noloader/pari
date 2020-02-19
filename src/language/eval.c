@@ -1943,6 +1943,32 @@ parfor0(GEN a, GEN b, GEN code, GEN code2)
 }
 
 void
+parforprime_init(parforprime_t *T, GEN a, GEN b, GEN code)
+{
+  forprime_init(&T->forprime, a, b);
+  T->v = mkvec(gen_0);
+  parforiter_init(&T->iter, code);
+}
+
+GEN
+parforprime_next(parforprime_t *T)
+{
+  long running;
+  while ((running = !!forprime_next(&T->forprime)) || T->iter.pending)
+  {
+    GEN done;
+    gel(T->v, 1) = T->forprime.pp;
+    done = parforiter_next(&T->iter, running ? T->v: NULL);
+    if (done) return done;
+  }
+  mt_queue_end(&T->iter.pt);
+  return NULL;
+}
+
+void
+parforprime_stop(parforprime_t *T) { parforiter_stop(&T->iter); }
+
+void
 parforprime(GEN a, GEN b, GEN code, void *E, long call(void*, GEN, GEN))
 {
   pari_sp av = avma, av2;

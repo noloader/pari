@@ -1,9 +1,27 @@
+Function: _parforprime_init
+Class: gp2c_internal
+Help: Initializes parameters for parforprime.
+Description:
+ (parforprime, gen, ?gen, gen):void    parforprime_init(&$1, $2, $3, $4)
+
+Function: _parforprime_next
+Class: gp2c_internal
+Help: Next value for parforprime
+Description:
+ (parforprime):gen    parforprime_next(&$1)
+
+Function: _parforprime_stop
+Class: gp2c_internal
+Help: Stop function for parforprime.
+Description:
+ (parforprime):void    parforprime_stop(&$1)
+
 Function: parforprime
 Section: programming/parallel
 C-Name: parforprime0
 Prototype: vV=GDGJDVDI
-Description:
- (gen,gen,closure):void parforprime($1, $2, $3, NULL, NULL)
+Iterator:
+ (gen,gen,?gen,closure,?notype) (parforprime, _parforprime_init, _parforprime_next, _parforprime_stop)
 Help: parforprime(p=a,{b},expr1,{r},{expr2}):
  evaluates the expression expr1 in parallel for all primes p between a and b
  (if b is set to +oo, the loop will not stop), resulting in as many

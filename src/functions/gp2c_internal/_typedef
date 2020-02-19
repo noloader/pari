@@ -17,6 +17,7 @@ Description:
  (C!forvec_t)        forvec_t
  (C!forsubset_t)     forsubset_t
  (C!parfor_t)        parfor_t
+ (C!parforprime_t)   parforprime_t
 
 Function: _decl_ext
 Class: gp2c_internal
@@ -56,6 +57,7 @@ Description:
  (forsubset)    forsubset_t
  (forvec)       forvec_t
  (parfor)       parfor_t
+ (parforprime)  parforprime_t
  (func_GG)      func_GG
  (pari_sp)      pari_sp
  (typ)          long
