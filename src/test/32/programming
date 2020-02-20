@@ -66,11 +66,6 @@ Vecsmall([1, 2, 5]) Vecsmall([1, 3, 4]) Vecsmall([1, 3, 5]) Vecsmall([1, 4,
  Vecsmall([1, 3, 4, 5]) Vecsmall([2, 3, 4, 5]) Vecsmall([1, 2, 3, 4, 5])
 forvec: [1, 1] [1, 2] [2, 1] [2, 2] [3, 1] [3, 2]
 iferr: error("domain error in zeta: argument = 1")
-parfor:  1 2 3 4 5 6 7 8 9 10
-parforprime:  2 3 5 7 11 13 17 19
-parforvec:  1 2 3 2 4 6 3 6 9
-parforvec:  1 2 3 4 6 9
-parforvec:  2 3 6
 parsum:6
 parvector: [2, 3, 4]
 derivnum: -0.060000000000000000000000000000000000000
@@ -101,4 +96,4 @@ sumnummonien : 1.6449340668482264364724151666460251892
 sumpos : 1.6449340668482264364724151666460251892
 compr: [5, 10, 26, 50, 122, 170, 290, 362, 530, 842]
 compr: [5, 10, 26, 50]
-Total time spent: 172
+Total time spent: 176
