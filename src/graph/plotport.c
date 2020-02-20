@@ -127,12 +127,8 @@ pari_get_svgplot(PARI_plot *T)
 /**                      RECTPLOT FUNCTIONS                        **/
 /**                                                                **/
 /********************************************************************/
-static void
-get_plot_null(PARI_plot *T)
-{ (void)T; pari_err(e_MISC,"high resolution graphics disabled"); }
-
 void
-pari_init_graphics(void) { pari_get_plot = &get_plot_null; }
+pari_init_graphics(void) { pari_get_plot = &pari_get_svgplot; }
 
 void
 pari_set_plot_engine(void (*plot)(PARI_plot *))
@@ -1438,7 +1434,10 @@ fmt_convert(GEN fmt, GEN w, GEN x, GEN y, PARI_plot *T)
 
 static void
 Draw(PARI_plot *T, GEN w, GEN x, GEN y)
-{ if (T->draw) T->draw(T, w,x,y); else get_plot_null(NULL); }
+{
+  if (!T->draw) pari_err(e_MISC,"high resolution graphics disabled");
+  T->draw(T, w,x,y);
+}
 static void
 set_range(double m, double M, double *sml, double *big)
 {

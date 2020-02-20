@@ -127,6 +127,8 @@ BA  31- revert 2-12-0 C18: qfbsolve with default flag = previous behaviour
     37- support compact representation in nfeltmul, nfeltpow, nfeltdiv,
         nfmodpr, nfeltsign
     38- elldivpol for negative n: define f_{-n} = -f_n [ was f_n ]
+    39- support plotinit/plotexport even when the graphic engine is disabled
+        (Configure --graphic=none)
 
   Added
      1- new GP function rootsof1

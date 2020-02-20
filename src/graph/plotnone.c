@@ -20,4 +20,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "rect.h"
 void
 gp_get_plot(PARI_plot *T)
-{ (void)T; pari_err(e_MISC,"high resolution graphics disabled"); }
+{
+  T->width   = 480;
+  T->height  = 320;
+  T->fheight = 12;
+  T->fwidth  = 6;
+  T->hunit   = 3;
+  T->vunit   = 3;
+  gp_get_ploth_default_sizes(T);
+  T->dwidth  = 0;
+  T->dheight = 0;
+  T->draw = NULL;
+}
