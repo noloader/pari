@@ -7069,16 +7069,16 @@ elldivpol0(GEN e, GEN t, GEN N, GEN T, long n, long v)
 }
 
 GEN
-elldivpol(GEN e, long n, long v)
+elldivpol(GEN e, long n0, long v)
 {
   pari_sp av = avma;
   GEN f, D, N;
+  long n = labs(n0);
+
   checkell(e); D = ell_get_disc(e);
-  if (v==-1) v = 0;
+  if (v < 0) v = 0;
   if (varncmp(gvar(D), v) <= 0) pari_err_PRIORITY("elldivpol", e, "<=", v);
-  N = characteristic(D);
-  if (!signe(N)) N = NULL;
-  if (n<0) n = -n;
+  N = characteristic(D); if (!signe(N)) N = NULL;
   if (n==1 || n==3)
     f = elldivpol4(e, N, n, v);
   else
@@ -7092,6 +7092,7 @@ elldivpol(GEN e, long n, long v)
       f = elldivpol0(e, const_vec(n,NULL), N,RgX_sqr(d2), n, v);
     if (n%2==0) f = RgX_mul(f, d2);
   }
+  if (n0 < 0) return gerepileupto(av, RgX_neg(f));
   return gerepilecopy(av, f);
 }
 

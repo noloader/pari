@@ -128,6 +128,9 @@ ellfromeqn((x^2+2*x+3)*y^2+(4*x^2+5*x+6)*y+(7*x^2+8*x+9))
 
 e = ellinit([1,2,3,5,7]);
 elldivpol(e,4)
+elldivpol(e,-1)
+elldivpol(e,-2)
+elldivpol(e,-3)
 ellxn(e,0)
 ellxn(e,1)
 ellxn(e,2)
