@@ -18,5 +18,5 @@ Doc: $n$-division polynomial $f_n$ for the curve $E$ in the
  When $n$ is odd, the roots of $f_n$ are the $X$-coordinates of the affine
  points in the $n$-torsion subgroup $E[n]$; when $n$ is even, the roots
  of $f_n$ are the $X$-coordinates of the affine points in $E[n]\setminus
- E[2]$ when $n > 2$, resp.~in $E[2] when $n = 2$.
+ E[2]$ when $n > 2$, resp.~in $E[2]$ when $n = 2$.
  For $n < 0$, we define $f_n := - f_{-n}$.
