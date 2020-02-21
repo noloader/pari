@@ -259,6 +259,13 @@ typedef struct
   struct parfor_iter iter;
 } parforprime_t;
 
+typedef struct
+{
+  GEN v;
+  forvec_t forvec;
+  struct parfor_iter iter;
+} parforvec_t;
+
 typedef struct PariOUT {
   void (*putch)(char);
   void (*puts)(const char*);

@@ -2010,6 +2010,32 @@ parforprime0(GEN a, GEN b, GEN code, GEN code2)
 }
 
 void
+parforvec_init(parforvec_t *T, GEN x, GEN code, long flag)
+{
+  forvec_init(&T->forvec, x, flag);
+  T->v = mkvec(gen_0);
+  parforiter_init(&T->iter, code);
+}
+
+GEN
+parforvec_next(parforvec_t *T)
+{
+  GEN v = gen_0;
+  while ((v = forvec_next(&T->forvec)) || T->iter.pending)
+  {
+    GEN done;
+    if (v) gel(T->v, 1) = v;
+    done = parforiter_next(&T->iter, v ? T->v: NULL);
+    if (done) return done;
+  }
+  mt_queue_end(&T->iter.pt);
+  return NULL;
+}
+
+void
+parforvec_stop(parforvec_t *T) { parforiter_stop(&T->iter); }
+
+void
 parforvec(GEN x, GEN code, long flag, void *E, long call(void*, GEN, GEN))
 {
   pari_sp av = avma, av2;
