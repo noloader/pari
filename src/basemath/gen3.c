@@ -1476,7 +1476,7 @@ gsubst(GEN x, long v, GEN y)
         if (lx == 2) return z;
         for (i = 2; i < lx; i++) gel(z,i) = gsubst(gel(x,i),v,y);
         z = normalizepol_lg(z, lx); lx = lg(z);
-        if (lx == 2) return gc_const(av, zeropol(vx));
+        if (lx == 2) { set_avma(av); return zeropol(vx); }
         if (lx == 3) return gerepileupto(av, gmul(pol_1(vx), gel(z,2)));
         return gerepileupto(av, poleval(z, pol_x(vx)));
       }

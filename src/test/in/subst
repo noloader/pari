@@ -56,3 +56,4 @@ subst(Mod(1/z,y),z,x)
 \\#1988
 subst(Mod(-a,a^2-2),z,0)
 
+subst(((-6*t^2-t)*u^4+(t^2)*u^3+(P)*t^3*u)/u^2,t,0)
