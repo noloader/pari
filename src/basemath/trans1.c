@@ -1134,43 +1134,39 @@ powfrac(GEN x, GEN n, long prec)
   }
   return NULL;
 }
+
 /* n = a+ib, x > 0 real, x^n */
 static long
 powcx_init(GEN x, GEN n, GEN *xa, long prec)
 {
   GEN a = gel(n,1), b = gel(n,2);
-  long e = expu((long)fabs(dbllog2(x))), p = prec;
+  long e = expu((long)fabs(dbllog2(x)));
 
   *xa = NULL;
   switch(typ(a))
   {
     case t_INT:
       *xa = powgi(x, a);
-      e += gexpo_safe(b); if (e > 2) p += nbits2extraprec(e);
-      return p;
+      e += gexpo_safe(b);
+      break;
     case t_FRAC:
       *xa = powfrac(x, a, prec);
-      if (*xa)
-      {
-        e += gexpo_safe(b);
-        if (e > 2) p += nbits2extraprec(e);
-        return p;
-      }
+      if (*xa) { e += gexpo_safe(b); break; }
+    /* fall through */
     default:
       e += gexpo_safe(n);
-      if (e > 2) p += nbits2extraprec(e);
-      return p;
+      break;
   }
+  return e > 2? prec + nbits2extraprec(e): prec;
 }
-
 static GEN
 powcx(GEN logx, GEN n, GEN xa, long prec)
 {
-  GEN a = gel(n,1), b = gel(n,2);
+  GEN sxb, cxb, xb, b = gel(n,2);
+  long sh, p;
   if (!xa)
   {
-    long sh;
-    xa = modlog2(gmul(a, logx), &sh);
+    xa = modlog2(gmul(gel(n,1), logx), &sh);
     if (!xa) xa = real2n(sh, prec);
     else
     {
@@ -1178,31 +1174,26 @@ powcx(GEN logx, GEN n, GEN xa, long prec)
       xa = mpexp(xa); shiftr_inplace(xa, sh);
     }
   }
-  if (!gequal0(b))
+  xb = gmul(b, logx); p = realprec(xb);
+  if (gexpo(xb) > 30)
   {
-    GEN sxb, cxb, xb, q;
-    long sh = 0, p;
-    xb = gmul(b, logx);
-    p = realprec(xb);
-    if (gexpo(xb) > 30)
-    {
-      GEN z, P = Pi2n(-2, p);
-      z = addrr(xb,P); /* = x + Pi/4 */
-      shiftr_inplace(P, 1);
-      q = floorr(divrr(z, P)); /* round ( x / (Pi/2) ) */
-    } else
-      q = stoi((long)floor(rtodbl(xb) / (M_PI/2) + 0.5));
-    if (signe(q))
-    {
-      xb = subrr(xb, mulir(q, Pi2n(-1,p))); /* x mod Pi/2  */
-      sh = Mod4(q);
-    }
-    if (signe(xb) && realprec(xb) > prec) setlg(xb, prec);
-    mpsincos(xb, &sxb, &cxb);
-    xa = gmul(xa, mulcxpowIs(mkcomplex(cxb, sxb), sh));
+    GEN q, P = Pi2n(-2, p), z = addrr(xb,P); /* = x + Pi/4 */
+    shiftr_inplace(P, 1);
+    q = floorr(divrr(z, P)); /* round ( x / (Pi/2) ) */
+    xb = subrr(xb, mulir(q, P)); /* x mod Pi/2  */
+    sh = Mod4(q);
   }
-  return xa;
+  else
+  {
+    long q = floor(rtodbl(xb) / (M_PI/2) + 0.5);
+    if (q) xb = subrr(xb, mulsr(q, Pi2n(-1,p))); /* x mod Pi/2  */
+    sh = q & 3;
+  }
+  if (signe(xb) && realprec(xb) > prec) setlg(xb, prec);
+  mpsincos(xb, &sxb, &cxb);
+  return gmul(xa, mulcxpowIs(mkcomplex(cxb, sxb), sh));
 }
+
 GEN
 gpow(GEN x, GEN n, long prec)
 {
