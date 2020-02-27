@@ -1711,7 +1711,7 @@ czeta(GEN s0, long prec)
 
   if (DEBUGLEVEL>2) timer_start(&T);
   s = trans_fix_arg(&prec,&s0,&sig,&tau,&av,&res);
-  if (typ(s0) == t_INT) return gerepileupto(av, gzeta(s0, prec));
+  if (typ(s0) == t_INT) return gerepileupto(av0, gzeta(s0, prec));
   if (!signe(tau)) /* real */
   {
     long e = expo(sig);
