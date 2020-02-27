@@ -5087,6 +5087,8 @@ GEN     mplog2(long prec);
 GEN     mppi(long prec);
 GEN     mpsin(GEN x);
 void    mpsincos(GEN x, GEN *s, GEN *c);
+GEN     powPis(GEN s, long prec);
+GEN     pow2Pis(GEN s, long prec);
 GEN     powersr(GEN a, long n);
 GEN     powis(GEN x, long n);
 GEN     powiu(GEN p, ulong k);

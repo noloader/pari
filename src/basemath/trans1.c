@@ -1093,6 +1093,116 @@ gpow0(GEN x, GEN n, long prec)
   set_avma(av); return real_0_bit(itos(x));
 }
 
+/* centermod(x, log(2)), set *sh to the quotient */
+static GEN
+modlog2(GEN x, long *sh)
+{
+  double d = rtodbl(x), da = fabs(d);
+  long q = (long) ((da + (M_LN2/2))/M_LN2);
+  if (da > M_LN2 * LONG_MAX)
+    pari_err_OVERFLOW("expo()"); /* avoid overflow in  q */
+  if (d < 0) q = -q;
+  *sh = q;
+  if (q) {
+    long l = realprec(x) + 1;
+    x = subrr(rtor(x,l), mulsr(q, mplog2(l)));
+    if (!signe(x)) return NULL;
+  }
+  return x;
+}
+
+/* x^n, n a t_FRAC */
+static GEN
+powfrac(GEN x, GEN n, long prec)
+{
+  GEN a = gel(n,1), d = gel(n,2);
+  long D = itos_or_0(d);
+  if (D == 2)
+  {
+    GEN y = gsqrt(x,prec);
+    if (!equali1(a)) y = gmul(y, powgi(x, shifti(subiu(a,1), -1)));
+    return y;
+  }
+  if (D && (is_real_t(typ(x)) && gsigne(x) > 0))
+  {
+    GEN z;
+    prec += nbits2extraprec(expi(a));
+    if (typ(x) != t_REAL) x = gtofp(x, prec);
+    z = sqrtnr(x, D);
+    if (!equali1(a)) z = powgi(z, a);
+    return z;
+  }
+  return NULL;
+}
+/* n = a+ib, x > 0 real, x^n */
+static long
+powcx_init(GEN x, GEN n, GEN *xa, long prec)
+{
+  GEN a = gel(n,1), b = gel(n,2);
+  long e = expu((long)fabs(dbllog2(x))), p = prec;
+
+  *xa = NULL;
+  switch(typ(a))
+  {
+    case t_INT:
+      *xa = powgi(x, a);
+      e += gexpo_safe(b); if (e > 2) p += nbits2extraprec(e);
+      return p;
+    case t_FRAC:
+      *xa = powfrac(x, a, prec);
+      if (*xa)
+      {
+        e += gexpo_safe(b);
+        if (e > 2) p += nbits2extraprec(e);
+        return p;
+      }
+    default:
+      e += gexpo_safe(n);
+      if (e > 2) p += nbits2extraprec(e);
+      return p;
+  }
+}
+
+static GEN
+powcx(GEN logx, GEN n, GEN xa, long prec)
+{
+  GEN a = gel(n,1), b = gel(n,2);
+  if (!xa)
+  {
+    long sh;
+    xa = modlog2(gmul(a, logx), &sh);
+    if (!xa) xa = real2n(sh, prec);
+    else
+    {
+      if (signe(xa) && realprec(xa) > prec) setlg(xa, prec);
+      xa = mpexp(xa); shiftr_inplace(xa, sh);
+    }
+  }
+  if (!gequal0(b))
+  {
+    GEN sxb, cxb, xb, q;
+    long sh = 0, p;
+    xb = gmul(b, logx);
+    p = realprec(xb);
+    if (gexpo(xb) > 30)
+    {
+      GEN z, P = Pi2n(-2, p);
+      z = addrr(xb,P); /* = x + Pi/4 */
+      shiftr_inplace(P, 1);
+      q = floorr(divrr(z, P)); /* round ( x / (Pi/2) ) */
+    } else
+      q = stoi((long)floor(rtodbl(xb) / (M_PI/2) + 0.5));
+    if (signe(q))
+    {
+      xb = subrr(xb, mulir(q, Pi2n(-1,p))); /* x mod Pi/2  */
+      sh = Mod4(q);
+    }
+    if (signe(xb) && realprec(xb) > prec) setlg(xb, prec);
+    mpsincos(xb, &sxb, &cxb);
+    xa = gmul(xa, mulcxpowIs(mkcomplex(cxb, sxb), sh));
+  }
+  return xa;
+}
 GEN
 gpow(GEN x, GEN n, long prec)
 {
@@ -1124,7 +1234,6 @@ gpow(GEN x, GEN n, long prec)
   if (tn == t_FRAC)
   {
     GEN p, z, a = gel(n,1), d = gel(n,2);
-    long D;
     switch (tx)
     {
     case t_INT:
@@ -1149,22 +1258,13 @@ gpow(GEN x, GEN n, long prec)
     case t_FFELT:
       return gerepileupto(av,FF_pow(FF_sqrtn(x,d,NULL),a));
     }
-    D = itos_or_0(d);
-    if (D == 2)
-    {
-      GEN y = gsqrt(x,prec);
-      if (!equali1(a))
-        y = gerepileupto(av, gmul(y, powgi(x, shifti(subiu(a,1), -1))));
-      return y;
-    }
-    if (D && (is_real_t(tx) && gsigne(x) > 0))
-    {
-      prec += nbits2extraprec(expi(a));
-      if (tx != t_REAL) x = gtofp(x, prec);
-      z = sqrtnr(x, D);
-      if (!equali1(a)) z = powgi(z, a);
-      return gerepileuptoleaf(av, z);
-    }
+    z = powfrac(x, n, prec);
+    if (z) return gerepileupto(av, z);
+  }
+  if (tn == t_COMPLEX && is_real_t(typ(x)) && gsigne(x) > 0)
+  {
+    long p = powcx_init(x, n, &y, prec);
+    return gerepileupto(av, powcx(glog(x, p), n, y, prec));
   }
   i = precision(n);
   if (i) prec = i;
@@ -1178,6 +1278,26 @@ gpow(GEN x, GEN n, long prec)
   y = gexp(y,prec);
   if (prec0 == prec) return gerepileupto(av, y);
   return gerepilecopy(av, gprec_wtrunc(y,prec0));
+}
+GEN
+powPis(GEN s, long prec)
+{
+  pari_sp av = avma;
+  GEN y;
+  long p;
+  if (typ(s) != t_COMPLEX) return gpow(mppi(prec), s, prec);
+  p = powcx_init(mppi(prec), s, &y, prec);
+  return gerepileupto(av, powcx(logr_abs(mppi(p)), s, y, prec));
+}
+GEN
+pow2Pis(GEN s, long prec)
+{
+  pari_sp av = avma;
+  GEN y;
+  long p;
+  if (typ(s) != t_COMPLEX) return gpow(Pi2n(1,prec), s, prec);
+  p = powcx_init(Pi2n(1,prec), s, &y, prec);
+  return gerepileupto(av, powcx(logr_abs(Pi2n(1,p)), s, y, prec));
 }
 
 GEN
@@ -2165,25 +2285,6 @@ gexpm1(GEN x, long prec)
 /**                             EXP(X)                             **/
 /**                                                                **/
 /********************************************************************/
-
-/* centermod(x, log(2)), set *sh to the quotient */
-static GEN
-modlog2(GEN x, long *sh)
-{
-  double d = rtodbl(x), da = fabs(d);
-  long q = (long) ((da + (M_LN2/2))/M_LN2);
-  if (da > M_LN2 * LONG_MAX)
-    pari_err_OVERFLOW("expo()"); /* avoid overflow in  q */
-  if (d < 0) q = -q;
-  *sh = q;
-  if (q) {
-    long l = realprec(x) + 1;
-    x = subrr(rtor(x,l), mulsr(q, mplog2(l)));
-    if (!signe(x)) return NULL;
-  }
-  return x;
-}
-
 static GEN
 mpexp_basecase(GEN x)
 {
@@ -3250,11 +3351,11 @@ mpcosm1(GEN x, long *ptmod8)
     GEN q;
     if (a > 30)
     {
-      GEN z, pitemp = Pi2n(-2, nbits2prec(a + 32));
-      z = addrr(x,pitemp); /* = x + Pi/4 */
+      GEN z, P = Pi2n(-2, nbits2prec(a + 32));
+      z = addrr(x,P); /* = x + Pi/4 */
       if (expo(z) >= bit_prec(z) + 3) pari_err_PREC("mpcosm1");
-      shiftr_inplace(pitemp, 1);
-      q = floorr( divrr(z,pitemp) ); /* round ( x / (Pi/2) ) */
+      shiftr_inplace(P, 1);
+      q = floorr(divrr(z, P)); /* round ( x / (Pi/2) ) */
       p = l+EXTRAPRECWORD; x = rtor(x,p);
     } else {
       q = stoi((long)floor(rtodbl(x) / (M_PI/2) + 0.5));
@@ -3272,7 +3373,7 @@ mpcosm1(GEN x, long *ptmod8)
       }
       a = b;
       if (!signe(x) && a >= 0) pari_err_PREC("mpcosm1");
-      n = mod4(q); if (n && signe(q) < 0) n = 4 - n;
+      n = Mod4(q);
     }
   }
   /* a < 0 */

@@ -77,6 +77,7 @@ BA  54- ((x^7+x^3+x+1)*Mod(1,Mod(1,2)*d))%(x^4+x^3+x^2+1)->x^3+x
     58- acosh near 1 or -1: large relative error
     59- type(subst('x^0,'y,0)) -> t_INT (instead of t_POL)
     60- bnfisprincipal: overflow when h >> 1
+    61- lfun: Pi^s or (2Pi)^s imprecise when Im(s) >> 1
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
@@ -129,6 +130,7 @@ BA  31- revert 2-12-0 C18: qfbsolve with default flag = previous behaviour
     38- elldivpol for negative n: define f_{-n} = -f_n [ was f_n ]
     39- support plotinit/plotexport even when the graphic engine is disabled
         (Configure --graphic=none)
+    40- gpow(x,n): faster and more precise when n is a t_COMPLEX
 
   Added
      1- new GP function rootsof1
@@ -216,6 +218,7 @@ BA  74- [libpari] FpX_Fp_div, FpX_divu
 BA  75- holes in multi-assignement: [a,,c]=[1,2,3]
     76- [libpari] expIPiR, expIPiC
 BA  77- [libpari] forqfvec1, pariplot, sumdivmultexpr
+    78- [libpari] powPis, pow2Pis
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

@@ -260,27 +260,26 @@ deg1ser_shallow(GEN a1, GEN a0, long v, long e)
 static GEN
 gamma_R(GEN s, long prec)
 {
-  GEN s2 = gmul2n(s, -1), pi = mppi(prec);
+  GEN s2 = gmul2n(s, -1);
   long ms = isnegint(s2);
   if (ms >= 0)
   {
-    GEN r = gmul(powru(pi, ms), gdivsg(odd(ms)? -2: 2, mpfact(ms)));
+    GEN r = gmul(powru(mppi(prec), ms), gdivsg(odd(ms)? -2: 2, mpfact(ms)));
     return serpole(r);
   }
-  return gdiv(ggamma(s2,prec), gpow(pi,s2,prec));
+  return gdiv(ggamma(s2,prec), powPis(s2,prec));
 }
 /* gamma_R(s)gamma_R(s+1) = 2 (2pi)^(-s) Gamma(s) */
 static GEN
 gamma_C(GEN s, long prec)
 {
-  GEN pi2 = Pi2n(1,prec);
   long ms = isnegint(s);
   if (ms >= 0)
   {
-    GEN r = gmul(powrs(pi2, ms), gdivsg(odd(ms)? -2: 2, mpfact(ms)));
+    GEN r = gmul(powrs(Pi2n(1,prec), ms), gdivsg(odd(ms)? -2: 2, mpfact(ms)));
     return serpole(r);
   }
-  return gmul2n(gdiv(ggamma(s,prec), gpow(pi2,s,prec)), 1);
+  return gmul2n(gdiv(ggamma(s,prec), pow2Pis(s,prec)), 1);
 }
 
 static GEN
