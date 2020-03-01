@@ -2882,15 +2882,18 @@ atanhQ_split(ulong u, ulong v, long prec)
   abpq_sum(&R, 0, nmax, &A);
   return rdivii(R.T, mulii(R.B,R.Q),prec);
 }
-/* log(2) = 10*atanh(1/17)+4*atanh(13/499); faster than logagmr_abs()
- * and Pi/2M(1,4/2^n) ~ n log(2) */
+/* log(2) = 18*atanh(1/26)-2*atanh(1/4801)+8*atanh(1/8749)
+ * faster than 10*atanh(1/17)+4*atanh(13/499) for all precisions,
+ * and than Pi/2M(1,4/2^n) ~ n log(2) for bitprec at least up to 10^8 */
 static GEN
 log2_split(long prec)
 {
-  GEN u = atanhQ_split(1, 17, prec);
-  GEN v = atanhQ_split(13, 499, prec);
-  shiftr_inplace(v, 2);
-  return addrr(mulur(10, u), v);
+  GEN u = atanhQ_split(1, 26, prec);
+  GEN v = atanhQ_split(1, 4801, prec);
+  GEN w = atanhQ_split(1, 8749, prec);
+  shiftr_inplace(v, 1); setsigne(v, -1);
+  shiftr_inplace(w, 3);
+  return addrr(mulur(18, u), addrr(v, w));
 }
 GEN
 constlog2(long prec)

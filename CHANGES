@@ -131,6 +131,7 @@ BA  31- revert 2-12-0 C18: qfbsolve with default flag = previous behaviour
     39- support plotinit/plotexport even when the graphic engine is disabled
         (Configure --graphic=none)
     40- gpow(x,n): faster and more precise when n is a t_COMPLEX
+    41- faster formula for log(2)
 
   Added
      1- new GP function rootsof1
