@@ -2163,6 +2163,79 @@ by a \kbd{gerepile} call. Beware that swapping the
 \kbd{av2 = avma} and \tet{forprime_init} call would be incorrect: the
 first \kbd{avma = av2} would delete the \tet{forprime_t} structure!
 
+\subsec{Parallel iterators}
+
+Theses iterators loops over the values of a \typ{CLOSURE}
+taken at some data, where the evaluations are done in parallel.
+
+\item \tet{parfor}. To initialize the analog of
+\kbd{parfor(i = a, b, ...)}, call
+
+\fun{void}{parfor_init}{parfor_t *T, GEN a, GEN b, GEN code}
+initialize an iterator over the evaluation of \kbd{code} on the integers
+between $a$ and $b$.
+
+\fun{GEN}{parfor_next}{parfor_t *T} returns a \typ{VEC} \kbd{[i,code(i)]} where
+$i$ is one of the integers and \kbd{code(i)} is the evaluation, \kbd{NULL} when
+all data have been exhausted. Once it happens, \kbd{parfor\_next} must not be
+called anymore with the same initialization.
+
+\fun{void}{parfor_stop}{parfor_t *T} needs to be called when leaving the
+iterator before \kbd{parfor\_next} returned \kbd{NULL}.
+
+The following returns an integer $1\leq i\leq N$ such that \kbd{fun(i)} is not
+zero, or \kbd{NULL}.
+\bprog
+GEN
+parfirst(GEN fun, GEN N)
+{
+  parfor_t T;
+  GEN e;
+  parfor_init(&T, gen_1, N, fun);
+  while ((e = parfor_next(&T)))
+  {
+    GEN i = gel(e,1), funi = gel(e,2);
+    if (!gequal0(funi))
+    { /* found: stop the iterator and return the index */
+      parfor_stop(&T);
+      return i;
+    }
+  }
+  return NULL; /* not found */
+}
+@eprog
+
+\item \tet{parforprime}. To initialize the analog of
+\kbd{parforprime(p = a, b, ...)}, call
+
+\fun{void}{parforprime_init}{parforprime_t *T, GEN a, GEN b, GEN code}
+initialize an iterator over the evaluation of \kbd{code} on the prime numbers
+between $a$ and $b$.
+
+\fun{GEN}{parforprime_next}{parforprime_t *T} returns a \typ{VEC}
+\kbd{[p,code(p)]} where $p$ is one of the prime numbers and \kbd{code(p)} is
+the evaluation, \kbd{NULL} when all data have been exhausted. Once it happens,
+\kbd{parforprime\_next}
+must not be called anymore with the same initialization.
+
+\fun{void}{parforprime_stop}{parforprime_t *T} needs to be called when leaving
+the iterator before \kbd{parforprime\_next} returned \kbd{NULL}.
+
+\item \tet{parforvec}. To initialize the analog of
+\kbd{parforvec(X = V, ..., flag)}, call
+
+\fun{void}{parforvec_init}{parforvec_t *T, GEN V, GEN code, long flag}
+initialize an iterator over the evaluation of \kbd{code} on the vectors
+specified by \kbd{V} and \kbd{flag}, see \kbd{forvec} for detail.
+
+\fun{GEN}{parforvec_next}{parforvec_t *T} returns a \typ{VEC} \kbd{[v,code(v)]}
+where $v$ is one of the vectors and \kbd{code(v)} is the evaluation, \kbd{NULL}
+when all data have been exhausted.  Once it happens, \kbd{parforvec\_next}
+must not be called anymore with the same initialization.
+
+\fun{void}{parforvec_stop}{parforvec_t *T} needs to be called when leaving the
+iterator before \kbd{parforvec\_next} returned \kbd{NULL}.
+
 \subsec{Numerical analysis}
 
 Numerical routines code a function (to be integrated, summed, zeroed, etc.)
