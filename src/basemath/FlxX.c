@@ -55,7 +55,7 @@ polx_FlxX(long v, long sv)
 long
 FlxY_degreex(GEN b)
 {
-  long deg = -1, i;
+  long deg = 0, i;
   if (!signe(b)) return -1;
   for (i = 2; i < lg(b); ++i)
     deg = maxss(deg, degpol(gel(b, i)));

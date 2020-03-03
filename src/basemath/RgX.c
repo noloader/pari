@@ -809,7 +809,7 @@ RgXY_swap(GEN x, long n, long w)
 long
 RgXY_degreex(GEN b)
 {
-  long deg = -1, i;
+  long deg = 0, i;
   if (!signe(b)) return -1;
   for (i = 2; i < lg(b); ++i)
   {
