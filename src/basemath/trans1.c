@@ -1140,8 +1140,9 @@ static long
 powcx_init(GEN x, GEN n, GEN *xa, long prec)
 {
   GEN a = gel(n,1), b = gel(n,2);
-  long e = expu((long)fabs(dbllog2(x)));
+  long e = (long)fabs(dbllog2(x));
 
+  e = (e < 2)? 0: expu(e);
   *xa = NULL;
   switch(typ(a))
   {
