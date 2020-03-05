@@ -1102,6 +1102,11 @@ find_isogenous(GEN a4,GEN a6, ulong ell, struct meqn *MEQN, GEN g, GEN T,GEN p)
 {
   ulong pp = itou_or_0(p);
   long e = pp ? newtonlogint(1+(ell>>1), pp) + ulogint(2*ell+4, pp) + 1: 1;
+  if (signe(a4)==0 || signe(a6)==0)
+  {
+    if (DEBUGLEVEL>0) err_printf("[%c: j=%ld]",MEQN->type,signe(a4)==0 ?0: 1728);
+    return NULL;
+  }
   if (e > 1)
   {
     GEN pe = powiu(p, e);

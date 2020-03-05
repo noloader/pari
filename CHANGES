@@ -79,6 +79,7 @@ BA  54- ((x^7+x^3+x+1)*Mod(1,Mod(1,2)*d))%(x^4+x^3+x^2+1)->x^3+x
     60- bnfisprincipal: overflow when h >> 1
     61- lfun: Pi^s or (2Pi)^s imprecise when Im(s) >> 1
 BA  62- factor((x-1)*(x-y)^2) --> oo-loop
+BA  63- ellap could fail with division by 0
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
