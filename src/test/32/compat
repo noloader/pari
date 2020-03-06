@@ -1914,10 +1914,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isincl(x,y) ===> nfisincl(x,y)
 
-nfisincl(f,g): let f and g define number fields, either irreducible rational 
-polynomials or number fields as output by nfinit; tests whether the number 
-field f is isomorphic to a subfield of g. Return 0 if not, and otherwise all 
-the isomorphisms.
+nfisincl(f,g,{flag=0}): let f and g define number fields, either irreducible 
+rational polynomials or number fields as output by nfinit; tests whether the 
+number field f is isomorphic to a subfield of g. Return 0 if not, and otherwise 
+all the isomorphisms (flag=0, default) or only one (flag=1).
 
 
   ***   at top-level: isinclfast()
@@ -1927,10 +1927,10 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: isinclfast(nf1,nf2) ===> nfisincl(nf1,nf2,1)
 
-nfisincl(f,g): let f and g define number fields, either irreducible rational 
-polynomials or number fields as output by nfinit; tests whether the number 
-field f is isomorphic to a subfield of g. Return 0 if not, and otherwise all 
-the isomorphisms.
+nfisincl(f,g,{flag=0}): let f and g define number fields, either irreducible 
+rational polynomials or number fields as output by nfinit; tests whether the 
+number field f is isomorphic to a subfield of g. Return 0 if not, and otherwise 
+all the isomorphisms (flag=0, default) or only one (flag=1).
 
 
   ***   at top-level: isirreducible()

@@ -1137,20 +1137,29 @@ partmap_reverse(GEN a, GEN b, GEN t, GEN la, GEN lb, long v)
 }
 
 GEN
-nfisincl(GEN fa, GEN fb)
+nfisincl0(GEN fa, GEN fb, long flag)
 {
   pari_sp av = avma;
   long i, k, vb, lx;
   long da, db, d;
   GEN a, b, nfa, nfb, x, y, la, lb;
   int newvar;
-
+  if (flag < 0 || flag > 1) pari_err_FLAG("nfisincl");
   a = get_nfpol(fa, &nfa);
   b = get_nfpol(fb, &nfb);
   da = degpol(a); db = degpol(b);
-  if (da == db) return nfisisom(fa, fb);
   if (!nfa) { a = Q_primpart(a); RgX_check_ZX(a, "nsisincl"); }
   if (!nfb) { b = Q_primpart(b); RgX_check_ZX(b, "nsisincl"); }
+  if (ZX_equal(a, b))
+  {
+    if (flag==1)
+    {
+      x = pol_x(varn(b));
+      return degpol(b) > 1 ? x: RgX_rem(x,b);
+    }
+    x = galoisconj(fb, NULL); settyp(x, t_VEC);
+    return gerepilecopy(av,x);
+  }
   if (!tests_OK(a, nfa, b, nfb, 0)) { set_avma(av); return gen_0; }
 
   if (nfb) lb = gen_1; else nfb = b = ZX_Q_normalize(b,&lb);
@@ -1166,13 +1175,18 @@ nfisincl(GEN fa, GEN fb)
     GEN t = gel(y,i);
     if (degpol(t)!=d) continue;
     gel(x, k++) = partmap_reverse(a, b, t, la, lb, vb);
+    if (flag==1) break;
   }
   if (newvar) (void)delete_var();
   if (k==1) { set_avma(av); return gen_0; }
+  if (flag==1) return gerepilecopy(av,gel(x,1));
   setlg(x, k);
   gen_sort_inplace(x, (void*)&cmp_RgX, &cmp_nodata, NULL);
   return gerepilecopy(av,x);
 }
+
+GEN
+nfisincl(GEN fa, GEN fb) { return nfisincl0(fa, fb, 0); }
 
 static GEN
 lastel(GEN x) { return gel(x, lg(x)-1); }

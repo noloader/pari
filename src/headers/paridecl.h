@@ -2139,6 +2139,7 @@ GEN     nfinitall(GEN x, long flag, long prec);
 GEN     nfinitred(GEN x, long prec);
 GEN     nfinitred2(GEN x, long prec);
 GEN     nfisincl(GEN a, GEN b);
+GEN     nfisincl0(GEN fa, GEN fb, long flag);
 GEN     nfisisom(GEN a, GEN b);
 GEN     nfnewprec(GEN nf, long prec);
 GEN     nfnewprec_shallow(GEN nf, long prec);

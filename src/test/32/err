@@ -488,8 +488,8 @@
   ***   at top-level: idealfrobenius(K,galoisinit(K),idealprimedec(K
   ***                 ^----------------------------------------------
   *** idealfrobenius: domain error in idealfrobenius: pr.e > 1
-  ***   at top-level: nfisincl(x^2,x^2)
-  ***                 ^-----------------
+  ***   at top-level: nfisincl(x^2,x^2+1)
+  ***                 ^-------------------
   *** nfisincl: not an irreducible polynomial in nfisincl: x^2.
   ***   at top-level: polcompositum(x^2,x)
   ***                 ^--------------------
@@ -650,4 +650,4 @@ INFINITY
   ***                                   ^-
   ***   incorrect value for plothsizes: [2,
   ***                                      ^
-Total time spent: 21
+Total time spent: 8

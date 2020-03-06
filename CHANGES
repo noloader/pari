@@ -223,6 +223,7 @@ BA  75- holes in multi-assignement: [a,,c]=[1,2,3]
     76- [libpari] expIPiR, expIPiC
 BA  77- [libpari] forqfvec1, pariplot, sumdivmultexpr
     78- [libpari] powPis, pow2Pis
+BA  79- nfisincl: new flag: return a single embedding
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
