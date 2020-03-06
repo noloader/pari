@@ -1135,47 +1135,34 @@ powfrac(GEN x, GEN n, long prec)
   return NULL;
 }
 
-/* n = a+ib, x > 0 real, x^n */
+/* n = a+ib, x > 0 real, ex ~ |log2(x)|; return precision at which
+ * log(x) must be computed to evaluate x^n */
 static long
-powcx_init(GEN x, GEN n, GEN *xa, long prec)
+powcx_prec(long ex, GEN n, long prec)
 {
   GEN a = gel(n,1), b = gel(n,2);
-  long e = (long)fabs(dbllog2(x));
-
-  e = (e < 2)? 0: expu(e);
-  *xa = NULL;
-  switch(typ(a))
-  {
-    case t_INT:
-      *xa = powgi(x, a);
-      e += gexpo_safe(b);
-      break;
-    case t_FRAC:
-      *xa = powfrac(x, a, prec);
-      if (*xa) { e += gexpo_safe(b); break; }
-    /* fall through */
-    default:
-      e += gexpo_safe(n);
-      break;
-  }
+  long e = (ex < 2)? 0: expu(ex);
+  e += gexpo_safe(is_rational_t(typ(a))? b: n);
   return e > 2? prec + nbits2extraprec(e): prec;
 }
 static GEN
-powcx(GEN logx, GEN n, GEN xa, long prec)
+powcx(GEN x, GEN logx, GEN n, long prec)
 {
-  GEN sxb, cxb, xb, b = gel(n,2);
-  long sh, p;
-  if (!xa)
+  GEN sxb, cxb, xa, a = gel(n,1), xb = gmul(gel(n,2), logx);
+  long sh, p = realprec(logx);
+  switch(typ(a))
   {
-    xa = modlog2(gmul(gel(n,1), logx), &sh);
-    if (!xa) xa = real2n(sh, prec);
-    else
-    {
-      if (signe(xa) && realprec(xa) > prec) setlg(xa, prec);
-      xa = mpexp(xa); shiftr_inplace(xa, sh);
-    }
+    case t_INT: xa = powgi(x, a); break;
+    case t_FRAC: xa = powfrac(x, a, prec); break;
+    default:
+      xa = modlog2(gmul(gel(n,1), logx), &sh);
+      if (!xa) xa = real2n(sh, prec);
+      else
+      {
+        if (signe(xa) && realprec(xa) > prec) setlg(xa, prec);
+        xa = mpexp(xa); shiftr_inplace(xa, sh);
+      }
   }
-  xb = gmul(b, logx); p = realprec(xb);
   if (gexpo(xb) > 30)
   {
     GEN q, P = Pi2n(-2, p), z = addrr(xb,P); /* = x + Pi/4 */
@@ -1255,8 +1242,8 @@ gpow(GEN x, GEN n, long prec)
   }
   if (tn == t_COMPLEX && is_real_t(typ(x)) && gsigne(x) > 0)
   {
-    long p = powcx_init(x, n, &y, prec);
-    return gerepileupto(av, powcx(glog(x, p), n, y, prec));
+    long p = powcx_prec(fabs(dbllog2(x)), n, prec);
+    return gerepileupto(av, powcx(x, glog(x, p), n, prec));
   }
   i = precision(n);
   if (i) prec = i;
@@ -1275,21 +1262,19 @@ GEN
 powPis(GEN s, long prec)
 {
   pari_sp av = avma;
-  GEN y;
-  long p;
+  GEN x;
   if (typ(s) != t_COMPLEX) return gpow(mppi(prec), s, prec);
-  p = powcx_init(mppi(prec), s, &y, prec);
-  return gerepileupto(av, powcx(logr_abs(mppi(p)), s, y, prec));
+  x = mppi(powcx_prec(1, s, prec));
+  return gerepileupto(av, powcx(x, logr_abs(x), s, prec));
 }
 GEN
 pow2Pis(GEN s, long prec)
 {
   pari_sp av = avma;
-  GEN y;
-  long p;
+  GEN x;
   if (typ(s) != t_COMPLEX) return gpow(Pi2n(1,prec), s, prec);
-  p = powcx_init(Pi2n(1,prec), s, &y, prec);
-  return gerepileupto(av, powcx(logr_abs(Pi2n(1,p)), s, y, prec));
+  x = Pi2n(1, powcx_prec(2, s, prec));
+  return gerepileupto(av, powcx(x, logr_abs(x), s, prec));
 }
 
 GEN
