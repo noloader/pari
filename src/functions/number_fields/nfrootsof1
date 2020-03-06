@@ -6,7 +6,8 @@ Help: nfrootsof1(nf): number of roots of unity and primitive root of unity
  in the number field nf.
 Doc: Returns a two-component vector $[w,z]$ where $w$ is the number of roots of
  unity in the number field \var{nf}, and $z$ is a primitive $w$-th root
- of unity.
+ of unity. It is possible to input a defining polynomial for \var{nf}
+ instead.
  \bprog
  ? K = nfinit(polcyclo(11));
  ? nfrootsof1(K)

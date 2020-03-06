@@ -1993,84 +1993,17 @@ nfroots_if_split(GEN *pnf, GEN pol)
  *
  * [Step 1]: guess roots via ramification. If trivial output this.
  * [Step 2]: select prime [p] unramified and ideal [pr] above
- * [Step 3]: evaluate the maximal exponent [k] such that the fondamental domain
- *           of a LLL-reduction of [prk] = pr^k contains a ball of radius larger
- *           than the norm of any root of unity.
- * [Step 3]: select a heuristic exponent,
- *           LLL reduce prk=pr^k and verify the exponent is sufficient,
- *           otherwise try a larger one.
  * [Step 4]: factor the cyclotomic polynomial mod [pr],
- *           Hensel lift to pr^k and find the representative in the ball
- *           If there is it is a primitive root */
-
-/* Choose prime ideal unramified with "large" inertia degree */
-static void
-nf_pick_prime_for_units(GEN nf, nflift_t *L)
-{
-  GEN nfpol = nf_get_pol(nf), bad = mulii(nf_get_disc(nf), nf_get_index(nf));
-  GEN ap = NULL, r = NULL;
-  long nfdeg = degpol(nfpol), maxf = get_maxf(nfdeg);
-  ulong pp;
-  forprime_t S;
-
-  (void)u_forprime_init(&S, 2, ULONG_MAX);
-  while ( (pp = u_forprime_next(&S)) )
-  {
-    if (! umodiu(bad,pp)) continue;
-    r = get_good_factor(nfpol, pp, maxf);
-    if (r) break;
-  }
-  if (!r) pari_err_OVERFLOW("nf_pick_prime [ran out of primes]");
-  r = gel(r,lg(r)-1); /* largest inertia degree */
-  ap = utoipos(pp);
-  L->p = ap;
-  L->Tp = Flx_to_ZX(r);
-  L->tozk = nf_get_invzk(nf);
-  L->topow = nf_get_zkprimpart(nf);
-  L->topowden = nf_get_zkden(nf);
-}
-
-/* *Heuristic* exponent k such that the fundamental domain of pr^k
- * should contain the ball of radius C */
-static double
-mybestlift_bound(GEN C)
-{
-  C = gtofp(C,DEFAULTPREC);
-  return ceil(log(gtodouble(C)) / 0.2) + 3;
-}
-
-/* simplified nf_DDF_roots: polcyclo(n) monic in ZX either splits or has no
- * root in nf.
- * Return a root or NULL (no root) */
-static GEN
-nfcyclo_root(long n, GEN nfpol, nflift_t *L)
-{
-  GEN q, r, Cltx_r, pol = polcyclo(n,0), gn = utoipos(n);
-  div_data D;
-
-  init_div_data(&D, pol, L);
-  (void)Fq_sqrtn(gen_1, gn, L->Tp, L->p, &r);
-  /* r primitive n-th root of 1 in Fq */
-  r = Zq_sqrtnlift(gen_1, gn, r, L->Tpk, L->p, L->k);
-  /* lt*dn*topowden * r = Clt * r */
-  r = nf_bestlift_to_pol(r, NULL, L);
-  Cltx_r = deg1pol_shallow(D.Clt? D.Clt: gen_1, gneg(r), varn(pol));
-  /* check P(r) == 0 */
-  q = RgXQX_divrem(D.C2ltpol, Cltx_r, nfpol, ONLY_DIVIDES); /* integral */
-  if (!q) return NULL;
-  if (D.Clt) r = gdiv(r, D.Clt);
-  return r;
-}
+*/
 
 /* Guesses the number of roots of unity in number field [nf].
  * Computes gcd of N(P)-1 for some primes. The value returned is a proven
  * multiple of the correct value. */
 static long
-guess_roots(GEN nf)
+guess_roots(GEN T, GEN D, GEN index)
 {
-  long c = 0, nfdegree = nf_get_degree(nf), B = nfdegree + 20, l;
+  long c = 0, nfdegree = degpol(T), B = nfdegree + 20, l;
   ulong p = 2;
-  GEN T = nf_get_pol(nf), D = nf_get_disc(nf), index = nf_get_index(nf);
   GEN nbroots = NULL;
   forprime_t S;
   pari_sp av;
@@ -2156,27 +2089,27 @@ trivroots(void) { return mkvec2(gen_2, gen_m1); }
 GEN
 nfrootsof1(GEN nf)
 {
-  nflift_t L;
-  GEN T, q, fa, LP, LE, C0, z, disc;
+  GEN T, fa, LP, LE, z, disc, index;
   pari_timer ti;
   long i, l, nbguessed, nbroots, nfdegree;
   pari_sp av;
 
-  nf = checknf(nf);
-  if (nf_get_r1(nf)) return trivroots();
-
+  T = get_nfpol(nf, &nf);
+  RgX_check_ZX(T, "nfrootsof1");
+  if (nf && nf_get_r1(nf)) return trivroots();
+  disc = nf ? nf_get_disc(nf): ZX_disc(T);
+  index = nf ? nf_get_index(nf): gen_1;
   /* Step 1 : guess number of roots and discard trivial case 2 */
   if (DEBUGLEVEL>2) timer_start(&ti);
-  nbguessed = guess_roots(nf);
+  nbguessed = guess_roots(T, disc, index);
   if (DEBUGLEVEL>2)
     timer_printf(&ti, "guessing roots of 1 [guess = %ld]", nbguessed);
   if (nbguessed == 2) return trivroots();
 
-  nfdegree = nf_get_degree(nf);
+  nfdegree = degpol(T);
   fa = factoru(nbguessed);
   LP = gel(fa,1); l = lg(LP);
   LE = gel(fa,2);
-  disc = nf_get_disc(nf);
   for (i = 1; i < l; i++)
   {
     long p = LP[i];
@@ -2214,57 +2147,45 @@ nfrootsof1(GEN nf)
   av = avma;
 
   /* Step 1.5 : test if nf.pol == subst(polcyclo(nbguessed), x, \pm x+c) */
-  T = nf_get_pol(nf);
   if (eulerphiu_fact(fa) == (ulong)nfdegree)
   {
     z = ZXirred_is_cyclo_translate(T, uissquarefree_fact(fa));
     if (DEBUGLEVEL>2) timer_printf(&ti, "checking for cyclotomic polynomial");
     if (z)
     {
-      z = nf_to_scalar_or_basis(nf,z);
+      if (nf) z = nf_to_scalar_or_basis(nf,z);
       return gerepilecopy(av, mkvec2(utoipos(nbguessed), z));
     }
     set_avma(av);
   }
 
-  /* Step 2 : choose a prime ideal for local lifting */
-  nf_pick_prime_for_units(nf, &L);
-  if (DEBUGLEVEL>2)
-    timer_printf(&ti, "choosing prime %Ps, degree %ld",
-             L.p, L.Tp? degpol(L.Tp): 1);
-
-  /* Step 3 : compute a reduced pr^k allowing lifting of local solutions */
-  /* evaluate maximum L2 norm of a root of unity in nf */
-  C0 = gmulsg(nfdegree, L2_bound(nf, gen_1));
-  /* lift and reduce pr^k */
-  if (DEBUGLEVEL>2) err_printf("Lift pr^k; GSmin wanted: %Ps\n",C0);
-  bestlift_init((long)mybestlift_bound(C0), nf, C0, &L);
-  L.dn = NULL;
-  if (DEBUGLEVEL>2) timer_start(&ti);
-
-  /* Step 4 : actual computation of roots */
-  nbroots = 2; z = gen_m1;
-  q = powiu(L.p,degpol(L.Tp));
+  /* Step 2 : actual computation of roots */
+  nbroots = 2; z = scalarpol(gen_m1, varn(T));
   for (i = 1; i < l; i++)
   { /* for all prime power factors of nbguessed, find a p^k-th root of unity */
     long k, p = LP[i];
-    for (k = minss(LE[i], Z_lval(subiu(q,1UL),p)); k > 0; k--)
+    for (k = LE[i]; k > 0; k--)
     { /* find p^k-th roots */
       pari_sp av = avma;
       long pk = upowuu(p,k);
       GEN r;
       if (pk==2) continue; /* no need to test second roots ! */
-      r = nfcyclo_root(pk, T, &L);
-      if (DEBUGLEVEL>2) timer_printf(&ti, "for factoring Phi_%ld^%ld", p,k);
-      if (r) {
+      r = nfisincl0(polcyclo(pk, 0), T, 1);
+      if (!isintzero(r))
+      {
         if (DEBUGLEVEL>2) err_printf("  %s root of unity found\n",uordinal(pk));
         if (p==2) { nbroots = pk; z = r; }
-        else     { nbroots *= pk; z = nfmul(nf, z,r); }
+        else
+        {
+          nbroots *= pk;
+          z = nf ? nfmul(nf, z, r): QXQ_mul(z, r, T);
+        }
         break;
       }
       set_avma(av);
       if (DEBUGLEVEL) pari_warn(warner,"nfrootsof1: wrong guess");
     }
   }
+  if (nf) z = nf_to_scalar_or_basis(nf,z);
   return gerepilecopy(av, mkvec2(utoi(nbroots), z));
 }
