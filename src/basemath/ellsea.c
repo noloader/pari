@@ -900,13 +900,15 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN 
     if (DEBUGLEVEL>0) err_printf("[C: dJ=0]");
     E4l = Fq_div(E4, sqru(ell), T, p);
     jl  = Zq_div(Fq_powu(E4l, 3, T, p), deltal, T, p, pp, e);
-    E6l = Zq_sqrt(Fq_mul(Fq_sub(jl, utoi(1728), T, p), deltal, T, p), T, p, pp, e);
+    E6l = Zq_sqrt(Fq_mul(Fq_sub(jl, utoi(1728), T, p),
+                         deltal, T, p), T, p, pp, e);
     p_1 = gen_0;
   }
   else
   {
     GEN jl, f, fd, Dgs, Djs, jld;
-    GEN E2s = Zq_div(Fq_mul(Fq_neg(Fq_mulu(E6, 12, T, p), T, p), dJ, T, p), Fq_mul(Fq_mulu(E4, is, T, p), dx, T, p), T, p, pp, e);
+    GEN E2s = Zq_div(Fq_mul(Fq_neg(Fq_mulu(E6, 12, T, p), T, p), dJ, T, p),
+                     Fq_mul(Fq_mulu(E4, is, T, p), dx, T, p), T, p, pp, e);
     GEN gd = Fq_mul(Fq_mul(E2s, itis, T, p), g, T, p);
     GEN jd = Zq_div(Fq_mul(Fq_neg(E42, T, p), E6, T, p), delta, T, p, pp, e);
     GEN E0b = Zq_div(E6, Fq_mul(E4, E2s, T, p), T, p, pp, e);
@@ -926,7 +928,8 @@ find_isogenous_from_canonical(GEN a4, GEN a6, ulong ell, struct meqn *MEQN, GEN 
     fd = Fq_neg(Fq_mul(Fq_mul(E2s, f, T, p), itis, T, p), T, p);
     Dgs = FqXY_eval(Dx, f, jl, T, p);
     Djs = FqXY_eval(DJ, f, jl, T, p);
-    jld = Zq_div(Fq_mul(Fq_neg(fd, T, p), Dgs, T, p), Fq_mulu(Djs, ell, T, p), T, p, pp, e);
+    jld = Zq_div(Fq_mul(Fq_neg(fd, T, p), Dgs, T, p),
+                 Fq_mulu(Djs, ell, T, p), T, p, pp, e);
     E6l = Zq_div(Fq_mul(Fq_neg(E4l, T, p), jld, T, p), jl, T, p, pp, e);
     p_1 = Fq_neg(Fq_halve(Fq_mulu(E2s, ell, T, p), T, p),T,p);
   }
