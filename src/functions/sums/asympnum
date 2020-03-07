@@ -11,7 +11,7 @@ Doc: Asymptotic expansion of \var{expr}, corresponding to a sequence $u(n)$,
  with rational coefficients $a_i$ with reasonable height; the algorithm
  is heuristic and performs repeated calls to limitnum, with
  \kbd{alpha} as in \kbd{limitnum}. As in \kbd{limitnum}, $u(n)$ may be
- given either by a closure $u\mapsto u(n)$ or as a closure $N\mapsto
+ given either by a closure $n\mapsto u(n)$ or as a closure $N\mapsto
  [u(1),\dots,u(N)]$, the latter being often more efficient.
  \bprog
  ? f(n) = n! / (n^n*exp(-n)*sqrt(n));

@@ -11,7 +11,7 @@ Doc: Return the $N+1$ first terms of asymptotic expansion of \var{expr},
  and return approximation of $[a_0, a_1,\dots, a_N]$.
  The algorithm is heuristic and performs repeated calls to limitnum, with
  \kbd{alpha} as in \kbd{limitnum}. As in \kbd{limitnum}, $u(n)$ may be
- given either by a closure $u\mapsto u(n)$ or as a closure $N\mapsto
+ given either by a closure $n\mapsto u(n)$ or as a closure $N\mapsto
  [u(1),\dots,u(N)]$, the latter being often more efficient. This function
  is related to, but  more flexible than, \kbd{asympnum}, which requires
  rational asymptotic expansions.
