@@ -2908,10 +2908,10 @@ galoisconj(GEN nf, GEN d)
     long v = varn(T);
     RgX_check_ZX(T, "galoisconj");
     if (!gequal1(a)) pari_err_IMPL("galoisconj(non-monic)");
-    b = negi(b);
     G = cgetg(3, t_COL);
-    gel(G,1) = pol_x(v);
-    gel(G,2) = deg1pol(gen_m1, b, v); return G;
+    gel(G,1) = deg1pol_shallow(gen_m1, negi(b), v);
+    gel(G,2) = pol_x(v);
+    return G;
   }
   G = galoisconj4_main(nf, d, 0);
   if (G) return G; /* Success */
