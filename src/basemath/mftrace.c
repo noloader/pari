@@ -5870,6 +5870,14 @@ mfwt1newdimsum(long N)
   return S? S - mfwt1olddimsum(N): 0;
 }
 
+/* return the automorphism of a degree-2 nf */
+static GEN
+nf2_get_conj(GEN nf)
+{
+  GEN pol = nf_get_pol(nf);
+  return deg1pol_shallow(gen_m1, negi(gel(pol,3)), varn(pol));
+}
+
 static long
 mfisdihedral(GEN vF, GEN DIH)
 {
@@ -5888,7 +5896,7 @@ mfisdihedral(GEN vF, GEN DIH)
   w = gel(G,3);
   f = bnr_get_mod(bnr);
   nf = bnr_get_nf(bnr);
-  con = gel(galoisconj(nf,gen_1), 2);
+  con = nf2_get_conj(nf);
   f0 = gel(f,1); f0b = galoisapply(nf, con, f0);
   xin = zv_to_ZV(gel(w,2)); /* xi(bnr.gen[i]) = e(xin[i] / D) */
   if (!gequal(f0,f0b))
@@ -6392,7 +6400,7 @@ append_dihedral(GEN v, long D, long l1, long l2)
 
   av = avma;
   bnf = dihan_bnf(D);
-  con = gel(galoisconj(bnf,gen_1), 2);
+  con = nf2_get_conj(bnf_get_nf(bnf));
   LI = ideallist(bnf, max);
   numi = 0; for (i = min; i <= max; i++) numi += lg(gel(LI, i)) - 1;
   if (D > 0)
