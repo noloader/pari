@@ -52,7 +52,7 @@ test()=
     my(U=gcd(R2,R*(R+1)));if(U!=R*pollead(U),error([R,U]));
     my([U,V,D]=gcdext(R,RI));if(U*R+V*RI!=D,error([R,U*R+V*RI-D]));
     if(poldisc(R)*'z^12!=poldisc(subst(R,x,x/'z)*z^4),error(R));
-    print(i,":" R2));
+    print(i,":",R2));
   print("done");
 }
 test()

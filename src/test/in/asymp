@@ -1,4 +1,4 @@
-default(parisize, 20M);
+default(parisize, "20M");
 check(a,b) = my(t = abs((a-b)/b)); if (t, ceil(log(t)/log(10)), -oo);
 
 default(realprecision, 211);

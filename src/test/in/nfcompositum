@@ -1,5 +1,5 @@
 default(realprecision,38);
-default(parisize,100M);
+default(parisize,"100M");
 
 do(name, test) = {
  setrand(1);
