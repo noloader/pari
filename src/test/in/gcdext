@@ -82,3 +82,20 @@ lcm(0,Mod(0,3))
 V=factorback(primes([2^63,2^63+1000]))
 gcd((x+1+V)*(x^3+3*x+1),(x+1)*(x^3+x+1))
 gcd((x+1)*(x^3+3*x+1),(x+1)*(x^3+x+1)+V)
+
+chkhalfgcd(a,b)=
+{
+  my([M,V]=halfgcd(a,b));
+  if (M*[a,b]~!=V, error([a,b]));
+  [M,V];
+}
+
+chkhalfgcd(858824,528747)
+chkhalfgcd(4*x^5+4*x^4+4*x^3+4*x^2+2*x+3,3*x^4+x^3+2)
+chkhalfgcd((4*x^5+4*x^4+4*x^3+4*x^2+2*x+3)*Mod(1,5),(3*x^4+x^3+2)*Mod(1,5))
+a=ffgen([5,5],'a);
+chkhalfgcd(4*x^5+4*a*x^4+4*x^3+4*(a+1)*x^2+2*x+3,3*a*x^4+x^3+2*(a+1))
+b=Mod(a.pol,a.mod);
+chkhalfgcd(4*x^5+4*b*x^4+4*x^3+4*(b+1)*x^2+2*x+3,3*b*x^4+x^3+2*(b+1))
+p=nextprime(2^128);
+chkhalfgcd((4*x^5+4*x^4+4*x^3+4*x^2+2*x+2^64+1)*Mod(1,p),(3*x^4+x^3+2^96)*Mod(1,p))

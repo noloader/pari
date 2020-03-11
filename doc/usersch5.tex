@@ -3392,6 +3392,13 @@ coefficients such that $\kbd{au} + \kbd{bv} = d$.
 $d$ of \kbd{a} and \kbd{b} and sets \kbd{u}, \kbd{v} to the Bezout coefficients
 such that $\kbd{au} + \kbd{bv} = d$.
 
+\fun{GEN}{halfgcdii}{GEN x, GEN y}
+assuming \kbd{x} and \kbd{y} are \typ{INT}s,
+returns a $2$-components \typ{VEC} $[M,V]$ where $M$ is a $2\times 2$
+\typ{MAT} and $V$ a $2$-component \typ{COL}, both with \typ{INT} entries,
+such that $M*[x,y]~==V$ and such that  if $V=[a,b]~$, then
+$a \geq \ceil{\sqrt{\max(|x|,|y|)}} > b$.
+
 \fun{GEN}{ZV_extgcd}{GEN A} given a vector of $n$ integers $A$, returns $[d,
 U]$, where $d$ is the GCD of the $A[i]$ and $U$ is a matrix
 in $\text{GL}_n(\Z)$ such that $AU = [0,\dots,0,D]$.

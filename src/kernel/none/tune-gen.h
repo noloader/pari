@@ -2,6 +2,7 @@
 long AGM_ATAN_LIMIT                 = __AGM_ATAN_LIMIT;
 long DIVRR_GMP_LIMIT                = __DIVRR_GMP_LIMIT;
 long EXPNEWTON_LIMIT                = __EXPNEWTON_LIMIT;
+long EXTGCD_HALFGCD_LIMIT           = __EXTGCD_HALFGCD_LIMIT;
 long F2x_MUL_KARATSUBA_LIMIT        = __F2x_MUL_KARATSUBA_LIMIT;
 long F2x_MUL_MULII_LIMIT            = __F2x_MUL_MULII_LIMIT;
 long F2xqX_BARRETT_LIMIT            = __F2xqX_BARRETT_LIMIT;
@@ -56,6 +57,8 @@ long FpX_INVBARRETT_LIMIT           = __FpX_INVBARRETT_LIMIT;
 long FpX_REM_BARRETT_LIMIT          = __FpX_REM_BARRETT_LIMIT;
 long Fp_POW_BARRETT_LIMIT           = __Fp_POW_BARRETT_LIMIT;
 long Fp_POW_REDC_LIMIT              = __Fp_POW_REDC_LIMIT;
+long GCD_HALFGCD_LIMIT              = __GCD_HALFGCD_LIMIT;
+long HALFGCD_LIMIT                  = __HALFGCD_LIMIT;
 long INVMOD_GMP_LIMIT               = __INVMOD_GMP_LIMIT;
 long INVNEWTON_LIMIT                = __INVNEWTON_LIMIT;
 long LOGAGMCX_LIMIT                 = __LOGAGMCX_LIMIT;

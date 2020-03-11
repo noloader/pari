@@ -2,6 +2,7 @@
 #define __AGM_ATAN_LIMIT                 60
 #define __DIVRR_GMP_LIMIT                4
 #define __EXPNEWTON_LIMIT                66
+#define __EXTGCD_HALFGCD_LIMIT           -1
 #define __F2x_MUL_KARATSUBA_LIMIT        11
 #define __F2x_MUL_MULII_LIMIT            41
 #define __F2xqX_BARRETT_LIMIT            48
@@ -56,6 +57,8 @@
 #define __FpX_REM_BARRETT_LIMIT          111
 #define __Fp_POW_BARRETT_LIMIT           127
 #define __Fp_POW_REDC_LIMIT              17
+#define __GCD_HALFGCD_LIMIT              -1
+#define __HALFGCD_LIMIT                  3
 #define __INVMOD_GMP_LIMIT               3
 #define __INVNEWTON_LIMIT                75
 #define __LOGAGMCX_LIMIT                 22
@@ -72,6 +75,7 @@
 #define __AGM_ATAN_LIMIT                 89
 #define __DIVRR_GMP_LIMIT                4
 #define __EXPNEWTON_LIMIT                197
+#define __EXTGCD_HALFGCD_LIMIT           -1
 #define __F2x_MUL_KARATSUBA_LIMIT        13
 #define __F2x_MUL_MULII_LIMIT            774
 #define __F2xqX_BARRETT_LIMIT            48
@@ -126,6 +130,8 @@
 #define __FpX_REM_BARRETT_LIMIT          127
 #define __Fp_POW_BARRETT_LIMIT           11
 #define __Fp_POW_REDC_LIMIT              3
+#define __GCD_HALFGCD_LIMIT              -1
+#define __HALFGCD_LIMIT                  22
 #define __INVMOD_GMP_LIMIT               3
 #define __INVNEWTON_LIMIT                93
 #define __LOGAGMCX_LIMIT                 32

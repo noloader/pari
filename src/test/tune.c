@@ -307,6 +307,15 @@ static double speed_mulii(speed_param *s)
 static double speed_sqri (speed_param *s)
 { TIME_FUN(sqri(s->x)); }
 
+static double speed_extgcdii(speed_param *s)
+{ GEN u,v; TIME_FUN(bezout(s->x, s->y, &u, &v)); }
+
+static double speed_gcdii(speed_param *s)
+{ TIME_FUN(gcdii(s->x, s->y)); }
+
+static double speed_halfgcdii(speed_param *s)
+{ TIME_FUN(halfgcdii(s->x, s->y)); }
+
 static double speed_exp(speed_param *s)
 { TIME_FUN(mpexp(s->x)); }
 
@@ -513,6 +522,9 @@ static tune_param param[] = {
 {PARI,var(SQRI_KARATSUBA_LIMIT),   t_INT, 4,0, speed_sqri,0,0,&SQRI_FFT_LIMIT},
 {PARI,var(MULII_FFT_LIMIT),        t_INT, 500,0, speed_mulii,0.02},
 {PARI,var(SQRI_FFT_LIMIT),         t_INT, 500,0, speed_sqri,0.02},
+{0,   var(HALFGCD_LIMIT),          t_INT, 3,0, speed_halfgcdii,0.02},
+{PARI,var(EXTGCD_HALFGCD_LIMIT),   t_INT, 5,0, speed_extgcdii,0.02},
+{PARI,var(GCD_HALFGCD_LIMIT),      t_INT, 5,0, speed_gcdii,0.02},
 {0,   var(MULRR_MULII_LIMIT),      t_REAL,4,0, speed_mulrr},
 {0,   var(SQRR_SQRI_LIMIT),        t_REAL,4,0, speed_sqrr},
 {0,   var(Fp_POW_REDC_LIMIT),      t_INT, 3,100, speed_Fp_pow,0,0,&Fp_POW_BARRETT_LIMIT},

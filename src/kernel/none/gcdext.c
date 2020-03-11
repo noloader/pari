@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * pointer is NULL  (but the computations will happen nonetheless).
  */
 
-GEN
-bezout(GEN a, GEN b, GEN *pu, GEN *pv)
+static GEN
+bezout_lehmer(GEN a, GEN b, GEN *pu, GEN *pv)
 {
   GEN t,u,u1,v,v1,d,d1,q,r;
   GEN *pt;
@@ -207,3 +207,46 @@ bezout(GEN a, GEN b, GEN *pu, GEN *pv)
   return icopy(d);
 }
 
+static GEN
+addmulmul(GEN u, GEN v, GEN x, GEN y)
+{ return addii(mulii(u, x),mulii(v, y)); }
+
+static GEN
+bezout_halfgcd(GEN x, GEN y, GEN *ptu, GEN *ptv)
+{
+  pari_sp av=avma;
+  GEN u, v, R = matid(2);
+  while (lgefint(y)-2 >= EXTGCD_HALFGCD_LIMIT)
+  {
+    GEN M = HGCD0(x,y);
+    R = ZM_mul2(R, gel(M, 1));
+    x = gel(M,2); y = gel(M,3);
+    if (signe(y) && expi(y)<magic_threshold(x))
+    {
+      GEN r, q = dvmdii(x, y, &r);
+      x = y; y = r;
+      R = mulq(R, q);
+    }
+    if (gc_needed(av, 1))
+      gerepileall(av,3,&x,&y,&R);
+  }
+  y = bezout_lehmer(x,y,&u,&v);
+  R = ZM_inv2(R);
+  if (ptu) *ptu = addmulmul(u,v,gcoeff(R,1,1),gcoeff(R,2,1));
+  if (ptv) *ptv = addmulmul(u,v,gcoeff(R,1,2),gcoeff(R,2,2));
+  return y;
+}
+
+GEN
+bezout(GEN x, GEN y, GEN *ptu, GEN *ptv)
+{
+  pari_sp ltop=avma;
+  GEN d;
+  if (lgefint(y)-2 >= EXTGCD_HALFGCD_LIMIT)
+    d = bezout_halfgcd(x, y, ptu, ptv);
+  else
+    d = bezout_lehmer(x, y, ptu, ptv);
+  if (ptv) gerepileall(ltop,ptu?3:2,&d,ptv,ptu);
+  else gerepileall(ltop,ptu?2:1,&d,ptu);
+  return d;
+}

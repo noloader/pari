@@ -59,8 +59,8 @@ gcd_plus_minus(GEN x, GEN y, GEN res)
 }
 
 /* uses modified right-shift binary algorithm now --GN 1998Jul23 */
-GEN
-gcdii(GEN a, GEN b)
+static GEN
+gcdii_basecase(GEN a, GEN b)
 {
   long v, w;
   pari_sp av;
@@ -120,4 +120,22 @@ gcdii(GEN a, GEN b)
     r[2] = (long) gcduodd((ulong)b[2], (ulong)a[2]);
     set_avma(av); return shifti(r,v);
   }
+}
+
+GEN
+gcdii(GEN x, GEN y)
+{
+  pari_sp av=avma;
+  while (lgefint(y)-2 >= GCD_HALFGCD_LIMIT)
+  {
+    GEN M = HGCD0(x,y);
+    x = gel(M,2); y = gel(M,3);
+    if (signe(y) && expi(y)<magic_threshold(x))
+    {
+      swap(x,y);
+      y = remii(y,x);
+    }
+    if (gc_needed(av, 1)) gerepileall(av,2,&x,&y);
+  }
+  return gerepileuptoint(av, gcdii_basecase(x,y));
 }

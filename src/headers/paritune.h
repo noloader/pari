@@ -4,6 +4,7 @@
 extern long AGM_ATAN_LIMIT;
 extern long DIVRR_GMP_LIMIT;
 extern long EXPNEWTON_LIMIT;
+extern long EXTGCD_HALFGCD_LIMIT;
 extern long F2x_MUL_KARATSUBA_LIMIT;
 extern long F2x_MUL_MULII_LIMIT;
 extern long F2xqX_BARRETT_LIMIT;
@@ -58,6 +59,8 @@ extern long FpX_INVBARRETT_LIMIT;
 extern long FpX_REM_BARRETT_LIMIT;
 extern long Fp_POW_BARRETT_LIMIT;
 extern long Fp_POW_REDC_LIMIT;
+extern long GCD_HALFGCD_LIMIT;
+extern long HALFGCD_LIMIT;
 extern long INVMOD_GMP_LIMIT;
 extern long INVNEWTON_LIMIT;
 extern long LOGAGMCX_LIMIT;
@@ -74,6 +77,7 @@ extern long SQRR_SQRI_LIMIT;
 #  define AGM_ATAN_LIMIT                 __AGM_ATAN_LIMIT
 #  define DIVRR_GMP_LIMIT                __DIVRR_GMP_LIMIT
 #  define EXPNEWTON_LIMIT                __EXPNEWTON_LIMIT
+#  define EXTGCD_HALFGCD_LIMIT           __EXTGCD_HALFGCD_LIMIT
 #  define F2x_MUL_KARATSUBA_LIMIT        __F2x_MUL_KARATSUBA_LIMIT
 #  define F2x_MUL_MULII_LIMIT            __F2x_MUL_MULII_LIMIT
 #  define F2xqX_BARRETT_LIMIT            __F2xqX_BARRETT_LIMIT
@@ -128,6 +132,8 @@ extern long SQRR_SQRI_LIMIT;
 #  define FpX_REM_BARRETT_LIMIT          __FpX_REM_BARRETT_LIMIT
 #  define Fp_POW_BARRETT_LIMIT           __Fp_POW_BARRETT_LIMIT
 #  define Fp_POW_REDC_LIMIT              __Fp_POW_REDC_LIMIT
+#  define GCD_HALFGCD_LIMIT              __GCD_HALFGCD_LIMIT
+#  define HALFGCD_LIMIT                  __HALFGCD_LIMIT
 #  define INVMOD_GMP_LIMIT               __INVMOD_GMP_LIMIT
 #  define INVNEWTON_LIMIT                __INVNEWTON_LIMIT
 #  define LOGAGMCX_LIMIT                 __LOGAGMCX_LIMIT

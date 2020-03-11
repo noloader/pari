@@ -1,0 +1,22 @@
+Function: halfgcd
+Section: number_theoretical
+C-Name: ghalfgcd
+Prototype: GG
+Help: halfgcd(x,y): return a vector [M, [a,b]~] where M is an invertible 2x2
+ matrix such that M*[a,b]~ == [x,y]~ where b <= sqrt(max(x,y)) <= a.
+Doc: return a vector \kbd{[M, [a,b]~]} where $M$ is an invertible $2\times 2$
+ matrix such that \kbd{M*[x,y]~ == [a,b]~}.
+
+ The objects $a$ and $b$ can be both integers, or both polynomials in the same
+ variable.
+
+ In the polynomial case, the inegality
+ $\deg a \geq \ceil{\max(\deg x,\deg y))/2} > \deg b$
+ holds and the determinant of $M$ is of degree $0$.
+
+ In the integer case, the inequality
+ $a \geq \ceil{\sqrt{\max(|x|,|y|)}} > b$
+ holds and $\det M = \pm 1$.
+ Assuming $x$ and $y$ are non-negative, then
+ $M^{-1}$ has non-negative coefficients, and $\det M$
+ is equal to the sign of both main diagonal terms.

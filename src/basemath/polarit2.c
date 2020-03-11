@@ -1879,6 +1879,17 @@ RgX_extgcd_simple(GEN a, GEN b, GEN *pu, GEN *pv)
   *pu = u;
   *pv = v; return d;
 }
+
+GEN
+ghalfgcd(GEN x, GEN y)
+{
+  long tx = typ(x), ty = typ(y);
+  if (tx==t_INT && ty==t_INT) return halfgcdii(x, y);
+  if (tx==t_POL && ty==t_POL && varn(x)==varn(y)) return RgX_halfgcd(x, y);
+  pari_err_OP("halfgcd", x, y);
+  return NULL; /* LCOV_EXCL_LINE */
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                    CONTENT / PRIMITIVE PART                     */

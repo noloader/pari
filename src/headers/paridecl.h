@@ -4432,6 +4432,7 @@ int     equalii(GEN x, GEN y);
 int     equalrr(GEN x, GEN y);
 GEN     floorr(GEN x);
 GEN     gcdii(GEN x, GEN y);
+GEN     halfgcdii(GEN x, GEN y);
 GEN     int2n(long n);
 GEN     int2u(ulong n);
 GEN     int2um1(ulong n);
@@ -4736,6 +4737,7 @@ GEN     gen_factorback(GEN L, GEN e, void *E, GEN (*_mul)(void*,GEN,GEN),
                                               GEN (*_pow)(void*,GEN,GEN));
 GEN     ggcd(GEN x, GEN y);
 GEN     ggcd0(GEN x, GEN y);
+GEN     ghalfgcd(GEN x, GEN y);
 GEN     ginvmod(GEN x, GEN y);
 GEN     glcm(GEN x, GEN y);
 GEN     glcm0(GEN x, GEN y);
