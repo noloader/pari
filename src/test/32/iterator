@@ -77,6 +77,14 @@
 5 3 1 
 1 2 5 6 9 10 
 2 5 8 
+2
+7
+12
+17
+2
+7
+12
+17
 210
   ***   at top-level: forprime(p=2,10,p=4)
   ***                                   ^--
@@ -189,4 +197,4 @@
   ***   at top-level: foreach(x^2+1,x,)
   ***                 ^-----------------
   *** foreach: incorrect type in foreach (t_POL).
-Total time spent: 2498
+Total time spent: 7848

@@ -357,8 +357,10 @@ forstep(GEN a, GEN b, GEN s, GEN code)
   switch(typ(s))
   {
     case t_VEC: case t_COL: ss = gsigne(vecsum(s)); v = s; break;
-    case t_INTMOD: a = gadd(a, gmod(gsub(gel(s,2),a), gel(s,1)));
-                   s = gel(s,1);
+    case t_INTMOD:
+      if (typ(a) != t_INT) a = gceil(a);
+      a = addii(a, modii(subii(gel(s,2),a), gel(s,1)));
+      s = gel(s,1);
     default: ss = gsigne(s);
   }
   if (!ss) pari_err_DOMAIN("forstep","step","=",gen_0,s);
