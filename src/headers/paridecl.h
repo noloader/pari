@@ -1461,6 +1461,7 @@ GEN     zx_z_divexact(GEN y, long x);
 /* algebras.c */
 
 GEN     alg_centralproj(GEN al, GEN z, long maps);
+GEN     alg_changeorder(GEN al, GEN ord);
 GEN     alg_complete(GEN rnf, GEN aut, GEN hi, GEN hf, long maxord);
 GEN     alg_csa_table(GEN nf, GEN mt, long v, long maxord);
 GEN     alg_cyclic(GEN rnf, GEN aut, GEN b, long maxord);

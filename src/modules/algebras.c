@@ -4466,6 +4466,37 @@ alggroup(GEN gal, GEN p)
 
 /** MAXIMAL ORDER **/
 
+GEN
+alg_changeorder(GEN al, GEN ord)
+{
+  GEN al2, mt, iord, mtx;
+  long i, n;
+  pari_sp av = avma;
+
+  if (!gequal0(gel(al,10)))
+    pari_err_DOMAIN("alg_changeorder","characteristic","!=",gen_0,gel(al,10));
+  n = alg_get_absdim(al);
+
+  iord = QM_inv(ord);
+  al2 = shallowcopy(al);
+
+  gel(al2,7) = RgM_mul(gel(al2,7), ord);
+
+  gel(al2,8) = RgM_mul(iord, gel(al,8));
+
+  mt = cgetg(n+1,t_VEC);
+  gel(mt,1) = matid(n);
+  for (i=2; i<=n; i++) {
+    mtx = algbasismultable(al,gel(ord,i));
+    gel(mt,i) = RgM_mul(iord, RgM_mul(mtx, ord));
+  }
+  gel(al2,9) = mt;
+
+  gel(al2,11) = algtracebasis(al2);
+
+  return gerepilecopy(av,al2);
+}
+
 static GEN
 mattocol(GEN M, long n)
 {

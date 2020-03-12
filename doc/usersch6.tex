@@ -3074,6 +3074,11 @@ matrix algebra.
 \fun{GEN}{alg_complete}{GEN rnf, GEN aut, GEN hi, GEN hf, long maxord}
 cyclic algebra~$(L/K,\sigma,b)$ with~$b$ computed from the Hasse invariants.
 
+\fun{GEN}{alg_changeorder}{GEN alg, GEN ord}
+return the algebra with the integral basis replaced by~\kbd{ord} (a \typ{MAT}
+expressing the basis of the new order in terms of the integral basis of \kbd{alg}).
+No checks are performed.
+
 \subsec{Type checks}
 
 \fun{void}{checkalg}{GEN a} raise an exception if $a$ was not initialized
