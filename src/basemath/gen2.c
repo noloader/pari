@@ -957,12 +957,12 @@ gidentical(GEN x, GEN y)
   }
   return 0;
 }
-/* x,y t_POL */
+/* x,y t_POL in the same variable */
 static int
 polequal(GEN x, GEN y)
 {
   long lx, ly;
-  if ((x[1] ^ y[1]) & (VARNBITS | SIGNBITS)) return 0;
+  if (signe(x) != signe(y)) return 0;
   lx = lg(x); ly = lg(y);
   while (lx > ly) if (!gequal0(gel(x,--lx))) return 0;
   while (ly > lx) if (!gequal0(gel(y,--ly))) return 0;
@@ -970,22 +970,19 @@ polequal(GEN x, GEN y)
   return 1;
 }
 
-/* x,y t_POL */
+/* x,y t_SER in the same variable */
 static int
 serequal(GEN x, GEN y)
 {
-  long lx;
-  if (varn(x) != varn(y)) return 0;
-  if (!signe(x))
-  {
-    if (!signe(y)) return 1;
-    return valp(y) >= valp(x);
-  }
-  if (!signe(y))
-    return valp(x) >= valp(y);
-  if ((x[1] ^ y[1]) & VALPBITS) return 0;
-  lx = minss(lg(x), lg(y));
-  for (lx--; lx >= 2; lx--) if (!gequal(gel(x,lx), gel(y,lx))) return 0;
+  long LX, LY, lx, ly, vx, vy;
+  if (!signe(x) && !signe(y)) return 1;
+  lx = lg(x); vx = valp(x); LX = lx + vx;
+  ly = lg(y); vy = valp(y); LY = ly + vy;
+  if (LX > LY) { LX = LY; lx = LX - vx; } else ly = LX - vy;
+  for (lx--, ly--; lx >= 2 && ly >= 2; lx--, ly--)
+    if (!gequal(gel(x,lx), gel(y,ly))) return 0;
+  while(--ly >= 2) if (!gequal0(gel(y,ly))) return 0;
+  while(--lx >= 2) if (!gequal0(gel(x,lx))) return 0;
   return 1;
 }
 
@@ -1050,8 +1047,10 @@ gequal(GEN x, GEN y)
         if (varn(gel(x,1)) != varn(gel(y,1))) break;
         return gequal(gel(x,2),gel(y,2)) && RgX_equal_var(gel(x,1),gel(y,1));
       case t_POL:
+        if (varn(x) != varn(y)) break;
         return polequal(x,y);
       case t_SER:
+        if (varn(x) != varn(y)) break;
         return serequal(x,y);
 
       case t_FFELT:

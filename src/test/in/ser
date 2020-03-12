@@ -95,6 +95,12 @@ O(1)==O(x)
 O(1)==x
 O(x)==1
 
+\\ #2188
+S = x+O(x^2);T = O(y) + x + O(x^2); T==S
+S = x+O(x^2);T = O(y) + x + x^2 + O(x^3); T==S
+S = x+O(x^2);T = O(y) + O(x); T==S
+S = x+x^2+ O(x^3);T = O(y) + x + O(x^2); T==S
+
 exp(x+O(x^200))*exp(-x+O(x^200))
 exp(x+O(x^200))^2==exp(2*x+O(x^200))
 
