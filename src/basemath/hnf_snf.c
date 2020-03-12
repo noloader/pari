@@ -559,13 +559,13 @@ hnfspec(GEN mat, GEN perm, GEN* ptdep, GEN* ptB, GEN* ptC, long k0)
 
 /* HNF reduce x, apply same transforms to C */
 GEN
-mathnfspec(GEN x, GEN *ptperm, GEN *ptdep, GEN *ptB, GEN *ptC)
+mathnfspec(GEN x, GEN *pperm, GEN *pdep, GEN *pB, GEN *pC)
 {
-  long i,j,k,ly,lx = lg(x);
-  GEN z, perm;
+  long i, j, k, l, n, ly, lx = lg(x);
+  GEN z, v1, perm;
   if (lx == 1) return cgetg(1, t_MAT);
   ly = lgcols(x);
-  *ptperm = perm = identity_perm(ly-1);
+  *pperm = perm = identity_perm(ly-1);
   z = cgetg(lx,t_MAT);
   for (i=1; i<lx; i++)
   {
@@ -583,26 +583,24 @@ mathnfspec(GEN x, GEN *ptperm, GEN *ptdep, GEN *ptB, GEN *ptC)
    *  [  H  |     ]
    *  [-----|-----]
    *  [  0  | Id  ] */
-  return hnfspec(z,perm, ptdep, ptB, ptC, 0);
+  return hnfspec(z,perm, pdep, pB, pC, 0);
 
 TOOLARGE:
-  if (lg(*ptC) > 1 && lgcols(*ptC) > 1)
+  if (lg(*pC) > 1 && lgcols(*pC) > 1)
     pari_err_IMPL("mathnfspec with large entries");
-  x = ZM_hnf(x); lx = lg(x); j = ly; k = 0;
-  for (i=1; i<ly; i++)
-  {
-    if (equali1(gcoeff(x,i,i + lx-ly)))
-      perm[--j] = i;
-    else
-      perm[++k] = i;
-  }
-  setlg(perm,k+1);
+  x = ZM_hnf(x); lx = lg(x);
+  v1 = cgetg(ly, t_VECSMALL);
+  n = lx - ly;
+  for (i = k = l = 1; i < ly; i++)
+    if (equali1(gcoeff(x,i,i + n))) v1[l++] = i; else perm[k++] = i;
+  setlg(perm, k);
+  setlg(v1, l);
   x = rowpermute(x, perm); /* upper part */
-  setlg(perm,ly);
-  *ptB = vecslice(x, j+lx-ly, lx-1);
-  setlg(x, j);
-  *ptdep = rowslice(x, 1, lx-ly);
-  return rowslice(x, lx-ly+1, k); /* H */
+  *pperm = vecsmall_concat(perm, v1);
+  *pB = vecslice(x, k+n, lx-1);
+  setlg(x, k);
+  *pdep = rowslice(x, 1, n);
+  return n? rowslice(x, n+1, k-1): x; /* H */
 }
 
 /* add new relations to a matrix treated by hnfspec (extramat / extraC) */
