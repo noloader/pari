@@ -1054,9 +1054,9 @@ chinese_unit_worker(GEN P, GEN A, GEN U, GEN B, GEN D, GEN C)
 /* Let x = \prod X[i]^E[i] = u, return u.
  * If dX != NULL, X[i] = nX[i] / dX[i] where nX[i] is a ZX, dX[i] in Z */
 static GEN
-chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
+chinese_unit(GEN nf, GEN nX, GEN dX, GEN U, ulong bnd)
 {
-  pari_sp av = avma, av2;
+  pari_sp av = avma;
   GEN f = nf_get_index(nf), T = nf_get_pol(nf), invzk = nf_get_invzk(nf);
   GEN H = NULL, Hp, mod = gen_1;
   forprime_t S;
@@ -1068,12 +1068,9 @@ chinese_unit(GEN nf, GEN nX, GEN dX, GEN U)
   do p = u_forprime_next(&S); while (dvdiu(f, p));
   Hp = FlxqX_chinese_unit(ZXV_to_FlxV(nX, p), U, ZM_to_Flm(invzk, p)
                         , dX ? ZV_to_Flv(dX, p): NULL, ZX_to_Flx(T, p), p);
-  av2 = avma;
   for (k = 1; ;k *= 2)
   {
-    gen_inccrt_i("chinese_units", worker, f, (k+1)>>1, degpol(T), &S, &H, &mod,
-                 nmV_chinese_center, FpM_center);
-    gerepileall(av2, 2, &H, &mod);
+    H = gen_crt("chinese_units", worker, &S, f, k*bnd, degpol(T), &mod, nmV_chinese_center, FpM_center);
     if (gequal(ZM_to_Flm(H, p), Hp)) break;
   }
   settyp(H, t_VEC); return gerepilecopy(av, H);
@@ -1153,14 +1150,52 @@ getfu(GEN nf, GEN *ptA, GEN *ptU, long prec)
 
 static void
 err_units() { pari_err_PREC("makeunits [cannot get units, use bnfinit(,1)]"); }
+
+/* bound for log2 |sigma(u)|, sigma complex embedding, u fundamental unit
+ * attached to bnf_get_logfu */
+static double
+log2fubound(GEN bnf)
+{
+  GEN LU = bnf_get_logfu(bnf);
+  long i, j, l = lg(LU), r1 = nf_get_r1(bnf_get_nf(bnf));
+  double e = 0.0;
+  for (j = 1; j < l; j++)
+  {
+    GEN u = gel(LU,j);
+    for (i = 1; i <= r1; i++)
+    {
+      GEN E = real_i(gel(u,i));
+      e = maxdd(e, gtodouble(E));
+    }
+    for (     ; i <= l; i++)
+    {
+      GEN E = real_i(gel(u,i));
+      e = maxdd(e, gtodouble(E) / 2);
+    }
+  }
+  return e / M_LN2;
+}
+/* bound for log2(|split_real_imag(M, y)|_oo / |y|_oo)*/
+static double
+log2Mbound(GEN nf)
+{
+  GEN G = nf_get_G(nf), D = nf_get_disc(nf);
+  long r2 = nf_get_r2(nf), l = lg(G), i;
+  double e, d = dbllog2(D)/2 - r2 * M_LN2; /* log2 |det(split_real_imag(M))| */
+  e = log2(nf_get_degree(nf));
+  for (i = 2; i < l; i++) e += dbllog2(gnorml2(gel(G,i))); /* Hadamard bound */
+  return e / 2 - d;
+}
+
 static GEN
 vec_chinese_unit(GEN bnf)
 {
   GEN nf = bnf_get_nf(bnf), SUnits = bnf_get_sunits(bnf);
+  ulong bnd = (ulong)ceil(log2(log2Mbound(nf)) + log2fubound(bnf));
   GEN X, dX, Y, U, f = nf_get_index(nf);
-  long j, l, v;
+  long j, l, v = nf_get_varn(nf);
   if (!SUnits) err_units(); /* no compact units */
-  Y = gel(SUnits,1); v = nf_get_varn(nf);
+  Y = gel(SUnits,1);
   U = gel(SUnits,2);
   ZM_remove_unused(&U, &Y); l = lg(Y); X = cgetg(l, t_VEC);
   if (is_pm1(f)) f = dX = NULL; else dX = cgetg(l, t_VEC);
@@ -1175,7 +1210,7 @@ vec_chinese_unit(GEN bnf)
     }
     gel(X,j) = typ(t) == t_INT? scalarpol_shallow(t,v): t;
   }
-  return chinese_unit(nf, X, dX, U);
+  return chinese_unit(nf, X, dX, U, bnd);
 }
 
 static GEN
