@@ -919,7 +919,7 @@ gen_inccrt_i(const char *str, GEN worker, GEN dB, long n, long mmin,
              forprime_t *S, GEN *pH, GEN *pmod, GEN crt(GEN, GEN, GEN*),
              GEN center(GEN, GEN, GEN))
 {
-  long m = minss(mmin, n);
+  long m = mmin? minss(mmin, n): usqrt(n);
   GEN  H, P, mod;
   pari_timer ti;
   if (DEBUGLEVEL > 4)
