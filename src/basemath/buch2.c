@@ -1058,21 +1058,12 @@ chinese_unit(GEN nf, GEN nX, GEN dX, GEN U, ulong bnd)
 {
   pari_sp av = avma;
   GEN f = nf_get_index(nf), T = nf_get_pol(nf), invzk = nf_get_invzk(nf);
-  GEN H = NULL, Hp, mod = gen_1;
+  GEN H, mod;
   forprime_t S;
-  ulong p;
-  long k;
   GEN worker = snm_closure(is_entry("_chinese_unit_worker"),
                mkcol5(nX, U, invzk, dX? dX: gen_0, T));
   init_modular_big(&S);
-  do p = u_forprime_next(&S); while (dvdiu(f, p));
-  Hp = FlxqX_chinese_unit(ZXV_to_FlxV(nX, p), U, ZM_to_Flm(invzk, p)
-                        , dX ? ZV_to_Flv(dX, p): NULL, ZX_to_Flx(T, p), p);
-  for (k = 1; ;k *= 2)
-  {
-    H = gen_crt("chinese_units", worker, &S, f, k*bnd, degpol(T), &mod, nmV_chinese_center, FpM_center);
-    if (gequal(ZM_to_Flm(H, p), Hp)) break;
-  }
+  H = gen_crt("chinese_units", worker, &S, f, bnd, 0, &mod, nmV_chinese_center, FpM_center);
   settyp(H, t_VEC); return gerepilecopy(av, H);
 }
 
