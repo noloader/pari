@@ -2199,7 +2199,6 @@ ZXQX_resultant_all(GEN A, GEN B, GEN T, GEN dB, ulong bound)
 {
   pari_sp av = avma;
   forprime_t S;
-  long m;
   GEN  H, worker;
   if (B)
   {
@@ -2212,9 +2211,8 @@ ZXQX_resultant_all(GEN A, GEN B, GEN T, GEN dB, ulong bound)
     if (!bound) bound = ZXQX_resultant_bound(nfinit(T, DEFAULTPREC), A, RgX_deriv(A));
   worker = snm_closure(is_entry("_ZXQX_resultant_worker"),
                        mkvec4(A, B? B: gen_0, T, dB? dB: gen_0));
-  m = degpol(A)+(B ? degpol(B): 0);
   init_modular_big(&S);
-  H = gen_crt("ZXQX_resultant_all", worker, &S, dB, bound, m, NULL,
+  H = gen_crt("ZXQX_resultant_all", worker, &S, dB, bound, 0, NULL,
               nxV_chinese_center, FpX_center);
   if (DEBUGLEVEL)
     err_printf("ZXQX_resultant_all: a priori bound: %lu, a posteriori: %lu\n",
@@ -2578,7 +2576,7 @@ ZXQ_minpoly(GEN A, GEN B, long d, ulong bound)
   B = Q_remove_denom(B, &dB);
   worker = strtoclosure("_ZXQ_minpoly_worker", 3, A, B, stoi(d));
   init_modular_big(&S);
-  H = gen_crt("ZXQ_minpoly", worker, &S, dB, bound, degpol(B), NULL,
+  H = gen_crt("ZXQ_minpoly", worker, &S, dB, bound, 0, NULL,
                nxV_chinese_center, FpX_center_i);
   return gerepilecopy(av, H);
 }
@@ -2684,7 +2682,7 @@ ZX_ZXY_resultant(GEN A, GEN B)
                        mkvec4(A, B, dB? dB: gen_0,
                               mkvecsmall5(degA, degB,dres, vY, sX)));
   init_modular_big(&S);
-  H = gen_crt("ZX_ZXY_resultant_all", worker, &S, dB, bound, degpol(A)+degpol(B), NULL,
+  H = gen_crt("ZX_ZXY_resultant_all", worker, &S, dB, bound, 0, NULL,
                nxV_chinese_center, FpX_center_i);
   setvarn(H, vX); (void)delete_var();
   return gerepilecopy(av, H);
@@ -2787,13 +2785,12 @@ ZX_direct_compositum(GEN A, GEN B, GEN lead)
 {
   pari_sp av = avma;
   forprime_t S;
-  long m = maxss(degpol(A),degpol(B));
   ulong bound;
   GEN H, worker, mod;
   bound = ZX_ZXY_ResBound(A, poleval(B,deg1pol(gen_1,pol_x(1),0)), NULL);
   worker = snm_closure(is_entry("_ZX_direct_compositum_worker"), mkvec2(A,B));
   init_modular_big(&S);
-  H = gen_crt("ZX_direct_compositum", worker, &S, lead, bound, m, &mod,
+  H = gen_crt("ZX_direct_compositum", worker, &S, lead, bound, 0, &mod,
               nxV_chinese_center, FpX_center);
   return gerepileupto(av, H);
 }
@@ -2881,13 +2878,12 @@ ZXQX_direct_compositum(GEN A, GEN B, GEN T, ulong bound)
 {
   pari_sp av = avma;
   forprime_t S;
-  long m = maxss(degpol(A),degpol(B));
   GEN H, worker, mod;
   GEN lead = mulii(Q_content(leading_coeff(A)), Q_content(leading_coeff(B)));
   worker = snm_closure(is_entry("_ZXQX_direct_compositum_worker")
                       , mkvec3(A,B,T));
   init_modular_big(&S);
-  H = gen_crt("ZXQX_direct_compositum", worker, &S, lead, bound, m, &mod,
+  H = gen_crt("ZXQX_direct_compositum", worker, &S, lead, bound, 0, &mod,
               nmV_chinese_center, FpM_center);
   if (DEBUGLEVEL > 4)
     err_printf("nfcompositum: a priori bound: %lu, a posteriori: %lu\n",
