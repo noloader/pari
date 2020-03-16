@@ -1997,7 +1997,6 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
 {
   pari_sp av = avma;
   forprime_t S;
-  long m;
   GEN  H, worker;
   if (B)
   {
@@ -2009,9 +2008,8 @@ ZX_resultant_all(GEN A, GEN B, GEN dB, ulong bound)
   }
   worker = snm_closure(is_entry("_ZX_resultant_worker"),
                        mkvec3(A, B? B: gen_0, dB? dB: gen_0));
-  m = degpol(A)+(B ? degpol(B): 0);
   init_modular_big(&S);
-  H = gen_crt("ZX_resultant_all", worker, &S, dB, bound, m, NULL,
+  H = gen_crt("ZX_resultant_all", worker, &S, dB, bound, 0, NULL,
               ZV_chinese_center, Fp_center);
   return gerepileuptoint(av, H);
 }
