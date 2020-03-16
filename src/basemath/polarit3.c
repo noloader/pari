@@ -2385,7 +2385,7 @@ QXQ_inv(GEN A, GEN B)
   for (k = 1; ;k *= 2)
   {
     GEN res, b, N, den;
-    gen_inccrt_i("QXQ_inv", worker, NULL, (k+1)>>1, dB, &S, &H, &mod,
+    gen_inccrt_i("QXQ_inv", worker, NULL, (k+1)>>1, 0, &S, &H, &mod,
                  nxV_chinese_center, FpX_center);
     gerepileall(av2, 2, &H, &mod);
     b = sqrti(shifti(mod,-1));
@@ -2493,7 +2493,7 @@ QXQ_div(GEN A, GEN B, GEN C)
   for (k = 1; ;k *= 2)
   {
     GEN res, b, N, den;
-    gen_inccrt_i("QXQ_div", worker, NULL, (k+1)>>1, dC, &S, &H, &mod,
+    gen_inccrt_i("QXQ_div", worker, NULL, (k+1)>>1, 0, &S, &H, &mod,
                  nxV_chinese_center, FpX_center);
     gerepileall(av2, 2, &H, &mod);
     b = sqrti(shifti(mod,-1));
