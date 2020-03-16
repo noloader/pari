@@ -2862,7 +2862,7 @@ ZXQX_direct_compositum_slice(GEN A, GEN B, GEN C, GEN P, GEN *mod)
     GEN a = gel(A,i), b = gel(B,i), c = gel(C,i);
     gel(H,i) = FlxX_to_Flm(FlxqX_direct_compositum(a, b, c, p), dC);
   }
-  H = nmV_chinese_center_tree(H, P, T, ZV_chinesetree(P, T));
+  H = nmV_chinese_center_tree_seq(H, P, T, ZV_chinesetree(P, T));
   *mod = gmael(T, lg(T)-1, 1);
   gerepileall(av, 2, &H, mod);
   return H;
