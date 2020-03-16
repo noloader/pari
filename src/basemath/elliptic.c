@@ -5209,7 +5209,7 @@ ellQ_factorback(GEN E, GEN A, GEN L)
   while (1)
   {
     GEN amax, r;
-    gen_inccrt("ellfactorback", worker, NULL, bound, usqrt(bound),
+    gen_inccrt("ellQ_factorback", worker, NULL, bound, 0,
             &S, &H, &mod, ncV_chinese_center, FpC_center);
     amax = sqrti(shifti(mod,-2));
     r = FpC_ratlift(H, mod, amax, amax, NULL);
