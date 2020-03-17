@@ -1658,6 +1658,30 @@ FFX_zero(GEN ff, long v)
   return r;
 }
 
+GEN
+FFX_add(GEN Pf, GEN Qf, GEN ff)
+{
+  pari_sp av = avma;
+  GEN r,T,p;
+  ulong pp;
+  GEN P = FFX_to_raw(Pf, ff);
+  GEN Q = FFX_to_raw(Qf, ff);
+  _getFF(ff,&T,&p,&pp);
+  switch(ff[1])
+  {
+  case t_FF_FpXQ:
+    r = FpXX_add(P, Q, p);
+    break;
+  case t_FF_F2xq:
+    r = F2xX_add(P, Q);
+    break;
+  default:
+    r = FlxX_add(P, Q, pp);
+  }
+  if (!lgpol(r)) { set_avma(av); return FFX_zero(ff, varn(Pf)); }
+  return gerepilecopy(av, raw_to_FFX(r, ff));
+}
+
 static GEN
 FFX_wrap2(GEN Pf, GEN Qf, GEN ff, GEN FpXQX(GEN, GEN, GEN, GEN),
           GEN F2xqX(GEN, GEN, GEN), GEN FlxqX(GEN, GEN, GEN, ulong))

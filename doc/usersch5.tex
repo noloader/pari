@@ -12798,6 +12798,10 @@ The functions in this sections take polynomial arguments and a \typ{FFELT}
 $a$. The coefficients of the polynomials must be of type \typ{INT},
 \typ{INTMOD} or \typ{FFELT} and compatible with \kbd{a}.
 
+\fun{GEN}{FFX_add}{GEN P, GEN Q, GEN a} returns the sum of the polynomials
+\kbd{P} and \kbd{Q} defined over the definition field of the \typ{FFELT}
+\kbd{a}.
+
 \fun{GEN}{FFX_mul}{GEN P, GEN Q, GEN a} returns the product of the polynomials
 \kbd{P} and \kbd{Q} defined over the definition field of the \typ{FFELT}
 \kbd{a}.

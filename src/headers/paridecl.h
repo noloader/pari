@@ -3414,6 +3414,7 @@ GEN     FFM_ker(GEN M, GEN ff);
 GEN     FFM_mul(GEN M, GEN N, GEN ff);
 long    FFM_rank(GEN M, GEN ff);
 GEN     FFM_suppl(GEN M, GEN ff);
+GEN     FFX_add(GEN Pf, GEN Qf, GEN ff);
 GEN     FFX_ddf(GEN f, GEN x);
 GEN     FFX_degfact(GEN Pf, GEN ff);
 GEN     FFX_disc(GEN Pf, GEN ff);
