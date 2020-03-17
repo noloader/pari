@@ -906,6 +906,8 @@ GEN     FpXY_eval(GEN Q, GEN y, GEN x, GEN p);
 GEN     FpXY_evalx(GEN Q, GEN x, GEN p);
 GEN     FpXY_evaly(GEN Q, GEN y, GEN p, long vy);
 GEN     FpXYQQ_pow(GEN x, GEN n, GEN S, GEN T, GEN p);
+GEN     FqXC_to_mod(GEN z, GEN T, GEN p);
+GEN     FqXM_to_mod(GEN z, GEN T, GEN p);
 GEN     Kronecker_to_FpXQX(GEN z, GEN pol, GEN p);
 GEN     Kronecker_to_ZXX(GEN z, long N, long v);
 GEN     ZXX_mul_Kronecker(GEN x, GEN y, long n);

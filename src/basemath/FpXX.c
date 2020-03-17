@@ -315,6 +315,60 @@ FpXQX_to_mod(GEN z, GEN T, GEN p)
   return normalizepol_lg(x,l);
 }
 
+static GEN
+FpXQX_to_mod_raw(GEN z, GEN T, GEN p)
+{
+  long i,l = lg(z);
+  GEN x = cgetg(l, t_POL);
+  x[1] = z[1];
+  if (l == 2) return x;
+  for (i=2; i<l; i++)
+  {
+    GEN zi = gel(z,i);
+    gel(x,i) = typ(zi) == t_POL? mkpolmod(FpX_to_mod_raw(zi, p), T)
+                               : to_intmod(zi, p);
+  }
+  return normalizepol_lg(x,l);
+}
+
+INLINE GEN
+FqX_to_mod_raw(GEN f, GEN T, GEN p)
+{ return T?FpXQX_to_mod_raw(f, T, p): FpX_to_mod_raw(f, p); }
+
+static GEN
+FqXC_to_mod_raw(GEN x, GEN T, GEN p)
+{ pari_APPLY_type(t_COL, FqX_to_mod_raw(gel(x,i), T, p)) }
+
+GEN
+FqXC_to_mod(GEN z, GEN T, GEN p)
+{
+  GEN x;
+  long i,l = lg(z);
+  if (!T) return FpXC_to_mod(z, p);
+  x = cgetg(l, t_COL);
+  if (l == 1) return x;
+  p = icopy(p);
+  T = FpX_to_mod_raw(T, p);
+  for (i=1; i<l; i++)
+    gel(x,i) = FqX_to_mod_raw(gel(z, i), T, p);
+  return x;
+}
+
+GEN
+FqXM_to_mod(GEN z, GEN T, GEN p)
+{
+  GEN x;
+  long i,l = lg(z);
+  if (!T) return FpXM_to_mod(z, p);
+  x = cgetg(l, t_MAT);
+  if (l == 1) return x;
+  p = icopy(p);
+  T = FpX_to_mod_raw(T, p);
+  for (i=1; i<l; i++)
+    gel(x,i) = FqXC_to_mod_raw(gel(z, i), T, p);
+  return x;
+}
+
 static int
 ZXX_is_ZX_spec(GEN a,long na)
 {
