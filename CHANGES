@@ -160,7 +160,7 @@ BA  15- [libpari] RgXV_to_FlxV, FlxV_Flv_multieval,
                   F2v_and_inplace, F2v_negimply_inplace, F2v_or_inplace,
                   F2v_hamming
     16- [libpari] ZpX_primedec
-BA  17- [libpari] QM_sqr, FpXC_to_mod, FqC_to_mod, ZXQX_gcd, QXQX_gcd
+BA  17- [libpari] QM_sqr, FqC_to_mod, ZXQX_gcd, QXQX_gcd
     18- [libpari] radicalu
     19- parallel support for lfuninit
     20- new GP function parplothexport
@@ -229,6 +229,7 @@ BA  75- holes in multi-assignement: [a,,c]=[1,2,3]
 BA  77- [libpari] forqfvec1, pariplot, sumdivmultexpr
     78- [libpari] powPis, pow2Pis
 BA  79- nfisincl: new flag: return a single embedding
+BA  80- [libpari] FpXC_to_mod, FpXM_to_mod
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1

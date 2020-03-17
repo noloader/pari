@@ -1131,6 +1131,21 @@ FpXC_to_mod(GEN z, GEN p)
   return x;
 }
 
+static GEN
+FpXC_to_mod_raw(GEN x, GEN p)
+{ pari_APPLY_type(t_COL, FpX_to_mod_raw(gel(x,i), p)) }
+
+GEN
+FpXM_to_mod(GEN z, GEN p)
+{
+  long i,l = lg(z);
+  GEN x = cgetg(l, t_MAT);
+  p = icopy(p);
+  for (i=1; i<l; i++)
+    gel(x,i) = FpXC_to_mod_raw(gel(z,i), p);
+  return x;
+}
+
 /* z in Z^n, return z * Mod(1,p), normalized*/
 GEN
 FpV_to_mod(GEN z, GEN p)
