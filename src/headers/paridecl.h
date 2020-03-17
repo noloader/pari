@@ -985,6 +985,7 @@ GEN     FpV_red(GEN z, GEN p);
 GEN     FpV_to_mod(GEN z, GEN p);
 GEN     FpVV_to_mod(GEN z, GEN p);
 GEN     FpX_to_mod(GEN z, GEN p);
+GEN     FpXC_to_mod(GEN x, GEN p);
 GEN     ZabM_ker(GEN M, GEN P, long n);
 GEN     ZabM_indexrank(GEN M, GEN P, long n);
 GEN     ZabM_inv(GEN M, GEN P, long n, GEN *pden);

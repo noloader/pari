@@ -160,7 +160,7 @@ BA  15- [libpari] RgXV_to_FlxV, FlxV_Flv_multieval,
                   F2v_and_inplace, F2v_negimply_inplace, F2v_or_inplace,
                   F2v_hamming
     16- [libpari] ZpX_primedec
-BA  17- [libpari] QM_sqr, FqC_to_mod, ZXQX_gcd, QXQX_gcd
+BA  17- [libpari] QM_sqr, FpXC_to_mod, FqC_to_mod, ZXQX_gcd, QXQX_gcd
     18- [libpari] radicalu
     19- parallel support for lfuninit
     20- new GP function parplothexport

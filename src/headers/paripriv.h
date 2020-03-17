@@ -772,6 +772,7 @@ long    zx_is_pcyc(GEN T);
 /* FpV.c */
 
 GEN FpMs_leftkernel_elt_col(GEN M, long nbcol, long nbrow, GEN p);
+GEN FpX_to_mod_raw(GEN z, GEN p);
 
 /* FpX.c */
 
