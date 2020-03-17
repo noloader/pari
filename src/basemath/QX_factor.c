@@ -1105,7 +1105,7 @@ GEN
 ZX_gcd_all(GEN A, GEN B, GEN *Anew)
 {
   pari_sp av = avma;
-  long k, m, valH, valA, valB, vA = varn(A), dA = degpol(A), dB = degpol(B);
+  long k, valH, valA, valB, vA = varn(A), dA = degpol(A), dB = degpol(B);
   GEN worker, c, cA, cB, g, Ag, Bg, H = NULL, mod = gen_1, R;
   GEN Ap, Bp, Hp;
   forprime_t S;
@@ -1124,7 +1124,6 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
     if (Anew) *Anew = RgX_shift_shallow(A, valA);
     return monomial(c? c: gen_1, valH, vA);
   }
-  m = usqrt(maxss(dA, dB));
   g = gcdii(leading_coeff(A), leading_coeff(B)); /* multiple of lead(gcd) */
   if (is_pm1(g)) {
     g = NULL;
@@ -1149,7 +1148,7 @@ ZX_gcd_all(GEN A, GEN B, GEN *Anew)
   av = avma;
   for (k = 1; ;k *= 2)
   {
-    gen_inccrt_i("ZX_gcd", worker, g, (k+1)>>1, m, &S, &H, &mod, ZX_gcd_chinese, NULL);
+    gen_inccrt_i("ZX_gcd", worker, g, (k+1)>>1, 0, &S, &H, &mod, ZX_gcd_chinese, NULL);
     gerepileall(av, 2, &H, &mod);
     Hp = ZX_to_Flx(H, pp);
     if (lgpol(Flx_rem(Ap, Hp, pp)) || lgpol(Flx_rem(Bp, Hp, pp))) continue;

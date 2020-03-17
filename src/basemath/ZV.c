@@ -470,7 +470,7 @@ ZM_mul_fast(GEN A, GEN B, long lA, long lB)
   h = 3 + mA + mB + expu(lA-1);
   init_modular_big(&S);
   worker = snm_closure(is_entry("_ZM_mul_worker"), mkvec2(A,B));
-  H = gen_crt("ZM_mul", worker, &S, NULL, h, lA-1, NULL,
+  H = gen_crt("ZM_mul", worker, &S, NULL, h, 0, NULL,
               nmV_chinese_center, FpM_center);
   return gerepileupto(av, H);
 }

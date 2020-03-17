@@ -1052,7 +1052,7 @@ QM_charpoly_ZX_i(GEN M, GEN dM, long bound)
   }
   if (DEBUGLEVEL>5) err_printf("ZM_charpoly: bound 2^%ld\n", bound);
   init_modular_big(&S);
-  return gen_crt("QM_charpoly_ZX", worker, &S, dM, bound, n, NULL,
+  return gen_crt("QM_charpoly_ZX", worker, &S, dM, bound, 0, NULL,
                  nxV_chinese_center, FpX_center);
 }
 

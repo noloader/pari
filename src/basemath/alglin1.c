@@ -3162,7 +3162,7 @@ ZM_inv_i(GEN A, GEN *pden, GEN T)
   init_modular_big(&S);
   bnd = expi(RgM_true_Hadamard(A));
   worker = snm_closure(is_entry("_ZM_inv_worker"), mkvec(A));
-  gen_inccrt("ZM_inv_r", worker, NULL, k1, m, &S, &H1, &mod1, nmV_chinese_center, FpM_center);
+  gen_inccrt("ZM_inv_r", worker, NULL, k1, 0, &S, &H1, &mod1, nmV_chinese_center, FpM_center);
   n = (bnd+1)/expu(S.p)+1;
   if (DEBUGLEVEL>=5) timer_printf(&ti,"inv (%ld/%ld primes)", k1, n);
   mask = quadratic_prec_mask(n);
@@ -3171,7 +3171,7 @@ ZM_inv_i(GEN A, GEN *pden, GEN T)
     GEN Hr;
     if (k2 > 0)
     {
-      gen_inccrt("ZM_inv_r", worker, NULL, k2, m, &S, &H1, &mod1,nmV_chinese_center,FpM_center);
+      gen_inccrt("ZM_inv_r", worker, NULL, k2, 0, &S, &H1, &mod1,nmV_chinese_center,FpM_center);
       k1 += k2;
       if (DEBUGLEVEL>=5) timer_printf(&ti,"CRT (%ld/%ld primes)", k1, n);
     }
@@ -3336,7 +3336,7 @@ ZM_ker_i(GEN A)
   {
     pari_timer ti;
     GEN H, Hr;
-    gen_inccrt_i("ZM_ker", worker, NULL, (k+1)>>1 , m,
+    gen_inccrt_i("ZM_ker", worker, NULL, (k+1)>>1, 0,
                  &S, &HD, &mod, ZM_ker_chinese, NULL);
     gerepileall(av, 2, &HD, &mod);
     H = gel(HD, 1); if (lg(H) == 1) return H;
@@ -4588,9 +4588,8 @@ ZabM_inv(GEN A, GEN Q, long n, GEN *pt_den)
 {
   pari_sp av = avma;
   forprime_t S;
-  long m = lg(A)-1;
   GEN bnd, H, D, d, mod, worker;
-  if (m == 0)
+  if (lg(A) == 1)
   {
     if (pt_den) *pt_den = gen_1;
     return cgetg(1, t_MAT);
@@ -4598,7 +4597,7 @@ ZabM_inv(GEN A, GEN Q, long n, GEN *pt_den)
   bnd = ZabM_true_Hadamard(A);
   worker = snm_closure(is_entry("_ZabM_inv_worker"), mkvec2(A, Q));
   u_forprime_arith_init(&S, HIGHBIT+1, ULONG_MAX, 1, n);
-  H = gen_crt("ZabM_inv", worker, &S, NULL, expi(bnd), m, &mod,
+  H = gen_crt("ZabM_inv", worker, &S, NULL, expi(bnd), 0, &mod,
               nxMV_chinese_center, FpXM_center);
   D = RgMrow_RgC_mul(H, gel(A,1), 1);
   D = ZX_rem(D, Q);
@@ -5458,7 +5457,7 @@ ZM_det(GEN M)
   if (is_pm1(D)) D = NULL;
   if (D) h = diviiexact(h, D);
   worker = snm_closure(is_entry("_ZM_det_worker"), mkvec(M));
-  H = gen_crt("ZM_det", worker, &S, D, expi(h)+1, lg(M)-1, &mod,
+  H = gen_crt("ZM_det", worker, &S, D, expi(h)+1, 0, &mod,
               ZV_chinese, NULL);
   if (D) H = Fp_div(H, D, mod);
   H = Fp_center(H, mod, shifti(mod,-1));
