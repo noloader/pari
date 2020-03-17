@@ -1246,7 +1246,7 @@ FpXQC_to_mod(GEN z, GEN T, GEN p)
 static GEN
 Fq_to_mod_raw(GEN x, GEN T, GEN p)
 {
-  GEN z = typ(x)==t_INT ? Fp_to_mod(x, p): FpX_to_mod(x, p);
+  GEN z = typ(x)==t_INT ? mkintmod(modii(x, p), p): FpX_to_mod_raw(x, p);
   return mkpolmod(z, T);
 }
 
@@ -1259,7 +1259,8 @@ FqC_to_mod(GEN z, GEN T, GEN p)
   if (!T) return FpC_to_mod(z, p);
   x = cgetg(l, t_COL);
   if (l == 1) return x;
-  T = FpX_to_mod(T, p);
+  p = icopy(p);
+  T = FpX_to_mod_raw(T, p);
   for (i=1; i<l; i++)
     gel(x,i) = Fq_to_mod_raw(gel(z, i), T, p);
   return x;
@@ -1279,7 +1280,8 @@ FqM_to_mod(GEN z, GEN T, GEN p)
   if (!T) return FpM_to_mod(z, p);
   x = cgetg(l, t_MAT);
   if (l == 1) return x;
-  T = FpX_to_mod(T, p);
+  p = icopy(p);
+  T = FpX_to_mod_raw(T, p);
   for (i=1; i<l; i++)
     gel(x,i) = FqC_to_mod_raw(gel(z, i), T, p);
   return x;
