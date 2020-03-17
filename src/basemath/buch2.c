@@ -1182,7 +1182,7 @@ static GEN
 vec_chinese_unit(GEN bnf)
 {
   GEN nf = bnf_get_nf(bnf), SUnits = bnf_get_sunits(bnf);
-  ulong bnd = (ulong)ceil(log2(log2Mbound(nf)) + log2fubound(bnf));
+  ulong bnd = (ulong)ceil(log2Mbound(nf) + log2fubound(bnf));
   GEN X, dX, Y, U, f = nf_get_index(nf);
   long j, l, v = nf_get_varn(nf);
   if (!SUnits) err_units(); /* no compact units */
