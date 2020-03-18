@@ -10759,7 +10759,7 @@ mfkohnenbijection_i(GEN mf)
         err_printf("mfkohnenbijection: used %ld discriminants\n",lw);
       mres = cgetg(ld, t_VEC);
       for (j = ld-1; j >= 1; j--)
-        if (d[j]) gel(mres,c++) = mkvec2s(D[ld-j-1], d[j]);
+        if (d[j]) gel(mres,c++) = mkvec2s(D[ld-j-1], d[j] == 1? 1: -1);
       setlg(mres,c); return mkvec4(mf3, RgM_Rg_div(Mi,dMi), K, mres);
     }
     set_avma(av);
