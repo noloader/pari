@@ -249,8 +249,6 @@ INLINE GEN
 mpneg(GEN x) { GEN y = leafcopy(x); togglesign(y); return y; }
 INLINE GEN negi(GEN x) { return mpneg(x); }
 INLINE GEN negr(GEN x) { return mpneg(x); }
-INLINE GEN gmax_shallow(GEN x, GEN y) { return gcmp(x,y)<0? y: x; }
-INLINE GEN gmin_shallow(GEN x, GEN y) { return gcmp(x,y)<0? x: y; }
 
 /* negate in place */
 INLINE void

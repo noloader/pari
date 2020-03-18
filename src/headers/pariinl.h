@@ -2547,6 +2547,11 @@ gsubgs(GEN y, long s) { return gaddgs(y, -s); }
 INLINE GEN
 gdivsg(long s, GEN y) { return gdiv(stoi(s), y); }
 
+INLINE GEN
+gmax_shallow(GEN x, GEN y) { return gcmp(x,y)<0? y: x; }
+INLINE GEN
+gmin_shallow(GEN x, GEN y) { return gcmp(x,y)<0? x: y; }
+
 /* x t_COMPLEX */
 INLINE GEN
 cxnorm(GEN x) { return gadd(gsqr(gel(x,1)), gsqr(gel(x,2))); }
