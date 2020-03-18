@@ -100,6 +100,22 @@ affrr_fixlg(GEN y, GEN z) { fixlg(z, lg(y)); affrr(y, z); }
 /*******************************************************************/
 INLINE void
 set_avma(ulong av) { avma = av; }
+
+INLINE double
+gc_double(pari_sp av, double d) { set_avma(av); return d; }
+INLINE long
+gc_long(pari_sp av, long s) { set_avma(av); return s; }
+INLINE ulong
+gc_ulong(pari_sp av, ulong s) { set_avma(av); return s; }
+INLINE int
+gc_bool(pari_sp av, int s) { set_avma(av); return s; }
+INLINE int
+gc_int(pari_sp av, int s) { set_avma(av); return s; }
+INLINE GEN
+gc_NULL(pari_sp av) { set_avma(av); return NULL; }
+INLINE GEN
+gc_const(pari_sp av, GEN x) { set_avma(av); return x; }
+
 INLINE GEN
 new_chunk(size_t x) /* x is a number of longs */
 {
