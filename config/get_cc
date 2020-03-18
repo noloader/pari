@@ -96,7 +96,9 @@ if test -n "$__gnuc__"; then
     OPTFLAGS="$OPTFLAGS -fno-strict-aliasing"
   fi
   . cleanup_exe
-  KERNELCFLAGS=-funroll-loops
+  case "$optimization" in
+    full) KERNELCFLAGS=-funroll-loops;;
+  esac
 
   DBGFLAGS=${DBGFLAGS:-"-g $warn"}
   # Specific optimisations for some architectures
