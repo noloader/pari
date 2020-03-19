@@ -2777,6 +2777,28 @@ u_ppo(ulong x, ulong f)
   return x;
 }
 
+/* result known to be representable as an ulong */
+static ulong
+lcmuu(ulong a, ulong b) { ulong d = ugcd(a,b); return (a/d) * b; }
+
+/* assume 0 < x < N; return u in (Z/NZ)^* such that u x = gcd(x,N) (mod N);
+ * set *pd = gcd(x,N) */
+ulong
+Fl_invgen(ulong x, ulong N, ulong *pd)
+{
+  ulong d, d0, e, v, v1;
+  long s;
+  *pd = d = xgcduu(N, x, 0, &v, &v1, &s);
+  if (s > 0) v = N - v;
+  if (d == 1) return v;
+  /* vx = gcd(x,N) (mod N), v coprime to N/d but need not be coprime to N */
+  e = N / d;
+  d0 = u_ppo(d, e); /* d = d0 d1, d0 coprime to N/d, rad(d1) | N/d */
+  if (d0 == 1) return v;
+  e = lcmuu(e, d / d0);
+  return u_chinese_coprime(v, 1, e, d0, e*d0);
+}
+
 /* x t_INT, f ideal. Write x = x1 x2, sqf(x1) | f, (x2,f) = 1. Return x2 */
 static GEN
 nf_coprime_part(GEN nf, GEN x, GEN listpr)

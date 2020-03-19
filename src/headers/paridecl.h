@@ -2338,6 +2338,7 @@ GEN     zkmultable_inv(GEN mx);
 
 /* base4.c */
 
+ulong   Fl_invgen(ulong x, ulong p, ulong *pg);
 GEN     Z_cba(GEN a, GEN b);
 GEN     Z_ppgle(GEN a, GEN b);
 GEN     Z_ppio(GEN a, GEN b);
@@ -4386,7 +4387,6 @@ GEN   mfvectomat(GEN vF, long lim, long d);
 /* mp.c */
 
 ulong   Fl_inv(ulong x, ulong p);
-ulong   Fl_invgen(ulong x, ulong p, ulong *pg);
 ulong   Fl_invsafe(ulong x, ulong p);
 int     Fp_ratlift(GEN x, GEN m, GEN amax, GEN bmax, GEN *a, GEN *b);
 int     abscmpii(GEN x, GEN y);
