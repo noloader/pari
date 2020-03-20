@@ -10,7 +10,7 @@ Doc: return a vector \kbd{[M, [a,b]~]}, where $M$ is an invertible $2\times 2$
  The objects $x$ and $y$ can be both integers, or both polynomials in the same
  variable.
 
- In the polynomial case, the inegality
+ In the polynomial case, the inequality
  $\deg a \geq \ceil{\max(\deg x,\deg y))/2} > \deg b$
  holds and the determinant of $M$ is of degree $0$.
 
