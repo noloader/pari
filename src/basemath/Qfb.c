@@ -1571,8 +1571,8 @@ qfbsolve(GEN Q, GEN n, long fl)
 long
 cornacchia(GEN d, GEN p, GEN *px, GEN *py)
 {
-  pari_sp av = avma, av2;
-  GEN a, b, c, L, r;
+  pari_sp av = avma;
+  GEN a, b, c, r;
 
   if (typ(d) != t_INT) pari_err_TYPE("cornacchia", d);
   if (typ(p) != t_INT) pari_err_TYPE("cornacchia", p);
@@ -1583,17 +1583,7 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   if (signe(b) == 0) { *py = gen_1; return gc_long(av,1); }
   b = Fp_sqrt(b, p); /* sqrt(-d) */
   if (!b) return gc_long(av,0);
-  if (abscmpii(shifti(b,1), p) > 0) b = subii(b,p);
-  a = p; L = sqrti(p);
-  av2 = avma;
-  while (abscmpii(b, L) > 0)
-  {
-    r = remii(a, b); a = b; b = r;
-    if (gc_needed(av2, 1)) {
-      if (DEBUGMEM>1) pari_warn(warnmem,"cornacchia");
-      gerepileall(av2, 2, &a,&b);
-    }
-  }
+  b = gmael(halfgcdii(p, b), 2, 2);
   a = subii(p, sqri(b));
   c = dvmdii(a, d, &r);
   if (r != gen_0 || !Z_issquareall(c, &c)) return gc_long(av,0);
@@ -1602,29 +1592,31 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
   *py = icopy(c); return 1;
 }
 
+static GEN
+lastqi(GEN Q)
+{
+  GEN s = gcoeff(Q,1,1), q = gcoeff(Q,1,2), p = absi(gcoeff(Q,2,2));
+  if (signe(q)==0) return gen_0;
+  if (signe(s)==0) return p;
+  if (is_pm1(q))   return subiu(p,1);
+  return divii(p, absi(q));
+}
+
 static long
 cornacchia2_helper(long av, GEN d, GEN p, GEN b, GEN px4, GEN *px, GEN *py)
 {
-  pari_sp av2 = avma;
-  GEN a, c, r, L;
-  long k = mod4(d);
+  GEN M, Q, V, a, c, r;
   if (!signe(b)) { /* d = p,2p,3p,4p */
     set_avma(av);
     if (absequalii(d, px4)){ *py = gen_1; return 1; }
     if (absequalii(d, p))  { *py = gen_2; return 1; }
     return 0;
   }
-  if (mod2(b) != (k & 1)) b = subii(p,b);
-  a = shifti(p,1); L = sqrti(px4);
-  av2 = avma;
-  while (cmpii(b, L) > 0)
-  {
-    r = remii(a, b); a = b; b = r;
-    if (gc_needed(av2, 1)) {
-      if (DEBUGMEM>1) pari_warn(warnmem,"cornacchia");
-      gerepileall(av2, 2, &a,&b);
-    }
-  }
+  if (mod2(b) != mod2(d)) b = subii(p,b);
+  M = halfgcdii(shifti(p,1), b); Q = gel(M,1); V = gel(M, 2);
+  b = addii(mulii(gel(V,1), lastqi(Q)),gel(V,2));
+  if (cmpii(sqri(b),px4) > 0) b = gel(V,1);
+  if (cmpii(sqri(b),px4) > 0) b = gel(V,2);
   a = subii(px4, sqri(b));
   c = dvmdii(a, d, &r);
   if (r != gen_0 || !Z_issquareall(c, &c)) return gc_long(av,0);
