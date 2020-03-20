@@ -2,12 +2,12 @@ Function: halfgcd
 Section: number_theoretical
 C-Name: ghalfgcd
 Prototype: GG
-Help: halfgcd(x,y): return a vector [M, [a,b]~] where M is an invertible 2x2
- matrix such that M*[a,b]~ == [x,y]~ where b <= sqrt(max(x,y)) <= a.
-Doc: return a vector \kbd{[M, [a,b]~]} where $M$ is an invertible $2\times 2$
- matrix such that \kbd{M*[x,y]~ == [a,b]~}.
+Help: halfgcd(x,y): return a vector [M, [a,b]~], where M is an invertible 2x2
+ matrix such that M*[a,b]~ = [x,y]~, where b < sqrt(max(|x|,|y|)) <= a.
+Doc: return a vector \kbd{[M, [a,b]~]}, where $M$ is an invertible $2\times 2$
+ matrix such that \kbd{M*[x,y]~ = [a,b]~}.
 
- The objects $a$ and $b$ can be both integers, or both polynomials in the same
+ The objects $x$ and $y$ can be both integers, or both polynomials in the same
  variable.
 
  In the polynomial case, the inegality
