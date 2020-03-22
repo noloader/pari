@@ -203,12 +203,8 @@ ZabM_pseudoinv_i(GEN M, GEN P, long n, GEN *pv, GEN *den, int ratlift)
 static GEN
 QabM_ker(GEN M, GEN P, long n)
 {
-  GEN B;
-  if (n <= 2)
-    B = ZM_ker(Q_primpart(M));
-  else
-    B = ZabM_ker(Q_primpart(liftpol_shallow(M)), P, n);
-  return B;
+  if (n <= 2) return QM_ker(M);
+  return ZabM_ker(Q_primpart(liftpol_shallow(M)), P, n);
 }
 /* pseudo-inverse of M. FIXME: should replace QabM_pseudoinv */
 static GEN
@@ -10653,19 +10649,17 @@ mf2init_Nkchi(long N, long r, GEN CHI, long space, long flraw)
 /**************************************************************************/
 
 static GEN
-mfkohnenbasis_i(GEN mf, GEN CHIP, long eps, long sb)
+mfkohnenbasis_i(GEN mf, GEN CHI, long eps, long sb)
 {
-  GEN M = shallowtrans(mfcoefs_mf(mf, sb, 1)), ME;
-  long c, i, n;
-  ME = cgetg(sb + 2, t_MAT);
-  for (i = 0, c = 1; i <= sb; i++)
-  {
-    long j = i & 3L;
-    if (j == 2 || j == 2 + eps) gel(ME, c++) = gel(M, i+1);
-  }
-  setlg(ME, c); ME = shallowtrans(Q_primpart(ME));
-  n = mfcharorder(CHIP);
-  return n <= 2? ZM_ker(ME): ZabM_ker(liftpol_shallow(ME), mfcharpol(CHIP), n);
+  GEN M = mfcoefs_mf(mf, sb, 1), p, P;
+  long c, i, n = mfcharorder(CHI), l = sb + 2;
+  p = cgetg(l, t_VECSMALL);
+  /* keep the a_n, n = (2 or 2+eps) mod 4 */
+  for (i = 3, c = 1; i < l; i+=4) p[c++] = i;
+  for (i = 3+eps;    i < l; i+=4) p[c++] = i;
+  P = n <= 2? NULL: mfcharpol(CHI);
+  setlg(p, c);
+  return QabM_ker(rowpermute(M, p), P, n);
 }
 GEN
 mfkohnenbasis(GEN mf)
