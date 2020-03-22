@@ -10696,76 +10696,102 @@ mfkohnenbasis(GEN mf)
   return gerepilecopy(av, K);
 }
 
+static GEN
+get_Shimura(GEN mf3, GEN CHI, GEN vB, long D)
+{
+  long N4 = MF_get_N(mf3), r = MF_get_k(mf3) >> 1;
+  long i, d = MF_get_dim(mf3), sb3 = mfsturm_mf(mf3);
+  GEN a = cgetg(d+1, t_MAT);
+  for (i = 1; i <= d; i++)
+  {
+    pari_sp av = avma;
+    GEN f = c_deflate(sb3*sb3, labs(D), gel(vB,i));
+    f = mftobasis_i(mf3, RgV_shimura(f, sb3, D, N4, r, CHI));
+    gel(a,i) = gerepileupto(av, f);
+  }
+  return a;
+}
+static long
+QabM_rank(GEN M, GEN P, long n)
+{
+  GEN z = QabM_indexrank(M, P, n);
+  return lg(gel(z,2))-1;
+}
+/* discard D[*i] */
+static void
+discard_Di(GEN D, long *i, long *lD)
+{
+  long j, l = *lD-1;
+  for (j = *i; j < l; j++) D[j] = D[j+1];
+  (*i)--; *lD = l;
+}
 /* return [mf3, bijection, mfkohnenbasis, codeshi] */
 static GEN
 mfkohnenbijection_i(GEN mf)
 {
-  GEN vB, mf3, K, SHI, P, CHI = MF_get_CHI(mf);
-  long n, lK, i, dim, m, lw, sb3, N4 = MF_get_N(mf)>>2, r = MF_get_r(mf);
-  long Dp[] = {1, 5, 8, 12, 13, 17, 21, 24};
-  long Dm[] = {-3, -4, -7, -8, -11, -15, -19, -20}, *D = odd(r)? Dm: Dp;
-  const long nbD = 8, MAXm = 6560; /* #D, 3^#D - 1 */
+  GEN CHI = MF_get_CHI(mf), K = mfkohnenbasis(mf);
+  GEN mres, dMi, Mi, M, C, vB, mf3, SHI, D, P;
+  long N4 = MF_get_N(mf)>>2, r = MF_get_r(mf), dK = lg(K) - 1;
+  long i, c, n, oldr, lD, lDold, sb3, d, step, STEP, limD;
+  const long MAXlD = 100;
 
-  K = mfkohnenbasis(mf); lK = lg(K);
   mf3 = mfinit_Nkchi(N4, r<<1, mfcharpow(CHI,gen_2), mf_CUSP, 0);
-  if (MF_get_dim(mf3) != lK - 1)
+  if (MF_get_dim(mf3) != dK)
     pari_err_BUG("mfkohnenbijection [different dimensions]");
-  if (lK == 1) return mkvec4(mf3, cgetg(1, t_MAT), K, cgetg(1, t_VEC));
+  if (!dK) return mkvec4(mf3, cgetg(1, t_MAT), K, cgetg(1, t_VEC));
   CHI = mfcharchiliftprim(CHI, N4);
   if (!CHI) pari_err_TYPE("mfkohnenbijection [incorrect CHI]", CHI);
   n = mfcharorder(CHI);
   P = n<=2? NULL: mfcharpol(CHI);
-  SHI = cgetg(nbD+1, t_VEC);
-  sb3 = mfsturm(mf3);
-  vB = RgM_mul(mfcoefs_mf(mf, labs(D[nbD-1])*sb3*sb3, 1), K);
-  dim = MF_get_dim(mf3);
-  for (m = 1, lw = 0; m <= MAXm; m += (m%3)? 2: 1)
-  {
+  SHI = cgetg(MAXlD, t_COL);
+  D = cgetg(MAXlD, t_VECSMALL);
+  sb3 = mfsturm_mf(mf3);
+  d = odd(r)? -3: 1;
+  step = d + 2; STEP = d + step;
+  limD = 13; /* start with 5 discriminants 1,5,8,12,13 or -3,-4,-7,-8,-11 */
+  oldr = 0; vB = NULL;
+  for (lD = lDold = 1; lD < MAXlD; d += step, step = STEP - step)
+  { /* d = 0,1 mod 4; sgn(d) = (-1)^r */
     pari_sp av;
-    ulong m1, y, v = u_lvalrem(m, 3, &y);
-    GEN z, M;
-    long j;
-    if (y == 1)
-    {
-      long d = D[v];
-      GEN a = cgetg(lK, t_MAT);
-      for (i = 1; i < lK; i++)
-      {
-        pari_sp av2 = avma;
-        GEN f = c_deflate(sb3*sb3, labs(d), gel(vB,i));
-        f = mftobasis_i(mf3, RgV_shimura(f, sb3, d, N4, r, CHI));
-        gel(a,i) = gerepileupto(av2, f);
-      }
-      lw++; gel(SHI,v+1) = a;
-    }
-    av = avma; M = NULL;
-    for (j = 1, m1 = m; j <= lw; j++, m1/=3)
-    {
-      long s = m1%3;
-      if (s)
-      {
-        GEN t = gel(SHI,j);
-        if (M) M = (s == 2)? RgM_sub(M, t): RgM_add(M, t);
-        else   M = (s == 2)? RgM_neg(t): t;
-      }
-    }
-    z = QabM_indexrank(M,P,n);
-    if (lg(gel(z,2)) > dim)
-    {
-      GEN d = ZV_to_zv( digits(utoipos(m), utoipos(3)) );
-      GEN mres, dMi, Mi = QabM_pseudoinv(M,P,n, NULL,&dMi);
-      long ld = lg(d), c = 1;
-      if (DEBUGLEVEL>1)
-        err_printf("mfkohnenbijection: used %ld discriminants\n",lw);
-      mres = cgetg(ld, t_VEC);
-      for (j = ld-1; j >= 1; j--)
-        if (d[j]) gel(mres,c++) = mkvec2s(D[ld-j-1], d[j] == 1? 1: -1);
-      setlg(mres,c); return mkvec4(mf3, RgM_Rg_div(Mi,dMi), K, mres);
-    }
+    if (!sisfundamental(d)) continue;
+    D[lD++] = d; if (labs(d) <= limD) continue;
+    av = avma;
+    if (vB) gunclone(vB);
+    /* could improve the rest but 99% of running time is spent here */
+    vB = gclone( RgM_mul(mfcoefs_mf(mf, labs(d)*sb3*sb3, 1), K) );
     set_avma(av);
+    for (i = lDold; i < lD; i++)
+    {
+      pari_sp av;
+      long r;
+      M = get_Shimura(mf3, CHI, vB, D[i]);
+      r = QabM_rank(M, P, n); if (!r) { discard_Di(D, &i, &lD); continue; }
+      gel(SHI, i) = M; setlg(SHI, i+1);
+      if (r >= dK) { C = vecsmall_ei(dK, i); goto DONE; }
+      if (i == 1) { oldr = r; continue; }
+      av = avma; M = shallowmatconcat(SHI);
+      r = QabM_rank(M, P, n); /* >= rank(sum C[j] SHI[j]), probably sharp */
+      if (r >= dK)
+      {
+        M = RgV_sum(SHI);
+        if (QabM_rank(M, P, n) >= dK) { C = const_vecsmall(dK, 1); goto DONE; }
+        C = random_Flv(dK, 16);
+        M = RgV_zc_mul(SHI, C);
+        if (QabM_rank(M, P, n) >= dK) goto DONE;
+      }
+      else if (r == oldr) discard_Di(D, &i, &lD);
+      oldr = r; set_avma(av);
+    }
+    limD *= 2; lDold = lD;
   }
   pari_err_BUG("mfkohnenbijection");
-  return NULL; /*LCOV_EXCL_LINE*/
+DONE:
+  gunclone(vB); lD = lg(SHI);
+  Mi = QabM_pseudoinv(M,P,n, NULL,&dMi); Mi = RgM_Rg_div(Mi,dMi);
+  mres = cgetg(lD, t_VEC);
+  for (i = c = 1; i < lD; i++)
+    if (C[i]) gel(mres,c++) = mkvec2s(D[i], C[i]);
+  setlg(mres,c); return mkvec4(mf3, Mi, K, mres);
 }
 GEN
 mfkohnenbijection(GEN mf)

@@ -15,7 +15,7 @@ Doc: \kbd{mf} being a cuspidal space of half-integral weight, returns
  of the Kohnen $+$-space as a matrix whose columns are the coefficients of $B$
  on the basis of \kbd{mf}; \kbd{shi} is a vector of pairs $(D_i,n_i)$
  gives the linear combination of Shimura lifts giving $M^{-1}$: $D_i$ is a
- discriminant and $n_i = \pm1$.
+ discriminant and $n_i$ is a small non-zero integer.
  \bprog
  ? mf=mfinit([60,5/2],1); [mf2,M,K,shi]=mfkohnenbijection(mf); M
  %1 =
