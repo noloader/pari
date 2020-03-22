@@ -10743,7 +10743,7 @@ mfkohnenbijection_i(GEN mf)
   d = odd(r)? -3: 1;
   step = d + 2; STEP = d + step;
   limD = 13; /* start with 5 discriminants 1,5,8,12,13 or -3,-4,-7,-8,-11 */
-  oldr = 0; vB = NULL;
+  oldr = 0; vB = C = M = NULL;
   for (lD = lDold = 1; lD < MAXlD; d += step, step = STEP - step)
   { /* d = 0,1 mod 4; sgn(d) = (-1)^r */
     pari_sp av;
