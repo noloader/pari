@@ -231,7 +231,7 @@ BA  77- [libpari] forqfvec1, pariplot, sumdivmultexpr
     78- [libpari] powPis, pow2Pis
 BA  79- nfisincl: new flag: return a single embedding
 BA  80- [libpari] FpXC_to_mod, FpXM_to_mod, FqXC_to_mod, FqXM_to_mod
-BA  81- [libpari] FFX_add
+BA  81- [libpari] FFX_add, FpXY_FpXQ_evaly
 BA  82- [libpari] halfgcdii, RgX_halfgcd
 BA  83- new GP function halfgcd
 

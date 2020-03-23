@@ -2310,6 +2310,10 @@ FlxqX_div(GEN x, GEN y, GEN T, ulong p) { return FlxqX_divrem(x, y, T, p, NULL);
 INLINE GEN
 F2xqX_div(GEN x, GEN y, GEN T) { return F2xqX_divrem(x, y, T, NULL); }
 
+INLINE GEN
+FpXY_Fq_evaly(GEN Q, GEN y, GEN T, GEN p, long vx)
+{ return T ? FpXY_FpXQ_evaly(Q, y, T, p, vx): FpXY_evaly(Q, y, p, vx); }
+
 /* FqX */
 INLINE GEN
 FqX_red(GEN z, GEN T, GEN p) { return T? FpXQX_red(z, T, p): FpX_red(z, p); }

@@ -1290,12 +1290,11 @@ FlxY_evalx_drop(GEN Q, ulong x, ulong p)
 }
 
 GEN
-FpXY_Fq_evaly(GEN Q, GEN y, GEN T, GEN p, long vx)
+FpXY_FpXQ_evaly(GEN Q, GEN y, GEN T, GEN p, long vx)
 {
   pari_sp av = avma;
   long i, lb = lg(Q);
   GEN z;
-  if (!T) return FpXY_evaly(Q, y, p, vx);
   if (lb == 2) return pol_0(vx);
   z = gel(Q, lb-1);
   if (lb == 3 || !signe(y)) return typ(z)==t_INT? scalar_ZX(z, vx): ZX_copy(z);
