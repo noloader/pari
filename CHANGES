@@ -84,6 +84,7 @@ BA  63- ellap could fail with division by 0
     65- problems with gequal(t_SER or t_POL with inexact coefs or constant
         wrt. some variables). E.g. S=x+O(x^2);T=S+O(y); S == T -> 0 [#2188]
     66- mfkohnenbijection failure [#2211]
+MW  67- mateigen would sometime return eigenvalues instead of eigenvectors
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

@@ -4948,7 +4948,7 @@ eigen_err(int exact, GEN x, long flag, long prec)
   if (RgM_is_symmetric_cx(x, prec2nbits(prec) - 10))
   { /* approximately symmetric: recover */
     x = jacobi(x, prec); if (flag) return x;
-    return gerepilecopy(av, gel(x,1));
+    return gerepilecopy(av, gel(x,2));
   }
   if (exact)
   {
