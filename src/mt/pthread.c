@@ -139,6 +139,10 @@ mt_queue_cleanup(void *arg)
   pari_thread_close();
 }
 
+static void
+mt_queue_unlock(void *arg)
+{ pthread_mutex_unlock((pthread_mutex_t*) arg); }
+
 static void*
 mt_queue_run(void *arg)
 {
@@ -158,8 +162,10 @@ mt_queue_run(void *arg)
     GEN work, done;
     LOCK(&mq->mut)
     {
+      pthread_cleanup_push(mt_queue_unlock, &mq->mut);
       while(!mq->input)
         pthread_cond_wait(&mq->cond, &mq->mut);
+      pthread_cleanup_pop(0);
     } UNLOCK(&mq->mut);
     pari_mainstack = mq->mainstack;
     set_avma(mq->avma);
