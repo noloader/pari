@@ -311,6 +311,12 @@ void
 pari_mt_init(void)
 {
   int res = MPI_Init(0, NULL);
+#ifdef _IOFBF
+  int stdinsize = 128*1024;
+  /* HACK: most MPI implementation does not handle stdin well.
+  stdinsize is sufficient for the largest test file to fit */
+  setvbuf(stdin,pari_malloc(stdinsize),_IOFBF,stdinsize);
+#endif
   if (res == MPI_SUCCESS)
   {
     MPI_Comm_size(MPI_COMM_WORLD, &pari_MPI_size);
