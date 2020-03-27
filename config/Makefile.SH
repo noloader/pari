@@ -291,6 +291,8 @@ TESTS  = $test_extra
 
 .PHONY: gp dft clean
 
+dft: gp-dyn gp-sta
+
 gp: gp-$dft ../gp$suffix$exe_suff $libdft
 
 ../gp$suffix$exe_suff: gp-$dft$exe_suff
