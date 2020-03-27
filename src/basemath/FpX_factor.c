@@ -585,12 +585,12 @@ FpX_oneroot_split(GEN fact, GEN p)
   minfactor = fact; /* factor of minimal degree found so far */
   dmin = degpol(minfactor);
   xplusa = pol_x(varn(fact));
-  zeta = gen_1;
   while (dmin != 1)
   {
     /* split minfactor by computing its gcd with (X+a)^exp-zeta, where    */
     /* zeta varies over the roots of unity in F_p                         */
     fact = minfactor; deg_f = dmin;
+    zeta = gen_1;
     prim = good_root_of_unity(p, deg_f, 1, &n);
     expo = diviuexact(subiu(p, 1), n);
     /* update X+a, avoid a=0 */
