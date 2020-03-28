@@ -195,6 +195,7 @@ GEN  ZabM_inv_worker(GEN P, GEN A, GEN Q);
 GEN  aprcl_step4_worker(ulong q, GEN pC, GEN N, GEN v);
 GEN  aprcl_step6_worker(GEN r, long t, GEN N, GEN N1, GEN et);
 GEN  ecpp_ispsp_worker(GEN N);
+GEN  ecpp_step2_worker(GEN S, GEN HD, GEN primelist);
 GEN  lfuninit_worker(long r, GEN K, GEN L, GEN peh2d, GEN vroots, GEN dr, GEN di, GEN an, GEN bn);
 GEN  lfuninit_theta2_worker(long r, GEN L, GEN qk, GEN a, GEN di, GEN an, GEN bn);
 GEN  gen_parapply(GEN worker, GEN D);

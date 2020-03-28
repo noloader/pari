@@ -56,12 +56,16 @@ zv_binsearch0(void *E, long (*f)(void* E, GEN x), GEN x)
 }
 
 INLINE long
-timer_record(GEN* X0, const char* Xx, pari_timer* ti)
+time_record(GEN* X0, const char* Xx, long t)
 {
-  long t = timer_delay(ti), i = Xx[0]-'A'+1, j = Xx[1]-'1'+1;
+  long i = Xx[0]-'A'+1, j = Xx[1]-'1'+1;
   umael3(*X0, 1, i, j) += t;
   umael3(*X0, 2, i, j) ++; return t;
 }
+
+INLINE long
+timer_record(GEN* X0, const char* Xx, pari_timer* ti)
+{ return time_record(X0, Xx, timer_delay(ti)); }
 
 INLINE long
 FpJ_is_inf(GEN P) { return signe(gel(P, 3)) == 0; }
@@ -522,9 +526,7 @@ static GEN
 D_polclass(long D, long inv, GEN *db)
 {
   GEN HD, t = mkvec2(gel(*db, 1), inv == 0? gen_0: gmael(*db, 2, inv));
-  GEN rnd = getrand();
   HD = polclass0(D, inv, 0, &t);
-  setrand(rnd);
   gel(*db, 1) = gel(t,1);
   if (inv != 0) gmael(*db, 2, inv) = gel(t,2);
   return HD;
@@ -619,10 +621,8 @@ realgenusfield(GEN Dfac, GEN sq, GEN p)
 static GEN
 FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
 {
-  pari_timer ti;
   pari_sp av = avma;
   GEN C;
-  dbg_mode() timer_start(&ti);
   if (degpol(P) > 1)
   {
     GEN N = NULL, V = realgenusfield(Dfac, sq, p), v = gel(V,1), R = gel(V,2);
@@ -639,16 +639,41 @@ FpX_classtower_oneroot(GEN P, GEN Dfac, GEN sq, GEN p)
       P = liftpol_shallow(gmael(nffactor(N,P),1,1));
     }
     if (N)
-    {
       P = FpXY_evalx(Q_primpart(P), R, p);
-      dbg_mode() err_printf(ANSI_BRIGHT_GREEN " %6ld[%ld]" ANSI_RESET,
-                            timer_delay(&ti), l-1);
-    } else
-      dbg_mode() err_printf("          ");
   }
   C = FpX_oneroot_split(P, p);
-  dbg_mode() err_printf(" %6ld", timer_delay(&ti));
   return gerepileupto(av, C);
+}
+
+GEN
+ecpp_step2_worker(GEN S, GEN HD, GEN primelist)
+{
+  pari_sp av = avma;
+  pari_timer ti;
+  GEN J, t, s, EP, rt, res;
+  GEN N = NDmqg_get_N(S), Dinfo = NDmqg_get_Dinfo(S);
+  GEN m = NDmqg_get_m(S), q = NDmqg_get_q(S);
+  GEN g = NDmqg_get_g(S), sq = NDmqg_get_sqrt(S);
+  long D = Dinfo_get_D(Dinfo), inv = Dinfo_get_bi(Dinfo);
+  GEN Dfacp = Dfac_to_p(Dinfo_get_Dfac(Dinfo), primelist);
+  long C2 = 0, C3 = 0, D1 = 0;
+  setrand(gen_1); /* for reproducibility */
+  /* C2: Find a root modulo N of polclass(D,inv) */
+  dbg_mode() timer_start(&ti);
+  rt = FpX_classtower_oneroot(HD, Dfacp, sq, N);
+  dbg_mode() C2 = timer_delay(&ti);
+  /* C3: Convert root from previous step into the appropriate j-invariant */
+  J = Fp_modinv_to_j(rt, inv, N); /* root of polclass(D) */
+  dbg_mode() C3 = timer_delay(&ti);
+  /* D1: Find an elliptic curve E with a point P satisfying the theorem */
+  s = diviiexact(m, q);
+  EP = find_EP(N, D, q, g, J, s);
+  dbg_mode() D1 = timer_delay(&ti);
+
+  /* D2: Compute for t and s */
+  t = subii(addiu(N, 1), m); /* t = N+1-m */
+  res = mkvec2(mkvec5(N, t, s, gel(EP,1), gel(EP,2)),mkvecsmall3(C2,C3,D1));
+  return gerepilecopy(av, res);
 }
 
 /* This uses [N, D, m, q] from step 1 to find the appropriate j-invariants
@@ -661,49 +686,51 @@ ecpp_step2(GEN step1, GEN *X0, GEN primelist)
   GEN perm = gen_indexsort(step1, NULL, &sort_NDmq_by_D);
   GEN step2 = cgetg(lg(step1), t_VEC);
   GEN HD = NULL, db = polmodular_db_init_allinv();
-
-  for (j = 1; j < lg(step2); j++)
+  long ls = lg(step2), pending = 0;
+  GEN worker;
+  struct pari_mt pt;
+  GEN Hi = cgetg(ls, t_VEC);
+  for (j = 1; j < ls; j++)
   {
     long i = uel(perm, j);
-    GEN J, t, s, EP, rt, S = gel(step1, i);
-    GEN N = NDmqg_get_N(S), Dinfo = NDmqg_get_Dinfo(S);
-    GEN m = NDmqg_get_m(S), q = NDmqg_get_q(S);
-    GEN g = NDmqg_get_g(S), sq = NDmqg_get_sqrt(S);
+    GEN S = gel(step1, i);
+    GEN Dinfo = NDmqg_get_Dinfo(S);
     long D = Dinfo_get_D(Dinfo), inv = Dinfo_get_bi(Dinfo);
-    GEN Dfacp = Dfac_to_p(Dinfo_get_Dfac(Dinfo), primelist);
-
     /* C1: Find the appropriate class polynomial modulo N */
     dbg_mode() timer_start(&ti);
     if (D != Dprev) HD = D_polclass(D, inv, &db);
     dbg_mode() {
+      GEN N = NDmqg_get_N(S);
       long tt = timer_record(X0, "C1", &ti);
       err_printf(ANSI_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_RESET, i, expi(N));
       err_printf(ANSI_GREEN " D = %8ld poldeg = %4ld" ANSI_RESET, D, degpol(HD));
       if (D == Dprev) err_printf(" %6ld", tt);
       else err_printf(ANSI_BRIGHT_WHITE " %6ld" ANSI_RESET, tt);
     }
-    /* C2: Find a root modulo N of polclass(D,inv) */
-    dbg_mode() timer_start(&ti);
-    rt = FpX_classtower_oneroot(HD, Dfacp, sq, N);
-    dbg_mode() err_printf(" %6ld", timer_record(X0, "C2", &ti));
-
-    /* C3: Convert root from previous step into the appropriate j-invariant */
-    dbg_mode() timer_start(&ti);
-    J = Fp_modinv_to_j(rt, inv, N); /* root of polclass(D) */
-    dbg_mode() err_printf(" %6ld", timer_record(X0, "C3", &ti));
-
-    /* D1: Find an elliptic curve E with a point P satisfying the theorem */
-    dbg_mode() timer_start(&ti);
-    s = diviiexact(m, q);
-    EP = find_EP(N, D, q, g, J, s);
-    dbg_mode() err_printf(" %6ld", timer_record(X0, "D1", &ti));
-
-    /* D2: Compute for t and s */
-    t = subii(addiu(N, 1), m); /* t = N+1-m */
-    gel(step2, i) = mkvec5(N, t, s, gel(EP,1), gel(EP,2));
-    Dprev = D;
+    gel(Hi, i) = HD;
   }
-  gunclone_deep(db); return step2;
+  gunclone_deep(db);
+  worker = snm_closure(is_entry("_ecpp_step2_worker"),mkvec(primelist));
+  mt_queue_start_lim(&pt, worker, ls-1);
+  for (j = 1; j < ls || pending; j++)
+  {
+    long jj;
+    GEN S = gel(step1, j), HD = gel(Hi, j), done;
+    mt_queue_submit(&pt, j, j < ls ? mkvec2(S, HD) : NULL);
+    done = mt_queue_get(&pt, &jj, &pending);
+    if (!done) continue;
+    dbg_mode() {
+      GEN T = gel(done,2);
+      GEN N = NDmqg_get_N(gel(step1, jj));
+      err_printf(ANSI_BRIGHT_GREEN "\n[ %3d | %4ld bits]" ANSI_RESET, jj, expi(N));
+      err_printf(" %6ld", time_record(X0, "C2", T[1]));
+      err_printf(" %6ld", time_record(X0, "C3", T[2]));
+      err_printf(" %6ld", time_record(X0, "D1", T[3]));
+    }
+    gel(step2, jj) = gel(done,1);
+  }
+  mt_queue_end(&pt);
+  return step2;
 }
 /* end of functions for step 2 */
 
