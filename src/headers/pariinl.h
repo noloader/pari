@@ -924,7 +924,9 @@ pari_stack_alloc(pari_stack *s, long nb)
   {
     while (s->n+nb > alloc) alloc <<= 1;
   }
+  BLOCK_SIGINT_START
   *sdat = pari_realloc(*sdat,alloc*s->size);
+  BLOCK_SIGINT_END
   s->alloc = alloc;
 }
 
