@@ -11,6 +11,32 @@ Check the License for details. You should have received a copy of it, along
 with the package; see the file 'COPYING'. If not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+/*********************************************************************/
+/*                       MALLOC/FREE WRAPPERS                        */
+/*********************************************************************/
+#define BLOCK_SIGALRM_START          \
+{                                    \
+  int block=PARI_SIGINT_block;       \
+  PARI_SIGINT_block = 2;             \
+  MT_SIGINT_BLOCK(block);
+
+#define BLOCK_SIGINT_START           \
+{                                    \
+  int block=PARI_SIGINT_block;       \
+  PARI_SIGINT_block = 1;             \
+  MT_SIGINT_BLOCK(block);
+
+#define BLOCK_SIGINT_END             \
+  PARI_SIGINT_block = block;         \
+  MT_SIGINT_UNBLOCK(block);          \
+  if (!block && PARI_SIGINT_pending) \
+  {                                  \
+    int sig = PARI_SIGINT_pending;   \
+    PARI_SIGINT_pending = 0;         \
+    raise(sig);                      \
+  }                                  \
+}
+
 /*******************************************************************/
 /*                                                                 */
 /*                          CONSTRUCTORS                           */
@@ -1102,32 +1128,6 @@ perm_conj(GEN s, GEN t)
   GEN v = cgetg_copy(s, &l);
   for (i = 1; i < l; i++) v[ s[i] ] = s[ t[i] ];
   return v;
-}
-
-/*********************************************************************/
-/*                       MALLOC/FREE WRAPPERS                        */
-/*********************************************************************/
-#define BLOCK_SIGALRM_START          \
-{                                    \
-  int block=PARI_SIGINT_block;       \
-  PARI_SIGINT_block = 2;             \
-  MT_SIGINT_BLOCK(block);
-
-#define BLOCK_SIGINT_START           \
-{                                    \
-  int block=PARI_SIGINT_block;       \
-  PARI_SIGINT_block = 1;             \
-  MT_SIGINT_BLOCK(block);
-
-#define BLOCK_SIGINT_END             \
-  PARI_SIGINT_block = block;         \
-  MT_SIGINT_UNBLOCK(block);          \
-  if (!block && PARI_SIGINT_pending) \
-  {                                  \
-    int sig = PARI_SIGINT_pending;   \
-    PARI_SIGINT_pending = 0;         \
-    raise(sig);                      \
-  }                                  \
 }
 
 INLINE void
