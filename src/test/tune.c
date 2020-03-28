@@ -662,7 +662,7 @@ add_dat(long size, double d)
   if (ndat == allocdat)
   {
     allocdat += maxss(allocdat, 100);
-    dat = (struct dat_t*) pari_realloc((void*)dat, allocdat * sizeof(dat[0]));
+    pari_realloc_ip((void**)&dat, allocdat * sizeof(dat[0]));
   }
   dat[ndat].size = size;
   dat[ndat].d    = d; ndat++;

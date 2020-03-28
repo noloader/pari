@@ -239,7 +239,7 @@ void
 fix_buffer(Buffer *b, long newlbuf)
 {
   b->len = newlbuf;
-  b->buf = (char*)pari_realloc((void*)b->buf, b->len);
+  pari_realloc_ip((void**)&b->buf, b->len);
 }
 
 static int
@@ -884,17 +884,12 @@ absrtostr(GEN x, int sp, char FORMAT, long wanted_dec)
 static void
 str_alloc0(pari_str *S, long l, long L)
 {
-  char *s;
   if (S->use_stack)
-  {
-    s = stack_malloc(L);
-    memcpy(s, S->string, l);
-  }
+    S->string = memcpy(stack_malloc(L), S->string, l);
   else
-    s = (char*)pari_realloc((void*)S->string, L);
-  S->string = s;
-  S->cur = s + l;
-  S->end = s + L;
+    pari_realloc_ip((void**)&S->string, L);
+  S->cur = S->string + l;
+  S->end = S->string + L;
   S->size = L;
 }
 /* make sure S is large enough to write l further words (<= l * 20 chars).
@@ -3752,7 +3747,7 @@ _expand_env(char *str)
     if (xnum > xlen - 3) /* need room for possibly two more elts */
     {
       xlen <<= 1;
-      x = (char **)pari_realloc((void*)x, xlen * sizeof(char*));
+      pari_realloc_ip((void**)&x, xlen * sizeof(char*));
     }
 
     s0 = ++s; /* skip $ */

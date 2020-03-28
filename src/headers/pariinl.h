@@ -924,9 +924,7 @@ pari_stack_alloc(pari_stack *s, long nb)
   {
     while (s->n+nb > alloc) alloc <<= 1;
   }
-  BLOCK_SIGINT_START
-  *sdat = pari_realloc(*sdat,alloc*s->size);
-  BLOCK_SIGINT_END
+  pari_realloc_ip(sdat,alloc*s->size);
   s->alloc = alloc;
 }
 
@@ -1165,6 +1163,18 @@ pari_realloc(void *pointer, size_t size)
   if (!tmp) pari_err(e_MEM);
   return tmp;
 }
+INLINE void
+pari_realloc_ip(void **pointer, size_t size)
+{
+  char *tmp;
+  BLOCK_SIGINT_START;
+  if (!*pointer) tmp = (char *) malloc(size);
+  else tmp = (char *) realloc(*pointer,size);
+  if (!tmp) pari_err(e_MEM);
+  *pointer = tmp;
+  BLOCK_SIGINT_END;
+}
+
 INLINE void*
 pari_calloc(size_t size)
 {

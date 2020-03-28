@@ -161,7 +161,7 @@ reallocate(RELCACHE_t *M, long len)
 {
   REL_t *old = M->base;
   M->len = len;
-  M->base = (REL_t*)pari_realloc((void*)old, (len+1) * sizeof(REL_t));
+  pari_realloc_ip((void**)&M->base, (len+1) * sizeof(REL_t));
   if (old)
   {
     size_t last = M->last - old, chk = M->chk - old, end = M->end - old;

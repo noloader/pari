@@ -304,6 +304,9 @@ state.
 \fun{void*}{pari_realloc}{void* ptr, size_t size} as \tet{pari_malloc} but
 calls \kbd{realloc} instead of \kbd{malloc}.
 
+\fun{void}{pari_realloc_ip}{void** ptr, size_t size}
+equivalent to \kbd{*ptr= realloc(*ptr, size)}, while blocking \kbd{SIGINT}.
+
 \fun{void*}{pari_calloc}{size_t size} as \tet{pari_malloc}, setting the
 memory to zero.
 

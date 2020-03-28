@@ -293,8 +293,7 @@ GRH_ensure(GRHcheck_t *S, long nb)
   if (S->maxprimes <= nb)
   {
     do S->maxprimes *= 2; while (S->maxprimes <= nb);
-    S->primes = (GRHprime_t*)pari_realloc((void*)S->primes,
-                                          S->maxprimes*sizeof(*S->primes));
+    pari_realloc_ip((void**)&S->primes, S->maxprimes*sizeof(*S->primes));
   }
 }
 /* cache data for all primes up to the LIM */

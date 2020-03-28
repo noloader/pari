@@ -49,8 +49,7 @@ add_paren(pari_rl_interface *rl, int end)
 static void
 match_concat(char **matches, const char *s)
 {
-  matches[0] = (char*)pari_realloc((void*)matches[0],
-                                strlen(matches[0])+strlen(s)+1);
+  pari_realloc_ip((void**)matches, strlen(matches[0])+strlen(s)+1);
   strcat(matches[0],s);
 }
 

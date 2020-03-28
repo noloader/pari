@@ -6050,6 +6050,7 @@ INLINE void   pari_free(void *pointer);
 INLINE void*  pari_calloc(size_t size);
 INLINE void*  pari_malloc(size_t bytes);
 INLINE void*  pari_realloc(void *pointer,size_t size);
+INLINE void   pari_realloc_ip(void **pointer,size_t size);
 INLINE GEN    perm_conj(GEN s, GEN t);
 INLINE GEN    perm_inv(GEN x);
 INLINE GEN    perm_mul(GEN s, GEN t);
