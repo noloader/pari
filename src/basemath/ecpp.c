@@ -899,18 +899,10 @@ Dmbatch_factor_Dmqvec(GEN N, long expiN, GEN* X0, GEN Dmbatch, GEN param)
   return gerepilecopy(av, Dmqvec);
 }
 
-/* Dmq (where q has no small prime factors): determine if q is pseudoprime */
-static long
-Dmq_isgoodq(GEN Dmq, GEN* X0)
-{
-  pari_timer ti;
-  long s;
-  /* B3: Check pseudoprimality of each q on the list. */
-  dbg_mode() timer_start(&ti);
-  s = BPSW_psp_nosmalldiv(gel(Dmq,3));
-  dbg_mode() timer_record(X0, "B3", &ti);
-  return s; /* did not find for this m */
-}
+GEN
+ecpp_ispsp_worker(GEN N)
+{ return mkvecsmall(BPSW_psp_nosmalldiv(N)); }
+
 static GEN
 mkNDmqg(GEN z, GEN N, GEN Dmq, GEN g, GEN sqrtlist)
 {
@@ -925,7 +917,7 @@ mkNDmqg(GEN z, GEN N, GEN Dmq, GEN g, GEN sqrtlist)
  * pseudoprime, recursive call with N = q. May return gen_0 at toplevel
  * => N has a small prime divisor */
 static GEN
-N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
+N_downrun(GEN N, GEN param, GEN worker, GEN *X0, long *depth, long persevere)
 {
   pari_timer T, ti;
   long lgdisclist, lprimelist, t, i, j, expiN = expi(N);
@@ -1014,9 +1006,31 @@ N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
     lgDmqlist = lg(Dmqlist);
     for (j = 1; j < lgDmqlist; j++)
     {
-      GEN z, Dmq = gel(Dmqlist,j), q = gel(Dmq,3);
-      dbg_mode() err_printf(ANSI_WHITE "." ANSI_RESET);
-      if (!Dmq_isgoodq(Dmq, X0)) continue;
+      GEN z, Dmq, q;
+      struct pari_mt pt;
+      pari_timer ti2;
+      long running, stop = 0, pending = 0;
+      mt_queue_start_lim(&pt, worker, lgDmqlist-j);
+      dbg_mode() timer_start(&ti2);
+      while ((running = (!stop && j < lgDmqlist)) || pending)
+      {
+        long jj;
+        GEN done;
+        mt_queue_submit(&pt, j, running ? mkvec(gmael(Dmqlist,j,3)) : NULL);
+        done = mt_queue_get(&pt, &jj, &pending);
+        if (done)
+        {
+          if (done[1] == 0)
+          { dbg_mode() err_printf(ANSI_WHITE "." ANSI_RESET); }
+          else if (!stop || jj < stop)
+            stop = jj;
+        }
+        j++;
+      }
+      mt_queue_end(&pt);
+      dbg_mode() timer_record(X0, "B3", &ti2);
+      if (!stop && j >= lgDmqlist) break;
+      j = stop; Dmq = gel(Dmqlist,j); q = gel(Dmq,3);
 
       dbg_mode() {
         err_printf(ANSI_BRIGHT_RED "\n       %5ld bits " ANSI_RESET,
@@ -1028,7 +1042,7 @@ N_downrun(GEN N, GEN param, GEN *X0, long *depth, long persevere)
       if (expi(q) < 64) z = gen_1; /* q is prime; sentinel */
       else
       {
-        z = N_downrun(q, param, X0, depth, persevere_next);
+        z = N_downrun(q, param, worker, X0, depth, persevere_next);
         if (!z) {
           dbg_mode() { char o = persevere? '<': '[', c = persevere? '>': ']';
                        err_printf(ANSI_CYAN "\n%c %3d | %4ld bits%c "
@@ -1073,7 +1087,8 @@ ecpp_step1(GEN N, GEN param, GEN* X0)
 {
   pari_sp av = avma;
   long depth = 0;
-  GEN downrun = N_downrun(N, param, X0, &depth, 1);
+  GEN worker = strtofunction("_ecpp_ispsp_worker");
+  GEN downrun = N_downrun(N, param, worker, X0, &depth, 1);
   if (downrun == NULL) return gc_NULL(av);
   return gerepilecopy(av, ecpp_flattencert(downrun, depth));
 }

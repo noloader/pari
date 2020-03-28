@@ -55,3 +55,9 @@ Section: programming/internals
 C-Name: aprcl_step6_worker
 Prototype: GLGGG
 Help: worker for isprime (APRCL step 6)
+
+Function: _ecpp_ispsp_worker
+Section: programming/internals
+C-Name: ecpp_ispsp_worker
+Prototype: G
+Help: worker for isprime (ispseudoprime step)
