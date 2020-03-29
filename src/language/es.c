@@ -885,7 +885,7 @@ static void
 str_alloc0(pari_str *S, long l, long L)
 {
   if (S->use_stack)
-    S->string = memcpy(stack_malloc(L), S->string, l);
+    S->string = (char*) memcpy(stack_malloc(L), S->string, l);
   else
     pari_realloc_ip((void**)&S->string, L);
   S->cur = S->string + l;
