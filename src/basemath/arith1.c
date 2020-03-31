@@ -3653,6 +3653,7 @@ Fp_pow(GEN A, GEN K, GEN N)
   if (lgefint(K) == 3) return gerepileuptoint(av, Fp_powu(y, K[2], N));
 
   base_is_2 = 0;
+  y = Fp_center(y, N, shifti(N,-1));
   sA = signe(y)==-1 && mod2(K);
   if (lgefint(y) == 3) switch(y[2])
   {
