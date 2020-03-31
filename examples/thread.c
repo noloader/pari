@@ -32,15 +32,15 @@ main(void)
   struct pari_thread pth1, pth2, pth3; /* pari thread variables */
 
   /* Initialise the main PARI stack and global objects (gen_0, etc.) */
-  pari_init(4000000,500000);
+  pari_init(8000000,500000);
   /* Compute in the main PARI stack */
   N1 = addis(int2n(256), 1); /* 2^256 + 1 */
   N2 = subis(int2n(193), 1); /* 2^193 - 1 */
   M = mathilbert(80);
   /* Allocate pari thread structures */
-  pari_thread_alloc(&pth1,4000000,N1);
-  pari_thread_alloc(&pth2,4000000,N2);
-  pari_thread_alloc(&pth3,4000000,M);
+  pari_thread_alloc(&pth1,8000000,N1);
+  pari_thread_alloc(&pth2,8000000,N2);
+  pari_thread_alloc(&pth3,8000000,M);
   /* pthread_create() and pthread_join() are standard POSIX-thread
    * functions to start and get the result of threads. */
   pthread_create(&th1,NULL, &myfactor, (void*)&pth1);

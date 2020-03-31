@@ -11,7 +11,7 @@ main(void)
   struct pari_thread pth[MAXTHREADS];
   int numth = omp_get_max_threads(), i;
   /* Initialise the main PARI stack and global objects (gen_0, etc.) */
-  pari_init(4000000,500000);
+  pari_init(8000000,500000);
   if (numth > MAXTHREADS)
   {
     numth = MAXTHREADS;
@@ -22,7 +22,7 @@ main(void)
   N2 = subis(int2n(193), 1); /* 2^193 - 1 */
   M = mathilbert(80);
   /*Allocate pari thread structures */
-  for (i = 1; i < numth; i++) pari_thread_alloc(&pth[i],4000000,NULL);
+  for (i = 1; i < numth; i++) pari_thread_alloc(&pth[i],8000000,NULL);
 #pragma omp parallel
   {
     int this_th = omp_get_thread_num();
