@@ -23,3 +23,9 @@ Doc:
  ? primecertisvalid(primecert(6))
  %5 = 0
  @eprog
+
+Function: _primecertisvalid_ecpp_worker
+Section: programming/internals
+C-Name: primecertisvalid_ecpp_worker
+Prototype: G
+Help: worker for primecertisvalid

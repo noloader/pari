@@ -1364,13 +1364,59 @@ Nq_isvalid(GEN N, GEN q)
   return (cmpii(sqri(c), shifti(mulii(N,q), 4)) > 0);
 }
 
+GEN
+primecertisvalid_ecpp_worker(GEN certi)
+{
+  GEN N, W, mP, sP, r, m, s, a, P, q;
+  if (lg(certi)-1 != 5) return gen_0;
+
+  N = cert_get_N(certi);
+  if (typ(N) != t_INT || signe(N) <= 0) return gen_0;
+  switch(umodiu(N,6))
+  {
+    case 1: case 5: break; /* Check if N is not divisible by 2 or 3 */
+    default: return gen_0;
+  }
+
+  W = cert_get_t(certi);
+  if (typ(W) != t_INT) return gen_0;
+  /* Check if W^2 < 4N (Hasse interval) */
+  if (!(cmpii(sqri(W), shifti(N,2)) < 0)) return gen_0;
+
+  s = cert_get_s(certi);
+  if (typ(s) != t_INT || signe(s) < 0) return gen_0;
+
+  m = cert_get_m(certi);
+  q = dvmdii(m, s, &r);
+  /* Check m%s == 0 */
+  if (!isintzero(r)) return gen_0;
+  /* Check q > (N^(1/4) + 1)^2 */
+  if (!Nq_isvalid(N, q)) return gen_0;
+
+  a = cert_get_a4(certi);
+  if (typ(a) != t_INT) return gen_0;
+
+  P = cert_get_P(certi);
+  if (typ(P) != t_VEC || lg(P) != 3) return gen_0;
+  P = FpE_to_FpJ(P);
+
+  /* Check mP == 0 */
+  mP = FpJ_mul(P, m, a, N);
+  if (!FpJ_is_inf(mP)) return gen_0;
+
+  /* Check sP != 0 and third component is coprime to N */
+  sP = FpJ_mul(P, s, a, N);
+  if (!isint1(gcdii(gel(sP, 3), N))) return gen_0;
+  return q;
+}
+
 /* return 1 if 'cert' is a valid PARI ECPP certificate */
 static long
 ecppisvalid_i(GEN cert)
 {
   const long trustbits = 64;/* a pseudoprime < 2^trustbits is prime */
   long i, lgcert = lg(cert);
-  GEN ql, q = gen_0;
+  GEN ql, q = gen_0, worker, check;
 
   if (typ(cert) == t_INT)
   {
@@ -1381,51 +1427,15 @@ ecppisvalid_i(GEN cert)
   ql = gel(cert, lgcert-1); if (lg(ql)-1 != 5) return 0;
   ql = cert_get_q(ql);
   if (expi(ql) >= trustbits || !BPSW_psp(ql)) return 0;
-
+  worker = strtofunction("_primecertisvalid_ecpp_worker");
+  check = gen_parapply(worker, cert);
   for (i = 1; i < lgcert; i++)
   {
-    GEN N, W, mP, sP, r, m, s, a, P, certi = gel(cert, i);
-    if (lg(certi)-1 != 5) return 0;
-
-    N = cert_get_N(certi);
-    if (typ(N) != t_INT || signe(N) <= 0) return 0;
-    switch(umodiu(N,6))
-    {
-      case 1: case 5: break; /* Check if N is not divisible by 2 or 3 */
-      default: return 0;
-    }
-    /* Check if N matches the q from the previous entry. */
+    GEN certi = gel(cert, i);
+    GEN qq = gel(check,i), N = cert_get_N(certi);
+    if (isintzero(qq)) return 0;
     if (i > 1 && !equalii(N, q)) return 0;
-
-    W = cert_get_t(certi);
-    if (typ(W) != t_INT) return 0;
-    /* Check if W^2 < 4N (Hasse interval) */
-    if (!(cmpii(sqri(W), shifti(N,2)) < 0)) return 0;
-
-    s = cert_get_s(certi);
-    if (typ(s) != t_INT || signe(s) < 0) return 0;
-
-    m = cert_get_m(certi);
-    q = dvmdii(m, s, &r);
-    /* Check m%s == 0 */
-    if (!isintzero(r)) return 0;
-    /* Check q > (N^(1/4) + 1)^2 */
-    if (!Nq_isvalid(N, q)) return 0;
-
-    a = cert_get_a4(certi);
-    if (typ(a) != t_INT) return 0;
-
-    P = cert_get_P(certi);
-    if (typ(P) != t_VEC || lg(P) != 3) return 0;
-    P = FpE_to_FpJ(P);
-
-    /* Check mP == 0 */
-    mP = FpJ_mul(P, m, a, N);
-    if (!FpJ_is_inf(mP)) return 0;
-
-    /* Check sP != 0 and third component is coprime to N */
-    sP = FpJ_mul(P, s, a, N);
-    if (!isint1(gcdii(gel(sP, 3), N))) return 0;
+    q = qq;
   }
   return 1;
 }
