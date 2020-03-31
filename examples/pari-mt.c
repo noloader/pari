@@ -7,7 +7,7 @@ int
 main(void)
 {
   long i, taskid, pending;
-  GEN M,N1,N2, F1,F2,D, in,out, done;
+  GEN M,N1,N2, in,out, done;
   struct pari_mt pt;
   entree ep = {"_worker",0,(void*)Cworker,20,"GL",""};
   /* initialize PARI, postponing parallelism initialization */
@@ -18,7 +18,7 @@ main(void)
   N1 = addis(int2n(256), 1); /* 2^256 + 1 */
   N2 = subis(int2n(193), 1); /* 2^193 - 1 */
   M = mathilbert(80);
-  in  = mkvec3(mkvec2(N1,gen_1), mkvec2(N2,gen_1), mkvec2(M,gen_0));
+  in  = mkvec3(mkvec2(N1,gen_0), mkvec2(N2,gen_0), mkvec2(M,gen_1));
   out = cgetg(4,t_VEC);
   /* Initialize parallel evaluation of Cworker */
   mt_queue_start(&pt, strtofunction("_worker"));
