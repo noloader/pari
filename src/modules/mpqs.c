@@ -861,6 +861,27 @@ mpqs_sieve_p(unsigned char *B, unsigned char *E, long p4, long p,
   while (E - B >= 0) (*B) += logp, B += p;
 }
 
+INLINE void
+mpqs_sieve_p2(unsigned char *B, unsigned char *E, long p4, long s1, long s2,
+             unsigned char logp)
+{
+  register unsigned char *e = E - p4;
+  /* Unrolled loop. It might be better to let the compiler worry about this
+   * kind of optimization, based on its knowledge of whatever useful tricks the
+   * machine instruction set architecture is offering */
+  while (e - B >= 0) /* signed comparison */
+  {
+    (*B) += logp, B += s1;
+    (*B) += logp, B += s2;
+    (*B) += logp, B += s1;
+    (*B) += logp, B += s2;
+    (*B) += logp, B += s1;
+    (*B) += logp, B += s2;
+    (*B) += logp, B += s1;
+    (*B) += logp, B += s2;
+  }
+  while (E - B >= 0) {(*B) += logp, B += s1; if (E - B < 0) break; (*B) += logp, B += s2;}
+}
 static void
 mpqs_sieve(mpqs_handle_t *h)
 {
@@ -874,8 +895,12 @@ mpqs_sieve(mpqs_handle_t *h)
     unsigned char logp = FB->fbe_logval;
     long s1 = FB->fbe_start1, s2 = FB->fbe_start2;
     /* sieve with FB[l] from start1[l], and from start2[l] if s1 != s2 */
-    mpqs_sieve_p(S + s1, Send, p << 2, p, logp);
-    if (s1 != s2) mpqs_sieve_p(S + s2, Send, p << 2, p, logp);
+    if (s1 == s2) mpqs_sieve_p(S + s1, Send, p << 2, p, logp);
+    else
+    {
+      if (s1>s2) lswap(s1,s2)
+      mpqs_sieve_p2(S + s1, Send, p << 2, s2-s1,p+s1-s2, logp);
+    }
   }
 }
 
