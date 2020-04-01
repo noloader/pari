@@ -3627,7 +3627,7 @@ GEN
 Fp_pow(GEN A, GEN K, GEN N)
 {
   pari_sp av;
-  long s, lN = lgefint(N), sA;
+  long s, lN = lgefint(N), sA, sy;
   int base_is_2, use_montgomery;
   GEN y;
   muldata D;
@@ -3653,8 +3653,9 @@ Fp_pow(GEN A, GEN K, GEN N)
   if (lgefint(K) == 3) return gerepileuptoint(av, Fp_powu(y, K[2], N));
 
   base_is_2 = 0;
-  y = Fp_center(y, N, shifti(N,-1));
-  sA = signe(y)==-1 && mod2(K);
+  sy = abscmpii(y, shifti(N,-1)) > 0;
+  if (sy) y = subii(N,y);
+  sA = sy && mod2(K);
   if (lgefint(y) == 3) switch(y[2])
   {
     case 1: return sA ? gen_m1 : gen_1;
@@ -3671,8 +3672,8 @@ Fp_pow(GEN A, GEN K, GEN N)
   {
     y = red_montgomery(y, N, ((struct montred *) E)->inv);
     if (cmpii(y,N) >= 0) y = subii(y,N);
-    if (sA) y = subii(N, y);
   }
+  if (sA) y = subii(N, y);
   return gerepileuptoint(av,y);
 }
 
