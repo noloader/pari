@@ -1283,7 +1283,7 @@ ZM_isidentity(GEN x)
     for (i=1; i<j; )
       if (signe(gel(c,i++))) return 0;
     /* i = j */
-      if (!equali1(gel(c,i++))) return 0;
+    if (!equali1(gel(c,i++))) return 0;
     for (   ; i<lx; )
       if (signe(gel(c,i++))) return 0;
   }
@@ -1321,7 +1321,7 @@ ZM_isscalar(GEN x, GEN s)
     for (i=1; i<j; )
       if (signe(gel(c,i++))) return 0;
     /* i = j */
-      if (!equalii(gel(c,i++), s)) return 0;
+    if (!equalii(gel(c,i++), s)) return 0;
     for (   ; i<lx; )
       if (signe(gel(c,i++))) return 0;
   }
