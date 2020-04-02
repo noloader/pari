@@ -85,6 +85,7 @@ BA  63- ellap could fail with division by 0
         wrt. some variables). E.g. S=x+O(x^2);T=S+O(y); S == T -> 0 [#2188]
     66- mfkohnenbijection failure [#2211]
 MW  67- mateigen would sometime return eigenvalues instead of eigenvectors
+AE  68- [libpari] FpX_oneroot_split could fail for deg 2 and 3.
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
