@@ -940,7 +940,7 @@ RgM_isscalar(GEN x, GEN s)
     for (i=1; i<j; )
       if (!gequal0(gel(c,i++))) return 0;
     /* i = j */
-      if (!gequal(gel(c,i++),s)) return 0;
+    if (!gequal(gel(c,i++),s)) return 0;
     for (   ; i<lx; )
       if (!gequal0(gel(c,i++))) return 0;
   }
@@ -960,7 +960,7 @@ RgM_isidentity(GEN x)
     for (i=1; i<j; )
       if (!gequal0(gel(c,i++))) return 0;
     /* i = j */
-      if (!gequal1(gel(c,i++))) return 0;
+    if (!gequal1(gel(c,i++))) return 0;
     for (   ; i<lx; )
       if (!gequal0(gel(c,i++))) return 0;
   }
