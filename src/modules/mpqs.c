@@ -895,9 +895,9 @@ mpqs_sieve(mpqs_handle_t *h)
   long p, l = h->index1_FB;
   mpqs_FB_entry_t *FB;
   unsigned char *S = h->sieve_array, *Send = h->sieve_array_end;
-
-  memset((void*)S, 0, (h->M << 1) * sizeof(unsigned char));
-  for (FB = &(h->FB[l]); (p = FB->fbe_p); FB++) /* l++ */
+  long size = h->M << 1;
+  memset((void*)S, 0, size * sizeof(unsigned char));
+  for (FB = &(h->FB[l]); (p = FB->fbe_p) && p <= size; FB++) /* l++ */
   {
     unsigned char logp = FB->fbe_logval;
     long s1 = FB->fbe_start1, s2 = FB->fbe_start2;
@@ -908,6 +908,13 @@ mpqs_sieve(mpqs_handle_t *h)
       if (s1>s2) lswap(s1,s2)
       mpqs_sieve_p2(S + s1, Send, p << 2, s2-s1,p+s1-s2, logp);
     }
+  }
+  for (    ; (p = FB->fbe_p); FB++)
+  {
+    unsigned char logp = FB->fbe_logval;
+    long s1 = FB->fbe_start1, s2 = FB->fbe_start2;
+    if (s1 < size) S[s1] += logp;
+    if (s2!=s1 && s2 < size) S[s2] += logp;
   }
 }
 
