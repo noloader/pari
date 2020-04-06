@@ -1206,16 +1206,21 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
 
 /* create an F2m from a relations list; rows = size_of_FB+1 */
 static GEN
-rels_to_F2m(GEN rel, long rows)
+rels_to_F2Ms(GEN rel, long rows)
 {
   long i, cols = lg(rel)-1;
-  GEN m = zero_F2m_copy(rows, cols);
+  GEN m = cgetg(cols+1, t_VEC);
   for (i = 1; i <= cols; i++)
   {
-    GEN relp = gmael(rel,i,2);
-    long j, l = lg(relp);
+    GEN relp = gmael(rel,i,2), rel2;
+    long j, l = lg(relp), o = 0, k;
     for (j = 1; j < l; j++)
-      if (odd(relp[j] >> REL_OFFSET)) F2m_set(m, relp[j] & REL_MASK, i);
+      if (odd(relp[j] >> REL_OFFSET)) o++;
+    rel2 = cgetg(o+1, t_VECSMALL);
+    for (j = 1, k = 1; j < l; j++)
+      if (odd(relp[j] >> REL_OFFSET))
+        rel2[k++] = relp[j] & REL_MASK;
+    gel(m, i) = rel2;
   }
   return m;
 }
@@ -1252,8 +1257,8 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
   GEN rels = hash_keys(frel), N = h->N, r, c, res, ei, M, Ker;
   long i, j, nrows, rlast, rnext, rmax, rank;
 
-  M = rels_to_F2m(rels, h->size_of_FB+1);
-  Ker = F2m_ker_sp(M,0); rank = lg(Ker)-1;
+  M = rels_to_F2Ms(rels, h->size_of_FB+1);
+  Ker = F2Ms_ker(M, h->size_of_FB+1); rank = lg(Ker)-1;
   if (DEBUGLEVEL >= 4)
   {
     if (DEBUGLEVEL >= 7)

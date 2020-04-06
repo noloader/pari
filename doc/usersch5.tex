@@ -9222,6 +9222,10 @@ It is not possible to derive the space dimension (number of rows) from the
 above data. Thus most functions take an argument \kbd{nbrow} which is the
 number of rows of the corresponding column/matrix in dense representation.
 
+\fun{GEN}{F2Ms_to_F2m}{GEN M, long nbrow} convert a \kbd{F2m} to a \kbd{F2Ms}.
+
+\fun{GEN}{F2m_to_F2Ms}{GEN M} convert a \kbd{F2m} to a \kbd{F2Ms}.
+
 \fun{GEN}{zCs_to_ZC}{GEN C, long nbrow} convert the sparse vector $C$
 to a dense \kbd{ZC} of dimension \kbd{nbrow}.
 
@@ -9255,6 +9259,9 @@ the result is stored in two \typ{VECSMALL}s, \kbd{*p\_col} and \kbd{*p\_row}:
 \fun{GEN}{F2Ms_colelim}{GEN M, long nbrow} returns some subset of the columns
 of $M$ as a \typ{VECSMALL} of indices, selected such that the dimension of the
 kernel of the matrix is preserved. The subset is not garranted to be minimal.
+
+\fun{GEN}{F2Ms_ker}{GEN M, long nbrow} returns some kernel vectors of $M$
+using block Lanczos algorithm.
 
 \fun{GEN}{FpMs_leftkernel_elt}{GEN M, long nbrow, GEN p}
 $M$ being a sparse matrix over $\F_p$, return a non-zero kbd{FpV} $X$ such

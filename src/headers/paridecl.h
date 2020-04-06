@@ -78,6 +78,8 @@ GEN     isprincipalgenforce(GEN bnf,GEN x);
 
 /* F2v.c */
 
+GEN     F2Ms_ker(GEN M, long nrows);
+GEN     F2Ms_to_F2m(GEN M, long nrows);
 GEN     F2c_to_ZC(GEN x);
 GEN     F2c_to_mod(GEN x);
 GEN     F2m_F2c_gauss(GEN a, GEN b);
@@ -96,6 +98,7 @@ GEN     F2m_powu(GEN x, ulong n);
 long    F2m_rank(GEN x);
 GEN     F2m_row(GEN x, long j);
 GEN     F2m_rowslice(GEN x, long a, long b);
+GEN     F2m_to_F2Ms_ker(GEN M);
 GEN     F2m_to_Flm(GEN z);
 GEN     F2m_to_ZM(GEN z);
 GEN     F2m_to_mod(GEN z);

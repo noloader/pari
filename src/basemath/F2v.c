@@ -669,3 +669,448 @@ F2m_F2c_invimage(GEN A, GEN y)
   F2v_clear(x, x[1]); x[1]--; /* remove last coord */
   return gerepileuptoleaf(av, x);
 }
+
+/*  Block Lanczos lgorithm for kernel of sparse matrix (F2Ms)
+    Based on lanczos.cpp fby Jason Papadopoulos
+    <https://github.com/sagemath/FlintQS/blob/master/src/lanczos.cpp>
+    Copyright Jason Papadopoulos 2006
+    Released under the GNU General Public License v2 or later version.
+*/
+
+/* F2Ms are vector of vecsmall which represents non-zero entries of columns
+ * F2w are vecsmall whoses entries are columns of a n x BIL F2m
+ * F2wB are F2w in the special case where dim = BIL.
+ */
+
+#define BIL BITS_IN_LONG
+
+static GEN
+F2w_transpose_F2m(GEN x)
+{
+  long i, j, l = lg(x)-1;
+  GEN z = cgetg(BIL+1, t_MAT);
+  for (j = 1; j <= BIL; j++)
+    gel(z,j) = zero_F2v(l);
+  for (i = 1; i <= l; i++)
+  {
+    ulong xi = uel(x,i);
+    for(j = 1; j <= BIL; j++)
+      if (xi&(1UL<<(j-1)))
+        F2v_set(gel(z, j), i);
+  }
+  return z;
+}
+
+static GEN
+F2wB_mul(GEN a, GEN b)
+{
+  long i, j;
+  GEN c = cgetg(BIL+1, t_VECSMALL);
+  for (i = 1; i <= BIL; i++)
+  {
+    ulong s = 0, ai = a[i];
+    for (j = 1; ai; j++, ai>>=1)
+      if (ai & 1)
+        s ^= b[j];
+    c[i] = s;
+  }
+  return c;
+}
+
+static void
+precompute_F2w_F2wB(GEN x, GEN c)
+{
+  ulong z, xk;
+  ulong i, j, k, index;
+  x++; c++;
+  for (j = 0; j < (BIL>>3); j++)
+  {
+    for (i = 0; i < 256; i++)
+    {
+      k = 0;
+      index = i;
+      z = 0;
+      while (index) {
+        xk = x[k];
+        if (index & 1)
+          z ^= xk;
+        index >>= 1;
+        k++;
+      }
+      c[i] = z;
+    }
+    x += 8; c += 256;
+  }
+}
+
+static void
+F2w_F2wB_mul_add_inplace(GEN v, GEN x, GEN y)
+{
+  long i, n = lg(y)-1;
+  ulong word;
+  GEN c = cgetg(1+(BIL<<5), t_VECSMALL);
+  precompute_F2w_F2wB(x, c);
+  c++;
+  for (i = 1; i <= n; i++)
+  {
+    word = v[i];
+    y[i] ^=  c[ 0*256 + ((word>> 0) & 0xff) ]
+           ^ c[ 1*256 + ((word>> 8) & 0xff) ]
+           ^ c[ 2*256 + ((word>>16) & 0xff) ]
+           ^ c[ 3*256 + ((word>>24) & 0xff) ]
+#ifdef LONG_IS_64BIT
+           ^ c[ 4*256 + ((word>>32) & 0xff) ]
+           ^ c[ 5*256 + ((word>>40) & 0xff) ]
+           ^ c[ 6*256 + ((word>>48) & 0xff) ]
+           ^ c[ 7*256 + ((word>>56)       ) ]
+#endif
+           ;
+  }
+}
+
+/* Return x*y~, which is a F2wB */
+static GEN
+F2w_transmul(GEN x, GEN y)
+{
+  long i, j, n = lg(x)-1;
+  GEN z = zero_zv(BIL);
+  pari_sp av = avma;
+  GEN c = zero_zv(BIL<<5) + 1;
+  GEN xy = z + 1;
+
+  for (i = 1; i <= n; i++)
+  {
+    ulong xi = x[i];
+    ulong yi = y[i];
+    c[ 0*256 + ( xi        & 0xff) ] ^= yi;
+    c[ 1*256 + ((xi >>  8) & 0xff) ] ^= yi;
+    c[ 2*256 + ((xi >> 16) & 0xff) ] ^= yi;
+    c[ 3*256 + ((xi >> 24) & 0xff) ] ^= yi;
+#ifdef LONG_IS_64BIT
+    c[ 4*256 + ((xi >> 32) & 0xff) ] ^= yi;
+    c[ 5*256 + ((xi >> 40) & 0xff) ] ^= yi;
+    c[ 6*256 + ((xi >> 48) & 0xff) ] ^= yi;
+    c[ 7*256 + ((xi >> 56)       ) ] ^= yi;
+#endif
+  }
+  for(i = 0; i < 8; i++)
+  {
+    ulong a0 = 0, a1 = 0, a2 = 0, a3 = 0;
+#ifdef LONG_IS_64BIT
+    ulong a4 = 0, a5 = 0, a6 = 0, a7 = 0;
+#endif
+    for (j = 0; j < 256; j++) {
+      if ((j >> i) & 1) {
+        a0 ^= c[0*256 + j];
+        a1 ^= c[1*256 + j];
+        a2 ^= c[2*256 + j];
+        a3 ^= c[3*256 + j];
+#ifdef LONG_IS_64BIT
+        a4 ^= c[4*256 + j];
+        a5 ^= c[5*256 + j];
+        a6 ^= c[6*256 + j];
+        a7 ^= c[7*256 + j];
+#endif
+      }
+    }
+    xy[ 0] = a0; xy[ 8] = a1; xy[16] = a2; xy[24] = a3;
+#ifdef LONG_IS_64BIT
+    xy[32] = a4; xy[40] = a5; xy[48] = a6; xy[56] = a7;
+#endif
+    xy++;
+  }
+  return gc_const(av, z);
+}
+
+static GEN
+identity_F2wB(void)
+{
+  long i;
+  GEN M = cgetg(BIL+1, t_VECSMALL);
+  for (i = 1; i <= BIL; i++)
+    uel(M,i) = 1UL<<(i-1);
+  return M;
+}
+
+static GEN
+find_nonsingular_sub(GEN t, GEN last_s, GEN *pt_s)
+{
+  long i, j, dim;
+  ulong mask, row_i, row_j;
+  long last_dim = lg(last_s)-1;
+  GEN s = cgetg(BIL+1, t_VECSMALL);
+  GEN M1 = identity_F2wB();
+  pari_sp av = avma;
+  GEN cols = cgetg(BIL+1, t_VECSMALL);
+  GEN M0 = zv_copy(t);
+
+  mask = 0;
+  for (i = 1; i <= last_dim; i++)
+  {
+    cols[BIL + 1 - i] = last_s[i];
+    mask |= 1UL<<(last_s[i]-1);
+  }
+  for (i = j = 1; i <= BIL; i++)
+    if (!(mask & (1UL<<(i-1))))
+      cols[j++] = i;
+
+  /* compute the inverse of t[][] */
+
+  dim = 1;
+  for (i = 1; i <= BIL; i++)
+  {
+    mask = 1UL<<(cols[i]-1);
+    row_i = cols[i];
+    for (j = i; j <= BIL; j++)
+    {
+      row_j = cols[j];
+      if (uel(M0,row_j) & mask)
+      {
+        swap(gel(M0, row_j), gel(M0, row_i));
+        swap(gel(M1, row_j), gel(M1, row_i));
+        break;
+      }
+    }
+    if (j <= BIL)
+    {
+      for (j = 1; j <= BIL; j++)
+      {
+        row_j = cols[j];
+        if (row_i != row_j && (M0[row_j] & mask))
+        {
+          uel(M0,row_j) ^= uel(M0,row_i);
+          uel(M1,row_j) ^= uel(M1,row_i);
+        }
+      }
+      s[dim++] = cols[i];
+      continue;
+    }
+    for (j = i; j <= BIL; j++)
+    {
+      row_j = cols[j];
+      if (uel(M1,row_j) & mask)
+      {
+        swap(gel(M0, row_j), gel(M0, row_i));
+        swap(gel(M1, row_j), gel(M1, row_i));
+        break;
+      }
+    }
+    if (j > BIL) return NULL;
+    for (j = 1; j <= BIL; j++)
+    {
+      row_j = cols[j];
+      if (row_i != row_j && (M1[row_j] & mask))
+      {
+        uel(M0,row_j) ^= uel(M0,row_i);
+        uel(M1,row_j) ^= uel(M1,row_i);
+      }
+    }
+    M0[row_i] = M1[row_i] = 0;
+  }
+  mask = 0;
+  for (i = 1; i <= dim; i++)
+    mask |= 1UL<<(s[i]-1);
+  for (i = 1; i <= last_dim; i++)
+    mask |= 1UL<<(last_s[i]-1);
+  if (mask != (ulong)(-1))
+    return NULL; /* Failure */
+  setlg(s, dim);
+  set_avma(av);
+  *pt_s = s;
+  return M1;
+}
+
+/* Compute x * A~ */
+static GEN
+F2w_F2Ms_transmul(GEN x, GEN A, long nbrow)
+{
+  long i, j, l = lg(A);
+  GEN b = zero_zv(nbrow);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(A,i);
+    long lc = lg(c);
+    ulong xi = x[i];
+    for (j = 1; j < lc; j++)
+      b[c[j]] ^= xi;
+  }
+  return b;
+}
+
+/* Compute x * A */
+static GEN
+F2w_F2Ms_mul(GEN x, GEN A)
+{
+  long i, j, l = lg(A);
+  GEN b = cgetg(l, t_VECSMALL);
+  for (i = 1; i < l; i++)
+  {
+    GEN c = gel(A,i);
+    long lc = lg(c);
+    ulong s = 0;
+    for (j = 1; j < lc; j++)
+      s ^= x[c[j]];
+    b[i] = s;
+  }
+  return b;
+}
+
+static void
+F2wB_addid_inplace(GEN f)
+{
+  long i;
+  for (i = 1; i <= BIL; i++)
+    uel(f,i) ^= 1UL<<(i-1);
+}
+
+static void
+F2w_mask_inplace(GEN f, ulong m)
+{
+  long i, l = lg(f);
+  for (i = 1; i < l; i++)
+    uel(f,i) &= m;
+}
+
+static GEN
+block_lanczos(GEN B, ulong nbrow)
+{
+  pari_sp av = avma, av2;
+  GEN v0, v1, v2, vnext, x, w;
+  GEN winv0, winv1, winv2;
+  GEN vt_a_v0, vt_a_v1, vt_a2_v0, vt_a2_v1;
+  GEN d, e, f, f2, s0;
+  long i, iter;
+  long n = lg(B)-1;
+  long dim0;
+  ulong mask0, mask1;
+  v1 = zero_zv(n);
+  v2 = zero_zv(n);
+  vt_a_v1 = zero_zv(BIL);
+  vt_a2_v1 = zero_zv(BIL);
+  winv1 = zero_zv(BIL);
+  winv2 = zero_zv(BIL);
+  s0 = identity_zv(BIL);
+  mask1 = (ulong)(-1);
+
+  x = random_zv(n);
+  w = F2w_F2Ms_mul(F2w_F2Ms_transmul(x, B, nbrow), B);
+  v0 = w;
+  av2 = avma;
+  for (iter=1;;iter++)
+  {
+    vnext = F2w_F2Ms_mul(F2w_F2Ms_transmul(v0, B, nbrow), B);
+    vt_a_v0  = F2w_transmul(v0, vnext);
+    if (zv_equal0(vt_a_v0)) break; /* success */
+    vt_a2_v0 = F2w_transmul(vnext, vnext);
+    winv0 = find_nonsingular_sub(vt_a_v0, s0, &s0);
+    if (!winv0) return gc_NULL(av); /* failure */
+    dim0 = lg(s0)-1;
+    mask0 = 0;
+    for (i = 1; i <= dim0; i++)
+      mask0 |= 1UL<<(s0[i]-1);
+    d = cgetg(BIL+1, t_VECSMALL);
+    for (i = 1; i <= BIL; i++)
+      d[i] = (vt_a2_v0[i] & mask0) ^ vt_a_v0[i];
+
+    d = F2wB_mul(winv0, d);
+    F2wB_addid_inplace(d);
+    e = F2wB_mul(winv1, vt_a_v0);
+    F2w_mask_inplace(e, mask0);
+    f = F2wB_mul(vt_a_v1, winv1);
+    F2wB_addid_inplace(f);
+    f = F2wB_mul(winv2, f);
+    f2 = cgetg(BIL+1, t_VECSMALL);
+    for (i = 1; i <= BIL; i++)
+      f2[i] = ((vt_a2_v1[i] & mask1) ^ vt_a_v1[i]) & mask0;
+
+    f = F2wB_mul(f, f2);
+    F2w_mask_inplace(vnext, mask0);
+    F2w_F2wB_mul_add_inplace(v0, d, vnext);
+    F2w_F2wB_mul_add_inplace(v1, e, vnext);
+    F2w_F2wB_mul_add_inplace(v2, f, vnext);
+    d = F2wB_mul(winv0, F2w_transmul(v0, w));
+    F2w_F2wB_mul_add_inplace(v0, d, x);
+    v2 = v1; v1 = v0; v0 = vnext;
+    winv2 = winv1; winv1 = winv0;
+    vt_a_v1 = vt_a_v0;
+    vt_a2_v1 = vt_a2_v0;
+    mask1 = mask0;
+    gerepileall(av2, 9, &x, &s0, &v0, &v1, &v2,
+                        &winv1, &winv2, &vt_a_v1, &vt_a2_v1);
+  }
+  if (DEBUGLEVEL >= 5)
+    err_printf("Lanczos halted after %ld iterations\n", iter);
+  v1 = F2w_F2Ms_transmul(x, B, nbrow);
+  v2 = F2w_F2Ms_transmul(v0, B, nbrow);
+  x  = shallowconcat(F2w_transpose_F2m(x), F2w_transpose_F2m(v0));
+  v1 = shallowconcat(F2w_transpose_F2m(v1), F2w_transpose_F2m(v2));
+  s0 = gel(F2m_indexrank(x), 2);
+  x = shallowextract(x, s0);
+  v1 = shallowextract(v1, s0);
+  return F2m_mul(x, F2m_ker(v1));
+}
+
+static GEN
+F2v_inflate(GEN v, GEN p, long n)
+{
+  long i, l = lg(p)-1;
+  GEN w = zero_F2v(n);
+  for (i=1; i<=l; i++)
+    if (F2v_coeff(v,i))
+      F2v_set(w, p[i]);
+  return w;
+}
+
+static GEN
+F2m_inflate(GEN x, GEN p, long n)
+{ pari_APPLY_same(F2v_inflate(gel(x,i), p, n)) }
+
+GEN
+F2Ms_ker(GEN M, long nbrow)
+{
+  pari_sp av = avma;
+  long nbcol = lg(M)-1;
+  GEN Mp, R, Rp, p = F2Ms_colelim(M, nbrow);
+  Mp = vecpermute(M, p);
+  do
+  {
+    R = block_lanczos(Mp, nbrow);
+  } while(!R);
+  Rp = F2m_inflate(R, p, nbcol);
+  return gerepilecopy(av, Rp);
+}
+
+GEN
+F2m_to_F2Ms(GEN M)
+{
+  long ncol = lg(M)-1;
+  GEN B = cgetg(ncol+1, t_MAT);
+  long i, j, k;
+  for(i = 1; i <= ncol; i++)
+  {
+    GEN D, V = gel(M,i);
+    long n = F2v_hamming(V), l = V[1];
+    D = cgetg(n+1, t_VECSMALL);
+    for (j=1, k=1; j<=l; j++)
+      if( F2v_coeff(V,j))
+        D[k++] = j;
+    gel(B, i) = D;
+  }
+  return B;
+}
+
+GEN
+F2Ms_to_F2m(GEN M, long nrow)
+{
+  long i, j, l = lg(M);
+  GEN B = cgetg(l, t_MAT);
+  for(i = 1; i < l; i++)
+  {
+    GEN Bi = zero_F2v(nrow), Mi = gel(M,i);
+    long l = lg(Mi);
+    for (j = 1; j < l; j++)
+      F2v_set(Bi, Mi[j]);
+    gel(B, i) = Bi;
+  }
+  return B;
+}
