@@ -95,6 +95,7 @@ x
 6*t^4 - 20*t^6 + 42*t^8 - 72*t^10 + 110*t^12 - 156*t^14 + 210*t^16 + O(t^18)
 -52635599.000000000000000000000000000000
 [1, 1, 1, 0, -3, -8, -3, 56, 217, 64, -2951, -12672, 5973, 309376]
+[]
 1 + x^2 + 1/2*x^4 + 1/6*x^6 + 1/24*x^8 + 1/120*x^10 + 1/720*x^12 + 1/5040*x^
 14 + 1/40320*x^16 + O(x^18)
 1 + x^2 + 1/2*x^4 + 1/6*x^6 + 1/24*x^8 + 1/120*x^10 + O(x^12)
@@ -106,6 +107,9 @@ x
   ***   at top-level: derivnum(z=0,0,[1,-1])
   ***                              ^---------
   ***   domain error in derivnumk: derivation order < 0
+  ***   at top-level: derivnum(z=0,0,x)
+  ***                              ^----
+  ***   incorrect type in derivnum (t_POL).
   ***   at top-level: derivn(cos,-1)
   ***                 ^--------------
   *** derivn: domain error in derivn: n < 0
@@ -132,4 +136,4 @@ x
   ***   in anonymous function: derivn((x)->x,2)
   ***                          ^----------------
   *** _derivfun: incorrect type in numerical derivation (t_STR).
-Total time spent: 4
+Total time spent: 3

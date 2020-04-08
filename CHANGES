@@ -87,6 +87,7 @@ BA  63- ellap could fail with division by 0
 MW  67- mateigen would sometime return eigenvalues instead of eigenvectors
 AE  68- [libpari] FpX_oneroot_split could fail for deg 2 and 3.
 BA  69- [pthread] Fix potential crashes when cancelling threads.
+    70- derivnum: add sanity checks for 'ind' [#2216]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

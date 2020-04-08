@@ -1570,6 +1570,27 @@ vfact(GEN ind, long N, long prec)
     gel(v, ind[i]) = iN = mulri(iN, mulu_interval(ind[i-1] + 1, ind[i]));
   return v;
 }
+
+static GEN
+chk_ind(GEN ind, long *M)
+{
+  *M = 0;
+  switch(typ(ind))
+  {
+    case t_INT: ind = mkvecsmall(itos(ind)); break;
+    case t_VECSMALL:
+      if (lg(ind) == 1) return NULL;
+      break;
+    case t_VEC: case t_COL:
+      if (lg(ind) == 1) return NULL;
+      if (RgV_is_ZV(ind)) { ind = ZV_to_zv(ind); break; }
+      /* fall through */
+    default:
+      pari_err_TYPE("derivnum", ind);
+      return NULL; /*LCOV_EXCL_LINE*/
+  }
+  *M = vecsmall_max(ind); chk_ord(*M); return ind;
+}
 GEN
 derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
 {
@@ -1578,11 +1599,8 @@ derivnumk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   pari_sp av = avma;
   int allodd = 1;
 
-  ind = gtovecsmall(ind0);
-  l = lg(ind);
-  F = cgetg(l, t_VEC);
-  M = vecsmall_max(ind);
-  chk_ord(M);
+  ind = chk_ind(ind0, &M); if (!ind) return cgetg(1, t_VEC);
+  l = lg(ind); F = cgetg(l, t_VEC);
   if (!M) /* silly degenerate case */
   {
     X = eval(E, x, prec);
@@ -1669,27 +1687,23 @@ derivfunk(void *E, GEN (*eval)(void *, GEN, long), GEN x, GEN ind0, long prec)
   case t_REAL: case t_INT: case t_FRAC: case t_COMPLEX:
     return derivnumk(E,eval, x, ind0, prec);
   case t_POL:
-    ind = gtovecsmall(ind0);
-    M = vecsmall_max(ind);
+    ind = chk_ind(ind0,&M); if (!ind) return cgetg(1,t_VEC);
     xp = RgX_deriv(x);
     x = RgX_to_ser(x, precdl+2 + M * (1+RgX_val(xp)));
     break;
   case t_RFRAC:
-    ind = gtovecsmall(ind0);
-    M = vecsmall_max(ind);
+    ind = chk_ind(ind0,&M); if (!ind) return cgetg(1,t_VEC);
     x = rfrac_to_ser(x, precdl+2 + M * (1+rfrac_val_deriv(x)));
     xp = derivser(x);
     break;
   case t_SER:
-    ind = gtovecsmall(ind0);
-    M = vecsmall_max(ind);
+    ind = chk_ind(ind0,&M); if (!ind) return cgetg(1,t_VEC);
     xp = derivser(x);
     break;
   default: pari_err_TYPE("numerical derivation",x);
     return NULL; /*LCOV_EXCL_LINE*/
   }
-  av = avma; chk_ord(M);
-  vx = varn(x);
+  av = avma; vx = varn(x);
   ixp = M? ginv(xp): NULL;
   F = cgetg(M+2, t_VEC);
   gel(F,1) = eval(E, x, prec);
