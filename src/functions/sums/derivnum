@@ -3,7 +3,8 @@ Section: sums
 C-Name: derivnum0
 Prototype: V=GEDGp
 Help: derivnum(X=a,expr,{ind=1}): numerical derivation of expr with respect to
- X at X = a. The order of derivation is given by parameter 'ind'.
+ X at X = a. The order of derivation is given by parameter 'ind', which can
+ be a vector.
 Wrapper: (,Gp)
 Description:
   (gen,gen):gen:prec derivnum(${2 cookie}, ${2 wrapper}, $1, $prec)
