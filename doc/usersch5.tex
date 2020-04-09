@@ -4511,7 +4511,12 @@ of $x$.
 \fun{void}{F2m_set}{GEN x, long i, long j} sets the coefficient $(i,j)$ of $x$
 to $1$.
 
-\fun{void}{F2m_copy}{GEN x} returns a copy of $x$.
+\fun{GEN}{F2m_copy}{GEN x} returns a copy of $x$.
+
+\fun{GEN}{F2m_transpose}{GEN x} returns the transpose of $x$.
+
+\fun{GEN}{F2m_row}{GEN x, long j} returns the \kbd{F2v} which corresponds
+to the $j$-th row of the \kbd{F2m} $x$.
 
 \fun{GEN}{F2m_rowslice}{GEN x, long a, long b} returns the \kbd{F2m} built
 from the $a$-th to $b$-th rows of the \kbd{F2m} $x$. Assumes $a \leq b$.

@@ -306,6 +306,28 @@ matid_F2m(long n)
   return y;
 }
 
+GEN
+F2m_row(GEN x, long j)
+{
+  long i, l = lg(x);
+  GEN V = zero_F2v(l-1);
+  for(i = 1; i < l; i++)
+    if (F2m_coeff(x,j,i))
+      F2v_set(V,i);
+  return V;
+}
+
+GEN
+F2m_transpose(GEN x)
+{
+  long i, dx, lx = lg(x);
+  GEN y;
+  if (lx == 1) return cgetg(1,t_MAT);
+  dx = coeff(x,1,1); y = cgetg(dx,t_MAT);
+  for (i=1; i<dx; i++) gel(y,i) = F2m_row(x,i);
+  return y;
+}
+
 INLINE GEN
 F2m_F2c_mul_i(GEN x, GEN y, long lx, long l)
 {
