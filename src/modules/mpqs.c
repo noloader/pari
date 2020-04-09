@@ -994,6 +994,15 @@ static void
 mpqs_add_factor(GEN relp, long *i, ulong ei, ulong pi)
 { relp[++*i] = pi | (ei << REL_OFFSET); }
 
+static int
+zv_is_even(GEN V)
+{
+  long i, l = lg(V);
+  for (i=1; i<l; i++)
+    if (odd(uel(V,i))) return 0;
+  return 1;
+}
+
 static GEN
 combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
 {
@@ -1005,6 +1014,7 @@ combine_large_primes(mpqs_handle_t *h, GEN rel1, GEN rel2)
   ei = zero_zv(lei);
   rel_to_ei(ei, rel_p(rel1));
   rel_to_ei(ei, rel_p(rel2));
+  if (zv_is_even(ei)) return NULL;
   new_Y = modii(mulii(mulii(Y1, Y2), iq), h->N);
   new_Y1 = subii(h->N, new_Y);
   if (abscmpii(new_Y1, new_Y) < 0) new_Y = new_Y1;
