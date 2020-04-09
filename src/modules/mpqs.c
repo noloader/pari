@@ -205,6 +205,7 @@ mpqs_find_k(mpqs_handle_t *h)
     double value; /* the larger, the better */
   } cache[MPQS_POSSIBLE_MULTIPLIERS];
   ulong p, i, nbk;
+  long MPQS_MULTIPLIER_SEARCH_DEPTH = expi(h->N)<200 ? 500 : 5000;
 
   for (i = nbk = 0; i < numberof(cand_multipliers); i++)
   {

@@ -17,10 +17,6 @@
 
 /* - non-configurable sizing parameters */
 
-#define MPQS_POSSIBLE_MULTIPLIERS  5 /* how many values for k we'll try */
-/* following must be in range of the cand_multipliers table below */
-#define MPQS_MULTIPLIER_SEARCH_DEPTH 5 /* how many primes to inspect per k */
-
 /* 'large primes' must be smaller than min(MPQS_LP_BOUND, largest_FB_p) */
 #define MPQS_LP_BOUND              12500000 /* works for 32 and 64bit */
 
@@ -101,6 +97,9 @@ typedef struct mpqs_multiplier {
   mpqs_uint32_t omega_k; /* number (0, 1 or 2) of primes dividing k */
   mpqs_uint32_t kp[2]; /* prime factors of k, if any */
 } mpqs_multiplier_t;
+
+#define MPQS_POSSIBLE_MULTIPLIERS  15 /* how many values for k we'll try */
+/* following must be in range of the cand_multipliers table below */
 
 static const mpqs_multiplier_t cand_multipliers[] = {
   {  1, 0, { 0,  0}},
