@@ -231,7 +231,6 @@ const struct bb_field *get_F2xq_field(void **E, GEN T);
 GEN     monomial_F2x(long d, long vs);
 GEN     pol1_F2xX(long v, long sv);
 GEN     polx_F2xX(long v, long sv);
-GEN     random_F2x(long d, long vs);
 GEN     random_F2xqX(long d1, long v, GEN T);
 
 /* F2xqE.c */
@@ -4948,8 +4947,10 @@ GEN     getrand(void);
 ulong   pari_rand(void);
 GEN     randomi(GEN x);
 GEN     randomr(long prec);
+GEN     random_F2x(long d, long vs);
 ulong   random_Fl(ulong n);
 long    random_bits(long k);
+GEN     random_zv(long n);
 void    setrand(GEN seed);
 
 /* ratpoints.c */

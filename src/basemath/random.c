@@ -249,6 +249,15 @@ random_F2x(long d, long vs)
 }
 
 GEN
+random_zv(long n)
+{
+  GEN y = cgetg(n+1, t_VECSMALL);
+  long i;
+  for (i=1; i<=n; i++) uel(y,i) = pari_rand();
+  return y;
+}
+
+GEN
 randomr(long prec)
 {
   pari_sp av;
