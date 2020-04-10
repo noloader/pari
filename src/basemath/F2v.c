@@ -323,8 +323,8 @@ F2m_transpose(GEN x)
   long i, dx, lx = lg(x);
   GEN y;
   if (lx == 1) return cgetg(1,t_MAT);
-  dx = coeff(x,1,1); y = cgetg(dx,t_MAT);
-  for (i=1; i<dx; i++) gel(y,i) = F2m_row(x,i);
+  dx = coeff(x,1,1); y = cgetg(dx+1,t_MAT);
+  for (i=1; i<=dx; i++) gel(y,i) = F2m_row(x,i);
   return y;
 }
 
