@@ -670,8 +670,8 @@ F2m_F2c_invimage(GEN A, GEN y)
   return gerepileuptoleaf(av, x);
 }
 
-/*  Block Lanczos lgorithm for kernel of sparse matrix (F2Ms)
-    Based on lanczos.cpp fby Jason Papadopoulos
+/*  Block Lanczos algorithm for kernel of sparse matrix (F2Ms)
+    Based on lanczos.cpp by Jason Papadopoulos
     <https://github.com/sagemath/FlintQS/blob/master/src/lanczos.cpp>
     Copyright Jason Papadopoulos 2006
     Released under the GNU General Public License v2 or later version.
