@@ -1456,11 +1456,9 @@ mpqs(GEN N)
                (long)H.index1_FB, (long)FB[H.index1_FB].fbe_p);
     err_printf("MPQS: largest prime in FB = %ld\n", (long)H.largest_FB_p);
     err_printf("MPQS: bound for `large primes' = %ld\n", (long)H.lp_bound);
-  }
-  if (DEBUGLEVEL >= 5)
-  {
-    err_printf("MPQS: sieve threshold = %u\n", (unsigned int)H.sieve_threshold);
-    err_printf("MPQS: starting main loop\n");
+    if (DEBUGLEVEL >= 5)
+      err_printf("MPQS: sieve threshold = %u\n", (unsigned int)H.sieve_threshold);
+    err_printf("MPQS: computing relations:");
   }
 
   /* main loop which
@@ -1505,15 +1503,18 @@ mpqs(GEN N)
     }
     if (DEBUGLEVEL >= 4 && frel.nb > dbg_target)
     {
-      err_printf("MPQS: found %ld / %ld required relations, time = %ld ms\n",
-                 frel.nb, H.target_rels, timer_delay(&T));
+      err_printf(" %ld%%", 100*frel.nb/ H.target_rels);
+      if (DEBUGLEVEL >= 5) err_printf(" (%ld ms)", timer_delay(&T));
       dbg_target += H.target_rels / 100.;
     }
     if (frel.nb < (ulong)H.target_rels) continue; /* main loop */
 
     if (DEBUGLEVEL >= 4)
+    {
+      timer_start(&T);
       err_printf("\nMPQS: starting Gauss over F_2 on %ld distinct relations\n",
                  frel.nb);
+    }
     fact = mpqs_solve_linear_system(&H, &frel);
     if (fact)
     { /* solution found */
