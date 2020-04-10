@@ -4811,7 +4811,7 @@ rem_col(GEN c, long i, GEN iscol, GEN Wrow, long *rcol, long *rrow)
 }
 
 static void
-rem_singleton(GEN M, GEN iscol, GEN Wrow, long *rcol, long *rrow)
+rem_singleton(GEN M, GEN iscol, GEN Wrow, long idx, long *rcol, long *rrow)
 {
   long i, j;
   long nbcol = lg(iscol)-1, last;
@@ -4821,7 +4821,7 @@ rem_singleton(GEN M, GEN iscol, GEN Wrow, long *rcol, long *rrow)
     for (i = 1; i <= nbcol; ++i)
       if (iscol[i])
       {
-        GEN c = gmael(M, i, 1);
+        GEN c = idx ? gmael(M, i, idx): gel(M,i);
         long lc = lg(c);
         for (j = 1; j < lc; ++j)
           if (Wrow[c[j]] == 1)
@@ -4894,7 +4894,7 @@ RgMs_structelim_col(GEN M, long nbcol, long nbrow, GEN A, GEN *p_col, GEN *p_row
   for (i = 1; i <= nbrow; ++i)
     if (Wrow[i])
       rrow++;
-  rem_singleton(M, iscol, Wrow, &rcol, &rrow);
+  rem_singleton(M, iscol, Wrow, 1, &rcol, &rrow);
   if (rcol<rrow) pari_err_BUG("RgMs_structelim, rcol<rrow");
   for (; rcol>rrow;)
   {
@@ -4902,7 +4902,7 @@ RgMs_structelim_col(GEN M, long nbcol, long nbrow, GEN A, GEN *p_col, GEN *p_row
     GEN per = fill_wcol(M, iscol, Wrow, &w, wcol);
     for (i = nbcol; i>=imin && wcol[per[i]]>=w && rcol>rrow; i--)
       rem_col(gmael(M, per[i], 1), per[i], iscol, Wrow, &rcol, &rrow);
-    rem_singleton(M, iscol, Wrow, &rcol, &rrow);
+    rem_singleton(M, iscol, Wrow, 1, &rcol, &rrow);
     set_avma(av2);
   }
   for (j = 1, i = 1; i <= nbcol; ++i)
@@ -4919,6 +4919,32 @@ void
 RgMs_structelim(GEN M, long nbrow, GEN A, GEN *p_col, GEN *p_row)
 {
   RgMs_structelim_col(M, lg(M)-1, nbrow, A, p_col, p_row);
+}
+
+GEN
+F2Ms_colelim(GEN M, long nbrow)
+{
+  long i,j;
+  long nbcol = lg(M)-1;
+  GEN pcol = zero_zv(nbcol);
+  pari_sp av = avma;
+  long rcol = nbcol, rrow = 0;
+  GEN iscol = const_vecsmall(nbcol, 1);
+  GEN Wrow  = zero_zv(nbrow);
+  for (i = 1; i <= nbcol; ++i)
+  {
+    GEN F = gel(M, i);
+    long l = lg(F)-1;
+    for (j = 1; j <= l; ++j)
+      Wrow[F[j]]++;
+  }
+  rem_singleton(M, iscol, Wrow, 0, &rcol, &rrow);
+  for (j = 1, i = 1; i <= nbcol; ++i)
+    if (iscol[i])
+      pcol[j++] = i;
+  fixlg(pcol,j);
+  set_avma(av);
+  return pcol;
 }
 
 /*******************************************************************/

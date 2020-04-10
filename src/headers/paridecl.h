@@ -1579,6 +1579,7 @@ GEN     nfgwkummer(GEN nf, GEN Lpr, GEN Ld, GEN pl, long var);
 
 /* alglin1.c */
 
+GEN     F2Ms_colelim(GEN M, long nbrow);
 GEN     F2m_image(GEN x);
 GEN     F2m_indexrank(GEN x);
 GEN     F2m_suppl(GEN x);

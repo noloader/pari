@@ -9197,9 +9197,9 @@ Shallow function.
 G$ return the vector of $x \cdot v[i]$. Shallow function.
 
 \fun{GEN}{ZGCs_add}{GEN x, GEN y} add two sparse vectors of
-\kbd{ZG} elements (see Blackbox linear algebra below).
+\kbd{ZG} elements (see Sparse linear algebra below).
 
-\subsec{Blackbox linear algebra}
+\subsec{Sparse and blackbox linear algebra}
 
 A sparse column \kbd{zCs} $v$ is a \typ{COL} with two components $C$ and $E$
 which are \typ{VECSMALL} of the same length, representing $\sum_i
@@ -9214,6 +9214,9 @@ fit in a C long.
 \kbd{RgCs} and \kbd{RgMs} are similar, except that the type of the components
 of $E$ is now unspecified. Functions handling those later objects
 must not depend on the type of those components.
+
+\kbd{F2Ms} are \typ{VEC} of \kbd{F2Cs}. \kbd{F2Cs} are \typ{VECSMALL} whoses
+entries are the non-zero coefficients ($1$).
 
 It is not possible to derive the space dimension (number of rows) from the
 above data. Thus most functions take an argument \kbd{nbrow} which is the
@@ -9248,6 +9251,10 @@ the number of effectively present rows is equal to the number of columns.
 the result is stored in two \typ{VECSMALL}s, \kbd{*p\_col} and \kbd{*p\_row}:
 \kbd{*p\_col} is a map from the new columns indices to the old one.
 \kbd{*p\_row} is a map from the old rows indices to the new one ($0$ if removed).
+
+\fun{GEN}{F2Ms_colelim}{GEN M, long nbrow} returns some subset of the columns
+of $M$ as a \typ{VECSMALL} of indices, selected such that the dimension of the
+kernel of the matrix is preserved. The subset is not garranted to be minimal.
 
 \fun{GEN}{FpMs_leftkernel_elt}{GEN M, long nbrow, GEN p}
 $M$ being a sparse matrix over $\F_p$, return a non-zero kbd{FpV} $X$ such
