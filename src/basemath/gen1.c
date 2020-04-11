@@ -365,6 +365,13 @@ Qdivii(GEN x, GEN y)
   pari_sp av = avma;
   GEN r, q;
 
+  if (lgefint(y) == 3)
+  {
+    q = Qdiviu(x, y[2]);
+    if (signe(y) > 0) return q;
+    if (typ(q) == t_INT) togglesign(q); else togglesign_safe(&gel(q,1));
+    return q;
+  }
   if (is_pm1(y)) return (signe(y) < 0)? negi(x): icopy(x);
   if (equali1(x))
   {
@@ -423,10 +430,12 @@ Qdivis(GEN x, long y)
 {
   pari_sp av = avma;
   ulong r, t;
-  long s = signe(x);
+  long s;
   GEN q;
 
+  if (y > 0) return Qdiviu(x, y);
   if (!y) pari_err_INV("gdiv",gen_0);
+  s = signe(x);
   if (!s) return gen_0;
   if (y < 0) { y = -y; s = -s; }
   if (y == 1) { x = icopy(x); setsigne(x,s); return x; }
