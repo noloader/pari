@@ -1097,10 +1097,9 @@ gpow0(GEN x, GEN n, long prec)
 static GEN
 modlog2(GEN x, long *sh)
 {
-  double d = rtodbl(x), da = fabs(d);
-  long q = (long) ((da + (M_LN2/2))/M_LN2);
-  if (da > M_LN2 * LONG_MAX)
-    pari_err_OVERFLOW("expo()"); /* avoid overflow in  q */
+  double d = rtodbl(x), qd = (fabs(d) + M_LN2/2)/M_LN2;
+  long q = (long)qd;
+  if (qd >= LONG_MAX) pari_err_OVERFLOW("expo()");
   if (d < 0) q = -q;
   *sh = q;
   if (q) {
