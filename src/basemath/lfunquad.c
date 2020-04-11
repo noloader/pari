@@ -566,7 +566,7 @@ modularodd(long D, long r, long N0)
 /* prod_p (1 - (D/p)p^(-k))
  * Cost O( D/log(D) (k log(kD))^mu ), mu = multiplication exponent */
 static GEN
-Linv(long D, long k, int prime)
+Linv(long D, long k, ulong den)
 {
   pari_sp av;
   long s, bit, lim, Da = labs(D), prec;
@@ -574,7 +574,7 @@ Linv(long D, long k, int prime)
   forprime_t iter;
   ulong p;
   GEN P, Q;
-  if (prime) B += log(k * Da);
+  if (den) B += log((double)den);
   bit = maxss((long)(B * k)/(M_LN2 * km), 32) + 32;
   prec = nbits2prec(bit);
   lim = (long)exp( (B-log(km)) / km ); /* ~ D / (2Pi e) */
@@ -600,31 +600,30 @@ Linv(long D, long k, int prime)
 }
 
 static GEN
-myround(GEN z, GEN d)
+myround(GEN z, ulong d)
 {
   long e;
-  if (d) z = mulri(z, d);
+  if (d) z = mulru(z, d);
   z = grndtoi(z, &e); if (e >= -4) pari_err_BUG("lfunquad");
-  if (d) z = Qdivii(z, d);
-  return z;
+  return d? Qdiviu(z, d): z;
 }
 
 /* D != 1, k > 2; L(\chi_D, 1-k) using func. eq. */
 static GEN
 Lfeq(long D, long k)
 {
-  GEN z, res, den;
-  long Da, prec;
-  int prime;
+  GEN z, res;
+  long Da, prec, den = 0;
 
   if ((D > 0 && odd(k)) || (D < 0 && !odd(k))) return gen_0;
-  Da = labs(D); prime = uisprime(Da) || Da == 4;
-  z = Linv(D, k, prime); prec = lg(z);
+  Da = labs(D);
+  if (Da == 4) den = 2;
+  else if (uisprime(Da) && (k % (Da - 1) == ((Da - 1) >> 1))) den = k * Da;
+  z = Linv(D, k, den); prec = lg(z);
   z = mulrr(z, powrs(divru(Pi2n(1, prec), Da), k));
   if (Da != 4) { z = mulrr(z, sqrtr_abs(utor(Da,prec))); shiftr_inplace(z,-1); }
   res = divrr(mpfactr(k-1, prec), z);
   if (odd(k/2)) togglesign(res);
-  den = prime? utoipos(k*Da): NULL;
   return myround(res, den);
 }
 
@@ -686,4 +685,4 @@ lfunquadneg_i(long D, long k)
 /* need k <= 0 and D fundamental */
 GEN
 lfunquadneg(long D, long k)
-{ pari_sp av = avma; return gerepileupto(av, lfunquadneg_i(D,k)); }
+{ pari_sp av = avma; return gerepileupto(av, lfunquadneg_i(D, k)); }
