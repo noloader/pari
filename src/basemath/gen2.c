@@ -786,12 +786,9 @@ lexcmp_i(GEN x, GEN y)
     switch(tx)
     {
       case t_MAT:
-      case t_VEC:
-        return lexcmp_similar(x,y);
-      case t_VECSMALL:
-        return vecsmall_lexcmp(x,y);
-      default:
-        return gcmp(x,y);
+      case t_VEC: return lexcmp_similar(x,y);
+      case t_VECSMALL: return vecsmall_lexcmp(x,y);
+      default: return gcmp(x,y);
     }
   if (tx == t_VECSMALL) return  lexcmp_vecsmall_other(x,y,ty);
   if (ty == t_VECSMALL) return -lexcmp_vecsmall_other(y,x,tx);
@@ -800,7 +797,7 @@ lexcmp_i(GEN x, GEN y)
   if (ty == t_INT) return -lexcmp_scal_matvec(y,x);
 
   if (ty==t_MAT) return  lexcmp_vec_mat(x,y);
-  /*tx==t_MAT*/  return -lexcmp_vec_mat(y,x);
+  return -lexcmp_vec_mat(y,x); /*tx==t_MAT*/
 }
 int
 lexcmp(GEN x, GEN y)
