@@ -1070,7 +1070,10 @@ F2Ms_ker(GEN M, long nbrow)
 {
   pari_sp av = avma;
   long nbcol = lg(M)-1;
-  GEN Mp, R, Rp, p = F2Ms_colelim(M, nbrow);
+  GEN Mp, R, Rp, p;
+  if (nbrow <= 640)
+    return gerepileupto(av, F2m_ker(F2Ms_to_F2m(M, nbrow)));
+  p = F2Ms_colelim(M, nbrow);
   Mp = vecpermute(M, p);
   do
   {
