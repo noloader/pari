@@ -366,17 +366,14 @@ Qdivii(GEN x, GEN y)
   GEN r, q;
 
   if (is_pm1(y)) return (signe(y) < 0)? negi(x): icopy(x);
-  if (equali1(x)) {
-    long s = signe(y);
-    if (!s) pari_err_INV("gdiv",y);
-    if (signe(x) < 0) s = -s;
-    q = cgetg(3, t_FRAC);
-    gel(q,1) = s<0? gen_m1: gen_1;
-    gel(q,2) = absi(y); return q;
+  if (equali1(x))
+  {
+    if (!signe(y)) pari_err_INV("gdiv",y);
+    retmkfrac(signe(y) < 0? gen_m1: gen_1, absi(y));
   }
   q = dvmdii(x,y,&r);
   if (r == gen_0) return q; /* gen_0 intended */
-  r = gcdii(y,r);
+  r = gcdii(y, r);
   if (lgefint(r) == 3)
   {
     ulong t = r[2];
@@ -396,6 +393,54 @@ Qdivii(GEN x, GEN y)
     gel(q,2) = diviiexact(y,r);
   }
   normalize_frac(q); return q;
+}
+
+/* x t_INT, return x/y in reduced form */
+GEN
+Qdiviu(GEN x, ulong y)
+{
+  pari_sp av = avma;
+  ulong r, t;
+  GEN q;
+
+  if (y == 1) return icopy(x);
+  if (!y) pari_err_INV("gdiv",gen_0);
+  if (equali1(x)) retmkfrac(gen_1, utoipos(y));
+  q = absdiviu_rem(x,y,&r);
+  if (!r)
+  {
+    if (signe(x) < 0) togglesign(q);
+    return q;
+  }
+  t = ugcd(y, r); set_avma(av);
+  if (t == 1) retmkfrac(icopy(x), utoipos(y));
+  retmkfrac(diviuexact(x,t), utoipos(y / t));
+}
+
+/* x t_INT, return x/y in reduced form */
+GEN
+Qdivis(GEN x, long y)
+{
+  pari_sp av = avma;
+  ulong r, t;
+  long s = signe(x);
+  GEN q;
+
+  if (!y) pari_err_INV("gdiv",gen_0);
+  if (!s) return gen_0;
+  if (y < 0) { y = -y; s = -s; }
+  if (y == 1) { x = icopy(x); setsigne(x,s); return x; }
+  if (equali1(x)) retmkfrac(s > 0? gen_1: gen_m1, utoipos(y));
+  q = absdiviu_rem(x,y,&r);
+  if (!r)
+  {
+    if (s < 0) togglesign(q);
+    return q;
+  }
+  t = ugcd(y, r); set_avma(av); q = cgetg(3, t_FRAC);
+  if (t != 1) { x = diviuexact(x,t); y /= t; } else x = icopy(x);
+  gel(q,1) = x; setsigne(x, s);
+  gel(q,2) = utoipos(y); return q;
 }
 
 /*******************************************************************/
@@ -2871,7 +2916,7 @@ gdivgs(GEN x, long s)
 {
   long tx = typ(x), lx, i;
   pari_sp av;
-  GEN z, y;
+  GEN z;
 
   if (!s)
   {
@@ -2880,18 +2925,8 @@ gdivgs(GEN x, long s)
   }
   switch(tx)
   {
-    case t_INT:
-      av = avma; z = divis_rem(x,s,&i);
-      if (!i) return z;
-
-      i = cgcd(s, i);
-      set_avma(av); z = cgetg(3,t_FRAC);
-      if (i == 1) y = icopy(x); else { s /= i; y = diviuexact(x, i); }
-      gel(z,1) = y;
-      gel(z,2) = stoi(s); normalize_frac(z); return z;
-
-    case t_REAL:
-      return divrs(x,s);
+    case t_INT: return Qdivis(x, s);
+    case t_REAL: return divrs(x,s);
 
     case t_INTMOD:
       z = cgetg(3, t_INTMOD);

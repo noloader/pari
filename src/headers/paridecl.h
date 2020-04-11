@@ -3514,6 +3514,8 @@ GEN     mulcxI(GEN x);
 GEN     mulcxmI(GEN x);
 GEN     mulcxpowIs(GEN x, long k);
 GEN     Qdivii(GEN x1, GEN x2);
+GEN     Qdiviu(GEN x, ulong y);
+GEN     Qdivis(GEN x, long y);
 GEN     ser_normalize(GEN x);
 
 /* gen2.c */
