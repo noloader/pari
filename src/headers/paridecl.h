@@ -98,7 +98,7 @@ GEN     F2m_powu(GEN x, ulong n);
 long    F2m_rank(GEN x);
 GEN     F2m_row(GEN x, long j);
 GEN     F2m_rowslice(GEN x, long a, long b);
-GEN     F2m_to_F2Ms_ker(GEN M);
+GEN     F2m_to_F2Ms(GEN M);
 GEN     F2m_to_Flm(GEN z);
 GEN     F2m_to_ZM(GEN z);
 GEN     F2m_to_mod(GEN z);
