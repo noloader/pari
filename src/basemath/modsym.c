@@ -2605,8 +2605,8 @@ use_Petersson(long N, long k, long s)
   if (s < 0)
   {
     if (N <= 64 || N == 100 || N == 128 || N == 144 || N == 225
-        || N == 351 || N == 375) return 8;
-    return 6;
+        || N == 351 || N == 375) return k >= 8;
+    return k >= 6;
   }
   if (N == 1) return 1;
   if (N == 2) return k >= 56;
