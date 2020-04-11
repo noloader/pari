@@ -1204,9 +1204,9 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
 /**                    FROM RELATIONS TO DIVISORS                   **/
 /*********************************************************************/
 
-/* create an F2m from a relations list; rows = size_of_FB+1 */
+/* create an F2m from a relations list */
 static GEN
-rels_to_F2Ms(GEN rel, long rows)
+rels_to_F2Ms(GEN rel)
 {
   long i, cols = lg(rel)-1;
   GEN m = cgetg(cols+1, t_VEC);
@@ -1257,7 +1257,7 @@ mpqs_solve_linear_system(mpqs_handle_t *h, hashtable *frel)
   GEN rels = hash_keys(frel), N = h->N, r, c, res, ei, M, Ker;
   long i, j, nrows, rlast, rnext, rmax, rank;
 
-  M = rels_to_F2Ms(rels, h->size_of_FB+1);
+  M = rels_to_F2Ms(rels);
   Ker = F2Ms_ker(M, h->size_of_FB+1); rank = lg(Ker)-1;
   if (DEBUGLEVEL >= 4)
   {
