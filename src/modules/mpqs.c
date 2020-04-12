@@ -66,6 +66,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define REL_MASK ((1UL<<REL_OFFSET)-1)
 #define MAX_PE_PAIR 60
 
+#ifdef LONG_IS_64BIT
+const ulong mpqs_mask = 0x8080808080808080UL;
+#else
+const ulong mpqs_mask = 0x80808080UL;
+#endif
+
 static GEN rel_q(GEN c) { return gel(c,3); }
 static GEN rel_Y(GEN c) { return gel(c,1); }
 static GEN rel_p(GEN c) { return gel(c,2); }
@@ -162,7 +168,7 @@ mpqs_sieve_array_ctor(mpqs_handle_t *h)
   long size = (h->M << 1) + 1;
   mpqs_int32_t size_of_FB = h->size_of_FB;
 
-  h->sieve_array = (unsigned char *) stack_malloc(size * sizeof(unsigned char));
+  h->sieve_array = (unsigned char *) stack_malloc(size + sizeof(mpqs_mask));
   h->sieve_array_end = h->sieve_array + size - 2;
   h->sieve_array_end[1] = 255; /* sentinel */
   h->candidates = (long *)stack_malloc(MPQS_CANDIDATE_ARRAY_SIZE * sizeof(long));
@@ -912,15 +918,25 @@ mpqs_eval_sieve(mpqs_handle_t *h)
   long x = 0, count = 0, M2 = h->M << 1;
   unsigned char t = h->sieve_threshold;
   unsigned char *S = h->sieve_array;
+  ulong * U = (ulong *) S;
   long *cand = h->candidates;
+  const long sizemask = sizeof(mpqs_mask);
 
   /* Exploiting the sentinel, we don't need to check for x < M2 in the inner
    * while loop; more than makes up for the lack of explicit unrolling. */
   while (count < MPQS_CANDIDATE_ARRAY_SIZE - 1)
   {
-    while (S[x] < t) x++;
-    if (x >= M2) break;
-    cand[count++] = x++;
+    long j, y;
+    while ((U[x] & mpqs_mask)==0) x++;
+    y = x*sizemask;
+    for (j=0; j<sizemask; j++, y++)
+    {
+      if (y >= M2)
+        { cand[count] = 0; return count; }
+      if (S[y]>=t)
+        cand[count++] = y;
+    }
+    x++;
   }
   cand[count] = 0; return count;
 }
