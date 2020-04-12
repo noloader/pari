@@ -617,8 +617,12 @@ Lfeq(long D, long k)
 
   if ((D > 0 && odd(k)) || (D < 0 && !odd(k))) return gen_0;
   Da = labs(D);
-  if (Da == 4) den = 2;
-  else if (uisprime(Da) && (k % (Da - 1) == ((Da - 1) >> 1))) den = k * Da;
+  if (Da & 3)
+  {
+    long d = (Da - 1) >> 1, kd = k / d;
+    if (odd(kd) && !(k % d) && uisprime(Da)) den = kd * Da;
+  }
+  else if (Da == 4) den = 2;
   z = Linv(D, k, den); prec = lg(z);
   z = mulrr(z, powrs(divru(Pi2n(1, prec), Da), k));
   if (Da != 4) { z = mulrr(z, sqrtr_abs(utor(Da,prec))); shiftr_inplace(z,-1); }
