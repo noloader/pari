@@ -1099,7 +1099,7 @@ modlog2(GEN x, long *sh)
 {
   double d = rtodbl(x), qd = (fabs(d) + M_LN2/2)/M_LN2;
   long q = (long)qd;
-  if (qd >= LONG_MAX) pari_err_OVERFLOW("expo()");
+  if (dblexpo(qd) >= BITS_IN_LONG-1) pari_err_OVERFLOW("expo()");
   if (d < 0) q = -q;
   *sh = q;
   if (q) {
