@@ -66,10 +66,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define REL_MASK ((1UL<<REL_OFFSET)-1)
 #define MAX_PE_PAIR 60
 
-#ifdef LONG_IS_64BIT
-const ulong mpqs_mask = 0x8080808080808080UL;
+#ifdef HAS_SSE2
+#include <emmintrin.h>
+#define AND(a,b) ((mpqs_bit_array)__builtin_ia32_andps((__v4sf)(a), (__v4sf)(b)))
+#define EXT0(a) ((ulong)__builtin_ia32_vec_ext_v2di((__v2di)(a), 0))
+#define EXT1(a) ((ulong)__builtin_ia32_vec_ext_v2di((__v2di)(a), 1))
+#define TEST(a) (EXT0(a) || EXT1(a))
+typedef __v2di mpqs_bit_array;
+const mpqs_bit_array mpqs_mask = { 0x8080808080808080UL, 0x8080808080808080UL };
 #else
-const ulong mpqs_mask = 0x80808080UL;
+/* Use ulong for the bit arrays */
+typedef ulong mpqs_bit_array;
+#define AND(a,b) ((a)&(b))
+#define TEST(a) (a)
+
+#ifdef LONG_IS_64BIT
+const mpqs_bit_array mpqs_mask = 0x8080808080808080UL;
+#else
+const mpqs_bit_array mpqs_mask = 0x80808080UL;
+#endif
 #endif
 
 static GEN rel_q(GEN c) { return gel(c,3); }
@@ -168,7 +183,7 @@ mpqs_sieve_array_ctor(mpqs_handle_t *h)
   long size = (h->M << 1) + 1;
   mpqs_int32_t size_of_FB = h->size_of_FB;
 
-  h->sieve_array = (unsigned char *) stack_malloc(size + sizeof(mpqs_mask));
+  h->sieve_array = (unsigned char *) stack_malloc_align(size, sizeof(mpqs_mask));
   h->sieve_array_end = h->sieve_array + size - 2;
   h->sieve_array_end[1] = 255; /* sentinel */
   h->candidates = (long *)stack_malloc(MPQS_CANDIDATE_ARRAY_SIZE * sizeof(long));
@@ -401,7 +416,8 @@ mpqs_set_sieve_threshold(mpqs_handle_t *h)
     pari_warn(warner,
         "MPQS: sizing out of tune, FB size or tolerance\n\ttoo large");
   }
-
+  if (DEBUGLEVEL >= 5)
+    err_printf("MPQS: sieve threshold: %ld\n",h->sieve_threshold);
   /* Now fill in the byte-sized approximate scaled logarithms of p_i */
   if (DEBUGLEVEL >= 5)
     err_printf("MPQS: computing logarithm approximations for p_i in FB\n");
@@ -925,7 +941,7 @@ mpqs_eval_sieve(mpqs_handle_t *h)
   long x = 0, count = 0, M2 = h->M << 1;
   unsigned char t = h->sieve_threshold;
   unsigned char *S = h->sieve_array;
-  ulong * U = (ulong *) S;
+  mpqs_bit_array * U = (mpqs_bit_array *) S;
   long *cand = h->candidates;
   const long sizemask = sizeof(mpqs_mask);
 
@@ -934,7 +950,7 @@ mpqs_eval_sieve(mpqs_handle_t *h)
   while (count < MPQS_CANDIDATE_ARRAY_SIZE - 1)
   {
     long j, y;
-    while ((U[x] & mpqs_mask)==0) x++;
+    while (!TEST(AND(U[x],mpqs_mask))) x++;
     y = x*sizemask;
     for (j=0; j<sizemask; j++, y++)
     {
