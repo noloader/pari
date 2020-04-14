@@ -1045,7 +1045,11 @@ tests_OK(GEN a, GEN nfa, GEN b, GEN nfb, long fliso)
   {
     P = nf_get_ramified_primes(nfb); l = lg(P);
     for (i = 1; i < l; i++)
-      if (Z_pval(da, gel(P,i)) == 1 && Z_pval(db, gel(P,i)) < q) return 0;
+    {
+      GEN p = gel(P,i);
+      long va = Z_pval(nfdisc(mkvec2(a, mkvec(p))), p);
+      if (va && Z_pval(db, gel(P,i)) < va * q) return 0;
+    }
     return 1;
   }
   /* da = dK A^2, db = dL B^2, dL = dK^q * N(D)
