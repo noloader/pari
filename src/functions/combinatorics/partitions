@@ -7,6 +7,8 @@ Help: partitions(k,{a=k},{n=k}): vector of partitions of the integer k.
  n=[nmin,nmax]), or the range of the parts with parameter a (a=amax
  or a=[amin,amax]). By default remove zeros, but one can set amin=0 to get X of
  fixed length nmax (=k by default).
+Description:
+  (small,?gen,?gen):vecvecsmall partitions($1, $2, $3)
 Doc: returns the vector of partitions of the integer $k$ as a sum of positive
  integers (parts); for $k < 0$, it returns the empty set \kbd{[]}, and for $k
  = 0$ the trivial partition (no parts). A partition is given by a

@@ -7,6 +7,8 @@ Help: concat(x,{y}): concatenation of x and y, which can be scalars, vectors
  y is omitted, x has to be a list or row vector and its elements are
  concatenated.
 Description:
+ (vecvecsmall,vecvecsmall):vecvecsmall gconcat($1, $2)
+ (vecvecsmall):vecsmall                gconcat1($1)
  (mp,mp):vec           gconcat($1, $2)
  (vec,mp):vec          gconcat($1, $2)
  (mp,vec):vec          gconcat($1, $2)

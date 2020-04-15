@@ -2,6 +2,8 @@ Function: matindexrank
 Section: linear_algebra
 C-Name: indexrank
 Prototype: G
+Description:
+  (gen):vecvecsmall  indexrank($1)
 Help: matindexrank(M): gives two extraction vectors (rows and columns) for
  the matrix M such that the extracted matrix is square of maximal rank.
 Doc: $M$ being a matrix of rank $r$, returns a vector with two

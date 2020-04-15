@@ -6,7 +6,7 @@ Prototype: mG
 Description:
  (bnr):vec:copy        bnr_get_gen($1)
  (bnf):vec:copy        bnf_get_gen($1)
- (gal):vec:copy        gal_get_gen($1)
+ (gal):vecvecsmall:copy        gal_get_gen($1)
  (clgp):vec:copy       gel($1, 3)
  (prid):gen:copy       pr_get_gen($1)
  (gen):gen:copy        member_gen($1)

@@ -12,7 +12,7 @@ Description:
  (empty, typ, str, genstr,gen)
  (empty, errtyp, str)
  (empty, vecsmall, gen)
- (empty, vec, gen)
+ (empty, vecvecsmall, vec, gen)
  (empty, list, gen)
  (empty, closure, gen)
  (empty, error, gen)
@@ -109,7 +109,10 @@ Description:
  (clgp):vec
  (prid):vec
  (gal):vec
+ (vecvecsmall):vec
  (gen):vec
+
+ (vec):vecvecsmall
 
  (gen):list
 
@@ -123,6 +126,7 @@ Description:
  (mp):gen
  (vecsmall):gen
  (vec):gen
+ (vecvecsmall):gen
  (list):gen
  (pol):gen
  (genstr):gen

@@ -42,6 +42,7 @@ Description:
  (lg)           long
  (vecsmall)     GEN
  (vec)          GEN
+ (vecvecsmall)  GEN
  (list)         GEN
  (var)          long
  (pol)          GEN
