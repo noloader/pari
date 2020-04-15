@@ -171,7 +171,7 @@ New syntax: bin(x,y) ===> binomial(x,y)
 
 binomial(x,{k}): binomial coefficient x*(x-1)...*(x-k+1)/k! defined for k in Z 
 and any x. If k is omitted and x an integer, return the vector 
-[binomial(x,1),...,binomial(x,x)].
+[binomial(x,0),...,binomial(x,x)].
 
 
   ***   at top-level: boundcf()
