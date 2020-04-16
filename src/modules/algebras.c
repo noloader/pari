@@ -303,14 +303,6 @@ alglat_get_scalar(GEN lat) { return gel(lat,2); }
 
 /** ADDITIONAL **/
 
-static long
-rnfrealdec(GEN rnf, long k)
-{
-  pari_sp av = avma;
-  GEN r = nfpolsturm(rnf_get_nf(rnf), rnf_get_pol(rnf), stoi(k));
-  return gc_long(av, itou(r));
-}
-
 /* no garbage collection */
 static GEN
 backtrackfacto(GEN y0, long n, GEN red, GEN pl, GEN nf, GEN data, int (*test)(GEN,GEN,GEN), GEN* fa, GEN N, GEN I)
@@ -3694,8 +3686,8 @@ alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, long maxord)
 {
   pari_sp av = avma;
   GEN nf, pl, pl2, cnd, prcnd, cnds, y, Lpr, auts, b, fa, data, hfe;
-  GEN forbid, al;
-  long D, n, d, i, j;
+  GEN forbid, al, ind;
+  long D, n, d, i, j, l;
   nf = rnf_get_nf(rnf);
   n = rnf_get_degree(rnf);
   d = nf_get_degree(nf);
@@ -3707,12 +3699,15 @@ alg_complete0(GEN rnf, GEN aut, GEN hf, GEN hi, long maxord)
 
   auts = allauts(rnf,aut);
 
-  pl = gcopy(hi); /* conditions on the final b */
-  pl2 = gcopy(hi); /* conditions for computing local Hasse invariants */
-  for (i=1; i<lg(pl); i++) {
-    if (hi[i]) { pl[i] = -1; pl2[i] = 1; }
-    else if (!rnfrealdec(rnf,i)) { pl[i] = 1; pl2[i] = 1; }
-  }
+  pl = leafcopy(hi); /* conditions on the final b */
+  pl2 = leafcopy(hi); /* conditions for computing local Hasse invariants */
+  l = lg(pl); ind = cgetg(l, t_VECSMALL);
+  for (i = j = 1; i < l; i++)
+    if (hi[i]) { pl[i] = -1; pl2[i] = 1; } else ind[j++] = i;
+  setlg(ind, j);
+  y = nfpolsturm(nf, rnf_get_pol(rnf), ind);
+  for (i = 1; i < j; i++)
+    if (!signe(gel(y,i))) { pl[ind[i]] = 1; pl2[ind[i]] = 1; }
 
   cnds = computecnd(rnf,Lpr);
   prcnd = gel(cnds,1);
@@ -4089,8 +4084,7 @@ static void
 algcomputehasse(GEN al)
 {
   long r1, k, n, m, m1, m2, m3, i, m23, m123;
-  GEN rnf, nf, b, fab, disc2, cnd, fad, auts, pr, pl, perm;
-  GEN hi, PH, H, L;
+  GEN rnf, nf, b, fab, disc2, cnd, fad, auts, pr, pl, perm, y, hi, PH, H, L;
 
   rnf = alg_get_splittingfield(al);
   n = rnf_get_degree(rnf);
@@ -4100,9 +4094,10 @@ algcomputehasse(GEN al)
   auts = alg_get_auts(al);
   (void)alg_get_abssplitting(al);
 
-  /* real places where rnf/nf ramifies */
+  y = nfpolsturm(nf, rnf_get_pol(rnf), NULL);
   pl = cgetg(r1+1, t_VECSMALL);
-  for (k=1; k<=r1; k++) pl[k] = !rnfrealdec(rnf,k);
+  /* real places where rnf/nf ramifies */
+  for (k = 1; k <= r1; k++) pl[k] = !signe(gel(y,k));
 
   /* infinite Hasse invariants */
   if (odd(n)) hi = const_vecsmall(r1, 0);
