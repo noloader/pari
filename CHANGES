@@ -89,6 +89,8 @@ AE  68- [libpari] FpX_oneroot_split could fail for deg 2 and 3.
 BA  69- [pthread] Fix potential crashes when cancelling threads.
     70- derivnum: add sanity checks for 'ind' [#2216]
 NM  71- nfisincl(x^2-2^5,nfinit(x^4-2)) -> wrong result [#2213, #2214]
+    72- nfeltsign: wrong results for non-primitive elements in presence of
+        ramification at infinity [#2217]
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1

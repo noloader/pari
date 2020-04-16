@@ -1468,16 +1468,31 @@ sarch_get_lambda(GEN sarch) { return gel(sarch,4); }
 static GEN
 sarch_get_F(GEN sarch) { return gel(sarch,5); }
 
-/* true nf, return number of positive roots of char_x */
+/* x not a scalar, true nf, return number of positive roots of char_x */
 static long
 num_positive(GEN nf, GEN x)
 {
-  GEN T = nf_get_pol(nf);
-  GEN charx = ZXQ_charpoly(nf_to_scalar_or_alg(nf,x), T, 0);
-  long np;
+  GEN T = nf_get_pol(nf), B, charx;
+  long dnf, vnf, N;
+  x = nf_to_scalar_or_alg(nf, x); /* not a scalar */
+  charx = ZXQ_charpoly(x, T, 0);
   charx = ZX_radical(charx);
-  np = ZX_sturmpart(charx, mkvec2(gen_0,mkoo()));
-  return np * (degpol(T) / degpol(charx));
+  N = degpol(T) / degpol(charx);
+  /* real places are unramified ? */
+  if (N == 1 || ZX_sturm(charx) * N == nf_get_r1(nf))
+    return ZX_sturmpart(charx, mkvec2(gen_0,mkoo())) * N;
+  /* painful case, multiply by random square until primitive */
+  dnf = nf_get_degree(nf);
+  vnf = varn(T);
+  B = int2n(10);
+  for(;;)
+  {
+    GEN y = RgXQ_sqr(random_FpX(dnf, vnf, B), T);
+    y = RgXQ_mul(x, y, T);
+    charx = ZXQ_charpoly(y, T, 0);
+    if (ZX_is_squarefree(charx))
+      return ZX_sturmpart(charx, mkvec2(gen_0,mkoo())) * N;
+  }
 }
 
 /* x a QC: return sigma_k(x) where 1 <= k <= r1+r2; correct but inefficient
