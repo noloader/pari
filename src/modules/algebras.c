@@ -941,36 +941,36 @@ alg_decompose_total(GEN al, GEN Z, long maps)
 static GEN
 alg_subalg(GEN al, GEN basis)
 {
-  GEN invbasis, mt, p = alg_get_char(al), al2;
+  GEN invbasis, mt, p = alg_get_char(al);
   long i, j, n = lg(basis)-1;
+
   if (!signe(p)) p = NULL;
-  basis = shallowmatconcat(mkvec2(col_ei(n,1),basis));
+  basis = shallowmatconcat(mkvec2(col_ei(n,1), basis));
   if (p)
   {
     basis = image_keep_first(basis,p);
     invbasis = FpM_inv(basis,p);
   }
   else
-  {
-    /* FIXME use an integral variant of image_keep_first */
+  { /* FIXME use an integral variant of image_keep_first */
     basis = QM_ImQ_hnf(basis);
     invbasis = RgM_inv(basis);
   }
   mt = cgetg(n+1,t_VEC);
   gel(mt,1) = matid(n);
-  for (i=2; i<=n; i++) {
+  for (i = 2; i <= n; i++)
+  {
     GEN mtx = cgetg(n+1,t_MAT), x = gel(basis,i);
     gel(mtx,1) = col_ei(n,i);
-    for (j=2; j<=n; j++) {
+    for (j = 2; j <= n; j++)
+    {
       GEN xy = algmul(al, x, gel(basis,j));
       if (p) gel(mtx,j) = FpM_FpC_mul(invbasis, xy, p);
       else   gel(mtx,j) = RgM_RgC_mul(invbasis, xy);
     }
     gel(mt,i) = mtx;
   }
-  al2 = algtableinit_i(mt,p);
-  al2 = mkvec2(al2,basis);
-  return al2;
+  return mkvec2(algtableinit_i(mt,p), basis);
 }
 
 GEN
