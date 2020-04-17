@@ -596,7 +596,6 @@ gen_howell_i(GEN A, long remove_zerocols, long permute_zerocols, long early_abor
       }
     }
 
-
     if (early_abort)
     {
       d = gcoeff(H,i,si);

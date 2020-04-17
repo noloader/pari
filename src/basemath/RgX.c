@@ -465,7 +465,6 @@ rfrac_deflate(GEN F, long m)
   D = RgX_deflate(D, m); return mkrfrac(N, D);
 }
 
-
 /* return x0(X^d) */
 GEN
 RgX_inflate(GEN x0, long d)

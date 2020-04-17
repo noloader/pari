@@ -451,7 +451,6 @@ Flx_negspec(GEN x, ulong p, long l)
   return z-2;
 }
 
-
 GEN
 Flx_neg(GEN x, ulong p)
 {
@@ -983,7 +982,6 @@ Flx_mulspec(GEN a, GEN b, ulong p, long na, long nb)
   return Flx_shiftip(av,c0, v);
 }
 
-
 GEN
 Flx_mul(GEN x, GEN y, ulong p)
 {
@@ -1482,7 +1480,6 @@ Flx_divrem_basecase(GEN x, GEN y, ulong p, GEN *pr)
     *pr = c;
   return q;
 }
-
 
 /* Compute x mod T where 2 <= degpol(T) <= l+1 <= 2*(degpol(T)-1)
  * and mg is the Barrett inverse of T. */
@@ -3697,7 +3694,6 @@ FlxV_direct_compositum(GEN V, ulong p)
   return gen_product(V, (void *)p, &_Flx_direct_compositum);
 }
 
-
 /* (x+1)^n mod p; assume 2 <= n < 2p prime */
 static GEN
 Fl_Xp1_powu(ulong n, ulong p, long v)
@@ -3889,7 +3885,6 @@ struct _Fl2 {
   ulong p, pi, D;
 };
 
-
 static GEN
 _Fl2_sqr(void *data, GEN x)
 {
@@ -3969,7 +3964,6 @@ Flx_Fl2_eval_pre(GEN x, GEN y, ulong D, ulong p, ulong pi)
   }
   return p1;
 }
-
 
 /***********************************************************************/
 /**                                                                   **/

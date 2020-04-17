@@ -944,7 +944,6 @@ quad_be_honest(struct buch_quad *B)
   return r;
 }
 
-
 GEN
 Buchquad(GEN D, double cbach, double cbach2, long prec)
 {

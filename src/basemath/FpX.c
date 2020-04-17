@@ -868,7 +868,6 @@ FpX_rescale(GEN P, GEN h, GEN p)
 GEN
 FpX_deriv(GEN x, GEN p) { return FpX_red(ZX_deriv(x), p); }
 
-
 /* Compute intformal(x^n*S)/x^(n+1) */
 static GEN
 FpX_integXn(GEN x, long n, GEN p)

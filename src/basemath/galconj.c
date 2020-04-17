@@ -1789,7 +1789,6 @@ galoisfrobeniuslift_nilp(GEN T, GEN den, GEN L,  GEN Lden,
   }
 }
 
-
 static GEN
 galoisfrobeniuslift(GEN T, GEN den, GEN L,  GEN Lden,
     struct galois_frobenius *gf,  struct galois_borne *gb)

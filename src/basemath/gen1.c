@@ -606,7 +606,6 @@ conjvec(GEN x,long prec)
   return z;
 }
 
-
 /********************************************************************/
 /**                                                                **/
 /**                           ADDITION                             **/
@@ -1885,7 +1884,6 @@ gmul(GEN x, GEN y)
         z[i] = x[yi];
       }
       return z;
-
 
     default:
       pari_err_TYPE2("*",x,y);

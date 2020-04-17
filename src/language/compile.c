@@ -951,7 +951,6 @@ compilemat(long n, long mode)
   compilecast(n,Gvec,mode);
 }
 
-
 static GEN
 cattovec(long n, long fnum)
 {
@@ -2371,7 +2370,6 @@ optimizematcoeff(long n)
   }
   tree[n].flags=fl;
 }
-
 
 static void
 optimizefunc(entree *ep, long n)

@@ -535,7 +535,6 @@ permtonum(GEN p)
   return gerepileuptoint(av, x);
 }
 
-
 GEN
 cyc_pow(GEN cyc, long exp)
 {

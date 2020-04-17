@@ -216,7 +216,6 @@ static ulong
 Flx_otherroot(GEN x, ulong r, ulong p)
 { return Fl_neg(Fl_add(x[3], r, p), p); }
 
-
 /* 'todo' contains the list of factors to be split.
  * 'done' the list of finished factors, no longer touched */
 struct split_t { GEN todo, done; };

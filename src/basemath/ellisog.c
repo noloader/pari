@@ -20,7 +20,6 @@ static long
 ellisweierstrasspoint(GEN E, GEN Q)
 { return ell_is_inf(Q) || gequal0(ec_dmFdy_evalQ(E, Q)); }
 
-
 /* Given an elliptic curve E = [a1, a2, a3, a4, a6] and t,w in the ring of
  * definition of E, return the curve
  *  E' = [a1, a2, a3, a4 - 5t, a6 - (E.b2 t + 7w)] */
@@ -338,7 +337,6 @@ first_three_power_sums(GEN pol, GEN *p1, GEN *p2, GEN *p3)
   ms3 = RgX_coeff(pol, d-3);
   *p3 = gadd(gmul(s1, gsub(*p2, s2)), gmulsg(-3L, ms3));
 }
-
 
 /* Let E and a t_POL h of degree 1 or 3 whose roots are 2-torsion points on E.
  * - if only_image != 0, return [t, w] used to compute the equation of the

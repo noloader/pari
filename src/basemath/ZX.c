@@ -495,7 +495,6 @@ ZX_rescale_lt(GEN P)
   Q[1] = P[1]; return Q;
 }
 
-
 /*Eval x in 2^(k*BIL) in linear time*/
 static GEN
 ZX_eval2BILspec(GEN x, long k, long nx)

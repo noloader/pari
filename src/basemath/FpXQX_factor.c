@@ -14,7 +14,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #include "pari.h"
 #include "paripriv.h"
 
-
 /*******************************************************************/
 /**                                                               **/
 /**           Isomorphisms between finite fields                  **/
@@ -973,7 +972,6 @@ FlxqX_split_Berlekamp(GEN *t, GEN xp, GEN T, ulong p)
   }
   return d;
 }
-
 
 static long
 FpXQX_split_Berlekamp(GEN *t, GEN T, GEN p)

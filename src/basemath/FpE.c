@@ -1666,7 +1666,6 @@ FpXQE_log(GEN a, GEN b, GEN o, GEN a4, GEN T, GEN p)
   return gerepileuptoint(av, gen_PH_log(a, b, o, (void*)&e, &FpXQE_group));
 }
 
-
 /***********************************************************************/
 /**                                                                   **/
 /**                            Pairings                               **/
@@ -2041,5 +2040,3 @@ FpXQ_ellgens(GEN a4, GEN a6, GEN ch, GEN D, GEN m, GEN T, GEN p)
   }
   return gerepilecopy(av, P);
 }
-
-

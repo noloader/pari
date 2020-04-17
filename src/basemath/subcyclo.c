@@ -213,7 +213,6 @@ znstar_cosets(long n, long phi_n, GEN H)
   return cosets;
 }
 
-
 /*************************************************************************/
 /**                                                                     **/
 /**                     znstar/HNF interface                            **/

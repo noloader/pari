@@ -1481,7 +1481,6 @@ gtrace(GEN x)
       gel(y,2) = FF_trace(x);
       return y;
 
-
     case t_RFRAC:
       av = avma; return gerepileupto(av, gadd(x, conj_i(x)));
 

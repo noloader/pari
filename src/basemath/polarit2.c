@@ -174,7 +174,6 @@ RgX_Frobenius_deflate(GEN S, ulong p)
   return F;
 }
 
-
 static GEN
 RgXY_squff(GEN f)
 {

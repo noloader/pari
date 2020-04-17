@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #  include "../systems/mingw/mingw.h"
 #endif
 
-
 /* Return all chars, up to next separator
  * [as strtok but must handle verbatim character string] */
 char*

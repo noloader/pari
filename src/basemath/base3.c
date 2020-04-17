@@ -2162,7 +2162,6 @@ nfpolsturm(GEN nf, GEN f, GEN ind0)
   return gerepileupto(av, zv_to_ZV(vr1));
 }
 
-
 /* return the vector of signs of x; the matrix of such if x is a vector
  * of nf elements */
 GEN

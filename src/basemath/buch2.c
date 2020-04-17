@@ -641,7 +641,6 @@ nthideal(GRHcheck_t *S, GEN nf, long n)
   return gc_long(av, vecN[n]);
 }
 
-
 /* Compute FB, LV, iLP + KC*. Reset perm
  * C2: bound for norm of tested prime ideals (includes be_honest())
  * C1: bound for p, such that P|p (NP <= C2) used to build relations */

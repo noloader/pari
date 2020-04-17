@@ -4720,7 +4720,6 @@ END:
   return gerepilecopy(av, res);
 }
 
-
 /* f = \sum_i v[i] T_listj[i] (Trace Form) attached to v; replace by f/a_1(f) */
 static GEN
 mf_normalize(GEN mf, GEN v)

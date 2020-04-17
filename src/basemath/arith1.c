@@ -4964,7 +4964,6 @@ sfcont2(GEN b, GEN x, long k)
   return gerepilecopy(av,y);
 }
 
-
 GEN
 gcf(GEN x) { return gboundcf(x,0); }
 GEN

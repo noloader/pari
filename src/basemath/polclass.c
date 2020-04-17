@@ -961,7 +961,6 @@ evec_n_to_m(long m[], const long n[], long k)
   for (i = 1; i < k; ++i) m[i] = m[i - 1] * n[i];
 }
 
-
 /* Based on logfac() in Sutherland's classpoly package.
  * Ramanujan approximation to log(n!), accurate to O(1/n^3) */
 INLINE double
@@ -1397,7 +1396,6 @@ hclassno_wrapper(long D, long h)
   set_avma(av); return hurwitz;
 }
 
-
 /* This is Sutherland 2009, Algorithm 2.1 (p8); delta > 0 */
 static GEN
 select_classpoly_prime_pool(double min_bits, double delta, classgp_pcp_t G)
@@ -1472,7 +1470,6 @@ select_classpoly_prime_pool(double min_bits, double delta, classgp_pcp_t G)
 static int
 primecmp(void *data, GEN v1, GEN v2)
 { (void)data; return cmpss(v1[4], v2[4]); }
-
 
 static long
 height_margin(long inv, long D)

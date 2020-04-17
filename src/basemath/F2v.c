@@ -1,6 +1,5 @@
 /* Copyright (C) 2012-2019 The PARI group.
 
-
 This file is part of the PARI/GP package.
 
 PARI/GP is free software; you can redistribute it and/or modify it under the

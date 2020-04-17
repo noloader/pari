@@ -1217,7 +1217,6 @@ vali(GEN x)
   return vals(*xp) + i * BITS_IN_LONG;
 }
 
-
 /* assume x > 0 */
 INLINE long
 expu(ulong x) { return (BITS_IN_LONG-1) - (long)bfffo(x); }

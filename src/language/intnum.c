@@ -1422,7 +1422,6 @@ intnumdoub0(GEN a, GEN b, int nc, int nd, int nf, GEN tabext, GEN tabint, long p
 }
 #endif
 
-
 /* The quotient-difference algorithm. Given a vector M, convert the series
  * S = \sum_{n >= 0} M[n+1]z^n into a continued fraction.
  * Compute the c[n] such that
@@ -2065,7 +2064,6 @@ sumnumap(void *E, GEN (*eval)(void*,GEN), GEN a, GEN tab, long prec)
 GEN
 sumnumap0(GEN a, GEN code, GEN tab, long prec)
 { EXPR_WRAP(code, sumnumap(EXPR_ARG, a, tab, prec)); }
-
 
 /* max (1, |zeros|), P a t_POL or scalar */
 static double

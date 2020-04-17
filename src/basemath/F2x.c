@@ -2737,7 +2737,6 @@ F2xqX_extgcd(GEN x, GEN y, GEN T,  GEN *ptu, GEN *ptv)
   return d;
 }
 
-
 static GEN
 _F2xqX_mul(void *data,GEN a,GEN b) { return F2xqX_mul(a,b, (GEN) data); }
 static GEN

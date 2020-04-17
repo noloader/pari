@@ -86,7 +86,6 @@ jac_biquadr(GEN t0, GEN t1, GEN t2, GEN r0, GEN r1, GEN r2,
   return p1;
 }
 
-
 INLINE long
 dg(GEN P, long v)
 {

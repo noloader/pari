@@ -1904,7 +1904,6 @@ ZXQ_charpoly_sqf(GEN A, GEN T, long *lambda, long v)
   return gerepileupto(av, R);
 }
 
-
 /* charpoly(Mod(A,T)), A may be in Q[X], but assume T and result are integral */
 GEN
 ZXQ_charpoly(GEN A, GEN T, long v)

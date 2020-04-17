@@ -62,7 +62,6 @@ ZX_to_ZiX(GEN Pr, GEN Pi)
   return P;
 }
 
-
 static GEN
 ZiX_sqr(GEN P)
 {

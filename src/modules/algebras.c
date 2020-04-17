@@ -38,7 +38,6 @@ static GEN algbasismul(GEN al, GEN x, GEN y);
 static GEN algbasismultable(GEN al, GEN x);
 static GEN algbasismultable_Flm(GEN mt, GEN x, ulong m);
 
-
 static int
 checkalg_i(GEN al)
 {
@@ -80,7 +79,6 @@ checklat_i(GEN al, GEN lat)
 }
 void checklat(GEN al, GEN lat)
 { if (!checklat_i(al,lat)) pari_err_TYPE("checklat [please apply alglathnf()]", lat); }
-
 
 /**  ACCESSORS  **/
 long
@@ -743,7 +741,6 @@ algprimesubalg(GEN al)
   K = FpM_ker(F,p);
   return gerepileupto(av, FpM_mul(Z,K,p));
 }
-
 
 static GEN
 _FpX_mul(void* D, GEN x, GEN y) { return FpX_mul(x,y,(GEN)D); }
@@ -1426,7 +1423,6 @@ check_relmt(GEN nf, GEN mt)
   if (!RgM_isidentity(gel(MT,1))) return NULL;
   return MT;
 }
-
 
 int
 algisassociative(GEN mt0, GEN p)

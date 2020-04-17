@@ -1136,7 +1136,6 @@ diviuuexact(GEN x, ulong y, ulong z)
   return diviiexact(x, tmp);
 }
 
-
 /********************************************************************/
 /**                                                                **/
 /**               INTEGER MULTIPLICATION                           **/

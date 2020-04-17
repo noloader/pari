@@ -505,7 +505,6 @@ polymini_zi2(GEN pol)
   return mkvecsmall2(t6, beta);
 }
 
-
 struct igusa {
   GEN j2, i4, j4, j6, j8, j10, i12;
   GEN a0, A2, A3, A5, B2;

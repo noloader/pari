@@ -333,7 +333,6 @@ PlotWindow::resizeEvent(QResizeEvent *e)
   res->setFixedSize(res->sizeHint());
 }
 
-
 void
 PlotWindow::fullScreen()
 {

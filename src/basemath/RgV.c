@@ -349,7 +349,6 @@ Rg_RgC_sub(GEN a, GEN x)
   return z;
 }
 
-
 static GEN
 RgC_add_i(GEN x, GEN y, long lx)
 {

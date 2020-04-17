@@ -96,7 +96,6 @@ pinit(GEN n, GEN *c, GEN *d, ulong prec)
   GEN b = divru( itor( subiu(muliu(n,24), 1), prec ), 24 ); /* n - 1/24 */
   GEN sqrtb = sqrtr(b), Pi = mppi(prec), pi2sqrt2, pisqrt2d3;
 
-
   pisqrt2d3 = mulrr(Pi, sqrtr( divru(utor(2, prec), 3) ));
   pi2sqrt2  = mulrr(Pi, sqrtr( utor(8, prec) ));
   *c = mulrr(pisqrt2d3, sqrtb);

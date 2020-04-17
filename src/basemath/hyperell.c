@@ -491,7 +491,6 @@ ZpXQXXQ_frob(GEN F, GEN U, GEN V, long k, GEN S, GEN T, ulong p, long e)
     return gerepilecopy(av, R);
 }
 
-
 static GEN
 Fq_diff_red(GEN s, GEN A, long m, GEN S, GEN T, GEN q, GEN p, long e)
 {

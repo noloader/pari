@@ -157,7 +157,7 @@ pushvalue(entree *ep, GEN x) {
 }
 
 INLINE void
-zerovalue (entree *ep)
+zerovalue(entree *ep)
 {
   var_cell *v = (var_cell*) pari_malloc(sizeof(var_cell));
   v->value  = (GEN)ep->value;
@@ -168,7 +168,6 @@ zerovalue (entree *ep)
   ep->pvalue= (char*)v;
   ep->valence=EpVAR;
 }
-
 
 /* as above IF ep->value was PUSHed, or was created after block number 'loc'
    return 0 if not deleted, 1 otherwise [for recover()] */
@@ -325,7 +324,6 @@ typedef struct gp_pointer
   long vn;
   long sp;
 } gp_pointer;
-
 
 /* assign res at *pt in "simple array object" p and return it, or a copy.*/
 static void

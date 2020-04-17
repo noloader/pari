@@ -20,13 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
  * 10, 12.  Note that X1(N) is genus 0 for N <= 10 and N = 12, and
  * genus 1 for N = 11, 14, and 15. */
 
-
 INLINE ulong
 Fl_div4(ulong x, ulong p)
 {
   return Fl_halve(Fl_halve(x, p), p);
 }
-
 
 INLINE ulong
 Fl_div8(ulong x, ulong p)
@@ -137,7 +135,6 @@ a2a4_to_a4a6(ulong *a4, ulong *a6, ulong A2, ulong A4, ulong inv3, ulong p, ulon
                  Fl_mul_pre(A4, c, p, pi), p);
 }
 
-
 /*
  * A curve y^2 + a1 xy + a3 y = x^3 is isomorphic to the curve
  *
@@ -162,7 +159,6 @@ a1a3_to_a4a6(
   *a4 = Fl_mul_pre(c, Fl_sub(a3, c3_on_3, p), p, pi);
   *a6 = Fl_addmul_pre(t1, inv4, Fl_sqr_pre(a3, p, pi), p, pi);
 }
-
 
 /* Assumes m > 3, p > 5 */
 /* FIXME: Where do we assume that p > 5?  Some testing suggests that
@@ -198,7 +194,6 @@ bc_to_a4a6(
   *a6 = Fl_mul_pre(54 % p, c6, p, pi);
 }
 
-
 INLINE void
 bc_to_a4a6_and_tors(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -212,7 +207,6 @@ bc_to_a4a6_and_tors(
   /* ty = -108 b */
   *ty = Fl_neg(Fl_mul_pre(108 % p, b, p, pi), p);
 }
-
 
 INLINE void
 tq_to_a4a6_and_tors(
@@ -233,7 +227,6 @@ tq_to_a4a6_and_tors(
   /* Map to isomorphic curve */
   *tx = Fl_addmul_pre(*tx, A2, inv3, p, pi);
 }
-
 
 INLINE void
 qt_to_a4a6_and_tors(
@@ -265,7 +258,6 @@ qt_to_a4a6_and_tors(
                   p);
 }
 
-
 INLINE void
 t_to_a4a6_and_tors(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -286,7 +278,6 @@ t_to_a4a6_and_tors(
   *tx = Fl_addmul_pre(*tx, inv3, Fl_sqr_pre(t1, p, pi), p, pi);
 }
 
-
 INLINE void
 rs_to_a4a6_and_tors(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -298,7 +289,6 @@ rs_to_a4a6_and_tors(
   ulong b = Fl_mul_pre(r, c, p, pi);
   bc_to_a4a6_and_tors(a4, a6, tx, ty, b, c, p, pi);
 }
-
 
 INLINE void
 random_curves_with_general_X1(
@@ -350,7 +340,6 @@ random_curves_with_general_X1(
   set_avma(av);
 }
 
-
 INLINE void
 random_curves_with_11_torsion(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -400,7 +389,6 @@ random_curves_with_11_torsion(
   set_avma(ltop);
 }
 
-
 INLINE void
 random_curves_with_elliptic_X1(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -429,7 +417,6 @@ random_curves_with_elliptic_X1(
   }
 }
 
-
 INLINE void
 random_curves_with_2_torsion(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -448,7 +435,6 @@ random_curves_with_2_torsion(
     *ty++ = 0L;
   };
 }
-
 
 INLINE void
 random_curves_with_3_torsion(
@@ -472,7 +458,6 @@ random_curves_with_3_torsion(
   }
 }
 
-
 INLINE void
 random_curves_with_4_torsion(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -485,7 +470,6 @@ random_curves_with_4_torsion(
   }
 }
 
-
 INLINE void
 random_curves_with_5_torsion(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -497,7 +481,6 @@ random_curves_with_5_torsion(
     bc_to_a4a6_and_tors(a4++, a6++, tx++, ty++, b, b, p, pi);
   }
 }
-
 
 INLINE void
 random_curves_with_6_torsion(
@@ -512,7 +495,6 @@ random_curves_with_6_torsion(
   }
 }
 
-
 INLINE void
 random_curves_with_7_torsion(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -526,7 +508,6 @@ random_curves_with_7_torsion(
     bc_to_a4a6_and_tors(a4++, a6++, tx++, ty++, b, c, p, pi);
   }
 }
-
 
 INLINE void
 random_curves_with_8_torsion(
@@ -544,7 +525,6 @@ random_curves_with_8_torsion(
     bc_to_a4a6_and_tors(a4++, a6++, tx++, ty++, b, c, p, pi);
   }
 }
-
 
 INLINE void
 random_curves_with_9_torsion(
@@ -617,7 +597,6 @@ random_curves_with_12_torsion(
   }
 }
 
-
 INLINE void
 random_curves_with_rational_X1(
   ulong *a4, ulong *a6, ulong *tx, ulong *ty,
@@ -660,7 +639,6 @@ random_curves_with_rational_X1(
   }
 }
 
-
 static void
 random_curves_with_any_torsion(
   ulong *a4, ulong *a6, ulong *px, ulong *py,
@@ -699,7 +677,6 @@ torsion_compatible_with_characteristic(long m, ulong p)
    * truncation). */
   return (lo + m - 1)/m <= hi/m;
 }
-
 
 /*
  * Input: pointers a4, a6, t{x,y} where t{x,y} is allowed to be
@@ -2427,7 +2404,6 @@ static const long *X1_39_s_d[3] = {
   (long *)(evaltyp(t_POL) | _evallg(3)), (long *)(evalvarn(0) | evalsigne(1)),
   FLX_Z
 };
-
 
 static const X1_info X1_table[LAST_X1_LEVEL - FIRST_X1_LEVEL + 1] = {
   { (GEN)X1_13_crv, (GEN)X1_13_r_n, (GEN)X1_13_r_d, 0, (GEN)X1_13_s_n, (GEN)X1_13_s_d, 1, RS_MAP },

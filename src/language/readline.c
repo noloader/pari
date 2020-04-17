@@ -71,7 +71,6 @@ treat_single(pari_rl_interface *rl, int code, char **matches)
 }
 #undef add_comma
 
-
 static char **
 matches_for_emacs(const char *text, char **matches)
 {

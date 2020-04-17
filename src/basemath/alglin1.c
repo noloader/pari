@@ -1513,7 +1513,6 @@ _FqM_mul(void *E, GEN A, GEN B)
   return FqM_mul(A, B, D->T, D->p);
 }
 
-
 static GEN
 FpM_init(GEN a, GEN p, ulong *pp)
 {
@@ -4519,7 +4518,6 @@ FlkM_adjoint(GEN M, GEN P, ulong p)
   }
   return FlmV_recover_pre(V, W, p, pi, P[1]);
 }
-
 
 static GEN
 ZabM_inv_slice(GEN A, GEN Q, GEN P, GEN *mod)

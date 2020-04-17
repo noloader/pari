@@ -1038,5 +1038,3 @@ RgM_diagonal(GEN m)
   for (i=1; i<lx; i++) gel(y,i) = gcopy(gcoeff(m,i,i));
   return y;
 }
-
-

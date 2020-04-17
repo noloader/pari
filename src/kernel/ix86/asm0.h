@@ -100,7 +100,6 @@ do { long *__arg1 = a, *__arg2 = b, *__out = c; \
         : "r" (__arg1), "r" (__arg2), "r" (__out), "g" (overflow), "0" ((ulong)0), "1" ((ulong)0)        : "cc"); \
 } while(0)
 
-
 #define mulll(a,b) \
 __extension__ ({ ulong __valuelo, __arg1 = (a), __arg2 = (b); \
    __asm__ ("mull %3" \

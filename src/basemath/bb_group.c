@@ -77,7 +77,6 @@ sliding_window_powu(GEN x, ulong n, long e, void *E, GEN (*sqr)(void*,GEN),
   return z;
 }
 
-
 /* assume n != 0, t_INT. Compute x^|n| using sliding window powering */
 static GEN
 sliding_window_pow(GEN x, GEN n, long e, void *E, GEN (*sqr)(void*,GEN),

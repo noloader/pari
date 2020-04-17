@@ -933,7 +933,6 @@ heegner_indexmult(GEN om, long t, GEN tam, long prec)
   return gerepileupto(av, divru(divir(tam, Ovr), 4*t*t));
 }
 
-
 /* omega(gcd(D, N)), given faN = factor(N) */
 static long
 omega_N_D(GEN faN, ulong D)

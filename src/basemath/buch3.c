@@ -1989,7 +1989,6 @@ factormul(GEN fa1,GEN fa2)
   setlg(e, c+1); return y;
 }
 
-
 static long
 get_nz(GEN bnf, GEN ideal, GEN arch, long clhray)
 {

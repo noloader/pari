@@ -341,7 +341,6 @@ GEN
 ZqX_liftroot(GEN f, GEN a, GEN T, GEN p, long e)
 { return T ? ZpXQX_liftroot(f, a,T , p, e): ZpX_liftroot(f, a, p, e); }
 
-
 /* U = NULL treated as 1 */
 static void
 BezoutPropagate(GEN link, GEN v, GEN w, GEN pe, GEN U, GEN f, long j)
@@ -622,7 +621,6 @@ Zp_sqrtnlift(GEN b, GEN n, GEN a, GEN p, long e)
   }
   return gerepileuptoint(ltop,a);
 }
-
 
 /* Same as ZpX_liftroot for the polynomial X^2-b */
 GEN
