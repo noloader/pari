@@ -1918,7 +1918,17 @@ $[\var{bnf},\var{modulus},\var{subgroup}]$ forms, which would internally call
 \tet{Buchray} anyway. Recall that a subgroup $H$ is given by a matrix in HNF,
 whose column express generators of $H$ on the fixed generators of the ray class
 group that stored in our \var{bnr}. You may also code the trivial subgroup by
-\kbd{NULL}.
+\kbd{NULL}. It is also allowed to replace $H$ by a character $\chi$ of the ray
+class group modulo \kbd{mod}: it represents the subgroup $\text{Ker} \chi$.
+
+\fun{GEN}{bnr_check_subgroup}{GEN bnr, GEN H, GEN *pdeg} given a \var{bnr}
+attached to a modulus \var{mod}, check whether $H$ represents a congruence
+subgroup (of the ray class group modulo \var{mod}) and returns a normalized
+representation: \kbd{NULL} for the trivial subgroup, or in HNF, reduced
+modulo the elementary divisors of the ray class group. In particular, if $H$
+is a character of the ray class group, the returned value is the character
+kernel. If \kbd{pdeg} is not \kbd{NULL}, \kbd{*pdeg} is set to the degree of the
+attached class field: the index of $H$ in the ray class group.
 
 \fun{GEN}{bnrconductor}{GEN bnr, GEN H, long flag} see the documentation of
 the GP function.

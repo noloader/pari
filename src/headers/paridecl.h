@@ -2752,6 +2752,7 @@ GEN     signunits(GEN bignf);
 GEN     ABC_to_bnr(GEN A, GEN B, GEN C, GEN *H, int gen);
 GEN     Buchray(GEN bnf, GEN module, long flag);
 GEN     bnrautmatrix(GEN bnr, GEN aut);
+GEN     bnr_check_subgroup(GEN bnr, GEN H, GEN *pdeg);
 GEN     bnrchar(GEN bnr, GEN g, GEN v);
 GEN     bnrchar_primitive(GEN bnr, GEN chi, GEN bnrc);
 GEN     bnrclassno(GEN bignf,GEN ideal);

@@ -327,27 +327,27 @@ bnr_grp(GEN nf, GEN U, GEN gen, GEN cyc, GEN bid)
 /**                   INIT RAY CLASS GROUP                         **/
 /**                                                                **/
 /********************************************************************/
-static GEN
-check_subgroup(GEN bnr, GEN H, GEN *clhray)
+GEN
+bnr_check_subgroup(GEN bnr, GEN H, GEN *pdeg)
 {
-  GEN cyc = bnr_get_cyc(bnr);
-  *clhray = bnr_get_no(bnr);
-  if (H && isintzero(H)) H = NULL;
-  if (H) switch(typ(H))
-  {
-    case t_MAT:
-      RgM_check_ZM(H, "check_subgroup");
-      H = ZM_hnfmodid(H, cyc);
-      break;
-    case t_VEC:
-      if (char_check(cyc, H)) { H = charker(cyc, H); break; }
-    default: pari_err_TYPE("check_subgroup", H);
-  }
+  GEN no = bnr_get_no(bnr);
   if (H)
   {
-    GEN h = ZM_det_triangular(H);
-    if (equalii(h, *clhray)) H = NULL; else *clhray = h;
+    GEN h, cyc = bnr_get_cyc(bnr);
+    switch(typ(H))
+    {
+      case t_MAT:
+        RgM_check_ZM(H, "bnr_check_subgroup");
+        H = ZM_hnfmodid(H, cyc);
+        break;
+      case t_VEC:
+        if (char_check(cyc, H)) { H = charker(cyc, H); break; }
+      default: pari_err_TYPE("bnr_check_subgroup", H);
+    }
+    h = ZM_det_triangular(H);
+    if (equalii(h, no)) H = NULL; else no = h;
   }
+  if (pdeg) *pdeg = no;
   return H;
 }
 
@@ -514,7 +514,7 @@ bnrclassno0(GEN A, GEN B, GEN C)
     }
   else checkbnf(A);/*error*/
 
-  H = check_subgroup(A, H, &h);
+  H = bnr_check_subgroup(A, H, &h);
   if (!H) { set_avma(av); return icopy(h); }
   return gerepileuptoint(av, h);
 }
@@ -1437,7 +1437,7 @@ GEN
 bnrconductor_i(GEN bnr, GEN H0, long flag)
 {
   long j, k, l;
-  GEN nf, bid, ideal, archp, clhray, bnrc, e2, e, cond, H;
+  GEN nf, bid, ideal, archp, bnrc, e2, e, cond, H;
   int iscond0, iscondinf = 1, ischi;
   zlog_S S;
 
@@ -1445,7 +1445,7 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   bid = bnr_get_bid(bnr); init_zlog(&S, bid);
   iscond0 = S.no2;
   nf = bnr_get_nf(bnr);
-  H = check_subgroup(bnr, H0, &clhray);
+  H = bnr_check_subgroup(bnr, H0, NULL);
 
   archp = leafcopy(S.archp);
   e     = S.k; l = lg(e);
@@ -1511,7 +1511,7 @@ bnrisconductor(GEN bnr, GEN H0)
 {
   pari_sp av = avma;
   long j, k, l;
-  GEN bnf, nf, archp, clhray, e, H;
+  GEN bnf, nf, archp, e, H;
   zlog_S S;
 
   checkbnr(bnr);
@@ -1519,7 +1519,7 @@ bnrisconductor(GEN bnr, GEN H0)
   init_zlog(&S, bnr_get_bid(bnr));
   if (!S.no2) return 0;
   nf = bnf_get_nf(bnf);
-  H = check_subgroup(bnr, H0, &clhray);
+  H = bnr_check_subgroup(bnr, H0, NULL);
 
   archp = S.archp;
   e     = S.k; l = lg(e);
@@ -1777,7 +1777,7 @@ bnrdisc_i(GEN bnr, GEN H, long flag)
   checkbnr(bnr);
   init_zlog(&S, bnr_get_bid(bnr));
   nf = bnr_get_nf(bnr);
-  H = check_subgroup(bnr, H, &clhray);
+  H = bnr_check_subgroup(bnr, H, &clhray);
   d = itos(clhray);
   if (!H) H = diagonal_shallow(bnr_get_cyc(bnr));
   E = S.k; ED = cgetg_copy(E, &l);

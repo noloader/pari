@@ -243,6 +243,9 @@ Doc:
  generators of a subgroup of the ray class group \kbd{\var{bnr}.clgp} on the
  given generators.
 
+ \item \emph{character} is a character $\chi$ of the ray class group modulo
+ $\goth{f}$, representing the subgroup $\text{Ker} \chi$.
+
  The corresponding \var{bnr} is the subfield of the ray class field of $K$
  modulo $\goth{f}$, fixed by the given subgroup.
 
