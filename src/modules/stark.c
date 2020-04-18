@@ -2480,7 +2480,7 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
 
   /* check the bnr */
   checkbnr(bnr);
-  bnf = checkbnf(bnr);
+  bnf = bnr_get_bnf(bnr);
   nf  = bnf_get_nf(bnf);
   N   = nf_get_degree(nf);
   if (N == 1) return galoissubcyclo(bnr, subgrp, 0, 0);
@@ -2489,7 +2489,6 @@ bnrstark(GEN bnr, GEN subgrp, long prec)
   if (!nf_get_varn(nf))
     pari_err_PRIORITY("bnrstark", nf_get_pol(nf), "=", 0);
   if (nf_get_r2(nf)) pari_err_DOMAIN("bnrstark", "r2", "!=", gen_0, nf);
-  subgrp = get_subgroup(subgrp,bnr_get_cyc(bnr),"bnrstark");
 
   /* compute bnr(conductor) */
   p1     = bnrconductor_i(bnr, subgrp, 2);
