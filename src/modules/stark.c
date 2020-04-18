@@ -2461,16 +2461,6 @@ LABDOUB:
 /********************************************************************/
 /*                        Main functions                            */
 /********************************************************************/
-
-static GEN
-get_subgroup(GEN H, GEN cyc, const char *s)
-{
-  if (!H || gequal0(H)) return diagonal_shallow(cyc);
-  if (typ(H) != t_MAT) pari_err_TYPE(stack_strcat(s," [subgroup]"), H);
-  RgM_check_ZM(H, s);
-  return ZM_hnfmodid(H, cyc);
-}
-
 GEN
 bnrstark(GEN bnr, GEN subgrp, long prec)
 {
@@ -2549,7 +2539,8 @@ bnrL1(GEN bnr, GEN subgp, long flag, long prec)
   if (flag < 0 || flag > 8) pari_err_FLAG("bnrL1");
 
   cyc  = bnr_get_cyc(bnr);
-  subgp = get_subgroup(subgp, cyc, "bnrL1");
+  subgp = bnr_check_subgroup(bnr, subgp, NULL);
+  if (!subgp) subgp = diagonal_shallow(cyc);
 
   Qt = InitQuotient(subgp);
   cl = itou(gel(Qt,1));

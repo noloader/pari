@@ -331,11 +331,15 @@ GEN
 bnr_check_subgroup(GEN bnr, GEN H, GEN *pdeg)
 {
   GEN no = bnr_get_no(bnr);
+  if (H && isintzero(H)) H = NULL;
   if (H)
   {
     GEN h, cyc = bnr_get_cyc(bnr);
     switch(typ(H))
     {
+      case t_INT:
+        H = scalarmat_shallow(H, lg(cyc)-1);
+        /* fall through */
       case t_MAT:
         RgM_check_ZM(H, "bnr_check_subgroup");
         H = ZM_hnfmodid(H, cyc);

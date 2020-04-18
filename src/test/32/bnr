@@ -14,7 +14,7 @@
 [[1, 0, 0; 0, 1, 0; 0, 0, 1], [0]]
   ***   at top-level: bnrL1(bnrinit(Qi,10,1),1)
   ***                 ^-------------------------
-  *** bnrL1: incorrect type in bnrL1 [subgroup] (t_INT).
+  *** bnrL1: incorrect type in bnr_check_subgroup (t_INT).
 0
 [32, 0, 27656345068767491604576153420888539136]
 0, 12, [24, 12, 40621487921685401825918161408203125]
@@ -88,4 +88,4 @@
 [72, [12, 6], [[425, 259; 0, 1], [70, 2; 0, 2]]]
 [[0]~, 1]
 3
-Total time spent: 29
+Total time spent: 44

@@ -1490,20 +1490,12 @@ rnfkummer_ell(struct rnfkummer *kum, GEN bnr, GEN subgroup, long all)
 static void
 bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
 {
-  GEN cyc, cnd, bnr = *pbnr, H = *pH, T;
+  GEN cnd, bnr = *pbnr, H = *pH, T;
 
   if (nftyp(bnr)==typ_BNF) bnr = Buchray(bnr, gen_1, nf_INIT);
   else checkbnr(bnr);
   T = nf_get_pol(bnr_get_nf(bnr));
   if (!varn(T)) pari_err_PRIORITY("bnrclassfield", T, "=", 0);
-  cyc = bnr_get_cyc(bnr);
-  if (!H) H = gen_0;
-  switch(typ(H))
-  {
-    case t_INT: H = scalarmat_shallow(H, lg(cyc)-1);
-    case t_MAT: H = hnfmodid(H, cyc); break;
-    default: pari_err_TYPE("bnrclassfield [subgroup]", H);
-  }
   cnd = bnrconductor_i(bnr, H, 2);
   *pbnr = gel(cnd,2);
   *pH = gel(cnd,3);

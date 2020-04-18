@@ -241,7 +241,7 @@ Doc:
  \item \emph{subgroup} a subgroup of the ray class group modulo $\goth{f}$ of
  $K$. As described above, this is input as a square matrix expressing
  generators of a subgroup of the ray class group \kbd{\var{bnr}.clgp} on the
- given generators.
+ given generators. We also allow a \typ{INT} $n$ for $n \cdot \text{Cl}_f$.
 
  \item \emph{character} is a character $\chi$ of the ray class group modulo
  $\goth{f}$, representing the subgroup $\text{Ker} \chi$.
