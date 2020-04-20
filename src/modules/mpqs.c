@@ -72,8 +72,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #define EXT0(a) ((ulong)__builtin_ia32_vec_ext_v2di((__v2di)(a), 0))
 #define EXT1(a) ((ulong)__builtin_ia32_vec_ext_v2di((__v2di)(a), 1))
 #define TEST(a) (EXT0(a) || EXT1(a))
-typedef __v2du mpqs_bit_array;
-const mpqs_bit_array mpqs_mask = { 0x8080808080808080UL, 0x8080808080808080UL };
+typedef __v2di mpqs_bit_array;
+const mpqs_bit_array mpqs_mask = { (long) 0x8080808080808080L, (long) 0x8080808080808080UL };
 #else
 /* Use ulong for the bit arrays */
 typedef ulong mpqs_bit_array;
