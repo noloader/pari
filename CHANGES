@@ -246,6 +246,7 @@ BA  85- [libpari] random_zv, F2m_transpose, F2m_row
 BA  86- [libpari] F2Ms_ker, F2Ms_colelim, F2Ms_to_F2m, F2m_to_F2Ms
     87- [libpari] Qdivis, Qdiviu
     88- [libpari] bnr_check_subgroup
+    89- [libpari] pow2Pis, powPis
 
   Removed
      1- obsolete function rootsof1_kannan: use nfrootsof1
