@@ -800,6 +800,8 @@ sd_PATH(const char *v, long flag, const char* s, gp_path *p)
 {
   if (v)
   {
+    mt_broadcast(snm_closure(is_entry("default"),
+                 mkvec2(strtoGENstr(s), strtoGENstr(v))));
     pari_free((void*)p->PATH);
     p->PATH = pari_strdup(v);
     if (flag == d_INITRC) return gnil;
