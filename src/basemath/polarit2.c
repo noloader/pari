@@ -1252,25 +1252,34 @@ FqV_factorback(GEN L, GEN e, GEN Tp, GEN p)
 {
   pari_sp av = avma;
   GEN Hi = NULL, H = NULL;
-  long i, l = lg(L);
+  long i, l = lg(L), small = typ(e) == t_VECSMALL;
   for (i = 1; i < l; i++)
   {
-    GEN x, ei = gel(e,i);
-    long s = signe(ei);
-    if (!s) continue;
-    x = Fq_pow(gel(L,i), s > 0? ei: negi(ei), Tp, p);
+    GEN x;
+    long s;
+    if (small)
+    {
+      s = e[i]; if (!s) continue;
+      x = Fq_powu(gel(L,i), labs(s), Tp, p);
+    }
+    else
+    {
+      GEN ei = gel(e,i);
+      s = signe(ei); if (!s) continue;
+      x = Fq_pow(gel(L,i), s > 0? ei: negi(ei), Tp, p);
+    }
     if (s > 0)
       H = H? Fq_mul(H, x, Tp, p): x;
     else
       Hi = Hi? Fq_mul(Hi, x, Tp, p): x;
   }
-  if (!Hi)
+  if (Hi)
   {
-    if (!H) { set_avma(av); return gen_1; }
-    return gerepileupto(av, H);
+    Hi = Fq_inv(Hi, Tp, p);
+    H = H? Fq_mul(H,Hi,Tp,p): Hi;
   }
-  Hi = Fq_inv(Hi, Tp, p);
-  return gerepileupto(av, H? Fq_mul(H,Hi,Tp,p): Hi);
+  else if (!H) { set_avma(av); return gen_1; }
+  return gerepileupto(av, H);
 }
 
 GEN

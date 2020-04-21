@@ -4188,7 +4188,8 @@ $x$ and $y$ (assumed to have the same length).
 has \typ{INT} entries.
 
 \fun{GEN}{FpV_factorback}{GEN L, GEN e, GEN p} given an \kbd{FpV} $L$
-and a \kbd{ZV} $e$ of the same length, return $\prod_i L_i^{e_i}$ modulo $p$.
+and a \kbd{ZV} or \kbd{zv} $e$ of the same length, return $\prod_i L_i^{e_i}$
+modulo $p$.
 
 \subsubsec{\kbd{Fp}-linear algebra} The implementations are not
 asymptotically efficient ($O(n^3)$ standard algorithms).
@@ -5176,6 +5177,10 @@ return the vector of inverses of the $x[i]$. The routine uses Montgomery's
 trick, and involves a single inversion, plus $3(N-1)$ multiplications for
 $N$ entries. The routine is not stack-clean: $2N$ \kbd{FpXQ} are left on
 stack, besides the $N$ in the result.
+
+\fun{GEN}{FqV_factorback}{GEN L, GEN e, GEN T, GEN p} given an \kbd{FqV} $L$
+and a \kbd{ZV} or \kbd{zv} $e$ of the same length, return $\prod_i L_i^{e_i}$
+modulo $p$.
 
 \fun{GEN}{Fq_pow}{GEN x, GEN n, GEN pol, GEN p} returns $\kbd{x}^\kbd{n}$.
 
@@ -12339,11 +12344,10 @@ of \tet{factorback}. The pair $[L,e]$ is of the form
 
 \item \kbd{[fa, NULL]}, \kbd{fa} a two-column factorization matrix: expand it.
 
-\item  \kbd{[v, NULL]}, $v$ a vector of objects: return their
-product.
+\item  \kbd{[v, NULL]}, $v$ a vector of objects: return their product.
 
 \item or \kbd{[v, e]},  $v$ a vector of objects, $e$ a vector of integral
-exponents: return the product of the $v[i]^{e[i]}$.
+exponents (a \kbd{ZV} or \kbd{zv}): return the product of the $v[i]^{e[i]}$.
 
 \noindent \kbd{mul(D, $x$, $y$)} and \kbd{pow(D, $x$, $n$)}
 return $xy$ and $x^n$ respectively.
