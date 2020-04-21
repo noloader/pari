@@ -1,6 +1,5 @@
 dir=examples
-name=Makefile.$osname-$arch
-file=$dir/$name
+file=$objdir/Makefile.examples
 lnfile=Makefile
 
 echo Extracting $file
@@ -98,4 +97,4 @@ clean:
 	-\$(RM) *.o \$(ALL)
 EOT
 
-( cd $dir ; $ln_s $name $lnfile )
+( cd $dir ; $ln_s ../$file $lnfile )

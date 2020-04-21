@@ -472,7 +472,7 @@ install-examples:
 	-mkdir -p \$(EXDIR)
 	-\$(INSTALL_DATA) $ex/EXPLAIN     \$(EXDIR)
 	-\$(INSTALL_DATA) $ex/Inputrc     \$(EXDIR)
-	-\$(INSTALL_DATA) $ex/Makefile    \$(EXDIR)
+	-\$(INSTALL_DATA) Makefile.examples   \$(EXDIR)/Makefile
 	-\$(INSTALL_DATA) $ex/bench.gp    \$(EXDIR)
 	-\$(INSTALL_DATA) $ex/cl.gp       \$(EXDIR)
 	-\$(INSTALL_DATA) $ex/classno.gp  \$(EXDIR)
