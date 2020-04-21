@@ -1152,6 +1152,8 @@ pari_thread_free(struct pari_thread *t)
 void
 pari_thread_init(void)
 {
+  long var;
+  pari_stackcheck_init((void*)&var);
   pari_init_blocks();
   pari_init_errcatch();
   pari_init_rand();
