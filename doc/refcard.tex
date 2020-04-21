@@ -710,16 +710,19 @@ Behaviour at endpoint for Double Exponential (DE) methods: either a scalar
 \li{Kronecker-Legendre symbol $({x\over y})$}{kronecker$(x,y)$}
 \li{quadratic Hilbert symbol (at $p$)}{hilbert$(x,y,\{p\})$}
 
-\subsec{Miscellaneous}
-\li{integer square / $n$-th root of $x$}{sqrtint$(x)$, sqrtnint$(x,n)$}
-\li{largest integer $e$ s.t. $b^e \leq b$, $e = \lfloor \log_b(x)\rfloor$}
-   {logint$(x,b,\{\&z\})$}
+\subsec{Euclidean algorithm, continued fractions}
 \li{CRT: solve $z\equiv x$ and $z\equiv y$}{chinese$(x,y)$}
 \li{minimal $u,v$ so $xu+yv=\gcd(x,y)$}{gcdext$(x,y)$}
+\li{half-gcd algorithm}{halfgcd$(x,y)$}
 \li{continued fraction of $x$}{contfrac$(x,\{b\},\{lmax\})$}
 \li{last convergent of continued fraction $x$}{contfracpnqn$(x)$}
 \li{rational approximation to $x$ (den. $\leq B$)}{bestappr$(x,\{B\})$}
 \li{recognize $x\in\CC$ as polmod mod $T\in\ZZ[X]$}{bestapprnf$(x,T)$}
+
+\subsec{Miscellaneous}
+\li{integer square / $n$-th root of $x$}{sqrtint$(x)$, sqrtnint$(x,n)$}
+\li{largest integer $e$ s.t. $b^e \leq b$, $e = \lfloor \log_b(x)\rfloor$}
+   {logint$(x,b,\{\&z\})$}
 
 \section{Characters}
 Let \var{cyc} $=[d_1,\dots,d_k]$ represent an abelian group $G = \oplus
