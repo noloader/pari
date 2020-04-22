@@ -2947,7 +2947,7 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: permutation2num(vect) ===> permtonum(vect)
 
-permtonum(x): ordinal (between 1 and n!) of permutation x.
+permtonum(x): ordinal (between 0 and n!-1) of permutation x.
 
 
   ***   at top-level: pf()
