@@ -1191,9 +1191,10 @@ struct qfvecwrap
 static long
 forqfvec_wrap(void *E, GEN u, GEN x, double d)
 {
+  pari_sp av = avma;
   struct qfvecwrap *W = (struct qfvecwrap *) E;
   (void) d;
-  return W->fun(W->E, ZM_zc_mul_canon(u, x));
+  return gc_long(av, W->fun(W->E, ZM_zc_mul_canon(u, x)));
 }
 
 void
