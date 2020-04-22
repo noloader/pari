@@ -14,6 +14,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #define PARI_STYPE union token_value
 #define PARI_LTYPE struct node_loc
+#define YYPTRDIFF_T long
+#define YYPTRDIFF_MAXIMUM LONG_MAX
 #define YYSIZE_T size_t
 #define YYLLOC_DEFAULT(Current, Rhs, N)     \
         ((Current).start  = ((N)?(Rhs)[1].start:(Rhs)[0].end),  \
