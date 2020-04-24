@@ -2651,9 +2651,13 @@ print_context(GEN g, pariout_t *T, pari_str *S, long tex)
       if (gel(d,i))
       {
         entree *ep = (entree*) gel(d,i);
+        GEN vi = gel(v,l-i);
         str_puts(S,ep->name);
-        str_putc(S,'=');
-        if (tex) texi(gel(v,l-i),T,S); else bruti(gel(v,l-i),T,S);
+        if (!isintzero(vi))
+        {
+          str_putc(S,'=');
+          if (tex) texi(gel(v,l-i),T,S); else bruti(gel(v,l-i),T,S);
+        }
         if (--n)
           str_putc(S,',');
       }

@@ -1468,13 +1468,16 @@ closure_eval(GEN C)
     case OCsaveframe:
       {
         GEN cl = (operand?gcopy:shallowcopy)(gel(st,sp-1));
-        long l = lg(gel(cl,7));
-        GEN  v = cgetg(l, t_VEC);
-        for(j=1; j<l; j++)
-        {
-          GEN val = var[s_var.n-j].value;
-          gel(v,j) = operand?gcopy(val):val;
-        }
+        GEN f = gel(cl, 7);
+        long j, l = lg(f);
+        GEN v = cgetg(l, t_VEC);
+        for (j = 1; j < l; j++)
+          if (signe(gel(f,l-j))==0)
+          {
+            GEN val = var[s_var.n-j].value;
+            gel(v,j) = operand?gcopy(val):val;
+          } else
+            gel(v,j) = gnil;
         gel(cl,7) = v;
         gel(st,sp-1) = cl;
       }

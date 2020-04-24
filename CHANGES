@@ -156,6 +156,7 @@ BA  43- lexical variables names can now reuse builtin functions names as in
         fun(theta)=my(gamma=1/3);sum(omega=1,10,exp(2*I*Pi*gamma*theta*omega)
     44- mfshimura: disallow the discriminant D argument, only allow
         squarefree positive t
+BA  45- closures: do not copy the full context, only the accessible part
 
   Added
      1- new GP function rootsof1

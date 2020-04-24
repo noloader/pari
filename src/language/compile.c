@@ -102,9 +102,10 @@ struct frame_s
 };
 
 static THREAD pari_stack s_opcode, s_operand, s_data, s_lvar;
-static THREAD pari_stack s_dbginfo, s_frame;
+static THREAD pari_stack s_dbginfo, s_frame, s_accesslex;
 static THREAD char *opcode;
 static THREAD long *operand;
+static THREAD long *accesslex;
 static THREAD GEN *data;
 static THREAD long offset;
 static THREAD struct vars_s *localvars;
@@ -116,6 +117,7 @@ pari_init_compiler(void)
 {
   pari_stack_init(&s_opcode,sizeof(*opcode),(void **)&opcode);
   pari_stack_init(&s_operand,sizeof(*operand),(void **)&operand);
+  pari_stack_init(&s_accesslex,sizeof(*operand),(void **)&accesslex);
   pari_stack_init(&s_data,sizeof(*data),(void **)&data);
   pari_stack_init(&s_lvar,sizeof(*localvars),(void **)&localvars);
   pari_stack_init(&s_dbginfo,sizeof(*dbginfo),(void **)&dbginfo);
@@ -127,6 +129,7 @@ pari_close_compiler(void)
 {
   pari_stack_delete(&s_opcode);
   pari_stack_delete(&s_operand);
+  pari_stack_delete(&s_accesslex);
   pari_stack_delete(&s_data);
   pari_stack_delete(&s_lvar);
   pari_stack_delete(&s_dbginfo);
@@ -135,7 +138,7 @@ pari_close_compiler(void)
 
 struct codepos
 {
-  long opcode, data, localvars, frames;
+  long opcode, data, localvars, frames, accesslex;
   long offset;
   const char *dbgstart;
 };
@@ -144,6 +147,7 @@ static void
 getcodepos(struct codepos *pos)
 {
   pos->opcode=s_opcode.n;
+  pos->accesslex=s_accesslex.n;
   pos->data=s_data.n;
   pos->offset=offset;
   pos->localvars=s_lvar.n;
@@ -157,6 +161,7 @@ compilestate_reset(void)
 {
   s_opcode.n=0;
   s_operand.n=0;
+  s_accesslex.n=0;
   s_dbginfo.n=0;
   s_data.n=0;
   s_lvar.n=0;
@@ -170,6 +175,7 @@ compilestate_save(struct pari_compilestate *comp)
 {
   comp->opcode=s_opcode.n;
   comp->operand=s_operand.n;
+  comp->accesslex=s_accesslex.n;
   comp->data=s_data.n;
   comp->offset=offset;
   comp->localvars=s_lvar.n;
@@ -183,6 +189,7 @@ compilestate_restore(struct pari_compilestate *comp)
 {
   s_opcode.n=comp->opcode;
   s_operand.n=comp->operand;
+  s_accesslex.n=comp->accesslex;
   s_data.n=comp->data;
   offset=comp->offset;
   s_lvar.n=comp->localvars;
@@ -194,6 +201,44 @@ compilestate_restore(struct pari_compilestate *comp)
 static GEN
 gcopyunclone(GEN x) { GEN y = gcopy(x); gunclone(x); return y; }
 
+static void
+access_push(long x)
+{
+  long a = pari_stack_new(&s_accesslex);
+  accesslex[a] = x;
+}
+
+static long
+getnbmvar(void)
+{
+  long i, n = 0;
+  for(i = 0; i < s_lvar.n; i++)
+    if(localvars[i].type==Lmy)
+      n++;
+  return n;
+}
+
+static GEN
+genctx(long nbmvar, long paccesslex)
+{
+  GEN acc = const_vec(nbmvar,gen_1);
+  long i, lvl = 1 + nbmvar;
+  for (i = paccesslex; i<s_accesslex.n; i++)
+  {
+    long a = accesslex[i];
+    if (a > 0) { lvl+=a; continue; }
+    a += lvl;
+    if (a <= 0) pari_err_BUG("genctx");
+    if (a <= nbmvar)
+      gel(acc, a) = gen_0;
+  }
+  s_accesslex.n = paccesslex;
+  for (i = 1; i<=nbmvar; i++)
+    if (signe(gel(acc,i))==0)
+      access_push(i-nbmvar-1);
+  return acc;
+}
+
 static GEN
 getfunction(const struct codepos *pos, long arity, long nbmvar, GEN text,
             long gap)
@@ -201,7 +246,7 @@ getfunction(const struct codepos *pos, long arity, long nbmvar, GEN text,
   long lop  = s_opcode.n+1 - pos->opcode;
   long ldat = s_data.n+1 - pos->data;
   long lfram = s_frame.n+1 - pos->frames;
-  GEN cl = cgetg(nbmvar? 8: (text? 7: 6), t_CLOSURE);
+  GEN cl = cgetg(nbmvar && text? 8: (text? 7: 6), t_CLOSURE);
   GEN frpc, fram, dbg, op, dat;
   char *s;
   long i;
@@ -215,7 +260,6 @@ getfunction(const struct codepos *pos, long arity, long nbmvar, GEN text,
   fram = cgetg(lfram,  t_VEC);
   gel(cl,5) = mkvec3(dbg, frpc, fram);
   if (text) gel(cl,6) = text;
-  if (nbmvar) gel(cl,7) = zerovec(nbmvar);
   s = GSTR(gel(cl,2)) - 1;
   for (i = 1; i < lop; i++)
   {
@@ -229,6 +273,16 @@ getfunction(const struct codepos *pos, long arity, long nbmvar, GEN text,
   s_opcode.n = pos->opcode;
   s_operand.n = pos->opcode;
   s_dbginfo.n = pos->opcode;
+  if (lg(cl)==8)
+    gel(cl,7) = genctx(nbmvar, pos->accesslex);
+  else if (nbmvar==0)
+    s_accesslex.n = pos->accesslex;
+  else
+  {
+    pari_sp av = avma;
+    (void) genctx(nbmvar, pos->accesslex);
+    set_avma(av);
+  }
   for (i = 1; i < ldat; i++)
     if (data[i+pos->data-1]) gel(dat,i) = gcopyunclone(data[i+pos->data-1]);
   s_data.n = pos->data;
@@ -246,9 +300,9 @@ getfunction(const struct codepos *pos, long arity, long nbmvar, GEN text,
 }
 
 static GEN
-getclosure(struct codepos *pos)
+getclosure(struct codepos *pos, long nbmvar)
 {
-  return getfunction(pos,0,0,NULL,0);
+  return getfunction(pos, 0, nbmvar, NULL, 0);
 }
 
 static void
@@ -315,7 +369,7 @@ static GEN
 pack_localvars(void)
 {
   GEN pack=cgetg(3,t_VEC);
-  long i,l=s_lvar.n;
+  long i, l=s_lvar.n, nbmvar = 0;
   GEN t=cgetg(1+l,t_VECSMALL);
   GEN e=cgetg(1+l,t_VECSMALL);
   gel(pack,1)=t;
@@ -324,7 +378,10 @@ pack_localvars(void)
   {
     t[i]=localvars[i-1].type;
     e[i]=(long)localvars[i-1].ep;
+    if (t[i]==Lmy) nbmvar++;
   }
+  for(i=1;i<=nbmvar;i++)
+    access_push(-i);
   return pack;
 }
 
@@ -641,22 +698,19 @@ getmvar(entree *ep)
   return 0;
 }
 
-static long
-ctxmvar(void)
+static void
+ctxmvar(long n)
 {
   pari_sp av=avma;
-  long i, n=0;
   GEN ctx;
-  for(i=s_lvar.n-1;i>=0;i--)
-    if(localvars[i].type==Lmy)
-      n++;
-  if (n==0) return 0;
+  long i;
+  if (n==0) return;
   ctx = cgetg(n+1,t_VECSMALL);
   for(n=0, i=0; i<s_lvar.n; i++)
     if(localvars[i].type==Lmy)
       ctx[++n]=(long)localvars[i].ep;
   frame_push(ctx);
-  set_avma(av); return n;
+  set_avma(av);
 }
 
 INLINE int
@@ -778,7 +832,10 @@ INLINE void
 compilenewptr(long vn, entree *ep, long n)
 {
   if (vn)
+  {
+    access_push(vn);
     op_push(OCnewptrlex,vn,n);
+  }
   else
     op_push(OCnewptrdyn,(long)ep,n);
 }
@@ -1012,7 +1069,10 @@ compilecall(long n, int mode, entree *ep)
   {
     long vn=getmvar(ep);
     if (vn)
+    {
+      access_push(vn);
       op_push(OCpushlex,vn,n);
+    }
     else
       op_push(OCpushdyn,(long)ep,n);
   }
@@ -1046,12 +1106,11 @@ compilefuncinline(long n, long c, long a, long flag, long isif, long lev, long *
   struct codepos pos;
   int type=c=='I'?Gvoid:Ggen;
   long rflag=c=='I'?0:FLsurvive;
-  long nbmvar;
+  long nbmvar = getnbmvar();
   GEN vep = NULL;
   if (isif && (flag&FLreturn)) rflag|=FLreturn;
   getcodepos(&pos);
-  if (c=='J')
-    nbmvar = ctxmvar();
+  if (c=='J') ctxmvar(nbmvar);
   if (lev)
   {
     long i;
@@ -1070,6 +1129,7 @@ compilefuncinline(long n, long c, long a, long flag, long isif, long lev, long *
     checkdups(varg,vep);
     if (c=='J')
       op_push(OCgetargs,lev,n);
+    access_push(lg(vep)-1);
     frame_push(vep);
   }
   if (c=='J')
@@ -1078,7 +1138,7 @@ compilefuncinline(long n, long c, long a, long flag, long isif, long lev, long *
     compilecast(a,Gvoid,type);
   else
     compilenode(a,type,rflag);
-  return getclosure(&pos);
+  return getclosure(&pos, nbmvar);
 }
 
 static long
@@ -1148,6 +1208,7 @@ compilemy(GEN arg, const char *str, int inl)
   checkdups(ver,vep);
   for(i=1; i<=n; i++) var_push(NULL,Lmy);
   op_push_loc(OCnewframe,inl?-n:n,str);
+  access_push(lg(vep)-1);
   frame_push(vep);
   for (k=0, i=1; i<l; i++)
   {
@@ -1466,7 +1527,11 @@ compilefunc(entree *ep, long n, int mode, long flag)
             long a = tree[arg[j]].f==Findarg ? tree[arg[j]].x: arg[j];
             entree *ep = getlvalue(a);
             long vn = getmvar(ep);
-            if (vn) op_push(OCcowvarlex, vn, a);
+            if (vn)
+            {
+              access_push(vn);
+              op_push(OCcowvarlex, vn, a);
+            }
             else op_push(OCcowvardyn, (long)ep, a);
             compilenode(a, Ggen,FLnocopy);
             j++;
@@ -1519,7 +1584,10 @@ compilefunc(entree *ep, long n, int mode, long flag)
             if (tree[a].f==Fentry)
             {
               if (vn)
+              {
+                access_push(vn);
                 op_push(OCsimpleptrlex, vn,n);
+              }
               else
                 op_push(OCsimpleptrdyn, (long)ep,n);
             }
@@ -2154,6 +2222,7 @@ compilenode(long n, int mode, long flag)
       long vn=getmvar(ep);
       if (vn)
       {
+        access_push(vn);
         op_push(OCpushlex,(long)vn,n);
         addcopy(n,mode,flag,FLnocopy|FLnocopylex);
         compilecast(n,Ggen,mode);
@@ -2200,7 +2269,8 @@ compilenode(long n, int mode, long flag)
       getcodepos(&pos);
       dbgstart=tree[x].str+tree[x].len;
       gap = tree[y].str-dbgstart;
-      nbmvar=ctxmvar();
+      nbmvar = getnbmvar();
+      ctxmvar(nbmvar);
       nb = lgarg-1;
       if (nb)
       {
@@ -2219,6 +2289,7 @@ compilenode(long n, int mode, long flag)
         }
         checkdups(arg,vep);
         op_push(OCgetargs,nb,x);
+        access_push(lg(vep)-1);
         frame_push(vep);
         for (i=1;i<=nb;i++)
         {
@@ -2231,9 +2302,10 @@ compilenode(long n, int mode, long flag)
             else
             {
               struct codepos lpos;
+              long nbmvar = getnbmvar();
               getcodepos(&lpos);
               compilenode(y, Ggen, 0);
-              op_push(OCpushgen, data_push(getclosure(&lpos)),a);
+              op_push(OCpushgen, data_push(getclosure(&lpos,nbmvar)),a);
             }
             op_push(OCdefaultarg,-nb+i-1,a);
           } else if (f==Findarg)
