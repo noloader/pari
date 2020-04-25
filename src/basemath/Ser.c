@@ -19,10 +19,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 /*                                                                 */
 /*******************************************************************/
 static GEN
-RgX_to_ser_i(GEN x, long l, long lx, long v, int copy)
+RgX_to_ser_i(GEN x, long l, long v, int copy)
 {
+  long i, lx = lg(x);
   GEN y;
-  long i;
   if (lx == 2) return zeroser(varn(x), l-2);
   if (l < 2) pari_err_BUG("RgX_to_ser (l < 2)");
   y = cgetg(l,t_SER); y[1] = x[1];
@@ -38,7 +38,7 @@ RgX_to_ser_i(GEN x, long l, long lx, long v, int copy)
 }
 /* enlarge/truncate t_POL x to a t_SER with lg l */
 GEN
-RgX_to_ser(GEN x, long l) { return RgX_to_ser_i(x, l, lg(x), RgX_val(x), 0); }
+RgX_to_ser(GEN x, long l) { return RgX_to_ser_i(x, l, RgX_val(x), 0); }
 GEN
 RgX_to_ser_inexact(GEN x, long l)
 {
@@ -50,7 +50,7 @@ RgX_to_ser_inexact(GEN x, long l)
       pari_warn(warner,"normalizing a series with 0 leading term");
       first = 0;
     }
-  return RgX_to_ser_i(x, l, lx, i - 2, 0);
+  return RgX_to_ser_i(x, l, i - 2, 0);
 }
 GEN
 rfrac_to_ser(GEN x, long l)
@@ -161,7 +161,7 @@ poltoser(GEN x, long v, long prec)
   long s = varncmp(varn(x), v);
   if (s < 0) err_ser_priority(x,v);
   if (s > 0) return scalarser(x, v, prec);
-  return RgX_to_ser_i(x, prec+2, lg(x), RgX_val(x), 1);
+  return RgX_to_ser_i(x, prec+2, RgX_val(x), 1);
 }
 /* x a t_RFRAC */
 static GEN
