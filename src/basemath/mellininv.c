@@ -119,93 +119,103 @@ dblcoro526(double a, double c, double B)
 
 static const double MELLININV_CUTOFF = 121.; /* C*C */
 
+/* x real */
 static GEN
-MOD2(GEN x) { GEN q = gdivent(real_i(x),gen_2); return gsub(x,gmul2n(q,1)); }
+RMOD2(GEN x) { return gsub(x, gmul2n(gdiventgs(x,2), 1)); }
+/* x real or complex, return canonical representative for x mod 2Z */
 static GEN
-RgV_MOD2(GEN v)
-{
-  long i, l;
-  GEN w = cgetg_copy(v,&l);
-  for (i=1; i<l; i++) gel(w,i) = MOD2(gel(v,i));
-  return w;
-}
+MOD2(GEN x)
+{ return typ(x) == t_COMPLEX? mkcomplex(RMOD2(gel(x,1)), gel(x,2)): RMOD2(x); }
+static GEN
+RgV_MOD2(GEN x)
+{ pari_APPLY_same(MOD2(gel(x,i))); }
 
-/* poles of the gamma factor */
+/* classes of poles of the gamma factor mod 2Z, sorted by increasing
+ * Re(s) mod 2 (in [0,2[).*/
 static GEN
-gammapoles(GEN Vga)
+gammapoles(GEN Vga, long *pdV, long bit)
 {
   long i, m, l = lg(Vga);
-  GEN P, B = RgV_MOD2(Vga), V = cgetg(l, t_VEC);
+  GEN P, dV, Vold, B = RgV_MOD2(Vga), V = cgetg(l, t_VEC);
   P = gen_indexsort(B, (void*)lexcmp, cmp_nodata);
   for (i = m = 1; i < l;)
   {
     GEN u = gel(B, P[i]);
     long k;
     for(k = i+1; k < l; k++)
-      if (gexpo(gsub(u, gel(B, P[k]))) > -32) break;
-    gel(V, m++) = vecpermute(Vga, vecslice(P,i,k-1));
+    {
+      GEN v = gsub(u, gel(B, P[k]));
+      if (!gequal0(v) && (!isinexactreal(v) || gexpo(v) > -bit)) break;
+    }
+    gel(V, m++) = vecslice(P,i,k-1);
     i = k;
   }
-  setlg(V, m); return V;
+  setlg(V, m); Vold = NULL; dV = gen_1;
+  for (i = 1; i < m; i++)
+  {
+    long n = gel(V,i)[1];
+    if (Vold) dV = gmin_shallow(dV, gsub(gel(B,n), Vold));
+    Vold = gel(B,n);
+  }
+  *pdV = dV == gen_1? 0: -gexpo(dV) * (l - 1);
+  return V;
 }
 
 static GEN
 sercoeff(GEN x, long n, long prec)
 {
   long N = n - valp(x);
-  return (N < 0)? gen_0: gtofp(gel(x, N+2), prec);
+  return (N < 0)? gen_0: gprec_wtrunc(gel(x, N+2), prec);
 }
 
 /* generalized power series expansion of inverse Mellin around x = 0;
  * m-th derivative */
 static GEN
-Kderivsmallinit(GEN Vga, long m, long bitprec)
+Kderivsmallinit(GEN Vga, long m, long bit)
 {
-  double C2 = MELLININV_CUTOFF;
-  long N, j, l, d = lg(Vga)-1, limn, prec = nbits2prec(1+bitprec*(1+M_PI*d/C2));
+  const double C2 = MELLININV_CUTOFF;
+  long prec0, prec2, bit0, N, j, l, dLA, limn, d = lg(Vga)-1;
   GEN LA, L, M, mat;
 
-  Vga = gprec_wensure(Vga, prec);
-  LA = gammapoles(Vga); N = lg(LA)-1;
+  LA = gammapoles(Vga, &dLA, bit); N = lg(LA)-1;
+  bit0 = bit * (1 + M_PI*d/C2); prec0 = nbits2prec(bit0);
+  prec2 = nbits2prec(dLA + bit0); /* if Vga[i] mod 2Z are close */
+  Vga = gprec_wensure(Vga, prec2);
   L = cgetg(N+1, t_VECSMALL);
   M = cgetg(N+1, t_VEC);
-  for (j = 1; j <= N; ++j)
-  {
-    GEN S = gel(LA,j);
-    L[j] = lg(S)-1;
-    gel(M,j) = gsubsg(2, gel(S, vecindexmin(real_i(S))));
-  }
-  limn = ceil(2*M_LN2*bitprec/(d*dbllambertW0(C2/(M_PI*M_E))));
   mat = cgetg(N+1, t_VEC);
+  limn = ceil(2*M_LN2*bit / (d * dbllambertW0(C2/(M_PI*M_E))));
   l = limn + 2;
-  for (j=1; j <= N; j++)
+  for (j = 1; j <= N; j++)
   {
-    GEN C, c, mj = gel(M,j), pr = gen_1, t = gen_1;
-    long i, k, n, lj = L[j], lprecdl = lj+3;
+    GEN S = vecpermute(Vga, gel(LA,j)); /* same class mod 2Z */
+    GEN C, c, mj, pr = gen_1, t = gen_1;
+    long i, k, n, lj = L[j] = lg(S)-1, lprecdl = lj+3;
+
+    gel(M,j) = mj = gsubsg(2, gel(S, vecindexmin(real_i(S))));
     for (i = 1; i <= d; i++)
     {
       GEN a = gmul2n(gadd(mj, gel(Vga,i)), -1);
       GEN u = deg1pol_shallow(ghalf, a, 0);
-      pr = gmul(pr, ggamma(RgX_to_ser(u, lprecdl), prec));
+      pr = gmul(pr, ggamma(RgX_to_ser(u, lprecdl), prec2));
       t = gmul(t, u);
     }
     c = cgetg(limn+2,t_COL); gel(c,1) = pr;
     for (n=1; n <= limn; n++)
     {
       GEN T = RgX_translate(t, stoi(-2*n));
-      if (n == 1) gel(T,2) = gen_0; /* in case t inexact */
+      if (n == 1) gel(T,2) = gen_0; /* in case Vga inexact */
       gel(c,n+1) = gdiv(gel(c,n), T);
     }
-
     gel(mat, j) = C = cgetg(lj+1, t_COL);
     for (k = 1; k <= lj; k++)
     {
       GEN L = cgetg(l, t_POL);
-      for (n = 2; n < l; n++) gel(L,n) = sercoeff(gel(c,n), -k, prec);
+      for (n = 2; n < l; n++) gel(L,n) = sercoeff(gel(c,n), -k, prec0);
       L[1] = evalsigne(1)|evalvarn(0); gel(C,k) = L;
     }
-    /* C[k] = \sum_n c_{j,k} t^n =: C_k(t) in Dokchitser's Algo 3.3 */
-    /* Take m-th derivative of t^(-M+2) sum_k (-ln t)^k/k! C_k(t^2) */
+    /* C[k] = \sum_n c_{j,k} t^n =: C_k(t) in Dokchitser's Algo 3.3
+     * m-th derivative of t^(-M+2) sum_k (-ln t)^k/k! C_k(t^2) */
     if (m)
     {
       mj = gsubgs(mj, 2);
