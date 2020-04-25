@@ -2382,17 +2382,9 @@ shiftaddress_canon(GEN x, long dec)
       break;
 
     /* one more special case */
-    case t_LIST: {
-      GEN Lx = list_data(x);
-      if (Lx) {
-        pari_sp av = avma;
-        GEN L = (GEN)((long)Lx+dec);
-        shiftaddress_canon(L, dec);
-        list_data(x) = list_internal_copy(L, lg(L)); set_avma(av);
-      }
-      break;
-    }
-    default:
+    case t_LIST:
+      if (!list_data(x)) break;
+    default: /* Fall through */
       lx = lg(x);
       for (i=lontyp[tx]; i<lx; i++) {
         if (!x[i]) gel(x,i) = gen_0;
