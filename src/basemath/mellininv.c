@@ -192,12 +192,11 @@ static GEN
 Kderivsmallinit(GEN Vga, long m, long bit)
 {
   const double C2 = MELLININV_CUTOFF;
-  long prec0, prec2, bit0, N, j, l, dLA, limn, d = lg(Vga)-1;
+  long prec2, N, j, l, dLA, limn, d = lg(Vga)-1;
   GEN LA, L, M, mat;
 
   LA = gammapoles(Vga, &dLA, bit); N = lg(LA)-1;
-  bit0 = bit * (1 + M_PI*d/C2); prec0 = nbits2prec(bit0);
-  prec2 = nbits2prec(dLA + bit0); /* if Vga[i] mod 2Z are close */
+  prec2 = nbits2prec(dLA + bit * (1 + M_PI*d/C2));
   Vga = gprec_wensure(Vga, prec2);
   L = cgetg(N+1, t_VECSMALL);
   M = cgetg(N+1, t_VEC);
@@ -232,7 +231,7 @@ Kderivsmallinit(GEN Vga, long m, long bit)
     for (k = 1; k <= lj; k++)
     {
       GEN L = cgetg(l, t_POL);
-      for (n = 2; n < l; n++) gel(L,n) = sercoeff(gel(c,n), -k, prec0);
+      for (n = 2; n < l; n++) gel(L,n) = sercoeff(gel(c,n), -k, prec2);
       L[1] = evalsigne(1)|evalvarn(0); gel(C,k) = L;
     }
     /* C[k] = \sum_n c_{j,k} t^n =: C_k(t) in Dokchitser's Algo 3.3

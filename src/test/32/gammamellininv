@@ -4,7 +4,7 @@
 -128
 -129
 -129
--56
+-135
 -56
 [1]
 [1, -3/64, 105/8192, -3465/524288, 675675/134217728, -43648605/8589934592, 7
@@ -16,4 +16,4 @@
   ***   at top-level: gammamellininvinit([])
   ***                 ^----------------------
   *** gammamellininvinit: incorrect type in gammamellininvinit (t_VEC).
-Total time spent: 5125
+Total time spent: 4715
