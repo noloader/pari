@@ -328,6 +328,9 @@ N=19; f=mfeisenstein(2,Mod(6,N)); g=mfeisenstein(2,Mod(11,N)); E=mfmul(f,g);
 mfcoefs(E,6)
 
 f = mfbracket(mfbd(E4,4), mfTheta(), 1); vec(f)
+mfcoefs(f,0)
+f = mfbracket(mfbd(E4,4), mfTheta(), 0); vec(f)
+mfcoefs(f,0)
 mfcoefs(mfbracket(E4,E6,1),10)/(-3456)
 mf = mfinit([7,3,Mod(6,7)], 0); [f]=mfeigenbasis(mf);
 lfunmfspec(lfunmf(mf,f))

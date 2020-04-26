@@ -984,11 +984,19 @@ c_bracket(long n, long d, GEN S)
 {
   pari_sp av = avma;
   long i, nd = n*d;
-  GEN F = gel(S,2), G = gel(S,3);
-  GEN VF = mfcoefs_i(F, nd, 1), tF = cgetg(nd+2, t_VEC);
-  GEN VG = mfcoefs_i(G, nd, 1), tG = cgetg(nd+2, t_VEC);
-  GEN C, mpow, res = NULL, gk = mf_get_gk(F), gl = mf_get_gk(G);
+  GEN F = gel(S,2), G = gel(S,3), tF, tG, C, mpow, res, gk, gl;
+  GEN VF = mfcoefs_i(F, nd, 1);
+  GEN VG = mfcoefs_i(G, nd, 1);
   ulong j, m = itou(gel(S,4));
+
+  if (!n)
+  {
+    if (m > 0) { avma = av; return mkvec(gen_0); }
+    return gerepilecopy(av, mkvec(gmul(gel(VF, 1), gel(VG, 1))));
+  }
+  tF = cgetg(nd+2, t_VEC);
+  tG = cgetg(nd+2, t_VEC);
+  res = NULL; gk = mf_get_gk(F); gl = mf_get_gk(G);
   /* pow[i,j+1] = i^j */
   if (lg(S) == 6) chicompatlift(gel(S,5),&VF,&VG);
   mpow = cgetg(m+2, t_MAT);
@@ -1006,7 +1014,7 @@ c_bracket(long n, long d, GEN S)
     GEN c;
     gel(tF,1) = j == 0? gel(VF,1): gen_0;
     gel(tG,1) = j == m? gel(VG,1): gen_0;
-    gel(tF,2) = gel(VF,2);
+    gel(tF,2) = gel(VF,2); /* assume nd >= 1 */
     gel(tG,2) = gel(VG,2);
     for (i = 2; i <= nd; i++)
     {
