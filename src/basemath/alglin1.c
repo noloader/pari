@@ -4688,11 +4688,13 @@ GEN
 ZabM_ker(GEN M, GEN P, long n)
 {
   pari_sp av2, av = avma;
+  pari_timer ti;
   GEN q, H, D;
   ulong m = LONG_MAX>>1;
   ulong p= 1 + m - (m % n);
   av2 = avma;
   H = NULL; D = NULL;
+  if (DEBUGLEVEL>5) timer_start(&ti);
   for(;;)
   {
     GEN Kp, Hp, Dp, Pp, Mp, Hr;
@@ -4711,10 +4713,11 @@ ZabM_ker(GEN M, GEN P, long n)
     else
       ZXM_incremental_CRT(&H, Hp, &q, p);
     Hr = FpXM_ratlift(H, q);
-    if (DEBUGLEVEL>5) err_printf("ZabM_ker mod %ld (ratlift=%ld)\n", p,!!Hr);
+    if (DEBUGLEVEL>5) timer_printf(&ti,"ZabM_ker mod %ld (ratlift=%ld)", p,!!Hr);
     if (Hr) {/* DONE ? */
       GEN Hl = vec_Q_primpart(Hr);
       GEN MH = ZXQM_mul(M, Hl,P);
+      if (DEBUGLEVEL>5) timer_printf(&ti,"ZabM_ker: check");
       if (gequal0(MH)) { H = Hl;  break; }
     }
 
