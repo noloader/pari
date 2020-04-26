@@ -156,6 +156,7 @@ gammapoles(GEN Vga, long *pdV, long bit)
     long n = gel(V,i)[1];
     if (Vold) dV = gmin_shallow(dV, gsub(gel(B,n), Vold));
     Vold = gel(B,n);
+    gel(V,i) = vecpermute(Vga, gel(V,i));
   }
   *pdV = dV == gen_1? 0: -gexpo(dV) * (l - 1);
   return V;
@@ -168,6 +169,23 @@ sercoeff(GEN x, long n, long prec)
   return (N < 0)? gen_0: gprec_wtrunc(gel(x, N+2), prec);
 }
 
+/* prod_i Gamma(s/2 + (m+LA[i])/2), set t *= prod_i (s/2 + (m+LA[i])/2) */
+static GEN
+get_gamma(GEN *pt, GEN LA, GEN m, int round, long precdl, long prec)
+{
+  long i, l = lg(LA);
+  GEN pr = NULL, t = *pt;
+  for (i = 1; i < l; i++)
+  {
+    GEN u, g, a = gmul2n(gadd(m, gel(LA,i)), -1);
+    if (round) a = ground(a);
+    u = deg1pol_shallow(ghalf, a, 0);
+    g = ggamma(RgX_to_ser(u, precdl), prec);
+    pr = pr? gmul(pr, g): g;
+    t = t? gmul(t, u): u;
+  }
+  *pt = t; return pr;
+}
 /* generalized power series expansion of inverse Mellin around x = 0;
  * m-th derivative */
 static GEN
@@ -188,23 +206,26 @@ Kderivsmallinit(GEN Vga, long m, long bit)
   l = limn + 2;
   for (j = 1; j <= N; j++)
   {
-    GEN S = vecpermute(Vga, gel(LA,j)); /* same class mod 2Z */
-    GEN C, c, mj, pr = gen_1, t = gen_1;
-    long i, k, n, lj = L[j] = lg(S)-1, lprecdl = lj+3;
+    GEN S = gel(LA,j);
+    GEN C, c, mj, G = NULL, t = NULL, tj = NULL;
+    long i, k, n, jj, lj = L[j] = lg(S)-1, precdl = lj+3;
 
     gel(M,j) = mj = gsubsg(2, gel(S, vecindexmin(real_i(S))));
-    for (i = 1; i <= d; i++)
+    for (jj = 1; jj <= N; jj++)
     {
-      GEN a = gmul2n(gadd(mj, gel(Vga,i)), -1);
-      GEN u = deg1pol_shallow(ghalf, a, 0);
-      pr = gmul(pr, ggamma(RgX_to_ser(u, lprecdl), prec2));
-      t = gmul(t, u);
+      GEN g;
+      if (jj == j) /* poles come from this class only */
+        g = get_gamma(&tj, gel(LA,jj), mj, 1, precdl, prec2);
+      else
+        g = get_gamma(&t, gel(LA,jj), mj, 0, precdl, prec2);
+      G = G? gmul(G, g): g;
     }
-    c = cgetg(limn+2,t_COL); gel(c,1) = pr;
+    c = cgetg(limn+2,t_COL); gel(c,1) = G;
     for (n=1; n <= limn; n++)
     {
-      GEN T = RgX_translate(t, stoi(-2*n));
-      if (n == 1) gel(T,2) = gen_0; /* in case Vga inexact */
+      GEN A = utoineg(2*n), T = RgX_translate(tj, A);
+      /* T = exact polynomial, may vanish at 0 (=> pole in c[n+1]) */
+      if (t) T = RgX_mul(T, RgX_translate(t, A)); /* no pole here */
       gel(c,n+1) = gdiv(gel(c,n), T);
     }
     gel(mat, j) = C = cgetg(lj+1, t_COL);
