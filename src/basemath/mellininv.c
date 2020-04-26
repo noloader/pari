@@ -197,7 +197,6 @@ Kderivsmallinit(GEN Vga, long m, long bit)
 
   LA = gammapoles(Vga, &dLA, bit); N = lg(LA)-1;
   prec2 = nbits2prec(dLA + bit * (1 + M_PI*d/C2));
-  Vga = gprec_wensure(Vga, prec2);
   L = cgetg(N+1, t_VECSMALL);
   M = cgetg(N+1, t_VEC);
   mat = cgetg(N+1, t_VEC);
@@ -335,7 +334,7 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   }
   A = gsubsg(m*d, sumVga(Vga));
   if (!gequal0(A)) S = gmul(S, gpow(pi, gmul2n(A,-1), prec));
-  return gtofp(S, nbits2prec(bitprec));
+  return S;
 }
 
 /* In Klarge, we conpute K(t) as (asymptotic) * F(z), where F ~ 1 is given by
