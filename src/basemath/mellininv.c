@@ -257,7 +257,7 @@ Kderivsmallinit(GEN Vga, long m, long bit)
     }
   }
   /* Algo 3.3: * \phi^(m)(t) = sum_j t^m_j sum_k (-ln t)^k mat[j,k](t^2) */
-  return mkvec3(L, RgV_neg(M), mat);
+  return mkvec4(L, RgV_neg(M), mat, mkvecsmall(prec2));
 }
 
 /* Evaluate a vector considered as a polynomial using Horner. Unstable!
@@ -287,7 +287,7 @@ static GEN
 GMi_get_Vga(GEN K) { return gel(K,2); }
 static long
 GMi_get_m(GEN K) { return itos( gel(K,3) ); }
-static GEN /* [lj,mj,mat], Kderivsmall only */
+static GEN /* [lj,mj,mat,prec2], Kderivsmall only */
 GMi_get_VS(GEN K) { return gel(K,4); }
 static GEN /* [Ms,cd,A2], Kderivlarge only */
 GMi_get_VL(GEN K) { return gel(K,5); }
@@ -304,7 +304,8 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
   GEN Vga = GMi_get_Vga(K), VS = GMi_get_VS(K);
   GEN L = gel(VS,1), M = gel(VS,2), mat = gel(VS,3);
   GEN d2, Lx, x2, x2i, A, S, pi;
-  long prec, j, k, limn, m = GMi_get_m(K), N = lg(L)-1, d = lg(Vga)-1;
+  long prec = gel(VS,4)[1], N = lg(L)-1, d = lg(Vga)-1, m = GMi_get_m(K);
+  long j, k, limn;
   double xd, Wd, Ed = M_LN2*bitprec / d;
 
   xd = maxdd(M_PI*dblmodulus(x2d), 1E-13); /* pi |x|^2/d unless x tiny */
@@ -313,7 +314,6 @@ Kderivsmall(GEN K, GEN x, GEN x2d, long bitprec)
    * B = log(2)*bitprec / d = Ed */
   Wd = dbllambertW0( Ed / (M_E*xd) ); /* solution of w exp(w) = B exp(-a)*/
   limn = (long) ceil(2*Ed/Wd);
-  prec = nbits2prec((long) ceil(bitprec+d*xd/M_LN2));
   pi = mppi(prec);
   d2 = gdivsg(d,gen_2);
   if (x)
