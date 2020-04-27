@@ -135,8 +135,8 @@ RgV_MOD2(GEN x)
 static GEN
 gammapoles(GEN Vga, long *pdV, long bit)
 {
-  long i, m, l = lg(Vga);
-  GEN P, dV, Vold, B = RgV_MOD2(Vga), V = cgetg(l, t_VEC);
+  long i, m, emax, l = lg(Vga);
+  GEN P, B = RgV_MOD2(Vga), V = cgetg(l, t_VEC);
   P = gen_indexsort(B, (void*)lexcmp, cmp_nodata);
   for (i = m = 1; i < l;)
   {
@@ -150,16 +150,17 @@ gammapoles(GEN Vga, long *pdV, long bit)
     gel(V, m++) = vecslice(P,i,k-1);
     i = k;
   }
-  setlg(V, m); Vold = NULL; dV = gen_1;
+  setlg(V, m); emax = 0;
   for (i = 1; i < m; i++)
   {
-    long n = gel(V,i)[1];
-    if (Vold) dV = gmin_shallow(dV, gsub(gel(B,n), Vold));
-    Vold = gel(B,n);
-    gel(V,i) = vecpermute(Vga, gel(V,i));
+    long j, e = 0, li = lg(gel(V,i))-1;
+    GEN b = gel(B, gel(V,i)[1]);
+    for (j = 1; j < m; j++)
+      if (j != i) e -= gexpo(gsub(gel(B, gel(V,j)[1]), b));
+    emax = maxss(emax, e * li);
   }
-  *pdV = dV == gen_1? 0: -gexpo(dV) * (l - 1);
-  return V;
+  for (i = 1; i < m; i++) gel(V,i) = vecpermute(Vga, gel(V,i));
+  *pdV = emax; return V;
 }
 
 static GEN
