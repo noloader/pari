@@ -1118,6 +1118,7 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
   long *relaprimes = h->relaprimes, *candidates = h->candidates;
   long pi, i;
   int pii;
+  mpqs_per_A_prime_t *per_A_pr = h->per_A_pr;
 
   for (i = 0; i < nc; i++)
   {
@@ -1125,7 +1126,8 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
     GEN Qx, Qx_part, Y, relp = cgetg(MAX_PE_PAIR+1,t_VECSMALL);
     long powers_of_2, p, x = candidates[i], nb = 0;
     int relaprpos = 0;
-
+    long k;
+    unsigned char thr = h->sieve_array[x];
     /* Y = 2*A*x + B, Qx = Y^2/(4*A) = Q(x) */
     Y = addii(mulis(A, 2 * (x - h->M)), B);
     Qx = subii(sqri(Y), h->kN); /* != 0 since N not a square and (N,k) = 1 */
@@ -1163,19 +1165,40 @@ mpqs_eval_cand(mpqs_handle_t *h, long nc, hashtable *frel, hashtable *lprel)
      * Factors in common with k are simpler: if they occur, they occur
      * exactly to the first power, and this makes no difference in Pass 1,
      * so they behave just like every normal odd FB prime. */
-    for (Qx_part = A, pi = 3; (p = FB[pi].fbe_p); pi++)
+    for (Qx_part = A, pi = 3; pi< h->index1_FB; pi++)
     {
+      ulong p = FB[pi].fbe_p;
       long xp = x % p;
-      ulong ei = FB[pi].fbe_flags & MPQS_FBE_DIVIDES_A;
       /* Here we used that MPQS_FBE_DIVIDES_A = 1. */
 
       if (xp == FB[pi].fbe_start1 || xp == FB[pi].fbe_start2)
       { /* p divides Q(x)/A and possibly A, case 2 or 3 */
+        ulong ei = FB[pi].fbe_flags & MPQS_FBE_DIVIDES_A;
         relaprimes[relaprpos++] = pi;
         relaprimes[relaprpos++] = 1 + ei;
         Qx_part = muliu(Qx_part, p);
       }
-      else if (ei)
+    }
+    for (  ; thr && (p = FB[pi].fbe_p); pi++)
+    {
+      long xp = x % p;
+      /* Here we used that MPQS_FBE_DIVIDES_A = 1. */
+
+      if (xp == FB[pi].fbe_start1 || xp == FB[pi].fbe_start2)
+      { /* p divides Q(x)/A and possibly A, case 2 or 3 */
+        ulong ei = FB[pi].fbe_flags & MPQS_FBE_DIVIDES_A;
+        relaprimes[relaprpos++] = pi;
+        relaprimes[relaprpos++] = 1 + ei;
+        Qx_part = muliu(Qx_part, p);
+        thr -= FB[pi].fbe_logval;
+      }
+    }
+    for (k = 0;  k< h->omega_A; k++)
+    {
+      long pi = MPQS_I(k);
+      ulong p = FB[pi].fbe_p;
+      long xp = x % p;
+      if (!(xp == FB[pi].fbe_start1 || xp == FB[pi].fbe_start2))
       { /* p divides A but does not divide Q(x)/A, case 1 */
         relaprimes[relaprpos++] = pi;
         relaprimes[relaprpos++] = 0;
