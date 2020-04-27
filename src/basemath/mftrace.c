@@ -6007,17 +6007,22 @@ mfgaloistype0(long N, GEN CHI, GEN F, GEN DIH, long lim)
 {
   pari_sp av = avma;
   GEN vF = mftocol(F, lim, 1);
-  long t = mfisdihedral(vF, DIH);
+  long t = mfisdihedral(vF, DIH), bound;
   if (t) { set_avma(av); return stoi(t); }
+  bound = maxss(200, 5*expu(N)*expu(N));
   for(;;)
   {
     t = mfgaloistype_i(N, CHI, F, vF);
     set_avma(av); if (t) return stoi(t);
-    lim += lim >> 1; vF = mfcoefs_i(F,lim,1);
+    if (lim > bound) return gen_0;
+    lim += lim >> 1;
+    vF = mfcoefs_i(F,lim,1);
   }
 }
 
 /* If f is NULL, give all the galoistypes, otherwise just for f */
+/* May return 0 as a type if failed to determine; in this case the type is
+ * either -12 or -60, most likely -12. FIXME using the Galois representation. */
 GEN
 mfgaloistype(GEN NK, GEN f)
 {
@@ -12926,7 +12931,7 @@ mfgaloisprojrep(GEN mf, GEN F, long prec)
   long mft;
   if (!checkMF_i(mf) && !checkmf_i(F)) pari_err_TYPE("mfgaloisrep", F);
   mft = itos(mfgaloistype(mf,F));
-  if (mft == -12)
+  if (mft == -12 || mft == 0)
     LG = mkvec2(mkvecsmall2(3,1), mkvecsmall2(2,2));
   else if (mft == -24)
     LG = mkvec3(mkvecsmall2(2,1), mkvecsmall2(3,1), mkvecsmall2(2,2));
