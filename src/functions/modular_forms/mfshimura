@@ -1,8 +1,8 @@
 Function: mfshimura
 Section: modular_forms
 C-Name: mfshimura
-Prototype: GGD1,L,
-Help: mfshimura(mf, F, {D = 1}): F being a modular form of
+Prototype: GGL
+Help: mfshimura(mf, F, D}): F being a modular form of
  half-integral weight k >= 3/2 and D a (not necessarily fundamental)
  discriminant of suitable sign, computes the Shimura lift G of weight 2k-1
  corresponding to D. This function returns [mf2,G,v], where mf2 is a modular
@@ -11,7 +11,7 @@ Help: mfshimura(mf, F, {D = 1}): F being a modular form of
 Doc: $F$ being a modular form of half-integral weight $k\geq 3/2$ and $D$ a
  (not necessarily fundamental) discriminant of suitable sign, returns the
  Shimura lift $G$ of weight $2k-1$ corresponding to $D$. The sign of $D$
- should be equal to $(-1)^{k-1/2}\epsilon$, where $\epsilon=1$ if $\chi$ is
+ must be equal to $(-1)^{k-1/2}\epsilon$, where $\epsilon=1$ if $\chi$ is
  defined modulo $N/4$, $\epsilon=-1$ if $(-4/.)\chi$ is defined modulo
  $N/4$ (and error otherwise). This function returns $[\var{mf2},G,v]$
  where \var{mf2} is a modular form space containing $G$ and $v$ expresses $G$

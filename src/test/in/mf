@@ -663,7 +663,7 @@ mfslashexpansion(mf,T,[2^64+1,2^64+3;9223372036854775808,9223372036854775809],2,
 mf=mfinit([36,5/2],1);mfparams(mfbasis(mf)[3])
 K=mfkohnenbasis(mf); nbcol=matsize(K)[2]
 K~
-mfparams(mfshimura(mf,mflinear(mf,K[,1]))[2])
+mfparams(mfshimura(mf,mflinear(mf,K[,1]),1)[2])
 mfparams(mfshimura(mf,mflinear(mf,K[,2]),5)[2])
 (mfcoefs(mf,20)*K)~
 mf=mfinit([60,5/2],1);bij=mfkohnenbijection(mf);bij[2]
@@ -690,11 +690,11 @@ E=mfmul(mfeisenstein(4,-3,-4),mfeisenstein(3,1,-3));
 mfdescribe(E,&g);
 apply(mfdescribe,g[1])
 T5=mfpow(T,5);
-[mf,TSHI,res]=mfshimura(mfinit(T5),T5);
+[mf,TSHI,res]=mfshimura(mfinit(T5),T5,1);
 mfcoefs(TSHI,10)
 mftobasis(mfinit(TSHI,4),TSHI)
 F4=mfmul(mfbd(T,4),mffrometaquo([8,1;16,1]));
-F4S=mfshimura(mfinit(F4),F4)[2];mfcoefs(F4S,20)
+F4S=mfshimura(mfinit(F4),F4,1)[2];mfcoefs(F4S,20)
 EH=mfEH(13/2);
 mfdescribe(EH);
 mfcoef(EH,1001)
