@@ -689,6 +689,14 @@ mfdescribe(mfhecke(mfinit([1,2]),mfEk(2),3))
 E=mfmul(mfeisenstein(4,-3,-4),mfeisenstein(3,1,-3));
 mfdescribe(E,&g);
 apply(mfdescribe,g[1])
+
+f1=mffromqf(matdiagonal([1,6,36]*2))[2];
+f2=mffromqf(matdiagonal([4,6,9]*2))[2];
+F=mflinear([f1,f2],[1,-1]/2);
+mf=mfinit(F);
+[mf2,g]=mfshimura(mf,F,-7);
+mfcuspval(mf2,g,0)
+
 T5=mfpow(T,5);
 [mf,TSHI,res]=mfshimura(mfinit(T5),T5,1);
 mfcoefs(TSHI,10)

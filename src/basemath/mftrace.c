@@ -1786,7 +1786,7 @@ mfcharpow(GEN CHI, GEN n)
 {
   GEN G, chi;
   G = gel(CHI,1); chi = zncharpow(G, gel(CHI,2), n);
-  return mfcharGL(G, chi);
+  return mfchartoprimitive(mfcharGL(G, chi), NULL);
 }
 /* mfchar or charinit wrt same modulus; outputs a mfchar */
 static GEN
