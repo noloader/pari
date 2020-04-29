@@ -3755,10 +3755,10 @@ static long
 mfisinkohnen(GEN mf, GEN F)
 {
   GEN v, gk = MF_get_gk(mf), CHI = MF_get_CHI(mf);
-  long i, sb, eps, N4 = MF_get_N(mf) >> 2, r = MF_get_r(mf);
+  long i, sb, eps, N4 = MF_get_N(mf) >> 2;
   sb = mfsturmNgk(N4 << 4, gk) + 1;
   eps = N4 % mfcharconductor(CHI)? -1 : 1;
-  if (odd(r)) eps = -eps;
+  if (odd(MF_get_r(mf))) eps = -eps;
   v = mfcoefs(F, sb, 1);
   for (i = 0; i <= sb; i++)
   {
@@ -3771,14 +3771,14 @@ mfisinkohnen(GEN mf, GEN F)
 static long
 mfshimura_space_cusp(GEN mf)
 {
-  long fl = 1, r = MF_get_r(mf), M = MF_get_N(mf) >> 2;
-  if (r == 1 && M >= 4)
+  long N4;
+  if (MF_get_r(mf) == 1 && (N4 = MF_get_N(mf) >> 2) >= 4)
   {
-    GEN E = gel(myfactoru(M), 2);
+    GEN E = gel(myfactoru(N4), 2);
     long ma = vecsmall_max(E);
-    if (ma > 2 || (ma == 2 && !mfcharistrivial(MF_get_CHI(mf)))) fl = 0;
+    if (ma > 2 || (ma == 2 && !mfcharistrivial(MF_get_CHI(mf)))) return 0;
   }
-  return fl;
+  return 1;
 }
 
 /* D is either a discriminant (not necessarily fundamental) with
@@ -3790,7 +3790,9 @@ mfshimura(GEN mf, GEN F, long D)
   pari_sp av = avma;
   GEN gk, G, res, mf2, CHI, CHIP;
   long M, r, space, cusp, N4, flagdisc = 0;
+
   if (!checkmf_i(F)) pari_err_TYPE("mfshimura",F);
+  mf = checkMF(mf);
   gk = mf_get_gk(F);
   if (typ(gk) != t_FRAC) pari_err_TYPE("mfshimura [integral weight]", F);
   r = MF_get_r(mf);
