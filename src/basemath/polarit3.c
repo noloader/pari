@@ -1341,14 +1341,14 @@ L2_bound(GEN nf, GEN den, GEN *pt_roots)
  *     N_2(A) = sqrt(sum (N_1(Ai))^2)
  * Return e such that Res(A, B) < 2^e */
 static GEN
-RgX_RgXY_ResBound(GEN A, GEN B)
+RgX_RgXY_ResBound(GEN A, GEN B, long prec)
 {
   pari_sp av = avma, av2;
   GEN a = gen_0, b = gen_0, bnd;
   long i , lA = lg(A), lB = lg(B);
   for (i=2; i<lA; i++)
   {
-    a = gadd(a, gnorm(gel(A,i)));
+    a = gadd(a, gabs(gnorm(gel(A,i)), prec));
     if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgX_RgXY_ResBound i = %ld",i);
@@ -1359,15 +1359,15 @@ RgX_RgXY_ResBound(GEN A, GEN B)
   for (i=2; i<lB; i++)
   {
     GEN t = gel(B,i);
-    if (typ(t) == t_POL) t = gnorml1(t, DEFAULTPREC);
-    b = gadd(b, gsqr(t));
+    if (typ(t) == t_POL) t = gnorml1(t, prec);
+    b = gadd(b, gabs(gsqr(t), prec));
     if (gc_needed(av,1))
     {
       if(DEBUGMEM>1) pari_warn(warnmem,"RgX_RgXY_ResBound i = %ld",i);
       b = gerepileupto(av2, b);
     }
   }
-  bnd = gsqrt(gmul(gpowgs(a, degpol(B)), gpowgs(b, degpol(A))), DEFAULTPREC);
+  bnd = gsqrt(gmul(gpowgs(a, degpol(B)), gpowgs(b, degpol(A))), prec);
   return gerepileupto(av, bnd);
 }
 
@@ -2177,7 +2177,7 @@ ZXQX_resultant_worker(GEN P, GEN A, GEN B, GEN T, GEN dB)
   return V;
 }
 
-static long
+static ulong
 ZXQX_resultant_bound(GEN nf, GEN A, GEN B)
 {
   pari_sp av = avma;
@@ -2186,8 +2186,8 @@ ZXQX_resultant_bound(GEN nf, GEN A, GEN B)
   GEN a = cgetg(l, t_COL);
   for (i = 1; i < l; i++)
     gel(a, i) =  RgX_RgXY_ResBound(gsubst(A, v, gel(r,i)),
-                                   gsubst(B, v, gel(r,i)));
-  return gc_long(av, (long) dbllog2(gmul(M,RgC_fpnorml2(a, DEFAULTPREC))));
+                                   gsubst(B, v, gel(r,i)), DEFAULTPREC);
+  return gc_ulong(av, (ulong) dbllog2(gmul(M,RgC_fpnorml2(a, DEFAULTPREC))));
 }
 
 /* Compute Res(A, B/dB) in Z, assuming A,B in Z[X], dB in Z or NULL (= 1)
@@ -2899,7 +2899,7 @@ ZXQX_direct_compositum_bound(GEN nf, GEN A, GEN B)
   for (i = 1; i < l; i++)
     gel(a, i) =  RgX_RgXY_ResBound(gsubst(A, v, gel(r,i)),
                  poleval(gsubst(B, v, gel(r,i)),
-                         deg1pol(gen_1, pol_x(1), 0)));
+                         deg1pol(gen_1, pol_x(1), 0)), DEFAULTPREC);
   return gc_long(av, (long) dbllog2(gmul(M,RgC_fpnorml2(a, DEFAULTPREC))));
 }
 
