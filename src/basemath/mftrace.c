@@ -5296,7 +5296,7 @@ mfwt1_pre(long N)
     u_forprime_init(&S, 2, N);
     while ((p = u_forprime_next(&S)))
       if (N % p) break;
-    lim = mfsturm_mf(mf); /*FIXME*/
+    lim = mfsturm_mf(mf) + 1; /*FIXME*/
   }
   /* p = smalllest prime not dividing N */
   M = bhnmat_extend_nocache(MF_get_M(mf), N, p*lim-1, 1, MF_get_S(mf));
