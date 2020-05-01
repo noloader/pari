@@ -1595,11 +1595,11 @@ cornacchia(GEN d, GEN p, GEN *px, GEN *py)
 static GEN
 lastqi(GEN Q)
 {
-  GEN s = gcoeff(Q,1,1), q = gcoeff(Q,1,2), p = absi(gcoeff(Q,2,2));
+  GEN s = gcoeff(Q,1,1), q = gcoeff(Q,1,2), p = absi_shallow(gcoeff(Q,2,2));
   if (signe(q)==0) return gen_0;
   if (signe(s)==0) return p;
   if (is_pm1(q))   return subiu(p,1);
-  return divii(p, absi(q));
+  return divii(p, absi_shallow(q));
 }
 
 static long

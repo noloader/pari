@@ -278,7 +278,7 @@ GEN
 halfgcdii(GEN A, GEN B)
 {
   pari_sp av = avma;
-  GEN M, Q, a, b, m = abscmpii(A, B)>0 ? absi(A): absi(B);
+  GEN M, Q, a, b, m = absi_shallow(abscmpii(A, B)>0 ? A: B);
   M = HGCD0(A,B); Q = gel(M,1); a = gel(M,2); b = gel(M,3);
   while (signe(b) && cmpii(sqri(b), m) >= 0)
   {

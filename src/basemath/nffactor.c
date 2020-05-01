@@ -412,7 +412,7 @@ get_nfsqff_data(GEN *pnf, GEN *pT, GEN *pA, GEN *pB, GEN *ptbad)
   if (nfsqff_use_Trager(n, degpol(A)))
   {
     *pnf = T;
-    bad = den = absi(ZX_disc(T));
+    bad = den = absi_shallow(ZX_disc(T));
     if (is_pm1(leading_coeff(T))) den = indexpartial(T, den);
   }
   else
@@ -1842,7 +1842,7 @@ polfnf(GEN a, GEN T)
     set_avma((pari_sp)(rep + 3));
     return (dA == 0)? trivial_fact(): zerofact(varn(A));
   }
-  bad = dent = absi(ZX_disc(T));
+  bad = dent = absi_shallow(ZX_disc(T));
   if (tmonic) dent = indexpartial(T, dent);
   (void)nfgcd_all(A,RgX_deriv(A), T, dent, &B);
   if (degpol(B) != dA) B = Q_primpart( QXQX_normalize(B, T) );
