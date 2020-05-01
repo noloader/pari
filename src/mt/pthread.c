@@ -100,6 +100,12 @@ mt_is_thread(void)
   return mt_thread_no>=0;
 }
 
+long
+mt_nbthreads(void)
+{
+  return pari_mt ? 1: pari_mt_nbthreads;
+}
+
 void
 mt_export_add(const char *str, GEN val)
 {

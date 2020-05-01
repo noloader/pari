@@ -4608,6 +4608,7 @@ void    vecsmall_sort(GEN V);
 /* mt.c */
 
 void    mt_broadcast(GEN code);
+long    mt_nbthreads(void);
 void    mt_queue_end(struct pari_mt *pt);
 GEN     mt_queue_get(struct pari_mt *pt, long *jobid, long *pending);
 void    mt_queue_start(struct pari_mt *pt, GEN worker);

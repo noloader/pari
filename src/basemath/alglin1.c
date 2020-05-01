@@ -3100,7 +3100,7 @@ FpM_ratlift_parallel(GEN A, GEN mod, GEN B)
 {
   pari_sp av = avma;
   GEN worker;
-  long i, l = lg(A), m = pari_mt_nbthreads;
+  long i, l = lg(A), m = mt_nbthreads();
   int test = !!B;
 
   if (l == 1 || lgcols(A) == 1) return gcopy(A);
@@ -5461,7 +5461,7 @@ ZM_det(GEN M)
   }
   if (!p) pari_err_OVERFLOW("ZM_det [ran out of primes]");
   if (!Dp) { set_avma(av); return gen_0; }
-  if (pari_mt_nbthreads > 1 || n <= DIXON_THRESHOLD)
+  if (mt_nbthreads() > 1 || n <= DIXON_THRESHOLD)
     D = q; /* never competitive when bound is sharp even with 2 threads */
   else
   {

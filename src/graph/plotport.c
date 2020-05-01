@@ -1311,7 +1311,7 @@ plotrecthin(void *E, GEN(*eval)(void*, GEN), GEN a, GEN b, ulong flags,
     {
       GEN worker = snm_closure(is_entry("_parapply_slice_worker"),
                                mkvec((GEN)E));
-      V = gen_parapply_slice(worker, X, pari_mt_nbthreads);
+      V = gen_parapply_slice(worker, X, mt_nbthreads());
     }
     else
     {

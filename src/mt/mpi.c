@@ -264,6 +264,12 @@ mt_is_thread(void)
   return pari_MPI_rank;
 }
 
+long
+mt_nbthreads(void)
+{
+  return pari_mt || pari_MPI_rank || pari_MPI_size <= 2 ? 1: pari_mt_nbthreads;
+}
+
 void
 mt_export_add(const char *str, GEN val)
 {

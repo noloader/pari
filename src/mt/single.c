@@ -36,6 +36,12 @@ mt_is_thread(void)
   return mtsingle_is_thread();
 }
 
+long
+mt_nbthreads(void)
+{
+  return 1;
+}
+
 void
 mt_export_add(const char *str, GEN val)
 {
