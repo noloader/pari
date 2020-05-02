@@ -322,18 +322,18 @@ Integers can also be input in binary by prefixing them with
 
 Real numbers are represented (approximately) in a floating point system,
 internally in base 2, but converted to base 10 for input / output purposes.
-A \typ{REAL} object has a given \emph{accuracy} (or \emph{precision}) $\ell
-\geq 0$; it comprises
+A \typ{REAL} object has a given \emph{bit accuracy} (or \emph{bit precision})
+$\ell \geq 0$; it comprises
 
 \item a sign $s$: $+1$, $-1$ or $0$;
 
-\item a mantissa $m$: a multiprecision integer, $0\leq m < 10^\ell$;
+\item a mantissa $m$: a multiprecision integer, $0\leq m < 2^\ell$;
 
-\item an exponent $e$: a small integer in $[-E,E]$, where $E \approx 2^B
-  \log_{10} 2$, and $B = 32$ on a 32-bit machine and 64 otherwise.
+\item an exponent $e$: a small integer in $[-2^B,2^B[$, where $B = 31$ on a
+32-bit machine and 63 otherwise.
 
 This data may represent any real number $x$ such that
-$$|x - s m 10^e| < 10^{e-\ell}.$$
+$$|x - s m 2^e| < 2^{e-\ell}.$$
 We consider that a \typ{REAL} with sign $s = 0$ has accuracy $\ell = 0$, so
 that its mantissa is useless, but it still has an exponent $e$ and acts like
 a machine epsilon for all accuracies $< e$.
@@ -343,9 +343,9 @@ point. Leading zeroes may be omitted, up to the decimal point, but trailing
 zeroes are important: your \typ{REAL} is assigned an internal precision,
 which is the supremum of the input precision, one more than the number of
 decimal digits input, and the default \tet{realprecision}. For example, if
-the default precision is 28 digits, typing \kbd{2.} yields a precision of 28
+the default precision is 38 digits, typing \kbd{2.} yields a precision of 38
 digits, but \kbd{2.0\dots0} with 45 zeros gives a number with internal
-precision at least 45, although less may be printed.
+decimal precision at least 45, although less may be printed.
 
 You can also use scientific notation with the letter \kbd{E} or
 \kbd{e}. As usual, \kbd{e$n$} is interpreted as $\times 10^n$ for all
@@ -375,6 +375,11 @@ use via \kbd{realprecision} (decimal digits, as explained above; shortcut
 latter allowing finer granularity. See \secref{se:trans} for details. In
 programs we advise to leave this global variable alone and adapt precision
 locally for a given sequence of computations using \tet{localbitprec}.
+
+Note that most decimal floating point numbers cannot be converted exactly
+in binary, the (binary) number actually stored is a rounded version of the
+(decimal) number input. Analogously, a decimal output is rounded
+from the internal binary representation.
 
 \subsec{Intmods (\typ{INTMOD})}%
 \sidx{intmod}\kbdsidx{t_INTMOD}
