@@ -1199,12 +1199,20 @@ This is defined even when \kbd{z} is equal to zero.
 even if \kbd{z} is not a real number.
 
 \fun{long}{gsigne}{GEN z} which returns a sign for \kbd{z}, even when
-\kbd{z} is neither real nor integer (a rational number for instance).
+\kbd{z} is a real number of type \typ{INT}, \typ{FRAC} or \typ{REAL},
+an infinity (\typ{INFINITY}) or a \typ{QUAD} of positive discriminant.
 
 The real zero is characterized by having its sign equal to 0. If \kbd{z} is
 not equal to~0, then it is represented as $2^e M$, where $e$ is the exponent,
 and $M\in [1, 2[$ is the mantissa of $z$, whose digits are stored in
-$\kbd{z[2]},\dots, \kbd{z[lg(z)-1]}$.
+$\kbd{z[2]},\dots, \kbd{z[lg(z)-1]}$. For historical reasons, the \kbd{prec}
+parameter attached to floating point functions is measured in \B-bit words
+and is equal to the length of \kbd{x}: yes, this includes the two code words
+and depends on \kbd{sizeof(long)}. For clarity we advise to use
+\kbd{bit\_accuracy}, which computes the true length of the mantissa in bits,
+and convert between bits and \kbd{prec} using the \kbd{prec2nbits} and
+\kbd{nbits2prec} macros. But keep in mind that the accuracy of \typ{REAL}
+actually increases by increments of \B bits.
 
 More precisely, let $m$ be the integer (\kbd{z[2]},\dots, \kbd{z[lg(z)-1]})
 in base \kbd{2\pow BITS\_IN\_LONG}; here, \kbd{z[2]} is the most significant
