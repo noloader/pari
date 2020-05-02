@@ -885,7 +885,7 @@ mpqs_sieve_p(unsigned char *B, unsigned char *E, long p4, long p,
 }
 
 INLINE void
-mpqs_sieve_p1(unsigned char *B, unsigned char *E, long p4, long s1, long s2,
+mpqs_sieve_p1(unsigned char *B, unsigned char *E, long s1, long s2,
              unsigned char logp)
 {
   while (E - B >= 0)
@@ -946,7 +946,7 @@ mpqs_sieve(mpqs_handle_t *h)
     else
     {
       if (s1>s2) lswap(s1,s2)
-      mpqs_sieve_p1(S + s1, Send, p << 2, s2-s1,p+s1-s2, logp);
+      mpqs_sieve_p1(S + s1, Send, s2-s1, p+s1-s2, logp);
     }
   }
   for (    ; (p = FB->fbe_p); FB++)
