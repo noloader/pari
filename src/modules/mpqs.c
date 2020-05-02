@@ -213,7 +213,13 @@ mpqs_poly_ctor(mpqs_handle_t *h)
 /**                        FACTOR BASE SETUP                        **/
 /*********************************************************************/
 /* fill in the best-guess multiplier k for N. We force kN = 1 mod 4.
- * Caller should proceed to fill in kN */
+ * Caller should proceed to fill in kN
+ * See Knuth-Schroeppel function in
+ * Robert D. Silverman
+ * The multiple polynomial quadratic sieve
+ * Math. Comp. 48 (1987), 329-339
+ * https://www.ams.org/journals/mcom/1987-48-177/S0025-5718-1987-0866119-8/
+ */
 static ulong
 mpqs_find_k(mpqs_handle_t *h)
 {
@@ -234,7 +240,7 @@ mpqs_find_k(mpqs_handle_t *h)
     long k = cand_k->k;
     double v;
     if ((k & 3) != N_mod_4) continue; /* want kN = 1 (mod 4) */
-    v = -0.35 * log2((double)k);
+    v = -log((double)k)/2;
     if ((k & 7) == N_mod_8) v += M_LN2; /* kN = 1 (mod 8) */
     cache[nbk].np = 0;
     cache[nbk]._k = cand_k;
@@ -251,11 +257,17 @@ mpqs_find_k(mpqs_handle_t *h)
     if (!kroNp) return p;
     for (i = 0; i < nbk; i++)
     {
+      long krokp;
       if (cache[i].np > MPQS_MULTIPLIER_SEARCH_DEPTH) continue;
       seen++;
-      if (krouu(cache[i]._k->k % p, p) == kroNp) /* kronecker(k*N, p)=1 */
+      krokp = krouu(cache[i]._k->k % p, p);
+      if (krokp == kroNp) /* kronecker(k*N, p)=1 */
       {
-        cache[i].value += log2((double) p)/p;
+        cache[i].value += 2*log((double) p)/p;
+        cache[i].np++;
+      } else if (krokp == 0)
+      {
+        cache[i].value += log((double) p)/p;
         cache[i].np++;
       }
     }
