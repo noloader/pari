@@ -3713,7 +3713,7 @@ static GEN
 RgV_shimura(GEN A, long n, long t, long N, long r, GEN CHI)
 {
   GEN R, a0, Pn = mfcharpol(CHI);
-  long m, st, ord = mfcharorder(CHI), vt = varn(Pn), Nt = N*t;
+  long m, st, ord = mfcharorder(CHI), vt = varn(Pn), Nt = t == 1? N: ulcm(N,t);
 
   R = cgetg(n + 2, t_VEC);
   st = odd(r)? -t: t;
@@ -3722,7 +3722,7 @@ RgV_shimura(GEN A, long n, long t, long N, long r, GEN CHI)
   {
     long o = mfcharorder(CHI);
     if (st != 1 && odd(o)) o <<= 1;
-    a0 = gmul(a0, charLFwtk(N, r, CHI, o, st));
+    a0 = gmul(a0, charLFwtk(Nt, r, CHI, o, st));
   }
   gel(R, 1) = a0;
   for (m = 1; m <= n; m++)
@@ -8929,20 +8929,19 @@ static GEN
 charLFwt1(long N, GEN CHI, long ord, long t)
 {
   GEN S;
-  long r, vt, Nt;
+  long r, vt;
 
   if (N == 1 && t == 1) return mkfrac(gen_m1,stoi(4));
   S = gen_0; vt = varn(mfcharpol(CHI));
-  Nt = t == 1? N: ulcm(N,t);
-  for (r = 1; r < Nt; r++)
+  for (r = 1; r < N; r++)
   { /* S += r*chi(r) */
     long a;
-    if (ugcd(Nt,r) != 1) continue;
+    if (ugcd(N,r) != 1) continue;
     a = mfcharevalord(CHI,r,ord);
     if (t != 1 && kross(t, r) < 0) r = -r;
     S = gadd(S, Qab_Czeta(a, ord, stoi(r), vt));
   }
-  return gdivgs(S, -2*Nt);
+  return gdivgs(S, -2*N);
 }
 /* L(CHI,0) / 2, mod p */
 static ulong
@@ -8960,24 +8959,24 @@ charLFwt1_Fl(GEN CHIvec, GEN vz, ulong p)
   }
   return Fl_div(Fl_neg(S,p), 2*m, p);
 }
-/* L(CHI_t,1-k) / 2, CHI_t(n) = CHI(n) * (t/n), order(CHI) | ord != 0 */
+/* L(CHI_t,1-k) / 2, CHI_t(n) = CHI(n) * (t/n), order(CHI) | ord != 0;
+ * assume conductor of CHI_t divides N */
 static GEN
 charLFwtk(long N, long k, GEN CHI, long ord, long t)
 {
   GEN S, P, dS;
-  long r, Nt, vt;
+  long r, vt;
 
   if (k == 1) return charLFwt1(N, CHI, ord, t);
   if (N == 1 && t == 1) return gdivgs(bernfrac(k),-2*k);
   S = gen_0; vt = varn(mfcharpol(CHI));
-  Nt = t == 1? N: ulcm(N,t);
-  P = ZX_rescale(Q_remove_denom(bernpol(k,0), &dS), utoi(Nt));
-  dS = mul_denom(dS, stoi(-2*Nt*k));
-  for (r = 1; r < Nt; r++)
+  P = ZX_rescale(Q_remove_denom(bernpol(k,0), &dS), utoi(N));
+  dS = mul_denom(dS, stoi(-2*N*k));
+  for (r = 1; r < N; r++)
   { /* S += P(r)*chi(r) */
     long a;
     GEN C;
-    if (ugcd(r,Nt) != 1) continue;
+    if (ugcd(r,N) != 1) continue;
     a = mfcharevalord(CHI,r,ord);
     C = poleval(P, utoi(r));
     if (t != 1 && kross(t, r) < 0) C = gneg(C);
