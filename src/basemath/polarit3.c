@@ -1134,7 +1134,7 @@ ZXM_init_CRT(GEN Hp, long deg, ulong p)
       long l = lg(dp);
       GEN d = cgetg(n, t_POL);
       gel(c, i) = d;
-      d[1] = dp[1];
+      d[1] = dp[1] | evalsigne(1);
       for (k=2; k<l; k++)
         gel(d,k) = stoi(Fl_center(dp[k], p, lim));
       for (   ; k<n; k++)
