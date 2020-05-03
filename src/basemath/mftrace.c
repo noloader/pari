@@ -67,7 +67,7 @@ static GEN mfdihedralall(GEN LIM);
 static long mfwt1cuspdim(long N, GEN CHI);
 static long mf2dim_Nkchi(long N, long k, GEN CHI, ulong space);
 static long mfdim_Nkchi(long N, long k, GEN CHI, long space);
-static GEN charLFwtk(long k, GEN CHI, long ord);
+static GEN charLFwtk(long N, long k, GEN CHI, long ord, long t);
 static GEN mfeisensteingacx(GEN E,long w,GEN ga,long n,long prec);
 static GEN mfgaexpansion(GEN mf, GEN F, GEN gamma, long n, long prec);
 static GEN mfEHmat(long n, long r);
@@ -1819,15 +1819,16 @@ mfchilift(GEN CHI, long N)
 /* CHI defined mod N, N4 = N/4;
  * if CHI is defined mod N4 return CHI;
  * else if CHI' = CHI*(-4,.) is defined mod N4, return CHI' (primitive)
- * else return NULL */
+ * else error */
 static GEN
 mfcharchiliftprim(GEN CHI, long N4)
 {
   long FC = mfcharconductor(CHI);
+  GEN CHIP;
   if (N4 % FC == 0) return CHI;
-  CHI = mfchilift(CHI, N4 << 2);
-  CHI = mfchartoprimitive(CHI, &FC);
-  return (N4 % FC == 0)? CHI: NULL;
+  CHIP = mfchartoprimitive(mfchilift(CHI, N4 << 2), &FC);
+  if (N4 % FC) pari_err_TYPE("mfkohnenbasis [incorrect CHI]", CHI);
+  return CHIP;
 }
 static GEN
 mfchiadjust(GEN CHI, GEN gk, long N)
@@ -3707,48 +3708,38 @@ mfbd(GEN F, long d)
   return gerepilecopy(av, mfbd_i(F, d));
 }
 
-/* CHI is a character defined modulo N4 */
+/* A[i+1] = a(t*i^2) */
 static GEN
-RgV_shimura(GEN V, long n, long D, long N4, long r, GEN CHI)
+RgV_shimura(GEN A, long n, long t, long N, long r, GEN CHI)
 {
   GEN R, a0, Pn = mfcharpol(CHI);
-  long m, Da, ND, ord = mfcharorder(CHI), vt = varn(Pn), d4 = D & 3L;
+  long m, st, ord = mfcharorder(CHI), vt = varn(Pn), Nt = N*t;
 
-  if (d4 == 2 || d4 == 3) D *= 4;
-  Da = labs(D); ND = N4*Da;
   R = cgetg(n + 2, t_VEC);
-  a0 = gel(V, 1);
+  st = odd(r)? -t: t;
+  a0 = gel(A, 1);
   if (!gequal0(a0))
   {
-    long D4 = D << 2;
-    GEN CHID = induceN(ulcm(mfcharmodulus(CHI), labs(D4)), CHI);
-    CHID = mfcharmul_i(CHID, induce(gel(CHID,1), stoi(D4)));
-    a0 = gmul(a0, charLFwtk(r, CHID, mfcharorder(CHID)));
+    long o = mfcharorder(CHI);
+    if (t != 1 && odd(o)) o <<= 1;
+    a0 = gmul(a0, charLFwtk(N, r, CHI, o, t));
   }
-  if (odd(ND) && !odd(mfcharmodulus(CHI))) ND <<= 1;
   gel(R, 1) = a0;
   for (m = 1; m <= n; m++)
   {
-    GEN Dm = mydivisorsu(u_ppo(m, ND)), S = gel(V, m*m + 1);
+    GEN Dm = mydivisorsu(u_ppo(m, Nt)), S = gel(A, m*m + 1);
     long i, l = lg(Dm);
     for (i = 2; i < l; i++)
-    { /* (e,ND) = 1; skip i = 1: e = 1, done above */
-      long e = Dm[i], me = m / e;
-      long a = mfcharevalord(CHI, e, ord);
+    { /* (e,Nt) = 1; skip i = 1: e = 1, done above */
+      long e = Dm[i], me = m / e, a = mfcharevalord(CHI, e, ord);
       GEN c, C = powuu(e, r - 1);
-      if (kross(D, e) == -1) C = negi(C);
+      if (kross(st, e) == -1) C = negi(C);
       c = Qab_Czeta(a, ord, C, vt);
-      S = gadd(S, gmul(c, gel(V, me*me + 1)));
+      S = gadd(S, gmul(c, gel(A, me*me + 1)));
     }
     gel(R, m+1) = S;
   }
   return degpol(Pn) > 1? gmodulo(R, Pn): R;
-}
-static GEN
-c_shimura(long n, GEN F, long D, GEN CHI)
-{
-  GEN v = mfcoefs_i(F, n*n, labs(D));
-  return RgV_shimura(v, n, D, mf_get_N(F)>>2, mf_get_r(F), CHI);
 }
 
 static long
@@ -3785,39 +3776,25 @@ mfshimura_space_cusp(GEN mf)
    sign(D)=(-1)^{k-1/2}*eps, or a positive squarefree integer t, which is then
    transformed into a fundamental discriminant of the correct sign. */
 GEN
-mfshimura(GEN mf, GEN F, long D)
+mfshimura(GEN mf, GEN F, long t)
 {
   pari_sp av = avma;
-  GEN gk, G, res, mf2, CHI, CHIP;
-  long M, r, space, cusp, N4, flagdisc = 0;
+  GEN G, res, mf2, CHI;
+  long sb, M, r, space, cusp, N;
 
   if (!checkmf_i(F)) pari_err_TYPE("mfshimura",F);
   mf = checkMF(mf);
-  gk = mf_get_gk(F);
-  if (typ(gk) != t_FRAC) pari_err_TYPE("mfshimura [integral weight]", F);
   r = MF_get_r(mf);
-  if (r <= 0) pari_err_DOMAIN("mfshimura", "weight", "<=", ghalf, gk);
-  N4 = MF_get_N(mf) >> 2; CHI = MF_get_CHI(mf);
-  CHIP = mfcharchiliftprim(CHI, N4);
-  if (!CHIP) CHIP = CHI;
-  else
-  {
-    long epsD = CHI == CHIP? D: -D, rd = D & 3L;
-    if (odd(r)) epsD = -epsD;
-    if (epsD > 0 && (rd == 0 || rd == 1)) flagdisc = 1;
-    else
-    {
-      if (D < 0 || !uissquarefree(D))
-        pari_err_TYPE("shimura [incorrect D]", stoi(D));
-      D = epsD;
-    }
-  }
-  M = N4;
+  if (r <= 0) pari_err_DOMAIN("mfshimura", "weight", "<=", ghalf, mf_get_gk(F));
+  if (t <= 0 || !uissquarefree(t)) pari_err_TYPE("shimura [t]", stoi(t));
+  N = MF_get_N(mf);
+  CHI = MF_get_CHI(mf);
   cusp = mfiscuspidal(mf,F);
-  space = cusp && mfshimura_space_cusp(mf)? mf_CUSP : mf_FULL;
-  if (!cusp || !flagdisc || !mfisinkohnen(mf,F)) M <<= 1;
+  space = (cusp && mfshimura_space_cusp(mf))? mf_CUSP: mf_FULL;
+  M = (cusp && mfisinkohnen(mf,F))? N >> 2: N >> 1;
   mf2 = mfinit_Nkchi(M, r << 1, mfcharpow(CHI, gen_2), space, 0);
-  G = c_shimura(mfsturm(mf2), F, D, CHIP);
+  sb = mfsturm(mf2);
+  G = RgV_shimura(mfcoefs_i(F, sb*sb, t), sb, t, N, r, CHI);
   res = mftobasis_i(mf2, G);
   /* not mflinear(mf2,): we want lowest possible level */
   G = mflinear(MF_get_basis(mf2), res);
@@ -8946,23 +8923,26 @@ sigchi2_Fl(long k, GEN CHI1vec, GEN CHI2vec, long n, GEN vz, ulong p)
 /**********************************************************************/
 /* Fourier expansions of Eisenstein series                            */
 /**********************************************************************/
-/* L(CHI,0) / 2, order(CHI) | ord != 0 */
+/* L(CHI_t,0) / 2, CHI_t(n) = CHI(n)(t/n) as a character modulo N*t,
+ * order(CHI) | ord != 0 */
 static GEN
-charLFwt1(GEN CHI, long ord)
+charLFwt1(long N, GEN CHI, long ord, long t)
 {
   GEN S;
-  long r, vt, m = mfcharmodulus(CHI);
+  long r, vt, Nt;
 
-  if (m == 1) return mkfrac(gen_m1,stoi(4));
+  if (N == 1 && t == 1) return mkfrac(gen_m1,stoi(4));
   S = gen_0; vt = varn(mfcharpol(CHI));
-  for (r = 1; r < m; r++)
+  Nt = N * t;
+  for (r = 1; r < N; r++)
   { /* S += r*chi(r) */
     long a;
-    if (ugcd(m,r) != 1) continue;
+    if (ugcd(Nt,r) != 1) continue;
     a = mfcharevalord(CHI,r,ord);
-    S = gadd(S, Qab_Czeta(a, ord, utoi(r), vt));
+    if (t != 1 && kross(t, r) < 0) r = -r;
+    S = gadd(S, Qab_Czeta(a, ord, stoi(r), vt));
   }
-  return gdivgs(S, -2*m);
+  return gdivgs(S, -2*N);
 }
 /* L(CHI,0) / 2, mod p */
 static ulong
@@ -8980,25 +8960,28 @@ charLFwt1_Fl(GEN CHIvec, GEN vz, ulong p)
   }
   return Fl_div(Fl_neg(S,p), 2*m, p);
 }
-/* L(CHI,1-k) / 2, order(CHI) | ord != 0 */
+/* L(CHI_t,1-k) / 2, CHI_t(n) = CHI(n) * (t/n), order(CHI) | ord != 0 */
 static GEN
-charLFwtk(long k, GEN CHI, long ord)
+charLFwtk(long N, long k, GEN CHI, long ord, long t)
 {
   GEN S, P, dS;
-  long r, m, vt;
+  long r, Nt, vt;
 
-  if (k == 1) return charLFwt1(CHI, ord);
-  m = mfcharmodulus(CHI);
-  if (m == 1) return gdivgs(bernfrac(k),-2*k);
+  if (k == 1) return charLFwt1(N, CHI, ord, t);
+  if (N == 1 && t == 1) return gdivgs(bernfrac(k),-2*k);
   S = gen_0; vt = varn(mfcharpol(CHI));
-  P = ZX_rescale(Q_remove_denom(bernpol(k,0), &dS), utoi(m));
-  dS = mul_denom(dS, stoi(-2*m*k));
-  for (r = 1; r < m; r++)
+  P = ZX_rescale(Q_remove_denom(bernpol(k,0), &dS), utoi(N));
+  dS = mul_denom(dS, stoi(-2*N*k));
+  Nt = N * t;
+  for (r = 1; r < N; r++)
   { /* S += P(r)*chi(r) */
     long a;
-    if (ugcd(r,m) != 1) continue;
+    GEN C;
+    if (ugcd(r,Nt) != 1) continue;
     a = mfcharevalord(CHI,r,ord);
-    S = gadd(S, Qab_Czeta(a, ord, poleval(P, utoi(r)), vt));
+    C = poleval(P, utoi(r));
+    if (t != 1 && kross(t, r) < 0) C = gneg(C);
+    S = gadd(S, Qab_Czeta(a, ord, C, vt));
   }
   return gdiv(S, dS);
 }
@@ -9027,9 +9010,9 @@ static GEN
 mfeisenstein2_0(long k, GEN CHI1, GEN CHI2, long ord)
 {
   if (k == 1 && mfcharistrivial(CHI1))
-    return charLFwt1(CHI2, ord);
+    return charLFwtk(mfcharmodulus(CHI2), 1, CHI2, ord, 1);
   else if (mfcharistrivial(CHI2))
-    return charLFwtk(k, CHI1, ord);
+    return charLFwtk(mfcharmodulus(CHI1), k, CHI1, ord, 1);
   else return gen_0;
 }
 static ulong
@@ -9066,7 +9049,7 @@ mfeisenstein_i(long k, GEN CHI1, GEN CHI2)
     vt = varn(mfcharpol(CHI1));
     ord = mfcharorder(CHI1);
     NK = mkNK(mfcharmodulus(CHI1), k, CHI1);
-    E0 = charLFwtk(k, CHI1, ord);
+    E0 = charLFwtk(mfcharmodulus(CHI1), k, CHI1, ord, 1);
     vchi = mkvec3(E0, mkvec(mfcharpol(CHI1)), CHI1);
     return tag(t_MF_EISEN, NK, vchi);
   }
@@ -10685,7 +10668,6 @@ mfkohnenbasis(GEN mf)
   r = MF_get_r(mf);
   CHIP = mfcharchiliftprim(CHI, N4);
   eps = CHIP==CHI? 1: -1;
-  if (!CHIP) pari_err_TYPE("mfkohnenbasis [incorrect CHI]", CHI);
   if (odd(r)) eps = -eps;
   if (uissquarefree(N4))
   {
@@ -10700,16 +10682,16 @@ mfkohnenbasis(GEN mf)
 }
 
 static GEN
-get_Shimura(GEN mf3, GEN CHI, GEN vB, long D)
+get_Shimura(GEN mf, GEN CHI, GEN vB, long t)
 {
-  long N4 = MF_get_N(mf3), r = MF_get_k(mf3) >> 1;
-  long i, d = MF_get_dim(mf3), sb3 = mfsturm_mf(mf3);
+  long N = MF_get_N(mf), r = MF_get_k(mf) >> 1;
+  long i, d = MF_get_dim(mf), sb = mfsturm_mf(mf);
   GEN a = cgetg(d+1, t_MAT);
   for (i = 1; i <= d; i++)
   {
     pari_sp av = avma;
-    GEN f = c_deflate(sb3*sb3, labs(D), gel(vB,i));
-    f = mftobasis_i(mf3, RgV_shimura(f, sb3, D, N4, r, CHI));
+    GEN f = c_deflate(sb*sb, t, gel(vB,i));
+    f = mftobasis_i(mf, RgV_shimura(f, sb, t, N, r, CHI));
     gel(a,i) = gerepileupto(av, f);
   }
   return a;
@@ -10720,55 +10702,51 @@ QabM_rank(GEN M, GEN P, long n)
   GEN z = QabM_indexrank(M, P, n);
   return lg(gel(z,2))-1;
 }
-/* discard D[*i] */
+/* discard T[*i] */
 static void
-discard_Di(GEN D, long *i, long *lD)
+discard_Ti(GEN T, long *i, long *lt)
 {
-  long j, l = *lD-1;
-  for (j = *i; j < l; j++) D[j] = D[j+1];
-  (*i)--; *lD = l;
+  long j, l = *lt-1;
+  for (j = *i; j < l; j++) T[j] = T[j+1];
+  (*i)--; *lt = l;
 }
 /* return [mf3, bijection, mfkohnenbasis, codeshi] */
 static GEN
 mfkohnenbijection_i(GEN mf)
 {
   GEN CHI = MF_get_CHI(mf), K = mfkohnenbasis(mf);
-  GEN mres, dMi, Mi, M, C, vB, mf3, SHI, D, P;
+  GEN mres, dMi, Mi, M, C, vB, mf3, SHI, T, P;
   long N4 = MF_get_N(mf)>>2, r = MF_get_r(mf), dK = lg(K) - 1;
-  long i, c, n, oldr, lD, lDold, sb3, d, step, STEP, limD;
-  const long MAXlD = 100;
+  long i, c, n, oldr, lt, ltold, sb3, t, limt;
+  const long MAXlt = 100;
 
   mf3 = mfinit_Nkchi(N4, r<<1, mfcharpow(CHI,gen_2), mf_CUSP, 0);
   if (MF_get_dim(mf3) != dK)
     pari_err_BUG("mfkohnenbijection [different dimensions]");
   if (!dK) return mkvec4(mf3, cgetg(1, t_MAT), K, cgetg(1, t_VEC));
   CHI = mfcharchiliftprim(CHI, N4);
-  if (!CHI) pari_err_TYPE("mfkohnenbijection [incorrect CHI]", CHI);
   n = mfcharorder(CHI);
   P = n<=2? NULL: mfcharpol(CHI);
-  SHI = cgetg(MAXlD, t_COL);
-  D = cgetg(MAXlD, t_VECSMALL);
+  SHI = cgetg(MAXlt, t_COL);
+  T = cgetg(MAXlt, t_VECSMALL);
   sb3 = mfsturm_mf(mf3);
-  d = odd(r)? -3: 1;
-  step = d + 2; STEP = d + step;
-  limD = 13; /* start with 5 discriminants 1,5,8,12,13 or -3,-4,-7,-8,-11 */
-  oldr = 0; vB = C = M = NULL;
-  for (lD = lDold = 1; lD < MAXlD; d += step, step = STEP - step)
-  { /* d = 0,1 mod 4; sgn(d) = (-1)^r */
+  limt = 6; oldr = 0; vB = C = M = NULL;
+  for (t = lt = ltold = 1; lt < MAXlt; t++)
+  {
     pari_sp av;
-    if (!sisfundamental(d)) continue;
-    D[lD++] = d; if (labs(d) <= limD) continue;
+    if (!uissquarefree(t)) continue;
+    T[lt++] = t; if (t <= limt) continue;
     av = avma;
     if (vB) gunclone(vB);
     /* could improve the rest but 99% of running time is spent here */
-    vB = gclone( RgM_mul(mfcoefs_mf(mf, labs(d)*sb3*sb3, 1), K) );
+    vB = gclone( RgM_mul(mfcoefs_mf(mf, t*sb3*sb3, 1), K) );
     set_avma(av);
-    for (i = lDold; i < lD; i++)
+    for (i = ltold; i < lt; i++)
     {
       pari_sp av;
       long r;
-      M = get_Shimura(mf3, CHI, vB, D[i]);
-      r = QabM_rank(M, P, n); if (!r) { discard_Di(D, &i, &lD); continue; }
+      M = get_Shimura(mf3, CHI, vB, T[i]);
+      r = QabM_rank(M, P, n); if (!r) { discard_Ti(T, &i, &lt); continue; }
       gel(SHI, i) = M; setlg(SHI, i+1);
       if (r >= dK) { C = vecsmall_ei(dK, i); goto DONE; }
       if (i == 1) { oldr = r; continue; }
@@ -10782,18 +10760,18 @@ mfkohnenbijection_i(GEN mf)
         M = RgV_zc_mul(SHI, C);
         if (QabM_rank(M, P, n) >= dK) goto DONE;
       }
-      else if (r == oldr) discard_Di(D, &i, &lD);
+      else if (r == oldr) discard_Ti(T, &i, &lt);
       oldr = r; set_avma(av);
     }
-    limD *= 2; lDold = lD;
+    limt *= 2; ltold = lt;
   }
   pari_err_BUG("mfkohnenbijection");
 DONE:
-  gunclone(vB); lD = lg(SHI);
+  gunclone(vB); lt = lg(SHI);
   Mi = QabM_pseudoinv(M,P,n, NULL,&dMi); Mi = RgM_Rg_div(Mi,dMi);
-  mres = cgetg(lD, t_VEC);
-  for (i = c = 1; i < lD; i++)
-    if (C[i]) gel(mres,c++) = mkvec2s(D[i], C[i]);
+  mres = cgetg(lt, t_VEC);
+  for (i = c = 1; i < lt; i++)
+    if (C[i]) gel(mres,c++) = mkvec2s(T[i], C[i]);
   setlg(mres,c); return mkvec4(mf3, Mi, K, mres);
 }
 GEN
