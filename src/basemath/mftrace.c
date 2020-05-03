@@ -3721,8 +3721,8 @@ RgV_shimura(GEN A, long n, long t, long N, long r, GEN CHI)
   if (!gequal0(a0))
   {
     long o = mfcharorder(CHI);
-    if (t != 1 && odd(o)) o <<= 1;
-    a0 = gmul(a0, charLFwtk(N, r, CHI, o, t));
+    if (st != 1 && odd(o)) o <<= 1;
+    a0 = gmul(a0, charLFwtk(N, r, CHI, o, st));
   }
   gel(R, 1) = a0;
   for (m = 1; m <= n; m++)
@@ -8933,8 +8933,8 @@ charLFwt1(long N, GEN CHI, long ord, long t)
 
   if (N == 1 && t == 1) return mkfrac(gen_m1,stoi(4));
   S = gen_0; vt = varn(mfcharpol(CHI));
-  Nt = N * t;
-  for (r = 1; r < N; r++)
+  Nt = t == 1? N: ulcm(N,t);
+  for (r = 1; r < Nt; r++)
   { /* S += r*chi(r) */
     long a;
     if (ugcd(Nt,r) != 1) continue;
@@ -8942,7 +8942,7 @@ charLFwt1(long N, GEN CHI, long ord, long t)
     if (t != 1 && kross(t, r) < 0) r = -r;
     S = gadd(S, Qab_Czeta(a, ord, stoi(r), vt));
   }
-  return gdivgs(S, -2*N);
+  return gdivgs(S, -2*Nt);
 }
 /* L(CHI,0) / 2, mod p */
 static ulong
@@ -8970,10 +8970,10 @@ charLFwtk(long N, long k, GEN CHI, long ord, long t)
   if (k == 1) return charLFwt1(N, CHI, ord, t);
   if (N == 1 && t == 1) return gdivgs(bernfrac(k),-2*k);
   S = gen_0; vt = varn(mfcharpol(CHI));
-  P = ZX_rescale(Q_remove_denom(bernpol(k,0), &dS), utoi(N));
-  dS = mul_denom(dS, stoi(-2*N*k));
-  Nt = N * t;
-  for (r = 1; r < N; r++)
+  Nt = t == 1? N: ulcm(N,t);
+  P = ZX_rescale(Q_remove_denom(bernpol(k,0), &dS), utoi(Nt));
+  dS = mul_denom(dS, stoi(-2*Nt*k));
+  for (r = 1; r < Nt; r++)
   { /* S += P(r)*chi(r) */
     long a;
     GEN C;
