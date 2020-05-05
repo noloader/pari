@@ -71,6 +71,9 @@ bnr = bnrinit(bnf,[6545,1333,2018;0,1,0;0,0,1]);
 bnrclassfield(bnr,[2,0;0,2])
 bnrclassfield(bnr,[2,1;0,1])
 
+print("segfault bug with character input");
+poldegree(bnrclassfield(bnfinit(a^2+23),[1],2))==6
+
 \\#2146
 bnf=bnfinit(y^3-7*y-7,1);
 bnr=bnrinit(bnf,[[13729,0,0;0,13729,0;0,0,13729],[0,0,0]]);

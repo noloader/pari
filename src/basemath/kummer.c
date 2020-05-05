@@ -1499,6 +1499,8 @@ bnrclassfield_sanitize(GEN *pbnr, GEN *pH)
   cnd = bnrconductor_i(bnr, H, 2);
   *pbnr = gel(cnd,2);
   *pH = gel(cnd,3);
+  /* bnrconductor_i returns a character if input was a character: */
+  if (typ(*pH) == t_VEC) *pH = charker(bnr_get_cyc(*pbnr),*pH);
 }
 
 static GEN
