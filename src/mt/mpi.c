@@ -54,7 +54,7 @@ send_GEN(GEN elt, int dest)
   pari_sp av = avma;
   int size;
   GEN reloc = copybin_unlink(elt);
-  GENbin *buf = copy_bin(mkvec2(elt,reloc));
+  GENbin *buf = copy_bin_canon(mkvec2(elt,reloc));
   size = sizeof(GENbin) + buf->len*sizeof(ulong);
   {
     BLOCK_SIGINT_START
@@ -114,7 +114,7 @@ recvstatus_GEN(int source, MPI_Status *status)
 {
   GEN res;
   GENbin *buf = recvstatus_buf(source, status);
-  buf->rebase = &shiftaddress;
+  buf->rebase = &shiftaddress_canon;
   res = bin_copy(buf);
   bincopy_relink(gel(res,1),gel(res,2));
   return gel(res,1);
