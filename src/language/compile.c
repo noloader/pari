@@ -107,7 +107,7 @@ static THREAD char *opcode;
 static THREAD long *operand;
 static THREAD long *accesslex;
 static THREAD GEN *data;
-static THREAD long offset;
+static THREAD long offset, nblex;
 static THREAD struct vars_s *localvars;
 static THREAD const char **dbginfo, *dbgstart;
 static THREAD struct frame_s *frames;
@@ -122,7 +122,7 @@ pari_init_compiler(void)
   pari_stack_init(&s_lvar,sizeof(*localvars),(void **)&localvars);
   pari_stack_init(&s_dbginfo,sizeof(*dbginfo),(void **)&dbginfo);
   pari_stack_init(&s_frame,sizeof(*frames),(void **)&frames);
-  offset=-1;
+  offset=-1; nblex=0;
 }
 void
 pari_close_compiler(void)
@@ -139,7 +139,7 @@ pari_close_compiler(void)
 struct codepos
 {
   long opcode, data, localvars, frames, accesslex;
-  long offset;
+  long offset, nblex;
   const char *dbgstart;
 };
 
@@ -150,6 +150,7 @@ getcodepos(struct codepos *pos)
   pos->accesslex=s_accesslex.n;
   pos->data=s_data.n;
   pos->offset=offset;
+  pos->nblex=nblex;
   pos->localvars=s_lvar.n;
   pos->dbgstart=dbgstart;
   pos->frames=s_frame.n;
@@ -167,6 +168,7 @@ compilestate_reset(void)
   s_lvar.n=0;
   s_frame.n=0;
   offset=-1;
+  nblex=0;
   dbgstart=NULL;
 }
 
@@ -178,6 +180,7 @@ compilestate_save(struct pari_compilestate *comp)
   comp->accesslex=s_accesslex.n;
   comp->data=s_data.n;
   comp->offset=offset;
+  comp->nblex=nblex;
   comp->localvars=s_lvar.n;
   comp->dbgstart=dbgstart;
   comp->dbginfo=s_dbginfo.n;
@@ -192,6 +195,7 @@ compilestate_restore(struct pari_compilestate *comp)
   s_accesslex.n=comp->accesslex;
   s_data.n=comp->data;
   offset=comp->offset;
+  nblex=comp->nblex;
   s_lvar.n=comp->localvars;
   dbgstart=comp->dbgstart;
   s_dbginfo.n=comp->dbginfo;
@@ -206,16 +210,6 @@ access_push(long x)
 {
   long a = pari_stack_new(&s_accesslex);
   accesslex[a] = x;
-}
-
-static long
-getnbmvar(void)
-{
-  long i, n = 0;
-  for(i = 0; i < s_lvar.n; i++)
-    if(localvars[i].type==Lmy)
-      n++;
-  return n;
 }
 
 static GEN
@@ -286,7 +280,11 @@ getfunction(const struct codepos *pos, long arity, long nbmvar, GEN text,
   for (i = 1; i < ldat; i++)
     if (data[i+pos->data-1]) gel(dat,i) = gcopyunclone(data[i+pos->data-1]);
   s_data.n = pos->data;
-  while (s_lvar.n > pos->localvars && !localvars[s_lvar.n-1].inl) s_lvar.n--;
+  while (s_lvar.n > pos->localvars && !localvars[s_lvar.n-1].inl)
+  {
+    if (localvars[s_lvar.n-1].type==Lmy) nblex--;
+    s_lvar.n--;
+  }
   for (i = 1; i < lfram; i++)
   {
     long j = i+pos->frames-1;
@@ -355,6 +353,7 @@ var_push(entree *ep, Ltype type)
   localvars[n].ep   = ep;
   localvars[n].inl  = 0;
   localvars[n].type = type;
+  if (type == Lmy) nblex++;
 }
 
 static void
@@ -369,7 +368,7 @@ static GEN
 pack_localvars(void)
 {
   GEN pack=cgetg(3,t_VEC);
-  long i, l=s_lvar.n, nbmvar = 0;
+  long i, l=s_lvar.n;
   GEN t=cgetg(1+l,t_VECSMALL);
   GEN e=cgetg(1+l,t_VECSMALL);
   gel(pack,1)=t;
@@ -378,9 +377,8 @@ pack_localvars(void)
   {
     t[i]=localvars[i-1].type;
     e[i]=(long)localvars[i-1].ep;
-    if (t[i]==Lmy) nbmvar++;
   }
-  for(i=1;i<=nbmvar;i++)
+  for(i=1;i<=nblex;i++)
     access_push(-i);
   return pack;
 }
@@ -435,7 +433,7 @@ localvars_read_str(const char *x, GEN pack)
 {
   pari_sp av = avma;
   GEN code;
-  long l=0;
+  long l=0, nbmvar=nblex;
   if (pack)
   {
     GEN t=gel(pack,1);
@@ -447,6 +445,7 @@ localvars_read_str(const char *x, GEN pack)
   }
   code = compile_str(x);
   s_lvar.n -= l;
+  nblex = nbmvar;
   return gerepileupto(av, closure_evalres(code));
 }
 
@@ -1106,7 +1105,7 @@ compilefuncinline(long n, long c, long a, long flag, long isif, long lev, long *
   struct codepos pos;
   int type=c=='I'?Gvoid:Ggen;
   long rflag=c=='I'?0:FLsurvive;
-  long nbmvar = getnbmvar();
+  long nbmvar = nblex;
   GEN vep = NULL;
   if (isif && (flag&FLreturn)) rflag|=FLreturn;
   getcodepos(&pos);
@@ -1168,7 +1167,7 @@ compileuninline(GEN arg)
   for(j=0; j<s_lvar.n; j++)
     if(!localvars[j].inl)
       pari_err(e_MISC,"uninline is only valid at top level");
-  s_lvar.n = 0;
+  s_lvar.n = 0; nblex = 0;
 }
 
 static void
@@ -2269,7 +2268,7 @@ compilenode(long n, int mode, long flag)
       getcodepos(&pos);
       dbgstart=tree[x].str+tree[x].len;
       gap = tree[y].str-dbgstart;
-      nbmvar = getnbmvar();
+      nbmvar = nblex;
       ctxmvar(nbmvar);
       nb = lgarg-1;
       if (nb)
@@ -2302,7 +2301,7 @@ compilenode(long n, int mode, long flag)
             else
             {
               struct codepos lpos;
-              long nbmvar = getnbmvar();
+              long nbmvar = nblex;
               getcodepos(&lpos);
               compilenode(y, Ggen, 0);
               op_push(OCpushgen, data_push(getclosure(&lpos,nbmvar)),a);

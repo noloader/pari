@@ -158,7 +158,7 @@ struct pari_parsestate
 struct pari_compilestate
 {
   long opcode, operand, accesslex, data, localvars, frames, dbginfo;
-  long offset;
+  long offset, nblex;
   const char *dbgstart;
 };
 
