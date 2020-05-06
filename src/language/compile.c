@@ -983,15 +983,13 @@ cattovec(long n, long fnum)
 }
 
 static GEN
-compilelambda(long n, long y, GEN vep, struct codepos *pos)
+compilelambda(long n, long y, GEN vep, long nbmvar, struct codepos *pos)
 {
-  long nbmvar, lev = vep ? lg(vep)-1 : 0;
+  long lev = vep ? lg(vep)-1 : 0;
   GEN text=cgetg(3,t_VEC);
   gel(text,1)=strtoGENstr(lev? ((entree*) vep[1])->name: "");
   gel(text,2)=strntoGENstr(tree[y].str,tree[y].len);
   dbgstart = tree[y].str;
-  nbmvar=ctxmvar()-lev;
-  if (lev) op_push(OCgetargs,lev,n);
   compilenode(y,Ggen,FLsurvive|FLreturn);
   return getfunction(pos,lev,nbmvar,text,2);
 }
@@ -1048,9 +1046,12 @@ compilefuncinline(long n, long c, long a, long flag, long isif, long lev, long *
   struct codepos pos;
   int type=c=='I'?Gvoid:Ggen;
   long rflag=c=='I'?0:FLsurvive;
+  long nbmvar;
   GEN vep = NULL;
   if (isif && (flag&FLreturn)) rflag|=FLreturn;
   getcodepos(&pos);
+  if (c=='J')
+    nbmvar = ctxmvar();
   if (lev)
   {
     long i;
@@ -1067,11 +1068,13 @@ compilefuncinline(long n, long c, long a, long flag, long isif, long lev, long *
       var_push(ve,Lmy);
     }
     checkdups(varg,vep);
+    if (c=='J')
+      op_push(OCgetargs,lev,n);
     frame_push(vep);
   }
   if (c=='J')
-    return compilelambda(n,a,vep,&pos);
-  else if (tree[a].f==Fnoarg)
+    return compilelambda(n,a,vep,nbmvar,&pos);
+  if (tree[a].f==Fnoarg)
     compilecast(a,Gvoid,type);
   else
     compilenode(a,type,rflag);

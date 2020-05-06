@@ -50,4 +50,5 @@ Vecsmall([188, 722, 752])
 65
 85
 [1, 2, 3]
-Total time spent: 13775
+[[(i)->my(aaa=123,bbb=345);[self(),[i,aaa,bbb]], [1, 123, 345]]]
+Total time spent: 16164

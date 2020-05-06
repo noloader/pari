@@ -96,6 +96,7 @@ HC  73- F=mfbracket(mfbd(mfEk(4),4),mfTheta(),1); mfcoefs(F,0) -> SEGV
     75- mfshimura, mfkohnenbijection: could create mf spaces with
         inconsistent character.
 BA  76- [mpi] sending t_LIST to remote nodes did not work.
+BA  77- my(a,b); parvector(1,i,self()) --> SEGV
 
   Changed
      1- [libpari] rename rootsof1 -> nfrootsof1
