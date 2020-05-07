@@ -225,14 +225,17 @@ mpqs_find_k(mpqs_handle_t *h)
 {
   const pari_sp av = avma;
   const long N_mod_8 = mod8(h->N), N_mod_4 = N_mod_8 & 3;
+  long dl = decimal_len(h->N);
+  long D = maxss(0, minss(dl,MPQS_MAX_DIGIT_SIZE_KN)-9);
+  long MPQS_MULTIPLIER_SEARCH_DEPTH = mpqs_parameters[D].size_of_FB;
   forprime_t S;
   struct {
     const mpqs_multiplier_t *_k;
     long np; /* number of primes in factorbase so far for this k */
     double value; /* the larger, the better */
   } cache[MPQS_POSSIBLE_MULTIPLIERS];
+  long MPQS_NB_MULTIPLIERS = dl < 40 ? 5 : MPQS_POSSIBLE_MULTIPLIERS;
   ulong p, i, nbk;
-  long MPQS_MULTIPLIER_SEARCH_DEPTH = expi(h->N)<200 ? 500 : 5000;
 
   for (i = nbk = 0; i < numberof(cand_multipliers); i++)
   {
@@ -245,7 +248,7 @@ mpqs_find_k(mpqs_handle_t *h)
     cache[nbk].np = 0;
     cache[nbk]._k = cand_k;
     cache[nbk].value = v;
-    if (++nbk == MPQS_POSSIBLE_MULTIPLIERS) break; /* enough */
+    if (++nbk == MPQS_NB_MULTIPLIERS) break; /* enough */
   }
   /* next test is an impossible situation: kills spurious gcc-5.1 warnings
    * "array subscript is above array bounds" */
