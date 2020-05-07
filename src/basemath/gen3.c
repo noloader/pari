@@ -1132,7 +1132,7 @@ gdivmod(GEN x, GEN y, GEN *pr)
     case t_POL: return poldivrem(x,y,pr);
   }
   pari_err_TYPE2("gdivmod",x,y);
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /*******************************************************************/

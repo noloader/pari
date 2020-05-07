@@ -447,7 +447,7 @@ shallowmatconcat(GEN v)
       return M;
     default:
       pari_err_TYPE("shallowmatconcat", v);
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 GEN

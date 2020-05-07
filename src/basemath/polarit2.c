@@ -1183,7 +1183,7 @@ gen_factorback(GEN L, GEN e, void *data, GEN (*_mul)(void*,GEN,GEN),
       break;
     default:
       pari_err_TYPE("factorback [not an exponent vector]", e);
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   x[0] = evaltyp(t_VEC) | _evallg(l);
   return gerepileupto(av, gen_product(x, data, _mul));
@@ -1442,8 +1442,8 @@ zero_gcd2(GEN y, GEN z)
       return gerepileupto(av, gmul(y, FF_1(z)));
     default:
       pari_err_TYPE("zero_gcd", z);
+      return NULL;/*LCOV_EXCL_LINE*/
   }
-  return NULL;
 }
 static GEN
 cont_gcd_pol_i(GEN x, GEN y) { return scalarpol(ggcd(content(x),y), varn(x));}

@@ -998,7 +998,7 @@ subfield_generator(GEN pol, GEN V, long d, long ero)
     if (a) return a;
     p = unextprime(p+1);
   }
-  return NULL; /* not reached */
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 static GEN
@@ -1277,7 +1277,7 @@ galoissubfieldcm(GEN G)
     if (a) { delete_var(); return a; }
     p = unextprime(p+1);
   }
-  return NULL; /* not reached */
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 static GEN

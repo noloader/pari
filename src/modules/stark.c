@@ -3148,7 +3148,7 @@ get_lambda(GEN bnr)
       return labas;
     }
   pari_err_BUG("get_lambda");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 static GEN

@@ -2316,7 +2316,7 @@ galois_get_conj(GEN G)
     }
   }
   pari_err_BUG("galois_get_conj");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 static GEN  cyclotoi(GEN v) { return simplify_shallow(lift_shallow(v)); }

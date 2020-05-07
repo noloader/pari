@@ -3557,7 +3557,8 @@ pariFILE *
 try_pipe(const char *cmd, int fl)
 {
 #ifndef HAVE_PIPES
-  pari_err(e_ARCH,"pipes"); return NULL;
+  pari_err(e_ARCH,"pipes");
+  return NULL;/*LCOV_EXCL_LINE*/
 #else
   FILE *file;
   const char *f;
@@ -4951,7 +4952,8 @@ long
 gp_fileextern(char *s)
 {
 #ifndef HAVE_PIPES
-  pari_err(e_ARCH,"pipes"); return NULL;
+  pari_err(e_ARCH,"pipes");
+  return NULL;/*LCOV_EXCL_LINE*/
 #else
   FILE *f;
   check_secure(s);

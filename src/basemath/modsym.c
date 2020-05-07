@@ -530,7 +530,7 @@ Qevproj_init0(GEN M)
       return Qevproj_init(M);
   }
   pari_err_TYPE("Qevproj_init",M);
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /* T an n x n QM, pro = Qevproj_init(M), pro2 = Qevproj_init(M2); TM \subset M2.
@@ -661,7 +661,7 @@ mssplit_i(GEN W, GEN H, long deglim)
     }
   }
   pari_err_BUG("subspaces not found");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 GEN
 mssplit(GEN W, GEN H, long deglim)
@@ -1937,7 +1937,7 @@ cusp_to_ZC(GEN c)
       return mkcol2(stoi(c[1]), stoi(c[2]));
     default:
       pari_err_TYPE("mspathlog",c);
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 static GEN

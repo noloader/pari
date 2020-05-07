@@ -681,7 +681,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
     }
   }
   pari_err_BUG("rnfkummer [get_prlist]");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 /*Lprz list of prime ideals in Kz that must split completely in Lz/Kz, vecWA
  * generators for the S-units used to build the Kummer generators. Return

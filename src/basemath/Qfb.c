@@ -1450,7 +1450,7 @@ qfbredsl2(GEN q, GEN S)
 
     default:
         pari_err_TYPE("qfbredsl2",q);
-        return NULL;
+        return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 

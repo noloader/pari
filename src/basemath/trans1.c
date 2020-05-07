@@ -381,7 +381,8 @@ trans_eval(const char *fun, GEN (*f)(GEN,long), GEN x, long prec)
     case t_VEC:
     case t_COL:
     case t_MAT: return transvec(f, x, prec);
-    default: pari_err_TYPE(fun,x); return NULL;
+    default: pari_err_TYPE(fun,x);
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   return gerepileupto(av, x);
 }

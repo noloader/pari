@@ -45,7 +45,7 @@ galoisgetpol(long a, long b, long sig)
       pari_err_DOMAIN("galoisgetpol", "s", ">", gen_1, stoi(sig));
     default:
       pari_err_FLAG("galoisgetpol");
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   /* left on stack */
   s = stack_sprintf("%s/galpol/%ld/%ld/%s", pari_datadir, a,b,si);

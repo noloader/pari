@@ -3366,7 +3366,8 @@ hasseconvert(GEN H, long n)
       return h;
     case t_VECSMALL: return H;
   }
-  pari_err_TYPE("Hasse invariant", H); return NULL;
+  pari_err_TYPE("Hasse invariant", H);
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /* assume f >= 2 */

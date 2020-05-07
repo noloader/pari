@@ -88,7 +88,8 @@ shallowtrans(GEN x)
       dx = lgcols(x); y = cgetg(dx,t_MAT);
       for (i = 1; i < dx; i++) gel(y,i) = row_transpose(x,i);
       break;
-    default: pari_err_TYPE("shallowtrans",x); return NULL;
+    default: pari_err_TYPE("shallowtrans",x);
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   return y;
 }
@@ -107,7 +108,8 @@ gtrans(GEN x)
       dx = lgcols(x); y = cgetg(dx,t_MAT);
       for (i = 1; i < dx; i++) gel(y,i) = row_transposecopy(x,i);
       break;
-    default: pari_err_TYPE("gtrans",x); return NULL;
+    default: pari_err_TYPE("gtrans",x);
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   return y;
 }

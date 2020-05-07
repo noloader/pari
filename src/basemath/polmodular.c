@@ -2388,7 +2388,7 @@ internal_db(long L, long inv)
   case INV_W3W13: return phi2_w3w13_ZV();
   }
   pari_err_BUG("internal_db");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /* NB: Should only be called if L <= modinv_max_internal_level(inv) */

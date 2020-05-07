@@ -109,7 +109,7 @@ Rg_to_raw(GEN x, GEN ff)
     return gel(x,2);
   }
   pari_err_TYPE("Rg_to_raw",x);
-  return NULL; /* LCOV_EXCL_LINE */
+  return NULL;/* LCOV_EXCL_LINE */
 }
 
 static GEN
@@ -2061,7 +2061,7 @@ ffgen(GEN T, long v)
       }
     default:
       pari_err_TYPE("ffgen",T);
-      return NULL;
+      return NULL;/* LCOV_EXCL_LINE */
   }
   if (v < 0) v = varn(T);
   if (lgefint(p)==3)

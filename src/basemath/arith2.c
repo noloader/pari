@@ -297,7 +297,7 @@ check_arith_pos(GEN n, const char *f) {
       return n;
   }
   pari_err_TYPE(f,n);
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 /* n attached to a factorization of a non-0 integer */
 GEN
@@ -315,7 +315,7 @@ check_arith_non0(GEN n, const char *f) {
       return n;
   }
   pari_err_TYPE(f,n);
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 /* n attached to a factorization of an integer */
 GEN
@@ -332,7 +332,7 @@ check_arith_all(GEN n, const char *f) {
       return n;
   }
   pari_err_TYPE(f,n);
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 /***********************************************************************/

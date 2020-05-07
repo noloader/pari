@@ -717,7 +717,7 @@ idealquasifrob(GEN nf, GEN gal, GEN grp, GEN pr, GEN subg, GEN *S, GEN aut)
     }
   }
   pari_err_BUG("idealquasifrob [Frobenius not found]");
-  return NULL; /*LCOV_EXCL_LINE*/
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -826,7 +826,7 @@ idealinertiagroup(GEN nf, GEN gal, GEN aut, GEN pr)
     }
   }
   pari_err_BUG("idealinertiagroup [no isotropic element]");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 static GEN
@@ -2028,7 +2028,7 @@ real_norm(GEN x)
     case t_FRAC: return sqrfrac(x);
   }
   pari_err_TYPE("real_norm", x);
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 /* simplified version of gnorm, without GC */
 static GEN

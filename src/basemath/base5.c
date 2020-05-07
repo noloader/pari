@@ -72,7 +72,8 @@ rnfeltreltoabs(GEN rnf,GEN x)
       if (varn(x) == rnf_get_nfvarn(rnf)) return rnfeltup(rnf,x);
       retmkpolmod(eltreltoabs(rnf_get_map(rnf), x), ZX_copy(pol));
   }
-  pari_err_TYPE(f,x); return NULL;
+  pari_err_TYPE(f,x);
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN
@@ -126,7 +127,7 @@ rnfeltabstorel(GEN rnf,GEN x)
       x = nf_to_scalar_or_alg(NF,x); break;
     default:
       pari_err_TYPE(f,x);
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
   switch(typ(x))
   {

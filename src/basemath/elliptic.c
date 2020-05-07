@@ -4113,7 +4113,7 @@ handle_coeff(GEN nf, GEN c, GEN *pd)
         return handle_Q(Q_content(c), pd);
       }
     default: pari_err_TYPE("ellintegralmodel",c);
-      return NULL;
+      return NULL;/*LCOV_EXCL_LINE*/
   }
 }
 /* Return an integral model for e / nf, Q. Set v = NULL (already integral)

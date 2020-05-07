@@ -784,7 +784,7 @@ gisprime(GEN x, long flag)
     case 3: return map_proto_lG(isprimeECPP,x);
   }
   pari_err_FLAG("gisprime");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 long
@@ -1342,7 +1342,7 @@ primes0(GEN N)
       if (lg(N) == 3) return primes_interval(gel(N,1),gel(N,2));
   }
   pari_err_TYPE("primes", N);
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN

@@ -145,7 +145,7 @@ ellsearchbyname(GEN V, char *name)
   }
   x = strtoGENstr(name);
   pari_err_DOMAIN("ellsearchbyname", "name", "=", x,x);
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 static GEN
@@ -183,7 +183,7 @@ ellsearch(GEN A)
       pari_err_TYPE("ellsearch",A);
   } else {
     pari_err_TYPE("ellsearch",A);
-    return NULL;
+    return NULL;/*LCOV_EXCL_LINE*/
   }
   if (f <= 0) pari_err_DOMAIN("ellsearch", "conductor", "<=", gen_0,stoi(f));
   V = ellcondlist(f);
@@ -216,7 +216,7 @@ ellidentify(GEN E)
     if (ZV_equal(gmael(V,j,2), M))
       return gerepilecopy(ltop, mkvec2(gel(V,j),gel(G,2)));
   pari_err_BUG("ellidentify [missing curve]");
-  return NULL;
+  return NULL;/*LCOV_EXCL_LINE*/
 }
 
 GEN
