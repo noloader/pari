@@ -1368,6 +1368,7 @@ rnfkummer_init(struct rnfkummer *kum, GEN bnf, ulong ell, long prec)
   ulong g;
   pari_timer ti;
   if (DEBUGLEVEL>2) err_printf("Step 1\n");
+  if (DEBUGLEVEL) timer_start(&ti);
   compositum_red(COMPO, polnf, polcyclo(ell, varn(polnf)));
   if (DEBUGLEVEL)
   {
