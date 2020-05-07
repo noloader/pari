@@ -23,6 +23,9 @@ randomprime([2.4,2.5])
 randomprime()
 randomprime(10)
 randomprime([2^100, 2^100 + 2^20])
+randomprime(100,4)
+randomprime([10,100],Mod(2,5))
+randomprime(100,Mod(0,2))
 for (i=1,10, a = random([15,20]); if (a < 15 || a > 20, print(a)))
 s=getrand();
 v=vector(10,i,random());
@@ -32,3 +35,6 @@ if(v != w,error("setrand"));
 random("")
 setrand(2^65)
 setrand(-1)
+
+\\ ERRORS
+randomprime([3,100], Mod(0,2))

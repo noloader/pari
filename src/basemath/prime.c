@@ -1058,18 +1058,10 @@ prime(long N)
   set_avma(av); return icopy(p);
 }
 
-/* random b-bit prime */
-GEN
-randomprime(GEN N)
+static void
+prime_interval(GEN N, GEN *pa, GEN *pb, GEN *pd)
 {
-  pari_sp av = avma, av2;
   GEN a, b, d;
-  if (!N)
-    for(;;)
-    {
-      ulong p = random_bits(31);
-      if (uisprime(p)) return utoipos(p);
-    }
   switch(typ(N))
   {
     case t_INT:
@@ -1095,7 +1087,7 @@ randomprime(GEN N)
         b = gfloor(b);
         if (typ(b) != t_INT) pari_err_TYPE("randomprime",b);
       }
-      if (cmpis(a, 2) < 0)
+      if (cmpiu(a, 2) < 0)
       {
         a = gen_2;
         d = subiu(b,1);
@@ -1108,15 +1100,63 @@ randomprime(GEN N)
       break;
     default:
       pari_err_TYPE("randomprime", N);
-      return NULL; /*LCOV_EXCL_LINE*/
+      a = b = d = NULL; /*LCOV_EXCL_LINE*/
   }
-  av2 = avma;
+  *pa = a; *pb = b; *pd = d;
+}
+
+/* random b-bit prime */
+GEN
+randomprime(GEN N)
+{
+  pari_sp av = avma, av2;
+  GEN a, b, d;
+  if (!N)
+    for(;;)
+    {
+      ulong p = random_bits(31);
+      if (uisprime(p)) return utoipos(p);
+    }
+  prime_interval(N, &a, &b, &d); av2 = avma;
   for (;;)
   {
     GEN p = addii(a, randomi(d));
     if (BPSW_psp(p)) return gerepileuptoint(av, p);
     set_avma(av2);
   }
+}
+GEN
+randomprime0(GEN N, GEN q)
+{
+  pari_sp av = avma, av2;
+  GEN C, D, a, b, d, r;
+  if (!q) return randomprime(N);
+  switch(typ(q))
+  {
+    case t_INT: C = gen_1; D = q; break;
+    case t_INTMOD: C = gel(q,2); D = gel(q,1); break;
+    default:
+      pari_err_TYPE("randomprime", q);
+      return NULL;/*LCOV_EXCL_LINE*/
+  }
+  if (!N) N = int2n(31);
+  prime_interval(N, &a, &b, &d);
+  r = modii(subii(C, a), D);
+  if (signe(r)) { a = addii(a, r); d = subii(d, r); }
+  if (!equali1(gcdii(C,D)))
+  {
+    if (isprime(a)) return gerepilecopy(av, a);
+    pari_err_COPRIME("randomprime", C, D);
+  }
+  d = divii(d, D); if (!signe(d)) d = gen_1;
+  av2 = avma;
+  for (;;)
+  {
+    GEN p = addii(a, mulii(D, randomi(d)));
+    if (BPSW_psp(p)) return gerepileuptoint(av, p);
+    set_avma(av2);
+  }
+  return NULL;
 }
 
 /* set *pp = nextprime(a) = p

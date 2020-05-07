@@ -157,6 +157,7 @@ BA  43- lexical variables names can now reuse builtin functions names as in
     44- mfshimura: disallow the discriminant D argument, only allow
         squarefree positive t
 BA  45- closures: do not copy the full context, only the accessible part
+    46- add optional argument to randomprime [select congruence class]
 
   Added
      1- new GP function rootsof1

@@ -4924,6 +4924,7 @@ GEN     primes_upto_zv(ulong b);
 GEN     primes0(GEN n);
 GEN     primes_zv(long m);
 GEN     randomprime(GEN N);
+GEN     randomprime0(GEN N, GEN q);
 GEN     removeprimes(GEN primes);
 int     uis2psp(ulong n);
 int     uispsp(ulong a, ulong n);
