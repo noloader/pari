@@ -206,6 +206,8 @@ x^9 + (-6*y + 9)*x^7 + (y - 20)*x^6 + (-45/2*y - 99/2)*x^5 + (42*y + 48)*x^4
 [x^2 + (-5*y^2 + 5*y - 3)]
 segfault bug with character input
 1
+bug: relative polynomial instead of absolute
+12
 examples from doc
 [4, 2]
 x^8 - 2*x^7 + Mod(-2*y^2 - 4*y - 27, y^3 + 14*y - 1)*x^6 + Mod(2*y^2 + 6*y +
@@ -245,4 +247,4 @@ bad inputs
   ***   at top-level: bnrclassfield(bnfinit(x))
   ***                 ^-------------------------
   *** bnrclassfield: incorrect priority in bnrclassfield: variable x = x
-Total time spent: 3992
+Total time spent: 3468
