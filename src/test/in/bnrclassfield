@@ -41,6 +41,16 @@ print("sanitize");
 do(a^4+392*a^2+64*a+37456,[31,8,5,29;0,1,0,0;0,0,1,0;0,0,0,1],Mat(3)) \\25
 bnrclassfield(bnfinit(y^2+6),Mat(2))
 
+print("hard DLs (#2228)");
+p = 1624384359015881850161120870813;
+bnf = bnfinit('y); bnr = bnrinit(bnf,p);
+L = bnrclassfield(bnr,2);
+[#L,poldegree(L[1]),nfdisc(L[1])]
+p = 1519276421662273577;
+bnr = bnrinit(bnf,p);
+L = bnrclassfield(bnr,4);
+[#L,poldegree(L[1]),nfdisc(L[1])]
+
 \\large compositum
 do(y,[vecprod(primes(8)),[1]],2,1)
 

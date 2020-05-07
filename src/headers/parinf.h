@@ -121,6 +121,7 @@ typedef struct {
   GEN P, k;
   GEN sprk; /* sprk[i] = sprkinit(P[i]^k[i])*/
   GEN archp; /* archimedean part of conductor, in permutation form */
+  GEN mod;
   GEN U; /* base change matrix blocks from (Z_K/P^k)^* and (Z/2)^#f_oo
           * to bid.gen */
   long hU; /* #bid.gen */

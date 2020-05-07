@@ -774,7 +774,7 @@ znconreyfromchar(GEN bid, GEN chi)
 }
 
 /* discrete log on canonical "primitive root" generators
- * Allow log(x) instead of x [usual discrete log on bid's generators */
+ * Allow log(x) instead of x [usual discrete log on bid's generators] */
 GEN
 znconreylog(GEN bid, GEN x)
 {

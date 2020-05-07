@@ -2625,11 +2625,12 @@ static int
 sprk_is_prime(GEN s) { return lg(s) == 5; }
 
 static GEN
-famat_zlog_pr(GEN nf, GEN g, GEN e, GEN sprk)
+famat_zlog_pr(GEN nf, GEN g, GEN e, GEN sprk, GEN mod)
 {
-  GEN x = famat_makecoprime(nf, g, e, sprk_get_pr(sprk), sprk_get_prk(sprk),
-                            sprk_get_expo(sprk));
-  return log_prk(nf, x, sprk);
+  GEN x, expo = sprk_get_expo(sprk);
+  if (mod) expo = gcdii(expo,mod);
+  x = famat_makecoprime(nf, g, e, sprk_get_pr(sprk), sprk_get_prk(sprk), expo);
+  return log_prk(nf, x, sprk, mod);
 }
 /* famat_zlog_pr assuming (g,sprk.pr) = 1 */
 static GEN
@@ -2637,39 +2638,66 @@ famat_zlog_pr_coprime(GEN nf, GEN g, GEN e, GEN sprk)
 {
   GEN x = famat_to_nf_modideal_coprime(nf, g, e, sprk_get_prk(sprk),
                                        sprk_get_expo(sprk));
-  return log_prk(nf, x, sprk);
+  return log_prk(nf, x, sprk, NULL);
 }
 
-/* log_g(a) in (Z_K/pr)^* */
-static GEN
-nf_log(GEN nf, GEN a, GEN ff)
-{
-  GEN pr = gel(ff,1), g = gel(ff,2), ord = gel(ff,3);
-  GEN T,p, modpr = nf_to_Fq_init(nf, &pr, &T, &p);
-  return Fq_log(nf_to_Fq(nf,a,modpr), g, ord, T, p);
-}
-/* a in Z_K (t_COL or t_INT), pr prime ideal, sprk = sprkinit(nf,pr,k,x).
- * return log(a) on SNF-generators of (Z_K/pr^k)^**/
+/* a in Z_K (t_COL or t_INT), pr prime ideal, sprk = sprkinit(nf,pr,k,x),
+ * mod positive t_INT or NULL (meaning mod=0).
+ * return log(a) modulo mod on SNF-generators of (Z_K/pr^k)^* */
 GEN
-log_prk(GEN nf, GEN a, GEN sprk)
+log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
 {
-  GEN e, prk, A, g, L2, U1, U2, y;
+  GEN e, prk, A, g, L2, U1, U2, y, ff, o, N, T, p, modpr, pr, log1, d, cyc;
+  long i;
 
-  if (typ(a) == t_MAT) return famat_zlog_pr(nf, gel(a,1), gel(a,2), sprk);
+  if (typ(a) == t_MAT) return famat_zlog_pr(nf, gel(a,1), gel(a,2), sprk, mod);
 
-  e = nf_log(nf, a, sprk_get_ff(sprk));
-  if (sprk_is_prime(sprk)) return mkcol(e); /* k = 1 */
+  ff = sprk_get_ff(sprk);
+  o = gmael(ff,3,1);
   prk = sprk_get_prk(sprk);
+  pr = gel(ff,1);
+  g = gel(ff,2);
+  modpr = nf_to_Fq_init(nf, &pr, &T, &p);
+
+  if (mod)
+  {
+    d = gcdii(o,mod);
+    N = diviiexact(o,d);
+    if (equali1(N)) N = NULL;
+    else
+    {
+      a = nfpowmodideal(nf, a, N, prk);
+      g = Fq_pow(g, N, T, p);
+    }
+  }
+  else
+  {
+    d = o;
+    N = NULL;
+  }
+  if (equali1(d)) e = gen_0;
+  else            e = Fq_log(nf_to_Fq(nf,a,modpr), g, d, T, p);
+
+  if (sprk_is_prime(sprk)) return mkcol(e); /* k = 1 */
+
   sprk_get_L2(sprk, &A,&g,&L2);
+  sprk_get_U2(sprk, &U1,&U2);
+  cyc = gcopy(sprk_get_cyc(sprk));
+  if (mod) for (i=1; i<lg(cyc); i++) gel(cyc,i) = gcdii(gel(cyc,i), mod);
+
+  if (mod && signe(modii(mod,p)))
+    return vecmodii(ZC_Z_mul(U1,e), cyc);
+
   if (signe(e))
   {
-    e = Fp_neg(e, A);
-    a = nfmulpowmodideal(nf, a, g, e, prk);
+    if (N) g = nfpowmodideal(nf, g, N, prk);
+    a = nfmulpowmodideal(nf, a, g, Fp_neg(e,d), prk);
   }
-  sprk_get_U2(sprk, &U1,&U2);
-  y = ZM_ZC_mul(U2, log_prk1(nf, a, lg(U2)-1, L2, prk));
-  if (signe(e)) y = ZC_sub(y, ZC_Z_mul(U1,e));
-  return vecmodii(y, sprk_get_cyc(sprk));
+  log1 = log_prk1(nf, a, lg(U2)-1, L2, prk);
+  y = ZM_ZC_mul(U2, log1);
+  if (mod && N) y = ZC_Z_mul(y, Fp_inv(N,mod));
+  if (signe(e)) y = ZC_add(y, ZC_Z_mul(U1,e));
+  return vecmodii(y, cyc);
 }
 GEN
 log_prk_init(GEN nf, GEN pr, long k)
@@ -2679,7 +2707,7 @@ veclog_prk(GEN nf, GEN v, GEN sprk)
 {
   long l = lg(v), i;
   GEN w = cgetg(l, t_MAT);
-  for (i = 1; i < l; i++) gel(w,i) = log_prk(nf, gel(v,i), sprk);
+  for (i = 1; i < l; i++) gel(w,i) = log_prk(nf, gel(v,i), sprk, NULL);
   return w;
 }
 
@@ -2689,7 +2717,7 @@ famat_zlog(GEN nf, GEN fa, GEN sgn, zlog_S *S)
   long i, l0, l = lg(S->U);
   GEN g = gel(fa,1), e = gel(fa,2), y = cgetg(l, t_COL);
   l0 = lg(S->sprk); /* = l (trivial arch. part), or l-1 */
-  for (i=1; i < l0; i++) gel(y,i) = famat_zlog_pr(nf, g, e, gel(S->sprk,i));
+  for (i=1; i < l0; i++) gel(y,i) = famat_zlog_pr(nf, g, e, gel(S->sprk,i), S->mod);
   if (l0 != l)
   {
     if (!sgn) sgn = nfsign_arch(nf, fa, S->archp);
@@ -2716,8 +2744,8 @@ split_U(GEN U, GEN Sprk)
   return vU;
 }
 
-void
-init_zlog(zlog_S *S, GEN bid)
+static void
+init_zlog_mod(zlog_S *S, GEN bid, GEN mod)
 {
   GEN fa2 = bid_get_fact2(bid);
   S->U = bid_get_U(bid);
@@ -2725,9 +2753,15 @@ init_zlog(zlog_S *S, GEN bid)
   S->archp = bid_get_archp(bid);
   S->sprk = bid_get_sprk(bid);
   S->bid = bid;
+  S->mod = mod;
   S->P = gel(fa2,1);
   S->k = gel(fa2,2);
   S->no2 = lg(S->P) == lg(gel(bid_get_fact(bid),1));
+}
+void
+init_zlog(zlog_S *S, GEN bid)
+{
+  return init_zlog_mod(S, bid, NULL);
 }
 
 /* a a t_FRAC/t_INT, reduce mod bid */
@@ -2772,7 +2806,7 @@ zlog(GEN nf, GEN a, GEN sgn, zlog_S *S)
   for (k = 1; k < l; k++)
   {
     GEN sprk = gel(S->sprk,k);
-    gel(y,k) = log_prk(nf, a, sprk);
+    gel(y,k) = log_prk(nf, a, sprk, S->mod);
   }
   if (sgn) gel(y,l) = Flc_to_ZC(sgn);
   return y;
@@ -2863,7 +2897,7 @@ log_gen_pr(zlog_S *S, long ind, GEN nf, long e)
     }
     A = cgetg(l, t_MAT);
     for (i = 1; i < l; i++)
-      gel(A,i) = ZM_ZC_mul(Uind, log_prk(nf, gel(G,i), sprk));
+      gel(A,i) = ZM_ZC_mul(Uind, log_prk(nf, gel(G,i), sprk, S->mod));
     return A;
   }
 }
@@ -3123,7 +3157,7 @@ ideallog_units(GEN bnf, GEN bid)
 GEN
 log_prk_units(GEN nf, GEN D, GEN sprk)
 {
-  GEN L, Ltu = log_prk(nf, gel(D,1), sprk);
+  GEN L, Ltu = log_prk(nf, gel(D,1), sprk, NULL);
   D = gel(D,2);
   if (lg(D) != 3 || typ(gel(D,2)) != t_MAT) L = veclog_prk(nf, D, sprk);
   else
@@ -3152,12 +3186,21 @@ ideallog_i(GEN nf, GEN x, zlog_S *S)
   return gerepileupto(av, vecmodii(y, bid_get_cyc(S->bid)));
 }
 GEN
-ideallog(GEN nf, GEN x, GEN bid)
+ideallogmod(GEN nf, GEN x, GEN bid, GEN mod)
 {
   zlog_S S;
-  if (!nf) return Zideallog(bid, x);
-  checkbid(bid); init_zlog(&S, bid);
+  if (!nf)
+  {
+    if (mod) pari_err_IMPL("Zideallogmod");
+    return Zideallog(bid, x);
+  }
+  checkbid(bid); init_zlog_mod(&S, bid, mod);
   return ideallog_i(checknf(nf), x, &S);
+}
+GEN
+ideallog(GEN nf, GEN x, GEN bid)
+{
+  return ideallogmod(nf, x, bid, NULL);
 }
 
 /*************************************************************************/

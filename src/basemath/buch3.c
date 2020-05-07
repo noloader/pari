@@ -535,20 +535,30 @@ ZM2_ZC2_mul(GEN U, GEN x, GEN y)
 }
 
 GEN
-bnrisprincipal(GEN bnr, GEN x, long flag)
+bnrisprincipalmod(GEN bnr, GEN x, GEN mod, long flag)
 {
   pari_sp av = avma;
   GEN bnf, nf, bid, L, ex, cycray, alpha;
+  long i;
 
   checkbnr(bnr);
   cycray = bnr_get_cyc(bnr);
+  if (mod && flag) pari_err_FLAG("bnrisprincipalmod [mod!=NULL and flag!=0]");
   if (lg(cycray) == 1 && !(flag & nf_GEN)) return cgetg(1,t_COL);
+  if (mod)
+  {
+    cycray = gcopy(cycray);
+    for(i=1; i<lg(cycray); i++) gel(cycray,i) = gcdii(gel(cycray,i),mod);
+  }
 
   bnf = bnr_get_bnf(bnr); nf = bnf_get_nf(bnf);
   bid = bnr_get_bid(bnr);
   if (lg(bid_get_cyc(bid)) == 1) bid = NULL; /* trivial bid */
   if (!bid)
+  {
     ex = isprincipal(bnf, x);
+    if (mod) ex = vecmodii(ex, cycray);
+  }
   else
   {
     GEN El = bnr_get_El(bnr);
@@ -558,7 +568,7 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
     for (i = 1; i < j; i++) /* modify beta as if bnf.gen were El*bnr.gen */
       if (typ(gel(El,i)) != t_INT && signe(gel(ep,i))) /* <==> != 1 */
         beta = famat_mulpow_shallow(beta, gel(El,i), negi(gel(ep,i)));
-    ex = ZM2_ZC2_mul(bnr_get_U(bnr), ep, ideallog(nf,beta,bid));
+    ex = ZM2_ZC2_mul(bnr_get_U(bnr), ep, ideallogmod(nf,beta,bid,mod));
     ex = vecmodii(ex, cycray);
   }
   if (!(flag & nf_GEN)) return gerepileupto(av, ex);
@@ -582,6 +592,13 @@ bnrisprincipal(GEN bnr, GEN x, long flag)
   }
   return gerepilecopy(av, mkvec2(ex,alpha));
 }
+
+GEN
+bnrisprincipal(GEN bnr, GEN x, long flag)
+{
+  return bnrisprincipalmod(bnr, x, NULL, flag);
+}
+
 GEN
 isprincipalray(GEN bnr, GEN x) { return bnrisprincipal(bnr,x,0); }
 GEN
@@ -1614,7 +1631,7 @@ rnfnormgroup_i(GEN bnr, GEN polrel)
         pr = utoipos(p);
 
       /* pr^f = N P, P | pr, hence is in norm group */
-      col = isprincipalray(bnr,pr);
+      col = bnrisprincipalmod(bnr,pr,gdegrel,0);
       if (f > 1) col = ZC_z_mul(col, f);
       G = ZM_hnf(shallowconcat(G, col));
       detG = ZM_det_triangular(G);

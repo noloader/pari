@@ -390,7 +390,7 @@ logall(GEN nf, GEN vec, long lW, long mginv, long ell, GEN pr, long ex)
   M = cgetg(l,t_MAT);
   for (i=1; i<l; i++)
   {
-    m = log_prk(nf, gel(vec,i), sprk);
+    m = log_prk(nf, gel(vec,i), sprk, utoi(ell));
     setlg(m, ellrank+1);
     if (i < lW) m = gmulsg(mginv, m);
     gel(M,i) = ZV_to_Flv(m, ell);
@@ -627,7 +627,8 @@ get_badbnf(GEN bnf)
   return bad;
 }
 /* Let K base field, L/K described by bnr (conductor f) + H. Return a list of
- * primes coprime to f*ell of degree 1 in K whose images in Cl_f(K) generate H:
+ * primes coprime to f*ell of degree 1 in K whose images in Cl_f(K) together
+ * with ell*Cl_f(K), generate H:
  * thus they all split in Lz/Kz; t in Kz is such that
  * t^(1/p) generates Lz => t is an ell-th power in k(pr) for all such primes.
  * Restrict to primes not dividing
@@ -656,9 +657,9 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
   }
   bad = lcmii(muliu(condZ, ell), bad);
   /* restrict to primes not dividing bad */
-
   u_forprime_init(&T, 2, ULONG_MAX);
-  Hsofar = cgetg(1, t_MAT);
+  Hsofar = ZM_hnfmodid(scalarmat(utoi(ell),lg(cyc)-1),cyc);
+  if (ZM_equal(Hsofar, H)) return gerepilecopy(av0, L);
   while ((p = u_forprime_next(&T)))
   {
     GEN LP;
@@ -669,7 +670,7 @@ get_prlist(GEN bnr, GEN H, ulong ell, GEN bnfz)
     for (i = 1; i < l; i++)
     {
       pari_sp av = avma;
-      GEN M, P = gel(LP,i), v = bnrisprincipal(bnr, P, 0);
+      GEN M, P = gel(LP,i), v = bnrisprincipalmod(bnr, P, utoi(ell), 0);
       if (!hnf_invimage(H, v)) { set_avma(av); continue; }
       M = shallowconcat(Hsofar, v);
       M = ZM_hnfmodid(M, cyc);
@@ -857,7 +858,8 @@ FOUND:  X = Flm_Flc_mul(K, y, ell);
               res = shallowconcat(res, gerepileupto(av, P));
             else
             {
-              if (ZM_equal(rnfnormgroup(bnr,P),subgroup)) return P; /*DONE*/
+              if (dK == 1 ||
+                  ZM_equal(rnfnormgroup(bnr,P),subgroup)) return P; /*DONE*/
               set_avma(av); continue;
             }
           }
@@ -1334,8 +1336,8 @@ _rnfkummer_step18(struct rnfkummer *kum, GEN bnr, GEN subgroup, GEN M,
           nfX_Z_normalize(nf, P);
           if (DEBUGLEVEL>1) err_printf("polrel(beta) = %Ps\n", P);
           if (!all) {
-            H = rnfnormgroup(bnr, P);
-            if (ZM_equal(subgroup, H)) return P; /* DONE */
+            if (dK == 1 ||
+                ZM_equal(subgroup, rnfnormgroup(bnr, P))) return P; /* DONE */
             set_avma(av); continue;
           } else {
             GEN P0 = Q_primpart(lift_shallow(P));
@@ -1643,9 +1645,9 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN TB, GEN p, long finaldeg, long ab
     {
       GEN pr = gel(dec,i), Pr = gel(rnfidealprimedec(rnf, pr), 1);
       long f = pr_get_f(Pr) / pr_get_f(pr);
-      GEN vpr = FpC_Fp_mul(isprincipalray(bnr, pr), utoi(f), pk);
+      GEN vpr = FpC_Fp_mul(bnrisprincipalmod(bnr,pr,pk,0), utoi(f), pk);
       if (gequal0(ZC_hnfrem(vpr,sgpk)))
-        H = vec_append(H, ZV_to_Flv(isprincipalray(bnr2, Pr), sp));
+        H = vec_append(H, ZV_to_Flv(bnrisprincipalmod(bnr2,Pr,p,0), sp));
     }
     if (lg(H) > lg(cyc)+3)
     {

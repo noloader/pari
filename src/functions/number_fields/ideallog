@@ -21,5 +21,9 @@ Doc: $\var{nf}$ is a number field,
  When \var{nf} is omitted, take it to be the rational number field. In that
  case, $x$ must be a \typ{INT} and \var{bid} must have been initialized by
  \kbd{znstar(N,1)}.
-Variant: Also available is
- \fun{GEN}{Zideallog}{GEN bid, GEN x} when \kbd{nf} is \kbd{NULL}.
+Variant: Also available are
+ \fun{GEN}{Zideallog}{GEN bid, GEN x} when \kbd{nf} is \kbd{NULL},
+ and \fun{GEN}{ideallogmod}{GEN nf, GEN x, GEN bid, GEN mod}
+ that returns the discrete logarithm of~$x$ modulo the~\typ{INT}
+ \kbd{mod}; the value~$\kbd{mod = NULL}$ is treated as~$0$ (full discrete
+ logarithm), but~$\kbd{nf=NULL}$ is not implemented with nonzero~\kbd{mod}.

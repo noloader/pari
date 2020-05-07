@@ -109,3 +109,8 @@ bnf=bnfinit(x^2-486);
 P2 = idealprimedec(bnf,2)[1];
 P3 = idealprimedec(bnf,3)[1];
 bnrinit(bnf, [[P2,1;P3,15],[1,1]], 1);
+
+p = 1932251269128214818974844517133; N = p*5;
+bnf=bnfinit('y); bnr = bnrinit(bnf,N);
+pol = bnrclassfield(bnr,[2,0;0,1],1);
+rnfnormgroup(bnr,pol)
