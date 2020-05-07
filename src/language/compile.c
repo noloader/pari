@@ -1039,7 +1039,7 @@ cattovec(long n, long fnum)
 }
 
 static GEN
-compilelambda(long n, long y, GEN vep, long nbmvar, struct codepos *pos)
+compilelambda(long y, GEN vep, long nbmvar, struct codepos *pos)
 {
   long lev = vep ? lg(vep)-1 : 0;
   GEN text=cgetg(3,t_VEC);
@@ -1132,7 +1132,7 @@ compilefuncinline(long n, long c, long a, long flag, long isif, long lev, long *
     frame_push(vep);
   }
   if (c=='J')
-    return compilelambda(n,a,vep,nbmvar,&pos);
+    return compilelambda(a,vep,nbmvar,&pos);
   if (tree[a].f==Fnoarg)
     compilecast(a,Gvoid,type);
   else
