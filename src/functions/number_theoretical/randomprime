@@ -46,3 +46,5 @@ Doc: returns a strong pseudo prime (see \tet{ispseudoprime}) in $[2,N-1]$.
     2
  ? randomprime(100, 97) \\ infinite loop
  @eprog
+Variant: Also available is \fun{GEN}{randomprime}{GEN N = NULL}.
+
