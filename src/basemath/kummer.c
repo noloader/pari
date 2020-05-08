@@ -1682,14 +1682,14 @@ static GEN
 cyclic_compos(GEN subgroup)
 {
   pari_sp av = avma;
-  GEN U, L, pe, D = smithclean( ZM_snfall_i(subgroup, &U, NULL, 1) );
+  GEN Ui, L, pe, D = ZM_snf_group(subgroup, NULL, &Ui);
   long i, l = lg(D);
 
   L = cgetg(l, t_VEC);
   if (l == 1) return L;
-  pe = gel(D,1); U = matinvmod(U, pe);
+  pe = gel(D,1);
   for (i = 1; i < l; i++)
-    gel(L,i) = hnfmodid(shallowconcat(subgroup, vecsplice(U,i)),pe);
+    gel(L,i) = hnfmodid(shallowconcat(subgroup, vecsplice(Ui,i)),pe);
   return gerepilecopy(av, L);
 }
 
