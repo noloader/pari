@@ -1693,10 +1693,10 @@ cyclic_compos(GEN subgroup)
   return gerepilecopy(av, L);
 }
 
-/* set kum=NULL if roots of unity already in base field */
-/* absolute=1 allowed if extension is cyclic with exponent>1 */
+/* p prime; set pkum=NULL if p-th root of unity in base field
+ * absolute=1 allowed if extension is cyclic with exponent>1 */
 static GEN
-bnrclassfield_primepower(struct rnfkummer *ptkum, GEN bnr, GEN subgroup, GEN p,
+bnrclassfield_primepower(struct rnfkummer *pkum, GEN bnr, GEN subgroup, GEN p,
   GEN P, long absolute, long prec)
 {
   GEN res, subs = cyclic_compos(subgroup);
@@ -1707,8 +1707,8 @@ bnrclassfield_primepower(struct rnfkummer *ptkum, GEN bnr, GEN subgroup, GEN p,
   {
     GEN H = gel(subs,i), cnd = bnrconductor_i(bnr, hnfmodid(H,p), 2);
     GEN pol, pe, bnr2 = gel(cnd,2), Hp = gel(cnd,3);
-    if (ptkum)  pol = rnfkummer_ell(ptkum, bnr2, Hp, 0);
-    else        pol = rnfkummersimple(bnr2, Hp, itos(p), 0);
+    if (pkum) pol = rnfkummer_ell(pkum, bnr2, Hp, 0);
+    else      pol = rnfkummersimple(bnr2, Hp, itos(p), 0);
     pe = ZM_det_triangular(H);
     if (!equalii(p,pe))
       pol = bnrclassfield_tower(bnr, H, mkvec2(pol,P), p, itos(pe), absolute, prec);
