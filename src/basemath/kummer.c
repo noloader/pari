@@ -1834,7 +1834,7 @@ bnrclassfield(GEN bnr, GEN subgroup, long flag, long prec)
     struct rnfkummer *pkum = NULL;
     GEN p = gel(PN,i), H = hnfmodid(subgroup, powii(p, gel(EN,i)));
     long sp = itos(p);
-    absolute &= FpM_rank(H,p)==lg(H)-2; /* cyclic */
+    if (absolute) absolute = FpM_rank(H,p)==lg(H)-2; /* cyclic */
     if (bnf_get_tuN(bnf) % sp)
     {
       pkum = &kum;
