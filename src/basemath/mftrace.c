@@ -1830,6 +1830,8 @@ mfcharchiliftprim(GEN CHI, long N4)
   if (N4 % FC) pari_err_TYPE("mfkohnenbasis [incorrect CHI]", CHI);
   return CHIP;
 }
+/* ensure CHI(-1) = (-1)^k [k integer] or 1 [half-integer], by multiplying
+ * by (-4/.) if needed */
 static GEN
 mfchiadjust(GEN CHI, GEN gk, long N)
 {
