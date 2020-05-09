@@ -3748,16 +3748,12 @@ static long
 mfisinkohnen(GEN mf, GEN F)
 {
   GEN v, gk = MF_get_gk(mf), CHI = MF_get_CHI(mf);
-  long i, sb, eps, N4 = MF_get_N(mf) >> 2;
-  sb = mfsturmNgk(N4 << 4, gk) + 1;
+  long i, eps, N4 = MF_get_N(mf) >> 2, sb = mfsturmNgk(N4 << 4, gk) + 1;
   eps = N4 % mfcharconductor(CHI)? -1 : 1;
   if (odd(MF_get_r(mf))) eps = -eps;
   v = mfcoefs(F, sb, 1);
-  for (i = 0; i <= sb; i++)
-  {
-    long j = i & 3L;
-    if ((j == 2 || j == 2 + eps) && !gequal0(gel(v,i+1))) return 0;
-  }
+  for (i = 2;     i <= sb; i+=4) if (!gequal0(gel(v,i+1))) return 0;
+  for (i = 2+eps; i <= sb; i+=4) if (!gequal0(gel(v,i+1))) return 0;
   return 1;
 }
 
