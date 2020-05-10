@@ -6575,7 +6575,7 @@ mfdihedralcuspdim(long N, GEN CHI)
   dim = mfdihedralnewdim(N, CHI); /* d = 1 */
   for (i = 2; i < lD; i++)
   {
-    long d = D[i], M = N/d, a = mfdihedralnewdim(M, CHIP);
+    long d = D[i], a = mfdihedralnewdim(N / d, CHIP);
     if (a) dim += a * mynumdivu(d);
   }
   return gc_long(av,dim);
@@ -6607,9 +6607,8 @@ mfdihedralcusp(long N, GEN CHI)
   gel(z,1) = mfdihedralnew(N, CHI);
   for (i = 2; i < lD; i++) /* skip 1 */
   {
-    long d = D[i], M = N / d;
-    GEN LF = mfdihedralnew(M, mfcharinduce(CHIP, M));
-    gel(z,i) = mfbdall(LF, d);
+    GEN LF = mfdihedralnew(N / D[i], CHIP);
+    gel(z,i) = mfbdall(LF, D[i]);
   }
   return gerepilecopy(av, shallowconcat1(z));
 }
