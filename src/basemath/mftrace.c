@@ -9075,6 +9075,9 @@ mfeisenstein2all(long N0, GEN NK, long k, GEN CHI1, GEN CHI2, GEN T, long o)
   return mfbdall(E, N0 / mf_get_N(gel(E,1)));
 }
 
+/* list of characters on G = (Z/NZ)^*, v[i] = NULL if (i,N) > 1, else
+ * the conductor of Conrey label i, [conductor, primitive char].
+ * Trivial chi (label 1) comes first */
 static GEN
 zncharsG(GEN G)
 {
@@ -9090,7 +9093,7 @@ zncharsG(GEN G)
     F = znconreyconductor(G, chi, &chi0);
     if (typ(F) != t_INT) F = gel(F,1);
     n = znconreyexp(G, chi);
-    gel(vCHI, itos(n)) = mkvec2(F, chi0);
+    gel(vCHI, itos(n)) = mkvec2(chi0, F);
   }
   return vCHI;
 }
@@ -9147,12 +9150,12 @@ mfeisensteinbasis_i(long N0, long k, GEN CHI)
   {
     GEN v = gel(V,n1), w, chi1, chi2, G1, G2, CHI1, CHI2;
     long N12, N1, N2, no, o12, t, m;
-    if (!Lchi[n1]) continue;
-    chi1 = gel(v,2); N1 = itou(gel(v,1)); /* conductor of chi1 */
+    if (!Lchi[n1] || n1 == n) continue; /* skip trivial chi2 */
+    chi1 = gel(v,1); N1 = itou(gel(v,2)); /* conductor of chi1 */
     w = gel(V, Fl_div(n,n1,N));
-    chi2 = gel(w,2); N2 = itou(gel(w,1)); /* conductor of chi2 */
+    chi2 = gel(w,1); N2 = itou(gel(w,2)); /* conductor of chi2 */
     N12 = N1 * N2;
-    if (N2 == 1 || N0 % N12) continue;
+    if (N0 % N12) continue;
 
     G1 = gel(LG,N1); if (!G1) gel(LG,N1) = G1 = znstar0(utoipos(N1), 1);
     if (k == 1 && zncharisodd(G1,chi1)) continue;
