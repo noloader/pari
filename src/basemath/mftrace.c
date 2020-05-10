@@ -3778,18 +3778,20 @@ mfshimura(GEN mf, GEN F, long t)
 {
   pari_sp av = avma;
   GEN G, res, mf2, CHI;
-  long sb, M, r, space, cusp, N;
+  long sb, M, r, N, space = mf_FULL;
 
   if (!checkmf_i(F)) pari_err_TYPE("mfshimura",F);
   mf = checkMF(mf);
   r = MF_get_r(mf);
   if (r <= 0) pari_err_DOMAIN("mfshimura", "weight", "<=", ghalf, mf_get_gk(F));
-  if (t <= 0 || !uissquarefree(t)) pari_err_TYPE("shimura [t]", stoi(t));
-  N = MF_get_N(mf);
+  if (t <= 0 || !uissquarefree(t)) pari_err_TYPE("mfshimura [t]", stoi(t));
+  N = MF_get_N(mf); M = N >> 1;
+  if (mfiscuspidal(mf,F))
+  {
+    if (mfshimura_space_cusp(mf)) space = mf_CUSP;
+    if (mfisinkohnen(mf,F)) M = N >> 2;
+  }
   CHI = MF_get_CHI(mf);
-  cusp = mfiscuspidal(mf,F);
-  space = (cusp && mfshimura_space_cusp(mf))? mf_CUSP: mf_FULL;
-  M = (cusp && mfisinkohnen(mf,F))? N >> 2: N >> 1;
   mf2 = mfinit_Nkchi(M, r << 1, mfcharpow(CHI, gen_2), space, 0);
   sb = mfsturm(mf2);
   G = RgV_shimura(mfcoefs_i(F, sb*sb, t), sb, t, N, r, CHI);

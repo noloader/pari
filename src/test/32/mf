@@ -1590,7 +1590,7 @@ od(0, t^16 + 1), Mod(3/8*t^11, t^16 + 1), Mod(0, t^16 + 1)]
   *** mftraceform: domain error in mftraceform: space = 4
   ***   at top-level: mfshimura(mfinit(T5),T5,4)
   ***                 ^--------------------------
-  *** mfshimura: incorrect type in shimura [t] (t_INT).
+  *** mfshimura: incorrect type in mfshimura [t] (t_INT).
   ***   at top-level: mftonew(mf,E4)
   ***                 ^--------------
   *** mftonew: incorrect type in mftonew [not a full or cuspidal space] (t_VEC).
@@ -1624,4 +1624,4 @@ od(0, t^16 + 1), Mod(3/8*t^11, t^16 + 1), Mod(0, t^16 + 1)]
   ***   at top-level: ...,0);[F]=mfeigenbasis(mf);mfpow(F,3)
   ***                                             ^----------
   *** mfpow: sorry, changing cyclotomic fields in mf is not yet implemented.
-Total time spent: 15749
+Total time spent: 17053
