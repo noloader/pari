@@ -5457,15 +5457,15 @@ mfcharinv_i(GEN CHI)
 static long
 mfwt1dimmodp(GEN A, GEN ES, GEN M, long ordchi, long dih, long lim)
 {
-  GEN Ap, ApF, ES1p, VC;
+  GEN Ap, ES1p, VC;
   ulong p, r = QabM_init(ordchi, &p);
 
-  ApF = Ap = QabM_to_Flm(A, r, p);
+  Ap = QabM_to_Flm(A, r, p);
   VC = NULL;
   ES1p = QabX_to_Flx(gel(ES,1), r, p);
   if (lg(ES) >= 3)
   {
-    GEN M2 = mfmatsermul_Fl(ApF, ES1p, p);
+    GEN M2 = mfmatsermul_Fl(Ap, ES1p, p);
     pari_sp av = avma;
     long i;
     for (i = 2; i < lg(ES); i++)
@@ -5490,7 +5490,7 @@ mfwt1dimmodp(GEN A, GEN ES, GEN M, long ordchi, long dih, long lim)
 static GEN
 mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
 {
-  GEN ES, ESA, mf, A, M, Tp, den, VC, C, POLCYC, ES1, ES1INV, DIH, a0, a0i;
+  GEN ES, E, mf, A, M, Tp, den, VC, C, POLCYC, ES1, ES1INV, DIH, a0, a0i;
   long plim, lim, biglim, i, p, dA, dimp, ordchi, dih;
 
   if (ptdimdih) *ptdimdih = 0;
@@ -5548,34 +5548,32 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
   lim = gel(TMP,1)[1]; p = gel(TMP,1)[2]; plim = p*lim;
   mf  = gel(TMP,2);
   A   = gel(TMP,3); /* p*lim x dim matrix */
-  ESA = mfeisensteinbasis(N, 1, mfcharinv_i(CHI));
-  ES = RgM_to_RgXV(mfvectomat(ESA, plim+1, 1), 0);
+  E = mfeisensteinbasis(N, 1, mfcharinv_i(CHI));
+  ES = RgM_to_RgXV(mfvectomat(E, plim+1, 1), 0);
   Tp = Tpmat(p, lim, CHI);
   dimp = mfwt1dimmodp(A, ES, Tp, ordchi, dih, lim);
   if (!dimp) return NULL;
   if (dimp == dih) return mftreatdihedral(DIH, POLCYC, ordchi, biglim, pS);
   VC = gen_1; ES1 = gel(ES,1); /* does not vanish at oo */
-  if (lg(ES) >= 3)
+  if (lg(ES) > 2)
   {
     pari_sp btop;
-    long lim2 = (3*lim)/2 + 1;
-    GEN Ash = rowslice(A, 1, lim2), M2 = mfmatsermul(Ash, ES1);
+    GEN Ar = rowslice(A, 1, (3*lim)/2 + 1), M2 = mfmatsermul(Ar, ES1);
     GEN v, y, M2M2I, M2I;
     M2I = QabM_pseudoinv(M2, POLCYC, ordchi, &v, &den);
-    y = gel(v,1);
     M2M2I = RgM_mul(M2,M2I);
-    btop = avma;
+    y = gel(v,1); btop = avma;
     for (i = 2; i < lg(ES); i++)
     {
-      Ash = mfintereis(&VC, Ash, M2M2I, y, den, gel(ES,i), POLCYC,ordchi);
-      if (!Ash) return NULL;
+      Ar = mfintereis(&VC, Ar, M2M2I, y, den, gel(ES,i), POLCYC,ordchi);
+      if (!Ar) return NULL;
       if (gc_needed(btop, 1))
       {
         if (DEBUGMEM > 1) pari_warn(warnmem,"mfwt1basis i = %ld", i);
-        gerepileall(btop, 2, &Ash, &VC);
+        gerepileall(btop, 2, &Ar, &VC);
       }
     }
-    A = RgM_mul(A, vecslice(VC,1, lg(Ash)-1));
+    A = RgM_mul(A, vecslice(VC,1, lg(Ar)-1));
   }
   a0 = gel(ES1,2); /* non-zero */
   if (gequal1(a0)) a0 = a0i = NULL;
@@ -5602,7 +5600,7 @@ mfwt1basis(long N, GEN CHI, GEN TMP, GEN *pS, long *ptdimdih)
     GEN Minv = gel(mfclean(M, POLCYC, ordchi, 0), 2);
     M = RgM_Minv_mul(M, Minv);
     C = RgM_Minv_mul(C, Minv);
-    *pS = vecmflineardiv0(MF_get_S(mf), C, gel(ESA,1));
+    *pS = vecmflineardiv0(MF_get_S(mf), C, gel(E,1));
   }
   return M;
 }
