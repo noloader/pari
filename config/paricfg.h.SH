@@ -35,7 +35,7 @@ cat >> $file << EOT
 #define SHELL_Q '\\$shell_q'
 
 #define PARIVERSION "GP/PARI CALCULATOR Version ${version}.${patch} (${status})"
-#define PARIINFO "${pretty}${debuginfo}"
+#define PARIINFO "${prettyf}${debuginfo}"
 #define PARI_VERSION_CODE ${version_code}
 #define PARI_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #define PARI_VERSION_SHIFT 8

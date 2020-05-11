@@ -62,6 +62,16 @@ pari_kernel_init(void)
   mp_set_memory_functions((void *(*)(size_t)) pari_malloc, pari_gmp_realloc, pari_gmp_free);
 }
 
+const char *
+pari_kernel_version(void)
+{
+#ifdef gmp_version
+  return gmp_version;
+#else
+  return "";
+#endif
+}
+
 void
 pari_kernel_close(void)
 {

@@ -152,7 +152,7 @@ esac
 
 for variable in\
   pari_release pari_release_verbose version libpari_base static objdir\
-  arch asmarch osname pretty\
+  arch asmarch osname pretty prettyf\
   kernlvl0 kernlvl1 RT_LIBS DL_LIBS MT_LIBS LIBS\
   dir_sep runpath runpathprefix LDDYN RUNTEST\
   ln_s make_sh\

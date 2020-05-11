@@ -1668,11 +1668,14 @@ pari_print_version(void)
 {
   pari_sp av = avma;
   char *buf, *ver = what_cc();
+  const char *kver = pari_kernel_version();
   const char *date = paricfg_compiledate;
 
   pari_center(paricfg_version);
-  pari_center(paricfg_buildinfo);
-  buf = stack_malloc(strlen(date) +  32 + (ver? strlen(ver): 0));
+  buf = stack_malloc(strlen(paricfg_buildinfo) + 2 + strlen(kver));
+  (void)sprintf(buf, paricfg_buildinfo, kver);
+  pari_center(buf);
+  buf = stack_malloc(strlen(date) + 32 + (ver? strlen(ver): 0));
   if (ver) (void)sprintf(buf, "compiled: %s, %s", date, ver);
   else     (void)sprintf(buf, "compiled: %s", date);
   pari_center(buf);

@@ -2,7 +2,7 @@ pretty="$prettya running $osname"
 
 case "$kernlvl1" in
   gmp) if test -n "$gmp_version"; then
-         prettyk="$prettyk0/GMP-${gmp_version}"
+         prettyk="$prettyk0/GMP-%s"
        else
          prettyk="$prettyk0/GMP"
        fi;;
@@ -11,7 +11,7 @@ case "$kernlvl1" in
 esac
 
 case "$sizeof_long" in
-  4) pretty="$pretty ($prettyk kernel) 32-bit version";;
-  8) pretty="$pretty ($prettyk kernel) 64-bit version";;
+  4) prettyf="$pretty ($prettyk kernel) 32-bit version";;
+  8) prettyf="$pretty ($prettyk kernel) 64-bit version";;
 esac;
-
+pretty=`echo $prettyf | sed s/-%s//`
