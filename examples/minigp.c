@@ -24,8 +24,8 @@ int main(int argc, char **argv)
   cb_pari_is_interactive = gp_is_interactive;
   cb_pari_quit = gp_quit;
   sd_colors("lightbg",d_INITRC);
-  pari_printf("Welcome to minigp!\n");
   gp_load_gprc();
+  pari_print_version();
   (void)setjmp(env);
   while(1)
   {
