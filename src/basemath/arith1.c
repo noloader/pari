@@ -510,6 +510,19 @@ sqrtint(GEN a)
   }
   return NULL; /* LCOV_EXCL_LINE */
 }
+GEN
+sqrtint0(GEN a, GEN *r)
+{
+  if (!r) return sqrtint(a);
+  if (typ(a) != t_INT) pari_err_TYPE("sqrtint",a);
+  switch (signe(a))
+  {
+    case 1: return sqrtremi(a, r);
+    case 0: *r = gen_0; return gen_0;
+    default: pari_err_DOMAIN("sqrtint", "argument", "<", gen_0,a);
+  }
+  return NULL; /* LCOV_EXCL_LINE */
+}
 
 /*********************************************************************/
 /**                                                                 **/
