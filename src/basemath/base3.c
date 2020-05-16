@@ -2419,10 +2419,9 @@ apply_U(GEN L, GEN a)
     e = ZC_Z_mul(gel(U,1), subiu(a, 1));
   else
   { /* t_COL */
-    GEN t = gel(a,1);
-    gel(a,1) = subiu(gel(a,1), 1); /* a -= 1 */
-    e = ZM_ZC_mul(U, a);
-    gel(a,1) = t; /* restore */
+    GEN t = shallowcopy(a);
+    gel(t,1) = subiu(gel(t,1), 1); /* t = a - 1 */
+    e = ZM_ZC_mul(U, t);
   }
   return gdiv(e, dU);
 }
