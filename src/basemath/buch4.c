@@ -250,20 +250,20 @@ lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN sprk)
   gpx = nfpoleval(nf, RgX_deriv(T), x);
   /* gx /= pi^la, pi a pr-uniformizer */
   la = nfvalrem(nf, gx, pr, &gx);
-  mu = gequal0(gpx)? la+nu+1: nfval(nf,gpx,pr);
+  mu = gequal0(gpx)? la+nu+1 /* oo */: nfval(nf,gpx,pr);
 
   if (la > (mu<<1)) return 1;
   if (nu > mu)
   {
-    if (la&1) return -1;
+    if (odd(la)) return -1;
     q = mu+nu-la; res = 1;
   }
   else
   {
-    long nu2 = nu<<1;
-    if (la >= nu2) return 0;
+    q = (nu << 1) - la;
+    if (q <= 0) return 0;
     if (odd(la)) return -1;
-    q = nu2-la; res = 0;
+    res = 0;
   }
   if (q > pr_get_e(pr)<<1)  return -1;
   if (q == 1) return res;
