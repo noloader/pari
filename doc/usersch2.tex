@@ -2041,7 +2041,7 @@ coeffs(P, nbvar) =
     for (i=1, nbvar, P = [P]);
     return (P)
   );
-  vector(poldegree(P)+1, i, coeffs(polcoeff(P, i-1), nbvar-1))
+  vector(poldegree(P)+1, i, coeffs(polcoef(P, i-1), nbvar-1))
 }
 @eprog
 
