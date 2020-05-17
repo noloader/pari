@@ -2416,6 +2416,9 @@ isfactor(GEN g)
     case t_SER:
       for (i=lg(g)-1; i>1; i--)
         if (!isnull(gel(g,i))) return 0;
+      return 1;
+    case t_CLOSURE:
+      return 0;
   }
   return 1;
 }
