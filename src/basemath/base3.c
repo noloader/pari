@@ -2491,8 +2491,7 @@ principal_units_relations(GEN nf, GEN L2, GEN prk, long nh)
   }
   return h;
 }
-/* true nf; e > 1; multiplicative group (1 + pr) / (1 + pr^k),
- * prk = pr^k or NULL */
+/* true nf; k > 1; multiplicative group (1 + pr) / (1 + pr^k) */
 static GEN
 idealprincipalunits_i(GEN nf, GEN pr, long k, GEN *pU)
 {
