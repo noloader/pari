@@ -2911,7 +2911,11 @@ bruti_intern(GEN g, pariout_t *T, pari_str *S, int addsign)
       {
         for (j=1; j<r; j++)
         {
-          print(gcoeff(g,i,j),T,S);
+          GEN gij = gcoeff(g,i,j);
+          int add_paren = (j==r-1 && i<l-1 && typ(gij)==t_CLOSURE);
+          if (add_paren) str_putc(S, '(');
+          print(gij,T,S);
+          if (add_paren) str_putc(S, ')');
           if (j<r-1) comma_sp(T,S);
         }
         if (i<l-1) semicolon_sp(T,S);

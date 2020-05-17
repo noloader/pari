@@ -21,3 +21,9 @@ print(q)
 q = 2 + 3*I;
 printtex(q)
 print(q)
+
+f(x)=my(y=Pi*x);y*sin(y);
+g(x)=my(y=Pi*x);y*cos(y);
+M=[f,g;f,g];
+eval(Str(f))==f
+eval(Str(M))==M
