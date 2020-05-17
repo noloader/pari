@@ -19,7 +19,7 @@ Doc: Expand $f$ as a Laurent series around $x = 0$ to order $M$. This
  @eprog
 
  Note that individual Laurent coefficients of order $\leq M$
- can be retrieved from $s = \kbd{laurentseries}(f,M)$ via \kbd{polcoeff(s,i)}
+ can be retrieved from $s = \kbd{laurentseries}(f,M)$ via \kbd{polcoef(s,i)}
  for any $i \leq M$. The series $s$ may occasionally be more precise that
  the required $O(x^{M+1})$.
 
@@ -34,7 +34,7 @@ Doc: Expand $f$ as a Laurent series around $x = 0$ to order $M$. This
  %3 = -0.11111111111111111111111111111111111111
 
  ? f = x->sin(exp(x));
- ? polcoeff(laurentseries(x->f(x+2), 1), 1)
+ ? polcoef(laurentseries(x->f(x+2), 1), 1)
  %5 = 3.3129294231043339804683687620360224365
  ? exp(2) * cos(exp(2));
  %6 = 3.3129294231043339804683687620360224365

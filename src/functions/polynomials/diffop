@@ -43,7 +43,7 @@ Doc:
    v = vector(k, i, if (i==1, 'E, var(i-1)));
    dv = vector(k, i, if (i==1, 'X*var(1)*'E, var(i)));
    x = diffop('E,v,dv,k) / 'E;
-   if (n < 0, subst(x,'X,1), polcoeff(x,n,'X));
+   if (n < 0, subst(x,'X,1), polcoef(x,n,'X));
  }
  @eprog
 Variant:
