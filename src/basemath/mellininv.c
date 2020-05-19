@@ -535,7 +535,7 @@ Klargeinit(GEN Vga, long nlimmax, long *status)
       s = gadd(s, gmul(gdiv(z, gel(vd, p+1)), gel(M, n+1-p)));
     }
     gel(M,n) = s = gerepileupto(av, gdivgs(s, 1-n));
-    if (isintzero(s))
+    if (gequal0(s))
     {
       cnt++; *status = 1;
       if (cnt >= d-1) { *status = 2; n -= d-2; break; }
@@ -619,7 +619,7 @@ gammamellininvinit(GEN Vga, long m, long bitprec)
 {
   pari_sp ltop = avma;
   GEN A2, M, VS, VL, cd;
-  long d = lg(Vga)-1, status;
+  long status, d = lg(Vga)-1, prec = nbits2prec((4*bitprec)/3);
   const double C2 = MELLININV_CUTOFF, D = get_D(d);
   double E = M_LN2*bitprec, tmax = get_tmax(bitprec); /* = E/C2 */
   const long nlimmax = ceil(E*log2(1+M_PI*tmax)*C2/D);
@@ -628,7 +628,7 @@ gammamellininvinit(GEN Vga, long m, long bitprec)
   A2 = gaddsg(m*(2-d) + 1-d, sumVga(Vga));
   cd = (d <= 2)? gen_2: gsqrt(gdivgs(int2n(d+1), d), nbits2prec(bitprec));
   /* if in Klarge, we have |t| > tmax = E/C2, thus nlim < E*C2/D. */
-  M = gammamellininvasymp_i(Vga, nlimmax, m, &status);
+  M = gammamellininvasymp_i(RgV_gtofp(Vga, prec), nlimmax, m, &status);
   if (status == 2)
   {
     tmax = -1.; /* only use Klarge */
@@ -636,7 +636,6 @@ gammamellininvinit(GEN Vga, long m, long bitprec)
   }
   else
   {
-    long prec = nbits2prec((4*bitprec)/3);
     VS = Kderivsmallinit(Vga, m, bitprec);
     if (status == 0 && ishankelspec(Vga, M)) status = 1;
     if (status == 1)
