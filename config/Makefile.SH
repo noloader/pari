@@ -145,8 +145,8 @@ case "$sizeof_long" in
 esac
 dotest="env \"RUNTEST=\$(RUNTEST)\" \"LD_LIBRARY_PATH=.$dir_sep\$\$LD_LIBRARY_PATH\" \$(SHELL) ../src/test/dotest $numbits \"$exe_suff\""
 case "$static" in
-  n) dft=dyn; libdft=lib-dyn;;
-  y) dft=sta; libdft= ;;
+  n) dft=dyn; libdft=lib-dyn; dfttarget="gp-dyn gp-sta";;
+  y) dft=sta; libdft= ; dfttarget="gp-sta";;
 esac
 
 CPPFLAGS="-I. -I$src/headers"
@@ -291,7 +291,7 @@ TESTS  = $test_extra
 
 .PHONY: gp dft clean
 
-dft: gp-dyn gp-sta
+dft: $dfttarget ../gp$suffix$exe_suff $libdft
 
 gp: gp-$dft ../gp$suffix$exe_suff $libdft
 
