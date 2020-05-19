@@ -1310,7 +1310,7 @@ ellnf_prime_degree(GEN E)
     B = gcdii(B, ellnf_get_degree(E, utoi(p)));
     if (Z_issquareall(B,&rB)) B=rB;
   }
-  if (signe(B)==0) pari_err_IMPL("ellisomat, CM case");
+  if (signe(B)==0) pari_err_DOMAIN("ellisomat", "E","has",strtoGENstr("CM"),E);
   P = vec_to_vecsmall(gel(Z_factor(B),1));
   return shallowextract(P, utoi(ellnf_goodl_l(E, P)));
 }

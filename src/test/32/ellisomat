@@ -113,4 +113,7 @@ ll([1]), [Vecsmall([64, -1])], [0, 0, 0, 0, 0, 0, 0, 0]], [1, 0, 1, -1, 0, 1
 88, 2251439055699625/25088, Vecsmall([1]), [Vecsmall([64, 1])], [0, 0, 0, 0,
  0, 0, 0, 0]]], [0, 0, 3, 2, 0, 0; 3, 0, 0, 0, 2, 0; 0, 0, 0, 0, 0, 2; 0, 0,
  0, 0, 0, 3; 0, 0, 0, 3, 0, 0; 0, 0, 0, 0, 0, 0]]
-Total time spent: 1880
+  ***   at top-level: ellisomat(ellinit([1,0],nfinit(y^2+1)))
+  ***                 ^---------------------------------------
+  *** ellisomat: domain error in ellisomat: E has CM
+Total time spent: 2533

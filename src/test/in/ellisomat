@@ -45,3 +45,6 @@ ellisotree(ellisomat(E,2,1))
 ellisotree(ellisomat(E,2))
 ellisotree(ellisomat(E,3,1))
 ellisotree(ellisomat(E,,1))
+
+\\ ERROS
+ellisomat(ellinit([1,0],nfinit(y^2+1)))
