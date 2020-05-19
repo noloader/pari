@@ -78,9 +78,14 @@
 
 \section{Conversions and constructors}
 
-\fun{GEN}{lfunmisc_to_ldata}{GEN ldata}
+\fun{GEN}{lfunmisc_to_ldata}{GEN obj} converts \kbd{obj} to \kbd{Ldata} format.
+Exception if \kbd{obj} cannot be converted.
 
-\fun{GEN}{lfunmisc_to_ldata_shallow}{GEN ldata}
+\fun{GEN}{lfunmisc_to_ldata_shallow}{GEN obj} as \tet{lfunmisc_to_ldata},
+shallow result. Exception if \kbd{obj} cannot be converted.
+
+\fun{GEN}{lfunmisc_to_ldata_shallow_i}{GEN obj} as
+\tet{lfunmisc_to_ldata_shallow_i}, returning \kbd{NULL} on failure.
 
 \fun{GEN}{lfunrtopoles}{GEN r}
 

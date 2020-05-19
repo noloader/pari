@@ -12,7 +12,9 @@ Doc: initialize data for the computation by \tet{gammamellininv} of
  where \kbd{A} is the vector $[a_1,\ldots,a_d]$ and
  $\Gamma_\R(s)=\pi^{-s/2}\*\Gamma(s/2)$ (Euler's \kbd{gamma}). This is the
  special case of Meijer's $G$ functions used to compute $L$-values via the
- approximate functional equation.
+ approximate functional equation. By extension, $A$ is allowed to be an
+ \kbd{Ldata} or an \kbd{Linit}, understood as the inverse Mellin transform
+ of the $L$-function gamma factor.
 
  \misctitle{Caveat} Contrary to the PARI convention, this function
  guarantees an \emph{absolute} (rather than relative) error bound.

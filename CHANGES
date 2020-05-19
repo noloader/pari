@@ -160,6 +160,7 @@ BA  43- lexical variables names can now reuse builtin functions names as in
 BA  45- closures: do not copy the full context, only the accessible part
     46- add optional argument to randomprime [select congruence class]
     47- add optional argument to sqrtint [set remainder]  [#2229]
+    48- gammamellininv*(A,...): allow A to be an L-function
 
   Added
      1- new GP function rootsof1

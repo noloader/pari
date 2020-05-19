@@ -626,8 +626,7 @@ lfunthetainit0(GEN ldata, GEN tdom, GEN an2, long m,
 {
   long prec = nbits2prec(bitprec);
   GEN tech, N = ldata_get_conductor(ldata);
-  GEN Vga = ldata_get_gammavec(ldata);
-  GEN K = gammamellininvinit(Vga, m, bitprec + extrabit);
+  GEN K = gammamellininvinit(ldata, m, bitprec + extrabit);
   GEN R = lfunrtoR(ldata, prec);
   if (!tdom) tdom = gen_1;
   if (typ(tdom) != t_VEC)

@@ -2669,8 +2669,8 @@ lfunmisc_to_ldata_i(GEN ldata, long shallow)
     case t_LFUNMISC_CHIGEN: return lfunchigen(gel(ldata,1), gel(ldata,2));
     case t_LFUNMISC_ELLINIT: return lfunell(ldata);
   }
-  pari_err_TYPE("lfunmisc_to_ldata",ldata);
-  return NULL; /* LCOV_EXCL_LINE */
+  if (shallow != 2) pari_err_TYPE("lfunmisc_to_ldata",ldata);
+  return NULL;
 }
 
 GEN
@@ -2680,6 +2680,10 @@ lfunmisc_to_ldata(GEN ldata)
 GEN
 lfunmisc_to_ldata_shallow(GEN ldata)
 { return lfunmisc_to_ldata_i(ldata, 1); }
+
+GEN
+lfunmisc_to_ldata_shallow_i(GEN ldata)
+{ return lfunmisc_to_ldata_i(ldata, 2); }
 
 /********************************************************************/
 /**                    High-level an expansion                     **/

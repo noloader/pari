@@ -66,6 +66,10 @@ chk(()->gammamellininv([0,1/2,10^-38,10^-38],3/10))
 gammamellininvasymp([0],10)
 gammamellininvasymp([0,1/2],10)
 
+gammamellininvasymp(1,10)
+gammamellininv(1,1)
+gammamellininv(gammamellininvinit(1),1)
+
 \\ERRORS
 gammamellininvasymp([])
 gammamellininvinit([])
