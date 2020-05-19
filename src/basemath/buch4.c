@@ -165,30 +165,37 @@ psquarenf(GEN nf,GEN x,GEN pr,GEN modpr)
   return gc_long(av,v);
 }
 
-/* Is  x a square in (ZK / pr^(1+2e))^* ?  pr | 2 */
 static long
-check2(GEN nf, GEN x, GEN sprk)
+ZV_iseven(GEN zlog)
 {
-  GEN zlog = log_prk(nf, x, sprk);
   long i, l = lg(zlog);
-  for (i=1; i<l; i++) /* all elementary divisors are even (1+2e > 1) */
+  for (i = 1; i < l; i++)
     if (mpodd(gel(zlog,i))) return 0;
   return 1;
 }
 
+/* pr | 2, project to principal units (trivializes later discrete log) */
+static GEN
+to_principal_unit(GEN nf, GEN x, GEN pr, GEN bid)
+{
+  long f = pr_get_f(pr);
+  if (f != 1)
+  {
+    GEN prk = bid_get_ideal(bid);
+    x = nfpowmodideal(nf, x, subiu(int2n(f),1), prk);
+  }
+  return x;
+}
 /* pr | 2. Return 1 if x in Z_K is square in Z_{K_pr}, 0 otherwise */
 static int
-psquare2nf_i(GEN nf,GEN x,GEN pr,GEN sprk)
+psquare2nf(GEN nf, GEN x, GEN pr, GEN bid)
 {
   long v = nfvalrem(nf, x, pr, &x);
-  /* now (x,pr) = 1 */
-  return v == LONG_MAX || (!odd(v) && check2(nf,x,sprk));
-}
-static int
-psquare2nf(GEN nf,GEN x,GEN pr,GEN sprk)
-{
-  pari_sp av = avma;
-  return gc_long(av, psquare2nf_i(nf,x,pr,sprk));
+  if (v == LONG_MAX) return 1; /* x = 0 */
+  /* (x,pr) = 1 */
+  if (odd(v)) return 0;
+  x = to_principal_unit(nf, x, pr, bid); /* = 1 mod pr */
+  return ZV_iseven(ideallog(nf, x, bid));
 }
 
 /*
@@ -232,27 +239,32 @@ lemma6nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN modpr)
 
   la = nfval(nf,gx,pr);
   gpx = nfpoleval(nf, RgX_deriv(T), x);
-  mu = gequal0(gpx)? la+nu+1: nfval(nf,gpx,pr);
+  mu = gequal0(gpx)? la+nu+1 /* +oo */: nfval(nf,gpx,pr);
   set_avma(av);
   if (la > (mu<<1)) return 1;
-  if (la >= (nu<<1)  && mu >= nu) return 0;
+  if (la >= (nu<<1) && mu >= nu) return 0;
   return -1;
 }
 /* pr above 2 */
 static long
-lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN sprk)
+lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN bid)
 {
-  long res, la, mu, q;
-  GEN gpx, gx = nfpoleval(nf, T, x);
+  long i, res, la, mu, q, e, v;
+  GEN M, y, gpx, loggx = NULL, gx = nfpoleval(nf, T, x);
+  zlog_S S;
 
-  if (psquare2nf(nf,gx,pr,sprk)) return 1;
-
+  la = nfvalrem(nf, gx, pr, &gx); /* gx /= pi^la, pi a pr-uniformizer */
+  if (la == LONG_MAX) return 1;
+  if (!odd(la))
+  {
+    gx = to_principal_unit(nf, gx, pr, bid); /* now 1 mod pr */
+    loggx = ideallog(nf, gx, bid); /* cheap */
+    if (ZV_iseven(loggx)) return 1;
+  }
   gpx = nfpoleval(nf, RgX_deriv(T), x);
-  /* gx /= pi^la, pi a pr-uniformizer */
-  la = nfvalrem(nf, gx, pr, &gx);
   mu = gequal0(gpx)? la+nu+1 /* oo */: nfval(nf,gpx,pr);
 
-  if (la > (mu<<1)) return 1;
+  if (la > (mu << 1)) return 1;
   if (nu > mu)
   {
     if (odd(la)) return -1;
@@ -265,13 +277,23 @@ lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN sprk)
     if (odd(la)) return -1;
     res = 0;
   }
-  if (q > pr_get_e(pr)<<1)  return -1;
+  /* la even */
+  e = pr_get_e(pr);
+  if (q > e << 1)  return -1;
   if (q == 1) return res;
 
-  /* is gx a square mod pi^q ? FIXME : highly inefficient */
-  sprk = log_prk_init(nf, pr, q);
-  if (!check2(nf, gx, sprk)) res = -1;
-  return res;
+  /* gx = 1 mod pr; square mod pi^q ? */
+  v = nfvalrem(nf, nfadd(nf, gx, gen_m1), pr, &y);
+  if (v >= q) return res;
+  /* 1 + pi^v y = (1 + pi^vz z)^2 mod pr^q ? v < q <= 2e => vz < e => vz = vy/2
+   * => y = x^2 mod pr^(min(q-v, e+v/2)), (y,pr) = 1 */
+  if (odd(v)) return -1;
+  /* e > 1 */
+  init_zlog(&S, bid);
+  M = cgetg(2*e+1 - q + 1, t_VEC);
+  for (i = q+1; i <= 2*e+1; i++) gel(M, i-q) = log_gen_pr(&S, 1, nf, i);
+  M = ZM_hnfmodid(shallowconcat1(M), gen_2);
+  return hnf_solve(M,loggx)? res: -1;
 }
 /* zinit either a sprk (pr | 2) or a modpr structure (pr | p odd).
    pnu = pi^nu, pi a uniformizer */
@@ -323,18 +345,17 @@ repres(GEN nf, GEN pr)
 /* = 1 if equation y^2 = z^deg(T) * T(x/z) has a pr-adic rational solution
  * (possibly (1,y,0) = oo), 0 otherwise.
  * coeffs of T are algebraic integers in nf */
-long
-nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
+static long
+locally_soluble(GEN nf,GEN T,GEN pr)
 {
-  GEN repr, zinit, p1;
-  pari_sp av = avma;
+  GEN repr, zinit;
 
   if (typ(T)!=t_POL) pari_err_TYPE("nf_hyperell_locally_soluble",T);
   if (gequal0(T)) return 1;
   checkprid(pr); nf = checknf(nf);
   if (absequaliu(pr_get_p(pr), 2))
   { /* tough case */
-    zinit = log_prk_init(nf, pr, 1+2*pr_get_e(pr));
+    zinit = Idealstarprk(nf, pr, 1+2*pr_get_e(pr), nf_INIT); /* FIXME: sprk */
     if (psquare2nf(nf,constant_coeff(T),pr,zinit)) return 1;
     if (psquare2nf(nf, leading_coeff(T),pr,zinit)) return 1;
   }
@@ -344,12 +365,16 @@ nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
     if (psquarenf(nf,constant_coeff(T),pr,zinit)) return 1;
     if (psquarenf(nf, leading_coeff(T),pr,zinit)) return 1;
   }
-  repr = repres(nf,pr);
-  if (zpsolnf(nf,T,pr,0,gen_1,gen_0,repr,zinit)) return gc_long(av,1);
-  p1 = pr_get_gen(pr);
-  if (zpsolnf(nf,RgX_recip_shallow(T),pr,1,p1,gen_0,repr,zinit))
-    return gc_long(av,1);
-  return gc_long(av,0);
+  repr = repres(nf,pr); /* FIXME: inefficient if Npr is large */
+  return zpsolnf(nf, T, pr, 0, gen_1, gen_0, repr, zinit) ||
+         zpsolnf(nf, RgX_recip_shallow(T), pr, 1, pr_get_gen(pr),
+                 gen_0, repr, zinit);
+}
+long
+nf_hyperell_locally_soluble(GEN nf,GEN T,GEN pr)
+{
+  pari_sp av = avma;
+  return gc_long(av, locally_soluble(nf, T, pr));
 }
 
 /* return a * denom(a)^2, as an 'liftalg' */
