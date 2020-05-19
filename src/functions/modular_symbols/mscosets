@@ -30,6 +30,6 @@ Doc: \kbd{gen} being a system of generators for a group $G$ and $H$ being a
  %4 = [Vecsmall([2, 1]), Vecsmall([1, 3]), Vecsmall([3, 2])]
  @eprog\noindent Looking at $M[1]$ we see that $S$ belongs to the second
  coset and $T$ to the first (trivial) coset.
-Variant: Also available is
+Variant: Also available is the function
  \fun{GEN}{mscosets}{GEN G, void *E, long (*inH)(void *, GEN)}
 
