@@ -176,26 +176,25 @@ ZV_iseven(GEN zlog)
 
 /* pr | 2, project to principal units (trivializes later discrete log) */
 static GEN
-to_principal_unit(GEN nf, GEN x, GEN pr, GEN bid)
+to_principal_unit(GEN nf, GEN x, GEN pr, GEN sprk)
 {
-  long f = pr_get_f(pr);
-  if (f != 1)
+  if (pr_get_f(pr) != 1)
   {
-    GEN prk = bid_get_ideal(bid);
-    x = nfpowmodideal(nf, x, subiu(int2n(f),1), prk);
+    GEN prk = gel(sprk,3);
+    x = nfpowmodideal(nf, x, gmael(sprk,5,1), prk);
   }
   return x;
 }
 /* pr | 2. Return 1 if x in Z_K is square in Z_{K_pr}, 0 otherwise */
 static int
-psquare2nf(GEN nf, GEN x, GEN pr, GEN bid)
+psquare2nf(GEN nf, GEN x, GEN pr, GEN sprk)
 {
   long v = nfvalrem(nf, x, pr, &x);
   if (v == LONG_MAX) return 1; /* x = 0 */
   /* (x,pr) = 1 */
   if (odd(v)) return 0;
-  x = to_principal_unit(nf, x, pr, bid); /* = 1 mod pr */
-  return ZV_iseven(ideallog(nf, x, bid));
+  x = to_principal_unit(nf, x, pr, sprk); /* = 1 mod pr */
+  return ZV_iseven(sprk_log_prk1(nf, x, sprk));
 }
 
 /*
@@ -247,18 +246,17 @@ lemma6nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN modpr)
 }
 /* pr above 2 */
 static long
-lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN bid)
+lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN sprk)
 {
   long i, res, la, mu, q, e, v;
   GEN M, y, gpx, loggx = NULL, gx = nfpoleval(nf, T, x);
-  zlog_S S;
 
   la = nfvalrem(nf, gx, pr, &gx); /* gx /= pi^la, pi a pr-uniformizer */
   if (la == LONG_MAX) return 1;
   if (!odd(la))
   {
-    gx = to_principal_unit(nf, gx, pr, bid); /* now 1 mod pr */
-    loggx = ideallog(nf, gx, bid); /* cheap */
+    gx = to_principal_unit(nf, gx, pr, sprk); /* now 1 mod pr */
+    loggx = sprk_log_prk1(nf, gx, sprk); /* cheap */
     if (ZV_iseven(loggx)) return 1;
   }
   gpx = nfpoleval(nf, RgX_deriv(T), x);
@@ -289,9 +287,8 @@ lemma7nf(GEN nf, GEN T, GEN pr, long nu, GEN x, GEN bid)
    * => y = x^2 mod pr^(min(q-v, e+v/2)), (y,pr) = 1 */
   if (odd(v)) return -1;
   /* e > 1 */
-  init_zlog(&S, bid);
   M = cgetg(2*e+1 - q + 1, t_VEC);
-  for (i = q+1; i <= 2*e+1; i++) gel(M, i-q) = log_gen_pr(&S, 1, nf, i);
+  for (i = q+1; i <= 2*e+1; i++) gel(M, i-q) = sprk_log_gen_pr(nf, sprk, i);
   M = ZM_hnfmodid(shallowconcat1(M), gen_2);
   return hnf_solve(M,loggx)? res: -1;
 }
@@ -355,7 +352,7 @@ locally_soluble(GEN nf,GEN T,GEN pr)
   checkprid(pr); nf = checknf(nf);
   if (absequaliu(pr_get_p(pr), 2))
   { /* tough case */
-    zinit = Idealstarprk(nf, pr, 1+2*pr_get_e(pr), nf_INIT); /* FIXME: sprk */
+    zinit = log_prk_init(nf, pr, 1+2*pr_get_e(pr));
     if (psquare2nf(nf,constant_coeff(T),pr,zinit)) return 1;
     if (psquare2nf(nf, leading_coeff(T),pr,zinit)) return 1;
   }

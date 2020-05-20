@@ -2647,11 +2647,12 @@ famat_zlog_pr_coprime(GEN nf, GEN g, GEN e, GEN sprk)
 GEN
 log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
 {
-  GEN e, prk, A, g, L2, U1, U2, y, ff, o, N, T, p, modpr, pr, log1, d, cyc;
+  GEN e, prk, A, g, L2, U1, U2, y, ff, o, N, T, p, modpr, pr, cyc;
   long i;
 
   if (typ(a) == t_MAT) return famat_zlog_pr(nf, gel(a,1), gel(a,2), sprk, mod);
 
+  N = NULL;
   ff = sprk_get_ff(sprk);
   o = gmael(ff,3,1);
   prk = sprk_get_prk(sprk);
@@ -2661,40 +2662,35 @@ log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
 
   if (mod)
   {
-    d = gcdii(o,mod);
-    N = diviiexact(o,d);
-    if (equali1(N)) N = NULL;
-    else
+    GEN d = gcdii(o,mod);
+    if (!equalii(o, d))
     {
+      N = diviiexact(o,d);
       a = nfpowmodideal(nf, a, N, prk);
       g = Fq_pow(g, N, T, p);
+      o = d;
     }
   }
-  else
-  {
-    d = o;
-    N = NULL;
-  }
-  if (equali1(d)) e = gen_0;
-  else            e = Fq_log(nf_to_Fq(nf,a,modpr), g, d, T, p);
+  if (equali1(o)) e = gen_0;
+  else            e = Fq_log(nf_to_Fq(nf,a,modpr), g, o, T, p);
 
   if (sprk_is_prime(sprk)) return mkcol(e); /* k = 1 */
 
   sprk_get_L2(sprk, &A,&g,&L2);
   sprk_get_U2(sprk, &U1,&U2);
-  cyc = gcopy(sprk_get_cyc(sprk));
-  if (mod) for (i=1; i<lg(cyc); i++) gel(cyc,i) = gcdii(gel(cyc,i), mod);
-
-  if (mod && signe(modii(mod,p)))
-    return vecmodii(ZC_Z_mul(U1,e), cyc);
-
+  cyc = sprk_get_cyc(sprk);
+  if (mod)
+  {
+    cyc = shallowcopy(cyc);
+    for (i = 1; i < lg(cyc); i++) gel(cyc,i) = gcdii(gel(cyc,i), mod);
+    if (signe(remii(mod,p))) return vecmodii(ZC_Z_mul(U1,e), cyc);
+  }
   if (signe(e))
   {
-    if (N) g = nfpowmodideal(nf, g, N, prk);
-    a = nfmulpowmodideal(nf, a, g, Fp_neg(e,d), prk);
+    GEN E = N? Fp_mul(e,N,o): e;
+    a = nfmulpowmodideal(nf, a, g, Fp_neg(E, o), prk);
   }
-  log1 = log_prk1(nf, a, lg(U2)-1, L2, prk);
-  y = ZM_ZC_mul(U2, log1);
+  y = ZM_ZC_mul(U2, log_prk1(nf, a, lg(U2)-1, L2, prk));
   if (mod && N) y = ZC_Z_mul(y, Fp_inv(N,mod));
   if (signe(e)) y = ZC_add(y, ZC_Z_mul(U1,e));
   return vecmodii(y, cyc);
@@ -2855,51 +2851,79 @@ ZM_ZMV_mul(GEN A, GEN U)
   return V;
 }
 
+/* a = 1 mod pr, sprk mod pr^e, e >= 1 */
+static GEN
+sprk_log_prk1_2(GEN nf, GEN a, GEN sprk)
+{
+  GEN A, g, L2, U1, U2, y;
+  sprk_get_L2(sprk, &A,&g,&L2);
+  sprk_get_U2(sprk, &U1,&U2);
+  y = ZM_ZC_mul(U2, log_prk1(nf, a, lg(U2)-1, L2, sprk_get_prk(sprk)));
+  return vecmodii(y, sprk_get_cyc(sprk));
+}
+/* assume e >= 2 */
+static GEN
+sprk_log_gen_pr2(GEN nf, GEN sprk, long e)
+{
+  GEN M, G, pr = sprk_get_pr(sprk);
+  long i, l;
+  if (e == 2)
+  {
+    GEN A, g, L, L2; sprk_get_L2(sprk,&A,&g,&L2); L = gel(L2,1);
+    G = gel(L,2); l = lg(G);
+  }
+  else
+  {
+    GEN perm = pr_basis_perm(nf,pr), PI = nfpow_u(nf, pr_get_gen(pr), e-1);
+    l = lg(perm);
+    G = cgetg(l, t_VEC);
+    if (typ(PI) == t_INT)
+    { /* zk_ei_mul doesn't allow t_INT */
+      long N = nf_get_degree(nf);
+      gel(G,1) = addiu(PI,1);
+      for (i = 2; i < l; i++)
+      {
+        GEN z = col_ei(N, 1);
+        gel(G,i) = z; gel(z, perm[i]) = PI;
+      }
+    }
+    else
+    {
+      gel(G,1) = nfadd(nf, gen_1, PI);
+      for (i = 2; i < l; i++)
+        gel(G,i) = nfadd(nf, gen_1, zk_ei_mul(nf, PI, perm[i]));
+    }
+  }
+  M = cgetg(l, t_MAT);
+  for (i = 1; i < l; i++) gel(M,i) = sprk_log_prk1_2(nf, gel(G,i), sprk);
+  return M;
+}
 /* Log on bid.gen of generators of P_{1,I pr^{e-1}} / P_{1,I pr^e} (I,pr) = 1,
  * defined implicitly via CRT. 'ind' is the index of pr in modulus
  * factorization */
 GEN
 log_gen_pr(zlog_S *S, long ind, GEN nf, long e)
 {
-  GEN A, sprk = gel(S->sprk,ind), Uind = gel(S->U, ind);
-
+  GEN Uind = gel(S->U, ind);
   if (e == 1) retmkmat( gel(Uind,1) );
-  else
+  return ZM_mul(Uind, sprk_log_gen_pr2(nf, gel(S->sprk,ind), e));
+}
+GEN
+sprk_log_gen_pr(GEN nf, GEN sprk, long e)
+{
+  if (e == 1)
   {
-    GEN G, pr = sprk_get_pr(sprk);
-    long i, l;
-    if (e == 2)
-    {
-      GEN A, g, L, L2; sprk_get_L2(sprk,&A,&g,&L2); L = gel(L2,1);
-      G = gel(L,2); l = lg(G);
-    }
-    else
-    {
-      GEN perm = pr_basis_perm(nf,pr), PI = nfpow_u(nf, pr_get_gen(pr), e-1);
-      l = lg(perm);
-      G = cgetg(l, t_VEC);
-      if (typ(PI) == t_INT)
-      { /* zk_ei_mul doesn't allow t_INT */
-        long N = nf_get_degree(nf);
-        gel(G,1) = addiu(PI,1);
-        for (i = 2; i < l; i++)
-        {
-          GEN z = col_ei(N, 1);
-          gel(G,i) = z; gel(z, perm[i]) = PI;
-        }
-      }
-      else
-      {
-        gel(G,1) = nfadd(nf, gen_1, PI);
-        for (i = 2; i < l; i++)
-          gel(G,i) = nfadd(nf, gen_1, zk_ei_mul(nf, PI, perm[i]));
-      }
-    }
-    A = cgetg(l, t_MAT);
-    for (i = 1; i < l; i++)
-      gel(A,i) = ZM_ZC_mul(Uind, log_prk(nf, gel(G,i), sprk, S->mod));
-    return A;
+    long n = lg(sprk_get_cyc(sprk))-1;
+    retmkmat(col_ei(n, 1));
   }
+  return sprk_log_gen_pr2(nf, sprk, e);
+}
+/* a = 1 mod pr */
+GEN
+sprk_log_prk1(GEN nf, GEN a, GEN sprk)
+{
+  if (lg(sprk) == 5) return mkcol(gen_0); /* mod pr */
+  return sprk_log_prk1_2(nf, a, sprk);
 }
 /* Log on bid.gen of generator of P_{1,f} / P_{1,f v[index]}
  * v = vector of r1 real places */

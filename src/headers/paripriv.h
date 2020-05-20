@@ -627,6 +627,8 @@ GEN fincke_pohst(GEN a,GEN BOUND,long stockmax,long PREC, FP_chk_fun *CHECK);
 void init_zlog(zlog_S *S, GEN bid);
 GEN  log_gen_arch(zlog_S *S, long index);
 GEN  log_gen_pr(zlog_S *S, long index, GEN nf, long e);
+GEN  sprk_log_gen_pr(GEN nf, GEN sprk, long e);
+GEN  sprk_log_prk1(GEN nf, GEN a, GEN sprk);
 GEN    poltobasis(GEN nf,GEN x);
 GEN    coltoalg(GEN nf,GEN x);
 
