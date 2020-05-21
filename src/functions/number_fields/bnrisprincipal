@@ -45,7 +45,7 @@ Doc: let \var{bnr} be the ray class group data output by
  ? bnr2.clgp
  %9 = [8, [2, 2, 2]]  \\ bnr.clgp tensored by Z/2Z
  ? bnrisprincipal(bnr2,P, 0)
- %10 = [1, 0, 0]~]
+ %10 = [1, 0, 0]~
  @eprog
 
 Variant: Instead of hardcoded  numerical flags,  one should rather use
