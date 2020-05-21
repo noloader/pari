@@ -1446,8 +1446,8 @@ ideallog_to_bnr(GEN bnr, GEN z)
   return y;
 }
 static GEN
-bnr_log_gen_pr(GEN bnr, zlog_S *S, GEN nf, long e, long index)
-{ return ideallog_to_bnr(bnr, log_gen_pr(S, index, nf, e)); }
+bnr_log_gen_pr(GEN bnr, zlog_S *S, long e, long index)
+{ return ideallog_to_bnr(bnr, log_gen_pr(S, index, bnr_get_nf(bnr), e)); }
 static GEN
 bnr_log_gen_arch(GEN bnr, zlog_S *S, long index)
 { return ideallog_to_bnr(bnr, log_gen_arch(S, index)); }
@@ -1484,7 +1484,7 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   {
     for (j = itos(gel(e,k)); j > 0; j--)
     {
-      if (!contains(H, bnr_log_gen_pr(bnr, &S, nf, j, k))) break;
+      if (!contains(H, bnr_log_gen_pr(bnr, &S, j, k))) break;
       iscond0 = 0;
     }
     gel(e2,k) = stoi(j);
@@ -1541,14 +1541,13 @@ bnrisconductor(GEN bnr, GEN H0)
 {
   pari_sp av = avma;
   long j, k, l;
-  GEN bnf, nf, archp, e, H;
+  GEN bnf, archp, e, H;
   zlog_S S;
 
   checkbnr(bnr);
   bnf = bnr_get_bnf(bnr);
   init_zlog(&S, bnr_get_bid(bnr));
   if (!S.no2) return 0;
-  nf = bnf_get_nf(bnf);
   H = bnr_check_subgroup(bnr, H0, NULL);
 
   archp = S.archp;
@@ -1556,7 +1555,7 @@ bnrisconductor(GEN bnr, GEN H0)
   for (k = 1; k < l; k++)
   {
     j = itos(gel(e,k));
-    if (contains(H, bnr_log_gen_pr(bnr, &S, nf, j, k))) return gc_long(av,0);
+    if (contains(H, bnr_log_gen_pr(bnr, &S, j, k))) return gc_long(av,0);
   }
   l = lg(archp);
   for (k = 1; k < l; k++)
@@ -1819,7 +1818,7 @@ bnrdisc_i(GEN bnr, GEN H, long flag)
     GEN H2 = H;
     for (j = e; j > 0; j--)
     {
-      GEN z = bnr_log_gen_pr(bnr, &S, nf, j, k);
+      GEN z = bnr_log_gen_pr(bnr, &S, j, k);
       long d2;
       H2 = ZM_hnf(shallowconcat(H2, z));
       d2 = itos( ZM_det_triangular(H2) );
@@ -2504,8 +2503,8 @@ subgroup_conductor_ok(GEN H, GEN L)
 static GEN
 conductor_elts(GEN bnr)
 {
-  GEN e, L, nf = bnf_get_nf( bnr_get_bnf(bnr) );
   long le, la, i, k;
+  GEN e, L;
   zlog_S S;
 
   init_zlog(&S, bnr_get_bid(bnr));
@@ -2513,7 +2512,7 @@ conductor_elts(GEN bnr)
   L = cgetg(le + la - 1, t_VEC);
   i = 1;
   for (k = 1; k < le; k++)
-    gel(L,i++) = bnr_log_gen_pr(bnr, &S, nf, itos(gel(e,k)), k);
+    gel(L,i++) = bnr_log_gen_pr(bnr, &S, itos(gel(e,k)), k);
   for (k = 1; k < la; k++)
     gel(L,i++) = bnr_log_gen_arch(bnr, &S, k);
   return L;
