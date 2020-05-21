@@ -90,4 +90,11 @@
 
 [0 1]
 
-Total time spent: 32
+[3, 3, 3]
+[2, 2, 1]~
+[3, 3, 3]
+[2, 2, 1]~
+  ***   at top-level: bnrisprincipal(bnrinit(bnf,1),1)
+  ***                 ^--------------------------------
+  *** bnrisprincipal: missing bnr generators: please use bnrinit(,,1).
+Total time spent: 55

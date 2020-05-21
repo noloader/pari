@@ -114,3 +114,13 @@ p = 1932251269128214818974844517133; N = p*5;
 bnf=bnfinit('y); bnr = bnrinit(bnf,N);
 pol = bnrclassfield(bnr,[2,0;0,1],1);
 rnfnormgroup(bnr,pol)
+
+bnf=bnfinit(a^2+3321607);
+bnr=bnrinit(bnf,1,,3); bnr.cyc
+bnrisprincipal(bnr,idealprimedec(bnr,13)[1],0)
+
+bnr=bnrinit(bnf,3,,3); bnr.cyc
+bnrisprincipal(bnr,idealprimedec(bnr,13)[1],0)
+
+\\ Errors
+bnrisprincipal(bnrinit(bnf, 1), 1);
