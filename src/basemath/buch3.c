@@ -369,7 +369,7 @@ ZM_content_mul(GEN u, GEN c, GEN *pd)
 }
 
 static GEN
-Buchray_i(GEN bnf, GEN module, long flag)
+Buchray_i(GEN bnf, GEN module, long flag, GEN MOD)
 {
   GEN nf, cyc, gen, Cyc, Gen, clg, h, logU, U, Ui, vu;
   GEN bid, cycbid, genbid, H, El;
@@ -377,6 +377,8 @@ Buchray_i(GEN bnf, GEN module, long flag)
   const long add_gen = flag & nf_GEN;
   const long do_init = flag & nf_INIT;
 
+  if (MOD && typ(MOD) != t_INT)
+    pari_err_TYPE("bnrinit [incorrect cycmod]", MOD);
   bnf = checkbnf(bnf);
   nf = bnf_get_nf(bnf);
   RU = lg(nf_get_roots(nf))-1; /* #K.futu */
@@ -387,6 +389,11 @@ Buchray_i(GEN bnf, GEN module, long flag)
   bid = checkbid_i(module);
   if (!bid) bid = Idealstar(nf,module,nf_GEN|nf_INIT);
   cycbid = bid_get_cyc(bid);
+  if (MOD)
+  {
+    cyc = ZV_gcdmod(cyc, MOD);
+    cycbid = ZV_gcdmod(cycbid, MOD);
+  }
   genbid = bid_get_gen(bid);
   Ri = lg(cycbid)-1;
   if (Ri || add_gen || do_init)
@@ -415,7 +422,7 @@ Buchray_i(GEN bnf, GEN module, long flag)
     return mkvecn(6, bnf, bid, El, U, clg, vu);
   }
 
-  logU = ideallog_units(bnf, bid);
+  logU = ideallog_units0(bnf, bid, MOD);
   if (do_init)
   { /* (log(Units)|D) * u = (0 | H) */
     GEN c1,c2, u,u1,u2, Hi, D = shallowconcat(logU, diagonal_shallow(cycbid));
@@ -447,13 +454,14 @@ Buchray_i(GEN bnf, GEN module, long flag)
       GEN c = gel(cycgen,j);
       if (typ(gel(El,j)) != t_INT) /* <==> != 1 */
         c = famat_mulpow_shallow(c, gel(El,j),gel(cyc,j));
-      gel(logs,j) = ideallog(nf, c, bid); /* = log(Gen[j]^cyc[j]) */
+      gel(logs,j) = ideallogmod(nf, c, bid, MOD); /* = log(Gen[j]^cyc[j]) */
     }
     /* [ cyc  0 ]
      * [-logs H ] = relation matrix for generators Gen of Cl_f */
     h = shallowconcat(vconcat(diagonal_shallow(cyc), gneg_i(logs)),
                       vconcat(zeromat(ngen, Ri), H));
     h = ZM_hnf(h);
+    if (MOD) h = ZM_hnfmodid(h, MOD);
   }
   Cyc = ZM_snf_group(h, &U, &Ui);
   /* Gen = clg.gen*U, clg.gen = Gen*Ui */
@@ -464,13 +472,15 @@ Buchray_i(GEN bnf, GEN module, long flag)
 }
 GEN
 Buchray(GEN bnf, GEN f, long flag)
+{ return Buchraymod(bnf, f, flag, NULL); }
+GEN
+Buchraymod(GEN bnf, GEN f, long flag, GEN MOD)
 {
   pari_sp av = avma;
-  return gerepilecopy(av, Buchray_i(bnf, f, flag));
+  return gerepilecopy(av, Buchray_i(bnf, f, flag, MOD));
 }
-
 GEN
-bnrinit0(GEN bnf, GEN ideal, long flag)
+bnrinitmod(GEN bnf, GEN f, long flag, GEN MOD)
 {
   switch(flag)
   {
@@ -478,8 +488,11 @@ bnrinit0(GEN bnf, GEN ideal, long flag)
     case 1: flag = nf_INIT | nf_GEN; break;
     default: pari_err_FLAG("bnrinit");
   }
-  return Buchray(bnf,ideal,flag);
+  return Buchraymod(bnf, f, flag, MOD);
 }
+GEN
+bnrinit0(GEN bnf, GEN ideal, long flag)
+{ return bnrinitmod(bnf, ideal, flag, NULL); }
 
 GEN
 bnrclassno(GEN bnf,GEN ideal)
@@ -1510,7 +1523,7 @@ bnrconductor_i(GEN bnr, GEN H0, long flag)
   else
   {
     long flag = lg(bnr_get_clgp(bnr)) == 4? nf_INIT | nf_GEN: nf_INIT;
-    bnrc = Buchray_i(bnr, cond, flag);
+    bnrc = Buchray_i(bnr, cond, flag, NULL);
     if (ischi)
       H = bnrchar_primitive_raw(bnr, bnrc, H0);
     else
@@ -1769,7 +1782,9 @@ rnfconductor(GEN bnf, GEN T)
     }
   }
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
-  bnr = Buchray_i(bnf,module,nf_INIT|nf_GEN);
+  /* FIXME: cau use stoi(degpol(T)) to compute H but bnr then incorrect
+   * => breaks lfunabelianrelinit */
+  bnr = Buchray_i(bnf,module,nf_INIT|nf_GEN, NULL);
   H = rnfnormgroup_i(bnr,T); if (!H) { set_avma(av); return gen_0; }
   return gerepilecopy(av, bnrconductor_i(bnr,H,2));
 }

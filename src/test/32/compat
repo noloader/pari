@@ -314,10 +314,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: buchray(bnf,ideal) ===> bnrinit(bnf,ideal)
 
-bnrinit(bnf,f,{flag=0}): given a bnf as output by bnfinit and a modulus f, 
-initializes data linked to the ray class group structure corresponding to this 
-module. flag is optional, and can be 0: default, 1: compute also the 
-generators.
+bnrinit(bnf,f,{flag=0},{cycmod}): given a bnf as output by bnfinit and a 
+modulus f, initializes data linked to the ray class group structure 
+corresponding to this module. flag is optional, and can be 0: default, 1: 
+compute also the generators. If the positive integer cycmod is present, only 
+compute the ray class group modulo cycmod.
 
 
   ***   at top-level: buchrayinit()
@@ -327,10 +328,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: buchrayinit(bnf,ideal) ===> bnrinit(bnf,ideal)
 
-bnrinit(bnf,f,{flag=0}): given a bnf as output by bnfinit and a modulus f, 
-initializes data linked to the ray class group structure corresponding to this 
-module. flag is optional, and can be 0: default, 1: compute also the 
-generators.
+bnrinit(bnf,f,{flag=0},{cycmod}): given a bnf as output by bnfinit and a 
+modulus f, initializes data linked to the ray class group structure 
+corresponding to this module. flag is optional, and can be 0: default, 1: 
+compute also the generators. If the positive integer cycmod is present, only 
+compute the ray class group modulo cycmod.
 
 
   ***   at top-level: buchrayinitgen()
@@ -340,10 +342,11 @@ A function with that name existed in GP-1.39.15. Please update your script.
 
 New syntax: buchrayinitgen(bnf,ideal) ===> bnrinit(bnf,ideal,1)
 
-bnrinit(bnf,f,{flag=0}): given a bnf as output by bnfinit and a modulus f, 
-initializes data linked to the ray class group structure corresponding to this 
-module. flag is optional, and can be 0: default, 1: compute also the 
-generators.
+bnrinit(bnf,f,{flag=0},{cycmod}): given a bnf as output by bnfinit and a 
+modulus f, initializes data linked to the ray class group structure 
+corresponding to this module. flag is optional, and can be 0: default, 1: 
+compute also the generators. If the positive integer cycmod is present, only 
+compute the ray class group modulo cycmod.
 
 
   ***   at top-level: buchreal()
@@ -4523,4 +4526,4 @@ New syntax: texprint(x) ===> printtex(x)
 printtex({str}*): outputs its string arguments in TeX format.
 
 
-Total time spent: 9
+Total time spent: 10

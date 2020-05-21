@@ -2648,10 +2648,8 @@ GEN
 log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
 {
   GEN e, prk, A, g, L2, U1, U2, y, ff, o, N, T, p, modpr, pr, cyc;
-  long i;
 
   if (typ(a) == t_MAT) return famat_zlog_pr(nf, gel(a,1), gel(a,2), sprk, mod);
-
   N = NULL;
   ff = sprk_get_ff(sprk);
   o = gmael(ff,3,1);
@@ -2681,8 +2679,7 @@ log_prk(GEN nf, GEN a, GEN sprk, GEN mod)
   cyc = sprk_get_cyc(sprk);
   if (mod)
   {
-    cyc = shallowcopy(cyc);
-    for (i = 1; i < lg(cyc); i++) gel(cyc,i) = gcdii(gel(cyc,i), mod);
+    cyc = ZV_gcdmod(cyc, mod);
     if (signe(remii(mod,p))) return vecmodii(ZC_Z_mul(U1,e), cyc);
   }
   if (signe(e))
@@ -3137,6 +3134,9 @@ check_nfelt(GEN x, GEN *den)
 GEN
 vecmodii(GEN x, GEN y)
 { pari_APPLY_same(modii(gel(x,i), gel(y,i))) }
+GEN
+ZV_gcdmod(GEN x, GEN mod)
+{ pari_APPLY_same(gcdii(gel(x,i), mod)); }
 
 GEN
 vecmoduu(GEN x, GEN y)
@@ -3144,14 +3144,15 @@ vecmoduu(GEN x, GEN y)
 
 /* assume a true bnf and bid */
 GEN
-ideallog_units(GEN bnf, GEN bid)
+ideallog_units0(GEN bnf, GEN bid, GEN MOD)
 {
   GEN nf = bnf_get_nf(bnf), D, y, C, cyc;
   long j, lU = lg(bnf_get_logfu(bnf)); /* r1+r2 */
   zlog_S S;
-  init_zlog(&S, bid);
+  init_zlog_mod(&S, bid, MOD);
   if (!S.hU) return zeromat(0,lU);
   cyc = bid_get_cyc(bid);
+  if (MOD) cyc = ZV_gcdmod(cyc, MOD);
   D = nfsign_fu(bnf, bid_get_archp(bid));
   y = cgetg(lU, t_MAT);
   if ((C = bnf_build_cheapfu(bnf)))
@@ -3178,6 +3179,9 @@ ideallog_units(GEN bnf, GEN bid)
     gel(y,j) = vecmodii(ZMV_ZCV_mul(S.U, gel(y,j)), cyc);
   return y;
 }
+GEN
+ideallog_units(GEN bnf, GEN bid)
+{ return ideallog_units0(bnf, bid, NULL); }
 GEN
 log_prk_units(GEN nf, GEN D, GEN sprk)
 {

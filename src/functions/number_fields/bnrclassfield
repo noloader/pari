@@ -29,4 +29,18 @@ Doc: \var{bnr} being as output by \kbd{bnrinit}, returns a relative equation
  %4 = [24, 12, 12, 2]
  ? bnrclassfield(bnr,2) \\ maximal 2-elementary subextension
  %5 = [x^2 + (-21*y - 105), x^2 + (-5*y - 25), x^2 + (-y - 5), x^2 + (-y - 1)]
- @eprog
+ @eprog\noindent When the subgroup is $n \text{Cl}_f$, where $n$ is fixed,
+ it is advised to directly compute the \kbd{bnr} modulo $n$ to avoid expensive
+ discrete logarithms:
+ \bprog
+ ? bnf = bnfinit(y^2-5); p = 1594287814679644276013;
+ ? bnr = bnrinit(bnf,p); \\ very slow
+ time = 24,146 ms.
+ ? bnrclassfield(bnr, 2) \\ ... even though the result is trivial
+ %3 = [x^2 - 1594287814679644276013]
+ ? bnr2 = bnrinit(bnf,p,,2); \\ now fast
+ time = 1 ms.
+ ? bnrclassfield(bnr2, 2)
+ %5 = [x^2 - 1594287814679644276013]
+ @eprog\noindent This will save a lot of time when the modulus contains a
+ maximal ideal whose residue field is large.

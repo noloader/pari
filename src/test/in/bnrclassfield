@@ -51,6 +51,9 @@ bnr = bnrinit(bnf,p);
 L = bnrclassfield(bnr,4);
 [#L,poldegree(L[1]),nfdisc(L[1])]
 
+bnf=bnfinit('y^2-5); p=1594287814679644276013; bnr=bnrinit(bnf,p,,2);
+bnrclassfield(bnr,2)
+
 \\large compositum
 do(y,[vecprod(primes(8)),[1]],2,1)
 

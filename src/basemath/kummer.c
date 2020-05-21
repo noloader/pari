@@ -1632,7 +1632,7 @@ bnrclassfield_tower(GEN bnr, GEN subgroup, GEN TB, GEN p, long finaldeg, long ab
       gcoeff(fa,i,2) = utoipos(e);
     }
   }
-  bnr2 = Buchray(bnf2, mkvec2(fa, const_vec(r1,gen_1)), nf_INIT);
+  bnr2 = Buchraymod(bnf2, mkvec2(fa, const_vec(r1,gen_1)), nf_INIT, pk);
 
   /* compute subgroup */
   cyc = bnr_get_cyc(bnr2);
