@@ -567,11 +567,7 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN mod, long flag)
   bnf = bnr_get_bnf(bnr); nf = bnf_get_nf(bnf);
   bid = bnr_get_bid(bnr);
   if (lg(bid_get_cyc(bid)) == 1) bid = NULL; /* trivial bid */
-  if (!bid)
-  {
-    ex = isprincipal(bnf, x);
-    if (mod) ex = vecmodii(ex, cycray);
-  }
+  if (!bid) ex = isprincipal(bnf, x);
   else
   {
     GEN El = bnr_get_El(bnr);
@@ -582,8 +578,8 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN mod, long flag)
       if (typ(gel(El,i)) != t_INT && signe(gel(ep,i))) /* <==> != 1 */
         beta = famat_mulpow_shallow(beta, gel(El,i), negi(gel(ep,i)));
     ex = ZM2_ZC2_mul(bnr_get_U(bnr), ep, ideallogmod(nf,beta,bid,mod));
-    ex = vecmodii(ex, cycray);
   }
+  ex = vecmodii(ex, cycray);
   if (!(flag & nf_GEN)) return gerepileupto(av, ex);
 
   /* compute generator */
