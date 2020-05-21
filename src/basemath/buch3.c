@@ -548,21 +548,16 @@ ZM2_ZC2_mul(GEN U, GEN x, GEN y)
 }
 
 GEN
-bnrisprincipalmod(GEN bnr, GEN x, GEN mod, long flag)
+bnrisprincipalmod(GEN bnr, GEN x, GEN MOD, long flag)
 {
   pari_sp av = avma;
   GEN bnf, nf, bid, L, ex, cycray, alpha;
-  long i;
 
   checkbnr(bnr);
   cycray = bnr_get_cyc(bnr);
-  if (mod && flag) pari_err_FLAG("bnrisprincipalmod [mod!=NULL and flag!=0]");
+  if (MOD && flag) pari_err_FLAG("bnrisprincipalmod [MOD!=NULL and flag!=0]");
   if (lg(cycray) == 1 && !(flag & nf_GEN)) return cgetg(1,t_COL);
-  if (mod)
-  {
-    cycray = gcopy(cycray);
-    for(i=1; i<lg(cycray); i++) gel(cycray,i) = gcdii(gel(cycray,i),mod);
-  }
+  if (MOD) cycray = ZV_gcdmod(cycray, MOD);
 
   bnf = bnr_get_bnf(bnr); nf = bnf_get_nf(bnf);
   bid = bnr_get_bid(bnr);
@@ -577,7 +572,7 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN mod, long flag)
     for (i = 1; i < j; i++) /* modify beta as if bnf.gen were El*bnr.gen */
       if (typ(gel(El,i)) != t_INT && signe(gel(ep,i))) /* <==> != 1 */
         beta = famat_mulpow_shallow(beta, gel(El,i), negi(gel(ep,i)));
-    ex = ZM2_ZC2_mul(bnr_get_U(bnr), ep, ideallogmod(nf,beta,bid,mod));
+    ex = ZM2_ZC2_mul(bnr_get_U(bnr), ep, ideallogmod(nf, beta, bid, MOD));
   }
   ex = vecmodii(ex, cycray);
   if (!(flag & nf_GEN)) return gerepileupto(av, ex);
@@ -604,9 +599,7 @@ bnrisprincipalmod(GEN bnr, GEN x, GEN mod, long flag)
 
 GEN
 bnrisprincipal(GEN bnr, GEN x, long flag)
-{
-  return bnrisprincipalmod(bnr, x, NULL, flag);
-}
+{ return bnrisprincipalmod(bnr, x, NULL, flag); }
 
 GEN
 isprincipalray(GEN bnr, GEN x) { return bnrisprincipal(bnr,x,0); }
@@ -1780,11 +1773,11 @@ rnfconductor(GEN bnf, GEN T)
     }
   }
   module = mkvec2(D, identity_perm(nf_get_r1(nf)));
-  /* FIXME: cau use stoi(degpol(T)) to compute H but bnr then incorrect
+  /* FIXME: can use stoi(degpol(T)) to compute H but bnr is then mod deg
    * => breaks lfunabelianrelinit */
-  bnr = Buchray_i(bnf,module,nf_INIT|nf_GEN, NULL);
+  bnr = Buchray_i(bnf, module, nf_INIT|nf_GEN, NULL);
   H = rnfnormgroup_i(bnr,T); if (!H) { set_avma(av); return gen_0; }
-  return gerepilecopy(av, bnrconductor_i(bnr,H,2));
+  return gerepilecopy(av, bnrconductor_i(bnr, H, 2));
 }
 
 static GEN

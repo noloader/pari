@@ -29,7 +29,7 @@ Doc: \var{bnr} being as output by \kbd{bnrinit}, returns a relative equation
  %4 = [24, 12, 12, 2]
  ? bnrclassfield(bnr,2) \\ maximal 2-elementary subextension
  %5 = [x^2 + (-21*y - 105), x^2 + (-5*y - 25), x^2 + (-y - 5), x^2 + (-y - 1)]
- @eprog\noindent When the subgroup is $n \text{Cl}_f$, where $n$ is fixed,
+ @eprog\noindent When the subgroup contains $n \text{Cl}_f$, where $n$ is fixed,
  it is advised to directly compute the \kbd{bnr} modulo $n$ to avoid expensive
  discrete logarithms:
  \bprog
